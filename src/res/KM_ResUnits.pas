@@ -36,6 +36,7 @@ type
     function GetDesiredPassability: TKMTerrainPassability;
     function GetFightType: TFightType;
     function GetGUIIcon: Word;
+    function GetGUIIconWCross: Word;
     function GetGUIScroll: Word;
     function GetMinimapColor: Cardinal;
     function GetMiningRange: Byte;
@@ -61,6 +62,7 @@ type
     property DesiredPassability:TKMTerrainPassability read GetDesiredPassability;
     property FightType:TFightType read GetFightType;
     property GUIIcon:word read GetGUIIcon;
+    property GUIIconWCross:word read GetGUIIconWCross;
     property GUIScroll:word read GetGUIScroll;
     property MinimapColor: Cardinal read GetMinimapColor;
     property MiningRange:byte read GetMiningRange;
@@ -279,6 +281,14 @@ function TKMUnitDatClass.GetGUIIcon: word;
 begin
   if IsValid then
     Result := 141 + UnitTypeToIndex[fUnitType]
+  else
+    Result := 0;
+end;
+
+function TKMUnitDatClass.GetGUIIconWCross: word;
+begin
+  if IsValid then
+    Result := 659 + UnitTypeToIndex[fUnitType]
   else
     Result := 0;
 end;

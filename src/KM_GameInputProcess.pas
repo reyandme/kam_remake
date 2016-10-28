@@ -56,6 +56,7 @@ type
     //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
     gic_HouseRepairToggle,
     gic_HouseDeliveryToggle,      //Including storehouse. (On/Off, ResourceType)
+    gic_HouseClosedForWorkerToggle,  //Toggle house state for worker - vacate or occupy
     gic_HouseOrderProduct,        //Place an order to manufacture warfare
     gic_HouseMarketFrom,          //Select wares to trade in marketplace
     gic_HouseMarketTo,            //Select wares to trade in marketplace
@@ -308,7 +309,7 @@ begin
       if (TgtUnit = nil) or TgtUnit.IsDeadOrDying then //Unit has died before command could be executed
         Exit;
     end;
-    if CommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle,
+    if CommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle, gic_HouseClosedForWorkerToggle,
       gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo, gic_HouseBarracksRally, gic_HouseWoodcuttersCutting,
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
       gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
@@ -357,6 +358,7 @@ begin
 
       gic_HouseRepairToggle:      SrcHouse.BuildingRepair := not SrcHouse.BuildingRepair;
       gic_HouseDeliveryToggle:    SrcHouse.WareDelivery := not SrcHouse.WareDelivery;
+      gic_HouseClosedForWorkerToggle: SrcHouse.IsClosedForWorker := not SrcHouse.IsClosedForWorker;                                  
       gic_HouseOrderProduct:      SrcHouse.ResOrder[Params[2]] := SrcHouse.ResOrder[Params[2]] + Params[3];
       gic_HouseMarketFrom:        TKMHouseMarket(SrcHouse).ResFrom := TWareType(Params[2]);
       gic_HouseMarketTo:          TKMHouseMarket(SrcHouse).ResTo := TWareType(Params[2]);
@@ -502,7 +504,7 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse);
 begin
-  Assert(aCommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle]);
+  Assert(aCommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle, gic_HouseClosedForWorkerToggle]);
   TakeCommand(MakeCommand(aCommandType, aHouse.UID));
 end;
 
