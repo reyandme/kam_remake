@@ -25,6 +25,8 @@ type
     procedure House_OrderWheel(Sender: TObject; WheelDelta: Integer);
     procedure House_WareDeliveryToggle(Sender: TObject);
 
+    procedure House_ClosedForWorkerToggle(Sender: TObject);
+
     procedure House_BarracksAcceptFlag(Sender: TObject);
     procedure House_BarracksUnitChange(Sender: TObject; Shift: TShiftState);
 
@@ -44,6 +46,7 @@ type
       Label_House: TKMLabel;
       Button_HouseWaresBlock,Button_HouseRepair: TKMButton;
       Image_House_Logo,Image_House_Worker: TKMImage;
+      Button_House_Worker: TKMButton;
       HealthBar_House: TKMPercentBar;
 
     Panel_House_Common: TKMPanel;
@@ -121,10 +124,17 @@ begin
     Button_HouseRepair := TKMButton.Create(Panel_House,30,42,30,30,40, rxGui, bsGame);
     Button_HouseRepair.Hint := gResTexts[TX_HOUSE_TOGGLE_REPAIR_HINT];
     Button_HouseRepair.OnClick := House_RepairToggle;
-    Image_House_Logo := TKMImage.Create(Panel_House,60,41,32,32,338);
-    Image_House_Logo.ImageCenter;
-    Image_House_Worker := TKMImage.Create(Panel_House,90,41,32,32,141);
+    
+
+    Image_House_Worker := TKMImage.Create(Panel_House,60,41,32,32,141);
     Image_House_Worker.ImageCenter;
+    //Image_House_Worker.OnClick := House_ClosedForWorkerToggle;
+    //Image_House_Worker.HighlightOnMouseOver := True;
+    Button_House_Worker := TKMButton.Create(Panel_House,60,42,30,30,141, rxGui, bsGame);
+    Button_House_Worker.OnClick := House_ClosedForWorkerToggle; //Clicking the button cycles it
+
+    Image_House_Logo := TKMImage.Create(Panel_House,90,41,32,32,338);
+    Image_House_Logo.ImageCenter;
 
     HealthBar_House := TKMPercentBar.Create(Panel_House,120,57,55,15);
     Label_House_UnderConstruction := TKMLabel.Create(Panel_House,0,110,TB_WIDTH,0,gResTexts[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
@@ -289,13 +299,13 @@ begin
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  0,48,32,32,0, rxGui, bsGame);
     Button_School_UnitWIP.Hint := gResTexts[TX_HOUSE_SCHOOL_WIP_HINT];
     Button_School_UnitWIP.Tag := 0;
-    Button_School_UnitWIP.OnClickShift := House_SchoolUnitRemove;
+    Button_School_UnitWIP.OnClickShift := House_SchoolUnitBarPressed;
     Button_School_UnitWIPBar := TKMPercentBar.Create(Panel_House_School,34,54,146,20);
     for I := 1 to 5 do
     begin
       Button_School_UnitPlan[i] := TKMButtonFlat.Create(Panel_House_School, (I-1) * 36, 80, 32, 32, 0);
       Button_School_UnitPlan[i].Tag := I;
-      Button_School_UnitPlan[i].OnClickShift := House_SchoolUnitRemove;
+      Button_School_UnitPlan[i].OnClickShift := House_SchoolUnitBarPressed;
     end;
 
     Label_School_Unit := TKMLabel.Create(Panel_House_School,   0,116,TB_WIDTH,30,'',fnt_Outline,taCenter);
@@ -416,6 +426,23 @@ begin
   Image_House_Worker.TexID  := gRes.UnitDat[gRes.HouseDat[aHouse.HouseType].OwnerType].GUIIcon;
   Image_House_Worker.Hint   := gRes.UnitDat[gRes.HouseDat[aHouse.HouseType].OwnerType].GUIName;
   Image_House_Worker.FlagColor := gHands[aHouse.Owner].FlagColor;
+  //Image_House_Worker.HighlightOnMouseOver := true;
+
+//  Image_House_WorkerLock.Hint := gRes.UnitDat[gRes.HouseDat[aHouse.HouseType].OwnerType].GUIName;
+
+  if (aHouse.IsClosedForWorker) then begin
+    Button_House_Worker.ImageEnabled := True;
+//    Image_House_Worker.Fade := False;
+  end else begin
+    Button_House_Worker.TexID  := gRes.UnitDat[gRes.HouseDat[aHouse.HouseType].OwnerType].GUIIcon;
+    Button_House_Worker.ImageEnabled := aHouse.GetHasOwner;
+//    Image_House_Worker.TexID  := gRes.UnitDat[gRes.HouseDat[aHouse.HouseType].OwnerType].GUIIcon;
+//    Image_House_Worker.Fade := not aHouse.GetHasOwner;
+  end;
+
+  Button_House_Worker.Hint := gRes.UnitDat[gRes.HouseDat[aHouse.HouseType].OwnerType].GUIName;
+  Button_House_Worker.FlagColor := gHands[aHouse.Owner].FlagColor;
+
   HealthBar_House.Caption   := inttostr(round(aHouse.GetHealth))+'/'+inttostr(gRes.HouseDat[aHouse.HouseType].MaxHealth);
   HealthBar_House.Position  := aHouse.GetHealth / gRes.HouseDat[aHouse.HouseType].MaxHealth;
 
@@ -429,7 +456,8 @@ begin
     Label_House.Show;
     Image_House_Logo.Show;
     Image_House_Worker.Show;
-    Image_House_Worker.Enable;
+    //Image_House_Worker.Fade := False;
+    Button_House_Worker.Hide;
     HealthBar_House.Show;
     Panel_House.Show;
     Exit;
@@ -449,14 +477,19 @@ begin
     Label_House.Show;
     Image_House_Logo.Show;
     Image_House_Worker.Visible := gRes.HouseDat[aHouse.HouseType].OwnerType <> ut_None;
-    Image_House_Worker.Enable;
+    //Image_House_Worker.Fade := False;
+    Button_House_Worker.Hide;
     HealthBar_House.Show;
     Panel_House.Show;
     Exit;
   end;
 
-  Image_House_Worker.Enabled := aHouse.GetHasOwner;
-  Image_House_Worker.Visible := gRes.HouseDat[aHouse.HouseType].OwnerType <> ut_None;
+  //Image_House_Worker.Fade := not (aHouse.GetHasOwner or aHouse.IsClosedForWorker);
+  //Image_House_Worker.Visible := gRes.HouseDat[aHouse.HouseType].OwnerType <> ut_None;
+  Image_House_Worker.Hide;
+  Button_House_Worker.ImageEnabled := aHouse.GetHasOwner or aHouse.IsClosedForWorker;
+  Button_House_Worker.Visible := gRes.HouseDat[aHouse.HouseType].OwnerType <> ut_None;
+
   Button_HouseWaresBlock.Enabled := gRes.HouseDat[aHouse.HouseType].AcceptsWares;
   Button_HouseWaresBlock.Show;
   Button_HouseRepair.Show;
@@ -674,6 +707,29 @@ begin
 end;
 
 
+procedure TKMGUIGameHouse.House_ClosedForWorkerToggle(Sender: TObject);
+var House: TKMHouse;
+begin
+  if (gMySpectator.Selected = nil) or not (gMySpectator.Selected is TKMHouse) 
+    or (gMySpectator.Selected is TKMHouseBarracks) then Exit;
+
+  House := TKMHouse(gMySpectator.Selected);
+  
+  gGame.GameInputProcess.CmdHouse(gic_HouseClosedForWorkerToggle, House);
+
+  if (House.IsClosedForWorker) then begin
+//    Image_House_Worker.Fade := False;
+
+    Button_House_Worker.ImageEnabled := True;
+  end else begin
+    //Image_House_Worker.TexID  := gRes.UnitDat[gRes.HouseDat[House.HouseType].OwnerType].GUIIcon;
+    //Image_House_Worker.Fade := not House.GetHasOwner;
+    Button_House_Worker.TexID := gRes.UnitDat[gRes.HouseDat[House.HouseType].OwnerType].GUIIcon;
+    Button_House_Worker.ImageEnabled := House.GetHasOwner;
+  end;
+end;
+
+
 procedure TKMGUIGameHouse.House_OrderClick(Sender: TObject; Shift: TShiftState);
 var
   I: Integer;
@@ -756,7 +812,11 @@ begin
   Barracks := TKMHouseBarracks(gMySpectator.Selected);
 
   //Update graphics owner color
-  Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
+  Button_House_Worker.Hide; //In the barrack the recruit icon is always enabled
+  Image_House_Worker.Show;
+  //Image_House_Worker.Fade := False;
+  //Image_House_Worker.HighlightOnMouseOver := False;
+//  Image_House_WorkerLock.Hide;
   Image_Barracks_Left.FlagColor := gHands[Barracks.Owner].FlagColor;
   Image_Barracks_Right.FlagColor := gHands[Barracks.Owner].FlagColor;
   Image_Barracks_Train.FlagColor := gHands[Barracks.Owner].FlagColor;
