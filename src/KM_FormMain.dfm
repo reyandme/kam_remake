@@ -36,6 +36,10 @@ object FormMain: TFormMain
     Height = 20
     Panels = <
       item
+        Text = 'KAM Remake: -'
+        Width = 350
+      end
+      item
         Text = 'Map size: -'
         Width = 110
       end
@@ -63,6 +67,7 @@ object FormMain: TFormMain
         Text = 'Control ID: '
         Width = 80
       end>
+    ExplicitTop = 638
   end
   object GroupBox1: TGroupBox
     Left = 320

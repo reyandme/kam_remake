@@ -27,7 +27,6 @@ type
 
     procedure MapCacheUpdate;
 
-    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
     procedure GameSpeedChange(aSpeed: Single);
   public
     constructor Create;
@@ -56,6 +55,8 @@ type
 
     function LockMutex: Boolean;
     procedure UnlockMutex;
+
+    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
 
     property Resolutions: TKMResolutions read fResolutions;
     property Settings: TMainSettings read fMainSettings;
@@ -308,7 +309,7 @@ begin
     begin
       if gGameApp <> nil then
         gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
-      StatusBarText(4, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
+      StatusBarText(ID_SB_FPS, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
                        IfThen(CAP_MAX_FPS, ' (' + inttostr(FPSLag) + ')'));
       fOldFrameTimes := 0;
       fFrameCount := 0;

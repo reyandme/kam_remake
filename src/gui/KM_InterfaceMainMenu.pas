@@ -74,7 +74,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Game, KM_Log, KM_RenderUI, KM_ResFonts;
+  KM_Main, KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Game, KM_Log, KM_RenderUI, KM_ResFonts;
 
 
 { TKMMainMenuInterface }
@@ -214,6 +214,7 @@ var
   cmp: TKMCampaignId;
 begin
   Label_Version.Caption := 'KaM Remake - ' + GAME_VERSION + ' / ' + gGameApp.RenderVersion;
+  gMain.StatusBarText(ID_SB_KMR_VER, Label_Version.Caption);
 
   //Hide all other pages
   for I := 0 to Panel_Menu.ChildCount - 1 do
