@@ -309,7 +309,7 @@ begin
     begin
       if gGameApp <> nil then
         gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
-      StatusBarText(ID_SB_FPS, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
+      StatusBarText(SB_ID_FPS, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
                        IfThen(CAP_MAX_FPS, ' (' + inttostr(FPSLag) + ')'));
       fOldFrameTimes := 0;
       fFrameCount := 0;

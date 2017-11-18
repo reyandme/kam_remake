@@ -6,14 +6,14 @@ uses
 
 //Indexes KM_FormMain.StatusBar
 const
-  ID_SB_KMR_VER             = 0;
-  ID_SB_MAP_SIZE            = 1;
-  ID_SB_COORDINATES_COURSOR = 2;
-  ID_SB_TILE                = 3;
-  ID_SB_TIME                = 4;
-  ID_SB_FPS                 = 5;
-  ID_SB_OBJECT              = 6;
-  ID_SB_CTRL_ID             = 7;
+  SB_ID_KMR_VER      = 0;
+  SB_ID_MAP_SIZE     = 1;
+  SB_ID_CURSOR_COORD = 2;
+  SB_ID_TILE         = 3;
+  SB_ID_TIME         = 4;
+  SB_ID_FPS          = 5;
+  SB_ID_OBJECT       = 6;
+  SB_ID_CTRL_ID      = 7;
 
 //Global constants
 const

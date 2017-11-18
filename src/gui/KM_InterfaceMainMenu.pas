@@ -212,17 +212,21 @@ procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; const aText: Un
 var
   I: Integer;
   cmp: TKMCampaignId;
+  Version: String;
 begin
-  Label_Version.Caption := 'KaM Remake - ' + GAME_VERSION + ' / ' + gGameApp.RenderVersion;
-  gMain.StatusBarText(ID_SB_KMR_VER, Label_Version.Caption);
+  Version := 'KaM Remake - ' + GAME_VERSION + ' / ' + gGameApp.RenderVersion;
+  gMain.StatusBarText(SB_ID_KMR_VER, Version);
 
   //Hide all other pages
   for I := 0 to Panel_Menu.ChildCount - 1 do
     if Panel_Menu.Childs[I] is TKMPanel then
       Panel_Menu.Childs[I].Hide;
 
+  Label_Version.Caption := '';
+
   case Dest of
     gpMainMenu:     begin
+                      Label_Version.Caption := 'KaM Remake - ' + GAME_VERSION + ' / ' + gGameApp.RenderVersion;
                       fMenuMain.Show;
                       fMenuPage := fMenuMain;
                     end;
