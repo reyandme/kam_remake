@@ -214,7 +214,7 @@ var
   cmp: TKMCampaignId;
   Version: String;
 begin
-  Version := 'KaM Remake - ' + GAME_VERSION + ' / ' + gGameApp.RenderVersion;
+  Version := 'KMR ' + GAME_VERSION + ' / ' + gGameApp.RenderVersion;
   gMain.StatusBarText(SB_ID_KMR_VER, Version);
 
   //Hide all other pages

@@ -36,8 +36,8 @@ object FormMain: TFormMain
     Height = 20
     Panels = <
       item
-        Text = 'KAM Remake: -'
-        Width = 350
+        Text = 'KMR '
+        Width = 280
       end
 	  item
         Text = 'Map size: -'
