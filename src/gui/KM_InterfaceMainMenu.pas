@@ -226,7 +226,7 @@ begin
 
   case Dest of
     gpMainMenu:     begin
-                      Label_Version.Caption := 'KaM Remake - ' + GAME_VERSION + ' / ' + gGameApp.RenderVersion;
+                      Label_Version.Caption := Version;
                       fMenuMain.Show;
                       fMenuPage := fMenuMain;
                     end;
