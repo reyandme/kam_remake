@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 72
   Top = 90
   Caption = 'Campaign Builder'
-  ClientHeight = 817
-  ClientWidth = 1209
+  ClientHeight = 720
+  ClientWidth = 1280
   Color = clBtnFace
   Constraints.MinHeight = 492
   Constraints.MinWidth = 689
@@ -14,25 +14,26 @@ object Form1: TForm1
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
+  Position = poDesktopCenter
   Scaled = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   DesignSize = (
-    1209
-    817)
+    1280
+    720)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 105
-    Top = 81
+    Top = 132
     Width = 55
     Height = 13
     Caption = 'Maps count'
   end
   object Label2: TLabel
     Left = 8
-    Top = 327
+    Top = 384
     Width = 60
     Height = 13
     Caption = 'Nodes count'
@@ -45,26 +46,39 @@ object Form1: TForm1
   end
   object Label6: TLabel
     Left = 8
-    Top = 82
+    Top = 132
     Width = 55
     Height = 13
     Caption = 'Short name'
   end
   object Bevel2: TBevel
     Left = 8
-    Top = 448
+    Top = 527
     Width = 154
     Height = 2
   end
   object Bevel3: TBevel
     Left = 8
-    Top = 496
+    Top = 562
+    Width = 154
+    Height = 2
+  end
+  object Label3: TLabel
+    Left = 8
+    Top = 82
+    Width = 75
+    Height = 13
+    Caption = 'Name campaign'
+  end
+  object Bevel4: TBevel
+    Left = 8
+    Top = 658
     Width = 154
     Height = 2
   end
   object tvList: TTreeView
     Left = 8
-    Top = 128
+    Top = 183
     Width = 153
     Height = 193
     AutoExpand = True
@@ -102,7 +116,7 @@ object Form1: TForm1
   end
   object seMapCount: TSpinEdit
     Left = 105
-    Top = 100
+    Top = 153
     Width = 57
     Height = 22
     MaxValue = 32
@@ -113,7 +127,7 @@ object Form1: TForm1
   end
   object seNodeCount: TSpinEdit
     Left = 8
-    Top = 346
+    Top = 405
     Width = 41
     Height = 22
     MaxValue = 32
@@ -124,8 +138,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 798
-    Width = 1209
+    Top = 701
+    Width = 1280
     Height = 19
     Panels = <
       item
@@ -137,14 +151,16 @@ object Form1: TForm1
       item
         Width = 200
       end>
+    ExplicitTop = 656
   end
   object ScrollBox1: TScrollBox
     Left = 168
     Top = 8
-    Width = 1033
-    Height = 777
+    Width = 1104
+    Height = 687
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
+    ExplicitHeight = 642
     object Image1: TImage
       Left = 0
       Top = 0
@@ -348,7 +364,7 @@ object Form1: TForm1
     end
     object shpBriefing: TShape
       Left = 0
-      Top = 338
+      Top = 151
       Width = 360
       Height = 430
       Brush.Style = bsDiagCross
@@ -357,7 +373,7 @@ object Form1: TForm1
   end
   object rgBriefingPos: TRadioGroup
     Left = 8
-    Top = 374
+    Top = 460
     Width = 153
     Height = 59
     Caption = ' Briefing position '
@@ -369,7 +385,7 @@ object Form1: TForm1
   end
   object edtShortName: TMaskEdit
     Left = 8
-    Top = 101
+    Top = 153
     Width = 57
     Height = 21
     EditMask = '>LLL'
@@ -381,7 +397,7 @@ object Form1: TForm1
   end
   object cbShowNodeNumbers: TCheckBox
     Left = 8
-    Top = 464
+    Top = 537
     Width = 113
     Height = 17
     Caption = 'Show node numbers'
@@ -392,7 +408,7 @@ object Form1: TForm1
   end
   object GroupBox1: TGroupBox
     Left = 8
-    Top = 512
+    Top = 572
     Width = 154
     Height = 77
     Hint = 'Double click to quick-add'#13#10'Drag&Drop to add to mouse position.'
@@ -511,6 +527,34 @@ object Form1: TForm1
       OnDblClick = NewObjectImgDblClick
       OnMouseDown = NewObjectImgMouseDown
     end
+  end
+  object cbShowBriefingPosition: TCheckBox
+    Left = 8
+    Top = 435
+    Width = 121
+    Height = 17
+    Caption = 'Show briefing position'
+    Checked = True
+    State = cbChecked
+    TabOrder = 12
+    OnClick = cbShowBriefingPositionClick
+  end
+  object edtName: TEdit
+    Left = 8
+    Top = 103
+    Width = 154
+    Height = 21
+    TabOrder = 13
+  end
+  object btnClearCMP: TButton
+    Left = 8
+    Top = 670
+    Width = 154
+    Height = 25
+    Anchors = [akLeft, akBottom]
+    Caption = 'Clear ...'
+    TabOrder = 14
+    OnClick = btnClearCMPClick
   end
   object dlgOpenPicture: TOpenDialog
     Filter = 'Supported images (*.png)|*.png'
