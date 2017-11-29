@@ -544,19 +544,22 @@ end;
 
 
 procedure TForm1.btnClearCMPClick(Sender: TObject);
+var I : Integer;
 begin
   C.Free;
+  fSprites.Free;
+  Image1.Picture := nil;
   C := TKMCampaign.Create;
+  fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
+  fSelectedMap := -1;
   edtName.Clear;
   edtShortName.Clear;
-  edtShortNameChange(nil);
-  fSprites.Free;
-  fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
-  Image1.Picture := nil;
   seMapCount.Value := 1;
   seNodeCount.Value := 0;
-  fSelectedMap := 0;
+  edtShortNameChange(nil);
   seMapCountChange(nil);
+  for I := 0 to Length(imgNodes) - 1 do
+    imgNodes[I].Visible := False;
 end;
 
 procedure TForm1.btnLoadCMPClick(Sender: TObject);
