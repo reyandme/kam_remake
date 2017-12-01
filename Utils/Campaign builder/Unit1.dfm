@@ -25,62 +25,68 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
-    Left = 105
-    Top = 132
-    Width = 55
-    Height = 13
+    Left = 152
+    Top = 160
+    Width = 56
+    Height = 16
+    AutoSize = False
     Caption = 'Maps count'
+    Layout = tlCenter
   end
   object Label2: TLabel
     Left = 8
-    Top = 384
+    Top = 426
     Width = 60
-    Height = 13
+    Height = 16
+    Anchors = [akLeft, akBottom]
+    AutoSize = False
     Caption = 'Nodes count'
+    Layout = tlCenter
   end
   object Bevel1: TBevel
     Left = 8
-    Top = 72
-    Width = 154
+    Top = 214
+    Width = 200
     Height = 2
   end
   object Label6: TLabel
     Left = 8
-    Top = 132
-    Width = 55
-    Height = 13
+    Top = 160
+    Width = 56
+    Height = 16
+    AutoSize = False
     Caption = 'Short name'
+    Layout = tlCenter
   end
   object Bevel2: TBevel
     Left = 8
-    Top = 527
-    Width = 154
+    Top = 574
+    Width = 200
     Height = 2
+    Anchors = [akLeft, akBottom]
   end
   object Bevel3: TBevel
     Left = 8
-    Top = 562
-    Width = 154
+    Top = 610
+    Width = 200
     Height = 2
+    Anchors = [akLeft, akBottom]
   end
   object Label3: TLabel
     Left = 8
-    Top = 82
-    Width = 75
-    Height = 13
-    Caption = 'Name campaign'
-  end
-  object Bevel4: TBevel
-    Left = 8
-    Top = 658
-    Width = 154
-    Height = 2
+    Top = 104
+    Width = 200
+    Height = 16
+    AutoSize = False
+    Caption = 'Campaign name'
+    Layout = tlCenter
   end
   object tvList: TTreeView
     Left = 8
-    Top = 183
-    Width = 153
-    Height = 193
+    Top = 224
+    Width = 200
+    Height = 194
+    Anchors = [akLeft, akTop, akBottom]
     AutoExpand = True
     HideSelection = False
     Indent = 19
@@ -88,37 +94,38 @@ object Form1: TForm1
     OnChange = tvListChange
   end
   object btnSaveCMP: TButton
-    Left = 88
+    Left = 112
     Top = 8
-    Width = 73
-    Height = 25
-    Caption = 'Save ...'
+    Width = 96
+    Height = 24
+    Caption = 'Save CMP'
     TabOrder = 1
     OnClick = btnSaveCMPClick
   end
   object btnLoadCMP: TButton
     Left = 8
     Top = 8
-    Width = 73
-    Height = 25
-    Caption = 'Load ...'
+    Width = 96
+    Height = 24
+    Caption = 'Load CMP'
     TabOrder = 2
     OnClick = btnLoadCMPClick
   end
   object btnLoadPicture: TButton
     Left = 8
     Top = 40
-    Width = 153
-    Height = 25
-    Caption = 'Load picture ...'
+    Width = 200
+    Height = 24
+    Caption = 'Load picture'
     TabOrder = 3
     OnClick = btnLoadPictureClick
   end
   object seMapCount: TSpinEdit
-    Left = 105
-    Top = 153
-    Width = 57
+    Left = 152
+    Top = 184
+    Width = 56
     Height = 22
+    AutoSize = False
     MaxValue = 32
     MinValue = 1
     TabOrder = 4
@@ -127,9 +134,10 @@ object Form1: TForm1
   end
   object seNodeCount: TSpinEdit
     Left = 8
-    Top = 405
+    Top = 450
     Width = 41
     Height = 22
+    Anchors = [akLeft, akBottom]
     MaxValue = 32
     MinValue = 0
     TabOrder = 5
@@ -138,9 +146,9 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 701
+    Top = 700
     Width = 1280
-    Height = 19
+    Height = 20
     Panels = <
       item
         Width = 200
@@ -151,16 +159,14 @@ object Form1: TForm1
       item
         Width = 200
       end>
-    ExplicitTop = 656
   end
   object ScrollBox1: TScrollBox
-    Left = 168
+    Left = 216
     Top = 8
-    Width = 1104
-    Height = 687
+    Width = 1056
+    Height = 684
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
-    ExplicitHeight = 642
     object Image1: TImage
       Left = 0
       Top = 0
@@ -373,9 +379,10 @@ object Form1: TForm1
   end
   object rgBriefingPos: TRadioGroup
     Left = 8
-    Top = 460
-    Width = 153
-    Height = 59
+    Top = 504
+    Width = 200
+    Height = 60
+    Anchors = [akLeft, akBottom]
     Caption = ' Briefing position '
     Items.Strings = (
       'Bottom-right'
@@ -385,9 +392,10 @@ object Form1: TForm1
   end
   object edtShortName: TMaskEdit
     Left = 8
-    Top = 153
-    Width = 57
-    Height = 21
+    Top = 184
+    Width = 56
+    Height = 22
+    AutoSize = False
     EditMask = '>LLL'
     MaxLength = 3
     TabOrder = 9
@@ -397,9 +405,10 @@ object Form1: TForm1
   end
   object cbShowNodeNumbers: TCheckBox
     Left = 8
-    Top = 537
+    Top = 584
     Width = 113
-    Height = 17
+    Height = 18
+    Anchors = [akLeft, akBottom]
     Caption = 'Show node numbers'
     Checked = True
     State = cbChecked
@@ -408,10 +417,11 @@ object Form1: TForm1
   end
   object GroupBox1: TGroupBox
     Left = 8
-    Top = 572
-    Width = 154
-    Height = 77
+    Top = 620
+    Width = 200
+    Height = 72
     Hint = 'Double click to quick-add'#13#10'Drag&Drop to add to mouse position.'
+    Anchors = [akLeft, akBottom]
     Caption = 'New chart objects'
     ParentShowHint = False
     ShowHint = True
@@ -530,9 +540,10 @@ object Form1: TForm1
   end
   object cbShowBriefingPosition: TCheckBox
     Left = 8
-    Top = 435
+    Top = 480
     Width = 121
-    Height = 17
+    Height = 18
+    Anchors = [akLeft, akBottom]
     Caption = 'Show briefing position'
     Checked = True
     State = cbChecked
@@ -541,20 +552,27 @@ object Form1: TForm1
   end
   object edtName: TEdit
     Left = 8
-    Top = 103
-    Width = 154
-    Height = 21
+    Top = 128
+    Width = 200
+    Height = 24
+    AutoSize = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 13
+    Text = 'Campaign name'
   end
-  object btnClearCMP: TButton
+  object btnUnloadCMP: TButton
     Left = 8
-    Top = 670
-    Width = 154
-    Height = 25
-    Anchors = [akLeft, akBottom]
-    Caption = 'Clear ...'
+    Top = 72
+    Width = 200
+    Height = 24
+    Caption = 'Unload CMP'
     TabOrder = 14
-    OnClick = btnClearCMPClick
+    OnClick = btnUnloadCMPClick
   end
   object dlgOpenPicture: TOpenDialog
     Filter = 'Supported images (*.png)|*.png'
