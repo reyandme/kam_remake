@@ -52,7 +52,8 @@ const
 
   DEL_LOGS_OLDER_THAN   = 14;           //in days
 
-const  
+  TEMPLATE_LIBX_FILE_TEXT = 'text.%s.libx';
+const
   //Max number of ticks, played on 1 game update.
   //We must limit number of ticks per update to be able to leave update cycle fast (when turn off ultra fast speedup, f.e.)
   //Also there is a technical limit, of how many ticks we can calculate per update
