@@ -162,6 +162,7 @@ begin
   fSprites.Free;
 end;
 
+
 procedure TForm1.LoadCmp(aFileName : String);
 var
   I: Integer;
@@ -190,6 +191,7 @@ begin
   for I := 0 to Length(imgNodes) - 1 do
     imgNodes[I].Visible := False;
 end;
+
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var Img: TImage;
@@ -226,6 +228,7 @@ begin
 
   StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
 end;
+
 
 procedure TForm1.Image1DragDrop(Sender, Source: TObject; X, Y: Integer);
 var
@@ -323,6 +326,7 @@ begin
   StatusBar1.Panels[2].Text := 'Map #' + IntToStr(TImage(Sender).Tag + 1);
 end;
 
+
 procedure TForm1.FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 var
   Img: TImage;
@@ -361,10 +365,12 @@ begin
   StatusBar1.Panels[2].Text := 'Node #' + IntToStr(TImage(Sender).Tag + 1);
 end;
 
+
 procedure TForm1.FlagNodeLeave(Sender: TObject);
 begin
   StatusBar1.Panels[2].Text := '';
 end;
+
 
 procedure TForm1.NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 var
@@ -385,6 +391,7 @@ begin
   end;
 end;
 
+
 function TForm1.GetCharset(aLang: string): TFontCharset;
 begin
   if Pos(aLang, 'bel,rus,bul,ukr') <> 0 then
@@ -400,6 +407,7 @@ begin
   else
     Result := DEFAULT_CHARSET;
 end;
+
 
 procedure TForm1.LoadCampaignName(aFileName, aLocale: string);
 var
@@ -426,6 +434,7 @@ begin
   LibxFile.Free;
 end;
 
+
 procedure TForm1.SaveCampaignName(aFileName: string);
 var
   LibxFile: TStringList;
@@ -442,6 +451,7 @@ begin
   LibxFile.SaveToFile(aFileName);
   LibxFile.Free;
 end;
+
 
 procedure TForm1.CreateDefaultLocaleLibxTemplate(aFileName: string);
 var
@@ -480,6 +490,7 @@ begin
   imgNodes[aIndexNode].Canvas.TextOut(txtLeft, txtTop, IntToStr(aIndexNode +1));
 end;
 
+
 procedure TForm1.DrawFlagNumber(aIndexMap: Integer);
 const
   OFF: array [Boolean] of TPoint = ((X:1; Y:3), (X:-1; Y:-2));
@@ -499,6 +510,7 @@ begin
   SetBkMode(imgFlags[aIndexMap].Canvas.Handle, TRANSPARENT);
   imgFlags[aIndexMap].Canvas.TextOut(txtLeft, txtTop, IntToStr(aIndexMap + 1));
 end;
+
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
@@ -532,10 +544,12 @@ begin
       Format(TEMPLATE_LIBX_FILE_TEXT, [Locale]));
 end;
 
+
 procedure TForm1.cbShowBriefingPositionClick(Sender: TObject);
 begin
   shpBriefing.Visible := cbShowBriefingPosition.Checked;
 end;
+
 
 procedure TForm1.cbShowNodeNumbersClick(Sender: TObject);
 begin
@@ -567,6 +581,7 @@ begin
   for I := 0 to Length(imgNodes) - 1 do
     imgNodes[I].Visible := False;
 end;
+
 
 procedure TForm1.btnLoadCMPClick(Sender: TObject);
 var Ini: TMemIniFile;
@@ -626,6 +641,7 @@ begin
   end;
 end;
 
+
 // Allow only Eng characters
 procedure TForm1.edtShortNameKeyPress(Sender: TObject; var Key: Char);
 begin
@@ -635,6 +651,7 @@ begin
     Key := #0;
   end;
 end;
+
 
 procedure TForm1.seMapCountChange(Sender: TObject);
 begin
@@ -854,6 +871,7 @@ begin
   for I := 0 to Length(imgNodes) - 1 do
     imgNodes[I].Visible := (I <= C.Maps[fSelectedMap].NodeCount - 1);
 end;
+
 
 procedure TForm1.SelectMap;
 var
