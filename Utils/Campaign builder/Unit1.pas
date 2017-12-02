@@ -76,6 +76,8 @@ type
 
     procedure LoadCmp(aFileName : String);
 
+    function DlgQuestionShow(aCaption, aMsg: string): boolean;
+
     function GetCharset(aLang: string): TFontCharset;
     procedure LoadCampaignName(aFileName, aLocale: string);
     procedure SaveCampaignName(aFileName: string);
@@ -490,7 +492,6 @@ begin
   imgNodes[aIndexNode].Canvas.TextOut(txtLeft, txtTop, IntToStr(aIndexNode +1));
 end;
 
-
 procedure TForm1.DrawFlagNumber(aIndexMap: Integer);
 const
   OFF: array [Boolean] of TPoint = ((X:-2; Y:0), (X:-1; Y:-2));
@@ -557,29 +558,53 @@ begin
 end;
 
 
+function  TForm1.DlgQuestionShow(aCaption, aMsg: string): boolean;
+var
+  VarBool: boolean;
+begin
+  VarBool := false;
+  {$IFDEF MSWindows}
+  if MessageBox(Handle, PChar(aCaption), PChar(aMsg), MB_ICONQUESTION + MB_YESNO + MB_DEFBUTTON2) = ID_YES then
+    VarBool := true
+  else
+    VarBool := false;
+  {$ENDIF}
+  {$IFDEF Unix}
+  if MessageDlg(aCaption, aMsg, mtConfirmation, [mbYes, mbNo], 0, mbNo) = mrYes then
+    VarBool := true
+  else
+    VarBool := false;
+  {$ENDIF}
+  Result := VarBool;
+end;
+
+
 procedure TForm1.btnUnloadCMPClick(Sender: TObject);
 var I: Integer;
 begin
-  C.Free;
-  fSprites.Free;
-  Image1.Picture := nil;
+  if DlgQuestionShow('Не сохраненные данные будут потеряны. Вы уверены?', Self.Caption) then
+  begin
+    C.Free;
+    fSprites.Free;
+    Image1.Picture := nil;
 
-  C := TKMCampaign.Create;
-  fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
+    C := TKMCampaign.Create;
+    fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
 
-  fSelectedMap := -1;
+    fSelectedMap := -1;
 
-  edtName.Clear;
-  edtShortName.Clear;
+    edtName.Clear;
+    edtShortName.Clear;
 
-  seMapCount.Value := 1;
-  seNodeCount.Value := 0;
+    seMapCount.Value := 1;
+    seNodeCount.Value := 0;
 
-  edtShortNameChange(nil);
-  seMapCountChange(nil);
+    edtShortNameChange(nil);
+    seMapCountChange(nil);
 
-  for I := 0 to Length(imgNodes) - 1 do
-    imgNodes[I].Visible := False;
+    for I := 0 to Length(imgNodes) - 1 do
+      imgNodes[I].Visible := False;
+  end;
 end;
 
 
