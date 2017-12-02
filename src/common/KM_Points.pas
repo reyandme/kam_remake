@@ -85,7 +85,8 @@ type
   function KMStepIsDiag(const P1,P2:TKMPoint): Boolean;
 
   function KMPointSubtract(const A, B: TKMPoint): TKMPoint;
-  function KMPointAdd(const A, B: TKMPoint): TKMPoint;
+  function KMPointAdd(const A, B: TKMPoint): TKMPoint; overload;
+  function KMPointAdd(const A, B, C: TKMPoint): TKMPoint; overload;  
   function KMDotProduct(const A, B: TKMPoint): Single;
   function KMDistanceAbs(const A, B: TKMPoint): Integer; overload;
   function KMDistanceAbs(const A, B: TKMPointF): Single; overload;
@@ -543,6 +544,13 @@ begin
   Result.X := A.X + B.X;
   Result.Y := A.Y + B.Y;
 end;
+
+
+function KMPointAdd(const A, B, C: TKMPoint): TKMPoint;
+begin
+  Result.X := A.X + B.X + C.X;
+  Result.Y := A.Y + B.Y + C.Y;
+end;   
 
 
 function KMDotProduct(const A, B: TKMPoint): Single;

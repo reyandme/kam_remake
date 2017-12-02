@@ -32,6 +32,11 @@ uses
   KM_AIMayorBalance in 'src\ai\KM_AIMayorBalance.pas',
   KM_AISetup in 'src\ai\KM_AISetup.pas',
 
+  KM_CityManagement in 'src\ai\newAI\KM_CityManagement.pas',
+  KM_CityPredictor in 'src\ai\newAI\KM_CityPredictor.pas',
+  KM_CityBuilder in 'src\ai\newAI\KM_CityBuilder.pas',
+  KM_CityPlanner in 'src\ai\newAI\KM_CityPlanner.pas', 
+
   KM_Alerts in 'src\KM_Alerts.pas',
   KM_BuildList in 'src\KM_BuildList.pas',
   KM_Campaigns in 'src\KM_Campaigns.pas',
@@ -97,6 +102,7 @@ uses
   KM_GUIMapEdTerrainTiles in 'src\gui\pages_maped\terrain\KM_GUIMapEdTerrainTiles.pas',
   KM_GUIMapEdTerrainObjects in 'src\gui\pages_maped\terrain\KM_GUIMapEdTerrainObjects.pas',
   KM_GUIMapEdTerrainSelection in 'src\gui\pages_maped\terrain\KM_GUIMapEdTerrainSelection.pas',
+  KM_GUIMapEdRMG in 'src\gui\pages_maped\terrain\KM_GUIMapEdRMG.pas',
 	
   KM_GUIMapEdTown in 'src\gui\pages_maped\town\KM_GUIMapEdTown.pas',
   KM_GUIMapEdTownUnits in 'src\gui\pages_maped\town\KM_GUIMapEdTownUnits.pas',
@@ -244,6 +250,8 @@ uses
   KM_TerrainPainter in 'src\terrain\KM_TerrainPainter.pas',
   KM_TerrainSelection in 'src\terrain\KM_TerrainSelection.pas',
   KM_TerrainWalkConnect in 'src\terrain\KM_TerrainWalkConnect.pas',
+  KM_RandomMapGenerator in 'src\terrain\KM_RandomMapGenerator.pas',
+  KM_RMGUtils in 'src\terrain\KM_RMGUtils.pas',
 
   KM_UnitActionAbandonWalk in 'src\units\KM_UnitActionAbandonWalk.pas',
   KM_UnitActionFight in 'src\units\KM_UnitActionFight.pas',
@@ -275,6 +283,8 @@ uses
   KM_Pics in 'src\utils\KM_Pics.pas',
   KM_PNG in 'src\utils\KM_PNG.pas',
   KM_Utils in 'src\utils\KM_Utils.pas',
+  KM_FloodFill in 'src\utils\KM_FloodFill.pas',
+
 	
   KM_Viewport in 'src\KM_Viewport.pas',
   KM_WareDistribution in 'src\KM_WareDistribution.pas';

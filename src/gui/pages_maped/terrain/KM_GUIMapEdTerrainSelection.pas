@@ -2,23 +2,27 @@ unit KM_GUIMapEdTerrainSelection;
 {$I KaM_Remake.inc}
 interface
 uses
-   Math, SysUtils,
-   KM_Controls, KM_Defaults;
-
+   Math, SysUtils, KM_Utils,
+   KM_Controls, KM_Defaults,
+   KM_GUIMapEdRMG;
 
 type
   TKMMapEdTerrainSelection = class
   private
+    RMGPopUp: TKMMapEdRMG;
     procedure SelectionClick(Sender: TObject);
+    procedure GenerateMapClick(Sender: TObject);
   protected
     Panel_Selection: TKMPanel;
-    Button_SelectCopy: TKMButton;
-    Button_SelectPaste: TKMButton;
-    Button_SelectPasteApply: TKMButton;
-    Button_SelectPasteCancel: TKMButton;
-    Button_SelectFlipH, Button_SelectFlipV: TKMButton;
+      Button_SelectCopy: TKMButton;
+      Button_SelectPaste: TKMButton;
+      Button_SelectPasteApply: TKMButton;
+      Button_SelectPasteCancel: TKMButton;
+      Button_SelectFlipH, Button_SelectFlipV: TKMButton;
+      Button_RMGRND: TKMButton;
   public
     constructor Create(aParent: TKMPanel);
+    destructor Destroy; override;
 
     procedure Show;
     function Visible: Boolean;
@@ -31,14 +35,18 @@ implementation
 uses
   KM_ResFonts, KM_ResTexts,
   KM_Game, KM_GameCursor, KM_RenderUI,
-  KM_TerrainSelection,
+  KM_TerrainSelection, KM_Terrain,
   KM_InterfaceGame;
+
+
 
 
 { TKMMapEdTerrainSelection }
 constructor TKMMapEdTerrainSelection.Create(aParent: TKMPanel);
 begin
   inherited Create;
+
+  RMGPopUp := TKMMapEdRMG.Create(aParent);
 
   Panel_Selection := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
 
@@ -69,12 +77,31 @@ begin
 
   with TKMLabel.Create(Panel_Selection, 8, 250, TB_WIDTH-16, 80, gResTexts[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
     AutoWrap := True;
+
+  Button_RMGRND := TKMButton.Create(Panel_Selection, 10, 300, TB_WIDTH - 20, 20, 'RMG Settings', bsGame);
+  Button_RMGRND.Hint := 'RMG Settings';
+  Button_RMGRND.OnClick := GenerateMapClick;
+
+end;
+
+
+destructor TKMMapEdTerrainSelection.Destroy;
+begin
+  RMGPopUp.Free();
+  inherited;
+end;
+
+procedure TKMMapEdTerrainSelection.GenerateMapClick(Sender: TObject);
+//var Tiles: TKMTerrainTileBriefArray;
+begin
+  RMGPopUp.Show();
 end;
 
 
 procedure TKMMapEdTerrainSelection.SelectionClick(Sender: TObject);
 begin
   gGameCursor.Mode := cmSelection;
+  gGameCursor.Tag1 := 0;
 
   if Sender = Button_SelectCopy then
   begin
@@ -141,6 +168,7 @@ end;
 procedure TKMMapEdTerrainSelection.Show;
 begin
   gGameCursor.Mode := cmSelection;
+  gGameCursor.Tag1 := 0;
   gGame.MapEditor.Selection.Selection_PasteCancel; //Could be leftover from last time we were visible
 
   Button_SelectPasteApply.Disable;

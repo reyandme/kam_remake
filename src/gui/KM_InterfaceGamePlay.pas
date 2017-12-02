@@ -3708,9 +3708,19 @@ begin
   if SHOW_AI_WARE_BALANCE then
   begin
     if (gMySpectator.Selected <> nil) and not gMySpectator.IsSelectedMyObj then
-      S := S + gHands[GetGameObjectOwnerIndex(gMySpectator.Selected)].AI.Mayor.BalanceText + '|'
+    begin
+      if gHands[GetGameObjectOwnerIndex(gMySpectator.Selected)].AI.Setup.NewAI then
+        S := S + gHands[GetGameObjectOwnerIndex(gMySpectator.Selected)].AI.CityManagement.BalanceText + '|'
+      else
+        S := S + gHands[GetGameObjectOwnerIndex(gMySpectator.Selected)].AI.Mayor.BalanceText + '|';
+    end
     else
-      S := S + gMySpectator.Hand.AI.Mayor.BalanceText + '|'
+    begin
+      if gMySpectator.Hand.AI.Setup.NewAI then
+        S := S + gMySpectator.Hand.AI.CityManagement.BalanceText + '|'
+      else
+        S := S + gMySpectator.Hand.AI.Mayor.BalanceText + '|';
+    end;
   end;
 
 

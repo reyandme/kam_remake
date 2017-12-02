@@ -493,7 +493,7 @@ begin
 
   FreeAndNil(fRoadsList);
 
-  fAI.Mayor.AfterMissionInit;
+  fAI.AfterMissionInit;
 end;
 
 
@@ -1406,6 +1406,10 @@ begin
 
   if SHOW_DEFENCE_POSITIONS then
     fAI.General.DefencePositions.Paint;
+    
+  if SHOW_AI_WARE_BALANCE then // TODO: Maybe create new option in debug menu?
+    if fAI.Setup.NewAI then
+      fAI.CityManagement.Builder.Planner.Paint();
 end;
 
 

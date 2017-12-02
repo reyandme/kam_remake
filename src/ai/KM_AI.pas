@@ -4,7 +4,8 @@ interface
 uses
   KM_CommonClasses, KM_Defaults,
   KM_Houses, KM_Units, KM_Units_Warrior,
-  KM_AISetup, KM_AIMayor, KM_AIGoals, KM_AIGeneral;
+  KM_AISetup, KM_AIMayor, KM_AIGoals, KM_AIGeneral,
+  KM_CityManagement;
 
 
 type
@@ -20,6 +21,8 @@ type
     fGoals: TKMGoals;
     fMayor: TKMayor;
     fSetup: TKMHandAISetup;
+    
+    fCityManagement: TKMCityManagement; 
 
     fWonOrLost: TWonOrLost; //Has this player won/lost? If so, do not check goals
 
@@ -35,6 +38,8 @@ type
     property Goals: TKMGoals read fGoals;
     property Mayor: TKMayor read fMayor;
     property Setup: TKMHandAISetup read fSetup;
+    
+    property CityManagement: TKMCityManagement read fCityManagement; 
 
     procedure Defeat(aShowDefeatMessage: Boolean = True); //Defeat the player, this is not reversible
     procedure Victory; //Set this player as victorious, this is not reversible
@@ -51,6 +56,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState(aTick: Cardinal);
+    procedure AfterMissionInit();
   end;
 
 
@@ -72,6 +78,8 @@ begin
   fGeneral := TKMGeneral.Create(fOwner, fSetup);
   fGoals := TKMGoals.Create;
   fWonOrLost := wol_None;
+  
+  fCityManagement := TKMCityManagement.Create(fOwner, fSetup);
 end;
 
 
@@ -81,6 +89,8 @@ begin
   fGeneral.Free;
   fMayor.Free;
   fSetup.Free;
+  
+  fCityManagement.Free;
 
   inherited;
 end;
@@ -365,6 +375,13 @@ begin
 end;
 
 
+procedure TKMHandAI.AfterMissionInit();
+begin
+  fMayor.AfterMissionInit;
+  fCityManagement.AfterMissionInit;
+end;   
+
+
 //todo: Updates should be well separated, maybe we can make an interleaved array or something
 //where updates will stacked to execute 1 at a tick
 //OR maybe we can collect all Updates into one list and run them from there (sounds like a better more manageble idea)
@@ -380,9 +397,16 @@ begin
                     //Humans dont need Mayor and Army management
                   end;
     hndComputer:  begin
-                    fMayor.UpdateState(aTick);
-                    fGeneral.UpdateState(aTick);
-                  end;
+                    if fSetup.NewAI then
+                    begin
+                      fCityManagement.UpdateState(aTick);
+                    end
+                    else
+                    begin
+                      fMayor.UpdateState(aTick);
+                      fGeneral.UpdateState(aTick);
+                    end;
+                  end;  
   end;
 end;
 

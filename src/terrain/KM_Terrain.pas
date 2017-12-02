@@ -212,6 +212,7 @@ type
     function TileIsGold(X, Y: Word): Byte;
     function TileIsCornField(Loc: TKMPoint): Boolean;
     function TileIsWineField(Loc: TKMPoint): Boolean;
+    function TileIsWalkableRoad(Loc: TKMPoint): Boolean;
     function TileIsLocked(aLoc: TKMPoint): Boolean;
     function UnitsHitTest(X, Y: Word): Pointer;
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
@@ -1111,6 +1112,17 @@ begin
   else
     Result := (Land[Loc.Y,Loc.X].CornOrWine = 2);
 end;
+
+
+//Check if the tile is a walkable road
+function TKMTerrain.TileIsWalkableRoad(Loc: TKMPoint): Boolean;
+begin
+  Result := False;
+  if not TileInMapCoords(Loc.X,Loc.Y) then
+    Exit;
+  // Is map editor OK with this?
+  Result := (tpWalkRoad in Land[Loc.Y,Loc.X].Passability);
+end;   
 
 
 //Check if this tile can be factored

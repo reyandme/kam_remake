@@ -10,6 +10,7 @@ type
   // Could be a record, but we want to have default values initialization in constructor
   TKMHandAISetup = class
   public
+    NewAI: Boolean; 
     Aggressiveness: Integer; //-1 means not used or default
     AutoAttack: Boolean;
     AutoRepair: Boolean;
@@ -33,7 +34,7 @@ type
     function WarriorsPerMinute(aArmy: TArmyType): Single; overload;
     function WarriorsPerMinute: Single; overload;
 
-    procedure ApplyAgressiveBuilderSetup;
+    procedure ApplyAgressiveBuilderSetup(aNewAI: Boolean = False);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -105,8 +106,9 @@ end;
 
 
 //Used from MapEd to give multiplayer building maps an AI builder config
-procedure TKMHandAISetup.ApplyAgressiveBuilderSetup;
+procedure TKMHandAISetup.ApplyAgressiveBuilderSetup(aNewAI: Boolean = False);
 begin
+  NewAI := aNewAI;
   SerfsPerHouse := 1;
   WorkerCount := 20;
   ArmyType := atIronAndLeather; //Mixed army
