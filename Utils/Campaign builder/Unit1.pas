@@ -493,7 +493,7 @@ end;
 
 procedure TForm1.DrawFlagNumber(aIndexMap: Integer);
 const
-  OFF: array [Boolean] of TPoint = ((X:1; Y:3), (X:-1; Y:-2));
+  OFF: array [Boolean] of TPoint = ((X:-2; Y:0), (X:-1; Y:-2));
 var
   txtWidth, txtHeight, txtLeft, txtTop: Integer;
   isRedFlag: Boolean;
