@@ -6,7 +6,7 @@ uses
   ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF FPC} LResources, LCLIntf, {$ENDIF}
-  RXXPackerProc, KM_Defaults, KM_Log, KM_Pics, KM_ResPalettes;
+  RXXPackerProc, KM_Defaults, KM_Log, KM_Pics, KM_ResPalettes, KM_ResSprites;
 
 
 type
@@ -48,9 +48,18 @@ begin
   fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 
   for RT := Low(TRXType) to High(TRXType) do
-    ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
+    if FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
+      ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
+
+  if ListBox1.Items.Count = 0 then
+  begin
+    ShowMessage('No one file was found!');
+    Application.Terminate;
+  end;
+
 
   ListBox1.ItemIndex := 0;
+  ListBox1.SelectAll;
 end;
 
 
