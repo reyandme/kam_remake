@@ -34,7 +34,7 @@ implementation
 uses
   KM_Houses, KM_HouseWoodcutters, KM_HandsCollection,
   KM_Resource, KM_ResMapElements, KM_ResTexts, KM_ResHouses,
-  KM_Hand, KM_ResUnits;
+  KM_Hand, KM_ResUnits, KM_ScriptingEvents;
 
 
 { TTaskMining }
@@ -387,6 +387,8 @@ begin
               GetHome.ResAddToOut(WorkPlan.Product2, WorkPlan.ProdCount2);
               gHands[fUnit.Owner].Stats.WareProduced(WorkPlan.Product1, WorkPlan.ProdCount1);
               gHands[fUnit.Owner].Stats.WareProduced(WorkPlan.Product2, WorkPlan.ProdCount2);
+              gScriptEvents.ProcWareProduced(fUnit.GetHome, WorkPlan.Product1, WorkPlan.ProdCount1);
+              gScriptEvents.ProcWareProduced(fUnit.GetHome, WorkPlan.Product2, WorkPlan.ProdCount2);
             end;
 
             GetHome.SetState(hst_Idle);

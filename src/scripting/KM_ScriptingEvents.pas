@@ -55,6 +55,7 @@ type
     fProcUnitTrained: TMethod;
     fProcUnitWounded: TMethod;
     fProcWarriorEquipped: TMethod;
+    fProcWareProduced: TMethod;
 
     procedure DoProc(const aProc: TMethod; const aParams: array of Integer);
     function MethodAssigned(aMethod: TMethod): Boolean; inline;
@@ -93,6 +94,7 @@ type
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
+    procedure ProcWareProduced(aHouse: TKMHouse; aType: TWareType; aCount: Word);
   end;
 
 
@@ -170,6 +172,7 @@ begin
   fProcUnitWounded           := fExec.GetProcAsMethodN('OnUnitWounded');
   fProcUnitAttacked          := fExec.GetProcAsMethodN('OnUnitAttacked');
   fProcWarriorEquipped       := fExec.GetProcAsMethodN('OnWarriorEquipped');
+  fProcWareProduced          := fExec.GetProcAsMethodN('OnWareProduced');
 end;
 
 
@@ -510,6 +513,16 @@ begin
   end;
 end;
 
+//* Version: 7000+
+//* Occurs when resource is produced for specified house.
+procedure TKMScriptEvents.ProcWareProduced(aHouse: TKMHouse; aType: TWareType; aCount: Word);
+begin
+  if MethodAssigned(fProcWareProduced) then
+  begin
+    if (aType <> wt_None) then
+      DoProc(fProcWareProduced, [aHouse.UID, WareTypeToIndex[aType], aCount]);
+  end;
+end;
 
 //* Version: 5964
 //* Occurs when player has placed a road plan.
