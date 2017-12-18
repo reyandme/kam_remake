@@ -14,12 +14,16 @@ type
     btnPackRXX: TButton;
     ListBox1: TListBox;
     Label1: TLabel;
+    btnReList: TButton;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure btnReListClick(Sender: TObject);
   private
     fPalettes: TKMResPalettes;
     fRxxPacker: TRXXPacker;
+
+    procedure ReList;
   end;
 
 
@@ -31,6 +35,37 @@ implementation
 {$R *.dfm}
 uses KM_ResHouses, KM_ResUnits, KM_Points;
 
+
+procedure TRXXForm1.ReList;
+var
+  RT: TRXType;
+begin
+  ListBox1.Items.Clear;
+  for RT := Low(TRXType) to High(TRXType) do
+    if FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
+      ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
+
+  if ListBox1.Items.Count = 0 then
+  begin
+    ShowMessage('No one file was found!');
+    btnPackRXX.Enabled := false;
+  end
+  else
+  begin
+    btnPackRXX.Enabled := true;
+    ListBox1.ItemIndex := 0;
+    ListBox1.SelectAll;
+  end;
+end;
+
+
+procedure TRXXForm1.btnReListClick(Sender: TObject);
+begin
+  btnReList.Enabled := false;
+
+  ReList;
+  btnReList.Enabled := true;
+end;
 
 procedure TRXXForm1.FormCreate(Sender: TObject);
 var
@@ -47,19 +82,8 @@ begin
   fPalettes := TKMResPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 
-  for RT := Low(TRXType) to High(TRXType) do
-    if FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
-      ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
+  ReList;
 
-  if ListBox1.Items.Count = 0 then
-  begin
-    ShowMessage('No one file was found!');
-    Application.Terminate;
-  end;
-
-
-  ListBox1.ItemIndex := 0;
-  ListBox1.SelectAll;
 end;
 
 

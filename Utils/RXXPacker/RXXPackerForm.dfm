@@ -3,7 +3,7 @@ object RXXForm1: TRXXForm1
   Top = 90
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'RXX Packer'
-  ClientHeight = 225
+  ClientHeight = 259
   ClientWidth = 289
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,19 +17,19 @@ object RXXForm1: TRXXForm1
   OnDestroy = FormDestroy
   DesignSize = (
     289
-    225)
+    259)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 16
-    Top = 176
+    Top = 207
     Width = 31
     Height = 13
     Caption = 'Label1'
   end
   object btnPackRXX: TButton
     Left = 16
-    Top = 192
+    Top = 226
     Width = 257
     Height = 25
     Anchors = [akLeft, akRight, akBottom]
@@ -46,5 +46,15 @@ object RXXForm1: TRXXForm1
     ItemHeight = 13
     MultiSelect = True
     TabOrder = 1
+  end
+  object btnReList: TButton
+    Left = 16
+    Top = 176
+    Width = 257
+    Height = 25
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = 'Re List'
+    TabOrder = 2
+    OnClick = btnReListClick
   end
 end
