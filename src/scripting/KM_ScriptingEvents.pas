@@ -40,6 +40,9 @@ type
     fProcGroupOrderSplit: TMethod;
     fProcMarketTrade: TMethod;
     fProcMissionStart: TMethod;
+    fProcRoadBuilt: TMethod;
+    fProcFieldBuilt: TMethod;
+    fProcWinefieldBuilt: TMethod;
     fProcPlanRoadPlaced: TMethod;
     fProcPlanRoadRemoved: TMethod;
     fProcPlanFieldPlaced: TMethod;
@@ -78,6 +81,9 @@ type
     procedure ProcGroupOrderSplit(aGroup, aNewGroup: TKMUnitGroup);
     procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
     procedure ProcMissionStart;
+    procedure ProcRoadBuilt(aPlayer: TKMHandIndex; aX, aY: Word);
+    procedure ProcFieldBuilt(aPlayer: TKMHandIndex; aX, aY: Word);
+    procedure ProcWinefieldBuilt(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlanRoadPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlanRoadRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlanFieldPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
@@ -155,6 +161,9 @@ begin
   fProcGroupOrderSplit       := fExec.GetProcAsMethodN('OnGroupOrderSplit');
   fProcMarketTrade           := fExec.GetProcAsMethodN('OnMarketTrade');
   fProcMissionStart          := fExec.GetProcAsMethodN('OnMissionStart');
+  fProcRoadBuilt             := fExec.GetProcAsMethodN('OnRoadBuilt');
+  fProcFieldBuilt            := fExec.GetProcAsMethodN('OnFieldBuilt');
+  fProcWinefieldBuilt        := fExec.GetProcAsMethodN('OnWinefieldBuilt');
   fProcPlanRoadPlaced        := fExec.GetProcAsMethodN('OnPlanRoadPlaced');
   fProcPlanRoadRemoved       := fExec.GetProcAsMethodN('OnPlanRoadRemoved');
   fProcPlanFieldPlaced       := fExec.GetProcAsMethodN('OnPlanFieldPlaced');
@@ -326,6 +335,29 @@ begin
     DoProc(fProcHouseAfterDestroyed, [HouseTypeToIndex[aHouseType] - 1, aOwner, aX, aY]);
 end;
 
+//* Version: 7000+
+//* Occurs when player built a road.
+procedure TKMScriptEvents.ProcRoadBuilt(aPlayer: TKMHandIndex; aX, aY: Word);
+begin
+  if MethodAssigned(fProcRoadBuilt) then
+    DoProc(fProcRoadBuilt, [aPlayer, aX, aY]);
+end;
+
+//* Version: 7000+
+//* Occurs when player built a field.
+procedure TKMScriptEvents.ProcFieldBuilt(aPlayer: TKMHandIndex; aX, aY: Word);
+begin
+  if MethodAssigned(fProcFieldBuilt) then
+    DoProc(fProcFieldBuilt, [aPlayer, aX, aY]);
+end;
+
+//* Version: 7000+
+//* Occurs when player built a winefield.
+procedure TKMScriptEvents.ProcWinefieldBuilt(aPlayer: TKMHandIndex; aX, aY: Word);
+begin
+  if MethodAssigned(fProcWinefieldBuilt) then
+    DoProc(fProcWinefieldBuilt, [aPlayer, aX, aY]);
+end;
 
 //* Version: 5871
 //* Occurs when player has placed a house plan.
