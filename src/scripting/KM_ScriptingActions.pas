@@ -93,6 +93,7 @@ type
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
     function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+    function MapTilesArraySetS(aTilesS: array of string; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTileHeightSet(X, Y, Height: Integer): Boolean;
     function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
 
@@ -2376,6 +2377,152 @@ begin
   end;
 end;
 
+//* Version: 7000+
+//* Sets array of tiles info, like MapTilesArraySet, but parameters are
+//* passed as an array of string instead of array of TKMTerrainTileBrief.
+//* This function is useful if you need to create dynamic map from scratch.
+//* Array must contain strings in following format: 'X,Y,Terrain,Rotation,Height,Obj'
+//* f.e. '1,1,20,2,87,12'
+//* In case of invalid structure detection / failed variable parsing you can find
+//* detailed errors in LOG file.
+//* If you need to skip terrain or rotation/height/obj use -1 as parameter
+//* f.e.
+//* Skipping rotation for tile [7,2]: '7,2,20,-1,87,12'
+//* Skipping obj for tile [7,2]: '7,2,20,2,87,-1'
+//* Skipping height for tile [7,2]: '7,2,20,2,-1,5' etc.
+function TKMScriptActions.MapTilesArraySetS(aTilesS: array of string; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
+  var TileChangeType: TKMTileChangeType;
+  begin
+    Result := '';
+    for TileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
+      if TileChangeType in aErrorsIn then
+      begin
+        if Result <> '' then
+          Result := Result + ', ';
+        Result := Result + GetEnumName(TypeInfo(TKMTileChangeType), Integer(TileChangeType));
+      end;
+  end;
+
+var I: Integer;
+    Errors: TKMTerrainTileChangeErrorArray;
+    aTiles: array of TKMTerrainTileBrief;
+    arrElem: TStrings;
+    parsedValue: Integer;
+    parserError, terrainModified: Boolean;
+begin
+  try
+    Result := True;
+    SetLength(Errors, 16);
+
+    //***********PARSING ARRAY OF STRING TO ARRAY OF TKMTerrainTileBrief**********
+    SetLength(aTiles, Length(aTilesS));
+    for I := Low(aTilesS) to High(aTilesS) do
+    begin
+      arrElem := StrSplit(ReplaceStr(aTilesS[I], ' ', ''), ',');
+      parserError := false;
+
+      //checking params count, if count is invalid we cannot proceed
+      if (arrElem.Count <> 6) then
+        Log(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [aTilesS[I]]))
+      else
+      begin
+        //checking X, if X <= 0 we cannot proceed
+        if ((TryStrToInt(arrElem[0], parsedValue)) AND (parsedValue > 0)) then
+          aTiles[I].X := parsedValue
+        else
+        begin
+          Log(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
+          parserError := true;
+        end;
+        //checking Y, if Y <= 0 we cannot proceed
+        if ((TryStrToInt(arrElem[1], parsedValue)) AND (parsedValue > 0)) then
+          aTiles[I].Y := parsedValue
+        else
+        begin
+          Log(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
+          parserError := true;
+        end;
+
+        //if X and Y are correctly defined we can proceed with terrain changes
+        if (not parserError) then
+        begin
+          if (TryStrToInt(arrElem[2], parsedValue)) then
+          begin
+            if (parsedValue >= 0) then
+            begin
+              //if value is not skipped we proceed with terrain
+              aTiles[I].Terrain := parsedValue;
+              aTiles[I].ChangeSet := aTiles[I].ChangeSet + [tctTerrain];
+              terrainModified := true;
+            end;
+          end
+          else
+             Log(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], aTilesS[I]]));
+
+          if (TryStrToInt(arrElem[3], parsedValue)) then
+          begin
+            if (parsedValue >= 0) then
+            begin
+              //if value is not skipped we proceed with rotation
+              aTiles[I].Rotation := parsedValue;
+              //if terrain was updated earlier we need to skip ChangeSet update
+              if (not terrainModified) then
+                aTiles[I].ChangeSet := aTiles[I].ChangeSet + [tctTerrain];
+            end;
+          end
+          else
+            Log(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], aTilesS[I]]));
+
+          if (TryStrToInt(arrElem[4], parsedValue)) then
+          begin
+            if (parsedValue >= 0) then
+            begin
+              //if value is not skipped we proceed with height
+              aTiles[I].Height := parsedValue;
+              aTiles[I].ChangeSet := aTiles[I].ChangeSet + [tctHeight];
+            end;
+          end
+          else
+            Log(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], aTilesS[I]]));
+
+          if (TryStrToInt(arrElem[5], parsedValue)) then
+          begin
+            if (parsedValue >= 0) then
+            begin
+              //if value is not skipped we proceed with obj
+              aTiles[I].Obj := parsedValue;
+              aTiles[I].ChangeSet := aTiles[I].ChangeSet + [tctObject];
+            end;
+          end
+          else
+            Log(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
+        end;
+      end;
+    end;
+    //***********END OF PARSING**********
+
+    if not gTerrain.ScriptTrySetTilesArray(aTiles, aRevertOnFail, Errors) then
+    begin
+      Result := False;
+
+      // Log errors
+      if Length(Errors) > 0 then
+      begin
+        if not aShowDetailedErrors then
+          Log(AnsiString(Format('Actions.MapTilesArraySetS: there were %d errors while setting tiles' , [Length(Errors)])))
+        else
+          Log('Actions.MapTilesArraySetS list of tiles errors:');
+      end;
+      if aShowDetailedErrors then
+        for I := Low(Errors) to High(Errors) do
+          Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [Errors[I].X, Errors[I].Y, GetTileErrorsStr(Errors[I].ErrorsIn)])));
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
 
 //* Version: 6587
 //* Sets the height of the terrain at the top left corner (vertex) of the tile at the specified XY coordinates.
