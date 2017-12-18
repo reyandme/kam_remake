@@ -267,7 +267,7 @@ implementation
 uses
   KM_CommonTypes, KM_Log, KM_HandsCollection, KM_TerrainWalkConnect, KM_Resource, KM_Units,
   KM_ResSound, KM_Sound, KM_UnitActionStay, KM_Units_Warrior, KM_TerrainPainter, KM_Houses,
-  KM_ResUnits, KM_Hand, KM_Game;
+  KM_ResUnits, KM_Hand, KM_Game, KM_ScriptingEvents;
 
 
 { TKMTerrain }
@@ -2796,12 +2796,17 @@ end;
 {Mark previous tile as empty and next one as occupied}
 //We need to check both tiles since UnitWalk is called only by WalkTo where both tiles aren't houses
 procedure TKMTerrain.UnitWalk(LocFrom,LocTo: TKMPoint; aUnit: Pointer);
+var U: TKMUnit;
 begin
   if not DO_UNIT_INTERACTION then exit;
   Assert(Land[LocFrom.Y, LocFrom.X].IsUnit = aUnit, 'Trying to remove wrong unit at '+TypeToString(LocFrom));
   Land[LocFrom.Y, LocFrom.X].IsUnit := nil;
   Assert(Land[LocTo.Y, LocTo.X].IsUnit = nil, 'Tile already occupied at '+TypeToString(LocTo));
-  Land[LocTo.Y, LocTo.X].IsUnit := aUnit
+  Land[LocTo.Y, LocTo.X].IsUnit := aUnit;
+
+  U := TKMUnit(aUnit);
+  if ((U <> nil) AND (U is TKMUnitWarrior)) then
+    gScriptEvents.ProcWarriorMoved(U, LocTo.X, LocTo.Y);
 end;
 
 

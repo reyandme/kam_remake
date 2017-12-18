@@ -55,6 +55,7 @@ type
     fProcUnitTrained: TMethod;
     fProcUnitWounded: TMethod;
     fProcWarriorEquipped: TMethod;
+    fProcWarriorMoved:  TMethod;
 
     procedure DoProc(const aProc: TMethod; const aParams: array of Integer);
     function MethodAssigned(aMethod: TMethod): Boolean; inline;
@@ -93,6 +94,7 @@ type
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
+    procedure ProcWarriorMoved(aUnit: TKMUnit; ToX, ToY: Word);
   end;
 
 
@@ -170,6 +172,7 @@ begin
   fProcUnitWounded           := fExec.GetProcAsMethodN('OnUnitWounded');
   fProcUnitAttacked          := fExec.GetProcAsMethodN('OnUnitAttacked');
   fProcWarriorEquipped       := fExec.GetProcAsMethodN('OnWarriorEquipped');
+  fProcWarriorMoved          := fExec.GetProcAsMethodN('OnWarriorMoved');
 end;
 
 
@@ -582,6 +585,16 @@ procedure TKMScriptEvents.ProcPlayerVictory(aPlayer: TKMHandIndex);
 begin
   if MethodAssigned(fProcPlayerVictory) then
     DoProc(fProcPlayerVictory, [aPlayer]);
+end;
+
+//* Version: 7000+
+//* Occurs when warrior move
+procedure TKMScriptEvents.ProcWarriorMoved(aUnit: TKMUnit; ToX, ToY: Word);
+begin
+  if MethodAssigned(fProcWarriorMoved) then
+  begin
+      DoProc(fProcWarriorMoved, [aUnit.UID, ToX, ToY]);
+  end;
 end;
 
 
