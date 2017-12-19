@@ -678,7 +678,7 @@ end;
   A result type of 0 means no result}
 function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
 const
-  Procs: array [0..30] of record
+  Procs: array [0..31] of record
     Names: AnsiString;
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
