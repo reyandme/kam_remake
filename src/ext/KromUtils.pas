@@ -15,7 +15,7 @@ type
   TSetOfAnsiChar = set of AnsiChar;
 
 
-function TimeGet: Cardinal;
+function KU_TimeGet: Cardinal;
 function ExtractOpenedFileName(const in_s: string):string;
 function GetFileExt (const FileName: string): string;
 function AssureFileExt(const FileName,Ext:string): string;
@@ -181,7 +181,7 @@ end;
 
 
 //Linux wants this instead of timegettime, it should work on Windows too
-function TimeGet: Cardinal;
+function KU_TimeGet: Cardinal;
 begin
   {$IFDEF MSWindows}
   Result := TimeGetTime; //Returns milliseconds with ~1ms precision
@@ -561,7 +561,7 @@ begin
   if aMax = 0 then
     Result := 0
   else
-    Result := TimeGet mod aMax;
+    Result := KU_TimeGet mod aMax;
 end;
 
 

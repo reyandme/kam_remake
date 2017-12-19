@@ -573,6 +573,8 @@ begin
     if (Sender = ResRow_Resource_Output[I]) and (aValue > 0) then
     begin
       NewCountAdd := Math.Min(aValue, MAX_WARES_IN_HOUSE - fHouse.CheckResOut(Res));
+      if fHouse.HouseType in HOUSE_WORKSHOP then
+        NewCountAdd := Math.Min(NewCountAdd, MAX_WARES_OUT_WORKSHOP - fHouse.CheckResOut(wt_All));
       fHouse.ResAddToOut(Res, NewCountAdd);
     end;
 
@@ -641,8 +643,6 @@ end;
 
 
 procedure TKMMapEdHouse.House_DeliveryModeToggle(Sender: TObject; Shift: TShiftState);
-var
-  H: TKMHouse;
 begin
   case Button_HouseDeliveryMode.TexID of
     37: // dm_Delivery

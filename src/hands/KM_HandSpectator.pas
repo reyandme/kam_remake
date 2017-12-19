@@ -49,10 +49,9 @@ type
 
 implementation
 uses
-  KromUtils,
   KM_Game, KM_GameCursor, KM_HandsCollection,
   KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Houses,
-  KM_Utils;
+  KM_Utils, KM_CommonUtils;
 
 
 { TKMSpectator }

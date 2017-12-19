@@ -916,9 +916,11 @@ begin
   if (fDemand[iD].Loc_House <> nil)
     and not fDemand[iD].Loc_House.IsComplete then
   begin
+    //Give priority to almost built houses
+    Result := Result - 2*fDemand[iD].Loc_House.GetBuildResDeliveredPercent;
     //Only add a small amount so houses at different distances will be prioritized separately
     if (fDemand[iD].Ware = wt_Stone) then
-      Result := Result + 0.1
+      Result := Result + 0.1;
   end
   else
     //For all other deliveries, add some random element so in the case of identical

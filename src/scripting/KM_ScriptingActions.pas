@@ -2327,7 +2327,7 @@ end;
 //*   ChangeSet: TKMTileChangeTypeSet; // Set of changes.
 //* end;
 //* TKMTileChangeTypeSet = set of TKMTileChangeType
-//* TKMTileChangeType = (tctTerrain, tctHeight, tctObject)</pre>
+//* TKMTileChangeType = (tctTerrain, tctRotation, tctHeight, tctObject)</pre>
 //* ChangeSet determines what should be changed on tile
 //* F.e. if we want to change terrain type and height, then ChangeSet should contain tctTerrain and tctHeight
 //* Note: aTiles elements should start from 0, as for dynamic array. So f.e. to change map tile 1,1 we should set aTiles[0][0].

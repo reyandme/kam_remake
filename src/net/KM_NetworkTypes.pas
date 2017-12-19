@@ -10,6 +10,9 @@ const
   NET_ADDRESS_HOST = -3;    //Sender/Recipient
   NET_ADDRESS_SERVER = -4;  //Sender/Recipient
 
+  LOC_RANDOM = 0;
+  LOC_SPECTATE = -1;
+
   //Size of chunks that a file is sent in (must be smaller than MAX_PACKET_SIZE)
   //Making it less than Ethernet MTU (~1500) helps to avoids inefficient IP fragmentation
   FILE_CHUNK_SIZE = 1024; //max value less then MTU
