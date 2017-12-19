@@ -35,7 +35,7 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
 
-  GAME_REVISION         = 'r8122';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r8134';       //Should be updated for every release (each time save format is changed)
   GAME_BETA_REVISION    = 5;
   {$IFDEF USESECUREAUTH}
     GAME_VERSION_POSTFIX  = '';
@@ -174,8 +174,9 @@ var
 
 
 const
-  MAX_WARES_IN_HOUSE  = 5;    //Maximum resource items allowed to be in house
-  MAX_WARES_ORDER     = 999;  //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
+  MAX_WARES_IN_HOUSE     = 5;    //Maximum resource items allowed to be in house
+  MAX_WARES_OUT_WORKSHOP = 5;    //Maximum sum resource items allowed to output in workshops. Value: 5 - 20;
+  MAX_WARES_ORDER        = 999;  //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
 
 const
   MAX_WOODCUTTER_CUT_PNT_DISTANCE = 5; //Max distance for woodcutter new cutting point from his house
@@ -193,7 +194,7 @@ const
   AUTOSAVE_FREQUENCY_MIN  = 600;
   AUTOSAVE_FREQUENCY_MAX  = 3000;
   AUTOSAVE_FREQUENCY      = 600; //How often to do autosave, every N ticks
-  AUTOSAVE_NOT_MORE_OFTEN_THEN = 5000; //= 5s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
+  AUTOSAVE_NOT_MORE_OFTEN_THEN = 10000; //= 5s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
   CHAT_COOLDOWN           = 500;  //Minimum time in milliseconds between chat messages
   BEACON_COOLDOWN         = 800;  //Minimum time in milliseconds between beacons
 
@@ -264,6 +265,10 @@ const
   EXT_SAVE_MAIN = 'sav';
   EXT_SAVE_BASE = 'bas';
   EXT_FILE_SCRIPT = 'script';
+
+  EXT_SAVE_REPLAY_DOT = '.' + EXT_SAVE_REPLAY;
+  EXT_SAVE_MAIN_DOT = '.' + EXT_SAVE_MAIN;
+  EXT_SAVE_BASE_DOT = '.' + EXT_SAVE_BASE;
 
 type
   TKMHandIndex = {type} ShortInt;

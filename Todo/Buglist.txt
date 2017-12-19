@@ -1,1018 +1,1042 @@
 ﻿Since r6720:
 <===================================================================================>
 Todo:
-	Update translation for labels: 153, 270, 276, 642
+  Update translation for labels: 153, 270, 276, 642
 Bugs:
- +	Lobby map list should show 8 locations at most, since only 8 locations can be used by humans at once
- +	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
- +	Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
- +	When units exit Barracks and auto-join another group, they change that groups formation
- +	Disabled controls could have focus and receive keyboard input
- +	Colored rectangle below cursor
- +	Fix situation, when 1 worker, constructing house from the entrance tile, blocks wood/stone delivery by serfs
- +	If host was disconnected, then new host is reassigned and when going 'back to lobby' new host is always 'not ready' and can't start game
- +	While in window mode and using OBS/FRAPS or other screen capturing software game cursor has black background
- +	Player could use spectators chat channel (only writing in it) when not a spectator anymore
- +	Vote 'return to lobby' do not reset after disconnection from game
- +	Voting 'return to lobby' goes wrong if 2 or more last votes comes simultaneously
- +	Minimap small visual bugs
- +	AI does not repair houses after Save/Load
- +	Game crashed on exit if log file was deleted. Recreate it instead
- +	When group attack position is set to a house/unit, in MP this house/unit would be attacked even if it is an ally	
- +	Rare game crash when map moved out of downloads. Happens when there was another local MP map this same name, previously opened in MapEd, then deleted.
- +	Move out of downloads on MapEd menu page mechanism. It was possible to click on the button with empty filename. This caused silent delete of MapsMP folder.
- +	Fixed barracks rally point: it was possible to build house ovet it, preventing soldiers from goint to it (they stuck near barracks house)
- +	"Unit is hungry" message could be shown for invalid/dead groups
- +	If warrior dies before he walked out, he creates an invalid group
- +	Hide drop column/list when control become invisible (dropbox in lobby could stuck if f.e. server disconnects when it was opened)
- +	Demolish wrong house by using house hotkey
- +	We could get exception and crash the game when refresh server list (when some global network error happens, like no net interface connected)
- +	Tannery has 2 flags in place of 1
- +	Player can change DL map files and start it. So its hash does not fit anymore. It will cause an error after the start on map load
- +	Sometimes player could no open MP game page again. Need to unlock mutex on MP game error or disconnect
- +	Replay/Spectate: reset selected object when switch to another player
- +	Removed annoying loading window, when alt-Tab while loading in fullscreen mode
- +	Apply password letters restrictions for password input field
- +	Atlas binpacking - large textures were always placed to the new atlas
- +	Fixed loud echo, when many notifications comes at the same time (f.e. many units are hungry now, or house is empty etc)
- +	MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
- +	MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
- +	MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
- +	MapEd: place some houses, then delete them - hand still have assets (so you could make an ally to it, show center screen etc)
- +	MapEd: do not allow empty name while map saving
- +	Dynamic scripts: Scripting action OnHousePlanRemove was invoked with wrong coordinates
+ +  Lobby map list should show 8 locations at most, since only 8 locations can be used by humans at once
+ +  Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
+ +  Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
+ +  When units exit Barracks and auto-join another group, they change that groups formation
+ +  Disabled controls could have focus and receive keyboard input
+ +  Colored rectangle below cursor
+ +  Fix situation, when 1 worker, constructing house from the entrance tile, blocks wood/stone delivery by serfs
+ +  If host was disconnected, then new host is reassigned and when going 'back to lobby' new host is always 'not ready' and can't start game
+ +  While in window mode and using OBS/FRAPS or other screen capturing software game cursor has black background
+ +  Player could use spectators chat channel (only writing in it) when not a spectator anymore
+ +  Vote 'return to lobby' do not reset after disconnection from game
+ +  Voting 'return to lobby' goes wrong if 2 or more last votes comes simultaneously
+ +  Minimap small visual bugs
+ +  Fix situation, when stamp near house entrance was blocking units when try to exit from it diagonally
+ +  AI does not repair houses after Save/Load
+ +  Game crashed on exit if log file was deleted. Recreate it instead
+ +  When group attack position is set to a house/unit, in MP this house/unit would be attacked even if it is an ally  
+ +  Rare game crash when map moved out of downloads. Happens when there was another local MP map this same name, previously opened in MapEd, then deleted.
+ +  Move out of downloads on MapEd menu page mechanism. It was possible to click on the button with empty filename. This caused silent delete of MapsMP folder.
+ +  Fixed barracks rally point: it was possible to build house ovet it, preventing soldiers from goint to it (they stuck near barracks house)
+ +  "Unit is hungry" message could be shown for invalid/dead groups
+ +  If warrior dies before he walked out, he creates an invalid group
+ +  Hide drop column/list when control become invisible (dropbox in lobby could stuck if f.e. server disconnects when it was opened)
+ +  Demolish wrong house by using house hotkey
+ +  We could get exception and crash the game when refresh server list (when some global network error happens, like no net interface connected)
+ +  Tannery has 2 flags in place of 1
+ +  Player can change DL map files and start it. So its hash does not fit anymore. It will cause an error after the start on map load
+ +  Sometimes player could no open MP game page again. Need to unlock mutex on MP game error or disconnect
+ +  Replay/Spectate: reset selected object when switch to another player
+ +  Removed annoying loading window, when alt-Tab while loading in fullscreen mode
+ +  Apply password letters restrictions for password input field
+ +  Atlas binpacking - large textures were always placed to the new atlas
+ +  Fixed loud echo, when many notifications comes at the same time (f.e. many units are hungry now, or house is empty etc)
+ +  Update Cinematics speed due to changes in GameSpeed
+ +  MapEd: bug with group formatting when reducing group size with more then 1 row to less then row size units (F.e. you have 5x2 group and reduce its size to 3 units)
+ +  MapEd: when placing markers(reveal FOW/center screen/AI start/defence AI)/units/houses/roads/fields/tile brushes/tile objects - after RBM click buttons are still selected, even if you can't use them actually.
+ +  MapEd: fixed unit delete - unit was highlighted and deleted not right under the cursor, but on the cell under the cursor, so when you could not delete unit by pointing on its head
+ +  MapEd: place some houses, then delete them - hand still have assets (so you could make an ally to it, show center screen etc)
+ +  MapEd: do not allow empty name while map saving
+ +  Dynamic scripts: Scripting action OnHousePlanRemove was invoked with wrong coordinates
+ +  Dynamic scripts: Notify script OnUnitAttacked only once for attacked unit, do not add self notify on unit attacked
 
  
 Bugs to fix in future:
-	
-	Server welcome message should support Unicode
-	AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
-	Deliveries should use the actual walking route length (opposed to Radius)
-	Archers should step backwards when too close to attack target
-	Replays sometimes end up with a mismatch while watching them, cause unknown
-	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
-	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
-	Players that have intentionally quit (not just disconnected) should count as defeated
-	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800x600 .. 1366x768
-	Stonemason could stuck on a mountain after flattening (stonebug2.jpg)
-	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
-	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
-	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
-	If just one player cannot run the game smoothly MP will lag for everyone in his game. For example if you zoom out a lot you will get a poor frame rate and your game will run at < 10 ticks per second forcing other players down to that speed. The lagger's ping will not look any different. Maybe have a way to indicate to that player and the others on the server that he is causing the lag? Our planned 2x speed in MP will make this much worse as some computers will lag more.
-	There's no message in MP when you defeat AI opponent (if you defeat human opponent it shows one)
-	Woodcutter would cut a missing tree on a corn field (replaced with corn while he is chopping)
-	Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
-	AIAttacks bug (AI attacks mulfunction after 12min.rar)
-	TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
-	When uinstalling KMR, there are a lot of temp files left (.mi, logs, etc)
-	House animations order don't match with wares being taken/made. Many times wares dissappear before citizen goes to take them.
-	Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position
-	AI groups retaliating to threat or provoked by auto attack range should return to their defence positions after pursuing unsuccessfully for a certain time/distance
-	On 2 display setup, when the game is fullscreen cursor should not be locked to that one display.
-	On 2 display setup, the game should not scroll the map if cursor is on the second display (windowed or fullscreen)
-	Army orientation changes after attack. This is annoying, but sometimes could be vital when armies strike and return for next fight.
-	
+  
+  Server welcome message should support Unicode
+  AI sometimes tries to connect a house by road through field plans/diggings, which fails (finished fields are roaded over correctly but not plans/diggings)
+  Deliveries should use the actual walking route length (opposed to Radius)
+  Archers should step backwards when too close to attack target
+  Replays sometimes end up with a mismatch while watching them, cause unknown
+  AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
+  Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
+  Players that have intentionally quit (not just disconnected) should count as defeated
+  Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800x600 .. 1366x768
+  Stonemason could stuck on a mountain after flattening (stonebug2.jpg)
+  Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
+  Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
+  Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
+  If just one player cannot run the game smoothly MP will lag for everyone in his game. For example if you zoom out a lot you will get a poor frame rate and your game will run at < 10 ticks per second forcing other players down to that speed. The lagger's ping will not look any different. Maybe have a way to indicate to that player and the others on the server that he is causing the lag? Our planned 2x speed in MP will make this much worse as some computers will lag more.
+  There's no message in MP when you defeat AI opponent (if you defeat human opponent it shows one)
+  Woodcutter would cut a missing tree on a corn field (replaced with corn while he is chopping)
+  Towers attack range is uneven (should be measured from towers middle, not the recruit location in BR corner)
+  AIAttacks bug (AI attacks mulfunction after 12min.rar)
+  TSK 5: ally sometimes sends his troops to the enemy base causing you to lose (after the enemy attacks?)
+  When uinstalling KMR, there are a lot of temp files left (.mi, logs, etc)
+  House animations order don't match with wares being taken/made. Many times wares dissappear before citizen goes to take them.
+  Warriors who hit an obstacle (diagonal tree) while storming should walk towards leader's final position
+  AI groups retaliating to threat or provoked by auto attack range should return to their defence positions after pursuing unsuccessfully for a certain time/distance
+  On 2 display setup, when the game is fullscreen cursor should not be locked to that one display.
+  On 2 display setup, the game should not scroll the map if cursor is on the second display (windowed or fullscreen)
+  Army orientation changes after attack. This is annoying, but sometimes could be vital when armies strike and return for next fight.
+  
 
-	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
-	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
+  Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
+  Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
 
 
 Improvements: 
  Network:
- +	H	Server network code improvement, packing all of the packets to destination player for short period of time (~20ms) into one packet. It significantly reduces network traffik and allow scale of the lobby
- +	H	Fixed situation, when 1 player lags cause all players to lag
+ +  H  Server network code improvement, packing all of the packets to destination player for short period of time (~20ms) into one packet. It significantly reduces network traffik and allow scale of the lobby
+ +  H  Fixed situation, when 1 player lags cause all players to lag
  Graphics:
- +	M	Terrain render improvement. Use openGL VBO to render tiles and animated tiles (water/falls/swamp). FPS increased up to 2 times
- +	M	Texture atlases size increased from 512 upto 2048 (if supported)
+ +  M  Terrain render improvement. Use openGL VBO to render tiles and animated tiles (water/falls/swamp). FPS increased up to 2 times
+ +  M  Texture atlases size increased from 512 upto 2048 (if supported)
  Game: 
- +		Select area to work in for woodcutters
- +		New house delivery mode (ability to take ware out of the house, using house same as storage)
- +		Redispatch serf with ware when delivery target was destroyed (house demolished or warrior died)
- +		Ability to select ally's house/unit (without control on it)
- +		Set maximum feed limit as 0.55, below trained units condition (0.6)
- +		House closed for worker feature
- +		Ability to forbid recruits to enter the barracks
- +	L	Save wares distribution ratios between games
- +		Change unit training order in School on Ctrl+click, Shift+click
- +	L	Pressing LMB over placed plans and dragging it - will remove plans
- +		Do not show owner of corn/wine tile on minimap
- +	L	Unit group: Splitting one soldier from the group by pressing Ctrl+Separate warrior order
- +	L	Unit group: do not change UnitsPerRow of a group that is exiting Barracks if player has manually changed it at least once
- +		Unit group: feed or split command should not cancel group previous order
- +		Defeat player if he intentionally quit. Show win messages in chat when player win
- +		Increase number of players up to 12 + 1 spectator (will be adjusted later, after beta-testing)
- +	L	Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
- +		Make game speed precise
- +		Block weapon production separately in armor workshop
+ +    Added TownHall
+ +    Select area to work in for woodcutters
+ +    Woodcutter's house new woodcutter mode - Plant only
+ +    New house delivery mode (ability to take ware out of the house, using house same as storage)
+ +    Redispatch serf with ware when delivery target was destroyed (house demolished or warrior died)
+ +    Ability to select ally's house/unit (without control on it)
+ +    Set maximum feed limit as 0.55, below trained units condition (0.6)
+ +    House closed for worker feature
+ +    Ability to forbid recruits to enter the barracks
+ +  L Save wares distribution ratios between games
+ +    Change unit training order in School on Ctrl+click, Shift+click
+ +  L Pressing LMB over placed plans and dragging it - will remove plans
+ +    Do not show owner of corn/wine tile on minimap
+ +  L Unit group: Splitting one soldier from the group by pressing Ctrl+Separate warrior order
+ +  L Unit group: do not change UnitsPerRow of a group that is exiting Barracks if player has manually changed it at least once
+ +    Unit group: feed or split command should not cancel group previous order
+ +    Defeat player if he intentionally quit. Show win messages in chat when player win
+ +    Increase number of players up to 12 + 1 spectator (will be adjusted later, after beta-testing)
+ +  L Allow changing speed in MP when there's only 1 human (for playing vs AI like it's SP)
+ +    Make game speed precise
+ +    Block weapon production separately in armor workshop
+ +    Lowered feed limit for group from 75% to 55%
+ +    Game statistics:
+        Army: Separate statistics for different warrior types with filters (total/instantenious/lost/defeated)
+        Army: added 'Army power' statistics
+        Economy: only 1 is shown at one time, enlarged on all available space
+        Wares: added filter for GDP wares value
+        Players stats are sorted by their teams
+        Separated stats for players and for teams
+        Added ability to see detailed stats for SP game
+        Visual improvements
  
  Game menu:
- +		New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
- +	L	House not occupied message mentions which house it is ("This farm is not occupied")
- +	L	Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
- +		Separate statistics for different warrior types
- +		Game stats 'Weapons produced' now contains horses as well
- +		Added beacons cooldown to preven spam with beacons
- +		MP chat could be unfocused without closing it so any keyboard input processed as hotkeys
- +		Market small GUI visual improvement (removed unnecessary colon sign's)
- +		Label for group members count on group panel (same as in MapEd)
- +		Map name label on F4 menu
- +		Stats page (F3) - added +xx for training units.
- +		Stats page (F3) - added highlight unit qty number when there is no enought workers
- +		Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
- +		Colored niknames in chat system messages
- +		Ping string in game visual improvement (removed 'shaking' effect)
- +		Select house/unit, when clicked on icon from notification message (unit is hungry/house is empty etc)
- +		Added autosave after PT
- +		Added ini setting to change autosaves number and frequency (in reasonable range)
+ +    New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
+ +  L House not occupied message mentions which house it is ("This farm is not occupied")
+ +  L Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
+ +    Game stats 'Weapons produced' now contains horses as well
+ +    Added beacons cooldown to preven spam with beacons
+ +    MP chat could be unfocused without closing it so any keyboard input processed as hotkeys
+ +    Market small GUI visual improvement (removed unnecessary colon sign's)
+ +    Label for group members count on group panel (same as in MapEd)
+ +    Map name label on F4 menu
+ +    Stats page (F3) - added +xx for training units.
+ +    Stats page (F3) - added highlight unit qty number when there is no enought workers
+ +    Better scripting overlay placement depends of the game type (allow to draw overlay closer to the top of the screen during the game)
+ +    Colored niknames in chat system messages
+ +    Ping string in game visual improvement (removed 'shaking' effect)
+ +    Select house/unit, when clicked on icon from notification message (unit is hungry/house is empty etc)
+ +    Added autosave after PT
+ +    Added ini setting to change autosaves number and frequency (in reasonable range)
  
  Main menu:
- +	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
- +		New ability to set all slots as open/closed/ai in Lobby
- +		Improved sorting of lists (maps/saves/servers): sorting by MergeSort algorithm
- +	L	Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns). Update MapEd menu list position on map save
- +	M	Renaming replays in replay menu
- +		Added popup windows in menu on MapEd page and Load save page when Delete map/save game
- +		After quit from SP game/Campaign/MapEd should return to appropriate menu page
- +		Allow to save and use last entered password for MP lobby
- +	L	Load saved games with double click
- +		New column in maps/saves lists: build or fight
- +		Minimap for MP games: show in replays menu and lobby, if possible
- +		Highlight players flags in lobby, when they are clickable
- +		MP game description improvement
- +		Map Editor page - added map description and 'view PDF' button, same as in lobby
- +		Map Editor page - added 'Map Rename' button
+ +  L Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
+ +    New ability to set all slots as open/closed/ai in Lobby
+ +    Improved sorting of lists (maps/saves/servers): sorting by MergeSort algorithm
+ +  L Save last selected item in lists (load game, mp, maped list, savegames/replays, campaigns). Update MapEd menu list position on map save
+ +  M Renaming replays in replay menu
+ +    Added popup windows in menu on MapEd page and Load save page when Delete map/save game
+ +    After quit from SP game/Campaign/MapEd should return to appropriate menu page
+ +    Allow to save and use last entered password for MP lobby
+ +  L Load saved games with double click
+ +    New column in maps/saves lists: build or fight
+ +    Minimap for MP games: show in replays menu and lobby, if possible
+ +    Highlight players flags in lobby, when they are clickable
+ +    MP game description improvement
+ +    Replays list - significally improved replays list loading speed (about 10 times faster on average), by skipping CRC calc
+ +    Lobby reset bans - added cooldown 2s, to prohibit annoying spam with it
+ +    Map Editor page - added map description and 'view PDF' button, same as in lobby
+ +    Map Editor page - added 'Map Rename' button
  
  Hotkeys:
- +	L	Allow to customize and save hotkeys settings
- +		Added new hotkeys for road/field/wine/erase plans
- +		Added new hotkey to switch selection between same type buildings/units/groups
- +		Added support of extra mouse buttons (forward/backward) as hotkeys
- +		Added hotkeys to switch between players while watching replay/spectating
- +		Added hotkey on multiplayer game page: F5 refreshes server list
- +		Added different hotkey in menu: Esc for "Back" button, Enter in list (maps/replays/save games) equal to double click on item (open map/start replay etc). In menu dialog (popup) windows (delete smth, enter password/room settings etc) - Esc close it, Enter - confirm (for some popups)
- +		Added new hotkey for orders: Shift+RMB add/remove 1000 orders to orders lists
- +		In menu is possible to focus next edit controls with Tab hotkey
+ +  L Allow to customize and save hotkeys settings
+ +    Added new hotkeys for road/field/wine/erase plans
+ +    Added new hotkey to switch selection between same type buildings/units/groups
+ +    Added support of extra mouse buttons (forward/backward) as hotkeys
+ +    Added hotkeys to switch between players while watching replay/spectating
+ +    Added hotkey on multiplayer game page: F5 refreshes server list
+ +    Added different hotkey in menu: Esc for "Back" button, Enter in list (maps/replays/save games) equal to double click on item (open map/start replay etc). In menu dialog (popup) windows (delete smth, enter password/room settings etc) - Esc close it, Enter - confirm (for some popups)
+ +    Added new hotkey for orders: Shift+RMB add/remove 1000 orders to orders lists
+ +    In menu is possible to focus next edit controls with Tab hotkey
  
  Spectating/watching replay:
- +		Change screen position when switch between players with dropbox by double click on player in list. Screen position changed to last selected object of this player if possible. Otherwise change screen position to player's starting location. Same behaviour if click Ctrl + replay/spectating player hotkey
- +		Players dropbox not closing automatically anymore
- +		Show 1st human player initially, not just 1st player
- +		SP replay: Ability to ignore repeated consistency check errors
- +		Separated and sorted by teams list of players
- +		Allow to see players beacons while spectating/watching replay
- +		New option - replay autopause on PT end
- +		Enable 'Quit mission' (renamed to 'Quit Replay') button when watching replay
+ +    Change screen position when switch between players with dropbox by double click on player in list. Screen position changed to last selected object of this player if possible. Otherwise change screen position to player's starting location. Same behaviour if click Ctrl + replay/spectating player hotkey
+ +    Players dropbox not closing automatically anymore
+ +    Show 1st human player initially, not just 1st player
+ +    SP replay: Ability to ignore repeated consistency check errors
+ +    Separated and sorted by teams list of players
+ +    Allow to see players beacons while spectating/watching replay
+ +    New option - replay autopause on PT end
+ +    Enable 'Quit mission' (renamed to 'Quit Replay') button when watching replay
  
  Campaign:
- +		Ability to specify the title of the mission separately for each campaign rather than globally for all
- +		Added animation for mission nodes on Campaign page
+ +    Ability to specify the title of the mission separately for each campaign rather than globally for all
+ +    Added animation for mission nodes on Campaign page
  
  Maps:
- +		Added ability to add map pdf readme with different translations (locales)
- +		All maps dat files were unxored
- +		All maps dat files slight optimisations
+ +    Added ability to add map pdf readme with different translations (locales)
+ +    All maps dat files were unxored
+ +    All maps dat files slight optimisations
  
  Game controls:
- +		Selectable text in Edit and Memo
- +		Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
- +		Added 'Click Hold' behaviour for numeric edits and ware order rows
- +		List/ColumnBox reflect visually when unfocused (gray outline for selected item, instead of white outline, when focused)
+ +    Selectable text in Edit and Memo
+ +    Improved navigation in drop downs - added Home/End/PageUp/PageDown keys handlers
+ +    Added 'Click Hold' behaviour for numeric edits and ware order rows
+ +    List/ColumnBox reflect visually when unfocused (gray outline for selected item, instead of white outline, when focused)
  
  Development menu (F11)
- +		Added players 9-12
- +		Added logs customization
- +		Added show controls IDs option
+ +    Added players 9-12
+ +    Added logs customization
+ +    Added show controls IDs option
+ +    Added option to export png's from Units.rxx and Houses.rxx and splitting them into different folders with associated texture/masks/txt
  
  MapEditor:
- +	L	Eyedropper tool like in Photoshop to select the type of tile under the cursor
- +	L	Allow to set troops order destination with mouse on map (Shift+RMB)
- +		Added objects palette
- +		New tool - universal eraser
- +		Map resize feature
- +		Try Map feature - to start map directly from editor
- +		House damage addition/reduction by 1/10/100/1000 instead of 5/50/500
- +		Shortcut to change row count in group (same as for numbers, orders etc)
- +		Set default 'center screen' position of all players in the center of screen for new map
- +		Ability to change owner for objects
- +	L	Allow to rotate tiles on the map like in Krom's editor
- +	L	Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
- +		Its possible to add many units at once by hold LMB and mouse move (mouse drag)
- +		Added new layer - show tile owner (for corn/wine/roads)
- +		Default colors for map were changed a little bit. Second black color was replaced with purple
- +		New ability to set corn/wine stage
- +	L	Allow to grab an object with a MouseDown and drag it around until MouseUp
- +		Added posibility to change warrior conditions to arbitrary value
- +		Added new hotkeys for road/field/wine/erase plans
- +		New terrain pass layer - tbBuildNoObj - shows when its possible to build house on a tile after removing object (tree f.e.) from it or house near it.
- +		Added display color code for color page in KaM format (BGR)
- +		Load menu at toolbar - load map on double click
- +		Change brush size on Ctrl+mouse wheel
+ +  L Eyedropper tool like in Photoshop to select the type of tile under the cursor
+ +  L Allow to set troops order destination with mouse on map (Shift+RMB)
+ +    Added objects palette
+ +    New tool - universal eraser
+ +    Map resize feature
+ +    Try Map feature - to start map directly from editor
+ +    House damage addition/reduction by 1/10/100/1000 instead of 5/50/500
+ +    Shortcut to change row count in group (same as for numbers, orders etc)
+ +    Set default 'center screen' position of all players in the center of screen for new map
+ +    Ability to change owner for objects
+ +  L Allow to rotate tiles on the map like in Krom's editor
+ +  L Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
+ +    Its possible to add many units at once by hold LMB and mouse move (mouse drag)
+ +    Added ability to set up house delivery mode/repair mode/cloed for worker mode
+ +    Added new layer - show tile owner (for corn/wine/roads)
+ +    Default colors for map were changed a little bit. Second black color was replaced with purple
+ +    New ability to set corn/wine stage
+ +  L Allow to grab an object with a MouseDown and drag it around until MouseUp
+ +    Added posibility to change warrior conditions to arbitrary value
+ +    Added new hotkeys for road/field/wine/erase plans
+ +    New terrain pass layer - tbBuildNoObj - shows when its possible to build house on a tile after removing object (tree f.e.) from it or house near it.
+ +    Added display color code for color page in KaM format (BGR)
+ +    Load menu at toolbar - load map on double click
+ +    Change brush size on Ctrl+mouse wheel
  
  Dynamic scripts:
- +		Update to current version of remObjects PascalScript. 
- +		Added ability to include scripts. Added pascal style directives. Show exact error position in script. 
- +		Added support for ogg audio format with similar functions as for WAV (PlayOGG/PlayOGGAtLocation/PlayOGGAtLocationLooped/PlayOGGFadeMusic/PlayOGGLooped/StopLoopedOGG)
- +		New MapTilesArraySet function
- +		Added 32 utility functions into new scripts unit 'Utils'. Check wiki for details
- +		Added 4 procedures: OnGroupOrderAttackHouse/OnGroupOrderAttackUnit/OnGroupOrderLink/OnGroupOrderSplit
- +		Added ShareFogCompliment function (Sets whether players A and B share their vision (both ways))
+ +    Update to current version of remObjects PascalScript. 
+ +    Added ability to include scripts. Added pascal style directives. Show exact error position in script. 
+ +    Added support for ogg audio format with similar functions as for WAV (PlayOGG/PlayOGGAtLocation/PlayOGGAtLocationLooped/PlayOGGFadeMusic/PlayOGGLooped/StopLoopedOGG)
+ +    New MapTilesArraySet function
+ +    Added 32 utility functions into new scripts unit 'Utils'. Check wiki for details
+ +    Added 4 procedures: OnGroupOrderAttackHouse/OnGroupOrderAttackUnit/OnGroupOrderLink/OnGroupOrderSplit
+ +    Added ShareFogCompliment function (Sets whether players A and B share their vision (both ways))
+ +    Added command to stop playing sound
  
  Other: 
- +	L	Saving and restoring games window position on restart
- +		All save files are placed in 1 folder. Same as for maps
- +		Ability to set decimal values for game speedups in INI file
- +		GIP commands are packed now. We have to send only needed field. It will reduce nettraffic and '.rpl' file size.
- +		Added ability to set Tabulation in game labels/texts. Can be used by scriptmakers to make better output
+ +  L Saving and restoring games window position on restart
+ +    Async game resource loading, which increases first map loading time
+ +    All save files are placed in 1 folder. Same as for maps
+ +    Ability to set decimal values for game speedups in INI file
+ +    GIP commands are packed now. We have to send only needed field. It will reduce nettraffic and '.rpl' file size.
+ +    Added ability to set Tabulation in game labels/texts. Can be used by scriptmakers to make better output
+ +    Added setting FPSCap to set max fps limit
+ +    Version label moved from all game menu to F11 Status bar
+ +    Translation manager: Added filter on label name and label ID
+ +    Images, loaded from Sprites folder are applied with soften shadows
  
    
-	 
+   
 Other ideas for future (ToDo maybe):
  
-		Dismiss button to make units walk into the school and disappear (gold is not refunded)
-	L	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
-	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
-	L	256x256 icons for EXE (for vista/7/8 users)
-	L	Chat logs
-	L	Evacuate wares from barracks
-	L	Allow chat over multiplayer results screen
-	L	Add support for 1024x600 (1280x720) resolution in the map editor
-	L	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
-	L	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
-	M	Pause in multiplayer (pause by everyone and unpause by at least 2 other players)
-	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (zips entire game state which can be loaded)
-			Krom: Not sure how this will cope with 29hour games
-			Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
-	L	Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played) (maybe through special player like animals?
-	L	The close door button in a house also stops a new occupant from taking it, so you can make recruits go to the barracks instead of walking to watchtowers, and so you can prioritize for example which mines get occupied first. It should also block the "house not occupied" message.
-	LM	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
-	L	Changing teams in multiplayer
-			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
-	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
-	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
-	L	Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added
-	M	Archers should not change formations when group members get killed while under attack
-	L	Keep road bends when neighbour road is destroyed (e.g. house entrances)
-	L	Allow fish to swim under the ice (as well render it between sand and water terrain layers)
-	L	Allow to copy opponents nikname into buffer (through players menu > Copy?)
-	M	Make projectiles play hit sounds on every Paint and UpdateState, so we dont get just 3 hit sounds for 20 archers shooting at once
-	M	Script command to block AI building in certain areas (TSK 14: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=40032#p40032)
-	M	Self-sustained AI should help allied players in game
-	L	Serfs should take wares back or to suitable house if destination is destroyed
+     Dismiss button to make units walk into the school and disappear (gold is not refunded)
+  L  Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
+  L  Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
+  L  256x256 icons for EXE (for vista/7/8 users)
+  L  Chat logs
+  L  Evacuate wares from barracks
+  L  Allow chat over multiplayer results screen
+  L  Add support for 1024x600 (1280x720) resolution in the map editor
+  L  Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
+  L  Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
+  L  New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
+  M  Pause in multiplayer (pause by everyone and unpause by at least 2 other players)
+  L  "Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (zips entire game state which can be loaded)
+      Krom: Not sure how this will cope with 29hour games
+      Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
+  L  Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played) (maybe through special player like animals?
+  L  The close door button in a house also stops a new occupant from taking it, so you can make recruits go to the barracks instead of walking to watchtowers, and so you can prioritize for example which mines get occupied first. It should also block the "house not occupied" message.
+  LM Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
+  L  Changing teams in multiplayer
+     Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
+  L  Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
+  L  Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
+  L  Maplist takes too long to load on first run, scrollbar moves irritatingly while maps are being added
+  M  Archers should not change formations when group members get killed while under attack
+  L  Keep road bends when neighbour road is destroyed (e.g. house entrances)
+  L  Allow fish to swim under the ice (as well render it between sand and water terrain layers)
+  L  Allow to copy opponents nikname into buffer (through players menu > Copy?)
+  M  Make projectiles play hit sounds on every Paint and UpdateState, so we dont get just 3 hit sounds for 20 archers shooting at once
+  M  Script command to block AI building in certain areas (TSK 14: http://www.knightsandmerchants.net/forum/viewtopic.php?f=5&t=1254&p=40032#p40032)
+  M  Self-sustained AI should help allied players in game
+  L  Serfs should take wares back or to suitable house if destination is destroyed
 
-	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
-	L	MapEd: Allow to toggle AI defence positions display
-	L	MapEd: Random objects brush
-	L	MapEd: Artistic brushes (those that place random types of trees and/or decorations)
-	L	MapEd: Make houses highlight red when about to erase them as trees/units do
-	L	MapEd: Flat terrain checkbox on Extras popup
-	L	MapEd: Add size to Object delete brush (possibly in a new tab where artistic brushes will be)
-	L	MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
-	M	MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
-	L	MapEd: Lasso selection for copy/paste
+  L  MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
+  L  MapEd: Allow to toggle AI defence positions display
+  L  MapEd: Random objects brush
+  L  MapEd: Artistic brushes (those that place random types of trees and/or decorations)
+  L  MapEd: Make houses highlight red when about to erase them as trees/units do
+  L  MapEd: Flat terrain checkbox on Extras popup
+  L  MapEd: Add size to Object delete brush (possibly in a new tab where artistic brushes will be)
+  L  MapEd: An option to hide roads/fields, so you can view just the terrain while you edit it
+  M  MapEd: "Sync all" checkbox when adding wares to a house which makes it the same for all houses of that type
+  L  MapEd: Lasso selection for copy/paste
  
- -	Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
- -	Make units turn around without skipping inbetween directions (instead of immediate direction change)
- -	Unexpectedly high ping values (not our problem usually)
- -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
- -	The ingame briefing texture is too short, see attached picture
- -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
- -	Warriors attacking enemy citizens don't listen to orders (thats a feature)
- -	Many texts will not change if I change the language in options menu (we are always working on it)
- -	Campaign progress was lost when upgrading from r5503 to r6720
+ -  Fixed "Unsupported global variable type 28" error in dynamic scripts when using UnicodeString (no need to use unicode, use AnsiString)
+ -  Make units turn around without skipping inbetween directions (instead of immediate direction change)
+ -  Unexpectedly high ping values (not our problem usually)
+ -  One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
+ -  The ingame briefing texture is too short, see attached picture
+ -  In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
+ -  Warriors attacking enemy citizens don't listen to orders (thats a feature)
+ -  Many texts will not change if I change the language in options menu (we are always working on it)
+ -  Campaign progress was lost when upgrading from r5503 to r6720
  -  Allow to block wares delivery into armor workshop, so that player could focus each on certain task (shields or armors) (see github #105 for details)
 
 
 
 Fixed in r6720:
 <===================================================================================>
- +	Actions.GroupOrderSplit returned the original group ID, not the new one
- +	Delivery importance would be ignored in cases where you have more available serfs than available deliveries
- +	Storm attacking soldiers would sometimes pass by enemies instead of stopping to fight them
- +	Citizens would not step out of a house onto a tile which was not road
- +	Wares icons went off by few pixels to the left-top on the wares rows, reverted back
- +	MapEd should not allow to set active player type to nor human nor AI
- +	Script command IsFieldAt checked winefields by mistake (same as IsWineFieldAt)
- +	Script could order to attack allied assets. Check alliance settings when executing attack commands from script
- +	Script would not allow to play WAV files with anything except lower case letters and digits
- +	Random seed should be different before each game
- +	Attacking an animal through script command would crash a game
- +	AIs should retaliate when the arrows are in the air, not while the archer is just aiming
- +	Limit save name length (long names can cause crash)
- +	Fixed winefield bug (MapEd did not save grapes objects)
- +	Scripts should not allow to link players warriors to other players group
- +	In-house enable/disable ware delivery in script worked in reverse
- +	Actions.PlayerWareDistribution did not update house orders, so houses didn't notice that the distribution has changed
- +	Integer overflow in stats caused by counting stone/wood as consumed twice when an incomplete house was destroyed
- +	Crash during delivery if ToHouse was destroyed while the serf was inside FromHouse
- +	Network system messages are now translated
- +	Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
- +	Block sending chat during reconnection to prevent messages being lost or causing errors (when fMyIndexOnServer is out of date)
- +	Beacons did not render on unrevealed areas
- +	Singleplayer replays ended at the last player command rather than when they were saved (use gic_GameSave in SP too)
- +	Actions.GiveHouse failed when there was a worker building a field or road next to the house
- +	Strange AI behaviour in campaign missions due to AI attack values not carrying over like they do in KaM
- +	AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village (can be set in MapEd)
- +	Terrain brushes in MapEd erase corn/wine fields (should preserve them)
- +	When citizen walks into a house he should be deselected
- +	Make wood to be delivered first to building sites
- +	Changing game options resets all players' ready status so host can't change at the last moment without player agreement
- +	Hotkeys (0..9) are now stored in multiplayer saves too
- +	Replays show the scripted overlay text for the selected player
- +	Message log is no longer lost when saving in multiplayer, and messages no longer show in replays
- +	Arrows shot over longer distances would be invisible for the last ~10% of their flight (units die when no one appears to be shooting them)
- +	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
- +	Dynamic scripts should not allow to give houses/units to disabled player
+ +  Actions.GroupOrderSplit returned the original group ID, not the new one
+ +  Delivery importance would be ignored in cases where you have more available serfs than available deliveries
+ +  Storm attacking soldiers would sometimes pass by enemies instead of stopping to fight them
+ +  Citizens would not step out of a house onto a tile which was not road
+ +  Wares icons went off by few pixels to the left-top on the wares rows, reverted back
+ +  MapEd should not allow to set active player type to nor human nor AI
+ +  Script command IsFieldAt checked winefields by mistake (same as IsWineFieldAt)
+ +  Script could order to attack allied assets. Check alliance settings when executing attack commands from script
+ +  Script would not allow to play WAV files with anything except lower case letters and digits
+ +  Random seed should be different before each game
+ +  Attacking an animal through script command would crash a game
+ +  AIs should retaliate when the arrows are in the air, not while the archer is just aiming
+ +  Limit save name length (long names can cause crash)
+ +  Fixed winefield bug (MapEd did not save grapes objects)
+ +  Scripts should not allow to link players warriors to other players group
+ +  In-house enable/disable ware delivery in script worked in reverse
+ +  Actions.PlayerWareDistribution did not update house orders, so houses didn't notice that the distribution has changed
+ +  Integer overflow in stats caused by counting stone/wood as consumed twice when an incomplete house was destroyed
+ +  Crash during delivery if ToHouse was destroyed while the serf was inside FromHouse
+ +  Network system messages are now translated
+ +  Player alliance towards self is inconsistent, especially in MP and when accessing from script (should be Ally always!)
+ +  Block sending chat during reconnection to prevent messages being lost or causing errors (when fMyIndexOnServer is out of date)
+ +  Beacons did not render on unrevealed areas
+ +  Singleplayer replays ended at the last player command rather than when they were saved (use gic_GameSave in SP too)
+ +  Actions.GiveHouse failed when there was a worker building a field or road next to the house
+ +  Strange AI behaviour in campaign missions due to AI attack values not carrying over like they do in KaM
+ +  AI warriors should attack enemies when they are within 4 tiles, to prevent sneaking into AI village (can be set in MapEd)
+ +  Terrain brushes in MapEd erase corn/wine fields (should preserve them)
+ +  When citizen walks into a house he should be deselected
+ +  Make wood to be delivered first to building sites
+ +  Changing game options resets all players' ready status so host can't change at the last moment without player agreement
+ +  Hotkeys (0..9) are now stored in multiplayer saves too
+ +  Replays show the scripted overlay text for the selected player
+ +  Message log is no longer lost when saving in multiplayer, and messages no longer show in replays
+ +  Arrows shot over longer distances would be invisible for the last ~10% of their flight (units die when no one appears to be shooting them)
+ +  Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
+ +  Dynamic scripts should not allow to give houses/units to disabled player
  +      Script should not allow to place houses on top of fields
- +	TSK15 - AI does not build because stone is too far away (AI builder was incomplete)
- +	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
+ +  TSK15 - AI does not build because stone is too far away (AI builder was incomplete)
+ +  Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
  
 
 Improvements:
- +	M	Noticeably improved render performance when zoomed out
- +	M	Noticeably improved render performance when there are many houses on the screen
- +	L	Serfs check for a better delivery destination when arriving at the From house (due to state of village changing)
- +	M	MapEd: Copy/paste works between multiple instances of the editor using Windows clipboard
- +	L	Allow to specify localized player names for the missions
- +	L	Game will flash on task bar when new chat message arrives
- +	L	Set random seed on game start (for MP it needs to be decided by host and synced before the game starts)
- +	L	A way to order +100 weapons at weapon makers and other places (shift + left-click)
- +	L	MapEd: Allow custom map sizes
- +	L	Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, X to charge, F for food
- +	L	MapEd: Randomize terrain tiles when creating a new map
- +	L	MapEd: Increased max terrain brush size to 32
- +	L	New script command !BLOCK_UNIT to block certain types of units/soldiers from being trained/equipped
- +	L	Allow cinematics in dynamic scripts
- +	M	File transfers in multiplayer lobby
- +	L	Master server use MySQL for storage rather than .txt files
- +	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
- +	L	The host can ban players from the lobby (only from this lobby, it is not a permanent ban)
- +	L	MapEd and script let you add out wares to houses (e.g. stone to stonemason)
- +	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy)
- +	L	Keyboard shortcuts to zoom for people without a scrollwheel (page up/page down)
- +	L	Distribution of wares is viewable during replays
- +	L	Rally point for the barracks
- +	L	Warriors leaving the barracks will form a square formation rather than a long snake like in TSK/TPR
- +	L	Multiplayer spectating
- +	L	MapEd option to enable the AI to retaliate against allies' assets being attacked like they do for themselves
- +	L	Multiplayer in-game player list ordered by teams
- +	L	When archers are ordered to attack by right clicking enemy unit, they will walk into range in formation not spread out
- +	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
- +	L	Pressing spacebar will center the screen on the latest alert (beacon or under attack)
- +	L	Save screenshots into own folder called "Screenshots"
- +	L	Add an option to give hosting rights to another player in lobby
- +	L	The story message on campaign map minimizes instead of jumping annoyingly
- +	L	Unlocked campaign map flags have numbers so you can find a mission easily
- +	M	Ability to return to the lobby (by vote) after the game has started in multiplayer
- +	M	Servers running on the local area network are detected and listed at the top of the server list
- +	L	Some way to delete multiplayer saves from within the KaM Remake (delete button on replay viewer)
- +	L	Some way to delete maps from within the KaM Remake (delete button in MapEd menu)
- +	L	MapEd: Magic water works for ice
- +	L	Way to hide scripted overlay
- +	L	Message when weaponmaker has complete his order
+ +  M  Noticeably improved render performance when zoomed out
+ +  M  Noticeably improved render performance when there are many houses on the screen
+ +  L  Serfs check for a better delivery destination when arriving at the From house (due to state of village changing)
+ +  M  MapEd: Copy/paste works between multiple instances of the editor using Windows clipboard
+ +  L  Allow to specify localized player names for the missions
+ +  L  Game will flash on task bar when new chat message arrives
+ +  L  Set random seed on game start (for MP it needs to be decided by host and synced before the game starts)
+ +  L  A way to order +100 weapons at weapon makers and other places (shift + left-click)
+ +  L  MapEd: Allow custom map sizes
+ +  L  Shortcuts for all soldier buttons: , & . to rotate, + & - to add/withdraw lines, X to charge, F for food
+ +  L  MapEd: Randomize terrain tiles when creating a new map
+ +  L  MapEd: Increased max terrain brush size to 32
+ +  L  New script command !BLOCK_UNIT to block certain types of units/soldiers from being trained/equipped
+ +  L  Allow cinematics in dynamic scripts
+ +  M  File transfers in multiplayer lobby
+ +  L  Master server use MySQL for storage rather than .txt files
+ +  L  Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
+ +  L  The host can ban players from the lobby (only from this lobby, it is not a permanent ban)
+ +  L  MapEd and script let you add out wares to houses (e.g. stone to stonemason)
+ +  M  New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy)
+ +  L  Keyboard shortcuts to zoom for people without a scrollwheel (page up/page down)
+ +  L  Distribution of wares is viewable during replays
+ +  L  Rally point for the barracks
+ +  L  Warriors leaving the barracks will form a square formation rather than a long snake like in TSK/TPR
+ +  L  Multiplayer spectating
+ +  L  MapEd option to enable the AI to retaliate against allies' assets being attacked like they do for themselves
+ +  L  Multiplayer in-game player list ordered by teams
+ +  L  When archers are ordered to attack by right clicking enemy unit, they will walk into range in formation not spread out
+ +  L  Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
+ +  L  Pressing spacebar will center the screen on the latest alert (beacon or under attack)
+ +  L  Save screenshots into own folder called "Screenshots"
+ +  L  Add an option to give hosting rights to another player in lobby
+ +  L  The story message on campaign map minimizes instead of jumping annoyingly
+ +  L  Unlocked campaign map flags have numbers so you can find a mission easily
+ +  M  Ability to return to the lobby (by vote) after the game has started in multiplayer
+ +  M  Servers running on the local area network are detected and listed at the top of the server list
+ +  L  Some way to delete multiplayer saves from within the KaM Remake (delete button on replay viewer)
+ +  L  Some way to delete maps from within the KaM Remake (delete button in MapEd menu)
+ +  L  MapEd: Magic water works for ice
+ +  L  Way to hide scripted overlay
+ +  L  Message when weaponmaker has complete his order
 
 
 
 Fixed in r5503:
 <===================================================================================>
- +	Make Serfs face the house plan entrance when handing building materials to it
- +	Stonemasons/fishermen would report that resources are depleted when the only mining spots were blocked by another unit
- +	Archers behave badly when you tell them to attack directly (houses and units)
- +	Saving a game or a map in MapEd with a name ending/starting in a space crashes with "Invalid file name"
- +	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows
- +	MapEd did not saved Group orders (sendGroup and AttackPosition)
- +	Only the first 16 servers would be queried correctly, subsequent servers would not show in the list
- +	Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
- +	If you halt your archers after they shoot they will shoot without reloading, increasing their firing speed
- +	Game window would move when resizing below minimum allowed size (should stay in place)
- +	If weapon maker had f.e. 5 axes and 5 lances in output and all weapons were ordered, he would not make bows
- +	Farms were significantly less efficient when sharing a large field between multiple farms
- +	Map/save/replay lists are populated a lot faster now
- +	Citizens graph no longer counts recruits
- +	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
- +	Replays would mismatch if a player attempted to use a storehouse cheat pattern (the cheat was allowed in the replay causing a mismatch)
- +	Listbox scrollbars jump when trying to drag them by upper/lower thumb edge
- +	AI attack scripts carried uninitialized values (e.g. delay) over from previous attacks
- +	Limit chat message to some sane amount of characters (256) to avoid spam
- +	Clicking on the splash screen registers the click on the main menu once it is loaded
- +	XML status output from the server sometimes contained invalid characters in player names (now they are escaped correctly)
+ +  Make Serfs face the house plan entrance when handing building materials to it
+ +  Stonemasons/fishermen would report that resources are depleted when the only mining spots were blocked by another unit
+ +  Archers behave badly when you tell them to attack directly (houses and units)
+ +  Saving a game or a map in MapEd with a name ending/starting in a space crashes with "Invalid file name"
+ +  In maps with elevated terrain near the top it is not possible to see units standing on the top few rows
+ +  MapEd did not saved Group orders (sendGroup and AttackPosition)
+ +  Only the first 16 servers would be queried correctly, subsequent servers would not show in the list
+ +  Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
+ +  If you halt your archers after they shoot they will shoot without reloading, increasing their firing speed
+ +  Game window would move when resizing below minimum allowed size (should stay in place)
+ +  If weapon maker had f.e. 5 axes and 5 lances in output and all weapons were ordered, he would not make bows
+ +  Farms were significantly less efficient when sharing a large field between multiple farms
+ +  Map/save/replay lists are populated a lot faster now
+ +  Citizens graph no longer counts recruits
+ +  Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
+ +  Replays would mismatch if a player attempted to use a storehouse cheat pattern (the cheat was allowed in the replay causing a mismatch)
+ +  Listbox scrollbars jump when trying to drag them by upper/lower thumb edge
+ +  AI attack scripts carried uninitialized values (e.g. delay) over from previous attacks
+ +  Limit chat message to some sane amount of characters (256) to avoid spam
+ +  Clicking on the splash screen registers the click on the main menu once it is loaded
+ +  XML status output from the server sometimes contained invalid characters in player names (now they are escaped correctly)
  
 
 Improvements:
- +	H	Refactor army management with TGroup layer
- +	L	Allow to set wares count in houses in MapEd
- +	M	FPS shown along side ping so you can easily identify the player causing lag
- +	L	VSync should be configurable on the settings page, it can reduce performance a bit on some systems and players might like to change it
- +	M	Block delivery flags for specific wares in the barracks
- +	L	Wares need to be taken out of the barracks for trading at the market
- +	M	Terrain painting brushes in MapEd
- +	L	Disabling Market buttons will let player know that he can't select new trade without canceling current one
- +	L	Improved stats panel, when possible items are placed one per row 
- +	L	Host can set password for lobby
- +	M	Sliders in lobby for selecting speed during peacetime and after peacetime
- +	L	Army graph starts 5% before the first variation (to skip peacetime)
- +	L	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
- +	L	Draw highlight on houses mentioned in an open message
- +		Fix fences shading along edges of FOW
- +	L	Pressing a key selects the map starting with that letter in map/save lists
- +		School+Inn and Quarry+Woodcutters are unlocked in pairs to speedup early game
- +		Made that missions without victory goals do not proclaim player victorious immediately. Instead victory never happens (or ruled by script)
- +	L	Randomize locations within teams option in the lobby
- +	L	Ability to send a whisper (private chat) to a specific player
- +	M	Visualise fog of war for the selected player in replays so you can understand player's perspective
- +	M	Scrolling around the map using middle mouse click, as in TPR
- +	M	Allow host to set a description for the lobby shown on the server selection page ("noobs/pros only", "chat lobby", etc.)
- +	L	Private messaging in MP
- +	L	Add unused sprite 17 from trees.rx
- +	L	Pressing a character with a dropdown/listbox selected will choose the first item starting with that character
- +	L	It is impossible to identify selected group if player flag color is white. Use dark-grey instead.
- +	L	Clicking a location on the lobby minimap selects that location if it's available
- +	L	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
- +	L	MapEd: Magic water brush to allow to change waterflow direction on whole area
+ +  H  Refactor army management with TGroup layer
+ +  L  Allow to set wares count in houses in MapEd
+ +  M  FPS shown along side ping so you can easily identify the player causing lag
+ +  L  VSync should be configurable on the settings page, it can reduce performance a bit on some systems and players might like to change it
+ +  M  Block delivery flags for specific wares in the barracks
+ +  L  Wares need to be taken out of the barracks for trading at the market
+ +  M  Terrain painting brushes in MapEd
+ +  L  Disabling Market buttons will let player know that he can't select new trade without canceling current one
+ +  L  Improved stats panel, when possible items are placed one per row 
+ +  L  Host can set password for lobby
+ +  M  Sliders in lobby for selecting speed during peacetime and after peacetime
+ +  L  Army graph starts 5% before the first variation (to skip peacetime)
+ +  L  Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
+ +  L  Draw highlight on houses mentioned in an open message
+ +    Fix fences shading along edges of FOW
+ +  L  Pressing a key selects the map starting with that letter in map/save lists
+ +    School+Inn and Quarry+Woodcutters are unlocked in pairs to speedup early game
+ +    Made that missions without victory goals do not proclaim player victorious immediately. Instead victory never happens (or ruled by script)
+ +  L  Randomize locations within teams option in the lobby
+ +  L  Ability to send a whisper (private chat) to a specific player
+ +  M  Visualise fog of war for the selected player in replays so you can understand player's perspective
+ +  M  Scrolling around the map using middle mouse click, as in TPR
+ +  M  Allow host to set a description for the lobby shown on the server selection page ("noobs/pros only", "chat lobby", etc.)
+ +  L  Private messaging in MP
+ +  L  Add unused sprite 17 from trees.rx
+ +  L  Pressing a character with a dropdown/listbox selected will choose the first item starting with that character
+ +  L  It is impossible to identify selected group if player flag color is white. Use dark-grey instead.
+ +  L  Clicking a location on the lobby minimap selects that location if it's available
+ +  L  Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
+ +  L  MapEd: Magic water brush to allow to change waterflow direction on whole area
 
 
 
 Fixed in r4179:
 <===================================================================================>
- +	Belarusian letter Ў had upper and lower case swapped in fonts
- +	Intel 965/963 GPU does not comply with OGL 1.5 spec on VBOs, check Assigned instead of OGL version
- +	Taking weapons from store>barracks should not be a lower priority than house>house deliveries
- +	Network latency in KaM Remake was always far higher than necessary due to Nagle's algorithm being enabled by default for TCP (we now use TCP_NODELAY)
- +	A unit should not take a home that he can't walk to
- +	TSK 5 some purple scouts would sit in the top right corner and not attack
- +	Fixed crashes related to TimeGet/GetTickCount overflowing
+ +  Belarusian letter Ў had upper and lower case swapped in fonts
+ +  Intel 965/963 GPU does not comply with OGL 1.5 spec on VBOs, check Assigned instead of OGL version
+ +  Taking weapons from store>barracks should not be a lower priority than house>house deliveries
+ +  Network latency in KaM Remake was always far higher than necessary due to Nagle's algorithm being enabled by default for TCP (we now use TCP_NODELAY)
+ +  A unit should not take a home that he can't walk to
+ +  TSK 5 some purple scouts would sit in the top right corner and not attack
+ +  Fixed crashes related to TimeGet/GetTickCount overflowing
 
 
 Improvements:
- +	The map editor shows the number of fish in a water body like other resource deposits
- +	Make hints more visible with background
- +	Number of building materials delivered to an under construction house is shown when it is selected
- +	Holding shift while placing a house keeps the house selected instead of changing to road
- +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
- +	Map editor has speed slider along with size and slope
- +	Marketplace trade values have been significantly changed
+ +  The map editor shows the number of fish in a water body like other resource deposits
+ +  Make hints more visible with background
+ +  Number of building materials delivered to an under construction house is shown when it is selected
+ +  Holding shift while placing a house keeps the house selected instead of changing to road
+ +  Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
+ +  Map editor has speed slider along with size and slope
+ +  Marketplace trade values have been significantly changed
 
 
 
 Fixed in r4001:
 <===================================================================================>
- +	Improved units/objects visibility along map edges
- +	Crash if you change locale and don't have OpenAL installed due to using non-blocking Application.MessageBox instead of MessageDlg
- +	Dots and lines displaying on tile edges [Krom]
- +	Producing more than 65k resources causes an integer overflow in PlayerStats
- +	Decreasing the resource distribution removes demands immediately when nobody has taken the task yet
- +	Units now start with the same condition as in TPR (~12 minutes less condition than the last KaM Remake version)
- +	Fix function of the "Restart" button so it always restarts the mission you were playing, not just loads basesave
- +	Fixed crash when units feet were off map bounds
- +	Fixed crash when arrows would be flying outside of map
- +	Fixed crash when watching Credits page for more than 28min
- +	The game should display time played without clipping it to 24hours
- +	Woodcutter should take his axe with him from home when he is going out to chop trees
- +	"Under attack" messages should play when the loc is not visible on your screen, rather than using arbitrary >=30 rule
- +	Farmer should not sow corn on tiles left after demolished houses that were built ontop of roads built ontop of fields 
- +	Placing a house above other players units in MapEd is now handled on mission load (it caused a crash before)
- +	Pressing the "Restart" button during a replay would sometimes cause a crash
- +	Resource harvesting now checks walking length rather than direct distance to stop e.g. woodcutters walking all the way around a mountain/river
- +	Sandhills cause water next to shore tiles to appear darker with square edges
- +	Fixed a crash with the AI retaliating against a threat
- +	TSK 19 crashes due to an AI attack (at 06:38) target being off map
- +	Attacking a house from the bottom right, soldiers will stack up rather than choosing a different free cell (flaws in TKMHouse.InReach)
- +	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
- +	Duplicate app blocking should happen for multiplayer mode only (including replays) as that's the only cheating we care about
- +	Minimap in MapEd would show group members shifted by 1 tile to south-east
- +	Messages show "MissionString out of range" after save+exit+load repeated twice (due to fMissionFile not being saved)
- +	The map editor no longer removes the terrain data used by Krom's Map Editor, so you can use terrain brushes there after saving with the Remake
- +	Leaders of archers would sometimes not fire after walking, instead they would lock up and stand still
- +	Fixed some crashes/bugs in the Linux dedicated server
- +	You won't get a victory if you defeat enemy towns until after recieving all scripted text messages
- +	Crash when selecting a high refresh rate then selecting a resolution that only supports lower refresh rates
- +	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
- +	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
- +	Flatten/equalise in the MapEd doesn't seem to work properly (like Krom's editor). Unequalise is ok.
- +	Heights look different on certain systems, see heights.jpg images and dxdiag report (triangulation issue)
+ +  Improved units/objects visibility along map edges
+ +  Crash if you change locale and don't have OpenAL installed due to using non-blocking Application.MessageBox instead of MessageDlg
+ +  Dots and lines displaying on tile edges [Krom]
+ +  Producing more than 65k resources causes an integer overflow in PlayerStats
+ +  Decreasing the resource distribution removes demands immediately when nobody has taken the task yet
+ +  Units now start with the same condition as in TPR (~12 minutes less condition than the last KaM Remake version)
+ +  Fix function of the "Restart" button so it always restarts the mission you were playing, not just loads basesave
+ +  Fixed crash when units feet were off map bounds
+ +  Fixed crash when arrows would be flying outside of map
+ +  Fixed crash when watching Credits page for more than 28min
+ +  The game should display time played without clipping it to 24hours
+ +  Woodcutter should take his axe with him from home when he is going out to chop trees
+ +  "Under attack" messages should play when the loc is not visible on your screen, rather than using arbitrary >=30 rule
+ +  Farmer should not sow corn on tiles left after demolished houses that were built ontop of roads built ontop of fields 
+ +  Placing a house above other players units in MapEd is now handled on mission load (it caused a crash before)
+ +  Pressing the "Restart" button during a replay would sometimes cause a crash
+ +  Resource harvesting now checks walking length rather than direct distance to stop e.g. woodcutters walking all the way around a mountain/river
+ +  Sandhills cause water next to shore tiles to appear darker with square edges
+ +  Fixed a crash with the AI retaliating against a threat
+ +  TSK 19 crashes due to an AI attack (at 06:38) target being off map
+ +  Attacking a house from the bottom right, soldiers will stack up rather than choosing a different free cell (flaws in TKMHouse.InReach)
+ +  If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
+ +  Duplicate app blocking should happen for multiplayer mode only (including replays) as that's the only cheating we care about
+ +  Minimap in MapEd would show group members shifted by 1 tile to south-east
+ +  Messages show "MissionString out of range" after save+exit+load repeated twice (due to fMissionFile not being saved)
+ +  The map editor no longer removes the terrain data used by Krom's Map Editor, so you can use terrain brushes there after saving with the Remake
+ +  Leaders of archers would sometimes not fire after walking, instead they would lock up and stand still
+ +  Fixed some crashes/bugs in the Linux dedicated server
+ +  You won't get a victory if you defeat enemy towns until after recieving all scripted text messages
+ +  Crash when selecting a high refresh rate then selecting a resolution that only supports lower refresh rates
+ +  In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
+ +  Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
+ +  Flatten/equalise in the MapEd doesn't seem to work properly (like Krom's editor). Unequalise is ok.
+ +  Heights look different on certain systems, see heights.jpg images and dxdiag report (triangulation issue)
 
 
 Improvements:
- +	High quality alpha-blended shadows for houses
- +	Display charts in game results screens (army, wares count, etc.)
- +	Show the player's name above each group (flag holder) while 'T' key is kept pressed
- +	Non-fatal mission script errors will be shown on start
- +	RXXPacker to make soft shadowed RXX files in 1 click rather than by hand
- +	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
- +	Allow to assign groups and houses(!) to Ctrl+0..9 keys
- +	Play campaign briefing audio files (and fade music while it plays)
- +	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
- +	Display count of raw materials of each separate area in MapEd (as number in the middle)
- +	Alerts on the minimap when a unit/house is under attack
- +	Show peacetime remaining in MP replays
- +	Add PlayerCount and Size columns to MapEd selection menu, as well allow to sort maps there
- +	Edges of messages and other scrolls should be transparent so they look smooth
- +	Clicking RMB in schools queue should cancel units on right
- +	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
+ +  High quality alpha-blended shadows for houses
+ +  Display charts in game results screens (army, wares count, etc.)
+ +  Show the player's name above each group (flag holder) while 'T' key is kept pressed
+ +  Non-fatal mission script errors will be shown on start
+ +  RXXPacker to make soft shadowed RXX files in 1 click rather than by hand
+ +  Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
+ +  Allow to assign groups and houses(!) to Ctrl+0..9 keys
+ +  Play campaign briefing audio files (and fade music while it plays)
+ +  Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
+ +  Display count of raw materials of each separate area in MapEd (as number in the middle)
+ +  Alerts on the minimap when a unit/house is under attack
+ +  Show peacetime remaining in MP replays
+ +  Add PlayerCount and Size columns to MapEd selection menu, as well allow to sort maps there
+ +  Edges of messages and other scrolls should be transparent so they look smooth
+ +  Clicking RMB in schools queue should cancel units on right
+ +  Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
 
 
 
 Fixed in r3392:
 <===================================================================================>
- +	Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
- +	Click server A, then quickly click server B. This is incorrectly interpreted as double clicking and you join server B
- +	Units should eat a maximum of 2 food items at the inn
- +	Exporting GUI.rx gives a Range Check Error
- +	Woodcutter would occasionally not cut certain trees
- +	Falling trees sometimes looped back to the first frame of the animation making them appear standing again
- +	Houses from script could be placed at invalid tiles or overlapping, causing duplicate watchertower in TSK 7
- +	The breifing for TPR mission 14 was blank due to an error with loading the last string from a LIB file
- +	Major A* pathfinding mistake from r1220 causing long/inefficient routes to be calculated
- +	On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
- +	Fixed crash occurring on replay end
- +	Chat button in multiplayer replay viewer was not properly disabled and upon click caused a crash
- +	See-through hills (lighting flaw)
- +	Server selection highlight in MP menu disappears when sorting by any column
- +	Putting a "/" in a save name causes an error (probably other characters like \ ? | too, we should restrict allowed chars)
- +	Entering text into port/room fields. They should accept only digits
- +	Pressing CTRL+ALT+DEL with a game running caused a "System error code 5" or "call to OS function failed" due to Windows denying accesss to Mouse.CursorPos for a moment
- +	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
- +	Issue with empty saves names and misused whitespaces
- +	The market should be blocked in the original campaigns/tutorial (maybe have an option to enable it starting at later missions, but it still ruins the balance IMO)
- +	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
- +	Fixed assert fail when loading map that has roads placed outside of map bounds
+ +  Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
+ +  Click server A, then quickly click server B. This is incorrectly interpreted as double clicking and you join server B
+ +  Units should eat a maximum of 2 food items at the inn
+ +  Exporting GUI.rx gives a Range Check Error
+ +  Woodcutter would occasionally not cut certain trees
+ +  Falling trees sometimes looped back to the first frame of the animation making them appear standing again
+ +  Houses from script could be placed at invalid tiles or overlapping, causing duplicate watchertower in TSK 7
+ +  The breifing for TPR mission 14 was blank due to an error with loading the last string from a LIB file
+ +  Major A* pathfinding mistake from r1220 causing long/inefficient routes to be calculated
+ +  On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
+ +  Fixed crash occurring on replay end
+ +  Chat button in multiplayer replay viewer was not properly disabled and upon click caused a crash
+ +  See-through hills (lighting flaw)
+ +  Server selection highlight in MP menu disappears when sorting by any column
+ +  Putting a "/" in a save name causes an error (probably other characters like \ ? | too, we should restrict allowed chars)
+ +  Entering text into port/room fields. They should accept only digits
+ +  Pressing CTRL+ALT+DEL with a game running caused a "System error code 5" or "call to OS function failed" due to Windows denying accesss to Mouse.CursorPos for a moment
+ +  Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
+ +  Issue with empty saves names and misused whitespaces
+ +  The market should be blocked in the original campaigns/tutorial (maybe have an option to enable it starting at later missions, but it still ruins the balance IMO)
+ +  Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
+ +  Fixed assert fail when loading map that has roads placed outside of map bounds
 
 
 Improvements:
- +	Do not allow to run multiple application instances at once to prevent multiplayer cheating
- +	Display height shapes outlines in MapEd
- +	Master server records information about which maps are played
- +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Maciej]
- +	Maps scan should be done in separate thread to unlock GUI
- +	Roads/field plans should only be visible on you and your allies screen to prevent exploiting (move markups from terrain to player)
- +	Allow listboxes to handle up/down arrows
- +	Add sort indicators to listboxes
- +	Minimap preview in lobby, singleplayer and map editor menus
- +	Placing road/field in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
- +	Locales list is stored in a file rather than hard coded
- +	Locales have a fallback option for very similar languages (e.g. Slovak uses Czech voices)
- +	Make fishes/watersnake to be more visible in MapEd
- +	High quality alpha-blended shadows for units and trees
- +	Logs older than 14 days are automatically deleted
- +	Minimap preview for saves (store raw color data at the begining of the save so it's fast)
- +	Saves/Replays scan should be done in separate thread to unlock GUI [Maciej]
- +	Saves/Replays can be sorted
- +	Custom in-game messages for fan-made campaigns and missions (could be stored in new custom .libx file for the mission)
- +	Support color tags in text
- +	Colors for chat to highlight player names and whether it is team/all channel
- +	Smarter job assignment to workers
- +	Smarter delivery assignment to serfs
- +	Add support for 1024x600 (1280x720) resolution
- +	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
- +	Now using MadExcept for bug reporting which provides much more detailed error information and simple report sending
- +	Add link to kamremake.com (and email?) from inside the game (e.g. from main menu) so that ppl who got Remake from someplace else still had a clear way to our place
+ +  Do not allow to run multiple application instances at once to prevent multiplayer cheating
+ +  Display height shapes outlines in MapEd
+ +  Master server records information about which maps are played
+ +  Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Maciej]
+ +  Maps scan should be done in separate thread to unlock GUI
+ +  Roads/field plans should only be visible on you and your allies screen to prevent exploiting (move markups from terrain to player)
+ +  Allow listboxes to handle up/down arrows
+ +  Add sort indicators to listboxes
+ +  Minimap preview in lobby, singleplayer and map editor menus
+ +  Placing road/field in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
+ +  Locales list is stored in a file rather than hard coded
+ +  Locales have a fallback option for very similar languages (e.g. Slovak uses Czech voices)
+ +  Make fishes/watersnake to be more visible in MapEd
+ +  High quality alpha-blended shadows for units and trees
+ +  Logs older than 14 days are automatically deleted
+ +  Minimap preview for saves (store raw color data at the begining of the save so it's fast)
+ +  Saves/Replays scan should be done in separate thread to unlock GUI [Maciej]
+ +  Saves/Replays can be sorted
+ +  Custom in-game messages for fan-made campaigns and missions (could be stored in new custom .libx file for the mission)
+ +  Support color tags in text
+ +  Colors for chat to highlight player names and whether it is team/all channel
+ +  Smarter job assignment to workers
+ +  Smarter delivery assignment to serfs
+ +  Add support for 1024x600 (1280x720) resolution
+ +  Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
+ +  Now using MadExcept for bug reporting which provides much more detailed error information and simple report sending
+ +  Add link to kamremake.com (and email?) from inside the game (e.g. from main menu) so that ppl who got Remake from someplace else still had a clear way to our place
 
 
 
 Fixed in r2736:
 <===================================================================================>
- +	Army unit icons in MapEd don't have team colors
- +	"Stonemason has no action" (also "EAssertionFailed: KM_Terrain.pas, line 526") crashes fixed
- +	Units are smarter at detecting when the resource they wanted to mine/gather/plant has already been taken
- +	Units in the inn are rendered at the wrong place when the inn is on uneven ground
- +	Game minimizes when you alt-tab from full screen mode rather than becoming stuck
- +	"Unsaved changes will be lost" dialogue is shown properly from full screen mode
- +	"EAssertionFailed: KM_Units_Warrior.pas, line 642"
- +	Strange AI behavior with group formation
- +	When Hiring 100 scouts from Barracks and demolishing it, Scouts will keep on exiting through invisible entrance (instead of popping all at once like Recruits do)
- +	Soldiers would still remind you to feed them when food was already on the way
+ +  Army unit icons in MapEd don't have team colors
+ +  "Stonemason has no action" (also "EAssertionFailed: KM_Terrain.pas, line 526") crashes fixed
+ +  Units are smarter at detecting when the resource they wanted to mine/gather/plant has already been taken
+ +  Units in the inn are rendered at the wrong place when the inn is on uneven ground
+ +  Game minimizes when you alt-tab from full screen mode rather than becoming stuck
+ +  "Unsaved changes will be lost" dialogue is shown properly from full screen mode
+ +  "EAssertionFailed: KM_Units_Warrior.pas, line 642"
+ +  Strange AI behavior with group formation
+ +  When Hiring 100 scouts from Barracks and demolishing it, Scouts will keep on exiting through invisible entrance (instead of popping all at once like Recruits do)
+ +  Soldiers would still remind you to feed them when food was already on the way
 
 
 Features:
- +	Allow to close lobby slots to avoid more players joining
- +	Checkbox to give the host absolute control of all team/location setup
- +	Saves/replays/single maps can be started by double clicking an item in the list
- +	Sorting the server list by clicking on column headers
- +	Road/field placement can be done by dragging as well as by clicking each tile [Jecy]
+ +  Allow to close lobby slots to avoid more players joining
+ +  Checkbox to give the host absolute control of all team/location setup
+ +  Saves/replays/single maps can be started by double clicking an item in the list
+ +  Sorting the server list by clicking on column headers
+ +  Road/field placement can be done by dragging as well as by clicking each tile [Jecy]
 
 
 
 Fixed in r2678:
 <===================================================================================>
- +	Shorted "teamname %s" in lobby for PL locale
- +	Replace the "Fast Scrolling" checkbox with a slider
- +	Often warrior voices and other sounds don't play due to poor prioritizing of the available soundcard slots
- +	The "waiting for players" message would often not appear, the game would just freeze with no message
- +	Arrow keys would not scroll the map when opening menu with a TKMEditBox (e.g. chat) until you close the menu
- +	Woodcutters and others(?) should plant/chop more evenly (not in waves like now)
- +	Exporting the Sounds produced corrupt files rather than the correct sounds
- +	Wood and/or stone would not be delivered to a storehouse under construction if you had blocked them in your first storehouse
- +	Animals would often not appear in multiplayer games because they were set for a player which was unused
- +	The animation for the farmer picking grapes did not show because the anim direction used was invalid
- +	The color range on the pings now more accurately reflect the amount they will effect the quality of the game.
- +	Warriors going out from Barracks sometimes not joined in groups
- +	Range check erorrs when using multiple monitors
- +	Multiplayer chat only scrolls down when you are at the bottom, making it possible to read old messages without it jumping back
- +	Warriors group members would not appear if there was a rock or something under them. They now appear on the closest walkable tile.
- +	Using a barracks near the left or top edges of the map caused an error (thanks Jecy)
- +	Due to predicting a target's position archers can shoot way beyond their range
- +	Make market interface less confusing by showing number of wares that will be taken/given
- +	Archers would often shoot into your own troops when the enemy charged you, due to predicting the enemy's position
- +	Lobby with player 1, AI, player 2. Player 1 quits, player 2 becomes host and removes AI. Player 2 can now kick himself and other strange bugs
- +	Workers stuck and cause a crash on a building sites that become too sloped during construction (e.g. bottom left iron mine in The Northern Province)
- +	Up the ware limit in the barracks from 255
- +	Disconnected players names should be striked through in in-game player list [Added Strikethrough property to TKMLabel]
- +	+# in house stats would not disappear when the plan was destroyed by an enemy
- +	Rare crashes with the message "Opposite vertex in use at (X,Y)" during battles have been fixed
- +	Rare "Range check error" caused by trying to catch a dead or dying fish
- +	The game will start with the language you used in the installer
- +	Map with empty DAT file would crash the game upon opening in MapEd or Game
- +	Farmers and other resource gatherers should exclude tiles from the search when there is another unit mining at that loc
- +	Entering more than 255 messages in the chat window would cause a "range check error"
- +	Someone joining your lobby as you click start (while loading) gets an invalid state and server times out
- +	Multiplayer needs goals and victory/defeat overlays same as singleplayer
- +	The ugly diagonal roads cheat no longer works, you have to connect them properly
- +	Mission 3 of TPR was impossible to win due to incorrect handling of goal type 6 (military buildings and troops)
- +	Sometimes multiplayer chat would not open when you clicked it
- +	Farmers would always prefer cutting corn over sowing
- +	Confirmation for quitting multiplayer while waiting for players should be harder to hit by accident
- +	There is a message to say you were kicked, rather than just "Server stopped responding"
- +	Soldiers will no longer sometimes be pushed out of the way by enemy citizens/bowmen instead of attacking them
- +	New maps should not start with random trees as that is just annoying (just grass with slight height variations)
- +	Crash "ELocError: fCommander.IsDeadOrDying" due to warrior leaving the barracks linking to a dead warrior from a nearby battle
- +	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
- +	The player's typed message and existing messages from the lobby chat will be copied to the in-game chat when the game starts
- +	Iron/gold mines should not raise the construction site because of the mountain when "flattening" it
- +	Multiplayer replays do not sync FOW so get mismatches
- +	Improved the direction selector and fixed issues with some directions being harder to select
- +	When the dedicated server crashes it will log the exception and restart the server automatically
- +	Scouts fight each other for too long, upto 15min, where's in KaM that more of 50sec at most (fixed by modifying HP restore rate)
- +	Some gold/iron mine positions could not be built although they were flat enough (for example: Land of Hills bottom right position)
- +	Woodcutter would sometimes ignore certain trees and never chop them
- +	AI does not feed warriors unless it is the commander that is hungry
- +	Some texts don't fit in the left panel (e.g. "Preparing house area")
- +	AI matches KaM behavior better
- +	Archers "twitch" when their commander can't reach his position instead of shooting
- +	The bottom row of the map in the KaM Editor (not Remake) always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn) [Krom]
- +	KaM Editor lighting should be updated to match Remake better [Krom]
- +	Campaign flags have a colored square around them when selected [Krom]
- +	If an inn was destroyed while units were eating, the eating animation would continue to show for a while
- +	Rare crash "EAssertionFailed: Trying to remove wrong unit at (X;Y)"
- +	Game flickers on resize and/or if other window is moved above it
- +	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
+ +  Shorted "teamname %s" in lobby for PL locale
+ +  Replace the "Fast Scrolling" checkbox with a slider
+ +  Often warrior voices and other sounds don't play due to poor prioritizing of the available soundcard slots
+ +  The "waiting for players" message would often not appear, the game would just freeze with no message
+ +  Arrow keys would not scroll the map when opening menu with a TKMEditBox (e.g. chat) until you close the menu
+ +  Woodcutters and others(?) should plant/chop more evenly (not in waves like now)
+ +  Exporting the Sounds produced corrupt files rather than the correct sounds
+ +  Wood and/or stone would not be delivered to a storehouse under construction if you had blocked them in your first storehouse
+ +  Animals would often not appear in multiplayer games because they were set for a player which was unused
+ +  The animation for the farmer picking grapes did not show because the anim direction used was invalid
+ +  The color range on the pings now more accurately reflect the amount they will effect the quality of the game.
+ +  Warriors going out from Barracks sometimes not joined in groups
+ +  Range check erorrs when using multiple monitors
+ +  Multiplayer chat only scrolls down when you are at the bottom, making it possible to read old messages without it jumping back
+ +  Warriors group members would not appear if there was a rock or something under them. They now appear on the closest walkable tile.
+ +  Using a barracks near the left or top edges of the map caused an error (thanks Jecy)
+ +  Due to predicting a target's position archers can shoot way beyond their range
+ +  Make market interface less confusing by showing number of wares that will be taken/given
+ +  Archers would often shoot into your own troops when the enemy charged you, due to predicting the enemy's position
+ +  Lobby with player 1, AI, player 2. Player 1 quits, player 2 becomes host and removes AI. Player 2 can now kick himself and other strange bugs
+ +  Workers stuck and cause a crash on a building sites that become too sloped during construction (e.g. bottom left iron mine in The Northern Province)
+ +  Up the ware limit in the barracks from 255
+ +  Disconnected players names should be striked through in in-game player list [Added Strikethrough property to TKMLabel]
+ +  +# in house stats would not disappear when the plan was destroyed by an enemy
+ +  Rare crashes with the message "Opposite vertex in use at (X,Y)" during battles have been fixed
+ +  Rare "Range check error" caused by trying to catch a dead or dying fish
+ +  The game will start with the language you used in the installer
+ +  Map with empty DAT file would crash the game upon opening in MapEd or Game
+ +  Farmers and other resource gatherers should exclude tiles from the search when there is another unit mining at that loc
+ +  Entering more than 255 messages in the chat window would cause a "range check error"
+ +  Someone joining your lobby as you click start (while loading) gets an invalid state and server times out
+ +  Multiplayer needs goals and victory/defeat overlays same as singleplayer
+ +  The ugly diagonal roads cheat no longer works, you have to connect them properly
+ +  Mission 3 of TPR was impossible to win due to incorrect handling of goal type 6 (military buildings and troops)
+ +  Sometimes multiplayer chat would not open when you clicked it
+ +  Farmers would always prefer cutting corn over sowing
+ +  Confirmation for quitting multiplayer while waiting for players should be harder to hit by accident
+ +  There is a message to say you were kicked, rather than just "Server stopped responding"
+ +  Soldiers will no longer sometimes be pushed out of the way by enemy citizens/bowmen instead of attacking them
+ +  New maps should not start with random trees as that is just annoying (just grass with slight height variations)
+ +  Crash "ELocError: fCommander.IsDeadOrDying" due to warrior leaving the barracks linking to a dead warrior from a nearby battle
+ +  Players could cheat in MP through F11 menu by viewing CanWalk map overlays
+ +  The player's typed message and existing messages from the lobby chat will be copied to the in-game chat when the game starts
+ +  Iron/gold mines should not raise the construction site because of the mountain when "flattening" it
+ +  Multiplayer replays do not sync FOW so get mismatches
+ +  Improved the direction selector and fixed issues with some directions being harder to select
+ +  When the dedicated server crashes it will log the exception and restart the server automatically
+ +  Scouts fight each other for too long, upto 15min, where's in KaM that more of 50sec at most (fixed by modifying HP restore rate)
+ +  Some gold/iron mine positions could not be built although they were flat enough (for example: Land of Hills bottom right position)
+ +  Woodcutter would sometimes ignore certain trees and never chop them
+ +  AI does not feed warriors unless it is the commander that is hungry
+ +  Some texts don't fit in the left panel (e.g. "Preparing house area")
+ +  AI matches KaM behavior better
+ +  Archers "twitch" when their commander can't reach his position instead of shooting
+ +  The bottom row of the map in the KaM Editor (not Remake) always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn) [Krom]
+ +  KaM Editor lighting should be updated to match Remake better [Krom]
+ +  Campaign flags have a colored square around them when selected [Krom]
+ +  If an inn was destroyed while units were eating, the eating animation would continue to show for a while
+ +  Rare crash "EAssertionFailed: Trying to remove wrong unit at (X;Y)"
+ +  Game flickers on resize and/or if other window is moved above it
+ +  Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 
 
 Features:
- +	Resizeable chat frame ingame
- +	Adjoin map desciption and map selection in lobby - they serve the same purpose
- +	Dynamic settings for the server, so it can be changed without restarting
- +	Shuffle option for music
- +	Map name and game time displayed in the Server Details
- +	Allow to hide ingame chat/messages by clicking on chat/message button again or pressing Esc, show chat by pressing Enter
- +	In the lobby the Ready button now toggles "ready"/"not ready", you are not allowed to modify your settings while set to ready
- +	Ability to see the score screen for other players after a multiplayer game
- +	Allow to save wares in Stores and Barracks beyond second (not backwards compatible with KaM)
- +	Show formation count in MapEd UI
- +	Multiplayer games automatically reconnect and continue when the connection is lost
- +	New command "!ADD_WARE_TO <HOUSE_TYPE_ID> <HOUSE_NUMBER> <WARE_ID> <QUANTITY>" to add a ware to any house
- +	New command "!BLOCK_TRADE <WARE_ID>" to disallow certain trades
- +	A variety of game speeds possible through different keys (F5 = normal, F6 = medium, F7 = fast, F8 = very fast)
- +	Checkbox in the woodcutter's hut to stop him from planting trees
- +	Make player info take the full width of the multiplayer lobby and move map info below
- +	Clock showing the mission time
- +	Enforced peacetime
- +	Show coordinates in the map editor
- +	Add player flags in lobby, to see who uses which KaM locale (and which language he can talk)
- +	Shortcut keys (i.e. army controls) should be different in each language (English troops link with 'L', German with 'V')
- +	Replay manager
- +	Dedicated server outputs nicely formatted HTML/XML of the current status
- +	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
- +	Highlight commander in groups formation in UI
- +	Double clicking a server should join it
- +	New command "!SET_AI_CHARACTER EQUIP_RATE <TICKS>" to control time between equipping soldiers (1 second = 10 ticks)
- +	Add sorting methods to column in singleplayer map selection menu
- +	Marketplace shows individual wares as they are delivered
+ +  Resizeable chat frame ingame
+ +  Adjoin map desciption and map selection in lobby - they serve the same purpose
+ +  Dynamic settings for the server, so it can be changed without restarting
+ +  Shuffle option for music
+ +  Map name and game time displayed in the Server Details
+ +  Allow to hide ingame chat/messages by clicking on chat/message button again or pressing Esc, show chat by pressing Enter
+ +  In the lobby the Ready button now toggles "ready"/"not ready", you are not allowed to modify your settings while set to ready
+ +  Ability to see the score screen for other players after a multiplayer game
+ +  Allow to save wares in Stores and Barracks beyond second (not backwards compatible with KaM)
+ +  Show formation count in MapEd UI
+ +  Multiplayer games automatically reconnect and continue when the connection is lost
+ +  New command "!ADD_WARE_TO <HOUSE_TYPE_ID> <HOUSE_NUMBER> <WARE_ID> <QUANTITY>" to add a ware to any house
+ +  New command "!BLOCK_TRADE <WARE_ID>" to disallow certain trades
+ +  A variety of game speeds possible through different keys (F5 = normal, F6 = medium, F7 = fast, F8 = very fast)
+ +  Checkbox in the woodcutter's hut to stop him from planting trees
+ +  Make player info take the full width of the multiplayer lobby and move map info below
+ +  Clock showing the mission time
+ +  Enforced peacetime
+ +  Show coordinates in the map editor
+ +  Add player flags in lobby, to see who uses which KaM locale (and which language he can talk)
+ +  Shortcut keys (i.e. army controls) should be different in each language (English troops link with 'L', German with 'V')
+ +  Replay manager
+ +  Dedicated server outputs nicely formatted HTML/XML of the current status
+ +  Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
+ +  Highlight commander in groups formation in UI
+ +  Double clicking a server should join it
+ +  New command "!SET_AI_CHARACTER EQUIP_RATE <TICKS>" to control time between equipping soldiers (1 second = 10 ticks)
+ +  Add sorting methods to column in singleplayer map selection menu
+ +  Marketplace shows individual wares as they are delivered
 
 
 
 Fixed in r2411:
 <===================================================================================>
 Bugs:
- +	Mining stone from tiles close to map upper edge caused a crash
- +	When woodcutter goes to chop a tree and sees on spot that tree was just chopped he should look for different tree (no planting though!)
- +	In multiplayer there are still roads on the map for players that were deleted because they are not playing
- +	Setting the number of wares in a storehouse/barracks in the MapEd to a negative number will cause a crash
- +	"Taking wrong resource from Serf" crashes fixed
- +	Save correct number of players from MapEd
- +	RangeCheckError in TSK campaign screen when selecting 7th mission
- +	Should attempt to play eng unit sounds if locale are missing (there's no favorite locale)
- +	Replay timer should display in HH:MM:SS format
- +	Music does not cycle while in pause mode
- +	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
- +	Farmer will sow corn on tile that was just finished as a road
- +	Fixed a crash that occured when a tower with no rocks tried to throw a rock at an enemy after loading the game from a save
- +	Replay mismatches caused by WatchTowers
- +	MediaPlayer won't play some mp3s and crash (we should use a better library for music playback, e.g. Bass)
- +	Woodcutters/Farm flagshtok should appear last in construction
- +	Making a hill under a unit with a nearby house in MapEd causes a crash
- +	Stone hills become locked because the slopes become too great after mining for a while (except for initially unwalkable hills)
- +	Groups are not properly displayed on minimap in MapEd
- +	Projectiles near the top of the map cause issues as they can scatter to off map tiles or the arc places them off the map
+ +  Mining stone from tiles close to map upper edge caused a crash
+ +  When woodcutter goes to chop a tree and sees on spot that tree was just chopped he should look for different tree (no planting though!)
+ +  In multiplayer there are still roads on the map for players that were deleted because they are not playing
+ +  Setting the number of wares in a storehouse/barracks in the MapEd to a negative number will cause a crash
+ +  "Taking wrong resource from Serf" crashes fixed
+ +  Save correct number of players from MapEd
+ +  RangeCheckError in TSK campaign screen when selecting 7th mission
+ +  Should attempt to play eng unit sounds if locale are missing (there's no favorite locale)
+ +  Replay timer should display in HH:MM:SS format
+ +  Music does not cycle while in pause mode
+ +  Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
+ +  Farmer will sow corn on tile that was just finished as a road
+ +  Fixed a crash that occured when a tower with no rocks tried to throw a rock at an enemy after loading the game from a save
+ +  Replay mismatches caused by WatchTowers
+ +  MediaPlayer won't play some mp3s and crash (we should use a better library for music playback, e.g. Bass)
+ +  Woodcutters/Farm flagshtok should appear last in construction
+ +  Making a hill under a unit with a nearby house in MapEd causes a crash
+ +  Stone hills become locked because the slopes become too great after mining for a while (except for initially unwalkable hills)
+ +  Groups are not properly displayed on minimap in MapEd
+ +  Projectiles near the top of the map cause issues as they can scatter to off map tiles or the arc places them off the map
 
 
 Features:
- +	Underwater sand
- +	Savegames are now accessible as a list (not limited to 10 slots)
- +	Melee fighting now has sound effects! (clash of weapons) Thanks to Malin from kamclub.ru for sorting the files for us.
- +	Warriors/citizens have fully working voices!
- +	Warriors from The Peasents Rebelion are now supported
- +	Multiplayer has a master server to show all of the servers/games running around the world
- +	Kick button added to the multiplayer lobby
+ +  Underwater sand
+ +  Savegames are now accessible as a list (not limited to 10 slots)
+ +  Melee fighting now has sound effects! (clash of weapons) Thanks to Malin from kamclub.ru for sorting the files for us.
+ +  Warriors/citizens have fully working voices!
+ +  Warriors from The Peasents Rebelion are now supported
+ +  Multiplayer has a master server to show all of the servers/games running around the world
+ +  Kick button added to the multiplayer lobby
 
 
 
 Fixed in r2087:
 <===================================================================================>
 Bugs:
- +	Server data corruption errors
- +	Server can crash if a non-KaM Remake client connects and sends data [Lewin]
- +	When building Wine field, tile dug by Worker, if worker dies before recieving wood, becomes unusable
- +	Woodcutter can plant trees along map edges, but can't chop them there
- +	Build wine field, road on top, house on top, demolish house, you can't build winefield again
+ +  Server data corruption errors
+ +  Server can crash if a non-KaM Remake client connects and sends data [Lewin]
+ +  When building Wine field, tile dug by Worker, if worker dies before recieving wood, becomes unusable
+ +  Woodcutter can plant trees along map edges, but can't chop them there
+ +  Build wine field, road on top, house on top, demolish house, you can't build winefield again
 Features:
- +	The dedicated server can now host multiple games at once. (capped at 32) If a game is in progress you are placed in a new game
- +	In multiplayer you should be able to see the same as your allies (sync fog of war for teams)
+ +  The dedicated server can now host multiple games at once. (capped at 32) If a game is in progress you are placed in a new game
+ +  In multiplayer you should be able to see the same as your allies (sync fog of war for teams)
 
 
 
 Fixed in r2039:
 <===================================================================================>
- +	Attacking houses that were under construction caused crashes
- +	All types of projectiles used longbow release sounds
- +	Units dying of hunger while walking out of a house caused crashes
- +	If a unit's home was inaccessible it would lock up continuously trying to go home, and fill the log file with "Unable to make a route".
- +	The game would crash if you destroyed the home of a unit and it died soon afterwards
- +	Autosaves now include a replay for extra debugging
- +	Multiplayer replays can now be viewed normally from singleplayer mode without crashing
- +	Multiplayer becomes out of sync
- +	Multiplayer lobby now lets you choose teams
- +	Multiplayer now supports saving/loading of games
- +	Multiplayer has a fixed delay of 1 second between a command being issued and it being carried out. This should be adjusted based on ping.
- +	In multiplayer you no longer hear sounds for placing roads etc. from other players
- +	When the host disconnected from a dedicated server, the next client is automatically assigned hosting rights
- +	Added in-game chat for multiplayer with an option to send only to your team
- +	Archers now have friendly fire, stray arrows can hit your own units/buildings
- +	The German LIBX (translation file) special characters like Ü,ö,ß,ü,ä, etc. appeared incorrectly in the game (Ü = Ã, ö = Ã¶, etc.)
- +	Arrow keys for scrolling could become "stuck" when using a victory/defeat screen appears or the game is paused
- +	AI did not attack unbuilt houses
- +	Bowmen are smarter about shooting after walking
- +	Fixed another case of workers becoming stuck on a construction site
- +	Having more than 256 messages caused a crash
- +	Unreleased/unbuilt houses are no longer displayed in resource distribution menu, question marks are used instead
+ +  Attacking houses that were under construction caused crashes
+ +  All types of projectiles used longbow release sounds
+ +  Units dying of hunger while walking out of a house caused crashes
+ +  If a unit's home was inaccessible it would lock up continuously trying to go home, and fill the log file with "Unable to make a route".
+ +  The game would crash if you destroyed the home of a unit and it died soon afterwards
+ +  Autosaves now include a replay for extra debugging
+ +  Multiplayer replays can now be viewed normally from singleplayer mode without crashing
+ +  Multiplayer becomes out of sync
+ +  Multiplayer lobby now lets you choose teams
+ +  Multiplayer now supports saving/loading of games
+ +  Multiplayer has a fixed delay of 1 second between a command being issued and it being carried out. This should be adjusted based on ping.
+ +  In multiplayer you no longer hear sounds for placing roads etc. from other players
+ +  When the host disconnected from a dedicated server, the next client is automatically assigned hosting rights
+ +  Added in-game chat for multiplayer with an option to send only to your team
+ +  Archers now have friendly fire, stray arrows can hit your own units/buildings
+ +  The German LIBX (translation file) special characters like Ü,ö,ß,ü,ä, etc. appeared incorrectly in the game (Ü = Ã, ö = Ã¶, etc.)
+ +  Arrow keys for scrolling could become "stuck" when using a victory/defeat screen appears or the game is paused
+ +  AI did not attack unbuilt houses
+ +  Bowmen are smarter about shooting after walking
+ +  Fixed another case of workers becoming stuck on a construction site
+ +  Having more than 256 messages caused a crash
+ +  Unreleased/unbuilt houses are no longer displayed in resource distribution menu, question marks are used instead
 
 
 
 Fixed in r1902:
 <===================================================================================>
- +	Swinefarm and Stables had discolored flags
- +	In damaged stables fire was painted on horses back! it should be behind it
- +	Fixed crash in replays with no commands from player
- +	Can't copy IP into IP field / IP resets when you are not able to connect
- +	Could not start KingdomAttack map without resaving it in MapEditor (caused by different folder and file names)
- +	Two monitor config, scrolling works well only on 1st display
- +	The cursor could become stuck if the victory/defeat overlay appeared while you were ordering troops to move
- +	Animals becoming stuck (e.g. on building sites) causes the game to crash
- +	Fixed a bug that occurs occasionally when destroying a school: "Unexpected error. Destoyed school erases the task"
- +	Fixed "saving from wrong state" error
- +	Fixed some causes of "unit on unwalkable tile" errors
- +	Sometimes workers would step off the tile they build a road when the stone is delivered, then hammer the ground at the wrong location
- +	The first item in the Single Maps list could not be played
- +	Crashes now create a nice timestamped ZIP file with everything we need to have in the Crash Reports folder.
- +	Ping is measured and shown in multiplayer games
- +	You can no longer join a multiplayer game that is in progress (caused a crash)
- +	Dedicated server added
- +	Cannot join a server running a different game version
- +	Victory/defeat causes a mismatch in the replay
- +	Loading a saved game caused the replay to mismatch (random seed was not stored)
- +	Crabs are stuck between roads building on them is buggy
- +	Fixed terrain flattening bug that made tiles underneath units unwalkable
- +	In MP opponents would see different town progress. (Bug happens when either side uses super speedup from F11 panel)
- +	Archers do not compensate for moving targets, they should try to predict enemy position when shooting
- ?	When choosing color for multiplayer it affects only minimap, flags color remains default
+ +  Swinefarm and Stables had discolored flags
+ +  In damaged stables fire was painted on horses back! it should be behind it
+ +  Fixed crash in replays with no commands from player
+ +  Can't copy IP into IP field / IP resets when you are not able to connect
+ +  Could not start KingdomAttack map without resaving it in MapEditor (caused by different folder and file names)
+ +  Two monitor config, scrolling works well only on 1st display
+ +  The cursor could become stuck if the victory/defeat overlay appeared while you were ordering troops to move
+ +  Animals becoming stuck (e.g. on building sites) causes the game to crash
+ +  Fixed a bug that occurs occasionally when destroying a school: "Unexpected error. Destoyed school erases the task"
+ +  Fixed "saving from wrong state" error
+ +  Fixed some causes of "unit on unwalkable tile" errors
+ +  Sometimes workers would step off the tile they build a road when the stone is delivered, then hammer the ground at the wrong location
+ +  The first item in the Single Maps list could not be played
+ +  Crashes now create a nice timestamped ZIP file with everything we need to have in the Crash Reports folder.
+ +  Ping is measured and shown in multiplayer games
+ +  You can no longer join a multiplayer game that is in progress (caused a crash)
+ +  Dedicated server added
+ +  Cannot join a server running a different game version
+ +  Victory/defeat causes a mismatch in the replay
+ +  Loading a saved game caused the replay to mismatch (random seed was not stored)
+ +  Crabs are stuck between roads building on them is buggy
+ +  Fixed terrain flattening bug that made tiles underneath units unwalkable
+ +  In MP opponents would see different town progress. (Bug happens when either side uses super speedup from F11 panel)
+ +  Archers do not compensate for moving targets, they should try to predict enemy position when shooting
+ ?  When choosing color for multiplayer it affects only minimap, flags color remains default
 
 
 
 Fixed in r1831:
 <===================================================================================>
- +	In a fight warrior chose to attack random comrades foe, where he should prefer nearest foe from all comrades foes
- +	Laborers keep standing on building sites after area is prepared, they should walk away to avoid get trapping
- +	Display WIP houses/units in statistics menu
- +	IP field is too short
- +	Fixed minor bug in AI scripts
- +	Game would crash when you kill too much of AI defense troops
- +	Allowed to load maps without human player into MapEditor
+ +  In a fight warrior chose to attack random comrades foe, where he should prefer nearest foe from all comrades foes
+ +  Laborers keep standing on building sites after area is prepared, they should walk away to avoid get trapping
+ +  Display WIP houses/units in statistics menu
+ +  IP field is too short
+ +  Fixed minor bug in AI scripts
+ +  Game would crash when you kill too much of AI defense troops
+ +  Allowed to load maps without human player into MapEditor
 
 
 
 Fixed in KaM Remake 1st Multiplayer Demo 2011-06-13 (r1793):
 <===================================================================================>
- +	Units commanded to go deep into unwalkable terrain would cause "walkto 0:0" error
- +	CanWalkRoads displayed wrong areas in MapEd
- +	Fixed units walking diagonaly through fights or other units [Lewin]
- +	Fixed file access permissions requiring read-and-write access
- +	Zooming ingame should pivot to cursor location
- +	Updated MapEd sprites (thanks to StarGazer)
- +	Added additional cursor images by StarGazer
- +	Fixed flag rendering order for army units
- +	Fixed bug when unfinished house demolishing would count as self-destroyed house and cause players defeat
- +	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
- +	Fixed crash when .libx file is missing
- +	Fixed crash in MapEd when decreasing house condition below 0
- +	If two units attempt to gather the same resource, 2nd unit will now find a different resource or go home
- +	Fixed another cause of crashes in replays and multiplayer games, (happening after Swine/Stable building)
- +	Archers could attack enemies outside of their sight (in fog of war)
+ +  Units commanded to go deep into unwalkable terrain would cause "walkto 0:0" error
+ +  CanWalkRoads displayed wrong areas in MapEd
+ +  Fixed units walking diagonaly through fights or other units [Lewin]
+ +  Fixed file access permissions requiring read-and-write access
+ +  Zooming ingame should pivot to cursor location
+ +  Updated MapEd sprites (thanks to StarGazer)
+ +  Added additional cursor images by StarGazer
+ +  Fixed flag rendering order for army units
+ +  Fixed bug when unfinished house demolishing would count as self-destroyed house and cause players defeat
+ +  Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
+ +  Fixed crash when .libx file is missing
+ +  Fixed crash in MapEd when decreasing house condition below 0
+ +  If two units attempt to gather the same resource, 2nd unit will now find a different resource or go home
+ +  Fixed another cause of crashes in replays and multiplayer games, (happening after Swine/Stable building)
+ +  Archers could attack enemies outside of their sight (in fog of war)
 
 
 
 Fixed in r1359:
 <===================================================================================>
- +	Disappearing serfs when they start a delivery from off the road
- +	Always take deliveries from a house if possible rather than a warehouse (Baker-> Inn not Baker-> Warehouse-> Inn as it is was) incl. soldiers
- +	Closest units are now chosen properly for fights
- +	AI should not attempt to reposition archers that are shooting (caused them to stop shooting every second)
- +	Archers now turn to engage targets that their fellow men are shooting
- +	Fixed an inconsistency in saves/replays (including "Replay mismatch" errors)
- +	Warriors should not stop attacking a house to attack a citizen, only warriors
- +	Warriors should still be commandable (controls enabled) when attacking citizens not other warriors
- +	All maps of width or height 192 (the current limit) cause a crash
- +	Recruits were not removed properly from the barracks when equipped into soliders
- +	Fixed bug with citizens walking into the wall of their home when they were hungry but no food was available
- +	Arrows should not hit units inside houses
- +	Labourers always take the closest job
- ?	Incorrect statistics are sometimes displayed (caused by disappearing serfs?)
+ +  Disappearing serfs when they start a delivery from off the road
+ +  Always take deliveries from a house if possible rather than a warehouse (Baker-> Inn not Baker-> Warehouse-> Inn as it is was) incl. soldiers
+ +  Closest units are now chosen properly for fights
+ +  AI should not attempt to reposition archers that are shooting (caused them to stop shooting every second)
+ +  Archers now turn to engage targets that their fellow men are shooting
+ +  Fixed an inconsistency in saves/replays (including "Replay mismatch" errors)
+ +  Warriors should not stop attacking a house to attack a citizen, only warriors
+ +  Warriors should still be commandable (controls enabled) when attacking citizens not other warriors
+ +  All maps of width or height 192 (the current limit) cause a crash
+ +  Recruits were not removed properly from the barracks when equipped into soliders
+ +  Fixed bug with citizens walking into the wall of their home when they were hungry but no food was available
+ +  Arrows should not hit units inside houses
+ +  Labourers always take the closest job
+ ?  Incorrect statistics are sometimes displayed (caused by disappearing serfs?)
 
 
 
 
 Fixed in KaM Remake 2nd Fighting Demo 2010-12-31 (r1345):
 <===================================================================================>
- +	Terrain should flatten under roads/houses on mission start. Discussed with Lewin
- +	Process KillUnit/AddScout commands through GIP, even if they are to be removed soon
- +	Serfs will keep on taking stones to try to deliver them to died workers endlessly
- +	I got a access violation when I was deleting my fisherman. (Must be fixed in r1006/r1036)
- +	Access violations when closing the game window by Alt+F4 (Tasks were not freed properly)
- +	Menu buttons in replay don't work, no way to exit other than F11 (added replay controls)
- +	Sometimes the taskbar stays on top in fullscreen mode
- +	Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
- +	ct_Attack_Position (!ATTACK_POSITION command in script) has been implemented
- +	Goals and messages from mission script have been implemented
- +	Message stack controls do not anchor to the bottom when resizing the screen
- +	Troops walking from A to B. If send them to C, they will walk to B and only then to C
- +	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
- +	When using right click to move warriors the direction indicator doesn't appear until the mouse is moved
- +	Occasional crash when loading due to listener not being initialised
- +	Mouse wheel for scrollbars now works much better and in more places
- +	Added repositioning of units and houses in the map editor by right clicking with them selected
- +	Right clicking on the train button in the school now fills the queue with the unit (I always wished I had this for recruits)
- +	Allow to use replacement sprites for cursors [Krom]
- +	Main menu would reset on resize
- +	Default team colors are not like in KaM [Lewin]
- +	Added V-Sync option
- +	Some houses would not show all fire animations [Lewin]
- +	Added French translation by Sylvain Domange
- +	Savegames names would not initialize properly sometimes
- +	Crash when loading mission scripts with a space on end (TSK19)
- +	Crash when animals die
- +	Game crashes by using german language (all other languages runs good)
- +	Crash when unit gets killed during exchanging places with another unit
- +	"back to main menu" button: german text (zuruck zum hauptmenu) is too lang for the button in game finale
- +	Canceling unit training (also destroying school while training is in progress) in school causes a crash in recent builds
- +	Crash in Vortamic mission after few seconds of play (there's a bug in mission script, it is reported now)
- +	Main menu position will be wrong (shifted) if game was resized during gameplay and user returns to menu
- +	Sawmill is rendered wrong
- +	Error message on program start (cannot focus on disabled or invisible window)
- +	When a warrior commander dies, the group now continues to do what it was doing
+ +  Terrain should flatten under roads/houses on mission start. Discussed with Lewin
+ +  Process KillUnit/AddScout commands through GIP, even if they are to be removed soon
+ +  Serfs will keep on taking stones to try to deliver them to died workers endlessly
+ +  I got a access violation when I was deleting my fisherman. (Must be fixed in r1006/r1036)
+ +  Access violations when closing the game window by Alt+F4 (Tasks were not freed properly)
+ +  Menu buttons in replay don't work, no way to exit other than F11 (added replay controls)
+ +  Sometimes the taskbar stays on top in fullscreen mode
+ +  Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
+ +  ct_Attack_Position (!ATTACK_POSITION command in script) has been implemented
+ +  Goals and messages from mission script have been implemented
+ +  Message stack controls do not anchor to the bottom when resizing the screen
+ +  Troops walking from A to B. If send them to C, they will walk to B and only then to C
+ +  When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
+ +  When using right click to move warriors the direction indicator doesn't appear until the mouse is moved
+ +  Occasional crash when loading due to listener not being initialised
+ +  Mouse wheel for scrollbars now works much better and in more places
+ +  Added repositioning of units and houses in the map editor by right clicking with them selected
+ +  Right clicking on the train button in the school now fills the queue with the unit (I always wished I had this for recruits)
+ +  Allow to use replacement sprites for cursors [Krom]
+ +  Main menu would reset on resize
+ +  Default team colors are not like in KaM [Lewin]
+ +  Added V-Sync option
+ +  Some houses would not show all fire animations [Lewin]
+ +  Added French translation by Sylvain Domange
+ +  Savegames names would not initialize properly sometimes
+ +  Crash when loading mission scripts with a space on end (TSK19)
+ +  Crash when animals die
+ +  Game crashes by using german language (all other languages runs good)
+ +  Crash when unit gets killed during exchanging places with another unit
+ +  "back to main menu" button: german text (zuruck zum hauptmenu) is too lang for the button in game finale
+ +  Canceling unit training (also destroying school while training is in progress) in school causes a crash in recent builds
+ +  Crash in Vortamic mission after few seconds of play (there's a bug in mission script, it is reported now)
+ +  Main menu position will be wrong (shifted) if game was resized during gameplay and user returns to menu
+ +  Sawmill is rendered wrong
+ +  Error message on program start (cannot focus on disabled or invisible window)
+ +  When a warrior commander dies, the group now continues to do what it was doing
 
 
 
 
 Fixed in r1007:
 <===================================================================================>
- +	Fixed clicking on empty space in file list in Main Menu
- +	Fixed error when displaying file lists without any files in them
+ +  Fixed clicking on empty space in file list in Main Menu
+ +  Fixed error when displaying file lists without any files in them
 
 
 
 Fixed in KaM Remake Fighting Demo 2010-08-13 (r970):
 <===================================================================================>
- +	Viewport scrolling should be smooth
- +	If you destroy a house, odd things happen to the occupant(s). (not appearing, jittering)
- + 	Rock throwing uses wrong alliance setting
- + 	Map editor won't let you place citizens off roads
- + 	Map editor main menu labels 'Width' x 'Height'
- + 	Masked edit allows for unlimited size
- + 	Scroll wheel now functions correctly on filelist and updates the scrollbar position
- + 	Zooming with the scroll wheel now only works when over the map (not a control)
- + 	Briefings: on fullscreen (1366*768) the message jumps over the right edge of the screen
- + 	"Unit walk not fRouteBuilt" error. (Issue 28)
- + 	Clicking on anything during gameplay will shift viewport a little
- + 	StoneMines mission in r977 crashes on 39min for some delivery being performed twice 
- + 	Multiple units added by ct_SetUnitByStock will stack on one tile after autoplacement fails (~80+ units)
- + 	Occupied tile has no unit on it (Issue 27) (same as above)
- + 	Finished delivery will abandon twice and crash if unit dies while waiting to exit from destination house
- +	Word "Condition" in house menu is unreadable, bad colour, it should be white
+ +  Viewport scrolling should be smooth
+ +  If you destroy a house, odd things happen to the occupant(s). (not appearing, jittering)
+ +   Rock throwing uses wrong alliance setting
+ +   Map editor won't let you place citizens off roads
+ +   Map editor main menu labels 'Width' x 'Height'
+ +   Masked edit allows for unlimited size
+ +   Scroll wheel now functions correctly on filelist and updates the scrollbar position
+ +   Zooming with the scroll wheel now only works when over the map (not a control)
+ +   Briefings: on fullscreen (1366*768) the message jumps over the right edge of the screen
+ +   "Unit walk not fRouteBuilt" error. (Issue 28)
+ +   Clicking on anything during gameplay will shift viewport a little
+ +   StoneMines mission in r977 crashes on 39min for some delivery being performed twice 
+ +   Multiple units added by ct_SetUnitByStock will stack on one tile after autoplacement fails (~80+ units)
+ +   Occupied tile has no unit on it (Issue 27) (same as above)
+ +   Finished delivery will abandon twice and crash if unit dies while waiting to exit from destination house
+ +  Word "Condition" in house menu is unreadable, bad colour, it should be white
 
 
 
 Fixed in r734:
 <===================================================================================>
-+	The woodcutters planting animation is not visible, he simply disappears and reappears when he is done planting.
-+	The woodcutter doesn't cut down trees, until all the available spots have been planted. In the original KaM a woodcutter would always cut down fullgrown trees in the first place, and only plant trees when there is nothing to cut down. (TRB 2010-02-19 Wood and Swine save01.sav) (trees appeared to be fully grown a few minutes before they can be cut)
-+	Troop/house buttons not working after clicking on terrain with them selected
-+	Laborers are sometimes being trapped inside a digged construction plan (Kuba 2010-02-19 Stuck Workers save09.sav)
-+	Range check error in TPR7, (TRB 2010-02-19 Range Check Error.rar) caused by group dying
-+	Death task should not wait for action to finish, it should override any action under any circumstances. Otherwise strange things can happen visually e.g. dead units can be "pushed" using interaction sometimes not showing death animation.
-+	In game settings uses old sytle brightness control.
-+	Main menu options page doesn't refresh if you change the settings in game.
-+	After digging house area workers will not continue to walk over other construction sites after leaving the one they made
-+	Terrain is now flattened under houses placed at mission start
-+	Demolished houses now leave a dug tile where the road used to be, rather than it just disappearing which looked odd (TK's suggestion)
-+	F11 statusbar shows wrong map size in loaded games
-+	Because the delivery queue prefers closer deliveries, wares will always be delivered to closer buildings. (e.g. with two swine farms, closer one will get all the corn) Same with coal mines. (coal mines in Kuba 2010-02-19 Stuck Workers save09.sav, swine farms in TRB 2010-02-19 Wood and Swine save01.sav)
-+	(Can't reproduce, probably caused by worker-construction site issues that have been fixed now) Walk failed in TPR7 "Unit Laborer unable to walk a route from (97;29) to (98;30) during task Idle since the route is unbuilt" (TRB 2010-02-19 Walk Failed.rar)
++  The woodcutters planting animation is not visible, he simply disappears and reappears when he is done planting.
++  The woodcutter doesn't cut down trees, until all the available spots have been planted. In the original KaM a woodcutter would always cut down fullgrown trees in the first place, and only plant trees when there is nothing to cut down. (TRB 2010-02-19 Wood and Swine save01.sav) (trees appeared to be fully grown a few minutes before they can be cut)
++  Troop/house buttons not working after clicking on terrain with them selected
++  Laborers are sometimes being trapped inside a digged construction plan (Kuba 2010-02-19 Stuck Workers save09.sav)
++  Range check error in TPR7, (TRB 2010-02-19 Range Check Error.rar) caused by group dying
++  Death task should not wait for action to finish, it should override any action under any circumstances. Otherwise strange things can happen visually e.g. dead units can be "pushed" using interaction sometimes not showing death animation.
++  In game settings uses old sytle brightness control.
++  Main menu options page doesn't refresh if you change the settings in game.
++  After digging house area workers will not continue to walk over other construction sites after leaving the one they made
++  Terrain is now flattened under houses placed at mission start
++  Demolished houses now leave a dug tile where the road used to be, rather than it just disappearing which looked odd (TK's suggestion)
++  F11 statusbar shows wrong map size in loaded games
++  Because the delivery queue prefers closer deliveries, wares will always be delivered to closer buildings. (e.g. with two swine farms, closer one will get all the corn) Same with coal mines. (coal mines in Kuba 2010-02-19 Stuck Workers save09.sav, swine farms in TRB 2010-02-19 Wood and Swine save01.sav)
++  (Can't reproduce, probably caused by worker-construction site issues that have been fixed now) Walk failed in TPR7 "Unit Laborer unable to walk a route from (97;29) to (98;30) during task Idle since the route is unbuilt" (TRB 2010-02-19 Walk Failed.rar)
 
 
 
 
 Fixed in r698:
 <===================================================================================>
-+	Confusing fish run-out messages
-+	"Unknown unit type in Savegame" due to dead but not yet destroyed units not saving unit type [Lewin]
-+	Weapons producing houses did not show produced weapons correctly, only one weapon of each type was displayed
-+	Range Check Error in GetSlide function due to PrevPos being two tiles away from NextPos (fix unconfirmed, but 99% certain) [Lewin]
-+	Buggy stone mining - in some maps, e.g. 15 TSK, stonemasons get stuck after grabbing a stone, because of the changing elevation and angle (the tile below them becomes unwalkable). Building a road near the trapped stonemason causes an error message like the described before, but then nothing bad happens - he just go home and keep working.
-+	Some saves are impossible to load due to the range check error (bug in TKMPointTagList.Load) [Lewin]
-+	Instabilities due to rare circumstances causing routes with canWalkRoad to fail when floodfill succeeds [Lewin]
-+	Demolishing the building manually exits from the building menu, unlike in KaM, where it takes back to the building selection [Lewin]
-+	Load/Save buttons have different order [to KaM], it's a bit confusing [Lewin]
-+	Stuck (trapped) fish (especially in "Across the Desert") would try to use canWalk to solve interaction resulting in crashes [Lewin]
-+	Returning to road did not use A* efficiently and so would fail over long distances [Lewin]
++  Confusing fish run-out messages
++  "Unknown unit type in Savegame" due to dead but not yet destroyed units not saving unit type [Lewin]
++  Weapons producing houses did not show produced weapons correctly, only one weapon of each type was displayed
++  Range Check Error in GetSlide function due to PrevPos being two tiles away from NextPos (fix unconfirmed, but 99% certain) [Lewin]
++  Buggy stone mining - in some maps, e.g. 15 TSK, stonemasons get stuck after grabbing a stone, because of the changing elevation and angle (the tile below them becomes unwalkable). Building a road near the trapped stonemason causes an error message like the described before, but then nothing bad happens - he just go home and keep working.
++  Some saves are impossible to load due to the range check error (bug in TKMPointTagList.Load) [Lewin]
++  Instabilities due to rare circumstances causing routes with canWalkRoad to fail when floodfill succeeds [Lewin]
++  Demolishing the building manually exits from the building menu, unlike in KaM, where it takes back to the building selection [Lewin]
++  Load/Save buttons have different order [to KaM], it's a bit confusing [Lewin]
++  Stuck (trapped) fish (especially in "Across the Desert") would try to use canWalk to solve interaction resulting in crashes [Lewin]
++  Returning to road did not use A* efficiently and so would fail over long distances [Lewin]
 
 
 
 Fixed in r565:
 <===================================================================================>
 Gameplay bugs:
-+	Flags are always visible
-?	Citizen will try to walk home when it has no road tile below entrance
++  Flags are always visible
+?  Citizen will try to walk home when it has no road tile below entrance
 
 Graphics bugs:
-+	brightness settings are wrong (looks like foggy)
-?	Water has dark patches
++  brightness settings are wrong (looks like foggy)
+?  Water has dark patches
 
 Suggested improvements:
-+	support for 1920x1080 resolutions (samsung tv's, widescreens etc)
--	make button in load menu "restore/restart last saved game"
++  support for 1920x1080 resolutions (samsung tv's, widescreens etc)
+-  make button in load menu "restore/restart last saved game"
 
 
 
 Fixed in KaM Remake Economy Demo 2009-09-01 (r428)
 <===================================================================================>
 Gameplay bugs:
-+	Alt-tabbing with School/Barracks selected causes a crash
-+	Error on exit if there's no OpenAL found
-+	Fisher does not work yet
-+	Woodcutter should drop the task if tree is already taken by other woodcutter
-+	Killing a worker while it goes to build a road will cancel the markup and road plan
-+	Units get stuck on unwalkable tiles
++  Alt-tabbing with School/Barracks selected causes a crash
++  Error on exit if there's no OpenAL found
++  Fisher does not work yet
++  Woodcutter should drop the task if tree is already taken by other woodcutter
++  Killing a worker while it goes to build a road will cancel the markup and road plan
++  Units get stuck on unwalkable tiles
 
 
 
 Fixed in KaM Remake Economy Demo 2009-07-28 (r363)
 <===================================================================================>
 Gameplay bugs:
-+	Tree (cut by woodcutter?) will fall down repeatedly forever
-+	Mainmenu is not shown on F11 toggle
-+	Workers forget to build roads sometimes
-+	Built road comes as unfinished "brown spot" (due to above bug)
-+	Units should not eat all kinds of food in Inn
-+	Field building on map edges
-+	Schoolhouse bug (citizen statistics acts wrong on training/cancel)
-+	AI won't train enough citizens
-+	Killing laborer while roadbuilding will cause a crash
-+	Resource cheat is not strict enough
-+	Units should return to road first then go eat, home, etc.
-+	Placing a building plan and removing it, the game returned a "Range check error"
-+	Coal/gold/iron miners use incorrect radius
-+	Pause panel is not fullscreen for maximized window
-+	Game crashes when citizen return home and home is demolished
-+	Field borders should fade correctly in fog of war
-+	Citizen is invisible when its home is demolished for some few seconds
-+	Recruits won't go home if barracks is destroyed and then rebuilt in test mission
-+	It takes the carpenter only one timber to make a weapon
-+	Splash screen failed to disappear
-+	Destroying a house with running deliveries causes UnitSerfHasNoAction errors
-?	"979ms	Gameplay error ... done" follows "route unbuilt" error
-?	Time freeze bug
-?	TUnitAction is being overrun for some reason - error
-?	Destroying barracks and unfinished houses results in crash
-?	Greyish block around mouse cursor
-?	Vertical winefield borders have no edges
++  Tree (cut by woodcutter?) will fall down repeatedly forever
++  Mainmenu is not shown on F11 toggle
++  Workers forget to build roads sometimes
++  Built road comes as unfinished "brown spot" (due to above bug)
++  Units should not eat all kinds of food in Inn
++  Field building on map edges
++  Schoolhouse bug (citizen statistics acts wrong on training/cancel)
++  AI won't train enough citizens
++  Killing laborer while roadbuilding will cause a crash
++  Resource cheat is not strict enough
++  Units should return to road first then go eat, home, etc.
++  Placing a building plan and removing it, the game returned a "Range check error"
++  Coal/gold/iron miners use incorrect radius
++  Pause panel is not fullscreen for maximized window
++  Game crashes when citizen return home and home is demolished
++  Field borders should fade correctly in fog of war
++  Citizen is invisible when its home is demolished for some few seconds
++  Recruits won't go home if barracks is destroyed and then rebuilt in test mission
++  It takes the carpenter only one timber to make a weapon
++  Splash screen failed to disappear
++  Destroying a house with running deliveries causes UnitSerfHasNoAction errors
+?  "979ms  Gameplay error ... done" follows "route unbuilt" error
+?  Time freeze bug
+?  TUnitAction is being overrun for some reason - error
+?  Destroying barracks and unfinished houses results in crash
+?  Greyish block around mouse cursor
+?  Vertical winefield borders have no edges
 
 Graphics bugs:
-+	Wrong render of houses, black tops (see GraphicFlaws folder)
++  Wrong render of houses, black tops (see GraphicFlaws folder)
