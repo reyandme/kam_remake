@@ -271,7 +271,7 @@ begin
       Warrior.Direction := aDir;
       Warrior.AnimStep  := UnitStillFrames[aDir];
       AddMember(Warrior);
-      Warrior.Condition := UNIT_MAX_CONDITION div 2; //Half-fed
+      Warrior.Condition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)));
       fMapEdCount := aCount;
     end;
   end

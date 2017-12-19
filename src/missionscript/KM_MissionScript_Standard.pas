@@ -273,33 +273,33 @@ begin
                           end
                           else
                             AddError('ct_SetHouseDamage without prior declaration of House');
-    ct_SetHouseDeliveryMode:
-                        if fLastHand <> PLAYER_NONE then //Skip false-positives for skipped players
-                          if fLastHouse <> nil then
-                          begin
-                            if InRange(P[0], Byte(Low(TDeliveryMode)), Byte(High(TDeliveryMode))) then //Check allowed range for delivery mode value
-                            begin
-                              if fLastHouse.AllowDeliveryModeChange then
-                                fLastHouse.SetDeliveryModeInstantly(TDeliveryMode(P[0]))
-                              else
-                                AddError(Format('ct_SetHouseDeliveryMode: not allowed to change delivery mode for %s ', [gRes.Houses[fLastHouse.HouseType].HouseName]));
-                            end else
-                              AddError(Format('ct_SetHouseDeliveryMode: wrong value for delivery mode: [%d] ', [P[0]]));
-                          end
-                          else
-                            AddError('ct_SetHouseDeliveryMode without prior declaration of House');
-    ct_SetHouseRepairMode:
-                        if fLastHand <> PLAYER_NONE then //Skip false-positives for skipped players
-                          if fLastHouse <> nil then
-                            fLastHouse.BuildingRepair := True
-                          else
-                            AddError('ct_SetHouseRepairMode without prior declaration of House');
-    ct_SetHouseClosedForWorker:
-                        if fLastHand <> PLAYER_NONE then //Skip false-positives for skipped players
-                          if fLastHouse <> nil then
-                            fLastHouse.IsClosedForWorker := True
-                          else
-                            AddError('ct_SetHouseClosedForWorker without prior declaration of House');
+	ct_SetHouseDeliveryMode: 
+                        if fLastHand <> PLAYER_NONE then //Skip false-positives for skipped players 
+                          if fLastHouse <> nil then 
+                          begin 
+                            if InRange(P[0], Byte(Low(TDeliveryMode)), Byte(High(TDeliveryMode))) then //Check allowed range for delivery mode value 
+                            begin 
+                              if fLastHouse.AllowDeliveryModeChange then 
+                                fLastHouse.SetDeliveryModeInstantly(TDeliveryMode(P[0])) 
+                              else 
+                                AddError(Format('ct_SetHouseDeliveryMode: not allowed to change delivery mode for %s ', [gRes.Houses[fLastHouse.HouseType].HouseName])); 
+                            end else 
+                              AddError(Format('ct_SetHouseDeliveryMode: wrong value for delivery mode: [%d] ', [P[0]])); 
+                          end 
+                          else 
+                            AddError('ct_SetHouseDeliveryMode without prior declaration of House'); 
+    ct_SetHouseRepairMode: 
+                        if fLastHand <> PLAYER_NONE then //Skip false-positives for skipped players 
+                          if fLastHouse <> nil then 
+                            fLastHouse.BuildingRepair := True 
+                          else 
+                            AddError('ct_SetHouseRepairMode without prior declaration of House'); 
+    ct_SetHouseClosedForWorker: 
+                        if fLastHand <> PLAYER_NONE then //Skip false-positives for skipped players 
+                          if fLastHouse <> nil then 
+                            fLastHouse.IsClosedForWorker := True 
+                          else 
+                            AddError('ct_SetHouseClosedForWorker without prior declaration of House'); 
     ct_SetUnit:         if PointInMap(P[1]+1, P[2]+1) then
                         begin
                           //Animals should be added regardless of current player
@@ -479,14 +479,19 @@ begin
     ct_SetGroupFood:    if fLastHand <> PLAYER_NONE then
                         begin
                           if fLastTroop <> nil then
-                          begin
-                            fLastTroop.FlagBearer.StartWDefaultCondition := False;
                             if P[0] <> -1 then
                               fLastTroop.Condition := P[0]
                             else
-                              fLastTroop.Condition := UNIT_MAX_CONDITION; //support old maps !SET_GROUP_FOOD without parameters
-                          end else
+                              fLastTroop.Condition := UNIT_MAX_CONDITION //support old maps !SET_GROUP_FOOD without parameters
+                          else
                             AddError('ct_SetGroupFood without prior declaration of Troop');
+                        end;
+    ct_SetGroupHunger:  if fLastHand <> PLAYER_NONE then
+                        begin
+                          if fLastTroop <> nil then
+                            fLastTroop.Condition := P[0]
+                          else
+                            AddError('ct_SetGroupCondition without prior declaration of Troop');
                         end;
     ct_AICharacter:     if fLastHand <> PLAYER_NONE then
                         begin
@@ -889,15 +894,15 @@ begin
         AddCommand(ct_SetHouse, [HouseTypeToIndex[H.HouseType]-1, H.GetPosition.X-1 + aLeftInset, H.GetPosition.Y-1 + aTopInset]);
         if H.IsDamaged then
           AddCommand(ct_SetHouseDamage, [H.GetDamage]);
-
-        if H.DeliveryMode <> dm_Delivery then //Default delivery mode is dm_Delivery
-          AddCommand(ct_SetHouseDeliveryMode, [Byte(H.DeliveryMode)]);
-
-        if H.BuildingRepair then // Repair mode is turned off by default
-          AddCommand(ct_SetHouseRepairMode, []);
-
-        if H.IsClosedForWorker then
-          AddCommand(ct_SetHouseClosedForWorker, []);
+		  
+		if H.DeliveryMode <> dm_Delivery then //Default delivery mode is dm_Delivery 
+          AddCommand(ct_SetHouseDeliveryMode, [Byte(H.DeliveryMode)]); 
+ 
+        if H.BuildingRepair then // Repair mode is turned off by default 
+          AddCommand(ct_SetHouseRepairMode, []); 
+ 
+        if H.IsClosedForWorker then 
+          AddCommand(ct_SetHouseClosedForWorker, []); 
 
         if H is TKMHouseBarracks then
         begin
@@ -977,8 +982,8 @@ begin
     begin
       Group := gHands[I].UnitGroups[K];
       AddCommand(ct_SetGroup, [UnitTypeToIndex[Group.UnitType], Group.Position.X-1 + aLeftInset, Group.Position.Y-1 + aTopInset, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
-      if not Group.FlagBearer.StartWDefaultCondition then
-        AddCommand(ct_SetGroupFood, [Group.FlagBearer.Condition]);
+      AddCommand(ct_SetGroupHunger, [Group.Condition]);
+      AddCommand(ct_SetGroupFood, [Group.FlagBearer.Condition]);
 
       case Group.MapEdOrder.Order of
         ioNoOrder: ;
