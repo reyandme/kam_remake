@@ -7,8 +7,6 @@ uses
 
 const
   PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)
-  LOC_RANDOM = 0;
-  LOC_SPECTATE = -1;
 
 type
   //Multiplayer info that is filled in Lobby before TKMPlayers are created (thats why it has many mirror fields)

@@ -473,7 +473,7 @@ type
 
   TAllowedChars = (
     acDigits, //Only 0..9 digits, for numeric input
-    acANSI7, //#33..#126 - only basic latin chars and symbols for user nikname
+    acANSI7, //#33..#123,#125,#126 - only basic latin chars and symbols for user nikname, except |
     acFileName, //Exclude symbols that can't be used in filenames
     acText  //Anything is allowed except for eol symbol
   );
@@ -2304,11 +2304,12 @@ end;
 // Check if specified aChar is allowed for specified aAllowedChars type
 function IsCharAllowed(aChar: WideChar; aAllowedChars: TAllowedChars): Boolean;
 const
+  Ansi7Chars: TSetOfAnsiChar = [#32..#123,#125..#126]; //except | character
   NonFileChars: TSetOfAnsiChar = [#0 .. #31, '<', '>', #176, '|', '"', '\', '/', ':', '*', '?'];
   NonTextChars: TSetOfAnsiChar = [#0 .. #31, #176, '|']; //° has negative width so acts like a backspace in KaM fonts
 begin
   Result := not ((aAllowedChars = acDigits) and not InRange(Ord(aChar), 48, 57)
-    or (aAllowedChars = acANSI7) and not InRange(Ord(aChar), 32, 126)
+    or (aAllowedChars = acANSI7) and not CharInSet(aChar, Ansi7Chars)
     or (aAllowedChars = acFileName) and CharInSet(aChar, NonFileChars)
     or (aAllowedChars = acText) and CharInSet(aChar, NonTextChars));
 end;

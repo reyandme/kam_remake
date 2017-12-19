@@ -93,6 +93,7 @@ type
     procedure Lobby_OnMessage(const aText: UnicodeString);
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
+    procedure Lobby_OnUpdateMinimap(Sender: TObject);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
     procedure Lobby_OnReassignedToJoiner(Sender: TObject);
     procedure Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
@@ -807,6 +808,7 @@ begin
   //E.g. If Server fails, Host can be disconnected from it as well as a Joiner
   fNetworking.OnTextMessage  := Lobby_OnMessage;
   fNetworking.OnPlayersSetup := Lobby_OnPlayersSetup;
+  fNetworking.OnUpdateMinimap := Lobby_OnUpdateMinimap;
   fNetworking.OnGameOptions  := Lobby_OnGameOptions;
   fNetworking.OnMapName      := Lobby_OnMapName;
   fNetworking.OnMapMissing   := Lobby_OnMapMissing;
@@ -2020,6 +2022,25 @@ begin
 end;
 
 
+procedure TKMMenuLobby.Lobby_OnUpdateMinimap(Sender: TObject);
+var
+  S: TKMSaveInfo;
+begin
+  S := fNetworking.SaveInfo;
+  if fNetworking.IsSave then
+  begin
+    if S.IsValid
+      and (fNetworking.MyIndex > 0)
+      and S.LoadMinimap(fMinimap, fNetworking.MyNetPlayer.StartLocation) then
+    begin
+      MinimapView_Lobby.SetMinimap(fMinimap);
+      MinimapView_Lobby.Show;
+    end else
+      MinimapView_Lobby.Hide;
+  end;
+end;
+
+
 //We have received MapName
 //Update UI to show it
 procedure TKMMenuLobby.Lobby_OnMapName(const aData: UnicodeString);
@@ -2061,11 +2082,7 @@ begin
                 S := fNetworking.SaveInfo;
                 Label_LobbyMapName.Caption := aData; //Show save name on host (local is always "downloaded")
                 Memo_LobbyMapDesc.Text := S.Info.GetTitleWithTime + '|' + S.Info.GetSaveTimestamp;
-                if S.IsValid and S.LoadMinimap(fMinimap) then
-                begin
-                  MinimapView_Lobby.SetMinimap(fMinimap);
-                  MinimapView_Lobby.Show;
-                end;
+                Lobby_OnUpdateMinimap(nil);
               end;
     ngk_Map:  begin
                 M := fNetworking.MapInfo;

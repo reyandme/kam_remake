@@ -65,6 +65,7 @@ type
   function KMRectMove(aRect: TKMRect; X,Y: Integer): TKMRect;
   procedure KMRectIncludePoint(var aRect: TKMRect; X,Y: Integer); overload;
   procedure KMRectIncludePoint(var aRect: TKMRect; aPoint: TKMPoint); overload;
+  procedure KMRectIncludeRect(var aRect: TKMRect; aRect2: TKMRect);
 
   function KMGetDirection(X,Y: Integer): TKMDirection; overload;
   function KMGetDirection(X,Y: Single): TKMDirection; overload;
@@ -388,6 +389,15 @@ begin
   aRect.Right   := Max(aPoint.X, aRect.Right);
   aRect.Top     := Min(aPoint.Y, aRect.Top);
   aRect.Bottom  := Max(aPoint.Y, aRect.Bottom);
+end;
+
+
+procedure KMRectIncludeRect(var aRect: TKMRect; aRect2: TKMRect);
+begin
+  KMRectIncludePoint(aRect, aRect2.Left, aRect2.Top);
+  KMRectIncludePoint(aRect, aRect2.Right, aRect2.Top);
+  KMRectIncludePoint(aRect, aRect2.Right, aRect2.Bottom);
+  KMRectIncludePoint(aRect, aRect2.Left, aRect2.Bottom);
 end;
 
 
