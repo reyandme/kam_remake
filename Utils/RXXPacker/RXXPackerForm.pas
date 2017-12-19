@@ -47,7 +47,7 @@ begin
 
   if ListBox1.Items.Count = 0 then
   begin
-    ShowMessage('No one file was found!');
+    ShowMessage('No .RX file was found in'+#10+ExeDir + 'SpriteResource\');
     btnPackRXX.Enabled := false;
   end
   else
