@@ -22,7 +22,7 @@ object RXXForm1: TRXXForm1
   TextHeight = 13
   object Label1: TLabel
     Left = 16
-    Top = 207
+    Top = 176
     Width = 31
     Height = 13
     Caption = 'Label1'
@@ -47,14 +47,14 @@ object RXXForm1: TRXXForm1
     MultiSelect = True
     TabOrder = 1
   end
-  object btnReList: TButton
+  object btnUpdateList: TButton
     Left = 16
-    Top = 176
+    Top = 195
     Width = 257
     Height = 25
     Anchors = [akLeft, akRight, akBottom]
-    Caption = 'Re List'
+    Caption = 'Update List'
     TabOrder = 2
-    OnClick = btnReListClick
+    OnClick = btnUpdateListClick
   end
 end

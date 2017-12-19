@@ -14,16 +14,16 @@ type
     btnPackRXX: TButton;
     ListBox1: TListBox;
     Label1: TLabel;
-    btnReList: TButton;
+    btnUpdateList: TButton;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnReListClick(Sender: TObject);
+    procedure btnUpdateListClick(Sender: TObject);
   private
     fPalettes: TKMResPalettes;
     fRxxPacker: TRXXPacker;
 
-    procedure ReList;
+    procedure UpdateList;
   end;
 
 
@@ -36,7 +36,7 @@ implementation
 uses KM_ResHouses, KM_ResUnits, KM_Points;
 
 
-procedure TRXXForm1.ReList;
+procedure TRXXForm1.UpdateList;
 var
   RT: TRXType;
 begin
@@ -59,12 +59,13 @@ begin
 end;
 
 
-procedure TRXXForm1.btnReListClick(Sender: TObject);
+procedure TRXXForm1.btnUpdateListClick(Sender: TObject);
 begin
-  btnReList.Enabled := false;
+  btnUpdateList.Enabled := false;
 
-  ReList;
-  btnReList.Enabled := true;
+  UpdateList;
+
+  btnUpdateList.Enabled := true;
 end;
 
 procedure TRXXForm1.FormCreate(Sender: TObject);
@@ -82,7 +83,7 @@ begin
   fPalettes := TKMResPalettes.Create;
   fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 
-  ReList;
+  UpdateList;
 
 end;
 
