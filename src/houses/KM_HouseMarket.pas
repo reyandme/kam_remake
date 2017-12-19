@@ -196,6 +196,7 @@ begin
     gHands[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
     gScriptEvents.ProcMarketTrade(Self, fResFrom, fResTo);
+    gScriptEvents.ProcWareProduced(Self, fResTo, TradeCount * RatioTo);
     gSoundPlayer.Play(sfxn_Trade, fPosition);
   end;
 end;

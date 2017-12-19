@@ -1645,6 +1645,7 @@ begin
   Land[Loc.Y,Loc.X].TileOverlay := to_Road;
 
   SetField_Complete(Loc, ft_Road);
+  gScriptEvents.ProcRoadBuilt(aOwner, Loc.X, Loc.Y);
 end;
 
 
@@ -2376,6 +2377,11 @@ begin
   end;
 
   SetField_Complete(Loc, aFieldType);
+
+  if (aFieldType = ft_Wine) then
+    gScriptEvents.ProcWinefieldBuilt(aOwner, Loc.X, Loc.Y)
+  else if (aFieldType = ft_Corn) then
+    gScriptEvents.ProcFieldBuilt(aOwner, Loc.X, Loc.Y);
 end;
 
 
