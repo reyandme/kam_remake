@@ -2283,8 +2283,10 @@ begin
 
   SetField_Complete(Loc, aFieldType);
 
-  if (aFieldType = ft_Wine) then gScriptEvents.ProcWinefieldBuilt(aOwner, Loc.X, Loc.Y)
-  else if (aFieldType = ft_Corn) then gScriptEvents.ProcFieldBuilt(aOwner, Loc.X, Loc.Y);
+  if (aFieldType = ft_Wine) then
+    gScriptEvents.ProcWinefieldBuilt(aOwner, Loc.X, Loc.Y)
+  else if (aFieldType = ft_Corn) then
+    gScriptEvents.ProcFieldBuilt(aOwner, Loc.X, Loc.Y);
 end;
 
 
