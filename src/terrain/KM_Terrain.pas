@@ -2796,7 +2796,8 @@ end;
 {Mark previous tile as empty and next one as occupied}
 //We need to check both tiles since UnitWalk is called only by WalkTo where both tiles aren't houses
 procedure TKMTerrain.UnitWalk(LocFrom,LocTo: TKMPoint; aUnit: Pointer);
-var U: TKMUnit;
+var
+  aU: TKMUnit;
 begin
   if not DO_UNIT_INTERACTION then exit;
   Assert(Land[LocFrom.Y, LocFrom.X].IsUnit = aUnit, 'Trying to remove wrong unit at '+TypeToString(LocFrom));
@@ -2804,9 +2805,9 @@ begin
   Assert(Land[LocTo.Y, LocTo.X].IsUnit = nil, 'Tile already occupied at '+TypeToString(LocTo));
   Land[LocTo.Y, LocTo.X].IsUnit := aUnit;
 
-  U := TKMUnit(aUnit);
-  if ((U <> nil) AND (U is TKMUnitWarrior)) then
-    gScriptEvents.ProcWarriorMoved(U, LocTo.X, LocTo.Y);
+  aU := TKMUnit(aUnit);
+  if ((aU <> nil) and (aU is TKMUnitWarrior)) then
+    gScriptEvents.ProcWarriorWalked(aU, LocFrom, LocTo);
 end;
 
 
