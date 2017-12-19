@@ -56,6 +56,7 @@ type
     fProcUnitDied: TMethod;
     fProcUnitTrained: TMethod;
     fProcUnitWounded: TMethod;
+    fProcWareProduced: TMethod;
     fProcWarriorEquipped: TMethod;
     fProcWinefieldBuilt: TMethod;
 
@@ -97,6 +98,7 @@ type
     procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TKMHandIndex);
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
+    procedure ProcWareProduced(aHouse: TKMHouse; aType: TWareType; aCount: Word);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
     procedure ProcWinefieldBuilt(aPlayer: TKMHandIndex; aX, aY: Word);
   end;
@@ -177,6 +179,7 @@ begin
   fProcUnitTrained           := fExec.GetProcAsMethodN('OnUnitTrained');
   fProcUnitWounded           := fExec.GetProcAsMethodN('OnUnitWounded');
   fProcUnitAttacked          := fExec.GetProcAsMethodN('OnUnitAttacked');
+  fProcWareProduced          := fExec.GetProcAsMethodN('OnWareProduced');
   fProcWarriorEquipped       := fExec.GetProcAsMethodN('OnWarriorEquipped');
   fProcWinefieldBuilt        := fExec.GetProcAsMethodN('OnWinefieldBuilt');
 end;
@@ -618,6 +621,18 @@ procedure TKMScriptEvents.ProcWinefieldBuilt(aPlayer: TKMHandIndex; aX, aY: Word
 begin
   if MethodAssigned(fProcWinefieldBuilt) then
     DoProc(fProcWinefieldBuilt, [aPlayer, aX, aY]);
+end;
+
+
+//* Version: 7000+
+//* Occurs when resource is produced for specified house.
+procedure TKMScriptEvents.ProcWareProduced(aHouse: TKMHouse; aType: TWareType; aCount: Word);
+begin
+  if MethodAssigned(fProcWareProduced) then
+  begin
+    if (aType <> wt_None) then
+      DoProc(fProcWareProduced, [aHouse.UID, WareTypeToIndex[aType], aCount]);
+  end;
 end;
 
 

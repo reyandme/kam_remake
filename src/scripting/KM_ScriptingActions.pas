@@ -1399,6 +1399,7 @@ begin
       begin
         H.ResAddToIn(WareIndexToType[aType], aCount);
         gHands[aPlayer].Stats.WareProduced(WareIndexToType[aType], aCount);
+        gScriptEvents.ProcWareProduced(H, WareIndexToType[aType], aCount);
       end;
     end
     else
@@ -1428,6 +1429,7 @@ begin
       begin
         H.ResAddToIn(WareIndexToType[aType], aCount);
         gHands[aPlayer].Stats.WareProduced(WareIndexToType[aType], aCount);
+        gScriptEvents.ProcWareProduced(H, WareIndexToType[aType], aCount);
       end;
     end
     else
@@ -1897,6 +1899,7 @@ begin
           begin
             H.ResAddToEitherFromScript(Res, aCount);
             gHands[H.Owner].Stats.WareProduced(Res, aCount);
+            gScriptEvents.ProcWareProduced(H, Res, aCount);
           end;
         end
         else
