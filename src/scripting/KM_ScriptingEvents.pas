@@ -94,7 +94,7 @@ type
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
-    procedure ProcWarriorWalked(aUnit: TKMUnit; aFrom, aTo: TKMPoint);
+    procedure ProcWarriorWalked(aUnit: TKMUnit; aToX, aToY: Integer);
   end;
 
 
@@ -590,10 +590,10 @@ end;
 
 //* Version: 7000+
 //* Occurs when warrior walk
-procedure TKMScriptEvents.ProcWarriorWalked(aUnit: TKMUnit; aFrom, aTo: TKMPoint);
+procedure TKMScriptEvents.ProcWarriorWalked(aUnit: TKMUnit; aToX, aToY: Integer);
 begin
   if MethodAssigned(fProcWarriorWalked) then
-      DoProc(fProcWarriorWalked, [aUnit.UID, aFrom, aTo]);
+      DoProc(fProcWarriorWalked, [aUnit.UID, aToX, aToY]);
 end;
 
 

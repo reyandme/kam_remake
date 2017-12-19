@@ -2902,7 +2902,7 @@ begin
 
   aU := TKMUnit(aUnit);
   if ((aU <> nil) and (aU is TKMUnitWarrior)) then
-    gScriptEvents.ProcWarriorWalked(aU, LocFrom, LocTo);
+    gScriptEvents.ProcWarriorWalked(aU, LocTo.X, LocTo.Y);
 end;
 
 
