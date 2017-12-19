@@ -519,8 +519,12 @@ begin
           fUnitTask := TTaskGoHome.Create(Self)
         else
           SetActionStay(60, ua_Walk) //Home can't be reached
-      end else begin
-        fUnitTask := InitiateMining; //Unit is at home, so go get a job
+      end
+      else
+      begin
+        if not (fHome.HouseType in HOUSE_WORKSHOP) or (fHome.CheckResOut(wt_All) < MAX_WARES_OUT_WORKSHOP) then
+          fUnitTask := InitiateMining; //Unit is at home, so go get a job
+
         if fUnitTask = nil then //We didn't find any job to do - rest at home
           SetActionStay(gRes.Houses[fHome.HouseType].WorkerRest*10, ua_Walk);
       end;

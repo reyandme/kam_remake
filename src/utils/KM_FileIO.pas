@@ -13,7 +13,8 @@ uses
   function ReadTextU(const afilename: UnicodeString; aEncoding: Word): UnicodeString;
 
   //Copy a file (CopyFile is different between Delphi and Lazarus)
-  procedure KMCopyFile(const aSrc, aDest: UnicodeString);
+  procedure KMCopyFile(const aSrc, aDest: UnicodeString); overload;
+  procedure KMCopyFile(const aSrc, aDest: UnicodeString; aOverwrite: Boolean); overload;
 
   //Delete a folder (DeleteFolder is different between Delphi and Lazarus)
   procedure KMDeleteFolder(const aPath: UnicodeString);
@@ -120,6 +121,20 @@ end;
 
 procedure KMCopyFile(const aSrc, aDest: UnicodeString);
 begin
+  {$IFDEF FPC}
+  CopyFile(aSrc, aDest);
+  {$ENDIF}
+  {$IFDEF WDC}
+  TFile.Copy(aSrc, aDest);
+  {$ENDIF}
+end;
+
+
+procedure KMCopyFile(const aSrc, aDest: UnicodeString; aOverwrite: Boolean);
+begin
+  if aOverwrite and FileExists(aDest) then
+    DeleteFile(aDest);
+
   {$IFDEF FPC}
   CopyFile(aSrc, aDest);
   {$ENDIF}

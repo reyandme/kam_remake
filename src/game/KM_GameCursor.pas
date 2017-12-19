@@ -49,6 +49,7 @@ end;
 procedure TKMGameCursor.Reset;
 begin
   DragOffset := KMPOINT_ZERO;
+  SState := [];
   // Actually we need reset all fields when changing mode,
   // but lets reset only DragOffset for now, need to do lots of tests for other fields
 end;

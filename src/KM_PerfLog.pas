@@ -23,7 +23,7 @@ type
 
 implementation
 uses
-  Classes, SysUtils, KromUtils;
+  Classes, SysUtils, KM_CommonUtils;
 
 
 const

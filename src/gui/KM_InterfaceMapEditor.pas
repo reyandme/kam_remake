@@ -1191,6 +1191,10 @@ begin
   //Update the XY coordinates of the Center Screen button
   if (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_CENTERSCREEN) then
     fGuiPlayer.ChangePlayer; //Forces an update
+
+  Exclude(Shift, ssRight);
+  Exclude(Shift, ssLeft);
+  UpdateGameCursor(X, Y, Shift); //Updates the shift state after
 end;
 
 

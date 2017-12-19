@@ -21,6 +21,7 @@ type
 const
   HOUSE_MIN = ht_ArmorSmithy;
   HOUSE_MAX = ht_Woodcutters;
+  HOUSE_WORKSHOP = [ht_WeaponSmithy, ht_ArmorSmithy, ht_WeaponWorkshop, ht_ArmorWorkshop];
 
 type
   THouseAnim = array [THouseActionType] of TKMAnimLoop;
