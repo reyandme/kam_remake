@@ -664,8 +664,8 @@ begin
   if FileExists(ExeDir + aMission) then
     LoadGameFromScript(ExeDir + aMission, aGameName, 0, fCampaigns.CampaignById(aCampName), aCampMap, aGameMode, aLocation, aColor)
   else
-  if FileExists(ChangeFileExt(ExeDir + aSave, '.bas')) then
-    LoadGameFromSave(ChangeFileExt(ExeDir + aSave, '.bas'), aGameMode)
+  if FileExists(ChangeFileExt(ExeDir + aSave, EXT_SAVE_BASE_DOT)) then
+    LoadGameFromSave(ChangeFileExt(ExeDir + aSave, EXT_SAVE_BASE_DOT), aGameMode)
   else
     fMainMenuInterface.PageChange(gpError, 'Can not repeat last mission');
 end;
@@ -688,7 +688,7 @@ end;
 
 procedure TKMGameApp.NewReplay(const aFilePath: UnicodeString);
 begin
-  Assert(ExtractFileExt(aFilePath) = '.bas');
+  Assert(ExtractFileExt(aFilePath) = EXT_SAVE_BASE_DOT);
   LoadGameFromSave(aFilePath, gmReplaySingle); //Will be changed to gmReplayMulti depending on save contents
 end;
 

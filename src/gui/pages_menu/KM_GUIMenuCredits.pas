@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   {$IFDEF WDC} ShellAPI, Windows, {$ENDIF} // Required for OpenURL in Delphi
   {$IFDEF FPC} LCLIntf, {$ENDIF} // Required for OpenURL in Lazarus
-  Classes, Forms, Controls, KromUtils,
+  Classes, Forms, Controls,
   KM_Controls, KM_Defaults,
   KM_InterfaceDefaults;
 
@@ -33,7 +33,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_ResLocales;
+  KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_ResLocales, KM_CommonUtils;
 
 
 { TKMGUIMainCredits }

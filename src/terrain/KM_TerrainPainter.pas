@@ -362,10 +362,11 @@ var
   Tmp: Single;
   R: TKMRect;
   aLoc : TKMPointF;
-  aRaise: Boolean;
+  aRaise, aLower: Boolean;
 begin
   aLoc    := KMPointF(gGameCursor.Float.X+1, gGameCursor.Float.Y+1); // Mouse point
   aRaise  := ssLeft in gGameCursor.SState;         // Raise or Lowered (Left or Right mousebtn)
+  aLower  := ssRight in gGameCursor.SState;        // Raise or Lowered (Left or Right mousebtn)
   Rad     := gGameCursor.MapEdSize;                // Radius basing on brush size
   Slope   := gGameCursor.MapEdSlope;               // Elevation slope
   Speed   := gGameCursor.MapEdSpeed;               // Elvation speed
@@ -402,6 +403,7 @@ begin
           Tmp := 0;
        //END Unequalize
       end else
+      if aLower then
       // START Flatten
       begin
       //Flatten compares heights of mouse click and active tile then it increases/decreases height of active tile

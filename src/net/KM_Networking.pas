@@ -117,6 +117,7 @@ type
     fOnPlayerFileTransferProgress: TTransferProgressPlayerEvent;
     fOnTextMessage: TUnicodeStringEvent;
     fOnPlayersSetup: TNotifyEvent;
+    fOnUpdateMinimap: TNotifyEvent;
     fOnGameOptions: TNotifyEvent;
     fOnMapName: TUnicodeStringEvent;
     fOnMapMissing: TUnicodeStringBoolEvent;
@@ -145,6 +146,7 @@ type
     procedure ReassignHost(aSenderIndex: TKMNetHandleIndex; M: TKMemoryStream);
     procedure PlayerJoined(aServerIndex: TKMNetHandleIndex; const aPlayerName: AnsiString);
     procedure PlayerDisconnected(aSenderIndex: TKMNetHandleIndex);
+    procedure PlayersListReceived(aM: TKMemoryStream);
     procedure ReturnToLobbyVoteSucceeded;
     procedure ResetReturnToLobbyVote;
     procedure TransferOnCompleted(aClientIndex: TKMNetHandleIndex);
@@ -186,6 +188,9 @@ type
 
     function IsMuted(aNetPlayerIndex: Integer): Boolean;
     procedure ToggleMuted(aNetPlayerIndex: Integer);
+
+    function IsSave: Boolean;
+    function IsMap: Boolean;
 
     //Lobby
     property ServerQuery: TKMServerQuery read fServerQuery;
@@ -229,13 +234,13 @@ type
     procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 
     //Gameplay
-    property MapInfo:TKMapInfo read fMapInfo;
-    property SaveInfo:TKMSaveInfo read fSaveInfo;
-    property NetGameOptions:TKMGameOptions read fNetGameOptions;
+    property MapInfo: TKMapInfo read fMapInfo;
+    property SaveInfo: TKMSaveInfo read fSaveInfo;
+    property NetGameOptions: TKMGameOptions read fNetGameOptions;
     property SelectGameKind: TNetGameKind read fSelectGameKind;
-    property NetPlayers:TKMNetPlayersList read fNetPlayers;
+    property NetPlayers: TKMNetPlayersList read fNetPlayers;
     property MyNetPlayer: TKMNetPlayerInfo read GetMyNetPlayer;
-    property LastProcessedTick:cardinal write fLastProcessedTick;
+    property LastProcessedTick: Cardinal write fLastProcessedTick;
     property MissingFileType: TNetGameKind read fMissingFileType;
     property MissingFileName: UnicodeString read fMissingFileName;
     procedure GameCreated;
@@ -254,6 +259,7 @@ type
     property OnPlayerFileTransferProgress: TTransferProgressPlayerEvent write fOnPlayerFileTransferProgress; //File transfer progress to other player
 
     property OnPlayersSetup: TNotifyEvent write fOnPlayersSetup; //Player list updated
+    property OnUpdateMinimap: TNotifyEvent write fOnUpdateMinimap; //Update minimap
     property OnGameOptions: TNotifyEvent write fOnGameOptions; //Game options updated
     property OnMapName: TUnicodeStringEvent write fOnMapName;           //Map name updated
     property OnMapMissing: TUnicodeStringBoolEvent write fOnMapMissing;           //Map missing
@@ -261,7 +267,7 @@ type
     property OnStartSave: TGameStartEvent write fOnStartSave;       //Load the game
     property OnDoReturnToLobby: TNotifyEvent write fOnDoReturnToLobby;
     property OnAnnounceReturnToLobby: TNotifyEvent write fOnAnnounceReturnToLobby;
-    property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
+    property OnPlay: TNotifyEvent write fOnPlay;                 //Start the gameplay
     property OnReadyToPlay: TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
     property OnPingInfo: TNotifyEvent write fOnPingInfo;         //Ping info updated
     property OnMPGameInfoChanged: TNotifyEvent write fOnMPGameInfoChanged;
@@ -269,7 +275,7 @@ type
     property OnDisconnect: TUnicodeStringEvent write fOnDisconnect;     //Lost connection, was kicked
     property OnJoinerDropped: TIntegerEvent write fOnJoinerDropped; //Other player disconnected
     property OnCommands: TStreamIntEvent write fOnCommands;        //Recieved GIP commands
-    property OnResyncFromTick:TResyncEvent write fOnResyncFromTick;
+    property OnResyncFromTick: TResyncEvent write fOnResyncFromTick;
 
     property OnTextMessage: TUnicodeStringEvent write fOnTextMessage;   //Text message recieved
 
@@ -439,6 +445,7 @@ begin
   fOnHostFail := nil;
   fOnTextMessage := nil;
   fOnPlayersSetup := nil;
+  fOnUpdateMinimap := nil;
   fOnMapName := nil;
   fOnMapMissing := nil;
   fOnCommands := nil;
@@ -743,6 +750,10 @@ begin
 
                   if aIndex = LOC_SPECTATE then
                     fNetPlayers[aPlayerIndex].Team := 0; //Spectators can't have team
+
+                  // Update minimap
+                  if (aPlayerIndex = fMyIndex) and Assigned(fOnUpdateMinimap) then
+                    fOnUpdateMinimap(Self);
 
                   SendPlayerListAndRefreshPlayersSetup;
                 end;
@@ -1216,7 +1227,8 @@ begin
   PacketSend(aServerIndex, mk_AllowToJoin);
   SendMapOrSave(aServerIndex); //Send the map first so it doesn't override starting locs
 
-  if fSelectGameKind = ngk_Save then MatchPlayersToSave(fNetPlayers.ServerToLocal(aServerIndex)); //Match only this player
+  if fSelectGameKind = ngk_Save then
+    MatchPlayersToSave(fNetPlayers.ServerToLocal(aServerIndex)); //Match only this player
   SendPlayerListAndRefreshPlayersSetup;
   SendGameOptions;
   PostMessage(TX_NET_HAS_JOINED, csJoin, UnicodeString(aPlayerName));
@@ -1304,6 +1316,34 @@ begin
 
     PostMessage(TX_NET_HOSTING_RIGHTS, csSystem, fNetPlayers[fMyIndex].NiknameColoredU);
     gLog.LogNetConnection('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
+  end;
+end;
+
+
+// Handle mk_PLayerList message
+procedure TKMNetworking.PlayersListReceived(aM: TKMemoryStream);
+var
+  OldLoc: Integer;
+  IsPlayerInitBefore: Boolean;
+begin
+  if fNetPlayerKind = lpk_Joiner then
+  begin
+    OldLoc := -1234; // some randor value, make compiler happy
+    IsPlayerInitBefore := MyIndex > 0;
+    if IsPlayerInitBefore then
+      OldLoc := MyNetPlayer.StartLocation;
+
+    aM.Read(fHostIndex);
+    fNetPlayers.LoadFromStream(aM); //Our index could have changed on players add/removal
+    fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
+
+    if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+
+    if Assigned(fOnUpdateMinimap)
+      and ((IsPlayerInitBefore
+        and (OldLoc <> MyNetPlayer.StartLocation))
+        or not IsPlayerInitBefore) then
+      fOnUpdateMinimap(Self);
   end;
 end;
 
@@ -1852,14 +1892,7 @@ begin
 //                if Assigned(fOnPingInfo) then fOnPingInfo(Self);
 //              end;
 
-      mk_PlayersList:
-              if fNetPlayerKind = lpk_Joiner then
-              begin
-                M.Read(fHostIndex);
-                fNetPlayers.LoadFromStream(M); //Our index could have changed on players add/removal
-                fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
-                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-              end;
+      mk_PlayersList: PlayersListReceived(M);
 
       mk_GameOptions:
               if fNetPlayerKind = lpk_Joiner then
@@ -1935,8 +1968,8 @@ begin
                     gLog.AddTime(Format('Save error: %s. Check params: fSaveInfo.IsValid = %s; (fSaveInfo.CRC <> tmpCRC) = ;' +
                                         ' Save FileExists %s: %s; fSaveError = %s; fInfo.IsValid(True) = %s',
                                         [gResTexts[TX_PAUSED_FILE_MISMATCH], BoolToStr(fSaveInfo.IsValid),
-                                         BoolToStr(fSaveInfo.CRC <> tmpCardinal), fSaveInfo.Path + fSaveInfo.FileName + '.' + EXT_SAVE_MAIN,
-                                         BoolToStr(FileExists(fSaveInfo.Path + fSaveInfo.FileName + '.' + EXT_SAVE_MAIN)), fSaveInfo.SaveError,
+                                         BoolToStr(fSaveInfo.CRC <> tmpCardinal), fSaveInfo.Path + fSaveInfo.FileName + EXT_SAVE_MAIN_DOT,
+                                         BoolToStr(FileExists(fSaveInfo.Path + fSaveInfo.FileName + EXT_SAVE_MAIN_DOT)), fSaveInfo.SaveError,
                                          fSaveInfo.Info.IsValid(True)]));
                     fSelectGameKind := ngk_None;
                     FreeAndNil(fSaveInfo);
@@ -2343,6 +2376,18 @@ function TKMNetworking.IsMuted(aNetPlayerIndex: Integer): Boolean;
 begin
   //Use cast to Pointer to be able to store Integer value in TList
   Result := (aNetPlayerIndex <> -1) and (fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer)) <> -1);
+end;
+
+
+function TKMNetworking.IsSave: Boolean;
+begin
+  Result := SelectGameKind = ngk_Save;
+end;
+
+
+function TKMNetworking.IsMap: Boolean;
+begin
+  Result := SelectGameKind = ngk_Map;
 end;
 
 

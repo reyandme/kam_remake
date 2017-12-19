@@ -60,6 +60,7 @@ type
     fResourceDeliveryCount: array[1..4] of Word; //Count of the resources we have ordered for the input (used for ware distribution)
     fResourceOut: array [1..4]of Byte; //Resource count in output
     fResourceOrder: array [1..4]of Word; //If HousePlaceOrders=true then here are production orders
+    fResourceOutPool: array[0..19] of Byte;
     fLastOrderProduced: Byte;
     fResOrderDesired: array [1..4]of Single;
 
@@ -147,6 +148,8 @@ type
     function GetHealth: Word;
     function GetBuildWoodDelivered: Byte;
     function GetBuildStoneDelivered: Byte;
+    function GetBuildResourceDelivered: Byte;
+    function GetBuildResDeliveredPercent: Single;
 
     property ResourceInArray: TKMByteArray read GetResourceInArray;
     property ResourceOutArray: TKMByteArray read GetResourceOutArray;
@@ -324,6 +327,9 @@ begin
     fResourceOrder[I] :=0;
   end;
 
+  for I := 0 to 19 do
+    fResourceOutPool[I] := 0;
+
   fIsDestroyed := False;
   RemoveRoadWhenDemolish := gTerrain.Land[Entrance.Y, Entrance.X].TileOverlay <> to_Road;
   fPointerCount := 0;
@@ -374,6 +380,10 @@ begin
   for I:=1 to 4 do LoadStream.Read(fResourceOut[I]);
   for I:=1 to 4 do LoadStream.Read(fResourceOrder[I], SizeOf(fResourceOrder[I]));
   for I:=1 to 4 do LoadStream.Read(fResOrderDesired[I], SizeOf(fResOrderDesired[I]));
+
+  if fHouseType in HOUSE_WORKSHOP then
+    LoadStream.Read(fResourceOutPool, 20);
+
   LoadStream.Read(fLastOrderProduced);
   LoadStream.Read(FlagAnimStep);
   LoadStream.Read(WorkAnimStep);
@@ -801,6 +811,18 @@ begin
 end;
 
 
+function TKMHouse.GetBuildResourceDelivered: Byte;
+begin
+  Result := GetBuildWoodDelivered + GetBuildStoneDelivered;
+end;
+
+
+function TKMHouse.GetBuildResDeliveredPercent: Single;
+begin
+  Result := GetBuildResourceDelivered / (gRes.Houses[fHouseType].WoodCost + gRes.Houses[fHouseType].StoneCost);
+end;
+
+
 {Increase building progress of house. When it reaches some point Stoning replaces Wooding
  and then it's done and house should be finalized}
  {Keep track on stone/wood reserve here as well}
@@ -1202,13 +1224,30 @@ end;
 
 
 procedure TKMHouse.ResAddToOut(aWare: TWareType; const aCount:integer=1);
-var I: Integer;
+var
+  I, p, count: Integer;
 begin
-  if aWare = wt_None then exit;
+  if aWare = wt_None then
+    exit;
+
   for I := 1 to 4 do
-  if aWare = gRes.Houses[fHouseType].ResOutput[I] then
+    if aWare = gRes.Houses[fHouseType].ResOutput[I] then
     begin
       inc(fResourceOut[I], aCount);
+
+      if (fHouseType in HOUSE_WORKSHOP) and (aCount > 0) then
+      begin
+        count := aCount;
+        for p := 0 to 19 do
+          if fResourceOutPool[p] = 0 then
+          begin
+            fResourceOutPool[p] := I;
+            Dec(count);
+            if count = 0 then
+              Break;
+          end;
+      end;
+
       gHands[fOwner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
     end;
 end;
@@ -1228,10 +1267,9 @@ begin
     end;
     //Don't allow output to be overfilled from script. This is not checked
     //in ResAddToOut because e.g. stonemason is allowed to overfill it slightly)
-    if (aWare = gRes.Houses[fHouseType].ResOutput[I])
-    and (fResourceOut[I] < 5) then
+    if (aWare = gRes.Houses[fHouseType].ResOutput[I]) and (fResourceOut[I] < 5) then
     begin
-      aCount := Min(aCount, 5-fResourceOut[I]);
+      aCount := Min(aCount, 5 - fResourceOut[I]);
       ResAddToOut(aWare, aCount);
       Exit;
     end;
@@ -1332,7 +1370,7 @@ end;
 
 procedure TKMHouse.ResTakeFromOut(aWare: TWareType; aCount: Word = 1; aFromScript: Boolean = False);
 var
-  I, K: integer;
+  I, K, p, count: integer;
 begin
   Assert(aWare <> wt_None);
   Assert(not(fHouseType in [ht_Store,ht_Barracks,ht_TownHall]));
@@ -1349,6 +1387,20 @@ begin
       end;
     end;
     Assert(aCount <= fResourceOut[I]);
+
+    if (fHouseType in HOUSE_WORKSHOP) and (aCount > 0) then
+    begin
+      count := aCount;
+      for p := 0 to 19 do
+        if fResourceOutPool[p] = I then
+          begin
+            fResourceOutPool[p] := 0;
+            Dec(count);
+            if count = 0 then
+              Break;
+          end;
+    end;
+
     Dec(fResourceOut[I], aCount);
     Exit;
   end;
@@ -1481,6 +1533,10 @@ begin
   for I:=1 to 4 do SaveStream.Write(fResourceOut[I]);
   for I:=1 to 4 do SaveStream.Write(fResourceOrder[I], SizeOf(fResourceOrder[I]));
   for I:=1 to 4 do SaveStream.Write(fResOrderDesired[I], SizeOf(fResOrderDesired[I]));
+
+  if fHouseType in HOUSE_WORKSHOP then
+    SaveStream.Write(fResourceOutPool, 20);
+
   SaveStream.Write(fLastOrderProduced);
   SaveStream.Write(FlagAnimStep);
   SaveStream.Write(WorkAnimStep);
@@ -1634,7 +1690,7 @@ begin
                       gRenderPool.AddHouse(fHouseType, fPosition, 1, 1, fSnowStep)
                     else
                       gRenderPool.AddHouse(fHouseType, fPosition, 1, 1, 0);
-                    gRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
+                    gRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut, fResourceOutPool);
                     if CurrentAction <> nil then
                       gRenderPool.AddHouseWork(fHouseType, fPosition, CurrentAction.SubAction, WorkAnimStep, gHands[fOwner].FlagColor);
                   end
