@@ -10,6 +10,7 @@ uses
 type
   TKMScriptActions = class(TKMScriptEntity)
   public
+    procedure AIClearAttacks(aPlayer: Byte);
     procedure AIAutoAttackRange(aPlayer: Byte; aRange: Word);
     procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
@@ -182,6 +183,41 @@ end;
 
 
 { TKMScriptActions }
+
+
+//* Version 7000+
+//* Clears attacks for AI player (including AutoAttack).
+//* If parameter is -1 attacks will be clear for all AI players
+procedure TKMScriptActions.AIClearAttacks(aPlayer:Byte);
+var
+  I: integer;
+begin
+  try
+    if (aPlayer >= 0) then
+    begin
+      if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+      begin
+        gHands[aPlayer].AI.General.Attacks.Clear();
+        gHands[aPlayer].AI.Setup.AutoAttack := false;
+      end
+      else
+        LogParamWarning('Actions.AIApplyAgressiveBuilderSetup', [aPlayer]);
+    end
+    else
+    begin
+      for I := 0 to gHands.Count - 1 do
+      begin
+        gHands[I].AI.General.Attacks.Clear();
+        gHands[I].AI.Setup.AutoAttack := false;
+      end;
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 5938
 //* Puts the player in cinematic mode, blocking user input and allowing the screen to be panned
 procedure TKMScriptActions.CinematicStart(aPlayer: Byte);
@@ -194,6 +230,7 @@ begin
     end
     else
       LogParamWarning('Actions.CinematicStart', [aPlayer]);
+      gHands[1].AI.General.Attacks.Clear;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
