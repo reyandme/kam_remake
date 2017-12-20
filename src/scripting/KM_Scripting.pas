@@ -314,13 +314,14 @@ begin
 
     // Common
     Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
+    Sender.AddTypeS('TAnsiStringArray', 'array of AnsiString'); //Needed for some array Utils
     Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
     Sender.AddTypeS('TKMPoint', 'record X,Y: Integer; end;'); //Could be very useful
 
     Sender.AddTypeS('TKMAudioFormat', '(af_Wav, af_Ogg)'); //Needed for PlaySound
 
     // Types needed for MapTilesArraySet function
-    Sender.AddTypeS('TKMTileChangeType', '(tctTerrain, tctRotation, tctHeight, tctObject)');
+    Sender.AddTypeS('TKMTileChangeType', '(tctTerrain, tctHeight, tctObject)');
     Sender.AddTypeS('TKMTileChangeTypeSet', 'set of TKMTileChangeType');
     Sender.AddTypeS('TKMTerrainTileBrief', 'record X, Y, Terrain, Rotation, Height, Obj: Byte; ChangeSet: TKMTileChangeTypeSet; end');
 
@@ -542,7 +543,6 @@ begin
     RegisterMethodCheck(c, 'function MapTileObjectSet(X, Y, Obj: Integer): Boolean');
     RegisterMethodCheck(c, 'function MapTileSet(X, Y, aType, aRotation: Integer): Boolean');
     RegisterMethodCheck(c, 'function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean');
-    RegisterMethodCheck(c, 'function MapTilesArraySetS(aTiles: array of AnsiString; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean');
 
     RegisterMethodCheck(c, 'procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString)');
     RegisterMethodCheck(c, 'procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
@@ -614,6 +614,9 @@ begin
     RegisterMethodCheck(c, 'function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean');
     RegisterMethodCheck(c, 'function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean');
     RegisterMethodCheck(c, 'function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean');
+
+    RegisterMethodCheck(c, 'function ArrayRemoveIndexI(aIndex: Integer; aArray: TIntegerArray): TIntegerArray');
+    RegisterMethodCheck(c, 'function ArrayRemoveIndexS(aIndex: Integer; aArray: TAnsiStringArray): TAnsiStringArray');
 
     RegisterMethodCheck(c, 'function EnsureRangeS(aValue, aMin, aMax: Single): Single');
     RegisterMethodCheck(c, 'function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
@@ -1037,7 +1040,6 @@ begin
 
       RegisterMethod(@TKMScriptActions.MapTileSet,                              'MapTileSet');
       RegisterMethod(@TKMScriptActions.MapTilesArraySet,                        'MapTilesArraySet');
-      RegisterMethod(@TKMScriptActions.MapTilesArraySetS,                       'MapTilesArraySetS');
       RegisterMethod(@TKMScriptActions.MapTileHeightSet,                        'MapTileHeightSet');
       RegisterMethod(@TKMScriptActions.MapTileObjectSet,                        'MapTileObjectSet');
 
@@ -1112,6 +1114,9 @@ begin
       RegisterMethod(@TKMScriptUtils.ArrayHasElementB,                          'ArrayHasElementB');
       RegisterMethod(@TKMScriptUtils.ArrayHasElementI,                          'ArrayHasElementI');
       RegisterMethod(@TKMScriptUtils.ArrayHasElementS,                          'ArrayHasElementS');
+
+      RegisterMethod(@TKMScriptUtils.ArrayRemoveIndexI,                         'ArrayRemoveIndexI');
+      RegisterMethod(@TKMScriptUtils.ArrayRemoveIndexS,                         'ArrayRemoveIndexS');
 
       RegisterMethod(@TKMScriptUtils.EnsureRangeI,                              'EnsureRangeI');
       RegisterMethod(@TKMScriptUtils.EnsureRangeS,                              'EnsureRangeS');
