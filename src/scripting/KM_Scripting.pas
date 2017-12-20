@@ -456,11 +456,11 @@ begin
     RegisterMethodCheck(c, 'function WareTypeName(aWareType: Byte): AnsiString');
 
     c := Sender.AddClassN(nil, AnsiString(fActions.ClassName));
-    RegisterMethodCheck(c, 'procedure AIClearAttacks(aPlayer: Byte)');
     RegisterMethodCheck(c, 'procedure AIAutoAttackRange(aPlayer: Byte; aRange: Word)');
     RegisterMethodCheck(c, 'procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean)');
     RegisterMethodCheck(c, 'procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean)');
     RegisterMethodCheck(c, 'procedure AIAutoRepair(aPlayer: Byte; aAuto: Boolean)');
+    RegisterMethodCheck(c, 'procedure AIClearAttacks(aPlayer: Byte)');
     RegisterMethodCheck(c, 'procedure AIDefencePositionAdd(aPlayer: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Word; aDefType: Byte)');
     RegisterMethodCheck(c, 'procedure AIDefencePositionRemove(aPlayer: Byte; X, Y: Integer)');
     RegisterMethodCheck(c, 'procedure AIDefencePositionRemoveAll(aPlayer: Byte)');
@@ -947,11 +947,11 @@ begin
 
     with ClassImp.Add(TKMScriptActions) do
     begin
-      RegisterMethod(@TKMScriptActions.AIClearAttacks,                          'AIClearAttacks');
       RegisterMethod(@TKMScriptActions.AIAutoAttackRange,                       'AIAutoAttackRange');
       RegisterMethod(@TKMScriptActions.AIAutoBuild,                             'AIAutoBuild');
       RegisterMethod(@TKMScriptActions.AIAutoDefence,                           'AIAutoDefence');
       RegisterMethod(@TKMScriptActions.AIAutoRepair,                            'AIAutoRepair');
+      RegisterMethod(@TKMScriptActions.AIClearAttacks,                          'AIClearAttacks');
       RegisterMethod(@TKMScriptActions.AIDefencePositionAdd,                    'AIDefencePositionAdd');
       RegisterMethod(@TKMScriptActions.AIDefencePositionRemove,                 'AIDefencePositionRemove');
       RegisterMethod(@TKMScriptActions.AIDefencePositionRemoveAll,              'AIDefencePositionRemoveAll');
