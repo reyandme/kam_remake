@@ -662,6 +662,12 @@ var
   I: Integer;
   NewSel: Integer;
 begin
+  if aMember = nil then
+    Exit;
+
+  if aMember.HitPointsInvulnerable then
+    Exit;
+
   I := fMembers.IndexOf(aMember);
   Assert(I <> -1, 'No such member');
 
