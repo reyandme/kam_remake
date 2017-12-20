@@ -542,6 +542,7 @@ begin
     RegisterMethodCheck(c, 'function MapTileObjectSet(X, Y, Obj: Integer): Boolean');
     RegisterMethodCheck(c, 'function MapTileSet(X, Y, aType, aRotation: Integer): Boolean');
     RegisterMethodCheck(c, 'function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function MapTilesArraySetS(aTiles: array of AnsiString; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean');
 
     RegisterMethodCheck(c, 'procedure OverlayTextAppend(aPlayer: Shortint; aText: AnsiString)');
     RegisterMethodCheck(c, 'procedure OverlayTextAppendFormatted(aPlayer: Shortint; aText: AnsiString; Params: array of const)');
@@ -1036,6 +1037,7 @@ begin
 
       RegisterMethod(@TKMScriptActions.MapTileSet,                              'MapTileSet');
       RegisterMethod(@TKMScriptActions.MapTilesArraySet,                        'MapTilesArraySet');
+      RegisterMethod(@TKMScriptActions.MapTilesArraySetS,                       'MapTilesArraySetS');
       RegisterMethod(@TKMScriptActions.MapTileHeightSet,                        'MapTileHeightSet');
       RegisterMethod(@TKMScriptActions.MapTileObjectSet,                        'MapTileObjectSet');
 
