@@ -314,6 +314,7 @@ begin
 
     // Common
     Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
+    Sender.AddTypeS('TStringArray', 'array of AnsiString'); //Needed for some array Utils
     Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
     Sender.AddTypeS('TKMPoint', 'record X,Y: Integer; end;'); //Could be very useful
 
@@ -614,6 +615,9 @@ begin
     RegisterMethodCheck(c, 'function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean');
     RegisterMethodCheck(c, 'function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean');
     RegisterMethodCheck(c, 'function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean');
+
+    RegisterMethodCheck(c, 'function ArrayRemoveIndexI(aIndex: Integer; aArray: TIntegerArray): TIntegerArray');
+    RegisterMethodCheck(c, 'function ArrayRemoveIndexS(aIndex: Integer; aArray: TStringArray): TStringArray');
 
     RegisterMethodCheck(c, 'function EnsureRangeS(aValue, aMin, aMax: Single): Single');
     RegisterMethodCheck(c, 'function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
@@ -1112,6 +1116,9 @@ begin
       RegisterMethod(@TKMScriptUtils.ArrayHasElementB,                          'ArrayHasElementB');
       RegisterMethod(@TKMScriptUtils.ArrayHasElementI,                          'ArrayHasElementI');
       RegisterMethod(@TKMScriptUtils.ArrayHasElementS,                          'ArrayHasElementS');
+
+      RegisterMethod(@TKMScriptUtils.ArrayRemoveIndexI,                         'ArrayRemoveIndexI');
+      RegisterMethod(@TKMScriptUtils.ArrayRemoveIndexS,                         'ArrayRemoveIndexS');
 
       RegisterMethod(@TKMScriptUtils.EnsureRangeI,                              'EnsureRangeI');
       RegisterMethod(@TKMScriptUtils.EnsureRangeS,                              'EnsureRangeS');
