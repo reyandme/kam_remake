@@ -3,7 +3,8 @@ unit KM_ScriptingUtils;
 
 interface
 uses
-  Math, SysUtils, uPSRuntime, KM_ScriptingEvents;
+  Math, SysUtils, uPSRuntime,
+  KM_ScriptingEvents, KM_CommonTypes;
 
 type
   TKMScriptUtils = class(TKMScriptEntity)
@@ -20,6 +21,9 @@ type
     function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean;
     function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean;
     function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean;
+
+    function ArrayRemoveIndexI(aIndex: Integer; aArray: TIntegerArray): TIntegerArray;
+    function ArrayRemoveIndexS(aIndex: Integer; aArray: TStringArray): TStringArray;
 
     function EnsureRangeI(aValue, aMin, aMax: Integer): Integer;
     function EnsureRangeS(aValue, aMin, aMax: Single): Single;
@@ -107,9 +111,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = String(aElement) then
           Inc(Result);
-    end
-    else
-      LogParamWarning('Utils.ArrayElementCount: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -130,9 +132,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Inc(Result);
-    end
-    else
-      LogParamWarning('Utils.ArrayElementCountB: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -153,9 +153,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Inc(Result);
-    end
-    else
-      LogParamWarning('Utils.ArrayElementCountI: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -176,9 +174,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Inc(Result);
-    end
-    else
-      LogParamWarning('Utils.ArrayElementCountS: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -199,9 +195,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = String(aElement) then
           Exit(True);
-    end
-    else
-      LogParamWarning('Utils.ArrayHasElement: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -222,9 +216,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Exit(True);
-    end
-    else
-      LogParamWarning('Utils.ArrayHasElementB: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -245,9 +237,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Exit(True);
-    end
-    else
-      LogParamWarning('Utils.ArrayHasElementI: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -268,9 +258,51 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Exit(True);
-    end
-    else
-      LogParamWarning('Utils.ArrayHasElementS: Requested array is empty',[]);
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Removes element on specified index in specified array of integer.
+//* Integer array should be declared as TIntegerArray instead of array of integer.
+function TKMScriptUtils.ArrayRemoveIndexI(aIndex: Integer; aArray: TIntegerArray): TIntegerArray;
+var
+  I: Integer;
+  R: TIntegerArray;
+begin
+  Result := aArray;
+  try
+    if (Length(aArray) > 0) and (aIndex in [Low(aArray)..High(aArray)]) then
+    begin
+      Delete(aArray, aIndex, 1);
+      Result := aArray;
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Removes element on specified index in specified array of string.
+//* String array should be declared as TStringArray instead of array of AnsiString.
+function TKMScriptUtils.ArrayRemoveIndexS(aIndex: Integer; aArray: TStringArray): TStringArray;
+var
+  I: Integer;
+  R: TStringArray;
+begin
+  Result := aArray;
+  try
+    if (Length(aArray) > 0) and (aIndex in [Low(aArray)..High(aArray)]) then
+    begin
+      Delete(aArray, aIndex, 1);
+      Result := aArray;
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
