@@ -195,7 +195,7 @@ begin
   try
     if (aPlayer >= 0) then
     begin
-      if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+      if InRange(aPlayer, 0, gHands.Count - 1) and gHands[aPlayer].Enabled then
       begin
         gHands[aPlayer].AI.General.Attacks.Clear();
         gHands[aPlayer].AI.Setup.AutoAttack := false;
@@ -230,7 +230,6 @@ begin
     end
     else
       LogParamWarning('Actions.CinematicStart', [aPlayer]);
-      gHands[1].AI.General.Attacks.Clear;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
