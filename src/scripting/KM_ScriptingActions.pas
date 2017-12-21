@@ -93,7 +93,7 @@ type
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
     function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
-    function MapTilesArraySetS(aTilesS: array of string; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+    function MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTileHeightSet(X, Y, Height: Integer): Boolean;
     function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
 
@@ -2383,7 +2383,7 @@ end;
 
 //* Version: 7000+
 //* Sets array of tiles info, like MapTilesArraySet, but parameters are
-//* passed as an array of string instead of array of TKMTerrainTileBrief.
+//* passed as an TAnsiStringArray instead of array of TKMTerrainTileBrief.
 //* This function is useful if you need to create dynamic map from scratch.
 //* Array must contain strings in following format: 'X,Y,Terrain,Rotation,Height,Obj'
 //* f.e. '1,1,20,2,87,12'
@@ -2394,7 +2394,7 @@ end;
 //* Skipping rotation for tile [7,2]: '7,2,20,-1,87,12'
 //* Skipping obj for tile [7,2]: '7,2,20,2,87,-1'
 //* Skipping height for tile [7,2]: '7,2,20,2,-1,5' etc.
-function TKMScriptActions.MapTilesArraySetS(aTilesS: array of string; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+function TKMScriptActions.MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
   function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
   var TileChangeType: TKMTileChangeType;
   begin
