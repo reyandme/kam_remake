@@ -23,36 +23,37 @@ OutputBaseFilename={#OutputEXE}_{#Revision}
 Compression=lzma
 SolidCompression=no
 Uninstallable=yes
-;WizardImageFile=D:\Accessories\Inno Setup 5\Projects\1.60 Patch\Beta 7\ENG\Images\WizImage.bmp
-;WizardSmallImageFile=D:\Accessories\Inno Setup 5\Projects\1.60 Patch\Beta 7\ENG\Images\WizSmallImage.bmp
+SetupIconFile=Embedded\KaM_Remake.ico
+WizardImageFile=Embedded\WizardImage.bmp
+WizardSmallImageFile=Embedded\WizardSmallImage.bmp
   
 [Languages]  
 Name: "eng"; MessagesFile: "compiler:Default.isl";
-Name: "cze"; MessagesFile: "compiler:Languages\Czech.isl"; LicenseFile: "License.cze.txt"
-Name: "dut"; MessagesFile: "compiler:Languages\Dutch.isl"; LicenseFile: "License.dut.txt"
-Name: "fre"; MessagesFile: "compiler:Languages\French.isl"; LicenseFile: "License.fre.txt"
-Name: "ger"; MessagesFile: "compiler:Languages\German.isl"; LicenseFile: "License.ger.txt"
-Name: "hun"; MessagesFile: "compiler:Languages\Hungarian.isl"; LicenseFile: "License.hun.txt"
-Name: "pol"; MessagesFile: "compiler:Languages\Polish.isl"; LicenseFile: "License.pol.txt"
-Name: "rus"; MessagesFile: "compiler:Languages\Russian.isl"; LicenseFile: "License.rus.txt"
-Name: "ita"; MessagesFile: "compiler:Languages\Italian.isl"; LicenseFile: "License.ita.txt"
-Name: "svk"; MessagesFile: "ExtraLanguages\Slovak.isl"; LicenseFile: "License.svk.txt"
-Name: "spa"; MessagesFile: "compiler:Languages\Spanish.isl"; LicenseFile: "License.spa.txt"
-Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl"; LicenseFile: "License.swe.txt"
+Name: "cze"; MessagesFile: "compiler:Languages\Czech.isl";               LicenseFile: "License.cze.txt"
+Name: "dut"; MessagesFile: "compiler:Languages\Dutch.isl";               LicenseFile: "License.dut.txt"
+Name: "fre"; MessagesFile: "compiler:Languages\French.isl";              LicenseFile: "License.fre.txt"
+Name: "ger"; MessagesFile: "compiler:Languages\German.isl";              LicenseFile: "License.ger.txt"
+Name: "hun"; MessagesFile: "compiler:Languages\Hungarian.isl";           LicenseFile: "License.hun.txt"
+Name: "pol"; MessagesFile: "compiler:Languages\Polish.isl";              LicenseFile: "License.pol.txt"
+Name: "rus"; MessagesFile: "compiler:Languages\Russian.isl";             LicenseFile: "License.rus.txt"
+Name: "ita"; MessagesFile: "compiler:Languages\Italian.isl";             LicenseFile: "License.ita.txt"
+Name: "svk"; MessagesFile: "ExtraLanguages\Slovak.isl";                  LicenseFile: "License.svk.txt"
+Name: "spa"; MessagesFile: "compiler:Languages\Spanish.isl";             LicenseFile: "License.spa.txt"
+Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl";                 LicenseFile: "License.swe.txt"
 Name: "ptb"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"; LicenseFile: "License.ptb.txt"
-Name: "bul"; MessagesFile: "ExtraLanguages\Bulgarian.isl"; LicenseFile: "License.bul.txt"
-Name: "est"; MessagesFile: "ExtraLanguages\Estonian.isl"; LicenseFile: "License.est.txt"
-Name: "rom"; MessagesFile: "ExtraLanguages\Romanian.isl"; LicenseFile: "License.rom.txt"
+Name: "bul"; MessagesFile: "ExtraLanguages\Bulgarian.isl";               LicenseFile: "License.bul.txt"
+Name: "est"; MessagesFile: "ExtraLanguages\Estonian.isl";                LicenseFile: "License.est.txt"
+Name: "rom"; MessagesFile: "ExtraLanguages\Romanian.isl";                LicenseFile: "License.rom.txt"
 Name: "lit"; MessagesFile: "ExtraLanguages\Lithuanian.isl";
-Name: "ukr"; MessagesFile: "compiler:Languages\Ukrainian.isl"; LicenseFile: "License.ukr.txt"
-Name: "chn"; MessagesFile: "ExtraLanguages\ChineseSimplified.isl"; LicenseFile: "License.chn.txt"
-Name: "nor"; MessagesFile: "compiler:Languages\Norwegian.isl"; LicenseFile: "License.nor.txt"
-Name: "bel"; MessagesFile: "ExtraLanguages\Belarusian.isl"; LicenseFile: "License.bel.txt"
-Name: "jpn"; MessagesFile: "compiler:Languages\Japanese.isl"; LicenseFile: "License.jpn.txt"
-Name: "tur"; MessagesFile: "ExtraLanguages\Turkish.isl"; LicenseFile: "License.tur.txt"
-Name: "kor"; MessagesFile: "ExtraLanguages\Korean.isl"; LicenseFile: "License.kor.txt"
-Name: "srb"; MessagesFile: "compiler:Languages\SerbianCyrillic.isl"; LicenseFile: "License.srb.txt"
-Name: "slv"; MessagesFile: "compiler:Languages\Slovenian.isl"; LicenseFile: "License.slv.txt"
+Name: "ukr"; MessagesFile: "compiler:Languages\Ukrainian.isl";           LicenseFile: "License.ukr.txt"
+Name: "chn"; MessagesFile: "ExtraLanguages\ChineseSimplified.isl";       LicenseFile: "License.chn.txt"
+Name: "nor"; MessagesFile: "compiler:Languages\Norwegian.isl";           LicenseFile: "License.nor.txt"
+Name: "bel"; MessagesFile: "ExtraLanguages\Belarusian.isl";              LicenseFile: "License.bel.txt"
+Name: "jpn"; MessagesFile: "compiler:Languages\Japanese.isl";            LicenseFile: "License.jpn.txt"
+Name: "tur"; MessagesFile: "ExtraLanguages\Turkish.isl";                 LicenseFile: "License.tur.txt"
+Name: "kor"; MessagesFile: "ExtraLanguages\Korean.isl";                  LicenseFile: "License.kor.txt"
+Name: "srb"; MessagesFile: "compiler:Languages\SerbianCyrillic.isl";     LicenseFile: "License.srb.txt"
+Name: "slv"; MessagesFile: "compiler:Languages\Slovenian.isl";           LicenseFile: "License.slv.txt"
 
 [CustomMessages]  
 #include "Translations.iss"
@@ -133,10 +134,20 @@ begin
     RenameFile(ExpandConstant('{app}\MapsMP\'), ExpandConstant('{app}\MapsMP-old\'));
 end;
 
+[Types]
+Name: "full"; Description: "{cm:FullInstallation}"
+Name: "compact"; Description: "{cm:CompactInstallation}"
+Name: "custom"; Description: "{cm:CustomInstallation}"; Flags: iscustom
+
+[Components]
+Name: "main"; Description: "{cm:ComponentMain}"; Types: full compact custom; Flags: fixed
+Name: "DLC_Music"; Description: "{cm:ComponentDLC_Music}"; Types: full custom; 
+
 [Files]
-Source: "{#BuildFolder}\*"; DestDir: "{app}"; Excludes: "*.svn,*.svn\*"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "oalinst.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "PostInstallClean.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BuildFolder}\*"; Components: main;  DestDir: "{app}"; Excludes: "*.svn,*.svn\*"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "oalinst.exe"; Components: main; DestDir: "{app}"; Flags: ignoreversion
+Source: "PostInstallClean.bat"; Components: main; DestDir: "{app}"; Flags: ignoreversion
+Source: "DLC\Music\*"; Components: DLC_Music; DestDir: "{app}\Music"; Flags: ignoreversion
 
 [Tasks]
 Name: programgroup; Description: {cm:CreateStartShortcut};
