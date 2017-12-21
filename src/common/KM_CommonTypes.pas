@@ -20,6 +20,7 @@ type
   TSmallIntArray = array of SmallInt;
   TIntegerArray = array of Integer;
   TInteger2Array = array of array of Integer;
+  TAnsiStringArray = array of AnsiString;
   TSingleArray = array of Single;
   TSingle2Array = array of array of Single;
   TStringArray = array of string;

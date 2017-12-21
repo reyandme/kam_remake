@@ -9,15 +9,19 @@ type
   TKMMapEdPlayerBlockUnit = class
   private
     procedure Player_BlockUnitClick(Sender: TObject);
-    procedure Player_BlockWarriorsClick(Sender: TObject);
+    procedure Player_BlockBarracksWarriorsClick(Sender: TObject);
+    procedure Player_BlockTHWarriorsClick(Sender: TObject);
     procedure Player_BlockUnitRefresh;
-    procedure Player_BlockWarriorsRefresh;
+    procedure Player_BlockBarracksWarriorsRefresh;
+    procedure Player_BlockTHWarriorsRefresh;
   protected
     Panel_BlockUnit: TKMPanel;
     Button_BlockUnit: array [0..13] of TKMButtonFlat;
-    Button_BlockWarriors: array [0..8] of TKMButtonFlat;
+    Button_BlockBarracksWarriors: array [0..High(Barracks_Order)] of TKMButtonFlat;
+    Button_BlockTHWarriors: array [0..High(TownHall_Order)] of TKMButtonFlat;
     Image_BlockUnit: array [0..13] of TKMImage;
-    Image_BlockWarriors: array[0..8] of TKMImage;
+    Image_BlockBarracksWarriors: array[0..High(Barracks_Order)] of TKMImage;
+    Image_BlockTHWarriors: array[0..High(TownHall_Order)] of TKMImage;
   public
     constructor Create(aParent: TKMPanel);
     procedure Show;
@@ -30,13 +34,13 @@ type
 implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_ResUnits, KM_RenderUI, KM_ResFonts, KM_Resource, KM_Defaults,
-  KM_HandStats, KM_Hand;
+  KM_HandStats, KM_Hand, KM_ResHouses;
 
 
 { TKMMapEdPlayerBlockUnit }
 constructor TKMMapEdPlayerBlockUnit.Create(aParent: TKMPanel);
 var
-  I, K: Integer;
+  I: Integer;
 begin
   inherited Create;
 
@@ -53,15 +57,29 @@ begin
     Image_BlockUnit[I].ImageCenter;
   end;
 
-  for K := 0 to High(Button_BlockWarriors) do
+  TKMLabel.Create(Panel_BlockUnit, 0, 146, TB_WIDTH, 0, 'In Barracks:', fnt_Metal, taLeft); //Todo translate
+  for I := 0 to High(Button_BlockBarracksWarriors) do
   begin
-    Button_BlockWarriors[K] := TKMButtonFlat.Create(Panel_BlockUnit,(K mod 5)*37,146+(K div 5)*37,33,33, MapEd_Icon[K], rxGui);
-    Button_BlockWarriors[K].Hint := gRes.Units[Barracks_Order[K]].GUIName;
-    Button_BlockWarriors[K].Tag := K;
-    Button_BlockWarriors[K].OnClick := Player_BlockWarriorsClick;
-    Image_BlockWarriors[K] := TKMImage.Create(Panel_BlockUnit, (K mod 5)*37 + 15,146+(K div 5)*37 + 15, 16, 16, 0, rxGuiMain);
-    Image_BlockWarriors[K].Hitable := False;
-    Image_BlockWarriors[K].ImageCenter;
+    Button_BlockBarracksWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit,(I mod 5)*37,20+146+(I div 5)*37,33,33,
+                                                            gRes.Units[Barracks_Order[I]].GUIIcon, rxGui);
+    Button_BlockBarracksWarriors[I].Hint := gRes.Units[Barracks_Order[I]].GUIName;
+    Button_BlockBarracksWarriors[I].Tag := I;
+    Button_BlockBarracksWarriors[I].OnClick := Player_BlockBarracksWarriorsClick;
+    Image_BlockBarracksWarriors[I] := TKMImage.Create(Panel_BlockUnit, (I mod 5)*37 + 15,20+146+(I div 5)*37 + 15, 16, 16, 0, rxGuiMain);
+    Image_BlockBarracksWarriors[I].Hitable := False;
+    Image_BlockBarracksWarriors[I].ImageCenter;
+  end;
+
+  TKMLabel.Create(Panel_BlockUnit, 0, 245, TB_WIDTH, 0, 'In TownHall:', fnt_Metal, taLeft); //Todo translate
+  for I := 0 to High(Button_BlockTHWarriors) do
+  begin
+    Button_BlockTHWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit,(I mod 5)*37,265+(I div 5)*37,33,33, gRes.Units[TownHall_Order[I]].GUIIcon, rxGui);
+    Button_BlockTHWarriors[I].Hint := gRes.Units[TownHall_Order[I]].GUIName;
+    Button_BlockTHWarriors[I].Tag := I;
+    Button_BlockTHWarriors[I].OnClick := Player_BlockTHWarriorsClick;
+    Image_BlockTHWarriors[I] := TKMImage.Create(Panel_BlockUnit, (I mod 5)*37 + 15,265+(I div 5)*37 + 15, 16, 16, 0, rxGuiMain);
+    Image_BlockTHWarriors[I].Hitable := False;
+    Image_BlockTHWarriors[I].ImageCenter;
   end;
 end;
 
@@ -74,13 +92,13 @@ begin
   I := TKMButtonFlat(Sender).Tag;
   U := School_Order[I];
 
-  gMySpectator.Hand.Locks.UnitBlocked[U] := not gMySpectator.Hand.Locks.UnitBlocked[U];
+  gMySpectator.Hand.Locks.SetUnitBlocked(not gMySpectator.Hand.Locks.GetUnitBlocked(U), U);
 
   Player_BlockUnitRefresh;
 end;
 
 
-procedure TKMMapEdPlayerBlockUnit.Player_BlockWarriorsClick(Sender: TObject);
+procedure TKMMapEdPlayerBlockUnit.Player_BlockBarracksWarriorsClick(Sender: TObject);
 var
   K: Integer;
   W: TUnitType;
@@ -88,9 +106,23 @@ begin
   K := TKMButtonFlat(Sender).Tag;
   W := Barracks_Order[K];
 
-  gMySpectator.Hand.Locks.UnitBlocked[W] := not gMySpectator.Hand.Locks.UnitBlocked[W];
+  gMySpectator.Hand.Locks.SetUnitBlocked(not gMySpectator.Hand.Locks.GetUnitBlocked(W), W);
 
-  Player_BlockWarriorsRefresh;
+  Player_BlockBarracksWarriorsRefresh;
+end;
+
+
+procedure TKMMapEdPlayerBlockUnit.Player_BlockTHWarriorsClick(Sender: TObject);
+var
+  K: Integer;
+  W: TUnitType;
+begin
+  K := TKMButtonFlat(Sender).Tag;
+  W := TownHall_Order[K];
+
+  gMySpectator.Hand.Locks.SetUnitBlocked(not gMySpectator.Hand.Locks.GetUnitBlocked(W, True), W, True);
+
+  Player_BlockTHWarriorsRefresh;
 end;
 
 
@@ -98,13 +130,15 @@ procedure TKMMapEdPlayerBlockUnit.Player_BlockUnitRefresh;
 var
   I: Integer;
   U: TUnitType;
+  Blocked: Boolean;
 begin
   for I := 0 to 13 do
   begin
     U := School_Order[I];
-    if gMySpectator.Hand.Locks.UnitBlocked[U] then
+    Blocked := gMySpectator.Hand.Locks.GetUnitBlocked(U);
+    if Blocked then
       Image_BlockUnit[I].TexID := 32
-    else if not gMySpectator.Hand.Locks.UnitBlocked[U] then
+    else if not Blocked then
       Image_BlockUnit[I].TexID := 0
     else
       Image_BlockUnit[I].TexID := 24;
@@ -112,20 +146,42 @@ begin
 end;
 
 
-procedure TKMMapEdPlayerBlockUnit.Player_BlockWarriorsRefresh;
+procedure TKMMapEdPlayerBlockUnit.Player_BlockBarracksWarriorsRefresh;
 var
   K: Integer;
   W: TUnitType;
+  Blocked: Boolean;
 begin
-  for K := 0 to 8 do
+  for K := 0 to High(Barracks_Order) do
   begin
     W := Barracks_Order[K];
-    if gMySpectator.Hand.Locks.UnitBlocked[W] then
-      Image_BlockWarriors[K].TexID := 32
-    else if not gMySpectator.Hand.Locks.UnitBlocked[W] then
-      Image_BlockWarriors[K].TexID := 0
+    Blocked := gMySpectator.Hand.Locks.GetUnitBlocked(W);
+    if Blocked then
+      Image_BlockBarracksWarriors[K].TexID := 32
+    else if not Blocked then
+      Image_BlockBarracksWarriors[K].TexID := 0
     else
-      Image_BlockWarriors[K].TexID := 24;
+      Image_BlockBarracksWarriors[K].TexID := 24;
+  end;
+end;
+
+
+procedure TKMMapEdPlayerBlockUnit.Player_BlockTHWarriorsRefresh;
+var
+  K: Integer;
+  W: TUnitType;
+  Blocked: Boolean;
+begin
+  for K := 0 to High(TownHall_Order) do
+  begin
+    W := TownHall_Order[K];
+    Blocked := gMySpectator.Hand.Locks.GetUnitBlocked(W, True);
+    if Blocked then
+      Image_BlockTHWarriors[K].TexID := 32
+    else if not Blocked then
+      Image_BlockTHWarriors[K].TexID := 0
+    else
+      Image_BlockTHWarriors[K].TexID := 24;
   end;
 end;
 
@@ -139,15 +195,18 @@ begin
 
   for I := Low(Button_BlockUnit) to High(Button_BlockUnit) do
     Button_BlockUnit[I].FlagColor := Col;
-  for I := Low(Button_BlockWarriors) to High(Button_BlockWarriors) do
-    Button_BlockWarriors[I].FlagColor := Col;
+  for I := Low(Button_BlockBarracksWarriors) to High(Button_BlockBarracksWarriors) do
+    Button_BlockBarracksWarriors[I].FlagColor := Col;
+  for I := Low(Button_BlockTHWarriors) to High(Button_BlockTHWarriors) do
+    Button_BlockTHWarriors[I].FlagColor := Col;
 end;
 
 
 procedure TKMMapEdPlayerBlockUnit.Show;
 begin
   Player_BlockUnitRefresh;
-  Player_BlockWarriorsRefresh;
+  Player_BlockBarracksWarriorsRefresh;
+  Player_BlockTHWarriorsRefresh;
   Panel_BlockUnit.Show;
 end;
 

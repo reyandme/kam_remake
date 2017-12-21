@@ -628,7 +628,7 @@ type
   TGoalCondition = (gc_Unknown0,      //Not used/unknown
                     gc_BuildTutorial,   //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
                     gc_Time,            //A certain time must pass
-                    gc_Buildings,       //Storehouse, school, barracks
+                    gc_Buildings,       //Storehouse, school, barracks, TownHall
                     gc_Troops,          //All troops
                     gc_Unknown5,        //Not used/unknown
                     gc_MilitaryAssets,  //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop

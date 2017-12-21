@@ -133,7 +133,7 @@ function TKMHouseTownHall.CanEquip(aUnitType: TUnitType): Boolean;
 var
   THUnitIndex: Integer;
 begin
-  Result := not gHands[fOwner].Locks.UnitBlocked[aUnitType];
+  Result := not gHands[fOwner].Locks.GetUnitBlocked(aUnitType, True);
 
   THUnitIndex := GetTHUnitOrderIndex(aUnitType);
 

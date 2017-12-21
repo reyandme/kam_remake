@@ -11,17 +11,21 @@ type
   TKMHandLocks = class
   private
     fHouseUnlocked: array [THouseType] of Boolean; //If building requirements performed
+    fUnitBlocked: array [TUnitType] of Boolean;   //Allowance derived from mission script
+    fMilitiaBlockedInTH: Boolean; // special case for militia block to train in TownHall
     procedure UpdateReqDone(aType: THouseType);
   public
     HouseBlocked: array [THouseType] of Boolean; //Allowance derived from mission script
     HouseGranted: array [THouseType] of Boolean; //Allowance derived from mission script
-    UnitBlocked: array [TUnitType] of Boolean;   //Allowance derived from mission script
 
     AllowToTrade: array [WARE_MIN..WARE_MAX] of Boolean; //Allowance derived from mission script
     constructor Create;
 
     procedure HouseCreated(aType: THouseType);
     function HouseCanBuild(aType: THouseType): Boolean;
+
+    procedure SetUnitBlocked(aIsBlocked: Boolean; aUnitType: TUnitType; aInTownHall: Boolean = False);
+    function GetUnitBlocked(aUnitType: TUnitType; aInTownHall: Boolean = False): Boolean;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -72,12 +76,30 @@ begin
 end;
 
 
+function TKMHandLocks.GetUnitBlocked(aUnitType: TUnitType; aInTownHall: Boolean = False): Boolean;
+begin
+  if aInTownHall and (aUnitType = ut_Militia) then
+    Result := fMilitiaBlockedInTH
+  else
+    Result := fUnitBlocked[aUnitType];
+end;
+
+
+procedure TKMHandLocks.SetUnitBlocked(aIsBlocked: Boolean; aUnitType: TUnitType; aInTownHall: Boolean = False);
+begin
+  if aInTownHall and (aUnitType = ut_Militia) then
+    fMilitiaBlockedInTH := aIsBlocked
+  else
+    fUnitBlocked[aUnitType] := aIsBlocked;
+end;
+
+
 procedure TKMHandLocks.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.WriteA('HandLocks');
   SaveStream.Write(HouseBlocked, SizeOf(HouseBlocked));
   SaveStream.Write(HouseGranted, SizeOf(HouseGranted));
-  SaveStream.Write(UnitBlocked, SizeOf(UnitBlocked));
+  SaveStream.Write(fUnitBlocked, SizeOf(fUnitBlocked));
   SaveStream.Write(AllowToTrade, SizeOf(AllowToTrade));
   SaveStream.Write(fHouseUnlocked, SizeOf(fHouseUnlocked));
 end;
@@ -88,7 +110,7 @@ begin
   LoadStream.ReadAssert('HandLocks');
   LoadStream.Read(HouseBlocked, SizeOf(HouseBlocked));
   LoadStream.Read(HouseGranted, SizeOf(HouseGranted));
-  LoadStream.Read(UnitBlocked, SizeOf(UnitBlocked));
+  LoadStream.Read(fUnitBlocked, SizeOf(fUnitBlocked));
   LoadStream.Read(AllowToTrade, SizeOf(AllowToTrade));
   LoadStream.Read(fHouseUnlocked, SizeOf(fHouseUnlocked));
 end;

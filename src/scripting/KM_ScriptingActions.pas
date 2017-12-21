@@ -2899,7 +2899,7 @@ begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
     and (aType in [Low(UnitIndexToType) .. High(UnitIndexToType)]) then
-      gHands[aPlayer].Locks.UnitBlocked[UnitIndexToType[aType]] := aBlock
+      gHands[aPlayer].Locks.SetUnitBlocked(aBlock, UnitIndexToType[aType])
     else
       LogParamWarning('Actions.UnitBlock', [aPlayer, aType, Byte(aBlock)]);
   except

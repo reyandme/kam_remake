@@ -3,7 +3,8 @@ unit KM_ScriptingUtils;
 
 interface
 uses
-  Math, SysUtils, uPSRuntime, KM_ScriptingEvents;
+  Math, SysUtils, uPSRuntime,
+  KM_ScriptingEvents, KM_CommonTypes;
 
 type
   TKMScriptUtils = class(TKMScriptEntity)
@@ -20,6 +21,9 @@ type
     function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean;
     function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean;
     function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean;
+
+    function ArrayRemoveIndexI(aIndex: Integer; aArray: TIntegerArray): TIntegerArray;
+    function ArrayRemoveIndexS(aIndex: Integer; aArray: TAnsiStringArray): TAnsiStringArray;
 
     function EnsureRangeI(aValue, aMin, aMax: Integer): Integer;
     function EnsureRangeS(aValue, aMin, aMax: Single): Single;
@@ -271,6 +275,50 @@ begin
     end
     else
       LogParamWarning('Utils.ArrayHasElementS: Requested array is empty',[]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Removes element on specified index in specified array of integer.
+//* Integer array should be declared as TIntegerArray instead of array of integer.
+function TKMScriptUtils.ArrayRemoveIndexI(aIndex: Integer; aArray: TIntegerArray): TIntegerArray;
+var
+  I: Integer;
+  R: TIntegerArray;
+begin
+  Result := aArray;
+  try
+    if (Length(aArray) > 0) and (aIndex in [Low(aArray)..High(aArray)]) then
+    begin
+      Delete(aArray, aIndex, 1);
+      Result := aArray;
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Removes element on specified index in specified array of string.
+//* String array should be declared as TAnsiStringArray instead of array of AnsiString.
+function TKMScriptUtils.ArrayRemoveIndexS(aIndex: Integer; aArray: TAnsiStringArray): TAnsiStringArray;
+var
+  I: Integer;
+  R: TAnsiStringArray;
+begin
+  Result := aArray;
+  try
+    if (Length(aArray) > 0) and (aIndex in [Low(aArray)..High(aArray)]) then
+    begin
+      Delete(aArray, aIndex, 1);
+      Result := aArray;
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;

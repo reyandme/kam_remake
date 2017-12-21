@@ -172,6 +172,7 @@ var
   Qty: Integer;
   H: TKMHouse;
   HT: THouseType;
+  UT: TUnitType;
   iPlayerAI: TKMHandAI;
 begin
   Result := False; //Set it right from the start. There are several Exit points below
@@ -427,12 +428,20 @@ begin
     ct_BlockTrade:      if fLastHand <> PLAYER_NONE then
                         begin
                           if WareIndexToType[P[0]] in [WARE_MIN..WARE_MAX] then
-                            gHands[fLastHand].Locks.AllowToTrade[WareIndexToType[P[0]]] := false;
+                            gHands[fLastHand].Locks.AllowToTrade[WareIndexToType[P[0]]] := False;
                         end;
     ct_BlockUnit:       if fLastHand <> PLAYER_NONE then
                         begin
-                          if UnitIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX] then
-                            gHands[fLastHand].Locks.UnitBlocked[UnitIndexToType[P[0]]] := True;
+                          UT := UnitIndexToType[P[0]];
+
+                          if UT in [HUMANS_MIN..HUMANS_MAX] then
+                          begin
+                            //Militia is a special case, because it could be trained in 2 diff houses
+                            if (UT = ut_Militia) and (P[1] = 1) then // if P[1] = 1, then its TownHall
+                              gHands[fLastHand].Locks.SetUnitBlocked(True, UT, True)
+                            else
+                              gHands[fLastHand].Locks.SetUnitBlocked(True, UT);
+                          end;
                         end;
     ct_BlockHouse:      if fLastHand <> PLAYER_NONE then
                         begin
@@ -870,8 +879,13 @@ begin
 
     //Block units
     for UT := HUMANS_MIN to HUMANS_MAX do
-      if gHands[I].Locks.UnitBlocked[UT] then
-        AddCommand(ct_BlockUnit, [UnitTypeToIndex[UT]]);
+    begin
+      if (UT = ut_Militia) and gHands[I].Locks.GetUnitBlocked(UT, True) then
+        AddCommand(ct_BlockUnit, [UnitTypeToIndex[UT], 1]); // 1 - special case for militia in TownHall
+
+      if gHands[I].Locks.GetUnitBlocked(UT) then
+        AddCommand(ct_BlockUnit, [UnitTypeToIndex[UT], 0]); // means default
+    end;
 
     //Block trades
     for Res := WARE_MIN to WARE_MAX do

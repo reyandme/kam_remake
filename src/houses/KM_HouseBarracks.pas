@@ -224,7 +224,7 @@ var
   I: Integer;
 begin
   Result := RecruitsCount > 0; //Can't equip anything without recruits
-  Result := Result and not gHands[fOwner].Locks.UnitBlocked[aUnitType];
+  Result := Result and not gHands[fOwner].Locks.GetUnitBlocked(aUnitType);
 
   for I := 1 to 4 do
   if TroopCost[aUnitType, I] <> wt_None then //Can't equip if we don't have a required resource
