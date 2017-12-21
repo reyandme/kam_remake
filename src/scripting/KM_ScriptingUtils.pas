@@ -111,9 +111,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = String(aElement) then
           Inc(Result);
-    end
-    else
-      LogParamWarning('Utils.ArrayElementCount: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -134,9 +132,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Inc(Result);
-    end
-    else
-      LogParamWarning('Utils.ArrayElementCountB: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -157,9 +153,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Inc(Result);
-    end
-    else
-      LogParamWarning('Utils.ArrayElementCountI: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -180,9 +174,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Inc(Result);
-    end
-    else
-      LogParamWarning('Utils.ArrayElementCountS: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -203,9 +195,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = String(aElement) then
           Exit(True);
-    end
-    else
-      LogParamWarning('Utils.ArrayHasElement: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -226,9 +216,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Exit(True);
-    end
-    else
-      LogParamWarning('Utils.ArrayHasElementB: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -249,9 +237,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Exit(True);
-    end
-    else
-      LogParamWarning('Utils.ArrayHasElementI: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -272,9 +258,7 @@ begin
       for I := 0 to High(aArray) do
         if aArray[I] = aElement then
           Exit(True);
-    end
-    else
-      LogParamWarning('Utils.ArrayHasElementS: Requested array is empty',[]);
+    end;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
