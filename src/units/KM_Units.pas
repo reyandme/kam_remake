@@ -1209,6 +1209,7 @@ begin
   LoadStream.Read(fTicker);
   LoadStream.Read(fHitPoints);
   LoadStream.Read(fHitPointCounter);
+  LoadStream.Read(HitPointsInvulnerable);
   LoadStream.Read(fInHouse, 4);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
@@ -2027,6 +2028,7 @@ begin
   SaveStream.Write(fTicker);
   SaveStream.Write(fHitPoints);
   SaveStream.Write(fHitPointCounter);
+  SaveStream.Write(HitPointsInvulnerable);
 
   if fInHouse <> nil then
     SaveStream.Write(fInHouse.UID) //Store ID, then substitute it with reference on SyncLoad
