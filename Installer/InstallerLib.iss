@@ -23,8 +23,9 @@ OutputBaseFilename={#OutputEXE}_{#Revision}
 Compression=lzma
 SolidCompression=no
 Uninstallable=yes
-;WizardImageFile=D:\Accessories\Inno Setup 5\Projects\1.60 Patch\Beta 7\ENG\Images\WizImage.bmp
-;WizardSmallImageFile=D:\Accessories\Inno Setup 5\Projects\1.60 Patch\Beta 7\ENG\Images\WizSmallImage.bmp
+SetupIconFile=Embedded\KaM_Remake.ico
+WizardImageFile=Embedded\WizardImage.bmp
+WizardSmallImageFile=Embedded\WizardSmallImage.bmp
   
 [Languages]  
 Name: "eng"; MessagesFile: "compiler:Default.isl";
@@ -60,6 +61,7 @@ Name: "slv"; MessagesFile: "compiler:Languages\Slovenian.isl"; LicenseFile: "Lic
 
 [Registry]
 Root: HKLM; Subkey: "SOFTWARE\JOYMANIA Entertainment\KnightsandMerchants TPR"; ValueType: string; ValueName: "RemakeVersion"; ValueData: {#Revision}; Flags:uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\JOYMANIA Entertainment\KnightsandMerchants TPR"; ValueType: string; ValueName: "RemakePath"; ValueData: "{app}"; Flags:uninsdeletevalue;
 
 [Run]
 Filename: "{app}\PostInstallClean.bat"; WorkingDir: "{app}"; Flags: runhidden
