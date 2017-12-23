@@ -45,6 +45,7 @@
 
 !BLOCK_HOUSE 6
 !BLOCK_HOUSE 29
+!BLOCK_UNIT 8 0
 !SET_HOUSE 11 50 134
 !ADD_WARE 0 50
 !ADD_WARE 1 140
@@ -1039,4 +1040,4 @@
 !SET_UNIT 24 5 131
 !SET_UNIT 24 144 145
 
-//This mission was made with KaM Remake Map Editor version r8134 at 22.12.2017 21:37:54
+//This mission was made with KaM Remake Map Editor version r8134 (UNSECURE!) at 22.12.2017 1:08:11
