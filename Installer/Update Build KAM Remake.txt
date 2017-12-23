@@ -1,0 +1,2 @@
+Create the "BuildUpdate" folder
+Place there only those files that have been updated since the last build

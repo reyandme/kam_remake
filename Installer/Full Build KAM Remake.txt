@@ -1,0 +1,2 @@
+Create the "BuildFull" folder
+Put there all the files to install KAM Remake
