@@ -63,7 +63,6 @@ begin
 
   fGoldCnt := 0;
   fGoldMaxCnt := MAX_WARES_IN_HOUSE;
-//  fGoldDeliveryCount := 0;
 end;
 
 
@@ -73,7 +72,6 @@ begin
 
   LoadStream.Read(fGoldCnt);
   LoadStream.Read(fGoldMaxCnt);
-//  LoadStream.Read(fGoldDeliveryCount);
 end;
 
 
@@ -83,7 +81,6 @@ begin
 
   SaveStream.Write(fGoldCnt);
   SaveStream.Write(fGoldMaxCnt);
-//  SaveStream.Write(fGoldDeliveryCount);
 end;
 
 
@@ -109,11 +106,6 @@ begin
       gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, wt_Gold, fGoldMaxCnt - Max(OldGoldMax, fGoldCnt), dtOnce, diNorm);
     end;
   end;
-
-////    TryRemoveDemand
-//    for I := OldGoldMaxCnt to fGoldMaxCnt - 1 do
-//      gHands[fOwner].Deliveries.Queue.RemOffer(Self, wt_Gold, aCount);
-
 end;
 
 
@@ -215,14 +207,8 @@ end;
 
 
 procedure TKMHouseTownHall.AddDemandsOnActivate;
-//var
-//  DemandsCnt: Integer;
 begin
   //We have to add demands in PostLoadMission procedure, as GoldMaxCnt and GoldCnt are not loaded yet
-
-//  DemandsCnt := fGoldMaxCnt - fGoldCnt;
-//  gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, wt_Gold, DemandsCnt, dtOnce, diNorm); //Every new house needs 5 resource units
-//  Inc(fGoldDeliveryCount, DemandsCnt);
 end;
 
 
@@ -250,26 +236,16 @@ end;
 
 
 procedure TKMHouseTownHall.ResAddToIn(aWare: TWareType; aCount: Integer = 1; aFromScript: Boolean = False);
-//var
-//  OldCnt, AddedGoldCnt, OrdersRemoved: Integer;
 begin
   Assert(aWare = wt_Gold, 'Invalid resource added to TownHall');
-
-//  OldCnt := fGoldCnt;
 
   // Allow to enlarge GoldMaxCnt from script (either from .dat or from .script)
   if aFromScript and (fGoldMaxCnt < fGoldCnt + aCount) then
     SetGoldMaxCnt(fGoldCnt + aCount, True);
 
   fGoldCnt := EnsureRange(fGoldCnt + aCount, 0, High(Word));
-//  AddedGoldCnt := fGoldCnt - OldCnt;
   if aFromScript then
-  begin
-//    Inc(fGoldDeliveryCount, AddedGoldCnt);
-    {OrdersRemoved := }gHands[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aWare, aCount);
-//    Dec(fGoldDeliveryCount, OrdersRemoved);
-  end;
-//  gHands[fOwner].Deliveries.Queue.AddOffer(Self, aWare, fGoldCnt - OldCnt);
+    gHands[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aWare, aCount);
 end;
 
 
@@ -279,12 +255,9 @@ begin
   if aFromScript then
     gHands[Owner].Stats.WareConsumed(aWare, aCount);
 
-//  fGoldDeliveryCount := Max(fGoldDeliveryCount - aCount, 0);
-
   Dec(fGoldCnt, aCount);
   //Only request a new resource if it is allowed by the distribution of wares for our parent player
   gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, aWare, aCount, dtOnce, diNorm);
-//  Inc(fGoldDeliveryCount, aCount);
 end;
 
 
@@ -302,6 +275,7 @@ begin
   end;
   Assert(aCount <= fGoldCnt);
   Dec(fGoldCnt, aCount);
+  gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, aWare, aCount, dtOnce, diNorm);
 end;
 
 

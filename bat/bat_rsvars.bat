@@ -3,7 +3,8 @@
 @SET FrameworkDir=C:\Windows\Microsoft.NET\Framework\v3.5
 @SET FrameworkVersion=v3.5
 @SET FrameworkSDKDir=
-@SET KaMDir=E:\Games\Knights and Merchants TPR
-@SET BetaVersionsDir=E:\KaM_Remake Beta
+@SET KaMOrigDir=E:\games\KnightsAndMerchants_ORIG
+@SET KMRPrevVersionDir=E:\games\KaM\KaM Remake
+@SET BuildFullDir=E:\KaM_Remake Beta
 @SET PATH=%FrameworkDir%;%FrameworkSDKDir%;%BDS%\bin;%BDS%\bin64;%PATH%
-@SET LANGDIR=EN
+@SET kam_version=Beta 8000+

@@ -29,9 +29,13 @@
 /data/gfx/*.bbm
 /data/gfx/*.lbm
 /data/sfx
+/Installer/BuildFull*
+/Installer/BuildUpdate*
+/Installer/CheckKaM.iss
 /dcu
 /src/net/KM_NetAuthSecure.pas
 __history
 __recovery
 *.tvsconfig
 /Utils/*/*.dll
+/Utils/*/*.res
