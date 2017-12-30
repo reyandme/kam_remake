@@ -2,6 +2,8 @@ REM ============================================================
 REM Create new build folder
 REM ============================================================
 
+call bat_rsvars.bat
+
 @echo off
 for /f "delims=" %%a in ('wmic OS Get localdatetime  ^| find "."') do set dt=%%a
 set datestamp=%dt:~0,8%
@@ -23,8 +25,14 @@ REM for /F "delims=" %%i in (KM_Revision.inc) do set "verinfo=%%i"
 
 REM Replace ' with nothing to get the version info
 REM @SET kam_revision=%verinfo:'=%
-@SET kam_revision=8105
+REM @SET kam_revision=8105
+
+@REM get revision number from git
+FOR /F "tokens=* USEBACKQ" %%F IN (`git rev-list --count HEAD`) DO (
+  SET kam_revision=%%F
+)
 
 REM Now we can have a constant with the right folder name
-@SET kam_folder=%BetaVersionsDir%\kam%YYYY%-%MM%-%DD% (%kam_version% r%kam_revision%)
-echo kam_folder: "%kam_folder%"
+@SET build_full_kmr_dir=%BuildFullDir%\kam%YYYY%-%MM%-%DD% (%kam_version% r%kam_revision%)
+@SET installer_kmr_build_full_dir=..\Installer\BuildFull
+
