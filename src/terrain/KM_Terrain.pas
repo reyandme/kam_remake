@@ -724,17 +724,22 @@ var
 begin
   Loc := KMPoint(X,Y);
   aDiagonalChanged := False;
-  //Will this change make a unit stuck?
-  if ((Land[Y, X].IsUnit <> nil) and gMapElements[aObject].AllBlocked)
-    //Is this object part of a wine/corn field?
-    or TileIsWineField(Loc) or TileIsCornField(Loc)
-    //Is there a house/site near this object?
-    or HousesNearObject
-    //Is this object allowed to be placed?
-    or not AllowableObject then
+
+  //There's no need to check conditions for 255 (NO OBJECT)
+  if (aObject <> 255) then
   begin
-    Result := False;
-    Exit;
+    //Will this change make a unit stuck?
+    if ((Land[Y, X].IsUnit <> nil) and gMapElements[aObject].AllBlocked)
+      //Is this object part of a wine/corn field?
+      or TileIsWineField(Loc) or TileIsCornField(Loc)
+      //Is there a house/site near this object?
+      or HousesNearObject
+      //Is this object allowed to be placed?
+      or not AllowableObject then
+    begin
+      Result := False;
+      Exit;
+    end;
   end;
 
   //Did block diagonal property change? (hence xor) UpdateWalkConnect needs to know
