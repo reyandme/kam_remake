@@ -840,20 +840,23 @@ begin
       if (tctRotation in T.ChangeSet) and InRange(T.Rotation, 0, 3) then
         Rot := T.Rotation;
 
-      if (Terr <> -1) or (Rot <> -1) then
+      if (tctTerrain in T.ChangeSet) or (tctRotation in T.ChangeSet) then
       begin
-        // Update terrain and rotation if needed
-        if TrySetTile(T.X, T.Y, Terr, Rot, TerrRect, DiagChanged, False) then
+        if (Terr <> -1) or (Rot <> -1) then
         begin
-          DiagonalChangedTotal := DiagonalChangedTotal or DiagChanged;
-          UpdateRectWRect(Rect, TerrRect);
+          // Update terrain and rotation if needed
+          if TrySetTile(T.X, T.Y, Terr, Rot, TerrRect, DiagChanged, False) then
+          begin
+            DiagonalChangedTotal := DiagonalChangedTotal or DiagChanged;
+            UpdateRectWRect(Rect, TerrRect);
+          end else begin
+            SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);
+            SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);
+          end;
         end else begin
-          SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);  
-          SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);  
+          SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);
+          SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);
         end;
-      end else begin
-        SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);  
-        SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);  
       end;
 
       // Update height if needed
