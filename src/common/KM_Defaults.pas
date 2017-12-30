@@ -274,6 +274,8 @@ const
 
   TEMPLATE_LIBX_FILE_TEXT = 'text.%s' + EXT_FILE_LIBX_DOT;
 
+  MAIN_TRANSLATION_KMR_TEXT = 'text.%s' + EXT_FILE_LIBX_DOT;
+
 type
   TKMHandIndex = {type} ShortInt;
   TKMHandIndexArray = array of TKMHandIndex;
