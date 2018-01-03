@@ -4,6 +4,8 @@
 #define MyAppExeName 'KaM_Remake.exe';
 #define Website 'http://www.kamremake.com/'
 
+#define CheckKaM
+
 ;http://stfx-wow.googlecode.com/svn-history/r418/trunk/NetFxIS/setup.iss
 ;http://tdmaker.googlecode.com/svn/trunk/Setup/tdmaker-anycpu.iss
 ;http://tdmaker.googlecode.com/svn/trunk/Setup/scripts/products.iss
@@ -15,13 +17,14 @@ AppVerName={#MyAppName} {#InstallType} {#Revision}
 AppPublisherURL={#Website}
 AppSupportURL={#Website}
 AppUpdatesURL={#Website}
-DefaultDirName={sd}\{#MyAppName}
+DefaultDirName={sd}\Games\{#MyAppName}
 LicenseFile=License.eng.txt
 DisableProgramGroupPage=yes
 OutputDir=Output
 OutputBaseFilename={#OutputEXE}_{#Revision}
 Compression=lzma2
 SolidCompression=no
+ShowLanguageDialog=yes
 Uninstallable=yes
 SetupIconFile=Embedded\KaM_Remake.ico
 WizardImageFile=Embedded\WizardImage.bmp
@@ -69,7 +72,10 @@ Filename: "{code:GetReadmeLang}";  Description: {cm:ViewReadme};  Flags: postins
 Filename: "{app}\{#MyAppExeName}"; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: postinstall nowait skipifsilent unchecked
 
 [Code]
+
+#ifdef CheckKaM
 #include "CheckKaM.iss"
+#endif
 
 procedure InitializeWizard;
 var Diff: Integer;
@@ -87,8 +93,11 @@ function InitializeSetup(): Boolean;
 var Warnings:string;
 begin
   Warnings := '';
+
+  #ifdef CheckKaM
   if not CheckKaM() then
     Warnings := ExpandConstant('{cm:NoKaM}');
+  #endif
   
   if not CanInstall() then
   begin
