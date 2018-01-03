@@ -4,7 +4,7 @@
 #define MyAppExeName 'KaM_Remake.exe';
 #define Website 'http://www.kamremake.com/'
 
-;#define CheckKaM
+#define CheckKaM
 
 ;http://stfx-wow.googlecode.com/svn-history/r418/trunk/NetFxIS/setup.iss
 ;http://tdmaker.googlecode.com/svn/trunk/Setup/tdmaker-anycpu.iss
