@@ -10,6 +10,7 @@
 *.or
 *.a
 *.rsj
+/bat/bat_rsvars_local.bat
 /KaM_Remake.drc
 /KaM_Remake.map
 /KaM_Remake.res
@@ -29,9 +30,13 @@
 /data/gfx/*.bbm
 /data/gfx/*.lbm
 /data/sfx
+/Installer/BuildFull*
+/Installer/BuildUpdate*
+/Installer/CheckKaM.iss
 /dcu
 /src/net/KM_NetAuthSecure.pas
 __history
 __recovery
 *.tvsconfig
 /Utils/*/*.dll
+/Utils/*/*.res

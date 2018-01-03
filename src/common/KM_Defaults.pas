@@ -34,18 +34,19 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
-
-  GAME_REVISION         = 'r8134';       //Should be updated for every release (each time save format is changed)
-  GAME_BETA_REVISION    = 5;
+  {$I KM_Revision.inc};
   {$IFDEF USESECUREAUTH}
     GAME_VERSION_POSTFIX  = '';
   {$ELSE}
     GAME_VERSION_POSTFIX  = ' (UNSECURE!)';
   {$ENDIF}
   GAME_VERSION_PREFIX   = ''; //Game version string displayed in menu corner
-  GAME_VERSION          = GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX;
-  NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
-
+var
+  //Game revision is set in initialisation block
+  GAME_REVISION: String; //Should be updated for every release (each time save format is changed)
+  GAME_VERSION: String;
+  NET_PROTOCOL_REVISON: String; //Clients of this version may connect to the dedicated server
+const
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
   FONTS_FOLDER          = 'data' + PathDelim + 'gfx' + PathDelim + 'fonts' + PathDelim;
   DEFAULT_LOCALE: AnsiString = 'eng';
@@ -805,5 +806,11 @@ var
 
 implementation
 
+initialization
+begin
+  GAME_REVISION := 'r' + IntToStr(GAME_REVISION_NUM);
+  GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX;
+  NET_PROTOCOL_REVISON := GAME_REVISION;     //Clients of this version may connect to the dedicated server
+end;
 
 end.
