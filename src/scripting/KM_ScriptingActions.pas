@@ -12,6 +12,7 @@ type
   private
     procedure LogStr(aText: String);
   public
+    procedure AIApplyAgressiveBuilderSetup(aPlayer:Byte);
     procedure AIAutoAttackRange(aPlayer: Byte; aRange: Word);
     procedure AIAutoBuild(aPlayer: Byte; aAuto: Boolean);
     procedure AIAutoDefence(aPlayer: Byte; aAuto: Boolean);
@@ -185,6 +186,35 @@ end;
 
 
 { TKMScriptActions }
+
+//* Version 7000+
+//* Allow to apply agressive building for AI player.
+//* If parameter is -1 agressive builder applies to all AI players
+//* The same result you can achieve by setting this in MapEd
+procedure TKMScriptActions.AIApplyAgressiveBuilderSetup(aPlayer:Byte);
+var
+  I: integer;
+begin
+  try
+    if (aPlayer >= 0) then
+    begin
+      if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+        gHands[aPlayer].AI.Setup.ApplyAgressiveBuilderSetup()
+      else
+        LogParamWarning('Actions.AIApplyAgressiveBuilderSetup', [aPlayer]);
+    end
+    else
+    begin
+      for I := 0 to gHands.Count - 1 do
+        gHands[I].AI.Setup.ApplyAgressiveBuilderSetup();
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 5938
 //* Puts the player in cinematic mode, blocking user input and allowing the screen to be panned
 procedure TKMScriptActions.CinematicStart(aPlayer: Byte);
