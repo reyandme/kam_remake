@@ -947,6 +947,7 @@ end;
 procedure TKMGame.SaveMapEditor(const aPathName: UnicodeString);
 begin
   SaveMapEditor(aPathName, KMRECT_ZERO);
+  fPathOpenEditableMission := aPathName;
 end;
 
 

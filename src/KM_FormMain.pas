@@ -92,6 +92,8 @@ type
     SaveSettings: TMenuItem;
     N4: TMenuItem;
     ReloadSettings: TMenuItem;
+    SaveEditableMission1: TMenuItem;
+    SaveDialog1: TSaveDialog;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -140,8 +142,10 @@ type
     procedure Civilians1Click(Sender: TObject);
     procedure ReloadSettingsClick(Sender: TObject);
     procedure SaveSettingsClick(Sender: TObject);
+    procedure SaveEditableMission1Click(Sender: TObject);
   private
     fUpdating: Boolean;
+    fPathOpen: UnicodeString;
     procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
     procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
     {$IFDEF MSWindows}
@@ -184,6 +188,8 @@ uses
 //Remove VCL panel and use flicker-free TMyPanel instead
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
+  fPathOpenEditableMission := '';
+  fPathOpen := ExeDir;
   RenderArea := TKMRenderControl.Create(Self);
   RenderArea.Parent := Self;
   RenderArea.Align := alClient;
@@ -337,15 +343,34 @@ end;
 //Open
 procedure TFormMain.Open_MissionMenuClick(Sender: TObject);
 begin
-  if RunOpenDialog(OpenDialog1, '', ExeDir, 'Knights & Merchants Mission (*.dat)|*.dat') then
+  if RunOpenDialog(OpenDialog1, '', fPathOpen, 'Knights & Merchants Mission (*.dat)|*.dat') then
+  begin
     gGameApp.NewSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
+    fPathOpen := ExtractFileDir(OpenDialog1.FileName);
+  end;
 end;
 
 
 procedure TFormMain.MenuItem1Click(Sender: TObject);
 begin
-  if RunOpenDialog(OpenDialog1, '', ExeDir, 'Knights & Merchants Mission (*.dat)|*.dat') then
+  if RunOpenDialog(OpenDialog1, '', fPathOpen, 'Knights & Merchants Mission (*.dat)|*.dat') then
+  begin
     gGameApp.NewMapEditor(OpenDialog1.FileName, 0, 0);
+    fPathOpen := ExtractFileDir(OpenDialog1.FileName);
+  end;
+end;
+
+
+procedure TFormMain.SaveEditableMission1Click(Sender: TObject);
+begin
+  if gGameApp.Game = nil then Exit;
+
+  if not gGameApp.Game.IsMapEditor then Exit;
+
+  if fPathOpenEditableMission = '' then fPathOpenEditableMission := fPathOpen + 'New Mission.dat';
+
+  if RunSaveDialog(SaveDialog1, fPathOpenEditableMission, ExtractFileDir(fPathOpenEditableMission), 'Knights & Merchants Mission (*.dat)|*.dat') then
+    gGameApp.SaveMapEditor(SaveDialog1.FileName);
 end;
 
 
@@ -477,6 +502,7 @@ begin
   gMain.Settings.SaveSettings(True);
   gGameApp.GameSettings.SaveSettings(True);
 end;
+
 
 procedure TFormMain.ShowLogisticsClick(Sender: TObject);
 begin
