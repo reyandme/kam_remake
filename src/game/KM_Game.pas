@@ -81,6 +81,7 @@ type
     function GetGameTickDuration: Single;
     procedure GameSpeedChanged(aFromSpeed, aToSpeed: Single);
   public
+    fPathOpenEditableMission: UnicodeString;
     PlayOnState: TGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
@@ -217,6 +218,7 @@ const UIMode: array[TGameMode] of TUIMode = (umSP, umSP, umMP, umSpectate, umSP,
 begin
   inherited Create;
 
+  fPathOpenEditableMission := '';
   fGameMode := aGameMode;
   fNetworking := aNetworking;
 
@@ -391,6 +393,7 @@ begin
     //Mission loader needs to read the data into MapEd (e.g. FOW revealers)
     fMapEditor := TKMMapEditor.Create;
     fMapEditor.DetectAttachedFiles(aMissionFile);
+    fPathOpenEditableMission := aMissionFile;
   end;
 
   Parser := TMissionParserStandard.Create(ParseMode, PlayerEnabled);
@@ -886,6 +889,7 @@ var
   I: Integer;
 begin
   fGameName := gResTexts[TX_MAPED_NEW_MISSION];
+  fPathOpenEditableMission := ExeDir + gResTexts[TX_MAPED_NEW_MISSION] + '.dat';
 
   fMissionFileSP := '';
   fSaveFile := '';
@@ -959,6 +963,8 @@ var
   MapFolder: TMapFolder;
 begin
   if aPathName = '' then exit;
+
+  fPathOpenEditableMission := aPathName;
 
   //Prepare and save
   gHands.RemoveEmptyPlayers;
