@@ -273,7 +273,6 @@ uses
 	
   KM_BinPacking in 'src\utils\KM_BinPacking.pas',
   KM_CommonUtils in 'src\utils\KM_CommonUtils.pas',
-	KM_ConsoleTimer in 'src\utils\KM_ConsoleTimer.pas', 
   KM_FileIO in 'src\utils\KM_FileIO.pas',
   KM_Hungarian in 'src\utils\KM_Hungarian.pas',
   KM_Pics in 'src\utils\KM_Pics.pas',
