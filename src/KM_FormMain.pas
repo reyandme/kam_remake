@@ -365,7 +365,7 @@ begin
 
   if not gGameApp.Game.IsMapEditor then Exit;
 
-  if RunSaveDialog(SaveDialog1, ExtractFileName(gGameApp.Game.fPathOpenEditableMission), ExtractFilePath(gGameApp.Game.fPathOpenEditableMission), 'Knights & Merchants Mission (*.dat)|*.dat') then
+  if RunSaveDialog(SaveDialog1, ExtractFileName(gGameApp.Game.PathOpenEditableMission), ExtractFilePath(gGameApp.Game.PathOpenEditableMission), 'Knights & Merchants Mission (*.dat)|*.dat') then
     gGameApp.Game.SaveMapEditor(SaveDialog1.FileName);
 end;
 
