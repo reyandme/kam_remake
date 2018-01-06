@@ -571,7 +571,7 @@ function TKMTerrain.TrySetTileHeight(X, Y: Integer; aHeight: Byte; aUpdatePassab
   var U: TKMUnit;
   begin
     U := Land[CheckY, CheckX].IsUnit;
-    if (U = nil) or U.IsDead
+    if (U = nil) or U.IsDeadOrDying
     or (gRes.Units[U.UnitType].DesiredPassability = tpFish) then //Fish don't care about elevation
       Result := False
     else
@@ -630,7 +630,7 @@ function TKMTerrain.TrySetTile(X, Y: Integer; aType, aRot: Integer; out aPassRec
   var U: TKMUnit;
   begin
     U := Land[Y, X].IsUnit;
-    if (U = nil) or U.IsDead then
+    if (U = nil) or U.IsDeadOrDying then
       Result := False
     else
       if gRes.Units[U.UnitType].DesiredPassability = tpFish then
@@ -724,17 +724,22 @@ var
 begin
   Loc := KMPoint(X,Y);
   aDiagonalChanged := False;
-  //Will this change make a unit stuck?
-  if ((Land[Y, X].IsUnit <> nil) and gMapElements[aObject].AllBlocked)
-    //Is this object part of a wine/corn field?
-    or TileIsWineField(Loc) or TileIsCornField(Loc)
-    //Is there a house/site near this object?
-    or HousesNearObject
-    //Is this object allowed to be placed?
-    or not AllowableObject then
+
+  //There's no need to check conditions for 255 (NO OBJECT)
+  if (aObject <> 255) then
   begin
-    Result := False;
-    Exit;
+    //Will this change make a unit stuck?
+    if ((Land[Y, X].IsUnit <> nil) and gMapElements[aObject].AllBlocked)
+      //Is this object part of a wine/corn field?
+      or TileIsWineField(Loc) or TileIsCornField(Loc)
+      //Is there a house/site near this object?
+      or HousesNearObject
+      //Is this object allowed to be placed?
+      or not AllowableObject then
+    begin
+      Result := False;
+      Exit;
+    end;
   end;
 
   //Did block diagonal property change? (hence xor) UpdateWalkConnect needs to know
@@ -840,20 +845,23 @@ begin
       if (tctRotation in T.ChangeSet) and InRange(T.Rotation, 0, 3) then
         Rot := T.Rotation;
 
-      if (Terr <> -1) or (Rot <> -1) then
+      if (tctTerrain in T.ChangeSet) or (tctRotation in T.ChangeSet) then
       begin
-        // Update terrain and rotation if needed
-        if TrySetTile(T.X, T.Y, Terr, Rot, TerrRect, DiagChanged, False) then
+        if (Terr <> -1) or (Rot <> -1) then
         begin
-          DiagonalChangedTotal := DiagonalChangedTotal or DiagChanged;
-          UpdateRectWRect(Rect, TerrRect);
+          // Update terrain and rotation if needed
+          if TrySetTile(T.X, T.Y, Terr, Rot, TerrRect, DiagChanged, False) then
+          begin
+            DiagonalChangedTotal := DiagonalChangedTotal or DiagChanged;
+            UpdateRectWRect(Rect, TerrRect);
+          end else begin
+            SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);
+            SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);
+          end;
         end else begin
-          SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);  
-          SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);  
+          SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);
+          SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);
         end;
-      end else begin
-        SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);  
-        SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);  
       end;
 
       // Update height if needed

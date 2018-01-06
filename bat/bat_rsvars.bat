@@ -1,9 +1,12 @@
-@SET BDS=C:\Program Files (x86)\Embarcadero\Studio\18.0
-@SET BDSCOMMONDIR=C:\Users\Public\Documents\Embarcadero\Studio\18.0
-@SET FrameworkDir=C:\Windows\Microsoft.NET\Framework\v3.5
-@SET FrameworkVersion=v3.5
-@SET FrameworkSDKDir=
-@SET KaMDir=E:\Games\Knights and Merchants TPR
-@SET BetaVersionsDir=E:\KaM_Remake Beta
+call bat_rsvars_local.bat
+
+@SET BDS=%BDS_LOCAL%
+@SET BDSCOMMONDIR=%BDSCOMMONDIR_LOCAL%
+@SET FrameworkDir=%FrameworkDir_LOCAL%
+@SET FrameworkVersion=%FrameworkVersion_LOCAL%
+@SET FrameworkSDKDir=%FrameworkSDKDir_LOCAL%
+@SET KaMOrigDir=%KaMOrigDir_LOCAL%
+@SET KMRPrevVersionDir=%KMRPrevVersionDir_LOCAL%
+@SET BuildFullDir=%BuildFullDir_LOCAL%
 @SET PATH=%FrameworkDir%;%FrameworkSDKDir%;%BDS%\bin;%BDS%\bin64;%PATH%
-@SET LANGDIR=EN
+@SET kam_version=Beta 8000+

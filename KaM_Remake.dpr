@@ -18,6 +18,7 @@ uses
 
   KromOGLUtils in 'src\ext\KromOGLUtils.pas',
   KromUtils in 'src\ext\KromUtils.pas',
+	KromShellUtils in 'src\ext\KromShellUtils.pas',
 
   KM_AI in 'src\ai\KM_AI.pas',
   KM_AIArmyEvaluation in 'src\ai\KM_AIArmyEvaluation.pas',
@@ -272,6 +273,7 @@ uses
 	
   KM_BinPacking in 'src\utils\KM_BinPacking.pas',
   KM_CommonUtils in 'src\utils\KM_CommonUtils.pas',
+	KM_ConsoleTimer in 'src\utils\KM_ConsoleTimer.pas', 
   KM_FileIO in 'src\utils\KM_FileIO.pas',
   KM_Hungarian in 'src\utils\KM_Hungarian.pas',
   KM_Pics in 'src\utils\KM_Pics.pas',

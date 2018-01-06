@@ -177,7 +177,7 @@ type
 
 implementation
 uses
-  SysUtils, StrUtils, Math, KromUtils,
+  SysUtils, StrUtils, Math, KromShellUtils, KromUtils,
   KM_GameApp, KM_ResTexts, KM_FileIO,
   KM_MissionScript_Info, KM_Scripting,
   KM_CommonClasses, KM_CommonUtils;
