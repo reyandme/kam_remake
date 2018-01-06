@@ -144,8 +144,8 @@ type
     procedure SaveSettingsClick(Sender: TObject);
     procedure SaveEditableMission1Click(Sender: TObject);
   private
-    fUpdating: Boolean;
-    fPathOpen: UnicodeString;
+    Updating: Boolean;
+    PathOpen: UnicodeString;
     procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
     procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
     {$IFDEF MSWindows}
@@ -231,7 +231,7 @@ begin
     Left := gMain.Settings.WindowParams.Left;
     Top := gMain.Settings.WindowParams.Top;
   end;
-  fPathOpen := ExeDir;
+  PathOpen := ExeDir;
 end;
 
 
@@ -341,20 +341,20 @@ end;
 //Open
 procedure TFormMain.Open_MissionMenuClick(Sender: TObject);
 begin
-  if RunOpenDialog(OpenDialog1, '', fPathOpen, 'Knights & Merchants Mission (*.dat)|*.dat') then
+  if RunOpenDialog(OpenDialog1, '', PathOpen, 'Knights & Merchants Mission (*.dat)|*.dat') then
   begin
     gGameApp.NewSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
-    fPathOpen := ExtractFileDir(OpenDialog1.FileName);
+    PathOpen := ExtractFileDir(OpenDialog1.FileName);
   end;
 end;
 
 
 procedure TFormMain.MenuItem1Click(Sender: TObject);
 begin
-  if RunOpenDialog(OpenDialog1, '', fPathOpen, 'Knights & Merchants Mission (*.dat)|*.dat') then
+  if RunOpenDialog(OpenDialog1, '', PathOpen, 'Knights & Merchants Mission (*.dat)|*.dat') then
   begin
     gGameApp.NewMapEditor(OpenDialog1.FileName, 0, 0);
-    fPathOpen := ExtractFileDir(OpenDialog1.FileName);
+    PathOpen := ExtractFileDir(OpenDialog1.FileName);
   end;
 end;
 
@@ -563,13 +563,13 @@ procedure TFormMain.ControlsReset;
         ResetGroupBox(TGroupBox(aBox.Controls[I]));
   end;
 begin
-  fUpdating := True;
+  Updating := True;
   ResetGroupBox(GroupBox1);
 
   tbOwnMargin.Position := OWN_MARGIN_DEF;
   tbOwnThresh.Position := OWN_THRESHOLD_DEF;
 
-  fUpdating := False;
+  Updating := False;
   ControlsUpdate(nil);
 end;
 
@@ -606,7 +606,7 @@ var
   I: Integer;
   AllowDebugChange: Boolean;
 begin
-  if fUpdating then Exit;
+  if Updating then Exit;
 
   //You could possibly cheat in multiplayer by seeing debug render info
   AllowDebugChange := (gGameApp.Game = nil)
