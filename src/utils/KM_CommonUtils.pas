@@ -87,6 +87,8 @@ uses
   function StrSplit(const aStr, aDelimiters: String): TStrings;
   {$ENDIF}
 
+  function SplitStringToArray(const Texto, Delimiter: string): TAnsiStringArray;
+
 implementation
 uses
   StrUtils, Types;
@@ -927,6 +929,30 @@ begin
     Result.Add(StrArray[I]);
 end;
 {$ENDIF}
+
+
+function SplitStringToArray(const Texto, Delimiter: string): TAnsiStringArray;
+var
+  I: integer;
+  Len: integer;
+  PosDel: integer;
+  CopyOfText: string;
+begin
+  CopyOfText := Texto;
+  i := 0;
+  SetLength(Result, 1);
+  Len := Length(Delimiter);
+  PosDel := Pos(Delimiter, Texto);
+  while PosDel > 0 do
+    begin
+      Result[I] := Copy(CopyOfText, 1, PosDel - 1);
+      Delete(CopyOfText, 1, Length(Result[I]) + 1);
+      PosDel := Pos(Delimiter, CopyOfText);
+      inc(I);
+      SetLength(Result, I + 1);
+    end;
+  Result[I] := Copy(CopyOfText, 1, Length(CopyOfText));
+end;
 
 
 end.
