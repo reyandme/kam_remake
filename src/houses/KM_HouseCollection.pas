@@ -34,6 +34,8 @@ type
     procedure IncAnimStep;
     procedure UpdateResRequest; //Change resource requested counts for all houses
     procedure DeleteHouseFromList(aHouse: TKMHouse);
+    procedure RemoveAllHouses;
+
     procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
@@ -130,6 +132,13 @@ begin
   Assert(gGame.GameMode = gmMapEd); // Allow to delete existing House directly only in MapEd
   if (aHouse <> nil) then
     fHouses.Extract(aHouse);
+end;
+
+
+procedure TKMHousesCollection.RemoveAllHouses;
+begin
+  Assert(gGame.GameMode = gmMapEd);
+  fHouses.Clear;
 end;
 
 

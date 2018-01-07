@@ -190,6 +190,7 @@ type
     procedure AddGroupToList(aGroup: TKMUnitGroup);
     procedure DeleteGroupFromList(aGroup: TKMUnitGroup);
     procedure RemGroup(aGroup: TKMUnitGroup);
+    procedure RemAllGroups;
 
     property Count: Integer read GetCount;
     property Groups[aIndex: Integer]: TKMUnitGroup read GetGroup; default;
@@ -1979,6 +1980,13 @@ end;
 procedure TKMUnitGroups.RemGroup(aGroup: TKMUnitGroup);
 begin
   fGroups.Remove(aGroup);
+end;
+
+
+procedure TKMUnitGroups.RemAllGroups;
+begin
+  Assert(gGame.GameMode = gmMapEd);
+  fGroups.Clear;
 end;
 
 

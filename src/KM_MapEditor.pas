@@ -32,6 +32,7 @@ type
     procedure ProceedUnitsCursorMode;
     procedure UpdateField(aStageIncrement: Integer; aCheckPrevCell: Boolean);
     procedure EraseObject(aEraseAll: Boolean);
+    procedure ClearObjectsPlayer(aIndex: Byte);
     function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
     procedure ChangeOwner(aChangeOwnerForAll: Boolean);
   public
@@ -348,6 +349,27 @@ begin
     gTerrain.RemRoad(P);
   if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
     gTerrain.RemField(P);
+end;
+
+
+procedure TKMMapEditor.ClearObjectsPlayer(aIndex: Byte);
+var
+  I: Integer;
+  Obj: Array of TObject;
+begin
+  if gHands = nil then Exit;
+
+  if gHands.Count = 0 then Exit;
+
+  gHands.Hands[aIndex].Units.RemoveAllUnits;
+
+  gHands.Hands[aIndex].UnitGroups.RemAllGroups;
+
+  gHands.Hands[aIndex].RemAllRoads;
+
+  gTerrain.RemovePlayer(aIndex);
+
+
 end;
 
 
