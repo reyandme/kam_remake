@@ -356,7 +356,6 @@ end;
 procedure TKMMapEditor.ClearObjectsPlayer(aIndex: Byte);
 var
   I: Integer;
-  Obj: Array of TObject;
 begin
   if gHands = nil then Exit;
 
