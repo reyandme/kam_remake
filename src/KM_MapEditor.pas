@@ -32,7 +32,6 @@ type
     procedure ProceedUnitsCursorMode;
     procedure UpdateField(aStageIncrement: Integer; aCheckPrevCell: Boolean);
     procedure EraseObject(aEraseAll: Boolean);
-    procedure ClearObjectsPlayer(aIndex: Byte);
     function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
     procedure ChangeOwner(aChangeOwnerForAll: Boolean);
   public
@@ -65,6 +64,8 @@ type
     procedure Update;
     procedure UpdateStateIdle;
     procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
+
+    procedure ClearObjectsPlayer(aIndex: Byte);
   end;
 
 
@@ -365,10 +366,11 @@ begin
 
   gHands.Hands[aIndex].UnitGroups.RemAllGroups;
 
-  gHands.Hands[aIndex].RemAllRoads;
+  gHands.Hands[aIndex].Houses.RemoveAllHouses;
 
-  gTerrain.RemovePlayer(aIndex);
+  gTerrain.ResetLand(aIndex);
 
+  //gTerrain.RemovePlayer(aIndex);
 
 end;
 

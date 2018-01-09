@@ -141,6 +141,7 @@ procedure TKMUnitsCollection.RemoveAllUnits;
 var I: Integer;
 begin
   Assert(gGame.GameMode = gmMapEd);
+  if Count <= 0 then Exit;
   for I := 0 to Count - 1 do
     Units[I].CloseUnit;
   fUnits.Clear;

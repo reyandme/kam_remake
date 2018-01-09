@@ -136,8 +136,15 @@ end;
 
 
 procedure TKMHousesCollection.RemoveAllHouses;
+var I: Integer;
 begin
   Assert(gGame.GameMode = gmMapEd);
+  if Count <= 0 then Exit;
+  for I := 0 to Count - 1 do
+  begin
+    Houses[I].DemolishHouse(Houses[I].Owner, True);
+    fHouses.Extract(Houses[I]);
+  end;
   fHouses.Clear;
 end;
 

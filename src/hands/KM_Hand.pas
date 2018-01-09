@@ -141,7 +141,6 @@ type
     procedure RemHousePlan(Position: TKMPoint);
     procedure RemFieldPlan(Position: TKMPoint; aMakeSound:Boolean);
     procedure RemFakeFieldPlan(Position: TKMPoint);
-    procedure RemAllRoads;
     function FindInn(Loc: TKMPoint; aUnit: TKMUnit; UnitIsAtHome: Boolean = False): TKMHouseInn;
     function FindHouse(aType: THouseType; aPosition: TKMPoint; Index: Byte=1): TKMHouse; overload;
     function FindHouse(aType: THouseType; Index: Byte=1): TKMHouse; overload;
@@ -895,16 +894,6 @@ begin
   fBuildList.FieldworksList.RemFakeField(Position); //Remove our fake marker which is shown to the user
   fBuildList.FieldworksList.AddFakeDeletedField(Position); //This will hide the real field until it is deleted from game
   if HandIndex = gMySpectator.HandIndex then gSoundPlayer.Play(sfx_Click);
-end;
-
-
-procedure TKMHand.RemAllRoads;
-var I: Integer;
-begin
-  Assert(gGame.GameMode = gmMapEd);
-  for I := 0 to fRoadsList.Count - 1 do
-    gTerrain.RemRoad(fRoadsList.Items[I]);
-  fRoadsList.Clear;
 end;
 
 

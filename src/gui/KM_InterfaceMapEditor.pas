@@ -62,6 +62,7 @@ type
     procedure Message_Click(Sender: TObject);
     procedure ChangeOwner_Click(Sender: TObject);
     procedure UniversalEraser_Click(Sender: TObject);
+    procedure PlayerClear_Click(Sender: TObject);
 
     procedure UpdateCursor(X, Y: Integer; Shift: TShiftState);
     procedure Main_ButtonClick(Sender: TObject);
@@ -88,6 +89,7 @@ type
     Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
     Button_ChangeOwner: TKMButtonFlat;
     Button_UniversalEraser: TKMButtonFlat;
+    Button_PlayerClear: TKMButton;
     Label_Stat,Label_Hint: TKMLabel;
     Bevel_HintBG: TKMBevel;
 
@@ -163,21 +165,24 @@ begin
   TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
   for I := 0 to MAX_HANDS - 1 do
   begin
-    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 6 + (I mod 6)*23, 208 + 23*(I div 6), 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
+    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 6 + (I mod 6)*22, 208 + 23*(I div 6), 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
     Button_PlayerSelect[I].Tag     := I;
     Button_PlayerSelect[I].OnClick := Player_ActiveClick;
   end;
   Button_PlayerSelect[0].Down := True; //First player selected by default
 
-  Button_ChangeOwner := TKMButtonFlat.Create(Panel_Main, 151, 203, 26, 26, 662);
+  Button_ChangeOwner := TKMButtonFlat.Create(Panel_Main, 141, 203, 26, 26, 662);
   Button_ChangeOwner.Down := False;
   Button_ChangeOwner.OnClick := ChangeOwner_Click;
   Button_ChangeOwner.Hint := gResTexts[TX_MAPED_PAINT_BUCKET_CH_OWNER];
 
-  Button_UniversalEraser := TKMButtonFlat.Create(Panel_Main, 151, 231, 26, 26, 340);
+  Button_UniversalEraser := TKMButtonFlat.Create(Panel_Main, 141, 231, 26, 26, 340);
   Button_UniversalEraser.Down := False;
   Button_UniversalEraser.OnClick := UniversalEraser_Click;
   Button_UniversalEraser.Hint := GetHintWHotKey(TX_MAPED_UNIVERSAL_ERASER, SC_MAPEDIT_UNIV_ERASOR);
+
+  Button_PlayerClear := TKMButton.Create(Panel_Main, 169, 217, 26, 26, '[$0000FF]X', bsGame);
+  Button_PlayerClear.OnClick := PlayerClear_Click;
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [anLeft, anBottom];
@@ -527,6 +532,12 @@ end;
 procedure TKMapEdInterface.UniversalEraser_Click(Sender: TObject);
 begin
   SetUniversalEraserMode(not Button_UniversalEraser.Down);
+end;
+
+
+procedure TKMapEdInterface.PlayerClear_Click(Sender: TObject);
+begin
+  gGame.MapEditor.ClearObjectsPlayer(gMySpectator.HandIndex);
 end;
 
 

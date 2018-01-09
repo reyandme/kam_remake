@@ -136,6 +136,8 @@ type
     procedure RemField(const Loc: TKMPoint); overload;
     procedure RemField(const Loc: TKMPoint; aDoUpdatePassNWalk: Boolean; out aUpdatePassRect: TKMRect; 
                        out aDiagObjectChanged: Boolean; aDoUpdateFences: Boolean); overload;
+    procedure ResetLand(aPlayer: TKMHandIndex);
+
     procedure IncDigState(Loc: TKMPoint);
     procedure ResetDigState(Loc: TKMPoint);
 
@@ -1613,6 +1615,37 @@ begin
 
   //Update affected WalkConnect's
   UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrow(KMRect(Loc),1), DiagObjectChanged); //Winefields object block diagonals
+end;
+
+
+procedure TKMTerrain.ResetLand(aPlayer: TKMHandIndex);
+var
+  I, K: Integer;
+  KMPoint: TKMPoint;
+begin
+  for I := 1 to fMapY do
+    for K := 1 to fMapX do
+      if Land[I, K].TileOwner = aPlayer then
+      begin
+        KMPoint.X := K;
+        KMPoint.Y := I;
+
+        if (Land[I, K].Obj <> 255) then
+        begin
+          if TileIsCornField(KMPoint) and (GetCornStage(KMPoint) in [4,5]) then
+            SetField(KMPoint, Land[I, K].TileOwner, ft_Corn, 3)  // For corn, when delete corn object reduce field stage to 3
+          else if TileIsWineField(KMPoint) then
+            RemField(KMPoint)
+          else
+            SetObject(KMPoint, 255);
+        end;
+
+        if Land[I, K].TileOverlay = to_Road then
+          RemRoad(KMPoint);
+        if TileIsCornField(KMPoint) or TileIsWineField(KMPoint) then
+          RemField(KMPoint);
+      end;
+
 end;
 
 
