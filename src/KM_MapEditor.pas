@@ -369,6 +369,10 @@ begin
 
   gTerrain.ResetLand(aIndex);
 
+  gHands.Hands[aIndex].AI.General.DefencePositions.Clear;
+
+
+
   //gTerrain.RemovePlayer(aIndex);
 
 end;
