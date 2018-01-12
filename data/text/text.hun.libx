@@ -156,8 +156,8 @@
 157:Jóllakottság
 158:Balra át!
 159:Jobbra át!
-160:Támadás! ('a')
-161:Csapat mozgatása ('s')
+160:Támadás!
+161:Csapat mozgatása
 162:Csapat élelmezése
 163:Roham indítása
 164:Alakzatban sorakozó
@@ -608,9 +608,9 @@
 619:Békeidőből hátra van: %s
 620:A békeidő végetért. Fegyverbe!
 621:Játék idő:|%s
-622:Csapat állj ('%s')
-623:Csapatok összekapcsolása ('%s')
-624:Csapatok szétválasztása ('%s')
+622:Csapat állj
+623:Csapatok összekapcsolása
+624:Csapatok szétválasztása
 625:Visszajátszások
 626:Visszajátszás megtekintése
 627:Nem támogatott formátum %s

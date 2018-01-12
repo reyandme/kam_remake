@@ -53,12 +53,12 @@ begin
     CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
     Inc(TopPos, 25);
-    CheckBox_Settings_ReplayAutoPause := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,'Replay|autopause',fnt_Metal); //Todo: translate
-    CheckBox_Settings_ReplayAutoPause.Hint := 'Automatically pause replay when peacetime ends'; //Todo: translate
+    CheckBox_Settings_ReplayAutoPause := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_REPLAY_AUTOPAUSE],fnt_Metal);
+    CheckBox_Settings_ReplayAutoPause.Hint := gResTexts[TX_GAME_SETTINGS_REPLAY_AUTOPAUSE_HINT];
     CheckBox_Settings_ReplayAutoPause.OnClick := Menu_Settings_Change;
     Inc(TopPos, 40);
-    CheckBox_Settings_ReplaySpecShowBeacons := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,'Show beacons',fnt_Metal); //Todo: translate
-    CheckBox_Settings_ReplaySpecShowBeacons.Hint := 'Show players beacons'; //Todo: translate
+    CheckBox_Settings_ReplaySpecShowBeacons := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_SHOW_BEACONS],fnt_Metal);
+    CheckBox_Settings_ReplaySpecShowBeacons.Hint := gResTexts[TX_GAME_SETTINGS_SHOW_BEACONS_HINT];
     CheckBox_Settings_ReplaySpecShowBeacons.OnClick := Menu_Settings_Change;
     Inc(TopPos, 25);
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,TopPos,WID,0,20);

@@ -380,9 +380,9 @@ begin
     ResRow_TH_MaxGold := TKMWareOrderRow.Create(Panel_HouseTownhall, 0, dy, TB_WIDTH, TH_MAX_GOLDMAX_VALUE);
     ResRow_TH_MaxGold.WareRow.RX := rxGui;
     ResRow_TH_MaxGold.WareRow.TexID := gRes.Wares[wt_Gold].GUIIcon;
-    ResRow_TH_MaxGold.WareRow.Caption := 'Max Gold'; //Todo translate
+    ResRow_TH_MaxGold.WareRow.Caption := gResTexts[TX_HOUSES_TOWNHALL_MAX_GOLD];
     ResRow_TH_MaxGold.WareRow.WareCount := 1;
-    ResRow_TH_MaxGold.Hint := 'Maximum amount of gold to deliver into townhall'; //Todo translate
+    ResRow_TH_MaxGold.Hint := gResTexts[TX_HOUSES_TOWNHALL_MAX_GOLD_HINT];
     ResRow_TH_MaxGold.OnChange := House_TownHall_Change;
     Inc(dy, 29);
 
@@ -486,7 +486,7 @@ begin
     Radio_Woodcutter.ItemIndex := 0;
     Radio_Woodcutter.Add(gResTexts[TX_HOUSES_WOODCUTTER_PLANT_CHOP]);
     Radio_Woodcutter.Add(gResTexts[TX_HOUSES_WOODCUTTER_CHOP_ONLY]);
-    Radio_Woodcutter.Add('Plant only'); //Todo translate
+    Radio_Woodcutter.Add(gResTexts[TX_HOUSES_WOODCUTTER_PLANT_ONLY]);
     Radio_Woodcutter.OnChange := House_WoodcutterChange;
 end;
 
@@ -555,10 +555,10 @@ begin
 
   Button_House_Worker.TexID  := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIIcon;
   HandleHouseClosedForWorker(aHouse);
-  Button_House_Worker.Hint := Format('Open / Close house for %s', [gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIName]); //Todo translate
+  Button_House_Worker.Hint := Format(gResTexts[TX_HOUSES_CLOSED_FOR_WORKER_HINT], [gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIName]);
   Button_House_Worker.FlagColor := gHands[aHouse.Owner].FlagColor;
 
-  HealthBar_House.Caption   := inttostr(round(aHouse.GetHealth))+'/'+inttostr(gRes.Houses[aHouse.HouseType].MaxHealth);
+  HealthBar_House.Caption   := IntToStr(round(aHouse.GetHealth)) + '/' + IntToStr(gRes.Houses[aHouse.HouseType].MaxHealth);
   HealthBar_House.Position  := aHouse.GetHealth / gRes.Houses[aHouse.HouseType].MaxHealth;
 
   if AskDemolish then
@@ -1089,7 +1089,7 @@ begin
   if Sender = Button_Barracks_Train then //Equip unit
     gGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[fLastBarracksUnit], GetMultiplicator(Shift));
 
-  Button_Barracks_Train.Enabled := Barracks.CanEquip(Barracks_Order[fLastBarracksUnit]);
+  Button_Barracks_Train.Enabled := not gGame.IsPeaceTime and Barracks.CanEquip(Barracks_Order[fLastBarracksUnit]);
   Button_Barracks_Left.Enabled := fLastBarracksUnit > 0;
   Button_Barracks_Right.Enabled := fLastBarracksUnit < High(Barracks_Order);
   Image_Barracks_Left.Visible:= Button_Barracks_Left.Enabled;
@@ -1116,9 +1116,11 @@ end;
 procedure TKMGUIGameHouse.House_TownHall_Change(Sender: TObject; aChangeValue: Integer);
 var
   TH: TKMHouseTownHall;
+  NewValue: Integer;
 begin
   TH := TKMHouseTownHall(gMySpectator.Selected);
-  TH.GoldMaxCnt := EnsureRange(TH.GoldMaxCnt + aChangeValue, 0, High(Word));
+  NewValue := EnsureRange(TH.GoldMaxCnt + aChangeValue, 0, High(Word));
+  gGame.GameInputProcess.CmdHouse(gic_HouseTownHallMaxGold, TH, NewValue);
 end;
 
 
@@ -1151,7 +1153,7 @@ begin
   if Sender = Button_TH_Train then //Equip unit
     gGame.GameInputProcess.CmdHouse(gic_HouseTownHallEquip, TownHall, TownHall_Order[fLastTHUnit], GetMultiplicator(Shift));
 
-  Button_TH_Train.Enabled := TownHall.CanEquip(TownHall_Order[fLastTHUnit]);
+  Button_TH_Train.Enabled := not gGame.IsPeaceTime and TownHall.CanEquip(TownHall_Order[fLastTHUnit]);
   Button_TH_Left.Enabled := fLastTHUnit > 0;
   Button_TH_Right.Enabled := fLastTHUnit < High(TownHall_Order);
   Image_TH_Left.Visible:= Button_TH_Left.Enabled;

@@ -19,7 +19,7 @@ uses
   KM_Log in '..\..\src\KM_Log.pas',
   KM_Settings in '..\..\src\KM_Settings.pas',
   KM_DedicatedServer in '..\..\src\net\other\KM_DedicatedServer.pas',
-  KM_ConsoleTimer in 'KM_ConsoleTimer.pas',
+  KM_ConsoleTimer in '..\..\src\utils\KM_ConsoleTimer.pas',
   KM_ServerEventHandler in 'KM_ServerEventHandler.pas';
 
 var

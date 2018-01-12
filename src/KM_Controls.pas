@@ -405,6 +405,7 @@ type
     fTextAlign: TKMTextAlign;
     fStyle: TKMButtonStyle;
     fRX: TRXType;
+    procedure InitCommon(aStyle: TKMButtonStyle);
   public
     Caption: UnicodeString;
     FlagColor: TColor4; //When using an image
@@ -414,6 +415,8 @@ type
     CapOffsetX: Shortint;
     CapOffsetY: Shortint;
     ShowImageEnabled: Boolean; // show picture as enabled or not (normal or darkened)
+    CenterText: Boolean;
+    TextVAlign: TKMTextVAlign;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle); overload;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; const aCaption: UnicodeString; aStyle: TKMButtonStyle); overload;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
@@ -710,6 +713,7 @@ type
     fOrderLab: TKMLabel;
     fOrderRem: TKMButton;
     fOrderCount: Integer;
+    fImmidiateOrder: Boolean; //Order count should be changed immidiately in control. Should be False usually
     procedure ButtonClick(Sender: TObject; Shift: TShiftState);
     procedure ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
     procedure SetOrderRemHint(aValue: UnicodeString);
@@ -723,7 +727,8 @@ type
     OrderCntMin: Integer;
     OrderCntMax: Integer;
     OnChange: TObjectIntegerEvent;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE; aOrderCntMin: Integer = 0);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE;
+                       aOrderCntMin: Integer = 0; aImmidiateOrder: Boolean = False);
     property WareRow: TKMWaresRow read fWaresRow;
     property OrderCount: Integer read fOrderCount write SetOrderCount;
     property OrderRemHint: UnicodeString write SetOrderRemHint;
@@ -1456,7 +1461,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   SysUtils, StrUtils, Math, KromUtils, Clipbrd,
-  KM_Resource, KM_ResSprites, KM_ResSound, KM_ResCursors,
+  KM_Resource, KM_ResSprites, KM_ResSound, KM_ResCursors, KM_ResTexts,
   KM_Sound, KM_CommonUtils, KM_Utils;
 
 
@@ -2785,13 +2790,9 @@ end;
 constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fRX          := aRX;
-  TexID        := aTexID;
-  Caption      := '';
-  FlagColor    := $FFFF00FF;
-  fStyle       := aStyle;
-  MakesSound   := True;
-  ShowImageEnabled := True;
+  InitCommon(aStyle);
+  fRX   := aRX;
+  TexID := aTexID;
 end;
 
 
@@ -2799,14 +2800,22 @@ end;
 constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; const aCaption: UnicodeString; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  TexID        := 0;
-  Caption      := aCaption;
-  FlagColor    := $FFFF00FF;
-  Font         := fnt_Metal;
-  fTextAlign   := taCenter; //Thats default everywhere in KaM
-  fStyle       := aStyle;
-  MakesSound   := True;
-  ShowImageEnabled := True;
+  InitCommon(aStyle);
+  Caption := aCaption;
+end;
+
+
+procedure TKMButton.InitCommon(aStyle: TKMButtonStyle);
+begin
+  TexID             := 0;
+  Caption           := '';
+  FlagColor         := $FFFF00FF;
+  Font              := fnt_Metal;
+  fTextAlign        := taCenter; //Thats default everywhere in KaM
+  TextVAlign        := tvaMiddle;//tvaNone;
+  fStyle            := aStyle;
+  MakesSound        := True;
+  ShowImageEnabled  := True;
 end;
 
 
@@ -2843,6 +2852,7 @@ procedure TKMButton.Paint;
 var
   Col: TColor4;
   StateSet: TKMButtonStateSet;
+  TextY, Top: Integer;
 begin
   inherited;
   StateSet := [];
@@ -2860,9 +2870,17 @@ begin
   //If disabled then text should be faded
   Col := IfThen(fEnabled, icWhite, icGray);
 
-  TKMRenderUI.WriteText(AbsLeft + Byte(csDown in State) + CapOffsetX,
-                      (AbsTop + Height div 2) - 7 + Byte(csDown in State) + CapOffsetY,
-                      Width, Caption, Font, fTextAlign, Col);
+  Top := AbsTop + Byte(csDown in State) + CapOffsetY;
+
+  TextY := gRes.Fonts[Font].GetTextSize(Caption).Y;
+  case TextVAlign of
+    tvaNone:    Inc(Top, (Height div 2) - 7);
+    tvaTop:     Inc(Top, 2);
+    tvaMiddle:  Inc(Top, (Height div 2) - (TextY div 2) + 2);
+    tvaBottom:  Inc(Top, Height - TextY);
+  end;
+  TKMRenderUI.WriteText(AbsLeft + Byte(csDown in State) + CapOffsetX, Top,
+                        Width, Caption, Font, fTextAlign, Col);
 end;
 
 
@@ -3930,11 +3948,14 @@ end;
 
 
 { TKMWareOrderRow }
-constructor TKMWareOrderRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE; aOrderCntMin: Integer = 0);
+constructor TKMWareOrderRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE;
+                                   aOrderCntMin: Integer = 0; aImmidiateOrder: Boolean = False);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, WARE_ROW_HEIGHT);
 
   fWaresRow := TKMWaresRow.Create(aParent, aLeft + 68, aTop, aWidth - 68);
+
+  fImmidiateOrder := aImmidiateOrder;
 
   OrderCntMin := aOrderCntMin;
   OrderCntMax := aOrderCntMax;
@@ -3966,7 +3987,9 @@ begin
 
   if Amt = 0 then Exit;
 
-  OrderCount := fOrderCount + Amt;
+  if fImmidiateOrder then
+    OrderCount := fOrderCount + Amt;
+
   Focus;
 
   if Assigned(OnChange) then
@@ -3986,7 +4009,9 @@ begin
   if GetKeyState(VK_SHIFT) < 0 then
     Amt := Amt * 10;
 
-  OrderCount := fOrderCount + Amt;
+  if fImmidiateOrder then
+    OrderCount := fOrderCount + Amt;
+
   Focus;
 
   if Assigned(OnChange) then
@@ -4008,9 +4033,10 @@ begin
 
   if Amt = 0 then Exit;
 
-  OrderCount := fOrderCount + Amt;
+  if fImmidiateOrder then
+    OrderCount := fOrderCount + Amt;
 
-  if (Amt <> 0) and Assigned(OnChange) then
+  if Assigned(OnChange) then
     OnChange(Self, Amt);
 end;
 
@@ -7445,7 +7471,7 @@ var
     TKMRenderUI.WriteText (XPos, G.Bottom + 4, 0, TimeToString(aTime / 24 / 60 / 60), fnt_Game, taLeft, IfThen(aIsPT, clChartPeacetimeLbl, icWhite));
     TKMRenderUI.WriteLine(XPos, G.Top, XPos, G.Bottom, IfThen(aIsPT, clChartPeacetimeLn, clChartDashedVLn), $CCCC);
     if aIsPT then
-      TKMRenderUI.WriteText(XPos - 3, G.Bottom + 4, 0, 'PT-', fnt_Game, taRight, clChartPeacetimeLbl); //Todo translate
+      TKMRenderUI.WriteText(XPos - 3, G.Bottom + 4, 0, gResTexts[TX_CHART_PT_END], fnt_Game, taRight, clChartPeacetimeLbl);
   end;
 
   procedure RenderHorizontalAxisTicks;

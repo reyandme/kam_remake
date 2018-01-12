@@ -62,7 +62,7 @@ const
 
 var
   // These should be True (we can occasionally turn them Off to speed up the debug)
-  CALC_EXPECTED_TICK    :Boolean = False; //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
+  CALC_EXPECTED_TICK    :Boolean = True;  //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
   MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
   MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
@@ -195,7 +195,10 @@ const
   AUTOSAVE_FREQUENCY_MIN  = 600;
   AUTOSAVE_FREQUENCY_MAX  = 3000;
   AUTOSAVE_FREQUENCY      = 600; //How often to do autosave, every N ticks
-  AUTOSAVE_NOT_MORE_OFTEN_THEN = 10000; //= 5s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
+  AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX = 5; //Max number of autosaves to be included into crashreport
+  AUTOSAVE_NOT_MORE_OFTEN_THEN = 10000; //= 10s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
+
+
   CHAT_COOLDOWN           = 500;  //Minimum time in milliseconds between chat messages
   BEACON_COOLDOWN         = 800;  //Minimum time in milliseconds between beacons
 

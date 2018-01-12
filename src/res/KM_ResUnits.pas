@@ -389,7 +389,7 @@ end;
 function TKMUnitSpec.GetUnitName: UnicodeString;
 begin
   case fUnitType of
-    ut_Any:             Result := 'All'; //Todo translate
+    ut_Any:             Result := gResTexts[TX_UNITS_ALL];
     ut_None:            Result := 'N/A';
     else                Result := gResTexts[GetUnitTextID];
   end;

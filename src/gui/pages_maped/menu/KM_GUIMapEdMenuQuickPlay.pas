@@ -53,23 +53,23 @@ var
 begin
   inherited Create;
 
-  PopUp_QuickPlay := TKMPopUpPanel.Create(aParent, 240, 420, 'Quick Play'); //Todo translate
+  PopUp_QuickPlay := TKMPopUpPanel.Create(aParent, 240, 420, gResTexts[TX_MAPED_MAP_QUICK_PLAY]);
 
   PopUp_QuickPlay.Width := Math.Max(240, gRes.Fonts[PopUp_QuickPlay.Font].GetTextSize(PopUp_QuickPlay.Caption).X + 40);
   Left := (PopUp_QuickPlay.Width - ControlsWidth) div 2;
-    TKMLabel.Create(PopUp_QuickPlay, PopUp_QuickPlay.Width div 2, 50, 'Select player:', fnt_Metal, taCenter); //Todo translate
+    TKMLabel.Create(PopUp_QuickPlay, PopUp_QuickPlay.Width div 2, 50, gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER], fnt_Metal, taCenter);
 
     DropList_SelectHand := TKMDropList.Create(PopUp_QuickPlay, Left, 75, ControlsWidth, 20, fnt_Game, '', bsGame);
-    DropList_SelectHand.Hint := 'Select player to start map with'; //Todo translate
+    DropList_SelectHand.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER_TO_START];
 
     Panel_Save := TKMPanel.Create(PopUp_QuickPlay, Left, 95, ControlsWidth, 230);
 
-    Button_QuickPlay := TKMButton.Create(PopUp_QuickPlay, Left, 310, ControlsWidth, 30, 'Start without save', bsGame); //Todo translate
-    Button_QuickPlay.Hint := 'Discard changes and start game for selected player'; //Todo translate
+    Button_QuickPlay := TKMButton.Create(PopUp_QuickPlay, Left, 310, ControlsWidth, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE], bsGame);
+    Button_QuickPlay.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE_HINT];
     Button_QuickPlay.OnClick := QuickPlay_Click;
 
-    Button_Cancel := TKMButton.Create(PopUp_QuickPlay, (PopUp_QuickPlay.Width - ControlsWidth) div 2, PopUp_QuickPlay.Height - 40, ControlsWidth, 30, 'Cancel', bsGame); //Todo translate
-    Button_Cancel.Hint := 'Cancel'; //Todo translate
+    Button_Cancel := TKMButton.Create(PopUp_QuickPlay, (PopUp_QuickPlay.Width - ControlsWidth) div 2, PopUp_QuickPlay.Height - 40, ControlsWidth, 30, gResTexts[TX_WORD_CANCEL], bsGame);
+    Button_Cancel.Hint := gResTexts[TX_WORD_CANCEL];
     Button_Cancel.OnClick := Cancel_Click;
 
   fMenuSave := TKMMapEdMenuSave.Create(Panel_Save, SaveDone, 10, 220);
@@ -78,8 +78,8 @@ begin
   fMenuSave.Button_SaveCancel.Hide;
 
   fMenuSave.Button_SaveSave.Top := fMenuSave.Button_SaveSave.Top + 10;
-  fMenuSave.Button_SaveSave.Caption := 'Save and start'; //Todo translate
-  fMenuSave.Button_SaveSave.Hint := 'Save map and start game for selected player'; //Todo translate
+  fMenuSave.Button_SaveSave.Caption := gResTexts[TX_MAPED_MAP_QUICK_PLAY_SAVE_AND_START];
+  fMenuSave.Button_SaveSave.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_SAVE_AND_START_HINT];
   fMenuSave.Button_SaveSave.OnChangeEnableStatus := SaveBtn_EnableStatusChanged;
 
 end;
