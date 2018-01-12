@@ -361,6 +361,8 @@ begin
 
   if gHands.Count = 0 then Exit;
 
+  Revealers[aIndex].Clear;
+
   gHands.Hands[aIndex].Units.RemoveAllUnits;
 
   gHands.Hands[aIndex].UnitGroups.RemAllGroups;
@@ -370,8 +372,6 @@ begin
   gTerrain.ResetLand(aIndex);
 
   gHands.Hands[aIndex].AI.General.DefencePositions.Clear;
-
-
 
   //gTerrain.RemovePlayer(aIndex);
 
