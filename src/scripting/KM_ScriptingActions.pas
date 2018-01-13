@@ -2441,7 +2441,7 @@ begin
       else
       begin
         //checking X, if X <= 0 we cannot proceed
-        if ((TryStrToInt(aArrElem[0], aParsedValue)) and (aParsedValue > 0)) then
+        if ((TryStrToInt(string(PChar(aArrElem[0])), aParsedValue)) and (aParsedValue > 0)) then
           aTiles[I].X := aParsedValue
         else
         begin
@@ -2449,7 +2449,7 @@ begin
           aParserError := true;
         end;
         //checking Y, if Y <= 0 we cannot proceed
-        if ((TryStrToInt(aArrElem[1], aParsedValue)) and (aParsedValue > 0)) then
+        if ((TryStrToInt(string(PChar(aArrElem[1])), aParsedValue)) and (aParsedValue > 0)) then
           aTiles[I].Y := aParsedValue
         else
         begin
@@ -2460,7 +2460,7 @@ begin
         //if X and Y are correctly defined we can proceed with terrain changes
         if (not aParserError) then
         begin
-          if (TryStrToInt(aArrElem[2], aParsedValue)) then
+          if (TryStrToInt(string(PChar(aArrElem[2])), aParsedValue)) then
           begin
             if (aParsedValue >= 0) then
             begin
@@ -2472,7 +2472,7 @@ begin
           else
             LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [aArrElem[2], aTilesS[I]]));
 
-          if (TryStrToInt(aArrElem[3], aParsedValue)) then
+          if (TryStrToInt(string(PChar(aArrElem[3])), aParsedValue)) then
           begin
             if (aParsedValue >= 0) then
             begin
@@ -2484,7 +2484,7 @@ begin
           else
             LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [aArrElem[3], aTilesS[I]]));
 
-          if (TryStrToInt(aArrElem[4], aParsedValue)) then
+          if (TryStrToInt(string(PChar(aArrElem[4])), aParsedValue)) then
           begin
             if (aParsedValue >= 0) then
             begin
@@ -2496,7 +2496,7 @@ begin
           else
             LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [aArrElem[4], aTilesS[I]]));
 
-          if (TryStrToInt(aArrElem[5], aParsedValue)) then
+          if (TryStrToInt(string(PChar(aArrElem[5])), aParsedValue)) then
           begin
             if (aParsedValue >= 0) then
             begin
