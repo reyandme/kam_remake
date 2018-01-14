@@ -371,6 +371,10 @@ begin
 
   gTerrain.ResetLand(aIndex);
 
+  gHands.Hands[aIndex].AI.Goals.Clear;
+
+  gHands.Hands[aIndex].AI.General.Attacks.Clear;
+
   gHands.Hands[aIndex].AI.General.DefencePositions.Clear;
 
 end;

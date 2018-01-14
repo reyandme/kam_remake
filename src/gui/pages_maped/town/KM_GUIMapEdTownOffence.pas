@@ -16,7 +16,6 @@ type
     procedure Attacks_ListClick(Sender: TObject);
     procedure Attacks_ListDoubleClick(Sender: TObject);
     procedure Attacks_OnDone(Sender: TObject);
-    procedure Attacks_Refresh;
     procedure AutoAttackClick(Sender: TObject);
     procedure SetAttackPopUp(aValue: TKMMapEdTownAttack);
   protected
@@ -33,6 +32,8 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
+
+    procedure Attacks_Refresh;
   end;
 
 
