@@ -104,7 +104,7 @@ begin
          end;
       6: begin
           // Put him in the school, so if it is destroyed while he is looking for place to exit he is placed somewhere
-          fUnit.SetInHouse(fSchool);
+          fUnit.InHouse := fSchool;
           SetActionGoIn(ua_Walk, gd_GoOutside, fSchool);
           fSchool.UnitTrainingComplete(fUnit);
           if Assigned(fUnit.OnUnitTrained) then

@@ -397,7 +397,7 @@ begin
   if not (aUnit is TKMUnitWarrior) then
     gScriptEvents.ProcUnitTrained(aUnit);
 
-  fStats.UnitCreated(aUnit.UnitType, True);
+  fStats.UnitCreated(aUnit.UnitType, True, (aUnit.InHouse <> nil) and (aUnit.InHouse.HouseType = ht_TownHall));
 end;
 
 

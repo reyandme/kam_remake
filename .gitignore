@@ -10,11 +10,16 @@
 *.or
 *.a
 *.rsj
+*.dcu
+*.ini
+*.stat
+*.rar
+*.log.txt
+bugreport.txt
 /bat/bat_rsvars_local.bat
 /KaM_Remake.drc
 /KaM_Remake.map
 /KaM_Remake.res
-/KaM_Remake_Settings.ini
 /Saves
 /SavesMP
 /SpriteResource/gui.rx
@@ -40,3 +45,7 @@ __recovery
 *.tvsconfig
 /Utils/*/*.dll
 /Utils/*/*.res
+/Utils/*/*.map
+/Utils/*/*.drc
+/Test*/*.res
+/Utils/*/KaM_Remake_Server_Status.*

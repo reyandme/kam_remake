@@ -151,7 +151,7 @@ const
 
   //TownHall units troops cost (number of gold chests needed)
   TH_TroopCost: array[0..5] of Byte = (
-    2, 2, 2, 4, 6, 6
+    3, 3, 3, 5, 10, 10
   );
 
   //The frame shown when a unit is standing still in ua_Walk. Same for all units!
@@ -389,7 +389,7 @@ end;
 function TKMUnitSpec.GetUnitName: UnicodeString;
 begin
   case fUnitType of
-    ut_Any:             Result := 'All'; //Todo translate
+    ut_Any:             Result := gResTexts[TX_UNITS_ALL];
     ut_None:            Result := 'N/A';
     else                Result := gResTexts[GetUnitTextID];
   end;
@@ -417,6 +417,8 @@ begin
 
   fCRC := LoadUnitsDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
   fItems[ut_HorseScout].fUnitDat.Sight := 16;
+  fItems[ut_Horseman].fUnitDat.Attack := 35;
+  fItems[ut_Peasant].fUnitDat.AttackHorse := 55;
   //ExportCSV(ExeDir+'units.csv');
 end;
 

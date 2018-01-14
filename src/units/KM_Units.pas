@@ -95,6 +95,7 @@ type
     procedure SetCondition(aValue: Integer);
     function CanAccessHome: Boolean;
 
+    procedure SetInHouse(aInHouse: TKMHouse);
     procedure UpdateThoughts;
     function UpdateVisibility: Boolean;
     procedure UpdateHitPoints;
@@ -162,8 +163,7 @@ type
     property  HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
     property  Visible: Boolean read fVisible write fVisible;
-    procedure SetInHouse(aInHouse: TKMHouse);
-    property  GetInHouse: TKMHouse read fInHouse;
+    property  InHouse: TKMHouse read fInHouse write SetInHouse;
     property  IsDead: Boolean read fIsDead;
     function  IsDeadOrDying: Boolean;
     property  GetPosition: TKMPoint read fCurrPosition;

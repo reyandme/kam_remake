@@ -237,7 +237,7 @@ begin
       Label_MP_PT_Times.FontColor := clMPSrvDetailsGameInfoFont;
       Label_MP_GameTime := TKMLabel.Create(Panel_MPServerDetails, 8, 90, 304, 20, '', fnt_Metal, taRight);
       Label_MP_GameTime.FontColor := clMPSrvDetailsGameInfoFont;
-      Label_MP_Map_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 110, 304, 20, 'Map:', fnt_Outline, taLeft); //Todo: translate
+      Label_MP_Map_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 110, 304, 20, gResTexts[TX_WORD_MAP] + ':', fnt_Outline, taLeft);
       Label_MP_MapName := TKMLabel.Create(Panel_MPServerDetails, 8, 130, 304, 20, '', fnt_Metal, taLeft);
       Label_MP_PlayerList_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 150, 304, 20, gResTexts[TX_MP_MENU_PLAYER_LIST], fnt_Outline, taLeft);
 

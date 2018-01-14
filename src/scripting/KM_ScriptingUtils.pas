@@ -275,7 +275,7 @@ begin
   try
     if (Length(aArray) > 0) and (aIndex in [Low(aArray)..High(aArray)]) then
     begin
-      Delete(aArray, aIndex, 1);
+      DeleteFromArray(aArray, aIndex);
       Result := aArray;
     end;
   except
@@ -294,7 +294,7 @@ begin
   try
     if (Length(aArray) > 0) and (aIndex in [Low(aArray)..High(aArray)]) then
     begin
-      Delete(aArray, aIndex, 1);
+      DeleteFromArray(aArray, aIndex);
       Result := aArray;
     end;
   except

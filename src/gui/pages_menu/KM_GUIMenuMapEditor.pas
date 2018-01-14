@@ -203,7 +203,7 @@ begin
       Button_MapMove.OnClick := MoveClick;
       Button_MapMove.Hide;
 
-      Button_MapRename := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, 'Rename Map', bsMenu); //Todo translate
+      Button_MapRename := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, gResTexts[TX_MENU_MAP_RENAME], bsMenu);
       Button_MapRename.Anchors := [anLeft, anBottom];
       Button_MapRename.OnClick := RenameClick;
 
@@ -289,7 +289,7 @@ begin
         Label_MapMoveConfirmTitle := TKMLabel.Create(PopUp_Move, PopUp_Move.Width div 2, 40, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], fnt_Outline, taCenter);
         Label_MapMoveConfirmTitle.Anchors := [anLeft, anBottom];
 
-        Label_MapMoveName := TKMLabel.Create(PopUp_Move, 25, 75, 60, 20, 'Name', fnt_Metal, taLeft); // Todo translate
+        Label_MapMoveName := TKMLabel.Create(PopUp_Move, 25, 75, 60, 20, gResTexts[TX_MENU_MAP_MOVE_NAME_TITLE], fnt_Metal, taLeft);
         Label_MapMoveName.Anchors := [anLeft,anBottom];
 
         Edit_MapMove := TKMEdit.Create(PopUp_Move, 105, 72, 275, 20, fnt_Grey);

@@ -83,11 +83,11 @@ begin
   CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 250, 130, 180, 20, gResTexts[TX_MAPED_VIEW_DEPOSISTS], fnt_Antiqua);
   CheckBox_ShowDeposits.Checked := True; //Enabled by default
   CheckBox_ShowDeposits.OnClick := Extra_Change;
-  CheckBox_ShowTileOwners := TKMCheckBox.Create(Panel_Extra, 250, 150, 180, 20, 'Show tile owners', fnt_Antiqua); //Todo translate
+  CheckBox_ShowTileOwners := TKMCheckBox.Create(Panel_Extra, 250, 150, 180, 20, gResTexts[TX_MAPED_SHOW_TILE_OWNERS], fnt_Antiqua);
   CheckBox_ShowTileOwners.Checked := False; //Disabled by default
   CheckBox_ShowTileOwners.OnClick := Extra_Change;
 
-  CheckBox_ShowTilesGrid := TKMCheckBox.Create(Panel_Extra, 50, 150, 180, 20, 'Show tiles grid', fnt_Antiqua); //Todo translate
+  CheckBox_ShowTilesGrid := TKMCheckBox.Create(Panel_Extra, 50, 150, 180, 20, gResTexts[TX_MAPED_SHOW_TILES_GRID], fnt_Antiqua);
   CheckBox_ShowTilesGrid.Checked := False; //Disabled by default
   CheckBox_ShowTilesGrid.OnClick := Extra_Change;
 

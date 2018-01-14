@@ -80,6 +80,7 @@ type
 
     function GetGameTickDuration: Single;
     procedure GameSpeedChanged(aFromSpeed, aToSpeed: Single);
+    function GetControlledHandIndex: TKMHandIndex;
   public
     PathOpenEditableMission: UnicodeString;
     PlayOnState: TGameResultMsg;
@@ -145,8 +146,11 @@ type
     property CampaignMap: Byte read fCampaignMap;
     property GameSpeed: Single read fGameSpeed;
     property GameTickDuration: Single read GetGameTickDuration;
-    function PlayerLoc: Byte;
-    function PlayerColor: Cardinal;
+
+    function PlayerLoc: Byte; //Can used in SP game/replay only
+    function PlayerColor: Cardinal; //Can used in SP game/replay only
+
+    property ControlledHandIndex: TKMHandIndex read GetControlledHandIndex;
 
     property Scripting: TKMScripting read fScripting;
     property GameMode: TGameMode read fGameMode;
@@ -731,11 +735,12 @@ begin
     end;
   end;
 
-  for I := 1 to gGameApp.GameSettings.AutosaveCount do //All autosaves
+  for I := 1 to Min(gGameApp.GameSettings.AutosaveCount, AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX) do //Add autosaves
   begin
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_REPLAY, IsMultiplayer));
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_BASE, IsMultiplayer));
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MAIN, IsMultiplayer));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MP_MINIMAP, IsMultiplayer));
   end;
 
   gLog.AddTime('Crash report created');
@@ -792,7 +797,7 @@ end;
 procedure TKMGame.PlayerVictory(aPlayerIndex: TKMHandIndex);
 begin
   if IsMultiplayer then
-    fNetworking.PostLocalMessage(Format('%s has won!', //Todo translate
+    fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_WON],
       [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
 
   if fGameMode = gmMultiSpectate then
@@ -811,6 +816,12 @@ begin
   end
   else
     RequestGameHold(gr_Win);
+end;
+
+
+function TKMGame.PlayerLoc: Byte;
+begin
+  Result := gMySpectator.HandIndex;
 end;
 
 
@@ -847,12 +858,6 @@ begin
                           [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
     //We have not thought of anything to display on players defeat in Replay
   end;
-end;
-
-
-function TKMGame.PlayerLoc: Byte;
-begin
-  Result := gMySpectator.HandIndex;
 end;
 
 
@@ -1285,6 +1290,15 @@ begin
 end;
 
 
+//Return Controlled hand index in game or -1, if there is no one (spectator/replay/maped)
+function TKMGame.GetControlledHandIndex: TKMHandIndex;
+begin
+  Result := -1;
+  if fGameMode in [gmSingle, gmCampaign, gmMulti] then
+    Result := gMySpectator.HandIndex;
+end;
+
+
 procedure TKMGame.SetIsPaused(aValue: Boolean);
 begin
   fIsPaused := aValue;
@@ -1609,6 +1623,7 @@ begin
     if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     begin
       DeleteFile(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer));
+      ForceDirectories(SavePath('basesave', IsMultiplayer)); //basesave directory could not exist at this moment, if this is the first game ever, f.e.
       KMCopyFile(ChangeFileExt(aPathName, EXT_SAVE_BASE_DOT), SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer));
     end;
 

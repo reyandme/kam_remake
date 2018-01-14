@@ -11,6 +11,7 @@ type
   TKMLogMessageType = (
     lmt_Default,            //default type
     lmt_Delivery,           //delivery messages
+    lmt_Commands,           //all GIC commands
     lmt_NetConnection,      //messages about net connection/disconnection/reconnection
     lmt_NetPacketOther,     //log messages about net packets (all packets, except GIP commands/ping/fps)
     lmt_NetPacketCommand,   //log messages about GIP commands net packets
@@ -48,6 +49,7 @@ type
     procedure AddTime(const aText: UnicodeString; Res: boolean); overload;
     procedure AddTime(a, b: integer); overload;
     procedure LogDelivery(const aText: UnicodeString);
+    procedure LogCommands(const aText: UnicodeString);
     procedure LogNetConnection(const aText: UnicodeString);
     procedure LogNetPacketOther(const aText: UnicodeString);
     procedure LogNetPacketCommand(const aText: UnicodeString);
@@ -257,6 +259,13 @@ begin
   if Self = nil then Exit;
 
   AddLineTime(aText, lmt_Delivery);
+end;
+
+
+procedure TKMLog.LogCommands(const aText: UnicodeString);
+begin
+  if Self = nil then Exit;
+  AddLineTime(aText, lmt_Commands);
 end;
 
 

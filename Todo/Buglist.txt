@@ -214,7 +214,7 @@ Improvements:
  +  L Allow to rotate tiles on the map like in Krom's editor
  +  L Add a button into barracks and woodcutters UI to allow to set a rally/cutting point
  +    Its possible to add many units at once by hold LMB and mouse move (mouse drag)
- +    Added ability to set up house delivery mode/repair mode/cloed for worker mode
+ +    Added ability to set up house delivery mode/repair mode/closed for worker mode
  +    Added new layer - show tile owner (for corn/wine/roads)
  +    Default colors for map were changed a little bit. Second black color was replaced with purple
  +    New ability to set corn/wine stage
