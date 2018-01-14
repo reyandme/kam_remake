@@ -1062,5 +1062,6 @@
 1111:New map size:
 1112:Resize Map
 1113:Clear
-1114:Clear Player %d
-1115:Are you sure you want to clear the player?|All his data will be erased!
+1114:Delete Player %d
+1115:Clear Player %d
+1116:Are you sure you want to clear the player?|All his data will be erased!

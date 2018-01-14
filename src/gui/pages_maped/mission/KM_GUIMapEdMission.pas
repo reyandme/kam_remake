@@ -27,6 +27,7 @@ type
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
+    property MissionPlayers: TKMMapEdMissionPlayers read fGuiMissionPlayers;
     procedure Show(aPage: TKMMissionTab);
     procedure ShowIndex(aIndex: Byte);
     function Visible(aPage: TKMMissionTab): Boolean; overload;

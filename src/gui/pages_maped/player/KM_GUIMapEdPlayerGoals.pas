@@ -17,6 +17,7 @@ type
     procedure Goals_ListClick(Sender: TObject);
     procedure Goals_ListDoubleClick(Sender: TObject);
     procedure Goals_OnDone(Sender: TObject);
+    procedure Goals_Refresh;
   protected
     Panel_Goals: TKMPanel;
     ColumnBox_Goals: TKMColumnBox;
@@ -30,8 +31,6 @@ type
     procedure Show;
     function Visible: Boolean;
     procedure Hide;
-
-    procedure Goals_Refresh;
   end;
 
 

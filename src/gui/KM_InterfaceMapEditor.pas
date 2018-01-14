@@ -62,8 +62,6 @@ type
     procedure Message_Click(Sender: TObject);
     procedure ChangeOwner_Click(Sender: TObject);
     procedure UniversalEraser_Click(Sender: TObject);
-    procedure PlayerClear_Click(Sender: TObject);
-    procedure PlayerClearConfirm(aVisible: Boolean);
 
     procedure UpdateCursor(X, Y: Integer; Shift: TShiftState);
     procedure Main_ButtonClick(Sender: TObject);
@@ -90,11 +88,6 @@ type
     Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
     Button_ChangeOwner: TKMButtonFlat;
     Button_UniversalEraser: TKMButtonFlat;
-
-    PopUp_Confirm_PlayerClear: TKMPopUpMenu;
-    Image_Confirm_PlayerClear: TKMImage;
-    Button_PlayerClear, Button_PlayerClearConfirm, Button_PlayerClearCancel: TKMButton;
-    Label_PlayerClearConfirmTitle, Label_PlayerClearConfirm: TKMLabel;
 
     Label_Stat,Label_Hint: TKMLabel;
     Bevel_HintBG: TKMBevel;
@@ -171,18 +164,18 @@ begin
   TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
   for I := 0 to MAX_HANDS - 1 do
   begin
-    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 6 + (I mod 6)*22, 208 + 23*(I div 6), 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
+    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, TB_PAD + (I mod 6)*24, 208 + 24*(I div 6), 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
     Button_PlayerSelect[I].Tag     := I;
     Button_PlayerSelect[I].OnClick := Player_ActiveClick;
   end;
   Button_PlayerSelect[0].Down := True; //First player selected by default
 
-  Button_ChangeOwner := TKMButtonFlat.Create(Panel_Main, 141, 203, 26, 26, 662);
+  Button_ChangeOwner := TKMButtonFlat.Create(Panel_Main, TB_WIDTH - 26 + TB_PAD, 203, 26, 26, 662);
   Button_ChangeOwner.Down := False;
   Button_ChangeOwner.OnClick := ChangeOwner_Click;
   Button_ChangeOwner.Hint := gResTexts[TX_MAPED_PAINT_BUCKET_CH_OWNER];
 
-  Button_UniversalEraser := TKMButtonFlat.Create(Panel_Main, 141, 231, 26, 26, 340);
+  Button_UniversalEraser := TKMButtonFlat.Create(Panel_Main, TB_WIDTH - 26 + TB_PAD, 231, 26, 26, 340);
   Button_UniversalEraser.Down := False;
   Button_UniversalEraser.OnClick := UniversalEraser_Click;
   Button_UniversalEraser.Hint := GetHintWHotKey(TX_MAPED_UNIVERSAL_ERASER, SC_MAPEDIT_UNIV_ERASOR);
@@ -249,34 +242,6 @@ begin
   Bevel_HintBG.Anchors := [anLeft, anBottom];
   Label_Hint := TKMLabel.Create(Panel_Main, 224 + 36, Panel_Main.Height - 21, 0, 0, '', fnt_Outline, taLeft);
   Label_Hint.Anchors := [anLeft, anBottom];
-
-  Button_PlayerClear := TKMButton.Create(Panel_Main, 169, 217, 26, 26, '[$0000FF]X', bsGame);
-  Button_PlayerClear.OnClick := PlayerClear_Click;
-
-  PopUp_Confirm_PlayerClear := TKMPopUpMenu.Create(Panel_Main, 400);
-  PopUp_Confirm_PlayerClear.Height := 200;
-  PopUp_Confirm_PlayerClear.AnchorsCenter;
-  PopUp_Confirm_PlayerClear.Left := (Panel_Main.Width div 2) - (PopUp_Confirm_PlayerClear.Width div 2);
-  PopUp_Confirm_PlayerClear.Top := (Panel_Main.Height div 2) - 90;
-
-    TKMBevel.Create(PopUp_Confirm_PlayerClear, -1000,  -1000, 4000, 4000);
-
-    Image_Confirm_PlayerClear := TKMImage.Create(PopUp_Confirm_PlayerClear, 0, 0, PopUp_Confirm_PlayerClear.Width, PopUp_Confirm_PlayerClear.Height, 15, rxGuiMain);
-    Image_Confirm_PlayerClear.ImageStretch;
-
-    Label_PlayerClearConfirmTitle := TKMLabel.Create(PopUp_Confirm_PlayerClear, PopUp_Confirm_PlayerClear.Width div 2, 40, Format(gResTexts[TX_NENU_PLAYER_CLEAR], [0]), fnt_Outline, taCenter);
-    Label_PlayerClearConfirmTitle.Anchors := [anLeft, anBottom];
-
-    Label_PlayerClearConfirm := TKMLabel.Create(PopUp_Confirm_PlayerClear, PopUp_Confirm_PlayerClear.Width div 2, 85, gResTexts[TX_NENU_PLAYER_CLEAR_CONFIRM], fnt_Metal, taCenter);
-    Label_PlayerClearConfirm.Anchors := [anLeft, anBottom];
-
-    Button_PlayerClearConfirm := TKMButton.Create(PopUp_Confirm_PlayerClear, 20, 155, 170, 30, gResTexts[TX_WORD_CLEAR], bsMenu);
-    Button_PlayerClearConfirm.Anchors := [anLeft, anBottom];
-    Button_PlayerClearConfirm.OnClick := PlayerClear_Click;
-
-    Button_PlayerClearCancel  := TKMButton.Create(PopUp_Confirm_PlayerClear, PopUp_Confirm_PlayerClear.Width - 190, 155, 170, 30, gResTexts[TX_WORD_CANCEL], bsMenu);
-    Button_PlayerClearCancel.Anchors := [anLeft, anBottom];
-    Button_PlayerClearCancel.OnClick := PlayerClear_Click;
 
   fMyControls.OnHint := DisplayHint;
 
@@ -566,45 +531,13 @@ begin
 end;
 
 
-procedure TKMapEdInterface.PlayerClearConfirm(aVisible: Boolean);
-begin
-  if aVisible then
-  begin
-    Label_PlayerClearConfirmTitle.Caption := Format(gResTexts[TX_NENU_PLAYER_CLEAR], [gMySpectator.HandIndex + 1]);
-    PopUp_Confirm_PlayerClear.Show;
-
-  end else begin
-    PopUp_Confirm_PlayerClear.Hide;
-
-  end;
-end;
-
-
-procedure TKMapEdInterface.PlayerClear_Click(Sender: TObject);
-begin
-
-  if Sender = Button_PlayerClear then
-    PlayerClearConfirm(True);
-
-  if Sender = Button_PlayerClearCancel then
-    PlayerClearConfirm(False);
-
-  if Sender = Button_PlayerClearConfirm then
-  begin
-    gGame.MapEditor.ClearObjectsPlayer(gMySpectator.HandIndex);
-    fGuiPlayer.GuiPlayerGoals.Goals_Refresh;
-    fGuiTown.GuiOffence.Attacks_Refresh;
-    PlayerClearConfirm(False);
-  end;
-end;
-
-
 //Active player can be set either from buttons clicked or by selecting a unit or a house
 procedure TKMapEdInterface.Player_SetActive(aIndex: TKMHandIndex);
 var
   I: Integer;
 begin
   gMySpectator.HandIndex := aIndex;
+  fGuiMission.MissionPlayers.ChangePlayer;
 
   for I := 0 to MAX_HANDS - 1 do
     Button_PlayerSelect[I].Down := (I = gMySpectator.HandIndex);

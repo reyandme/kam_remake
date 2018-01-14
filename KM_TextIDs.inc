@@ -1110,5 +1110,7 @@ TX_WORD_REPLAY = 1103; //Replay
 TX_WORD_PLAYERS = 1104; //Players
 TX_WORD_TEAMS = 1105; //Teams
 
-TX_NENU_PLAYER_CLEAR = 1114; //Clear Player
-TX_NENU_PLAYER_CLEAR_CONFIRM = 1115; //Are you sure you want to clear the player?
+TX_NENU_PLAYER_CLEAR = 1114; //Button / Clear Player
+
+TX_NENU_PLAYER_CLEAR_TITLE = 1115; // Title / Clear Player
+TX_NENU_PLAYER_CLEAR_CONFIRM = 1116; //Are you sure you want to clear the player?

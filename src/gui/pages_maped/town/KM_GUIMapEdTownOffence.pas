@@ -18,6 +18,7 @@ type
     procedure Attacks_OnDone(Sender: TObject);
     procedure AutoAttackClick(Sender: TObject);
     procedure SetAttackPopUp(aValue: TKMMapEdTownAttack);
+    procedure Attacks_Refresh;
   protected
     Panel_Offence: TKMPanel;
     CheckBox_AutoAttack: TKMCheckBox;
@@ -32,8 +33,6 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
-
-    procedure Attacks_Refresh;
   end;
 
 
