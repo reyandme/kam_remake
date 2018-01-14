@@ -89,7 +89,12 @@ type
     Button_PlayerSelect: array [0..MAX_HANDS-1] of TKMFlatButtonShape; //Animals are common for all
     Button_ChangeOwner: TKMButtonFlat;
     Button_UniversalEraser: TKMButtonFlat;
-    Button_PlayerClear: TKMButton;
+
+    PopUp_Confirm_PlayerClear: TKMPopUpMenu;
+    Image_Confirm_PlayerClear: TKMImage;
+    Button_PlayerClear, Button_PlayerClearConfirm, Button_PlayerClearCancel: TKMButton;
+    Label_PlayerClearConfirmTitle, Label_PlayerClearConfirm: TKMLabel;
+
     Label_Stat,Label_Hint: TKMLabel;
     Bevel_HintBG: TKMBevel;
 
@@ -183,6 +188,33 @@ begin
 
   Button_PlayerClear := TKMButton.Create(Panel_Main, 169, 217, 26, 26, '[$0000FF]X', bsGame);
   Button_PlayerClear.OnClick := PlayerClear_Click;
+
+  PopUp_Confirm_PlayerClear := TKMPopUpMenu.Create(Panel_Main, 600);
+  PopUp_Confirm_PlayerClear.Height := 200;
+  PopUp_Confirm_PlayerClear.AnchorsCenter;
+  PopUp_Confirm_PlayerClear.Left := (Panel_Main.Width div 2) - (PopUp_Confirm_PlayerClear.Width div 2);
+  PopUp_Confirm_PlayerClear.Top := (Panel_Main.Height div 2) - 90;
+
+    TKMBevel.Create(PopUp_Confirm_PlayerClear, -1000,  -1000, 4000, 4000);
+
+    Image_Confirm_PlayerClear := TKMImage.Create(PopUp_Confirm_PlayerClear, 0, 0, PopUp_Confirm_PlayerClear.Width, PopUp_Confirm_PlayerClear.Height, 15, rxGuiMain);
+    Image_Confirm_PlayerClear.ImageStretch;
+
+    Label_PlayerClearConfirmTitle := TKMLabel.Create(PopUp_Confirm_PlayerClear, PopUp_Confirm_PlayerClear.Width div 2, 40, 'Player Clear', fnt_Outline, taCenter);
+    Label_PlayerClearConfirmTitle.Anchors := [anLeft, anBottom];
+
+    Label_PlayerClearConfirm := TKMLabel.Create(PopUp_Confirm_PlayerClear, PopUp_Confirm_PlayerClear.Width div 2, 85, 'Вы уверены что хотите очистить объекты выбранного игрока?', fnt_Metal, taCenter);
+    Label_PlayerClearConfirm.Anchors := [anLeft, anBottom];
+
+    Button_PlayerClearConfirm := TKMButton.Create(PopUp_Confirm_PlayerClear, 20, 155, 195, 30, 'Yes', bsMenu);
+    Button_PlayerClearConfirm.Anchors := [anLeft, anBottom];
+    //Button_PlayerClearConfirm.OnClick := DeleteClick;
+
+    Button_PlayerClearCancel  := TKMButton.Create(PopUp_Confirm_PlayerClear, PopUp_Confirm_PlayerClear.Width - 215, 155, 195, 30, 'No', bsMenu);
+    Button_PlayerClearCancel.Anchors := [anLeft, anBottom];
+    //Button_PlayerClearCancel.OnClick := DeleteClick;
+
+  //PopUp_Confirm_PlayerClear.Show;
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [anLeft, anBottom];
