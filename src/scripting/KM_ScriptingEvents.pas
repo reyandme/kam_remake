@@ -76,7 +76,7 @@ type
     procedure ProcFieldBuilt(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: TKMHandIndex; aX, aY: Word);
     procedure ProcHouseBuilt(aHouse: TKMHouse);
-    procedure ProcHousePlanDigged(aHouse: integer);
+    procedure ProcHousePlanDigged(aHouse: Integer);
     procedure ProcHousePlanPlaced(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHousePlanRemoved(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
@@ -362,7 +362,7 @@ end;
 
 //* Version: 7000+
 //* Occurs when house plan is digged.
-procedure TKMScriptEvents.ProcHousePlanDigged(aHouse:integer);
+procedure TKMScriptEvents.ProcHousePlanDigged(aHouse: Integer);
 begin
   if MethodAssigned(fProcHousePlanDigged) then
     DoProc(fProcHousePlanDigged, [aHouse]);
