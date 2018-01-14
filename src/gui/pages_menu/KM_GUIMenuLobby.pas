@@ -410,7 +410,9 @@ begin
         Label_LobbyPlayer[I] := TKMLabel.Create(Panel_LobbyPlayers, C1, OffY+2, 150, 20, '', fnt_Grey, taLeft);
         Label_LobbyPlayer[I].Hide;
 
-        TxtWidth := gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings(['All', 'All', 'All']); //Todo translate
+        TxtWidth := gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings([gResTexts[TX_LOBBY_SLOT_OPEN_ALL],
+                                                                    gResTexts[TX_LOBBY_SLOT_CLOSED_ALL],
+                                                                    gResTexts[TX_LOBBY_SLOT_AI_ALL]]);
         DropWidth := Max(150, 110 + TxtWidth);
         DropBox_LobbyPlayerSlot[I] := TKMDropColumns.Create(Panel_LobbyPlayers, C1, OffY, 150, 20, fnt_Grey, '', bsMenu, False);
         DropBox_LobbyPlayerSlot[I].DropWidth := DropWidth;
@@ -420,14 +422,14 @@ begin
         DropBox_LobbyPlayerSlot[I].List.Columns[1].TriggerOnChange := False;
         if I <= MAX_LOBBY_PLAYERS then
         begin
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate //Player can join into this slot
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate  //Closed, nobody can join it
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_AI_PLAYER], 'All'], I)); //Todo translate  //This slot is an AI player
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], gResTexts[TX_LOBBY_SLOT_OPEN_ALL]], I)); //Player can join into this slot
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], gResTexts[TX_LOBBY_SLOT_CLOSED_ALL]], I)); //Closed, nobody can join it
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_AI_PLAYER], gResTexts[TX_LOBBY_SLOT_AI_ALL]], I)); //This slot is an AI player
         end
         else
         begin
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], 'All'], I)); //Todo translate
-          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], 'All'], I)); //Todo translate
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_OPEN], gResTexts[TX_LOBBY_SLOT_OPEN_ALL]], I));
+          DropBox_LobbyPlayerSlot[I].Add(MakeRow([gResTexts[TX_LOBBY_SLOT_CLOSED], gResTexts[TX_LOBBY_SLOT_CLOSED_ALL]], I));
         end;
         DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[I].OnChange := PlayersSetupChange;
@@ -590,8 +592,8 @@ begin
     [gResTexts[TX_LOBBY_PLAYER_KICK], 
     gResTexts[TX_LOBBY_PLAYER_BAN], 
     gResTexts[TX_LOBBY_PLAYER_SET_HOST], 
-    'Mute player',    //todo translate
-    'Unmute player']) //todo translate
+    gResTexts[TX_MUTE_PLAYER],
+    gResTexts[TX_UNMUTE_PLAYER]])
     + 10);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_KICK]);
   Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_BAN]);
@@ -599,9 +601,10 @@ begin
   Menu_Host.AddItem('');
   Menu_Host.OnClick := HostMenuClick;
 
-  Menu_Joiner := TKMPopUpMenu.Create(aParent, gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings( // Calc max width for popup which depends of texts translation
-    ['Mute player',   //todo translate
-    'Unmute player']) //todo translate
+  // Calc max width for popup which depends of texts translation
+  Menu_Joiner := TKMPopUpMenu.Create(aParent, gRes.Fonts[fnt_Grey].GetMaxPrintWidthOfStrings(
+    [gResTexts[TX_MUTE_PLAYER],
+     gResTexts[TX_UNMUTE_PLAYER]])
     + 10);
   Menu_Joiner.AddItem('');
   Menu_Joiner.OnClick := JoinerMenuClick;
@@ -625,10 +628,10 @@ begin
     TKMLabel.Create(Panel_LobbySettings, 20, 100, 280, 20, gResTexts[TX_LOBBY_ROOM_PASSWORD], fnt_Outline, taCenter);
     Edit_LobbyPassword := TKMEdit.Create(Panel_LobbySettings, 20, 120, 280, 20, fnt_Grey);
     Edit_LobbyPassword.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
-    Checkbox_LobbyRememberPassword := TKMCheckbox.Create(Panel_LobbySettings, 20, 153, 300, 30, 'Remember this password', fnt_Grey); //Todo: translate
+    Checkbox_LobbyRememberPassword := TKMCheckbox.Create(Panel_LobbySettings, 20, 153, 300, 30, gResTexts[TX_LOBBY_REMEMBER_PASSWORD], fnt_Grey);
 
     Button_LobbySettingsResetBans := TKMButton.Create(Panel_LobbySettings, 20, 180, 280, 30, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
-    Button_LobbySettingsUseLastPassword := TKMButton.Create(Panel_LobbySettings, 20, 220, 280, 30, 'Use last known password', bsMenu); //Todo: translate
+    Button_LobbySettingsUseLastPassword := TKMButton.Create(Panel_LobbySettings, 20, 220, 280, 30, gResTexts[TX_LOBBY_USE_LAST_PASSWORD], bsMenu);
     Button_LobbySettingsResetBans.OnClick := SettingsClick;
     Button_LobbySettingsUseLastPassword.OnClick := SettingsClick;
 
@@ -1160,9 +1163,9 @@ end;
 procedure TKMMenuLobby.UpdateMuteMenuItem(aMenu: TKMPopUpMenu; aItemIndex: Integer; aIsMuted: Boolean);
 begin
   if aIsMuted then
-    aMenu.UpdateItem(aItemIndex, 'Unmute player') //todo translate
+    aMenu.UpdateItem(aItemIndex, gResTexts[TX_UNMUTE_PLAYER])
   else
-    aMenu.UpdateItem(aItemIndex, 'Mute player'); //todo translate
+    aMenu.UpdateItem(aItemIndex, gResTexts[TX_MUTE_PLAYER]);
 end;
 
 
@@ -2202,8 +2205,8 @@ begin
     if not fNetworking.NetPlayers[RecipientNetIndex].Connected
       or fNetworking.NetPlayers[RecipientNetIndex].Dropped then
     begin
-      fNetworking.PostLocalMessage(Format('%s is not connected to game anymore.',
-                                          [fNetworking.NetPlayers[RecipientNetIndex].NiknameColored]), // Todo translate
+      fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_CHAT_PLAYER_NOT_CONNECTED_ANYMORE],
+                                          [fNetworking.NetPlayers[RecipientNetIndex].NiknameColored]),
                                     csSystem);
       ChatMenuSelect(CHAT_MENU_ALL);
     end else

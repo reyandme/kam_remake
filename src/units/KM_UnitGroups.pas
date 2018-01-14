@@ -83,6 +83,7 @@ type
     procedure CheckOrderDone;
     procedure UpdateHungerMessage;
 
+    procedure SelectNearestMember;
     procedure Member_Died(aMember: TKMUnitWarrior);
     procedure Member_PickedFight(aMember: TKMUnitWarrior; aEnemy: TKMUnit);
 
@@ -90,6 +91,7 @@ type
     function GetDirection: TKMDirection;
     function GetPosition: TKMPoint;
     procedure SetSelected(aValue: TKMUnitWarrior);
+    function GetSelected: TKMUnitWarrior;
   public
     //Each group can have initial order
     //SendGroup - walk to some location
@@ -134,7 +136,7 @@ type
     property Position: TKMPoint read GetPosition write SetPosition;
     property Direction: TKMDirection read GetDirection write SetDirection;
     property UnitsPerRow: Word read fUnitsPerRow write SetUnitsPerRow;
-    property SelectedUnit: TKMUnitWarrior read fSelected write SetSelected;
+    property SelectedUnit: TKMUnitWarrior read GetSelected write SetSelected;
     property Condition: Integer read GetCondition write SetCondition;
     property Order: TKMGroupOrder read fOrder;
     property DisableHungerMessage: Boolean read fDisableHungerMessage write fDisableHungerMessage;
@@ -560,6 +562,14 @@ begin
 end;
 
 
+function TKMUnitGroup.GetSelected: TKMUnitWarrior;
+begin
+  if fSelected = nil then
+    fSelected := FlagBearer;
+  Result := fSelected;
+end;
+
+
 procedure TKMUnitGroup.SetCondition(aValue: Integer);
 var I: Integer;
 begin
@@ -656,6 +666,19 @@ begin
 end;
 
 
+//Select nearest member for group. Or set it to nil it no other members were found
+procedure TKMUnitGroup.SelectNearestMember;
+var
+  NewSel: Integer;
+begin
+  //Transfer selection to nearest member
+  NewSel := GetNearestMember(fSelected);
+  fSelected := nil;
+  if NewSel <> -1 then
+    fSelected := Members[NewSel];
+end;
+
+
 //Member reports that he has died (or been killed)
 procedure TKMUnitGroup.Member_Died(aMember: TKMUnitWarrior);
 var
@@ -672,14 +695,7 @@ begin
   Assert(I <> -1, 'No such member');
 
   if (aMember = fSelected) then
-  begin
-    fSelected := nil;
-
-    //Transfer selection to nearest member
-    NewSel := GetNearestMember(aMember);
-    if NewSel <> -1 then
-      fSelected := Members[NewSel];
-  end;
+    SelectNearestMember;
 
   fMembers.Delete(I);
 
@@ -1343,11 +1359,18 @@ begin
       end;
 
   //Keep the selected unit Selected
-  if NewGroup.HasMember(fSelected) or aSplitSingle then
+  if not SelectedUnit.IsDeadOrDying and NewGroup.HasMember(SelectedUnit) then
   begin
-    gMySpectator.Selected := NewGroup;
     NewGroup.fSelected := fSelected;
+    SelectNearestMember; // For current group set fSelected to nearest member to its old selected
   end;
+
+  //Select single splitted unit
+  if aSplitSingle
+    and (gGame.ControlledHandIndex = NewGroup.Owner) //Only select unit for player that issued order (group owner)
+    and (gGame.ControlledHandIndex <> -1)
+    and (gMySpectator.Selected = Self) then //Selection is still on that group (in MP game there could be a delay, when player could select other target already)
+    gMySpectator.Selected := NewGroup;
 
   //Make sure units per row is still valid for both groups
   UnitsPerRow := fUnitsPerRow;

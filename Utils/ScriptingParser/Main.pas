@@ -177,6 +177,7 @@ var
   i, j, K, nextType: Integer;
   isParam: Boolean;
   listTokens, paramList, typeList: TStringList;
+  listTokensAnsiString: TAnsiStringArray;
   paramHolder: array of TParamHolder;
   lastType: string;
   charArr: TKMCharArray;
@@ -193,8 +194,10 @@ begin
     // If not set to -1 it skips the first variable
     nextType := -1;
 
-    listTokens.AddStrings(StrSplit(aString, ' '));
-
+    listTokensAnsiString := StrSplit(aString, ' ');
+    for i := Low(listTokensAnsiString) to High(listTokensAnsiString) do
+      listTokens.Add(listTokensAnsiString[i]); 
+  
     // Re-combine type arrays
     for i := 0 to listTokens.Count - 1 do
     begin
