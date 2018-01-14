@@ -1,0 +1,10 @@
+2018.01.14 11:53:05.668   Script compile errors:
+
+[Error] Unknown identifier 'InToStr'
+in 'digged.script' at [3:68]
+
+2018.01.14 11:53:24.938   Script compile errors:
+
+[Error] Invalid number of parameters
+in 'digged.script' at [3:92]
+

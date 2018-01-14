@@ -30,6 +30,7 @@ type
     fProcFieldBuilt: TMethod;
     fProcHouseAfterDestroyed: TMethod;
     fProcHouseBuilt: TMethod;
+    fProcHousePlanDigged: TMethod;
     fProcHousePlanPlaced: TMethod;
     fProcHousePlanRemoved: TMethod;
     fProcHouseDamaged: TMethod;
@@ -41,10 +42,12 @@ type
     fProcGroupOrderSplit: TMethod;
     fProcMarketTrade: TMethod;
     fProcMissionStart: TMethod;
+    fProcPlanRoadDigged: TMethod;
     fProcPlanRoadPlaced: TMethod;
     fProcPlanRoadRemoved: TMethod;
     fProcPlanFieldPlaced: TMethod;
     fProcPlanFieldRemoved: TMethod;
+    fProcPlanWinefieldDigged: TMethod;
     fProcPlanWinefieldPlaced: TMethod;
     fProcPlanWinefieldRemoved: TMethod;
     fProcPlayerDefeated: TMethod;
@@ -73,6 +76,7 @@ type
     procedure ProcFieldBuilt(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner: TKMHandIndex; aX, aY: Word);
     procedure ProcHouseBuilt(aHouse: TKMHouse);
+    procedure ProcHousePlanDigged(aHouse: integer);
     procedure ProcHousePlanPlaced(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHousePlanRemoved(aPlayer: TKMHandIndex; aX, aY: Word; aType: THouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
@@ -84,10 +88,12 @@ type
     procedure ProcGroupOrderSplit(aGroup, aNewGroup: TKMUnitGroup);
     procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: TWareType);
     procedure ProcMissionStart;
+    procedure ProcPlanRoadDigged(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlanRoadPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlanRoadRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlanFieldPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlanFieldRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
+    procedure ProcPlanWinefieldDigged(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlanWinefieldPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlanWinefieldRemoved(aPlayer: TKMHandIndex; aX, aY: Word);
     procedure ProcPlayerDefeated(aPlayer: TKMHandIndex);
@@ -155,6 +161,7 @@ begin
   fProcFieldBuilt            := fExec.GetProcAsMethodN('OnFieldBuilt');
   fProcHouseAfterDestroyed   := fExec.GetProcAsMethodN('OnHouseAfterDestroyed');
   fProcHouseBuilt            := fExec.GetProcAsMethodN('OnHouseBuilt');
+  fProcHousePlanDigged       := fExec.GetProcAsMethodN('OnHousePlanDigged');
   fProcHousePlanPlaced       := fExec.GetProcAsMethodN('OnHousePlanPlaced');
   fProcHousePlanRemoved      := fExec.GetProcAsMethodN('OnHousePlanRemoved');
   fProcHouseDamaged          := fExec.GetProcAsMethodN('OnHouseDamaged');
@@ -166,10 +173,12 @@ begin
   fProcGroupOrderSplit       := fExec.GetProcAsMethodN('OnGroupOrderSplit');
   fProcMarketTrade           := fExec.GetProcAsMethodN('OnMarketTrade');
   fProcMissionStart          := fExec.GetProcAsMethodN('OnMissionStart');
+  fProcPlanRoadDigged        := fExec.GetProcAsMethodN('OnPlanRoadDigged');
   fProcPlanRoadPlaced        := fExec.GetProcAsMethodN('OnPlanRoadPlaced');
   fProcPlanRoadRemoved       := fExec.GetProcAsMethodN('OnPlanRoadRemoved');
   fProcPlanFieldPlaced       := fExec.GetProcAsMethodN('OnPlanFieldPlaced');
   fProcPlanFieldRemoved      := fExec.GetProcAsMethodN('OnPlanFieldRemoved');
+  fProcPlanWinefieldDigged   := fExec.GetProcAsMethodN('OnPlanWinefieldDigged');
   fProcPlanWinefieldPlaced   := fExec.GetProcAsMethodN('OnPlanWinefieldPlaced');
   fProcPlanWinefieldRemoved  := fExec.GetProcAsMethodN('OnPlanWinefieldRemoved');
   fProcPlayerDefeated        := fExec.GetProcAsMethodN('OnPlayerDefeated');
@@ -348,6 +357,15 @@ procedure TKMScriptEvents.ProcHouseAfterDestroyed(aHouseType: THouseType; aOwner
 begin
   if MethodAssigned(fProcHouseAfterDestroyed) then
     DoProc(fProcHouseAfterDestroyed, [HouseTypeToIndex[aHouseType] - 1, aOwner, aX, aY]);
+end;
+
+
+//* Version: 7000+
+//* Occurs when house plan is digged.
+procedure TKMScriptEvents.ProcHousePlanDigged(aHouse:integer);
+begin
+  if MethodAssigned(fProcHousePlanDigged) then
+    DoProc(fProcHousePlanDigged, [aHouse]);
 end;
 
 
@@ -535,6 +553,15 @@ begin
 end;
 
 
+//* Version: 7000+
+//* Occurs when road plan is digged.
+procedure TKMScriptEvents.ProcPlanRoadDigged(aPlayer: TKMHandIndex; aX, aY: Word);
+begin
+  if MethodAssigned(fProcPlanRoadDigged) then
+    DoProc(fProcPlanRoadDigged, [aPlayer, aX, aY]);
+end;
+
+
 //* Version: 5964
 //* Occurs when player has placed a road plan.
 procedure TKMScriptEvents.ProcPlanRoadPlaced(aPlayer: TKMHandIndex; aX, aY: Word);
@@ -568,6 +595,15 @@ procedure TKMScriptEvents.ProcPlanFieldRemoved(aPlayer: TKMHandIndex; aX, aY: Wo
 begin
   if MethodAssigned(fProcPlanFieldRemoved) then
     DoProc(fProcPlanFieldRemoved, [aPlayer, aX, aY]);
+end;
+
+
+//* Version: 7000+
+//* Occurs when winefield is digged
+procedure TKMScriptEvents.ProcPlanWinefieldDigged(aPlayer: TKMHandIndex; aX, aY: Word);
+begin
+  if MethodAssigned(fProcPlanWinefieldDigged) then
+    DoProc(fProcPlanWinefieldDigged, [aPlayer, aX, aY]);
 end;
 
 
