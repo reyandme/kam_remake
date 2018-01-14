@@ -1104,13 +1104,12 @@ TX_GO_PREV_MENU = 1098; //Go previous menu
 TX_WORD_YES = 1099; //Yes
 TX_WORD_NO = 1100; //No
 TX_WORD_CANCEL = 1101; //Cancel
-TX_WORD_CLEAR  = 1113; //Clear
 TX_WORD_MAP = 1102; //Map
 TX_WORD_REPLAY = 1103; //Replay
 TX_WORD_PLAYERS = 1104; //Players
 TX_WORD_TEAMS = 1105; //Teams
 
-TX_NENU_PLAYER_CLEAR = 1114; //Button / Clear Player
+TX_MAPED_PLAYER_DELETE = 1114; //Button / Clear Player
 
-TX_NENU_PLAYER_CLEAR_TITLE = 1115; // Title / Clear Player
-TX_NENU_PLAYER_CLEAR_CONFIRM = 1116; //Are you sure you want to clear the player?
+TX_MAPED_PLAYER_DELETE_TITLE = 1115; // Title / Clear Player
+TX_MAPED_PLAYER_DELETE_CONFIRM = 1116; //Are you sure you want to clear the player?

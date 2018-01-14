@@ -65,7 +65,7 @@ type
     procedure UpdateStateIdle;
     procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
 
-    procedure ClearObjectsPlayer(aIndex: Byte);
+    procedure DeletePlayer(aIndex: TKMHandIndex);
   end;
 
 
@@ -353,7 +353,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.ClearObjectsPlayer(aIndex: Byte);
+procedure TKMMapEditor.DeletePlayer(aIndex: TKMHandIndex);
 var
   I: Integer;
 begin

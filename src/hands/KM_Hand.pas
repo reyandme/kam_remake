@@ -883,12 +883,11 @@ begin
     fUnitGroups.RemGroup(Group);
 end;
 
+
 //This is called immediately when the user clicks erase on a field plan.
 //We know that an erase command is queued and will be processed in some ticks,
 //so we AddFakeDeletedField which lets the user think the field was removed,
 //while the game does not know the difference.
-
-
 procedure TKMHand.RemFakeFieldPlan(Position: TKMPoint);
 begin
   fBuildList.FieldworksList.RemFakeField(Position); //Remove our fake marker which is shown to the user

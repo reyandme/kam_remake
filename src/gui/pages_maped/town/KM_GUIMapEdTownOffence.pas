@@ -16,9 +16,9 @@ type
     procedure Attacks_ListClick(Sender: TObject);
     procedure Attacks_ListDoubleClick(Sender: TObject);
     procedure Attacks_OnDone(Sender: TObject);
+    procedure Attacks_Refresh;
     procedure AutoAttackClick(Sender: TObject);
     procedure SetAttackPopUp(aValue: TKMMapEdTownAttack);
-    procedure Attacks_Refresh;
   protected
     Panel_Offence: TKMPanel;
     CheckBox_AutoAttack: TKMCheckBox;
