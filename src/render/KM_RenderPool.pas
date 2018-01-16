@@ -307,6 +307,9 @@ procedure TRenderPool.RenderBackgroundUI(aRect: TKMRect);
 var
   I, K: Integer;
 begin
+  //Reset Texture, just in case we forgot to do it inside some method
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
+
   if gMySpectator.Highlight is TKMHouse then
     RenderHouseOutline(TKMHouse(gMySpectator.Highlight));
 
@@ -1278,6 +1281,7 @@ begin
   Loc := aHouse.GetPosition;
   gRes.Houses[aHouse.HouseType].Outline(fHouseOutline);
 
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor3f(0, 1, 1);
   glBegin(GL_LINE_LOOP);
     with gTerrain do

@@ -83,7 +83,8 @@ uses
   function StrSubstring(const aStr: String; aFrom: Integer): String; overload;
   function StrContains(const aStr, aSubStr: String): Boolean;
   function StrTrimRight(const aStr: String; aCharsToTrim: TKMCharArray): String;
-  function StrSplit(const aStr, aDelimiters: String): TAnsiStringArray;
+  procedure StrSplit(aStr, aDelimiters: String; var aStrings: TStringList);
+  function StrSplitA(const aStr, aDelimiters: String): TAnsiStringArray;
 
   procedure DeleteFromArray(var Arr: TAnsiStringArray; const Index: Integer); overload;
   procedure DeleteFromArray(var Arr: TIntegerArray; const Index: Integer); overload;
@@ -914,9 +915,17 @@ end;
 
 
 {$IFDEF WDC}
-function StrSplit(const aStr, aDelimiters: String): TAnsiStringArray;
-var StrArray: TStringDynArray;
-    I: Integer;
+procedure StrSplit(aStr, aDelimiters: String; var aStrings: TStringList);
+var
+  StrArray: TStringDynArray;
+  I: Integer;
+begin
+  StrArray := SplitString(aStr, aDelimiters);
+  for I := Low(StrArray) to High(StrArray) do
+    aStrings.Add(StrArray[I]);
+end;
+
+function StrSplitA(const aStr, aDelimiters: String): TAnsiStringArray;
 begin
   Result := TAnsiStringArray(SplitString(aStr, aDelimiters));
 end;
@@ -924,7 +933,7 @@ end;
 
 
 {$IFDEF FPC}
-function StrSplit(const aStr, aDelimiters: string): TAnsiStringArray;
+function StrSplitA(const aStr, aDelimiters: string): TAnsiStringArray;
 var
   I: integer;
   PosDel: integer;

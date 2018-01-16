@@ -520,6 +520,7 @@ var
   begin
     if TH.GoldMaxCnt < aValue + TH.GoldCnt then
       TH.GoldMaxCnt := aValue + TH.GoldCnt;
+    aValue := TH.GoldMaxCnt - TH.GoldCnt;
     fHouse.ResAddToIn(wt_Gold, aValue);
   end else
   if aValue < 0 then

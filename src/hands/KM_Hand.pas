@@ -276,7 +276,7 @@ begin
   fStats        := TKMHandStats.Create;
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
-  fDeliveries   := TKMHandLogistics.Create;
+  fDeliveries   := TKMHandLogistics.Create(fHandIndex);
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(aHandIndex);
   fUnitGroups   := TKMUnitGroups.Create;
@@ -397,7 +397,7 @@ begin
   if not (aUnit is TKMUnitWarrior) then
     gScriptEvents.ProcUnitTrained(aUnit);
 
-  fStats.UnitCreated(aUnit.UnitType, True);
+  fStats.UnitCreated(aUnit.UnitType, True, (aUnit.InHouse <> nil) and (aUnit.InHouse.HouseType = ht_TownHall));
 end;
 
 

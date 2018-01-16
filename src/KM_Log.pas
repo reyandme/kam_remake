@@ -161,7 +161,7 @@ begin
   WriteLn(fl, '   Timestamp    Elapsed     Delta     Description');
   CloseFile(fl);
 
-  AddLineTime('Log is up and running. Game version: ' + GAME_VERSION);
+  AddLineTime('Log is up and running. Game version: ' + UnicodeString(GAME_VERSION));
 end;
 
 

@@ -17,6 +17,7 @@ type
   TTaskBuildRoad = class(TTaskBuild)
   private
     fLoc: TKMPoint;
+    fIsDigged: Boolean;
     BuildID: Integer;
     DemandSet: Boolean;
     TileLockSet: Boolean;
@@ -33,6 +34,7 @@ type
   TTaskBuildWine = class(TTaskBuild)
   private
     fLoc: TKMPoint;
+    fIsDigged: Boolean;
     BuildID: Integer;
     DemandSet: Boolean;
     TileLockSet: Boolean;
@@ -119,7 +121,8 @@ type
 
 implementation
 uses
-  KM_HandLogistics, KM_HandsCollection, KM_Resource, KM_ResMapElements, KM_ResWares, KM_Game, KM_Hand;
+  KM_HandLogistics, KM_HandsCollection, KM_Resource, KM_ResMapElements,
+  KM_ResWares, KM_Game, KM_Hand, KM_ScriptingEvents;
 
 
 { TTaskBuildRoad }
@@ -224,6 +227,11 @@ begin
     4: begin //This step is repeated until Serf brings us some stone
          SetActionLockedStay(30,ua_Work1);
          Thought := th_Stone;
+         if not fIsDigged then
+         begin
+           gScriptEvents.ProcPlanRoadDigged(Owner, fLoc.X, fLoc.Y);
+           fIsDigged := true;
+         end;
        end;
     5: begin
          SetActionLockedStay(11,ua_Work2,false);
@@ -360,6 +368,11 @@ begin
         gTerrain.SetInitWine(fLoc, Owner); //Replace the terrain, but don't seed grapes yet
         SetActionLockedStay(30, ua_Work1);
         Thought := th_Wood;
+        if not fIsDigged then
+        begin
+          gScriptEvents.ProcPlanWinefieldDigged(Owner, fLoc.X, fLoc.Y);
+          fIsDigged := true;
+        end;
       end;
    //Warning! This step value is harcoded in KM_UnitTaskDelivery
    5: begin //This step is repeated until Serf brings us some wood
@@ -691,6 +704,7 @@ begin
           SetActionWalkToSpot(OutOfWay);
           HouseNeedsWorker := False; //House construction no longer needs the worker to continue
           HouseReadyToBuild := True; //If worker gets killed while walking house will be finished without him
+          gScriptEvents.ProcHousePlanDigged(fHouse.UID);
         end;
     else
         Result := tr_TaskDone;

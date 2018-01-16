@@ -388,7 +388,7 @@ begin
 
   fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
-  fRandomCheck[Tick].OurCheck := Cardinal(KaMRandom(maxint)); //thats our CRC (must go before commands for replay compatibility)
+  fRandomCheck[Tick].OurCheck := Cardinal(KaMRandom(MaxInt)); //thats our CRC (must go before commands for replay compatibility)
 
   //Execute commands, in order players go (1,2,3..)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -396,7 +396,7 @@ begin
     begin
       if not fNetworking.NetPlayers[I].Dropped
       //Don't allow exploits like moving enemy soldiers (but maybe one day you can control disconnected allies?)
-      and ((fNetworking.NetPlayers[I].StartLocation-1 = fSchedule[Tick, I].Items[K].HandIndex)
+      and ((fNetworking.NetPlayers[I].StartLocation - 1 = fSchedule[Tick, I].Items[K].HandIndex)
            or (fSchedule[Tick, I].Items[K].CommandType in AllowedBySpectators)) then
       begin
         StoreCommand(fSchedule[Tick, I].Items[K]); //Store the command first so if Exec fails we still have it in the replay

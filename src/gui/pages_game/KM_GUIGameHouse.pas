@@ -548,6 +548,7 @@ begin
   Label_House.Width := TB_WIDTH - Label_House.Left;
 
   Image_PlayerFlag.FlagColor := gHands[aHouse.Owner].FlagColor;
+  Image_PlayerFlag.Hint      := Format(gResTexts[TX_MAPED_HOUSE_FLAG_FOR_PLAYER_HINT], [gHands[aHouse.Owner].OwnerName]);
   Image_House_Logo.TexID     := gRes.Houses[aHouse.HouseType].GUIIcon;
   Image_House_Worker.TexID   := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIIcon;
   Image_House_Worker.Hint    := gRes.Units[gRes.Houses[aHouse.HouseType].OwnerType].GUIName;

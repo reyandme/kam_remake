@@ -38,7 +38,8 @@ end;
 
 
 procedure TGameInputProcess_Single.ReplayTimer(aTick: Cardinal);
-var MyRand: Cardinal;
+var
+  MyRand: Cardinal;
 begin
   KaMRandom(MaxInt); //This is to match up with multiplayer random check generation, so multiplayer replays can be replayed in singleplayer mode
   //There are still more commands left

@@ -269,6 +269,10 @@ procedure TForm1.RefreshList;
     begin
       FromStr := Copy(aString, 1, P - 1);
       ToStr := Copy(aString, P + 1, Length(aString) - P);
+      if Trim(FromStr) = '' then //allow '-100' range: all IDs <= 100
+        FromStr := '0';
+      if Trim(ToStr) = '' then //allow '100-' range: all IDs >= 100
+        ToStr := IntToStr(MaxInt);
       if TryStrToInt(Trim(FromStr), aFrom)
         and TryStrToInt(Trim(ToStr), aTo) then
         Result := True;

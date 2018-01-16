@@ -1014,11 +1014,11 @@ begin
 
   Assert(ReplayState = gipRecording);
   Inc(fCount);
-  if Length(fQueue) <= fCount then SetLength(fQueue, fCount+128);
+  if Length(fQueue) <= fCount then SetLength(fQueue, fCount + 128);
 
   fQueue[fCount].Tick    := gGame.GameTickCount;
   fQueue[fCount].Command := aCommand;
-  fQueue[fCount].Rand    := Cardinal(KaMRandom(maxint)); //This will be our check to ensure everything is consistent
+  fQueue[fCount].Rand    := Cardinal(KaMRandom(MaxInt)); //This will be our check to ensure everything is consistent
 end;
 
 
