@@ -137,6 +137,9 @@ begin
   begin
     gGame.MapEditor.DeletePlayer(gMySpectator.HandIndex);
     PlayerDeleteConfirm(False);
+    Mission_PlayerTypesChange(CheckBox_PlayerTypes[gMySpectator.HandIndex][0]);
+    Mission_PlayerTypesChange(CheckBox_PlayerTypes[gMySpectator.HandIndex][1]);
+    Mission_PlayerTypesChange(CheckBox_PlayerTypes[gMySpectator.HandIndex][2]);
     Mission_PlayerIdUpdate;
   end;
 end;
@@ -176,7 +179,6 @@ end;
 procedure TKMMapEdMissionPlayers.Mission_PlayerIdUpdate;
 var I : integer;
 begin
-  Button_PlayerDelete.Enabled := gHands[gMySpectator.HandIndex].HasAssets;
   ChangePlayer;
 
   for I := 0 to MAX_HANDS - 1 do
@@ -190,6 +192,7 @@ end;
 
 procedure TKMMapEdMissionPlayers.ChangePlayer;
 begin
+  Button_PlayerDelete.Enabled := gHands[gMySpectator.HandIndex].HasAssets;
   Button_PlayerDelete.Caption := Format(gResTexts[TX_MAPED_PLAYER_DELETE], [gMySpectator.HandIndex + 1]);
 end;
 
