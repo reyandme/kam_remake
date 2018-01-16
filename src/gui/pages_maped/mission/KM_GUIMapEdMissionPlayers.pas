@@ -50,21 +50,21 @@ begin
   TKMLabel.Create(Panel_PlayerTypes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS_TYPE], fnt_Outline, taCenter);
   TKMLabel.Create(Panel_PlayerTypes,  4, 30, 20, 20, '#',       fnt_Grey, taLeft);
   TKMLabel.Create(Panel_PlayerTypes, 24, 30, 60, 20, gResTexts[TX_MAPED_PLAYERS_DEFAULT], fnt_Grey, taLeft);
-  TKMImage.Create(Panel_PlayerTypes,102, 30, 60, 20, 588, rxGui);
-  TKMImage.Create(Panel_PlayerTypes,164, 30, 20, 20,  62, rxGuiMain);
+  TKMImage.Create(Panel_PlayerTypes,100, 30, 60, 20, 588, rxGui);
+  TKMImage.Create(Panel_PlayerTypes,160, 30, 20, 20,  62, rxGuiMain);
   for I := 0 to MAX_HANDS - 1 do
   begin                                                         //   25
-    Label_PlayerId[i] := TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*23, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
+    Label_PlayerId[i] := TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*22, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
 
     for K := 0 to 2 do
     begin
-      CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 44+K*60, 48+I*23, 20, 20, '', fnt_Metal);
+      CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 44+K*58, 48+I*22, 20, 20, '', fnt_Metal);
       CheckBox_PlayerTypes[I,K].Tag       := I;
       CheckBox_PlayerTypes[I,K].OnClick   := Mission_PlayerTypesChange;
     end;
   end;
 
-  Button_PlayerDelete := TKMButton.Create(Panel_PlayerTypes, 4, 325, TB_WIDTH - 4, 26, Format(gResTexts[TX_MAPED_PLAYER_DELETE], [1]), bsMenu);
+  Button_PlayerDelete := TKMButton.Create(Panel_PlayerTypes, 4, 312, TB_WIDTH - 8, 26, Format(gResTexts[TX_MAPED_PLAYER_DELETE], [1]), bsMenu);
   Button_PlayerDelete.OnClick := PlayerDelete_Click;
 
   PopUp_Confirm_PlayerDelete := TKMPopUpMenu.Create(aParent.MasterParent, 400);
