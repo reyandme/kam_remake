@@ -1,0 +1,30 @@
+record
+	Mission2: record
+		LiteAlive: boolean;
+	end;
+	
+	Mission4: record
+		VillageChosen: integer;
+		VillageEscaped: integer;
+	end;
+	
+	Mission6: record
+		Town: array of AnsiString;
+	end;
+	
+	Mission8: record
+		Bowman: integer;
+		CrossBowman: integer;
+		AxeFighter: integer;
+		Knight: integer;
+		Pikeman: integer;
+	end;
+	
+	Mission9: record
+		LiteAlive: boolean;
+	end;
+	
+	Mission15: record
+		RebelsKilled: boolean;
+	end;
+end;

@@ -1,0 +1,379 @@
+{$I maputils.script}
+{$I superunits.script}
+
+type uGroupData = record
+	oldGroupId: integer;
+	newGroupId: integer;
+	oldGroupColumn: integer;
+end;
+
+var loastGoalDisplayed, tooLargeMessageDisplayed: boolean;
+var recruitsHungry: array[0..11] of integer;
+var people: array[0..8] of integer;
+var inn: array[0..1] of integer;
+var watchtowers: array[0..25] of integer;
+var uGroups: array of uGroupData;
+var rebels: array of integer;
+var variant, rpgQuest, rpgQuestTime, informer: integer;
+
+procedure Initialize;
+begin
+	MapUtilInitialize();
+
+	recruitsHungry[0] := States.UnitAt(180, 6);
+	recruitsHungry[1] := States.UnitAt(181, 6);
+	recruitsHungry[2] := States.UnitAt(182, 6);
+	recruitsHungry[3] := States.UnitAt(180, 7);
+	recruitsHungry[4] := States.UnitAt(181, 7);
+	recruitsHungry[5] := States.UnitAt(182, 7);
+	recruitsHungry[6] := States.UnitAt(178, 13);
+	recruitsHungry[7] := States.UnitAt(179, 13);
+	recruitsHungry[8] := States.UnitAt(180, 13);
+	recruitsHungry[9] := States.UnitAt(178, 14);
+	recruitsHungry[10] := States.UnitAt(179, 14);
+	recruitsHungry[11] := States.UnitAt(180, 14);
+	inn[0] := States.HouseAt(181, 4);
+	inn[1] := States.HouseAt(179, 12);
+	
+	people[0] := States.UnitAt(176,10);
+	people[1] := States.UnitAt(175,11);
+	people[2] := States.UnitAt(178,9);
+	people[3] := States.UnitAt(177,8);
+	people[4] := States.UnitAt(186,7);
+	people[5] := States.UnitAt(187,8);
+	people[6] := States.UnitAt(187,9);
+	people[7] := States.UnitAt(186,8);
+	people[8] := States.UnitAt(174,9);
+	
+	Actions.PlayWAVAtLocationLooped(0, 'market', 3, 30, 182, 8);
+	rpgQuest := 1;
+	
+	SU_RegisterSuperGroup(Actions.GiveGroup(0, 22, 186, 154, 1, 12, 4));
+	SU_RegisterSuperGroup(Actions.GiveGroup(0, 18, 189, 158, 0, 12, 4));
+	
+	Actions.PlayerShareFog(0, 6, false);
+	Actions.PlayerShareFog(0, 7, false);
+	Actions.PlayerShareFog(6, 0, false);
+	Actions.PlayerShareFog(7, 0, false);
+	Actions.FogCoverCircle(0, 218, 18, 60);
+	Actions.FogCoverCircle(0, 233, 163, 20);
+	
+	watchtowers[0] := States.HouseAt(216,35);
+	watchtowers[1] := States.HouseAt(226,35);
+	watchtowers[2] := States.HouseAt(214,39);
+	watchtowers[3] := States.HouseAt(228,39);
+	watchtowers[4] := States.HouseAt(219,12);
+	watchtowers[5] := States.HouseAt(229,16);
+	watchtowers[6] := States.HouseAt(203,101);
+	watchtowers[7] := States.HouseAt(200,97);
+	watchtowers[8] := States.HouseAt(211,101);
+	watchtowers[9] := States.HouseAt(213,97);
+	watchtowers[10] := States.HouseAt(194,102);
+	watchtowers[11] := States.HouseAt(178,89);
+	watchtowers[12] := States.HouseAt(221,102);
+	watchtowers[13] := States.HouseAt(244,46);
+	watchtowers[14] := States.HouseAt(244,60);
+	watchtowers[15] := States.HouseAt(244,86);
+	watchtowers[16] := States.HouseAt(203,34);
+	watchtowers[17] := States.HouseAt(210,65);
+	watchtowers[18] := States.HouseAt(210,68);
+	watchtowers[19] := States.HouseAt(219,66);
+	watchtowers[20] := States.HouseAt(219,69);
+	watchtowers[21] := States.HouseAt(202,56);
+	watchtowers[22] := States.HouseAt(183,56);
+	watchtowers[23] := States.HouseAt(183,65);
+	watchtowers[24] := States.HouseAt(178,50);
+	watchtowers[25] := States.HouseAt(178,70);
+end;
+
+procedure OnMissionStart;
+begin
+	loastGoalDisplayed := false;
+	tooLargeMessageDisplayed := false;
+	rpgQuest := -1;
+	rpgQuestTime := -1;
+	Initialize();
+	Actions.PlayerAddDefaultGoals(0, false);
+end;
+
+procedure HandleInn;
+var i:integer;
+begin
+	for i := 0 to 1 do begin
+		Actions.HouseAddWaresTo(inn[i], 8, 5);
+		Actions.HouseAddWaresTo(inn[i], 10, 5);
+		Actions.HouseAddWaresTo(inn[i], 13, 5);
+		Actions.HouseAddWaresTo(inn[i], 27, 5);
+	end;
+end;
+
+procedure HandleHungryRecruits;
+var i:integer;
+begin
+	for i := 0 to 11 do begin
+		Actions.UnitHungerSet(recruitsHungry[i], 2000);
+	end;
+	
+	for i := 0 to 8 do begin
+		Actions.UnitHungerSet(people[i], States.UnitMaxHunger);
+	end;
+end;
+
+procedure HandleWatchtower;
+var i:integer;
+begin
+	for i := 0 to Length(watchtowers) - 1 do begin
+		if (States.HouseDestroyed(watchtowers[i]) = false) then Actions.HouseAddWaresTo(watchtowers[i], 1, 5);
+	end;
+end;
+
+function FindNewGroup(oldGroupId:integer):integer;
+var i, j, found: integer;
+var groups: array of integer;
+begin
+	groups := States.PlayerGetAllGroups(0);
+	found := -1;
+	for i := 0 to Length(groups) - 1 do begin
+		for j := 0 to Length(uGroups) - 1 do begin
+			if ((uGroups[j].newGroupId = groups[i]) AND (uGroups[j].oldGroupId = oldGroupId)) then begin
+				found := groups[i];
+				break;
+			end;
+		end;
+		
+		if (found > 0) then break;
+	end;
+	
+	Result := found;
+end;
+
+function FindGroupFormation(groupId:integer):integer;
+var i,found:integer;
+begin
+	for i := 0 to Length(uGroups) - 1 do begin
+		if (uGroups[i].newGroupId = groupId) then begin
+			found := uGroups[i].oldGroupColumn;
+			break;
+		end;
+	end;
+	
+	Result := found;
+end;
+
+procedure EnterUnitsToTown;
+var unitId, groupId, t, movedGroupId, foundGroupId, l: integer;
+var newArray: array of uGroupData;
+var isSU: boolean;
+begin
+	unitId := States.UnitAt(233, 164);
+	if ((unitId > 0) AND (States.UnitType(unitId) < 30)) then begin
+		if (States.HouseAt(239, 43) > 0) then begin
+			groupId := States.UnitsGroup(unitId);
+			isSU := ((Length(SU_superunits) > 0) AND (Utils.ArrayHasElementI(unitId, SU_superunits)));
+			
+			if ((States.GroupMemberCount(groupId) > 1) AND (rpgQuest < 13)) then begin
+				if (tooLargeMessageDisplayed = false) then begin
+					Actions.ShowMsg(0, '<$0>');
+					tooLargeMessageDisplayed := true;
+				end;
+			end 
+			else begin
+				t := States.UnitType(unitId);
+				Actions.UnitKill(unitId, true);
+				movedGroupId := Actions.GiveGroup(0, t, 239, 44, 4, 1, 1);
+				
+				if (isSU) then SU_RegisterSuperGroup(movedGroupId);
+				
+				l := Length(uGroups);
+				foundGroupId := FindNewGroup(groupId);
+				if (foundGroupId <= 0) then begin
+					SetLength(uGroups, l + 1);
+					uGroups[l].oldGroupId := groupId;
+					uGroups[l].newGroupId := movedGroupId;
+					uGroups[l].oldGroupColumn := States.GroupColumnCount(groupId);
+				end
+				else begin
+					Actions.GroupOrderLink(movedGroupId, foundGroupId);
+					Actions.GroupSetFormation(foundGroupId, FindGroupFormation(foundGroupId));
+				end;
+				
+				if (States.GroupDead(groupId)) then begin
+					for t := 0 to Length(uGroups) - 1 do begin
+						if (uGroups[t].oldGroupId <> groupId) then begin
+							l := Length(newArray);
+							SetLength(newArray, l + 1);
+							newArray[l] := uGroups[t];
+						end;
+					end;
+					
+					uGroups := newArray;
+				end;
+				
+				if (rpgQuest = 5) then begin
+					Actions.CinematicStart(0);
+					Actions.CinematicPanTo(0, 239, 47, 5);
+					Actions.ShowMsgGoto(0, 180, 8, '<$1>');
+					Actions.FogRevealCircle(0, 180, 8, 15);
+					rpgQuest := 6;
+					rpgQuestTime := States.GameTime + 5;
+				end;
+			end;
+		end;
+	end;
+end;
+
+procedure OnUnitAttacked(aUnitId:integer;aAttackerId:integer);
+var g: integer;
+begin
+	if ((rpgQuest = 7) AND (States.UnitOwner(aAttackerId) = 0) AND (loastGoalDisplayed = false)) then begin
+		Actions.ShowMsg(0, '<$2>');
+		g := States.ClosestGroup(11, States.UnitPositionX(aUnitId), States.UnitPositionY(aUnitId), -1);
+		if (g > 0) then Actions.GroupOrderAttackUnit(g, aAttackerId);
+		loastGoalDisplayed := true;
+		Actions.HouseDestroy(States.HouseAt(239, 43), false);
+		Actions.OverlayTextSet(0, '');
+		rpgQuest := 999;
+	end;
+	
+	SU_ExecuteUnitAttack(aUnitId, aAttackerId);
+end;
+
+procedure OnTick;
+var text: AnsiString;
+var i,j,l,x,y:integer;
+var units: array of integer;
+begin
+	if (States.GameTime mod 6000 = 0) then Actions.UnitHungerSet(informer, States.UnitMaxHunger);
+	if (States.GameTime mod 600 = 0) then HandleHungryRecruits();
+	if (States.GameTime mod 40 = 0) then begin
+		HandleWatchtower();
+		HandleInn();
+	end;
+	
+	if (rpgQuest = 1) then begin
+		Actions.CinematicStart(0);
+		Actions.CinematicPanTo(0, 206, 107, 330);
+		rpgQuestTime := States.GameTime + 400;
+		rpgQuest := 2;
+		Actions.ShowMsg(0, '<$3>');
+	end
+	else if ((rpgQuest = 2) AND (States.GameTime = rpgQuestTime)) then begin
+		Actions.CinematicEnd(0);
+		Actions.ShowMsgGoto(0, 189, 156, '<$4>');
+		
+		if (variant = 2) then begin
+			Actions.GiveGroup(0, 21, 174, 117, 1, 25, 5);
+			Actions.ShowMsgGoto(0, 174, 117, '<$16> Xarrin <$17>');
+		end
+		else if (variant = 3) then begin
+			Actions.GiveGroup(0, 23, 174, 117, 1, 25, 5);
+			Actions.ShowMsgGoto(0, 174, 117, '<$16> Foll <$17>');
+		end;
+		
+		rpgQuestTime := States.GameTime + 300;
+		rpgQuest := 3;
+	end
+	else if ((rpgQuest = 3) AND (States.GameTime = rpgQuestTime)) then begin
+		informer := Actions.GiveUnit(2, 13, 151, 104, 4);
+		Actions.ShowMsgGoto(0, 151, 105, '<$5>');
+		rpgQuest := 4;
+	end
+	else if (rpgQuest = 4) then begin
+		if ((States.GroupAt(151, 105) > 0) OR (States.GroupAt(152, 104) > 0)) then begin
+			Actions.ShowMsgGoto(0, 218, 181, '<$6>');
+			Actions.FogRevealCircle(0, 218, 181, 10);
+			Actions.ShowMsg(0, '<$14>');
+			RevealMine();
+			rpgQuest := 5;
+		end;
+	end
+	else if ((rpgQuest = 6) AND (States.GameTime = rpgQuestTime)) then begin
+		Actions.CinematicEnd(0);
+		Actions.OverlayTextSet(0, '<$15>');
+		rpgQuest := 7;
+	end
+	else if (rpgQuest = 7) then begin
+		for x := 177 to 184 do begin
+			for y := 6 to 11 do begin
+				if (States.GroupAt(x, y) > 0) then begin
+					text := '<$7>';
+					Actions.ShowMsg(0, text);
+					rpgQuest := 8;
+					rpgQuestTime := States.GameTime + 100;
+					break;
+				end;
+			end;
+		end;
+		
+		Actions.OverlayTextSet(0, '<$15>');
+	end
+	else if ((rpgQuest = 8) AND (States.GameTime = rpgQuestTime)) then begin
+		Actions.ShowMsg(0, '<$9>');
+		Actions.OverlayTextSet(0, '<$15>');
+		rpgQuest := 9;
+		rpgQuestTime := States.GameTime + 100;
+	end
+	else if ((rpgQuest = 9) AND (States.GameTime = rpgQuestTime)) then begin
+		if (variant = 1) then begin
+			Actions.ShowMsg(0, '<$10>');
+			Actions.OverlayTextSet(0, '<$15>');
+			rpgQuestTime := States.GameTime + 100;
+		end
+		else rpgQuestTime := States.GameTime + 5;
+		rpgQuest := 10;
+	end
+	else if ((rpgQuest = 10) AND (States.GameTime = rpgQuestTime)) then begin
+		if (variant = 1) then begin
+			Actions.ShowMsg(0, '<$11>');
+			Actions.OverlayTextSet(0, '<$15>');
+			Actions.UnitBlock(8, 13, true);
+			Actions.UnitBlock(9, 13, true);
+			Actions.UnitBlock(10, 13, true);
+			Actions.UnitBlock(11, 13, true);
+			rpgQuestTime := States.GameTime + 50;
+		end
+		else rpgQuestTime := States.GameTime + 5;
+		rpgQuest := 11;
+	end
+	else if ((rpgQuest = 11) AND (States.GameTime = rpgQuestTime)) then begin
+		Actions.ShowMsg(0, '<$12>');
+		rpgQuestTime := States.GameTime + 400;
+		Actions.OverlayTextSet(0, '');
+		rpgQuest := 12;
+	end
+	else if ((rpgQuest = 12) AND (States.GameTime = rpgQuestTime)) then begin
+		for i := 8 to 11 do begin
+			units := States.PlayerGetAllUnits(i);
+			for j := 0 to Length(units) - 1 do begin
+				if (States.UnitType(units[j]) = 13) then begin
+					l := Length(rebels);
+					SetLength(rebels, l + 1);
+					rebels[l] := units[j];
+				end;
+			end;
+		end;
+		rpgQuest := 13;
+		rpgQuestTime := States.GameTime + 300;
+	end
+	else if ((rpgQuest = 13) AND (States.GameTime = rpgQuestTime)) then begin
+		for i := 0 to Length(rebels) - 1 do begin
+			if (States.UnitDead(rebels[i]) = false) then Actions.UnitHungerSet(rebels[i], 2000);
+		end;
+		
+		Actions.ShowMsg(0, '<$13>');
+		rpgQuest := 14;
+	end
+	else if (rpgQuest = 14) then begin
+		for i := 0 to Length(rebels) - 1 do begin
+			if (States.UnitDead(rebels[i]) = false) then Actions.UnitHungerSet(rebels[i], 2000);
+		end;
+	end;
+	
+	EnterUnitsToTown();
+	SU_ExecuteKill();
+end;
+
+procedure OnUnitDied(aUnit: Integer; aAttacker: Integer);
+begin
+	SU_ExecuteSuperunitDie(aUnit, aAttacker);
+end;
