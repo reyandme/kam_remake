@@ -5,7 +5,7 @@ uses
    {$IFDEF MSWindows} Windows, {$ENDIF}
    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
    Classes, SysUtils,
-   KM_Controls, KM_Defaults, KM_InterfaceGame, KM_Pics;
+   KM_Controls, KM_Defaults;
 
 type
   TKMMapEdMissionAlliances = class
@@ -35,7 +35,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Hand, KM_ResKeys;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Hand, KM_ResKeys, KM_Pics;
 
 const
   TB_CHB_A_L = 32; //Left CheckBox_Alliances
@@ -90,7 +90,7 @@ begin
   CheckBox_AlliancesSym.Disable;
 
   Button_CloseAlliances := TKMButton.Create(Panel_Alliances, (Panel_Alliances.Width div 2) - (TB_BUTTON_W div 2), Panel_Alliances.Height - 30,
-                                            TB_BUTTON_W, TB_BUTTON_H, gResTexts[TX_MAPED_TERRAIN_CLOSE_PALETTE], bsGame);
+                                            TB_BUTTON_W, TB_BUTTON_H, gResTexts[TX_WORD_CLOSE], bsGame);
   Button_CloseAlliances.OnClick := CloseAlliances_Click;
 end;
 
@@ -136,10 +136,9 @@ begin
 end;
 
 
-procedure TKMMapEdMissionAlliances.KeyDown(Key: Word; Shift: TShiftState;
-  var aHandled: Boolean);
+procedure TKMMapEdMissionAlliances.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
-  aHandled := Key = gResKeys[SC_MAPEDIT_OBJ_PALETTE].Key;
+  aHandled := False;
   if (Key = VK_ESCAPE) and PopUp_Alliances.Visible then
   begin
     Hide;

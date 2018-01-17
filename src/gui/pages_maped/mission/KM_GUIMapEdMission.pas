@@ -3,7 +3,7 @@ unit KM_GUIMapEdMission;
 interface
 uses
    Classes, Controls, Math, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics,
+   KM_Controls,
    KM_GUIMapEdMissionMode,
    KM_GUIMapEdMissionAlliances,
    KM_GUIMapEdMissionPlayers;
@@ -39,7 +39,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceGame;
+  KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceGame, KM_Pics, KM_Defaults;
 
 
 { TKMMapEdMission }
@@ -82,8 +82,7 @@ begin
 end;
 
 
-procedure TKMMapEdMission.KeyDown(Key: Word; Shift: TShiftState;
-  var aHandled: Boolean);
+procedure TKMMapEdMission.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
   fGuiMissionAlliances.KeyDown(Key, Shift, aHandled);
 end;

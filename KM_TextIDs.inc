@@ -1109,6 +1109,7 @@ TX_WORD_MAP = 1102; //Map
 TX_WORD_REPLAY = 1103; //Replay
 TX_WORD_PLAYERS = 1104; //Players
 TX_WORD_TEAMS = 1105; //Teams
+TX_WORD_CLOSE = 1117; //Close
 
 TX_MAPED_PLAYER_DELETE = 1114; //Button / Clear Player
 
