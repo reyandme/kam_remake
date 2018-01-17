@@ -9,7 +9,7 @@ uses
    KM_GUIMapEdMissionPlayers;
 
 type
-  TKMMissionTab = (mtMode, mtAlliances, mtPlayers);
+  TKMMissionTab = (mtMode, mtPlayers, mtAlliances);
 
   TKMMapEdMission = class
   private
@@ -27,6 +27,8 @@ type
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+
     property GuiMissionPlayers: TKMMapEdMissionPlayers read fGuiMissionPlayers;
     procedure Show(aPage: TKMMissionTab);
     procedure ShowIndex(aIndex: Byte);
@@ -43,11 +45,11 @@ uses
 { TKMMapEdMission }
 constructor TKMMapEdMission.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
 const
-  TabGlyph: array [TKMMissionTab] of Word    = (41, 386, 656);
+  TabGlyph: array [TKMMissionTab] of Word    = (41, 656, 386);
   TabHint : array [TKMMissionTab] of Word = (
     TX_MAPED_MISSION_MODE,
-    TX_MAPED_ALLIANCE,
-    TX_MAPED_PLAYERS_TYPE);
+    TX_MAPED_PLAYERS_TYPE,
+    TX_MAPED_ALLIANCE);
 var
   MT: TKMMissionTab;
 begin
@@ -77,6 +79,13 @@ begin
   fGuiMissionPlayers.Free;
 
   inherited;
+end;
+
+
+procedure TKMMapEdMission.KeyDown(Key: Word; Shift: TShiftState;
+  var aHandled: Boolean);
+begin
+  fGuiMissionAlliances.KeyDown(Key, Shift, aHandled);
 end;
 
 

@@ -721,6 +721,7 @@ begin
 
   //For Objects Palette
   fGuiTerrain.KeyDown(Key, Shift, KeyHandled);
+  fGuiMission.KeyDown(Key, Shift, KeyHandled);
   if KeyHandled then Exit;
 
   inherited KeyDown(Key, Shift, KeyHandled);
