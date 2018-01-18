@@ -40,11 +40,13 @@ type
 implementation
 uses
   KromUtils, Math, KM_Defaults, KM_GameApp, KM_Game, KM_Terrain, KM_InterfaceDefaults, KM_RenderAux,
-  KM_InterfaceGame, KM_ResFonts, KM_RenderUI, KM_Points, KM_Maps, KM_ResTexts;
+  KM_InterfaceGame, KM_ResFonts, KM_RenderUI, KM_Points, KM_Maps, KM_ResTexts, KM_Resource;
 
 
 { TKMMapEdMenuSave }
 constructor TKMMapEdMenuResize.Create(aParent: TKMPanel; aOnDone, aOnPageChange: TNotifyEvent);
+var
+  Y: Integer;
 begin
   inherited Create;
 
@@ -54,38 +56,49 @@ begin
   Panel_Resize := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
     Panel_Resize_Edit := TKMPanel.Create(Panel_Resize, 0, 0, Panel_Resize.Width, Panel_Resize.Height);
 
-      TKMLabel.Create(Panel_Resize_Edit, 0, PAGE_TITLE_Y, TB_WIDTH, 30, 'Move borders:', fnt_Outline, taCenter); //Todo translate
+      Y := PAGE_TITLE_Y;
+      TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 45, gResTexts[TX_MAPED_MAP_RESIZE_TITLE], fnt_Outline, taCenter);
+      Inc(Y, 45);
+      TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, gResTexts[TX_MAPED_MAP_RESIZE_MOVE_BORDERS], fnt_Grey, taCenter);
+      Inc(Y, 25);
 
       // Use left-top-right-bottom order of creation. Same order will be used for Tab focus change
-      NumEdit_Resize_Left   := TKMNumericEdit.Create(Panel_Resize_Edit, 0, 55, -224, 224);
-      NumEdit_Resize_Top    := TKMNumericEdit.Create(Panel_Resize_Edit, 50, 25, -224, 224);
-      NumEdit_Resize_Right  := TKMNumericEdit.Create(Panel_Resize_Edit, 100, 55, -224, 224);
-      NumEdit_Resize_Bottom := TKMNumericEdit.Create(Panel_Resize_Edit, 50, 85, -224, 224);
+      NumEdit_Resize_Left   := TKMNumericEdit.Create(Panel_Resize_Edit, 0,   Y+30, -224, 224);
+      NumEdit_Resize_Top    := TKMNumericEdit.Create(Panel_Resize_Edit, 50,  Y,    -224, 224);
+      NumEdit_Resize_Right  := TKMNumericEdit.Create(Panel_Resize_Edit, 100, Y+30, -224, 224);
+      NumEdit_Resize_Bottom := TKMNumericEdit.Create(Panel_Resize_Edit, 50,  Y+60, -224, 224);
 
       NumEdit_Resize_Left.OnChange    := ResizeRefresh;
       NumEdit_Resize_Right.OnChange   := ResizeRefresh;
       NumEdit_Resize_Top.OnChange     := ResizeRefresh;
       NumEdit_Resize_Bottom.OnChange  := ResizeRefresh;
 
-      Label_CurrentMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, 115, TB_WIDTH, 30, '', fnt_Outline, taCenter);
-      Label_NewMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, 160, TB_WIDTH, 30, '', fnt_Outline, taCenter);
+      Inc(Y, 90);
 
-      Button_Resize := TKMButton.Create(Panel_Resize_Edit, 0, 205, TB_WIDTH, 30, 'Resize and Save', bsGame); //Todo translate
-      Button_Resize.Hint := 'Resize map and then save it'; //Todo translate
+      Label_CurrentMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, '', fnt_Outline, taCenter);
+      Inc(Y, 45);
+      Label_NewMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, '', fnt_Outline, taCenter);
+      Inc(Y, 45);
+
+      Button_Resize := TKMButton.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 45, gResTexts[TX_MAPED_MAP_RESIZE_AND_SAVE], bsGame);
+      Button_Resize.Hint := gResTexts[TX_MAPED_MAP_RESIZE_AND_SAVE_HINT];
       Button_Resize.OnClick := PanelConfirm_Switch;
       Button_Resize.Disable;
+      Inc(Y, 60);
 
-      Button_Cancel := TKMButton.Create(Panel_Resize_Edit, 0, 250, TB_WIDTH, 30, 'Cancel', bsGame); //Todo translate
+      Button_Cancel := TKMButton.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, gResTexts[TX_WORD_CANCEL], bsGame);
       Button_Cancel.OnClick   := Menu_Click;
 
     Panel_Resize_Confirm := TKMPanel.Create(Panel_Resize, 0, 0, Panel_Resize.Width, Panel_Resize.Height);
-      Label_Resize_Confirm := TKMLabel.Create(Panel_Resize_Confirm, 0, 0, TB_WIDTH, 20, '', fnt_Outline, taCenter); //Todo translate
+      Label_Resize_Confirm := TKMLabel.Create(Panel_Resize_Confirm, 0, 0, TB_WIDTH, 20, gResTexts[TX_MAPED_MAP_RESIZE_CONFIRM_TITLE], fnt_Outline, taCenter);
       Label_Resize_Confirm.AutoWrap := True;
 
-      Button_Resize_Confirm_Yes := TKMButton.Create(Panel_Resize_Confirm, 0, Max(120, Label_Resize_Confirm.TextSize.Y + 10), TB_WIDTH, 30, 'Yes', bsGame);
-      Button_Resize_Confirm_Yes.Hint := 'Resize map and then save it'; //Todo translate
-      Button_Resize_Confirm_No := TKMButton.Create(Panel_Resize_Confirm, 0, Max(160, Label_Resize_Confirm.TextSize.Y + 50), TB_WIDTH, 30, 'No', bsGame);
-      Button_Resize_Confirm_No.Hint := 'Go previous menu'; //Todo translate
+      Button_Resize_Confirm_Yes := TKMButton.Create(Panel_Resize_Confirm, 0, Max(150, Label_Resize_Confirm.TextSize.Y + 10),
+                                                    TB_WIDTH, 30, gResTexts[TX_WORD_YES], bsGame);
+      Button_Resize_Confirm_Yes.Hint := gResTexts[TX_MAPED_MAP_RESIZE_AND_SAVE_HINT];
+      Button_Resize_Confirm_No := TKMButton.Create(Panel_Resize_Confirm, 0, Max(190, Label_Resize_Confirm.TextSize.Y + 50),
+                                                   TB_WIDTH, 30, gResTexts[TX_WORD_NO], bsGame);
+      Button_Resize_Confirm_No.Hint := gResTexts[TX_GO_PREV_MENU];
 
       Button_Resize_Confirm_Yes.OnClick := Resize_Click;
       Button_Resize_Confirm_No.OnClick := PanelConfirm_Switch;
@@ -127,9 +140,9 @@ begin
   NewMapX := gTerrain.MapX + NumEdit_Resize_Left.Value + NumEdit_Resize_Right.Value;
   NewMapY := gTerrain.MapY + NumEdit_Resize_Top.Value + NumEdit_Resize_Bottom.Value;
 
-  Label_CurrentMapSize.Caption := Format('Current map size:|[ %d : %d ]', [gTerrain.MapX, gTerrain.MapY]);
+  Label_CurrentMapSize.Caption := Format(gResTexts[TX_MAPED_MAP_RESIZE_CURR_MAP_SIZE] + '|[ %d : %d ]', [gTerrain.MapX, gTerrain.MapY]);
   Label_NewMapSize.Enabled := Button_Resize.Enabled;
-  Label_NewMapSize.Caption := Format('New map size:|[ %d : %d ]',
+  Label_NewMapSize.Caption := Format(gResTexts[TX_MAPED_MAP_RESIZE_NEW_MAP_SIZE] + '|[ %d : %d ]',
                                     [EnsureRange(NewMapX, MIN_MAP_SIZE, MAX_MAP_SIZE),
                                      EnsureRange(NewMapY, MIN_MAP_SIZE, MAX_MAP_SIZE)]);
 end;
@@ -177,13 +190,13 @@ begin
     Panel_Resize_Confirm.Show;
     if not gGame.MapEditor.IsNewMap or gGame.MapEditor.WereSaved then
     begin
-      Label_Resize_Confirm.Caption := 'Are you sure want to resize the map?||It will automatically override current map';
+      Label_Resize_Confirm.Caption := gResTexts[TX_MAPED_MAP_RESIZE_CONFIRM];
       Button_Resize_Confirm_Yes.Visible := True;
-      Button_Resize_Confirm_No.Caption := 'No'; //Todo translate
+      Button_Resize_Confirm_No.Caption := gResTexts[TX_WORD_NO];
     end else begin
-      Label_Resize_Confirm.Caption := 'Resize is not available||You need to save new map first';
+      Label_Resize_Confirm.Caption := gResTexts[TX_MAPED_MAP_RESIZE_NOT_AVAIL];
       Button_Resize_Confirm_Yes.Hide;
-      Button_Resize_Confirm_No.Caption := gResTexts[TX_MENU_TAB_HINT_GO_BACK]; //Todo translate
+      Button_Resize_Confirm_No.Caption := gResTexts[TX_MENU_TAB_HINT_GO_BACK];
     end;
   end
   else

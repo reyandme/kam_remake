@@ -3,13 +3,13 @@ unit KM_GUIMapEdMission;
 interface
 uses
    Classes, Controls, Math, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics,
+   KM_Controls,
    KM_GUIMapEdMissionMode,
    KM_GUIMapEdMissionAlliances,
    KM_GUIMapEdMissionPlayers;
 
 type
-  TKMMissionTab = (mtMode, mtAlliances, mtPlayers);
+  TKMMissionTab = (mtMode, mtPlayers, mtAlliances);
 
   TKMMapEdMission = class
   private
@@ -27,6 +27,9 @@ type
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
     destructor Destroy; override;
 
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+
+    property GuiMissionPlayers: TKMMapEdMissionPlayers read fGuiMissionPlayers;
     procedure Show(aPage: TKMMissionTab);
     procedure ShowIndex(aIndex: Byte);
     function Visible(aPage: TKMMissionTab): Boolean; overload;
@@ -36,17 +39,17 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceGame;
+  KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceGame, KM_Pics, KM_Defaults;
 
 
 { TKMMapEdMission }
 constructor TKMMapEdMission.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
 const
-  TabGlyph: array [TKMMissionTab] of Word    = (41, 386, 656);
+  TabGlyph: array [TKMMissionTab] of Word    = (41, 656, 386);
   TabHint : array [TKMMissionTab] of Word = (
     TX_MAPED_MISSION_MODE,
-    TX_MAPED_ALLIANCE,
-    TX_MAPED_PLAYERS_TYPE);
+    TX_MAPED_PLAYERS_TYPE,
+    TX_MAPED_ALLIANCE);
 var
   MT: TKMMissionTab;
 begin
@@ -76,6 +79,12 @@ begin
   fGuiMissionPlayers.Free;
 
   inherited;
+end;
+
+
+procedure TKMMapEdMission.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+begin
+  fGuiMissionAlliances.KeyDown(Key, Shift, aHandled);
 end;
 
 

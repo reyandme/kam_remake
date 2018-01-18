@@ -12,6 +12,7 @@ type
   TKMButtonStateSet = set of (bsOver, bsDown, bsDisabled);
   TKMButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
   TKMTextAlign = (taLeft, taCenter, taRight);
+  TKMTextVAlign = (tvaNone, tvaTop, tvaMiddle, tvaBottom);
 
   TKMRenderUI = class
   public

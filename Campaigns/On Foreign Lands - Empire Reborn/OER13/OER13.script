@@ -1,0 +1,125 @@
+{$I superunits.script}
+
+type TTown = record
+	x: integer;
+	y: integer;
+	t: integer;
+end;
+
+var assistance: array[0..9] of integer;
+var variant, attackGroup, attackGroup2, king:integer;
+var secondGroupAttacked: boolean;
+
+function GetTown(text: String) : TTown;
+var i, sIndex, counter : integer;
+var v : String;
+var res: TTown;
+begin
+	sIndex := 1;
+	text := text + ',';
+	counter := 0;
+	for i := 1 to Length(text)  do begin
+		if (text[i] = ',') then begin
+			v := Trim(Copy(text, sIndex, i - sIndex));
+			if (v <> '') then begin
+				if (counter = 0) then res.t := StrToInt(v);
+				if (counter = 1) then res.x := StrToInt(v);
+				if (counter = 2) then res.y := StrToInt(v);
+				counter := counter + 1;
+			end;
+			sIndex := i + 1;
+		end;
+	end;
+	Result := res;
+end;
+
+procedure OnMissionStart;
+var i: integer;
+var item: TTown;
+begin
+	attackGroup := States.GroupAt(195, 12);
+	attackGroup2 := -1;
+	secondGroupAttacked := false;
+	SU_RegisterSuperGroup(States.GroupAt(159, 209));
+	SU_RegisterSuperGroup(States.GroupAt(159, 205));
+	Actions.ShowMsgGoto(0, 159, 208, '<$0>');
+	Actions.PlayerAddDefaultGoals(0, false);
+	king := States.UnitAt(62, 147);
+	
+	assistance[0] := States.GroupAt(159, 199);
+	assistance[1] := States.GroupAt(154, 203);
+	assistance[2] := States.GroupAt(164, 203);
+	assistance[3] := States.GroupAt(159, 205);
+	assistance[4] := States.GroupAt(159, 209);
+	assistance[5] := States.GroupAt(152, 207);
+	assistance[6] := States.GroupAt(166, 207);
+	assistance[7] := States.GroupAt(154, 212);
+	assistance[8] := States.GroupAt(159, 214);
+	assistance[9] := States.GroupAt(164, 212);
+	
+	variant := CampaignData.Mission4.VillageChosen;
+
+	if (variant = 3) then begin
+		Actions.ShowMsgGoto(0, 10, 10, '<$2>');
+		Actions.GroupKillAll(States.GroupAt(30, 163), true);
+		Actions.GroupKillAll(States.GroupAt(37, 166), true);
+		Actions.GroupKillAll(States.GroupAt(27, 206), true);
+		Actions.GroupKillAll(States.GroupAt(60, 110), true);
+		Actions.GroupKillAll(States.GroupAt(70, 114), true);
+		Actions.GroupKillAll(States.GroupAt(102, 115), true);
+	end
+	else if (variant = 2) then begin
+		Actions.ShowMsgGoto(0, 33, 166, '<$1>');
+		Actions.GroupKillAll(States.GroupAt(6, 8), true);
+		Actions.GroupKillAll(States.GroupAt(9, 12), true);
+		Actions.GroupKillAll(States.GroupAt(18, 10), true);
+	end;
+	
+	for i := 0 to Length(CampaignData.Mission6.Town) - 1 do begin
+		item := GetTown(CampaignData.Mission6.Town[i]);
+		if (item.t = 99) then Actions.GiveWinefield(0, item.x, item.y)
+		else if (item.t = 98) then Actions.GiveField(0, item.x, item.y)
+		else if (item.t = 97) then Actions.GiveRoad(0, item.x, item.y)
+		else begin
+			item.t := Actions.GiveHouse(0, item.t, item.x, item.y);
+			Actions.HouseDestroy(item.t, false);
+		end;
+	end;
+end;
+
+procedure OnTick;
+var i:integer;
+begin
+	SU_ExecuteKill();
+	
+	if ((States.GameTime = 800) AND (variant = 2) AND (States.StatArmyCount(10) > 0)) then begin
+		Actions.ShowMsg(0, '<$3>');
+		for i := 6 to 9 do Actions.PlayerAllianceChange(10, i, true, true);
+		for i := 0 to 5 do Actions.PlayerAllianceChange(10, i, true, false);	
+	end;
+	
+	if (States.GroupIdle(attackGroup) AND (States.GameTime mod 100 = 0)) then Actions.GroupOrderAttackHouse(attackGroup, States.ClosestHouse(2, 61, 121, -1));
+	if ((attackGroup2 > 0) AND States.GroupIdle(attackGroup2) AND (States.GameTime mod 100 = 0)) then Actions.GroupOrderAttackHouse(attackGroup2, States.ClosestHouse(2, 61, 121, -1));
+end;
+
+procedure OnUnitDied(aUnit: Integer; aAttacker: Integer);
+var attack: boolean;
+var i: integer;
+begin
+	SU_ExecuteSuperunitDie(aUnit, aAttacker);
+	if (aUnit = king) then Actions.PlayerDefeat(0);
+	
+	if (secondGroupAttacked = false) then begin
+		attack := true;
+		for i := 0 to 9 do attack := attack AND States.GroupDead(assistance[i]);
+		if (attack) then begin
+			attackGroup2 := States.GroupAt(183, 141);
+			secondGroupAttacked := true;
+		end;
+	end;
+end;
+
+procedure OnUnitAttacked(aUnit: Integer; aAttacker: Integer);
+begin
+	SU_ExecuteUnitAttack(aUnit, aAttacker);
+end;

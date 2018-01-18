@@ -83,9 +83,23 @@ uses
   function StrSubstring(const aStr: String; aFrom: Integer): String; overload;
   function StrContains(const aStr, aSubStr: String): Boolean;
   function StrTrimRight(const aStr: String; aCharsToTrim: TKMCharArray): String;
-  {$IFDEF WDC}
-  function StrSplit(const aStr, aDelimiters: String): TStrings;
-  {$ENDIF}
+  procedure StrSplit(aStr, aDelimiters: String; var aStrings: TStringList);
+  function StrSplitA(const aStr, aDelimiters: String): TAnsiStringArray;
+
+  procedure DeleteFromArray(var Arr: TAnsiStringArray; const Index: Integer); overload;
+  procedure DeleteFromArray(var Arr: TIntegerArray; const Index: Integer); overload;
+
+const
+  DEFAULT_ATTEMPS_CNT_TO_TRY = 3;
+
+  function TryExecuteMethod(aObjParam: TObject; aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+                            aMethod: TUnicodeStringObjEvent; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
+
+  function TryExecuteMethodProc(const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+                                aMethodProc: TUnicodeStringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
+
+  function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+                                aMethodProc: TUnicode2StringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
 
 implementation
 uses
@@ -913,20 +927,181 @@ end;
 
 
 {$IFDEF WDC}
-function StrSplit(const aStr, aDelimiters: String): TStrings;
-var StrArray: TStringDynArray;
-    I: Integer;
+procedure StrSplit(aStr, aDelimiters: String; var aStrings: TStringList);
+var
+  StrArray: TStringDynArray;
+  I: Integer;
 begin
-  //Todo refactor:
-  //@Krom: It's bad practice to create object (TStringList) inside and return it as parent class (TStrings).
-  //Do we really need it this way? Better to pass TStringList from outside in a parameter.
-
   StrArray := SplitString(aStr, aDelimiters);
-  Result := TStringList.Create;
   for I := Low(StrArray) to High(StrArray) do
-    Result.Add(StrArray[I]);
+    aStrings.Add(StrArray[I]);
+end;
+
+function StrSplitA(const aStr, aDelimiters: String): TAnsiStringArray;
+begin
+  Result := TAnsiStringArray(SplitString(aStr, aDelimiters));
 end;
 {$ENDIF}
+
+
+{$IFDEF FPC}
+function StrSplitA(const aStr, aDelimiters: string): TAnsiStringArray;
+var
+  I: integer;
+  PosDel: integer;
+  CopyOfText: string;
+begin
+  CopyOfText := aStr;
+  i := 0;
+  SetLength(Result, 1);
+  PosDel := Pos(aDelimiters, aStr);
+  while PosDel > 0 do
+    begin
+      Result[I] := Copy(CopyOfText, 1, PosDel - 1);
+      Delete(CopyOfText, 1, Length(Result[I]) + 1);
+      PosDel := Pos(aDelimiters, CopyOfText);
+      inc(I);
+      SetLength(Result, I + 1);
+    end;
+  Result[I] := Copy(CopyOfText, 1, Length(CopyOfText));
+end;
+{$ENDIF}
+
+
+{$IFDEF FPC}
+procedure DeleteFromArray(var Arr: TAnsiStringArray; const Index: Integer);
+var
+  ALength: Integer;
+  I: Integer;
+begin
+  ALength := Length(Arr);
+  Assert(ALength > 0);
+  Assert(Index < ALength);
+  for I := Index + 1 to ALength - 1 do
+    Arr[I - 1] := Arr[I];
+  SetLength(Arr, ALength - 1);
+end;
+
+
+procedure DeleteFromArray(var Arr: TIntegerArray; const Index: Integer);
+var
+  ALength: Integer;
+  I: Integer;
+begin
+  ALength := Length(Arr);
+  Assert(ALength > 0);
+  Assert(Index < ALength);
+  for I := Index + 1 to ALength - 1 do
+    Arr[I - 1] := Arr[I];
+  SetLength(Arr, ALength - 1);
+end;
+{$ENDIF}
+
+
+{$IFDEF WDC}
+procedure DeleteFromArray(var Arr: TAnsiStringArray; const Index: Integer);
+begin
+  Delete(Arr, Index, 1);
+end;
+
+procedure DeleteFromArray(var Arr: TIntegerArray; const Index: Integer);
+begin
+  Delete(Arr, Index, 1);
+end;
+{$ENDIF}
+
+
+function TryExecuteMethod(aObjParam: TObject; aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+                          aMethod: TUnicodeStringObjEvent; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
+var
+  Success: Boolean;
+  TryCnt: Byte;
+begin
+  Success := False;
+  TryCnt := 0;
+  aErrorStr := '';
+  while not Success and (TryCnt < aAttemps) do
+    try
+      Inc(TryCnt);
+
+      aMethod(aObjParam, aStrParam);
+
+      Success := True;
+    except
+      on E: Exception do //Ignore IO exceptions here, try to save file up to 3 times
+      begin
+        aErrorStr := Format('Error at attemp #%d while executing method %s for parameter: %s', [TryCnt, aMethodName, aStrParam]);
+        Sleep(10); // Wait a bit
+      end;
+    end;
+
+  if not Success then
+    aErrorStr := Format('Error executing method (%d tries) %s for parameter: %s', [aAttemps, aMethodName, aStrParam]);
+
+  Result := Success;
+end;
+
+
+function TryExecuteMethodProc(const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+                              aMethodProc: TUnicodeStringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
+var
+  Success: Boolean;
+  TryCnt: Byte;
+begin
+  Success := False;
+  TryCnt := 0;
+  aErrorStr := '';
+  while not Success and (TryCnt < aAttemps) do
+    try
+      Inc(TryCnt);
+
+      aMethodProc(aStrParam);
+
+      Success := True;
+    except
+      on E: Exception do //Ignore IO exceptions here, try to save file up to 3 times
+      begin
+        aErrorStr := Format('Error at attemp #%d while executing method %s for parameter: %s', [TryCnt, aMethodName, aStrParam]);
+        Sleep(10); // Wait a bit
+      end;
+    end;
+
+  if not Success then
+    aErrorStr := Format('Error executing method (%d tries) %s for parameter: %s', [aAttemps, aMethodName, aStrParam]);
+
+  Result := Success;
+end;
+
+
+function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+                              aMethodProc: TUnicode2StringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
+var
+  Success: Boolean;
+  TryCnt: Byte;
+begin
+  Success := False;
+  TryCnt := 0;
+  aErrorStr := '';
+  while not Success and (TryCnt < aAttemps) do
+    try
+      Inc(TryCnt);
+
+      aMethodProc(aStrParam1, aStrParam2);
+
+      Success := True;
+    except
+      on E: Exception do //Ignore IO exceptions here, try to save file up to 3 times
+      begin
+        aErrorStr := Format('Error at attemp #%d while executing method %s for parameters: [%s, %s]', [TryCnt, aMethodName, aStrParam1, aStrParam2]);
+        Sleep(10); // Wait a bit
+      end;
+    end;
+
+  if not Success then
+    aErrorStr := Format('Error executing method (%d tries) %s for parameters: [%s, %s]', [aAttemps, aMethodName, aStrParam1, aStrParam2]);
+
+  Result := Success;
+end;
 
 
 end.

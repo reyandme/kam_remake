@@ -193,7 +193,7 @@ begin
     // If not set to -1 it skips the first variable
     nextType := -1;
 
-    listTokens.AddStrings(StrSplit(aString, ' '));
+    StrSplit(aString, ' ', listTokens);
 
     // Re-combine type arrays
     for i := 0 to listTokens.Count - 1 do

@@ -22,9 +22,9 @@ type
 const
   VALIDATOR_VERSION_MAJOR = '2';
   VALIDATOR_VERSION_MINOR = '03';
-  VALIDATOR_VERSION       = VALIDATOR_VERSION_MAJOR + '.' +
-                            VALIDATOR_VERSION_MINOR + ' - ' +
-                            GAME_REVISION;
+var
+  VALIDATOR_VERSION: String;
+const
   VALIDATOR_START_TEXT    = '' + sLineBreak +
     '++===============================================================================++' + sLineBreak +
     '++===============================================================================++' + sLineBreak +
@@ -192,6 +192,15 @@ procedure TConsoleMain.ShowHelp;
 begin
   writeln(VALIDATOR_HELP_TEXT);
 end;
+
+
+initialization
+begin
+  VALIDATOR_VERSION := VALIDATOR_VERSION_MAJOR + '.' +
+                       VALIDATOR_VERSION_MINOR + ' - ' +
+                       GAME_REVISION;
+end;
+
 
 end.
 

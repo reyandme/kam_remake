@@ -95,6 +95,7 @@ type
     procedure SetCondition(aValue: Integer);
     function CanAccessHome: Boolean;
 
+    procedure SetInHouse(aInHouse: TKMHouse);
     procedure UpdateThoughts;
     function UpdateVisibility: Boolean;
     procedure UpdateHitPoints;
@@ -162,8 +163,7 @@ type
     property  HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
     property  Visible: Boolean read fVisible write fVisible;
-    procedure SetInHouse(aInHouse: TKMHouse);
-    property  GetInHouse: TKMHouse read fInHouse;
+    property  InHouse: TKMHouse read fInHouse write SetInHouse;
     property  IsDead: Boolean read fIsDead;
     function  IsDeadOrDying: Boolean;
     property  GetPosition: TKMPoint read fCurrPosition;
@@ -1209,6 +1209,7 @@ begin
   LoadStream.Read(fTicker);
   LoadStream.Read(fHitPoints);
   LoadStream.Read(fHitPointCounter);
+  LoadStream.Read(HitPointsInvulnerable);
   LoadStream.Read(fInHouse, 4);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
@@ -2027,6 +2028,7 @@ begin
   SaveStream.Write(fTicker);
   SaveStream.Write(fHitPoints);
   SaveStream.Write(fHitPointCounter);
+  SaveStream.Write(HitPointsInvulnerable);
 
   if fInHouse <> nil then
     SaveStream.Write(fInHouse.UID) //Store ID, then substitute it with reference on SyncLoad

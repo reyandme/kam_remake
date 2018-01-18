@@ -118,7 +118,7 @@ begin
   //Random is only used for cases where order does not matter, e.g. shuffle tracks
   Randomize;
 
-  fFormLoading.Label5.Caption := GAME_VERSION;
+  fFormLoading.Label5.Caption := UnicodeString(GAME_VERSION);
   fFormLoading.Show; //This is our splash screen
   fFormLoading.Refresh;
 
@@ -146,7 +146,7 @@ begin
       fMainSettings.FullScreen := False;
   end;
 
-  fFormMain.Caption := 'KaM Remake - ' + GAME_VERSION;
+  fFormMain.Caption := 'KaM Remake - ' + UnicodeString(GAME_VERSION);
   //Will make the form slightly higher, so do it before ReinitRender so it is reset
   fFormMain.ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
 

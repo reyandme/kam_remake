@@ -136,6 +136,8 @@ type
     procedure RemField(const Loc: TKMPoint); overload;
     procedure RemField(const Loc: TKMPoint; aDoUpdatePassNWalk: Boolean; out aUpdatePassRect: TKMRect; 
                        out aDiagObjectChanged: Boolean; aDoUpdateFences: Boolean); overload;
+    procedure ClearPlayerLand(aPlayer: TKMHandIndex);
+
     procedure IncDigState(Loc: TKMPoint);
     procedure ResetDigState(Loc: TKMPoint);
 
@@ -571,7 +573,7 @@ function TKMTerrain.TrySetTileHeight(X, Y: Integer; aHeight: Byte; aUpdatePassab
   var U: TKMUnit;
   begin
     U := Land[CheckY, CheckX].IsUnit;
-    if (U = nil) or U.IsDead
+    if (U = nil) or U.IsDeadOrDying
     or (gRes.Units[U.UnitType].DesiredPassability = tpFish) then //Fish don't care about elevation
       Result := False
     else
@@ -630,7 +632,7 @@ function TKMTerrain.TrySetTile(X, Y: Integer; aType, aRot: Integer; out aPassRec
   var U: TKMUnit;
   begin
     U := Land[Y, X].IsUnit;
-    if (U = nil) or U.IsDead then
+    if (U = nil) or U.IsDeadOrDying then
       Result := False
     else
       if gRes.Units[U.UnitType].DesiredPassability = tpFish then
@@ -724,17 +726,22 @@ var
 begin
   Loc := KMPoint(X,Y);
   aDiagonalChanged := False;
-  //Will this change make a unit stuck?
-  if ((Land[Y, X].IsUnit <> nil) and gMapElements[aObject].AllBlocked)
-    //Is this object part of a wine/corn field?
-    or TileIsWineField(Loc) or TileIsCornField(Loc)
-    //Is there a house/site near this object?
-    or HousesNearObject
-    //Is this object allowed to be placed?
-    or not AllowableObject then
+
+  //There's no need to check conditions for 255 (NO OBJECT)
+  if (aObject <> 255) then
   begin
-    Result := False;
-    Exit;
+    //Will this change make a unit stuck?
+    if ((Land[Y, X].IsUnit <> nil) and gMapElements[aObject].AllBlocked)
+      //Is this object part of a wine/corn field?
+      or TileIsWineField(Loc) or TileIsCornField(Loc)
+      //Is there a house/site near this object?
+      or HousesNearObject
+      //Is this object allowed to be placed?
+      or not AllowableObject then
+    begin
+      Result := False;
+      Exit;
+    end;
   end;
 
   //Did block diagonal property change? (hence xor) UpdateWalkConnect needs to know
@@ -840,20 +847,23 @@ begin
       if (tctRotation in T.ChangeSet) and InRange(T.Rotation, 0, 3) then
         Rot := T.Rotation;
 
-      if (Terr <> -1) or (Rot <> -1) then
+      if (tctTerrain in T.ChangeSet) or (tctRotation in T.ChangeSet) then
       begin
-        // Update terrain and rotation if needed
-        if TrySetTile(T.X, T.Y, Terr, Rot, TerrRect, DiagChanged, False) then
+        if (Terr <> -1) or (Rot <> -1) then
         begin
-          DiagonalChangedTotal := DiagonalChangedTotal or DiagChanged;
-          UpdateRectWRect(Rect, TerrRect);
+          // Update terrain and rotation if needed
+          if TrySetTile(T.X, T.Y, Terr, Rot, TerrRect, DiagChanged, False) then
+          begin
+            DiagonalChangedTotal := DiagonalChangedTotal or DiagChanged;
+            UpdateRectWRect(Rect, TerrRect);
+          end else begin
+            SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);
+            SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);
+          end;
         end else begin
-          SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);  
-          SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);  
+          SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);
+          SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);
         end;
-      end else begin
-        SetErrorNSetResult(tctTerrain, HasErrorOnTile, ErrorTypesOnTile, Result);  
-        SetErrorNSetResult(tctRotation, HasErrorOnTile, ErrorTypesOnTile, Result);  
       end;
 
       // Update height if needed
@@ -1605,6 +1615,37 @@ begin
 
   //Update affected WalkConnect's
   UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrow(KMRect(Loc),1), DiagObjectChanged); //Winefields object block diagonals
+end;
+
+
+procedure TKMTerrain.ClearPlayerLand(aPlayer: TKMHandIndex);
+var
+  I, K: Integer;
+  KMPoint: TKMPoint;
+begin
+  for I := 1 to fMapY do
+    for K := 1 to fMapX do
+      if (Land[I, K].TileOwner = aPlayer) or (Land[I, K].TileOwner = -1) then
+      begin
+        KMPoint.X := K;
+        KMPoint.Y := I;
+
+        if (Land[I, K].Obj <> 255) then
+        begin
+          if TileIsCornField(KMPoint) and (GetCornStage(KMPoint) in [4,5]) then
+            SetField(KMPoint, Land[I, K].TileOwner, ft_Corn, 3)  // For corn, when delete corn object reduce field stage to 3
+          else if TileIsWineField(KMPoint) then
+            RemField(KMPoint)
+          else
+            SetObject(KMPoint, 255);
+        end;
+
+        if Land[I, K].TileOverlay = to_Road then
+          RemRoad(KMPoint);
+        if TileIsCornField(KMPoint) or TileIsWineField(KMPoint) then
+          RemField(KMPoint);
+      end;
+
 end;
 
 

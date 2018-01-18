@@ -179,7 +179,7 @@ object Form1: TForm1
     Left = 335
     Top = 183
     Width = 154
-    Height = 226
+    Height = 237
     Caption = 'Filter'
     TabOrder = 14
     object Label4: TLabel
@@ -199,9 +199,10 @@ object Form1: TForm1
     object Label3: TLabel
       Left = 5
       Top = 170
-      Width = 53
-      Height = 16
-      Caption = 'Label ID:'
+      Width = 122
+      Height = 32
+      Caption = 'Label ID or ID range (f.e. 50 or 10-40):'
+      WordWrap = True
     end
     object cbShowMis: TCheckBox
       Left = 5
@@ -239,12 +240,22 @@ object Form1: TForm1
     end
     object edLabelId: TEdit
       Left = 5
-      Top = 192
+      Top = 208
       Width = 144
       Height = 24
       TabOrder = 4
       OnChange = FilterChanged
     end
+  end
+  object SaveHotKey: THotKey
+    Left = 112
+    Top = 64
+    Width = 121
+    Height = 19
+    HotKey = 16467
+    Modifiers = [hkCtrl]
+    TabOrder = 15
+    Visible = False
   end
   object MainMenu1: TMainMenu
     Left = 32

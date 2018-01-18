@@ -25,6 +25,7 @@ type
     property Count: Integer read GetCount;
     property Units[aIndex: Integer]: TKMUnit read GetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
+    procedure RemoveAllUnits;
     procedure DeleteUnitFromList(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TKMHandIndex);
     function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
@@ -133,6 +134,17 @@ procedure TKMUnitsCollection.RemoveUnit(aUnit: TKMUnit);
 begin
   aUnit.CloseUnit; //Should free up the unit properly (freeing terrain usage and memory)
   fUnits.Remove(aUnit); //Will free the unit
+end;
+
+
+procedure TKMUnitsCollection.RemoveAllUnits;
+var I: Integer;
+begin
+  Assert(gGame.GameMode = gmMapEd);
+  if Count <= 0 then Exit;
+  for I := 0 to Count - 1 do
+    Units[I].CloseUnit;
+  fUnits.Clear;
 end;
 
 

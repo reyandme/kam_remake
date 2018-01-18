@@ -18,6 +18,7 @@ uses
 
   KromOGLUtils in 'src\ext\KromOGLUtils.pas',
   KromUtils in 'src\ext\KromUtils.pas',
+	KromShellUtils in 'src\ext\KromShellUtils.pas',
 
   KM_AI in 'src\ai\KM_AI.pas',
   KM_AIArmyEvaluation in 'src\ai\KM_AIArmyEvaluation.pas',

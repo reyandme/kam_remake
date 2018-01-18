@@ -57,7 +57,7 @@ begin
     Image_BlockUnit[I].ImageCenter;
   end;
 
-  TKMLabel.Create(Panel_BlockUnit, 0, 146, TB_WIDTH, 0, 'In Barracks:', fnt_Metal, taLeft); //Todo translate
+  TKMLabel.Create(Panel_BlockUnit, 0, 146, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_BARRACKS], fnt_Metal, taLeft);
   for I := 0 to High(Button_BlockBarracksWarriors) do
   begin
     Button_BlockBarracksWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit,(I mod 5)*37,20+146+(I div 5)*37,33,33,
@@ -70,7 +70,7 @@ begin
     Image_BlockBarracksWarriors[I].ImageCenter;
   end;
 
-  TKMLabel.Create(Panel_BlockUnit, 0, 245, TB_WIDTH, 0, 'In TownHall:', fnt_Metal, taLeft); //Todo translate
+  TKMLabel.Create(Panel_BlockUnit, 0, 245, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_TOWNHALL], fnt_Metal, taLeft);
   for I := 0 to High(Button_BlockTHWarriors) do
   begin
     Button_BlockTHWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit,(I mod 5)*37,265+(I div 5)*37,33,33, gRes.Units[TownHall_Order[I]].GUIIcon, rxGui);
