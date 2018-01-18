@@ -116,7 +116,7 @@ begin
       Break;
   end;
 
-  Assert(topId <= 1024, 'Dont allow too many strings for no reason');
+  Assert(topId <= 2048, 'Dont allow too many strings for no reason');
 
   // Don't shrink the array, we might be overloading base locale with a partial translation
   if Length(aArray) < topId + 1 then

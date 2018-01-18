@@ -29,6 +29,8 @@ var
 
 implementation
 {$R *.dfm}
+uses
+  KromShellUtils;
 
 
 procedure TForm1.Button1Click(Sender: TObject);

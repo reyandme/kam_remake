@@ -27,7 +27,9 @@ uses
 
 implementation
 uses
-  Math, KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroups;
+  Math, KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroups, KM_Log;
+
+
 
 
 function KMPathLength(aNodeList: TKMPointList): Single;

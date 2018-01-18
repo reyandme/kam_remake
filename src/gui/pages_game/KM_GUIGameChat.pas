@@ -147,8 +147,8 @@ begin
       if not gGame.Networking.NetPlayers[fChatWhisperRecipient].Connected
         or gGame.Networking.NetPlayers[fChatWhisperRecipient].Dropped then
       begin
-        gGame.Networking.PostLocalMessage(Format('%s is not connected to game anymore.',
-                                                [gGame.Networking.NetPlayers[fChatWhisperRecipient].NiknameColored]), // Todo translate
+        gGame.Networking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_CHAT_PLAYER_NOT_CONNECTED_ANYMORE],
+                                                [gGame.Networking.NetPlayers[fChatWhisperRecipient].NiknameColored]),
                                           csSystem);
         Chat_MenuSelect(CHAT_MENU_ALL);
       end else

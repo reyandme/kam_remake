@@ -67,7 +67,7 @@ type
 implementation
 uses
   KM_Resource, KM_ResFonts, KM_ResMapElements, KM_ResTexts, KM_ResKeys,
-  KM_RenderUI, KM_InterfaceGame;
+  KM_RenderUI, KM_InterfaceGame, KM_Utils;
 
 const
   OBJECTS_PALETTE_MAX_COLS_CNT = 17;
@@ -110,9 +110,9 @@ begin
   ObjectBlock.OnClick := ObjectsChange;
 
   ObjectsPalette_Button := TKMButtonFlat.Create(Panel_Objects, 2, 320, TB_WIDTH - 2, 21, 0);
-  ObjectsPalette_Button.Caption := 'Objects palette'; //Todo translate;
+  ObjectsPalette_Button.Caption := gResTexts[TX_MAPED_TERRAIN_OBJECTS_PALETTE];
   ObjectsPalette_Button.CapOffsetY := -11;
-  ObjectsPalette_Button.Hint := Format('Objects palette (''%s'')', [gResKeys.GetKeyNameById(SC_MAPEDIT_OBJ_PALETTE)]); //Todo translate; //Todo use GetHintWHotKey instead
+  ObjectsPalette_Button.Hint := GetHintWHotKey(TX_MAPED_TERRAIN_OBJECTS_PALETTE, SC_MAPEDIT_OBJ_PALETTE);
   ObjectsPalette_Button.OnClick := ObjectsPaletteButton_Click;
 
   PopUp_ObjectsPalette := TKMPopUpMenu.Create(aParent.MasterParent, aParent.MasterParent.Width - 50);
@@ -151,10 +151,10 @@ begin
       ObjectsPaletteTable[I].OnClickShift := ObjPalette_ClickShift;
     end;
 
-    Label_ObjectsPalette := TKMLabel.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X, 0, 'Objects palette', fnt_Outline, taCenter); //Todo translate
+    Label_ObjectsPalette := TKMLabel.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X, 0, gResTexts[TX_MAPED_TERRAIN_OBJECTS_PALETTE], fnt_Outline, taCenter);
 
     Button_ClosePalette  := TKMButton.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X - 100, PopUp_ObjectsPalette.Bottom - 50,
-                                             200, 30, 'Close palette', bsGame); //Todo translate
+                                             200, 30, gResTexts[TX_MAPED_TERRAIN_CLOSE_PALETTE], bsGame);
     Button_ClosePalette.Anchors := [anLeft,anBottom];
     Button_ClosePalette.OnClick := ObjectsPaletteClose_Click;
 

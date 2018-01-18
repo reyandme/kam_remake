@@ -4,6 +4,8 @@
 #define MyAppExeName 'KaM_Remake.exe';
 #define Website 'http://www.kamremake.com/'
 
+#define CheckKaM
+
 ;http://stfx-wow.googlecode.com/svn-history/r418/trunk/NetFxIS/setup.iss
 ;http://tdmaker.googlecode.com/svn/trunk/Setup/tdmaker-anycpu.iss
 ;http://tdmaker.googlecode.com/svn/trunk/Setup/scripts/products.iss
@@ -15,16 +17,18 @@ AppVerName={#MyAppName} {#InstallType} {#Revision}
 AppPublisherURL={#Website}
 AppSupportURL={#Website}
 AppUpdatesURL={#Website}
-DefaultDirName={sd}\{#MyAppName}
+DefaultDirName={sd}\Games\{#MyAppName}
 LicenseFile=License.eng.txt
 DisableProgramGroupPage=yes
 OutputDir=Output
 OutputBaseFilename={#OutputEXE}_{#Revision}
-Compression=lzma
+Compression=lzma2
 SolidCompression=no
+ShowLanguageDialog=yes
 Uninstallable=yes
-;WizardImageFile=D:\Accessories\Inno Setup 5\Projects\1.60 Patch\Beta 7\ENG\Images\WizImage.bmp
-;WizardSmallImageFile=D:\Accessories\Inno Setup 5\Projects\1.60 Patch\Beta 7\ENG\Images\WizSmallImage.bmp
+SetupIconFile=Embedded\KaM_Remake.ico
+WizardImageFile=Embedded\WizardImage.bmp
+WizardSmallImageFile=Embedded\WizardSmallImage.bmp
   
 [Languages]  
 Name: "eng"; MessagesFile: "compiler:Default.isl";
@@ -60,6 +64,7 @@ Name: "slv"; MessagesFile: "compiler:Languages\Slovenian.isl"; LicenseFile: "Lic
 
 [Registry]
 Root: HKLM; Subkey: "SOFTWARE\JOYMANIA Entertainment\KnightsandMerchants TPR"; ValueType: string; ValueName: "RemakeVersion"; ValueData: {#Revision}; Flags:uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\JOYMANIA Entertainment\KnightsandMerchants TPR"; ValueType: string; ValueName: "RemakePath"; ValueData: "{app}"; Flags:uninsdeletevalue;
 
 [Run]
 Filename: "{app}\PostInstallClean.bat"; WorkingDir: "{app}"; Flags: runhidden
@@ -67,15 +72,32 @@ Filename: "{code:GetReadmeLang}";  Description: {cm:ViewReadme};  Flags: postins
 Filename: "{app}\{#MyAppExeName}"; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: postinstall nowait skipifsilent unchecked
 
 [Code]
+
+#ifdef CheckKaM
 #include "CheckKaM.iss"
+#endif
+
+procedure InitializeWizard;
+var Diff: Integer;
+begin
+	//Change width of WizardSmallBitmapImage up to 125 
+  Diff := ScaleX(125) - WizardForm.WizardSmallBitmapImage.Width;
+  WizardForm.WizardSmallBitmapImage.Width := WizardForm.WizardSmallBitmapImage.Width + Diff
+	WizardForm.WizardSmallBitmapImage.Left := WizardForm.WizardSmallBitmapImage.Left - Diff - 5; // 5px margin to right border
+  WizardForm.PageDescriptionLabel.Width := WizardForm.PageDescriptionLabel.Width - Diff - 5;
+  WizardForm.PageNameLabel.Width := WizardForm.PageNameLabel.Width - Diff - 5;
+end;
 
 //Executed before the wizard appears, allows us to check that they have KaM installed
 function InitializeSetup(): Boolean;
 var Warnings:string;
 begin
   Warnings := '';
+
+  #ifdef CheckKaM
   if not CheckKaM() then
     Warnings := ExpandConstant('{cm:NoKaM}');
+  #endif
   
   if not CanInstall() then
   begin

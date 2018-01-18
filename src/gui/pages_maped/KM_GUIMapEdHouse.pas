@@ -201,8 +201,8 @@ begin
   Panel_HouseWoodcutters := TKMPanel.Create(Panel_House,0,85,TB_WIDTH,40);
     Button_Woodcutters_CuttingPoint := TKMButtonFlat.Create(Panel_HouseWoodcutters, 0, 0, TB_WIDTH, 22, 0);
     Button_Woodcutters_CuttingPoint.CapOffsetY := -11;
-    Button_Woodcutters_CuttingPoint.Caption := 'Cutting point'; //Todo translate
-    Button_Woodcutters_CuttingPoint.Hint := 'Set woodcutters cutting point. Alternatively you can set it via Shift + Right mouse button'; //Todo translate
+    Button_Woodcutters_CuttingPoint.Caption := gResTexts[TX_HOUSES_WOODCUTTER_CUTTING_POINT];
+    Button_Woodcutters_CuttingPoint.Hint := gResTexts[TX_MAPED_WOODCUTTER_CUTTING_POINT_HINT];
     Button_Woodcutters_CuttingPoint.OnClick := SetRallyPointClick;
 end;
 
@@ -216,13 +216,13 @@ begin
 
     Button_Barracks_RallyPoint := TKMButtonFlat.Create(Panel_HouseBarracks, 0, 8, TB_WIDTH, 22, 0);
     Button_Barracks_RallyPoint.CapOffsetY := -11;
-    Button_Barracks_RallyPoint.Caption := 'Rally point'; //Todo translate
-    Button_Barracks_RallyPoint.Hint := 'Set barracks rally point. Alternatively you can set it via Shift + Right mouse button'; //Todo translate
+    Button_Barracks_RallyPoint.Caption := gResTexts[TX_HOUSES_RALLY_POINT];
+    Button_Barracks_RallyPoint.Hint := Format(gResTexts[TX_MAPED_RALLY_POINT_HINT], [gRes.Houses[ht_TownHall].HouseName]);;
     Button_Barracks_RallyPoint.OnClick := SetRallyPointClick;
 
     for I := 1 to BARRACKS_RES_COUNT do
     begin
-      Button_Barracks[I]:=TKMButtonFlat.Create(Panel_HouseBarracks, ((I-1)mod 6)*31,26+8+((I-1)div 6)*42,28,38,0);
+      Button_Barracks[I] := TKMButtonFlat.Create(Panel_HouseBarracks, ((I-1)mod 6)*31,26+8+((I-1)div 6)*42,28,38,0);
       Button_Barracks[I].Tag := I;
       Button_Barracks[I].TexID := gRes.Wares[BarracksResType[I]].GUIIcon;
       Button_Barracks[I].TexOffsetX := 1;
@@ -262,8 +262,8 @@ begin
 
     Button_TownHall_RallyPoint := TKMButtonFlat.Create(Panel_HouseTownHall, 0, 8, TB_WIDTH, 22, 0);
     Button_TownHall_RallyPoint.CapOffsetY := -11;
-    Button_TownHall_RallyPoint.Caption := 'Rally point'; //Todo translate
-    Button_TownHall_RallyPoint.Hint := 'Set townhall rally point. Alternatively you can set it via Shift + Right mouse button'; //Todo translate
+    Button_TownHall_RallyPoint.Caption := gResTexts[TX_HOUSES_RALLY_POINT];
+    Button_TownHall_RallyPoint.Hint := Format(gResTexts[TX_MAPED_RALLY_POINT_HINT], [gRes.Houses[ht_Barracks].HouseName]);
     Button_TownHall_RallyPoint.OnClick := SetRallyPointClick;
 
     WaresRow_TH_Gold_Input := TKMWareOrderRow.Create(Panel_HouseTownHall, 0, 34, TB_WIDTH, TH_MAX_GOLDMAX_VALUE);
@@ -458,7 +458,7 @@ begin
 
   Button_House_Worker.TexID  := gRes.Units[gRes.Houses[fHouse.HouseType].OwnerType].GUIIcon;
   HandleHouseClosedForWorker(fHouse);
-  Button_House_Worker.Hint := Format('Open / Close house for %s', [gRes.Units[gRes.Houses[fHouse.HouseType].OwnerType].GUIName]); //Todo translate
+  Button_House_Worker.Hint := Format(gResTexts[TX_HOUSES_CLOSED_FOR_WORKER_HINT], [gRes.Units[gRes.Houses[fHouse.HouseType].OwnerType].GUIName]);
   Button_House_Worker.FlagColor := gHands[fHouse.Owner].FlagColor;
   Button_House_Worker.Visible := gRes.Houses[fHouse.HouseType].OwnerType <> ut_None;
   Image_House_Worker.TexID := gRes.Units[HouseDat.OwnerType].GUIIcon;
@@ -520,6 +520,7 @@ var
   begin
     if TH.GoldMaxCnt < aValue + TH.GoldCnt then
       TH.GoldMaxCnt := aValue + TH.GoldCnt;
+    aValue := TH.GoldMaxCnt - TH.GoldCnt;
     fHouse.ResAddToIn(wt_Gold, aValue);
   end else
   if aValue < 0 then

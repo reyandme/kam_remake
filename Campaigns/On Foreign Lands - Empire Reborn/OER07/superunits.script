@@ -1,0 +1,89 @@
+type SU_TDelayKill = record
+	unitID: integer;
+    time : integer;
+	killedById : integer;
+end;
+
+var SU_unitsToKill : array of SU_TDelayKill;
+var SU_superunits: array of integer;
+
+function SU_GetDistance(aUnit:Integer; baseUnit:integer):double;
+var x0, x1, y0, y1 : integer;
+begin
+	x1 := States.UnitPositionX(aUnit);
+	y1 := States.UnitPositionY(aUnit);
+	x0 := States.UnitPositionX(baseUnit);
+	y0 := States.UnitPositionY(baseUnit);
+	Result := sqrt(((x0 - x1) * (x0 - x1)) + ((y0 - y1) * (y0 - y1)));
+end;
+
+procedure SU_ExecuteUnitAttack(aUnit: Integer; aAttacker: Integer);
+var exists, isAttacking, execute: boolean;
+	i, idx, uType, distance: integer;
+begin
+	if ((Length(SU_superunits) > 0) AND (Utils.ArrayHasElementI(aAttacker, SU_superunits))) then begin
+		distance := 6;
+		execute := true;
+		exists := false;
+		isAttacking := false;
+		for i := 0 to Length(SU_unitsToKill) - 1 do begin
+			if (SU_unitsToKill[i].unitID = aUnit) then exists := true;
+			if (SU_unitsToKill[i].killedById = aAttacker) then isAttacking := true;
+		end;
+
+		if ((exists = false) AND (isAttacking = false)) then begin
+			uType := States.UnitType(aAttacker);
+			if ((uType = 17) OR (uType = 18) OR (uType = 25)) then begin
+				distance := Round(SU_GetDistance(aUnit, aAttacker));
+				execute := distance > 4;
+			end;
+			if (execute) then begin
+				idx := Length(SU_unitsToKill);
+				SetLength(SU_unitsToKill, idx + 1);
+				SU_unitsToKill[idx].unitID := aUnit;
+				SU_unitsToKill[idx].time := States.GameTime + distance;
+				SU_unitsToKill[idx].killedById := aAttacker;
+			end;
+		end;
+	end;
+end;
+
+procedure SU_RegisterSuperGroup(groupId:Integer);
+var i:integer;
+begin
+	for i := 0 to States.GroupMemberCount(groupId) - 1 do begin
+		SetLength(SU_superunits, Length(SU_superunits) + 1);
+		SU_superunits[Length(SU_superunits) - 1] := States.GroupMember(groupId, i);
+	end;
+end;
+
+procedure SU_ExecuteKill;
+var t, i: integer;
+	newArray: array of SU_TDelayKill;
+begin
+	t := States.GameTime;
+	for i := 0 to Length(SU_unitsToKill) - 1 do begin
+		if (SU_unitsToKill[i].time = t) then begin
+			Actions.UnitKill(SU_unitsToKill[i].unitID, false);
+		end
+		else begin
+			SetLength(newArray, Length(newArray) + 1);
+			newArray[Length(newArray) - 1] := SU_unitsToKill[i];
+		end;
+	end;
+	SU_unitsToKill := newArray;
+end;
+
+procedure SU_ExecuteSuperunitDie(aUnit:Integer; aKillerOwner:Integer);
+var i, found:integer;
+begin
+	found := -1;
+	for i := 0 to Length(SU_superunits) - 1 do begin
+		if (SU_superunits[i] = aUnit) then begin
+			found := i;
+			break;
+		end;
+	end;
+	
+	if (found >= 0) then SU_superunits := Utils.ArrayRemoveIndexI(found, SU_superunits);
+end;

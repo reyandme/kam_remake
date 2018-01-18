@@ -1,0 +1,91 @@
+{$I maputils.script}
+
+var variant, ally:integer;
+var screenCentered : boolean;
+
+procedure OnMissionStart;
+var i, j, x, y:integer;
+var houses: array of integer;
+begin
+	screenCentered := false;
+	variant := CampaignData.Mission4.VillageEscaped;
+	ally := CampaignData.Mission4.VillageChosen;
+	
+	for j := 0 to 9 do begin
+		houses := States.PlayerGetAllHouses(j);
+		for i := 0 to Length(houses) - 1 do begin
+			x := States.HousePositionX(houses[i]);
+			y := States.HousePositionY(houses[i]);
+			Actions.HouseDestroy(houses[i], true);
+			Actions.FogCoverCircle(0, x, y, 10);
+		end;
+	end;
+	
+	SetMap(variant);
+	Actions.PlayerAddDefaultGoals(0, true);
+	Actions.CinematicStart(0);
+end;
+
+procedure OnTick;
+begin
+	if (screenCentered = false) then begin
+		if (variant = 3) then begin
+			Actions.CinematicPanTo(0, 48, 109, 0);
+			if (ally = 1) then begin 
+				Actions.GiveGroup(0, 24, 39, 103, 7, 12, 4);
+				Actions.GiveGroup(0, 25, 54, 102, 1, 12, 4);
+			end
+			else begin
+				Actions.GiveGroup(0, 15, 39, 103, 7, 8, 4);
+				Actions.GiveGroup(0, 17, 54, 102, 1, 8, 4);
+			end;
+		end
+		else if (variant = 2) then begin
+			Actions.CinematicPanTo(0, 11, 92, 0);
+			if (ally = 1) then begin 
+				Actions.GiveGroup(0, 24, 5, 86, 0, 12, 4);
+				Actions.GiveGroup(0, 25, 14, 85, 1, 12, 4);
+			end
+			else begin
+				Actions.GiveGroup(0, 23, 5, 86, 7, 9, 3);
+				Actions.GiveGroup(0, 17, 14, 85, 1, 6, 3);
+			end;
+		end
+		else begin
+			Actions.CinematicPanTo(0, 106, 78, 0);
+			if (ally = 3) then begin 
+				Actions.GiveGroup(0, 23, 99, 72, 0, 9, 3);
+				Actions.GiveGroup(0, 17, 98, 81, 5, 6, 3);
+			end
+			else begin
+				Actions.GiveGroup(0, 15, 99, 72, 0, 9, 3);
+				Actions.GiveGroup(0, 17, 98, 81, 5, 9, 3);
+			end;
+		end;
+		screenCentered := true;
+		Actions.CinematicEnd(0);
+	end;
+end;
+
+procedure OnWarriorEquipped(aUnitID: Integer; aGroupID: Integer);
+var group: integer;
+begin
+	if (States.UnitOwner(aUnitID) > 0) then begin
+		group := -1;
+		if (variant = 3) then begin
+			if (States.UnitType(aUnitID) = 14) then group := Actions.GiveGroup(States.UnitOwner(aUnitID), 23, States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 1, 1, 1);
+		end
+		else if (variant = 2) then begin
+			if (States.UnitType(aUnitID) = 14) then group := Actions.GiveGroup(States.UnitOwner(aUnitID), 15, States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 1, 1, 1);
+		end
+		else begin
+			if (States.UnitType(aUnitID) = 17) then group := Actions.GiveGroup(States.UnitOwner(aUnitID), 25, States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 1, 1, 1)
+			else if (States.UnitType(aUnitID) = 19) then group := Actions.GiveGroup(States.UnitOwner(aUnitID), 24, States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 1, 1, 1)
+		end;
+		
+		if (group > 0) then begin
+			Actions.UnitKill(aUnitID, true);
+			Actions.GroupOrderLink(group, aGroupID);
+		end;
+	end;
+end;

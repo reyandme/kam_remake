@@ -80,6 +80,7 @@ type
 
     function GetResourceInArray: TKMByteArray;
     function GetResourceOutArray: TKMByteArray;
+    function GetResourceOutPoolArray: TKMByteArray;
 
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
@@ -153,6 +154,7 @@ type
 
     property ResourceInArray: TKMByteArray read GetResourceInArray;
     property ResourceOutArray: TKMByteArray read GetResourceOutArray;
+    property ResourceOutPoolArray: TKMByteArray read GetResourceOutPoolArray;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
@@ -1022,6 +1024,16 @@ begin
   iOffset := Low(fResourceOut) - Low(Result);
   for I := Low(Result) to High(Result) do
     Result[I] := fResourceOut[I + iOffset];
+end;
+
+
+function TKMHouse.GetResourceOutPoolArray: TKMByteArray;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(fResourceOutPool));
+  for I := Low(Result) to High(Result) do
+    Result[I] := fResourceOutPool[I];
 end;
 
 

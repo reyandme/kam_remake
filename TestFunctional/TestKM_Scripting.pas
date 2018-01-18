@@ -28,7 +28,7 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
 
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
-  fScripting := TKMScripting.Create(nil);
+  fScripting := TKMScriptingCreator.CreateScripting(nil);
 end;
 
 

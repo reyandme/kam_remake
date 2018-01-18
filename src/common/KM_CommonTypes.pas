@@ -37,6 +37,10 @@ type
   TObjectIntegerEvent = procedure (Sender: TObject; X: Integer) of object;
   TSingleEvent = procedure (aValue: Single) of object;
   TUnicodeStringEvent = procedure (const aData: UnicodeString) of object;
+  TUnicodeStringEventProc = procedure (const aData: UnicodeString);
+  TUnicode2StringEventProc = procedure (const aData1, aData2: UnicodeString);
+  TUnicodeStringObjEvent = procedure (Obj: TObject; const aData: UnicodeString) of object;
+  TUnicodeStringObjEventProc = procedure (Sender: TObject; const aData: UnicodeString);
   TUnicodeStringBoolEvent = procedure (const aData: UnicodeString; aBool: Boolean) of object;
   TGameStartEvent = procedure (const aData: UnicodeString; Spectating: Boolean) of object;
   TMapStartEvent = procedure (const aData: UnicodeString; aMapFolder: TMapFolder; aCRC: Cardinal; Spectating: Boolean) of object;
