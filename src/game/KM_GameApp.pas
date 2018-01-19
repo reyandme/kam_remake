@@ -681,10 +681,8 @@ end;
 procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX, aSizeY: Integer; aMapCRC: Cardinal = 0);
 begin
   if aFileName <> '' then
-  begin
-    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), aMapCRC, nil, 0, gmMapEd, 0, 0);
-    fPathOpenEditableMission := aFileName;
-  end else
+    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), aMapCRC, nil, 0, gmMapEd, 0, 0)
+  else
     LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
 end;
 

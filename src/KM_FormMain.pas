@@ -189,7 +189,6 @@ uses
 //Remove VCL panel and use flicker-free TMyPanel instead
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  fPathOpenEditableMission := '';
   fPathOpen := ExeDir;
   RenderArea := TKMRenderControl.Create(Self);
   RenderArea.Parent := Self;
@@ -368,9 +367,7 @@ begin
 
   if not gGameApp.Game.IsMapEditor then Exit;
 
-  if fPathOpenEditableMission = '' then fPathOpenEditableMission := fPathOpen + 'New Mission.dat';
-
-  if RunSaveDialog(SaveDialog1, fPathOpenEditableMission, ExtractFileDir(fPathOpenEditableMission), 'Knights & Merchants Mission (*.dat)|*.dat') then
+  if RunSaveDialog(SaveDialog1, gGameApp.Game.MapEditor.PathOpenEditableMission, ExtractFileDir(gGameApp.Game.MapEditor.PathOpenEditableMission), 'Knights & Merchants Mission (*.dat)|*.dat') then
     gGameApp.SaveMapEditor(SaveDialog1.FileName);
 end;
 

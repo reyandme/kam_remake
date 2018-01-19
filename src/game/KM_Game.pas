@@ -892,6 +892,8 @@ var
 begin
   fGameName := gResTexts[TX_MAPED_NEW_MISSION];
 
+  fMapEditor.PathOpenEditableMission := fGameName + '.dat';
+
   fMissionFileSP := '';
   fSaveFile := '';
 
@@ -952,7 +954,6 @@ end;
 procedure TKMGame.SaveMapEditor(const aPathName: UnicodeString);
 begin
   SaveMapEditor(aPathName, KMRECT_ZERO);
-  fPathOpenEditableMission := aPathName;
 end;
 
 
@@ -972,6 +973,7 @@ begin
   ForceDirectories(ExtractFilePath(aPathName));
   gLog.AddTime('Saving from map editor: ' + aPathName);
 
+  fMapEditor.PathOpenEditableMission := aPathName;
   fMapEditor.SaveAttachements(aPathName);
   gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
   fMapEditor.TerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);

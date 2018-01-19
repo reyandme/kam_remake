@@ -807,7 +807,6 @@ const
 
 var
   ExeDir: UnicodeString;
-  fPathOpenEditableMission: UnicodeString;
 
 implementation
 
