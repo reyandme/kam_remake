@@ -102,7 +102,7 @@ begin
   Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays, 30, 94, 300, 40, fnt_Grey);
   Radio_Replays_Type.ItemIndex := 0;
   Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
-  Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
+  Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_FULL_MPMAPS]);
   Radio_Replays_Type.OnChange := Replay_TypeChange;
 
   ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 22, 150, 770, 425, fnt_Metal, bsMenu);
