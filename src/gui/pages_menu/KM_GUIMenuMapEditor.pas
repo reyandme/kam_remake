@@ -166,7 +166,7 @@ begin
       Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEdLoad,8,28,286,40,fnt_Grey);
       Radio_MapEd_MapType.ItemIndex := 0;
       Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
-      Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
+      Radio_MapEd_MapType.Add(gResTexts[TX_MENU_MAPED_FULL_MPMAPS]);
       Radio_MapEd_MapType.OnChange := MapTypeChange;
       ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 80, 440, 506, fnt_Metal,  bsMenu);
       ColumnBox_MapEd.Anchors := [anLeft, anTop, anBottom];
