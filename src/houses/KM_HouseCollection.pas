@@ -45,7 +45,8 @@ uses
   KM_Game, KM_Terrain,
   KM_HouseInn, KM_HouseMarket, KM_HouseBarracks, KM_HouseSchool, 
   KM_HouseTownHall, KM_HouseWoodcutters,
-  KM_Resource;
+  KM_Resource,
+  KM_GameTypes;
 
 
 { TKMHousesCollection }

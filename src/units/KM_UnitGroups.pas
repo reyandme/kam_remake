@@ -212,7 +212,8 @@ implementation
 uses
   KM_Game, KM_Hand, KM_HandsCollection, KM_Terrain, KM_CommonUtils, KM_ResTexts, KM_RenderPool,
   KM_Hungarian, KM_UnitActionWalkTo, KM_PerfLog, KM_AI, KM_ResUnits, KM_ScriptingEvents,
-  KM_UnitActionStormAttack;
+  KM_UnitActionStormAttack,
+  KM_GameTypes;
 
 
 const

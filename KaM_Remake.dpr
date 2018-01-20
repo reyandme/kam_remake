@@ -45,7 +45,8 @@ uses
   KM_Controls in 'src\KM_Controls.pas',
   {$IFDEF USE_MAD_EXCEPT}KM_Exceptions in 'src\KM_Exceptions.pas',{$ENDIF}
   KM_FogOfWar in 'src\KM_FogOfWar.pas',
-	
+
+  KM_GameTypes in 'src\game\KM_GameTypes.pas',  
   KM_Game in 'src\game\KM_Game.pas',
   KM_GameApp in 'src\game\KM_GameApp.pas',
   KM_GameCursor in 'src\game\KM_GameCursor.pas',

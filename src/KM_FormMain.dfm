@@ -485,6 +485,7 @@ object FormMain: TFormMain
       end
       object SaveEditableMission1: TMenuItem
         Caption = 'Save editable mission...'
+        Enabled = False
         OnClick = SaveEditableMission1Click
       end
       object N4: TMenuItem

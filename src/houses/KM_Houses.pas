@@ -284,7 +284,8 @@ uses
   KM_Hand, KM_HandsCollection, KM_HandLogistics, KM_InterfaceGame,
   KM_Units_Warrior, KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
   KM_Resource, KM_ResSound, KM_ResTexts, KM_ResUnits, KM_ResMapElements,
-  KM_Log, KM_ScriptingEvents, KM_CommonUtils;
+  KM_Log, KM_ScriptingEvents, KM_CommonUtils,
+  KM_GameTypes;
 
 const
   //Delay, In ticks, from user click on DeliveryMode btn, to tick, when mode will be really set.

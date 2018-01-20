@@ -305,7 +305,8 @@ uses
   KM_Utils,
   KM_CommonUtils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes,
-  KM_InterfaceMapEditor, KM_HouseWoodcutters;
+  KM_InterfaceMapEditor, KM_HouseWoodcutters,
+  KM_GameTypes;
 
 const ALLIES_ROWS = 7;
       PANEL_ALLIES_WIDTH = 810;

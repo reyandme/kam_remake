@@ -298,7 +298,8 @@ uses
   KM_UnitTaskGoOutShowHungry,
   KM_UnitTaskMining,
   KM_UnitTaskSelfTrain,
-  KM_UnitTaskThrowRock;
+  KM_UnitTaskThrowRock,
+  KM_GameTypes;
 
 
 { TKMSettledUnit }

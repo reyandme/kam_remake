@@ -175,7 +175,8 @@ uses
   Classes, SysUtils, KromUtils, Math,
   KM_Game, KM_Terrain, KM_HouseBarracks, KM_HouseTownHall,
   KM_HandsCollection, KM_Sound, KM_AIFields,
-  KM_Resource, KM_ResSound, KM_ResTexts, KM_ScriptingEvents;
+  KM_Resource, KM_ResSound, KM_ResTexts, KM_ScriptingEvents,
+  KM_GameTypes;
 
 
 const

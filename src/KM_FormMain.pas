@@ -4,6 +4,7 @@ interface
 uses
   Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils,
   KM_RenderControl, KM_Settings,
+  KM_GameTypes,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} ShellAPI, Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
@@ -12,6 +13,7 @@ uses
 type
   TFormMain = class(TForm)
     MenuItem1: TMenuItem;
+    SaveEditableMission1: TMenuItem;
     N2: TMenuItem;
     OpenDialog1: TOpenDialog;
     StatusBar1: TStatusBar;
@@ -92,7 +94,6 @@ type
     SaveSettings: TMenuItem;
     N4: TMenuItem;
     ReloadSettings: TMenuItem;
-    SaveEditableMission1: TMenuItem;
     SaveDialog1: TSaveDialog;
     chkLogCommands: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
@@ -144,9 +145,12 @@ type
     procedure ReloadSettingsClick(Sender: TObject);
     procedure SaveSettingsClick(Sender: TObject);
     procedure SaveEditableMission1Click(Sender: TObject);
+
+    procedure GameStart(aGameMode: TGameMode);
+    procedure GameEnd(aGameMode: TGameMode);
   private
     fUpdating: Boolean;
-    fPathOpen: UnicodeString;
+    fMissionDefOpenPath: UnicodeString;
     procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
     procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
     {$IFDEF MSWindows}
@@ -189,7 +193,7 @@ uses
 //Remove VCL panel and use flicker-free TMyPanel instead
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  fPathOpen := ExeDir;
+  fMissionDefOpenPath:= ExeDir;
   RenderArea := TKMRenderControl.Create(Self);
   RenderArea.Parent := Self;
   RenderArea.Align := alClient;
@@ -234,6 +238,21 @@ begin
     Top := gMain.Settings.WindowParams.Top;
   end;
 
+  gGameApp.OnGameStart := GameStart;
+  gGameApp.OnGameEnd := GameEnd;
+
+end;
+
+
+procedure TFormMain.GameStart(aGameMode: TGameMode);
+begin
+  SaveEditableMission1.Enabled := True;
+end;
+
+
+procedure TFormMain.GameEnd(aGameMode: TGameMode);
+begin
+  SaveEditableMission1.Enabled := False;
 end;
 
 
@@ -343,20 +362,20 @@ end;
 //Open
 procedure TFormMain.Open_MissionMenuClick(Sender: TObject);
 begin
-  if RunOpenDialog(OpenDialog1, '', fPathOpen, 'Knights & Merchants Mission (*.dat)|*.dat') then
+  if RunOpenDialog(OpenDialog1, '', fMissionDefOpenPath, 'Knights & Merchants Mission (*.dat)|*.dat') then
   begin
     gGameApp.NewSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
-    fPathOpen := ExtractFileDir(OpenDialog1.FileName);
+    fMissionDefOpenPath := ExtractFileDir(OpenDialog1.FileName);
   end;
 end;
 
 
 procedure TFormMain.MenuItem1Click(Sender: TObject);
 begin
-  if RunOpenDialog(OpenDialog1, '', fPathOpen, 'Knights & Merchants Mission (*.dat)|*.dat') then
+  if RunOpenDialog(OpenDialog1, '', fMissionDefOpenPath, 'Knights & Merchants Mission (*.dat)|*.dat') then
   begin
     gGameApp.NewMapEditor(OpenDialog1.FileName, 0, 0);
-    fPathOpen := ExtractFileDir(OpenDialog1.FileName);
+    fMissionDefOpenPath := ExtractFileDir(OpenDialog1.FileName);
   end;
 end;
 
@@ -367,7 +386,7 @@ begin
 
   if not gGameApp.Game.IsMapEditor then Exit;
 
-  if RunSaveDialog(SaveDialog1, gGameApp.Game.MapEditor.PathOpenEditableMission, ExtractFileDir(gGameApp.Game.MapEditor.PathOpenEditableMission), 'Knights & Merchants Mission (*.dat)|*.dat') then
+  if RunSaveDialog(SaveDialog1, gGameApp.Game.MapEditor.MissionDefSavePath, ExtractFileDir(gGameApp.Game.MapEditor.MissionDefSavePath), 'Knights & Merchants Mission (*.dat)|*.dat') then
     gGameApp.SaveMapEditor(SaveDialog1.FileName);
 end;
 

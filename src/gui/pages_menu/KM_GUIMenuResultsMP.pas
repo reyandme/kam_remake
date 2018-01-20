@@ -158,7 +158,8 @@ type
 implementation
 uses
   KM_ResTexts, KM_Game, KM_HandsCollection, KM_CommonUtils, KM_Resource, KM_ResFonts,
-  KM_RenderUI, KM_Hand, KM_ResUnits;
+  KM_RenderUI, KM_Hand, KM_ResUnits,
+  KM_GameTypes;
 
 
 const

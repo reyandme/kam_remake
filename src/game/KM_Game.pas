@@ -9,18 +9,10 @@ uses
   KM_GameInputProcess, KM_GameOptions, KM_Scripting, KM_MapEditor, KM_Campaigns, KM_Render, KM_Sound,
   KM_InterfaceGame, KM_InterfaceGamePlay, KM_InterfaceMapEditor,
   KM_ResTexts,
-  KM_PerfLog, KM_Defaults, KM_Points, KM_CommonTypes, KM_CommonClasses;
+  KM_PerfLog, KM_Defaults, KM_Points, KM_CommonTypes, KM_CommonClasses,
+  KM_GameTypes;
 
 type
-  TGameMode = (
-    gmSingle,
-    gmCampaign,
-    gmMulti,        //Different GIP, networking,
-    gmMultiSpectate,
-    gmMapEd,        //Army handling, lite updates,
-    gmReplaySingle, //No input, different results screen to gmReplayMulti
-    gmReplayMulti   //No input, different results screen to gmReplaySingle
-    );
 
   //Class that manages single game session
   TKMGame = class
@@ -892,12 +884,11 @@ var
 begin
   fGameName := gResTexts[TX_MAPED_NEW_MISSION];
 
-  fMapEditor.PathOpenEditableMission := fGameName + '.dat';
-
   fMissionFileSP := '';
   fSaveFile := '';
 
   fMapEditor := TKMMapEditor.Create;
+  fMapEditor.MissionDefSavePath := fGameName + '.dat';
   gTerrain.MakeNewMap(aSizeX, aSizeY, True);
   fMapEditor.TerrainPainter.InitEmpty;
   fMapEditor.TerrainPainter.MakeCheckpoint;
@@ -973,7 +964,7 @@ begin
   ForceDirectories(ExtractFilePath(aPathName));
   gLog.AddTime('Saving from map editor: ' + aPathName);
 
-  fMapEditor.PathOpenEditableMission := aPathName;
+  fMapEditor.MissionDefSavePath := aPathName;
   fMapEditor.SaveAttachements(aPathName);
   gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
   fMapEditor.TerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);

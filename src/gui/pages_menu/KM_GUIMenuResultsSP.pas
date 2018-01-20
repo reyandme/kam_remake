@@ -4,7 +4,8 @@ interface
 uses
   Controls, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_Campaigns, KM_Game;
+  KM_InterfaceDefaults, KM_Campaigns, KM_Game,
+  KM_GameTypes;
 
 
 type

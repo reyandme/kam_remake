@@ -323,7 +323,8 @@ uses
   SysUtils, TypInfo, Math,
   KM_GameApp, KM_Game, KM_Hand, KM_HandsCollection,
   KM_HouseMarket, KM_HouseBarracks, KM_HouseSchool, KM_HouseTownHall,
-  KM_ScriptingEvents, KM_Alerts, KM_CommonUtils, KM_Log;
+  KM_ScriptingEvents, KM_Alerts, KM_CommonUtils, KM_Log,
+  KM_GameTypes;
 
 const 
   NO_LAST_TICK_VALUE = 0;

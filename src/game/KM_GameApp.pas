@@ -7,7 +7,8 @@ uses
   Classes, Dialogs, ExtCtrls,
   KM_CommonTypes, KM_Defaults, KM_RenderControl,
   KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_Resource,
-  KM_Music, KM_Networking, KM_Settings, KM_Render;
+  KM_Music, KM_Networking, KM_Settings, KM_Render,
+  KM_GameTypes;
 
 type
   //Methods relevant to gameplay
@@ -26,6 +27,8 @@ type
 
     fOnCursorUpdate: TIntegerStringEvent;
     fOnGameSpeedChange: TSingleEvent;
+    fOnGameStart: TKMGameModeChangeEvent;
+    fOnGameEnd: TKMGameModeChangeEvent;
 
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
@@ -84,6 +87,8 @@ type
     procedure FPSMeasurement(aFPS: Cardinal);
 
     property OnGameSpeedChange: TSingleEvent read fOnGameSpeedChange write fOnGameSpeedChange;
+    property OnGameStart: TKMGameModeChangeEvent read fOnGameStart write fOnGameStart;
+    property OnGameEnd: TKMGameModeChangeEvent read fOnGameEnd write fOnGameEnd;
 
     procedure Render(aForPrintScreen: Boolean);
     procedure UpdateState(Sender: TObject);
@@ -458,6 +463,9 @@ begin
     gr_MapEdEnd:    fMainMenuInterface.PageChange(gpMapEditor);
   end;
 
+  if Assigned(fOnGameEnd) then
+    fOnGameEnd(gGame.GameMode);
+
   FreeThenNil(gGame);
   gLog.AddTime('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(aMsg)) + ' /' + aTextMsg);
 end;
@@ -684,6 +692,9 @@ begin
     LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), aMapCRC, nil, 0, gmMapEd, 0, 0)
   else
     LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
+
+  if Assigned(fOnGameStart) then
+    fOnGameStart(gGame.GameMode);
 end;
 
 
