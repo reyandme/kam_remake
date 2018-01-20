@@ -25,7 +25,12 @@ if(($RevNum > 6097) && ($Lang == 'chn')) {
 //First see if they are up to date
 if($Rev != $MAIN_VERSION)
 {
-    EchoUpdateMessage($Lang, $Rev, $MAIN_VERSION); //Will use either ANSI or Unicode based on which file gets included above
+    if ($RevNum > 6720)
+    {
+        EchoUsingBetaMessage($Lang, $Rev, $MAIN_VERSION); //Will use either ANSI or Unicode based on which file gets included above
+    } else {
+        EchoUpdateMessage($Lang, $Rev, $MAIN_VERSION); //Will use either ANSI or Unicode based on which file gets included above
+    }
 }
 else
 {

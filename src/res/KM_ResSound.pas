@@ -389,7 +389,7 @@ begin
   try
     MS.LoadFromFile(aFile);
     MS.ReadA(S);
-    if S = GAME_REVISION then
+    if S = AnsiString(GAME_REVISION) then
     begin
       MS.Read(WarriorSoundCount, SizeOf(WarriorSoundCount));
       MS.Read(fWarriorUseBackup, SizeOf(fWarriorUseBackup));

@@ -80,9 +80,9 @@ begin
   TilesEyedropper.OnClick := TilesChange;
 
   TilesRotate := TKMButtonFlat.Create(Panel_Tiles, 2, 70, TB_WIDTH - 4, 20, 0);
-  TilesRotate.Caption := 'Rotate tile'; //Todo translate;
+  TilesRotate.Caption := gResTexts[TX_MAPED_TERRAIN_ROTATE_TILE];
   TilesRotate.CapOffsetY := -10;
-  TilesRotate.Hint := 'Rotate tile'; //Todo translate;
+  TilesRotate.Hint := gResTexts[TX_MAPED_TERRAIN_ROTATE_TILE];
   TilesRotate.OnClick := TilesChange;
 
   TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 106, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);

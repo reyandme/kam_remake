@@ -42,7 +42,7 @@ uses
 
 const
   ResRatioType: array [TKMRatioTab] of TWareType = (wt_Steel, wt_Coal, wt_Wood, wt_Corn);
-  ResRatioHint: array [TKMRatioTab] of Word = (298, 300, 302, 304);
+  //ResRatioHint: array [TKMRatioTab] of Word = (298, 300, 302, 304);
   ResRatioHouseCount: array [TKMRatioTab] of Byte = (2, 4, 2, 3);
   ResRatioHouse: array [TKMRatioTab, 0..3] of THouseType = (
       (ht_WeaponSmithy,   ht_ArmorSmithy,     ht_None,          ht_None),

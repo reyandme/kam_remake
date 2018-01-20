@@ -1,0 +1,61 @@
+var winGroup:integer;
+var killed: boolean;
+
+procedure OnMissionStart;
+var i:integer;
+begin
+	for i := 1 to 7 do begin
+		Actions.PlayerAddDefaultGoals(i, true);
+	end;
+	
+	winGroup := -1;
+	killed := true;
+end;
+
+procedure OnPlayerDefeated(aPlayer:integer);
+var all:boolean;
+var i:integer;
+begin
+	all := true;
+	
+	for i := 1 to 7 do begin
+		all := all AND States.PlayerDefeated(i);
+	end;
+	
+	if (all) then begin
+		winGroup := Actions.GiveGroup(2, 22, 172, 96, 0, 12, 4);
+		Actions.GroupOrderWalk(winGroup, 164, 1, 0);
+		Actions.ShowMsgGoto(0, 172, 96, '<$0>');
+		Actions.FogRevealCircle(0, 172, 96, 15);
+	end;
+end;
+
+procedure OnTick;
+var u1, u2, u3, g1, g2, g3: integer;
+begin
+	u1 := States.UnitAt(163, 1);
+	u2 := States.UnitAt(164, 1);
+	u3 := States.UnitAt(165, 1);
+	
+	if (u1 > 0) then g1 := States.UnitsGroup(u1) else g1 := -1;
+	if (u2 > 0) then g2 := States.UnitsGroup(u2) else g2 := -1;
+	if (u3 > 0) then g3 := States.UnitsGroup(u3) else g3 := -1;
+	
+	if ((winGroup > 0) AND ((g1 = winGroup) OR (g2 = winGroup) OR (g3 = winGroup))) then begin
+		if (u1 > 0) then Actions.UnitKill(u1, true);
+		if (u2 > 0) then Actions.UnitKill(u2, true);
+		if (u3 > 0) then Actions.UnitKill(u3, true);
+		if (States.GroupMemberCount(winGroup) <= 0) then killed := false;
+		Actions.GroupOrderWalk(winGroup, 164, 1, 0);
+	end;
+	
+	if ((winGroup > 0) AND (States.GameTime mod 5 = 0)) then Actions.GroupOrderWalk(winGroup, 164, 1, 0);
+	if ((winGroup > 0) AND (States.GroupDead(winGroup))) then Actions.PlayerWin([0], true);
+end;
+
+procedure OnPlayerVictory(aPlayer:integer);
+begin
+	if (aPlayer = 0) then begin
+		CampaignData.Mission15.RebelsKilled := killed;
+	end;
+end;

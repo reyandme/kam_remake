@@ -145,10 +145,10 @@ begin
     //Replays section
     Panel_Options_Replays := TKMPanel.Create(Panel_Options,60,500,280,50);
     Panel_Options_Replays.Anchors := [anLeft];
-      TKMLabel.Create(Panel_Options_Replays,6,0,270,20,'Replays:',fnt_Outline,taLeft);   //TODO translate
+      TKMLabel.Create(Panel_Options_Replays,6,0,270,20,gResTexts[TX_WORD_REPLAY] + ':',fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Replays,0,20,280,30);
 
-      CheckBox_Options_ReplayAutopause := TKMCheckBox.Create(Panel_Options_Replays,12,27,256,20,'Pause at peacetime end', fnt_Metal);   //TODO translate
+      CheckBox_Options_ReplayAutopause := TKMCheckBox.Create(Panel_Options_Replays,12,27,256,20,gResTexts[TX_SETTINGS_PAUSE_AT_PT_END], fnt_Metal);
       CheckBox_Options_ReplayAutopause.OnClick := Change;
 
     // Keybindings button
@@ -529,6 +529,18 @@ end;
 
 
 procedure TKMMenuOptions.KeysRefreshList;
+
+  function GetFunctionName(aTX_ID: Integer): String;
+  begin
+    case aTX_ID of
+      TX_KEY_FUNC_GAME_SPEED_2: Result := Format(gResTexts[aTX_ID], [FormatFloat('##0.##', gGameApp.GameSettings.SpeedMedium)]);
+      TX_KEY_FUNC_GAME_SPEED_3: Result := Format(gResTexts[aTX_ID], [FormatFloat('##0.##', gGameApp.GameSettings.SpeedFast)]);
+      TX_KEY_FUNC_GAME_SPEED_4: Result := Format(gResTexts[aTX_ID], [FormatFloat('##0.##', gGameApp.GameSettings.SpeedVeryFast)]);
+      else                      Result := gResTexts[aTX_ID];
+
+    end;
+  end;
+
 const
   KEY_TX: array [TKMFuncArea] of Word = (TX_KEY_COMMON, TX_KEY_GAME, TX_KEY_SPECTATE_REPLAY, TX_KEY_MAPEDIT);
 var
@@ -547,7 +559,7 @@ begin
     // Do not show the debug keys
     for I := 0 to fTempKeys.Count - 1 do
       if (fTempKeys[I].Area = K) and not fTempKeys[I].IsChangableByPlayer then
-        ColumnBox_OptionsKeys.AddItem(MakeListRow([gResTexts[fTempKeys[I].TextId], fTempKeys.GetKeyNameById(I)],
+        ColumnBox_OptionsKeys.AddItem(MakeListRow([GetFunctionName(fTempKeys[I].TextId), fTempKeys.GetKeyNameById(I)],
                                                   [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], I));
   end;
 

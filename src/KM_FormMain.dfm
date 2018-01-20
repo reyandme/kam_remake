@@ -3,7 +3,7 @@ object FormMain: TFormMain
   Top = 419
   HelpType = htKeyword
   BorderStyle = bsNone
-  ClientHeight = 656
+  ClientHeight = 686
   ClientWidth = 521
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -26,12 +26,12 @@ object FormMain: TFormMain
   OnShow = FormShow
   DesignSize = (
     521
-    656)
+    686)
   PixelsPerInch = 96
   TextHeight = 13
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 636
+    Top = 666
     Width = 521
     Height = 20
     Panels = <
@@ -67,12 +67,13 @@ object FormMain: TFormMain
         Text = 'Control ID: 9999'
         Width = 80
       end>
+    ExplicitTop = 636
   end
   object GroupBox1: TGroupBox
     Left = 320
     Top = 8
     Width = 193
-    Height = 624
+    Height = 634
     Anchors = [akTop, akRight]
     Caption = ' Development controls '
     TabOrder = 1
@@ -405,7 +406,7 @@ object FormMain: TFormMain
       Left = 8
       Top = 481
       Width = 177
-      Height = 138
+      Height = 150
       Caption = 'Logs'
       TabOrder = 6
       object chkLogDelivery: TCheckBox
@@ -417,20 +418,29 @@ object FormMain: TFormMain
         TabOrder = 0
         OnClick = ControlsUpdate
       end
-      object chkLogNetConnection: TCheckBox
-        Left = 79
+			object chkLogCommands: TCheckBox
+        Left = 90
         Top = 16
+        Width = 73
+        Height = 17
+        Caption = 'Commands'
+        TabOrder = 1
+        OnClick = ControlsUpdate
+      end
+      object chkLogNetConnection: TCheckBox
+        Left = 8
+        Top = 32
         Width = 95
         Height = 17
         Caption = 'Net connection'
         Checked = True
         State = cbChecked
-        TabOrder = 1
+        TabOrder = 2
         OnClick = ControlsUpdate
       end
       object RGLogNetPackets: TRadioGroup
         Left = 8
-        Top = 36
+        Top = 48
         Width = 161
         Height = 78
         Caption = 'Net packets log level'
@@ -440,16 +450,16 @@ object FormMain: TFormMain
           'All but commands/ping/fps'
           'All but ping/fps'
           'All packets')
-        TabOrder = 2
+        TabOrder = 3
         OnClick = ControlsUpdate
       end
       object chkLogsShowInChat: TCheckBox
         Left = 8
-        Top = 116
+        Top = 129
         Width = 137
         Height = 17
         Caption = 'Show logs in MP chat'
-        TabOrder = 3
+        TabOrder = 4
         OnClick = ControlsUpdate
       end
     end

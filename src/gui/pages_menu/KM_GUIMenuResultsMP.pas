@@ -204,8 +204,8 @@ function GetChartLegendCaption(aStatType: TKMStatType): String;
 begin
   Result := '';
   case aStatType of
-    st_ByPlayers: Result := 'Players';  //Todo translate
-    st_ByTeams:   Result := 'Teams';     //Todo translate
+    st_ByPlayers: Result := gResTexts[TX_WORD_PLAYERS];
+    st_ByTeams:   Result := gResTexts[TX_WORD_TEAMS];
   end;
 end;
 
@@ -237,8 +237,8 @@ end;
 function TKMChartWarrior.GetGUIName: UnicodeString;
 begin
   case fType of
-    cwt_ArmyPower: Result := 'Army power'; //Todo translate
-    cwt_All:       Result := 'All soldiers'; //Todo translate
+    cwt_ArmyPower: Result := gResTexts[TX_RESULTS_ARMY_POWER];
+    cwt_All:       Result := gResTexts[TX_RESULTS_ALL_SOLDIERS];
     else           Result := gRes.Units[UnitType].GUIName;
   end;
 end;
@@ -421,23 +421,23 @@ begin
   Panel_ChartsEconomy.Anchors := [anLeft];
     Chart_Players_Citizens := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
     Chart_Players_Citizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
-    Chart_Players_Citizens.LegendCaption := 'Players'; //Todo translate
+    Chart_Players_Citizens.LegendCaption := gResTexts[TX_WORD_PLAYERS];
     Chart_Players_Citizens.Anchors := [anLeft];
 
     Chart_Teams_Citizens := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
     Chart_Teams_Citizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
-    Chart_Teams_Citizens.LegendCaption := 'Teams'; //Todo translate
+    Chart_Teams_Citizens.LegendCaption := gResTexts[TX_WORD_TEAMS];
     Chart_Teams_Citizens.Anchors := [anLeft];
 
     Chart_Players_Houses := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
     Chart_Players_Houses.Caption := gResTexts[TX_GRAPH_HOUSES];
-    Chart_Players_Houses.LegendCaption := 'Players'; //Todo translate
+    Chart_Players_Houses.LegendCaption := gResTexts[TX_WORD_PLAYERS];
     Chart_Players_Houses.Anchors := [anLeft];
     Chart_Players_Houses.Hide;
 
     Chart_Teams_Houses := TKMChart.Create(Panel_ChartsEconomy, 62, 0, 900, CHART_HEIGHT);
     Chart_Teams_Houses.Caption := gResTexts[TX_GRAPH_HOUSES];
-    Chart_Teams_Houses.LegendCaption := 'Teams'; //Todo translate
+    Chart_Teams_Houses.LegendCaption := gResTexts[TX_WORD_TEAMS];
     Chart_Teams_Houses.Anchors := [anLeft];
     Chart_Teams_Houses.Hide;
 
@@ -451,7 +451,7 @@ begin
         LineWidth := 1;
       end;
 
-      TKMLabel.Create(Panel_ChartEconomy_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
+      TKMLabel.Create(Panel_ChartEconomy_Type, 5, 8, 140, 20, gResTexts[TX_RESULTS_CHART_TYPE], fnt_Metal, taCenter);
 
       Radio_ChartEconomyType := TKMRadioGroup.Create(Panel_ChartEconomy_Type,5,35,140,RADIO_ECO_HEIGHT - 40,fnt_Grey);
       Radio_ChartEconomyType.DrawChkboxOutline := True;
@@ -526,13 +526,13 @@ begin
         LineWidth := 1;
       end;
 
-      TKMLabel.Create(Panel_ChartWare_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
+      TKMLabel.Create(Panel_ChartWare_Type, 5, 8, 140, 20, gResTexts[TX_RESULTS_CHART_TYPE], fnt_Metal, taCenter);
 
       Radio_ChartWareType := TKMRadioGroup.Create(Panel_ChartWare_Type,5,35,140,WARES_TYPE_HEIGHT - 40,fnt_Grey);
       Radio_ChartWareType.DrawChkboxOutline := True;
       Radio_ChartWareType.ItemIndex := 0;
-      Radio_ChartWareType.Add('Quantity');  // Todo translate
-      Radio_ChartWareType.Add('GDP');       // Todo translate
+      Radio_ChartWareType.Add(gResTexts[TX_RESULTS_WARES_QUANTITY]);
+      Radio_ChartWareType.Add(gResTexts[TX_RESULTS_WARES_GDP]);
       Radio_ChartWareType.OnChange := RadioWareTypeChange;
 end;
 
@@ -568,7 +568,7 @@ begin
         begin
           Charts_Army[ST,CKind,WType] := TKMChartArmyMP.Create(WType, CKind, Panel_ChartsArmy, 140, 0, 760, CHART_HEIGHT);
           Charts_Army[ST,CKind,WType].Chart.Caption := gResTexts[TX_GRAPH_ARMY];
-          Charts_Army[ST,CKind,WType].Chart.LegendCaption := GetChartLegendCaption(ST); //Todo translate
+          Charts_Army[ST,CKind,WType].Chart.LegendCaption := GetChartLegendCaption(ST);
           Charts_Army[ST,CKind,WType].Chart.Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
           Charts_Army[ST,CKind,WType].Chart.Hide;
         end;
@@ -583,15 +583,15 @@ begin
         LineWidth := 1;
       end;
 
-      TKMLabel.Create(Panel_ChartArmy_Type, 5, 8, 140, 20, 'Chart type', fnt_Metal, taCenter); // Todo translate
+      TKMLabel.Create(Panel_ChartArmy_Type, 5, 8, 140, 20, gResTexts[TX_RESULTS_CHART_TYPE], fnt_Metal, taCenter);
 
       Radio_ChartArmyType := TKMRadioGroup.Create(Panel_ChartArmy_Type,5,35,140,ARMY_TYPE_HEIGHT - 40,fnt_Grey);
       Radio_ChartArmyType.DrawChkboxOutline := True;
       Radio_ChartArmyType.ItemIndex := 0;
-      Radio_ChartArmyType.Add('Instantaneous');   // Todo translate
-      Radio_ChartArmyType.Add('Total equipped');  // Todo translate
-      Radio_ChartArmyType.Add('Defeated');        // Todo translate
-      Radio_ChartArmyType.Add('Lost');            // Todo translate
+      Radio_ChartArmyType.Add(gResTexts[TX_RESULTS_ARMY_INSTANTANEOUS]);
+      Radio_ChartArmyType.Add(gResTexts[TX_RESULTS_ARMY_TOTAL_EQUIPPED]);
+      Radio_ChartArmyType.Add(gResTexts[TX_RESULTS_ARMY_DEFEATED]);
+      Radio_ChartArmyType.Add(gResTexts[TX_RESULTS_ARMY_LOST]);
       Radio_ChartArmyType.OnChange := RadioArmyTypeChange;
 end;
 
@@ -1160,7 +1160,7 @@ begin
   //Back button has different captions depending on where it returns us to
   case fGameResultMsg of
     gr_ReplayEnd: BackCaption := gResTexts[TX_RESULTS_BACK_REPLAYS];
-    gr_ShowStats: BackCaption := 'Back to Game results'; //Todo translate
+    gr_ShowStats: BackCaption := gResTexts[TX_RESULTS_BACK_TO_RESULTS];
     else          BackCaption := gResTexts[TX_RESULTS_BACK_MP];
   end;
   Button_ResultsMPBack.Caption := BackCaption;
@@ -1382,7 +1382,7 @@ const
     aChart^.SetSeparatorPositions(fChartSeparatorsPos[aStatType]);
 
     if aUseGDP then
-      aChart^.Caption   := gRes.Wares[W].Title + ' - ' + 'GDP' //Todo translate
+      aChart^.Caption   := gRes.Wares[W].Title + ' - ' + gResTexts[TX_RESULTS_WARES_GDP]
     else
       aChart^.Caption   := gRes.Wares[W].Title + ' - ' + gResTexts[TX_GRAPH_TITLE_RESOURCES];
 
@@ -1397,13 +1397,6 @@ const
         ChartWaresData := GetChartWares(HandId, W, aUseGDP);
         KMSummAndEnlargeArr(@ChartData, @ChartWaresData);
       end;
-
-//      HandId := StrToInt(PlayersList[0]);
-//      with gHands[HandId] do
-//      begin
-//        aChart^.MaxLength := Max(aChart^.MaxLength, Stats.ChartCount);
-//        aChart^.AddLine(GetOwnerName(HandId), FlagColor, ChartData, I);
-//      end;
 
       HandId := StrToInt(PlayersList[0]);
       aChart^.MaxLength := Max(aChart^.MaxLength, gHands[HandId].Stats.ChartCount);
@@ -1462,8 +1455,13 @@ end;
 
 
 procedure TKMMenuResultsMP.ReinitChartArmy;
+type
+  TKMChartArmyCaptionIndex = array[TKMChartArmyKind] of Integer;
 const
-  CHART_ARMY_CAPTION: array[TKMChartArmyKind] of String = ('Instantaneous','Total equipped','Defeated','Lost');
+  CHART_ARMY_CAPTION_INDEX: TKMChartArmyCaptionIndex = (TX_RESULTS_ARMY_INSTANTANEOUS,
+                                                        TX_RESULTS_ARMY_TOTAL_EQUIPPED,
+                                                        TX_RESULTS_ARMY_DEFEATED,
+                                                        TX_RESULTS_ARMY_LOST);
 var
   I,J, HandId: Integer;
   PlayersList: TStringList;
@@ -1511,7 +1509,7 @@ begin
         Chart^.MaxTime := gGame.GameTickCount div 10;
         Chart^.Peacetime := 60*gGame.GameOptions.Peacetime;
         Chart^.SetSeparatorPositions(fChartSeparatorsPos[ST]);
-        Chart^.Caption := ChartArmy^.ChartType.GUIName + ' - ' + CHART_ARMY_CAPTION[CKind]; // Todo translate
+        Chart^.Caption := ChartArmy^.ChartType.GUIName + ' - ' + gResTexts[CHART_ARMY_CAPTION_INDEX[CKind]];
 
         for I := 0 to fListToShow[ST].Count - 1 do
         begin
@@ -1600,7 +1598,7 @@ begin
     Button_Players.TexOffsetX := -Button_Players.Width div 2 + 12;
     Button_Players.TexOffsetY := 6;
     Button_Players.Anchors := [anLeft];
-    Button_Players.Caption := 'by Players'; //Todo translate
+    Button_Players.Caption := gResTexts[TX_RESULTS_BY_PLAYERS];
     Button_Players.CapOffsetY := -11;
     Button_Players.CapOffsetX := 12;
     Button_Players.OnClick := StatTypeChange;
@@ -1609,7 +1607,7 @@ begin
     Button_Teams.TexOffsetX := -Button_Teams.Width div 2 + 20;
     Button_Teams.TexOffsetY := 6;
     Button_Teams.Anchors := [anLeft];
-    Button_Teams.Caption := 'by Teams'; //Todo translate
+    Button_Teams.Caption := gResTexts[TX_RESULTS_BY_TEAMS];
     Button_Teams.CapOffsetY := -11;
     Button_Teams.CapOffsetX := 20;
     Button_Teams.OnClick := StatTypeChange;

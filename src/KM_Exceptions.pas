@@ -114,7 +114,7 @@ begin
     ExceptIntf.ExceptMsg := 'An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!'+#13#10+#13#10+LogMessage;
 
   //We want to add some of our own files to the report
-  CrashFile := 'KaM_Crash_' + GAME_REVISION + '_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss', Now) + '.zip';
+  CrashFile := 'KaM_Crash_' + UnicodeString(GAME_REVISION) + '_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss', Now) + '.zip';
   MESettings.BugReportZip := CrashFile; //Exception info also goes in the zip
   MESettings.ScreenShotZip := CrashFile; //Screenshot also goes in the zip
 

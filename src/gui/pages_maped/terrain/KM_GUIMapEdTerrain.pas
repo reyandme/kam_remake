@@ -40,6 +40,7 @@ type
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer; var aHandled: Boolean);
 
     property GuiTiles: TKMMapEdTerrainTiles read fGuiTiles;
+    property GuiSelection: TKMMapEdTerrainSelection read fGuiSelection;
 
     procedure Show(aTab: TKMTerrainTab);
     procedure ShowIndex(aIndex: Byte);

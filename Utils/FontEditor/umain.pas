@@ -98,6 +98,9 @@ implementation
 {$R *.dfm}
 //{$ENDIF}
 
+uses
+  KromShellUtils;
+
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin

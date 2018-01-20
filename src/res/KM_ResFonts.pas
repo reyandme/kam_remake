@@ -343,10 +343,12 @@ const
   BG: Integer = $AF6B6B;
 var
   I, K: Integer;
+{$IFDEF WDC}
   scLine: Cardinal;
   TD: TKMCardinalArray;
   C: Integer;
   A: Byte;
+{$ENDIF}
 begin
   Assert(Length(fAtlases[aIndex].TexData) > 0, 'There is no font data in memory');
 

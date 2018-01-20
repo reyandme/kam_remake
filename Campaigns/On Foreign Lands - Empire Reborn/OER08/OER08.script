@@ -1,0 +1,177 @@
+type TPitPosition = record
+	x : integer;
+	y : integer;
+	visible: boolean;
+end;
+
+var pits: array of TPitPosition;
+var firstPitDisplay, roadDestroyedDisplay: boolean;
+var smartAttackGroup:integer;
+
+procedure OnMissionStart;
+begin
+	SetLength(pits, 35);
+	pits[0].x := 115;
+	pits[0].y := 58;
+	pits[1].x := 73;
+	pits[1].y := 80;
+	pits[2].x := 86;
+	pits[2].y := 62;
+	pits[3].x := 96;
+	pits[3].y := 57;
+	pits[4].x := 105;
+	pits[4].y := 60;
+	pits[5].x := 98;
+	pits[5].y := 59;
+	pits[6].x := 102;
+	pits[6].y := 58;
+	pits[7].x := 99;
+	pits[7].y := 56;
+	pits[8].x := 110;
+	pits[8].y := 65;
+	pits[9].x := 107;
+	pits[9].y := 63;
+	pits[10].x := 105;
+	pits[10].y := 55;
+	pits[11].x := 112;
+	pits[11].y := 57;
+	pits[12].x := 108;
+	pits[12].y := 58;
+	pits[13].x := 113;
+	pits[13].y := 61;
+	pits[14].x := 88;
+	pits[14].y := 54;
+	pits[15].x := 111;
+	pits[15].y := 49;
+	pits[16].x := 103;
+	pits[16].y := 50;
+	pits[17].x := 108;
+	pits[17].y := 52;
+	pits[18].x := 113;
+	pits[18].y := 53;
+	pits[19].x := 118;
+	pits[19].y := 52;
+	pits[20].x := 119;
+	pits[20].y := 57;
+	pits[21].x := 114;
+	pits[21].y := 64;
+	pits[22].x := 119;
+	pits[22].y := 62;
+	pits[23].x := 124;
+	pits[23].y := 59;
+	pits[24].x := 122; 
+	pits[24].y := 63;
+	pits[25].x := 123;
+	pits[25].y := 53;
+	pits[26].x := 100;
+	pits[26].y := 48;
+	pits[27].x := 100;
+	pits[27].y := 52;
+	pits[28].x := 109;
+	pits[28].y := 61;
+	pits[29].x := 110;
+	pits[29].y := 65;
+	pits[30].x := 114;
+	pits[30].y := 67;
+	pits[31].x := 87;
+	pits[31].y := 50;
+	pits[32].x := 109;
+	pits[32].y := 54;
+	pits[33].x := 116;
+	pits[34].y := 55;
+	
+	roadDestroyedDisplay := false;
+	firstPitDisplay := false;
+	smartAttackGroup := States.GroupAt(51, 124);
+	Actions.PlayerAddDefaultGoals(0, false);
+	Actions.PlayerShareFog(1, 0, false);
+	Actions.PlayerShareFog(2, 0, false);
+	Actions.FogCoverCircle(0, 19, 52, 30);
+	Actions.FogCoverCircle(0, 109, 89, 30);
+	
+	if (CampaignData.Mission2.LiteAlive = false) then Actions.GroupKillAll(States.GroupAt(26, 120), true)
+	else Actions.ShowMsg(0, '<$2>');
+	
+	Actions.OverlayTextSet(0, '<$3>');
+end;
+
+procedure OnUnitAttacked(aUnit:Integer;aAttacker:integer);
+var i:integer;
+var groups:array of integer;
+begin
+	if (States.UnitOwner(aUnit) = 5) then begin
+		groups := States.PlayerGetAllGroups(5);
+		Actions.OverlayTextSet(0, IntToStr(Length(groups)));
+		for i := 0 to Length(groups) - 1 do begin
+			if (States.GroupIdle(groups[i])) then Actions.GroupOrderAttackUnit(groups[i], States.ClosestUnit(0, 14, 118, -1));
+		end;
+	end;
+end;
+
+procedure OnWarriorWalked(aWarrior: Integer;xTo, yTo:Integer);
+var i:integer;
+begin
+	if (States.UnitOwner(aWarrior) = 0) then begin
+		for i := 0 to Length(pits) - 1 do begin
+			if ((pits[i].x = xTo) AND (pits[i].y = yTo) AND (pits[i].visible = false)) then begin
+				pits[i].visible := true;
+				Actions.UnitKill(aWarrior, false);
+				Actions.MapTileSet(pits[i].x - 1, pits[i].y, 168, 1);
+				Actions.MapTileSet(pits[i].x + 1, pits[i].y, 168, 3);
+				Actions.MapTileSet(pits[i].x, pits[i].y - 1, 168, 2);
+				Actions.MapTileSet(pits[i].x, pits[i].y + 1, 168, 0);
+				Actions.MapTileObjectSet(pits[i].x, pits[i].y, 69);
+				Actions.MapTileObjectSet(pits[i].x, pits[i].y + 1, 69);
+				Actions.MapTileObjectSet(pits[i].x + 1, pits[i].y, 69);
+				Actions.MapTileObjectSet(pits[i].x + 1, pits[i].y + 1, 69);
+				if (firstPitDisplay = false) then begin
+					firstPitDisplay := true;
+					Actions.ShowMsgGoto(0, pits[i].x, pits[i].y, '<$0>');
+				end;
+			end;
+		end;
+
+		if ((xTo >= 68) AND (xTo <= 74) AND (yTo <= 13) AND (roadDestroyedDisplay = false)) then begin
+			roadDestroyedDisplay := true;
+			Actions.ShowMsg(0, '<$1>');
+		end;
+		
+		if ((xTo >= 52) AND (yTo >= 91) AND (States.GroupDead(smartAttackGroup) = false) AND (States.GroupIdle(smartAttackGroup))) then Actions.GroupOrderAttackUnit(smartAttackGroup, aWarrior);
+	end;
+end;
+
+procedure OnTick;
+var i, pX, pY:integer;
+var victory:boolean;
+var units: array of integer;
+begin
+	if (States.GameTime mod 5 = 0) then begin
+		victory := States.StatArmyCount(0) > 0;
+		for i := 0 to length(pits) - 1 do begin
+			if (pits[i].visible) then Actions.MapTileSet(pits[i].x, pits[i].y, 245, 0);
+		end;
+	
+		if (States.GameTime mod 20 = 0) then begin
+			units := States.PlayerGetAllUnits(0);
+			for i := 0 to Length(units) - 1 do begin
+				pX := States.UnitPositionX(units[i]);
+				pY := States.UnitPositionY(units[i]);
+				
+				if not ((pX >= 110) AND (pX <= 127) AND (pY >= 36) AND (pY <= 57)) then begin
+					victory := false;
+				end;
+			end;
+		
+			if (victory) then Actions.PlayerWin([0], true);
+		end;
+	end;
+end;
+
+procedure OnPlayerVictory(aPlayerId:integer);
+begin
+	CampaignData.Mission8.Bowman := States.StatUnitTypeCount(0, 17);
+	CampaignData.Mission8.CrossBowman := States.StatUnitTypeCount(0, 18);
+	CampaignData.Mission8.AxeFighter := States.StatUnitTypeCount(0, 15);
+	CampaignData.Mission8.Knight := States.StatUnitTypeCount(0, 22);
+	CampaignData.Mission8.Pikeman := States.StatUnitTypeCount(0, 20);
+end;

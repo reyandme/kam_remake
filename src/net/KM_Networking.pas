@@ -630,15 +630,15 @@ begin
 
   if not fMapInfo.IsValid then
   begin
-    SelectNoMap('Map is invalid'); // Todo translate
-    PostLocalMessage('Selected map is invalid. Please select another map', csSystem); // Todo translate
+    SelectNoMap(gResTexts[TX_NET_ERR_MAP_INVALID]);
+    PostLocalMessage(gResTexts[TX_NET_ERR_MAP_INVALID_MSG], csSystem);
     Exit;
   end;
 
   if (aMapFolder = mfDL) and not fMapInfo.IsFilenameEndMatchHash then
   begin
-    SelectNoMap('Downloaded map files have changed'); // Todo translate
-    PostLocalMessage('Selected DL map, which files have changed. Please move it out of downloads first', csSystem); // Todo translate
+    SelectNoMap(gResTexts[TX_NET_ERR_DL_MAP_FILE_CHANGED]);
+    PostLocalMessage(gResTexts[TX_NET_ERR_DL_MAP_FILE_CHANGED_MSG], csSystem);
     Exit;
   end;
 
@@ -933,7 +933,7 @@ begin
                 try
                   if CheckMapInfo.CRC <> fMapInfo.CRC then
                   begin
-                    PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], ['Map files have changed. Please reselect the map']), csSystem); // Todo translate
+                    PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], [gResTexts[TX_NET_ERR_MAP_FILE_CHANGED]]), csSystem);
                     Exit;
                   end;
                 finally
