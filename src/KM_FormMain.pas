@@ -246,7 +246,7 @@ end;
 
 procedure TFormMain.GameStart(aGameMode: TGameMode);
 begin
-  SaveEditableMission1.Enabled := True;
+  SaveEditableMission1.Enabled := aGameMode = gmMapEd;
 end;
 
 
