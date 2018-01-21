@@ -193,7 +193,6 @@ uses
 //Remove VCL panel and use flicker-free TMyPanel instead
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  fMissionDefOpenPath:= ExeDir;
   RenderArea := TKMRenderControl.Create(Self);
   RenderArea.Parent := Self;
   RenderArea.Align := alClient;
@@ -241,6 +240,7 @@ begin
   gGameApp.OnGameStart := GameStart;
   gGameApp.OnGameEnd := GameEnd;
 
+  fMissionDefOpenPath:= ExeDir;
 end;
 
 
