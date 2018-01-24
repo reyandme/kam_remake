@@ -85,6 +85,7 @@ begin
     CheckBox_Settings_MusicOff.OnClick := Menu_Settings_Change;
     Inc(TopPos, 25);
     CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fnt_Metal);
+    CheckBox_Settings_ShuffleOn.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_HINT];
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
 end;
 

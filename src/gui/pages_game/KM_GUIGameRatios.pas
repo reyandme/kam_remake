@@ -77,7 +77,7 @@ begin
   for K := 0 to 3 do
   begin
     Image_RatioPic[K]               := TKMImage.Create(Panel_Ratios, 0, 124 + K * 50, 32, 32, 327);
-    TrackBar_RatioValue[K]          := TKMTrackBar.Create(Panel_Ratios, 32, 116 + K * 50, 140, 0, 5);
+    TrackBar_RatioValue[K]          := TKMTrackBar.Create(Panel_Ratios, 32, 116 + K * 50, 155, 0, 5);
     TrackBar_RatioValue[K].CaptionWidth := 160;
     TrackBar_RatioValue[K].Font     := fnt_Grey; //fnt_Metal doesn't fit the text
     TrackBar_RatioValue[K].Tag      := K;
