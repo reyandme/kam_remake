@@ -42,7 +42,7 @@ begin
 	Actions.ShowMsg(0, '<$16>');
 	if (CampaignData.Mission4.VillageChosen = 1) then Actions.ShowMsg(0, '<$17>');
 	Actions.UnitBlock(0, 13, true);
-	Actions.OverlayTextSet(0, '<$0>: [$0000FF]<$1>.|[$0000FF]<$2>: ' + IntToStr(population) + '|' + '|<$3>: [$00FF00]100%[$FFFFFF]');
+	Actions.OverlayTextSet(0, '<$0>: <$1>.|<$2>: ' + IntToStr(population) + '|' + '|<$3>: [$00FF00]100%[$FFFFFF]');
 end;
 
 procedure OnHouseBuilt(aHouseID:integer);
@@ -215,7 +215,7 @@ begin
 				supplyCounter := supplyCounter + 1;
 			end;
 			
-			text := '<$0>: [$0000FF]<$1>.|[$0000FF]<$2>: ' + IntToStr(population) + '|' + '|<$3>: ' + color + IntToStr(fedP) + '%[$FFFFFF]';
+			text := '<$0>: <$1>.|<$2>: ' + IntToStr(population) + '|' + '|<$3>: ' + color + IntToStr(fedP) + '%[$FFFFFF]';
 			if (sCounter + 1 < sBaseCounter) then text := text + '|<$4>!';
 			if (fCounter + 1 < fBaseCounter) then text := text + '|<$5>!';
 			if (lCounter + 1 < lBaseCounter) then text := text + '|<$6>!';
@@ -303,6 +303,7 @@ begin
 		end;
 	end
 	else if (mode = 'riot') then begin
+		Actions.OverlayTextSet(0, '');
 		if (rChanger <= villages) then begin
 			units := States.PlayerGetAllUnits(rChanger);
 			for i := 0 to Length(units) - 1 do begin
@@ -333,7 +334,7 @@ begin
 			m3 := m3 + States.HouseResourceAmount(storehouses[i], 7);
 		end;
 
-		text := '<$0>: [$00FF00]<$1>.[$FFFFFF]|<$0>: [$0000FF]<$10>.[$FFFFFF]';
+		text := '[$00FF00]<$0>: <$1>.[$FFFFFF]|<$0>: <$10>.';
 			
 		if (m1 <= 100) then text := text + '|<$11>: ' + IntToStr(100 - m1);
 		if (m2 <= 100) then text := text + '|<$12>: ' + IntToStr(100 - m2);
@@ -374,7 +375,7 @@ begin
 		end;
 	end
 	else if (mode = 'rebuild') then begin
-		text := '<$0>: [$00FF00]<$1>.[$FFFFFF]|<$0>: [$00FF00]<$10>.[$FFFFFF]|<$0>: [$0000FF]<$14>.[$FFFFFF]';
+		text := '[$00FF00]<$0>: <$1>.|<$0>: <$10>.[$FFFFFF]|<$0>: <$14>.';
 		Actions.OverlayTextSet(0, text);
 		
 		Actions.PlanAddHouse(4, 13, 13, 104);
@@ -397,7 +398,7 @@ begin
 		end;
 		
 		if (defended) then begin
-			text := '<$0>: [$00FF00]<$1>.[$FFFFFF]|<$0>: [$00FF00]<$10>.[$FFFFFF]|<$0>: [$00FF00]<$14>.[$FFFFFF]';
+			text := '[$00FF00]<$0>: <$1>.|<$0>: <$10>.[$FFFFFF]|<$0>: <$14>.';
 			mode := 'win'
 			wintime := States.GameTime + 300;
 		end

@@ -792,6 +792,8 @@
 !SET_UNIT 0 122 149
 !SET_UNIT 0 125 150
 !SET_UNIT 0 125 149
+!SET_UNIT 13 116 134
+!SET_UNIT 13 123 134
 !SET_GROUP 22 119 135 0 5 15
 !SET_GROUP_FOOD 2700
 !SET_GROUP 18 114 135 1 5 15
@@ -1456,4 +1458,4 @@
 !SET_UNIT 31 149 39
 !SET_UNIT 31 147 12
 
-//This mission was made with KaM Remake Map Editor version r8284 at 18.01.2018 0:54:03
+//This mission was made with KaM Remake Map Editor version r8355 (UNSECURE!) at 29.01.2018 16:46:57
