@@ -46,6 +46,13 @@
 !SET_ALLIANCE 3 1
 
 !BLOCK_HOUSE 29
+!BLOCK_HOUSE 18
+!BLOCK_UNIT 14 1
+!BLOCK_UNIT 23 0
+!BLOCK_UNIT 24 0
+!BLOCK_UNIT 25 0
+!BLOCK_UNIT 26 0
+!BLOCK_UNIT 27 0
 !SET_HOUSE 11 29 59
 !ADD_WARE 1 60
 !ADD_WARE 2 50
@@ -773,4 +780,4 @@
 !SET_UNIT 31 86 66
 !SET_UNIT 31 62 82
 
-//This mission was made with KaM Remake Map Editor version r8134 at 22.12.2017 21:37:43
+//This mission was made with KaM Remake Map Editor version r8166 at 04.01.2018 0:58:13
