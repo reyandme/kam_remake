@@ -214,7 +214,7 @@ begin
     Result := False;
     Exit;
   end else
-  if InRange(fPhase, 3, 4) then
+  if InRange(fPhase, 3, 3) then
   begin
     Result := True;
     Exit;
@@ -235,8 +235,8 @@ begin
     else
       fDeliverKind := dk_ToConstruction;
     Result := True;
-    if fPhase > 5 then
-      fPhase := 5;
+    if fPhase > 4 then
+      fPhase := 4;
   end
   else
   // New Unit
@@ -245,8 +245,8 @@ begin
     fToUnit := NewToUnit.GetUnitPointer;
     fDeliverKind := dk_ToUnit;
     Result := True;
-    if fPhase > 5 then
-      fPhase := 5;
+    if fPhase > 4 then
+      fPhase := 4;
   end
   else
   // No alternative
@@ -292,12 +292,21 @@ begin
           CheckForBetterDestination; //Must run before TakenOffer so Offer is still valid
           gHands[Owner].Deliveries.Queue.TakenOffer(fDeliverID);
         end;
-    3:  if fFrom.IsDestroyed then //We have the resource, so we don't care if house is destroyed
-          SetActionLockedStay(0, ua_Walk)
-        else
-          SetActionGoIn(ua_Walk, gd_GoOutside, fFrom);
-    4:  SetActionLockedStay(0, ua_Walk); //Thats a placeholder left for no obvious reason
+    3:  begin
+          if fFrom.IsDestroyed then //We have the resource, so we don't care if house is destroyed
+            SetActionLockedStay(0, ua_Walk)
+          else
+            SetActionGoIn(ua_Walk, gd_GoOutside, fFrom);
+          Inc(fPhase); // jump to phase 5 immidiately
+        end;
+    4:  begin
+          SetActionStay(5, ua_Walk); //used only from FindBestDestination
+          Thought := th_Quest;
+        end;
   end;
+
+  if fPhase = 5 then
+    TKMUnitSerf(fUnit).Thought := th_None; // Clear possible '?' thought after 4th phase
 
   //Deliver into complete house
   if (fDeliverKind = dk_ToHouse) then

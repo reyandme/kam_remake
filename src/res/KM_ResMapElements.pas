@@ -3,11 +3,15 @@ unit KM_ResMapElements;
 interface
 uses
   Classes, SysUtils, KromUtils,
-  KM_CommonTypes, KM_Defaults;
+  KM_CommonTypes, KM_Defaults, KM_Points;
 
 
 type
   TKMKillByRoad = (kbrNever, kbrNWCorner, kbrWest);
+
+  TKMChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
+
+  TKMChopableAgeSet = set of TKMChopableAge;
 
   TKMMapElement = packed record
     Anim: TKMAnimLoop;          //Animation loop info
@@ -36,16 +40,17 @@ type
   end;
 
 
+  function ObjectIsChoppableTree(aObjId: Integer): Boolean; overload;
+  function ObjectIsChoppableTree(aObjId: Integer; aStage: TKMChopableAge): Boolean; overload;
+  function ObjectIsChoppableTree(aObjId: Integer; aStages: TKMChopableAgeSet): Boolean; overload;
+
+
 var
   //MapElem is in global access because of the recursive FloodFill algorithm
   //when it uses TKMResMapElements.MapElem each call takes 8 times more memory
   //on the stack (View>Debug>CPU>Stack) for reasons unknown to me.
   gMapElements: array [Byte] of TKMMapElement;
 
-type
-  TKMChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
-
-  TKMChopableAgeSet = set of TKMChopableAge;
 
 const
   //Chopable tree, Chopdown animation,
@@ -185,6 +190,49 @@ begin
     Writeln(ft);
   end;
   CloseFile(ft);
+end;
+
+
+function ObjectIsChoppableTree(aObjId: Integer): Boolean;
+var
+  I: Integer;
+  K: TKMChopableAge;
+begin
+  Result := True;
+
+  for I := 1 to Length(ChopableTrees) do
+    for K := Low(TKMChopableAge) to High(TKMChopableAge) do
+      if (aObjId = ChopableTrees[I,K]) then Exit;
+
+  Result := False;
+end;
+
+
+function ObjectIsChoppableTree(aObjId: Integer; aStage: TKMChopableAge): Boolean;
+var
+  I: Integer;
+begin
+  Result := True;
+
+  for I := 1 to Length(ChopableTrees) do
+    if (aObjId = ChopableTrees[I, aStage]) then Exit;
+
+  Result := False;
+end;
+
+
+function ObjectIsChoppableTree(aObjId: Integer; aStages: TKMChopableAgeSet): Boolean;
+var
+  I: Integer;
+  Stage: TKMChopableAge;
+begin
+  Result := True;
+
+  for I := 1 to Length(ChopableTrees) do
+    for Stage in aStages do
+      if (aObjId = ChopableTrees[I, Stage]) then Exit;
+
+  Result := False;
 end;
 
 

@@ -61,10 +61,14 @@ end;
 
 procedure LoadFromPng(const aFile: UnicodeString; var aWidth, aHeight: Word; var aPixelData: TKMCardinalArray);
 var
-  {$IFDEF WDC} Png: TPngImage; {$ENDIF}
-  {$IFDEF FPC} Png: TBGRABitmap; {$ENDIF}
-  I, K: Integer;
+  {$IFDEF WDC}
+  Png: TPngImage;
   T: Byte;
+  {$ENDIF}
+  {$IFDEF FPC}
+  Png: TBGRABitmap;
+  {$ENDIF}
+  I, K: Integer;
 begin
   {$IFDEF WDC}
     Png := TPngImage.Create;

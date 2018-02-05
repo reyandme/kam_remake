@@ -1,0 +1,92 @@
+{$I superunits.script}
+
+procedure OnTick;
+begin
+	SU_ExecuteKill();
+	
+	if (States.GameTime = 50) then begin
+		Actions.CinematicStart(0);
+		Actions.CinematicPanTo(0, 60, 226, 1);
+	end;
+	if (States.GameTime = 70) then Actions.CinematicPanTo(0, 49, 241, 15);
+	if (States.GameTime = 150) then Actions.ShowMsg(0, '<$0>');
+	if (States.GameTime = 180) then begin
+		Actions.HouseTakeWaresFrom(States.HouseAt(49, 240), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(49, 240), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(49, 240), 27, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(49, 240), 8, 5);
+	end;
+	if (States.GameTime = 210) then Actions.GroupOrderWalk(States.GroupAt(49, 241), 8, 93, 4);
+	if (States.GameTime = 300) then Actions.CinematicPanTo(0, 147, 205, 1);
+	if (States.GameTime = 302) then Actions.CinematicEnd(0);
+	
+	if (States.GameTime mod 1200 = 0) then begin
+		//storehouse
+		Actions.HouseTakeWaresFrom(States.HouseAt(234, 54), 13, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(234, 54), 10, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(234, 54), 27, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(100, 17), 13, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(100, 17), 10, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(100, 17), 27, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(83, 134), 13, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(83, 134), 10, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(83, 134), 27, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(95, 164), 13, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(95, 164), 10, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(95, 164), 27, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(243, 197), 13, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(243, 197), 10, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(243, 197), 27, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(166, 252), 13, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(166, 252), 10, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(166, 252), 27, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(50, 248), 13, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(50, 248), 10, 99);
+		Actions.HouseTakeWaresFrom(States.HouseAt(50, 248), 27, 99);	 
+		//inn
+		Actions.HouseTakeWaresFrom(States.HouseAt(234, 46), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(234, 46), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(234, 46), 27, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(224, 58), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(224, 58), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(224, 58), 27, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(90, 10), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(90, 10), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(90, 10), 27, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(105, 21), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(105, 21), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(105, 21), 27, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(77, 132), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(77, 132), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(77, 132), 27, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(90, 165), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(90, 165), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(90, 165), 27, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(246, 193), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(246, 193), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(246, 193), 27, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(161, 251), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(161, 251), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(161, 251), 27, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(49, 240), 13, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(49, 240), 10, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(49, 240), 27, 5);
+	end;
+end;
+
+procedure OnMissionStart;
+begin
+	SU_RegisterSuperGroup(States.GroupAt(141, 210));
+	Actions.PlayerAddDefaultGoals(0, true);
+	Actions.FogCoverCircle(0, 142, 113, 50);
+end;
+
+procedure OnUnitDied(aUnit: Integer; aAttacker: Integer);
+begin
+	SU_ExecuteSuperunitDie(aUnit, aAttacker);
+end;
+
+procedure OnUnitAttacked(aUnit: Integer; aAttacker: Integer);
+begin
+	SU_ExecuteUnitAttack(aUnit, aAttacker);
+end;

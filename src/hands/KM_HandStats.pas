@@ -59,6 +59,8 @@ type
     Houses: array [THouseType] of THouseStats;
     Units: array [HUMANS_MIN..HUMANS_MAX] of TUnitStats;
     Wares: array [WARE_MIN..WARE_MAX] of TWareStats;
+    MilitiaTrainedInTownHall: Cardinal;
+
     fWareDistribution: TKMWareDistribution;
     function GetChartWares(aWare: TWareType): TKMCardinalArray;
     function GetChartArmy(aChartKind: TKMChartArmyKind; aWarrior: TUnitType): TKMCardinalArray;
@@ -80,7 +82,7 @@ type
     procedure HouseLost(aType: THouseType);
     procedure HouseSelfDestruct(aType: THouseType);
     procedure HouseDestroyed(aType: THouseType);
-    procedure UnitCreated(aType: TUnitType; aWasTrained: Boolean);
+    procedure UnitCreated(aType: TUnitType; aWasTrained: Boolean; aFromTownHall: Boolean = False);
     procedure UnitAddedToTrainingQueue(aType: TUnitType);
     procedure UnitRemovedFromTrainingQueue(aType: TUnitType);
     procedure UnitLost(aType: TUnitType);
@@ -243,11 +245,14 @@ begin
 end;
 
 
-procedure TKMHandStats.UnitCreated(aType: TUnitType; aWasTrained:boolean);
+procedure TKMHandStats.UnitCreated(aType: TUnitType; aWasTrained: Boolean; aFromTownHall: Boolean = False);
 begin
   if aWasTrained then
-    Inc(Units[aType].Trained)
-  else
+  begin
+    Inc(Units[aType].Trained);
+    if aFromTownHall and (aType = ut_Militia) then
+      Inc(MilitiaTrainedInTownHall);
+  end else
     Inc(Units[aType].Initial);
 end;
 
@@ -408,8 +413,11 @@ begin
     else        begin
                   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
                   if aType = ut_Recruit then
-                    for UT := WARRIOR_MIN to WARRIOR_MAX do
-                      dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
+                    for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                      if UT = ut_Militia then
+                        Dec(Result, Units[UT].Trained - MilitiaTrainedInTownHall) //Do not count militia, trained in TownHall, only in Barracks
+                      else
+                        Dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
                 end;
   end;
 end;
@@ -753,6 +761,7 @@ begin
   SaveStream.Write(Houses, SizeOf(Houses));
   SaveStream.Write(Units, SizeOf(Units));
   SaveStream.Write(Wares, SizeOf(Wares));
+  SaveStream.Write(MilitiaTrainedInTownHall);
   fWareDistribution.Save(SaveStream);
 
   SaveStream.Write(fChartCount);
@@ -781,6 +790,7 @@ begin
   LoadStream.Read(Houses, SizeOf(Houses));
   LoadStream.Read(Units, SizeOf(Units));
   LoadStream.Read(Wares, SizeOf(Wares));
+  LoadStream.Read(MilitiaTrainedInTownHall);
   fWareDistribution.Load(LoadStream);
 
   LoadStream.Read(fChartCount);

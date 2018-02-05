@@ -156,8 +156,8 @@
 157:Santé
 158:Pivoter à gauche
 159:Pivoter à droite
-160:Attaquer ('a')
-161:Envoyer les troupes ('d')
+160:Attaquer
+161:Envoyer les troupes
 162:Ravitailler les troupes
 163:Charger !
 164:Changer de formation : ajouter un rang
@@ -608,9 +608,9 @@
 619:Temps de paix restant : %s
 620:Le temps de paix est terminé. À vos armes !
 621:Temps de jeu :|%s
-622:Halte ('%s')
-623:Regrouper les unités ('%s')
-624:Scinder les unités ('%s')
+622:Halte
+623:Regrouper les unités
+624:Scinder les unités
 625:Lecteur de Replay
 626:Regarder le Replay
 627:Format non supporté %s
@@ -782,3 +782,6 @@
 829:Votre commande a été traitée.
 830:Charger les fontes asiatiques
 831:Retirer des téléchargements
+1118:Cartes multijoueur
+1119:Désactiver la musique
+1120:Lecture aléatoire

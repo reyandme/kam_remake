@@ -154,8 +154,8 @@
 157:Būklė
 158:Pasisukti kairėn
 159:Pasisukti dešinėn
-160:Pulti ('a')
-161:Išskirti būrį ('d')
+160:Pulti
+161:Išskirti būrį
 162:Pamaitinti būrį
 163:Pradėti šturmavimą
 164:Pridėti liniją
@@ -409,9 +409,9 @@
 619:Taikos laiko liko: %s
 620:Taikos laikas baigėsi. Prie ginklų!
 621:Žaidimo laikas:|%s
-622:Sustabdyti būrį ('%s')
-623:Sujungti būrį ('%s')
-624:Atskirti būrį ('%s')
+622:Sustabdyti būrį
+623:Sujungti būrį
+624:Atskirti būrį
 625:Pakartojimų Grotuvas
 626:Rodyti Pakartojimą
 627:Nepalaikomas formatas %s
@@ -424,3 +424,6 @@
 635:medžiai
 636:reikšmės
 637:pagrindai
+1118:Žemėlapiai keliems
+1119:Išj. muzika
+1120:Maišyti takelius

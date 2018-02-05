@@ -141,7 +141,8 @@ uses
   KM_RenderAux, KM_HandsCollection, KM_Game, KM_Sound, KM_Resource, KM_ResUnits,
   KM_ResMapElements, KM_AIFields, KM_TerrainPainter, KM_GameCursor,
   KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
-  KM_FogOfWar, KM_Hand, KM_UnitGroups, KM_Units_Warrior, KM_CommonUtils;
+  KM_FogOfWar, KM_Hand, KM_UnitGroups, KM_Units_Warrior, KM_CommonUtils,
+  KM_GameTypes;
 
 
 const
@@ -307,6 +308,9 @@ procedure TRenderPool.RenderBackgroundUI(aRect: TKMRect);
 var
   I, K: Integer;
 begin
+  //Reset Texture, just in case we forgot to do it inside some method
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
+
   if gMySpectator.Highlight is TKMHouse then
     RenderHouseOutline(TKMHouse(gMySpectator.Highlight));
 
@@ -613,7 +617,7 @@ begin
   if H <> nil then
   begin
     AddHouse(H.HouseType, H.GetPosition, 1, 1, 0, DoImmediateRender, DoHighlight, HighlightColor);
-    AddHouseSupply(H.HouseType, H.GetPosition, H.ResourceInArray, H.ResourceOutArray, [], DoImmediateRender, DoHighlight, HighlightColor);
+    AddHouseSupply(H.HouseType, H.GetPosition, H.ResourceInArray, H.ResourceOutArray, H.ResourceOutPoolArray, DoImmediateRender, DoHighlight, HighlightColor);
     if H.CurrentAction <> nil then
       gRenderPool.AddHouseWork(H.HouseType, H.GetPosition, H.CurrentAction.SubAction, H.WorkAnimStep, FlagColor, DoImmediateRender, DoHighlight, HighlightColor);
   end;
@@ -721,9 +725,10 @@ begin
 end;
 
 
-procedure TRenderPool.AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1, R2, R3: array of Byte; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
+procedure TRenderPool.AddHouseSupply(aHouse: THouseType; Loc: TKMPoint; const R1, R2, R3: array of Byte;
+                                     DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
 var
-  Id, I, K, Count: Integer;
+  Id, I, K, I2, Count: Integer;
   R: TRXData;
 
   procedure AddHouseSupplySprite(aId: Integer);
@@ -749,13 +754,14 @@ begin
   if (R1[I - 1]) > 0 then
   begin
     Count := Min(R1[I - 1], MAX_WARES_IN_HOUSE);
-    Id := gRes.Houses[aHouse].SupplyIn[I, Count] + 1;
+    I2 := I;
 
     // Need to swap Coal and Steel for the ArmorSmithy
     // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
     if (aHouse = ht_ArmorSmithy) and (I in [1,2]) then
-      Id := gRes.Houses[aHouse].SupplyIn[3-I, Count] + 1;
+      I2 := 3-I;
 
+    Id := gRes.Houses[aHouse].SupplyIn[I2, Count] + 1;
     AddHouseSupplySprite(Id);
   end;
 
@@ -764,7 +770,14 @@ begin
     for K := 0 to 19 do
       if R3[K] > 0 then
       begin
-        Id := gRes.Houses[aHouse].SupplyOut[R3[K], K mod MAX_WARES_IN_HOUSE + 1] + 1;
+        I2 := R3[K];
+
+        // Need to swap Shields and Armor for the ArmorSmithy
+        // For some reason KaM stores these wares in swapped order, here we fix it (1 <-> 2)
+        if (aHouse = ht_ArmorSmithy) and (I2 in [1,2]) then
+          I2 := 3-R3[K];
+
+        Id := gRes.Houses[aHouse].SupplyOut[I2, K mod MAX_WARES_IN_HOUSE + 1] + 1;
         AddHouseSupplySprite(Id);
       end;
   end
@@ -1269,6 +1282,7 @@ begin
   Loc := aHouse.GetPosition;
   gRes.Houses[aHouse.HouseType].Outline(fHouseOutline);
 
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
   glColor3f(0, 1, 1);
   glBegin(GL_LINE_LOOP);
     with gTerrain do

@@ -5,7 +5,13 @@ uses
   {$IFDEF MSWINDOWS}Windows, {$ENDIF}
    {$IFDEF WDC}KM_NetServerOverbyte, {$ENDIF}
    {$IFDEF FPC}KM_NetServerLNet, {$ENDIF}
-  Classes, ExtCtrls, SysUtils, Math, KM_CommonClasses, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults, KM_CommonUtils, VerySimpleXML{, KM_Log};
+  Classes, SysUtils, Math, VerySimpleXML,
+  KM_CommonClasses, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults, KM_CommonUtils,
+  {$IFDEF CONSOLE}
+    KM_ConsoleTimer
+  {$ELSE}
+    ExtCtrls
+  {$ENDIF};
 
 
 { Contains basic items we need for smooth Net experience:
@@ -76,7 +82,12 @@ type
   private
     {$IFDEF WDC} fServer:TKMNetServerOverbyte; {$ENDIF}
     {$IFDEF FPC} fServer:TKMNetServerLNet;     {$ENDIF}
+
+    {$IFDEF CONSOLE}
+    fTimer: TKMConsoleTimer; //Use our custom TKMConsoleTimer instead of ExtCtrls.TTimer, to be able to use it in console application (DedicatedServer)
+    {$ELSE}
     fTimer: TTimer;
+    {$ENDIF}
 
     fClientList: TKMClientsList;
     fListening: Boolean;
@@ -275,9 +286,14 @@ begin
   fListening := false;
   fRoomCount := 0;
 
-  fTimer := TTimer.Create(nil);
+  {$IFDEF CONSOLE}
+    fTimer := TKMConsoleTimer.Create;
+    fTimer.OnTimerEvent := UpdateState;
+  {$ELSE}
+    fTimer := TTimer.Create(nil);
+    fTimer.OnTimer := UpdateState;
+  {$ENDIF}
   fTimer.Interval := fPacketsAccumulatingDelay;
-  fTimer.OnTimer  := UpdateState;
   fTimer.Enabled  := True;
 end;
 

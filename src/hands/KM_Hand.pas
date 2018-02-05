@@ -175,7 +175,8 @@ uses
   Classes, SysUtils, KromUtils, Math,
   KM_Game, KM_Terrain, KM_HouseBarracks, KM_HouseTownHall,
   KM_HandsCollection, KM_Sound, KM_AIFields,
-  KM_Resource, KM_ResSound, KM_ResTexts, KM_ScriptingEvents;
+  KM_Resource, KM_ResSound, KM_ResTexts, KM_ScriptingEvents,
+  KM_GameTypes;
 
 
 const
@@ -276,7 +277,7 @@ begin
   fStats        := TKMHandStats.Create;
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
-  fDeliveries   := TKMHandLogistics.Create;
+  fDeliveries   := TKMHandLogistics.Create(fHandIndex);
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(aHandIndex);
   fUnitGroups   := TKMUnitGroups.Create;
@@ -397,7 +398,7 @@ begin
   if not (aUnit is TKMUnitWarrior) then
     gScriptEvents.ProcUnitTrained(aUnit);
 
-  fStats.UnitCreated(aUnit.UnitType, True);
+  fStats.UnitCreated(aUnit.UnitType, True, (aUnit.InHouse <> nil) and (aUnit.InHouse.HouseType = ht_TownHall));
 end;
 
 
@@ -882,6 +883,7 @@ begin
   if Group <> nil then
     fUnitGroups.RemGroup(Group);
 end;
+
 
 //This is called immediately when the user clicks erase on a field plan.
 //We know that an erase command is queued and will be processed in some ticks,

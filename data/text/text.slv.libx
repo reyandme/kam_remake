@@ -156,8 +156,8 @@
 157:Stanje
 158:Obrni četo levo
 159:Obrni četo desno
-160:Napad ("a")
-161:Pošlji četo ("d")
+160:Napad
+161:Pošlji četo
 162:Nahrani četo
 163:Začni hitri napad
 164:Dodaj vrsto
@@ -608,9 +608,9 @@
 619:Mirovno obdobje na voljo: %s
 620:Mirovno obdobje je končano. H orožju
 621:Čas igre:|%s
-622:Ustavi četo ('%s')
-623:Poveži čete ('%s')
-624:Razčleni četo ('%s')
+622:Ustavi četo
+623:Poveži čete
+624:Razčleni četo
 625:Pregledovalnik
 626:Oglej si pregled
 627:Nepodprti format %s
@@ -782,3 +782,6 @@
 829:Vaše naročilo je končano
 830:Naloži azijske fonte
 831:Premakni iz prenešenih
+1118:Večigralne mape
+1119:Onemogoči muziko
+1120:Mešaj skladbe

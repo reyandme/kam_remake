@@ -1,0 +1,65 @@
+var messageDisplayed: boolean;
+
+procedure OnMissionStart;
+begin
+	if (CampaignData.Mission8.Bowman > 0) then Actions.GiveGroup(0, 17, 29, 5, 3, CampaignData.Mission8.Bowman, 4);
+	if (CampaignData.Mission8.CrossBowman > 0) then Actions.GiveGroup(0, 18, 18, 23, 3, CampaignData.Mission8.CrossBowman, 4);
+	if (CampaignData.Mission8.AxeFighter > 0) then Actions.GiveGroup(0, 15, 35, 14, 3, CampaignData.Mission8.AxeFighter, 4);
+	if (CampaignData.Mission8.Knight > 0) then Actions.GiveGroup(0, 22, 49, 16, 3, CampaignData.Mission8.Knight, 4);
+	if (CampaignData.Mission8.Pikeman > 0) then Actions.GiveGroup(0, 20, 33, 23, 3, CampaignData.Mission8.Pikeman, 4);
+	
+	Actions.PlayerShareFog(7, 0, false);
+	Actions.PlayerShareFog(8, 0, false); 
+	Actions.PlayerShareFog(9, 0, false);
+	Actions.PlayerShareFog(0, 7, false);
+	Actions.PlayerShareFog(0, 8, false); 
+	Actions.PlayerShareFog(0, 9, false);
+	Actions.FogCoverCircle(0, 18, 115, 45);
+	Actions.FogCoverCircle(0, 53, 225, 45);
+	Actions.FogCoverCircle(0, 216, 210, 45);
+	
+	if (CampaignData.Mission2.LiteAlive = false) then begin
+		Actions.UnitKill(States.UnitAt(35, 175), true);
+		Actions.UnitKill(States.UnitAt(36, 175), true);
+		Actions.UnitKill(States.UnitAt(37, 175), true);
+		Actions.UnitKill(States.UnitAt(38, 175), true);
+		Actions.HouseDestroy(States.HouseAt(36, 174), true);
+		Actions.RemoveRoad(36, 175);
+		Actions.FogCoverCircle(0, 36, 174, 20);
+		Actions.PlayerDefeat(10);
+	end;
+	
+	Actions.PlayerAddDefaultGoals(0, true);
+	Actions.PlayerAddDefaultGoals(10, true);
+	messageDisplayed := false;
+end;
+
+procedure OnTick;
+begin
+	if ((States.GameTime = 100) AND (CampaignData.Mission2.LiteAlive = true)) then Actions.ShowMsgGoto(0, 36, 174, '<$1>');
+end;
+
+procedure OnWarriorEquipped(aUnit:integer;aGroup:integer);
+var i,x,y,t:integer;
+begin
+	if (States.UnitOwner(aUnit) = 10) then begin
+		if (States.GroupMemberCount(aGroup) >= 9) then begin
+			x := States.UnitPositionX(States.GroupMember(aGroup, 0));
+			y := States.UnitPositionY(States.GroupMember(aGroup, 0));
+			t := States.UnitType(States.GroupMember(aGroup, 0));
+			Actions.GroupKillAll(aGroup, true);
+			t := Actions.GiveGroup(0, t, x, y, 0, 9, 3);
+			Actions.GroupOrderWalk(t, 33, 23, 3);
+			
+			if (messageDisplayed = false) then begin
+				messageDisplayed := true;
+				Actions.ShowMsg(0, '<$2>');
+			end;
+		end;
+	end;
+end;
+
+procedure OnPlayerVictory(aPlayer:integer);
+begin
+	CampaignData.Mission9.LiteAlive := not States.PlayerDefeated(aPlayer);
+end;

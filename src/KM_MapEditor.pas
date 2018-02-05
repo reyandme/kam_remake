@@ -35,6 +35,8 @@ type
     function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
     procedure ChangeOwner(aChangeOwnerForAll: Boolean);
   public
+    MissionDefSavePath: UnicodeString;
+
     ActiveMarker: TKMMapEdMarker;
 
     ResizeMapRect: TKMRect;
@@ -64,6 +66,8 @@ type
     procedure Update;
     procedure UpdateStateIdle;
     procedure Paint(aLayer: TKMPaintLayer; aClipRect: TKMRect);
+
+    procedure DeletePlayer(aIndex: TKMHandIndex);
   end;
 
 
@@ -74,7 +78,7 @@ uses
   KM_AIDefensePos, 
   KM_Units, KM_UnitGroups, KM_Houses, KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
   KM_Game, KM_GameCursor, KM_ResMapElements, KM_ResHouses,
-  KM_RenderAux, KM_Hand, KM_HandsCollection, KM_InterfaceMapEditor;
+  KM_RenderAux, KM_Hand, KM_HandsCollection, KM_InterfaceMapEditor, KM_CommonUtils;
 
 
 { TKMMapEditor }
@@ -83,6 +87,8 @@ var
   I: Integer;
 begin
   inherited Create;
+
+  MissionDefSavePath := '';
 
   for I := 0 to MAX_HANDS - 1 do
   begin
@@ -145,11 +151,12 @@ begin
   HasScript := False;
   AttachCnt := 0;
   SetLength(fAttachedFiles, 8);
+  MissionDefSavePath := aMissionFile;
   MissionName := ChangeFileExt(ExtractFileName(aMissionFile), '');
   FindFirst(ChangeFileExt(aMissionFile, '.*'), faAnyFile - faDirectory, SearchRec);
   try
     repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+      if (SearchRec.Name <> '') and (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
       begin
         //Can't use ExtractFileExt because we want .eng.libx not .libx
         RecExt := RightStr(SearchRec.Name, Length(SearchRec.Name) - Length(MissionName));
@@ -191,20 +198,32 @@ end;
 procedure TKMMapEditor.SaveAttachements(const aMissionFile: UnicodeString);
 var
   I: Integer;
-  MissionPath, Dest: UnicodeString;
+  MissionPath, MissionNewName, MissionOldName, DestPath: UnicodeString;
 begin
   MissionPath := ExtractFilePath(aMissionFile);
+  MissionNewName := GetFileDirName(aMissionFile);
+  MissionOldName := '';
+
+  //Copy all attachments files into new folder
   for I := 0 to High(fAttachedFiles) do
     if FileExists(fAttachedFiles[I]) then
     begin
-      Dest := MissionPath + ExtractFileName(fAttachedFiles[I]);
-      if not SameFileName(Dest, fAttachedFiles[I]) then
+      DestPath := MissionPath + ExtractFileName(fAttachedFiles[I]);
+
+      //Get MissionOldName from first attachment file
+      if MissionOldName = '' then
+        MissionOldName := GetFileDirName(fAttachedFiles[I]);
+
+      if not SameFileName(DestPath, fAttachedFiles[I]) then
       begin
-        if FileExists(Dest) then
-          DeleteFile(Dest);
-        KMCopyFile(fAttachedFiles[I], Dest);
+        if FileExists(DestPath) then
+          DeleteFile(DestPath);
+        KMCopyFile(fAttachedFiles[I], DestPath);
       end;
     end;
+
+  // Rename all files inside new saved map folder
+  KMRenameFilesInFolder(MissionPath, MissionOldName, MissionNewName);
 
   //Update attached files to be in the new path
   SetLength(fAttachedFiles, 0);
@@ -339,6 +358,31 @@ begin
 end;
 
 
+procedure TKMMapEditor.DeletePlayer(aIndex: TKMHandIndex);
+begin
+  if gHands = nil then Exit;
+
+  if gHands.Count = 0 then Exit;
+
+  Revealers[aIndex].Clear;
+
+  gHands.Hands[aIndex].Units.RemoveAllUnits;
+
+  gHands.Hands[aIndex].UnitGroups.RemAllGroups;
+
+  gHands.Hands[aIndex].Houses.RemoveAllHouses;
+
+  gTerrain.ClearPlayerLand(aIndex);
+
+  gHands.Hands[aIndex].AI.Goals.Clear;
+
+  gHands.Hands[aIndex].AI.General.Attacks.Clear;
+
+  gHands.Hands[aIndex].AI.General.DefencePositions.Clear;
+
+end;
+
+
 procedure TKMMapEditor.ChangeOwner(aChangeOwnerForAll: Boolean);
 var P: TKMPoint;
 begin
@@ -393,10 +437,7 @@ end;
 
 
 procedure TKMMapEditor.MouseDown(Button: TMouseButton);
-var
-  P: TKMPoint;
 begin
-  P := gGameCursor.Cell;
   if (Button = mbLeft) then
     case gGameCursor.Mode of
       cmSelection:  fSelection.Selection_Start;
@@ -539,6 +580,7 @@ begin
                                 //Actual change was made in UpdateStateIdle, we just register it is done here
                                 fTerrainPainter.MakeCheckpoint;
                               end;
+                cmObjects,
                 cmEyedropper,
                 cmRotateTile: gGameCursor.Mode := cmNone;
               end;

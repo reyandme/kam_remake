@@ -156,8 +156,8 @@
 157:Stav
 158:Otočit jednotky vlevo
 159:Otočit jednotky vpravo
-160:Útok ('a')
-161:Přemístit jednotky ('d')
+160:Útok
+161:Přemístit jednotky
 162:Zásobit jednotky potravinami
 163:Zahájit útok
 164:Přidat řadu
@@ -608,9 +608,9 @@
 619:Konec období míru za: %s
 620:Konec období míru. Do zbraně!
 621:Čas hry:|%s
-622:Zastavit oddíl ('%s')
-623:Spojit oddíl ('%s')
-624:Samostatný voják ('%s')
+622:Zastavit oddíl
+623:Spojit oddíl
+624:Samostatný voják
 625:Záznamy ze hry
 626:Ukázat záznam
 627:Nepodporovaný formát %s
@@ -782,3 +782,6 @@
 829:Vaše zadání již bylo splněno!
 830:Načíst asijské fonty
 831:Přesunout ze stažených
+1118:Mapy hry více hráčů
+1119:Vypnout hudbu
+1120:Náhodně

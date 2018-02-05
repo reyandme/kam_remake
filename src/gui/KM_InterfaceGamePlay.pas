@@ -305,7 +305,8 @@ uses
   KM_Utils,
   KM_CommonUtils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes,
-  KM_InterfaceMapEditor, KM_HouseWoodcutters;
+  KM_InterfaceMapEditor, KM_HouseWoodcutters,
+  KM_GameTypes;
 
 const ALLIES_ROWS = 7;
       PANEL_ALLIES_WIDTH = 810;
@@ -599,7 +600,7 @@ end;
 
 procedure TKMGamePlayInterface.ExportPages(const aPath: string);
 var
-  path: string;
+  path: String;
   I, K: Integer;
 begin
   inherited;
@@ -1214,9 +1215,9 @@ begin
   TKMLabel.Create(Panel_Menu, 0, 285, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fnt_Outline, taCenter);
   Label_Menu_Track := TKMLabel.Create(Panel_Menu, 23, 306, TB_WIDTH - 46, 30, '', fnt_Grey, taCenter);
   Label_Menu_Track.Hitable := False; // It can block hits for the track Up/Down buttons as they overlap
-  TKMLabel.Create(Panel_Menu, 0, 198, TB_WIDTH, 30, 'Game time:', fnt_Outline, taCenter); //Todo: translate
+  TKMLabel.Create(Panel_Menu, 0, 198, TB_WIDTH, 30, gResTexts[TX_GAMEPLAY_GAME_TIME] + ':', fnt_Outline, taCenter);
   Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 218, TB_WIDTH, 20, '', fnt_Grey, taCenter);
-  TKMLabel.Create(Panel_Menu, 0, 240, TB_WIDTH, 30, 'Map:', fnt_Outline, taCenter); //Todo: translate
+  TKMLabel.Create(Panel_Menu, 0, 240, TB_WIDTH, 30, gResTexts[TX_WORD_MAP] + ':', fnt_Outline, taCenter);
   Label_MapName := TKMLabel.Create(Panel_Menu, -3, 260, TB_WIDTH + 3, 20, '', fnt_Grey, taCenter);
 end;
 
@@ -1273,8 +1274,8 @@ begin
     Button_Quit_Yes.Hint := gResTexts[TX_MENU_QUIT_MISSION];
     Button_Quit_Yes.OnClick := Menu_QuitMission;
 
-    Button_ReturnToMapEd := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, 'Return to MapEd', bsGame); //Todo translate
-    Button_ReturnToMapEd.Hint := 'Return to Map Editor'; //Todo translate
+    Button_ReturnToMapEd := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, gResTexts[TX_MENU_RETURN_TO_MAPED], bsGame);
+    Button_ReturnToMapEd.Hint := gResTexts[TX_MENU_RETURN_TO_MAPED_HINT];
     Button_ReturnToMapEd.OnClick := Menu_ReturnToMapEd;
     Button_ReturnToMapEd.Hide;
 
@@ -1539,10 +1540,10 @@ procedure TKMGamePlayInterface.Update_Image_AlliesMute(aImage: TKMImage);
 begin
   if gGame.Networking.IsMuted(fAlliesToNetPlayers[aImage.Tag]) then
   begin
-    aImage.Hint := 'Unmute player'; //todo translate
+    aImage.Hint := gResTexts[TX_UNMUTE_PLAYER];
     aImage.TexId := 84;
   end else begin
-    aImage.Hint := 'Mute player'; //todo translate
+    aImage.Hint := gResTexts[TX_MUTE_PLAYER];
     aImage.TexId := 83;
   end;
 end;
@@ -2051,7 +2052,7 @@ begin
   begin
     Button_Menu_Quit.Caption := gResTexts[TX_REPLAY_QUIT];
     Button_Menu_Quit.Hint := gResTexts[TX_REPLAY_QUIT];
-    Label_QuitQuestion.Caption := 'Are you sure you|want to quit|this replay?'; //Todo translate
+    Label_QuitQuestion.Caption := gResTexts[TX_REPLAY_QUIT_CONFIRMATION];
     Button_Quit_Yes.Caption := gResTexts[TX_REPLAY_QUIT];
     Button_Quit_Yes.Hint := gResTexts[TX_REPLAY_QUIT];
     gGame.PlayOnState := gr_ReplayEnd;
@@ -2194,9 +2195,12 @@ begin
   else // GameStop has Destroyed our Sender by now
   if Sender = Button_PlayMore then
     case PlayMoreMsg of
-      gr_Win:       begin gGame.GameHold(false, gr_Win); end;
-      gr_Defeat:    begin gGame.GameHold(false, gr_Defeat); end;
-      gr_ReplayEnd: begin gGame.SkipReplayEndCheck := true; gGame.GameHold(false, gr_ReplayEnd); end;
+      gr_Win:       gGame.GameHold(false, gr_Win);
+      gr_Defeat:    gGame.GameHold(false, gr_Defeat);
+      gr_ReplayEnd: begin
+                      gGame.SkipReplayEndCheck := True;
+                      gGame.GameHold(false, gr_ReplayEnd);
+                    end;
     end;
 end;
 
@@ -2788,6 +2792,14 @@ begin
       SpecPlayerIndex := 7
     else if Key = gResKeys[SC_SPECTATE_PLAYER_8].Key then
       SpecPlayerIndex := 8
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_9].Key then
+      SpecPlayerIndex := 9
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_10].Key then
+      SpecPlayerIndex := 10
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_11].Key then
+      SpecPlayerIndex := 11
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_12].Key then
+      SpecPlayerIndex := 12
     else
       SpecPlayerIndex := -1;
 
@@ -2934,6 +2946,7 @@ begin
       if not fGuiGameBuild.Visible then
         SwitchPage(Button_Main[tbBuild]);
       fGuiGameBuild.ErasePlan;
+      gRes.Cursors.Cursor := kmc_Default; //Reset cursor, as it could be kmc_Info, f.e.
     end;
   end;
 
@@ -3294,7 +3307,8 @@ begin
             begin
               gSoundPlayer.PlayWarrior(Group.UnitType, sp_Join); // In SP joining is instant, Group does not exist after that
               gGame.GameInputProcess.CmdArmy(gic_ArmyLink, Group, Group2);
-              fGuiGameUnit.Army_HideJoinMenu(nil);
+              if not (ssShift in Shift) then //Do not cancel link mode if Shift is pressed
+                fGuiGameUnit.Army_HideJoinMenu(nil);
             end;
           end;
           Exit;

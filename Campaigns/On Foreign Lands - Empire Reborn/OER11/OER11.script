@@ -1,0 +1,410 @@
+const villages = 4;
+
+var population, sChanger, wChanger, lChanger, fChanger, rChanger, warningCounter, supplyCounter, wintime, tFactor: integer;
+var sCounter, wCounter, fCounter, lCounter, sBaseCounter, wBaseCounter, fBaseCounter, lBaseCounter, fFactor: single;
+var mode: AnsiString;
+var storehouses: array of integer;
+var allyS: array[0..3] of integer;
+var recruitStart: boolean;
+
+procedure OnMissionStart;
+var i: integer;
+begin
+	SetLength(storehouses, 1);
+	storehouses[0] := States.HouseAt(63, 62);
+	allyS[0] := States.HouseAt(13, 22);
+	allyS[1] := States.HouseAt(116, 14);
+	allyS[2] := States.HouseAt(14, 108);
+	allyS[3] := States.HouseAt(113, 80);
+	sChanger := 0;
+	wChanger := 0;
+	lChanger := 0;
+	fChanger := 0;
+	rChanger := 1;
+	sBaseCounter := 0;
+	wBaseCounter := 0;
+	fBaseCounter := 0;
+	lBaseCounter := 0;
+	warningCounter := 0;
+	supplyCounter := 0;
+	recruitStart := false;
+	wintime := 0;
+	mode := 'food';
+	fFactor := 70;
+	tFactor := 3;
+	if (CampaignData.Mission4.VillageChosen = 1) then fFactor := 35;
+	
+	for i := 1 to villages do begin
+		population := population + States.StatCitizenCount(i);
+		Actions.AIAutoBuild(i, false);
+	end;	
+	
+	Actions.ShowMsg(0, '<$16>');
+	if (CampaignData.Mission4.VillageChosen = 1) then Actions.ShowMsg(0, '<$17>');
+	Actions.UnitBlock(0, 13, true);
+	Actions.OverlayTextSet(0, '<$0>: <$1>.|<$2>: ' + IntToStr(population) + '|' + '|<$3>: [$00FF00]100%[$FFFFFF]');
+end;
+
+procedure OnHouseBuilt(aHouseID:integer);
+var idx: integer;
+begin
+	if ((States.HouseOwner(aHouseID) = 0) AND (States.HouseType(aHouseID) = 11)) then begin
+		idx := Length(storehouses);
+		SetLength(storehouses, idx + 1);
+		storehouses[idx] := aHouseID;
+	end;
+
+	if ((States.HouseOwner(aHouseID) > 0) AND (States.HouseType(aHouseID) = 19)) then begin
+		Actions.HouseWeaponsOrderSet(aHouseID, 20, 999);
+		recruitStart := true;
+	end;
+	
+	if ((States.HouseOwner(aHouseID) > 0) AND (States.HouseType(aHouseID) = 13)) then begin
+		if (States.HouseOwner(aHouseID) = 1) then begin
+			Actions.PlanAddHouse(1, 11, 113, 80);
+			Actions.PlanAddHouse(1, 8, 124, 74);
+			Actions.PlanAddHouse(1, 8, 119, 75);
+			Actions.PlanAddHouse(1, 22, 117, 79);
+			Actions.PlanAddHouse(1, 7, 116, 76);
+			Actions.PlanAddHouse(1, 16, 107, 82);
+			Actions.PlanAddHouse(1, 24, 105, 74);
+			Actions.PlanAddHouse(1, 28, 108, 87);
+			Actions.PlanAddHouse(1, 28, 124, 87);
+			Actions.PlanAddHouse(1, 28, 103, 90);
+			Actions.PlanAddHouse(1, 27, 113, 89);
+			Actions.PlanAddHouse(1, 28, 126, 82);
+			Actions.PlanAddHouse(1, 29, 113, 96);
+			Actions.PlanAddHouse(1, 21, 100, 80);
+			Actions.PlanAddHouse(1, 19, 116, 71);
+		end
+		else if (States.HouseOwner(aHouseID) = 2) then begin
+			Actions.PlanAddHouse(2, 11, 13, 22);
+			Actions.PlanAddHouse(2, 27, 16, 25);
+			Actions.PlanAddHouse(2, 9, 7, 10);
+			Actions.PlanAddHouse(2, 9, 5, 19);
+			Actions.PlanAddHouse(2, 6, 21, 20);
+			Actions.PlanAddHouse(2, 6, 26, 24);
+			Actions.PlanAddHouse(2, 0, 11, 29);
+			Actions.PlanAddHouse(2, 8, 16, 31);
+			Actions.PlanAddHouse(2, 28, 23, 26);
+			Actions.PlanAddHouse(2, 8, 24, 31);
+			Actions.PlanAddHouse(2, 22, 31, 25);
+			Actions.PlanAddHouse(2, 22, 27, 27);
+			Actions.PlanAddHouse(2, 7, 30, 33);
+			Actions.PlanAddHouse(2, 16, 36, 34);
+			Actions.PlanAddHouse(2, 24, 27, 36);
+			Actions.PlanAddHouse(2, 27, 30, 38);
+			Actions.PlanAddHouse(2, 21, 16, 18);
+			Actions.PlanAddHouse(2, 19, 9, 26);
+		end
+		else if (States.HouseOwner(aHouseID) = 3) then begin
+			Actions.PlanAddHouse(3, 28, 100, 3);
+			Actions.PlanAddHouse(3, 28, 98, 8);
+			Actions.PlanAddHouse(3, 28, 114, 6);
+			Actions.PlanAddHouse(3, 28, 116, 9);
+			Actions.PlanAddHouse(3, 8, 102, 10);
+			Actions.PlanAddHouse(3, 27, 99, 15);
+			Actions.PlanAddHouse(3, 11, 116, 14);
+			Actions.PlanAddHouse(3, 16, 111, 11);
+			Actions.PlanAddHouse(3, 24, 114, 17);
+			Actions.PlanAddHouse(3, 6, 115, 20);
+			Actions.PlanAddHouse(3, 0, 121, 23);
+			Actions.PlanAddHouse(3, 9, 112, 29);
+			Actions.PlanAddHouse(3, 9, 97, 21);
+			Actions.PlanAddHouse(3, 22, 125, 16);
+			Actions.PlanAddHouse(3, 8, 124, 27);
+			Actions.PlanAddHouse(3, 7, 122, 16);
+			Actions.PlanAddHouse(3, 0, 122, 20);
+			Actions.PlanAddHouse(3, 8, 104, 4);
+			Actions.PlanAddHouse(3, 21, 124, 33);
+			Actions.PlanAddHouse(3, 19, 108, 7);
+		end
+		else if (States.HouseOwner(aHouseID) = 4) then begin
+			Actions.PlanAddHouse(4, 11, 14, 108);
+			Actions.PlanAddHouse(4, 22, 3, 114);
+			Actions.PlanAddHouse(4, 7, 7, 111);
+			Actions.PlanAddHouse(4, 16, 5, 107);
+			Actions.PlanAddHouse(4, 24, 9, 105);
+			Actions.PlanAddHouse(4, 28, 4, 120);
+			Actions.PlanAddHouse(4, 8, 9, 123);
+			Actions.PlanAddHouse(4, 8, 16, 122);
+			Actions.PlanAddHouse(4, 8, 8, 116);
+			Actions.PlanAddHouse(4, 27, 11, 112);
+			Actions.PlanAddHouse(4, 28, 19, 109);
+			Actions.PlanAddHouse(4, 12, 14, 118);
+			Actions.PlanAddHouse(4, 8, 6, 99);
+			Actions.PlanAddHouse(4, 21, 22, 119);
+			Actions.PlanAddHouse(4, 19, 18, 106);
+		end;
+	end;
+end;
+
+procedure OnHouseDestroyed(aHouseID:integer;destroyerIndex:integer);
+var newArray: array of integer;
+var i, idx: integer;
+begin
+	if ((States.HouseOwner(aHouseID) = 0) AND (States.HouseType(aHouseID) = 11)) then begin
+		for i := 0 to Length(storehouses) - 1 do begin
+			if (storehouses[i] <> aHouseID) then begin
+				idx := Length(newArray);
+				SetLength(newArray, idx + 1);
+				newArray[idx] := storehouses[i];
+			end;
+		end;
+		
+		storehouses := newArray;
+	end;
+end;
+
+procedure OnUnitAfterDied(aUnitType:integer;aOwner:Integer;aX:integer;aY:integer);
+begin
+	if (mode = 'riot') then Actions.GiveGroup(aOwner, 24, aX, aY, 4, 1, 1);
+end;
+
+procedure OnTick;
+var i, fedP, m1, m2, m3, t1, t2, t3, ut, ud, ux, uy, school, bar: integer;
+var color, text: string;
+var units: array of integer;
+var defended: boolean;
+begin
+	if (States.GameTime = 12000) then tFactor := 2;
+	if (States.GameTime = 18000) then tFactor := 1;
+	
+	if ((States.GameTime mod 600 = 0) AND (recruitStart = true)) then begin
+		school := States.HouseAt(13, 104);
+		if (school > 0) then Actions.HouseSchoolQueueAdd(school, 13, 1);
+		school := States.HouseAt(110, 76);
+		if (school > 0) then Actions.HouseSchoolQueueAdd(school, 13, 1);
+		school := States.HouseAt(31, 29);
+		if (school > 0) then Actions.HouseSchoolQueueAdd(school, 13, 1);
+		school := States.HouseAt(109, 4);
+		if (school > 0) then Actions.HouseSchoolQueueAdd(school, 13, 1);	
+		bar := States.HouseAt(100, 80);
+		if (bar > 0) then Actions.HouseBarracksEquip(bar, 14, 1);
+		bar := States.HouseAt(124, 33);
+		if (bar > 0) then Actions.HouseBarracksEquip(bar, 14, 1);
+		bar := States.HouseAt(16, 18);
+		if (bar > 0) then Actions.HouseBarracksEquip(bar, 14, 1);
+		bar := States.HouseAt(22, 119);
+		if (bar > 0) then Actions.HouseBarracksEquip(bar, 14, 1);
+	end;
+	
+	if (mode = 'food') then begin
+		if (States.GameTime mod 3000 = 0) then begin
+			population := 1;
+
+			for i := 1 to villages do begin
+				population := population + States.StatCitizenCount(i);
+			end;	
+			
+			if (sBaseCounter = 0) then sBaseCounter := sCounter;
+			if (fBaseCounter = 0) then fBaseCounter := fCounter;
+			if (lBaseCounter = 0) then lBaseCounter := lCounter;
+			if (wBaseCounter = 0) then sBaseCounter := wCounter;
+			
+			fedP := Round(((3 * (sCounter / sBaseCounter)) + (2.7 * (fCounter / fBaseCounter)) + (2.3 * (lCounter / lBaseCounter)) + (2 * (wCounter / wBaseCounter))) * 10);
+			
+			color := '[$00FF00]';
+			if (fedP < fFactor) then begin
+				color := '[$0000FF]'
+				warningCounter := warningCounter + 1;
+				supplyCounter := 0;
+			end
+			else begin
+				warningCounter := 0;
+				supplyCounter := supplyCounter + 1;
+			end;
+			
+			text := '<$0>: <$1>.|<$2>: ' + IntToStr(population) + '|' + '|<$3>: ' + color + IntToStr(fedP) + '%[$FFFFFF]';
+			if (sCounter + 1 < sBaseCounter) then text := text + '|<$4>!';
+			if (fCounter + 1 < fBaseCounter) then text := text + '|<$5>!';
+			if (lCounter + 1 < lBaseCounter) then text := text + '|<$6>!';
+			if (wCounter + 1 < wBaseCounter) then text := text + '|<$7>!';
+			
+			Actions.OverlayTextSet(0, text);
+			
+			sCounter := 0;
+			fCounter := 0;
+			lCounter := 0;
+			wCounter := 0;
+			sBaseCounter := 0;
+			fBaseCounter := 0;
+			lBaseCounter := 0;
+			wBaseCounter := 0;
+			
+			if (warningCounter = 1) then Actions.ShowMsg(0, '<$8>')
+			else if (warningCounter = 2) then Actions.ShowMsg(0, '<$9>')
+			else if (warningCounter = 3) then mode := 'riot'
+			else if (supplyCounter >= 12) then begin 
+				mode := 'materials';
+				Actions.UnitBlock(0, 13, false);
+				Actions.ShowMsg(0, '<$15>');
+			end;
+		end;
+
+		if (States.GameTime mod Round((16200 * tFactor / population)) = 0) then begin	
+			for i := 0 to Length(storehouses) - 1 do begin
+				if (States.HouseResourceAmount(storehouses[i], 13) > 0) then begin
+					Actions.HouseTakeWaresFrom(storehouses[i], 13, 1);
+					Actions.HouseAddWaresTo(allyS[sChanger], 13, 1);
+					sCounter := sCounter + 1;
+					break;
+				end;
+			end;
+			
+			sChanger := sChanger + 1;
+			if (sChanger >= Length(allyS)) then sChanger := 0;
+			sBaseCounter := sBaseCounter + 1;
+		end;
+		
+		if (States.GameTime mod Round((13200 * tFactor / population)) = 0) then begin
+			for i := 0 to Length(storehouses) - 1 do begin
+				if (States.HouseResourceAmount(storehouses[i], 27) > 0) then begin
+					Actions.HouseTakeWaresFrom(storehouses[i], 27, 1);
+					Actions.HouseAddWaresTo(allyS[fChanger], 27, 1);
+					fCounter := fCounter + 1;
+					break;
+				end;
+			end;
+			
+			fChanger := fChanger + 1;
+			if (fChanger >= Length(allyS)) then fChanger := 0;
+			fBaseCounter := fBaseCounter + 1;
+		end;
+		
+		if (States.GameTime mod Round((10800 * tFactor / population)) = 0) then begin
+			for i := 0 to Length(storehouses) - 1 do begin
+				if (States.HouseResourceAmount(storehouses[i], 10) > 0) then begin
+					Actions.HouseTakeWaresFrom(storehouses[i], 10, 1);
+					Actions.HouseAddWaresTo(allyS[lChanger], 10, 1);
+					lCounter := lCounter + 1;
+					break;
+				end;
+			end;
+			
+			lChanger := lChanger + 1;
+			if (lChanger >= Length(allyS)) then lChanger := 0;
+			lBaseCounter := lBaseCounter + 1;
+		end;
+		
+		if (States.GameTime mod Round(7800 * tFactor / population) = 0) then begin
+			for i := 0 to Length(storehouses) - 1 do begin
+				if (States.HouseResourceAmount(storehouses[i], 8) > 0) then begin
+					Actions.HouseTakeWaresFrom(storehouses[i], 8, 1);
+					Actions.HouseAddWaresTo(allyS[wChanger], 8, 1);
+					wCounter := wCounter + 1;
+					break;
+				end;
+			end;
+			
+			wChanger := wChanger + 1;
+			if (wChanger >= Length(allyS)) then wChanger := 0;
+			wBaseCounter := wBaseCounter + 1;
+		end;
+	end
+	else if (mode = 'riot') then begin
+		Actions.OverlayTextSet(0, '');
+		if (rChanger <= villages) then begin
+			units := States.PlayerGetAllUnits(rChanger);
+			for i := 0 to Length(units) - 1 do begin
+				ut := States.UnitType(units[i]);
+				ud := States.UnitDirection(units[i]);
+				ux := States.UnitPositionX(units[i]);
+				uy := States.UnitPositionY(units[i]);
+				Actions.UnitKill(units[i], true);
+			end;
+			
+			for i := 1 to villages do begin
+				Actions.PlayerAllianceChange(i, 0, true, false);
+			end;
+		end;
+		
+		rChanger := rChanger + 1;
+		if (rChanger > villages + 1) then mode := 'lost';
+
+	end
+	else if (mode = 'materials') then begin
+		
+		m1 := 0;
+		m2 := 0;
+		m3 := 0;
+		for i := 0 to Length(storehouses) - 1 do begin
+			m1 := m1 + States.HouseResourceAmount(storehouses[i], 1);
+			m2 := m2 + States.HouseResourceAmount(storehouses[i], 2);
+			m3 := m3 + States.HouseResourceAmount(storehouses[i], 7);
+		end;
+
+		text := '[$00FF00]<$0>: <$1>.[$FFFFFF]|<$0>: <$10>.';
+			
+		if (m1 <= 100) then text := text + '|<$11>: ' + IntToStr(100 - m1);
+		if (m2 <= 100) then text := text + '|<$12>: ' + IntToStr(100 - m2);
+		if (m3 <= 100) then text := text + '|<$13>: ' + IntToStr(100 - m3);
+			
+		Actions.OverlayTextSet(0, text);
+		
+		if ((m1 >= 100) AND (m2 >= 100) AND (m3 >= 100)) then begin
+			for i := 0 to Length(storehouses) - 1 do begin
+				t1 := States.HouseResourceAmount(storehouses[i], 1);
+				t2 := States.HouseResourceAmount(storehouses[i], 2);
+				t3 := States.HouseResourceAmount(storehouses[i], 7);
+				if ((t1 > 0) AND (m1 > 0)) then begin	
+					Actions.HouseTakeWaresFrom(storehouses[i], 1, t1);
+					m1 := m1 - t1;
+				end;
+				if ((t2 > 0) AND (m2 > 0)) then begin	
+					Actions.HouseTakeWaresFrom(storehouses[i], 2, t1);
+					m2 := m2 - t2;
+				end;
+				if ((t3 > 0) AND (m3 > 0)) then begin	
+					Actions.HouseTakeWaresFrom(storehouses[i], 7, t1);
+					m3 := m3 - t3;
+				end;
+			end;
+			
+			for i := 0 to Length(allyS) - 1 do begin
+				Actions.HouseAddWaresTo(allyS[i], 1, 1000);
+				Actions.HouseAddWaresTo(allyS[i], 2, 1000);
+				Actions.HouseAddWaresTo(allyS[i], 7, 1000);
+				Actions.HouseAddWaresTo(allyS[i], 8, 1000);
+				Actions.HouseAddWaresTo(allyS[i], 10, 1000);
+				Actions.HouseAddWaresTo(allyS[i], 13, 1000);
+				Actions.HouseAddWaresTo(allyS[i], 27, 1000);
+			end;
+			
+			mode := 'rebuild';
+		end;
+	end
+	else if (mode = 'rebuild') then begin
+		text := '[$00FF00]<$0>: <$1>.|<$0>: <$10>.[$FFFFFF]|<$0>: <$14>.';
+		Actions.OverlayTextSet(0, text);
+		
+		Actions.PlanAddHouse(4, 13, 13, 104);
+		Actions.PlanAddHouse(1, 13, 110, 76);
+		Actions.PlanAddHouse(2, 13, 31, 29);
+		Actions.PlanAddHouse(3, 13, 109, 4);
+		
+		for i := 1 to villages do begin
+			Actions.AIAutoBuild(i, true);
+			Actions.AIAutoRepair(i, true);
+		end;
+			
+		mode := 'protect';
+	end
+	else if ((mode = 'protect') AND (States.GameTime mod 3000 = 0)) then begin
+		
+		defended := true;
+		for i := 1 to villages do begin
+			defended := defended AND (States.StatArmyCount(i) >= 15);
+		end;
+		
+		if (defended) then begin
+			text := '[$00FF00]<$0>: <$1>.|<$0>: <$10>.[$FFFFFF]|<$0>: <$14>.';
+			mode := 'win'
+			wintime := States.GameTime + 300;
+		end
+		else Actions.GiveGroup(11, States.KaMRandomI(13) + 14, 121, 125, 0, 12, 4);
+	end
+	else if ((mode = 'win') AND (wintime > 0) AND (States.GameTime = wintime)) then begin
+		Actions.PlayerWin([0], true);
+	end;
+end;

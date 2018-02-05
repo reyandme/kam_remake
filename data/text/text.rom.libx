@@ -155,8 +155,8 @@
 157:Conditie
 158:Roteste trupa la stânga
 159:Roteste trupa la dreapta
-160:Atacă('a')
-161:Trimite trupa('d')
+160:Atacă
+161:Trimite trupa
 162:Aprovizioneaza trupa cu mâncare
 163:Atac furtună
 164:Adaugă linie
@@ -604,9 +604,9 @@
 619:Timp de pace rămas: %s
 620:Pacea s-a terminat. La arme!
 621:Timpul in joc:|%s
-622:Oprire trupă ('%s')
-623:Alăturare trupă ('%s')
-624:Separare trupă ('%s')
+622:Oprire trupă
+623:Alăturare trupă
+624:Separare trupă
 625:Vizualizatorul de Replay-uri
 626:Vezi Replay
 627:Format nesuportat %s
@@ -650,3 +650,6 @@
 665:Trimiterea raportului a esuat! Serverul nostru poate fo prea încărcat, te rugăm să incerci din nou.
 666:Informatii
 667:Te rugăm să astepti un moment...
+1118:Hărti multiplayer
+1119:Dezactivează muzica
+1120:Amestecă melodii
