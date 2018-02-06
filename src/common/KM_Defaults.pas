@@ -53,7 +53,6 @@ const
 
   DEL_LOGS_OLDER_THAN   = 14;           //in days
 
-  TEMPLATE_LIBX_FILE_TEXT = 'text.%s.libx';
 const
   //Max number of ticks, played on 1 game update.
   //We must limit number of ticks per update to be able to leave update cycle fast (when turn off ultra fast speedup, f.e.)
@@ -273,10 +272,16 @@ const
   EXT_SAVE_MAIN = 'sav';
   EXT_SAVE_BASE = 'bas';
   EXT_FILE_SCRIPT = 'script';
+  EXT_FILE_LIBX = 'libx';
 
   EXT_SAVE_REPLAY_DOT = '.' + EXT_SAVE_REPLAY;
   EXT_SAVE_MAIN_DOT = '.' + EXT_SAVE_MAIN;
   EXT_SAVE_BASE_DOT = '.' + EXT_SAVE_BASE;
+  EXT_FILE_LIBX_DOT = '.' + EXT_FILE_LIBX;
+
+  TEMPLATE_LIBX_FILE_TEXT = 'text.%s' + EXT_FILE_LIBX_DOT;
+
+  MAIN_TRANSLATION_KMR_TEXT = 'text.%s' + EXT_FILE_LIBX_DOT;
 
 type
   TKMHandIndex = {type} ShortInt;
