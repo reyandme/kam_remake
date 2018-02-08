@@ -156,8 +156,8 @@
 157:Wytrzymałość
 158:Obróć oddział w lewo
 159:Obróć oddział w prawo
-160:Atakuj ('a')
-161:Wyślij oddział ('d')
+160:Atakuj
+161:Wyślij oddział
 162:Zaopatrz oddział w żywność
 163:Rozpoczęcie szturmu
 164:Dodaj szereg
@@ -608,9 +608,9 @@
 619:Pozostały okres pokojowy: %s
 620:Okres pokojowy minął. Do broni!
 621:Czas gry:|%s
-622:Zatrzymaj oddział i formuj szyk ('%s')
-623:Połącz oddziały ('%s')
-624:Rozdziel oddział ('%s')
+622:Zatrzymaj oddział i formuj szyk
+623:Połącz oddziały
+624:Rozdziel oddział
 625:Podgląd Powtórek
 626:Zobacz powtórkę
 627:Niewspierany format %s
@@ -777,8 +777,11 @@
 824:Przenieś
 825:Zobacz plik PDF
 826:Nie można uruchomić przeglądarki PDF
-827:Ustaw liczbę pomocników na 10 domów dla wybranego komputera. Ilość domów wybranego AI: %d 
+827:Ustaw liczbę pomocników na 10 domów dla wybranego komputera. Ilość domów wybranego AI: %d
 828:Błąd: Plik pauzy hosta nie odpowiada lokalnemu plikowi pauzy. Wystąpił błąd lub host próbuje oszukiwać.
 829:Zamówienie zostało zrealizowane
 830:Dodaj azjatyckie czcionki
 831:Wyjdź z pobranych
+1118:Mapy dla wielu graczy
+1119:Wyłącz muzykę
+1120:Wymieszaj utwory

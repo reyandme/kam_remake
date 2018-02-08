@@ -1,0 +1,48 @@
+const canKill = 6;
+
+var killed : Integer;
+var messageShow : Boolean;
+
+procedure OnUnitDied(aUnitID: Integer; aKillerIndex: Integer);
+begin
+	if (((States.UnitOwner(aUnitID) = 1) or (States.UnitOwner(aUnitID) = 3)) and (States.UnitType(aUnitID) >= 0) and (States.UnitType(aUnitID) <= 13)) then
+		begin
+			if (canKill - killed = 0) then 
+				begin
+					Actions.PlayerDefeat(0);
+					Actions.OverlayTextSet(0, '<$2>');
+				end
+			else killed := killed + 1;
+		end;
+	
+	if ((killed = 1) and ((States.UnitOwner(aUnitID) = 1) or (States.UnitOwner(aUnitID) = 3)) and (aKillerIndex = 0) and (messageShow = false)) then 
+		begin Actions.ShowMsg(0, '<$1>'); messageShow := true; end;
+end;
+
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+  if (aIndex = 2) then Actions.PLayerWin([0], false);
+end;
+
+procedure OnMissionStart;
+begin
+	killed := 0;
+	messageShow := false;
+	Actions.PlayerAddDefaultGoals(2, true);
+end;
+
+procedure OnWarriorEquipped(aUnitID: Integer; aGroupID: Integer);
+var iGroup : Integer;
+begin
+	if (States.UnitOwner(aUnitID) = 3) then
+		begin
+			Actions.UnitKill(aUnitID, true);
+			iGroup := Actions.GiveGroup(3, 23, 9, 73, 1, 1, 1);
+			Actions.GroupOrderLink(iGroup, aGroupID);
+		end;
+end;
+
+procedure OnTick;
+begin
+	if (States.GameTime = 300) then Actions.ShowMsg(0, '<$0>');
+end;

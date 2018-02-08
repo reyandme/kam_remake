@@ -222,11 +222,14 @@ begin
   begin
     if fFightDelay = -1 then //Initialize
     begin
-      if fUnit.UnitType <> ut_Slingshot then MakeSound(False);
-      if fUnit.UnitType = ut_Arbaletman then
-        fFightDelay := CROSSBOWMEN_AIMING_DELAY_MIN + KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD)
-      else
-        fFightDelay := BOWMEN_AIMING_DELAY_MIN + KaMRandom(BOWMEN_AIMING_DELAY_ADD);
+      if fUnit.UnitType <> ut_Slingshot then
+        MakeSound(False);
+
+      case fUnit.UnitType of
+        ut_Bowman:     fFightDelay := BOWMEN_AIMING_DELAY_MIN + KaMRandom(BOWMEN_AIMING_DELAY_ADD);
+        ut_Arbaletman: fFightDelay := CROSSBOWMEN_AIMING_DELAY_MIN + KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD);
+        ut_SLingShot:  fFightDelay := SLINGSHOT_AIMING_DELAY_MIN + KaMRandom(SLINGSHOT_AIMING_DELAY_ADD);
+      end;
     end;
 
     if fFightDelay > 0 then

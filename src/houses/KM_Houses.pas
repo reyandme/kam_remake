@@ -80,6 +80,7 @@ type
 
     function GetResourceInArray: TKMByteArray;
     function GetResourceOutArray: TKMByteArray;
+    function GetResourceOutPoolArray: TKMByteArray;
 
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
@@ -94,7 +95,7 @@ type
     fOwner: TKMHandIndex; //House owner player, determines flag color as well
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
     procedure Activate(aWasBuilt: Boolean); virtual;
-    procedure AddDemandsOnActivate; virtual;
+    procedure AddDemandsOnActivate(aWasBuilt: Boolean); virtual;
     function GetResOrder(aId: Byte): Integer; virtual;
     function GetResIn(aI: Byte): Word; virtual;
     procedure SetResIn(aI: Byte; aValue: Word); virtual;
@@ -153,6 +154,7 @@ type
 
     property ResourceInArray: TKMByteArray read GetResourceInArray;
     property ResourceOutArray: TKMByteArray read GetResourceOutArray;
+    property ResourceOutPoolArray: TKMByteArray read GetResourceOutPoolArray;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
@@ -282,7 +284,8 @@ uses
   KM_Hand, KM_HandsCollection, KM_HandLogistics, KM_InterfaceGame,
   KM_Units_Warrior, KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
   KM_Resource, KM_ResSound, KM_ResTexts, KM_ResUnits, KM_ResMapElements,
-  KM_Log, KM_ScriptingEvents, KM_CommonUtils;
+  KM_Log, KM_ScriptingEvents, KM_CommonUtils,
+  KM_GameTypes;
 
 const
   //Delay, In ticks, from user click on DeliveryMode btn, to tick, when mode will be really set.
@@ -438,7 +441,7 @@ begin
 end;
 
 
-procedure TKMHouse.AddDemandsOnActivate;
+procedure TKMHouse.AddDemandsOnActivate(aWasBuilt: Boolean);
 var
   I, DemandsCnt: Integer;
   Res: TWareType;
@@ -481,7 +484,7 @@ begin
   CurrentAction.SubActionAdd([ha_Flagpole, ha_Flag1..ha_Flag3]);
 
   UpdateDamage; //House might have been damaged during construction, so show flames when it is built
-  AddDemandsOnActivate;
+  AddDemandsOnActivate(aWasBuilt);
 
   //Fix for diagonal blocking objects near house entrance
   if aWasBuilt then
@@ -1022,6 +1025,16 @@ begin
   iOffset := Low(fResourceOut) - Low(Result);
   for I := Low(Result) to High(Result) do
     Result[I] := fResourceOut[I + iOffset];
+end;
+
+
+function TKMHouse.GetResourceOutPoolArray: TKMByteArray;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(fResourceOutPool));
+  for I := Low(Result) to High(Result) do
+    Result[I] := fResourceOutPool[I];
 end;
 
 

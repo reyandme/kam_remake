@@ -156,8 +156,8 @@
 157:Durum
 158:Sola döne
 159:Sağa dön
-160:Saldır ('a')
-161:Ayır ('d')
+160:Saldır
+161:Ayır
 162:Besle
 163:Hızlı saldırı başlat
 164:Sıra ekle
@@ -608,9 +608,9 @@
 619:Kalan barış süresi: %s
 620:Barış süresi bitti. Silahları kuşanın!
 621:Oyun süresi:|%s
-622:Birliği durdur ('%s')
-623:Birliği birleştir ('%s')
-624:Birliği ayır ('%s')
+622:Birliği durdur
+623:Birliği birleştir
+624:Birliği ayır
 625:Kayıt İzleyici
 626:Kayıt İzle
 627:Desteklenmeyen biçim %s
@@ -774,3 +774,6 @@
 829:İstek tamamlandı
 830:Asya yazı tiplerini yükle
 831:İndirilenlerden kaldır
+1118:Çok oyunculu haritalar
+1119:Müziği kapat
+1120:Parçaları karıştır

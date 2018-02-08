@@ -49,7 +49,7 @@ begin
   Radio_Save_MapType  := TKMRadioGroup.Create(Panel_Save,4,27,aControlsWidth,35,fnt_Grey);
   Radio_Save_MapType.ItemIndex := 0;
   Radio_Save_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
-  Radio_Save_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
+  Radio_Save_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS_SHORT]);
   Radio_Save_MapType.OnChange := Menu_SaveClick;
 
   Edit_SaveName       := TKMEdit.Create(Panel_Save,0,80,aControlsWidth,20, fnt_Grey);

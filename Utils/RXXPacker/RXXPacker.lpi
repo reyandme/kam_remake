@@ -1,13 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="9"/>
     <PathDelim Value="\"/>
     <General>
       <MainUnit Value="0"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <Icon Value="0"/>
+      <ActiveWindowIndexAtStart Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -33,14 +34,16 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="34">
+    <Units Count="13">
       <Unit0>
         <Filename Value="RXXPacker.dpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="52"/>
-        <CursorPos X="67" Y="56"/>
-        <UsageCount Value="34"/>
+        <UnitName Value="RXXPacker"/>
+        <EditorIndex Value="6"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="46" Y="16"/>
+        <UsageCount Value="31"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
@@ -50,15 +53,20 @@
         <ComponentName Value="RXXForm1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="23"/>
-        <CursorPos X="20" Y="23"/>
-        <UsageCount Value="34"/>
+        <UnitName Value="RXXPackerForm"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="48" Y="13"/>
+        <UsageCount Value="31"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\..\KM_Defaults.pas"/>
+        <UnitName Value="KM_Defaults"/>
+        <WindowIndex Value="0"/>
         <TopLine Value="309"/>
         <CursorPos X="27" Y="318"/>
         <UsageCount Value="9"/>
@@ -66,34 +74,48 @@
       </Unit2>
       <Unit3>
         <Filename Value="..\..\KM_ResourceSprites.pas"/>
-        <EditorIndex Value="-1"/>
+        <UnitName Value="KM_ResourceSprites"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="7"/>
+        <WindowIndex Value="0"/>
         <TopLine Value="401"/>
         <CursorPos X="110" Y="430"/>
         <UsageCount Value="15"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\..\KM_NetServerLNet.pas"/>
+        <UnitName Value="KM_NetServerLNet"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
         <CursorPos X="50" Y="14"/>
         <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
         <Filename Value="RXXPackerForm.lrs"/>
-        <CursorPos Y="17"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="17"/>
         <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
-        <Filename Value="..\..\ext\pngimage\zlibpas.pas"/>
-        <EditorIndex Value="-1"/>
+        <Filename Value="..\..\Common\pngimage\zlibpas.pas"/>
+        <UnitName Value="zlibpas"/>
+        <EditorIndex Value="5"/>
+        <WindowIndex Value="0"/>
         <TopLine Value="24"/>
         <CursorPos X="38" Y="39"/>
         <UsageCount Value="15"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\..\KM_SoftShadows.pas"/>
+        <UnitName Value="KM_SoftShadows"/>
+        <WindowIndex Value="0"/>
         <TopLine Value="192"/>
         <CursorPos X="11" Y="211"/>
         <UsageCount Value="9"/>
@@ -101,349 +123,178 @@
       </Unit7>
       <Unit8>
         <Filename Value="..\..\KM_ResourceSpritesEdit.pas"/>
-        <EditorIndex Value="-1"/>
+        <UnitName Value="KM_ResourceSpritesEdit"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
         <TopLine Value="400"/>
         <CursorPos X="64" Y="421"/>
         <UsageCount Value="15"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
-        <Filename Value="..\..\ext\KM_PNG.pas"/>
-        <EditorIndex Value="-1"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <UnitName Value="KM_PNG"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
         <CursorPos X="43" Y="7"/>
         <UsageCount Value="15"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
-        <Filename Value="..\..\ext\BGRABitmap\bgradefaultbitmap.pas"/>
+        <Filename Value="..\..\Common\BGRABitmap\bgradefaultbitmap.pas"/>
         <UnitName Value="BGRADefaultBitmap"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
         <TopLine Value="22"/>
+        <CursorPos X="1" Y="1"/>
         <UsageCount Value="15"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
-        <Filename Value="..\..\ext\BGRABitmap\bgrabitmaptypes.pas"/>
+        <Filename Value="..\..\Common\BGRABitmap\bgrabitmaptypes.pas"/>
         <UnitName Value="BGRABitmapTypes"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
         <TopLine Value="106"/>
         <CursorPos X="3" Y="39"/>
         <UsageCount Value="12"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit11>
       <Unit12>
-        <Filename Value="..\..\ext\BGRABitmap\bgrabitmap.pas"/>
+        <Filename Value="..\..\Common\BGRABitmap\bgrabitmap.pas"/>
         <UnitName Value="BGRABitmap"/>
+        <WindowIndex Value="0"/>
         <TopLine Value="110"/>
+        <CursorPos X="1" Y="1"/>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit12>
-      <Unit13>
-        <Filename Value="..\..\src\res\KM_ResPalettes.pas"/>
-        <EditorIndex Value="1"/>
-        <CursorPos X="19" Y="6"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit13>
-      <Unit14>
-        <Filename Value="..\..\src\common\KM_CommonClasses.pas"/>
-        <EditorIndex Value="22"/>
-        <TopLine Value="155"/>
-        <CursorPos X="24" Y="165"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit14>
-      <Unit15>
-        <Filename Value="..\..\src\utils\KM_CommonUtils.pas"/>
-        <EditorIndex Value="21"/>
-        <CursorPos X="77" Y="7"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit15>
-      <Unit16>
-        <Filename Value="..\..\src\res\KM_ResTexts.pas"/>
-        <EditorIndex Value="20"/>
-        <CursorPos X="30" Y="7"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit16>
-      <Unit17>
-        <Filename Value="..\..\src\res\KM_ResHouses.pas"/>
-        <EditorIndex Value="19"/>
-        <TopLine Value="201"/>
-        <CursorPos X="24" Y="211"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit17>
-      <Unit18>
-        <Filename Value="..\..\src\navmesh\KM_Outline.pas"/>
-        <EditorIndex Value="18"/>
-        <CursorPos X="18" Y="5"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit18>
-      <Unit19>
-        <Filename Value="..\..\src\navmesh\KM_PolySimplify.pas"/>
-        <EditorIndex Value="17"/>
-        <TopLine Value="53"/>
-        <CursorPos X="22" Y="64"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit19>
-      <Unit20>
-        <Filename Value="..\..\src\utils\KM_PNG.pas"/>
-        <EditorIndex Value="16"/>
-        <CursorPos X="16" Y="7"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit20>
-      <Unit21>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrabitmap.pas"/>
-        <UnitName Value="BGRABitmap"/>
-        <EditorIndex Value="15"/>
-        <TopLine Value="39"/>
-        <CursorPos X="16" Y="49"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit21>
-      <Unit22>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrawinbitmap.pas"/>
-        <UnitName Value="BGRAWinBitmap"/>
-        <EditorIndex Value="14"/>
-        <TopLine Value="21"/>
-        <CursorPos X="35" Y="31"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit22>
-      <Unit23>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgradefaultbitmap.pas"/>
-        <UnitName Value="BGRADefaultBitmap"/>
-        <EditorIndex Value="13"/>
-        <TopLine Value="416"/>
-        <CursorPos X="44" Y="424"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit23>
-      <Unit24>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgracanvas.pas"/>
-        <UnitName Value="BGRACanvas"/>
-        <EditorIndex Value="12"/>
-        <TopLine Value="204"/>
-        <CursorPos X="46" Y="212"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit24>
-      <Unit25>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrapolygon.pas"/>
-        <UnitName Value="BGRAPolygon"/>
-        <EditorIndex Value="11"/>
-        <TopLine Value="125"/>
-        <CursorPos X="71" Y="135"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit25>
-      <Unit26>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgragradientscanner.pas"/>
-        <UnitName Value="BGRAGradientScanner"/>
-        <EditorIndex Value="10"/>
-        <CursorPos X="38" Y="10"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit26>
-      <Unit27>
-        <Filename Value="..\..\src\res\KM_ResSprites.pas"/>
-        <EditorIndex Value="9"/>
-        <TopLine Value="159"/>
-        <CursorPos X="24" Y="169"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit27>
-      <Unit28>
-        <Filename Value="..\..\src\render\KM_Render.pas"/>
-        <EditorIndex Value="8"/>
-        <CursorPos X="61" Y="7"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit28>
-      <Unit29>
-        <Filename Value="..\..\src\res\KM_ResSpritesEdit.pas"/>
-        <EditorIndex Value="7"/>
-        <TopLine Value="385"/>
-        <CursorPos X="64" Y="395"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit29>
-      <Unit30>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrabitmaptypes.pas"/>
-        <UnitName Value="BGRABitmapTypes"/>
-        <EditorIndex Value="6"/>
-        <TopLine Value="476"/>
-        <CursorPos X="41" Y="486"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit30>
-      <Unit31>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgramultifiletype.pas"/>
-        <UnitName Value="BGRAMultiFileType"/>
-        <EditorIndex Value="5"/>
-        <TopLine Value="58"/>
-        <CursorPos X="14" Y="68"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit31>
-      <Unit32>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrautf8.pas"/>
-        <UnitName Value="BGRAUTF8"/>
-        <EditorIndex Value="4"/>
-        <CursorPos X="26" Y="7"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit32>
-      <Unit33>
-        <Filename Value="..\..\KaM_Remake.dpr"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="3"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit33>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="..\..\src\res\KM_ResSprites.pas"/>
-        <Caret Line="7" Column="58"/>
+        <Filename Value="..\..\Common\BGRABitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="631" Column="20" TopLine="596"/>
       </Position1>
       <Position2>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="27" Column="36" TopLine="17"/>
+        <Filename Value="..\..\Common\BGRABitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="633" Column="22" TopLine="598"/>
       </Position2>
       <Position3>
-        <Filename Value="..\..\src\res\KM_ResSpritesEdit.pas"/>
+        <Filename Value="..\..\Common\BGRABitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="3621" Column="49" TopLine="3586"/>
       </Position3>
       <Position4>
-        <Filename Value="..\..\src\res\KM_ResSpritesEdit.pas"/>
-        <Caret Line="395" Column="64" TopLine="385"/>
+        <Filename Value="..\..\Common\BGRABitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position4>
       <Position5>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="59" Column="14" TopLine="50"/>
+        <Filename Value="..\..\KM_ResourceSprites.pas"/>
+        <Caret Line="389" Column="21" TopLine="368"/>
       </Position5>
       <Position6>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="60" Column="3" TopLine="50"/>
+        <Filename Value="..\..\KM_ResourceSprites.pas"/>
+        <Caret Line="388" Column="29" TopLine="368"/>
       </Position6>
       <Position7>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="63" Column="22" TopLine="44"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position7>
       <Position8>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="61" Column="6" TopLine="49"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="41" Column="10" TopLine="20"/>
       </Position8>
       <Position9>
-        <Filename Value="RXXPackerForm.pas"/>
-        <Caret Line="18" Column="25" TopLine="7"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position9>
       <Position10>
-        <Filename Value="RXXPackerForm.pas"/>
-        <Caret Line="49" Column="7" TopLine="37"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="54" Column="7" TopLine="20"/>
       </Position10>
       <Position11>
-        <Filename Value="RXXPackerForm.pas"/>
-        <Caret Line="6" Column="30"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="41" Column="26" TopLine="14"/>
       </Position11>
       <Position12>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="83" TopLine="77"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="40" Column="53" TopLine="20"/>
       </Position12>
       <Position13>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="76" TopLine="69"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="39" Column="27" TopLine="20"/>
       </Position13>
       <Position14>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="77" TopLine="69"/>
+        <Filename Value="..\..\Common\BGRABitmap\bgradefaultbitmap.pas"/>
+        <Caret Line="1" Column="1" TopLine="22"/>
       </Position14>
       <Position15>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="78" TopLine="71"/>
+        <Filename Value="..\..\Common\BGRABitmap\bgrabitmaptypes.pas"/>
+        <Caret Line="1" Column="1" TopLine="10"/>
       </Position15>
       <Position16>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="79" TopLine="68"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="39" Column="27" TopLine="20"/>
       </Position16>
       <Position17>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="92" TopLine="82"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="41" Column="30" TopLine="20"/>
       </Position17>
       <Position18>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrawinbitmap.pas"/>
-        <Caret Line="31" Column="39" TopLine="21"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position18>
       <Position19>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrabitmaptypes.pas"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="41" Column="56" TopLine="20"/>
       </Position19>
       <Position20>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrabitmaptypes.pas"/>
-        <Caret Line="34" Column="31" TopLine="24"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="104" Column="36" TopLine="77"/>
       </Position20>
       <Position21>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgramultifiletype.pas"/>
+        <Filename Value="..\..\Common\KM_PNG.pas"/>
+        <Caret Line="43" Column="66" TopLine="20"/>
       </Position21>
       <Position22>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrabitmaptypes.pas"/>
-        <Caret Line="36" Column="20" TopLine="26"/>
+        <Filename Value="..\..\KM_ResourceSpritesEdit.pas"/>
+        <Caret Line="28" Column="80" TopLine="25"/>
       </Position22>
       <Position23>
-        <Filename Value="..\..\src\ext\BGRABitmap\bgrautf8.pas"/>
+        <Filename Value="..\..\KM_ResourceSpritesEdit.pas"/>
+        <Caret Line="5" Column="1" TopLine="1"/>
       </Position23>
       <Position24>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="55" Column="52" TopLine="37"/>
+        <Filename Value="..\..\KM_ResourceSprites.pas"/>
+        <Caret Line="447" Column="72" TopLine="415"/>
       </Position24>
       <Position25>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="56" Column="54" TopLine="44"/>
+        <Filename Value="..\..\KM_ResourceSprites.pas"/>
+        <Caret Line="689" Column="1" TopLine="668"/>
       </Position25>
       <Position26>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="60" Column="57" TopLine="49"/>
+        <Filename Value="..\..\KM_ResourceSprites.pas"/>
+        <Caret Line="465" Column="75" TopLine="432"/>
       </Position26>
       <Position27>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="68" Column="12" TopLine="53"/>
+        <Filename Value="..\..\KM_ResourceSpritesEdit.pas"/>
+        <Caret Line="268" Column="3" TopLine="300"/>
       </Position27>
       <Position28>
-        <Filename Value="..\..\src\res\KM_ResSpritesEdit.pas"/>
-        <Caret Line="395" Column="64" TopLine="385"/>
+        <Filename Value="..\..\KM_ResourceSprites.pas"/>
+        <Caret Line="192" Column="64" TopLine="171"/>
       </Position28>
       <Position29>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="68" Column="63" TopLine="50"/>
+        <Filename Value="..\..\KM_ResourceSprites.pas"/>
+        <Caret Line="372" Column="1" TopLine="361"/>
       </Position29>
       <Position30>
-        <Filename Value="RXXPacker.dpr"/>
-        <Caret Line="57" Column="5" TopLine="47"/>
+        <Filename Value="..\..\KM_ResourceSprites.pas"/>
+        <Caret Line="374" Column="3" TopLine="353"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
@@ -471,24 +322,14 @@
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <CompilerMessages>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
-    <BreakPoints Count="2">
-      <Item1>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="RXXPackerForm.pas"/>
-        <Line Value="51"/>
-      </Item1>
-      <Item2>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="RXXPackerForm.pas"/>
-        <Line Value="50"/>
-      </Item2>
-    </BreakPoints>
     <Exceptions Count="3">
       <Item1>
         <Name Value="EAbort"/>

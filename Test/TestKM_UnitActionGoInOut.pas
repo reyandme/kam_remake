@@ -35,7 +35,7 @@ begin
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   gRes := TKMResource.Create(nil, nil);
   gRes.LoadMainResources;
-  fScripting := TKMScripting.Create(nil);
+  fScripting := TKMScriptingCreator.CreateScripting(nil);
   gTerrain := TKMTerrain.Create;
   gTerrain.MakeNewMap(32, 32, False);
   gHands := TKMHandsCollection.Create;

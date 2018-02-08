@@ -254,7 +254,6 @@ var
   R: TWareType;
   T: TKMUnitThought;
   i,ci:integer;
-  sy,sx,y,x:integer;
   Used:array of Boolean;
   RXData: TRXData;
   SpritePack: TKMSpritePack;
@@ -372,13 +371,11 @@ var
   ID: THouseType;
   Ac: THouseActionType;
   Q, Beast, I, K, ci: Integer;
-  RXData: TRXData;
   SpritePack: TKMSpritePack;
   SList: TStringList;
 begin
   fSprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows anyways
   SpritePack := fSprites[rxHouses];
-  RXData := SpritePack.RXData;
   SList := TStringList.Create;
 
   Folder := ExeDir + 'Export' + PathDelim + 'HouseAnim' + PathDelim;
@@ -425,7 +422,6 @@ end;
 //Export Trees graphics categorized by ID
 procedure TKMResource.ExportTreeAnim;
 var
-  RXData: TRXData;
   FullFolder, Folder: string;
   I, K: Integer;
 
@@ -435,7 +431,6 @@ var
 begin
   fSprites.LoadSprites(rxTrees, False);
   SpritePack := fSprites[rxTrees];
-  RXData := SpritePack.RXData;
 
   Folder := ExeDir + 'Export' + PathDelim + 'TreeAnim' + PathDelim;
   ForceDirectories(Folder);

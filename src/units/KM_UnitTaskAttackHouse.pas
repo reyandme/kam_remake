@@ -11,13 +11,11 @@ type
   TTaskAttackHouse = class(TUnitTask)
   private
     fHouse: TKMHouse;
-    fDestroyingHouse: Boolean; //House destruction in progress
   public
     constructor Create(aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
-    property DestroyingHouse: Boolean read fDestroyingHouse;
     function WalkShouldAbandon: Boolean; override;
     function Execute: TTaskResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -43,7 +41,6 @@ begin
   inherited Create(aWarrior);
   fTaskName := utn_AttackHouse;
   fHouse := aHouse.GetHousePointer;
-  fDestroyingHouse := False;
 end;
 
 
@@ -51,7 +48,6 @@ constructor TTaskAttackHouse.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(fDestroyingHouse);
 end;
 
 
@@ -112,16 +108,19 @@ begin
              Result := tr_TaskDone;
              Exit;
            end;
+
            //Calculate base aiming delay
-           if UnitType = ut_Arbaletman then
-             Delay := CROSSBOWMEN_AIMING_DELAY_MIN+KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD)
-           else
-             Delay := BOWMEN_AIMING_DELAY_MIN+KaMRandom(BOWMEN_AIMING_DELAY_ADD);
+           case UnitType of
+             ut_Bowman:     Delay := BOWMEN_AIMING_DELAY_MIN + KaMRandom(BOWMEN_AIMING_DELAY_ADD);
+             ut_Arbaletman: Delay := CROSSBOWMEN_AIMING_DELAY_MIN + KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD);
+             ut_SLingShot:  Delay := SLINGSHOT_AIMING_DELAY_MIN + KaMRandom(SLINGSHOT_AIMING_DELAY_ADD);
+             else raise Exception.Create('Unknown shooter');
+           end;
 
            //Prevent rate of fire exploit by making archers pause for longer if they shot recently
-           Cycle := max(gRes.Units[UnitType].UnitAnim[ua_Work, Direction].Count, 1);
+           Cycle := Max(gRes.Units[UnitType].UnitAnim[ua_Work, Direction].Count, 1);
            if NeedsToReload(Cycle) then
-             Delay := Delay + Cycle-(gGame.GameTickCount-LastShootTime);
+             Delay := Delay + Cycle - (gGame.GameTickCount - LastShootTime);
 
            SetActionLockedStay(Delay,ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
@@ -149,7 +148,6 @@ begin
          end;
        end;
     2: begin
-         fDestroyingHouse := True;
          if IsRanged then
            SetActionLockedStay(FIRING_DELAY, ua_Work, False, 0, 0) //Start shooting
          else
@@ -200,7 +198,6 @@ begin
     SaveStream.Write(fHouse.UID)
   else
     SaveStream.Write(Integer(0));
-  SaveStream.Write(fDestroyingHouse);
 end;
 
 

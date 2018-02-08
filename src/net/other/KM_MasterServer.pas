@@ -1,5 +1,6 @@
 unit KM_MasterServer;
 {$I KaM_Remake.inc}
+{$WARN IMPLICIT_STRING_CAST OFF}
 interface
 uses
   Classes, SysUtils,

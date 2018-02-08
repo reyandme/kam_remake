@@ -25,6 +25,9 @@ uses
   //Move a folder and rename all the files inside it (MoveFolder is different between Delphi and Lazarus)
   function KMMoveFolder(const aSourceFolder, aDestFolder: UnicodeString): Boolean;
 
+  //Rename all the files inside folder (MoveFolder is different between Delphi and Lazarus)
+  procedure KMRenameFilesInFolder(const aPathToFolder, aFromName, aToName: UnicodeString);
+
 
   function IsFilePath(const aPath: UnicodeString): Boolean;
 
@@ -159,7 +162,16 @@ begin
 end;
 
 
+procedure KMRenameFolder(const aSourcePath, aDestPath: UnicodeString);
+begin
+  {$IFDEF FPC} RenameFile(aSourcePath, aDestPath); {$ENDIF}
+  {$IFDEF WDC} TDirectory.Move(aSourcePath, aDestPath); {$ENDIF}
+end;
+
+
 procedure KMRenamePath(const aSourcePath, aDestPath: UnicodeString);
+var
+  ErrorStr: UnicodeString;
 begin
   if IsFilePath(aSourcePath) then
   begin
@@ -170,22 +182,61 @@ begin
   else
   if DirectoryExists(aSourcePath) then
   begin
-    if DirectoryExists(aDestPath) then
-      KMDeleteFolder(aDestPath);
-    {$IFDEF FPC} RenameFile(aSourcePath, aDestPath); {$ENDIF}
-    {$IFDEF WDC} TDirectory.Move(aSourcePath, aDestPath); {$ENDIF}
+    //Try to delete folder up to 3 times. Sometimes folder could not be deleted for some reason
+    if not TryExecuteMethodProc(aDestPath, 'KMDeleteFolder', ErrorStr, KMDeleteFolder) then
+      raise Exception.Create('Can''t delete folder ' + aDestPath);
+
+     //Try to rename folder up to 3 times. Sometimes folder could not be renamed for some reason
+    if not TryExecuteMethodProc(aSourcePath, aDestPath, 'KMRenameFolder', ErrorStr, KMRenameFolder) then
+      raise Exception.Create(Format('Can''t rename folder from %s to %s', [aSourcePath, aDestPath]));
+  end;
+end;
+
+
+//Rename all files inside folder by pattern _old_name_suffix to _new_name_suffix
+//Pattern that we use for most of the files for our maps/saves
+procedure KMRenameFilesInFolder(const aPathToFolder, aFromName, aToName: UnicodeString);
+var
+  I: Integer;
+  RenamedFile: UnicodeString;
+  SearchRec: TSearchRec;
+  FilesToRename: TStringList;
+begin
+  if (Trim(aFromName) = '')
+    or (Trim(aToName) = '')
+    or (aFromName = aToName) then
+    Exit;
+
+  FilesToRename := TStringList.Create;
+  try
+    //Find all files to rename in path
+    //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
+    FindFirst(aPathToFolder + aFromName + '*', faAnyFile - faDirectory, SearchRec);
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and (Length(SearchRec.Name) > Length(aFromName)) then
+        FilesToRename.Add(SearchRec.Name);
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
+
+    //Move all previously finded files
+    for I := 0 to FilesToRename.Count - 1 do
+    begin
+       RenamedFile := aPathToFolder + aToName + RightStr(FilesToRename[I], Length(FilesToRename[I]) - Length(aFromName));
+       if not FileExists(RenamedFile) and (aPathToFolder + FilesToRename[I] <> RenamedFile) then
+         KMRenamePath(aPathToFolder + FilesToRename[I], RenamedFile);
+    end;
+  finally
+    FilesToRename.Free;
   end;
 end;
 
 
 //Move folder and rename all files inside by pattern _old_name_suffix to _new_name_suffix
-//Pattern thatwe use for most of the files for our maps/saves
+//Pattern that we use for most of the files for our maps/saves
 function KMMoveFolder(const aSourceFolder, aDestFolder: UnicodeString): Boolean;
 var
-  I: Integer;
-  SrcName, DestName, RenamedFile: UnicodeString;
-  SearchRec: TSearchRec;
-  FilesToMove: TStringList;
+  SrcName, DestName: UnicodeString;
 begin
   Result := False;
   if (Trim(aSourceFolder) = '')
@@ -193,37 +244,16 @@ begin
     or (aSourceFolder = aDestFolder)
     or not DirectoryExists(aSourceFolder) then Exit;
 
+  KMDeleteFolder(aDestFolder);
+
+  //Move directory to dest first
+  KMRenamePath(aSourceFolder, aDestFolder);
+
   SrcName := GetFileDirName(aSourceFolder);
   DestName := GetFileDirName(aDestFolder);
+  //Rename all files there
+  KMRenameFilesInFolder(aDestFolder, SrcName, DestName);
 
-  FilesToMove := TStringList.Create;
-  try
-    //Remove existing dest directory
-    KMDeleteFolder(aDestFolder);
-
-    //Move directory to dest
-    KMRenamePath(aSourceFolder, aDestFolder);
-
-    //Find all files to move in dest
-    //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
-    FindFirst(aDestFolder + SrcName + '*', faAnyFile - faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-        and (Length(SearchRec.Name) > Length(SrcName)) then
-        FilesToMove.Add(SearchRec.Name);
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
-
-    //Move all previously finded files
-    for I := 0 to FilesToMove.Count - 1 do
-    begin
-       RenamedFile := aDestFolder + DestName + RightStr(FilesToMove[I], Length(FilesToMove[I]) - Length(SrcName));
-       if not FileExists(RenamedFile) and (aDestFolder + FilesToMove[I] <> RenamedFile) then
-         KMRenamePath(aDestFolder + FilesToMove[I], RenamedFile);
-    end;
-  finally
-    FilesToMove.Free;
-  end;
   Result := True;
 end;
 

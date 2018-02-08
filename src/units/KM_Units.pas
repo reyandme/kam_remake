@@ -95,6 +95,7 @@ type
     procedure SetCondition(aValue: Integer);
     function CanAccessHome: Boolean;
 
+    procedure SetInHouse(aInHouse: TKMHouse);
     procedure UpdateThoughts;
     function UpdateVisibility: Boolean;
     procedure UpdateHitPoints;
@@ -162,8 +163,7 @@ type
     property  HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
     property  Visible: Boolean read fVisible write fVisible;
-    procedure SetInHouse(aInHouse: TKMHouse);
-    property  GetInHouse: TKMHouse read fInHouse;
+    property  InHouse: TKMHouse read fInHouse write SetInHouse;
     property  IsDead: Boolean read fIsDead;
     function  IsDeadOrDying: Boolean;
     property  GetPosition: TKMPoint read fCurrPosition;
@@ -298,7 +298,8 @@ uses
   KM_UnitTaskGoOutShowHungry,
   KM_UnitTaskMining,
   KM_UnitTaskSelfTrain,
-  KM_UnitTaskThrowRock;
+  KM_UnitTaskThrowRock,
+  KM_GameTypes;
 
 
 { TKMSettledUnit }
@@ -1209,6 +1210,7 @@ begin
   LoadStream.Read(fTicker);
   LoadStream.Read(fHitPoints);
   LoadStream.Read(fHitPointCounter);
+  LoadStream.Read(HitPointsInvulnerable);
   LoadStream.Read(fInHouse, 4);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
@@ -2027,6 +2029,7 @@ begin
   SaveStream.Write(fTicker);
   SaveStream.Write(fHitPoints);
   SaveStream.Write(fHitPointCounter);
+  SaveStream.Write(HitPointsInvulnerable);
 
   if fInHouse <> nil then
     SaveStream.Write(fInHouse.UID) //Store ID, then substitute it with reference on SyncLoad
@@ -2106,11 +2109,19 @@ begin
     if DesiredPassability = tpWalkRoad then
     begin
       if not gTerrain.CheckPassability(fNextPosition, tpWalk) then
-        raise ELocError.Create( gRes.Units[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk', fNextPosition);
+        Self.KillUnit(PLAYER_NONE, False, True);
+        //Grayter 18.01.2018
+        //Despite checking passability of current tile, some units can walk on
+        //unwalkable tile especially when there are many soldiers on the map (> 4000)
+        //I don't know why it happens really, so we decided to kill this unit instead
+        //of rising error. This problem does not occur in 99.9% gameplays and is fired
+        //randomly so it is practically impossible to debug.
+        //raise ELocError.Create( gRes.Units[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk', fNextPosition);
     end else
     if not gTerrain.CheckPassability(fNextPosition, DesiredPassability) then
-      raise ELocError.Create(gRes.Units[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' "'+PassabilityGuiText[DesiredPassability] + '"', fNextPosition);
-
+      Self.KillUnit(PLAYER_NONE, False, True);
+      //Explanation above
+      //raise ELocError.Create(gRes.Units[UnitType].GUIName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' "'+PassabilityGuiText[DesiredPassability] + '"', fNextPosition);
 
   //
   //Performing Tasks and Actions now

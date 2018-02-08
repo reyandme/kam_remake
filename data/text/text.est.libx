@@ -156,8 +156,8 @@
 157:Olek
 158:Keera sõdur vasakule
 159:Keera sõdur paremale
-160:Ründa ('a')
-161:Saada sõdur ('d')
+160:Ründa
+161:Saada sõdur
 162:Varusta toiduga
 163:Välkrünnak
 164:Lisa rida
@@ -607,9 +607,9 @@
 619:Rahuaega jäänud: %s
 620:Rahuaeg on lõppenud. Relvadele!
 621:Mängu aeg:|%s
-622:Peata sõdur ('%s')
-623:Lisa sõdur ('%s')
-624:Jaga sõdurid ('%s')
+622:Peata sõdur
+623:Lisa sõdur
+624:Jaga sõdurid
 625:Korduse vaatamine
 626:Vaata kordust
 627:Toeta formaat %s
@@ -722,3 +722,6 @@
 768:Tühista kõik blokeeringud
 769:Võõrustaja eemaldas kõik blokeeringud sellele eelruumile
 770:Kuupäev
+1118:Võrgumängu kaardid
+1119:Vaigista muusika
+1120:Suva lood

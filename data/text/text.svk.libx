@@ -156,8 +156,8 @@
 157:Stav
 158:Otočiť vojsko vľavo
 159:Otočiť vojsko vpravo
-160:Útok ('a')
-161:Premiestniť vojsko ('d')
+160:Útok
+161:Premiestniť vojsko
 162:Zásobiť vojsko potravinami
 163:Zahájiť náhly útok!
 164:Pridať rad
@@ -608,9 +608,9 @@
 619:Koniec obdobia mieru za: %s
 620:Koniec obdobia mieru. Do zbrane!
 621:Čas hry:|%s
-622:Zastaviť oddiel ('%s')
-623:Spojiť oddiel ('%s')
-624:Samostatný vojak ('%s')
+622:Zastaviť oddiel
+623:Spojiť oddiel
+624:Samostatný vojak
 625:Záznamy z hry
 626:Ukázať záznam
 627:Nepodporovaný formát %s
@@ -779,3 +779,6 @@
 829:Príkaz bol splnený
 830:Načítať ázijské fonty
 831:Odísť z downloadov
+1118:Multiplayerové mapy
+1119:Stlmiť hudbu
+1120:Vybrať skladby

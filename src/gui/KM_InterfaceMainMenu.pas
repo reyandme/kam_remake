@@ -212,9 +212,9 @@ procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; const aText: Un
 var
   I: Integer;
   cmp: TKMCampaignId;
-  Version: String;
+  Version: UnicodeString;
 begin
-  Version := GAME_VERSION + ' / ' + gGameApp.RenderVersion;
+  Version := UnicodeString(GAME_VERSION) + ' / ' + gGameApp.RenderVersion;
 
   if gMain <> nil then // could be nil if used from utils
     gMain.StatusBarText(SB_ID_KMR_VER,'KMR ' +  Version);

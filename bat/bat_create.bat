@@ -1,24 +1,26 @@
 REM ============================================================
 REM Create new version package
 REM ============================================================
-call bat_rsvars.bat
-
-@SET kam_version=Beta 7000+
 
 REM Clean before build to avoid any side-effects from old DCUs
 call bat_get_kam_folder.bat
+
+echo "%kam_folder%"
 
 REM Clean target, so if anything fails we have a clear indication (dont pack old files by mistake)
 rmdir /S /Q "%kam_folder%"
 
 REM Clean before build to avoid any side-effects from old DCUs
-call bat_clean_src.bat
+@call bat_clean_src.bat
 
 REM Copy_1
 call bat_copy_pre_pack.bat
 
 REM Pack rx data
 call bat_rx_pack.bat
+
+REM Build utility applications, included into the final build
+call bat_build_utils.bat
 
 @REM Build exe
 @REM call bat_build_exe.bat

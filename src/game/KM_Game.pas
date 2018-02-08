@@ -9,18 +9,10 @@ uses
   KM_GameInputProcess, KM_GameOptions, KM_Scripting, KM_MapEditor, KM_Campaigns, KM_Render, KM_Sound,
   KM_InterfaceGame, KM_InterfaceGamePlay, KM_InterfaceMapEditor,
   KM_ResTexts,
-  KM_PerfLog, KM_Defaults, KM_Points, KM_CommonTypes, KM_CommonClasses;
+  KM_PerfLog, KM_Defaults, KM_Points, KM_CommonTypes, KM_CommonClasses,
+  KM_GameTypes;
 
 type
-  TGameMode = (
-    gmSingle,
-    gmCampaign,
-    gmMulti,        //Different GIP, networking,
-    gmMultiSpectate,
-    gmMapEd,        //Army handling, lite updates,
-    gmReplaySingle, //No input, different results screen to gmReplayMulti
-    gmReplayMulti   //No input, different results screen to gmReplaySingle
-    );
 
   //Class that manages single game session
   TKMGame = class
@@ -80,6 +72,7 @@ type
 
     function GetGameTickDuration: Single;
     procedure GameSpeedChanged(aFromSpeed, aToSpeed: Single);
+    function GetControlledHandIndex: TKMHandIndex;
   public
     PlayOnState: TGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -144,8 +137,11 @@ type
     property CampaignMap: Byte read fCampaignMap;
     property GameSpeed: Single read fGameSpeed;
     property GameTickDuration: Single read GetGameTickDuration;
-    function PlayerLoc: Byte;
-    function PlayerColor: Cardinal;
+
+    function PlayerLoc: Byte; //Can used in SP game/replay only
+    function PlayerColor: Cardinal; //Can used in SP game/replay only
+
+    property ControlledHandIndex: TKMHandIndex read GetControlledHandIndex;
 
     property Scripting: TKMScripting read fScripting;
     property GameMode: TGameMode read fGameMode;
@@ -494,15 +490,15 @@ begin
   if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     SaveGame(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer), UTCNow);
 
+  //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
+  gScriptEvents.ProcMissionStart;
+
   //When everything is ready we can update UI
   fActiveInterface.SyncUI;
   if IsMapEditor then
     fActiveInterface.SyncUIView(KMPointF(gTerrain.MapX / 2, gTerrain.MapY / 2))
   else
     fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
-
-  //MissionStart goes after basesave to keep it pure (repeats on Load of basesave)
-  gScriptEvents.ProcMissionStart;
 
   gLog.AddTime('Gameplay initialized', True);
 end;
@@ -726,11 +722,12 @@ begin
     end;
   end;
 
-  for I := 1 to gGameApp.GameSettings.AutosaveCount do //All autosaves
+  for I := 1 to Min(gGameApp.GameSettings.AutosaveCount, AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX) do //Add autosaves
   begin
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_REPLAY, IsMultiplayer));
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_BASE, IsMultiplayer));
     AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MAIN, IsMultiplayer));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MP_MINIMAP, IsMultiplayer));
   end;
 
   gLog.AddTime('Crash report created');
@@ -787,7 +784,7 @@ end;
 procedure TKMGame.PlayerVictory(aPlayerIndex: TKMHandIndex);
 begin
   if IsMultiplayer then
-    fNetworking.PostLocalMessage(Format('%s has won!', //Todo translate
+    fNetworking.PostLocalMessage(Format(gResTexts[TX_MULTIPLAYER_PLAYER_WON],
       [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
 
   if fGameMode = gmMultiSpectate then
@@ -806,6 +803,12 @@ begin
   end
   else
     RequestGameHold(gr_Win);
+end;
+
+
+function TKMGame.PlayerLoc: Byte;
+begin
+  Result := gMySpectator.HandIndex;
 end;
 
 
@@ -842,12 +845,6 @@ begin
                           [fNetworking.GetNetPlayerByHandIndex(aPlayerIndex).NiknameColoredU]), csSystem);
     //We have not thought of anything to display on players defeat in Replay
   end;
-end;
-
-
-function TKMGame.PlayerLoc: Byte;
-begin
-  Result := gMySpectator.HandIndex;
 end;
 
 
@@ -891,6 +888,7 @@ begin
   fSaveFile := '';
 
   fMapEditor := TKMMapEditor.Create;
+  fMapEditor.MissionDefSavePath := fGameName + '.dat';
   gTerrain.MakeNewMap(aSizeX, aSizeY, True);
   fMapEditor.TerrainPainter.InitEmpty;
   fMapEditor.TerrainPainter.MakeCheckpoint;
@@ -966,6 +964,7 @@ begin
   ForceDirectories(ExtractFilePath(aPathName));
   gLog.AddTime('Saving from map editor: ' + aPathName);
 
+  fMapEditor.MissionDefSavePath := aPathName;
   fMapEditor.SaveAttachements(aPathName);
   gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
   fMapEditor.TerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
@@ -1273,6 +1272,15 @@ end;
 procedure TKMGame.GameSpeedChanged(aFromSpeed, aToSpeed: Single);
 begin
   fActiveInterface.GameSpeedChanged(aFromSpeed, aToSpeed);
+end;
+
+
+//Return Controlled hand index in game or -1, if there is no one (spectator/replay/maped)
+function TKMGame.GetControlledHandIndex: TKMHandIndex;
+begin
+  Result := -1;
+  if fGameMode in [gmSingle, gmCampaign, gmMulti] then
+    Result := gMySpectator.HandIndex;
 end;
 
 
@@ -1600,6 +1608,7 @@ begin
     if fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate] then
     begin
       DeleteFile(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer));
+      ForceDirectories(SavePath('basesave', IsMultiplayer)); //basesave directory could not exist at this moment, if this is the first game ever, f.e.
       KMCopyFile(ChangeFileExt(aPathName, EXT_SAVE_BASE_DOT), SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer));
     end;
 
