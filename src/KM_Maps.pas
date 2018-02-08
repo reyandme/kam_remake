@@ -3,7 +3,7 @@ unit KM_Maps;
 interface
 uses
   Classes, SyncObjs,
-  KM_Defaults;
+  KM_CommonClasses, KM_Defaults;
 
 
 type
@@ -38,8 +38,10 @@ type
     fSizeText: string;
     procedure ResetInfo;
     procedure LoadTXTInfo;
-    procedure LoadFromFile(const aPath: string);
-    procedure SaveToFile(const aPath: string);
+    procedure LoadFromStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
+    procedure LoadFromFile(const aPath: UnicodeString);
+    procedure SaveToStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
+    procedure SaveToFile(const aPath: UnicodeString);
     function GetSizeText: string;
     function DetermineReadmeFilePath: String;
   public
@@ -177,10 +179,10 @@ type
 
 implementation
 uses
-  SysUtils, StrUtils, Math, KromUtils,
+  SysUtils, StrUtils, Math, KromShellUtils, KromUtils,
   KM_GameApp, KM_ResTexts, KM_FileIO,
   KM_MissionScript_Info, KM_Scripting,
-  KM_CommonClasses, KM_CommonUtils;
+  KM_Utils, KM_CommonUtils, KM_Log;
 
 
 const
@@ -490,13 +492,14 @@ begin
 end;
 
 
-procedure TKMapInfo.LoadFromFile(const aPath: string);
+procedure TKMapInfo.LoadFromStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
 var
   S: TKMemoryStream;
 begin
-  if not FileExists(aPath) then Exit;
+  Assert(aStreamObj is TKMemoryStream, 'Wrong stream object class');
 
-  S := TKMemoryStream.Create;
+  S := TKMemoryStream(aStreamObj);
+
   S.LoadFromFile(aPath);
 
   //Internal properties
@@ -518,15 +521,45 @@ begin
   S.Read(BlockFullMapPreview);
 
   IsFavourite := gGameApp.GameSettings.FavouriteMaps.Contains(fCRC);
-
-  //Other properties are not saved, they are fast to reload
-  S.Free;
 end;
 
 
-procedure TKMapInfo.SaveToFile(const aPath: string);
+procedure TKMapInfo.LoadFromFile(const aPath: UnicodeString);
 var
   S: TKMemoryStream;
+  ErrorStr: UnicodeString;
+begin
+  if not FileExists(aPath) then Exit;
+
+  S := TKMemoryStream.Create;
+  try
+    //Try to load map cache up to 3 times (in case its updating by other thread
+    //its much easier and working well, then synchronize threads
+    if not TryExecuteMethod(TObject(S), aPath, 'LoadFromStreamObj', ErrorStr, LoadFromStreamObj) then
+      gLog.AddTime(ErrorStr);
+  finally
+    //Other properties are not saved, they are fast to reload
+    S.Free;
+  end;
+end;
+
+
+procedure TKMapInfo.SaveToStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
+var
+  S: TKMemoryStream;
+begin
+  Assert(aStreamObj is TKMemoryStream, 'Wrong stream object class');
+
+  S := TKMemoryStream(aStreamObj);
+
+  S.SaveToFile(aPath);
+end;
+
+
+procedure TKMapInfo.SaveToFile(const aPath: UnicodeString);
+var
+  S: TKMemoryStream;
+  ErrorStr: UnicodeString;
 begin
   S := TKMemoryStream.Create;
   try
@@ -548,9 +581,12 @@ begin
     S.Write(BlockPeacetime);
     S.Write(BlockFullMapPreview);
 
-    //Other properties from text file are not saved, they are fast to reload
-    S.SaveToFile(aPath);
+    //Try to save map cache up to 3 times (in case its updating by other thread
+    //its much easier and working well, then synchronize threads
+    if not TryExecuteMethod(TObject(S), aPath, 'SaveToStreamObj', ErrorStr, SaveToStreamObj) then
+      gLog.AddTime(ErrorStr);
   finally
+    //Other properties from text file are not saved, they are fast to reload
     S.Free;
   end;
 end;

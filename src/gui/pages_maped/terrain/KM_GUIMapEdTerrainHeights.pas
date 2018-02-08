@@ -2,7 +2,7 @@ unit KM_GUIMapEdTerrainHeights;
 {$I KaM_Remake.inc}
 interface
 uses
-   Math, SysUtils,
+   Classes, Math, SysUtils,
    KM_Controls, KM_Defaults;
 
 
@@ -27,12 +27,15 @@ type
 
     procedure Show;
     procedure Hide;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer; var aHandled: Boolean);
     function Visible: Boolean;
   end;
 
 
 implementation
 uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
   KM_ResFonts, KM_ResTexts, KM_GameCursor, KM_RenderUI,
   KM_InterfaceGame;
 
@@ -118,6 +121,17 @@ begin
   HeightChange(HeightCircle);
   HeightChange(HeightElevate);
   Panel_Heights.Show;
+end;
+
+
+procedure TKMMapEdTerrainHeights.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer; var aHandled: Boolean);
+begin
+  if not aHandled and Visible and (GetKeyState(VK_CONTROL) < 0) then // Do not use ssCtrl in SHift here, as it can sometimes be wrong values inside Shift (ssShift instead of ssCtrl)
+  begin
+    HeightSize.Position := Max(0, HeightSize.Position - (WheelDelta div 100)); //can't set negative number
+    Show;
+    aHandled := True;
+  end;
 end;
 
 

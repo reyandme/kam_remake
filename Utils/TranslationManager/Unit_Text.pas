@@ -255,7 +255,7 @@ begin
       Break;
   end;
 
-  Assert(topId <= 1024, 'Dont allow too many strings for no reason');
+  Assert(topId <= 2048, 'Dont allow too many strings for no reason');
 
   fTextsTopId := Max(fTextsTopId, topId, ConstCount);
 

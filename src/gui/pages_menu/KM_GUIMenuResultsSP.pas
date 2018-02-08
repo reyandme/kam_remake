@@ -4,7 +4,8 @@ interface
 uses
   Controls, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_Campaigns, KM_Game;
+  KM_InterfaceDefaults, KM_Campaigns, KM_Game,
+  KM_GameTypes;
 
 
 type
@@ -392,7 +393,7 @@ begin
     Button_MoreStats.TexOffsetX := -LEGEND_WIDTH div 2 + 14;
     Button_MoreStats.TexOffsetY := 6;
     Button_MoreStats.Anchors := [anLeft];
-    Button_MoreStats.Caption := 'More|statistics'; //Todo translate
+    Button_MoreStats.Caption := gResTexts[TX_RESULTS_MORE_STATS];
     Button_MoreStats.CapOffsetX := 12;
     Button_MoreStats.CapOffsetY := -20;
     Button_MoreStats.OnClick := MoreStatsClick;

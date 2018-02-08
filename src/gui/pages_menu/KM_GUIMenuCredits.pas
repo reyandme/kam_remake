@@ -94,8 +94,8 @@ procedure TKMMenuCredits.LinkClick(Sender: TObject);
   end;
 
 begin
-  if Sender = Button_CreditsHomepage then GoToURL('http://www.kamremake.com/redirect.php?page=homepage&rev=' + GAME_REVISION);
-  if Sender = Button_CreditsFacebook then GoToURL('http://www.kamremake.com/redirect.php?page=facebook&rev=' + GAME_REVISION);
+  if Sender = Button_CreditsHomepage then GoToURL('http://www.kamremake.com/redirect.php?page=homepage&rev=' + UnicodeString(GAME_REVISION));
+  if Sender = Button_CreditsFacebook then GoToURL('http://www.kamremake.com/redirect.php?page=facebook&rev=' + UnicodeString(GAME_REVISION));
 end;
 
 

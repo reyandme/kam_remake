@@ -45,19 +45,19 @@ type
     fNumberConsecutiveWaits: Word; //Number of consecutive times we have been waiting for network
 
     //Each player can have any number of commands scheduled for execution in one tick
-    fSchedule:array[0..MAX_SCHEDULE-1, 1..MAX_LOBBY_SLOTS] of TCommandsPack; //Ring buffer
+    fSchedule: array[0..MAX_SCHEDULE-1, 1..MAX_LOBBY_SLOTS] of TCommandsPack; //Ring buffer
 
     //All players must send us data every tick
-    fRecievedData:array[0..MAX_SCHEDULE-1, 1..MAX_LOBBY_SLOTS] of boolean; //Ring buffer
+    fRecievedData: array[0..MAX_SCHEDULE-1, 1..MAX_LOBBY_SLOTS] of Boolean; //Ring buffer
 
     //Mark commands we've already sent to other players
-    fSent:array[0..MAX_SCHEDULE-1] of boolean; //Ring buffer
+    fSent: array[0..MAX_SCHEDULE-1] of Boolean; //Ring buffer
 
     //Did the player issue a command for this tick? If not it must be cleared from last time (we can't clear it earlier as it might be needed for resync)
-    fCommandIssued:array[0..MAX_SCHEDULE-1] of boolean;
+    fCommandIssued: array[0..MAX_SCHEDULE-1] of Boolean;
 
     //Store random seeds at each tick then confirm with other players
-    fRandomCheck:array[0..MAX_SCHEDULE-1] of TRandomCheck; //Ring buffer
+    fRandomCheck: array[0..MAX_SCHEDULE-1] of TRandomCheck; //Ring buffer
 
     procedure SendCommands(aTick: Cardinal; aPlayerIndex: ShortInt=-1);
     procedure SendRandomCheck(aTick: Cardinal);
@@ -72,11 +72,11 @@ type
     procedure WaitingForConfirmation(aTick: Cardinal); override;
     procedure AdjustDelay(aGameSpeed: Single);
     procedure PlayerTypeChange(aPlayer: TKMHandIndex; aType: THandType);
-    function GetNetworkDelay:word;
-    property GetNumberConsecutiveWaits:word read fNumberConsecutiveWaits;
+    function GetNetworkDelay: Word;
+    property GetNumberConsecutiveWaits: Word read fNumberConsecutiveWaits;
     function GetWaitingPlayers(aTick: Cardinal): TKMByteArray;
     procedure RecieveCommands(aStream: TKMemoryStream; aSenderIndex: ShortInt); //Called by TKMNetwork when it has data for us
-    procedure ResyncFromTick(aSender:ShortInt; aTick: Cardinal);
+    procedure ResyncFromTick(aSender: ShortInt; aTick: Cardinal);
     function CommandsConfirmed(aTick: Cardinal):boolean; override;
     procedure RunningTimer(aTick: Cardinal); override;
     procedure UpdateState(aTick: Cardinal); override;
@@ -87,7 +87,8 @@ implementation
 uses
   SysUtils, Math, KromUtils,
   KM_GameApp, KM_Game, KM_HandsCollection,
-  KM_ResTexts, KM_ResSound, KM_Sound, KM_CommonUtils;
+  KM_ResTexts, KM_ResSound, KM_Sound, KM_CommonUtils,
+  KM_GameTypes;
 
 
 { TCommandsPack }
@@ -267,7 +268,6 @@ begin
   try
     Msg.Write(Byte(kdp_Commands));
     Msg.Write(aTick); //Target Tick in 1..n range
-    //gLog.AddTime('Send commands pack for tick ' + IntToStr(aTick));
     fSchedule[aTick mod MAX_SCHEDULE, gGame.Networking.MyIndex].Save(Msg); //Write all commands to the stream
 
     fNetworking.SendCommands(Msg, aPlayerIndex); //Send to all players by default
@@ -299,7 +299,7 @@ begin
   begin
     Assert(OurCheck = PlayerCheck[aPlayerIndex],Format('Random check mismatch for tick %d from player %d processed at tick %d',
                                                        [aTick, aPlayerIndex, gGame.GameTickCount]));
-    PlayerCheckPending[aPlayerIndex] := false;
+    PlayerCheckPending[aPlayerIndex] := False;
   end;
 end;
 
@@ -389,7 +389,7 @@ begin
 
   fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
-  fRandomCheck[Tick].OurCheck := Cardinal(KaMRandom(maxint)); //thats our CRC (must go before commands for replay compatibility)
+  fRandomCheck[Tick].OurCheck := Cardinal(KaMRandom(MaxInt)); //thats our CRC (must go before commands for replay compatibility)
 
   //Execute commands, in order players go (1,2,3..)
   for I := 1 to fNetworking.NetPlayers.Count do
@@ -397,7 +397,7 @@ begin
     begin
       if not fNetworking.NetPlayers[I].Dropped
       //Don't allow exploits like moving enemy soldiers (but maybe one day you can control disconnected allies?)
-      and ((fNetworking.NetPlayers[I].StartLocation-1 = fSchedule[Tick, I].Items[K].HandIndex)
+      and ((fNetworking.NetPlayers[I].StartLocation - 1 = fSchedule[Tick, I].Items[K].HandIndex)
            or (fSchedule[Tick, I].Items[K].CommandType in AllowedBySpectators)) then
       begin
         StoreCommand(fSchedule[Tick, I].Items[K]); //Store the command first so if Exec fails we still have it in the replay
@@ -430,20 +430,22 @@ procedure TGameInputProcess_Multi.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
-  for I := aTick + 1 to aTick + fDelay do
-  //If the network is not connected then we must send the commands later (fSent will remain false)
-  if (not fSent[I mod MAX_SCHEDULE]) and fNetworking.Connected
-  and (fNetworking.NetGameState = lgs_Game) then //Don't send commands unless game is running normally
-  begin
-    if not fCommandIssued[I mod MAX_SCHEDULE] then
-      fSchedule[I mod MAX_SCHEDULE, gGame.Networking.MyIndex].Clear; //No one has used it since last time through the ring buffer
-    fCommandIssued[I mod MAX_SCHEDULE] := False; //Make it as requiring clearing next time around
+  inherited;
 
-    fLastSentTick := I;
-    SendCommands(I);
-    fSent[I mod MAX_SCHEDULE] := true;
-    fRecievedData[I mod MAX_SCHEDULE, gGame.Networking.MyIndex] := True; //Recieved commands from self
-  end;
+  for I := aTick + 1 to aTick + fDelay do
+    //If the network is not connected then we must send the commands later (fSent will remain false)
+    if (not fSent[I mod MAX_SCHEDULE]) and fNetworking.Connected
+      and (fNetworking.NetGameState = lgs_Game) then //Don't send commands unless game is running normally
+    begin
+      if not fCommandIssued[I mod MAX_SCHEDULE] then
+        fSchedule[I mod MAX_SCHEDULE, gGame.Networking.MyIndex].Clear; //No one has used it since last time through the ring buffer
+      fCommandIssued[I mod MAX_SCHEDULE] := False; //Make it as requiring clearing next time around
+
+      fLastSentTick := I;
+      SendCommands(I);
+      fSent[I mod MAX_SCHEDULE] := True;
+      fRecievedData[I mod MAX_SCHEDULE, gGame.Networking.MyIndex] := True; //Recieved commands from self
+    end;
 end;
 
 

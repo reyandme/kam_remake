@@ -245,8 +245,10 @@ procedure TKMSelection.Selection_PasteBegin;
 var
   I, K: Integer;
   Sx, Sy: Word;
+  {$IFDEF WDC}
   hMem: THandle;
   BufPtr: Pointer;
+  {$ENDIF}
   BufferStream: TKMemoryStream;
 begin
   BufferStream := TKMemoryStream.Create;

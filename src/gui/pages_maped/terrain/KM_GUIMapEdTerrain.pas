@@ -3,7 +3,7 @@ unit KM_GUIMapEdTerrain;
 interface
 uses
    Classes, Math, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics,
+   KM_Controls, KM_Defaults, KM_Pics, KM_CommonTypes,
    KM_GUIMapEdTerrainBrushes,
    KM_GUIMapEdTerrainHeights,
    KM_GUIMapEdTerrainTiles,
@@ -33,13 +33,14 @@ type
     Button_TerrainUndo: TKMButton;
     Button_TerrainRedo: TKMButton;
   public
-    constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
+    constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent; aHideAllPages: TEvent);
     destructor Destroy; override;
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer; var aHandled: Boolean);
 
     property GuiTiles: TKMMapEdTerrainTiles read fGuiTiles;
+    property GuiSelection: TKMMapEdTerrainSelection read fGuiSelection;
 
     procedure Show(aTab: TKMTerrainTab);
     procedure ShowIndex(aIndex: Byte);
@@ -57,7 +58,7 @@ uses
 
 
 { TKMMapEdTerrain }
-constructor TKMMapEdTerrain.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
+constructor TKMMapEdTerrain.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent; aHideAllPages: TEvent);
 const
   BtnGlyph: array [TKMTerrainTab] of Word = (383, 388, 382, 385, 384);
   BtnHint: array [TKMTerrainTab] of Word = (
@@ -91,7 +92,7 @@ begin
     fGuiBrushes := TKMMapEdTerrainBrushes.Create(Panel_Terrain);
     fGuiHeights := TKMMapEdTerrainHeights.Create(Panel_Terrain);
     fGuiTiles := TKMMapEdTerrainTiles.Create(Panel_Terrain);
-    fGuiObjects := TKMMapEdTerrainObjects.Create(Panel_Terrain);
+    fGuiObjects := TKMMapEdTerrainObjects.Create(Panel_Terrain, aHideAllPages);
     fGuiSelection := TKMMapEdTerrainSelection.Create(Panel_Terrain);
 end;
 
@@ -139,6 +140,7 @@ end;
 procedure TKMMapEdTerrain.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer; var aHandled: Boolean);
 begin
   fGuiBrushes.MouseWheel(Shift, WheelDelta, X, Y, aHandled);
+  fGuiHeights.MouseWheel(Shift, WheelDelta, X, Y, aHandled);
 end;
 
 

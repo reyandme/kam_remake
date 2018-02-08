@@ -11,7 +11,7 @@ uses
 type
   TNotifyEventShift = procedure(Sender: TObject; Shift: TShiftState) of object;
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
-  TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
+  TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
   TNotifyEventKeyFunc = function(Sender: TObject; Key: Word): Boolean of object;
   TNotifyEventKeyShift = procedure(Key: Word; Shift: TShiftState) of object;
@@ -68,7 +68,7 @@ type
     procedure MouseDown (X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
     procedure MouseMove (X,Y: Integer; Shift: TShiftState);
     procedure MouseUp   (X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-    procedure MouseWheel(X,Y: Integer; WheelDelta: Integer);
+    procedure MouseWheel(X,Y: Integer; WheelDelta: Integer; var aHandled: Boolean);
 
     procedure Paint;
 
@@ -161,10 +161,12 @@ type
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState); virtual;
     procedure FocusChanged(aFocused: Boolean); virtual;
     procedure DoClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean); virtual;
+    function DoHandleMouseWheelByDefault: Boolean; virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
     AutoFocusable: Boolean; //Can we focus on this element automatically (f.e. if set to False we will able to Focus only by manual mouse click)
+    HandleMouseWheelByDefault: Boolean; //Do control handle MW by default? Usually it is
 
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
     Scale: Single; //Child controls position is scaled
@@ -172,7 +174,7 @@ type
     Tag: Integer; //Some tag which can be used for various needs
     Hint: UnicodeString; //Text that shows up when cursor is over that control, mainly for Buttons
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
-    function HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean; virtual;
+    function HitTest(X, Y: Integer; aIncludeDisabled: Boolean = False): Boolean; virtual;
 
     property Parent: TKMPanel read fParent;
     property AbsLeft: Integer read GetAbsLeft write SetAbsLeft;
@@ -220,7 +222,7 @@ type
     procedure MouseDown (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
     procedure MouseMove (X,Y: Integer; Shift: TShiftState); virtual;
     procedure MouseUp   (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
-    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); virtual;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean); virtual;
 
     property OnClick: TNotifyEvent read fOnClick write fOnClick;
     property OnClickShift: TNotifyEventShift read fOnClickShift write fOnClickShift;
@@ -253,7 +255,9 @@ type
     procedure ControlMouseUp(Sender: TObject; Shift: TShiftState); override;
     procedure UpdateVisibility; override;
     procedure UpdateEnableStatus; override;
+    function DoPanelHandleMouseWheelByDefault: Boolean; virtual;
   public
+    PanelHandleMouseWheelByDefault: Boolean; //Do whole panel handle MW by default? Usually it is
     FocusedControlIndex: Integer; //Index of currently focused control on this Panel
     ChildCount: Word;
     Childs: array of TKMControl;
@@ -405,6 +409,7 @@ type
     fTextAlign: TKMTextAlign;
     fStyle: TKMButtonStyle;
     fRX: TRXType;
+    procedure InitCommon(aStyle: TKMButtonStyle);
   public
     Caption: UnicodeString;
     FlagColor: TColor4; //When using an image
@@ -414,6 +419,8 @@ type
     CapOffsetX: Shortint;
     CapOffsetY: Shortint;
     ShowImageEnabled: Boolean; // show picture as enabled or not (normal or darkened)
+    CenterText: Boolean;
+    TextVAlign: TKMTextVAlign;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle); overload;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; const aCaption: UnicodeString; aStyle: TKMButtonStyle); overload;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
@@ -690,6 +697,7 @@ type
     procedure FocusChanged(aFocused: Boolean); override;
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean; override;
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
+    function DoHandleMouseWheelByDefault: Boolean; override;
   public
     ValueMin: Integer;
     ValueMax: Integer;
@@ -698,7 +706,7 @@ type
     property SharedHint: UnicodeString read Hint write SetSharedHint;
 
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
-    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean); override;
     procedure Paint; override;
   end;
 
@@ -710,6 +718,7 @@ type
     fOrderLab: TKMLabel;
     fOrderRem: TKMButton;
     fOrderCount: Integer;
+    fImmidiateOrder: Boolean; //Order count should be changed immidiately in control. Should be False usually
     procedure ButtonClick(Sender: TObject; Shift: TShiftState);
     procedure ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
     procedure SetOrderRemHint(aValue: UnicodeString);
@@ -719,27 +728,32 @@ type
     procedure SetTop(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
+    function DoHandleMouseWheelByDefault: Boolean; override;
   public
     OrderCntMin: Integer;
     OrderCntMax: Integer;
     OnChange: TObjectIntegerEvent;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE; aOrderCntMin: Integer = 0);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE;
+                       aOrderCntMin: Integer = 0; aImmidiateOrder: Boolean = False);
     property WareRow: TKMWaresRow read fWaresRow;
     property OrderCount: Integer read fOrderCount write SetOrderCount;
     property OrderRemHint: UnicodeString write SetOrderRemHint;
     property OrderAddHint: UnicodeString write SetOrderAddHint;
-    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean); override;
     procedure Paint; override;
   end;
 
 
   {Production cost bar}
   TKMCostsRow = class(TKMControl)
+  private
   public
     RX: TRXType;
     TexID1, TexID2: Word;
     Count: Byte;
     Caption: UnicodeString;
+    MaxCount: Byte;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aMaxCount: Byte = 6);
     procedure Paint; override;
   end;
 
@@ -760,6 +774,7 @@ type
     Step: Byte; //Change Position by this amount each time
     ThumbText: UnicodeString;
     ThumbWidth: Word;
+    CaptionWidth: Integer;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aMin, aMax: Word);
 
@@ -801,6 +816,7 @@ type
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
+    function DoHandleMouseWheelByDefault: Boolean; override;
   public
     BackAlpha: Single; //Alpha of background (usually 0.5, dropbox 1)
     EdgeAlpha: Single; //Alpha of background outline (usually 1)
@@ -811,7 +827,7 @@ type
     property Position: Integer read fPosition write SetPosition;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
-    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean); override;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure Paint; override;
   end;
@@ -848,6 +864,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
     function GetSelfWidth: Integer; override;
+    function DoHandleMouseWheelByDefault: Boolean; override;
   public
     ItemTags: array of Integer;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle);
@@ -880,7 +897,7 @@ type
     function Selected: Boolean;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
-    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean); override;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
@@ -1001,6 +1018,7 @@ type
     function GetSelfAbsTop: Integer; override;
     function GetSelfHeight: Integer; override;
     function GetSelfWidth: Integer; override;
+    function DoHandleMouseWheelByDefault: Boolean; override;
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer; aAllowHighlight: Boolean = True); overload;
     procedure DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer; aColumnsToShow: array of Boolean; aAllowHighlight: Boolean = True); overload;
   public
@@ -1045,7 +1063,7 @@ type
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean); override;
     procedure DoClick(X, Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
@@ -1249,6 +1267,7 @@ type
     procedure SetTop(aValue: Integer); override;
     procedure FocusChanged(aFocused: Boolean); override;
     procedure ControlMouseDown(Sender: TObject; Shift: TShiftState); override;
+    function DoHandleMouseWheelByDefault: Boolean; override;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aSelectable: Boolean = True);
     destructor Destroy; override;
@@ -1270,7 +1289,7 @@ type
     function GetVisibleRows: Integer;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
-    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean); override;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -1456,7 +1475,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   SysUtils, StrUtils, Math, KromUtils, Clipbrd,
-  KM_Resource, KM_ResSprites, KM_ResSound, KM_ResCursors,
+  KM_Resource, KM_ResSprites, KM_ResSound, KM_ResCursors, KM_ResTexts,
   KM_Sound, KM_CommonUtils, KM_Utils;
 
 
@@ -1555,6 +1574,7 @@ begin
   Hint          := '';
   fControlIndex := -1;
   AutoFocusable := True;
+  HandleMouseWheelByDefault := True;
 
   if aParent <> nil then
     fID := aParent.fMasterControl.GetNextCtrlID
@@ -1665,17 +1685,28 @@ begin
 end;
 
 
-procedure TKMControl.MouseWheel(Sender: TObject; WheelDelta: Integer);
+function TKMControl.DoHandleMouseWheelByDefault: Boolean;
 begin
-  if Assigned(fOnMouseWheel) then fOnMouseWheel(Self, WheelDelta);
+  Result := HandleMouseWheelByDefault            //Controls handle MouseWheel by default
+    and Parent.DoPanelHandleMouseWheelByDefault; //But their parent could override this
+end;
+
+
+procedure TKMControl.MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean);
+begin
+  if Assigned(fOnMouseWheel) then
+    fOnMouseWheel(Self, WheelDelta, aHandled)
+  else
+    aHandled := DoHandleMouseWheelByDefault;
 end;
 
 
 //fVisible is checked earlier
-function TKMControl.HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean;
+function TKMControl.HitTest(X, Y: Integer; aIncludeDisabled: Boolean = False): Boolean;
 begin
   Result := Hitable and (fEnabled or aIncludeDisabled) and InRange(X, AbsLeft, AbsLeft + fWidth) and InRange(Y, AbsTop, AbsTop + fHeight);
 end;
+
 
 {One common thing - draw childs for self}
 procedure TKMControl.Paint;
@@ -2119,6 +2150,7 @@ end;
 procedure TKMPanel.Init;
 begin
   ResetFocusedControlIndex;
+  PanelHandleMouseWheelByDefault := True; //Panels handle mousewheel by default
 end;
 
 
@@ -2287,6 +2319,12 @@ begin
     Childs[I].UpdateEnableStatus;
 end;
 
+
+function TKMPanel.DoPanelHandleMouseWheelByDefault: Boolean;
+begin
+  Result := PanelHandleMouseWheelByDefault //Panels handle mousewheel by default
+    and ((Parent = nil) or Parent.DoPanelHandleMouseWheelByDefault); //But their parents could override this
+end;
 
 
 {Panel Paint means to Paint all its childs}
@@ -2785,13 +2823,9 @@ end;
 constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fRX          := aRX;
-  TexID        := aTexID;
-  Caption      := '';
-  FlagColor    := $FFFF00FF;
-  fStyle       := aStyle;
-  MakesSound   := True;
-  ShowImageEnabled := True;
+  InitCommon(aStyle);
+  fRX   := aRX;
+  TexID := aTexID;
 end;
 
 
@@ -2799,14 +2833,22 @@ end;
 constructor TKMButton.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; const aCaption: UnicodeString; aStyle: TKMButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  TexID        := 0;
-  Caption      := aCaption;
-  FlagColor    := $FFFF00FF;
-  Font         := fnt_Metal;
-  fTextAlign   := taCenter; //Thats default everywhere in KaM
-  fStyle       := aStyle;
-  MakesSound   := True;
-  ShowImageEnabled := True;
+  InitCommon(aStyle);
+  Caption := aCaption;
+end;
+
+
+procedure TKMButton.InitCommon(aStyle: TKMButtonStyle);
+begin
+  TexID             := 0;
+  Caption           := '';
+  FlagColor         := $FFFF00FF;
+  Font              := fnt_Metal;
+  fTextAlign        := taCenter; //Thats default everywhere in KaM
+  TextVAlign        := tvaMiddle;//tvaNone;
+  fStyle            := aStyle;
+  MakesSound        := True;
+  ShowImageEnabled  := True;
 end;
 
 
@@ -2843,6 +2885,7 @@ procedure TKMButton.Paint;
 var
   Col: TColor4;
   StateSet: TKMButtonStateSet;
+  TextY, Top: Integer;
 begin
   inherited;
   StateSet := [];
@@ -2860,9 +2903,17 @@ begin
   //If disabled then text should be faded
   Col := IfThen(fEnabled, icWhite, icGray);
 
-  TKMRenderUI.WriteText(AbsLeft + Byte(csDown in State) + CapOffsetX,
-                      (AbsTop + Height div 2) - 7 + Byte(csDown in State) + CapOffsetY,
-                      Width, Caption, Font, fTextAlign, Col);
+  Top := AbsTop + Byte(csDown in State) + CapOffsetY;
+
+  TextY := gRes.Fonts[Font].GetTextSize(Caption).Y;
+  case TextVAlign of
+    tvaNone:    Inc(Top, (Height div 2) - 7);
+    tvaTop:     Inc(Top, 2);
+    tvaMiddle:  Inc(Top, (Height div 2) - (TextY div 2) + 2);
+    tvaBottom:  Inc(Top, Height - TextY);
+  end;
+  TKMRenderUI.WriteText(AbsLeft + Byte(csDown in State) + CapOffsetX, Top,
+                        Width, Caption, Font, fTextAlign, Col);
 end;
 
 
@@ -2890,8 +2941,6 @@ end;
 
 
 procedure TKMButtonFlatCommon.Paint;
-const
-  TextCol: array [Boolean] of TColor4 = ($FF808080, $FFFFFFFF);
 begin
   inherited;
 
@@ -2905,8 +2954,8 @@ end;
 //Simple version of button, with a caption and image
 {TKMButtonFlat}
 procedure TKMButtonFlat.Paint;
-const
-  TextCol: array [Boolean] of TColor4 = ($FF808080, $FFFFFFFF);
+var
+  TextCol: TColor4;
 begin
   inherited;
 
@@ -2915,7 +2964,8 @@ begin
                              AbsTop + TexOffsetY - 6 * Byte(Caption <> ''),
                              Width, Height, [], RX, TexID, fEnabled, FlagColor);
 
-  TKMRenderUI.WriteText(AbsLeft + CapOffsetX, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TextCol[fEnabled]);
+  TextCol := IfThen(fEnabled, CapColor, icGray);
+  TKMRenderUI.WriteText(AbsLeft + CapOffsetX, AbsTop + (Height div 2) + 4 + CapOffsetY, Width, Caption, Font, taCenter, TextCol);
 
   if Down then
     TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 1, $FFFFFFFF);
@@ -3732,14 +3782,24 @@ begin
 end;
 
 
-procedure TKMNumericEdit.MouseWheel(Sender: TObject; WheelDelta: Integer);
+function TKMNumericEdit.DoHandleMouseWheelByDefault: Boolean;
+begin
+  Result := False;
+end;
+
+
+procedure TKMNumericEdit.MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean);
 begin
   inherited;
+
+  if aHandled then Exit;
 
   if WheelDelta > 0 then
     SetValueNCheckRange(Int64(Value) + 1 + 9*Byte(GetKeyState(VK_SHIFT) < 0));
   if WheelDelta < 0 then
     SetValueNCheckRange(Int64(Value) - 1 - 9*Byte(GetKeyState(VK_SHIFT) < 0));
+
+  aHandled := WheelDelta <> 0;
 
   Focus;
 
@@ -3930,11 +3990,14 @@ end;
 
 
 { TKMWareOrderRow }
-constructor TKMWareOrderRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE; aOrderCntMin: Integer = 0);
+constructor TKMWareOrderRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE;
+                                   aOrderCntMin: Integer = 0; aImmidiateOrder: Boolean = False);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, WARE_ROW_HEIGHT);
 
   fWaresRow := TKMWaresRow.Create(aParent, aLeft + 68, aTop, aWidth - 68);
+
+  fImmidiateOrder := aImmidiateOrder;
 
   OrderCntMin := aOrderCntMin;
   OrderCntMax := aOrderCntMax;
@@ -3966,7 +4029,9 @@ begin
 
   if Amt = 0 then Exit;
 
-  OrderCount := fOrderCount + Amt;
+  if fImmidiateOrder then
+    OrderCount := fOrderCount + Amt;
+
   Focus;
 
   if Assigned(OnChange) then
@@ -3974,7 +4039,13 @@ begin
 end;
 
 
-procedure TKMWareOrderRow.MouseWheel(Sender: TObject; WheelDelta: Integer);
+function TKMWareOrderRow.DoHandleMouseWheelByDefault: Boolean;
+begin
+  Result := False;
+end;
+
+
+procedure TKMWareOrderRow.MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean);
 const
   ORDER_WHEEL_AMOUNT = 5; // Amounts for placing orders
 var
@@ -3982,11 +4053,17 @@ var
 begin
   inherited;
 
+  if aHandled then Exit;
+
   Amt := ORDER_WHEEL_AMOUNT * Sign(WheelDelta);
   if GetKeyState(VK_SHIFT) < 0 then
     Amt := Amt * 10;
 
-  OrderCount := fOrderCount + Amt;
+  if fImmidiateOrder then
+    OrderCount := fOrderCount + Amt;
+
+  aHandled := Amt <> 0;
+
   Focus;
 
   if Assigned(OnChange) then
@@ -4008,9 +4085,10 @@ begin
 
   if Amt = 0 then Exit;
 
-  OrderCount := fOrderCount + Amt;
+  if fImmidiateOrder then
+    OrderCount := fOrderCount + Amt;
 
-  if (Amt <> 0) and Assigned(OnChange) then
+  if Assigned(OnChange) then
     OnChange(Self, Amt);
 end;
 
@@ -4075,18 +4153,33 @@ end;
 
 
 { TKMCostsRow }
+constructor TKMCostsRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aMaxCount: Byte = 6);
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+
+  MaxCount := aMaxCount;
+end;
+
+
 procedure TKMCostsRow.Paint;
 var
-  I: Integer;
+  I, Gap: Integer;
 begin
   inherited;
   TKMRenderUI.WriteText(AbsLeft, AbsTop + 4, Width-20, Caption, fnt_Grey, taLeft, $FFFFFFFF);
+
   if Count > 0 then
   begin
+    if Count <= MaxCount then
+      Gap := 20
+    else
+      Gap := Trunc(MaxCount * 20 / Count);
+
     if TexID1 <> 0 then
-      for I := 0 to Count - 1 do
-        TKMRenderUI.WritePicture(AbsLeft+Width-19*(I+1), AbsTop, 20, fHeight, [], RX, TexID1);
-  end else begin
+      for I := Count - 1 downto 0 do
+        TKMRenderUI.WritePicture(AbsLeft+Width-Gap*(I+1), AbsTop, 20, fHeight, [], RX, TexID1);
+  end else
+    begin
     if TexID1 <> 0 then
       TKMRenderUI.WritePicture(AbsLeft+Width-40, AbsTop, 20, fHeight, [], RX, TexID1);
     if TexID2 <> 0 then
@@ -4105,6 +4198,7 @@ begin
   Position := (fMinValue + fMaxValue) div 2;
   Caption := '';
   ThumbWidth := gRes.Fonts[fFont].GetTextSize(IntToStr(MaxValue)).X + 24;
+  CaptionWidth := -1;
 
   Font := fnt_Metal;
   Step := 1;
@@ -4167,11 +4261,19 @@ const //Text color for disabled and enabled control
   TextColor: array [Boolean] of TColor4 = ($FF888888, $FFFFFFFF);
 var
   ThumbPos, ThumbHeight: Word;
+  CapWidth: Integer;
 begin
   inherited;
 
   if fCaption <> '' then
-    TKMRenderUI.WriteText(AbsLeft, AbsTop, Width, fCaption, fFont, taLeft, TextColor[fEnabled]);
+  begin
+    if CaptionWidth = -1 then
+      CapWidth := Width
+    else
+      CapWidth := CaptionWidth;
+
+    TKMRenderUI.WriteText(AbsLeft, AbsTop, CapWidth, fCaption, fFont, taLeft, TextColor[fEnabled]);
+  end;
 
   TKMRenderUI.WriteBevel(AbsLeft+2,AbsTop+fTrackTop+2,Width-4,fTrackHeight-4);
   ThumbPos := Round(Mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));
@@ -4372,11 +4474,22 @@ begin
 end;
 
 
-procedure TKMScrollBar.MouseWheel(Sender: TObject; WheelDelta: Integer);
+function TKMScrollBar.DoHandleMouseWheelByDefault: Boolean;
+begin
+  Result := False;
+end;
+
+
+procedure TKMScrollBar.MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean);
 begin
   inherited;
+
+  if aHandled then Exit;
+
   if WheelDelta < 0 then IncPosition(Self);
   if WheelDelta > 0 then DecPosition(Self);
+
+  aHandled := WheelDelta <> 0;
 end;
 
 
@@ -4879,10 +4992,21 @@ begin
 end;
 
 
-procedure TKMMemo.MouseWheel(Sender: TObject; WheelDelta: Integer);
+function TKMMemo.DoHandleMouseWheelByDefault: Boolean;
+begin
+  Result := False;
+end;
+
+
+procedure TKMMemo.MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean);
 begin
   inherited;
-  SetTopIndex(TopIndex - sign(WheelDelta));
+
+  if aHandled then Exit;
+
+  SetTopIndex(TopIndex - Sign(WheelDelta));
+
+  aHandled := WheelDelta <> 0;
 end;
 
 
@@ -5339,11 +5463,22 @@ begin
 end;
 
 
-procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta: Integer);
+function TKMListBox.DoHandleMouseWheelByDefault: Boolean;
+begin
+  Result := False;
+end;
+
+
+procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean);
 begin
   inherited;
+
+  if aHandled then Exit;
+
   SetTopIndex(TopIndex - sign(WheelDelta));
   fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
+
+  aHandled := WheelDelta <> 0;
 end;
 
 
@@ -5847,6 +5982,9 @@ var
   OldIndex, NewIndex: Integer;
   PageScrolling: Boolean;
 begin
+  Result := False;
+  if PassAllKeys then Exit;
+  
   Result := (Key in [VK_UP, VK_DOWN, VK_HOME, VK_END, VK_PRIOR, VK_NEXT]) and not HideSelection;
   if inherited KeyDown(Key, Shift) then Exit;
 
@@ -6032,11 +6170,22 @@ begin
 end;
 
 
-procedure TKMColumnBox.MouseWheel(Sender: TObject; WheelDelta: Integer);
+function TKMColumnBox.DoHandleMouseWheelByDefault: Boolean;
+begin
+  Result := False;
+end;
+
+
+procedure TKMColumnBox.MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean);
 begin
   inherited;
+
+  if aHandled then Exit;
+
   SetTopIndex(TopIndex - Sign(WheelDelta));
   fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
+
+  aHandled := WheelDelta <> 0;
 end;
 
 
@@ -7445,7 +7594,7 @@ var
     TKMRenderUI.WriteText (XPos, G.Bottom + 4, 0, TimeToString(aTime / 24 / 60 / 60), fnt_Game, taLeft, IfThen(aIsPT, clChartPeacetimeLbl, icWhite));
     TKMRenderUI.WriteLine(XPos, G.Top, XPos, G.Bottom, IfThen(aIsPT, clChartPeacetimeLn, clChartDashedVLn), $CCCC);
     if aIsPT then
-      TKMRenderUI.WriteText(XPos - 3, G.Bottom + 4, 0, 'PT-', fnt_Game, taRight, clChartPeacetimeLbl); //Todo translate
+      TKMRenderUI.WriteText(XPos - 3, G.Bottom + 4, 0, gResTexts[TX_CHART_PT_END], fnt_Game, taRight, clChartPeacetimeLbl);
   end;
 
   procedure RenderHorizontalAxisTicks;
@@ -7872,11 +8021,12 @@ begin
 end;
 
 
-procedure TKMMasterControl.MouseWheel(X,Y: Integer; WheelDelta: Integer);
+procedure TKMMasterControl.MouseWheel(X,Y: Integer; WheelDelta: Integer; var aHandled: Boolean);
 var C: TKMControl;
 begin
   C := HitControl(X, Y);
-  if C <> nil then C.MouseWheel(C, WheelDelta);
+  if C <> nil then
+    C.MouseWheel(C, WheelDelta, aHandled);
 end;
 
 

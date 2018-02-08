@@ -156,8 +156,8 @@
 157:Skick
 158:Rotera vänster
 159:Rotera höger
-160:Attackera ('a')
-161:Lös upp trupp ('d')
+160:Attackera
+161:Lös upp trupp
 162:Ge mat till truppen
 163:Börja stormattack
 164:Lägg till linje
@@ -608,9 +608,9 @@
 619:Fredstid kvar: %s
 620:Fredstiden är över. Till vapen!
 621:Speltid:|%s
-622:Gör halt ('%s')
-623:Länka trupp ('%s')
-624:Separera trupp ('%s')
+622:Gör halt
+623:Länka trupp
+624:Separera trupp
 625:Reprisvisare
 626:Visa repris
 627:Inget stöd för format %s
@@ -774,3 +774,6 @@
 829:Ordern är utförd
 830:Asiatiska typsnitt
 831:Flytta ut ur nedladdningar
+1118:Flerspelarkartor
+1119:Ingen musik
+1120:Blanda spår

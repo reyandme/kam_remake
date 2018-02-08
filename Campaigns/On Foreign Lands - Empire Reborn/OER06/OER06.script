@@ -1,0 +1,242 @@
+{$I superunits.script}
+
+type patrolXY = record
+	x:integer;
+	y:integer;
+end;
+
+var townMap: array of AnsiString;
+var firstAttackGroups: array[0..4] of integer;
+var patrols: array[0..4] of integer;
+var patrolsCoord:array[0..4] of patrolXY;
+var firstAttackEnd, patrolsAlive, kingAutoFeed, smartDefenseExecute: boolean;
+var kingGroup, king, rpgQuest, rpgQuestTime, helper, fakeAttackGroup, smartDefenseGroup: integer;
+
+procedure OnMissionStart;
+begin
+	Actions.PlayerAllianceChange(1, 11, false, false);
+	Actions.PlayerShareFog(1, 0, false);
+	Actions.PlayerShareFog(2, 0, false);
+	Actions.PlayerShareFog(3, 0, false);
+	Actions.PlayerShareFog(4, 0, false);
+	Actions.PlayerShareFog(5, 0, false);
+	Actions.PlayerShareFog(11, 0, false);
+	Actions.FogCoverAll(0);
+	Actions.FogRevealCircle(0, 198, 7, 20);
+	Actions.ShowMsg(0, '<$0>');
+	
+	smartDefenseExecute := false;
+	kingGroup := States.GroupAt(198, 7);
+	king := States.UnitAt(198, 7);
+	helper := States.GroupAt(61, 113);
+	firstAttackEnd := false;
+	kingAutoFeed := true;
+	patrolsAlive := true;
+	patrolsCoord[0].x := 33;
+	patrolsCoord[0].y := 68;
+	patrolsCoord[1].x := 65;
+	patrolsCoord[1].y := 36;	
+	patrolsCoord[2].x := 120;
+	patrolsCoord[2].y := 88;	
+	patrolsCoord[3].x := 182;
+	patrolsCoord[3].y := 51;
+	patrolsCoord[4].x := 186;
+	patrolsCoord[4].y := 100;
+	fakeAttackGroup := States.GroupAt(95, 60);
+	smartDefenseGroup := States.GroupAt(180, 36);
+	
+	firstAttackGroups[0] := States.GroupAt(157, 6);
+	firstAttackGroups[1] := States.GroupAt(162, 6);
+	firstAttackGroups[2] := States.GroupAt(167, 32);
+	firstAttackGroups[3] := States.GroupAt(196, 30);
+	firstAttackGroups[4] := States.GroupAt(200, 35);
+
+	patrols[0] := States.GroupAt(33, 68);
+	patrols[1] := States.GroupAt(65, 36);
+	patrols[2] := States.GroupAt(120, 88);
+	patrols[3] := States.GroupAt(182, 51);
+	patrols[4] := States.GroupAt(186, 100);
+	
+	Actions.UnitHPSetInvulnerable(States.UnitAt(58, 152), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(60, 152), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(64, 152), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(66, 152), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(90, 134), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(79, 137), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(82, 139), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(74, 142), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(56, 132), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(97, 153), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(100, 153), true);
+	Actions.UnitHPSetInvulnerable(States.UnitAt(103, 153), true);
+end;
+
+procedure OnTick;
+var i, j:integer;
+var c: patrolXY;
+var groups : array of integer;
+var f:boolean;
+begin
+	SU_ExecuteKill();
+	
+	if (States.GameTime = 28800) then begin
+		Actions.ShowMsg(0, '<$7>');
+		if (States.GroupDead(fakeAttackGroup) = false) then Actions.GroupOrderAttackHouse(fakeAttackGroup, States.HouseAt(153, 201));
+	end;
+	
+	if (firstAttackEnd = false) then begin
+		f := false;
+		for i := 0 to Length(firstAttackGroups) - 1 do begin
+			if (States.GroupDead(firstAttackGroups[i]) = false) then begin
+				f := true;
+				if (States.GroupIdle(firstAttackGroups[i])) then Actions.GroupOrderAttackUnit(firstAttackGroups[i], king);
+			end;
+		end;
+		
+		firstAttackEnd := f = false;
+		if (firstAttackEnd) then begin 
+			Actions.ShowMsgGoto(0, 61, 113, '<$1>');
+			rpgQuest := 1;
+			Actions.FogRevealCircle(0, 61, 113, 5);
+		end;
+	end;
+	
+	if (States.GameTime mod 4000 = 0) then begin
+		for i := 6 to 8 do begin
+			groups := States.PlayerGetAllGroups(i);
+			for j := 0 to Length(groups) - 1 do Actions.GroupHungerSet(groups[j], States.UnitMaxHunger);
+		end;
+		
+		if (kingAutoFeed) then Actions.GroupHungerSet(kingGroup, States.UnitMaxHunger);
+		
+		Actions.GroupHungerSet(States.GroupAt(56, 140), States.UnitMaxHunger);
+		Actions.GroupHungerSet(States.GroupAt(69, 138), States.UnitMaxHunger);
+		Actions.GroupHungerSet(States.GroupAt(93, 140), States.UnitMaxHunger);
+		Actions.GroupHungerSet(States.GroupAt(58, 157), States.UnitMaxHunger);
+		Actions.GroupHungerSet(States.GroupAt(66, 157), States.UnitMaxHunger);
+		Actions.GroupHungerSet(States.GroupAt(96, 153), States.UnitMaxHunger);
+		Actions.GroupHungerSet(States.GroupAt(104, 153), States.UnitMaxHunger);
+		Actions.GroupHungerSet(States.GroupAt(100, 154), States.UnitMaxHunger);
+	end;
+
+	if ((States.GameTime mod 800 = 0) AND (patrolsAlive)) then begin
+		for i := 0 to Length(patrols) - 1 do begin
+			if (States.GroupDead(patrols[i]) = false) then begin
+				c := patrolsCoord[States.KamRandomI(4)];
+				Actions.GroupOrderWalk(patrols[i], c.x, c.y, States.KamRandomI(7));
+			end;
+		end;
+
+		patrolsAlive := false;
+		for i := 0 to Length(patrols) - 1 do begin
+			if (States.GroupDead(patrols[i]) = false) then begin
+				patrolsAlive := true;
+				break;
+			end;
+		end;
+	end;
+	
+	if (States.GroupDead(fakeAttackGroup) = false) then begin
+		if ((States.UnitPositionX(king) >= 117) AND (States.UnitPositionX(king) <= 138) AND (States.UnitPositionY(king) >= 32) AND (States.UnitPositionY(king) <= 33)) then Actions.GroupOrderWalk(fakeAttackGroup, 150, 78, 3);
+	end;
+	
+	if (rpgQuest = 1) then begin
+		if ((States.UnitPositionX(king) >= 58) AND (States.UnitPositionX(king) <= 66) AND (States.UnitPositionY(king) >= 110) AND (States.UnitPositionY(king) <= 116)) then begin
+			rpgQuest := 2;
+			Actions.ShowMsgGoto(0, 65, 137, '<$2>');
+			Actions.FogRevealCircle(0, 65, 137, 5);
+			Actions.GroupOrderWalk(helper, 65, 137, States.KamRandomI(7));
+		end;
+	end
+	else if (rpgQuest = 2) then begin
+		if ((States.UnitPositionX(king) >= 57) AND (States.UnitPositionX(king) <= 66) AND (States.UnitPositionY(king) >= 134) AND (States.UnitPositionY(king) <= 141)) then begin
+			rpgQuest := 3;
+			rpgQuestTime := States.GameTime + 100;
+			Actions.ShowMsg(0, '<$3>');
+			Actions.FogRevealCircle(0, 83, 140, 35);
+			Actions.GroupOrderWalk(helper, 85, 140, States.KamRandomI(7));
+		end;
+	end
+	else if (rpgQuest = 3) then begin
+		if (States.GameTime = rpgQuestTime) then begin
+			rpgQuest := 4;
+			Actions.ShowMsg(0, '<$4>');
+			Actions.FogRevealCircle(0, 31, 190, 5);
+			Actions.GroupOrderWalk(helper, 31, 187, States.KamRandomI(7));
+		end;
+	end
+	else if (rpgQuest = 4) then begin
+		if ((States.UnitPositionX(king) >= 25) AND (States.UnitPositionX(king) <= 37) AND (States.UnitPositionY(king) >= 186) AND (States.UnitPositionY(king) <= 197)) then begin
+			rpgQuest := 5;
+			rpgQuestTime := States.GameTime + 100;
+			Actions.ShowMsgGoto(0, 153, 201, '<$5>');
+			Actions.FogRevealCircle(0, 153, 201, 25);
+			i := Actions.GiveHouse(0, 6, 140, 194);
+			Actions.HouseAddDamage(i, 100);
+			i := Actions.GiveHouse(0, 0, 153, 196);
+			Actions.HouseAddDamage(i, 100);
+			Actions.GiveUnit(0, 0, 151, 202, 4);
+			Actions.GiveUnit(0, 0, 152, 202, 4);
+			Actions.GiveUnit(0, 0, 153, 202, 4);
+			i := Actions.GiveGroup(0, 18, 21, 203, 1, 4, 2);
+			Actions.GroupOrderWalk(i, 25, 196, 1);
+			SU_RegisterSuperGroup(i);
+			kingAutoFeed := false;
+		end;
+	end
+	else if ((rpgQuest = 5) AND (States.GameTime = rpgQuestTime)) then begin
+		rpgQuest := 6;
+		Actions.ShowMsgGoto(0, 25, 196, '<$6>');
+	end;
+end;
+
+procedure OnUnitDied(aUnit: Integer; aAttacker: Integer);
+begin
+	if (aUnit = king) then Actions.PlayerDefeat(0);
+	SU_ExecuteSuperunitDie(aUnit, aAttacker);
+end;
+
+procedure OnUnitAttacked(aUnit: Integer; aAttacker: Integer);
+var groups: array of integer;
+var i: integer;
+begin
+	SU_ExecuteUnitAttack(aUnit, aAttacker);
+	if ((States.UnitsGroup(aUnit) = smartDefenseGroup) AND (smartDefenseExecute = false) AND (rpgQuest < 2)) then begin
+		groups := States.PlayerGetAllGroups(6);
+		for i := 0 to Length(groups) - 1 do begin
+			Actions.GroupOrderAttackUnit(groups[i], king);
+		end;
+		
+		smartDefenseExecute := true;
+	end;
+end;
+
+procedure OnPlayerVictory(aPlayer:integer);
+var houses: array of integer;
+var x, y: integer;
+begin
+	houses := States.PlayerGetAllHouses(0);
+	for x := 0 to Length(houses) - 1 do begin
+		SetLength(townMap, Length(townMap) + 1);
+		townMap[Length(townMap) - 1] := IntToStr(States.HouseType(houses[x])) + ',' + IntToStr(States.HousePositionX(houses[x])) + ',' + IntToStr(States.HousePositionY(houses[x]));
+	end;
+
+	for x := 1 to States.MapWidth() - 1 do begin
+		for y := 1 to States.MapHeight() - 1 do begin
+			if (States.IsRoadAt(0, x, y) AND (States.HouseAt(x, y) < 0)) then begin
+				SetLength(townMap, Length(townMap) + 1);
+				townMap[Length(townMap) - 1] := '97,' + IntToStr(x) + ',' + IntToStr(y);
+			end;
+			if (States.IsFieldAt(0, x, y) AND (States.HouseAt(x, y) < 0)) then begin
+				SetLength(townMap, Length(townMap) + 1);
+				townMap[Length(townMap) - 1] := '98,' + IntToStr(x) + ',' + IntToStr(y);
+			end;
+			if (States.IsWinefieldAt(0, x, y) AND (States.HouseAt(x, y) < 0)) then begin
+				SetLength(townMap, Length(townMap) + 1);
+				townMap[Length(townMap) - 1] := '99,' + IntToStr(x) + ',' + IntToStr(y);
+			end;
+		end;
+	end;
+	
+	CampaignData.Mission6.Town := townMap;
+end;

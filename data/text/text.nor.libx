@@ -156,8 +156,8 @@
 157:Tilstand
 158:Vend til venstre
 159:Vend til høyre
-160:Angrip ('a')
-161:Send ut tropp ('d')
+160:Angrip
+161:Send ut tropp
 162:Gi mat til troppen
 163:Start stormangrep
 164:Legg til linje
@@ -608,9 +608,9 @@
 619:Gjenværende fredstid: %s
 620:Fredstiden er over. Til våpen!
 621:Spilltid:|%s
-622:Stans troppen ('%s')
-623:Slå sammen tropper ('%s')
-624:Separer troppen ('%s')
+622:Stans troppen
+623:Slå sammen tropper
+624:Separer troppen
 625:Gjenvisninger
 626:Se gjenvisning
 627:Ingen støtte for format %s
@@ -782,3 +782,6 @@
 829:Ordren har blitt fullført
 830:Last asiatiske skrifttyper
 831:Flytt ut av nedlastinger
+1118:Flerspillerkart
+1119:Slå av musikk
+1120:Bland spor

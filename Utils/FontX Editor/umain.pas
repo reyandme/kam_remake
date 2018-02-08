@@ -99,6 +99,8 @@ var
 
 implementation
 {$R *.dfm}
+uses
+  KromShellUtils;
 
 
 procedure TfrmMain.FormCreate(Sender: TObject);

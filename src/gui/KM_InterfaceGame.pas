@@ -34,7 +34,7 @@ type
 
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); override;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer; var aHandled: Boolean); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
 
     procedure GameSpeedChanged(aFromSpeed, aToSpeed: Single);
@@ -269,7 +269,7 @@ begin
 end;
 
 
-procedure TKMUserInterfaceGame.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer);
+procedure TKMUserInterfaceGame.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer; var aHandled: Boolean);
 var
   PrevCursor: TKMPointF;
 begin
@@ -278,17 +278,17 @@ begin
   if (X < 0) or (Y < 0) then Exit; // This happens when you use the mouse wheel on the window frame
 
   // Allow to zoom only when cursor is over map. Controls handle zoom on their own
-  if (fMyControls.CtrlOver = nil) then
-  begin
-    UpdateGameCursor(X, Y, Shift); // Make sure we have the correct cursor position to begin with
-    PrevCursor := gGameCursor.Float;
-    fViewport.Zoom := fViewport.Zoom + WheelDelta / 2000;
-    UpdateGameCursor(X, Y, Shift); // Zooming changes the cursor position
-    // Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-gGameCursor.Float.X,
-                                   fViewport.Position.Y + PrevCursor.Y-gGameCursor.Float.Y);
-    UpdateGameCursor(X, Y, Shift); // Recentering the map changes the cursor position
-  end;
+  if aHandled then Exit;
+  
+  UpdateGameCursor(X, Y, Shift); // Make sure we have the correct cursor position to begin with
+  PrevCursor := gGameCursor.Float;
+  fViewport.Zoom := fViewport.Zoom + WheelDelta / 2000;
+  UpdateGameCursor(X, Y, Shift); // Zooming changes the cursor position
+  // Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
+  fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-gGameCursor.Float.X,
+                                 fViewport.Position.Y + PrevCursor.Y-gGameCursor.Float.Y);
+  UpdateGameCursor(X, Y, Shift); // Recentering the map changes the cursor position
+  aHandled := True;
 end;
 
 

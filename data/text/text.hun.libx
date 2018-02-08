@@ -156,8 +156,8 @@
 157:Jóllakottság
 158:Balra át!
 159:Jobbra át!
-160:Támadás! ('a')
-161:Csapat mozgatása ('s')
+160:Támadás!
+161:Csapat mozgatása
 162:Csapat élelmezése
 163:Roham indítása
 164:Alakzatban sorakozó
@@ -608,9 +608,9 @@
 619:Békeidőből hátra van: %s
 620:A békeidő végetért. Fegyverbe!
 621:Játék idő:|%s
-622:Csapat állj ('%s')
-623:Csapatok összekapcsolása ('%s')
-624:Csapatok szétválasztása ('%s')
+622:Csapat állj
+623:Csapatok összekapcsolása
+624:Csapatok szétválasztása
 625:Visszajátszások
 626:Visszajátszás megtekintése
 627:Nem támogatott formátum %s
@@ -782,3 +782,285 @@
 829:A megrendelés teljesítve
 830:Ázsiai karakterkészlet betöltése
 831:Mozgatás a letöltések közül
+832:Visszajátszás átnevezése
+833:Visszajátszás Átnevezése
+834:Visszajátszás törlése
+835:Név:
+836:Átnevez
+837:Gyorsbillentyűk beállítása
+838:Gyorsbillentyűk
+839:OK
+840:Műveletek
+841:Gomb
+842:Nem szerkeszthető Speciális gyorbillentyűk
+843:Speciális Gyorbillentyűk
+844:Alaphelyzetbe álltás
+845:Mozgatás Balra
+846:Mozgatás Jobbra
+847:Mozgatás Fel
+848:Mozgatás  Le
+849:Építkezés
+850:Áruelosztás
+851:Statisztika
+852:Opciók
+853:Állj!
+854:Csapatok szétvélasztása
+855:Csapatok összekapcsolása
+856:Csapat Élelmezése
+857:Roham indítása
+858:Alakzat váltás-Oszlopba
+859:Alakzatváltás-Sorba
+860:Jobbra át
+861:Balra át
+862:Játék sebesség (x1)
+863:Játék sebesség x%s
+864:Játék sebesség x%s
+865:Játék sebesség x%s
+866:Ping/Beacon
+867:Szünet
+868:Csapatok mutatása (MP)
+869:Zoom In
+870:Zoom Out
+871:Nézet Alapba állítása
+872:Kiválasztott csapat 1
+873:Kiválasztott csapat 2
+874:Kiválasztott csapat 3
+875:Kiválasztott csapat 4
+876:Kiválasztott csapat 5
+877:Kiválasztott csapat 6
+878:Kiválasztott csapat 7
+879:Kiválasztott csapat 8
+880:Kiválasztott csapat 9
+881:Kiválasztott csapat 10
+882:Ugrás a figyelmeztetés helyére
+883:Üzenet Törlése
+884:Chat mutatása (MP)
+885:Kilépés a Menüből
+886:Hibabekerés Térkép Mutatása
+887:Hibakeresés Győzelem
+888:Hibakeresés Vereség
+889:Hibakeresés Felderítő hozzáadása
+890:Extrák Menü
+891:Terep Szerkesztő
+892:Település Tervező
+893:Vizuális Szkriptek
+894:Globális Szkriptek
+895:Menü
+896:Al menü 1
+897:Al menü 2
+898:Al menü 3
+899:Al menü 4
+900:Al menü 5
+901:Al menü 6
+902:A CTRL és SHIFT nem hozzárendelhető gombok
+903:~~~ Ismeretlen érték
+904:Bal Egér Gomb
+905:Középső Egér Gomb
+906:Job Egér Gomb
+907:Break
+908:Backspace
+909:TAB
+910:Clear
+911:ENTER
+912:SHIFT
+913:CTRL
+914:ALT
+915:PAUSE
+916:CAPS LOCK
+917:ESC
+918:SPACE
+919:Page UP
+920:Page Down
+921:END
+922:Home
+923:Balra nyíl gomb
+924:Fel nyíl gomb
+925:Jobbra Nyíl gomb
+926:Le Nyíl Gomb
+927:Select
+928:Print
+929:Végrehajt
+930:Print Screen
+931:Insert
+932:Delete
+933:Segítség
+934:Num Pad 0
+935:Num Pad 1
+936:Num Pad 2
+937:Num Pad 3
+938:Num Pad 4
+939:Num Pad 5
+940:Num Pad 6
+941:Num Pad 7
+942:Num Pad 8
+943:Num Pad 9
+944:Num Pad *
+945:Elválasztó
+946:Num Pad  -
+947:Num Pad .
+948:Num Pad /
+949:Num Lock
+950:Scroll Lock
+951:Bal Shift
+952:Jobb Shift
+953:Bal CTRL
+954:Jobb CTRL
+955:Bal Alt
+956:Jobb Alt
+957:Play
+958:Zoom
+960:Num Pad +
+961:Gyakori Billentyűk
+962:Játék közbeni gyorsbill.
+963:térképszerkesztő gyorsbill.
+964:Pipetta
+965:A kurzor alatti mező típusának a kiválasztása.
+966:Ez a páncélkovács nem lakott.
+967:Ez apéncélműhely  nem lakott.
+968:Ez a Pékség  nem lakott.
+969:Ez a Hentes nem lakott.
+970:Ez a szénbánya  nem lakott.
+971:Ez a Földművesház  nem lakott.
+972:Ez a Halászház nem lakott.
+973:Ez az aranybánya nem lakott.
+974:Ez a vasbánya nem lakott.
+975:Ez a vasolvasztó nem lakott.
+976:Ez az öntöde nem lakott.
+977:Ez a malom nem lakott.
+978:Ez a kőfejtő nem lakott.
+979:Ez a fűrészmalom nem lakott.
+980:Ez a járműgyártó nem lakott.
+981:Ez az istálló nem lakott.
+982:Ez a sertéshizlalda nem lakott.
+983:Ez a tímárműhely nem lakott.
+984:Ez az őrtorony nem lakott.
+985:Ez a fegyverkovács nem lakott.
+986:Ez a fegyverműhely nem lakott.
+987:Ez a pincészet nem lakott.
+988:Ez a Favágóház nem lakott.
+989:%s kilépett és veszített
+990:A hoszt (%s) kilépett és veszített.
+991:Vissza
+992:Beállítás törlése
+993:Kiválasztott csapat 11
+994:Kiválasztott csapat 12
+995:Kiválasztott csapat 13
+996:Kiválasztott csapat 14
+997:Kiválasztott csapat 15
+998:Kiválasztott csapat 16
+999:Kiválasztott csapat 17
+1000:Kiválasztott csapat 18
+1001:Kiválasztott csapat19
+1002:Kiválasztott csapat 20
+1003: Út építés
+1004:Földművelés
+1005:Szőlőtelepítés
+1006:Épület kijelölés megszüntetése
+1007:Ugrás a következő azonos házra/egységre
+1008:Hibakeresés Ablak
+1009:Játékos Figyelése 1
+1010:Játékos Figyelése 2
+1011:Játékos Figyelése 3
+1012:Játékos Figyelése 4
+1013:Játékos Figyelése 5
+1014:Játékos Figyelése 6
+1015:Játékos Figyelése 7
+1016:Játékos Figyelése 8
+1017:Térkép Görgetése
+1018:Nézőmód/Visszajátszás gyorsbill.
+1019:%s elnémított. Többé nem tudsz üzenetet és pingeket küldeni neki.
+1020:Objektumok
+1021:Univerzális törlés
+1022:A favágód nem talál szabad helye fátültetni.
+1023:PT-
+1024:%s győzött!
+1025:%s nem csatlakozik a játékhoz.
+1026:Max Arany
+1027:A maximum behozható arany a városházába.
+1028:Csak ültet
+1029:A ház nyitása/zárása %s számára
+1030:Mind
+1031:Mind
+1032:Mind
+1033:Térkép Átnevezése
+1034:Szünet a Békeidő végénél
+1035:Játék idő
+1036:Név
+1037:Sereg Ereje
+1038:Minden katona
+1039:A diagram típusa
+1040:Mennyiség
+1041:GDP
+1042:Azonnaly
+1043:Teljes felszerelt
+1044:Legyőzött
+1045:Elvesztett
+1046:Vissza a játék eredményéhez
+1047:Játékosonként
+1048:Csapatonként
+1049:Több|statisztika
+1050:Vissza a szerkesztőbe
+1051:Vissza a térképszerkesztőbe
+1052:Biztos, hogy|ki akar lépni|ebből a viszajátszásból?
+1053:A térkép érvénytelen
+1054:Akivásaztott térkép érvénytelen. Kérem válasszon másikat!
+1055:A letöltött térkép fájljai megváltoztak
+1056:Kiválaszott letöltött térkép, amelynek fájljai megváltoztak. Kérem másolja először másolja ki a letöltött mappából
+1057:A térkép fájljai megváltoztak. Kérem jelölje ki újra.
+1058:Egér Előre Gomb
+1059:Egér Hátra Gomb
+1060:Mind
+1061:Univerzáils törlés
+1062:A mező tulajának mutatása
+1063:Rács mutatása
+1064:Kivágási pont
+1065:Jelölje ki a kivágási pontot. Kijelölhető a SHIFT+egér jobb gomb nyomvatartásával is.
+1066:Gyülekezési pont
+1067:A %s Gyülekezési pont beállítása. Kijelölhető a SHIFT+egér jobb gomb nyomvatartásával is.
+1068:Térkép átméretezése
+1069:Szélek mozgatása
+1070:Átméretezés és mentés
+1071:Térkép átméretezése és utána mentése
+1073:Biztos, hogy átméretezi a térképet?||Ez automatikus felülírja az aktuális méreteket
+1074:Átméretezés nem lehetséges||Először mentenie kell a térképet
+1075:A tárgy tulajának megváltoztatása
+1076:Gyors játék
+1077:Egyjátékos mód játszása a kiválasztott pályán
+1078:Kiválasztott játékos:
+1079:Válasszon játékost, hogy játszhasson
+1080:Játék mentés nélkül
+1081:Változtatások elvetése és játék kezdése a kiválasztott játékossal
+1082:Mentés és start
+1083:Térkép mentése és játék kezdése a kiválasztott játékossal
+1084:Barrakokban:
+1085:Városházában
+1086:Mező elforgatása
+1087:Objektumok palettája
+1088:Bezárás
+1089:Egységek/csapatok eltávolítása
+1090:Visszajátszás|automatikusszünet
+1091:Autmatikus szünet a békeidő végénél
+1092:Pingek mutatása
+1093:Játékos pingek mutatása
+1094:Játékos elnémítása
+1095:Játékos Némításának felodása
+1096:Jelszó megjegyzése
+1097:Utoljára használt jelszó
+1098:Vissza az előző menübe
+1099:Igen
+1100:Nem
+1101:Törlés
+1102:Térkép
+1103:Visszajátszás
+1104:Játékosok
+1105:Csapatok
+1106:Játékos Figyelése 9
+1107:Játékos Figyelése 10
+1108:Játékos Figyelése 11
+1109:Játékos Figyelése 12
+1110:Az aktuális méret:
+1111:Az új méret:
+1112:Térkép Átméretezése
+1118:Többjátékos pályák
+1119:Zene kikapcsolása
+1120:Véletlenszerű zenelejátszás

@@ -64,12 +64,12 @@ begin
 
   Panel_Menu := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
 
-  Button_Resize := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, 'Resize Map', bsGame); //Todo translate
-  Button_Resize.Hint := 'Resize map'; //Todo translate
+  Button_Resize := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, gResTexts[TX_MAPED_MAP_RESIZE], bsGame);
+  Button_Resize.Hint := gResTexts[TX_MAPED_MAP_RESIZE];
   Button_Resize.OnClick := MenuClick;
 
-  Button_QuickPlay := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, 'Quick Play', bsGame); //Todo translate
-  Button_QuickPlay.Hint := 'Start quick game with current map'; //Todo translate
+  Button_QuickPlay := TKMButton.Create(Panel_Menu, 0, 60, TB_WIDTH, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY], bsGame);
+  Button_QuickPlay.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_HINT];
   Button_QuickPlay.OnClick := MenuClick;
 
   Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 130, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], bsGame);

@@ -35,7 +35,7 @@ uses
 { TKMMapEdMenuQuit }
 constructor TKMMapEdMenuSettings.Create(aParent: TKMPanel);
 const
-  PAD = 10;
+  PAD = 3;
   WID = TB_WIDTH - PAD * 2;
 begin
   inherited Create;
@@ -56,10 +56,11 @@ begin
     TrackBar_Settings_Music.Caption := gResTexts[TX_MENU_MUSIC_VOLUME];
     TrackBar_Settings_Music.Hint := gResTexts[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,260,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
+    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,260,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_SHORT],fnt_Metal);
     CheckBox_Settings_MusicOff.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
     CheckBox_Settings_MusicOff.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
+    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fnt_Metal);
+    CheckBox_Settings_ShuffleOn.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_HINT];
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
 end;
 

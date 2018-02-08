@@ -19,7 +19,7 @@ if States.Gametime = 900 then
 if States.Gametime = 6300 then
 
 	begin
-		Actions.ShowMsg(0, 'Our scouts report that the king gave one of his outposts orders to attack the forest people in the north, though they declined our offer for an alliance we should keep an eye out. They blame us for king’s actions.');
+		Actions.ShowMsg(0, 'Our scouts report that the king gave one of his outposts orders to attack the forest people in the north, though they declined our offer for an alliance we should keep an eye out. They blame us for king''s actions.');
 	end;
 	
 if States.Gametime = 47700 then

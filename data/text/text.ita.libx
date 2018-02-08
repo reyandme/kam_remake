@@ -156,8 +156,8 @@
 157:Condizioni
 158:Ruota truppa verso sinistra
 159:Ruota truppa verso destra
-160:Attacca ('a')
-161:Invia truppa ('d')
+160:Attacca
+161:Invia truppa
 162:Invia cibo alla truppa
 163:Carica!
 164:Aggiungi una colonna
@@ -608,9 +608,9 @@
 619:Tempo di pace rimanente: %s
 620:Il tempo della pace è finito. Alle armi!
 621:Tempo di gioco:|%s
-622:Ferma truppa ('%s')
-623:Unisci truppe ('%s')
-624:Dividi truppa ('%s')
+622:Ferma truppa
+623:Unisci truppe
+624:Dividi truppa
 625:Replay Salvati
 626:Guarda Replay
 627:Formato %s non supportato
@@ -782,3 +782,6 @@
 829:L'ordine è stato completato
 830:Carica font asiatici
 831:Sposta fuori dai download
+1118:Multigiocatore
+1119:Niente musica
+1120:Ordine casuale

@@ -156,8 +156,8 @@
 157:Ausdauer
 158:Truppe linksum drehen
 159:Truppe rechtsum drehen
-160:Truppe angreifen ('a')
-161:Truppe senden ('s')
+160:Truppe angreifen
+161:Truppe senden
 162:Truppe mit Nahrung versorgen
 163:Sturmangriff starten
 164:Eine Reihe hinzufügen
@@ -605,9 +605,9 @@
 619:Friedenszeit verbleibend: %s
 620:Der Frieden ist vorüber. Zu den Waffen!
 621:Spieldauer:|%s
-622:Truppe anhalten ('%s')
-623:Truppen verbinden ('%s')
-624:Truppe trennen ('%s')
+622:Truppe anhalten
+623:Truppen verbinden
+624:Truppe trennen
 625:Replays
 626:Replay anzeigen
 627:Nicht unterstütztes Format %s!
@@ -767,3 +767,6 @@
 827:Setzt Anzahl Gehilfen für je 10 Gebäude für den KI-Spieler. Ausgewählte KI hat %d Häuser.
 829:Der Auftrag ist vollständig.
 830:Asiatische Fonts
+1118:Mehrspieler Maps
+1119:Keine Musik
+1120:Lieder zufällig
