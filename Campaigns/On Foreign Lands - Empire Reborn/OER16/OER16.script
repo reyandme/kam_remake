@@ -1,3 +1,11 @@
+//Thanks for playing my campaign!
+//Story, map design, scripts - Grayter
+//Map OER01 fixes - Woloszek
+//Alphatester - Kamyk
+//Translations:
+//	SVK - HellFriend
+//	CZE - HellFriend
+
 {$I superunits.script}
 
 var variant, supportArrived, textShown, liteArrived, allyArrived, liteAlive: boolean;
