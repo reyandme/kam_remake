@@ -59,6 +59,7 @@ type
     Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
+    IsPlayableAsSP: Boolean; //Is MP map playable as SP map ?
     IsFavourite: Boolean;
     BlockTeamSelection: Boolean;
     BlockPeacetime: Boolean;
@@ -89,6 +90,10 @@ type
     function ViewReadme: Boolean;
     function GetLobbyColor: Cardinal;
     function IsFilenameEndMatchHash: Boolean;
+    function IsSinglePlayer: Boolean;
+    function IsMultiplayer: Boolean;
+    function IsNormalMission: Boolean;
+    function IsTacticMission: Boolean;
   end;
 
 
@@ -423,7 +428,8 @@ begin
         BlockTeamSelection := True;
         BlockFullMapPreview := True;
       end;
-      if SameText(st, 'SetSpecial')then IsSpecial := True;
+      if SameText(st, 'SetSpecial') then IsSpecial := True;
+      if SameText(st, 'PlayableAsSP') then IsPlayableAsSP := True;
       if SameText(st, 'BlockPeacetime') then BlockPeacetime := True;
       if SameText(st, 'BlockTeamSelection') then BlockTeamSelection := True;
       if SameText(st, 'BlockFullMapPreview') then BlockFullMapPreview := True;
@@ -469,6 +475,7 @@ var I, K: Integer;
 begin
   IsCoop := False;
   IsSpecial := False;
+  IsPlayableAsSP := False;
   MissionMode := mm_Normal;
   DefaultHuman := 0;
   Author := '';
@@ -515,6 +522,7 @@ begin
   S.ReadW(SmallDesc);
   S.Read(IsCoop);
   S.Read(IsSpecial);
+  S.Read(IsPlayableAsSP);
   S.Read(CanBeHuman, SizeOf(CanBeHuman));
   S.Read(BlockTeamSelection);
   S.Read(BlockPeacetime);
@@ -576,6 +584,7 @@ begin
     S.WriteW(SmallDesc);
     S.Write(IsCoop);
     S.Write(IsSpecial);
+    S.Write(IsPlayableAsSP);
     S.Write(CanBeHuman, SizeOf(CanBeHuman));
     S.Write(BlockTeamSelection);
     S.Write(BlockPeacetime);
@@ -637,6 +646,31 @@ begin
     and (fFileName[Length(FileName)-8] = '_')
     and (IntToHex(fCRC, 8) = RightStr(fFileName, 8));
 end;
+
+
+function TKMapInfo.IsSinglePlayer: Boolean;
+begin
+  Result := (fMapFolder = mfSP) or IsPlayableAsSP;
+end;
+
+
+function TKMapInfo.IsMultiplayer: Boolean;
+begin
+  Result := fMapFolder <> mfSP;
+end;
+
+
+function TKMapInfo.IsNormalMission: Boolean;
+begin
+  Result := MissionMode = mm_Normal;
+end;
+
+
+function TKMapInfo.IsTacticMission: Boolean;
+begin
+  Result := MissionMode = mm_Tactic;
+end;
+
 
 
 function TKMapInfo.FileNameWithoutHash: UnicodeString;

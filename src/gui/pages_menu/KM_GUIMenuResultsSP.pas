@@ -311,7 +311,7 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,62,140,900,20,NO_TEXT,fnt_Metal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,RESULTS_X_PADDING,140,900,20,NO_TEXT,fnt_Metal,taCenter);
     Label_Results.Anchors := [anLeft];
 
     Panel_Stats := TKMPanel.Create(Panel_Results, 30, 216, 360, 354);

@@ -45,8 +45,6 @@ constructor TKMMapEdTerrainSelection.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-//  RMGPopUp := TKMMapEdRMG.Create(aParent);
-
   Panel_Selection := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
 
   TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_COPY_TITLE], fnt_Outline, taCenter);
@@ -91,9 +89,8 @@ begin
 end;
 
 procedure TKMMapEdTerrainSelection.GenerateMapClick(Sender: TObject);
-//var Tiles: TKMTerrainTileBriefArray;
 begin
-  fRMGPopUp.Show();
+  fRMGPopUp.Show;
 end;
 
 

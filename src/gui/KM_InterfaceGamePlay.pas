@@ -275,6 +275,7 @@ type
     procedure CinematicUpdate;
     procedure LoadHotkeysFromHand;
     procedure SetButtons(aPaused: Boolean);
+    property UIMode: TUIMode read fUIMode;
 
     property Alerts: TKMAlerts read fAlerts;
 
@@ -2100,6 +2101,8 @@ begin
       // consider team as a group of hands where all members are allied to each other and not allied to any other hands.
       gmReplayMulti,
       gmMultiSpectate:  Replay_Multi_SetPlayersDropbox;
+      else              raise Exception.Create(Format('Wrong game mode [%s], while spectating/watching replay',
+                                                      [GetEnumName(TypeInfo(TGameMode), Integer(gGame.GameMode))]));
     end;
     gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex); //Update HandIndex
   end;

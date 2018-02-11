@@ -19,7 +19,6 @@ type
     function NextLine(var Line: Integer; const LINE_Y: Byte = 20): Integer;
     procedure RMG_Change(Sender: TObject);
     procedure RMG_Close(Sender: TObject);
-//    procedure RMG_Refresh();
     procedure RMG_Generate_Map(Sender: TObject);
     procedure RMG_Generate_New_Seed(Sender: TObject);
     function GetVisible: Boolean;
@@ -52,7 +51,6 @@ type
     destructor Destroy; override;
 
     property Visible: Boolean read GetVisible;
-    //function KeyDown(Key: Word; Shift: TShiftState): Boolean;
     procedure Show();
   end;
 
@@ -63,9 +61,6 @@ uses
   KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Hand,
   KM_TerrainSelection, KM_Terrain;
 
-
-//KM_Game, KM_GameCursor
-//KM_InterfaceGame;
 
 { TKMGUIMapEdGoal }
 constructor TKMMapEdRMG.Create(aParent: TKMPanel);
@@ -99,155 +94,155 @@ begin
   Img := TKMImage.Create(Panel_RMG, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
   Img.ImageStretch;
   TKMBevel.Create(Panel_RMG,   0,  0, SIZE_X, SIZE_Y);
-  TKMLabel.Create(Panel_RMG, SIZE_X div 2, 10, 'Random Map Generator - Settings', fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_RMG, SIZE_X div 2, 10, 'Random Map Generator - Settings', fnt_Outline, taCenter); //Todo translate
 
   fRMG := TKMRandomMapGenerator.Create;
 
 // COLUMN 1: Locs + Resources
   Column_1_Y := 20;
-  TKMLabel.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), 280, 0, 'Locs', fnt_Metal, taLeft);
-  Check_Locs := TKMCheckBox.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), BOX_X, BOX_Y, 'Active', fnt_Metal);
+  TKMLabel.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), 280, 0, 'Locs', fnt_Metal, taLeft); //Todo translate
+  Check_Locs := TKMCheckBox.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), BOX_X, BOX_Y, 'Active', fnt_Metal); //Todo translate
     Check_Locs.Checked := True;
-  TKMLabel.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), 280, 0, 'Layout', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), 280, 0, 'Layout', fnt_Metal, taLeft); //Todo translate
     CheckGroup_LocPosition := TKMRadioGroup.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), BOX_X, 100, fnt_Metal);
-    CheckGroup_LocPosition.Add('Rectangle', True);
-    CheckGroup_LocPosition.Add('Vertical', True);
-    CheckGroup_LocPosition.Add('Horizontal', True);
-    CheckGroup_LocPosition.Add('Random', True);
-    CheckGroup_LocPosition.Add('Center Screen', True);
+    CheckGroup_LocPosition.Add('Rectangle', True); //Todo translate
+    CheckGroup_LocPosition.Add('Vertical', True); //Todo translate
+    CheckGroup_LocPosition.Add('Horizontal', True); //Todo translate
+    CheckGroup_LocPosition.Add('Random', True); //Todo translate
+    CheckGroup_LocPosition.Add('Center Screen', True); //Todo translate
     CheckGroup_LocPosition.ItemIndex := 0;
   NextLine(Column_1_Y,80);
 
-  TKMLabel.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), 'Loc radius', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), 'Loc radius', fnt_Metal, taLeft); //Todo translate
   TBar_ProtectedRadius := TKMTrackBar.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), 120, 1, 10);
     TBar_ProtectedRadius.Position := 6;
-    Check_Resources := TKMCheckBox.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), BOX_X, BOX_Y, 'Resources', fnt_Metal);
+    Check_Resources := TKMCheckBox.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), BOX_X, BOX_Y, 'Resources', fnt_Metal); //Todo translate
     Check_Resources.Checked := True;
-    Check_ConnectLocs := TKMCheckBox.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), BOX_X, BOX_Y, 'Connect Locs', fnt_Metal);
+    Check_ConnectLocs := TKMCheckBox.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), BOX_X, BOX_Y, 'Connect Locs', fnt_Metal); //Todo translate
     Check_ConnectLocs.Checked := True;
-    Check_MineFix := TKMCheckBox.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), BOX_X, BOX_Y, 'Mine fix', fnt_Metal);
+    Check_MineFix := TKMCheckBox.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), BOX_X, BOX_Y, 'Mine fix', fnt_Metal); //Todo translate
     Check_MineFix.Checked := True;
-  TKMLabel.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), 'Stone (x200)', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), 'Stone (x200)', fnt_Metal, taLeft); //Todo translate
     TBar_Res_Stone := TKMTrackBar.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), 120, 0, 10);
     TBar_Res_Stone.Position := 5;
-  TKMLabel.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), 'Gold (x50)', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), 'Gold (x50)', fnt_Metal, taLeft); //Todo translate
     TBar_Res_Gold := TKMTrackBar.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), 120, 0, 10);
     TBar_Res_Gold.Position := 5;
-  TKMLabel.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), 'Iron (x50)', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_1_X+OFFSET_1, NextLine(Column_1_Y), 'Iron (x50)', fnt_Metal, taLeft); //Todo translate
     TBar_Res_Iron := TKMTrackBar.Create(Panel_RMG, Column_1_X, NextLine(Column_1_Y), 120, 0, 10);
     TBar_Res_Iron.Position := 5;
 
 // COLUMN 2: NonWalk textures column
   Column_2_Y := 20;
-  TKMLabel.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 280, 0, 'Obstacles', fnt_Metal, taLeft);
-    Check_Obstacles := TKMCheckBox.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), BOX_X, BOX_Y, 'Obstacles', fnt_Metal);
+  TKMLabel.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 280, 0, 'Obstacles', fnt_Metal, taLeft); //Todo translate
+    Check_Obstacles := TKMCheckBox.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), BOX_X, BOX_Y, 'Obstacles', fnt_Metal); //Todo translate
     Check_Obstacles.Checked := True;//True;
   // Ratio of biomes
-  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'EGold', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'EGold', fnt_Metal, taLeft); //Todo translate
     TBar_NonWalk_EGold := TKMTrackBar.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 120, 0, 10);
     TBar_NonWalk_EGold.Position := 8;
-  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'EIron', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'EIron', fnt_Metal, taLeft); //Todo translate
     TBar_NonWalk_EIron := TKMTrackBar.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 120, 0, 10);
     TBar_NonWalk_EIron.Position := 7;
-  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Swamp', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Swamp', fnt_Metal, taLeft); //Todo translate
     TBar_NonWalk_Swamp := TKMTrackBar.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 120, 0, 10);
     TBar_NonWalk_Swamp.Position := 1;
-  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Wetland', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Wetland', fnt_Metal, taLeft); //Todo translate
     TBar_NonWalk_Wetland := TKMTrackBar.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 120, 0, 10);
     TBar_NonWalk_Wetland.Position := 5;
-  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Water', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Water', fnt_Metal, taLeft); //Todo translate
     TBar_NonWalk_Water := TKMTrackBar.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 120, 0, 10);
     TBar_NonWalk_Water.Position := 6;
   // Density
-  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Density', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Density', fnt_Metal, taLeft); //Todo translate
     TBar_NonWalk_Density := TKMTrackBar.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 120, 1, 20);
     TBar_NonWalk_Density.Position := 8;
   // Size
-  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Size', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Size', fnt_Metal, taLeft); //Todo translate
     TBar_NonWalk_Size := TKMTrackBar.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 120, 1, 20);
     TBar_NonWalk_Size.Position := 10;
   // Variance
-  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Variance', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_2_X+OFFSET_1, NextLine(Column_2_Y), 'Variance', fnt_Metal, taLeft); //Todo translate
     TBar_NonWalk_Variance := TKMTrackBar.Create(Panel_RMG, Column_2_X, NextLine(Column_2_Y), 120, 1, 10);
     TBar_NonWalk_Variance.Position := 5;
 
 
 // COLUMN 3: Walk textures
   Column_3_Y := 20;
-  TKMLabel.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 180, 0, 'Walk textures', fnt_Metal, taLeft);
-  Check_Biomes := TKMCheckBox.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), BOX_X, BOX_Y, 'Biomes', fnt_Metal);
+  TKMLabel.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 180, 0, 'Walk textures', fnt_Metal, taLeft); //Todo translate
+  Check_Biomes := TKMCheckBox.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), BOX_X, BOX_Y, 'Biomes', fnt_Metal); //Todo translate
     Check_Biomes.Checked := True;//True;
     CheckGroup_Grass := TKMRadioGroup.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), BOX_X, BOX_Y, fnt_Metal);
-      CheckGroup_Grass.Add('Grass',False); // Just for information purposes (grass must be there always)
+      CheckGroup_Grass.Add('Grass',False); // Just for information purposes (grass must be there always) //Todo translate
       CheckGroup_Grass.ItemIndex := 0;
-    Check_Ground := TKMCheckBox.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), BOX_X, BOX_Y, 'Ground', fnt_Metal);
+    Check_Ground := TKMCheckBox.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), BOX_X, BOX_Y, 'Ground', fnt_Metal); //Todo translate
       Check_Ground.Checked := True;
-    Check_Snow := TKMCheckBox.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), BOX_X, BOX_Y, 'Snow', fnt_Metal);
+    Check_Snow := TKMCheckBox.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), BOX_X, BOX_Y, 'Snow', fnt_Metal); //Todo translate
       Check_Snow.Checked := True;
-    Check_Sand := TKMCheckBox.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), BOX_X, BOX_Y, 'Sand', fnt_Metal);
+    Check_Sand := TKMCheckBox.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), BOX_X, BOX_Y, 'Sand', fnt_Metal); //Todo translate
       Check_Sand.Checked := True;
   // First Layer
-  TKMLabel.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 180, 0, 'First layer', fnt_Metal, taLeft);
-    TKMLabel.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), 180, 0, 'Step', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 180, 0, 'First layer', fnt_Metal, taLeft); //Todo translate
+    TKMLabel.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), 180, 0, 'Step', fnt_Metal, taLeft); //Todo translate
       TBar_Biomes1_Step := TKMTrackBar.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 120, 1, 10);
       TBar_Biomes1_Step.Position := 5;
-    TKMLabel.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), 220, 0, 'Limit', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), 220, 0, 'Limit', fnt_Metal, taLeft); //Todo translate
       TBar_Biomes1_Limit := TKMTrackBar.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 120, 1, 10);
       TBar_Biomes1_Limit.Position := 6;
   // Second Layer
-  TKMLabel.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 180, 0, 'Second layer', fnt_Metal, taLeft);
-    TKMLabel.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), 180, 0, 'Step', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 180, 0, 'Second layer', fnt_Metal, taLeft); //Todo translate
+    TKMLabel.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), 180, 0, 'Step', fnt_Metal, taLeft); //Todo translate
       TBar_Biomes2_Step := TKMTrackBar.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 120, 3, 10);
       TBar_Biomes2_Step.Position := 5;
-    TKMLabel.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), 180, 0, 'Limit', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_RMG, Column_3_X+OFFSET_1, NextLine(Column_3_Y), 180, 0, 'Limit', fnt_Metal, taLeft); //Todo translate
       TBar_Biomes2_Limit := TKMTrackBar.Create(Panel_RMG, Column_3_X, NextLine(Column_3_Y), 120, 1, 10);
       TBar_Biomes2_Limit.Position := 6;
 
 
 // COLUMN 4: Height
   Column_4_Y := 20;
-  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Height', fnt_Metal, taLeft);
-    Check_Height := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Active', fnt_Metal);
+  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Height', fnt_Metal, taLeft); //Todo translate
+    Check_Height := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Active', fnt_Metal); //Todo translate
     Check_Height.Checked := True;//True;
-    Check_HideNonSmoothTransition := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'H_N-S_T', fnt_Metal);
+    Check_HideNonSmoothTransition := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'H_N-S_T', fnt_Metal); //Todo translate
     Check_HideNonSmoothTransition.Checked := True;
 // COLUMN 4: One path fix (it gives no-walk object to islands and create only 1 walkable area - in KaM is possible to have max 255 separated areas and RMG sometimes makes more which cause crash of the game)
-  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Inaccesible places', fnt_Metal, taLeft);
-    Check_NoGo := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'NoGo Zones', fnt_Metal);
+  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Inaccesible places', fnt_Metal, taLeft); //Todo translate
+    Check_NoGo := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'NoGo Zones', fnt_Metal); //Todo translate
     Check_NoGo.Checked := True;
-    Check_ReplaceTerrain := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Replace mountains terrain', fnt_Metal);
+    Check_ReplaceTerrain := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Replace mountains terrain', fnt_Metal); //Todo translate
     Check_ReplaceTerrain.Checked := True;
 // COLUMN 4: Objects
-  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Objects', fnt_Metal, taLeft);
-  Check_Objects := TKMCheckBox.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Active', fnt_Metal);
+  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Objects', fnt_Metal, taLeft); //Todo translate
+  Check_Objects := TKMCheckBox.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Active', fnt_Metal); //Todo translate
     Check_Objects.Checked := True;
-  Check_Animals := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Animals', fnt_Metal);
+  Check_Animals := TKMCheckBox.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Animals', fnt_Metal); //Todo translate
     Check_Animals.Checked := True;
-  TKMLabel.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), 'Density', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), 'Density', fnt_Metal, taLeft); //Todo translate
     TBar_ObjectDensity := TKMTrackBar.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 120, 0, 10);
     TBar_ObjectDensity.Position := 6;
-  TKMLabel.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), 'Forests (x5)', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), 'Forests (x5)', fnt_Metal, taLeft); //Todo translate
     TBar_Forests := TKMTrackBar.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 120, 0, 20);
     TBar_Forests.Position := 10;
-  TKMLabel.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), 'Trees', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_4_X+OFFSET_1, NextLine(Column_4_Y), 'Trees', fnt_Metal, taLeft); //Todo translate
     TBar_Trees := TKMTrackBar.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 120, 1, 30);
     TBar_Trees.Position := 20;
 
 // COLUMN 4: Seed
-  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Seed', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Seed', fnt_Metal, taLeft); //Todo translate
     NumSeed := TKMNumericEdit.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), Low( Integer ), High( Integer ));
     NumSeed.OnChange := RMG_Change;
 // COLUMN 4: Players
-  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Players', fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 'Players', fnt_Metal, taLeft); //Todo translate
     TBar_Players := TKMTrackBar.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), 120, 1, 12);
     TBar_Players.Position := 4;
 
 // DEBUG (COLUMN 4)
   NextLine(Column_4_Y);
   NextLine(Column_4_Y);
-  Check_BasicTiles := TKMCheckBox.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), BOX_X, BOX_Y, 'BasicTiles', fnt_Metal);
+  Check_BasicTiles := TKMCheckBox.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), BOX_X, BOX_Y, 'BasicTiles', fnt_Metal); //Todo translate
   Check_BasicTiles.Checked := False;
-  Check_CA := TKMCheckBox.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Cellular automaton', fnt_Metal);
+  Check_CA := TKMCheckBox.Create(Panel_RMG, Column_4_X, NextLine(Column_4_Y), BOX_X, BOX_Y, 'Cellular automaton', fnt_Metal); //Todo translate
   Check_CA.Checked := True;
 
 
@@ -378,16 +373,8 @@ begin
 end;
 
 
-//procedure TKMMapEdRMG.RMG_Refresh();
-//begin
-//  //Certain values disable certain controls
-//  RMG_Change(nil);
-//end;
-
-
 procedure TKMMapEdRMG.Show();
 begin
-  //RMG_Refresh(aRMGSettings);
   Panel_RMG.Show;
   if not fMapSizeIndicator then
   begin

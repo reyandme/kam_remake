@@ -1,0 +1,66 @@
+//-- TPR05 --//
+//20.01.2018
+
+//Gives AI-Players Units a Random Hunger Level (2/3 to Max)
+procedure UnitsRandomHungerSet();
+var 
+	aUnits: array of Integer;
+	i, iGroup: Integer;
+	iPlayerLoop: Byte;
+begin
+for iPlayerLoop := 0 to States.StatPlayerCount()-1 do
+	begin
+		if States.PlayerIsAI(iPlayerLoop) then
+		begin
+			aUnits := States.PlayerGetAllUnits(iPlayerLoop);
+			for i := 0 to Length(aUnits)-1 do
+			begin
+				if States.UnitsGroup(aUnits[i]) = -1 then
+				begin
+					Actions.UnitHungerSet(aUnits[i], States.UnitMaxHunger/2 + States.KaMRandomI(States.UnitMaxHunger/2 +1));
+				end else
+				begin
+					iGroup := States.UnitsGroup(aUnits[i]);
+					if States.GroupMember(iGroup, 0) = aUnits[i] then
+						Actions.GroupHungerSet(iGroup, States.UnitMaxHunger/2 + States.KaMRandomI(States.UnitMaxHunger/2 +1));
+				end;
+			end;
+		end;
+	end;
+end;
+
+//Returns Sight Ranges for Units
+function UnitSightRange(aUnitsID: Integer): Byte;
+begin
+	case States.UnitType(aUnitsID) of
+		0..13: Result := 4; //Civilians
+		14..20, 22..27: Result := 9; //Fighting Units
+		21: Result := 16; //Scout
+		//28..37: Animals
+	end;
+end;
+
+
+procedure OnMissionStart();
+var
+	i: Integer;
+	aUnits: array of Integer;
+begin
+	//Set Hunger Level of AIs
+	UnitsRandomHungerSet();
+	//Disable Sharing Fog With Ally
+	Actions.PlayerShareFog(0, 1, false);
+	Actions.PlayerShareFog(1, 0, false);
+	Actions.PlayerShareFog(0, 2, false);
+	Actions.PlayerShareFog(2, 0, false);
+	//Cover All In Fog
+	Actions.FogCoverAll(0);
+	//Reveal Terrain For Units And Buildings
+	aUnits := States.PlayerGetAllUnits(0);
+	for i := 0 to Length(aUnits) -1 do
+      Actions.FogRevealCircle(0, States.UnitPositionX(aUnits[i]), States.UnitPositionY(aUnits[i]), UnitSightRange(aUnits[i]));
+	//Reveal certain areas of the Map to Player0
+	Actions.FogRevealCircle(0, 41, 51, 16);
+	Actions.FogRevealCircle(0, 26, 53, 16);
+	Actions.FogRevealCircle(0, 15, 48, 16);
+end;

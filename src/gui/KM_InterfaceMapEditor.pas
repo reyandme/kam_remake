@@ -186,6 +186,8 @@ begin
   Image_Extra.Anchors := [anLeft, anBottom];
   Image_Extra.HighlightOnMouseOver := True;
   Image_Extra.OnClick := Message_Click;
+  Image_Extra.Hint := GetHintWHotKey(TX_KEY_FUNC_MAPEDIT_EXTRA, SC_MAPEDIT_EXTRA);
+
   Image_Message := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48*2, 30, 48, 496);
   Image_Message.Anchors := [anLeft, anBottom];
   Image_Message.HighlightOnMouseOver := True;
@@ -204,11 +206,11 @@ begin
   Button_Main[3] := TKMButton.Create(Panel_Common, BIG_PAD_W*2, 0, BIG_TAB_W, BIG_TAB_H, 392, rxGui, bsGame);
   Button_Main[4] := TKMButton.Create(Panel_Common, BIG_PAD_W*3, 0, BIG_TAB_W, BIG_TAB_H, 441, rxGui, bsGame);
   Button_Main[5] := TKMButton.Create(Panel_Common, BIG_PAD_W*4, 0, BIG_TAB_W, BIG_TAB_H, 389, rxGui, bsGame);
-  Button_Main[1].Hint := gResTexts[TX_MAPED_TERRAIN];
-  Button_Main[2].Hint := gResTexts[TX_MAPED_VILLAGE];
-  Button_Main[3].Hint := gResTexts[TX_MAPED_SCRIPTS_VISUAL];
-  Button_Main[4].Hint := gResTexts[TX_MAPED_SCRIPTS_GLOBAL];
-  Button_Main[5].Hint := gResTexts[TX_MAPED_MENU];
+  Button_Main[1].Hint := GetHintWHotKey(TX_MAPED_TERRAIN, SC_MAPEDIT_TERRAIN);
+  Button_Main[2].Hint := GetHintWHotKey(TX_MAPED_VILLAGE, SC_MAPEDIT_VILLAGE);
+  Button_Main[3].Hint := GetHintWHotKey(TX_MAPED_SCRIPTS_VISUAL, SC_MAPEDIT_VISUAL);
+  Button_Main[4].Hint := GetHintWHotKey(TX_MAPED_SCRIPTS_GLOBAL, SC_MAPEDIT_GLOBAL);
+  Button_Main[5].Hint := GetHintWHotKey(TX_MAPED_MENU, SC_MAPEDIT_MAIN_MANU);
   for I := 1 to 5 do
     Button_Main[I].OnClick := Main_ButtonClick;
 
@@ -472,6 +474,9 @@ begin
 
   if fGuiExtras.CheckBox_ShowDeposits.Checked then
     gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlDeposits];
+
+  if fGuiExtras.CheckBox_ShowOverlays.Checked then
+    gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlOverlays];
 
   if fGuiExtras.CheckBox_ShowTileOwners.Checked then
     gGame.MapEditor.VisibleLayers := gGame.MapEditor.VisibleLayers + [mlTileOwner];

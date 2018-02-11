@@ -1,2 +1,5 @@
+SmallDesc
+Original map from KaM TSK
+
 BigDesc
 Prepare your massive army for an epic battle in an open valley.||Original map from Knights and Merchants The Shattered Kingdom

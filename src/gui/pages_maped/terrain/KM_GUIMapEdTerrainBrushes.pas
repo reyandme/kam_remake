@@ -35,7 +35,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   KM_ResFonts, KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI,
-  KM_TerrainPainter, KM_InterfaceGame;
+  KM_TerrainPainter, KM_InterfaceGame, KM_Utils;
 
 
 { TKMMapEdTerrainBrushes }
@@ -60,6 +60,7 @@ begin
   BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 0, 32);
   BrushSize.Position := 4;
   BrushSize.OnChange := BrushChange;
+  BrushSize.Hint := GetHintWHotKey(TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT, 'Ctrl + MouseWheel');
   BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 106, 28, 24, 24, 592);
   BrushCircle.Hint := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
   BrushCircle.OnClick := BrushChange;

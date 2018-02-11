@@ -211,19 +211,19 @@ begin
   if ObjectIsChoppableTree(aObjID, [caAge1, caAge2, caAge3, caAgeFull]) then
   begin
     aBtn.CapColor := icRoyalYellow;
-    aBtn.Hint := aBtn.Hint + ' / ' + 'Choppable tree'; //Todo translate
+    aBtn.Hint := aBtn.Hint + ' / ' + gResTexts[TX_MAPED_OBJ_DESC_CHOPPABLE];
     ChoppableTree := True;
   end;
 
   if gMapElements[aObjID].DiagonalBlocked then
   begin
-    aBtn.Hint := aBtn.Hint + ' / ' + 'Diagonal blocked'; //Todo translate
+    aBtn.Hint := aBtn.Hint + ' / ' + gResTexts[TX_MAPED_OBJ_DESC_BLOCK_DIAG];
     if not ChoppableTree then
       aBtn.CapColor := icLightRed;
   end else
   if gMapElements[aObjID].AllBlocked then
   begin
-    aBtn.Hint := aBtn.Hint + ' / ' + 'All blocked'; //Todo translate
+    aBtn.Hint := aBtn.Hint + ' / ' + gResTexts[TX_MAPED_OBJ_DESC_BLOCK_ALL];
     if not ChoppableTree then
       aBtn.CapColor := icRed;
   end;

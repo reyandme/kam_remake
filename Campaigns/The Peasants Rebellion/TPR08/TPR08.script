@@ -1,0 +1,53 @@
+//-- TBK08 --//
+//21.01.2018
+
+var
+	aArmyFirst, aArmySecond: array [1..7] of Integer;
+
+procedure OnMissionStart;
+begin
+	//First Wave
+	aArmyFirst[1] := States.GroupAt(41, 15); //Sword Fighters - Top
+	aArmyFirst[2] := States.GroupAt(41, 35); //Sword Fighters - Middle
+	aArmyFirst[3] := States.GroupAt(44, 49); //Sword Fighters - Bottom
+	aArmyFirst[4] := States.GroupAt(57, 23); //Knights - Top
+	aArmyFirst[5] := States.GroupAt(41, 56); //Knights - Bottom
+	aArmyFirst[6] := States.GroupAt(36, 56); //Axe Fighters - Bottom
+	//Second Wave
+	aArmySecond[1] := States.GroupAt(23, 34); //Axe Fighters - Top-Right
+	aArmySecond[2] := States.GroupAt(23, 44); //Axe Fighters - Bottom-Right
+	aArmySecond[3] := States.GroupAt(18, 34); //Pikemen - Top
+	aArmySecond[4] := States.GroupAt(18, 44); //Pikemen - Bottom
+	aArmySecond[5] := States.GroupAt(8, 34); //Axe Fighters - Top-Left
+	aArmySecond[6] := States.GroupAt(8, 44); //Axe Fighters - Bottom-Left
+	aArmySecond[7] := States.GroupAt(25, 39); //Knights - Middle
+end;
+
+procedure OnTick;
+begin
+	//First Wave Move
+	if States.GameTime = 10 then
+    begin
+		Actions.GroupOrderWalk(aArmyFirst[1], 68, 30, 2);
+		Actions.GroupOrderWalk(aArmyFirst[2], 68, 35, 2);
+		Actions.GroupOrderWalk(aArmyFirst[3], 69, 40, 2);
+		Actions.GroupOrderWalk(aArmyFirst[4], 69, 28, 3);
+    end;
+	if States.GameTime = 20 then
+    begin
+		Actions.GroupOrderWalk(aArmyFirst[5], 66, 50, 1);
+		Actions.GroupOrderWalk(aArmyFirst[6], 71, 54, 0);
+	end;
+	//Second Wave Move
+	if States.GameTime = 200 then
+    begin
+		Actions.GroupOrderWalk(aArmySecond[1], 76, 33, 2);
+		Actions.GroupOrderWalk(aArmySecond[2], 77, 38, 2);
+		Actions.GroupOrderWalk(aArmySecond[3], 72, 34, 2);
+		Actions.GroupOrderWalk(aArmySecond[4], 73, 38, 2);
+		Actions.GroupOrderWalk(aArmySecond[5], 68, 33, 2);
+		Actions.GroupOrderWalk(aArmySecond[6], 69, 38, 2);
+	end;
+	if States.GameTime = 300 then
+		Actions.GroupOrderWalk(aArmySecond[7], 66, 38, 2);
+end;

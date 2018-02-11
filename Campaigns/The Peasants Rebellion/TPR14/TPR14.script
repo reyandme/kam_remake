@@ -1,7 +1,134 @@
+//-- TBK14 --//
+//21.01.2018
+
+//Gives AI-Players Units a Random Hunger Level (2/3 to Max)
+procedure UnitsRandomHungerSet();
+var 
+	aUnits: array of Integer;
+	i, iGroup: Integer;
+	iPlayerLoop: Byte;
+begin
+for iPlayerLoop := 0 to States.StatPlayerCount()-1 do
+	begin
+		if States.PlayerIsAI(iPlayerLoop) then
+		begin
+			aUnits := States.PlayerGetAllUnits(iPlayerLoop);
+			for i := 0 to Length(aUnits)-1 do
+			begin
+				if States.UnitsGroup(aUnits[i]) = -1 then
+				begin
+					Actions.UnitHungerSet(aUnits[i], States.UnitMaxHunger/2 + States.KaMRandomI(States.UnitMaxHunger/2 +1));
+				end else
+				begin
+					iGroup := States.UnitsGroup(aUnits[i]);
+					if States.GroupMember(iGroup, 0) = aUnits[i] then
+						Actions.GroupHungerSet(iGroup, States.UnitMaxHunger/2 + States.KaMRandomI(States.UnitMaxHunger/2 +1));
+				end;
+			end;
+		end;
+	end;
+end;
+
+//UnAllow ALL Buildings for specified Player
+procedure LockBuildings(iPlayer: Byte);
+var i: Byte;
+begin
+	for i := 0 to 29 do
+		if i <> 26 then //26 is not in use
+			Actions.HouseAllow(iPlayer, i, false);
+	Actions.HouseAllow(iPlayer, 11, true); //Storehouse always unlocked
+end;
+
+//Use Traditionl Unlock Order for Houses (Overwrites Static Script settings: Comment out Houses that are supposed to be blocked here!)
+procedure TraditionalUnlock(iPlayer: Byte; iHouseID: Integer);
+begin
+	case States.HouseType(iHouseID) of
+		0: 	begin //Sawmill
+				Actions.HouseAllow(iPlayer, 4, true); //Iron Mine
+				Actions.HouseAllow(iPlayer, 5, true); //Gold Mine
+				Actions.HouseAllow(iPlayer, 3, true); //Coal Mine
+				Actions.HouseAllow(iPlayer, 28, true); //Vineyard
+				Actions.HouseAllow(iPlayer, 8, true); //Farm
+				Actions.HouseAllow(iPlayer, 19, true); //Weapons Workshop
+				Actions.HouseAllow(iPlayer, 21, true); //Barracks
+				Actions.HouseAllow(iPlayer, 6, true); //Fisherman
+				Actions.HouseAllow(iPlayer, 18, true); //Townhall
+			end;
+		1: 	begin // Iron Smithy
+				Actions.HouseAllow(iPlayer, 2, true); //Weapon Smithy
+				Actions.HouseAllow(iPlayer, 10, true); //Armor Smithy
+			end;
+		2: exit; // Weapon Smithy
+		3: exit; //Coal Mine
+		4: Actions.HouseAllow(iPlayer, 1, true); //Iron Mine -> Iron Smithy
+		5: Actions.HouseAllow(iPlayer, 15, true); //Gold Mine -> Metallurgist
+		6: exit; //Fisherman's Hut
+		7: exit; //Bakery
+		8: 	begin //Farm
+				Actions.HouseAllow(iPlayer, 12, true); //Stables
+				Actions.HouseAllow(iPlayer, 16, true); //Swine Farm
+				Actions.HouseAllow(iPlayer, 22, true); //Mill
+			end;
+		9: Actions.HouseAllow(iPlayer, 0, true); //Woodcutter -> Sawmill
+		10: exit; //Armor Smithy
+		11: Actions.HouseAllow(iPlayer, 13, true); //Storehouse -> School
+		12: exit; //Stables
+		13: Actions.HouseAllow(iPlayer, 27, true); //School -> Inn
+		14: begin //Quarry
+				Actions.HouseAllow(iPlayer, 9, true); //Woodcutter
+				Actions.HouseAllow(iPlayer, 17, true); //Watch Tower
+			end;
+		15: exit; //Metallurgist's
+		16:	begin //Swine Farm
+				Actions.HouseAllow(iPlayer, 24, true); //Butcher
+				Actions.HouseAllow(iPlayer, 25, true); //Tannery
+			end;
+		17: exit; //Watch Tower
+		18: exit; //Townhall
+		19: exit; //Weapons Workshop
+		20: exit; //Armor Workshop
+		21: exit; //Barracks
+		22: Actions.HouseAllow(iPlayer, 7, true); //Mill -> Bakery
+		23: exit; //Vehicles Workshop
+		24: exit;//Butcher's
+		25: Actions.HouseAllow(iPlayer, 20, true); //Tannery -> Armor Workshop
+		26: exit; //Unused
+		27: Actions.HouseAllow(iPlayer, 9, true); //Inn -> Woodcutter
+		28: exit; //Vineyard
+		29: exit; //Market
+	end;
+end;
+	
+	
+procedure OnMissionStart;
+var 
+	aHouses: array of Integer;
+	h: Integer;
+begin
+	//Randomize Hunger Level of Enemy Units
+	UnitsRandomHungerSet();
+	//Unallow all Buildings
+	LockBuildings(0);
+	//Unlock Buildings at the Sart
+	aHouses := States.PlayerGetAllHouses(0);
+	for h := 0 to Length(aHouses) -1 do
+		TraditionalUnlock(0, aHouses[h]);
+end;
+
+procedure OnHouseBuilt(aHouseID: Integer);
+var iOwner: Byte;
+begin
+	iOwner := States.HouseOwner(aHouseID);
+	if iOwner = 0 then
+		TraditionalUnlock(iOwner, aHouseID);
+end;
+
 procedure OnTick;
 begin
-  if States.GameTime = 5 then
-    Actions.ShowMsg(0, '<$0>');
-  if States.GameTime = 9000 then
-    Actions.ShowMsg(0, '<$1>');
+	//Message After 1 Second
+	if States.GameTime = 10 then
+		Actions.ShowMsg(0, '<$0>');
+	//Message After 15 Minutes
+	if States.GameTime = 9000 then
+		Actions.ShowMsg(0, '<$1>');
 end;

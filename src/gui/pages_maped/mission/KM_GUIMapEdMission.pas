@@ -39,7 +39,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceGame, KM_Pics, KM_Defaults;
+  KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceGame, KM_Pics, KM_Defaults, KM_InterfaceDefaults, KM_Utils;
 
 
 { TKMMapEdMission }
@@ -62,7 +62,7 @@ begin
   for MT := Low(TKMMissionTab) to High(TKMMissionTab) do
   begin
     Button_Mission[MT] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * Byte(MT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[MT], rxGui, bsGame);
-    Button_Mission[MT].Hint := gResTexts[TabHint[MT]];
+    Button_Mission[MT].Hint := GetHintWHotKey(TabHint[MT], MAPED_SUBMENU_TAB_HOTKEYS[Ord(MT)]);
     Button_Mission[MT].OnClick := PageChange;
   end;
 
@@ -127,7 +127,8 @@ end;
 
 procedure TKMMapEdMission.ShowIndex(aIndex: Byte);
 begin
-  if aIndex in [Byte(Low(TKMMissionTab))..Byte(High(TKMMissionTab))] then
+  if (aIndex in [Byte(Low(TKMMissionTab))..Byte(High(TKMMissionTab))])
+    and Button_Mission[TKMMissionTab(aIndex)].Enabled then
   begin
     PageChange(nil); //Hide existing pages
     Show(TKMMissionTab(aIndex));

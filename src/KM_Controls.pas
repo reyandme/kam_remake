@@ -770,6 +770,8 @@ type
     fFont: TKMFont;
     procedure SetCaption(const aValue: UnicodeString);
     procedure SetPosition(aValue: Word);
+  protected
+    function DoHandleMouseWheelByDefault: Boolean; override;
   public
     Step: Byte; //Change Position by this amount each time
     ThumbText: UnicodeString;
@@ -786,6 +788,7 @@ type
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean); override;
     procedure Paint; override;
   end;
 
@@ -4245,6 +4248,39 @@ begin
   NewPos := Position;
   if (ssLeft in Shift) and InRange(Y - AbsTop - fTrackTop, 0, fTrackHeight) then
     NewPos := EnsureRange(fMinValue + Round(((X-AbsLeft-ThumbWidth div 2) / (Width - ThumbWidth - 4))*(fMaxValue - fMinValue)/Step)*Step, fMinValue, fMaxValue);
+
+  if NewPos <> Position then
+  begin
+    Position := NewPos;
+
+    if Assigned(fOnChange) then
+      fOnChange(Self);
+  end;
+end;
+
+
+function TKMTrackBar.DoHandleMouseWheelByDefault: Boolean;
+begin
+  Result := False;
+end;
+
+
+procedure TKMTrackBar.MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean);
+var
+  NewPos: Integer;
+begin
+  inherited;
+
+  if aHandled or (WheelDelta = 0) then Exit;
+
+  aHandled := WheelDelta <> 0;
+
+  Focus;
+
+  NewPos := Position;
+
+  if WheelDelta <> 0 then
+    NewPos := EnsureRange(NewPos - Step*Math.Sign(WheelDelta), fMinValue, fMaxValue);
 
   if NewPos <> Position then
   begin

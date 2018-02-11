@@ -534,7 +534,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aFilePath]) + '||' + E.ClassName + ': ' + E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError
         {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
@@ -542,6 +542,8 @@ begin
       Exit;
     end;
   end;
+
+  gGame.AfterLoad; //Call after load separately, so errors in it could be sended in crashreport
 
   if Assigned(fOnCursorUpdate) then
     fOnCursorUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
@@ -570,7 +572,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [aMissionFile]) + '||' + E.ClassName + ': ' + E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError
         {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
@@ -578,6 +580,7 @@ begin
       Exit;
     end;
   end;
+  gGame.AfterStart; //Call after start separately, so errors in it could be sended in crashreport
 
   if Assigned(fOnCursorUpdate) then
     fOnCursorUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
@@ -597,7 +600,7 @@ begin
 
   gGame := TKMGame.Create(aGameMode, fRender, nil);
   try
-    gGame.GameStart(aSizeX, aSizeY);
+    gGame.MapEdStartEmptyMap(aSizeX, aSizeY);
   except
     on E : Exception do
     begin
@@ -605,7 +608,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(gResTexts[TX_MENU_PARSE_ERROR], ['-']) + '||' + E.ClassName + ': ' + E.Message;
       Stop(gr_Error, LoadError);
       gLog.AddTime('Game creation Exception: ' + LoadError
         {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}

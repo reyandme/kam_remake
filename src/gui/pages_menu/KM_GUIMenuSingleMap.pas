@@ -21,19 +21,28 @@ type
 
     fLastMapCRC: Cardinal; //CRC of selected map
 
+    fUpdatedLastListId: Integer;  // item id, on which last time update was invoked. Avoid multiple updates for same item, which could happen on every ListRefresh
+    fScanCompleted: Boolean;      // True, after scan was completed
+
     fSingleLoc: Integer;
     fSingleColor: Cardinal;
 
     procedure Create_SingleMap(aParent: TKMPanel);
+    procedure MapTypeChanged(Sender: TObject);
 
-    procedure ListClear;
     procedure ScanUpdate(Sender: TObject);
-    procedure ScanComplete(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
-    procedure ListRefresh(aJumpToSelected:Boolean);
+    procedure ScanTerminate(Sender: TObject);
+    procedure ListUpdate;
+    procedure ListRefresh(aJumpToSelected: Boolean);
     procedure ListClick(Sender: TObject);
+    procedure DoOptionsChange(aForceUpdate: Boolean = False);
     procedure OptionsChange(Sender: TObject);
-    procedure Update;
+    procedure Update(aForceUpdate: Boolean = False);
+    procedure ResetUI;
+    procedure ResetExtraInfo;
+    procedure UpdateDropBoxes;
+
     procedure StartClick(Sender: TObject);
     procedure ListSort(aColumn: Integer);
     procedure MinimapLocClick(aValue: Integer);
@@ -41,6 +50,8 @@ type
     procedure BackClick(Sender: TObject);
   protected
     Panel_Single:TKMPanel;
+      Label_MapType: TKMLabel;
+      Radio_MapType: TKMRadioGroup;
       Panel_SingleDesc: TKMPanel;
         Label_SingleTitle: TKMLabel;
         Memo_SingleDesc: TKMMemo;
@@ -75,11 +86,11 @@ uses
 constructor TKMMenuSingleMap.Create(aParent: TKMPanel; aOnPageChange: TGUIEventText);
 begin
   inherited Create;
-
+              
   fOnPageChange := aOnPageChange;
   OnEscKeyDown := BackClick;
 
-  fMaps := TKMapsCollection.Create(mfSP);
+  fMaps := TKMapsCollection.Create([mfSP, mfMP, mfDL]);
   fMinimap := TKMMinimap.Create(True, True);
 
   Create_SingleMap(aParent);
@@ -92,6 +103,16 @@ begin
   fMinimap.Free;
 
   inherited;
+end;
+
+
+procedure TKMMenuSingleMap.MapTypeChanged(Sender: TObject);
+begin
+  ResetUI;
+  ListUpdate;
+  ListRefresh(True);
+  Update;
+  gGameApp.GameSettings.MenuMapSPType := Radio_MapType.ItemIndex;
 end;
 
 
@@ -110,11 +131,23 @@ begin
 
     Half := (aParent.Width - PAD_SIDE) div 2 - PAD_SIDE;
 
+    TKMBevel.Create(Panel_Single, (aParent.Width + PAD_SIDE) div 2, PAD_VERT + 20, Half, 70);
+
+    Label_MapType := TKMLabel.Create(Panel_Single, (aParent.Width + PAD_SIDE) div 2 + 5, PAD_VERT, gResTexts[TX_MENU_MAP_TYPE], fnt_Outline, taLeft); 
+
+    Radio_MapType := TKMRadioGroup.Create(Panel_Single, (aParent.Width + PAD_SIDE) div 2 + 5, PAD_VERT + 25, Half - 10, 60, fnt_Metal);
+    Radio_MapType.Add(gResTexts[TX_MENU_SP_MAP_SCENARIO]); 
+    Radio_MapType.Add(gResTexts[TX_LOBBY_MAP_BUILD]);
+    Radio_MapType.Add(gResTexts[TX_LOBBY_MAP_FIGHT]);
+    Radio_MapType.Add(gResTexts[TX_LOBBY_MAP_SPECIAL]);
+    Radio_MapType.ItemIndex := 0;
+    Radio_MapType.OnChange := MapTypeChanged;
+
     ColumnBox_SingleMaps := TKMColumnBox.Create(Panel_Single,
                                                   (aParent.Width + PAD_SIDE) div 2,
-                                                  PAD_VERT,
+                                                  PAD_VERT + Radio_MapType.Height + 35,
                                                   Half,
-                                                  aParent.Height - PAD_VERT*2,
+                                                  aParent.Height - PAD_VERT*2 - Radio_MapType.Height - 15,
                                                   fnt_Metal, bsMenu);
     ColumnBox_SingleMaps.Anchors := [anTop, anBottom];
     ColumnBox_SingleMaps.SetColumns(fnt_Outline, ['', '', gResTexts[TX_MENU_MAP_TITLE], gResTexts[TX_MENU_MAP_SIZE]], [0, 50, 100, 380]);
@@ -221,22 +254,10 @@ begin
 end;
 
 
-procedure TKMMenuSingleMap.ListClear;
-begin
-  ColumnBox_SingleMaps.Clear;
-  ListClick(nil);
-end;
-
-
 procedure TKMMenuSingleMap.ScanUpdate(Sender: TObject);
 begin
-  ListRefresh(False); //Don't jump to selected with each scan update
-end;
-
-
-procedure TKMMenuSingleMap.ScanComplete(Sender: TObject);
-begin
-  ListRefresh(True); //After scan complete jump to selected item
+  if not fScanCompleted then  // Don't refresh list, if scan was completed already
+    ListRefresh(False); //Don't jump to selected with each scan update
 end;
 
 
@@ -246,9 +267,16 @@ begin
 end;
 
 
+procedure TKMMenuSingleMap.ScanTerminate(Sender: TObject);
+begin
+  fScanCompleted := True;
+  ListRefresh(True); //After scan complete jump to selected item
+end;
+
+
 procedure TKMMenuSingleMap.ListRefresh(aJumpToSelected: Boolean);
 var
-  I, PrevTop: Integer;
+  I, ListI, PrevTop: Integer;
   R: TKMListRow;
 begin
   PrevTop := ColumnBox_SingleMaps.TopIndex;
@@ -256,18 +284,35 @@ begin
 
   fMaps.Lock;
   try
+    ListI := 0;
     for I := 0 to fMaps.Count - 1 do
     begin
+      //Ignore not SP maps in list
+      if not fMaps[I].IsSinglePlayer then Continue;
+
+      case Radio_MapType.ItemIndex of
+        0:  if not ((fMaps[I].MapFolder = mfSP) and fMaps[I].IsNormalMission and not fMaps[I].IsSpecial) then
+              Continue;
+        1:  if not ((fMaps[I].MapFolder <> mfSP) and fMaps[I].IsNormalMission and not fMaps[I].IsSpecial) then
+              Continue;
+        2:  if not (fMaps[I].IsTacticMission and not fMaps[I].IsSpecial) then
+              Continue;
+        3:  if not fMaps[I].IsSpecial then
+              Continue;
+      end;
+
       R := MakeListRow(['', IntToStr(fMaps[I].LocCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
       R.Cells[2].Hint := fMaps[I].SmallDesc;
       R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mm_Tactic) * 14);
+      R.Tag := I;
       ColumnBox_SingleMaps.AddItem(R);
 
       if (fMaps[I].CRC = fLastMapCRC) then
       begin
-        ColumnBox_SingleMaps.ItemIndex := I;
+        ColumnBox_SingleMaps.ItemIndex := ListI;
         ListClick(nil);
       end;
+      Inc(ListI);
     end;
   finally
     fMaps.Unlock;
@@ -275,7 +320,7 @@ begin
 
   ColumnBox_SingleMaps.TopIndex := PrevTop;
   if aJumpToSelected
-  and not InRange(ColumnBox_SingleMaps.ItemIndex - ColumnBox_SingleMaps.TopIndex, 0, ColumnBox_SingleMaps.GetVisibleRows - 1)
+    and not InRange(ColumnBox_SingleMaps.ItemIndex - ColumnBox_SingleMaps.TopIndex, 0, ColumnBox_SingleMaps.GetVisibleRows - 1)
   then
     if ColumnBox_SingleMaps.ItemIndex < ColumnBox_SingleMaps.TopIndex + ColumnBox_SingleMaps.GetVisibleRows - 1 then
       ColumnBox_SingleMaps.TopIndex := ColumnBox_SingleMaps.ItemIndex
@@ -293,7 +338,10 @@ var
 begin
   fMaps.Lock;
   try
-    MapId := ColumnBox_SingleMaps.ItemIndex;
+    if ColumnBox_SingleMaps.IsSelected then
+      MapId := ColumnBox_SingleMaps.SelectedItem.Tag
+    else
+      MapId := -1;
 
     //User could have clicked on empty space in list and we get -1 or unused MapId
     if not InRange(MapId, 0, fMaps.Count - 1) then
@@ -314,18 +362,22 @@ begin
       fMaps[MapId].LoadExtra;
 
       fLastMapCRC := fMaps[MapId].CRC;
-      gGameApp.GameSettings.MenuSPMapCRC := fLastMapCRC;
+      case Radio_MapType.ItemIndex of
+        0:  gGameApp.GameSettings.MenuSPScenarioMapCRC := fLastMapCRC;
+        1:  gGameApp.GameSettings.MenuSPMissionMapCRC := fLastMapCRC;
+        2:  gGameApp.GameSettings.MenuSPTacticMapCRC := fLastMapCRC;
+        3:  gGameApp.GameSettings.MenuSPSpecialMapCRC := fLastMapCRC;
+      end;
 
       Label_SingleTitle.Caption   := fMaps[MapId].FileName;
       Memo_SingleDesc.Text        := fMaps[MapId].BigDesc;
-
       MinimapView_Single.Show;
 
       //Location
       DropBox_SingleLoc.Clear;
       for I := 0 to fMaps[MapId].LocCount - 1 do
-      if fMaps[MapId].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
-        DropBox_SingleLoc.Add(fMaps[MapId].LocationName(I), I);
+        if fMaps[MapId].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
+          DropBox_SingleLoc.Add(fMaps[MapId].LocationName(I), I);
 
       DropBox_SingleLoc.SelectByTag(fMaps[MapId].DefaultHuman);
 
@@ -333,7 +385,8 @@ begin
       //Fill in colors for each map individually
       //I plan to skip colors that are similar to those on a map already
       LastColor := DropBox_SingleColor.ItemIndex;
-      if LastColor = -1 then LastColor := 0; //Default
+      if LastColor = -1 then
+        LastColor := 0; //Default
       DropBox_SingleColor.Clear;
       //Default colour chosen by map author
       DropBox_SingleColor.Add(MakeListRow([''], [fMaps[MapId].FlagColors[fMaps[MapId].DefaultHuman]], [MakePic(rxGuiMain, 30)]));
@@ -350,40 +403,60 @@ begin
     MinimapView_Single.ShowLocs := DropBox_SingleLoc.Count > 1;
     DropBox_SingleColor.Enabled := DropBox_SingleColor.Count > 1;
 
-    OptionsChange(nil);
+    DoOptionsChange;
   finally
     fMaps.Unlock;
   end;
 end;
 
 
-procedure TKMMenuSingleMap.OptionsChange(Sender: TObject);
+procedure TKMMenuSingleMap.DoOptionsChange(aForceUpdate: Boolean = False);
 begin
-  if DropBox_SingleLoc.ItemIndex <> -1 then
-    fSingleLoc := DropBox_SingleLoc.GetSelectedTag
-  else
-    fSingleLoc := -1;
-
-  //Don't allow selecting separator
-  if DropBox_SingleColor.ItemIndex = 1 then
-    DropBox_SingleColor.ItemIndex := 0;
-
-  if InRange(DropBox_SingleColor.ItemIndex, 0, DropBox_SingleColor.List.RowCount - 1) then
-    fSingleColor := DropBox_SingleColor.List.Rows[DropBox_SingleColor.ItemIndex].Cells[0].Color;
-
-  Update;
+  UpdateDropBoxes;
+  Update(aForceUpdate);
 end;
 
 
-procedure TKMMenuSingleMap.Update;
-const
-  GoalCondPic: array [TGoalCondition] of Word = (
-    41, 39, 592, 38, 62, 41, 303, 141, 312);
+procedure TKMMenuSingleMap.OptionsChange(Sender: TObject);
+begin
+  UpdateDropBoxes;
+  DoOptionsChange(True);
+end;
+
+
+procedure TKMMenuSingleMap.ListUpdate;
+begin
+  //ListClear;
+  ColumnBox_SingleMaps.Clear;
+
+  fLastMapCRC := 0;
+  case Radio_MapType.ItemIndex of
+    0:  fLastMapCRC := gGameApp.GameSettings.MenuSPScenarioMapCRC;
+    1:  fLastMapCRC := gGameApp.GameSettings.MenuSPMissionMapCRC;
+    2:  fLastMapCRC := gGameApp.GameSettings.MenuSPTacticMapCRC;
+    3:  fLastMapCRC := gGameApp.GameSettings.MenuSPSpecialMapCRC;
+  end;
+end;
+
+
+procedure TKMMenuSingleMap.ResetUI;
+begin
+  Label_SingleTitle.Caption   := '';
+  Memo_SingleDesc.Text        := '';
+  DropBox_SingleLoc.ItemIndex := -1;
+
+  MinimapView_Single.Hide;
+
+  DropBox_SingleLoc.Clear;
+  DropBox_SingleColor.Clear;
+
+  ResetExtraInfo;
+end;
+
+
+procedure TKMMenuSingleMap.ResetExtraInfo;
 var
-  I,J,K: Integer;
-  MapId: Integer;
-  M: TKMapInfo;
-  G: TKMMapGoalInfo;
+  I: Integer;
 begin
   //Clear all so that later we fill only used
   for I := 0 to MAX_UI_GOALS - 1 do
@@ -401,66 +474,102 @@ begin
     Image_SingleEnemies[I].Hide;
   end;
   Button_SingleStart.Disable;
+end;
 
-  if (fSingleLoc <> -1) and (ColumnBox_SingleMaps.ItemIndex <> -1) then
+
+procedure TKMMenuSingleMap.UpdateDropBoxes;
+begin
+  if DropBox_SingleLoc.ItemIndex <> -1 then
+    fSingleLoc := DropBox_SingleLoc.GetSelectedTag
+  else
+    fSingleLoc := -1;
+
+  //Don't allow selecting separator
+  if DropBox_SingleColor.ItemIndex = 1 then
+    DropBox_SingleColor.ItemIndex := 0;
+
+  if InRange(DropBox_SingleColor.ItemIndex, 0, DropBox_SingleColor.List.RowCount - 1) then
+    fSingleColor := DropBox_SingleColor.List.Rows[DropBox_SingleColor.ItemIndex].Cells[0].Color;
+end;
+
+
+procedure TKMMenuSingleMap.Update(aForceUpdate: Boolean = False);
+const
+  GoalCondPic: array [TGoalCondition] of Word = (
+    41, 39, 592, 38, 62, 41, 303, 141, 312);
+var
+  I,J,K: Integer;
+  MapId: Integer;
+  M: TKMapInfo;
+  G: TKMMapGoalInfo;
+begin
+  if (fSingleLoc <> -1) and (ColumnBox_SingleMaps.IsSelected) then
   begin
-    MapId := ColumnBox_SingleMaps.ItemIndex;
-    fMaps.Lock;
-    try
-      M := fMaps[MapId];
+    MapId := ColumnBox_SingleMaps.SelectedItem.Tag;
+    //Do not update same item several times
+    if aForceUpdate or (fUpdatedLastListId <> MapId) then
+    begin
+      fUpdatedLastListId := MapId;
 
-      //Set default colour for this location
-      DropBox_SingleColor.List.Rows[0].Cells[0].Color := fMaps[MapId].FlagColors[fSingleLoc];
-      if DropBox_SingleColor.ItemIndex = 0 then
-        fSingleColor := fMaps[MapId].FlagColors[fSingleLoc];
+      ResetExtraInfo;
 
-      //Refresh minimap with selected location and player color
-      fMinimap.LoadFromMission(M.FullPath('.dat'), [TKMHandIndex(fSingleLoc)]);
-      fMinimap.HandColors[fSingleLoc] := fSingleColor;
-      fMinimap.Update(False);
-      MinimapView_Single.SetMinimap(fMinimap);
+      fMaps.Lock;
+      try
+        M := fMaps[MapId];
 
-      //Populate goals section
-      for I := 0 to Min(MAX_UI_GOALS, M.GoalsVictoryCount[fSingleLoc]) - 1 do
-      begin
-        G := M.GoalsVictory[fSingleLoc,I];
-        Image_SingleVictGoal[I].TexID := GoalCondPic[G.Cond];
-        Image_SingleVictGoal[I].FlagColor := fSingleColor;
-        Image_SingleVictGoalSt[I].Show;
-        Label_SingleVictGoal[I].Caption := IntToStr(G.Play + 1);
-      end;
-      for I := 0 to Min(MAX_UI_GOALS, M.GoalsSurviveCount[fSingleLoc]) - 1 do
-      begin
-        G := M.GoalsSurvive[fSingleLoc,I];
-        Image_SingleSurvGoal[I].TexID := GoalCondPic[G.Cond];
-        Image_SingleSurvGoal[I].FlagColor := fSingleColor;
-        Image_SingleSurvGoalSt[I].Show;
-        Label_SingleSurvGoal[I].Caption := IntToStr(G.Play + 1);
-      end;
+        //Set default colour for this location
+        DropBox_SingleColor.List.Rows[0].Cells[0].Color := fMaps[MapId].FlagColors[fSingleLoc];
+        if DropBox_SingleColor.ItemIndex = 0 then
+          fSingleColor := fMaps[MapId].FlagColors[fSingleLoc];
 
-      //Populate alliances section
-      J := 0; K := 0;
-      for I := 0 to M.LocCount - 1 do
-      if I <> fSingleLoc then
-      begin
-        case M.Alliances[fSingleLoc, I] of
-          at_Enemy: begin
-                      Image_SingleEnemies[J].Show;
-                      Image_SingleEnemies[J].FlagColor := M.FlagColors[I];
-                      Inc(J);
-                    end;
-          at_Ally:  begin
-                      Image_SingleAllies[K].Show;
-                      Image_SingleAllies[K].FlagColor := M.FlagColors[I];
-                      Inc(K);
-                    end;
+        //Refresh minimap with selected location and player color
+        fMinimap.LoadFromMission(M.FullPath('.dat'), [TKMHandIndex(fSingleLoc)]);
+        fMinimap.HandColors[fSingleLoc] := fSingleColor;
+        fMinimap.Update(False);
+        MinimapView_Single.SetMinimap(fMinimap);
+
+        //Populate goals section
+        for I := 0 to Min(MAX_UI_GOALS, M.GoalsVictoryCount[fSingleLoc]) - 1 do
+        begin
+          G := M.GoalsVictory[fSingleLoc,I];
+          Image_SingleVictGoal[I].TexID := GoalCondPic[G.Cond];
+          Image_SingleVictGoal[I].FlagColor := fSingleColor;
+          Image_SingleVictGoalSt[I].Show;
+          Label_SingleVictGoal[I].Caption := IntToStr(G.Play + 1);
         end;
-      end;
-    finally
-      fMaps.Unlock;
-    end;
+        for I := 0 to Min(MAX_UI_GOALS, M.GoalsSurviveCount[fSingleLoc]) - 1 do
+        begin
+          G := M.GoalsSurvive[fSingleLoc,I];
+          Image_SingleSurvGoal[I].TexID := GoalCondPic[G.Cond];
+          Image_SingleSurvGoal[I].FlagColor := fSingleColor;
+          Image_SingleSurvGoalSt[I].Show;
+          Label_SingleSurvGoal[I].Caption := IntToStr(G.Play + 1);
+        end;
 
-    Button_SingleStart.Enable;
+        //Populate alliances section
+        J := 0; K := 0;
+        for I := 0 to M.LocCount - 1 do
+        if I <> fSingleLoc then
+        begin
+          case M.Alliances[fSingleLoc, I] of
+            at_Enemy: begin
+                        Image_SingleEnemies[J].Show;
+                        Image_SingleEnemies[J].FlagColor := M.FlagColors[I];
+                        Inc(J);
+                      end;
+            at_Ally:  begin
+                        Image_SingleAllies[K].Show;
+                        Image_SingleAllies[K].FlagColor := M.FlagColors[I];
+                        Inc(K);
+                      end;
+          end;
+        end;
+      finally
+        fMaps.Unlock;
+      end;
+
+      Button_SingleStart.Enable;
+    end;
   end;
 end;
 
@@ -531,21 +640,26 @@ begin
 
   DropBox_SingleLoc.SelectByTag(fSingleLoc);
 
-  Update;
+  Update(True);
 end;
 
 
 procedure TKMMenuSingleMap.Show;
 begin
-  //Stop current now scan so it can't add a map after we clear the list
+  Radio_MapType.ItemIndex := gGameApp.GameSettings.MenuMapSPType;
+
+  ResetUI;
+  //Terminate all
   fMaps.TerminateScan;
 
-  //Remove any old entries from UI
-  ListClear;
-  fLastMapCRC := gGameApp.GameSettings.MenuSPMapCRC;
+  //Reset scan variables
+  fScanCompleted := False;
+  fUpdatedLastListId := ITEM_NOT_LOADED;
 
-  //Initiate refresh and process each new map added
-  fMaps.Refresh(ScanUpdate, ScanComplete);
+  ListUpdate;
+
+  fMaps.Refresh(ScanUpdate, ScanTerminate);
+
   Panel_Single.Show;
 end;
 

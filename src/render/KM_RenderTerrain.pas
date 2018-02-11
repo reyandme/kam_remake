@@ -61,7 +61,7 @@ type
 
 implementation
 uses
-  KM_Render;
+  KM_Render, KM_Game;
 
 type
   TAnimLayer = (alWater, alFalls, alSwamp);
@@ -509,6 +509,9 @@ procedure TRenderTerrain.DoOverlays;
 var
   I, K: Integer;
 begin
+  if gGame.IsMapEditor and not (mlOverlays in gGame.MapEditor.VisibleLayers) then
+    Exit;
+
   for I := fClipRect.Top to fClipRect.Bottom do
     for K := fClipRect.Left to fClipRect.Right do
       RenderTileOverlay(K, I);
@@ -519,15 +522,22 @@ procedure TRenderTerrain.RenderFences;
 var
   I,K: Integer;
 begin
+  if gGame.IsMapEditor and not (mlOverlays in gGame.MapEditor.VisibleLayers) then
+    Exit;
+
   with gTerrain do
-  for I := fClipRect.Top to fClipRect.Bottom do
-  for K := fClipRect.Left to fClipRect.Right do
-  begin
-    if Land[I,K].FenceSide and 1 = 1 then RenderFence(Land[I,K].Fence, dir_N, K, I);
-    if Land[I,K].FenceSide and 2 = 2 then RenderFence(Land[I,K].Fence, dir_E, K, I);
-    if Land[I,K].FenceSide and 4 = 4 then RenderFence(Land[I,K].Fence, dir_W, K, I);
-    if Land[I,K].FenceSide and 8 = 8 then RenderFence(Land[I,K].Fence, dir_S, K, I);
-  end;
+    for I := fClipRect.Top to fClipRect.Bottom do
+      for K := fClipRect.Left to fClipRect.Right do
+      begin
+        if Land[I,K].FenceSide and 1 = 1 then
+          RenderFence(Land[I,K].Fence, dir_N, K, I);
+        if Land[I,K].FenceSide and 2 = 2 then
+          RenderFence(Land[I,K].Fence, dir_E, K, I);
+        if Land[I,K].FenceSide and 4 = 4 then
+          RenderFence(Land[I,K].Fence, dir_W, K, I);
+        if Land[I,K].FenceSide and 8 = 8 then
+          RenderFence(Land[I,K].Fence, dir_S, K, I);
+      end;
 end;
 
 

@@ -70,41 +70,51 @@ function TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; P: array
 begin
   case CommandType of
     ct_SetMaxPlayer:    fMapInfo.LocCount := P[0];
+
     ct_SetTactic:       fMapInfo.MissionMode := mm_Tactic;
+
     ct_SetCurrPlayer:   fLastHand := P[0];
+
     ct_HumanPlayer:     begin
                           //Default human player can be human, obviously
                           fMapInfo.DefaultHuman     := P[0];
                           fMapInfo.CanBeHuman[P[0]] := True;
                         end;
+
     ct_UserPlayer:      if P[0] = -1 then
                           fMapInfo.CanBeHuman[fLastHand] := True
                         else
                           fMapInfo.CanBeHuman[P[0]] := True;
+
     ct_AIPlayer:       if P[0] = -1 then
                           fMapInfo.CanBeAI[fLastHand] := True
                         else
                           fMapInfo.CanBeAI[P[0]] := True;
+
     ct_AddGoal:         if fLastHand >= 0 then
                           //If the condition is time then P[3] is the time, else it is player ID
                           if TGoalCondition(P[0]) = gc_Time then
                             fMapInfo.AddGoal(glt_Victory, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), -1)
                           else
                             fMapInfo.AddGoal(glt_Victory, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), P[3]);
+
     ct_AddLostGoal:     if fLastHand >= 0 then
                           //If the condition is time then P[3] is the time, else it is player ID
                           if TGoalCondition(P[0]) = gc_Time then
                             fMapInfo.AddGoal(glt_Survive, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), -1)
                           else
                             fMapInfo.AddGoal(glt_Survive, fLastHand, TGoalCondition(P[0]), TGoalStatus(P[1]), P[3]);
+
     ct_SetAlliance:     if (fLastHand >= 0) and (P[0] <> fLastHand) then //Can't be enemies with yourself
                           if P[1] = 1 then
                             fMapInfo.Alliances[fLastHand, P[0]] := at_Ally
                           else
                             fMapInfo.Alliances[fLastHand, P[0]] := at_Enemy;
+
     ct_SetMapColor:     if fLastHand >= 0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           fMapInfo.FlagColors[fLastHand] := gRes.Palettes.DefaultPalette.Color32(P[0]);
+
     ct_SetRGBColor:     if fLastHand >= 0 then
                           fMapInfo.FlagColors[fLastHand] := P[0] or $FF000000;
   end;

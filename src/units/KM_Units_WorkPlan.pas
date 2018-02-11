@@ -134,7 +134,17 @@ var
   NewLoc: TKMPointDir;
   PlantAct: TPlantAct;
   Found: boolean;
+  HW: TKMHouseWoodcutters;
 begin
+  if (GatheringScript = gs_WoodCutterCut) OR (GatheringScript = gs_WoodCutterPlant) then
+  begin
+    HW := TKMHouseWoodcutters(aUnit.GetHome);
+    HW.ValidateFlagPoint; //Validate Cutting point. It will be set to a valid one if needed.
+
+    if HW.IsFlagPointSet then
+      aLoc := HW.FlagPoint;
+  end;
+
   with gTerrain do
   case GatheringScript of
     gs_StoneCutter:     Found := FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);

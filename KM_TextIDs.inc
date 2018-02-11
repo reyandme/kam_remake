@@ -457,6 +457,7 @@ TX_MAPED_MENU = 397; //Menu
 TX_MAPED_UNITS = 697; //Units
 TX_MAPED_OBJECTS = 398; //Objects
 TX_MAPED_VIEW_DEPOSISTS = 399; //Show deposits
+TX_MAPED_VIEW_OVERLAYS = 1128; //Show roads/fields/winefields
 TX_MAPED_VIEW_UNITS = 400; //Show units
 TX_MAPED_VIEW_HOUSES = 401; //Show houses
 TX_MAPED_VIEW_OBJECTS = 402; //Show objects
@@ -681,9 +682,9 @@ TX_LOBBY_UNABLE_RANDOM_LOCS = 566; //Unable to assign random locations
 TX_LOBBY_CANNOT_DISABLE_SPECTATORS = 781; //Cannot disable spectators: Spectators list must be empty
 TX_LOBBY_HOST_RIGHTS = 567; //Server has assigned hosting rights to you
 TX_LOBBY_GAME_STARTED = 568; //Game started
-TX_LOBBY_MAP_BUILD = 569; //Building Map
-TX_LOBBY_MAP_FIGHT = 570; //Fighting Map
-TX_LOBBY_MAP_COOP = 571; //Co-operative Map
+TX_LOBBY_MAP_BUILD = 569; //Building map
+TX_LOBBY_MAP_FIGHT = 570; //Fighting map
+TX_LOBBY_MAP_COOP = 571; //Co-operative map
 TX_LOBBY_MAP_SPECIAL = 572; //Special map
 TX_LOBBY_GAME_OPTIONS = 573; //Game options:
 TX_LOBBY_PEACETIME = 574; //Peacetime (minutes)
@@ -1119,3 +1120,11 @@ TX_MAPED_PLAYER_DELETE = 1114; //Button / Clear Player
 
 TX_MAPED_PLAYER_DELETE_TITLE = 1115; // Title / Clear Player
 TX_MAPED_PLAYER_DELETE_CONFIRM = 1116; //Are you sure you want to clear the player?
+
+TX_MENU_MAP_TYPE = 1122; // Map type
+TX_MENU_SP_MAP_SCENARIO = 1123; // Scenario map
+TX_MENU_MAP_PLAYABLE_AS_SP = 1124; // Playable as SP
+
+TX_MAPED_OBJ_DESC_CHOPPABLE = 1125; // Choppable tree
+TX_MAPED_OBJ_DESC_BLOCK_DIAG = 1126; // Blocks diagonal walking
+TX_MAPED_OBJ_DESC_BLOCK_ALL = 1127; // Blocks walking / building

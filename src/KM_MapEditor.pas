@@ -101,7 +101,7 @@ begin
   fTerrainPainter := TKMTerrainPainter.Create;
   fSelection := TKMSelection.Create(fTerrainPainter);
 
-  fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
+  fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlOverlays, mlDeposits];
 
   ResizeMapRect := KMRECT_ZERO;
 

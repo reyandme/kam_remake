@@ -14,7 +14,8 @@ uses
 
   function KMPathLength(aNodeList: TKMPointList): Single;
 
-  function GetHintWHotKey(aTextId, aHotkeyId: Integer): String;
+  function GetHintWHotKey(aTextId: Integer; aHotkeyStr: String): String; overload;
+  function GetHintWHotKey(aTextId, aHotkeyId: Integer): String; overload;
 
 	function GetShiftState(aButton: TMouseButton): TShiftState;
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
@@ -88,15 +89,20 @@ begin
 end;
 
 
+function GetHintWHotKey(aTextId: Integer; aHotkeyStr: String): String;
+begin
+  Result := gResTexts[aTextId];
+  aHotkeyStr := Trim(aHotkeyStr);
+  if aHotkeyStr <> '' then
+    Result := Result + Format(' (''%s'')', [aHotkeyStr]);
+end;
+
+
 function GetHintWHotKey(aTextId, aHotkeyId: Integer): String;
 var
   HotKeyStr: String;
 begin
-  Result := gResTexts[aTextId];
-  HotKeyStr := gResKeys.GetKeyNameById(aHotkeyId);
-  if HotKeyStr <> '' then
-    Result := Result + Format(' (''%s'')', [HotKeyStr]);
-
+  Result := GetHintWHotKey(aTextId, gResKeys.GetKeyNameById(aHotkeyId));
 end;
 
 

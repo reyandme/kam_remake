@@ -49,7 +49,7 @@ type
 implementation
 uses
   KM_Hand, KM_HandsCollection, KM_ResTexts, KM_GameCursor,
-  KM_InterfaceGame, KM_RenderUI, KM_Game;
+  KM_InterfaceGame, KM_InterfaceDefaults, KM_RenderUI, KM_Game, KM_Utils;
 
 
 { TKMMapEdTown }
@@ -75,7 +75,7 @@ begin
   for I := Low(TKMTownTab) to High(TKMTownTab) do
   begin
     Button_Town[I] := TKMButton.Create(Panel_Town, SMALL_PAD_W * Byte(I), 0, SMALL_TAB_W, SMALL_TAB_H, TabGlyph[I], TabRXX[I], bsGame);
-    Button_Town[I].Hint := gResTexts[TabHint[I]];
+    Button_Town[I].Hint := GetHintWHotKey(TabHint[I], MAPED_SUBMENU_TAB_HOTKEYS[Ord(I)]);
     Button_Town[I].OnClick := PageChange;
   end;
 
@@ -148,7 +148,8 @@ end;
 
 procedure TKMMapEdTown.ShowIndex(aIndex: Byte);
 begin
-  if aIndex in [Byte(Low(TKMTownTab))..Byte(High(TKMTownTab))] then
+  if (aIndex in [Byte(Low(TKMTownTab))..Byte(High(TKMTownTab))])
+    and Button_Town[TKMTownTab(aIndex)].Enabled then
   begin
     PageChange(nil); //Hide existing pages
     Show(TKMTownTab(aIndex));

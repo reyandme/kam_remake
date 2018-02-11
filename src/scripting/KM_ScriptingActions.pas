@@ -1314,7 +1314,7 @@ begin
       if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Corn) then
       begin
         Result := True;
-        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Corn);
+        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Corn, 0, False, True);
       end
       else
         LogWarning('Actions.GiveField', Format('Cannot give field for player %d at [%d:%d]', [aPlayer,X,Y]));
@@ -1457,7 +1457,7 @@ begin
       if gHands[aPlayer].CanAddFieldPlan(KMPoint(X, Y), ft_Wine) then
       begin
         Result := True;
-        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Wine);
+        gTerrain.SetField(KMPoint(X, Y), aPlayer, ft_Wine, 0, False, True);
       end
       else
         LogWarning('Actions.GiveWineField', Format('Cannot give winefield for player %d at [%d:%d]', [aPlayer,X,Y]));

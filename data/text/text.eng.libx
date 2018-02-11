@@ -555,9 +555,9 @@
 566:Unable to assign random locations
 567:Server has assigned hosting rights to you
 568:Game started
-569:Building Map
-570:Fighting Map
-571:Co-operative Map
+569:Building map
+570:Fighting map
+571:Co-operative map
 572:Special map
 573:Game options:
 574:Peacetime (minutes)
@@ -1070,3 +1070,10 @@
 1119:Disable music
 1120:Shuffle tracks
 1121:Shuffle tracks on/off
+1122:Map type
+1123:Scenario map
+1124:Playable as SP
+1125:Choppable tree
+1126:Blocks diagonal walking
+1127:Blocks walking and building
+1128:Show roads/fields/winefields
