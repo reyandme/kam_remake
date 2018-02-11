@@ -3,7 +3,7 @@ unit KM_Maps;
 interface
 uses
   Classes, SyncObjs,
-  KM_Defaults;
+  KM_CommonClasses, KM_Defaults;
 
 
 type
@@ -38,8 +38,10 @@ type
     fSizeText: string;
     procedure ResetInfo;
     procedure LoadTXTInfo;
-    procedure LoadFromFile(const aPath: string);
-    procedure SaveToFile(const aPath: string);
+    procedure LoadFromStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
+    procedure LoadFromFile(const aPath: UnicodeString);
+    procedure SaveToStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
+    procedure SaveToFile(const aPath: UnicodeString);
     function GetSizeText: string;
     function DetermineReadmeFilePath: String;
   public
@@ -57,6 +59,7 @@ type
     Author, SmallDesc, BigDesc: UnicodeString;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
+    IsPlayableAsSP: Boolean; //Is MP map playable as SP map ?
     IsFavourite: Boolean;
     BlockTeamSelection: Boolean;
     BlockPeacetime: Boolean;
@@ -87,6 +90,10 @@ type
     function ViewReadme: Boolean;
     function GetLobbyColor: Cardinal;
     function IsFilenameEndMatchHash: Boolean;
+    function IsSinglePlayer: Boolean;
+    function IsMultiplayer: Boolean;
+    function IsNormalMission: Boolean;
+    function IsTacticMission: Boolean;
   end;
 
 
@@ -177,10 +184,10 @@ type
 
 implementation
 uses
-  SysUtils, StrUtils, Math, KromUtils,
+  SysUtils, StrUtils, Math, KromShellUtils, KromUtils,
   KM_GameApp, KM_ResTexts, KM_FileIO,
   KM_MissionScript_Info, KM_Scripting,
-  KM_CommonClasses, KM_CommonUtils;
+  KM_Utils, KM_CommonUtils, KM_Log;
 
 
 const
@@ -421,7 +428,8 @@ begin
         BlockTeamSelection := True;
         BlockFullMapPreview := True;
       end;
-      if SameText(st, 'SetSpecial')then IsSpecial := True;
+      if SameText(st, 'SetSpecial') then IsSpecial := True;
+      if SameText(st, 'PlayableAsSP') then IsPlayableAsSP := True;
       if SameText(st, 'BlockPeacetime') then BlockPeacetime := True;
       if SameText(st, 'BlockTeamSelection') then BlockTeamSelection := True;
       if SameText(st, 'BlockFullMapPreview') then BlockFullMapPreview := True;
@@ -467,6 +475,7 @@ var I, K: Integer;
 begin
   IsCoop := False;
   IsSpecial := False;
+  IsPlayableAsSP := False;
   MissionMode := mm_Normal;
   DefaultHuman := 0;
   Author := '';
@@ -490,13 +499,14 @@ begin
 end;
 
 
-procedure TKMapInfo.LoadFromFile(const aPath: string);
+procedure TKMapInfo.LoadFromStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
 var
   S: TKMemoryStream;
 begin
-  if not FileExists(aPath) then Exit;
+  Assert(aStreamObj is TKMemoryStream, 'Wrong stream object class');
 
-  S := TKMemoryStream.Create;
+  S := TKMemoryStream(aStreamObj);
+
   S.LoadFromFile(aPath);
 
   //Internal properties
@@ -512,21 +522,52 @@ begin
   S.ReadW(SmallDesc);
   S.Read(IsCoop);
   S.Read(IsSpecial);
+  S.Read(IsPlayableAsSP);
   S.Read(CanBeHuman, SizeOf(CanBeHuman));
   S.Read(BlockTeamSelection);
   S.Read(BlockPeacetime);
   S.Read(BlockFullMapPreview);
 
   IsFavourite := gGameApp.GameSettings.FavouriteMaps.Contains(fCRC);
-
-  //Other properties are not saved, they are fast to reload
-  S.Free;
 end;
 
 
-procedure TKMapInfo.SaveToFile(const aPath: string);
+procedure TKMapInfo.LoadFromFile(const aPath: UnicodeString);
 var
   S: TKMemoryStream;
+  ErrorStr: UnicodeString;
+begin
+  if not FileExists(aPath) then Exit;
+
+  S := TKMemoryStream.Create;
+  try
+    //Try to load map cache up to 3 times (in case its updating by other thread
+    //its much easier and working well, then synchronize threads
+    if not TryExecuteMethod(TObject(S), aPath, 'LoadFromStreamObj', ErrorStr, LoadFromStreamObj) then
+      gLog.AddTime(ErrorStr);
+  finally
+    //Other properties are not saved, they are fast to reload
+    S.Free;
+  end;
+end;
+
+
+procedure TKMapInfo.SaveToStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
+var
+  S: TKMemoryStream;
+begin
+  Assert(aStreamObj is TKMemoryStream, 'Wrong stream object class');
+
+  S := TKMemoryStream(aStreamObj);
+
+  S.SaveToFile(aPath);
+end;
+
+
+procedure TKMapInfo.SaveToFile(const aPath: UnicodeString);
+var
+  S: TKMemoryStream;
+  ErrorStr: UnicodeString;
 begin
   S := TKMemoryStream.Create;
   try
@@ -543,14 +584,18 @@ begin
     S.WriteW(SmallDesc);
     S.Write(IsCoop);
     S.Write(IsSpecial);
+    S.Write(IsPlayableAsSP);
     S.Write(CanBeHuman, SizeOf(CanBeHuman));
     S.Write(BlockTeamSelection);
     S.Write(BlockPeacetime);
     S.Write(BlockFullMapPreview);
 
-    //Other properties from text file are not saved, they are fast to reload
-    S.SaveToFile(aPath);
+    //Try to save map cache up to 3 times (in case its updating by other thread
+    //its much easier and working well, then synchronize threads
+    if not TryExecuteMethod(TObject(S), aPath, 'SaveToStreamObj', ErrorStr, SaveToStreamObj) then
+      gLog.AddTime(ErrorStr);
   finally
+    //Other properties from text file are not saved, they are fast to reload
     S.Free;
   end;
 end;
@@ -601,6 +646,31 @@ begin
     and (fFileName[Length(FileName)-8] = '_')
     and (IntToHex(fCRC, 8) = RightStr(fFileName, 8));
 end;
+
+
+function TKMapInfo.IsSinglePlayer: Boolean;
+begin
+  Result := (fMapFolder = mfSP) or IsPlayableAsSP;
+end;
+
+
+function TKMapInfo.IsMultiplayer: Boolean;
+begin
+  Result := fMapFolder <> mfSP;
+end;
+
+
+function TKMapInfo.IsNormalMission: Boolean;
+begin
+  Result := MissionMode = mm_Normal;
+end;
+
+
+function TKMapInfo.IsTacticMission: Boolean;
+begin
+  Result := MissionMode = mm_Tactic;
+end;
+
 
 
 function TKMapInfo.FileNameWithoutHash: UnicodeString;

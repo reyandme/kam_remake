@@ -130,7 +130,7 @@ type
 
     procedure AddRoadToList(aLoc: TKMPoint);
     procedure AddRoad(aLoc: TKMPoint);
-    procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0);
+    procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0; aKeepOldObject: Boolean = False);
     procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound: Boolean);
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
@@ -175,7 +175,8 @@ uses
   Classes, SysUtils, KromUtils, Math,
   KM_Game, KM_Terrain, KM_HouseBarracks, KM_HouseTownHall,
   KM_HandsCollection, KM_Sound, KM_AIFields,
-  KM_Resource, KM_ResSound, KM_ResTexts, KM_ScriptingEvents;
+  KM_Resource, KM_ResSound, KM_ResTexts, KM_ScriptingEvents,
+  KM_GameTypes;
 
 
 const
@@ -276,7 +277,7 @@ begin
   fStats        := TKMHandStats.Create;
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
-  fDeliveries   := TKMHandLogistics.Create;
+  fDeliveries   := TKMHandLogistics.Create(fHandIndex);
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(aHandIndex);
   fUnitGroups   := TKMUnitGroups.Create;
@@ -397,7 +398,7 @@ begin
   if not (aUnit is TKMUnitWarrior) then
     gScriptEvents.ProcUnitTrained(aUnit);
 
-  fStats.UnitCreated(aUnit.UnitType, True);
+  fStats.UnitCreated(aUnit.UnitType, True, (aUnit.InHouse <> nil) and (aUnit.InHouse.HouseType = ht_TownHall));
 end;
 
 
@@ -521,7 +522,7 @@ begin
 end;
 
 
-procedure TKMHand.AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0);
+procedure TKMHand.AddField(aLoc: TKMPoint; aFieldType: TFieldType; aStage: Byte = 0; aKeepOldObject: Boolean = False);
 var IsFieldSet: Boolean;
 begin
   IsFieldSet := False;
@@ -530,20 +531,20 @@ begin
   begin
     if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 58, 59) then
     begin
-      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True, aKeepOldObject);
       IsFieldSet := True;
     end;
   end else if (aFieldType = ft_Wine) and not gTerrain.TileIsWineField(aLoc) then
   begin
     if InRange(gTerrain.Land[aLoc.Y,aLoc.X].Obj, 54, 57) then
     begin
-      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True);
+      gTerrain.SetField(aLoc, fHandIndex, aFieldType, gTerrain.Land[aLoc.Y,aLoc.X].Obj - 54, True, aKeepOldObject);
       IsFieldSet := True;
     end;
   end;
 
   if not IsFieldSet then
-    gTerrain.SetField(aLoc, fHandIndex, aFieldType, aStage, True);
+    gTerrain.SetField(aLoc, fHandIndex, aFieldType, aStage, True, aKeepOldObject);
 end;
 
 
@@ -882,6 +883,7 @@ begin
   if Group <> nil then
     fUnitGroups.RemGroup(Group);
 end;
+
 
 //This is called immediately when the user clicks erase on a field plan.
 //We know that an erase command is queued and will be processed in some ticks,

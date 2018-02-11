@@ -2,7 +2,7 @@ unit KM_GUIMapEdTerrainHeights;
 {$I KaM_Remake.inc}
 interface
 uses
-   Math, SysUtils,
+   Classes, Math, SysUtils,
    KM_Controls, KM_Defaults;
 
 
@@ -27,14 +27,17 @@ type
 
     procedure Show;
     procedure Hide;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer; var aHandled: Boolean);
     function Visible: Boolean;
   end;
 
 
 implementation
 uses
-  KM_ResFonts, KM_ResTexts, KM_GameCursor, KM_RenderUI,
-  KM_InterfaceGame;
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+  KM_Main, KM_ResFonts, KM_ResTexts, KM_GameCursor, KM_RenderUI,
+  KM_InterfaceGame, KM_Utils;
 
 
 { TKMMapEdTerrainHeights }
@@ -54,15 +57,15 @@ begin
 
   HeightSize          := TKMTrackBar.Create(Panel_Heights, 0, 60, TB_WIDTH, 1, 15); //1..15(4bit) for size
   HeightSize.Caption  := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SIZE];
-  HeightSize.Hint     := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT];
+  HeightSize.Hint     := GetHintWHotKey(TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT, 'Ctrl + MouseWheel');
   HeightSize.OnChange := HeightChange;
   HeightSlope           := TKMTrackBar.Create(Panel_Heights, 0, 115, TB_WIDTH, 1, 15); //1..15(4bit) for slope shape
   HeightSlope.Caption   := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SLOPE];
-  HeightSlope.Hint      := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SLOPE_HINT];
+  HeightSlope.Hint      := GetHintWHotKey(TX_MAPED_TERRAIN_HEIGHTS_SLOPE_HINT, 'Alt + MouseWheel');
   HeightSlope.OnChange  := HeightChange;
   HeightSpeed           := TKMTrackBar.Create(Panel_Heights, 0, 170, TB_WIDTH, 1, 15); //1..15(4bit) for speed
   HeightSpeed.Caption   := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SPEED];
-  HeightSpeed.Hint      := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SPEED_HINT];
+  HeightSpeed.Hint      := GetHintWHotKey(TX_MAPED_TERRAIN_HEIGHTS_SPEED_HINT, 'Shift + MouseWheel');
   HeightSpeed.OnChange  := HeightChange;
 
   HeightElevate             := TKMButtonFlat.Create(Panel_Heights, 0, 225, TB_WIDTH, 20, 0);
@@ -117,7 +120,37 @@ procedure TKMMapEdTerrainHeights.Show;
 begin
   HeightChange(HeightCircle);
   HeightChange(HeightElevate);
+  gMain.FormMain.SuppressAltForMenu := True;
   Panel_Heights.Show;
+end;
+
+
+procedure TKMMapEdTerrainHeights.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer; var aHandled: Boolean);
+begin
+  if not aHandled and Visible then
+  begin
+    // Do not use ssCtrl in Shift here, as it can sometimes be wrong values inside Shift (ssShift instead of ssCtrl)
+    if (GetKeyState(VK_CONTROL) < 0) then
+    begin
+      HeightSize.Position := Max(0, HeightSize.Position - (WheelDelta div 100)); //can't set negative number
+      aHandled := True;
+    end;
+
+    if (GetKeyState(VK_MENU) < 0) then
+    begin
+      HeightSlope.Position := Max(0, HeightSlope.Position - (WheelDelta div 100)); //can't set negative number
+      aHandled := True;
+    end;
+
+    if (GetKeyState(VK_SHIFT) < 0) then
+    begin
+      HeightSpeed.Position := Max(0, HeightSpeed.Position - (WheelDelta div 100)); //can't set negative number
+      aHandled := True;
+    end;
+
+    if aHandled then
+      Show;
+  end;
 end;
 
 
@@ -130,6 +163,7 @@ end;
 procedure TKMMapEdTerrainHeights.Hide;
 begin
   Panel_Heights.Hide;
+  gMain.FormMain.SuppressAltForMenu := False;
 end;
 
 

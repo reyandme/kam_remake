@@ -139,6 +139,7 @@ type
     fWareDistribution: TKMWareDistribution;
 
     fMenu_FavouriteMPMapsStr: UnicodeString;
+    fMenu_MapSPType: Byte;
     fMenu_ReplaysType: Byte;
     fMenu_MapEdMapType: Byte;
     fMenu_MapEdNewMapX: Word;
@@ -149,7 +150,10 @@ type
     fMenu_CampaignName: UnicodeString;
     fMenu_ReplaySPSaveName: UnicodeString;
     fMenu_ReplayMPSaveName: UnicodeString;
-    fMenu_SPMapCRC: Cardinal;
+    fMenu_SPScenarioMapCRC: Cardinal;
+    fMenu_SPMissionMapCRC: Cardinal;
+    fMenu_SPTacticMapCRC: Cardinal;
+    fMenu_SPSpecialMapCRC: Cardinal;
     fMenu_SPSaveFileName: UnicodeString;
     fMenu_LobbyMapType: Byte;
 
@@ -189,6 +193,7 @@ type
     procedure SetFlashOnMessage(aValue: Boolean);
 
     procedure SetMenuFavouriteMPMapsStr(const aValue: UnicodeString);
+    procedure SetMenuMapSPType(aValue: Byte);
     procedure SetMenuReplaysType(aValue: Byte);
     procedure SetMenuMapEdMapType(aValue: Byte);
     procedure SetMenuMapEdNewMapX(aValue: Word);
@@ -199,7 +204,10 @@ type
     procedure SetMenuCampaignName(const aValue: UnicodeString);
     procedure SetMenuReplaySPSaveName(const aValue: UnicodeString);
     procedure SetMenuReplayMPSaveName(const aValue: UnicodeString);
-    procedure SetMenuSPMapCRC(aValue: Cardinal);
+    procedure SetMenuSPScenarioMapCRC(aValue: Cardinal);
+    procedure SetMenuSPMissionMapCRC(aValue: Cardinal);
+    procedure SetMenuSPTacticMapCRC(aValue: Cardinal);
+    procedure SetMenuSPSpecialMapCRC(aValue: Cardinal);
     procedure SetMenuSPSaveFileName(const aValue: UnicodeString);
     procedure SetMenuLobbyMapType(aValue: Byte);
   protected
@@ -251,6 +259,7 @@ type
     property WareDistribution: TKMWareDistribution read fWareDistribution;
 
     property MenuFavouriteMPMapsStr: UnicodeString read fMenu_FavouriteMPMapsStr write SetMenuFavouriteMPMapsStr;
+    property MenuMapSPType: Byte read fMenu_MapSPType write SetMenuMapSPType;
     property MenuReplaysType: Byte read fMenu_ReplaysType write SetMenuReplaysType;
     property MenuMapEdMapType: Byte read fMenu_MapEdMapType write SetMenuMapEdMapType;
     property MenuMapEdNewMapX: Word read fMenu_MapEdNewMapX write SetMenuMapEdNewMapX;
@@ -261,7 +270,10 @@ type
     property MenuCampaignName: UnicodeString read fMenu_CampaignName write SetMenuCampaignName;
     property MenuReplaySPSaveName: UnicodeString read fMenu_ReplaySPSaveName write SetMenuReplaySPSaveName;
     property MenuReplayMPSaveName: UnicodeString read fMenu_ReplayMPSaveName write SetMenuReplayMPSaveName;
-    property MenuSPMapCRC: Cardinal read fMenu_SPMapCRC write SetMenuSPMapCRC;
+    property MenuSPScenarioMapCRC: Cardinal read fMenu_SPScenarioMapCRC write SetMenuSPScenarioMapCRC;
+    property MenuSPMissionMapCRC: Cardinal read fMenu_SPMissionMapCRC write SetMenuSPMissionMapCRC;
+    property MenuSPTacticMapCRC: Cardinal read fMenu_SPTacticMapCRC write SetMenuSPTacticMapCRC;
+    property MenuSPSpecialMapCRC: Cardinal read fMenu_SPSpecialMapCRC write SetMenuSPSpecialMapCRC;
     property MenuSPSaveFileName: UnicodeString read fMenu_SPSaveFileName write SetMenuSPSaveFileName;
     property MenuLobbyMapType: Byte read fMenu_LobbyMapType write SetMenuLobbyMapType;
 
@@ -503,6 +515,7 @@ begin
     fMenu_FavouriteMPMapsStr   := F.ReadString('Menu', 'FavouriteMaps', '');
     fFavouriteMaps.LoadFromString(fMenu_FavouriteMPMapsStr);
 
+    fMenu_MapSPType         := F.ReadInteger('Menu', 'MapSPType',  0);
     fMenu_ReplaysType       := F.ReadInteger('Menu', 'ReplaysType',  0);
     fMenu_MapEdMapType      := F.ReadInteger('Menu', 'MapEdMapType', 0);
     fMenu_MapEdNewMapX      := F.ReadInteger('Menu', 'MapEdNewMapX', 64);
@@ -513,7 +526,10 @@ begin
     fMenu_CampaignName      := F.ReadString('Menu', 'CampaignName', '');
     fMenu_ReplaySPSaveName  := F.ReadString('Menu', 'ReplaySPSaveName', '');
     fMenu_ReplayMPSaveName  := F.ReadString('Menu', 'ReplayMPSaveName', '');
-    fMenu_SPMapCRC          := StrToInt64(F.ReadString('Menu', 'SPMapCRC', '0'));
+    fMenu_SPScenarioMapCRC  := StrToInt64(F.ReadString('Menu', 'SPScenarioMapCRC', '0'));
+    fMenu_SPMissionMapCRC   := StrToInt64(F.ReadString('Menu', 'SPMissionMapCRC', '0'));
+    fMenu_SPTacticMapCRC    := StrToInt64(F.ReadString('Menu', 'SPTacticMapCRC',  '0'));
+    fMenu_SPSpecialMapCRC   := StrToInt64(F.ReadString('Menu', 'SPSpecialMapCRC', '0'));
     fMenu_SPSaveFileName    := F.ReadString('Menu', 'SPSaveFileName', '');
     fMenu_LobbyMapType      := F.ReadInteger('Menu', 'LobbyMapType', 0);
   finally
@@ -579,6 +595,7 @@ begin
     F.WriteInteger('Server','PingMeasurementInterval',      fPingInterval);
 
     F.WriteString ('Menu',  'FavouriteMaps',      fMenu_FavouriteMPMapsStr);
+    F.WriteInteger('Menu',  'MapSPType',          fMenu_MapSPType);
     F.WriteInteger('Menu',  'ReplaysType',        fMenu_ReplaysType);
     F.WriteInteger('Menu',  'MapEdMapType',       fMenu_MapEdMapType);
     F.WriteInteger('Menu',  'MapEdNewMapX',       fMenu_MapEdNewMapX);
@@ -589,7 +606,10 @@ begin
     F.WriteString ('Menu',  'CampaignName',       fMenu_CampaignName);
     F.WriteString ('Menu',  'ReplaySPSaveName',   fMenu_ReplaySPSaveName);
     F.WriteString ('Menu',  'ReplayMPSaveName',   fMenu_ReplayMPSaveName);
-    F.WriteString ('Menu',  'SPMapCRC',           IntToStr(fMenu_SPMapCRC));
+    F.WriteString ('Menu',  'SPScenarioMapCRC',   IntToStr(fMenu_SPScenarioMapCRC));
+    F.WriteString ('Menu',  'SPMissionMapCRC',    IntToStr(fMenu_SPMissionMapCRC));
+    F.WriteString ('Menu',  'SPTacticMapCRC',     IntToStr(fMenu_SPTacticMapCRC));
+    F.WriteString ('Menu',  'SPSpecialMapCRC',    IntToStr(fMenu_SPSpecialMapCRC));
     F.WriteString ('Menu',  'SPSaveFileName',     fMenu_SPSaveFileName);
     F.WriteInteger('Menu',  'LobbyMapType',       fMenu_LobbyMapType);
 
@@ -627,6 +647,13 @@ end;
 procedure TGameSettings.SetMenuFavouriteMPMapsStr(const aValue: UnicodeString);
 begin
   fMenu_FavouriteMPMapsStr := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuMapSPType(aValue: Byte);
+begin
+  fMenu_MapSPType := aValue;
   Changed;
 end;
 
@@ -702,9 +729,30 @@ begin
 end;
 
 
-procedure TGameSettings.SetMenuSPMapCRC(aValue: Cardinal);
+procedure TGameSettings.SetMenuSPScenarioMapCRC(aValue: Cardinal);
 begin
-  fMenu_SPMapCRC := aValue;
+  fMenu_SPScenarioMapCRC := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuSPMissionMapCRC(aValue: Cardinal);
+begin
+  fMenu_SPMissionMapCRC := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuSPTacticMapCRC(aValue: Cardinal);
+begin
+  fMenu_SPTacticMapCRC := aValue;
+  Changed;
+end;
+
+
+procedure TGameSettings.SetMenuSPSpecialMapCRC(aValue: Cardinal);
+begin
+  fMenu_SPSpecialMapCRC := aValue;
   Changed;
 end;
 

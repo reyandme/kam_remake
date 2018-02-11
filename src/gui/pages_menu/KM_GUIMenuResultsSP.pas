@@ -4,7 +4,8 @@ interface
 uses
   Controls, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_Campaigns, KM_Game;
+  KM_InterfaceDefaults, KM_Campaigns, KM_Game,
+  KM_GameTypes;
 
 
 type
@@ -310,7 +311,7 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,62,140,900,20,NO_TEXT,fnt_Metal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,RESULTS_X_PADDING,140,900,20,NO_TEXT,fnt_Metal,taCenter);
     Label_Results.Anchors := [anLeft];
 
     Panel_Stats := TKMPanel.Create(Panel_Results, 30, 216, 360, 354);
@@ -392,7 +393,7 @@ begin
     Button_MoreStats.TexOffsetX := -LEGEND_WIDTH div 2 + 14;
     Button_MoreStats.TexOffsetY := 6;
     Button_MoreStats.Anchors := [anLeft];
-    Button_MoreStats.Caption := 'More|statistics'; //Todo translate
+    Button_MoreStats.Caption := gResTexts[TX_RESULTS_MORE_STATS];
     Button_MoreStats.CapOffsetX := 12;
     Button_MoreStats.CapOffsetY := -20;
     Button_MoreStats.OnClick := MoreStatsClick;

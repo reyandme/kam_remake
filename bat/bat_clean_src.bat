@@ -1,3 +1,4 @@
+@echo off
 @REM Delete folders recursively
 @REM Its easier to delete folder recursively from project root folder
 cd ..

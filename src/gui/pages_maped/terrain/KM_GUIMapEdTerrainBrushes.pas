@@ -35,7 +35,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   KM_ResFonts, KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI,
-  KM_TerrainPainter, KM_InterfaceGame;
+  KM_TerrainPainter, KM_InterfaceGame, KM_Utils;
 
 
 { TKMMapEdTerrainBrushes }
@@ -60,6 +60,7 @@ begin
   BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 0, 32);
   BrushSize.Position := 4;
   BrushSize.OnChange := BrushChange;
+  BrushSize.Hint := GetHintWHotKey(TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT, 'Ctrl + MouseWheel');
   BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 106, 28, 24, 24, 592);
   BrushCircle.Hint := gResTexts[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
   BrushCircle.OnClick := BrushChange;
@@ -138,8 +139,7 @@ end;
 
 procedure TKMMapEdTerrainBrushes.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer; var aHandled: Boolean);
 begin
-  aHandled := False;
-  if GetKeyState(VK_CONTROL) < 0 then // Do not use ssCtrl in SHift here, as it can sometimes be wrong values inside Shift (ssShift instead of ssCtrl)
+  if not aHandled and Visible and (GetKeyState(VK_CONTROL) < 0) then // Do not use ssCtrl in SHift here, as it can sometimes be wrong values inside Shift (ssShift instead of ssCtrl)
   begin
     BrushSize.Position := Max(0, BrushSize.Position - (WheelDelta div 100)); //can't set negative number
     BrushChange(nil);

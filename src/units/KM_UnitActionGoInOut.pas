@@ -116,7 +116,7 @@ begin
   end;
 
   if (fDirection = gd_GoOutside) and fUnit.Visible then
-    fUnit.SetInHouse(nil); //We are not in any house now
+    fUnit.InHouse := nil; //We are not in any house now
 
   inherited;
 end;
@@ -374,12 +374,13 @@ begin
       if Assigned(OnWalkedIn) then
         OnWalkedIn;
 
-      if fHouse <> nil then fUnit.SetInHouse(fHouse);
+      if fHouse <> nil then
+        fUnit.InHouse := fHouse;
     end
     else
     begin
       fUnit.PositionF := KMPointF(fStreet);
-      fUnit.SetInHouse(nil); //We are not in a house any longer
+      fUnit.InHouse := nil; //We are not in a house any longer
       if Assigned(OnWalkedOut) then
         OnWalkedOut;
     end;

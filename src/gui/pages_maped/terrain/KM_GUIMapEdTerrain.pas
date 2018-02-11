@@ -3,7 +3,7 @@ unit KM_GUIMapEdTerrain;
 interface
 uses
    Classes, Math, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics,
+   KM_Controls, KM_Defaults, KM_Pics, KM_CommonTypes,
    KM_GUIMapEdTerrainBrushes,
    KM_GUIMapEdTerrainHeights,
    KM_GUIMapEdTerrainTiles,
@@ -33,13 +33,14 @@ type
     Button_TerrainUndo: TKMButton;
     Button_TerrainRedo: TKMButton;
   public
-    constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
+    constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent; aHideAllPages: TEvent);
     destructor Destroy; override;
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer; var aHandled: Boolean);
 
     property GuiTiles: TKMMapEdTerrainTiles read fGuiTiles;
+    property GuiSelection: TKMMapEdTerrainSelection read fGuiSelection;
 
     procedure Show(aTab: TKMTerrainTab);
     procedure ShowIndex(aIndex: Byte);
@@ -53,11 +54,11 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI, KM_InterfaceGame;
+  KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI, KM_InterfaceGame, KM_InterfaceDefaults, KM_Utils;
 
 
 { TKMMapEdTerrain }
-constructor TKMMapEdTerrain.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent);
+constructor TKMMapEdTerrain.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent; aHideAllPages: TEvent);
 const
   BtnGlyph: array [TKMTerrainTab] of Word = (383, 388, 382, 385, 384);
   BtnHint: array [TKMTerrainTab] of Word = (
@@ -77,21 +78,21 @@ begin
     for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
     begin
       Button_Terrain[I] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * Byte(I), 0, SMALL_TAB_W, SMALL_TAB_H, BtnGlyph[I], rxGui, bsGame);
-      Button_Terrain[I].Hint := gResTexts[BtnHint[I]];
+      Button_Terrain[I].Hint := GetHintWHotKey(BtnHint[I], MAPED_SUBMENU_TAB_HOTKEYS[Ord(I)]);
       Button_Terrain[I].OnClick := PageChange;
     end;
 
     Button_TerrainUndo := TKMButton.Create(Panel_Terrain, 155, 0, 15, 26, '<', bsGame);
-    Button_TerrainUndo.Hint := gResTexts[TX_MAPED_UNDO_HINT];
+    Button_TerrainUndo.Hint := gResTexts[TX_MAPED_UNDO_HINT]+ ' (''Ctrl+Z'')';
     Button_TerrainUndo.OnClick := UnRedoClick;
     Button_TerrainRedo := TKMButton.Create(Panel_Terrain, 170, 0, 15, 26, '>', bsGame);
-    Button_TerrainRedo.Hint := gResTexts[TX_MAPED_REDO_HINT];
+    Button_TerrainRedo.Hint := gResTexts[TX_MAPED_REDO_HINT] + ' (''Ctrl+Y'' or ''Ctrl+Shift+Z'')';
     Button_TerrainRedo.OnClick := UnRedoClick;
 
     fGuiBrushes := TKMMapEdTerrainBrushes.Create(Panel_Terrain);
     fGuiHeights := TKMMapEdTerrainHeights.Create(Panel_Terrain);
     fGuiTiles := TKMMapEdTerrainTiles.Create(Panel_Terrain);
-    fGuiObjects := TKMMapEdTerrainObjects.Create(Panel_Terrain);
+    fGuiObjects := TKMMapEdTerrainObjects.Create(Panel_Terrain, aHideAllPages);
     fGuiSelection := TKMMapEdTerrainSelection.Create(Panel_Terrain);
 end;
 
@@ -126,7 +127,7 @@ begin
     if (ssCtrl in Shift) and (Key = Ord('Z')) then
     begin
       if ssShift in Shift then
-        Button_TerrainUndo.Click //Ctrl+Shift+Z = Redo
+        Button_TerrainRedo.Click //Ctrl+Shift+Z = Redo
       else
         Button_TerrainUndo.Click; //Ctrl+Z = Undo
       aHandled := True;
@@ -139,6 +140,7 @@ end;
 procedure TKMMapEdTerrain.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer; var aHandled: Boolean);
 begin
   fGuiBrushes.MouseWheel(Shift, WheelDelta, X, Y, aHandled);
+  fGuiHeights.MouseWheel(Shift, WheelDelta, X, Y, aHandled);
 end;
 
 
@@ -196,7 +198,8 @@ end;
 
 procedure TKMMapEdTerrain.ShowIndex(aIndex: Byte);
 begin
-  if aIndex in [Byte(Low(TKMTerrainTab))..Byte(High(TKMTerrainTab))] then
+  if (aIndex in [Byte(Low(TKMTerrainTab))..Byte(High(TKMTerrainTab))])
+    and Button_Terrain[TKMTerrainTab(aIndex)].Enabled then
     Show(TKMTerrainTab(aIndex));
 end;
 

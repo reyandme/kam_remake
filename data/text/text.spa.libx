@@ -156,8 +156,8 @@
 157:Aguante
 158:Girar a la izquierda
 159:Girar a la derecha
-160:¡Asalto! ('a')
-161:Enviar tropa. ('d')
+160:¡Asalto!
+161:Enviar tropa
 162:Abastecer con alimentos a la tropa.
 163:Iniciar asalto.
 164:Agregar fila.
@@ -608,9 +608,9 @@
 619:Tiempo de paz restante: %s
 620:El tiempo de paz se ha terminado. ¡Prepara tus armas!
 621:Tiempo de juego:|%s
-622:Parar tropas ('%s')
-623:Unir tropas ('%s')
-624:Separar tropas ('%s')
+622:Parar tropas
+623:Unir tropas
+624:Separar tropas
 625:Ver Repeticiones
 626:Ver Repetición
 627:Formato no válido %s
@@ -775,3 +775,6 @@
 829:El pedido ha sido completado
 830:Fuent. asiáticas
 831:Desplazar fuera las descargas
+1118:Mapas Multijugador
+1119:Apagar música
+1120:Músi. Aleatoria

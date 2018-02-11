@@ -46,7 +46,7 @@ type
 implementation
 uses
   KM_Hand, KM_HandsCollection, KM_ResTexts, KM_GameCursor,
-  KM_RenderUI, KM_InterfaceGame;
+  KM_RenderUI, KM_InterfaceGame, KM_InterfaceDefaults, KM_Utils;
 
 
 { TKMMapEdPlayer }
@@ -73,7 +73,7 @@ begin
   for PT := Low(TKMPlayerTab) to High(TKMPlayerTab) do
   begin
     Button_Player[PT] := TKMButton.Create(Panel_Player, SMALL_PAD_W * Byte(PT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[PT], TabRXX[PT], bsGame);
-    Button_Player[PT].Hint := gResTexts[TabHint[PT]];
+    Button_Player[PT].Hint := GetHintWHotKey(TabHint[PT], MAPED_SUBMENU_TAB_HOTKEYS[Ord(PT)]);
     Button_Player[PT].OnClick := PageChange;
   end;
 
@@ -153,7 +153,8 @@ end;
 
 procedure TKMMapEdPlayer.ShowIndex(aIndex: Byte);
 begin
-  if aIndex in [Byte(Low(TKMPlayerTab))..Byte(High(TKMPlayerTab))] then
+  if (aIndex in [Byte(Low(TKMPlayerTab))..Byte(High(TKMPlayerTab))])
+    and Button_Player[TKMPlayerTab(aIndex)].Enabled then
   begin
     PageChange(nil); //Hide existing pages
     Show(TKMPlayerTab(aIndex));

@@ -88,8 +88,8 @@ begin
    0: begin
         Thought := th_Eat;
         if (GetHome <> nil) and not GetHome.IsDestroyed then GetHome.SetState(hst_Empty);
-        if not Visible and (GetInHouse <> nil) and not GetInHouse.IsDestroyed then
-          SetActionGoIn(ua_Walk, gd_GoOutside, GetInHouse) //Walk outside the house
+        if not Visible and (InHouse <> nil) and not InHouse.IsDestroyed then
+          SetActionGoIn(ua_Walk, gd_GoOutside, InHouse) //Walk outside the house
         else
           SetActionLockedStay(0, ua_Walk); //Skip this step
       end;
@@ -107,7 +107,8 @@ begin
    3: //Typically when unit comes to Inn he is at 13%
       //Order is Bread-Sausages-Wine-Fish
       //We allow unit to eat foods until he is over 90% condition
-      if (Condition < UNIT_MAX_CONDITION * 0.9) and (fInn.CheckResIn(wt_Bread) > 0) then
+      if (Condition < UNIT_MAX_CONDITION * UNIT_STUFFED_CONDITION_LVL)
+        and (fInn.CheckResIn(wt_Bread) > 0) then
       begin
         fInn.ResTakeFromIn(wt_Bread);
         gHands[fUnit.Owner].Stats.WareConsumed(wt_Bread);
@@ -116,7 +117,8 @@ begin
         fInn.UpdateEater(fPlace, wt_Bread);
       end else
         SetActionLockedStay(0, ua_Walk);
-   4: if (Condition < UNIT_MAX_CONDITION * 0.9) and (fInn.CheckResIn(wt_Sausages) > 0) then
+   4: if (Condition < UNIT_MAX_CONDITION * UNIT_STUFFED_CONDITION_LVL)
+        and (fInn.CheckResIn(wt_Sausages) > 0) then
       begin
         fInn.ResTakeFromIn(wt_Sausages);
         gHands[fUnit.Owner].Stats.WareConsumed(wt_Sausages);
@@ -125,7 +127,8 @@ begin
         fInn.UpdateEater(fPlace, wt_Sausages);
       end else
         SetActionLockedStay(0, ua_Walk);
-   5: if (Condition < UNIT_MAX_CONDITION * 0.9) and (fInn.CheckResIn(wt_Wine) > 0) then
+   5: if (Condition < UNIT_MAX_CONDITION * UNIT_STUFFED_CONDITION_LVL)
+        and (fInn.CheckResIn(wt_Wine) > 0) then
       begin
         fInn.ResTakeFromIn(wt_Wine);
         gHands[fUnit.Owner].Stats.WareConsumed(wt_Wine);
@@ -134,7 +137,8 @@ begin
         fInn.UpdateEater(fPlace, wt_Wine);
       end else
         SetActionLockedStay(0, ua_Walk);
-   6: if (Condition < UNIT_MAX_CONDITION * 0.9) and (fInn.CheckResIn(wt_Fish) > 0) then
+   6: if (Condition < UNIT_MAX_CONDITION * UNIT_STUFFED_CONDITION_LVL)
+        and (fInn.CheckResIn(wt_Fish) > 0) then
       begin
         fInn.ResTakeFromIn(wt_Fish);
         gHands[fUnit.Owner].Stats.WareConsumed(wt_Fish);

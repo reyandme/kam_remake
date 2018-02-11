@@ -31,10 +31,12 @@ type
     procedure UpdateUI;
     procedure SetSelectedMapInfo(aID: Integer = -1); overload;
     procedure SetSelectedMapInfo(aCRC: Cardinal; const aName: UnicodeString); overload;
+
     procedure ScanUpdate(Sender: TObject);
     procedure ScanTerminate(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
-    procedure RefreshList(aJumpToSelected:Boolean);
+
+    procedure RefreshList(aJumpToSelected: Boolean);
     procedure ColumnClick(aValue: Integer);
     function GetMaps: TKMapsCollection;
     procedure LoadMinimap(aID: Integer = -1);
@@ -99,11 +101,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceMapEditor, KM_Defaults, KM_Pics;
-
-const
-  MINIMAP_NOT_LOADED = -100; // smth, but not -1, as -1 is used for ColumnBox.ItemIndex, when no item is selected
-
+  KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_Resource, KM_ResFonts, KM_InterfaceMapEditor, KM_Defaults, KM_Pics;
 
 const
   MAPSIZES_COUNT = 15;
@@ -203,7 +201,7 @@ begin
       Button_MapMove.OnClick := MoveClick;
       Button_MapMove.Hide;
 
-      Button_MapRename := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, 'Rename Map', bsMenu); //Todo translate
+      Button_MapRename := TKMButton.Create(Panel_MapEdLoad, 0, 632, 440, 30, gResTexts[TX_MENU_MAP_RENAME], bsMenu);
       Button_MapRename.Anchors := [anLeft, anBottom];
       Button_MapRename.OnClick := RenameClick;
 
@@ -289,7 +287,7 @@ begin
         Label_MapMoveConfirmTitle := TKMLabel.Create(PopUp_Move, PopUp_Move.Width div 2, 40, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], fnt_Outline, taCenter);
         Label_MapMoveConfirmTitle.Anchors := [anLeft, anBottom];
 
-        Label_MapMoveName := TKMLabel.Create(PopUp_Move, 25, 75, 60, 20, 'Name', fnt_Metal, taLeft); // Todo translate
+        Label_MapMoveName := TKMLabel.Create(PopUp_Move, 25, 75, 60, 20, gResTexts[TX_MENU_MAP_MOVE_NAME_TITLE], fnt_Metal, taLeft);
         Label_MapMoveName.Anchors := [anLeft,anBottom];
 
         Edit_MapMove := TKMEdit.Create(PopUp_Move, 105, 72, 275, 20, fnt_Grey);
@@ -434,7 +432,7 @@ begin
 
   //Reset scan variables
   fScanCompleted := False;
-  fMinimapLastListId := MINIMAP_NOT_LOADED;
+  fMinimapLastListId := ITEM_NOT_LOADED;
 
   //If both Maps and MapsMP are scanning at once ListUpdateDone can be called from either one
   //meaning we can access inconsistent and trigger assertion
@@ -483,7 +481,7 @@ begin
 end;
 
 
-procedure TKMMenuMapEditor.RefreshList(aJumpToSelected:Boolean);
+procedure TKMMenuMapEditor.RefreshList(aJumpToSelected: Boolean);
 var
   I, PrevTop: Integer;
   Maps: TKMapsCollection;
@@ -802,9 +800,18 @@ end;
 
 
 procedure TKMMenuMapEditor.LoadMinimap(aID: Integer = -1);
+
+  function AddLabelDesc(aLabelDesc, aAddition: UnicodeString): UnicodeString;
+  begin
+    if aLabelDesc <> '' then
+      aLabelDesc := aLabelDesc + '|';
+    aLabelDesc := aLabelDesc + aAddition;
+    Result := aLabelDesc;
+  end;
+
 var
   Map: TKMapInfo;
-  ShowMapTypeLabel: Boolean;
+  LabelHeight: Integer;
 begin
   if aID <> -1 then
   begin
@@ -824,22 +831,28 @@ begin
     else
       Button_LobbySetupReadme.Hide;
 
-    ShowMapTypeLabel := Map.IsCoop or Map.IsSpecial;
-    if ShowMapTypeLabel then
-    begin
-      if Map.IsCoop then
-        Label_MapType.Caption := gResTexts[TX_LOBBY_MAP_COOP]
-      else
-        Label_MapType.Caption := gResTexts[TX_LOBBY_MAP_SPECIAL];
-      Memo_LobbyMapDesc.Top := 20;
-      Button_LobbySetupReadme.Top := 245;
-      Label_MapType.Show;
-    end
-    else
+    Label_MapType.Caption := '';
+
+    if Map.IsCoop then
+      Label_MapType.Caption := AddLabelDesc(Label_MapType.Caption, gResTexts[TX_LOBBY_MAP_COOP]);
+
+    if Map.IsSpecial then
+      Label_MapType.Caption := AddLabelDesc(Label_MapType.Caption, gResTexts[TX_LOBBY_MAP_SPECIAL]);
+
+    if Map.IsPlayableAsSP then
+      Label_MapType.Caption := AddLabelDesc(Label_MapType.Caption, gResTexts[TX_MENU_MAP_PLAYABLE_AS_SP]);
+
+    if Label_MapType.Caption = '' then
     begin
       Memo_LobbyMapDesc.Top := 0;
       Button_LobbySetupReadme.Top := 225;
       Label_MapType.Hide;
+    end else
+    begin
+      LabelHeight := gRes.Fonts[Label_MapType.Font].GetTextSize(Label_MapType.Caption).Y;
+      Memo_LobbyMapDesc.Top := LabelHeight;
+      Button_LobbySetupReadme.Top := 225 + LabelHeight;
+      Label_MapType.Show;
     end;
   end else begin
     MinimapView_MapEd.Hide;

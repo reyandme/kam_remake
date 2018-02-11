@@ -1,0 +1,52 @@
+var iStoreHouseTaken : Boolean;
+
+procedure OnMissionStart;
+begin
+	iStoreHouseTaken := false;
+	Actions.PlayerAddDefaultGoals(0, true);
+end;
+
+procedure ChangeOwners;
+var x, d : Integer;
+begin
+	x := States.HouseAt(84, 91);
+	if (x > 0) then
+		begin
+			d := States.HouseDamage(x);
+			Actions.HouseDestroy(x, true);
+			x := Actions.GiveHouse(0, 11, 84, 91);
+			Actions.HouseAddDamage(x, d);
+			Actions.HouseAddWaresTo(x, 4, 220);
+			Actions.HouseAddWaresTo(x, 8, 21);
+			Actions.HouseAddWaresTo(x, 13, 13);
+			Actions.HouseAddWaresTo(x, 10, 39);
+			Actions.HouseAddWaresTo(x, 27, 3);
+			Actions.HouseAddWaresTo(x, 0, 7);
+			Actions.HouseAddWaresTo(x, 14, 11);
+			Actions.HouseAddWaresTo(x, 19, 20);
+			Actions.HouseAddWaresTo(x, 25, 10);
+			Actions.HouseAddWaresTo(x, 21, 10);
+			Actions.HouseAddWaresTo(x, 17, 10);
+		end;
+end;
+
+procedure OnTick;
+begin
+	if (States.GameTime = 400) then
+		begin
+			Actions.FogRevealCircle(0, 84, 90, 4);
+			Actions.ShowMsgGoto(0, 84, 91, '<$0>');
+		end;
+	
+	if ((States.StatArmyCount(5) = 0) and (iStoreHouseTaken = false)) then
+		begin
+			iStoreHouseTaken := true;
+			ChangeOwners;
+			Actions.ShowMsg(0, '<$1>');
+			Actions.ShowMsg(0, '<$4>');
+			Actions.GiveGroup(0, 17, 20, 121, 2, 12, 3);
+			Actions.GiveGroup(0, 20, 19, 115, 2, 12, 3);
+		end;
+	
+	if (States.GameTime = 24000) then Actions.ShowMsg(0, '<$2>');
+end;

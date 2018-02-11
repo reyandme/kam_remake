@@ -1,5 +1,9 @@
+//-- TSK10 --//
+//24.01.2018
+
 procedure OnTick;
 begin
-  if States.GameTime = 10 then
-    Actions.ShowMsg(0, '<$0>');
+	//Message On Mission Start
+	if States.GameTime = 10 then
+		Actions.ShowMsg(0, '<$0>');
 end;

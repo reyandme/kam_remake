@@ -1,0 +1,124 @@
+var storehouses: array of integer;
+var	barracks: array of integer;
+var housesCount: integer;
+
+procedure OnHouseBuilt(aHouseID: integer);
+var houseType: integer;
+begin
+	houseType := States.HouseType(aHouseID);
+	if ((houseType = 11) OR (houseType = 21)) then begin
+		if (houseType = 11) then begin
+			SetLength(storehouses, Length(storehouses) + 1);
+			storehouses[Length(storehouses) - 1] := aHouseID;
+		end
+		else if (houseType = 21) then begin
+			SetLength(barracks, Length(barracks) + 1);
+			barracks[Length(barracks) - 1] := aHouseID;	
+		end
+	end;
+	
+	if (houseType <> 17) then housesCount := housesCount + 1; 
+end;
+
+procedure OnHouseDestroyed(aHouseID: integer; aDestroyerIndex: integer);
+var houseType, i, found: integer;
+begin
+	houseType := States.HouseType(aHouseID);
+	if ((houseType = 11) OR (houseType = 21)) then begin
+		if (houseType = 11) then begin
+			found := -1;
+			for i := 0 to Length(storehouses) - 1 do begin
+				if (storehouses[i] = aHouseID) then begin
+					found := i;
+					break;
+				end;
+			end;
+			
+			if (found >= 0) then storehouses := Utils.ArrayRemoveIndexI(found, storehouses);
+		end
+		else if (houseType = 21) then begin
+			found := -1;
+			for i := 0 to Length(barracks) - 1 do begin
+				if (barracks[i] = aHouseID) then begin
+					found := i;
+					break;
+				end;
+			end;
+			
+			if (found >= 0) then barracks := Utils.ArrayRemoveIndexI(found, barracks);			
+		end
+	end;
+
+	if (houseType <> 17) then housesCount := housesCount - 1;
+end;
+
+procedure OnMissionStart;
+var houses: array of integer;
+var k: integer;
+begin
+	houses := States.PlayerGetAllHouses(0);
+	for k := 0 to Length(houses) - 1 do begin
+		if (States.HouseType(houses[k]) = 11) then begin
+			SetLength(storehouses, Length(storehouses) + 1);
+			storehouses[Length(storehouses) - 1] := houses[k];
+		end else if (States.HouseType(houses[k]) = 21) then begin
+			SetLength(barracks, Length(barracks) + 1);
+			barracks[Length(barracks) - 1] := houses[k];
+		end;
+	end;
+	
+	housesCount := 1;
+	Actions.ShowMsg(0, '<$3>');
+end;
+
+procedure CheckWin;
+var m: AnsiString;
+var i: integer;
+var toBuild, horses, sausages, toCollectHorses, toCollectSausages: integer;
+begin
+	if (Length(storehouses) = 0) then Actions.PlayerDefeat(0);
+
+	toBuild := 200 - housesCount;
+	if (toBuild < 0) then toBuild := 0;
+	m := '|<$0>: ' + IntToStr(toBuild);
+	horses := 0; sausages := 0;
+	
+	for i := 0 to Length(storehouses) - 1 do begin
+		horses := horses + States.HouseResourceAmount(storehouses[i], 26);
+		sausages := sausages + States.HouseResourceAmount(storehouses[i], 13);
+	end;
+	
+	for i := 0 to Length(barracks) - 1 do begin
+		horses := horses + States.HouseResourceAmount(barracks[i], 26);
+	end;
+	
+	toCollectHorses := 2000 - horses;
+	if (toCollectHorses < 0) then toCollectHorses := 0;
+	toCollectSausages := 500 - sausages;
+	if (toCollectSausages < 0) then toCollectSausages := 0;
+	
+	m := '<$2>:|<$4>: ' + IntToStr(toCollectSausages) + '|<$5>: ' + IntToStr(toCollectHorses) + m;
+	Actions.OverlayTextSet(0, m);
+	
+	if ((housesCount >= 200) AND (sausages >= 500) AND (horses >= 2000) AND (Length(States.PlayerGetAllGroups(5)) <= 0)) then begin
+		Actions.PlayerWin([0], false);
+	end;
+end;
+
+procedure OnTick;
+var r: integer;
+begin
+	if (States.GameTime mod 30 = 0) then CheckWin;
+	if (States.GameTime = 36000) then begin
+		Actions.ShowMsgGoto(0, 251, 94, '<$1>');
+		Actions.FogRevealCircle(0, 251, 94, 5);
+		r := Actions.GiveGroup(3, 23, 251, 94, 6, 6, 3);
+		if (r > 0) then Actions.GroupOrderAttackHouse(r, States.ClosestHouse(0, 251, 94, -1));
+	end;
+	if ((States.GameTime > 36000) AND (States.GameTime mod 10000 = 0)) then begin
+		r := Actions.GiveGroup(3, 23, 251, 94, 6, 12, 4);	
+		if (r > 0) then Actions.GroupOrderAttackHouse(r, States.ClosestHouse(0, 251, 94, -1));
+		r := Actions.GiveGroup(3, 25, 251, 94, 6, 9, 3);	
+		if (r > 0) then Actions.GroupOrderAttackHouse(r, States.ClosestHouse(0, 251, 94, -1));
+	end;
+end;

@@ -1,5 +1,25 @@
-procedure OnTick;
+//-- TSK19 --//
+//29.01.2018
+
+var
+	iGroup: array[0..1] of Integer;
+
+procedure OnMissionStart();
 begin
-  if States.GameTime = 5 then
-    Actions.ShowMsg(0, '<$0>');
+	//Assigning Knights To Variables
+	iGroup[0] := States.GroupAt(26, 46);
+	iGroup[1] := States.GroupAt(34, 45);
+end;
+
+procedure OnTick();
+begin
+	//Message On Mission Start
+	if States.GameTime = 10 then
+		Actions.ShowMsg(0, '<$0>');
+	//Knight Attack After 2,5 Minutes
+	if States.GameTime = 150 then
+	begin
+		Actions.GroupOrderWalk(iGroup[0], 39, 70, 3);
+		Actions.GroupOrderWalk(iGroup[1], 46, 73, 3);
+	end;
 end;

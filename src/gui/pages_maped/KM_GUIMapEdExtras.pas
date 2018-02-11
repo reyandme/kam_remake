@@ -22,6 +22,7 @@ type
     CheckBox_ShowObjects: TKMCheckBox;
     CheckBox_ShowHouses: TKMCheckBox;
     CheckBox_ShowUnits: TKMCheckBox;
+    CheckBox_ShowOverlays: TKMCheckBox;
     CheckBox_ShowDeposits: TKMCheckBox;
     CheckBox_ShowTileOwners: TKMCheckBox;
     CheckBox_ShowTilesGrid: TKMCheckBox;
@@ -48,7 +49,7 @@ begin
 
   fOnChange := aOnChange;
 
-  Panel_Extra := TKMPanel.Create(aParent, TOOLBAR_WIDTH+30, aParent.Height - 190, 600, 190);
+  Panel_Extra := TKMPanel.Create(aParent, TOOLBAR_WIDTH+30, aParent.Height - 210, 600, 210);
   Panel_Extra.Anchors := [anLeft, anBottom];
   Panel_Extra.Hide;
 
@@ -64,30 +65,33 @@ begin
   Image_ExtraClose.OnClick := Extra_Close;
   Image_ExtraClose.HighlightOnMouseOver := True;
 
-  TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 50, 70, 180, 0, Byte(High(TKMTerrainPassability)));
+  TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 50, 70, 220, 0, Byte(High(TKMTerrainPassability)));
   TrackBar_Passability.Font := fnt_Antiqua;
   TrackBar_Passability.Caption := gResTexts[TX_MAPED_VIEW_PASSABILITY];
   TrackBar_Passability.Position := 0; //Disabled by default
   TrackBar_Passability.OnChange := Extra_Change;
   Label_Passability := TKMLabel.Create(Panel_Extra, 50, 114, 180, 0, gResTexts[TX_MAPED_PASSABILITY_OFF], fnt_Antiqua, taLeft);
 
-  CheckBox_ShowObjects := TKMCheckBox.Create(Panel_Extra, 250, 70, 180, 20, gResTexts[TX_MAPED_VIEW_OBJECTS], fnt_Antiqua);
+  CheckBox_ShowObjects := TKMCheckBox.Create(Panel_Extra, 300, 70, 280, 20, gResTexts[TX_MAPED_VIEW_OBJECTS], fnt_Antiqua);
   CheckBox_ShowObjects.Checked := True; //Enabled by default
   CheckBox_ShowObjects.OnClick := Extra_Change;
-  CheckBox_ShowHouses := TKMCheckBox.Create(Panel_Extra, 250, 90, 180, 20, gResTexts[TX_MAPED_VIEW_HOUSES], fnt_Antiqua);
+  CheckBox_ShowHouses := TKMCheckBox.Create(Panel_Extra, 300, 90, 280, 20, gResTexts[TX_MAPED_VIEW_HOUSES], fnt_Antiqua);
   CheckBox_ShowHouses.Checked := True; //Enabled by default
   CheckBox_ShowHouses.OnClick := Extra_Change;
-  CheckBox_ShowUnits := TKMCheckBox.Create(Panel_Extra, 250, 110, 180, 20, gResTexts[TX_MAPED_VIEW_UNITS], fnt_Antiqua);
+  CheckBox_ShowUnits := TKMCheckBox.Create(Panel_Extra, 300, 110, 280, 20, gResTexts[TX_MAPED_VIEW_UNITS], fnt_Antiqua);
   CheckBox_ShowUnits.Checked := True; //Enabled by default
   CheckBox_ShowUnits.OnClick := Extra_Change;
-  CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 250, 130, 180, 20, gResTexts[TX_MAPED_VIEW_DEPOSISTS], fnt_Antiqua);
+  CheckBox_ShowOverlays := TKMCheckBox.Create(Panel_Extra, 300, 130, 280, 20, gResTexts[TX_MAPED_VIEW_OVERLAYS], fnt_Antiqua);
+  CheckBox_ShowOverlays.Checked := True; //Enabled by default
+  CheckBox_ShowOverlays.OnClick := Extra_Change;
+  CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 300, 150, 280, 20, gResTexts[TX_MAPED_VIEW_DEPOSISTS], fnt_Antiqua);
   CheckBox_ShowDeposits.Checked := True; //Enabled by default
   CheckBox_ShowDeposits.OnClick := Extra_Change;
-  CheckBox_ShowTileOwners := TKMCheckBox.Create(Panel_Extra, 250, 150, 180, 20, 'Show tile owners', fnt_Antiqua); //Todo translate
+  CheckBox_ShowTileOwners := TKMCheckBox.Create(Panel_Extra, 300, 170, 280, 20, gResTexts[TX_MAPED_SHOW_TILE_OWNERS], fnt_Antiqua);
   CheckBox_ShowTileOwners.Checked := False; //Disabled by default
   CheckBox_ShowTileOwners.OnClick := Extra_Change;
 
-  CheckBox_ShowTilesGrid := TKMCheckBox.Create(Panel_Extra, 50, 150, 180, 20, 'Show tiles grid', fnt_Antiqua); //Todo translate
+  CheckBox_ShowTilesGrid := TKMCheckBox.Create(Panel_Extra, 50, 170, 220, 20, gResTexts[TX_MAPED_SHOW_TILES_GRID], fnt_Antiqua);
   CheckBox_ShowTilesGrid.Checked := False; //Disabled by default
   CheckBox_ShowTilesGrid.OnClick := Extra_Change;
 

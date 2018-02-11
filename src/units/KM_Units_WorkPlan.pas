@@ -134,7 +134,17 @@ var
   NewLoc: TKMPointDir;
   PlantAct: TPlantAct;
   Found: boolean;
+  HW: TKMHouseWoodcutters;
 begin
+  if (GatheringScript = gs_WoodCutterCut) OR (GatheringScript = gs_WoodCutterPlant) then
+  begin
+    HW := TKMHouseWoodcutters(aUnit.GetHome);
+    HW.ValidateFlagPoint; //Validate Cutting point. It will be set to a valid one if needed.
+
+    if HW.IsFlagPointSet then
+      aLoc := HW.FlagPoint;
+  end;
+
   with gTerrain do
   case GatheringScript of
     gs_StoneCutter:     Found := FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
@@ -231,6 +241,7 @@ var
   I: Integer;
   Tmp: TKMPointDir;
   PlantAct: TPlantAct;
+  HW: TKMHouseWoodcutters;
 begin
   Clear;
 
@@ -241,10 +252,11 @@ begin
   case aUnit.UnitType of
     ut_Woodcutter:    if aHome = ht_Woodcutters then
                       begin
-                        TKMHouseWoodcutters(aUnit.GetHome).ValidateFlagPoint; //Validate Cutting point. It will be set to a valid one if needed.
+                        HW := TKMHouseWoodcutters(aUnit.GetHome);
+                        HW.ValidateFlagPoint; //Validate Cutting point. It will be set to a valid one if needed.
 
-                        if TKMHouseWoodcutters(aUnit.GetHome).IsFlagPointSet then
-                          aLoc := TKMHouseWoodcutters(aUnit.GetHome).FlagPoint;
+                        if HW.IsFlagPointSet then
+                          aLoc := HW.FlagPoint;
 
                         fIssued := ChooseTree(aLoc, KMPOINT_ZERO, gRes.Units[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
                         if fIssued then
@@ -264,7 +276,8 @@ begin
                           case PlantAct of
                             taCut:    if not gTerrain.CanFindTree(aLoc, gRes.Units[aUnit.UnitType].MiningRange) then
                                         ResourceDepleted := True; //No more trees to cut
-                            taPlant:  ResourceDepleted := True;   //No place for trees to plant
+                            taPlant:  if HW.WoodcutterMode = wcm_Plant then
+                                        ResourceDepleted := True;   //No place for trees to plant
                           end;
                       end;
     ut_Miner:         if aHome = ht_CoalMine then

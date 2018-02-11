@@ -61,7 +61,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); overload;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); overload; virtual; abstract;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer); virtual;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer; var aHandled: Boolean); virtual;
     procedure Resize(X,Y: Word); virtual;
     procedure UpdateState(aTickCount: Cardinal); virtual;
     procedure Paint; virtual;
@@ -78,8 +78,19 @@ const
   CHAT_MENU_TEAM = -2;
   CHAT_MENU_SPECTATORS = -3;
 
+  RESULTS_X_PADDING = 50;
+
+var
+  MAPED_SUBMENU_TAB_HOTKEYS: array[0..5] of Integer;
+
+
+const
+  ITEM_NOT_LOADED = -100; // smth, but not -1, as -1 is used for ColumnBox.ItemIndex, when no item is selected
+
 
 implementation
+uses
+  KM_ResKeys;
 
 
 { TKMUserInterface }
@@ -114,9 +125,9 @@ begin
 end;
 
 
-procedure TKMUserInterfaceCommon.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer);
+procedure TKMUserInterfaceCommon.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer; var aHandled: Boolean);
 begin
-  fMyControls.MouseWheel(X, Y, WheelDelta);
+  fMyControls.MouseWheel(X, Y, WheelDelta, aHandled);
 end;
 
 
@@ -148,6 +159,17 @@ begin
     else        if Assigned(OnKeyDown) then
                   OnKeyDown(Key, Shift);
   end;
+end;
+
+
+initialization
+begin
+  MAPED_SUBMENU_TAB_HOTKEYS[0] := SC_MAPEDIT_SUB_MENU_1;
+  MAPED_SUBMENU_TAB_HOTKEYS[1] := SC_MAPEDIT_SUB_MENU_2;
+  MAPED_SUBMENU_TAB_HOTKEYS[2] := SC_MAPEDIT_SUB_MENU_3;
+  MAPED_SUBMENU_TAB_HOTKEYS[3] := SC_MAPEDIT_SUB_MENU_4;
+  MAPED_SUBMENU_TAB_HOTKEYS[4] := SC_MAPEDIT_SUB_MENU_5;
+  MAPED_SUBMENU_TAB_HOTKEYS[5] := SC_MAPEDIT_SUB_MENU_6;
 end;
 
 

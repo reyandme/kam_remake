@@ -104,7 +104,7 @@ begin
 
     Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 20, 46, 325, 20, NO_TEXT, fnt_Outline, taCenter);
 
-    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 325, 310, NO_TEXT, fnt_Antiqua, taLeft);
+    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 323, 310, NO_TEXT, fnt_Antiqua, taLeft);
     Label_CampaignText.AutoWrap := true;
 
   Image_ScrollRestore := TKMImage.Create(Panel_Campaign, aParent.Width-20-30, aParent.Height-50-48, 30, 48, 491);

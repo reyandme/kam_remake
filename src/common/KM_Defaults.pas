@@ -34,18 +34,19 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
-
-  GAME_REVISION         = 'r8134';       //Should be updated for every release (each time save format is changed)
-  GAME_BETA_REVISION    = 5;
+  {$I KM_Revision.inc};
   {$IFDEF USESECUREAUTH}
     GAME_VERSION_POSTFIX  = '';
   {$ELSE}
     GAME_VERSION_POSTFIX  = ' (UNSECURE!)';
   {$ENDIF}
   GAME_VERSION_PREFIX   = ''; //Game version string displayed in menu corner
-  GAME_VERSION          = GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX;
-  NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
-
+var
+  //Game revision is set in initialisation block
+  GAME_REVISION: AnsiString; //Should be updated for every release (each time save format is changed)
+  GAME_VERSION: AnsiString;
+  NET_PROTOCOL_REVISON: AnsiString; //Clients of this version may connect to the dedicated server
+const
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
   FONTS_FOLDER          = 'data' + PathDelim + 'gfx' + PathDelim + 'fonts' + PathDelim;
   DEFAULT_LOCALE: AnsiString = 'eng';
@@ -61,7 +62,7 @@ const
 
 var
   // These should be True (we can occasionally turn them Off to speed up the debug)
-  CALC_EXPECTED_TICK    :Boolean = False; //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
+  CALC_EXPECTED_TICK    :Boolean = True;  //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
   MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
   MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
@@ -92,10 +93,11 @@ var
   SCROLL_ACCEL          :Boolean = False; //Acceleration for viewport scrolling
   PathFinderToUse       :Byte = 1;
 
-
+  {$IFDEF WDC} //Work only in Delphi
   DELIVERY_BID_CALC_USE_PATHFINDING
                         :Boolean = True; //Do we use simple distance on map or pathfinding for calc delivery bids cost?
   CACHE_DELIVERY_BIDS   :Boolean = True; //Cache delivery bids cost. Must be turned ON if we want to use pathfinding for bid calc, huge impact on performance in that case
+  {$ENDIF}
 
   WARFARE_ORDER_SEQUENTIAL    :Boolean = True; //Pick weapon orders like KaM did
   WARFARE_ORDER_PROPORTIONAL  :Boolean = False; //New proportional way (looks like a bad idea)
@@ -194,7 +196,10 @@ const
   AUTOSAVE_FREQUENCY_MIN  = 600;
   AUTOSAVE_FREQUENCY_MAX  = 3000;
   AUTOSAVE_FREQUENCY      = 600; //How often to do autosave, every N ticks
-  AUTOSAVE_NOT_MORE_OFTEN_THEN = 10000; //= 5s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
+  AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX = 5; //Max number of autosaves to be included into crashreport
+  AUTOSAVE_NOT_MORE_OFTEN_THEN = 10000; //= 10s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
+
+
   CHAT_COOLDOWN           = 500;  //Minimum time in milliseconds between chat messages
   BEACON_COOLDOWN         = 800;  //Minimum time in milliseconds between beacons
 
@@ -206,13 +211,14 @@ var
 const
   //Here we store options that are hidden somewhere in code
   //Unit condition
-  CONDITION_PACE            = 10;         //Check unit conditions only once per 10 ticks
-  UNIT_MAX_CONDITION        = 45*60;      //Minutes of life. In KaM it's 45min
-  UNIT_MIN_CONDITION        = 6*60;       //If unit condition is less it will look for Inn. In KaM it's 6min
-  TROOPS_FEED_MAX           = 0.55;       //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
-  UNIT_CONDITION_BASE       = 0.6;        //Base amount of health a unit starts with (measured in KaM)
-  UNIT_CONDITION_RANDOM     = 0.1;        //Random jitter of unit's starting health (KaM did not have this, all units started the same)
-  TROOPS_TRAINED_CONDITION  = 0.6;        //Condition troops start with when trained (measured from KaM)
+  CONDITION_PACE             = 10;         //Check unit conditions only once per 10 ticks
+  UNIT_STUFFED_CONDITION_LVL = 0.9;        //Unit condition level, until which we allow unit to eat foods
+  UNIT_MAX_CONDITION         = 45*60;      //Minutes of life. In KaM it's 45min
+  UNIT_MIN_CONDITION         = 6*60;       //If unit condition is less it will look for Inn. In KaM it's 6min
+  TROOPS_FEED_MAX            = 0.55;       //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
+  UNIT_CONDITION_BASE        = 0.6;        //Base amount of health a unit starts with (measured in KaM)
+  UNIT_CONDITION_RANDOM      = 0.1;        //Random jitter of unit's starting health (KaM did not have this, all units started the same)
+  TROOPS_TRAINED_CONDITION   = 0.6;        //Condition troops start with when trained (measured from KaM)
 
   //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
   //Bread    = +40%
@@ -241,9 +247,11 @@ const
 
   LINK_RADIUS = 5; //Radius to search for groups to link to after being trained at the barracks (measured from KaM)
 
-  BOWMEN_AIMING_DELAY_MIN      = 4; //minimum time for archer to aim
-  BOWMEN_AIMING_DELAY_ADD      = 4; //random component
-  CROSSBOWMEN_AIMING_DELAY_MIN = 8; //minimum time for archer to aim
+  BOWMEN_AIMING_DELAY_MIN      = 6; //minimum time for bowmen to aim
+  BOWMEN_AIMING_DELAY_ADD      = 6; //random component
+  SLINGSHOT_AIMING_DELAY_MIN   = 0; //minimum time for slingshot to aim
+  SLINGSHOT_AIMING_DELAY_ADD   = 4; //random component
+  CROSSBOWMEN_AIMING_DELAY_MIN = 8; //minimum time for crossbowmen to aim
   CROSSBOWMEN_AIMING_DELAY_ADD = 8; //random component
 
   SLINGSHOT_FIRING_DELAY = 12; //on which frame slinger fires his rock
@@ -260,15 +268,17 @@ const
   RETURN_TO_LOBBY_SAVE = 'paused';
   DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
-  EXT_SAVE_MP_MINIMAP = 'smm';
   EXT_SAVE_REPLAY = 'rpl';
   EXT_SAVE_MAIN = 'sav';
   EXT_SAVE_BASE = 'bas';
+  EXT_SAVE_MP_MINIMAP = 'smm';
+
   EXT_FILE_SCRIPT = 'script';
 
   EXT_SAVE_REPLAY_DOT = '.' + EXT_SAVE_REPLAY;
   EXT_SAVE_MAIN_DOT = '.' + EXT_SAVE_MAIN;
   EXT_SAVE_BASE_DOT = '.' + EXT_SAVE_BASE;
+  EXT_SAVE_MP_MINIMAP_DOT = '.' + EXT_SAVE_MP_MINIMAP;
 
 type
   TKMHandIndex = {type} ShortInt;
@@ -374,11 +384,12 @@ const
 type
   TKMTerrainPassability = (
     tpUnused,
-    tpWalk,         // General passability of tile for any walking units
+    tpWalk,        // General passability of tile for any walking units
     tpWalkRoad,    // Type of passability for Serfs when transporting wares, only roads have it
     tpBuildNoObj,  // Can we build a house on this tile after removing an object on the tile or house near it?
     tpBuild,       // Can we build a house on this tile?
     tpMakeRoads,   // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
+    tpCutTree,     // Can tree be cut
     tpFish,        // Water tiles where fish Can move around
     tpCrab,        // Sand tiles where crabs Can move around
     tpWolf,        // Soil tiles where wolfs Can move around
@@ -399,6 +410,7 @@ const
     'Can build without|object or house',
     'Can build',
     'Can make roads',
+    'Can cut tree',
     'Can fish',
     'Can crab',
     'Can wolf',
@@ -660,6 +672,7 @@ type
     mlObjects,
     mlHouses,
     mlUnits,
+    mlOverlays,
     mlDeposits,
     mlDefences,
     mlRevealFOW,
@@ -743,6 +756,7 @@ const
   icLightGrayTrans = $80A0A0A0;
   icWhite = $FFFFFFFF;
   icBlack = $FF000000;
+  icLightRed   = $FF7070FF;
   icDarkCyan   = $FFB0B000;
 
   icPink = $FFFF00FF;
@@ -802,8 +816,13 @@ const
 var
   ExeDir: UnicodeString;
 
-
 implementation
 
+initialization
+begin
+  GAME_REVISION := AnsiString('r' + IntToStr(GAME_REVISION_NUM));
+  GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX;
+  NET_PROTOCOL_REVISON := GAME_REVISION;     //Clients of this version may connect to the dedicated server
+end;
 
 end.

@@ -42,7 +42,7 @@ uses
 
 const
   ResRatioType: array [TKMRatioTab] of TWareType = (wt_Steel, wt_Coal, wt_Wood, wt_Corn);
-  ResRatioHint: array [TKMRatioTab] of Word = (298, 300, 302, 304);
+  //ResRatioHint: array [TKMRatioTab] of Word = (298, 300, 302, 304);
   ResRatioHouseCount: array [TKMRatioTab] of Byte = (2, 4, 2, 3);
   ResRatioHouse: array [TKMRatioTab, 0..3] of THouseType = (
       (ht_WeaponSmithy,   ht_ArmorSmithy,     ht_None,          ht_None),
@@ -71,13 +71,14 @@ begin
     Button_Ratios[I].OnClick := RatioTabClick;
   end;
 
-  Image_RatioHead := TKMImage.Create(Panel_Ratios, 4, 76, 32, 32, 327);
+  Image_RatioHead := TKMImage.Create(Panel_Ratios, 0, 76, 32, 32, 327);
   Label_RatioHead := TKMLabel.Create(Panel_Ratios, 36, 72, 148, 30, NO_TEXT, fnt_Outline, taLeft);
 
   for K := 0 to 3 do
   begin
-    Image_RatioPic[K]             := TKMImage.Create(Panel_Ratios, 4, 124 + K * 50, 32, 32, 327);
-    TrackBar_RatioValue[K]          := TKMTrackBar.Create(Panel_Ratios, 40, 116 + K * 50, 140, 0, 5);
+    Image_RatioPic[K]               := TKMImage.Create(Panel_Ratios, 0, 124 + K * 50, 32, 32, 327);
+    TrackBar_RatioValue[K]          := TKMTrackBar.Create(Panel_Ratios, 32, 116 + K * 50, 155, 0, 5);
+    TrackBar_RatioValue[K].CaptionWidth := 160;
     TrackBar_RatioValue[K].Font     := fnt_Grey; //fnt_Metal doesn't fit the text
     TrackBar_RatioValue[K].Tag      := K;
     TrackBar_RatioValue[K].OnChange := RatiosChange;

@@ -1,0 +1,478 @@
+var commander, bodyguardLeft, bodyguardRight, bodyguardTop, bodyguardBottom, bodyguardLeftBottom, bodyguardLeftTop, bodyguardRightBottom, bodyguardRightTop, rpgQuest: integer;
+var village1visited, village2visited, village3visited, noPassMessage, meetingMessage, escapeMessage:boolean;
+var village1commander, village2commander, village3commander, rpgQuestTime, villageChosen, villageEscape, villageEscape2, edge, villageToChase: integer;
+var adjustDirection, escapeMode, escapeOrder, checkEscape: boolean;
+var important1, important2, important3, important4: array[0..4] of integer;
+var mapHeight, mapWidth: integer;
+
+procedure OnMissionStart;
+begin
+	bodyguardTop := States.GroupAt(71, 187);
+	bodyguardBottom := States.GroupAt(71, 191);
+	bodyguardLeft := States.GroupAt(69, 189);
+	bodyguardRight := States.GroupAt(73, 189);
+	bodyguardLeftBottom := States.GroupAt(69, 191);
+	bodyguardLeftTop := States.GroupAt(69, 187);
+	bodyguardRightBottom := States.GroupAt(73, 191);
+	bodyguardRightTop := States.GroupAt(73, 187);
+	commander := States.GroupAt(71, 189);
+	rpgQuest := 1;
+	checkEscape := true;
+	village1visited := false;
+	village2visited := false;
+	village3visited := false;
+	noPassMessage := false;
+	meetingMessage := false;
+	escapeMessage := false;
+	village1commander := States.GroupAt(23, 125);
+	village2commander := States.GroupAt(166, 85);
+	village3commander := States.GroupAt(168, 18);
+	villageChosen := -1;
+	villageToChase := -1;
+	Actions.ShowMsg(0, '<$0>');
+	adjustDirection := false;
+	escapeMode := false;
+	escapeOrder := false;
+	Actions.PlayerShareFog(1, 0, false);
+	Actions.PlayerShareFog(2, 0, false);
+	Actions.PlayerShareFog(3, 0, false);
+	Actions.PlayerShareFog(4, 0, false);
+	Actions.FogCoverCircle(0, 21, 129, 70);
+	Actions.FogCoverCircle(0, 154, 94, 70);
+	Actions.FogCoverCircle(0, 151, 21, 70);
+	Actions.FogRevealCircle(0, 21, 129, 8);
+	Actions.FogRevealCircle(0, 168, 87, 8);
+	Actions.FogRevealCircle(0, 166, 19, 8);
+	Actions.FogRevealCircle(0, 64, 170, 12);
+	Actions.FogRevealCircle(0, 78, 155, 12);
+	Actions.FogRevealCircle(0, 89, 140, 12);
+	Actions.FogRevealCircle(0, 101, 125, 12);
+	Actions.FogRevealCircle(0, 104, 107, 12);
+	Actions.FogRevealCircle(0, 108, 90, 12);
+	Actions.FogRevealCircle(0, 118, 74, 12);
+	Actions.FogRevealCircle(0, 120, 55, 12);
+	Actions.FogRevealCircle(0, 108, 39, 12);
+	Actions.FogRevealCircle(0, 93, 27, 12);
+	Actions.FogRevealCircle(0, 76, 16, 12);
+	Actions.FogRevealCircle(0, 68, 2, 12); 
+	important1[0] := States.HouseAt(21, 129);
+	important1[1] := States.HouseAt(25, 129);
+	important1[2] := States.HouseAt(36, 130);
+	important1[3] := States.HouseAt(43, 132);
+	important2[0] := States.HouseAt(168, 23);
+	important2[1] := States.HouseAt(166, 19);
+	important2[2] := States.HouseAt(172, 15);
+	important2[3] := -1;
+	important3[0] := States.HouseAt(145, 101);
+	important3[1] := States.HouseAt(167, 123);
+	important3[2] := States.HouseAt(167, 127);
+	important3[3] := States.HouseAt(161, 128);
+	important4[0] := States.HouseAt(168, 87);
+	important4[1] := States.HouseAt(173, 86);
+	important4[3] := States.HouseAt(155, 84);
+	important4[3] := States.HouseAt(163, 79);
+	
+	mapWidth := States.MapWidth();
+	mapHeight := States.mapHeight();
+	
+	{ //TEST!!-------- }
+	{ villageChosen := 1; }
+	
+	{ if (villageChosen = 1) then begin villageToChase := 2; Actions.PlayerDefeat(2); end }
+	{ else if (villageChosen = 2) then begin villageToChase := 3; Actions.PlayerDefeat(1); end }
+	{ else begin villageToChase := 1; Actions.PlayerDefeat(3); Actions.PlayerDefeat(4); end; }
+	{ Actions.PlayerWin([0], true); }
+	{ //--------------------------------- }
+end;
+
+procedure AdjustGuards(x:Integer;y:Integer;d:Integer;adjustPosition:boolean);
+begin
+	if ((States.GroupDead(bodyguardTop) = false) AND (y - 2 > 0)) then Actions.GroupOrderWalk(bodyguardTop, x, y - 2, d);
+	if ((States.GroupDead(bodyguardBottom) = false) AND (y + 2 < mapHeight)) then Actions.GroupOrderWalk(bodyguardBottom, x, y + 2, d);
+	if ((States.GroupDead(bodyguardLeft) = false) AND (x - 2 > 0)) then Actions.GroupOrderWalk(bodyguardLeft, x - 2, y, d);
+	if ((States.GroupDead(bodyguardRight) = false) AND (x + 2 < mapWidth)) then Actions.GroupOrderWalk(bodyguardRight, x + 2, y, d);		
+	if ((States.GroupDead(bodyguardLeftBottom) = false) AND (y + 2 < mapHeight) AND (x - 2 > 0)) then Actions.GroupOrderWalk(bodyguardLeftBottom, x - 2, y + 2, d);
+	if ((States.GroupDead(bodyguardLeftTop) = false) AND (y - 2 > 0) AND (x - 2 > 0)) then Actions.GroupOrderWalk(bodyguardLeftTop, x - 2, y - 2, d);
+	if ((States.GroupDead(bodyguardRightBottom) = false) AND (y + 2 < mapHeight) AND (x + 2 < mapWidth)) then Actions.GroupOrderWalk(bodyguardRightBottom, x + 2, y + 2, d);
+	if ((States.GroupDead(bodyguardRightTop) = false) AND (y - 2 > 0) AND (x + 2 < mapWidth)) then Actions.GroupOrderWalk(bodyguardRightTop, x + 2, y - 2, d);
+	if (adjustPosition) then begin
+		if (States.GroupIdle(bodyguardTop)) then Actions.GroupOrderWalk(bodyguardTop, x, y, d);
+		if (States.GroupIdle(bodyguardBottom)) then Actions.GroupOrderWalk(bodyguardBottom, x, y, d);
+		if (States.GroupIdle(bodyguardLeft)) then Actions.GroupOrderWalk(bodyguardLeft, x, y, d);
+		if (States.GroupIdle(bodyguardRight)) then Actions.GroupOrderWalk(bodyguardRight, x, y, d);
+		if (States.GroupIdle(bodyguardLeftBottom)) then Actions.GroupOrderWalk(bodyguardLeftBottom, x, y, d);
+		if (States.GroupIdle(bodyguardLeftTop)) then Actions.GroupOrderWalk(bodyguardRightTop, x, y, d);
+		if (States.GroupIdle(bodyguardRightBottom)) then Actions.GroupOrderWalk(bodyguardRightTop, x, y, d);
+		if (States.GroupIdle(bodyguardRightTop)) then Actions.GroupOrderWalk(bodyguardRightTop, x, y, d);
+	end;
+end;
+
+procedure Escape(playerId:Integer);
+var units:array of integer;
+var x, y, i, t, uX, uY, r:integer;
+begin
+	if (playerId = 1) then begin
+		x := 1;
+		y := 172;
+		edge := 1;
+		Actions.HouseTakeWaresFrom(States.HouseAt(24, 128), 7, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(35, 129), 7, 5);
+	end
+	else if (playerId = 2) then begin
+		x := 175;
+		y := 7;
+		edge := 175;
+		Actions.HouseTakeWaresFrom(States.HouseAt(167, 22), 7, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(35, 129), 7, 5);
+	end
+	else begin
+		x := 175;
+		y := 75;
+		edge := 175;
+		Actions.HouseTakeWaresFrom(States.HouseAt(173, 86), 7, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(155, 84), 7, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(167, 127), 7, 5);
+		Actions.HouseTakeWaresFrom(States.HouseAt(167, 123), 7, 5);
+	end;
+	
+	units := States.PlayerGetAllUnits(playerId);
+	for i := 0 to Length(units) - 1 do begin
+		t := States.UnitType(units[i]);
+		uX := States.UnitPositionX(units[i]);
+		uY := States.UnitPositionY(units[i]);
+		Actions.UnitKill(units[i], true);
+		if (t <= 13) then r := Actions.GiveUnit(playerId, t, uX, uY, 0)
+		else r := Actions.GiveUnit(playerId, 13, uX, uY, 0);
+		Actions.UnitOrderWalk(r, x, y);
+	end;
+	
+	if (villageEscape <= 0) then villageEscape := playerId
+	else villageEscape2 := playerId;
+	
+	if (escapeMessage = false) then begin
+		Actions.ShowMsgGoto(0, x, y, '<$10>');
+		Actions.FogRevealCircle(0, x, y, 10);
+		escapeMessage := true;
+	end;
+end;
+
+procedure AutoFeed;
+begin
+	if (States.GroupDead(commander) = false) then Actions.GroupHungerSet(commander, States.UnitMaxHunger);
+	if (States.GroupDead(bodyguardLeft) = false) then Actions.GroupHungerSet(bodyguardLeft, States.UnitMaxHunger);
+	if (States.GroupDead(bodyguardRight) = false) then Actions.GroupHungerSet(bodyguardRight, States.UnitMaxHunger);
+	if (States.GroupDead(bodyguardTop) = false) then Actions.GroupHungerSet(bodyguardTop, States.UnitMaxHunger);
+	if (States.GroupDead(bodyguardBottom) = false) then Actions.GroupHungerSet(bodyguardBottom, States.UnitMaxHunger);
+	if (States.GroupDead(bodyguardLeftBottom) = false) then Actions.GroupHungerSet(bodyguardLeftBottom, States.UnitMaxHunger);
+	if (States.GroupDead(bodyguardLeftTop) = false) then Actions.GroupHungerSet(bodyguardLeftTop, States.UnitMaxHunger);
+	if (States.GroupDead(bodyguardRightBottom) = false) then Actions.GroupHungerSet(bodyguardRightBottom, States.UnitMaxHunger);
+	if (States.GroupDead(bodyguardRightTop) = false) then Actions.GroupHungerSet(bodyguardRightTop, States.UnitMaxHunger);
+end;
+
+procedure OnTick;
+var x, y, d, i: integer;
+var units1, units2 :array of integer;
+var d1,d2,d3,d4:boolean;
+begin
+	if (States.GroupDead(commander) = false) then begin
+		x := States.UnitPositionX(States.GroupMember(commander, 0));
+		y := States.UnitPositionY(States.GroupMember(commander, 0));
+		d := States.UnitDirection(States.GroupMember(commander, 0));
+		
+		if (States.GameTime mod 6000 = 0) then AutoFeed;
+		
+		if (States.GroupIdle(commander) = false) then begin
+			AdjustGuards(x, y, d, true);
+			adjustDirection := true;
+		end
+		else if (adjustDirection) then begin
+			adjustDirection := false;
+			AdjustGuards(x, y, d, false);
+		end;
+	end;
+	
+	if (States.GameTime mod 10 = 0) then begin
+		d1 := true; d2 := true; d3 := true; d4 := true;
+		for i := 0 to 3 do begin
+			d1 := d1 AND States.HouseDestroyed(important1[i]);
+			d2 := d2 AND States.HouseDestroyed(important2[i]);
+			d3 := d3 AND States.HouseDestroyed(important3[i]);
+			d4 := d4 AND States.HouseDestroyed(important4[i]);
+		end;
+		
+		if (d1) then Actions.PlayerDefeat(1);
+		if (d2) then Actions.PlayerDefeat(2);
+		if (d3) then Actions.PlayerDefeat(3);
+		if (d4) then Actions.PlayerDefeat(4);
+	end;
+	
+	if (rpgQuest = 1) then begin
+		if ((x >= 17) AND (x <= 27) AND (y >= 124) AND (y <= 134) AND (village1Visited = false)) then begin
+			village1Visited := true;
+			Actions.ShowMsg(0, '<$1>');
+		end 
+		else if ((x >= 164) AND (x <= 173) AND (y >= 82) AND (y <= 92) AND (village2Visited = false)) then begin
+			village2Visited := true;
+			Actions.ShowMsg(0, '<$2>');
+		end
+		else if ((x >= 161) AND (x <= 172) AND (y >= 13) AND (y <= 24) AND (village3Visited = false)) then begin
+			village3Visited := true;
+			Actions.ShowMsg(0, '<$3>');
+		end;
+		
+		if ((x < 77) AND (y < 86) AND (States.GameTime mod 10 = 0)) then begin
+			if (noPassMessage = false) then Actions.ShowMsg(0, '<$4>');
+			noPassMessage := true;
+			Actions.GroupOrderWalk(commander, x + 5, y + 5, 0);
+		end;
+		
+		if (village1Visited AND village2Visited AND village3Visited) then begin
+			rpgQuest := 2;
+			rpgQuestTime := States.GameTime + 150;
+		end;
+		
+		if (States.GameTime mod 100 = 0) then begin
+			Actions.GroupOrderWalk(village1commander, 23, 125, 4);
+			Actions.GroupOrderWalk(village2commander, 166, 85, 4);
+			Actions.GroupOrderWalk(village3commander, 168, 18, 4);
+		end;
+	end
+	else if (rpgQuest = 2) then begin
+		if (rpgQuestTime = States.GameTime) then begin
+			Actions.GiveGroup(1, 27, 3, 73, 2, 1, 1);
+			Actions.FogRevealCircle(0, 3, 73, 10);
+			Actions.GiveGroup(4, 22, 2, 48, 2, 1, 1);
+			Actions.FogRevealCircle(0, 2, 48, 10);
+			Actions.GiveGroup(2, 21, 1, 2, 2, 1, 1);
+			Actions.FogRevealCircle(0, 1, 2, 10);
+			
+			if (meetingMessage = false) then begin
+				meetingMessage := true;
+				Actions.ShowMsgGoto(0, 3, 40, '<$5>');
+			end;
+		end;
+		
+		if ((x <= 7) AND (y >= 71) AND (y <= 78)) then begin
+			villageChosen := 1;
+			Actions.ShowMsg(0, '<$6>');
+		end 
+		else if ((x <= 7) AND (y >= 46) AND (y <= 50)) then begin
+			villageChosen := 2;
+			Actions.ShowMsg(0, '<$8>');
+		end 
+		else if ((x <= 7) AND (y <= 6)) then begin
+			villageChosen := 3;
+			Actions.ShowMsg(0, '<$7>');
+		end;
+		
+		if (villageChosen > 0) then begin
+			rpgQuest := 3;
+			
+			if (villageChosen = 1) then begin //rebelianci
+				Actions.PlayerAllianceChange(0, 3, true, false);
+				Actions.PlayerAllianceChange(0, 4, true, false);
+				Actions.PlayerAllianceChange(0, 2, true, false);
+				Actions.PlayerAllianceChange(5, 3, true, false);
+				Actions.PlayerAllianceChange(5, 4, true, false);
+				Actions.PlayerAllianceChange(5, 2, true, false);
+				Actions.PlayerAllianceChange(3, 1, true, false);
+				Actions.PlayerAllianceChange(4, 1, true, false);
+				Actions.PlayerAllianceChange(2, 1, true, false);
+				
+				Actions.PlayerShareFog(0, 1, true);
+				Actions.PlayerShareFog(1, 0, true);
+			end
+			else if (villageChosen = 2) then begin //średni
+				Actions.PlayerAllianceChange(0, 1, true, false);
+				Actions.PlayerAllianceChange(0, 2, true, false);
+				Actions.PlayerAllianceChange(5, 1, true, false);
+				Actions.PlayerAllianceChange(5, 2, true, false);
+				Actions.PlayerAllianceChange(1, 3, true, false);
+				Actions.PlayerAllianceChange(1, 4, true, false);
+				Actions.PlayerAllianceChange(2, 3, true, false);
+				Actions.PlayerAllianceChange(2, 4, true, false);
+				
+				Actions.PlayerShareFog(0, 3, true);
+				Actions.PlayerShareFog(0, 4, true);
+				Actions.PlayerShareFog(3, 0, true);
+				Actions.PlayerShareFog(4, 0, true);
+			end
+			else if (villageChosen = 3) then begin //barbarzyńcy
+				Actions.PlayerAllianceChange(0, 3, true, false);
+				Actions.PlayerAllianceChange(0, 4, true, false);
+				Actions.PlayerAllianceChange(0, 1, true, false);
+				Actions.PlayerAllianceChange(5, 3, true, false);
+				Actions.PlayerAllianceChange(5, 4, true, false);
+				Actions.PlayerAllianceChange(5, 1, true, false);
+				Actions.PlayerAllianceChange(3, 2, true, false);
+				Actions.PlayerAllianceChange(4, 2, true, false);
+				Actions.PlayerAllianceChange(1, 2, true, false);
+				
+				Actions.PlayerShareFog(0, 2, true);
+				Actions.PlayerShareFog(2, 0, true);
+			end;
+			
+			Actions.AIRecruitDelay(1, 0);
+			Actions.AIRecruitDelay(2, 0);
+			Actions.AIRecruitDelay(3, 0);
+			Actions.AIRecruitDelay(4, 0);
+			
+			Actions.GiveUnit(0, 0, 76, 193, 4);
+			Actions.GiveUnit(0, 0, 77, 193, 4);
+			Actions.GiveUnit(0, 0, 78, 193, 4);
+			Actions.GiveUnit(0, 9, 76, 194, 4);
+			Actions.GiveUnit(0, 9, 77, 194, 4);
+			Actions.GiveUnit(0, 9, 78, 194, 4);
+			
+			rpgQuestTime := States.GameTime + 150;
+		end;
+	end
+	else if ((rpgQuest = 3) AND (rpgQuestTime = States.GameTime)) then begin
+		Actions.ShowMsg(0, '<$9>');
+	end;
+	
+	if ((escapeMode) AND (escapeOrder = false)) then begin
+		units1 := States.PlayerGetAllUnits(villageEscape);
+		escapeOrder := Length(units1) <= 0;
+		for i := 0 to Length(units1) - 1 do begin
+			if (States.UnitPositionX(units1[i]) = edge) then Actions.UnitKill(units1[i], true);
+		end;
+		
+		if (escapeOrder) then begin
+			Actions.PlayerDefeat(villageEscape);
+			if (villageEscape2 <= 0) then Actions.PlayerWin([0], true);
+		end;
+		
+		if (villageEscape2 > 0) then begin
+			units2 := States.PlayerGetAllUnits(villageEscape2);
+			for i := 0 to Length(units2) - 1 do begin
+				if (States.UnitPositionX(units2[i]) = edge) then Actions.UnitKill(units2[i], true);
+			end;
+			
+			escapeOrder := escapeOrder AND (Length(units2) <= 0);
+			if (escapeOrder) then begin
+				Actions.PlayerDefeat(villageEscape2);
+				if (Length(units1) <= 0) then Actions.PlayerWin([0], true);
+			end;
+		end;
+	end;
+end;
+
+procedure OnPlayerDefeated(aPlayer:Integer);
+begin
+	if (checkEscape = true) then begin
+		if (villageChosen = 1) then begin
+			if (aPlayer = 1) then villageChosen := -1
+			else if (aPlayer = 2) then begin
+				escapeMode := true;
+				Escape(3);
+				Escape(4);
+				checkEscape := false;
+				villageToChase := 2;
+			end
+			else if (((aPlayer = 3) AND (States.PlayerDefeated(4))) OR ((aPlayer = 4) AND (States.PlayerDefeated(3)))) then begin
+				escapeMode := true;
+				Escape(2);
+				checkEscape := false;
+				villageToChase := 3;
+			end;
+		end
+		else if (villageChosen = 2) then begin
+			if (((aPlayer = 3) AND (States.PlayerDefeated(4))) OR ((aPlayer = 4) AND (States.PlayerDefeated(3)))) then villageChosen := -1
+			else if (aPlayer = 2) then begin
+				escapeMode := true;
+				Escape(1);
+				checkEscape := false;
+				villageToChase := 1;
+			end
+			else if (aPlayer = 1) then begin
+				escapeMode := true;
+				Escape(2);
+				checkEscape := false;
+				villageToChase := 3;
+			end;
+		end
+		else if (villageChosen = 3) then begin
+			if (aPlayer = 2) then villageChosen := -1
+			else if (aPlayer = 1) then begin
+				escapeMode := true;
+				Escape(3);
+				Escape(4);
+				checkEscape := false;
+				villageToChase := 2;
+			end
+			else if (((aPlayer = 3) AND (States.PlayerDefeated(4))) OR ((aPlayer = 4) AND (States.PlayerDefeated(3)))) then begin
+				escapeMode := true;
+				Escape(1);
+				checkEscape := false;
+				villageToChase := 1;
+			end;
+		end;
+	end;
+	
+	if ((villageChosen < 0) AND (rpgQuest >= 3)) then begin
+		Actions.OverlayTextSet(0, '[$0000FF]<$11>');
+		Actions.PlayerDefeat(0);
+	end;
+end;
+
+procedure OnWarriorEquipped(aUnit: Integer; aGroup: Integer);
+var x,y,owner, r:integer;
+begin
+	owner := States.UnitOwner(aUnit);
+	if (owner = 1) then begin
+		if (States.UnitType(aUnit) = 19) then begin
+			x := States.UnitPositionX(aUnit);
+			y := States.UnitPositionY(aUnit);
+			Actions.UnitKill(aUnit, true);
+			r := Actions.GiveGroup(owner, 24, x, y, 4, 1, 1);
+			Actions.GroupOrderLink(r, aGroup);
+		end 
+		else if (States.UnitType(aUnit) = 17) then begin
+			x := States.UnitPositionX(aUnit);
+			y := States.UnitPositionY(aUnit);
+			Actions.UnitKill(aUnit, true);
+			r := Actions.GiveGroup(owner, 25, x, y, 4, 1, 1);
+			Actions.GroupOrderLink(r, aGroup);
+		end;
+	end
+	else if (owner = 2) then begin
+		if (States.UnitType(aUnit) = 14) then begin
+			x := States.UnitPositionX(aUnit);
+			y := States.UnitPositionY(aUnit);
+			Actions.UnitKill(aUnit, true);
+			r := Actions.GiveGroup(owner, 23, x, y, 4, 1, 1);
+			Actions.GroupOrderLink(r, aGroup);
+		end;
+	end;
+end;
+
+procedure SwapBodyguard(groupId:integer);
+var x,y,d:integer;
+begin
+	x := States.UnitPositionX(States.GroupMember(groupId, 0));
+	y := States.UnitPositionY(States.GroupMember(groupId, 0));
+	d := States.UnitDirection(States.GroupMember(groupId, 0));
+	Actions.UnitKill(States.GroupMember(groupId, 0), true);
+	Actions.GiveGroup(0, 22, x, y, d, 1, 1);
+end;
+
+procedure OnUnitDied(aUnit:Integer;aKillerOwner:Integer);
+begin
+	if (aUnit = States.GroupMember(commander, 0)) then begin
+		if (States.GroupDead(bodyguardLeft) = false) then SwapBodyguard(bodyguardLeft);
+		if (States.GroupDead(bodyguardTop) = false) then SwapBodyguard(bodyguardTop);
+		if (States.GroupDead(bodyguardBottom) = false) then SwapBodyguard(bodyguardBottom);
+		if (States.GroupDead(bodyguardRight) = false) then SwapBodyguard(bodyguardRight);
+		if (States.GroupDead(bodyguardLeftBottom) = false) then SwapBodyguard(bodyguardLeftBottom);
+		if (States.GroupDead(bodyguardLeftTop) = false) then SwapBodyguard(bodyguardLeftTop);
+		if (States.GroupDead(bodyguardRightBottom) = false) then SwapBodyguard(bodyguardRightBottom);
+		if (States.GroupDead(bodyguardRightTop) = false) then SwapBodyguard(bodyguardRightTop);
+	end;
+end;
+
+procedure OnPlayerVictory(aPlayer:integer);
+begin
+	CampaignData.Mission4.VillageChosen := villageChosen;
+	CampaignData.Mission4.VillageEscaped := villageToChase;
+end;

@@ -156,8 +156,8 @@
 157:Condição
 158:Virar tropa à esquerda
 159:Virar tropa à direita
-160:Atacar ('a')
-161:Enviar tropa ('d')
+160:Atacar
+161:Enviar tropa
 162:Alimentar tropa
 163:Iniciar Ataque Tempestade
 164:Adicionar linha:
@@ -605,9 +605,9 @@
 619:Tempo de paz faltando: %s
 620:O tempo de paz acabou. Às armas!
 621:Tempo do jogo:|%s
-622:Parar tropa ('%s')
-623:Juntar tropa ('%s')
-624:Separar tropa ('%s')
+622:Parar tropa
+623:Juntar tropa
+624:Separar tropa
 625:Ver replays
 626:Ver Replay
 627:Formato não suportado %s
@@ -766,3 +766,6 @@
 829:A ordem foi concluída
 830:Carregar fontes asiáticas
 831:Mover fora do downloads
+1118:Mapas multi-jogador
+1119:Desativar música
+1120:Misturar as faixas

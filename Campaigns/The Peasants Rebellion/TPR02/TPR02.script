@@ -1,0 +1,39 @@
+//-- TPR02 --//
+//20.01.2018
+
+//Returns Sight Ranges for Units
+function UnitSightRange(aUnitsID: Integer): Byte;
+begin
+	case States.UnitType(aUnitsID) of
+		0..13: Result := 4; //Civilians
+		14..20, 22..27: Result := 9; //Fighting Units
+		21: Result := 16; //Scout
+		//28..37: Animals
+	end;
+end;
+
+procedure OnMissionStart();
+var
+	i: Integer;
+	aUnits: array of Integer;
+begin
+	//Disable Sharing Fog With Ally
+	Actions.PlayerShareFog(0, 1, false);
+	Actions.PlayerShareFog(1, 0, false);
+	Actions.PlayerShareFog(0, 2, false);
+	Actions.PlayerShareFog(2, 0, false);
+	//Cover All In Fog
+	Actions.FogCoverAll(0);
+	//Reveal Terrain for Units
+	aUnits := States.PlayerGetAllUnits(0);
+	for i := 0 to Length(aUnits) -1 do
+		Actions.FogRevealCircle(0, States.UnitPositionX(aUnits[i]), States.UnitPositionY(aUnits[i]), UnitSightRange(aUnits[i]));
+	//Reveal certain areas of the Map to Player0
+	Actions.FogRevealCircle(0, 8, 48, 15);
+	Actions.FogRevealCircle(0, 20, 45, 16);
+	Actions.FogRevealCircle(0, 21, 39, 14);
+	Actions.FogRevealCircle(0, 22, 33, 12);
+	Actions.FogRevealCircle(0, 23, 26, 10);
+	Actions.FogRevealCircle(0, 24, 21, 9);
+	Actions.FogRevealCircle(0, 26, 18, 6);
+end;
