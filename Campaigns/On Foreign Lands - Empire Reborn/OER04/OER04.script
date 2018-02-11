@@ -473,6 +473,6 @@ end;
 
 procedure OnPlayerVictory(aPlayer:integer);
 begin
-	{ CampaignData.Mission4.VillageChosen := villageChosen; }
-	{ CampaignData.Mission4.VillageEscaped := villageToChase; }
+	CampaignData.Mission4.VillageChosen := villageChosen;
+	CampaignData.Mission4.VillageEscaped := villageToChase;
 end;
