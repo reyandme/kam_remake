@@ -85,8 +85,8 @@ begin
     {$IFDEF WDC}
     MyProcessMessages; //This will process network (or other) events
     Sleep(1); //Don't hog CPU (this can also be used to create an artifical latency)
-    CheckSynchronize(); //Update threads synchronization, as our custom TKMConsoleTimer is working in a separate thread
     {$ENDIF}
+    CheckSynchronize(); //Update threads synchronization, as Console Timers work in a separate thread
   end;
 end;
 

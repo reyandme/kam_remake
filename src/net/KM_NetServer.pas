@@ -14,7 +14,7 @@ uses
       ExtCtrls
     {$ENDIF}
   {$ELSE}
-    FPTimer
+    FPTimer, cthreads
   {$ENDIF};
 
 
@@ -302,12 +302,15 @@ begin
       fTimer := TTimer.Create(nil);
       fTimer.OnTimer := UpdateState;
     {$ENDIF}
+    fTimer.Interval := fPacketsAccumulatingDelay;
+    fTimer.Enabled  := True;
   {$ELSE}
     fTimer := TFPTimer.Create(nil);
-    fTimer.OnTimer := UpdateState; 
+    fTimer.Enabled  := True;
+    fTimer.OnTimer  := UpdateState;
+    fTimer.Interval := fPacketsAccumulatingDelay;
+    fTimer.StartTimer;
   {$ENDIF}
-  fTimer.Interval := fPacketsAccumulatingDelay;
-  fTimer.Enabled  := True;
 end;
 
 
