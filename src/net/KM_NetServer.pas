@@ -14,7 +14,10 @@ uses
       ExtCtrls
     {$ENDIF}
   {$ELSE}
-    FPTimer, cthreads
+    FPTimer
+    {$IFDEF UNIX}
+      , cthreads
+    {$ENDIF}
   {$ENDIF};
 
 
