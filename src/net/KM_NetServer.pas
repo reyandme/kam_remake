@@ -7,10 +7,14 @@ uses
    {$IFDEF FPC}KM_NetServerLNet, {$ENDIF}
   Classes, SysUtils, Math, VerySimpleXML,
   KM_CommonClasses, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults, KM_CommonUtils,
-  {$IFDEF CONSOLE}
-    KM_ConsoleTimer
+  {$IFDEF WDC}
+    {$IFDEF CONSOLE}
+      KM_ConsoleTimer
+    {$ELSE}
+      ExtCtrls
+    {$ENDIF}
   {$ELSE}
-    ExtCtrls
+    FPTimer
   {$ENDIF};
 
 
@@ -83,10 +87,14 @@ type
     {$IFDEF WDC} fServer:TKMNetServerOverbyte; {$ENDIF}
     {$IFDEF FPC} fServer:TKMNetServerLNet;     {$ENDIF}
 
-    {$IFDEF CONSOLE}
-    fTimer: TKMConsoleTimer; //Use our custom TKMConsoleTimer instead of ExtCtrls.TTimer, to be able to use it in console application (DedicatedServer)
+    {$IFDEF WDC}
+      {$IFDEF CONSOLE}
+      fTimer: TKMConsoleTimer; //Use our custom TKMConsoleTimer instead of ExtCtrls.TTimer, to be able to use it in console application (DedicatedServer)
+      {$ELSE}
+      fTimer: TTimer;
+      {$ENDIF}
     {$ELSE}
-    fTimer: TTimer;
+      fTimer: TFPTimer;
     {$ENDIF}
 
     fClientList: TKMClientsList;
@@ -286,12 +294,17 @@ begin
   fListening := false;
   fRoomCount := 0;
 
-  {$IFDEF CONSOLE}
-    fTimer := TKMConsoleTimer.Create;
-    fTimer.OnTimerEvent := UpdateState;
+  {$IFDEF WDC}
+    {$IFDEF CONSOLE}
+      fTimer := TKMConsoleTimer.Create;
+      fTimer.OnTimerEvent := UpdateState;
+    {$ELSE}
+      fTimer := TTimer.Create(nil);
+      fTimer.OnTimer := UpdateState;
+    {$ENDIF}
   {$ELSE}
-    fTimer := TTimer.Create(nil);
-    fTimer.OnTimer := UpdateState;
+    fTimer := TFPTimer.Create(nil);
+    fTimer.OnTimer := UpdateState; 
   {$ENDIF}
   fTimer.Interval := fPacketsAccumulatingDelay;
   fTimer.Enabled  := True;
