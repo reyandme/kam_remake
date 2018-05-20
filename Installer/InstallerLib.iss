@@ -64,7 +64,7 @@ Name: "slv"; MessagesFile: "compiler:Languages\Slovenian.isl"; LicenseFile: "Lic
 
 [Registry]
 Root: HKLM; Subkey: "SOFTWARE\JOYMANIA Entertainment\KnightsandMerchants TPR"; ValueType: string; ValueName: "RemakeVersion"; ValueData: {#Revision}; Flags:uninsdeletevalue;
-Root: HKLM; Subkey: "SOFTWARE\JOYMANIA Entertainment\KnightsandMerchants TPR"; ValueType: string; ValueName: "RemakePath"; ValueData: "{app}"; Flags:uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\JOYMANIA Entertainment\KnightsandMerchants TPR"; ValueType: string; ValueName: "RemakeDIR"; ValueData: "{app}"; Flags:uninsdeletevalue;
 
 [Run]
 Filename: "{app}\PostInstallClean.bat"; WorkingDir: "{app}"; Flags: runhidden
