@@ -436,7 +436,7 @@ begin
 
   FreeAndNil(fTextLib);
   fTextLib := TKMTextLibrarySingle.Create;
-  fTextLib.LoadLocale(fPath + 'text.%s.libx');
+  fTextLib.LoadLocale(fPath + TEMPLATE_LIBX_FILE_TEXT);
 
   if gRes.Sprites <> nil then
   begin
