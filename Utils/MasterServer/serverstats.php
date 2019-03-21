@@ -1,7 +1,7 @@
 <?php
-include_once("serverlib.php");
-include_once("consts.php");
-include_once("db.php");
+require_once("serverlib.php");
+require_once("consts.php");
+require_once("db.php");
 
 function ServerStats($format)
 {
@@ -45,6 +45,7 @@ function ServerStats($format)
         break;
         default:
             echo 'There '.plural($ServerCount,'is','are',true).' '.$ServerCount.' '.plural($ServerCount,'server').' running and '.$TotalPlayerCount.' '.plural($TotalPlayerCount,'player').' online';
+        break;
     }
     $con->close();
 }
@@ -55,5 +56,3 @@ if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
     if(isset($_REQUEST["format"])) $format = $_REQUEST["format"];
     ServerStats($format);
 }
-
-?>
