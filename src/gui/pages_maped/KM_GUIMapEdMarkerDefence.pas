@@ -9,7 +9,7 @@ uses
 type
   TKMMapEdMarkerDefence = class
   private
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
     fIndex: Integer;
     fOnDone: TNotifyEvent;
     procedure Marker_Change(Sender: TObject);
@@ -30,9 +30,9 @@ type
     constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
 
     property Index: Integer read fIndex;
-    property Owner: TKMHandIndex read fOwner;
+    property Owner: TKMHandID read fOwner;
 
-    procedure Show(aPlayer: TKMHandIndex; aIndex: Integer);
+    procedure Show(aPlayer: TKMHandID; aIndex: Integer);
     procedure Hide;
     function Visible: Boolean;
   end;
@@ -53,16 +53,16 @@ begin
 
   Panel_MarkerDefence := TKMPanel.Create(aParent, 0, 50, TB_WIDTH, 400);
 
-  Label_MarkerType := TKMLabel.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 0, '', fnt_Outline, taCenter);
+  Label_MarkerType := TKMLabel.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 0, '', fntOutline, taCenter);
   Image_MarkerPic := TKMImage.Create(Panel_MarkerDefence, 0, 10, 32, 32, 338);
 
-  DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 55, TB_WIDTH, 20, fnt_Game, '', bsGame);
+  DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 55, TB_WIDTH, 20, fntGame, '', bsGame);
   DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_MELEE]);
   DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE]);
   DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_RANGED]);
   DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_MOUNTED]);
   DropList_DefenceGroup.OnChange := Marker_Change;
-  DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 85, TB_WIDTH, 20, fnt_Game, '', bsGame);
+  DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 85, TB_WIDTH, 20, fntGame, '', bsGame);
   DropList_DefenceType.Add(gResTexts[TX_MAPED_AI_DEFENCE_DEFENDERS]);
   DropList_DefenceType.Add(gResTexts[TX_MAPED_AI_DEFENCE_ATTACKERS]);
   DropList_DefenceType.OnChange := Marker_Change;
@@ -70,8 +70,8 @@ begin
   TrackBar_DefenceRad.Caption := gResTexts[TX_MAPED_AI_DEFENCE_RADIUS];
   TrackBar_DefenceRad.OnChange := Marker_Change;
 
-  TKMLabel.Create(Panel_MarkerDefence, 0, 165, gResTexts[TX_MAPED_AI_DEFENCE_PRIORITY_ORDER], fnt_Metal, taLeft);
-  Label_Priority := TKMLabel.Create(Panel_MarkerDefence, 20, 185+2, 20, 0, '', fnt_Grey, taCenter);
+  TKMLabel.Create(Panel_MarkerDefence, 0, 165, gResTexts[TX_MAPED_AI_DEFENCE_PRIORITY_ORDER], fntMetal, taLeft);
+  Label_Priority := TKMLabel.Create(Panel_MarkerDefence, 20, 185+2, 20, 0, '', fntGrey, taCenter);
   Button_Priority_Dec := TKMButton.Create(Panel_MarkerDefence, 0, 185, 20, 20, '-', bsGame);
   Button_Priority_Inc := TKMButton.Create(Panel_MarkerDefence, 40, 185, 20, 20, '+', bsGame);
   Button_Priority_Dec.OnClickShift := Marker_UpdateOrder;
@@ -146,7 +146,7 @@ begin
 end;
 
 
-procedure TKMMapEdMarkerDefence.Show(aPlayer: TKMHandIndex; aIndex: Integer);
+procedure TKMMapEdMarkerDefence.Show(aPlayer: TKMHandID; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;

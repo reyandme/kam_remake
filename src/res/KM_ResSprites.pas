@@ -252,10 +252,10 @@ begin
                 end;
                 //Smooth all death animations for all units
                 for UT := HUMANS_MIN to HUMANS_MAX do
-                  for Dir := dir_N to dir_NW do
+                  for Dir := dirN to dirNW do
                     for Step := 1 to 30 do
                     begin
-                      SpriteID := gRes.Units[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
+                      SpriteID := gRes.Units[UT].UnitAnim[uaDie,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
                       if (aID = SpriteID) and (SpriteID > 0) then
                       begin
                         Result := sstBoth;
@@ -523,38 +523,47 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
   begin
     if not DirectoryExists(aFolder) then Exit;
     FileList := TStringList.Create;
-    IDList := TStringList.Create;
     try
-      //PNGs
-      if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.png', faAnyFile - faDirectory, SearchRec) = 0 then
-      repeat
-        FileList.Add(SearchRec.Name);
-      until (FindNext(SearchRec) <> 0);
-      FindClose(SearchRec);
-
-      //PNG may be accompanied by some more files
-      //#_####.png - Base texture
-      //#_####a.png - Flag color mask
-      //#_####.txt - Pivot info (optional)
-      for I := 0 to FileList.Count - 1 do
-        if TryStrToInt(Copy(FileList.Strings[I], 3, 4), ID) then
-        begin
-          AddImage(aProcFolder, FileList.Strings[I], ID);
-          IDList.Add(IntToStr(ID));
+      IDList := TStringList.Create;
+      try
+        try
+          //PNGs
+          if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.png', faAnyFile - faDirectory, SearchRec) = 0 then
+          repeat
+            FileList.Add(SearchRec.Name);
+          until (FindNext(SearchRec) <> 0);
+        finally
+          FindClose(SearchRec);
         end;
 
-      SoftenShadows(IDList); // Soften shadows for overloaded sprites
+        //PNG may be accompanied by some more files
+        //#_####.png - Base texture
+        //#_####a.png - Flag color mask
+        //#_####.txt - Pivot info (optional)
+        for I := 0 to FileList.Count - 1 do
+          if TryStrToInt(Copy(FileList.Strings[I], 3, 4), ID) then
+          begin
+            AddImage(aProcFolder, FileList.Strings[I], ID);
+            IDList.Add(IntToStr(ID));
+          end;
 
-      //Delete following sprites
-      if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????', faAnyFile - faDirectory, SearchRec) = 0 then
-      repeat
-        if TryStrToInt(Copy(SearchRec.Name, 3, 4), ID) then
-          fRXData.Flag[ID] := 0;
-      until (FindNext(SearchRec) <> 0);
-      FindClose(SearchRec);
+        SoftenShadows(IDList); // Soften shadows for overloaded sprites
+
+        try
+          //Delete following sprites
+          if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????', faAnyFile - faDirectory, SearchRec) = 0 then
+          repeat
+            if TryStrToInt(Copy(SearchRec.Name, 3, 4), ID) then
+              fRXData.Flag[ID] := 0;
+          until (FindNext(SearchRec) <> 0);
+        finally
+          FindClose(SearchRec);
+        end;
+      finally
+        IDList.Free;
+      end;
     finally
       FileList.Free;
-      IDList.Free;
     end;
   end;
 begin
@@ -735,9 +744,9 @@ begin
   if fRXData.Count = 0 then Exit;
 
   if aAlphaShadows and (fRT in [rxTrees,rxHouses,rxUnits,rxGui]) then
-    TexType := tf_RGBA8
+    TexType := tfRGBA8
   else
-    TexType := tf_RGB5A1;
+    TexType := tfRGB5A1;
 
   MakeGFX_BinPacking(TexType, aStartingIndex, BaseRAM, ColorRAM, TexCount, aFillGFXData, aOnStopExecution);
 
@@ -956,7 +965,7 @@ begin
   BinPack(SpriteSizes, AtlasSize, fPad, SpriteInfo);
   if StopExec then Exit;
   SetLength(gGFXPrepData[saMask], Length(SpriteInfo));
-  PrepareAtlases(SpriteInfo, saMask, tf_Alpha8);
+  PrepareAtlases(SpriteInfo, saMask, tfAlpha8);
 end;
 
 
@@ -1110,7 +1119,7 @@ begin
         //for all Mask Types
         for MT := Low(TKMTileMaskType) to High(TKMTileMaskType) do
         begin
-          if MT = mt_None then Continue;
+          if MT = mtNone then Continue;
 
           // for all Mask subtypes
           for MST := Low(TKMTileMaskSubType) to High(TKMTileMaskSubType) do //Mask subtypes (actual masks for layers)

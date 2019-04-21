@@ -49,9 +49,10 @@ const
   //Also there is a technical limit, of how many ticks we can calculate per update
   MAX_TICKS_PER_GAME_UPDATE = 100;
 
+  DEBUG_CFG = False; //Debug preset for most usable debug options
 var
   // These should be True (we can occasionally turn them Off to speed up the debug)
-  CALC_EXPECTED_TICK    :Boolean = True;  //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
+  CALC_EXPECTED_TICK    :Boolean = not DEBUG_CFG;  //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
   MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
   MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
@@ -62,6 +63,7 @@ var
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
   BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
   SHOW_DISMISS_UNITS_BTN:Boolean = True; //The button to order citizens go back to school
+  RESET_DEBUG_CONTROLS  :Boolean = not DEBUG_CFG; //Reset Debug controls (F11) on game start
 
   //Implemented
   DO_UNIT_INTERACTION   :Boolean = True; //Debug for unit interaction
@@ -77,12 +79,13 @@ var
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   DYNAMIC_FOG_OF_WAR    :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_GROUP_BTN:Boolean = False; //The button to kill group
-  CACHE_PATHFINDING     :Boolean = False; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
   SNOW_HOUSES           :Boolean = False; //Draw snow on houses
   CHECK_8087CW          :Boolean = False; //Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   SCROLL_ACCEL          :Boolean = False; //Acceleration for viewport scrolling
   PathFinderToUse       :Byte = 1;
 
+  //Cache / delivery / pathfinding
+  CACHE_PATHFINDING     :Boolean = True; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
   DELIVERY_BID_CALC_USE_PATHFINDING :Boolean = True; //Do we use simple distance on map or pathfinding for calc delivery bids cost?
   {$IFDEF WDC} //Work only in Delphi
   CACHE_DELIVERY_BIDS   :Boolean = True; //Cache delivery bids cost. Must be turned ON if we want to use pathfinding for bid calc, huge impact on performance in that case
@@ -97,8 +100,10 @@ var
   SP_DEFAULT_PEACETIME    :Integer = 70;    //Default peacetime for SP games when SP_DEFAULT_ADVANCED_AI set to True
   {User interface options}
   DEBUG_SPEEDUP_SPEED     :Integer = 300;   //Speed for speedup from debug menu
-  ALLOW_SELECT_ALLY_UNITS :Boolean = False; //Do we allow to select ally units or groups
-  ALLOW_SELECT_ENEMIES    :Boolean = False; //Do we allow to select enemies houses/units/groups
+  DEBUG_LOGS              :Boolean = True;  //Log debug info
+  SKIP_RNG_CHECKS_FOR_SOME_GIC: Boolean = True; //Skip rng checks for Autosave and few other commands to have same AI city with predefined seed + mapconfig
+  ALLOW_SELECT_ALLY_UNITS :Boolean = DEBUG_CFG; //Do we allow to select ally units or groups
+  ALLOW_SELECT_ENEMIES    :Boolean = DEBUG_CFG; //Do we allow to select enemies houses/units/groups
   SHOW_ENEMIES_STATS      :Boolean = False; //Do we allow to show enemies stats during the game
   SHOW_DEBUG_CONTROLS     :Boolean = False; //Show debug panel / Form1 menu (F11)
   SHOW_CONTROLS_OVERLAY   :Boolean = False; //Draw colored overlays ontop of controls! always Off here
@@ -106,17 +111,18 @@ var
   SHOW_CONTROLS_FOCUS     :Boolean = False; //Outline focused control
   SHOW_TEXT_OUTLINES      :Boolean = False; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS  :Boolean = False; //Enable special mode to allow to move/edit controls
-  MODE_DESIGN_CONTORLS    :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
+  MODE_DESIGN_CONTROLS    :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   OVERLAY_RESOLUTIONS     :Boolean = False; //Render constraining frame
   LOCAL_SERVER_LIST       :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
   SHOW_LOGS_IN_CHAT       :Boolean = False; //Show log messages in MP game chat
   LOG_GAME_TICK           :Boolean = False; //Log game tick
+  MAPED_SHOW_CONDITION_UNIT_BTNS: Boolean = DEBUG_CFG; //Show condition Inc/Dec buttons for citizen units in MapEd
   {Gameplay display}
   SKIP_RENDER             :Boolean = False; //Skip all the rendering in favor of faster logic
   SKIP_SOUND              :Boolean = False; //Skip all the sounds in favor of faster logic
   SKIP_LOADING_CURSOR     :Boolean = False; //Skip loading and setting cursor
-  AGGRESSIVE_REPLAYS      :Boolean = True; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
-  SHOW_GAME_TICK          :Boolean = False; //Show game tick next to game time
+  AGGRESSIVE_REPLAYS      :Boolean = True; //Write a command gicTempDoNothing every tick in order to find exactly when a replay mismatch occurs
+  SHOW_GAME_TICK          :Boolean = DEBUG_CFG; //Show game tick next to game time
   SHOW_TERRAIN_IDS        :Boolean = False; //Show number of every tile terrain on it (also show layers terrain ids)
   SHOW_TERRAIN_KINDS      :Boolean = False; //Show terrain kind ids on every tile corner
   SHOW_TERRAIN_TILES_GRID :Boolean = False; //Show terrain tiles grid
@@ -129,6 +135,7 @@ var
   SHOW_POINTER_DOTS       :Boolean = False; //Show pointer count as small dots below unit/houses
   SHOW_GROUND_LINES       :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order
   SHOW_UNIT_MOVEMENT      :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
+  SHOW_UIDs               :Boolean = False;  //Show units/groups/houses UIDs
   SHOW_WALK_CONNECT       :Boolean = False; //Show floodfill areas of interconnected areas
   SHOW_DEFENCE_POSITIONS  :Boolean = False;
   TEST_VIEW_CLIP_INSET    :Boolean = False; //Renders smaller area to see if everything gets clipped well
@@ -144,22 +151,27 @@ var
   OVERLAY_AVOID           :Boolean = False; //Show avoidance map
   OVERLAY_AI_BUILD        :Boolean = False; //Show build progress of new AI
   OVERLAY_AI_COMBAT       :Boolean = False; //Show combat marks of new AI
-  OVERLAY_AI_EYE          :Boolean = False; //Show eye vision of new AI
+  OVERLAY_AI_EYE          :Boolean = False; //Show Eye vision of new AI
+  OVERLAY_AI_SOIL         :Boolean = False; //Show Soil vision of new AI
+  OVERLAY_AI_FLATAREA     :Boolean = False; //Show FlatArea vision of new AI
+  OVERLAY_AI_ROUTES       :Boolean = False; //Show Routes to resources vision of new AI
+  OVERLAY_AI_SUPERVISOR   :Boolean = False; //Show Supervisor vision of new AI
   {Stats}
-  SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
-  SHOW_POINTER_COUNT    :Boolean = False; //Show debug total count of unit/house pointers being tracked
-  SHOW_CMDQUEUE_COUNT   :Boolean = False; //Show how many commands were processed and stored by TGameInputProcess
-  SHOW_NETWORK_DELAY    :Boolean = False; //Show the current delay in multiplayer game
-  SHOW_ARMYEVALS        :Boolean = False; //Show result of enemy armies evaluation
-  SHOW_AI_WARE_BALANCE  :Boolean = False; //Show wares balance (Produced - Consumed)
-  SHOW_OVERLAY_BEVEL    :Boolean = False; //Show wares balance overlay Bevel (for better text readability)
-  SHOW_NET_PACKETS_STATS:Boolean = False; //Show network packet statistics
-  SHOW_NET_PACKETS_LIMIT:Integer = 1;
-  INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
-  SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
-  SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
-  DO_PERF_LOGGING       :Boolean = False; //Write each ticks time to log
-  MP_RESULTS_IN_SP      :Boolean = False; //Display each players stats in SP
+  SHOW_SPRITE_COUNT       :Boolean = False; //display rendered controls/sprites count
+  SHOW_POINTER_COUNT      :Boolean = False; //Show debug total count of unit/house pointers being tracked
+  SHOW_CMDQUEUE_COUNT     :Boolean = False; //Show how many commands were processed and stored by TGameInputProcess
+  SHOW_NETWORK_DELAY      :Boolean = False; //Show the current delay in multiplayer game
+  SHOW_ARMYEVALS          :Boolean = False; //Show result of enemy armies evaluation
+  SHOW_AI_WARE_BALANCE    :Boolean = False; //Show wares balance (Produced - Consumed)
+  SHOW_NET_PACKETS_STATS  :Boolean = False; //Show network packet statistics
+  SHOW_NET_PACKETS_LIMIT  :Integer = 1;
+  SHOW_SELECTED_OBJ_INFO  :Boolean = False; //Show selected object (Unit/Group + Unit/House) data (UID/order/action etc)
+  INI_HITPOINT_RESTORE    :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
+  SLOW_MAP_SCAN           :Boolean = False; //Scan maps with a pause to emulate uncached file access
+  SLOW_SAVE_SCAN          :Boolean = False; //Scan saves with a pause to emulate uncached file access
+  DO_PERF_LOGGING         :Boolean = False; //Write each ticks time to log
+  MP_RESULTS_IN_SP        :Boolean = False; //Display each players stats in SP
+  SHOW_DEBUG_OVERLAY_BEVEL:Boolean = True; //Show debug text overlay Bevel (for better text readability)
   {Gameplay}
   USE_CUSTOM_SEED       :Boolean = False; //Use custom seed for every game
   CUSTOM_SEED_VALUE     :Integer = 0;     //Custom seed value
@@ -167,8 +179,8 @@ var
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
-  DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  MULTIPLAYER_CHEATS    :Boolean = DEBUG_CFG; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
+  DEBUG_CHEATS          :Boolean = DEBUG_CFG; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
   ALLOW_MP_MODS         :Boolean = False; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
@@ -207,12 +219,15 @@ const
   AUTOSAVE_COUNT_MAX      = 10;
   AUTOSAVE_FREQUENCY_MIN  = 600;
   AUTOSAVE_FREQUENCY_MAX  = 3000;
-  AUTOSAVE_FREQUENCY      = 600; //How often to do autosave, every N ticks
+  AUTOSAVE_FREQUENCY_DEFAULT      = 600; //How often to do autosave, every N ticks
   AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX = 5; //Max number of autosaves to be included into crashreport
   AUTOSAVE_NOT_MORE_OFTEN_THEN = 10000; //= 10s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
 
+  REPLAY_AUTOSAVE_FREQUENCY_MIN  = 300; //30 sec
+  REPLAY_AUTOSAVE_FREQUENCY_MAX  = 10*60*60; // 1hour
+  REPLAY_AUTOSAVE_FREQUENCY_DEFAULT = 3000;
 
-  CHAT_COOLDOWN           = 500;  //Minimum time in milliseconds between chat messages
+
   BEACON_COOLDOWN         = 400;  //Minimum time in milliseconds between beacons
 
   DYNAMIC_HOTKEYS_NUM  = 20; // Number of dynamic hotkeys
@@ -267,20 +282,20 @@ const
   EXT_SAVE_REPLAY = 'rpl';
   EXT_SAVE_MAIN = 'sav';
   EXT_SAVE_BASE = 'bas';
-  EXT_SAVE_MP_MINIMAP = 'smm';
+  EXT_SAVE_MP_LOCAL = 'sloc';
 
   EXT_FILE_SCRIPT = 'script';
 
   EXT_SAVE_REPLAY_DOT = '.' + EXT_SAVE_REPLAY;
   EXT_SAVE_MAIN_DOT = '.' + EXT_SAVE_MAIN;
   EXT_SAVE_BASE_DOT = '.' + EXT_SAVE_BASE;
-  EXT_SAVE_MP_MINIMAP_DOT = '.' + EXT_SAVE_MP_MINIMAP;
+  EXT_SAVE_MP_LOCAL_DOT = '.' + EXT_SAVE_MP_LOCAL;
 
   EXT_FILE_SCRIPT_DOT = '.' + EXT_FILE_SCRIPT;
 
 type
-  TKMHandIndex = {type} ShortInt;
-  TKMHandIndexArray = array of TKMHandIndex;
+  TKMHandID = {type} ShortInt;
+  TKMHandIDArray = array of TKMHandID;
   TKMHandEnabledArray = array [0..MAX_HANDS-1] of Boolean;
 
 const
@@ -351,21 +366,21 @@ const
 
 type
   TKMGameResultMsg = (//Game result
-        gr_Win,           //Player has won the game
-        gr_Defeat,        //Player was defeated
-        gr_Cancel,        //Game was cancelled (unfinished)
-        gr_Error,         //Some known error occured
-        gr_Disconnect,    //Disconnected from multiplayer game
-        gr_Silent,        //Used when loading savegame from running game (show no screens)
-        gr_ReplayEnd,     //Replay was cancelled - return to menu without screens
-        gr_MapEdEnd,      //Map Editor was closed - return to menu without screens
-        gr_GameContinues);//Game is not finished yet, it is continious
+        grWin,           //Player has won the game
+        grDefeat,        //Player was defeated
+        grCancel,        //Game was cancelled (unfinished)
+        grError,         //Some known error occured
+        grDisconnect,    //Disconnected from multiplayer game
+        grSilent,        //Used when loading savegame from running game (show no screens)
+        grReplayEnd,     //Replay was cancelled - return to menu without screens
+        grMapEdEnd,      //Map Editor was closed - return to menu without screens
+        grGameContinues);//Game is not finished yet, it is continious
 
 
 type
-  TKMissionMode = (mm_Normal, mm_Tactic);
+  TKMissionMode = (mmNormal, mmTactic);
 
-  TKMAllianceType = (at_Enemy, at_Ally);
+  TKMAllianceType = (atEnemy, atAlly);
 
   TKMapFolder = (mfSP, mfMP, mfDL);
   TKMapFolderSet = set of TKMapFolder;
@@ -437,46 +452,46 @@ const
 
 {Units}
 type
-  TKMUnitType = (ut_None, ut_Any,
-    ut_Serf,          ut_Woodcutter,    ut_Miner,         ut_AnimalBreeder,
-    ut_Farmer,        ut_Lamberjack,    ut_Baker,         ut_Butcher,
-    ut_Fisher,        ut_Worker,        ut_StoneCutter,   ut_Smith,
-    ut_Metallurgist,  ut_Recruit,
+  TKMUnitType = (utNone, utAny,
+    utSerf,          utWoodcutter,    utMiner,         utAnimalBreeder,
+    utFarmer,        utLamberjack,    utBaker,         utButcher,
+    utFisher,        utWorker,        utStoneCutter,   utSmith,
+    utMetallurgist,  utRecruit,
 
-    ut_Militia,      ut_AxeFighter,   ut_Swordsman,     ut_Bowman,
-    ut_Arbaletman,   ut_Pikeman,      ut_Hallebardman,  ut_HorseScout,
-    ut_Cavalry,      ut_Barbarian,
+    utMilitia,      utAxeFighter,   utSwordsman,     utBowman,
+    utArbaletman,   utPikeman,      utHallebardman,  utHorseScout,
+    utCavalry,      utBarbarian,
 
-    ut_Peasant,      ut_Slingshot,    ut_MetalBarbarian,ut_Horseman,
-    //ut_Catapult,   ut_Ballista,
+    utPeasant,      utSlingshot,    utMetalBarbarian,utHorseman,
+    //utCatapult,   utBallista,
 
-    ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
-    ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
+    utWolf,         utFish,         utWatersnake,   utSeastar,
+    utCrab,         utWaterflower,  utWaterleaf,    utDuck);
 
   TKMUnitTypeSet = set of TKMUnitType;
 
 const
-  UNIT_MIN = ut_Serf;
-  UNIT_MAX = ut_Duck;
-  CITIZEN_MIN = ut_Serf;
-  CITIZEN_MAX = ut_Recruit;
-  WARRIOR_MIN = ut_Militia;
-  WARRIOR_MAX = ut_Horseman;
-  WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
-  WARRIOR_EQUIPABLE_MAX = ut_Cavalry;
-  HUMANS_MIN = ut_Serf;
-  HUMANS_MAX = ut_Horseman;
-  ANIMAL_MIN = ut_Wolf;
-  ANIMAL_MAX = ut_Duck;
+  UNIT_MIN = utSerf;
+  UNIT_MAX = utDuck;
+  CITIZEN_MIN = utSerf;
+  CITIZEN_MAX = utRecruit;
+  WARRIOR_MIN = utMilitia;
+  WARRIOR_MAX = utHorseman;
+  WARRIOR_EQUIPABLE_MIN = utMilitia; //Available from barracks
+  WARRIOR_EQUIPABLE_MAX = utCavalry;
+  HUMANS_MIN = utSerf;
+  HUMANS_MAX = utHorseman;
+  ANIMAL_MIN = utWolf;
+  ANIMAL_MAX = utDuck;
 
-  WARRIORS_IRON = [ut_Swordsman, ut_Arbaletman, ut_Hallebardman, ut_Cavalry];
+  WARRIORS_IRON = [utSwordsman, utArbaletman, utHallebardman, utCavalry];
 
 type
-  TKMCheckAxis = (ax_X, ax_Y);
+  TKMCheckAxis = (axX, axY);
 
 //Used for AI defence and linking troops
 type
-  TKMGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
+  TKMGroupType = (gtMelee, gtAntiHorse, gtRanged, gtMounted);
   TKMGroupTypeArray = array [TKMGroupType] of Word;
   TKMGroupTypeSet = set of TKMGroupType;
 
@@ -486,31 +501,31 @@ const
   KaMGroupType: array [TKMGroupType] of Byte = (0, 1, 2, 3);
 
   UnitGroups: array [WARRIOR_MIN..WARRIOR_MAX] of TKMGroupType = (
-    gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
-    gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
-    gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
-    gt_Mounted,gt_Mounted,      //ut_HorseScout, ut_Cavalry,
-    gt_Melee,                   //ut_Barbarian
+    gtMelee,gtMelee,gtMelee, //utMilitia, utAxeFighter, utSwordsman
+    gtRanged,gtRanged,        //utBowman, utArbaletman
+    gtAntiHorse,gtAntiHorse,  //utPikeman, utHallebardman,
+    gtMounted,gtMounted,      //utHorseScout, utCavalry,
+    gtMelee,                   //utBarbarian
     //TPR Army
-    gt_AntiHorse,        //ut_Peasant
-    gt_Ranged,           //ut_Slingshot
-    gt_Melee,            //ut_MetalBarbarian
-    gt_Mounted           //ut_Horseman
-    {gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,}
+    gtAntiHorse,        //utPeasant
+    gtRanged,           //utSlingshot
+    gtMelee,            //utMetalBarbarian
+    gtMounted           //utHorseman
+    {gtRanged,gtRanged, //utCatapult, utBallista,}
     );
 
   //AI's prefences for training troops
   AITroopTrainOrder: array [TKMGroupType, 1..3] of TKMUnitType = (
-    (ut_Swordsman,    ut_AxeFighter, ut_Militia),
-    (ut_Hallebardman, ut_Pikeman,    ut_None),
-    (ut_Arbaletman,   ut_Bowman,     ut_None),
-    (ut_Cavalry,      ut_HorseScout, ut_None));
+    (utSwordsman,    utAxeFighter, utMilitia),
+    (utHallebardman, utPikeman,    utNone),
+    (utArbaletman,   utBowman,     utNone),
+    (utCavalry,      utHorseScout, utNone));
 
 type
-  TKMGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
+  TKMGoInDirection = (gdGoOutside=-1, gdGoInside=1); //Switch to set if unit goes into house or out of it
 
 type
-  TKMUnitThought = (th_None, th_Eat, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest, th_Dismiss);
+  TKMUnitThought = (thNone, thEat, thHome, thBuild, thStone, thWood, thDeath, thQuest, thDismiss);
 
 const //Corresponding indices in units.rx
   ThoughtBounds: array [TKMUnitThought, 1..2] of Word = (
@@ -533,51 +548,51 @@ const //Corresponding indices in units.rx
   TC_BLOCK_ENTRANCE = 482;
 
 type
-  TKMUnitTaskName = ( utn_Unknown, //Uninitialized task to detect bugs
-        utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,
-        utn_BuildHouseArea, utn_BuildHouse, utn_BuildHouseRepair, utn_GoHome,    utn_Dismiss,
-        utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry,  utn_AttackHouse,
-        utn_ThrowRock);
+  TKMUnitTaskType = ( uttUnknown, //Uninitialized task to detect bugs
+        uttSelfTrain, uttDeliver,         uttBuildRoad,  uttBuildWine,        uttBuildField,
+        uttBuildHouseArea, uttBuildHouse, uttBuildHouseRepair, uttGoHome,    uttDismiss,
+        uttGoEat,     uttMining,          uttDie,        uttGoOutShowHungry,  uttAttackHouse,
+        uttThrowRock);
 
-  TKMUnitActionName = (uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack, uan_Steer);
+  TKMUnitActionName = (uanStay, uanWalkTo, uanGoInOut, uanAbandonWalk, uanFight, uanStormAttack, uanSteer);
 
-  TKMUnitActionType = (ua_Walk=120, ua_Work, ua_Spec, ua_Die, ua_Work1,
-                     ua_Work2, ua_WorkEnd, ua_Eat, ua_WalkArm, ua_WalkTool,
-                     ua_WalkBooty, ua_WalkTool2, ua_WalkBooty2, ua_Unknown);
+  TKMUnitActionType = (uaWalk=120, uaWork, uaSpec, uaDie, uaWork1,
+                     uaWork2, uaWorkEnd, uaEat, uaWalkArm, uaWalkTool,
+                     uaWalkBooty, uaWalkTool2, uaWalkBooty2, uaUnknown);
   TKMUnitActionTypeSet = set of TKMUnitActionType;
 
 const
-  UnitAct: array [TKMUnitActionType] of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
-             'ua_Work2', 'ua_WorkEnd', 'ua_Eat', 'ua_WalkArm', 'ua_WalkTool',
-             'ua_WalkBooty', 'ua_WalkTool2', 'ua_WalkBooty2', 'ua_Unknown');
+  UnitAct: array [TKMUnitActionType] of string = ('uaWalk', 'uaWork', 'uaSpec', 'uaDie', 'uaWork1',
+             'uaWork2', 'uaWorkEnd', 'uaEat', 'uaWalkArm', 'uaWalkTool',
+             'uaWalkBooty', 'uaWalkTool2', 'uaWalkBooty2', 'uaUnknown');
 
 
 const
-  FishCountAct: array [1..5] of TKMUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
+  FishCountAct: array [1..5] of TKMUnitActionType = (uaWalk, uaWork, uaSpec, uaDie, uaWork1);
 
 
 type
   TKMGatheringScript = (
-    gs_None,
-    gs_WoodCutterCut, gs_WoodCutterPlant,
-    gs_FarmerSow, gs_FarmerCorn, gs_FarmerWine,
-    gs_FisherCatch,
-    gs_StoneCutter,
-    gs_CoalMiner, gs_GoldMiner, gs_IronMiner,
-    gs_HorseBreeder, gs_SwineBreeder);
+    gsNone,
+    gsWoodCutterCut, gsWoodCutterPlant,
+    gsFarmerSow, gsFarmerCorn, gsFarmerWine,
+    gsFisherCatch,
+    gsStoneCutter,
+    gsCoalMiner, gsGoldMiner, gsIronMiner,
+    gsHorseBreeder, gsSwineBreeder);
 
 {Houses in game}
 type
   //House has 3 basic states: no owner inside, owner inside, owner working inside
-  TKMHouseState = (hst_Empty, hst_Idle, hst_Work);
+  TKMHouseState = (hstEmpty, hstIdle, hstWork);
   //These are house building states
-  TKMHouseBuildState = (hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
+  TKMHouseBuildState = (hbsNoGlyph, hbsWood, hbsStone, hbsDone);
 
   TKMHouseActionType = (
-    ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5, //Start, InProgress, .., .., Finish
-    ha_Smoke, ha_Flagpole, ha_Idle,
-    ha_Flag1, ha_Flag2, ha_Flag3,
-    ha_Fire1, ha_Fire2, ha_Fire3, ha_Fire4, ha_Fire5, ha_Fire6, ha_Fire7, ha_Fire8);
+    haWork1, haWork2, haWork3, haWork4, haWork5, //Start, InProgress, .., .., Finish
+    haSmoke, haFlagpole, haIdle,
+    haFlag1, haFlag2, haFlag3,
+    haFire1, haFire2, haFire3, haFire4, haFire5, haFire6, haFire7, haFire8);
   TKMHouseActionSet = set of TKMHouseActionType;
 
 const
@@ -628,34 +643,34 @@ type
   //This is very similar to that used in KaM and is quite flexable/expandable.
   //(we can add more parameters/conditions as well as existing KaM ones, possibly using a new script command)
   //Some things are probably named unclearly, please give me suggestions or change them. Goals are the one part
-  //of scripting that seems to confuse everyone at first, mainly because of the TGoalStatus. In 99% of cases gs_True and gt_Defeat
+  //of scripting that seems to confuse everyone at first, mainly because of the TGoalStatus. In 99% of cases gsTrue and gtDefeat
   //go together, because the if the defeat conditions is NOT true you lose, not the other way around. I guess it should be called a
   //"survival" conditions rather than defeat.
   //I put some examples below to give you an idea of how it works. Remember this is basically a copy of the goal scripting system in KaM,
   //not something I designed. It can change, this is just easiest to implement from script compatability point of view.
 
-  TKMGoalType = (glt_None = 0,  //Means: It is not required for victory or defeat (e.g. simply display a message)
-               glt_Victory, //Means: "The following condition must be true for you to win"
-               glt_Survive);//Means: "The following condition must be true or else you lose"
+  TKMGoalType = (gltNone = 0,  //Means: It is not required for victory or defeat (e.g. simply display a message)
+               gltVictory, //Means: "The following condition must be true for you to win"
+               gltSurvive);//Means: "The following condition must be true or else you lose"
   //Conditions are the same numbers as in KaM script
-  TKMGoalCondition = (gc_Unknown0,      //Not used/unknown
-                    gc_BuildTutorial,   //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
-                    gc_Time,            //A certain time must pass
-                    gc_Buildings,       //Storehouse, school, barracks, TownHall
-                    gc_Troops,          //All troops
-                    gc_Unknown5,        //Not used/unknown
-                    gc_MilitaryAssets,  //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
-                    gc_SerfsAndSchools, //Serfs (possibly all citizens?) and schoolhouses
-                    gc_EconomyBuildings //School, Inn and Storehouse
+  TKMGoalCondition = (gcUnknown0,      //Not used/unknown
+                    gcBuildTutorial,   //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
+                    gcTime,            //A certain time must pass
+                    gcBuildings,       //Storehouse, school, barracks, TownHall
+                    gcTroops,          //All troops
+                    gcUnknown5,        //Not used/unknown
+                    gcMilitaryAssets,  //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
+                    gcSerfsAndSchools, //Serfs (possibly all citizens?) and schoolhouses
+                    gcEconomyBuildings //School, Inn and Storehouse
                     //We can come up with our own
                     );
 
-  TKMGoalStatus = (gs_True = 0, gs_False = 1); //Weird that it's inverted, but KaM uses it that way
+  TKMGoalStatus = (gsTrue = 0, gsFalse = 1); //Weird that it's inverted, but KaM uses it that way
 
 const
   //We discontinue support of other goals in favor of PascalScript scripts
   GoalsSupported: set of TKMGoalCondition =
-    [gc_Buildings, gc_Troops, gc_MilitaryAssets, gc_SerfsAndSchools, gc_EconomyBuildings];
+    [gcBuildings, gcTroops, gcMilitaryAssets, gcSerfsAndSchools, gcEconomyBuildings];
 
   GoalConditionStr: array [TKMGoalCondition] of string = (
     'Unknown 0',
@@ -776,6 +791,7 @@ const
   icGray = $FF808080;
   icGray2 = $FF888888;
   icLightGray = $FFA0A0A0;
+  icLightGray2 = $FFD0D0D0;
   icLightGrayTrans = $80A0A0A0;
   icWhite = $FFFFFFFF;
   icBlack = $FF000000;
@@ -794,6 +810,9 @@ const
   icGoldenYellow = $FF00B0FF;
   icAmberBrown = $FF006797;
   icDarkGoldenRod = $FF0080B0; // brown shade color
+
+  icBarColorGreen = $FF00AA26;
+  icBarColorBlue = $FFBBAA00;
 
   // Interface colors (by usage)
   clPingLow = icGreen;
@@ -842,6 +861,9 @@ const
   clPlayerSelf = icRed;
   clPlayerAlly = icYellow;
   clPlayerEnemy = icCyan;
+
+  clScriptCmdName = icYellow;
+  clScriptCmdParam = icLightGray;
 
 //  clGameSelf = icRed;
 //  clGameAlly = icYellow;

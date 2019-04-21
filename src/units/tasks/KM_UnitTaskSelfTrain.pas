@@ -31,7 +31,7 @@ constructor TKMTaskSelfTrain.Create(aUnit: TKMUnit; aSchool: TKMHouseSchool);
 begin
   inherited Create(aUnit);
 
-  fTaskName := utn_SelfTrain;
+  fType := uttSelfTrain;
   fSchool   := TKMHouseSchool(aSchool.GetHousePointer);
   fUnit.Visible := False;
 end;
@@ -56,8 +56,8 @@ begin
   if (gGame = nil) or gGame.IsExiting then Exit; //fSchool will already be freed
 
   // If we abandon for some reason, clear the school animation
-  if (fPhase <= 5) and not fSchool.IsDestroyed then
-    fSchool.SetState(hst_Idle);
+  if (fSchool <> nil) and (fPhase <= 5) and not fSchool.IsDestroyed then
+    fSchool.SetState(hstIdle);
 
   gHands.CleanUpHousePointer(TKMHouse(fSchool));
 
@@ -67,7 +67,7 @@ end;
 
 function TKMTaskSelfTrain.Execute:TKMTaskResult;
 begin
-  Result := tr_TaskContinues;
+  Result := trTaskContinues;
 
   //If the school has been destroyed then this task should not be running (school frees it on CloseHouse)
   //However, if we are past phase 6 (task ends on phase 7) then the school does not know about us (we have stepped outside)
@@ -78,39 +78,39 @@ begin
   with fUnit do
     case fPhase of
       0: begin
-          fSchool.SetState(hst_Work);
-          fSchool.CurrentAction.SubActionWork(ha_Work1);
-          SetActionLockedStay(29, ua_Walk);
+          fSchool.SetState(hstWork);
+          fSchool.CurrentAction.SubActionWork(haWork1);
+          SetActionLockedStay(29, uaWalk);
         end;
       1: begin
-          fSchool.CurrentAction.SubActionWork(ha_Work2);
-          SetActionLockedStay(29, ua_Walk);
+          fSchool.CurrentAction.SubActionWork(haWork2);
+          SetActionLockedStay(29, uaWalk);
         end;
       2: begin
-          fSchool.CurrentAction.SubActionWork(ha_Work3);
-          SetActionLockedStay(29, ua_Walk);
+          fSchool.CurrentAction.SubActionWork(haWork3);
+          SetActionLockedStay(29, uaWalk);
         end;
       3: begin
-          fSchool.CurrentAction.SubActionWork(ha_Work4);
-          SetActionLockedStay(29, ua_Walk);
+          fSchool.CurrentAction.SubActionWork(haWork4);
+          SetActionLockedStay(29, uaWalk);
         end;
       4: begin
-          fSchool.CurrentAction.SubActionWork(ha_Work5);
-          SetActionLockedStay(29, ua_Walk);
+          fSchool.CurrentAction.SubActionWork(haWork5);
+          SetActionLockedStay(29, uaWalk);
         end;
       5: begin
-          fSchool.SetState(hst_Idle);
-          SetActionLockedStay(9, ua_Walk);
+          fSchool.SetState(hstIdle);
+          SetActionLockedStay(9, uaWalk);
          end;
       6: begin
           // Put him in the school, so if it is destroyed while he is looking for place to exit he is placed somewhere
           fUnit.InHouse := fSchool;
-          SetActionGoIn(ua_Walk, gd_GoOutside, fSchool);
+          SetActionGoIn(uaWalk, gdGoOutside, fSchool);
           fSchool.UnitTrainingComplete(fUnit);
           if Assigned(fUnit.OnUnitTrained) then
             fUnit.OnUnitTrained(fUnit);
          end;
-      else Result := tr_TaskDone;
+      else Result := trTaskDone;
     end;
   Inc(fPhase);
 end;

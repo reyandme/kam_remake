@@ -2,14 +2,14 @@ unit KM_AIDefensePos;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_UnitGroups,
+  KM_UnitGroup,
   KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 type
   //For now IDs must match with KaM
-  TAIDefencePosType = (adt_FrontLine=0, //Front line troops may not go on attacks, they are for defence
-                       adt_BackLine=1); //Back line troops may attack
+  TAIDefencePosType = (adtFrontLine=0, //Front line troops may not go on attacks, they are for defence
+                       adtBackLine=1); //Back line troops may attack
 
   TKMFormation = record NumUnits, UnitsPerRow: Integer; end;
 
@@ -262,7 +262,7 @@ var I: Integer;
 begin
   Result := 0;
   for I := 0 to Count - 1 do
-    if Positions[I].fDefenceType = adt_BackLine then
+    if Positions[I].fDefenceType = adtBackLine then
       Inc(Result);
 end;
 
@@ -368,10 +368,10 @@ begin
   begin
     Required := TroopFormations[Positions[I].GroupType].NumUnits;
     case Positions[I].GroupType of
-      gt_Melee:     Inc(aFootmen, Required);
-      gt_AntiHorse: Inc(aPikemen, Required);
-      gt_Ranged:    Inc(aArchers, Required);
-      gt_Mounted:   Inc(aHorsemen, Required);
+      gtMelee:     Inc(aFootmen, Required);
+      gtAntiHorse: Inc(aPikemen, Required);
+      gtRanged:    Inc(aArchers, Required);
+      gtMounted:   Inc(aHorsemen, Required);
     end;
   end;
 end;
@@ -447,7 +447,7 @@ procedure TAIDefencePositions.Paint;
 var I: Integer;
 begin
   for I := 0 to Count - 1 do
-    if Positions[I].fDefenceType = adt_FrontLine then
+    if Positions[I].fDefenceType = adtFrontLine then
       gRenderAux.Quad(Positions[I].fPosition.Loc.X, Positions[I].fPosition.Loc.Y, $FFFF0000)
     else
       gRenderAux.Quad(Positions[I].fPosition.Loc.X, Positions[I].fPosition.Loc.Y, $FF00FF00)

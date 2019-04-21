@@ -9,7 +9,7 @@ uses
 
 //Used to separate close-combat units from archers (they use different fighting logic)
 type
-  TFightType = (ft_Melee, ft_Ranged);
+  TFightType = (ftMelee, ftRanged);
 
   TKMUnitDat = packed record
     HitPoints, Attack, AttackHorse, x4, Defence, Speed, x7, Sight: SmallInt;
@@ -19,7 +19,7 @@ type
 
   TKMUnitSprite = packed record
     Act: array [TKMUnitActionType] of packed record
-      Dir: array [dir_N..dir_NW] of TKMAnimLoop;
+      Dir: array [dirN..dirNW] of TKMAnimLoop;
     end;
   end;
 
@@ -79,7 +79,7 @@ type
   private
     fCRC: Cardinal;
     fItems: array [TKMUnitType] of TKMUnitSpec;
-    fSerfCarry: array [WARE_MIN..WARE_MAX, dir_N..dir_NW] of TKMAnimLoop;
+    fSerfCarry: array [WARE_MIN..WARE_MAX, dirN..dirNW] of TKMAnimLoop;
     function LoadUnitsDat(const aPath: UnicodeString): Cardinal;
     function GetItem(aType: TKMUnitType): TKMUnitSpec; inline;
     function GetSerfCarry(aType: TKMWareType; aDir: TKMDirection): TKMAnimLoop;
@@ -103,17 +103,17 @@ const
   //This is a map of the valid values for !SET_UNIT,
   //TSK did not had place for new warriors that were inserted in the middle(!)
   UnitOldIndexToType: array[0..31] of TKMUnitType = (
-    ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,ut_Farmer,
-    ut_Lamberjack,ut_Baker,ut_Butcher,ut_Fisher,ut_Worker,
-    ut_StoneCutter,ut_Smith,ut_Metallurgist,ut_Recruit, //Units
-    ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
-    ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //Troops
-    ut_Wolf,ut_Fish,ut_Watersnake,ut_Seastar,ut_Crab,
-    ut_Waterflower,ut_Waterleaf,ut_Duck); //Animals
+    utSerf,utWoodcutter,utMiner,utAnimalBreeder,utFarmer,
+    utLamberjack,utBaker,utButcher,utFisher,utWorker,
+    utStoneCutter,utSmith,utMetallurgist,utRecruit, //Units
+    utMilitia,utAxeFighter,utSwordsman,utBowman,utArbaletman,
+    utPikeman,utHallebardman,utHorseScout,utCavalry,utBarbarian, //Troops
+    utWolf,utFish,utWatersnake,utSeastar,utCrab,
+    utWaterflower,utWaterleaf,utDuck); //Animals
 
   //and the corresponing unit that will be created (matches KaM behavior)
   UnitTypeToOldIndex: array[TKMUnitType] of integer = (
-  -1, -1, //ut_None, ut_Any
+  -1, -1, //utNone, utAny
   0,1,2,3,4,5,6,7,8,9,10,11,12,13, //Citizens
   14,15,16,17,18,19,20,21,22,23, //Warriors
   -1,-1,-1,-1, {-1,-1,} //TPR warriors (can't be placed with SET_UNIT)
@@ -121,42 +121,42 @@ const
 
   //This is a map of the valid values for !SET_GROUP, and the corresponing unit that will be created (matches KaM behavior)
   UnitIndexToType: array[0..40] of TKMUnitType = (
-    ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,ut_Farmer,
-    ut_Lamberjack,ut_Baker,ut_Butcher,ut_Fisher,ut_Worker,
-    ut_StoneCutter,ut_Smith,ut_Metallurgist,ut_Recruit, //Units
-    ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
-    ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
-    ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,
-    {ut_Catapult,ut_Ballista}ut_None,ut_None, //Placeholder for Seige weapons
-    ut_Wolf, ut_Fish, ut_Watersnake, ut_Seastar, ut_Crab,
-    ut_Waterflower, ut_Waterleaf, ut_Duck,
-    ut_None, ut_None, ut_None
+    utSerf,utWoodcutter,utMiner,utAnimalBreeder,utFarmer,
+    utLamberjack,utBaker,utButcher,utFisher,utWorker,
+    utStoneCutter,utSmith,utMetallurgist,utRecruit, //Units
+    utMilitia,utAxeFighter,utSwordsman,utBowman,utArbaletman,
+    utPikeman,utHallebardman,utHorseScout,utCavalry,utBarbarian, //TSK Troops
+    utPeasant,utSlingshot,utMetalBarbarian,utHorseman,
+    {utCatapult,utBallista}utNone,utNone, //Placeholder for Seige weapons
+    utWolf, utFish, utWatersnake, utSeastar, utCrab,
+    utWaterflower, utWaterleaf, utDuck,
+    utNone, utNone, utNone
     );
 
   UnitTypeToIndex: array[TKMUnitType] of ShortInt = (
-  -1, -1, //ut_None, ut_Any
+  -1, -1, //utNone, utAny
   0,1,2,3,4,5,6,7,8,9,10,11,12,13, //Citizens
   14,15,16,17,18,19,20,21,22,23, //Warriors
   24,25,26,27, {28,29,} //TPR warriors
   30,31,32,33,34,35,36,37); //Animals
 
 
-  //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
-  TROOP_COST: array [ut_Militia..ut_Cavalry, 1..4] of TKMWareType = (
-    (wt_Axe,          wt_None,        wt_None,  wt_None ), //Militia
-    (wt_Shield,       wt_Armor,       wt_Axe,   wt_None ), //Axefighter
-    (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_None ), //Swordfighter
-    (wt_Armor,        wt_Bow,         wt_None,  wt_None ), //Bowman
-    (wt_MetalArmor,   wt_Arbalet,     wt_None,  wt_None ), //Crossbowman
-    (wt_Armor,        wt_Pike,        wt_None,  wt_None ), //Lance Carrier
-    (wt_MetalArmor,   wt_Hallebard,   wt_None,  wt_None ), //Pikeman
-    (wt_Shield,       wt_Armor,       wt_Axe,   wt_Horse), //Scout
-    (wt_MetalShield,  wt_MetalArmor,  wt_Sword, wt_Horse)  //Knight
+  //Number means ResourceType as it is stored in Barracks, hence it's not rtSomething
+  TROOP_COST: array [utMilitia..utCavalry, 1..4] of TKMWareType = (
+    (wtAxe,          wtNone,        wtNone,  wtNone ), //Militia
+    (wtShield,       wtArmor,       wtAxe,   wtNone ), //Axefighter
+    (wtMetalShield,  wtMetalArmor,  wtSword, wtNone ), //Swordfighter
+    (wtArmor,        wtBow,         wtNone,  wtNone ), //Bowman
+    (wtMetalArmor,   wtArbalet,     wtNone,  wtNone ), //Crossbowman
+    (wtArmor,        wtPike,        wtNone,  wtNone ), //Lance Carrier
+    (wtMetalArmor,   wtHallebard,   wtNone,  wtNone ), //Pikeman
+    (wtShield,       wtArmor,       wtAxe,   wtHorse), //Scout
+    (wtMetalShield,  wtMetalArmor,  wtSword, wtHorse)  //Knight
   );
 
 
 
-  //The frame shown when a unit is standing still in ua_Walk. Same for all units!
+  //The frame shown when a unit is standing still in uaWalk. Same for all units!
   UnitStillFrames: array [TKMDirection] of Byte = (0,3,2,2,1,6,7,6,6);
 
 var
@@ -186,7 +186,7 @@ end;
 
 function TKMUnitSpec.IsValid: boolean;
 begin
-  Result := not (fUnitType in [ut_None, ut_Any]);
+  Result := not (fUnitType in [utNone, utAny]);
 end;
 
 
@@ -218,7 +218,7 @@ function TKMUnitSpec.GetDefenceVsProjectiles(aIsBolt: Boolean): Single;
 begin
   Result := Defence;
   //Shielded units get a small bonus
-  if fUnitType in [ut_AxeFighter, ut_Swordsman, ut_HorseScout, ut_Cavalry] then
+  if fUnitType in [utAxeFighter, utSwordsman, utHorseScout, utCavalry] then
     if aIsBolt then
       Result := Result + 0.25
     else
@@ -237,35 +237,35 @@ end;
 function TKMUnitSpec.SupportsAction(aAct: TKMUnitActionType): Boolean;
 const UnitSupportedActions: array [TKMUnitType] of TKMUnitActionTypeSet = (
     [], [], //None, Any
-    [ua_Walk, ua_Die, ua_Eat, ua_WalkArm], //Serf
-    [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkTool2],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die..ua_WalkBooty2],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Work1..ua_WalkBooty],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat, ua_Work1, ua_Work2],
-    [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Spec, ua_Die, ua_Eat], //Recruit
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Militia
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Axeman
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Swordsman
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Bowman
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Crossbowman
-    [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat], //Cavalry
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Barbarian
-    [ua_Walk, ua_Work, ua_Die, ua_Eat], //Rebel
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Slingshot
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Warrior
-    [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk]); //Animals
+    [uaWalk, uaDie, uaEat, uaWalkArm], //Serf
+    [uaWalk, uaWork, uaDie, uaWork1, uaEat..uaWalkTool2],
+    [uaWalk, uaDie, uaEat],
+    [uaWalk, uaDie, uaEat],
+    [uaWalk, uaWork, uaDie..uaWalkBooty2],
+    [uaWalk, uaDie, uaEat],
+    [uaWalk, uaDie, uaEat],
+    [uaWalk, uaDie, uaEat],
+    [uaWalk, uaWork, uaDie, uaWork1..uaWalkBooty],
+    [uaWalk, uaWork, uaDie, uaEat, uaWork1, uaWork2],
+    [uaWalk, uaWork, uaDie, uaWork1, uaEat..uaWalkBooty],
+    [uaWalk, uaDie, uaEat],
+    [uaWalk, uaDie, uaEat],
+    [uaWalk, uaSpec, uaDie, uaEat], //Recruit
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Militia
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Axeman
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Swordsman
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Bowman
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Crossbowman
+    [uaWalk, uaWork, uaDie, uaEat],
+    [uaWalk, uaWork, uaDie, uaEat],
+    [uaWalk, uaWork, uaDie, uaEat],
+    [uaWalk, uaWork, uaDie, uaEat], //Cavalry
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Barbarian
+    [uaWalk, uaWork, uaDie, uaEat], //Rebel
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Slingshot
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Warrior
+    [uaWalk, uaWork, uaDie, uaEat],
+    [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk]); //Animals
 begin
   Result := aAct in UnitSupportedActions[fUnitType];
 end;
@@ -286,7 +286,7 @@ end;
 //Where unit would like to be
 function TKMUnitSpec.GetDesiredPassability: TKMTerrainPassability;
 begin
-  if fUnitType in [CITIZEN_MIN..CITIZEN_MAX] - [ut_Worker] then
+  if fUnitType in [CITIZEN_MIN..CITIZEN_MAX] - [utWorker] then
     Result := tpWalkRoad //Citizens except Worker
   else
     Result := GetAllowedPassability; //Workers, warriors, animals
@@ -295,16 +295,16 @@ end;
 
 function TKMUnitSpec.GetFightType: TFightType;
 const WarriorFightType: array[WARRIOR_MIN..WARRIOR_MAX] of TFightType = (
-    ft_Melee,ft_Melee,ft_Melee, //Militia, AxeFighter, Swordsman
-    ft_Ranged,ft_Ranged,        //Bowman, Arbaletman
-    ft_Melee,ft_Melee,          //Pikeman, Hallebardman,
-    ft_Melee,ft_Melee,          //HorseScout, Cavalry,
-    ft_Melee,                   //Barbarian
-    ft_Melee,                   //Peasant
-    ft_Ranged,                  //ut_Slingshot
-    ft_Melee,                   //ut_MetalBarbarian
-    ft_Melee                    //ut_Horseman
-    {ft_Ranged,ft_Ranged,       //ut_Catapult, ut_Ballista,}
+    ftMelee,ftMelee,ftMelee, //Militia, AxeFighter, Swordsman
+    ftRanged,ftRanged,        //Bowman, Arbaletman
+    ftMelee,ftMelee,          //Pikeman, Hallebardman,
+    ftMelee,ftMelee,          //HorseScout, Cavalry,
+    ftMelee,                   //Barbarian
+    ftMelee,                   //Peasant
+    ftRanged,                  //utSlingshot
+    ftMelee,                   //utMetalBarbarian
+    ftMelee                    //utHorseman
+    {ftRanged,ftRanged,       //utCatapult, utBallista,}
     );
 begin
   Assert(fUnitType in [Low(WarriorFightType)..High(WarriorFightType)]);
@@ -315,8 +315,8 @@ end;
 function TKMUnitSpec.GetGUIIcon: Word;
 begin
   case fUnitType of
-    ut_None, ut_Any:  Result := 0;
-    ut_Barbarian:     Result := 70;
+    utNone, utAny:  Result := 0;
+    utBarbarian:     Result := 70;
   else
     if IsCitizen then
       Result := 141 + UnitTypeToIndex[fUnitType]
@@ -357,10 +357,10 @@ end;
 function TKMUnitSpec.GetMiningRange: byte;
 begin
   case fUnitType of
-    ut_Woodcutter:  Result := 10;
-    ut_Farmer:      Result := 10;
-    ut_Stonecutter: Result := 16;
-    ut_Fisher:      Result := 14;
+    utWoodcutter:  Result := 10;
+    utFarmer:      Result := 10;
+    utStonecutter: Result := 16;
+    utFisher:      Result := 14;
     else            raise Exception.Create(GUIName + ' has no mining range');
   end;
 end;
@@ -374,7 +374,7 @@ end;
 
 function TKMUnitSpec.GetUnitAnim(aAction: TKMUnitActionType; aDir: TKMDirection): TKMAnimLoop;
 begin
-  Assert(aDir <> dir_NA);
+  Assert(aDir <> dirNA);
   Assert(aAction in [Low(TKMUnitActionType)..High(TKMUnitActionType)]);
   Result := fUnitSprite.Act[aAction].Dir[aDir];
 end;
@@ -384,14 +384,14 @@ function TKMUnitSpec.GetUnitTextID: Integer;
 begin
   if IsValid then
     case fUnitType of
-      ut_Wolf:        Result := TX_UNITS_WOLF;
-      ut_Fish:        Result := TX_UNITS_FISH;
-      ut_Watersnake:  Result := TX_UNITS_WATERSNAKE;
-      ut_Seastar:     Result := TX_UNITS_SEASTAR;
-      ut_Crab:        Result := TX_UNITS_CRAB;
-      ut_Waterflower: Result := TX_UNITS_WATERFLOWER;
-      ut_Waterleaf:   Result := TX_UNITS_WATERLEAF;
-      ut_Duck:        Result := TX_UNITS_DUCK;
+      utWolf:        Result := TX_UNITS_WOLF;
+      utFish:        Result := TX_UNITS_FISH;
+      utWatersnake:  Result := TX_UNITS_WATERSNAKE;
+      utSeastar:     Result := TX_UNITS_SEASTAR;
+      utCrab:        Result := TX_UNITS_CRAB;
+      utWaterflower: Result := TX_UNITS_WATERFLOWER;
+      utWaterleaf:   Result := TX_UNITS_WATERLEAF;
+      utDuck:        Result := TX_UNITS_DUCK;
       else            Result := TX_UNITS_NAMES__29 + UnitTypeToIndex[fUnitType];
     end
   else
@@ -402,8 +402,8 @@ end;
 function TKMUnitSpec.GetUnitName: UnicodeString;
 begin
   case fUnitType of
-    ut_Any:             Result := gResTexts[TX_UNITS_ALL];
-    ut_None:            Result := 'N/A';
+    utAny:             Result := gResTexts[TX_UNITS_ALL];
+    utNone:            Result := 'N/A';
     else                Result := gResTexts[GetUnitTextID];
   end;
 end;
@@ -429,9 +429,9 @@ begin
     fItems[U] := TKMUnitSpec.Create(U);
 
   fCRC := LoadUnitsDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
-  fItems[ut_HorseScout].fUnitDat.Sight := 16;
-  fItems[ut_Horseman].fUnitDat.Attack := 35;
-  fItems[ut_Peasant].fUnitDat.AttackHorse := 55;
+  fItems[utHorseScout].fUnitDat.Sight := 16;
+  fItems[utHorseman].fUnitDat.Attack := 35;
+  fItems[utPeasant].fUnitDat.AttackHorse := 55;
   //ExportCSV(ExeDir+'units.csv');
 end;
 
@@ -547,7 +547,7 @@ begin
     S.Read(fSerfCarry, SizeOf(fSerfCarry){28*8*70});
 
     for I := 0 to UNIT_DAT_COUNT - 1 do
-    if UnitIndexToType[I] <> ut_None then
+    if UnitIndexToType[I] <> utNone then
       fItems[UnitIndexToType[I]].LoadFromStream(S)
     else //Skip
       S.Seek(SizeOf(TKMUnitDat) + SizeOf(TKMUnitSprite) + SizeOf(TKMUnitSprite2), soFromCurrent);

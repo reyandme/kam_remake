@@ -47,10 +47,10 @@ begin
   inherited Create;
 
   Panel_PlayerTypes := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_PlayerTypes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS_TYPE], fnt_Outline, taCenter);
-  TKMLabel.Create(Panel_PlayerTypes,  4, 30, 20, 20, '#',       fnt_Grey, taLeft);
+  TKMLabel.Create(Panel_PlayerTypes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS_TYPE], fntOutline, taCenter);
+  TKMLabel.Create(Panel_PlayerTypes,  4, 30, 20, 20, '#',       fntGrey, taLeft);
 
-  with TKMLabel.Create(Panel_PlayerTypes, 24, 30, 30, 20, gResTexts[TX_MAPED_PLAYERS_DEFAULT_SHORT], fnt_Grey, taLeft) do
+  with TKMLabel.Create(Panel_PlayerTypes, 24, 30, 30, 20, gResTexts[TX_MAPED_PLAYERS_DEFAULT_SHORT], fntGrey, taLeft) do
     Hint := gResTexts[TX_MAPED_PLAYERS_DEFAULT];
   with TKMImage.Create(Panel_PlayerTypes,75, 30, 60, 20, 588, rxGui) do
     Hint := gResTexts[TX_PLAYER_HUMAN];
@@ -61,11 +61,11 @@ begin
 
   for I := 0 to MAX_HANDS - 1 do
   begin                                                         //   25
-    Label_PlayerId[I] := TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*22, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
+    Label_PlayerId[I] := TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*22, 20, 20, IntToStr(I+1), fntOutline, taLeft);
 
     for K := 0 to 3 do
     begin
-      CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 34+K*42, 48+I*22, 20, 20, '', fnt_Metal);
+      CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 34+K*42, 48+I*22, 20, 20, '', fntMetal);
       CheckBox_PlayerTypes[I,K].Tag       := I;
       CheckBox_PlayerTypes[I,K].OnClick   := Mission_PlayerTypesChange;
     end;
@@ -85,10 +85,10 @@ begin
     Image_Confirm_PlayerDelete := TKMImage.Create(PopUp_Confirm_PlayerDelete, 0, 0, PopUp_Confirm_PlayerDelete.Width, PopUp_Confirm_PlayerDelete.Height, 15, rxGuiMain);
     Image_Confirm_PlayerDelete.ImageStretch;
 
-    Label_PlayerDeleteConfirmTitle := TKMLabel.Create(PopUp_Confirm_PlayerDelete, PopUp_Confirm_PlayerDelete.Width div 2, 40, Format(gResTexts[TX_MAPED_PLAYER_DELETE_TITLE], [0]), fnt_Outline, taCenter);
+    Label_PlayerDeleteConfirmTitle := TKMLabel.Create(PopUp_Confirm_PlayerDelete, PopUp_Confirm_PlayerDelete.Width div 2, 40, Format(gResTexts[TX_MAPED_PLAYER_DELETE_TITLE], [0]), fntOutline, taCenter);
     Label_PlayerDeleteConfirmTitle.Anchors := [anLeft, anBottom];
 
-    Label_PlayerDeleteConfirm := TKMLabel.Create(PopUp_Confirm_PlayerDelete, PopUp_Confirm_PlayerDelete.Width div 2, 85, gResTexts[TX_MAPED_PLAYER_DELETE_CONFIRM], fnt_Metal, taCenter);
+    Label_PlayerDeleteConfirm := TKMLabel.Create(PopUp_Confirm_PlayerDelete, PopUp_Confirm_PlayerDelete.Width div 2, 85, gResTexts[TX_MAPED_PLAYER_DELETE_CONFIRM], fntMetal, taCenter);
     Label_PlayerDeleteConfirm.Anchors := [anLeft, anBottom];
 
     Button_PlayerDeleteConfirm := TKMButton.Create(PopUp_Confirm_PlayerDelete, 20, 155, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
@@ -123,7 +123,7 @@ procedure TKMMapEdMissionPlayers.PlayerDeleteConfirm(aVisible: Boolean);
 begin
   if aVisible then
   begin
-    Label_PlayerDeleteConfirmTitle.Caption := Format(gResTexts[TX_MAPED_PLAYER_DELETE_TITLE], [gMySpectator.HandIndex + 1]);
+    Label_PlayerDeleteConfirmTitle.Caption := Format(gResTexts[TX_MAPED_PLAYER_DELETE_TITLE], [gMySpectator.HandID + 1]);
     PopUp_Confirm_PlayerDelete.Show;
   end else
     PopUp_Confirm_PlayerDelete.Hide;
@@ -141,7 +141,7 @@ begin
 
   if Sender = Button_PlayerDeleteConfirm then
   begin
-    gGame.MapEditor.DeletePlayer(gMySpectator.HandIndex);
+    gGame.MapEditor.DeletePlayer(gMySpectator.HandID);
     PlayerDeleteConfirm(False);
 
     Mission_PlayerIdUpdate;
@@ -215,8 +215,8 @@ end;
 
 procedure TKMMapEdMissionPlayers.UpdatePlayer;
 begin
-  Button_PlayerDelete.Enabled := gHands[gMySpectator.HandIndex].HasAssets;
-  Button_PlayerDelete.Caption := Format(gResTexts[TX_MAPED_PLAYER_DELETE], [gMySpectator.HandIndex + 1]);
+  Button_PlayerDelete.Enabled := gHands[gMySpectator.HandID].HasAssets;
+  Button_PlayerDelete.Caption := Format(gResTexts[TX_MAPED_PLAYER_DELETE], [gMySpectator.HandID + 1]);
 end;
 
 

@@ -96,17 +96,17 @@ begin
   Panel_Replays := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Replays.AnchorsStretch;
 
-  TKMLabel.Create(Panel_Replays, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Replays, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fntOutline, taCenter);
 
   TKMBevel.Create(Panel_Replays, 22, 86, 956, 50);
-  Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays, 30, 94, 250, 40, fnt_Grey);
+  Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays, 30, 94, 250, 40, fntGrey);
   Radio_Replays_Type.ItemIndex := 0;
   Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
   Radio_Replays_Type.Add(gResTexts[TX_MENU_MAPED_MPMAPS]);
   Radio_Replays_Type.OnChange := Replay_TypeChange;
 
-  ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 22, 145, 956, 400, fnt_Metal, bsMenu);
-  ColumnBox_Replays.SetColumns(fnt_Outline,
+  ColumnBox_Replays := TKMColumnBox.Create(Panel_Replays, 22, 145, 956, 400, fntMetal, bsMenu);
+  ColumnBox_Replays.SetColumns(fntOutline,
                                ['', gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]],
                                [0, 22, 440, 580]);
   ColumnBox_Replays.Anchors := [anLeft,anTop,anBottom];
@@ -116,7 +116,7 @@ begin
   ColumnBox_Replays.OnDoubleClick := Replays_Play;
 
   MinimapView_Replay := TKMMinimapView.Create(Panel_Replays, 630, 555, 191, 191, True);
-  MinimapView_Replay.Anchors := [anLeft];
+  MinimapView_Replay.Anchors := [anLeft, anBottom];
 
   Button_ReplaysPlay := TKMButton.Create(Panel_Replays, 200, 560, 350, 30, gResTexts[TX_MENU_VIEW_REPLAY], bsMenu);
   Button_ReplaysPlay.Anchors := [anLeft,anBottom];
@@ -146,10 +146,10 @@ begin
   Image_Delete := TKMImage.Create(PopUp_Delete, 0, 0, PopUp_Delete.Width, PopUp_Delete.Height, 15, rxGuiMain);
   Image_Delete.ImageStretch;
 
-  Label_DeleteTitle := TKMLabel.Create(PopUp_Delete, 20, 50, 360, 30, gResTexts[TX_MENU_REPLAY_DELETE_TITLE], fnt_Outline, taCenter);
+  Label_DeleteTitle := TKMLabel.Create(PopUp_Delete, 20, 50, 360, 30, gResTexts[TX_MENU_REPLAY_DELETE_TITLE], fntOutline, taCenter);
   Label_DeleteTitle.Anchors := [anLeft,anBottom];
 
-  Label_DeleteConfirm := TKMLabel.Create(PopUp_Delete, 25, 75, 350, 75, gResTexts[TX_MENU_REPLAY_DELETE_CONFIRM], fnt_Metal, taCenter);
+  Label_DeleteConfirm := TKMLabel.Create(PopUp_Delete, 25, 75, 350, 75, gResTexts[TX_MENU_REPLAY_DELETE_CONFIRM], fntMetal, taCenter);
   Label_DeleteConfirm.Anchors := [anLeft,anBottom];
   Label_DeleteConfirm.AutoWrap := True;
 
@@ -173,13 +173,13 @@ begin
   Image_Rename := TKMImage.Create(PopUp_Rename, 0, 0, PopUp_Rename.Width, PopUp_Rename.Height, 15, rxGuiMain);
   Image_Rename.ImageStretch;
 
-  Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, gResTexts[TX_MENU_REPLAY_RENAME_TITLE], fnt_Outline, taCenter);
+  Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, gResTexts[TX_MENU_REPLAY_RENAME_TITLE], fntOutline, taCenter);
   Label_RenameTitle.Anchors := [anLeft,anBottom];
 
-  Label_RenameName := TKMLabel.Create(PopUp_Rename, 25, 100, 60, 20, gResTexts[TX_MENU_REPLAY_RENAME_NAME], fnt_Metal, taLeft);
+  Label_RenameName := TKMLabel.Create(PopUp_Rename, 25, 100, 60, 20, gResTexts[TX_MENU_REPLAY_RENAME_NAME], fntMetal, taLeft);
   Label_RenameName.Anchors := [anLeft,anBottom];
 
-  Edit_Rename := TKMEdit.Create(PopUp_Rename, 105, 97, 275, 20, fnt_Metal);
+  Edit_Rename := TKMEdit.Create(PopUp_Rename, 105, 97, 275, 20, fntMetal);
   Edit_Rename.Anchors := [anLeft,anBottom];
   Edit_Rename.AllowedChars := acFileName;
   Edit_Rename.OnChange := Edit_Rename_Change;
@@ -353,9 +353,9 @@ begin
   try
     for I := 0 to fSaves.Count - 1 do
     begin
-      Row := MakeListRow(['', fSaves[i].FileName, fSaves[i].Info.GetSaveTimestamp, fSaves[I].Info.GetTitleWithTime],
+      Row := MakeListRow(['', fSaves[i].FileName, fSaves[i].GameInfo.GetSaveTimestamp, fSaves[I].GameInfo.GetTitleWithTime],
                          [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF]);
-      Row.Cells[0].Pic := MakePic(rxGui, 657 + Byte(fSaves[I].Info.MissionMode = mm_Tactic));
+      Row.Cells[0].Pic := MakePic(rxGui, 657 + Byte(fSaves[I].GameInfo.MissionMode = mmTactic));
       ColumnBox_Replays.AddItem(Row);
     end;
 

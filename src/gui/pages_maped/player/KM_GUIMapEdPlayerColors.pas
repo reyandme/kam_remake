@@ -54,14 +54,14 @@ begin
   inherited Create;
 
   Panel_Color := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYER_COLORS], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYER_COLORS], fntOutline, taCenter);
   TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 202);
   ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 2, 32, 16, 18, 11);
 
   //Show Color Code
-  TKMLabel.Create(Panel_Color, 0, 240, gResTexts[TX_MAPED_PLAYER_COLOR_CODE], fnt_Outline, taLeft);
+  TKMLabel.Create(Panel_Color, 0, 240, gResTexts[TX_MAPED_PLAYER_COLOR_CODE], fntOutline, taLeft);
   TKMBevel.Create(Panel_Color, 0, 260, COLOR_TYPE_W, 70);
-  Radio_ColorCodeType := TKMRadioGroup.Create(Panel_Color, 5, 273, COLOR_TYPE_W - 5, 50, fnt_Metal);
+  Radio_ColorCodeType := TKMRadioGroup.Create(Panel_Color, 5, 273, COLOR_TYPE_W - 5, 50, fntMetal);
   Radio_ColorCodeType.Add('BGR', gResTexts[TX_MAPED_PLAYER_COLOR_BGR_HINT]); //No need to translate BGR / RGB
   Radio_ColorCodeType.Add('RGB', gResTexts[TX_MAPED_PLAYER_COLOR_RGB_HINT]);
   Radio_ColorCodeType.OnChange := ColorCodeChange;
@@ -69,7 +69,7 @@ begin
 
   TKMBevel.Create(Panel_Color, COLOR_TYPE_W + 5, 260, 20, 20);
   Shape_Color := TKMShape.Create(Panel_Color, COLOR_TYPE_W + 7, 262, 17, 17);
-  Edit_ColorCode := TKMEdit.Create(Panel_Color, COLOR_TYPE_W + 25, 260, TB_WIDTH - COLOR_TYPE_W - 25, 20, fnt_Metal, True);
+  Edit_ColorCode := TKMEdit.Create(Panel_Color, COLOR_TYPE_W + 25, 260, TB_WIDTH - COLOR_TYPE_W - 25, 20, fntMetal, True);
   Edit_ColorCode.AllowedChars := acHex;
   Edit_ColorCode.MaxLen := 6;
   Edit_ColorCode.OnChange := ColorCodeChange;
@@ -77,13 +77,13 @@ begin
 
   Panel_TextColor := TKMPanel.Create(Panel_Color, COLOR_TYPE_W + 5, 290, TB_WIDTH - COLOR_TYPE_W - 5, 40);
   Panel_TextColor.Hint := gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR_HINT];
-    Label_TextColor := TKMLabel.Create(Panel_TextColor, 0, 0, gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR], fnt_Grey, taLeft);
+    Label_TextColor := TKMLabel.Create(Panel_TextColor, 0, 0, gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR], fntGrey, taLeft);
     //Edit to show text color code (desaturated) Could be used for scripts overlay
     with TKMBevel.Create(Panel_TextColor, 0, 20, 20, 20) do
       Hint := gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR_HINT];
     Shape_TextColor := TKMShape.Create(Panel_TextColor, 2, 22, 17, 17);
     Shape_TextColor.Hint := gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR_HINT];
-    Edit_TextColorCode := TKMEdit.Create(Panel_TextColor, 20, 20, Panel_TextColor.Width - 20, 20, fnt_Metal, True);
+    Edit_TextColorCode := TKMEdit.Create(Panel_TextColor, 20, 20, Panel_TextColor.Width - 20, 20, fntMetal, True);
     Edit_TextColorCode.BlockInput := True;
     Edit_TextColorCode.Hint := gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR_HINT];
 

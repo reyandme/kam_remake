@@ -48,9 +48,9 @@ begin
   Panel_CampSelect := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_CampSelect.AnchorsStretch;
 
-    TKMLabel.Create(Panel_CampSelect, 80, 140, 575, 20, gResTexts[TX_MENU_CAMP_HEADER], fnt_Outline, taCenter).AnchorsCenter;
-    ColumnBox_Camps := TKMColumnBox.Create(Panel_CampSelect, 80, 170, 575, 360, fnt_Grey, bsMenu);
-    ColumnBox_Camps.SetColumns(fnt_Outline, [gResTexts[TX_MENU_CAMPAIGNS_TITLE],
+    TKMLabel.Create(Panel_CampSelect, 80, 140, 575, 20, gResTexts[TX_MENU_CAMP_HEADER], fntOutline, taCenter).AnchorsCenter;
+    ColumnBox_Camps := TKMColumnBox.Create(Panel_CampSelect, 80, 170, 575, 360, fntGrey, bsMenu);
+    ColumnBox_Camps.SetColumns(fntOutline, [gResTexts[TX_MENU_CAMPAIGNS_TITLE],
                                              gResTexts[TX_MENU_CAMPAIGNS_MAPS_COUNT],
                                              gResTexts[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED]],
                                              [0, 305, 440]);
@@ -64,12 +64,12 @@ begin
     Image_CampsPreview.ImageStretch;
     Image_CampsPreview.AnchorsCenter;
 
-    Memo_CampDesc := TKMMemo.Create(Panel_CampSelect, 669, 390, 275, 140, fnt_Game, bsMenu);
+    Memo_CampDesc := TKMMemo.Create(Panel_CampSelect, 669, 390, 275, 140, fntGame, bsMenu);
     Memo_CampDesc.AnchorsCenter;
     Memo_CampDesc.AutoWrap := True;
     Memo_CampDesc.ItemHeight := 16;
 
-    L := TKMLabel.Create(Panel_CampSelect, 80, 540, 864, 40, gResTexts[TX_MENU_CAMP_HINT], fnt_Grey, taCenter);
+    L := TKMLabel.Create(Panel_CampSelect, 80, 540, 864, 40, gResTexts[TX_MENU_CAMP_HINT], fntGrey, taCenter);
     L.AnchorsCenter;
     L.AutoWrap := True;
 
@@ -96,9 +96,9 @@ begin
   for I := 0 to Camps.Count - 1 do
   begin
     ColumnBox_Camps.AddItem(MakeListRow(
-                        [Camps[I].CampaignTitle, IntToStr(Camps[I].MapCount), IntToStr(Camps[I].UnlockedMap + 1)],
+                        [Camps[I].GetCampaignTitle, IntToStr(Camps[I].MapCount), IntToStr(Camps[I].UnlockedMap + 1)],
                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF], I));
-    if Camps[I].CampName = gGameApp.GameSettings.MenuCampaignName then
+    if Camps[I].ShortName = gGameApp.GameSettings.MenuCampaignName then
     begin
       ColumnBox_Camps.ItemIndex := I;
       ListChange(nil);
@@ -134,8 +134,8 @@ begin
     Image_CampsPreview.RX := Camp.BackGroundPic.RX;
     Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
 
-    Memo_CampDesc.Text := Camp.CampaignDescription;
-    gGameApp.GameSettings.MenuCampaignName := Camp.CampName;
+    Memo_CampDesc.Text := Camp.GetCampaignDescription;
+    gGameApp.GameSettings.MenuCampaignName := Camp.ShortName;
   end;
 end;
 
@@ -146,7 +146,7 @@ var
 begin
   //Get the caption and pass it to Campaign selection menu (it will be casted to TKMCampaignName there)
   //so that we avoid cast/uncast/cast along the event chain
-  cmp := gGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampName;
+  cmp := gGameApp.Campaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].ShortName;
   fOnPageChange(gpCampaign, cmp);
 end;
 

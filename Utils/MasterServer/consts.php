@@ -13,6 +13,4 @@ $TABLE_REFRESH = 23; //seconds
 $TIME_REFRESH = 307; //seconds
 
 //URL where the master server is located. Used for links to images, etc.
-$BASE_URL = "http://kam.hodgman.id.au/"; //Must end in a slash
-
-?>
+$BASE_URL = "https://kam.hodgman.id.au/"; //Must end in a slash

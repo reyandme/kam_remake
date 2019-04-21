@@ -251,7 +251,7 @@ begin
 
     gHands[0].AI.Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
 
-    gGameApp.StopGame(gr_Silent);
+    gGameApp.StopGame(grSilent);
   end;
 
   TearDown;

@@ -1,6 +1,8 @@
 //-- TSK09 --//
 //24.01.2018
 
+{$I difficulty.script}
+
 //Gives AI-Players Units a Random Hunger Level (2/3 to Max)
 procedure UnitsRandomHungerSet();
 var 

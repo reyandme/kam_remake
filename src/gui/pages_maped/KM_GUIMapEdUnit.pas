@@ -3,7 +3,7 @@ unit KM_GUIMapEdUnit;
 interface
 uses
    Classes, Controls, KromUtils, Math, StrUtils, SysUtils,
-   KM_Controls, KM_Defaults, KM_Pics, KM_Units, KM_UnitGroups,
+   KM_Controls, KM_Defaults, KM_Pics, KM_Units, KM_UnitGroup,
    KM_Points, KM_InterfaceGame;
 
 type
@@ -26,7 +26,7 @@ type
     Label_UnitName: TKMLabel;
     Label_UnitCondition: TKMLabel;
     Label_UnitDescription: TKMLabel;
-    KMConditionBar_Unit: TKMPercentBar;
+    ConditionBar_Unit: TKMPercentBar;
     Button_ConditionInc, Button_ConditionDefault, Button_ConditionDec: TKMButton;
     Image_UnitPic: TKMImage;
 
@@ -61,11 +61,11 @@ begin
   inherited Create;
 
   Panel_Unit := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
-  Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,0,'',fnt_Outline,taCenter);
+  Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,0,'',fntOutline,taCenter);
   Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
-  Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,0,gResTexts[TX_UNIT_CONDITION],fnt_Grey,taCenter);
+  Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,0,gResTexts[TX_UNIT_CONDITION],fntGrey,taCenter);
 
-  KMConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
+  ConditionBar_Unit       := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
   Button_ConditionDec     := TKMButton.Create(Panel_Unit,65,78,20,20,'-', bsGame);
   Button_ConditionInc     := TKMButton.Create(Panel_Unit,161,78,20,20,'+', bsGame);
   Button_ConditionDefault := TKMButton.Create(Panel_Unit,86,78,74,20,'default', bsGame);
@@ -76,7 +76,7 @@ begin
   Button_ConditionInc.OnClickHold  := UnitConditionsClickHold;
   Button_ConditionDefault.OnClickShift  := UnitConditionsChange;
 
-  Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,TB_WIDTH,200,'',fnt_Grey,taLeft); //Taken from LIB resource
+  Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,TB_WIDTH,200,'',fntGrey,taLeft); //Taken from LIB resource
   Label_UnitDescription.AutoWrap := True;
 
   Panel_Army := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 400);
@@ -84,7 +84,7 @@ begin
   Button_Army_RotCW   := TKMButton.Create(Panel_Army,     124,  0, 56, 40, 24, rxGui, bsGame);
   Button_Army_ForUp   := TKMButton.Create(Panel_Army,       0, 46, 56, 40, 33, rxGui, bsGame);
   ImageStack_Army     := TKMImageStack.Create(Panel_Army,  62, 46, 56, 40, 43, 50);
-  Label_ArmyCount     := TKMLabel.Create(Panel_Army,       62, 60, 56, 20, '-', fnt_Outline, taCenter);
+  Label_ArmyCount     := TKMLabel.Create(Panel_Army,       62, 60, 56, 20, '-', fntOutline, taCenter);
   Button_Army_ForDown := TKMButton.Create(Panel_Army,     124, 46, 56, 40, 32, rxGui, bsGame);
   Button_Army_RotCW.OnClick   := Unit_ArmyChange1;
   Button_Army_RotCCW.OnClick  := Unit_ArmyChange1;
@@ -107,20 +107,20 @@ begin
 
   //Group order
   //todo: Orders should be placed with a cursor (but keep numeric input as well?)
-  TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, gResTexts[TX_MAPED_GROUP_ORDER], fnt_Outline, taLeft);
-  DropBox_ArmyOrder := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fnt_Metal, '', bsGame);
+  TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, gResTexts[TX_MAPED_GROUP_ORDER], fntOutline, taLeft);
+  DropBox_ArmyOrder := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fntMetal, '', bsGame);
   DropBox_ArmyOrder.Add(gResTexts[TX_MAPED_GROUP_ORDER_NONE]);
   DropBox_ArmyOrder.Add(gResTexts[TX_MAPED_GROUP_ORDER_WALK]);
   DropBox_ArmyOrder.Add(gResTexts[TX_MAPED_GROUP_ORDER_ATTACK]);
   DropBox_ArmyOrder.OnChange := Unit_ArmyChange1;
 
-  TKMLabel.Create(Panel_Army, 0, 185, 'X:', fnt_Grey, taLeft);
+  TKMLabel.Create(Panel_Army, 0, 185, 'X:', fntGrey, taLeft);
   Edit_ArmyOrderX := TKMNumericEdit.Create(Panel_Army, 20, 185, 0, 255);
   Edit_ArmyOrderX.OnChange := Unit_ArmyChange1;
-  TKMLabel.Create(Panel_Army, 0, 205, 'Y:', fnt_Grey, taLeft);
+  TKMLabel.Create(Panel_Army, 0, 205, 'Y:', fntGrey, taLeft);
   Edit_ArmyOrderY := TKMNumericEdit.Create(Panel_Army, 20, 205, 0, 255);
   Edit_ArmyOrderY.OnChange := Unit_ArmyChange1;
-  TKMLabel.Create(Panel_Army, 110, 185, gResTexts[TX_MAPED_GROUP_ORDER_DIRECTION], fnt_Grey, taLeft);
+  TKMLabel.Create(Panel_Army, 110, 185, gResTexts[TX_MAPED_GROUP_ORDER_DIRECTION], fntGrey, taLeft);
   Edit_ArmyOrderDir := TKMNumericEdit.Create(Panel_Army, 110, 205, 0, 7);
   Edit_ArmyOrderDir.OnChange := Unit_ArmyChange1;
 end;
@@ -133,9 +133,11 @@ begin
 
   Label_UnitDescription.Show;
   Panel_Unit.Show;
-  Button_ConditionInc.Hide;
-  Button_ConditionDec.Hide;
-  Button_ConditionDefault.Hide;
+
+  Button_ConditionInc.Visible := MAPED_SHOW_CONDITION_UNIT_BTNS;
+  Button_ConditionDec.Visible := MAPED_SHOW_CONDITION_UNIT_BTNS;
+  Button_ConditionDefault.Visible := MAPED_SHOW_CONDITION_UNIT_BTNS;
+  Button_ConditionDefault.Enabled := not fUnit.StartWDefaultCondition;
   Panel_Army.Hide;
 
   if fUnit = nil then Exit;
@@ -143,7 +145,7 @@ begin
   Label_UnitName.Caption := gRes.Units[fUnit.UnitType].GUIName;
   Image_UnitPic.TexID := gRes.Units[fUnit.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gHands[fUnit.Owner].FlagColor;
-  KMConditionBar_Unit.Position := fUnit.Condition / UNIT_MAX_CONDITION;
+  ConditionBar_Unit.Position := fUnit.Condition / UNIT_MAX_CONDITION;
 
   Label_UnitDescription.Caption := gRes.Units[fUnit.UnitType].Description;
 end;
@@ -167,7 +169,7 @@ begin
   Label_UnitName.Caption := gRes.Units[fGroup.UnitType].GUIName;
   Image_UnitPic.TexID := gRes.Units[fGroup.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gHands[fGroup.Owner].FlagColor;
-  KMConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
+  ConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
 
   //Warrior specific
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
@@ -181,28 +183,45 @@ end;
 
 
 procedure TKMMapEdUnit.UnitConditionsChange(Sender: TObject; Shift: TShiftState);
+var
+  U: TKMUnit;
+  NewCondition: Integer;
 begin
+  if fUnit = nil then
+    U := fGroup.FlagBearer
+  else
+    U := fUnit;
+
+  NewCondition := U.Condition;
+
   if Sender = Button_ConditionDefault then
-    fGroup.FlagBearer.StartWDefaultCondition := not fGroup.FlagBearer.StartWDefaultCondition
+    U.StartWDefaultCondition := not U.StartWDefaultCondition
   else if Sender = Button_ConditionInc then
   begin
-    fGroup.Condition := fGroup.Condition + GetMultiplicator(Shift);
-    fGroup.FlagBearer.StartWDefaultCondition := False;
+    NewCondition := U.Condition + GetMultiplicator(Shift);
+    U.StartWDefaultCondition := False;
     Button_ConditionDefault.Enable;
   end else if Sender = Button_ConditionDec then
   begin
-    fGroup.Condition := fGroup.Condition - GetMultiplicator(Shift);
-    fGroup.FlagBearer.StartWDefaultCondition := False;
+    NewCondition := U.Condition - GetMultiplicator(Shift);
+    U.StartWDefaultCondition := False;
     Button_ConditionDefault.Enable;
   end;
 
-  if fGroup.FlagBearer.StartWDefaultCondition then
+  if fGroup <> nil then
+    fGroup.Condition := NewCondition
+  else
+    fUnit.Condition := NewCondition;
+
+  if U.StartWDefaultCondition then
   begin
-    KMConditionBar_Unit.Position := 0.5;
-    fGroup.Condition := UNIT_MAX_CONDITION div 2;
+    if fGroup <> nil then
+      fGroup.Condition := TKMUnitGroup.GetDefaultCondition
+    else
+      fUnit.Condition := TKMUnit.GetDefaultCondition;
     Button_ConditionDefault.Disable;
-  end else
-    KMConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
+  end;
+  ConditionBar_Unit.Position := U.Condition / UNIT_MAX_CONDITION;
 end;
 
 
@@ -246,10 +265,10 @@ begin
   if Sender = Button_ArmyFood then
   begin
     if fGroup.Condition = UNIT_MAX_CONDITION then
-      fGroup.Condition := UNIT_MAX_CONDITION div 2
+      fGroup.Condition := TKMUnitGroup.GetDefaultCondition
     else
       fGroup.Condition := UNIT_MAX_CONDITION;
-    KMConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
+    ConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
   end;
 
   fGroup.MapEdOrder.Order := TKMInitialOrder(DropBox_ArmyOrder.ItemIndex);

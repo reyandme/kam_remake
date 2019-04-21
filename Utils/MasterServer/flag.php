@@ -5,7 +5,7 @@ function IPToCountry($ip) {
 
 	if (!file_exists('ip_files/' . $piece . '.php'))
 		$country="unknown";
-	
+
 	include 'ip_files/' . $piece . '.php';
 	foreach ($entries AS $e)
 	{
@@ -29,5 +29,3 @@ function GetCountryName($Country)
 	include("ip_files/countries.php");
 	return $countries[$Country][1];
 }
-
-?>

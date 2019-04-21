@@ -1,12 +1,13 @@
 ﻿Since r6720:
 <===================================================================================>
 Todo:
-  Update translation for labels: 153, 270, 276, 537, 548, 549, 642. Remove 964, 671
+  Update translation for labels: 153, 270, 276, 457, 537, 548, 549, 642, 775, 802. Remove 964, 671
 Bugs:
  +  Lobby map list should show 8 locations at most, since only 8 locations can be used by humans at once
  +  Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
  +  Armour smithy has shields as 2nd output, armour workshop has shields as 1st output. Would make sense to match them (note: simply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
  +  When units exit Barracks and auto-join another group, they change that groups formation
+ +  Group do not get halt order anymore (and stop attack) when warrior die while group is attacking house, when group is linked with other group, when just trained warrior joined group, after split order
  +  Disabled controls could have focus and receive keyboard input
  +  Colored rectangle below cursor
  +  Fix situation, when 1 worker, constructing house from the entrance tile, blocks wood/stone delivery by serfs
@@ -91,6 +92,7 @@ Improvements:
  +  H  Fixed situation, when 1 player lags cause all players to lag
  +     Added ability to setup server as 'standart' - limit map roster and set range limits for peacetime and game speeds
  +     Allow to setup Server name with leading spaces in settings.ini
+ +     Added server ini setting to set it up only for games with Demo version of DynamicFOW
  Graphics:
  +  M  Terrain render improvement. Use openGL VBO to render tiles and animated tiles (water/falls/swamp). FPS increased up to 2 times
  +     Render optimisation: do not render anything under the FOW
@@ -108,8 +110,8 @@ Improvements:
  +    Ability to set players color to self / ally / enemy mode. Those color could be set in the settings.ini file (PlayerColorSelf/PlayerColorAlly/PlayerColorEnemy)
  +    Set maximum feed limit as 0.55, below trained units condition (0.6)
  +    House closed for worker feature
+ +    Slight route optimization for warriors attacking house
  +    Ability to forbid recruits to enter the barracks
- +  L Save wares distribution ratios between games
  +    Change unit training order in School on Ctrl+click, Shift+click
  +  L Pressing LMB over placed plans and dragging it - will remove plans
  +    Do not show owner of corn/wine tile on minimap
@@ -140,8 +142,13 @@ Improvements:
         Visual improvements
  
  Game menu:
- +    Game speed calculation is improved, that is why we need to reevaluate lobby game speed into values x1 - x1.25 - x1.5 - x1.75 - x2. Actual game speed remains the same
+ +    Added difficulty levels for SP/MP/Campaigns missions on their menus. Those levels could be obtained from the script and adjust mission accordingly
+ +    Added replay rewind (only backwards to number of savepoints)
+ +    Improved game speed calculation, that is why we need to reevaluate lobby game speed into values x1 - x1.25 - x1.5 - x1.75 - x2. Actual game speed remains the same
  +    New ability to mute annoying player in chat (both lobby chat and game chat) - text and also beacons
+ +    Show message in chat for AFK players
+ +    Added game chat enter history (console-like)
+ +  L Save wares distribution ratios between games
  +  L House not occupied message mentions which house it is ("This farm is not occupied")
  +  L Do switching of main game menu tabs with F1-F4 even if settings/save/load sub-menus are open
  +    Game stats 'Weapons produced' now contains horses as well
@@ -287,7 +294,8 @@ Improvements:
  +    Update to current version of remObjects PascalScript. 
  +    Added ability to include scripts. Added pascal style directives. Show exact error position in script. 
  +    Added support for ogg audio format with similar functions as for WAV (PlayOGG/PlayOGGAtLocation/PlayOGGAtLocationLooped/PlayOGGFadeMusic/PlayOGGLooped/StopLoopedOGG)
- +    Added ability to setup custom event handlers
+ +    Added ability to declare custom event handlers
+ +    Added support to declare custom player console commands
  +    New MapTilesArraySet function
  +    Added 32 utility functions into new scripts unit 'Utils'. Check wiki for details
  +    Added 4 procedures: OnGroupOrderAttackHouse/OnGroupOrderAttackUnit/OnGroupOrderLink/OnGroupOrderSplit
@@ -296,6 +304,8 @@ Improvements:
  +    Added States commands to check plans (house / road / field / winefield)
  +    Added various States AI functions 
  +    Added Actions.AIAttack function (Add/Remove)
+ +    Added new script module Utils
+ +    Added shortcuts for Actions/States/Utils as A/S/U
  
  Other: 
  +  L Saving and restoring games window position on restart
@@ -303,7 +313,7 @@ Improvements:
  +    All save files are placed in 1 folder. Same as for maps
  +    Ability to set decimal values for game speedups in INI file
  +    GIP commands are packed now. We have to send only needed field. It will reduce nettraffic and '.rpl' file size.
- +		Added ability to set Tabulation in game labels/texts. Can be used by scriptmakers to make better output
+ +		 Added ability to set Tabulation in game labels/texts. Can be used by scriptmakers to make better output
  +    Added setting FPSCap to set max fps limit
  +    Version label moved from all game menu to F11 Status bar
  +    Translation manager: Added filter on label name and label ID
@@ -312,6 +322,7 @@ Improvements:
  +    Added ini setting to always show game time label (ShowGameTime)
  +    Map format was changed (*.map file), that will significantly reduce map file sizes (~3 times)
  +    All maps were resaved to the new format, so they can't be open in older game version. Back compatibility is stored
+ +    Render game at least 1 frame per second, usefull to check game state on superfast game speeds (x300). Max time between renders could be adjusted in the ini parameter NoRenderMaxTime
  
    
    

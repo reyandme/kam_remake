@@ -25,7 +25,7 @@ type
     function GetResIn(aI: Byte): Word; override;
     procedure SetResIn(aI: Byte; aValue: Word); override;
   public
-    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
@@ -53,12 +53,12 @@ implementation
 uses
   Math,
   KM_Hand, KM_HandsCollection, KM_HandLogistics, KM_Terrain,
-  KM_Units_Warrior, KM_ResUnits,
+  KM_UnitWarrior, KM_ResUnits,
   KM_InterfaceGame;
 
 
 {TKMHouseTownHall}
-constructor TKMHouseTownHall.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+constructor TKMHouseTownHall.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
 begin
   inherited;
 
@@ -100,11 +100,11 @@ begin
   if not aFromScript then
   begin
     if OldGoldMax > fGoldMaxCnt then
-      gHands[fOwner].Deliveries.Queue.TryRemoveDemand(Self, wt_Gold, OldGoldMax - fGoldMaxCnt)
+      gHands[fOwner].Deliveries.Queue.TryRemoveDemand(Self, wtGold, OldGoldMax - fGoldMaxCnt)
     else if OldGoldMax < fGoldMaxCnt then
     begin
       //if fGoldCnt < fGoldMaxCnt then
-      gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, wt_Gold, fGoldMaxCnt - Max(OldGoldMax, fGoldCnt), dtOnce, diNorm);
+      gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, wtGold, fGoldMaxCnt - Max(OldGoldMax, fGoldCnt), dtOnce, diNorm);
     end;
   end;
 end;
@@ -165,8 +165,8 @@ begin
     //Take resources
     for I := 0 to TH_TROOP_COST[THUnitIndex] - 1 do
     begin  
-      ResTakeFromIn(wt_Gold); //Do the goldtaking
-      gHands[fOwner].Stats.WareConsumed(wt_Gold);
+      ResTakeFromIn(wtGold); //Do the goldtaking
+      gHands[fOwner].Stats.WareConsumed(wtGold);
     end;
       
     //Make new unit
@@ -174,7 +174,7 @@ begin
     Soldier.InHouse := Self; //Put him in the barracks, so if it is destroyed while he is inside he is placed somewhere
     Soldier.Visible := False; //Make him invisible as he is inside the barracks
     Soldier.Condition := Round(TROOPS_TRAINED_CONDITION * UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
-    Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
+    Soldier.SetActionGoIn(uaWalk, gdGoOutside, Self);
     if Assigned(Soldier.OnUnitTrained) then
       Soldier.OnUnitTrained(Soldier);
     Inc(Result);
@@ -200,7 +200,7 @@ end;
 
 procedure TKMHouseTownHall.AddInitialDemands;
 begin
-  gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, wt_Gold, fGoldMaxCnt - fGoldCnt, dtOnce, diNorm);
+  gHands[fOwner].Deliveries.Queue.AddDemand(Self, nil, wtGold, fGoldMaxCnt - fGoldCnt, dtOnce, diNorm);
 end;
 
 
@@ -234,15 +234,15 @@ end;
 
 function TKMHouseTownHall.ShouldAbandonDelivery(aWareType: TKMWareType): Boolean;
 begin
-  Result := inherited or (aWareType <> wt_Gold);
+  Result := inherited or (aWareType <> wtGold);
   if not Result then
-    Result := GoldCnt + gHands[Owner].Deliveries.Queue.GetDeliveriesToHouseCnt(Self, wt_Gold) > GoldMaxCnt;
+    Result := GoldCnt + gHands[Owner].Deliveries.Queue.GetDeliveriesToHouseCnt(Self, wtGold) > GoldMaxCnt;
 end;
 
 
 procedure TKMHouseTownHall.ResAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromScript: Boolean = False);
 begin
-  Assert(aWare = wt_Gold, 'Invalid resource added to TownHall');
+  Assert(aWare = wtGold, 'Invalid resource added to TownHall');
 
   // Allow to enlarge GoldMaxCnt from script (either from .dat or from .script)
   if aFromScript and (fGoldMaxCnt < fGoldCnt + aCount) then
@@ -268,7 +268,7 @@ end;
 
 procedure TKMHouseTownHall.ResTakeFromOut(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False);
 begin
-  Assert(aWare = wt_Gold, 'Invalid resource added to TownHall');
+  Assert(aWare = wtGold, 'Invalid resource added to TownHall');
   if aFromScript then
   begin
     aCount := Min(aCount, fGoldCnt);
@@ -288,14 +288,14 @@ end;
 function TKMHouseTownHall.CheckResIn(aWare: TKMWareType): Word;
 begin
   Result := 0; //Including Wood/stone in building stage
-  if aWare = wt_Gold then
+  if aWare = wtGold then
     Result := fGoldCnt;
 end;
 
 
 function TKMHouseTownHall.ResCanAddToIn(aRes: TKMWareType): Boolean;
 begin
-  Result := (aRes = wt_Gold) and (fGoldCnt < fGoldMaxCnt);
+  Result := (aRes = wtGold) and (fGoldCnt < fGoldMaxCnt);
 end;
 
 

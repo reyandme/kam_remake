@@ -19,7 +19,7 @@ type
 
 implementation
 uses
-  KM_ResSound, KM_Sound, KM_HandsCollection, KM_Resource, KM_Units_Warrior, KM_ScriptingEvents,
+  KM_ResSound, KM_Sound, KM_HandsCollection, KM_Resource, KM_UnitWarrior, KM_ScriptingEvents,
   KM_ResUnits;
 
 
@@ -27,7 +27,7 @@ uses
 constructor TKMTaskDie.Create(aUnit: TKMUnit; aShowAnimation: Boolean);
 begin
   inherited Create(aUnit);
-  fTaskName := utn_Die;
+  fType := uttDie;
   fShowAnimation := aShowAnimation;
   //Shortcut to remove the pause before the dying animation which makes fights look odd
   if aUnit.Visible then
@@ -55,39 +55,39 @@ end;
 function TKMTaskDie.Execute: TKMTaskResult;
 var
   SequenceLength: SmallInt;
-  TempOwner: TKMHandIndex;
+  TempOwner: TKMHandID;
   TempUnitType: TKMUnitType;
   TempX, TempY: Word;
 begin
-  Result := tr_TaskContinues;
+  Result := trTaskContinues;
   with fUnit do
   case fPhase of
     0:    if Visible then
-            SetActionLockedStay(0, ua_Walk)
+            SetActionLockedStay(0, uaWalk)
           else
           begin
-            if (GetHome <> nil) and not GetHome.IsDestroyed then
+            if (Home <> nil) and not Home.IsDestroyed then
             begin
-              GetHome.SetState(hst_Idle);
-              GetHome.SetState(hst_Empty);
+              Home.SetState(hstIdle);
+              Home.SetState(hstEmpty);
             end;
-            SetActionGoIn(ua_Walk, gd_GoOutside, gHands.HousesHitTest(fUnit.NextPosition.X, fUnit.NextPosition.Y));
+            SetActionGoIn(uaWalk, gdGoOutside, gHands.HousesHitTest(fUnit.NextPosition.X, fUnit.NextPosition.Y));
           end;
     1:    begin
             if not fShowAnimation or (fUnit is TKMUnitAnimal) then //Animals don't have a dying sequence. Can be changed later.
-              SetActionLockedStay(0, ua_Walk, False)
+              SetActionLockedStay(0, uaWalk, False)
             else
             begin
-              SequenceLength := gRes.Units[UnitType].UnitAnim[ua_Die, Direction].Count;
-              SetActionLockedStay(SequenceLength, ua_Die, False);
+              SequenceLength := gRes.Units[UnitType].UnitAnim[uaDie, Direction].Count;
+              SetActionLockedStay(SequenceLength, uaDie, False);
               //Do not play sounds if unit is invisible to gMySpectator
               //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-              if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) >= 255 then
+              if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.CurrPosition.X, fUnit.CurrPosition.Y) >= 255 then
               begin
                 if fUnit is TKMUnitWarrior then
-                  gSoundPlayer.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
+                  gSoundPlayer.PlayWarrior(fUnit.UnitType, spDeath, fUnit.PositionF)
                 else
-                  gSoundPlayer.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
+                  gSoundPlayer.PlayCitizen(fUnit.UnitType, spDeath, fUnit.PositionF);
               end;
             end;
           end;
@@ -95,8 +95,8 @@ begin
             //Store them before they get lost forever
             TempOwner := fUnit.Owner;
             TempUnitType := fUnit.UnitType;
-            TempX := fUnit.GetPosition.X;
-            TempY := fUnit.GetPosition.Y;
+            TempX := fUnit.CurrPosition.X;
+            TempY := fUnit.CurrPosition.Y;
 
             fUnit.CloseUnit;          //This will FreeAndNil the Task and mark unit as "closed"
 
@@ -104,7 +104,7 @@ begin
             //Notify the script that the unit is now gone from the game
             gScriptEvents.ProcUnitAfterDied(TempUnitType, TempOwner, TempX, TempY);
 
-            Result := tr_TaskContinues;  //Running UpdateState will exit without further changes
+            Result := trTaskContinues;  //Running UpdateState will exit without further changes
             Exit;                     //Next UpdateState won't happen cos unit is "closed"
           end;
   end;

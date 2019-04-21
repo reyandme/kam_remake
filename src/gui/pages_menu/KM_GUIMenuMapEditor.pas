@@ -153,10 +153,10 @@ begin
 
     Panel_MapFilter := TKMPanel.Create(Panel_MapEd, 60, 30, 220, 500);
     Panel_MapFilter.Anchors := [anLeft, anTop];
-      TKMLabel.Create(Panel_MapFilter, 6, 0, Panel_MapFilter.Width, 20, gResTexts[TX_MENU_MAP_FILTER], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_MapFilter, 6, 0, Panel_MapFilter.Width, 20, gResTexts[TX_MENU_MAP_FILTER], fntOutline, taLeft);
 
       TKMBevel.Create(Panel_MapFilter, 0, 20, Panel_MapFilter.Width, 60 + FILTER_PAD_Y);
-      Radio_MapType := TKMRadioGroup.Create(Panel_MapFilter,FILTER_PAD_X,20+FILTER_PAD_Y,Panel_MapFilter.Width - 2*FILTER_PAD_X,60,fnt_Grey);
+      Radio_MapType := TKMRadioGroup.Create(Panel_MapFilter,FILTER_PAD_X,20+FILTER_PAD_Y,Panel_MapFilter.Width - 2*FILTER_PAD_X,60,fntGrey);
       Radio_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
       Radio_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS_SHORT]);
       Radio_MapType.Add(gResTexts[TX_MENU_MAPED_DLMAPS]);
@@ -164,14 +164,14 @@ begin
       Radio_MapType.OnChange := MapTypeChange;
 
       TKMBevel.Create(Panel_MapFilter, 0, Radio_MapType.Bottom + FILTER_PAD_Y, Panel_MapFilter.Width, 40 + FILTER_PAD_Y);
-      Radio_BuildFight := TKMRadioGroup.Create(Panel_MapFilter, FILTER_PAD_X, Radio_MapType.Bottom + 2*FILTER_PAD_Y, Panel_MapFilter.Width - 2*FILTER_PAD_X, 40, fnt_Grey);
+      Radio_BuildFight := TKMRadioGroup.Create(Panel_MapFilter, FILTER_PAD_X, Radio_MapType.Bottom + 2*FILTER_PAD_Y, Panel_MapFilter.Width - 2*FILTER_PAD_X, 40, fntGrey);
       Radio_BuildFight.Add(gResTexts[TX_LOBBY_MAP_BUILD]);
       Radio_BuildFight.Add(gResTexts[TX_LOBBY_MAP_FIGHT]);
       Radio_BuildFight.AllowUncheck := True; //Allow uncheck filter radio
       Radio_BuildFight.OnChange := MapFilterChanged;
 
       TKMBevel.Create(Panel_MapFilter, 0, Radio_BuildFight.Bottom + FILTER_PAD_Y, Panel_MapFilter.Width, 40 + FILTER_PAD_Y);
-      Radio_CoopSpecial := TKMRadioGroup.Create(Panel_MapFilter, FILTER_PAD_X, Radio_BuildFight.Bottom + 2*FILTER_PAD_Y, Panel_MapFilter.Width - 2*FILTER_PAD_X, 40, fnt_Grey);
+      Radio_CoopSpecial := TKMRadioGroup.Create(Panel_MapFilter, FILTER_PAD_X, Radio_BuildFight.Bottom + 2*FILTER_PAD_Y, Panel_MapFilter.Width - 2*FILTER_PAD_X, 40, fntGrey);
       Radio_CoopSpecial.Add(gResTexts[TX_LOBBY_MAP_SPECIAL]);
       Radio_CoopSpecial.Add(gResTexts[TX_LOBBY_MAP_Coop]);
       Radio_CoopSpecial.AllowUncheck := True; //Allow uncheck filter radio
@@ -179,7 +179,7 @@ begin
 
       TKMBevel.Create(Panel_MapFilter, 0, Radio_CoopSpecial.Bottom + FILTER_PAD_Y, Panel_MapFilter.Width, 45 + 2*FILTER_PAD_Y);
       CheckBox_ByPlayerCnt := TKMCheckBox.Create(Panel_MapFilter, FILTER_PAD_X, Radio_CoopSpecial.Bottom + 2*FILTER_PAD_Y,
-                                                 Panel_MapFilter.Width - 2*FILTER_PAD_X, 20, gResTexts[TX_MENU_MAP_FILTER_BY_PLAYERS_NUMBER], fnt_Grey);
+                                                 Panel_MapFilter.Width - 2*FILTER_PAD_X, 20, gResTexts[TX_MENU_MAP_FILTER_BY_PLAYERS_NUMBER], fntGrey);
       CheckBox_ByPlayerCnt.OnClick := MapFilterChanged;
       TrackBar_PlayersCnt := TKMTrackBar.Create(Panel_MapFilter, FILTER_PAD_X, CheckBox_ByPlayerCnt.Bottom + FILTER_PAD_Y,
                                                 Panel_MapFilter.Width - 2*FILTER_PAD_X, 1, MAX_HANDS);
@@ -193,7 +193,7 @@ begin
         for MS := MAP_SIZE_ENUM_MIN to MAP_SIZE_ENUM_MAX do
         begin
           CheckBox_Sizes[MS] := TKMCheckBox.Create(Panel_MapFilter_Size, FILTER_PAD_X + 70*((Byte(MS)-1) div 2),
-                                                   FILTER_PAD_Y + 20*((Byte(MS)-1) mod 2), 60, 20, MapSizeText(MS), fnt_Metal);
+                                                   FILTER_PAD_Y + 20*((Byte(MS)-1) mod 2), 60, 20, MapSizeText(MS), fntMetal);
           CheckBox_Sizes[MS].Check;
           CheckBox_Sizes[MS].OnClick := MapFilterChanged;
         end;
@@ -204,16 +204,16 @@ begin
 
     Panel_NewMap := TKMPanel.Create(Panel_MapEd, 60, 394, 225, 308);
     Panel_NewMap.Anchors := [anLeft, anTop, anBottom];
-      TKMLabel.Create(Panel_NewMap, 6, 0, 188, 20, gResTexts[TX_MENU_NEW_MAP_SIZE], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_NewMap, 6, 0, 188, 20, gResTexts[TX_MENU_NEW_MAP_SIZE], fntOutline, taLeft);
       with TKMBevel.Create(Panel_NewMap, 0, 20, 220, 250) do
         Anchors := [anLeft, anTop, anBottom];
-      TKMLabel.Create(Panel_NewMap, 8, 28, 88, 20, gResTexts[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_NewMap, 118, 28, 88, 20, gResTexts[TX_MENU_MAP_HEIGHT], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_NewMap, 8, 28, 88, 20, gResTexts[TX_MENU_MAP_WIDTH], fntOutline, taLeft);
+      TKMLabel.Create(Panel_NewMap, 118, 28, 88, 20, gResTexts[TX_MENU_MAP_HEIGHT], fntOutline, taLeft);
 
-      Radio_NewMapSizeX := TKMRadioGroup.Create(Panel_NewMap, 10, 52, 88, 180, fnt_Metal);
+      Radio_NewMapSizeX := TKMRadioGroup.Create(Panel_NewMap, 10, 52, 88, 180, fntMetal);
       Radio_NewMapSizeX.Anchors := [anLeft, anTop, anBottom];
       Radio_NewMapSizeX.OnHeightChange := Radio_MapSizes_HeightChange;
-      Radio_NewMapSizeY := TKMRadioGroup.Create(Panel_NewMap, 120, 52, 88, 180, fnt_Metal);
+      Radio_NewMapSizeY := TKMRadioGroup.Create(Panel_NewMap, 120, 52, 88, 180, fntMetal);
       Radio_NewMapSizeY.Anchors := [anLeft, anTop, anBottom];
       Radio_NewMapSizeY.OnHeightChange := Radio_MapSizes_HeightChange;
 
@@ -240,11 +240,11 @@ begin
 
     Panel_MapEdLoad := TKMPanel.Create(Panel_MapEd, 305, 30, 440, 708);
     Panel_MapEdLoad.Anchors := [anLeft, anTop, anBottom];
-      TKMLabel.Create(Panel_MapEdLoad, 6, 0, Panel_MapEdLoad.Width - 12, 20, gResTexts[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_MapEdLoad, 6, 0, Panel_MapEdLoad.Width - 12, 20, gResTexts[TX_MENU_MAP_AVAILABLE], fntOutline, taLeft);
 
-      ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 20, 440, 576, fnt_Metal,  bsMenu);
+      ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 20, 440, 576, fntMetal,  bsMenu);
       ColumnBox_MapEd.Anchors := [anLeft, anTop, anBottom];
-      ColumnBox_MapEd.SetColumns(fnt_Outline, ['', '', gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 22, 44, 310, 340]);
+      ColumnBox_MapEd.SetColumns(fntOutline, ['', '', gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 22, 44, 310, 340]);
       ColumnBox_MapEd.SearchColumn := 2;
       ColumnBox_MapEd.OnColumnClick := ColumnClick;
       ColumnBox_MapEd.OnChange := SelectMap;
@@ -274,9 +274,9 @@ begin
       MinimapView_MapEd := TKMMinimapView.Create(Panel_MapInfo, 4, 4, 191, 191, True);
       MinimapView_MapEd.Anchors := [anLeft, anTop];
 
-      Label_MapType := TKMLabel.Create(Panel_MapInfo, 0, 199+10, '', fnt_Metal, taLeft);
+      Label_MapType := TKMLabel.Create(Panel_MapInfo, 0, 199+10, '', fntMetal, taLeft);
       Label_MapType.Anchors := [anLeft, anTop];
-      Memo_MapDesc := TKMMemo.Create(Panel_MapInfo, 0, 199+10, 199, Panel_MapInfo.Height - 199 - 10, fnt_Game, bsMenu);
+      Memo_MapDesc := TKMMemo.Create(Panel_MapInfo, 0, 199+10, 199, Panel_MapInfo.Height - 199 - 10, fntGame, bsMenu);
       Memo_MapDesc.Anchors := [anLeft, anTop, anBottom];
       Memo_MapDesc.AutoWrap := True;
       Memo_MapDesc.ItemHeight := 16;
@@ -303,10 +303,10 @@ begin
         Image_Delete := TKMImage.Create(PopUp_Delete, 0, 0, PopUp_Delete.Width, PopUp_Delete.Height, 15, rxGuiMain);
         Image_Delete.ImageStretch;
 
-        Label_MapDeleteConfirmTitle := TKMLabel.Create(PopUp_Delete, PopUp_Delete.Width div 2, 40, gResTexts[TX_MENU_MAP_DELETE], fnt_Outline, taCenter);
+        Label_MapDeleteConfirmTitle := TKMLabel.Create(PopUp_Delete, PopUp_Delete.Width div 2, 40, gResTexts[TX_MENU_MAP_DELETE], fntOutline, taCenter);
         Label_MapDeleteConfirmTitle.Anchors := [anLeft, anBottom];
 
-        Label_MapDeleteConfirm := TKMLabel.Create(PopUp_Delete, PopUp_Delete.Width div 2, 85, gResTexts[TX_MENU_MAP_DELETE_CONFIRM], fnt_Metal, taCenter);
+        Label_MapDeleteConfirm := TKMLabel.Create(PopUp_Delete, PopUp_Delete.Width div 2, 85, gResTexts[TX_MENU_MAP_DELETE_CONFIRM], fntMetal, taCenter);
         Label_MapDeleteConfirm.Anchors := [anLeft, anBottom];
 
         Button_MapDeleteConfirm := TKMButton.Create(PopUp_Delete, 20, 155, 195, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
@@ -329,13 +329,13 @@ begin
         Image_Rename := TKMImage.Create(PopUp_Rename, 0, 0, PopUp_Rename.Width, PopUp_Rename.Height, 15, rxGuiMain);
         Image_Rename.ImageStretch;
 
-        Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, 'Rename Map', fnt_Outline, taCenter);
+        Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, 'Rename Map', fntOutline, taCenter);
         Label_RenameTitle.Anchors := [anLeft,anBottom];
 
-        Label_RenameName := TKMLabel.Create(PopUp_Rename, 25, 100, 60, 20, gResTexts[TX_MENU_REPLAY_RENAME_NAME], fnt_Metal, taLeft);
+        Label_RenameName := TKMLabel.Create(PopUp_Rename, 25, 100, 60, 20, gResTexts[TX_MENU_REPLAY_RENAME_NAME], fntMetal, taLeft);
         Label_RenameName.Anchors := [anLeft,anBottom];
 
-        Edit_Rename := TKMEdit.Create(PopUp_Rename, 105, 97, 275, 20, fnt_Metal);
+        Edit_Rename := TKMEdit.Create(PopUp_Rename, 105, 97, 275, 20, fntMetal);
         Edit_Rename.Anchors := [anLeft,anBottom];
         Edit_Rename.AllowedChars := acFileName;
         Edit_Rename.OnChange := Edit_Rename_Change;
@@ -361,20 +361,20 @@ begin
         Image_Move := TKMImage.Create(PopUp_Move, 0, 0, PopUp_Move.Width, PopUp_Move.Height, 15, rxGuiMain);
         Image_Move.ImageStretch;
 
-        Label_MapMoveConfirmTitle := TKMLabel.Create(PopUp_Move, PopUp_Move.Width div 2, 40, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], fnt_Outline, taCenter);
+        Label_MapMoveConfirmTitle := TKMLabel.Create(PopUp_Move, PopUp_Move.Width div 2, 40, gResTexts[TX_MENU_MAP_MOVE_DOWNLOAD], fntOutline, taCenter);
         Label_MapMoveConfirmTitle.Anchors := [anLeft, anBottom];
 
-        Label_MapMoveName := TKMLabel.Create(PopUp_Move, 25, 75, 60, 20, gResTexts[TX_MENU_MAP_MOVE_NAME_TITLE], fnt_Metal, taLeft);
+        Label_MapMoveName := TKMLabel.Create(PopUp_Move, 25, 75, 60, 20, gResTexts[TX_MENU_MAP_MOVE_NAME_TITLE], fntMetal, taLeft);
         Label_MapMoveName.Anchors := [anLeft,anBottom];
 
-        Edit_MapMove := TKMEdit.Create(PopUp_Move, 105, 72, 275, 20, fnt_Grey);
+        Edit_MapMove := TKMEdit.Create(PopUp_Move, 105, 72, 275, 20, fntGrey);
         Edit_MapMove.Anchors := [anLeft, anBottom];
         Edit_MapMove.OnChange := MoveEditChange;
 
-        Label_MoveExists := TKMLabel.Create(PopUp_Move, 25, 100, gResTexts[TX_MAPED_SAVE_EXISTS], fnt_Outline, taLeft);
+        Label_MoveExists := TKMLabel.Create(PopUp_Move, 25, 100, gResTexts[TX_MAPED_SAVE_EXISTS], fntOutline, taLeft);
         Label_MoveExists.Anchors := [anLeft, anBottom];
         Label_MoveExists.Hide;
-        CheckBox_MoveExists := TKMCheckBox.Create(PopUp_Move, 25, 125, 300, 20, gResTexts[TX_MAPED_SAVE_OVERWRITE], fnt_Metal);
+        CheckBox_MoveExists := TKMCheckBox.Create(PopUp_Move, 25, 125, 300, 20, gResTexts[TX_MAPED_SAVE_OVERWRITE], fntMetal);
         CheckBox_MoveExists.Anchors := [anLeft, anBottom];
         CheckBox_MoveExists.OnClick := MoveEditChange;
 
@@ -684,8 +684,8 @@ begin
       if ((Radio_MapType.ItemIndex = 0) and not fMaps[I].IsSinglePlayer)  //SP map filter
         or ((Radio_MapType.ItemIndex = 1) and not fMaps[I].IsMultiPlayer) //MP map filter
         or ((Radio_MapType.ItemIndex = 2) and not fMaps[I].IsDownloaded)  //MP DL map filter
-        or ((Radio_BuildFight.ItemIndex = 0) and (fMaps[I].MissionMode <> mm_Normal)) //Build map filter
-        or ((Radio_BuildFight.ItemIndex = 1) and (fMaps[I].MissionMode <> mm_Tactic)) //Fight map filter
+        or ((Radio_BuildFight.ItemIndex = 0) and (fMaps[I].MissionMode <> mmNormal)) //Build map filter
+        or ((Radio_BuildFight.ItemIndex = 1) and (fMaps[I].MissionMode <> mmTactic)) //Fight map filter
         or ((Radio_CoopSpecial.ItemIndex = 0) and not fMaps[I].TxtInfo.IsSpecial)     //Special map filter
         or ((Radio_CoopSpecial.ItemIndex = 1) and not fMaps[I].TxtInfo.IsCoop)        //Coop map filter
         or (TrackBar_PlayersCnt.Enabled and (fMaps[I].LocCount <> TrackBar_PlayersCnt.Position)) //Players number map filter
@@ -707,7 +707,7 @@ begin
                        I);
       R.Cells[0].Pic := fMaps[I].FavouriteMapPic;
       R.Cells[0].HighlightOnMouseOver := True;
-      R.Cells[1].Pic := MakePic(rxGui, 657 + Byte(fMaps[I].MissionMode = mm_Tactic));
+      R.Cells[1].Pic := MakePic(rxGui, 657 + Byte(fMaps[I].MissionMode = mmTactic));
       R.Tag := I;
       ColumnBox_MapEd.AddItem(R);
 
@@ -987,7 +987,7 @@ end;
 
 procedure TKMMenuMapEditor.UpdateMapInfo(aID: Integer = -1);
 
-  function AddLabelDesc(aLabelDesc, aAddition: UnicodeString): UnicodeString;
+  function AddLabelDesc(aLabelDesc: UnicodeString; const aAddition: UnicodeString): UnicodeString;
   begin
     if aLabelDesc <> '' then
       aLabelDesc := aLabelDesc + '|';

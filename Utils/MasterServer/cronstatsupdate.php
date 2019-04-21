@@ -1,10 +1,10 @@
-<?
+<?php
 //Only allowed to run from cron job (CLI or wget from same server)
 (PHP_SAPI === 'cli') or ($_SERVER['SERVER_ADDR'] == $_SERVER['REMOTE_ADDR']) or die('not allowed');
 
-include_once("statistics.php");
-include_once("consts.php");
-include_once("db.php");
+require_once("statistics.php");
+require_once("consts.php");
+require_once("db.php");
 
 global $MAIN_VERSION;
 
@@ -19,4 +19,3 @@ function Update_Crontab() {
 }
 Update_Crontab();
 */
-?>

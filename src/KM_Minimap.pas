@@ -45,12 +45,12 @@ type
     property MapTex: TTexture read fMapTex;
     property PaintVirtualGroups: Boolean read fPaintVirtualGroups write fPaintVirtualGroups;
 
-    procedure LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandIndex);
+    procedure LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandID);
     procedure LoadFromTerrain;
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure SaveToStream(SaveStream: TKMemoryStream);
 
-    procedure Update(aRevealAll: Boolean);
+    procedure Update(aRevealAll: Boolean = False);
   end;
 
 
@@ -58,7 +58,7 @@ implementation
 uses
   SysUtils, KromUtils, Math,
   KM_GameApp, KM_Game, KM_Render, KM_AIFields, KM_AIInfluences,
-  KM_Units, KM_UnitGroups, KM_Hand, KM_HandsCollection,
+  KM_Units, KM_UnitGroup, KM_Hand, KM_HandsCollection,
   KM_Resource, KM_ResUnits, KM_CommonUtils, KM_Utils,
   KM_GameTypes;
 
@@ -86,7 +86,7 @@ end;
 
 
 //Load map in a direct way, should be used only when in Menu
-procedure TKMMinimap.LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandIndex);
+procedure TKMMinimap.LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandID);
 var
   I: Integer;
 begin
@@ -195,19 +195,22 @@ end;
 //MapEditor stores only commanders instead of all groups members
 procedure TKMMinimap.UpdateMinimapFromGame;
 
-  function GetColor(aHandId: TKMHandIndex): Cardinal;
+  function GetColor(aHandId: TKMHandID): Cardinal;
   begin
     if (gGame <> nil) then
     begin
-      if (gGame.IsMapEditor or gGameApp.GameSettings.ShowPlayersColors) then
-        Result := gHands[aHandId].FlagColor
-      else begin
-        if aHandId = gMySpectator.HandIndex then
-          Result := gGameApp.GameSettings.PlayerColorSelf
-        else if (gHands[aHandId].Alliances[gMySpectator.HandIndex] = at_Ally) then
-          Result := gGameApp.GameSettings.PlayerColorAlly
-        else
-          Result := gGameApp.GameSettings.PlayerColorEnemy;
+      Result := gHands[aHandId].FlagColor;
+      if not gGame.IsMapEditor then
+      begin
+        case gGameApp.GameSettings.PlayersColorMode of
+          pcmAllyEnemy: if aHandId = gMySpectator.HandID then
+                          Result := gGameApp.GameSettings.PlayerColorSelf
+                        else if (gHands[aHandId].Alliances[gMySpectator.HandID] = atAlly) then
+                          Result := gGameApp.GameSettings.PlayerColorAlly
+                        else
+                          Result := gGameApp.GameSettings.PlayerColorEnemy;
+          pcmTeams:     Result := gHands[aHandId].TeamColor;
+        end;
       end;
     end else
       Result := gHands[aHandId].FlagColor;
@@ -222,7 +225,7 @@ var
   DoesFit: Boolean;
   Light: Smallint;
   Group: TKMUnitGroup;
-  TileOwner: TKMHandIndex;
+  TileOwner: TKMHandID;
 begin
   //if OVERLAY_OWNERSHIP then
   //begin
@@ -315,7 +318,7 @@ begin
 end;
 
 
-procedure TKMMinimap.Update(aRevealAll: Boolean);
+procedure TKMMinimap.Update(aRevealAll: Boolean = False);
 begin
   if SKIP_RENDER then Exit;
 
@@ -342,7 +345,7 @@ begin
     Move(Pointer(NativeUint(fBase) + I * fMapX * 4)^,
          Pointer(NativeUint(wData) + I * fWidthPOT * 4)^, fMapX * 4);
 
-  TRender.UpdateTexture(fMapTex.Tex, fWidthPOT, fHeightPOT, tf_RGBA8, wData);
+  TRender.UpdateTexture(fMapTex.Tex, fWidthPOT, fHeightPOT, tfRGBA8, wData);
   FreeMem(wData);
 end;
 

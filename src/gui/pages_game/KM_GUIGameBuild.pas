@@ -51,15 +51,15 @@ begin
   inherited Create;
 
   Panel_Build := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
-    Label_Build := TKMLabel.Create(Panel_Build, 0, 10, TB_WIDTH, 0, '', fnt_Outline, taCenter);
+    Label_Build := TKMLabel.Create(Panel_Build, 0, 10, TB_WIDTH, 0, '', fntOutline, taCenter);
     Image_Build_Selected := TKMImage.Create(Panel_Build, 0, 40, 32, 32, 335);
     Image_Build_Selected.ImageCenter;
     Image_BuildCost_WoodPic := TKMImage.Create(Panel_Build, 67, 40, 32, 32, 353);
     Image_BuildCost_WoodPic.ImageCenter;
     Image_BuildCost_StonePic := TKMImage.Create(Panel_Build, 122, 40, 32, 32, 352);
     Image_BuildCost_StonePic.ImageCenter;
-    Label_BuildCost_Wood  := TKMLabel.Create(Panel_Build,  97, 50, 20, 20, '', fnt_Outline, taLeft);
-    Label_BuildCost_Stone := TKMLabel.Create(Panel_Build, 152, 50, 20, 20, '', fnt_Outline, taLeft);
+    Label_BuildCost_Wood  := TKMLabel.Create(Panel_Build,  97, 50, 20, 20, '', fntOutline, taLeft);
+    Label_BuildCost_Stone := TKMLabel.Create(Panel_Build, 152, 50, 20, 20, '', fntOutline, taLeft);
 
     Button_BuildRoad    := TKMButtonFlat.Create(Panel_Build,   0, 80, 33, 33, 335);
     Button_BuildField   := TKMButtonFlat.Create(Panel_Build,  37, 80, 33, 33, 337);

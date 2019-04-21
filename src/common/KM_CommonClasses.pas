@@ -97,11 +97,14 @@ type
     fItems: array of TKMPoint; //0..Count-1
     function GetPoint(aIndex: Integer): TKMPoint; inline;
     procedure SetPoint(aIndex: Integer; const aValue: TKMPoint); inline; //1..Count
+    function GetLast: TKMPoint;
   public
     constructor Create;
 
     property Count: Integer read fCount write fCount;
     property Items[aIndex: Integer]: TKMPoint read GetPoint write SetPoint; default;
+    property Last: TKMPoint read GetLast;
+    function IsEmpty: Boolean;
 
     procedure Clear; virtual;
     procedure Copy(aSrc: TKMPointList);
@@ -163,10 +166,6 @@ type
     procedure SaveToStream(SaveStream: TKMemoryStream); override;
     procedure LoadFromStream(LoadStream: TKMemoryStream); override;
   end;
-
-
-  TKMAIType = (aitNone, aitClassic, aitAdvanced);
-  TKMAITypeSet = set of TKMAIType;
 
 
   TKMMapsCRCList = class
@@ -607,6 +606,20 @@ begin
     Result := I;
     Break;
   end;
+end;
+
+
+function TKMPointList.GetLast: TKMPoint;
+begin
+  if IsEmpty then
+    raise Exception.Create('No points in list');
+  Result := fItems[fCount - 1];
+end;
+
+
+function TKMPointList.IsEmpty: Boolean;
+begin
+  Result := fCount = 0;
 end;
 
 

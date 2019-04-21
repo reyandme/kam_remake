@@ -18,7 +18,7 @@ type
     fAlertType: TAlertType;
     fExpiration: Cardinal;
     fLoc: TKMPointF;
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
   protected
     function GetTexMinimap: TKMPic; virtual; abstract;
     function GetTexTerrain: TKMPic; virtual; abstract;
@@ -26,11 +26,11 @@ type
     function GetVisibleMinimap: Boolean; virtual; abstract;
     function GetVisibleTerrain: Boolean; virtual; abstract;
   public
-    constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TKMHandIndex; aExpiry: Cardinal);
+    constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TKMHandID; aExpiry: Cardinal);
 
     property AlertType: TAlertType read fAlertType;
     property Loc: TKMPointF read fLoc;
-    property Owner: TKMHandIndex read fOwner;
+    property Owner: TKMHandID read fOwner;
     property Expiration: Cardinal read fExpiration;
     property TexMinimap: TKMPic read GetTexMinimap;
     property TexTerrain: TKMPic read GetTexTerrain;
@@ -56,9 +56,9 @@ type
   public
     constructor Create(aViewport: TKMViewport);
     destructor Destroy; override;
-    procedure ClearBeaconsExcept(aOwner: TKMHandIndex);
-    procedure AddBeacon(const aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aShowUntil: Cardinal);
-    procedure AddFight(const aLoc: TKMPointF; aPlayer: TKMHandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
+    procedure ClearBeaconsExcept(aOwner: TKMHandID);
+    procedure AddBeacon(const aLoc: TKMPointF; aOwner: TKMHandID; aColor: Cardinal; aShowUntil: Cardinal);
+    procedure AddFight(const aLoc: TKMPointF; aPlayer: TKMHandID; aAsset: TAttackNotification; aShowUntil: Cardinal);
     function GetLatestAlert: TKMAlert;
     property Count: Integer read GetCount;
     property Items[aIndex: Integer]: TKMAlert read GetAlert; default;
@@ -84,7 +84,7 @@ type
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
-    constructor Create(const aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aExpiry: Cardinal);
+    constructor Create(const aLoc: TKMPointF; aOwner: TKMHandID; aColor: Cardinal; aExpiry: Cardinal);
   end;
 
   TKMAlertAttacked = class(TKMAlert)
@@ -98,7 +98,7 @@ type
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
-    constructor Create(const aLoc: TKMPointF; aOwner: TKMHandIndex; aAsset: TAttackNotification; aExpiry: Cardinal);
+    constructor Create(const aLoc: TKMPointF; aOwner: TKMHandID; aAsset: TAttackNotification; aExpiry: Cardinal);
     property Asset: TAttackNotification read fAsset;
     procedure Refresh(aExpiry: Cardinal);
     procedure Update(const aView: TKMRect); override;
@@ -112,7 +112,7 @@ const
 
 
 { TKMAlert }
-constructor TKMAlert.Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TKMHandIndex; aExpiry: Cardinal);
+constructor TKMAlert.Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TKMHandID; aExpiry: Cardinal);
 begin
   inherited Create;
 
@@ -136,7 +136,7 @@ end;
 
 
 { TKMAlertBeacon }
-constructor TKMAlertBeacon.Create(const aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aExpiry: Cardinal);
+constructor TKMAlertBeacon.Create(const aLoc: TKMPointF; aOwner: TKMHandID; aColor: Cardinal; aExpiry: Cardinal);
 begin
   inherited Create(atBeacon, aLoc, aOwner, aExpiry);
 
@@ -180,7 +180,7 @@ end;
 
 
 { TKMAlertFight }
-constructor TKMAlertAttacked.Create(const aLoc: TKMPointF; aOwner: TKMHandIndex; aAsset: TAttackNotification; aExpiry: Cardinal);
+constructor TKMAlertAttacked.Create(const aLoc: TKMPointF; aOwner: TKMHandID; aAsset: TAttackNotification; aExpiry: Cardinal);
 begin
   inherited Create(atFight, aLoc, aOwner, aExpiry);
 
@@ -247,7 +247,7 @@ begin
       fLastLookedAt := INTERVAL_ATTACKED_MSG;
 
     //Make the sound
-    if (fOwner = gMySpectator.HandIndex)
+    if (fOwner = gMySpectator.HandID)
     and (fLastLookedAt = INTERVAL_ATTACKED_MSG) then
       gSoundPlayer.PlayNotification(fAsset);
   end;
@@ -289,7 +289,7 @@ end;
 
 
 //Ally has placed a beacon for ue
-procedure TKMAlerts.AddBeacon(const aLoc: TKMPointF; aOwner: TKMHandIndex; aColor: Cardinal; aShowUntil: Cardinal);
+procedure TKMAlerts.AddBeacon(const aLoc: TKMPointF; aOwner: TKMHandID; aColor: Cardinal; aShowUntil: Cardinal);
   procedure RemoveExcessBeacons;
   var
     I, OldestID, qty: Integer;
@@ -320,12 +320,12 @@ begin
   //If this player has too many beacons remove his oldest one
   RemoveExcessBeacons;
   fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, aColor, aShowUntil));
-  gSoundPlayer.Play(sfxn_Beacon);
+  gSoundPlayer.Play(sfxnBeacon);
 end;
 
 
 //Clear all beacons except those, whose owner is aOwner
-procedure TKMAlerts.ClearBeaconsExcept(aOwner: TKMHandIndex);
+procedure TKMAlerts.ClearBeaconsExcept(aOwner: TKMHandID);
 var
   I: Integer;
 begin
@@ -340,7 +340,7 @@ end;
 
 
 //Player belongings signal that they are under attack
-procedure TKMAlerts.AddFight(const aLoc: TKMPointF; aPlayer: TKMHandIndex; aAsset: TAttackNotification; aShowUntil: Cardinal);
+procedure TKMAlerts.AddFight(const aLoc: TKMPointF; aPlayer: TKMHandID; aAsset: TAttackNotification; aShowUntil: Cardinal);
 var
   I: Integer;
 begin

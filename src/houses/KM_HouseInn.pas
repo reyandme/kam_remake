@@ -6,19 +6,21 @@ uses
   KM_ResWares, KM_ResHouses,
   KM_CommonClasses, KM_Defaults;
 
+const
+  INN_MAX_EATERS = 6;
 
 type
   TKMHouseInn = class(TKMHouse)
   private
-    Eater: array [0..5] of record //only 6 units are allowed in the inn
+    fEater: array [0..INN_MAX_EATERS - 1] of record //only 6 units are allowed in the inn
       UnitType: TKMUnitType;
       FoodKind: TKMWareType; //What kind of food eater eats
       EatStep: Cardinal;
     end;
   public
-    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
-    function EaterGetsInside(aUnitType: TKMUnitType): ShortInt;
+    function EaterGetsRandomEmptySlot(aUnitType: TKMUnitType): ShortInt;
     procedure UpdateEater(aIndex: ShortInt; aFoodKind: TKMWareType);
     procedure EatersGoesOut(aIndex: ShortInt);
     function HasFood: Boolean;
@@ -32,42 +34,56 @@ implementation
 uses
   KM_RenderPool,
   KM_Hand, KM_HandsCollection,
-  KM_Points;
+  KM_Points, KM_CommonUtils;
 
 
 { TKMHouseInn }
-constructor TKMHouseInn.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+constructor TKMHouseInn.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
 var
   I: Integer;
 begin
   inherited;
 
-  for I := Low(Eater) to High(Eater) do
-    Eater[I].UnitType := ut_None;
+  for I := Low(fEater) to High(fEater) do
+    fEater[I].UnitType := utNone;
 end;
 
 
 constructor TKMHouseInn.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
-  LoadStream.Read(Eater, SizeOf(Eater));
+  LoadStream.Read(fEater, SizeOf(fEater));
 end;
 
 
 //EatStep := FlagAnimStep, cos increases it each frame, we don't need to increase all 6 AnimSteps manually
-function TKMHouseInn.EaterGetsInside(aUnitType: TKMUnitType): ShortInt;
+function TKMHouseInn.EaterGetsRandomEmptySlot(aUnitType: TKMUnitType): ShortInt;
 var
-  I: Integer;
+  I, offset, idx: Integer;
+  slotEmpty: array [0..INN_MAX_EATERS-1] of Boolean;
 begin
   Result := -1;
-  for I := Low(Eater) to High(Eater) do
-  if Eater[I].UnitType = ut_None then
+
+  for I := 0 to INN_MAX_EATERS - 1 do
+    slotEmpty[I] := True;
+
+  // List empty slots
+  for I := 0 to High(fEater) do
+    if fEater[I].UnitType <> utNone then
+      slotEmpty[I] := False;
+
+  offset := KaMRandom(INN_MAX_EATERS, 'TKMHouseInn.EaterGetsInside');
+
+  for I := 0 to INN_MAX_EATERS - 1 do
   begin
-    Eater[I].UnitType := aUnitType;
-    Eater[I].FoodKind := wt_None;
-    Eater[I].EatStep  := FlagAnimStep;
-    Result := I;
-    Exit;
+    idx := (offset + I) mod INN_MAX_EATERS;
+    if slotEmpty[idx] then
+    begin
+      fEater[idx].UnitType := aUnitType;
+      fEater[idx].FoodKind := wtNone;
+      fEater[idx].EatStep  := FlagAnimStep;
+      Exit(idx);
+    end;
   end;
 end;
 
@@ -75,23 +91,23 @@ end;
 procedure TKMHouseInn.UpdateEater(aIndex: ShortInt; aFoodKind: TKMWareType);
 begin
   if aIndex = -1 then Exit;
-  Assert(aFoodKind in [wt_Wine, wt_Bread, wt_Sausages, wt_Fish], 'Wrong kind of food in Inn');
+  Assert(aFoodKind in [wtWine, wtBread, wtSausages, wtFish], 'Wrong kind of food in Inn');
 
-  Eater[aIndex].FoodKind := aFoodKind; //Order is Wine-Bread-Sausages-Fish
-  Eater[aIndex].EatStep  := FlagAnimStep; //Eat animation step will be difference between FlagAnim and EatStep
+  fEater[aIndex].FoodKind := aFoodKind; //Order is Wine-Bread-Sausages-Fish
+  fEater[aIndex].EatStep  := FlagAnimStep; //Eat animation step will be difference between FlagAnim and EatStep
 end;
 
 
 procedure TKMHouseInn.EatersGoesOut(aIndex: ShortInt);
 begin
   if aIndex <> -1 then
-    Eater[aIndex].UnitType := ut_None;
+    fEater[aIndex].UnitType := utNone;
 end;
 
 
 function TKMHouseInn.HasFood: Boolean;
 begin
-  Result := CheckResIn(wt_Sausages) + CheckResIn(wt_Bread) + CheckResIn(wt_Wine) + CheckResIn(wt_Fish) > 0;
+  Result := CheckResIn(wtSausages) + CheckResIn(wtBread) + CheckResIn(wtWine) + CheckResIn(wtFish) > 0;
 end;
 
 
@@ -100,15 +116,15 @@ var
   I: Integer;
 begin
   Result := False;
-  for I := Low(Eater) to High(Eater) do
-    Result := Result or (Eater[I].UnitType = ut_None);
+  for I := Low(fEater) to High(fEater) do
+    Result := Result or (fEater[I].UnitType = utNone);
 end;
 
 
 procedure TKMHouseInn.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(Eater, SizeOf(Eater));
+  SaveStream.Write(fEater, SizeOf(fEater));
 end;
 
 
@@ -116,12 +132,12 @@ procedure TKMHouseInn.Paint;
   //Chose eater animation direction (135 face south, 246 face north)
   function AnimDir(aIndex: Integer): TKMDirection;
   begin
-    case Eater[aIndex].FoodKind of
-      wt_Wine:      Result  := TKMDirection(1 * 2 - 1 + (aIndex div 3));
-      wt_Bread:     Result  := TKMDirection(2 * 2 - 1 + (aIndex div 3));
-      wt_Sausages:  Result  := TKMDirection(3 * 2 - 1 + (aIndex div 3));
-      wt_Fish:      Result  := TKMDirection(4 * 2 - 1 + (aIndex div 3));
-      else          Result  := dir_NA;
+    case fEater[aIndex].FoodKind of
+      wtWine:      Result  := TKMDirection(1 * 2 - 1 + (aIndex div 3));
+      wtBread:     Result  := TKMDirection(2 * 2 - 1 + (aIndex div 3));
+      wtSausages:  Result  := TKMDirection(3 * 2 - 1 + (aIndex div 3));
+      wtFish:      Result  := TKMDirection(4 * 2 - 1 + (aIndex div 3));
+      else          Result  := dirNA;
     end;
   end;
 const
@@ -132,15 +148,15 @@ var
   AnimStep: Cardinal;
 begin
   inherited;
-  if fBuildState <> hbs_Done then exit;
+  if fBuildState <> hbsDone then exit;
 
-  for I := Low(Eater) to High(Eater) do
+  for I := Low(fEater) to High(fEater) do
   begin
-    if (Eater[I].UnitType = ut_None) or (Eater[I].FoodKind = wt_None) then Continue;
+    if (fEater[I].UnitType = utNone) or (fEater[I].FoodKind = wtNone) then Continue;
 
-    AnimStep := FlagAnimStep - Eater[I].EatStep; //Delta is our AnimStep
+    AnimStep := FlagAnimStep - fEater[I].EatStep; //Delta is our AnimStep
 
-    gRenderPool.AddHouseEater(fPosition, Eater[I].UnitType, ua_Eat,
+    gRenderPool.AddHouseEater(fPosition, fEater[I].UnitType, uaEat,
                               AnimDir(I), AnimStep,
                               offX[I mod 3], offY[I mod 3],
                               gHands[fOwner].GameFlagColor);

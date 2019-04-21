@@ -11,7 +11,7 @@ uses
 type
   TKMMapEdTownFormations = class
   private
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
     procedure Formations_Close(Sender: TObject);
     function GetVisible: Boolean;
   protected
@@ -25,7 +25,7 @@ type
     constructor Create(aParent: TKMPanel);
 
     property Visible: Boolean read GetVisible;
-    procedure Show(aPlayer: TKMHandIndex);
+    procedure Show(aPlayer: TKMHandID);
     function KeyDown(Key: Word; Shift: TShiftState): Boolean;
   end;
 
@@ -54,16 +54,16 @@ begin
   Img := TKMImage.Create(Panel_Formations, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
   Img.ImageStretch;
   TKMBevel.Create(Panel_Formations,   0,  0, SIZE_X, SIZE_Y);
-  TKMLabel.Create(Panel_Formations, SIZE_X div 2, 10, gResTexts[TX_MAPED_AI_FORMATIONS_TITLE], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Formations, SIZE_X div 2, 10, gResTexts[TX_MAPED_AI_FORMATIONS_TITLE], fntOutline, taCenter);
 
   Image_FormationsFlag := TKMImage.Create(Panel_Formations, 10, 10, 0, 0, 30, rxGuiMain);
 
-  TKMLabel.Create(Panel_Formations, 20, 70, 80, 0, gResTexts[TX_MAPED_AI_FORMATIONS_COUNT], fnt_Metal, taLeft);
-  TKMLabel.Create(Panel_Formations, 20, 95, 80, 0, gResTexts[TX_MAPED_AI_FORMATIONS_COLUMNS], fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_Formations, 20, 70, 80, 0, gResTexts[TX_MAPED_AI_FORMATIONS_COUNT], fntMetal, taLeft);
+  TKMLabel.Create(Panel_Formations, 20, 95, 80, 0, gResTexts[TX_MAPED_AI_FORMATIONS_COLUMNS], fntMetal, taLeft);
 
   for GT := Low(TKMGroupType) to High(TKMGroupType) do
   begin
-    TKMLabel.Create(Panel_Formations, 130 + Byte(GT) * 110 + 32, 50, 0, 0, gResTexts[T[GT]], fnt_Metal, taCenter);
+    TKMLabel.Create(Panel_Formations, 130 + Byte(GT) * 110 + 32, 50, 0, 0, gResTexts[T[GT]], fntMetal, taCenter);
     NumEdit_FormationsCount[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 70, 1, 255);
     NumEdit_FormationsColumns[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 95, 1, 255);
   end;
@@ -93,7 +93,7 @@ begin
 end;
 
 
-procedure TKMMapEdTownFormations.Show(aPlayer: TKMHandIndex);
+procedure TKMMapEdTownFormations.Show(aPlayer: TKMHandID);
 var
   GT: TKMGroupType;
 begin

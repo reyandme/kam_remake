@@ -4,19 +4,19 @@ interface
 
 
 type
-  TKMDirection = (dir_NA, dir_N, dir_NE, dir_E, dir_SE, dir_S, dir_SW, dir_W, dir_NW);
+  TKMDirection = (dirNA, dirN, dirNE, dirE, dirSE, dirS, dirSW, dirW, dirNW);
 
 type
   //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
   TKMPoint = record
     X,Y: Integer;
-    class operator Equal(A: TKMPoint; B: TKMPoint): Boolean;
-    class operator NotEqual(A: TKMPoint; B: TKMPoint): Boolean;
+    class operator Equal(const A, B: TKMPoint): Boolean;
+    class operator NotEqual(const A, B: TKMPoint): Boolean;
   end;
 
   TKMPointF = record
     X,Y: Single;
-    class operator Equal(A: TKMPointF; B: TKMPointF): Boolean;
+    class operator Equal(const A, B: TKMPointF): Boolean;
     class operator NotEqual(A: TKMPointF; B: TKMPointF): Boolean;
   end;
 
@@ -142,7 +142,9 @@ type
   procedure KMSwapPoints(var A,B: TKMPoint);
   procedure KMSwapPointDir(var A,B: TKMPointDir);
 
-  function TypeToString(const T: TKMPoint): string; overload;
+  function TypeToString(const P: TKMPoint): string; overload;
+  function TypeToString(const P: TKMPointDir): string; overload;
+  function TypeToString(const P: TKMPointF): string; overload;
   function TypeToString(const T: TKMDirection): string; overload;
 
   function StringToType(const Str: String): TKMPoint; overload;
@@ -164,6 +166,7 @@ const
   KMPOINT_ZERO: TKMPoint = (X: 0; Y: 0);
   KMPOINTF_ZERO: TKMPointF = (X: 0.0; Y: 0.0);
   KMPOINT_INVALID_TILE: TKMPoint = (X: -1; Y: -1);
+  KMPOINTF_INVALID_TILE: TKMPointF = (X: -1; Y: -1);
 
   KMRECT_ZERO: TKMRect = (Left: 0; Top: 0; Right: 0; Bottom: 0);
   KMRECT_INVALID_TILES: TKMRect = (Left: -1; Top: -1; Right: -1; Bottom: -1);
@@ -171,22 +174,22 @@ const
 
 implementation
 uses
-  SysUtils, Math, KM_CommonUtils;
+  SysUtils, TypInfo, Math, KM_CommonUtils;
 
 
-class operator TKMPoint.Equal(A: TKMPoint; B: TKMPoint): Boolean;
+class operator TKMPoint.Equal(const A, B: TKMPoint): Boolean;
 begin
   Result := KMSamePoint(A,B);
 end;
 
 
-class operator TKMPoint.NotEqual(A: TKMPoint; B: TKMPoint): Boolean;
+class operator TKMPoint.NotEqual(const A, B: TKMPoint): Boolean;
 begin
   Result := not KMSamePoint(A,B);
 end;
 
 
-class operator TKMPointF.Equal(A: TKMPointF; B: TKMPointF): Boolean;
+class operator TKMPointF.Equal(const A, B: TKMPointF): Boolean;
 begin
   Result := KMSamePointF(A,B);
 end;
@@ -389,12 +392,12 @@ end;
 function KMRectGrow(const aRect: TKMRect; const aDir: TKMDirection; aInset: Integer = 1): TKMRect; overload;
 begin
   case aDir of
-    dir_NA: Result := KMRectGrow(aRect, aInset);
-    dir_NE: Result := KMRectGrowTopRight(aRect, aInset);
-    dir_SE: Result := KMRectGrowBottomRight(aRect, aInset);
-    dir_SW: Result := KMRectGrowBottomLeft(aRect, aInset);
-    dir_NW: Result := KMRectGrowTopLeft(aRect, aInset);
-    dir_N, dir_E, dir_S, dir_W: Result := aRect; //not implemented yet
+    dirNA: Result := KMRectGrow(aRect, aInset);
+    dirNE: Result := KMRectGrowTopRight(aRect, aInset);
+    dirSE: Result := KMRectGrowBottomRight(aRect, aInset);
+    dirSW: Result := KMRectGrowBottomLeft(aRect, aInset);
+    dirNW: Result := KMRectGrowTopLeft(aRect, aInset);
+    dirN, dirE, dirS, dirW: Result := aRect; //not implemented yet
   end;
 end;
 
@@ -531,9 +534,9 @@ end;
 function KMGetDirection(X,Y: Integer): TKMDirection;
 const
   DirectionsBitfield: array [-1..1, -1..1] of TKMDirection =
-    ((dir_NW, dir_W,  dir_SW),
-     (dir_N,  dir_NA, dir_S),
-     (dir_NE, dir_E,  dir_SE));
+    ((dirNW, dirW,  dirSW),
+     (dirN,  dirNA, dirS),
+     (dirNE, dirE,  dirSE));
 var
   Scale: Integer;
   A, B: ShortInt;
@@ -548,9 +551,9 @@ end;
 function KMGetDirection(X,Y: Single): TKMDirection;
 const
   DirectionsBitfield: array [-1..1, -1..1] of TKMDirection =
-    ((dir_NW, dir_W,  dir_SW),
-     (dir_N,  dir_NA, dir_S),
-     (dir_NE, dir_E,  dir_SE));
+    ((dirNW, dirW,  dirSW),
+     (dirN,  dirNA, dirS),
+     (dirNE, dirE,  dirSE));
 var
   Scale: Single;
   A, B: ShortInt;
@@ -595,7 +598,7 @@ end;
 
 function KMGetVertexDir(X,Y: Integer): TKMDirection;
 const DirectionsBitfield: array [-1..0, -1..0] of TKMDirection =
-        ((dir_SE, dir_NE), (dir_SW, dir_NW));
+        ((dirSE, dirNE), (dirSW, dirNW));
 begin
   Result := DirectionsBitfield[X,Y];
 end;
@@ -631,26 +634,26 @@ end;
 
 function KMAddDirection(const aDir: TKMDirection; aAdd: Byte): TKMDirection;
 begin
-  Assert(aDir <> dir_NA);
+  Assert(aDir <> dirNA);
   Result := TKMDirection((Byte(aDir) + aAdd - 1) mod 8 + 1);
 end;
 
 
 function KMNextDirection(const aDir: TKMDirection): TKMDirection;
 begin
-  if aDir < dir_NW then
+  if aDir < dirNW then
     Result := Succ(aDir)
   else
-    Result := dir_N; //Rewind to start
+    Result := dirN; //Rewind to start
 end;
 
 
 function KMPrevDirection(const aDir: TKMDirection): TKMDirection;
 begin
-  if aDir > dir_N then
+  if aDir > dirN then
     Result := Pred(aDir)
   else
-    Result := dir_NW; //Rewind to end
+    Result := dirNW; //Rewind to end
 end;
 
 
@@ -787,7 +790,9 @@ begin
   S := (-ABy * (A.x - C.x) + ABx * (A.y - C.y)) / D2;
   T := ( CDx * (A.y - C.y) - CDy * (A.x - C.x)) / D2;
 
-  Result := (S > 0) and (S < 1) and (T > 0) and (T < 1);
+  Result := (S > 0) and (S < 1) and (T > 0) and (T < 1)
+            and not IsNaN(S) and not IsNaN(T)
+            and not IsInfinite(S) and not IsInfinite(T);
 end;
 
 
@@ -804,7 +809,9 @@ begin
   S := (-ABy * (A.x - C.x) + ABx * (A.y - C.y)) / D2;
   T := ( CDx * (A.y - C.y) - CDy * (A.x - C.x)) / D2;
 
-  Result := (S >= 0) and (S <= 1) and (T >= 0) and (T <= 1);
+  Result := (S >= 0) and (S <= 1) and (T >= 0) and (T <= 1)
+            and not IsNaN(S) and not IsNaN(T)
+            and not IsInfinite(S) and not IsInfinite(T);
 end;
 
 
@@ -887,9 +894,21 @@ begin
 end;
 
 
-function TypeToString(const T: TKMPoint): string;
+function TypeToString(const P: TKMPoint): string;
 begin
-  Result := '(' + IntToStr(T.X) + ';' + IntToStr(T.Y) + ')';
+  Result := '(' + IntToStr(P.X) + ';' + IntToStr(P.Y) + ')';
+end;
+
+
+function TypeToString(const P: TKMPointDir): string;
+begin
+  Result := Format('%s Dir = %s', [TypeToString(P.Loc), GetEnumName(TypeInfo(TKMDirection), Integer(P.Dir))]);
+end;
+
+
+function TypeToString(const P: TKMPointF): string;
+begin
+  Result := Format('(%s;%s)', [FormatFloat('##0.##', P.X), FormatFloat('##0.##', P.Y)]);
 end;
 
 

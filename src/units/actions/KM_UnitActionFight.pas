@@ -27,7 +27,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TKMUnitActionName; override;
-    function CanBeInterrupted: Boolean; override;
+    function CanBeInterrupted(aForced: Boolean = True): Boolean; override;
     function GetExplanation: UnicodeString; override;
     procedure SyncLoad; override;
     property GetOpponent: TKMUnit read fOpponent;
@@ -38,7 +38,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResSound, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles,
+  KM_HandsCollection, KM_ResSound, KM_Sound, KM_UnitWarrior, KM_Resource, KM_Projectiles,
   KM_ResUnits, KM_Hand;
 
 
@@ -46,14 +46,14 @@ const
   STRIKE_STEP = 5; //Melee units place hit on step 5
 
   MeleeSoundsHit: array [0..14] of TSoundFX = (
-    sfx_Melee34, sfx_Melee35, sfx_Melee36, sfx_Melee41, sfx_Melee42,
-    sfx_Melee44, sfx_Melee45, sfx_Melee46, sfx_Melee47, sfx_Melee48,
-    sfx_Melee49, sfx_Melee50, sfx_Melee55, sfx_Melee56, sfx_Melee57);
+    sfxMelee34, sfxMelee35, sfxMelee36, sfxMelee41, sfxMelee42,
+    sfxMelee44, sfxMelee45, sfxMelee46, sfxMelee47, sfxMelee48,
+    sfxMelee49, sfxMelee50, sfxMelee55, sfxMelee56, sfxMelee57);
 
   MeleeSoundsMiss: array [0..8] of TSoundFX = (
-    sfx_Melee37, sfx_Melee38, sfx_Melee39,
-    sfx_Melee40, sfx_Melee43, sfx_Melee51,
-    sfx_Melee52, sfx_Melee53, sfx_Melee54);
+    sfxMelee37, sfxMelee38, sfxMelee39,
+    sfxMelee40, sfxMelee43, sfxMelee51,
+    sfxMelee52, sfxMelee53, sfxMelee54);
 
 
 { TUnitActionFight }
@@ -67,8 +67,8 @@ begin
   fOpponent       := aOpponent.GetUnitPointer;
   aUnit.Direction := KMGetDirection(fUnit.PositionF, fOpponent.PositionF); //Face the opponent from the beginning
   fVertexOccupied := KMPOINT_ZERO;
-  if KMStepIsDiag(fUnit.GetPosition, fOpponent.GetPosition) and not TKMUnitWarrior(fUnit).IsRanged then
-    IncVertex(fUnit.GetPosition, fOpponent.GetPosition);
+  if KMStepIsDiag(fUnit.CurrPosition, fOpponent.CurrPosition) and not TKMUnitWarrior(fUnit).IsRanged then
+    IncVertex(fUnit.CurrPosition, fOpponent.CurrPosition);
 end;
 
 
@@ -99,7 +99,7 @@ end;
 
 function TKMUnitActionFight.ActName: TKMUnitActionName;
 begin
-  Result := uan_Fight;
+  Result := uanFight;
 end;
 
 
@@ -159,15 +159,15 @@ begin
 
   //Do not play sounds if unit is invisible to gMySpectator
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-  if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then Exit;
+  if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.CurrPosition.X, fUnit.CurrPosition.Y) < 255 then Exit;
 
   if MakeBattleCry then
-    gSoundPlayer.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
+    gSoundPlayer.PlayWarrior(fUnit.UnitType, spBattleCry, fUnit.PositionF);
 
   case fUnit.UnitType of
-    ut_Arbaletman: gSoundPlayer.Play(sfx_CrossbowDraw, fUnit.PositionF); // Aiming
-    ut_Bowman:     gSoundPlayer.Play(sfx_BowDraw,      fUnit.PositionF); // Aiming
-    ut_Slingshot:  gSoundPlayer.Play(sfx_SlingerShoot, fUnit.PositionF);
+    utArbaletman: gSoundPlayer.Play(sfxCrossbowDraw, fUnit.PositionF); // Aiming
+    utBowman:     gSoundPlayer.Play(sfxBowDraw,      fUnit.PositionF); // Aiming
+    utSlingshot:  gSoundPlayer.Play(sfxSlingerShoot, fUnit.PositionF);
     else           begin
                      if IsHit then
                        gSoundPlayer.Play(MeleeSoundsHit[Random(Length(MeleeSoundsHit))], fUnit.PositionF)
@@ -180,12 +180,12 @@ end;
 
 function TKMUnitActionFight.ExecuteValidateOpponent(Step: Byte): TKMActionResult;
 begin
-  Result := ar_ActContinues;
+  Result := arActContinues;
   //See if Opponent has walked away (i.e. Serf) or died
   if fOpponent.IsDeadOrDying //Don't continue to fight dead units
   or not fOpponent.Visible //Don't continue to fight units that have went into a house
-  or not TKMUnitWarrior(fUnit).WithinFightRange(fOpponent.GetPosition)
-  or not fUnit.CanWalkDiagonaly(fUnit.GetPosition, fOpponent.GetPosition) then //Might be a tree between us now
+  or not TKMUnitWarrior(fUnit).WithinFightRange(fOpponent.CurrPosition)
+  or not fUnit.CanWalkDiagonaly(fUnit.CurrPosition, fOpponent.CurrPosition) then //Might be a tree between us now
   begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
     //Try to start fighting that enemy by reusing this FightAction, rather than destroying it and making a new one
@@ -211,7 +211,7 @@ begin
     else
     begin
       //No one else to fight, so we exit
-      Result := ar_ActDone;
+      Result := arActDone;
     end;
   end;
 end;
@@ -278,7 +278,7 @@ begin
   begin
     //Base damage is the unit attack strength + AttackHorse if the enemy is mounted
     Damage := gRes.Units[fUnit.UnitType].Attack;
-    if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gt_Mounted) then
+    if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gtMounted) then
       Damage := Damage + gRes.Units[fUnit.UnitType].AttackHorse;
 
     Damage := Damage * (GetDirModifier(fUnit.Direction,fOpponent.Direction)+1); //Direction modifier
@@ -319,7 +319,7 @@ begin
   Step  := fUnit.AnimStep mod Cycle;
 
   Result := ExecuteValidateOpponent(Step);
-  if Result = ar_ActDone then Exit;
+  if Result = arActDone then Exit;
   Step := fUnit.AnimStep mod Cycle; //Can be changed by ExecuteValidateOpponent, so recalculate it
 
   //Opponent can walk next to us, keep facing him
@@ -328,10 +328,10 @@ begin
 
   //If the vertex usage has changed we should update it
   if not TKMUnitWarrior(fUnit).IsRanged then //Ranged units do not use verticies
-    if not UpdateVertexUsage(fUnit.GetPosition, fOpponent.GetPosition) then
+    if not UpdateVertexUsage(fUnit.CurrPosition, fOpponent.CurrPosition) then
     begin
       //The vertex is being used so we can't fight
-      Result := ar_ActDone;
+      Result := arActDone;
       Exit;
     end;
 
@@ -363,9 +363,9 @@ begin
 end;
 
 
-function TKMUnitActionFight.CanBeInterrupted: Boolean;
+function TKMUnitActionFight.CanBeInterrupted(aForced: Boolean = True): Boolean;
 begin
-  Result := TKMUnitWarrior(fUnit).IsRanged or not Locked; //Only allowed to interupt ranged fights
+  Result := (TKMUnitWarrior(fUnit).IsRanged and aForced) or not Locked; //Only allowed to interupt ranged fights
 end;
 
 

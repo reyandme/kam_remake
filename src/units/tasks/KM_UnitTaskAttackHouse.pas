@@ -3,7 +3,7 @@ unit KM_UnitTaskAttackHouse;
 interface
 uses
   Classes, SysUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_CommonUtils, KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_CommonUtils, KM_Houses, KM_Units, KM_UnitWarrior, KM_Points;
 
 
 type
@@ -16,6 +16,9 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
+
+    property House: TKMHouse read fHouse;
+
     function WalkShouldAbandon: Boolean; override;
     function Execute: TKMTaskResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -29,9 +32,9 @@ uses
 
 const
   MeleeSoundsHouse: array [0..12] of TSoundFX = (
-    sfx_Melee37, sfx_Melee38, sfx_Melee39, sfx_Melee40, sfx_Melee41,
-    sfx_Melee42, sfx_Melee43, sfx_Melee47, sfx_Melee51, sfx_Melee52,
-    sfx_Melee53, sfx_Melee54, sfx_Melee57
+    sfxMelee37, sfxMelee38, sfxMelee39, sfxMelee40, sfxMelee41,
+    sfxMelee42, sfxMelee43, sfxMelee47, sfxMelee51, sfxMelee52,
+    sfxMelee53, sfxMelee54, sfxMelee57
   );
 
 
@@ -39,7 +42,7 @@ const
 constructor TKMTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
 begin
   inherited Create(aWarrior);
-  fTaskName := utn_AttackHouse;
+  fType := uttAttackHouse;
   fHouse := aHouse.GetHousePointer;
 end;
 
@@ -76,36 +79,36 @@ var
    AnimLength: Integer;
    Delay, Cycle: Integer;
 begin
-  Result := tr_TaskContinues;
+  Result := trTaskContinues;
 
   //If the house is destroyed drop the task
   if WalkShouldAbandon then
   begin
-    Result := tr_TaskDone;
+    Result := trTaskDone;
     Exit;
   end;
 
   with TKMUnitWarrior(fUnit) do
     case fPhase of
       0:  if IsRanged then
-            if fHouse.GetDistance(GetPosition) < GetFightMinRange then
+            if fHouse.GetDistance(CurrPosition) < GetFightMinRange then
               //Archer is too close, try to step back to the minimum range
               SetActionWalkFromHouse(fHouse, GetFightMinRange)
             else
-            if fHouse.GetDistance(GetPosition) > GetFightMaxRange then
+            if fHouse.GetDistance(CurrPosition) > GetFightMaxRange then
               SetActionWalkToHouse(fHouse, GetFightMaxRange)
             else
-              SetActionStay(0, ua_Walk)
+              SetActionStay(0, uaWalk)
           else
             SetActionWalkToHouse(fHouse, 1);
       1:  begin
             if IsRanged then
             begin
               //Check if the walk failed
-              if (fHouse.GetDistance(GetPosition) < GetFightMinRange) or (fHouse.GetDistance(GetPosition) > GetFightMaxRange) then
+              if (fHouse.GetDistance(CurrPosition) < GetFightMinRange) or (fHouse.GetDistance(CurrPosition) > GetFightMaxRange) then
               begin
-                SetActionStay(0, ua_Walk);
-                Result := tr_TaskDone;
+                SetActionStay(0, uaWalk);
+                Result := trTaskDone;
                 Exit;
               end;
 
@@ -113,54 +116,54 @@ begin
               Delay := AimingDelay;
 
               //Prevent rate of fire exploit by making archers pause for longer if they shot recently
-              Cycle := Max(gRes.Units[UnitType].UnitAnim[ua_Work, Direction].Count, 1) - FiringDelay;
+              Cycle := Max(gRes.Units[UnitType].UnitAnim[uaWork, Direction].Count, 1) - FiringDelay;
               if NeedsToReload(Cycle) then
-                Delay := Delay + Cycle - (gGame.GameTickCount - LastShootTime);
+                Delay := Delay + Cycle - (gGame.GameTick - LastShootTime);
 
-              SetActionLockedStay(Delay,ua_Work); //Pretend to aim
+              SetActionLockedStay(Delay,uaWork); //Pretend to aim
 
-              if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
-                Direction := KMGetDirection(GetPosition, fHouse.Entrance); //Look at house
+              if not KMSamePoint(CurrPosition, fHouse.GetClosestCell(CurrPosition)) then //Unbuilt houses can be attacked from within
+                Direction := KMGetDirection(CurrPosition, fHouse.Entrance); //Look at house
 
               if gMySpectator.FogOfWar.CheckTileRevelation(Round(PositionF.X), Round(PositionF.Y)) >= 255 then
               case UnitType of
-                ut_Arbaletman: gSoundPlayer.Play(sfx_CrossbowDraw, PositionF); //Aiming
-                ut_Bowman:     gSoundPlayer.Play(sfx_BowDraw,      PositionF); //Aiming
-                ut_Slingshot:  ;
+                utArbaletman: gSoundPlayer.Play(sfxCrossbowDraw, PositionF); //Aiming
+                utBowman:     gSoundPlayer.Play(sfxBowDraw,      PositionF); //Aiming
+                utSlingshot:  ;
                 else           raise Exception.Create('Unknown shooter');
               end;
             end
             else
             begin
               //Check if the walk failed
-              if fHouse.GetDistance(GetPosition) > GetFightMaxRange then
+              if fHouse.GetDistance(CurrPosition) > GetFightMaxRange then
               begin
-                SetActionStay(0, ua_Walk);
-                Result := tr_TaskDone;
+                SetActionStay(0, uaWalk);
+                Result := trTaskDone;
                 Exit;
               end;
-              SetActionLockedStay(0,ua_Work,False); //Melee units pause after the hit
-              if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
-                Direction := KMGetDirection(GetPosition, fHouse.GetClosestCell(GetPosition)); //Look at house
+              SetActionLockedStay(0,uaWork,False); //Melee units pause after the hit
+              if not KMSamePoint(CurrPosition, fHouse.GetClosestCell(CurrPosition)) then //Unbuilt houses can be attacked from within
+                Direction := KMGetDirection(CurrPosition, fHouse.GetClosestCell(CurrPosition)); //Look at house
 
             end;
           end;
       2:  begin
             //Special case - slingshot, he has AimSoundDelay
-            if UnitType = ut_Slingshot then
-              SetActionLockedStay(AimSoundDelay, ua_Work, False) //Start shooting before sound
+            if UnitType = utSlingshot then
+              SetActionLockedStay(AimSoundDelay, uaWork, False) //Start shooting before sound
             else
             begin
               Inc(fPhase); //Skip slingshot special phase
               if IsRanged then
-                SetActionLockedStay(FiringDelay, ua_Work, False) //Start shooting
+                SetActionLockedStay(FiringDelay, uaWork, False) //Start shooting
               else
-                SetActionLockedStay(6, ua_Work, False); //Start the hit
+                SetActionLockedStay(6, uaWork, False); //Start the hit
             end;
           end;
       3:  begin
-            gSoundPlayer.Play(sfx_SlingerShoot, PositionF);
-            SetActionLockedStay(FiringDelay - AimSoundDelay, ua_Work, False, 0, AimSoundDelay) //Start shooting before sound
+            gSoundPlayer.Play(sfxSlingerShoot, PositionF);
+            SetActionLockedStay(FiringDelay - AimSoundDelay, uaWork, False, 0, AimSoundDelay) //Start shooting before sound
           end;
       4:  begin
             if IsRanged then
@@ -171,19 +174,19 @@ begin
               gProjectiles.AimTarget(PositionF, fHouse, ProjectileType, fUnit, RangeMax, RangeMin);
 
               SetLastShootTime; //Record last time the warrior shot
-              AnimLength := gRes.Units[UnitType].UnitAnim[ua_Work, Direction].Count;
-              SetActionLockedStay(AnimLength - FiringDelay, ua_Work, False, 0, FiringDelay); //Reload for next attack
+              AnimLength := gRes.Units[UnitType].UnitAnim[uaWork, Direction].Count;
+              SetActionLockedStay(AnimLength - FiringDelay, uaWork, False, 0, FiringDelay); //Reload for next attack
               fPhase := 0; //Go for another shot (will be 1 after inc below)
             end
             else
             begin
-              SetActionLockedStay(6, ua_Work, False, 0, 6); // Pause for next attack
+              SetActionLockedStay(6, uaWork, False, 0, 6); // Pause for next attack
 
               //All melee units do 2 damage per strike
               fHouse.AddDamage(2, fUnit);
 
               //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
-              if gMySpectator.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y) >= 255 then
+              if gMySpectator.FogOfWar.CheckTileRevelation(CurrPosition.X, CurrPosition.Y) >= 255 then
                 gSoundPlayer.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))], PositionF);
 
               fPhase := 1; //Go for another hit (will be 2 after inc below)

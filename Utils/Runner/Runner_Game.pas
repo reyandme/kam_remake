@@ -5,7 +5,7 @@ uses
   Forms, Unit_Runner, Windows, SysUtils, Classes, KromUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
   KM_GameApp, KM_ResLocales, KM_Log, KM_HandsCollection, KM_ResTexts, KM_Resource,
-  KM_Terrain, KM_Units, KM_Units_Warrior, KM_Campaigns, KM_AIFields, KM_Houses,
+  KM_Terrain, KM_Units, KM_UnitWarrior, KM_Campaigns, KM_AIFields, KM_Houses,
   GeneticAlgorithm, KM_AICityPlanner,
   KM_CityManagement, KM_CityPredictor, KM_CityBuilder, KM_CityPlanner, KM_Eye,
   KM_HandLogistics,
@@ -298,17 +298,17 @@ begin
     Output := + GetHouseQty(htAny) * HOUSE_WEIGHT
               + GetWeaponsProduced * WEAPONS_WEIGHT
               - GetCitizensLost * CITIZENS_LOST;
-    IronArmy := Min( GetWaresProduced(wt_MetalArmor),
-                       GetWaresProduced(wt_Hallebard)
-                     + GetWaresProduced(wt_Arbalet)
-                     + Min(GetWaresProduced(wt_Sword), GetWaresProduced(wt_MetalShield))
+    IronArmy := Min( GetWaresProduced(wtMetalArmor),
+                       GetWaresProduced(wtHallebard)
+                     + GetWaresProduced(wtArbalet)
+                     + Min(GetWaresProduced(wtSword), GetWaresProduced(wtMetalShield))
                    );
-    WoodArmy := Min( GetWaresProduced(wt_Armor),
-                       GetWaresProduced(wt_Bow)
-                     + GetWaresProduced(wt_Pike)
-                     + Min(GetWaresProduced(wt_Shield), GetWaresProduced(wt_Axe))
+    WoodArmy := Min( GetWaresProduced(wtArmor),
+                       GetWaresProduced(wtBow)
+                     + GetWaresProduced(wtPike)
+                     + Min(GetWaresProduced(wtShield), GetWaresProduced(wtAxe))
                    );
-    Militia := Min( Max(0,WoodArmy - GetWaresProduced(wt_Armor)), GetWaresProduced(wt_Axe));
+    Militia := Min( Max(0,WoodArmy - GetWaresProduced(wtArmor)), GetWaresProduced(wtAxe));
     Output := Output
               + IronArmy * IRON_SOLDIER
               + WoodArmy * WOOD_SOLDIER
@@ -374,7 +374,7 @@ begin
     SetParameters(Idv, not PARALLEL_RUN);
 
   // Stop simulation
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
@@ -398,7 +398,7 @@ begin
   //Sleep(1000); // Debug sleep
 
   // Stop simulation
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
@@ -519,31 +519,31 @@ begin
 
   GA_EYE_GetForests_SPRndOwnLimMin                  := Max(1, aIdv.Gene[Incr(I)] * 250);
   GA_EYE_GetForests_SPRndOwnLimMax                  := Max(1, aIdv.Gene[Incr(I)] * 250);
-  GA_EYE_GetForests_InflLimit                       := Max(1, aIdv.Gene[Incr(I)] * 50 + 200);
+//  GA_EYE_GetForests_InflLimit                       := Max(1, aIdv.Gene[Incr(I)] * 50 + 200);
   //GA_EYE_GetForests_MinTrees                        := Max(1, aIdv.Gene[Incr(I)] * 5);
   //GA_EYE_GetForests_Radius                          := Max(4, aIdv.Gene[Incr(I)] * 2 + 4);
   GA_PLANNER_FindPlaceForWoodcutter_TreeCnt         := Max(1, aIdv.Gene[Incr(I)] * 80 + 120);
-  GA_PLANNER_FindPlaceForWoodcutter_PolyRoute       := Max(1, aIdv.Gene[Incr(I)] * 50);
-  GA_PLANNER_FindPlaceForWoodcutter_EvalArea        := Max(1, aIdv.Gene[Incr(I)] * 50);
+//  GA_PLANNER_FindPlaceForWoodcutter_PolyRoute       := Max(1, aIdv.Gene[Incr(I)] * 50);
+//  GA_PLANNER_FindPlaceForWoodcutter_EvalArea        := Max(1, aIdv.Gene[Incr(I)] * 50);
   GA_PLANNER_FindPlaceForWoodcutter_ExistForest     := Max(1, aIdv.Gene[Incr(I)] * 50 + 100);
   GA_PLANNER_FindPlaceForWoodcutter_DistCrit        := Max(1, aIdv.Gene[Incr(I)] * 50 + 100);
   GA_PLANNER_FindPlaceForWoodcutter_Radius          := Max(1, aIdv.Gene[Incr(I)] * 10);
-  GA_PLANNER_FindPlaceForWoodcutter_AddAB           := Max(1, aIdv.Gene[Incr(I)] * 200);
+//  GA_PLANNER_FindPlaceForWoodcutter_AddAB           := Max(1, aIdv.Gene[Incr(I)] * 200);
 
   if aLogIt then
   begin
     fLogPar.AddTime('GA_EYE_GetForests_SPRndOwnLimMin                : Single = ' + FloatToStr( GA_EYE_GetForests_SPRndOwnLimMin              ) + ';');
     fLogPar.AddTime('GA_EYE_GetForests_SPRndOwnLimMax                : Single = ' + FloatToStr( GA_EYE_GetForests_SPRndOwnLimMax              ) + ';');
-    fLogPar.AddTime('GA_EYE_GetForests_InflLimit                     : Single = ' + FloatToStr( GA_EYE_GetForests_InflLimit                   ) + ';');
+//    fLogPar.AddTime('GA_EYE_GetForests_InflLimit                     : Single = ' + FloatToStr( GA_EYE_GetForests_InflLimit                   ) + ';');
     //fLogPar.AddTime('GA_EYE_GetForests_MinTrees                      : Single = ' + FloatToStr( GA_EYE_GetForests_MinTrees                    ) + ';');
     //fLogPar.AddTime('GA_EYE_GetForests_Radius                        : Single = ' + FloatToStr( GA_EYE_GetForests_Radius                      ) + ';');
     fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_TreeCnt       : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_TreeCnt     ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_PolyRoute     : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_PolyRoute   ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_EvalArea      : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_EvalArea    ) + ';');
+//    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_PolyRoute     : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_PolyRoute   ) + ';');
+//    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_EvalArea      : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_EvalArea    ) + ';');
     fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_ExistForest   : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_ExistForest ) + ';');
     fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_DistCrit      : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_DistCrit    ) + ';');
     fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_Radius        : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_Radius      ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_AddAB         : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_AddAB       ) + ';');
+//    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_AddAB         : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_AddAB       ) + ';');
   end;
 end;
 
@@ -625,13 +625,13 @@ begin
   //GA_PLANNER := True;
   // House build
   // Please do NOT break this order and style use alt + shift + click if you want select / edit multiple colums at once!!!
-  GA_PLANNER_FieldCrit_FarmPolyRoute                := Max(1, aIdv.Gene[Incr(I)] * 100);
-  GA_PLANNER_FieldCrit_EvalArea                     := Max(1, aIdv.Gene[Incr(I)] * 100);
+//  GA_PLANNER_FieldCrit_FarmPolyRoute                := Max(1, aIdv.Gene[Incr(I)] * 100);
+//  GA_PLANNER_FieldCrit_EvalArea                     := Max(1, aIdv.Gene[Incr(I)] * 100);
 
   if aLogIt then
   begin
-    fLogPar.AddTime('GA_PLANNER_FieldCrit_FarmPolyRoute                  : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_FarmPolyRoute                ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FieldCrit_EvalArea                       : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_EvalArea                     ) + ';');
+//    fLogPar.AddTime('GA_PLANNER_FieldCrit_FarmPolyRoute                  : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_FarmPolyRoute                ) + ';');
+//    fLogPar.AddTime('GA_PLANNER_FieldCrit_EvalArea                       : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_EvalArea                     ) + ';');
   end;
 end;
 
@@ -660,33 +660,33 @@ begin
   // Please do NOT break this order and style use alt + shift + click if you want select / edit multiple colums at once!!!
   GA_PLANNER_ObstaclesInHousePlan_Tree              := Max(1, aIdv.Gene[Incr(I)] * 100 + 75);
   GA_PLANNER_ObstaclesInHousePlan_Road              := Max(1, aIdv.Gene[Incr(I)] * 100 + 75);
-  GA_PLANNER_FieldCrit_FarmPolyRoute                := Max(1, aIdv.Gene[Incr(I)] * 100);
-  GA_PLANNER_FieldCrit_EvalArea                     := Max(1, aIdv.Gene[Incr(I)] * 100);
+//  GA_PLANNER_FieldCrit_FarmPolyRoute                := Max(1, aIdv.Gene[Incr(I)] * 100);
+//  GA_PLANNER_FieldCrit_EvalArea                     := Max(1, aIdv.Gene[Incr(I)] * 100);
   GA_PLANNER_SnapCrit_SnapToHouse                   := Max(1, aIdv.Gene[Incr(I)] * 50);
   GA_PLANNER_SnapCrit_SnapToFields                  := Max(1, aIdv.Gene[Incr(I)] * 50);
   GA_PLANNER_SnapCrit_SnapToRoads                   := Max(1, aIdv.Gene[Incr(I)] * 100 + 50);
   GA_PLANNER_SnapCrit_ClearEntrance                 := Max(1, aIdv.Gene[Incr(I)] * 50 + 50);
   //GA_PLANNER_FindPlaceForHouse_CloseWorker          := Max(1, aIdv.Gene[Incr(I)] * 100);
   GA_PLANNER_FindPlaceForHouse_SnapCrit             := Max(1, aIdv.Gene[Incr(I)] * 50);
-  GA_PLANNER_FindPlaceForHouse_DistCrit             := Max(1, aIdv.Gene[Incr(I)] * 50);
+//  GA_PLANNER_FindPlaceForHouse_DistCrit             := Max(1, aIdv.Gene[Incr(I)] * 50);
   GA_PLANNER_FindPlaceForHouse_CityCenter           := Max(1, aIdv.Gene[Incr(I)] * 75);
-  GA_PLANNER_FindPlaceForHouse_EvalArea             := Max(1, aIdv.Gene[Incr(I)] * 100 + 50);
+//  GA_PLANNER_FindPlaceForHouse_EvalArea             := Max(1, aIdv.Gene[Incr(I)] * 100 + 50);
 
   if aLogIt then
   begin
     fLogPar.AddTime('GA_PLANNER_ObstaclesInHousePlan_Tree                : Single = ' + FloatToStr( GA_PLANNER_ObstaclesInHousePlan_Tree              ) + ';');
     fLogPar.AddTime('GA_PLANNER_ObstaclesInHousePlan_Road                : Single = ' + FloatToStr( GA_PLANNER_ObstaclesInHousePlan_Road              ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FieldCrit_FarmPolyRoute                  : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_FarmPolyRoute                ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FieldCrit_EvalArea                       : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_EvalArea                     ) + ';');
+//    fLogPar.AddTime('GA_PLANNER_FieldCrit_FarmPolyRoute                  : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_FarmPolyRoute                ) + ';');
+//    fLogPar.AddTime('GA_PLANNER_FieldCrit_EvalArea                       : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_EvalArea                     ) + ';');
     fLogPar.AddTime('GA_PLANNER_SnapCrit_SnapToHouse                     : Single = ' + FloatToStr( GA_PLANNER_SnapCrit_SnapToHouse                   ) + ';');
     fLogPar.AddTime('GA_PLANNER_SnapCrit_SnapToFields                    : Single = ' + FloatToStr( GA_PLANNER_SnapCrit_SnapToFields                  ) + ';');
     fLogPar.AddTime('GA_PLANNER_SnapCrit_SnapToRoads                     : Single = ' + FloatToStr( GA_PLANNER_SnapCrit_SnapToRoads                   ) + ';');
     fLogPar.AddTime('GA_PLANNER_SnapCrit_ClearEntrance                   : Single = ' + FloatToStr( GA_PLANNER_SnapCrit_ClearEntrance                 ) + ';');
     //fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_CloseWorker            : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_CloseWorker          ) + ';');
     fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_SnapCrit               : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_SnapCrit             ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_DistCrit               : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_DistCrit             ) + ';');
+//    fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_DistCrit               : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_DistCrit             ) + ';');
     fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_CityCenter             : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_CityCenter           ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_EvalArea               : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_EvalArea             ) + ';');
+//    fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_EvalArea               : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_EvalArea             ) + ';');
   end;
 end;
 
@@ -710,9 +710,9 @@ var
   I: Integer;
 begin
   I := 0;
-  GA_PREDICTOR_CityInitialization_Space        := aIdv.Gene[Incr(I)] * 1 / 500.0;
-  GA_PREDICTOR_CityInitialization_Fertility    := aIdv.Gene[Incr(I)] * 1 / 500.0;
-  GA_PREDICTOR_CityInitialization_Worker       := aIdv.Gene[Incr(I)] * 1 / 10.0;
+//  GA_PREDICTOR_CityInitialization_Space        := aIdv.Gene[Incr(I)] * 1 / 500.0;
+//  GA_PREDICTOR_CityInitialization_Fertility    := aIdv.Gene[Incr(I)] * 1 / 500.0;
+//  GA_PREDICTOR_CityInitialization_Worker       := aIdv.Gene[Incr(I)] * 1 / 10.0;
   GA_PREDICTOR_STONE_NEED_PER_A_WORKER         := aIdv.Gene[Incr(I)] * 1;
   GA_PREDICTOR_WOOD_NEED_PER_A_WORKER          := aIdv.Gene[Incr(I)] * 1;
   GA_MANAGER_CheckUnitCount_SerfCoef           := aIdv.Gene[Incr(I)] * 1;
@@ -721,9 +721,9 @@ begin
 
   if aLogIt then
   begin
-    fLogPar.AddTime('GA_PREDICTOR_CityInitialization_Space          : Single = ' + FloatToStr( GA_PREDICTOR_CityInitialization_Space     ) + ';');
-    fLogPar.AddTime('GA_PREDICTOR_CityInitialization_Fertility      : Single = ' + FloatToStr( GA_PREDICTOR_CityInitialization_Fertility ) + ';');
-    fLogPar.AddTime('GA_PREDICTOR_CityInitialization_Worker         : Single = ' + FloatToStr( GA_PREDICTOR_CityInitialization_Worker    ) + ';');
+//    fLogPar.AddTime('GA_PREDICTOR_CityInitialization_Space          : Single = ' + FloatToStr( GA_PREDICTOR_CityInitialization_Space     ) + ';');
+//    fLogPar.AddTime('GA_PREDICTOR_CityInitialization_Fertility      : Single = ' + FloatToStr( GA_PREDICTOR_CityInitialization_Fertility ) + ';');
+//    fLogPar.AddTime('GA_PREDICTOR_CityInitialization_Worker         : Single = ' + FloatToStr( GA_PREDICTOR_CityInitialization_Worker    ) + ';');
     fLogPar.AddTime('GA_PREDICTOR_STONE_NEED_PER_A_WORKER           : Single = ' + FloatToStr( GA_PREDICTOR_STONE_NEED_PER_A_WORKER      ) + ';');
     fLogPar.AddTime('GA_PREDICTOR_WOOD_NEED_PER_A_WORKER            : Single = ' + FloatToStr( GA_PREDICTOR_WOOD_NEED_PER_A_WORKER       ) + ';');
     fLogPar.AddTime('GA_MANAGER_CheckUnitCount_SerfCoef             : Single = ' + FloatToStr( GA_MANAGER_CheckUnitCount_SerfCoef        ) + ';');
@@ -920,7 +920,8 @@ var
 begin
   //Total amount of stone = 4140
   gTerrain := TKMTerrain.Create;
-  gTerrain.LoadFromFile(ExeDir + 'Maps\StoneMines\StoneMines.map', False);
+//  gTerrain.LoadFromFile(ExeDir + 'Maps\StoneMines\StoneMines.map', False);
+  gTerrain.LoadFromFile(ExeDir + 'Maps\StoneMinesTest\StoneMinesTest.map', False);
 
   SetKaMSeed(aRun+1);
 
@@ -990,17 +991,17 @@ begin
   //fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(63, 64), dir_E, 8, 24);
   //fPlayers[1].AddUnitGroup(ut_Cavalry, KMPoint(65, 64), dir_W, 8, 24);
 
-  gHands[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
-  gHands[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
+  gHands[0].AddUnitGroup(utSwordsman, KMPoint(63, 64), TKMDirection(dirE), 8, 24);
+  gHands[1].AddUnitGroup(utSwordsman, KMPoint(65, 64), TKMDirection(dirW), 8, 24);
 
   gHands[1].UnitGroups[0].OrderAttackUnit(gHands[0].Units[0], True);
 
   SimulateGame;
 
-  fResults.Value[aRun, 0] := gHands[0].Stats.GetUnitQty(ut_Any);
-  fResults.Value[aRun, 1] := gHands[1].Stats.GetUnitQty(ut_Any);
+  fResults.Value[aRun, 0] := gHands[0].Stats.GetUnitQty(utAny);
+  fResults.Value[aRun, 1] := gHands[1].Stats.GetUnitQty(utAny);
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
@@ -1098,10 +1099,10 @@ begin
     WRun := gHands[I].Stats.GetWarriorsTrained;
     WTotal := WTotal + WRun;
     WRunT := WRunT + WRun;
-    WFRun := gHands[I].Stats.GetWaresProduced(wt_Warfare);
+    WFRun := gHands[I].Stats.GetWaresProduced(wtWarfare);
     WFTotal := WFTotal + WFRun;
     WFRunT := WFRunT + WFRun;
-    GRun := gHands[I].Stats.GetWaresProduced(wt_All);
+    GRun := gHands[I].Stats.GetWaresProduced(wtAll);
     GTotal := GTotal + GRun;
     GRunT := GRunT + GRun;
     Str := Str + Format('Hand%d: H: %d  W: %d  WF: %d  G: %d', [I, HRun, WRun, WFRun, GRun]);
@@ -1111,7 +1112,7 @@ begin
                [HRunT/HandsCnt, WRunT/HandsCnt, WFRunT/HandsCnt,  GRunT/HandsCnt]));
   gLog.AddTime('Time: ' + IntToStr(GetTimeSince(StartT)));
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
@@ -1147,7 +1148,7 @@ begin
   SimulateGame;
   fResults.Value[aRun, 0] := TimeGet - T;
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
@@ -1179,7 +1180,7 @@ begin
   SimulateGame;
   fResults.Value[aRun, 0] := TimeGet - T;
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
@@ -1219,7 +1220,7 @@ begin
   SimulateGame;
   fResults.Value[aRun, 0] := TimeGet - T;
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
@@ -1268,7 +1269,7 @@ begin
 	  //gGameApp.Game.Save('Stability Test #' + IntToStr(aRun) + '; map number: ' + IntToStr(aIdx), Now);
   end;
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 

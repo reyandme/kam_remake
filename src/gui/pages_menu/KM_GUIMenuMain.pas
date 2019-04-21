@@ -11,6 +11,8 @@ type
   private
     fOnPageChange: TKMMenuChangeEventText;
     procedure ButtonClick(Sender: TObject);
+//    procedure Change(Sender: TObject);
+//    procedure ChangeEdit(Sender: TObject);
   protected
     Panel_MainMenu: TKMPanel;
     Panel_MMButtons: TKMPanel;
@@ -21,6 +23,9 @@ type
     Button_MM_Options: TKMButton;
     Button_MM_Credits: TKMButton;
     Button_MM_Quit: TKMButton;
+//    RP: TKMReplayBar;
+//    EditPos, EditPT, EditMaxValue: TKMNumericEdit;
+//    Edit: TKMEdit;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEventText);
     procedure Show;
@@ -43,7 +48,32 @@ begin
   Panel_MainMenu := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_MainMenu.AnchorsCenter;
     TKMImage.Create(Panel_MainMenu, 300, 120, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_MainMenu, 512, 300, 'Remake', fnt_Metal, taCenter);
+    TKMLabel.Create(Panel_MainMenu, 512, 300, 'Remake', fntMetal, taCenter);
+
+//    TKMLabel.Create(Panel_MainMenu, 100, 60, 'Pos', fntMetal, taLeft);
+//    EditPos := TKMNumericEdit.Create(Panel_MainMenu, 150, 60, 0, 10000, fntArial);
+////    EditPos.OnChange := Change;
+//    TKMLabel.Create(Panel_MainMenu, 100, 90, 'PT', fntMetal, taLeft);
+//    EditPT := TKMNumericEdit.Create(Panel_MainMenu, 150, 90, 0, 10000, fntArial);
+////    EditPT.OnChange := Change;
+//    TKMLabel.Create(Panel_MainMenu, 100, 120, 'Max', fntMetal, taLeft);
+//    EditMaxValue := TKMNumericEdit.Create(Panel_MainMenu, 150, 120, 0, 10000, fntArial);
+//
+//    with TKMButton.Create(Panel_MainMenu, 100, 30, 100, 20, 'Update', bsMenu) do
+//      OnClick := Change;
+//
+//    Edit := TKMEdit.Create(Panel_MainMenu, 300, 100, 100, 20, fntArial);
+//    Edit.OnChange := ChangeEdit;
+
+//    RP := TKMReplayBar.Create(Panel_MainMenu, 100, 160, 400, 25, 1000, 7000, 7000);
+//    RP.MaxValue := 10000;
+//    RP.Peacetime := 7000;
+//    RP.AddMark(100);
+//    RP.AddMark(1000);
+//    RP.AddMark(2000);
+//    RP.AddMark(8000);
+//    RP.AddMark(100);
+//    RP.AddMark(100);
 
     with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMain) do
       ImageStretch;
@@ -66,6 +96,24 @@ begin
       Button_MM_Credits.OnClick      := ButtonClick;
       Button_MM_Quit.OnClick         := ButtonClick;
 end;
+
+
+//procedure TKMMenuMain.Change(Sender: TObject);
+//begin
+//  RP.MaxValue := EditMaxValue.Value;
+//  RP.Peacetime := EditPT.Value;
+//  RP.Position := EditPos.Value;
+//end;
+//
+//
+//procedure TKMMenuMain.ChangeEdit(Sender: TObject);
+//var
+//  Pattern: Integer;
+//  Str: String;
+//begin
+//  if TryStrToInt(Edit.Text, Pattern) then
+//    RP.MarksPattern := Pattern;
+//end;
 
 
 procedure TKMMenuMain.ButtonClick(Sender: TObject);

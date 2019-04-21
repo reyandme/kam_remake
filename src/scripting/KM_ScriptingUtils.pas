@@ -12,12 +12,12 @@ type
     function AbsI(aValue: Integer): Integer;
     function AbsS(aValue: Single): Single;
 
-    function ArrayElementCount(aElement: AnsiString; aArray: array of String): Integer;
+    function ArrayElementCount(const aElement: AnsiString; aArray: array of String): Integer;
     function ArrayElementCountB(aElement: Boolean; aArray: array of Boolean): Integer;
     function ArrayElementCountI(aElement: Integer; aArray: array of Integer): Integer;
     function ArrayElementCountS(aElement: Single; aArray: array of Single): Integer;
 
-    function ArrayHasElement(aElement: AnsiString; aArray: array of String): Boolean;
+    function ArrayHasElement(const aElement: AnsiString; aArray: array of String): Boolean;
     function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean;
     function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean;
     function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean;
@@ -32,7 +32,7 @@ type
 
     function Format(const aFormatting: string; aData: array of const): string;
 
-    function IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString;
+    function IfThen(aBool: Boolean; const aTrue, aFalse: AnsiString): AnsiString;
     function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer;
     function IfThenS(aBool: Boolean; aTrue, aFalse: Single): Single;
 
@@ -104,7 +104,7 @@ end;
 
 //* Version: 7000+
 //* Checks how many times specified string comes in requested array
-function TKMScriptUtils.ArrayElementCount(aElement: AnsiString; aArray: array of String): Integer;
+function TKMScriptUtils.ArrayElementCount(const aElement: AnsiString; aArray: array of String): Integer;
 var
   I: Integer;
 begin
@@ -188,7 +188,7 @@ end;
 
 //* Version: 7000+
 //* Checks whether requested array has specified string
-function TKMScriptUtils.ArrayHasElement(aElement: AnsiString; aArray: array of String): Boolean;
+function TKMScriptUtils.ArrayHasElement(const aElement: AnsiString; aArray: array of String): Boolean;
 var
   I: Integer;
 begin
@@ -363,7 +363,7 @@ end;
 
 //* Version: 7000+
 //* Checks condition aBool and returns aTrue/aFalse string depending on check result
-function TKMScriptUtils.IfThen(aBool: Boolean; aTrue, aFalse: AnsiString): AnsiString;
+function TKMScriptUtils.IfThen(aBool: Boolean; const aTrue, aFalse: AnsiString): AnsiString;
 begin
   try
     if aBool then

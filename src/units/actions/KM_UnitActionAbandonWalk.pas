@@ -17,7 +17,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TKMUnitActionName; override;
-    function CanBeInterrupted: Boolean; override;
+    function CanBeInterrupted(aForced: Boolean = True): Boolean; override;
     function GetExplanation: UnicodeString; override;
     function Execute: TKMActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -42,7 +42,7 @@ end;
 
 destructor TKMUnitActionAbandonWalk.Destroy;
 begin
-  if not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
+  if (fUnit <> nil) and not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
   begin
     fUnit.VertexRem(fVertexOccupied); //Unoccupy vertex
     fVertexOccupied := KMPOINT_ZERO;
@@ -61,7 +61,7 @@ end;
 
 function TKMUnitActionAbandonWalk.ActName: TKMUnitActionName;
 begin
-  Result := uan_AbandonWalk;
+  Result := uanAbandonWalk;
 end;
 
 
@@ -76,7 +76,7 @@ var
   DX, DY: ShortInt;
   WalkX, WalkY, Distance: Single;
 begin
-  Result := ar_ActContinues;
+  Result := arActContinues;
 
   //Execute the route in series of moves
   Distance := gRes.Units[fUnit.UnitType].Speed;
@@ -92,7 +92,7 @@ begin
       fVertexOccupied := KMPOINT_ZERO;
     end;
     StepDone := True;
-    Result := ar_ActDone;
+    Result := arActDone;
     exit;
   end;
 
@@ -118,7 +118,7 @@ begin
 end;
 
 
-function TKMUnitActionAbandonWalk.CanBeInterrupted: Boolean;
+function TKMUnitActionAbandonWalk.CanBeInterrupted(aForced: Boolean = True): Boolean;
 begin
   Result := StepDone and not Locked; //Abandon walk should never be abandoned, it will exit within 1 step anyway
 end;

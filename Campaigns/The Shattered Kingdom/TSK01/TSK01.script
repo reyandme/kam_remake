@@ -1,6 +1,8 @@
 //-- TSK01 --//
 //24.01.2018
 
+{$I difficulty.script}
+
 var 
 	bUnitsAttacked, bMessageShowed: Boolean;
 	iGroup: array[0..3] of Integer;

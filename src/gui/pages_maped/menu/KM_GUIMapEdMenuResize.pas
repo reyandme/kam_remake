@@ -57,9 +57,9 @@ begin
     Panel_Resize_Edit := TKMPanel.Create(Panel_Resize, 0, 0, Panel_Resize.Width, Panel_Resize.Height);
 
       Y := PAGE_TITLE_Y;
-      TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 45, gResTexts[TX_MAPED_MAP_RESIZE_TITLE], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 45, gResTexts[TX_MAPED_MAP_RESIZE_TITLE], fntOutline, taCenter);
       Inc(Y, 45);
-      TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, gResTexts[TX_MAPED_MAP_RESIZE_MOVE_BORDERS], fnt_Grey, taCenter);
+      TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, gResTexts[TX_MAPED_MAP_RESIZE_MOVE_BORDERS], fntGrey, taCenter);
       Inc(Y, 25);
 
       // Use left-top-right-bottom order of creation. Same order will be used for Tab focus change
@@ -75,9 +75,9 @@ begin
 
       Inc(Y, 90);
 
-      Label_CurrentMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, '', fnt_Outline, taCenter);
+      Label_CurrentMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, '', fntOutline, taCenter);
       Inc(Y, 45);
-      Label_NewMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, '', fnt_Outline, taCenter);
+      Label_NewMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, '', fntOutline, taCenter);
       Inc(Y, 45);
 
       Button_Resize := TKMButton.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 45, gResTexts[TX_MAPED_MAP_RESIZE_AND_SAVE], bsGame);
@@ -90,7 +90,7 @@ begin
       Button_Cancel.OnClick   := Menu_Click;
 
     Panel_Resize_Confirm := TKMPanel.Create(Panel_Resize, 0, 0, Panel_Resize.Width, Panel_Resize.Height);
-      Label_Resize_Confirm := TKMLabel.Create(Panel_Resize_Confirm, 0, 0, TB_WIDTH, 20, gResTexts[TX_MAPED_MAP_RESIZE_CONFIRM_TITLE], fnt_Outline, taCenter);
+      Label_Resize_Confirm := TKMLabel.Create(Panel_Resize_Confirm, 0, 0, TB_WIDTH, 20, gResTexts[TX_MAPED_MAP_RESIZE_CONFIRM_TITLE], fntOutline, taCenter);
       Label_Resize_Confirm.AutoWrap := True;
 
       Button_Resize_Confirm_Yes := TKMButton.Create(Panel_Resize_Confirm, 0, Max(150, Label_Resize_Confirm.TextSize.Y + 10),

@@ -35,7 +35,7 @@ begin
   fOnDone := aOnDone;
 
   Panel_Quit := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Quit, 0, 40, TB_WIDTH, 60, gResTexts[TX_MAPED_LOAD_UNSAVED], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Quit, 0, 40, TB_WIDTH, 60, gResTexts[TX_MAPED_LOAD_UNSAVED], fntOutline, taCenter);
   Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
   Button_Quit_No  := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
   Button_Quit_Yes.Hint    := gResTexts[TX_MENU_QUIT_MAPED];
@@ -49,7 +49,7 @@ procedure TKMMapEdMenuQuit.Menu_QuitClick(Sender: TObject);
 begin
   if Sender = Button_Quit_Yes then
   begin
-    gGameApp.StopGame(gr_MapEdEnd);
+    gGameApp.StopGame(grMapEdEnd);
     Exit; //Must exit immediately since Self is destroyed
   end;
   if Sender = Button_Quit_No then

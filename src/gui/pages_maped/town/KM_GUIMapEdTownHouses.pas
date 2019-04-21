@@ -49,7 +49,7 @@ begin
 
   Panel_Build := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
 
-  TKMLabel.Create(Panel_Build,0,PAGE_TITLE_Y,TB_WIDTH,0,gResTexts[TX_MAPED_ROAD_TITLE],fnt_Outline,taCenter);
+  TKMLabel.Create(Panel_Build,0,PAGE_TITLE_Y,TB_WIDTH,0,gResTexts[TX_MAPED_ROAD_TITLE],fntOutline,taCenter);
   Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  0,28,33,33,335);
   Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 37,28,33,33,337);
   Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 74,28,33,33,336);
@@ -67,7 +67,7 @@ begin
   Button_BuildWine.Hint     := GetHintWHotkey(TX_BUILD_WINE_HINT, SC_MAPEDIT_SUB_MENU_ACTION_3);
   Button_BuildCancel.Hint   := GetHintWHotkey(TX_BUILD_CANCEL_HINT, SC_MAPEDIT_SUB_MENU_ACTION_4);
 
-  TKMLabel.Create(Panel_Build,0,65,TB_WIDTH,0,gResTexts[TX_MAPED_HOUSES_TITLE],fnt_Outline,taCenter);
+  TKMLabel.Create(Panel_Build,0,65,TB_WIDTH,0,gResTexts[TX_MAPED_HOUSES_TITLE],fntOutline,taCenter);
   for I := 1 to GUI_HOUSE_COUNT do
     if GUIHouseOrder[I] <> htNone then begin
       Button_Build[I] := TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,gRes.Houses[GUIHouseOrder[I]].GUIIcon);

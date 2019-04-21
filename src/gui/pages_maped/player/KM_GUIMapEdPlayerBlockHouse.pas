@@ -37,7 +37,7 @@ begin
   inherited Create;
 
   Panel_BlockHouse := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_BlockHouse, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_HOUSES], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_BlockHouse, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_HOUSES], fntOutline, taCenter);
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> htNone then
   begin

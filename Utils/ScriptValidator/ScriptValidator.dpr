@@ -21,6 +21,7 @@ function IsConsoleMode: Boolean;
 var
   SI: TStartupInfo;
 begin
+  ZeroMemory(@SI, SizeOf(SI));
   SI.cb := SizeOf(StartUpInfo);
   GetStartupInfo(SI);
   Result := (SI.dwFlags and STARTF_USESHOWWINDOW) = 0;
@@ -65,6 +66,12 @@ begin
       continue;
     end;
 
+    if (paramstr(I) = '-x') or (paramstr(I) = '-xmlapi') then
+    begin
+      fParamRecord.XmlApi := True;
+      continue;
+    end;
+
     if (paramstr(I) = '-v') or (paramstr(I) = '-verbose') then
     begin
       fParamRecord.Verbose := True;
@@ -91,18 +98,32 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TForm1, Form1);
+
+    //we can send script file as parameter even in window mode (f.e. from Notepad++)
+    ProcessParams;
+
+    if fParamRecord.AllMaps then
+      Form1.btnValidateAll.Click
+    else
+    begin
+      Form1.Edit1.Text := fParamRecord.ScriptFile;
+      Form1.btnValidate.Click;
+    end;
+
     Application.Run;
   end else
   begin
     try
-      writeln(VALIDATOR_START_TEXT);
       ProcessParams;
       fConsoleMain := TConsoleMain.Create;
 
-      if fParamRecord.Verbose then
+      if not fParamRecord.XmlApi then
+        writeln(VALIDATOR_START_TEXT);
+
+      if fParamRecord.Verbose and not fParamRecord.XmlApi then
         writeln('VERBOSE: Arguments:' + sLinebreak + fArgs);
 
-      if fParamRecord.Version then
+      if fParamRecord.Version and not fParamRecord.XmlApi then
       begin
         writeln('Game version: ' + GAME_REVISION + sLineBreak +
                 'Validator version: ' + VALIDATOR_VERSION + sLineBreak);

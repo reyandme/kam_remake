@@ -10,7 +10,7 @@ uses
 type
   TKMSelectionEdit = (seNone, seNewRect, seResizeX1, seResizeY1, seResizeX2, seResizeY2, seMove);
   TKMSelectionMode = (smSelecting, smPasting);
-  TKMFlipAxis = (fa_Horizontal, fa_Vertical);
+  TKMFlipAxis = (faHorizontal, faVertical);
 
   TKMBufferData = record
                     BaseLayer: TKMTerrainLayer;
@@ -358,8 +358,8 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
 
     //Heights are vertex based not tile based, so it gets flipped slightly differently
     case aAxis of
-      fa_Horizontal: SwapInt(gTerrain.Land[Y1,X1].Height, gTerrain.Land[Y2  ,X2+1].Height);
-      fa_Vertical:   SwapInt(gTerrain.Land[Y1,X1].Height, gTerrain.Land[Y2+1,X2  ].Height);
+      faHorizontal: SwapInt(gTerrain.Land[Y1,X1].Height, gTerrain.Land[Y2  ,X2+1].Height);
+      faVertical:   SwapInt(gTerrain.Land[Y1,X1].Height, gTerrain.Land[Y2+1,X2  ].Height);
     end;
     Tmp := fTerrainPainter.LandTerKind[Y1, X1].TerKind;
     fTerrainPainter.LandTerKind[Y1, X1].TerKind := fTerrainPainter.LandTerKind[Y2, X2].TerKind;
@@ -387,7 +387,7 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
         1:    begin
                 // For 1 corner - corner is equal to rotation
                 Rot := Corners[0];
-                if (Rot in [0,2]) xor (aAxis = fa_Vertical) then
+                if (Rot in [0,2]) xor (aAxis = faVertical) then
                   Rot := (Rot+1) mod 4
                 else
                   Rot := (Rot+3) mod 4;
@@ -401,7 +401,7 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
                   else
                     Rot := Corners[0];
                   // Fixed Rot is same as for 1 corner
-                  if (Rot in [0,2]) xor (aAxis = fa_Vertical) then
+                  if (Rot in [0,2]) xor (aAxis = faVertical) then
                     Rot := (Rot+1) mod 4
                   else
                     Rot := (Rot+3) mod 4;
@@ -412,7 +412,7 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
                   else
                     Rot := Corners[0];
                   // Fixed Rot calculation
-                  if (Rot in [1,3]) xor (aAxis = fa_Vertical) then
+                  if (Rot in [1,3]) xor (aAxis = faVertical) then
                   begin
                     Rot := (Rot+2) mod 4;
                     aLayer.Corners := [(Corners[0] + 2) mod 4, (Corners[1] + 2) mod 4];
@@ -426,7 +426,7 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
                 else
                   Rot := Round((Corners[0] + Corners[2]) / 2);
                 // Fixed Rot calculation same as for corner
-                if (Rot in [0,2]) xor (aAxis = fa_Vertical) then
+                if (Rot in [0,2]) xor (aAxis = faVertical) then
                   Rot := (Rot+1) mod 4
                 else
                   Rot := (Rot+3) mod 4;
@@ -454,13 +454,13 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
     Rot := gTerrain.Land[Y,X].BaseLayer.Rotation mod 4; //Some KaM maps contain rotations > 3 which must be fixed by modding
 
     //Edges
-    if (Ter in EDGES) and ((Rot in [1,3]) xor (aAxis = fa_Vertical)) then
+    if (Ter in EDGES) and ((Rot in [1,3]) xor (aAxis = faVertical)) then
       gTerrain.Land[Y,X].BaseLayer.Rotation := (Rot+2) mod 4;
 
     //Corners
     if Ter in CORNERS then
     begin
-      if (Rot in [1,3]) xor (Ter in CORNERS_REVERSED) xor (aAxis = fa_Vertical) then
+      if (Rot in [1,3]) xor (Ter in CORNERS_REVERSED) xor (aAxis = faVertical) then
         gTerrain.Land[Y,X].BaseLayer.Rotation := (Rot+1) mod 4
       else
         gTerrain.Land[Y,X].BaseLayer.Rotation := (Rot+3) mod 4;
@@ -472,7 +472,7 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
       FixLayer(gTerrain.Land[Y,X].Layer[L], True);
 
     //Horizontal flip: Vertex (not middle) objects must be moved right by 1
-    if (aAxis = fa_Horizontal) and (X < fSelectionRect.Right)
+    if (aAxis = faHorizontal) and (X < fSelectionRect.Right)
     and (gTerrain.Land[Y,X+1].Obj = OBJ_NONE) and not (gTerrain.Land[Y,X].Obj in OBJ_MIDDLE_X) then
     begin
       gTerrain.Land[Y,X+1].Obj := gTerrain.Land[Y,X].Obj;
@@ -480,7 +480,7 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
     end;
 
     //Vertical flip: Vertex (not middle) objects must be moved down by 1
-    if (aAxis = fa_Vertical) and (Y < fSelectionRect.Bottom)
+    if (aAxis = faVertical) and (Y < fSelectionRect.Bottom)
     and (gTerrain.Land[Y+1,X].Obj = OBJ_NONE) and not (gTerrain.Land[Y,X].Obj in OBJ_MIDDLE_Y) then
     begin
       gTerrain.Land[Y+1,X].Obj := gTerrain.Land[Y,X].Obj;
@@ -496,11 +496,11 @@ begin
   SY := (fSelectionRect.Bottom - fSelectionRect.Top);
 
   case aAxis of
-    fa_Horizontal:  for I := 1 to SY do
+    faHorizontal:  for I := 1 to SY do
                       for K := 1 to SX div 2 do
                         SwapTiles(fSelectionRect.Left + K, fSelectionRect.Top + I,
                                   fSelectionRect.Right - K + 1, fSelectionRect.Top + I);
-    fa_Vertical:    for I := 1 to SY div 2 do
+    faVertical:    for I := 1 to SY div 2 do
                       for K := 1 to SX do
                         SwapTiles(fSelectionRect.Left + K, fSelectionRect.Top + I,
                                   fSelectionRect.Left + K, fSelectionRect.Bottom - I + 1);

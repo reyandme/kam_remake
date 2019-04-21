@@ -152,40 +152,40 @@ const
                                          Count: Integer; //Total sprites for this resource
                                        end
   = (
-      (TexStart: 0; Count: 0;), //rt_None
+      (TexStart: 0; Count: 0;), //rtNone
 
-      (TexStart: MarketWareTexStart+237; Count: 20;), //rt_Trunk
-      (TexStart: MarketWareTexStart+47;  Count: 36;), //rt_Stone
-      (TexStart: MarketWareTexStart+94;  Count: 19;), //rt_Wood
-      (TexStart: MarketWareTexStart+113; Count: 11;), //rt_IronOre
-      (TexStart: MarketWareTexStart+135; Count: 12;), //rt_GoldOre
-      (TexStart: MarketWareTexStart+207; Count: 11;), //rt_Coal
-      (TexStart: MarketWareTexStart+130; Count: 5;),  //rt_Steel
-      (TexStart: MarketWareTexStart+147; Count: 9;),  //rt_Gold
-      (TexStart: MarketWareTexStart+1;   Count: 23;), //rt_Wine
-      (TexStart: MarketWareTexStart+24;  Count: 23;), //rt_Corn
-      (TexStart: MarketWareTexStart+218; Count: 12;), //rt_Bread
-      (TexStart: MarketWareTexStart+186; Count: 12;), //rt_Flour
-      (TexStart: MarketWareTexStart+156; Count: 9;),  //rt_Leather
-      (TexStart: MarketWareTexStart+283; Count: 16;), //rt_Sausages
-      (TexStart: MarketWareTexStart+299; Count: 6;),  //rt_Pig
-      (TexStart: MarketWareTexStart+230; Count: 7;),  //rt_Skin
-      (TexStart: MarketWareTexStart+85;  Count: 9;),  //rt_Shield
-      (TexStart: MarketWareTexStart+127; Count: 3;),  //rt_MetalShield
-      (TexStart: MarketWareTexStart+165; Count: 6;),  //rt_Armor
-      (TexStart: MarketWareTexStart+124; Count: 3;),  //rt_MetalArmor
-      (TexStart: MarketWareTexStart+201; Count: 6;),  //rt_Axe
-      (TexStart: MarketWareTexStart+183; Count: 3;),  //rt_Sword
-      (TexStart: MarketWareTexStart+171; Count: 6;),  //rt_Pike
-      (TexStart: MarketWareTexStart+198; Count: 3;),  //rt_Hallebard
-      (TexStart: MarketWareTexStart+177; Count: 6;),  //rt_Bow
-      (TexStart: MarketWareTexStart+83;  Count: 2;),  //rt_Arbalet
-      (TexStart: 0;                      Count: 2;),  //rt_Horse (defined in fMarketBeastAnim)
-      (TexStart: MarketWareTexStart+305; Count: 19;), //rt_Fish
+      (TexStart: MarketWareTexStart+237; Count: 20;), //rtTrunk
+      (TexStart: MarketWareTexStart+47;  Count: 36;), //rtStone
+      (TexStart: MarketWareTexStart+94;  Count: 19;), //rtWood
+      (TexStart: MarketWareTexStart+113; Count: 11;), //rtIronOre
+      (TexStart: MarketWareTexStart+135; Count: 12;), //rtGoldOre
+      (TexStart: MarketWareTexStart+207; Count: 11;), //rtCoal
+      (TexStart: MarketWareTexStart+130; Count: 5;),  //rtSteel
+      (TexStart: MarketWareTexStart+147; Count: 9;),  //rtGold
+      (TexStart: MarketWareTexStart+1;   Count: 23;), //rtWine
+      (TexStart: MarketWareTexStart+24;  Count: 23;), //rtCorn
+      (TexStart: MarketWareTexStart+218; Count: 12;), //rtBread
+      (TexStart: MarketWareTexStart+186; Count: 12;), //rtFlour
+      (TexStart: MarketWareTexStart+156; Count: 9;),  //rtLeather
+      (TexStart: MarketWareTexStart+283; Count: 16;), //rtSausages
+      (TexStart: MarketWareTexStart+299; Count: 6;),  //rtPig
+      (TexStart: MarketWareTexStart+230; Count: 7;),  //rtSkin
+      (TexStart: MarketWareTexStart+85;  Count: 9;),  //rtShield
+      (TexStart: MarketWareTexStart+127; Count: 3;),  //rtMetalShield
+      (TexStart: MarketWareTexStart+165; Count: 6;),  //rtArmor
+      (TexStart: MarketWareTexStart+124; Count: 3;),  //rtMetalArmor
+      (TexStart: MarketWareTexStart+201; Count: 6;),  //rtAxe
+      (TexStart: MarketWareTexStart+183; Count: 3;),  //rtSword
+      (TexStart: MarketWareTexStart+171; Count: 6;),  //rtPike
+      (TexStart: MarketWareTexStart+198; Count: 3;),  //rtHallebard
+      (TexStart: MarketWareTexStart+177; Count: 6;),  //rtBow
+      (TexStart: MarketWareTexStart+83;  Count: 2;),  //rtArbalet
+      (TexStart: 0;                      Count: 2;),  //rtHorse (defined in fMarketBeastAnim)
+      (TexStart: MarketWareTexStart+305; Count: 19;), //rtFish
 
-      (TexStart: 0; Count: 0;), //rt_All
-      (TexStart: 0; Count: 0;), //rt_Warfare
-      (TexStart: 0; Count: 0;)  //rt_Food
+      (TexStart: 0; Count: 0;), //rtAll
+      (TexStart: 0; Count: 0;), //rtWarfare
+      (TexStart: 0; Count: 0;)  //rtFood
     );
 
   //These tables are used to convert between KaM script IDs and Remake enums
@@ -233,8 +233,8 @@ const
     NeedsPlayerOrder: True;
     BuildIcon:        311;
     TabletSpriteId:   261;
-    Input:            (wt_Coal,       wt_Steel,      wt_None,       wt_None);
-    Output:           (wt_MetalArmor, wt_MetalShield,wt_None,       wt_None);
+    Input:            (wtCoal,       wtSteel,      wtNone,       wtNone);
+    Output:           (wtMetalArmor, wtMetalShield,wtNone,       wtNone);
     UnlockedByHouse:  htIronSmithy;
     SnowSpriteId:     -1;
     ),
@@ -243,8 +243,8 @@ const
     NeedsPlayerOrder: True;
     BuildIcon:        321;
     TabletSpriteId:   271;
-    Input:            (wt_Leather,    wt_Wood,       wt_None,       wt_None);
-    Output:           (wt_Armor,      wt_Shield,     wt_None,       wt_None);
+    Input:            (wtLeather,    wtWood,       wtNone,       wtNone);
+    Output:           (wtArmor,      wtShield,     wtNone,       wtNone);
     UnlockedByHouse:  htTannery;
     SnowSpriteId:     2067;
     ),
@@ -253,8 +253,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        308;
     TabletSpriteId:   258;
-    Input:            (wt_Flour,      wt_None,       wt_None,       wt_None);
-    Output:           (wt_Bread,      wt_None,       wt_None,       wt_None);
+    Input:            (wtFlour,      wtNone,       wtNone,       wtNone);
+    Output:           (wtBread,      wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htMill;
     SnowSpriteId:     2054;
     ),
@@ -263,8 +263,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        322;
     TabletSpriteId:   272;
-    Input:            (wt_Warfare,    wt_None,       wt_None,       wt_None);
-    Output:           (wt_None,       wt_None,       wt_None,       wt_None);
+    Input:            (wtWarfare,    wtNone,       wtNone,       wtNone);
+    Output:           (wtNone,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSawmill;
     SnowSpriteId:     -1;
     ),
@@ -273,8 +273,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        325;
     TabletSpriteId:   275;
-    Input:            (wt_Pig,        wt_None,       wt_None,       wt_None);
-    Output:           (wt_Sausages,   wt_None,       wt_None,       wt_None);
+    Input:            (wtPig,        wtNone,       wtNone,       wtNone);
+    Output:           (wtSausages,   wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSwine;
     SnowSpriteId:     2066;
     ),
@@ -283,8 +283,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        304;
     TabletSpriteId:   254;
-    Input:            (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Coal,       wt_None,       wt_None,       wt_None);
+    Input:            (wtNone,       wtNone,       wtNone,       wtNone);
+    Output:           (wtCoal,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSawmill;
     SnowSpriteId:     -1;
     ),
@@ -293,8 +293,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        309;
     TabletSpriteId:   259;
-    Input:            (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Corn,       wt_None,       wt_None,       wt_None);
+    Input:            (wtNone,       wtNone,       wtNone,       wtNone);
+    Output:           (wtCorn,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSawmill;
     SnowSpriteId:     2055;
     ),
@@ -303,8 +303,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        307;
     TabletSpriteId:   257;
-    Input:            (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Fish,       wt_None,       wt_None,       wt_None);
+    Input:            (wtNone,       wtNone,       wtNone,       wtNone);
+    Output:           (wtFish,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSawmill;
     SnowSpriteId:     2053;
     ),
@@ -313,8 +313,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        306;
     TabletSpriteId:   256;
-    Input:            (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_GoldOre,    wt_None,       wt_None,       wt_None);
+    Input:            (wtNone,       wtNone,       wtNone,       wtNone);
+    Output:           (wtGoldOre,    wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSawmill;
     SnowSpriteId:     -1;
     ),
@@ -323,8 +323,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        328;
     TabletSpriteId:   278;
-    Input:            (wt_Bread,      wt_Sausages,   wt_Wine,       wt_Fish);
-    Output:           (wt_None,       wt_None,       wt_None,       wt_None);
+    Input:            (wtBread,      wtSausages,   wtWine,       wtFish);
+    Output:           (wtNone,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htStore;
     SnowSpriteId:     2063;
     ),
@@ -333,8 +333,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        305;
     TabletSpriteId:   255;
-    Input:            (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_IronOre,    wt_None,       wt_None,       wt_None);
+    Input:            (wtNone,       wtNone,       wtNone,       wtNone);
+    Output:           (wtIronOre,    wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSawmill;
     SnowSpriteId:     2052;
     ),
@@ -343,8 +343,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        302;
     TabletSpriteId:   252;
-    Input:            (wt_IronOre,    wt_Coal,       wt_None,       wt_None);
-    Output:           (wt_Steel,      wt_None,       wt_None,       wt_None);
+    Input:            (wtIronOre,    wtCoal,       wtNone,       wtNone);
+    Output:           (wtSteel,      wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htIronMine;
     SnowSpriteId:     2051;
     ),
@@ -353,8 +353,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        327;
     TabletSpriteId:   277;
-    Input:            (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_None,       wt_None,       wt_None,       wt_None);
+    Input:            (wtNone,       wtNone,       wtNone,       wtNone);
+    Output:           (wtNone,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSawmill;
     SnowSpriteId:     -1;
     ),
@@ -363,8 +363,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        316;
     TabletSpriteId:   266;
-    Input:            (wt_GoldOre,    wt_Coal,       wt_None,       wt_None);
-    Output:           (wt_Gold,       wt_None,       wt_None,       wt_None);
+    Input:            (wtGoldOre,    wtCoal,       wtNone,       wtNone);
+    Output:           (wtGold,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htGoldMine;
     SnowSpriteId:     2068;
     ),
@@ -373,8 +373,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        323;
     TabletSpriteId:   273;
-    Input:            (wt_Corn,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Flour,      wt_None,       wt_None,       wt_None);
+    Input:            (wtCorn,       wtNone,       wtNone,       wtNone);
+    Output:           (wtFlour,      wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htFarm;
     SnowSpriteId:     2062;
     ),
@@ -383,8 +383,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        315;
     TabletSpriteId:   265;
-    Input:            (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Stone,      wt_None,       wt_None,       wt_None);
+    Input:            (wtNone,       wtNone,       wtNone,       wtNone);
+    Output:           (wtStone,      wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSchool;
     SnowSpriteId:     2058;
     ),
@@ -393,8 +393,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        301;
     TabletSpriteId:   251;
-    Input:            (wt_Trunk,      wt_None,       wt_None,       wt_None);
-    Output:           (wt_Wood,       wt_None,       wt_None,       wt_None);
+    Input:            (wtTrunk,      wtNone,       wtNone,       wtNone);
+    Output:           (wtWood,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htWoodcutters;
     SnowSpriteId:     2050;
     ),
@@ -403,8 +403,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        314;
     TabletSpriteId:   264;
-    Input:            (wt_Gold,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_None,       wt_None,       wt_None,       wt_None);
+    Input:            (wtGold,       wtNone,       wtNone,       wtNone);
+    Output:           (wtNone,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htStore;
     SnowSpriteId:     2059;
     ),
@@ -413,8 +413,8 @@ const
     NeedsPlayerOrder: True;
     BuildIcon:        324;
     TabletSpriteId:   274;
-    Input:            (wt_Wood,       wt_Steel,      wt_None,       wt_None);
-    Output:           (wt_None,       wt_None,       wt_None,       wt_None);
+    Input:            (wtWood,       wtSteel,      wtNone,       wtNone);
+    Output:           (wtNone,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htIronSmithy;
     SnowSpriteId:     -1;
     ),
@@ -423,8 +423,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        313;
     TabletSpriteId:   263;
-    Input:            (wt_Corn,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Horse,      wt_None,       wt_None,       wt_None);
+    Input:            (wtCorn,       wtNone,       wtNone,       wtNone);
+    Output:           (wtHorse,      wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htFarm;
     SnowSpriteId:     -1;
     ),
@@ -433,8 +433,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        312;
     TabletSpriteId:   262;
-    Input:            (wt_All,        wt_None,       wt_None,       wt_None);
-    Output:           (wt_All,        wt_None,       wt_None,       wt_None);
+    Input:            (wtAll,        wtNone,       wtNone,       wtNone);
+    Output:           (wtAll,        wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htNone; //
     SnowSpriteId:     2056;
     ),
@@ -443,8 +443,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        317;
     TabletSpriteId:   267;
-    Input:            (wt_Corn,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Pig,        wt_Skin,       wt_None,       wt_None);
+    Input:            (wtCorn,       wtNone,       wtNone,       wtNone);
+    Output:           (wtPig,        wtSkin,       wtNone,       wtNone);
     UnlockedByHouse:  htFarm;
     SnowSpriteId:     2064;
     ),
@@ -453,8 +453,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        326;
     TabletSpriteId:   276;
-    Input:            (wt_Skin,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Leather,    wt_None,       wt_None,       wt_None);
+    Input:            (wtSkin,       wtNone,       wtNone,       wtNone);
+    Output:           (wtLeather,    wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSwine;
     SnowSpriteId:     -1;
     ),
@@ -463,8 +463,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        319;
     TabletSpriteId:   269;
-    Input:            (wt_Gold,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_None,       wt_None,       wt_None,       wt_None);
+    Input:            (wtGold,       wtNone,       wtNone,       wtNone);
+    Output:           (wtNone,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htMetallurgists;
     SnowSpriteId:     -1;
     ),
@@ -473,8 +473,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        318;
     TabletSpriteId:   268;
-    Input:            (wt_Stone,      wt_None,       wt_None,       wt_None);
-    Output:           (wt_None,       wt_None,       wt_None,       wt_None);
+    Input:            (wtStone,      wtNone,       wtNone,       wtNone);
+    Output:           (wtNone,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htQuary;
     SnowSpriteId:     2060;
     ),
@@ -483,8 +483,8 @@ const
     NeedsPlayerOrder: True;
     BuildIcon:        303;
     TabletSpriteId:   253;
-    Input:            (wt_Coal,       wt_Steel,      wt_None,       wt_None);
-    Output:           (wt_Sword,      wt_Hallebard,  wt_Arbalet,    wt_None);
+    Input:            (wtCoal,       wtSteel,      wtNone,       wtNone);
+    Output:           (wtSword,      wtHallebard,  wtArbalet,    wtNone);
     UnlockedByHouse:  htIronSmithy;
     SnowSpriteId:     -1;
     ),
@@ -493,8 +493,8 @@ const
     NeedsPlayerOrder: True;
     BuildIcon:        320;
     TabletSpriteId:   270;
-    Input:            (wt_Wood,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Axe,        wt_Pike,       wt_Bow,        wt_None);
+    Input:            (wtWood,       wtNone,       wtNone,       wtNone);
+    Output:           (wtAxe,        wtPike,       wtBow,        wtNone);
     UnlockedByHouse:  htSawmill;
     SnowSpriteId:     2061;
     ),
@@ -503,8 +503,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        329;
     TabletSpriteId:   279;
-    Input:            (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Wine,       wt_None,       wt_None,       wt_None);
+    Input:            (wtNone,       wtNone,       wtNone,       wtNone);
+    Output:           (wtWine,       wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSawmill;
     SnowSpriteId:     2065;
     ),
@@ -513,8 +513,8 @@ const
     NeedsPlayerOrder: False;
     BuildIcon:        310;
     TabletSpriteId:   260;
-    Input:            (wt_None,       wt_None,       wt_None,       wt_None);
-    Output:           (wt_Trunk,      wt_None,       wt_None,       wt_None);
+    Input:            (wtNone,       wtNone,       wtNone,       wtNone);
+    Output:           (wtTrunk,      wtNone,       wtNone,       wtNone);
     UnlockedByHouse:  htSchool;
     SnowSpriteId:     2057;
     )
@@ -531,19 +531,19 @@ const
 
   //'This house is unoccupied' msg index
   HouseTypeToUnoccupiedMsgIndex: array[TKMHouseType] of ShortInt = (
-    -1, -1,     //ut_None, ut_Any
+    -1, -1,     //utNone, utAny
     0,1,2,
-    -1,         //ht_Barracks
+    -1,         //htBarracks
     3,4,5,6,7,
-    -1,         //ht_Inn
+    -1,         //htInn
     8,9,
-    -1,         //ht_Marketplace
+    -1,         //htMarketplace
     10,11,12,13,
-    -1,         //ht_School
+    -1,         //htSchool
     14,15,
-    -1,         //ht_Store
+    -1,         //htStore
     16,17,
-    -1,         //ht_TownHall
+    -1,         //htTownHall
     18,19,20,21,22);
 
 
@@ -558,7 +558,7 @@ end;
 
 function TKMHouseSpec.AcceptsWares: boolean;
 begin
-  Result := (ResInput[1] <> wt_None)          //Exclude houses that do not receive wares
+  Result := (ResInput[1] <> wtNone)          //Exclude houses that do not receive wares
             or (fHouseType = htMarketplace); //Marketplace also accepts wares
 end;
 
@@ -622,13 +622,13 @@ begin
   if InRange(fHouseDat.OwnerType, Low(UnitIndexToType), High(UnitIndexToType)) then
     Result := UnitIndexToType[fHouseDat.OwnerType]
   else
-    Result := ut_None;
+    Result := utNone;
 end;
 
 
 function TKMHouseSpec.ProducesWares: Boolean;
 begin
-  Result := not (ResOutput[1] in [wt_None, wt_All, wt_Warfare]); //Exclude aggregate types
+  Result := not (ResOutput[1] in [wtNone, wtAll, wtWarfare]); //Exclude aggregate types
 end;
 
 
@@ -711,7 +711,7 @@ begin
 
   fCRC := LoadHouseDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'houses.dat');
 
-  fItems[htTannery].fHouseDat.Anim[ha_Flag3].Count := 0; //fix for tannery 2 flags at one place. Flag3 is unnecessary
+  fItems[htTannery].fHouseDat.Anim[haFlag3].Count := 0; //fix for tannery 2 flags at one place. Flag3 is unnecessary
 
   fItems[htMarketplace].fHouseType := htMarketplace;
   fItems[htMarketplace].fHouseDat.OwnerType := -1; //No unit works here (yet anyway)
@@ -742,17 +742,17 @@ begin
   fItems[htMarketplace].fHouseDat.SizeX := 4;
   fItems[htMarketplace].fHouseDat.SizeY := 3;
   fItems[htMarketplace].fHouseDat.MaxHealth := 550;
-  AddAnimation(htMarketplace, ha_Flag1, -80, -33, [1165,1166,1167,1163,1164]);
-  AddAnimation(htMarketplace, ha_Flag2, -73, -7, [1163,1164,1165,1166,1167]);
-  AddAnimation(htMarketplace, ha_Flag3, 73, -80, [1161,1162,1158,1159,1160]);
-  AddAnimation(htMarketplace, ha_Fire1, 18, -83, [1623,1624,1625,1620,1621,1622]);
-  AddAnimation(htMarketplace, ha_Fire2, 78, -67, [1637,1632,1633,1634,1635,1636]);
-  AddAnimation(htMarketplace, ha_Fire3, -30, -103, [1620,1621,1622,1623,1624,1625]);
-  AddAnimation(htMarketplace, ha_Fire4, -3, -54, [1617,1618,1619,1614,1615,1616]);
-  AddAnimation(htMarketplace, ha_Fire5, -12, -38, [1632,1633,1634,1635,1636,1637]);
-  AddAnimation(htMarketplace, ha_Fire6, 39, -47, [1629,1630,1631,1626,1627,1628]);
-  AddAnimation(htMarketplace, ha_Fire7, 25, 13, [1635,1636,1637,1632,1633,1634]);
-  AddAnimation(htMarketplace, ha_Fire8, -82, -40, [1621,1622,1623,1624,1625,1620]);
+  AddAnimation(htMarketplace, haFlag1, -80, -33, [1165,1166,1167,1163,1164]);
+  AddAnimation(htMarketplace, haFlag2, -73, -7, [1163,1164,1165,1166,1167]);
+  AddAnimation(htMarketplace, haFlag3, 73, -80, [1161,1162,1158,1159,1160]);
+  AddAnimation(htMarketplace, haFire1, 18, -83, [1623,1624,1625,1620,1621,1622]);
+  AddAnimation(htMarketplace, haFire2, 78, -67, [1637,1632,1633,1634,1635,1636]);
+  AddAnimation(htMarketplace, haFire3, -30, -103, [1620,1621,1622,1623,1624,1625]);
+  AddAnimation(htMarketplace, haFire4, -3, -54, [1617,1618,1619,1614,1615,1616]);
+  AddAnimation(htMarketplace, haFire5, -12, -38, [1632,1633,1634,1635,1636,1637]);
+  AddAnimation(htMarketplace, haFire6, 39, -47, [1629,1630,1631,1626,1627,1628]);
+  AddAnimation(htMarketplace, haFire7, 25, 13, [1635,1636,1637,1632,1633,1634]);
+  AddAnimation(htMarketplace, haFire8, -82, -40, [1621,1622,1623,1624,1625,1620]);
   //Now add horse animations for the market
   AddMarketBeastAnim(1,[278, 277, 276, 275, 274, 273, 272, 271, 271, 271, 271, 271, 272,
                         273, 274, 275, 276, 277, 277, 278, 279, 280, 281, 282, 282, 282,

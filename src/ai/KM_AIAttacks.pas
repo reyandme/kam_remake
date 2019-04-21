@@ -6,13 +6,13 @@ uses
 
 type
   TKMAIAttackType = (
-    aat_Once,     // Attack will occur once (after the set time has passed and if they have enough troops
-    aat_Repeating // Attack will happen multiple times, (after delay time) whenever the AI has enough troops
+    aatOnce,     // Attack will occur once (after the set time has passed and if they have enough troops
+    aatRepeating // Attack will happen multiple times, (after delay time) whenever the AI has enough troops
   );
 
 const
   //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
-  RemakeAttackType: array [0..2] of TKMAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
+  RemakeAttackType: array [0..2] of TKMAIAttackType = (aatRepeating, aatOnce, aatRepeating);
   KaMAttackType: array [TKMAIAttackType] of Byte = (1, 0);
 
 type
@@ -34,7 +34,7 @@ type
     TakeAll: Boolean; //Used instead of GroupAmounts, chooses groups randomly taking at most TotalMen warriors
     Target: TKMAIAttackTarget;
     Range: Integer; //Will only occur when target is within this tile range (not properly tested yet)
-    CustomPosition: TKMPoint; //Used when Target = att_CustomPosition
+    CustomPosition: TKMPoint; //Used when Target = attCustomPosition
   end;
 
 
@@ -93,7 +93,7 @@ begin
     if fAttacks[aIndex].TakeAll or (fAttacks[aIndex].GroupAmounts[GT] > 0) then
       Inc(TotalMenAvailable, aMenAvailable[GT]);
 
-  Result := ((fAttacks[aIndex].AttackType = aat_Repeating) or not fAttacks[aIndex].HasOccured)
+  Result := ((fAttacks[aIndex].AttackType = aatRepeating) or not fAttacks[aIndex].HasOccured)
             and (aTick >= fAttacks[aIndex].Delay)
             and (TotalMenAvailable >= fAttacks[aIndex].TotalMen);
 
@@ -162,10 +162,10 @@ function TKMAIAttacks.AddAttack(aAttackType: TKMAIAttackType; aDelay: Cardinal; 
 var
   GroupAmounts: TKMGroupTypeArray;
 begin
-  GroupAmounts[gt_Melee]      := aMeleeCount;
-  GroupAmounts[gt_AntiHorse]  := aAntiHorseCount;
-  GroupAmounts[gt_Ranged]     := aRangedCount;
-  GroupAmounts[gt_Mounted]    := aMountedCount;
+  GroupAmounts[gtMelee]      := aMeleeCount;
+  GroupAmounts[gtAntiHorse]  := aAntiHorseCount;
+  GroupAmounts[gtRanged]     := aRangedCount;
+  GroupAmounts[gtMounted]    := aMountedCount;
   Result := AddAttack(aAttackType, aDelay, aTotalMen, GroupAmounts, aTakeAll, aTarget, aRange, aCustomPosition);
 end;
 

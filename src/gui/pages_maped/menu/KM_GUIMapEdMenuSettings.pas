@@ -41,7 +41,7 @@ begin
   inherited Create;
 
   Panel_Settings := TKMPanel.Create(aParent, 0, 44, TB_WIDTH, 332);
-    TKMLabel.Create(Panel_Settings, 0, PAGE_TITLE_Y, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], fnt_Outline, taLeft);
+    TKMLabel.Create(Panel_Settings, 0, PAGE_TITLE_Y, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], fntOutline, taLeft);
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,40,WID,0,20);
     TrackBar_Settings_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];
     TrackBar_Settings_Brightness.OnChange := Menu_Settings_Change;
@@ -56,10 +56,10 @@ begin
     TrackBar_Settings_Music.Caption := gResTexts[TX_MENU_MUSIC_VOLUME];
     TrackBar_Settings_Music.Hint := gResTexts[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,260,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_SHORT],fnt_Metal);
+    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,260,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_SHORT],fntMetal);
     CheckBox_Settings_MusicOff.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
     CheckBox_Settings_MusicOff.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fnt_Metal);
+    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fntMetal);
     CheckBox_Settings_ShuffleOn.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_HINT];
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
 end;

@@ -74,14 +74,23 @@ var
   chars: array [0..High(Word)] of WideChar;
   I, K: Integer;
   libTxt: UnicodeString;
+  BaseDir: string;
 begin
   //Collect list of library files
   libxList := TStringList.Create;
 
   FillChar(chars, SizeOf(chars), #0);
-  gResLocales := TKMLocales.Create(ExeDir + '..\..\data\locales.txt', DEFAULT_LOCALE);
+
+  BaseDir := ExeDir;
+
+  if DirectoryExists(ExeDir + '..\..\data\') then //Remake project location
+    BaseDir := ExeDir + '..\..\';
+  if DirectoryExists(ExeDir + 'data\') then //Default location
+    BaseDir := ExeDir;
+
+  gResLocales := TKMLocales.Create(BaseDir + 'data\locales.txt', DEFAULT_LOCALE);
   try
-    GetAllTextPaths(ExeDir + '..\..\', libxList);
+    GetAllTextPaths(BaseDir, libxList);
 
     //libxList.Append(ExtractFilePath(ParamStr(0)) + 'ger.libx');
     //libxList.Append(ExtractFilePath(ParamStr(0)) + 'uni.txt');

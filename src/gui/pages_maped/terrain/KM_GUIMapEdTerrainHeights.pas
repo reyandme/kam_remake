@@ -53,8 +53,8 @@ begin
   fLastShape := hsCircle;
 
   Panel_Heights := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Heights, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HEIGHTS], fnt_Outline, taCenter);
-  HeightShapeLabel := TKMLabel.Create(Panel_Heights, 0, 34, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SHAPE], fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_Heights, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HEIGHTS], fntOutline, taCenter);
+  HeightShapeLabel := TKMLabel.Create(Panel_Heights, 0, 34, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SHAPE], fntMetal, taLeft);
   HeightCircle := TKMButtonFlat.Create(Panel_Heights, 120, 30, 24, 24, 592);
   HeightCircle.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_HEIGHTS_CIRCLE, SC_MAPEDIT_SUB_MENU_ACTION_1);
   HeightCircle.OnClick  := HeightChange;

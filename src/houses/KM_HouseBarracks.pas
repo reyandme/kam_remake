@@ -20,14 +20,14 @@ type
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
     NotAcceptRecruitFlag: Boolean;
-    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
 
     procedure Activate(aWasBuilt: Boolean); override;
-    procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TKMWareType): Word; override;
@@ -51,12 +51,12 @@ implementation
 uses
   Math, Types,
   KM_Hand, KM_HandsCollection, KM_Terrain,
-  KM_Units, KM_Units_Warrior,
+  KM_Units, KM_UnitWarrior,
   KM_ResUnits;
 
 
 { TKMHouseBarracks }
-constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
 begin
   inherited;
 
@@ -118,7 +118,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False);
+procedure TKMHouseBarracks.DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False);
 var
   R: TKMWareType;
 begin
@@ -235,7 +235,7 @@ begin
   Result := Result and not gHands[fOwner].Locks.GetUnitBlocked(aUnitType);
 
   for I := 1 to 4 do
-  if TROOP_COST[aUnitType, I] <> wt_None then //Can't equip if we don't have a required resource
+  if TROOP_COST[aUnitType, I] <> wtNone then //Can't equip if we don't have a required resource
     Result := Result and (fResourceCount[TROOP_COST[aUnitType, I]] > 0);
 end;
 
@@ -257,7 +257,7 @@ begin
 
     //Take resources
     for I := 1 to 4 do
-    if TROOP_COST[aUnitType, I] <> wt_None then
+    if TROOP_COST[aUnitType, I] <> wtNone then
     begin
       Dec(fResourceCount[TROOP_COST[aUnitType, I]]);
       gHands[fOwner].Stats.WareConsumed(TROOP_COST[aUnitType, I]);
@@ -265,7 +265,7 @@ begin
     end;
 
     //Special way to kill the Recruit because it is in a house
-    TKMUnitRecruit(fRecruitsList.Items[0]).DestroyInBarracks;
+    TKMUnitRecruit(fRecruitsList.Items[0]).KillInHouse;
     fRecruitsList.Delete(0); //Delete first recruit in the list
 
     //Make new unit
@@ -274,7 +274,7 @@ begin
     Soldier.Visible := False; //Make him invisible as he is inside the barracks
     Soldier.Condition := Round(TROOPS_TRAINED_CONDITION * UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
     //Soldier.OrderLoc := KMPointBelow(Entrance); //Position in front of the barracks facing north
-    Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
+    Soldier.SetActionGoIn(uaWalk, gdGoOutside, Self);
     if Assigned(Soldier.OnUnitTrained) then
       Soldier.OnUnitTrained(Soldier);
     Inc(Result);
@@ -289,12 +289,12 @@ begin
     Inc(MapEdRecruitCount)
   else
   begin
-    U := gHands[fOwner].TrainUnit(ut_Recruit, Entrance);
+    U := gHands[fOwner].TrainUnit(utRecruit, Entrance);
     U.Visible := False;
     U.InHouse := Self;
-    U.SetHome(Self); //When walking out Home is used to remove recruit from barracks
+    U.Home := Self; //When walking out Home is used to remove recruit from barracks
     RecruitsAdd(U);
-    gHands[fOwner].Stats.UnitCreated(ut_Recruit, False);
+    gHands[fOwner].Stats.UnitCreated(utRecruit, False);
   end;
 end;
 

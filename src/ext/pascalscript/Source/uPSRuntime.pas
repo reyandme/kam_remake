@@ -1101,7 +1101,7 @@ function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: tbtS
 
 implementation
 uses
-  TypInfo {$IFDEF DELPHI3UP}{$IFNDEF FPC}{$IFNDEF KYLIX} , ComObj {$ENDIF}{$ENDIF}{$ENDIF}{$IFDEF PS_FPC_HAS_COM}, ComObj{$ENDIF};
+  TypInfo {$IFDEF DELPHI3UP}{$IFNDEF FPC}{$IFNDEF KYLIX} , ComObj {$ENDIF}{$ENDIF}{$ENDIF}{$IFDEF PS_FPC_HAS_COM}, ComObj{$ENDIF} {$IFDEF DELPHI_TOKYO_UP}, AnsiStrings{$ENDIF};
 
 {$IFDEF DELPHI3UP }
 resourceString
@@ -1539,9 +1539,9 @@ begin
       tkVariant: begin Result := '[Variant]'; exit; end;
 	  {$IFDEF DELPHI6UP}
 	  {$IFNDEF PS_NOWIDESTRING}
-      tkWString: begin Result := ''''+tbtString(GetWideStrProp(Instance, pp))+''; end;
+      tkWString: begin Result := ''''+tbtString(GetWideStrProp(Instance, pp))+''''; exit; end;
 	  {$IFDEF DELPHI2009UP}
-      tkUString: begin Result := ''''+tbtString(GetUnicodeStrProp(Instance, pp))+''; end;
+      tkUString: begin Result := ''''+tbtString({$IFDEF DELPHI_TOKYO_UP}GetStrProp{$ELSE}GetUnicodeStrProp{$ENDIF}(Instance, pp))+''''; exit; end;
 	  {$ENDIF}
       {$ENDIF}
 	  {$ENDIF}
@@ -9320,7 +9320,7 @@ begin
 end;
 
 
-{$IFNDEF DELPHI6UP}
+{$IFDEF DELPHI6UP}
 function _VarArrayGet(var S : Variant; I : Integer) : Variant;
 begin
   result := VarArrayGet(S, [I]);
@@ -9389,9 +9389,7 @@ begin
   {$ENDIF}
   RegisterDelphiFunction(@Null, 'Null', cdRegister);
   RegisterDelphiFunction(@VarIsNull, 'VarIsNull', cdRegister);
-  {$IFDEF WDC}
-  RegisterDelphiFunction(@VarType, 'VarType', cdRegister);
-  {$ENDIF}
+  RegisterDelphiFunction(@{$IFDEF FPC}variants.{$ENDIF}VarType, 'VarType', cdRegister);
   {$IFNDEF PS_NOIDISPATCH}
   RegisterDelphiFunction(@IDispatchInvoke, 'IdispatchInvoke', cdregister);
   {$ENDIF}
@@ -9422,7 +9420,7 @@ begin
   RegisterFunctionName('WStrSet', DefProc, Pointer(44), nil);
 
   {$ENDIF}
-  {$IFNDEF DELPHI6UP}
+  {$IFDEF DELPHI6UP}
   RegisterDelphiFunction(@_VarArrayGet, 'VarArrayGet', cdRegister);
   RegisterDelphiFunction(@_VarArraySet, 'VarArraySet', cdRegister);
   {$ENDIF}
@@ -9432,7 +9430,7 @@ end;
 
 function ToString(p: PansiChar): tbtString;
 begin
-  SetString(Result, p, StrLen(p));
+  SetString(Result, p, {$IFDEF DELPHI_TOKYO_UP}AnsiStrings.{$ENDIF}StrLen(p));
 end;
 
 function IntPIFVariantToVariant(Src: pointer; aType: TPSTypeRec; var Dest: Variant): Boolean;
@@ -10263,7 +10261,7 @@ begin
   // the VMT class pointer in EDX so they are effectively swaped
   // using register calling convention
   {$IFDEF CPU64}
-  PPSVariantU32(IntVal).Data := Int64(FSelf);
+  PPSVariantS64(IntVal).Data := Int64(FSelf);
   {$ELSE}
   PPSVariantU32(IntVal).Data := Cardinal(FSelf);
   {$ENDIF}
@@ -10642,7 +10640,7 @@ begin
 {$IFNDEF DELPHI2009UP}btUnicodeString,{$ENDIF}
   btWideString: SetWideStrProp(TObject(FSelf), P.Ext1, tbtWidestring(n.dta^));
 {$IFDEF DELPHI2009UP}
-  btUnicodeString: SetUnicodeStrProp(TObject(FSelf), P.Ext1, tbtUnicodestring(n.dta^));
+  btUnicodeString: {$IFDEF DELPHI_TOKYO_UP}SetStrProp{$ELSE}SetUnicodeStrProp{$ENDIF}(TObject(FSelf), P.Ext1, tbtUnicodestring(n.dta^));
 {$ENDIF}
   {$ENDIF}
 {$ENDIF}
@@ -10699,7 +10697,7 @@ begin
 	  {$IFDEF DELPHI6UP}
 {$IFNDEF PS_NOWIDESTRING}
         {$IFDEF DELPHI2009UP}
-        btUnicodeString: tbtUnicodeString(n.dta^) := GetUnicodeStrProp(TObject(FSelf), P.Ext1);
+        btUnicodeString: tbtUnicodeString(n.dta^) := {$IFDEF DELPHI_TOKYO_UP}GetStrProp{$ELSE}GetUnicodeStrProp{$ENDIF}(TObject(FSelf), P.Ext1);
         {$ELSE}
         btUnicodeString,
         {$ENDIF}

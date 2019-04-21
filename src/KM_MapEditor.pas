@@ -12,7 +12,7 @@ type
 
   TKMMapEdMarker = record
     MarkerType: TKMMarkerType;
-    Owner: TKMHandIndex;
+    Owner: TKMHandID;
     Index: SmallInt;
   end;
 
@@ -27,13 +27,12 @@ type
     //When you load a map script/libx/wav/etc. files are "attached" then copied when
     //saving if the path is different
     fAttachedFiles: array of UnicodeString;
-    fMapTxtInfo: TKMMapTxtInfo;
 
     function GetRevealer(aIndex: Byte): TKMPointTagList;
     procedure ProceedUnitsCursorMode;
     procedure UpdateField(aStageIncrement: Integer; aCheckPrevCell: Boolean);
     procedure EraseObject(aEraseAll: Boolean);
-    function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
+    function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandID): Boolean;
     procedure ChangeOwner(aChangeOwnerForAll: Boolean);
     procedure PaintDefences(aLayer: TKMPaintLayer);
     procedure PaintRevealFOW(aLayer: TKMPaintLayer);
@@ -47,7 +46,7 @@ type
 
     ResizeMapRect: TKMRect;
     RevealAll: array [0..MAX_HANDS-1] of Boolean;
-    DefaultHuman: TKMHandIndex;
+    DefaultHuman: TKMHandID;
     PlayerHuman: array [0..MAX_HANDS - 1] of Boolean;
     PlayerClassicAI: array [0..MAX_HANDS - 1] of Boolean;
     PlayerAdvancedAI: array [0..MAX_HANDS - 1] of Boolean;
@@ -61,8 +60,10 @@ type
     property Deposits: TKMDeposits read fDeposits;
     property Selection: TKMSelection read fSelection;
     property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
-    property MapTxtInfo: TKMMapTxtInfo read fMapTxtInfo;
     property VisibleLayers: TKMMapEdLayerSet read fVisibleLayers write fVisibleLayers;
+
+    function OnlyAdvancedAIHand(aHandId: TKMHandID): Boolean;
+
     procedure DetectAttachedFiles(const aMissionFile: UnicodeString);
     procedure SaveAttachements(const aMissionFile: UnicodeString);
     function HitTest(X,Y: Integer): TKMMapEdMarker;
@@ -75,7 +76,7 @@ type
     procedure UpdateStateIdle;
     procedure Paint(aLayer: TKMPaintLayer; const aClipRect: TKMRect);
 
-    procedure DeletePlayer(aIndex: TKMHandIndex);
+    procedure DeletePlayer(aIndex: TKMHandID);
   end;
 
 
@@ -84,7 +85,7 @@ uses
   SysUtils, StrUtils, Math,
   KM_Terrain, KM_FileIO,
   KM_AIDefensePos, 
-  KM_Units, KM_UnitGroups, KM_Houses, KM_HouseCollection, KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
+  KM_Units, KM_UnitGroup, KM_Houses, KM_HouseCollection, KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
   KM_Game, KM_GameCursor, KM_ResMapElements, KM_ResHouses, KM_ResWares,
   KM_RenderAux, KM_Hand, KM_HandsCollection, KM_InterfaceMapEditor, KM_CommonUtils, KM_Utils;
 
@@ -109,7 +110,6 @@ begin
 
   fTerrainPainter := TKMTerrainPainter.Create;
   fSelection := TKMSelection.Create(fTerrainPainter);
-  fMapTxtInfo := TKMMapTxtInfo.Create;
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlOverlays, mlDeposits];
 
@@ -241,6 +241,14 @@ begin
 end;
 
 
+function TKMMapEditor.OnlyAdvancedAIHand(aHandId: TKMHandID): Boolean;
+begin
+  Result := PlayerAdvancedAI[aHandId]
+    and not PlayerClassicAI[aHandId]
+    and not PlayerHuman[aHandId];
+end;
+
+
 function TKMMapEditor.HitTest(X, Y: Integer): TKMMapEdMarker;
 var I,K: Integer;
 begin
@@ -337,7 +345,7 @@ begin
   //Delete unit/house
   if Obj is TKMUnit then
   begin
-    gHands.RemAnyUnit(TKMUnit(Obj).GetPosition);
+    gHands.RemAnyUnit(TKMUnit(Obj).CurrPosition);
     if not aEraseAll then Exit;
   end
   else
@@ -361,14 +369,14 @@ begin
   end;
 
   //Delete tile overlay (road/corn/wine)
-  if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+  if gTerrain.Land[P.Y,P.X].TileOverlay = toRoad then
     gTerrain.RemRoad(P);
   if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
     gTerrain.RemField(P);
 end;
 
 
-procedure TKMMapEditor.DeletePlayer(aIndex: TKMHandIndex);
+procedure TKMMapEditor.DeletePlayer(aIndex: TKMHandID);
 begin
   if gHands = nil then Exit;
 
@@ -398,17 +406,17 @@ var P: TKMPoint;
 begin
   P := gGameCursor.Cell;
   //Fisrt try to change owner of object on tile
-  if not ChangeObjectOwner(gMySpectator.HitTestCursorWGroup, gMySpectator.HandIndex) or aChangeOwnerForAll then
+  if not ChangeObjectOwner(gMySpectator.HitTestCursorWGroup, gMySpectator.HandID) or aChangeOwnerForAll then
     //then try to change owner tile (road/field/wine)
-    if ((gTerrain.Land[P.Y, P.X].TileOverlay = to_Road) or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0))
-      and (gTerrain.Land[P.Y, P.X].TileOwner <> gMySpectator.HandIndex) then
-      gTerrain.Land[P.Y, P.X].TileOwner := gMySpectator.HandIndex;
+    if ((gTerrain.Land[P.Y, P.X].TileOverlay = toRoad) or (gTerrain.Land[P.Y, P.X].CornOrWine <> 0))
+      and (gTerrain.Land[P.Y, P.X].TileOwner <> gMySpectator.HandID) then
+      gTerrain.Land[P.Y, P.X].TileOwner := gMySpectator.HandID;
 end;
 
 
 //Change owner for specified object
 //returns True if owner was changed successfully
-function TKMMapEditor.ChangeObjectOwner(aObject: TObject; aOwner: TKMHandIndex): Boolean;
+function TKMMapEditor.ChangeObjectOwner(aObject: TObject; aOwner: TKMHandID): Boolean;
 var House: TKMHouse;
 begin
   Result := False;
@@ -420,7 +428,7 @@ begin
     if House.Owner <> aOwner then
     begin
       House.OwnerUpdate(aOwner, True);
-      gTerrain.SetHouseAreaOwner(House.GetPosition, House.HouseType, aOwner); // Update minimap colors
+      gTerrain.SetHouseAreaOwner(House.Position, House.HouseType, aOwner); // Update minimap colors
       Result := True;
     end;
   end
@@ -478,7 +486,7 @@ begin
     cmUnits:      ProceedUnitsCursorMode;
     cmErase:      begin
                     gHands.RemAnyHouse(P);
-                    if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                    if gTerrain.Land[P.Y,P.X].TileOverlay = toRoad then
                       gTerrain.RemRoad(P);
                     if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                       gTerrain.RemField(P);
@@ -501,7 +509,7 @@ begin
   begin
     Obj := gMySpectator.HitTestCursor(True);
     if Obj is TKMUnit then
-      gHands.RemAnyUnit(TKMUnit(Obj).GetPosition);
+      gHands.RemAnyUnit(TKMUnit(Obj).CurrPosition);
   end else
   if gTerrain.CanPlaceUnit(P, TKMUnitType(gGameCursor.Tag1)) then
   begin
@@ -510,7 +518,7 @@ begin
       gMySpectator.Hand.AddUnit(TKMUnitType(gGameCursor.Tag1), P, False)
     else
     if TKMUnitType(gGameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-      gMySpectator.Hand.AddUnitGroup(TKMUnitType(gGameCursor.Tag1), P, dir_S, 1, 1)
+      gMySpectator.Hand.AddUnitGroup(TKMUnitType(gGameCursor.Tag1), P, dirS, 1, 1)
     else
       gHands.PlayerAnimals.AddUnit(TKMUnitType(gGameCursor.Tag1), P);
   end;
@@ -564,8 +572,8 @@ begin
                 cmRotateTile: fTerrainPainter.RotateTile(P);
                 cmUnits:      ProceedUnitsCursorMode;
                 cmMarkers:    case gGameCursor.Tag1 of
-                                MARKER_REVEAL:        fRevealers[gMySpectator.HandIndex].Add(P, gGameCursor.MapEdSize);
-                                MARKER_DEFENCE:       gMySpectator.Hand.AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
+                                MARKER_REVEAL:        fRevealers[gMySpectator.HandID].Add(P, gGameCursor.MapEdSize);
+                                MARKER_DEFENCE:       gMySpectator.Hand.AI.General.DefencePositions.Add(KMPointDir(P, dirN), gtMelee, 10, adtFrontLine);
                                 MARKER_CENTERSCREEN:  begin
                                                         gMySpectator.Hand.CenterScreen := P;
                                                         //Updating XY display is done in InterfaceMapEd
@@ -576,7 +584,7 @@ begin
                               end;
                 cmErase:      begin
                                 gHands.RemAnyHouse(P);
-                                if gTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                if gTerrain.Land[P.Y,P.X].TileOverlay = toRoad then
                                   gTerrain.RemRoad(P);
                                 if gTerrain.TileIsCornField(P) or gTerrain.TileIsWineField(P) then
                                   gTerrain.RemField(P);
@@ -782,15 +790,15 @@ begin
         H := gHands[I].Houses[J];
         case H.HouseType of
           htIronMine:  begin
-                          gTerrain.FindOrePointsByDistance(H.PointBelowEntrance, wt_IronOre, OreP);
+                          gTerrain.FindOrePointsByDistance(H.PointBelowEntrance, wtIronOre, OreP);
                           AddOrePoints(OreP, IronOreP);
                         end;
           htGoldMine:  begin
-                          gTerrain.FindOrePointsByDistance(H.PointBelowEntrance, wt_GoldOre, OreP);
+                          gTerrain.FindOrePointsByDistance(H.PointBelowEntrance, wtGoldOre, OreP);
                           AddOrePoints(OreP, GoldOreP);
                         end;
           htCoalMine:  begin
-                          gTerrain.FindOrePointsByDistance(H.PointBelowEntrance, wt_Coal, OreP);
+                          gTerrain.FindOrePointsByDistance(H.PointBelowEntrance, wtCoal, OreP);
                           AddOrePoints(OreP, CoalOreP);
                         end;
           else Continue;
@@ -835,7 +843,7 @@ begin
     if gGameCursor.Mode = cmErase then
       if gTerrain.TileIsCornField(P)
         or gTerrain.TileIsWineField(P)
-        or (gTerrain.Land[P.Y,P.X].TileOverlay=to_Road)
+        or (gTerrain.Land[P.Y,P.X].TileOverlay=toRoad)
         or (gHands.HousesHitTest(P.X, P.Y) <> nil) then
         gRenderPool.RenderWireTile(P, $FFFFFF00) //Cyan quad
       else

@@ -45,9 +45,9 @@ begin
   inherited Create;
 
   Panel_Goals := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_GOALS], fnt_Outline, taCenter);
-  ColumnBox_Goals := TKMColumnBox.Create(Panel_Goals, 0, 30, TB_WIDTH, 230, fnt_Game, bsGame);
-  ColumnBox_Goals.SetColumns(fnt_Outline,
+  TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_GOALS], fntOutline, taCenter);
+  ColumnBox_Goals := TKMColumnBox.Create(Panel_Goals, 0, 30, TB_WIDTH, 230, fntGame, bsGame);
+  ColumnBox_Goals.SetColumns(fntOutline,
     [gResTexts[TX_MAPED_GOALS_TYPE],
      gResTexts[TX_MAPED_GOALS_CONDITION],
      gResTexts[TX_MAPED_GOALS_PLAYER]], [0, 25, 155], True);
@@ -68,8 +68,8 @@ var
   G: TKMGoal;
 begin
   FillChar(G, SizeOf(G), #0);
-  G.GoalType := glt_Victory;
-  G.GoalCondition := gc_Buildings;
+  G.GoalType := gltVictory;
+  G.GoalCondition := gcBuildings;
   G.Disabled := False;
   gMySpectator.Hand.AI.Goals.AddGoal(G);
 
@@ -95,7 +95,7 @@ procedure TKMMapEdPlayerGoals.Goals_Edit(aIndex: Integer);
 begin
   Assert(InRange(aIndex, 0, gMySpectator.Hand.AI.Goals.Count - 1));
 
-  GoalPopUp.Show(gMySpectator.HandIndex, aIndex);
+  GoalPopUp.Show(gMySpectator.HandID, aIndex);
   GoalPopUp.fOnDone := Goals_OnDone;
 end;
 

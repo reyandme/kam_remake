@@ -93,8 +93,8 @@ begin
   CompactMapElements;
 
   Panel_Objects := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_OBJECTS], fnt_Outline, taCenter);
-  ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 0, 295, TB_WIDTH, 20, sa_Horizontal, bsGame);
+  TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter);
+  ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 0, 295, TB_WIDTH, 20, saHorizontal, bsGame);
   ObjectsScroll.MinValue := 0;
   ObjectsScroll.MaxValue := (fCountCompact - 1) div 3 - 2;
   ObjectsScroll.Position := 0;
@@ -140,7 +140,7 @@ begin
     Image_ObjectsPalette := TKMImage.Create(PopUp_ObjectsPalette, 0, 0, PopUp_ObjectsPalette.Width, PopUp_ObjectsPalette.Height, 3, rxGuiMain);
     Image_ObjectsPalette.ImageStretch;
 
-    Scroll_ObjectsPalette := TKMScrollBar.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Width - 20, 25, 20, PopUp_ObjectsPalette.Height - 75, sa_Vertical, bsGame);
+    Scroll_ObjectsPalette := TKMScrollBar.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Width - 20, 25, 20, PopUp_ObjectsPalette.Height - 75, saVertical, bsGame);
     Scroll_ObjectsPalette.MinValue := 0;
     Scroll_ObjectsPalette.Position := 0;
     Scroll_ObjectsPalette.OnChange := ObjectsPalette_Refresh;
@@ -162,7 +162,7 @@ begin
       ObjectsPaletteTable[I].OnClickShift := ObjPalette_ClickShift;
     end;
 
-    Label_ObjectsPalette := TKMLabel.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X, 0, gResTexts[TX_MAPED_TERRAIN_OBJECTS_PALETTE], fnt_Outline, taCenter);
+    Label_ObjectsPalette := TKMLabel.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X, 0, gResTexts[TX_MAPED_TERRAIN_OBJECTS_PALETTE], fntOutline, taCenter);
 
     Button_ObjPaletteErase := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, OBJ_CELL_W, 32, 340);
     Button_ObjPaletteErase.Hint := gResTexts[TX_MAPED_TERRAIN_OBJECTS_REMOVE];

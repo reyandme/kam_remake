@@ -62,6 +62,7 @@ type
   end;
 
 const
+  VAR_MODIFIERS: array[0..1] of String = ('out', 'var');
   VAR_TYPE_NAME: array[0..36] of string = (
     'Byte', 'Shortint', 'Smallint', 'Word', 'Integer', 'Cardinal', 'Single', 'Extended', 'Boolean', 'AnsiString', 'String',
     'array of const', 'array of Boolean', 'array of String', 'array of AnsiString', 'array of Integer', 'array of Single', 'array of Extended',
@@ -178,6 +179,7 @@ var
   paramHolder: array of TParamHolder;
   lastType: string;
   charArr: TKMCharArray;
+  nextVarModifier: String;
 begin
   if aString = 'aPlayer: ShortInt; const aFileName: AnsiString; aVolume: Single' then
     Sleep(0);
@@ -190,6 +192,7 @@ begin
   try
     // If not set to -1 it skips the first variable
     nextType := -1;
+    nextVarModifier := '';
 
     StrSplit(aString, ' ', listTokens);
 
@@ -209,8 +212,40 @@ begin
         paramList.Add(StrTrimRight(listTokens[i] + ' ' + listTokens[nextType - 1] + ' ' + listTokens[nextType], charArr));
       end else
         // Skip unused stuff
-        if not ((SameText(listTokens[i], 'of')) or (SameText(listTokens[i], 'const')) or (i = nextType)) then
+        if not ((SameText(listTokens[i], 'of'))
+             or (SameText(listTokens[i], 'const'))
+             or (i = nextType)) then
           paramList.Add(listTokens[i]);
+    end;
+
+    //Check for 'out' and 'var' variables modifiers (they are in paramList now
+    nextVarModifier := '';
+    for i := 0 to paramList.Count - 1 do
+    begin
+      // See if this token is a Type
+      isParam := True;
+      for K := 0 to High(VAR_MODIFIERS) do
+        if SameText(VAR_MODIFIERS[K], paramList[i]) then
+        begin
+          nextVarModifier := VAR_MODIFIERS[K];
+          paramList[i] := ''; //modifier is not a param
+          isParam := False;
+          Break;
+        end;
+
+      //Update var names until first type found
+      if isParam then
+        for K := 0 to High(VAR_TYPE_NAME) do
+          if SameText(VAR_TYPE_NAME[K], paramList[i]) then
+          begin
+            nextVarModifier := '';
+            isParam := False;
+            Break;
+          end;
+
+      //Update var name (add modifier to it)
+      if isParam and (nextVarModifier <> '') then
+        paramList[i] := nextVarModifier + ' ' + paramList[i];
     end;
 
     // Bind variable names to their type
@@ -218,6 +253,9 @@ begin
     lastType := '';
     for i := paramList.Count - 1 downto 0 do
     begin
+      if paramList[i] = '' then //skip empty params (f.e. modifiers)
+        Continue;
+      
       // See if this token is a Type
       isParam := True;
       for K := 0 to High(VAR_TYPE_NAME) do

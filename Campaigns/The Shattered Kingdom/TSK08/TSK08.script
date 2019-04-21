@@ -1,6 +1,8 @@
 //-- TSK08 --//
 //24.01.2018
 
+{$I difficulty.script}
+
 var
 	iGroup: array[1..2] of Integer;
 
@@ -183,6 +185,14 @@ begin
 	//Grab Groups
 	iGroup[1] := States.GroupAt(34, 95); //Militia
 	iGroup[2] := States.GroupAt(34, 102); //Militia
+	//Difficulty
+	case States.MissionDifficulty() of
+		mdEasy:
+			begin
+				Actions.HouseAddWaresTo(States.HouseAt(104, 102), 1, 50);
+				Actions.GiveGroup(0, 15, 97, 105, 0, 15, 5);
+			end;
+	end;
 end;
 
 procedure OnHouseBuilt(aHouseID: Integer);

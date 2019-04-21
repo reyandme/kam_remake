@@ -1,6 +1,6 @@
 <?php
-include_once("consts.php");
-include_once("statistics.php");
+require_once("consts.php");
+require_once("statistics.php");
 
 /*
 * json_encode provider for the case that the webserver has PHP < 5.2.0
@@ -10,8 +10,11 @@ if (!function_exists('json_encode'))
   function json_encode($a=false)
   {
     if (is_null($a)) return 'null';
+
     if ($a === false) return 'false';
+
     if ($a === true) return 'true';
+
     if (is_scalar($a))
     {
       if (is_float($a))
@@ -24,11 +27,11 @@ if (!function_exists('json_encode'))
       {
         static $jsonReplaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
         return '"' . str_replace($jsonReplaces[0], $jsonReplaces[1], $a) . '"';
-      }
-      else
+      } else
         return $a;
     }
     $isList = true;
+
     for ($i = 0, reset($a); $i < count($a); $i++, next($a))
     {
       if (key($a) !== $i)
@@ -37,15 +40,17 @@ if (!function_exists('json_encode'))
         break;
       }
     }
+
     $result = array();
+
     if ($isList)
     {
       foreach ($a as $v) $result[] = json_encode($v);
       return '[' . join(',', $result) . ']';
-    }
-    else
-    {
-      foreach ($a as $k => $v) $result[] = json_encode($k).':'.json_encode($v);
+    } else {
+	foreach ($a as $k => $v) {
+		$result[] = json_encode($k).':'.json_encode($v);
+	}
       return '{' . join(',', $result) . '}';
     }
   }
@@ -97,5 +102,3 @@ function stripslashes_if_gpc_magic_quotes( $string ) {
         return $string;
     }
 }
-
-?>

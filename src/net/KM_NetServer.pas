@@ -410,22 +410,22 @@ begin
     M.Write(fClientList[I].FPS);
     //gLog.AddTime(Format('Client %d measured ping = %d FPS = %d', [fClientList[I].Handle, fClientList[I].Ping, fClientList[I].FPS]));
   end;
-  SendMessage(NET_ADDRESS_ALL, mk_PingInfo, M);
+  SendMessage(NET_ADDRESS_ALL, mkPingInfo, M);
   M.Free;
 
   //Measure pings. Iterate backwards so the indexes are maintained after kicking clients
   for I:=fClientList.Count-1 downto 0 do
-    if fClientList[I].fPingStarted = 0 then //We have recieved mk_Pong for our previous measurement, so start a new one
+    if fClientList[I].fPingStarted = 0 then //We have recieved mkPong for our previous measurement, so start a new one
     begin
       fClientList[I].fPingStarted := TickCount;
-      SendMessage(fClientList[I].fHandle, mk_Ping);
+      SendMessage(fClientList[I].fHandle, mkPing);
     end
     else
       //If they don't respond within a reasonable time, kick them
       if GetTimeSince(fClientList[I].fPingStarted) > fKickTimeout*1000 then
       begin
         Status('Client timed out '+inttostr(fClientList[I].fHandle));
-        SendMessage(fClientList[I].fHandle, mk_Kicked, TX_NET_KICK_TIMEOUT, True);
+        SendMessage(fClientList[I].fHandle, mkKicked, TX_NET_KICK_TIMEOUT, True);
         fServer.Kick(fClientList[I].fHandle);
       end;
 
@@ -459,7 +459,7 @@ begin
   else
     PacketsAccumulatingDelay := aPacketsAccDelay;
   if fServerName <> aServerName then
-    SendMessageA(NET_ADDRESS_ALL, mk_ServerName, aServerName);
+    SendMessageA(NET_ADDRESS_ALL, mkServerName, aServerName);
   fServerName := aServerName;
 end;
 
@@ -478,10 +478,10 @@ end;
 procedure TKMNetServer.ClientConnect(aHandle: TKMNetHandleIndex);
 begin
   fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they choose a room later
-  SendMessageA(aHandle, mk_GameVersion, NET_PROTOCOL_REVISON); //First make sure they are using the right version
-  if fWelcomeMessage <> '' then SendMessageW(aHandle, mk_WelcomeMessage, fWelcomeMessage); //Welcome them to the server
-  SendMessageA(aHandle, mk_ServerName, fServerName);
-  SendMessageInd(aHandle, mk_IndexOnServer, aHandle); //This is the signal that the client may now start sending
+  SendMessageA(aHandle, mkGameVersion, NET_PROTOCOL_REVISON); //First make sure they are using the right version
+  if fWelcomeMessage <> '' then SendMessageW(aHandle, mkWelcomeMessage, fWelcomeMessage); //Welcome them to the server
+  SendMessageA(aHandle, mkServerName, fServerName);
+  SendMessageInd(aHandle, mkIndexOnServer, aHandle); //This is the signal that the client may now start sending
 end;
 
 
@@ -496,7 +496,7 @@ begin
   begin
     if not AddNewRoom then //Create a new room for this client
     begin
-      SendMessage(aHandle, mk_RefuseToJoin, TX_NET_INVALID_ROOM, True);
+      SendMessage(aHandle, mkRefuseToJoin, TX_NET_INVALID_ROOM, True);
       fServer.Kick(aHandle);
       Exit;
     end;
@@ -507,7 +507,7 @@ begin
       aRoom := GetFirstAvailableRoom; //Take the first one which has a space (or create a new one if none have spaces)
       if aRoom = -1 then //No rooms available
       begin
-        SendMessage(aHandle, mk_RefuseToJoin, TX_NET_INVALID_ROOM, True);
+        SendMessage(aHandle, mkRefuseToJoin, TX_NET_INVALID_ROOM, True);
         fServer.Kick(aHandle);
         Exit;
       end;
@@ -516,7 +516,7 @@ begin
       //If the room is outside the valid range
       if not InRange(aRoom,0,fRoomCount-1) then
       begin
-        SendMessage(aHandle, mk_RefuseToJoin, TX_NET_INVALID_ROOM, True);
+        SendMessage(aHandle, mkRefuseToJoin, TX_NET_INVALID_ROOM, True);
         fServer.Kick(aHandle);
         Exit;
       end;
@@ -525,7 +525,7 @@ begin
   for I:=0 to Length(fRoomInfo[aRoom].BannedIPs)-1 do
     if fRoomInfo[aRoom].BannedIPs[I] = fServer.GetIP(aHandle) then
     begin
-      SendMessage(aHandle, mk_RefuseToJoin, TX_NET_BANNED_BY_HOST, True);
+      SendMessage(aHandle, mkRefuseToJoin, TX_NET_BANNED_BY_HOST, True);
       fServer.Kick(aHandle);
       Exit;
     end;
@@ -543,7 +543,7 @@ begin
   M := TKMemoryStream.Create;
   M.Write(fRoomInfo[aRoom].HostHandle);
   fGameFilter.Save(M);
-  SendMessage(aHandle, mk_ConnectedToRoom, M);
+  SendMessage(aHandle, mkConnectedToRoom, M);
   M.Free;
 
   MeasurePings;
@@ -579,7 +579,7 @@ begin
   if Room = -1 then Exit; //The client was not assigned a room yet
 
   //Send message to all remaining clients that client has disconnected
-  SendMessageInd(NET_ADDRESS_ALL, mk_ClientLost, aHandle);
+  SendMessageInd(NET_ADDRESS_ALL, mkClientLost, aHandle);
 
   //Assign a new host
   if fRoomInfo[Room].HostHandle = aHandle then
@@ -601,7 +601,7 @@ begin
       M.Write(fRoomInfo[Room].HostHandle);
       M.WriteA(fRoomInfo[Room].Password);
       M.WriteW(fRoomInfo[Room].GameInfo.Description);
-      SendMessageToRoom(mk_ReassignHost, Room, M);
+      SendMessageToRoom(mkReassignHost, Room, M);
       M.Free;
 
       Status('Reassigned hosting rights for room '+inttostr(Room)+' to '+inttostr(fRoomInfo[Room].HostHandle));
@@ -820,7 +820,7 @@ begin
   M.Position := 0;
   M.Read(Kind, SizeOf(TKMessageKind));
 
-  //Sometimes client disconnects then we recieve a late packet (e.g. mk_Pong), in which case ignore it
+  //Sometimes client disconnects then we recieve a late packet (e.g. mkPong), in which case ignore it
   if fClientList.GetByHandle(aSenderHandle) = nil then
   begin
     Status('Warning: Received data from an unassigned client');
@@ -832,7 +832,7 @@ begin
                   (fRoomInfo[SenderRoom].HostHandle = aSenderHandle);
 
   case Kind of
-    mk_JoinRoom:
+    mkJoinRoom:
             begin
               M.Read(tmpInteger); //Room to join
               if InRange(tmpInteger, 0, Length(fRoomInfo)-1)
@@ -840,11 +840,11 @@ begin
               //Once game has started don't ask for passwords so clients can reconnect
               and (fRoomInfo[tmpInteger].GameInfo.GameState = mgsLobby)
               and (fRoomInfo[tmpInteger].Password <> '') then
-                SendMessage(aSenderHandle, mk_ReqPassword)
+                SendMessage(aSenderHandle, mkReqPassword)
               else
                 AddClientToRoom(aSenderHandle, tmpInteger);
             end;
-    mk_Password:
+    mkPassword:
             begin
               M.Read(tmpInteger); //Room to join
               M.ReadA(tmpStringA); //Password
@@ -853,42 +853,42 @@ begin
               and (fRoomInfo[tmpInteger].Password = tmpStringA) then
                 AddClientToRoom(aSenderHandle, tmpInteger)
               else
-                SendMessage(aSenderHandle, mk_ReqPassword);
+                SendMessage(aSenderHandle, mkReqPassword);
             end;
-    mk_SetPassword:
+    mkSetPassword:
             if SenderIsHost then
             begin
               M.ReadA(tmpStringA); //Password
               fRoomInfo[SenderRoom].Password := tmpStringA;
             end;
-    mk_SetGameInfo:
+    mkSetGameInfo:
             if SenderIsHost then
             begin
               fRoomInfo[SenderRoom].GameInfo.LoadFromStream(M);
               SaveHTMLStatus;
             end;
-    mk_KickPlayer:
+    mkKickPlayer:
             if SenderIsHost then
             begin
               M.Read(tmpSmallInt);
               if fClientList.GetByHandle(tmpSmallInt) <> nil then
               begin
-                SendMessage(tmpSmallInt, mk_Kicked, TX_NET_KICK_BY_HOST, True);
+                SendMessage(tmpSmallInt, mkKicked, TX_NET_KICK_BY_HOST, True);
                 fServer.Kick(tmpSmallInt);
               end;
             end;
-    mk_BanPlayer:
+    mkBanPlayer:
             if SenderIsHost then
             begin
               M.Read(tmpSmallInt);
               if fClientList.GetByHandle(tmpSmallInt) <> nil then
               begin
                 BanPlayerFromRoom(tmpSmallInt, SenderRoom);
-                SendMessage(tmpSmallInt, mk_Kicked, TX_NET_BANNED_BY_HOST, True);
+                SendMessage(tmpSmallInt, mkKicked, TX_NET_BANNED_BY_HOST, True);
                 fServer.Kick(tmpSmallInt);
               end;
             end;
-    mk_GiveHost:
+    mkGiveHost:
             if SenderIsHost then
             begin
               M.Read(tmpSmallInt);
@@ -900,28 +900,28 @@ begin
                 M2.Write(fRoomInfo[SenderRoom].HostHandle);
                 M2.WriteA(fRoomInfo[SenderRoom].Password);
                 M2.WriteW(fRoomInfo[SenderRoom].GameInfo.Description);
-                SendMessageToRoom(mk_ReassignHost, SenderRoom, M2);
+                SendMessageToRoom(mkReassignHost, SenderRoom, M2);
                 M2.Free;
               end;
             end;
-    mk_ResetBans:
+    mkResetBans:
             if SenderIsHost then
             begin
               SetLength(fRoomInfo[SenderRoom].BannedIPs, 0);
             end;
-    mk_GetServerInfo:
+    mkGetServerInfo:
             begin
               M2 := TKMemoryStream.Create;
               SaveToStream(M2);
-              SendMessage(aSenderHandle, mk_ServerInfo, M2);
+              SendMessage(aSenderHandle, mkServerInfo, M2);
               M2.Free;
             end;
-    mk_FPS: begin
+    mkFPS: begin
               Client := fClientList.GetByHandle(aSenderHandle);
               M.Read(tmpInteger);
               Client.FPS := tmpInteger;
             end;
-    mk_Pong:
+    mkPong:
             begin
               Client := fClientList.GetByHandle(aSenderHandle);
 //              M.Read(tmpInteger);

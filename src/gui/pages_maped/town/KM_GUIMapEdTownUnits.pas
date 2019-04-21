@@ -43,7 +43,7 @@ begin
   inherited Create;
 
   Panel_Units := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Units, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_UNITS], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Units, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_UNITS], fntOutline, taCenter);
 
   LineY := 30;
 

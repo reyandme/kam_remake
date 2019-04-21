@@ -7,85 +7,85 @@ uses
   KromUtils, KM_Defaults;
 
 type
-  TAttackNotification = (an_Citizens, an_Town, an_Troops);
+  TAttackNotification = (anCitizens, anTown, anTroops);
 
   TSoundFX = (
-    sfx_None=0,
-    sfx_CornCut,
-    sfx_Dig,
-    sfx_Pave,
-    sfx_MineStone,
-    sfx_CornSow,
-    sfx_ChopTree,
-    sfx_housebuild,
-    sfx_placemarker,
-    sfx_Click,
-    sfx_mill,
-    sfx_saw,
-    sfx_wineStep,
-    sfx_wineDrain,
-    sfx_metallurgists,
-    sfx_coalDown,
-    sfx_Pig1,sfx_Pig2,sfx_Pig3,sfx_Pig4,
-    sfx_Mine,
-    sfx_unknown21, //Pig?
-    sfx_Leather,
-    sfx_BakerSlap,
-    sfx_CoalMineThud,
-    sfx_ButcherCut,
-    sfx_SausageString,
-    sfx_QuarryClink,
-    sfx_TreeDown,
-    sfx_WoodcutterDig,
-    sfx_CantPlace,
-    sfx_MessageOpen,
-    sfx_MessageClose,
-    sfx_MessageNotice,
+    sfxNone=0,
+    sfxCornCut,
+    sfxDig,
+    sfxPave,
+    sfxMineStone,
+    sfxCornSow,
+    sfxChopTree,
+    sfxhousebuild,
+    sfxplacemarker,
+    sfxClick,
+    sfxmill,
+    sfxsaw,
+    sfxwineStep,
+    sfxwineDrain,
+    sfxmetallurgists,
+    sfxcoalDown,
+    sfxPig1,sfxPig2,sfxPig3,sfxPig4,
+    sfxMine,
+    sfxunknown21, //Pig?
+    sfxLeather,
+    sfxBakerSlap,
+    sfxCoalMineThud,
+    sfxButcherCut,
+    sfxSausageString,
+    sfxQuarryClink,
+    sfxTreeDown,
+    sfxWoodcutterDig,
+    sfxCantPlace,
+    sfxMessageOpen,
+    sfxMessageClose,
+    sfxMessageNotice,
     //Usage of melee sounds can be found in Docs\Melee sounds in KaM.csv
-    sfx_Melee34, sfx_Melee35, sfx_Melee36, sfx_Melee37, sfx_Melee38,
-    sfx_Melee39, sfx_Melee40, sfx_Melee41, sfx_Melee42, sfx_Melee43,
-    sfx_Melee44, sfx_Melee45, sfx_Melee46, sfx_Melee47, sfx_Melee48,
-    sfx_Melee49, sfx_Melee50, sfx_Melee51, sfx_Melee52, sfx_Melee53,
-    sfx_Melee54, sfx_Melee55, sfx_Melee56, sfx_Melee57,
-    sfx_BowDraw,
-    sfx_ArrowHit,
-    sfx_CrossbowShoot,  //60
-    sfx_CrossbowDraw,
-    sfx_BowShoot,       //62
-    sfx_BlacksmithBang,
-    sfx_BlacksmithFire,
-    sfx_CarpenterHammer, //65
-    sfx_Horse1,sfx_Horse2,sfx_Horse3,sfx_Horse4,
-    sfx_RockThrow,
-    sfx_HouseDestroy,
-    sfx_SchoolDing,
+    sfxMelee34, sfxMelee35, sfxMelee36, sfxMelee37, sfxMelee38,
+    sfxMelee39, sfxMelee40, sfxMelee41, sfxMelee42, sfxMelee43,
+    sfxMelee44, sfxMelee45, sfxMelee46, sfxMelee47, sfxMelee48,
+    sfxMelee49, sfxMelee50, sfxMelee51, sfxMelee52, sfxMelee53,
+    sfxMelee54, sfxMelee55, sfxMelee56, sfxMelee57,
+    sfxBowDraw,
+    sfxArrowHit,
+    sfxCrossbowShoot,  //60
+    sfxCrossbowDraw,
+    sfxBowShoot,       //62
+    sfxBlacksmithBang,
+    sfxBlacksmithFire,
+    sfxCarpenterHammer, //65
+    sfxHorse1,sfxHorse2,sfxHorse3,sfxHorse4,
+    sfxRockThrow,
+    sfxHouseDestroy,
+    sfxSchoolDing,
     //Below are TPR sounds ...
-    sfx_SlingerShoot,
-    sfx_BalistaShoot,
-    sfx_CatapultShoot,
-    sfx_unknown76,
-    sfx_CatapultReload,
-    sfx_SiegeBuildingSmash);
+    sfxSlingerShoot,
+    sfxBalistaShoot,
+    sfxCatapultShoot,
+    sfxunknown76,
+    sfxCatapultReload,
+    sfxSiegeBuildingSmash);
 
   TSoundFXNew = (
-    sfxn_ButtonClick,
-    sfxn_Trade,
-    sfxn_MPChatMessage,
-    sfxn_MPChatTeam,
-    sfxn_MPChatSystem,
-    sfxn_MPChatOpen,
-    sfxn_MPChatClose,
-    sfxn_Victory,
-    sfxn_Defeat,
-    sfxn_Beacon,
-    sfxn_Error,
-    sfxn_Peacetime);
+    sfxnButtonClick,
+    sfxnTrade,
+    sfxnMPChatMessage,
+    sfxnMPChatTeam,
+    sfxnMPChatSystem,
+    sfxnMPChatOpen,
+    sfxnMPChatClose,
+    sfxnVictory,
+    sfxnDefeat,
+    sfxnBeacon,
+    sfxnError,
+    sfxnPeacetime);
 
   //Sounds to play on different warrior orders
   TWarriorSpeech = (
-    sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split,
-    sp_Join, sp_Halt, sp_Move, sp_Attack, sp_Formation,
-    sp_Death, sp_BattleCry, sp_StormAttack);
+    spSelect, spEat, spRotLeft, spRotRight, spSplit,
+    spJoin, spHalt, spMove, spAttack, spFormation,
+    spDeath, spBattleCry, spStormAttack);
 
   TWAVHeaderEx = record
     RIFFHeader: array [1..4] of AnsiChar;
@@ -173,20 +173,20 @@ const
     WarriorVoice: TKMUnitType;
     SelectID, DeathID: byte;
   end = (
-    (WarriorVoice: ut_Militia;      SelectID:3; DeathID:1), //ut_Serf
-    (WarriorVoice: ut_AxeFighter;   SelectID:0; DeathID:0), //ut_Woodcutter
-    (WarriorVoice: ut_Bowman;       SelectID:2; DeathID:1), //ut_Miner
-    (WarriorVoice: ut_Swordsman;    SelectID:0; DeathID:2), //ut_AnimalBreeder
-    (WarriorVoice: ut_Militia;      SelectID:1; DeathID:2), //ut_Farmer
-    (WarriorVoice: ut_Arbaletman;   SelectID:1; DeathID:0), //ut_Lamberjack
-    (WarriorVoice: ut_Pikeman;      SelectID:1; DeathID:0), //ut_Baker
-    (WarriorVoice: ut_HorseScout;   SelectID:0; DeathID:2), //ut_Butcher
-    (WarriorVoice: ut_Horseman;     SelectID:2; DeathID:0), //ut_Fisher
-    (WarriorVoice: ut_Cavalry;      SelectID:1; DeathID:1), //ut_Worker
-    (WarriorVoice: ut_Hallebardman; SelectID:1; DeathID:1), //ut_StoneCutter
-    (WarriorVoice: ut_Cavalry;      SelectID:3; DeathID:4), //ut_Smith
-    (WarriorVoice: ut_Hallebardman; SelectID:3; DeathID:2), //ut_Metallurgist
-    (WarriorVoice: ut_Bowman;       SelectID:3; DeathID:0)  //ut_Recruit
+    (WarriorVoice: utMilitia;      SelectID:3; DeathID:1), //utSerf
+    (WarriorVoice: utAxeFighter;   SelectID:0; DeathID:0), //utWoodcutter
+    (WarriorVoice: utBowman;       SelectID:2; DeathID:1), //utMiner
+    (WarriorVoice: utSwordsman;    SelectID:0; DeathID:2), //utAnimalBreeder
+    (WarriorVoice: utMilitia;      SelectID:1; DeathID:2), //utFarmer
+    (WarriorVoice: utArbaletman;   SelectID:1; DeathID:0), //utLamberjack
+    (WarriorVoice: utPikeman;      SelectID:1; DeathID:0), //utBaker
+    (WarriorVoice: utHorseScout;   SelectID:0; DeathID:2), //utButcher
+    (WarriorVoice: utHorseman;     SelectID:2; DeathID:0), //utFisher
+    (WarriorVoice: utCavalry;      SelectID:1; DeathID:1), //utWorker
+    (WarriorVoice: utHallebardman; SelectID:1; DeathID:1), //utStoneCutter
+    (WarriorVoice: utCavalry;      SelectID:3; DeathID:4), //utSmith
+    (WarriorVoice: utHallebardman; SelectID:3; DeathID:2), //utMetallurgist
+    (WarriorVoice: utBowman;       SelectID:3; DeathID:0)  //utRecruit
     );
 
   NewSFXFolder = 'Sounds'+PathDelim;
@@ -292,7 +292,7 @@ var SoundID: Byte;
 begin
   if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then Exit;
 
-  if aSound = sp_Death then
+  if aSound = spDeath then
     SoundID := CitizenSFX[aUnitType].DeathID
   else
     SoundID := CitizenSFX[aUnitType].SelectID;
@@ -340,15 +340,15 @@ end;
 
 function TKMResSounds.GetSoundType(aNewSFX: TSoundFXNew): TKMSoundType;
 begin
-  if aNewSFX in [sfxn_ButtonClick,
-    sfxn_MPChatMessage,
-    sfxn_MPChatTeam,
-    sfxn_MPChatSystem,
-    sfxn_MPChatOpen,
-    sfxn_MPChatClose,
-//    sfxn_Victory,
-//    sfxn_Defeat,
-    sfxn_Error] then
+  if aNewSFX in [sfxnButtonClick,
+    sfxnMPChatMessage,
+    sfxnMPChatTeam,
+    sfxnMPChatSystem,
+    sfxnMPChatOpen,
+    sfxnMPChatClose,
+//    sfxnVictory,
+//    sfxnDefeat,
+    sfxnError] then
     Result := stMenu
   else
     Result := stGame;

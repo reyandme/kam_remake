@@ -10,7 +10,7 @@ uses
 type
   TKMMapEdPlayerGoal = class
   private
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
     fIndex: Integer;
 
     procedure Goal_Change(Sender: TObject);
@@ -31,7 +31,7 @@ type
 
     property Visible: Boolean read GetVisible;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean;
-    procedure Show(aPlayer: TKMHandIndex; aIndex: Integer);
+    procedure Show(aPlayer: TKMHandID; aIndex: Integer);
   end;
 
 
@@ -58,19 +58,19 @@ begin
   Img := TKMImage.Create(Panel_Goal, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
   Img.ImageStretch;
   TKMBevel.Create(Panel_Goal,   0,  0, SIZE_X, SIZE_Y);
-  TKMLabel.Create(Panel_Goal, SIZE_X div 2, 10, gResTexts[TX_MAPED_GOALS_TITLE], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Goal, SIZE_X div 2, 10, gResTexts[TX_MAPED_GOALS_TITLE], fntOutline, taCenter);
 
   Image_GoalFlag := TKMImage.Create(Panel_Goal, 10, 10, 0, 0, 30, rxGuiMain);
 
-  TKMLabel.Create(Panel_Goal, 20, 40, 160, 0, gResTexts[TX_MAPED_GOALS_TYPE], fnt_Metal, taLeft);
-  Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 160, 60, fnt_Metal);
+  TKMLabel.Create(Panel_Goal, 20, 40, 160, 0, gResTexts[TX_MAPED_GOALS_TYPE], fntMetal, taLeft);
+  Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 160, 60, fntMetal);
   Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_NONE], False);
   Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_VICTORY]);
   Radio_GoalType.Add(gResTexts[TX_MAPED_GOALS_TYPE_SURVIVE]);
   Radio_GoalType.OnChange := Goal_Change;
 
-  TKMLabel.Create(Panel_Goal, 200, 40, 280, 0, gResTexts[TX_MAPED_GOALS_CONDITION], fnt_Metal, taLeft);
-  Radio_GoalCondition := TKMRadioGroup.Create(Panel_Goal, 200, 60, 280, 180, fnt_Metal);
+  TKMLabel.Create(Panel_Goal, 200, 40, 280, 0, gResTexts[TX_MAPED_GOALS_CONDITION], fntMetal, taLeft);
+  Radio_GoalCondition := TKMRadioGroup.Create(Panel_Goal, 200, 60, 280, 180, fntMetal);
   Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_NONE], False);
   Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_TUTORIAL], False);
   Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_TIME], False);
@@ -82,7 +82,7 @@ begin
   Radio_GoalCondition.Add(gResTexts[TX_MAPED_GOALS_CONDITION_ECONOMY]);
   Radio_GoalCondition.OnChange := Goal_Change;
 
-  TKMLabel.Create(Panel_Goal, 480, 40, gResTexts[TX_MAPED_GOALS_PLAYER], fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_Goal, 480, 40, gResTexts[TX_MAPED_GOALS_PLAYER], fntMetal, taLeft);
   NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 480, 60, 1, MAX_HANDS);
   NumEdit_GoalPlayer.OnChange := Goal_Change;
 
@@ -97,7 +97,7 @@ procedure TKMMapEdPlayerGoal.Goal_Change(Sender: TObject);
 begin
   //Settings get saved on close, now we just toggle fields
   //because certain combinations can't coexist
-  NumEdit_GoalPlayer.Enabled := TKMGoalCondition(Radio_GoalCondition.ItemIndex) <> gc_Time;
+  NumEdit_GoalPlayer.Enabled := TKMGoalCondition(Radio_GoalCondition.ItemIndex) <> gcTime;
 end;
 
 
@@ -117,10 +117,10 @@ begin
     FillChar(G, SizeOf(G), #0); //Make sure unused fields like Message are zero, not random data
     G.GoalType := TKMGoalType(Radio_GoalType.ItemIndex);
     G.GoalCondition := TKMGoalCondition(Radio_GoalCondition.ItemIndex);
-    if G.GoalType = glt_Survive then
-      G.GoalStatus := gs_True
+    if G.GoalType = gltSurvive then
+      G.GoalStatus := gsTrue
     else
-      G.GoalStatus := gs_False;
+      G.GoalStatus := gsFalse;
     G.HandIndex := NumEdit_GoalPlayer.Value - 1;
 
     gHands[fOwner].AI.Goals[fIndex] := G;
@@ -162,7 +162,7 @@ begin
 end;
 
 
-procedure TKMMapEdPlayerGoal.Show(aPlayer: TKMHandIndex; aIndex: Integer);
+procedure TKMMapEdPlayerGoal.Show(aPlayer: TKMHandID; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;

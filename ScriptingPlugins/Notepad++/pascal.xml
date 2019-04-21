@@ -1,0 +1,2084 @@
+<?xml version="1.0" encoding="Windows-1252" ?>
+<NotepadPlus>
+	<!--
+	@author Reinhard Hofer aka Strangelove
+	@created for KaMRemake Dynamic Script
+	@for feedback please go to http://knightsandmerchants.net/forum/viewtopic.php?f=32&t=2722
+	@version 0.9.5b
+	@for KaM Remake r8769
+	@10.03.2018
+	-->
+	<AutoComplete language="pascal">
+		<Environment ignoreCase="no" startFunc="(" stopFunc=")" paramSeparator="," terminal=";" />
+			<KeyWord name="SetLength" func="yes">
+  			<Overload retVal="Dynamic Array" descr="Sets the length of an Array. Example: var aGroups: array of Integer; SetLength(aGroups, 20);">
+               	<Param name="aArray" />
+				<Param name="Variable" />
+           	</Overload>
+		</KeyWord>
+		<KeyWord name="Length" func="yes">
+  			<Overload retVal="" descr="Returns the length of an Array.">
+               	<Param name="aArray" />
+           	</Overload>
+		</KeyWord>
+<KeyWord name="OnBeacon" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when a player places a beacon on the map.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnFieldBuilt" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player built a field.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnGroupHungry" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when the player would be shown a message about a group being hungry (when they first get hungry, then every 4 minutes after that if there are still hungry group members). Occurs regardless of whether the group has hunger messages enabled or not.">
+        <Param name="aGroup: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnGroupOrderAttackHouse" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when the group gets order to attack house">
+        <Param name="aGroup: Integer; //attackers group ID" />
+        <Param name="aHouse: Integer; //target house ID" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnGroupOrderAttackUnit" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when the group gets order to attack unit">
+        <Param name="aGroup: Integer; //attackers group ID" />
+        <Param name="aUnit: Integer; //target unit ID" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnGroupOrderLink" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when the group1 gets order to link to group2">
+        <Param name="aGroup1: Integer; //link group ID" />
+        <Param name="aGroup2: Integer; //link target group ID" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnGroupOrderSplit" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when the group gets order to split">
+        <Param name="aGroup: Integer; //group ID" />
+        <Param name="aNewGroup: Integer; //splitted group ID" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnHouseAfterDestroyed" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs after a house is destroyed and has been completely removed from the game, meaning the area it previously occupied can be used. If you need more information about the house use the OnHouseDestroyed event.">
+        <Param name="aHouseType: TKMHouseType;" />
+        <Param name="aOwner: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnHouseBuilt" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player has built a house.">
+        <Param name="aHouse: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnHouseDamaged" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when a house is damaged by the enemy soldier. Attacker is -1 the house was damaged some other way, such as from Actions.HouseAddDamage.">
+        <Param name="aHouse: Integer;" />
+        <Param name="aAttacker: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnHouseDestroyed" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when a house is destroyed. If DestroyerIndex is -1 the house was destroyed some other way, such as from Actions.HouseDestroy. If DestroyerIndex is the same as the house owner (States.HouseOwner), the house was demolished by the player who owns it. Otherwise it was destroyed by an enemy. Called just before the house is destroyed so HouseID is usable only during this event, and the area occupied by the house is still unusable.">
+        <Param name="aHouse: Integer;" />
+        <Param name="aDestroyerIndex: Integer; //Index of player who destroyed it" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnHousePlanDigged" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when house plan is digged.">
+        <Param name="aHouse: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnHousePlanPlaced" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player has placed a house plan.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+        <Param name="aType: TKMHouseType;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnHousePlanRemoved" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player has removed a house plan.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+        <Param name="aType: TKMHouseType;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnMarketTrade" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when a trade happens in a market (at the moment when resources are exchanged by serfs).">
+        <Param name="aMarket: Integer;" />
+        <Param name="aFrom: TKMWareType;" />
+        <Param name="aTo: TKMWareType;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnMissionStart" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs immediately after the mission is loaded.">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlanFieldPlaced" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player has placed a field plan.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlanFieldRemoved" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player has removed a field plan.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlanRoadDigged" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when road plan is digged.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlanRoadPlaced" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player has placed a road plan.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlanRoadRemoved" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player has removed a road plan.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlanWinefieldDigged" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when winefield is digged">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlanWinefieldPlaced" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player has placed a wine field plan.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlanWinefieldRemoved" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player has removed a wine field plan.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlayerDefeated" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI.">
+        <Param name="aPlayer: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnPlayerVictory" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when certain player is declared victorious. Victory conditions are checked separately by Player AI.">
+        <Param name="aPlayer: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnRoadBuilt" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player built a road.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnTick" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs every game logic update.">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnUnitAfterDied" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs after a unit has died and has been completely removed from the game, meaning the tile it previously occupied can be used. If you need more information about the unit use the OnUnitDied event. Note: Because units have a death animation there is a delay of several ticks between OnUnitDied and OnUnitAfterDied.">
+        <Param name="aUnitType: TKMUnitType;" />
+        <Param name="aOwner: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnUnitAttacked" func = "yes">
+    <Overload retVal = "Event" descr = "Happens when a unit is attacked (shot at by archers or hit in melee). Attacker is always a warrior (could be archer or melee). This event will occur very frequently during battles.">
+        <Param name="aUnit: Integer;" />
+        <Param name="aAttacker: Integer; //Warrior who attacked the unit" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnUnitDied" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when a unit dies. If KillerIndex is -1 the unit died from another cause such as hunger or Actions.UnitKill. Called just before the unit is killed so UnitID is usable only during this event, and the tile occupied by the unit is still taken.">
+        <Param name="aUnit: Integer;" />
+        <Param name="aKillerOwner: Integer; //Index of player who killed it" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnUnitTrained" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player trains a unit.">
+        <Param name="aUnit: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnUnitWounded" func = "yes">
+    <Overload retVal = "Event" descr = "Happens when unit is wounded. Attacker can be a warrior, recruit in tower or unknown (-1).">
+        <Param name="aUnit: Integer;" />
+        <Param name="aAttacker: Integer; //Unit who attacked the unit" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnWareProduced" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when resource is produced for specified house.">
+        <Param name="aHouse: Integer;" />
+        <Param name="aType: TKMWareType;" />
+        <Param name="aCount: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnWarriorEquipped" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player equips a warrior.">
+        <Param name="aUnit: Integer;" />
+        <Param name="aGroup: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnWarriorWalked" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when warrior walk">
+        <Param name="aUnit: Integer;" />
+        <Param name="aToX: Integer;" />
+        <Param name="aToY: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OnWinefieldBuilt" func = "yes">
+    <Overload retVal = "Event" descr = "Occurs when player built a winefield.">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAutoAttackRange" func = "yes">
+    <Overload retVal = "Integer" descr = "Gets AI auto attack range. Returns -1 if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAutoBuild" func = "yes">
+    <Overload retVal = "Boolean" descr = "Gets whether the AI should build and manage his own village Returns False if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAutoDefence" func = "yes">
+    <Overload retVal = "Boolean" descr = "Gets whether the AI should position his soldiers automatically Returns False if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAutoRepair" func = "yes">
+    <Overload retVal = "Boolean" descr = "Gets whether the AI should automatically repair damaged buildings Returns False if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIDefendAllies" func = "yes">
+    <Overload retVal = "Boolean" descr = "Gets whether AI should defend units and houses of allies as if they were its own Returns False if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIEquipRate" func = "yes">
+    <Overload retVal = "Integer" descr = "Gets the warriors equip rate for AI. Returns -1 if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aType: Byte; //type: 0 - leather, 1 - iron" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIGroupsFormationGet" func = "yes">
+    <Overload retVal = "None" descr = "Gets the formation the AI uses for defence positions for specified player and group type GroupType: 0 = Melee, 1 = AntiHorse, 2 = Ranged, 3 = Mounted group count and columns are returned in aCount and aColumns variables">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aType: Byte;" />
+        <Param name="out: Integer;" />
+        <Param name="aCount: Integer;" />
+        <Param name="aColumns: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIRecruitDelay" func = "yes">
+    <Overload retVal = "Integer" descr = "Gets the number of ticks before the specified AI will start training recruits Returns -1 if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIRecruitLimit" func = "yes">
+    <Overload retVal = "Integer" descr = "Gets the number of recruits the AI will keep in each barracks Returns -1 if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AISerfsPerHouse" func = "yes">
+    <Overload retVal = "Single" descr = "Gets the number of serfs the AI will train per house. Can be a decimal (0.25 for 1 serf per 4 houses) Returns -1 if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AISoldiersLimit" func = "yes">
+    <Overload retVal = "Integer" descr = "Gets the maximum number of soldiers the AI will train, or -1 for unlimited Returns -2 if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIStartPosition" func = "yes">
+    <Overload retVal = "TKMPoint" descr = "Gets the AI start position which is used for targeting AI attacks Returns (-1;-1) if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIWorkerLimit" func = "yes">
+    <Overload retVal = "Integer" descr = "Gets the maximum number of laborers the AI will train Returns -1 if used with wrong parameters">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ClosestGroup" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the group of the specified player and group type that is closest to the specified coordinates, or -1 if no such group was found. If the group type is -1 any group type will be accepted">
+        <Param name="aPlayer: Integer;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aGroupType: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ClosestGroupMultipleTypes" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the group of the specified player and group types that is closest to the specified coordinates, or -1 if no such group was found. The group types is a ''set of Byte'', for example [1,3]">
+        <Param name="aPlayer: Integer;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aGroupTypes: set of Byte; //Set of group types" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ClosestHouse" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the house of the specified player and house type that is closest to the specified coordinates, or -1 if no such house was found. If the house type is -1 any house type will be accepted">
+        <Param name="aPlayer: Integer;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aHouseType: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ClosestHouseMultipleTypes" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the house of the specified player and house types that is closest to the specified coordinates, or -1 if no such house was found. The house types is a ''set of Byte'', for example [11,13,21]">
+        <Param name="aPlayer: Integer;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aHouseTypes: set of Byte; //Set of house types" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ClosestUnit" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the unit of the specified player and unit type that is closest to the specified coordinates, or -1 if no such unit was found. If the unit type is -1 any unit type will be accepted">
+        <Param name="aPlayer: Integer;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aUnitType: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ClosestUnitMultipleTypes" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the unit of the specified player and unit types that is closest to the specified coordinates, or -1 if no such unit was found. The unit types is a ''set of Byte'', for example [0,9]">
+        <Param name="aPlayer: Integer;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aUnitTypes: set of Byte; //Set of unit types" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ConnectedByRoad" func = "yes">
+    <Overload retVal = "Boolean" descr = "Check if two tiles are connected by walkable road">
+        <Param name="X1: Integer; //left coordinate" />
+        <Param name="Y1: Integer; //top coordinate" />
+        <Param name="X2: Integer; //right coordinate" />
+        <Param name="Y2: Integer; //bottom coordinate" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ConnectedByWalking" func = "yes">
+    <Overload retVal = "Boolean" descr = "Check if two tiles are connected by a walkable route">
+        <Param name="X1: Integer; //Left coordinate" />
+        <Param name="Y1: Integer; //Top coordinate" />
+        <Param name="X2: Integer; //Right coordinate" />
+        <Param name="Y2: Integer; //Bottom coordinate" />
+    </Overload>
+</KeyWord>
+<KeyWord name="FogRevealed" func = "yes">
+    <Overload retVal = "Boolean" descr = "Check if a tile is revealed in fog of war for a player">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GameTime" func = "yes">
+    <Overload retVal = "Cardinal" descr = "Get the number of game ticks since mission start">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupAssignedToDefencePosition" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if target Group is assigned to the Defence Position at coordinates X, Y">
+        <Param name="aGroupID: Integer;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupAt" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the ID of the group of the unit on the specified tile or -1 if no group exists there">
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupColumnCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of columns (units per row) of the specified group">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupDead" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the group is dead (all members dead or joined other groups)">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupIdle" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if specified group is idle (has no orders/action)">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupMember" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the unit ID of the specified group member. Member 0 will be the flag holder, 1...GroupMemberCount-1 will be the other members (0 <= MemberIndex <= GroupMemberCount-1)">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aMemberIndex: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupMemberCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the total number of members of the specified group">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOwner" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the owner of the specified group or -1 if Group ID invalid">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupType" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the type of the specified group or -1 if Group ID invalid">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseAt" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the ID of the house at the specified location or -1 if no house exists there">
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseBarracksRallyPointX" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns X coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid">
+        <Param name="aBarracks: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseBarracksRallyPointY" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns Y coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid">
+        <Param name="aBarracks: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseBuildingProgress" func = "yes">
+    <Overload retVal = "Word" descr = "Returns building progress of the specified house">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseCanReachResources" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified house can reach the resources that it mines (coal, stone, fish, etc.)">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseDamage" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the damage of the specified house or -1 if House ID invalid">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseDeliveryBlocked" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified house has delivery disabled">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseDeliveryMode" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns delivery mode ID, where ID = 0 delivery blocked ID = 1 delivery allowed ID = 2 take ware out allowed if no house was found then ID = 1 is returned">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseDestroyed" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the house is destroyed">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseFlagPoint" func = "yes">
+    <Overload retVal = "TKMPoint" descr = "Returns House Flag Point of specified house or KMPoint(0,0) if aHouseId is invalid">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseHasOccupant" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified house currently has an occupant">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseIsComplete" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified house is fully built">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseOwner" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the owner of the specified house or -1 if House ID invalid">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HousePositionX" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the X coordinate of the specified house or -1 if House ID invalid">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HousePositionY" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the Y coordinate of the specified house or -1 if House ID invalid">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseRepair" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified house has repair enabled">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseResourceAmount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the amount of the specified resource in the specified house">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aResource: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseSchoolQueue" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the unit type in the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue.">
+        <Param name="aHouseID: Integer;" />
+        <Param name="QueueIndex: Integer; //Queue index (0..5)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseSiteIsDigged" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if specified WIP house area is digged">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseTownHallMaxGold" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns Max amount of gold which is possible to deliver into the TownHall or -1 if TownHall house was not found">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseType" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the type of the specified house">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseTypeMaxHealth" func = "yes">
+    <Overload retVal = "Word" descr = "Returns max health of the specified house type">
+        <Param name="aHouseType: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseTypeName" func = "yes">
+    <Overload retVal = "AnsiString" descr = "Returns the the translated name of the specified house type. Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is decoded on output, not the actual translated text. Therefore string operations like LowerCase will not work.">
+        <Param name="aHouseType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseTypeToOccupantType" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the type of unit that should occupy the specified type of house, or -1 if no unit should occupy it.">
+        <Param name="aHouseType: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseUnlocked" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified player can build the specified house type (unlocked and allowed).">
+        <Param name="aPlayer: Word;" />
+        <Param name="aHouseType: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseWareBlocked" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified ware in the specified storehouse or barracks is blocked">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aWareType: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseWeaponsOrdered" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of the specified weapon ordered to be produced in the specified house">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aWareType: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseWoodcutterChopOnly" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified woodcutter's hut is on chop-only mode">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseWoodcutterMode" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns woodcutter mode value for the specified woodcutter's hut Possible values for woodcutter mode are: 0 - Chop And Plant 1 - Chop only 2 - Plant only">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="IsFieldAt" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified player has a corn field at the specified location. If player index is -1 it will return true if any player has a corn field at the specified tile">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="IsRoadAt" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified player has a road at the specified location. If player index is -1 it will return true if any player has a road at the specified tile">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="IsWinefieldAt" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the specified player has a winefield at the specified location. If player index is -1 it will return true if any player has a winefield at the specified tile">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="KaMRandom" func = "yes">
+    <Overload retVal = "Single" descr = "Returns a random single (float) such that: 0 <= Number < 1.0">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="KaMRandomI" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns a random integer such that: 0 <= Number">
+        <Param name="aMax:Integer: ;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="LocationCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of player locations available on the map (including AIs), regardless of whether the location was taken in multiplayer (use PlayerEnabled to check if a location is being used)">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapHeight" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the height of the map">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTileHeight" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the height of the terrain at the top left corner (vertex) of the tile at the specified XY coordinates.">
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTileObject" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the terrain object ID on the tile at the specified XY coordinates. Object IDs can be seen in the map editor on the objects tab. Object 61 is ''block walking''. If there is no object on the tile, the result will be 255.">
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTilePassability" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if specified tile has requested passability.">
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aPassability: Byte; //passability index as listed in KM_Defaults (starts from 0)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTileRotation" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the rotation of the tile at the specified XY coordinates.">
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTileType" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the tile type ID of the tile at the specified XY coordinates. Tile IDs can be seen by hovering over the tiles on the terrain tiles tab in the map editor.">
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapWidth" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the width of the map">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MarketFromWare" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns type of FromWare in specified market, or -1 if no ware is selected">
+        <Param name="aMarketID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MarketLossFactor" func = "yes">
+    <Overload retVal = "Single" descr = "Returns the factor of resources lost during market trading, used to calculate the TradeRatio (see explanation in MarketValue). This value is constant within one KaM Remake release, but may change in future KaM Remake releases">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MarketOrderAmount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns trade order amount in specified market">
+        <Param name="aMarketID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MarketToWare" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns type of ToWare in specified market, or -1 if no ware is selected">
+        <Param name="aMarketID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MarketValue" func = "yes">
+    <Overload retVal = "Single" descr = "Returns the relative market value of the specified resource type, which is a rough indication of the cost to produce that resource. These values are constant within one KaM Remake release, but may change in future KaM Remake releases. The TradeRatio is calculated as: MarketLossFactor * MarketValue(To) / (MarketValue(From). If the TradeRatio is >= 1, then the number of From resources required to receive 1 To resource is: Round(TradeRatio). If the trade ratio is < 1 then the number of To resources received for trading 1 From resource is: Round(1 / TradeRatio)">
+        <Param name="aRes: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MissionDifficulty" func = "yes">
+    <Overload retVal = "TKMMissionDifficulty" descr = "Returns mission difficulty for current game">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PeaceTime" func = "yes">
+    <Overload retVal = "Cardinal" descr = "Length of peacetime in ticks (multiplayer)">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerAllianceCheck" func = "yes">
+    <Overload retVal = "Boolean" descr = "Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy">
+        <Param name="aPlayer1: Byte;" />
+        <Param name="aPlayer2: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerColorText" func = "yes">
+    <Overload retVal = "AnsiString" descr = "Get players color as text in hex format">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerDefeated" func = "yes">
+    <Overload retVal = "Boolean" descr = "See if player was defeated">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerEnabled" func = "yes">
+    <Overload retVal = "Boolean" descr = "Will be false if nobody selected that location in multiplayer">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerGetAllGroups" func = "yes">
+    <Overload retVal = "array" descr = "Returns an array with IDs for all the groups of the specified player">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerGetAllHouses" func = "yes">
+    <Overload retVal = "array" descr = "Returns an array with IDs for all the houses of the specified player">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerGetAllUnits" func = "yes">
+    <Overload retVal = "array" descr = "Returns an array with IDs for all the units of the specified player">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerIsAI" func = "yes">
+    <Overload retVal = "Boolean" descr = "Wherever player is controlled by AI">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerName" func = "yes">
+    <Overload retVal = "AnsiString" descr = "Get name of player as a string (for multiplayer)">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerVictorious" func = "yes">
+    <Overload retVal = "Boolean" descr = "See if player is victorious">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerWareDistribution" func = "yes">
+    <Overload retVal = "Byte" descr = "Returns the ware distribution for the specified resource, house and player">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aWareType: Byte;" />
+        <Param name="aHouseType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatAIDefencePositionsCount" func = "yes">
+    <Overload retVal = "Integer" descr = "How many defence positions AI player has. Useful for scripts like ''if not enough positions and too much groups then add a new position''">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatArmyCount" func = "yes">
+    <Overload retVal = "Integer" descr = "How many military units player has">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatCitizenCount" func = "yes">
+    <Overload retVal = "Integer" descr = "How many citizen player has">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatHouseMultipleTypesCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns number of specified house types for specified player.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aTypes: set of Byte; //House types eg. [11, 13, 21]" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatHouseTypeCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the total number of the specified house type for the specified player.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aHouseType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatHouseTypePlansCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Specified house type plans count">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aHouseType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatPlayerCount" func = "yes">
+    <Overload retVal = "Integer" descr = "How many active players there are.">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatResourceProducedCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of the specified resource produced by the specified player">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aResType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatResourceProducedMultipleTypesCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of the specified resource types produced by the specified player.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aTypes: set of Byte; //Set of ware types eg. [8, 10, 13, 27] for food" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatUnitCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of units of the specified player">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatUnitKilledCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of the specified unit killed by the specified player">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aUnitType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatUnitKilledMultipleTypesCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of the specified unit types killed by the specified player.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aTypes: set of Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatUnitLostCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of the specified unit lost by the specified player">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aUnitType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatUnitLostMultipleTypesCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the number of the specified unit types lost by the specified player.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aTypes: set of Byte; //Set of unit types eg. [0, 5, 13]" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatUnitMultipleTypesCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns number of specified unit types for specified player.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aTypes: set of Byte; //Set of unit types eg. [0, 5, 13]" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StatUnitTypeCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns number of specified unit type for specified player">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aUnitType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitAt" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the ID of the unit on the specified tile or -1 if no unit exists there">
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitCarrying" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the ware a serf is carrying, or -1 if the unit is not a serf or is not carrying anything">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitDead" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if the unit is dead">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitDirection" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the direction the specified unit is facing">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitDismissable" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns the 'Dismissable' status of specified unit">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitHome" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the ID of the house which is the home of the specified unit or -1 if the unit does not have a home">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitHPCurrent" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns current hitpoints for specified unit or -1 if Unit ID invalid">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitHPInvulnerable" func = "yes">
+    <Overload retVal = "Boolean" descr = "See if unit is invulnerable">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitHPMax" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns max hitpoints for specified unit or -1 if Unit ID invalid">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitHunger" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitIdle" func = "yes">
+    <Overload retVal = "Boolean" descr = "Returns true if specified unit is idle (has no orders/action)">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitLowHunger" func = "yes">
+    <Overload retVal = "Integer" descr = "Gives the hunger level when a unit will try to eat in ticks until death">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitMaxHunger" func = "yes">
+    <Overload retVal = "Integer" descr = "Gives the maximum hunger level a unit can have in ticks until death">
+        <Param name="" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitOwner" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the owner of the specified unit or -1 if Unit ID invalid">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitPositionX" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the X coordinate of the specified unit or -1 if Unit ID invalid">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitPositionY" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the Y coordinate of the specified unit or -1 if Unit ID invalid">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitsGroup" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the group that the specified unit (warrior) belongs to or -1 if it does not belong to a group">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitType" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the type of the specified unit">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitTypeName" func = "yes">
+    <Overload retVal = "AnsiString" descr = "Returns the the translated name of the specified unit type. Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is decoded on output, not the actual translated text. Therefore string operations like LowerCase will not work.">
+        <Param name="aUnitType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="WareTypeName" func = "yes">
+    <Overload retVal = "AnsiString" descr = "Returns the the translated name of the specified ware type. Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is decoded on output, not the actual translated text. Therefore string operations like LowerCase will not work.">
+        <Param name="aWareType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAttackAdd" func = "yes">
+    <Overload retVal = "Integer" descr = "Add AI attack   aPlayer - playerID  aRepeating - is attack repeating  aDelay - attack delay  aTotalMen - total soldiers to attack  aMelleCount, aAntiHorseCount, aRangedCount, aMountedCount - soldiers groups count  aRandomGroups - use random groups for attack  aTarget - attack target of TKMAIAttackTarget type. Possible values:  TKMAIAttackTarget = (   attClosestUnit, //Closest enemy unit   attClosestBuildingFromArmy,     //Closest building from the group lauching the attack   attClosestBuildingFromStartPos,     //Closest building from the AI's start position   attCustomPosition     //Custom point defined with aCustomPosition  );aCustomPosition - TKMPoint for custom position of attack. Used if att_CustomPosition was set up as attack target  Result: Attack Id, that could be used to remove this attack later on">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aRepeating: Boolean;" />
+        <Param name="aDelay: Cardinal;" />
+        <Param name="aTotalMen: Integer;" />
+        <Param name="aMelleCount: Word;" />
+        <Param name="aAntiHorseCount: Word;" />
+        <Param name="aRangedCount: Word;" />
+        <Param name="aMountedCount: Word;" />
+        <Param name="aRandomGroups: Boolean;" />
+        <Param name="aTarget: TKMAIAttackTarget;" />
+        <Param name="aCustomPosition: TKMPoint;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAttackRemove" func = "yes">
+    <Overload retVal = "Boolean" descr = "Remove AI attack by attack ID">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aAIAttackId: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAttackRemoveAll" func = "yes">
+    <Overload retVal = "None" descr = "Remove all AI attacks">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAutoAttackRange" func = "yes">
+    <Overload retVal = "None" descr = "Sets AI auto attack range. AI groups will automatically attack if you are closer than this many tiles.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aRange: Word; //Range (1 to 20)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAutoBuild" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether the AI should build and manage his own village">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aAuto: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAutoDefence" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether the AI should position his soldiers automatically">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aAuto: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIAutoRepair" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether the AI should automatically repair damaged buildings">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aAuto: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIDefencePositionAdd" func = "yes">
+    <Overload retVal = "None" descr = "Adds a defence position for the specified AI player">
+        <Param name="aPlayer: Byte;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aDir: Byte;" />
+        <Param name="aGroupType: Byte;" />
+        <Param name="aRadius: Word;" />
+        <Param name="aDefType: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIDefencePositionRemove" func = "yes">
+    <Overload retVal = "None" descr = "Removes defence position at X, Y">
+        <Param name="aPlayer: Byte;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIDefencePositionRemoveAll" func = "yes">
+    <Overload retVal = "None" descr = "Removes all defence positions for specified AI player">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIDefendAllies" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether AI should defend units and houses of allies as if they were its own">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aDefend: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIEquipRate" func = "yes">
+    <Overload retVal = "None" descr = "Sets the warriors equip rate for AI.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aType: Byte; //type: 0 - leather, 1 - iron" />
+        <Param name="aRate: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIGroupsFormationSet" func = "yes">
+    <Overload retVal = "None" descr = "Sets the formation the AI uses for defence positions">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aType: Byte;" />
+        <Param name="aCount: Word;" />
+        <Param name="aColumns: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIRecruitDelay" func = "yes">
+    <Overload retVal = "None" descr = "Sets the number of ticks before the specified AI will start training recruits">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aDelay: Cardinal;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIRecruitLimit" func = "yes">
+    <Overload retVal = "None" descr = "Sets the number of recruits the AI will keep in each barracks">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aLimit: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AISerfsPerHouse" func = "yes">
+    <Overload retVal = "None" descr = "Sets the number of serfs the AI will train per house. Can be a decimal (0.25 for 1 serf per 4 houses)">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aSerfs: Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AISoldiersLimit" func = "yes">
+    <Overload retVal = "None" descr = "Sets the maximum number of soldiers the AI will train, or -1 for unlimited">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aLimit: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIStartPosition" func = "yes">
+    <Overload retVal = "None" descr = "Sets the AI start position which is used for targeting AI attacks">
+        <Param name="aPlayer: Byte;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AIWorkerLimit" func = "yes">
+    <Overload retVal = "None" descr = "Sets the maximum number of laborers the AI will train">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aLimit: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="CinematicEnd" func = "yes">
+    <Overload retVal = "None" descr = "Exits cinematic mode">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="CinematicPanTo" func = "yes">
+    <Overload retVal = "None" descr = "Pans the center of the player's screen to the given location over a set number of ticks. If Duration = 0 then the screen moves instantly.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+        <Param name="Duration: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="CinematicStart" func = "yes">
+    <Overload retVal = "None" descr = "Puts the player in cinematic mode, blocking user input and allowing the screen to be panned">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="FogCoverAll" func = "yes">
+    <Overload retVal = "None" descr = "Covers (un-reveals) the entire map in fog of war for player">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="FogCoverCircle" func = "yes">
+    <Overload retVal = "None" descr = "Reveals a circle in fog of war for player">
+        <Param name="aPlayer: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+        <Param name="aRadius: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="FogCoverRect" func = "yes">
+    <Overload retVal = "None" descr = "Covers a rectangular area in fog of war for player">
+        <Param name="aPlayer: Word;" />
+        <Param name="X1: Word; //Left coordinate" />
+        <Param name="Y1: Word; //Top coordinate" />
+        <Param name="X2: Word; //Right coordinate" />
+        <Param name="Y2: Word; //Bottom coordinate" />
+    </Overload>
+</KeyWord>
+<KeyWord name="FogRevealAll" func = "yes">
+    <Overload retVal = "None" descr = "Reveals the entire map in fog of war for player">
+        <Param name="aPlayer: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="FogRevealCircle" func = "yes">
+    <Overload retVal = "None" descr = "Reveals a circle in fog of war for player">
+        <Param name="aPlayer: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+        <Param name="aRadius: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="FogRevealRect" func = "yes">
+    <Overload retVal = "None" descr = "Reveals a rectangular area in fog of war for player">
+        <Param name="aPlayer: Word;" />
+        <Param name="X1: Word; //Left coordinate" />
+        <Param name="Y1: Word; //Top coordinate" />
+        <Param name="X2: Word; //Right coordinate" />
+        <Param name="Y2: Word; //Bottom coordinate" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveAnimal" func = "yes">
+    <Overload retVal = "Integer" descr = "Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added">
+        <Param name="aType: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveField" func = "yes">
+    <Overload retVal = "Boolean" descr = "Adds finished field and returns true if field was successfully added">
+        <Param name="aPlayer: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveFieldAged" func = "yes">
+    <Overload retVal = "Boolean" descr = "Sets field age if tile is corn field, or adds finished field and sets its age if tile is empty, and returns true if this was successfully done">
+        <Param name="aPlayer: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+        <Param name="aStage: Byte; //0..6, sets the field growth stage. 0 = empty field; 6 = corn has been cut" />
+        <Param name="aRandomAge: Boolean; //RandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveGroup" func = "yes">
+    <Overload retVal = "Integer" descr = "Give player group of warriors and return the group ID or -1 if the group was not able to be added">
+        <Param name="aPlayer: Word;" />
+        <Param name="aType: Word;" />
+        <Param name="X,Y: Word;" />
+        <Param name="aDir: Word;" />
+        <Param name="aCount: Word;" />
+        <Param name="aColumns: Word; //Units per row" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveHouse" func = "yes">
+    <Overload retVal = "Integer" descr = "Give player a built house and returns the house ID or -1 if the house was not able to be added">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aHouseType: Integer;" />
+        <Param name="X,Y: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveHouseSite" func = "yes">
+    <Overload retVal = "Integer" descr = "Give player a digged house area and returns House ID or -1 if house site was not able to be added. If AddMaterials = True, wood and stone will be added">
+        <Param name="aPlayer: Integer;" />
+        <Param name="aHouseType: Integer;" />
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aAddMaterials: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveRoad" func = "yes">
+    <Overload retVal = "Boolean" descr = "Adds finished road and returns true if road was successfully added">
+        <Param name="aPlayer: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveUnit" func = "yes">
+    <Overload retVal = "Integer" descr = "Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added">
+        <Param name="aPlayer: Word;" />
+        <Param name="aType: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+        <Param name="aDir: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveWares" func = "yes">
+    <Overload retVal = "None" descr = "Adds amount of wares to players 1st Store">
+        <Param name="aPlayer: Word;" />
+        <Param name="aType: Word;" />
+        <Param name="aCount: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GiveWeapons" func = "yes">
+    <Overload retVal = "None" descr = "Adds amount of weapons to players 1st Barracks">
+        <Param name="aPlayer: Word;" />
+        <Param name="aType: Word;" />
+        <Param name="aCount: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupBlockOrders" func = "yes">
+    <Overload retVal = "None" descr = "Disables (Disable = True) or enables (Disable = False) control over specifed warriors group">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aBlock: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupDisableHungryMessage" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether the specified group will alert the player when they become hungry (true to disable hunger messages, false to enable them)">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aDisable: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupHungerSet" func = "yes">
+    <Overload retVal = "None" descr = "Set hunger level for all group members">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aHungerLevel: Integer; //Hunger level (ticks until death)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupKillAll" func = "yes">
+    <Overload retVal = "None" descr = "Kills all members of the specified group">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aSilent: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOrderAttackHouse" func = "yes">
+    <Overload retVal = "None" descr = "Order the specified group to attack the specified house">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOrderAttackUnit" func = "yes">
+    <Overload retVal = "None" descr = "Order the specified group to attack the specified unit">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOrderFood" func = "yes">
+    <Overload retVal = "None" descr = "Order the specified group to request food">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOrderHalt" func = "yes">
+    <Overload retVal = "None" descr = "Order the specified group to halt">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOrderLink" func = "yes">
+    <Overload retVal = "None" descr = "Order the first specified group to link to the second specified group">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aDestGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOrderSplit" func = "yes">
+    <Overload retVal = "Integer" descr = "Order the specified group to split in half. Return the newly create group ID or -1 if splitting failed (e.g. only 1 member)">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOrderSplitUnit" func = "yes">
+    <Overload retVal = "Integer" descr = "Splits specified unit from the group. Returns the newly create group ID or -1 if splitting failed (e.g. only 1 member)">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOrderStorm" func = "yes">
+    <Overload retVal = "None" descr = "Order the specified group to storm attack">
+        <Param name="aGroupID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupOrderWalk" func = "yes">
+    <Overload retVal = "None" descr = "Order the specified group to walk somewhere">
+        <Param name="aGroupID: Integer;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+        <Param name="aDirection: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="GroupSetFormation" func = "yes">
+    <Overload retVal = "None" descr = "Sets the number of columns (units per row) for the specified group">
+        <Param name="aGroupID: Integer;" />
+        <Param name="aNumColumns: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseAddBuildingMaterials" func = "yes">
+    <Overload retVal = "None" descr = "Add building materials to the specified WIP house area">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseAddBuildingProgress" func = "yes">
+    <Overload retVal = "None" descr = "Add 5 points of building progress to the specified WIP house area">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseAddDamage" func = "yes">
+    <Overload retVal = "None" descr = "Add damage to the specified house">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aDamage: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseAddRepair" func = "yes">
+    <Overload retVal = "None" descr = "Reduces damage to the specified house">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aRepair: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseAddWaresTo" func = "yes">
+    <Overload retVal = "None" descr = "Add wares to the specified house">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aType: Word;" />
+        <Param name="aCount: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseAllow" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use HouseUnlock to override that.">
+        <Param name="aPlayer: Word;" />
+        <Param name="aHouseType: Word;" />
+        <Param name="aAllowed: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseBarracksEquip" func = "yes">
+    <Overload retVal = "Integer" descr = "Equips the specified unit from the specified barracks. Returns the number of units successfully equipped.">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aUnitType: Integer;" />
+        <Param name="aCount: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseBarracksGiveRecruit" func = "yes">
+    <Overload retVal = "None" descr = "Adds a recruit inside the specified barracks">
+        <Param name="aHouseID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseDeliveryBlock" func = "yes">
+    <Overload retVal = "None" descr = "Sets delivery blocking for the specified house">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aDeliveryBlocked: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseDeliveryMode" func = "yes">
+    <Overload retVal = "None" descr = "Sets delivery mode for the specified house Possible values for aDeliveryMode parameter: 0 - Delivery closed 1 - Delivery allowed 2 - Take resource out">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aDeliveryMode: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseDestroy" func = "yes">
+    <Overload retVal = "None" descr = "Destroys the specified house. Silent means the house will not leave rubble or play destroy sound">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aSilent: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseDisableUnoccupiedMessage" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether the specified house displays unoccupied messages to the player">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aDisabled: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseRepairEnable" func = "yes">
+    <Overload retVal = "None" descr = "Enables house repair for the specified house">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aRepairEnabled: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseSchoolQueueAdd" func = "yes">
+    <Overload retVal = "Integer" descr = "Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue.">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aUnitType: Integer;" />
+        <Param name="aCount: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseSchoolQueueRemove" func = "yes">
+    <Overload retVal = "None" descr = "Removes the unit from the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue.">
+        <Param name="aHouseID: Integer;" />
+        <Param name="QueueIndex: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseTakeWaresFrom" func = "yes">
+    <Overload retVal = "None" descr = "Remove wares from the specified house. If a serf was on the way to pick up the ware, the serf will abandon his task">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aType: Word;" />
+        <Param name="aCount: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseTownHallMaxGold" func = "yes">
+    <Overload retVal = "None" descr = "Set TownHall Max Gold parameter (how many gold could be delivered in it)">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aMaxGold: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseUnlock" func = "yes">
+    <Overload retVal = "None" descr = "Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use HouseAllow for that.">
+        <Param name="aPlayer: Word;" />
+        <Param name="aHouseType: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseWareBlock" func = "yes">
+    <Overload retVal = "None" descr = "Blocks a specific ware in a storehouse or barracks">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aWareType: Integer;" />
+        <Param name="aBlocked: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseWeaponsOrderSet" func = "yes">
+    <Overload retVal = "None" descr = "Sets the amount of the specified weapon ordered to be produced in the specified house">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aWareType: Integer;" />
+        <Param name="aAmount: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseWoodcutterChopOnly" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether a woodcutter's hut is on chop-only mode">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aChopOnly: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="HouseWoodcutterMode" func = "yes">
+    <Overload retVal = "None" descr = "Sets woodcutter's hut woodcutter mode Possible values for aWoodcutterMode parameter are: 0 - Chop And Plant 1 - Chop only 2 - Plant only">
+        <Param name="aHouseID: Integer;" />
+        <Param name="aWoodcutterMode: Byte;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="Log" func = "yes">
+    <Overload retVal = "None" descr = "Writes a line of text to the game log file. Useful for debugging. Note that many calls to this procedure will have a noticeable performance impact, as well as creating a large log file, so it is recommended you don't use it outside of debugging">
+        <Param name="aText: AnsiString;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTileHeightSet" func = "yes">
+    <Overload retVal = "Boolean" descr = "Sets the height of the terrain at the top left corner (vertex) of the tile at the specified XY coordinates. Returns true if the change succeeded or false if it failed. The change will fail if it would cause a unit to become stuck or a house to be damaged">
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="Height: Integer; //Height (0..100)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTileObjectSet" func = "yes">
+    <Overload retVal = "Boolean" descr = "Sets the terrain object on the tile at the specified XY coordinates. Object IDs can be seen in the map editor on the objects tab. Object 61 is ''block walking''. To set no object, use object type 255. Returns true if the change succeeded or false if it failed. The change will fail if it would cause a unit to become stuck or a house/field to be damaged">
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="Obj: Integer; //Object type (0..255)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTilesArraySet" func = "yes">
+    <Overload retVal = "Boolean" descr = "Sets array of tiles info, with possible change of 1. terrain (tile type) and/or rotation (same as for MapTileSet), 2. tile height (same as for MapTileHeightSet) 3. tile object (same as for MapTileObjectSet) Works much faster, then applying all changes successively for every tile, because pathfinding compute is executed only once after all changes have been done TKMTerrainTileBrief = record   X, Y: Byte;     // Tile map coordinates   Terrain: Byte;  // Terrain tile type (0..255)   Rotation: Byte; // Tile rotation (0..3)   Height: Byte;   // Heigth (0..100)   Obj: Byte;      // Object (0..255)   ChangeSet: TKMTileChangeTypeSet; // Set of changes. end; TKMTileChangeTypeSet = set of TKMTileChangeType TKMTileChangeType =   (tctTerrain, tctRotation, tctHeight, tctObject)ChangeSet determines what should be changed on tile F.e. if we want to change terrain type and height, then ChangeSet should contain tctTerrain and tctHeight Note: aTiles elements should start from 0, as for dynamic array. So f.e. to change map tile 1,1 we should set aTiles[0][0]. Note: Errors are shown as map tiles (f.e. for error while applying aTiles[0][0] tile there will be a message with for map tile 1,1)  Returns true, if there was no errors on any tile. False if there was at least 1 error.">
+        <Param name="aTiles: array of TKMTerrainTileBrief; //Check detailed info on this type in description" />
+        <Param name="aRevertOnFail: Boolean; //do we need to revert all changes on any error while applying changes. If True, then no changes will be applied on error. If False - we will continue apply changes where possible" />
+        <Param name="aShowDetailedErrors: Boolean; //show detailed errors after. Can slow down the execution, because of logging. If aRevertOnFail is set to True, then only first error will be shown" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTilesArraySetS" func = "yes">
+    <Overload retVal = "Boolean" descr = "Sets array of tiles info, like MapTilesArraySet, but parameters are passed as an TAnsiStringArray instead of array of TKMTerrainTileBrief. This function is useful if you need to create dynamic map from scratch. Array must contain strings in following format: 'X,Y,Terrain,Rotation,Height,Obj' f.e. '1,1,20,2,87,12' In case of invalid structure detection / failed variable parsing you can find detailed errors in LOG file. If you need to skip terrain or rotation/height/obj use -1 as parameter f.e. Skipping rotation for tile [7,2]: '7,2,20,-1,87,12' Skipping obj for tile [7,2]: '7,2,20,2,87,-1' Skipping height for tile [7,2]: '7,2,20,2,-1,5' etc.">
+        <Param name="aTilesS: array of AnsiString;" />
+        <Param name="aRevertOnFail: Boolean;" />
+        <Param name="aShowDetailedErrors: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MapTileSet" func = "yes">
+    <Overload retVal = "Boolean" descr = "Sets the tile type and rotation at the specified XY coordinates. Tile IDs can be seen by hovering over the tiles on the terrain tiles tab in the map editor. Returns true if the change succeeded or false if it failed. The change will fail if it would cause a unit to become stuck or a house/field to be damaged">
+        <Param name="X: Integer;" />
+        <Param name="Y: Integer;" />
+        <Param name="aType: Integer; //Tile type (0..255)" />
+        <Param name="aRotation: Integer; //Tile rotation (0..3)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MarketSetTrade" func = "yes">
+    <Overload retVal = "None" descr = "Sets the trade in the specified market">
+        <Param name="aMarketID: Integer;" />
+        <Param name="aFrom: Integer;" />
+        <Param name="aTo: Integer;" />
+        <Param name="aAmount: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OverlayTextAppend" func = "yes">
+    <Overload retVal = "None" descr = "Appends to text overlaid on top left of screen. If the player index is -1 it will be appended for all players.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aText: AnsiString;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OverlayTextAppendFormatted" func = "yes">
+    <Overload retVal = "None" descr = "Appends to text overlaid on top left of screen with formatted arguments (same as Format function). If the player index is -1 it will be appended for all players.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aText: AnsiString;" />
+        <Param name="Params: array of const; //Array of arguments" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OverlayTextSet" func = "yes">
+    <Overload retVal = "None" descr = "Sets text overlaid on top left of screen. If the player index is -1 it will be set for all players.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aText: AnsiString;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="OverlayTextSetFormatted" func = "yes">
+    <Overload retVal = "None" descr = "Sets text overlaid on top left of screen with formatted arguments (same as Format function). If the player index is -1 it will be set for all players.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aText: AnsiString;" />
+        <Param name="Params: array of const; //Array of arguments" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlanAddField" func = "yes">
+    <Overload retVal = "Boolean" descr = "Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked)">
+        <Param name="aPlayer: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlanAddHouse" func = "yes">
+    <Overload retVal = "Boolean" descr = "Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked)">
+        <Param name="aPlayer: Word;" />
+        <Param name="aHouseType: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlanAddRoad" func = "yes">
+    <Overload retVal = "Boolean" descr = "Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked)">
+        <Param name="aPlayer: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlanAddWinefield" func = "yes">
+    <Overload retVal = "Boolean" descr = "Adds a wine field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked)">
+        <Param name="aPlayer: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlanConnectRoad" func = "yes">
+    <Overload retVal = "Boolean" descr = "Connects road plans between two points like AI builder and returns True if road plan was successfully added. If CompletedRoad = True, road will be added instead of plans">
+        <Param name="aPlayer: Integer;" />
+        <Param name="X1: Integer; //Left coordinate" />
+        <Param name="Y1: Integer; //Top coordinate" />
+        <Param name="X2: Integer; //Right coordinate" />
+        <Param name="Y2: Integer; //Bottom coordinate" />
+        <Param name="aCompleted: Boolean; //Completed road" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlanRemove" func = "yes">
+    <Overload retVal = "Boolean" descr = "Removes house, road or field plans from the specified tile for the specified player Returns true if the plan was successfully removed or false if it failed (e.g. tile blocked)">
+        <Param name="aPlayer: Word;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerAddDefaultGoals" func = "yes">
+    <Overload retVal = "None" descr = "Add default goals/lost goals for the specified player. If the parameter buildings is true the goals will be important buildings. Otherwise it will be troops.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aBuildings: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerAllianceChange" func = "yes">
+    <Overload retVal = "None" descr = "Change whether player1 is allied to player2. If Compliment is true, then it is set both ways (so also whether player2 is allied to player1)">
+        <Param name="aPlayer1: Byte;" />
+        <Param name="aPlayer2: Byte;" />
+        <Param name="aCompliment: Boolean; //Both ways" />
+        <Param name="aAllied: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerDefeat" func = "yes">
+    <Overload retVal = "None" descr = "Proclaims player defeated">
+        <Param name="aPlayer: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerShareBeacons" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether player A shares his beacons with player B. Sharing can still only happen between allied players, but this command lets you disable allies from sharing.">
+        <Param name="aPlayer1: Word;" />
+        <Param name="aPlayer2: Word;" />
+        <Param name="aBothWays: Boolean; //share in both ways" />
+        <Param name="aShare: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerShareFog" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether player A shares his vision with player B (one way, for both ways use PlayerShareFogCompliment). Sharing can still only happen between allied players, but this command lets you disable allies from sharing.">
+        <Param name="aPlayer1: Word;" />
+        <Param name="aPlayer2: Word;" />
+        <Param name="aShare: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerShareFogCompliment" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether players A and B share their vision (both ways). Sharing can still only happen between allied players, but this command lets you disable allies from sharing.">
+        <Param name="aPlayer1: Word;" />
+        <Param name="aPlayer2: Word;" />
+        <Param name="aShare: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerWareDistribution" func = "yes">
+    <Overload retVal = "None" descr = "Sets ware distribution for the specified resource, house and player.">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aWareType: Byte;" />
+        <Param name="aHouseType: Byte;" />
+        <Param name="aAmount: Byte; //Distribution amount (0..5)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayerWin" func = "yes">
+    <Overload retVal = "None" descr = "Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true. All players who were not set to victorious are set to defeated.">
+        <Param name="aVictors: array of Integer; //Array of player IDs" />
+        <Param name="aTeamVictory: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayOGG" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays OGG audio file. If the player index is -1 the sound will be played to all players. Mono and stereo OGG files are supported. OGG file goes in mission folder named: Mission Name.filename.ogg">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 1.0)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayOGGAtLocation" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays OGG audio file at a location on the map. If the player index is -1 the sound will be played to all players. Radius specifies approximately the distance at which the sound can no longer be heard (normal game sounds use radius 32). Only mono OGG files are supported. OGG file goes in mission folder named: Mission Name.filename.ogg. Will not play if the location is not revealed to the player. Higher volume range is allowed than PlayOGG as positional sounds are quieter">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 4.0)" />
+        <Param name="aRadius: Single; //Radius (minimum 28)" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayOGGAtLocationLooped" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays looped audio file at a location on the map. If the player index is -1 the sound will be played to all players. aRadius specifies approximately the distance at which the sound can no longer be heard (normal game sounds use aRadius 32). Only mono OGG files are supported. OGG file goes in mission folder named: Mission Name.filename.ogg. Will not play if the location is not revealed to the player (will start playing automatically when it is revealed). Higher aVolume range is allowed than PlayOGG as positional sounds are quieter. The sound will continue to loop if the game is paused and will restart automatically when the game is loaded.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 4.0)" />
+        <Param name="aRadius: Single; //aRadius (minimum 28)" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayOGGFadeMusic" func = "yes">
+    <Overload retVal = "Integer" descr = "Same as PlayOGG except music will fade then mute while the OGG is playing, then fade back in afterwards. You should leave a small gap at the start of your OGG file to give the music time to fade">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 1.0)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayOGGLooped" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays looped OGG audio file. If the player index is -1 the sound will be played to all players. Mono or stereo OGG files are supported. OGG file goes in mission folder named: Mission Name.filename.ogg. The sound will continue to loop if the game is paused and will restart automatically when the game is loaded.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 1.0)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlaySound" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays audio file. If the player index is -1 the sound will be played to all players. Possible to specify Looped or FadeMusic parameter Mono and stereo WAV and OGG files are supported. To specify audio format use af_Wav or af_Ogg WAV file goes in mission folder named: Mission Name.filename.wav. OGG file goes in mission folder named: Mission Name.filename.ogg If MusicFaded then sound will fade then mute while the file is playing, then fade back in afterwards. If looped, the sound will continue to loop if the game is paused and will restart automatically when the game is loaded.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aAudioFormat: TKMAudioFormat; //af_Wav or af_Ogg" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 1.0)" />
+        <Param name="aFadeMusic: Boolean;" />
+        <Param name="aLooped: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlaySoundAtLocation" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays audio file at a location on the map. If the player index is -1 the sound will be played to all players. Possible to specify Looped or FadeMusic parameter aRadius specifies approximately the distance at which the sound can no longer be heard (normal game sounds use aRadius 32). Only mono WAV or OGG files are supported. To specify audio format use af_Wav or af_Ogg WAV file goes in mission folder named: Mission Name.filename.wav. OGG file goes in mission folder named: Mission Name.filename.ogg. Will not play if the location is not revealed to the player (will start playing automatically when it is revealed). Higher aVolume range is allowed than PlaySound as positional sounds are quieter. If looped, the sound will continue to loop if the game is paused and will restart automatically when the game is loaded.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aAudioFormat: TKMAudioFormat; //af_Wav or af_Ogg" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 4.0)" />
+        <Param name="aFadeMusic: Boolean;" />
+        <Param name="aLooped: Boolean;" />
+        <Param name="aRadius: Single; //aRadius (minimum 28)" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayWAV" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays WAV audio file. If the player index is -1 the sound will be played to all players. Mono and stereo WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 1.0)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayWAVAtLocation" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays WAV audio file at a location on the map. If the player index is -1 the sound will be played to all players. Radius specifies approximately the distance at which the sound can no longer be heard (normal game sounds use radius 32). Only mono WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Will not play if the location is not revealed to the player. Higher volume range is allowed than PlayWAV as positional sounds are quieter">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 4.0)" />
+        <Param name="aRadius: Single; //Radius (minimum 28)" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayWAVAtLocationLooped" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays looped WAV audio file at a location on the map. If the player index is -1 the sound will be played to all players. aRadius specifies approximately the distance at which the sound can no longer be heard (normal game sounds use aRadius 32). Only mono WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Will not play if the location is not revealed to the player (will start playing automatically when it is revealed). Higher aVolume range is allowed than PlayWAV as positional sounds are quieter. The sound will continue to loop if the game is paused and will restart automatically when the game is loaded.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 4.0)" />
+        <Param name="aRadius: Single; //aRadius (minimum 28)" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayWAVFadeMusic" func = "yes">
+    <Overload retVal = "Integer" descr = "Same as PlayWAV except music will fade then mute while the WAV is playing, then fade back in afterwards. You should leave a small gap at the start of your WAV file to give the music time to fade">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 1.0)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="PlayWAVLooped" func = "yes">
+    <Overload retVal = "Integer" descr = "Plays looped audio file. If the player index is -1 the sound will be played to all players. Mono or stereo WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. The sound will continue to loop if the game is paused and will restart automatically when the game is loaded.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aFileName: AnsiString;" />
+        <Param name="aVolume: Single; //Audio level (0.0 to 1.0)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="RemoveRoad" func = "yes">
+    <Overload retVal = "None" descr = "Removes road">
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="SetTradeAllowed" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether the player is allowed to trade the specified resource.">
+        <Param name="aPlayer: Word;" />
+        <Param name="aResType: Word;" />
+        <Param name="aAllowed: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ShowMsg" func = "yes">
+    <Overload retVal = "None" descr = "Displays a message to a player. If the player index is -1 the message will be shown to all players.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aText: AnsiString;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ShowMsgFormatted" func = "yes">
+    <Overload retVal = "None" descr = "Displays a message to a player with formatted arguments (same as Format function). If the player index is -1 the message will be shown to all players.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aText: AnsiString;" />
+        <Param name="Params: array of const; //Array of arguments" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ShowMsgGoto" func = "yes">
+    <Overload retVal = "None" descr = "Displays a message to a player with a goto button that takes the player to the specified location. If the player index is -1 the message will be shown to all players.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+        <Param name="aText: AnsiString;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ShowMsgGotoFormatted" func = "yes">
+    <Overload retVal = "None" descr = "Displays a message to a player with formatted arguments (same as Format function) and a goto button that takes the player to the specified location. If the player index is -1 the message will be shown to all players.">
+        <Param name="aPlayer: Shortint;" />
+        <Param name="aX: Word;" />
+        <Param name="aY: Word;" />
+        <Param name="aText: AnsiString;" />
+        <Param name="Params: array of const; //Array of arguments" />
+    </Overload>
+</KeyWord>
+<KeyWord name="StopLoopedOGG" func = "yes">
+    <Overload retVal = "None" descr = "Stops playing a looped sound that was previously started with either Actions.PlayOGGLooped or Actions.PlayOGGAtLocationLooped.">
+        <Param name="aSoundIndex: Integer; //value that was returned by either of those functions when the looped sound was started." />
+    </Overload>
+</KeyWord>
+<KeyWord name="StopLoopedWAV" func = "yes">
+    <Overload retVal = "None" descr = "Stops playing a looped sound that was previously started with either Actions.PlayWAVLooped or Actions.PlayWAVAtLocationLooped.">
+        <Param name="aSoundIndex: Integer; //value that was returned by either of those functions when the looped sound was started." />
+    </Overload>
+</KeyWord>
+<KeyWord name="StopSound" func = "yes">
+    <Overload retVal = "None" descr = "Stops playing any sound that was previously started by any of PlayWAV***, PlayOGG*** or PlaySound*** functions">
+        <Param name="aSoundIndex: Integer; //value that was returned by either of those functions when the sound was started." />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitBlock" func = "yes">
+    <Overload retVal = "None" descr = "Sets whether the specified player can train/equip the specified unit type">
+        <Param name="aPlayer: Byte;" />
+        <Param name="aType: Word;" />
+        <Param name="aBlock: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitDirectionSet" func = "yes">
+    <Overload retVal = "Boolean" descr = "Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure.">
+        <Param name="aUnitID: Integer;" />
+        <Param name="aDirection: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitDismiss" func = "yes">
+    <Overload retVal = "None" descr = "Dismiss the specified unit">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitDismissableSet" func = "yes">
+    <Overload retVal = "None" descr = "Makes the specified unit 'dismiss' command available">
+        <Param name="aUnitID: Integer;" />
+        <Param name="aDismissable: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitDismissCancel" func = "yes">
+    <Overload retVal = "None" descr = "Cancel dismiss task for the specified unit">
+        <Param name="aUnitID: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitHPChange" func = "yes">
+    <Overload retVal = "None" descr = "Heals/Wounds specified unit for aHP HP">
+        <Param name="aUnitID: Integer;" />
+        <Param name="aHP: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitHPSetInvulnerable" func = "yes">
+    <Overload retVal = "None" descr = "Makes the unit invulnerable. Such unit can not be killed or die from hunger.">
+        <Param name="aUnitID: Integer;" />
+        <Param name="aInvulnerable: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitHungerSet" func = "yes">
+    <Overload retVal = "None" descr = "Sets the hunger level of the specified unit in ticks until death">
+        <Param name="aUnitID: Integer;" />
+        <Param name="aHungerLevel: Integer; //Hunger level (ticks until death)" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitKill" func = "yes">
+    <Overload retVal = "None" descr = "Kills the specified unit. Silent means the death animation (ghost) and sound won't play">
+        <Param name="aUnitID: Integer;" />
+        <Param name="aSilent: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="UnitOrderWalk" func = "yes">
+    <Overload retVal = "Boolean" descr = "Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure.">
+        <Param name="aUnitID: Integer;" />
+        <Param name="X: Word;" />
+        <Param name="Y: Word;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AbsI" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns absolute value of specified integer">
+        <Param name="aValue: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="AbsS" func = "yes">
+    <Overload retVal = "Single" descr = "Returns absolute value of specified single number">
+        <Param name="aValue: Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayElementCount" func = "yes">
+    <Overload retVal = "Integer" descr = "Checks how many times specified string comes in requested array">
+        <Param name="aElement: AnsiString;" />
+        <Param name="aArray: array of String;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayElementCountB" func = "yes">
+    <Overload retVal = "Integer" descr = "Checks how many times specified boolean comes in requested array">
+        <Param name="aElement: Boolean;" />
+        <Param name="aArray: array of Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayElementCountI" func = "yes">
+    <Overload retVal = "Integer" descr = "Checks how many times specified integer comes in requested array">
+        <Param name="aElement: Integer;" />
+        <Param name="aArray: array of Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayElementCountS" func = "yes">
+    <Overload retVal = "Integer" descr = "Checks how many times specified single comes in requested array">
+        <Param name="aElement: Single;" />
+        <Param name="aArray: array of Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayHasElement" func = "yes">
+    <Overload retVal = "Boolean" descr = "Checks whether requested array has specified string">
+        <Param name="aElement: AnsiString;" />
+        <Param name="aArray: array of String;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayHasElementB" func = "yes">
+    <Overload retVal = "Boolean" descr = "Checks whether requested array has specified boolean">
+        <Param name="aElement: Boolean;" />
+        <Param name="aArray: array of Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayHasElementI" func = "yes">
+    <Overload retVal = "Boolean" descr = "Checks whether requested array has specified integer">
+        <Param name="aElement: Integer;" />
+        <Param name="aArray: array of Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayHasElementS" func = "yes">
+    <Overload retVal = "Boolean" descr = "Checks whether requested array has specified single number">
+        <Param name="aElement: Single;" />
+        <Param name="aArray: array of Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayRemoveIndexI" func = "yes">
+    <Overload retVal = "array" descr = "Removes element on specified index in specified array of integer. Integer array should be declared as TIntegerArray instead of array of integer.">
+        <Param name="aIndex: Integer;" />
+        <Param name="aArray: array of Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="ArrayRemoveIndexS" func = "yes">
+    <Overload retVal = "TAnsiStringArray" descr = "Removes element on specified index in specified array of string. String array should be declared as TAnsiStringArray instead of array of AnsiString.">
+        <Param name="aIndex: Integer;" />
+        <Param name="aArray: array of AnsiString;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="BoolToStr" func = "yes">
+    <Overload retVal = "AnsiString" descr = "Return string representation of Boolean value: 'True' or 'False'">
+        <Param name="aBool: Boolean;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="EnsureRangeI" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns the closest to aValue integer that is in interval [aMin..aMax]">
+        <Param name="aValue: Integer;" />
+        <Param name="aMin: Integer;" />
+        <Param name="aMax: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="EnsureRangeS" func = "yes">
+    <Overload retVal = "Single" descr = "Returns the closest to aValue single number that is in interval [aMin..aMax]">
+        <Param name="aValue: Single;" />
+        <Param name="aMin: Single;" />
+        <Param name="aMax: Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="Format" func = "yes">
+    <Overload retVal = "string" descr = "Wrapper for pascal Format function Formats aFormatting string with specified aData array of parameters">
+        <Param name="aFormatting: String;" />
+        <Param name="aData: array of const;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="IfThen" func = "yes">
+    <Overload retVal = "AnsiString" descr = "Checks condition aBool and returns aTrue/aFalse string depending on check result">
+        <Param name="aBool: Boolean;" />
+        <Param name="aTrue: AnsiString;" />
+        <Param name="aFalse: AnsiString;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="IfThenI" func = "yes">
+    <Overload retVal = "Integer" descr = "Checks condition aBool and returns aTrue/aFalse integer depending on check result">
+        <Param name="aBool: Boolean;" />
+        <Param name="aTrue: Integer;" />
+        <Param name="aFalse: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="IfThenS" func = "yes">
+    <Overload retVal = "Single" descr = "Checks condition aBool and returns aTrue/aFalse single number depending on check result">
+        <Param name="aBool: Boolean;" />
+        <Param name="aTrue: Single;" />
+        <Param name="aFalse: Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="InAreaI" func = "yes">
+    <Overload retVal = "Boolean" descr = "2D variant of InRange, can be used for unit locs checks">
+        <Param name="aX: Integer;" />
+        <Param name="aY: Integer;" />
+        <Param name="aXMin: Integer;" />
+        <Param name="aYMin: Integer;" />
+        <Param name="aXMax: Integer;" />
+        <Param name="aYMax: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="InAreaS" func = "yes">
+    <Overload retVal = "Boolean" descr = "2D variant of InRange">
+        <Param name="aX: Single;" />
+        <Param name="aY: Single;" />
+        <Param name="aXMin: Single;" />
+        <Param name="aYMin: Single;" />
+        <Param name="aXMax: Single;" />
+        <Param name="aYMax: Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="InRangeI" func = "yes">
+    <Overload retVal = "Boolean" descr = "Checks whether specified aValue is in interval [aMin..aMax]">
+        <Param name="aValue: Integer;" />
+        <Param name="aMin: Integer;" />
+        <Param name="aMax: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="InRangeS" func = "yes">
+    <Overload retVal = "Boolean" descr = "Checks whether specified aValue is in interval [aMin..aMax]">
+        <Param name="aValue: Single;" />
+        <Param name="aMin: Single;" />
+        <Param name="aMax: Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="KMPoint" func = "yes">
+    <Overload retVal = "TKMPoint" descr = "Returns point record with specified coordinates">
+        <Param name="X,Y: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MaxI" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns max number of two specified">
+        <Param name="A: Integer;" />
+        <Param name="B: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MaxInArrayI" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns max number of array elements">
+        <Param name="aArray: array of Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MaxInArrayS" func = "yes">
+    <Overload retVal = "Single" descr = "Returns max number of array elements">
+        <Param name="aArray: array of Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MaxS" func = "yes">
+    <Overload retVal = "Single" descr = "Returns max number of two specified">
+        <Param name="A: Single;" />
+        <Param name="B: Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MinI" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns min number of two specified">
+        <Param name="A: Integer;" />
+        <Param name="B: Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MinInArrayI" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns min number of array elements">
+        <Param name="aArray: array of Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MinInArrayS" func = "yes">
+    <Overload retVal = "Single" descr = "Returns min number of array elements">
+        <Param name="aArray: array of Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="MinS" func = "yes">
+    <Overload retVal = "Single" descr = "Returns min number of two specified">
+        <Param name="A: Single;" />
+        <Param name="B: Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="Power" func = "yes">
+    <Overload retVal = "Extended" descr = "Exponentation, base 'Base' raised to power 'Exp'. F.e. Power(3, 2) = 3^2 = 9 Returns base ''Base'' raised to power ''Exp''">
+        <Param name="aBase: Extended;" />
+        <Param name="aExp: Extended;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="Sqr" func = "yes">
+    <Overload retVal = "Extended" descr = "Returns A^2 = A*A">
+        <Param name="A: Extended;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="SumI" func = "yes">
+    <Overload retVal = "Integer" descr = "Returns sum of the elements of requested array">
+        <Param name="aArray: array of Integer;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="SumS" func = "yes">
+    <Overload retVal = "Single" descr = "Returns sum of the elements of requested array">
+        <Param name="aArray: array of Single;" />
+    </Overload>
+</KeyWord>
+<KeyWord name="TimeToString" func = "yes">
+    <Overload retVal = "AnsiString" descr = "Converts game ticks count into string: HH:MM:SS Can be used for scripted timers">
+        <Param name="aTicks: Integer;" />
+    </Overload>
+</KeyWord>
+	</AutoComplete>
+</NotepadPlus>

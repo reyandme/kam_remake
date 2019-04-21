@@ -4,7 +4,7 @@ interface
 uses
   Controls, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_Campaigns, KM_Maps,
+  KM_InterfaceDefaults, KM_Campaigns, KM_MapTypes,
   KM_GameTypes, KM_CommonTypes, KM_CommonClasses;
 
 
@@ -127,7 +127,7 @@ var
   I: Integer;
   R: TKMWareType;
   G: TKMCardinalArray;
-  HumanId: TKMHandIndex;
+  HumanId: TKMHandID;
   ShowAIResults: Boolean;
   Cap: UnicodeString;
 begin
@@ -153,27 +153,27 @@ begin
 
   //If the player canceled mission, hide the AI graph lines so he doesn't see secret info about enemy (e.g. army size)
   //That info should only be visible if the mission was won or a replay
-  ShowAIResults := gGame.IsReplay or (fGameResultMsg in [gr_Win, gr_ReplayEnd]);
+  ShowAIResults := gGame.IsReplay or (fGameResultMsg in [grWin, grReplayEnd]);
 
   //Restart button is hidden if you won or if it is a replay
-  Button_Restart.Visible := not (fGameResultMsg in [gr_ReplayEnd, gr_Win, gr_GameContinues]);
+  Button_Restart.Visible := not (fGameResultMsg in [grReplayEnd, grWin, grGameContinues]);
 
   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
-  Button_ContinueCampaign.Visible := (gGameApp.Campaigns.ActiveCampaign <> nil) and not (fGameResultMsg in [gr_ReplayEnd, gr_GameContinues]);
-  Button_ContinueCampaign.Enabled := fGameResultMsg = gr_Win;
+  Button_ContinueCampaign.Visible := (gGameApp.Campaigns.ActiveCampaign <> nil) and not (fGameResultMsg in [grReplayEnd, grGameContinues]);
+  Button_ContinueCampaign.Enabled := fGameResultMsg = grWin;
 
-  if fGameResultMsg = gr_GameContinues then
+  if fGameResultMsg = grGameContinues then
     Button_Back.Caption := gResTexts[TX_RESULTS_BACK_TO_GAME]
   else
     Button_Back.Caption := gResTexts[TX_MENU_BACK];  
 
   //Header
   case fGameResultMsg of
-    gr_Win:           Cap := gResTexts[TX_MENU_MISSION_VICTORY];
-    gr_Defeat:        Cap := gResTexts[TX_MENU_MISSION_DEFEAT];
-    gr_Cancel:        Cap := gResTexts[TX_MENU_MISSION_CANCELED];
-    gr_ReplayEnd:     Cap := gResTexts[TX_MENU_REPLAY_ENDED];
-    gr_GameContinues: Cap := ''; //Do not show game result, as game is still going
+    grWin:           Cap := gResTexts[TX_MENU_MISSION_VICTORY];
+    grDefeat:        Cap := gResTexts[TX_MENU_MISSION_DEFEAT];
+    grCancel:        Cap := gResTexts[TX_MENU_MISSION_CANCELED];
+    grReplayEnd:     Cap := gResTexts[TX_MENU_REPLAY_ENDED];
+    grGameContinues: Cap := ''; //Do not show game result, as game is still going
     else              Cap := NO_TEXT;
   end;
   Label_Results.Caption := Cap;
@@ -213,10 +213,10 @@ begin
   Chart_Houses.MaxLength    := gHands[HumanId].Stats.ChartCount;
   Chart_Wares.MaxLength     := gHands[HumanId].Stats.ChartCount;
 
-  Chart_Army.MaxTime      := gGame.GameTickCount div 10;
-  Chart_Citizens.MaxTime  := gGame.GameTickCount div 10;
-  Chart_Houses.MaxTime    := gGame.GameTickCount div 10;
-  Chart_Wares.MaxTime     := gGame.GameTickCount div 10;
+  Chart_Army.MaxTime      := gGame.GameTick div 10;
+  Chart_Citizens.MaxTime  := gGame.GameTick div 10;
+  Chart_Houses.MaxTime    := gGame.GameTick div 10;
+  Chart_Wares.MaxTime     := gGame.GameTick div 10;
 
   //Citizens
   TempGraphCount := 0; //Reset
@@ -265,17 +265,17 @@ begin
   for I := 0 to gHands.Count - 1 do
   with gHands[I] do
     if HandType = hndComputer then
-      AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[cak_Instantaneous, ut_Any])
+      AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[cakInstantaneous, utAny])
     else
-      Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[cak_Instantaneous, ut_Any]);
+      Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[cakInstantaneous, utAny]);
 
   if ShowAIResults then
     for I := 0 to TempGraphCount - 1 do
       Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
 
-  Button_ResultsHouses.Enabled := (gGame.MissionMode = mm_Normal);
-  Button_ResultsCitizens.Enabled := (gGame.MissionMode = mm_Normal);
-  Button_ResultsWares.Enabled := (gGame.MissionMode = mm_Normal);
+  Button_ResultsHouses.Enabled := (gGame.MissionMode = mmNormal);
+  Button_ResultsCitizens.Enabled := (gGame.MissionMode = mmNormal);
+  Button_ResultsWares.Enabled := (gGame.MissionMode = mmNormal);
 end;
 
 
@@ -298,7 +298,7 @@ begin
   fGameResultMsg := aMsg;
 
 //  fStatsLastUpdateTick := 0;
-//  if (aMsg <> gr_GameContinues) and (fStatsLastUpdateTick = 0) then
+//  if (aMsg <> grGameContinues) and (fStatsLastUpdateTick = 0) then
 //    fStatsLastUpdateTick := gHands.GetFirstEnabledHand.Stats.LastUpdateStateTick;
 
   if not fReinitedLastTime then
@@ -358,7 +358,7 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,RESULTS_X_PADDING,140,900,20,NO_TEXT,fnt_Metal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,RESULTS_X_PADDING,140,900,20,NO_TEXT,fntMetal,taCenter);
     Label_Results.Anchors := [anLeft];
 
     Panel_Stats := TKMPanel.Create(Panel_Results, 30, 216, 360, 354);
@@ -377,8 +377,8 @@ begin
         Inc(Adv, 25);
         if I in [3,6,7] then inc(Adv, 15);
         if I = 9 then inc(Adv, 45); //Last one goes right at the bottom of the scroll
-        TKMLabel.Create(Panel_Stats,20,Adv,240,20,gResTexts[StatText[I]],fnt_Metal,taLeft);
-        Label_Stat[I] := TKMLabel.Create(Panel_Stats,260,Adv,80,20,'00',fnt_Metal,taRight);
+        TKMLabel.Create(Panel_Stats,20,Adv,240,20,gResTexts[StatText[I]],fntMetal,taLeft);
+        Label_Stat[I] := TKMLabel.Create(Panel_Stats,260,Adv,80,20,'00',fntMetal,taRight);
       end;
 
     Panel_StatsCharts := TKMPanel.Create(Panel_Results, 410, 170, 630, 420);
@@ -472,7 +472,7 @@ begin
   //Singleplayer game end -> ResultsSP -> Singleplayer
   //Replay end            -> ResultsSP -> Replays
 
-  if fGameResultMsg = gr_GameContinues then
+  if fGameResultMsg = grGameContinues then
     Hide
   else begin
     fReinitedLastTime := False; //Reset to default Value for next game (before game stop)

@@ -98,7 +98,7 @@ type
     function ServerToLocal(aIndexOnServer: TKMNetHandleIndex): Integer;
     function NiknameToLocal(const aNikname: AnsiString): Integer;
     function StartingLocToLocal(aLoc: Integer): Integer;
-    function PlayerIndexToLocal(aIndex: TKMHandIndex): Integer;
+    function PlayerIndexToLocal(aIndex: TKMHandID): Integer;
 
     function CheckCanJoin(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex): Integer;
     function CheckCanReconnect(aLocalIndex: Integer): Integer;
@@ -127,7 +127,7 @@ type
     procedure SetAIReady;
     procedure RemAllAIs;
     procedure RemDisconnectedPlayers;
-    function ValidateSetup(aHumanUsableLocs, aAIUsableLocs, aAdvancedAIUsableLocs: TKMHandIndexArray; out ErrorMsg: UnicodeString): Boolean;
+    function ValidateSetup(const aHumanUsableLocs, aAIUsableLocs, aAdvancedAIUsableLocs: TKMHandIDArray; out ErrorMsg: UnicodeString): Boolean;
 
     //Import/Export
     procedure SaveToStream(aStream: TKMemoryStream); //Gets all relevant information as text string
@@ -602,7 +602,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.PlayerIndexToLocal(aIndex: TKMHandIndex): Integer;
+function TKMNetPlayersList.PlayerIndexToLocal(aIndex: TKMHandID): Integer;
 var I: Integer;
 begin
   Result := -1;
@@ -1351,7 +1351,7 @@ end;
 
 //Convert undefined/random start locations to fixed and assign random colors
 //Remove odd players
-function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs, aAdvancedAIUsableLocs: TKMHandIndexArray;
+function TKMNetPlayersList.ValidateSetup(const aHumanUsableLocs, aAIUsableLocs, aAdvancedAIUsableLocs: TKMHandIDArray;
                                          out ErrorMsg: UnicodeString): Boolean;
   function IsHumanLoc(aLoc: Byte): Boolean;
   var I: Integer;
@@ -1392,15 +1392,12 @@ function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs, aAdvan
 var
   I, K, J: Integer;
   UsedLoc: array[1..MAX_HANDS] of Boolean;
-  AvailableLocHuman, AvailableLocBoth: array [1..MAX_HANDS] of Byte;
-  TmpLocHumanCount, TmpLocBothCount: Byte;
   TeamLocs: array of Integer;
   LocFiller: TLocFiller;
   Player: TPlayer;
   PT: TPlayerType;
   Loc: TLoc;
   LocsArr: TIntegerArray;
-  PlayerTypes: TPlayerTypeSet;
 begin
   if not AllReady then
   begin
@@ -1477,7 +1474,8 @@ begin
     RemAllClosedPlayers; //Closed players are just a marker in the lobby, delete them when the game starts
 
     gLog.AddTime('Randomizing locs...');
-    gLog.AddTime(LocFiller.FillerToString);
+    if gLog.IsDegubLogEnabled then
+      gLog.LogDebug(LocFiller.FillerToString);
 
     //Randomize all available lists (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)
     for PT := Low(TPlayerType) to High(TPlayerType) do
@@ -1491,7 +1489,8 @@ begin
     for I := 0 to High(LocFiller.Players) do
       fNetPlayers[LocFiller.Players[I].ID].StartLocation := LocFiller.Players[I].LocID;
 
-    gLog.AddTime('Randomized locs: ' + LocFiller.FillerToString);
+    if gLog.IsDegubLogEnabled then
+      gLog.LogDebug('Randomized locs: ' + LocFiller.FillerToString);
   finally
     LocFiller.Free;
   end;

@@ -181,7 +181,7 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
-  edtShortName.Text := C.CampName;
+  edtShortName.Text := C.ShortName;
   seMapCount.Value := C.MapCount;
 
   UpdateList;
@@ -521,7 +521,7 @@ begin
     Exit;
   end;
 
-  if Length(Trim(C.CampName)) <> 3 then
+  if Length(Trim(C.ShortName)) <> 3 then
   begin
     ShowMessage('Campaign short title must be 3 characters');
     Exit;
@@ -798,7 +798,7 @@ begin
 
   for I := 0 to C.MapCount - 1 do
   begin
-    N := tvList.Items.AddChild(nil, C.CampName + ' mission ' + IntToStr(I + 1));
+    N := tvList.Items.AddChild(nil, C.ShortName + ' mission ' + IntToStr(I + 1));
     if fSelectedMap = I then
       N.Selected := True;
 

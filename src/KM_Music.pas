@@ -234,33 +234,36 @@ begin
   SetLength(fMusicTracks, 255);
 
   FindFirst(aPath + '*.*', faAnyFile - faDirectory, SearchRec);
-  repeat
-    if (GetFileExt(SearchRec.Name) = 'MP3') //Allow all formats supported by both libraries
-    or (GetFileExt(SearchRec.Name) = 'MP2')
-    or (GetFileExt(SearchRec.Name) = 'MP1')
-    or (GetFileExt(SearchRec.Name) = 'WAV')
-    or (GetFileExt(SearchRec.Name) = 'OGG')
-    {$IFDEF USEBASS} //Formats supported by BASS but not LibZPlay
-    or (GetFileExt(SearchRec.Name) = 'AIFF')
-    {$ENDIF}
-    {$IFDEF USELIBZPLAY} //Formats supported by LibZPlay but not BASS
-    or (GetFileExt(SearchRec.Name) = 'FLAC')
-    or (GetFileExt(SearchRec.Name) = 'OGA')
-    or (GetFileExt(SearchRec.Name) = 'AC3')
-    or (GetFileExt(SearchRec.Name) = 'AAC')
-    {$ENDIF}
-    then
-    begin
-      Inc(fMusicCount);
-      fMusicTracks[fMusicCount - 1] := aPath + SearchRec.Name;
-    end;
-    {if GetFileExt(SearchRec.Name)='MID' then
-    begin
-      Inc(MIDICount);
-      MIDITracks[MIDICount] := Path + SearchRec.Name;
-    end;}
-  until (FindNext(SearchRec) <> 0);
-  FindClose(SearchRec);
+  try
+    repeat
+      if (GetFileExt(SearchRec.Name) = 'MP3') //Allow all formats supported by both libraries
+      or (GetFileExt(SearchRec.Name) = 'MP2')
+      or (GetFileExt(SearchRec.Name) = 'MP1')
+      or (GetFileExt(SearchRec.Name) = 'WAV')
+      or (GetFileExt(SearchRec.Name) = 'OGG')
+      {$IFDEF USEBASS} //Formats supported by BASS but not LibZPlay
+      or (GetFileExt(SearchRec.Name) = 'AIFF')
+      {$ENDIF}
+      {$IFDEF USELIBZPLAY} //Formats supported by LibZPlay but not BASS
+      or (GetFileExt(SearchRec.Name) = 'FLAC')
+      or (GetFileExt(SearchRec.Name) = 'OGA')
+      or (GetFileExt(SearchRec.Name) = 'AC3')
+      or (GetFileExt(SearchRec.Name) = 'AAC')
+      {$ENDIF}
+      then
+      begin
+        Inc(fMusicCount);
+        fMusicTracks[fMusicCount - 1] := aPath + SearchRec.Name;
+      end;
+      {if GetFileExt(SearchRec.Name)='MID' then
+      begin
+        Inc(MIDICount);
+        MIDITracks[MIDICount] := Path + SearchRec.Name;
+      end;}
+    until (FindNext(SearchRec) <> 0);
+  finally
+    FindClose(SearchRec);
+  end;
 
   //Cut to length
   SetLength(fMusicTracks, fMusicCount);

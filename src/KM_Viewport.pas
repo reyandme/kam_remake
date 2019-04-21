@@ -214,10 +214,10 @@ const
   SCROLL_ACCEL_TIME = 400; // Time in ms that scrolling will be affected by acceleration
   SCROLL_FLEX = 4;         // Number of pixels either side of the edge of the screen which will count as scrolling
   DirectionsBitfield: array [0..15] of TKMCursor = (
-    kmc_Default, kmc_Scroll6, kmc_Scroll0, kmc_Scroll7,
-    kmc_Scroll2, kmc_Default, kmc_Scroll1, kmc_Default,
-    kmc_Scroll4, kmc_Scroll5, kmc_Default, kmc_Default,
-    kmc_Scroll3, kmc_Default, kmc_Default, kmc_Default);
+    kmcDefault, kmcScroll6, kmcScroll0, kmcScroll7,
+    kmcScroll2, kmcDefault, kmcScroll1, kmcDefault,
+    kmcScroll4, kmcScroll5, kmcDefault, kmcDefault,
+    kmcScroll3, kmcDefault, kmcDefault, kmcDefault);
 var
   TimeSinceStarted: Cardinal;
   ScrollAdv, ZoomAdv: Single;
@@ -278,8 +278,8 @@ begin
     ReleaseScrollKeys;
     fScrolling := False;
 
-    if (gRes.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
-      gRes.Cursors.Cursor := kmc_Default;
+    if (gRes.Cursors.Cursor in [kmcScroll0 .. kmcScroll7]) then
+      gRes.Cursors.Cursor := kmcDefault;
 
     fScrollStarted := 0;
     Exit;
@@ -321,8 +321,8 @@ begin
   if fScrolling then
     gRes.Cursors.Cursor := DirectionsBitfield[I] //Sample cursor type from bitfield value
   else
-    if (gRes.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
-      gRes.Cursors.Cursor := kmc_Default;
+    if (gRes.Cursors.Cursor in [kmcScroll0 .. kmcScroll7]) then
+      gRes.Cursors.Cursor := kmcDefault;
 
   SetZoom(fZoom); //EnsureRanges
   SetPosition(fPosition); //EnsureRanges

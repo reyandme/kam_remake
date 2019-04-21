@@ -15,7 +15,7 @@ const
 
 type
 
-  TKMAudioFormat = (af_Wav, af_Ogg);
+  TKMAudioFormat = (afWav, afOgg);
 
   TKMSoundPlayer = class
   private
@@ -108,7 +108,7 @@ type
                         Radius: Single;
                         Attenuate: Boolean;
                         Loc: TKMPoint;
-                        HandIndex: TKMHandIndex;
+                        HandIndex: TKMHandID;
                       end;
     function CanPlay(aIndex: Integer): Boolean;
     procedure StartSound(aIndex: Integer);
@@ -121,7 +121,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure UpdateState;
 
-    function AddSound(aHandIndex: TKMHandIndex; const aSoundName: AnsiString; aSoundFormat: TKMAudioFormat; aLoc: TKMPoint;
+    function AddSound(aHandIndex: TKMHandID; const aSoundName: AnsiString; aSoundFormat: TKMAudioFormat; aLoc: TKMPoint;
                           aAttenuate: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean): Integer;
     procedure RemoveLoopSound(aScriptIndex: Integer);
     procedure RemoveSound(aScriptIndex: Integer; aLoopedOnly: Boolean = False);
@@ -346,7 +346,7 @@ begin
   // Check for consecutive messageNotices
   // When many warrior groups are hungry at the same time or many houses are not occupied at the same time
   // Sound should not be played N times, 1 is enought
-  if SoundID = sfx_MessageNotice then
+  if SoundID = sfxMessageNotice then
   begin
     if (fLastMessageNoticeTime > 0)
       and (GetTimeSince(fLastMessageNoticeTime) < MAX_DURATION_FROM_LAST_SND_MESSAGE_NOTICE) then
@@ -394,7 +394,7 @@ function TKMSoundPlayer.PlayWave(const aFile: UnicodeString; const Loc: TKMPoint
 begin
   Result := -1;
   if not fIsSoundInitialized then Exit;
-  Result := PlaySound(sfx_None, aFile, Loc, aSoundType, Attenuated, Volume, MAX_DISTANCE, FadeMusic, aLoop); //Redirect
+  Result := PlaySound(sfxNone, aFile, Loc, aSoundType, Attenuated, Volume, MAX_DISTANCE, FadeMusic, aLoop); //Redirect
 end;
 
 
@@ -426,7 +426,7 @@ var
 begin
   Result := -1;
   if not fIsSoundInitialized then Exit;
-  if (SoundID = sfx_None) and (aFile = '') then Exit;
+  if (SoundID = sfxNone) and (aFile = '') then Exit;
 
   //Do not play game sounds, if game is ready to stop
   if (aSoundType = stGame) and (gGame <> nil) and (gGame.ReadyToStop) then
@@ -479,7 +479,7 @@ begin
   AlSourcei(fSound[FreeBuf].ALSource, AL_BUFFER, 0);
 
   //Assign new data to buffer and assign it to source
-  if SoundID = sfx_None then
+  if SoundID = sfxNone then
   begin
     FileExt := ExtractFileExt(aFile);
     try
@@ -587,7 +587,7 @@ begin
 
   //Start playing
   AlSourcePlay(fSound[FreeBuf].ALSource);
-  if SoundID <> sfx_None then
+  if SoundID <> sfxNone then
     fSound[FreeBuf].Name := GetEnumName(TypeInfo(TSoundFX), Integer(SoundID))
   else
     fSound[FreeBuf].Name := ExtractFileName(aFile);
@@ -682,7 +682,7 @@ begin
   for I := Low(fScriptSoundIndex) to High(fScriptSoundIndex) do
     if fScriptSoundIndex[I] = -1 then
     begin
-      fScriptSoundIndex[I] := PlaySound(sfx_None, aFile, aLoc, stGame, aAttenuate, aVolume, aRadius, aFadeMusic, aLooped, True);
+      fScriptSoundIndex[I] := PlaySound(sfxNone, aFile, aLoc, stGame, aAttenuate, aVolume, aRadius, aFadeMusic, aLooped, True);
       if fScriptSoundIndex[I] <> -1 then
         Result := I; //Successfully playing
       Exit;
@@ -796,7 +796,7 @@ function TKMScriptSoundsManager.CanPlay(aIndex: Integer): Boolean;
 var
   DistanceSqr: Single;
 begin
-  Result := ((fSounds[aIndex].HandIndex = gMySpectator.HandIndex) or (fSounds[aIndex].HandIndex = PLAYER_NONE))
+  Result := ((fSounds[aIndex].HandIndex = gMySpectator.HandID) or (fSounds[aIndex].HandIndex = PLAYER_NONE))
              and (not fSounds[aIndex].Attenuate or (gMySpectator.FogOfWar.CheckTileRevelation(fSounds[aIndex].Loc.X, fSounds[aIndex].Loc.Y) > 0));
   if not Result then Exit;
 
@@ -832,7 +832,7 @@ begin
 end;
 
 
-function TKMScriptSoundsManager.AddSound(aHandIndex: TKMHandIndex; const aSoundName: AnsiString; aSoundFormat: TKMAudioFormat;
+function TKMScriptSoundsManager.AddSound(aHandIndex: TKMHandID; const aSoundName: AnsiString; aSoundFormat: TKMAudioFormat;
                                            aLoc: TKMPoint; aAttenuate: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean): Integer;
 var
   NewIndex: Integer;

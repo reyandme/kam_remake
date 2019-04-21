@@ -21,17 +21,19 @@ type
     procedure CancelTrainingUnit;
     procedure SetQueue(aIndex: Integer; aValue: TKMUnitType);
     property PrivateQueue[aIndex: Integer]: TKMUnitType read GetQueue write SetQueue;
+  protected
+    function GetResInLocked(aI: Byte): Word; override;
   public
-    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
-    procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     function AddUnitToQueue(aUnit: TKMUnitType; aCount: Byte): Byte; //Should add unit to queue if there's a place
     procedure ChangeUnitTrainOrder(aNewPosition: Integer); overload; //Change last unit in queue training order
     procedure ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer); overload; //Change unit order in queue
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
-    procedure UnitTrainingComplete(aUnit: Pointer); //This should shift queue filling rest with ut_None
+    procedure UnitTrainingComplete(aUnit: Pointer); //This should shift queue filling rest with utNone
     function GetTrainingProgress: Single;
     function QueueCount: Byte;
     function LastUnitPosInQueue: Integer;
@@ -50,14 +52,14 @@ uses
 
 
 { TKMHouseSchool }
-constructor TKMHouseSchool.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+constructor TKMHouseSchool.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
 var
   I: Integer;
 begin
   inherited;
 
   for I := 0 to High(fQueue) do
-    fQueue[I] := ut_None;
+    fQueue[I] := utNone;
 end;
 
 
@@ -79,12 +81,12 @@ end;
 
 
 //Remove all queued units first, to avoid unnecessary shifts in queue
-procedure TKMHouseSchool.DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False);
+procedure TKMHouseSchool.DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False);
 var
   I: Integer;
 begin
   for I := 1 to High(fQueue) do
-    PrivateQueue[I] := ut_None;
+    PrivateQueue[I] := utNone;
   RemUnitFromQueue(0); //Remove WIP unit
 
   inherited;
@@ -111,7 +113,7 @@ begin
   Result := 0;
   for K := 1 to Min(aCount, Length(fQueue)) do
   for I := 1 to High(fQueue) do
-  if fQueue[I] = ut_None then
+  if fQueue[I] = utNone then
   begin
     Inc(Result);
     PrivateQueue[I] := aUnit;
@@ -124,23 +126,34 @@ end;
 
 procedure TKMHouseSchool.CancelTrainingUnit;
 begin
-  SetState(hst_Idle);
+  SetState(hstIdle);
   if fUnitWip <> nil then
   begin //Make sure unit started training
     TKMUnit(fUnitWip).CloseUnit(False); //Don't remove tile usage, we are inside the school
     fHideOneGold := False;
+    //Add 1 gold to offer to take it out
+    if DeliveryMode = dmTakeOut then
+      gHands[fOwner].Deliveries.Queue.AddOffer(Self, wtGold, 1);
   end;
   fUnitWip := nil;
-  PrivateQueue[0] := ut_None; //Removed the in training unit
+  PrivateQueue[0] := utNone; //Removed the in training unit
+end;
+
+
+function TKMHouseSchool.GetResInLocked(aI: Byte): Word;
+begin
+  Result := inherited GetResInLocked(aI);
+  if aI = 1 then //for gold only (1 - based)
+    Inc(Result, Byte(HideOneGold)); //We Lock 1 gold if its hidden (while unit training)
 end;
 
 
 procedure TKMHouseSchool.SetQueue(aIndex: Integer; aValue: TKMUnitType);
 begin
-  if fQueue[aIndex] <> ut_None then
+  if fQueue[aIndex] <> utNone then
     gHands[fOwner].Stats.UnitRemovedFromTrainingQueue(fQueue[aIndex]);
 
-  if aValue <> ut_None then
+  if aValue <> utNone then
     gHands[fOwner].Stats.UnitAddedToTrainingQueue(aValue);
   fQueue[aIndex] := aValue;
 end;
@@ -165,10 +178,10 @@ begin
 
   // Do not cancel current training process, if unit type is the same.
   // Or set newPos to 1, if there is no training now (no gold, for example)
-  if (aNewPosition = 0) and ((fQueue[aOldPosition] = fQueue[0]) or (fQueue[0] = ut_None)) then
+  if (aNewPosition = 0) and ((fQueue[aOldPosition] = fQueue[0]) or (fQueue[0] = utNone)) then
     aNewPosition := 1;
 
-  if (fQueue[aOldPosition] = ut_None) or (aOldPosition = aNewPosition) then Exit;
+  if (fQueue[aOldPosition] = utNone) or (aOldPosition = aNewPosition) then Exit;
 
   Assert(aNewPosition < aOldPosition);
 
@@ -191,7 +204,7 @@ procedure TKMHouseSchool.RemUnitFromQueue(aID: Byte);
 var
   I: Integer;
 begin
-  if fQueue[aID] = ut_None then Exit; //Ignore clicks on empty queue items
+  if fQueue[aID] = utNone then Exit; //Ignore clicks on empty queue items
 
   if aID = 0 then
   begin
@@ -202,14 +215,17 @@ begin
   begin
     for I := aID to High(fQueue) - 1 do
       PrivateQueue[I] := fQueue[I+1]; //Shift by one
-    PrivateQueue[High(fQueue)] := ut_None; //Set the last one empty
+    PrivateQueue[High(fQueue)] := utNone; //Set the last one empty
   end;
 end;
 
 
 procedure TKMHouseSchool.CreateUnit;
 begin
-  fHideOneGold := true;
+  fHideOneGold := True;
+  //Remove 1 gold from offer to take it out
+  if DeliveryMode = dmTakeOut then
+    gHands[fOwner].Deliveries.Queue.RemOffer(Self, wtGold, 1);
 
   //Create the Unit
   fUnitWip := gHands[fOwner].TrainUnit(fQueue[0], Entrance);
@@ -222,13 +238,13 @@ end;
 procedure TKMHouseSchool.StartTrainingUnit;
 var I: Integer;
 begin
-  if fQueue[0] <> ut_None then exit; //If there's currently no unit in training
-  if fQueue[1] = ut_None then exit; //If there is a unit waiting to be trained
-  if CheckResIn(wt_Gold) = 0 then exit; //There must be enough gold to perform training
+  if fQueue[0] <> utNone then exit; //If there's currently no unit in training
+  if fQueue[1] = utNone then exit; //If there is a unit waiting to be trained
+  if CheckResIn(wtGold) = 0 then exit; //There must be enough gold to perform training
 
   for I := 0 to High(fQueue) - 1 do
     PrivateQueue[I] := fQueue[I+1]; //Shift by one
-  PrivateQueue[High(fQueue)] := ut_None; //Set the last one empty
+  PrivateQueue[High(fQueue)] := utNone; //Set the last one empty
 
   CreateUnit;
 end;
@@ -240,12 +256,12 @@ begin
   Assert(aUnit = fUnitWip, 'Should be called only by Unit itself when it''s trained');
 
   fUnitWip := nil;
-  PrivateQueue[0] := ut_None; //Clear the unit in training
+  PrivateQueue[0] := utNone; //Clear the unit in training
   //Script command might have taken the gold while we were training, in which case ignore it (either way, gold is consumed)
-  if CheckResIn(wt_Gold) > 0 then
+  if CheckResIn(wtGold) > 0 then
   begin
-    ResTakeFromIn(wt_Gold); //Do the goldtaking
-    gHands[fOwner].Stats.WareConsumed(wt_Gold);
+    ResTakeFromIn(wtGold); //Do the goldtaking
+    gHands[fOwner].Stats.WareConsumed(wtGold);
   end;
   fHideOneGold := False;
   fTrainProgress := 0;
@@ -268,11 +284,11 @@ begin
     Result := 0
   else
     Result := (
-              Byte(ha_Work2 in CurrentAction.SubAction) * 30 +
-              Byte(ha_Work3 in CurrentAction.SubAction) * 60 +
-              Byte(ha_Work4 in CurrentAction.SubAction) * 90 +
-              Byte(ha_Work5 in CurrentAction.SubAction) * 120 +
-              Byte(CurrentAction.State = hst_Work) * WorkAnimStep
+              Byte(haWork2 in CurrentAction.SubAction) * 30 +
+              Byte(haWork3 in CurrentAction.SubAction) * 60 +
+              Byte(haWork4 in CurrentAction.SubAction) * 90 +
+              Byte(haWork5 in CurrentAction.SubAction) * 120 +
+              Byte(CurrentAction.State = hstWork) * WorkAnimStep
               ) / 150;
 end;
 
@@ -283,7 +299,7 @@ var
 begin
   Result := True;
   for I := 0 to High(fQueue) do
-    Result := Result and (fQueue[I] = ut_None);
+    Result := Result and (fQueue[I] = utNone);
 end;
 
 
@@ -293,7 +309,7 @@ var
 begin
   Result := 0;
   for I := 0 to High(fQueue) do
-    if fQueue[I] <> ut_None then
+    if fQueue[I] <> utNone then
       Inc(Result);
 end;
 
@@ -305,14 +321,14 @@ var I: Integer;
 begin
   Result := -1;
   for I := 0 to High(fQueue) do
-    if fQueue[I] <> ut_None then
+    if fQueue[I] <> utNone then
       Result := I
 end;
 
 
 function TKMHouseSchool.QueueIsFull: Boolean;
 begin
-  Result := (fQueue[High(fQueue)] <> ut_None);
+  Result := (fQueue[High(fQueue)] <> utNone);
 end;
 
 

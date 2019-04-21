@@ -27,14 +27,15 @@ type
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
     TownDefence: Integer; //-1 means not used or default
     WorkerCount: Byte;
-    AutoAttackRange: Byte; // Auto attack range for close combat warriors (used in KM_Units_Warrior)
+    AutoAttackRange: Byte; // Auto attack range for close combat warriors (used in KM_UnitWarrior)
 
     constructor Create;
     function GetEquipRate(aUnit: TKMUnitType): Word;
     function WarriorsPerMinute(aArmy: TKMArmyType): Single; overload;
     function WarriorsPerMinute: Single; overload;
 
-    procedure ApplyAgressiveBuilderSetup(aNewAI: Boolean = False);
+    procedure ApplyMultiplayerSetup(aNewAI: Boolean);
+    procedure EnableAdvancedAI(aNewAI: Boolean = True);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -106,9 +107,8 @@ end;
 
 
 //Used from MapEd to give multiplayer building maps an AI builder config
-procedure TKMHandAISetup.ApplyAgressiveBuilderSetup(aNewAI: Boolean = False);
+procedure TKMHandAISetup.ApplyMultiplayerSetup(aNewAI: Boolean);
 begin
-  NewAI := aNewAI;
   SerfsPerHouse := 1;
   WorkerCount := 20;
   ArmyType := atIronAndLeather; //Mixed army
@@ -125,6 +125,13 @@ begin
   RecruitDelay := 0;
   RecruitCount := 10;
   AutoAttackRange := 6;
+  EnableAdvancedAI(aNewAI);
+end;
+
+
+procedure TKMHandAISetup.EnableAdvancedAI(aNewAI: Boolean = True);
+begin
+  NewAI := aNewAI;
   if NewAI then
     AutoAttackRange := 0; // It force units to attack the closest enemy (it should decide AI not command)
 end;

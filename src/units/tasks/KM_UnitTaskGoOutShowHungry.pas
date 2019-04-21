@@ -21,39 +21,39 @@ uses
 constructor TKMTaskGoOutShowHungry.Create(aUnit:TKMUnit);
 begin
   inherited Create(aUnit);
-  fTaskName := utn_GoOutShowHungry;
+  fType := uttGoOutShowHungry;
 end;
 
 
 function TKMTaskGoOutShowHungry.Execute: TKMTaskResult;
 begin
-  Result := tr_TaskContinues;
-  if fUnit.GetHome.IsDestroyed then
+  Result := trTaskContinues;
+  if fUnit.Home.IsDestroyed then
   begin
-    Result := tr_TaskDone;
+    Result := trTaskDone;
     Exit;
   end;
 
   with fUnit do
   case fPhase of
     0: begin
-         Thought := th_Eat;
-         SetActionStay(20,ua_Walk);
+         Thought := thEat;
+         SetActionStay(20,uaWalk);
        end;
     1: begin
-         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome);
-         GetHome.SetState(hst_Empty);
+         SetActionGoIn(uaWalk,gdGoOutside,fUnit.Home);
+         Home.SetState(hstEmpty);
        end;
-    2: SetActionLockedStay(4,ua_Walk);
-    3: SetActionWalkToSpot(fUnit.GetHome.PointBelowEntrance);
-    4: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.GetHome);
+    2: SetActionLockedStay(4,uaWalk);
+    3: SetActionWalkToSpot(fUnit.Home.PointBelowEntrance);
+    4: SetActionGoIn(uaWalk,gdGoInside,fUnit.Home);
     5: begin
-         SetActionStay(20+KaMRandom(10, 'TKMTaskGoOutShowHungry.Execute'), ua_Walk);
-         GetHome.SetState(hst_Idle);
+         SetActionStay(20+KaMRandom(10, 'TKMTaskGoOutShowHungry.Execute'), uaWalk);
+         Home.SetState(hstIdle);
        end;
     else begin
-         Thought := th_None;
-         Result := tr_TaskDone;
+         Thought := thNone;
+         Result := trTaskDone;
        end;
   end;
   inc(fPhase);

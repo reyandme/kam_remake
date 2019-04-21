@@ -48,7 +48,7 @@ begin
 
   Panel_Selection := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
 
-  TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_COPY_TITLE], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_COPY_TITLE], fntOutline, taCenter);
   Button_SelectCopy := TKMButton.Create(Panel_Selection, 10, 30, TB_WIDTH - 20, 20, gResTexts[TX_MAPED_COPY], bsGame);
   Button_SelectCopy.Hint := GetHintWHotKey(TX_MAPED_COPY_COPY_HINT, SC_MAPEDIT_SUB_MENU_ACTION_1);
   Button_SelectCopy.OnClick := SelectionClick;
@@ -73,7 +73,7 @@ begin
   Button_SelectFlipV.Hint := GetHintWHotKey(TX_MAPED_COPY_PASTE_VFLIP_HINT, SC_MAPEDIT_SUB_MENU_ACTION_6);
   Button_SelectFlipV.OnClick := SelectionClick;
 
-  with TKMLabel.Create(Panel_Selection, 8, 250, TB_WIDTH-16, 80, gResTexts[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
+  with TKMLabel.Create(Panel_Selection, 8, 250, TB_WIDTH-16, 80, gResTexts[TX_MAPED_COPY_SELECT_HINT], fntGrey, taLeft) do
     AutoWrap := True;
 
   Button_RMGRND := TKMButton.Create(Panel_Selection, 10, 300, TB_WIDTH - 20, 20, 'RMG Settings', bsGame); //Todo translate
@@ -164,14 +164,14 @@ begin
   if Sender = Button_SelectFlipH then
   begin
     //Flip selected
-    gGame.MapEditor.Selection.Selection_Flip(fa_Horizontal);
+    gGame.MapEditor.Selection.Selection_Flip(faHorizontal);
     gGame.MapEditor.TerrainPainter.MakeCheckpoint;
   end
   else
   if Sender = Button_SelectFlipV then
   begin
     //Flip selected
-    gGame.MapEditor.Selection.Selection_Flip(fa_Vertical);
+    gGame.MapEditor.Selection.Selection_Flip(faVertical);
     gGame.MapEditor.TerrainPainter.MakeCheckpoint;
   end;
 end;

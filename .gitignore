@@ -16,7 +16,7 @@
 *.rar
 *.log.txt
 bugreport.txt
-/bat/bat_rsvars_local.bat
+/bat/rsvars_local.bat
 /KaM_Remake.drc
 /KaM_Remake.map
 /KaM_Remake.res
@@ -33,6 +33,7 @@ bugreport.txt
 /data/defines/houses.dat
 /data/defines/pattern.dat
 /data/defines/unit.dat
+/data/gfx/video 
 /data/gfx/*.bbm
 /data/gfx/*.lbm
 /data/sfx

@@ -41,6 +41,7 @@ type
     procedure Show(aPage: TKMTownTab);
     function IsVisible(aPage: TKMTownTab): Boolean;
     function Visible: Boolean; override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
     procedure ChangePlayer;
     procedure UpdatePlayerColor;
     procedure UpdateState;
@@ -179,6 +180,12 @@ begin
 end;
 
 
+procedure TKMMapEdTown.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+begin
+  fGuiScript.KeyDown(Key, Shift, aHandled);
+end;
+
+
 function TKMMapEdTown.IsVisible(aPage: TKMTownTab): Boolean;
 begin
   case aPage of
@@ -196,7 +203,7 @@ procedure TKMMapEdTown.ChangePlayer;
 var
   isAI: Boolean;
 begin
-  isAI := gGame.MapEditor.PlayerClassicAI[gMySpectator.HandIndex] or gGame.MapEditor.PlayerAdvancedAI[gMySpectator.HandIndex];
+  isAI := gGame.MapEditor.PlayerClassicAI[gMySpectator.HandID] or gGame.MapEditor.PlayerAdvancedAI[gMySpectator.HandID];
 
   Button_Town[ttScript].Enabled := isAI;
   Button_Town[ttDefences].Enabled := isAI;

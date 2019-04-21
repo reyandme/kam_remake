@@ -1,4 +1,4 @@
-﻿0:Sawmill
+0:Sawmill
 1:Iron smithy
 2:Weapon smithy
 3:Coal mine
@@ -449,7 +449,7 @@
 454:Set a limit on how many soldiers the AI can have
 455:How many soldiers AI can have at once
 456:Set max. soldiers
-457:How many recruits AI should have in barracks
+457:Classic AI: How many recruits AI should have in barracks|Advanced AI: Parameter not used
 458:Recruits per Barracks
 460:Custom position
 463:Closest unit
@@ -752,7 +752,7 @@
 799:%s voted to return to the lobby (vote passed)
 800:The vote to return to the lobby failed
 801:Deleting a replay also deletes the associated save. Are you sure you want to delete this save?
-802:Take randomly
+802:Take all
 803:Number of soldiers to attack
 804:Delete Replay
 805:Delete Map
@@ -761,8 +761,8 @@
 808:Show scripted overlay
 809:You cannot change host when the server is running in your client
 810:AI creates and manages attacks automatically
-811:Fast equip
-812:Soldiers are equipped as fast as possible. Equip rates still affect village planning
+811:Unlimited equip
+812:Classic AI: Soldiers are equipped as fast as possible. Equip rates still affect village planning|Advanced AI: No equip limit
 813:Apply AI defaults
 814:Multiplayer builder
 815:Applies aggressive AI builder settings to all players (for multiplayer building maps)
@@ -1119,7 +1119,7 @@
 1170:By players number
 1171:Back to game
 1172:Show detailed game statistics
-1173:Difficulty
+1173:Difficulty level
 1174:Easy
 1175:Normal
 1176:Hard
@@ -1134,7 +1134,7 @@
 1185:Go to selected house
 1186:Go to selected unit
 1187:Ally / enemy |color mode
-1188:Use self / ally / enemy colors for players instead of initial player colors
+1188:Self/ally/enemy colors for players instead of initial player colors
 1189:[$404040]Host is ready to start. Please press '[][$0707FF]%s[][$404040]'[]
 1190:Ask to press Ready
 1191:Alert to get ready was sent to %s players
@@ -1175,3 +1175,29 @@
 1226:Citizens
 1227:Army
 1228:Dismiss is not available for hungry units
+1229:Classic AI|Parameters
+1230:Setup AI Parameters used only by Classic AI
+1231:Classic AI Parameters
+1232:Take every group type
+1233:Difficulty
+1234:%s is away from keyboard for last %s [$00B0FF]minutes[]
+1235:Data export could take up to several minutes.\nExported data will be stored in '%s' folder.\nDo you confirm operation?
+1236:The procedure [ %s ] declared for the script console command /%s was not found
+1237:Wrong parameter type for script command /%s: [%s] 
+1238:Wrong first parameter type for script command /%s. Expected: [%s], actual: [%s] 
+1239:Too many parameters for script command /%s: [%s]. Max number of parameters is [%s] (including mandatory HandID parameter)
+1240:Wrong parameters for script command /%s. Expected parameters types are: [%s]  
+1241:Too many parameters passed to script command /%s: Expected parameters count [ %s ], actual: [ %s ]
+1242:Command called: /%s(%s)
+1243:Error while calling script command /%s(%s)
+1244:Script console command /%s not found
+1245:Enable/Disable copy-paste from chat window
+1246:Save replay state to be able to load while watching this replay
+1247:Load replay at %s
+1248:Players colors:
+1249:Default
+1250:Ally / Enemy
+1251:Teams
+1252:Show initial players colors
+1253:Show self / ally / enemy players colors
+1254:Show teams colors

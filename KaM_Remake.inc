@@ -13,6 +13,7 @@
 {$IFDEF VER300} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10 Seattle compiler
 {$IFDEF VER310} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10.1 Berlin compiler
 {$IFDEF VER320} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10.2 Tokyo compiler
+{$IFDEF VER330} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10.3 Rio compiler
 {.$DEFINE FPC} //Define Free Pascal compiler (defined automatically by Lazarus)
 
 //Lazarus compiler specific settings

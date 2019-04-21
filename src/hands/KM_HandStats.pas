@@ -39,10 +39,10 @@ type
 
   // Army chart kind
   TKMChartArmyKind = (
-    cak_Instantaneous, // Charts of in game warriors quantities
-    cak_Total,         // Charts of total army trained (includes initial army)
-    cak_Defeated,
-    cak_Lost);
+    cakInstantaneous, // Charts of in game warriors quantities
+    cakTotal,         // Charts of total army trained (includes initial army)
+    cakDefeated,
+    cakLost);
 
   //Player statistics (+ ratios, house unlock, trade permissions)
   TKMHandStats = class
@@ -54,8 +54,8 @@ type
     fChartArmy: array[TKMChartArmyKind] of array[WARRIOR_MIN..WARRIOR_MAX] of TKMCardinalArray;
     fChartWares: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
     // No need to save fArmyEmpty array, as it will be still same after load and 1 HandStats update (which we always do on game exit)
-    // It's important to use cak_Total instead of cak_Instantenious, because Inst. can be empty even after load and 1 update state!
-    fArmyEmpty: array[cak_Total..cak_Lost] of array [WARRIOR_MIN..WARRIOR_MAX] of Boolean;
+    // It's important to use cakTotal instead of cakInstantenious, because Inst. can be empty even after load and 1 update state!
+    fArmyEmpty: array[cakTotal..cakLost] of array [WARRIOR_MIN..WARRIOR_MAX] of Boolean;
 
     Houses: array [TKMHouseType] of TKMHouseStats;
     Units: array [HUMANS_MIN..HUMANS_MAX] of TKMUnitStats;
@@ -160,7 +160,7 @@ begin
 
   fWareDistribution := TKMWareDistribution.Create;
 
-  for CKind := cak_Total to cak_Lost do
+  for CKind := cakTotal to cakLost do
     for WT := WARRIOR_MIN to WARRIOR_MAX do
       fArmyEmpty[CKind,WT] := True;
 end;
@@ -257,7 +257,7 @@ begin
   if aWasTrained then
   begin
     Inc(Units[aType].Trained);
-    if aFromTownHall and (aType = ut_Militia) then
+    if aFromTownHall and (aType = utMilitia) then
       Inc(MilitiaTrainedInTownHall);
   end else
     Inc(Units[aType].Initial);
@@ -278,7 +278,7 @@ end;
 
 procedure TKMHandStats.WareInitial(aRes: TKMWareType; aCount: Cardinal);
 begin
-  if aRes <> wt_None then
+  if aRes <> wtNone then
     Inc(Wares[aRes].Initial, aCount);
 end;
 
@@ -286,9 +286,9 @@ end;
 procedure TKMHandStats.WareProduced(aRes: TKMWareType; aCount: Cardinal);
 var R: TKMWareType;
 begin
-  if aRes <> wt_None then
+  if aRes <> wtNone then
     case aRes of
-      wt_All:     for R := WARE_MIN to WARE_MAX do
+      wtAll:     for R := WARE_MIN to WARE_MAX do
                     Inc(Wares[R].Produced, aCount);
       WARE_MIN..
       WARE_MAX:   Inc(Wares[aRes].Produced, aCount);
@@ -299,7 +299,7 @@ end;
 
 procedure TKMHandStats.WareConsumed(aRes: TKMWareType; aCount: Cardinal = 1);
 begin
-  if aRes <> wt_None then
+  if aRes <> wtNone then
     Inc(Wares[aRes].Consumed, aCount);
 end;
 
@@ -414,14 +414,14 @@ var
 begin
   Result := 0;
   case aType of
-    ut_None: ;
-    ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
+    utNone: ;
+    utAny:     for UT := HUMANS_MIN to HUMANS_MAX do
                   Inc(Result, Units[UT].Initial + Units[UT].Trained - Units[UT].Lost);
     else        begin
                   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
-                  if aType = ut_Recruit then
+                  if aType = utRecruit then
                     for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
-                      if UT = ut_Militia then
+                      if UT = utMilitia then
                         Dec(Result, Units[UT].Trained - MilitiaTrainedInTownHall) //Do not count militia, trained in TownHall, only in Barracks
                       else
                         Dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
@@ -436,8 +436,8 @@ var
 begin
   Result := 0;
   case aType of
-    ut_None: ;
-    ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
+    utNone: ;
+    utAny:     for UT := HUMANS_MIN to HUMANS_MAX do
                   Inc(Result, Units[UT].Training);
     else        Result := Units[aType].Training;
   end;
@@ -463,10 +463,10 @@ var
 begin
   Result := 0;
   case aRT of
-    wt_None:    ;
-    wt_All:     for RT := WARE_MIN to WARE_MAX do
+    wtNone:    ;
+    wtAll:     for RT := WARE_MIN to WARE_MAX do
                   Inc(Result, Wares[RT].Initial + Wares[RT].Produced - Wares[RT].Consumed);
-    wt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
+    wtWarfare: for RT := WARFARE_MIN to WARFARE_MAX do
                   Inc(Result, Wares[RT].Initial + Wares[RT].Produced - Wares[RT].Consumed);
     else        Result := Wares[aRT].Initial + Wares[aRT].Produced - Wares[aRT].Consumed;
   end;
@@ -585,10 +585,10 @@ var RT: TKMWareType;
 begin
   Result := 0;
   case aRT of
-    wt_None:    ;
-    wt_All:     for RT := WARE_MIN to WARE_MAX do
+    wtNone:    ;
+    wtAll:     for RT := WARE_MIN to WARE_MAX do
                   Inc(Result, Wares[RT].Produced);
-    wt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
+    wtWarfare: for RT := WARFARE_MIN to WARFARE_MAX do
                   Inc(Result, Wares[RT].Produced);
     else        Result := Wares[aRT].Produced;
   end;
@@ -632,7 +632,7 @@ var
 begin
   case aWare of
     WARE_MIN..WARE_MAX: Result := fChartWares[aWare];
-    wt_All:             begin
+    wtAll:             begin
                           //Create new array and fill it (otherwise we assign pointers and corrupt data)
                           SetLength(Result, fChartCount);
                           for I := 0 to fChartCount - 1 do
@@ -641,7 +641,7 @@ begin
                           for I := 0 to fChartCount - 1 do
                             Result[I] := Result[I] + fChartWares[RT][I];
                         end;
-    wt_Warfare:         begin
+    wtWarfare:         begin
                           //Create new array and fill it (otherwise we assign pointers and corrupt data)
                           SetLength(Result, fChartCount);
                           for I := 0 to fChartCount - 1 do
@@ -650,11 +650,11 @@ begin
                           for I := 0 to fChartCount - 1 do
                             Result[I] := Result[I] + fChartWares[RT][I];
                         end;
-    wt_Food:            begin
+    wtFood:            begin
                           //Create new array and fill it (otherwise we assign pointers and corrupt data)
                           SetLength(Result, fChartCount);
                           for I := 0 to fChartCount - 1 do
-                            Result[I] := fChartWares[wt_Bread][I] + fChartWares[wt_Sausages][I] + fChartWares[wt_Wine][I] + fChartWares[wt_Fish][I];
+                            Result[I] := fChartWares[wtBread][I] + fChartWares[wtSausages][I] + fChartWares[wtWine][I] + fChartWares[wtFish][I];
                         end;
     else                begin
                           //Return empty array
@@ -673,7 +673,7 @@ var
 begin
   case aWarrior of
     WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmy[aChartKind,aWarrior];
-    ut_Any:                   begin
+    utAny:                   begin
                                 //Create new array and fill it (otherwise we assign pointers and corrupt data)
                                 SetLength(Result, fChartCount);
                                 for I := 0 to fChartCount - 1 do
@@ -698,25 +698,25 @@ var
 begin
   case aWare of
     WARE_MIN..WARE_MAX: Result := (fChartCount = 0) or (ChartWares[aWare][fChartCount-1] = 0);
-    wt_All:             begin
+    wtAll:             begin
                           Result := True;
                           if fChartCount > 0 then
                             for RT := WARE_MIN to WARE_MAX do
                               if ChartWares[RT][fChartCount-1] <> 0 then
                                 Result := False;
                         end;
-    wt_Warfare:         begin
+    wtWarfare:         begin
                           Result := True;
                           if fChartCount > 0 then
                             for RT := WARFARE_MIN to WARFARE_MAX do
                               if ChartWares[RT][fChartCount-1] <> 0 then
                                 Result := False;
                         end;
-    wt_Food:            Result := (fChartCount = 0) or
-                                  (ChartWares[wt_Wine][fChartCount-1] +
-                                   ChartWares[wt_Bread][fChartCount-1] +
-                                   ChartWares[wt_Sausages][fChartCount-1] +
-                                   ChartWares[wt_Fish][fChartCount-1] = 0);
+    wtFood:            Result := (fChartCount = 0) or
+                                  (ChartWares[wtWine][fChartCount-1] +
+                                   ChartWares[wtBread][fChartCount-1] +
+                                   ChartWares[wtSausages][fChartCount-1] +
+                                   ChartWares[wtFish][fChartCount-1] = 0);
     else                Result := True;
   end;
 end;
@@ -727,8 +727,8 @@ begin
   //Total and Instantaneous are always empty at the same time, so we can use only one of them
   //Important is that Total will be not empty even after game load, but instantenious could be empty after load.
   //That is why we can omit saving fArmyEmpty array, and need to use Total instead of Instantenious for fArmyEmpty
-  if aChartKind = cak_Instantaneous then
-    Result := cak_Total
+  if aChartKind = cakInstantaneous then
+    Result := cakTotal
   else
     Result := aChartKind;
 end;
@@ -743,7 +743,7 @@ begin
   case aWarrior of
     WARRIOR_MIN..WARRIOR_MAX:
                         Result := (fChartCount = 0) or (fArmyEmpty[CKind,aWarrior]);
-    ut_Any:             begin
+    utAny:             begin
                           Result := True;
                           if fChartCount > 0 then
                             for WT := WARRIOR_MIN to WARRIOR_MAX do
@@ -930,10 +930,10 @@ end;
 function TKMHandStats.GetArmyChartValue(aChartKind: TKMChartArmyKind; aUnitType: TKMUnitType): Integer;
 begin
   case aChartKind of
-    cak_Instantaneous:  Result := GetUnitQty(aUnitType);
-    cak_Total:          Result := GetWarriorsTotal(aUnitType);
-    cak_Defeated:       Result := GetUnitKilledQty(aUnitType);
-    cak_Lost:           Result := GetUnitLostQty(aUnitType);
+    cakInstantaneous:  Result := GetUnitQty(aUnitType);
+    cakTotal:          Result := GetWarriorsTotal(aUnitType);
+    cakDefeated:       Result := GetUnitKilledQty(aUnitType);
+    cakLost:           Result := GetUnitLostQty(aUnitType);
     else                raise Exception.Create('Unknowkn chart army kind');
   end;
 end;
@@ -966,7 +966,7 @@ begin
   //become soldiers, and continually fluctuates. Recruits dominate the Chart, meaning you can't use
   //it for the intended purpose of looking at your villagers. The army Chart already indicates when
   //you trained soldiers, no need to see big variations in the citizens Chart because of recruits.
-  fChartCitizens[fChartCount] := GetCitizensCount - GetUnitQty(ut_Recruit);
+  fChartCitizens[fChartCount] := GetCitizensCount - GetUnitQty(utRecruit);
 
   for I := WARE_MIN to WARE_MAX do
     fChartWares[I, fChartCount] := Wares[I].Produced;

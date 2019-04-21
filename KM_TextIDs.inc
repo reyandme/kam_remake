@@ -420,6 +420,8 @@ TX_REPLAY_RESUME = 360; //Resume paused replay
 TX_REPLAY_QUIT = 361; //Quit replay
 TX_REPLAY_PLAYER_PERSPECTIVE = 362; //Toggle individual player perspective
 TX_REPLAY_SHOW_FOG = 771; //Show fog
+TX_REPLAY_SAVE_AT = 1246; //Save replay state to be able to load while watching this replay
+TX_REPLAY_LOAD_AT_HINT = 1247; //Load replay at %s
 
 TX_HOUSES_MARKET_SELECT_LEFT = 364; //Use the left mouse button to select the ware to trade
 TX_HOUSES_MARKET_SELECT_RIGHT = 365; //Use the right mouse button to select the ware to trade
@@ -538,12 +540,12 @@ TX_MAPED_AI_FORMATIONS = 453; //Edit formations
 TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT = 454; //Set a limit on how many soldiers the AI can have
 TX_MAPED_AI_MAX_SOLDIERS_HINT = 455; //How many soldiers AI can have at once
 TX_MAPED_AI_MAX_SOLDIERS = 456; //Set max. soldiers
-TX_MAPED_AI_RECRUITS_HINT = 457; //How many recruits AI should have in barracks
+TX_MAPED_AI_RECRUITS_HINT = 457; //Classic AI: How many recruits AI should have in barracks|Advanced AI: Parameter not used
 TX_MAPED_AI_RECRUITS = 458; //Recruits per Barracks
 TX_MAPED_AI_RECRUIT_DELAY = 670; //Recruit delay (mins)
 TX_MAPED_AI_RECRUIT_DELAY_HINT = 669; //Delay in minutes before the AI starts training recruits
 TX_MAPED_AI_AUTO_ATTACK = 774; //Auto attack range
-TX_MAPED_AI_AUTO_ATTACK_HINT = 775; //AI groups will automatically attack if you are closer than this many tiles
+TX_MAPED_AI_AUTO_ATTACK_HINT = 775; //Classic AI: AI groups will automatically attack if you are closer than this many tiles|Advanced AI: Parameter not used
 TX_MAPED_AI_DEFEND_ALLIES = 776; //Defend allies
 TX_MAPED_AI_DEFEND_ALLIES_HINT = 777; //If enabled the AI will defend units and houses of allies as if they were its own
 TX_MAPED_AI_ARMY_TYPE = 817; //Army type
@@ -555,7 +557,8 @@ TX_MAPED_AI_TARGET_CUSTOM = 460; //Custom position
 TX_MAPED_AI_TARGET_HOUSE_START = 791; //Closest house from start position
 TX_MAPED_AI_TARGET_HOUSE_ARMY = 790; //Closest house from army
 TX_MAPED_AI_TARGET_CLOSEST = 463; //Closest unit
-TX_MAPED_AI_ATTACK_TAKE_RANDOMLY = 802; //Take randomly
+TX_MAPED_AI_ATTACK_TAKE_ALL = 802; //Take all
+TX_MAPED_AI_ATTACK_TAKE_ALL_HINT = 1232; //Take every group type
 TX_MAPED_AI_ATTACK_COUNT = 465; //Group count
 TX_MAPED_AI_ATTACK_INFO = 466; //Attack info
 TX_MAPED_AI_ATTACK_DELAY = 788; //Initial delay (seconds)
@@ -600,6 +603,9 @@ TX_MAPED_AI_FASTEQUIP_HINT = 812; //Soldiers are equipped as fast as possible. E
 TX_MAPED_AI_START = 785; //AI start position
 TX_MAPED_AI_START_HINT = 784; //Sets the AI start position which is used for targeting AI attacks
 TX_MAPED_AI_TITLE = 491; //AI settings
+TX_MAPED_AI_CLASSIC_AI_PARAMS = 1229; //Classic AI Params
+TX_MAPED_AI_CLASSIC_AI_PARAMS_HINT = 1230; //Setup AI Parameters used only by Classic AI
+TX_MAPED_AI_CLASSIC_AI_PARAMS_TITLE = 1231; //Classic AI Parameters
 TX_MAPED_HOUSES_TITLE = 492; //Houses
 TX_MAPED_ROAD_TITLE = 493; //Roadworks
 TX_MAPED_COPY_SELECT_HINT = 679; //Drag to select an area on the map
@@ -1185,6 +1191,7 @@ TX_RESULTS_BACK_TO_GAME = 1171; //Back to game
 TX_GAME_MENU_SHOW_STATS_HINT = 1172; //Show detailed game statistics
 
 TX_MISSION_DIFFICULTY = 1173; //Difficulty
+TX_MISSION_DIFFICULTY_CAMPAIGN = 1233; //Difficulty|level
 TX_MISSION_DIFFICULTY_EASY = 1174; //Easy
 TX_MISSION_DIFFICULTY_NORMAL = 1175; //Normal
 TX_MISSION_DIFFICULTY_HARD = 1176; //Hard
@@ -1202,7 +1209,14 @@ TX_HOUSE_LOGO_HINT = 1185; //Go to selected house
 TX_UNIT_SCROLL_HINT = 1186; //Go to selected unit
 
 TX_GAME_SETTINGS_COLOR_MODE = 1187; //Ally / enemy color mode
-TX_GAME_SETTINGS_COLOR_MODE_HINT = 1188; //Use self/ally/enemy colors for players instead of initial player colors
+TX_GAME_SETTINGS_COLOR_MODE_HINT = 1188; //Self/ally/enemy colors for players instead of initial player colors
+TX_PLAYERS_COLOR_MODE_CAPTION = 1248; //Players color mode:
+TX_PLAYERS_COLOR_MODE_DEFAULT = 1249; //Default
+TX_PLAYERS_COLOR_MODE_ALLY_ENEMY = 1250; //Ally / Enemy
+TX_PLAYERS_COLOR_MODE_TEAMS = 1251; //Teams
+TX_PLAYERS_COLOR_MODE_DEFAULT_HINT = 1252; //Show initial players colors
+TX_PLAYERS_COLOR_MODE_ALLY_ENEMY_HINT = 1253; //Show self / ally / enemy players colors
+TX_PLAYERS_COLOR_MODE_TEAMS_HINT = 1254; //Show teams colors
 
 TX_LOBBY_ALERT_NOT_READY = 1189; //Host is ready to start. Please press '%s'
 TX_LOBBY_ALERT_READY_BTN = 1190; //Ask to press Ready
@@ -1250,3 +1264,20 @@ TX_WORD_CITIZENS = 1226; //Citizens
 TX_WORD_ARMY = 1227; //Army
 
 TX_UNIT_TASK_DISMISS_HUNGRY_HINT = 1228; //Dismiss is not available for hungry units
+
+TX_PLAYER_AFK_MESSAGE = 1234; //%s is away from keyboard for last %s minutes
+//console commands validation
+TX_SCRIPT_CONSOLE_CMD_PROC_NOT_FOUND = 1236; //The procedure [ %s ] declared for the script console command /%s was not found
+TX_SCRIPT_CONSOLE_CMD_WRONG_PARAM_TYPE = 1237; //Wrong parameter type for script command /%s: [ %s ] 
+TX_SCRIPT_CONSOLE_CMD_WRONG_1ST_PARAM_TYPE = 1238; //Wrong first parameter type for script command /%s. Expected: [ %s ], actual: [ %s ] 
+TX_SCRIPT_CONSOLE_CMD_TOO_MANY_PROC_PARAMS = 1239; //Too many parameters for script command /%s: [ %s ]. Max number of parameters is [%s] (including mandatory HandID parameter)
+//runtime console errors or output
+TX_SCRIPT_CONSOLE_CMD_PARAMS_NOT_VALID = 1240; //Wrong parameters for script command /%s. Expected parameters types are: [%s] 
+TX_SCRIPT_CONSOLE_CMD_TOO_MANY_PARAMS = 1241; //Too many parameters passed to script command /%s: Expected parameters count [ %s ], actual: [ %s ]
+TX_SCRIPT_CONSOLE_CMD_CALLED = 1242; //Command called: /%s(%s)
+TX_SCRIPT_CONSOLE_CMD_PARSING_ERROR = 1243; //Error while calling script command /%s(%s)
+TX_SCRIPT_CONSOLE_CMD_NOT_FOUND = 1244; //Script console command /%s not found
+
+TX_CHAT_COPY_PASTE_SWITCH = 1245; //Enable/Disable chat history and copy-paste from chat window
+
+TX_FORM_EXPORT_CONFIRM_MSG = 1235; //Data export could take up to several minutes.\nExported data will be stored in %s folder.\nDo you confirm operation?

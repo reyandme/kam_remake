@@ -16,7 +16,7 @@ uses
 
   function KMPathLength(aNodeList: TKMPointList): Single;
 
-  function GetHintWHotKey(aText: String; aHotkeyId: Integer): String; overload;
+  function GetHintWHotKey(const aText: String; aHotkeyId: Integer): String; overload;
   function GetHintWHotKey(aTextId: Integer; aHotkeyStr: String): String; overload;
   function GetHintWHotKey(aTextId, aHotkeyId: Integer): String; overload;
 
@@ -28,7 +28,7 @@ uses
   procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean); overload;
   procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean; var aMapDataSize: Cardinal); overload;
 
-  function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
+  function GetGameObjectOwnerIndex(aObject: TObject): TKMHandID;
 
   function GetTerrainTileBasic(aTile: TKMTerrainTile): TKMTerrainTileBasic;
 
@@ -37,7 +37,7 @@ uses
 
 implementation
 uses
-  Math, KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroups, KM_Log;
+  Math, KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroup, KM_Log;
 
 
 
@@ -234,7 +234,7 @@ begin
 end;
 
 
-function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
+function GetGameObjectOwnerIndex(aObject: TObject): TKMHandID;
 begin
   Result := -1;
   if aObject is TKMHouse then
@@ -284,7 +284,7 @@ begin
 end;
 
 
-function GetHintWHotKey(aText: String; aHotkeyId: Integer): String; overload;
+function GetHintWHotKey(const aText: String; aHotkeyId: Integer): String; overload;
 var
   HotKeyStr: String;
 begin

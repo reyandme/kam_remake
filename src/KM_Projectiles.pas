@@ -7,9 +7,9 @@ uses
 
 
 type
-  TKMProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
+  TKMProjectileType = (ptArrow, ptBolt, ptSlingRock, ptTowerRock); {ptBallistaRock, }
 
-const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
+const //Corresponding indices in units.rx //ptArrow, ptBolt are unused
   ProjectileBounds: array [TKMProjectileType, 1..2] of word = ((0,0), (0,0), (0,0), (4186,4190));
 
 type
@@ -65,8 +65,8 @@ uses
 
 
 const
-  ProjectileLaunchSounds:array[TKMProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_None, sfx_RockThrow);
-  ProjectileHitSounds:   array[TKMProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
+  ProjectileLaunchSounds:array[TKMProjectileType] of TSoundFX = (sfxBowShoot, sfxCrossbowShoot, sfxNone, sfxRockThrow);
+  ProjectileHitSounds:   array[TKMProjectileType] of TSoundFX = (sfxArrowHit, sfxArrowHit, sfxArrowHit, sfxNone);
   ProjectileSpeeds:array[TKMProjectileType] of Single = (0.75, 0.75, 0.6, 0.8);
   ProjectileArcs:array[TKMProjectileType,1..2] of Single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
   ProjectileJitter:array[TKMProjectileType] of Single = (0.26, 0.29, 0.26, 0.2); //Fixed Jitter added every time
@@ -177,7 +177,7 @@ begin
     if gTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
     begin
       U := gTerrain.UnitsHitTest(Round(Target.X), Round(Target.Y));
-      if (U <> nil) and (gHands.CheckAlliance(aOwner.Owner, U.Owner) = at_Ally) then
+      if (U <> nil) and (gHands.CheckAlliance(aOwner.Owner, U.Owner) = atAlly) then
         Target := aTarget.PositionF; //Shoot at the target's current position instead
     end;
 
@@ -282,18 +282,18 @@ begin
           if (U = nil) or ((1 - Math.Min(KMLength(U.PositionF, fTarget), 1)) > KaMRandom('TKMProjectiles.UpdateState')) then
           begin
             case fType of
-              pt_Arrow,
-              pt_SlingRock,
-              pt_Bolt:      if (U <> nil) and not U.IsDeadOrDying and U.Visible and not (U is TKMUnitAnimal)
+              ptArrow,
+              ptSlingRock,
+              ptBolt:      if (U <> nil) and not U.IsDeadOrDying and U.Visible and not (U is TKMUnitAnimal)
                             //Can't hit units past max range because that's unintuitive/confusing to player
                             and (KMLengthSqr(fShotFrom, U.PositionF) <= Sqr(fMaxLength)) then
                             begin
                               Damage := 0;
-                              if fType = pt_Arrow then Damage := gRes.Units[ut_Bowman].Attack;
-                              if fType = pt_Bolt then Damage := gRes.Units[ut_Arbaletman].Attack;
-                              if fType = pt_SlingRock then Damage := gRes.Units[ut_Slingshot].Attack;
-                              Damage := Round(Damage / Math.max(gRes.Units[U.UnitType].GetDefenceVsProjectiles(fType = pt_Bolt), 1)); //Max is not needed, but animals have 0 defence
-                              if (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= at_Enemy))
+                              if fType = ptArrow then Damage := gRes.Units[utBowman].Attack;
+                              if fType = ptBolt then Damage := gRes.Units[utArbaletman].Attack;
+                              if fType = ptSlingRock then Damage := gRes.Units[utSlingshot].Attack;
+                              Damage := Round(Damage / Math.max(gRes.Units[U.UnitType].GetDefenceVsProjectiles(fType = ptBolt), 1)); //Max is not needed, but animals have 0 defence
+                              if (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= atEnemy))
                               and (Damage >= KaMRandom(101, 'TKMProjectiles.UpdateState')) then
                                 U.HitPointsDecrease(1, fOwner);
                             end
@@ -301,13 +301,13 @@ begin
                             begin
                               H := gHands.HousesHitTest(Round(fTarget.X), Round(fTarget.Y));
                               if (H <> nil)
-                              and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, H.Owner)= at_Enemy))
+                              and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, H.Owner)= atEnemy))
                               then
                                 H.AddDamage(1, fOwner);
                             end;
-              pt_TowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
+              ptTowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)
-                            and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= at_Enemy)) then
+                            and (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= atEnemy)) then
                               U.HitPointsDecrease(U.HitPointsMax, fOwner); //Instant death
             end;
           end;
@@ -320,7 +320,7 @@ end;
 //Test wherever projectile is visible (used by rocks thrown from Towers)
 function TKMProjectiles.ProjectileVisible(aIndex: Integer): Boolean;
 begin
-  if (fItems[aIndex].fType = pt_TowerRock)
+  if (fItems[aIndex].fType = ptTowerRock)
   and ((fItems[aIndex].fScreenEnd.Y - fItems[aIndex].fScreenStart.Y) < 0) then
     Result := fItems[aIndex].fPosition >= 0.2 //fly behind a Tower
   else
@@ -346,7 +346,7 @@ begin
       P := KMLerp(fItems[I].fScreenStart, fItems[I].fScreenEnd, MixValue);
       PTileBased := KMLerp(fItems[I].fShotFrom, fItems[I].fTarget, MixValue);
       case fItems[I].fType of
-        pt_Arrow, pt_SlingRock, pt_Bolt:
+        ptArrow, ptSlingRock, ptBolt:
           begin
             MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
             //Looks better moved up, launches from the bow not feet and lands in target's body
@@ -355,12 +355,12 @@ begin
             gRenderPool.AddProjectile(fItems[I].fType, P, PTileBased, Dir, MixValueMax);
           end;
 
-        pt_TowerRock:
+        ptTowerRock:
           begin
             MixArc := cos(MixValue*pi/2); // 1 >> 0      Half-parabola
             //Looks better moved up, lands on the target's body not at his feet
             P.Y := P.Y - fItems[I].fArc * MixArc - 0.4;
-            gRenderPool.AddProjectile(fItems[I].fType, P, PTileBased, dir_N, MixValue); //Direction will be ignored
+            gRenderPool.AddProjectile(fItems[I].fType, P, PTileBased, dirN, MixValue); //Direction will be ignored
           end;
       end;
 

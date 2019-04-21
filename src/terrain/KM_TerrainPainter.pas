@@ -665,7 +665,7 @@ var
   I, J, Tmp: Integer;
   CornerI: array[0..3] of Integer;
 begin
-  Result := mt_None; // makes compiler happy
+  Result := mtNone; // makes compiler happy
   // A B
   // D C
   A := aCornerTerKinds[0];
@@ -677,7 +677,7 @@ begin
   // A A
   if (A = B) and (A = C) and (A = D) then
   begin
-    Result := mt_None;
+    Result := mtNone;
     aLayerOrder[0].TerKind := A;
     aLayerOrder[0].Corners := [0,1,2,3];
     aLayerOrder[0].Rotation := 0;
@@ -883,7 +883,7 @@ begin
         aLayerOrder[J-1].Rotation := 3
       else
         aLayerOrder[J-1].Rotation := Min(CornerI[I], CornerI[I-1]);
-      aLayerOrder[J-1].SubType := mst_Extra;
+      aLayerOrder[J-1].SubType := mstExtra;
       if Abs(CornerI[I] - CornerI[I-1]) = 2 then
         Result := mt_3Opposite
       else
@@ -906,7 +906,7 @@ begin
   aLayerOrder[0].Rotation := 0;
   aLayerOrder[0].Corners := [0,1,2,3];
 
-  Result := mt_None;
+  Result := mtNone;
 end;
 
 
@@ -933,10 +933,10 @@ procedure TKMTerrainPainter.MagicBrush(const X,Y: Integer);
   begin
     Result := tkCustom;
     case aCorner of
-      0: Dir := dir_NW;
-      1: Dir := dir_NE;
-      2: Dir := dir_SE;
-      3: Dir := dir_SW;
+      0: Dir := dirNW;
+      1: Dir := dirNE;
+      2: Dir := dirSE;
+      3: Dir := dirSW;
       else raise Exception.Create('Unknown direction'); // Makes compiler happy
     end;
     //get 4 tiles around corner within map borders
@@ -1073,7 +1073,7 @@ procedure TKMTerrainPainter.MagicBrush(const X,Y: Integer);
       begin
         SetLength(LayerOrder, 4);
         for I := 0 to 3 do
-          LayerOrder[I].SubType := mst_Main;
+          LayerOrder[I].SubType := mstMain;
 
         MaskType := GetMaskType(AroundTerKinds, LayerOrder);
 
@@ -1082,7 +1082,7 @@ procedure TKMTerrainPainter.MagicBrush(const X,Y: Integer);
         BaseLayer.Corners := LayerOrder[0].Corners;
         LayersCnt := TILE_MASKS_LAYERS_CNT[MaskType] - 1;
 
-        if MaskType = mt_None then Exit;
+        if MaskType = mtNone then Exit;
 
         for I := 1 to LayersCnt do // start from 1, just for convinience
         begin
@@ -1632,15 +1632,15 @@ begin
 
     //Skip terrain data
     if UseKaMFormat then
-      S.Seek(23 * NewX * NewY, soFromCurrent)
+      S.Position := S.Position + 23 * NewX * NewY
     else
-      S.Seek(MapDataSize, soFromCurrent);
+      S.Position := S.Position + MapDataSize;
 
     //For now we just throw away the resource footer because we don't understand it (and save a blank one)
     if UseKaMFormat then
     begin
       S.Read(ResHead, 22);
-      S.Seek(17 * ResHead.Allocated, soFromCurrent);
+      S.Position := S.Position + 17 * ResHead.Allocated;
     end;
 
     //ADDN
@@ -1716,15 +1716,15 @@ begin
 
     //Skip terrain data
     if UseKaMFormat then
-      S.Seek(23 * NewX * NewY, soFromCurrent)
+      S.Position := S.Position + 23 * NewX * NewY
     else
-      S.Seek(MapDataSize, soFromCurrent);
+      S.Position := S.Position + MapDataSize;
 
     //For now we just throw away the resource footer because we don't understand it (and save a blank one)
     if UseKaMFormat then
     begin
       S.Read(ResHead, 22);
-      S.Seek(17 * ResHead.Allocated, soFromCurrent);
+      S.Position := S.Position + 17 * ResHead.Allocated;
     end;
 
     S.Write(AnsiString('ADDN')[1], 4);

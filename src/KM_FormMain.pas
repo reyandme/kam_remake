@@ -116,6 +116,11 @@ type
     chkShowGameTick: TCheckBox;
     chkSkipRender: TCheckBox;
     chkSkipSound: TCheckBox;
+    chkUIDs: TCheckBox;
+    chkShowSoil: TCheckBox;
+    chkShowFlatArea: TCheckBox;
+    chkShowEyeRoutes: TCheckBox;
+    chkSelectedObjInfo: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -173,6 +178,7 @@ type
     fMissionDefOpenPath: UnicodeString;
     procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
     procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
+    function ConfirmExport: Boolean;
     {$IFDEF MSWindows}
     function GetWindowParams: TKMWindowParamsRecord;
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -208,6 +214,7 @@ uses
   //Use these units directly to avoid pass-through methods in fMain
   KM_Resource,
   KM_ResSprites,
+  KM_ResTexts,
   KM_GameApp,
   KM_HandsCollection,
   KM_ResSound,
@@ -462,17 +469,20 @@ end;
 //Exports
 procedure TFormMain.Export_TreesRXClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxTrees);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxTrees);
 end;
 
 procedure TFormMain.Export_HousesRXClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxHouses);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxHouses);
 end;
 
 procedure TFormMain.Export_UnitsRXClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxUnits);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxUnits);
 end;
 
 procedure TFormMain.Export_ScriptDataClick(Sender: TObject);
@@ -484,12 +494,14 @@ end;
 
 procedure TFormMain.Export_GUIClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxGUI);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxGUI);
 end;
 
 procedure TFormMain.Export_GUIMainRXClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxGUIMain);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxGUIMain);
 end;
 
 procedure TFormMain.Export_CustomClick(Sender: TObject);
@@ -509,12 +521,14 @@ end;
 
 procedure TFormMain.Export_TreeAnim1Click(Sender: TObject);
 begin
-  gRes.ExportTreeAnim;
+  if ConfirmExport then
+    gRes.ExportTreeAnim;
 end;
 
 procedure TFormMain.Export_HouseAnim1Click(Sender: TObject);
 begin
-  gRes.ExportHouseAnim;
+  if ConfirmExport then
+    gRes.ExportHouseAnim;
 end;
 
 
@@ -549,7 +563,7 @@ var I: Integer;
 begin
   if gHands = nil then Exit;
   //You could possibly cheat in multiplayer by seeing what supplies your enemy has
-  if (gGameApp.Game <> nil) and (not gGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS) then
+  if (gGameApp.Game <> nil) and (not gGameApp.Game.IsMultiPlayerOrSpec or MULTIPLAYER_CHEATS) then
   for I := 0 to gHands.Count - 1 do
     gHands[I].Deliveries.Queue.ExportToFile(ExeDir + 'Player_' + IntToStr(I) + '_Deliver_List.txt');
 end;
@@ -559,11 +573,11 @@ procedure TFormMain.RGPlayerClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
     or gGameApp.Game.IsMapEditor
-    or gGameApp.Game.IsMultiplayer then
+    or gGameApp.Game.IsMultiPlayerOrSpec then
     Exit;
 
   if (gHands <> nil) and (RGPlayer.ItemIndex < gHands.Count) then
-    gMySpectator.HandIndex := RGPlayer.ItemIndex;
+    gMySpectator.HandID := RGPlayer.ItemIndex;
 end;
 
 
@@ -584,20 +598,23 @@ end;
 
 procedure TFormMain.SoldiersClick(Sender: TObject);
 begin
-  gRes.ExportUnitAnim(WARRIOR_MIN, WARRIOR_MAX);
+  if ConfirmExport then
+    gRes.ExportUnitAnim(WARRIOR_MIN, WARRIOR_MAX);
 end;
 
 
 procedure TFormMain.chkSuperSpeedClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
-    or (gGameApp.Game.IsMultiplayer
+    or (gGameApp.Game.IsMultiPlayerOrSpec
       and not gGameApp.Game.IsMPGameSpeedUpAllowed
       and not MULTIPLAYER_SPEEDUP
       and not gGameApp.Game.IsReplay) then
     Exit;
 
   gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, DEBUG_SPEEDUP_SPEED, gGameApp.Game.GetNormalGameSpeed), False);
+
+  ActiveControl := nil; //Do not allow to focus on anything on debug panel
 end;
 
 
@@ -605,15 +622,18 @@ procedure TFormMain.Button_StopClick(Sender: TObject);
 begin
   if gGameApp.Game <> nil then
     if gGameApp.Game.IsMapEditor then
-      gGameApp.StopGame(gr_MapEdEnd)
+      gGameApp.StopGame(grMapEdEnd)
     else
-      gGameApp.StopGame(gr_Cancel);
+      gGameApp.StopGame(grCancel);
+
+  ActiveControl := nil; //Do not allow to focus on anything on debug panel
 end;
 
 
 procedure TFormMain.Civilians1Click(Sender: TObject);
 begin
-  gRes.ExportUnitAnim(CITIZEN_MIN, CITIZEN_MAX);
+  if ConfirmExport then
+    gRes.ExportUnitAnim(CITIZEN_MIN, CITIZEN_MAX);
 end;
 
 
@@ -625,7 +645,8 @@ procedure TFormMain.ControlsReset;
   begin
     for I := 0 to aBox.ControlCount - 1 do
       if aBox.Controls[I] is TCheckBox then
-        TCheckBox(aBox.Controls[I]).Checked := aBox.Controls[I] = chkLogNetConnection
+        TCheckBox(aBox.Controls[I]).Checked :=    (aBox.Controls[I] = chkBevel)
+                                               or (aBox.Controls[I] = chkLogNetConnection)
       else
       if aBox.Controls[I] is TTrackBar then
         TTrackBar(aBox.Controls[I]).Position := 0
@@ -637,6 +658,9 @@ procedure TFormMain.ControlsReset;
         ResetGroupBox(TGroupBox(aBox.Controls[I]));
   end;
 begin
+  if not RESET_DEBUG_CONTROLS then
+    Exit;
+
   fUpdating := True;
   ResetGroupBox(GroupBox1);
 
@@ -727,6 +751,8 @@ begin
     SHOW_UNIT_ROUTES := chkShowRoutes.Checked;
     SHOW_SEL_BUFFER := chkSelectionBuffer.Checked;
     SHOW_GAME_TICK := chkShowGameTick.Checked;
+    SHOW_UIDs := chkUIDs.Checked;
+    SHOW_SELECTED_OBJ_INFO := chkSelectedObjInfo.Checked;
 
     SKIP_RENDER := chkSkipRender.Checked;
     SKIP_SOUND := chkSkipSound.Checked;
@@ -736,11 +762,14 @@ begin
   if AllowDebugChange then
   begin
     SHOW_AI_WARE_BALANCE := chkShowBalance.Checked;
-    SHOW_OVERLAY_BEVEL := chkBevel.Checked;
+    SHOW_DEBUG_OVERLAY_BEVEL := chkBevel.Checked;
     OVERLAY_DEFENCES := chkShowDefences.Checked;
     OVERLAY_AI_BUILD := chkBuildAI.Checked;
     OVERLAY_AI_COMBAT := chkCombatAI.Checked;
     OVERLAY_AI_EYE := chkAIEye.Checked;
+    OVERLAY_AI_SOIL := chkShowSoil.Checked;
+    OVERLAY_AI_FLATAREA := chkShowFlatArea.Checked;
+    OVERLAY_AI_ROUTES := chkShowEyeRoutes.Checked;
     OVERLAY_AVOID := chkShowAvoid.Checked;
     OVERLAY_OWNERSHIP := chkShowOwnership.Checked;
     OVERLAY_NAVMESH := chkShowNavMesh.Checked;
@@ -778,50 +807,51 @@ begin
   if AllowDebugChange then
   begin
     if chkLogDelivery.Checked then
-      Include(gLog.MessageTypes, lmt_Delivery)
+      Include(gLog.MessageTypes, lmtDelivery)
     else
-      Exclude(gLog.MessageTypes, lmt_Delivery);
+      Exclude(gLog.MessageTypes, lmtDelivery);
 
     if chkLogCommands.Checked then
-      Include(gLog.MessageTypes, lmt_Commands)
+      Include(gLog.MessageTypes, lmtCommands)
     else
-      Exclude(gLog.MessageTypes, lmt_Commands);
+      Exclude(gLog.MessageTypes, lmtCommands);
 
     if chkLogRngChecks.Checked then
-      Include(gLog.MessageTypes, lmt_RandomChecks)
+      Include(gLog.MessageTypes, lmtRandomChecks)
     else
-      Exclude(gLog.MessageTypes, lmt_RandomChecks);
+      Exclude(gLog.MessageTypes, lmtRandomChecks);
 
     if chkLogNetConnection.Checked then
-      Include(gLog.MessageTypes, lmt_NetConnection)
+      Include(gLog.MessageTypes, lmtNetConnection)
     else
-      Exclude(gLog.MessageTypes, lmt_NetConnection);
+      Exclude(gLog.MessageTypes, lmtNetConnection);
 
     case RGLogNetPackets.ItemIndex of
       0:    begin
-              Exclude(gLog.MessageTypes, lmt_NetPacketOther);
-              Exclude(gLog.MessageTypes, lmt_NetPacketCommand);
-              Exclude(gLog.MessageTypes, lmt_NetPacketPingFps);
+              Exclude(gLog.MessageTypes, lmtNetPacketOther);
+              Exclude(gLog.MessageTypes, lmtNetPacketCommand);
+              Exclude(gLog.MessageTypes, lmtNetPacketPingFps);
             end;
       1:    begin
-              Include(gLog.MessageTypes, lmt_NetPacketOther);
-              Exclude(gLog.MessageTypes, lmt_NetPacketCommand);
-              Exclude(gLog.MessageTypes, lmt_NetPacketPingFps);
+              Include(gLog.MessageTypes, lmtNetPacketOther);
+              Exclude(gLog.MessageTypes, lmtNetPacketCommand);
+              Exclude(gLog.MessageTypes, lmtNetPacketPingFps);
             end;
       2:    begin
-              Include(gLog.MessageTypes, lmt_NetPacketOther);
-              Include(gLog.MessageTypes, lmt_NetPacketCommand);
-              Exclude(gLog.MessageTypes, lmt_NetPacketPingFps);
+              Include(gLog.MessageTypes, lmtNetPacketOther);
+              Include(gLog.MessageTypes, lmtNetPacketCommand);
+              Exclude(gLog.MessageTypes, lmtNetPacketPingFps);
             end;
       3:    begin
-              Include(gLog.MessageTypes, lmt_NetPacketOther);
-              Include(gLog.MessageTypes, lmt_NetPacketCommand);
-              Include(gLog.MessageTypes, lmt_NetPacketPingFps);
+              Include(gLog.MessageTypes, lmtNetPacketOther);
+              Include(gLog.MessageTypes, lmtNetPacketCommand);
+              Include(gLog.MessageTypes, lmtNetPacketPingFps);
             end;
       else  raise Exception.Create('Unexpected RGLogNetPackets.ItemIndex = ' + IntToStr(RGLogNetPackets.ItemIndex));
     end;
   end;
 
+  ActiveControl := nil; //Do not allow to focus on anything on debug panel
 end;
 
 
@@ -864,7 +894,17 @@ end;
 
 procedure TFormMain.UnitAnim_AllClick(Sender: TObject);
 begin
-  gRes.ExportUnitAnim(UNIT_MIN, UNIT_MAX, True);
+  if ConfirmExport then
+    gRes.ExportUnitAnim(UNIT_MIN, UNIT_MAX, True);
+end;
+
+
+function TFormMain.ConfirmExport: Boolean;
+begin
+  case MessageDlg(Format(gResTexts[TX_FORM_EXPORT_CONFIRM_MSG], [ExeDir + 'Export']), mtWarning, [mbYes, mbNo], 0) of
+    mrYes:  Result := True;
+    else    Result := False;
+  end;
 end;
 
 
@@ -891,7 +931,7 @@ begin
             if CRC = Adler32CRC(MS) then
               IsValid := True;
           finally
-            MS.Free;
+            FreeAndNil(MS);
           end;
         end;
 
@@ -906,7 +946,7 @@ begin
                      + E.Message, mtError, [mbClose], 0);
       end;
     finally
-      SL.Free;
+      FreeAndNil(SL);
     end;
   end;
 end;

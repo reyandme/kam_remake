@@ -43,7 +43,7 @@ SC_SHOW_TEAMS = 33; //Show teams in MP
 
 SC_CENTER_ALERT = 34; //Center to alert
 SC_DELETE_MSG = 35; //Delete message
-SC_CHAT_MP = 36; //Show the chat
+SC_CHAT = 36; //Show the chat
 
 SC_NEXT_BLD_UNIT_SAME_TYPE = 37; //Select next building/unit with same type
 SC_PLAYER_COLOR_MODE = 38; //Switch player color mode

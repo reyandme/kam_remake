@@ -9,9 +9,9 @@ uses
 
 type
   TKMJobStatus = (
-    js_Empty,   // Empty - empty spot for a new job
-    js_Open,    // Open - job is free to take by anyone
-    js_Taken    // Taken - job is taken by some worker
+    jsEmpty,   // Empty - empty spot for a new job
+    jsOpen,    // Open - job is free to take by anyone
+    jsTaken    // Taken - job is taken by some worker
   );
   
   //List of houses ready to build
@@ -41,10 +41,12 @@ type
 
 
   TKMHousePlan = record
+    UID: Integer;
     HouseType: TKMHouseType;
     Loc: TKMPoint;
     JobStatus: TKMJobStatus;
     Worker: TKMUnit; //So we can tell Worker if plan is cancelled
+    function IsEmpty: Boolean;
   end;
   TKMHousePlanArray = array of TKMHousePlan;
 
@@ -211,7 +213,7 @@ type
 implementation
 uses
   Math,
-  KM_Hand, KM_HandsCollection, KM_Resource;
+  KM_Game, KM_Hand, KM_HandsCollection, KM_Resource;
 
 
 const
@@ -220,14 +222,21 @@ const
 
   //Limit number of workers building each house, so they all fit in around
   MAX_WORKERS: array [TKMHouseType] of Byte = (
-    0,0, //ht_None, ht_Any
-    8, {ht_ArmorSmithy}  8,{ht_ArmorWorkshop}  8, {ht_Bakery}      12,{ht_Barracks}      8, {ht_Butchers}
-    6, {ht_CoalMine}     8,{ht_Farm}           7, {ht_FisherHut}   3, {ht_GoldMine}      10,{ht_Inn}
-    4, {ht_IronMine}     8,{ht_IronSmithy}     10,{ht_Marketplace} 8, {ht_Metallurgists} 8, {ht_Mill}
-    6, {ht_Quary}        8,{ht_Sawmill}        10,{ht_School}      8, {ht_SiegeWorkshop} 10,{ht_Stables}
-    10,{ht_Store}        8,{ht_Swine}          8, {ht_Tannery}     10,{ht_TownHall}      6, {ht_WatchTower}
-    8, {ht_WeaponSmithy} 8,{ht_WeaponWorkshop} 8, {ht_Wineyard}    6  {ht_Woodcutters}
+    0,0, //htNone, htAny
+    8, {htArmorSmithy}  8,{htArmorWorkshop}  8, {htBakery}      12,{htBarracks}      8, {htButchers}
+    6, {htCoalMine}     8,{htFarm}           7, {htFisherHut}   3, {htGoldMine}      10,{htInn}
+    4, {htIronMine}     8,{htIronSmithy}     10,{htMarketplace} 8, {htMetallurgists} 8, {htMill}
+    6, {htQuary}        8,{htSawmill}        10,{htSchool}      8, {htSiegeWorkshop} 10,{htStables}
+    10,{htStore}        8,{htSwine}          8, {htTannery}     10,{htTownHall}      6, {htWatchTower}
+    8, {htWeaponSmithy} 8,{htWeaponWorkshop} 8, {htWineyard}    6  {htWoodcutters}
   );
+
+
+{ TKMHousePlan }
+function TKMHousePlan.IsEmpty: Boolean;
+begin
+  Result := JobStatus = jsEmpty;
+end;
 
 
 {TKMHouseList}
@@ -278,7 +287,7 @@ begin
   and aWorker.CanWalkTo(fHouses[i].House.PointBelowEntrance, 0)
   then
   begin
-    NewBid := KMLengthDiag(aWorker.GetPosition, fHouses[I].House.GetPosition);
+    NewBid := KMLengthDiag(aWorker.CurrPosition, fHouses[I].House.Position);
     NewBid := NewBid + fHouses[I].Assigned * BID_MODIF;
 
     if NewBid < aBid then
@@ -381,10 +390,10 @@ begin
   aBid := MaxSingle;
 
   for I := 0 to fFieldsCount - 1 do
-  if (fFields[I].JobStatus = js_Open)
+  if (fFields[I].JobStatus = jsOpen)
   and aWorker.CanWalkTo(fFields[I].Loc, 0) then
   begin
-    NewBid := KMLengthDiag(aWorker.GetPosition, fFields[I].Loc);
+    NewBid := KMLengthDiag(aWorker.CurrPosition, fFields[I].Loc);
     if NewBid < aBid then
     begin
       Result := I;
@@ -399,7 +408,7 @@ var I: Integer;
 begin
   Result := 0;
   for I := 0 to fFieldsCount - 1 do
-    if fFields[I].JobStatus = js_Open then
+    if fFields[I].JobStatus = jsOpen then
       inc(Result);
 end;
 
@@ -412,7 +421,7 @@ begin
 
   fFields[aIndex].Loc := KMPOINT_ZERO;
   fFields[aIndex].FieldType := ftNone;
-  fFields[aIndex].JobStatus := js_Empty;
+  fFields[aIndex].JobStatus := jsEmpty;
   gHands.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
 end;
 
@@ -455,7 +464,7 @@ end;
 procedure TKMFieldworksList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
 begin
   aWorker.BuildField(fFields[aIndex].FieldType, fFields[aIndex].Loc, aIndex);
-  fFields[aIndex].JobStatus := js_Taken;
+  fFields[aIndex].JobStatus := jsTaken;
   fFields[aIndex].Worker := aWorker.GetUnitPointer;
 end;
 
@@ -503,7 +512,7 @@ begin
   RemFakeField(aLoc);
 
   I := 0;
-  while (I < fFieldsCount) and (fFields[I].JobStatus <> js_Empty) do
+  while (I < fFieldsCount) and (fFields[I].JobStatus <> jsEmpty) do
     Inc(I);
 
   if I >= fFieldsCount then
@@ -514,7 +523,7 @@ begin
 
   fFields[I].Loc := aLoc;
   fFields[I].FieldType := aFieldType;
-  fFields[I].JobStatus := js_Open;
+  fFields[I].JobStatus := jsOpen;
   fFields[I].Worker := nil;
 end;
 
@@ -547,7 +556,7 @@ begin
   if KMSamePoint(fFields[I].Loc, aLoc) then
   begin
     if fFields[I].Worker <> nil then
-      fFields[I].Worker.CancelUnitTask;
+      fFields[I].Worker.CancelTask;
     CloseField(I);
     Exit;
   end;
@@ -611,7 +620,7 @@ end;
 //When a worker dies while walking to the task aIndex, we should allow other workers to take this task
 procedure TKMFieldworksList.ReOpenField(aIndex: Integer);
 begin
-  fFields[aIndex].JobStatus := js_Open;
+  fFields[aIndex].JobStatus := jsOpen;
   gHands.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
 end;
 
@@ -670,7 +679,7 @@ var
   I: Integer;
 begin
   I := 0;
-  while (I < fPlansCount) and (fPlans[I].JobStatus <> js_Empty) do
+  while (I < fPlansCount) and (fPlans[I].JobStatus <> jsEmpty) do
     Inc(I);
 
   if I >= fPlansCount then
@@ -679,9 +688,10 @@ begin
   if I >= Length(fPlans) then
     SetLength(fPlans, Length(fPlans) + LENGTH_INC);
 
+  fPlans[I].UID := gGame.GetNewUID;
   fPlans[I].HouseType := aHouseType;
   fPlans[I].Loc := aLoc;
-  fPlans[I].JobStatus := js_Open;
+  fPlans[I].JobStatus := jsOpen;
   fPlans[I].Worker := nil;
 end;
 
@@ -695,11 +705,11 @@ begin
   aBid := MaxSingle;
 
   for I := 0 to fPlansCount - 1 do
-    if (fPlans[I].JobStatus = js_Open)
+    if (fPlans[I].JobStatus = jsOpen)
     and aWorker.CanWalkTo(fPlans[I].Loc, 0)
     then
     begin
-      NewBid := KMLengthDiag(aWorker.GetPosition, fPlans[I].Loc);
+      NewBid := KMLengthDiag(aWorker.CurrPosition, fPlans[I].Loc);
       if NewBid < aBid then
       begin
         Result := I;
@@ -715,7 +725,7 @@ var
 begin
   Result := 0;
   for I := 0 to fPlansCount - 1 do
-    if fPlans[I].JobStatus = js_Open then
+    if fPlans[I].JobStatus = jsOpen then
       inc(Result);
 end;
 
@@ -724,7 +734,7 @@ procedure TKMHousePlanList.ClosePlan(aIndex: Integer);
 begin
   fPlans[aIndex].HouseType := htNone;
   fPlans[aIndex].Loc       := KMPOINT_ZERO;
-  fPlans[aIndex].JobStatus := js_Empty;
+  fPlans[aIndex].JobStatus := jsEmpty;
   gHands.CleanUpUnitPointer(fPlans[aIndex].Worker);
 end;
 
@@ -774,7 +784,7 @@ end;
 procedure TKMHousePlanList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
 begin
   aWorker.BuildHouseArea(fPlans[aIndex].HouseType, fPlans[aIndex].Loc, aIndex);
-  fPlans[aIndex].JobStatus := js_Taken;
+  fPlans[aIndex].JobStatus := jsTaken;
   fPlans[aIndex].Worker := aWorker.GetUnitPointer;
 end;
 
@@ -820,7 +830,7 @@ begin
   then
   begin
     if fPlans[I].Worker <> nil then
-      fPlans[I].Worker.CancelUnitTask;
+      fPlans[I].Worker.CancelTask;
     ClosePlan(I);
     Exit;
   end;
@@ -850,7 +860,7 @@ end;
 procedure TKMHousePlanList.ReOpenPlan(aIndex: Integer);
 begin
   gHands.CleanUpUnitPointer(fPlans[aIndex].Worker);
-  fPlans[aIndex].JobStatus := js_Open;
+  fPlans[aIndex].JobStatus := jsOpen;
 end;
 
 
@@ -875,16 +885,16 @@ begin
       if HA[J,K] <> 0 then
       begin
         if (J = 1) or (HA[J-1, K] = 0) then
-          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dirN));
 
         if (K = 1) or (HA[J, K-1] = 0) then
-          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dirE));
 
         if (J = 4) or (HA[J+1, K] = 0) then
-          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dirS));
 
         if (K = 4) or (HA[J, K+1] = 0) then
-          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
+          aList.Add(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dirW));
       end;
     end;
 end;
@@ -1016,7 +1026,7 @@ begin
   if (fHouses[I].House <> nil)
   and (fHouses[I].Assigned < MAX_WORKERS[fHouses[i].House.HouseType]) then
   begin
-    NewBid := KMLengthDiag(aWorker.GetPosition, fHouses[I].House.GetPosition);
+    NewBid := KMLengthDiag(aWorker.CurrPosition, fHouses[I].House.Position);
     NewBid := NewBid + fHouses[I].Assigned * BID_MODIF;
 
     if NewBid < aBid then
@@ -1249,7 +1259,7 @@ begin
   for I := 0 to fWorkersCount - 1 do
     if fWorkers[I].Worker.IsIdle and fWorkers[I].Worker.CanWalkTo(aPoint, 0) then
     begin
-      NewBid := KMLengthDiag(fWorkers[I].Worker.GetPosition, aPoint);
+      NewBid := KMLengthDiag(fWorkers[I].Worker.CurrPosition, aPoint);
       if NewBid < BestBid then
       begin
         Result := fWorkers[I].Worker;
@@ -1280,7 +1290,7 @@ begin
   end
   else
     for I := 0 to fFieldworksList.fFieldsCount - 1 do
-      if fFieldworksList.fFields[I].JobStatus = js_Open then
+      if fFieldworksList.fFields[I].JobStatus = jsOpen then
       begin
         BestWorker := GetBestWorker(fFieldworksList.fFields[I].Loc);
         if BestWorker <> nil then fFieldworksList.GiveTask(I, BestWorker);
@@ -1309,7 +1319,7 @@ begin
   end
   else
     for I := 0 to fHousePlanList.fPlansCount - 1 do
-      if fHousePlanList.fPlans[I].JobStatus = js_Open then
+      if fHousePlanList.fPlans[I].JobStatus = jsOpen then
       begin
         BestWorker := GetBestWorker(fHousePlanList.fPlans[I].Loc);
         if BestWorker <> nil then fHousePlanList.GiveTask(I, BestWorker);

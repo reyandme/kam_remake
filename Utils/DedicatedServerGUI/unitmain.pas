@@ -105,7 +105,8 @@ procedure TFormMain.FormCreate(Sender: TObject);
 begin
   fServerStatus := ssOffline;
   ChangeEnableStateOfApplyButton(False);
-  Application.Title := 'KaM Remake ' + GAME_VERSION + ' Dedicated Server';
+  Application.Title := 'KaM Remake Dedicated Server GUI (' + GAME_REVISION + ')';
+  Caption := 'KaM Remake Dedicated Server GUI (' + GAME_REVISION + ')';
 
   ExeDir := ExtractFilePath(ParamStr(0));
   CreateDir(ExeDir + 'Logs');

@@ -41,7 +41,7 @@ uses
 
 
 const
-  ResRatioType: array [TKMRatioTab] of TKMWareType = (wt_Steel, wt_Coal, wt_Wood, wt_Corn);
+  ResRatioType: array [TKMRatioTab] of TKMWareType = (wtSteel, wtCoal, wtWood, wtCorn);
   //ResRatioHint: array [TKMRatioTab] of Word = (298, 300, 302, 304);
   ResRatioHouseCount: array [TKMRatioTab] of Byte = (2, 4, 2, 3);
   ResRatioHouse: array [TKMRatioTab, 0..3] of TKMHouseType = (
@@ -72,14 +72,14 @@ begin
   end;
 
   Image_RatioHead := TKMImage.Create(Panel_Ratios, 0, 76, 32, 32, 327);
-  Label_RatioHead := TKMLabel.Create(Panel_Ratios, 36, 72, 148, 30, NO_TEXT, fnt_Outline, taLeft);
+  Label_RatioHead := TKMLabel.Create(Panel_Ratios, 36, 72, 148, 30, NO_TEXT, fntOutline, taLeft);
 
   for K := 0 to 3 do
   begin
     Image_RatioPic[K]               := TKMImage.Create(Panel_Ratios, 0, 124 + K * 50, 32, 32, 327);
     TrackBar_RatioValue[K]          := TKMTrackBar.Create(Panel_Ratios, 32, 116 + K * 50, 155, 0, 5);
     TrackBar_RatioValue[K].CaptionWidth := 160;
-    TrackBar_RatioValue[K].Font     := fnt_Grey; //fnt_Metal doesn't fit the text
+    TrackBar_RatioValue[K].Font     := fntGrey; //fntMetal doesn't fit the text
     TrackBar_RatioValue[K].Tag      := K;
     TrackBar_RatioValue[K].OnChange := RatiosChange;
     TrackBar_RatioValue[K].Enabled := fAllowEditing;
@@ -145,7 +145,7 @@ begin
   house := ResRatioHouse[fActiveTab, TKMTrackBar(Sender).Tag];
   value := TKMTrackBar(Sender).Position;
   gGameApp.GameSettings.WareDistribution[ware, house] := value;
-  gGame.GameInputProcess.CmdWareDistribution(gic_WareDistributionChange, ware, house, value);
+  gGame.GameInputProcess.CmdWareDistribution(gicWareDistributionChange, ware, house, value);
 end;
 
 

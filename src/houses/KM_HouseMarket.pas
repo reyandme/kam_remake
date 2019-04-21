@@ -26,10 +26,10 @@ type
     function GetResOrder(aId: Byte): Integer; override;
     procedure SetResOrder(aId: Byte; aValue: Integer); override;
   public
-    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
 
-    procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False); override;
     property ResFrom: TKMWareType read fResFrom write SetResFrom;
     property ResTo: TKMWareType read fResTo write SetResTo;
     function RatioFrom: Byte;
@@ -60,16 +60,16 @@ uses
 
 
 { TKMHouseMarket }
-constructor TKMHouseMarket.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+constructor TKMHouseMarket.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
 begin
   inherited;
 
-  fResFrom := wt_None;
-  fResTo := wt_None;
+  fResFrom := wtNone;
+  fResTo := wtNone;
 end;
 
 
-procedure TKMHouseMarket.DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False);
+procedure TKMHouseMarket.DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False);
 var
   R: TKMWareType;
 begin
@@ -109,7 +109,7 @@ function TKMHouseMarket.RatioFrom: Byte;
 var
   CostFrom, CostTo: Single;
 begin
-  if (fResFrom <> wt_None) and (fResTo <> wt_None) then
+  if (fResFrom <> wtNone) and (fResTo <> wtNone) then
   begin
     //When trading target ware is priced higher
     CostFrom := gRes.Wares[fResFrom].MarketPrice;
@@ -123,7 +123,7 @@ end;
 function TKMHouseMarket.RatioTo: Byte;
 var CostFrom, CostTo: Single;
 begin
-  if (fResFrom <> wt_None) and (fResTo <> wt_None) then
+  if (fResFrom <> wtNone) and (fResTo <> wtNone) then
   begin
     //When trading target ware is priced higher
     CostFrom := gRes.Wares[fResFrom].MarketPrice;
@@ -179,7 +179,7 @@ procedure TKMHouseMarket.AttemptExchange;
 var
   TradeCount: Word;
 begin
-  Assert((fResFrom <> wt_None) and (fResTo <> wt_None) and (fResFrom <> fResTo));
+  Assert((fResFrom <> wtNone) and (fResTo <> wtNone) and (fResFrom <> fResTo));
 
   //Script might have blocked these resources from trading, if so reset trade order
   if TradeInProgress
@@ -203,7 +203,7 @@ begin
 
     gScriptEvents.ProcMarketTrade(Self, fResFrom, fResTo);
     gScriptEvents.ProcWareProduced(Self, fResTo, TradeCount * RatioTo);
-    gSoundPlayer.Play(sfxn_Trade, fPosition);
+    gSoundPlayer.Play(sfxnTrade, fPosition);
   end;
 end;
 
@@ -238,7 +238,7 @@ begin
 
   fResFrom := aRes;
   if fResTo = fResFrom then
-    fResTo := wt_None;
+    fResTo := wtNone;
 end;
 
 
@@ -249,7 +249,7 @@ begin
 
   fResTo := aRes;
   if fResFrom = fResTo then
-    fResFrom := wt_None;
+    fResFrom := wtNone;
 end;
 
 
@@ -295,7 +295,7 @@ const
 var
   ResRequired, OrdersAllowed, OrdersRemoved: Integer;
 begin
-  if (fResFrom = wt_None) or (fResTo = wt_None) or (fResFrom = fResTo) then Exit;
+  if (fResFrom = wtNone) or (fResTo = wtNone) or (fResFrom = fResTo) then Exit;
 
   fTradeAmount := EnsureRange(aValue, 0, MAX_WARES_ORDER);
 
@@ -371,11 +371,11 @@ var
   MaxRes: TKMWareType;
 begin
   inherited;
-  if fBuildState < hbs_Done then Exit;
+  if fBuildState < hbsDone then Exit;
 
   //Market can display only one ware at a time (lookup ware that has most count)
   MaxCount := 0;
-  MaxRes := wt_None;
+  MaxRes := wtNone;
   for R := WARE_MIN to WARE_MAX do
   if fMarketResIn[R] + fMarketResOut[R] > MaxCount then
   begin

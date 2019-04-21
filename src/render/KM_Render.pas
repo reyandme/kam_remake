@@ -9,9 +9,9 @@ uses
 
 type
   TTexFormat = (
-    tf_RGB5A1,
-    tf_RGBA8,
-    tf_Alpha8 //Mask used for team colors and house construction steps (GL_ALPHA)
+    tfRGB5A1,
+    tfRGBA8,
+    tfAlpha8 //Mask used for team colors and house construction steps (GL_ALPHA)
     );
   const
   TexFormatSize: array [TTexFormat] of Byte = (2, 4, 1);
@@ -220,11 +220,11 @@ begin
   //Figures are before trimming - only ratio matters
   case Mode of
     //Base layer
-    tf_RGB5A1:  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tfRGB5A1:  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Base layer with alpha channel for shadows
-    tf_RGBA8:   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tfRGBA8:   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Team color layer (4 bit would be okay), but house construction steps need 8bit resolution
-    tf_Alpha8:  glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tfAlpha8:  glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   end;
   BindTexture(0);
 end;
@@ -295,7 +295,7 @@ begin
   //There will be no change to image anyway
   if aValue = 0 then Exit;
 
-  TRender.BindTexture(0); // We have to reset texture to default (0), because it can be bind to any other texture (atlas)
+  TRender.BindTexture(0); // We have to reset texture to default (0), because it could be bind to any other texture (atlas)
 
   glLoadIdentity;
   glBlendFunc(GL_DST_COLOR, GL_ONE);

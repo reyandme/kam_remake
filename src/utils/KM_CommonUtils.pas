@@ -14,7 +14,7 @@ uses
   {$ENDIF}
   ;
 
-  function IfThenS(aCondition: Boolean; aIfTrue, aIfFalse: UnicodeString): UnicodeString;
+  function IfThenS(aCondition: Boolean; const aIfTrue, aIfFalse: String): String;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
@@ -23,12 +23,18 @@ uses
 
   function FixDelim(const aString: UnicodeString): UnicodeString;
 
+  function Max3(const A,B,C: Integer): Integer;
+  function Min3(const A,B,C: Integer): Integer;
+  function Max4(const A,B,C,D: Integer): Integer;
+  function Min4(const A,B,C,D: Integer): Integer;
+
   function RGB2BGR(aRGB: Cardinal): Cardinal;
   function BGR2RGB(aRGB: Cardinal): Cardinal;
   function ApplyColorCoef(aColor: Cardinal; aAlpha, aRed, aGreen, aBlue: Single): Cardinal;
   function GetGreyColor(aGreyLevel: Byte): Cardinal;
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
+  function GetRandomColorWSeed(aSeed: Integer): Cardinal;
   function EnsureBrightness(aColor: Cardinal; aMinBrightness: Single; aMaxBrightness: Single = 1): Cardinal;
   function MultiplyBrightnessByFactor(aColor: Cardinal; aBrightnessFactor: Single; aMinBrightness: Single = 0; aMaxBrightness: Single = 1): Cardinal;
   function ReduceBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
@@ -37,6 +43,11 @@ uses
   function GetFPSColor(aFPS: Word): Cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
   function TimeToString(aTime: TDateTime): UnicodeString;
+  function TickToTimeStr(aTick: Cardinal): String;
+
+  function StrToHex(S: String): String;
+  function HexToStr(H: String): String;
+
   function WrapColor(const aText: UnicodeString; aColor: Cardinal): UnicodeString;
   function WrapColorA(const aText: AnsiString; aColor: Cardinal): AnsiString;
   function StripColor(const aText: UnicodeString): UnicodeString;
@@ -48,10 +59,10 @@ uses
   function GetKaMSeed: Integer;
   function KaMRandomWSeed(var aSeed: Integer): Extended; overload;
   function KaMRandomWSeed(var aSeed: Integer; aMax: Integer): Integer; overload;
-  function KaMRandom(aCaller: String): Extended; overload;
-  function KaMRandom(aMax: Integer; aCaller: String): Integer; overload;
-  function KaMRandomS(Range_Both_Directions: Integer; aCaller: String): Integer; overload;
-  function KaMRandomS(Range_Both_Directions: Single; aCaller: String): Single; overload;
+  function KaMRandom(const aCaller: String): Extended; overload;
+  function KaMRandom(aMax: Integer; const aCaller: String): Integer; overload;
+  function KaMRandomS(Range_Both_Directions: Integer; const aCaller: String): Integer; overload;
+  function KaMRandomS(Range_Both_Directions: Single; const aCaller: String): Single; overload;
 
   function TimeGet: Cardinal;
   function GetTimeSince(aTime: Cardinal): Cardinal;
@@ -77,6 +88,8 @@ uses
   procedure KMSummArr(aArr1, aArr2: PKMCardinalArray);
   procedure KMSummAndEnlargeArr(aArr1, aArr2: PKMCardinalArray);
 
+  function RoundP(Value, Precision: Double): Double;
+
   function ArrayContains(aValue: Integer; const aArray: array of Integer): Boolean; overload;
   function ArrayContains(aValue: Word; const aArray: array of Word): Boolean; overload;
   function ArrayContains(aPoint: TKMPoint; const aArray: TKMPointArray): Boolean; overload;
@@ -89,9 +102,9 @@ uses
 
   function GetNoColorMarkupText(const aText: UnicodeString): UnicodeString;
 
-  procedure GetAllPathsInDir(aDir: UnicodeString; aSL: TStringList; aIncludeSubdirs: Boolean = True); overload;
-  procedure GetAllPathsInDir(aDir: UnicodeString; aSL: TStringList; aExt: String; aIncludeSubdirs: Boolean = True); overload;
-  procedure GetAllPathsInDir(aDir: UnicodeString; aSL: TStringList; aValidateFn: TBooleanStringFunc; aIncludeSubdirs: Boolean = True); overload;
+  procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; aIncludeSubdirs: Boolean = True); overload;
+  procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; const aExt: String; aIncludeSubdirs: Boolean = True); overload;
+  procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; aValidateFn: TBooleanStringFunc; aIncludeSubdirs: Boolean = True); overload;
 
   function DeleteDoubleSpaces(const aString: string): string;
 
@@ -106,9 +119,9 @@ uses
   function StrContains(const aStr, aSubStr: String): Boolean;
   function StrTrimRight(const aStr: String; aCharsToTrim: TKMCharArray): String;
   function StrTrimChar(const Str: String; Ch: Char): String;
-  procedure StringSplit(Str: string; Delimiter: Char; ListOfStrings: TStrings);
+  procedure StringSplit(const Str: string; Delimiter: Char; ListOfStrings: TStrings);
   {$IFDEF WDC}
-  procedure StrSplit(aStr, aDelimiters: String; var aStrings: TStringList);
+  procedure StrSplit(const aStr, aDelimiters: String; var aStrings: TStringList);
   {$ENDIF}
   function StrSplitA(const aStr, aDelimiters: String): TAnsiStringArray;
 
@@ -118,13 +131,13 @@ uses
 const
   DEFAULT_ATTEMPS_CNT_TO_TRY = 3;
 
-  function TryExecuteMethod(aObjParam: TObject; aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+  function TryExecuteMethod(aObjParam: TObject; const aStrParam, aMethodName: String; var aErrorStr: String;
                             aMethod: TUnicodeStringObjEvent; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 
-  function TryExecuteMethodProc(const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+  function TryExecuteMethodProc(const aStrParam, aMethodName: String; var aErrorStr: String;
                                 aMethodProc: TUnicodeStringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
 
-  function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+  function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: String; var aErrorStr: String;
                                 aMethodProc: TUnicode2StringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
 
 implementation
@@ -140,7 +153,7 @@ var
   fKaMSeed: Integer;
 
 
-function IfThenS(aCondition: Boolean; aIfTrue, aIfFalse: UnicodeString): UnicodeString;
+function IfThenS(aCondition: Boolean; const aIfTrue, aIfFalse: String): String;
 begin
   if aCondition then
     Result := aIfTrue
@@ -239,6 +252,12 @@ begin
   begin
     Inc(aArr1^[I], aArr2^[I]);
   end;
+end;
+
+
+function RoundP(Value, Precision: Double): Double;
+begin
+ Result := Round(Value/Precision)*Precision;
 end;
 
 
@@ -442,7 +461,7 @@ begin
     Result := TKMDirection((Round(Ang + 270 + 22.5) mod 360) div 45 + 1);
   end
   else
-    Result := dir_NA;
+    Result := dirNA;
 end;
 
 
@@ -528,6 +547,27 @@ function FixDelim(const aString: UnicodeString): UnicodeString;
 begin
   Result := StringReplace(aString, '\', PathDelim, [rfReplaceAll, rfIgnoreCase]);
 end;
+
+function Max3(const A,B,C: Integer): Integer;
+begin
+  Result := Max(A, Max(B, C));
+end;
+
+function Min3(const A,B,C: Integer): Integer;
+begin
+  Result := Min(A, Min(B, C));
+end;
+
+function Max4(const A,B,C,D: Integer): Integer;
+begin
+  Result := Max(Max(A, B), Max(C, D));
+end;
+
+function Min4(const A,B,C,D: Integer): Integer;
+begin
+  Result := Min(Min(A, B), Min(C, D));
+end;
+
 
 
 function GetPingColor(aPing: Word): Cardinal;
@@ -755,6 +795,17 @@ begin
 end;
 
 
+function GetRandomColorWSeed(aSeed: Integer): Cardinal;
+var
+  R,G,B: Byte;
+begin
+  R := KaMRandomWSeed(aSeed, 255);
+  G := KaMRandomWSeed(aSeed, 255);
+  B := KaMRandomWSeed(aSeed, 255);
+  Result := (R + G shl 8 + B shl 16) or $FF000000;
+end;
+
+
 function EnsureBrightness(aColor: Cardinal; aMinBrightness: Single; aMaxBrightness: Single = 1): Cardinal;
 begin
   Result := MultiplyBrightnessByFactor(aColor, 1, aMinBrightness, aMaxBrightness);
@@ -801,6 +852,30 @@ begin
   //e.g. 3599 equals to 59:58 and 3600 equals to 59:59
   //That is why we resort to DateUtils routines which are slower but much more correct
   Result :=  Format('%.2d', [HoursBetween(aTime, 0)]) + FormatDateTime(':nn:ss', aTime);
+end;
+
+
+function TickToTimeStr(aTick: Cardinal): String;
+begin
+  Result := TimeToString(aTick / 24 / 60 / 60 / 10);
+end;
+
+
+function StrToHex(S: String): string;
+var I: Integer;
+begin
+  Result:= '';
+  for I := 1 to length (S) do
+    Result:= Result+IntToHex(ord(S[i]),2);
+end;
+
+
+function HexToStr(H: String): String;
+var I: Integer;
+begin
+  Result:= '';
+  for I := 1 to length (H) div 2 do
+    Result:= Result+Char(StrToInt('$'+Copy(H,(I-1)*2+1,2)));
 end;
 
 
@@ -897,7 +972,7 @@ begin
 end;
 
 
-procedure LogKamRandom(aValue: Integer; aCaller: String); overload;
+procedure LogKamRandom(aValue: Integer; const aCaller: String); overload;
 begin
   if (gLog <> nil) and gLog.CanLogRandomChecks() then
     gLog.LogRandomChecks(Format('KaMRandom: %15d Caller: %s', [aValue, aCaller]));
@@ -951,7 +1026,7 @@ begin
 end;
 
 
-function KaMRandom(aCaller: String): Extended;
+function KaMRandom(const aCaller: String): Extended;
 begin
   Result := KaMRandomWSeed(fKamSeed);
 
@@ -959,7 +1034,7 @@ begin
 end;
 
 
-function KaMRandom(aMax: Integer; aCaller: String): Integer;
+function KaMRandom(aMax: Integer; const aCaller: String): Integer;
 begin
   if CUSTOM_RANDOM then
     Result := Trunc(KaMRandom('*' + aCaller)*aMax)
@@ -970,7 +1045,7 @@ begin
 end;
 
 
-function KaMRandomS(Range_Both_Directions: Integer; aCaller: String): Integer;
+function KaMRandomS(Range_Both_Directions: Integer; const aCaller: String): Integer;
 begin
   Result := KaMRandom(Range_Both_Directions*2+1, '*' + aCaller) - Range_Both_Directions;
 
@@ -978,7 +1053,7 @@ begin
 end;
 
 
-function KaMRandomS(Range_Both_Directions: Single; aCaller: String): Single;
+function KaMRandomS(Range_Both_Directions: Single; const aCaller: String): Single;
 begin
   Result := KaMRandom(Round(Range_Both_Directions*20000)+1, '*' + aCaller)/10000-Range_Both_Directions;
 
@@ -1030,7 +1105,7 @@ begin
 end;
 
 
-procedure GetAllPathsInDir(aDir: UnicodeString; aSL: TStringList; aIncludeSubdirs: Boolean = True);
+procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; aIncludeSubdirs: Boolean = True);
 var
   ValidateFn: TBooleanStringFunc;
 begin
@@ -1039,12 +1114,12 @@ begin
 end;
 
 
-procedure GetAllPathsInDir(aDir: UnicodeString; aSL: TStringList; aExt: String; aIncludeSubdirs: Boolean = True);
+procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; const aExt: String; aIncludeSubdirs: Boolean = True);
 var
   SR: TSearchRec;
 begin
-  if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, SR) = 0 then
-    try
+  try
+    if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, SR) = 0 then
       repeat
         if (SR.Attr and faDirectory) = 0 then
         begin
@@ -1055,18 +1130,18 @@ begin
         if aIncludeSubdirs and (SR.Name <> '.') and (SR.Name <> '..') then
           GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + SR.Name, aSL, aExt, aIncludeSubdirs);  // recursive call!
       until FindNext(Sr) <> 0;
-    finally
-      SysUtils.FindClose(SR);
-    end;
+  finally
+    SysUtils.FindClose(SR);
+  end;
 end;
 
 
-procedure GetAllPathsInDir(aDir: UnicodeString; aSL: TStringList; aValidateFn: TBooleanStringFunc; aIncludeSubdirs: Boolean = True);
+procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; aValidateFn: TBooleanStringFunc; aIncludeSubdirs: Boolean = True);
 var
   SR: TSearchRec;
 begin
-  if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, SR) = 0 then
-    try
+  try
+    if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, SR) = 0 then
       repeat
         if (SR.Attr and faDirectory) = 0 then
         begin
@@ -1077,9 +1152,9 @@ begin
         if aIncludeSubdirs and (SR.Name <> '.') and (SR.Name <> '..') then
           GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + SR.Name, aSL, aValidateFn, aIncludeSubdirs);  // recursive call!
       until FindNext(Sr) <> 0;
-    finally
-      SysUtils.FindClose(SR);
-    end;
+  finally
+    SysUtils.FindClose(SR);
+  end;
 end;
 
 
@@ -1204,7 +1279,7 @@ begin
 end;
 
 
-procedure StringSplit(Str: string; Delimiter: Char; ListOfStrings: TStrings) ;
+procedure StringSplit(const Str: string; Delimiter: Char; ListOfStrings: TStrings) ;
 begin
    ListOfStrings.Clear;
    ListOfStrings.Delimiter       := Delimiter;
@@ -1214,7 +1289,7 @@ end;
 
 
 {$IFDEF WDC}
-procedure StrSplit(aStr, aDelimiters: String; var aStrings: TStringList);
+procedure StrSplit(const aStr, aDelimiters: String; var aStrings: TStringList);
 var
   StrArray: TStringDynArray;
   I: Integer;
@@ -1296,7 +1371,7 @@ begin
 end;
 {$IFEND}
 
-function TryExecuteMethod(aObjParam: TObject; aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+function TryExecuteMethod(aObjParam: TObject; const aStrParam, aMethodName: String; var aErrorStr: String;
                           aMethod: TUnicodeStringObjEvent; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 var
   Success: Boolean;
@@ -1327,7 +1402,7 @@ begin
 end;
 
 
-function TryExecuteMethodProc(const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+function TryExecuteMethodProc(const aStrParam, aMethodName: String; var aErrorStr: String;
                               aMethodProc: TUnicodeStringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 var
   Success: Boolean;
@@ -1358,7 +1433,7 @@ begin
 end;
 
 
-function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
+function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: String; var aErrorStr: String;
                               aMethodProc: TUnicode2StringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 var
   Success: Boolean;

@@ -45,7 +45,7 @@ begin
   inherited Create;
 
   Panel_BlockUnit := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_BlockUnit, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_BlockUnit, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS], fntOutline, taCenter);
   for I := 0 to High(Button_BlockUnit) do
   begin
     Button_BlockUnit[I] := TKMButtonFlat.Create(Panel_BlockUnit, (I mod 5)*37,30+(I div 5)*37,33,33,gRes.Units[School_Order[I]].GUIIcon);
@@ -57,7 +57,7 @@ begin
     Image_BlockUnit[I].ImageCenter;
   end;
 
-  TKMLabel.Create(Panel_BlockUnit, 0, 146, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_BARRACKS], fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_BlockUnit, 0, 146, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_BARRACKS], fntMetal, taLeft);
   for I := 0 to High(Button_BlockBarracksWarriors) do
   begin
     Button_BlockBarracksWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit,(I mod 5)*37,20+146+(I div 5)*37,33,33,
@@ -70,7 +70,7 @@ begin
     Image_BlockBarracksWarriors[I].ImageCenter;
   end;
 
-  TKMLabel.Create(Panel_BlockUnit, 0, 245, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_TOWNHALL], fnt_Metal, taLeft);
+  TKMLabel.Create(Panel_BlockUnit, 0, 245, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_TOWNHALL], fntMetal, taLeft);
   for I := 0 to High(Button_BlockTHWarriors) do
   begin
     Button_BlockTHWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit,(I mod 5)*37,265+(I div 5)*37,33,33, gRes.Units[TownHall_Order[I]].GUIIcon, rxGui);

@@ -78,7 +78,7 @@ end;
 
 function TKMHandLocks.GetUnitBlocked(aUnitType: TKMUnitType; aInTownHall: Boolean = False): Boolean;
 begin
-  if aInTownHall and (aUnitType = ut_Militia) then
+  if aInTownHall and (aUnitType = utMilitia) then
     Result := fMilitiaBlockedInTH
   else
     Result := fUnitBlocked[aUnitType];
@@ -87,7 +87,7 @@ end;
 
 procedure TKMHandLocks.SetUnitBlocked(aIsBlocked: Boolean; aUnitType: TKMUnitType; aInTownHall: Boolean = False);
 begin
-  if aInTownHall and (aUnitType = ut_Militia) then
+  if aInTownHall and (aUnitType = utMilitia) then
     fMilitiaBlockedInTH := aIsBlocked
   else
     fUnitBlocked[aUnitType] := aIsBlocked;

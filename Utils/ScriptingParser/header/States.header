@@ -7,6 +7,10 @@ States are queried in a form **States.STATE_NAME(STATE_PARAMETERS)** like so:
     if States.PlayerCount > 5 then
       A := States.UnitCount(1);
 ```
+Also there is a short name for Actions: just **S**, so you could use it as
+```pascal
+  A := S.UnitCount(1); //Defeat 1st player
+```
 
 ***
 

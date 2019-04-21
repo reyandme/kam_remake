@@ -351,22 +351,22 @@ begin
   M.Read(Kind, SizeOf(TKMessageKind)); //Depending on kind message contains either Text or a Number
 
   case Kind of
-    mk_GameVersion:
+    mkGameVersion:
       begin
         M.ReadA(tmpString);
         if tmpString <> NET_PROTOCOL_REVISON then
           fQueryIsDone := True;
       end;
 
-    mk_IndexOnServer:
+    mkIndexOnServer:
       begin
         M.Read(tmpHandleIndex);
         fIndexOnServer := tmpHandleIndex;
         fPingStarted := TimeGet;
-        PacketSend(NET_ADDRESS_SERVER, mk_GetServerInfo);
+        PacketSend(NET_ADDRESS_SERVER, mkGetServerInfo);
       end;
 
-    mk_ServerInfo:
+    mkServerInfo:
       begin
         fOnServerData(fServerID, M, fPingStarted);
         fQueryIsDone := true; //We cannot call fOnQueryDone now because that would disconnect the socket halfway through the receive procedure (crashes)

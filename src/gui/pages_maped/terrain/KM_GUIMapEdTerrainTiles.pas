@@ -85,7 +85,7 @@ begin
   TABLE_ELEMS_CNT := TABLE_ELEMS;
 
   Panel_Tiles := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HINTS_TILES], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HINTS_TILES], fntOutline, taCenter);
 
   TilesMagicWater := TKMButtonFlat.Create(Panel_Tiles, 0, 25, BTN_SIZE_S, BTN_SIZE_S, 670);
   TilesMagicWater.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_MAGIC_WATER_HINT, SC_MAPEDIT_SUB_MENU_ACTION_1);
@@ -104,13 +104,13 @@ begin
   NumEdit_SetTileNumber.OnChange := TilesChange;
   NumEdit_SetTileNumber.AutoFocusable := False;
 
-  TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 25 + BTN_SIZE + 5, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
+  TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 25 + BTN_SIZE + 5, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fntMetal);
   TilesRandom.Checked := True;
   TilesRandom.OnClick := TilesChange;
   TilesRandom.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_TILES_RANDOM_HINT, SC_MAPEDIT_SUB_MENU_ACTION_4);
 
   //Create scroll first to link to its MouseWheel event
-  TilesScroll := TKMScrollBar.Create(Panel_Tiles, 0, 25 + BTN_SIZE + 28 + 4 + MAPED_TILES_Y * 32, 194, 20, sa_Horizontal, bsGame);
+  TilesScroll := TKMScrollBar.Create(Panel_Tiles, 0, 25 + BTN_SIZE + 28 + 4 + MAPED_TILES_Y * 32, 194, 20, saHorizontal, bsGame);
   TilesScroll.MaxValue := (TABLE_ELEMS_CNT div MAPED_TILES_Y) - MAPED_TILES_X; // 32 - 6
   TilesScroll.Position := 0;
   TilesScroll.OnChange := TilesRefresh;
