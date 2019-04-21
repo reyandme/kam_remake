@@ -8,6 +8,8 @@ uses
 type
   TKMMapEdMenuSettings = class
   private
+    fOnDone: TNotifyEvent;
+    procedure Back_Click(Sender: TObject);
     procedure Menu_Settings_Change(Sender: TObject);
   protected
     Panel_Settings: TKMPanel;
@@ -17,8 +19,9 @@ type
       TrackBar_Settings_ScrollSpeed: TKMTrackBar;
       CheckBox_Settings_MusicOff: TKMCheckBox;
       CheckBox_Settings_ShuffleOn: TKMCheckBox;
+      Button_Cancel: TKMButton;
   public
-    constructor Create(aParent: TKMPanel);
+    constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
 
     procedure Menu_Settings_Fill;
     procedure Show;
@@ -33,12 +36,14 @@ uses
 
 
 { TKMMapEdMenuQuit }
-constructor TKMMapEdMenuSettings.Create(aParent: TKMPanel);
+constructor TKMMapEdMenuSettings.Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
 const
   PAD = 3;
   WID = TB_WIDTH - PAD * 2;
 begin
   inherited Create;
+
+  fOnDone := aOnDone;
 
   Panel_Settings := TKMPanel.Create(aParent, 0, 44, TB_WIDTH, 332);
     TKMLabel.Create(Panel_Settings, 0, PAGE_TITLE_Y, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], fntOutline, taLeft);
@@ -62,6 +67,11 @@ begin
     CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fntMetal);
     CheckBox_Settings_ShuffleOn.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_HINT];
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
+
+    Button_Cancel := TKMButton.Create(Panel_Settings, PAD, 310, WID, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
+
+    Button_Cancel.Hint := gResTexts[TX_MENU_DONT_QUIT_MISSION];
+    Button_Cancel.OnClick := Back_Click;
 end;
 
 
@@ -107,6 +117,12 @@ begin
 
   TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOff.Checked;
   CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOff.Checked;
+end;
+
+
+procedure TKMMapEdMenuSettings.Back_Click(Sender: TObject);
+begin
+  fOnDone(Self);
 end;
 
 

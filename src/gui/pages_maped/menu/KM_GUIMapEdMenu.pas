@@ -60,7 +60,7 @@ begin
   fGuiMenuLoad := TKMMapEdMenuLoad.Create(aParent, MenuDone);
   fGuiMenuSave := TKMMapEdMenuSave.Create(aParent, MenuDone, aOnMapTypChanged);
   fGuiMenuQuit := TKMMapEdMenuQuit.Create(aParent, MenuDone);
-  fGuiMenuSettings := TKMMapEdMenuSettings.Create(aParent);
+  fGuiMenuSettings := TKMMapEdMenuSettings.Create(aParent, MenuDone);
 
   Panel_Menu := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
 
