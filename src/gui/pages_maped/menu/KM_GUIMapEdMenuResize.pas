@@ -53,8 +53,8 @@ begin
   fOnDone := aOnDone;
   fOnPageChange := aOnPageChange;
 
-  Panel_Resize := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
-    Panel_Resize_Edit := TKMPanel.Create(Panel_Resize, 0, 0, Panel_Resize.Width, Panel_Resize.Height);
+  Panel_Resize := TKMPanel.Create(aParent, 0, 45, TB_MAP_ED_WIDTH, 400);
+    Panel_Resize_Edit := TKMPanel.Create(Panel_Resize, 9, 0, Panel_Resize.Width - 9, Panel_Resize.Height);
 
       Y := PAGE_TITLE_Y;
       TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 45, gResTexts[TX_MAPED_MAP_RESIZE_TITLE], fntOutline, taCenter);

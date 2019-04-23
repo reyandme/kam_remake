@@ -38,15 +38,15 @@ uses
 { TKMMapEdMenuQuit }
 constructor TKMMapEdMenuSettings.Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
 const
-  PAD = 3;
-  WID = TB_WIDTH - PAD * 2;
+  PAD = 9;
+  WID = TB_MAP_ED_WIDTH - 9;
 begin
   inherited Create;
 
   fOnDone := aOnDone;
 
-  Panel_Settings := TKMPanel.Create(aParent, 0, 44, TB_WIDTH, 332);
-    TKMLabel.Create(Panel_Settings, 0, PAGE_TITLE_Y, TB_WIDTH, 30, gResTexts[TX_MENU_SETTINGS], fntOutline, taLeft);
+  Panel_Settings := TKMPanel.Create(aParent, 0, 44, TB_MAP_ED_WIDTH, 332);
+    TKMLabel.Create(Panel_Settings, 9, PAGE_TITLE_Y, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MENU_SETTINGS], fntOutline, taLeft);
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,40,WID,0,20);
     TrackBar_Settings_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];
     TrackBar_Settings_Brightness.OnChange := Menu_Settings_Change;

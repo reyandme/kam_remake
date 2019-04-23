@@ -61,6 +61,7 @@ const
   // Toolbar pads
   TB_PAD = 9; // Picked up empirically
   TB_WIDTH = 180; // Max width of sidebar elements
+  TB_MAP_ED_WIDTH = 189;
   PAGE_TITLE_Y = 5; // Page title offset
   STATS_LINES_CNT = 13; //Number of stats (F3) lines
 

@@ -52,16 +52,16 @@ constructor TKMMapEdTownScript.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-  Panel_Script := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Script, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_TITLE], fntOutline, taCenter);
-  CheckBox_AutoBuild := TKMCheckBox.Create(Panel_Script, 0, 30, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_AUTOBUILD], fntMetal);
+  Panel_Script := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
+  TKMLabel.Create(Panel_Script, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_AI_TITLE], fntOutline, taCenter);
+  CheckBox_AutoBuild := TKMCheckBox.Create(Panel_Script, 9, 30, TB_MAP_ED_WIDTH - 9, 20, gResTexts[TX_MAPED_AI_AUTOBUILD], fntMetal);
   CheckBox_AutoBuild.OnClick := Town_ScriptChange;
   CheckBox_AutoBuild.Hint := GetHintWHotKey(TX_MAPED_AI_AUTOBUILD, MAPED_SUBMENU_ACTIONS_HOTKEYS[0]);
-  CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_AUTOREPAIR], fntMetal);
+  CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 9, 50, TB_MAP_ED_WIDTH - 9, 20, gResTexts[TX_MAPED_AI_AUTOREPAIR], fntMetal);
   CheckBox_AutoRepair.OnClick := Town_ScriptChange;
   CheckBox_AutoRepair.Hint := GetHintWHotKey(TX_MAPED_AI_AUTOREPAIR, MAPED_SUBMENU_ACTIONS_HOTKEYS[1]);
 
-  Button_ClassicAIParams := TKMButton.Create(Panel_Script, 0, 75, TB_WIDTH, 40, gResTexts[TX_MAPED_AI_CLASSIC_AI_PARAMS], bsGame);
+  Button_ClassicAIParams := TKMButton.Create(Panel_Script, 9, 75, TB_MAP_ED_WIDTH - 9, 40, gResTexts[TX_MAPED_AI_CLASSIC_AI_PARAMS], bsGame);
   Button_ClassicAIParams.Hint := GetHintWHotkey(TX_MAPED_AI_CLASSIC_AI_PARAMS_HINT, MAPED_SUBMENU_ACTIONS_HOTKEYS[2]);
   Button_ClassicAIParams.OnClick := ClassicAIParams_Click;
 
@@ -88,22 +88,22 @@ begin
                                                     120, 30, gResTexts[TX_WORD_CLOSE], bsGame);
     Button_CloseClassicAIParams.OnClick := ClassicAIParams_Click;
 
-  CheckBox_UnlimitedEquip := TKMCheckBox.Create(Panel_Script, 0, 130, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_FASTEQUIP], fntMetal);
+  CheckBox_UnlimitedEquip := TKMCheckBox.Create(Panel_Script, 9, 130, TB_MAP_ED_WIDTH - 9, 20, gResTexts[TX_MAPED_AI_FASTEQUIP], fntMetal);
   CheckBox_UnlimitedEquip.OnClick := Town_ScriptChange;
   CheckBox_UnlimitedEquip.Hint := GetHintWHotKey(TX_MAPED_AI_FASTEQUIP_HINT, MAPED_SUBMENU_ACTIONS_HOTKEYS[3]);
 
-  TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Script, 0, 155, TB_WIDTH, 10, 300);
+  TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Script, 9, 155, TB_MAP_ED_WIDTH - 9, 10, 300);
   TrackBar_EquipRateLeather.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
   TrackBar_EquipRateLeather.Step := 5;
   TrackBar_EquipRateLeather.OnChange := Town_ScriptChange;
 
-  TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Script, 0, 200, TB_WIDTH, 10, 300);
+  TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Script, 9, 200, TB_MAP_ED_WIDTH - 9, 10, 300);
   TrackBar_EquipRateIron.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
   TrackBar_EquipRateIron.Step := 5;
   TrackBar_EquipRateIron.OnChange := Town_ScriptChange;
 
-  TKMLabel.Create(Panel_Script, 0, 255, gResTexts[TX_MAPED_AI_START], fntMetal, taLeft);
-  Button_AIStart         := TKMButtonFlat.Create(Panel_Script, 0, 275, 33, 33, 62, rxGuiMain);
+  TKMLabel.Create(Panel_Script, 9, 255, gResTexts[TX_MAPED_AI_START], fntMetal, taLeft);
+  Button_AIStart         := TKMButtonFlat.Create(Panel_Script, 9, 275, 33, 33, 62, rxGuiMain);
   Button_AIStart.Hint    := GetHintWHotKey(TX_MAPED_AI_START_HINT, MAPED_SUBMENU_ACTIONS_HOTKEYS[4]);
   Button_AIStart.OnClick := Town_ScriptChange;
 

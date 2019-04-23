@@ -58,11 +58,11 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  Panel_Mission := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 28);
+  Panel_Mission := TKMPanel.Create(aParent, 0, 45, TB_MAP_ED_WIDTH, 28);
 
   for MT := Low(TKMMissionTab) to High(TKMMissionTab) do
   begin
-    Button_Mission[MT] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * Byte(MT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[MT], rxGui, bsGame);
+    Button_Mission[MT] := TKMButton.Create(Panel_Mission, 9 + SMALL_PAD_W * Byte(MT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[MT], rxGui, bsGame);
     Button_Mission[MT].Hint := GetHintWHotKey(TabHint[MT], MAPED_SUBMENU_HOTKEYS[Ord(MT)]);
     Button_Mission[MT].OnClick := PageChange;
   end;

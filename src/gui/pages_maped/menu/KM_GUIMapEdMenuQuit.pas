@@ -34,10 +34,10 @@ begin
 
   fOnDone := aOnDone;
 
-  Panel_Quit := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Quit, 0, 40, TB_WIDTH, 60, gResTexts[TX_MAPED_LOAD_UNSAVED], fntOutline, taCenter);
-  Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
-  Button_Quit_No  := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
+  Panel_Quit := TKMPanel.Create(aParent, 0, 45, TB_MAP_ED_WIDTH, 400);
+  TKMLabel.Create(Panel_Quit, 0, 40, TB_MAP_ED_WIDTH, 60, gResTexts[TX_MAPED_LOAD_UNSAVED], fntOutline, taCenter);
+  Button_Quit_Yes := TKMButton.Create(Panel_Quit, 9, 100, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
+  Button_Quit_No  := TKMButton.Create(Panel_Quit, 9, 140, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
   Button_Quit_Yes.Hint    := gResTexts[TX_MENU_QUIT_MAPED];
   Button_Quit_No.Hint     := gResTexts[TX_MENU_DONT_QUIT_MISSION];
   Button_Quit_Yes.OnClick := Menu_QuitClick;
