@@ -87,21 +87,21 @@ begin
   fLastBrush := Byte(SURFACES[0,0]);
   fLastMagicBrush := False;
 
-  Panel_Brushes := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
+  Panel_Brushes := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
 
-  TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_BRUSH], fntOutline, taCenter);
-  BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 27, 36*5 - 60, 0, BRUSH_MAX_SIZE);
+  TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_BRUSH], fntOutline, taCenter);
+  BrushSize   := TKMTrackBar.Create(Panel_Brushes, 9, 27, 36*5 - 60, 0, BRUSH_MAX_SIZE);
   BrushSize.Position := 4;
   BrushSize.OnChange := BrushChange;
   BrushSize.Hint := GetHintWHotKey(TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT, gResTexts[TX_KEY_CTRL_MOUSEWHEEL]);
 
-  BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 36*5 - 54 - 1, 25, 24, 24, 592);
+  BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 9 + 36*5 - 54 - 1, 25, 24, 24, 592);
   BrushCircle.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_HEIGHTS_CIRCLE, SC_MAPEDIT_SUB_MENU_ACTION_1);
   BrushCircle.OnClick := BrushChange;
   BrushCircle.TexOffsetX := 1;
   BrushCircle.TexOffsetY := 1;
 
-  BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 36*5 - 24 - 1, 25, 24, 24, 593);
+  BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 9 + 36*5 - 24 - 1, 25, 24, 24, 593);
   BrushSquare.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_HEIGHTS_SQUARE, SC_MAPEDIT_SUB_MENU_ACTION_2);
   BrushSquare.OnClick := BrushChange;
   BrushSquare.TexOffsetX := 1;
@@ -111,7 +111,7 @@ begin
     for K := Low(SURFACES[I]) to High(SURFACES[I]) do
     if SURFACES[I,K] <> tkCustom then
     begin
-      BrushTable[I,K] := TKMButtonFlat.Create(Panel_Brushes, K * 36, 55 + I * 40, 34, 34, Combo[SURFACES[I,K], SURFACES[I,K], 1] + 1, rxTiles); // grass
+      BrushTable[I,K] := TKMButtonFlat.Create(Panel_Brushes, 9 + K * 36, 55 + I * 40, 34, 34, Combo[SURFACES[I,K], SURFACES[I,K], 1] + 1, rxTiles); // grass
       BrushTable[I,K].Tag := Byte(SURFACES[I,K]);
       BrushTable[I,K].Tag2 := Byte(bbtBrush);
       HintStr := GetEnumName(TypeInfo(TKMTerrainKind), Integer(SURFACES[I,K]));
@@ -121,7 +121,7 @@ begin
 
   for MK := Low(TKMTileMaskKind) to High(TKMTileMaskKind) do
   begin
-    BrushMasks[MK] := TKMButtonFlat.Create(Panel_Brushes, Byte(MK) * 36, 295, 34, 34, TILE_MASK_KINDS_PREVIEW[MK] + 1, rxTiles);
+    BrushMasks[MK] := TKMButtonFlat.Create(Panel_Brushes, 9 + Byte(MK) * 36, 295, 34, 34, TILE_MASK_KINDS_PREVIEW[MK] + 1, rxTiles);
     BrushMasks[MK].Tag := Byte(MK);
     BrushMasks[MK].Tag2 := Byte(bbtMask);
 
@@ -131,11 +131,11 @@ begin
 
   BrushMasks[mkHardest].Hide;
 
-  MagicBrush := TKMButtonFlat.Create(Panel_Brushes, 36*4, 295, 34, 34, 673, rxGui);
+  MagicBrush := TKMButtonFlat.Create(Panel_Brushes, 9 + 36*4, 295, 34, 34, 673, rxGui);
   MagicBrush.Hint := gResTexts[TX_MAPED_TERRAIN_MAGIC_BRUSH_HINT];
   MagicBrush.OnClick := BrushChange;
 
-  BrushOptions := TKMButtonFlat.Create(Panel_Brushes, 2, 335, TB_WIDTH - 2, 21, 0);
+  BrushOptions := TKMButtonFlat.Create(Panel_Brushes, 9 + 2, 335, TB_WIDTH - 2, 21, 0);
   BrushOptions.Caption := gResTexts[TX_MAPED_TERRAIN_BRUSH_OPTIONS];
   BrushOptions.CapOffsetY := -11;
   BrushOptions.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_BRUSH_OPTIONS_HINT, SC_MAPEDIT_SUB_MENU_ACTION_3);

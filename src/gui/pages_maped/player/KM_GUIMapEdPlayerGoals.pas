@@ -44,9 +44,9 @@ constructor TKMMapEdPlayerGoals.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-  Panel_Goals := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_GOALS], fntOutline, taCenter);
-  ColumnBox_Goals := TKMColumnBox.Create(Panel_Goals, 0, 30, TB_WIDTH, 230, fntGame, bsGame);
+  Panel_Goals := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
+  TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_GOALS], fntOutline, taCenter);
+  ColumnBox_Goals := TKMColumnBox.Create(Panel_Goals, 9, 30, TB_MAP_ED_WIDTH - 9, 230, fntGame, bsGame);
   ColumnBox_Goals.SetColumns(fntOutline,
     [gResTexts[TX_MAPED_GOALS_TYPE],
      gResTexts[TX_MAPED_GOALS_CONDITION],
@@ -55,9 +55,9 @@ begin
   ColumnBox_Goals.OnDoubleClick := Goals_ListDoubleClick;
   ColumnBox_Goals.ColumnIdForScroll := 2;
 
-  Button_GoalsAdd := TKMButton.Create(Panel_Goals, 0, 270, 25, 25, '+', bsGame);
+  Button_GoalsAdd := TKMButton.Create(Panel_Goals, 9, 270, 25, 25, '+', bsGame);
   Button_GoalsAdd.OnClick := Goals_Add;
-  Button_GoalsDel := TKMButton.Create(Panel_Goals, 30, 270, 25, 25, 'X', bsGame);
+  Button_GoalsDel := TKMButton.Create(Panel_Goals, 39, 270, 25, 25, 'X', bsGame);
   Button_GoalsDel.OnClick := Goals_Del;
 end;
 

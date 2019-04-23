@@ -52,21 +52,21 @@ begin
   fMapsMP := TKMapsCollection.Create(mfMP);
   fMapsDL := TKMapsCollection.Create(mfDL);
 
-  Panel_Load := TKMPanel.Create(aParent,0,45,TB_WIDTH,400);
-  TKMLabel.Create(Panel_Load, 0, PAGE_TITLE_Y, TB_WIDTH, 30, gResTexts[TX_MAPED_LOAD_TITLE], fntOutline, taLeft);
-  TKMBevel.Create(Panel_Load, 0, 30, TB_WIDTH, 57);
-  Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,0,32,TB_WIDTH,54,fntGrey);
+  Panel_Load := TKMPanel.Create(aParent,0,45,TB_MAP_ED_WIDTH,400);
+  TKMLabel.Create(Panel_Load, 9, PAGE_TITLE_Y, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MAPED_LOAD_TITLE], fntOutline, taLeft);
+  TKMBevel.Create(Panel_Load, 9, 30, TB_MAP_ED_WIDTH - 9, 57);
+  Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,9,32,TB_MAP_ED_WIDTH - 9,54,fntGrey);
   Radio_Load_MapType.ItemIndex := 0;
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS_SHORT]);
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_DLMAPS]);
   Radio_Load_MapType.OnChange := Menu_LoadChange;
-  ListBox_Load := TKMListBox.Create(Panel_Load, 0, 104, TB_WIDTH, 205, fntGrey, bsGame);
+  ListBox_Load := TKMListBox.Create(Panel_Load, 9, 104, TB_MAP_ED_WIDTH - 9, 205, fntGrey, bsGame);
   ListBox_Load.ItemHeight := 18;
   ListBox_Load.AutoHideScrollBar := True;
   ListBox_Load.OnDoubleClick := Menu_LoadClick;
-  Button_LoadLoad     := TKMButton.Create(Panel_Load,0,318,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD],bsGame);
-  Button_LoadCancel   := TKMButton.Create(Panel_Load,0,354,TB_WIDTH,30,gResTexts[TX_MAPED_LOAD_CANCEL],bsGame);
+  Button_LoadLoad     := TKMButton.Create(Panel_Load,9,318,TB_MAP_ED_WIDTH - 9,30,gResTexts[TX_MAPED_LOAD],bsGame);
+  Button_LoadCancel   := TKMButton.Create(Panel_Load,9,354,TB_MAP_ED_WIDTH - 9,30,gResTexts[TX_MAPED_LOAD_CANCEL],bsGame);
   Button_LoadLoad.OnClick     := Menu_LoadClick;
   Button_LoadCancel.OnClick   := Menu_LoadClick;
 end;

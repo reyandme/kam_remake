@@ -44,40 +44,40 @@ var
 begin
   inherited Create;
 
-  Panel_BlockUnit := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_BlockUnit, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS], fntOutline, taCenter);
+  Panel_BlockUnit := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
+  TKMLabel.Create(Panel_BlockUnit, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS], fntOutline, taCenter);
   for I := 0 to High(Button_BlockUnit) do
   begin
-    Button_BlockUnit[I] := TKMButtonFlat.Create(Panel_BlockUnit, (I mod 5)*37,30+(I div 5)*37,33,33,gRes.Units[School_Order[I]].GUIIcon);
+    Button_BlockUnit[I] := TKMButtonFlat.Create(Panel_BlockUnit, 9 + (I mod 5)*37,30+(I div 5)*37,33,33,gRes.Units[School_Order[I]].GUIIcon);
     Button_BlockUnit[I].OnClick := Player_BlockUnitClick;
     Button_BlockUnit[I].Tag := I;
     Button_BlockUnit[I].Hint := gRes.Units[School_Order[I]].GUIName;
-    Image_BlockUnit[I] := TKMImage.Create(Panel_BlockUnit, (I mod 5)*37 + 15,30+(I div 5)*37 + 15, 16, 16, 0, rxGuiMain);
+    Image_BlockUnit[I] := TKMImage.Create(Panel_BlockUnit, 9 + (I mod 5)*37 + 15,30+(I div 5)*37 + 15, 16, 16, 0, rxGuiMain);
     Image_BlockUnit[I].Hitable := False;
     Image_BlockUnit[I].ImageCenter;
   end;
 
-  TKMLabel.Create(Panel_BlockUnit, 0, 146, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_BARRACKS], fntMetal, taLeft);
+  TKMLabel.Create(Panel_BlockUnit, 9, 146, TB_MAP_ED_WIDTH - 9, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_BARRACKS], fntMetal, taLeft);
   for I := 0 to High(Button_BlockBarracksWarriors) do
   begin
-    Button_BlockBarracksWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit,(I mod 5)*37,20+146+(I div 5)*37,33,33,
+    Button_BlockBarracksWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit,9 + (I mod 5)*37,20+146+(I div 5)*37,33,33,
                                                             gRes.Units[Barracks_Order[I]].GUIIcon, rxGui);
     Button_BlockBarracksWarriors[I].Hint := gRes.Units[Barracks_Order[I]].GUIName;
     Button_BlockBarracksWarriors[I].Tag := I;
     Button_BlockBarracksWarriors[I].OnClick := Player_BlockBarracksWarriorsClick;
-    Image_BlockBarracksWarriors[I] := TKMImage.Create(Panel_BlockUnit, (I mod 5)*37 + 15,20+146+(I div 5)*37 + 15, 16, 16, 0, rxGuiMain);
+    Image_BlockBarracksWarriors[I] := TKMImage.Create(Panel_BlockUnit, 9 + (I mod 5)*37 + 15,20+146+(I div 5)*37 + 15, 16, 16, 0, rxGuiMain);
     Image_BlockBarracksWarriors[I].Hitable := False;
     Image_BlockBarracksWarriors[I].ImageCenter;
   end;
 
-  TKMLabel.Create(Panel_BlockUnit, 0, 245, TB_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_TOWNHALL], fntMetal, taLeft);
+  TKMLabel.Create(Panel_BlockUnit, 9, 245, TB_MAP_ED_WIDTH - 9, 0, gResTexts[TX_MAPED_BLOCK_UNITS_IN_TOWNHALL], fntMetal, taLeft);
   for I := 0 to High(Button_BlockTHWarriors) do
   begin
-    Button_BlockTHWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit,(I mod 5)*37,265+(I div 5)*37,33,33, gRes.Units[TownHall_Order[I]].GUIIcon, rxGui);
+    Button_BlockTHWarriors[I] := TKMButtonFlat.Create(Panel_BlockUnit, 9 + (I mod 5)*37,265+(I div 5)*37,33,33, gRes.Units[TownHall_Order[I]].GUIIcon, rxGui);
     Button_BlockTHWarriors[I].Hint := gRes.Units[TownHall_Order[I]].GUIName;
     Button_BlockTHWarriors[I].Tag := I;
     Button_BlockTHWarriors[I].OnClick := Player_BlockTHWarriorsClick;
-    Image_BlockTHWarriors[I] := TKMImage.Create(Panel_BlockUnit, (I mod 5)*37 + 15,265+(I div 5)*37 + 15, 16, 16, 0, rxGuiMain);
+    Image_BlockTHWarriors[I] := TKMImage.Create(Panel_BlockUnit, 9 + (I mod 5)*37 + 15,265+(I div 5)*37 + 15, 16, 16, 0, rxGuiMain);
     Image_BlockTHWarriors[I].Hitable := False;
     Image_BlockTHWarriors[I].ImageCenter;
   end;
