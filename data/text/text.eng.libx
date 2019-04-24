@@ -1201,3 +1201,4 @@
 1252:Show initial players colors
 1253:Show self / ally / enemy players colors
 1254:Show teams colors
+1255:Error: Player name '%s' is reserved

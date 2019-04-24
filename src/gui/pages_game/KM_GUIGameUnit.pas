@@ -9,6 +9,7 @@ uses
 type
   TKMGUIGameUnit = class
   private
+    fAnimStep: Cardinal;
     fAskDismiss: Boolean;
     fJoiningGroups: Boolean;
     fSetViewportEvent: TPointFEvent;
@@ -73,12 +74,17 @@ uses
   KM_Resource, KM_ResFonts, KM_ResTexts, KM_ResKeys, KM_ResHouses, KM_ResSound, KM_ResCursors, KM_ResUnits, KM_Pics,
   KM_UnitWarrior, KM_Utils, KM_Defaults, KM_Sound, KM_CommonUtils;
 
+const
+  UNIT_FLAG_TEX_ID = 1159;
+  UNIT_FLAG_TEX_ID_FRAME = 5;
+
 
 { TKMGUIGameUnit }
 
 constructor TKMGUIGameUnit.Create(aParent: TKMPanel; aSetViewportEvent: TPointFEvent);
 begin
   fSetViewportEvent := aSetViewportEvent;
+  fAnimStep := 0;
 
   Panel_Unit := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 400);
     Image_PlayerFlag := TKMImage.Create(Panel_Unit, 0, 19, 20, 13, 1159, rxHouses); // before unit name label
@@ -195,6 +201,9 @@ var
 begin
   Image_PlayerFlag.FlagColor := gHands[aUnit.Owner].FlagColor;
   Image_PlayerFlag.Hint      := Format(gResTexts[TX_PLAYER_FLAG_HINT], [gHands[aUnit.Owner].OwnerName]);
+
+  Inc(fAnimStep);
+  Image_PlayerFlag.TexID := UNIT_FLAG_TEX_ID + fAnimStep mod UNIT_FLAG_TEX_ID_FRAME;
 
   // Common properties
   Label_UnitName.Caption      := gRes.Units[aUnit.UnitType].GUIName;

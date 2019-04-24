@@ -121,6 +121,7 @@ type
     chkShowFlatArea: TCheckBox;
     chkShowEyeRoutes: TCheckBox;
     chkSelectedObjInfo: TCheckBox;
+    chkShowFPS: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -751,6 +752,7 @@ begin
     SHOW_UNIT_ROUTES := chkShowRoutes.Checked;
     SHOW_SEL_BUFFER := chkSelectionBuffer.Checked;
     SHOW_GAME_TICK := chkShowGameTick.Checked;
+    SHOW_FPS := chkShowFPS.Checked;
     SHOW_UIDs := chkUIDs.Checked;
     SHOW_SELECTED_OBJ_INFO := chkSelectedObjInfo.Checked;
 

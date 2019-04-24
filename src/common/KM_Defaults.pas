@@ -49,7 +49,7 @@ const
   //Also there is a technical limit, of how many ticks we can calculate per update
   MAX_TICKS_PER_GAME_UPDATE = 100;
 
-  DEBUG_CFG = False; //Debug preset for most usable debug options
+  DEBUG_CFG = True; //Debug preset for most usable debug options
 var
   // These should be True (we can occasionally turn them Off to speed up the debug)
   CALC_EXPECTED_TICK    :Boolean = not DEBUG_CFG;  //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
@@ -123,6 +123,7 @@ var
   SKIP_LOADING_CURSOR     :Boolean = False; //Skip loading and setting cursor
   AGGRESSIVE_REPLAYS      :Boolean = True; //Write a command gicTempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_GAME_TICK          :Boolean = DEBUG_CFG; //Show game tick next to game time
+  SHOW_FPS                :Boolean = False; //Show FPS
   SHOW_TERRAIN_IDS        :Boolean = False; //Show number of every tile terrain on it (also show layers terrain ids)
   SHOW_TERRAIN_KINDS      :Boolean = False; //Show terrain kind ids on every tile corner
   SHOW_TERRAIN_TILES_GRID :Boolean = False; //Show terrain tiles grid

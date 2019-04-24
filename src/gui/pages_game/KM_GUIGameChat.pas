@@ -31,9 +31,9 @@ type
     procedure PostMsg(const aMsg: UnicodeString);
     procedure HandleError(const aMsg: UnicodeString);
 
-    procedure ChatMessageChanged(Sender: TObject);
     procedure ChatTextChanged(Sender: TObject);
-    procedure UpdateChat;
+    procedure SetChatHandlers;
+    procedure UpdateChatControls;
   protected
     Panel_Chat: TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       Dragger_Chat: TKMDragger;
@@ -88,7 +88,6 @@ begin
 
     Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,600-85,101, fntArial, bsGame);
     Memo_ChatText.AnchorsStretch;
-    Memo_ChatText.OnChange := ChatMessageChanged;
     Memo_ChatText.AutoWrap := True;
     Memo_ChatText.IndentAfterNL := True; // Don't let players fake system messages
     Memo_ChatText.ScrollDown := True;
@@ -185,12 +184,6 @@ begin
 
   end else if Assigned(fOnChatMessage) then
     fOnChatMessage(aMsg);
-end;
-
-
-procedure TKMGUIGameChat.ChatMessageChanged(Sender: TObject);
-begin
-  gGameApp.Chat.Messages := Memo_ChatText.Text;
 end;
 
 
@@ -386,7 +379,7 @@ begin
   if gGameApp.GameSettings.FlashOnMessage then
     gMain.FlashingStart;
 
-  Memo_ChatText.Add(aData);
+  gGameApp.Chat.AddLine(aData);
 end;
 
 
@@ -404,12 +397,8 @@ begin
 end;
 
 
-procedure TKMGUIGameChat.UpdateChat;
+procedure TKMGUIGameChat.UpdateChatControls;
 begin
-  gGameApp.Chat.OnPost := PostMsg;
-  gGameApp.Chat.OnPostLocal := PostLocalMsg;
-  gGameApp.Chat.OnError := HandleError;
-
   if gGameApp.Chat.Mode = cmWhisper then
     Chat_MenuSelect(gGameApp.Chat.WhisperRecipient)
   else
@@ -421,12 +410,23 @@ begin
 end;
 
 
+procedure TKMGUIGameChat.SetChatHandlers;
+begin
+  gGameApp.Chat.OnPost := PostMsg;
+  gGameApp.Chat.OnPostLocal := PostLocalMsg;
+  gGameApp.Chat.OnError := HandleError;
+  gGameApp.Chat.OnChange := UpdateChatControls;
+
+  UpdateChatControls;
+end;
+
+
 procedure TKMGUIGameChat.Show;
 begin
   if not Panel_Chat.Visible then
     gSoundPlayer.Play(sfxnMPChatOpen);
 
-  UpdateChat;
+  SetChatHandlers;
 
   Focus;
   Panel_Chat.Show;

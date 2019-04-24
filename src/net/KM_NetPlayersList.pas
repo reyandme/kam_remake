@@ -624,9 +624,6 @@ begin
   if NiknameToLocal(aNik) <> -1 then
     Result := TX_NET_SAME_NAME
   else
-  if (aNik = 'AI Player') or (aNik = 'Closed') then
-    Result := TX_NET_SAME_NAME
-  else
   //If this player must take a spectator spot, check that one is open
   if (fCount-GetSpectatorCount >= MAX_LOBBY_PLAYERS)
   and ((SpectatorSlotsOpen-GetSpectatorCount <= 0) or not SpectatorsAllowed) then

@@ -23,6 +23,9 @@ type
     fResolutions: TKMResolutions;
     fMapCacheUpdater: TTMapsCacheUpdater;
 
+    fFPS: Single;
+    fFPSString: String;
+
     procedure DoRestore(Sender: TObject);
     procedure DoActivate(Sender: TObject);
     procedure DoDeactivate(Sender: TObject);
@@ -56,6 +59,8 @@ type
     procedure ReinitRender(aReturnToOptions: Boolean);
     procedure FlashingStart;
     procedure FlashingStop;
+
+    property FPSString: String read fFPSString;
 
     function IsDebugChangeAllowed: Boolean;
 
@@ -325,14 +330,16 @@ begin
       FrameTime := FPSLag;
     end;
 
-    inc(fOldFrameTimes, FrameTime);
-    inc(fFrameCount);
+    Inc(fOldFrameTimes, FrameTime);
+    Inc(fFrameCount);
     if fOldFrameTimes >= FPS_INTERVAL then
     begin
+      fFPS := 1000 / (fOldFrameTimes / fFrameCount);
       if gGameApp <> nil then
-        gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
-      StatusBarText(SB_ID_FPS, Format('%.1f FPS', [1000 / (fOldFrameTimes / fFrameCount)]) +
-                       IfThen(CAP_MAX_FPS, ' (' + inttostr(FPSLag) + ')'));
+        gGameApp.FPSMeasurement(Round(fFPS));
+
+      fFPSString := Format('%.1f FPS', [fFPS]) + IfThen(CAP_MAX_FPS, ' (' + IntToStr(FPSLag) + ')');
+      StatusBarText(SB_ID_FPS, fFPSString);
       fOldFrameTimes := 0;
       fFrameCount := 0;
     end;

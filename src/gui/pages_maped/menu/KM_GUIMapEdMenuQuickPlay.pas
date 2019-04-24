@@ -84,7 +84,7 @@ begin
     Button_Cancel.Hint := gResTexts[TX_WORD_CANCEL];
     Button_Cancel.OnClick := Cancel_Click;
 
-  fMenuSave := TKMMapEdMenuSave.Create(Panel_Save, SaveDone, aOnMapTypChanged, 10, 220);
+  fMenuSave := TKMMapEdMenuSave.Create(Panel_Save, SaveDone, aOnMapTypChanged, 0, 10, 220);
 
   fMenuSave.Button_SaveCancel.Hide;
 

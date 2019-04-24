@@ -4104,6 +4104,7 @@ begin
   end;
 
   fGuiMenuSettings.UpdateView;
+  GameSettingsChanged;
 
   UpdateDebugInfo;
   if fSaves <> nil then fSaves.UpdateState;
@@ -4162,6 +4163,9 @@ begin
 
   if DISPLAY_SOUNDS then
     S := S + IntToStr(gSoundPlayer.ActiveCount) + ' sounds playing|';
+
+  if SHOW_FPS then
+    S := S + gMain.FPSString;
 
   if SHOW_AI_WARE_BALANCE then
   begin

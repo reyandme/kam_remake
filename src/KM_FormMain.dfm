@@ -537,6 +537,15 @@ object FormMain: TFormMain
         TabOrder = 11
         OnClick = ControlsUpdate
       end
+      object chkShowFPS: TCheckBox
+        Left = 90
+        Top = 88
+        Width = 97
+        Height = 17
+        Caption = 'FPS'
+        TabOrder = 12
+        OnClick = ControlsUpdate
+      end
     end
     object GroupBoxLogs: TGroupBox
       Left = 8

@@ -79,6 +79,9 @@ const
   OBJ_CELL_W = 64;
   OBJ_CELL_H = 84;
 
+  OBJ_NONE_TAG = -100;
+  OBJ_BLOCK_TAG = -200;
+
 
 { TKMMapEdTerrainObjects }
 constructor TKMMapEdTerrainObjects.Create(aParent: TKMPanel; aHideAllPages: TEvent);
@@ -111,12 +114,12 @@ begin
     end;
   ObjectErase := TKMButtonFlat.Create(Panel_Objects, 9, 4, 32, 32, 340);
   ObjectErase.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_OBJECTS_REMOVE, SC_MAPEDIT_SUB_MENU_ACTION_1);
-  ObjectErase.Tag := OBJ_NONE; //no object
+  ObjectErase.Tag := OBJ_NONE_TAG; //no object
   ObjectErase.OnClick := ObjectsChange;
 
   ObjectBlock := TKMButtonFlat.Create(Panel_Objects, TB_MAP_ED_WIDTH-32, 4, 32, 32, 254,rxTrees);
   ObjectBlock.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_OBJECTS_BLOCK, SC_MAPEDIT_SUB_MENU_ACTION_2);
-  ObjectBlock.Tag := OBJ_BLOCK; //block object
+  ObjectBlock.Tag := OBJ_BLOCK_TAG; //block object
   ObjectBlock.OnClick := ObjectsChange;
 
   ObjectsPalette_Button := TKMButtonFlat.Create(Panel_Objects, 7, 320, TB_MAP_ED_WIDTH - 7, 21, 0);
@@ -166,12 +169,12 @@ begin
 
     Button_ObjPaletteErase := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, OBJ_CELL_W, 32, 340);
     Button_ObjPaletteErase.Hint := gResTexts[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
-    Button_ObjPaletteErase.Tag := OBJ_NONE; //no object
+    Button_ObjPaletteErase.Tag := OBJ_NONE_TAG; //no object
     Button_ObjPaletteErase.OnClickShift := ObjPalette_ClickShift;
 
     Button_ObjPaletteBlock := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, OBJ_CELL_W, 32, 254, rxTrees);
     Button_ObjPaletteBlock.Hint := gResTexts[TX_MAPED_TERRAIN_OBJECTS_BLOCK];
-    Button_ObjPaletteBlock.Tag := OBJ_BLOCK; //block object
+    Button_ObjPaletteBlock.Tag := OBJ_BLOCK_TAG; //block object
     Button_ObjPaletteBlock.OnClickShift := ObjPalette_ClickShift;
 
     Button_ClosePalette  := TKMButton.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X - 100, PopUp_ObjectsPalette.Bottom - 50,
@@ -285,7 +288,8 @@ begin
   // Update palette buttons Down state
   for I := 0 to fCountCompact - 1 do
     ObjectsPaletteTable[I].Down := (gGameCursor.Mode = cmObjects)
-                                and not (gGameCursor.Tag1 in [OBJ_NONE, OBJ_BLOCK])
+                                and (gGameCursor.Tag1 <> OBJ_NONE)
+                                and (gGameCursor.Tag1 <> OBJ_BLOCK)
                                 and (ObjectsPaletteTable[I].Tag = fMapElemToCompact[gGameCursor.Tag1]);
 end;
 
@@ -339,7 +343,7 @@ var
 begin
   fCountCompact := 0;
   for I := 0 to gRes.MapElements.Count - 1 do
-    if (I <> OBJ_BLOCK) and (gMapElements[I].Anim.Count > 0) and (gMapElements[I].Anim.Step[1] > 0)
+    if (I <> OBJ_BLOCK_TAG) and (gMapElements[I].Anim.Count > 0) and (gMapElements[I].Anim.Step[1] > 0)
       and (gMapElements[I].Stump = -1) then //Hide falling trees and invisible wall (61)
     begin
       fCompactToMapElem[fCountCompact] := I; //pointer
@@ -383,15 +387,15 @@ var
   ObjIndex: Integer;
 begin
   case TKMButtonFlat(Sender).Tag of
-    OBJ_BLOCK,
-    OBJ_NONE:  ObjIndex := TKMButtonFlat(Sender).Tag; // Block or Erase
-    else       ObjIndex := ObjectsScroll.Position * 3 + TKMButtonFlat(Sender).Tag; //0..n-1
+    OBJ_BLOCK_TAG,
+    OBJ_NONE_TAG:  ObjIndex := TKMButtonFlat(Sender).Tag; // Block or Erase
+    else           ObjIndex := ObjectsScroll.Position * 3 + TKMButtonFlat(Sender).Tag; //0..n-1
   end;
 
   ObjectsUpdate(ObjIndex);
 
   // Update Objects Palette scroll position
-  if not (ObjIndex in [OBJ_BLOCK, OBJ_NONE])
+  if (ObjIndex <> OBJ_BLOCK_TAG) and (ObjIndex <> OBJ_NONE_TAG)
     and not InRange(ObjIndex,
                     Scroll_ObjectsPalette.Position*fObjPaletteTableSize.X,
                     Scroll_ObjectsPalette.Position*fObjPaletteTableSize.X + fObjPaletteTableSize.X*fObjPaletteTableSize.Y - 1) then
@@ -403,13 +407,14 @@ procedure TKMMapEdTerrainObjects.ObjectsUpdate(aObjIndex: Integer);
 begin
   //Skip indexes out of range
   if not InRange(aObjIndex, 0, fCountCompact - 1)
-    and not (aObjIndex in [OBJ_BLOCK, OBJ_NONE]) then
+    and (aObjIndex <> OBJ_BLOCK_TAG)
+    and (aObjIndex <> OBJ_NONE_TAG) then
     Exit;
 
   gGameCursor.Mode := cmObjects;
   case aObjIndex of
-    OBJ_BLOCK,                               //Block
-    OBJ_NONE: gGameCursor.Tag1 := aObjIndex; //Erase
+    OBJ_BLOCK_TAG:  gGameCursor.Tag1 := OBJ_BLOCK; //Block
+    OBJ_NONE_TAG:   gGameCursor.Tag1 := OBJ_NONE; //Erase
     else gGameCursor.Tag1 := fCompactToMapElem[aObjIndex];
   end;
 
@@ -457,8 +462,9 @@ begin
     end;
     //Mark the selected one using reverse lookup
     ObjectsTable[I].Down := (gGameCursor.Mode = cmObjects)
-                            and not (gGameCursor.Tag1 in [OBJ_NONE, OBJ_BLOCK])
-                              and (ObjIndex = fMapElemToCompact[gGameCursor.Tag1]);
+                             and (gGameCursor.Tag1 <> OBJ_NONE)
+                             and (gGameCursor.Tag1 <> OBJ_BLOCK)
+                             and (ObjIndex = fMapElemToCompact[gGameCursor.Tag1]);
   end;
 
   ObjectErase.Down := (gGameCursor.Mode = cmObjects) and (gGameCursor.Tag1 = OBJ_NONE);  //or delete button
@@ -470,8 +476,8 @@ procedure TKMMapEdTerrainObjects.Show;
 begin
   case fLastObjectIndex of
     -1:   ; // Do not update Objects if no last object was selected
-    OBJ_BLOCK: ObjectsChange(ObjectBlock);
-    OBJ_NONE:  ObjectsChange(ObjectErase);
+    OBJ_BLOCK_TAG: ObjectsChange(ObjectBlock);
+    OBJ_NONE_TAG:  ObjectsChange(ObjectErase);
     else  begin
             UpdateObjectsScrollPosToIndex(fLastObjectIndex);
             ObjectsChange(ObjectsTable[fLastObjectIndex - ObjectsScroll.Position*3]);

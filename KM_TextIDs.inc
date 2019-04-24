@@ -406,6 +406,7 @@ TX_GAME_ERROR_NETWORK = 347; //Network error:
 TX_GAME_ERROR_BLANK_PLAYERNAME = 348; //Error: Player name must not be blank
 TX_GAME_ERROR_LONG_PLAYERNAME = 349; //Error: Player name must be no more than %d characters long
 TX_GAME_ERROR_ILLEGAL_PLAYERNAME = 350; //Error: Player name contains illegal characters
+TX_GAME_ERROR_RESERVER_PLAYERNAME = 1255; //Error: Player name '%s' is reserved
 TX_GAME_ERROR_CONNECTION_FAILED = 351; //Connection failed: %s
 TX_GAME_ERROR_DISCONNECT = 352; //You have disconnected
 TX_GAME_MISSION = 353; //Mission %d

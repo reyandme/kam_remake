@@ -185,11 +185,9 @@ begin
   if fCampaign.MapsInfo[fMapIndex].TxtInfo.HasDifficultyLevels then
   begin
     DiffLevels := fCampaign.MapsInfo[fMapIndex].TxtInfo.DifficultyLevels;
-    //Update difficuly levels only if we can't set diff level from previous map
-    if DropBox_Difficulty.Visible
-      and DropBox_Difficulty.IsSelected
-      and (TKMMissionDifficulty(DropBox_Difficulty.GetSelectedTag) in DiffLevels) then
-      OldMD := TKMMissionDifficulty(DropBox_Difficulty.GetSelectedTag);
+
+    if gGameApp.GameSettings.CampaignLastDifficulty in DiffLevels then
+      OldMD := gGameApp.GameSettings.CampaignLastDifficulty;
 
     DropBox_Difficulty.Clear;
     I := 0;
@@ -285,6 +283,8 @@ procedure TKMMenuCampaign.StartClick(Sender: TObject);
 begin
   gGameApp.MusicLib.StopPlayingOtherFile;
   gGameApp.NewCampaignMap(fCampaign, fMapIndex, fDifficulty);
+  if fCampaign.MapsInfo[fMapIndex].TxtInfo.HasDifficultyLevels then
+    gGameApp.GameSettings.CampaignLastDifficulty := TKMMissionDifficulty(DropBox_Difficulty.GetSelectedTag);
 end;
 
 

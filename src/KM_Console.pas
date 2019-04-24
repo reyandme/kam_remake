@@ -14,6 +14,7 @@ type
       fLastConsoleTime: Cardinal;
       fHistory: TList<String>;
       fCurrConsoleHistoryId: Integer;
+      fOnChange: TEvent;
       fOnPost: TUnicodeStringEvent;
       fOnPostLocal: TUnicodeStringEvent;
       fOnError: TUnicodeStringEvent;
@@ -34,12 +35,18 @@ type
       property OnPost: TUnicodeStringEvent read fOnPost write fOnPost;
       property OnPostLocal: TUnicodeStringEvent read fOnPostLocal write fOnPostLocal;
       property OnError: TUnicodeStringEvent read fOnError write fOnError;
+      property OnChange: TEvent read fOnChange write fOnChange;
+
       procedure Post(aPropagate: Boolean = True);
       function IsPostAllowed: Boolean;
       function TryCallConsoleCommand: Boolean;
 
       function GetNextHistoryMsg: String;
       function GetPrevHistoryMsg: String;
+
+      procedure Add(aMessage: String);
+      procedure AddLine(aMessage: String);
+
       procedure Clear; virtual;
     end;
 
@@ -138,6 +145,25 @@ begin
   fCurrConsoleHistoryId := Max(0, fCurrConsoleHistoryId - 1);
   Result := fHistory[fCurrConsoleHistoryId];
 end;
+
+
+procedure TKMConsole.Add(aMessage: String);
+begin
+  fMessages := fMessages + aMessage;
+
+  if Assigned(fOnChange) then
+    fOnChange;
+end;
+
+
+procedure TKMConsole.AddLine(aMessage: String);
+begin
+  if fMessages <> '' then
+    fMessages := fMessages + '|';
+
+  Add(aMessage);
+end;
+
 
 
 function TKMConsole.IsPostAllowed : Boolean;
@@ -275,6 +301,8 @@ begin
 
   if aPropagate and Assigned(fOnPost) then
     fOnPost(Text);
+
+  Text := '';
 end;
 
 

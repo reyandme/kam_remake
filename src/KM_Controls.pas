@@ -181,6 +181,7 @@ type
     function DoHandleMouseWheelByDefault: Boolean; virtual;
     function GetHint: String; virtual;
     procedure SetHint(const aHint: String); virtual;
+    procedure SetPaintLayer(aPaintLayer: Integer);
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
@@ -283,6 +284,7 @@ type
   private
     fMasterControl: TKMMasterControl;
     procedure Init;
+    procedure Paint; reintroduce;
   protected
     //Do not propogate SetEnabled and SetVisible because that would show/enable ALL childs childs
     //e.g. scrollbar on a listbox
@@ -300,8 +302,8 @@ type
     FocusedControlIndex: Integer; //Index of currently focused control on this Panel
     ChildCount: Word;
     Childs: array of TKMControl;
-    constructor Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer); overload;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer); overload;
+    constructor Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer; aPaintLevel: Integer = 0); overload;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aPaintLevel: Integer = 0); overload;
     destructor Destroy; override;
     function AddChild(aChild: TKMControl): Integer; virtual;
     procedure SetCanChangeEnable(aEnable: Boolean; aExceptControls: array of TKMControlClass; aAlsoSetEnable: Boolean = True);
@@ -573,7 +575,7 @@ type
     procedure MouseDown (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove (X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp   (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure Paint; override;
+    procedure PaintPanel(aPaintLayer: Integer); override;
   end;
 
 
@@ -977,7 +979,7 @@ type
     WheelStep: Word;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aScrollAxis: TKMScrollAxis;
-                       aStyle: TKMButtonStyle; aScrollStyle: TKMScrollStyle = ssGame);
+                       aStyle: TKMButtonStyle; aScrollStyle: TKMScrollStyle = ssGame; aPaintLevel: Integer = 0);
     property MinValue: Integer read fMinValue write SetMinValue;
     property MaxValue: Integer read fMaxValue write SetMaxValue;
     property Position: Integer read fPosition write SetPosition;
@@ -985,7 +987,7 @@ type
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta: Integer; var aHandled: Boolean); override;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
-    procedure Paint; override;
+    procedure PaintPanel(aPaintLayer: Integer); override;
   end;
 
 
@@ -997,6 +999,10 @@ type
     fScrollAxisSet: TKMScrollAxisSet;
     procedure UpdateScrolls(Sender: TObject; aValue: Boolean); overload;
     procedure UpdateScrolls(Sender: TObject); overload;
+    procedure UpdateScrollV(Sender: TObject); overload;
+    procedure UpdateScrollV(Sender: TObject; aValue: Integer); overload;
+    procedure UpdateScrollH(Sender: TObject); overload;
+    procedure UpdateScrollH(Sender: TObject; aValue: Integer); overload;
     procedure ScrollChanged(Sender: TObject);
     function GetChildsRect: TKMRect;
 
@@ -1011,9 +1017,12 @@ type
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aScrollAxisSet: TKMScrollAxisSet;
                        aStyle: TKMButtonStyle; aScrollStyle: TKMScrollStyle);
 
+    property ScrollH: TKMScrollBar read fScrollBarH;
+    property ScrollV: TKMScrollBar read fScrollBarV;
+
     function AddChild(aChild: TKMControl): Integer; override;
 
-    procedure Paint; override;
+    procedure PaintPanel(aPaintLayer: Integer); override;
   end;
 
 
@@ -1553,7 +1562,7 @@ type
     Font: TKMFont;
     FontColor: TColor4;
     constructor Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = ''; aImageType: TKMPopUpBGImageType = pubgit_Yellowish);
-    procedure Paint; override;
+    procedure PaintPanel(aPaintLayer: Integer); override;
   end;
 
 
@@ -1951,6 +1960,12 @@ procedure TKMControl.SetHint(const aHint: String);
 begin
   //fHint := StringReplace(aHint, '|', ' ', [rfReplaceAll]); //Not sure why we were need to replace | here...
   fHint := aHint;
+end;
+
+
+procedure TKMControl.SetPaintLayer(aPaintLayer: Integer);
+begin
+  fPaintLayer := aPaintLayer;
 end;
 
 
@@ -2471,9 +2486,9 @@ end;
 
 
 { TKMPanel } //virtual panels that contain child items
-constructor TKMPanel.Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer);
+constructor TKMPanel.Create(aParent: TKMMasterControl; aLeft, aTop, aWidth, aHeight: Integer; aPaintLevel: Integer = 0);
 begin
-  inherited Create(nil, aLeft, aTop, aWidth, aHeight);
+  inherited Create(nil, aLeft, aTop, aWidth, aHeight, aPaintLevel);
 
   fMasterControl := aParent;
   aParent.fMasterPanel := Self;
@@ -2481,9 +2496,9 @@ begin
 end;
 
 
-constructor TKMPanel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+constructor TKMPanel.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aPaintLevel: Integer = 0);
 begin
-  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aPaintLevel);
 
   fMasterControl := aParent.fMasterControl;
   Init;
@@ -2726,6 +2741,12 @@ begin
 end;
 
 
+procedure TKMPanel.Paint;
+begin
+  inherited Paint;
+end;
+
+
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.PaintPanel(aPaintLayer: Integer);
 begin
@@ -2846,7 +2867,7 @@ begin
 end;
 
 
-procedure TKMForm.Paint;
+procedure TKMForm.PaintPanel(aPaintLayer: Integer);
 begin
   TKMRenderUI.WriteShadow(AbsLeft, AbsTop, Width, Height, 15, $40000000);
 
@@ -5109,11 +5130,11 @@ end;
 
 { TKMScrollBar }
 constructor TKMScrollBar.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aScrollAxis: TKMScrollAxis;
-                                aStyle: TKMButtonStyle; aScrollStyle: TKMScrollStyle = ssGame);
+                                aStyle: TKMButtonStyle; aScrollStyle: TKMScrollStyle = ssGame; aPaintLevel: Integer = 0);
 var
   DecId, IncId: Integer;
 begin
-  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aPaintLevel);
   BackAlpha := 0.5;
   EdgeAlpha := 0.75;
   fScrollAxis := aScrollAxis;
@@ -5327,23 +5348,24 @@ begin
 end;
 
 
-procedure TKMScrollBar.Paint;
+procedure TKMScrollBar.PaintPanel(aPaintLayer: Integer);
 var
   ButtonState: TKMButtonStateSet;
 begin
   inherited;
 
-  case fScrollAxis of
-    saVertical:   TKMRenderUI.WriteBevel(AbsLeft, AbsTop+Width, Width, Height - Width*2, EdgeAlpha, BackAlpha);
-    saHorizontal: TKMRenderUI.WriteBevel(AbsLeft+Height, AbsTop, Width - Height*2, Height, EdgeAlpha, BackAlpha);
-  end;
+  if fPaintLayer = aPaintLayer then
+    case fScrollAxis of
+      saVertical:   TKMRenderUI.WriteBevel(AbsLeft, AbsTop+Width, Width, Height - Width*2, EdgeAlpha, BackAlpha);
+      saHorizontal: TKMRenderUI.WriteBevel(AbsLeft+Height, AbsTop, Width - Height*2, Height, EdgeAlpha, BackAlpha);
+    end;
 
   if fMaxValue > fMinValue then
     ButtonState := []
   else
     ButtonState := [bsDisabled];
 
-  if not (bsDisabled in ButtonState) then //Only show thumb when usable
+  if (fPaintLayer = aPaintLayer) and not (bsDisabled in ButtonState) then //Only show thumb when usable
     case fScrollAxis of
       saVertical:   TKMRenderUI.Write3DButton(AbsLeft,AbsTop+Width+fThumbPos,Width,fThumbSize,rxGui,0,$FFFF00FF,ButtonState,fStyle);
       saHorizontal: TKMRenderUI.Write3DButton(AbsLeft+Height+fThumbPos,AbsTop,fThumbSize,Height,rxGui,0,$FFFF00FF,ButtonState,fStyle);
@@ -5377,7 +5399,8 @@ function TKMScrollPanel.AddChild(aChild: TKMControl): Integer;
 begin
   Result := inherited AddChild(aChild);
 
-  aChild.fOnSizeSet := UpdateScrolls;
+  aChild.fOnHeightChange := UpdateScrollV;
+  aChild.fOnWidthChange := UpdateScrollH;
   aChild.fOnPositionSet := UpdateScrolls;
   aChild.fOnChangeVisibility := UpdateScrolls;
   aChild.fOnChangeEnableStatus := UpdateScrolls;
@@ -5414,14 +5437,20 @@ begin
 end;
 
 
-procedure TKMScrollPanel.UpdateScrolls(Sender: TObject);
+procedure TKMScrollPanel.UpdateScrollH(Sender: TObject; aValue: Integer);
+begin
+  if (Sender <> fScrollBarH) then
+    UpdateScrollH(nil);
+end;
+
+
+procedure TKMScrollPanel.UpdateScrollH(Sender: TObject);
 var
   ChildsRect: TKMRect;
   NewPos: Integer;
 begin
   ChildsRect := GetChildsRect;
   fScrollBarH.Hide;
-  fScrollBarV.Hide;
 
   if (saHorizontal in fScrollAxisSet) then
   begin
@@ -5440,6 +5469,26 @@ begin
     end;
   end;
 
+  fScrollBarH.Width := Width;
+end;
+
+
+procedure TKMScrollPanel.UpdateScrollV(Sender: TObject; aValue: Integer);
+begin
+  if (Sender <> fScrollBarV) then
+    UpdateScrollV(nil)
+end;
+
+
+procedure TKMScrollPanel.UpdateScrollV(Sender: TObject);
+var
+  ChildsRect: TKMRect;
+  NewPos: Integer;
+begin
+  ChildsRect := GetChildsRect;
+  //Do not set Visible, avoid trigger OnChangeVisibility
+  fScrollBarV.Hide;
+
   if (saVertical in fScrollAxisSet) then
   begin
     if KMRectHeight(ChildsRect) > KMRectHeight(fClipRect) then
@@ -5457,8 +5506,14 @@ begin
     end;
   end;
 
-  fScrollBarH.Width := Width;
   fScrollBarV.Height := Height;
+end;
+
+
+procedure TKMScrollPanel.UpdateScrolls(Sender: TObject);
+begin
+  UpdateScrollV(Sender);
+  UpdateScrollH(Sender);
 end;
 
 
@@ -5560,12 +5615,12 @@ begin
 end;
 
 
-procedure TKMScrollPanel.Paint;
+procedure TKMScrollPanel.PaintPanel(aPaintLayer: Integer);
 begin
   TKMRenderUI.SetupClipX(Parent.AbsLeft + fClipRect.Left, Parent.AbsLeft + fClipRect.Right + 20*Byte(AllowScrollV and not fScrollBarV.Visible));
   TKMRenderUI.SetupClipY(Parent.AbsTop + fClipRect.Top, Parent.AbsTop + fClipRect.Bottom + 20*Byte(AllowScrollH and not fScrollBarH.Visible));
 
-  inherited Paint;
+  inherited;
 
   TKMRenderUI.ReleaseClipY;
   TKMRenderUI.ReleaseClipX;
@@ -7664,9 +7719,9 @@ begin
 end;
 
 
-procedure TKMPopUpPanel.Paint;
+procedure TKMPopUpPanel.PaintPanel(aPaintLayer: Integer);
 begin
-  inherited Paint;
+  inherited;
 
   TKMRenderUI.WriteText(AbsLeft, AbsTop - 30, Width, Caption, Font, taCenter, FontColor);
 end;
