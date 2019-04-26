@@ -23,6 +23,8 @@ const
   HOUSE_MAX = htWoodcutters;
   HOUSE_WORKSHOP = [htWeaponSmithy, htArmorSmithy, htWeaponWorkshop, htArmorWorkshop];
 
+  HOUSES_CNT = Integer(HOUSE_MAX) - Integer(HOUSE_MIN) + 1;
+
 type
   THouseAnim = array [TKMHouseActionType] of TKMAnimLoop;
 

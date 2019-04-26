@@ -352,6 +352,11 @@ function TKMTaskDeliver.Execute: TKMTaskResult;
   var
     RoadConnectId: Byte;
   begin
+    //Check if we already reach destination, no need to check anymore.
+    //Also there is possibility when connected path (not diagonal) to house was cut and we have only diagonal path
+    //then its possible, that fPointBelowToHouse COnnect Area will have only 1 tile, that means its WalkConnect will be 0
+    if fUnit.CurrPosition = fPointBelowToHouse then
+      Exit(False);
     RoadConnectId := gTerrain.GetRoadConnectID(fUnit.CurrPosition);
     Result := ((((fPhase - 1) = 5) and (fDeliverKind = dkToHouse))
                 or (((fPhase - 1) in [5,6]) and (fDeliverKind = dkToConstruction)))

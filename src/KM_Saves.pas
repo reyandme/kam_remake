@@ -470,7 +470,12 @@ var TempSaves: array of TKMSaveInfo;
   end;
 begin
   SetLength(TempSaves, Length(fSaves));
-  MergeSort(Low(fSaves), High(fSaves));
+  try
+    MergeSort(Low(fSaves), High(fSaves));
+  except
+    on E: Exception do
+      Exit; //Ignore sort exceptions
+  end;
 end;
 
 

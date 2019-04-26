@@ -66,6 +66,9 @@ const
   WEAPON_MAX = wtArbalet;
   WARFARE_MAX = wtHorse;
 
+  WARE_CNT = Integer(WARE_MAX) - Integer(WARE_MIN) + 1;
+  WARFARE_CNT = Integer(WARFARE_MAX) - Integer(WEAPON_MIN) + 1;
+
   WARFARE_IRON = [wtMetalShield, wtMetalArmor, wtSword, wtHallebard, wtArbalet];
 
   MARKET_TRADEOFF_FACTOR = 2.2; //X resources buys 1 resource of equal value

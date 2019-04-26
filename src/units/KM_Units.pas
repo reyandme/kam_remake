@@ -1756,7 +1756,8 @@ begin
   if (Action is TKMUnitActionWalkTo) and not TKMUnitActionWalkTo(Action).CanAbandonExternal then
     raise Exception.Create('Interrupting unabandonable Walk action');
 
-  SetAction(TKMUnitActionWalkTo.Create(Self, KMPOINT_INVALID_TILE, aActionType, aDistance, False, nil, nil, aTargetPassability, aTargetWalkConnectSet));
+  SetAction(TKMUnitActionWalkTo.Create(Self, KMPOINT_INVALID_TILE, aActionType, aDistance, False, nil, nil,
+                                       aTargetPassability, aTargetWalkConnectSet));
 end;
 
 

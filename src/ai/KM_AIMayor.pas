@@ -698,7 +698,11 @@ var
     Result := Max(1, Result);
   end;
 
+const
+  MAX_TRIES = 10; //We could get into infinite loop on some scripted maps, f.e. Furrioir Warriors
+
 var
+  K: Integer;
   H: TKMHouseType;
 begin
   P := gHands[fOwner];
@@ -720,8 +724,10 @@ begin
     while (fDefenceTowers.Count > 0) and (P.Stats.GetHouseWip(htAny) < MaxPlansForTowers) do
       TryBuildDefenceTower;
 
-  while (P.Stats.GetHouseWip(htAny) < GetMaxPlans) do
+  K := 0;
+  while (P.Stats.GetHouseWip(htAny) < GetMaxPlans) and (K < Max(GetMaxPlans, MAX_TRIES)) do
   begin
+    Inc(K);
     H := fBalance.Peek;
 
     //There are no more suggestions

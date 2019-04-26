@@ -77,11 +77,12 @@ type
     fLastAfkMessageSent: Cardinal;
 
     fReadyToStop: Boolean;
+    fGameSeed: Integer;
 
     procedure GameMPDisconnect(const aData: UnicodeString);
     procedure OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
     procedure MultiplayerRig;
-    function SaveGameToStream(aTimestamp: TDateTime; aReplayStream: Boolean = False): TKMemoryStream;
+    procedure SaveGameToStream(aTimestamp: TDateTime; aSaveStream: TKMemoryStream; aReplayStream: Boolean = False);
     procedure SaveGameToFile(const aPathName: String; aTimestamp: TDateTime; const aMPLocalDataPathName: String = '');
     procedure UpdatePeaceTime;
     function GetWaitingPlayersList: TKMByteArray;
@@ -1498,19 +1499,16 @@ end;
 
 
 //Saves the game in TKMemoryStream
-function TKMGame.SaveGameToStream(aTimestamp: TDateTime; aReplayStream: Boolean = False): TKMemoryStream;
+procedure TKMGame.SaveGameToStream(aTimestamp: TDateTime; aSaveStream: TKMemoryStream; aReplayStream: Boolean = False);
 var
-  SaveStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
   I, netIndex: Integer;
 begin
-  SaveStream := TKMemoryStream.Create;
-
   if aReplayStream then
   begin
-    SaveStream.WriteA('ConsistencyCheck1');
-    SaveStream.Write(fLastReplayTick);
-    SaveStream.Write(gGame.SkipReplayEndCheck); //To dont show 'Continue watching' again
+    aSaveStream.WriteA('ConsistencyCheck1');
+    aSaveStream.Write(fLastReplayTick);
+    aSaveStream.Write(gGame.SkipReplayEndCheck); //To dont show 'Continue watching' again
   end;
 
   GameInfo := TKMGameInfo.Create;
@@ -1559,67 +1557,67 @@ begin
       end;
     end;
 
-    GameInfo.Save(SaveStream);
+    GameInfo.Save(aSaveStream);
   finally
     FreeAndNil(GameInfo);
   end;
 
-  fGameOptions.Save(SaveStream);
+  fGameOptions.Save(aSaveStream);
 
   //Because some stuff is only saved in singleplayer we need to know whether it is included in this save,
   //so we can load multiplayer saves in single player and vice versa.
-  SaveStream.Write(IsMultiPlayerOrSpec);
+  aSaveStream.Write(IsMultiPlayerOrSpec);
 
   //In SinglePlayer we want to show player a preview of what the game looked like when he saved
   //Save Minimap is near the start so it can be accessed quickly
   if not IsMultiPlayerOrSpec then
-    fGamePlayInterface.SaveMinimap(SaveStream);
+    fGamePlayInterface.SaveMinimap(aSaveStream);
 
   //We need to know which campaign to display after victory
-  SaveStream.Write(fCampaignName, SizeOf(TKMCampaignId));
-  SaveStream.Write(fCampaignMap);
+  aSaveStream.Write(fCampaignName, SizeOf(TKMCampaignId));
+  aSaveStream.Write(fCampaignMap);
 
-  SaveStream.Write(fDynamicFOW);
+  aSaveStream.Write(fDynamicFOW);
 
 
   if aReplayStream then
-    SaveStream.WriteA('ConsistencyCheck2');
+    aSaveStream.WriteA('ConsistencyCheck2');
 
   //We need to know which mission/savegame to try to restart. This is unused in MP
   if not IsMultiPlayerOrSpec then
-    SaveStream.WriteW(fMissionFileSP);
+    aSaveStream.WriteW(fMissionFileSP);
 
-  SaveStream.Write(fUIDTracker); //Units-Houses ID tracker
-  SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
+  aSaveStream.Write(fUIDTracker); //Units-Houses ID tracker
+  aSaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
   if not IsMultiPlayerOrSpec then
-    SaveStream.Write(GameResult, SizeOf(GameResult));
+    aSaveStream.Write(GameResult, SizeOf(GameResult));
 
-  gTerrain.Save(SaveStream); //Saves the map
-  gHands.Save(SaveStream, fGameMode in [gmMulti, gmMultiSpectate]); //Saves all players properties individually
+  gTerrain.Save(aSaveStream); //Saves the map
+  gHands.Save(aSaveStream, fGameMode in [gmMulti, gmMultiSpectate]); //Saves all players properties individually
   if not IsMultiPlayerOrSpec then
-    gMySpectator.Save(SaveStream);
-  gAIFields.Save(SaveStream);
-  fPathfinding.Save(SaveStream);
-  gProjectiles.Save(SaveStream);
-  fScripting.Save(SaveStream);
-  gScriptSounds.Save(SaveStream);
-  SaveStream.Write(fAIType, SizeOf(fAIType));
+    gMySpectator.Save(aSaveStream);
+  gAIFields.Save(aSaveStream);
+  fPathfinding.Save(aSaveStream);
+  gProjectiles.Save(aSaveStream);
+  fScripting.Save(aSaveStream);
+  gScriptSounds.Save(aSaveStream);
+  aSaveStream.Write(fAIType, SizeOf(fAIType));
 
-  fTextMission.Save(SaveStream);
+  fTextMission.Save(aSaveStream);
 
-  gRes.Units.SaveCustomData(SaveStream);
-  gRes.Wares.SaveCustomData(SaveStream);
+  gRes.Units.SaveCustomData(aSaveStream);
+  gRes.Wares.SaveCustomData(aSaveStream);
 
   if aReplayStream then
-    SaveStream.WriteA('ConsistencyCheck3');
+    aSaveStream.WriteA('ConsistencyCheck3');
 
   //Parameters that are not identical for all players should not be saved as we need saves to be
   //created identically on all player's computers. Eventually these things can go through the GIP
 
   //For multiplayer consistency we compare all saves CRCs, they should be created identical on all player's computers.
   if not IsMultiPlayerOrSpec then
-    fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
+    fGamePlayInterface.Save(aSaveStream); //Saves message queue and school/barracks selected units
 
   //If we want stuff like the MessageStack and screen center to be stored in multiplayer saves,
   //we must send those "commands" through the GIP so all players know about them and they're in sync.
@@ -1627,9 +1625,7 @@ begin
 
 
   if aReplayStream then
-    SaveStream.WriteA('ConsistencyCheck4');
-
-  Result := SaveStream;
+    aSaveStream.WriteA('ConsistencyCheck4');
 end;
 
 
@@ -1646,34 +1642,35 @@ begin
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
     raise Exception.Create('Saving from wrong state');
 
-  SaveStream := SaveGameToStream(aTimestamp);
-
-  //Makes the folders in case they were deleted.
-  //Should do before save Minimap file for MP game
-  if (aPathName <> '') then
-    ForceDirectories(ExtractFilePath(aPathName));
-
-  //In MP each player has his own perspective, hence we dont save minimaps in the main save file to avoid cheating,
-  //but save minimap in separate file with local game data
-  if IsMultiPlayerOrSpec and (aMPLocalDataPathName <> '') then
-  begin
-    try
-      GameMPLocalData := TKMGameMPLocalData.Create(fLastReplayTick, fNetworking.MyNetPlayer.StartLocation, fGamePlayInterface.Minimap);
-      try
-        GameMPLocalData.SaveToFile(aMPLocalDataPathName);
-      finally
-        FreeAndNil(GameMPLocalData);
-      end;
-    except
-      on E: Exception do
-        //Ignore any errors while saving minimap, because its optional for MP games
-        gLog.AddTime('Error while saving save minimap to ' + aMPLocalDataPathName + ': ' + E.Message
-          {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
-          );
-    end
-  end;
-
+  SaveStream := TKMemoryStream.Create;
   try
+    SaveGameToStream(aTimestamp, SaveStream);
+
+    //Makes the folders in case they were deleted.
+    //Should do before save Minimap file for MP game
+    if (aPathName <> '') then
+      ForceDirectories(ExtractFilePath(aPathName));
+
+    //In MP each player has his own perspective, hence we dont save minimaps in the main save file to avoid cheating,
+    //but save minimap in separate file with local game data
+    if IsMultiPlayerOrSpec and (aMPLocalDataPathName <> '') then
+    begin
+      try
+        GameMPLocalData := TKMGameMPLocalData.Create(fLastReplayTick, fNetworking.MyNetPlayer.StartLocation, fGamePlayInterface.Minimap);
+        try
+          GameMPLocalData.SaveToFile(aMPLocalDataPathName);
+        finally
+          FreeAndNil(GameMPLocalData);
+        end;
+      except
+        on E: Exception do
+          //Ignore any errors while saving minimap, because its optional for MP games
+          gLog.AddTime('Error while saving save minimap to ' + aMPLocalDataPathName + ': ' + E.Message
+            {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
+            );
+      end
+    end;
+
     SaveStream.SaveToFile(aPathName); //Some 70ms for TPR7 map
   finally
     FreeAndNil(SaveStream);
@@ -1921,7 +1918,8 @@ begin
   if not gGame.IsReplay then
     raise Exception.Create('Saving replay impossible - game mode is not replay');
 
-  SaveStream := SaveGameToStream(DateTimeParam, True);
+  SaveStream := TKMemoryStream.Create;
+  SaveGameToStream(DateTimeParam, SaveStream, True);
   fGameInputProcess.SaveToStream(SaveStream);
 
   fSavedReplays.NewSave(SaveStream, fGameTick);
@@ -2080,6 +2078,7 @@ begin
   gLog.AddTime('Set game seed: ' + IntToStr(aSeed));
 
   KM_CommonUtils.SetKaMSeed(aSeed);
+  fGameSeed := aSeed; //Save it for debug only
 end;
 
 

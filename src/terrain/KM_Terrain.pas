@@ -3371,7 +3371,7 @@ begin
   case aPass of
     tpWalkRoad: wcType := wcRoad;
     tpFish:     wcType := wcFish;
-    else         wcType := wcWalk; //CanWalk is default
+    else        wcType := wcWalk; //CanWalk is default
   end;
 
   for I := 0 to Depth do

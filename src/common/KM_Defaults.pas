@@ -487,6 +487,9 @@ const
 
   WARRIORS_IRON = [utSwordsman, utArbaletman, utHallebardman, utCavalry];
 
+  CITIZENS_CNT = Integer(CITIZEN_MAX) - Integer(CITIZEN_MIN) + 1;
+  WARRIORS_CNT = Integer(WARRIOR_MAX) - Integer(WARRIOR_MIN) + 1;
+
 type
   TKMCheckAxis = (axX, axY);
 

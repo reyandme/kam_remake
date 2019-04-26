@@ -3383,18 +3383,20 @@ end;
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
   procedure HandleFieldLMBDown(const P: TKMPoint; aFieldType: TKMFieldType);
   begin
+    //Set cursor into 'Plan' mode by default,
+    //even if we click where plan could not be placed we could plan it with mouse move later
+    gGameCursor.Tag1 := Byte(cfmPlan);
     if gMySpectator.Hand.CanAddFakeFieldPlan(P, aFieldType) then
     begin
       gGame.GameInputProcess.CmdBuild(gicBuildAddFieldPlan, P, aFieldType);
       fLastDragPoint := gGameCursor.Cell;
-      gGameCursor.Tag1 := Byte(cfmPlan);
     end else if gMySpectator.Hand.CanRemFakeFieldPlan(P, aFieldType) then
     begin
       gGame.GameInputProcess.CmdBuild(gicBuildAddFieldPlan, P, aFieldType);
       fLastDragPoint := gGameCursor.Cell;
       // Set cursor into "Erase" mode, so dragging it will erase next tiles with the same field type
       gGameCursor.Tag1 := Byte(cfmErase);
-    end;
+    end
   end;
 var
   Group: TKMUnitGroup;

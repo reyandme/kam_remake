@@ -277,6 +277,8 @@ var
   I,K: Integer;
   BestStart, BestEnd: Word;
   NewL, BestL: Single;
+  P: TKMPoint;
+  IsWalkable: Boolean;
 begin
   //Makes compiler happy
   BestStart := 0;
@@ -315,6 +317,27 @@ begin
     end;
 
     if BestL >= 2 then Continue;
+
+    //Check if cached path is still walkable
+    IsWalkable := True;
+    for K := BestStart to BestEnd do
+    begin
+      P := fCache[I].Route[K];
+      if not IsWalkableTile(P.X, P.Y) then
+      begin
+        IsWalkable := False;
+        Break;
+      end;
+    end;
+
+    //If not walkable anymore, then mark it as unused
+    //and continue
+    if not IsWalkable then
+    begin
+      fCache[I].Weight := 0;
+      fCache[I].Pass := [];
+      Continue;
+    end;
 
     //Assemble the route
     NodeList.Clear;

@@ -201,6 +201,7 @@ type
     procedure ChangePage(Sender: TObject);
   public
     constructor Create(aParent: TKMPanel; aOnJumpToPlayer: TIntegerEvent; aSetViewportPos: TPointFEvent);
+    destructor Destroy; override;
 
     function GetOpenedPage: Integer;
     procedure OpenPage(aIndex: Integer);
@@ -444,12 +445,15 @@ end;
 
 function TKMGUIGameSpectatorItemLineResources.GetTagCount: Integer;
 begin
-  Result := Integer(WARE_MAX) - Integer(WARE_MIN) + 1;
+  Result := WARE_CNT - WARFARE_CNT; //Do not show warfare on resources page
 end;
 
 function TKMGUIGameSpectatorItemLineResources.GetTag(AIndex: Integer): Integer;
 begin
-  Result := Integer(StoreResType[Length(StoreResType) - AIndex]); //opposite order, we draw items from the right
+  if AIndex = 0 then
+    Result := Integer(wtFish)
+  else
+    Result := Integer(StoreResType[Length(StoreResType) - AIndex - WARFARE_CNT]); //opposite order, we draw items from the right
 end;
 
 function TKMGUIGameSpectatorItemLineResources.GetValue(AHandIndex: Integer; ATag: Integer): String;
@@ -489,7 +493,7 @@ end;
 
 function TKMGUIGameSpectatorItemLineWarFare.GetTagCount: Integer;
 begin
-  Result := Integer(WARFARE_MAX) - Integer(WARFARE_MIN) + 1 + 1; //+1 for recruit
+  Result := WARFARE_CNT + 1; //+1 for recruit
 end;
 
 function TKMGUIGameSpectatorItemLineWarFare.GetTag(AIndex: Integer): Integer;
@@ -548,7 +552,7 @@ end;
 
 function TKMGUIGameSpectatorItemLineCustomBuildings.GetTagCount: Integer;
 begin
-  Result := Integer(HOUSE_MAX) - Integer(HOUSE_MIN) + 1 - 1; //-1 for htSiegeWorkshop
+  Result := HOUSES_CNT - 1; //-1 for htSiegeWorkshop
 end;
 
 function TKMGUIGameSpectatorItemLineCustomBuildings.GetTag(AIndex: Integer): Integer;
@@ -570,6 +574,7 @@ var
   I: Integer;
   HT: TKMHouseType;
   HasDamagedHouses: Boolean;
+  H: TKMHouse;
 begin
   Result := KMPOINTF_INVALID_TILE;
 
@@ -591,6 +596,9 @@ begin
   if not fHouseSketch.IsEmpty then
   begin
     gMySpectator.Highlight := fHouseSketch;
+    H := gHands[AHandIndex].Houses.GetHouseByUID(fHouseSketch.UID);
+    if H <> nil then
+      gMySpectator.Selected := H;
     Result := KMPointF(fHouseSketch.Entrance); //get position on that house
     fLastHouseUIDs[HT] := fHouseSketch.UID;
   end;
@@ -712,7 +720,7 @@ end;
 
 function TKMGUIGameSpectatorItemLinePopulation.GetTagCount: Integer;
 begin
-  Result := Integer(CITIZEN_MAX) - Integer(CITIZEN_MIN) + 1;
+  Result := CITIZENS_CNT;
 end;
 
 function TKMGUIGameSpectatorItemLinePopulation.GetTag(AIndex: Integer): Integer;
@@ -746,7 +754,7 @@ end;
 
 function TKMGUIGameSpectatorItemLineArmy.GetTagCount: Integer;
 begin
-  Result := Integer(WARRIOR_MAX) - Integer(WARRIOR_MIN) + 1;
+  Result := WARRIORS_CNT;
 end;
 
 function TKMGUIGameSpectatorItemLineArmy.GetTag(AIndex: Integer): Integer;
@@ -774,6 +782,7 @@ begin
   NextGroup := gHands[AHandIndex].GetNextGroupWSameType(UT, fLastWarriorUIDs[UT]);
   if NextGroup <> nil then
   begin
+    gMySpectator.Selected := NextGroup;
     Result := NextGroup.FlagBearer.PositionF; //get position on that warrior
     fLastWarriorUIDs[UT] := NextGroup.UID;
   end;
@@ -871,6 +880,16 @@ begin
   FDropBox.Add(gResTexts[TX_WORD_ARMY] + ' - ' + gResTexts[TX_RESULTS_ARMY_LOST]);
 
   FDropBox.ItemIndex := 0;
+end;
+
+destructor TKMGUIGameSpectator.Destroy;
+var
+  I: Integer;
+begin
+  for I := Low(FLinesAggregator) to High(FLinesAggregator) do
+    if FLinesAggregator[I] <> nil then
+      FreeAndNil(FLinesAggregator[I]);
+
 end;
 
 procedure TKMGUIGameSpectator.AddLineType(aParent: TKMPanel; AIndex: Integer; ALineClass: TKMGUIGameSpectatorItemLineClass);

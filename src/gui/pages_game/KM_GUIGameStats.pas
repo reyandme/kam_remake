@@ -47,9 +47,6 @@ constructor TKMGUIGameStats.Create(aParent: TKMPanel; aOnShowStats: TNotifyEvent
 const
   HOUSE_W = 30;
   UNIT_W = 26;
-  BEVEL_LAYER = 1;
-  IMAGE_LAYER = 2;
-  TEXT_LAYER = 3;
 var
   I, K: Integer;
   HT: TKMHouseType;
@@ -70,7 +67,7 @@ begin
     begin
       //Houses block
       Panel_StatBlock[I] := TKMPanel.Create(Panel_Stats, 0, 0, 30, 30);
-      with TKMBevel.Create(Panel_StatBlock[I], 0, 0, 30, 30, BEVEL_LAYER) do
+      with TKMBevel.Create(Panel_StatBlock[I], 0, 0, 30, 30) do
         AnchorsStretch;
 
       OffX := 0;
@@ -78,13 +75,13 @@ begin
         if StatPlan[I].HouseType[K] <> htNone then
         begin
           HT := StatPlan[I].HouseType[K];
-          Stat_HousePic[HT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, HOUSE_W, 30, 41, rxGui, IMAGE_LAYER); //Filled with [?] at start
+          Stat_HousePic[HT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, HOUSE_W, 30, 41); //Filled with [?] at start
           Stat_HousePic[HT].Hint := gRes.Houses[HT].HouseName;
           Stat_HousePic[HT].ImageCenter;
           Stat_HousePic[HT].Tag := Byte(HT);
-          Stat_HouseWip[HT] := TKMLabel.Create(Panel_StatBlock[I], OffX + HOUSE_W  ,  0,  '', fntGrey, taRight, TEXT_LAYER);
+          Stat_HouseWip[HT] := TKMLabel.Create(Panel_StatBlock[I], OffX + HOUSE_W  ,  0,  '', fntGrey, taRight);
           Stat_HouseWip[HT].Hitable := False;
-          Stat_HouseQty[HT] := TKMLabel.Create(Panel_StatBlock[I], OffX + HOUSE_W-2, 16, '-', fntGrey, taRight, TEXT_LAYER);
+          Stat_HouseQty[HT] := TKMLabel.Create(Panel_StatBlock[I], OffX + HOUSE_W-2, 16, '-', fntGrey, taRight);
           Stat_HouseQty[HT].Hitable := False;
           Inc(OffX, HOUSE_W);
         end;
@@ -93,12 +90,12 @@ begin
         if StatPlan[I].UnitType[K] <> utNone then
         begin
           UT := StatPlan[I].UnitType[K];
-          Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, UNIT_W, 30, gRes.Units[UT].GUIIcon, rxGui, IMAGE_LAYER);
+          Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, UNIT_W, 30, gRes.Units[UT].GUIIcon);
           Stat_UnitPic[UT].Hint := gRes.Units[UT].GUIName;
           Stat_UnitPic[UT].ImageCenter;
-          Stat_UnitWip[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + UNIT_W  ,  0,  '', fntGrey, taRight, TEXT_LAYER);
+          Stat_UnitWip[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + UNIT_W  ,  0,  '', fntGrey, taRight);
           Stat_UnitWip[UT].Hitable := False;
-          Stat_UnitQty[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + UNIT_W-2, 16, '-', fntGrey, taRight, TEXT_LAYER);
+          Stat_UnitQty[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + UNIT_W-2, 16, '-', fntGrey, taRight);
           Stat_UnitQty[UT].Hitable := False;
           Inc(OffX, UNIT_W);
         end;

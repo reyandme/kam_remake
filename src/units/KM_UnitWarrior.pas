@@ -878,10 +878,13 @@ begin
                       stormProc := function: Boolean
                       begin
                         FreeAndNil(fTask); //e.g. TaskAttackHouse
-                        SetActionStorm(fStormDelay);
                         fNextOrder := woNone;
                         fOrder := woStorm;
                         Result := True; //No need to Free newly created action
+                        //Set new Action at the end,
+                        //since we are in the current Action's fOnActionDone method
+                        //and it will be destroyed after next line!
+                        SetActionStorm(fStormDelay);
                       end;
                       
                       //Abandon walk so we can take attack house or storm attack order

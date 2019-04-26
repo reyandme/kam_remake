@@ -57,7 +57,12 @@ end;
 
 
 destructor TKMSavedReplays.Destroy();
+var
+  Replay: TKMSavedReplay;
 begin
+  for Replay in fReplaySaves.Values do
+    Replay.Free;
+  fReplaySaves.Clear;
   fReplaySaves.Free; // TKMList will free all objects of the list
   inherited;
 end;
@@ -112,6 +117,8 @@ end;
 { TKMSavedReplay }
 constructor TKMSavedReplay.Create(aStream: TKMemoryStream; aTick: Cardinal);
 begin
+  inherited Create;
+
   fStream := aStream;
   fTick := aTick;
 end;
