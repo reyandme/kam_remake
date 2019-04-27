@@ -53,7 +53,7 @@ begin
 
   Panel_MarkerDefence := TKMPanel.Create(aParent, 9, 50, TB_MAP_ED_WIDTH - 9, 400);
 
-  Label_MarkerType := TKMLabel.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 0, '', fntOutline, taCenter);
+  Label_MarkerType := TKMLabel.Create(Panel_MarkerDefence, 0, 10, Panel_MarkerDefence.Width, 0, '', fntOutline, taCenter);
   Image_MarkerPic := TKMImage.Create(Panel_MarkerDefence, 0, 10, 32, 32, 338);
 
   DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 55, TB_WIDTH, 20, fntGame, '', bsGame);

@@ -121,7 +121,7 @@ var
 begin
   Panel_House := TKMPanel.Create(aParent, 9, 45, TB_MAP_ED_WIDTH - 9, 400);
     //Thats common things
-    Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fntOutline, taCenter);
+    Label_House := TKMLabel.Create(Panel_House, 0, 14, Panel_House.Width, 0, '', fntOutline, taCenter);
 
     Button_HouseDeliveryMode := TKMButton.Create(Panel_House,0,42,30,30,37, rxGui, bsGame);
     Button_HouseDeliveryMode.Hint := gResTexts[TX_HOUSE_TOGGLE_DELIVERS_HINT];

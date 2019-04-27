@@ -61,7 +61,7 @@ begin
   inherited Create;
 
   Panel_Unit := TKMPanel.Create(aParent, 9, 45, TB_MAP_ED_WIDTH - 9, 400);
-  Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,0,'',fntOutline,taCenter);
+  Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,Panel_Unit.Width,0,'',fntOutline,taCenter);
   Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
   Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,0,gResTexts[TX_UNIT_CONDITION],fntGrey,taCenter);
 
