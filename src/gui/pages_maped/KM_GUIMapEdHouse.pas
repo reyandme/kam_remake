@@ -119,7 +119,7 @@ procedure TKMMapEdHouse.Create_Common(aParent: TKMPanel);
 var
   I: Integer;
 begin
-  Panel_House := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 400);
+  Panel_House := TKMPanel.Create(aParent, 9, 45, TB_MAP_ED_WIDTH - 9, 400);
     //Thats common things
     Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fntOutline, taCenter);
 
