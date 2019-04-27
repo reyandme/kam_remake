@@ -145,6 +145,7 @@ begin
   Label_UnitName.Caption := gRes.Units[fUnit.UnitType].GUIName;
   Image_UnitPic.TexID := gRes.Units[fUnit.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gHands[fUnit.Owner].FlagColor;
+  ConditionBar_Unit.Caption := IntToStr(Round(fUnit.Condition)) + '/' + IntToStr(UNIT_MAX_CONDITION);
   ConditionBar_Unit.Position := fUnit.Condition / UNIT_MAX_CONDITION;
 
   Label_UnitDescription.Caption := gRes.Units[fUnit.UnitType].Description;
@@ -169,6 +170,7 @@ begin
   Label_UnitName.Caption := gRes.Units[fGroup.UnitType].GUIName;
   Image_UnitPic.TexID := gRes.Units[fGroup.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gHands[fGroup.Owner].FlagColor;
+  ConditionBar_Unit.Caption := IntToStr(Round(fGroup.Condition)) + '/' + IntToStr(UNIT_MAX_CONDITION);
   ConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
 
   //Warrior specific
@@ -221,6 +223,7 @@ begin
       fUnit.Condition := TKMUnit.GetDefaultCondition;
     Button_ConditionDefault.Disable;
   end;
+  ConditionBar_Unit.Caption := IntToStr(Round(U.Condition)) + '/' + IntToStr(UNIT_MAX_CONDITION);
   ConditionBar_Unit.Position := U.Condition / UNIT_MAX_CONDITION;
 end;
 
@@ -268,6 +271,7 @@ begin
       fGroup.Condition := TKMUnitGroup.GetDefaultCondition
     else
       fGroup.Condition := UNIT_MAX_CONDITION;
+    ConditionBar_Unit.Caption := IntToStr(Round(fGroup.Condition)) + '/' + IntToStr(UNIT_MAX_CONDITION);
     ConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
   end;
 
