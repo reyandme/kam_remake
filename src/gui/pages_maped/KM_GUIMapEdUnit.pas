@@ -13,6 +13,7 @@ type
     fGroup: TKMUnitGroup;
 
     procedure SetUnitsPerRaw(aValue: Integer);
+    procedure SetPositionUnitConditions(aValue: Integer);
 
     procedure Unit_ArmyChange1(Sender: TObject);
     procedure Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
@@ -145,8 +146,7 @@ begin
   Label_UnitName.Caption := gRes.Units[fUnit.UnitType].GUIName;
   Image_UnitPic.TexID := gRes.Units[fUnit.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gHands[fUnit.Owner].FlagColor;
-  ConditionBar_Unit.Caption := IntToStr(Round(fUnit.Condition)) + '/' + IntToStr(UNIT_MAX_CONDITION);
-  ConditionBar_Unit.Position := fUnit.Condition / UNIT_MAX_CONDITION;
+  SetPositionUnitConditions(fUnit.Condition);
 
   Label_UnitDescription.Caption := gRes.Units[fUnit.UnitType].Description;
 end;
@@ -170,8 +170,7 @@ begin
   Label_UnitName.Caption := gRes.Units[fGroup.UnitType].GUIName;
   Image_UnitPic.TexID := gRes.Units[fGroup.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := gHands[fGroup.Owner].FlagColor;
-  ConditionBar_Unit.Caption := IntToStr(Round(fGroup.Condition)) + '/' + IntToStr(UNIT_MAX_CONDITION);
-  ConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
+  SetPositionUnitConditions(fGroup.Condition);
 
   //Warrior specific
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
@@ -223,8 +222,7 @@ begin
       fUnit.Condition := TKMUnit.GetDefaultCondition;
     Button_ConditionDefault.Disable;
   end;
-  ConditionBar_Unit.Caption := IntToStr(Round(U.Condition)) + '/' + IntToStr(UNIT_MAX_CONDITION);
-  ConditionBar_Unit.Position := U.Condition / UNIT_MAX_CONDITION;
+  SetPositionUnitConditions(U.Condition);
 end;
 
 
@@ -239,6 +237,13 @@ end;
 procedure TKMMapEdUnit.Unit_ArmyChange1(Sender: TObject);
 begin
   Unit_ArmyChangeShift(Sender, []);
+end;
+
+
+procedure TKMMapEdUnit.SetPositionUnitConditions(aValue: Integer);
+begin
+  ConditionBar_Unit.Caption :=  IntToStr(aValue) + '/' + IntToStr(UNIT_MAX_CONDITION);
+  ConditionBar_Unit.Position := aValue / UNIT_MAX_CONDITION;
 end;
 
 
@@ -271,8 +276,7 @@ begin
       fGroup.Condition := TKMUnitGroup.GetDefaultCondition
     else
       fGroup.Condition := UNIT_MAX_CONDITION;
-    ConditionBar_Unit.Caption := IntToStr(Round(fGroup.Condition)) + '/' + IntToStr(UNIT_MAX_CONDITION);
-    ConditionBar_Unit.Position := fGroup.Condition / UNIT_MAX_CONDITION;
+    SetPositionUnitConditions(fGroup.Condition);
   end;
 
   fGroup.MapEdOrder.Order := TKMInitialOrder(DropBox_ArmyOrder.ItemIndex);
