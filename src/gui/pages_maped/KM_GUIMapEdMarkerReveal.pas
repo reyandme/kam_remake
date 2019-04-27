@@ -45,12 +45,12 @@ begin
 
   fOnDone := aOnDone;
 
-  Panel_MarkerReveal := TKMPanel.Create(aParent, 9, 50, TB_MAP_ED_WIDTH - 9, 400);
+  Panel_MarkerReveal := TKMPanel.Create(aParent, TB_PAD, 50, TB_MAP_ED_WIDTH - TB_PAD, 400);
 
   Label_MarkerType := TKMLabel.Create(Panel_MarkerReveal, 0, 10, Panel_MarkerReveal.Width, 0, '', fntOutline, taCenter);
   Image_MarkerPic := TKMImage.Create(Panel_MarkerReveal, 0, 10, 32, 32, 338);
 
-  TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 45, TB_WIDTH, 1, 64);
+  TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 45, Panel_MarkerReveal.Width, 1, 64);
   TrackBar_RevealSize.Caption := gResTexts[TX_MAPED_FOG_RADIUS];
   TrackBar_RevealSize.OnChange := Marker_Change;
 
@@ -58,7 +58,7 @@ begin
   Button_RevealDelete.Hint := gResTexts[TX_MAPED_DELETE_REVEALER_HINT];
   Button_RevealDelete.OnClick := Marker_Change;
 
-  Button_RevealClose := TKMButton.Create(Panel_MarkerReveal, TB_WIDTH-100, 100, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
+  Button_RevealClose := TKMButton.Create(Panel_MarkerReveal, Panel_MarkerReveal.Width-100, 100, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
   Button_RevealClose.Hint := gResTexts[TX_MAPED_CLOSE_REVEALER_HINT];
   Button_RevealClose.OnClick := Marker_Change;
 end;

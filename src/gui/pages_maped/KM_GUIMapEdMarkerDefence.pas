@@ -51,22 +51,22 @@ begin
 
   fOnDone := aOnDone;
 
-  Panel_MarkerDefence := TKMPanel.Create(aParent, 9, 50, TB_MAP_ED_WIDTH - 9, 400);
+  Panel_MarkerDefence := TKMPanel.Create(aParent, TB_PAD, 50, TB_MAP_ED_WIDTH - TB_PAD, 400);
 
   Label_MarkerType := TKMLabel.Create(Panel_MarkerDefence, 0, 10, Panel_MarkerDefence.Width, 0, '', fntOutline, taCenter);
   Image_MarkerPic := TKMImage.Create(Panel_MarkerDefence, 0, 10, 32, 32, 338);
 
-  DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 55, TB_WIDTH, 20, fntGame, '', bsGame);
+  DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 55, Panel_MarkerDefence.Width, 20, fntGame, '', bsGame);
   DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_MELEE]);
   DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE]);
   DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_RANGED]);
   DropList_DefenceGroup.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_MOUNTED]);
   DropList_DefenceGroup.OnChange := Marker_Change;
-  DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 85, TB_WIDTH, 20, fntGame, '', bsGame);
+  DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 85, Panel_MarkerDefence.Width, 20, fntGame, '', bsGame);
   DropList_DefenceType.Add(gResTexts[TX_MAPED_AI_DEFENCE_DEFENDERS]);
   DropList_DefenceType.Add(gResTexts[TX_MAPED_AI_DEFENCE_ATTACKERS]);
   DropList_DefenceType.OnChange := Marker_Change;
-  TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 115, TB_WIDTH, 1, 128);
+  TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 115, Panel_MarkerDefence.Width, 1, 128);
   TrackBar_DefenceRad.Caption := gResTexts[TX_MAPED_AI_DEFENCE_RADIUS];
   TrackBar_DefenceRad.OnChange := Marker_Change;
 
@@ -84,7 +84,7 @@ begin
   Button_DefenceDelete := TKMButton.Create(Panel_MarkerDefence, 0, 280, 25, 25, 340, rxGui, bsGame);
   Button_DefenceDelete.Hint := gResTexts[TX_MAPED_AI_DEFENCE_DELETE_HINT];
   Button_DefenceDelete.OnClick := Marker_Change;
-  Button_DefenceClose := TKMButton.Create(Panel_MarkerDefence, TB_WIDTH-100, 280, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
+  Button_DefenceClose := TKMButton.Create(Panel_MarkerDefence, Panel_MarkerDefence.Width-100, 280, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
   Button_DefenceClose.Hint := gResTexts[TX_MAPED_AI_DEFENCE_CLOSE_HINT];
   Button_DefenceClose.OnClick := Marker_Change;
 end;

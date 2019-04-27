@@ -60,7 +60,7 @@ constructor TKMMapEdUnit.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-  Panel_Unit := TKMPanel.Create(aParent, 9, 45, TB_MAP_ED_WIDTH - 9, 400);
+  Panel_Unit := TKMPanel.Create(aParent, TB_PAD, 45, TB_MAP_ED_WIDTH - TB_PAD, 400);
   Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,Panel_Unit.Width,0,'',fntOutline,taCenter);
   Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
   Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,0,gResTexts[TX_UNIT_CONDITION],fntGrey,taCenter);
@@ -76,10 +76,10 @@ begin
   Button_ConditionInc.OnClickHold  := UnitConditionsClickHold;
   Button_ConditionDefault.OnClickShift  := UnitConditionsChange;
 
-  Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,TB_WIDTH,200,'',fntGrey,taLeft); //Taken from LIB resource
+  Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,Panel_Unit.Width,200,'',fntGrey,taLeft); //Taken from LIB resource
   Label_UnitDescription.AutoWrap := True;
 
-  Panel_Army := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 400);
+  Panel_Army := TKMPanel.Create(Panel_Unit, 0, 160, Panel_Unit.Width, 400);
   Button_Army_RotCCW  := TKMButton.Create(Panel_Army,       0,  0, 56, 40, 23, rxGui, bsGame);
   Button_Army_RotCW   := TKMButton.Create(Panel_Army,     124,  0, 56, 40, 24, rxGui, bsGame);
   Button_Army_ForUp   := TKMButton.Create(Panel_Army,       0, 46, 56, 40, 33, rxGui, bsGame);
@@ -107,8 +107,8 @@ begin
 
   //Group order
   //todo: Orders should be placed with a cursor (but keep numeric input as well?)
-  TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, gResTexts[TX_MAPED_GROUP_ORDER], fntOutline, taLeft);
-  DropBox_ArmyOrder := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fntMetal, '', bsGame);
+  TKMLabel.Create(Panel_Army, 0, 140, Panel_Army.Width, 0, gResTexts[TX_MAPED_GROUP_ORDER], fntOutline, taLeft);
+  DropBox_ArmyOrder := TKMDropList.Create(Panel_Army, 0, 160, Panel_Army.Width, 20, fntMetal, '', bsGame);
   DropBox_ArmyOrder.Add(gResTexts[TX_MAPED_GROUP_ORDER_NONE]);
   DropBox_ArmyOrder.Add(gResTexts[TX_MAPED_GROUP_ORDER_WALK]);
   DropBox_ArmyOrder.Add(gResTexts[TX_MAPED_GROUP_ORDER_ATTACK]);

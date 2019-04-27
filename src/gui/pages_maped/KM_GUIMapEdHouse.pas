@@ -119,7 +119,7 @@ procedure TKMMapEdHouse.Create_Common(aParent: TKMPanel);
 var
   I: Integer;
 begin
-  Panel_House := TKMPanel.Create(aParent, 9, 45, TB_MAP_ED_WIDTH - 9, 400);
+  Panel_House := TKMPanel.Create(aParent, TB_PAD, 45, TB_MAP_ED_WIDTH - TB_PAD, 400);
     //Thats common things
     Label_House := TKMLabel.Create(Panel_House, 0, 14, Panel_House.Width, 0, '', fntOutline, taCenter);
 
@@ -148,18 +148,18 @@ begin
     Button_HouseHealthDec.OnClickHold  := HouseHealthClickHold;
     Button_HouseHealthInc.OnClickHold  := HouseHealthClickHold;
 
-    Label_House_Input := TKMLabel.Create(Panel_House, 0, 85, TB_WIDTH, 0, gResTexts[TX_HOUSE_NEEDS], fntGrey, taCenter);
+    Label_House_Input := TKMLabel.Create(Panel_House, 0, 85, Panel_House.Width, 0, gResTexts[TX_HOUSE_NEEDS], fntGrey, taCenter);
 
     for I := 0 to 3 do
     begin
-      ResRow_Resource_Input[I] := TKMWareOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH);
+      ResRow_Resource_Input[I] := TKMWareOrderRow.Create(Panel_House, 0, 105 + I * 25, Panel_House.Width);
       ResRow_Resource_Input[I].WareRow.RX := rxGui;
       ResRow_Resource_Input[I].OnChange := HouseChange;
     end;
-    Label_House_Output := TKMLabel.Create(Panel_House, 0, 155, TB_WIDTH, 0, gResTexts[TX_HOUSE_DELIVERS]+':', fntGrey, taCenter);
+    Label_House_Output := TKMLabel.Create(Panel_House, 0, 155, Panel_House.Width, 0, gResTexts[TX_HOUSE_DELIVERS]+':', fntGrey, taCenter);
     for I := 0 to 3 do
     begin
-      ResRow_Resource_Output[I] := TKMWareOrderRow.Create(Panel_House, 0, 175 + I * 25, TB_WIDTH);
+      ResRow_Resource_Output[I] := TKMWareOrderRow.Create(Panel_House, 0, 175 + I * 25, Panel_House.Width);
       ResRow_Resource_Output[I].WareRow.RX := rxGui;
       ResRow_Resource_Output[I].OnChange := HouseChange;
     end;
@@ -171,7 +171,7 @@ procedure TKMMapEdHouse.Create_Store;
 var
   I: Integer;
 begin
-  Panel_HouseStore := TKMPanel.Create(Panel_House,0,76,TB_WIDTH,400);
+  Panel_HouseStore := TKMPanel.Create(Panel_House,0,76,Panel_House.Width,400);
     for I := 1 to STORE_RES_COUNT do
     begin
       Button_Store[I] := TKMButtonFlat.Create(Panel_HouseStore, 2 + ((I-1)mod 5)*36,8+((I-1)div 5)*42,32,36,0);
@@ -199,8 +199,8 @@ end;
 
 procedure TKMMapEdHouse.Create_Woodcutters;
 begin
-  Panel_HouseWoodcutters := TKMPanel.Create(Panel_House,0,85,TB_WIDTH,40);
-    Button_Woodcutters_CuttingPoint := TKMButtonFlat.Create(Panel_HouseWoodcutters, 0, 0, TB_WIDTH, 22, 0);
+  Panel_HouseWoodcutters := TKMPanel.Create(Panel_House,0,85,Panel_House.Width,40);
+    Button_Woodcutters_CuttingPoint := TKMButtonFlat.Create(Panel_HouseWoodcutters, 0, 0, Panel_HouseWoodcutters.Width, 22, 0);
     Button_Woodcutters_CuttingPoint.CapOffsetY := -11;
     Button_Woodcutters_CuttingPoint.Caption := gResTexts[TX_HOUSES_WOODCUTTER_CUTTING_POINT];
     Button_Woodcutters_CuttingPoint.Hint := gResTexts[TX_MAPED_WOODCUTTER_CUTTING_POINT_HINT];
@@ -213,9 +213,9 @@ procedure TKMMapEdHouse.Create_Barracks;
 var
   I: Integer;
 begin
-  Panel_HouseBarracks := TKMPanel.Create(Panel_House,0,76,TB_WIDTH,400);
+  Panel_HouseBarracks := TKMPanel.Create(Panel_House,0,76,Panel_House.Width,400);
 
-    Button_Barracks_RallyPoint := TKMButtonFlat.Create(Panel_HouseBarracks, 0, 8, TB_WIDTH, 22, 0);
+    Button_Barracks_RallyPoint := TKMButtonFlat.Create(Panel_HouseBarracks, 0, 8, Panel_House.Width, 22, 0);
     Button_Barracks_RallyPoint.CapOffsetY := -11;
     Button_Barracks_RallyPoint.Caption := gResTexts[TX_HOUSES_RALLY_POINT];
     Button_Barracks_RallyPoint.Hint := Format(gResTexts[TX_MAPED_RALLY_POINT_HINT], [gRes.Houses[htBarracks].HouseName]);;
@@ -259,15 +259,15 @@ end;
 
 procedure TKMMapEdHouse.Create_TownHall;
 begin
-  Panel_HouseTownHall := TKMPanel.Create(Panel_House,0,76,TB_WIDTH,400);
+  Panel_HouseTownHall := TKMPanel.Create(Panel_House,0,76,Panel_House.Width,400);
 
-    Button_TownHall_RallyPoint := TKMButtonFlat.Create(Panel_HouseTownHall, 0, 8, TB_WIDTH, 22, 0);
+    Button_TownHall_RallyPoint := TKMButtonFlat.Create(Panel_HouseTownHall, 0, 8, Panel_House.Width, 22, 0);
     Button_TownHall_RallyPoint.CapOffsetY := -11;
     Button_TownHall_RallyPoint.Caption := gResTexts[TX_HOUSES_RALLY_POINT];
     Button_TownHall_RallyPoint.Hint := Format(gResTexts[TX_MAPED_RALLY_POINT_HINT], [gRes.Houses[htTownhall].HouseName]);
     Button_TownHall_RallyPoint.OnClick := SetRallyPointClick;
 
-    WaresRow_TH_Gold_Input := TKMWareOrderRow.Create(Panel_HouseTownHall, 0, 34, TB_WIDTH, TH_MAX_GOLDMAX_VALUE);
+    WaresRow_TH_Gold_Input := TKMWareOrderRow.Create(Panel_HouseTownHall, 0, 34, Panel_House.Width, TH_MAX_GOLDMAX_VALUE);
     WaresRow_TH_Gold_Input.WareRow.RX := rxGui;
     WaresRow_TH_Gold_Input.Hint := gRes.Wares[wtGold].Title;
     WaresRow_TH_Gold_Input.WareRow.TexID := gRes.Wares[wtGold].GUIIcon;
