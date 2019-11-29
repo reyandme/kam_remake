@@ -155,6 +155,7 @@ begin
   Img.ImageStretch;
   TKMBevel.Create(Panel_RMG,   0,  50, SIZE_X, SIZE_Y - 110);
   TKMLabel.Create(Panel_RMG, SIZE_X div 2, -20, gResTexts[TX_MAPED_RMG_SETTINGS_TITLE], fntOutline, taCenter);
+  TKMLabel.Create(Panel_RMG, 10, (Panel_RMG.Height - 100), gResTexts[TX_MAPED_RMG_SETTINGS_MAP_SIZE], fntMetal, taLeft);
 
   fRMG := TKMRandomMapGenerator.Create;
 
@@ -442,7 +443,8 @@ begin
   if not fMapSizeIndicator then
   begin
     fMapSizeIndicator := True;
-    TKMLabel.Create(Panel_RMG, 10, (Panel_RMG.Height - 80), 200, 20, '(X: '+IntToStr(gTerrain.MapX)+', Y: '+IntToStr(gTerrain.MapY)+')', fntMetal, taLeft);
+
+    TKMLabel.Create(Panel_RMG, 10, (Panel_RMG.Height - 80), 200, 20, 'X: '+IntToStr(gTerrain.MapX)+', Y: '+IntToStr(gTerrain.MapY), fntMetal, taLeft);
   end;
 end;
 
