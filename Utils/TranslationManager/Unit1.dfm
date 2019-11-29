@@ -2,10 +2,10 @@ object Form1: TForm1
   Left = 230
   Top = 140
   Caption = 'KaM Remake Translation Manager'
-  ClientHeight = 643
+  ClientHeight = 668
   ClientWidth = 922
   Color = clBtnFace
-  Constraints.MinHeight = 600
+  Constraints.MinHeight = 668
   Constraints.MinWidth = 800
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,7 +22,7 @@ object Form1: TForm1
   OnResize = FormResize
   DesignSize = (
     922
-    643)
+    668)
   PixelsPerInch = 96
   TextHeight = 16
   object lblConstName: TLabel
@@ -81,7 +81,7 @@ object Form1: TForm1
   end
   object btnMoveUp: TButton
     Left = 333
-    Top = 569
+    Top = 594
     Width = 154
     Height = 25
     Caption = 'Move Up'
@@ -90,7 +90,7 @@ object Form1: TForm1
   end
   object btnMoveDown: TButton
     Left = 333
-    Top = 594
+    Top = 619
     Width = 154
     Height = 25
     Caption = 'Move Down'
@@ -145,6 +145,15 @@ object Form1: TForm1
     Caption = 'Delete'
     TabOrder = 3
     OnClick = btnDeleteClick
+  end
+  object btnDeleteIndex: TButton
+    Left = 333
+    Top = 558
+    Width = 154
+    Height = 25
+    Caption = 'Delete Index'
+    TabOrder = 16
+    OnClick = btnDeleteIndexClick
   end
   object StatusBar1: TStatusBar
     Left = 0

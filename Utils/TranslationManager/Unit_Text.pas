@@ -42,7 +42,7 @@ type
     property Texts[aIndex: Integer]: TStringArray read GetText;
     function TextBlankInAll(aIndex: Integer): Boolean;
 
-    procedure DeleteConst(aIndex: Integer);
+    procedure DeleteConst(aIndex: Integer; aDeleteIndex: Boolean = False);
     procedure Insert(aIndex: Integer);
     procedure InsertSeparator(aIndex: Integer);
     procedure MoveUp(aIndex: Integer);
@@ -479,7 +479,7 @@ begin
 end;
 
 
-procedure TTextManager.DeleteConst(aIndex: Integer);
+procedure TTextManager.DeleteConst(aIndex: Integer; aDeleteIndex: Boolean);
 var I,K: Integer;
 begin
   if fConstPath <> '' then
@@ -502,6 +502,13 @@ begin
     //Clear all fTexts
     for K := 0 to gResLocales.Count - 1 do
       fTexts[aIndex,K] := '';
+    if aDeleteIndex then
+    begin
+      for I := aIndex to Length(fTexts)-2 do
+        fTexts[I] := fTexts[I+1];
+      SetLength(fTexts, Length(fTexts)-1);
+    end;
+
   end;
 end;
 

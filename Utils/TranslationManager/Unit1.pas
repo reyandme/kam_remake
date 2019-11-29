@@ -52,6 +52,7 @@ type
     Label3: TLabel;
     edLabelId: TEdit;
     SaveHotKey: THotKey;
+    btnDeleteIndex: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -78,6 +79,7 @@ type
     procedure clbFoldersClickCheck(Sender: TObject);
     procedure mmSaveAllZIPClick(Sender: TObject);
     procedure ListBox1KeyPress(Sender: TObject; var Key: Char);
+    procedure btnDeleteIndexClick(Sender: TObject);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
@@ -620,6 +622,18 @@ begin
   if ID = -1 then Exit;
 
   fTextManager.DeleteConst(ID);
+  RefreshList;
+  mnuSave.Enabled := True;
+end;
+
+
+procedure TForm1.btnDeleteIndexClick(Sender: TObject);
+var ID: integer;
+begin
+  ID := ListBox1.ItemIndex; //Item place we are deleting
+  if ID = -1 then Exit;
+
+  fTextManager.DeleteConst(ID, True);
   RefreshList;
   mnuSave.Enabled := True;
 end;
