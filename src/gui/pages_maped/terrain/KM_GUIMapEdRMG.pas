@@ -442,7 +442,7 @@ begin
   if not fMapSizeIndicator then
   begin
     fMapSizeIndicator := True;
-    TKMLabel.Create(Panel_RMG, 540, -15, 200, 20, '(X: '+IntToStr(gTerrain.MapX)+', Y: '+IntToStr(gTerrain.MapY)+')', fntMetal, taLeft);
+    TKMLabel.Create(Panel_RMG, 10, (Panel_RMG.Height - 80), 200, 20, '(X: '+IntToStr(gTerrain.MapX)+', Y: '+IntToStr(gTerrain.MapY)+')', fntMetal, taLeft);
   end;
 end;
 
