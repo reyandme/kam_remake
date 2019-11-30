@@ -504,8 +504,9 @@ begin
       fTexts[aIndex,K] := '';
     if aDeleteIndex then
     begin
-      for I := aIndex to Length(fTexts)-2 do
-        fTexts[I] := fTexts[I+1];
+      if I < Length(fTexts) - 1 then
+        for I := aIndex to Length(fTexts)-2 do
+          fTexts[I] := fTexts[I+1];
       SetLength(fTexts, Length(fTexts)-1);
     end;
 
