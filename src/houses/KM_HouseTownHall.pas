@@ -63,7 +63,7 @@ begin
   inherited;
 
   fGoldCnt := 0;
-  fGoldMaxCnt := MAX_WARES_IN_HOUSE;
+  fGoldMaxCnt := MAX_WARES_IN_HOUSE + 3;
 end;
 
 
