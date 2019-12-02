@@ -35,6 +35,8 @@ type
 	
 
 implementation
+uses
+  SysUtils;
 
 
 constructor TKMConsoleTimer.Create;

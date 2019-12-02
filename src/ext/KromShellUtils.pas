@@ -14,7 +14,7 @@ uses
 	function BrowseURL(const URL: string) : Boolean;
   function OpenPDF(const URL: string): Boolean;
   procedure MailTo(const Address,Subject,Body:string);
-  procedure OpenMySite(const ToolName:string; Address:string='http://krom.reveur.de');
+  procedure OpenMySite(const ToolName: string; const Address: string = 'http://krom.reveur.de');
 
 
 implementation
@@ -124,7 +124,7 @@ begin
 end;
 
 
-procedure OpenMySite(const ToolName:string; Address:string='http://krom.reveur.de');
+procedure OpenMySite(const ToolName: string; const Address: string = 'http://krom.reveur.de');
 begin
   BrowseURL(Address+'/index_r.php?t='+ToolName); //Maybe add tool version later..
 end;

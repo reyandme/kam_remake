@@ -28,7 +28,7 @@ type
     GameInfo: TMPGameInfo;
   end;
 
-  TServerDataEvent = procedure(aServerID: Integer; aStream: TKMemoryStream; aPingStarted: Cardinal) of object;
+  TServerDataEvent = procedure(aServerID: Integer; aStream: TKMemoryStreamBinary; aPingStarted: Cardinal) of object;
 
   TServerSortMethod = (
     ssmByTypeAsc, ssmByTypeDesc, //Client or dedicated
@@ -65,7 +65,7 @@ type
   private
     fCount:integer;
     fRooms:array of TKMRoomInfo;
-    procedure AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoStream: TKMemoryStream);
+    procedure AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoStream: TKMemoryStreamBinary);
     function GetRoom(aIndex: Integer): TKMRoomInfo;
     procedure SetRoom(aIndex: Integer; aValue: TKMRoomInfo);
     procedure Clear;
@@ -73,7 +73,7 @@ type
     destructor Destroy; override;
     property Rooms[aIndex: Integer]: TKMRoomInfo read GetRoom write SetRoom; default;
     property Count: Integer read fCount;
-    procedure LoadData(aServerID:integer; aStream: TKMemoryStream);
+    procedure LoadData(aServerID:integer; aStream: TKMemoryStreamBinary);
     procedure SwapRooms(A,B:Integer);
   end;
 
@@ -113,7 +113,7 @@ type
     procedure ReceiveServerList(const S: string);
     procedure ReceiveAnnouncements(const S: string);
 
-    procedure ServerDataReceive(aServerID: Integer; aStream: TKMemoryStream; aPingStarted: Cardinal);
+    procedure ServerDataReceive(aServerID: Integer; aStream: TKMemoryStreamBinary; aPingStarted: Cardinal);
     procedure QueryDone(Sender:TObject);
 
     procedure Sort;
@@ -153,7 +153,7 @@ begin
 end;
 
 
-procedure TKMRoomList.AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoStream: TKMemoryStream);
+procedure TKMRoomList.AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoStream: TKMemoryStreamBinary);
 begin
   if Length(fRooms) <= fCount then SetLength(fRooms, fCount+16);
   fRooms[fCount].ServerIndex := aServerIndex;
@@ -188,7 +188,7 @@ begin
 end;
 
 
-procedure TKMRoomList.LoadData(aServerID:integer; aStream: TKMemoryStream);
+procedure TKMRoomList.LoadData(aServerID:integer; aStream: TKMemoryStreamBinary);
 var
   i, RoomCount, RoomID: Integer;
 begin
@@ -337,7 +337,7 @@ end;
 
 procedure TKMQuery.NetClientReceive(aNetClient: TKMNetClient; aSenderIndex: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal);
 var
-  M: TKMemoryStream;
+  M: TKMemoryStreamBinary;
   Kind: TKMessageKind;
 //  tmpInteger: Integer;
   tmpHandleIndex: TKMNetHandleIndex;
@@ -345,28 +345,28 @@ var
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
 
-  M := TKMemoryStream.Create;
+  M := TKMemoryStreamBinary.Create;
   M.WriteBuffer(aData^, aLength);
   M.Position := 0;
   M.Read(Kind, SizeOf(TKMessageKind)); //Depending on kind message contains either Text or a Number
 
   case Kind of
-    mk_GameVersion:
+    mkGameVersion:
       begin
         M.ReadA(tmpString);
         if tmpString <> NET_PROTOCOL_REVISON then
           fQueryIsDone := True;
       end;
 
-    mk_IndexOnServer:
+    mkIndexOnServer:
       begin
         M.Read(tmpHandleIndex);
         fIndexOnServer := tmpHandleIndex;
         fPingStarted := TimeGet;
-        PacketSend(NET_ADDRESS_SERVER, mk_GetServerInfo);
+        PacketSend(NET_ADDRESS_SERVER, mkGetServerInfo);
       end;
 
-    mk_ServerInfo:
+    mkServerInfo:
       begin
         fOnServerData(fServerID, M, fPingStarted);
         fQueryIsDone := true; //We cannot call fOnQueryDone now because that would disconnect the socket halfway through the receive procedure (crashes)
@@ -379,11 +379,11 @@ end;
 
 procedure TKMQuery.PacketSend(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind);
 var
-  M: TKMemoryStream;
+  M: TKMemoryStreamBinary;
 begin
   Assert(NetPacketType[aKind] = pfNoData);
 
-  M := TKMemoryStream.Create;
+  M := TKMemoryStreamBinary.Create;
   M.Write(aKind, SizeOf(TKMessageKind));
 
   fNetClient.SendData(fIndexOnServer, aRecipient, M.Memory, M.Size);
@@ -486,7 +486,7 @@ begin
 end;
 
 
-procedure TKMServerQuery.ServerDataReceive(aServerID: Integer; aStream: TKMemoryStream; aPingStarted: Cardinal);
+procedure TKMServerQuery.ServerDataReceive(aServerID: Integer; aStream: TKMemoryStreamBinary; aPingStarted: Cardinal);
 begin
   fRoomList.LoadData(aServerID, aStream); //Tell RoomsList to load data about rooms
   fServerList.SetPing(aServerID, GetTimeSince(aPingStarted)); //Tell ServersList ping

@@ -15,12 +15,12 @@ type
   public
     constructor Create(aUnit: TKMUnit; aTimeToStay: Integer; aActionType: TKMUnitActionType; aStayStill: Boolean;
                        aStillFrame: Byte; aLocked: Boolean);
-    constructor Load(LoadStream:TKMemoryStream); override;
+    constructor Load(LoadStream: TKMemoryStream); override;
     function ActName: TKMUnitActionName; override;
-    function CanBeInterrupted: Boolean; override;
+    function CanBeInterrupted(aForced: Boolean = True): Boolean; override;
     function GetExplanation: UnicodeString; override;
     function Execute: TKMActionResult; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
 
@@ -40,9 +40,10 @@ begin
 end;
 
 
-constructor TKMUnitActionStay.Load(LoadStream:TKMemoryStream);
+constructor TKMUnitActionStay.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+  LoadStream.CheckMarker('UnitActionStay');
   LoadStream.Read(StayStill);
   LoadStream.Read(TimeToStay);
   LoadStream.Read(StillFrame);
@@ -51,7 +52,7 @@ end;
 
 function TKMUnitActionStay.ActName: TKMUnitActionName;
 begin
-  Result := uan_Stay;
+  Result := uanStay;
 end;
 
 
@@ -66,24 +67,24 @@ begin
   if SKIP_SOUND then Exit;
 
   //Do not play sounds if unit is invisible to gMySpectator
-  if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then exit;
+  if gMySpectator.FogOfWar.CheckTileRevelation(fUnit.CurrPosition.X, fUnit.CurrPosition.Y) < 255 then exit;
 
   //Various UnitTypes and ActionTypes produce all the sounds
   case fUnit.UnitType of
-    ut_Worker:      case ActionType of
-                      ua_Work:  if Step = 3 then gSoundPlayer.Play(sfx_housebuild,fUnit.PositionF);
-                      ua_Work1: if Step = 0 then gSoundPlayer.Play(sfx_Dig,fUnit.PositionF);
-                      ua_Work2: if Step = 8 then gSoundPlayer.Play(sfx_Pave,fUnit.PositionF);
+    utWorker:      case ActionType of
+                      uaWork:  if Step = 3 then gSoundPlayer.Play(sfxHousebuild,fUnit.PositionF);
+                      uaWork1: if Step = 0 then gSoundPlayer.Play(sfxDig,fUnit.PositionF);
+                      uaWork2: if Step = 8 then gSoundPlayer.Play(sfxPave,fUnit.PositionF);
                     end;
-    ut_Farmer:      case ActionType of
-                      ua_Work:  if Step = 8 then gSoundPlayer.Play(sfx_CornCut,fUnit.PositionF);
-                      ua_Work1: if Step = 0 then gSoundPlayer.Play(sfx_CornSow,fUnit.PositionF,true,0.6);
+    utFarmer:      case ActionType of
+                      uaWork:  if Step = 8 then gSoundPlayer.Play(sfxCornCut,fUnit.PositionF);
+                      uaWork1: if Step = 0 then gSoundPlayer.Play(sfxCornSow,fUnit.PositionF,true,0.6);
                     end;
-    ut_StoneCutter: if ActionType = ua_Work then
-                      if Step = 3 then gSoundPlayer.Play(sfx_minestone,fUnit.PositionF,true,1.4);
-    ut_WoodCutter:  case ActionType of
-                      ua_Work: if (fUnit.AnimStep mod Cycle = 3) and (fUnit.Direction <> dir_N) then gSoundPlayer.Play(sfx_ChopTree, fUnit.PositionF,true)
-                      else     if (fUnit.AnimStep mod Cycle = 0) and (fUnit.Direction =  dir_N) then gSoundPlayer.Play(sfx_WoodcutterDig, fUnit.PositionF,true);
+    utStoneCutter: if ActionType = uaWork then
+                      if Step = 3 then gSoundPlayer.Play(sfxMinestone,fUnit.PositionF,true,1.4);
+    utWoodCutter:  case ActionType of
+                      uaWork: if (fUnit.AnimStep mod Cycle = 3) and (fUnit.Direction <> dirN) then gSoundPlayer.Play(sfxChopTree, fUnit.PositionF,true)
+                      else     if (fUnit.AnimStep mod Cycle = 0) and (fUnit.Direction =  dirN) then gSoundPlayer.Play(sfxWoodcutterDig, fUnit.PositionF,true);
                     end;
   end;
 end;
@@ -112,22 +113,23 @@ begin
 
   Dec(TimeToStay);
   if TimeToStay <= 0 then
-    Result := ar_ActDone
+    Result := arActDone
   else
-    Result := ar_ActContinues;
+    Result := arActContinues;
 end;
 
 
-procedure TKMUnitActionStay.Save(SaveStream:TKMemoryStream);
+procedure TKMUnitActionStay.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+  SaveStream.PlaceMarker('UnitActionStay');
   SaveStream.Write(StayStill);
   SaveStream.Write(TimeToStay);
   SaveStream.Write(StillFrame);
 end;
 
 
-function TKMUnitActionStay.CanBeInterrupted: Boolean;
+function TKMUnitActionStay.CanBeInterrupted(aForced: Boolean = True): Boolean;
 begin
   Result := not Locked; //Initial pause before leaving barracks is locked
 end;

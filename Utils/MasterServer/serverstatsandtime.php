@@ -1,6 +1,6 @@
 <?php
-include_once("serverstats.php");
-include_once("servertime.php");
+require_once("serverstats.php");
+require_once("servertime.php");
 
 function ServerStatsAndTime($format)
 {
@@ -17,4 +17,3 @@ if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
     if(isset($_REQUEST["format"])) $format = $_REQUEST["format"];
     ServerStatsAndTime($format);
 }
-?>

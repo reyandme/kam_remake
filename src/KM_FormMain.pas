@@ -38,7 +38,6 @@ type
     Export_Custom: TMenuItem;
     Export_Tileset: TMenuItem;
     Export_Fonts1: TMenuItem;
-    GroupBox1: TGroupBox;
     chkSuperSpeed: TCheckBox;
     Export_Deliverlists1: TMenuItem;
     Export_Sounds1: TMenuItem;
@@ -56,7 +55,6 @@ type
     ExportUIPages: TMenuItem;
     Resources1: TMenuItem;
     HousesDat1: TMenuItem;
-    GroupBox2: TGroupBox;
     chkShowOwnership: TCheckBox;
     chkShowNavMesh: TCheckBox;
     chkShowAvoid: TCheckBox;
@@ -69,17 +67,14 @@ type
     chkBuildAI: TCheckBox;
     chkCombatAI: TCheckBox;
     ResourceValues1: TMenuItem;
-    GroupBox3: TGroupBox;
     chkUIControlsBounds: TCheckBox;
     chkUITextBounds: TCheckBox;
-    GroupBox4: TGroupBox;
     tbAngleX: TTrackBar;
     tbAngleY: TTrackBar;
     Label3: TLabel;
     Label4: TLabel;
     tbBuildingStep: TTrackBar;
     Label1: TLabel;
-    GroupBox5: TGroupBox;
     tbPassability: TTrackBar;
     Label2: TLabel;
     chkShowRoutes: TCheckBox;
@@ -87,7 +82,6 @@ type
     tbAngleZ: TTrackBar;
     Label7: TLabel;
     chkSelectionBuffer: TCheckBox;
-    GroupBoxLogs: TGroupBox;
     chkLogDelivery: TCheckBox;
     chkLogNetConnection: TCheckBox;
     RGLogNetPackets: TRadioGroup;
@@ -116,6 +110,35 @@ type
     chkShowGameTick: TCheckBox;
     chkSkipRender: TCheckBox;
     chkSkipSound: TCheckBox;
+    chkUIDs: TCheckBox;
+    chkShowSoil: TCheckBox;
+    chkShowFlatArea: TCheckBox;
+    chkShowEyeRoutes: TCheckBox;
+    chkSelectedObjInfo: TCheckBox;
+    chkShowFPS: TCheckBox;
+    chkHands: TCheckBox;
+    btnUpdateUI: TButton;
+    {$IFDEF WDC}
+    mainGroup: TCategoryPanelGroup;
+    cpGameControls: TCategoryPanel;
+    cpDebugRender: TCategoryPanel;
+    cpAI: TCategoryPanel;
+    cpUserInreface: TCategoryPanel;
+    cpGraphicTweaks: TCategoryPanel;
+    cpLogs: TCategoryPanel;
+    {$ENDIF}
+    {$IFDEF FPC}
+    mainGroup: TGroupBox;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
+    GroupBox4: TGroupBox;
+    GroupBox5: TGroupBox;
+    GroupBoxLogs: TGroupBox;
+    {$ENDIF}
+    N5: TMenuItem;
+    LoadSavThenRpl: TMenuItem;
+    N7: TMenuItem;
+    ReloadLibx: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -168,11 +191,15 @@ type
     procedure SaveSettingsClick(Sender: TObject);
     procedure SaveEditableMission1Click(Sender: TObject);
     procedure ValidateGameStatsClick(Sender: TObject);
+    procedure Button_UpdateUI_Click(Sender: TObject);
+    procedure LoadSavThenRplClick(Sender: TObject);
+    procedure ReloadLibxClick(Sender: TObject);
   private
     fUpdating: Boolean;
     fMissionDefOpenPath: UnicodeString;
     procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
     procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
+    function ConfirmExport: Boolean;
     {$IFDEF MSWindows}
     function GetWindowParams: TKMWindowParamsRecord;
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -208,6 +235,7 @@ uses
   //Use these units directly to avoid pass-through methods in fMain
   KM_Resource,
   KM_ResSprites,
+  KM_ResTexts,
   KM_GameApp,
   KM_HandsCollection,
   KM_ResSound,
@@ -244,8 +272,15 @@ begin
   {$ENDIF}
 
   //Put debug panel on top
+  {$IFDEF WDC}
+  RenderArea.BringToFront;
+  mainGroup.SendToBack;
+  StatusBar1.SendToBack;
+  {$ENDIF}
+  {$IFDEF FPC}
   RenderArea.SendToBack;
-  GroupBox1.BringToFront;
+  mainGroup.BringToFront;
+  {$ENDIF}
 end;
 
 procedure TFormMain.FormShow(Sender: TObject);
@@ -284,18 +319,18 @@ end;
 
 procedure TFormMain.FormKeyDownProc(aKey: Word; aShift: TShiftState);
 begin
-  if gGameApp <> nil then gGameApp.KeyDown(aKey, aShift);
-end;
-
-
-procedure TFormMain.FormKeyUpProc(aKey: Word; aShift: TShiftState);
-begin
   if aKey = gResKeys[SC_DEBUG_WINDOW].Key then
   begin
     SHOW_DEBUG_CONTROLS := not SHOW_DEBUG_CONTROLS;
     ControlsSetVisibile(SHOW_DEBUG_CONTROLS, not (ssCtrl in aShift)); //Hide groupbox when Ctrl is pressed
   end;
 
+  if gGameApp <> nil then gGameApp.KeyDown(aKey, aShift);
+end;
+
+
+procedure TFormMain.FormKeyUpProc(aKey: Word; aShift: TShiftState);
+begin
   if gGameApp <> nil then gGameApp.KeyUp(aKey, aShift);
 end;
 
@@ -319,6 +354,12 @@ begin
   Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
 
   FormKeyUpProc(Key, Shift);
+end;
+
+
+procedure TFormMain.ReloadLibxClick(Sender: TObject);
+begin
+  gRes.LoadLocaleAndFonts(gGameApp.GameSettings.Locale, gGameApp.GameSettings.LoadFullFonts);
 end;
 
 
@@ -455,24 +496,27 @@ end;
 
 procedure TFormMain.Debug_ShowPanelClick(Sender: TObject);
 begin
-  GroupBox1.Visible := not GroupBox1.Visible;
+  mainGroup.Visible := not mainGroup.Visible;
 end;
 
 
 //Exports
 procedure TFormMain.Export_TreesRXClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxTrees);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxTrees);
 end;
 
 procedure TFormMain.Export_HousesRXClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxHouses);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxHouses);
 end;
 
 procedure TFormMain.Export_UnitsRXClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxUnits);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxUnits);
 end;
 
 procedure TFormMain.Export_ScriptDataClick(Sender: TObject);
@@ -484,12 +528,14 @@ end;
 
 procedure TFormMain.Export_GUIClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxGUI);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxGUI);
 end;
 
 procedure TFormMain.Export_GUIMainRXClick(Sender: TObject);
 begin
-  gRes.Sprites.ExportToPNG(rxGUIMain);
+  if ConfirmExport then
+    gRes.Sprites.ExportToPNG(rxGUIMain);
 end;
 
 procedure TFormMain.Export_CustomClick(Sender: TObject);
@@ -509,12 +555,14 @@ end;
 
 procedure TFormMain.Export_TreeAnim1Click(Sender: TObject);
 begin
-  gRes.ExportTreeAnim;
+  if ConfirmExport then
+    gRes.ExportTreeAnim;
 end;
 
 procedure TFormMain.Export_HouseAnim1Click(Sender: TObject);
 begin
-  gRes.ExportHouseAnim;
+  if ConfirmExport then
+    gRes.ExportHouseAnim;
 end;
 
 
@@ -524,15 +572,35 @@ begin
 end;
 
 
+procedure TFormMain.LoadSavThenRplClick(Sender: TObject);
+var
+  SavPath, RplPath: UnicodeString;
+begin
+  if RunOpenDialog(OpenDialog1, '', fMissionDefOpenPath, 'Knights & Merchants Save (*.sav)|*.sav') then
+  begin
+    SavPath := OpenDialog1.FileName;
+    fMissionDefOpenPath := ExtractFileDir(OpenDialog1.FileName);
+    if RunOpenDialog(OpenDialog1, '', fMissionDefOpenPath, 'Knights & Merchants Replay (*.rpl)|*.rpl') then
+    begin
+      RplPath := OpenDialog1.FileName;
+
+      gGameApp.NewSaveAndReplay(SavPath, RplPath);
+    end;
+  end;
+end;
+
+
 procedure TFormMain.ExportGameStatsClick(Sender: TObject);
 var
   DateS: UnicodeString;
 begin
   if (gGame <> nil) and not gGame.IsMapEditor then
   begin
+    gResTexts.ForceDefaultLocale := True; //Use only eng for exported csv
     DateS := FormatDateTime('yyyy-mm-dd_hh-nn', Now);
     gHands.ExportGameStatsToCSV(ExeDir + 'Export' + PathDelim + gGame.GameName + '_' + DateS + '.csv',
                             Format('Statistics for game at map ''%s'' on %s', [gGame.GameName, DateS]));
+    gResTexts.ForceDefaultLocale := False;
   end;
 end;
 
@@ -549,7 +617,7 @@ var I: Integer;
 begin
   if gHands = nil then Exit;
   //You could possibly cheat in multiplayer by seeing what supplies your enemy has
-  if (gGameApp.Game <> nil) and (not gGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS) then
+  if (gGameApp.Game <> nil) and (not gGameApp.Game.IsMultiPlayerOrSpec or MULTIPLAYER_CHEATS) then
   for I := 0 to gHands.Count - 1 do
     gHands[I].Deliveries.Queue.ExportToFile(ExeDir + 'Player_' + IntToStr(I) + '_Deliver_List.txt');
 end;
@@ -559,11 +627,11 @@ procedure TFormMain.RGPlayerClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
     or gGameApp.Game.IsMapEditor
-    or gGameApp.Game.IsMultiplayer then
+    or gGameApp.Game.IsMultiPlayerOrSpec then
     Exit;
 
   if (gHands <> nil) and (RGPlayer.ItemIndex < gHands.Count) then
-    gMySpectator.HandIndex := RGPlayer.ItemIndex;
+    gMySpectator.HandID := RGPlayer.ItemIndex;
 end;
 
 
@@ -584,20 +652,23 @@ end;
 
 procedure TFormMain.SoldiersClick(Sender: TObject);
 begin
-  gRes.ExportUnitAnim(WARRIOR_MIN, WARRIOR_MAX);
+  if ConfirmExport then
+    gRes.ExportUnitAnim(WARRIOR_MIN, WARRIOR_MAX);
 end;
 
 
 procedure TFormMain.chkSuperSpeedClick(Sender: TObject);
 begin
   if (gGameApp.Game = nil)
-    or (gGameApp.Game.IsMultiplayer
-      and not gGameApp.Game.IsMPGameSpeedUpAllowed
+    or (gGameApp.Game.IsMultiPlayerOrSpec
+      and not gGameApp.Game.IsMPGameSpeedChangeAllowed
       and not MULTIPLAYER_SPEEDUP
       and not gGameApp.Game.IsReplay) then
     Exit;
 
   gGameApp.Game.SetGameSpeed(IfThen(chkSuperSpeed.Checked, DEBUG_SPEEDUP_SPEED, gGameApp.Game.GetNormalGameSpeed), False);
+
+  ActiveControl := nil; //Do not allow to focus on anything on debug panel
 end;
 
 
@@ -605,27 +676,76 @@ procedure TFormMain.Button_StopClick(Sender: TObject);
 begin
   if gGameApp.Game <> nil then
     if gGameApp.Game.IsMapEditor then
-      gGameApp.StopGame(gr_MapEdEnd)
+      gGameApp.StopGame(grMapEdEnd)
     else
-      gGameApp.StopGame(gr_Cancel);
+      gGameApp.StopGame(grCancel);
+
+  ActiveControl := nil; //Do not allow to focus on anything on debug panel
+end;
+
+
+procedure TFormMain.Button_UpdateUI_Click(Sender: TObject);
+begin
+  if gGameApp.Game <> nil then
+    gGameApp.Game.ActiveInterface.UpdateState(gGameApp.GlobalTickCount); //UpdateUI, even on game Pause
+
+  ActiveControl := nil; //Do not allow to focus on anything on debug panel
 end;
 
 
 procedure TFormMain.Civilians1Click(Sender: TObject);
 begin
-  gRes.ExportUnitAnim(CITIZEN_MIN, CITIZEN_MAX);
+  if ConfirmExport then
+    gRes.ExportUnitAnim(CITIZEN_MIN, CITIZEN_MAX);
 end;
 
 
 //Revert all controls to defaults (e.g. before MP session)
 procedure TFormMain.ControlsReset;
-  procedure ResetGroupBox(aBox: TGroupBox);
+
+  {$IFDEF WDC}
+  procedure ResetCategoryPanel(aPanel: TCategoryPanel);
+  var
+    I: Integer;
+    PanelSurface: TCategoryPanelSurface;
+  begin
+    if aPanel.Controls[0] is TCategoryPanelSurface then
+    begin
+      PanelSurface := TCategoryPanelSurface(aPanel.Controls[0]);
+      for I := 0 to PanelSurface.ControlCount - 1 do
+      begin
+        if PanelSurface.Controls[I] is TCheckBox then
+          TCheckBox(PanelSurface.Controls[I]).Checked :=    (PanelSurface.Controls[I] = chkBevel)
+                                                 or (PanelSurface.Controls[I] = chkLogNetConnection)
+        else
+        if PanelSurface.Controls[I] is TTrackBar then
+          TTrackBar(PanelSurface.Controls[I]).Position := 0
+        else
+        if PanelSurface.Controls[I] is TRadioGroup then
+          TRadioGroup(PanelSurface.Controls[I]).ItemIndex := 0;
+      end;
+    end;
+  end;
+
+  procedure ResetGroup(aGroup: TCategoryPanelGroup);
+  var
+    I: Integer;
+  begin
+    for I := 0 to aGroup.ControlCount - 1 do
+      if (aGroup.Controls[I] is TCategoryPanel) then
+        ResetCategoryPanel(TCategoryPanel(aGroup.Controls[I]));
+  end;
+  {$ENDIF}
+
+  {$IFDEF FPC}
+  procedure ResetGroup(aBox: TGroupBox);
   var
     I: Integer;
   begin
     for I := 0 to aBox.ControlCount - 1 do
       if aBox.Controls[I] is TCheckBox then
-        TCheckBox(aBox.Controls[I]).Checked := aBox.Controls[I] = chkLogNetConnection
+        TCheckBox(aBox.Controls[I]).Checked :=    (aBox.Controls[I] = chkBevel)
+                                               or (aBox.Controls[I] = chkLogNetConnection)
       else
       if aBox.Controls[I] is TTrackBar then
         TTrackBar(aBox.Controls[I]).Position := 0
@@ -634,11 +754,17 @@ procedure TFormMain.ControlsReset;
         TRadioGroup(aBox.Controls[I]).ItemIndex := 0
       else
       if (aBox.Controls[I] is TGroupBox) then
-        ResetGroupBox(TGroupBox(aBox.Controls[I]));
+        ResetGroup(TGroupBox(aBox.Controls[I]));
   end;
+  {$ENDIF}
+
 begin
+  if not RESET_DEBUG_CONTROLS then
+    Exit;
+
   fUpdating := True;
-  ResetGroupBox(GroupBox1);
+  
+  ResetGroup(mainGroup);
 
   tbOwnMargin.Position := OWN_MARGIN_DEF;
   tbOwnThresh.Position := OWN_THRESHOLD_DEF;
@@ -680,7 +806,7 @@ var
 begin
   Refresh;
 
-  GroupBox1.Visible  := aShowGroupBox and aShowCtrls;
+  mainGroup.Visible  := aShowGroupBox and aShowCtrls;
   StatusBar1.Visible := aShowCtrls;
 
   //For some reason cycling Form.Menu fixes the black bar appearing under the menu upon making it visible.
@@ -688,7 +814,7 @@ begin
   Menu := nil;
   if aShowCtrls then Menu := MainMenu1;
 
-  GroupBox1.Enabled  := aShowGroupBox and aShowCtrls;
+  mainGroup.Enabled  := aShowGroupBox and aShowCtrls;
   StatusBar1.Enabled := aShowCtrls;
   for I := 0 to MainMenu1.Items.Count - 1 do
     MainMenu1.Items[I].Enabled := aShowCtrls;
@@ -727,6 +853,10 @@ begin
     SHOW_UNIT_ROUTES := chkShowRoutes.Checked;
     SHOW_SEL_BUFFER := chkSelectionBuffer.Checked;
     SHOW_GAME_TICK := chkShowGameTick.Checked;
+    SHOW_FPS := chkShowFPS.Checked;
+    SHOW_UIDs := chkUIDs.Checked;
+    SHOW_SELECTED_OBJ_INFO := chkSelectedObjInfo.Checked;
+    SHOW_HANDS_INFO := chkHands.Checked;
 
     SKIP_RENDER := chkSkipRender.Checked;
     SKIP_SOUND := chkSkipSound.Checked;
@@ -736,11 +866,14 @@ begin
   if AllowDebugChange then
   begin
     SHOW_AI_WARE_BALANCE := chkShowBalance.Checked;
-    SHOW_OVERLAY_BEVEL := chkBevel.Checked;
+    SHOW_DEBUG_OVERLAY_BEVEL := chkBevel.Checked;
     OVERLAY_DEFENCES := chkShowDefences.Checked;
     OVERLAY_AI_BUILD := chkBuildAI.Checked;
     OVERLAY_AI_COMBAT := chkCombatAI.Checked;
     OVERLAY_AI_EYE := chkAIEye.Checked;
+    OVERLAY_AI_SOIL := chkShowSoil.Checked;
+    OVERLAY_AI_FLATAREA := chkShowFlatArea.Checked;
+    OVERLAY_AI_ROUTES := chkShowEyeRoutes.Checked;
     OVERLAY_AVOID := chkShowAvoid.Checked;
     OVERLAY_OWNERSHIP := chkShowOwnership.Checked;
     OVERLAY_NAVMESH := chkShowNavMesh.Checked;
@@ -778,50 +911,51 @@ begin
   if AllowDebugChange then
   begin
     if chkLogDelivery.Checked then
-      Include(gLog.MessageTypes, lmt_Delivery)
+      Include(gLog.MessageTypes, lmtDelivery)
     else
-      Exclude(gLog.MessageTypes, lmt_Delivery);
+      Exclude(gLog.MessageTypes, lmtDelivery);
 
     if chkLogCommands.Checked then
-      Include(gLog.MessageTypes, lmt_Commands)
+      Include(gLog.MessageTypes, lmtCommands)
     else
-      Exclude(gLog.MessageTypes, lmt_Commands);
+      Exclude(gLog.MessageTypes, lmtCommands);
 
     if chkLogRngChecks.Checked then
-      Include(gLog.MessageTypes, lmt_RandomChecks)
+      Include(gLog.MessageTypes, lmtRandomChecks)
     else
-      Exclude(gLog.MessageTypes, lmt_RandomChecks);
+      Exclude(gLog.MessageTypes, lmtRandomChecks);
 
     if chkLogNetConnection.Checked then
-      Include(gLog.MessageTypes, lmt_NetConnection)
+      Include(gLog.MessageTypes, lmtNetConnection)
     else
-      Exclude(gLog.MessageTypes, lmt_NetConnection);
+      Exclude(gLog.MessageTypes, lmtNetConnection);
 
     case RGLogNetPackets.ItemIndex of
       0:    begin
-              Exclude(gLog.MessageTypes, lmt_NetPacketOther);
-              Exclude(gLog.MessageTypes, lmt_NetPacketCommand);
-              Exclude(gLog.MessageTypes, lmt_NetPacketPingFps);
+              Exclude(gLog.MessageTypes, lmtNetPacketOther);
+              Exclude(gLog.MessageTypes, lmtNetPacketCommand);
+              Exclude(gLog.MessageTypes, lmtNetPacketPingFps);
             end;
       1:    begin
-              Include(gLog.MessageTypes, lmt_NetPacketOther);
-              Exclude(gLog.MessageTypes, lmt_NetPacketCommand);
-              Exclude(gLog.MessageTypes, lmt_NetPacketPingFps);
+              Include(gLog.MessageTypes, lmtNetPacketOther);
+              Exclude(gLog.MessageTypes, lmtNetPacketCommand);
+              Exclude(gLog.MessageTypes, lmtNetPacketPingFps);
             end;
       2:    begin
-              Include(gLog.MessageTypes, lmt_NetPacketOther);
-              Include(gLog.MessageTypes, lmt_NetPacketCommand);
-              Exclude(gLog.MessageTypes, lmt_NetPacketPingFps);
+              Include(gLog.MessageTypes, lmtNetPacketOther);
+              Include(gLog.MessageTypes, lmtNetPacketCommand);
+              Exclude(gLog.MessageTypes, lmtNetPacketPingFps);
             end;
       3:    begin
-              Include(gLog.MessageTypes, lmt_NetPacketOther);
-              Include(gLog.MessageTypes, lmt_NetPacketCommand);
-              Include(gLog.MessageTypes, lmt_NetPacketPingFps);
+              Include(gLog.MessageTypes, lmtNetPacketOther);
+              Include(gLog.MessageTypes, lmtNetPacketCommand);
+              Include(gLog.MessageTypes, lmtNetPacketPingFps);
             end;
       else  raise Exception.Create('Unexpected RGLogNetPackets.ItemIndex = ' + IntToStr(RGLogNetPackets.ItemIndex));
     end;
   end;
 
+  ActiveControl := nil; //Do not allow to focus on anything on debug panel
 end;
 
 
@@ -864,13 +998,23 @@ end;
 
 procedure TFormMain.UnitAnim_AllClick(Sender: TObject);
 begin
-  gRes.ExportUnitAnim(UNIT_MIN, UNIT_MAX, True);
+  if ConfirmExport then
+    gRes.ExportUnitAnim(UNIT_MIN, UNIT_MAX, True);
+end;
+
+
+function TFormMain.ConfirmExport: Boolean;
+begin
+  case MessageDlg(Format(gResTexts[TX_FORM_EXPORT_CONFIRM_MSG], [ExeDir + 'Export']), mtWarning, [mbYes, mbNo], 0) of
+    mrYes:  Result := True;
+    else    Result := False;
+  end;
 end;
 
 
 procedure TFormMain.ValidateGameStatsClick(Sender: TObject);
 var
-  MS: TKMemoryStream;
+  MS: TKMemoryStreamBinary;
   SL: TStringList;
   CRC: Int64;
   IsValid: Boolean;
@@ -885,13 +1029,13 @@ begin
         if TryStrToInt64(SL[0], CRC) then
         begin
           SL.Delete(0); //Delete CRC from file
-          MS := TKMemoryStream.Create;
+          MS := TKMemoryStreamBinary.Create;
           try
-            MS.WriteHugeString(SL.Text);
+            MS.WriteHugeString(AnsiString(SL.Text));
             if CRC = Adler32CRC(MS) then
               IsValid := True;
           finally
-            MS.Free;
+            FreeAndNil(MS);
           end;
         end;
 
@@ -906,7 +1050,7 @@ begin
                      + E.Message, mtError, [mbClose], 0);
       end;
     finally
-      SL.Free;
+      FreeAndNil(SL);
     end;
   end;
 end;

@@ -3,7 +3,7 @@ unit KM_AIGeneral;
 interface
 uses
   KM_AISetup, KM_AIAttacks, KM_AIDefensePos,
-  KM_Units, KM_UnitGroups,
+  KM_Units, KM_UnitGroup,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_NavMeshDefences;
 
@@ -12,7 +12,7 @@ type
   TKMGeneral = class
   private
     fLastEquippedTimeIron, fLastEquippedTimeLeather: Cardinal;
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
     fSetup: TKMHandAISetup;
     fAttacks: TKMAIAttacks;
     fDefencePositions: TAIDefencePositions;
@@ -24,11 +24,11 @@ type
     procedure CheckAutoDefend;
     procedure OrderAttack(aGroup: TKMUnitGroup; aTarget: TKMAIAttackTarget; const aCustomPos: TKMPoint);
   public
-    constructor Create(aPlayer: TKMHandIndex; aSetup: TKMHandAISetup);
+    constructor Create(aPlayer: TKMHandID; aSetup: TKMHandAISetup);
     destructor Destroy; override;
 
     procedure AfterMissionInit;
-    procedure OwnerUpdate(aPlayer: TKMHandIndex);
+    procedure OwnerUpdate(aPlayer: TKMHandID);
     property Attacks: TKMAIAttacks read fAttacks;
     property DefencePositions: TAIDefencePositions read fDefencePositions;
     procedure RetaliateAgainstThreat(aAttacker: TKMUnit);
@@ -57,7 +57,7 @@ const
 
 
 { TKMGeneral }
-constructor TKMGeneral.Create(aPlayer: TKMHandIndex; aSetup: TKMHandAISetup);
+constructor TKMGeneral.Create(aPlayer: TKMHandID; aSetup: TKMHandAISetup);
 begin
   inherited Create;
 
@@ -84,7 +84,7 @@ begin
 end;
 
 
-procedure TKMGeneral.OwnerUpdate(aPlayer: TKMHandIndex);
+procedure TKMGeneral.OwnerUpdate(aPlayer: TKMHandID);
 begin
   fOwner := aPlayer;
 end;
@@ -120,12 +120,14 @@ procedure TKMGeneral.CheckArmyCount;
 
   function CanEquipIron: Boolean;
   begin
-    Result := fSetup.UnlimitedEquip or gGame.CheckTime(fLastEquippedTimeIron + fSetup.EquipRateIron);
+    Result := not (fSetup.ArmyType = atLeather)
+              AND (fSetup.UnlimitedEquip or gGame.CheckTime(fLastEquippedTimeIron + fSetup.EquipRateIron));
   end;
 
   function CanEquipLeather: Boolean;
   begin
-    Result := fSetup.UnlimitedEquip or gGame.CheckTime(fLastEquippedTimeLeather + fSetup.EquipRateLeather);
+    Result := not (fSetup.ArmyType = atIron)
+              AND (fSetup.UnlimitedEquip or gGame.CheckTime(fLastEquippedTimeLeather + fSetup.EquipRateLeather));
   end;
 
 var
@@ -189,7 +191,7 @@ begin
     begin
       UT := AITroopTrainOrder[GT, K];
 
-      if (UT <> ut_None) then
+      if (UT <> utNone) then
         while ((CanEquipIron and (UT in WARRIORS_IRON)) or (CanEquipLeather and not (UT in WARRIORS_IRON)))
         and HB.CanEquip(UT)
         and (GroupReq[GT] > 0)
@@ -199,9 +201,9 @@ begin
           Dec(GroupReq[GT]);
           //Only reset it when we actually trained something (in IronThenLeather mode we don't count them separately)
           if (UT in WARRIORS_IRON) or (fSetup.ArmyType = atIronThenLeather) then
-            fLastEquippedTimeIron := gGame.GameTickCount;
+            fLastEquippedTimeIron := gGame.GameTick;
           if not (UT in WARRIORS_IRON) or (fSetup.ArmyType = atIronThenLeather) then
-            fLastEquippedTimeLeather := gGame.GameTickCount;
+            fLastEquippedTimeLeather := gGame.GameTick;
         end;
     end;
   end;
@@ -322,7 +324,7 @@ begin
     end;
     //2. Take back line defence positions, lowest priority first
     for I := fDefencePositions.Count-1 downto 0 do
-      if (fDefencePositions[I].DefenceType = adt_BackLine)
+      if (fDefencePositions[I].DefenceType = adtBackLine)
       and (fDefencePositions[I].CurrentGroup <> nil)
       and not fDefencePositions[I].CurrentGroup.IsDead
       and fDefencePositions[I].CurrentGroup.IsIdleToAI([wtokFlagPoint, wtokHaltOrder, wtokAIGotoDefencePos]) then
@@ -330,7 +332,7 @@ begin
 
     //Now process AI attacks (we have compiled a list of warriors available to attack)
     for I := 0 to Attacks.Count - 1 do
-    if Attacks.CanOccur(I, MenAvailable, GroupsAvailable, gGame.GameTickCount) then //Check conditions are right
+    if Attacks.CanOccur(I, MenAvailable, GroupsAvailable, gGame.GameTick) then //Check conditions are right
     begin
       AttackLaunched := True;
       //Order groups to attack
@@ -388,7 +390,7 @@ begin
   //Simple test for now
   FillChar(SimpleAttack, SizeOf(SimpleAttack), #0);
 
-  SimpleAttack.AttackType := aat_Repeating;
+  SimpleAttack.AttackType := aatRepeating;
   SimpleAttack.Target := attClosestBuildingFromStartPos;
   SimpleAttack.TotalMen := fDefencePositions.AverageUnitsPerGroup *
                            fDefencePositions.GetBacklineCount div 2;
@@ -419,60 +421,79 @@ end;
 
 procedure TKMGeneral.CheckAutoDefend;
 
-  function EnsureWalkable(var Loc: TKMPoint): Boolean;
-  var
-    IX, IY, BestDistSqr: Integer;
-    Best: TKMPoint;
-  begin
-    if gTerrain.CheckPassability(Loc, tpWalk) then
-    begin
-      Result := True;
-      Exit;
-    end;
-    Result := False;
-    BestDistSqr := High(Integer);
-    for IY := Max(1, Loc.Y-2) to Min(gTerrain.MapY, Loc.Y+2) do
-      for IX := Max(1, Loc.X-2) to Min(gTerrain.MapX, Loc.X+2) do
-        if gTerrain.CheckPassability(KMPoint(IX, IY), tpWalk)
-        and (KMLengthSqr(Loc, KMPoint(IX, IY)) < BestDistSqr) then
-        begin
-          BestDistSqr := KMLengthSqr(Loc, KMPoint(IX, IY));
-          Best := KMPoint(IX, IY);
-          Result := True;
-        end;
-    if Result then
-      Loc := Best;
-  end;
+  //function EnsureWalkable(var Loc: TKMPoint): Boolean;
+  //var
+  //  IX, IY, BestDistSqr: Integer;
+  //  Best: TKMPoint;
+  //begin
+  //  if gTerrain.CheckPassability(Loc, tpWalk) then
+  //  begin
+  //    Result := True;
+  //    Exit;
+  //  end;
+  //  Result := False;
+  //  BestDistSqr := High(Integer);
+  //  for IY := Max(1, Loc.Y-2) to Min(gTerrain.MapY, Loc.Y+2) do
+  //    for IX := Max(1, Loc.X-2) to Min(gTerrain.MapX, Loc.X+2) do
+  //      if gTerrain.CheckPassability(KMPoint(IX, IY), tpWalk)
+  //      and (KMLengthSqr(Loc, KMPoint(IX, IY)) < BestDistSqr) then
+  //      begin
+  //        BestDistSqr := KMLengthSqr(Loc, KMPoint(IX, IY));
+  //        Best := KMPoint(IX, IY);
+  //        Result := True;
+  //      end;
+  //  if Result then
+  //    Loc := Best;
+  //end;
 
+const
+  MIN_DEF_POS = 6;
 var
-  //Outline1, Outline2: TKMWeightSegments;
   DefPosArr: TKMDefencePosArr;
-  MinCnt: Word;
   I: Integer;
-  Locs: TKMPointDirTagList;
+  BestOwner: TKMHandID;
   Loc: TKMPoint;
-  LocI: TKMPoint;
+  GT: TKMGroupType;
+  DPT: TAIDefencePosType;
+  //Outline1, Outline2: TKMWeightSegments;
+  //Locs: TKMPointDirTagList;
+  //LocI: TKMPoint;
   //FaceDir: TKMDirection;
   //SegLength, Ratio: Single;
   //DefCount: Byte;
-  GT: TKMGroupType;
-  DPT: TAIDefencePosType;
   //Weight: Cardinal;
-  BacklineCount: Integer;
+  //FirstLineCount,BacklineCount: Integer;
 begin
   //Get defence Outline with weights representing how important each segment is
-  MinCnt := Min(15,Max(5,gHands[fOwner].UnitGroups.Count));
-  if not gAIFields.NavMesh.Defences.FindDefensivePolygons(fOwner, MinCnt, DefPosArr, True) then
+  if not gAIFields.NavMesh.Defences.FindDefensivePolygons(fOwner, DefPosArr) then
     Exit;
 
   fDefencePositions.Clear;
-  BacklineCount := 0;
+  for I := Low(DefPosArr) to High(DefPosArr) do
+  begin
+    BestOwner := gAIFields.Influences.GetBestOwner(DefPosArr[I].Polygon);
+    if (BestOwner = fOwner) OR (BestOwner = PLAYER_NONE) OR (fDefencePositions.Count + Length(DefPosArr) <= MIN_DEF_POS) then
+    begin
+      if (DefPosArr[I].Line = 0) then
+        DPT := adtFrontLine
+      else
+        DPT := adtBackLine;
+      Loc := DefPosArr[I].DirPoint.Loc;
+      case (Loc.X*2 + Loc.Y*2) mod 3 of
+        0:   GT := gtAntiHorse;
+        1:   GT := gtRanged;
+        else GT := gtMelee;
+      end;
+      fDefencePositions.Add(DefPosArr[I].DirPoint, GT, 25, DPT);
+    end;
+  end;
 
-  Locs := TKMPointDirTagList.Create;
-  try
+  //BacklineCount := 0;
+  //FirstLineCount := 0;
+
+  //Locs := TKMPointDirTagList.Create;
+  //try
     //Make list of defence positions
-    for I := 0 to High(DefPosArr) do
-      Locs.Add(DefPosArr[I].DirPoint, DefPosArr[I].Weight);
 
     //for I := 0 to High(Outline2) do
     //begin
@@ -496,64 +517,63 @@ begin
     //end;
 
     //Sort according to positions weight
-    Locs.SortByTag;
-
+    //Locs.SortByTag;
 
     //Add defence positions
-    for I := Locs.Count - 1 downto 0 do
-    begin
-      LocI := KMGetPointInDir(Locs.Items[I].Loc, Locs.Items[I].Dir, 1);
-      Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
-      if not EnsureWalkable(Loc) then
-        Continue;
-
-      //Mix group types deterministicly based on Loc, so they don't change for a given position
-      case (Loc.X*2 + Loc.Y*2) mod 3 of
-        0:   GT := gt_AntiHorse;
-        else GT := gt_Melee;
-      end;
-      //Low weight positions are set to backline (when one segment has more than one position)
-      if Locs.Tag[I] < 10000 then
-        DPT := adt_BackLine
-      else
-        DPT := adt_FrontLine;
-
-      fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), GT, 25, DPT);
-      if DPT = adt_BackLine then Inc(BacklineCount);
-
-      LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 4);
-      Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
-      if not EnsureWalkable(Loc) then
-        Continue;
-
-      fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), gt_Ranged, 25, DPT);
-      if DPT = adt_BackLine then Inc(BacklineCount);
-    end;
+    //for I := Locs.Count - 1 downto 0 do
+    //begin
+    //  LocI := KMGetPointInDir(Locs.Items[I].Loc, Locs.Items[I].Dir, 1);
+    //  Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
+    //  if not EnsureWalkable(Loc) then
+    //    Continue;
+    //
+    //  //Mix group types deterministicly based on Loc, so they don't change for a given position
+    //  case (Loc.X*2 + Loc.Y*2) mod 3 of
+    //    0:   GT := gtAntiHorse;
+    //    else GT := gtMelee;
+    //  end;
+    //  //Low weight positions are set to backline (when one segment has more than one position)
+    //  if Locs.Tag[I] < 10000 then
+    //    DPT := adtBackLine
+    //  else
+    //    DPT := adtFrontLine;
+    //
+    //  fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), GT, 25, DPT);
+    //  if DPT = adtBackLine then Inc(BacklineCount);
+    //
+    //  LocI := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 4);
+    //  Loc := gTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
+    //  if not EnsureWalkable(Loc) then
+    //    Continue;
+    //
+    //  fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), gtRanged, 25, DPT);
+    //  if DPT = adtBackLine then Inc(BacklineCount);
+    //end;
 
     //Add extra backline defence positions after adding all the front line ones so they are lower priority
-    for I := Locs.Count - 1 downto 0 do
-    if BacklineCount < 12 then
-    begin
-      //Try to add backline defence positions behind front line, if there's space
-      Loc := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 7);
-      if gTerrain.TileInMapCoords(Loc.X, Loc.Y, 3) then
-      begin
-        if not EnsureWalkable(Loc) then
-          Continue;
-
-        //Mix group types deterministicly based on Loc, so they don't change for a given position
-        case (Loc.X*2 + Loc.Y*2) mod 3 of
-          0:   GT := gt_AntiHorse;
-          1:   GT := gt_Ranged;
-          else GT := gt_Melee;
-        end;
-        fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), GT, 35, adt_BackLine);
-        Inc(BacklineCount);
-      end;
-    end;
-  finally
-    Locs.Free;
-  end;
+    //for I := Locs.Count - 1 downto 0 do
+    //if BacklineCount < 12 then
+    //begin
+    //  //Try to add backline defence positions behind front line, if there's space
+    //  Loc := KMGetPointInDir(Locs[I].Loc, KMAddDirection(Locs[I].Dir, 4), 7);
+    //  if gTerrain.TileInMapCoords(Loc.X, Loc.Y, 3) then
+    //  begin
+    //    if not EnsureWalkable(Loc) then
+    //      Continue;
+    //
+    //    //Mix group types deterministicly based on Loc, so they don't change for a given position
+    //    case (Loc.X*2 + Loc.Y*2) mod 3 of
+    //      0:   GT := gtAntiHorse;
+    //      1:   GT := gtRanged;
+    //      else GT := gtMelee;
+    //    end;
+    //    fDefencePositions.Add(KMPointDir(Loc, Locs[I].Dir), GT, 35, adtBackLine);
+    //    Inc(BacklineCount);
+    //  end;
+    //end;
+  //finally
+  //  Locs.Free;
+  //end;
 
   //Compare existing defence positions with the sample
     //Get the ratio between sample and existing troops
@@ -575,18 +595,18 @@ begin
 
   //Find target
   case aTarget of
-    attClosestUnit:                  TargetUnit := gHands.GetClosestUnit(aGroup.Position, fOwner, at_Enemy);
-    attClosestBuildingFromArmy:      TargetHouse := gHands.GetClosestHouse(aGroup.Position, fOwner, at_Enemy, TARGET_HOUSES, false);
-    attClosestBuildingFromStartPos:  TargetHouse := gHands.GetClosestHouse(fSetup.StartPosition, fOwner, at_Enemy, TARGET_HOUSES, false);
+    attClosestUnit:                  TargetUnit := gHands.GetClosestUnit(aGroup.Position, fOwner, atEnemy);
+    attClosestBuildingFromArmy:      TargetHouse := gHands.GetClosestHouse(aGroup.Position, fOwner, atEnemy, TARGET_HOUSES, false);
+    attClosestBuildingFromStartPos:  TargetHouse := gHands.GetClosestHouse(fSetup.StartPosition, fOwner, atEnemy, TARGET_HOUSES, false);
     attCustomPosition:               begin
                                         TargetHouse := gHands.HousesHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetHouse <> nil) and
-                                           (gHands.CheckAlliance(fOwner, TargetHouse.Owner) = at_Ally) then
+                                           (gHands.CheckAlliance(fOwner, TargetHouse.Owner) = atAlly) then
                                           TargetHouse := nil;
 
                                         TargetUnit := gTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetUnit <> nil)
-                                        and ((gHands.CheckAlliance(fOwner, TargetUnit.Owner) = at_Ally)
+                                        and ((gHands.CheckAlliance(fOwner, TargetUnit.Owner) = atAlly)
                                             or TargetUnit.IsDeadOrDying) then
                                           TargetUnit := nil;
                                       end;
@@ -629,7 +649,7 @@ begin
     //@Krom: Yes it's right the way it is now. It should be the attacker not the victim.
     //Otherwise the AI sends much more groups when you shoot them with 1 bowmen in the campaigns.
     //Right now it seems to be working almost the same as in the original game.
-    and (KMLengthDiag(Group.Position, aAttacker.GetPosition) <= fDefencePositions[I].Radius) then
+    and (KMLengthDiag(Group.Position, aAttacker.CurrPosition) <= fDefencePositions[I].Radius) then
       Group.OrderAttackUnit(aAttacker, True);
   end;
 end;

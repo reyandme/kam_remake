@@ -1,5 +1,5 @@
-<?
-include_once("dbauth.php");
+<?php
+require_once("dbauth.php");
 
 function db_connect() {
 	global $HOST, $USER, $PASS, $DB;
@@ -23,7 +23,7 @@ function db_init($con) {
 
 	if(!$con->query($queryCreateTable))
 		die("Table creation failed ".mysqli_error($con));
-	
+
 	$queryCreateTable = "CREATE TABLE IF NOT EXISTS Stats (
 		Rev VARCHAR(8) NOT NULL,
 		Timestamp DATETIME NOT NULL,
@@ -34,19 +34,20 @@ function db_init($con) {
 
 	if(!$con->query($queryCreateTable))
 		die("Table creation failed ".mysqli_error($con));
-	
+
 	$queryCreateTable = "CREATE TABLE IF NOT EXISTS Games (
 		Rev VARCHAR(8) NOT NULL,
 		Timestamp DATETIME NOT NULL,
 		Map VARCHAR(64) NOT NULL,
 		MapCRC CHAR(8),
 		Players INT(6) unsigned NOT NULL,
+		IP VARCHAR(64),
 		PRIMARY KEY (Timestamp)
 	)";
 
 	if(!$con->query($queryCreateTable))
 		die("Table creation failed ".mysqli_error($con));
-	
+
 	$queryCreateTable = "CREATE TABLE IF NOT EXISTS PlayerTime (
 		Rev VARCHAR(8) NOT NULL,
 		PlayerMinutes INT(16) unsigned NOT NULL,
@@ -56,5 +57,3 @@ function db_init($con) {
 	if(!$con->query($queryCreateTable))
 		die("Table creation failed ".mysqli_error($con));
 }
-
-?>

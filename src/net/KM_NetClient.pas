@@ -183,14 +183,23 @@ procedure TKMNetClient.SendData(aSender,aRecepient: TKMNetHandleIndex; aData: Po
 var
   P: Pointer;
 begin
-  assert(aLength <= MAX_PACKET_SIZE,'Packet over size limit');
-  GetMem(P, aLength+6);
-  PKMNetHandleIndex(P)^ := aSender;
-  PKMNetHandleIndex(NativeUInt(P)+2)^ := aRecepient;
-  PWord(NativeUInt(P)+4)^ := aLength;
-  Move(aData^, Pointer(NativeUInt(P)+6)^, aLength);
-  fClient.SendData(P, aLength+6);
-  FreeMem(P);
+  //We use fSocket.Shutdown(1) for disconnection in Overbyte implementation,
+  //then we have to check if we actually connected to server before sending any data
+  //Otherwise we could get "ESocketException: Can't send after socket shutdown"
+  if fConnected then
+  begin
+    Assert(aLength <= MAX_PACKET_SIZE, 'Packet over size limit');
+    GetMem(P, aLength + 6);
+    try
+      PKMNetHandleIndex(P)^ := aSender;
+      PKMNetHandleIndex(NativeUInt(P) + 2)^ := aRecepient;
+      PWord(NativeUInt(P) + 4)^ := aLength;
+      Move(aData^, Pointer(NativeUInt(P) + 6)^, aLength);
+      fClient.SendData(P, aLength + 6);
+    finally
+      FreeMem(P);
+    end;
+  end;
 end;
 
 

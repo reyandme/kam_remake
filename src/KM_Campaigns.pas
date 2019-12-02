@@ -3,7 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes,
-  KM_ResTexts, KM_Pics,
+  KM_ResTexts, KM_Pics, KM_Maps, KM_MapTypes,
   KM_CommonClasses, KM_Points;
 
 
@@ -17,6 +17,20 @@ type
   //3 bytes are used to avoid string types issues
   TKMCampaignId = array [0..2] of Byte;
 
+  TKMCampaignMapProgressData = record
+    Completed: Boolean;
+    BestCompleteDifficulty: TKMMissionDifficulty;
+  end;
+
+  TKMCampaignMapProgressDataArray = array of TKMCampaignMapProgressData;
+
+
+  TKMCampaignMapData = record
+    TxtInfo: TKMMapTxtInfo;
+    MissionName: UnicodeString;
+  end;
+
+  TKMCampaignMapDataArray = array of TKMCampaignMapData;
 
   TKMCampaign = class
   private
@@ -24,14 +38,29 @@ type
     fPath: UnicodeString;
     fTextLib: TKMTextLibrarySingle;
     fUnlockedMap: Byte;
-    fScriptData: TKMemoryStream;
+    fScriptData: TKMemoryStreamBinary;
 
     //Saved in CMP
     fCampaignId: TKMCampaignId; //Used to identify the campaign
     fBackGroundPic: TKMPic;
     fMapCount: Byte;
+    fShortName: UnicodeString;
+
+    fMapsInfo: TKMCampaignMapDataArray;
+
+    fMapsProgressData: TKMCampaignMapProgressDataArray; //Map data, saved in campaign progress
+
+    function GetDefaultMissionTitle(aIndex: Byte): UnicodeString;
+
     procedure SetUnlockedMap(aValue: Byte);
     procedure SetMapCount(aValue: Byte);
+
+    procedure LoadFromPath(const aPath: UnicodeString);
+    procedure LoadMapsInfo;
+    procedure LoadSprites;
+
+    procedure SetCampaignId(aCampaignId: TKMCampaignId);
+    procedure UpdateShortName;
   public
     Maps: array of record
       Flag: TKMPointW;
@@ -44,23 +73,25 @@ type
 
     procedure LoadFromFile(const aFileName: UnicodeString);
     procedure SaveToFile(const aFileName: UnicodeString);
-    procedure LoadFromPath(const aPath: UnicodeString);
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: Byte read fMapCount write SetMapCount;
-    property CampaignId: TKMCampaignId read fCampaignId write fCampaignId;
-    function CampName: UnicodeString;
+    property CampaignId: TKMCampaignId read fCampaignId write SetCampaignId;
+    property ShortName: UnicodeString read fShortName;
     property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
-    property ScriptData: TKMemoryStream read fScriptData;
+    property ScriptData: TKMemoryStreamBinary read fScriptData;
+    property MapsInfo: TKMCampaignMapDataArray read fMapsInfo;
+    property MapsProgressData: TKMCampaignMapProgressDataArray read fMapsProgressData;
 
-    function CampaignTitle: UnicodeString;
-    function CampaignDescription: UnicodeString;
-    function CampaignMissionTitle(aIndex: Byte): UnicodeString;
-    function MissionFile(aIndex: Byte): UnicodeString;
-    function MissionTitle(aIndex: Byte): UnicodeString;
-    function MissionBriefing(aIndex: Byte): UnicodeString;
-    function BreifingAudioFile(aIndex: Byte): UnicodeString;
-    function ScriptDataTypeFile: UnicodeString;
+    function GetCampaignTitle: UnicodeString;
+    function GetCampaignDescription: UnicodeString;
+    function GetCampaignMissionTitle(aIndex: Byte): String;
+    function GetMissionFile(aIndex: Byte; const aExt: UnicodeString = '.dat'): String;
+    function GetMissionName(aIndex: Byte): String;
+    function GetMissionTitle(aIndex: Byte): String;
+    function GetMissionBriefing(aIndex: Byte): String;
+    function GetBreifingAudioFile(aIndex: Byte): String;
+    function GetScriptDataTypeFile: UnicodeString;
   end;
 
 
@@ -71,17 +102,17 @@ type
     fList: TList;
     function GetCampaign(aIndex: Integer): TKMCampaign;
     procedure AddCampaign(const aPath: UnicodeString);
+
+    procedure ScanFolder(const aPath: UnicodeString);
+    procedure SortCampaigns;
+    procedure LoadProgress(const aFileName: UnicodeString);
   public
     constructor Create;
     destructor Destroy; override;
 
     //Initialization
-    procedure ScanFolder(const aPath: UnicodeString);
-    procedure SortCampaigns;
-    procedure LoadProgress(const aFileName: UnicodeString);
-    procedure SaveProgress(const aFileName: UnicodeString);
-    procedure Save(SaveStream: TKMemoryStream);
-    procedure Load(LoadStream: TKMemoryStream);
+    procedure Load;
+    procedure SaveProgress;
 
     //Usage
     property ActiveCampaign: TKMCampaign read fActiveCampaign;// write fActiveCampaign;
@@ -99,7 +130,7 @@ const
 implementation
 uses
   SysUtils, Math, KromUtils,
-  KM_Resource, KM_ResLocales, KM_ResSprites,
+  KM_Game, KM_Resource, KM_ResLocales, KM_ResSprites,
   KM_Log, KM_Defaults;
 
 
@@ -148,13 +179,16 @@ begin
   if not DirectoryExists(aPath) then Exit;
 
   FindFirst(aPath + '*', faDirectory, SearchRec);
-  repeat
-    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-    and (SearchRec.Attr and faDirectory = faDirectory)
-    and FileExists(aPath + SearchRec.Name + PathDelim+'info.cmp') then
-      AddCampaign(aPath + SearchRec.Name + PathDelim);
-  until (FindNext(SearchRec) <> 0);
-  FindClose(SearchRec);
+  try
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+      and (SearchRec.Attr and faDirectory = faDirectory)
+      and FileExists(aPath + SearchRec.Name + PathDelim+'info.cmp') then
+        AddCampaign(aPath + SearchRec.Name + PathDelim);
+    until (FindNext(SearchRec) <> 0);
+  finally
+    FindClose(SearchRec);
+  end;
 
   SortCampaigns;
 end;
@@ -166,11 +200,11 @@ procedure TKMCampaignsCollection.SortCampaigns;
   function Compare(A, B: TKMCampaign): Boolean;
   begin
     //TSK is first
-    if      A.CampName = 'TSK' then Result := False
-    else if B.CampName = 'TSK' then Result := True
+    if      A.ShortName = 'TSK' then Result := False
+    else if B.ShortName = 'TSK' then Result := True
     //TPR is second
-    else if A.CampName = 'TPR' then Result := False
-    else if B.CampName = 'TPR' then Result := True
+    else if A.ShortName = 'TPR' then Result := False
+    else if B.ShortName = 'TPR' then Result := True
     //Others are left in existing order (alphabetical)
     else                            Result := False;
   end;
@@ -200,9 +234,9 @@ end;
 //Read progress from file trying to find matching campaigns
 procedure TKMCampaignsCollection.LoadProgress(const aFileName: UnicodeString);
 var
-  M: TKMemoryStream;
+  M: TKMemoryStreamBinary;
   C: TKMCampaign;
-  I, campCount: Integer;
+  I, J, campCount: Integer;
   campName: TKMCampaignId;
   unlocked: Byte;
   HasScriptData: Boolean;
@@ -210,7 +244,7 @@ var
 begin
   if not FileExists(aFileName) then Exit;
 
-  M := TKMemoryStream.Create;
+  M := TKMemoryStreamBinary.Create;
   try
     M.LoadFromFile(aFileName);
 
@@ -228,6 +262,9 @@ begin
       if C <> nil then
       begin
         C.UnlockedMap := unlocked;
+        for J := 0 to C.MapCount - 1 do
+          M.Read(C.fMapsProgressData[J], SizeOf(C.fMapsProgressData[J]));
+
         C.ScriptData.Clear;
         if HasScriptData then
         begin
@@ -243,15 +280,17 @@ begin
 end;
 
 
-procedure TKMCampaignsCollection.SaveProgress(const aFileName: UnicodeString);
+procedure TKMCampaignsCollection.SaveProgress;
 var
-  M: TKMemoryStream;
-  I: Integer;
+  M: TKMemoryStreamBinary;
+  I,J: Integer;
+  FilePath: UnicodeString;
 begin
+  FilePath := ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat';
   //Makes the folder incase it is missing
-  ForceDirectories(ExtractFilePath(aFileName));
+  ForceDirectories(ExtractFilePath(FilePath));
 
-  M := TKMemoryStream.Create;
+  M := TKMemoryStreamBinary.Create;
   try
     M.Write(Integer(CAMP_HEADER_V2)); //Identify our format
     M.Write(Count);
@@ -259,16 +298,25 @@ begin
     begin
       M.Write(Campaigns[I].CampaignId, SizeOf(TKMCampaignId));
       M.Write(Campaigns[I].UnlockedMap);
+      for J := 0 to Campaigns[I].MapCount - 1 do
+        M.Write(Campaigns[I].fMapsProgressData[J], SizeOf(Campaigns[I].fMapsProgressData[J]));
       M.Write(Cardinal(Campaigns[I].ScriptData.Size));
       M.Write(Campaigns[I].ScriptData.Memory^, Campaigns[I].ScriptData.Size);
     end;
 
-    M.SaveToFile(aFileName);
+    M.SaveToFile(FilePath);
   finally
     M.Free;
   end;
 
   gLog.AddTime('Campaigns.dat saved');
+end;
+
+
+procedure TKMCampaignsCollection.Load;
+begin
+  ScanFolder(ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim);
+  LoadProgress(ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
 end;
 
 
@@ -294,33 +342,13 @@ end;
 procedure TKMCampaignsCollection.UnlockNextMap;
 begin
   if ActiveCampaign <> nil then
+  begin
     ActiveCampaign.UnlockedMap := fActiveCampaignMap + 1;
-end;
-
-
-procedure TKMCampaignsCollection.Load(LoadStream: TKMemoryStream);
-var
-  cmp: TKMCampaignId;
-begin
-  LoadStream.ReadAssert('CampaignInfo');
-  LoadStream.Read(cmp, SizeOf(TKMCampaignId));
-  fActiveCampaign := CampaignById(cmp);
-  LoadStream.Read(fActiveCampaignMap);
-  //If loaded savegame references to missing campaign it will be treated as single-map (fActiveCampaign = nil)
-end;
-
-
-procedure TKMCampaignsCollection.Save(SaveStream: TKMemoryStream);
-var
-  cmp: TKMCampaignId;
-begin
-  SaveStream.WriteA('CampaignInfo');
-
-  if fActiveCampaign <> nil then
-    cmp := fActiveCampaign.CampaignId;
-
-  SaveStream.Write(cmp, SizeOf(TKMCampaignId));
-  SaveStream.Write(fActiveCampaignMap);
+    ActiveCampaign.MapsProgressData[fActiveCampaignMap].Completed := True;
+    //Update BestDifficulty if we won harder game
+    if Byte(ActiveCampaign.MapsProgressData[fActiveCampaignMap].BestCompleteDifficulty) < Byte(gGame.MissionDifficulty)  then
+      ActiveCampaign.MapsProgressData[fActiveCampaignMap].BestCompleteDifficulty := gGame.MissionDifficulty;
+  end;
 end;
 
 
@@ -331,14 +359,20 @@ begin
 
   //1st map is always unlocked to allow to start campaign
   fUnlockedMap := 0;
-  fScriptData := TKMemoryStream.Create;
+  fScriptData := TKMemoryStreamBinary.Create;
 end;
 
 
 destructor TKMCampaign.Destroy;
+var
+  I: Integer;
 begin
   FreeAndNil(fTextLib);
   fScriptData.Free;
+
+  for I := 0 to Length(fMapsInfo) - 1 do
+    if fMapsInfo[I].TxtInfo <> nil then
+      fMapsInfo[I].TxtInfo.Free;
 
   //Free background texture
   if fBackGroundPic.ID <> 0 then
@@ -348,17 +382,23 @@ begin
 end;
 
 
+procedure TKMCampaign.UpdateShortName;
+begin
+  fShortName := WideChar(fCampaignId[0]) + WideChar(fCampaignId[1]) + WideChar(fCampaignId[2]);
+end;
+
+
 //Load campaign info from *.cmp file
 //It should be private, but it is used by CampaignBuilder
 procedure TKMCampaign.LoadFromFile(const aFileName: UnicodeString);
 var
-  M: TKMemoryStream;
+  M: TKMemoryStreamBinary;
   I, K: Integer;
   cmp: TBytes;
 begin
   if not FileExists(aFileName) then Exit;
 
-  M := TKMemoryStream.Create;
+  M := TKMemoryStreamBinary.Create;
   M.LoadFromFile(aFileName);
 
   //Convert old AnsiString into new [0..2] Byte format
@@ -368,8 +408,10 @@ begin
   fCampaignId[1] := cmp[1];
   fCampaignId[2] := cmp[2];
 
+  UpdateShortName;
+
   M.Read(fMapCount);
-  SetLength(Maps, fMapCount);
+  SetMapCount(fMapCount); //Update array's sizes
 
   for I := 0 to fMapCount - 1 do
   begin
@@ -386,13 +428,13 @@ end;
 
 procedure TKMCampaign.SaveToFile(const aFileName: UnicodeString);
 var
-  M: TKMemoryStream;
+  M: TKMemoryStreamBinary;
   I, K: Integer;
   cmp: TBytes;
 begin
   Assert(aFileName <> '');
 
-  M := TKMemoryStream.Create;
+  M := TKMemoryStreamBinary.Create;
   SetLength(cmp, 3);
   cmp[0] := fCampaignId[0];
   cmp[1] := fCampaignId[1];
@@ -419,25 +461,45 @@ begin
 end;
 
 
-function TKMCampaign.ScriptDataTypeFile: UnicodeString;
+function TKMCampaign.GetScriptDataTypeFile: UnicodeString;
 begin
   Result := fPath + 'campaigndata.script';
 end;
 
 
-procedure TKMCampaign.LoadFromPath(const aPath: UnicodeString);
+procedure TKMCampaign.LoadMapsInfo;
+var
+  I: Integer;
+  TextMission: TKMTextLibraryMulti;
+begin
+  for I := 0 to fMapCount - 1 do
+  begin
+    //Load TxtInfo
+    if fMapsInfo[I].TxtInfo = nil then
+      fMapsInfo[I].TxtInfo := TKMMapTxtInfo.Create
+    else
+      fMapsInfo[I].TxtInfo.ResetInfo;
+    fMapsInfo[I].TxtInfo.LoadTXTInfo(GetMissionFile(I, '.txt'));
+
+    fMapsInfo[I].MissionName := '';
+    //Load mission name from mission Libx library
+    TextMission := TKMTextLibraryMulti.Create;
+    try
+      TextMission.LoadLocale(GetMissionFile(I, '.%s.libx'));
+      if TextMission.HasText(MISSION_NAME_LIBX_ID) then
+        fMapsInfo[I].MissionName := StringReplace(TextMission[MISSION_NAME_LIBX_ID], '|', ' ', [rfReplaceAll]); //Replace | with space
+    finally
+      FreeAndNil(TextMission);
+    end;
+  end;
+end;
+
+
+procedure TKMCampaign.LoadSprites;
 var
   SP: TKMSpritePack;
   FirstSpriteIndex: Word;
 begin
-  fPath := aPath;
-
-  LoadFromFile(fPath + 'info.cmp');
-
-  FreeAndNil(fTextLib);
-  fTextLib := TKMTextLibrarySingle.Create;
-  fTextLib.LoadLocale(fPath + 'text.%s.libx');
-
   if gRes.Sprites <> nil then
   begin
     SP := gRes.Sprites[rxCustom];
@@ -459,6 +521,21 @@ begin
       fBackGroundPic.ID := 0;
     end;
   end;
+end;
+
+
+procedure TKMCampaign.LoadFromPath(const aPath: UnicodeString);
+begin
+  fPath := aPath;
+
+  LoadFromFile(fPath + 'info.cmp');
+  LoadMapsInfo;
+
+  FreeAndNil(fTextLib);
+  fTextLib := TKMTextLibrarySingle.Create;
+  fTextLib.LoadLocale(fPath + 'text.%s.libx');
+
+  LoadSprites;
 
   if UNLOCK_CAMPAIGN_MAPS then //Unlock more maps for debug
     fUnlockedMap := fMapCount-1;
@@ -469,72 +546,107 @@ procedure TKMCampaign.SetMapCount(aValue: Byte);
 begin
   fMapCount := aValue;
   SetLength(Maps, fMapCount);
+  SetLength(fMapsProgressData, fMapCount);
+  SetLength(fMapsInfo, fMapCount);
 end;
 
 
-function TKMCampaign.CampaignTitle: UnicodeString;
+procedure TKMCampaign.SetCampaignId(aCampaignId: TKMCampaignId);
+begin
+  fCampaignId := aCampaignId;
+  UpdateShortName;
+end;
+
+
+function TKMCampaign.GetCampaignTitle: UnicodeString;
 begin
   Result := fTextLib[0];
 end;
 
 
-function TKMCampaign.CampName: UnicodeString;
-begin
-  Result := WideChar(fCampaignId[0]) + WideChar(fCampaignId[1]) + WideChar(fCampaignId[2]);
-end;
-
-
-function TKMCampaign.CampaignDescription: UnicodeString;
+function TKMCampaign.GetCampaignDescription: UnicodeString;
 begin
   Result := fTextLib[2];
 end;
 
 
-function TKMCampaign.CampaignMissionTitle(aIndex: Byte): UnicodeString;
+function TKMCampaign.GetDefaultMissionTitle(aIndex: Byte): UnicodeString;
 begin
+  if fMapsInfo[aIndex].MissionName <> '' then
+    Result := fMapsInfo[aIndex].MissionName
+  else
+    //Have nothing - use default mission name
+    //Otherwise just Append (by default MissionName is empty anyway)
+    Result := Format(gResTexts[TX_GAME_MISSION], [aIndex+1]) + fMapsInfo[aIndex].MissionName;
+end;
+
+
+function TKMCampaign.GetCampaignMissionTitle(aIndex: Byte): String;
+begin
+  //We have template for mission name in 3:
   if fTextLib[3] <> '' then
   begin
     Assert(CountMatches(fTextLib[3], '%d') = 1, 'Custom campaign mission template must have a single "%d" in it.');
-    Result := Format(fTextLib[3], [aIndex+1]);
+
+    //We have also %s for custom mission name
+    if CountMatches(fTextLib[3], '%s') = 1 then
+    begin
+      //We can use different order for %d and %s, then choose Format 2 ways
+      //First - %d %s
+      if Pos('%d', fTextLib[3]) < Pos('%s', fTextLib[3]) then
+        Result := Format(fTextLib[3], [aIndex+1, fMapsInfo[aIndex].MissionName])  
+      else
+        Result := Format(fTextLib[3], [fMapsInfo[aIndex].MissionName, aIndex+1]); //Then order: %s %d
+    end else
+      //Otherwise just Append (by default MissionName is empty anyway)
+      Result := Format(fTextLib[3], [aIndex+1]) + fMapsInfo[aIndex].MissionName;
   end
   else
-    Result := Format(gResTexts[TX_GAME_MISSION], [aIndex+1]);
+    Result := GetDefaultMissionTitle(aIndex);
 end;
 
 
-function TKMCampaign.MissionFile(aIndex: Byte): UnicodeString;
+function TKMCampaign.GetMissionFile(aIndex: Byte; const aExt: UnicodeString = '.dat'): String;
 begin
-  Result := fPath + CampName + Format('%.2d', [aIndex + 1]) + PathDelim +
-            CampName + Format('%.2d', [aIndex + 1]) + '.dat';
+  Result := fPath + GetMissionName(aIndex) + PathDelim + GetMissionName(aIndex) + aExt;
 end;
 
 
-function TKMCampaign.MissionTitle(aIndex: Byte): UnicodeString;
+function TKMCampaign.GetMissionName(aIndex: Byte): String;
 begin
-  Result := Format(fTextLib[1], [aIndex+1]);
+  Result := ShortName + Format('%.2d', [aIndex + 1]);
+end;
+
+
+function TKMCampaign.GetMissionTitle(aIndex: Byte): String;
+begin
+  if fTextLib[1] <> '' then
+    Result := Format(fTextLib[1], [aIndex+1]) //Save it for Legacy support
+  else
+    Result := GetDefaultMissionTitle(aIndex);
 end;
 
 
 //Mission texts of original campaigns are available in all languages,
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
-function TKMCampaign.MissionBriefing(aIndex: Byte): UnicodeString;
+function TKMCampaign.GetMissionBriefing(aIndex: Byte): String;
 begin
   Result := fTextLib[10 + aIndex];
 end;
 
 
-function TKMCampaign.BreifingAudioFile(aIndex: Byte): UnicodeString;
+function TKMCampaign.GetBreifingAudioFile(aIndex: Byte): String;
 begin
-  Result := fPath + CampName + Format('%.2d', [aIndex+1]) + PathDelim +
-            CampName + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.UserLocale) + '.mp3';
+  Result := fPath + ShortName + Format('%.2d', [aIndex+1]) + PathDelim +
+            ShortName + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.UserLocale) + '.mp3';
 
   if not FileExists(Result) then
-    Result := fPath + CampName + Format('%.2d', [aIndex+1]) + PathDelim +
-              CampName + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.FallbackLocale) + '.mp3';
+    Result := fPath + ShortName + Format('%.2d', [aIndex+1]) + PathDelim +
+              ShortName + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.FallbackLocale) + '.mp3';
 
   if not FileExists(Result) then
-    Result := fPath + CampName + Format('%.2d', [aIndex+1]) + PathDelim +
-              CampName + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.DefaultLocale) + '.mp3';
+    Result := fPath + ShortName + Format('%.2d', [aIndex+1]) + PathDelim +
+              ShortName + Format('%.2d', [aIndex + 1]) + '.' + UnicodeString(gResLocales.DefaultLocale) + '.mp3';
 end;
 
 

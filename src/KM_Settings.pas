@@ -5,7 +5,7 @@ uses
   Classes,
   {$IFDEF FPC}Forms,{$ENDIF}   //Lazarus do not know UITypes
   {$IFDEF WDC}UITypes,{$ENDIF} //We use settings in console modules
-  KM_Resolutions, KM_WareDistribution,
+  KM_Resolutions, KM_WareDistribution, KM_MapTypes,
   KM_Defaults, KM_Points, KM_CommonTypes, KM_CommonClasses;
 
 
@@ -50,6 +50,7 @@ type
     fResolution: TKMScreenRes;
     fWindowParams: TKMWindowParams;
     fVSync: Boolean;
+    fNoRenderMaxTime: Integer;     //Longest period of time, when there was no Render (usually on hiiiigh game speed like x300)
     procedure SetFullScreen(aValue: Boolean);
     procedure SetResolution(const Value: TKMScreenRes);
     procedure SetVSync(aValue: Boolean);
@@ -69,6 +70,9 @@ type
     property Resolution: TKMScreenRes read fResolution write SetResolution;
     property WindowParams: TKMWindowParams read fWindowParams;
     property VSync: Boolean read fVSync write SetVSync;
+    property NoRenderMaxTime: Integer read fNoRenderMaxTime;
+
+    function IsNoRenderMaxTimeSet: Boolean;
   end;
 
   //Gameplay settings, those that affect the game
@@ -92,7 +96,7 @@ type
     fSpecShowBeacons: Boolean;   //Spectator variable - show beacons while spectating
     fShowGameTime: Boolean;      //Show game time label (always)
 
-    fShowPlayersColors: Boolean; //Show player colors, if false then show self/enemy/ally colors
+    fPlayersColorMode: TKMPlayerColorMode;
     fPlayerColorSelf: Cardinal;
     fPlayerColorAlly: Cardinal;
     fPlayerColorEnemy: Cardinal;
@@ -104,9 +108,17 @@ type
     fSpeedFast: Single;
     fSpeedVeryFast: Single;
     fWareDistribution: TKMWareDistribution;
+    fSaveWareDistribution: Boolean;
 
-    fDayGamesCount: Integer;
-    fLastDayGamePlayed: TDateTime;
+    fDayGamesCount: Integer;       //Number of games played today (used for saves namings)
+    fLastDayGamePlayed: TDateTime; //Last day game played
+
+    //Campaign
+    fCampaignLastDifficulty: TKMMissionDifficulty;
+
+    //Replay
+    fReplayAutosave: Boolean;
+    fReplayAutosaveFrequency: Integer;
 
     //SFX
     fMusicOff: Boolean;
@@ -163,6 +175,8 @@ type
     fMenu_SPSaveFileName: UnicodeString;
     fMenu_LobbyMapType: Byte;
 
+    fDebug_SaveRandomChecks: Boolean;
+
     fFavouriteMaps: TKMMapsCRCList;
 
     //GFX
@@ -177,17 +191,24 @@ type
     procedure SetAutosaveCount(aValue: Integer);
     procedure SetLocale(const aLocale: AnsiString);
     procedure SetScrollSpeed(aValue: Byte);
-    procedure SetReplayAutopause(aValue: Boolean);
-    procedure SetReplayShowBeacons(aValue: Boolean);
     procedure SetSpecShowBeacons(aValue: Boolean);
     procedure SetShowGameTime(aValue: Boolean);
-    procedure SetShowPlayersColors(aValue: Boolean);
+    procedure SetPlayersColorMode(aValue: TKMPlayerColorMode);
     procedure SetPlayerColorSelf(aValue: Cardinal);
     procedure SetPlayerColorAlly(aValue: Cardinal);
     procedure SetPlayerColorEnemy(aValue: Cardinal);
 
     procedure SetDayGamesCount(aValue: Integer);
     procedure SetLastDayGamePlayed(aValue: TDateTime);
+
+    //Campaign
+    procedure SetCampaignLastDifficulty(aValue: TKMMissionDifficulty);
+
+    //Replay
+    procedure SetReplayAutopause(aValue: Boolean);
+    procedure SetReplayShowBeacons(aValue: Boolean);
+    procedure SetReplayAutosave(aValue: Boolean);
+    procedure SetReplayAutosaveFrequency(aValue: Integer);
 
     //SFX
     procedure SetMusicOff(aValue: Boolean);
@@ -236,6 +257,9 @@ type
     procedure SetMenuSPSpecialMapCRC(aValue: Cardinal);
     procedure SetMenuSPSaveFileName(const aValue: UnicodeString);
     procedure SetMenuLobbyMapType(aValue: Byte);
+
+    //Debug
+    procedure SetDebugSaveRandomChecks(aValue: Boolean);
   protected
     function LoadFromINI(const FileName: UnicodeString): Boolean;
     procedure SaveToINI(const FileName: UnicodeString);
@@ -257,12 +281,10 @@ type
 
     property AutosaveFrequency: Integer read fAutosaveFrequency write SetAutosaveFrequency;
     property AutosaveCount: Integer read fAutosaveCount write SetAutosaveCount;
-    property ReplayAutopause: Boolean read fReplayAutopause write SetReplayAutopause;
-    property ReplayShowBeacons: Boolean read fReplayShowBeacons write SetReplayShowBeacons;
     property SpecShowBeacons: Boolean read fSpecShowBeacons write SetSpecShowBeacons;
     property ShowGameTime: Boolean read fShowGameTime write SetShowGameTime;
 
-    property ShowPlayersColors: Boolean read fShowPlayersColors write SetShowPlayersColors;
+    property PlayersColorMode: TKMPlayerColorMode read fPlayersColorMode write SetPlayersColorMode;
     property PlayerColorSelf: Cardinal read fPlayerColorSelf write SetPlayerColorSelf;
     property PlayerColorAlly: Cardinal read fPlayerColorAlly write SetPlayerColorAlly;
     property PlayerColorEnemy: Cardinal read fPlayerColorEnemy write SetPlayerColorEnemy;
@@ -274,9 +296,19 @@ type
     property SpeedFast: Single read fSpeedFast;
     property SpeedVeryFast: Single read fSpeedVeryFast;
     property WareDistribution: TKMWareDistribution read fWareDistribution;
+    property SaveWareDistribution: Boolean read fSaveWareDistribution;
 
     property DayGamesCount: Integer read fDayGamesCount write SetDayGamesCount;
     property LastDayGamePlayed: TDateTime read fLastDayGamePlayed write SetLastDayGamePlayed;
+
+    //Campaign
+    property CampaignLastDifficulty: TKMMissionDifficulty read fCampaignLastDifficulty write SetCampaignLastDifficulty;
+
+    //Replay
+    property ReplayAutopause: Boolean read fReplayAutopause write SetReplayAutopause;
+    property ReplayShowBeacons: Boolean read fReplayShowBeacons write SetReplayShowBeacons;
+    property ReplayAutosave: Boolean read fReplayAutosave write SetReplayAutosave;
+    property ReplayAutosaveFrequency: Integer read fReplayAutosaveFrequency write SetReplayAutosaveFrequency;
 
     //SFX
     property MusicOff: Boolean read fMusicOff write SetMusicOff;
@@ -335,6 +367,8 @@ type
     property MenuSPSaveFileName: UnicodeString read fMenu_SPSaveFileName write SetMenuSPSaveFileName;
     property MenuLobbyMapType: Byte read fMenu_LobbyMapType write SetMenuLobbyMapType;
 
+    property DebugSaveRandomChecks: Boolean read fDebug_SaveRandomChecks write SetDebugSaveRandomChecks;
+
     property FavouriteMaps: TKMMapsCRCList read fFavouriteMaps;
   end;
 
@@ -343,6 +377,11 @@ implementation
 uses
   SysUtils, INIfiles, Math,
   KM_Log, KM_CommonUtils;
+
+const
+  NO_RENDER_MAX_TIME_MIN = 10; //in ms
+  NO_RENDER_MAX_TIME_DEFAULT = 1000; //in ms
+  NO_RENDER_MAX_TIME_UNDEF = -1; //undefined
 
 
 { TMainSettings }
@@ -378,30 +417,37 @@ begin
 
   F := TMemIniFile.Create(aFileName {$IFDEF WDC}, TEncoding.UTF8 {$ENDIF} );
 
-  fFullScreen         := F.ReadBool   ('GFX', 'FullScreen',       False);
-  fVSync              := F.ReadBool   ('GFX', 'VSync',            True);
-  fResolution.Width   := F.ReadInteger('GFX', 'ResolutionWidth',  MENU_DESIGN_X);
-  fResolution.Height  := F.ReadInteger('GFX', 'ResolutionHeight', MENU_DESIGN_Y);
-  fResolution.RefRate := F.ReadInteger('GFX', 'RefreshRate',      60);
-  fFPSCap := EnsureRange(F.ReadInteger('GFX', 'FPSCap', DEF_FPS_CAP), MIN_FPS_CAP, MAX_FPS_CAP);
+  try
+    fFullScreen         := F.ReadBool   ('GFX', 'FullScreen',       False);
+    fVSync              := F.ReadBool   ('GFX', 'VSync',            True);
+    fResolution.Width   := F.ReadInteger('GFX', 'ResolutionWidth',  MENU_DESIGN_X);
+    fResolution.Height  := F.ReadInteger('GFX', 'ResolutionHeight', MENU_DESIGN_Y);
+    fResolution.RefRate := F.ReadInteger('GFX', 'RefreshRate',      60);
+    fFPSCap := EnsureRange(F.ReadInteger('GFX', 'FPSCap', DEF_FPS_CAP), MIN_FPS_CAP, MAX_FPS_CAP);
 
-  // For proper window positioning we need Left and Top records
-  // Otherwise reset all window params to defaults
-  if F.ValueExists('Window', 'WindowLeft') and F.ValueExists('Window', 'WindowTop') then
-  begin
-    fWindowParams.fWidth  := F.ReadInteger('Window', 'WindowWidth',  MENU_DESIGN_X);
-    fWindowParams.fHeight := F.ReadInteger('Window', 'WindowHeight', MENU_DESIGN_Y);
-    fWindowParams.fLeft   := F.ReadInteger('Window', 'WindowLeft',   -1);
-    fWindowParams.fTop    := F.ReadInteger('Window', 'WindowTop',    -1);
-    fWindowParams.fState  := TWindowState(EnsureRange(F.ReadInteger('Window', 'WindowState', 0), 0, 2));
-  end else
-    fWindowParams.fNeedResetToDefaults := True;
+    // For proper window positioning we need Left and Top records
+    // Otherwise reset all window params to defaults
+    if F.ValueExists('Window', 'WindowLeft') and F.ValueExists('Window', 'WindowTop') then
+    begin
+      fWindowParams.fWidth  := F.ReadInteger('Window', 'WindowWidth',  MENU_DESIGN_X);
+      fWindowParams.fHeight := F.ReadInteger('Window', 'WindowHeight', MENU_DESIGN_Y);
+      fWindowParams.fLeft   := F.ReadInteger('Window', 'WindowLeft',   -1);
+      fWindowParams.fTop    := F.ReadInteger('Window', 'WindowTop',    -1);
+      fWindowParams.fState  := TWindowState(EnsureRange(F.ReadInteger('Window', 'WindowState', 0), 0, 2));
+    end else
+      fWindowParams.fNeedResetToDefaults := True;
 
-  // Reset wsMinimized state to wsNormal
-  if (fWindowParams.fState = TWindowState.wsMinimized) then
-    fWindowParams.fState := TWindowState.wsNormal;
+    fNoRenderMaxTime        := F.ReadInteger('Misc', 'NoRenderMaxTime', NO_RENDER_MAX_TIME_DEFAULT);
+    if fNoRenderMaxTime < NO_RENDER_MAX_TIME_MIN then
+      fNoRenderMaxTime := NO_RENDER_MAX_TIME_UNDEF;
 
-  FreeAndNil(F);
+    // Reset wsMinimized state to wsNormal
+    if (fWindowParams.fState = TWindowState.wsMinimized) then
+      fWindowParams.fState := TWindowState.wsNormal;
+  finally
+    FreeAndNil(F);
+  end;
+
   fNeedsSave := False;
 end;
 
@@ -415,23 +461,36 @@ begin
     Exit;
   F := TMemIniFile.Create(aFileName {$IFDEF WDC}, TEncoding.UTF8 {$ENDIF} );
 
-  F.WriteBool   ('GFX','FullScreen',      fFullScreen);
-  F.WriteBool   ('GFX','VSync',           fVSync);
-  F.WriteInteger('GFX','ResolutionWidth', fResolution.Width);
-  F.WriteInteger('GFX','ResolutionHeight',fResolution.Height);
-  F.WriteInteger('GFX','RefreshRate',     fResolution.RefRate);
-  F.WriteInteger('GFX','FPSCap',          fFPSCap);
+  try
+    F.WriteBool   ('GFX','FullScreen',      fFullScreen);
+    F.WriteBool   ('GFX','VSync',           fVSync);
+    F.WriteInteger('GFX','ResolutionWidth', fResolution.Width);
+    F.WriteInteger('GFX','ResolutionHeight',fResolution.Height);
+    F.WriteInteger('GFX','RefreshRate',     fResolution.RefRate);
+    F.WriteInteger('GFX','FPSCap',          fFPSCap);
 
-  F.WriteInteger('Window','WindowWidth',    fWindowParams.Width);
-  F.WriteInteger('Window','WindowHeight',   fWindowParams.Height);
-  F.WriteInteger('Window','WindowLeft',     fWindowParams.Left);
-  F.WriteInteger('Window','WindowTop',      fWindowParams.Top);
-  F.WriteInteger('Window','WindowState',    Ord(fWindowParams.State));
+    F.WriteInteger('Window','WindowWidth',    fWindowParams.Width);
+    F.WriteInteger('Window','WindowHeight',   fWindowParams.Height);
+    F.WriteInteger('Window','WindowLeft',     fWindowParams.Left);
+    F.WriteInteger('Window','WindowTop',      fWindowParams.Top);
+    F.WriteInteger('Window','WindowState',    Ord(fWindowParams.State));
 
-  F.UpdateFile; //Write changes to file
-  FreeAndNil(F);
+    F.WriteInteger('Misc', 'NoRenderMaxTime', fNoRenderMaxTime);
+
+    F.UpdateFile; //Write changes to file
+  finally
+    FreeAndNil(F);
+  end;
+
   fNeedsSave := False;
 end;
+
+
+function TKMainSettings.IsNoRenderMaxTimeSet: Boolean;
+begin
+  Result := fNoRenderMaxTime <> NO_RENDER_MAX_TIME_UNDEF;
+end;
+
 
 procedure TKMainSettings.SetFullScreen(aValue: boolean);
 begin
@@ -528,13 +587,11 @@ begin
 
     fAutosave           := F.ReadBool     ('Game', 'Autosave',          True); //Should be ON by default
     fAutosaveAtGameEnd  := F.ReadBool     ('Game', 'AutosaveOnGameEnd', False); //Should be OFF by default
-    SetAutosaveFrequency(F.ReadInteger    ('Game', 'AutosaveFrequency', AUTOSAVE_FREQUENCY));
+    SetAutosaveFrequency(F.ReadInteger    ('Game', 'AutosaveFrequency', AUTOSAVE_FREQUENCY_DEFAULT));
     SetAutosaveCount    (F.ReadInteger    ('Game', 'AutosaveCount',     AUTOSAVE_COUNT));
-    fReplayAutopause    := F.ReadBool     ('Game', 'ReplayAutopause',   False); //Disabled by default
-    fReplayShowBeacons  := F.ReadBool     ('Game', 'ReplayShowBeacons', False); //Disabled by default
     fSpecShowBeacons    := F.ReadBool     ('Game', 'SpecShowBeacons',   False); //Disabled by default
     fShowGameTime       := F.ReadBool     ('Game', 'ShowGameTime',      False); //Disabled by default
-    fShowPlayersColors := F.ReadBool('Game', 'ShowPlayersColors', True); //Enabled by default
+    fPlayersColorMode   := TKMPlayerColorMode(F.ReadInteger  ('Game', 'PlayersColorMode', Byte(pcmDefault))); //Show players colors by default
 
     //Load minimap colors as hex strings 6-hex digits width
     if TryStrToInt64('$' + F.ReadString('Game', 'PlayerColorSelf', IntToHex(Integer(clPlayerSelf and $FFFFFF), 6)), TempCard) then
@@ -564,6 +621,14 @@ begin
     fLastDayGamePlayed  := F.ReadDate     ('Game', 'LastDayGamePlayed', 0);
 
     fWareDistribution.LoadFromStr(F.ReadString ('Game','WareDistribution',''));
+    fSaveWareDistribution := F.ReadBool     ('Game', 'SaveWareDistribution', True); //Enabled by default
+
+    fCampaignLastDifficulty := TKMMissionDifficulty(F.ReadInteger('Campaign', 'CampaignLastDifficulty', Byte(mdNormal))); //Normal as default
+
+    fReplayAutopause    := F.ReadBool       ('Replay', 'ReplayAutopause',   False); //Disabled by default
+    fReplayShowBeacons  := F.ReadBool       ('Replay', 'ReplayShowBeacons', False); //Disabled by default
+    fReplayAutosave     := F.ReadBool       ('Replay', 'ReplayAutosave',          True); //Should be ON by default
+    SetReplayAutosaveFrequency(F.ReadInteger('Replay', 'ReplayAutosaveFrequency', REPLAY_AUTOSAVE_FREQUENCY_DEFAULT));
 
     fSoundFXVolume  := F.ReadFloat  ('SFX',  'SFXVolume',      0.5);
     fMusicVolume    := F.ReadFloat  ('SFX',  'MusicVolume',    0.5);
@@ -630,6 +695,8 @@ begin
     fMenu_SPSpecialMapCRC   := StrToInt64(F.ReadString('Menu', 'SPSpecialMapCRC', '0'));
     fMenu_SPSaveFileName    := F.ReadString('Menu', 'SPSaveFileName', '');
     fMenu_LobbyMapType      := F.ReadInteger('Menu', 'LobbyMapType', 0);
+
+    fDebug_SaveRandomChecks := F.ReadBool('Debug','SaveRandomChecks', True);
   finally
     F.Free;
   end;
@@ -655,12 +722,11 @@ begin
     F.WriteBool   ('Game','AutosaveOnGameEnd',  fAutosaveAtGameEnd);
     F.WriteInteger('Game','AutosaveFrequency',  fAutosaveFrequency);
     F.WriteInteger('Game','AutosaveCount',      fAutosaveCount);
-    F.WriteBool   ('Game','ReplayAutopause',    fReplayAutopause);
-    F.WriteBool   ('Game','ReplayShowBeacons',  fReplayShowBeacons);
+
     F.WriteBool   ('Game','SpecShowBeacons',    fSpecShowBeacons);
     F.WriteBool   ('Game','ShowGameTime',       fShowGameTime);
 
-    F.WriteBool   ('Game','ShowPlayersColors', fShowPlayersColors);
+    F.WriteInteger('Game','PlayersColorMode', Byte(fPlayersColorMode));
 
     F.WriteString ('Game','PlayerColorSelf',   IntToHex(fPlayerColorSelf and $FFFFFF, 6));
     F.WriteString ('Game','PlayerColorAlly',   IntToHex(fPlayerColorAlly and $FFFFFF, 6));
@@ -677,7 +743,15 @@ begin
     F.WriteInteger('Game','DayGamesCount',        fDayGamesCount);
     F.WriteDate   ('Game','LastDayGamePlayed',  fLastDayGamePlayed);
 
-    F.WriteString('Game','WareDistribution', fWareDistribution.PackToStr);
+    F.WriteString ('Game','WareDistribution', fWareDistribution.PackToStr);
+    F.WriteBool   ('Game','SaveWareDistribution', fSaveWareDistribution);
+
+    F.WriteInteger('Campaign','CampaignLastDifficulty', Byte(fCampaignLastDifficulty));
+
+    F.WriteBool   ('Replay','ReplayAutopause',         fReplayAutopause);
+    F.WriteBool   ('Replay','ReplayShowBeacons',       fReplayShowBeacons);
+    F.WriteBool   ('Replay','ReplayAutosave',          fReplayAutosave);
+    F.WriteInteger('Replay','ReplayAutosaveFrequency', fReplayAutosaveFrequency);
 
     F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
     F.WriteFloat  ('SFX','MusicVolume',   fMusicVolume);
@@ -735,6 +809,8 @@ begin
     F.WriteString ('Menu',  'SPSpecialMapCRC',    IntToStr(fMenu_SPSpecialMapCRC));
     F.WriteString ('Menu',  'SPSaveFileName',     fMenu_SPSaveFileName);
     F.WriteInteger('Menu',  'LobbyMapType',       fMenu_LobbyMapType);
+
+    F.WriteBool   ('Debug','SaveRandomChecks',    fDebug_SaveRandomChecks);
 
     F.UpdateFile; //Write changes to file
   finally
@@ -901,6 +977,13 @@ begin
 end;
 
 
+procedure TKMGameSettings.SetDebugSaveRandomChecks(aValue: Boolean);
+begin
+  fDebug_SaveRandomChecks := aValue;
+  Changed;
+end;
+
+
 procedure TKMGameSettings.SetAutosave(aValue: Boolean);
 begin
   fAutosave := aValue;
@@ -929,20 +1012,6 @@ begin
 end;
 
 
-procedure TKMGameSettings.SetReplayAutopause(aValue: Boolean);
-begin
-  fReplayAutopause := aValue;
-  Changed;
-end;
-
-
-procedure TKMGameSettings.SetReplayShowBeacons(aValue: Boolean);
-begin
-  fReplayShowBeacons := aValue;
-  Changed;
-end;
-
-
 procedure TKMGameSettings.SetSpecShowBeacons(aValue: Boolean);
 begin
   fSpecShowBeacons := aValue;
@@ -957,9 +1026,9 @@ begin
 end;
 
 
-procedure TKMGameSettings.SetShowPlayersColors(aValue: Boolean);
+procedure TKMGameSettings.SetPlayersColorMode(aValue: TKMPlayerColorMode);
 begin
-  fShowPlayersColors := aValue;
+  fPlayersColorMode := aValue;
   Changed;
 end;
 
@@ -995,6 +1064,42 @@ end;
 procedure TKMGameSettings.SetLastDayGamePlayed(aValue: TDateTime);
 begin
   fLastDayGamePlayed := aValue;
+  Changed;
+end;
+
+
+procedure TKMGameSettings.SetCampaignLastDifficulty(aValue: TKMMissionDifficulty);
+begin
+  fCampaignLastDifficulty := aValue;
+  Changed;
+end;
+
+
+procedure TKMGameSettings.SetReplayAutopause(aValue: Boolean);
+begin
+  fReplayAutopause := aValue;
+  Changed;
+end;
+
+
+procedure TKMGameSettings.SetReplayShowBeacons(aValue: Boolean);
+begin
+  fReplayShowBeacons := aValue;
+  Changed;
+end;
+
+
+
+procedure TKMGameSettings.SetReplayAutosave(aValue: Boolean);
+begin
+  fReplayAutosave := aValue;
+  Changed;
+end;
+
+
+procedure TKMGameSettings.SetReplayAutosaveFrequency(aValue: Integer);
+begin
+  fReplayAutosaveFrequency := EnsureRange(aValue, REPLAY_AUTOSAVE_FREQUENCY_MIN, REPLAY_AUTOSAVE_FREQUENCY_MAX);
   Changed;
 end;
 

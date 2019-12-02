@@ -31,8 +31,8 @@ type
     constructor Create;
     destructor Destroy; override;
     function GetFormattedTime: UnicodeString;
-    procedure LoadFromStream(aStream: TKMemoryStream);
-    procedure SaveToStream(aStream: TKMemoryStream);
+    procedure LoadFromStream(aStream: TKMemoryStreamBinary);
+    procedure SaveToStream(aStream: TKMemoryStreamBinary);
     function PlayersList: string;
     function HTMLPlayersList: string;
     function ConnectedPlayerCount: Byte;
@@ -45,7 +45,7 @@ uses
 
 
 { TMPGameInfo }
-procedure TMPGameInfo.LoadFromStream(aStream: TKMemoryStream);
+procedure TMPGameInfo.LoadFromStream(aStream: TKMemoryStreamBinary);
 var I: Integer;
 begin
   aStream.Read(GameState, SizeOf(GameState));
@@ -97,7 +97,7 @@ begin
 end;
 
 
-procedure TMPGameInfo.SaveToStream(aStream: TKMemoryStream);
+procedure TMPGameInfo.SaveToStream(aStream: TKMemoryStreamBinary);
 var I: Integer;
 begin
   aStream.Write(GameState, SizeOf(GameState));

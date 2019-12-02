@@ -1,7 +1,7 @@
 <?php
-include_once("consts.php");
-include_once("db.php");
-include_once("serverlib.php");
+require_once("consts.php");
+require_once("db.php");
+require_once("serverlib.php");
 
 global $STATS_PERIOD;
 $STATS_PERIOD = 600; //seconds between stat records
@@ -139,38 +139,50 @@ function GetServerGraph($con, $rev, $type, $size = array(500, 200), $timespan = 
 
 $con = db_connect();
 $format = "";
-if(isset($_REQUEST['format'])) $format = $con->real_escape_string($_REQUEST['format']);
+
+if(array_key_exists('format', $_REQUEST)) {
+    $format = $con->real_escape_string($_REQUEST['format']);
+}
+
 $Rev = $MAIN_VERSION;
-if(isset($_REQUEST["rev"])) {
+
+if(array_key_exists('rev', $_REQUEST)) {
 	$Rev = $con->real_escape_string($_REQUEST["rev"]);
 }
+
 $Type = "";
-if(isset($_REQUEST["rev"])) {
+
+if(array_key_exists('type', $_REQUEST)) {
 	$Type = $con->real_escape_string($_REQUEST["type"]);
 }
+
 $name = "";
-if(isset($_REQUEST["name"])) {
+
+if(array_key_exists('name', $_REQUEST)) {
 	$name = $con->real_escape_string($_REQUEST["name"]);
 }
 
 if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) { //if we have been called directly
 	global $MAIN_VERSION;
 	if (
-		isset($_REQUEST["since"]) &&
-		isset($_REQUEST["to"]) && 
-		isset($_REQUEST["width"]) && 
-		isset($_REQUEST["height"]) && 
-		isset($_REQUEST["period"])
+		array_key_exists('since', $_REQUEST) &&
+		array_key_exists('to', $_REQUEST) && 
+		array_key_exists('width', $_REQUEST) && 
+		array_key_exists('height', $_REQUEST) && 
+		array_key_exists('period', $_REQUEST)
 	) {
-		if (isset($_REQUEST["html"]))
+		if (array_key_exists('html', $_REQUEST))
 			echo '<!doctype html><html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 			<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 			</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
+
 		echo GetServerGraph($con, $Rev, $Type, array($con->real_escape_string($_REQUEST["width"]), $con->real_escape_string($_REQUEST["height"])), 
 			array($con->real_escape_string($_REQUEST["since"]), $con->real_escape_string($_REQUEST["to"])), $con->real_escape_string($_REQUEST["period"]), $format, $name);
-		if (isset($_REQUEST["html"])) echo '</body></html>';
+
+		if (array_key_exists('html', $_REQUEST))
+            echo '</body></html>';
 	} 
-	else if (isset($_REQUEST["default"])) {
+	else if (array_key_exists('default', $_REQUEST)) {
 		echo '<!doctype html><html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 		<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 		</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
@@ -187,5 +199,3 @@ if ( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) { //if we hav
 		<input type="submit" value="Submit"></form></body></html>';
 }
 $con->close();
-
-?>

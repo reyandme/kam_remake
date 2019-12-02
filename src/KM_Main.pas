@@ -23,6 +23,9 @@ type
     fResolutions: TKMResolutions;
     fMapCacheUpdater: TTMapsCacheUpdater;
 
+    fFPS: Single;
+    fFPSString: String;
+
     procedure DoRestore(Sender: TObject);
     procedure DoActivate(Sender: TObject);
     procedure DoDeactivate(Sender: TObject);
@@ -41,6 +44,7 @@ type
 
     procedure UpdateWindowParams(const aWindowParams: TKMWindowParamsRecord);
     procedure Move(const aWindowParams: TKMWindowParamsRecord);
+    procedure ForceResize;
     procedure Resize(aWidth, aHeight: Integer); overload;
     procedure Resize(aWidth, aHeight: Integer; const aWindowParams: TKMWindowParamsRecord); overload;
     procedure Render;
@@ -55,6 +59,8 @@ type
     procedure ReinitRender(aReturnToOptions: Boolean);
     procedure FlashingStart;
     procedure FlashingStop;
+
+    property FPSString: String read fFPSString;
 
     function IsDebugChangeAllowed: Boolean;
 
@@ -205,7 +211,7 @@ begin
   if not CanClose then
   begin
     //We want to pause the game for the time user verifies he really wants to close
-    WasRunning := not gGameApp.Game.IsMultiplayer
+    WasRunning := not gGameApp.Game.IsMultiPlayerOrSpec
                   and not gGameApp.Game.IsMapEditor
                   and not gGameApp.Game.IsPaused;
 
@@ -324,14 +330,16 @@ begin
       FrameTime := FPSLag;
     end;
 
-    inc(fOldFrameTimes, FrameTime);
-    inc(fFrameCount);
+    Inc(fOldFrameTimes, FrameTime);
+    Inc(fFrameCount);
     if fOldFrameTimes >= FPS_INTERVAL then
     begin
+      fFPS := 1000 / (fOldFrameTimes / fFrameCount);
       if gGameApp <> nil then
-        gGameApp.FPSMeasurement(Round(1000 / (fOldFrameTimes / fFrameCount)));
-      StatusBarText(SB_ID_FPS, Format('%.1f FPS', [1000 / (fOldFrameTimes / fFrameCount)]) +
-                       IfThen(CAP_MAX_FPS, ' (' + inttostr(FPSLag) + ')'));
+        gGameApp.FPSMeasurement(Round(fFPS));
+
+      fFPSString := Format('%.1f FPS', [fFPS]) + IfThen(CAP_MAX_FPS, ' (' + IntToStr(FPSLag) + ')');
+      StatusBarText(SB_ID_FPS, fFPSString);
       fOldFrameTimes := 0;
       fFrameCount := 0;
     end;
@@ -344,7 +352,7 @@ begin
   if gGameApp <> nil then
   begin
     gGameApp.UpdateStateIdle(FrameTime);
-    gGameApp.Render(False);
+    gGameApp.Render;
   end;
 
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
@@ -389,7 +397,7 @@ begin
   fFormMain.Hide;
   fFormMain.Show;
 
-  Resize(fFormMain.RenderArea.Width, fFormMain.RenderArea.Height); //Force everything to resize
+  ForceResize; //Force everything to resize
   // Unlock window params if are no longer in FullScreen mode
   if (not fMainSettings.FullScreen) then
     fMainSettings.WindowParams.UnlockParams;
@@ -478,7 +486,7 @@ end;
 function TKMMain.IsDebugChangeAllowed: Boolean;
 begin
   Result := (gGameApp.Game = nil)
-            or (not gGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS)
+            or (not gGameApp.Game.IsMultiPlayerOrSpec or MULTIPLAYER_CHEATS)
 end;
 
 
@@ -561,7 +569,14 @@ end;
 procedure TKMMain.Render;
 begin
   if gGameApp <> nil then
-    gGameApp.Render(False);
+    gGameApp.Render;
+end;
+
+
+//Force everything to resize
+procedure TKMMain.ForceResize;
+begin
+  Resize(fFormMain.RenderArea.Width, fFormMain.RenderArea.Height);
 end;
 
 
@@ -591,7 +606,8 @@ end;
 
 procedure TKMMain.UpdateWindowParams(const aWindowParams: TKMWindowParamsRecord);
 begin
-  if gGameApp <> nil then
+  if (gGameApp <> nil)
+    and (fMainSettings <> nil) and (fMainSettings.WindowParams <> nil) then //just in case...
     fMainSettings.WindowParams.ApplyWindowParams(aWindowParams);
 end;
 

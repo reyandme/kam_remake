@@ -34,10 +34,14 @@ type
     HasMapOrSave: Boolean;
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
+    LastSentCommandsTick: Integer; //Last tick when this player sent GIP commands to others (//TODO: move it somewhere...?)
+    DownloadInProgress: Boolean; //Player is in map/save download progress
     FPS: Cardinal;
     VotedYes: Boolean;
     procedure AddPing(aPing: Word);
     procedure ResetPingRecord;
+    function NoNeedWaitForLastCommands(aTick: Integer): Boolean;
+    function NoNeedToWait(aTick: Integer): Boolean;
     function GetInstantPing: Word;
     function GetMaxPing: Word;
     function IsHuman: Boolean;
@@ -89,7 +93,7 @@ type
     procedure AddClosedPlayer(aSlot: Integer = -1);
     procedure DisconnectPlayer(aIndexOnServer: TKMNetHandleIndex);
     procedure DisconnectAllClients(const aOwnNikname: AnsiString);
-    procedure DropPlayer(aIndexOnServer: TKMNetHandleIndex);
+    procedure DropPlayer(aIndexOnServer: TKMNetHandleIndex; aLastSentCommandsTick: Integer = LAST_SENT_COMMANDS_TICK_NONE);
     procedure RemPlayer(aIndex: Integer);
     procedure RemServerPlayer(aIndexOnServer: TKMNetHandleIndex);
     property Player[aIndex: Integer]: TKMNetPlayerInfo read GetPlayer; default;
@@ -98,7 +102,7 @@ type
     function ServerToLocal(aIndexOnServer: TKMNetHandleIndex): Integer;
     function NiknameToLocal(const aNikname: AnsiString): Integer;
     function StartingLocToLocal(aLoc: Integer): Integer;
-    function PlayerIndexToLocal(aIndex: TKMHandIndex): Integer;
+    function PlayerIndexToLocal(aIndex: TKMHandID): Integer;
 
     function CheckCanJoin(const aNik: AnsiString; aIndexOnServer: TKMNetHandleIndex): Integer;
     function CheckCanReconnect(aLocalIndex: Integer): Integer;
@@ -118,6 +122,7 @@ type
     function GetNotDroppedCount: Integer;
     function FurtherVotesNeededForMajority: Integer;
     function HasOnlySpectators: Boolean;
+    procedure SetDownloadAborted;
 
     procedure ResetLocAndReady;
     procedure ResetReady;
@@ -127,11 +132,11 @@ type
     procedure SetAIReady;
     procedure RemAllAIs;
     procedure RemDisconnectedPlayers;
-    function ValidateSetup(aHumanUsableLocs, aAIUsableLocs, aAdvancedAIUsableLocs: TKMHandIndexArray; out ErrorMsg: UnicodeString): Boolean;
+    function ValidateSetup(const aHumanUsableLocs, aAIUsableLocs, aAdvancedAIUsableLocs: TKMHandIDArray; out ErrorMsg: UnicodeString): Boolean;
 
     //Import/Export
     procedure SaveToStream(aStream: TKMemoryStream); //Gets all relevant information as text string
-    procedure LoadFromStream(aStream: TKMemoryStream); //Sets all relevant information
+    procedure LoadFromStream(aStream: TKMemoryStreamBinary); //Sets all relevant information
     function GetSlotNames: UnicodeString; //Gets just names as a text string seperated by |
     function GetPlayersWithIDs: UnicodeString;
   end;
@@ -171,6 +176,20 @@ procedure TKMNetPlayerInfo.SetLangCode(const aCode: AnsiString);
 begin
   if gResLocales.IndexByCode(aCode) <> -1 then
     fLangCode := aCode;
+end;
+
+
+//Check if other players need to wait this player, because of his last commands before disconnection
+function TKMNetPlayerInfo.NoNeedWaitForLastCommands(aTick: Integer): Boolean;
+begin
+  Result := (LastSentCommandsTick = LAST_SENT_COMMANDS_TICK_NONE) or (LastSentCommandsTick < aTick);
+end;
+
+
+//Do other player need to wait us at game tick aTick?
+function TKMNetPlayerInfo.NoNeedToWait(aTick: Integer): Boolean;
+begin
+  Result := not IsHuman or (Dropped and NoNeedWaitForLastCommands(aTick));
 end;
 
 
@@ -263,7 +282,7 @@ begin
   if IsHuman or (gHands = nil) or (HandIndex = -1) then
     Result := fNikname
   else
-    Result := AnsiString(gHands[HandIndex].OwnerName);
+    Result := AnsiString(gHands[HandIndex].OwnerName(True, False));
 end;
 
 
@@ -311,6 +330,8 @@ begin
   LoadStream.Read(HasMapOrSave);
   LoadStream.Read(Connected);
   LoadStream.Read(Dropped);
+  LoadStream.Read(LastSentCommandsTick);
+  LoadStream.Read(DownloadInProgress);
   LoadStream.Read(VotedYes);
 end;
 
@@ -330,6 +351,8 @@ begin
   SaveStream.Write(HasMapOrSave);
   SaveStream.Write(Connected);
   SaveStream.Write(Dropped);
+  SaveStream.Write(LastSentCommandsTick);
+  SaveStream.Write(DownloadInProgress);
   SaveStream.Write(VotedYes);
 end;
 
@@ -443,12 +466,14 @@ begin
   fNetPlayers[fCount].PlayerNetType := nptHuman;
   fNetPlayers[fCount].Team := 0;
   fNetPlayers[fCount].FlagColorID := 0;
-  fNetPlayers[fCount].ReadyToStart := false;
-  fNetPlayers[fCount].HasMapOrSave := false;
-  fNetPlayers[fCount].ReadyToPlay := false;
-  fNetPlayers[fCount].ReadyToReturnToLobby := false;
-  fNetPlayers[fCount].Connected := true;
-  fNetPlayers[fCount].Dropped := false;
+  fNetPlayers[fCount].ReadyToStart := False;
+  fNetPlayers[fCount].HasMapOrSave := False;
+  fNetPlayers[fCount].ReadyToPlay := False;
+  fNetPlayers[fCount].ReadyToReturnToLobby := False;
+  fNetPlayers[fCount].Connected := True;
+  fNetPlayers[fCount].Dropped := False;
+  fNetPlayers[fCount].LastSentCommandsTick := LAST_SENT_COMMANDS_TICK_NONE;
+  fNetPlayers[fCount].DownloadInProgress := False;
   fNetPlayers[fCount].ResetPingRecord;
   //Check if this player must go in a spectator slot
   if fCount - GetSpectatorCount > MAX_LOBBY_PLAYERS then
@@ -481,6 +506,8 @@ begin
   fNetPlayers[aSlot].ReadyToPlay := True;
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
+  fNetPlayers[aSlot].LastSentCommandsTick := LAST_SENT_COMMANDS_TICK_NONE;
+  fNetPlayers[aSlot].DownloadInProgress := False;
   fNetPlayers[aSlot].ResetPingRecord;
 end;
 
@@ -505,6 +532,8 @@ begin
   fNetPlayers[aSlot].ReadyToPlay := True;
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
+  fNetPlayers[aSlot].LastSentCommandsTick := LAST_SENT_COMMANDS_TICK_NONE;
+  fNetPlayers[aSlot].DownloadInProgress := False;
   fNetPlayers[aSlot].ResetPingRecord;
 end;
 
@@ -531,14 +560,15 @@ end;
 
 
 //Set player to no longer be on the server, but do not remove their assets from the game
-procedure TKMNetPlayersList.DropPlayer(aIndexOnServer: TKMNetHandleIndex);
+procedure TKMNetPlayersList.DropPlayer(aIndexOnServer: TKMNetHandleIndex; aLastSentCommandsTick: Integer = LAST_SENT_COMMANDS_TICK_NONE);
 var
   ID: Integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
   Assert(ID <> -1, 'Cannot drop player');
-  fNetPlayers[ID].Connected := false;
-  fNetPlayers[ID].Dropped := true;
+  fNetPlayers[ID].Connected := False;
+  fNetPlayers[ID].Dropped := True;
+  fNetPlayers[ID].LastSentCommandsTick := aLastSentCommandsTick;
 end;
 
 
@@ -602,7 +632,7 @@ begin
 end;
 
 
-function TKMNetPlayersList.PlayerIndexToLocal(aIndex: TKMHandIndex): Integer;
+function TKMNetPlayersList.PlayerIndexToLocal(aIndex: TKMHandID): Integer;
 var I: Integer;
 begin
   Result := -1;
@@ -622,9 +652,6 @@ begin
     Result := TX_NET_SAME_NAME
   else
   if NiknameToLocal(aNik) <> -1 then
-    Result := TX_NET_SAME_NAME
-  else
-  if (aNik = 'AI Player') or (aNik = 'Closed') then
     Result := TX_NET_SAME_NAME
   else
   //If this player must take a spectator spot, check that one is open
@@ -856,6 +883,15 @@ begin
       Exit;
     end;
   Result := True;
+end;
+
+
+procedure TKMNetPlayersList.SetDownloadAborted;
+var
+  I: Integer;
+begin
+  for I := 1 to fCount do
+    fNetPlayers[I].DownloadInPRogress := False;
 end;
 
 
@@ -1351,7 +1387,7 @@ end;
 
 //Convert undefined/random start locations to fixed and assign random colors
 //Remove odd players
-function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs, aAdvancedAIUsableLocs: TKMHandIndexArray;
+function TKMNetPlayersList.ValidateSetup(const aHumanUsableLocs, aAIUsableLocs, aAdvancedAIUsableLocs: TKMHandIDArray;
                                          out ErrorMsg: UnicodeString): Boolean;
   function IsHumanLoc(aLoc: Byte): Boolean;
   var I: Integer;
@@ -1392,15 +1428,12 @@ function TKMNetPlayersList.ValidateSetup(aHumanUsableLocs, aAIUsableLocs, aAdvan
 var
   I, K, J: Integer;
   UsedLoc: array[1..MAX_HANDS] of Boolean;
-  AvailableLocHuman, AvailableLocBoth: array [1..MAX_HANDS] of Byte;
-  TmpLocHumanCount, TmpLocBothCount: Byte;
   TeamLocs: array of Integer;
   LocFiller: TLocFiller;
   Player: TPlayer;
   PT: TPlayerType;
   Loc: TLoc;
   LocsArr: TIntegerArray;
-  PlayerTypes: TPlayerTypeSet;
 begin
   if not AllReady then
   begin
@@ -1474,10 +1507,9 @@ begin
       Exit;
     end;
 
-    RemAllClosedPlayers; //Closed players are just a marker in the lobby, delete them when the game starts
-
     gLog.AddTime('Randomizing locs...');
-    gLog.AddTime(LocFiller.FillerToString);
+    if gLog.IsDegubLogEnabled then
+      gLog.LogDebug(LocFiller.FillerToString);
 
     //Randomize all available lists (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)
     for PT := Low(TPlayerType) to High(TPlayerType) do
@@ -1491,10 +1523,13 @@ begin
     for I := 0 to High(LocFiller.Players) do
       fNetPlayers[LocFiller.Players[I].ID].StartLocation := LocFiller.Players[I].LocID;
 
-    gLog.AddTime('Randomized locs: ' + LocFiller.FillerToString);
+    if gLog.IsDegubLogEnabled then
+      gLog.LogDebug('Randomized locs: ' + LocFiller.FillerToString);
   finally
     LocFiller.Free;
   end;
+
+  RemAllClosedPlayers; //Closed players are just a marker in the lobby, delete them when the game starts
 
   //Check for odd players
   for I := 1 to fCount do
@@ -1547,7 +1582,7 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.LoadFromStream(aStream: TKMemoryStream);
+procedure TKMNetPlayersList.LoadFromStream(aStream: TKMemoryStreamBinary);
 var
   I: Integer;
 begin

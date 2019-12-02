@@ -1,6 +1,8 @@
 //-- TBK06 --//
 //20.01.2018
 
+{$I difficulty.script}
+
 var
 	aArmyFirst, aArmySecond, aArmyThird: array[1..5] of Integer;
 
@@ -108,6 +110,16 @@ var
 begin
 	//Randomize Hunger Level of Enemy Units
 	UnitsRandomHungerSet();
+	//Apply Difficulty
+	case States.MissionDifficulty() of
+		mdEasy1: 
+			IncreaseGroupSize(0, 0);
+		mdHard1:
+		begin
+			IncreaseGroupSize(3, 0); //Initial Attack: Brown
+			IncreaseGroupSize(5, 0); //Initial Attack: Brown
+		end;
+	end;
 	//Unallow all Buildings
 	LockBuildings(0);
 	//Unlock Buildings at the Sart

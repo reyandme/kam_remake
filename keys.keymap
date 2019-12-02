@@ -36,7 +36,7 @@
 35:46// Delete Message
 36:13// Show Game Chat (MP)
 37:9// Select next house/unit with same type
-38:79// Switch players color mode
+38:0// Switch players color mode
 39:82// Construct road
 40:67// Plough field
 41:87// Lay out wine field
@@ -61,37 +61,39 @@
 60:0// Select Group 18
 61:0// Select Group 19
 62:0// Select Group 20
-63:49// Spectate player 1
-64:50// Spectate player 2
-65:51// Spectate player 3
-66:52// Spectate player 4
-67:53// Spectate player 5
-68:54// Spectate player 6
-69:55// Spectate player 7
-70:56// Spectate player 8
-71:57// Spectate player 9
-72:48// Spectate player 10
-73:189// Spectate player 11
-74:61// Spectate player 12
-75:13// Extra's Menu
-76:112// Terrain Editor
-77:113// Village Planning
-78:114// Visual Scripting
-79:115// Global Scripting
-80:116// Main Menu
-81:49// Sub-menu 1
-82:50// Sub-menu 2
-83:51// Sub-menu 3
-84:52// Sub-menu 4
-85:53// Sub-menu 5
-86:54// Sub-menu 6
-87:81// Sub-menu action 1
-88:87// Sub-menu action 2
-89:69// Sub-menu action 3
-90:82// Sub-menu action 4
-91:84// Sub-menu action 5
-92:89// Sub-menu action 6
-93:85// Sub-menu action 7
-94:32// Objects palette
-95:46// Universal erasor
-96:45// Paint bucket (change owner)
+63:0// Open/Close spectator stats panel
+64:78// Play next tick in replay
+65:49// Spectate player 1
+66:50// Spectate player 2
+67:51// Spectate player 3
+68:52// Spectate player 4
+69:53// Spectate player 5
+70:54// Spectate player 6
+71:55// Spectate player 7
+72:56// Spectate player 8
+73:57// Spectate player 9
+74:48// Spectate player 10
+75:189// Spectate player 11
+76:61// Spectate player 12
+77:13// Extra's Menu
+78:112// Terrain Editor
+79:113// Village Planning
+80:114// Visual Scripting
+81:115// Global Scripting
+82:116// Main Menu
+83:49// Sub-menu 1
+84:50// Sub-menu 2
+85:51// Sub-menu 3
+86:52// Sub-menu 4
+87:53// Sub-menu 5
+88:54// Sub-menu 6
+89:81// Sub-menu action 1
+90:87// Sub-menu action 2
+91:69// Sub-menu action 3
+92:82// Sub-menu action 4
+93:84// Sub-menu action 5
+94:89// Sub-menu action 6
+95:85// Sub-menu action 7
+96:32// Objects palette
+97:46// Universal eraser
+98:45// Paint bucket (change owner)

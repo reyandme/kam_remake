@@ -14,7 +14,7 @@ type
   public
     IsRead: Boolean; //Does not gets saved, because it's UI thing
     constructor Create(aKind: TKMMessageKind; const aText: UnicodeString; const aLoc: TKMPoint);
-    constructor CreateFromStream(LoadStream: TKMemoryStream);
+    constructor Load(LoadStream: TKMemoryStream);
 
     function Icon: Word;
     function IsGoto: Boolean;
@@ -59,9 +59,10 @@ begin
 end;
 
 
-constructor TKMStackMessage.CreateFromStream(LoadStream: TKMemoryStream);
+constructor TKMStackMessage.Load(LoadStream: TKMemoryStream);
 begin
   inherited Create;
+  LoadStream.CheckMarker('StackMessage');
   LoadStream.Read(fLoc);
   LoadStream.ReadW(fText);
   LoadStream.Read(fKind, SizeOf(TKMMessageKind));
@@ -86,6 +87,7 @@ end;
 
 procedure TKMStackMessage.Save(SaveStream: TKMemoryStream);
 begin
+  SaveStream.PlaceMarker('StackMessage');
   SaveStream.Write(fLoc);
   SaveStream.WriteW(fText);
   SaveStream.Write(fKind, SizeOf(TKMMessageKind));
@@ -138,6 +140,7 @@ procedure TKMMessageStack.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
+  SaveStream.PlaceMarker('MessageStack');
   SaveStream.Write(fCountStack);
   for I := 0 to fCountStack - 1 do
     MessagesStack[I].Save(SaveStream);
@@ -148,11 +151,12 @@ procedure TKMMessageStack.Load(LoadStream: TKMemoryStream);
 var
   I: Integer;
 begin
+  LoadStream.CheckMarker('MessageStack');
   LoadStream.Read(fCountStack);
   SetLength(fListStack, fCountStack);
 
   for I := 0 to fCountStack - 1 do
-    fListStack[I] := TKMStackMessage.CreateFromStream(LoadStream);
+    fListStack[I] := TKMStackMessage.Load(LoadStream);
 end;
 
 

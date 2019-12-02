@@ -3,6 +3,7 @@ unit KM_Maps;
 interface
 uses
   Classes, SyncObjs,
+  KM_MapTypes,
   KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Pics, KM_ResTexts;
 
 
@@ -22,22 +23,17 @@ type
 
   TKMMapGoalInfo = packed record
     Cond: TKMGoalCondition;
-    Play: TKMHandIndex;
+    Play: TKMHandID;
     Stat: TKMGoalStatus;
   end;
 
-  TKMMissionDifficulty = (mdNone, mdEasy, mdNormal, mdHard);
-  TKMMissionDifficultySet = set of TKMMissionDifficulty;
-
   TKMMapTxtInfo = class
   private
-    fBigDesc: UnicodeString;
     function IsEmpty: Boolean;
-    procedure ResetInfo;
-    procedure Load(aStream: TKMemoryStream);
-    procedure Save(aStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
   public
-    Author, SmallDesc: UnicodeString;
+    Author, BigDesc, SmallDesc: UnicodeString;
     SmallDescLibx, BigDescLibx: Integer;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
@@ -50,16 +46,21 @@ type
     BlockFullMapPreview: Boolean;
 
     constructor Create;
-    procedure SetBigDesc(aBigDesc: UnicodeString);
+    procedure SetBigDesc(const aBigDesc: UnicodeString);
     function GetBigDesc: UnicodeString;
 
     function IsSmallDescLibxSet: Boolean;
     function IsBigDescLibxSet: Boolean;
 
-    procedure SaveTXTInfo(aFilePath: UnicodeString);
-    procedure LoadTXTInfo(aFilePath: UnicodeString);
+    procedure ResetInfo;
+
+    procedure SaveTXTInfo(const aFilePath: String);
+    procedure LoadTXTInfo(const aFilePath: String);
     function HasDifficultyLevels: Boolean;
   end;
+
+
+  TKMMapTxtInfoArray = array of TKMMapTxtInfo;
 
 
   TKMapInfo = class
@@ -90,7 +91,7 @@ type
     function GetCanBeOnlyAICount: Byte;
     function GetCanBeHumanAndAICount: Byte;
     function GetBigDesc: UnicodeString;
-    procedure SetBigDesc(aBigDesc: UnicodeString);
+    procedure SetBigDesc(const aBigDesc: UnicodeString);
   public
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
@@ -98,7 +99,7 @@ type
     CanBeHuman: array [0..MAX_HANDS-1] of Boolean;
     CanBeAI: array [0..MAX_HANDS-1] of Boolean;
     CanBeAdvancedAI: array [0..MAX_HANDS-1] of Boolean;
-    DefaultHuman: TKMHandIndex;
+    DefaultHuman: TKMHandID;
     GoalsVictoryCount, GoalsSurviveCount: array [0..MAX_HANDS-1] of Byte;
     GoalsVictory: array [0..MAX_HANDS-1] of array of TKMMapGoalInfo;
     GoalsSurvive: array [0..MAX_HANDS-1] of array of TKMMapGoalInfo;
@@ -109,7 +110,7 @@ type
     constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder); overload;
     destructor Destroy; override;
 
-    procedure AddGoal(aType: TKMGoalType; aPlayer: TKMHandIndex; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aPlayerIndex: TKMHandIndex);
+    procedure AddGoal(aType: TKMGoalType; aPlayer: TKMHandID; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aPlayerIndex: TKMHandID);
     procedure LoadExtra;
 
     property TxtInfo: TKMMapTxtInfo read fTxtInfo;
@@ -119,11 +120,11 @@ type
     property MapFolder: TKMapFolder read fMapFolder;
     property FileName: UnicodeString read fFileName;
     function FullPath(const aExt: string): string;
-    function HumanUsableLocs: TKMHandIndexArray;
-    function AIUsableLocs: TKMHandIndexArray;
-    function AdvancedAIUsableLocs: TKMHandIndexArray;
+    function HumanUsableLocs: TKMHandIDArray;
+    function AIUsableLocs: TKMHandIDArray;
+    function AdvancedAIUsableLocs: TKMHandIDArray;
     property CRC: Cardinal read fCRC;
-    function LocationName(aIndex: TKMHandIndex): string;
+    function LocationName(aIndex: TKMHandID): string;
     property Size: TKMMapSize read GetSize;
     property SizeText: string read GetSizeText;
     function IsValid: Boolean;
@@ -235,13 +236,11 @@ type
   function GetMapFolderType(aIsMultiplayer: Boolean): TKMapFolder;
   function DetermineMapFolder(const aFolderName: UnicodeString; out aMapFolder: TKMapFolder): Boolean;
 
-const
-  DIFFICULTY_LEVELS_TX: array[mdEasy..mdHard] of Integer =
-    (TX_MISSION_DIFFICULTY_EASY, TX_MISSION_DIFFICULTY_NORMAL, TX_MISSION_DIFFICULTY_HARD);
 
 implementation
 uses
-  SysUtils, StrUtils, Math, KromShellUtils, KromUtils,
+  SysUtils, StrUtils, TypInfo, Math,
+  KromShellUtils, KromUtils,
   KM_GameApp, KM_FileIO,
   KM_MissionScript_Info, KM_Scripting,
   KM_Utils, KM_CommonUtils, KM_Log;
@@ -262,11 +261,14 @@ constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMa
   begin
     Result := 0;
     FindFirst(aSearchFile, faAnyFile - faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        Result := Result xor Adler32CRC(ExtractFilePath(aSearchFile) + SearchRec.Name);
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
+    try
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+          Result := Result xor Adler32CRC(ExtractFilePath(aSearchFile) + SearchRec.Name);
+      until (FindNext(SearchRec) <> 0);
+    finally
+      FindClose(SearchRec);
+    end;
   end;
 
 var
@@ -385,7 +387,7 @@ begin
 end;
 
 
-procedure TKMapInfo.AddGoal(aType: TKMGoalType; aPlayer: TKMHandIndex; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aPlayerIndex: TKMHandIndex);
+procedure TKMapInfo.AddGoal(aType: TKMGoalType; aPlayer: TKMHandID; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aPlayerIndex: TKMHandID);
 var G: TKMMapGoalInfo;
 begin
   G.Cond := aCondition;
@@ -393,12 +395,12 @@ begin
   G.Stat := aStatus;
 
   case aType of
-    glt_Victory:  begin
+    gltVictory:  begin
                     SetLength(GoalsVictory[aPlayer], GoalsVictoryCount[aPlayer] + 1);
                     GoalsVictory[aPlayer, GoalsVictoryCount[aPlayer]] := G;
                     Inc(GoalsVictoryCount[aPlayer]);
                   end;
-    glt_Survive:  begin
+    gltSurvive:  begin
                     SetLength(GoalsSurvive[aPlayer], GoalsSurviveCount[aPlayer] + 1);
                     GoalsSurvive[aPlayer, GoalsSurviveCount[aPlayer]] := G;
                     Inc(GoalsSurviveCount[aPlayer]);
@@ -414,7 +416,7 @@ begin
 end;
 
 
-function TKMapInfo.HumanUsableLocs: TKMHandIndexArray;
+function TKMapInfo.HumanUsableLocs: TKMHandIDArray;
 var
   I: Integer;
 begin
@@ -428,7 +430,7 @@ begin
 end;
 
 
-function TKMapInfo.AIUsableLocs: TKMHandIndexArray;
+function TKMapInfo.AIUsableLocs: TKMHandIDArray;
 var
   I: Integer;
 begin
@@ -442,7 +444,7 @@ begin
 end;
 
 
-function TKMapInfo.AdvancedAIUsableLocs: TKMHandIndexArray;
+function TKMapInfo.AdvancedAIUsableLocs: TKMHandIDArray;
 var
   I: Integer;
 begin
@@ -456,7 +458,7 @@ begin
 end;
 
 
-function TKMapInfo.LocationName(aIndex: TKMHandIndex): string;
+function TKMapInfo.LocationName(aIndex: TKMHandID): string;
 begin
   Result := Format(gResTexts[TX_LOBBY_LOCATION_X], [aIndex + 1]);
 end;
@@ -500,7 +502,7 @@ begin
     fMissionParser.Free;
   end;
 
-  if MissionMode = mm_Tactic then
+  if MissionMode = mmTactic then
     fTxtInfo.BlockPeacetime := True;
 
   fTxtInfo.LoadTXTInfo(fPath + fFileName + '.txt');
@@ -512,7 +514,7 @@ end;
 procedure TKMapInfo.ResetInfo;
 var I, K: Integer;
 begin
-  MissionMode := mm_Normal;
+  MissionMode := mmNormal;
   DefaultHuman := 0;
   fTxtInfo.ResetInfo;
   for I:=0 to MAX_HANDS-1 do
@@ -527,20 +529,20 @@ begin
     SetLength(GoalsSurvive[I], 0);
     for K:=0 to MAX_HANDS-1 do
       if I = K then
-        Alliances[I,K] := at_Ally
+        Alliances[I,K] := atAlly
       else
-        Alliances[I,K] := at_Enemy;
+        Alliances[I,K] := atEnemy;
   end;
 end;
 
 
 procedure TKMapInfo.LoadFromStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
 var
-  S: TKMemoryStream;
+  S: TKMemoryStreamBinary;
 begin
-  Assert(aStreamObj is TKMemoryStream, 'Wrong stream object class');
+  Assert(aStreamObj is TKMemoryStreamBinary, 'Wrong stream object class');
 
-  S := TKMemoryStream(aStreamObj);
+  S := TKMemoryStreamBinary(aStreamObj);
 
   S.LoadFromFile(aPath);
 
@@ -564,12 +566,12 @@ end;
 
 procedure TKMapInfo.LoadFromFile(const aPath: UnicodeString);
 var
-  S: TKMemoryStream;
+  S: TKMemoryStreamBinary;
   ErrorStr: UnicodeString;
 begin
   if not FileExists(aPath) then Exit;
 
-  S := TKMemoryStream.Create;
+  S := TKMemoryStreamBinary.Create;
   try
     //Try to load map cache up to 3 times (in case its updating by other thread
     //its much easier and working well, then synchronize threads
@@ -584,11 +586,11 @@ end;
 
 procedure TKMapInfo.SaveToStreamObj(aStreamObj: TObject; const aPath: UnicodeString);
 var
-  S: TKMemoryStream;
+  S: TKMemoryStreamBinary;
 begin
-  Assert(aStreamObj is TKMemoryStream, 'Wrong stream object class');
+  Assert(aStreamObj is TKMemoryStreamBinary, 'Wrong stream object class');
 
-  S := TKMemoryStream(aStreamObj);
+  S := TKMemoryStreamBinary(aStreamObj);
 
   S.SaveToFile(aPath);
 end;
@@ -596,10 +598,10 @@ end;
 
 procedure TKMapInfo.SaveToFile(const aPath: UnicodeString);
 var
-  S: TKMemoryStream;
+  S: TKMemoryStreamBinary;
   ErrorStr: UnicodeString;
 begin
-  S := TKMemoryStream.Create;
+  S := TKMemoryStreamBinary.Create;
   try
     //Internal properties
     S.Write(fCRC);
@@ -700,13 +702,13 @@ end;
 
 function TKMapInfo.IsNormalMission: Boolean;
 begin
-  Result := MissionMode = mm_Normal;
+  Result := MissionMode = mmNormal;
 end;
 
 
 function TKMapInfo.IsTacticMission: Boolean;
 begin
-  Result := MissionMode = mm_Tactic;
+  Result := MissionMode = mmTactic;
 end;
 
 
@@ -825,13 +827,13 @@ begin
       Result := Result + WrapColor(gResTexts[CUSTOM_MAP_PARAM_DESCR_TX[CSP]] + ':', icRed) + '|'
                        + WrapColor('[' + fCustomScriptParams[CSP].Data + ']', icOrange) + '||';
 
-  Result := Result + TxtInfo.fBigDesc;
+  Result := Result + TxtInfo.BigDesc;
 end;
 
 
-procedure TKMapInfo.SetBigDesc(aBigDesc: UnicodeString);
+procedure TKMapInfo.SetBigDesc(const aBigDesc: UnicodeString);
 begin
-  TxtInfo.fBigDesc := aBigDesc;
+  TxtInfo.BigDesc := aBigDesc;
 end;
 
 
@@ -863,12 +865,13 @@ begin
 end;
 
 
-procedure TKMMapTxtInfo.SaveTXTInfo(aFilePath: UnicodeString);
+procedure TKMMapTxtInfo.SaveTXTInfo(const aFilePath: String);
 var
   St: String;
   ft: TextFile;
+  MD: TKMMissionDifficulty;
 
-  procedure WriteLine(aLineHeader: UnicodeString; aLineValue: UnicodeString = '');
+  procedure WriteLine(const aLineHeader: String; const aLineValue: String = '');
   begin
     Writeln(ft, aLineHeader);
     if aLineValue <> '' then
@@ -899,8 +902,8 @@ begin
 
   if BigDescLibx <> -1 then
     WriteLine('BigDescLIBX', IntToStr(BigDescLibx))
-  else if fBigDesc <> '' then
-    WriteLine('BigDesc', fBigDesc);
+  else if BigDesc <> '' then
+    WriteLine('BigDesc', BigDesc);
 
   if IsCoop then
     WriteLine('SetCoop');
@@ -923,27 +926,20 @@ begin
   if HasDifficultyLevels then
   begin
     St := '';
-    if St <> '' then
-      St := St + ',';
-    if mdEasy in DifficultyLevels then
-      St := 'Easy';
-    if mdNormal in DifficultyLevels then
-    begin
-      if St <> '' then
-        St := St + ',';
-      St := St + 'Normal';
-    end;
-    if mdHard in DifficultyLevels then
-    begin
-      St := St + ',Hard';
-    end;
+    for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
+      if MD in DifficultyLevels then
+      begin
+        if St <> '' then
+          St := St + ',';
+        St := St + GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD));
+      end;
     WriteLine('DifficultyLevels', St);
   end;
 
   CloseFile(ft);
 end;
 
-procedure TKMMapTxtInfo.LoadTXTInfo(aFilePath: UnicodeString);
+procedure TKMMapTxtInfo.LoadTXTInfo(const aFilePath: String);
 
   function LoadDescriptionFromLIBX(aIndex: Integer): UnicodeString;
   var
@@ -962,6 +958,7 @@ var
   St, S: String;
   ft: TextFile;
   StList: TStringList;
+  MD: TKMMissionDifficulty;
 begin
   //Load additional text info
   if FileExists(aFilePath) then
@@ -974,13 +971,13 @@ begin
       if SameText(St, 'Author') then
         Readln(ft, Author);
       if SameText(St, 'BigDesc') then
-        Readln(ft, fBigDesc);
+        Readln(ft, BigDesc);
 
       if SameText(St, 'BigDescLIBX') then
       begin
         Readln(ft, S);
         BigDescLibx := StrToIntDef(S, -1);
-        fBigDesc := LoadDescriptionFromLIBX(BigDescLibx);
+        BigDesc := LoadDescriptionFromLIBX(BigDescLibx);
       end;
 
       if SameText(St, 'SmallDesc') then
@@ -1018,14 +1015,9 @@ begin
         StList := TStringList.Create;
         StringSplit(S, ',', StList);
         for I := 0 to StList.Count - 1 do
-        begin
-          if SameText(StList[I], 'Easy') then
-            Include(DifficultyLevels, mdEasy);
-          if SameText(StList[I], 'Normal') then
-            Include(DifficultyLevels, mdNormal);
-          if SameText(StList[I], 'Hard') then
-            Include(DifficultyLevels, mdHard);
-        end;
+          for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
+            if SameText(StList[I], GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD))) then
+              Include(DifficultyLevels, MD);
         StList.Free;
       end;
     until(eof(ft));
@@ -1034,15 +1026,15 @@ begin
 end;
 
 
-procedure TKMMapTxtInfo.SetBigDesc(aBigDesc: UnicodeString);
+procedure TKMMapTxtInfo.SetBigDesc(const aBigDesc: UnicodeString);
 begin
-  fBigDesc := aBigDesc;
+  BigDesc := aBigDesc;
 end;
 
 
 function TKMMapTxtInfo.GetBigDesc: UnicodeString;
 begin
-  Result := fBigDesc;
+  Result := BigDesc;
 end;
 
 
@@ -1065,18 +1057,19 @@ begin
             or BlockTeamSelection or BlockPeacetime or BlockFullMapPreview
             or (Author <> '')
             or (SmallDesc <> '') or IsSmallDescLibxSet
-            or (fBigDesc <> '') or IsBigDescLibxSet
+            or (BigDesc <> '') or IsBigDescLibxSet
             or HasDifficultyLevels);
 end;
 
 
 function TKMMapTxtInfo.HasDifficultyLevels: Boolean;
+var
+  MD: TKMMissionDifficulty;
 begin
+  Result := (DifficultyLevels <> []);
   //We consider there is no difficulty levels, if only one is presented
-  Result := (DifficultyLevels <> [])
-            and (DifficultyLevels <> [mdEasy])
-            and (DifficultyLevels <> [mdNormal])
-            and (DifficultyLevels <> [mdHard]);
+  for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
+    Result := Result and (DifficultyLevels <> [MD]);
 end;
 
 
@@ -1092,39 +1085,39 @@ begin
   Author := '';
   SmallDesc := '';
   SmallDescLibx := -1;
-  fBigDesc := '';
+  BigDesc := '';
   BigDescLibx := -1;
 end;
 
 
-procedure TKMMapTxtInfo.Load(aStream: TKMemoryStream);
+procedure TKMMapTxtInfo.Load(LoadStream: TKMemoryStream);
 begin
-  aStream.Read(IsCoop);
-  aStream.Read(IsSpecial);
-  aStream.Read(IsPlayableAsSP);
+  LoadStream.Read(IsCoop);
+  LoadStream.Read(IsSpecial);
+  LoadStream.Read(IsPlayableAsSP);
 
-  aStream.Read(BlockTeamSelection);
-  aStream.Read(BlockPeacetime);
-  aStream.Read(BlockFullMapPreview);
+  LoadStream.Read(BlockTeamSelection);
+  LoadStream.Read(BlockPeacetime);
+  LoadStream.Read(BlockFullMapPreview);
 
-  aStream.ReadW(SmallDesc);
-  aStream.Read(SmallDescLibx);
+  LoadStream.ReadW(SmallDesc);
+  LoadStream.Read(SmallDescLibx);
 //  aStream.ReadW(fBigDesc);
 end;
 
 
-procedure TKMMapTxtInfo.Save(aStream: TKMemoryStream);
+procedure TKMMapTxtInfo.Save(SaveStream: TKMemoryStream);
 begin
-  aStream.Write(IsCoop);
-  aStream.Write(IsSpecial);
-  aStream.Write(IsPlayableAsSP);
+  SaveStream.Write(IsCoop);
+  SaveStream.Write(IsSpecial);
+  SaveStream.Write(IsPlayableAsSP);
 
-  aStream.Write(BlockTeamSelection);
-  aStream.Write(BlockPeacetime);
-  aStream.Write(BlockFullMapPreview);
+  SaveStream.Write(BlockTeamSelection);
+  SaveStream.Write(BlockPeacetime);
+  SaveStream.Write(BlockFullMapPreview);
 
-  aStream.WriteW(SmallDesc);
-  aStream.Write(SmallDescLibx);
+  SaveStream.WriteW(SmallDesc);
+  SaveStream.Write(SmallDescLibx);
 //  aStream.WriteW(fBigDesc);
 end;
 
@@ -1525,23 +1518,29 @@ begin
 
     //Include all campaigns maps
     FindFirst(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + '*', faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        PathToMaps.Add(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + SearchRec.Name + PathDelim);
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
+    try
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+          PathToMaps.Add(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + SearchRec.Name + PathDelim);
+      until (FindNext(SearchRec) <> 0);
+    finally
+      FindClose(SearchRec);
+    end;
 
     for I := 0 to PathToMaps.Count - 1 do
     if DirectoryExists(PathToMaps[I]) then
     begin
       FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
-      repeat
-        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-        and FileExists(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.dat')
-        and FileExists(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.map') then
-          aList.Add(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.dat');
-      until (FindNext(SearchRec) <> 0);
-      FindClose(SearchRec);
+      try
+        repeat
+          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+          and FileExists(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.dat')
+          and FileExists(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.map') then
+            aList.Add(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.dat');
+        until (FindNext(SearchRec) <> 0);
+      finally
+        FindClose(SearchRec);
+      end;
     end;
   finally
     PathToMaps.Free;
@@ -1576,15 +1575,18 @@ begin
       if not DirectoryExists(PathToMaps) then Exit;
 
       FindFirst(PathToMaps + '*', faDirectory, SearchRec);
-      repeat
-        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-          and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
-          and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
-        begin
-          ProcessMap(SearchRec.Name, MF);
-        end;
-      until (FindNext(SearchRec) <> 0) or Terminated;
-      FindClose(SearchRec);
+      try
+        repeat
+          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+            and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
+            and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
+          begin
+            ProcessMap(SearchRec.Name, MF);
+          end;
+        until (FindNext(SearchRec) <> 0) or Terminated;
+      finally
+        FindClose(SearchRec);
+      end;
     end;
   finally
     if not Terminated and Assigned(fOnComplete) then

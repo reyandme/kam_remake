@@ -48,9 +48,10 @@ begin
 end;
 
 
-constructor TKMUnitActionSteer.Load(LoadStream:TKMemoryStream);
+constructor TKMUnitActionSteer.Load(LoadStream: TKMemoryStream);
 begin
   Inherited;
+  LoadStream.CheckMarker('UnitActionSteer');
   LoadStream.Read(fDesireToSteer);
   LoadStream.Read(fStuckFor);
   LoadStream.Read(fVertexOccupied);
@@ -60,7 +61,7 @@ end;
 
 function TKMUnitActionSteer.ActName: TKMUnitActionName;
 begin
-  Result := uan_Steer;
+  Result := uanSteer;
 end;
 
 
@@ -99,14 +100,14 @@ var
 begin
   Inc(fDesireToSteer);
   //Default is the next tile in the direction we're going
-  Loc := KMGetPointInDir(fUnit.GetPosition, fUnit.Direction);
+  Loc := KMGetPointInDir(fUnit.CurrPosition, fUnit.Direction);
   //Decide whether we should change direction or not
   if (KaMRandom(10, 'TKMUnitActionSteer.ChooseNextStep') < fDesireToSteer)
   or not fUnit.CanStepTo(Loc.X, Loc.Y, fUnit.DesiredPassability) then
   begin
     fDesireToSteer := 0; //Reset it
     List := TKMPointList.Create;
-    Loc := fUnit.GetPosition;
+    Loc := fUnit.CurrPosition;
     for I:=-1 to 1 do
       for K:=-1 to 1 do
         if ((I<>0)or(K<>0)) and fUnit.CanStepTo(Loc.X+I, Loc.Y+K, fUnit.DesiredPassability) then
@@ -135,7 +136,7 @@ var
 begin
   if KMSamePoint(fNextPos, KMPOINT_ZERO) then
   begin
-    fNextPos := fUnit.GetPosition; //Set fNextPos to current pos so it initializes on the first run
+    fNextPos := fUnit.CurrPosition; //Set fNextPos to current pos so it initializes on the first run
     FirstStep := True;
   end
   else
@@ -156,9 +157,9 @@ begin
     begin
       inc(fStuckFor);
       if fStuckFor > 200 then
-        Result := ar_ActAborted //We have been stuck for a while so abort and TKMUnitAnimal.UpdateState will kill us
+        Result := arActAborted //We have been stuck for a while so abort and TKMUnitAnimal.UpdateState will kill us
       else
-        Result := ar_ActContinues;
+        Result := arActContinues;
       Exit;
     end;
     fStuckFor := 0;
@@ -184,13 +185,14 @@ begin
                               fUnit.PositionF.Y + DY*Math.min(Distance,abs(WalkY)));
 
   inc(fUnit.AnimStep);
-  Result := ar_ActContinues;
+  Result := arActContinues;
 end;
 
 
-procedure TKMUnitActionSteer.Save(SaveStream:TKMemoryStream);
+procedure TKMUnitActionSteer.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+  SaveStream.PlaceMarker('UnitActionSteer');
   SaveStream.Write(fDesireToSteer);
   SaveStream.Write(fStuckFor);
   SaveStream.Write(fVertexOccupied);

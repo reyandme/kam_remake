@@ -1,0 +1,49 @@
+Changelog TPR
+*************
+
+- Added difficulty.script to all the missions:
+  - Easy: Recruitment Rate increased by 50%
+  - Normal: No Changes
+  - Hard: Recruitment Rate decreased by 33%; Worker Limit and Recruit Limit increased by 50%;
+
+
+TBK01:
+- Easy: Increase Group Size of Human Player
+- Hard: Increase Group Size of Enemy Player 4, 5 and 7
+
+TBK02:
+- Easy: Increase Group Size of Human Player
+- Hard: Increase Group Size of Enemy Player 5
+
+TBK05:
+- Easy: Increase Group Size of Human Player
+- Hard: Increase Group Size of Enemy Player 3 and 4
+
+TBK06:
+- Easy: Increase Group Size of Human Player
+- Hard: Increase Group Size of Enemy Player 3 and 5 (2 of the Initial Attack groups)
+
+TBK07:
+- Easy: Increase Group Size of Human Player
+- Hard: Increase amount of Units of Enemys Attack groups (Player 3 and 5)
+
+TBK08:
+- Easy: Increase Group Size of Human Player
+- Hard: Increase Group Size of Enemy Player 2 (Groups that join the fight last)
+
+TBK10:
+- Easy: Increase Group Size of Human Player
+- Hard: Increase amount of Units of Enemys Attack groups (Player 6)
+
+TBK11:
+- Added script to the map
+- Easy: Removed some of Enemy Groups
+- Hard: Increase Group Size of Enemy Player 1
+
+TBK12:
+- Easy: Increase Group Size of Human Player
+- Hard: Increased amount of Enemy Knights for Initial Attack (Player 4)
+
+TBK13:
+- Easy: Increased some of Human Players Group Size
+- Hard: Increase Group Size of Enemy Player 2 and 5

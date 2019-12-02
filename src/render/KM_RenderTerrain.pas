@@ -6,7 +6,7 @@ uses
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FogOfWar, KM_Pics, KM_ResSprites, KM_Points, KM_Terrain;
 
 type
-  TVBOArrayType = (vat_None, vat_Tile, vat_TileLayer, vat_AnimTile, vat_FOW);
+  TVBOArrayType = (vatNone, vatTile, vatTileLayer, vatAnimTile, vatFOW);
 
   TUVRect = array [1 .. 4, 1 .. 2] of Single; // Texture UV coordinates
 
@@ -102,14 +102,14 @@ begin
   for I := 0 to 255 do
     pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
 
-  fTextG := TRender.GenTexture(256, 1, @pData[0], tf_RGBA8);
+  fTextG := TRender.GenTexture(256, 1, @pData[0], tfRGBA8);
 
   //Sharp transition between black and white
   pData[0] := $FF000000;
   pData[1] := $00000000;
   pData[2] := $00000000;
   pData[3] := $00000000;
-  fTextB := TRender.GenTexture(4, 1, @pData[0], tf_RGBA8);
+  fTextB := TRender.GenTexture(4, 1, @pData[0], tfRGBA8);
 
   fUseVBO := VBOSupported and not RENDER_3D;
 
@@ -304,7 +304,7 @@ var
 begin
   if not fUseVBO then Exit;
 
-  fLastBindVBOArrayType := vat_None;
+  fLastBindVBOArrayType := vatNone;
 
   if aFOW is TKMFogOfWar then
     Fog := @TKMFogOfWar(aFOW).Revelation
@@ -492,7 +492,7 @@ begin
   if fUseVBO and TKMResSprites.AllTilesOnOneAtlas then
   begin
     if Length(fTilesVtx) = 0 then Exit; //Nothing to render
-    BindVBOArray(vat_Tile);
+    BindVBOArray(vatTile);
     //Bind to tiles texture. All tiles should be places in 1 atlas,
     //so to get TexId we can use any of terrain tile Id (f.e. 1st)
     TRender.BindTexture(gGFXData[rxTiles, 1].Tex.ID);
@@ -551,7 +551,7 @@ begin
   if fUseVBO and TKMResSprites.AllTilesOnOneAtlas then
   begin
     if Length(fTilesLayersVtx) = 0 then Exit; //Nothing to render
-    BindVBOArray(vat_TileLayer);
+    BindVBOArray(vatTileLayer);
     //Bind to tiles texture. All tiles should be places in 1 atlas,
     //so to get TexId we can use any of terrain tile Id (f.e. 1st)
     TRender.BindTexture(gGFXData[rxTiles, 1].Tex.ID);
@@ -611,7 +611,7 @@ begin
   if fUseVBO and TKMResSprites.AllTilesOnOneAtlas then
   begin
     if Length(fAnimTilesVtx) = 0 then Exit; //There is no animation on map
-    BindVBOArray(vat_AnimTile);
+    BindVBOArray(vatAnimTile);
     //Bind to tiles texture. All tiles should be placed in 1 atlas,
     //so to get TexId we can use any of terrain tile Id (f.e. 1st)
     TRender.BindTexture(gGFXData[rxTiles, 1].Tex.ID);
@@ -674,20 +674,20 @@ begin
   if TileHasToBeRendered(False,pX,pY,aFow) then
   begin
     case gTerrain.Land[pY, pX].TileOverlay of
-      to_Dig1:  RenderTile(249, pX, pY, 0, DoHighlight, HighlightColor);
-      to_Dig2:  RenderTile(251, pX, pY, 0, DoHighlight, HighlightColor);
-      to_Dig3:  RenderTile(253, pX, pY, 0, DoHighlight, HighlightColor);
-      to_Dig4:  RenderTile(255, pX, pY, 0, DoHighlight, HighlightColor);
-      to_Road:  begin
+      toDig1:  RenderTile(249, pX, pY, 0, DoHighlight, HighlightColor);
+      toDig2:  RenderTile(251, pX, pY, 0, DoHighlight, HighlightColor);
+      toDig3:  RenderTile(253, pX, pY, 0, DoHighlight, HighlightColor);
+      toDig4:  RenderTile(255, pX, pY, 0, DoHighlight, HighlightColor);
+      toRoad:  begin
                   Road := 0;
                   if (pY - 1 >= 1) then
-                    Road := Road + byte(gTerrain.Land[pY - 1, pX].TileOverlay = to_Road) shl 0;
+                    Road := Road + byte(gTerrain.Land[pY - 1, pX].TileOverlay = toRoad) shl 0;
                   if (pX + 1 <= gTerrain.MapX - 1) then
-                    Road := Road + byte(gTerrain.Land[pY, pX + 1].TileOverlay = to_Road) shl 1;
+                    Road := Road + byte(gTerrain.Land[pY, pX + 1].TileOverlay = toRoad) shl 1;
                   if (pY + 1 <= gTerrain.MapY - 1) then
-                    Road := Road + byte(gTerrain.Land[pY + 1, pX].TileOverlay = to_Road) shl 2;
+                    Road := Road + byte(gTerrain.Land[pY + 1, pX].TileOverlay = toRoad) shl 2;
                   if (pX - 1 >= 1) then
-                    Road := Road + byte(gTerrain.Land[pY, pX - 1].TileOverlay = to_Road) shl 3;
+                    Road := Road + byte(gTerrain.Land[pY, pX - 1].TileOverlay = toRoad) shl 3;
                   ID := RoadsConnectivity[Road, 1];
                   Rot := RoadsConnectivity[Road, 2];
                   RenderTile(ID, pX, pY, Rot, DoHighlight, HighlightColor);
@@ -730,13 +730,13 @@ begin
         if TileHasToBeRendered(False,K,I,aFow) then
         begin
           if Land[I,K].FenceSide and 1 = 1 then 
-            RenderFence(Land[I,K].Fence, dir_N, K, I);
+            RenderFence(Land[I,K].Fence, dirN, K, I);
           if Land[I,K].FenceSide and 2 = 2 then 
-            RenderFence(Land[I,K].Fence, dir_E, K, I);
+            RenderFence(Land[I,K].Fence, dirE, K, I);
           if Land[I,K].FenceSide and 4 = 4 then 
-            RenderFence(Land[I,K].Fence, dir_W, K, I);
+            RenderFence(Land[I,K].Fence, dirW, K, I);
           if Land[I,K].FenceSide and 8 = 8 then 
-            RenderFence(Land[I,K].Fence, dir_S, K, I);
+            RenderFence(Land[I,K].Fence, dirS, K, I);
         end;
       end;
 end;
@@ -771,7 +771,7 @@ begin
   if fUseVBO then
   begin
     if Length(fTilesVtx) = 0 then Exit; //Nothing to render
-    BindVBOArray(vat_Tile);
+    BindVBOArray(vatTile);
     //Setup vertex and UV layout and offsets
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, SizeOf(TTileVerticeExt), Pointer(0));
@@ -833,7 +833,7 @@ begin
   if fUseVBO then
   begin
     if Length(fTilesVtx) = 0 then Exit; //Nothing to render
-    BindVBOArray(vat_Tile);
+    BindVBOArray(vatTile);
     //Setup vertex and UV layout and offsets
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, SizeOf(TTileVerticeExt), Pointer(0));
@@ -910,7 +910,7 @@ begin
   if fUseVBO then
   begin
     if Length(fTilesFowVtx) = 0 then Exit; //Nothing to render
-    BindVBOArray(vat_FOW);
+    BindVBOArray(vatFOW);
     
     //Setup vertex and UV layout and offsets
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -1012,7 +1012,7 @@ begin
   if fLastBindVBOArrayType = aVBOArrayType then Exit; // Do not to rebind for same tyle type
 
   case aVBOArrayType of
-    vat_Tile:       if Length(fTilesVtx) > 0 then
+    vatTile:       if Length(fTilesVtx) > 0 then
                     begin
                       glBindBuffer(GL_ARRAY_BUFFER, fVtxTilesShd);
                       glBufferData(GL_ARRAY_BUFFER, Length(fTilesVtx) * SizeOf(TTileVerticeExt), @fTilesVtx[0].X, GL_STREAM_DRAW);
@@ -1020,7 +1020,7 @@ begin
                       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndTilesShd);
                       glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesInd) * SizeOf(fTilesInd[0]), @fTilesInd[0], GL_STREAM_DRAW);
                     end else Exit;
-    vat_TileLayer:  if Length(fTilesLayersVtx) > 0 then
+    vatTileLayer:  if Length(fTilesLayersVtx) > 0 then
                     begin
                       glBindBuffer(GL_ARRAY_BUFFER, fVtxTilesLayersShd);
                       glBufferData(GL_ARRAY_BUFFER, Length(fTilesLayersVtx) * SizeOf(TTileVertice), @fTilesLayersVtx[0].X, GL_STREAM_DRAW);
@@ -1028,7 +1028,7 @@ begin
                       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndTilesLayersShd);
                       glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesLayersInd) * SizeOf(fTilesLayersInd[0]), @fTilesLayersInd[0], GL_STREAM_DRAW);
                     end else Exit;
-    vat_AnimTile:   if Length(fAnimTilesVtx) > 0 then
+    vatAnimTile:   if Length(fAnimTilesVtx) > 0 then
                     begin
                       glBindBuffer(GL_ARRAY_BUFFER, fVtxAnimTilesShd);
                       glBufferData(GL_ARRAY_BUFFER, Length(fAnimTilesVtx) * SizeOf(TTileVertice), @fAnimTilesVtx[0].X, GL_STREAM_DRAW);
@@ -1036,7 +1036,7 @@ begin
                       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndAnimTilesShd);
                       glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fAnimTilesInd) * SizeOf(fAnimTilesInd[0]), @fAnimTilesInd[0], GL_STREAM_DRAW);
                     end else Exit;
-    vat_FOW:        if Length(fTilesFowVtx) > 0 then
+    vatFOW:        if Length(fTilesFowVtx) > 0 then
                     begin
                       glBindBuffer(GL_ARRAY_BUFFER, fVtxTilesFowShd);
                       glBufferData(GL_ARRAY_BUFFER, Length(fTilesFowVtx) * SizeOf(TTileFowVertice), @fTilesFowVtx[0].X, GL_STREAM_DRAW);
@@ -1161,18 +1161,18 @@ var
   HeightInPx: Integer;
 begin
   case aFence of
-    fncHouseFence: if Pos in [dir_N,dir_S] then TexID:=463 else TexID:=467; //WIP (Wood planks)
-    fncHousePlan:  if Pos in [dir_N,dir_S] then TexID:=105 else TexID:=117; //Plan (Ropes)
-    fncWine:       if Pos in [dir_N,dir_S] then TexID:=462 else TexID:=466; //Fence (Wood)
-    fncCorn:       if Pos in [dir_N,dir_S] then TexID:=461 else TexID:=465; //Fence (Stones)
+    fncHouseFence: if Pos in [dirN,dirS] then TexID:=463 else TexID:=467; //WIP (Wood planks)
+    fncHousePlan:  if Pos in [dirN,dirS] then TexID:=105 else TexID:=117; //Plan (Ropes)
+    fncWine:       if Pos in [dirN,dirS] then TexID:=462 else TexID:=466; //Fence (Wood)
+    fncCorn:       if Pos in [dirN,dirS] then TexID:=461 else TexID:=465; //Fence (Stones)
     else          TexID := 0;
   end;
 
   //With these directions render fences on next tile
-  if Pos = dir_S then Inc(pY);
-  if Pos = dir_W then Inc(pX);
+  if Pos = dirS then Inc(pY);
+  if Pos = dirW then Inc(pX);
 
-  if Pos in [dir_N, dir_S] then
+  if Pos in [dirN, dirS] then
   begin //Horizontal
     TRender.BindTexture(gGFXData[rxGui,TexID].Tex.ID);
     UVa.X := gGFXData[rxGui, TexID].Tex.u1;
@@ -1206,8 +1206,8 @@ begin
     FenceX := gGFXData[rxGui,TexID].PxWidth / CELL_SIZE_PX;
 
     case Pos of
-      dir_W:  x1 := pX - 1 - 3 / CELL_SIZE_PX;
-      dir_E:  x1 := pX - 1 + 3 / CELL_SIZE_PX - FenceX;
+      dirW:  x1 := pX - 1 - 3 / CELL_SIZE_PX;
+      dirE:  x1 := pX - 1 + 3 / CELL_SIZE_PX - FenceX;
       else    x1 := pX - 1; //Should never happen
     end;
 

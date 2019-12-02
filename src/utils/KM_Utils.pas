@@ -16,7 +16,7 @@ uses
 
   function KMPathLength(aNodeList: TKMPointList): Single;
 
-  function GetHintWHotKey(aText: String; aHotkeyId: Integer): String; overload;
+  function GetHintWHotKey(const aText: String; aHotkeyId: Integer): String; overload;
   function GetHintWHotKey(aTextId: Integer; aHotkeyStr: String): String; overload;
   function GetHintWHotKey(aTextId, aHotkeyId: Integer): String; overload;
 
@@ -24,11 +24,11 @@ uses
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
   function GetMultiplicator(aShift: TShiftState): Word; overload;
 
-  procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer); overload;
-  procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean); overload;
-  procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean; var aMapDataSize: Cardinal); overload;
+  procedure LoadMapHeader(aStream: TKMemoryStreamBinary; var aMapX: Integer; var aMapY: Integer); overload;
+  procedure LoadMapHeader(aStream: TKMemoryStreamBinary; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean); overload;
+  procedure LoadMapHeader(aStream: TKMemoryStreamBinary; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean; var aMapDataSize: Cardinal); overload;
 
-  function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
+  function GetGameObjectOwnerIndex(aObject: TObject): TKMHandID;
 
   function GetTerrainTileBasic(aTile: TKMTerrainTile): TKMTerrainTileBasic;
 
@@ -37,7 +37,7 @@ uses
 
 implementation
 uses
-  Math, KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroups, KM_Log;
+  Math, KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroup, KM_Log;
 
 
 
@@ -52,7 +52,7 @@ begin
 end;
 
 
-procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer);
+procedure LoadMapHeader(aStream: TKMemoryStreamBinary; var aMapX: Integer; var aMapY: Integer);
 var
   UseKaMFormat: Boolean;
 begin
@@ -60,7 +60,7 @@ begin
 end;
 
 
-procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean);
+procedure LoadMapHeader(aStream: TKMemoryStreamBinary; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean);
 var
   MapDataSize: Cardinal;
 begin
@@ -68,11 +68,11 @@ begin
 end;
 
 
-procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean; var aMapDataSize: Cardinal);
+procedure LoadMapHeader(aStream: TKMemoryStreamBinary; var aMapX: Integer; var aMapY: Integer; var aIsKaMFormat: Boolean; var aMapDataSize: Cardinal);
 var
   GameRevision: UnicodeString;
 begin
-  aStream.Read(aMapX); //We read header to new variables to avoid damage to existing map if header is wrong
+  aStream.Read(aMapX); //Get map header to determine old (r6720 and earlier) or newer format
 
   aIsKaMFormat := True;
   if aMapX = 0 then //Means we have not standart KaM format map, but our own KaM_Remake format
@@ -234,7 +234,7 @@ begin
 end;
 
 
-function GetGameObjectOwnerIndex(aObject: TObject): TKMHandIndex;
+function GetGameObjectOwnerIndex(aObject: TObject): TKMHandID;
 begin
   Result := -1;
   if aObject is TKMHouse then
@@ -284,7 +284,7 @@ begin
 end;
 
 
-function GetHintWHotKey(aText: String; aHotkeyId: Integer): String; overload;
+function GetHintWHotKey(const aText: String; aHotkeyId: Integer): String; overload;
 var
   HotKeyStr: String;
 begin

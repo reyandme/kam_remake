@@ -98,7 +98,7 @@ uses
 
 const
   //Addition to Revelation radius for Render revelation
-  RENDER_RADIUS_ADD = 3; //2 is not enought sometimes, 3 is looking good
+  RENDER_RADIUS_ADD = 4; //3 is not enought sometimes, 4 is looking good
 
 
 { TKMFogOfWar }
@@ -423,7 +423,7 @@ procedure TKMFogOfWar.Save(SaveStream: TKMemoryStream);
 var
   I: Word;
 begin
-  SaveStream.WriteA('FOW');
+  SaveStream.PlaceMarker('FOW');
   SaveStream.Write(fAnimStep);
   //Because each player has FOW it can become a bottleneck (8.7ms per run) due to autosaving (e.g. on Paradise Island)
   //so save it out 1 row at a time (due to 2D arrays not being continguous we can't save it all at once)
@@ -440,7 +440,7 @@ procedure TKMFogOfWar.Load(LoadStream: TKMemoryStream);
 var
   I: Word;
 begin
-  LoadStream.ReadAssert('FOW');
+  LoadStream.CheckMarker('FOW');
   LoadStream.Read(fAnimStep);
   SetMapSize(MapX, MapY);
   for I := 0 to MapY - 1 do

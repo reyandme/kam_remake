@@ -55,20 +55,20 @@ begin
 
   Panel_Settings := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 412);
     TopPos := 15;
-    CheckBox_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
+    CheckBox_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE],fntMetal);
     CheckBox_Autosave.OnClick := Menu_Settings_Change;
     Inc(TopPos, 25);
 
-    CheckBox_AllyEnemy_ColorMode := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_COLOR_MODE],fnt_Metal);
+    CheckBox_AllyEnemy_ColorMode := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_COLOR_MODE],fntMetal);
     CheckBox_AllyEnemy_ColorMode.Hint := gResTexts[TX_GAME_SETTINGS_COLOR_MODE_HINT];
     CheckBox_AllyEnemy_ColorMode.OnClick := Menu_Settings_Change;
     Inc(TopPos, 40);
 
-    CheckBox_ReplayAutopauseAtPTEnd := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_REPLAY_AUTOPAUSE],fnt_Metal);
+    CheckBox_ReplayAutopauseAtPTEnd := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_REPLAY_AUTOPAUSE],fntMetal);
     CheckBox_ReplayAutopauseAtPTEnd.Hint := gResTexts[TX_GAME_SETTINGS_REPLAY_AUTOPAUSE_HINT];
     CheckBox_ReplayAutopauseAtPTEnd.OnClick := Menu_Settings_Change;
     Inc(TopPos, 40);
-    CheckBox_ReplaySpecShowBeacons := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_SHOW_BEACONS],fnt_Metal);
+    CheckBox_ReplaySpecShowBeacons := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_SHOW_BEACONS],fntMetal);
     CheckBox_ReplaySpecShowBeacons.Hint := gResTexts[TX_GAME_SETTINGS_SHOW_BEACONS_HINT];
     CheckBox_ReplaySpecShowBeacons.OnClick := Menu_Settings_Change;
     Inc(TopPos, 25);
@@ -90,11 +90,11 @@ begin
     TrackBar_Music.Hint := gResTexts[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Music.OnChange := Menu_Settings_Change;
     Inc(TopPos, 55);
-    CheckBox_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_SHORT],fnt_Metal);
+    CheckBox_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_SHORT],fntMetal);
     CheckBox_MusicOff.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
     CheckBox_MusicOff.OnClick := Menu_Settings_Change;
     Inc(TopPos, 25);
-    CheckBox_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fnt_Metal);
+    CheckBox_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fntMetal);
     CheckBox_ShuffleOn.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_HINT];
     CheckBox_ShuffleOn.OnClick := Menu_Settings_Change;
 end;
@@ -103,6 +103,7 @@ end;
 procedure TKMGameMenuSettings.UpdateView;
 begin
   CheckBox_ReplayAutopauseAtPTEnd.Enabled := (gGame.GameMode = gmReplayMulti) and gGame.IsPeaceTime;
+  CheckBox_AllyEnemy_ColorMode.Checked := gGameApp.GameSettings.PlayersColorMode = pcmAllyEnemy;
 end;
 
 
@@ -164,7 +165,7 @@ begin
   TrackBar_Music.Position          := Round(gGameApp.GameSettings.MusicVolume * TrackBar_Music.MaxValue);
   CheckBox_MusicOff.Checked        := gGameApp.GameSettings.MusicOff;
   CheckBox_ShuffleOn.Checked       := gGameApp.GameSettings.ShuffleOn;
-  CheckBox_AllyEnemy_ColorMode.Checked := not gGameApp.GameSettings.ShowPlayersColors;
+  CheckBox_AllyEnemy_ColorMode.Checked := gGameApp.GameSettings.PlayersColorMode = pcmAllyEnemy;
 
   if gGame.IsReplay then
     CheckBox_ReplaySpecShowBeacons.Checked := gGameApp.GameSettings.ReplayShowBeacons
@@ -194,7 +195,10 @@ begin
   gGameApp.GameSettings.MusicVolume           := TrackBar_Music.Position / TrackBar_Music.MaxValue;
   gGameApp.GameSettings.MusicOff              := CheckBox_MusicOff.Checked;
   gGameApp.GameSettings.ShuffleOn             := CheckBox_ShuffleOn.Checked;
-  gGameApp.GameSettings.ShowPlayersColors     := not CheckBox_AllyEnemy_ColorMode.Checked;
+  if CheckBox_AllyEnemy_ColorMode.Checked then
+    gGameApp.GameSettings.PlayersColorMode := pcmAllyEnemy
+  else
+    gGameApp.GameSettings.PlayersColorMode := pcmDefault;
 
   if gGame.IsReplay then
     gGameApp.GameSettings.ReplayShowBeacons   := CheckBox_ReplaySpecShowBeacons.Checked

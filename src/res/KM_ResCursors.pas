@@ -10,12 +10,12 @@ uses
 
 type
   TKMCursor = (
-    kmc_Default, kmc_Info, kmc_Attack, kmc_JoinYes, kmc_JoinNo, kmc_Edit, kmc_DragUp,
-    kmc_Dir0, kmc_Dir1, kmc_Dir2, kmc_Dir3, kmc_Dir4, kmc_Dir5, kmc_Dir6, kmc_Dir7, kmc_DirNA,
-    kmc_Scroll0, kmc_Scroll1, kmc_Scroll2, kmc_Scroll3, kmc_Scroll4, kmc_Scroll5, kmc_Scroll6, kmc_Scroll7,
-    kmc_Beacon, kmc_Drag,
-    kmc_Invisible, //for some reason kmc_Invisible should be at its current position in enum. Otherwise 1px dot will appear while TroopSelection is on
-    kmc_PaintBucket);
+    kmcDefault, kmcInfo, kmcAttack, kmcJoinYes, kmcJoinNo, kmcEdit, kmcDragUp,
+    kmcDir0, kmcDir1, kmcDir2, kmcDir3, kmcDir4, kmcDir5, kmcDir6, kmcDir7, kmcDirNA,
+    kmcScroll0, kmcScroll1, kmcScroll2, kmcScroll3, kmcScroll4, kmcScroll5, kmcScroll6, kmcScroll7,
+    kmcBeacon, kmcDrag,
+    kmcInvisible, //for some reason kmcInvisible should be at its current position in enum. Otherwise 1px dot will appear while TroopSelection is on
+    kmcPaintBucket);
 
 
   TKMResCursors = class
@@ -48,7 +48,7 @@ const
 
   //Which cursor is used for which direction
   TKMCursorDirections: array [TKMDirection] of TKMCursor = (
-    kmc_DirNA, kmc_Dir0, kmc_Dir1, kmc_Dir2, kmc_Dir3, kmc_Dir4, kmc_Dir5, kmc_Dir6, kmc_Dir7);
+    kmcDirNA, kmcDir0, kmcDir1, kmcDir2, kmcDir3, kmcDir4, kmcDir5, kmcDir6, kmcDir7);
 
 
 { TKMResCursors }
@@ -57,7 +57,7 @@ begin
   if InRange(Screen.Cursor - COUNT_OFFSET, Byte(Low(TKMCursor)), Byte(High(TKMCursor))) then
     Result := TKMCursor(Screen.Cursor - COUNT_OFFSET)
   else
-    Result := kmc_Default;
+    Result := kmcDefault;
 end;
 
 
@@ -93,7 +93,7 @@ begin
   begin
 
     //Special case for invisible cursor
-    if KMC = kmc_Invisible then
+    if KMC = kmcInvisible then
     begin
       bm.Width  := 1; bm.Height  := 1;
       bm2.Width := 1; bm2.Height := 1;

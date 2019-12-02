@@ -1,4 +1,4 @@
-unit KM_UnitTaskThrowRock;
+﻿unit KM_UnitTaskThrowRock;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -31,15 +31,18 @@ uses
 constructor TKMTaskThrowRock.Create(aUnit, aTarget: TKMUnit);
 begin
   inherited Create(aUnit);
-  fTaskName := utn_ThrowRock;
+  fType := uttThrowRock;
   fTarget := aTarget.GetUnitPointer;
 end;
 
 
 destructor TKMTaskThrowRock.Destroy;
 begin
-  if not fUnit.GetHome.IsDestroyed and (fUnit.GetHome.GetState = hst_Work) then
-    fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our tower with "working" animations
+  if (fUnit <> nil)
+    and not fUnit.Home.IsDestroyed
+    and (fUnit.Home.GetState = hstWork) then
+    fUnit.Home.SetState(hstIdle); //Make sure we don't abandon and leave our tower with "working" animations
+
   gHands.CleanUpUnitPointer(fTarget);
   inherited;
 end;
@@ -48,6 +51,7 @@ end;
 constructor TKMTaskThrowRock.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+  LoadStream.CheckMarker('TaskThrowRock');
   LoadStream.Read(fTarget, 4);
   LoadStream.Read(fFlightTime);
 end;
@@ -62,35 +66,35 @@ end;
 
 function TKMTaskThrowRock.Execute: TKMTaskResult;
 begin
-  Result := tr_TaskContinues;
+  Result := trTaskContinues;
 
   //Target could have been killed by another Tower or in a fight
-  if fUnit.GetHome.IsDestroyed or ((fTarget<>nil) and fTarget.IsDeadOrDying) then
+  if fUnit.Home.IsDestroyed or ((fTarget<>nil) and fTarget.IsDeadOrDying) then
   begin
-    Result := tr_TaskDone;
+    Result := trTaskDone;
     Exit;
   end;
 
   with fUnit do
   case fPhase of
     0:  begin
-          GetHome.SetState(hst_Work); //Set house to Work state
-          GetHome.CurrentAction.SubActionWork(ha_Work2); //show Recruits back
-          SetActionStay(2, ua_Walk); //pretend to be taking the stone
+          Home.SetState(hstWork); //Set house to Work state
+          Home.CurrentAction.SubActionWork(haWork2); //show Recruits back
+          SetActionStay(2, uaWalk); //pretend to be taking the stone
         end;
     1:  begin
-          GetHome.ResTakeFromIn(wt_Stone, 1);
-          gHands[Owner].Stats.WareConsumed(wt_Stone);
-          fFlightTime := gProjectiles.AimTarget(PositionF, fTarget, pt_TowerRock, fUnit, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
+          Home.ResTakeFromIn(wtStone, 1);
+          gHands[Owner].Stats.WareConsumed(wtStone);
+          fFlightTime := gProjectiles.AimTarget(PositionF, fTarget, ptTowerRock, fUnit, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
           gHands.CleanUpUnitPointer(fTarget); //We don't need it anymore
-          SetActionLockedStay(1, ua_Walk);
+          SetActionLockedStay(1, uaWalk);
         end;
-    2:  SetActionLockedStay(fFlightTime, ua_Walk); //Pretend to look how it goes
+    2:  SetActionLockedStay(fFlightTime, uaWalk); //Pretend to look how it goes
     3:  begin
-          GetHome.SetState(hst_Idle);
-          SetActionStay(20, ua_Walk); //Idle before throwing another rock
+          Home.SetState(hstIdle);
+          SetActionStay(20, uaWalk); //Idle before throwing another rock
         end;
-    else Result := tr_TaskDone;
+    else Result := trTaskDone;
   end;
   Inc(fPhase);
 end;
@@ -99,6 +103,7 @@ end;
 procedure TKMTaskThrowRock.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+  SaveStream.PlaceMarker('TaskThrowRock');
   if fTarget <> nil then
     SaveStream.Write(fTarget.UID) //Store ID, then substitute it with reference on SyncLoad
   else

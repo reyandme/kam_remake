@@ -2,7 +2,7 @@ unit KM_ScriptingIdCache;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_Houses, KM_Units, KM_UnitGroups;
+  KM_Houses, KM_Units, KM_UnitGroup, KM_CommonClasses;
 
 
 //For caching unit/house/group IDs. Shared between States and Actions.
@@ -30,6 +30,10 @@ type
     function GetHouse(aUID: Integer): TKMHouse;
     function GetGroup(aUID: Integer): TKMUnitGroup;
     procedure UpdateState;
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure SyncLoad;
   end;
 
 
@@ -174,7 +178,7 @@ var
 begin
   //Clear out dead IDs every now and again
   //Leave them in the cache as nils, because we still might need to lookup that UID
-  if gGame.GameTickCount mod 11 = 0 then
+  if gGame.GameTick mod 11 = 0 then
   begin
     for I := Low(fUnitCache) to High(fUnitCache) do
       if (fUnitCache[I].U <> nil) and fUnitCache[I].U.IsDeadOrDying then
@@ -188,6 +192,63 @@ begin
       if (fGroupCache[I].G <> nil) and fGroupCache[I].G.IsDead then
         gHands.CleanUpGroupPointer(fGroupCache[I].G);
   end;
+end;
+
+
+procedure TKMScriptingIdCache.Save(SaveStream: TKMemoryStream);
+var
+  I: Integer;
+begin
+  SaveStream.PlaceMarker('ScriptingIdCache_Units');
+  SaveStream.Write(fUnitLastAdded);
+  for I := Low(fUnitCache) to High(fUnitCache) do
+    SaveStream.Write(fUnitCache[I].UID);
+
+  SaveStream.PlaceMarker('ScriptingIdCache_Houses');
+  SaveStream.Write(fHouseLastAdded);
+  for I := Low(fHouseCache) to High(fHouseCache) do
+    SaveStream.Write(fHouseCache[I].UID);
+
+  SaveStream.PlaceMarker('ScriptingIdCache_Groups');
+  SaveStream.Write(fGroupLastAdded);
+  for I := Low(fGroupCache) to High(fGroupCache) do
+    SaveStream.Write(fGroupCache[I].UID);
+end;
+
+
+procedure TKMScriptingIdCache.Load(LoadStream: TKMemoryStream);
+var
+  I: Integer;
+begin
+  LoadStream.CheckMarker('ScriptingIdCache_Units');
+  LoadStream.Read(fUnitLastAdded);
+  for I := Low(fUnitCache) to High(fUnitCache) do
+    LoadStream.Read(fUnitCache[I].UID); //Load only UID's, SyncLoad them after that, when all game assets are ready
+
+  LoadStream.CheckMarker('ScriptingIdCache_Houses');
+  LoadStream.Read(fHouseLastAdded);
+  for I := Low(fHouseCache) to High(fHouseCache) do
+    LoadStream.Read(fHouseCache[I].UID); //Load only UID's, SyncLoad them after that, when all game assets are ready
+
+  LoadStream.CheckMarker('ScriptingIdCache_Groups');
+  LoadStream.Read(fGroupLastAdded);
+  for I := Low(fGroupCache) to High(fGroupCache) do
+    LoadStream.Read(fGroupCache[I].UID); //Load only UID's, SyncLoad them after that, when all game assets are ready
+end;
+
+
+procedure TKMScriptingIdCache.SyncLoad;
+var
+  I: Integer;
+begin
+  for I := Low(fUnitCache) to High(fUnitCache) do
+    fUnitCache[I].U := gHands.GetUnitByUID(fUnitCache[I].UID);
+
+  for I := Low(fHouseCache) to High(fHouseCache) do
+    fHouseCache[I].H := gHands.GetHouseByUID(fHouseCache[I].UID);
+
+  for I := Low(fGroupCache) to High(fGroupCache) do
+    fGroupCache[I].G := gHands.GetGroupByUID(fGroupCache[I].UID);
 end;
 
 

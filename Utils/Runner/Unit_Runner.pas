@@ -1,7 +1,8 @@
 unit Unit_Runner;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils,
+uses
+  Classes, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KromUtils,
   KM_GameApp, KM_ResLocales, KM_Log, KM_ResTexts, KM_CommonUtils, KM_RenderControl, ComInterface;
 
@@ -150,12 +151,13 @@ begin
 
   gGameApp := TKMGameApp.Create(fRenderTarget, tgtWidth, tgtHeight, False, nil, nil, nil, True);
   gGameApp.GameSettings.Autosave := False;
+  gGameApp.PreloadGameResources;
 end;
 
 
 procedure TKMRunnerCommon.TearDown;
 begin
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
   FreeAndNil(gGameApp);
   FreeAndNil(gLog);
   if Assigned(OnProgress) then
@@ -177,7 +179,7 @@ begin
     fResults.Times[fRun, I] := TimeGet - fResults.Times[fRun, I];
 
     if gGameApp.Game.IsPaused then
-      gGameApp.Game.GameHold(False, gr_Win);
+      gGameApp.Game.GameHold(False, grWin);
 
     if (I mod 60*10 = 0) and Assigned(OnProgress) then
       OnProgress(Format('%d (%d min)', [fRun + 1, I div 600]));

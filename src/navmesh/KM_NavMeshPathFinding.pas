@@ -7,9 +7,9 @@ uses
 
 
 type
-  TPathfindingMode = ( pm_ShortestWay,   // Find shortest way in NavMesh
-                       pm_AvoidTraffic,  // Try avoid traffic
-                       pm_AvoidSpecEnemy // Try avoid anti type units (cav will keep distance form spears etc)
+  TPathfindingMode = ( pmShortestWay,   // Find shortest way in NavMesh
+                       pmAvoidTraffic,  // Try avoid traffic
+                       pmAvoidSpecEnemy // Try avoid anti type units (cav will keep distance form spears etc)
                      );
 
   TNavMeshNode = class
@@ -26,7 +26,7 @@ type
     fMinN: TNavMeshNode;
     fUsedNodes: array of TNavMeshNode;
 
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
     fGroupType: TKMGroupType;
     fMode: TPathfindingMode;
 
@@ -50,14 +50,14 @@ type
     //function WalkableDistance(aStart, aEnd: TKMPoint; out aDistance: Word): Boolean;
     function ShortestPolygonRoute(aStart, aEnd: Word; out aDistance: Word; out aRoutePolygonArray: TKMWordArray): Boolean;
     function ShortestRoute(aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
-    function AvoidTrafficRoute(aOwner: TKMHandIndex; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
-    function AvoidEnemyRoute(aOwner: TKMHandIndex; aGroup: TKMGroupType; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
+    function AvoidTrafficRoute(aOwner: TKMHandID; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
+    function AvoidEnemyRoute(aOwner: TKMHandID; aGroup: TKMGroupType; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
   end;
 
 
 implementation
 uses
-   KM_AIFields, KM_NavMesh;
+   KM_AIFields, KM_NavMesh, KM_NavMeshGenerator;
 
 
 { TNavMeshPathFinding }
@@ -119,19 +119,19 @@ function TNavMeshPathFinding.MovementCost(aFrom, aTo: Word; var aSPoint, aEPoint
 
   function AvoidTraffic(): Cardinal;
   const
-    COEFICIENT = 2; // 1 tile is max 10 points, max value of ArmyTraffic is 20, this coefficient must increase the price
+    COEFICIENT = 1.5; // 1 tile is max 10 points, max value of ArmyTraffic is 20, this coefficient must increase the price
   begin
-    Result := gAIFields.Influences.ArmyTraffic[fOwner, aTo] * COEFICIENT;
+    Result := Round(gAIFields.Influences.ArmyTraffic[fOwner, aTo] * COEFICIENT);
   end;
 
   function AvoidSpecEnemy(): Word;
   const
     CHANCES: array[TKMGroupType] of array[TKMGroupType] of Single = (
-    // gt_Melee gt_AntiHorse gt_Ranged gt_Mounted
-      (   5,          1,          1,        10   ), // gt_Melee
-      (  10,          5,          1,         1   ), // gt_AntiHorse
-      (  10,          5,          1,        20   ), // gt_Ranged
-      (   5,         15,          1,         5   )  // gt_Mounted
+    // gtMelee gtAntiHorse gtRanged gtMounted
+      (   5,          1,          1,        10   ), // gtMelee
+      (  10,          5,          1,         1   ), // gtAntiHorse
+      (  10,          5,          1,        20   ), // gtRanged
+      (   5,         15,          1,         5   )  // gtMounted
     );
   var
     GT: TKMGroupType;
@@ -159,9 +159,9 @@ begin
       Output := (DY * 10) + (DX * 4);
     end;
   case fMode of
-    pm_ShortestWay: begin end;
-    pm_AvoidTraffic: Output := Output + AvoidTraffic();
-    pm_AvoidSpecEnemy: Output := Output + AvoidSpecEnemy();
+    pmShortestWay: begin end;
+    pmAvoidTraffic: Output := Output + AvoidTraffic();
+    pmAvoidSpecEnemy: Output := Output + AvoidSpecEnemy();
   end;
   Result := Output;
 end;
@@ -190,7 +190,8 @@ const
   c_closed = 65535; // High(Word)
 var
   N: TNavMeshNode;
-  I, Idx: Word;
+  I: Integer;
+  Idx: Word;
   NewCost: Cardinal;
   POMPoint: TKMPoint;
   PolyArr: TPolygonArray;
@@ -352,30 +353,30 @@ end;
 
 function TNavMeshPathFinding.ShortestPolygonRoute(aStart, aEnd: Word; out aDistance: Word; out aRoutePolygonArray: TKMWordArray): Boolean;
 begin
-  fMode := pm_ShortestWay;
+  fMode := pmShortestWay;
   Result := InitPolygonRoute(aStart, aEnd, aDistance, aRoutePolygonArray);
 end;
 
 
 function TNavMeshPathFinding.ShortestRoute(aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
 begin
-  fMode := pm_ShortestWay;
+  fMode := pmShortestWay;
   Result := InitRoute(aStart, aEnd, aDistance, aRoutePointArray);
 end;
 
 
-function TNavMeshPathFinding.AvoidTrafficRoute(aOwner: TKMHandIndex; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
+function TNavMeshPathFinding.AvoidTrafficRoute(aOwner: TKMHandID; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
 begin
   fOwner := aOwner;
-  fMode := pm_AvoidTraffic;
+  fMode := pmAvoidTraffic;
   Result := InitRoute(aStart, aEnd, aDistance, aRoutePointArray);
 end;
 
 
-function TNavMeshPathFinding.AvoidEnemyRoute(aOwner: TKMHandIndex; aGroup: TKMGroupType; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
+function TNavMeshPathFinding.AvoidEnemyRoute(aOwner: TKMHandID; aGroup: TKMGroupType; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
 begin
   fOwner := aOwner;
-  fMode := pm_AvoidSpecEnemy;
+  fMode := pmAvoidSpecEnemy;
   fGroupType := aGroup;
   Result := InitRoute(aStart, aEnd, aDistance, aRoutePointArray);
 end;

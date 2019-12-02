@@ -70,6 +70,9 @@ const
     TX_MAPED_TERRAIN_HINTS_TILES,
     TX_MAPED_TERRAIN_HINTS_OBJECTS,
     TX_MAPED_COPY_TITLE);
+
+  TB_PAD_TERRAIN_BTN_L = 9;
+
 var
   I: TKMTerrainTab;
 begin
@@ -77,18 +80,18 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  Panel_Terrain := TKMPanel.Create(aParent, 0, 45, TB_WIDTH, 50);
+  Panel_Terrain := TKMPanel.Create(aParent, 0, 45, TB_MAP_ED_WIDTH, 50);
     for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
     begin
-      Button_Terrain[I] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * Byte(I), 0, SMALL_TAB_W, SMALL_TAB_H, BtnGlyph[I], rxGui, bsGame);
+      Button_Terrain[I] := TKMButton.Create(Panel_Terrain, TB_PAD_TERRAIN_BTN_L + SMALL_PAD_W * Byte(I), 0, SMALL_TAB_W, SMALL_TAB_H, BtnGlyph[I], rxGui, bsGame);
       Button_Terrain[I].Hint := GetHintWHotKey(BtnHint[I], MAPED_SUBMENU_HOTKEYS[Ord(I)]);
       Button_Terrain[I].OnClick := PageChange;
     end;
 
-    Button_TerrainUndo := TKMButton.Create(Panel_Terrain, 155, 0, 15, 26, '<', bsGame);
+    Button_TerrainUndo := TKMButton.Create(Panel_Terrain, TB_PAD_TERRAIN_BTN_L + 151, 0, 15, SMALL_TAB_H, '<', bsGame);
     Button_TerrainUndo.Hint := gResTexts[TX_MAPED_UNDO_HINT]+ ' (''Ctrl+Z'')';
     Button_TerrainUndo.OnClick := UnRedoClick;
-    Button_TerrainRedo := TKMButton.Create(Panel_Terrain, 170, 0, 15, 26, '>', bsGame);
+    Button_TerrainRedo := TKMButton.Create(Panel_Terrain, TB_PAD_TERRAIN_BTN_L + 166, 0, 15, SMALL_TAB_H, '>', bsGame);
     Button_TerrainRedo.Hint := gResTexts[TX_MAPED_REDO_HINT] + ' (''Ctrl+Y'' or ''Ctrl+Shift+Z'')';
     Button_TerrainRedo.OnClick := UnRedoClick;
 

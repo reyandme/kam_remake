@@ -98,10 +98,10 @@ begin
           DeathAnimCount := 0; //We need to remember which ones we've done because units reuse them
           SetLength(DeathAnimProcessed, 1000); //Hopefully more than enough
           for UT := HUMANS_MIN to HUMANS_MAX do
-            for Dir := dir_N to dir_NW do
+            for Dir := dirN to dirNW do
               for Step := 1 to 30 do
               begin
-                SpriteID := resUnits[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
+                SpriteID := resUnits[UT].UnitAnim[uaDie,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
                 if (SpriteID > 0)
                 and not DeathAnimAlreadyDone(SpriteID) then
                 begin

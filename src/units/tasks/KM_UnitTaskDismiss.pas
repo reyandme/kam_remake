@@ -36,9 +36,10 @@ uses
 { TTaskDismiss }
 constructor TKMTaskDismiss.Create(aUnit: TKMUnit);
 begin
+  Assert(aUnit is TKMCivilUnit, 'Only civil units are allowed to be dismissed');
   inherited;
 
-  fTaskName := utn_Dismiss;
+  fType := uttDismiss;
   FindNewSchool;
 end;
 
@@ -46,6 +47,7 @@ end;
 constructor TKMTaskDismiss.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+  LoadStream.CheckMarker('TaskDismiss');
   LoadStream.Read(fSchool, 4);
 end;
 
@@ -73,6 +75,7 @@ end;
 procedure TKMTaskDismiss.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+  SaveStream.PlaceMarker('TaskDismiss');
   if fSchool <> nil then
     SaveStream.Write(fSchool.UID) //Store ID, then substitute it with reference on SyncLoad
   else
@@ -93,9 +96,9 @@ var
 begin
   fSchool := nil;
 
-  S := gHands[fUnit.Owner].FindHouse(htSchool, fUnit.GetPosition);
+  S := gHands[fUnit.Owner].FindHouse(htSchool, fUnit.CurrPosition);
 
-  if (S <> nil) and fUnit.CanWalkTo(fUnit.GetPosition, S.PointBelowEntrance, tpWalk, 0) then
+  if (S <> nil) and fUnit.CanWalkTo(fUnit.CurrPosition, S.PointBelowEntrance, tpWalk, 0) then
     fSchool := S.GetHousePointer;
 
   Result := fSchool;
@@ -110,20 +113,30 @@ end;
 
 function TKMTaskDismiss.Execute: TKMTaskResult;
 begin
-  Result := tr_TaskContinues;
+  Result := trTaskContinues;
 
   if (fSchool = nil) or fSchool.IsDestroyed then
   begin
-    Result := tr_TaskDone;
+    Result := trTaskDone;
     Exit;
   end;
 
   with fUnit do
     case fPhase of
       0:  SetActionWalkToSpot(fSchool.PointBelowEntrance);
-      1:  SetActionGoIn(ua_Walk, gd_GoInside, fSchool);
-      2:  fUnit.Kill(PLAYER_NONE, False, False); //Silently kill unit
-      else Result := tr_TaskDone;
+      1:  SetActionGoIn(uaWalk, gdGoInside, fSchool);
+      2:  begin
+            //Note: we do not set trTaskDone here, as we are going to destroy this task and Close (delete) unit
+            //Setting to trTaskDone will force Unit.UpadateState to find new task/action for this unit
+            if gMySpectator.Selected = fUnit then
+              gMySpectator.Selected := nil; //Reset view, in case we were watching dismissed unit
+
+            gHands[fUnit.Owner].Stats.UnitLost(fUnit.UnitType);
+            TKMCivilUnit(fUnit).KillInHouse; //Kill unit silently inside house
+            Exit; //Exit immidiately, since we destroyed current task!
+                  //Changing any task fields here (f.e. Phase) will try to change freed memory!
+          end;
+      else Result := trTaskDone;
     end;
 
   Inc(fPhase);

@@ -28,7 +28,7 @@ type
     function GetText(aIndex: Integer): TStringArray;
 
     procedure LoadConsts(aConstPath: string);
-    procedure LoadText(aTextPath: string; TranslationID: integer; aCodePage: Word);
+    procedure LoadText(aTextPath: string; TranslationID: integer; aCodePage: Word; aLoadText: Boolean = false);
     procedure AddMissingConsts;
     procedure SaveTextLibraryConsts(aFileName: string);
     procedure SaveTranslation(aTextPath: string; TranslationID: integer);
@@ -80,7 +80,7 @@ begin
     LoadConsts(fConstPath);
 
   for I := 0 to gResLocales.Count - 1 do
-    LoadText(Format(fTextPath, [gResLocales[I].Code]), I, gResLocales[I].FontCodepage);
+    LoadText(Format(fTextPath, [gResLocales[I].Code]), I, gResLocales[I].FontCodepage, true);
 
   if fConstPath <> '' then
     AddMissingConsts;
@@ -234,7 +234,7 @@ begin
 end;
 
 
-procedure TTextManager.LoadText(aTextPath: string; TranslationID: Integer; aCodePage: Word);
+procedure TTextManager.LoadText(aTextPath: string; TranslationID: Integer; aCodePage: Word; aLoadText: Boolean = false);
 var
   SL: TStringList;
   firstDelimiter, topId: Integer;
@@ -257,7 +257,10 @@ begin
 
   Assert(topId <= 2048, 'Dont allow too many strings for no reason');
 
-  fTextsTopId := Max(fTextsTopId, topId, ConstCount);
+  if (fConstPath = '') and (aLoadText = True) then
+    fTextsTopId := Max(fTextsTopId, topId, 0)
+  else
+    fTextsTopId := Max(fTextsTopId, topId, ConstCount);
 
   SetLength(fTexts, fTextsTopId + 1, gResLocales.Count);
 

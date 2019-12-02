@@ -149,7 +149,7 @@
 150:Następny zawód
 151:Poprzedni zawód
 152:Dodaj do kolejki
-153:Dostawa towarów włącz/wyłącz
+153:Przełączaj między trybami dostaw towarów: żądanie / zamknięty / oferowanie. Użyj LMB/RMB, aby przełączyć do przodu / do tyłu
 154:Koszty:
 155:Naprawa budynku włącz/wyłącz
 156:Budynek obecnie niedostępny
@@ -182,8 +182,8 @@
 183:Buduje drogę
 184:Orze pole
 185:Konstruuje winnice
-186:Wyrównuje teren pod dom
-187:Buduje dom
+186:Wyrównuje teren pod budynek
+187:Buduje budynek
 188:Naprawia budynek
 189:Idzie do domu
 190:Idzie do gospody
@@ -242,9 +242,9 @@
 243:MISJA WYPEŁNIONA!
 244:MISJA NIEWYPEŁNIONA!
 245:Utracone jednostki:
-246:Pokonane jednostki:
+246:Zabite jednostki:
 247:Utracone budynki:
-248:Zburzone budynki:
+248:Zniszczone budynki:
 249:Zbudowane budynki:
 250:Wyszkolone jednostki:
 251:Wyprodukowana broń:
@@ -256,7 +256,7 @@
 257:Poddani|straceni
 258:Żołnierze|wyszkoleni
 259:Żołnierze|straceni
-260:Żołnierze|pokonani
+260:Żołnierze|zabici
 261:Budynki|wybudowane
 262:Budynki|utracone
 263:Budynki|zniszczone
@@ -264,7 +264,7 @@
 265:Broń|wyprodukowana
 266:Armia
 267:Mieszkańcy
-268:Domy
+268:Budynki
 269:Surowce
 270:Wyprodukowane surowce
 271:Brak danych
@@ -303,8 +303,8 @@
 304:Wyłącz muzykę
 305:Grafika:
 306:Jasność
-307:Synchronizacja Pionowa
-308:Pełny Ekran
+307:Synchronizacja pionowa
+308:Pełny ekran
 309:Zastosuj
 310:Język:
 311:Jakość cieni:
@@ -365,27 +365,27 @@
 367:Na x%d
 368:Edycja terenu
 369:Pędzle
-370:Wysokości
+370:Zmieniaj wysokość terenu
 371:Płytki
 372:Obiekty
-373:Wysokości
-374:Rodzaj pędzla
+373:Wysokość terenu
+374:Kształt
 375:Rozmiar
 376:Przesuń, aby zmienić rozmiar pędzla
 377:Zbocze
 378:Przesuń, aby zmienić wysokość zbocza: 1 = płaski ... 15 = szczyt
 379:Szybkość
 380:Przesuń, aby zmienić prędkość podnoszenia: 1 = wolno ... 15 = bardzo szybko
-381:Okrągły pędzel
-382:Kwadratowy pędzel
+381:Koło
+382:Kwadrat
 383:Podniesienie / Obniżenie
 384:Fałd / Wyrównanie
 385:Podnieś (lewy przycisk) /Obniż (prawy przycisk)
 386:Pofałduj (lewy przycisk)/Wyrównaj (prawy przycisk)
-387:Pędzel
+387:Malowanie pędzlem
 388:Losowe elementy
 389:Losowy kierunek
-390:Zaznacz dla losowego kierunku pola lub kliknij prawym przyciskiem myszy, aby obrócić wybrane pole
+390:Zaznacz dla losowego kierunku płytki lub kliknij prawym przyciskiem myszy, aby obrócić wybraną płytkę
 392:Zablokuj przejście
 393:Usuń obiekt
 394:Planowanie osady
@@ -398,7 +398,7 @@
 401:Pokaż budynki
 402:Pokaż obiekty
 403:Pokaż przejścia
-404:Wszystkie niezapisane|zmiany zostaną utracone
+404:Wszystkie|niezapisane zmiany|zostaną utracone!
 405:Anuluj
 406:Wczytaj
 407:Wczytaj mapę
@@ -421,7 +421,7 @@
 424:Odsłoń część mapy
 425:Odsłoń mgłę
 426:Zablokuj handel
-427:Blokuj/odblokuj domy
+427:(Od)blokuj budynki
 428:Kolory
 429:Cel
 432:Gracz
@@ -446,10 +446,10 @@
 451:Liczba
 452:Formacje Wojsk
 453:Edytuj formacje
-454:Ustaw limit liczby posiadanych żołnierzy dla AI
-455:Ilu żołnierzy jednocześnie może mieć AI
+454:Ustaw limit liczby posiadanych żołnierzy dla SI
+455:Ilu żołnierzy jednocześnie może mieć SI
 456:Maks. żołnierzy
-457:Ile rekrutów AI powinien mieć w Warowni
+457:Ile rekrutów klasyczny gracz komputerowy powinien mieć w Warowni
 458:Rekruci na Zamek
 460:Niestandardowa pozycja
 463:Najbliższa jednostka
@@ -471,11 +471,11 @@
 481:Uzbrój skórzanych
 482:Uzbrój żelaznych
 483:Autom. obrona
-484:AI tworzy i zarządza pozycjami obrony automatycznie
-485:Umieść pozycje obrony dla AI
-486:Pozycje obrony AI
+484:SI tworzy i zarządza pozycjami obrony automatycznie
+485:Umieść pozycje obrony dla SI
+486:Pozycje obrony SI
 487:Robotnicy
-488:Pomocnicy/10 domów
+488:Pomocnicy/10 budynków
 489:Autom. naprawa
 490:Autom. budowa
 491:Ustawienia AI
@@ -524,7 +524,7 @@
 534:Ping
 535:Ping / FPS
 536:Wolne
-537:Komputer
+537:Gracz SI
 538:Wybierz...
 539:Przypadkowa
 540:Żadna
@@ -560,7 +560,7 @@
 571:Mapa Kooperacyjna
 572:Mapa specjalna
 573:Opcje gry:
-574:Okres pokojowy (minuty)
+574:Czas pokoju (minuty)
 575:Zamknięte
 576:Host konfiguruje gracza
 577:Oczekiwanie na graczy:
@@ -577,7 +577,7 @@
 588:SPECJALNE PODZIĘKOWANIA DLA:
 589:Mapy dla wielu graczy
 590:Mapy dla jednego gracza
-591:Prędkość przewijania
+591:Tempo przewijania
 592:Nie znaleziono serwerów
 593:Wymieszaj utwory
 594:Informacje o grze:
@@ -601,12 +601,12 @@
 612:Czy na pewno chcesz wyjść?
 613:Czy na pewno chcesz bezpowrotnie wyrzucić tych graczy?
 614:Anuluj
-615:Handlowanie tym zasobem jest niemożliwe w tej misji
+615:Handlowanie tym surowcem jest niemożliwe w tej misji
 616:Sadź i ścinaj
 617:Tylko ścinaj
-618:Nie masz prawa tego robić w okresie pokoju
-619:Pozostały okres pokojowy: %s
-620:Okres pokojowy minął. Do broni!
+618:Nie masz prawa tego robić w czasie pokoju
+619:Pozostały czas pokoju: %s
+620:Czas pokoju minął. Do broni!
 621:Czas gry:|%s
 622:Zatrzymaj oddział i formuj szyk
 623:Połącz oddziały
@@ -620,7 +620,7 @@
 631:inicjowanie
 632:skrypt
 633:jednostki
-634:domy
+634:budynki
 635:drzewa
 636:definicje
 637:grafiki terenu
@@ -630,7 +630,7 @@
 641:Plik zapisu nie zgadza się z zapisem hosta: %s
 642:Powtórka wykazała niespójność podczas sprawdzania. Jest to znany błąd, który wpływa na odtwarzanie niektórych powtórek. Czy chcesz kontynuować oglądanie?
 643:Możesz mieć tylko jedną otwartą grę w trybie wieloosobowym naraz.
-644:Modyfikacje gry nie są dozwolone w trybie wieloosobowym. | Zainstaluj ponownie, aby przywrócić oryginalne pliki.
+644:Modyfikacje gry nie są dozwolone w trybie wieloosobowym.|Zainstaluj ponownie, aby przywrócić oryginalne pliki.
 645:Wystąpił błąd w aplikacji. Proszę kliknąć Wyślij Raport o Błędach, abyśmy mogli zbadać ten problem. Dziękujemy za pomoc!
 646:Wyślij Raport o Błędach
 647:Pokaż Dane Pierwotne
@@ -655,7 +655,7 @@
 666:Informacja
 667:Proszę czekać...
 668:Zapisz mapę
-669:Opóźnienie w minutach zanim AI zacznie szkolenie rekrutów
+669:Opóźnienie w minutach zanim klasyczny gracz SI zacznie szkolenie rekrutów
 670:Opóźnienie (min)
 671:Ustawia kierunek dla wszystkich płytek w zbiorniku wodnym
 672:Magiczna woda
@@ -728,17 +728,17 @@
 772:Oglądaj
 773:Widz
 774:Zasięg auto-ataku
-775:Grupy komputera automatycznie zaatakują, jeśli jesteś bliżej niż tyle pól
+775:Grupy sztucznej inteligencji automatycznie zaatakują, jeśli jesteś bliżej niż tyle pól
 776:Chroń sojuszników
-777:Jeśli włączone, to komputer będzie bronić jednostek i budynków sojuszników, jak gdyby były jego własnymi
+777:Jeśli włączone, to sztuczna inteligencja będzie bronić jednostek i budynków sojuszników, jak gdyby były jego własnymi
 778:Zezwalaj na oglądanie
 779:Przypisz prawa hosta
 780:Widzowie
 781:Nie można wyłączyć widzów: Lista widzów musi być pusta
 782:Powtórz
 783:Cofnij
-784:Ustawia pozycję początkową komputera, która jest wykorzystywana do kierowania atakami komputera
-785:Pozycja startowa AI
+784:Ustawia pozycję początkową gracza SI, która jest wykorzystywana do kierowania atakami przez sztuczną inteligencję
+785:Pozycja startowa SI
 786:Rozkaz
 788:Pierwsze opóźnienie (w sekundach)
 790:Budynek najbliżej armii
@@ -761,13 +761,13 @@
 807:Ukryj nakładkę skryptową
 808:Pokaż nakładkę skryptową
 809:Nie możesz zmienić hosta kiedy serwer jest uruchomiony na Twoim kliencie
-810:Komputer automatycznie tworzy i zarządza atakami
+810:SI automatycznie tworzy i zarządza atakami
 811:Szybko wyposaż
 812:Żołnierze są wyposażani tak szybko, jak to możliwe. Na tempo wyposażania nadal wpływa rozplanowanie wioski
 813:Ustaw standard AI
 814:Buduje agresywnie
-815:Wprowadza agresywne ustawienia ekonomii komputera dla wszystkich graczy (dla wieloosobowych map ekonomicznych)
-816:Ostrzeżenie: To zastąpi wszystkie istniejące ustawienia komputera dla wszystkich graczy. Kontynuować?
+815:Wprowadza agresywne ustawienia ekonomii dla wszystkich graczy SI (dla wieloosobowych map ekonomicznych)
+816:Ostrzeżenie: To zastąpi istniejące ustawienia SI dla wszystkich graczy. Kontynuować?
 817:Typ armii
 818:Żelazo --> skóra
 819:Żelazna
@@ -777,11 +777,365 @@
 824:Przenieś
 825:Zobacz plik PDF
 826:Nie można uruchomić przeglądarki PDF
-827:Ustaw liczbę pomocników na 10 domów dla wybranego komputera. Ilość domów wybranego AI: %d
+827:Ustaw liczbę pomocników na 10 budynków dla wybranego gracza SI. Ilość budynków wybranego SI: %d
 828:Błąd: Plik pauzy hosta nie odpowiada lokalnemu plikowi pauzy. Wystąpił błąd lub host próbuje oszukiwać.
 829:Zamówienie zostało zrealizowane
 830:Dodaj azjatyckie czcionki
 831:Wyjdź z pobranych
+832:Zmień nazwę tej powtórki
+833:Zmień nazwę powtórki
+834:Usuń tę powtórkę
+835:Nazwa:
+836:Zatwierdź
+837:Edytuj powiązania klawiszy
+838:Powiązania klawiszy
+839:OK
+840:Funkcja
+841:Klawisz
+842:Specjalne nieedytowalne powiązania klawiszy
+843:Specjalne powiązania klawiszy
+844:Przywróć domyślne
+845:Przewiń w lewo
+846:Przewiń w prawo
+847:Przewiń do góry
+848:Przewiń w dół
+849:Menu budowania
+850:Menu podziału towarów
+851:Menu statystyk
+852:Menu opcji
+853:Komenda stop
+854:Komenda podziel
+855:Komenda połącz
+856:Komenda nakarm
+857:Komenda szturmuj
+858:Powiększ formację
+859:Pomniejsz formację
+860:Obróć zgodnie z ruchem zegara
+861:Obróc przeciwnie do ruchu zegara
+862:Normalna prędkość gry (x1)
+863:Prędkość x%s
+864:Prędkość x%s
+865:Prędkość x%s
+866:Sygnał
+867:Pauza
+868:Pokaż drużyny (MP)
+869:Przybliż
+870:Oddal
+871:Przywróć przybliżenie
+872:Zaznacz grupę 1
+873:Zaznacz grupę 2
+874:Zaznacz grupę 3
+875:Zaznacz grupę 4
+876:Zaznacz grupę 5
+877:Zaznacz grupę 6
+878:Zaznacz grupę 7
+879:Zaznacz grupę 8
+880:Zaznacz grupę 9
+881:Zaznacz grupę 10
+882:Wyśrodkuj na powiadomieniu
+883:Usuń wiadomość
+884:Pokaż czat (MP)
+885:Zamknij menu
+886:Pokaż mapę (cheat)
+887:Wygraj (cheat)
+888:Porażka (cheat)
+889:Dodaj l. jazdę (cheat)
+895:Menu główne
+902:Ctrl i Shift nie mogą być przypisane
+903:~~~ Nieznana wartość
+904:Lewy przycisk myszy
+905:Środkowy przycisk myszy
+906:Prawy przycisk myszy
+910:Wyczyść
+923:Strzałka w lewo
+924:Strzałka w górę
+925:Strzałka w prawo
+926:Strzałka w dół
+927:Zaznacz
+929:Wykonaj
+933:Pomoc
+951:Lewy Shift
+952:Prawy Shift
+953:Lewy Control
+954:Prawy Control
+955:Lewy Alt
+956:Prawy Alt
+961:Ogólne
+962:W grze
+963:Edytor map
+964:Oczekiwanie na dane rozłączonych graczy:
+965:Zakrapiacz - wybiera rodzaj płytki pod kursorem myszy
+966:Ta kuźnia zbroi nie ma gospodarza
+967:Ten warsztat pancerzy nie ma gospodarza
+968:Ta piekarnia nie ma gospodarza
+969:Ta rzeźnia nie ma gospodarza
+970:Ta kopalnia węgla nie ma gospodarza
+971:To gospodarstwo nie ma gospodarza
+972:Ta chatka rybacka nie ma gospodarza
+973:Ta kopalnia złota nie ma gospodarza
+974:Ta kopalnia żelaza nie ma gospodarza
+975:Ta dymarka nie ma gospodarza
+976:Ta mennica nie ma gospodarza
+977:Ten młyn nie ma gospodarza
+978:Ten kamieniołom nie ma gospodarza
+979:Ten tartak nie ma gospodarza
+980:Ten warsztat wojenny nie ma gospodarza
+981:Ta stajnia nie ma gospodarza
+982:Ten chlew nie ma gospodarza
+983:Ta garbarnia nie ma gospodarza
+984:Ta wieża obronna nie ma gospodarza
+985:Ta kuźnia płatnerska nie ma gospodarza
+986:Ten warsztat płatnerski nie ma gospodarza
+987:Ta winnica nie ma gospodarza
+988:Ta leśniczówka nie ma gospodarza
+989:%s wyszedł i został pokonany
+990:Host (%s) wyszedł z gry i został pokonany
+991:Anuluj
+992:Wyczyść klawisz
+993:Zaznacz grupę 11
+994:Zaznacz grupę 12
+995:Zaznacz grupę 13
+996:Zaznacz grupę 14
+997:Zaznacz grupę 15
+998:Zaznacz grupę 16
+999:Zaznacz grupę 17
+1000:Zaznacz grupę 18
+1001:Zaznacz grupę 19
+1002:Zaznacz grupę 20
+1003:Konstruuj drogę
+1004:Wykop pole
+1005:Załóż winnicę
+1006:Usuń plan
+1007:Zaznacz kolejny budynek/jednostkę tego samego typu
+1008:Okno debugowania
+1009:Oglądaj gracza 1
+1010:Oglądaj gracza 2
+1011:Oglądaj gracza 3
+1012:Oglądaj gracza 4
+1013:Oglądaj gracza 5
+1014:Oglądaj gracza 6
+1015:Oglądaj gracza 7
+1016:Oglądaj gracza 8
+1017:Przesuń mapę
+1018:W trakcie oglądania gry lub powtórki
+1019:%s cię wyciszył. Nie możesz więcej wysyłać mu wiadomości ani sygnałów
+1020:Paleta obiektów
+1021:Uniwersalna gumka
+1022:Twój drwal nie może znaleźć miejsca do zasadzenia drzewa.
+1024:%s zwyciężył!
+1025:% s nie jest już połączony z grą
+1026:Maksymalne złoto
+1027:Maksymalna ilość złota dostarczana do Ratusza
+1028:Tylko sadź
+1029:Otwórz / Zamknij bydynek dla %s
+1030:Otwórz
+1031:Zamknij
+1032:Zapełnij
+1033:Zmień nazwę Mapy
+1034:Pauzuj po czasie pokoju
+1035:Czas gry
+1036:Nazwa
+1037:Siła wojska
+1038:Całe wojsko
+1039:Typ wykresu
+1040:Ilość
+1041:PKB
+1042:w danej chwili
+1043:od początku
+1044:zabici
+1045:straceni
+1046:Powrót do wyników
+1047:indywidualnie
+1048:drużynowo
+1049:Więcej|statystyk
+1052:Czy na pewno chcesz|wyjść z tej powtórki?
+1061:Uniwersalna gumka
+1062:Pokaż właścicieli płytek
+1063:Pokaż siatkę płytek
+1064:Punkt cięcia
+1065:Ustaw punkt ścinki dla leśniczówki. Możesz zrobić to też wciskając Shift + prawy przycisk myszy
+1066:Punkt zbiórki
+1067:Ustaw punkt zbiórki dla budynku. Możesz zrobić to też wciskając Shift + prawy przycisk myszy
+1068:Zmiana rozmiaru
+1069:Przesuń granice:
+1070:Zmień i zapisz
+1071:Zmienia rozmiar mapy i zapisuje ją
+1073:Czy na pewno chcesz zmienić rozmiar mapy?||Zastąpi ona aktualną mapę!
+1074:Nie można zmienić rozmiaru|Musisz najpierw zapisać mapę
+1075:Zmień właściciela obiektu
+1076:Test mapy
+1077:Włącz edytowaną mapę w trybie jednego gracza
+1078:Wybierz gracza:
+1079:Wybierz gracza którym chcesz kierować
+1080:Start bez zapisu
+1081:Włącz grę dla wybranego gracza bez zapisywania zmian wprowadzonych na mapie
+1082:Start z zapisem
+1083:Zapisuje mapę i włącza grę dla wybranego gracza
+1084:w Warowni:
+1085:w Ratuszu:
+1086:Obróć płytkę na mapie
+1087:Paleta obiektów
+1088:Zamknij paletę
+1089:Usuń jednostki/grupy
+1090:Powtórz|autopauza
+1091:Automatycznie wstrzymuj odtwarzanie po zakończeniu czasu pokoju
+1092:Pokaż sygnały
+1093:Pokaż sygnały graczy
+1094:Wycisz gracza
+1095:Wyłącz wyciszenie gracza
+1096:Zapamiętaj to hasło
+1097:Użyj ostatniego znanego hasła
+1098:Przejdź do poprzedniego menu
+1099:Tak
+1100:Nie
+1101:Anuluj
+1102:Mapa
+1103:Powtórka
+1104:Gracze
+1105:Drużyny
+1106:Oglądaj gracza 9
+1107:Oglądaj gracza 10
+1108:Oglądaj gracza 11
+1109:Oglądaj gracza 12
+1110:Obecny rozmiar mapy:
+1111:Nowy rozmiar:
+1112:Zmiana rozmiaru
+1113:Właściciel: %s
+1114:Usuń gracza %d
+1115:Usuwanie gracza %d
+1116:Czy na pewno chcesz usunąć gracza?|Wszystkie jego dane zostaną usunięte!
+1117:Zamknij
 1118:Mapy dla wielu graczy
 1119:Wyłącz muzykę
 1120:Wymieszaj utwory
+1121:Losuj utwory wł./wył.
+1122:Typ mapy
+1123:Mapa scenariusza
+1124:Również dla jednego gracza
+1125:Ścinalne drzewo
+1126:blokuje przejście po skosie
+1127:blokuje przejście i budowanie
+1128:Pokaż drogi/pola/winnice
+1136:Wiaderko (zmiana właściciela obiektu)
+1137:Dodaj atak SI
+1138:Usuń atak SI
+1139:Zwolniony
+1140:Zwolnij
+1141:Czy naprawdę chcesz zwolnić jednostkę?|Poddany uda się do szkoły i opuści twoje miasto na zawsze
+1142:Zwolnij jednostkę
+1143:Anuluj zwolnienie jednostki
+1144:Nie da się zwolnić jednostki, ponieważ nie posiadasz w mieście szkoły
+1145:Parametry|misji
+1146:Zmień parametry misji
+1147:Parametry misji
+1148:Autor
+1149:Krótki opis
+1150:Długi opis
+1151:ID w pliku libx
+1152:Ta mapa dla wielu graczy będzie zawsze widoczna na liście map dla jednego gracza
+1153:Zablokuj wybór drużyn
+1154:Blokuje wybór drużyny w lobby
+1155:Blokuj czas pokoju
+1156:Blokuje zmianę czasu pokoju w lobby
+1157:Zablokuj pełny podgląd mapy
+1158:Blokuje pełny podgląd mapy w lobby
+1159:Tekst
+1160:Pokaż zasięg wydobycia
+1161:Pokaż zasięg ataku wieży
+1162:Pokaż zasięg ataku jednostki
+1163:Kod koloru:
+1164:Niebieski/zielony/czerwony
+1165:Czerwony/zielony/niebieski
+1166:Kolor tekstu:
+1167:Mniej nasycony kolor, który może być używany do tekstów (np. w napisach nakładki dynamicznego skryptu) [ustawia się automatycznie]
+1168:Filtruj mapy
+1169:Zresetuj filtr
+1170:Liczba graczy
+1171:Powrót do gry
+1172:Pokaż szczegółowe statystyki gry
+1173:Poziom trudności
+1174:Łatwy
+1175:Normalny
+1176:Trudny
+1177:Poziomy trudności
+1178:Wyznacz różne poziomy trudności, których można użyć w skrypcie do zmodyfikowania logiki/trudności misji
+1179:Lepsza SI
+1180:Lepsza SI
+1181:Klasyczna SI
+1182:Zwycięzca
+1183:Pokonany
+1184:Host
+1185:Idź do zaznaczonego budynku
+1186:Idź do zaznaczonej jednostki
+1187:Tryb koloru|sojusznika/wroga
+1188:Kolory własny / sojusznika / wroga dla graczy zamiast kolorów początkowych
+1189:[$404040]Host jest gotowy do startu. proszę nacisnąć '[][$0707FF]%s[][$404040]'[]
+1190:Poproś o naciśniecie gotowy
+1191:Alert dotyczący przygotowania został wysłany do% s graczy
+1192:Przełącz tryb kolorów graczy
+1193:Zwolnienie nie jest dostępne podczas bieżącej akcji jednostki
+1194:Ctrl + Kółko myszy
+1195:Alt + Kółko myszy
+1196:Shift + Kółko myszy
+1197:Wymuś malowanie
+1198:Wymusza malowanie pędzlem po płytkach, które były wcześniej wstawione ręcznie (o ile to możliwe)
+1199:Magiczny pędzel - poprawia przejścia przy użyciu wybranej maski, w miejscach gdzie użyto rodzajów terenu które nie mają grafiki przejścia z jednego terenu do drugiego
+1200:Bez maski - używaj domyślnych przejść między płytkami
+1201:Najmiększa maska - użyj automatycznie utworzonych przejść
+1202:Miękka maska - użyj automatycznie utworzonych przejść
+1203:Twarda maska - użyj automatycznie utworzonych przejść
+1204:Koszt niestandardowych jednostek Ratusza
+1206:Dodatkowe opcje
+1207:Dodatkowe opcje pędzla
+1208:Dodatkowe opcje pędzla
+1209:Napraw malowanie terenu
+1210:Spróbuj naprawić zawarte w mapie informacje na temat terenu, aby umożliwić malowanie terenu pędzlem
+1211:Napraw malowanie terenu
+1212:Czy na pewno chcesz naprawić wszystkie informacje na|temat terenu? Umożliwi to używanie pędzli w miejscach,|w których płytki zostały wstawione ręcznie
+1213:D.
+1214:Gracz
+1215:Klasyczna SI %d
+1216:Klasyczna SI
+1217:Klasyczna SI %d
+1218:Lepsza SI %d
+1219:Klasyczna SI
+1220:Typ sztucznej inteligencji
+1221:Autozapis na koniec gry
+1222:Nic
+1223:Surowce
+1224:Budynki
+1225:W budowie
+1226:Poddani
+1227:Wojsko
+1228:Zwolnienie nie jest dostępne dla głodnych jednostek
+1229:Klasyczne SI|Parametry
+1230:Zmień parametry używane jedynie przez klasyczne SI
+1231:Parametry klasycznego SI
+1232:Użyj wszystkich rodzajów jednostek
+1233:Trudność
+1234:%s nie jest przy komputerze od %s [$00B0FF]minut[]
+1235:Eksport danych moża zająć do kilku minut.\nWyeksportowane dane zostaną zapisane w katalogu '%s'.\nCzy chcesz kontynuować?
+1236:Procedura [ %s ] zadeklarowana dla konsolowej komendy /%s nie została znaleziona w skrypcie
+1237:Zły typ parametru dla komendy /%s: [%s]
+1238:Zły pierwszy typ parametru dla komendy /%s. Oczekiwano: [%s] a jest: [%s]
+1239:Zbyt wiele parametrów dla komendy /%s: [%s]. Maksymalna liczba parametrów to [%s] (wliczając obowiązkowy parametr HandID)
+1240:Złe parametry dla komendy /%s. Oczekiwane typy parametrów to: [%s]
+1241:Zbyt wiele parametrów przekazanych do komendy /%s: Oczekiwana liczba parametrów [ %s ], a jest: [ %s ]
+1242:Komenda wykonana: /%s(%s)
+1243:Błąd w trakcie wykonania komendy /%s(%s)
+1244:Komenda /%s nie została odnaleziona
+1245:Włącz/wyłącz kopiuj-wklej w oknie czatu
+1248:Kolory graczy:
+1249:normalne
+1250:sojusznik / wróg
+1251:drużynowo
+1252:Pokoloruj graczy zgodnie z ich wyborem koloru w lobby
+1253:Pokaż 3 różne kolory (dla własnych, sojuszniczych i wrogich) jednostek i budynków
+1254:Pokoloruj jednostki i budynki zgodnie z podziałem na drużyny
+1255:Błąd: Nazwa gracza '%s' jest zarezerwowana
+1256:Poddani (P/B/R)
+1257:Poddani (inni)
+1258:Otwórz/zamknij panel statystyk widza
+1259:Dostarczanie %s jest zablokowane
+1260:Wynoszenie %s jest zablokowane w trybie dostawy „oferowany”
+1261:Rekrut nie może wejść do Warowni

@@ -3,7 +3,7 @@ unit KM_GUIMenuCampaign;
 interface
 uses
   Classes, Controls, SysUtils, Math,
-  KM_Controls, KM_Pics,
+  KM_Controls, KM_Pics, KM_MapTypes,
   KM_Campaigns, KM_InterfaceDefaults;
 
 
@@ -16,12 +16,16 @@ type
     fMapIndex: Byte;
     fAnimNodeIndex : Byte;
 
+    fDifficulty: TKMMissionDifficulty;
+
     procedure BackClick(Sender: TObject);
     procedure Scroll_Toggle(Sender: TObject);
 
     procedure Campaign_Set(aCampaign: TKMCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
+    procedure UpdateDifficultyLevel;
     procedure StartClick(Sender: TObject);
+    procedure Difficulty_Change(Sender: TObject);
     procedure AnimNodes(aTickCount: Cardinal);
   protected
     Panel_Campaign: TKMPanel;
@@ -34,6 +38,8 @@ type
         Image_ScrollTop, Image_Scroll, Image_ScrollClose: TKMImage;
         Label_CampaignTitle, Label_CampaignText: TKMLabel;
       Image_ScrollRestore: TKMImage;
+      Label_Difficulty: TKMLabel;
+      DropBox_Difficulty: TKMDropList;
       Button_CampaignStart, Button_CampaignBack: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEventText);
@@ -48,7 +54,7 @@ type
 
 implementation
 uses
-  KM_GameApp, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Sound, KM_ResSound;
+  KM_GameApp, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Sound, KM_ResSound, KM_Defaults;
 
 const
   FLAG_LABEL_OFFSET_X = 10;
@@ -62,6 +68,7 @@ var
 begin
   inherited Create;
 
+  fDifficulty := mdNone;
   fMapIndex := 1;
   fOnPageChange := aOnPageChange;
   OnEscKeyDown := BackClick;
@@ -71,7 +78,7 @@ begin
     Image_CampaignBG := TKMImage.Create(Panel_Campaign, 0, 0, aParent.Width, aParent.Height,0,rxGuiMain);
     Image_CampaignBG.ImageStretch;
 
-    Panel_Campaign_Flags:=TKMPanel.Create(Panel_Campaign, 0, 0, aParent.Width, aParent.Height);
+    Panel_Campaign_Flags := TKMPanel.Create(Panel_Campaign, 0, 0, aParent.Width, aParent.Height);
     Panel_Campaign_Flags.AnchorsStretch;
     for I := 0 to High(Image_CampaignFlags) do
     begin
@@ -79,8 +86,8 @@ begin
       Image_CampaignFlags[I].OnClick := Campaign_SelectMap;
       Image_CampaignFlags[I].Tag := I;
 
-      Label_CampaignFlags[I] := TKMLabel.Create(Panel_Campaign_Flags, aParent.Width, aParent.Height, IntToStr(I+1), fnt_Mini, taCenter);
-      Label_CampaignFlags[I].FontColor := $FFD0D0D0;
+      Label_CampaignFlags[I] := TKMLabel.Create(Panel_Campaign_Flags, aParent.Width, aParent.Height, IntToStr(I+1), fntMini, taCenter);
+      Label_CampaignFlags[I].FontColor := icLightGray2;
       Label_CampaignFlags[I].Hitable := False;
     end;
     for I := 0 to High(Image_CampaignSubNode) do
@@ -102,15 +109,23 @@ begin
     Image_ScrollClose.OnClick := Scroll_Toggle;
     Image_ScrollClose.HighlightOnMouseOver := True;
 
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 20, 46, 325, 20, NO_TEXT, fnt_Outline, taCenter);
+    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 20, 46, 325, 20, NO_TEXT, fntOutline, taCenter);
 
-    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 323, 310, NO_TEXT, fnt_Antiqua, taLeft);
-    Label_CampaignText.AutoWrap := true;
+    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 70, 323, 290, NO_TEXT, fntAntiqua, taLeft);
+    Label_CampaignText.AutoWrap := True;
 
-  Image_ScrollRestore := TKMImage.Create(Panel_Campaign, aParent.Width-20-30, aParent.Height-50-48, 30, 48, 491);
+  Image_ScrollRestore := TKMImage.Create(Panel_Campaign, aParent.Width-20-30, Panel_Campaign.Height-50-53, 30, 48, 491);
   Image_ScrollRestore.Anchors := [anBottom, anRight];
   Image_ScrollRestore.OnClick := Scroll_Toggle;
   Image_ScrollRestore.HighlightOnMouseOver := True;
+
+  Label_Difficulty := TKMLabel.Create(Panel_Campaign, aParent.Width-220-30, aParent.Height-78, gResTexts[TX_MISSION_DIFFICULTY_CAMPAIGN], fntOutline, taRight);
+  Label_Difficulty.Anchors := [anLeft, anBottom];
+  Label_Difficulty.Hide;
+  DropBox_Difficulty := TKMDropList.Create(Panel_Campaign, aParent.Width-220-20, aParent.Height-80, 220, 20, fntMetal, gResTexts[TX_MISSION_DIFFICULTY], bsMenu);
+  DropBox_Difficulty.Anchors := [anLeft, anBottom];
+  DropBox_Difficulty.OnChange := Difficulty_Change;
+  DropBox_Difficulty.Hide;
 
   Button_CampaignStart := TKMButton.Create(Panel_Campaign, aParent.Width-220-20, aParent.Height-50, 220, 30, gResTexts[TX_MENU_START_MISSION], bsMenu);
   Button_CampaignStart.Anchors := [anLeft,anBottom];
@@ -131,6 +146,8 @@ begin
   //Choose background
   Image_CampaignBG.RX := fCampaign.BackGroundPic.RX;
   Image_CampaignBG.TexID := fCampaign.BackGroundPic.ID;
+
+  DropBox_Difficulty.Clear;
 
   //Setup sites
   for I := 0 to High(Image_CampaignFlags) do
@@ -157,17 +174,85 @@ begin
 end;
 
 
+procedure TKMMenuCampaign.UpdateDifficultyLevel;
+var
+  I: Integer;
+  MD, OldMD, DefMD: TKMMissionDifficulty;
+  DiffLevels: TKMMissionDifficultySet;
+begin
+  //Difficulty levels
+  OldMD := mdNone;
+  if fCampaign.MapsInfo[fMapIndex].TxtInfo.HasDifficultyLevels then
+  begin
+    DiffLevels := fCampaign.MapsInfo[fMapIndex].TxtInfo.DifficultyLevels;
+
+    if gGameApp.GameSettings.CampaignLastDifficulty in DiffLevels then
+      OldMD := gGameApp.GameSettings.CampaignLastDifficulty;
+
+    DropBox_Difficulty.Clear;
+    I := 0;
+
+    //Set BestCompleteDifficulty as default
+    if fCampaign.MapsProgressData[fMapIndex].Completed then
+      DefMD := fCampaign.MapsProgressData[fMapIndex].BestCompleteDifficulty
+    else if OldMD <> mdNone then
+      DefMD := OldMD
+    else
+      DefMD := mdNormal;
+
+    for MD in DiffLevels do
+    begin
+      DropBox_Difficulty.Add(gResTexts[DIFFICULTY_LEVELS_TX[MD]], Byte(MD));
+
+      if MD = DefMD then
+        DropBox_Difficulty.ItemIndex := I;
+      Inc(I);
+    end;
+
+    if not DropBox_Difficulty.IsSelected then
+      DropBox_Difficulty.ItemIndex := 0;
+
+    DropBox_Difficulty.DoSetVisible;
+    Label_Difficulty.DoSetVisible;
+  end else begin
+    Label_Difficulty.Hide;
+    DropBox_Difficulty.Clear;
+    DropBox_Difficulty.Hide;
+  end;
+
+  Difficulty_Change(nil);
+end;
+
+
 procedure TKMMenuCampaign.Campaign_SelectMap(Sender: TObject);
 var
   I: Integer;
+  Color: Cardinal;
 begin
   if TKMControl(Sender).Tag > fCampaign.UnlockedMap then exit; //Skip closed maps
 
   fMapIndex := TKMControl(Sender).Tag;
 
+  UpdateDifficultyLevel;
+  
   // Place highlight
   for I := 0 to High(Image_CampaignFlags) do
+  begin
     Image_CampaignFlags[I].Highlight := (fMapIndex = I);
+    Color := icLightGray2;
+    if I < fCampaign.MapCount then
+      case fCampaign.MapsProgressData[I].BestCompleteDifficulty of
+        mdNone: Color := icLightGray2;
+        mdEasy3: Color := icBlue;
+        mdEasy2: Color := icLightGreen;
+        mdEasy1: Color := icGreen;
+        mdNormal: Color := icYellow;
+        mdHard1: Color := icOrange;
+        mdHard2: Color := icLightRed;
+        mdHard3: Color := icRed;
+      end;
+    Label_CampaignFlags[I].FontColor := Color;
+  end;
 
   //Connect by sub-nodes
   fAnimNodeIndex := 0;
@@ -179,27 +264,42 @@ begin
     Image_CampaignSubNode[I].Top  := fCampaign.Maps[fMapIndex].Nodes[I].Y;
   end;
 
-  Label_CampaignTitle.Caption := fCampaign.CampaignMissionTitle(fMapIndex);
-  Label_CampaignText.Caption := fCampaign.MissionBriefing(fMapIndex);
+  Label_CampaignTitle.Caption := fCampaign.GetCampaignMissionTitle(fMapIndex);
+  Label_CampaignText.Caption := fCampaign.GetMissionBriefing(fMapIndex);
 
   Panel_CampScroll.Left := IfThen(fCampaign.Maps[fMapIndex].TextPos = bcBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
   //Add offset from top and space on bottom to fit buttons
-  Panel_CampScroll.Height := Label_CampaignText.Top + Label_CampaignText.TextSize.Y + 70;
+  Panel_CampScroll.Height := Label_CampaignText.Top + Label_CampaignText.TextSize.Y + 70
+                             + 25*Byte((DropBox_Difficulty.Count > 0) and (fCampaign.Maps[fMapIndex].TextPos = bcBottomRight));
   Panel_CampScroll.Top := Panel_Campaign.Height - Panel_CampScroll.Height;
+
+  Image_ScrollRestore.Top := Panel_Campaign.Height - 50 - 53 - 32*Byte(DropBox_Difficulty.Count > 0);
 
   Image_ScrollRestore.Hide;
   Panel_CampScroll.Show;
 
   gGameApp.MusicLib.StopPlayingOtherFile; //Stop playing the previous breifing even if this one doesn't exist
-  gGameApp.PauseMusicToPlayFile(fCampaign.BreifingAudioFile(fMapIndex));
+  gGameApp.PauseMusicToPlayFile(fCampaign.GetBreifingAudioFile(fMapIndex));
 end;
 
 
 procedure TKMMenuCampaign.StartClick(Sender: TObject);
 begin
   gGameApp.MusicLib.StopPlayingOtherFile;
-  gGameApp.NewCampaignMap(fCampaign, fMapIndex);
+  gGameApp.NewCampaignMap(fCampaign, fMapIndex, fDifficulty);
+  if fCampaign.MapsInfo[fMapIndex].TxtInfo.HasDifficultyLevels then
+    gGameApp.GameSettings.CampaignLastDifficulty := TKMMissionDifficulty(DropBox_Difficulty.GetSelectedTag);
 end;
+
+
+procedure TKMMenuCampaign.Difficulty_Change(Sender: TObject);
+begin
+  if (DropBox_Difficulty.Count > 0) and DropBox_Difficulty.IsSelected then
+    fDifficulty := TKMMissionDifficulty(DropBox_Difficulty.GetSelectedTag)
+  else
+    fDifficulty := mdNone;
+end;
+
 
 procedure TKMMenuCampaign.AnimNodes(aTickCount: Cardinal);
 begin
@@ -210,12 +310,14 @@ begin
   inc(fAnimNodeIndex);
 end;
 
+
 procedure TKMMenuCampaign.UpdateState(aTickCount: Cardinal);
 begin
   if fCampaign <> nil then
     if fCampaign.Maps[fMapIndex].NodeCount > 0 then
       AnimNodes(aTickCount);
 end;
+
 
 procedure TKMMenuCampaign.Resize(X, Y: Word);
 var
@@ -270,9 +372,9 @@ begin
   Panel_CampScroll.Visible := not Panel_CampScroll.Visible;
   Image_ScrollRestore.Visible := not Panel_CampScroll.Visible;
   if Panel_CampScroll.Visible then
-    gSoundPlayer.Play(sfx_MessageOpen)
+    gSoundPlayer.Play(sfxMessageOpen)
   else
-    gSoundPlayer.Play(sfx_MessageClose);
+    gSoundPlayer.Play(sfxMessageClose);
 end;
 
 

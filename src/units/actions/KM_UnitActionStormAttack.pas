@@ -23,7 +23,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TKMUnitActionName; override;
-    function CanBeInterrupted: Boolean; override;
+    function CanBeInterrupted(aForced: Boolean = True): Boolean; override;
     function GetExplanation: UnicodeString; override;
     function GetSpeed: Single;
     function Execute: TKMActionResult; override;
@@ -32,7 +32,7 @@ type
 
 implementation
 uses
-  KM_Resource, KM_ResUnits, KM_Units_Warrior;
+  KM_Resource, KM_ResUnits, KM_UnitWarrior;
 
 
 const
@@ -67,6 +67,7 @@ end;
 constructor TKMUnitActionStormAttack.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+  LoadStream.CheckMarker('UnitActionStormAttack');
   LoadStream.Read(fDelay);
   LoadStream.Read(fTileSteps);
   LoadStream.Read(fStamina);
@@ -77,7 +78,7 @@ end;
 
 function TKMUnitActionStormAttack.ActName: TKMUnitActionName;
 begin
-  Result := uan_StormAttack;
+  Result := uanStormAttack;
 end;
 
 
@@ -123,14 +124,14 @@ var
   WalkX, WalkY, Distance: Single;
 begin
   if KMSamePoint(fNextPos, KMPOINT_ZERO) then
-    fNextPos := fUnit.GetPosition; //Set fNextPos to current pos so it initializes on the first run
+    fNextPos := fUnit.CurrPosition; //Set fNextPos to current pos so it initializes on the first run
 
   //Walk for the first step before running
   if fDelay > 0 then
   begin
     Dec(fDelay);
     fUnit.AnimStep := UnitStillFrames[fUnit.Direction];
-    Result := ar_ActContinues;
+    Result := arActContinues;
     Exit;
   end;
 
@@ -139,10 +140,10 @@ begin
   if (fTileSteps >= fStamina - 1) then
   begin
     Distance := gRes.Units[fUnit.UnitType].Speed;
-    fActionType := ua_Walk;
+    fType := uaWalk;
   end else begin
     Distance := gRes.Units[fUnit.UnitType].Speed * STORM_SPEEDUP;
-    fActionType := ua_Spec;
+    fType := uaSpec;
   end;
 
   if KMSamePointF(fUnit.PositionF, KMPointF(fNextPos), Distance/2) then
@@ -162,18 +163,18 @@ begin
       begin
         //If we've picked a fight it means this action no longer exists,
         //so we must exit out (don't set ActDone as that will now apply to fight action)
-        Result := ar_ActContinues;
+        Result := arActContinues;
         Exit;
       end;
     Locked := True; //Finished CheckForEnemy, so lock again
 
     //Begin the next step
-    fNextPos := KMGetPointInDir(fUnit.GetPosition, fUnit.Direction);
+    fNextPos := KMGetPointInDir(fUnit.CurrPosition, fUnit.Direction);
 
     //Action ends if: 1: Used up stamina. 2: There is an enemy to fight. 3: NextPos is an obsticle
     if (fTileSteps >= fStamina) or not fUnit.CanStepTo(fNextPos.X, fNextPos.Y, fUnit.DesiredPassability) then
     begin
-      Result := ar_ActDone; //Finished run
+      Result := arActDone; //Finished run
       Exit; //Must exit right away as we might have changed this action to fight
     end;
 
@@ -197,13 +198,14 @@ begin
 
   inc(fUnit.AnimStep);
   StepDone := false; //We are not actually done because now we have just taken another step
-  Result := ar_ActContinues;
+  Result := arActContinues;
 end;
 
 
 procedure TKMUnitActionStormAttack.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+  SaveStream.PlaceMarker('UnitActionStormAttack');
   SaveStream.Write(fDelay);
   SaveStream.Write(fTileSteps);
   SaveStream.Write(fStamina);
@@ -212,7 +214,7 @@ begin
 end;
 
 
-function TKMUnitActionStormAttack.CanBeInterrupted: Boolean;
+function TKMUnitActionStormAttack.CanBeInterrupted(aForced: Boolean = True): Boolean;
 begin
   Result := not Locked; //Never interupt storm attack
 end;

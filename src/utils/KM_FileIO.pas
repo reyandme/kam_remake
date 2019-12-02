@@ -212,12 +212,15 @@ begin
     //Find all files to rename in path
     //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
     FindFirst(aPathToFolder + aFromName + '*', faAnyFile - faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-        and (Length(SearchRec.Name) > Length(aFromName)) then
-        FilesToRename.Add(SearchRec.Name);
-    until (FindNext(SearchRec) <> 0);
-    FindClose(SearchRec);
+    try
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+          and (Length(SearchRec.Name) > Length(aFromName)) then
+          FilesToRename.Add(SearchRec.Name);
+      until (FindNext(SearchRec) <> 0);
+    finally
+      FindClose(SearchRec);
+    end;
 
     //Move all previously finded files
     for I := 0 to FilesToRename.Count - 1 do

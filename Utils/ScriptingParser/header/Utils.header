@@ -1,6 +1,17 @@
 #### Utils
 
 Utility methods
+<br /><br />
+To invoke some utility method just call to **Utils.UTIL_NAME(UTIL_PARAMS)** or **U.UTIL_NAME(UTIL_PARAMS)**, like so
+```pascal
+    if Utils.InRangeI(x,0,5) then //Check x is in range of [0;5]
+      ...
+```
+or, in short form 
+```pascal
+    if U.InRangeI(x,0,5) then //Check x is in range of [0;5]
+      ...
+```
 
 ***
 

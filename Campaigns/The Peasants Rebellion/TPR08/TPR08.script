@@ -1,11 +1,20 @@
 //-- TBK08 --//
-//21.01.2018
+//07.11.2019
+
+{$I difficulty.script}
 
 var
 	aArmyFirst, aArmySecond: array [1..7] of Integer;
 
 procedure OnMissionStart;
 begin
+	//Apply Difficulty
+	case States.MissionDifficulty() of
+		mdEasy1: 
+			IncreaseGroupSize(0, 0);
+		mdHard1:
+			IncreaseGroupSize(2, 0);
+	end;
 	//First Wave
 	aArmyFirst[1] := States.GroupAt(41, 15); //Sword Fighters - Top
 	aArmyFirst[2] := States.GroupAt(41, 35); //Sword Fighters - Middle

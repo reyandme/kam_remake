@@ -18,6 +18,9 @@ const
   // That string was used in all Synetic games for missing texts
   NO_TEXT = '<<<LEER>>>';
 
+  HANDS_NAMES_OFFSET = 100;
+  MISSION_NAME_LIBX_ID = 200; //Reserved Libx ID for Mission name in Campaigns
+
 type
   TKMTextLibraryCommon = class
   private
@@ -40,6 +43,7 @@ type
     fPref: array [0..2] of Integer;
 
     fTexts: array of TUnicodeStringArray;
+    fForceDefaultLocale: Boolean; //Force to use default Locale (Eng)
     function GetTexts(aIndex: Word): UnicodeString;
     function GetDefaultTexts(aIndex: Word): UnicodeString;
     procedure InitLocaleIds;
@@ -52,8 +56,9 @@ type
     function HasText(aIndex: Word): Boolean;
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
     property DefaultTexts[aIndex: Word]: UnicodeString read GetDefaultTexts;
+    property ForceDefaultLocale: Boolean read fForceDefaultLocale write fForceDefaultLocale;
     procedure Save(aStream: TKMemoryStream);
-    procedure Load(aStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
@@ -180,12 +185,13 @@ begin
   inherited Create;
 
   InitLocaleIds;
+  fForceDefaultLocale := False;
 end;
 
 
 procedure TKMTextLibraryMulti.InitLocaleIds;
 begin
-  // Using indexes is fatsre than always looking them up for every string requested
+  // Using indexes is faster than always looking them up for every string requested
   fPref[0] := gResLocales.IndexByCode(gResLocales.UserLocale);
   fPref[1] := gResLocales.IndexByCode(gResLocales.FallbackLocale);
   fPref[2] := gResLocales.IndexByCode(gResLocales.DefaultLocale);
@@ -204,16 +210,32 @@ end;
 // Order of preference: Locale > Fallback > Default(Eng)
 // Some locales may have no strings at all, just skip them
 function TKMTextLibraryMulti.GetTexts(aIndex: Word): UnicodeString;
+var
+  Found: Boolean;
 begin
+  Found := False;
+
   if (fPref[0] <> -1) and (aIndex < Length(fTexts[fPref[0]])) and (fTexts[fPref[0], aIndex] <> '') then
-    Result := fTexts[fPref[0], aIndex]
+  begin
+    Result := fTexts[fPref[0], aIndex];
+    Found := True;
+  end
   else
   if (fPref[1] <> -1) and (aIndex < Length(fTexts[fPref[1]])) and (fTexts[fPref[1], aIndex] <> '') then
-    Result := fTexts[fPref[1], aIndex]
-  else
-  if (fPref[2] <> -1) and (aIndex < Length(fTexts[fPref[2]])) and (fTexts[fPref[2], aIndex] <> '') then
-    Result := fTexts[fPref[2], aIndex]
-  else
+  begin
+    Result := fTexts[fPref[1], aIndex];
+    Found := True;
+  end;
+
+  if (not Found or fForceDefaultLocale) then
+  begin
+    if (fPref[2] <> -1) and (aIndex < Length(fTexts[fPref[2]])) and (fTexts[fPref[2], aIndex] <> '') then
+    begin
+      Result := fTexts[fPref[2], aIndex];
+      Found := True;
+    end;
+  end;
+  if not Found then
     Result := '~~~String ' + IntToStr(aIndex) + ' out of range!~~~';
 end;
 
@@ -300,6 +322,7 @@ var
   I,K: Integer;
   TextCount: Integer;
 begin
+  aStream.PlaceMarker('TextLibraryMulti');
   // Only save locales containing text (otherwise locale list must be synced in MP)
   aStream.Write(LocalesWithText);
   for I := 0 to gResLocales.Count - 1 do
@@ -316,7 +339,7 @@ begin
 end;
 
 
-procedure TKMTextLibraryMulti.Load(aStream: TKMemoryStream);
+procedure TKMTextLibraryMulti.Load(LoadStream: TKMemoryStream);
 var
   I,K: Integer;
   LocCount, TextCount: Integer;
@@ -327,27 +350,27 @@ begin
   // Try to match savegame locales with players locales,
   // because some players might have non-native locales missing
   // We might add locale selection to setup.exe
-
+  LoadStream.CheckMarker('TextLibraryMulti');
   SetLength(fTexts, gResLocales.Count);
 
-  aStream.Read(LocCount);
+  LoadStream.Read(LocCount);
   for I := 0 to LocCount - 1 do
   begin
-    aStream.ReadA(curLoc);
+    LoadStream.ReadA(curLoc);
     Id := gResLocales.IndexByCode(curLoc);
 
-    aStream.Read(TextCount);
+    LoadStream.Read(TextCount);
 
     if Id <> -1 then
     begin
       SetLength(fTexts[Id], TextCount);
       for K := 0 to TextCount - 1 do
-        aStream.ReadW(fTexts[Id,K]);
+        LoadStream.ReadW(fTexts[Id,K]);
     end
     else
     begin
       for K := 0 to TextCount - 1 do
-        aStream.ReadW(Tmp);
+        LoadStream.ReadW(Tmp);
     end;
   end;
 

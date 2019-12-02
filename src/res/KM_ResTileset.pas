@@ -15,7 +15,7 @@ const
 type
   //TKMTileProperty = set of (tpWalkable, tpRoadable);
 
-  TKMTileMaskType = (mt_None,
+  TKMTileMaskType = (mtNone,
     mt_2Straight, // A A
                   // B B
 
@@ -37,7 +37,7 @@ type
     mt_4Square);  // A B
                   // D C
 
-  TKMTileMaskSubType = (mst_Main, mst_Extra);
+  TKMTileMaskSubType = (mstMain, mstExtra);
 
   TKMTileMaskKind = (mkNone, mkSoftest, mkSoft, mkHard, mkHardest);
 

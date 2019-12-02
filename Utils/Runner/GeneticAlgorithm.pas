@@ -10,19 +10,24 @@ type
   TGAIndividual = class
   private
     fGenes: array of Single;
-    fFitness: Single;
+    fFitness: array of Single; // Fitness is obtained for each map separately
 
     function GetCount(): Integer;
-    procedure SetCount(aCount: Integer);
-    function GetGene(Idx: Integer): Single;
-    procedure SetGene(Idx: Integer; Value: Single);
+    function GetFitnessCount(): Integer;
+    function GetGene(aIdx: Integer): Single;
+    procedure SetGene(aIdx: Integer; aValue: Single);
+    function GetFitness(aIdx: Integer): Single;
+    procedure SetFitness(aIdx: Integer; aValue: Single);
+    function GetSumFitness(): Single;
   public
-    constructor Create(aCount: Integer);
+    constructor Create(aGeneCount,aMapsCount: Integer);
     destructor Destroy(); override;
 
-    property Count: Integer read GetCount write SetCount;
-    property Gene[Idx: Integer]: Single read GetGene write SetGene;
-    property Fitness: Single read fFitness write fFitness;
+    property GenesCount: Integer read GetCount;
+    property FitnessCount: Integer read GetFitnessCount;
+    property Gene[aIdx: Integer]: Single read GetGene write SetGene;
+    property Fitness[aIdx: Integer]: Single read GetFitness write SetFitness;
+    property FitnessSum: Single read GetSumFitness;
   end;
 
   TGAPopulation = class
@@ -32,51 +37,33 @@ type
     procedure SetIndividual(Idx: Integer; aIdv: TGAIndividual);
     function GetCount(): Integer;
   public
-    constructor Create(aPopulationCount, aGeneCount: Integer; aInitialise: Boolean);
+    constructor Create(aPopulationCount, aGeneCount, aMapsCount: Integer; aInitialise: Boolean);
     destructor Destroy(); override;
 
     property Individual[Idx: Integer]: TGAIndividual read GetIndividual write SetIndividual; default;
     property Count: Integer read GetCount;
 
-    function GetFittest(var aIdx: Integer): TGAIndividual; overload; // For debug only
-    function GetFittest(aOnlySomeIdx: TIntegerArray = nil): TGAIndividual; overload;
+    function GetFittest(aOnlySomeIdx: TIntegerArray = nil; aMapWeightedEval: Boolean = True): TGAIndividual; overload;
   end;
 
   TGAAlgorithm = class
   private
-    fMutation, fCrossoverCoef: Single;
+    fMutationResetGene, fMutationGaussian, fMutationVariance: Single;
     fIndividualsInTournamentCnt: Word;
     function TournamentSelection(var aPopulation: TGAPopulation): TGAIndividual;
     function Crossover(aIdv1, aIdv2: TGAIndividual): TGAIndividual;
     procedure Mutate(aIdv: TGAIndividual);
-    procedure SetMutation(aMutation: Single);
   public
     constructor Create();
     destructor Destroy(); override;
 
-    property Mutation: Single read fMutation write SetMutation;
-    property CrossoverCoef: Single read fCrossoverCoef write fCrossoverCoef;
+    property MutationResetGene: Single read fMutationResetGene write fMutationResetGene;
+    property MutationGaussian: Single read fMutationGaussian write fMutationGaussian;
+    property MutationVariance: Single read fMutationVariance write fMutationVariance;
     property IndividualsInTournament: Word read fIndividualsInTournamentCnt write fIndividualsInTournamentCnt;
 
     procedure EvolvePopulation(var aOldPopulation, aNewPopulation: TGAPopulation);
   end;
-
-  {
-  TGAFitnessCalc = class
-  private
-    fSolution: array of Single;
-
-    procedure SetSolution(Idx: Integer; aSolution: Single);
-  public
-    constructor Create();
-    destructor Destroy(); override;
-
-    property Solution[Idx: Integer]: Single write SetSolution;
-
-    function GetFitness(aIdv: TGAIndividual): Integer;
-    function GetMaxFitness(): Integer;
-  end;
-  //}
 
 implementation
 
@@ -87,7 +74,9 @@ implementation
 { TGAAlgorithm }
 constructor TGAAlgorithm.Create();
 begin
-  fMutation := 1;
+  fMutationResetGene := 0;
+  fMutationGaussian := 0;
+  fMutationVariance := 0;
 end;
 
 
@@ -99,114 +88,94 @@ end;
 
 procedure TGAAlgorithm.EvolvePopulation(var aOldPopulation, aNewPopulation: TGAPopulation);
 var
-  I,K, CrossoverCnt, Genes, Populations: Integer;
+  K,L: Integer;
   Idv1, Idv2: TGAIndividual;
 begin
-  Populations := aOldPopulation.Count;
-  Genes := aOldPopulation[0].Count;
-
-  // Save the best individual
-  Idv1 := aOldPopulation.GetFittest(I);
-  Idv2 := TGAIndividual.Create(Genes);
-  for I := 0 to Genes - 1 do // Old generation will be destroyed so copy genes
-    Idv2.Gene[I] := Idv1.Gene[I];
-  aNewPopulation[0] := Idv2;
-
   // Evolve population
-  CrossoverCnt := Min(  Populations - 1, Round( (Populations - 1) * Max(0.01, fCrossoverCoef) )  );
-  for I := 1 to CrossoverCnt do // Start from 1, dont override the best individual
+  for K := 0 to aOldPopulation.Count - 1 do
   begin
     Idv1 := TournamentSelection(aOldPopulation);
     Idv2 := Idv1;
-    K := 0;
-    while (Idv2 = Idv1) AND (K < 20) do
+    L := 0;
+    while (Idv2 = Idv1) AND (L < 20) do // Try to not pick up the same individual
     begin
-      K := K + 1;
+      L := L + 1;
       Idv2 := TournamentSelection(aOldPopulation);
     end;
-    aNewPopulation[I] := Crossover(Idv1, Idv2);
-    Mutate(aNewPopulation[I]);
-  end;
-
-  // New blood
-  for I := CrossoverCnt + 1 to Populations - 1 do
-  begin
-    aNewPopulation[I] := TGAIndividual.Create(Genes);
-    for K := 0 to Genes - 1 do
-      aNewPopulation[I].Gene[K] := Random();
+    aNewPopulation[K] := Crossover(Idv1, Idv2);
+    Mutate(aNewPopulation[K]);
   end;
 end;
 
 
 function TGAAlgorithm.TournamentSelection(var aPopulation: TGAPopulation): TGAIndividual;
 var
-  I, TournamentCount: Integer;
+  K, TournamentCount: Integer;
   TournamentIdx: TIntegerArray;
 begin
   TournamentCount := Min(fIndividualsInTournamentCnt, aPopulation.Count);
   SetLength(TournamentIdx, TournamentCount);
-  for I := 0 to TournamentCount - 1 do
-    TournamentIdx[I] := Random(aPopulation.Count);
+  for K := 0 to TournamentCount - 1 do
+    TournamentIdx[K] := Random(aPopulation.Count);
   Result := aPopulation.GetFittest(TournamentIdx);
 end;
 
 
 function TGAAlgorithm.Crossover(aIdv1, aIdv2: TGAIndividual): TGAIndividual;
 var
-  I: Integer;
+  K: Integer;
   Output: TGAIndividual;
 begin
-  Output := TGAIndividual.Create(aIdv1.Count);
-  for I := 0 to aIdv1.Count - 1 do
+  Output := TGAIndividual.Create(aIdv1.GenesCount,aIdv1.FitnessCount);
+  for K := 0 to aIdv1.GenesCount - 1 do
     if (Random() < 0.5) then
-      Output.Gene[I] := aIdv1.Gene[I]
+      Output.Gene[K] := aIdv1.Gene[K]
     else
-      Output.Gene[I] := aIdv2.Gene[I];
+      Output.Gene[K] := aIdv2.Gene[K];
   Result := Output;
-end;
-
-
-procedure TGAAlgorithm.SetMutation(aMutation: Single);
-begin
-  fMutation := Min( 1, Max(0, aMutation) );
 end;
 
 
 procedure TGAAlgorithm.Mutate(aIdv: TGAIndividual);
 var
-  I: Integer;
-const
-  MutationRate = 0.2; // Mutation
+  K: Integer;
 begin
-  for I := 0 to aIdv.Count - 1 do
-    if (Random() <= MutationRate) then
-      aIdv.Gene[I] := Min(  1, Max( 0, aIdv.Gene[I] + fMutation * (2 * Random() - 1) )  );
+  // Reset gene mutation
+  for K := 0 to aIdv.GenesCount - 1 do
+    if (Random() <= fMutationResetGene) then
+      aIdv.Gene[K] := Random();
+  // Change gene value according to normal distribution
+  for K := 0 to aIdv.GenesCount - 1 do
+    if (Random() <= fMutationGaussian) then
+      aIdv.Gene[K] := Min(1, Max( 0,
+                        aIdv.Gene[K] + fMutationVariance * sqrt(  -2 * Ln( Max(1E-35,Random()) )  ) * cos( 2 * 3.1415 * Random() )
+                      ));
 end;
 
 
 
 
 { TGAPopulation }
-constructor TGAPopulation.Create(aPopulationCount, aGeneCount: Integer; aInitialise: Boolean);
+constructor TGAPopulation.Create(aPopulationCount, aGeneCount, aMapsCount: Integer; aInitialise: Boolean);
 var
-  I: Integer;
+  K: Integer;
 begin
   SetLength(fIndividuals, aPopulationCount);
-  for I := 0 to aPopulationCount - 1 do
+  for K := 0 to aPopulationCount - 1 do
   begin
-    fIndividuals[I] := nil;
+    fIndividuals[K] := nil;
     if aInitialise then
-      fIndividuals[I] := TGAIndividual.Create(aGeneCount);
+      fIndividuals[K] := TGAIndividual.Create(aGeneCount,aMapsCount);
   end;
 end;
 
 
 destructor TGAPopulation.Destroy();
 var
-  I: Integer;
+  K: Integer;
 begin
-  for I := 0 to Length(fIndividuals) - 1 do
-    fIndividuals[I].Free;
+  for K := 0 to Length(fIndividuals) - 1 do
+    fIndividuals[K].Free;
   inherited;
 end;
 
@@ -223,39 +192,52 @@ begin
 end;
 
 
-function TGAPopulation.GetFittest(aOnlySomeIdx: TIntegerArray = nil): TGAIndividual;
+function TGAPopulation.GetFittest(aOnlySomeIdx: TIntegerArray = nil; aMapWeightedEval: Boolean = True): TGAIndividual;
 var
-  I: Integer;
+  K,L: Integer;
+  BestFit: Single;
+  FitnessArr: array of Single;
   Fittest: TGAIndividual;
 begin
   Fittest := nil;
-  if (aOnlySomeIdx = nil) OR (Length(aOnlySomeIdx) = 0) then
+  // Define Fitness array and clean it
+  SetLength(FitnessArr,Length(fIndividuals));
+  for K := Low(FitnessArr) to High(FitnessArr) do
+    FitnessArr[K] := 0;
+  // If no idexes are specified, select everything
+  if (aOnlySomeIdx = nil) OR (Length(aOnlySomeIdx) <= 0) then
   begin
-    for I := 0 to Length(fIndividuals) - 1 do
-      if (Fittest = nil) OR (fIndividuals[I].Fitness > Fittest.Fitness) then
-        Fittest := fIndividuals[I];
-  end
-  else if (Length(aOnlySomeIdx) > 0) then
-  begin
-    for I := Low(aOnlySomeIdx) to High(aOnlySomeIdx) do
-      if (Fittest = nil) OR (fIndividuals[ aOnlySomeIdx[I] ].Fitness > Fittest.Fitness) then
-        Fittest := fIndividuals[ aOnlySomeIdx[I] ];
+    SetLength(aOnlySomeIdx, Length(fIndividuals));
+    for K := Low(fIndividuals) to High(fIndividuals) do
+      aOnlySomeIdx[K] := K;
   end;
-  Result := Fittest;
-end;
-
-
-function TGAPopulation.GetFittest(var aIdx: Integer): TGAIndividual;
-var
-  I: Integer;
-  Fittest: TGAIndividual;
-begin
-  Fittest := nil;
-  for I := 0 to Length(fIndividuals) - 1 do
-    if (Fittest = nil) OR (fIndividuals[I].Fitness > Fittest.Fitness) then
+  // Calculate Fitness
+  if aMapWeightedEval then
+  begin
+    for K := 0 to fIndividuals[0].FitnessCount - 1 do
     begin
-      Fittest := fIndividuals[I];
-      aIdx := I;
+      // Get best result
+      BestFit := -1E30;
+      for L in aOnlySomeIdx do
+        if (BestFit < fIndividuals[L].Fitness[K]) then
+          BestFit := fIndividuals[L].Fitness[K];
+      if (BestFit = 0) then
+        BestFit := 1;
+      // Normalize fitness
+      for L in aOnlySomeIdx do
+        FitnessArr[L] := FitnessArr[L] + fIndividuals[L].Fitness[K] / abs(BestFit);
+    end;
+  end
+  else
+    for K in aOnlySomeIdx do
+      FitnessArr[K] := fIndividuals[K].FitnessSum;
+  // Find best individual
+  L := 0; // For compiler
+  for K in aOnlySomeIdx do
+    if (Fittest = nil) OR (FitnessArr[L] < FitnessArr[K]) then
+    begin
+      Fittest := fIndividuals[K];
+      L := K;
     end;
   Result := Fittest;
 end;
@@ -271,14 +253,12 @@ end;
 
 
 { TGAIndividual }
-constructor TGAIndividual.Create(aCount: Integer);
-var
-  I: Integer;
+constructor TGAIndividual.Create(aGeneCount,aMapsCount: Integer);
 begin
-  fFitness := 0;
-  SetCount(aCount);
-  for I := 0 to aCount - 1 do
-    fGenes[I] := 0;
+  SetLength(fGenes,aGeneCount);
+  SetLength(fFitness,aMapsCount);
+  FillChar(fGenes[0], SizeOf(fGenes[0])*aGeneCount, #0);
+  FillChar(fFitness[0], SizeOf(fFitness[0])*aMapsCount, #0);
 end;
 
 
@@ -294,62 +274,50 @@ begin
 end;
 
 
-procedure TGAIndividual.SetCount(aCount: Integer);
+function TGAIndividual.GetFitnessCount(): Integer;
 begin
-  SetLength(fGenes,aCount);
+  Result := Length(fFitness);
 end;
 
 
-function TGAIndividual.GetGene(Idx: Integer): Single;
+function TGAIndividual.GetGene(aIdx: Integer): Single;
 begin
-  Result := fGenes[Idx];
+  Result := -1;
+  if (aIdx < GenesCount) then
+    Result := fGenes[aIdx];
 end;
 
 
-procedure TGAIndividual.SetGene(Idx: Integer; Value: Single);
+procedure TGAIndividual.SetGene(aIdx: Integer; aValue: Single);
 begin
-  fGenes[Idx] := Value;
+  if (aIdx < GenesCount) then
+    fGenes[aIdx] := aValue;
 end;
 
 
-
-
-{ TGAFitnessCalc }  // This class was replaced with function in Runner for now (and maybe forever)
-{
-constructor TGAFitnessCalc.Create();
+function TGAIndividual.GetFitness(aIdx: Integer): Single;
 begin
-  SetLength(fSolution, 64);// Change length!!!!!!!!!!!
+  Result := -1;
+  if (aIdx < FitnessCount) then
+    Result := fFitness[aIdx];
 end;
 
 
-destructor TGAFitnessCalc.Destroy();
+procedure TGAIndividual.SetFitness(aIdx: Integer; aValue: Single);
 begin
+  if (aIdx < FitnessCount) then
+    fFitness[aIdx] := aValue;
 end;
 
 
-procedure TGAFitnessCalc.SetSolution(Idx: Integer; aSolution: Single);
-begin
-  fSolution[Idx] := aSolution;
-end;
-
-
-function  TGAFitnessCalc.GetFitness(aIdv: TGAIndividual): Integer;
+function TGAIndividual.GetSumFitness(): Single;
 var
-  I, Output: Integer;
+  K: Integer;
 begin
-  Output := 0;
-  for I := 0 to aIdv.Count - 1 do
-    if aIdv.Gene[I] = fSolution[i] then
-      Inc(Output,1);
-  Result := Output;
+  Result := 0;
+  for K := 0 to Length(fFitness) - 1 do
+    Result := Result + fFitness[K];
 end;
-
-
-function TGAFitnessCalc.GetMaxFitness(): Integer;
-begin
-  Result := Length(fSolution);
-end;
-//}
 
 end.
 

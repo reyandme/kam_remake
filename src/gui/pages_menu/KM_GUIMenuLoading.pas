@@ -35,9 +35,9 @@ begin
 
   Panel_Loading := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Loading.AnchorsStretch;
-    with TKMLabel.Create(Panel_Loading, aParent.Width div 2, aParent.Height div 2 - 20, gResTexts[TX_MENU_LOADING], fnt_Outline, taCenter) do
+    with TKMLabel.Create(Panel_Loading, aParent.Width div 2, aParent.Height div 2 - 20, gResTexts[TX_MENU_LOADING], fntOutline, taCenter) do
       AnchorsCenter;
-    Label_Loading := TKMLabel.Create(Panel_Loading, aParent.Width div 2, aParent.Height div 2+10, '...', fnt_Grey, taCenter);
+    Label_Loading := TKMLabel.Create(Panel_Loading, aParent.Width div 2, aParent.Height div 2+10, '...', fntGrey, taCenter);
     Label_Loading.AnchorsCenter;
 end;
 

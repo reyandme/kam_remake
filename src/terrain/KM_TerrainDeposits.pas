@@ -86,7 +86,7 @@ begin
     rdGold:  Result := gTerrain.TileIsGold(X, Y);
     rdFish:  begin
                curUnit := gTerrain.Land[Y, X].IsUnit;
-               if (curUnit <> nil) and (curUnit is TKMUnitAnimal) and (curUnit.UnitType = ut_Fish) then
+               if (curUnit <> nil) and (curUnit is TKMUnitAnimal) and (curUnit.UnitType = utFish) then
                  Result := 2 * TKMUnitAnimal(curUnit).FishCount //You get 2 fish from each trip
                else
                  Result := 0;

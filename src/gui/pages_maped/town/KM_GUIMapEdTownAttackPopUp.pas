@@ -11,7 +11,7 @@ uses
 type
   TKMMapEdTownAttack = class
   private
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
     fIndex: Integer;
     procedure Attack_Change(Sender: TObject);
     procedure Attack_Close(Sender: TObject);
@@ -41,7 +41,7 @@ type
 
     property Visible: Boolean read GetVisible;
     function KeyDown(Key: Word; Shift: TShiftState): Boolean;
-    procedure Show(aPlayer: TKMHandIndex; aIndex: Integer);
+    procedure Show(aPlayer: TKMHandID; aIndex: Integer);
   end;
 
 
@@ -73,44 +73,45 @@ begin
     TKMBevel.Create(Panel_Attack, -1000,  -1000, 4000, 4000);
     with TKMImage.Create(Panel_Attack, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain) do ImageStretch;
     TKMBevel.Create(Panel_Attack,   0,  0, SIZE_X, SIZE_Y);
-    Label_AttackHeader := TKMLabel.Create(Panel_Attack, SIZE_X div 2, 10, gResTexts[TX_MAPED_AI_ATTACK_INFO], fnt_Outline, taCenter);
+    Label_AttackHeader := TKMLabel.Create(Panel_Attack, SIZE_X div 2, 10, gResTexts[TX_MAPED_AI_ATTACK_INFO], fntOutline, taCenter);
 
     Button_Prev := TKMButton.Create(Panel_Attack, 20, 10, 60, 20, '<<', bsMenu);
     Button_Prev.OnClick := Attack_Switch;
     Button_Next := TKMButton.Create(Panel_Attack, SIZE_X-20-60, 10, 60, 20, '>>', bsMenu);
     Button_Next.OnClick := Attack_Switch;
 
-    TKMLabel.Create(Panel_Attack, 20, 40, gResTexts[TX_MAPED_AI_ATTACK_COL_TYPE], fnt_Metal, taLeft);
-    Radio_AttackType := TKMRadioGroup.Create(Panel_Attack, 20, 60, 160, 40, fnt_Grey);
+    TKMLabel.Create(Panel_Attack, 20, 40, gResTexts[TX_MAPED_AI_ATTACK_COL_TYPE], fntMetal, taLeft);
+    Radio_AttackType := TKMRadioGroup.Create(Panel_Attack, 20, 60, 160, 40, fntGrey);
     Radio_AttackType.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_ONCE]);
     Radio_AttackType.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_REP]);
     Radio_AttackType.OnChange := Attack_Change;
 
-    with TKMLabel.Create(Panel_Attack, 180, 40, 150, 40, gResTexts[TX_MAPED_AI_ATTACK_DELAY], fnt_Metal, taLeft) do
+    with TKMLabel.Create(Panel_Attack, 180, 40, 150, 40, gResTexts[TX_MAPED_AI_ATTACK_DELAY], fntMetal, taLeft) do
       AutoWrap := True;
     NumEdit_AttackDelay := TKMNumericEdit.Create(Panel_Attack, 180, 80, 0, High(SmallInt));
     NumEdit_AttackDelay.OnChange := Attack_Change;
 
-    with TKMLabel.Create(Panel_Attack, 340, 40, 200, 40, gResTexts[TX_MAPED_AI_ATTACK_SOLDIERS], fnt_Metal, taLeft) do
+    with TKMLabel.Create(Panel_Attack, 340, 40, 200, 40, gResTexts[TX_MAPED_AI_ATTACK_SOLDIERS], fntMetal, taLeft) do
       AutoWrap := True;
     NumEdit_AttackMen := TKMNumericEdit.Create(Panel_Attack, 340, 80, 0, 1000);
     NumEdit_AttackMen.OnChange := Attack_Change;
 
-    TKMLabel.Create(Panel_Attack, 340, 160, gResTexts[TX_MAPED_AI_ATTACK_COUNT], fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Attack, 340, 160, gResTexts[TX_MAPED_AI_ATTACK_COUNT], fntMetal, taLeft);
     for GT := Low(TKMGroupType) to High(TKMGroupType) do
     begin
-      TKMLabel.Create(Panel_Attack, 425, 180 + Byte(GT) * 20, 0, 0, gResTexts[GROUP_TEXT[GT]], fnt_Grey, taLeft);
+      TKMLabel.Create(Panel_Attack, 425, 180 + Byte(GT) * 20, 0, 0, gResTexts[GROUP_TEXT[GT]], fntGrey, taLeft);
       NumEdit_AttackAmount[GT] := TKMNumericEdit.Create(Panel_Attack, 340, 180 + Byte(GT) * 20, 0, 255);
       NumEdit_AttackAmount[GT].OnChange := Attack_Change;
     end;
 
-    CheckBox_AttackTakeAll := TKMCheckBox.Create(Panel_Attack, 340, 265, 210, 20, gResTexts[TX_MAPED_AI_ATTACK_TAKE_RANDOMLY], fnt_Metal);
+    CheckBox_AttackTakeAll := TKMCheckBox.Create(Panel_Attack, 340, 265, 210, 20, gResTexts[TX_MAPED_AI_ATTACK_TAKE_ALL], fntMetal);
+    CheckBox_AttackTakeAll.Hint := gResTexts[TX_MAPED_AI_ATTACK_TAKE_ALL_HINT];
     CheckBox_AttackTakeAll.OnClick := Attack_Change;
 
     //Second row
 
-    TKMLabel.Create(Panel_Attack, 20, 160, gResTexts[TX_MAPED_AI_ATTACK_COL_TARGET], fnt_Metal, taLeft);
-    Radio_AttackTarget := TKMRadioGroup.Create(Panel_Attack, 20, 180, 310, 80, fnt_Grey);
+    TKMLabel.Create(Panel_Attack, 20, 160, gResTexts[TX_MAPED_AI_ATTACK_COL_TARGET], fntMetal, taLeft);
+    Radio_AttackTarget := TKMRadioGroup.Create(Panel_Attack, 20, 180, 310, 80, fntGrey);
     Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_CLOSEST]);
     Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_HOUSE_ARMY]);
     Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_HOUSE_START]);
@@ -123,7 +124,7 @@ begin
     NumEdit_AttackLocY.OnChange := Attack_Change;
 
     //Range is not implemented yet (unused feature in KaM?)
-    with TKMLabel.Create(Panel_Attack, 200, 240, 'Range (untested)', fnt_Metal, taLeft) do Hide;
+    with TKMLabel.Create(Panel_Attack, 200, 240, 'Range (untested)', fntMetal, taLeft) do Hide;
     TrackBar_AttackRange := TKMTrackBar.Create(Panel_Attack, 200, 260, 100, 0, 255);
     TrackBar_AttackRange.Disable;
     TrackBar_AttackRange.Hide;
@@ -247,7 +248,7 @@ begin
 end;
 
 
-procedure TKMMapEdTownAttack.Show(aPlayer: TKMHandIndex; aIndex: Integer);
+procedure TKMMapEdTownAttack.Show(aPlayer: TKMHandID; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;

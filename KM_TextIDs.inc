@@ -163,7 +163,7 @@ TX_HOUSE_BARRACKS_TRAIN_HINT = 149; //Equip current soldier type
 TX_HOUSE_BARRACKS_TRAIN_DISABLED_HINT = 706; //This soldier type is not available
 TX_HOUSE_SCHOOL_NEXT_HINT = 150; //Next profession
 TX_HOUSE_SCHOOL_PREV_HINT = 151; //Previous profession
-TX_HOUSE_SCHOOL_TRAIN_HINT = 152; //Add to queue
+TX_HOUSE_SCHOOL_TRAIN_HINT = 152; //Add to queue. Use RMB, Shift or Ctrl to modify the queue
 TX_HOUSE_SCHOOL_TRAIN_DISABLED_HINT = 707; //This unit type is not available
 TX_HOUSE_TOGGLE_DELIVERS_HINT = 153; //Switch between delivery modes of wares: demand / closed / offer. Use LMB/RMB to switch forward/backward
 
@@ -406,6 +406,7 @@ TX_GAME_ERROR_NETWORK = 347; //Network error:
 TX_GAME_ERROR_BLANK_PLAYERNAME = 348; //Error: Player name must not be blank
 TX_GAME_ERROR_LONG_PLAYERNAME = 349; //Error: Player name must be no more than %d characters long
 TX_GAME_ERROR_ILLEGAL_PLAYERNAME = 350; //Error: Player name contains illegal characters
+TX_GAME_ERROR_RESERVER_PLAYERNAME = 1255; //Error: Player name '%s' is reserved
 TX_GAME_ERROR_CONNECTION_FAILED = 351; //Connection failed: %s
 TX_GAME_ERROR_DISCONNECT = 352; //You have disconnected
 TX_GAME_MISSION = 353; //Mission %d
@@ -420,6 +421,8 @@ TX_REPLAY_RESUME = 360; //Resume paused replay
 TX_REPLAY_QUIT = 361; //Quit replay
 TX_REPLAY_PLAYER_PERSPECTIVE = 362; //Toggle individual player perspective
 TX_REPLAY_SHOW_FOG = 771; //Show fog
+TX_REPLAY_SAVE_AT = 1246; //Save replay state to be able to load while watching this replay
+TX_REPLAY_LOAD_AT_HINT = 1247; //Load replay at %s
 
 TX_HOUSES_MARKET_SELECT_LEFT = 364; //Use the left mouse button to select the ware to trade
 TX_HOUSES_MARKET_SELECT_RIGHT = 365; //Use the right mouse button to select the ware to trade
@@ -451,12 +454,12 @@ TX_MAPED_TERRAIN_TILES_RANDOM = 389; //Random Direction
 TX_MAPED_TERRAIN_TILES_RANDOM_HINT = 390; //Tick for randomized tile direction or use right click to rotate the selected tile
 TX_MAPED_TERRAIN_OBJECTS_BLOCK = 392; //Block walking
 TX_MAPED_TERRAIN_OBJECTS_REMOVE = 393; //Remove an object
-TX_MAPED_TERRAIN_MAGIC_WATER = 672; //Magic water
+TX_MAPED_TERRAIN_MAGIC_WATER = 672; //
 TX_MAPED_TERRAIN_MAGIC_WATER_HINT = 671; //Magic water - sets the direction for all tiles in a body of water
 TX_MAPED_TERRAIN_EYEDROPPER_HINT = 965; //Eyedropper - select the type of tile under the cursor
 TX_MAPED_TERRAIN_FORCE_PAINT = 1197; //Force paint
-TX_MAPED_TERRAIN_FORCE_PAINT_HINT = 1198; //Force to override manually set tiles from tiles table while painting with brushes
-TX_MAPED_TERRAIN_MAGIC_BRUSH_HINT = 1199; //Magic brush - automatically fix all tile transitions with chosen mask
+TX_MAPED_TERRAIN_FORCE_PAINT_HINT = 1198; //Force to override manually set tiles from tiles table while painting with brushes (if possible)
+TX_MAPED_TERRAIN_MAGIC_BRUSH_HINT = 1199; //Magic brush - automatically fix all generated or missing tile transitions with chosen mask
 TX_MAPED_TERRAIN_NO_MASK_HINT = 1200; //No mask - use exiting tiles for transitions
 TX_MAPED_TERRAIN_MASK_1_HINT = 1201; //Softest mask - use automatically created transitions
 TX_MAPED_TERRAIN_MASK_2_HINT = 1202; //Soft mask - use automatically created transitions
@@ -538,7 +541,7 @@ TX_MAPED_AI_FORMATIONS = 453; //Edit formations
 TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT = 454; //Set a limit on how many soldiers the AI can have
 TX_MAPED_AI_MAX_SOLDIERS_HINT = 455; //How many soldiers AI can have at once
 TX_MAPED_AI_MAX_SOLDIERS = 456; //Set max. soldiers
-TX_MAPED_AI_RECRUITS_HINT = 457; //How many recruits AI should have in barracks
+TX_MAPED_AI_RECRUITS_HINT = 457; //Classic AI: How many recruits AI should have in barracks|Advanced AI: Parameter not used
 TX_MAPED_AI_RECRUITS = 458; //Recruits per Barracks
 TX_MAPED_AI_RECRUIT_DELAY = 670; //Recruit delay (mins)
 TX_MAPED_AI_RECRUIT_DELAY_HINT = 669; //Delay in minutes before the AI starts training recruits
@@ -555,7 +558,8 @@ TX_MAPED_AI_TARGET_CUSTOM = 460; //Custom position
 TX_MAPED_AI_TARGET_HOUSE_START = 791; //Closest house from start position
 TX_MAPED_AI_TARGET_HOUSE_ARMY = 790; //Closest house from army
 TX_MAPED_AI_TARGET_CLOSEST = 463; //Closest unit
-TX_MAPED_AI_ATTACK_TAKE_RANDOMLY = 802; //Take randomly
+TX_MAPED_AI_ATTACK_TAKE_ALL = 802; //Take all
+TX_MAPED_AI_ATTACK_TAKE_ALL_HINT = 1232; //Take every group type
 TX_MAPED_AI_ATTACK_COUNT = 465; //Group count
 TX_MAPED_AI_ATTACK_INFO = 466; //Attack info
 TX_MAPED_AI_ATTACK_DELAY = 788; //Initial delay (seconds)
@@ -595,11 +599,14 @@ TX_MAPED_AI_SERFS_PER_10_HOUSES = 488; //Serfs per 10 houses
 TX_MAPED_AI_SERFS_PER_10_HOUSES_HINT = 827; //Sets serfs count per 10 houses for specified AI player. Selected AI has %d houses
 TX_MAPED_AI_AUTOREPAIR = 489; //Autorepair
 TX_MAPED_AI_AUTOBUILD = 490; //Autobuild
-TX_MAPED_AI_FASTEQUIP = 811; //Fast equip
-TX_MAPED_AI_FASTEQUIP_HINT = 812; //Soldiers are equipped as fast as possible. Equip rates still affect village planning
+TX_MAPED_AI_FASTEQUIP = 811; //Unlimited equip
+TX_MAPED_AI_FASTEQUIP_HINT = 812; //Classic AI: Soldiers are equipped as fast as possible. Equip rates still affect village planning|Advanced AI: No equip limit
 TX_MAPED_AI_START = 785; //AI start position
 TX_MAPED_AI_START_HINT = 784; //Sets the AI start position which is used for targeting AI attacks
 TX_MAPED_AI_TITLE = 491; //AI settings
+TX_MAPED_AI_CLASSIC_AI_PARAMS = 1229; //Classic AI|Parameters
+TX_MAPED_AI_CLASSIC_AI_PARAMS_HINT = 1230; //Setup AI Parameters used only by Classic AI
+TX_MAPED_AI_CLASSIC_AI_PARAMS_TITLE = 1231; //Classic AI Parameters
 TX_MAPED_HOUSES_TITLE = 492; //Houses
 TX_MAPED_ROAD_TITLE = 493; //Roadworks
 TX_MAPED_COPY_SELECT_HINT = 679; //Drag to select an area on the map
@@ -803,7 +810,7 @@ TX_MP_PEACETIME_OVER = 620; //Peacetime is over. To thy weapons!
 TX_GAME_TIME = 621; //Game time:|%s
 TX_TROOP_HALT_HINT = 622; //Halt troop
 TX_TROOP_LINK_HINT = 623; //Link up troop
-TX_TROOP_SPLIT_HINT = 624; //Separate troop
+TX_TROOP_SPLIT_HINT = 624; //Separate troop (%s). Separate one unit from troop (Ctrl + %s)
 TX_MENU_REPLAYS = 625; //Replay Viewer
 TX_MENU_VIEW_REPLAY = 626; //View Replay
 TX_SAVE_UNSUPPORTED_FORMAT = 627; //Unsupported format %s
@@ -904,6 +911,8 @@ TX_KEY_FUNC_PLAN_WINE = 1005; //Lay out wine field
 TX_KEY_FUNC_ERASE_PLAN = 1006; //Remove building/highlights
 TX_KEY_FUNC_SEL_NXT_BLD_UNIT_SAME_TYPE = 1007; //Select next house/unit with same type
 TX_KEY_FUNC_DBG_WINDOW = 1008; //Debug window
+TX_KEY_FUNC_SPECPANEL_DROPBOX_OPEN_CLOSE = 1258; //Open/Close spectator stats panel
+TX_KEY_FUNC_REPLAY_PLAY_NEXT_TICK = 1312; //
 TX_KEY_FUNC_SPECTATE_PLAYER_1 = 1009; //Spectate player 1
 TX_KEY_FUNC_SPECTATE_PLAYER_2 = 1010; //Spectate player 2
 TX_KEY_FUNC_SPECTATE_PLAYER_3 = 1011; //Spectate player 3
@@ -1027,7 +1036,7 @@ TX_MSG_HOUSE_UNOCCUPIED_MILL = 977; //This mill is not occupied
 TX_MSG_HOUSE_UNOCCUPIED_QUARRY = 978; //This quarry is not occupied
 TX_MSG_HOUSE_UNOCCUPIED_SAWMILL = 979; //This sawmill is not occupied
 TX_MSG_HOUSE_UNOCCUPIED_SIEGEWORKSHOP = 980; //This siege workshop is not occupied
-TX_MSG_HOUSE_UNOCCUPIED_STABLES = 981; //This stables is not occupied
+TX_MSG_HOUSE_UNOCCUPIED_STABLES = 981; //These stables are not occupied
 TX_MSG_HOUSE_UNOCCUPIED_SWINEFARM = 982; //This swine farm is not occupied
 TX_MSG_HOUSE_UNOCCUPIED_TANNERY = 983; //This tannery is not occupied
 TX_MSG_HOUSE_UNOCCUPIED_WATCHTOWER = 984; //This watchtower is not occupied
@@ -1121,6 +1130,7 @@ TX_MAPED_TERRAIN_ROTATE_TILE = 1086; //Rotate tile
 TX_MAPED_TERRAIN_OBJECTS_PALETTE = 1087; //Objects palette
 TX_MAPED_TERRAIN_CLOSE_PALETTE = 1088; //Close palette
 TX_MAPED_UNITS_REMOVE_HINT = 1089; //Remove units/groups
+TX_MAPED_TERRAIN_TILE_ID_EDIT_HINT = 1262; //Enter tile ID to select it
 
 TX_GAME_SETTINGS_REPLAY_AUTOPAUSE = 1090; //Replay|autopause
 TX_GAME_SETTINGS_REPLAY_AUTOPAUSE_HINT = 1091; //Automatically pause replay when peacetime ends
@@ -1184,16 +1194,21 @@ TX_MENU_MAP_FILTER_BY_PLAYERS_NUMBER = 1170; //By players number
 TX_RESULTS_BACK_TO_GAME = 1171; //Back to game
 TX_GAME_MENU_SHOW_STATS_HINT = 1172; //Show detailed game statistics
 
-TX_MISSION_DIFFICULTY = 1173; //Difficulty
-TX_MISSION_DIFFICULTY_EASY = 1174; //Easy
+TX_MISSION_DIFFICULTY = 1173; //Difficulty level
+TX_MISSION_DIFFICULTY_CAMPAIGN = 1233; //Difficulty
+TX_MISSION_DIFFICULTY_EASY1 = 1174; //Easy
+TX_MISSION_DIFFICULTY_EASY2 = 1313; //Easier
+TX_MISSION_DIFFICULTY_EASY3 = 1314; //Very easy
 TX_MISSION_DIFFICULTY_NORMAL = 1175; //Normal
-TX_MISSION_DIFFICULTY_HARD = 1176; //Hard
+TX_MISSION_DIFFICULTY_HARD1 = 1176; //Hard
+TX_MISSION_DIFFICULTY_HARD2 = 1315; //Harder
+TX_MISSION_DIFFICULTY_HARD3 = 1316; //Very ard
 
 TX_MAPED_MISSION_DIFFICULTY_LEVELS = 1177; //Difficulty levels
 TX_MAPED_MISSION_DIFFICULTY_LEVELS_HINT = 1178; //Setup different difficulty levels, which could be used in the script to modify mission logic and difficulty
 
-TX_PLAYER_WON = 1182; //Player won the game
-TX_PLAYER_LOST = 1183; //Player lost the game
+TX_PLAYER_WON = 1182; //Winner
+TX_PLAYER_LOST = 1183; //Defeated
 
 TX_PLAYER_HOST = 1184; //Host
 
@@ -1201,10 +1216,17 @@ TX_HOUSE_LOGO_HINT = 1185; //Go to selected house
 
 TX_UNIT_SCROLL_HINT = 1186; //Go to selected unit
 
-TX_GAME_SETTINGS_COLOR_MODE = 1187; //Ally / enemy color mode
-TX_GAME_SETTINGS_COLOR_MODE_HINT = 1188; //Use self/ally/enemy colors for players instead of initial player colors
+TX_GAME_SETTINGS_COLOR_MODE = 1187; //Ally / enemy |color mode
+TX_GAME_SETTINGS_COLOR_MODE_HINT = 1188; //Self/ally/enemy colors for players instead of initial player colors
+TX_PLAYERS_COLOR_MODE_CAPTION = 1248; //Players colors:
+TX_PLAYERS_COLOR_MODE_DEFAULT = 1249; //Default
+TX_PLAYERS_COLOR_MODE_ALLY_ENEMY = 1250; //Ally / Enemy
+TX_PLAYERS_COLOR_MODE_TEAMS = 1251; //Teams
+TX_PLAYERS_COLOR_MODE_DEFAULT_HINT = 1252; //Show initial players colors
+TX_PLAYERS_COLOR_MODE_ALLY_ENEMY_HINT = 1253; //Show self / ally / enemy players colors
+TX_PLAYERS_COLOR_MODE_TEAMS_HINT = 1254; //Show teams colors
 
-TX_LOBBY_ALERT_NOT_READY = 1189; //Host is ready to start. Please press '%s'
+TX_LOBBY_ALERT_NOT_READY = 1189; //[$404040]Host is ready to start. Please press '[][$0707FF]%s[][$404040]'[]
 TX_LOBBY_ALERT_READY_BTN = 1190; //Ask to press Ready
 TX_LOBBY_ALERT_GET_READY_SENT = 1191; //Alert to get ready was sent to %s players
 
@@ -1215,19 +1237,19 @@ TX_UNIT_TASK_DISMISS_NOT_AVAIL_HINT = 1193; //Dismiss is not available during cu
 TX_MAP_CUSTOM_PARAM_TH_TROOP_COST = 1204; //Custom TownHall units cost
 TX_MAP_CUSTOM_PARAM_MARKET_PRICE = 1205; //Custom gold market prices
 
-TX_MAPED_TERRAIN_BRUSH_OPTIONS = 1206; //Options
-TX_MAPED_TERRAIN_BRUSH_OPTIONS_HINT = 1207; //Change brush options
-TX_MAPED_TERRAIN_BRUSH_OPTIONS_TITLE = 1208; //Brush options
+TX_MAPED_TERRAIN_BRUSH_OPTIONS = 1206; //Additional options
+TX_MAPED_TERRAIN_BRUSH_OPTIONS_HINT = 1207; //Additional brush options
+TX_MAPED_TERRAIN_BRUSH_OPTIONS_TITLE = 1208; //Additional brush options
 
 TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN = 1209; //Fix terrain brushes
 TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_HINT = 1210; //Try to repair internal terrain information to make brushes work
 TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_TITLE = 1211; //Fix terrain brushes
-TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_CONFIRM = 1212; //Are you sure want to repair all terrain brushes internal info? That will allow to use brushes over manually set tiles from tiles palette
+TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_CONFIRM = 1212; //Are you sure want to repair|all terrain brushes internal info?|That will allow to use brushes|over manually set tiles from tiles table
 
 TX_MAPED_PLAYERS_DEFAULT_SHORT = 1213; //Def.
 
 TX_AI_PLAYER = 537; //AI Player
-TX_PLAYER_HUMAN = 1214; //Human
+TX_PLAYER_HUMAN = 1214; //Human player
 TX_AI_PLAYER_CLASSIC = 1219; //Classic AI Player
 TX_AI_PLAYER_ADVANCED = 1179; //Advanced AI Player
 TX_AI_PLAYER_ADVANCED_SHORT = 1180; //Advanced AI
@@ -1238,9 +1260,9 @@ TX_ADVANCED_AI_PLAYER_X = 1216; //Advanced AI Player %d
 TX_CLASSIC_AI_PLAYER_SHORT_X = 1217; //Classic AI %d
 TX_ADVANCED_AI_PLAYER_SHORT_X = 1218; //Advanced AI %d
 
-TX_AI_PLAYER_TYPE = 1220; //AI Player type
+TX_AI_PLAYER_TYPE = 1220; //AI Player Type
 
-TX_MENU_OPTIONS_AUTOSAVE_AT_GAME_END = 1221; //Autosave on game end
+TX_MENU_OPTIONS_AUTOSAVE_AT_GAME_END = 1221; //Autosave at game end
 
 TX_WORD_NONE = 1222; //None
 TX_WORD_RESOURCES = 1223; //Resources
@@ -1250,3 +1272,80 @@ TX_WORD_CITIZENS = 1226; //Citizens
 TX_WORD_ARMY = 1227; //Army
 
 TX_UNIT_TASK_DISMISS_HUNGRY_HINT = 1228; //Dismiss is not available for hungry units
+
+TX_PLAYER_AFK_MESSAGE = 1234; //%s is away from keyboard for last %s [$00B0FF]minutes[]
+
+TX_SCRIPT_CONSOLE_CMD_PROC_NOT_FOUND = 1236; //The procedure [ %s ] declared for the script console command /%s was not found
+TX_SCRIPT_CONSOLE_CMD_WRONG_PARAM_TYPE = 1237; //Wrong parameter type for script command /%s: [%s]
+TX_SCRIPT_CONSOLE_CMD_WRONG_1ST_PARAM_TYPE = 1238; //Wrong first parameter type for script command /%s. Expected: [%s], actual: [%s]
+TX_SCRIPT_CONSOLE_CMD_TOO_MANY_PROC_PARAMS = 1239; //Too many parameters for script command /%s: [%s]. Max number of parameters is [%s] (including mandatory HandID parameter)
+
+TX_SCRIPT_CONSOLE_CMD_PARAMS_NOT_VALID = 1240; //Wrong parameters for script command /%s. Expected parameters types are: [%s]
+TX_SCRIPT_CONSOLE_CMD_TOO_MANY_PARAMS = 1241; //Too many parameters passed to script command /%s: Expected parameters count [ %s ], actual: [ %s ]
+TX_SCRIPT_CONSOLE_CMD_CALLED = 1242; //Command called: /%s(%s)
+TX_SCRIPT_CONSOLE_CMD_PARSING_ERROR = 1243; //Error while calling script command /%s(%s)
+TX_SCRIPT_CONSOLE_CMD_NOT_FOUND = 1244; //Script console command /%s not found
+
+TX_CHAT_ACTIONS_ALLOWED_HINT = 1245; //Enable/Disable copy-paste from chat window and chat history
+
+TX_FORM_EXPORT_CONFIRM_MSG = 1235; //Data export could take up to several minutes.\nExported data will be stored in '%s' folder.\nDo you confirm operation?
+
+TX_SPECTATOR_PANEL_CITIZENS_SLR = 1256; //Citizens (S/L/R)
+TX_SPECTATOR_PANEL_CITIZENS_HOUSE_WORKERS = 1257; //Citizens (Others)
+
+TX_MULTIPLAYER_WAITING_DC_PLAYERS_DATA = 964; //Waiting for disconnected players data:
+
+TX_HOUSE_DELIVERY_PROHIBITED_HINT = 1259; //Deliver %s is prohibited
+TX_HOUSE_TAKEOUT_PROHIBITED_HINT = 1260; //Take out %s is prohibited while in the "offer" delivery mode
+TX_HOUSE_BARRACKS_NOT_ACCEPT_RECRUIT_HINT = 1261; //Recruit is not allowed to get into Barracks
+
+TX_MAPED_RMG_BUTTON_TITLE = 1263; //RMG Settings
+TX_MAPED_RMG_BUTTON_HINT = 1264; //Random map generator settings
+TX_MAPED_RMG_SETTINGS_TITLE = 1265; //Random Map Generator - Settings
+TX_MAPED_RMG_SETTINGS_LOCS = 1266; //Locs
+TX_MAPED_RMG_SETTINGS_ACTIVE = 1267; //Active
+TX_MAPED_RMG_SETTINGS_LAYOUT = 1268; //Layout
+TX_MAPED_RMG_SETTINGS_RECTANGLE = 1269; //Rectangle
+TX_MAPED_RMG_SETTINGS_VERTICAL = 1270; //Vertical
+TX_MAPED_RMG_SETTINGS_HORISONTAL = 1271; //Horizontal
+TX_MAPED_RMG_SETTINGS_RANDOM = 1272; //Random
+TX_MAPED_RMG_SETTINGS_CENTER_SCREEN = 1273; //Center Screen
+TX_MAPED_RMG_SETTINGS_LOC_RADIUS = 1274; //Loc radius
+TX_MAPED_RMG_SETTINGS_RESOURCES = 1275; //Resources
+TX_MAPED_RMG_SETTINGS_CONNECT_LOCS = 1276; //Connect Locs
+TX_MAPED_RMG_SETTINGS_MINE_FIX = 1277; //Mine fix
+TX_MAPED_RMG_SETTINGS_OBSTACLES = 1278; //Obstacles
+TX_MAPED_RMG_SETTINGS_SWAMP = 1279; //Swamp
+TX_MAPED_RMG_SETTINGS_WETLAND = 1280; //Wetland
+TX_MAPED_RMG_SETTINGS_WATER = 1281; //Water
+TX_MAPED_RMG_SETTINGS_DENSITY = 1282; //Density
+TX_MAPED_RMG_SETTINGS_SIZE = 1283; //Size
+TX_MAPED_RMG_SETTINGS_VARIANCE = 1284; //Variance
+TX_MAPED_RMG_SETTINGS_WALK_TEXTURES = 1285; //Walk textures
+TX_MAPED_RMG_SETTINGS_BIOMES = 1286; //Biomes
+TX_MAPED_RMG_SETTINGS_GRASS = 1287; //Grass
+TX_MAPED_RMG_SETTINGS_GROUND = 1288; //Ground
+TX_MAPED_RMG_SETTINGS_SNOW = 1289; //Snow
+TX_MAPED_RMG_SETTINGS_SAND = 1290; //Sand
+TX_MAPED_RMG_SETTINGS_FIRST_LAYER = 1291; //First layer
+TX_MAPED_RMG_SETTINGS_SECOND_LAYER = 1292; //Second layer
+TX_MAPED_RMG_SETTINGS_STEP = 1293; //Step
+TX_MAPED_RMG_SETTINGS_LIMIT = 1294; //Limit
+TX_MAPED_RMG_SETTINGS_HEIGHT = 1295; //Height
+TX_MAPED_RMG_SETTINGS_H_N_S_T = 1296; //H_N-S_T
+TX_MAPED_RMG_SETTINGS_INACCESIBLE_PLACES = 1297; //Inaccesible places
+TX_MAPED_RMG_SETTINGS_NOGO_ZONES = 1298; //NoGo Zones
+TX_MAPED_RMG_SETTINGS_RPLC_MNT_TERRAIN = 1299; //Replace mountains terrain
+TX_MAPED_RMG_SETTINGS_OBJECTS = 1300; //Objects
+TX_MAPED_RMG_SETTINGS_ANIMALS = 1301; //Animals
+TX_MAPED_RMG_SETTINGS_FORESTS = 1302; //Forests
+TX_MAPED_RMG_SETTINGS_TREES = 1303; //Trees
+TX_MAPED_RMG_SETTINGS_EMPTY_GOLD = 1304; //Empty gold
+TX_MAPED_RMG_SETTINGS_EMPTY_IRON = 1305; //Empty iron
+TX_MAPED_RMG_SETTINGS_SEED = 1306; //Seed
+TX_MAPED_RMG_SETTINGS_BASIC_TILES = 1307; //Basic tiles
+TX_MAPED_RMG_SETTINGS_CELLULAR_AUTOMATON = 1308; //Cellular automaton
+TX_MAPED_RMG_SETTINGS_NEW_RANDOM_SEED = 1309; //New Random Seed
+TX_MAPED_RMG_SETTINGS_GENERATE_MAP = 1310; //Generate map
+TX_MAPED_RMG_SETTINGS_MAP_SIZE = 1311; //Map size
+

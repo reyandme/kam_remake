@@ -20,15 +20,15 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function AddUnit(aOwner: TKMHandIndex; aUnitType: TKMUnitType; const aLoc: TKMPoint; aAutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+    function AddUnit(aOwner: TKMHandID; aUnitType: TKMUnitType; const aLoc: TKMPoint; aAutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
     procedure AddUnitToList(aUnit: TKMUnit);
     property Count: Integer read GetCount;
     property Units[aIndex: Integer]: TKMUnit read GetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
     procedure RemoveAllUnits;
     procedure DeleteUnitFromList(aUnit: TKMUnit);
-    procedure OwnerUpdate(aOwner: TKMHandIndex);
-    function HitTest(X, Y: Integer; const UT: TKMUnitType = ut_Any): TKMUnit;
+    procedure OwnerUpdate(aOwner: TKMHandID);
+    function HitTest(X, Y: Integer; const UT: TKMUnitType = utAny): TKMUnit;
     function GetUnitByUID(aUID: Integer): TKMUnit;
     function GetClosestUnit(const aPoint: TKMPoint; aTypes: TKMUnitTypeSet = [Low(TKMUnitType)..High(TKMUnitType)]): TKMUnit;
     procedure GetUnitsInRect(const aRect: TKMRect; List: TList);
@@ -43,8 +43,9 @@ type
 
 implementation
 uses
-  KM_Game, KM_HandsCollection, KM_Log, KM_Resource, KM_ResUnits, KM_Units_Warrior,
-  KM_GameTypes;
+  SysUtils,
+  KM_Game, KM_HandsCollection, KM_Log, KM_Resource, KM_ResUnits, KM_UnitWarrior,
+  KM_UnitActionWalkTo, KM_GameTypes;
 
 
 { TKMUnitsCollection }
@@ -77,7 +78,7 @@ end;
 
 
 //AutoPlace means we should try to find a spot for this unit instead of just placing it where we were told to
-function TKMUnitsCollection.AddUnit(aOwner: TKMHandIndex; aUnitType: TKMUnitType; const aLoc: TKMPoint; aAutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
+function TKMUnitsCollection.AddUnit(aOwner: TKMHandID; aUnitType: TKMUnitType; const aLoc: TKMPoint; aAutoPlace: Boolean = True; aRequiredWalkConnect: Byte = 0): TKMUnit;
 var
   ID: Cardinal;
   PlaceTo: TKMPoint;
@@ -108,12 +109,12 @@ begin
 
   ID := gGame.GetNewUID;
   case aUnitType of
-    ut_Serf:                          Result := TKMUnitSerf.Create(ID, aUnitType, PlaceTo, aOwner);
-    ut_Worker:                        Result := TKMUnitWorker.Create(ID, aUnitType, PlaceTo, aOwner);
-    ut_WoodCutter..ut_Fisher,
-    {ut_Worker,}
-    ut_StoneCutter..ut_Metallurgist:  Result := TKMUnitCitizen.Create(ID, aUnitType, PlaceTo, aOwner);
-    ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PlaceTo, aOwner);
+    utSerf:                          Result := TKMUnitSerf.Create(ID, aUnitType, PlaceTo, aOwner);
+    utWorker:                        Result := TKMUnitWorker.Create(ID, aUnitType, PlaceTo, aOwner);
+    utWoodCutter..utFisher,
+    {utWorker,}
+    utStoneCutter..utMetallurgist:  Result := TKMUnitCitizen.Create(ID, aUnitType, PlaceTo, aOwner);
+    utRecruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PlaceTo, aOwner);
     WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PlaceTo, aOwner);
     ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PlaceTo, aOwner);
     else                              raise ELocError.Create('Add ' + gRes.Units[aUnitType].GUIName, PlaceTo);
@@ -157,16 +158,16 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.OwnerUpdate(aOwner: TKMHandIndex);
+procedure TKMUnitsCollection.OwnerUpdate(aOwner: TKMHandID);
 var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
-    Units[I].SetOwner(aOwner);
+    Units[I].Owner := aOwner;
 end;
 
 
-function TKMUnitsCollection.HitTest(X, Y: Integer; const UT: TKMUnitType = ut_Any): TKMUnit;
+function TKMUnitsCollection.HitTest(X, Y: Integer; const UT: TKMUnitType = utAny): TKMUnit;
 var
   I: Integer;
 begin
@@ -199,8 +200,8 @@ var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
-  if KMInRect(Units[I].PositionF, aRect) and not Units[I].IsDeadOrDying then
-    List.Add(Units[I]);
+    if KMInRect(Units[I].PositionF, aRect) and not Units[I].IsDeadOrDying then
+      List.Add(Units[I]);
 end;
 
 
@@ -214,7 +215,7 @@ begin
   for I := 0 to Count - 1 do
     if not Units[I].IsDeadOrDying and Units[I].Visible and (Units[I].UnitType in aTypes) then
     begin
-      Dist := KMLengthSqr(Units[I].GetPosition, aPoint);
+      Dist := KMLengthSqr(Units[I].CurrPosition, aPoint);
       if Dist < BestDist then
       begin
         BestDist := Dist;
@@ -238,7 +239,7 @@ procedure TKMUnitsCollection.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
-  SaveStream.WriteA('Units');
+  SaveStream.PlaceMarker('Units');
   SaveStream.Write(Count);
   for I := 0 to Count - 1 do
   begin
@@ -255,17 +256,17 @@ var
   UnitType: TKMUnitType;
   U: TKMUnit;
 begin
-  LoadStream.ReadAssert('Units');
+  LoadStream.CheckMarker('Units');
   LoadStream.Read(NewCount);
   for I := 0 to NewCount - 1 do
   begin
     LoadStream.Read(UnitType, SizeOf(UnitType));
     case UnitType of
-      ut_Serf:                  U := TKMUnitSerf.Load(LoadStream);
-      ut_Worker:                U := TKMUnitWorker.Load(LoadStream);
-      ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
+      utSerf:                  U := TKMUnitSerf.Load(LoadStream);
+      utWorker:                U := TKMUnitWorker.Load(LoadStream);
+      utWoodCutter..utFisher,{utWorker,}utStoneCutter..utMetallurgist:
                                 U := TKMUnitCitizen.Load(LoadStream);
-      ut_Recruit:               U := TKMUnitRecruit.Load(LoadStream);
+      utRecruit:               U := TKMUnitRecruit.Load(LoadStream);
       WARRIOR_MIN..WARRIOR_MAX: U := TKMUnitWarrior.Load(LoadStream);
       ANIMAL_MIN..ANIMAL_MAX:   U := TKMUnitAnimal.Load(LoadStream);
       else                      U := nil;
@@ -330,7 +331,12 @@ begin
   growRect := KMRectGrow(aRect, Margin);
 
   for I := 0 to Count - 1 do
-  if (Units[I] <> nil) and not Units[I].IsDead and KMInRect(Units[I].PositionF, growRect) then
+  if (Units[I] <> nil)
+    and not Units[I].IsDead
+    and ((SHOW_UNIT_ROUTES
+          and (Units[I].Action is TKMUnitActionWalkTo)
+          and TKMUnitActionWalkTo(Units[I].Action).NeedToPaint(growRect))
+        or KMInRect(Units[I].PositionF, growRect)) then
     Units[I].Paint;
 end;
 

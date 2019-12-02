@@ -26,7 +26,7 @@ type
     fCrcCalculated: Boolean;
     fCRC: Cardinal;
     fSaveError: string;
-    fInfo: TKMGameInfo;
+    fGameInfo: TKMGameInfo;
     fGameOptions: TKMGameOptions;
     procedure ScanSave;
     function GetCRC: Cardinal;
@@ -34,7 +34,7 @@ type
     constructor Create(const aName: String; aIsMultiplayer: Boolean);
     destructor Destroy; override;
 
-    property Info: TKMGameInfo read fInfo;
+    property GameInfo: TKMGameInfo read fGameInfo;
     property GameOptions: TKMGameOptions read fGameOptions;
     property Path: string read fPath;
     property FileName: string read fFileName;
@@ -45,7 +45,7 @@ type
     function IsMultiplayer: Boolean;
     function IsReplayValid: Boolean;
     function LoadMinimap(aMinimap: TKMMinimap): Boolean; overload;
-    function LoadMinimap(aMinimap: TKMMinimap; aStartLoc: Integer): Boolean; overload;
+    function LoadMinimap(aMinimap: TKMMinimap; aChoosenStartLoc: Integer): Boolean; overload;
   end;
 
   TKMSavesScanner = class(TThread)
@@ -112,11 +112,9 @@ type
 implementation
 uses
   SysUtils, Math, KromUtils,
+  KM_GameClasses,
   KM_Resource, KM_ResTexts, KM_FileIO, KM_NetworkTypes,
   KM_CommonClasses, KM_Defaults, KM_CommonUtils, KM_Log;
-
-const
-  ANY_LOC = -1000;
 
 
 { TKMSaveInfo }
@@ -125,7 +123,7 @@ begin
   inherited Create;
   fPath := TKMSavesCollection.Path(aName, aIsMultiplayer);
   fFileName := aName;
-  fInfo := TKMGameInfo.Create;
+  fGameInfo := TKMGameInfo.Create;
   fGameOptions := TKMGameOptions.Create;
 
   //We could postpone this step till info is actually required
@@ -136,7 +134,7 @@ end;
 
 destructor TKMSaveInfo.Destroy;
 begin
-  fInfo.Free;
+  fGameInfo.Free;
   fGameOptions.Free;
   inherited;
 end;
@@ -155,7 +153,7 @@ end;
 
 procedure TKMSaveInfo.ScanSave;
 var
-  LoadStream: TKMemoryStream;
+  LoadStream: TKMemoryStreamBinary;
 begin
   if not FileExists(fPath + fFileName + EXT_SAVE_MAIN_DOT) then
   begin
@@ -165,18 +163,18 @@ begin
 
   fCrcCalculated := False; //make lazy load for CRC
 
-  LoadStream := TKMemoryStream.Create; //Read data from file into stream
+  LoadStream := TKMemoryStreamBinary.Create; //Read data from file into stream
   LoadStream.LoadFromFile(fPath + fFileName + EXT_SAVE_MAIN_DOT);
 
-  fInfo.Load(LoadStream);
+  fGameInfo.Load(LoadStream);
   fGameOptions.Load(LoadStream);
-  fSaveError := fInfo.ParseError;
+  fSaveError := fGameInfo.ParseError;
 
-  if (fSaveError = '') and (fInfo.DATCRC <> gRes.GetDATCRC) then
+  if (fSaveError = '') and (fGameInfo.DATCRC <> gRes.GetDATCRC) then
     fSaveError := gResTexts[TX_SAVE_UNSUPPORTED_MODS];
 
   if fSaveError <> '' then
-    fInfo.Title := fSaveError;
+    fGameInfo.Title := fSaveError;
 
   LoadStream.Free;
 end;
@@ -184,70 +182,58 @@ end;
 
 function TKMSaveInfo.LoadMinimap(aMinimap: TKMMinimap): Boolean;
 begin
-  Result := LoadMinimap(aMinimap, ANY_LOC);
+  Result := LoadMinimap(aMinimap, LOC_ANY);
 end;
 
 
-function TKMSaveInfo.LoadMinimap(aMinimap: TKMMinimap; aStartLoc: Integer): Boolean;
+function TKMSaveInfo.LoadMinimap(aMinimap: TKMMinimap; aChoosenStartLoc: Integer): Boolean;
 var
-  LoadStream, LoadMnmStream: TKMemoryStream;
-  DummyInfo: TKMGameInfo;
-  DummyOptions: TKMGameOptions;
+  LoadStream: TKMemoryStreamBinary;
+  DummyGameInfo: TKMGameInfo;
+  DummyGameOptions: TKMGameOptions;
+  GameLocalData: TKMGameMPLocalData;
   IsMultiplayer: Boolean;
-  MinimapFilePath: String;
-  MnmStartLoc: Integer;
+  LocalDataFilePath: String;
 begin
   Result := False;
   if not FileExists(fPath + fFileName + EXT_SAVE_MAIN_DOT) then Exit;
 
-  DummyInfo := TKMGameInfo.Create;
-  DummyOptions := TKMGameOptions.Create;
-  LoadStream := TKMemoryStream.Create; //Read data from file into stream
+  LoadStream := TKMemoryStreamBinary.Create; //Read data from file into stream
+  DummyGameInfo := TKMGameInfo.Create;
+  DummyGameOptions := TKMGameOptions.Create;
   try
     LoadStream.LoadFromFile(fPath + fFileName + EXT_SAVE_MAIN_DOT);
 
-    DummyInfo.Load(LoadStream); //We don't care, we just need to skip past it correctly
-    DummyOptions.Load(LoadStream); //We don't care, we just need to skip past it correctly
+    DummyGameInfo.Load(LoadStream); //We don't care, we just need to skip past it correctly
+    DummyGameOptions.Load(LoadStream); //We don't care, we just need to skip past it correctly
+
     LoadStream.Read(IsMultiplayer);
     if not IsMultiplayer then
     begin
       aMinimap.LoadFromStream(LoadStream);
       Result := True;
     end else begin
-      // Lets try to load Minimap for MP save
-      LoadMnmStream := TKMemoryStream.Create;
       try
+        // Lets try to load Minimap for MP save
+        GameLocalData := TKMGameMPLocalData.Create(0, aChoosenStartLoc, aMinimap);
         try
-          MinimapFilePath := fPath + fFileName + '.' + EXT_SAVE_MP_MINIMAP;
-          if FileExists(MinimapFilePath) then
-          begin
-            LoadMnmStream.LoadFromFile(MinimapFilePath); // try to load minimap from file
-            LoadMnmStream.Read(MnmStartLoc);
-            if (aStartLoc = ANY_LOC) // for not MP game, f.e.
-              or (aStartLoc = LOC_SPECTATE) // allow to see minimap for spectator loc
-              or (aStartLoc = MnmStartLoc) then // allow, if we was on the same loc
-            begin
-              aMinimap.LoadFromStream(LoadMnmStream);
-              Result := True;
-            end;
-          end;
-        except
-          // Ignore any errors, because MP minimap is optional
-          on E: Exception do
-            // Just log error to log, do not crash game in case of any error here
-            gLog.AddTime('Load MP save minimap from file '
-              + MinimapFilePath + ' exception: ' + E.ClassName + ': ' + E.Message
-              {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
-              );
+          Result := GameLocalData.LoadFromFile(fPath + fFileName + EXT_SAVE_MP_LOCAL_DOT);
+        finally
+          GameLocalData.Free;
         end;
-      finally
-        LoadMnmStream.Free;
+      except
+        // Ignore any errors, because MP minimap is optional
+        on E: Exception do
+          // Just log error to log, do not crash game in case of any error here
+          gLog.AddTime('Load MP save minimap from file '
+            + LocalDataFilePath + ' exception: ' + E.ClassName + ': ' + E.Message
+            {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
+            );
       end;
     end;
-
   finally
-    DummyInfo.Free;
-    DummyOptions.Free;
+    DummyGameOptions.Free;
+    DummyGameInfo.Free;
     LoadStream.Free;
   end;
 end;
@@ -255,7 +241,7 @@ end;
 
 function TKMSaveInfo.IsValid: Boolean;
 begin
-  Result := FileExists(fPath + fFileName + EXT_SAVE_MAIN_DOT) and (fSaveError = '') and fInfo.IsValid(True);
+  Result := FileExists(fPath + fFileName + EXT_SAVE_MAIN_DOT) and (fSaveError = '') and fGameInfo.IsValid(True);
 end;
 
 
@@ -429,16 +415,16 @@ var TempSaves: array of TKMSaveInfo;
     case fSortMethod of
       smByFileNameAsc:     Result := CompareText(A.FileName, B.FileName) < 0;
       smByFileNameDesc:    Result := CompareText(A.FileName, B.FileName) > 0;
-      smByDescriptionAsc:  Result := CompareText(A.Info.GetTitleWithTime, B.Info.GetTitleWithTime) < 0;
-      smByDescriptionDesc: Result := CompareText(A.Info.GetTitleWithTime, B.Info.GetTitleWithTime) > 0;
-      smByTimeAsc:         Result := A.Info.TickCount < B.Info.TickCount;
-      smByTimeDesc:        Result := A.Info.TickCount > B.Info.TickCount;
-      smByDateAsc:         Result := A.Info.SaveTimestamp > B.Info.SaveTimestamp;
-      smByDateDesc:        Result := A.Info.SaveTimestamp < B.Info.SaveTimestamp;
-      smByPlayerCountAsc:  Result := A.Info.PlayerCount < B.Info.PlayerCount;
-      smByPlayerCountDesc: Result := A.Info.PlayerCount > B.Info.PlayerCount;
-      smByModeAsc:         Result := A.Info.MissionMode < B.Info.MissionMode;
-      smByModeDesc:        Result := A.Info.MissionMode > B.Info.MissionMode;
+      smByDescriptionAsc:  Result := CompareText(A.GameInfo.GetTitleWithTime, B.GameInfo.GetTitleWithTime) < 0;
+      smByDescriptionDesc: Result := CompareText(A.GameInfo.GetTitleWithTime, B.GameInfo.GetTitleWithTime) > 0;
+      smByTimeAsc:         Result := A.GameInfo.TickCount < B.GameInfo.TickCount;
+      smByTimeDesc:        Result := A.GameInfo.TickCount > B.GameInfo.TickCount;
+      smByDateAsc:         Result := A.GameInfo.SaveTimestamp > B.GameInfo.SaveTimestamp;
+      smByDateDesc:        Result := A.GameInfo.SaveTimestamp < B.GameInfo.SaveTimestamp;
+      smByPlayerCountAsc:  Result := A.GameInfo.PlayerCount < B.GameInfo.PlayerCount;
+      smByPlayerCountDesc: Result := A.GameInfo.PlayerCount > B.GameInfo.PlayerCount;
+      smByModeAsc:         Result := A.GameInfo.MissionMode < B.GameInfo.MissionMode;
+      smByModeDesc:        Result := A.GameInfo.MissionMode > B.GameInfo.MissionMode;
     end;
   end;
 
@@ -472,7 +458,12 @@ var TempSaves: array of TKMSaveInfo;
   end;
 begin
   SetLength(TempSaves, Length(fSaves));
-  MergeSort(Low(fSaves), High(fSaves));
+  try
+    MergeSort(Low(fSaves), High(fSaves));
+  except
+    on E: Exception do
+      Exit; //Ignore sort exceptions
+  end;
 end;
 
 

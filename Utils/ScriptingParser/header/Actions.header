@@ -7,6 +7,10 @@ Actions are placed in a form **Actions.ACT_NAME(ACT_PARAMETERS);** like so:
     if States.GameTime = 300 then
       Actions.PlayerDefeat(0); //Defeat 1st player
 ```
+Also there is a short name for Actions: just **A**, so you could use it as
+```pascal
+  A.PlayerDefeat(0); //Defeat 1st player
+```
 
 <sub>"-" Means this will not be implemented.</sub>
 

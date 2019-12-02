@@ -70,14 +70,14 @@ begin
 
   Panel_Alliances := TKMPanel.Create(PopUp_Alliances, TB_PANEL_A_L, TB_PANEL_A_T, PopUp_Alliances.Width - (TB_PANEL_A_L * 2), PopUp_Alliances.Height - (TB_PANEL_A_T * 2));
 
-  TKMLabel.Create(Panel_Alliances, 0, 0, Panel_Alliances.Width, 0, gResTexts[TX_MAPED_ALLIANCE], fnt_Outline, taCenter);
+  TKMLabel.Create(Panel_Alliances, 0, 0, Panel_Alliances.Width, 0, gResTexts[TX_MAPED_ALLIANCE], fntOutline, taCenter);
   for I := 0 to MAX_HANDS - 1 do
   begin
-    TKMLabel.Create(Panel_Alliances, 40 + I * TB_CHB_A_W, 20, IntToStr(I + 1), fnt_Grey, taCenter);
-    TKMLabel.Create(Panel_Alliances, 10, 40 + I * TB_CHB_A_H, IntToStr(I + 1), fnt_Grey, taCenter);
+    TKMLabel.Create(Panel_Alliances, 40 + I * TB_CHB_A_W, 20, IntToStr(I + 1), fntGrey, taCenter);
+    TKMLabel.Create(Panel_Alliances, 10, 40 + I * TB_CHB_A_H, IntToStr(I + 1), fntGrey, taCenter);
     for K := 0 to MAX_HANDS - 1 do
     begin
-      CheckBox_Alliances[I,K] := TKMCheckBox.Create(Panel_Alliances, TB_CHB_A_L + K * TB_CHB_A_W, TB_CHB_A_T + I * TB_CHB_A_H, 30, 30, '', fnt_Metal);
+      CheckBox_Alliances[I,K] := TKMCheckBox.Create(Panel_Alliances, TB_CHB_A_L + K * TB_CHB_A_W, TB_CHB_A_T + I * TB_CHB_A_H, 30, 30, '', fntMetal);
       CheckBox_Alliances[I,K].Tag       := I * MAX_HANDS + K;
       CheckBox_Alliances[I,K].OnClick   := Mission_AlliancesChange;
     end;
@@ -85,7 +85,7 @@ begin
 
   //It does not have OnClick event for a reason:
   // - we don't have a rule to make alliances symmetrical yet
-  CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, (Panel_Alliances.Width div 2) - 75, Panel_Alliances.Height - 60, 150, 20, gResTexts[TX_MAPED_ALLIANCE_SYMMETRIC], fnt_Metal);
+  CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, (Panel_Alliances.Width div 2) - 75, Panel_Alliances.Height - 60, 150, 20, gResTexts[TX_MAPED_ALLIANCE_SYMMETRIC], fntMetal);
   CheckBox_AlliancesSym.Checked := True;
   CheckBox_AlliancesSym.Disable;
 
@@ -103,7 +103,7 @@ end;
 
 procedure TKMMapEdMissionAlliances.Mission_AlliancesChange(Sender: TObject);
 const
-  ALL: array [Boolean] of TKMAllianceType = (at_Enemy, at_Ally);
+  ALL: array [Boolean] of TKMAllianceType = (atEnemy, atAlly);
 var
   I,K: Integer;
 begin
@@ -131,7 +131,7 @@ begin
   for K := 0 to gHands.Count - 1 do
   begin
     CheckBox_Alliances[I,K].Enabled := gHands[I].HasAssets and gHands[K].HasAssets;
-    CheckBox_Alliances[I,K].Checked := gHands[I].HasAssets and gHands[K].HasAssets and (gHands[I].Alliances[K] = at_Ally);
+    CheckBox_Alliances[I,K].Checked := gHands[I].HasAssets and gHands[K].HasAssets and (gHands[I].Alliances[K] = atAlly);
   end;
 end;
 

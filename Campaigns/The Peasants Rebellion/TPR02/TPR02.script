@@ -1,5 +1,7 @@
 //-- TPR02 --//
-//20.01.2018
+//07.11.2019
+
+{$I difficulty.script}
 
 //Returns Sight Ranges for Units
 function UnitSightRange(aUnitsID: Integer): Byte;
@@ -17,6 +19,13 @@ var
 	i: Integer;
 	aUnits: array of Integer;
 begin
+	//Apply Difficulty
+	case States.MissionDifficulty() of
+		mdEasy1: 
+			IncreaseGroupSize(0, 0);
+		mdHard1:
+			IncreaseGroupSize(5, 0);
+	end;
 	//Disable Sharing Fog With Ally
 	Actions.PlayerShareFog(0, 1, false);
 	Actions.PlayerShareFog(1, 0, false);

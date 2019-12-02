@@ -9,7 +9,7 @@ uses
 type
   TKMMapEdMarkerReveal = class
   private
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
     fIndex: Integer;
     fOnDone: TNotifyEvent;
     procedure Marker_Change(Sender: TObject);
@@ -24,9 +24,9 @@ type
     constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
 
     property Index: Integer read fIndex;
-    property Owner: TKMHandIndex read fOwner;
+    property Owner: TKMHandID read fOwner;
 
-    procedure Show(aPlayer: TKMHandIndex; aIndex: Integer);
+    procedure Show(aPlayer: TKMHandID; aIndex: Integer);
     procedure Hide;
     function Visible: Boolean;
   end;
@@ -45,12 +45,12 @@ begin
 
   fOnDone := aOnDone;
 
-  Panel_MarkerReveal := TKMPanel.Create(aParent, 0, 50, TB_WIDTH, 400);
+  Panel_MarkerReveal := TKMPanel.Create(aParent, TB_PAD, 50, TB_MAP_ED_WIDTH - TB_PAD, 400);
 
-  Label_MarkerType := TKMLabel.Create(Panel_MarkerReveal, 0, 10, TB_WIDTH, 0, '', fnt_Outline, taCenter);
+  Label_MarkerType := TKMLabel.Create(Panel_MarkerReveal, 0, 10, Panel_MarkerReveal.Width, 0, '', fntOutline, taCenter);
   Image_MarkerPic := TKMImage.Create(Panel_MarkerReveal, 0, 10, 32, 32, 338);
 
-  TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 45, TB_WIDTH, 1, 64);
+  TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 45, Panel_MarkerReveal.Width, 1, 64);
   TrackBar_RevealSize.Caption := gResTexts[TX_MAPED_FOG_RADIUS];
   TrackBar_RevealSize.OnChange := Marker_Change;
 
@@ -58,7 +58,7 @@ begin
   Button_RevealDelete.Hint := gResTexts[TX_MAPED_DELETE_REVEALER_HINT];
   Button_RevealDelete.OnClick := Marker_Change;
 
-  Button_RevealClose := TKMButton.Create(Panel_MarkerReveal, TB_WIDTH-100, 100, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
+  Button_RevealClose := TKMButton.Create(Panel_MarkerReveal, Panel_MarkerReveal.Width-100, 100, 100, 25, gResTexts[TX_MAPED_CLOSE], bsGame);
   Button_RevealClose.Hint := gResTexts[TX_MAPED_CLOSE_REVEALER_HINT];
   Button_RevealClose.OnClick := Marker_Change;
 end;
@@ -89,7 +89,7 @@ begin
 end;
 
 
-procedure TKMMapEdMarkerReveal.Show(aPlayer: TKMHandIndex; aIndex: Integer);
+procedure TKMMapEdMarkerReveal.Show(aPlayer: TKMHandID; aIndex: Integer);
 begin
   fOwner := aPlayer;
   fIndex := aIndex;

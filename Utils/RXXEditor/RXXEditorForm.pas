@@ -3,7 +3,7 @@ unit RXXEditorForm;
 interface
 uses
   Classes, Controls, Dialogs,
-  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils,
+  ExtCtrls, FileCtrl, Forms, Graphics, Spin, StdCtrls, SysUtils,
   {$IFDEF FPC} LResources, {$ENDIF}
   KM_Defaults, KM_Log, KM_Pics, KM_PNG, KM_ResPalettes, KM_ResSprites, KM_ResSpritesEdit;
 
@@ -13,6 +13,7 @@ type
     btnAdd: TButton;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
+    SelectDirectoryDialog1: TFileOpenDialog;
     btnSaveRXX: TButton;
     lbSpritesList: TListBox;
     btnLoadRXX: TButton;
@@ -52,6 +53,7 @@ type
     fPalettes: TKMResPalettes;
     fSprites: TKMSpritePackEdit;
     procedure UpdateList;
+    procedure imgExport(ID: Integer; FileName: string);
   end;
 
 
@@ -111,6 +113,13 @@ begin
   Image2.Picture.Bitmap.Canvas.Brush.Color := 0;
   Image2.Picture.Bitmap.Canvas.FillRect(Image1.Picture.Bitmap.Canvas.ClipRect);
   chkHasMask.Checked := False;
+
+  if lbSpritesList.SelCount <> 1 then
+  begin
+    btnExport.Enabled := True;
+    Exit;
+  end;
+
 
   ID := lbSpritesList.ItemIndex + 1;
   if ID = 0 then Exit;
@@ -250,18 +259,36 @@ end;
 
 procedure TRXXForm1.btnExportClick(Sender: TObject);
 var
-  ID: Integer;
-  FileName, FileNameA: string;
+  FilePath: string;
+  I: Integer;
 begin
-  ID := lbSpritesList.ItemIndex + 1;
-  if ID = 0 then Exit;
+  if lbSpritesList.SelCount = 1 then
+  begin
+    SaveDialog1.InitialDir := ExeDir;
+    SaveDialog1.Filter := 'PNG image (*.png)|*.png';
+    SaveDialog1.Options := SaveDialog1.Options - [ofAllowMultiSelect];
+    if not SaveDialog1.Execute then Exit;
 
-  SaveDialog1.InitialDir := ExeDir;
-  SaveDialog1.Filter := 'PNG image (*.png)|*.png';
-  SaveDialog1.Options := SaveDialog1.Options - [ofAllowMultiSelect];
-  if not SaveDialog1.Execute then Exit;
+    imgExport(lbSpritesList.ItemIndex + 1, SaveDialog1.FileName);
+  end
+  else if lbSpritesList.SelCount > 1 then
+  begin
+    SelectDirectoryDialog1.DefaultFolder := ExeDir;
+    if not SelectDirectoryDialog1.Execute then Exit;
 
-  FileName := SaveDialog1.FileName;
+    for I := lbSpritesList.Items.Count downto 1 do
+      if lbSpritesList.Selected[I - 1] then
+        imgExport(I, SelectDirectoryDialog1.FileName + '\' + IntToStr(I) + '.png');
+  end;
+end;
+
+
+procedure TRXXForm1.imgExport(ID: Integer; FileName: string);
+var
+  FileNameA: string;
+begin
+  if fSprites.RXData.Flag[ID] = 0 then Exit;
+
   FileNameA := StringReplace(FileName, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
 
   fSprites.ExportImage(FileName, ID);
@@ -313,6 +340,7 @@ begin
   aIndexList := lbSpritesList.ItemIndex;
   lbSpritesList.Items.BeginUpdate;
   lbSpritesList.Items.Clear;
+  lbSpritesList.MultiSelect := True;
 
   for I := 1 to fSprites.RXData.Count do
   begin

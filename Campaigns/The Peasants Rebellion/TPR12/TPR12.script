@@ -1,5 +1,7 @@
 //-- TBK12 --//
-//21.01.2018
+//07.11.2019
+
+{$I difficulty.script}
 
 //Gives AI-Players Units a Random Hunger Level (2/3 to Max)
 procedure UnitsRandomHungerSet();
@@ -107,6 +109,17 @@ var
 begin
 	//Randomize Hunger Level of Enemy Units
 	UnitsRandomHungerSet();
+	//Apply Difficulty
+	case States.MissionDifficulty() of
+		mdEasy1: 
+			IncreaseGroupSize(0, 0);
+		mdHard1:
+		begin
+			IncreaseTargetGroupSize(4, 63, 92, 0); //Initial Knights
+			IncreaseTargetGroupSize(4, 67, 97, 0);
+			IncreaseTargetGroupSize(4, 71, 103, 0);
+		end;
+	end;
 	//Unallow all Buildings
 	LockBuildings(0);
 	//Unlock Buildings at the Sart

@@ -7,25 +7,19 @@ uses
 
 type
   TKMGameInputProcess_Single = class(TKMGameInputProcess)
-  private
-    fCurrTick: Cardinal;
-    fLastTick: Cardinal;
   protected
     procedure TakeCommand(const aCommand: TKMGameInputCommand); override;
-    procedure SaveExtra(aStream: TKMemoryStream); override;
-    procedure LoadExtra(aStream: TKMemoryStream); override;
+    procedure SaveExtra(SaveStream: TKMemoryStream); override;
+    procedure LoadExtra(LoadStream: TKMemoryStream); override;
   public
     procedure ReplayTimer(aTick: Cardinal); override;
     procedure RunningTimer(aTick: Cardinal); override;
-    procedure UpdateState(aTick: Cardinal); override;
-    function GetLastTick: Cardinal; override;
-    function ReplayEnded: Boolean; override;
   end;
 
 
 implementation
 uses
-  KM_Game, KM_Defaults, KM_CommonUtils;
+  Math, KM_Game, KM_Defaults, KM_CommonUtils;
 
 
 procedure TKMGameInputProcess_Single.TakeCommand(const aCommand: TKMGameInputCommand);
@@ -46,12 +40,17 @@ begin
   //There are still more commands left
   if fCursor <= Count then
   begin
-    while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gic_None) do
+    while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gicNone) and (fCursor < Count) do
       Inc(fCursor);
 
     while (fCursor <= Count) and (aTick = fQueue[fCursor].Tick) do //Could be several commands in one Tick
     begin
-      MyRand := Cardinal(KaMRandom(MaxInt, 'TKMGameInputProcess_Single.ReplayTimer 2')); //Just like in StoreCommand
+      //Call to KaMRandom, just like in StoreCommand
+      //We did not generate random checks for those commands
+      if SKIP_RNG_CHECKS_FOR_SOME_GIC and (fQueue[fCursor].Command.CommandType in SkipRandomChecksFor) then
+        MyRand := 0
+      else
+        MyRand := Cardinal(KaMRandom(MaxInt, 'TKMGameInputProcess_Single.ReplayTimer 2'));
       ExecCommand(fQueue[fCursor].Command);
       //CRC check after the command
       if CRASH_ON_REPLAY and (fQueue[fCursor].Rand <> MyRand) then //Should always be called to maintain randoms flow
@@ -63,7 +62,6 @@ begin
       Inc(fCursor);
     end;
   end;
-  fCurrTick := aTick;
 end;
 
 
@@ -75,38 +73,18 @@ begin
 end;
 
 
-function TKMGameInputProcess_Single.GetLastTick: Cardinal;
+procedure TKMGameInputProcess_Single.SaveExtra(SaveStream: TKMemoryStream);
 begin
-  if IsLastTickValueCorrect(fLastTick) then
-    Result := fLastTick
-  else
-    Result := inherited;
+  SaveStream.Write(gGame.LastReplayTick);
 end;
 
 
-function TKMGameInputProcess_Single.ReplayEnded: Boolean;
+procedure TKMGameInputProcess_Single.LoadExtra(LoadStream: TKMemoryStream);
+var
+  LastReplayTick: Cardinal;
 begin
-  Result := inherited and (not IsLastTickValueCorrect(fLastTick) or (fLastTick <= fCurrTick));
-end;
-
-
-procedure TKMGameInputProcess_Single.UpdateState(aTick: Cardinal);
-begin
-  fCurrTick := aTick;
-end;
-
-
-procedure TKMGameInputProcess_Single.SaveExtra(aStream: TKMemoryStream);
-begin
-  //no inherited here. We override parent behaviour
-  aStream.Write(fCurrTick);
-end;
-
-
-procedure TKMGameInputProcess_Single.LoadExtra(aStream: TKMemoryStream);
-begin
-  //no inherited here. We override parent behaviour
-  aStream.Read(fLastTick);
+  LoadStream.Read(LastReplayTick);
+  gGame.LastReplayTick := LastReplayTick;
 end;
 
 

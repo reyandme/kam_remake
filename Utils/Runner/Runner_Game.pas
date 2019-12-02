@@ -3,12 +3,10 @@ unit Runner_Game;
 interface
 uses
   Forms, Unit_Runner, Windows, SysUtils, Classes, KromUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_GameApp, KM_ResLocales, KM_Log, KM_HandsCollection, KM_ResTexts, KM_Resource,
-  KM_Terrain, KM_Units, KM_Units_Warrior, KM_Campaigns, KM_AIFields, KM_Houses,
-  GeneticAlgorithm, KM_AICityPlanner,
-  KM_CityManagement, KM_CityPredictor, KM_CityBuilder, KM_CityPlanner, KM_Eye,
-  KM_HandLogistics,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils, KM_HandLogistics,
+  KM_GameApp, KM_ResLocales, KM_Log, KM_HandsCollection, KM_HouseCollection, KM_ResTexts, KM_Resource,
+  KM_Terrain, KM_Units, KM_UnitWarrior, KM_Campaigns, KM_AIFields, KM_Houses,
+  GeneticAlgorithm, GeneticAlgorithmParameters, KM_AIParameters,
   ComInterface;
 
 
@@ -18,82 +16,93 @@ type
 
   TKMRunnerGA_Common = class(TKMRunnerCommon)
   private
+    fCrashDetectionMode: Boolean; // only for single thread
     fAlgorithm: TGAAlgorithm;
-    OldPopulation, NewPopulation: TGAPopulation;
+    fParametrization: TGAParameterization;
+    fOldPopulation, fNewPopulation: TGAPopulation;
     //fFitnessCalc: TGAFitnessCalc;
     fLog, fLogPar: TKMLog;
 
-    f_GA_SIMULATION_TIME_IN_MIN: Single; // Time of each simulation (GA doest not take simulation from game menu because it is only in minutes)
+    f_SIM_SimulationTimeInMin: Single; // Time of each simulation (GA doest not take simulation from game menu because it is only in minutes)
+    f_SIM_NumberOfMaps: Word; // Count of simulated maps for each invididual
     f_GA_POPULATION_CNT: Word; // Population count
-    f_GA_INDIVIDUALS_IN_TOURNAMENT: Word; // Count of individuals in tournament
     f_GA_GENE_CNT: Word; // Count of genes
-    f_GA_MAPS_CNT: Word; // Count of simulated maps for each invididual
-    f_GA_START_MUTATION: Single; // Initial mutation (first generation)
-    f_GA_FINAL_MUTATION: Single; // Final mutation (last generation)
-    f_GA_CROSSOVER_COEF: Single; // Crossover coefficient <0,1> = how many individuals will be taken from previous generation and how many will be randomly generated as a first generation
+    f_GA_START_TOURNAMENT_IndividualsCnt: Word; // Initial count of individuals in tournament
+    f_GA_FINAL_TOURNAMENT_IndividualsCnt: Word; // Final count of individuals in tournament
+    f_GA_START_MUTATION_ResetGene: Single; // Initial mutation (first generation)
+    f_GA_FINAL_MUTATION_ResetGene: Single; // Final mutation (last generation)
+    f_GA_START_MUTATION_Gaussian: Single; // Initial mutation (first generation)
+    f_GA_FINAL_MUTATION_Gaussian: Single; // Final mutation (last generation)
+    f_GA_START_MUTATION_Variance: Single; // Initial mutation (first generation)
+    f_GA_FINAL_MUTATION_Variance: Single; // Final mutation (last generation)
 
-    procedure DefaultValues(); virtual;
+    procedure SetRndGenes(); virtual;
   protected
     procedure SetUp(); override;
     procedure TearDown(); override;
     procedure InitGAParameters(); virtual;
     procedure SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False); virtual; abstract;
     procedure SimulateMap(aRun, aIdx, Seed: Integer; aSinglePLMapName: String; aSaveGame: Boolean = False); virtual;
-    function Incr(var Idx: Integer): Integer;
     function CostFunction(): Single; virtual;
     procedure Execute(aRun: Integer); override;
   public
-    SimSetup: TRunnerSetup;
+    SimSetup: TSimSetup;
     IOData: TGASetup;
   end;
 
-  TKMRunnerGA_TestManager = class(TKMRunnerGA_Common)
+  TKMRunnerGA_TestParRun = class(TKMRunnerGA_Common)
   protected
+    procedure InitGAParameters(); override;
     procedure Execute(aRun: Integer); override;
   end;
 
   TKMRunnerGA_HandLogistics = class(TKMRunnerGA_Common)
   protected
     procedure InitGAParameters(); override;
-    procedure SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False); override;
+  end;
+
+  TKMRunnerGA_Manager = class(TKMRunnerGA_Common)
+  protected
+    procedure InitGAParameters(); override;
   end;
 
   TKMRunnerGA_CityBuilder = class(TKMRunnerGA_Common)
   protected
     procedure InitGAParameters(); override;
-    procedure SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False); override;
-  end;
-
-  TKMRunnerGA_CityRoadPlanner = class(TKMRunnerGA_Common)
-  protected
-    procedure InitGAParameters(); override;
-    procedure SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False); override;
-  end;
-
-  TKMRunnerGA_Forest = class(TKMRunnerGA_Common)
-  protected
-    procedure InitGAParameters(); override;
-    procedure SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False); override;
   end;
 
   TKMRunnerGA_Farm = class(TKMRunnerGA_Common)
   protected
     procedure InitGAParameters(); override;
-    procedure SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False); override;
+  end;
+
+  TKMRunnerGA_Quarry = class(TKMRunnerGA_Common)
+  protected
+    procedure InitGAParameters(); override;
+  end;
+
+  TKMRunnerGA_RoadPlanner = class(TKMRunnerGA_Common)
+  protected
+    procedure InitGAParameters(); override;
+  end;
+
+  TKMRunnerGA_Forest = class(TKMRunnerGA_Common)
+  protected
+    procedure InitGAParameters(); override;
   end;
 
   TKMRunnerGA_CityPlanner = class(TKMRunnerGA_Common)
   protected
     procedure InitGAParameters(); override;
-    procedure SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False); override;
-    //function CostFunction(): Single; override;
   end;
 
-  TKMRunnerGA_CityPredictor = class(TKMRunnerGA_Common)
+  TKMRunnerFindBugs = class(TKMRunnerCommon)
+  private
+    fBestScore, fWorstScore, fAverageScore: Double;
   protected
-    procedure InitGAParameters(); override;
-    procedure SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False); override;
-    //function CostFunction(): Single; override;
+    procedure SetUp(); override;
+    procedure TearDown(); override;
+    procedure Execute(aRun: Integer); override;
   end;
 
   TKMRunnerStone = class(TKMRunnerCommon)
@@ -162,55 +171,84 @@ uses KM_HandSpectator, KM_ResWares, KM_ResHouses, KM_Hand, KM_UnitsCollection;
 
 
 { TKMRunnerGA_Common }
+procedure TKMRunnerGA_Common.InitGAParameters();
+begin
+  f_SIM_SimulationTimeInMin      := 10;
+  f_SIM_NumberOfMaps             := 3;
+  f_GA_POPULATION_CNT            := 2;
+  f_GA_GENE_CNT                  := 5;
+  f_GA_START_TOURNAMENT_IndividualsCnt := 3;
+  f_GA_FINAL_TOURNAMENT_IndividualsCnt := 3;
+  f_GA_START_MUTATION_ResetGene  := 1;
+  f_GA_FINAL_MUTATION_ResetGene  := 5;
+  f_GA_START_MUTATION_Gaussian   := 10;
+  f_GA_FINAL_MUTATION_Gaussian   := 20;
+  f_GA_START_MUTATION_Variance := 1;
+  f_GA_FINAL_MUTATION_Variance := 0.1;
+end;
+
 procedure TKMRunnerGA_Common.SetUp;
 var
-  I,K: Integer;
+  K,L: Integer;
   Pop: TGAPopulation;
 begin
   inherited;
-  fResults.ValueCount := 1;
-  // Do something before simulation
-  InitGAParameters();
-  fResults.TimesCount := Ceil(10*60 * f_GA_SIMULATION_TIME_IN_MIN);
-  OldPopulation := nil;
-  NewPopulation := TGAPopulation.Create(f_GA_POPULATION_CNT, f_GA_GENE_CNT, True);
+  // Create parametrization
+  fParametrization := TGAParameterization.Create;
+  // Deactivate KaM log
+  if (gLog = nil) then
+    gLog := TKMLog.Create(Format('%s\Utils\Runner\Runner_Log.log',[ExeDir]));
+  gLog.MessageTypes := [];
+  // Init common variables
+  fOldPopulation := nil;
   fAlgorithm := TGAAlgorithm.Create;
-  //fFitnessCalc := TGAFitnessCalc.Create;
-  DefaultValues();
-  if not PARALLEL_RUN then
+  InitGAParameters();
+
+  // Prepare parallel simulation
+  if PARALLEL_RUN then
   begin
-    fLog := TKMLog.Create(ExeDir + '\Utils\Runner\LOG_GA.log');
-    fLogPar := TKMLog.Create(ExeDir + '\Utils\Runner\LOG_GA_PAR.log');
+    fCrashDetectionMode := False;
+    f_SIM_SimulationTimeInMin := SimSetup.SimTimeInMin;
+    f_SIM_NumberOfMaps := IOData.MapCnt;
+    Pop := IOData.Population;
+    if (Pop <> nil) then
+    begin
+      f_GA_POPULATION_CNT := Pop.Count;
+      f_GA_GENE_CNT := Pop.Individual[0].GenesCount;
+      // Create new population and copy genes
+      fNewPopulation := TGAPopulation.Create(Pop.Count, Pop.Individual[0].GenesCount, f_SIM_NumberOfMaps, True);
+      for K := 0 to fNewPopulation.Count - 1 do
+        for L := 0 to fNewPopulation.Individual[K].GenesCount - 1 do
+          fNewPopulation.Individual[K].Gene[L] := Pop.Individual[K].Gene[L];
+    end;
   end
   else
   begin
-
-    fResults.TimesCount := Ceil(10*60 * SimSetup.SimTimeInMin);
-    Pop := IOData.Population;
-    f_GA_MAPS_CNT := IOData.MapCnt;
-    f_GA_POPULATION_CNT := Pop.Count;
-    f_GA_GENE_CNT := Pop.Individual[0].Count;
-    if (Pop <> nil) then
-    begin
-      NewPopulation.Free;
-      NewPopulation := TGAPopulation.Create(Pop.Count, Pop.Individual[0].Count, True);
-      for I := 0 to NewPopulation.Count - 1 do
-        for K := 0 to NewPopulation.Individual[I].Count - 1 do
-          NewPopulation.Individual[I].Gene[K] := Pop.Individual[I].Gene[K];
-    end;
-
+    fCrashDetectionMode := True;
+    // Init new population
+    fNewPopulation := TGAPopulation.Create(f_GA_POPULATION_CNT, f_GA_GENE_CNT, f_SIM_NumberOfMaps, True);
+    SetRndGenes();
+    // Init logs
+    fLog := TKMLog.Create(Format('%s\Utils\Runner\LOG_GA.log',[ExeDir]));
+    fLogPar := TKMLog.Create(Format('%s\Utils\Runner\LOG_GA_PAR.log',[ExeDir]));
+    fParametrization.SetLogPar := fLogPar;
   end;
+  // Init simulation
+  fResults.ValueCount := 1;
+  fResults.TimesCount := Ceil(10*60 * f_SIM_SimulationTimeInMin);
 end;
 
 
 procedure TKMRunnerGA_Common.TearDown;
 var
-  I: Integer;
+  K,L: Integer;
 begin
+  // Copy fitness
   if PARALLEL_RUN then
   begin
-    for I := 0 to OldPopulation.Count - 1 do
-      IOData.Population.Individual[I].Fitness := OldPopulation.Individual[I].Fitness;
+    for K := 0 to fOldPopulation.Count - 1 do
+      for L := 0 to f_SIM_NumberOfMaps - 1 do
+        IOData.Population.Individual[K].Fitness[L] := fOldPopulation.Individual[K].Fitness[L];
   end
   else
   begin
@@ -218,48 +256,38 @@ begin
     fLogPar.Free;
   end;
   // Do something after simulation
-  OldPopulation.Free;
-  NewPopulation.Free;
-  fAlgorithm.Free;
-  //fFitnessCalc.Free;
+  FreeAndNil(fOldPopulation);
+  FreeAndNil(fNewPopulation);
+  FreeAndNil(fAlgorithm);
+  fParametrization.Free;
   inherited;
 end;
 
 
-procedure TKMRunnerGA_Common.DefaultValues();
+procedure TKMRunnerGA_Common.SetRndGenes();
 var
-  I,K: Integer;
+  K,L: Integer;
   Idv: TGAIndividual;
 begin
-  for I := 0 to NewPopulation.Count - 1 do
+  for K := 0 to fNewPopulation.Count - 1 do
   begin
-    Idv := NewPopulation[I];
-    for K := 0 to Idv.Count - 1 do
-      Idv.Gene[K] := Random;
+    Idv := fNewPopulation[K];
+    for L := 0 to Idv.GenesCount - 1 do
+      Idv.Gene[L] := Random;
   end;
-end;
-
-
-procedure TKMRunnerGA_Common.InitGAParameters();
-begin
-  f_GA_SIMULATION_TIME_IN_MIN    := 60;
-  f_GA_POPULATION_CNT            := 40;
-  f_GA_INDIVIDUALS_IN_TOURNAMENT := 3;
-  f_GA_GENE_CNT                  := 5;
-  f_GA_MAPS_CNT                  := 10;
-  f_GA_START_MUTATION            := 0.1;
-  f_GA_FINAL_MUTATION            := 0.05;
-  f_GA_CROSSOVER_COEF            := 0.95;
 end;
 
 
 procedure TKMRunnerGA_Common.SimulateMap(aRun, aIdx, Seed: Integer; aSinglePLMapName: String; aSaveGame: Boolean = False);
 begin
-  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\' + aSinglePLMapName + '\' + aSinglePLMapName + '.dat', 'GA');
+  gGameApp.NewSingleMap(Format('%s..\..\Maps\%s\%s.dat',[ExtractFilePath(ParamStr(0)),aSinglePLMapName,aSinglePLMapName]), 'GA');
 
-  gMySpectator.Hand.FogOfWar.RevealEverything;
-  gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(0, 60), 0);
-  gGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.25;
+  //gMySpectator.Hand.FogOfWar.RevealEverything;
+  //gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(0, 60), 0);
+  //gGameApp.Game.GamePlayInterface.Viewport.Zoom := 0.25;
+  if fCrashDetectionMode then
+    gGameApp.Game.Save('GA Test', Now);
+
   //SetKaMSeed(Max(1,Seed));
   try
     SimulateGame;
@@ -267,15 +295,7 @@ begin
     SimulateMap(aRun + 1, aIdx, Round(Random()*10000)+1, aSinglePLMapName);
   end;
   if aSaveGame then
-    gGameApp.Game.Save('GA Test #' + IntToStr(aRun) + 'n' + IntToStr(aIdx), Now);
-end;
-
-
-// Small helping function
-function TKMRunnerGA_Common.Incr(var Idx: Integer): Integer;
-begin
-  Result := Idx;
-  Inc(Idx);
+    gGameApp.Game.Save(Format('GA Test #%dn%d',[aRun,aIdx]), Now);
 end;
 
 
@@ -298,17 +318,17 @@ begin
     Output := + GetHouseQty(htAny) * HOUSE_WEIGHT
               + GetWeaponsProduced * WEAPONS_WEIGHT
               - GetCitizensLost * CITIZENS_LOST;
-    IronArmy := Min( GetWaresProduced(wt_MetalArmor),
-                       GetWaresProduced(wt_Hallebard)
-                     + GetWaresProduced(wt_Arbalet)
-                     + Min(GetWaresProduced(wt_Sword), GetWaresProduced(wt_MetalShield))
+    IronArmy := Min( GetWaresProduced(wtMetalArmor),
+                       GetWaresProduced(wtHallebard)
+                     + GetWaresProduced(wtArbalet)
+                     + Min(GetWaresProduced(wtSword), GetWaresProduced(wtMetalShield))
                    );
-    WoodArmy := Min( GetWaresProduced(wt_Armor),
-                       GetWaresProduced(wt_Bow)
-                     + GetWaresProduced(wt_Pike)
-                     + Min(GetWaresProduced(wt_Shield), GetWaresProduced(wt_Axe))
+    WoodArmy := Min( GetWaresProduced(wtArmor),
+                       GetWaresProduced(wtBow)
+                     + GetWaresProduced(wtPike)
+                     + Min(GetWaresProduced(wtShield), GetWaresProduced(wtAxe))
                    );
-    Militia := Min( Max(0,WoodArmy - GetWaresProduced(wt_Armor)), GetWaresProduced(wt_Axe));
+    Militia := Min( Max(0,WoodArmy - GetWaresProduced(wtArmor)), GetWaresProduced(wtAxe));
     Output := Output
               + IronArmy * IRON_SOLDIER
               + WoodArmy * WOOD_SOLDIER
@@ -326,79 +346,98 @@ procedure TKMRunnerGA_Common.Execute(aRun: Integer);
 const
   MIN_SCORE = - 1000000;
 var
-  I, MapNum, Idx: Integer;
-  Score, BestScore, MUTATION: Single;
+  K, MapNum: Integer;
+  BestScore, Ratio: Single;
   Idv: TGAIndividual;
 begin
-  // Run 1 generation of GA
-  MUTATION := aRun / (fResults.ChartsCount * 1.0);
-  MUTATION := Abs(f_GA_FINAL_MUTATION + (f_GA_START_MUTATION - f_GA_FINAL_MUTATION) * (1 - MUTATION));
-  fAlgorithm.Mutation := MUTATION;
-  fAlgorithm.CrossoverCoef := f_GA_CROSSOVER_COEF;
-  fAlgorithm.IndividualsInTournament := f_GA_INDIVIDUALS_IN_TOURNAMENT; // This may be also changed during simulation
+  // Set up parameters
+  Ratio := 1 - aRun / (fResults.ChartsCount * 1.0);
+  fAlgorithm.MutationResetGene := Abs(f_GA_FINAL_MUTATION_ResetGene + (f_GA_START_MUTATION_ResetGene - f_GA_FINAL_MUTATION_ResetGene) * Ratio);
+  fAlgorithm.MutationGaussian  := Abs(f_GA_FINAL_MUTATION_Gaussian  + (f_GA_START_MUTATION_Gaussian  - f_GA_FINAL_MUTATION_Gaussian ) * Ratio);
+  fAlgorithm.MutationVariance  := Abs(f_GA_FINAL_TOURNAMENT_IndividualsCnt + (f_GA_START_TOURNAMENT_IndividualsCnt - f_GA_FINAL_MUTATION_Variance) * Ratio);
+  fAlgorithm.IndividualsInTournament := Ceil(Abs(f_GA_FINAL_TOURNAMENT_IndividualsCnt + (f_GA_START_TOURNAMENT_IndividualsCnt - f_GA_FINAL_TOURNAMENT_IndividualsCnt) * Ratio));
 
   // Evolve population in next run (used because of parallel run)
-  if (OldPopulation <> nil) then
+  if (fOldPopulation <> nil) then
   begin
-    fAlgorithm.EvolvePopulation(OldPopulation, NewPopulation);
-    OldPopulation.Free;
+    fAlgorithm.EvolvePopulation(fOldPopulation, fNewPopulation);
+    fOldPopulation.Free;
   end;
 
-  OldPopulation := NewPopulation;
-  for MapNum := 1 to f_GA_MAPS_CNT do
-  begin
-    for I := 0 to f_GA_POPULATION_CNT - 1 do
+  fOldPopulation := fNewPopulation;
+  fNewPopulation := nil;
+  for MapNum := 1 to f_SIM_NumberOfMaps do
+    for K := 0 to f_GA_POPULATION_CNT - 1 do
     begin
-      SetParameters(OldPopulation[I], False);
-      SimulateMap(aRun, I, aRun, 'GA_S1_' + IntToStr(MapNum));// Name of maps is GA_1, GA_2 ...
-      Score := CostFunction();
-      OldPopulation[I].Fitness := OldPopulation[I].Fitness + Score;
+      fParametrization.SetPar(fOldPopulation[K], False);
+      // Save GA parameters so the game will be identical
+      if fCrashDetectionMode then
+      begin
+        if (fLogPar <> nil) then
+          fLogPar.Free;
+        fLogPar := TKMLog.Create(Format('%s\Utils\Runner\LOG_GA_PAR.log',[ExeDir]));
+        fParametrization.SetPar(fOldPopulation[K], True);
+      end;
+      SimulateMap(aRun, K, aRun, Format('GA_S1_%.3d',[MapNum]));// Name of maps are GA_001, GA_002 so use %.3d to fill zeros
+      fOldPopulation[K].Fitness[MapNum-1] := CostFunction();
     end;
-  end;
-  NewPopulation := TGAPopulation.Create(f_GA_POPULATION_CNT, f_GA_GENE_CNT, False);
 
-  // Save best score + parameters of best individual
-  Idx := 0;
-  Idv := OldPopulation.GetFittest(Idx);
-  fResults.Value[aRun, 0] := Round(Idv.Fitness);
   if not PARALLEL_RUN then
-    fLog.AddTime('GA: ' + IntToStr(aRun) + '. run. Best score: ' + FloatToStr(Idv.Fitness) + '. Index of the best individual: ' + IntToStr(Idx));
+  begin
+    fNewPopulation := TGAPopulation.Create(f_GA_POPULATION_CNT, f_GA_GENE_CNT, f_SIM_NumberOfMaps, False);
 
-  // Check history and find the most fitness individual
-  BestScore := MIN_SCORE;
-  for I := 0 to aRun - 1 do
-    if (fResults.Value[I, 0] > BestScore) then
-      BestScore := fResults.Value[I, 0];
-  // If is the individual from the latest generation the best then log parameters
-  if (BestScore < Idv.Fitness) then
-    SetParameters(Idv, not PARALLEL_RUN);
+    // Save best score + parameters of best individual
+    Idv := fOldPopulation.GetFittest();
+    fResults.Value[aRun, 0] := Round(Idv.FitnessSum);
+    fLog.AddTime(Format('GA: %4d. run. Best score: %15.5f',[aRun,Idv.FitnessSum]));
+
+    // Check history and find the most fitness individual
+    BestScore := MIN_SCORE;
+    for K := 0 to aRun - 1 do
+      if (fResults.Value[K, 0] > BestScore) then
+        BestScore := fResults.Value[K, 0];
+    // If is the individual from the latest generation the best then log parameters
+    if (BestScore < Idv.FitnessSum) then
+      fParametrization.SetPar(Idv, not PARALLEL_RUN);
+  end;
 
   // Stop simulation
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
 
-{ TKMRunnerGA_TestManager }
-procedure TKMRunnerGA_TestManager.Execute(aRun: Integer);
+
+{ TKMRunnerGA_TestParRun }
+procedure TKMRunnerGA_TestParRun.InitGAParameters();
+begin
+  inherited;
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_TestParRun');
+end;
+
+
+procedure TKMRunnerGA_TestParRun.Execute(aRun: Integer);
 var
-  I,K: Integer;
+  K,L,MapNum: Integer;
   Fitness: Single;
 begin
-  OldPopulation := NewPopulation;
-  for I := 0 to NewPopulation.Count - 1 do
-  begin
-    Fitness := 0;
-    for K := 0 to NewPopulation.Individual[I].Count - 1 do
-      Fitness := Fitness + NewPopulation.Individual[I].Gene[K];
-    NewPopulation.Individual[I].Fitness := Fitness;
-  end;
-  NewPopulation := nil;
+  // Fitness is calculated from genes in this debug class
+  if (fNewPopulation <> nil) then
+    for MapNum := 0 to f_SIM_NumberOfMaps - 1 do
+      for K := 0 to fNewPopulation.Count - 1 do
+      begin
+        Fitness := 0;
+        for L := 0 to fNewPopulation.Individual[K].GenesCount - 1 do
+          Fitness := Fitness - abs(L / fNewPopulation.Individual[K].GenesCount - fNewPopulation.Individual[K].Gene[L]);
+        fNewPopulation.Individual[K].Fitness[MapNum] := Fitness;
+      end;
+  fOldPopulation := fNewPopulation;
+  fNewPopulation := nil;
 
-  //Sleep(1000); // Debug sleep
+  //Sleep(500); // Debug sleep
 
   // Stop simulation
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
@@ -407,490 +446,175 @@ end;
 { TKMRunnerGA_HandLogistics }
 procedure TKMRunnerGA_HandLogistics.InitGAParameters();
 begin
-  f_GA_SIMULATION_TIME_IN_MIN    := 65;
-  f_GA_POPULATION_CNT            := 40;
-  f_GA_INDIVIDUALS_IN_TOURNAMENT := 3;
-  f_GA_GENE_CNT                  := 4;
-  f_GA_MAPS_CNT                  := 20;
-  f_GA_START_MUTATION            := 0.2;
-  f_GA_FINAL_MUTATION            := 0.01;
-  f_GA_CROSSOVER_COEF            := 1;
+  inherited;
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_HandLogistics');
 end;
 
-procedure TKMRunnerGA_HandLogistics.SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False);
-var
-  I: Integer;
-begin
-  I := 0;
 
-  //GA_TCBB_BasicInit   := Max(1, Round(aIdv.Gene[Incr(I)] * 20));
-  //GA_TCBB_BasicRnd    := Max(1, Round(aIdv.Gene[Incr(I)] * 60)+40);
-  //GA_TCBB_NormRnd     := Max(1, Round(aIdv.Gene[Incr(I)] * 32));
-  //GA_TCBB_Rnd         := Max(1, Round(aIdv.Gene[Incr(I)] * 50));
-  //GA_TCBB_BasicPwr    := Max(1, Round(GA_TCBB_BasicRnd / 5)); // GA has discovered that this is best strategy
-  //GA_TCBB_NormPwr     := Max(1, Round(GA_TCBB_NormRnd / 5));
-  //
-  //if aLogIt then
-  //begin
-  //  fLogPar.AddTime('GA_TCBB_BasicInit   : Integer = ' + IntToStr( GA_TCBB_BasicInit ) + ';');
-  //  fLogPar.AddTime('GA_TCBB_BasicRnd    : Integer = ' + IntToStr( GA_TCBB_BasicRnd  ) + ';');
-  //  fLogPar.AddTime('GA_TCBB_BasicPwr    : Integer = ' + IntToStr( GA_TCBB_BasicPwr  ) + ';');
-  //  fLogPar.AddTime('GA_TCBB_NormRnd     : Integer = ' + IntToStr( GA_TCBB_NormRnd   ) + ';');
-  //  fLogPar.AddTime('GA_TCBB_NormPwr     : Integer = ' + IntToStr( GA_TCBB_NormPwr   ) + ';');
-  //  fLogPar.AddTime('GA_TCBB_Rnd         : Integer = ' + IntToStr( GA_TCBB_Rnd       ) + ';');
-  //end;
+{ TKMRunnerGA_Manager }
+procedure TKMRunnerGA_Manager.InitGAParameters();
+begin
+  inherited;
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_Manager');
 end;
 
 
 { TKMRunnerGA_CityBuilder }
 procedure TKMRunnerGA_CityBuilder.InitGAParameters();
 begin
-  f_GA_SIMULATION_TIME_IN_MIN    := 65;
-  f_GA_POPULATION_CNT            := 40;
-  f_GA_INDIVIDUALS_IN_TOURNAMENT := 3;
-  f_GA_GENE_CNT                  := 13;
-  f_GA_MAPS_CNT                  := 20;
-  f_GA_START_MUTATION            := 0.2;
-  f_GA_FINAL_MUTATION            := 0.01;
-  f_GA_CROSSOVER_COEF            := 1;
+  inherited;
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_CityBuilder');
 end;
-
-procedure TKMRunnerGA_CityBuilder.SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False);
-var
-  I: Integer;
-begin
-  I := 0;
-
-  GA_BUILDER_BuildHouse_RoadMaxWork     := Max(1, aIdv.Gene[Incr(I)] * 15);
-  GA_BUILDER_BuildHouse_FieldMaxWork    := Max(1, aIdv.Gene[Incr(I)] * 10);
-  GA_BUILDER_BuildHouse_RTPMaxWork      := Max(1, aIdv.Gene[Incr(I)] * 20);
-  GA_BUILDER_CreateShortcuts_MaxWork    := Max(1, aIdv.Gene[Incr(I)] * 15);
-  GA_BUILDER_ChHTB_FractionCoef         := Max(1, aIdv.Gene[Incr(I)] * 80);
-  GA_BUILDER_ChHTB_TrunkFactor          := Max(1, aIdv.Gene[Incr(I)] * 10);
-  GA_BUILDER_ChHTB_TrunkBalance         := Max(1, aIdv.Gene[Incr(I)] * 15);
-  GA_BUILDER_ChHTB_AllWorkerCoef        := Max(1, aIdv.Gene[Incr(I)] * 15);
-  GA_BUILDER_ChHTB_FreeWorkerCoef       := Max(1, aIdv.Gene[Incr(I)] * 15);
-  GA_BUILDER_TRUNK_SHORTAGE             := Max(1, aIdv.Gene[Incr(I)] * 20);
-  GA_BUILDER_STONE_SHORTAGE             := Max(1, aIdv.Gene[Incr(I)] * 20);
-  GA_BUILDER_WOOD_SHORTAGE              := Max(1, aIdv.Gene[Incr(I)] * 20);
-  GA_BUILDER_GOLD_SHORTAGE              := Max(1, aIdv.Gene[Incr(I)] * 40);
-
-  if aLogIt then
-  begin
-    fLogPar.AddTime('GA_BUILDER_BuildHouse_RoadMaxWork     : Single = ' + FloatToStr( GA_BUILDER_BuildHouse_RoadMaxWork    ) + ';');
-    fLogPar.AddTime('GA_BUILDER_BuildHouse_FieldMaxWork    : Single = ' + FloatToStr( GA_BUILDER_BuildHouse_FieldMaxWork   ) + ';');
-    fLogPar.AddTime('GA_BUILDER_BuildHouse_RTPMaxWork      : Single = ' + FloatToStr( GA_BUILDER_BuildHouse_RTPMaxWork     ) + ';');
-    fLogPar.AddTime('GA_BUILDER_CreateShortcuts_MaxWork    : Single = ' + FloatToStr( GA_BUILDER_CreateShortcuts_MaxWork   ) + ';');
-    fLogPar.AddTime('GA_BUILDER_ChHTB_FractionCoef         : Single = ' + FloatToStr( GA_BUILDER_ChHTB_FractionCoef        ) + ';');
-    fLogPar.AddTime('GA_BUILDER_ChHTB_TrunkFactor          : Single = ' + FloatToStr( GA_BUILDER_ChHTB_TrunkFactor         ) + ';');
-    fLogPar.AddTime('GA_BUILDER_ChHTB_TrunkBalance         : Single = ' + FloatToStr( GA_BUILDER_ChHTB_TrunkBalance        ) + ';');
-    fLogPar.AddTime('GA_BUILDER_ChHTB_AllWorkerCoef        : Single = ' + FloatToStr( GA_BUILDER_ChHTB_AllWorkerCoef       ) + ';');
-    fLogPar.AddTime('GA_BUILDER_ChHTB_FreeWorkerCoef       : Single = ' + FloatToStr( GA_BUILDER_ChHTB_FreeWorkerCoef      ) + ';');
-    fLogPar.AddTime('GA_BUILDER_TRUNK_SHORTAGE             : Single = ' + FloatToStr( GA_BUILDER_TRUNK_SHORTAGE            ) + ';');
-    fLogPar.AddTime('GA_BUILDER_STONE_SHORTAGE             : Single = ' + FloatToStr( GA_BUILDER_STONE_SHORTAGE            ) + ';');
-    fLogPar.AddTime('GA_BUILDER_WOOD_SHORTAGE              : Single = ' + FloatToStr( GA_BUILDER_WOOD_SHORTAGE             ) + ';');
-    fLogPar.AddTime('GA_BUILDER_GOLD_SHORTAGE              : Single = ' + FloatToStr( GA_BUILDER_GOLD_SHORTAGE             ) + ';');
-  end;
-end;
-
-
-
-
-{ TKMRunnerGA_Forest }
-procedure TKMRunnerGA_Forest.InitGAParameters();
-begin
-  f_GA_SIMULATION_TIME_IN_MIN    := 60;
-  f_GA_POPULATION_CNT            := 40;
-  f_GA_INDIVIDUALS_IN_TOURNAMENT := 3;
-  f_GA_GENE_CNT                  := 10;
-  f_GA_MAPS_CNT                  := 20;
-  f_GA_START_MUTATION            := 0.2;
-  f_GA_FINAL_MUTATION            := 0.05;
-  f_GA_CROSSOVER_COEF            := 1;
-end;
-
-
-procedure TKMRunnerGA_Forest.SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False);
-var
-  I: Integer;
-begin
-  I := 0;
-  // Please do NOT break this order and style use alt + shift + click if you want select / edit multiple colums at once!!!
-
-  GA_EYE_GetForests_SPRndOwnLimMin                  := Max(1, aIdv.Gene[Incr(I)] * 250);
-  GA_EYE_GetForests_SPRndOwnLimMax                  := Max(1, aIdv.Gene[Incr(I)] * 250);
-  GA_EYE_GetForests_InflLimit                       := Max(1, aIdv.Gene[Incr(I)] * 50 + 200);
-  //GA_EYE_GetForests_MinTrees                        := Max(1, aIdv.Gene[Incr(I)] * 5);
-  //GA_EYE_GetForests_Radius                          := Max(4, aIdv.Gene[Incr(I)] * 2 + 4);
-  GA_PLANNER_FindPlaceForWoodcutter_TreeCnt         := Max(1, aIdv.Gene[Incr(I)] * 80 + 120);
-  GA_PLANNER_FindPlaceForWoodcutter_PolyRoute       := Max(1, aIdv.Gene[Incr(I)] * 50);
-  GA_PLANNER_FindPlaceForWoodcutter_EvalArea        := Max(1, aIdv.Gene[Incr(I)] * 50);
-  GA_PLANNER_FindPlaceForWoodcutter_ExistForest     := Max(1, aIdv.Gene[Incr(I)] * 50 + 100);
-  GA_PLANNER_FindPlaceForWoodcutter_DistCrit        := Max(1, aIdv.Gene[Incr(I)] * 50 + 100);
-  GA_PLANNER_FindPlaceForWoodcutter_Radius          := Max(1, aIdv.Gene[Incr(I)] * 10);
-  GA_PLANNER_FindPlaceForWoodcutter_AddAB           := Max(1, aIdv.Gene[Incr(I)] * 200);
-
-  if aLogIt then
-  begin
-    fLogPar.AddTime('GA_EYE_GetForests_SPRndOwnLimMin                : Single = ' + FloatToStr( GA_EYE_GetForests_SPRndOwnLimMin              ) + ';');
-    fLogPar.AddTime('GA_EYE_GetForests_SPRndOwnLimMax                : Single = ' + FloatToStr( GA_EYE_GetForests_SPRndOwnLimMax              ) + ';');
-    fLogPar.AddTime('GA_EYE_GetForests_InflLimit                     : Single = ' + FloatToStr( GA_EYE_GetForests_InflLimit                   ) + ';');
-    //fLogPar.AddTime('GA_EYE_GetForests_MinTrees                      : Single = ' + FloatToStr( GA_EYE_GetForests_MinTrees                    ) + ';');
-    //fLogPar.AddTime('GA_EYE_GetForests_Radius                        : Single = ' + FloatToStr( GA_EYE_GetForests_Radius                      ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_TreeCnt       : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_TreeCnt     ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_PolyRoute     : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_PolyRoute   ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_EvalArea      : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_EvalArea    ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_ExistForest   : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_ExistForest ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_DistCrit      : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_DistCrit    ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_Radius        : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_Radius      ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForWoodcutter_AddAB         : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForWoodcutter_AddAB       ) + ';');
-  end;
-end;
-
-
-{ TKMRunnerGA_CityRoadPlanner }
-procedure TKMRunnerGA_CityRoadPlanner.InitGAParameters();
-begin
-  f_GA_SIMULATION_TIME_IN_MIN    := 70;
-  f_GA_POPULATION_CNT            := 40;
-  f_GA_INDIVIDUALS_IN_TOURNAMENT := 3;
-  f_GA_GENE_CNT                  := 14;
-  f_GA_MAPS_CNT                  := 9;
-  f_GA_START_MUTATION            := 0.1;
-  f_GA_FINAL_MUTATION            := 0.05;
-  f_GA_CROSSOVER_COEF            := 0.95;
-end;
-
-
-procedure TKMRunnerGA_CityRoadPlanner.SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False);
-var
-  I: Integer;
-begin
-  I := 0;
-  GA_PATHFINDING_BasePrice     := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_PATHFINDING_HouseOutside  := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_PATHFINDING_Field         := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_PATHFINDING_NoBuildArea   := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_PATHFINDING_Coal          := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_PATHFINDING_Forest        := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_PATHFINDING_OtherCase     := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-
-  GA_SHORTCUTS_BasePrice       := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_SHORTCUTS_HouseOutside    := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_SHORTCUTS_Field           := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_SHORTCUTS_NoBuildArea     := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_SHORTCUTS_Coal            := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_SHORTCUTS_Forest          := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-  GA_SHORTCUTS_OtherCase       := Round( Max(0, aIdv.Gene[Incr(I)] * 10) );
-
-  if aLogIt then
-  begin
-    fLogPar.AddTime('GA_PATHFINDING_BasePrice    : Word = ' + IntToStr( GA_PATHFINDING_BasePrice    ) + ';');
-    fLogPar.AddTime('GA_PATHFINDING_HouseOutside : Word = ' + IntToStr( GA_PATHFINDING_HouseOutside ) + ';');
-    fLogPar.AddTime('GA_PATHFINDING_Field        : Word = ' + IntToStr( GA_PATHFINDING_Field        ) + ';');
-    fLogPar.AddTime('GA_PATHFINDING_NoBuildArea  : Word = ' + IntToStr( GA_PATHFINDING_NoBuildArea  ) + ';');
-    fLogPar.AddTime('GA_PATHFINDING_Coal         : Word = ' + IntToStr( GA_PATHFINDING_Coal         ) + ';');
-    fLogPar.AddTime('GA_PATHFINDING_Forest       : Word = ' + IntToStr( GA_PATHFINDING_Forest       ) + ';');
-    fLogPar.AddTime('GA_PATHFINDING_OtherCase    : Word = ' + IntToStr( GA_PATHFINDING_OtherCase    ) + ';');
-    fLogPar.AddTime('GA_SHORTCUTS_BasePrice      : Word = ' + IntToStr( GA_SHORTCUTS_BasePrice      ) + ';');
-    fLogPar.AddTime('GA_SHORTCUTS_HouseOutside   : Word = ' + IntToStr( GA_SHORTCUTS_HouseOutside   ) + ';');
-    fLogPar.AddTime('GA_SHORTCUTS_Field          : Word = ' + IntToStr( GA_SHORTCUTS_Field          ) + ';');
-    fLogPar.AddTime('GA_SHORTCUTS_NoBuildArea    : Word = ' + IntToStr( GA_SHORTCUTS_NoBuildArea    ) + ';');
-    fLogPar.AddTime('GA_SHORTCUTS_Coal           : Word = ' + IntToStr( GA_SHORTCUTS_Coal           ) + ';');
-    fLogPar.AddTime('GA_SHORTCUTS_Forest         : Word = ' + IntToStr( GA_SHORTCUTS_Forest         ) + ';');
-    fLogPar.AddTime('GA_SHORTCUTS_OtherCase      : Word = ' + IntToStr( GA_SHORTCUTS_OtherCase      ) + ';');
-  end;
-end;
-
 
 { TKMRunnerGA_Farm }
 procedure TKMRunnerGA_Farm.InitGAParameters();
 begin
-  f_GA_SIMULATION_TIME_IN_MIN    := 60;
-  f_GA_POPULATION_CNT            := 39;
-  f_GA_INDIVIDUALS_IN_TOURNAMENT := 3;
-  f_GA_GENE_CNT                  := 2;
-  f_GA_MAPS_CNT                  := 20;
-  f_GA_START_MUTATION            := 0.2;
-  f_GA_FINAL_MUTATION            := 0.01;
-  f_GA_CROSSOVER_COEF            := 1;
+  inherited;
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_Farm');
 end;
 
-
-procedure TKMRunnerGA_Farm.SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False);
-var
-  I: Integer;
+{ TKMRunnerGA_Quarry }
+procedure TKMRunnerGA_Quarry.InitGAParameters();
 begin
-  I := 0;
-  //GA_PLANNER := True;
-  // House build
-  // Please do NOT break this order and style use alt + shift + click if you want select / edit multiple colums at once!!!
-  GA_PLANNER_FieldCrit_FarmPolyRoute                := Max(1, aIdv.Gene[Incr(I)] * 100);
-  GA_PLANNER_FieldCrit_EvalArea                     := Max(1, aIdv.Gene[Incr(I)] * 100);
-
-  if aLogIt then
-  begin
-    fLogPar.AddTime('GA_PLANNER_FieldCrit_FarmPolyRoute                  : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_FarmPolyRoute                ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FieldCrit_EvalArea                       : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_EvalArea                     ) + ';');
-  end;
+  inherited;
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_Quarry');
 end;
 
+{ TKMRunnerGA_RoadPlanner }
+procedure TKMRunnerGA_RoadPlanner.InitGAParameters();
+begin
+  inherited;
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_RoadPlanner');
+end;
+
+{ TKMRunnerGA_Forest }
+procedure TKMRunnerGA_Forest.InitGAParameters();
+begin
+  inherited;
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_Forest');
+end;
 
 { TKMRunnerGA_CityPlanner }
 procedure TKMRunnerGA_CityPlanner.InitGAParameters();
 begin
-  f_GA_SIMULATION_TIME_IN_MIN    := 60;
-  f_GA_POPULATION_CNT            := 1;//50;
-  f_GA_INDIVIDUALS_IN_TOURNAMENT := 4;
-  f_GA_GENE_CNT                  := 12;
-  f_GA_MAPS_CNT                  := 20;//9;
-  f_GA_START_MUTATION            := 0.2;
-  f_GA_FINAL_MUTATION            := 0.01;
-  f_GA_CROSSOVER_COEF            := 1;
+  inherited;
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_CityPlanner');
 end;
 
 
-procedure TKMRunnerGA_CityPlanner.SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False);
-var
-  I: Integer;
+
+
+
+{ TKMRunnerFindBugs }
+procedure TKMRunnerFindBugs.SetUp();
 begin
-  I := 0;
-  //GA_PLANNER := True;
-  // House build
-  // Please do NOT break this order and style use alt + shift + click if you want select / edit multiple colums at once!!!
-  GA_PLANNER_ObstaclesInHousePlan_Tree              := Max(1, aIdv.Gene[Incr(I)] * 100 + 75);
-  GA_PLANNER_ObstaclesInHousePlan_Road              := Max(1, aIdv.Gene[Incr(I)] * 100 + 75);
-  GA_PLANNER_FieldCrit_FarmPolyRoute                := Max(1, aIdv.Gene[Incr(I)] * 100);
-  GA_PLANNER_FieldCrit_EvalArea                     := Max(1, aIdv.Gene[Incr(I)] * 100);
-  GA_PLANNER_SnapCrit_SnapToHouse                   := Max(1, aIdv.Gene[Incr(I)] * 50);
-  GA_PLANNER_SnapCrit_SnapToFields                  := Max(1, aIdv.Gene[Incr(I)] * 50);
-  GA_PLANNER_SnapCrit_SnapToRoads                   := Max(1, aIdv.Gene[Incr(I)] * 100 + 50);
-  GA_PLANNER_SnapCrit_ClearEntrance                 := Max(1, aIdv.Gene[Incr(I)] * 50 + 50);
-  //GA_PLANNER_FindPlaceForHouse_CloseWorker          := Max(1, aIdv.Gene[Incr(I)] * 100);
-  GA_PLANNER_FindPlaceForHouse_SnapCrit             := Max(1, aIdv.Gene[Incr(I)] * 50);
-  GA_PLANNER_FindPlaceForHouse_DistCrit             := Max(1, aIdv.Gene[Incr(I)] * 50);
-  GA_PLANNER_FindPlaceForHouse_CityCenter           := Max(1, aIdv.Gene[Incr(I)] * 75);
-  GA_PLANNER_FindPlaceForHouse_EvalArea             := Max(1, aIdv.Gene[Incr(I)] * 100 + 50);
-
-  if aLogIt then
-  begin
-    fLogPar.AddTime('GA_PLANNER_ObstaclesInHousePlan_Tree                : Single = ' + FloatToStr( GA_PLANNER_ObstaclesInHousePlan_Tree              ) + ';');
-    fLogPar.AddTime('GA_PLANNER_ObstaclesInHousePlan_Road                : Single = ' + FloatToStr( GA_PLANNER_ObstaclesInHousePlan_Road              ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FieldCrit_FarmPolyRoute                  : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_FarmPolyRoute                ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FieldCrit_EvalArea                       : Single = ' + FloatToStr( GA_PLANNER_FieldCrit_EvalArea                     ) + ';');
-    fLogPar.AddTime('GA_PLANNER_SnapCrit_SnapToHouse                     : Single = ' + FloatToStr( GA_PLANNER_SnapCrit_SnapToHouse                   ) + ';');
-    fLogPar.AddTime('GA_PLANNER_SnapCrit_SnapToFields                    : Single = ' + FloatToStr( GA_PLANNER_SnapCrit_SnapToFields                  ) + ';');
-    fLogPar.AddTime('GA_PLANNER_SnapCrit_SnapToRoads                     : Single = ' + FloatToStr( GA_PLANNER_SnapCrit_SnapToRoads                   ) + ';');
-    fLogPar.AddTime('GA_PLANNER_SnapCrit_ClearEntrance                   : Single = ' + FloatToStr( GA_PLANNER_SnapCrit_ClearEntrance                 ) + ';');
-    //fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_CloseWorker            : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_CloseWorker          ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_SnapCrit               : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_SnapCrit             ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_DistCrit               : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_DistCrit             ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_CityCenter             : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_CityCenter           ) + ';');
-    fLogPar.AddTime('GA_PLANNER_FindPlaceForHouse_EvalArea               : Single = ' + FloatToStr( GA_PLANNER_FindPlaceForHouse_EvalArea             ) + ';');
-  end;
+  inherited;
+  // Deactivate KaM log
+  if (gLog = nil) then
+    gLog := TKMLog.Create(Format('%s\Utils\Runner\Runner_Log.log',[ExeDir]));
+  gLog.MessageTypes := [];
 end;
 
 
-{ TKMRunnerGA_CityPredictor }
-procedure TKMRunnerGA_CityPredictor.InitGAParameters();
+procedure TKMRunnerFindBugs.TearDown();
 begin
-  f_GA_SIMULATION_TIME_IN_MIN    := 10;
-  f_GA_POPULATION_CNT            := 2;
-  f_GA_INDIVIDUALS_IN_TOURNAMENT := 2;
-  f_GA_GENE_CNT                  := 8;
-  f_GA_MAPS_CNT                  := 9;
-  f_GA_START_MUTATION            := 0.2;
-  f_GA_FINAL_MUTATION            := 0.01;
-  f_GA_CROSSOVER_COEF            := 1;
+  inherited;
 end;
 
 
-procedure TKMRunnerGA_CityPredictor.SetParameters(aIdv: TGAIndividual; aLogIt: Boolean = False);
-var
-  I: Integer;
-begin
-  I := 0;
-  GA_PREDICTOR_CityInitialization_Space        := aIdv.Gene[Incr(I)] * 1 / 500.0;
-  GA_PREDICTOR_CityInitialization_Fertility    := aIdv.Gene[Incr(I)] * 1 / 500.0;
-  GA_PREDICTOR_CityInitialization_Worker       := aIdv.Gene[Incr(I)] * 1 / 10.0;
-  GA_PREDICTOR_STONE_NEED_PER_A_WORKER         := aIdv.Gene[Incr(I)] * 1;
-  GA_PREDICTOR_WOOD_NEED_PER_A_WORKER          := aIdv.Gene[Incr(I)] * 1;
-  GA_MANAGER_CheckUnitCount_SerfCoef           := aIdv.Gene[Incr(I)] * 1;
-  GA_MANAGER_CheckUnitCount_SerfLimit          := Max(1, aIdv.Gene[Incr(I)] * 10);
-  GA_BUILDER_STONE_SHORTAGE                    := Max(1, aIdv.Gene[Incr(I)] * 10);
-
-  if aLogIt then
-  begin
-    fLogPar.AddTime('GA_PREDICTOR_CityInitialization_Space          : Single = ' + FloatToStr( GA_PREDICTOR_CityInitialization_Space     ) + ';');
-    fLogPar.AddTime('GA_PREDICTOR_CityInitialization_Fertility      : Single = ' + FloatToStr( GA_PREDICTOR_CityInitialization_Fertility ) + ';');
-    fLogPar.AddTime('GA_PREDICTOR_CityInitialization_Worker         : Single = ' + FloatToStr( GA_PREDICTOR_CityInitialization_Worker    ) + ';');
-    fLogPar.AddTime('GA_PREDICTOR_STONE_NEED_PER_A_WORKER           : Single = ' + FloatToStr( GA_PREDICTOR_STONE_NEED_PER_A_WORKER      ) + ';');
-    fLogPar.AddTime('GA_PREDICTOR_WOOD_NEED_PER_A_WORKER            : Single = ' + FloatToStr( GA_PREDICTOR_WOOD_NEED_PER_A_WORKER       ) + ';');
-    fLogPar.AddTime('GA_MANAGER_CheckUnitCount_SerfCoef             : Single = ' + FloatToStr( GA_MANAGER_CheckUnitCount_SerfCoef        ) + ';');
-    fLogPar.AddTime('GA_MANAGER_CheckUnitCount_SerfLimit            : Single = ' + FloatToStr( GA_MANAGER_CheckUnitCount_SerfLimit       ) + ';');
-    fLogPar.AddTime('GA_BUILDER_STONE_SHORTAGE                      : Single = ' + FloatToStr( GA_BUILDER_STONE_SHORTAGE                 ) + ';');
-  end;
-end;
-
-{
-function TKMRunnerGA_CityPlanner.CostFunction(): Single;
-const
-  MAX_BID = 1000000;
-var
-  HMA: THouseMappingArray;
-  PlannedHouses: TPlannedHousesArray;
-  Loc: TKMPoint;
-
-  function IsCompletedRoad(aPoint: TKMPoint): Boolean; inline;
-  begin
-    Result := gTerrain.TileIsWalkableRoad(aPoint);
-  end;
-  function IsCompletedField(aPoint: TKMPoint): Boolean; inline;
-  begin
-    Result := gTerrain.TileIsCornField(aPoint);
-  end;
-  function IsCompletedWine(aPoint: TKMPoint): Boolean; inline;
-  begin
-    Result := gTerrain.TileIsWineField(aPoint);
-  end;
-
-  function ClosestDistance(aHT: THouseType): Single;
+procedure TKMRunnerFindBugs.Execute(aRun: Integer);
+  function EvalGame(): Double;
   const
-    MAX_DIST = 1000;
+    PL = 1;
+    HOUSE_WEIGHT = 1;
+    WEAPONS_WEIGHT = 1;
+    CITIZENS_LOST = 10;
+    IRON_SOLDIER = 20;
+    WOOD_SOLDIER = 10;
+    MILITIA_SOLDIER = 3;
+    COMPLETE_HOUSE = 5;
   var
     I: Integer;
-    Output, Bid: Single;
-    HT: THouseType;
+    IronArmy, WoodArmy, Militia, Output: Single;
   begin
-    Output := MAX_DIST;
-    for HT in HOUSE_DEPENDENCE[aHT] do
-      for I := 0 to PlannedHouses[HT].Count - 1 do
-      begin
-        Bid := KMDistanceAbs(Loc, PlannedHouses[HT].Plans[I].Loc);
-        if (Bid < Output) then
-          Output := Bid;
-      end;
-    if (Output = MAX_DIST) then
-      Output := 0;
+    with gHands[PL].Stats do
+    begin
+      Output := + GetHouseQty(htAny) * HOUSE_WEIGHT
+                + GetWeaponsProduced * WEAPONS_WEIGHT
+                - GetCitizensLost * CITIZENS_LOST;
+      IronArmy := Min( GetWaresProduced(wtMetalArmor),
+                         GetWaresProduced(wtHallebard)
+                       + GetWaresProduced(wtArbalet)
+                       + Min(GetWaresProduced(wtSword), GetWaresProduced(wtMetalShield))
+                     );
+      WoodArmy := Min( GetWaresProduced(wtArmor),
+                         GetWaresProduced(wtBow)
+                       + GetWaresProduced(wtPike)
+                       + Min(GetWaresProduced(wtShield), GetWaresProduced(wtAxe))
+                     );
+      Militia := Min( Max(0,WoodArmy - GetWaresProduced(wtArmor)), GetWaresProduced(wtAxe));
+      Output := Output
+                + IronArmy * IRON_SOLDIER
+                + WoodArmy * WOOD_SOLDIER
+                + Militia * MILITIA_SOLDIER;
+    end;
+
+    for I := 0 to gHands[PL].Houses.Count - 1 do
+      Output := Output + Byte(gHands[PL].Houses[I].IsComplete) * COMPLETE_HOUSE;
+
     Result := Output;
   end;
-
-  function AllDistances(aHT: THouseType): Single;
-  var
-    I: Integer;
-    HT: THouseType;
-  begin
-    Result := 0;
-    for HT in HOUSE_DEPENDENCE[aHT] do
-      for I := 0 to PlannedHouses[HT].Count - 1 do
-        Result := Result + KMDistanceAbs(Loc, PlannedHouses[HT].Plans[I].Loc);
-  end;
-
-  function SnapCrit(aHT: THouseType): Single;
-  const
-    SNAP_TO_HOUSE = 5;
-    SNAP_TO_ROAD = 4;
-    SNAP_TO_FIELD = 2;
-  var
-    I,Dist: Integer;
-    Point: TKMPoint;
-    Output: Single;
-    Dir: TDirection;
-  begin
-    Output := 0;
-    // Snap to road / field / wine / house / edge of map / mountains
-    Dist := 1;
-    for Dir := Low(HMA[aHT].Surroundings[Dist]) to High(HMA[aHT].Surroundings[Dist]) do
-      for I := Low(HMA[aHT].Surroundings[Dist,Dir]) to High(HMA[aHT].Surroundings[Dist,Dir]) do
-      begin
-        Point := KMPointAdd(Loc, HMA[aHT].Surroundings[Dist,Dir,I]);
-        Output := Output
-                  + Byte(not (tpBuild in gTerrain.Land[Point.Y,Point.X].Passability)) * SNAP_TO_HOUSE
-                  + Byte(IsCompletedRoad(Point)) * SNAP_TO_ROAD
-                  + Byte(IsCompletedField(Point) OR IsCompletedWine(Point)) * SNAP_TO_FIELD;
-      end;
-    Result := Output;
-  end;
-
-  function WoodcutCrit(aIdx: Integer): Single;
-  const
-    SCAN_RAD = 5;
-    PLAN_PENALIZATION = 4;
-    POTENTIAL_TREE_PRICE = 3;
-    TREE_PRICE = 5;
-    EDGE_RAD = 8;
-    EDGE_PRICE = 2;
-  var
-    X,Y,minL,maxL: Integer;
-    FLoc: TKMPoint;
-    Output: Single;
-  begin
-    FLoc := PlannedHouses[htWoodcutters].Plans[aIdx].SpecPoint;
-    Output := + 4*Abs(KMDistanceAbs(FLoc, PlannedHouses[htWoodcutters].Plans[aIdx].Loc)-2); // Place woocutter close to cutting point
-    Output := Output - ClosestDistance(htStore); // We want wodcutter near city
-    for Y := Max(1,FLoc.Y-SCAN_RAD) to Min(gTerrain.MapY,FLoc.Y+SCAN_RAD) do
-    for X := Max(1,FLoc.X-SCAN_RAD) to Min(gTerrain.MapX,FLoc.X+SCAN_RAD) do
-    begin
-      if not (tpBuild in gTerrain.Land[Y,X].Passability) then // No plans around forest
-        Output := Output - PLAN_PENALIZATION;
-      if gTerrain.ObjectIsChopableTree(X, Y) then // Trees in forest
-        Output := Output + TREE_PRICE;
-      if gTerrain.TileGoodForTree(X, Y) then
-        Output := Output + POTENTIAL_TREE_PRICE;
-    end;
-    minL := FLoc.Y-EDGE_RAD;
-    maxL := FLoc.Y+EDGE_RAD;
-    for X := Max(1,FLoc.X-EDGE_RAD) to Min(gTerrain.MapX-1,FLoc.X+EDGE_RAD) do
-    begin
-      if (minL < 1) OR not gRes.Tileset.TileIsRoadable( gTerrain.Land[minL,X].Terrain ) then
-        Output := Output + EDGE_PRICE;
-      if (maxL > gTerrain.MapY-1) OR not gRes.Tileset.TileIsRoadable( gTerrain.Land[maxL,X].Terrain ) then
-        Output := Output + EDGE_PRICE;
-    end;
-    // Snap forest to edge
-    minL := FLoc.X-EDGE_RAD;
-    maxL := FLoc.X+EDGE_RAD;
-    for Y := Max(1,FLoc.Y-EDGE_RAD) to Min(gTerrain.MapY-1,FLoc.Y+EDGE_RAD) do
-    begin
-      if (minL < 1) OR not gRes.Tileset.TileIsRoadable( gTerrain.Land[Y,minL].Terrain ) then
-        Output := Output + EDGE_PRICE;
-      if (maxL > gTerrain.MapX-1) OR not gRes.Tileset.TileIsRoadable( gTerrain.Land[Y,maxL].Terrain ) then
-        Output := Output + EDGE_PRICE;
-    end;
-    Result := Output;
-  end;
-
 const
-  PL = 1;
-  WEAPONS_WEIGHT = 50;
-  CITIZENS_LOST = 25;
+  // Maps for simulation (I dont use for loop in this array)
+  //MAPS: array [1..27] of String = ('GA_S1_001','GA_S1_002','GA_S1_003','GA_S1_004','GA_S1_005','GA_S1_006','GA_S1_007','GA_S1_008','GA_S1_009','GA_S1_010','GA_S1_011','GA_S1_012','GA_S1_013','GA_S1_014','GA_S1_015','GA_S1_016','GA_S1_017','GA_S1_018','GA_S1_019','GA_S1_020','GA_S1_021','GA_S1_022','GA_S1_023','GA_S1_024','GA_S1_025','GA_S1_026','GA_S1_027');
+  MAPS: array [1..12] of String = ('GA_S1_002','GA_S1_003','GA_S1_007','GA_S1_008','GA_S1_010','GA_S1_014','GA_S1_015','GA_S1_019','GA_S1_023','GA_S1_024','GA_S1_026','GA_S1_027');
+  cnt_MAP_SIMULATIONS = 25;
+  CRASH_DETECTION_MODE = True;
 var
-  K: Integer;
-  Output: Single;
-  HT: THouseType;
+  K,L: Integer;
+  Score: Double;
+  MapName: String;
 begin
-  Output := 0.0;
-  HMA := gAIFields.Eye.HousesMapping;
-  PlannedHouses := gHands.Hands[PL].AI.CityManagement.Builder.Planner.PlannedHouses;
-
-  for HT := HOUSE_MIN to HOUSE_MAX do
-    for K := 0 to PlannedHouses[HT].Count - 1 do
+  for K := Low(MAPS) to High(MAPS) do
+  begin
+    fBestScore := -1e30;
+    fAverageScore := 0;
+    fWorstScore := 1e30;
+    MapName := MAPS[K];
+    for L := 1 to cnt_MAP_SIMULATIONS do
     begin
-      Loc := PlannedHouses[HT].Plans[K].Loc;
-      Output := Output + SnapCrit(HT) + AllDistances(HT);
+      gGameApp.NewSingleMap(Format('%s..\..\Maps\%s\%s.dat',[ExtractFilePath(ParamStr(0)),MapName,MapName]), MapName);
+
+      if CRASH_DETECTION_MODE then
+        gGameApp.Game.Save('CrashDetection', Now);
+
+      //SetKaMSeed(Max(1,Seed));
+      SimulateGame();
+      Score := Max(0,EvalGame());
+      fAverageScore := fAverageScore + Score;
+      //gGameApp.Game.Save(Format('%s__No_%.3d__Score_%.6d',[MapName, K, Round(Score)]), Now);
+      if (Score < fWorstScore) AND (cnt_MAP_SIMULATIONS > 1) then
+      begin
+        fWorstScore := Score;
+        gGameApp.Game.Save(Format('W__%s__No_%.3d__Score_%.6d',[MapName, L, Round(Score)]), Now);
+      end;
+      if (Score > fBestScore) AND (cnt_MAP_SIMULATIONS > 1) then
+      begin
+        fBestScore := Score;
+        gGameApp.Game.Save(Format('B__%s__No_%.3d__Score_%.6d',[MapName, L, Round(Score)]), Now);
+      end;
     end;
+    fAverageScore := fAverageScore / Double(cnt_MAP_SIMULATIONS);
+    gGameApp.Game.Save(Format('AVRG_%s__%.6d',[MapName, Round(fAverageScore)]), Now);
+  end;
 
-  Output := Output
-            + gHands[PL].Stats.GetWeaponsProduced * WEAPONS_WEIGHT
-            - gHands[PL].Stats.GetCitizensLost * CITIZENS_LOST;
-  Result := Output;
+  gGameApp.StopGame(grSilent);
 end;
-//}
 
 
 
 
-
+{ TKMRunnerStone }
 procedure TKMRunnerStone.SetUp;
 begin
   inherited;
@@ -920,7 +644,8 @@ var
 begin
   //Total amount of stone = 4140
   gTerrain := TKMTerrain.Create;
-  gTerrain.LoadFromFile(ExeDir + 'Maps\StoneMines\StoneMines.map', False);
+//  gTerrain.LoadFromFile(ExeDir + 'Maps\StoneMines\StoneMines.map', False);
+  gTerrain.LoadFromFile(ExeDir + 'Maps\StoneMinesTest\StoneMinesTest.map', False);
 
   SetKaMSeed(aRun+1);
 
@@ -959,6 +684,9 @@ begin
 end;
 
 
+
+
+{ TKMRunnerFight95 }
 procedure TKMRunnerFight95.SetUp;
 begin
   inherited;
@@ -990,18 +718,20 @@ begin
   //fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(63, 64), dir_E, 8, 24);
   //fPlayers[1].AddUnitGroup(ut_Cavalry, KMPoint(65, 64), dir_W, 8, 24);
 
-  gHands[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
-  gHands[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
+  gHands[0].AddUnitGroup(utSwordsman, KMPoint(63, 64), TKMDirection(dirE), 8, 24);
+  gHands[1].AddUnitGroup(utSwordsman, KMPoint(65, 64), TKMDirection(dirW), 8, 24);
 
   gHands[1].UnitGroups[0].OrderAttackUnit(gHands[0].Units[0], True);
 
   SimulateGame;
 
-  fResults.Value[aRun, 0] := gHands[0].Stats.GetUnitQty(ut_Any);
-  fResults.Value[aRun, 1] := gHands[1].Stats.GetUnitQty(ut_Any);
+  fResults.Value[aRun, 0] := gHands[0].Stats.GetUnitQty(utAny);
+  fResults.Value[aRun, 1] := gHands[1].Stats.GetUnitQty(utAny);
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
+
+
 
 
 { TKMRunnerAIBuild }
@@ -1098,10 +828,10 @@ begin
     WRun := gHands[I].Stats.GetWarriorsTrained;
     WTotal := WTotal + WRun;
     WRunT := WRunT + WRun;
-    WFRun := gHands[I].Stats.GetWaresProduced(wt_Warfare);
+    WFRun := gHands[I].Stats.GetWaresProduced(wtWarfare);
     WFTotal := WFTotal + WFRun;
     WFRunT := WFRunT + WFRun;
-    GRun := gHands[I].Stats.GetWaresProduced(wt_All);
+    GRun := gHands[I].Stats.GetWaresProduced(wtAll);
     GTotal := GTotal + GRun;
     GRunT := GRunT + GRun;
     Str := Str + Format('Hand%d: H: %d  W: %d  WF: %d  G: %d', [I, HRun, WRun, WFRun, GRun]);
@@ -1111,8 +841,10 @@ begin
                [HRunT/HandsCnt, WRunT/HandsCnt, WFRunT/HandsCnt,  GRunT/HandsCnt]));
   gLog.AddTime('Time: ' + IntToStr(GetTimeSince(StartT)));
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
+
+
 
 
 { TKMVortamicPF }
@@ -1147,8 +879,10 @@ begin
   SimulateGame;
   fResults.Value[aRun, 0] := TimeGet - T;
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
+
+
 
 
 { TKMReplay }
@@ -1179,8 +913,10 @@ begin
   SimulateGame;
   fResults.Value[aRun, 0] := TimeGet - T;
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
+
+
 
 
 { TKMVas01 }
@@ -1219,8 +955,10 @@ begin
   SimulateGame;
   fResults.Value[aRun, 0] := TimeGet - T;
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
+
+
 
 
 { TKMStabilityTest }
@@ -1229,7 +967,7 @@ begin
   inherited;
   // Do something before simulation
   if gLog = nil then
-    gLog := TKMLog.Create(ExeDir + 'Utils\Runner\Runner_Log.log');
+    gLog := TKMLog.Create(Format('%s\Utils\Runner\Runner_Log.log',[ExeDir]));
 
   fTime := TimeGet;
 end;
@@ -1268,19 +1006,21 @@ begin
 	  //gGameApp.Game.Save('Stability Test #' + IntToStr(aRun) + '; map number: ' + IntToStr(aIdx), Now);
   end;
 
-  gGameApp.StopGame(gr_Silent);
+  gGameApp.StopGame(grSilent);
 end;
 
 
 initialization
-  RegisterRunner(TKMRunnerGA_TestManager);
+  RegisterRunner(TKMRunnerGA_TestParRun);
   RegisterRunner(TKMRunnerGA_HandLogistics);
-  RegisterRunner(TKMRunnerGA_CityRoadPlanner);
-  RegisterRunner(TKMRunnerGA_Forest);
+  RegisterRunner(TKMRunnerGA_Manager);
+  RegisterRunner(TKMRunnerGA_RoadPlanner);
   RegisterRunner(TKMRunnerGA_Farm);
+  RegisterRunner(TKMRunnerGA_Quarry);
+  RegisterRunner(TKMRunnerGA_Forest);
   RegisterRunner(TKMRunnerGA_CityBuilder);
   RegisterRunner(TKMRunnerGA_CityPlanner);
-  RegisterRunner(TKMRunnerGA_CityPredictor);
+  RegisterRunner(TKMRunnerFindBugs);
   RegisterRunner(TKMRunnerStone);
   RegisterRunner(TKMRunnerFight95);
   RegisterRunner(TKMRunnerAIBuild);

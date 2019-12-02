@@ -45,12 +45,12 @@ type
     property MapTex: TTexture read fMapTex;
     property PaintVirtualGroups: Boolean read fPaintVirtualGroups write fPaintVirtualGroups;
 
-    procedure LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandIndex);
+    procedure LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandID);
     procedure LoadFromTerrain;
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure SaveToStream(SaveStream: TKMemoryStream);
 
-    procedure Update(aRevealAll: Boolean);
+    procedure Update(aRevealAll: Boolean = False);
   end;
 
 
@@ -58,7 +58,7 @@ implementation
 uses
   SysUtils, KromUtils, Math,
   KM_GameApp, KM_Game, KM_Render, KM_AIFields, KM_AIInfluences,
-  KM_Units, KM_UnitGroups, KM_Hand, KM_HandsCollection,
+  KM_Units, KM_UnitGroup, KM_Hand, KM_HandsCollection,
   KM_Resource, KM_ResUnits, KM_CommonUtils, KM_Utils,
   KM_GameTypes;
 
@@ -86,7 +86,7 @@ end;
 
 
 //Load map in a direct way, should be used only when in Menu
-procedure TKMMinimap.LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandIndex);
+procedure TKMMinimap.LoadFromMission(const aMissionPath: string; const aRevealFor: array of TKMHandID);
 var
   I: Integer;
 begin
@@ -194,25 +194,6 @@ end;
 
 //MapEditor stores only commanders instead of all groups members
 procedure TKMMinimap.UpdateMinimapFromGame;
-
-  function GetColor(aHandId: TKMHandIndex): Cardinal;
-  begin
-    if (gGame <> nil) then
-    begin
-      if (gGame.IsMapEditor or gGameApp.GameSettings.ShowPlayersColors) then
-        Result := gHands[aHandId].FlagColor
-      else begin
-        if aHandId = gMySpectator.HandIndex then
-          Result := gGameApp.GameSettings.PlayerColorSelf
-        else if (gHands[aHandId].Alliances[gMySpectator.HandIndex] = at_Ally) then
-          Result := gGameApp.GameSettings.PlayerColorAlly
-        else
-          Result := gGameApp.GameSettings.PlayerColorEnemy;
-      end;
-    end else
-      Result := gHands[aHandId].FlagColor;
-  end;
-
 var
   FOW: Byte;
   ID: Word;
@@ -222,7 +203,7 @@ var
   DoesFit: Boolean;
   Light: Smallint;
   Group: TKMUnitGroup;
-  TileOwner: TKMHandIndex;
+  TileOwner: TKMHandID;
 begin
   //if OVERLAY_OWNERSHIP then
   //begin
@@ -260,13 +241,13 @@ begin
         if (TileOwner <> -1)
           and not fMyTerrain.TileIsCornField(KMPoint(K+1, I+1)) //Do not show corn and wine on minimap
           and not fMyTerrain.TileIsWineField(KMPoint(K+1, I+1)) then
-          fBase[I*fMapX + K] := GetColor(TileOwner)
+          fBase[I*fMapX + K] := gHands[TileOwner].GameFlagColor
         else
         begin
           U := fMyTerrain.Land[I+1,K+1].IsUnit;
           if U <> nil then
             if U.Owner <> PLAYER_ANIMAL then
-              fBase[I*fMapX + K] := GetColor(U.Owner)
+              fBase[I*fMapX + K] := gHands[U.Owner].GameFlagColor
             else
               fBase[I*fMapX + K] := gRes.Units[U.UnitType].MinimapColor
           else
@@ -315,7 +296,7 @@ begin
 end;
 
 
-procedure TKMMinimap.Update(aRevealAll: Boolean);
+procedure TKMMinimap.Update(aRevealAll: Boolean = False);
 begin
   if SKIP_RENDER then Exit;
 
@@ -342,7 +323,7 @@ begin
     Move(Pointer(NativeUint(fBase) + I * fMapX * 4)^,
          Pointer(NativeUint(wData) + I * fWidthPOT * 4)^, fMapX * 4);
 
-  TRender.UpdateTexture(fMapTex.Tex, fWidthPOT, fHeightPOT, tf_RGBA8, wData);
+  TRender.UpdateTexture(fMapTex.Tex, fWidthPOT, fHeightPOT, tfRGBA8, wData);
   FreeMem(wData);
 end;
 
@@ -352,7 +333,7 @@ var
   L: Cardinal;
   I: Integer;
 begin
-  SaveStream.WriteA('Minimap');
+  SaveStream.PlaceMarker('Minimap');
 
   SaveStream.Write(fMapX);
   SaveStream.Write(fMapY);
@@ -374,7 +355,7 @@ var
   L: Cardinal;
   I: Integer;
 begin
-  LoadStream.ReadAssert('Minimap');
+  LoadStream.CheckMarker('Minimap');
 
   LoadStream.Read(fMapX);
   LoadStream.Read(fMapY);

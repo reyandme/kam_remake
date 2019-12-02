@@ -25,15 +25,19 @@ type
   protected
     function GetResOrder(aId: Byte): Integer; override;
     procedure SetResOrder(aId: Byte; aValue: Integer); override;
+    procedure CheckTakeOutDeliveryMode; override;
   public
-    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
 
-    procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False); override;
     property ResFrom: TKMWareType read fResFrom write SetResFrom;
     property ResTo: TKMWareType read fResTo write SetResTo;
     function RatioFrom: Byte;
     function RatioTo: Byte;
+
+    function ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean; override;
+    function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; override;
 
     function AllowedToTrade(aRes: TKMWareType): Boolean;
     function TradeInProgress: Boolean;
@@ -52,7 +56,7 @@ type
 
 implementation
 uses
-  Math,
+  Math, SysUtils, TypInfo,
   KM_RenderPool,
   KM_Hand, KM_HandsCollection, KM_HandLogistics,
   KM_Resource, KM_ResSound,
@@ -60,16 +64,16 @@ uses
 
 
 { TKMHouseMarket }
-constructor TKMHouseMarket.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+constructor TKMHouseMarket.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
 begin
   inherited;
 
-  fResFrom := wt_None;
-  fResTo := wt_None;
+  fResFrom := wtNone;
+  fResTo := wtNone;
 end;
 
 
-procedure TKMHouseMarket.DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False);
+procedure TKMHouseMarket.DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False);
 var
   R: TKMWareType;
 begin
@@ -109,7 +113,7 @@ function TKMHouseMarket.RatioFrom: Byte;
 var
   CostFrom, CostTo: Single;
 begin
-  if (fResFrom <> wt_None) and (fResTo <> wt_None) then
+  if (fResFrom <> wtNone) and (fResTo <> wtNone) then
   begin
     //When trading target ware is priced higher
     CostFrom := gRes.Wares[fResFrom].MarketPrice;
@@ -123,7 +127,7 @@ end;
 function TKMHouseMarket.RatioTo: Byte;
 var CostFrom, CostTo: Single;
 begin
-  if (fResFrom <> wt_None) and (fResTo <> wt_None) then
+  if (fResFrom <> wtNone) and (fResTo <> wtNone) then
   begin
     //When trading target ware is priced higher
     CostFrom := gRes.Wares[fResFrom].MarketPrice;
@@ -179,7 +183,7 @@ procedure TKMHouseMarket.AttemptExchange;
 var
   TradeCount: Word;
 begin
-  Assert((fResFrom <> wt_None) and (fResTo <> wt_None) and (fResFrom <> fResTo));
+  Assert((fResFrom <> wtNone) and (fResTo <> wtNone) and (fResFrom <> fResTo));
 
   //Script might have blocked these resources from trading, if so reset trade order
   if TradeInProgress
@@ -203,7 +207,7 @@ begin
 
     gScriptEvents.ProcMarketTrade(Self, fResFrom, fResTo);
     gScriptEvents.ProcWareProduced(Self, fResTo, TradeCount * RatioTo);
-    gSoundPlayer.Play(sfxn_Trade, fPosition);
+    gSoundPlayer.Play(sfxnTrade, fPosition);
   end;
 end;
 
@@ -219,9 +223,33 @@ begin
       gHands[fOwner].Deliveries.Queue.RemOffer(Self, aWare, aCount);
     end;
   end;
-  Assert(aCount <= fMarketResOut[aWare]);
 
-  dec(fMarketResOut[aWare], aCount);
+  if aCount <= fMarketResOut[aWare] then
+    Dec(fMarketResOut[aWare], aCount)
+  else if (DeliveryMode = dmTakeOut) and (aCount <= fMarketResIn[aWare]) then
+    Dec(fMarketResIn[aWare], aCount)
+  else
+    raise Exception.Create(Format('No ware: [%s] count = %d to take from market UID = %d',
+                                  [GetEnumName(TypeInfo(TKMWareType), Integer(aWare)), aCount, UID]));
+
+end;
+
+
+//Check if we allowed to deliver from Market
+//
+//Probably this method will be never invoked,
+//since when we cancel trade all resources from IN are moved into OUT
+//so it looks likewe have no chance to find anything to get in the IN wares, only when trade is going on
+function TKMHouseMarket.ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean;
+begin
+  Result := inherited and not ((GetDeliveryModeForCheck(aImmidiateCheck) = dmTakeOut)
+                                and (fMarketResIn[aWareType] >= 1));
+end;
+
+
+function TKMHouseMarket.ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean;
+begin
+  Result := inherited or (fTradeAmount = 0) or (fResFrom <> aWareType); //Stop delivery to market when player set trade amount to 0
 end;
 
 
@@ -238,7 +266,7 @@ begin
 
   fResFrom := aRes;
   if fResTo = fResFrom then
-    fResTo := wt_None;
+    fResTo := wtNone;
 end;
 
 
@@ -249,7 +277,7 @@ begin
 
   fResTo := aRes;
   if fResFrom = fResTo then
-    fResFrom := wt_None;
+    fResFrom := wtNone;
 end;
 
 
@@ -295,7 +323,7 @@ const
 var
   ResRequired, OrdersAllowed, OrdersRemoved: Integer;
 begin
-  if (fResFrom = wt_None) or (fResTo = wt_None) or (fResFrom = fResTo) then Exit;
+  if (fResFrom = wtNone) or (fResTo = wtNone) or (fResFrom = fResTo) then Exit;
 
   fTradeAmount := EnsureRange(aValue, 0, MAX_WARES_ORDER);
 
@@ -339,9 +367,33 @@ begin
 end;
 
 
+//Check and proceed if we Set or UnSet dmTakeOut delivery mode
+procedure TKMHouseMarket.CheckTakeOutDeliveryMode;
+var
+  WT: TKMWareType;
+begin
+  if DeliveryMode = dmTakeOut then
+    for WT := WARE_MIN to WARE_MAX do
+    begin
+      if fMarketResIn[WT] > 0 then
+        gHands[fOwner].Deliveries.Queue.RemOffer(Self, WT, fMarketResIn[WT]);
+    end;
+
+  if NewDeliveryMode = dmTakeOut then
+  begin
+    for WT := WARE_MIN to WARE_MAX do
+    begin
+      if fMarketResIn[WT] > 0 then
+        gHands[fOwner].Deliveries.Queue.AddOffer(Self, WT, fMarketResIn[WT]);
+    end;
+  end;
+end;
+
+
 constructor TKMHouseMarket.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+  LoadStream.CheckMarker('HouseMarket');
   LoadStream.Read(fTradeAmount);
   LoadStream.Read(fResFrom, SizeOf(fResFrom));
   LoadStream.Read(fResTo, SizeOf(fResTo));
@@ -354,6 +406,7 @@ end;
 procedure TKMHouseMarket.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+  SaveStream.PlaceMarker('HouseMarket');
   SaveStream.Write(fTradeAmount);
   SaveStream.Write(fResFrom, SizeOf(fResFrom));
   SaveStream.Write(fResTo, SizeOf(fResTo));
@@ -371,11 +424,11 @@ var
   MaxRes: TKMWareType;
 begin
   inherited;
-  if fBuildState < hbs_Done then Exit;
+  if fBuildState < hbsDone then Exit;
 
   //Market can display only one ware at a time (lookup ware that has most count)
   MaxCount := 0;
-  MaxRes := wt_None;
+  MaxRes := wtNone;
   for R := WARE_MIN to WARE_MAX do
   if fMarketResIn[R] + fMarketResOut[R] > MaxCount then
   begin

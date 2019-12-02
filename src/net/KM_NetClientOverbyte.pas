@@ -91,11 +91,17 @@ end;
 procedure TKMNetClientOverbyte.Disconnect;
 begin
   if fSocket <> nil then
-    fSocket.Close;
+  begin
+    //ShutDown(1) Works better, then Close or CloseDelayed
+    //With Close or CloseDelayed some data, that were sent just before disconnection could not be delivered to server.
+    //F.e. mkDisconnect packet
+    //But we can't send data into ShutDown'ed socket (we could try into Closed one, since it will have State wsClosed)
+    fSocket.ShutDown(1);
+  end;
 end;
 
 
-procedure TKMNetClientOverbyte.SendData(aData:pointer; aLength:cardinal);
+procedure TKMNetClientOverbyte.SendData(aData: Pointer; aLength: Cardinal);
 begin
   if fSocket.State = wsConnected then //Sometimes this occurs just before disconnect/reconnect
     fSocket.Send(aData, aLength);
@@ -139,16 +145,16 @@ procedure TKMNetClientOverbyte.DataAvailable(Sender: TObject; Error: Word);
 const
   BufferSize = 10240; //10kb
 var
-  P:pointer;
-  L:integer; //L could be -1 when no data is available
+  P: Pointer;
+  L: Integer; //L could be -1 when no data is available
 begin
   if Error <> 0 then
   begin
     fOnError('DataAvailable. Error '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
-    exit;
+    Exit;
   end;
 
-  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
+  GetMem(P, BufferSize + 1); //+1 to avoid RangeCheckError when L = BufferSize
   L := TWSocket(Sender).Receive(P, BufferSize);
 
   if L > 0 then //if L=0 then exit;

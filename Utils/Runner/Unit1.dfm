@@ -25,9 +25,9 @@ object Form2: TForm2
     Caption = 'Cycles:'
   end
   object Label2: TLabel
-    Left = 102
+    Left = 189
     Top = 216
-    Width = 90
+    Width = 3
     Height = 13
     Alignment = taRightJustify
   end
@@ -93,7 +93,7 @@ object Form2: TForm2
     Top = 8
     Width = 881
     Height = 625
-    ActivePage = Render
+    ActivePage = TabSheet4
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 4
     OnChange = PageControl1Change

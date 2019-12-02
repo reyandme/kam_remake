@@ -4,7 +4,8 @@ interface
 uses
   Controls, Math, SysUtils,
   KM_Defaults,
-  KM_Controls, KM_Maps, KM_Pics, KM_InterfaceDefaults, KM_Minimap, KM_CommonClasses;
+  KM_Maps, KM_MapTypes,
+  KM_Controls, KM_Pics, KM_InterfaceDefaults, KM_Minimap, KM_CommonTypes;
 
 
 const
@@ -140,9 +141,9 @@ begin
 
     TKMBevel.Create(Panel_Single, (aParent.Width + PAD_SIDE) div 2, PAD_VERT + 20, Half, 70);
 
-    Label_MapType := TKMLabel.Create(Panel_Single, (aParent.Width + PAD_SIDE) div 2 + 5, PAD_VERT, gResTexts[TX_MENU_MAP_TYPE], fnt_Outline, taLeft); 
+    Label_MapType := TKMLabel.Create(Panel_Single, (aParent.Width + PAD_SIDE) div 2 + 5, PAD_VERT, gResTexts[TX_MENU_MAP_TYPE], fntOutline, taLeft); 
 
-    Radio_MapType := TKMRadioGroup.Create(Panel_Single, (aParent.Width + PAD_SIDE) div 2 + 5, PAD_VERT + 25, Half - 10, 60, fnt_Metal);
+    Radio_MapType := TKMRadioGroup.Create(Panel_Single, (aParent.Width + PAD_SIDE) div 2 + 5, PAD_VERT + 25, Half - 10, 60, fntMetal);
     Radio_MapType.Add(gResTexts[TX_MENU_SP_MAP_SCENARIO]); 
     Radio_MapType.Add(gResTexts[TX_LOBBY_MAP_BUILD]);
     Radio_MapType.Add(gResTexts[TX_LOBBY_MAP_FIGHT]);
@@ -155,11 +156,11 @@ begin
                                                   PAD_VERT + Radio_MapType.Height + 35,
                                                   Half,
                                                   aParent.Height - PAD_VERT*2 - Radio_MapType.Height - 15,
-                                                  fnt_Metal, bsMenu);
+                                                  fntMetal, bsMenu);
     ColumnBox_Maps.Anchors := [anTop, anBottom];
-    ColumnBox_Maps.SetColumns(fnt_Outline, ['', '', gResTexts[TX_MENU_MAP_TITLE], gResTexts[TX_MENU_MAP_SIZE]], [0, 50, 100, 380]);
-    ColumnBox_Maps.Columns[2].Font := fnt_Metal;
-    ColumnBox_Maps.Columns[2].HintFont := fnt_Grey;
+    ColumnBox_Maps.SetColumns(fntOutline, ['', '', gResTexts[TX_MENU_MAP_TITLE], gResTexts[TX_MENU_MAP_SIZE]], [0, 50, 100, 380]);
+    ColumnBox_Maps.Columns[2].Font := fntMetal;
+    ColumnBox_Maps.Columns[2].HintFont := fntGrey;
     ColumnBox_Maps.Columns[1].TextAlign := taCenter;
     ColumnBox_Maps.Columns[3].TextAlign := taCenter;
     ColumnBox_Maps.ItemHeight := 40;
@@ -177,8 +178,8 @@ begin
     Panel_Desc.Anchors := [anTop, anBottom];
 
       //Description
-      Label_Title := TKMLabel.Create(Panel_Desc, Half div 2, 0, '', fnt_Outline, taCenter);
-      Memo_Desc  := TKMMemo.Create(Panel_Desc, 0, 20, Half, 300, fnt_Metal, bsMenu);
+      Label_Title := TKMLabel.Create(Panel_Desc, Half div 2, 0, '', fntOutline, taCenter);
+      Memo_Desc  := TKMMemo.Create(Panel_Desc, 0, 20, Half, 300, fntMetal, bsMenu);
       Memo_Desc.Anchors := [anTop, anBottom];
       Memo_Desc.AutoWrap := True;
 
@@ -189,34 +190,34 @@ begin
 
       //Setup (loc and flag placed alongside just like in MP lobby)
       //Other setup settings can go below
-      L := TKMLabel.Create(Panel_Desc, 200, 330, 150, 20, gResTexts[TX_LOBBY_HEADER_STARTLOCATION], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_Desc, 200, 330, 150, 20, gResTexts[TX_LOBBY_HEADER_STARTLOCATION], fntMetal, taLeft);
       L.Anchors := [anLeft, anBottom];
-      DropBox_Loc := TKMDropList.Create(Panel_Desc, 200, 350, 150, 20, fnt_Metal, gResTexts[TX_MENU_MAP_LOCATION], bsMenu);
+      DropBox_Loc := TKMDropList.Create(Panel_Desc, 200, 350, 150, 20, fntMetal, gResTexts[TX_MENU_MAP_LOCATION], bsMenu);
       DropBox_Loc.Anchors := [anLeft, anBottom];
       DropBox_Loc.OnChange := OptionsChange;
 
-      L := TKMLabel.Create(Panel_Desc, 360, 330, 80, 20, gResTexts[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_Desc, 360, 330, 80, 20, gResTexts[TX_LOBBY_HEADER_FLAGCOLOR], fntMetal, taLeft);
       L.Anchors := [anLeft, anBottom];
-      DropBox_Color := TKMDropColumns.Create(Panel_Desc, 360, 350, 80, 20, fnt_Grey, '', bsMenu);
+      DropBox_Color := TKMDropColumns.Create(Panel_Desc, 360, 350, 80, 20, fntGrey, '', bsMenu);
       DropBox_Color.Anchors := [anLeft, anBottom];
-      DropBox_Color.SetColumns(fnt_Outline, [''], [0]);
+      DropBox_Color.SetColumns(fntOutline, [''], [0]);
       DropBox_Color.List.ShowHeader := False;
       DropBox_Color.FadeImageWhenDisabled := False;
       DropBox_Color.Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
       DropBox_Color.OnChange := OptionsChange;
 
-      Label_Difficulty := TKMLabel.Create(Panel_Desc, 200, 385, gResTexts[TX_MISSION_DIFFICULTY], fnt_Metal, taLeft);
+      Label_Difficulty := TKMLabel.Create(Panel_Desc, 200, 385, gResTexts[TX_MISSION_DIFFICULTY], fntMetal, taLeft);
       Label_Difficulty.Anchors := [anLeft, anBottom];
       Label_Difficulty.Hide;
-      DropBox_Difficulty := TKMDropList.Create(Panel_Desc, 200, 405, 150, 20, fnt_Metal, gResTexts[TX_MISSION_DIFFICULTY], bsMenu);
+      DropBox_Difficulty := TKMDropList.Create(Panel_Desc, 200, 405, 150, 20, fntMetal, gResTexts[TX_MISSION_DIFFICULTY], bsMenu);
       DropBox_Difficulty.Anchors := [anLeft, anBottom];
       DropBox_Difficulty.OnChange := OptionsChange;
       DropBox_Difficulty.Hide;
 
-      Label_AIPlayerType := TKMLabel.Create(Panel_Desc, 200, 440, gResTexts[TX_AI_PLAYER_TYPE], fnt_Metal, taLeft);
+      Label_AIPlayerType := TKMLabel.Create(Panel_Desc, 200, 440, gResTexts[TX_AI_PLAYER_TYPE], fntMetal, taLeft);
       Label_AIPlayerType.Anchors := [anLeft, anBottom];
       Label_AIPlayerType.Hide;
-      DropBox_AIPlayerType := TKMDropList.Create(Panel_Desc, 200, 460, 240, 20, fnt_Metal, gResTexts[TX_AI_PLAYER_TYPE], bsMenu);
+      DropBox_AIPlayerType := TKMDropList.Create(Panel_Desc, 200, 460, 240, 20, fntMetal, gResTexts[TX_AI_PLAYER_TYPE], bsMenu);
       DropBox_AIPlayerType.Anchors := [anLeft, anBottom];
       DropBox_AIPlayerType.OnChange := OptionsChange;
       DropBox_AIPlayerType.Hide;
@@ -224,18 +225,18 @@ begin
       //Goals
       B := TKMBevel.Create(Panel_Desc, 0, 530, Half, 30);
       B.Anchors := [anLeft, anBottom];
-      L := TKMLabel.Create(Panel_Desc, 4, 538, 190, 30, gResTexts[TX_MENU_WIN_CONDITION], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_Desc, 4, 538, 190, 30, gResTexts[TX_MENU_WIN_CONDITION], fntMetal, taLeft);
       L.Anchors := [anLeft, anBottom];
       B := TKMBevel.Create(Panel_Desc, 0, 560, Half, 30);
       B.Anchors := [anLeft, anBottom];
-      L := TKMLabel.Create(Panel_Desc, 4, 568, 190, 30, gResTexts[TX_MENU_DEFEAT_CONDITION], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_Desc, 4, 568, 190, 30, gResTexts[TX_MENU_DEFEAT_CONDITION], fntMetal, taLeft);
       L.Anchors := [anLeft, anBottom];
       for I := 0 to MAX_UI_GOALS - 1 do
       begin
         Image_VictGoal[I] := TKMImage.Create(Panel_Desc, 200 + I*35, 530, 30, 30, 41);
         Image_VictGoal[I].Anchors := [anLeft, anBottom];
         Image_VictGoal[I].ImageCenter;
-        Label_VictGoal[I] := TKMLabel.Create(Panel_Desc, 215 + I*35, 535, '', fnt_Grey, taCenter);
+        Label_VictGoal[I] := TKMLabel.Create(Panel_Desc, 215 + I*35, 535, '', fntGrey, taCenter);
         Label_VictGoal[I].Anchors := [anLeft, anBottom];
         Image_VictGoalSt[I] := TKMImage.Create(Panel_Desc, 217 + I*35, 545, 20, 20, 371, rxGui);
         Image_VictGoalSt[I].Anchors := [anLeft, anBottom];
@@ -243,7 +244,7 @@ begin
         Image_SurvGoal[I] := TKMImage.Create(Panel_Desc, 200 + I*35, 560, 30, 30, 41);
         Image_SurvGoal[I].Anchors := [anLeft, anBottom];
         Image_SurvGoal[I].ImageCenter;
-        Label_SurvGoal[I] := TKMLabel.Create(Panel_Desc, 215 + I*35, 565, '', fnt_Grey, taCenter);
+        Label_SurvGoal[I] := TKMLabel.Create(Panel_Desc, 215 + I*35, 565, '', fntGrey, taCenter);
         Label_SurvGoal[I].Anchors := [anLeft, anBottom];
         Image_SurvGoalSt[I] := TKMImage.Create(Panel_Desc, 218 + I*35, 575, 20, 20, 44, rxGui);
         Image_SurvGoalSt[I].Anchors := [anLeft, anBottom];
@@ -252,11 +253,11 @@ begin
       //Alliances
       B := TKMBevel.Create(Panel_Desc, 0, 590, Half, 20);
       B.Anchors := [anLeft, anBottom];
-      L := TKMLabel.Create(Panel_Desc, 4, 594, 190, 20, gResTexts[TX_MENU_ALLIES], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_Desc, 4, 594, 190, 20, gResTexts[TX_MENU_ALLIES], fntMetal, taLeft);
       L.Anchors := [anLeft, anBottom];
       B := TKMBevel.Create(Panel_Desc, 0, 610, Half, 20);
       B.Anchors := [anLeft, anBottom];
-      L := TKMLabel.Create(Panel_Desc, 4, 614, 190, 20, gResTexts[TX_MENU_ENEMIES], fnt_Metal, taLeft);
+      L := TKMLabel.Create(Panel_Desc, 4, 614, 190, 20, gResTexts[TX_MENU_ENEMIES], fntMetal, taLeft);
       L.Anchors := [anLeft, anBottom];
       for I := 0 to MAX_HANDS - 1 do
       begin
@@ -324,7 +325,7 @@ begin
 
       R := MakeListRow(['', IntToStr(fMaps[I].LocCount), fMaps[I].FileName, MapSizeText(fMaps[I].MapSizeX, fMaps[I].MapSizeY)]);
       R.Cells[2].SubTxt := fMaps[I].TxtInfo.SmallDesc;
-      R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mm_Tactic) * 14);
+      R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].MissionMode <> mmTactic) * 14);
       R.Tag := I;
       ColumnBox_Maps.AddItem(R);
 
@@ -383,6 +384,8 @@ begin
 
       Label_AIPlayerType.Hide;
       DropBox_AIPlayerType.Hide;
+
+      Button_Start.Enabled := False;
     end
     else
     begin
@@ -415,7 +418,7 @@ begin
         for MD in fMaps[MapId].TxtInfo.DifficultyLevels do
         begin
           DropBox_Difficulty.Add(gResTexts[DIFFICULTY_LEVELS_TX[MD]], Byte(MD));
-          if MD = mdNormal then
+          if MD = mdNormal then //Default difficulty is "Normal"
             DropBox_Difficulty.ItemIndex := I;
           Inc(I);
         end;
@@ -468,6 +471,7 @@ begin
     DropBox_Loc.Enabled := DropBox_Loc.Count > 1;
     MinimapView.ShowLocs := DropBox_Loc.Count > 1;
     DropBox_Color.Enabled := DropBox_Color.Count > 1;
+    Button_Start.Enabled := fMaps[MapId].IsValid;
 
     DoOptionsChange;
   finally
@@ -602,9 +606,9 @@ begin
           fSingleColor := fMaps[MapId].FlagColors[fSingleLoc];
 
         //Refresh minimap with selected location and player color
-        fMinimap.LoadFromMission(M.FullPath('.dat'), [TKMHandIndex(fSingleLoc)]);
+        fMinimap.LoadFromMission(M.FullPath('.dat'), [TKMHandID(fSingleLoc)]);
         fMinimap.HandColors[fSingleLoc] := fSingleColor;
-        fMinimap.Update(False);
+        fMinimap.Update;
         MinimapView.SetMinimap(fMinimap);
 
         //Populate goals section
@@ -631,12 +635,12 @@ begin
         if I <> fSingleLoc then
         begin
           case M.Alliances[fSingleLoc, I] of
-            at_Enemy: begin
+            atEnemy: begin
                         Image_Enemies[J].Show;
                         Image_Enemies[J].FlagColor := M.FlagColors[I];
                         Inc(J);
                       end;
-            at_Ally:  begin
+            atAlly:  begin
                         Image_Allies[K].Show;
                         Image_Allies[K].FlagColor := M.FlagColors[I];
                         Inc(K);

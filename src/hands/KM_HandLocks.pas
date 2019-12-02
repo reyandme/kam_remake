@@ -78,7 +78,7 @@ end;
 
 function TKMHandLocks.GetUnitBlocked(aUnitType: TKMUnitType; aInTownHall: Boolean = False): Boolean;
 begin
-  if aInTownHall and (aUnitType = ut_Militia) then
+  if aInTownHall and (aUnitType = utMilitia) then
     Result := fMilitiaBlockedInTH
   else
     Result := fUnitBlocked[aUnitType];
@@ -87,7 +87,7 @@ end;
 
 procedure TKMHandLocks.SetUnitBlocked(aIsBlocked: Boolean; aUnitType: TKMUnitType; aInTownHall: Boolean = False);
 begin
-  if aInTownHall and (aUnitType = ut_Militia) then
+  if aInTownHall and (aUnitType = utMilitia) then
     fMilitiaBlockedInTH := aIsBlocked
   else
     fUnitBlocked[aUnitType] := aIsBlocked;
@@ -96,7 +96,7 @@ end;
 
 procedure TKMHandLocks.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.WriteA('HandLocks');
+  SaveStream.PlaceMarker('HandLocks');
   SaveStream.Write(HouseBlocked, SizeOf(HouseBlocked));
   SaveStream.Write(HouseGranted, SizeOf(HouseGranted));
   SaveStream.Write(fUnitBlocked, SizeOf(fUnitBlocked));
@@ -107,7 +107,7 @@ end;
 
 procedure TKMHandLocks.Load(LoadStream: TKMemoryStream);
 begin
-  LoadStream.ReadAssert('HandLocks');
+  LoadStream.CheckMarker('HandLocks');
   LoadStream.Read(HouseBlocked, SizeOf(HouseBlocked));
   LoadStream.Read(HouseGranted, SizeOf(HouseGranted));
   LoadStream.Read(fUnitBlocked, SizeOf(fUnitBlocked));

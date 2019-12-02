@@ -14,6 +14,7 @@ type
     fIsMultiplayer: Boolean;
     procedure Cancel_Click(Sender: TObject);
     procedure QuickPlay_Click(Sender: TObject);
+    procedure StartQuickPlay(aMapSaved: Boolean);
     procedure Update_PlayerSelect;
     procedure PlayerSelectFirst;
     procedure UpdatePanel;
@@ -21,10 +22,11 @@ type
     procedure SaveBtn_EnableStatusChanged(Sender: TObject; aValue: Boolean);
   protected
     PopUp_QuickPlay: TKMPopUpPanel;
+      DropList_SelectHand: TKMDropList;
       Panel_Save: TKMPanel;
 
-      DropList_SelectHand: TKMDropList;
-      Label_QuickPlay: TKMLabel;
+      Label_Difficulty: TKMLabel;
+      DropBox_Difficulty: TKMDropList;
       Button_QuickPlay, Button_Cancel: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnMapTypChanged: TBooleanEvent);
@@ -41,38 +43,49 @@ type
 
 implementation
 uses
-  SysUtils, KromUtils, KM_GameApp, KM_Game, KM_HandsCollection, KM_Maps, KM_Hand, KM_InterfaceGame, KM_InterfaceGamePlay,
+  SysUtils, KromUtils, KM_GameApp, KM_Game, KM_HandsCollection, KM_Maps, KM_MapTypes,
+  KM_Hand, KM_InterfaceGame, KM_InterfaceGamePlay,
   KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_Resource, Math;
+
+const
+  PANEL_QUICKPLAY_HEIGHT = 465;
 
 
 constructor TKMMapEdMenuQuickPlay.Create(aParent: TKMPanel; aOnMapTypChanged: TBooleanEvent);
 const
-  ControlsWidth = 220;
+  CTRLS_WIDTH = 220;
 var
   Left: Integer;
 begin
   inherited Create;
 
-  PopUp_QuickPlay := TKMPopUpPanel.Create(aParent, 240, 420, gResTexts[TX_MAPED_MAP_QUICK_PLAY], pubgit_Gray);
+  PopUp_QuickPlay := TKMPopUpPanel.Create(aParent, 240, PANEL_QUICKPLAY_HEIGHT, gResTexts[TX_MAPED_MAP_QUICK_PLAY], pubgit_Gray);
 
   PopUp_QuickPlay.Width := Math.Max(240, gRes.Fonts[PopUp_QuickPlay.Font].GetTextSize(PopUp_QuickPlay.Caption).X + 40);
-  Left := (PopUp_QuickPlay.Width - ControlsWidth) div 2;
-    TKMLabel.Create(PopUp_QuickPlay, PopUp_QuickPlay.Width div 2, 50, gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER], fnt_Metal, taCenter);
+  Left := (PopUp_QuickPlay.Width - CTRLS_WIDTH) div 2;
+    TKMLabel.Create(PopUp_QuickPlay, PopUp_QuickPlay.Width div 2, 50, gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER], fntMetal, taCenter);
 
-    DropList_SelectHand := TKMDropList.Create(PopUp_QuickPlay, Left, 75, ControlsWidth, 20, fnt_Game, '', bsGame);
+    DropList_SelectHand := TKMDropList.Create(PopUp_QuickPlay, Left, 75, CTRLS_WIDTH, 20, fntGame, '', bsGame);
     DropList_SelectHand.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER_TO_START];
 
-    Panel_Save := TKMPanel.Create(PopUp_QuickPlay, Left, 95, ControlsWidth, 230);
+    Panel_Save := TKMPanel.Create(PopUp_QuickPlay, Left, 95, CTRLS_WIDTH, 230);
 
-    Button_QuickPlay := TKMButton.Create(PopUp_QuickPlay, Left, 310, ControlsWidth, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE], bsGame);
+    Button_QuickPlay := TKMButton.Create(PopUp_QuickPlay, Left, 310, CTRLS_WIDTH, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE], bsGame);
     Button_QuickPlay.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE_HINT];
     Button_QuickPlay.OnClick := QuickPlay_Click;
 
-    Button_Cancel := TKMButton.Create(PopUp_QuickPlay, (PopUp_QuickPlay.Width - ControlsWidth) div 2, PopUp_QuickPlay.Height - 40, ControlsWidth, 30, gResTexts[TX_WORD_CANCEL], bsGame);
+    Label_Difficulty := TKMLabel.Create(PopUp_QuickPlay, Left, 355, gResTexts[TX_MISSION_DIFFICULTY], fntMetal, taLeft);
+    Label_Difficulty.Anchors := [anLeft, anBottom];
+    DropBox_Difficulty := TKMDropList.Create(PopUp_QuickPlay, Left, 375, CTRLS_WIDTH, 20, fntMetal, gResTexts[TX_MISSION_DIFFICULTY], bsMenu);
+    DropBox_Difficulty.Anchors := [anLeft, anBottom];
+
+    Button_Cancel := TKMButton.Create(PopUp_QuickPlay, (PopUp_QuickPlay.Width - CTRLS_WIDTH) div 2, PopUp_QuickPlay.Height - 40,
+                                      CTRLS_WIDTH, 30, gResTexts[TX_WORD_CANCEL], bsGame);
+    Button_Cancel.Anchors := [anBottom];
     Button_Cancel.Hint := gResTexts[TX_WORD_CANCEL];
     Button_Cancel.OnClick := Cancel_Click;
 
-  fMenuSave := TKMMapEdMenuSave.Create(Panel_Save, SaveDone, aOnMapTypChanged, 10, 220);
+  fMenuSave := TKMMapEdMenuSave.Create(Panel_Save, SaveDone, aOnMapTypChanged, 0, 10, 220);
 
   fMenuSave.Button_SaveCancel.Hide;
 
@@ -92,22 +105,34 @@ end;
 
 
 procedure TKMMapEdMenuQuickPlay.QuickPlay_Click(Sender: TObject);
+begin
+  StartQuickPlay(False);
+end;
+
+
+procedure TKMMapEdMenuQuickPlay.StartQuickPlay(aMapSaved: Boolean);
 var
   MapName, GameName: String;
   Color: Cardinal;
   HandID: Integer;
   IsMultiplayer: Boolean;
+  Difficulty: TKMMissionDifficulty;
 begin
   MapName := TKMapsCollection.FullPath(gGame.GameName, '.dat', fIsMultiplayer);
   GameName := gGame.GameName;
   HandId := DropList_SelectHand.GetSelectedTag;
   Color := gHands[HandId].FlagColor;
   IsMultiplayer := fIsMultiplayer; //Somehow fIsMultiplayer sometimes change its value... have no time to debug it. Just save to local value for now
+
+  Difficulty := mdNone;
+  if DropBox_Difficulty.IsClickable and DropBox_Difficulty.IsSelected then
+    Difficulty := TKMMissionDifficulty(DropBox_Difficulty.GetSelectedTag);
+
   FreeThenNil(gGame);
-  gGameApp.NewSingleMap(MapName, GameName, HandId, Color);
+  gGameApp.NewSingleMap(MapName, GameName, HandId, Color, Difficulty, aitNone, not aMapSaved);
   gGame.StartedFromMapEditor := True;
   gGame.StartedFromMapEdAsMPMap := IsMultiplayer;
-  TKMGamePlayInterface(gGame.ActiveInterface).SetMenuState(gGame.MissionMode = mm_Tactic);
+  TKMGamePlayInterface(gGame.ActiveInterface).SetMenuState(gGame.MissionMode = mmTactic);
 end;
 
 
@@ -123,16 +148,42 @@ end;
 
 
 procedure TKMMapEdMenuQuickPlay.UpdatePanel;
+var
+  MD: TKMMissionDIfficulty;
+  I: Integer;
 begin
   Update_PlayerSelect;
   if not DropList_SelectHand.List.Selected then
   begin
     if gMySpectator.Hand.HasAssets then
-      DropList_SelectHand.SelectByTag(gMySpectator.HandIndex)
+      DropList_SelectHand.SelectByTag(gMySpectator.HandID)
     else
       PlayerSelectFirst;
   end;
   Button_QuickPlay.Enabled := (not gGame.MapEditor.IsNewMap or gGame.MapEditor.WasSaved) and DropList_SelectHand.List.Selected;
+
+  //Update Difficulty dropbox
+  DropBox_Difficulty.Clear;
+  if gGame.MapTxtInfo.HasDifficultyLevels then
+  begin
+    I := 0;
+    for MD in gGame.MapTxtInfo.DifficultyLevels do
+    begin
+      DropBox_Difficulty.Add(gResTexts[DIFFICULTY_LEVELS_TX[MD]], Byte(MD));
+      if MD = mdNormal then //Default difficulty is "Normal"
+        DropBox_Difficulty.ItemIndex := I;
+      Inc(I);
+    end;
+    if not DropBox_Difficulty.IsSelected then
+      DropBox_Difficulty.ItemIndex := 0;
+    DropBox_Difficulty.DoSetVisible;
+    Label_Difficulty.DoSetVisible;
+  end else begin
+    Label_Difficulty.Hide;
+    DropBox_Difficulty.Hide;
+  end;
+
+  PopUp_QuickPlay.Height := PANEL_QUICKPLAY_HEIGHT - 50*(Byte(not DropBox_Difficulty.IsSetVisible));
 end;
 
 
@@ -173,7 +224,7 @@ end;
 
 procedure TKMMapEdMenuQuickPlay.SaveDone(Sender: TObject);
 begin
-  QuickPlay_Click(Sender);
+  StartQuickPlay(True);
 end;
 
 

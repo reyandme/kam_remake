@@ -7,8 +7,8 @@ uses
 
 type
   THungarianOptimisation = (
-    hu_Overall, //Minimize total cost (opposite of hu_Individual)
-    hu_Individual); //20 agents taking 1 cost beats 1 agent taking 10 cost
+    huOverall, //Minimize total cost (opposite of huIndividual)
+    huIndividual); //20 agents taking 1 cost beats 1 agent taking 10 cost
 
   TLocation = record
     Row, Col: SmallInt;
@@ -423,7 +423,7 @@ begin
   //Input
   SetLength(Solver.Costs, aAgents.Count, aTasks.Count);
 
-  if aOptimisation = hu_Individual then
+  if aOptimisation = huIndividual then
   begin
     for I := aAgents.Count - 1 downto 0 do
       for J := aTasks.Count - 1 downto 0 do

@@ -32,7 +32,7 @@
 31:Steine
 32:Nutzholz
 33:Eisenerz
-34:Goldgestein
+34:Golderz
 35:Kohle
 36:Eisen
 37:Gold
@@ -44,16 +44,16 @@
 43:Würste
 44:Schweine
 45:Häute
-46:Holzschild
-47:Eisenschild
-48:Lederrüstung
-49:Eisenrüstung
-50:Handaxt
-51:Schwert
-52:Lanze
-53:Pike
-54:Langbogen
-55:Armbrust
+46:Holzschilde
+47:Eisenschilde
+48:Lederrüstungen
+49:Eisenrüstungen
+50:Handäxte
+51:Schwerter
+52:Lanzen
+53:Piken
+54:Langbögen
+55:Armbrüste
 56:Pferde
 57:Fische
 58:Gehilfe
@@ -73,8 +73,8 @@
 72:Miliz
 73:Axtkämpfer
 74:Schwertkämpfer
-75:Bogenschützen
-76:Armbrustschützen
+75:Bogenschütze
+76:Armbrustschütze
 77:Lanzenträger
 78:Pikenier
 79:Späher
@@ -132,7 +132,7 @@
 131:Acker pflügen
 132:Ackerbau
 133:Weinfeld anlegen
-134:Weinfeld
+134:Weinfelder anlegen
 135:Abbrechen
 136:Derzeitige Ausbildung abbrechen
 137:Vorrätig:
@@ -141,7 +141,7 @@
 142:Zerstören
 143:Wollen Sie das Gebäude|wirklich abreißen?
 144:Zerstört ausgewähltes Gebäude
-145:Bestellmenge erniedrigen
+145:Bestellmenge verringern
 146:Bestellmenge erhöhen
 147:Vorheriger Einheitentyp
 148:Nächster Einheitentyp
@@ -195,7 +195,7 @@
 196:Unterwegs
 197:Keine Aufgabe
 198:Baut Granit ab
-199:Säet Korn
+199:Sät Korn
 200:Erntet Weizen
 201:Erntet Weinbeeren
 202:Angelt Fisch
@@ -225,7 +225,7 @@
 226:Reise
 227:Kampagnen
 228:Kampagnen
-229:Kampagne starten
+229:Kampagne starten!
 230:Einzelmission spielen
 231:Mission starten
 232:Zurück zum Hauptmenü
@@ -234,7 +234,7 @@
 235:Optionen
 236:Credits anschauen
 237:Programm verlassen
-238:Weiter
+238:Fortsetzen
 239:Mission wiederholen
 240:Auflösung:
 241:Nicht unterstützt
@@ -267,6 +267,7 @@
 268:Gebäude
 269:Ressourcen
 270:Produzierte Ressourcen
+271:Keine Daten
 272:Du
 273:Spieler %d
 274:Zurück zum Multiplayer
@@ -280,7 +281,7 @@
 282:Aufbaututorial
 283:Kampftutorial
 284:Einzelspieler
-285:Mapeditor
+285:Karteneditor
 286:Mission starten
 287:Szenario
 288:Größe
@@ -292,9 +293,10 @@
 294:Größe
 295:Breite
 296:Höhe
-297:Neue Map erstellen
-298:Map Typ
-299:Map öffnen
+297:Neue Karte erstellen
+298:Verfügbare Karten
+299:Karte öffnen
+300:Standort
 301:Steuerung:
 302:Spieleinstellungen:
 303:Sound:
@@ -324,7 +326,7 @@
 327:Freigeschaltet
 328:Spiel gewonnen!
 329:Weiterspielen
-330:Spiel beenden
+330:Spiel gewonnen!
 331:Spiel verloren!
 332:Weiterspielen
 333:Spiel beenden
@@ -335,8 +337,8 @@
 338:%s drücken zum Weiterspielen.
 339:Spielerinfo
 340:Chat
-341:Name schon vorhand.
-342:Ersetzen
+341:Name schon vorhanden
+342:Überschreiben
 343:Speichern
 344:Laden
 345:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.
@@ -356,6 +358,7 @@
 359:1 Schritt vorwärts
 360:Replay fortsetzen
 361:Replay beenden
+362:Einzelspielerperspektiven umschalten
 364:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll.
 365:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll.
 366:Von x%d
@@ -366,7 +369,7 @@
 371:Kacheln
 372:Objekte
 373:Höhen
-374:Pinsel Form
+374:Pinselform
 375:Größe
 376:Verschieben um die Pinselgröße zu ändern
 377:Anstieg
@@ -380,8 +383,8 @@
 385:Anheben (Linksklick) / Absenken (Rechtsklick)
 386:Ansteigen (Linksklick) / Ebnen (Rechtsklick)
 387:Pinsel
-388:Elemente zufällig
-389:Richtung zufällig
+388:Zufällige Elemente
+389:Zufällige Richtung
 390:Anklicken für eine zufällige Ausrichtung der Kacheln. Mit Rechtsklick wird die Kachel gedreht.
 392:Blockiert Felder, auf denen man dann weder laufen noch bauen kann.
 393:Entferne Objekte
@@ -402,7 +405,7 @@
 408:Abbrechen
 409:Speichern
 410:Überschreiben
-411:Map existiert bereits
+411:Karte existiert bereits
 412:Spieler:
 413:Standard
 414:Spieler Typ
@@ -511,7 +514,7 @@
 524:Spielerliste:
 525:Beitreten
 526:Verbinde, bitte warten...
-527:Lade Ankündigung...
+527:Lade Ankündigungen...
 528:Aktualisiere...
 529:Spieler
 530:Startposition
@@ -526,7 +529,7 @@
 539:Zufällig
 540:Keine Info vorhanden.
 541:Spielstand laden
-542:Wähle eine Map...
+542:Wähle eine Karte...
 543:Spielstand wählen...
 544:Lobby verlassen
 545:Bereit!
@@ -541,24 +544,24 @@
 554:Raum Einstellungen
 556:Aus dieser Lobby verbannen
 557:Kicken
-558:Zufällige Vergabe der Locations innerhalb der Teams
+558:Zufällige Vergabe der Standorte innerhalb der Teams
 559:Beschreibung
 560:Optionen
 561:Standort %d
 562:Fehler: Bitte übernimm einen Spieler aus dem Spielstand!
-563:Fehler: Map konnte nicht geladen werden oder keine Map ausgewählt!
+563:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
 564:Kann nicht starten: %s.
 565:Es ist noch nicht jeder bereit zu starten.
-566:Zufällige Zuordnung der Gebiete nicht möglich.
+566:Zufällige Zuordnung der Standorte nicht möglich.
 567:Der Server hat dir die Hostingrechte übertragen.
 568:Spiel gestartet
 569:Aufbau
 570:Gefecht
 571:Koop-Modus
-572:Spezielle Maps
+572:Spezialkarte
 573:Einstellungen:
 574:Friedenszeit (in Minuten):
-575:Leer
+575:Geschlossen
 576:Host übernimmt Spieler Setup.
 577:Warte auf Spieler:
 578:Alle
@@ -572,10 +575,10 @@
 586:ZUSÄTZLICHE MUSIK:
 587:ZUSÄTZLICHE ÜBERSETZUNGEN:
 588:BESONDERER DANK AN:
-589:Mehrspieler Maps
-590:Einzelspieler Maps
+589:Mehrspieler Karten
+590:Einzelspielerkarten
 591:Scrollgeschw.
-592:Keinen Server gefunden.
+592:Keine Server gefunden.
 593:Lieder zufällig
 594:Spielinfo:
 595:-
@@ -651,7 +654,7 @@
 665:Der Bug Report konnte nicht gesendet werden! Unsere Server scheinen alle überlastet zu sein. Bitte versuche es später erneut.
 666:Information
 667:Bitte gedulde Dich einen Augenblick...
-668:Map speichern
+668:Karte speichern
 669:Stellt Verzögerung ein, wann KI mit der Ausbildung von Rekruten beginnt.
 670:Start Rekrut. (Min.)
 671:Bei Aktivierung fließen alle Gewässer und Flüße in die selbe Richtung.
@@ -684,12 +687,14 @@
 700:Wasserschlange
 701:Seestern
 702:Krabbe
-703:Teichblatt
+703:Wasserblume
 704:Wasserblattgewächs
 705:Ente
 706:Diese Einheit ist nicht verfügbar.
 707:Dieser Beruf ist nicht verfügbar.
 708:Einheiten Erlaubnis
+736:Herunterladen
+737:herunterladen...
 738:Überschreibe bestehende Dateien
 739:%s Verbindung getrennt
 740:%s ist raus
@@ -698,6 +703,7 @@
 743:Raum ist voll. Es können keine weiteren Spieler ins Spiel eintreten.
 744:Ein Spieler mit diesem Namen hat bereits den Raum betreten.
 746:Fehler: %s Dateien unterscheiden sich von denen des Hosts, Eintritt ins Spiel nicht möglich!
+747:Ihre Dateien stimmen nicht mit dem Host überein
 748:%s hat nun Host-Rechte
 749:%s hat eine andere Version als %s
 750:%s hat nicht %s
@@ -710,7 +716,7 @@
 757:Der Host hat abgelehnt weiterhin mit dir zu spielen. :(
 758:Verbindungsabbruch durch Server: Timout ermittelt
 759:Du wurdest vom Host gekickt!
-760:Server hat Antwort gestoppt
+760:Der Server reagiert nicht mehr
 761:Ungültige Raum Nummer
 765:%s etwas flüstern
 766:%s wurde vom Host aus dieser Lobby verbannt.
@@ -726,12 +732,15 @@
 776:Verteidige Verbündete
 777:Wenn aktiviert, KI verteidigt Gebäude und Einheiten des Verbündeten, als wären es die eigenen.
 778:Zuschauer erlauben
+779:Zum Host befördern
 780:Zuschauer
+781:Zuschauer können nicht deaktiviert werden: Die Zuschauerliste muss leer sein
 782:Wiederholen
 783:Rückgängig
 784:Platziert die Startposition der KI, welche für KI-Attacken benötigt wird.
 785:KI Startposition
 786:Befehl
+788:Anfangsverzögerung (Sekunden)
 790:nahestes Haus von Armee aus
 791:nahestes Haus von Startposition aus
 792:Angreifer
@@ -743,15 +752,18 @@
 798:Zur Lobby zurück?
 799:%s hat abgestimmt zur Lobby zurückzukehren (Abstimmung erfolgreich).
 800:Abstimmung zur Lobby zurückzukehren wurde abgelehnt.
+801:Durch das Löschen dieser Wiedergabe wird auch der dazugehörige Spielstand gelöscht. Möchten Sie diese Spielstand wirklich löschen?
 802:Truppe zufällig
 803:Anzahl
 804:Replay löschen
-805:Map löschen
-806:Bist du sicher, dass du die Map löschen möchtest?
+805:Karte löschen
+806:Bist du sicher, dass du die Karte löschen möchtest?
+807:Skript-Overlay ausblenden
+808:Skript-Overlay anzeigen
 809:Host kann nicht geändert werden, wenn der Server in deinem Client läuft.
 810:KI plant Attacken automatisch und führt sie selber durch.
 811:Schnellrekrutierung
-812:Soldaten werden so schnell wie möglich rekrutiert. Das Rekrutierungsintervall beeinflusst den Siedlungsbau.
+812:Soldaten werden so schnell wie möglich rekrutiert. Der Rekrutierungsintervall beeinflusst den Siedlungsbau.
 813:KI Standard Werte
 814:Multiplayer KI
 815:Löscht KI-Einstellungen und lässt alle Spieler Siedlungen bauen (für Multiplayer Maps).
@@ -761,12 +773,429 @@
 819:Eisen
 820:Leder
 821:Gemischt
-822:Heruntergeladene Maps
+822:Heruntergeladene Karten
+824:Verschieben
 825:Zeige Readme PDF an
 826:PDF konnte nicht angezeigt werden
 827:Setzt Anzahl Gehilfen für je 10 Gebäude für den KI-Spieler. Ausgewählte KI hat %d Häuser.
+828:Fehler: Die angehaltene Datei des Hosts stimmt nicht mit den lokal angehaltenen Dateien überein. Ein Fehler ist aufgetreten oder der Host versucht zu betrügen.
 829:Der Auftrag ist vollständig.
 830:Asiatische Fonts
-1118:Mehrspieler Maps
+831:Aus Downloads entfernen
+832:Wiedergabe umbenennen
+833:Replay umbenennen
+834:Diese Wiedergabe löschen
+835:Neuer Name:
+836:Bestätigen
+837:Tastenbelegung bearbeiten
+838:Tastenbelegung
+839:Ok
+840:Funktion
+841:Taste
+842:Spezielle nicht bearbeitbare Tastenbelegungen
+843:Spezielle Tastenbelegungen
+844:zurücksetzen
+845:Nach links Scrollen
+846:Nach rechts Scrollen
+847:Hochscrollen
+848:Runterscrollen
+849:Bau-Menü öffnen
+850:Warenverteilungs-Menü öffnen
+851:Statistik-Menü öffnen
+852:Options-Menü öffnen
+853:Befehl: Anhalten
+854:Befehl: Aufteilen
+855:Befehl: Verbinden
+856:Befehl: Mit Nahrung versorgen
+857:Befehl: Stürmen
+858:Eine Reihe hinzufügen
+859:Eine Reihe abziehen
+860:Nach Rechts drehen
+861:Nach Links drehen
+862:Normale Spielgeschwindigkeit
+863:Spielgeschwindigkeit x%s
+864:Spielgeschwindigkeit x%s
+865:Spielgeschwindigkeit x%s
+866:Signal
+867:Anhalten
+868:Zeige Teams (MP)
+869:Zoom +
+870:Zoom -
+871:Zoom zurücksetzen
+872:Gruppe 1 wählen
+873:Gruppe 2 wählen
+874:Gruppe 3 wählen
+875:Gruppe 4 wählen
+876:Gruppe 5 wählen
+877:Gruppe 6 wählen
+878:Gruppe 7 wählen
+879:Gruppe 8 wählen
+880:Gruppe 9 wählen
+881:Gruppe 10 wählen
+882:Zu Signal springen
+883:Nachricht löschen
+884:Zeige Spielchat (MP)
+885:Menü schliessen
+886:Debug Karte zeigen
+887:Debug Sieg
+888:Debug Niederlage
+889:Debug Späher hinzufügen
+890:Extra's Menu
+891:Gelände Editor
+892:Dorfplanung
+893:Visuelles Skripting
+894:Globales Skripting
+895:Hauptmenü
+896:Untermenü 1
+897:Untermenü 2
+898:Untermenü 3
+899:Untermenü 4
+900:Untermenü 5
+901:Untermenü 6
+902:Strg und Shift sind nicht zuweisbar
+903:Unbekannter Wert
+904:Linke Maustaste
+905:Mittlere Maustaste
+906:Rechte Maustaste
+907:Pause
+908:Rücktaste
+909:Tabulator
+910:Clear
+911:Eingabetaste
+912:Shift
+913:Strg
+914:Alt
+915:Pause
+916:Caps Lock
+917:Esc
+918:Leertaste
+919:Pg Up
+920:Pg Dn
+921:End
+922:Home
+923:Pfeiltaste links
+924:Pfeiltaste oben
+925:Pfeiltaste rechts
+926:Pfeiltaste runter
+928:Drucken
+929:Ausführen
+930:Print Sc
+931:Insert
+932:Delete
+933:Hilfe
+934:Num Pad 0
+935:Num Pad 1
+936:Num Pad 2
+937:Num Pad 3
+938:Num Pad 4
+939:Num Pad 5
+940:Num Pad 6
+941:Num Pad 7
+942:Num Pad 8
+943:Num Pad 9
+944:Num Pad *
+946:Num Pad -
+947:Num Pad .
+948:Num Pad /
+949:Num Lock
+950:Scroll Lock
+951:Shift links
+952:Shift rechts
+953:Strg links
+954:Strg rechts
+955:Alt links
+956:Alt Gr
+960:Num Pad +
+961:Allgemeine Tastenbelegung
+962:Spieltastenbelegung
+963:Map-Editor Tastenbelegung
+965:Pipette - Wählen Sie die Art der Kachel unter dem Zeiger
+966:Diese Rüstungsschmiede ist nicht bewohnt
+967:Diese Rüstungswerkstatt ist nicht bewohnt
+968:Diese Bäckerei ist nicht bewohnt
+969:Diese Metzgerei ist nicht bewohnt
+970:Dieses Kohlenbergwerk ist nicht bewohnt
+971:Dieser Bauernhof ist nicht bewohnt
+972:Diese Fischerhütte ist nicht bewohnt
+973:Diese Goldmine ist nicht bewohnt
+974:Diese Eisenmine ist nicht bewohnt
+975:Diese Eisenschmelze ist nicht bewohnt
+976:Diese Goldschmelze ist nicht bewohnt
+977:Diese Mühle ist nicht bewohnt
+978:Dieser Steinbruch ist nicht bewohnt
+979:Dieses Sägewerk ist nicht bewohnt
+980:Diese Kriegswerkstatt ist nicht bewohnt
+981:Diese Ställe sind nicht bewohnt
+982:Diese Schweinezucht ist nicht bewohnt
+983:Diese Gerberei ist nicht bewohnt
+984:Dieser Wachturm ist nicht besetzt
+985:Dieser Waffenschmiede ist nicht bewohnt
+986:Diese Waffenwerkstatt ist nicht bewohnt
+987:Dieses Weingut ist nicht bewohnt
+988:Diese Holzfällerhütte ist nicht bewohnt
+989:%s hat das Spiel verlassen und ist besiegt
+990:Der Host (%s) hat das Spiel verlassen und ist besiegt
+991:Abbruch
+992:Tasten löschen
+993:Gruppe 11 wählen
+994:Gruppe 12 wählen
+995:Gruppe 13 wählen
+996:Gruppe 14 wählen
+997:Gruppe 15 wählen
+998:Gruppe 16 wählen
+999:Gruppe 17 wählen
+1000:Gruppe 18 wählen
+1001:Gruppe 19 wählen
+1002:Gruppe 20 wählen
+1003:Strasse bauen
+1004:Ackerfeld anlegen
+1005:Weinfeld anlegen
+1006:Gebäude/Bauplan entfernen
+1007:Nächstes Haus/Einheit desselben Typs wählen
+1008:Debug-Fenster
+1009:Spieler 1 zuschauen
+1010:Spieler 2 zuschauen
+1011:Spieler 3 zuschauen
+1012:Spieler 4 zuschauen
+1013:Spieler 5 zuschauen
+1014:Spieler 6 zuschauen
+1015:Spieler 7 zuschauen
+1016:Spieler 8 zuschauen
+1017:Karten-Drag-Scroll
+1018:Zuschauer-/Replay-Tastenbelegung
+1019:%s hat dich stumm geschaltet. Du kannst ihm keine Nachrichten oder Signale mehr senden
+1020:Palette "Objekte"
+1021:Universal radierer
+1022:Ihr Holzfäller findet keinen freien Platz, um weitere Bäume pflanzen zu können
+1023:PT-
+1024:%s hat gewonnen!
+1025:%s ist nicht mehr mit dem Spiel verbunden
+1026:Max Goldtruhe
+1027:Maxmale Menge an Goldtruhen, die ins Rathaus geliefert werden
+1028:Nur pflanzen
+1029:Öffne/Schliesse Haus für %s
+1030:Alle
+1031:Alle
+1032:Alle
+1033:Karte umbenennen
+1034:Pause am Ende der Friedenszeit
+1035:Spielzeit
+1036:Name
+1037:Heerstärke
+1038:Alle Soldaten
+1039:Diagrammtyp
+1040:Menge
+1042:Momentan
+1043:Insgesamt ausgerüstet
+1044:Besiegt
+1045:Verloren
+1046:Zurück zu Spielergebnissen
+1047:von Spielern
+1048:von Teams
+1049:Mehr|Statistiken
+1050:Zu MapEd zurückkehren
+1051:Zum Map Editor zurückkehren
+1052:Möchten Sie dieses|Replay|wirklich beenden?
+1053:Die Karte ist ungültig
+1054:Die Ausgewählte Karte ist ungültig. Bitte wählen Sie eine andere Karte aus.
+1055:Heruntergeladene Kartendaten wurden geändert
+1056:Ausgewählte DL-Karte, deren Daten geändert wurden. Bitte entfernen Sie diese erst aus den Downloads.
+1057:Kartendaten wurden geändert. Bitte Karte erneut auswählen.
+1058:Vorwärts-Maustaste
+1059:Rückwärts-Maustaste
+1060:Alle
+1061:Universal radierer
+1062:Kachelnbesitzer anzeigen
+1063:Kachelnetz anzeigen
+1064:Schnittpunkt
+1065:Schnittpunkt für des Holzfällers einstellen. Alternativ kann es via Shift + rechte Maustaste eingestellt werden.
+1066:Sammelpunkt
+1067:%s Sammelpunkt setzen. Alternativ kann es via Shift + rechte Maustaste eingestellt werden
+1068:Kartengrösse ändern
+1069:Grenzen verschieben:
+1070:Grösse ändern und speichern
+1071:Grösse der Karte ändern und dann speichern
+1073:Möchten Sie die Grösse der Karte wirklich ändern?||Die akutelle Karte wird dabei automatisch überschrieben.
+1074:Grössenänderung nicht möglich||Sie müssen die neue Karte erst abspeichern.
+1075:Besitzer für Objekt ändern
+1076:Schnelles Spiel
+1077:Einzelspielerspiel auf der aktuellen Karte starten.
+1078:Spieler auswählen:
+1079:Spieler auswählen mit dem die Karte gestartet wird
+1080:Ohne zu speichern starten.
+1081:Änderungen verwerfen und Spiel für den ausgewählten Spieler starten
+1082:Speichern und starten
+1083:Karte speichern und Spiel für ausgewählten Spieler starten
+1084:In der Kaserne:
+1085:Im Rathaus
+1086:Kachel drehen
+1087:Palette "Objekte"
+1088:Palette schliessen
+1089:Einehiten/Gruppen entfernen
+1090:Wiedergabe|Autopause
+1091:Automatisch Wiedergabe pausieren, wenn die Friedenszeit endet
+1092:Zeige Signale
+1093:Zeige Spielersignale
+1094:Spieler stummschalten
+1095:Spieler Stummschaltung aufheben
+1096:Passwort merken
+1097:Verwende zuletzt bekanntes Passwort
+1098:Zum vorherigen Menü gehen
+1099:Ja
+1100:Nein
+1101:Abbrechen
+1102:Karte
+1103:Wiedergabe
+1104:Spieler
+1105:Teams
+1106:Spieler 9 zuschauen
+1107:Spieler 10 zuschauen
+1108:Spieler 11 zuschauen
+1109:Spieler 12 zuschauen
+1110:Derzeitige Kartengrösse:
+1111:Neue Kartengrösse:
+1112:Kartengrösse ändern
+1113:Besitzer: %s
+1114:Spieler %d löschen
+1115:Löschen von Spieler %d
+1116:Möchten Sie den Spieler wirklich löschen?|Alle seine Daten werden dabei gelöscht!
+1117:Schliessen
+1118:Mehrspieler Karten
 1119:Keine Musik
 1120:Lieder zufällig
+1121:Zufallswiedergabe an/aus
+1122:Kartentyp
+1123:Szenariokarte
+1124:Als SP spielbar
+1125:Fällbarer Baum
+1126:Diagonales Gehen blockieren
+1127:Gehen und Bauen blockieren
+1128:Zeige Strassen/Acker/Weinfelder
+1129:Untermenü Aktion 1
+1130:Untermenü Aktion 2
+1131:Untermenü Aktion 3
+1132:Untermenü Aktion 4
+1133:Untermenü Aktion 5
+1134:Untermenü Aktion 6
+1135:Untermenü Aktion 7
+1136:Farbeimer (Besitzer wechseln)
+1137:KI-Angriff hinzufügen
+1138:KI-Angriff entfernen
+1139:Entlassen
+1140:Entlassen
+1141:Möchtet Ihr diese Einheit wirklich entlassen? | Er wird zur Schule gehen und Euer Dorf für immer verlassen
+1142:Einheit entlassen
+1143:Einheit entlassen abbrechen
+1144:Entlassen steht nicht zur Verfügung, da es in Eurem Dorf keine Schulen gibt
+1145:Mission|Parameter
+1146:Missionsparameter ändern
+1147:Missionsparameter
+1148:Author
+1149:Kleine Beschreibung
+1150:Grosse Beschreibung
+1152:Diese Karte ist immer in der Einzelspieler-Kartenliste sichtbar
+1153:Teamauswahl blockieren
+1154:Teamauswahl in Lobby blockieren
+1155:Friedenszeit blockieren
+1156:Friedenszeitanpassungen in Lobby blockieren
+1157:Vollständige Kartenvorschau blockieren
+1158:Blockiert vollständige Kartenvorschau in der Lobby
+1159:Text
+1160:Zeige Minenradius
+1161:Zeige Turm-Angriffsradius
+1162:Zeige Einheiten-Angriffsradius
+1163:Farbcode:
+1164:Blau / Grün / Rot
+1165:Rot / Grün / Blau
+1166:Textfarbe:
+1167:Entsättigte Farbe, die für Texte verwendet werden Kann (z. B. in Überlagerungen von Skripten) [readonly]
+1168:Kartenfilter
+1169:Filter zurücksetzen
+1170:Nach Spielernummer
+1171:Zurück zum Spiel
+1172:Detaillierte Spielstatistik anzeigen
+1173:Schwierigkeitsgrad
+1174:Einfach
+1175:Normal
+1176:Schwer
+1177:Schwierigkeitsgrade
+1178:Richten Sie verschiedene Schwierigkeitsgrade ein, mit denen das Skript die Missionslogik und den Schwierigkeitsgrad ändern kann
+1179:Fortgeschrittener KI Spieler
+1180:Fortgeschrittene KI
+1181:Klassische KI
+1182:Gewinner
+1183:Besiegt
+1184:Host
+1185:Zu ausgewählten Haus springen
+1186:Zu ausgewählter Einheit springen
+1187:Verbündeter / Feind | Farbmodus
+1188:Eigene- / Verbündeten- / Feindfarnem für Spieler anstelle der anfänglichen Spielerfarben
+1189:[$404040]Host ist bereit zum Starten. Bitte drücke '[][$0707FF]%s[][$404040]'[]
+1190:Bitten, Bereit zu drücken
+1191:Der Alarm, sich bereit zu machen, wurde an %s Spieler gesendet.
+1192:Farbmodus des Spielers wechseln
+1193:Entlassen ist während der aktuellen Aktion der Einheit nicht verfügbar.
+1194:Strg + Mausrad
+1195:Alt + Mausrad
+1196:Shift + Mausrad
+1197:Farbe erzwingen
+1198:Manuelles Überschreiben von Kacheln vom Kacheltisch aus erzwingen, während mit dem Pinsel gemalt wird (sofern möglich)
+1199:Magischer Pinsel - Korrigiert automatisch alle generierten oder fehlenden Kachelübergänge mit der ausgewählten Maske
+1200:Keine Maske - Benutze die Ausgangskacheln für Übergänge
+1201:Weichste Maske - Verwenden Sie automatisch erstellte Übergänge
+1202:Weiche Maske - Verwenden Sie automatisch erstellte Übergänge
+1203:Harte Maske - Verwenden Sie automatisch erstellte Übergänge
+1204:Benutzerdefinierte Einheitskosten im Rathaus
+1205:Benutzerdefinierte Goldmarktpreise
+1206:Zusatzoptionen
+1207:Zusätzliche Pinseloptionen
+1208:Zusätzliche Pinseloptionen
+1209:Geländepinsel beheben
+1210:Versuche interne Geländeinformationen zu beheben, damit die Pinsel funktionieren
+1211:Geländepinsel beheben
+1212:Sind Sie sicher, dass Sie interne Informationen zu allen Geländepinsel | beheben möchten? | Damit können Sie Pinsel verwenden, die manuell über Kacheln aus der Kacheltabelle gesetzt werden
+1214:Menschlicher Spieler
+1215:Klassischer KI Spieler %d
+1216:Fortgeschrittener KI Spieler %d
+1217:Klassische KI %d
+1218:Fortgeschrittene KI %d
+1219:Klassischer KI Spieler
+1220:KI-Spielertyp
+1221:Autosave am Ende des Spiels
+1222:Keiner
+1223:Ressourcen
+1224:Häuser
+1225:Konstruieren
+1226:Bürger
+1227:Heer
+1228:Bei hungrigen Einheiten steht "Entlassen" nicht zur Verfügung.
+1229:Klassische KI|Parameter
+1230:Setup KI-Parameter, die nur von klassischer KI verwendet wird
+1231:Klassische KI Parameter
+1232:Jeden Gruppentyp nehmen
+1233:Schwierigkeitsgrad
+1234:%s ist seit %s [$00B0FF]minutes[] abwesend
+1235:Der Datenexport kann einige Minuten dauern.\nExportierte Daten werden im Ordner '%s' gespeichert.\nBestätigen Sie den Vorgang?
+1236:Die für den Skriptkonsolenbefehl /%s deklarierte Prozedur [%s] wurde nicht gefunden
+1237:Falscher Parametertyp für Skriptbefehl /%s: [%s]
+1238:Falscher erster Parametertyp für Skriptbefehle. Erwartet: [%s], aktuell: [%s]
+1239:Zu viele Parameter für den Skriptbefehl /%s: [%s]. Die maximale Anzahl der Parameter beträgt [%s] (einschliesslich des obligatorischen HandID-Parameters)
+1240:Falsche Parameter für Skriptbefehl /%s. Erwartete Parametertypen sind: [%s]
+1241:Zu viele Parameter an Skriptbefehl /%s übergeben: Erwartete Parameteranzahl [%s], tatsächlich: [%s]
+1242:Befehl aufgerufen: /%s(%s)
+1243:Fehler beim Aufrufen des Skriptbefehls /%s/%s)
+1244:Skriptkonsolenbefehl /%s nicht gefunden
+1245:Kopieren und Einfügen aus dem Chat-Fenster aktivieren/deaktivieren
+1246:Speichern Sie den Wiedergabestatus, um diesen während der Wiedergabe laden zu können
+1247:Starte die Wiedergabe ab %s
+1248:Spielerfarbe:
+1249:Standard
+1250:Verbündeter / Feind
+1251:Teams
+1252:Anfängliche Spielerfarben anzeigen
+1253:Zeige eigene / verbündete / feindliche Spielerfarben
+1254:Zeige Teamfarben
+1255:Fehler: Spielername '%s' ist bereits reserviert
+1256:Bürger (S/L/R)
+1257:Bürger (Andere)
+1258:Zuschauer-Statistik Öffnen/Schliessen

@@ -49,7 +49,7 @@ begin
   Image_MessageClose.OnClick := Message_Close;
   Image_MessageClose.HighlightOnMouseOver := True;
 
-  Label_Message := TKMLabel.Create(Panel_Message, 40, 60, 7000, 0, '', fnt_Grey, taLeft);
+  Label_Message := TKMLabel.Create(Panel_Message, 40, 60, 7000, 0, '', fntGrey, taLeft);
 end;
 
 
@@ -61,14 +61,14 @@ end;
 
 procedure TKMMapEdMessage.Hide;
 begin
-  gSoundPlayer.Play(sfxn_MPChatClose);
+  gSoundPlayer.Play(sfxnMPChatClose);
   Panel_Message.Hide;
 end;
 
 
 procedure TKMMapEdMessage.Show;
 begin
-  gSoundPlayer.Play(sfxn_MPChatOpen);
+  gSoundPlayer.Play(sfxnMPChatOpen);
   Panel_Message.Show;
 end;
 

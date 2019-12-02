@@ -1,6 +1,8 @@
 //-- TSK19 --//
 //29.01.2018
 
+{$I difficulty.script}
+
 var
 	iGroup: array[0..1] of Integer;
 

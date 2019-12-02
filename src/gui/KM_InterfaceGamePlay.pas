@@ -7,7 +7,7 @@ uses
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls, TypInfo,
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
   KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
-  KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
+  KM_UnitGroup, KM_UnitWarrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
   KM_GUIGameResultsSP,
   KM_GUIGameResultsMP,
   KM_GUIGameBuild, KM_GUIGameChat, KM_GUIGameHouse, KM_GUIGameUnit, KM_GUIGameRatios, KM_GUIGameStats,KM_GUIGameMenuSettings,
@@ -22,8 +22,9 @@ const
   MAX_TRACKNAME_LENGTH = 18;
 
 type
-  TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
-  TUIMode = (umSP, umMP, umReplay, umSpectate);
+  //tbNone is the last, since we use Byte(Value) at some places
+  //TODO refactor
+  TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu, tbNone);
 
   TKMGamePlayInterface = class (TKMUserInterfaceGame)
   private
@@ -44,6 +45,7 @@ type
     fGuiGameResultsMP: TKMGameResultsMP;
 
     // Not saved
+    fOpenedMenu: TKMTabButtons;
     fShowTeamNames: Boolean; // True while the SC_SHOW_TEAM key is pressed
     fLastDragPoint: TKMPoint; // Last mouse point that we drag placed/removed a road/field
     fLastBeaconTime: Cardinal; //Last time a beacon was sent to enforce cooldown
@@ -55,8 +57,11 @@ type
     SelectingTroopDirection: Boolean;
     SelectingDirPosition: TPoint;
     fSaves: TKMSavesCollection;
-    fTeamNames: TList;
+    fUnitsTeamNames: TList;
+    fGroupsTeamNames: TList;
+    fHousesTeamNames: TList;
     fLastSyncedMessage: Word; // Last message that we synced with MessageLog
+    fLastKbdSelectionTime: Cardinal; //Last we select object from keyboard
 
     fLineIdToNetPlayerId: array [0..MAX_LOBBY_SLOTS - 1] of Integer;
     fPlayerLinesCnt: Integer;
@@ -96,21 +101,22 @@ type
     procedure Allies_Click(Sender: TObject);
     procedure Allies_Show(Sender: TObject);
     procedure MessageStack_UpdatePositions;
-    procedure Message_Click(Sender: TObject);
+    procedure Message_Click(Sender: TObject; Shift: TShiftState);
     procedure Message_Close(Sender: TObject);
-    procedure Message_Delete(Sender: TObject);
+    procedure Message_Delete(aIndex: Integer);
+    procedure Message_DeleteClick(Sender: TObject);
     procedure Message_Show(aIndex: Integer);
     procedure Message_GoTo(Sender: TObject);
     procedure Message_UpdateStack;
     procedure MessageLog_Click(Sender: TObject);
-    procedure MessageLog_ShowMessage(aMessageId: Integer);
-    procedure MessageLog_ItemClick(Sender: TObject);
+    procedure MessageLog_ShowMessage(aMessageId: Integer; aJumpToLoc: Boolean = True);
+    function MessageLog_ItemClick(Sender: TObject; Shift: TShiftState; const X,Y: Integer): Boolean;
     procedure MessageLog_Close(Sender: TObject);
     procedure MessageLog_Update(aFullRefresh: Boolean);
     procedure Minimap_Update(Sender: TObject; const X,Y:integer);
     procedure Minimap_RightClick(Sender: TObject; const X,Y:integer);
     procedure Minimap_Click(Sender: TObject; const X,Y:integer);
-    procedure GameSettingsUpdated;
+    procedure GameSettingsChanged;
 
     procedure Menu_Save_RefreshList(Sender: TObject);
     procedure Menu_Save_ListChange(Sender: TObject);
@@ -127,11 +133,13 @@ type
     procedure SelectUnitGroup(aGroup: TKMUnitGroup);
     procedure SelectNextGameObjWSameType;
     procedure SwitchPage(Sender: TObject);
+    procedure OpenMenuPage(aPage: TKMTabButtons);
     procedure ShowStats(Sender: TObject);
     procedure PlayMoreClick(Sender: TObject);
     procedure MPPlayMoreClick(Sender: TObject);
     procedure NetWaitClick(Sender: TObject);
     procedure ReplayClick(Sender: TObject);
+    procedure Replay_PlayersColorModeClick(Sender: TObject);
     function Replay_ListKeyUp(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     procedure ReturnToLobbyClick(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
@@ -154,6 +162,8 @@ type
     procedure Replay_Single_SetPlayersDropbox;
     procedure Replay_Multi_SetPlayersDropbox;
 
+    procedure ReplayMarkClick(aTick: Integer);
+
     procedure StopPlay(aMsg: TKMGameResultMsg; aPrepareToStopGame: Boolean = True);
     procedure StopGame(const aText: UnicodeString = '');
     procedure ShowMPStats;
@@ -161,6 +171,9 @@ type
 
     procedure SetViewportPos(const aLoc: TKMPointF);
     procedure CheckMessageKeys(Key: Word);
+    function CanShowChat: Boolean;
+    function CanShowAllies: Boolean;
+    procedure UpdateMessageImages;
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -169,10 +182,10 @@ type
     Bevel_DebugInfo: TKMBevel;
     Label_DebugInfo: TKMLabel;
 
-    Image_MPChat, Image_MPAllies: TKMImage; // Multiplayer buttons
+    Image_Chat, Image_MPAllies: TKMImage; // Multiplayer buttons
     Image_MessageLog: TKMImage;
-    Label_MPChatUnread: TKMLabel;
-    Image_Message: array[0..MAX_VISIBLE_MSGS]of TKMImage; // Queue of messages covers 32*48=1536px height
+    Label_ChatUnread: TKMLabel;
+    Image_Message: array[0..MAX_VISIBLE_MSGS] of TKMImage; // Queue of messages covers 32*48=1536px height
     Image_Clock: TKMImage; // Clock displayed when game speed is increased
     Label_Clock: TKMLabel;
     Label_ClockSpeedup: TKMLabel;
@@ -187,25 +200,29 @@ type
     Label_TeamName: TKMLabel;
 
     Panel_Controls: TKMPanel;
-      Button_Main: array [TKMTabButtons] of TKMButton; // 4 common buttons + Return
+      Button_Main: array [tbBuild..tbMenu] of TKMButton; // 4 common buttons + Return
       Button_Back: TKMButton;
 
     Panel_Stats: TKMPanel;
 
+    Panel_ReplayBar: TKMPanel;
+      ReplayBar_Replay: TKMReplayBar;
+      Label_ReplayBar: TKMLabel;
     Panel_ReplayCtrl: TKMPanel; // Smaller Panel to contain replay controls
-      PercentBar_Replay: TKMPercentBar;
-      Label_Replay: TKMLabel;
       Button_ReplayRestart: TKMButton;
       Button_ReplayPause: TKMButton;
       Button_ReplayStep: TKMButton;
       Button_ReplayResume: TKMButton;
       Button_ReplayExit: TKMButton;
+      Button_ReplaySaveAt: TKMButton;
       Button_ShowStatsReplay: TKMButton;
 
     Panel_ReplayFOW: TKMPanel;
       Button_ShowStatsSpec: TKMButton;
       Dropbox_ReplayFOW: TKMDropList;
       Checkbox_ReplayFOW: TKMCheckBox;
+      Label_PlayersColorMode: TKMLabel;
+      Radio_PlayersColorMode: TKMRadioGroup;
     Panel_Allies: TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
       Image_AlliesHostStar: TKMImage;
@@ -289,8 +306,6 @@ type
     procedure SetScriptedOverlay(const aText: UnicodeString);
     procedure UpdateOverlayControls;
     procedure ReleaseDirectionSelector;
-    function GetChatState: TKMChatState;
-    procedure SetChatState(const aChatState: TKMChatState);
     procedure ChatMessage(const aData: UnicodeString);
     procedure AlliesOnPlayerSetup(Sender: TObject);
     procedure AlliesOnPingInfo(Sender: TObject);
@@ -298,9 +313,12 @@ type
     procedure CinematicUpdate;
     procedure LoadHotkeysFromHand;
     procedure SetButtons(aPaused: Boolean);
+    procedure ReplaySaved;
+
     property UIMode: TUIMode read fUIMode;
 
     procedure SetPause(aValue: Boolean);
+    procedure GameStarted;
 
     property GuiGameResultsMP: TKMGameResultsMP read fGuiGameResultsMP;
     property GuiGameSpectator: TKMGUIGameSpectator read fGuiGameSpectator;
@@ -329,9 +347,10 @@ type
 
 implementation
 uses
+  Generics.Collections,
   KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor, KM_Maps,
   KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks, KM_HouseTownHall,
-  KM_Utils,
+  KM_Utils, KM_ScriptingEvents,
   KM_CommonUtils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes,
   KM_InterfaceMapEditor, KM_HouseWoodcutters,
@@ -368,7 +387,10 @@ begin
   begin
     ListBox_Save.ItemIndex := -1;
     fSave_Selected := -1;
-    CheckBox_SaveExists.Enabled := FileExists(gGame.SaveName(Edit_Save.Text, EXT_SAVE_MAIN, (fUIMode in [umMP, umSpectate])));
+    CheckBox_SaveExists.Enabled := FileExists(gGame.SaveName(Edit_Save.Text,
+                                                             EXT_SAVE_MAIN,
+                                                             (fUIMode in [umMP, umSpectate])
+                                                             or (ALLOW_SAVE_IN_REPLAY and (gGame.GameMode = gmReplayMulti))));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := False;
     // we should protect ourselves from empty names and whitespaces at beggining and at end of name
@@ -439,7 +461,7 @@ begin
                            and fSaves[ListBox_Load.ItemIndex].IsValid;
     if InRange(ListBox_Load.ItemIndex,0,fSaves.Count-1) then
     begin
-      Label_LoadDescription.Caption := fSaves[ListBox_Load.ItemIndex].Info.GetTitleWithTime;
+      Label_LoadDescription.Caption := fSaves[ListBox_Load.ItemIndex].GameInfo.GetTitleWithTime;
       fSave_Selected := ListBox_Load.ItemIndex;
     end;
   finally
@@ -497,6 +519,15 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.OpenMenuPage(aPage: TKMTabButtons);
+begin
+  if aPage = tbNone then
+    SwitchPage(nil)
+  else
+    SwitchPage(Button_Main[aPage]);
+end;
+
+
 { Switch between pages }
 procedure TKMGamePlayInterface.SwitchPage(Sender: TObject);
 var
@@ -505,7 +536,8 @@ var
   procedure Flip4MainButtons(ShowEm: Boolean);
   var T: TKMTabButtons;
   begin
-    for T := Low(TKMTabButtons) to High(TKMTabButtons) do Button_Main[T].Visible := ShowEm;
+    for T := tbBuild to tbMenu do
+      Button_Main[T].Visible := ShowEm;
     Button_Back.Visible := not ShowEm;
     Label_MenuTitle.Visible := not ShowEm;
   end;
@@ -534,78 +566,88 @@ begin
 
   // If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
   Flip4MainButtons(false);
+  fOpenedMenu := tbNone;
   if Sender = Button_Main[tbBuild] then
   begin
     Label_MenuTitle.Caption := gResTexts[TX_MENU_TAB_BUILD];
     fGuiGameBuild.Show;
+    fOpenedMenu := tbBuild;
   end else
 
   if Sender = Button_Main[tbRatio] then
   begin
     Label_MenuTitle.Caption := gResTexts[TX_MENU_TAB_DISTRIBUTE];
     fGuiGameRatios.Show;
+    fOpenedMenu := tbRatio;
   end else
 
   if Sender = Button_Main[tbStats] then
   begin
     Label_MenuTitle.Caption := gResTexts[TX_MENU_TAB_STATISTICS];
     fGuiGameStats.Show;
+    fOpenedMenu := tbStats;
   end else
-
-  if (Sender = Button_Main[tbMenu])
-  or (Sender = Button_Quit_No)
-  or ((Sender = Button_Back) and ((LastVisiblePage = fGuiMenuSettings)
-                               or (LastVisiblePage = Panel_Load)
-                               or (LastVisiblePage = Panel_Save))) then begin
-    Menu_Update; // Make sure updating happens before it is shown
-    Label_MenuTitle.Caption := gResTexts[TX_MENU_TAB_OPTIONS];
-    Panel_Menu.Show;
-  end else
-
-  if Sender = Button_Menu_Save then
   begin
-    fSave_Selected := -1;
-    // Stop current now scan so it can't add a save after we clear the list
-    fSaves.TerminateScan;
-    Menu_Save_RefreshList(nil); // Need to call it at last one time to setup GUI even if there are no saves
-    // Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Save_RefreshList, (fUIMode in [umMP, umSpectate]));
-    Panel_Save.Show;
-    Label_MenuTitle.Caption := gResTexts[TX_MENU_SAVE_GAME];
-    if fLastSaveName = '' then
-      Edit_Save.Text := gGame.GameName
-    else
-      Edit_Save.Text := fLastSaveName;
-    Menu_Save_EditChange(nil); // Displays "confirm overwrite" message if necessary
-  end else
+    fOpenedMenu := tbMenu;
+    if (Sender = Button_Main[tbMenu])
+    or (Sender = Button_Quit_No)
+    or ((Sender = Button_Back) and ((LastVisiblePage = fGuiMenuSettings)
+                                 or (LastVisiblePage = Panel_Load)
+                                 or (LastVisiblePage = Panel_Save))) then begin
+      Menu_Update; // Make sure updating happens before it is shown
+      Label_MenuTitle.Caption := gResTexts[TX_MENU_TAB_OPTIONS];
+      Panel_Menu.Show;
+    end else
 
-  if Sender = Button_Menu_Load then begin
-    fSave_Selected := -1;
-    // Stop current now scan so it can't add a save after we clear the list
-    fSaves.TerminateScan;
-    Menu_Load_RefreshList(nil); // Need to call it at least one time to setup GUI even if there are no saves
-    // Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Load_RefreshList, (fUIMode in [umMP, umSpectate]));
-    Panel_Load.Show;
-    Label_MenuTitle.Caption := gResTexts[TX_MENU_LOAD_GAME];
-  end else
+    if Sender = Button_Menu_Save then
+    begin
+      fSave_Selected := -1;
+      // Stop current now scan so it can't add a save after we clear the list
+      fSaves.TerminateScan;
+      Menu_Save_RefreshList(nil); // Need to call it at last one time to setup GUI even if there are no saves
+      // Initiate refresh and process each new save added
+      fSaves.Refresh(Menu_Save_RefreshList, (fUIMode in [umMP, umSpectate])
+                                            or (ALLOW_SAVE_IN_REPLAY and (gGame.GameMode = gmReplayMulti)));
+      Panel_Save.Show;
+      Label_MenuTitle.Caption := gResTexts[TX_MENU_SAVE_GAME];
+      if fLastSaveName = '' then
+        Edit_Save.Text := gGame.GameName
+      else
+        Edit_Save.Text := fLastSaveName;
+      Menu_Save_EditChange(nil); // Displays "confirm overwrite" message if necessary
+    end else
 
-  if Sender = Button_Menu_Settings then begin
-    fGuiMenuSettings.Menu_Settings_Fill;
-    fGuiMenuSettings.Show;
-    Label_MenuTitle.Caption := gResTexts[TX_MENU_SETTINGS];
-  end else
+    if Sender = Button_Menu_Load then begin
+      fSave_Selected := -1;
+      // Stop current now scan so it can't add a save after we clear the list
+      fSaves.TerminateScan;
+      Menu_Load_RefreshList(nil); // Need to call it at least one time to setup GUI even if there are no saves
+      // Initiate refresh and process each new save added
+      fSaves.Refresh(Menu_Load_RefreshList, (fUIMode in [umMP, umSpectate]));
+      Panel_Load.Show;
+      Label_MenuTitle.Caption := gResTexts[TX_MENU_LOAD_GAME];
+    end else
 
-  if Sender = Button_Menu_Quit then
-    Panel_Quit.Show
-  else // If Sender is anything else - then show all 4 buttons and hide Return button
-    Flip4MainButtons(True);
+    if Sender = Button_Menu_Settings then begin
+      fGuiMenuSettings.Menu_Settings_Fill;
+      fGuiMenuSettings.Show;
+      Label_MenuTitle.Caption := gResTexts[TX_MENU_SETTINGS];
+    end else
+
+    if Sender = Button_Menu_Quit then
+      Panel_Quit.Show
+    else // If Sender is anything else - then show all 4 buttons and hide Return button
+    begin
+      Flip4MainButtons(True);
+      fOpenedMenu := tbNone;
+    end;
+  end;
 end;
 
 
 procedure TKMGamePlayInterface.ShowStats(Sender: TObject);
 begin
-  StopPlay(gr_GameContinues);
+  StopPlay(grGameContinues);
 end;
 
 
@@ -658,11 +700,11 @@ begin
     and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
     Group := TKMUnitGroup(gMySpectator.Selected);
-    if Group.CanTakeOrders and (Group.Owner = gMySpectator.HandIndex)
+    if Group.CanTakeOrders and (Group.Owner = gMySpectator.HandID)
       and Group.CanWalkTo(Loc, 0) then
     begin
-      gGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, Loc, dir_NA);
-      gSoundPlayer.PlayWarrior(Group.UnitType, sp_Move);
+      gGame.GameInputProcess.CmdArmy(gicArmyWalk, Group, Loc, dirNA);
+      gSoundPlayer.PlayWarrior(Group.UnitType, spMove);
     end;
   end;
   if ((gMySpectator.Selected is TKMHouseBarracks) or (gMySpectator.Selected is TKMHouseWoodcutters)) and not fPlacingBeacon
@@ -671,16 +713,16 @@ begin
     if gTerrain.Route_CanBeMade(TKMHouse(gMySpectator.Selected).PointBelowEntrance, Loc, tpWalk, 0) then
     begin
       if gMySpectator.Selected is TKMHouseBarracks then
-        gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), Loc)
+        gGame.GameInputProcess.CmdHouse(gicHouseBarracksRally, TKMHouse(gMySpectator.Selected), Loc)
       else
       if gMySpectator.Selected is TKMHouseTownHall then
-        gGame.GameInputProcess.CmdHouse(gic_HouseTownHallRally, TKMHouse(gMySpectator.Selected), Loc)
+        gGame.GameInputProcess.CmdHouse(gicHouseTownHallRally, TKMHouse(gMySpectator.Selected), Loc)
       else
         if gMySpectator.Selected is TKMHouseWoodcutters then
-          gGame.GameInputProcess.CmdHouse(gic_HouseWoodcuttersCutting, TKMHouse(gMySpectator.Selected), Loc);
+          gGame.GameInputProcess.CmdHouse(gicHouseWoodcuttersCutting, TKMHouse(gMySpectator.Selected), Loc);
     end
     else
-      gSoundPlayer.Play(sfx_CantPlace, Loc, False, 4);
+      gSoundPlayer.Play(sfxCantPlace, Loc, False, 4);
   end;
 end;
 
@@ -692,10 +734,21 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.GameSettingsUpdated;
+procedure TKMGamePlayInterface.GameSettingsChanged;
 begin
+  //Update player color mode radio
+  Radio_PlayersColorMode.ItemIndex := Byte(gGameApp.GameSettings.PlayersColorMode) - 1;
   //Update minimap
-  fMinimap.Update(False);
+  fMinimap.Update;
+end;
+
+
+procedure TKMGamePlayInterface.Replay_PlayersColorModeClick(Sender: TObject);
+begin
+  gGameApp.GameSettings.PlayersColorMode := TKMPlayerColorMode(Radio_PlayersColorMode.ItemIndex + 1);
+  fGuiMenuSettings.UpdateView; //Update settings
+  //Update minimap
+  fMinimap.Update;
 end;
 
 
@@ -713,6 +766,7 @@ begin
 
   // Instruct to use global Terrain
   fLastSaveName := '';
+  fLastKbdSelectionTime := 0;
   fPlacingBeacon := False;
   SelectingTroopDirection := False;
   SelectingDirPosition.X := 0;
@@ -724,9 +778,11 @@ begin
   fMessageStack := TKMMessageStack.Create;
   fSaves := TKMSavesCollection.Create;
 
-  fTeamNames := TList.Create;
+  fUnitsTeamNames := TList.Create;
+  fGroupsTeamNames := TList.Create;
+  fHousesTeamNames := TList.Create;
 
-  Label_TeamName := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Grey, taCenter);
+  Label_TeamName := TKMLabel.Create(Panel_Main, 0, 0, '', fntGrey, taCenter);
 
   Sidebar_Top       := TKMImage.Create(Panel_Main, 0,    0, 224, 200, 407);
   Sidebar_Middle    := TKMImage.Create(Panel_Main, 0,  200, 224, 168, 554);
@@ -738,9 +794,9 @@ begin
 
   Image_Clock := TKMImage.Create(Panel_Main,232,8,67,65,556);
   Image_Clock.Hide;
-  Label_Clock := TKMLabel.Create(Panel_Main,265,80,'mm:ss',fnt_Outline,taCenter);
+  Label_Clock := TKMLabel.Create(Panel_Main,265,80,'mm:ss',fntOutline,taCenter);
   Label_Clock.Hide;
-  Label_ClockSpeedup := TKMLabel.Create(Panel_Main,265,48,'x1',fnt_Metal,taCenter);
+  Label_ClockSpeedup := TKMLabel.Create(Panel_Main,265,48,'x1',fntMetal,taCenter);
   Label_ClockSpeedup.Hide;
 
   Create_ScriptingOverlay; // Scripting Overlay controls
@@ -749,11 +805,11 @@ begin
   Image_DirectionCursor.Hide;
 
   // Debugging displays
-  Bevel_DebugInfo := TKMBevel.Create(Panel_Main,224+8-10,106-10,Panel_Main.Width - 224 - 8, 0);
+  Bevel_DebugInfo := TKMBevel.Create(Panel_Main,224+8-10,133-10,Panel_Main.Width - 224 - 8, 0);
   Bevel_DebugInfo.BackAlpha := 0.5;
   Bevel_DebugInfo.Hitable := False;
   Bevel_DebugInfo.Hide;
-  Label_DebugInfo := TKMLabel.Create(Panel_Main,224+8,106,'',fnt_Outline,taLeft);
+  Label_DebugInfo := TKMLabel.Create(Panel_Main,224+8,133,'',fntOutline,taLeft);
   Label_DebugInfo.Hide;
 
 { I plan to store all possible layouts on different pages which gets displayed one at a time }
@@ -764,7 +820,7 @@ begin
   Create_Allies; // MessagePage sibling
 
   // On top of NetWait to allow players to chat while waiting for late opponents
-  fGuiGameChat := TKMGUIGameChat.Create(Panel_Main);
+  fGuiGameChat := TKMGUIGameChat.Create(Panel_Main, fUIMode, ChatMessage);
 
   Create_Message; // Must go bellow message stack
   Create_MessageLog; // Must go bellow message stack
@@ -830,7 +886,9 @@ begin
 
   fMessageStack.Free;
   fSaves.Free;
-  fTeamNames.Free;
+  FreeAndNil(fHousesTeamNames);
+  FreeAndNil(fGroupsTeamNames);
+  FreeAndNil(fUnitsTeamNames);
   fAlerts.Free;
   inherited;
 end;
@@ -868,9 +926,9 @@ begin
   Bevel_Pause := TKMBevel.Create(Panel_Pause, -1, -1, Panel_Main.Width + 2, Panel_Main.Height + 2);
   Image_Pause := TKMImage.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2) - 40, 0, 0, 556);
   Label_Pause1 := TKMLabel.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2),
-    gResTexts[TX_POPUP_PAUSE], fnt_Antiqua, taCenter);
+    gResTexts[TX_POPUP_PAUSE], fntAntiqua, taCenter);
   Label_Pause2 := TKMLabel.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2) + 20,
-    Format(gResTexts[TX_GAMEPLAY_PAUSE_INFO], ['"P"']), fnt_Grey, taCenter);
+    Format(gResTexts[TX_GAMEPLAY_PAUSE_INFO], ['"P"']), fntGrey, taCenter);
   Bevel_Pause.AnchorsStretch; // Anchor to all sides
   Image_Pause.ImageCenter;
   Label_Pause1.AnchorsCenter;
@@ -895,7 +953,7 @@ begin
       Image_PlayMore := TKMImage.Create(Panel_PlayMoreMsg,100,40,0,0,556);
       Image_PlayMore.ImageCenter;
 
-      Label_PlayMore  := TKMLabel.Create(Panel_PlayMoreMsg,100,80,NO_TEXT,fnt_Outline,taCenter);
+      Label_PlayMore  := TKMLabel.Create(Panel_PlayMoreMsg,100,80,NO_TEXT,fntOutline,taCenter);
       Button_PlayMore := TKMButton.Create(Panel_PlayMoreMsg,0,100,200,30,NO_TEXT,bsGame);
       Button_PlayQuit := TKMButton.Create(Panel_PlayMoreMsg,0,140,200,30,NO_TEXT,bsGame);
       Button_PlayMore.OnClick := PlayMoreClick;
@@ -914,7 +972,7 @@ begin
       Image_MPPlayMore := TKMImage.Create(Panel_MPPlayMore,200,40,0,0,556);
       Image_MPPlayMore.ImageCenter;
 
-      Label_MPPlayMore  := TKMLabel.Create(Panel_MPPlayMore,200,80,NO_TEXT,fnt_Outline,taCenter);
+      Label_MPPlayMore  := TKMLabel.Create(Panel_MPPlayMore,200,80,NO_TEXT,fntOutline,taCenter);
       Button_MPPlayMore := TKMButton.Create(Panel_MPPlayMore,100,100,200,30,NO_TEXT,bsGame);
       Button_MPPlayQuit := TKMButton.Create(Panel_MPPlayMore,100,140,200,30,NO_TEXT,bsGame);
       Button_MPPlayMore.OnClick := MPPlayMoreClick;
@@ -936,8 +994,8 @@ begin
       Image_NetWait := TKMImage.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,40,0,0,556);
       Image_NetWait.ImageCenter;
 
-      Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,80,NO_TEXT,fnt_Outline,taCenter);
-      Label_NetDropPlayersDelay := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,110,NO_TEXT,fnt_Outline,taCenter);
+      Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,77,NO_TEXT,fntOutline,taCenter);
+      Label_NetDropPlayersDelay := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,115,NO_TEXT,fntOutline,taCenter);
       Panel_NetWaitButtons := TKMPanel.Create(Panel_NetWaitMsg,0,140,Panel_Main.Width,80);
         Button_NetQuit := TKMButton.Create(Panel_NetWaitButtons,(Panel_Main.Width div 2)-150,0,300,30,gResTexts[TX_GAMEPLAY_QUIT_TO_MENU],bsGame);
         Button_NetQuit.OnClick := NetWaitClick;
@@ -945,7 +1003,7 @@ begin
         Button_NetDropPlayers.OnClick := NetWaitClick;
 
       Panel_NetWaitConfirm := TKMPanel.Create(Panel_NetWaitMsg,0,180,Panel_Main.Width,140);
-        Label_NetWaitConfirm := TKMLabel.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2),10,NO_TEXT,fnt_Outline,taCenter);
+        Label_NetWaitConfirm := TKMLabel.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2),10,NO_TEXT,fntOutline,taCenter);
         Button_NetConfirmYes := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,40,300,30,NO_TEXT,bsGame);
         Button_NetConfirmYes.OnClick := NetWaitClick;
         Button_NetConfirmNo := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,80,300,30,gResTexts[TX_GAMEPLAY_CONFIRM_CANCEL],bsGame);
@@ -959,16 +1017,16 @@ procedure TKMGamePlayInterface.Create_MessageStack;
 var
   I: Integer;
 begin
-  Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48,30,48,494);
-  Image_MPChat.Anchors := [anLeft, anBottom];
-  Image_MPChat.HighlightOnMouseOver := true;
-  Image_MPChat.Hint := gResTexts[TX_GAMEPLAY_CHAT_HINT];
-  Image_MPChat.OnClick := Chat_Click;
-  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-30,30,36,'',fnt_Outline,taCenter);
-  Label_MPChatUnread.FontColor := $FF0000FF; // Red
-  Label_MPChatUnread.Anchors := [anLeft, anBottom];
-  Label_MPChatUnread.Hitable := false; // Clicks should only go to the image, not the flashing label
-  Label_MPChatUnread.AutoWrap := true;
+  Image_Chat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48,30,48,494);
+  Image_Chat.Anchors := [anLeft, anBottom];
+  Image_Chat.HighlightOnMouseOver := true;
+  Image_Chat.Hint := gResTexts[TX_GAMEPLAY_CHAT_HINT];
+  Image_Chat.OnClick := Chat_Click;
+  Label_ChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-30,30,36,'',fntOutline,taCenter);
+  Label_ChatUnread.FontColor := $FF0000FF; // Red
+  Label_ChatUnread.Anchors := [anLeft, anBottom];
+  Label_ChatUnread.Hitable := false; // Clicks should only go to the image, not the flashing label
+  Label_ChatUnread.AutoWrap := true;
 
   Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48*2,30,48,496);
   Image_MPAllies.Anchors := [anLeft, anBottom];
@@ -992,49 +1050,40 @@ begin
     Image_Message[I].Hide;
     Image_Message[I].HighlightOnMouseOver := True;
     Image_Message[I].Tag := I;
-    Image_Message[I].OnClick := Message_Click;
+    Image_Message[I].OnClickShift := Message_Click;
   end;
 end;
 
 
 procedure TKMGamePlayInterface.Create_Replay;
 begin
-  Panel_ReplayCtrl := TKMPanel.Create(Panel_Main, 320, 8, 160, 60);
-    PercentBar_Replay       := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 180, 20);
-    Label_Replay            := TKMLabel.Create(Panel_ReplayCtrl,  80,  2, NO_TEXT, fnt_Grey, taCenter);
-    Button_ReplayRestart    := TKMButton.Create(Panel_ReplayCtrl,  0, 24, 24, 24, 582, rxGui, bsGame);
-    Button_ReplayPause      := TKMButton.Create(Panel_ReplayCtrl, 25, 24, 24, 24, 583, rxGui, bsGame);
-    Button_ReplayStep       := TKMButton.Create(Panel_ReplayCtrl, 50, 24, 24, 24, 584, rxGui, bsGame);
-    Button_ReplayResume     := TKMButton.Create(Panel_ReplayCtrl, 75, 24, 24, 24, 585, rxGui, bsGame);
-    Button_ReplayExit       := TKMButton.Create(Panel_ReplayCtrl,100, 24, 24, 24, 586, rxGui, bsGame);
-    Button_ShowStatsReplay  := TKMButton.Create(Panel_ReplayCtrl,PercentBar_Replay.Right - 24, 24, 24, 24, 669, rxGui, bsGame);
-    //TODO: Button_ReplayFF       := TKMButton.Create(Panel_ReplayCtrl,125, 24, 24, 24, 393, rxGui, bsGame);
-    Button_ReplayRestart.OnClick := ReplayClick;
-    Button_ReplayPause.OnClick   := ReplayClick;
-    Button_ReplayStep.OnClick    := ReplayClick;
-    Button_ReplayResume.OnClick  := ReplayClick;
-    Button_ReplayExit.OnClick    := ReplayClick;
-    Button_ReplayRestart.Hint := gResTexts[TX_REPLAY_RESTART];
-    Button_ReplayPause.Hint   := gResTexts[TX_REPLAY_PAUSE];
-    Button_ReplayStep.Hint    := gResTexts[TX_REPLAY_STEP];
-    Button_ReplayResume.Hint  := gResTexts[TX_REPLAY_RESUME];
-    Button_ReplayExit.Hint    := gResTexts[TX_REPLAY_QUIT];
+  Panel_ReplayBar := TKMPanel.Create(Panel_Main, 320, 8, 400, 45);
+    ReplayBar_Replay := TKMReplayBar.Create(Panel_ReplayBar, 0, 0, 400, 25);
+    Label_ReplayBar  := TKMLabel.Create(Panel_ReplayBar, ReplayBar_Replay.Width div 2,
+                                                         ReplayBar_Replay.Height div 2 - 7, NO_TEXT, fntGrey, taCenter);
 
-    Button_ShowStatsReplay.OnClick := ShowStats;
-    Button_ShowStatsReplay.Hint := gResTexts[TX_GAME_MENU_SHOW_STATS_HINT];
+    ReplayBar_Replay.OnMarkClick := ReplayMarkClick;
+    ReplayBar_Replay.HintResText := TX_REPLAY_LOAD_AT_HINT;
 
-    Button_ReplayStep.Disable; // Initial state
-    Button_ReplayResume.Disable; // Initial state
-
-  Panel_ReplayFOW := TKMPanel.Create(Panel_Main, 320, 56, 220, 39);
-    Button_ShowStatsSpec  := TKMButton.Create(Panel_ReplayFOW, 0, 0, 22, 22, 669, rxGui, bsGame);
+  Panel_ReplayFOW := TKMPanel.Create(Panel_Main, 320, 8+29, 400, 80);
+    Button_ShowStatsSpec  := TKMButton.Create(Panel_ReplayFOW, 0, 4, 22, 22, 669, rxGui, bsGame);
     Button_ShowStatsSpec.OnClick := ShowStats;
     Button_ShowStatsSpec.Hint := gResTexts[TX_GAME_MENU_SHOW_STATS_HINT];
 
-    Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 27, 5, 220, 20, gResTexts[TX_REPLAY_SHOW_FOG], fnt_Metal);
+    Checkbox_ReplayFOW := TKMCheckBox.Create(Panel_ReplayFOW, 27, 7, 200-27, 20, gResTexts[TX_REPLAY_SHOW_FOG], fntMetal);
     Checkbox_ReplayFOW.OnClick := ReplayClick;
 
-    Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 27, 180, 20, fnt_Metal, '', bsGame, False, 0.5);
+    Label_PlayersColorMode := TKMLabel.Create(Panel_ReplayFOW, 200, 5, 200, 20, gResTexts[TX_PLAYERS_COLOR_MODE_CAPTION], fntMetal, taLeft);
+
+    Radio_PlayersColorMode := TKMRadioGroup.Create(Panel_ReplayFOW,200,25,200,60,fntMetal);
+      Radio_PlayersColorMode.Anchors := [anLeft, anBottom];
+    Radio_PlayersColorMode.ItemIndex := 0;
+    Radio_PlayersColorMode.Add(gResTexts[TX_PLAYERS_COLOR_MODE_DEFAULT], gResTexts[TX_PLAYERS_COLOR_MODE_DEFAULT_HINT]);
+    Radio_PlayersColorMode.Add(gResTexts[TX_PLAYERS_COLOR_MODE_ALLY_ENEMY], gResTexts[TX_PLAYERS_COLOR_MODE_ALLY_ENEMY_HINT]);
+    Radio_PlayersColorMode.Add(gResTexts[TX_PLAYERS_COLOR_MODE_TEAMS], gResTexts[TX_PLAYERS_COLOR_MODE_TEAMS_HINT]);
+    Radio_PlayersColorMode.OnChange := Replay_PlayersColorModeClick;
+
+    Dropbox_ReplayFOW := TKMDropList.Create(Panel_ReplayFOW, 0, 30, 185, 20, fntMetal, '', bsGame, False, 0.5);
     Dropbox_ReplayFOW.Hint := gResTexts[TX_REPLAY_PLAYER_PERSPECTIVE];
     Dropbox_ReplayFOW.OnChange := ReplayClick;
     Dropbox_ReplayFOW.DropCount := MAX_LOBBY_PLAYERS;
@@ -1043,20 +1092,50 @@ begin
     Dropbox_ReplayFOW.List.OnDoubleClick := Replay_ListDoubleClick;
     Dropbox_ReplayFOW.List.SeparatorHeight := 4;
     Dropbox_ReplayFOW.List.SeparatorColor := $C0606060;
+
+  Panel_ReplayCtrl := TKMPanel.Create(Panel_Main, 320, 8+29, 185, 24);
+
+    Button_ReplayRestart    := TKMButton.Create(Panel_ReplayCtrl,  0, 0, 24, 24, 582, rxGui, bsGame);
+    Button_ReplayPause      := TKMButton.Create(Panel_ReplayCtrl, 25, 0, 24, 24, 583, rxGui, bsGame);
+    Button_ReplayStep       := TKMButton.Create(Panel_ReplayCtrl, 50, 0, 24, 24, 584, rxGui, bsGame);
+    Button_ReplayResume     := TKMButton.Create(Panel_ReplayCtrl, 75, 0, 24, 24, 585, rxGui, bsGame);
+    Button_ReplayExit       := TKMButton.Create(Panel_ReplayCtrl,100, 0, 24, 24, 586, rxGui, bsGame);
+    Button_ReplaySaveAt     := TKMButton.Create(Panel_ReplayCtrl,125, 0, 24, 24, 592, rxGui, bsGame);
+
+    Button_ShowStatsReplay  := TKMButton.Create(Panel_ReplayCtrl, 185 - 24, 0, 24, 24, 669, rxGui, bsGame);
+    //TODO: Button_ReplayFF       := TKMButton.Create(Panel_ReplayCtrl,125, 24, 24, 24, 393, rxGui, bsGame);
+    Button_ReplayRestart.OnClick := ReplayClick;
+    Button_ReplayPause.OnClick   := ReplayClick;
+    Button_ReplayStep.OnClick    := ReplayClick;
+    Button_ReplayResume.OnClick  := ReplayClick;
+    Button_ReplayExit.OnClick    := ReplayClick;
+    Button_ReplaySaveAt.OnClick  := ReplayClick;
+    Button_ReplayRestart.Hint := gResTexts[TX_REPLAY_RESTART];
+    Button_ReplayPause.Hint   := gResTexts[TX_REPLAY_PAUSE];
+    Button_ReplayStep.Hint    := gResTexts[TX_REPLAY_STEP];
+    Button_ReplayResume.Hint  := gResTexts[TX_REPLAY_RESUME];
+    Button_ReplayExit.Hint    := gResTexts[TX_REPLAY_QUIT];
+    Button_ReplaySaveAt.Hint  := gResTexts[TX_REPLAY_SAVE_AT];
+
+    Button_ShowStatsReplay.OnClick := ShowStats;
+    Button_ShowStatsReplay.Hint := gResTexts[TX_GAME_MENU_SHOW_STATS_HINT];
+
+    Button_ReplayStep.Disable; // Initial state
+    Button_ReplayResume.Disable; // Initial state
  end;
 
 
 procedure TKMGamePlayInterface.Create_ScriptingOverlay;
 begin
-  Label_ScriptedOverlay := TKMLabel.Create(Panel_Main, 260, 110, '', fnt_Metal, taLeft);
+  Label_ScriptedOverlay := TKMLabel.Create(Panel_Main, 260, 110, '', fntMetal, taLeft);
 
   Button_ScriptedOverlay := TKMButton.Create(Panel_Main, 260, 92, 15, 15, '', bsGame);
   Button_ScriptedOverlay.Hint := gResTexts[TX_GAMEPLAY_OVERLAY_HIDE];
   Button_ScriptedOverlay.Hide;
   Button_ScriptedOverlay.OnClick := HideOverlay;
 
-  Label_OverlayHide := TKMLabel.Create(Panel_Main,263,91,'-',fnt_Metal,taLeft);
-  Label_OverlayShow := TKMLabel.Create(Panel_Main,263,93,'+',fnt_Metal,taLeft);
+  Label_OverlayHide := TKMLabel.Create(Panel_Main,263,91,'-',fntMetal,taLeft);
+  Label_OverlayShow := TKMLabel.Create(Panel_Main,263,93,'+',fntMetal,taLeft);
   Label_OverlayHide.Hitable := False;
   Label_OverlayShow.Hitable := False;
   Label_OverlayHide.Hide;
@@ -1073,19 +1152,19 @@ begin
 
     TKMImage.Create(Panel_Message, 0, 0, 600, 500, 409);
 
-    Label_MessageText := TKMLabel.Create(Panel_Message, 47, 58, 432, 112, '', fnt_Antiqua, taLeft);
+    Label_MessageText := TKMLabel.Create(Panel_Message, 47, 58, 432, 112, '', fntAntiqua, taLeft);
     Label_MessageText.AutoWrap := True;
 
     Button_MessageGoTo := TKMButton.Create(Panel_Message, 490, 74, 100, 24, gResTexts[TX_MSG_GOTO], bsGame);
-    Button_MessageGoTo.Font := fnt_Antiqua;
+    Button_MessageGoTo.Font := fntAntiqua;
     Button_MessageGoTo.Hint := gResTexts[TX_MSG_GOTO_HINT];
     Button_MessageGoTo.OnClick := Message_GoTo;
 
     Button_MessageDelete := TKMButton.Create(Panel_Message, 490, 104, 100, 24, gResTexts[TX_MSG_DELETE], bsGame);
-    Button_MessageDelete.Font := fnt_Antiqua;
+    Button_MessageDelete.Font := fntAntiqua;
     Button_MessageDelete.Hint := gResTexts[TX_MSG_DELETE_HINT];
-    Button_MessageDelete.OnClick := Message_Delete;
-    Button_MessageDelete.MakesSound := False; // Don't play default Click as these buttons use sfx_MessageClose
+    Button_MessageDelete.OnClick := Message_DeleteClick;
+    Button_MessageDelete.MakesSound := False; // Don't play default Click as these buttons use sfxMessageClose
 
     Image_MessageClose := TKMImage.Create(Panel_Message, 600 - 76, 24, 32, 32, 52);
     Image_MessageClose.Anchors := [anTop, anLeft];
@@ -1116,16 +1195,16 @@ begin
     Image_MessageLogClose.OnClick := MessageLog_Close;
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
-    ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 60, 600 - 90, H, fnt_Grey, bsGame);
+    ColumnBox_MessageLog := TKMColumnBox.Create(Panel_MessageLog, 45, 60, 600 - 90, H, fntGrey, bsGame);
     ColumnBox_MessageLog.AnchorsStretch;
-    ColumnBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message'], [0, 25]);
+    ColumnBox_MessageLog.SetColumns(fntOutline, ['Icon', 'Message'], [0, 25]);
     ColumnBox_MessageLog.ShowHeader := False;
     ColumnBox_MessageLog.HideSelection := True;
     ColumnBox_MessageLog.HighlightOnMouseOver := True;
     ColumnBox_MessageLog.ItemHeight := 20;
     ColumnBox_MessageLog.BackAlpha := 0;
     ColumnBox_MessageLog.EdgeAlpha := 0;
-    ColumnBox_MessageLog.OnClick := MessageLog_ItemClick;
+    ColumnBox_MessageLog.OnCellClickShift := MessageLog_ItemClick;
     for I := 0 to MAX_LOG_MSGS - 1 do
       ColumnBox_MessageLog.AddItem(MakeListRow(['', ''], -1));
 end;
@@ -1133,7 +1212,7 @@ end;
 
 procedure TKMGamePlayInterface.Create_Controls;
 const
-  MAIN_BTN_HINT: array [TKMTabButtons] of Word = (
+  MAIN_BTN_HINT: array [tbBuild..tbMenu] of Word = (
     TX_MENU_TAB_HINT_BUILD,
     TX_MENU_TAB_HINT_DISTRIBUTE,
     TX_MENU_TAB_HINT_STATISTICS,
@@ -1151,7 +1230,7 @@ begin
       Sidebar_Bottom[I] := TKMImage.Create(Panel_Controls, 0, 400*I, 224, 400, 404);
 
     // Main 4 buttons
-    for T := Low(TKMTabButtons) to High(TKMTabButtons) do begin
+    for T := tbBuild to tbMenu do begin
       Button_Main[T] := TKMButton.Create(Panel_Controls,  TB_PAD + 46 * Byte(T), 4, 42, 36, 439 + Byte(T), rxGui, bsGame);
       Button_Main[T].Hint := gResTexts[MAIN_BTN_HINT[T]];
       Button_Main[T].OnClick := SwitchPage;
@@ -1160,7 +1239,7 @@ begin
     Button_Back.OnClick := SwitchPage;
     Button_Back.Hint := gResTexts[TX_MENU_TAB_HINT_GO_BACK];
 
-    Label_MenuTitle := TKMLabel.Create(Panel_Controls, 54, 4, 138, 0, '', fnt_Metal, taLeft);
+    Label_MenuTitle := TKMLabel.Create(Panel_Controls, 54, 4, 138, 0, '', fntMetal, taLeft);
     Label_MenuTitle.AutoWrap := True;
 
   fGuiGameBuild := TKMGUIGameBuild.Create(Panel_Controls);
@@ -1169,7 +1248,7 @@ begin
   Create_Menu;
     Create_Save;
     Create_Load;
-    fGuiMenuSettings := TKMGameMenuSettings.Create(Panel_Controls, GameSettingsUpdated);
+    fGuiMenuSettings := TKMGameMenuSettings.Create(Panel_Controls, GameSettingsChanged);
     Create_Quit;
 
   fGuiGameUnit := TKMGUIGameUnit.Create(Panel_Controls, SetViewportPos);
@@ -1195,7 +1274,7 @@ begin
 
     with TKMImage.Create(Panel_Allies,0,0,PANEL_ALLIES_WIDTH,190,409) do ImageAnchors := [anLeft, anRight, anTop];
 
-    Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,15,'',fnt_Outline,taCenter);
+    Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,15,'',fntOutline,taCenter);
     Image_AlliesHostStar := TKMImage.Create(Panel_Allies, 50, 82, 20, 20, 77, rxGuiMain);
     Image_AlliesHostStar.Hint := gResTexts[TX_PLAYER_HOST];
     Image_AlliesHostStar.Hide;
@@ -1204,9 +1283,9 @@ begin
     begin
       if (I mod ALLIES_ROWS) = 0 then // Header for each column
       begin
-        TKMLabel.Create(Panel_Allies, 80+(I div ALLIES_ROWS)*LINE_W, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 230+(I div ALLIES_ROWS)*LINE_W, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 360+(I div ALLIES_ROWS)*LINE_W, 60, gResTexts[TX_LOBBY_HEADER_PINGFPS], fnt_Outline, taCenter);
+        TKMLabel.Create(Panel_Allies, 80+(I div ALLIES_ROWS)*LINE_W, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fntOutline, taLeft);
+        TKMLabel.Create(Panel_Allies, 230+(I div ALLIES_ROWS)*LINE_W, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_TEAM], fntOutline, taLeft);
+        TKMLabel.Create(Panel_Allies, 360+(I div ALLIES_ROWS)*LINE_W, 60, gResTexts[TX_LOBBY_HEADER_PINGFPS], fntOutline, taCenter);
       end;
 
       Image_AlliesWinLoss[I] := TKMImage.Create(Panel_Allies, 42 +(I div ALLIES_ROWS)*LINE_W, 81+(I mod ALLIES_ROWS)*20, 16, 16, 0, rxGuiMain);
@@ -1219,18 +1298,18 @@ begin
       Image_AlliesMute[I].Hide;
 
       Image_AlliesFlag[I] := TKMImage.Create(Panel_Allies,     15 + 60+(I div ALLIES_ROWS)*LINE_W, 82+(I mod ALLIES_ROWS)*20, 16,  11,  0, rxGuiMain);
-      Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,   15 + 80+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, 140, 20, '', fnt_Grey, taLeft);
-      Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,   15 + 230+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, 120, 20, '', fnt_Grey, taLeft);
-      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies,15 + 230+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, 120, 20, fnt_Grey, '', bsGame);
+      Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,   15 + 80+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, 140, 20, '', fntGrey, taLeft);
+      Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,   15 + 230+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, 120, 20, '', fntGrey, taLeft);
+      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies,15 + 230+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, 120, 20, fntGrey, '', bsGame);
       DropBox_AlliesTeam[I].Hide; // Use label for demos until we fix exploits
       DropBox_AlliesTeam[I].Add('-');
       for K := 1 to MAX_TEAMS do
         DropBox_AlliesTeam[I].Add(IntToStr(K));
       DropBox_AlliesTeam[I].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[I].DropUp := True; // Doesn't fit if it drops down
-      Label_AlliesPing[I] :=          TKMLabel.Create(Panel_Allies, 15 + 347+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, '', fnt_Grey, taRight);
-      Label_AlliesPingFpsSlash[I] :=  TKMLabel.Create(Panel_Allies, 15 + 354+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, '', fnt_Grey, taCenter);
-      Label_AlliesFPS[I] :=           TKMLabel.Create(Panel_Allies, 15 + 361+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, '', fnt_Grey, taLeft);
+      Label_AlliesPing[I] :=          TKMLabel.Create(Panel_Allies, 15 + 347+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, '', fntGrey, taRight);
+      Label_AlliesPingFpsSlash[I] :=  TKMLabel.Create(Panel_Allies, 15 + 354+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, '', fntGrey, taCenter);
+      Label_AlliesFPS[I] :=           TKMLabel.Create(Panel_Allies, 15 + 361+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, '', fntGrey, taLeft);
     end;
 
     Image_AlliesClose:=TKMImage.Create(Panel_Allies,PANEL_ALLIES_WIDTH-98,24,32,32,52,rxGui);
@@ -1271,13 +1350,13 @@ begin
   Button_Menu_TrackDown.Hint := gResTexts[TX_MUSIC_PREV_HINT];
   Button_Menu_TrackUp.OnClick := Menu_NextTrack;
   Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
-  TKMLabel.Create(Panel_Menu, 0, 285, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fnt_Outline, taCenter);
-  Label_Menu_Track := TKMLabel.Create(Panel_Menu, 23, 306, TB_WIDTH - 46, 30, '', fnt_Grey, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 285, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fntOutline, taCenter);
+  Label_Menu_Track := TKMLabel.Create(Panel_Menu, 23, 306, TB_WIDTH - 46, 30, '', fntGrey, taCenter);
   Label_Menu_Track.Hitable := False; // It can block hits for the track Up/Down buttons as they overlap
-  TKMLabel.Create(Panel_Menu, 0, 198, TB_WIDTH, 30, gResTexts[TX_GAMEPLAY_GAME_TIME] + ':', fnt_Outline, taCenter);
-  Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 218, TB_WIDTH, 20, '', fnt_Grey, taCenter);
-  TKMLabel.Create(Panel_Menu, 0, 240, TB_WIDTH, 30, gResTexts[TX_WORD_MAP] + ':', fnt_Outline, taCenter);
-  Label_MapName := TKMLabel.Create(Panel_Menu, -3, 260, TB_WIDTH + 3, 20, '', fnt_Grey, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 198, TB_WIDTH, 30, gResTexts[TX_GAMEPLAY_GAME_TIME] + ':', fntOutline, taCenter);
+  Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 218, TB_WIDTH, 20, '', fntGrey, taCenter);
+  TKMLabel.Create(Panel_Menu, 0, 240, TB_WIDTH, 30, gResTexts[TX_WORD_MAP] + ':', fntOutline, taCenter);
+  Label_MapName := TKMLabel.Create(Panel_Menu, -3, 260, TB_WIDTH + 3, 20, '', fntGrey, taCenter);
 end;
 
 
@@ -1287,17 +1366,17 @@ begin
   Panel_Save := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
 
     // Edit field created first to pick a focus on panel show
-    Edit_Save := TKMEdit.Create(Panel_Save, 0, 235, TB_WIDTH, 20, fnt_Metal);
+    Edit_Save := TKMEdit.Create(Panel_Save, 0, 235, TB_WIDTH, 20, fntMetal);
     Edit_Save.AllowedChars := acFileName;
     Edit_Save.MaxLen := MAX_SAVENAME_LENGTH;
     Edit_Save.OnChange := Menu_Save_EditChange;
 
-    ListBox_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fnt_Metal, bsGame);
+    ListBox_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fntMetal, bsGame);
     ListBox_Save.AutoHideScrollBar := True;
     ListBox_Save.OnChange := Menu_Save_ListChange;
 
-    Label_SaveExists := TKMLabel.Create(Panel_Save,0,260,TB_WIDTH,30,gResTexts[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
-    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,280,TB_WIDTH,20,gResTexts[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
+    Label_SaveExists := TKMLabel.Create(Panel_Save,0,260,TB_WIDTH,30,gResTexts[TX_GAMEPLAY_SAVE_EXISTS],fntOutline,taLeft);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,280,TB_WIDTH,20,gResTexts[TX_GAMEPLAY_SAVE_OVERWRITE], fntMetal);
     CheckBox_SaveExists.OnClick := Menu_Save_CheckboxChange;
 
     Button_Save := TKMButton.Create(Panel_Save,0,300,TB_WIDTH,30,gResTexts[TX_GAMEPLAY_SAVE_SAVE], bsGame);
@@ -1310,12 +1389,12 @@ procedure TKMGamePlayInterface.Create_Load;
 begin
   Panel_Load := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
 
-    ListBox_Load := TKMListBox.Create(Panel_Load, 0, 2, TB_WIDTH, 260, fnt_Metal, bsGame);
+    ListBox_Load := TKMListBox.Create(Panel_Load, 0, 2, TB_WIDTH, 260, fntMetal, bsGame);
     ListBox_Load.AutoHideScrollBar := True;
     ListBox_Load.OnChange := Menu_Load_ListClick;
     ListBox_Load.OnDoubleClick := Menu_Load_Click;
 
-    Label_LoadDescription := TKMLabel.Create(Panel_Load,0,265,TB_WIDTH,0,'',fnt_Grey,taLeft);
+    Label_LoadDescription := TKMLabel.Create(Panel_Load,0,265,TB_WIDTH,0,'',fntGrey,taLeft);
     Label_LoadDescription.AutoWrap := True;
 
     Button_Load := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,gResTexts[TX_GAMEPLAY_LOAD], bsGame);
@@ -1327,7 +1406,7 @@ end;
 procedure TKMGamePlayInterface.Create_Quit;
 begin
   Panel_Quit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
-    Label_QuitQuestion := TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, gResTexts[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter);
+    Label_QuitQuestion := TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, gResTexts[TX_MENU_QUIT_QUESTION], fntOutline, taCenter);
     Label_QuitQuestion.AutoWrap := True;
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, gResTexts[TX_MENU_QUIT_MISSION], bsGame);
     Button_Quit_Yes.Hint := gResTexts[TX_MENU_QUIT_MISSION];
@@ -1353,7 +1432,7 @@ begin
     Allies_Close(nil);
     Message_Close(nil);
     MessageLog_Close(nil);
-    Label_MPChatUnread.Caption := ''; // No unread messages
+    Label_ChatUnread.Caption := ''; // No unread messages
     fGuiGameChat.Show;
   end;
 end;
@@ -1374,8 +1453,8 @@ begin
     fDragScrolling := False;
     fGuiGameUnit.JoiningGroups := False;
     ReleaseDirectionSelector;
-    gRes.Cursors.Cursor := kmc_Default; // Might have been scrolling or joining groups
-    SetMenuState(gGame.MissionMode = mm_Tactic); // Disabled main buttons
+    gRes.Cursors.Cursor := kmcDefault; // Might have been scrolling or joining groups
+    SetMenuState(gGame.MissionMode = mmTactic); // Disabled main buttons
 
     MinimapView.Disable;
     Sidebar_Top.Disable;
@@ -1385,7 +1464,7 @@ begin
   end
   else
   begin
-    SetMenuState(gGame.MissionMode = mm_Tactic); // Enable main buttons
+    SetMenuState(gGame.MissionMode = mmTactic); // Enable main buttons
 
     MinimapView.Enable;
     Sidebar_Top.Enable;
@@ -1416,7 +1495,7 @@ end;
 
 procedure TKMGamePlayInterface.Allies_Show(Sender: TObject);
 begin
-  gSoundPlayer.Play(sfxn_MPChatOpen);
+  gSoundPlayer.Play(sfxnMPChatOpen);
   Panel_Allies.Show;
   fGuiGameChat.Hide;
   Message_Close(nil);
@@ -1449,12 +1528,19 @@ end;
 
 
 // Click on the same message again closes it
-procedure TKMGamePlayInterface.Message_Click(Sender: TObject);
+procedure TKMGamePlayInterface.Message_Click(Sender: TObject; Shift: TShiftState);
 begin
-  if TKMImage(Sender).Tag <> fShownMessage then
-    Message_Show(TKMImage(Sender).Tag)
+  if ssLeft in Shift then
+  begin
+    if TKMImage(Sender).Tag <> fShownMessage then
+      Message_Show(TKMImage(Sender).Tag)
+    else
+      Message_Close(Sender);
+  end
   else
-    Message_Close(Sender);
+  begin
+    Message_Delete(TKMImage(Sender).Tag);
+  end;
 end;
 
 
@@ -1477,7 +1563,7 @@ begin
   Panel_Message.Show;
   // Must update top AFTER showing panel, otherwise Button_MessageGoTo.Visible will always return false
   Button_MessageDelete.Top := IfThen(Button_MessageGoTo.Visible, 104, 74);
-  gSoundPlayer.Play(sfx_MessageOpen); // Play parchment sound when they open the message
+  gSoundPlayer.Play(sfxMessageOpen); // Play parchment sound when they open the message
 end;
 
 
@@ -1491,7 +1577,7 @@ begin
 
     // Play sound
     if Sender <> nil then
-      gSoundPlayer.Play(sfx_MessageClose);
+      gSoundPlayer.Play(sfxMessageClose);
   end;
 
   fShownMessage := -1;
@@ -1499,16 +1585,24 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
+procedure TKMGamePlayInterface.Message_DeleteClick(Sender: TObject);
 var
   OldMsg: Integer;
 begin
   if fShownMessage = -1 then Exit; // Player pressed DEL with no Msg opened
 
   OldMsg := fShownMessage;
-
   Message_Close(Sender);
-  fMessageStack.RemoveStack(OldMsg);
+  Message_Delete(OldMsg);
+end;
+
+
+procedure TKMGamePlayInterface.Message_Delete(aIndex: Integer);
+begin
+  if aIndex = fShownMessage then
+    Message_Close(nil);
+
+  fMessageStack.RemoveStack(aIndex);
 
   Message_UpdateStack;
   DisplayHint(nil);
@@ -1541,26 +1635,26 @@ procedure TKMGamePlayInterface.StopPlay(aMsg: TKMGameResultMsg; aPrepareToStopGa
 var
   ShowStats, ReinitStatsLastTime: Boolean;
 begin
-  if aMsg <> gr_GameContinues then
+  if aMsg <> grGameContinues then
     gGame.GameResult := aMsg;
 
   ShowStats := False;
   ReinitStatsLastTime := False;
 
   case aMsg of
-    gr_Win,
-    gr_Defeat,
-    gr_Cancel,
-    gr_ReplayEnd:     begin
+    grWin,
+    grDefeat,
+    grCancel,
+    grReplayEnd:     begin
                         gGameApp.PrepageStopGame(gGame.GameResult);
                         ShowStats := True;
                         ReinitStatsLastTime := True;
                       end;
-    gr_GameContinues: ShowStats := True;
-    gr_Error,
-    gr_Disconnect,
-    gr_Silent,
-    gr_MapEdEnd:  StopGame;
+    grGameContinues: ShowStats := True;
+    grError,
+    grDisconnect,
+    grSilent,
+    grMapEdEnd:  StopGame;
   end;
 
   if ShowStats then
@@ -1582,13 +1676,13 @@ end;
 // Quit the mission and return to main menu
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender: TObject);
 begin
-  //Defeat player, if he intentionally quit, when game result is not determined yet (gr_Cancel)
-  if (gGame.GameMode = gmMulti) and (gGame.GameResult = gr_Cancel) then
-    gGame.GameResult := gr_Defeat
+  //Defeat player, if he intentionally quit, when game result is not determined yet (grCancel)
+  if (gGame.GameMode = gmMulti) and (gGame.GameResult = grCancel) then
+    gGame.GameResult := grDefeat
   else if gGame.IsReplay then
-    gGame.GameResult := gr_ReplayEnd;
+    gGame.GameResult := grReplayEnd;
   // Show outcome depending on actual situation.
-  // By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
+  // By default PlayOnState is grCancel, if playing on after victory/defeat it changes
   StopPlay(gGame.GameResult);
 end;
 
@@ -1621,7 +1715,7 @@ end;
 
 procedure TKMGamePlayInterface.Allies_Close(Sender: TObject);
 begin
-  if Panel_Allies.Visible then gSoundPlayer.Play(sfxn_MPChatClose);
+  if Panel_Allies.Visible then gSoundPlayer.Play(sfxnMPChatClose);
   Panel_Allies.Hide;
 end;
 
@@ -1632,6 +1726,9 @@ begin
   if (Sender is TKMImage) then
   begin
     Image := TKMImage(Sender);
+    if gLog.IsDegubLogEnabled then
+      gLog.LogDebug(Format('TKMGamePlayInterface.Allies_mute: Image.tag = %d NetPlayerIndex = %d',
+                           [Image.Tag, fLineIdToNetPlayerId[Image.Tag]]));
     gGame.Networking.ToggleMuted(fLineIdToNetPlayerId[Image.Tag]);
     Update_Image_AlliesMute(Image);
   end;
@@ -1670,15 +1767,16 @@ begin
     if not gGame.Networking.NetPlayers[I].IsSpectator then
       HandIdToNetPlayersId[gGame.Networking.NetPlayers[I].HandIndex] := I;
 
-  Teams := gHands.GetFullTeams();
+  Teams := gHands.Teams;
 
   K := 0;
   for J := Low(Teams) to High(Teams) do
     for I in Teams[J] do
-    begin
-      fLineIdToNetPlayerId[K] := HandIdToNetPlayersId[I];
-      Inc(K);
-    end;
+      if HandIdToNetPlayersId[I] <> -1 then //HandIdToNetPlayersId could -1, if we play in the save, where 1 player left
+      begin
+        fLineIdToNetPlayerId[K] := HandIdToNetPlayersId[I];
+        Inc(K);
+      end;
 
   // Spectators
   for I := 1 to gGame.Networking.NetPlayers.Count do
@@ -1700,6 +1798,13 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.ReplaySaved;
+begin
+  if (gGame.SavedReplays <> nil) then
+    ReplayBar_Replay.AddMark(gGame.GameTick);
+end;
+
+
 procedure TKMGamePlayInterface.Replay_DropBox_JumpToPlayer(aDropBoxIndex: Integer);
 begin
   Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aDropBoxIndex, Dropbox_ReplayFOW.Count - 1);
@@ -1713,8 +1818,8 @@ var
   LastSelectedObj: TObject;
   OldHandIndex: Integer;
 begin
-  OldHandIndex := gMySpectator.HandIndex;
-  gMySpectator.HandIndex := aHandIndex;
+  OldHandIndex := gMySpectator.HandID;
+  gMySpectator.HandID := aHandIndex;
 
   LastSelectedObj := gMySpectator.LastSpecSelectedObj;
   if LastSelectedObj <> nil then
@@ -1730,13 +1835,13 @@ begin
       raise Exception.Create('Could not determine last selected object type');
   end
   else
-    if not KMSamePoint(gHands[gMySpectator.HandIndex].CenterScreen, KMPOINT_ZERO) then
-      fViewport.Position := KMPointF(gHands[gMySpectator.HandIndex].CenterScreen); //By default set viewport position to hand CenterScreen
+    if not KMSamePoint(gHands[gMySpectator.HandID].CenterScreen, KMPOINT_ZERO) then
+      fViewport.Position := KMPointF(gHands[gMySpectator.HandID].CenterScreen); //By default set viewport position to hand CenterScreen
 
   gMySpectator.Selected := LastSelectedObj;  // Change selected object to last one for this hand or Reset it to nil
 
   UpdateSelectedObject;
-  Replay_UpdatePlayerInterface(OldHandIndex, gMySpectator.HandIndex);
+  Replay_UpdatePlayerInterface(OldHandIndex, gMySpectator.HandID);
 end;
 
 
@@ -1746,17 +1851,17 @@ var
 begin
   Dropbox_ReplayFOW.ItemIndex := EnsureRange(0, aPlayerIndex, Dropbox_ReplayFOW.Count - 1);
 
-  OldHandIndex := gMySpectator.HandIndex;
-  gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(aPlayerIndex);
+  OldHandIndex := gMySpectator.HandID;
+  gMySpectator.HandID := Dropbox_ReplayFOW.GetTag(aPlayerIndex);
 
   if (gMySpectator.Selected <> nil)
-    and (OldHandIndex <> gMySpectator.HandIndex) then
+    and (OldHandIndex <> gMySpectator.HandID) then
   begin
     gMySpectator.Selected := nil;   // Reset selection when start viewing another player
     UpdateSelectedObject;
   end;
 
-  Replay_UpdatePlayerInterface(OldHandIndex, gMySpectator.HandIndex);
+  Replay_UpdatePlayerInterface(OldHandIndex, gMySpectator.HandID);
 end;
 
 
@@ -1766,13 +1871,13 @@ begin
     gMySpectator.FOWIndex := aToPlayer
   else
     gMySpectator.FOWIndex := -1;
-  fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
+  fMinimap.Update; // Force update right now so FOW doesn't appear to lag
   gGame.OverlayUpdate; // Display the overlay seen by the selected player
 
   Dropbox_ReplayFOW.SelectByTag(aToPlayer);
 
   // When switch to other team player clear all beacons, except Spectators beacons
-  if (gHands.CheckAlliance(aFromPlayer, aToPlayer) <> at_Ally)
+  if (gHands.CheckAlliance(aFromPlayer, aToPlayer) <> atAlly)
     or not gHands[aFromPlayer].ShareBeacons[aToPlayer] then
     gGame.GamePlayInterface.Alerts.ClearBeaconsExcept(PLAYER_NONE);
 end;
@@ -1799,20 +1904,11 @@ end;
 
 
 procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
-var
-  oldCenter: TKMPointF;
-  oldZoom: Single;
 begin
   if Sender = Button_ReplayRestart then
   begin
-    // Restart the replay but keep the viewport position/zoom
-    oldCenter := fViewport.Position;
-    oldZoom := fViewport.Zoom;
-
-    gGame.RestartReplay; //reload it once again
-
-    // Self is now destroyed, so we must access the NEW fGame object
-    gGame.GamePlayInterface.SyncUIView(oldCenter, oldZoom);
+    // Restart the replay by loading from stream
+    ReplayMarkClick(1);
 
     Exit; // Restarting the replay will destroy Self, so exit immediately
   end;
@@ -1838,8 +1934,14 @@ begin
 
   if Sender = Button_ReplayExit then
   begin
-    gGame.GameHold(True, gr_ReplayEnd);
+    gGame.GameHold(True, grReplayEnd);
     SetButtons(True);
+  end;
+
+  if Sender = Button_ReplaySaveAt then
+  begin
+    gGame.SaveReplayToMemory();
+    ReplaySaved;
   end;
 
   if Sender = Dropbox_ReplayFOW then
@@ -1848,10 +1950,10 @@ begin
   if (Sender = Checkbox_ReplayFOW) then
   begin
     if Checkbox_ReplayFOW.Checked then
-      gMySpectator.FOWIndex := gMySpectator.HandIndex
+      gMySpectator.FOWIndex := gMySpectator.HandID
     else
       gMySpectator.FOWIndex := -1;
-    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
+    fMinimap.Update; // Force update right now so FOW doesn't appear to lag
   end;
 end;
 
@@ -1873,7 +1975,7 @@ begin
   if fUIMode in [umReplay, umSpectate] then Exit; // No message stack in replay/spectate
   fMessageStack.Add(aKind, aText, aLoc);
   Message_UpdateStack;
-  gSoundPlayer.Play(sfx_MessageNotice, 4); // Play horn sound on new message if it is the right type
+  gSoundPlayer.Play(sfxMessageNotice, 4); // Play horn sound on new message if it is the right type
 end;
 
 
@@ -1882,7 +1984,7 @@ begin
   if Panel_MessageLog.Visible then
   begin
     Panel_MessageLog.Hide;
-    gSoundPlayer.Play(sfx_MessageClose);
+    gSoundPlayer.Play(sfxMessageClose);
   end
   else
   begin
@@ -1895,7 +1997,7 @@ begin
 
     Panel_MessageLog.Show;
     ColumnBox_MessageLog.TopIndex := ColumnBox_MessageLog.RowCount;
-    gSoundPlayer.Play(sfx_MessageOpen); // Play parchment sound when they open the message
+    gSoundPlayer.Play(sfxMessageOpen); // Play parchment sound when they open the message
   end;
 end;
 
@@ -1904,11 +2006,11 @@ procedure TKMGamePlayInterface.MessageLog_Close(Sender: TObject);
 begin
   Panel_MessageLog.Hide;
   if Sender = Image_MessageLogClose then
-    gSoundPlayer.Play(sfx_MessageClose);
+    gSoundPlayer.Play(sfxMessageClose);
 end;
 
 
-procedure TKMGamePlayInterface.MessageLog_ShowMessage(aMessageId: Integer);
+procedure TKMGamePlayInterface.MessageLog_ShowMessage(aMessageId: Integer; aJumpToLoc: Boolean = True);
 var
   Msg: TKMLogMessage;
   H: TKMHouse;
@@ -1916,34 +2018,38 @@ var
 begin
   Msg := gMySpectator.Hand.MessageLog[aMessageId];
   Msg.IsReadLocal := True;
-  gGame.GameInputProcess.CmdGame(gic_GameMessageLogRead, aMessageId);
+  gGame.GameInputProcess.CmdGame(gicGameMessageLogRead, aMessageId);
 
-  // Jump to location
-  fViewport.Position := KMPointF(Msg.Loc);
-
-  // Try to highlight the house in question
-  H := gHands.HousesHitTest(Msg.Loc.X, Msg.Loc.Y);
-
-  // Do not highlight a house if it is not the one that has issued the notification
-  // (happens when note is issues and house is destroyed and a new one is build in the same place)
-  // NOTE: It will highlight next house built on the 'ruins' which is unoccupied to be precise
-  //       even the NEW message has not been issued yet
-  if (H <> nil) then
+  if aJumpToLoc then
   begin
-    if (gRes.IsMsgHouseUnnocupied(Msg.fTextID) and not H.HasOwner
-        and (gRes.Houses[H.HouseType].OwnerType <> ut_None) and (H.HouseType <> htBarracks))
-      or H.ResourceDepletedMsgIssued then
+    // Jump to location
+    fViewport.Position := KMPointF(Msg.Loc);
+
+    // Try to highlight the house in question
+    H := gHands.HousesHitTest(Msg.Loc.X, Msg.Loc.Y);
+
+    // Do not highlight a house if it is not the one that has issued the notification
+    // (happens when note is issues and house is destroyed and a new one is build in the same place)
+    // NOTE: It will highlight next house built on the 'ruins' which is unoccupied to be precise
+    //       even the NEW message has not been issued yet
+    if (H <> nil) then
     begin
-      gMySpectator.Highlight := H;
-      gMySpectator.Selected := H;
-      UpdateSelectedObject;
-    end;
-  end else begin
-    G := gHands.GroupsHitTest(Msg.Loc.X, Msg.Loc.Y);
-    if (G <> nil) and not G.IsDead then
-    begin
-      SelectUnitGroup(G);
-      UpdateSelectedObject;
+      if (gRes.IsMsgHouseUnnocupied(Msg.fTextID) and not H.HasOwner
+          and (gRes.Houses[H.HouseType].OwnerType <> utNone) and (H.HouseType <> htBarracks))
+        or H.ResourceDepletedMsgIssued
+        or H.OrderCompletedMsgIssued then
+      begin
+        gMySpectator.Highlight := H;
+        gMySpectator.Selected := H;
+        UpdateSelectedObject;
+      end;
+    end else begin
+      G := gHands.GroupsHitTest(Msg.Loc.X, Msg.Loc.Y);
+      if (G <> nil) and not G.IsDead then
+      begin
+        SelectUnitGroup(G);
+        UpdateSelectedObject;
+      end;
     end;
   end;
 
@@ -1951,17 +2057,20 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MessageLog_ItemClick(Sender: TObject);
+function TKMGamePlayInterface.MessageLog_ItemClick(Sender: TObject; Shift: TShiftState; const X,Y: Integer): Boolean;
 var
   ItemId, MessageId: Integer;
 begin
-  ItemId := ColumnBox_MessageLog.ItemIndex;
-  if ItemId = -1 then Exit;
+  Result := False;
+  ItemId := Y;
+  if ItemId >= Length(ColumnBox_MessageLog.Rows) then Exit;
 
   MessageId := ColumnBox_MessageLog.Rows[ItemId].Tag;
   if MessageId = -1 then Exit;
 
-  MessageLog_ShowMessage(MessageId);
+  Result := True;
+
+  MessageLog_ShowMessage(MessageId, ssLeft in Shift);
 end;
 
 
@@ -2063,8 +2172,8 @@ procedure TKMGamePlayInterface.Beacon_Cancel;
 begin
   fPlacingBeacon := False; // Right click cancels it
   MinimapView.ClickableOnce := False;
-  if gRes.Cursors.Cursor = kmc_Beacon then
-    gRes.Cursors.Cursor := kmc_Default;
+  if gRes.Cursors.Cursor = kmcBeacon then
+    gRes.Cursors.Cursor := kmcDefault;
 end;
 
 
@@ -2075,9 +2184,9 @@ begin
     fLastBeaconTime := TimeGet;
     // In replays we show the beacon directly without GIP. In spectator we use -1 for hand index
     case fUIMode of
-      umReplay:   Alerts.AddBeacon(aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
-      umSpectate: gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.MyNetPlayer.FlagColor);
-      else        gGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, aLoc, gMySpectator.HandIndex, gMySpectator.Hand.FlagColor);
+      umReplay:   Alerts.AddBeacon(aLoc, gMySpectator.HandID, gMySpectator.Hand.FlagColor, gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
+      umSpectate: gGame.GameInputProcess.CmdGame(gicGameAlertBeacon, aLoc, PLAYER_NONE, gGame.Networking.MyNetPlayer.FlagColor);
+      else        gGame.GameInputProcess.CmdGame(gicGameAlertBeacon, aLoc, gMySpectator.HandID, gMySpectator.Hand.FlagColor);
     end;
     Beacon_Cancel;
   end else
@@ -2107,6 +2216,76 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.ReplayMarkClick(aTick: Integer);
+var
+  TicksList: TList<Cardinal>;
+  Tick: Cardinal;
+  OldCenter: TKMPointF;
+  OldZoom: Single;
+  IsPaused: Boolean;
+  GuiSpecPage: Integer;
+  IsPlayerDropOpen: Boolean;
+  PlayerDropItem, PlayersColorMode: Integer;
+  ShowPlayerFOW: Boolean;
+  MainMenuTab: TKMTabButtons;
+begin
+  Assert(aTick >= 0, 'Tick should be >= 0'); //May be even > 0
+
+  //Save Replay GUI locally
+  MainMenuTab := fOpenedMenu;
+  OldCenter := fViewport.Position;
+  OldZoom := fViewport.Zoom;
+  IsPaused := gGame.IsPaused;
+  GuiSpecPage := fGuiGameSpectator.GetOpenedPage;
+  IsPlayerDropOpen := Dropbox_ReplayFOW.IsOpen;
+  PlayerDropItem := Dropbox_ReplayFOW.ItemIndex;
+  ShowPlayerFOW := Checkbox_ReplayFOW.Checked;
+  PlayersColorMode := Radio_PlayersColorMode.ItemIndex;
+
+  if not gGameApp.TryLoadSavedReplay( aTick ) then
+    Exit;
+
+  if gGame.SavedReplays = nil then
+    Exit;
+
+  //!!!!Carefull!!!!
+  //Self TKMGamePlayInterface is now destroyed and we can't access any fields here
+  //Use gGame.GamePlayInterface instead
+
+  //Restore Replay GUI
+  gGame.GamePlayInterface.OpenMenuPage(MainMenuTab);
+  gGame.GamePlayInterface.SyncUIView(OldCenter, OldZoom);
+
+  gGame.GamePlayInterface.GuiGameSpectator.OpenPage(GuiSpecPage);
+
+  if IsPlayerDropOpen then
+    gGame.GamePlayInterface.Dropbox_ReplayFOW.OpenList;
+  gGame.GamePlayInterface.Dropbox_ReplayFOW.ItemIndex := PlayerDropItem;
+
+  gGame.GamePlayInterface.Checkbox_ReplayFOW.Checked := ShowPlayerFOW;
+  ReplayClick(gGame.GamePlayInterface.Checkbox_ReplayFOW); //Apply FOW
+
+  gGame.GamePlayInterface.Radio_PlayersColorMode.ItemIndex := PlayersColorMode;
+
+  if IsPaused then
+  begin
+    gGame.IsPaused := True;
+    SetButtons(False); //Update buttons
+    gGame.GamePlayInterface.UpdateState(gGame.GameTick);
+  end;
+
+  TicksList := Tlist<Cardinal>.Create;
+  try
+    gGame.SavedReplays.FillTicks(TicksList);
+
+    for Tick in TicksList do
+      ReplayBar_Replay.AddMark(Tick);
+  finally
+    FreeAndNil(TicksList);
+  end;
+end;
+
+
 procedure TKMGamePlayInterface.Replay_Multi_SetPlayersDropbox;
 var
   Teams: TKMByteSetArray;
@@ -2114,7 +2293,7 @@ var
   I, J, DropBoxIndex, HumanIndexInList: Integer;
   TeamSeparatorAdded: Boolean;
 begin
-  Teams := gHands.GetTeams;
+  Teams := gHands.GetTeamsOfAllies;
   NonTeamHands := [0..gHands.Count - 1];
 
   //Get non team hands
@@ -2171,14 +2350,27 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.UpdateMessageImages;
+var
+  I: Integer;
+begin
+  for I := 0 to MAX_VISIBLE_MSGS do
+    Image_Message[I].Top := Panel_Main.Height - 48 - I * 48
+                            - IfThen(CanShowChat, 48)
+                            - IfThen(CanShowAllies, 48);
+end;
+
+
 procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
 begin
+  UpdateMessageImages;
+
   Button_Main[tbBuild].Enabled := not aTactic and not HasLostMPGame and not gMySpectator.Hand.InCinematic; //Allow to 'test build' if we are in replay / spectate mode
   Button_Main[tbRatio].Enabled := not aTactic and ((fUIMode in [umReplay, umSpectate]) or (not HasLostMPGame and not gMySpectator.Hand.InCinematic));
   Button_Main[tbStats].Enabled := not aTactic;
 
   Button_Menu_Load.Enabled := fUIMode = umSP; // No loading during multiplayer games
-  Button_Menu_Save.Enabled := fUIMode in [umSP, umMP, umSpectate];
+  Button_Menu_Save.Enabled := (fUIMode in [umSP, umMP, umSpectate]) or (ALLOW_SAVE_IN_REPLAY and (fUIMode = umReplay));
 
   if (fUIMode = umReplay) then
   begin
@@ -2208,18 +2400,23 @@ begin
   fGuiMenuSettings.SetAutosaveEnabled(fUIMode in [umSP, umMP, umSpectate]);
 
   // Chat and Allies setup should be accessible only in Multiplayer
-  Image_MPChat.Visible       := fUIMode in [umMP, umSpectate];
-  Label_MPChatUnread.Visible := fUIMode in [umMP, umSpectate];
-  Image_MPAllies.Visible     := fUIMode in [umMP, umSpectate];
+  Image_Chat.Visible       := CanShowChat;
+  Label_ChatUnread.Visible := CanShowChat;
+  Image_MPAllies.Visible   := CanShowAllies;
 
   // Message stack is visible in Replay as it shows which messages player got
   // and does not affect replay consistency
 
   Panel_ReplayCtrl.Visible := fUIMode = umReplay;
+  Panel_ReplayBar.Visible := fUIMode = umReplay;
   Panel_ReplayFOW.Visible := fUIMode in [umSpectate, umReplay];
-  Panel_ReplayFOW.Top := IfThen(fUIMode = umSpectate, 3, 56);
+  Panel_ReplayFOW.Top := IfThen(fUIMode = umSpectate, 3, 8+29);
   Button_ShowStatsSpec.Visible := not Panel_ReplayCtrl.Visible;
   Checkbox_ReplayFOW.Left := IfThen(Button_ShowStatsSpec.Visible, 27, 0);
+  Checkbox_ReplayFOW.Top := IfThen(Panel_ReplayCtrl.Visible, 24+8, 7);
+  Dropbox_ReplayFOW.Top := IfThen(Panel_ReplayCtrl.Visible, 24+31, 30);
+  Label_PlayersColorMode.Top := IfThen(Panel_ReplayCtrl.Visible, 0, 5);
+  Radio_PlayersColorMode.Top := IfThen(Panel_ReplayCtrl.Visible, 20, 25);
 
   if fUIMode in [umSpectate, umReplay] then
   begin
@@ -2232,14 +2429,12 @@ begin
       // Use team info from ally states:
       // consider team as a group of hands where all members are allied to each other and not allied to any other hands.
       gmReplayMulti,
-      gmMultiSpectate:  begin
-                          Replay_Multi_SetPlayersDropbox;
-                          fGuiGameSpectator := TKMGUIGameSpectator.Create(Panel_Main, Replay_JumpToPlayer);
-                        end;
+      gmMultiSpectate:  Replay_Multi_SetPlayersDropbox;
       else              raise Exception.Create(Format('Wrong game mode [%s], while spectating/watching replay',
                                                       [GetEnumName(TypeInfo(TKMGameMode), Integer(gGame.GameMode))]));
     end;
-    gMySpectator.HandIndex := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex); //Update HandIndex
+    fGuiGameSpectator := TKMGUIGameSpectator.Create(Panel_Main, Replay_JumpToPlayer, SetViewportPos);
+    gMySpectator.HandID := Dropbox_ReplayFOW.GetTag(Dropbox_ReplayFOW.ItemIndex); //Update HandIndex
   end;
 end;
 
@@ -2277,17 +2472,17 @@ begin
   ReleaseDirectionSelector;
   fPlayMoreMsg := Msg;
   case Msg of
-    gr_Win:       begin
+    grWin:       begin
                     Label_PlayMore.Caption := gResTexts[TX_GAMEPLAY_WON];
                     Button_PlayMore.Caption := gResTexts[TX_GAMEPLAY_CONTINUE_PLAYING];
                     Button_PlayQuit.Caption := gResTexts[TX_GAMEPLAY_VICTORY];
                   end;
-    gr_Defeat:    begin
+    grDefeat:    begin
                     Label_PlayMore.Caption := gResTexts[TX_GAMEPLAY_LOST];
                     Button_PlayMore.Caption := gResTexts[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
                     Button_PlayQuit.Caption := gResTexts[TX_GAMEPLAY_DEFEAT];
                   end;
-    gr_ReplayEnd: begin
+    grReplayEnd: begin
                     Label_PlayMore.Caption := gResTexts[TX_GAMEPLAY_REPLAY_ENDED];
                     Button_PlayMore.Caption := gResTexts[TX_GAMEPLAY_REPLAY_CONTINUEWATCHING];
                     Button_PlayQuit.Caption := gResTexts[TX_GAMEPLAY_QUIT_TO_MENU];
@@ -2304,14 +2499,14 @@ begin
   ReleaseDirectionSelector;
   fPlayMoreMsg := Msg;
   case Msg of
-    gr_Win:       begin
+    grWin:       begin
                     Label_MPPlayMore.Caption := gResTexts[TX_GAMEPLAY_WON];
                     Button_MPPlayMore.Caption := gResTexts[TX_GAMEPLAY_CONTINUE_PLAYING];
                     Button_MPPlayQuit.Caption := gResTexts[TX_GAMEPLAY_VICTORY];
                   end;
-    gr_Defeat:    begin
+    grDefeat:    begin
                     // Refresh it so that menu buttons become disabled
-                    SetMenuState(gGame.MissionMode = mm_Tactic);
+                    SetMenuState(gGame.MissionMode = mmTactic);
                     // Close e.g. the build menu if it was open
                     SwitchPage(Button_Back);
 
@@ -2331,18 +2526,18 @@ begin
 
   if Sender = Button_PlayQuit then
     case fPlayMoreMsg of
-      gr_Win:       StopPlay(gr_Win);
-      gr_Defeat:    StopPlay(gr_Defeat);
-      gr_ReplayEnd: StopPlay(gr_ReplayEnd);
+      grWin:       StopPlay(grWin);
+      grDefeat:    StopPlay(grDefeat);
+      grReplayEnd: StopPlay(grReplayEnd);
     end
   else // GameStop has Destroyed our Sender by now
   if Sender = Button_PlayMore then
     case fPlayMoreMsg of
-      gr_Win:       gGame.GameHold(false, gr_Win);
-      gr_Defeat:    gGame.GameHold(false, gr_Defeat);
-      gr_ReplayEnd: begin
+      grWin:       gGame.GameHold(false, grWin);
+      grDefeat:    gGame.GameHold(false, grDefeat);
+      grReplayEnd: begin
                       gGame.SkipReplayEndCheck := True;
-                      gGame.GameHold(false, gr_ReplayEnd);
+                      gGame.GameHold(false, grReplayEnd);
                     end;
     end;
 end;
@@ -2354,9 +2549,9 @@ begin
 
   if Sender = Button_MPPlayQuit then
     case fPlayMoreMsg of
-      gr_Win:       StopPlay(gr_Win);
-      gr_Defeat:    StopPlay(gr_Defeat);
-      gr_ReplayEnd: StopPlay(gr_ReplayEnd);
+      grWin:       StopPlay(grWin);
+      grDefeat:    StopPlay(grDefeat);
+      grReplayEnd: StopPlay(grReplayEnd);
     end
   // If they click continue no other action is necessary, the game is still running
 end;
@@ -2365,7 +2560,7 @@ end;
 procedure TKMGamePlayInterface.ShowNetworkLag(aShow: Boolean; aPlayers: TKMByteArray; IsHost: Boolean);
 var
   I: Integer;
-  txt: UnicodeString;
+  WPlayersMsg, WDCPlayersMsg: UnicodeString;
 begin
   if aShow then ReleaseDirectionSelector;
   if not aShow then // Reset the confirm when we hide this screen so it's not on confirm when it reshows
@@ -2376,16 +2571,32 @@ begin
 
   if gGame.Networking.IsReconnecting then
   begin
-    txt := gResTexts[TX_MULTIPLAYER_ATTEMPT_RECONNECTING];
+    WPlayersMsg := gResTexts[TX_MULTIPLAYER_ATTEMPT_RECONNECTING];
     Button_NetDropPlayers.Visible := False;
     fNetWaitDropPlayersDelayStarted := 0;
     Label_NetDropPlayersDelay.Caption := '';
   end
   else
   begin
-    txt := gResTexts[TX_MULTIPLAYER_WAITING] + ' ';
+//    txt := gResTexts[TX_MULTIPLAYER_WAITING] + ' ';
+    WPlayersMsg := '';
+    WDCPlayersMsg := '';
     for I := Low(aPlayers) to High(aPlayers) do
-      txt := txt + gGame.Networking.NetPlayers[aPlayers[I]].NiknameU + IfThen(I <> High(aPlayers), ', ');
+      if not gGame.Networking.NetPlayers[aPlayers[I]].Dropped then
+        WPlayersMsg := WPlayersMsg + gGame.Networking.NetPlayers[aPlayers[I]].NiknameU + IfThen(I <> High(aPlayers), ', ')
+      else
+        WDCPlayersMsg := WDCPlayersMsg + gGame.Networking.NetPlayers[aPlayers[I]].NiknameU + IfThen(I <> High(aPlayers), ', ');
+
+    if WPlayersMsg <> '' then
+      WPlayersMsg := gResTexts[TX_MULTIPLAYER_WAITING] + ' ' + WPlayersMsg;
+
+    if WDCPlayersMsg <> '' then
+      WDCPlayersMsg := gResTexts[TX_MULTIPLAYER_WAITING_DC_PLAYERS_DATA] + ' ' + WDCPlayersMsg;
+
+    if (WPlayersMsg <> '') and (WDCPlayersMsg <> '') then
+      WPlayersMsg := WPlayersMsg + '|';
+
+    WPlayersMsg := WPlayersMsg + WDCPlayersMsg;
 
     Button_NetDropPlayers.Visible := IsHost;
 
@@ -2400,7 +2611,7 @@ begin
       end;
   end;
 
-  Label_NetWait.Caption := txt;
+  Label_NetWait.Caption := WPlayersMsg;
   Panel_NetWait.Visible := aShow;
 end;
 
@@ -2486,7 +2697,7 @@ begin
     if Button_NetConfirmYes.Caption = gResTexts[TX_GAMEPLAY_DROP_PLAYERS] then
       gGame.WaitingPlayersDrop else
     if Button_NetConfirmYes.Caption = gResTexts[TX_GAMEPLAY_QUIT_TO_MENU] then
-      StopPlay(gr_Cancel);
+      StopPlay(grCancel);
   end
   else raise Exception.Create('Wrong Sender in NetWaitClick');
 end;
@@ -2515,7 +2726,7 @@ begin
     SetCursorPos(gMain.ClientToScreen(SelectingDirPosition).X, gMain.ClientToScreen(SelectingDirPosition).Y);
     gMain.ApplyCursorRestriction; // Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := False;
-    gRes.Cursors.Cursor := kmc_Default; // Reset direction selection cursor when mouse released
+    gRes.Cursors.Cursor := kmcDefault; // Reset direction selection cursor when mouse released
     DirectionCursorHide;
   end;
 end;
@@ -2524,22 +2735,6 @@ end;
 function TKMGamePlayInterface.HasLostMPGame: Boolean;
 begin
   Result := (fUIMode = umMP) and gMySpectator.Hand.AI.HasLost;
-end;
-
-
-// Access chat messages history to copy it over to lobby chat
-function TKMGamePlayInterface.GetChatState: TKMChatState;
-begin
-  Result := fGuiGameChat.GetChatState;
-end;
-
-
-procedure TKMGamePlayInterface.SetChatState(const aChatState: TKMChatState);
-begin
-  fGuiGameChat.SetChatState(aChatState);
-
-  if aChatState.ChatText <> '' then
-    fGuiGameChat.Show;
 end;
 
 
@@ -2560,7 +2755,7 @@ begin
   else
     fSelection[aId] := -1;
 
-  gGame.GameInputProcess.CmdGame(gic_GameHotkeySet, aId, fSelection[aId]);
+  gGame.GameInputProcess.CmdGame(gicGameHotkeySet, aId, fSelection[aId]);
 end;
 
 
@@ -2572,15 +2767,27 @@ begin
   if (aObject <> G) and (aObject is TKMUnitGroup) and (G is TKMUnitGroup)
   and (TKMUnitGroup(aObject).GroupType = G.GroupType) then
   begin
-    gSoundPlayer.PlayWarrior(TKMUnitGroup(aObject).UnitType, sp_Join); // In SP joining is instant, aObject does not exist after that
-    gGame.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitGroup(aObject), G);
+    gSoundPlayer.PlayWarrior(TKMUnitGroup(aObject).UnitType, spJoin); // In SP joining is instant, aObject does not exist after that
+    gGame.GameInputProcess.CmdArmy(gicArmyLink, TKMUnitGroup(aObject), G);
   end;
 end;
 
 
 procedure TKMGamePlayInterface.Selection_Select(aId: Word);
+const
+  SELECT_TWICE_MAX_DELAY = 700; //0.7 second
 var
   OldSelected: TObject;
+
+  procedure CheckSelectTwice(aPos: TKMPointF);
+  begin
+    // Selecting an object twice (during short period of time) is the shortcut to center on that unit
+    if (OldSelected = gMySpectator.Selected)
+      and (GetTimeSince(fLastKbdSelectionTime) < SELECT_TWICE_MAX_DELAY) then
+      fViewport.Position := aPos;
+    fLastKbdSelectionTime := TimeGet;
+  end;
+
 begin
   if gMySpectator.Hand.InCinematic then
     Exit;
@@ -2599,10 +2806,9 @@ begin
         Exit;
       end;
       if (OldSelected <> gMySpectator.Selected) and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-        gSoundPlayer.PlayCitizen(TKMUnit(gMySpectator.Selected).UnitType, sp_Select);
-      // Selecting a unit twice is the shortcut to center on that unit
-      if OldSelected = gMySpectator.Selected then
-        fViewport.Position := TKMUnit(gMySpectator.Selected).PositionF;
+        gSoundPlayer.PlayCitizen(TKMUnit(gMySpectator.Selected).UnitType, spSelect);
+
+      CheckSelectTwice(TKMUnit(gMySpectator.Selected).PositionF);
     end
     else
     begin
@@ -2615,9 +2821,8 @@ begin
           gMySpectator.Selected := nil; // Don't select destroyed houses
           Exit;
         end;
-        // Selecting a house twice is the shortcut to center on that house
-        if OldSelected = gMySpectator.Selected then
-          fViewport.Position := KMPointF(TKMHouse(gMySpectator.Selected).Entrance);
+
+        CheckSelectTwice(KMPointF(TKMHouse(gMySpectator.Selected).Entrance));
       end
       else
       begin
@@ -2629,10 +2834,9 @@ begin
         end;
         TKMUnitGroup(gMySpectator.Selected).SelectFlagBearer;
         if (OldSelected <> gMySpectator.Selected) and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-          gSoundPlayer.PlayWarrior(TKMUnitGroup(gMySpectator.Selected).SelectedUnit.UnitType, sp_Select);
-        // Selecting a group twice is the shortcut to center on that group
-        if OldSelected = gMySpectator.Selected then
-          fViewport.Position := TKMUnitGroup(gMySpectator.Selected).SelectedUnit.PositionF;
+          gSoundPlayer.PlayWarrior(TKMUnitGroup(gMySpectator.Selected).SelectedUnit.UnitType, spSelect);
+
+        CheckSelectTwice(TKMUnitGroup(gMySpectator.Selected).SelectedUnit.PositionF);
       end;
     end;
   end;
@@ -2640,15 +2844,15 @@ begin
   // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
   if fUIMode in [umReplay, umSpectate] then
   begin
-    if gMySpectator.Selected is TKMHouse      then gMySpectator.HandIndex := TKMHouse    (gMySpectator.Selected).Owner;
-    if gMySpectator.Selected is TKMUnit       then gMySpectator.HandIndex := TKMUnit     (gMySpectator.Selected).Owner;
-    if gMySpectator.Selected is TKMUnitGroup  then gMySpectator.HandIndex := TKMUnitGroup(gMySpectator.Selected).Owner;
-    Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandIndex);
+    if gMySpectator.Selected is TKMHouse      then gMySpectator.HandID := TKMHouse    (gMySpectator.Selected).Owner;
+    if gMySpectator.Selected is TKMUnit       then gMySpectator.HandID := TKMUnit     (gMySpectator.Selected).Owner;
+    if gMySpectator.Selected is TKMUnitGroup  then gMySpectator.HandID := TKMUnitGroup(gMySpectator.Selected).Owner;
+    Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandID);
     if Checkbox_ReplayFOW.Checked then
-      gMySpectator.FOWIndex := gMySpectator.HandIndex
+      gMySpectator.FOWIndex := gMySpectator.HandID
     else
       gMySpectator.FOWIndex := -1;
-    fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
+    fMinimap.Update; // Force update right now so FOW doesn't appear to lag
   end;
 
   UpdateSelectedObject;
@@ -2659,7 +2863,7 @@ procedure TKMGamePlayInterface.SelectUnit(aUnit: TKMUnit);
 begin
   gMySpectator.Selected := aUnit;
   if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-    gSoundPlayer.PlayCitizen(aUnit.UnitType, sp_Select); // play unit selection sound
+    gSoundPlayer.PlayCitizen(aUnit.UnitType, spSelect); // play unit selection sound
 end;
 
 
@@ -2668,22 +2872,22 @@ begin
   gMySpectator.Selected := aGroup;
   aGroup.SelectFlagBearer;
   if (fUIMode in [umSP, umMP]) and not HasLostMPGame then
-    gSoundPlayer.PlayWarrior(aGroup.SelectedUnit.UnitType, sp_Select); // play unit group selection sound
+    gSoundPlayer.PlayWarrior(aGroup.SelectedUnit.UnitType, spSelect); // play unit group selection sound
 end;
 
 
 // Select next building/unit/unit group with the same type for same owner
 procedure TKMGamePlayInterface.SelectNextGameObjWSameType;
-var NextHouse: TKMHouse;
-    NextUnit: TKMUnit;
-    NextUnitGroup: TKMUnitGroup;
+var
+  NextHouse: TKMHouse;
+  NextUnit: TKMUnit;
+  NextUnitGroup: TKMUnitGroup;
 begin
   if gMySpectator.Hand.InCinematic then
     Exit;
 
   if gMySpectator.Selected is TKMUnit then
   begin
-
     NextUnit := gHands.GetNextUnitWSameType(TKMUnit(gMySpectator.Selected));
     if NextUnit <> nil then
     begin
@@ -2693,7 +2897,6 @@ begin
 
   end else if gMySpectator.Selected is TKMHouse then
   begin
-
     NextHouse := gHands.GetNextHouseWSameType(TKMHouse(gMySpectator.Selected));
     if NextHouse <> nil then
     begin
@@ -2703,7 +2906,6 @@ begin
 
   end else if gMySpectator.Selected is TKMUnitGroup then
   begin
-
     NextUnitGroup := gHands.GetNextGroupWSameType(TKMUnitGroup(gMySpectator.Selected));
     if NextUnitGroup <> nil then
     begin
@@ -2722,7 +2924,7 @@ begin
   fGuiGameChat.ChatMessage(aData);
 
   if not fGuiGameChat.Visible then
-    Label_MPChatUnread.Caption := IntToStr(StrToIntDef(Label_MPChatUnread.Caption, 0) + 1); // New message
+    Label_ChatUnread.Caption := IntToStr(StrToIntDef(Label_ChatUnread.Caption, 0) + 1); // New message
 end;
 
 
@@ -2800,13 +3002,13 @@ begin
         Label_AlliesTeam[I].Caption := IntToStr(gGame.Networking.NetPlayers[NetI].Team);
 
       case gHands[gGame.Networking.NetPlayers[NetI].HandIndex].AI.WonOrLost of
-        wol_None: Image_AlliesWinLoss[I].Hide;
-        wol_Won:  begin
+        wolNone: Image_AlliesWinLoss[I].Hide;
+        wolWon:  begin
                     Image_AlliesWinLoss[I].TexId := 8;
                     Image_AlliesWinLoss[I].Hint := gResTexts[TX_PLAYER_WON];
                     Image_AlliesWinLoss[I].DoSetVisible;
                   end;
-        wol_Lost: begin
+        wolLost: begin
                     Image_AlliesWinLoss[I].TexId := 87;
                     Image_AlliesWinLoss[I].Hint := gResTexts[TX_PLAYER_LOST];
                     Image_AlliesWinLoss[I].DoSetVisible;
@@ -2869,7 +3071,7 @@ var I: Integer;
 begin
   for I := 0 to MAX_LOBBY_SLOTS - 1 do
     if (Sender = DropBox_AlliesTeam[I]) and DropBox_AlliesTeam[I].Enabled then
-      gGame.GameInputProcess.CmdGame(gic_GameTeamChange, I+1, DropBox_AlliesTeam[I].ItemIndex);
+      gGame.GameInputProcess.CmdGame(gicGameTeamChange, I+1, DropBox_AlliesTeam[I].ItemIndex);
 end;
 
 
@@ -2893,14 +3095,43 @@ begin
 
     // As we don't have names for teams in SP we only allow showing team names in MP or MP replays
   if (Key = gResKeys[SC_SHOW_TEAMS].Key) then
-    if (fUIMode in [umMP, umSpectate]) or (gGame.GameMode = gmReplayMulti) then //Only MP replays
+    if SHOW_UIDs or (fUIMode in [umMP, umSpectate]) or (gGame.GameMode = gmReplayMulti) then //Only MP replays
     begin
       fShowTeamNames := True;
       // Update it immediately so there's no 300ms lag after pressing the key
-      fTeamNames.Clear;
+      fUnitsTeamNames.Clear;
       Rect := fViewport.GetMinimapClip;
-      gHands.GetUnitsInRect(Rect, fTeamNames);
+      gHands.GetUnitsInRect(Rect, fUnitsTeamNames);
+      if SHOW_UIDs then
+      begin
+        fGroupsTeamNames.Clear;
+        fHousesTeamNames.Clear;
+        gHands.GetGroupsInRect(Rect, fGroupsTeamNames);
+        gHands.GetHousesInRect(Rect, fHousesTeamNames);
+      end;
+
     end;
+
+  CheckMessageKeys(Key);
+end;
+
+
+procedure TKMGamePlayInterface.GameStarted;
+begin
+  if gGame.IsMultiPlayerOrSpec and (gGameApp.Chat.Text <> '') then
+    fGuiGameChat.Show;
+end;
+
+
+function TKMGamePlayInterface.CanShowChat: Boolean;
+begin
+  Result := (fUIMode in [umMP, umSpectate]) or ((fUIMode = umSP) and gScriptEvents.HasConsoleCommands);
+end;
+
+
+function TKMGamePlayInterface.CanShowAllies: Boolean;
+begin
+  Result := fUIMode in [umMP, umSpectate];
 end;
 
 
@@ -2937,14 +3168,14 @@ begin
     Button_MessageDelete.Click;
 
   // Enter is the shortcut to bring up chat in multiplayer
-  if (Key = gResKeys[SC_CHAT_MP].Key) and (fUIMode in [umMP, umSpectate]) then
+  if (Key = gResKeys[SC_CHAT].Key) and CanShowChat then
   begin
     if not fGuiGameChat.Visible then
     begin
       Allies_Close(nil);
       Message_Close(nil);
       MessageLog_Close(nil);
-      Label_MPChatUnread.Caption := ''; // No unread messages
+      Label_ChatUnread.Caption := ''; // No unread messages
       fGuiGameChat.Show;
     end else
       fGuiGameChat.Focus;
@@ -2956,6 +3187,14 @@ end;
 // thats why MyControls.KeyUp is only in gsRunning clause
 // Ignore all keys if game is on 'Pause'
 procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+
+  function SpeedChangeAllowed(aUIModes: TUIModeSet): Boolean;
+  begin
+    Result := (fUIMode in aUIModes)
+              or gGame.IsMPGameSpeedChangeAllowed
+              or MULTIPLAYER_SPEEDUP;
+  end;
+
 var
   SelectId: Integer;
   SpecPlayerIndex: ShortInt;
@@ -2963,7 +3202,9 @@ var
 begin
   aHandled := True; // assume we handle all keys here
 
-  if gGame.IsPaused and ((fUIMode = umSP) or (PAUSE_GAME_AT_TICK <> -1)) then
+  if gGame.IsPaused
+    and (SpeedChangeAllowed([umSP])
+      or ((PAUSE_GAME_AT_TICK <> -1) and (fUIMode <> umReplay))) then
   begin
     if Key = gResKeys[SC_PAUSE].Key then
       SetPause(False);
@@ -2983,46 +3224,6 @@ begin
       ReplayClick(Button_ReplayResume);
   end;
 
-  // First check if this key was associated with some Spectate/Replay key
-  if (fUIMode in [umReplay, umSpectate]) then
-  begin
-    if Key = gResKeys[SC_SPECTATE_PLAYER_1].Key then
-      SpecPlayerIndex := 1
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_2].Key then
-      SpecPlayerIndex := 2
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_3].Key then
-      SpecPlayerIndex := 3
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_4].Key then
-      SpecPlayerIndex := 4
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_5].Key then
-      SpecPlayerIndex := 5
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_6].Key then
-      SpecPlayerIndex := 6
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_7].Key then
-      SpecPlayerIndex := 7
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_8].Key then
-      SpecPlayerIndex := 8
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_9].Key then
-      SpecPlayerIndex := 9
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_10].Key then
-      SpecPlayerIndex := 10
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_11].Key then
-      SpecPlayerIndex := 11
-    else if Key = gResKeys[SC_SPECTATE_PLAYER_12].Key then
-      SpecPlayerIndex := 12
-    else
-      SpecPlayerIndex := -1;
-
-    if (SpecPlayerIndex <> -1) and (Dropbox_ReplayFOW.Count >= SpecPlayerIndex) then
-    begin
-      if ssCtrl in Shift then
-        Replay_DropBox_JumpToPlayer(SpecPlayerIndex - 1)
-      else
-        Replay_ViewPlayer(SpecPlayerIndex - 1);
-      Exit;
-    end;
-  end;
-
   // These keys are allowed during replays
   if Key = gResKeys[SC_SHOW_TEAMS].Key then fShowTeamNames := False;
   if Key = gResKeys[SC_BEACON].Key then
@@ -3030,7 +3231,7 @@ begin
     begin
       fPlacingBeacon := True;
       MinimapView.ClickableOnce := True;
-      gRes.Cursors.Cursor := kmc_Beacon;
+      gRes.Cursors.Cursor := kmcBeacon;
     end;
   if Key = gResKeys[SC_CLOSE_MENU].Key then
   begin
@@ -3111,20 +3312,82 @@ begin
 
   if (Key = gResKeys[SC_PLAYER_COLOR_MODE].Key) then
   begin
-    gGameApp.GameSettings.ShowPlayersColors := not gGameApp.GameSettings.ShowPlayersColors;
+    if fUIMode in [umReplay, umSpectate] then
+      gGameApp.GameSettings.PlayersColorMode := TKMPlayerColorMode((Byte(gGameApp.GameSettings.PlayersColorMode) mod 3) + 1)
+    else
+    begin
+      if gGameApp.GameSettings.PlayersColorMode = pcmDefault then
+        gGameApp.GameSettings.PlayersColorMode := pcmAllyEnemy
+      else
+        gGameApp.GameSettings.PlayersColorMode := pcmDefault;
+    end;
+    GameSettingsChanged;
     //Update minimap immidiately
-    fMinimap.Update(False);
+//    fMinimap.Update;
   end;
 
-  if (fUIMode in [umSP, umReplay])
-    or gGame.IsMPGameSpeedUpAllowed
-    or MULTIPLAYER_SPEEDUP then
+  if SpeedChangeAllowed([umSP, umReplay]) then
   begin
     // Game speed/pause: available in multiplayer mode if the only player left in the game
-    if Key = gResKeys[SC_SPEEDUP_1].Key then gGame.SetGameSpeed(1, True);
-    if Key = gResKeys[SC_SPEEDUP_2].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedMedium, True);
-    if Key = gResKeys[SC_SPEEDUP_3].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedFast, True);
-    if Key = gResKeys[SC_SPEEDUP_4].Key then gGame.SetGameSpeed(gGameApp.GameSettings.SpeedVeryFast, True);
+    if Key = gResKeys[SC_SPEEDUP_1].Key then
+      gGame.SetGameSpeed(1, True);
+    if Key = gResKeys[SC_SPEEDUP_2].Key then
+      gGame.SetGameSpeed(gGameApp.GameSettings.SpeedMedium, True);
+    if Key = gResKeys[SC_SPEEDUP_3].Key then
+      gGame.SetGameSpeed(gGameApp.GameSettings.SpeedFast, True);
+    if Key = gResKeys[SC_SPEEDUP_4].Key then
+      gGame.SetGameSpeed(gGameApp.GameSettings.SpeedVeryFast, True);
+  end;
+
+  // First check if this key was associated with some Spectate/Replay key
+  if (fUIMode in [umReplay, umSpectate]) then
+  begin
+    if Key = gResKeys[SC_SPECPANEL_SELECT_DROPBOX].Key then
+      fGuiGameSpectator.DropBox.SwitchOpen;
+
+    if Key = gResKeys[SC_SPECTATE_PLAYER_1].Key then
+      SpecPlayerIndex := 1
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_2].Key then
+      SpecPlayerIndex := 2
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_3].Key then
+      SpecPlayerIndex := 3
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_4].Key then
+      SpecPlayerIndex := 4
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_5].Key then
+      SpecPlayerIndex := 5
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_6].Key then
+      SpecPlayerIndex := 6
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_7].Key then
+      SpecPlayerIndex := 7
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_8].Key then
+      SpecPlayerIndex := 8
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_9].Key then
+      SpecPlayerIndex := 9
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_10].Key then
+      SpecPlayerIndex := 10
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_11].Key then
+      SpecPlayerIndex := 11
+    else if Key = gResKeys[SC_SPECTATE_PLAYER_12].Key then
+      SpecPlayerIndex := 12
+    else
+      SpecPlayerIndex := -1;
+
+    if (SpecPlayerIndex <> -1) and (Dropbox_ReplayFOW.Count >= SpecPlayerIndex) then
+    begin
+      //Jump to player when ALT is also pressed
+      if ssAlt in Shift then
+      begin
+        Replay_DropBox_JumpToPlayer(SpecPlayerIndex - 1);
+        Exit;
+      end else if ssShift in Shift then //Select player when SHIFT is also pressed
+      begin
+        Replay_ViewPlayer(SpecPlayerIndex - 1);
+        Exit;
+      end;
+    end;
+
+    if (Key = gResKeys[SC_REPLAY_PLAY_NEXT_TICK].Key) and Button_ReplayStep.Enabled then
+      ReplayClick(Button_ReplayStep);
   end;
 
   fGuiGameUnit.KeyUp(Key, Shift);
@@ -3163,23 +3426,22 @@ begin
       if not fGuiGameBuild.Visible then
         SwitchPage(Button_Main[tbBuild]);
       fGuiGameBuild.ErasePlan;
-      gRes.Cursors.Cursor := kmc_Default; //Reset cursor, as it could be kmc_Info, f.e.
+      gRes.Cursors.Cursor := kmcDefault; //Reset cursor, as it could be kmcInfo, f.e.
     end;
   end;
 
-  CheckMessageKeys(Key);
-
   // General function keys
-  if Key = gResKeys[SC_PAUSE].Key then
-    if (fUIMode = umSP) then SetPause(True); // Display pause overlay
+  if (Key = gResKeys[SC_PAUSE].Key)
+    and SpeedChangeAllowed([umSP]) then
+      SetPause(True); // Display pause overlay
 
   { Temporary cheat codes }
   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or (fUIMode = umSP)) then
   begin
-    if Key = gResKeys[SC_DEBUG_REVEALMAP].Key then gGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
-    if Key = gResKeys[SC_DEBUG_VICTORY].Key   then gGame.GameInputProcess.CmdTemp(gic_TempVictory);
-    if Key = gResKeys[SC_DEBUG_DEFEAT].Key    then gGame.GameInputProcess.CmdTemp(gic_TempDefeat);
-    if Key = gResKeys[SC_DEBUG_ADDSCOUT].Key  then gGame.GameInputProcess.CmdTemp(gic_TempAddScout, gGameCursor.Cell);
+    if Key = gResKeys[SC_DEBUG_REVEALMAP].Key then gGame.GameInputProcess.CmdTemp(gicTempRevealMap);
+    if Key = gResKeys[SC_DEBUG_VICTORY].Key   then gGame.GameInputProcess.CmdTemp(gicTempVictory);
+    if Key = gResKeys[SC_DEBUG_DEFEAT].Key    then gGame.GameInputProcess.CmdTemp(gicTempDefeat);
+    if Key = gResKeys[SC_DEBUG_ADDSCOUT].Key  then gGame.GameInputProcess.CmdTemp(gicTempAddScout, gGameCursor.Cell);
   end;
 end;
 
@@ -3189,18 +3451,20 @@ end;
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
   procedure HandleFieldLMBDown(const P: TKMPoint; aFieldType: TKMFieldType);
   begin
+    //Set cursor into 'Plan' mode by default,
+    //even if we click where plan could not be placed we could plan it with mouse move later
+    gGameCursor.Tag1 := Byte(cfmPlan);
     if gMySpectator.Hand.CanAddFakeFieldPlan(P, aFieldType) then
     begin
-      gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, aFieldType);
+      gGame.GameInputProcess.CmdBuild(gicBuildAddFieldPlan, P, aFieldType);
       fLastDragPoint := gGameCursor.Cell;
-      gGameCursor.Tag1 := Byte(cfmPlan);
     end else if gMySpectator.Hand.CanRemFakeFieldPlan(P, aFieldType) then
     begin
-      gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, aFieldType);
+      gGame.GameInputProcess.CmdBuild(gicBuildAddFieldPlan, P, aFieldType);
       fLastDragPoint := gGameCursor.Cell;
       // Set cursor into "Erase" mode, so dragging it will erase next tiles with the same field type
       gGameCursor.Tag1 := Byte(cfmErase);
-    end;
+    end
   end;
 var
   Group: TKMUnitGroup;
@@ -3251,7 +3515,7 @@ begin
 
     // Group can walk to allies units place
     if Obj is TKMUnit then
-      canWalkTo := (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = at_Ally);
+      canWalkTo := (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = atAlly);
 
     // Can't walk on to a house
     if Obj is TKMHouse then
@@ -3271,12 +3535,12 @@ begin
         // Now record it as Client XY
         SelectingDirPosition.X := X;
         SelectingDirPosition.Y := Y;
-        SelectedDirection := dir_NA;
+        SelectedDirection := dirNA;
         DirectionCursorShow(X, Y, SelectedDirection);
-        gRes.Cursors.Cursor := kmc_Invisible;
+        gRes.Cursors.Cursor := kmcInvisible;
       end
       else
-        gSoundPlayer.Play(sfx_CantPlace, gGameCursor.Cell, False, 4);
+        gSoundPlayer.Play(sfxCantPlace, gGameCursor.Cell, False, 4);
     end;
   end;
 end;
@@ -3291,11 +3555,11 @@ procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer; var a
     if not KMSamePoint(fLastDragPoint, P) then
       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, aFieldType)) and (gGameCursor.Tag1 = Byte(cfmPlan)) then
       begin
-        gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, aFieldType);
+        gGame.GameInputProcess.CmdBuild(gicBuildAddFieldPlan, P, aFieldType);
         fLastDragPoint := gGameCursor.Cell;
       end else if (gMySpectator.Hand.CanRemFakeFieldPlan(P, aFieldType)) and (gGameCursor.Tag1 = Byte(cfmErase)) then
       begin
-        gGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, aFieldType);
+        gGame.GameInputProcess.CmdBuild(gicBuildAddFieldPlan, P, aFieldType);
         fLastDragPoint := gGameCursor.Cell;
       end;
   end;
@@ -3305,7 +3569,7 @@ var
   Obj: TObject;
   P: TKMPoint;
   Group: TKMUnitGroup;
-  Owner: TKMHandIndex;
+  Owner: TKMHandID;
 begin
   inherited MouseMove(Shift, X, Y, aHandled);
   if aHandled then Exit;
@@ -3319,7 +3583,7 @@ begin
     // Beacons are a special case, the cursor should be shown over controls to (you can place it on the minimap)
     if fMyControls.CtrlOver = nil then
       UpdateGameCursor(X,Y,Shift); // Keep the game cursor up to date
-    gRes.Cursors.Cursor := kmc_Beacon;
+    gRes.Cursors.Cursor := kmcBeacon;
     Exit;
   end;
 
@@ -3329,9 +3593,9 @@ begin
   and (fMyControls.CtrlOver <> Image_DirectionCursor)
   and not SelectingTroopDirection then
   begin
-    // kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
-    if not fViewport.Scrolling and not (gRes.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
-      gRes.Cursors.Cursor := kmc_Default;
+    // kmcEdit and kmcDragUp are handled by Controls.MouseMove (it will reset them when required)
+    if not fViewport.Scrolling and not (gRes.Cursors.Cursor in [kmcEdit,kmcDragUp]) then
+      gRes.Cursors.Cursor := kmcDefault;
     Exit;
   end
   else
@@ -3359,7 +3623,7 @@ begin
     SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY);
     // Update the cursor based on this direction and negate the offset
     DirectionCursorShow(SelectingDirPosition.X, SelectingDirPosition.Y, SelectedDirection);
-    gRes.Cursors.Cursor := kmc_Invisible; // Keep it invisible, just in case
+    gRes.Cursors.Cursor := kmcInvisible; // Keep it invisible, just in case
     Exit;
   end;
 
@@ -3377,13 +3641,13 @@ begin
                   begin
                     if gMySpectator.Hand.BuildList.HousePlanList.HasPlan(P) then
                     begin
-                      gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
+                      gGame.GameInputProcess.CmdBuild(gicBuildRemoveHousePlan, P);
                       fLastDragPoint := gGameCursor.Cell;
                     end
                     else
                       if (gMySpectator.Hand.BuildList.FieldworksList.HasFakeField(P) <> ftNone) then
                       begin
-                        gGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); // Remove any plans
+                        gGame.GameInputProcess.CmdBuild(gicBuildRemoveFieldPlan, P); // Remove any plans
                         fLastDragPoint := gGameCursor.Cell;
                       end;
                   end;
@@ -3394,7 +3658,7 @@ begin
   begin
     // Use the default cursor while placing roads, don't become stuck on c_Info or others
     if not fViewport.Scrolling then
-      gRes.Cursors.Cursor := kmc_Default;
+      gRes.Cursors.Cursor := kmcDefault;
     Exit;
   end;
 
@@ -3405,12 +3669,12 @@ begin
     Group := TKMUnitGroup(gMySpectator.Selected);
     if (Obj <> nil)
     and (Obj is TKMUnitWarrior)
-    and (TKMUnitWarrior(Obj).Owner = gMySpectator.HandIndex)
+    and (TKMUnitWarrior(Obj).Owner = gMySpectator.HandID)
     and not Group.HasMember(TKMUnitWarrior(Obj))
     and (UnitGroups[TKMUnitWarrior(Obj).UnitType] = Group.GroupType) then
-      gRes.Cursors.Cursor := kmc_JoinYes
+      gRes.Cursors.Cursor := kmcJoinYes
     else
-      gRes.Cursors.Cursor := kmc_JoinNo;
+      gRes.Cursors.Cursor := kmcJoinNo;
     Exit;
   end;
 
@@ -3419,14 +3683,14 @@ begin
     // Only own and ally units/houses can be selected
     Owner := GetGameObjectOwnerIndex(Obj);
     if (Owner <> -1) and
-      ((Owner = gMySpectator.HandIndex)
+      ((Owner = gMySpectator.HandID)
       or ((ALLOW_SELECT_ALLY_UNITS
           or ((Obj is TKMHouse) and (gHands[Owner].IsHuman or not gGame.IsCampaign))) //Do not allow to select allied AI in campaigns
-        and (gMySpectator.Hand.Alliances[Owner] = at_Ally))
-      or (ALLOW_SELECT_ENEMIES and (gMySpectator.Hand.Alliances[Owner] = at_Enemy)) // Enemies can be selected for debug
+        and (gMySpectator.Hand.Alliances[Owner] = atAlly))
+      or (ALLOW_SELECT_ENEMIES and (gMySpectator.Hand.Alliances[Owner] = atEnemy)) // Enemies can be selected for debug
       or (fUIMode in [umReplay, umSpectate])) then
     begin
-      gRes.Cursors.Cursor := kmc_Info;
+      gRes.Cursors.Cursor := kmcInfo;
       Exit;
     end;
   end;
@@ -3436,23 +3700,23 @@ begin
     and not gMySpectator.Hand.InCinematic
     and (gMySpectator.FogOfWar.CheckTileRevelation(gGameCursor.Cell.X, gGameCursor.Cell.Y) > 0) then
   begin
-    if ((Obj is TKMUnit) and (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = at_Enemy))
-      or ((Obj is TKMHouse) and (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = at_Enemy)) then
-      gRes.Cursors.Cursor := kmc_Attack
+    if ((Obj is TKMUnit) and (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = atEnemy))
+      or ((Obj is TKMHouse) and (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = atEnemy)) then
+      gRes.Cursors.Cursor := kmcAttack
     else
       if not fViewport.Scrolling then
-        gRes.Cursors.Cursor := kmc_Default;
+        gRes.Cursors.Cursor := kmcDefault;
     Exit;
   end;
 
   if not fViewport.Scrolling then
-    gRes.Cursors.Cursor := kmc_Default;
+    gRes.Cursors.Cursor := kmcDefault;
 end;
 
 
 procedure TKMGamePlayInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
-  P: TKMPoint;
+  P, P2: TKMPoint;
   Obj: TObject;
   H: TKMHouse;
   Group, Group2: TKMUnitGroup;
@@ -3495,7 +3759,7 @@ begin
 
           if (Obj <> nil)
             and (Obj is TKMUnitWarrior)
-            and (TKMUnitWarrior(Obj).Owner = gMySpectator.HandIndex)
+            and (TKMUnitWarrior(Obj).Owner = gMySpectator.HandID)
             and not Group.HasMember(TKMUnitWarrior(Obj))
             and (UnitGroups[TKMUnitWarrior(Obj).UnitType] = Group.GroupType) then
           begin
@@ -3503,8 +3767,8 @@ begin
             // Warrior might not have a group yet if he's still walking out of the barracks
             if Group2 <> nil then
             begin
-              gSoundPlayer.PlayWarrior(Group.UnitType, sp_Join); // In SP joining is instant, Group does not exist after that
-              gGame.GameInputProcess.CmdArmy(gic_ArmyLink, Group, Group2);
+              gSoundPlayer.PlayWarrior(Group.UnitType, spJoin); // In SP joining is instant, Group does not exist after that
+              gGame.GameInputProcess.CmdArmy(gicArmyLink, Group, Group2);
               if not (ssShift in Shift) then //Do not cancel link mode if Shift is pressed
                 fGuiGameUnit.Army_HideJoinMenu(nil);
             end;
@@ -3527,7 +3791,7 @@ begin
         begin
           if (gGameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmHouses]) and not gGame.IsReplayOrSpectate then
             // Can't place noise when clicking on unexplored areas
-            gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
+            gSoundPlayer.Play(sfxCantPlace, P, False, 4);
         end
         else
           case gGameCursor.Mode of
@@ -3547,12 +3811,12 @@ begin
                 // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
                 if fUIMode in [umReplay, umSpectate] then
                 begin
-                  Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandIndex);
+                  Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandID);
                   if Checkbox_ReplayFOW.Checked then
-                    gMySpectator.FOWIndex := gMySpectator.HandIndex
+                    gMySpectator.FOWIndex := gMySpectator.HandID
                   else
                     gMySpectator.FOWIndex := -1;
-                  fMinimap.Update(False); // Force update right now so FOW doesn't appear to lag
+                  fMinimap.Update; // Force update right now so FOW doesn't appear to lag
                 end;
 
                 if (gMySpectator.Selected is TKMHouse) then
@@ -3567,7 +3831,7 @@ begin
                   fGuiGameUnit.ShowUnitInfo(TKMUnit(gMySpectator.Selected));
                   if (fUIMode in [umSP, umMP]) and not HasLostMPGame
                     and (OldSelected <> gMySpectator.Selected) then
-                    gSoundPlayer.PlayCitizen(TKMUnit(gMySpectator.Selected).UnitType, sp_Select);
+                    gSoundPlayer.PlayCitizen(TKMUnit(gMySpectator.Selected).UnitType, spSelect);
                 end;
 
                 if (gMySpectator.Selected is TKMUnitGroup) then
@@ -3577,7 +3841,7 @@ begin
                   fGuiGameUnit.ShowGroupInfo(Group);
                   if (fUIMode in [umSP, umMP]) and not HasLostMPGame
                     and ((OldSelected <> Group) or (OldSelectedUnit <> Group.SelectedUnit)) then
-                      gSoundPlayer.PlayWarrior(Group.SelectedUnit.UnitType, sp_Select);
+                      gSoundPlayer.PlayWarrior(Group.SelectedUnit.UnitType, spSelect);
                 end;
               end;
 
@@ -3588,13 +3852,13 @@ begin
             cmHouses:
               if gMySpectator.Hand.CanAddHousePlan(P, TKMHouseType(gGameCursor.Tag1)) then
               begin
-                gGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, TKMHouseType(gGameCursor.Tag1));
+                gGame.GameInputProcess.CmdBuild(gicBuildHousePlan, P, TKMHouseType(gGameCursor.Tag1));
                 // If shift pressed do not reset cursor (keep selected building)
                 if not (ssShift in Shift) then
                   fGuiGameBuild.Show;
               end
               else
-                gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
+                gSoundPlayer.Play(sfxCantPlace, P, False, 4);
             cmErase:
               if KMSamePoint(fLastDragPoint, KMPOINT_ZERO) then
               begin
@@ -3603,22 +3867,24 @@ begin
                 if H <> nil then
                 begin
                   gMySpectator.Selected := H; // Select the house irregardless of unit below/above
-                  gMySpectator.UpdateSelect; //Update select, to set up fIsSelectedMyObj
+                  //Update select, to set up fIsSelectedMyObj
+                  //Don't update selected object again!
+                  gMySpectator.UpdateSelect(False);
                   HidePages;
                   SwitchPage(nil); // Hide main back button if we were in e.g. stats
                   fGuiGameHouse.Show(H, True);
-                  gSoundPlayer.Play(sfx_Click);
+                  gSoundPlayer.Play(sfxClick);
                 end
                 else
                 begin
                   // Now remove houses that are not started
                   if gMySpectator.Hand.BuildList.HousePlanList.HasPlan(P) then
-                    gGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
+                    gGame.GameInputProcess.CmdBuild(gicBuildRemoveHousePlan, P)
                   else
                     if gMySpectator.Hand.BuildList.FieldworksList.HasFakeField(P) <> ftNone then
-                      gGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) // Remove plans
+                      gGame.GameInputProcess.CmdBuild(gicBuildRemoveFieldPlan, P) // Remove plans
                     else
-                      gSoundPlayer.Play(sfx_CantPlace, P, False, 4); // Otherwise there is nothing to erase
+                      gSoundPlayer.Play(sfxCantPlace, P, False, 4); // Otherwise there is nothing to erase
                 end;
               end;
           end
@@ -3643,19 +3909,22 @@ begin
           and (fUIMode in [umSP, umMP])
           and not HasLostMPGame then
         begin
-          if gTerrain.Route_CanBeMade(TKMHouse(gMySpectator.Selected).PointBelowEntrance, P, tpWalk, 0) then
+          P2 := TKMHouse(gMySpectator.Selected).PointBelowEntrance;
+          if gTerrain.Route_CanBeMade(P2, P, tpWalk, 0)
+            or gTerrain.Route_CanBeMade(KMPointLeft(P2), P, tpWalk, 0)
+            or gTerrain.Route_CanBeMade(KMPointRight(P2), P, tpWalk, 0) then
           begin
             if gMySpectator.Selected is TKMHouseBarracks then
-              gGame.GameInputProcess.CmdHouse(gic_HouseBarracksRally, TKMHouse(gMySpectator.Selected), P)
+              gGame.GameInputProcess.CmdHouse(gicHouseBarracksRally, TKMHouse(gMySpectator.Selected), P)
             else
             if gMySpectator.Selected is TKMHouseTownHall then
-              gGame.GameInputProcess.CmdHouse(gic_HouseTownHallRally, TKMHouse(gMySpectator.Selected), P)
+              gGame.GameInputProcess.CmdHouse(gicHouseTownHallRally, TKMHouse(gMySpectator.Selected), P)
             else
               if gMySpectator.Selected is TKMHouseWoodcutters then
-                gGame.GameInputProcess.CmdHouse(gic_HouseWoodcuttersCutting, TKMHouse(gMySpectator.Selected), P);
+                gGame.GameInputProcess.CmdHouse(gicHouseWoodcuttersCutting, TKMHouse(gMySpectator.Selected), P);
           end
           else
-            gSoundPlayer.Play(sfx_CantPlace, P, False, 4);
+            gSoundPlayer.Play(sfxCantPlace, P, False, 4);
           Exit;
         end;
 
@@ -3669,28 +3938,28 @@ begin
           Group := TKMUnitGroup(gMySpectator.Selected);
 
           // Attack or Walk
-          if Group.CanTakeOrders and (Group.Owner = gMySpectator.HandIndex) then
+          if Group.CanTakeOrders and (Group.Owner = gMySpectator.HandID) then
           begin
             // Try to Attack unit
             Obj := gMySpectator.HitTestCursor;
-            if (Obj is TKMUnit) and (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = at_Enemy) then
+            if (Obj is TKMUnit) and (gMySpectator.Hand.Alliances[TKMUnit(Obj).Owner] = atEnemy) then
             begin
-              gGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, TKMUnit(Obj));
-              gSoundPlayer.PlayWarrior(Group.UnitType, sp_Attack);
+              gGame.GameInputProcess.CmdArmy(gicArmyAttackUnit, Group, TKMUnit(Obj));
+              gSoundPlayer.PlayWarrior(Group.UnitType, spAttack);
             end
             else
             // If there's no unit - try to Attack house
-            if (Obj is TKMHouse) and (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = at_Enemy) then
+            if (Obj is TKMHouse) and (gMySpectator.Hand.Alliances[TKMHouse(Obj).Owner] = atEnemy) then
             begin
-              gGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, TKMHouse(Obj));
-              gSoundPlayer.PlayWarrior(Group.UnitType, sp_Attack);
+              gGame.GameInputProcess.CmdArmy(gicArmyAttackHouse, Group, TKMHouse(Obj));
+              gSoundPlayer.PlayWarrior(Group.UnitType, spAttack);
             end
             else
             // Ensure down click was successful (could have been over a mountain, then dragged to a walkable location)
             if SelectingTroopDirection and Group.CanWalkTo(P, 0) then
             begin
-              gGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, P, SelectedDirection);
-              gSoundPlayer.PlayWarrior(Group.UnitType, sp_Move);
+              gGame.GameInputProcess.CmdArmy(gicArmyWalk, Group, P, SelectedDirection);
+              gSoundPlayer.PlayWarrior(Group.UnitType, spMove);
             end;
           end;
         end;
@@ -3753,22 +4022,27 @@ begin
   MinimapView.SetMinimap(fMinimap);
   MinimapView.SetViewport(fViewport);
 
-  SetMenuState(gGame.MissionMode = mm_Tactic);
+  SetMenuState(gGame.MissionMode = mmTactic);
 end;
 
 
 procedure TKMGamePlayInterface.UpdateSelectedObject;
+var
+  UpdateNewSelected: Boolean;
 begin
+  UpdateNewSelected := False;
   // Update unit/house information
   if gMySpectator.Selected is TKMUnitGroup then
   begin
     HidePages;
-    fGuiGameUnit.ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected), fGuiGameUnit.AskDismiss)
+    fGuiGameUnit.ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected), fGuiGameUnit.AskDismiss);
+    UpdateNewSelected := True;
   end else
   if gMySpectator.Selected is TKMUnit then
   begin
     HidePages;
-    fGuiGameUnit.ShowUnitInfo(TKMUnit(gMySpectator.Selected), fGuiGameUnit.AskDismiss)
+    fGuiGameUnit.ShowUnitInfo(TKMUnit(gMySpectator.Selected), fGuiGameUnit.AskDismiss);
+    UpdateNewSelected := True;
   end else
   begin
     fGuiGameUnit.JoiningGroups := False;
@@ -3777,6 +4051,7 @@ begin
       HidePages;
       SwitchPage(nil); // Hide main back button if we were in e.g. stats
       fGuiGameHouse.Show(TKMHouse(gMySpectator.Selected));
+      UpdateNewSelected := True;
     end
     else
       if fGuiGameHouse.Visible then
@@ -3784,6 +4059,9 @@ begin
       if fGuiGameUnit.Visible then
         fGuiGameUnit.Hide;
   end;
+
+  if UpdateNewSelected then
+    gMySpectator.UpdateNewSelected;
 end;
 
 
@@ -3791,13 +4069,13 @@ end;
 { If it ever gets a bottleneck then some static Controls may be excluded from update }
 procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var
-  I: Integer;
+  I, LastTick: Integer;
   Rect: TKMRect;
 begin
   inherited;
   // Update minimap every 1000ms
   if aTickCount mod 10 = 0 then
-    fMinimap.Update(False);
+    fMinimap.Update;
 
   UpdateSelectedObject;
 
@@ -3813,11 +4091,17 @@ begin
   // Update replay counters
   if fUIMode = umReplay then
   begin
+    LastTick := Max4(gGame.LastReplayTick,
+                     gGame.GameInputProcess.GetLastTick,
+                     gGame.GameTick,
+                     gGame.SavedReplays.LastTick);
     // Replays can continue after end, keep the bar in 0..1 range
-    PercentBar_Replay.Seam := Min(gGame.GameOptions.Peacetime * 600 / Max(gGame.GameInputProcess.GetLastTick,1), 1);
-    PercentBar_Replay.Position := Min(gGame.GameTickCount / Max(gGame.GameInputProcess.GetLastTick,1), 1);
-    Label_Replay.Caption := TimeToString(gGame.MissionTime) + ' / ' +
-                            TimeToString(gGame.GameInputProcess.GetLastTick/24/60/60/10);
+    ReplayBar_Replay.SetParameters(gGame.GameTick,
+                                   gGame.GameOptions.Peacetime*60*10,
+                                   LastTick);
+
+    Label_ReplayBar.Caption := TimeToString(gGame.MissionTime) + ' / ' +
+                            TickToTimeStr(LastTick);
   end;
 
   // Update speedup clocks
@@ -3828,20 +4112,23 @@ begin
   begin
     Label_Clock.Caption := TimeToString(gGame.MissionTime);
     if SHOW_GAME_TICK then
-      Label_Clock.Caption := Label_Clock.Caption + '|' + IntToStr(gGame.GameTickCount);
+      Label_Clock.Caption := Label_Clock.Caption + '|' + IntToStr(gGame.GameTick);
   end;
 
-
   // Keep on updating these menu pages as game data keeps on changing
-  if fGuiGameBuild.Visible then fGuiGameBuild.UpdateState;
-  if fGuiGameRatios.Visible and (fUIMode in [umReplay, umSpectate]) then fGuiGameRatios.UpdateState;
-  if fGuiGameStats.Visible then fGuiGameStats.UpdateState;
-  if Panel_Menu.Visible then Menu_Update;
+  if fGuiGameBuild.Visible then
+    fGuiGameBuild.UpdateState;
+  if fGuiGameRatios.Visible and (fUIMode in [umReplay, umSpectate]) then
+    fGuiGameRatios.UpdateState;
+  if fGuiGameStats.Visible then
+    fGuiGameStats.UpdateState;
+  if Panel_Menu.Visible then
+    Menu_Update;
 
   // Update message stack
   // Flash unread message display
-  Label_MPChatUnread.Visible := (fUIMode in [umMP, umSpectate]) and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
-  Image_MPChat.Highlight := fGuiGameChat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
+  Label_ChatUnread.Visible := (fUIMode in [umMP, umSpectate]) and (Label_ChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
+  Image_Chat.Highlight := fGuiGameChat.Visible or (Label_ChatUnread.Visible and (Label_ChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
   if (fUIMode in [umSP, umMP]) and not Image_MessageLog.Visible and (gMySpectator.Hand.MessageLog.CountLog > 0) then
   begin
@@ -3873,15 +4160,26 @@ begin
   // Display team names
   if aTickCount mod 3 = 0 then // Update once every 300ms, player won't notice
   begin
-    fTeamNames.Clear;
+    fUnitsTeamNames.Clear;
+    if SHOW_UIDs then
+    begin
+      fGroupsTeamNames.Clear;
+      fHousesTeamNames.Clear;
+    end;
     if fShowTeamNames then
     begin
       Rect := fViewport.GetMinimapClip;
-      gHands.GetUnitsInRect(Rect, fTeamNames);
+      gHands.GetUnitsInRect(Rect, fUnitsTeamNames);
+      if SHOW_UIDs then
+      begin
+        gHands.GetGroupsInRect(Rect, fGroupsTeamNames);
+        gHands.GetHousesInRect(Rect, fHousesTeamNames);
+      end;
     end;
   end;
 
   fGuiMenuSettings.UpdateView;
+  GameSettingsChanged;
 
   UpdateDebugInfo;
   if fSaves <> nil then fSaves.UpdateState;
@@ -3891,6 +4189,9 @@ begin
     fGuiGameResultsSP.UpdateState(aTickCount);
     fGuiGameResultsMP.UpdateState(aTickCount);
   end;
+
+  if fGuiGameSpectator <> nil then
+    fGuiGameSpectator.UpdateState(aTickCount);
 end;
 
 
@@ -3912,11 +4213,11 @@ end;
 
 procedure TKMGamePlayInterface.UpdateDebugInfo;
 var
-//  I: Integer;
   mKind: TKMessageKind;
   Received, Sent, RTotal, STotal, Period: Cardinal;
   S, SPackets, S2: String;
   TextSize: TKMPoint;
+  ObjToShowInfo: TObject;
 begin
   S := '';
 
@@ -3939,11 +4240,8 @@ begin
   if DISPLAY_SOUNDS then
     S := S + IntToStr(gSoundPlayer.ActiveCount) + ' sounds playing|';
 
-  // Temporary inteface (by @Crow)
-  //if SHOW_ARMYEVALS then
-  //  for I := 0 to gHands.Count - 1 do
-  //  if I <> gMySpectator.HandIndex then
-  //    S := S + Format('Enemy %d: %f|', [I, RoundTo(gMySpectator.Hand.ArmyEval.Evaluations[I].Power, -3)]);
+  if SHOW_FPS then
+    S := S + gMain.FPSString;
 
   if SHOW_AI_WARE_BALANCE then
   begin
@@ -3993,51 +4291,162 @@ begin
       gLog.AddTime('Packets Stats:' + sLineBreak + S2);
   end;
 
-  Label_DebugInfo.Font := fnt_Arial;
+  if SHOW_SELECTED_OBJ_INFO then
+  begin
+    ObjToShowInfo := nil;
+
+    if (gMySpectator.Selected <> nil){ and not gMySpectator.IsSelectedMyObj} then
+      ObjToShowInfo := gMySpectator.Selected
+    else if (gMySpectator.LastSelected <> nil) then
+      ObjToShowInfo := gMySpectator.LastSelected;
+
+    if ObjToShowInfo <> nil then
+    begin
+      if ObjToShowInfo is TKMUnit then
+        S := S + TKMUnit(ObjToShowInfo).ObjToString
+      else if ObjToShowInfo is TKMUnitGroup then
+        S := S + TKMUnitGroup(ObjToShowInfo).SelectedUnit.ObjToString
+      else if ObjToShowInfo is TKMHouse then
+        S := S + TKMHouse(ObjToShowInfo).ObjToString;
+    end;
+  end;
+
+  if SHOW_HANDS_INFO then
+    S := S + gHands.ObjToString;
+
+  Label_DebugInfo.Font := fntArial;
   Label_DebugInfo.Caption := S;
   Label_DebugInfo.Visible := (Trim(S) <> '');
 
-  TextSize := gRes.Fonts[fnt_Arial].GetTextSize(S);
+  TextSize := gRes.Fonts[fntArial].GetTextSize(S);
 
   Bevel_DebugInfo.Width := IfThen(TextSize.X <= 1, 0, TextSize.X + 20);
   Bevel_DebugInfo.Height := IfThen(TextSize.Y <= 1, 0, TextSize.Y + 20);
 
-  Bevel_DebugInfo.Visible := SHOW_OVERLAY_BEVEL and (Trim(S) <> '') ;
+  Bevel_DebugInfo.Visible := SHOW_DEBUG_OVERLAY_BEVEL and (Trim(S) <> '') ;
 end;
 
 
 procedure TKMGamePlayInterface.Paint;
 var
-  I: Integer;
+  I, K: Integer;
   U: TKMUnit;
-  UnitLoc: TKMPointF;
+  G: TKMUnitGroup;
+  H: TKMHouse;
+  Loc: TKMPointF;
   MapLoc: TKMPointF;
   ScreenLoc: TKMPoint;
 begin
   if fShowTeamNames then
   begin
     Label_TeamName.Visible := True; // Only visible while we're using it, otherwise it shows up in other places
-    for I := 0 to fTeamNames.Count - 1 do
-    begin
-      U := TKMUnit(fTeamNames[I]);
-      if U.Visible and (gMySpectator.FogOfWar.CheckRevelation(U.PositionF) > FOG_OF_WAR_MIN) then
-      begin
-        Label_TeamName.Caption := gHands[U.Owner].OwnerName;
-        Label_TeamName.FontColor := FlagColorToTextColor(gHands[U.Owner].FlagColor);
+    for I := 0 to fUnitsTeamNames.Count - 1 do
+      try
+        if not (TObject(fUnitsTeamNames[I]) is TKMUnit)
+          or (TKMUnit(fUnitsTeamNames[I]) = nil)
+          or TKMUnit(fUnitsTeamNames[I]).IsDeadOrDying then
+          Continue;
 
-        UnitLoc := U.PositionF;
-        UnitLoc.X := UnitLoc.X - 0.5;
-        UnitLoc.Y := UnitLoc.Y - 1;
-        MapLoc := gTerrain.FlatToHeight(UnitLoc);
-        ScreenLoc := fViewport.MapToScreen(MapLoc);
+        U := TKMUnit(fUnitsTeamNames[I]);
+        if U.IsDeadOrDying then
+          Continue;
 
-        if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+        if SHOW_UIDs
+          or (U.Visible and (gMySpectator.FogOfWar.CheckRevelation(U.PositionF) > FOG_OF_WAR_MIN)) then
         begin
-          Label_TeamName.Left := ScreenLoc.X;
-          Label_TeamName.Top := ScreenLoc.Y;
-          Label_TeamName.Paint;
+          if SHOW_UIDs then
+            Label_TeamName.Caption := IntToStr(U.UID)
+          else
+            Label_TeamName.Caption := gHands[U.Owner].OwnerName;
+
+          Label_TeamName.FontColor := FlagColorToTextColor(gHands[U.Owner].FlagColor);
+
+          Loc := U.PositionF;
+          Loc.X := Loc.X - 0.5;
+          Loc.Y := Loc.Y - 1;
+          MapLoc := gTerrain.FlatToHeight(Loc);
+          ScreenLoc := fViewport.MapToScreen(MapLoc);
+
+          if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+          begin
+            Label_TeamName.Left := ScreenLoc.X;
+            Label_TeamName.Top := ScreenLoc.Y;
+            Label_TeamName.Paint;
+          end;
         end;
+      except
+        on E: Exception do
+          ; //Just ignore exceptions here, since its UI function
       end;
+
+    if SHOW_UIDs then
+    begin
+      for I := 0 to fGroupsTeamNames.Count - 1 do
+        try
+          if not (TObject(fGroupsTeamNames[I]) is TKMUnitGroup) then
+            Continue;
+
+          G := TKMUnitGroup(fGroupsTeamNames[I]);
+          if (G = nil) or G.IsDead then
+            Continue;
+
+          Label_TeamName.Caption := 'G ' + IntToStr(G.UID);
+
+          Label_TeamName.FontColor := FlagColorToTextColor(GetRandomColorWSeed(G.UID));
+
+          for K := 0 to G.Count - 1 do
+          begin
+            U := G.Members[K];
+            if U.IsDeadOrDying then
+              Continue;
+
+            Loc := U.PositionF;
+            Loc.X := Loc.X - 0.5;
+            Loc.Y := Loc.Y - 1.5;
+            MapLoc := gTerrain.FlatToHeight(Loc);
+            ScreenLoc := fViewport.MapToScreen(MapLoc);
+
+            if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+            begin
+              Label_TeamName.Left := ScreenLoc.X;
+              Label_TeamName.Top := ScreenLoc.Y;
+              Label_TeamName.Paint;
+            end;
+          end;
+        except
+          on E: Exception do
+            ; //Just ignore exceptions here, since its UI function
+        end;
+
+      for I := 0 to fHousesTeamNames.Count - 1 do
+        try
+          if not (TObject(fHousesTeamNames[I]) is TKMHouse) then
+            Continue;
+
+          H := TKMHouse(fHousesTeamNames[I]);
+          if H.IsDestroyed then
+            Continue;
+
+          Label_TeamName.Caption := 'H ' + IntToStr(H.UID);
+
+          Label_TeamName.FontColor := FlagColorToTextColor(gHands[H.Owner].FlagColor);
+
+          Loc := KMPointF(H.Entrance);
+          Loc.X := Loc.X - 0.5;
+          Loc.Y := Loc.Y - 2;
+          MapLoc := gTerrain.FlatToHeight(Loc);
+          ScreenLoc := fViewport.MapToScreen(MapLoc);
+
+          if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+          begin
+            Label_TeamName.Left := ScreenLoc.X;
+            Label_TeamName.Top := ScreenLoc.Y;
+            Label_TeamName.Paint;
+          end;
+        except
+          on E: Exception do
+            ; //Just ignore exceptions here, since its UI function
+        end;
     end;
   end;
   Label_TeamName.Visible := False; // Only visible while we're using it, otherwise it shows up in other places

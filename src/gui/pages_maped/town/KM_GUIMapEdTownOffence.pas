@@ -20,6 +20,7 @@ type
     procedure Attacks_Refresh;
     procedure AutoAttackClick(Sender: TObject);
     procedure SetAttackPopUp(aValue: TKMMapEdTownAttack);
+    procedure UpdateControls;
   protected
     Panel_Offence: TKMPanel;
       CheckBox_AutoAttack: TKMCheckBox;
@@ -47,15 +48,15 @@ constructor TKMMapEdTownOffence.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-  Panel_Offence := TKMPanel.Create(aParent, 0, 28, TB_WIDTH, 400);
-  TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_ATTACK], fnt_Outline, taCenter);
+  Panel_Offence := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
+  TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_AI_ATTACK], fntOutline, taCenter);
 
-  CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 24, TB_WIDTH, 20, gResTexts[TX_MAPED_AI_ATTACK_AUTO], fnt_Metal);
+  CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 9, 24, TB_MAP_ED_WIDTH - 9, 20, gResTexts[TX_MAPED_AI_ATTACK_AUTO], fntMetal);
   CheckBox_AutoAttack.Hint := GetHintWHotKey(TX_MAPED_AI_ATTACK_AUTO_HINT, MAPED_SUBMENU_ACTIONS_HOTKEYS[0]);
   CheckBox_AutoAttack.OnClick := AutoAttackClick;
 
-  ColumnBox_Attacks := TKMColumnBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
-  ColumnBox_Attacks.SetColumns(fnt_Outline,
+  ColumnBox_Attacks := TKMColumnBox.Create(Panel_Offence, 9, 50, TB_MAP_ED_WIDTH - 9, 210, fntGame, bsGame);
+  ColumnBox_Attacks.SetColumns(fntOutline,
     [gResTexts[TX_MAPED_AI_ATTACK_COL_TYPE],
      gResTexts[TX_MAPED_AI_ATTACK_COL_DELAY],
      gResTexts[TX_MAPED_AI_ATTACK_COL_MEN],
@@ -64,10 +65,10 @@ begin
   ColumnBox_Attacks.OnClick := Attacks_ListClick;
   ColumnBox_Attacks.OnDoubleClick := Attacks_ListDoubleClick;
 
-  Button_AttacksAdd := TKMButton.Create(Panel_Offence, 0, 270, 25, 25, '+', bsGame);
+  Button_AttacksAdd := TKMButton.Create(Panel_Offence, 9, 270, 25, 25, '+', bsGame);
   Button_AttacksAdd.OnClick := Attacks_Add;
   Button_AttacksAdd.Hint := GetHintWHotKey(TX_MAPED_AI_ATTACK_ADD, MAPED_SUBMENU_ACTIONS_HOTKEYS[1]);
-  Button_AttacksDel := TKMButton.Create(Panel_Offence, 30, 270, 25, 25, 'X', bsGame);
+  Button_AttacksDel := TKMButton.Create(Panel_Offence, 39, 270, 25, 25, 'X', bsGame);
   Button_AttacksDel.OnClick := Attacks_Del;
   Button_AttacksDel.Hint := GetHintWHotKey(TX_MAPED_AI_ATTACK_DEL, MAPED_SUBMENU_ACTIONS_HOTKEYS[2]);
 
@@ -111,7 +112,7 @@ end;
 procedure TKMMapEdTownOffence.Attacks_Edit(aIndex: Integer);
 begin
   Assert(InRange(aIndex, 0, gMySpectator.Hand.AI.General.Attacks.Count - 1));
-  AttackPopUp.Show(gMySpectator.HandIndex, aIndex);
+  AttackPopUp.Show(gMySpectator.HandID, aIndex);
 end;
 
 
@@ -192,6 +193,14 @@ begin
 
   ColumnBox_Attacks.JumpToSelected;
 
+  UpdateControls;
+end;
+
+
+procedure TKMMapEdTownOffence.UpdateControls;
+begin
+  ColumnBox_Attacks.Enabled := not CheckBox_AutoAttack.Checked;
+  Button_AttacksAdd.Enabled := not CheckBox_AutoAttack.Checked;
   Button_AttacksDel.Enabled := ColumnBox_Attacks.IsSelected;
 end;
 
@@ -199,6 +208,7 @@ end;
 procedure TKMMapEdTownOffence.AutoAttackClick(Sender: TObject);
 begin
   gMySpectator.Hand.AI.Setup.AutoAttack := CheckBox_AutoAttack.Checked;
+  UpdateControls;
 end;
 
 

@@ -1,5 +1,7 @@
 //-- TPR01 --//
-//20.01.2018
+//07.11.2019
+
+{$I difficulty.script}
 
 //Gives AI-Players Units a Random Hunger Level (2/3 to Max)
 procedure UnitsRandomHungerSet();
@@ -58,6 +60,18 @@ var
 begin
 	//Set Hunger Level of AIs
 	UnitsRandomHungerSet();
+	//Apply Difficulty
+	case States.MissionDifficulty() of
+		mdEasy1: 
+			IncreaseGroupSize(0, 0);
+		mdHard1:
+		begin
+			//Increase Group Size of Groups joining fight later on
+			IncreaseGroupSize(4, 0);
+			IncreaseGroupSize(5, 0);
+			IncreaseGroupSize(7, 0);
+		end;
+	end;
 	//Disable Sharing Fog With Ally
 	Actions.PlayerShareFog(0, 1, false);
 	Actions.PlayerShareFog(1, 0, false);

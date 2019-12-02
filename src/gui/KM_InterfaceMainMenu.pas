@@ -48,10 +48,10 @@ type
   public
     constructor Create(X,Y: Word);
     destructor Destroy; override;
+
     procedure PageChange(Dest: TKMMenuPageType; const aText: UnicodeString = '');
     procedure AppendLoadingText(const aText: string);
-    function GetChatState: TKMChatState;
-    procedure SetChatState(const aChatState: TKMChatState);
+
     procedure ExportPages(const aPath: string); override;
     procedure ReturnToLobby(const aSaveName: UnicodeString);
 
@@ -105,7 +105,7 @@ begin
   fMenuLoading       := TKMMenuLoading.Create(Panel_Menu, PageChange);
 
   //Show version info on every page
-  Label_Version := TKMLabel.Create(Panel_Main, 8, 8, 0, 0, '', fnt_Antiqua, taLeft);
+  Label_Version := TKMLabel.Create(Panel_Main, 8, 8, 0, 0, '', fntAntiqua, taLeft);
 
   if OVERLAY_RESOLUTIONS then
   begin
@@ -166,18 +166,6 @@ begin
 end;
 
 
-function TKMMainMenuInterface.GetChatState: TKMChatState;
-begin
-  Result := fMenuLobby.GetChatState;
-end;
-
-
-procedure TKMMainMenuInterface.SetChatState(const aChatState: TKMChatState);
-begin
-  fMenuLobby.SetChatState(aChatState);
-end;
-
-
 procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; const aText: UnicodeString = '');
 var
   I: Integer;
@@ -220,10 +208,10 @@ begin
                     end;
     gpLobby:        begin
                       if aText = 'HOST' then
-                        fMenuLobby.Show(lpk_Host, gGameApp.Networking, Panel_Menu.Height)
+                        fMenuLobby.Show(lpkHost, gGameApp.Networking, Panel_Menu.Height)
                       else
                       if aText = 'JOIN' then
-                        fMenuLobby.Show(lpk_Joiner, gGameApp.Networking, Panel_Menu.Height)
+                        fMenuLobby.Show(lpkJoiner, gGameApp.Networking, Panel_Menu.Height)
                       else
                         raise Exception.Create('');
                       fMenuPage := fMenuLobby;

@@ -12,10 +12,10 @@ const
   TAB_WIDTH = 30;
 
 type
-  TKMFont = (fnt_Antiqua, fnt_Game, fnt_Grey,
-    fnt_Metal, fnt_Mini, fnt_Outline, fnt_Arial);
+  TKMFont = (fntAntiqua, fntGame, fntGrey,
+    fntMetal, fntMini, fntOutline, fntArial);
 
-  TKMFontLoadLevel = (fll_Full, fll_Minimal);
+  TKMFontLoadLevel = (fllFull, fllMinimal);
   {
   Removed fonts that were in KaM:
   Adam (unused)
@@ -67,7 +67,7 @@ type
     Letters: array [0..High(Word)] of TKMLetter;
 
     procedure LoadFont(const aFileName: string; aPalette: TKMPaletteInfo);
-    procedure LoadFontX(const aFileName: string; aLoadLevel: TKMFontLoadLevel = fll_Full);
+    procedure LoadFontX(const aFileName: string; aLoadLevel: TKMFontLoadLevel = fllFull);
     procedure GenerateTextures(aTexMode: TTexFormat);
     procedure Compact;
     procedure ExportAtlasBmp(aBitmap: TBitmap; aIndex: Integer; aShowCells: Boolean); overload;
@@ -110,7 +110,7 @@ type
     property LoadLevel: TKMFontLoadLevel read fLoadLevel;
     class function GuessPalette(const aFileName: string): TKMPal;
 
-    procedure LoadFonts(aLoadLevel: TKMFontLoadLevel = fll_Full);
+    procedure LoadFonts(aLoadLevel: TKMFontLoadLevel = fllFull);
     procedure ExportFonts;
   end;
 
@@ -119,13 +119,13 @@ const
   PLACEHOLDER_CHAR = 0; //Box, used for characters missing from font
 
   FontInfo: array [TKMFont] of TKMFontInfo = (
-    (FontFile: 'antiqua';     Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'game';        Pal: pal_bw;        TexMode: tf_Alpha8),
-    (FontFile: 'grey';        Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'metal';       Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'mini';        Pal: pal_bw;        TexMode: tf_Alpha8),
-    (FontFile: 'outline';     Pal: pal_0;         TexMode: tf_RGB5A1),
-    (FontFile: 'arial';       Pal: pal_0;         TexMode: tf_RGBA8)
+    (FontFile: 'antiqua';     Pal: pal0;         TexMode: tfRGB5A1),
+    (FontFile: 'game';        Pal: palbw;        TexMode: tfAlpha8),
+    (FontFile: 'grey';        Pal: pal0;         TexMode: tfRGB5A1),
+    (FontFile: 'metal';       Pal: pal0;         TexMode: tfRGB5A1),
+    (FontFile: 'mini';        Pal: palbw;        TexMode: tfAlpha8),
+    (FontFile: 'outline';     Pal: pal0;         TexMode: tfRGB5A1),
+    (FontFile: 'arial';       Pal: pal0;         TexMode: tfRGBA8)
   );
 
 
@@ -234,7 +234,7 @@ begin
 end;
 
 
-procedure TKMFontData.LoadFontX(const aFileName: string; aLoadLevel: TKMFontLoadLevel = fll_Full);
+procedure TKMFontData.LoadFontX(const aFileName: string; aLoadLevel: TKMFontLoadLevel = fllFull);
 const
   FNTX_HEAD: AnsiString = 'FNTX';
 var
@@ -271,7 +271,7 @@ begin
     DecompressionStream.Read(fTexSizeX, 2);
     DecompressionStream.Read(fTexSizeY, 2);
 
-    if aLoadLevel = fll_Minimal then
+    if aLoadLevel = fllMinimal then
     begin
       fAtlasCount := 1; //Only load the first atlas
       for I := 0 to High(Word) do
@@ -471,7 +471,7 @@ var
   I: Integer;
   K: TKMFontInfo;
 begin
-  Result := pal_map;
+  Result := palmap;
 
   fileName := ExtractFileName(aFileName);
   I := Pos('.', fileName);
@@ -483,7 +483,7 @@ begin
 end;
 
 
-procedure TKMResFonts.LoadFonts(aLoadLevel: TKMFontLoadLevel = fll_Full);
+procedure TKMResFonts.LoadFonts(aLoadLevel: TKMFontLoadLevel = fllFull);
 var
   F: TKMFont;
   FntPath: string;

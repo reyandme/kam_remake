@@ -1,10 +1,10 @@
 ﻿//Code, Title,                Codepage, FullFonts, FlagSpriteID, Fallback Locale, TranslatorCredit
 
 bel,    Belarusian,           1251,     0,         71,           ,                Mik0
-ptb,    Brazilian Portuguese, 1252,     0,         48,           ,                |Vinycius Maia & Edson Hoffmann Junior
+ptb,    Brazilian Portuguese, 1252,     0,         48,           ,                Vinycius Maia,|Edson Hoffmann Junior & Altieres Lima da Silva
 bul,    Bulgarian,            1251,     0,         58,           ,                Christian & Boyan
-chn,    Chinese,              1252,     1,         69,           ,                [CN] Team 团队
-cze,    Czech,                1250,     0,         49,           svk,             Jolinar_CZ, Milan Molnar,|Jan Minarik & Vatrix
+chn,    Chinese,              1252,     1,         69,           ,                [CN] Team 团队 and Mr.C_Paul
+cze,    Czech,                1250,     0,         49,           svk,             Jolinar_CZ, Milan Molnar,|Jan Minarik & Vit Konstacky
 dut,    Dutch,                1252,     0,         55,           ,                xzaz & Tom
 eng,    English,              1252,     0,         45,           ,
 est,    Estonian,             1252,     0,         59,           ,                Ingvar & Eva
@@ -13,12 +13,12 @@ ger,    German,               1252,     0,         46,           ,              
 hun,    Hungarian,            1250,     0,         57,           ,                Osi Attila (Jecy), Máté
 ita,    Italian,              1252,     0,         50,           ,                Esthlos
 jpn,    Japanese,             1252,     1,         72,           ,                Guilherme Antunes da Silva
-kor,    Korean,               1252,     1,         78,           ,                Petrus K.
+kor,    Korean,               1252,     1,         78,           ,                Petrus K., 전정욱
 lit,    Lithuanian,           1257,     0,         67,           ,                Audrius Arlauskas (Zaero)
 nor,    Norwegian,            1252,     0,         70,           ,                Tokicchi
 pol,    Polish,               1250,     0,         47,           ,                Przemysław Pietras & Tiank
 rom,    Romanian,             1250,     0,         66,           ,                mucormucedo
-rus,    Russian,              1251,     0,         54,           ,                Krom & andreus
+rus,    Russian,              1251,     0,         54,           ,                Krom, andreus & Rey
 srb,    Serbian,              1251,     0,         80,           ,                Стефан Дробић (Davidturner) & Baqal
 slv,    Slovenian,            1250,     0,         82,           ,                Youlazy TrueMan
 svk,    Slovak,               1250,     0,         52,           cze,             Róbert Marko & Jozef Müller (Launcelot)

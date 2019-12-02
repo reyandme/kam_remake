@@ -35,7 +35,7 @@ type
     fListFileInFolder : TStringList;
 
     procedure ValidateFileList; overload;
-    procedure ValidateDir(aDir: String); overload;
+    procedure ValidateDir(aDir: String; aClear: Boolean = True); overload;
     procedure FindFiles(aPath: String; out aList: TStringList);
     function Validate(aPath: string; aReportGood: Boolean): Boolean;
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
@@ -200,9 +200,12 @@ begin
 end;
 
 
-procedure TForm1.ValidateDir(aDir: String);
+procedure TForm1.ValidateDir(aDir: String; aClear: Boolean = True);
 begin
-  Memo1.Lines.Clear;
+  if aClear then
+    Memo1.Lines.Clear
+  else
+    Memo1.Lines.Append('');
   Memo1.Lines.Append('Check ' + aDir);
   TKMapsCollection.GetAllMapPaths(aDir, fListFileInFolder);
   ValidateFileList;
@@ -216,7 +219,7 @@ begin
   // Exe path
   ValidateDir(ExtractFilePath(ParamStr(0)));
   // Utils path
-  ValidateDir(ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\'));
+  ValidateDir(ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\'), False);
 
   EnableFormComponents(True);
 end;

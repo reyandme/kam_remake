@@ -7,11 +7,12 @@ uses
 
 type
   TKMByteSet = set of Byte;
+  TByteSet = set of Byte; //Legasy support for old scripts
 
   TBooleanArray = array of Boolean;
   TBoolean2Array = array of array of Boolean;
   TKMByteArray = array of Byte;
-  TKMByte2Array = array of array of Byte;
+  TKMByte2Array = array of TKMByteArray;
   TKMByteSetArray = array of TKMByteSet;
   PKMByte2Array = ^TKMByte2Array;
   TKMWordArray = array of Word;
@@ -25,7 +26,7 @@ type
   TAnsiStringArray = array of AnsiString;
   TSingleArray = array of Single;
   TSingle2Array = array of array of Single;
-  TStringArray = array of string;
+  TKMStringArray = array of string;
   TKMCharArray = array of Char;
   TRGBArray = array of record R,G,B: Byte end;
   TKMStaticByteArray = array [0..MaxInt - 1] of Byte;
@@ -39,6 +40,7 @@ type
   TBooleanEvent = procedure (aValue: Boolean) of object;
   TBooleanObjEvent = procedure (Sender: TObject; aValue: Boolean) of object;
   TIntegerEvent = procedure (aValue: Integer) of object;
+  TIntBoolEvent = procedure (aIntValue: Integer; aBoolValue: Boolean) of object;
   TObjectIntegerEvent = procedure (Sender: TObject; X: Integer) of object;
   TSingleEvent = procedure (aValue: Single) of object;
   TAnsiStringEvent = procedure (const aData: AnsiString) of object;
@@ -50,13 +52,13 @@ type
   TUnicodeStringObjEventProc = procedure (Sender: TObject; const aData: UnicodeString);
   TUnicodeStringBoolEvent = procedure (const aData: UnicodeString; aBool: Boolean) of object;
   TGameStartEvent = procedure (const aData: UnicodeString; Spectating: Boolean) of object;
-  TMapStartEvent = procedure (const aData: UnicodeString; aMapFolder: TKMapFolder; aCRC: Cardinal; Spectating: Boolean) of object;
   TResyncEvent = procedure (aSender: ShortInt; aTick: cardinal) of object;
   TIntegerStringEvent = procedure (aValue: Integer; const aText: UnicodeString) of object;
   TBooleanFunc = function(Obj: TObject): Boolean of object;
   TBooleanWordFunc = function (aValue: Word): Boolean of object;
   TBooleanStringFunc = function (aValue: String): Boolean of object;
   TBooleanFuncSimple = function: Boolean of object;
+  TBoolIntFuncSimple = function (aValue: Integer): Boolean of object;
   TObjectIntBoolEvent = procedure (Sender: TObject; aIntValue: Integer; aBoolValue: Boolean) of object;
 
   TKMAnimLoop = packed record
@@ -73,7 +75,7 @@ type
     mkQuill //Utility message (warnings in script loading)
     );
 
-  TWonOrLost = (wol_None, wol_Won, wol_Lost);
+  TWonOrLost = (wolNone, wolWon, wolLost);
 
   TKMCustomScriptParam = (cspTHTroopCosts, cspMarketGoldPrice);
 
@@ -82,7 +84,17 @@ type
     Data: UnicodeString;
   end;
 
+
+  TKMAIType = (aitNone, aitClassic, aitAdvanced);
+  TKMAITypeSet = set of TKMAIType;
+
+  TKMUserActionType = (uatNone, uatKeyDown, uatKeyUp, uatKeyPress, uatMouseDown, uatMouseUp, uatMouseMove, uatMouseWheel);
+  TKMUserActionEvent = procedure (aActionType: TKMUserActionType) of object;
+
+
   TKMCustomScriptParamDataArray = array [TKMCustomScriptParam] of TKMCustomScriptParamData;
+
+  TKMPlayerColorMode = (pcmNone, pcmDefault, pcmAllyEnemy, pcmTeams);
 
   const
     WonOrLostText: array [TWonOrLost] of UnicodeString = ('None', 'Won', 'Lost');

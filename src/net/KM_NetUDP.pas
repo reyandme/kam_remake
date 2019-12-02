@@ -110,10 +110,10 @@ end;
 
 procedure TKMNetUDPAnnounce.Receive(const aAddress: string; aData:pointer; aLength:cardinal);
 var
-  M: TKMemoryStream;
+  M: TKMemoryStreamBinary;
   S: AnsiString;
 begin
-  M := TKMemoryStream.Create;
+  M := TKMemoryStreamBinary.Create;
   try
     M.WriteBuffer(aData^, aLength);
     M.Position := 0;
@@ -130,7 +130,7 @@ begin
 
     //Send a response to this scanner
     M.Free;
-    M := TKMemoryStream.Create;
+    M := TKMemoryStreamBinary.Create;
     M.WriteA('KaM Remake');
     M.WriteA(NET_PROTOCOL_REVISON);
     M.WriteA('announce');
@@ -147,7 +147,7 @@ end;
 { TKMNetUDPDetect }
 procedure TKMNetUDPScan.ScanForServers;
 var
-  M: TKMemoryStream;
+  M: TKMemoryStreamBinary;
 begin
   //Prepare to receive responses
   fUDP.StopListening;
@@ -162,7 +162,7 @@ begin
     end;
   end;
 
-  M := TKMemoryStream.Create;
+  M := TKMemoryStreamBinary.Create;
   try
     M.WriteA('KaM Remake');
     M.WriteA(NET_PROTOCOL_REVISON);
@@ -192,11 +192,11 @@ end;
 
 procedure TKMNetUDPScan.Receive(const aAddress: string; aData:pointer; aLength:cardinal);
 var
-  M: TKMemoryStream;
+  M: TKMemoryStreamBinary;
   S, ServerName: AnsiString;
   ServerPort: Word;
 begin
-  M := TKMemoryStream.Create;
+  M := TKMemoryStreamBinary.Create;
   try
     M.WriteBuffer(aData^, aLength);
     M.Position := 0;

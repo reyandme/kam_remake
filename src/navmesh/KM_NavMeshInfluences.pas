@@ -7,7 +7,7 @@ uses
 
 type
   TKMEnemyStatistics = record
-    Player: TKMHandIndex;
+    Player: TKMHandID;
     Distance: Word;
     ClosestPoint: TKMPoint;
   end;
@@ -16,17 +16,17 @@ type
   // 1 universal class for city and army influence search
   TNavMeshInfluenceSearch = class(TNavMeshFloodFill)
   private
-    fEnemies: array of TKMHandIndex;
+    fEnemies: TKMHandIDArray;
   protected
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
     fHouseInfluence: Boolean;
     fHighEnemiesIdx, fHighStatsIdx, fMaxEnemiesCnt: Integer;
+    fEnemiesStats: TKMEnemyStatisticsArray;
 
     function CanBeExpanded(const aIdx: Word): Boolean; override;
     procedure MarkAsVisited(const aIdx, aDistance: Word; const aPoint: TKMPoint); override;
   public
-    EnemiesStats: TKMEnemyStatisticsArray;
-    function FindClosestEnemies(const aOwner: TKMHandIndex; aCenterPoints: TKMPointArray; aHouseInfluence: Boolean = True): Boolean;
+    function FindClosestEnemies(const aOwner: TKMHandID; aCenterPoints: TKMPointArray; var aEnemiesStats: TKMEnemyStatisticsArray; aHouseInfluence: Boolean = True): Boolean;
   end;
 
   // 1 universal class for city and army influence flood fill
@@ -37,12 +37,12 @@ type
     fUnitStrength, fMaxDistance, fHouseInfluence: Word;
     fGroupType: TKMGroupType;
   protected
-    fOwner: TKMHandIndex;
+    fOwner: TKMHandID;
     function CanBeExpanded(const aIdx: Word): Boolean; override;
     procedure MarkAsVisited(const aIdx, aDistance: Word; const aPoint: TKMPoint); override;
   public
-    function MilitaryPresence(aPlayer: TKMHandIndex; aUnitStrength, aMaxDistance, aMaximalIdx: Word; aGroupType: TKMGroupType; aInitIdxArray: TKMWordArray): Boolean;
-    function HouseInfluence(aPlayer: TKMHandIndex; aHouseInfluence, aMaxDistance, aMaximalIdx: Word; aInitIdxArray: TKMWordArray): Boolean;
+    function MilitaryPresence(aPlayer: TKMHandID; aUnitStrength, aMaxDistance, aMaximalIdx: Word; aGroupType: TKMGroupType; aInitIdxArray: TKMWordArray): Boolean;
+    function HouseInfluence(aPlayer: TKMHandID; aHouseInfluence, aMaxDistance, aMaximalIdx: Word; aInitIdxArray: TKMWordArray): Boolean;
   end;
 
   // Evaluation of terrain (finds large areas without borders)
@@ -59,7 +59,7 @@ type
 
 implementation
 uses
-  KM_AIFields, KM_AIInfluences, KM_NavMesh, KM_Hand, KM_HandsCollection;
+  KM_AIFields, KM_AIInfluences, KM_NavMesh, KM_Hand, KM_HandsCollection, KM_ResHouses, KM_ArmyAttack;
 
 
 { TNavMeshInfluenceSearch }
@@ -85,7 +85,7 @@ begin
        OR (  not fHouseInfluence AND (gAIFields.Influences.PresenceAllGroups[  fEnemies[I], aIdx  ] > ARMY_INFLUENCE_LIMIT) ) then
     begin
       // Mark presence
-      with EnemiesStats[fHighStatsIdx] do
+      with fEnemiesStats[fHighStatsIdx] do
       begin
         Player := fEnemies[I];
         Distance := fQueueArray[aIdx].Distance;
@@ -100,11 +100,23 @@ begin
 end;
 
 
-function TNavMeshInfluenceSearch.FindClosestEnemies(const aOwner: TKMHandIndex; aCenterPoints: TKMPointArray; aHouseInfluence: Boolean = True): Boolean;
+function TNavMeshInfluenceSearch.FindClosestEnemies(const aOwner: TKMHandID; aCenterPoints: TKMPointArray; var aEnemiesStats: TKMEnemyStatisticsArray; aHouseInfluence: Boolean = True): Boolean;
+  // Check if player is active in the meaning of threat for new AI
+  function PlayerActive(aPL: TKMHandID): Boolean;
+  var
+    HT: TKMHouseType;
+  begin
+    if not gHands[aPL].Enabled OR gHands[aPL].AI.HasLost then
+      Exit(False);
+    for HT in TARGET_HOUSES do
+      if (gHands[aPL].Stats.GetHouseQty(HT) > 0) then
+        Exit(True);
+    Result := (gHands[aPL].Stats.GetArmyCount > 0);
+  end;
 const
-  MAX_ENEMIES_AT_ONCE = 3;
+  MAX_ENEMIES_AT_ONCE = 11;
 var
-  PL: TKMHandIndex;
+  PL: TKMHandID;
   I, Cnt: Integer;
   InitIdxArray: TKMWordArray;
 begin
@@ -122,7 +134,7 @@ begin
   SetLength(fEnemies, gHands.Count - 1);
   Cnt := 0;
   for PL := 0 to gHands.Count - 1 do
-    if gHands[PL].Enabled AND (gHands[aOwner].Alliances[PL] = at_Enemy) then
+    if (gHands[aOwner].Alliances[PL] = atEnemy) AND PlayerActive(PL) then
     begin
       fEnemies[Cnt] := PL;
       Cnt := Cnt + 1;
@@ -133,7 +145,7 @@ begin
   // Init variables
   fMaxEnemiesCnt := Min(Cnt, MAX_ENEMIES_AT_ONCE);
   fHighEnemiesIdx := fMaxEnemiesCnt - 1;
-  SetLength(EnemiesStats, fMaxEnemiesCnt);
+  SetLength(fEnemiesStats, fMaxEnemiesCnt);
   fHighStatsIdx := 0;
 
   // Flood fill
@@ -141,7 +153,8 @@ begin
   Result := (fHighStatsIdx > 0);
 
   // Set Result length
-  SetLength(EnemiesStats, fHighStatsIdx);
+  SetLength(fEnemiesStats, fHighStatsIdx);
+  aEnemiesStats := fEnemiesStats;
 end;
 
 
@@ -166,7 +179,7 @@ begin
 end;
 
 
-function TKMInfluenceFloodFill.MilitaryPresence(aPlayer: TKMHandIndex; aUnitStrength, aMaxDistance, aMaximalIdx: Word; aGroupType: TKMGroupType; aInitIdxArray: TKMWordArray): Boolean;
+function TKMInfluenceFloodFill.MilitaryPresence(aPlayer: TKMHandID; aUnitStrength, aMaxDistance, aMaximalIdx: Word; aGroupType: TKMGroupType; aInitIdxArray: TKMWordArray): Boolean;
 begin
   fCityFlood := False;
   fOwner := aPlayer;
@@ -178,7 +191,7 @@ begin
 end;
 
 
-function TKMInfluenceFloodFill.HouseInfluence(aPlayer: TKMHandIndex; aHouseInfluence, aMaxDistance, aMaximalIdx: Word; aInitIdxArray: TKMWordArray): Boolean;
+function TKMInfluenceFloodFill.HouseInfluence(aPlayer: TKMHandID; aHouseInfluence, aMaxDistance, aMaximalIdx: Word; aInitIdxArray: TKMWordArray): Boolean;
 begin
   fCityFlood := True;
   fOwner := aPlayer;

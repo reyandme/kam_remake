@@ -6,7 +6,7 @@ uses
    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
    Classes, Controls, Math, StrUtils, SysUtils,
    KM_Controls, KM_Defaults, KM_Pics, KM_Points,
-   KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
+   KM_Houses, KM_Units, KM_UnitGroup, KM_MapEditor,
    KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Minimap, KM_Viewport, KM_Render,
    KM_GUIMapEdHouse,
    KM_GUIMapEdPlayerGoalPopUp,
@@ -70,7 +70,7 @@ type
     procedure HidePages;
     procedure RightClick_Cancel;
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
-    procedure Player_SetActive(aIndex: TKMHandIndex);
+    procedure Player_SetActive(aIndex: TKMHandID);
     procedure Player_UpdatePages;
     procedure UpdateStateInternal;
     procedure UpdatePlayerSelectButtons;
@@ -132,7 +132,7 @@ implementation
 uses
   KM_HandsCollection, KM_ResTexts, KM_Game, KM_Main, KM_GameCursor, KM_RenderPool,
   KM_Resource, KM_TerrainDeposits, KM_ResCursors, KM_ResKeys, KM_GameApp, KM_CommonUtils,
-  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_Units_Warrior,
+  KM_Hand, KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_UnitWarrior,
   KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters, KM_ResHouses, KM_Utils;
 
 const
@@ -143,6 +143,9 @@ const
 
 { TKMapEdInterface }
 constructor TKMapEdInterface.Create(aRender: TRender);
+const
+  TB_PAD_MAP_ED = 0;
+  TB_PAD_MBTN_LEFT = 9;
 var
   I: Integer;
   S: TKMShape;
@@ -161,14 +164,14 @@ begin
   MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
   MinimapView.OnChange := Minimap_OnUpdate;
 
-  Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 500, 10, NO_TEXT, fnt_Grey, taLeft);
-  Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
-  Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fnt_Outline, taLeft);
+  Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 500, 10, NO_TEXT, fntGrey, taLeft);
+  Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fntGrey, taLeft);
+  Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fntOutline, taLeft);
 
-  TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fnt_Outline, taLeft);
+  TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fntOutline, taLeft);
   for I := 0 to MAX_HANDS - 1 do
   begin
-    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, TB_PAD + (I mod 6)*24, 208 + 24*(I div 6), 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
+    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, TB_PAD + (I mod 6)*24, 208 + 24*(I div 6), 21, 21, IntToStr(I+1), fntGrey, $FF0000FF);
     Button_PlayerSelect[I].Tag     := I;
     Button_PlayerSelect[I].OnClick := Player_ActiveClick;
   end;
@@ -200,14 +203,14 @@ begin
   fGuiExtras := TKMMapEdExtras.Create(Panel_Main, PageChanged);
   fGuiMessage := TKMMapEdMessage.Create(Panel_Main);
 
-  Panel_Common := TKMPanel.Create(Panel_Main,TB_PAD,262,TB_WIDTH,768);
+  Panel_Common := TKMPanel.Create(Panel_Main,TB_PAD_MAP_ED,262,TB_MAP_ED_WIDTH,768);
 
   {5 big tabs}
-  Button_Main[1] := TKMButton.Create(Panel_Common, BIG_PAD_W*0, 0, BIG_TAB_W, BIG_TAB_H, 381, rxGui, bsGame);
-  Button_Main[2] := TKMButton.Create(Panel_Common, BIG_PAD_W*1, 0, BIG_TAB_W, BIG_TAB_H, 589, rxGui, bsGame);
-  Button_Main[3] := TKMButton.Create(Panel_Common, BIG_PAD_W*2, 0, BIG_TAB_W, BIG_TAB_H, 392, rxGui, bsGame);
-  Button_Main[4] := TKMButton.Create(Panel_Common, BIG_PAD_W*3, 0, BIG_TAB_W, BIG_TAB_H, 441, rxGui, bsGame);
-  Button_Main[5] := TKMButton.Create(Panel_Common, BIG_PAD_W*4, 0, BIG_TAB_W, BIG_TAB_H, 389, rxGui, bsGame);
+  Button_Main[1] := TKMButton.Create(Panel_Common, TB_PAD_MBTN_LEFT + BIG_PAD_W*0, 0, BIG_TAB_W, BIG_TAB_H, 381, rxGui, bsGame);
+  Button_Main[2] := TKMButton.Create(Panel_Common, TB_PAD_MBTN_LEFT + BIG_PAD_W*1, 0, BIG_TAB_W, BIG_TAB_H, 589, rxGui, bsGame);
+  Button_Main[3] := TKMButton.Create(Panel_Common, TB_PAD_MBTN_LEFT + BIG_PAD_W*2, 0, BIG_TAB_W, BIG_TAB_H, 392, rxGui, bsGame);
+  Button_Main[4] := TKMButton.Create(Panel_Common, TB_PAD_MBTN_LEFT + BIG_PAD_W*3, 0, BIG_TAB_W, BIG_TAB_H, 441, rxGui, bsGame);
+  Button_Main[5] := TKMButton.Create(Panel_Common, TB_PAD_MBTN_LEFT + BIG_PAD_W*4, 0, BIG_TAB_W, BIG_TAB_H, 389, rxGui, bsGame);
   Button_Main[1].Hint := GetHintWHotKey(TX_MAPED_TERRAIN, SC_MAPEDIT_TERRAIN);
   Button_Main[2].Hint := GetHintWHotKey(TX_MAPED_VILLAGE, SC_MAPEDIT_VILLAGE);
   Button_Main[3].Hint := GetHintWHotKey(TX_MAPED_SCRIPTS_VISUAL, SC_MAPEDIT_VISUAL);
@@ -345,7 +348,7 @@ begin
   inherited;
   //Update minimap every 500ms
   if aTickCount mod 5 = 0 then
-    fMinimap.Update(False);
+    fMinimap.Update;
 
   //Show players without assets in grey
   if aTickCount mod 5 = 0 then
@@ -370,7 +373,7 @@ end;
   
 procedure TKMapEdInterface.UpdateStateImmidiately;
 begin
-  fMinimap.Update(False);
+  fMinimap.Update;
   UpdatePlayerSelectButtons;
   UpdateStateInternal;
 end;
@@ -521,15 +524,15 @@ end;
 
 
 //Active player can be set either from buttons clicked or by selecting a unit or a house
-procedure TKMapEdInterface.Player_SetActive(aIndex: TKMHandIndex);
+procedure TKMapEdInterface.Player_SetActive(aIndex: TKMHandID);
 var
   I: Integer;
 begin
-  gMySpectator.HandIndex := aIndex;
+  gMySpectator.HandID := aIndex;
   fGuiMission.GuiMissionPlayers.UpdatePlayer;
 
   for I := 0 to MAX_HANDS - 1 do
-    Button_PlayerSelect[I].Down := (I = gMySpectator.HandIndex);
+    Button_PlayerSelect[I].Down := (I = gMySpectator.HandID);
 
   Player_UpdatePages;
 end;
@@ -712,8 +715,9 @@ begin
 
   //For Objects Palette
   fGuiTerrain.KeyDown(Key, Shift, KeyHandled);
-
+  fGuiTown.KeyDown(Key, Shift, KeyHandled);
   fGuiMission.KeyDown(Key, Shift, KeyHandled);
+
   if KeyHandled then Exit;
 
   inherited KeyDown(Key, Shift, KeyHandled);
@@ -871,7 +875,7 @@ begin
       ResetDragObject;
       Exit;
     end else begin
-      gRes.Cursors.Cursor := kmc_Drag;
+      gRes.Cursors.Cursor := kmcDrag;
       fDragingObject := True;
     end;
   end;
@@ -880,9 +884,9 @@ begin
 
   if fMyControls.CtrlOver <> nil then
   begin
-    //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
-    if not fViewport.Scrolling and not (gRes.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
-      gRes.Cursors.Cursor := kmc_Default;
+    //kmcEdit and kmcDragUp are handled by Controls.MouseMove (it will reset them when required)
+    if not fViewport.Scrolling and not (gRes.Cursors.Cursor in [kmcEdit,kmcDragUp]) then
+      gRes.Cursors.Cursor := kmcDefault;
     gGameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;
   end
@@ -906,27 +910,27 @@ begin
 
   if gGameCursor.Mode = cmPaintBucket then
   begin
-    gRes.Cursors.Cursor := kmc_PaintBucket;
+    gRes.Cursors.Cursor := kmcPaintBucket;
     Exit;
   end;
 
   if fDragingObject and (ssLeft in Shift) then
   begin
     //Cursor can be reset to default, when moved to menu panel while dragging, so set it to drag cursor again
-    gRes.Cursors.Cursor := kmc_Drag;
+    gRes.Cursors.Cursor := kmcDrag;
     MoveObjectToCursorCell(fDragObject);
   end else
   if gGameCursor.Mode = cmNone then
   begin
     Marker := gGame.MapEditor.HitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
     if Marker.MarkerType <> mtNone then
-      gRes.Cursors.Cursor := kmc_Info
+      gRes.Cursors.Cursor := kmcInfo
     else
     if gMySpectator.HitTestCursor <> nil then
-      gRes.Cursors.Cursor := kmc_Info
+      gRes.Cursors.Cursor := kmcInfo
     else
     if not fViewport.Scrolling then
-      gRes.Cursors.Cursor := kmc_Default;
+      gRes.Cursors.Cursor := kmcDefault;
   end;
 
   Update_Label_Coordinates;
@@ -954,7 +958,7 @@ begin
   begin
     H := TKMHouse(fDragObject);
     //Temporarily remove house from terrain to render house markups as there is no current house (we want to move it)
-    gTerrain.SetHouse(H.GetPosition, H.HouseType, hsNone, H.Owner);
+    gTerrain.SetHouse(H.Position, H.HouseType, hsNone, H.Owner);
     SetCursorModeHouse(H.HouseType); //Update cursor mode to cmHouse
   end;
 end;
@@ -990,7 +994,7 @@ begin
   begin
     H := TKMHouse(aObjectToMove);
 
-    HouseOldPos := H.GetPosition;
+    HouseOldPos := H.Position;
 
     HouseNewPos := KMPointAdd(gGameCursor.Cell, fDragHouseOffset);
 
@@ -1050,8 +1054,8 @@ begin
   fDragObjMousePosStart := KMPOINT_ZERO;
   fDragObject := nil;
 
-  if gRes.Cursors.Cursor = kmc_Drag then
-    gRes.Cursors.Cursor := kmc_Default;
+  if gRes.Cursors.Cursor = kmcDrag then
+    gRes.Cursors.Cursor := kmcDefault;
 
   if gGameCursor.Mode = cmHouses then
     ResetCursorMode;
@@ -1140,8 +1144,8 @@ begin
                     U := gTerrain.UnitsHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
                     H := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
                     //If there's any enemy unit or house on specified tile - set attack target
-                    if ((U <> nil) and (gHands[U.Owner].Alliances[G.Owner] = at_Enemy))
-                    or ((H <> nil) and (gHands[H.Owner].Alliances[G.Owner] = at_Enemy)) then
+                    if ((U <> nil) and (gHands[U.Owner].Alliances[G.Owner] = atEnemy))
+                    or ((H <> nil) and (gHands[H.Owner].Alliances[G.Owner] = atEnemy)) then
                       G.MapEdOrder.Order := ioAttackPosition
                     //Else order group walk to specified location
                     else
@@ -1228,7 +1232,7 @@ procedure TKMapEdInterface.Paint;
     TKMRenderUI.WriteOutline(X - W div 2, Y - 10, W, 20, 2, aLineColor);
 
     //Paint the label on top of the background
-    TKMRenderUI.WriteText(X, Y - 7, 0, aText, fnt_Metal, taCenter, aTextColor);
+    TKMRenderUI.WriteText(X, Y - 7, 0, aText, fntMetal, taCenter, aTextColor);
   end;
 const
   DefenceLine: array [TAIDefencePosType] of Cardinal = ($FF80FF00, $FFFF8000);

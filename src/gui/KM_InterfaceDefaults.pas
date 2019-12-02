@@ -9,6 +9,9 @@ uses
 
 
 type
+  TUIMode = (umSP, umMP, umReplay, umSpectate);
+  TUIModeSet = set of TUIMode;
+
   TKMMenuPageType =  (gpMainMenu,
                         gpSinglePlayer,
                           gpCampaign,
@@ -52,7 +55,7 @@ type
     procedure ExportPages(const aPath: string); virtual; abstract;
 
     procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); virtual; abstract;
-    procedure KeyPress(Key: Char);
+    procedure KeyPress(Key: Char); virtual;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); virtual; abstract;
     //Child classes don't pass these events to controls depending on their state
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;

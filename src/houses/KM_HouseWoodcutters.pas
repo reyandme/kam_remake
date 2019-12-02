@@ -6,7 +6,7 @@ uses
   KM_CommonClasses, KM_Points, KM_Defaults;
   
 type
-  TKMWoodcutterMode = (wcm_ChopAndPlant, wcm_Chop, wcm_Plant);
+  TKMWoodcutterMode = (wcmChopAndPlant, wcmChop, wcmPlant);
   
   TKMHouseWoodcutters = class(TKMHouseWFlagPoint)
   private
@@ -19,7 +19,7 @@ type
     function GetMaxDistanceToPoint: Integer; override;
   public
     property WoodcutterMode: TKMWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
-    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
@@ -30,16 +30,17 @@ uses
   KM_Terrain;
 
 { TKMHouseWoodcutters }
-constructor TKMHouseWoodcutters.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+constructor TKMHouseWoodcutters.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
 begin
   inherited;
-  WoodcutterMode := wcm_ChopAndPlant;
+  WoodcutterMode := wcmChopAndPlant;
 end;
 
 
 constructor TKMHouseWoodcutters.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+  LoadStream.CheckMarker('HouseWoodcutters');
   LoadStream.Read(fWoodcutterMode, SizeOf(fWoodcutterMode));
 end;
 
@@ -47,6 +48,7 @@ end;
 procedure TKMHouseWoodcutters.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+  SaveStream.PlaceMarker('HouseWoodcutters');
   SaveStream.Write(fWoodcutterMode, SizeOf(fWoodcutterMode));
 end;
 
@@ -80,7 +82,7 @@ begin
   //If we're allowed to plant only again or chop only
   //we should reshow the depleted message if we are changed to cut and run out of trees
   if (fWoodcutterMode <> aWoodcutterMode)
-    and (aWoodcutterMode in [wcm_Chop, wcm_Plant]) then
+    and (aWoodcutterMode in [wcmChop, wcmPlant]) then
     ResourceDepletedMsgIssued := False;
 
   fWoodcutterMode := aWoodcutterMode;

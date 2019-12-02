@@ -49,6 +49,7 @@ type
     function GetDATCRC: Cardinal;
 
     procedure LoadMainResources(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
+    procedure LoadLocaleAndFonts(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
     procedure LoadLocaleResources(const aLocale: AnsiString = '');
     procedure LoadGameResources(aAlphaShadows: Boolean; aForceReload: Boolean = False);
     procedure LoadLocaleFonts(const aLocale: AnsiString; aLoadFullFonts: Boolean);
@@ -160,27 +161,18 @@ begin
   fUnits := TKMResUnits.Create; // Load units prior to Sprites, as we could use it on SoftenShadows override for png in Sprites folder
   fSprites.LoadMenuResources;
   fCursors.MakeCursors(fSprites[rxGui]);
-  fCursors.Cursor := kmc_Default;
+  fCursors.Cursor := kmcDefault;
 
   gResKeys := TKMKeyLibrary.Create;
 
-  // Locale info is needed for DAT export and font loading
-  LoadLocaleResources(aLocale);
+  LoadLocaleAndFonts(aLocale, aLoadFullFonts);
 
-  StepCaption('Reading fonts ...');
-  fFonts := TKMResFonts.Create;
-  if aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts then
-    fFonts.LoadFonts(fll_Full)
-  else
-    fFonts.LoadFonts(fll_Minimal);
-  gLog.AddTime('Read fonts is done');
-
-  fTileset := TKMResTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
+  fTileset := TKMResTileset.Create(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'pattern.dat');
   if not SKIP_RENDER then
     fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(TILES_CNT);
 
   fMapElements := TKMResMapElements.Create;
-  fMapElements.LoadFromFile(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'mapelem.dat');
+  fMapElements.LoadFromFile(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'mapelem.dat');
 
   fSprites.ClearTemp;
 
@@ -209,11 +201,26 @@ begin
 end;
 
 
+procedure TKMResource.LoadLocaleAndFonts(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
+begin
+  // Locale info is needed for DAT export and font loading
+  LoadLocaleResources(aLocale);
+
+  StepCaption('Reading fonts ...');
+  fFonts := TKMResFonts.Create;
+  if aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts then
+    fFonts.LoadFonts(fllFull)
+  else
+    fFonts.LoadFonts(fllMinimal);
+  gLog.AddTime('Read fonts is done');
+end;
+
+
 procedure TKMResource.LoadLocaleFonts(const aLocale: AnsiString; aLoadFullFonts: Boolean);
 begin
-  if (Fonts.LoadLevel <> fll_Full)
+  if (Fonts.LoadLevel <> fllFull)
     and (aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts) then
-    Fonts.LoadFonts(fll_Full);
+    Fonts.LoadFonts(fllFull);
 end;
 
 
@@ -278,7 +285,7 @@ begin
       for A := Low(TKMUnitActionType) to High(TKMUnitActionType) do
       begin
         FolderCreated := False;
-        for D := dir_N to dir_NW do
+        for D := dirN to dirNW do
           if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
             for i := 1 to fUnits[U].UnitAnim[A, D].Count do
             begin
@@ -302,7 +309,7 @@ begin
     //Exclude actions
     for U := Low(TKMUnitType) to High(TKMUnitType) do
       for A := Low(TKMUnitActionType) to High(TKMUnitActionType) do
-        for D := dir_N to dir_NW do
+        for D := dirN to dirNW do
           if fUnits[U].UnitAnim[A,D].Step[1] <> -1 then
           for i := 1 to fUnits[U].UnitAnim[A,D].Count do
           begin
@@ -310,12 +317,12 @@ begin
             Used[ci] := ci <> 0;
           end;
 
-    if ut_Serf in [aUnitFrom..aUnitTo] then
+    if utSerf in [aUnitFrom..aUnitTo] then
       //serfs carrying stuff
       for R := WARE_MIN to WARE_MAX do
       begin
         FolderCreated := False;
-        for D := dir_N to dir_NW do
+        for D := dirN to dirNW do
         begin
           Anim := fUnits.SerfCarry[R, D];
           for i := 1 to Anim.Count do
@@ -324,12 +331,12 @@ begin
             if ci <> 0 then
             begin
               Used[ci] := True;
-              if ut_Serf in [aUnitFrom..aUnitTo] then
+              if utSerf in [aUnitFrom..aUnitTo] then
               begin
                 if not FolderCreated then
                 begin
                   //Use default locale for Unit GUIName, as translation could be not good for file system (like russian 'Крестьянин/Винодел' with slash in it)
-                  FullFolder := Folder + gResTexts.DefaultTexts[fUnits[ut_Serf].GUITextID] + PathDelim + 'Delivery' + PathDelim
+                  FullFolder := Folder + gResTexts.DefaultTexts[fUnits[utSerf].GUITextID] + PathDelim + 'Delivery' + PathDelim
                                   + GetEnumName(TypeInfo(TKMWareType), Integer(R)) + PathDelim;
                   ForceDirectories(FullFolder);
                   FolderCreated := True;
@@ -343,7 +350,7 @@ begin
 
     FullFolder := Folder + 'Thoughts' + PathDelim;
     ForceDirectories(FullFolder);
-    for T := th_Eat to High(TKMUnitThought) do
+    for T := thEat to High(TKMUnitThought) do
       for I := ThoughtBounds[T,1] to  ThoughtBounds[T,2] do
       begin
         SpritePack.ExportFullImageData(FullFolder, I+1, SList);
@@ -378,46 +385,48 @@ var
 begin
   fSprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows anyways
   SpritePack := fSprites[rxHouses];
-  SList := TStringList.Create;
 
   Folder := ExeDir + 'Export' + PathDelim + 'HouseAnim' + PathDelim;
   ForceDirectories(Folder);
 
+  SList := TStringList.Create;
   HD := TKMResHouses.Create;
-
-  for ID := HOUSE_MIN to HOUSE_MAX do
-    for Ac := ha_Work1 to ha_Flag3 do
-      for K := 1 to HD[ID].Anim[Ac].Count do
-      begin
-        FullFolder := Folder + HD[ID].HouseName + PathDelim + HouseAction[Ac] + PathDelim;
-        ForceDirectories(FullFolder);
-        ci := HD[ID].Anim[Ac].Step[K] + 1;
-        if ci <> 0 then
-          SpritePack.ExportFullImageData(FullFolder, ci, SList);
-      end;
-
-  for Q := 1 to 2 do
-  begin
-    if Q = 1 then
-      ID := htSwine
-    else
-      ID := htStables;
-    ForceDirectories(Folder + '_' + HD[ID].HouseName+PathDelim);
-    for Beast := 1 to 5 do
-      for I := 1 to 3 do
-        for K := 1 to HD.BeastAnim[ID,Beast,I].Count do
+  try
+    for ID := HOUSE_MIN to HOUSE_MAX do
+      for Ac := haWork1 to haFlag3 do
+        for K := 1 to HD[ID].Anim[Ac].Count do
         begin
-          FullFolder := Folder + HD[ID].HouseName + PathDelim + 'Beast' + PathDelim + int2fix(Beast,2) + PathDelim;
+          FullFolder := Folder + HD[ID].HouseName + PathDelim + HouseAction[Ac] + PathDelim;
           ForceDirectories(FullFolder);
-          ci := HD.BeastAnim[ID,Beast,I].Step[K]+1;
+          ci := HD[ID].Anim[Ac].Step[K] + 1;
           if ci <> 0 then
             SpritePack.ExportFullImageData(FullFolder, ci, SList);
         end;
+
+    for Q := 1 to 2 do
+    begin
+      if Q = 1 then
+        ID := htSwine
+      else
+        ID := htStables;
+      ForceDirectories(Folder + '_' + HD[ID].HouseName+PathDelim);
+      for Beast := 1 to 5 do
+        for I := 1 to 3 do
+          for K := 1 to HD.BeastAnim[ID,Beast,I].Count do
+          begin
+            FullFolder := Folder + HD[ID].HouseName + PathDelim + 'Beast' + PathDelim + int2fix(Beast,2) + PathDelim;
+            ForceDirectories(FullFolder);
+            ci := HD.BeastAnim[ID,Beast,I].Step[K]+1;
+            if ci <> 0 then
+              SpritePack.ExportFullImageData(FullFolder, ci, SList);
+          end;
+    end;
+  finally
+    FreeAndNil(HD);
+    FreeAndNil(SList);
   end;
 
-  HD.Free;
   fSprites.ClearTemp;
-  SList.Free;
 end;
 
 

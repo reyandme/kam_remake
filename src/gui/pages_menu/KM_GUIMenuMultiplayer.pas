@@ -48,6 +48,10 @@ type
     function ValidatePlayerName(const aName: UnicodeString): Boolean;
     procedure EscKeyDown(Sender: TObject);
     procedure KeyDown(Key: Word; Shift: TShiftState);
+    procedure UpdateGameTimeLabel;
+    procedure ServerDetailsScrollChangedVisibility(Sender: TObject; aVisible: Boolean);
+
+    procedure StartLobby(aIsHost: Boolean);
 
     procedure UpdateServerDetailsUI;
   protected
@@ -107,13 +111,15 @@ type
 
 implementation
 uses
-  KM_Main, KM_NetworkTypes, KM_ResTexts, KM_GameApp, KM_ResLocales,
+  KM_Main, KM_NetworkTypes, KM_ResTexts, KM_GameApp, KM_ResLocales, KM_GUIMenuLobby,
   KM_CommonUtils, KM_CommonTypes, KM_Sound, KM_ResSound, KM_RenderUI, KM_ResFonts, KM_Resource;
 
 
 const
   MAX_NIKNAME_LENGTH = 16;
   IMG_COL2 = 8 + 22 + 156 + 35;
+  SERVER_DETAILS_W = 320;
+  S_DETAILS_W_INT = SERVER_DETAILS_W - 16;
 
 
 { TKMGUIMainMultiplayer }
@@ -125,12 +131,12 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TKMMenuC
       TKMBevel.Create(Panel_MPCreateServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPCreateServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPCreateServer,   0,  0, 320, 300);
-      TKMLabel.Create(Panel_MPCreateServer, 20, 10, 280, 20, gResTexts[TX_MP_MENU_CREATE_SERVER_HEADER], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_MPCreateServer, 20, 50, 280, 20, gResTexts[TX_MP_MENU_CREATE_SERVER_NAME], fnt_Outline, taLeft);
-      Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 20, 70, 280, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPCreateServer, 20, 10, 280, 20, gResTexts[TX_MP_MENU_CREATE_SERVER_HEADER], fntOutline, taCenter);
+      TKMLabel.Create(Panel_MPCreateServer, 20, 50, 280, 20, gResTexts[TX_MP_MENU_CREATE_SERVER_NAME], fntOutline, taLeft);
+      Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 20, 70, 280, 20, fntGrey);
       Edit_MP_ServerName.AllowedChars := acANSI7;
-      TKMLabel.Create(Panel_MPCreateServer, 20, 100, 284, 20, gResTexts[TX_MP_MENU_CREATE_SERVER_PORT], fnt_Outline, taLeft);
-      Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 20, 120, 100, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPCreateServer, 20, 100, 284, 20, gResTexts[TX_MP_MENU_CREATE_SERVER_PORT], fntOutline, taLeft);
+      Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 20, 120, 100, 20, fntGrey);
       Edit_MP_ServerPort.AllowedChars := acDigits;
       Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer, 20, 170, 280, 30, gResTexts[TX_MP_MENU_CREATE_SERVER_LOCAL],  bsMenu);
       Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer, 20, 210, 280, 30, gResTexts[TX_MP_MENU_CREATE_SERVER_INTERNET],  bsMenu);
@@ -146,16 +152,16 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TKMMenuC
       TKMBevel.Create(Panel_MPFindServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPFindServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPFindServer,   0,  0, 320, 300);
-      TKMLabel.Create(Panel_MPFindServer,  20, 10, 280, 20, gResTexts[TX_MP_MENU_FIND_SERVER_HEADER], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_MPFindServer,  20, 10, 280, 20, gResTexts[TX_MP_MENU_FIND_SERVER_HEADER], fntOutline, taCenter);
 
-      TKMLabel.Create(Panel_MPFindServer, 20, 50, 156, 20, gResTexts[TX_MP_MENU_FIND_SERVER_ADDRESS], fnt_Outline, taLeft);
-      Edit_MP_FindIP := TKMEdit.Create(Panel_MPFindServer, 20, 70, 152, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPFindServer, 20, 50, 156, 20, gResTexts[TX_MP_MENU_FIND_SERVER_ADDRESS], fntOutline, taLeft);
+      Edit_MP_FindIP := TKMEdit.Create(Panel_MPFindServer, 20, 70, 152, 20, fntGrey);
       Edit_MP_FindIP.AllowedChars := acText; //Server name could be "localhost"
-      TKMLabel.Create(Panel_MPFindServer, 172, 50, 60, 20, gResTexts[TX_MP_MENU_FIND_SERVER_PORT], fnt_Outline, taLeft);
-      Edit_MP_FindPort := TKMEdit.Create(Panel_MPFindServer, 172, 70, 60, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPFindServer, 172, 50, 60, 20, gResTexts[TX_MP_MENU_FIND_SERVER_PORT], fntOutline, taLeft);
+      Edit_MP_FindPort := TKMEdit.Create(Panel_MPFindServer, 172, 70, 60, 20, fntGrey);
       Edit_MP_FindPort.AllowedChars := acDigits;
-      TKMLabel.Create(Panel_MPFindServer, 232, 50, 60, 20, gResTexts[TX_MP_MENU_FIND_SERVER_ROOM], fnt_Outline, taLeft);
-      Edit_MP_FindRoom := TKMEdit.Create(Panel_MPFindServer, 232, 70, 60, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPFindServer, 232, 50, 60, 20, gResTexts[TX_MP_MENU_FIND_SERVER_ROOM], fntOutline, taLeft);
+      Edit_MP_FindRoom := TKMEdit.Create(Panel_MPFindServer, 232, 70, 60, 20, fntGrey);
       Edit_MP_FindRoom.AllowedChars := acDigits;
       Button_MP_FindServerIP := TKMButton.Create(Panel_MPFindServer, 20, 110, 280, 30, gResTexts[TX_MP_MENU_FIND_SERVER_FIND], bsMenu);
       Button_MP_FindServerIP.OnClick := MP_FindServerIPClick;
@@ -169,10 +175,10 @@ constructor TKMMenuMultiplayer.Create(aParent: TKMPanel; aOnPageChange: TKMMenuC
       TKMBevel.Create(Panel_MPPassword, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPPassword, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPPassword,   0,  0, 320, 300);
-      TKMLabel.Create(Panel_MPPassword,  20, 10, 280, 20, gResTexts[TX_MP_MENU_PASSWORD_HEADER], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_MPPassword,  20, 10, 280, 20, gResTexts[TX_MP_MENU_PASSWORD_HEADER], fntOutline, taCenter);
 
-      TKMLabel.Create(Panel_MPPassword, 20, 50, 156, 20, gResTexts[TX_MP_MENU_PASSWORD], fnt_Outline, taLeft);
-      Edit_MP_Password := TKMEdit.Create(Panel_MPPassword, 20, 70, 152, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPPassword, 20, 50, 156, 20, gResTexts[TX_MP_MENU_PASSWORD], fntOutline, taLeft);
+      Edit_MP_Password := TKMEdit.Create(Panel_MPPassword, 20, 70, 152, 20, fntGrey);
       Edit_MP_Password.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
       Button_MP_PasswordOk := TKMButton.Create(Panel_MPPassword, 20, 110, 280, 30, gResTexts[TX_MP_MENU_SERVER_JOIN], bsMenu);
       Button_MP_PasswordOk.OnClick := MP_PasswordClick;
@@ -194,12 +200,12 @@ begin
     //Top area
     Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 675, 45, 320, 120);
       TKMBevel.Create(Panel_MPPlayerName, 0, 0, 320, 120);
-      TKMLabel.Create(Panel_MPPlayerName, 8, 10, 304, 20, gResTexts[TX_MP_MENU_PLAYERNAME], fnt_Outline, taLeft);
-      Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 30, 140, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPPlayerName, 8, 10, 304, 20, gResTexts[TX_MP_MENU_PLAYERNAME], fntOutline, taLeft);
+      Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 30, 140, 20, fntGrey);
       Edit_MP_PlayerName.MaxLen := MAX_NIKNAME_LENGTH;
       Edit_MP_PlayerName.AllowedChars := acANSI7;
-      TKMLabel.Create(Panel_MPPlayerName, 8, 60, 304, 20, gResTexts[TX_MP_MENU_STATUS], fnt_Outline, taLeft);
-      Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 8, 80, 304, 36, '', fnt_Grey, taLeft);
+      TKMLabel.Create(Panel_MPPlayerName, 8, 60, 304, 20, gResTexts[TX_MP_MENU_STATUS], fntOutline, taLeft);
+      Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 8, 80, 304, 36, '', fntGrey, taLeft);
       Label_MP_Status.AutoWrap := True;
 
     Button_MP_CreateServer := TKMButton.Create(Panel_MultiPlayer, 675, 170, 320, 30, gResTexts[TX_MP_MENU_CREATE_SERVER], bsMenu);
@@ -210,50 +216,51 @@ begin
     Button_MP_FindServer.OnClick := MP_FindServerClick;
 
     //Master server announcement
-    Memo_MP_Announcement := TKMMemo.Create(Panel_MultiPlayer, 45, 45, 620, 189, fnt_Grey, bsMenu);
+    Memo_MP_Announcement := TKMMemo.Create(Panel_MultiPlayer, 45, 45, 620, 189, fntGrey, bsMenu);
     Memo_MP_Announcement.Anchors := [anLeft, anTop];
     Memo_MP_Announcement.AutoWrap := True;
     Memo_MP_Announcement.ItemHeight := 16;
 
     //List of available servers
-    ColumnBox_Servers := TKMColumnBox.Create(Panel_MultiPlayer,45,240,620,465,fnt_Metal, bsMenu);
+    ColumnBox_Servers := TKMColumnBox.Create(Panel_MultiPlayer,45,240,620,465,fntMetal, bsMenu);
     ColumnBox_Servers.Anchors := [anLeft, anTop, anBottom];
     ColumnBox_Servers.Focusable := True;
-    ColumnBox_Servers.SetColumns(fnt_Outline, ['','',gResTexts[TX_MP_MENU_SERVERLIST_NAME],gResTexts[TX_MP_MENU_SERVERLIST_STATE],gResTexts[TX_MP_MENU_SERVERLIST_PLAYERS],gResTexts[TX_MP_MENU_SERVERLIST_PING]],[0,20,40,300,430,525]);
+    ColumnBox_Servers.SetColumns(fntOutline, ['','',gResTexts[TX_MP_MENU_SERVERLIST_NAME],gResTexts[TX_MP_MENU_SERVERLIST_STATE],gResTexts[TX_MP_MENU_SERVERLIST_PLAYERS],gResTexts[TX_MP_MENU_SERVERLIST_PING]],[0,20,40,300,430,525]);
     ColumnBox_Servers.OnColumnClick := MP_ServersSort;
     ColumnBox_Servers.OnChange := MP_ServersClick;
     ColumnBox_Servers.OnDoubleClick := MP_ServersDoubleClick;
-    Label_Servers_Status := TKMLabel.Create(Panel_MultiPlayer, 45+310, 240+230, '', fnt_Grey, taCenter);
+    Label_Servers_Status := TKMLabel.Create(Panel_MultiPlayer, 45+310, 240+230, '', fntGrey, taCenter);
     Label_Servers_Status.Anchors := [anLeft];
     Label_Servers_Status.Hide;
 
     //Server details area
-    Panel_MPServerDetails := TKMScrollPanel.Create(Panel_MultiPlayer, 675, 240, 320, 465, [sa_Vertical], bsMenu, ssCommon);
+    Panel_MPServerDetails := TKMScrollPanel.Create(Panel_MultiPlayer, 675, 240, SERVER_DETAILS_W, 465, [saVertical], bsMenu, ssCommon);
     Panel_MPServerDetails.AnchorsStretch;
-      TKMBevel.Create(Panel_MPServerDetails, 0, 0, 320, 465);
-      Label_MP_ServerDetails_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 6, 304, 20, gResTexts[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, taCenter);
-      Label_MP_GameInfo_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 30, 304, 20, gResTexts[TX_MP_MENU_GAME_INFORMATION], fnt_Outline, taLeft);
-      Label_MP_Desc := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 304, 40, '', fnt_Metal, taLeft);
+    Panel_MPServerDetails.ScrollV.OnChangeVisibility := ServerDetailsScrollChangedVisibility;
+      TKMBevel.Create(Panel_MPServerDetails, 0, 0, SERVER_DETAILS_W, 465);
+      Label_MP_ServerDetails_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 6, S_DETAILS_W_INT, 20, gResTexts[TX_MP_MENU_HEADER_SERVER_DETAILS], fntOutline, taCenter);
+      Label_MP_GameInfo_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 30, S_DETAILS_W_INT, 20, gResTexts[TX_MP_MENU_GAME_INFORMATION], fntOutline, taLeft);
+      Label_MP_Desc := TKMLabel.Create(Panel_MPServerDetails, 8, 50, S_DETAILS_W_INT, 40, '', fntMetal, taLeft);
       Label_MP_Desc.AutoWrap := True;
       Label_MP_Desc.AutoCut := True;  //Automatically cut text, if it's too long
-      Label_MP_PT_Times := TKMLabel.Create(Panel_MPServerDetails, 8, 90, 304, 20, '', fnt_Metal, taLeft);
+      Label_MP_PT_Times := TKMLabel.Create(Panel_MPServerDetails, 8, 90, S_DETAILS_W_INT, 20, '', fntMetal, taLeft);
       Label_MP_PT_Times.FontColor := clMPSrvDetailsGameInfoFont;
-      Label_MP_GameTime := TKMLabel.Create(Panel_MPServerDetails, 8, 90, 304, 20, '', fnt_Metal, taRight);
+      Label_MP_GameTime := TKMLabel.Create(Panel_MPServerDetails, 8, 90, S_DETAILS_W_INT, 20, '', fntMetal, taRight);
       Label_MP_GameTime.FontColor := clMPSrvDetailsGameInfoFont;
-      Label_MP_Map_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 110, 304, 20, gResTexts[TX_WORD_MAP] + ':', fnt_Outline, taLeft);
-      Label_MP_MapName := TKMLabel.Create(Panel_MPServerDetails, 8, 130, 304, 20, '', fnt_Metal, taLeft);
-      Label_MP_PlayerList_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 150, 304, 20, gResTexts[TX_MP_MENU_PLAYER_LIST], fnt_Outline, taLeft);
+      Label_MP_Map_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 110, S_DETAILS_W_INT, 20, gResTexts[TX_WORD_MAP] + ':', fntOutline, taLeft);
+      Label_MP_MapName := TKMLabel.Create(Panel_MPServerDetails, 8, 130, S_DETAILS_W_INT, 20, '', fntMetal, taLeft);
+      Label_MP_PlayerList_Header := TKMLabel.Create(Panel_MPServerDetails, 8, 150, S_DETAILS_W_INT, 20, gResTexts[TX_MP_MENU_PLAYER_LIST], fntOutline, taLeft);
 
-      Label_MP_Team_Header := TKMLabel.Create(Panel_MPServerDetails, 8 + 22 + 156, 150, 150, 20, 'Team', fnt_Outline, taLeft);
+      Label_MP_Team_Header := TKMLabel.Create(Panel_MPServerDetails, 8 + 22 + 156, 150, 150, 20, 'Team', fntOutline, taLeft);
       Label_MP_Team_Header.Hide;
 
       Image_MP_Host := TKMImage.Create(Panel_MPServerDetails, IMG_COL2, 148, 14, 15, 77, rxGuiMain);
       Image_MP_Host.Visible := False;
       for I := 1 to MAX_LOBBY_SLOTS do
       begin
-        Label_MP_PlayersNames[I] := TKMLabel.Create(Panel_MPServerDetails, 8 + 22, 170 + 20*(I-1), 130, 20, '', fnt_Metal, taLeft);
+        Label_MP_PlayersNames[I] := TKMLabel.Create(Panel_MPServerDetails, 8 + 22, 170 + 20*(I-1), 130, 20, '', fntMetal, taLeft);
         Label_MP_PlayersNames[I].Anchors := [anLeft, anTop, anBottom];
-        Label_MP_PlayersTeams[I] := TKMLabel.Create(Panel_MPServerDetails, 8 + 22 + 166, 170 + 20*(I-1), 20, 20, '', fnt_Metal, taLeft);
+        Label_MP_PlayersTeams[I] := TKMLabel.Create(Panel_MPServerDetails, 8 + 22 + 166, 170 + 20*(I-1), 20, 20, '', fntMetal, taLeft);
         Image_MP_PlayerIcons[I] := TKMImage.Create(Panel_MPServerDetails, 8, 170 + 20*(I-1), 16, 11, 0, rxGuiMain);
         Image_MP_PlayerWolIcons[I] := TKMImage.Create(Panel_MPServerDetails, IMG_COL2, 169 + 20*(I-1), 16, 16, 0, rxGuiMain);
         Image_MP_PlayerWolIcons[I].Hide;
@@ -663,6 +670,8 @@ begin
   Label_MP_GameTime.Caption := fSelectedRoomInfo.GameInfo.GetFormattedTime;
   Label_MP_MapName.Caption := fSelectedRoomInfo.GameInfo.Map;
 
+  UpdateGameTimeLabel;
+
   SortPlayersByTeam;
 
   for I := 1 to MAX_LOBBY_SLOTS do
@@ -672,9 +681,9 @@ begin
       if K = -1 then raise Exception.Create('Unexpected sorted value'); ;
 
       case fSelectedRoomInfo.GameInfo.Players[K].WonOrLost of
-        wol_None: Image_MP_PlayerWolIcons[I].TexId := 0;
-        wol_Won:  Image_MP_PlayerWolIcons[I].TexId := 8;  //Red medal
-        wol_Lost: Image_MP_PlayerWolIcons[I].TexId := 87; //Death skull
+        wolNone: Image_MP_PlayerWolIcons[I].TexId := 0;
+        wolWon:  Image_MP_PlayerWolIcons[I].TexId := 8;  //Red medal
+        wolLost: Image_MP_PlayerWolIcons[I].TexId := 87; //Death skull
       end;
 
       case fSelectedRoomInfo.GameInfo.Players[K].PlayerType of
@@ -687,7 +696,7 @@ begin
                         if fSelectedRoomInfo.GameInfo.Players[K].IsHost then
                         begin
                           Image_MP_Host.Top := Label_MP_PlayersNames[1].Top + 20*(I-1) - 1;
-                          if fSelectedRoomInfo.GameInfo.Players[K].WonOrLost = wol_None then
+                          if fSelectedRoomInfo.GameInfo.Players[K].WonOrLost = wolNone then
                             Image_MP_Host.Left := IMG_COL2
                           else
                             Image_MP_Host.Left := IMG_COL2 + 25; //Move Host star to the right when we have Win/Loss icon
@@ -748,6 +757,16 @@ begin
 end;
 
 
+procedure TKMMenuMultiplayer.StartLobby(aIsHost: Boolean);
+begin
+  gGameApp.Chat.Clear;
+  if aIsHost then
+    fOnPageChange(gpLobby, 'HOST')
+  else
+    fOnPageChange(gpLobby, 'JOIN');
+end;
+
+
 procedure TKMMenuMultiplayer.MP_HostClick(Sender: TObject);
 var
   serverPortStr: string;
@@ -764,7 +783,7 @@ begin
   if not ValidatePlayerName(Edit_MP_PlayerName.Text) then
     Exit;
 
-  fOnPageChange(gpLobby, 'HOST');
+  StartLobby(True);
 
   gGameApp.Networking.OnHostFail := MP_HostFail;
   gGameApp.Networking.Host(AnsiString(Edit_MP_ServerName.Text), serverPort,
@@ -780,6 +799,19 @@ end;
 
 //Make sure that the nikname as a whole is valid (checks that TKMEdit can not always perform)
 function TKMMenuMultiplayer.ValidatePlayerName(const aName: UnicodeString): Boolean;
+
+  function IsReserved(aName: String): Boolean; inline;
+  var
+    I: Integer;
+    Str: String;
+  begin
+    Result := False;
+    Str := Trim(aName);
+    for I := Low(LOBBY_PLAYER_NAMES_TEXT_ID_RESERVED) to High(LOBBY_PLAYER_NAMES_TEXT_ID_RESERVED) do
+      if Str = gResTexts[LOBBY_PLAYER_NAMES_TEXT_ID_RESERVED[I]] then
+        Exit(True);
+  end;
+
 var
   err: UnicodeString;
   I: Integer;
@@ -788,6 +820,9 @@ begin
 
   if (aName = '') or (aName <> Trim(aName)) then
     err := gResTexts[TX_GAME_ERROR_BLANK_PLAYERNAME]
+  else
+  if IsReserved(aName) then
+    err := Format(gResTexts[TX_GAME_ERROR_RESERVER_PLAYERNAME], [aName])
   else
   if Length(aName) > MAX_NIKNAME_LENGTH then
     err := Format(gResTexts[TX_GAME_ERROR_LONG_PLAYERNAME], [MAX_NIKNAME_LENGTH])
@@ -804,8 +839,21 @@ begin
   if not Result then
   begin
     MP_Update(err, icYellow, False);
-    gSoundPlayer.Play(sfxn_Error);
+    gSoundPlayer.Play(sfxnError);
   end
+end;
+
+
+procedure TKMMenuMultiplayer.UpdateGameTimeLabel;
+begin
+  Label_MP_GameTime.Width := S_DETAILS_W_INT - 20*Byte(Panel_MPServerDetails.ScrollV.Visible);
+end;
+
+
+procedure TKMMenuMultiplayer.ServerDetailsScrollChangedVisibility(Sender: TObject; aVisible: Boolean);
+begin
+  //Don't use aVisible, since we call this method directly too
+  UpdateGameTimeLabel;
 end;
 
 
@@ -853,7 +901,8 @@ begin
   gGameApp.Networking.OnJoinFail := nil;
   gGameApp.Networking.OnJoinAssignedHost := nil;
 
-  fOnPageChange(gpLobby, 'JOIN');
+
+  StartLobby(False);
 end;
 
 
@@ -861,7 +910,7 @@ procedure TKMMenuMultiplayer.MP_JoinFail(const aData: UnicodeString);
 begin
   gGameApp.Networking.Disconnect;
   MP_Update(Format(gResTexts[TX_GAME_ERROR_CONNECTION_FAILED], [aData]), icYellow, False);
-  gSoundPlayer.Play(sfxn_Error);
+  gSoundPlayer.Play(sfxnError);
 end;
 
 
@@ -873,7 +922,7 @@ begin
   gGameApp.Networking.OnHostFail := MP_HostFail;
 
   //We were joining a game and the server assigned hosting rights to us
-  fOnPageChange(gpLobby, 'HOST'); //Open lobby page in host mode
+  StartLobby(True); //Open lobby page in host mode
 end;
 
 
@@ -905,7 +954,7 @@ end;
 procedure TKMMenuMultiplayer.MP_HostFail(const aData: UnicodeString);
 begin
   gGameApp.Networking.Disconnect;
-  gSoundPlayer.Play(sfxn_Error);
+  gSoundPlayer.Play(sfxnError);
 
   fOnPageChange(gpMultiplayer, aData);
 end;
@@ -922,6 +971,8 @@ begin
   else
     //We are in event handler of Lobby.BackClick (show status warning)
     MP_Update(aText, icYellow, False);
+
+  UpdateGameTimeLabel;
 
   Panel_MultiPlayer.Show;
 end;

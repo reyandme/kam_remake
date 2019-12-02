@@ -148,9 +148,9 @@ end;
 
 //Make sure we send data to specified client
 procedure TKMNetServerOverbyte.SendData(aHandle: SmallInt; aData: Pointer; aLength: Cardinal);
-var i:integer;
+var I: integer;
 begin
-  for i:=0 to fSocketServer.ClientCount-1 do
+  for I := 0 to fSocketServer.ClientCount - 1 do
     if fSocketServer.Client[i].Tag = aHandle then
     begin
       if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
@@ -166,13 +166,13 @@ end;
 
 
 procedure TKMNetServerOverbyte.Kick(aHandle: SmallInt);
-var i:integer;
+var I:integer;
 begin
-  for i:=0 to fSocketServer.ClientCount-1 do
-    if fSocketServer.Client[i].Tag = aHandle then
+  for I := 0 to fSocketServer.ClientCount - 1 do
+    if fSocketServer.Client[I].Tag = aHandle then
     begin
-      if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
-        fSocketServer.Client[i].Close;
+      if fSocketServer.Client[I].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
+        fSocketServer.Client[I].Close;
       Exit; //Only one client should have this handle
     end;
 end;

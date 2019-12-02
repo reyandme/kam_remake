@@ -1,100 +1,98 @@
 <?php
 function EchoUpdateMessage($Lang, $Rev, $MAIN_VERSION)
 {
-	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
+	echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|';
 	switch($Lang)
 	{
 		case 'tur':
-			echo "Eski bir KaM Remake versiyonu kullanýyorsunuz! ".$Rev." versiyonunu kullanýyorsunuz fakat ".$MAIN_VERSION." versiyonu kullanýlabilir durumda.||Lütfen www.kamremake.com adresinden güncellemeyi indiriniz.";
+			echo 'Eski bir KaM Remake versiyonu kullanýyorsunuz! '.$Rev.' versiyonunu kullanýyorsunuz fakat '.$MAIN_VERSION.' versiyonu kullanýlabilir durumda.||Lütfen https://www.kamremake.com adresinden güncellemeyi indiriniz.';
 			break;
 		case 'jpn':
-			echo "Anata no KAM Remake no ba-jon wa jidaiokure desu yo!@".$Rev." ga jikkou saremashite iru, shikashi ".$MAIN_VERSION." ba-jon wa yori saikin desu. Kono rinku (www.kamremake.com) kara appude-to ga daunro-do saremashite kudasai.";
+			echo 'Anata no KAM Remake no ba-jon wa jidaiokure desu yo!@'.$Rev.' ga jikkou saremashite iru, shikashi '.$MAIN_VERSION.' ba-jon wa yori saikin desu. Kono rinku (https://www.kamremake.com) kara appude-to ga daunro-do saremashite kudasai.';
 			break;
 		case 'bel':
-			echo "Âàøà âåðñ³ÿ KaM Remake ¢ñòàðýëà! Âû âûêàðûñòî¢âàåöå ".$Rev.", à ñàìàÿ àïîøíÿÿ âåðñ³ÿ ".$MAIN_VERSION.". ||Êàë³ ëàñêà çàãðóç³öå àáíà¢ëåííå ïà àäðàñå: www.kamremake.com";
+			echo 'Âàøà âåðñ³ÿ KaM Remake ¢ñòàðýëà! Âû âûêàðûñòî¢âàåöå '.$Rev.', à ñàìàÿ àïîøíÿÿ âåðñ³ÿ '.$MAIN_VERSION.'. ||Êàë³ ëàñêà çàãðóç³öå àáíà¢ëåííå ïà àäðàñå: https://www.kamremake.com';
 			break;
 		case 'nor':
-			echo "Din versjon av KaM Remake er utdatert! Du kjører ".$Rev." men den mest nylige versjonen er ".$MAIN_VERSION.".||Vennligst last ned oppdateringen på: www.kamremake.com";
+			echo 'Din versjon av KaM Remake er utdatert! Du kjører '.$Rev.' men den mest nylige versjonen er '.$MAIN_VERSION.'.||Vennligst last ned oppdateringen på: https://www.kamremake.com';
 			break;
 		case 'ukr':
-			echo "Âàøà ".$Rev." âåðñ³ÿ KaM Remake çàñòàð³ëà! Çàâàíòàæòå íîâó ".$MAIN_VERSION." ìîäèô³êàö³þ íà ñàéò³: www.kamremake.com";
+			echo 'Âàøà '.$Rev.' âåðñ³ÿ KaM Remake çàñòàð³ëà! Çàâàíòàæòå íîâó '.$MAIN_VERSION.' ìîäèô³êàö³þ íà ñàéò³: https://www.kamremake.com';
 			break;
 		case 'rom':
-			echo "Versiunea ta de KaM Remake este expiratã! Acum rulezi ".$Rev." dar cea mai recentã versiune este ".$MAIN_VERSION.".||Te rugãm sã descarci update-ul de la www.kamremake.com";
+			echo 'Versiunea ta de KaM Remake este expiratã! Acum rulezi '.$Rev.' dar cea mai recentã versiune este '.$MAIN_VERSION.'.||Te rugãm sã descarci update-ul de la https://www.kamremake.com';
 			break;
 		case 'svk':
-			echo "Vaša verzia KaM Remake je zastaralá! Máte spustenú verziu ".$Rev.", ale posledná verzia je ".$MAIN_VERSION.".||Prosím, stiahnite si aktualizáciu na stránke: www.kamremake.com";
+			echo 'Vaša verzia KaM Remake je zastaralá! Máte spustenú verziu '.$Rev.', ale posledná verzia je '.$MAIN_VERSION.'.||Prosím, stiahnite si aktualizáciu na stránke: https://www.kamremake.com';
 			break;
 		case 'est':
-			echo "Teie KaM Remake versioon on vana! Teie versioon on ".$Rev." , aga viimane versioon on ".$MAIN_VERSION.".||Palun laadige alla uuendus: www.kamremake.com";
+			echo 'Teie KaM Remake versioon on vana! Teie versioon on '.$Rev.' , aga viimane versioon on '.$MAIN_VERSION.'.||Palun laadige alla uuendus: https://www.kamremake.com';
 			break;
 		case 'bul':
-			echo "Âåðñèÿòà íà èãðàòà å ñ ïî-ñòàðà âåðñèÿ! Âèå èçïîëçâàòå ".$Rev." ,íî ñå ïðåïîðú÷âà ïîñëåäíàòà âåðñèÿ, êîÿòî å ".$MAIN_VERSION.".||Ìîëÿ èçòåãëåòå úïäåéòà îò: www.kamremake.com";
+			echo 'Âåðñèÿòà íà èãðàòà å ñ ïî-ñòàðà âåðñèÿ! Âèå èçïîëçâàòå '.$Rev.' ,íî ñå ïðåïîðú÷âà ïîñëåäíàòà âåðñèÿ, êîÿòî å '.$MAIN_VERSION.'.||Ìîëÿ èçòåãëåòå úïäåéòà îò: https://www.kamremake.com';
 			break;
 		case 'spa':
-			echo "¡La version del kam Remake está desactualizada! Estás ejecutando ".$Rev." pero la versión más reciente es ".$MAIN_VERSION.".||Por favor bajate la actualizacion en: www.kamremake.com";
+			echo '¡La version del kam Remake está desactualizada! Estás ejecutando '.$Rev.' pero la versión más reciente es '.$MAIN_VERSION.'.||Por favor bajate la actualizacion en: https://www.kamremake.com';
 			//No puedes jugar en multijugador hasta que no actualices.
 			break;
 		case 'ita':
-			echo "La tua versione di \"KaM Remake\" non è aggiornata! Stai utilizzando la versione ".$Rev.", mentre la più recente è ".$MAIN_VERSION.".||Puoi scaricare l'aggiornamento dal sito: www.kamremake.com.";
+			echo 'La tua versione di \'KaM Remake\' non è aggiornata! Stai utilizzando la versione '.$Rev.', mentre la più recente è '.$MAIN_VERSION.'.||Puoi scaricare l\'aggiornamento dal sito: https://www.kamremake.com.';
 			//Non potrai giocare online prima di aver aggiornato il programma.
 			break;
 		case 'ptb':
-			echo "Sua versão do KaM Remake está desatualizada! Você está executando ".$Rev." mas a versão mais recente é ".$MAIN_VERSION.".|| Por favor, baixe a atualização em: www.kamremake.com";
+			echo 'Sua versão do KaM Remake está desatualizada! Você está executando '.$Rev.' mas a versão mais recente é '.$MAIN_VERSION.'.|| Por favor, baixe a atualização em: https://www.kamremake.com';
 			//Você não pode jogar online até que atualize seu jogo.
 			break;
 		case 'hun':
-			echo "A KaM Remake verziód túl régi! Te a ".$Rev." verziót futtatod, miközben a ".$MAIN_VERSION." verzió a legújabb.||Kérlek töltsd le a játék frissítését a hivatalos oldalon: www.kamremake.com";
+			echo 'A KaM Remake verziód túl régi! Te a '.$Rev.' verziót futtatod, miközben a '.$MAIN_VERSION.' verzió a legújabb.||Kérlek töltsd le a játék frissítését a hivatalos oldalon: https://www.kamremake.com';
 			//Nem játszhatsz interneten, amíg nem frissíted a játékodat.
 			break;
 		case 'rus':
-			echo "Âàøà âåðñèÿ èãðû óñòàðåëà! Âû èñïîëüçóåòå âåðñèþ ".$Rev." òîãäà êàê ïîñëåäíÿÿ äîñòóïíàÿ âåðñèÿ - ".$MAIN_VERSION.".||Ïîæàëóéñòà ñêà÷àéòå åå ñ ñàéòà: www.kamremake.com";
+			echo 'Âàøà âåðñèÿ èãðû óñòàðåëà! Âû èñïîëüçóåòå âåðñèþ '.$Rev.' òîãäà êàê ïîñëåäíÿÿ äîñòóïíàÿ âåðñèÿ - '.$MAIN_VERSION.'.||Ïîæàëóéñòà ñêà÷àéòå åå ñ ñàéòà: https://www.kamremake.com';
 			//Âû íå ìîæåòå èãðàòü îíëàéí ïîêà íå îáíîâèòå ñâîþ âåðñèþ.
 			break;
 		case 'cze':
-			echo "Máte zastaralou verzi KaM Remake! Používáte verzi ".$Rev.", ale nejnovìjší verze je ".$MAIN_VERSION.".||Prosím, stáhnìte si aktualizaci na: www.kamremake.com";
+			echo 'Máte zastaralou verzi KaM Remake! Používáte verzi '.$Rev.', ale nejnovìjší verze je '.$MAIN_VERSION.'.||Prosím, stáhnìte si aktualizaci na: https://www.kamremake.com';
 			//Nemùžete hrát online dokud neaktualizujete.
 			break;
 		case 'fre':
-			echo "La version de KaM Remake que vous utilisez n'est pas mise à jour !|Vous avez la version ".$Rev." alors que la version la plus récente est la ".$MAIN_VERSION.".||Veuillez télécharger la mise à jour sur www.kamremake.com.";
+			echo 'La version de KaM Remake que vous utilisez n\'est pas mise à jour !|Vous avez la version '.$Rev.' alors que la version la plus récente est la '.$MAIN_VERSION.'.||Veuillez télécharger la mise à jour sur https://www.kamremake.com.';
 			//Vous ne pouvez pas jouer en ligne tant que vous n'avez pas mis à jour votre version.
 			break;
 		case 'pol':
-			echo "Twoja wersja KaM Remake jest nieaktualna! U¿ywasz ".$Rev." ale najnowsz¹ jest ".$MAIN_VERSION.".||Proszê pobraæ aktualizacjê ze strony: www.kamremake.com";
+			echo 'Twoja wersja KaM Remake jest nieaktualna! U¿ywasz '.$Rev.' ale najnowsz¹ jest '.$MAIN_VERSION.'.||Proszê pobraæ aktualizacjê ze strony: https://www.kamremake.com';
 			//Nie mo¿esz graæ online zanim nie zaktualizujesz swojej wersji gry.
 			break;
 		case 'dut':
-			echo "Uw KaM Remake versie is niet de nieuwste. U draait ".$Rev." maar de meest recente versie is ".$MAIN_VERSION.".||U kunt de nieuwste versie downloaden van: www.kamremake.com";
+			echo 'Uw KaM Remake versie is niet de nieuwste. U draait '.$Rev.' maar de meest recente versie is '.$MAIN_VERSION.'.||U kunt de nieuwste versie downloaden van: https://www.kamremake.com';
 			//U kunt niet online spelen totdat u de nieuwste versie heeft geïnstalleerd.
 			break;
 		case 'swe':
-			echo "Du har inte den senaste versionen av KaM Remake! Du kör ".$Rev.", medan den senaste versionen är ".$MAIN_VERSION.".||Ladda ner uppdateringen här: www.kamremake.com";
+			echo 'Du har inte den senaste versionen av KaM Remake! Du kör '.$Rev.', medan den senaste versionen är '.$MAIN_VERSION.'.||Ladda ner uppdateringen här: https://www.kamremake.com';
 			//Du kan inte spela online förrän du har uppdaterat.
 			break;
 		case 'ger':
-			echo "Deine Version des Remakes ist veraltet! Du hast ".$Rev.", die neuste ist ".$MAIN_VERSION.".||Bitte lade das neuste Update von www.kamremake.com runter.";
+			echo 'Deine Version des Remakes ist veraltet! Du hast '.$Rev.', die neuste ist '.$MAIN_VERSION.'.||Bitte lade das neuste Update von https://www.kamremake.com runter.';
 			//Solange du nicht die aktuelle Version hast, kannst du nicht online spielen.
 			break;
 		default:
-			echo "Your KaM Remake version is out of date! You are running ".$Rev." but the most recent version is ".$MAIN_VERSION.".||Please download the update at: www.kamremake.com";
+			echo 'Your KaM Remake version is out of date! You are running '.$Rev.' but the most recent version is '.$MAIN_VERSION.'.||Please download the update at: https://www.kamremake.com';
 			//You cannot play online until you have updated.
 	}
-	echo "||~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+	echo '||~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
 }
-
 
 function EchoUsingBetaMessage($Lang, $Rev, $MAIN_VERSION)
 {
-	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
+	echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|';
 	switch($Lang)
 	{
 		case 'rus':
-			echo "Ðàäû ïðåäñòàâèòü Âàì íîâóþ Áåòà âåðñèþ [$C6FFB0]KaM Remake Beta ".$Rev."[]! Íàäååìñÿ Âàì ïîíðàâÿòñÿ îáíîâëåíèÿ, íî íàäî ó÷èòûâàòü, ÷òî ýòî ïîêà ðàííÿÿ áåòà âåðñèÿ, â êîòîðîé âîçìîæíî íàëè÷èå áàãîâ è îøèáîê.|×òîáû ïîìî÷ü èñïðàâèòü èõ ïîæàëóéñòà íå çàáûâàéòå îòïðàâëÿòü áàã ðåïîðòû ïðè âûëåòå èãðû ñ îøèáêîé.|Ýòî î÷åíü ïîìîæåò íàì èñïðàâèòü îøèáêè è ñäåëàòü èãðó áîëåå ñòàáèëüíîé, òàê ÷òî ìû ñìîæåì âûïóñòèòü ðåëèç ðàíüøå!||Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]'";
+			echo 'ÃÃ Ã¤Ã» Ã¯Ã°Ã¥Ã¤Ã±Ã²Ã Ã¢Ã¨Ã²Ã¼ Ã‚Ã Ã¬ Ã­Ã®Ã¢Ã³Ã¾ ÃÃ¥Ã²Ã  Ã¢Ã¥Ã°Ã±Ã¨Ã¾ [$C6FFB0]KaM Remake Beta '.$Rev.'[]! ÃÃ Ã¤Ã¥Ã¥Ã¬Ã±Ã¿ Ã‚Ã Ã¬ Ã¯Ã®Ã­Ã°Ã Ã¢Ã¿Ã²Ã±Ã¿ Ã®Ã¡Ã­Ã®Ã¢Ã«Ã¥Ã­Ã¨Ã¿, Ã­Ã® Ã­Ã Ã¤Ã® Ã³Ã·Ã¨Ã²Ã»Ã¢Ã Ã²Ã¼, Ã·Ã²Ã® Ã½Ã²Ã® Ã¯Ã®ÃªÃ  Ã°Ã Ã­Ã­Ã¿Ã¿ Ã¡Ã¥Ã²Ã  Ã¢Ã¥Ã°Ã±Ã¨Ã¿, Ã¢ ÃªÃ®Ã²Ã®Ã°Ã®Ã© Ã¢Ã®Ã§Ã¬Ã®Ã¦Ã­Ã® Ã­Ã Ã«Ã¨Ã·Ã¨Ã¥ Ã¡Ã Ã£Ã®Ã¢ Ã¨ Ã®Ã¸Ã¨Ã¡Ã®Ãª.|Ã—Ã²Ã®Ã¡Ã» Ã¯Ã®Ã¬Ã®Ã·Ã¼ Ã¨Ã±Ã¯Ã°Ã Ã¢Ã¨Ã²Ã¼ Ã¨Ãµ Ã¯Ã®Ã¦Ã Ã«Ã³Ã©Ã±Ã²Ã  Ã­Ã¥ Ã§Ã Ã¡Ã»Ã¢Ã Ã©Ã²Ã¥ Ã®Ã²Ã¯Ã°Ã Ã¢Ã«Ã¿Ã²Ã¼ Ã¡Ã Ã£ Ã°Ã¥Ã¯Ã®Ã°Ã²Ã» Ã¯Ã°Ã¨ Ã¢Ã»Ã«Ã¥Ã²Ã¥ Ã¨Ã£Ã°Ã» Ã± Ã®Ã¸Ã¨Ã¡ÃªÃ®Ã©.|ÃÃ²Ã® Ã®Ã·Ã¥Ã­Ã¼ Ã¯Ã®Ã¬Ã®Ã¦Ã¥Ã² Ã­Ã Ã¬ Ã¨Ã±Ã¯Ã°Ã Ã¢Ã¨Ã²Ã¼ Ã®Ã¸Ã¨Ã¡ÃªÃ¨ Ã¨ Ã±Ã¤Ã¥Ã«Ã Ã²Ã¼ Ã¨Ã£Ã°Ã³ Ã¡Ã®Ã«Ã¥Ã¥ Ã±Ã²Ã Ã¡Ã¨Ã«Ã¼Ã­Ã®Ã©, Ã²Ã Ãª Ã·Ã²Ã® Ã¬Ã» Ã±Ã¬Ã®Ã¦Ã¥Ã¬ Ã¢Ã»Ã¯Ã³Ã±Ã²Ã¨Ã²Ã¼ Ã°Ã¥Ã«Ã¨Ã§ Ã°Ã Ã­Ã¼Ã¸Ã¥!||Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]https://www.kamremake.com/donations[]';
 			break;
 		default:
-			echo "Welcome to new [$C6FFB0]KaM Remake Beta ".$Rev."[]! Its an early Beta, so some bugs and errors could happen, please be patient and help to fix them by sending us crash reports after the very first error|It will really help us to make game more stable and release new version earlier!||Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]www.kamremake.com/donations[]'";
+			echo 'Welcome to new [$C6FFB0]KaM Remake Beta '.$Rev.'[]! Its an early Beta, so some bugs and errors could happen, please be patient and help to fix them by sending us crash reports after the very first error|It will really help us to make game more stable and release new version earlier!||Want to socialise with a community of KaM players, or talk with your friends while you play? Join the KaM community teamspeak server! More information at:|[$F8A070]http://kamts.eu[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to help cover our running costs and support future development. Visit [$F8A070]https://www.kamremake.com/donations[]';
 	}
-	echo "||~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+	echo '||~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!';
 }
 
-?>

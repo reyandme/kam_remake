@@ -1,7 +1,7 @@
 //WDC/FPC defines used for RTL-specific cases
 //If you use any Delphi compiler that is not listed here - you need to add it
 {$IFDEF VER140} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 6 compiler
-{$IFDEF VER150} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 7 compiler
+{$IFDEF VER150} {.$DEFINE WDC} {$ENDIF} //Define Windows Delphi 7 compiler //FPC >= 3.2.0 has defined VER150, so just disable it here
 {$IFDEF VER220} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi XE compiler
 {$IFDEF VER230} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi XE2 compiler
 {$IFDEF VER240} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi XE3 compiler
@@ -13,6 +13,7 @@
 {$IFDEF VER300} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10 Seattle compiler
 {$IFDEF VER310} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10.1 Berlin compiler
 {$IFDEF VER320} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10.2 Tokyo compiler
+{$IFDEF VER330} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10.3 Rio compiler
 {.$DEFINE FPC} //Define Free Pascal compiler (defined automatically by Lazarus)
 
 //Lazarus compiler specific settings

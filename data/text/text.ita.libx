@@ -445,7 +445,7 @@
 450:Colonne
 451:Conta
 452:Formazioni
-453:Modifica formazioni
+453:Imposta formazioni
 454:Imposta un limite al numero di soldati dell'IA
 455:Quanti soldati l'IA può avere in un dato momento
 456:Massimo di soldati
@@ -663,8 +663,8 @@
 674:Incolla
 675:Applica
 676:Annulla
-677:Inverti verticalmente
-678:Inverti orizzontalmente
+677:Inverti verticalm.
+678:Inverti orizzont.
 679:Trascina per selezionare un'area sulla mappa
 680:IA - Opzioni difensive
 681:Off
@@ -782,6 +782,431 @@
 829:L'ordine è stato completato
 830:Carica font asiatici
 831:Sposta fuori dai download
+832:Rinomina questo replay
+833:Rinomina Replay
+834:Cancella questo replay
+835:Nome:
+836:Conferma
+837:Scorciatoie da tastiera
+838:Scorciatoie da tastiera
+839:OK
+840:Funzione
+841:Tasto
+842:Scorciatoie non modificabili
+843:Tasti speciali
+844:Resetta
+845:Scorri a sinistra
+846:Scorri a destra
+847:Scorri in alto
+848:Scorri in basso
+849:Menu Costruzione
+850:Menu Distribuzione
+851:Menu Statistiche
+852:Menu Opzioni
+853:Ordina stop
+854:Ordina divisione
+855:Ordina unione
+856:Ordina cibo
+857:Ordina carica
+858:Aumenta colonne
+859:Riduci colonne
+860:Ruota in senso orario
+861:Ruota in senso antioriario
+862:Velocità di gioco normale (x1)
+863:Velocità di gioco x%s
+864:Velocità di gioco x%s
+865:Velocità di gioco x%s
+866:Segnale
+867:Pausa
+868:Mostra squadre (MP)
+869:Aumenta zoom
+870:Riduci zoom
+871:Resetta zoom
+872:Seleziona gruppo 1
+873:Seleziona gruppo 2
+874:Seleziona gruppo 3
+875:Seleziona gruppo 4
+876:Seleziona gruppo 5
+877:Seleziona gruppo 6
+878:Seleziona gruppo 7
+879:Seleziona gruppo 8
+880:Seleziona gruppo 9
+881:Seleziona gruppo 10
+882:Centra su avviso
+883:Cancella messaggio
+884:Mostra chat (MP)
+885:Chiudi menu
+886:Debug Rivela mappa
+887:Debug Vittoria
+888:Debug Sconfitta
+889:Debug Aggiungi esploratore
+890:Menu Extra
+891:Editor Terreno
+892:Pianificazione villaggio
+893:Impostazioni giocatore
+894:Impostazioni globali
+895:Menu principale
+896:Sottomenu 1
+897:Sottomenu 2
+898:Sottomenu 3
+899:Sottomenu 4
+900:Sottomenu 5
+901:Sottomenu 6
+902:Ctrl e Shift non possono essere riassegnati
+903:~~~ Valore sconosciuto
+904:Click sinistro
+905:Click centrale
+906:Click destro
+907:Break
+908:Backspace
+909:TAB
+910:Del
+911:Invio
+912:Shift
+913:Control
+914:Alt
+915:Pausa
+916:Caps Lock
+917:Esc
+918:Barra spaziatrice
+919:Pag su
+920:Pag giù
+921:Fine
+922:Home
+923:Freccia sinistra
+924:Freccia su
+925:Freccia destra
+926:Freccia giù
+927:Sel
+928:Stampa
+929:Exec
+930:Stampa schermo
+931:Ins
+932:Canc
+933:Aiuto
+934:Num Pad 0
+935:Num Pad 1
+936:Num Pad 2
+937:Num Pad 3
+938:Num Pad 4
+939:Num Pad 5
+940:Num Pad 6
+941:Num Pad 7
+942:Num Pad 8
+943:Num Pad 9
+944:Num Pad *
+945:Separatore
+946:Num Pad  -
+947:Num Pad .
+948:Num Pad /
+949:Bloc Num
+950:Bloc Scorr
+951:Shift sinistro
+952:Shift destro
+953:Control sinistro
+954:Control destro
+955:Alt sinistro
+956:Alt destro
+957:Play
+958:Zoom
+960:Num Pad +
+961:Tasti Comuni
+962:Tasti Gioco
+963:Tasti Editor
+964:In attesa dei dati dai giocatori disconnessi:
+965:Pipetta - seleziona il tipo di tassello sotto il cursore
+966:Questa forgia d'armature non è occupata
+967:Questa bottega d'armature non è occupata
+968:Questo forno non è occupato
+969:Questo mattatoio non è occupato
+970:Questa miniera di carbone non è occupata
+971:Questa fattoria non è occupata
+972:Questa capanna da pescatore non è occupata
+973:Questa miniera d'oro non è occupata
+974:Questa miniera di ferro non è occupata
+975:Questa fonderia non è occupata
+976:Questa zecca non è occupata
+977:Questo mulino non è occupato
+978:Questa cava non è occupata
+979:Questa segheria non è occupata
+980:Questa bottega d'assedio non è occupata
+981:Questa stalla non è occupata
+982:Questo allevamento non è occupato
+983:Questa conceria non è occupata
+984:Questa torre non è occupata
+985:Questa forgia d'armi non è occupata
+986:Questa bottega d'armi non è occupata
+987:Questa cantina non è occupata
+988:Questa capanna da boscaiolo non è occupata
+989:%s ha abbandonato la battaglia
+990:L'host (%s) ha abbandonato la battaglia
+991:Annulla
+992:Rimuovi
+993:Seleziona gruppo 11
+994:Seleziona gruppo 12
+995:Seleziona gruppo 13
+996:Seleziona gruppo 14
+997:Seleziona gruppo 15
+998:Seleziona gruppo 16
+999:Seleziona gruppo 17
+1000:Seleziona gruppo 18
+1001:Seleziona gruppo 19
+1002:Seleziona gruppo 20
+1003:Costruisci strada
+1004:Crea campo arato
+1005:Crea vigna
+1006:Rimuovi piano
+1007:Seleziona oggetto dello stesso tipo
+1008:Finestra debug
+1009:Fai da spettatore (per il giocatore 1)
+1010:Fai da spettatore (per il giocatore 2)
+1011:Fai da spettatore (per il giocatore 3)
+1012:Fai da spettatore (per il giocatore 4)
+1013:Fai da spettatore (per il giocatore 5)
+1014:Fai da spettatore (per il giocatore 6)
+1015:Fai da spettatore (per il giocatore 7)
+1016:Fai da spettatore (per il giocatore 8)
+1017:Scorri col mouse
+1018:Tasti Replay
+1019:%s ti sta ignorando. Non puoi mandargli messaggi o segnali
+1020:Tavolozza Oggetti
+1021:Cancella/Rimuovi
+1022:Il tuo taglialegna non riesce a trovare spazio per piantare altri alberi
+1023:PT-
+1024:%s ha vinto!
+1025:La connessione di %s è caduta
+1026:Oro (max)
+1027:Quantità massima di oro da tenere nel municipio
+1028:Pianta solamente
+1029:Accetta / rifiuta %s
+1030:tutti
+1031:tutti
+1032:tutti
+1033:Rinomina mappa
+1034:Pausa dopo tempo di pace
+1035:Tempo di gioco
+1036:Nome
+1037:Potenza
+1038:Tutti i soldati
+1039:Tipo tracciato
+1040:Quantità
+1041:PIL
+1042:Istantaneo
+1043:Totale schierati
+1044:Uccisioni
+1045:Perdite
+1046:Torna al risultato
+1047:Giocatori
+1048:Squadre
+1049:Altre|statistiche
+1050:Torna all'editor
+1051:Torna all'editor
+1052:Vuoi davvero|interrompere|questo replay?
+1053:Mappa non valida
+1054:Questa mappa non è valida. Selezionane un'altra.
+1055:I file della mappa scaricata sono stati modificati
+1056:Scelta mappa scaricata, i cui file sono cambiati. Rimuovila dalla cartella dei download.
+1057:I file della mappa sono stati cambiati. Selezionala di nuovo.
+1058:Bottone mouse avanti
+1059:Bottone mouse indietro
+1060:Tutte
+1061:Eliminatore universale
+1062:Mostra proprietà
+1063:Mostra griglia
+1064:Area di taglio
+1065:Imposta l'area di taglio per il boscaiolo. Alternativamente, si può fare con Shift + Click destro
+1066:Punto d'adunata
+1067:Imposta il punto d'adunata. Alternativamente, si può fare con Shift + Click destro
+1068:Ridimensiona
+1069:Muovi bordi:
+1070:Applica e salva
+1071:Ridimensiona la mappa e salvala
+1073:Vuoi davvero ridimensionare la mappa?|Questo sovrascriverà i file della mappa
+1074:Impossibile eseguire||Devi prima salvare
+1075:Cambia proprietario dell'oggetto
+1076:Partita veloce
+1077:Avvia una partita a giocatore singolo su questa mappa
+1078:Posizione:
+1079:Scegli in che posizione giocare
+1080:Avvia senza salvare
+1081:Annulla le modifiche non salvate ed avvia la partita
+1082:Salva e avvia
+1083:Salva la mappa ed avvia la partita
+1084:Caserma:
+1085:Municipio:
+1086:Ruota tassello
+1087:Tavolozza oggetti
+1088:Chiudi tavolozza
+1089:Rimuovi unità/gruppi
+1090:Replay|pausa auto
+1091:Metti automaticamente in pausa al termine del tempo di pace
+1092:Mostra segnali
+1093:Mostra segnali giocatori
+1094:Ignora giocatore
+1095:Smetti di ignorare
+1096:Ricorda questa password
+1097:Usa ultima password
+1098:Menu precedente
+1099:Sì
+1100:No
+1101:Cancella
+1102:Mappa
+1103:Replay
+1104:Giocatori
+1105:Squadre
+1106:Fai da spettatore (per il giocatore 9)
+1107:Fai da spettatore (per il giocatore 10)
+1108:Fai da spettatore (per il giocatore 11)
+1109:Fai da spettatore (per il giocatore 12)
+1110:Dimensioni attuali:
+1111:Nuove dimensioni:
+1112:Ridimensiona Mappa
+1113:Proprietario: %s
+1114:Cancella num %d
+1115:Cancellando giocatore %d
+1116:Vuoi davvero cancellare questo giocatore?|Tutti i dati verranno eliminati!
+1117:Chiudi
 1118:Multigiocatore
 1119:Niente musica
 1120:Ordine casuale
+1121:Ordine casuale per le tracce musicali sì/no
+1122:Tipo di mappa
+1123:Scenario
+1124:Giocabile in giocatore singolo
+1125:Albero tagliabile
+1126:Blocca spostamento obliquo
+1127:Blocca spostamento e costruzione
+1128:Mostra strade/campi/vigneti
+1129:Sottomenu azione 1
+1130:Sottomenu azione 2
+1131:Sottomenu azione 3
+1132:Sottomenu azione 4
+1133:Sottomenu azione 5
+1134:Sottomenu azione 6
+1135:Sottomenu azione 7
+1136:Secchio di vernice (cambia proprietario)
+1137:Aggiungi attacco
+1138:Rimuovi attacco
+1139:Congedato
+1140:Congeda
+1141:Vuoi davvero congedare questa unità?|Andrà alla scuola e lascerà il tuo villaggio
+1142:Congeda unità
+1143:Annulla congedo
+1144:Impossibile congedare per carenza di scuole nel villaggio
+1145:Parametri|di missione
+1146:Modifica i parametri della missione
+1147:Parametri di missione
+1148:Autore
+1149:Sommario
+1150:Descrizione
+1151:ID testo libx
+1152:Questa mappa comparirà tra quelle per giocatore singolo
+1153:Blocca selezione squadra
+1154:Blocca la selezione delle squadra nella lobby
+1155:Blocca tempo di pace
+1156:Impedisce la modifica del tempo di pace nella lobby
+1157:Blocca anteprima
+1158:Impedisce l'anteprima della mappa nella lobby
+1159:Testo
+1160:Mostra profondità miniere
+1161:Mostra portata torri
+1162:Mostra portata unità
+1163:Codice colore:
+1164:Blu / Verde / Rosso
+1165:Rosso / Verde / Blu
+1166:Colore testo:
+1167:Colore desaturato, viene usato per i testi (e.g. nell'overlay degli script) [sola lettura]
+1168:Filtri di ricerca
+1169:Resetta filtri
+1170:Per numero di giocatori
+1171:Torna alla partita
+1172:Mostra statistiche dettagliate
+1173:Livello di difficoltà
+1174:Facile
+1175:Normale
+1176:Difficile
+1177:Livelli di difficoltà
+1178:Assegna uno o più livelli di difficoltà; questi potranno essere usati nello script per modificare dinamicamente la mappa
+1179:Può usare IA avanzata
+1180:IA avanzata
+1181:IA classica
+1182:Vincitore
+1183:Sconfitto
+1184:Host
+1185:Vai all'edificio selezionato
+1186:Vai all'unità selezionata
+1187:Nemici / amici
+1188:Codifica colori in base ad alleati / avversari anziché usare i colori dei giocatori
+1189:[$404040]L'host è pronto per iniziare. Premi '[][$0707FF]%s[][$404040]'[]
+1190:Chiedi di premere Pronto
+1191:Richiesta inviata a %s giocatori
+1192:Cambia modo colori giocatori
+1193:Congedo non disponibile durante questa azione
+1194:Ctrl + Rotellina mouse
+1195:Alt + Rotellina mouse
+1196:Shift + Rotellina mouse
+1197:Ridipingi
+1198:Ridipingi anche i singoli tasselli posizionati manualmente (se possibile)
+1199:Pennello magico - usa la maschera scelta per ridisegnare le transizioni generate o mancanti
+1200:Nessuna maschera - usa solo tasselli
+1201:Maschera morbidissima - usa transizioni generate automaticamente
+1202:Maschera morbida - usa transizioni generate automaticamente
+1203:Maschera dura - usa transizioni generate automaticamente
+1204:Costi Municipio personalizzati
+1205:Prezzi Mercato personalizzati
+1206:Opzioni aggiuntive
+1207:Opzioni aggiuntive pennello
+1208:Opzioni aggiuntive pennello
+1209:Ripara pennelli terreno
+1210:Prova a far funzionare i pennelli riparando le informazioni interne
+1211:Ripara pennelli terreno
+1212:Vuoi davvero riparare|tutte le info terreno interne?|Questo permetterà ai pennelli|di sovrascrivere anche|i tasselli posizionati|manualmente sulla mappa
+1213:Def.
+1214:Può essere giocatore umano
+1215:Giocatore IA classica %d
+1216:Giocatore IA avanzata %d
+1217:IA classica %d
+1218:IA avanzata %d
+1219:Può usare IA classica
+1220:Giocatori del computer
+1221:Salva auto. a fine partita
+1222:Nulla
+1223:Risorse
+1224:Edifici
+1225:Costruzione
+1226:Civili
+1227:Esercito
+1228:Impossibile congedare unità affamate
+1229:Parametri|IA Classica
+1230:Imposta i parametri usati solo dalla IA classica
+1231:Parametri IA Classica
+1232:Usa qualunque tipo di soldato
+1233:Difficoltà
+1234:%s si è allontanato dalla tastiera da %s [$00B0FF]minuti[]
+1235:L'esportazione dei dati potrebbe richiedere diversi minuti.\nI dati esportati saranno salvati nella cartella '%s'.\nVuoi procedere con l'operazione?
+1236:La procedura [ %s ] dichiarata per il comando da console /%s non è stata trovata
+1237:Tipo di parametro errato per il comando /%s: [%s]
+1238:Tipo del primo parametro errato per il comando /%s. Atteso: [%s], ricevuto: [%s]
+1239:Troppi parametri per il comando /%s: [%s]. Massimo numero di parametri: [%s] (incluso il parametro obbligatorio HandID)
+1240:Parametri errati per il comando /%s. Tipo di parametri atteso: [%s]
+1241:Troppi parametri ricevuti per il comando /%s: Numero di parametri attesi [ %s ], ricevuti: [ %s ]
+1242:Invocato comando: /%s(%s)
+1243:Errore durante l'invocazione del comando /%s(%s)
+1244:Comando console /%s non trovato
+1245:Abilita/vieta copia-incolla dalla chat
+1246:Imposta segnalibro temporaneo qui
+1247:Vai al momento %s
+1248:Modo colori giocatori:
+1249:Default
+1250:Amici / nemici
+1251:Squadre
+1252:Mostra i colori iniziali dei giocatori
+1253:Codifica i colori dei giocatori in base ad alleati / avversari
+1254:Codifica i colori dei giocatori in base alla squadra di appartenenza
+1255:Errore: il nome '%s' è riservato
+1256:Civili (S/L/R)
+1257:Civili (altri)
+1258:Apri/chiudi statistiche spettatore
+1259:Consegna di %s proibita
+1260:Rimozione di %s proibita nella modalità di consegna "offri"
+1261:Alla recluta è impedito l'accesso alla caserma

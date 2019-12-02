@@ -19,28 +19,32 @@ type
   public
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
+    NotAllowTakeOutFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
     NotAcceptRecruitFlag: Boolean;
-    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+    constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
 
     procedure Activate(aWasBuilt: Boolean); override;
-    procedure DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False); override;
+    procedure DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TKMWareType): Word; override;
     function ResCanAddToIn(aRes: TKMWareType): Boolean; override;
 
-    function ShouldAbandonDelivery(aWareType: TKMWareType): Boolean; override;
+    function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; override;
+    function ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean; override;
+    function ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean; override;
 
     function ResOutputAvailable(aRes: TKMWareType; const aCount: Word): Boolean; override;
     function CanEquip(aUnitType: TKMUnitType): Boolean;
     function RecruitsCount: Integer;
     procedure RecruitsAdd(aUnit: Pointer);
     procedure RecruitsRemove(aUnit: Pointer);
-    procedure ToggleAcceptFlag(aRes: TKMWareType);
+    procedure ToggleNotAcceptFlag(aRes: TKMWareType);
+    procedure ToggleNotAllowTakeOutFlag(aRes: TKMWareType);
     procedure ToggleAcceptRecruits;
     function Equip(aUnitType: TKMUnitType; aCount: Integer): Integer;
     procedure CreateRecruitInside(aIsMapEd: Boolean);
@@ -51,12 +55,12 @@ implementation
 uses
   Math, Types,
   KM_Hand, KM_HandsCollection, KM_Terrain,
-  KM_Units, KM_Units_Warrior,
+  KM_Units, KM_UnitWarrior,
   KM_ResUnits;
 
 
 { TKMHouseBarracks }
-constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandIndex; aBuildState: TKMHouseBuildState);
+constructor TKMHouseBarracks.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
 begin
   inherited;
 
@@ -70,7 +74,7 @@ var
   U: TKMUnit;
 begin
   inherited;
-
+  LoadStream.CheckMarker('HouseBarracks');
   LoadStream.Read(fResourceCount, SizeOf(fResourceCount));
   fRecruitsList := TList.Create;
   LoadStream.Read(NewCount);
@@ -80,6 +84,7 @@ begin
     fRecruitsList.Add(U);
   end;
   LoadStream.Read(NotAcceptFlag, SizeOf(NotAcceptFlag));
+  LoadStream.Read(NotAllowTakeOutFlag, SizeOf(NotAllowTakeOutFlag));
   LoadStream.Read(NotAcceptRecruitFlag);
 end;
 
@@ -112,13 +117,16 @@ begin
   if (FirstBarracks <> nil) and not FirstBarracks.IsDestroyed then
   begin
     for WT := WARFARE_MIN to WARFARE_MAX do
+    begin
       NotAcceptFlag[WT] := FirstBarracks.NotAcceptFlag[WT];
+      NotAllowTakeOutFlag[WT] := FirstBarracks.NotAllowTakeOutFlag[WT];
+    end;
     NotAcceptRecruitFlag := FirstBarracks.NotAcceptRecruitFlag;
   end;
 end;
 
 
-procedure TKMHouseBarracks.DemolishHouse(aFrom: TKMHandIndex; IsSilent: Boolean = False);
+procedure TKMHouseBarracks.DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False);
 var
   R: TKMWareType;
 begin
@@ -201,11 +209,19 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ToggleAcceptFlag(aRes: TKMWareType);
+procedure TKMHouseBarracks.ToggleNotAcceptFlag(aRes: TKMWareType);
 begin
   Assert(aRes in [WARFARE_MIN .. WARFARE_MAX]);
 
   NotAcceptFlag[aRes] := not NotAcceptFlag[aRes];
+end;
+
+
+procedure TKMHouseBarracks.ToggleNotAllowTakeOutFlag(aRes: TKMWareType);
+begin
+  Assert(aRes in [WARFARE_MIN .. WARFARE_MAX]);
+
+  NotAllowTakeOutFlag[aRes] := not NotAllowTakeOutFlag[aRes];
 end;
 
 
@@ -215,9 +231,31 @@ begin
 end;
 
 
-function TKMHouseBarracks.ShouldAbandonDelivery(aWareType: TKMWareType): Boolean;
+function TKMHouseBarracks.ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean;
 begin
-  Result := inherited or not (aWareType in [WARFARE_MIN .. WARFARE_MAX]) or NotAcceptFlag[aWareType];
+  Result := inherited
+            or not (aWareType in [WARFARE_MIN .. WARFARE_MAX])
+            or NotAcceptFlag[aWareType];
+end;
+
+
+function TKMHouseBarracks.ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean;
+begin
+  Result := inherited or not (aWareType in [WARFARE_MIN .. WARFARE_MAX]);
+end;
+
+
+function TKMHouseBarracks.ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean;
+begin
+  Result := inherited
+              or (aToHouse = nil)
+              //Do not allow delivery from Barracks to other houses except Market/Store/other Barracks
+              or not (aToHouse.HouseType in [htMarketplace, htStore, htBarracks])
+              or ((aToHouse.HouseType <> htMarketplace) //allow delivery to Market with any mode
+                //For other houses allow only when dmTakeOut and no flag NotAllowTakeOutFlag
+                and ((GetDeliveryModeForCheck(aImmidiateCheck) <> dmTakeOut)
+                      or NotAllowTakeOutFlag[aWareType])); //Use NewDelivery here, since
+
 end;
 
 
@@ -235,7 +273,7 @@ begin
   Result := Result and not gHands[fOwner].Locks.GetUnitBlocked(aUnitType);
 
   for I := 1 to 4 do
-  if TROOP_COST[aUnitType, I] <> wt_None then //Can't equip if we don't have a required resource
+  if TROOP_COST[aUnitType, I] <> wtNone then //Can't equip if we don't have a required resource
     Result := Result and (fResourceCount[TROOP_COST[aUnitType, I]] > 0);
 end;
 
@@ -248,7 +286,7 @@ var
   Soldier: TKMUnitWarrior;
 begin
   Result := 0;
-  Assert(aUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX]);
+  Assert(aUnitType in [WARRIOR_EQUIPABLE_BARRACKS_MIN..WARRIOR_EQUIPABLE_BARRACKS_MAX]);
 
   for K := 0 to aCount - 1 do
   begin
@@ -257,7 +295,7 @@ begin
 
     //Take resources
     for I := 1 to 4 do
-    if TROOP_COST[aUnitType, I] <> wt_None then
+    if TROOP_COST[aUnitType, I] <> wtNone then
     begin
       Dec(fResourceCount[TROOP_COST[aUnitType, I]]);
       gHands[fOwner].Stats.WareConsumed(TROOP_COST[aUnitType, I]);
@@ -265,7 +303,7 @@ begin
     end;
 
     //Special way to kill the Recruit because it is in a house
-    TKMUnitRecruit(fRecruitsList.Items[0]).DestroyInBarracks;
+    TKMUnitRecruit(fRecruitsList.Items[0]).KillInHouse;
     fRecruitsList.Delete(0); //Delete first recruit in the list
 
     //Make new unit
@@ -274,7 +312,7 @@ begin
     Soldier.Visible := False; //Make him invisible as he is inside the barracks
     Soldier.Condition := Round(TROOPS_TRAINED_CONDITION * UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
     //Soldier.OrderLoc := KMPointBelow(Entrance); //Position in front of the barracks facing north
-    Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
+    Soldier.SetActionGoIn(uaWalk, gdGoOutside, Self);
     if Assigned(Soldier.OnUnitTrained) then
       Soldier.OnUnitTrained(Soldier);
     Inc(Result);
@@ -289,12 +327,12 @@ begin
     Inc(MapEdRecruitCount)
   else
   begin
-    U := gHands[fOwner].TrainUnit(ut_Recruit, Entrance);
+    U := gHands[fOwner].TrainUnit(utRecruit, Entrance);
     U.Visible := False;
     U.InHouse := Self;
-    U.SetHome(Self); //When walking out Home is used to remove recruit from barracks
+    U.Home := Self; //When walking out Home is used to remove recruit from barracks
     RecruitsAdd(U);
-    gHands[fOwner].Stats.UnitCreated(ut_Recruit, False);
+    gHands[fOwner].Stats.UnitCreated(utRecruit, False);
   end;
 end;
 
@@ -304,12 +342,13 @@ var
   I: Integer;
 begin
   inherited;
-
+  SaveStream.PlaceMarker('HouseBarracks');
   SaveStream.Write(fResourceCount, SizeOf(fResourceCount));
   SaveStream.Write(RecruitsCount);
   for I := 0 to RecruitsCount - 1 do
     SaveStream.Write(TKMUnit(fRecruitsList.Items[I]).UID); //Store ID
   SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
+  SaveStream.Write(NotAllowTakeOutFlag, SizeOf(NotAllowTakeOutFlag));
   SaveStream.Write(NotAcceptRecruitFlag);
 end;
 

@@ -1,6 +1,8 @@
 //-- TSK10 --//
 //24.01.2018
 
+{$I difficulty.script}
+
 procedure OnTick;
 begin
 	//Message On Mission Start
