@@ -56,14 +56,18 @@ uses
   KM_UnitWarrior, KM_ResUnits,
   KM_InterfaceGame;
 
-
 {TKMHouseTownHall}
 constructor TKMHouseTownHall.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
+var
+  a: integer; m: integer;
 begin
   inherited;
-
+  m := -1; //a := -1,
+  for a:= 0 to 5 do
+  if (TH_TROOP_COST[a] > m) then
+	m := TH_TROOP_COST[a];
   fGoldCnt := 0;
-  fGoldMaxCnt := MAX_WARES_IN_HOUSE + 3;
+  fGoldMaxCnt := m;
 end;
 
 
