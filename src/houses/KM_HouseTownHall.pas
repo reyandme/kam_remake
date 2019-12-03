@@ -59,15 +59,17 @@ uses
 {TKMHouseTownHall}
 constructor TKMHouseTownHall.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
 var
-  a: integer; m: integer;
+  I, M: Integer;
 begin
   inherited;
-  m := -1; //a := -1,
-  for a:= 0 to 5 do
-  if (TH_TROOP_COST[a] > m) then
-	m := TH_TROOP_COST[a];
+  
+  M := MAX_WARES_IN_HOUSE;
+  //Get max troop cost and set GoldMaxCnt to it
+  for I := Low(TH_TROOP_COST) to High(TH_TROOP_COST) do
+    if TH_TROOP_COST[I] > M then 
+      M := TH_TROOP_COST[I];
   fGoldCnt := 0;
-  fGoldMaxCnt := m;
+  fGoldMaxCnt := M;
 end;
 
 
