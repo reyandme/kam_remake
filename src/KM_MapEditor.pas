@@ -89,6 +89,7 @@ uses
   KM_Game, KM_GameCursor, KM_ResMapElements, KM_ResHouses, KM_ResWares, KM_Resource,
   KM_RenderAux, KM_Hand, KM_HandsCollection, KM_InterfaceMapEditor, KM_CommonUtils, KM_Utils;
 
+//defines default defence position radius for static AI 
 const
   DEFAULT_DEFENCE_POSITION_RADIUS = 20;
 
