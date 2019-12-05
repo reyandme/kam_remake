@@ -487,8 +487,6 @@ begin
     if not RoadExists then
       Exit;
 
-	//if aFieldType = Plan then //Same plan - remove it
-    //RemFieldPlan(LocTo,aMakeSound);
     for I := 0 to NodeList.Count - 1 do
       //We must check if we can add the plan ontop of plans placed earlier in this turn
       if P.CanAddFieldPlan(NodeList[I], ftRoad) then
