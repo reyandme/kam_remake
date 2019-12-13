@@ -3,6 +3,7 @@
 //v0.8.3b
 //07.11.2019
 //Developed for KaM Remake r10240
+//Adopted for r10537 by Rey
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //AUTOMATIC/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,6 +29,7 @@ const
 	
 var
 	EquipRateMod, RecruitDelayMod, RecruitLimitMod, WorkerLimitMod: array of Single;
+	NORMAL_DIFFICULTY: TKMMissionDifficulty;
 
 
 function GetHumanPlayer(): Byte; //Identify human player in SP maps (in the unlikely case its not Player0)
@@ -201,7 +203,7 @@ begin
 end;
 
 
-procedure AddDefencePositionAndGroup(Player, UnitType, X, Y, D, Radius: Byte); //Causes Problems if AI already has Attack defence positions with same GroupType (Added Groups will  be asigned to previously existing positions)
+procedure AddDefencePositionAndGroup(Player, UnitType, X, Y, D, Radius: Byte); //Causes Problems if AI already has Attack defence positions with same GroupType (Added Groups will be asigned to previously existing positions)
 var
 	GroupType: Byte;
 	Count, Columns, GroupID: Integer;
@@ -224,7 +226,7 @@ var
 	HouseID, ClosestHouse: Integer;
 begin
 	HouseID := Actions.GiveHouse(Player, HouseType, X, Y);
-	if  HouseID <> -1 then
+	if HouseID <> -1 then
 	begin
 		ClosestHouse := States.ClosestHouse(Player, X, Y, 11); //Closest Storehouse
 		Actions.PlanConnectRoad(Player, X, Y +1, States.HousePositionX(ClosestHouse), States.HousePositionY(ClosestHouse) +1, true);
@@ -241,7 +243,8 @@ end;
 procedure DifficultyOnMissionStart();
 var
 	Difficulty: TKMMissionDifficulty; 
-	iPlayer, p, dMod: Byte;
+	iPlayer, p: Byte;
+	dMod: Integer;
 begin
 	//Define Modifiers [Easy, Normal, Hard]
 	EquipRateMod := [1.5, 1, 0.66];
@@ -249,8 +252,19 @@ begin
 	RecruitLimitMod := [1, 1, 1.5];
 	WorkerLimitMod := [1, 1, 1.5];
 	
+	NORMAL_DIFFICULTY := mdNormal; //the only way to get Byte(mdNormal)...
+	
 	Difficulty := States.MissionDifficulty(); //Easy: 1, Normal: 2, Hard: 3
-	if (Difficulty <> mdNone) then
+	{$IFDEF TESTMODE} A.ShowMsg(-1,IntToStr(Byte(Difficulty))); {$ENDIF}
+	
+	//Shrink all 7 difficulties into 3 we currently use
+	if (Difficulty = mdEasy3) or (Difficulty = mdEasy2) then
+		Difficulty := mdEasy1
+	else 
+	if (Difficulty = mdHard3) or (Difficulty = mdHard2) then
+		Difficulty := mdHard1;
+		
+	if Difficulty <> mdNone then
 	begin
 		if AUTOMATIC then
 		begin
@@ -259,20 +273,20 @@ begin
 			begin
 				for p := 0 to States.StatPlayerCount() -1 do
 					case Difficulty of
-						mdNormal: 	exit;
-						mdEasy: 	if States.PlayerIsAI(p) then 
+						mdNormal:  exit;
+						mdEasy1:   if States.PlayerIsAI(p) then 
 									begin
 										if States.PlayerAllianceCheck(iPlayer, p) then	
 											IncreaseGroupSize(p, 0);
 										end else
 											IncreaseGroupSize(p, 0);
-						mdHard:		if States.PlayerIsAI(p) then
+						mdHard1:		if States.PlayerIsAI(p) then
 										if not States.PlayerAllianceCheck(iPlayer, p) then
 											IncreaseGroupSize(p, 0);
 					end;
 			end else
 			begin //Normal Map 
-				dMod := Byte(Difficulty) -1; 
+				dMod := Byte(Difficulty) - Byte(NORMAL_DIFFICULTY) + 1; // allowed values are: 0, 1, 2
 				{$IFDEF TESTMODE}Actions.OverlayTextAppend(-1, 'dMod=' + inttostr(dMod));{$ENDIF}
 				for p := 0 to States.StatPlayerCount() -1 do
 					if States.PlayerIsAI(p) then

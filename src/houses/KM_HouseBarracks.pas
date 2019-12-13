@@ -286,7 +286,7 @@ var
   Soldier: TKMUnitWarrior;
 begin
   Result := 0;
-  Assert(aUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX]);
+  Assert(aUnitType in [WARRIOR_EQUIPABLE_BARRACKS_MIN..WARRIOR_EQUIPABLE_BARRACKS_MAX]);
 
   for K := 0 to aCount - 1 do
   begin

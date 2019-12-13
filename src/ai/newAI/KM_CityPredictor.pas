@@ -1,14 +1,15 @@
+{
+Artificial intelligence
+@author: Martin Toupal
+@e-mail: poznamenany@gmail.com
+}
 unit KM_CityPredictor;
 {$I KaM_Remake.inc}
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils,
   KM_Defaults, KM_Points, KM_CommonClasses, KM_CommonTypes,
-  KM_AISetup, KM_ResHouses, KM_ResWares, KM_HandStats;
-
-var
-  GA_PREDICTOR_WareNeedPerAWorker_Stone : Single = 0.65;
-  GA_PREDICTOR_WareNeedPerAWorker_Wood  : Single = 0.28;
+  KM_AISetup, KM_ResHouses, KM_ResWares, KM_HandStats, KM_AIParameters;
 
 type
   TWareBalance = record
@@ -691,18 +692,23 @@ begin
   RequiredHouses[htWeaponWorkshop] := RequiredHouses[htWeaponWorkshop] * Byte( (RequiredHouses[htTannery] > 0) OR (WEAP_WORKSHOP_DELAY < aTick) OR (aTick > (gGame.GameOptions.Peacetime-20) * 10 * 60) );
 
   // Coal mines are used by top priority houses (Metallurgists) and low priority houses (smithy)
-  // To get reasonable production there should be something like following logic, good luck with understanding ;)
+  // To get reasonable production there should use something like following logic, good luck with understanding ;)
+  {
   RequiredHouses[htCoalMine] := Min( RequiredHouses[htCoalMine],
-                                     Max( Max( Planner.PlannedHouses[htMetallurgists].Count, // Gold production requirements
-                                               Planner.PlannedHouses[htGoldMine].Count
-                                             ),
-                                          RequiredHouses[htGoldMine] // Build coal mine in parallel to gold mine
-                                        )
-                                     - Planner.PlannedHouses[htCoalMine].Count
+                                     Max( Planner.PlannedHouses[htMetallurgists].Count, // Gold production requirements
+                                          RequiredHouses[htGoldMine]) // Build coal mine in parallel to gold mine
                                      + Stats.GetHouseTotal(htIronSmithy) // Iron production requirements
                                      + Stats.GetHouseTotal(htArmorSmithy)
                                      + Stats.GetHouseTotal(htWeaponSmithy)
-                                   );
+                                     - Planner.PlannedHouses[htCoalMine].Count
+                                   ); //}
+  RequiredHouses[htCoalMine] := Max( Planner.PlannedHouses[htMetallurgists].Count,RequiredHouses[htGoldMine]) // Gold production requirements
+                                - Planner.PlannedHouses[htCoalMine].Count // Current production
+                                  // Build coal mine in parallel to gold mine
+                                + Stats.GetHouseTotal(htIronSmithy) // Iron production requirements
+                                + Stats.GetHouseTotal(htArmorSmithy)
+                                + Stats.GetHouseTotal(htWeaponSmithy)
+                                + 1; // +1 works better for some reason
 
   // Loghical house requirements (delay takes too long so it is not used)
   {

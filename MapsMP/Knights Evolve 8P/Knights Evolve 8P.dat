@@ -382,6 +382,7 @@
 !SET_CURR_PLAYER 8
 !ENABLE_PLAYER 8
 !SET_AI_PLAYER
+!SET_ADVANCED_AI_PLAYER
 !SET_RGB_COLOR 0
 
 
@@ -467,4 +468,4 @@
 !SET_UNIT 29 84 1
 !SET_UNIT 31 90 6
 
-//This mission was made with KaM Remake Map Editor version r9482 at 14.05.2018 11:07:36
+//This mission was made with KaM Remake Map Editor version r10525 at 03.12.2019 17:01:27

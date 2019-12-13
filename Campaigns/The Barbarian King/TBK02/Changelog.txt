@@ -1,0 +1,58 @@
+TBK02
+*****
+
+Version 1.1 (28.08.2015)
+- Fixed some bugs in the script
+- Optimized script
+- Included the House-Rebuild script in the map
+
+Version 1.1d (19.09.205)
+- Minor improvements to the script
+- AI player is now less likely to build barabians (50% -> 33%);
+- Improved Debug-features
+
+Version 1.1e (31.08.2017)
+- Added german translation (ger.libx)
+
+Version 1.2 (09.01.2018)
+- Fixed a bug where RR wouldnt increase if you've been discovered by the spy
+- Recruitment Rate changed from 90 to 100; After discovery or 2hours: RR is 80 (from 70 previously)
+- Defence Positions are added after 2hours now instead of 1.5 if you havent been discovered by the spy
+
+
+Version 2.0 (04.03.2018)
+- Moved map to KaMRemake r8754 beta version
+- Overhauled scripts
+- Deactivated Townhall
+- Spy is now a Militia so it is easier to catch
+- Stable is now availible
+- Added Goto Button to the Briefing once you are discorvered
+- Spy is getting revealed once you are discovered
+
+
+Version 2.0b (10.03.2018)
+- Fixed a bug with the Recruitment Rate adjustment
+
+Version 2.0c (17.03.2018)
+- Enabled AI Rebuild in improvestaticai.script that was previously disabled (copy-paste-error)
+- Fixed Minable Stonemountain ("Can worker")
+
+Version 2.1 (06.04.2019)
+- Spy starts patrolling now 10min earlier (from 55 to 45min)
+- AI starts building soldiers @90min even if you havent been discovered
+- Equip Rate adjustment is removed from script; default Equiprate changed from 100 to 70 in MapEd
+- AI Attacks now ealier but 1. Attack has less soldiers
+- Added Winning condition: Kill all enemy troops (was previously only buildings)
+- Overhauled Script
+- Difficutly integration:
+	- Difficulty determines when Spy starts moving
+	- Worker Limit now scales with Difficulty after you've been discovered
+	- Hard: Added Additional Defence Positions and Units for Player1
+- Replaced uncuttable trees
+- Now grabs House, Roadworks and Destroyed House Data and saves it into campaign.dat on player victory
+
+Version 2.1b (22.04.2019)
+- Fixed typo in TBK02.eng.libx
+
+Version 2.1c (18.08.2019)
+- Create Vagabond instead of Milita on Hard Difficulty

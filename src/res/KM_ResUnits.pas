@@ -172,7 +172,7 @@ uses
 const
   //TownHall default units troops cost (number of gold chests needed)
   TH_DEFAULT_TROOP_COST: array[0..5] of Byte = (
-    3, 3, 3, 5, 8, 8
+    2, 3, 3, 5, 8, 8 //rebel / militia / rogue / vagabond / barbarian / warrior
   );
 
 
@@ -210,7 +210,7 @@ end;
 
 function TKMUnitSpec.IsWarriorEquipable: boolean;
 begin
-  Result := fUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX];
+  Result := fUnitType in [WARRIOR_EQUIPABLE_BARRACKS_MIN..WARRIOR_EQUIPABLE_BARRACKS_MAX];
 end;
 
 
@@ -429,9 +429,10 @@ begin
     fItems[U] := TKMUnitSpec.Create(U);
 
   fCRC := LoadUnitsDat(ExeDir+'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
-  fItems[utHorseScout].fUnitDat.Sight := 16;
+  fItems[utHorseScout].fUnitDat.Sight := 13;
   fItems[utHorseman].fUnitDat.Attack := 35;
-  fItems[utPeasant].fUnitDat.AttackHorse := 55;
+  fItems[utPeasant].fUnitDat.AttackHorse := 50;
+  fItems[utPikeman].fUnitDat.AttackHorse := 60;
   //ExportCSV(ExeDir+'units.csv');
 end;
 

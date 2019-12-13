@@ -10,9 +10,9 @@ procedure OnMissionStart;
 begin
 	//Apply Difficulty
 	case States.MissionDifficulty() of
-		mdEasy: 
+		mdEasy1: 
 			IncreaseGroupSize(0, 0);
-		mdHard:
+		mdHard1:
 			IncreaseGroupSize(2, 0);
 	end;
 	//First Wave

@@ -49,6 +49,7 @@ type
     function GetDATCRC: Cardinal;
 
     procedure LoadMainResources(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
+    procedure LoadLocaleAndFonts(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
     procedure LoadLocaleResources(const aLocale: AnsiString = '');
     procedure LoadGameResources(aAlphaShadows: Boolean; aForceReload: Boolean = False);
     procedure LoadLocaleFonts(const aLocale: AnsiString; aLoadFullFonts: Boolean);
@@ -164,23 +165,14 @@ begin
 
   gResKeys := TKMKeyLibrary.Create;
 
-  // Locale info is needed for DAT export and font loading
-  LoadLocaleResources(aLocale);
+  LoadLocaleAndFonts(aLocale, aLoadFullFonts);
 
-  StepCaption('Reading fonts ...');
-  fFonts := TKMResFonts.Create;
-  if aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts then
-    fFonts.LoadFonts(fllFull)
-  else
-    fFonts.LoadFonts(fllMinimal);
-  gLog.AddTime('Read fonts is done');
-
-  fTileset := TKMResTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
+  fTileset := TKMResTileset.Create(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'pattern.dat');
   if not SKIP_RENDER then
     fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(TILES_CNT);
 
   fMapElements := TKMResMapElements.Create;
-  fMapElements.LoadFromFile(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'mapelem.dat');
+  fMapElements.LoadFromFile(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'mapelem.dat');
 
   fSprites.ClearTemp;
 
@@ -206,6 +198,21 @@ begin
   gResTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
 
   fSounds := TKMResSounds.Create(gResLocales.UserLocale, gResLocales.FallbackLocale, gResLocales.DefaultLocale);
+end;
+
+
+procedure TKMResource.LoadLocaleAndFonts(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
+begin
+  // Locale info is needed for DAT export and font loading
+  LoadLocaleResources(aLocale);
+
+  StepCaption('Reading fonts ...');
+  fFonts := TKMResFonts.Create;
+  if aLoadFullFonts or gResLocales.LocaleByCode(aLocale).NeedsFullFonts then
+    fFonts.LoadFonts(fllFull)
+  else
+    fFonts.LoadFonts(fllMinimal);
+  gLog.AddTime('Read fonts is done');
 end;
 
 

@@ -1,0 +1,97 @@
+//-- TBK05 --//
+//By Strangelove
+//v2.0b
+//05.04.2019
+
+{$I improvestaticai.script}
+{$I transformunits.script}
+{$I difficulty.script}
+
+{$DEFINE DEBUG} //Enable extended Debug
+//{$UNDEF DEBUG}
+
+var 
+	iDefeatConter: Byte;
+
+
+procedure UnitsHungerSet(); //Gives AI Units MaxHungerLevel and HumanPlayer's Units 99% of MaxHungerLevel (Intended for Tactical Maps)
+var 
+	aUnits: array of Integer;
+	i, j: Integer;
+	iPlayerLoop: Byte;
+begin
+	for iPlayerLoop := 0 to States.StatPlayerCount() -1 do
+	begin
+		aUnits := States.PlayerGetAllUnits(iPlayerLoop);
+		if States.PlayerIsAI(iPlayerLoop) then
+		begin
+			for i := 0 to Length(aUnits) -1 do
+				Actions.UnitHungerSet(aUnits[i], States.UnitMaxHunger());
+		end else
+		begin
+			for j := 0 to Length(aUnits) -1 do
+				Actions.UnitHungerSet(aUnits[j], ((States.UnitMaxHunger())/100 *99));
+		end;
+	end;
+end;
+
+
+procedure OnMissionStart();
+begin
+	iDefeatConter := 0;
+	UnitsHungerSet();
+	//Add Siege Workshop
+	Actions.GiveHouse(1, 23, 84, 13);
+	Actions.HouseAddWaresTo(States.HouseAt(84,13), 6, 5);
+	Actions.HouseAddWaresTo(States.HouseAt(84,13), 2, 3);
+	//Disable AxeFighter
+	Actions.UnitBlock(4, 15, true); 
+	Actions.UnitBlock(3, 15, true);
+	Actions.UnitBlock(2, 15, true);
+end;
+
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+	if States.PlayerIsAI(aIndex) then
+		Inc(iDefeatConter);
+	if iDefeatConter = 2 then //Give reinforcements to player
+	begin
+		Actions.ShowMsgGoto(-1, 50, 123, '<$0>');
+		case States.MissionDifficulty() of
+			mdEasy1:
+			begin
+				Actions.GiveGroup(0, 22, 47, 123, 0, 9, 3); //27 Knights
+				Actions.GiveGroup(0, 22, 50, 123, 0, 9, 3);
+				Actions.GiveGroup(0, 22, 53, 123, 0, 9, 3);
+			end;
+			mdNormal:
+			begin
+				Actions.GiveGroup(0, 22, 48, 124, 0, 9, 3); //18 Knights
+				Actions.GiveGroup(0, 22, 52, 124, 0, 9, 3);
+			end;
+			mdHard1:
+				Actions.GiveGroup(0, 22, 50, 125, 0, 8, 4); //8 Knights
+		end;
+	end;
+end;
+
+procedure OnTick();
+begin
+	if States.GameTime() = 14 then
+		case States.MissionDifficulty() of
+			mdEasy1:
+			begin
+				RemoveDefencePositionAndGroup(4, 3, 95); //Bows
+				RemoveDefencePositionAndGroup(3, 57, 86); //Lancers
+				RemoveDefencePositionAndGroup(6, 36, 36); //Milita
+				RemoveDefencePositionAndGroup(1, 57, 32); //xbows
+			end;
+			mdNormal: exit;
+			mdHard1:
+			begin
+				AddDefencePositionAndGroup(3, 14, 56, 98, 7, 11); //Milita
+				AddDefencePositionAndGroup(6, 14, 32, 18, 6, 12);
+				AddDefencePositionAndGroup(1, 22, 89, 6, 5, 18); //Knights
+			end;
+		end;
+end;

@@ -72,7 +72,7 @@ procedure LoadMapHeader(aStream: TKMemoryStreamBinary; var aMapX: Integer; var a
 var
   GameRevision: UnicodeString;
 begin
-  aStream.Read(aMapX); //We read header to new variables to avoid damage to existing map if header is wrong
+  aStream.Read(aMapX); //Get map header to determine old (r6720 and earlier) or newer format
 
   aIsKaMFormat := True;
   if aMapX = 0 then //Means we have not standart KaM format map, but our own KaM_Remake format

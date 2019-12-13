@@ -73,6 +73,8 @@ type
   function KMPointX1Y1(const P:TKMPoint): TKMPoint;
   function KMPointBelow(const P: TKMPoint): TKMPoint;
   function KMPointAbove(const P: TKMPoint): TKMPoint;
+  function KMPointLeft(const P: TKMPoint): TKMPoint;
+  function KMPointRight(const P: TKMPoint): TKMPoint;
   function KMNormVector(const P: TKMPoint; R: Integer): TKMPoint;
 
   function KMPointRound(const P: TKMPointF): TKMPoint;
@@ -310,6 +312,18 @@ function KMPointAbove(const P: TKMPoint): TKMPoint;
 begin
   Result.X := P.X;
   Result.Y := P.Y - 1;
+end;
+
+function KMPointLeft(const P: TKMPoint): TKMPoint;
+begin
+  Result.X := P.X - 1;
+  Result.Y := P.Y;
+end;
+
+function KMPointRight(const P: TKMPoint): TKMPoint;
+begin
+  Result.X := P.X + 1;
+  Result.Y := P.Y;
 end;
 
 function KMNormVector(const P: TKMPoint; R: Integer): TKMPoint;

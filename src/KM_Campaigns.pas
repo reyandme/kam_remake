@@ -58,6 +58,9 @@ type
     procedure LoadFromPath(const aPath: UnicodeString);
     procedure LoadMapsInfo;
     procedure LoadSprites;
+
+    procedure SetCampaignId(aCampaignId: TKMCampaignId);
+    procedure UpdateShortName;
   public
     Maps: array of record
       Flag: TKMPointW;
@@ -73,22 +76,22 @@ type
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: Byte read fMapCount write SetMapCount;
-    property CampaignId: TKMCampaignId read fCampaignId write fCampaignId;
+    property CampaignId: TKMCampaignId read fCampaignId write SetCampaignId;
     property ShortName: UnicodeString read fShortName;
     property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
     property ScriptData: TKMemoryStreamBinary read fScriptData;
     property MapsInfo: TKMCampaignMapDataArray read fMapsInfo;
     property MapsProgressData: TKMCampaignMapProgressDataArray read fMapsProgressData;
 
-    function GetCampaignTitle: String;
-    function GetCampaignDescription: String;
+    function GetCampaignTitle: UnicodeString;
+    function GetCampaignDescription: UnicodeString;
     function GetCampaignMissionTitle(aIndex: Byte): String;
     function GetMissionFile(aIndex: Byte; const aExt: UnicodeString = '.dat'): String;
     function GetMissionName(aIndex: Byte): String;
     function GetMissionTitle(aIndex: Byte): String;
     function GetMissionBriefing(aIndex: Byte): String;
     function GetBreifingAudioFile(aIndex: Byte): String;
-    function GetScriptDataTypeFile: String;
+    function GetScriptDataTypeFile: UnicodeString;
   end;
 
 
@@ -379,6 +382,12 @@ begin
 end;
 
 
+procedure TKMCampaign.UpdateShortName;
+begin
+  fShortName := WideChar(fCampaignId[0]) + WideChar(fCampaignId[1]) + WideChar(fCampaignId[2]);
+end;
+
+
 //Load campaign info from *.cmp file
 //It should be private, but it is used by CampaignBuilder
 procedure TKMCampaign.LoadFromFile(const aFileName: UnicodeString);
@@ -399,7 +408,7 @@ begin
   fCampaignId[1] := cmp[1];
   fCampaignId[2] := cmp[2];
 
-  fShortName := WideChar(fCampaignId[0]) + WideChar(fCampaignId[1]) + WideChar(fCampaignId[2]);
+  UpdateShortName;
 
   M.Read(fMapCount);
   SetMapCount(fMapCount); //Update array's sizes
@@ -542,6 +551,13 @@ begin
 end;
 
 
+procedure TKMCampaign.SetCampaignId(aCampaignId: TKMCampaignId);
+begin
+  fCampaignId := aCampaignId;
+  UpdateShortName;
+end;
+
+
 function TKMCampaign.GetCampaignTitle: UnicodeString;
 begin
   Result := fTextLib[0];
@@ -554,7 +570,7 @@ begin
 end;
 
 
-function TKMCampaign.GetDefaultMissionTitle(aIndex: Byte): String;
+function TKMCampaign.GetDefaultMissionTitle(aIndex: Byte): UnicodeString;
 begin
   if fMapsInfo[aIndex].MissionName <> '' then
     Result := fMapsInfo[aIndex].MissionName

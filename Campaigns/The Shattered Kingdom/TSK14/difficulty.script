@@ -3,6 +3,7 @@
 //v0.6
 //31.03.2019
 //Developed for KaM Remake v9700
+//Adopted for r10537 by Rey
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Normal Missions:
@@ -31,6 +32,9 @@ const
 	//Player Modifiers
 	MODIFIER_RESOURCEAMOUNT = 0; //Single
 	OFFSET_RESOURCEAMOUNT = 0; //Integer (No Scaling)
+  
+var
+  NORMAL_DIFFICULTY: TKMMissionDifficulty;
 	
 
 function GetHumanPlayer(): Byte; //Identify human player in SP maps (in the unlikely case its not Player0)
@@ -152,7 +156,17 @@ var
 	m: ShortInt;
 	Difficulty: TKMMissionDifficulty;
 begin
+  NORMAL_DIFFICULTY := mdNormal; //the only way to get Byte(mdNormal)...
+
 	Difficulty := States.MissionDifficulty();
+  
+  //Shrink all 7 difficulties into 3 we currently use
+	if (Difficulty = mdEasy3) or (Difficulty = mdEasy2) then
+		Difficulty := mdEasy1
+	else 
+	if (Difficulty = mdHard3) or (Difficulty = mdHard2) then
+		Difficulty := mdHard1;
+  
 	if (Difficulty <> mdNone) then
 	begin
 		iPlayer := GetHumanPlayer();
@@ -161,19 +175,19 @@ begin
 			for p := 0 to States.StatPlayerCount() -1 do
 				case Difficulty of
 					mdNormal: 	exit;
-					mdEasy: 	if States.PlayerIsAI(p) then 
+					mdEasy1: 	if States.PlayerIsAI(p) then 
 								begin
 									if States.PlayerAllianceCheck(iPlayer, p) then	
 										IncreaseGroupSize(p, 0);
 									end else
 										IncreaseGroupSize(p, 0);
-					mdHard:		if States.PlayerIsAI(p) then
+					mdHard1:		if States.PlayerIsAI(p) then
 									if not States.PlayerAllianceCheck(iPlayer, p) then
 										IncreaseGroupSize(p, 0);
 				end;
 		end else
 		begin //Normal Map 
-			m := Byte(Difficulty) -2;
+			m := Byte(Difficulty) - Byte(NORMAL_DIFFICULTY); // allowed values are: -1, 0, 1
 			{$IFDEF TESTMODE}Actions.OverlayTextAppend(-1, 'm=' + inttostr(m));{$ENDIF}
 			for p := 0 to States.StatPlayerCount() -1 do
 				if States.PlayerIsAI(p) then

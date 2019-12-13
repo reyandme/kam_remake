@@ -42,6 +42,7 @@ type
     procedure GameSpeedChanged(aFromSpeed, aToSpeed: Single);
     function MapToScreen(const aMapLoc: TKMPointF): TKMPoint;
     procedure PanTo(const aLoc: TKMPointF; aTicksCnt: Cardinal);
+    procedure CinematicReset;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -65,6 +66,8 @@ begin
 
   fMapX := 1; //Avoid division by 0
   fMapY := 1; //Avoid division by 0
+
+  CinematicReset;
 
   fZoom := 1;
   ReleaseScrollKeys;
@@ -141,10 +144,17 @@ end;
 //TestViewportClipInset is for debug, allows to see if everything gets clipped correct
 function TKMViewport.GetClip: TKMRect;
 begin
-  Result.Left   := Math.max(Round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom), 1);
-  Result.Right  := Math.min(Round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1, fMapX-1);
-  Result.Top    := Math.max(Round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom), 1);
-  Result.Bottom := Math.min(Round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+4, fMapY-1);
+  Result.Left   := Math.Max(Round(fPosition.X
+                         - (fViewportClip.X/2 - fViewRect.Left + TOOLBAR_WIDTH) / CELL_SIZE_PX / fZoom), 1);
+  Result.Right  := Math.Min(Round(fPosition.X
+                         + (fViewportClip.X/2 + fViewRect.Left - TOOLBAR_WIDTH) / CELL_SIZE_PX / fZoom) + 1, fMapX - 1);
+  //Small render problem could be encountered at the top of clip rect
+  //This small problem could be seen with reshade app (with displaydepth filter ON)
+  //Enlarge clip viewport by 1 to fix it
+  Result.Top    := Math.Max(Round(fPosition.Y
+                         - fViewportClip.Y/2 / CELL_SIZE_PX / fZoom) - 1, 1); // - 1 to update clip rect to the top on scroll
+  Result.Bottom := Math.Min(Round(fPosition.Y
+                         + fViewportClip.Y/2 / CELL_SIZE_PX / fZoom) + 5, fMapY - 1); // + 5 for high trees
 
   if TEST_VIEW_CLIP_INSET then
     Result := KMRectGrow(Result, -5);
@@ -207,6 +217,13 @@ begin
 end;
 
 
+procedure TKMViewport.CinematicReset;
+begin
+  fPanFrom := KMPOINTF_INVALID_TILE;
+  fPanTo := KMPOINTF_INVALID_TILE;
+end;
+
+
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
 procedure TKMViewport.UpdateStateIdle(aFrameTime: Cardinal; aAllowMouseScrolling: Boolean; aInCinematic: Boolean);
@@ -218,6 +235,13 @@ const
     kmcScroll2, kmcDefault, kmcScroll1, kmcDefault,
     kmcScroll4, kmcScroll5, kmcDefault, kmcDefault,
     kmcScroll3, kmcDefault, kmcDefault, kmcDefault);
+
+  function PanPointsAreValid: Boolean;
+  begin
+    Result := (fPanFrom <> KMPOINTF_INVALID_TILE)
+          and (fPanTo   <> KMPOINTF_INVALID_TILE);
+  end;
+
 var
   TimeSinceStarted: Cardinal;
   ScrollAdv, ZoomAdv: Single;
@@ -229,7 +253,7 @@ begin
   //Cinematics do not allow normal scrolling. The camera will be set and panned with script commands
   if aInCinematic then
   begin
-    if not fPanImmidiately then
+    if not fPanImmidiately and PanPointsAreValid then //Do not move viewport if pan points are not valid
     begin
       Inc(fPanProgress, aFrameTime);
       if fPanProgress >= fPanDuration then

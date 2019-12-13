@@ -89,6 +89,7 @@ type
     function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer);
     procedure HouseTakeWaresFrom(aHouseID: Integer; aType, aCount: Word);
+    function  HouseTownHallEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseTownHallMaxGold(aHouseID: Integer; aMaxGold: Integer);
     procedure HouseUnlock(aPlayer, aHouseType: Word);
     procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
@@ -626,7 +627,10 @@ end;
 procedure TKMScriptActions.StopLoopedWAV(aSoundIndex: Integer);
 begin
   try
-    gScriptSounds.RemoveLoopSound(aSoundIndex);
+    if aSoundIndex > 0 then
+      gScriptSounds.RemoveLoopSoundByUID(aSoundIndex)
+    else
+      LogParamWarning('Actions.StopLoopedWAV', [aSoundIndex]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -650,7 +654,7 @@ begin
     if InRange(aVolume, 0, 1) then
       Result := gScriptSounds.AddSound(aPlayer, aFileName, afOgg, KMPOINT_ZERO, False, aVolume, 0, False, False)
     else
-      LogParamWarning('Actions.PlayWAV: ' + UnicodeString(aFileName), []);
+      LogParamWarning('Actions.PlayOGG: ' + UnicodeString(aFileName), []);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -672,7 +676,7 @@ begin
     if InRange(aVolume, 0, 1) then
       Result := gScriptSounds.AddSound(aPlayer, aFileName, afOgg, KMPOINT_ZERO, False, aVolume, 0, True, False)
     else
-      LogParamWarning('Actions.PlayWAVFadeMusic: ' + UnicodeString(aFileName), []);
+      LogParamWarning('Actions.PlayOGGFadeMusic: ' + UnicodeString(aFileName), []);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -700,7 +704,7 @@ begin
     if InRange(aVolume, 0, 4) and (aRadius >= MIN_SOUND_AT_LOC_RADIUS) and gTerrain.TileInMapCoords(aX,aY) then
       Result := gScriptSounds.AddSound(aPlayer, aFileName, afOgg, KMPoint(aX,aY), True, aVolume, aRadius, False, False)
     else
-      LogParamWarning('Actions.PlayWAVAtLocation: ' + UnicodeString(aFileName), [aX, aY]);
+      LogParamWarning('Actions.PlayOGGAtLocation: ' + UnicodeString(aFileName), [aX, aY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -723,7 +727,7 @@ begin
     if InRange(aVolume, 0, 1) then
       Result := gScriptSounds.AddSound(aPlayer, aFileName, afOgg, KMPOINT_ZERO, False, aVolume, 0, False, True)
     else
-      LogParamWarning('Actions.PlayWAVLooped: ' + UnicodeString(aFileName), []);
+      LogParamWarning('Actions.PlayOGGLooped: ' + UnicodeString(aFileName), []);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -750,7 +754,7 @@ begin
     if InRange(aVolume, 0, 4) and (aRadius >= MIN_SOUND_AT_LOC_RADIUS) and gTerrain.TileInMapCoords(aX,aY) then
       Result := gScriptSounds.AddSound(aPlayer, aFileName, afOgg, KMPoint(aX,aY), True, aVolume, aRadius, False, True)
     else
-      LogParamWarning('Actions.PlayWAVAtLocationLooped: ' + UnicodeString(aFileName), [aX, aY]);
+      LogParamWarning('Actions.PlayOGGAtLocationLooped: ' + UnicodeString(aFileName), [aX, aY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -764,7 +768,10 @@ end;
 procedure TKMScriptActions.StopLoopedOGG(aSoundIndex: Integer);
 begin
   try
-    gScriptSounds.RemoveLoopSound(aSoundIndex);
+    if aSoundIndex > 0 then
+      gScriptSounds.RemoveLoopSoundByUID(aSoundIndex)
+    else
+      LogParamWarning('Actions.StopLoopedOGG', [aSoundIndex]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -837,7 +844,10 @@ end;
 procedure TKMScriptActions.StopSound(aSoundIndex: Integer);
 begin
   try
-    gScriptSounds.RemoveSound(aSoundIndex);
+    if aSoundIndex > 0 then
+      gScriptSounds.RemoveSoundByUID(aSoundIndex)
+    else
+      LogParamWarning('Actions.StopSound', [aSoundIndex]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -2080,6 +2090,32 @@ end;
 
 
 //* Version: 7000+
+//* Equips the specified unit from the specified TownHall.
+//* Returns the number of units successfully equipped.
+function TKMScriptActions.HouseTownHallEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  try
+    Result := 0;
+    if (aHouseID > 0)
+      and ((aUnitType = UnitTypeToIndex[utMilitia])
+        or (aUnitType in [UnitTypeToIndex[WARRIOR_EQUIPABLE_TH_MIN]..UnitTypeToIndex[WARRIOR_EQUIPABLE_TH_MAX]])) then
+    begin
+      H := fIDCache.GetHouse(aHouseID);
+      if (H <> nil) and (H is TKMHouseTownHall) then
+        Result := TKMHouseTownHall(H).Equip(UnitIndexToType[aUnitType], aCount);
+    end
+    else
+      LogParamWarning('Actions.HouseTownHallEquip', [aHouseID, aUnitType]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
 //* Set TownHall Max Gold parameter (how many gold could be delivered in it)
 procedure TKMScriptActions.HouseTownHallMaxGold(aHouseID: Integer; aMaxGold: Integer);
 var
@@ -2362,7 +2398,7 @@ begin
   try
     Result := 0;
     if (aHouseID > 0)
-    and (aUnitType in [UnitTypeToIndex[WARRIOR_EQUIPABLE_MIN]..UnitTypeToIndex[WARRIOR_EQUIPABLE_MAX]]) then
+    and (aUnitType in [UnitTypeToIndex[WARRIOR_EQUIPABLE_BARRACKS_MIN]..UnitTypeToIndex[WARRIOR_EQUIPABLE_BARRACKS_MAX]]) then
     begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) and (H is TKMHouseBarracks) then

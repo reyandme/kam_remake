@@ -1,0 +1,278 @@
+//-- TBK09 --//
+//By Strangelove
+//v2.1
+//11.04.2019
+
+{$I functions.script}
+
+{$DEFINE NOSTANDALONE}
+//{$UNDEF NOSTANDALONE} //For limited testing! Turn this on if you want to extract that map from the campaign folder!
+
+
+var
+	aEnemyGroups: array of Integer;
+	{$IFDEF NOSTANDALONE}
+	aDestroyedHouseBuffer: array of array[0..3] of Integer;
+	GlobalD: Integer;
+	{$ENDIF}
+
+
+{$IFDEF NOSTANDALONE}
+function CornAndGrapes(MapTileObject: Byte): Boolean;
+begin
+	case MapTileObject of
+		54..59: Result := true;
+		else 
+			Result := false;
+	end;
+end;
+{$ENDIF}
+
+procedure OnMissionStart();
+begin
+	Actions.PlayerShareFogCompliment(0, 1, false);
+	//Add additional Groups according to Difficulty
+	case States.MissionDifficulty() of
+		mdEasy1:
+		begin
+			Actions.GiveGroup(2, 23, 93, 27, 5, 12, 4);
+			Actions.GiveGroup(2, 23, 108, 17, 6, 12, 4);
+			Actions.GiveGroup(2, 23, 101, 4, 4, 12, 4);
+		end;
+		mdNormal:
+		begin
+			Actions.GiveGroup(2, 23, 88, 31, 5, 12, 4);
+			Actions.GiveGroup(2, 23, 98, 22, 5, 12, 4);
+			Actions.GiveGroup(2, 23, 108, 17, 6, 12, 4);
+			Actions.GiveGroup(2, 23, 101, 4, 4, 12, 4);
+		end;
+		mdHard1:
+		begin
+			Actions.GiveGroup(2, 23, 88, 31, 5, 12, 4);
+			Actions.GiveGroup(2, 23, 93, 27, 5, 12, 4);
+			Actions.GiveGroup(2, 23, 98, 22, 5, 12, 4);
+			Actions.GiveGroup(2, 23, 108, 17, 6, 12, 4);
+			Actions.GiveGroup(2, 23, 100, 8, 4, 12, 4);
+			Actions.GiveGroup(2, 23, 101, 4, 4, 12, 4);
+		end;
+	end;
+	{$IFDEF NOSTANDALONE}
+	GlobalD := 0;
+	SetLength(aDestroyedHouseBuffer, 12); //Only 12 Buildings on the Map
+	{$ENDIF}
+	aEnemyGroups := States.PlayerGetAllGroups(2);
+end;
+
+
+procedure OnTick();
+var
+    i: ShortInt;
+    T, GroupLeader, ClosestHouse: Integer;
+begin
+    T := States.GameTime() mod 30;
+    if (T >= 1) and (T <= Length(aEnemyGroups)) then
+    begin
+        i := T mod Length(aEnemyGroups);
+        if aEnemyGroups[i] <> -1 then
+            if States.GroupIdle(aEnemyGroups[i]) then
+            begin
+                GroupLeader := States.GroupMember(aEnemyGroups[i], 0);
+                ClosestHouse := States.ClosestHouse(1, States.UnitPositionX(GroupLeader), States.UnitPositionY(GroupLeader), -1);
+                    if ClosestHouse <> -1 then
+                        Actions.GroupOrderAttackHouse(aEnemyGroups[i], ClosestHouse);
+            end;
+    end;
+end;
+
+
+procedure OnHouseDestroyed(aHouse, aDestroyerIndex: Integer);
+begin
+	{$IFDEF NOSTANDALONE}
+	//Buffer for Destroyed Houses; Write into Campaign.dat only after victory
+	aDestroyedHouseBuffer[GlobalD][0] := States.HouseOwner(aHouse);
+	aDestroyedHouseBuffer[GlobalD][1] := States.HouseType(aHouse);
+	aDestroyedHouseBuffer[GlobalD][2] := States.HousePositionX(aHouse);
+	aDestroyedHouseBuffer[GlobalD][3] := States.HousePositionY(aHouse);
+	Inc(GlobalD);
+	{$ENDIF}
+	//Defeat Conditions
+	if States.HouseOwner(aHouse) = 1 then
+		case States.HouseType(aHouse) of
+			11, 13: Actions.PlayerDefeat(0); //School or Storehouse
+		end;
+end;
+
+{$IFDEF NOSTANDALONE}
+//Grab all neccessary Data for next Mission (see Legend for more Infos)
+procedure OnPlayerVictory(aIndex: Integer);
+var
+	iHouseID, UnitPosX, UnitPosY, iGroupLeader: Integer;
+	aHouse, aUnit, aGroup, aGroup1, aGroup0: array of Integer;
+	X, Y, P1, iTileObject: Byte;
+	H, M, U, G, R, O, D: Integer;
+begin
+	if aIndex = 0 then //Conditions set with static script
+	begin
+		aHouse := States.PlayerGetAllHouses(1);
+		SetLength(CampaignData.TBK09.aHouseData, Length(aHouse)); //Set length of aHouseData-array
+		for H := 0 to Length(aHouse) -1 do
+		begin
+			CampaignData.TBK09.aHouseData[H][0] := States.HouseType(aHouse[H]); 
+			CampaignData.TBK09.aHouseData[H][1] := States.HousePositionX(aHouse[H]);
+			CampaignData.TBK09.aHouseData[H][2] := States.HousePositionY(aHouse[H]);
+			CampaignData.TBK09.aHouseData[H][3] := States.HouseDamage(aHouse[H]);
+			for M := 4 to 31 do //Get resources in all Houses as well...
+				CampaignData.TBK09.aHouseData[H][M] := States.HouseResourceAmount(aHouse[H], M-4);
+		end;
+		
+		aUnit := States.PlayerGetAllUnits(1);
+		SetLength(CampaignData.TBK09.aUnitData, Length(aUnit));
+		for U := 0 to Length(aUnit) -1 do
+		begin
+			if States.UnitsGroup(aUnit[U]) = -1 then //Ignore units that belong to a group
+			begin
+				CampaignData.TBK09.aUnitData[U][0] := States.UnitType(aUnit[U]);
+				UnitPosX := States.UnitPositionX(aUnit[U]);
+				UnitPosY := States.UnitPositionY(aUnit[U]);
+				iHouseID := States.HouseAt(UnitPosX, UnitPosY);
+				if iHouseID = -1 then //Check if Unit is in a House
+				begin
+					CampaignData.TBK09.aUnitData[U][1] := UnitPosX;
+					CampaignData.TBK09.aUnitData[U][2] := UnitPosY;
+				end else //Yes -> Move X and Y Position to infront of that House
+				begin
+					CampaignData.TBK09.aUnitData[U][1] := States.HousePositionX(iHouseID);
+					CampaignData.TBK09.aUnitData[U][2] := States.HousePositionY(iHouseID) +1;
+				end;
+				CampaignData.TBK09.aUnitData[U][3] := States.UnitDirection(aUnit[U]);
+			end else 
+				CampaignData.TBK09.aUnitData[U][0] := -1;
+		end;
+		
+		aGroup0 := States.PlayerGetAllGroups(0);
+		aGroup1 := States.PlayerGetAllGroups(1);
+		aGroup := Concat(aGroup0, aGroup1);
+		SetLength(CampaignData.TBK09.aGroupData, Length(aGroup));
+		for G := 0 to Length(aGroup)-1 do
+		begin
+			iGroupLeader := States.GroupMember(aGroup[G], 0);
+			CampaignData.TBK09.aGroupData[G][0] := States.UnitType(iGroupLeader); //Get only Type of Group Leader
+			CampaignData.TBK09.aGroupData[G][1] := States.UnitPositionX(iGroupLeader);
+			CampaignData.TBK09.aGroupData[G][2] := States.UnitPositionY(iGroupLeader);
+			CampaignData.TBK09.aGroupData[G][3] := States.UnitDirection(iGroupLeader);
+			CampaignData.TBK09.aGroupData[G][4] := States.GroupMemberCount(aGroup[G]);
+			CampaignData.TBK09.aGroupData[G][5] := States.GroupColumnCount(aGroup[G]);
+		end;
+	
+		SetLength(CampaignData.TBK09.aRoadworksData, States.MapHeight()*States.MapWidth()); //Initialize arrays with maximum possible size
+		SetLength(CampaignData.TBK09.aTileObjectData, States.MapHeight()*States.MapWidth());
+		//Abysmal performance... but does its job
+		//Check what is on Coordinates X, Y and save it if important
+		for X := 1 to States.MapWidth() -1 do
+			for Y := 1 to States.MapHeight() -1 do
+			begin
+				//Player-specific information: Roads, Fields, Winefields
+				for P1 := 0 to States.StatPlayerCount() -1 do
+				begin
+					if States.IsRoadAt(P1, X, Y) then
+					begin
+						CampaignData.TBK09.aRoadworksData[R][0] := P1;
+						CampaignData.TBK09.aRoadworksData[R][1] := X;
+						CampaignData.TBK09.aRoadworksData[R][2] := Y;
+						CampaignData.TBK09.aRoadworksData[R][3] := 0;
+						Inc(R);
+					end else
+					if States.IsFieldAt(P1, X, Y) then
+					begin
+						CampaignData.TBK09.aRoadworksData[R][0] := P1;
+						CampaignData.TBK09.aRoadworksData[R][1] := X;
+						CampaignData.TBK09.aRoadworksData[R][2] := Y;
+						CampaignData.TBK09.aRoadworksData[R][3] := 1;
+						Inc(R);
+					end else
+					if States.IsWinefieldAt(P1, X, Y) then
+					begin
+						CampaignData.TBK09.aRoadworksData[R][0] := P1;
+						CampaignData.TBK09.aRoadworksData[R][1] := X;
+						CampaignData.TBK09.aRoadworksData[R][2] := Y;
+						CampaignData.TBK09.aRoadworksData[R][3] := 2;
+						Inc(R);
+					end;
+				end;
+				//Player Unspecific: Corn and Grapes
+				iTileObject := States.MapTileObject(X, Y);
+				if CornAndGrapes(iTileObject) then
+				begin
+					CampaignData.TBK09.aTileObjectData[O][0] := X;
+					CampaignData.TBK09.aTileObjectData[O][1] := Y;
+					CampaignData.TBK09.aTileObjectData[O][2] := iTileObject;
+					Inc(O);
+				end;
+			end;	
+		//Write saved Destroyed House data into Campaign.dat
+		SetLength(CampaignData.TBK09.aDestroyedHouseData, Length(aDestroyedHouseBuffer)); 
+		if GlobalD <> 0 then //Only write into array if theres anything
+			for D := 0 to GlobalD -1 do
+			begin
+				CampaignData.TBK09.aDestroyedHouseData[D][0] := aDestroyedHouseBuffer[D][0];
+				CampaignData.TBK09.aDestroyedHouseData[D][1] := aDestroyedHouseBuffer[D][1];
+				CampaignData.TBK09.aDestroyedHouseData[D][2] := aDestroyedHouseBuffer[D][2];
+				CampaignData.TBK09.aDestroyedHouseData[D][3] := aDestroyedHouseBuffer[D][3];
+			end;
+		
+		SetLength(CampaignData.TBK09.aRoadworksData, R); //reduce arrays size to minimum possible without deleting data
+		SetLength(CampaignData.TBK09.aTileObjectData, O);
+		SetLength(CampaignData.TBK09.aDestroyedHouseData, GlobalD);
+		{
+		//Debugging
+		Actions.Log('GroupLength: ' + inttostr(Length(CampaignData.TBK09.aGroupData)));
+		Actions.Log('HouseLength: ' + inttostr(Length(CampaignData.TBK09.aHouseData)));	
+		Actions.Log('UnitLength: ' + inttostr(Length(CampaignData.TBK09.aUnitData)));
+		Actions.Log('RoadworksLength: ' + inttostr(Length(CampaignData.TBK09.aRoadworksData)));
+		Actions.Log('TileObjectLength: ' + inttostr(Length(CampaignData.TBK09.aTileObjectData)));
+		Actions.Log('aDestroyedHouseData: ' + inttostr(Length(CampaignData.TBK09.aDestroyedHouseData)));}
+	end;
+end;
+{$ENDIF}
+
+
+
+//-- Legend --//
+
+//aHouseData:
+//0: Type
+//1: X
+//2: Y
+//3: Damage
+//4-31: Resources (0-27)
+
+//aUnitData:
+//0: Type
+//1: X
+//2: Y
+//3: Direction
+
+//aGroupData:
+//0: Type
+//1: X
+//2: Y
+//3: Direction
+//4: Unit Count
+//5: Unit/Row
+
+//aTileObjectData
+//0: X
+//1: Y
+//2: Type
+
+//aRoadworksData
+//0: Owner
+//1: X
+//2: Y
+//3: Type
+
+//aDestroyedHouseData
+//0: Owner
+//1: Type
+//2: X
+//3: Y

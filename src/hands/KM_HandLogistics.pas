@@ -67,9 +67,13 @@ type
 
 type
   //Custom key comparator. Probably TDictionary can handle it himself, but lets try our custom comparator
-  TKMDeliveryBidKeyComparer = class(TEqualityComparer<TKMDeliveryBidKey>)
+  TKMDeliveryBidKeyEqualityComparer = class(TEqualityComparer<TKMDeliveryBidKey>)
     function Equals(const Left, Right: TKMDeliveryBidKey): Boolean; override;
     function GetHashCode(const Value: TKMDeliveryBidKey): Integer; override;
+  end;
+
+  TKMDeliveryBidKeyComparer = class(TComparer<TKMDeliveryBidKey>)
+    function Compare(const Left, Right: TKMDeliveryBidKey): Integer; override;
   end;
   {$ENDIF}
 
@@ -406,14 +410,14 @@ end;
 constructor TKMDeliveries.Create(aHandIndex: TKMHandID);
 {$IFDEF USE_HASH}
 var
-  CacheKeyComparer: TKMDeliveryBidKeyComparer;
+  CacheKeyComparer: TKMDeliveryBidKeyEqualityComparer;
 {$ENDIF}
 begin
   fOwner := aHandIndex;
   {$IFDEF USE_HASH}
   if CACHE_DELIVERY_BIDS then
   begin
-    CacheKeyComparer := TKMDeliveryBidKeyComparer.Create;
+    CacheKeyComparer := TKMDeliveryBidKeyEqualityComparer.Create;
     fOfferToDemandCache := TDictionary<TKMDeliveryBidKey, Single>.Create(CacheKeyComparer);
     fSerfToOfferCache := TDictionary<TKMDeliveryBidKey, Single>.Create(CacheKeyComparer);
   end;
@@ -470,10 +474,14 @@ begin
       Item.Caption := IntToStr(Item.Index);
       Item.SubItems.Clear;
 
+      Item.SubItems.Add(IntToStr(fOwner));
       Item.SubItems.Add(gRes.Wares[Ware].Title);
 
       if Loc_House <> nil then
-        Item.SubItems.Add(gRes.Houses[Loc_House.HouseType].HouseName)
+      begin
+        Item.SubItems.Add(gRes.Houses[Loc_House.HouseType].HouseName);
+        Item.SubItems.Add(IntToStr(Loc_House.UID));
+      end
       else
         Item.SubItems.Add('nil');
 
@@ -501,12 +509,19 @@ begin
       Item.Caption := IntToStr(Item.Index);
       Item.SubItems.Clear;
 
+      Item.SubItems.Add(IntToStr(fOwner));
       Item.SubItems.Add(gRes.Wares[Ware].Title);
 
       if Loc_House <> nil then
-        Item.SubItems.Add('H: ' + gRes.Houses[Loc_House.HouseType].HouseName)
+      begin
+        Item.SubItems.Add('H: ' + gRes.Houses[Loc_House.HouseType].HouseName);
+        Item.SubItems.Add(IntToStr(Loc_House.UID));
+      end
       else if Loc_Unit <> nil then
-        Item.SubItems.Add('U: ' + gRes.Units[Loc_Unit.UnitType].GUIName)
+      begin
+        Item.SubItems.Add('U: ' + gRes.Units[Loc_Unit.UnitType].GUIName);
+        Item.SubItems.Add(IntToStr(Loc_Unit.UID));
+      end
       else
         Item.SubItems.Add('nil');
 
@@ -530,17 +545,31 @@ begin
 
       Item.Caption := IntToStr(Item.Index);
       Item.SubItems.Clear;
+
+      Item.SubItems.Add(IntToStr(fOwner));
       Item.SubItems.Add(gRes.Wares[fOffer[OfferID].Ware].Title);
 
       if fOffer[OfferID].Loc_House = nil then
         Item.SubItems.Add('nil')
       else
+      begin
         Item.SubItems.Add(gRes.Houses[fOffer[OfferID].Loc_House.HouseType].HouseName);
+        Item.SubItems.Add(IntToStr(fOffer[OfferID].Loc_House.UID));
+      end;
 
-      if fDemand[DemandID].Loc_House = nil then
-        Item.SubItems.Add('nil')
+      if fDemand[DemandID].Loc_House <> nil then
+      begin
+        Item.SubItems.Add('H: ' + gRes.Houses[fDemand[DemandID].Loc_House.HouseType].HouseName);
+        Item.SubItems.Add(IntToStr(fDemand[DemandID].Loc_House.UID));
+      end
       else
-        Item.SubItems.Add(gRes.Houses[fDemand[DemandID].Loc_House.HouseType].HouseName);
+      if fDemand[DemandID].Loc_Unit <> nil then
+      begin
+        Item.SubItems.Add('U: ' + gRes.Units[fDemand[DemandID].Loc_Unit.UnitType].GUIName);
+        Item.SubItems.Add(IntToStr(fDemand[DemandID].Loc_Unit.UID));
+      end
+      else
+        Item.SubItems.Add('nil');
 
       if Serf = nil then
         Item.SubItems.Add('nil')
@@ -1681,7 +1710,9 @@ procedure TKMDeliveries.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
   {$IFDEF USE_HASH}
-  Item: TPair<TKMDeliveryBidKey, Single>;
+  CacheKeyArray : TArray<TKMDeliveryBidKey>;
+  Key: TKMDeliveryBidKey;
+  Comparer: TKMDeliveryBidKeyComparer;
   {$ENDIF}
 begin
   SaveStream.PlaceMarker('Deliveries');
@@ -1730,21 +1761,43 @@ begin
   begin
     SaveStream.PlaceMarker('OfferToDemandCache');
     SaveStream.Write(fOfferToDemandCache.Count);
-    for Item in fOfferToDemandCache do
+
+    Comparer := nil; //RESET to nil. Obligatory!
+
+    if (fOfferToDemandCache.Count > 0) or (fSerfToOfferCache.Count > 0) then
+      Comparer := TKMDeliveryBidKeyComparer.Create;
+
+    if fOfferToDemandCache.Count > 0 then
     begin
-      SaveStream.Write(Item.Key.FromUID);
-      SaveStream.Write(Item.Key.ToUID);
-      SaveStream.Write(Item.Value);
+      CacheKeyArray := fOfferToDemandCache.Keys.ToArray;
+      TArray.Sort<TKMDeliveryBidKey>(CacheKeyArray, Comparer);
+
+      for Key in CacheKeyArray do
+      begin
+        SaveStream.Write(Key.FromUID);
+        SaveStream.Write(Key.ToUID);
+        SaveStream.Write(fOfferToDemandCache.Items[Key]);
+      end;
     end;
 
     SaveStream.PlaceMarker('SerfToOfferCache');
     SaveStream.Write(fSerfToOfferCache.Count);
-    for Item in fSerfToOfferCache do
+
+    if fSerfToOfferCache.Count > 0 then
     begin
-      SaveStream.Write(Item.Key.FromUID);
-      SaveStream.Write(Item.Key.ToUID);
-      SaveStream.Write(Item.Value);
+      CacheKeyArray := fSerfToOfferCache.Keys.ToArray;
+      TArray.Sort<TKMDeliveryBidKey>(CacheKeyArray, Comparer);
+
+      for Key in CacheKeyArray do
+      begin
+        SaveStream.Write(Key.FromUID);
+        SaveStream.Write(Key.ToUID);
+        SaveStream.Write(fSerfToOfferCache.Items[Key]);
+      end;
     end;
+
+    if Comparer <> nil then
+      Comparer.Free;
   end;
   {$ENDIF}
 end;
@@ -1925,7 +1978,7 @@ end;
 
 {$IFDEF USE_HASH}
 { TKMDeliveryBidKeyComparer }
-function TKMDeliveryBidKeyComparer.Equals(const Left, Right: TKMDeliveryBidKey): Boolean;
+function TKMDeliveryBidKeyEqualityComparer.Equals(const Left, Right: TKMDeliveryBidKey): Boolean;
 begin
   Result := (Left.FromUID = Right.FromUID) and (Left.ToUID = Right.ToUID);
 end;
@@ -1950,11 +2003,22 @@ end;
 {$ENDIF}
 
 
-function TKMDeliveryBidKeyComparer.GetHashCode(const Value: TKMDeliveryBidKey): Integer;
+function TKMDeliveryBidKeyEqualityComparer.GetHashCode(const Value: TKMDeliveryBidKey): Integer;
 begin
   Result := CombinedHash([THashBobJenkins.GetHashValue(Value.FromUID, SizeOf(Integer), 0),
                           THashBobJenkins.GetHashValue(Value.ToUID, SizeOf(Integer), 0)]);
 end;
+
+
+function TKMDeliveryBidKeyComparer.Compare(const Left, Right: TKMDeliveryBidKey): Integer;
+begin
+  if Left.FromUID = Right.FromUID then
+    Result := Left.ToUID - Right.ToUID
+  else
+    Result := Left.FromUID - Right.FromUID;
+end;
+
+
 {$ENDIF}
 
 

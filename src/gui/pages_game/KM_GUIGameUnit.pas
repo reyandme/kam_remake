@@ -82,6 +82,8 @@ const
 { TKMGUIGameUnit }
 
 constructor TKMGUIGameUnit.Create(aParent: TKMPanel; aSetViewportEvent: TPointFEvent);
+var
+  SplitKeyStr: UnicodeString;
 begin
   fSetViewportEvent := aSetViewportEvent;
   fAnimStep := 0;
@@ -158,7 +160,15 @@ begin
     Button_Army_RotCCW.Hint   := GetHintWHotKey(TX_ARMY_ROTATE_CCW_HINT, SC_ARMY_ROTATE_CCW);
     Button_Army_ForDown.Hint  := GetHintWHotKey(TX_ARMY_LINE_ADD_HINT, SC_ARMY_ADD_LINE);
     Button_Army_ForUp.Hint    := GetHintWHotKey(TX_ARMY_LINE_REM_HINT, SC_ARMY_DEL_LINE);
-    Button_Army_Split.Hint    := GetHintWHotKey(TX_TROOP_SPLIT_HINT, SC_ARMY_SPLIT);
+
+    SplitKeyStr := gResKeys.GetKeyNameById(SC_ARMY_SPLIT);
+
+    //Check if we have new hint with separate 1 unit action hint (Ctrl + S)
+    if CountOccurrences('%s', gResTexts[TX_TROOP_SPLIT_HINT]) = 2 then
+      Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [SplitKeyStr, SplitKeyStr])
+    else
+      Button_Army_Split.Hint     := GetHintWHotKey(TX_TROOP_SPLIT_HINT, SplitKeyStr); //Old hint
+
     Button_Army_Join.Hint     := GetHintWHotKey(TX_TROOP_LINK_HINT, SC_ARMY_LINK);
     Button_Army_Feed.Hint     := GetHintWHotKey(TX_ARMY_FEED_HINT, SC_ARMY_FOOD);
 

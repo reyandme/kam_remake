@@ -1,0 +1,352 @@
+//-- TBK02 --//
+//By Strangelove
+//v2.1c
+//14.08.2019
+
+{$I improvestaticai.script}
+{$I transformunits.script}
+{$I helpers.script}
+{$I difficulty.script}
+
+{$DEFINE DEBUG} //Enable extended Debug
+//{$UNDEF DEBUG}
+
+{$DEFINE TESTMODE1}
+{$UNDEF TESTMODE1}
+
+{$DEFINE NOSTANDALONE}
+//{$UNDEF NOSTANDALONE} //For limited testing! Turn this on if you want to extract that map from the campaign folder!
+
+
+const
+	SPY_TIMING = 27000; //Default: 45min (On Normal Difficulty)
+	TIMING_MODIFIER = 0.25;
+
+Type
+	TSpy = record
+		Group: Integer;
+		Routine, X, Y: Byte;
+	end;
+
+var
+	Spy: TSpy;
+	aHouses: array of Integer;
+	SpyTiming: Word;
+	UnitType: Integer;
+	{$IFDEF NOSTANDALONE}
+	aDestroyedHouseBuffer: array of array[0..3] of Integer;
+	GlobalD: Integer;
+	{$ENDIF}
+
+
+{$IFDEF NOSTANDALONE}
+function CornAndGrapes(MapTileObject: Byte): Boolean;
+begin
+	case MapTileObject of
+		54..59: Result := true;
+		else 
+			Result := false;
+	end;
+end;
+{$ENDIF}
+
+	
+procedure OnMissionStart();
+begin
+	{$IFDEF NOSTANDALONE}
+	GlobalD := 0;
+	SetLength(aDestroyedHouseBuffer, 255); //Set random Length
+	{$ENDIF}
+	Spy.Routine := 10;
+	Spy.Group := -1;
+	UnitType := 14;
+	aHouses := States.PlayerGetAllHouses(0);
+	//Actions.FogCoverAll(1);
+	Actions.UnitBlock(1, 15, true); //Disable AxeFighter
+	//Difficulty
+	case States.MissionDifficulty() of
+		mdEasy1: SpyTiming := Round(SPY_TIMING *(1 +TIMING_MODIFIER));
+		mdHard1:
+		begin
+			SpyTiming := Round(SPY_TIMING *(1 -TIMING_MODIFIER));
+			AddDefencePositionAndGroup(1, 19, 38, 24, 5, 20); //Lancer
+			AddDefencePositionAndGroup(1, 23, 11, 21, 3, 20); //Barbs
+			AddDefencePositionAndGroup(1, 23, 75, 28, 4, 20);
+			UnitType := 27; //Create Vagabond instead of Milita
+		end;
+	end;
+end;
+
+procedure OnUnitDied(aUnitID, aKillerIndex: Integer);
+begin
+	if aUnitID = Spy.Group then
+		Spy.Group := -1;
+end;
+
+procedure OnTick;
+var 
+	k, iFogX, iFogY: Byte;
+begin
+	//Show Msg at Start of the Game
+	if States.GameTime() = 300 then
+		Actions.ShowMsg(-1, '<$0>');
+	
+	//Start SpyRoutine
+	if States.GameTime() = SpyTiming then
+		Spy.Routine := 0;
+	
+	if Spy.Routine < 6 then
+		if Spy.Group <> -1 then
+		begin
+			//Move Spy to Random Positon on the Map
+			if (Spy.Routine < 2) and States.GroupIdle(Spy.Group) then
+				if States.GameTime() mod 3000 = 0 then
+				begin
+					Spy.X := States.KaMRandomI(States.MapWidth());
+					Spy.Y := States.KaMRandomI(84) +43;
+					Actions.GroupOrderWalk(Spy.Group, Spy.X, Spy.Y, States.KaMRandomI(8));
+					Spy.Routine := 1;
+				end;
+			//Check if any House of Human Player is revealed to AI Player
+			if (Spy.Routine = 1) and (States.GameTime mod 60 = 0) then
+				for k := 0 to Length(aHouses) -1 do
+				begin
+					iFogX := States.HousePositionX(aHouses[k]);
+					iFogY := States.HousePositionY(aHouses[k]);
+					if States.FogRevealed(1, iFogX, iFogY) then
+					begin
+						//You've been discovered!
+						Actions.ShowMsgGoto(-1, Spy.X, Spy.Y, '<$1>');
+						Actions.FogRevealCircle(0, Spy.X, Spy.Y, 3); //Reveal Spys position
+						Actions.GroupOrderHalt(Spy.Group);
+						Spy.Routine := 2;
+						break;
+					end else
+						if k = Length(aHouses) then
+							//Nothing found? Cover area
+							Actions.FogCoverRect(1, 1, 68, 79, 127);
+				end;
+			//After Player is revealed -> Move Spy back to Base
+			if (Spy.Routine = 2) and (States.GameTime mod 60 = 30) then
+				if States.GroupIdle(Spy.Group) then
+				begin
+					Actions.GroupOrderWalk(Spy.Group, 51, 8, 4);
+					Spy.Routine := 3;
+				end;
+			if (Spy.Routine = 3) and (States.GameTime mod 60 = 20) then
+				if States.GroupAt(51, 8) = Spy.Group then
+					Spy.Routine := 6;
+			//Feeding Routine (check every minute)
+			if (Spy.Routine < 2) and (States.GameTime mod 600 = 0) then
+				if (States.UnitHunger(States.GroupMember(Spy.Group, 0)) < States.UnitMaxHunger()/3) then
+					//Actions.ShowMsg(-1, 'Spy Hungry');
+					if States.GroupIdle(Spy.Group) then
+					begin
+						//Walk to feeding Positon
+						Actions.GroupOrderWalk(Spy.Group, 51, 8, 4);
+						Spy.Routine := 5;
+					end;
+			//Request Food when Feeding Position is reached
+			if Spy.Routine = 5 then
+				if States.GroupAt(51, 8) = Spy.Group then
+				begin
+					Actions.GroupOrderFood(Spy.Group);
+					//After feeding -> Start Routine again
+					Spy.Routine := 0;
+				end;
+		end else
+			//If Spy is killed/dead create a new one after 5minutes
+			if States.GameTime() mod 3000 = 0 then
+			begin
+				Spy.Group := Actions.GiveGroup(1, UnitType, 45, 7, 4, 1, 1); //Milita (vagabond on Hard)
+				Actions.GroupHungerSet(Spy.Group, States.UnitMaxHunger()); //Feed spy after creating
+				Spy.Routine := 0;
+			end;
+	
+	if (Spy.Routine > 5) and (Spy.Routine < 8) then
+		if Spy.Routine = 6 then
+		begin
+			Actions.AIWorkerLimit(1, 3 *Byte(States.MissionDifficulty()));
+			//Add Towers
+			PlanAddHouse(1, 17, 36, 22);
+			PlanAddHouse(1, 17, 41, 27);
+			PlanAddHouse(1, 17, 40, 33);
+			PlanAddHouse(1, 17, 47, 38);
+			PlanAddHouse(1, 17, 56, 35);
+			PlanAddHouse(1, 17, 61, 27);
+			PlanAddHouse(1, 17, 58, 17);
+			PlanAddHouse(1, 17, 57, 7);
+			//Autoconnect Towers to City and other Towers
+			PlanConnectRoad(1, 36, 23, 37, 16, false);
+			PlanConnectRoad(1, 41, 28, 44, 23, false);
+			PlanConnectRoad(1, 40, 34, 41, 28, false);
+			PlanConnectRoad(1, 40, 34, 47, 39, false);
+			PlanConnectRoad(1, 47, 39, 56, 36, false);	
+			PlanConnectRoad(1, 56, 36, 61, 28, false);
+			PlanConnectRoad(1, 61, 28, 58, 18, false);
+			PlanConnectRoad(1, 57, 8, 50, 6, false);
+			Spy.Routine := 7;
+		end;
+		if Spy.Routine = 7 then
+		begin
+			//Add Attack Positions for Enemy
+			Actions.AIDefencePositionAdd(1, 45, 33, 4, 0, 20, 1);
+			Actions.AIDefencePositionAdd(1, 57, 30, 3, 2, 20, 1);
+			Actions.AIDefencePositionAdd(1, 49, 29, 4, 0, 20, 1);
+			Spy.Routine := 8;
+		end;
+		
+	//Add defence Postions, even if not revealed
+	if States.GameTime() = (SpyTiming *2) then
+		if Spy.Routine < 7 then
+		begin
+			Spy.Routine := 7;
+			//If Spy is still on the Field -> dispose of it!
+			if not States.GroupDead(Spy.Group) then
+				Actions.UnitKill(States.GroupMember(Spy.Group, 0), false);
+		end;
+	
+	{$IFDEF TESTMODE1}Actions.OverlayTextSet(-1, 'Spy.Group: ' + inttostr(Spy.Group) + '|Spy.Routine: ' + inttostr(Spy.Routine) + '|Spy.X: ' + inttostr(Spy.X) + '|Spy.Y: ' + inttostr(Spy.Y)); {$ENDIF}
+end;
+
+
+procedure OnHouseBuilt(aHouseID: Integer);
+begin
+	//Get Houses of Human Player for Spying Routine
+	if States.HouseOwner(aHouseID) = 0 then
+		aHouses := States.PlayerGetAllHouses(0);
+end;
+
+
+procedure OnHouseDestroyed(aHouse, aDestroyerIndex: Integer);
+begin
+	{$IFDEF NOSTANDALONE}
+	//Buffer for Destroyed Houses; Write into Campaign.dat only after victory
+	aDestroyedHouseBuffer[GlobalD][0] := States.HouseOwner(aHouse);
+	aDestroyedHouseBuffer[GlobalD][1] := States.HouseType(aHouse);
+	aDestroyedHouseBuffer[GlobalD][2] := States.HousePositionX(aHouse);
+	aDestroyedHouseBuffer[GlobalD][3] := States.HousePositionY(aHouse);
+	Inc(GlobalD);
+	{$ENDIF}
+end;
+
+
+{$IFDEF NOSTANDALONE}
+//Grab all neccessary Data for next Mission (see Legend for more Infos)
+procedure OnPlayerVictory(aIndex: Integer);
+var
+	aHouse: array of Integer;
+	X, Y, P1, iTileObject: Byte;
+	H, M, R, O, D: Word;
+begin
+	if aIndex = 0 then //Conditions set with static script
+	begin
+		aHouse := States.PlayerGetAllHouses(1);
+		SetLength(CampaignData.TBK02.aHouseData, Length(aHouse)); //Set length of aHouseData-array
+		for H := 0 to Length(aHouse) -1 do
+		begin
+			CampaignData.TBK02.aHouseData[H][0] := States.HouseOwner(aHouse[H]); 
+			CampaignData.TBK02.aHouseData[H][1] := States.HouseType(aHouse[H]); 
+			CampaignData.TBK02.aHouseData[H][2] := States.HousePositionX(aHouse[H]);
+			CampaignData.TBK02.aHouseData[H][3] := States.HousePositionY(aHouse[H]);
+			CampaignData.TBK02.aHouseData[H][4] := States.HouseDamage(aHouse[H]);
+			for M := 5 to 32 do //Get resources in all Houses as well...
+				CampaignData.TBK02.aHouseData[H][M] := States.HouseResourceAmount(aHouse[H], M-5);
+		end;
+		
+		SetLength(CampaignData.TBK02.aRoadworksData, States.MapHeight()*States.MapWidth()); //Initialize arrays with maximum possible size
+		SetLength(CampaignData.TBK02.aTileObjectData, States.MapHeight()*States.MapWidth());
+		//Abysmal performance... but does its job
+		//Check what is on Coordinates X, Y and save it if important
+		for X := 1 to States.MapWidth() -1 do
+			for Y := 1 to 45 do //Not the whole map!!!
+			begin
+				//Player-specific information: Roads, Fields, Winefields
+				for P1 := 0 to States.StatPlayerCount() -1 do
+				begin
+					if States.IsRoadAt(P1, X, Y) then
+					begin
+						CampaignData.TBK02.aRoadworksData[R][0] := P1;
+						CampaignData.TBK02.aRoadworksData[R][1] := X;
+						CampaignData.TBK02.aRoadworksData[R][2] := Y;
+						CampaignData.TBK02.aRoadworksData[R][3] := 0;
+						Inc(R);
+					end else
+					if States.IsFieldAt(P1, X, Y) then
+					begin
+						CampaignData.TBK02.aRoadworksData[R][0] := P1;
+						CampaignData.TBK02.aRoadworksData[R][1] := X;
+						CampaignData.TBK02.aRoadworksData[R][2] := Y;
+						CampaignData.TBK02.aRoadworksData[R][3] := 1;
+						Inc(R);
+					end else
+					if States.IsWinefieldAt(P1, X, Y) then
+					begin
+						CampaignData.TBK02.aRoadworksData[R][0] := P1;
+						CampaignData.TBK02.aRoadworksData[R][1] := X;
+						CampaignData.TBK02.aRoadworksData[R][2] := Y;
+						CampaignData.TBK02.aRoadworksData[R][3] := 2;
+						Inc(R);
+					end;
+				end;
+				//Player Unspecific: Corn and Grapes
+				iTileObject := States.MapTileObject(X, Y);
+				if CornAndGrapes(iTileObject) then
+				begin
+					CampaignData.TBK02.aTileObjectData[O][0] := X;
+					CampaignData.TBK02.aTileObjectData[O][1] := Y;
+					CampaignData.TBK02.aTileObjectData[O][2] := iTileObject;
+					Inc(O);
+				end;
+			end;	
+		//Write saved Destroyed House data into Campaign.dat
+		SetLength(CampaignData.TBK02.aDestroyedHouseData, Length(aDestroyedHouseBuffer));
+		if GlobalD <> 0 then //Only write into array if theres anything
+			for D := 0 to GlobalD -1 do
+			begin
+				CampaignData.TBK02.aDestroyedHouseData[D][0] := aDestroyedHouseBuffer[D][0];
+				CampaignData.TBK02.aDestroyedHouseData[D][1] := aDestroyedHouseBuffer[D][1];
+				CampaignData.TBK02.aDestroyedHouseData[D][2] := aDestroyedHouseBuffer[D][2];
+				CampaignData.TBK02.aDestroyedHouseData[D][3] := aDestroyedHouseBuffer[D][3];
+			end;
+		
+		SetLength(CampaignData.TBK02.aRoadworksData, R); //reduce arrays size to minimum possible without deleting data
+		SetLength(CampaignData.TBK02.aTileObjectData, O);
+		SetLength(CampaignData.TBK02.aDestroyedHouseData, GlobalD);
+		
+		//Debugging
+		Actions.Log('HouseLength: ' + inttostr(Length(CampaignData.TBK02.aHouseData)));	
+		Actions.Log('RoadworksLength: ' + inttostr(Length(CampaignData.TBK02.aRoadworksData)));
+		Actions.Log('TileObjectLength: ' + inttostr(Length(CampaignData.TBK02.aTileObjectData)));
+		Actions.Log('aDestroyedHouseData: ' + inttostr(Length(CampaignData.TBK02.aDestroyedHouseData)));
+	end;
+end;
+{$ENDIF}
+
+
+//-- Legend --//
+
+//aHouseData:
+//0: Owner
+//1: Type
+//2: X
+//3: Y
+//4: Damage
+//5-32: Resources (0-27)
+
+//aTileObjectData
+//0: X
+//1: Y
+//2: Type
+
+//aRoadworksData
+//0: Owner
+//1: X
+//2: Y
+//3: Type
+
+//aDestroyedHouseData
+//0: Owner
+//1: Type
+//2: X
+//3: Y

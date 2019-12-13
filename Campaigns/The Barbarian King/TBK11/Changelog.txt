@@ -1,0 +1,37 @@
+TBK11
+*****
+
+Version 1.0
+- Reduced amount of Wares in Storehouse
+- Moved Storehouse 1 tile to the right to make building less annoying
+- Reduced amout of Fish in all seas
+- Reduced defence radius of Player1
+- Greatly impoved script
+- AI is now able to rebuild destroyed houses (if requirements are met)
+- First attack of Player1 now happens earlier, however is not that strong
+- Gold Moutains are now a bit less ugly
+- There is now a little bit of Iron in Player1's Mountain
+
+Version 1.1 (01.09.2017)
+- All trades are blocked on Startup
+- You can now only trade wares in the market of which you have the respective production building built
+
+
+Version 2.0 (04.03.2018)
+- Moved map to KaMRemake r8754 beta version
+- Overhauled scripts
+- Deactivated Townhall
+- Ingame Briefing now comes now just as you unlock the marketplace
+- Minor Elevation fixes
+- Increased Tree diversity
+
+Version 2.1: (17.02.2019)
+- Map renamed from TBK10 to TBK11
+
+Version 2.1b (11.04.2019)
+- Completely reworked AI attacks
+- Changed AI Defence position priority
+- Watchtower now unlocks after Sawmill
+- Stone in Storehouse of Player0 reduced from 2500 to 1500
+- Integrated Difficulty
+- Reintegrated dynamicmap.script

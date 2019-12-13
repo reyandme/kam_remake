@@ -1,0 +1,52 @@
+//-- TBK11 --//
+//By Strangelove
+//v2.1b
+//06.04.2019
+
+{$I improvestaticai.script}
+{$I transformunits.script}
+{$I custommarket.script}
+{$I difficulty.script}
+{$I dynamicmap.script}
+
+{$DEFINE DEBUG} //Enable extended Debug
+//{$UNDEF DEBUG}
+
+var
+	bMessage: Boolean;
+
+procedure OnHouseBuilt(aHouseID: Integer);
+begin
+	if not bMessage then
+		if States.HouseType(aHouseID) = 0 then
+		begin
+			Actions.ShowMsg(-1, '<$0>');
+			bMessage := true;
+		end;
+	//Focus Scouts on Barracks
+	if States.HouseType(aHouseID) = 21 then
+		if States.HouseOwner(aHouseID) = 0	then
+			Actions.AIStartPosition(2, States.HousePositionX(aHouseID), States.HousePositionY(aHouseID));
+	//Unlock Watchtower after Sawmill
+	if States.HouseType(aHouseID) = 0 then
+		if States.HouseOwner(aHouseID) = 0 then
+			Actions.HouseUnlock(0, 17);
+end;
+
+procedure OnTick();
+begin
+	if States.GameTime() = 14 then
+	case States.MissionDifficulty() of
+		mdEasy1:
+		begin
+			RemoveDefencePositionAndGroup(1, 66, 67);
+			RemoveDefencePositionAndGroup(1, 66, 56);
+			RemoveDefencePositionAndGroup(2, 77, 42);
+			RemoveDefencePositionAndGroup(2, 86, 38);
+		end;
+		mdNormal: RemoveDefencePositionAndGroup(2, 77, 42);
+		mdHard1: exit;
+	end;
+	if States.GameTime() mod  61 = 30 then
+		ChangeWaterfallEndTiles(43, 45, 28);
+end;

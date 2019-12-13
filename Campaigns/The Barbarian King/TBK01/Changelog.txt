@@ -1,0 +1,44 @@
+TBK01
+*****
+
+Version 1.0b
+- Added Ingame-Timer on request
+
+Version 1.1
+- First wave happens at the 15Min-mark instead of the 10Min
+- Used different Random-State (Hope that fixes the problem with Barbarians always spawning on the same side)
+- Reduced the amount of Groups spawned at Wave 3 and 5 by 1 Group
+
+Version 1.1c (31.08.2017)
+- Editted some typos in eng.libx-file
+- Opimised traslations and changed script accordingly
+- Added rudimentary german-translation (libx file only for now)
+- Added a new script that makes Waterfalls and Lava more dynamic
+
+Version 1.1d (10.01.2018)
+- Decreased Attack Wave Buffer from 10min to 5min
+
+
+Version 2.0 (04.03.2018)
+- Moved map to KaMRemake r8754 beta version
+- Overhauled scripts
+- Deactivated Townhall
+- Time is not displayed in a nicer format
+
+Version 2.1 (20.02.2019)
+- RR of Ally (Player8) increased from 100 to 80
+
+Version 2.1b (11.04.2019)
+- Updated the map:
+	- Added resources to mountains
+	- Now possible to place mines there
+	- Fixed elevation
+	- Removed uncuttable trees (replaced with cuttable ones)
+- Removed Corn from Player8 Storehouse
+- Tydied up main script
+- Amount of spawned enemy groups now scales with difficulty setting
+- dynamicmap.script reintegrated
+
+Version 2.1c (22.04.2019)
+- On Hard: One less village to loose before beeing defeated (from 4 to 3)
+- Added msg @12min mark that says how many villages you're allowed to loose before beeing defeated to make things more clear

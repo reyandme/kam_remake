@@ -1,0 +1,79 @@
+//-- Dynamic Map --//
+//By Strangelove
+//v0.3
+//05.04.2019
+//Developed for r9944
+
+{$EVENT evtMissionStart:DynamicMapOnMissionStart}
+{$EVENT evtTick:DynamicMapOnTick}
+
+var
+	aLavaTiles: array of TKMTerrainTileBrief;
+	iLavaTileCount: Integer;
+
+	
+procedure SaveTile(X, Y: Byte);
+begin
+	aLavaTiles[iLavaTileCount].X := X;
+	aLavaTiles[iLavaTileCount].Y := Y;
+	aLavaTiles[iLavaTileCount].UpdateRotation := True;
+	iLavaTileCount := iLavaTileCount +1;
+end;
+
+procedure AnimateLavaTiles();
+var 
+	i: Integer;
+begin
+	for i := 0 to iLavaTileCount -1 do
+		aLavaTiles[i].Rotation := States.KaMRandomI(4);
+	Actions.MapTilesArraySet(aLavaTiles, False, False); 
+end;
+
+procedure DynamicMapOnMissionStart();
+var
+	X, Y: Byte;
+begin
+	iLavaTileCount := 0;
+	SetLength(aLavaTiles, States.MapWidth() *States.MapHeight());
+	for X := 1 to States.MapWidth() -1 do
+		for Y := 1 to States.MapHeight() -1 do
+			if States.MapTileType(X, Y) = 7 then
+				SaveTile(X, Y);
+	SetLength(aLavaTiles, iLavaTileCount);
+end;
+
+procedure DynamicMapOnTick();
+begin
+	if States.GameTime() mod 12 = 0 then
+		AnimateLavaTiles();
+end;
+
+
+//Changes Waterfall End-Tiles (Not automated yet)
+procedure ChangeWaterfallEndTiles(X1, X2, Y: Byte);
+var
+	aTiles: array of Byte;
+	X, i, k, iTile: Byte;
+begin
+	k := 0;
+	SetLength(aTiles, (X2-X1+1));
+	for i := 0 to Length(aTiles) -1 do
+	begin
+		case States.KaMRandomI(2) of //Start only with 230 or 232
+			0: iTile := 230;
+			1: iTile := 232;
+		end;
+		aTiles[i] := iTile;
+		if i > 0 then //After 232 can only fallow 233
+			if ((aTiles[i-1]) = 232) then
+				aTiles[i] := 233;
+		if (i = (Length(aTiles) -1)) then //Cant end with 232
+			if aTiles[i] = 232 then
+				aTiles[i] := 230;
+	end;
+	for X := X1 to X2 do
+	begin
+		Actions.MapTileSet(X, Y, aTiles[k], 0);
+		k := k +1;
+	end;
+end;

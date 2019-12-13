@@ -8,7 +8,7 @@ type
   TKMPlayerGameResult = (pgrNone, pgrWin, pgrDefeat);
 
   //Stores information about a multiplayer game to be sent: host -> server -> queriers
-  TMPGameInfo = class
+  TKMPGameInfo = class
   public
     GameState: TMPGameState;
     PasswordLocked: Boolean;
@@ -45,7 +45,7 @@ uses
 
 
 { TMPGameInfo }
-procedure TMPGameInfo.LoadFromStream(aStream: TKMemoryStreamBinary);
+procedure TKMPGameInfo.LoadFromStream(aStream: TKMemoryStreamBinary);
 var I: Integer;
 begin
   aStream.Read(GameState, SizeOf(GameState));
@@ -73,14 +73,14 @@ end;
 
 
 //Return string representation of games length
-constructor TMPGameInfo.Create;
+constructor TKMPGameInfo.Create;
 begin
   inherited;
   GameOptions := TKMGameOptions.Create;
 end;
 
 
-destructor TMPGameInfo.Destroy;
+destructor TKMPGameInfo.Destroy;
 begin
   if GameOptions <> nil then
     FreeAndNil(GameOptions);
@@ -88,7 +88,7 @@ begin
 end;
 
 
-function TMPGameInfo.GetFormattedTime: UnicodeString;
+function TKMPGameInfo.GetFormattedTime: UnicodeString;
 begin
   if GameTime >= 0 then
     Result := TimeToString(GameTime)
@@ -97,7 +97,7 @@ begin
 end;
 
 
-procedure TMPGameInfo.SaveToStream(aStream: TKMemoryStreamBinary);
+procedure TKMPGameInfo.SaveToStream(aStream: TKMemoryStreamBinary);
 var I: Integer;
 begin
   aStream.Write(GameState, SizeOf(GameState));
@@ -122,7 +122,7 @@ begin
 end;
 
 
-function TMPGameInfo.PlayersList: string;
+function TKMPGameInfo.PlayersList: string;
 var I: Integer;
 begin
   Result := '';
@@ -132,7 +132,7 @@ end;
 
 
 //This function should do its own XML escaping
-function TMPGameInfo.HTMLPlayersList: string;
+function TKMPGameInfo.HTMLPlayersList: string;
 var I: Integer;
 begin
   Result := '';
@@ -147,7 +147,7 @@ begin
 end;
 
 
-function TMPGameInfo.ConnectedPlayerCount: Byte;
+function TKMPGameInfo.ConnectedPlayerCount: Byte;
 var I: Integer;
 begin
   Result := 0;

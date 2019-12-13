@@ -76,8 +76,8 @@ begin
   with TKMLabel.Create(Panel_Selection, 8, 250, TB_MAP_ED_WIDTH-16, 80, gResTexts[TX_MAPED_COPY_SELECT_HINT], fntGrey, taLeft) do
     AutoWrap := True;
 
-  Button_RMGRND := TKMButton.Create(Panel_Selection, 9, 300, TB_MAP_ED_WIDTH - 9, 20, 'RMG Settings', bsGame); //Todo translate
-  Button_RMGRND.Hint := GetHintWHotKey('RMG Settings', SC_MAPEDIT_SUB_MENU_ACTION_7); //Todo translate
+  Button_RMGRND := TKMButton.Create(Panel_Selection, 9, 300, TB_MAP_ED_WIDTH - 9, 20, gResTexts[TX_MAPED_RMG_BUTTON_TITLE], bsGame);
+  Button_RMGRND.Hint := GetHintWHotKey(gResTexts[TX_MAPED_RMG_BUTTON_HINT], SC_MAPEDIT_SUB_MENU_ACTION_7);
   Button_RMGRND.OnClick := GenerateMapClick;
 
   fSubMenuActionsEvents[0] := SelectionClick;

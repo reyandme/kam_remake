@@ -36,7 +36,8 @@ const
     [mkAskForAuth,mkAskToJoin,mkClientLost,mkReassignHost,mkDisconnect,mkPing,mkPingInfo,mkPlayersList,
      mkStartingLocQuery,mkSetTeam,mkFlagColorQuery,mkResetMap,mkMapSelect,mkSaveSelect,
      mkReadyToStart,mkStart,mkTextChat,mkKicked,mkLangCode,mkGameOptions,mkServerName,
-     mkFileRequest,mkFileChunk,mkFileEnd,mkFileAck,mkFileProgress,mkTextTranslated,mkHasMapOrSave,mkSetPassword],
+     mkFileRequest,mkFileSendStarted,mkFileChunk,mkFileEnd,mkFileAck,mkFileProgress,
+     mkTextTranslated,mkHasMapOrSave,mkSetPassword],
     //lgsLoading
     [mkAskForAuth,mkClientLost,mkReassignHost,mkDisconnect,mkPing,mkPingInfo,mkPlayersList,
      mkReadyToPlay,mkPlay,mkTextChat,mkKicked,mkTextTranslated,mkVote],
@@ -132,6 +133,7 @@ type
     fOnCommands: TStreamIntEvent;
     fOnResyncFromTick: TResyncEvent;
     fOnSetPassword: TAnsiStringEvent;
+    fOnAbortAllTransfers: TEvent;
 
     procedure DecodePingInfo(aStream: TKMemoryStreamBinary);
     procedure ForcedDisconnect(Sender: TObject);
@@ -151,6 +153,8 @@ type
     procedure TransferOnCompleted(aClientIndex: TKMNetHandleIndex);
     procedure TransferOnPacket(aClientIndex: TKMNetHandleIndex; aStream: TKMemoryStreamBinary; out SendBufferEmpty: Boolean);
     function GetMyNetPlayer: TKMNetPlayerInfo;
+    procedure SetDownloadlInProgress(aSenderIndex: TKMNetHandleIndex; aValue: Boolean);
+    procedure FileRequestReceived(aSenderIndex: TKMNetHandleIndex; aM: TKMemoryStreamBinary);
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -161,6 +165,7 @@ type
     procedure PacketSend(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind); overload;
     procedure PacketSend(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aStream: TKMemoryStreamBinary); overload;
     procedure PacketSend(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aParam: Integer); overload;
+//    procedure PacketSend(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aParams: array of Integer);
     procedure PacketSendInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex);
     procedure PacketSendA(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aText: AnsiString);
     procedure PacketSendW(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aText: UnicodeString);
@@ -168,8 +173,10 @@ type
 
     function GetPacketsReceived(aKind: TKMessageKind): Cardinal;
     function GetPacketsSent(aKind: TKMessageKind): Cardinal;
+
+    procedure WriteInfoToJoinRoom(aM: TKMemoryStream);
   public
-    constructor Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word;
+    constructor Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
                        aDynamicFOW, aMapsFilterEnabled: Boolean; const aMapsCRCListStr: UnicodeString; const aPeacetimeRng: TKMRangeInt;
                        const aSpeedRng: TKMRangeSingle; const aSpeedRngAfterPT: TKMRangeSingle);
     destructor Destroy; override;
@@ -196,15 +203,16 @@ type
 
     //Lobby
     property ServerQuery: TKMServerQuery read fServerQuery;
-    procedure Host(const aServerName: AnsiString; aPort: Word; const aNikname: AnsiString; aAnnounceServer: Boolean);
+    procedure Host(const aServerName: AnsiString; aPort: Word; const aNikname: AnsiString; aAnnounceServer, aAnnounceUDP: Boolean);
     procedure Join(const aServerAddress: string; aPort: Word; const aNikname: AnsiString; aRoom: Integer; aIsReconnection: Boolean = False);
     procedure AnnounceDisconnect(aLastSentCmdsTick: Cardinal = LAST_SENT_COMMANDS_TICK_NONE);
     procedure Disconnect;
     procedure DropPlayers(aPlayers: TKMByteArray);
     function  Connected: Boolean;
     procedure MatchPlayersToSave(aPlayerID: Integer = -1);
+    procedure AbortAllTransfers;
     procedure SelectNoMap(const aErrorMessage: UnicodeString);
-    procedure SelectMap(const aName: UnicodeString; aMapFolder: TKMapFolder);
+    procedure SelectMap(const aName: UnicodeString; aMapFolder: TKMapFolder; aSendPlayerSetup: Boolean = False);
     procedure SelectSave(const aName: UnicodeString);
     procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
@@ -218,7 +226,7 @@ type
     property Password: AnsiString read fPassword;
     property Description: UnicodeString read fDescription write SetDescription;
     function ReadyToStart: Boolean;
-    function CanStart: Boolean;
+    function CanStart: TKMGameStartMode;
     function CanTakeLocation(aPlayer, aLoc: Integer; AllowSwapping: Boolean): Boolean;
     procedure StartClick; //All required arguments are in our class
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex: TKMNetHandleIndex = NET_ADDRESS_OTHERS);
@@ -276,6 +284,7 @@ type
     property OnPingInfo: TNotifyEvent write fOnPingInfo;         //Ping info updated
     property OnMPGameInfoChanged: TNotifyEvent write fOnMPGameInfoChanged;
     property OnSetPassword: TAnsiStringEvent write fOnSetPassword;
+    property OnAbortAllTransfers: TEvent read fOnAbortAllTransfers write fOnAbortAllTransfers;
 
     property OnDisconnect: TUnicodeStringEvent write fOnDisconnect;     //Lost connection, was kicked
     property OnJoinerDropped: TIntegerEvent write fOnJoinerDropped; //Other player disconnected
@@ -304,7 +313,7 @@ uses
 
 
 { TKMNetworking }
-constructor TKMNetworking.Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval: Word;
+constructor TKMNetworking.Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
                                  aDynamicFOW, aMapsFilterEnabled: Boolean; const aMapsCRCListStr: UnicodeString; const aPeacetimeRng: TKMRangeInt;
                                  const aSpeedRng: TKMRangeSingle; const aSpeedRngAfterPT: TKMRangeSingle);
 var
@@ -314,7 +323,7 @@ begin
 
   SetGameState(lgsNone);
 
-  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '', False);
+  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort, aMasterServerAddress, '', '', False);
   GameFilter := TKMPGameFilter.Create(aDynamicFOW, aMapsFilterEnabled, aMapsCRCListStr, aPeacetimeRng, aSpeedRng, aSpeedRngAfterPT);
   fNetServer.Server.GameFilter := GameFilter;
 
@@ -322,7 +331,7 @@ begin
 
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMNetPlayersList.Create;
-  fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
+  fServerQuery := TKMServerQuery.Create(aMasterServerAddress, aServerUDPScanPort);
   fNetGameOptions := TKMGameOptions.Create;
   fFileSenderManager := TKMFileSenderManager.Create;
   fMutedPlayersList := TList.Create;
@@ -369,7 +378,8 @@ end;
 
 
 //Startup a local server and connect to it as ordinary client
-procedure TKMNetworking.Host(const aServerName: AnsiString; aPort: Word; const aNikname: AnsiString; aAnnounceServer: Boolean);
+procedure TKMNetworking.Host(const aServerName: AnsiString; aPort: Word; const aNikname: AnsiString;
+                             aAnnounceServer, aAnnounceUDP: Boolean);
 begin
   fWelcomeMessage := '';
   fPassword := '';
@@ -379,7 +389,7 @@ begin
 
   fNetServer.OnMessage := gLog.AddTime; //Log server messages in case there is a problem, but hide from user
   try
-    fNetServer.Start(aServerName, aPort, aAnnounceServer);
+    fNetServer.Start(aServerName, aPort, aAnnounceServer, aAnnounceUDP);
   except
     on E : Exception do
     begin
@@ -483,7 +493,7 @@ begin
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
   FreeAndNil(fFileReceiver);
-  fFileSenderManager.AbortAllTransfers;
+  AbortAllTransfers;
 
   fSelectGameKind := ngkNone;
 end;
@@ -620,6 +630,14 @@ begin
 end;
 
 
+procedure TKMNetworking.AbortAllTransfers;
+begin
+  fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
+  if Assigned(fOnAbortAllTransfers) then
+    fOnAbortAllTransfers;
+end;
+
+
 //Clear selection from any map/save
 procedure TKMNetworking.SelectNoMap(const aErrorMessage: UnicodeString);
 begin
@@ -629,7 +647,8 @@ begin
 
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
-  fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
+
+  AbortAllTransfers;
 
   PacketSend(NET_ADDRESS_OTHERS, mkResetMap);
   fNetPlayers.ResetLocAndReady; //Reset start locations
@@ -645,7 +664,7 @@ end;
 
 //Tell other players which map we will be using
 //Players will reset their starting locations and "Ready" status on their own
-procedure TKMNetworking.SelectMap(const aName: UnicodeString; aMapFolder: TKMapFolder);
+procedure TKMNetworking.SelectMap(const aName: UnicodeString; aMapFolder: TKMapFolder; aSendPlayerSetup: Boolean = False);
 begin
   Assert(IsHost, 'Only host can select maps');
   FreeAndNil(fMapInfo);
@@ -675,21 +694,24 @@ begin
   fSelectGameKind := ngkMap;
   MyNetPlayer.ReadyToStart := True;
   MyNetPlayer.HasMapOrSave := True;
-  fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
+  AbortAllTransfers; //Any ongoing transfer is cancelled
 
   SendMapOrSave;
 
   if Assigned(fOnMapName) then
     fOnMapName(fMapInfo.FileName);
 
-//  SendPlayerListAndRefreshPlayersSetup; //No need to send Player setup, since we will send from GUILobby class after that immidiately
+  //Don't send player setup by default. Cause it will be sent from lobby just afterwards
+  if aSendPlayerSetup then
+    SendPlayerListAndRefreshPlayersSetup;
 end;
 
 
 //Tell other players which save we will be using
 //Players will reset their starting locations and "Ready" status on their own
 procedure TKMNetworking.SelectSave(const aName: UnicodeString);
-var Error: UnicodeString;
+var
+  Error: UnicodeString;
 begin
   Assert(IsHost, 'Only host can select saves');
 
@@ -700,7 +722,7 @@ begin
 
   if not fSaveInfo.IsValid then
   begin
-    Error := fSaveInfo.GameInfo.Title; //Make a copy since fSaveInfo is freed in SelectNoMap
+    Error := WrapColor(fSaveInfo.SaveError.ErrorString, clSaveLoadError); //Make a copy since fSaveInfo is freed in SelectNoMap
     SelectNoMap(Error); //State the error, e.g. wrong version
     Exit;
   end;
@@ -723,7 +745,7 @@ begin
 
   //Randomise locations within team is disabled for saves
   NetPlayers.RandomizeTeamLocations := False;
-  fFileSenderManager.AbortAllTransfers; //Any ongoing transfer is cancelled
+  AbortAllTransfers; //Any ongoing transfer is cancelled
 
   SendMapOrSave;
   MatchPlayersToSave; //Don't match players if it's not a valid save
@@ -811,7 +833,9 @@ end;
 procedure TKMNetworking.SelectColor(aIndex:integer; aPlayerIndex:integer);
 begin
   if not fNetPlayers.ColorAvailable(aIndex) then Exit;
-  if (fSelectGameKind = ngkSave) and SaveInfo.IsValid and SaveInfo.GameInfo.ColorUsed(aIndex) then Exit;
+  if (fSelectGameKind = ngkSave)
+    and SaveInfo.IsValid
+    and SaveInfo.GameInfo.ColorUsed(aIndex) then Exit;
 
   //Host makes rules, Joiner will get confirmation from Host
   fNetPlayers[aPlayerIndex].FlagColorID := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
@@ -862,12 +886,21 @@ begin
 end;
 
 
+procedure TKMNetworking.WriteInfoToJoinRoom(aM: TKMemoryStream);
+begin
+  aM.Write(fRoomToJoin);
+  aM.Write(TKMGameRevision(GAME_REVISION_NUM));
+end;
+
+
 procedure TKMNetworking.SendPassword(const aPassword: AnsiString);
 var
   M: TKMemoryStreamBinary;
 begin
   M := TKMemoryStreamBinary.Create;
-  M.Write(fRoomToJoin);
+
+  WriteInfoToJoinRoom(M);
+
   M.WriteA(aPassword);
   PacketSend(NET_ADDRESS_SERVER, mkPassword, M);
   M.Free;
@@ -917,28 +950,54 @@ begin
 end;
 
 
-function TKMNetworking.CanStart: Boolean;
+function TKMNetworking.CanStart: TKMGameStartMode;
+
+  function BoolToGameStartMode(aAllowed: Boolean): TKMGameStartMode;
+  begin
+    if not aAllowed then
+    begin
+      //Check if we can't start unsupported save
+      if (fSelectGameKind = ngkSave)
+        and fSaveInfo.IsValid
+        and not fSaveInfo.IsValidStrictly then
+        Result := gsmNoStartWithWarn
+      else
+        Result := gsmNoStart;
+    end
+    else
+    begin
+      if (fSelectGameKind = ngkSave)
+        and not fSaveInfo.IsValidStrictly then //Save detected as non-strict valid already at that point
+        Result := gsmStartWithWarn
+      else
+        Result := gsmStart;
+    end;
+  end;
+
 var
   I: Integer;
+  StartAllowed: Boolean;
 begin
   case fSelectGameKind of
-    ngkMap:  Result := fNetPlayers.AllReady and fMapInfo.IsValid;
-    ngkSave: begin
-                Result := fNetPlayers.AllReady and fSaveInfo.IsValid;
-                for i:=1 to fNetPlayers.Count do //In saves everyone must chose a location
-                  Result := Result and ((fNetPlayers[i].StartLocation <> LOC_RANDOM) or fNetPlayers[i].IsClosed);
+    ngkMap:   StartAllowed := fNetPlayers.AllReady and fMapInfo.IsValid;
+    ngkSave:  begin
+                StartAllowed := fNetPlayers.AllReady and fSaveInfo.IsValid;
+                for I := 1 to fNetPlayers.Count do //In saves everyone must chose a location
+                  StartAllowed := StartAllowed and ((fNetPlayers[i].StartLocation <> LOC_RANDOM) or fNetPlayers[i].IsClosed);
               end;
-    else      Result := False;
+    else      StartAllowed := False;
   end;
   //At least one player must NOT be a spectator or closed
   for I := 1 to fNetPlayers.Count do
     if not fNetPlayers[i].IsSpectator and not fNetPlayers[i].IsClosed then
-      Exit; //Exit with result from above
+      Exit(BoolToGameStartMode(StartAllowed)); //Exit with result from above
 
   //If we reached here then all players are spectators so only saves can be started,
   //unless this map has AI-only locations (spectators can watch the AIs)
   if (fSelectGameKind = ngkMap) and (fMapInfo.AIOnlyLocCount = 0) then
-    Result := False;
+    StartAllowed := False;
+
+  Result := BoolToGameStartMode(StartAllowed);
 end;
 
 
@@ -951,7 +1010,7 @@ var
   CheckMapInfo: TKMapInfo;
 begin
   Assert(IsHost, 'Only host can start the game');
-  Assert(CanStart, 'Can''t start the game now');
+  Assert(IsGameStartAllowed(CanStart), 'Can''t start the game now');
   Assert(fNetGameState = lgsLobby, 'Can only start from lobby');
 
   //Define random parameters (start locations and flag colors)
@@ -1298,7 +1357,7 @@ begin
   if IsHost then
   begin
     //We are no longer the host
-    fFileSenderManager.AbortAllTransfers;
+    AbortAllTransfers;
     fNetPlayerKind := lpkJoiner;
     if Assigned(fOnReassignedJoiner) then fOnReassignedJoiner(Self); //Lobby/game might need to know
     if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
@@ -1632,7 +1691,11 @@ begin
                 fMyIndexOnServer := tmpHandleIndex;
                 //PostLocalMessage('Index on Server - ' + inttostr(fMyIndexOnServer));
                 //Now join the room we planned to
-                PacketSend(NET_ADDRESS_SERVER, mkJoinRoom, fRoomToJoin);
+                M2 := TKMemoryStreamBinary.Create;
+                WriteInfoToJoinRoom(M2);
+
+                PacketSend(NET_ADDRESS_SERVER, mkJoinRoom, M2);
+                M2.Free;
               end;
 
       mkConnectedToRoom:
@@ -1755,24 +1818,15 @@ begin
                 end;
               end;
 
-      mkFileRequest:
-              if IsHost then
-              begin
-                //Validate request and set up file sender
-                M.ReadW(tmpStringW);
-                case fSelectGameKind of
-                  ngkMap:  if ((tmpStringW <> MapInfo.FileName) and (tmpStringW <> MapInfo.FileName + '_' + IntToHex(MapInfo.CRC, 8)))
-                            or not fFileSenderManager.StartNewSend(kttMap, MapInfo.FileName, MapInfo.MapFolder, aSenderIndex) then
-                              PacketSend(aSenderIndex, mkFileEnd); //Abort
-                  ngkSave: if (tmpStringW <> SaveInfo.FileName)
-                            or not fFileSenderManager.StartNewSend(kttSave, SaveInfo.FileName, mfDL, aSenderIndex) then
-                              PacketSend(aSenderIndex, mkFileEnd); //Abort
-                end;
-              end;
+      mkFileRequest: FileRequestReceived(aSenderIndex, M);
+              
 
       mkFileChunk:
               if not IsHost and (fFileReceiver <> nil) then
               begin
+                if SLOW_MAP_SAVE_LOAD then
+                  Sleep(50);
+                  
                 fFileReceiver.DataReceived(M);
                 PacketSend(aSenderIndex, mkFileAck);
                 M2 := TKMemoryStreamBinary.Create;
@@ -1793,6 +1847,7 @@ begin
               begin
                 fFileReceiver.ProcessTransfer;
                 FreeAndNil(fFileReceiver);
+                SetDownloadlInProgress(aSenderIndex, False);
               end;
 
       mkFileProgress:
@@ -1801,7 +1856,15 @@ begin
                 M.Read(tmpCardinal);
                 M.Read(tmpCardinal2);
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                fOnPlayerFileTransferProgress(PlayerIndex, tmpCardinal, tmpCardinal2);
+                if (PlayerIndex <> -1) and fNetPlayers[PlayerIndex].DownloadInProgress then
+                  fOnPlayerFileTransferProgress(PlayerIndex, tmpCardinal, tmpCardinal2);
+              end;
+
+      mkFileSendStarted:
+              if not IsHost then //Host will mark NetPlayers before file send
+              begin
+                M.Read(tmpCardinal);
+                SetDownloadlInProgress(tmpCardinal, True);
               end;
 
       mkLangCode:
@@ -2014,8 +2077,8 @@ begin
                                         ' Save FileExists %s: %s; fSaveError = %s; fInfo.IsValid(True) = %s',
                                         [gResTexts[TX_PAUSED_FILE_MISMATCH], BoolToStr(fSaveInfo.IsValid),
                                          BoolToStr(fSaveInfo.CRC <> tmpCardinal), fSaveInfo.Path + fSaveInfo.FileName + EXT_SAVE_MAIN_DOT,
-                                         BoolToStr(FileExists(fSaveInfo.Path + fSaveInfo.FileName + EXT_SAVE_MAIN_DOT)), fSaveInfo.SaveError,
-                                         fSaveInfo.GameInfo.IsValid(True)]));
+                                         BoolToStr(FileExists(fSaveInfo.Path + fSaveInfo.FileName + EXT_SAVE_MAIN_DOT)),
+                                         fSaveInfo.SaveError.ErrorString, fSaveInfo.GameInfo.IsValid(True)]));
                     fSelectGameKind := ngkNone;
                     FreeAndNil(fSaveInfo);
                     if Assigned(fOnMapName) then fOnMapName('');
@@ -2335,6 +2398,26 @@ begin
 end;
 
 
+//procedure TKMNetworking.PacketSend(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aParams: array of Integer);
+//var
+//  I: Integer;
+//  M: TKMemoryStreamBinary;
+//begin
+//  Assert(NetPacketType[aKind] = pfBinary); //Several numbers are considered as binary
+//
+//  LogPacket(True, aKind, aRecipient);
+//
+//  M := TKMemoryStreamBinary.Create;
+//  M.Write(aKind, SizeOf(TKMessageKind));
+//
+//  for I := 0 to Length(aParams) - 1 do
+//    M.Write(aParams[I]);
+//
+//  fNetClient.SendData(fMyIndexOnServer, aRecipient, M.Memory, M.Size);
+//  M.Free;
+//end;
+
+
 procedure TKMNetworking.PacketSendInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex);
 var
   M: TKMemoryStreamBinary;
@@ -2477,21 +2560,21 @@ end;
 //Tell the server what we know about the game
 procedure TKMNetworking.AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 var
-  MPGameInfo: TMPGameInfo;
+  MPGameInfo: TKMPGameInfo;
   M: TKMemoryStreamBinary;
   I: Integer;
 begin
   //Only one player per game should send the info - Host
   if not IsHost then Exit;
 
-  MPGameInfo := TMPGameInfo.Create;
+  MPGameInfo := TKMPGameInfo.Create;
   try
     if (fNetGameState in [lgsLobby, lgsLoading]) then
     begin
       case fSelectGameKind of
         ngkSave: aMap := fSaveInfo.GameInfo.Title;
         ngkMap:  aMap := fMapInfo.FileName;
-        else      aMap := '';
+        else     aMap := '';
       end;
       aGameTime := -1;
     end;
@@ -2619,6 +2702,57 @@ end;
 function TKMNetworking.GetMyNetPlayer: TKMNetPlayerInfo;
 begin
   Result := fNetPlayers[fMyIndex];
+end;
+
+
+procedure TKMNetworking.SetDownloadlInProgress(aSenderIndex: TKMNetHandleIndex; aValue: Boolean);
+var
+  PlayerIndex: Integer;
+begin
+  PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+  if PlayerIndex <> -1 then
+    fNetPlayers[PlayerIndex].DownloadInProgress := aValue;
+end;
+
+
+procedure TKMNetworking.FileRequestReceived(aSenderIndex: TKMNetHandleIndex; aM: TKMemoryStreamBinary);
+
+  procedure AbortSend;
+  begin
+    PacketSend(aSenderIndex, mkFileEnd); //Abort
+    SetDownloadlInProgress(aSenderIndex, False);
+  end;
+  
+var
+  tmpStringW: UnicodeString;
+begin
+  if IsHost then
+  begin
+    //Validate request and set up file sender
+    aM.ReadW(tmpStringW);
+    case fSelectGameKind of
+      ngkMap: if ((tmpStringW = MapInfo.FileName) or (tmpStringW = MapInfo.FileName + '_' + IntToHex(MapInfo.CRC, 8))) then
+              begin
+                PacketSend(NET_ADDRESS_OTHERS, mkFileSendStarted, aSenderIndex);
+                SetDownloadlInProgress(aSenderIndex, True);
+                if not fFileSenderManager.StartNewSend(kttMap, MapInfo.FileName, MapInfo.MapFolder, aSenderIndex) then
+                  AbortSend;
+              end 
+              else
+                AbortSend;
+                            
+
+      ngkSave:if tmpStringW = SaveInfo.FileName then
+              begin
+                PacketSend(NET_ADDRESS_OTHERS, mkFileSendStarted, aSenderIndex);
+                SetDownloadlInProgress(aSenderIndex, True);
+                if not fFileSenderManager.StartNewSend(kttSave, SaveInfo.FileName, mfDL, aSenderIndex) then    
+                  AbortSend;
+              end
+              else
+                AbortSend;
+    end;
+  end;
 end;
 
 

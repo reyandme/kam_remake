@@ -842,7 +842,8 @@ begin
                       begin
                         //Abandon walk so we can take attack house
                         if (Action is TKMUnitActionWalkTo)
-                          and not TKMUnitActionWalkTo(Action).DoingExchange then
+                          and not TKMUnitActionWalkTo(Action).DoingExchange
+                          and not TKMUnitActionWalkTo(Action).WasPushed then
                           AbandonWalk;
 
                         //Take attack house order

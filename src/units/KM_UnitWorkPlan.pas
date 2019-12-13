@@ -187,12 +187,12 @@ function TKMUnitWorkPlan.ChooseTree(const aLoc, aAvoid: TKMPoint; aRadius: Integ
 var
   I: Integer;
   T: TKMPoint;
-  TreeList: TKMPointDirList;
-  BestToPlant, SecondBestToPlant: TKMPointList;
+  TreeList: TKMPointDirCenteredList;
+  BestToPlant, SecondBestToPlant: TKMPointCenteredList;
 begin
-  TreeList := TKMPointDirList.Create;
-  BestToPlant := TKMPointList.Create;
-  SecondBestToPlant := TKMPointList.Create;
+  TreeList := TKMPointDirCenteredList.Create(aLoc);
+  BestToPlant := TKMPointCenteredList.Create(aLoc);
+  SecondBestToPlant := TKMPointCenteredList.Create(aLoc);
 
   gTerrain.FindTree(aLoc, aRadius, aAvoid, aPlantAct, TreeList, BestToPlant, SecondBestToPlant);
 
@@ -204,7 +204,7 @@ begin
       ) then
   begin
     PlantAct := taCut;
-    Result := TreeList.GetRandom(Tree);
+    Result := TreeList.GetWeightedRandom(Tree);
   end
   else
   begin
@@ -213,7 +213,7 @@ begin
     for I := BestToPlant.Count - 1 downto 0 do
       if not TKMUnitCitizen(aUnit).CanWorkAt(BestToPlant[I], gsWoodCutterPlant) then
         BestToPlant.Delete(I);
-    Result := BestToPlant.GetRandom(T);
+    Result := BestToPlant.GetWeightedRandom(T);
     //Trees must always be planted facing north as that is the direction the animation uses
     if Result then
       Tree := KMPointDir(T, dirN)
@@ -223,7 +223,7 @@ begin
       for I := SecondBestToPlant.Count - 1 downto 0 do
         if not TKMUnitCitizen(aUnit).CanWorkAt(SecondBestToPlant[I], gsWoodCutterPlant) then
           SecondBestToPlant.Delete(I);
-      Result := SecondBestToPlant.GetRandom(T);
+      Result := SecondBestToPlant.GetWeightedRandom(T);
       //Trees must always be planted facing north as that is the direction the animation uses
       if Result then
         Tree := KMPointDir(T, dirN);

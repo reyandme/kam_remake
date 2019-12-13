@@ -1,0 +1,42 @@
+TBK11
+*****
+
+Version 1.0
+- Map uploaded to receive feedback
+
+Version 1.1 (27.09.2015)
+- AI is now rebuilding destroyed buildings
+- Fixed script errors
+- Script greatly improved
+- Changed colors of enemies
+- AI now recruits fighting units a little slower to make it a bit easier (Iron Enemies)
+
+Version 1.1b (27.09.2015)
+- Fixed a minor bug in script
+
+Version 1.2 (28.09.2015)
+- Increased equip rate of Player 3 and 4 by 5sec again
+- Mountains in the south are slightly prettier and conist of more different tiles
+- Fixed a bug in the script where if you defeated Player1 and destroyed all its houses a variable went out of range (Special thanks to Vatrix for reporting that bug)
+
+Version 1.2b (03.09.2015)
+- Forgot to remove troops for testing
+
+Version 1.2d (13.09.2015)
+- Added additional Debugging Features
+
+
+Version 2.0 (04.03.2018)
+- Moved map to KaMRemake r8754 beta version
+- Overhauled scripts
+- Deactivated Townhall
+- Increased Tree diversity
+
+Version 2.1: (17.02.2019)
+- Map renamed from TBK11 to TBK12
+
+Version 2.1b: (06.04.2019)
+- Map now supports difficulty:
+	- Easy: Removed some of Enemy defence positions; Start of Iron Production begins later
+	- Normal: No change
+	- Hard: Added additional defence positions; Iron production start earlier and Player1 is given unlimited Iron Ore and Coal after Mines are built

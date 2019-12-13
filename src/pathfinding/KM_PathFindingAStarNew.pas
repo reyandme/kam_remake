@@ -25,9 +25,9 @@ type
     fUsedNodes: array of TANode; //Used to make Reset more efficient
     fUsedNodeCount: Integer;
     function HeapCmp(A,B: Pointer): Boolean;
-    function GetNodeAt(X,Y: SmallInt): TANode;
     procedure Flush;
   protected
+    function GetNodeAt(X,Y: SmallInt): TANode;
     function MakeRoute: Boolean; override;
     procedure ReturnRoute(NodeList: TKMPointList); override;
   public

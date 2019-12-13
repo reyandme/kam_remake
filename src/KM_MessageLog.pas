@@ -133,6 +133,7 @@ procedure TKMMessageLog.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
+  SaveStream.PlaceMarker('MessageLog');
   SaveStream.Write(fCountLog);
   for I := 0 to fCountLog - 1 do
     MessagesLog[I].Save(SaveStream);
@@ -143,6 +144,7 @@ procedure TKMMessageLog.Load(LoadStream: TKMemoryStream);
 var
   I: Integer;
 begin
+  LoadStream.CheckMarker('MessageLog');
   LoadStream.Read(fCountLog);
   SetLength(fListLog, fCountLog);
 

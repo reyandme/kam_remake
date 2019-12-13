@@ -1,0 +1,105 @@
+//-- Functions --//
+//By Strangelove
+//v0.1
+//04.03.2018
+//Developed for r8754
+
+function Concat(Array0, Array1: array of Integer): array of Integer;
+var 
+	NewArray: array of Integer;
+	i, j: Integer;
+begin
+	SetLength(NewArray, (Length(Array0) + Length(Array1)));
+	for i := 0 to Length(Array0)-1 do
+		NewArray[i] := Array0[i];
+	for j := 0 to Length(Array1)-1 do
+		NewArray[j+Length(Array0)] := Array1[j];
+	Result := NewArray;
+end;
+
+
+//Returns the Closest Enemy House from aGroupID
+function ClosestEnemyHouse(aGroupID: Integer): Integer;
+var
+	SeakerGroupLeader, SeakerLeaderX, SeakerLeaderY, FoundHouse, DX, DY, ThisDistanceSqr, BestDistanceSqr: Integer;
+	iPlayerLoop: Byte;
+begin
+	Result := -1;
+	SeakerGroupLeader := States.GroupMember(aGroupID, 0);
+	SeakerLeaderX := States.UnitPositionX(SeakerGroupLeader);
+	SeakerLeaderY := States.UnitPositionY(SeakerGroupLeader);
+	for iPlayerLoop := 0 to States.StatPlayerCount()-1 do
+	begin
+		if not States.PlayerAllianceCheck(States.GroupOwner(aGroupID), iPlayerLoop) then //Check alliances
+		begin
+			FoundHouse := States.ClosestHouse(iPlayerLoop, SeakerLeaderX, SeakerLeaderY, -1);
+			DX := SeakerLeaderX - States.HousePositionX(FoundHouse);
+			DY := SeakerLeaderY - States.HousePositionY(FoundHouse);
+			ThisDistanceSqr := (DX*DX) + (DY*DY);
+			if (Result = -1) or (ThisDistanceSqr < BestDistanceSqr) then
+			begin
+				BestDistanceSqr := ThisDistanceSqr;
+				Result := FoundHouse;
+			end;
+		end;
+	end;
+end;
+
+
+function ClosestEnemyGroupLeader(aGroupID: Integer): Integer;
+var 
+	SeakerGroupLeader, SeakerLeaderX, SeakerLeaderY, FoundGroup, FoundGroupLeader, DX, DY, ThisDistanceSqr, BestDistanceSqr: Integer;
+	iPlayerLoop: Byte;
+begin
+	Result := -1;
+	SeakerGroupLeader := States.GroupMember(aGroupID, 0);
+	SeakerLeaderX := States.UnitPositionX(SeakerGroupLeader);
+	SeakerLeaderY := States.UnitPositionY(SeakerGroupLeader);
+	for iPlayerLoop := 0 to States.StatPlayerCount()-1 do
+	begin
+		if not States.PlayerAllianceCheck(States.GroupOwner(aGroupID), iPlayerLoop) then //Check alliances
+		begin
+			FoundGroup := States.ClosestGroup(iPlayerLoop, SeakerLeaderX, SeakerLeaderY, -1); //GroupType doesnt matter for now
+			FoundGroupLeader := States.GroupMember(FoundGroup, 0);
+			DX := SeakerLeaderX - States.UnitPositionX(FoundGroupLeader);
+			DY := SeakerLeaderY - States.UnitPositionY(FoundGroupLeader);
+			ThisDistanceSqr := (DX*DX) + (DY*DY);
+			if (Result = -1) or (ThisDistanceSqr < BestDistanceSqr) then
+			begin
+				BestDistanceSqr := ThisDistanceSqr;
+				Result := FoundGroupLeader;
+			end;
+		end;
+	end;	
+end;
+
+
+//Returns the Closest Enemy House from aGroupID (Legacy Version)
+function ClosestEnemyHouseFromGroup(iGroupID: Integer): Integer;
+var 
+	i, X, Y, DX, DY, BestDistanceSqr, ThisDistanceSqr: Integer;
+	iPlayerLoop: Byte;
+	aHouses: array of Integer;
+begin
+	X := States.UnitPositionX(States.GroupMember(iGroupID, 0));
+	Y := States.UnitPositionY(States.GroupMember(iGroupID, 0));
+	Result := -1;
+	for iPlayerLoop := 0 to States.StatPlayerCount() -1 do
+	begin
+		aHouses := States.PlayerGetAllHouses(iPlayerLoop);
+		for i := 0 to Length(aHouses) -1 do
+		begin
+			if (States.HouseOwner(aHouses[i]) <> States.GroupOwner(iGroupID)) and not States.PlayerAllianceCheck(States.HouseOwner(aHouses[i]), States.GroupOwner(iGroupID)) then
+			begin
+				DX := X - States.HousePositionX(aHouses[i]);
+				DY := Y - States.HousePositionY(aHouses[i]);
+				ThisDistanceSqr := (DX*DX) + (DY*DY);
+				if (Result = -1) or (ThisDistanceSqr  < BestDistanceSqr) then
+				begin
+					BestDistanceSqr := ThisDistanceSqr;
+					Result := aHouses[i];
+				end;
+			end;
+		end;
+	end;
+end;

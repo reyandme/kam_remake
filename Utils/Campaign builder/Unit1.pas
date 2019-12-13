@@ -651,7 +651,7 @@ procedure TForm1.edtShortNameChange(Sender: TObject);
 var
   cmp: TKMCampaignId;
 begin
-  if Length(edtShortName.Text) = 3 then
+  if Length(Trim(edtShortName.Text)) = 3 then
   begin
     if fUpdating then Exit;
 

@@ -35,6 +35,7 @@ type
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
     LastSentCommandsTick: Integer; //Last tick when this player sent GIP commands to others (//TODO: move it somewhere...?)
+    DownloadInProgress: Boolean; //Player is in map/save download progress
     FPS: Cardinal;
     VotedYes: Boolean;
     procedure AddPing(aPing: Word);
@@ -121,6 +122,7 @@ type
     function GetNotDroppedCount: Integer;
     function FurtherVotesNeededForMajority: Integer;
     function HasOnlySpectators: Boolean;
+    procedure SetDownloadAborted;
 
     procedure ResetLocAndReady;
     procedure ResetReady;
@@ -280,7 +282,7 @@ begin
   if IsHuman or (gHands = nil) or (HandIndex = -1) then
     Result := fNikname
   else
-    Result := AnsiString(gHands[HandIndex].OwnerName);
+    Result := AnsiString(gHands[HandIndex].OwnerName(True, False));
 end;
 
 
@@ -329,6 +331,7 @@ begin
   LoadStream.Read(Connected);
   LoadStream.Read(Dropped);
   LoadStream.Read(LastSentCommandsTick);
+  LoadStream.Read(DownloadInProgress);
   LoadStream.Read(VotedYes);
 end;
 
@@ -349,6 +352,7 @@ begin
   SaveStream.Write(Connected);
   SaveStream.Write(Dropped);
   SaveStream.Write(LastSentCommandsTick);
+  SaveStream.Write(DownloadInProgress);
   SaveStream.Write(VotedYes);
 end;
 
@@ -469,6 +473,7 @@ begin
   fNetPlayers[fCount].Connected := True;
   fNetPlayers[fCount].Dropped := False;
   fNetPlayers[fCount].LastSentCommandsTick := LAST_SENT_COMMANDS_TICK_NONE;
+  fNetPlayers[fCount].DownloadInProgress := False;
   fNetPlayers[fCount].ResetPingRecord;
   //Check if this player must go in a spectator slot
   if fCount - GetSpectatorCount > MAX_LOBBY_PLAYERS then
@@ -502,6 +507,7 @@ begin
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
   fNetPlayers[aSlot].LastSentCommandsTick := LAST_SENT_COMMANDS_TICK_NONE;
+  fNetPlayers[aSlot].DownloadInProgress := False;
   fNetPlayers[aSlot].ResetPingRecord;
 end;
 
@@ -527,6 +533,7 @@ begin
   fNetPlayers[aSlot].Connected := True;
   fNetPlayers[aSlot].Dropped := False;
   fNetPlayers[aSlot].LastSentCommandsTick := LAST_SENT_COMMANDS_TICK_NONE;
+  fNetPlayers[aSlot].DownloadInProgress := False;
   fNetPlayers[aSlot].ResetPingRecord;
 end;
 
@@ -876,6 +883,15 @@ begin
       Exit;
     end;
   Result := True;
+end;
+
+
+procedure TKMNetPlayersList.SetDownloadAborted;
+var
+  I: Integer;
+begin
+  for I := 1 to fCount do
+    fNetPlayers[I].DownloadInPRogress := False;
 end;
 
 

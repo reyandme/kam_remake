@@ -171,7 +171,7 @@ end;
 
 procedure KMRenamePath(const aSourcePath, aDestPath: UnicodeString);
 var
-  ErrorStr: String;
+  ErrorStr: UnicodeString;
 begin
   if IsFilePath(aSourcePath) then
   begin

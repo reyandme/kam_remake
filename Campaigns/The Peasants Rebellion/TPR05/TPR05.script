@@ -50,9 +50,9 @@ var
 begin
 	//Apply Difficulty
 	case States.MissionDifficulty() of
-		mdEasy: 
+		mdEasy1: 
 			IncreaseGroupSize(0, 0);
-		mdHard:
+		mdHard1:
 		begin
 			IncreaseGroupSize(4, 0); //Defender of Bows
 			IncreaseGroupSize(3, 0); //Green

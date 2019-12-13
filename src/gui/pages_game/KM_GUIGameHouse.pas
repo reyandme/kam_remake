@@ -26,7 +26,7 @@ type
     procedure Create_HouseWoodcutter;
     procedure Create_HouseArmorWorkshop;
 
-    procedure House_Demolish(Sender: TObject);
+    procedure House_Demolish(Sender: TObject; Shift: TShiftState);
     procedure House_RepairToggle(Sender: TObject);
     procedure House_OrderChange(Sender: TObject; aValue: Integer);
     procedure House_DeliveryModeToggle(Sender: TObject; Shift: TShiftState);
@@ -55,9 +55,9 @@ type
     procedure House_WoodcutterChange(Sender: TObject);
     procedure House_ArmorWSDeliveryToggle(Sender: TObject);
 
-    procedure ShowCommonDemand(aHouse: TKMHouse; Base: Integer;var Line: Integer; var RowRes: Integer);
-    procedure ShowCommonOutput(aHouse: TKMHouse; Base: Integer;var Line: Integer; var RowRes: Integer);
-    procedure ShowCommonOrders(aHouse: TKMHouse; Base: Integer;var Line: Integer; var RowRes: Integer);
+    procedure ShowCommonDemand(aHouse: TKMHouse; Base: Integer; var Line: Integer; var RowRes: Integer);
+    procedure ShowCommonOutput(aHouse: TKMHouse; Base: Integer; var Line: Integer; var RowRes: Integer);
+    procedure ShowCommonOrders(aHouse: TKMHouse; Base: Integer; var Line: Integer; var RowRes: Integer);
     procedure ShowTownHall(aHouse: TKMHouse);
     procedure ShowArmorWorkshop(aHouse: TKMHouse);
 
@@ -124,7 +124,7 @@ type
       Image_ArmorWS_Accept: array [1..2] of TKMImage;
   public
     AskDemolish: Boolean;
-    OnHouseDemolish: TEvent;
+    OnHouseDemolish: TNotifyEventShift;
 
     constructor Create(aParent: TKMPanel; aSetViewportEvent: TPointFEvent);
 
@@ -203,8 +203,8 @@ begin
     Button_House_DemolishNo  := TKMButton.Create(Panel_House,0,220,TB_WIDTH,30,gResTexts[TX_HOUSE_DEMOLISH_NO],bsGame);
     Button_House_DemolishYes.Hint := gResTexts[TX_HOUSE_DEMOLISH_YES_HINT];
     Button_House_DemolishNo.Hint  := gResTexts[TX_HOUSE_DEMOLISH_NO];
-    Button_House_DemolishYes.OnClick := House_Demolish;
-    Button_House_DemolishNo.OnClick  := House_Demolish;
+    Button_House_DemolishYes.OnClickShift := House_Demolish;
+    Button_House_DemolishNo.OnClickShift  := House_Demolish;
 
     Panel_House_Common := TKMPanel.Create(Panel_House,0,76,200,310);
       Label_Common_Demand := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,gResTexts[TX_HOUSE_NEEDS],fntGrey,taCenter);
@@ -770,7 +770,7 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.ShowCommonOutput(aHouse: TKMHouse; Base: Integer;var Line, RowRes: Integer);
+procedure TKMGUIGameHouse.ShowCommonOutput(aHouse: TKMHouse; Base: Integer; var Line, RowRes: Integer);
 var
   I: Integer;
   HSpec: TKMHouseSpec;
@@ -802,7 +802,7 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.ShowCommonOrders(aHouse: TKMHouse; Base: Integer;var Line, RowRes: Integer);
+procedure TKMGUIGameHouse.ShowCommonOrders(aHouse: TKMHouse; Base: Integer; var Line, RowRes: Integer);
 var I: Integer; Res: TKMWareType;
 begin
   //Show Orders
@@ -931,7 +931,7 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.House_Demolish(Sender: TObject);
+procedure TKMGUIGameHouse.House_Demolish(Sender: TObject; Shift: TShiftState);
 begin
   if (gMySpectator.Selected = nil) or not (gMySpectator.Selected is TKMHouse) then
     Exit;
@@ -944,7 +944,7 @@ begin
   end;
 
   AskDemolish := False;
-  OnHouseDemolish; //Return to build menu
+  OnHouseDemolish(Sender, Shift); //Return to build menu
 end;
 
 
@@ -1505,6 +1505,7 @@ procedure TKMGUIGameHouse.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fLastSchoolUnit);
   SaveStream.Write(fLastBarracksUnit);
+  SaveStream.Write(fLastTHUnit);
 end;
 
 
@@ -1512,6 +1513,7 @@ procedure TKMGUIGameHouse.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fLastSchoolUnit);
   LoadStream.Read(fLastBarracksUnit);
+  LoadStream.Read(fLastTHUnit);
 end;
 
 

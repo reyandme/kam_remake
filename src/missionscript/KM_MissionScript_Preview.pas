@@ -136,9 +136,9 @@ function TKMMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: 
   begin
     if not RevealForPlayer(fLastHand) then
       Exit;
-
-    for I := Max(Y-Radius,1) to Min(Y+Radius,fMapY) do
-    for K := Max(X-Radius,1) to Min(X+Radius,fMapX) do
+    // Unknown which overload to take
+    for I := Max(Integer(Y-Radius),1) to Min(Integer(Y+Radius),Integer(fMapY)) do
+    for K := Max(Integer(X-Radius),1) to Min(Integer(X+Radius),Integer(fMapX)) do
     if (Sqr(X-K) + Sqr(Y-I)) <= Sqr(Radius) then
       fMapPreview[(I-1)*fMapX + K-1].Revealed := True;
   end;

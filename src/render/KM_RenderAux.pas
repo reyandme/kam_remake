@@ -481,6 +481,9 @@ begin
       glVertex2f(NodeList[I].X-0.5, gTerrain.FlatToHeight(NodeList[I].X-0.5, NodeList[I].Y-0.5));
   glEnd;
 
+  for I := 0 to NodeList.Count - 1 do
+    Text(NodeList[I].X, NodeList[I].Y, IntToStr(I), $FFFFFFFF);
+
   glColor4f(1,1,1,1); //Vector where unit is going to
   I := Pos;
   K := Min(Pos + 1, NodeList.Count - 1);

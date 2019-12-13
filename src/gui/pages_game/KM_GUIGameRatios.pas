@@ -144,7 +144,10 @@ begin
   ware := ResRatioType[fActiveTab];
   house := ResRatioHouse[fActiveTab, TKMTrackBar(Sender).Tag];
   value := TKMTrackBar(Sender).Position;
-  gGameApp.GameSettings.WareDistribution[ware, house] := value;
+
+  if gGame.IsWareDistributionStoredBetweenGames then
+    gGameApp.GameSettings.WareDistribution[ware, house] := value;
+
   gGame.GameInputProcess.CmdWareDistribution(gicWareDistributionChange, ware, house, value);
 end;
 

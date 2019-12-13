@@ -1146,7 +1146,7 @@ begin
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   if (gGame <> nil) and (gGame.GameMode <> gmMapEd) then
-    fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM, 'TKMUnit.Create')))
+    fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS2(UNIT_CONDITION_RANDOM, 'TKMUnit.Create')))
   else begin
     fCondition    := GetDefaultCondition;
     fStartWDefaultCondition := True;
@@ -1293,7 +1293,7 @@ end;
 //Should be used only by gHands for clarity sake
 procedure TKMUnit.ReleaseUnitPointer;
 begin
-  Assert(gGame.AllowGetPointer, 'GetUnitPointer is not allowed outside of game tick update procedure, it could cause game desync');
+  Assert(gGame.AllowGetPointer, 'ReleaseUnitPointer is not allowed outside of game tick update procedure, it could cause game desync');
 
   if fPointerCount < 1 then
     raise ELocError.Create('Unit remove pointer', PrevPosition);
@@ -2008,7 +2008,8 @@ begin
         SetActionStay(0, uaWalk); //Free the current action and give the unit a temporary one
       end;
       //If we were idle abandon our action so we look for a new house immediately (rather than after 20 seconds for the fisherman)
-      if (Task = nil) and (Action is TKMUnitActionStay) and not TKMUnitActionStay(Action).Locked then
+      //Reset task even if tile is locked, otherwise unit will wait till the end of his old ActionStayLocked...
+      if (Task = nil) and (Action is TKMUnitActionStay) then
         SetActionStay(0, uaWalk); //Free the current action and give the unit a temporary one
     end;
     SetInHouse(nil); //Can't be in a destroyed house

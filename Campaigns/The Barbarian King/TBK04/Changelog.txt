@@ -1,0 +1,47 @@
+TBK04
+*****
+
+Version 1.0d (08.10.2017)
+- Added a new script that makes Waterfalls and Lava more dynamic
+
+
+Version 1.1 (09.01.2018)
+- Reduced recruitment rate and increased delay of Enemy AIs (North)
+	> Player06: RR 50 -> 55; Delay: 45 -> 60
+	> Player07: Delay: 35 -> 45
+- First Attack Group (Blue -> Yellow) has been reduced by 1/3
+- Fixed defence Radius of one of Player06 Groups
+
+Version 2.0 (04.03.2018)
+- Moved map to KaMRemake r8754 beta version
+- Overhauled scripts
+- Deactivated Townhall
+- Added additional Ingame Briefings
+- Disabled Fog sharing with allies
+
+Version 2.1 (06.04.2019)
+- Made Lava Pool and Vulcanos prettier
+- Made "Bridge" to Ally AI prettier (Especially waterfall)
+- Added Attackposition for Ally (Player1): Now builds Knights and attacks after siege is broken
+- Modifications to Player4:
+	- Set to Iron Only
+	- Enabled Fast Equip
+	- Slightly moved some defence postions
+	- Disabled defend allies
+	- Group of Swordman were replaced with Knights
+- Increased Recruits in Barracks of All Enemies by 5
+- Map now supports difficulty settings
+	- Easy: Increased Group Size for Player0
+	- Hard: Additional Defence Positions Added for Leather Enemies; Increased Unit count for Blue player
+	- Attackwaves scale with difficulty
+- Disabled Defend Allies for Player5
+- 1.attack of Player5 happens earlier but with less units
+- Added Horses to Player6s  and Player4s Barracks
+- Defence Radius of Player6s Defence Positions increased from 10 to 16
+
+Version 2.1b (22.04.2019)
+- Fixed Blue Attacks on Yellow where they sometimes would attack Player0 instead
+- Removed inclusion of functions.script
+- Reduced Defence Radius from 21 to 16
+- Fixed a bug where Msg wouldnt be displayed to player (Set defeat condition for Player2)
+- Reduced Recruits in Barracks fo Player4 from 15 to 5

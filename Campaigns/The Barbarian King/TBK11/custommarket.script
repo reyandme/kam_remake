@@ -1,0 +1,94 @@
+//-- Custom Market --//
+//By Strangelove
+//v0.1
+//04.03.2018
+//Developed for r8754
+
+//This script locks all possible trades in the Market and only opens it for wares the player can produce himself
+
+{$EVENT evtMissionStart:CustomMarketOnMissionStart}
+{$EVENT evtHouseBuilt:CustomMarketOnHouseBuilt}
+
+
+//Locks All Trades in the Market for PlayerID
+procedure MarketLockAllTrades(PlayerID: Byte);
+var
+	t: Byte;
+begin
+	for t := 0 to 27 do
+		Actions.SetTradeAllowed(PlayerID, t, false);
+end;
+
+//Unlocks Trade after the respective Production Building has been built
+procedure MarketUnlockTradeAfterProductionBuilding(PlayerID: Byte; HouseID: Integer);
+begin
+	case States.HouseType(HouseID) of
+		0: Actions.SetTradeAllowed(PlayerID, 2, true); //Sawmill -> Timber
+		1: Actions.SetTradeAllowed(PlayerID, 6, true); //Iron Smithy -> Iron
+		2: 	begin	//Weapon Smithy
+				Actions.SetTradeAllowed(PlayerID, 21, true); //Sword
+				Actions.SetTradeAllowed(PlayerID, 25, true); //Crossbow
+				Actions.SetTradeAllowed(PlayerID, 23, true); //Pike
+			end;
+		3: Actions.SetTradeAllowed(PlayerID, 5, true); //Coal Mine -> Coal
+		4: Actions.SetTradeAllowed(PlayerID, 3, true); //Iron Mine -> Iron Ore
+		5: Actions.SetTradeAllowed(PlayerID, 4, true); //Gold Mine -> Gold Ore
+		6: Actions.SetTradeAllowed(PlayerID, 27, true); //Fishman's Hut -> Fish
+		7: Actions.SetTradeAllowed(PlayerID, 10, true); //Backery -> Loaves
+		8: Actions.SetTradeAllowed(PlayerID, 9, true); //Farm -> Corn
+		9: Actions.SetTradeAllowed(PlayerID, 0, true); //Woodcutter -> Tree Trunk
+		10: begin	//Armor Smithy
+				Actions.SetTradeAllowed(PlayerID, 17, true); //LongShield
+				Actions.SetTradeAllowed(PlayerID, 19, true); //Iron Armament
+			end;
+		11: exit; //Storehouse
+		12: Actions.SetTradeAllowed(PlayerID, 26, true); //Stables -> Horse
+		13: exit; //School House
+		14: Actions.SetTradeAllowed(PlayerID, 1, true); //Quarry -> Stone 
+		15: Actions.SetTradeAllowed(PlayerID, 7, true); //Metallurgist -> Gold
+		16: begin //Swinefarm
+				Actions.SetTradeAllowed(PlayerID, 14, true); //Pig
+				Actions.SetTradeAllowed(PlayerID, 15, true); //Skin
+			end;
+		17: exit; //Watchtower
+		18: exit; //Townhall
+		19: begin //Weapons Workshop
+				Actions.SetTradeAllowed(PlayerID, 20, true); //Handaxe
+				Actions.SetTradeAllowed(PlayerID, 22, true); //Lance
+				Actions.SetTradeAllowed(PlayerID, 24, true); //Longbow
+			end;
+		20: begin //Armory Workshop
+				Actions.SetTradeAllowed(PlayerID, 18, true); //Leather Armor
+				Actions.SetTradeAllowed(PlayerID, 16, true); //Wooden Shield
+			end;
+		21: exit; //Barracks
+		22: Actions.SetTradeAllowed(PlayerID, 11, true); //Mill -> Flour
+		23: exit; //Vehicles Workshop (Not implemented)
+		24: Actions.SetTradeAllowed(PlayerID, 13, true); //Butcher -> Sausage
+		25: Actions.SetTradeAllowed(PlayerID, 12, true); //Tannery -> Leather
+		26: exit; //Unused
+		27: exit; //Inn
+		28: Actions.SetTradeAllowed(PlayerID, 8, true); //Vineyard -> Wine
+	end;
+end;
+
+
+procedure CustomMarketOnMissionStart();
+var
+	p: Byte;
+	h: SmallInt;
+	aHouses: array of Integer;
+begin
+	for p := 0 to States.StatPlayerCount() -1 do
+	begin
+		MarketLockAllTrades(p);
+		aHouses := States.PlayerGetAllHouses(p);
+		for h := 0 to Length(aHouses) -1 do
+			MarketUnlockTradeAfterProductionBuilding(States.HouseOwner(aHouses[h]), aHouses[h]);
+	end;
+end;
+
+procedure CustomMarketOnHouseBuilt(aHouseID: Integer);
+begin
+	MarketUnlockTradeAfterProductionBuilding(States.HouseOwner(aHouseID), aHouseID);
+end;

@@ -6,10 +6,19 @@ uses
 
 
 type
+  TKMGameInfoParseErrorType = (gipetNone, gipetUnsupportedFormat, gipetUnsupportedVersion);
+
+  TKMGameInfoParseError = record
+    ErrorString: UnicodeString;
+    ErrorType: TKMGameInfoParseErrorType;
+  end;
+
   //Info that is relevant to any game, be it Save or a Mission
   TKMGameInfo = class
   private
-    fParseError: UnicodeString;
+    fParseError: TKMGameInfoParseError;
+    procedure ResetParseError;
+    function GetVersionUnicode: UnicodeString;
   public
     Title: UnicodeString; //Used for campaigns and to store in savegames
     Version: AnsiString; //Savegame version, yet unused in maps, they always have actual version
@@ -30,10 +39,11 @@ type
     Team: array [0..MAX_HANDS-1] of Integer;
 
     //To be used in Savegames
+    constructor Create;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
-    property ParseError: UnicodeString read fParseError;
+    property ParseError: TKMGameInfoParseError read fParseError;
     function IsValid(aCheckDATCRC: Boolean): Boolean;
     function AICount: Byte;
     function HumanCount: Byte;
@@ -42,56 +52,99 @@ type
     function GetTitleWithTime: UnicodeString;
     function GetSaveTimestamp: UnicodeString;
     function ColorUsed(aColorID: Integer): Boolean;
+
+    property VersionU: UnicodeString read GetVersionUnicode;
   end;
 
 
 implementation
 uses
   SysUtils,
-  KM_Resource, KM_ResTexts, KM_CommonUtils;
+  KM_Log, KM_Resource, KM_ResTexts, KM_CommonUtils;
 
 
 { TKMGameInfo }
+constructor TKMGameInfo.Create;
+begin
+  inherited;
+  ResetParseError;
+end;
+
+
+procedure TKMGameInfo.ResetParseError;
+begin
+  fParseError.ErrorString := '';
+  fParseError.ErrorType := gipetNone;
+end;
+
+
+function TKMGameInfo.GetVersionUnicode: UnicodeString;
+begin
+  Result := UnicodeString(Version);
+end;
+
+
 procedure TKMGameInfo.Load(LoadStream: TKMemoryStream);
+
+  procedure LoadGameInfoData;
+  var
+    I: Integer;
+  begin
+    LoadStream.Read(DATCRC); //Don't check it here (maps don't care), if required somebody else will check it
+    LoadStream.Read(MapCRC);
+
+    LoadStream.ReadW(Title); //GameName
+    LoadStream.Read(TickCount);
+    LoadStream.Read(SaveTimestamp);
+    LoadStream.Read(MissionMode, SizeOf(MissionMode));
+    LoadStream.Read(MissionDifficulty, SizeOf(MissionDifficulty));
+    LoadStream.Read(MapSizeX);
+    LoadStream.Read(MapSizeY);
+
+    LoadStream.Read(PlayerCount);
+    for I := 0 to PlayerCount - 1 do
+    begin
+      LoadStream.Read(CanBeHuman[I]);
+      LoadStream.Read(Enabled[I]);
+      LoadStream.ReadA(OwnerNikname[I]);
+      LoadStream.Read(HandTypes[I], SizeOf(HandTypes[I]));
+      LoadStream.Read(ColorID[I]);
+      LoadStream.Read(Team[I]);
+    end;
+  end;
+
 var
   s: AnsiString;
-  I: Integer;
 begin
+  ResetParseError;
   LoadStream.ReadA(s);
   if s <> 'KaM_GameInfo' then
   begin
-    fParseError := Format(gResTexts[TX_SAVE_UNSUPPORTED_FORMAT], [Copy(s, 1, 8)]);
+    fParseError.ErrorString := Format(gResTexts[TX_SAVE_UNSUPPORTED_FORMAT], [Copy(s, 1, 8)]);
+    fParseError.ErrorType := gipetUnsupportedFormat;
     Exit;
   end;
 
   LoadStream.ReadA(Version);
   if Version <> GAME_REVISION then
   begin
-    fParseError := Format(gResTexts[TX_SAVE_UNSUPPORTED_VERSION], [Version]);
-    Exit;
+    fParseError.ErrorString := Format(gResTexts[TX_SAVE_UNSUPPORTED_VERSION], [Version]);
+    fParseError.ErrorType := gipetUnsupportedVersion;
+//    Exit; //need to try load game data anyway, in case we will try to load unsupported version save
   end;
 
-  LoadStream.Read(DATCRC); //Don't check it here (maps don't care), if required somebody else will check it
-  LoadStream.Read(MapCRC);
-
-  LoadStream.ReadW(Title); //GameName
-  LoadStream.Read(TickCount);
-  LoadStream.Read(SaveTimestamp);
-  LoadStream.Read(MissionMode, SizeOf(MissionMode));
-  LoadStream.Read(MissionDifficulty, SizeOf(MissionDifficulty));
-  LoadStream.Read(MapSizeX);
-  LoadStream.Read(MapSizeY);
-
-  LoadStream.Read(PlayerCount);
-  for I := 0 to PlayerCount - 1 do
+  if fParseError.ErrorType = gipetUnsupportedVersion then
   begin
-    LoadStream.Read(CanBeHuman[I]);
-    LoadStream.Read(Enabled[I]);
-    LoadStream.ReadA(OwnerNikname[I]);
-    LoadStream.Read(HandTypes[I], SizeOf(HandTypes[I]));
-    LoadStream.Read(ColorID[I]);
-    LoadStream.Read(Team[I]);
-  end;
+    try
+      LoadGameInfoData;
+    except
+      on E: Exception do
+        gLog.AddTime(Format('Error while loading game info from save of unsupported version %s', [Version])); //silently log error
+    end;
+  end
+  else
+    LoadGameInfoData; //Load without catching exception
+
 end;
 
 

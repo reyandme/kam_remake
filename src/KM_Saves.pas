@@ -9,6 +9,8 @@ uses
 type
   TKMSavesSortMethod = (
     smByFileNameAsc, smByFileNameDesc,
+    smByMapNameAsc, smByMapNameDesc,
+    smByGameVersionAsc, smByGameVersionDesc,
     smByDescriptionAsc, smByDescriptionDesc,
     smByTimeAsc, smByTimeDesc,
     smByDateAsc, smByDateDesc,
@@ -18,6 +20,13 @@ type
   TKMSaveInfo = class;
   TKMSaveEvent = procedure (aSave: TKMSaveInfo) of object;
 
+  TKMSaveInfoErrorType = (sietNone, sietFileNotExist, sietUnsupportedMods, sietUnsupportedFormat, sietUnsupportedVersion);
+
+  TKMSaveInfoError = record
+    ErrorString: UnicodeString;
+    ErrorType: TKMSaveInfoErrorType;
+  end;
+
   //Savegame info, most of which is stored in TKMGameInfo structure
   TKMSaveInfo = class
   private
@@ -25,11 +34,13 @@ type
     fFileName: string; //without extension
     fCrcCalculated: Boolean;
     fCRC: Cardinal;
-    fSaveError: string;
+    fSaveError: TKMSaveInfoError;
     fGameInfo: TKMGameInfo;
     fGameOptions: TKMGameOptions;
     procedure ScanSave;
     function GetCRC: Cardinal;
+    procedure ResetSaveError;
+    function IsValid(aStrict: Boolean): Boolean; overload;
   public
     constructor Create(const aName: String; aIsMultiplayer: Boolean);
     destructor Destroy; override;
@@ -39,9 +50,10 @@ type
     property Path: string read fPath;
     property FileName: string read fFileName;
     property CRC: Cardinal read GetCRC;
-    property SaveError: string read fSaveError;
+    property SaveError: TKMSaveInfoError read fSaveError;
 
-    function IsValid: Boolean;
+    function IsValid: Boolean; overload;
+    function IsValidStrictly: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplayValid: Boolean;
     function LoadMinimap(aMinimap: TKMMinimap): Boolean; overload;
@@ -126,9 +138,18 @@ begin
   fGameInfo := TKMGameInfo.Create;
   fGameOptions := TKMGameOptions.Create;
 
+  ResetSaveError;
+
   //We could postpone this step till info is actually required
   //but we do need title and TickCount right away, so it's better just to scan it ASAP
   ScanSave;
+end;
+
+
+procedure TKMSaveInfo.ResetSaveError;
+begin
+  fSaveError.ErrorString := '';
+  fSaveError.ErrorType := sietNone;
 end;
 
 
@@ -157,7 +178,8 @@ var
 begin
   if not FileExists(fPath + fFileName + EXT_SAVE_MAIN_DOT) then
   begin
-    fSaveError := 'File not exists';
+    fSaveError.ErrorString := 'File not exists';
+    fSaveError.ErrorType := sietFileNotExist;
     Exit;
   end;
 
@@ -168,13 +190,23 @@ begin
 
   fGameInfo.Load(LoadStream);
   fGameOptions.Load(LoadStream);
-  fSaveError := fGameInfo.ParseError;
 
-  if (fSaveError = '') and (fGameInfo.DATCRC <> gRes.GetDATCRC) then
-    fSaveError := gResTexts[TX_SAVE_UNSUPPORTED_MODS];
+  fSaveError.ErrorString := fGameInfo.ParseError.ErrorString;
+  case fGameInfo.ParseError.ErrorType of
+    gipetNone: ;
+    gipetUnsupportedFormat:   fSaveError.ErrorType := sietUnsupportedFormat;
+    gipetUnsupportedVersion:  fSaveError.ErrorType := sietUnsupportedVersion;
+  end;
 
-  if fSaveError <> '' then
-    fGameInfo.Title := fSaveError;
+  if (fSaveError.ErrorType = sietNone) and (fGameInfo.DATCRC <> gRes.GetDATCRC) then
+  begin
+    fSaveError.ErrorString := gResTexts[TX_SAVE_UNSUPPORTED_MODS];
+    fSaveError.ErrorType := sietUnsupportedMods;
+  end;
+
+  if not ((fSaveError.ErrorType = sietNone)
+      or (ALLOW_LOAD_UNSUP_VERSION_SAVE and (fSaveError.ErrorType = sietUnsupportedVersion))) then
+    fGameInfo.Title := fSaveError.ErrorString;
 
   LoadStream.Free;
 end;
@@ -239,10 +271,30 @@ begin
 end;
 
 
+function TKMSaveInfo.IsValid(aStrict: Boolean): Boolean;
+begin
+  if not ALLOW_LOAD_UNSUP_VERSION_SAVE then
+    aStrict := True;
+  Result := FileExists(fPath + fFileName + EXT_SAVE_MAIN_DOT)
+            and ((fSaveError.ErrorType = sietNone)
+                 or (not aStrict and (fSaveError.ErrorType = sietUnsupportedVersion)))
+            and fGameInfo.IsValid(True);
+end;
+
+
+//Check if save is valid (could be valid even for unsupported version)
 function TKMSaveInfo.IsValid: Boolean;
 begin
-  Result := FileExists(fPath + fFileName + EXT_SAVE_MAIN_DOT) and (fSaveError = '') and fGameInfo.IsValid(True);
+  Result := IsValid(False);
 end;
+
+
+//Check if save is valid (could NOT be valid for unsupported version)
+function TKMSaveInfo.IsValidStrictly: Boolean;
+begin
+  Result := IsValid(True);
+end;
+
 
 
 function TKMSaveInfo.IsMultiplayer: Boolean;
@@ -407,7 +459,8 @@ end;
 
 //For private acces, where CS is managed by the caller
 procedure TKMSavesCollection.DoSort;
-var TempSaves: array of TKMSaveInfo;
+var
+  TempSaves: array of TKMSaveInfo;
   //Return True if items should be exchanged
   function Compare(A, B: TKMSaveInfo): Boolean;
   begin
@@ -415,6 +468,10 @@ var TempSaves: array of TKMSaveInfo;
     case fSortMethod of
       smByFileNameAsc:     Result := CompareText(A.FileName, B.FileName) < 0;
       smByFileNameDesc:    Result := CompareText(A.FileName, B.FileName) > 0;
+      smByMapNameAsc:      Result := CompareText(A.GameInfo.Title, B.GameInfo.Title) < 0;
+      smByMapNameDesc:     Result := CompareText(A.GameInfo.Title, B.GameInfo.Title) > 0;
+      smByGameVersionAsc:  Result := GetGameVersionNum(A.GameInfo.Version) < GetGameVersionNum(B.GameInfo.Version);
+      smByGameVersionDesc: Result := GetGameVersionNum(A.GameInfo.Version) > GetGameVersionNum(B.GameInfo.Version);
       smByDescriptionAsc:  Result := CompareText(A.GameInfo.GetTitleWithTime, B.GameInfo.GetTitleWithTime) < 0;
       smByDescriptionDesc: Result := CompareText(A.GameInfo.GetTitleWithTime, B.GameInfo.GetTitleWithTime) > 0;
       smByTimeAsc:         Result := A.GameInfo.TickCount < B.GameInfo.TickCount;

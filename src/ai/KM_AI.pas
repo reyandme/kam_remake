@@ -306,7 +306,8 @@ begin
         if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
         and (fOwner = gMySpectator.HandID)
         and (aAttacker <> nil) then //Don't show alerts for annonymous attacks (e.g. script)
-          gGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.Position), fOwner, anTown, gGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
+          gGame.GamePlayInterface.Alerts.AddFight(KMPointF(aHouse.Position), fOwner, anTown,
+                                                  gGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
       end;
     hndComputer:
       begin
@@ -360,7 +361,8 @@ begin
       //No fight alerts in replays, and only show alerts for ourselves
       if not (gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti])
       and (fOwner = gMySpectator.HandID) then
-        gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior], gGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
+        gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior],
+                                                gGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
     hndComputer:
       begin
         if not (WonOrLost <> wolNone) then

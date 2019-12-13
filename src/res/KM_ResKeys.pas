@@ -10,7 +10,7 @@ type
 
 const
   // Total number of different functions in the game that can have a shortcut
-  FUNC_COUNT = 98;
+  FUNC_COUNT = 99;
 
   // Load key IDs from inc file
   {$I KM_KeyIDs.inc}
@@ -77,6 +77,7 @@ const
 
     // Spectate/Replay view Keys
     0,                                      // Open/Close spectator statistics panel
+    78,                                     // Play next tick in replay
     49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 189, 61, // Switch between players while spectating/viewing replay (1-8)
 
     // Map Editor Keys
@@ -118,6 +119,7 @@ const
 
     // Spectate MP game/Replay view Keys
     TX_KEY_FUNC_SPECPANEL_DROPBOX_OPEN_CLOSE,
+    TX_KEY_FUNC_REPLAY_PLAY_NEXT_TICK,
     TX_KEY_FUNC_SPECTATE_PLAYER_1, TX_KEY_FUNC_SPECTATE_PLAYER_2, TX_KEY_FUNC_SPECTATE_PLAYER_3, TX_KEY_FUNC_SPECTATE_PLAYER_4,    // Spectator/Replay player switch
     TX_KEY_FUNC_SPECTATE_PLAYER_5, TX_KEY_FUNC_SPECTATE_PLAYER_6, TX_KEY_FUNC_SPECTATE_PLAYER_7, TX_KEY_FUNC_SPECTATE_PLAYER_8,    // Spectator/Replay player switch
     TX_KEY_FUNC_SPECTATE_PLAYER_9, TX_KEY_FUNC_SPECTATE_PLAYER_10, TX_KEY_FUNC_SPECTATE_PLAYER_11, TX_KEY_FUNC_SPECTATE_PLAYER_12, // Spectator/Replay player switch
@@ -155,7 +157,7 @@ begin
     case I of
       0..13:  fFuncs[I].Area := faCommon;
       14..62: fFuncs[I].Area := faGame;
-      63..74: fFuncs[I].Area := faSpecReplay;
+      63..76: fFuncs[I].Area := faSpecReplay;
       else    fFuncs[I].Area := faMapEdit;
     end;
 

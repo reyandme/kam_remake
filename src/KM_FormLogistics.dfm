@@ -3,7 +3,7 @@ object FormLogistics: TFormLogistics
   Top = 0
   Caption = 'FormLogistics'
   ClientHeight = 615
-  ClientWidth = 607
+  ClientWidth = 707
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,8 +16,14 @@ object FormLogistics: TFormLogistics
   object TabControl1: TTabControl
     Left = 0
     Top = 0
-    Width = 609
+    Width = 700
     Height = 617
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
     Tabs.Strings = (
       'Deliveries'
@@ -28,7 +34,7 @@ object FormLogistics: TFormLogistics
     object DeliveriesList: TListView
       Left = 4
       Top = 24
-      Width = 601
+      Width = 692
       Height = 589
       Align = alClient
       Columns = <
@@ -37,28 +43,43 @@ object FormLogistics: TFormLogistics
           Width = 30
         end
         item
+          Caption = 'Hand'
+          Width = 40
+        end
+        item
           Caption = 'Resource'
+          Width = 100
+        end
+        item
+          Caption = 'From house'
           Width = 120
         end
         item
-          Caption = 'From'
-          Width = 120
+          Caption = 'FrID'
+          Width = 70
         end
         item
           Caption = 'To'
           Width = 120
         end
         item
+          Caption = 'ToID'
+          Width = 70
+        end
+        item
           Caption = 'Serf'
-          Width = 100
+          Width = 70
         end>
-      TabOrder = 0
+      HideSelection = False
+      RowSelect = True
+      SortType = stBoth
+      TabOrder = 1
       ViewStyle = vsReport
     end
     object DemandsList: TListView
       Left = 4
       Top = 24
-      Width = 601
+      Width = 692
       Height = 589
       Align = alClient
       Columns = <
@@ -67,29 +88,38 @@ object FormLogistics: TFormLogistics
           Width = 30
         end
         item
+          Caption = 'Hand'
+          Width = 40
+        end
+        item
           Caption = 'Resource'
-          Width = 120
+          Width = 100
         end
         item
           Caption = 'To'
           Width = 120
         end
         item
+          Caption = 'ToID'
+          Width = 70
+        end
+        item
           Caption = 'Type'
-          Width = 80
+          Width = 60
         end
         item
           Caption = 'Importance'
-          Width = 80
+          Width = 60
         end
         item
           Caption = 'Performed'
-          Width = 80
+          Width = 70
         end
         item
           Caption = 'Deleted'
-          Width = 80
+          Width = 60
         end>
+      RowSelect = True
       TabOrder = 2
       ViewStyle = vsReport
       Visible = False
@@ -97,7 +127,7 @@ object FormLogistics: TFormLogistics
     object OffersList: TListView
       Left = 4
       Top = 24
-      Width = 601
+      Width = 692
       Height = 589
       Align = alClient
       Columns = <
@@ -106,26 +136,35 @@ object FormLogistics: TFormLogistics
           Width = 30
         end
         item
+          Caption = 'Hand'
+          Width = 40
+        end
+        item
           Caption = 'Resource'
-          Width = 120
+          Width = 100
         end
         item
           Caption = 'HouseFrom'
           Width = 120
         end
         item
+          Caption = 'FromID'
+          Width = 70
+        end
+        item
           Caption = 'Count'
-          Width = 80
+          Width = 50
         end
         item
           Caption = 'Performed'
-          Width = 80
+          Width = 70
         end
         item
           Caption = 'Deleted'
-          Width = 80
+          Width = 60
         end>
-      TabOrder = 1
+      RowSelect = True
+      TabOrder = 0
       ViewStyle = vsReport
       Visible = False
     end

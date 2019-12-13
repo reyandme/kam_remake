@@ -512,6 +512,12 @@ begin
     for I := 0 to gGameApp.Networking.ServerQuery.Rooms.Count - 1 do
     begin
       R := gGameApp.Networking.ServerQuery.Rooms[I];
+
+      //Check room game revision
+      if (R.GameRevision <> EMPTY_ROOM_DEFAULT_GAME_REVISION)
+        and (R.GameRevision <> GAME_REVISION_NUM) then //Room game revision differs from ours, skip it
+        Continue;
+
       S := gGameApp.Networking.ServerQuery.Servers[R.ServerIndex];
 
       //Only show # if Server has more than 1 Room
@@ -524,9 +530,9 @@ begin
 
       //if server was selected, we need to select it again, because TKMColumnListBox was cleared
       if fServerSelected
-      and (R.RoomID = fSelectedRoomInfo.RoomID)
-      and (S.IP = fSelectedServerInfo.IP)
-      and (S.Port = fSelectedServerInfo.Port) then
+        and (R.RoomID = fSelectedRoomInfo.RoomID)
+        and (S.IP = fSelectedServerInfo.IP)
+        and (S.Port = fSelectedServerInfo.Port) then
       begin
         ColumnBox_Servers.ItemIndex := I;
         MP_ServersClick(nil); //Shows info about this selected server
@@ -787,7 +793,8 @@ begin
 
   gGameApp.Networking.OnHostFail := MP_HostFail;
   gGameApp.Networking.Host(AnsiString(Edit_MP_ServerName.Text), serverPort,
-                           AnsiString(Edit_MP_PlayerName.Text), (Sender = Button_MP_CreateWAN));
+                           AnsiString(Edit_MP_PlayerName.Text), (Sender = Button_MP_CreateWAN),
+                           gGameApp.GameSettings.ServerUDPAnnounce);
 end;
 
 

@@ -1095,7 +1095,10 @@ var
   I: Integer;
 begin
   LoadStream.ReadA(FileVersion);
-  Assert(FileVersion = GAME_REVISION, 'Old or unexpected replay file. ' + GAME_REVISION + ' is required.');
+  //We could allow to load unsupported version files
+  Assert(ALLOW_LOAD_UNSUP_VERSION_SAVE or (FileVersion = GAME_REVISION),
+         'Old or unexpected replay file. ' + GAME_REVISION + ' is required.');
+
   LoadStream.Read(fCount);
   SetLength(fQueue, fCount + 1);
 

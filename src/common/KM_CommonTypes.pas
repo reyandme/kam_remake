@@ -26,7 +26,7 @@ type
   TAnsiStringArray = array of AnsiString;
   TSingleArray = array of Single;
   TSingle2Array = array of array of Single;
-  TStringArray = array of string;
+  TKMStringArray = array of string;
   TKMCharArray = array of Char;
   TRGBArray = array of record R,G,B: Byte end;
   TKMStaticByteArray = array [0..MaxInt - 1] of Byte;
@@ -77,6 +77,9 @@ type
 
   TWonOrLost = (wolNone, wolWon, wolLost);
 
+  //Menu load type - load / no load / load unsupported version
+  TKMGameStartMode = (gsmNoStart, gsmStart, gsmStartWithWarn, gsmNoStartWithWarn);
+
   TKMCustomScriptParam = (cspTHTroopCosts, cspMarketGoldPrice);
 
   TKMCustomScriptParamData = record
@@ -96,8 +99,10 @@ type
 
   TKMPlayerColorMode = (pcmNone, pcmDefault, pcmAllyEnemy, pcmTeams);
 
-  const
-    WonOrLostText: array [TWonOrLost] of UnicodeString = ('None', 'Won', 'Lost');
+  TKMGameRevision = Word; //Word looks enought for now...
+
+const
+  WonOrLostText: array [TWonOrLost] of UnicodeString = ('None', 'Won', 'Lost');
 
 implementation
 

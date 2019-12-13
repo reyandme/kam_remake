@@ -21,7 +21,7 @@ type
   TKMHouseSketchType = (hstHousePlan, hstHouse);
   TKMHouseSketchTypeSet = set of TKMHouseSketchType;
 
-  TAnonHouseSketchBoolFn = reference to function(aSketch: TKMHouseSketch; aBoolParam: Boolean): Boolean;
+  TAnonHouseSketchBoolFn = function(aSketch: TKMHouseSketch; aBoolParam: Boolean): Boolean;
 
   TKMHouseAction = class
   private
@@ -596,7 +596,7 @@ end;
 {Decreases the pointer counter}
 procedure TKMHouse.ReleaseHousePointer;
 begin
-  Assert(gGame.AllowGetPointer, 'GetHousePointer is not allowed outside of game tick update procedure, it could cause game desync');
+  Assert(gGame.AllowGetPointer, 'ReleaseHousePointer is not allowed outside of game tick update procedure, it could cause game desync');
 
   if fPointerCount < 1 then
     raise ELocError.Create('House remove pointer for '+gRes.Houses[fType].HouseName, fPosition);
@@ -1555,7 +1555,22 @@ end;
 
 
 procedure TKMHouse.SetResIn(aI: Byte; aValue: Word);
+var
+  ResCnt: Integer;
+  Res: TKMWareType;
 begin
+  //In case we brought smth to house with TakeOut delivery mode,
+  //then we need to add it to offer
+  //Usually it can happens when we changed delivery mode while serf was going inside house
+  //and his delivery was not cancelled, but resource was not in the house yet
+  //then it was not offered to other houses
+  if fDeliveryMode = dmTakeOut then
+  begin
+    Res := gRes.Houses[fType].ResInput[aI];
+    ResCnt := aValue - fResourceIn[aI];
+    if not (Res in [wtNone, wtAll, wtWarfare]) and (ResCnt > 0) then
+      gHands[fOwner].Deliveries.Queue.AddOffer(Self, Res, ResCnt);
+  end;
   fResourceIn[aI] := aValue;
 end;
 
@@ -2447,8 +2462,32 @@ end;
 
 
 function TKMHouseWFlagPoint.GetValidPoint(aPoint: TKMPoint): TKMPoint;
+var
+  L, R: Boolean;
+  P: TKMPoint;
 begin
-  Result := gTerrain.GetPassablePointWithinSegment(PointBelowEntrance, aPoint, tpWalk, MaxDistanceToPoint);
+  P := PointBelowEntrance;
+  if not gTerrain.CheckPassability(P, tpWalk) then
+  begin
+    L := gTerrain.CheckPassability(KMPointLeft(P), tpWalk);
+    R := gTerrain.CheckPassability(KMPointRight(P), tpWalk);
+    //Choose random between Left and Right
+    if L and R then
+      P := KMPoint(P.X + 2*KaMRandom(2, 'TKMHouseWFlagPoint.GetValidPoint') - 1, P.Y) // Offset = +1 or -1
+    else
+    if L then
+      P := KMPointLeft(P)
+    else
+    if R then
+      P := KMPointRight(P)
+    else
+    begin
+      Result := KMPOINT_ZERO;
+      Exit;
+    end;
+  end;
+
+  Result := gTerrain.GetPassablePointWithinSegment(P, aPoint, tpWalk, MaxDistanceToPoint);
 end;
 
 

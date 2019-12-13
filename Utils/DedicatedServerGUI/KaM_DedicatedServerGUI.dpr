@@ -2,15 +2,16 @@ program KaM_DedicatedServerGUI;
 {$I ..\..\KaM_Remake.inc}
 
 uses
-  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  {$IFDEF UNIX}
+  {$IFDEF UseCThreads}
   cthreads,
-  {$ENDIF}{$ENDIF}
+  {$ENDIF }
+  {$ENDIF }
   {$IFDEF FPC}
-  Interfaces, // this includes the LCL widgetset
-  {$ENDIF}
+  Interfaces,
+  {$ENDIF }
   Forms,
-  UnitMain in 'UnitMain.pas' {TFormMain};
-
+  Unit4 in 'Unit4.pas' {Form4};
 
 {$IFDEF FPC}
   {$R *.res}
@@ -19,6 +20,6 @@ uses
 
 begin
   Application.Initialize;
-  Application.CreateForm(TFormMain, FormMain);
+  Application.CreateForm(TForm4, FormMain4);
   Application.Run;
 end.

@@ -1,0 +1,22 @@
+TBK09:
+*****
+
+Version 1.0b
+- Xbows of Player0 decreased by 2
+- AI now commands an additional group of Barbarians (+12 Barbarians)
+
+
+Version 2.0 (04.03.2018)
+- Moved map to KaMRemake r8754 beta version
+- Overhauled scripts
+
+Version 2.1: (02.03.2019)
+- Map renamed from TBK08 to TBK09
+- Modified Script accordingly
+- Map slightly updated
+
+Version 2.1b: (11.04.2019)
+- Updated Map (Map is now prettier and bigger)
+- Units spawn now further away on Mission start (Enemy and Player0)
+- Get additional Data (Roadworks and Destroyed Houses)
+- Script overhauled

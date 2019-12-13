@@ -34,9 +34,9 @@ type
     fOnGameEnd: TKMGameModeChangeEvent;
 
     procedure SaveCampaignsProgress;
-    procedure GameLoadingStep(const aText: String);
+    procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
-    procedure LoadGameFromSave(const aFilePath: String; aGameMode: TKMGameMode);
+    procedure LoadGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; aGIPPath: String = '');
     procedure LoadGameFromScript(const aMissionFile, aGameName: String; aCRC: Cardinal; aCampaign: TKMCampaign;
                                  aMap: Byte; aGameMode: TKMGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal;
                                  aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone;
@@ -86,6 +86,7 @@ type
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
     procedure NewMapEditor(const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0; aMapCRC: Cardinal = 0);
     procedure NewReplay(const aFilePath: UnicodeString);
+    procedure NewSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
     function TryLoadSavedReplay(aTick: Integer): Boolean;
 
     procedure SaveMapEditor(const aPathName: UnicodeString);
@@ -133,7 +134,7 @@ uses
   KM_FormLogistics,
   KM_Main, KM_Controls, KM_Log, KM_Sound, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_GameSavedReplays,
   KM_InterfaceDefaults, KM_GameCursor, KM_ResTexts,
-  KM_Saves, KM_CommonUtils, KM_Random;
+  KM_Saves, KM_CommonUtils, KM_RandomChecks;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -153,7 +154,8 @@ begin
 
   gGameCursor := TKMGameCursor.Create;
 
-  if fGameSettings.DebugSaveRandomChecks then
+  if fGameSettings.DebugSaveRandomChecks
+    and SAVE_RANDOM_CHECKS then
     gRandomCheckLogger := TKMRandomCheckLogger.Create;
 
   gRes := TKMResource.Create(aOnLoadingStep, aOnLoadingText);
@@ -428,7 +430,7 @@ begin
 end;
 
 
-procedure TKMGameApp.GameLoadingStep(const aText: String);
+procedure TKMGameApp.GameLoadingStep(const aText: UnicodeString);
 begin
   fMainMenuInterface.AppendLoadingText(aText);
   Render;
@@ -459,6 +461,8 @@ end;
 
 
 procedure TKMGameApp.PrepageStopGame(aMsg: TKMGameResultMsg);
+var
+  LastSentCmdsTick: Integer;
 begin
   if (gGame = nil) or gGame.ReadyToStop then Exit;
 
@@ -476,18 +480,27 @@ begin
       fCampaigns.ActiveCampaign.ScriptData.Clear;
       gGame.SaveCampaignScriptData(fCampaigns.ActiveCampaign.ScriptData);
 
+      //Always save Campaigns progress after mission
+      //We always save script data with SaveCampaignScriptData
+      //then campaign progress should be saved always as well on any outcome (win or lose)
+      //otherwise we will get inconsistency
+      SaveCampaignsProgress;
+
       if aMsg = grWin then
-      begin
         fCampaigns.UnlockNextMap;
-        SaveCampaignsProgress; //Always save Campaigns progress after mission has been won. In case future game crash
-      end;
     end;
   end;
 
   if gGame.IsMultiPlayerOrSpec then
   begin
     if fNetworking.Connected then
-      fNetworking.AnnounceDisconnect(TKMGameInputProcess_Multi(gGame.GameInputProcess).LastSentCmdsTick);
+    begin
+      if TKMGameInputProcess_Multi(gGame.GameInputProcess) <> nil then
+        LastSentCmdsTick := TKMGameInputProcess_Multi(gGame.GameInputProcess).LastSentCmdsTick
+      else
+        LastSentCmdsTick := LAST_SENT_COMMANDS_TICK_NONE;
+      fNetworking.AnnounceDisconnect(LastSentCmdsTick);
+    end;
     fNetworking.Disconnect;
   end;
 
@@ -582,7 +595,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromSave(const aFilePath: String; aGameMode: TKMGameMode);
+procedure TKMGameApp.LoadGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; aGIPPath: String = '');
 var
   LoadError, FilePath: String;
 begin
@@ -599,7 +612,7 @@ begin
 
   gGame := TKMGame.Create(aGameMode, fRender, fNetworking, GameDestroyed);
   try
-    gGame.LoadFromFile(FilePath);
+    gGame.LoadFromFile(FilePath, aGIPPath);
   except
     on E: Exception do
     begin
@@ -827,7 +840,6 @@ begin
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.GameMode);
-
 end;
 
 
@@ -886,6 +898,15 @@ procedure TKMGameApp.NewReplay(const aFilePath: UnicodeString);
 begin
   Assert(ExtractFileExt(aFilePath) = EXT_SAVE_BASE_DOT);
   LoadGameFromSave(aFilePath, gmReplaySingle); //Will be changed to gmReplayMulti depending on save contents
+
+  if Assigned(fOnGameStart) and (gGame <> nil) then
+    fOnGameStart(gGame.GameMode);
+end;
+
+
+procedure TKMGameApp.NewSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
+begin
+  LoadGameFromSave(aSavPath, gmReplaySingle, aRplPath); //Will be changed to gmReplayMulti depending on save contents
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.GameMode);
@@ -961,6 +982,7 @@ begin
                                         fGameSettings.AutoKickTimeout,
                                         fGameSettings.PingInterval,
                                         fGameSettings.MasterAnnounceInterval,
+                                        fGameSettings.ServerUDPScanPort,
                                         fGameSettings.ServerDynamicFOW,
                                         fGameSettings.ServerMapsRosterEnabled,
                                         fGameSettings.ServerMapsRosterStr,

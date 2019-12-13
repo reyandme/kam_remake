@@ -1,0 +1,195 @@
+//-- TBK04 --//
+//By Strangelove
+//v2.0d
+//06.04.2019
+
+{$I dynamicmap.script}
+{$I improvestaticai.script}
+{$I transformunits.script}
+{$I difficulty.script}
+
+{$DEFINE DEBUG} //Enable extended Debug
+//{$UNDEF DEBUG}
+
+const
+	SIEGE_TIMER = 9000;
+
+var
+	iAttackGroup: array[0..3] of Integer;
+	bAttack, bReinforcement, bTimer: Boolean;
+	iDeathCounter, GroupColumnCount: Byte;
+	iTicks: Integer;
+
+
+//Returns the Closest Enemy House from aGroupID (only player 1,2,3)
+function ClosestEnemyHouseFromGroup(aGroupID: Integer): Integer;
+var
+	SeakerLeaderX, SeakerLeaderY, FoundHouse, DX, DY, ThisDistanceSqr, BestDistanceSqr: Integer;
+	iPlayerLoop: Byte;
+begin
+	Result := -1;
+	SeakerLeaderX := States.UnitPositionX(States.GroupMember(aGroupID, 0));
+	SeakerLeaderY := States.UnitPositionY(States.GroupMember(aGroupID, 0));
+	for iPlayerLoop := 1 to 3 do
+	begin
+		FoundHouse := States.ClosestHouse(iPlayerLoop, SeakerLeaderX, SeakerLeaderY, -1);
+		DX := SeakerLeaderX -States.HousePositionX(FoundHouse);
+		DY := SeakerLeaderY -States.HousePositionY(FoundHouse);
+		ThisDistanceSqr := (DX*DX) +(DY*DY);
+		if (Result = -1) or (ThisDistanceSqr < BestDistanceSqr) then
+		begin
+			BestDistanceSqr := ThisDistanceSqr;
+			Result := FoundHouse;
+		end;
+	end;
+end;
+
+
+procedure OnMissionStart();
+var 
+	h: Byte;
+begin
+	bAttack := false;
+	bReinforcement := false;
+	bTimer := false;
+	UnitsRandomHungerSet();
+	Actions.UnitBlock(3, 15, true); //Disable AxeFighter
+	//Disable Fog Sharing with Ally
+	Actions.PlayerShareFog(1, 0, false);
+	Actions.PlayerShareFog(2, 0, false);
+	Actions.PlayerShareFog(3, 0, false);
+	Actions.PlayerShareFog(0, 1, false);
+	Actions.PlayerShareFog(0, 2, false);
+	Actions.PlayerShareFog(0, 3, false);
+	//Give non-buildable houses to AIs
+	Actions.GiveHouse(4, 23, 89, 151);
+	Actions.HouseAddWaresTo(States.HouseAt(89, 151), 6, 5);
+	Actions.HouseAddWaresTo(States.HouseAt(89, 151), 2, 5);
+	Actions.GiveHouse(1, 18, 137, 71);
+	Actions.HouseAddWaresTo(States.HouseAt(137, 71), 7, 5);
+	//Difficulty Scaling
+	case States.MissionDifficulty() of
+		mdEasy1:
+		begin
+			GroupColumnCount := 3;
+			IncreaseGroupSize(0, 0);
+		end;
+		mdNormal:	GroupColumnCount := 4;
+		mdHard1:
+		begin
+			GroupColumnCount := 5;
+			Actions.AIGroupsFormationSet(4, 0, 15, 5); //Melee
+			Actions.AIGroupsFormationSet(4, 1, 12, 4); //Spear
+			Actions.AIGroupsFormationSet(4, 2, 10, 5); //Ranged
+			Actions.AIGroupsFormationSet(4, 3, 15, 5); //Mounted
+			//Additional Groups for Leather-AI
+			AddDefencePositionAndGroup(5, 21, 45, 47, 2, 14); //Scouts
+			AddDefencePositionAndGroup(5, 21, 74, 23, 2, 16);
+			AddDefencePositionAndGroup(6, 21, 97, 23, 4, 16);
+			AddDefencePositionAndGroup(6, 21, 129, 22, 6, 21);
+		end;
+	end;
+	//Give intial AttackGroups
+	Actions.AIGroupsFormationSet(7, 0, GroupColumnCount *2, GroupColumnCount);
+	iAttackGroup[0] := Actions.GiveGroup(7, 26, 99, 144, 2, GroupColumnCount *2, GroupColumnCount);
+	iAttackGroup[1] := Actions.GiveGroup(7, 26, 95, 147, 2, GroupColumnCount *2, GroupColumnCount);
+	iAttackGroup[2] := Actions.GiveGroup(7, 26, 94, 141, 2, GroupColumnCount *2, GroupColumnCount);
+	iAttackGroup[3] := Actions.GiveGroup(7, 26, 90, 138, 2, GroupColumnCount *2, GroupColumnCount);
+	for h := 0 to Length(iAttackGroup) -1 do
+		Actions.GroupHungerSet(iAttackGroup[h], States.UnitMaxHunger());
+end;
+
+procedure OnTick;
+var
+	k, l: Byte;
+begin
+	if States.GameTime() mod  61 = 30 then
+		ChangeWaterfallEndTiles(106, 108, 155);
+
+	if States.GameTime() = 1200 then
+	begin
+		bAttack := true;
+		bTimer := true;
+		Actions.ShowMsg(-1, '<$1>');
+	end;
+	
+	if bTimer then
+	begin
+		if iTicks <> 0 then
+		begin
+			//Count down...
+			iTicks := iTicks -1;
+			//Actions.OverlayTextSet(-1, 'Ticks: ' + inttostr(iTicks));
+			//Time-Buffer (Do not spawn Groups right after their death)
+			if (iTicks <= ((SIEGE_TIMER /4) *3)) and bAttack then
+				iTicks := ((SIEGE_TIMER /4) *3);
+			//Schedule Events
+			if iTicks = (SIEGE_TIMER /2) then
+				bReinforcement := true;
+		end else
+		begin
+			bAttack := true;
+			iTicks := SIEGE_TIMER;
+		end;
+	end;
+	
+	if bReinforcement then
+	begin
+		Actions.AIGroupsFormationSet(7, 0, GroupColumnCount *3, GroupColumnCount);
+		iAttackGroup[0] := Actions.GiveGroup(7, 26, 92, 8, 4, GroupColumnCount *3, GroupColumnCount);
+		iAttackGroup[1] := Actions.GiveGroup(7, 26, 87, 8, 4, GroupColumnCount *3, GroupColumnCount);
+		iAttackGroup[2] := Actions.GiveGroup(7, 26, 92, 4, 4, GroupColumnCount *3, GroupColumnCount);
+		iAttackGroup[3] := Actions.GiveGroup(7, 26, 87, 4, 4, GroupColumnCount *3, GroupColumnCount);
+		//Feed Groups when spawned
+		for l := 0 to Length(iAttackGroup)-1 do
+			Actions.GroupHungerSet(iAttackGroup[l], States.UnitMaxHunger);
+		//Add Defence Positions again
+		Actions.AIDefencePositionAdd(7, 99, 144, 2, 0, 16, 1);
+		Actions.AIDefencePositionAdd(7, 95, 147, 2, 0, 16, 1);
+		Actions.AIDefencePositionAdd(7, 94, 141, 2, 0, 16, 1);
+		Actions.AIDefencePositionAdd(7, 90, 138, 2, 0, 16, 1);
+		bReinforcement := false;
+	end;
+	
+	//Make iInitialAttackGroups Attack
+	if bAttack then
+	begin
+		//Delete all Defence Positions of Player7 (interfered with attacks)
+		Actions.AIDefencePositionRemoveAll(7);
+		if States.GameTime() mod 61 = 0 then
+			for k := 0 to Length(iAttackGroup)-1 do
+				if (iAttackGroup[k] <> -1) then
+					if not States.GroupDead(iAttackGroup[k]) then
+					begin
+						if States.GroupIdle(iAttackGroup[k]) then
+							Actions.GroupOrderAttackHouse(iAttackGroup[k], ClosestEnemyHouseFromGroup(iAttackGroup[k])); //CLosest House of Yellow Ally
+					end else
+					begin
+						iAttackGroup[k] := -1;
+						iDeathCounter := iDeathCounter +1;
+						//Actions.ShowMsg(-1, 'iDeathCounter = ' + inttostr(iDeathCounter));
+						if iDeathCounter = Length(iAttackGroup) then
+						begin
+							iDeathCounter := 0;
+							bAttack := false; //Set to true once new attack groups are created
+							//Actions.ShowMsg(-1, 'bAttack is false!||iDeathCounter = ' + inttostr(iDeathCounter));
+							break;
+						end;
+					end;
+	end;
+end;
+
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+	if aIndex = 4 then //Conditions set with static script
+	begin
+		bAttack := true;
+		bTimer := false;
+		bReinforcement := false;
+		Actions.AIDefencePositionAdd(1, 131, 82, 4, 3, 20, 1); //Add Attack Positions for Ally AI: Attacks now after Siege is broken
+		Actions.AIDefencePositionAdd(1, 136, 82, 4, 3, 20, 1);
+		Actions.ShowMsg(-1, '<$0>');
+	end;
+	if aIndex = 2 then 
+		Actions.ShowMsg(-1, '<$2>');
+end;

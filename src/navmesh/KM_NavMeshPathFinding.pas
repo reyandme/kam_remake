@@ -1,3 +1,8 @@
+{
+NavMesh - pathfinding
+@author: Martin Toupal
+@e-mail: poznamenany@gmail.com
+}
 unit KM_NavMeshPathFinding;
 {$I KaM_Remake.inc}
 interface

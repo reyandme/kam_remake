@@ -62,9 +62,9 @@ begin
 	UnitsRandomHungerSet();
 	//Apply Difficulty
 	case States.MissionDifficulty() of
-		mdEasy: 
+		mdEasy1: 
 			IncreaseGroupSize(0, 0);
-		mdHard:
+		mdHard1:
 		begin
 			//Increase Group Size of Groups joining fight later on
 			IncreaseGroupSize(4, 0);

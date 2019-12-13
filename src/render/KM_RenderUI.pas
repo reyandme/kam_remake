@@ -6,6 +6,9 @@ uses
   {$IFDEF WDC}
   System.Generics.Collections,
   {$ENDIF}
+  {$IFDEF FPC}
+  Generics.Collections,
+  {$ENDIF}
   Controls, Math, KromOGLUtils, StrUtils, SysUtils,
   KM_Defaults, KM_CommonTypes, KM_Points, KM_Pics,
   KM_ResFonts, KM_ResSprites;
@@ -727,8 +730,9 @@ begin
       if not aShowMarkup then
       begin
         Delete(aText, I, 9);
-      end;
-      Off := I; //We could try to find 1 more color right after this one (could happen in case of wrap colors)
+        Off := I; //We could try to find 1 more color right after this one (could happen in case of wrap colors)
+      end else
+        Off := I + 1; //Continue search from the next letter
     end
     else
       Off := I + 1; //Continue search from the next letter

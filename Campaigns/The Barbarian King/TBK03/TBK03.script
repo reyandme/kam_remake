@@ -1,0 +1,170 @@
+//-- TBK03 --//
+//By Strangelove
+//v2.0
+//04.03.2018
+
+{$DEFINE DEBUG} //Enable extended Debug
+//{$UNDEF DEBUG}
+
+{$DEFINE NOSTANDALONE}
+//{$UNDEF NOSTANDALONE} //For limited testing! Turn this on if you want to extract that map from the campaign folder!
+
+
+{$IFDEF NOSTANDALONE}
+const	//Set Offsets in case mapsize differs from previous one (Add roads manually, since there is no "PlayerGetAllRoads")
+	OFFSETX = 0;
+	OFFSETY = 34;
+{$ENDIF}
+
+
+var 
+	aGroups: array of Integer;
+	GroupColumnCount: Byte;
+
+
+procedure UnitsHungerSet(); //Gives AI Units MaxHungerLevel and HumanPlayer's Units 99% of MaxHungerLevel (Intended for Tactical Maps)
+var 
+	aUnits: array of Integer;
+	i, j: Integer;
+	iPlayerLoop: Byte;
+begin
+	for iPlayerLoop := 0 to States.StatPlayerCount() -1 do
+	begin
+		aUnits := States.PlayerGetAllUnits(iPlayerLoop);
+		if States.PlayerIsAI(iPlayerLoop) then
+		begin
+			for i := 0 to Length(aUnits) -1 do
+				Actions.UnitHungerSet(aUnits[i], States.UnitMaxHunger());
+		end else
+			for j := 0 to Length(aUnits) -1 do
+				Actions.UnitHungerSet(aUnits[j], ((States.UnitMaxHunger())/100 *99));
+	end;
+end;
+	
+
+procedure OnMissionStart();
+{$IFDEF NOSTANDALONE}
+var 
+	R, H, M, O, D, iNewHouseID, DestroyedHouseID: Integer;{$ENDIF}
+begin
+	{$IFDEF NOSTANDALONE}
+	//Set Corn and Grapes
+	for O := 0 to Length(CampaignData.TBK02.aTileObjectData) -1 do
+		Actions.MapTileObjectSet(CampaignData.TBK02.aTileObjectData[O][0] +OFFSETX, CampaignData.TBK02.aTileObjectData[O][1] +OFFSETY, CampaignData.TBK02.aTileObjectData[O][2]);
+	//Add Roads/Fields/Winefields
+	for R := 0 to Length(CampaignData.TBK02.aRoadworksData) -1 do
+	begin
+		if CampaignData.TBK02.aRoadworksData[R][3] = 0 then
+			Actions.GiveRoad(CampaignData.TBK02.aRoadworksData[R][0], CampaignData.TBK02.aRoadworksData[R][1] +OFFSETX, CampaignData.TBK02.aRoadworksData[R][2] +OFFSETY);
+		if CampaignData.TBK02.aRoadworksData[R][3] = 1 then
+			Actions.GiveField(CampaignData.TBK02.aRoadworksData[R][0], CampaignData.TBK02.aRoadworksData[R][1] +OFFSETX, CampaignData.TBK02.aRoadworksData[R][2] +OFFSETY);
+		if CampaignData.TBK02.aRoadworksData[R][3] = 2 then
+			Actions.GiveWinefield(CampaignData.TBK02.aRoadworksData[R][0], CampaignData.TBK02.aRoadworksData[R][1] +OFFSETX, CampaignData.TBK02.aRoadworksData[R][2] +OFFSETY);
+	end;
+	//Add Buildings/Units/Groups from previous Mission TBK02 (Dont mess with this shit! Seriously.)
+	for H := 0 to Length(CampaignData.TBK02.aHouseData)-1 do
+	begin
+		iNewHouseID := Actions.GiveHouse(CampaignData.TBK02.aHouseData[H][0], CampaignData.TBK02.aHouseData[H][1], CampaignData.TBK02.aHouseData[H][2] +OFFSETX, CampaignData.TBK02.aHouseData[H][3] +OFFSETY);
+		Actions.HouseAddDamage(iNewHouseID, CampaignData.TBK02.aHouseData[H][4]);
+		for M := 5 to 32 do
+			if CampaignData.TBK02.aHouseData[H][M] <> 0 then //Dont try to add stuff that werent there before
+				Actions.HouseAddWaresTo(iNewHouseID, M-5, CampaignData.TBK02.aHouseData[H][M]);
+	end;
+	//Try to add Houses to destroy...
+	for D := 0 to Length(CampaignData.TBK02.aDestroyedHouseData) -1 do
+	begin
+		DestroyedHouseID := Actions.GiveHouse(CampaignData.TBK02.aDestroyedHouseData[D][0], CampaignData.TBK02.aDestroyedHouseData[D][1], CampaignData.TBK02.aDestroyedHouseData[D][2] +OFFSETX, CampaignData.TBK02.aDestroyedHouseData[D][3] +OFFSETY);
+			if DestroyedHouseID <> -1 then
+				Actions.HouseDestroy(DestroyedHouseID, false);
+	end;
+	
+	Actions.Log('TileObjectLength: ' + inttostr(Length(CampaignData.TBK02.aTileObjectData)));
+	Actions.Log('RoadworksLength: ' + inttostr(Length(CampaignData.TBK02.aRoadworksData)));
+	Actions.Log('HouseLength: ' + inttostr(Length(CampaignData.TBK02.aHouseData)));	
+	Actions.Log('aDestroyedHouseData: ' + inttostr(Length(CampaignData.TBK02.aDestroyedHouseData)));	
+	{$ENDIF}
+	Actions.UnitKill(States.UnitAt(1, 1), false); //Unit needed to activate player1
+	UnitsHungerSet();
+	//Difficulty Scaling
+	case States.MissionDifficulty() of
+		mdEasy1:		GroupColumnCount := 4;
+		mdNormal:	GroupColumnCount := 5;
+		mdHard1:		GroupColumnCount := 6;
+	end;
+	//Add Enemy Groups
+	SetLength(aGroups, 4);
+	aGroups[0] := Actions.GiveGroup(1, 14, 42, 4, 4, GroupColumnCount *3, GroupColumnCount);
+	aGroups[1] := Actions.GiveGroup(1, 23, 48, 4, 4, (GroupColumnCount -1) *2, GroupColumnCount -1);
+	aGroups[2] := Actions.GiveGroup(1, 23, 36, 4, 4, GroupColumnCount *2, GroupColumnCount);
+	aGroups[3] := Actions.GiveGroup(1, 14, 10, 4, 4, GroupColumnCount *3, GroupColumnCount);
+end;
+
+procedure OnTick();
+var
+	iX, iY, i: Byte;
+	iEnemyLeader, iLeader, iType: Integer;
+begin
+	//Add additional Groups for Enemy
+	if States.GameTime() = 450 then
+	begin
+		SetLength(aGroups, 5);
+		aGroups[4] := Actions.GiveGroup(1, 21, 5, 124, 0, GroupColumnCount *2, GroupColumnCount -1);
+	end;
+	if States.GameTime() = 600 then
+	begin
+		SetLength(aGroups, 6);
+		aGroups[5] := Actions.GiveGroup(1, 27, 75, 123, 0, GroupColumnCount *3, GroupColumnCount -1);
+	end;
+	//Attack!!!
+	if States.GameTime() mod 90 = 0 then
+		for i := 0 to Length(aGroups) -1 do 
+			if aGroups[i] <> -1 then
+				if not States.GroupDead(aGroups[i]) then
+				begin
+					if States.GroupIdle(aGroups[i]) then
+					begin
+						//If Group is Mounted -> Attack Bowman
+						if States.GroupType(aGroups[i]) = 3 then
+						begin
+							iType := 2;
+						end else
+							iType := -1;
+						//Milita-Group targeting Lancers
+						if i = 3 then
+							iType := 2;
+						iEnemyLeader := States.GroupMember(aGroups[i], 0);
+						iX := States.UnitPositionX(iEnemyLeader);
+						iY := States.UnitPositionY(iEnemyLeader);
+						iLeader := States.GroupMember(States.ClosestGroup(0, iX, iY, iType), 0);
+						Actions.GroupOrderAttackUnit(aGroups[i], iLeader);
+					end;
+				end else
+					aGroups[i] := -1;
+end;
+
+//Legend//
+
+//aHouseData:
+//0: Owner
+//1: Type
+//2: X
+//3: Y
+//4: Damage
+//5-32: Resources (0-27)
+
+//aTileObjectData (Only Corn and Grapes)
+//0: X
+//1: Y
+//2: Type
+
+//aRoadworksData
+//0: Owner
+//1: X
+//2: Y
+//3: Type
+
+//aDestroyedHouseData
+//0: Owner
+//1: Type
+//2: X
+//3: Y

@@ -7,14 +7,14 @@ procedure OnMissionStart;
 begin
 	//Apply Difficulty
 	case States.MissionDifficulty() of
-		mdEasy: 
+		mdEasy1: 
 		begin
 			Actions.GroupKillAll(States.GroupAt(70, 76), true); //Rebels
 			Actions.GroupKillAll(States.GroupAt(61, 65), true); //Lancers
 			Actions.GroupKillAll(States.GroupAt(10, 49), true); //Rebels
 			Actions.GroupKillAll(States.GroupAt(103, 31), true); //Vagabond
 		end;
-		mdHard:
+		mdHard1:
 			IncreaseGroupSize(1, 0);
 	end;
 end;

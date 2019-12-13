@@ -10,7 +10,7 @@ type
   private
     fImgGenes: TImage;
     fImgFitness: TImage;
-    fXLabels: array of TLabel;
+    fXGenLab,fXFitLab,fYFitLab: array of TLabel;
     fActualGeneration: Integer;
     fGeneTrackBar: TTrackBar;
     fGeneTrackBarPos: Integer;
@@ -26,6 +26,7 @@ type
 
     procedure InitSimulation(aGenerationsCnt,aIndividualsCnt,aGenesCnt,aMapsCnt: Word; aStartIdx: Integer = 0);
     procedure AddGeneration(aPopulation: TGAPopulation);
+    procedure RefreshGraphs();
     procedure PlotGenes(aGenIdx: Integer);
   end;
 
@@ -51,10 +52,14 @@ destructor TPlotGraph.Destroy();
 var
   K: Integer;
 begin
-  for K := Low(fXLabels) to High(fXLabels) do
-    FreeAndNil(fXLabels[K]);
+  for K := Low(fXGenLab) to High(fXGenLab) do
+    FreeAndNil(fXGenLab[K]);
+  for K := Low(fXFitLab) to High(fXFitLab) do
+    FreeAndNil(fXFitLab[K]);
+  for K := Low(fYFitLab) to High(fYFitLab) do
+    FreeAndNil(fYFitLab[K]);
   gLog.Log('TPlotGraph: Destroy');
-  inherited Destroy();
+  inherited;
 end;
 
 
@@ -78,6 +83,13 @@ begin
       SetLength(fFitnessHistory[K,L],aMapsCnt);
     end;
   end;
+end;
+
+
+procedure TPlotGraph.RefreshGraphs();
+begin
+  PlotGenes(fActualGeneration-1);
+  PlotFitness();
 end;
 
 
@@ -169,7 +181,7 @@ end;
 
 procedure TPlotGraph.PlotGenes(aGenIdx: Integer);
 const
-  OFFSET = 10;
+  OFFSET = 15;
   X_LABEL_INDENTATION = 5;
 var
   K,L,M, X,Y: Integer;
@@ -177,13 +189,16 @@ var
   Img: TImage;
 begin
   Img := fImgGenes;
-  if (Img = nil) OR (aGenIdx < 0) OR (aGenIdx > fActualGeneration) OR (Length(fGeneHistory) <= 0) OR (fGeneTrackBarPos = aGenIdx) then
+  if (Img = nil) OR (aGenIdx < 0) OR (aGenIdx > fActualGeneration) OR (Length(fGeneHistory) <= 0) then
     Exit;
   fGeneTrackBarPos := aGenIdx;
   // Clean image
   if (Img.Picture.Bitmap <> nil) then
     Img.Picture.Bitmap.SetSize(Img.Width, Img.Height);
+  Img.Canvas.Brush.Color := $00282828;
   Img.Canvas.FillRect(Img.Canvas.ClipRect);
+  for K := Low(fXGenLab) to High(fXGenLab) do
+    FreeAndNil(fXGenLab[K]);
   // Prepare scale
   ScaleX := Max(0, (Img.Width - 2*OFFSET) / Max(1,Length(fGeneHistory[0,0])-1));
   ScaleY := Max(0, (Img.Height - 2*OFFSET));
@@ -192,7 +207,7 @@ begin
   begin
     // Grid
     Pen.Color := ($00 shl 24) OR (200 shl 16) OR (200 shl 8) OR (200 shl 0);
-    Pen.Width := 3;
+    Pen.Width := 2;
     for K := Low(fGeneHistory[0,0]) to High(fGeneHistory[0,0]) do
     begin
       X := OFFSET + Round(ScaleX * K);
@@ -200,7 +215,7 @@ begin
       Img.Canvas.LineTo(X-1,Img.Height - OFFSET);
     end;
     // Borders
-    Pen.Color := clBlack;
+    Pen.Color := clSilver;
     Pen.Width := 2;
     PenPos := Point(OFFSET, OFFSET);
     LineTo(OFFSET, Img.Height - OFFSET);
@@ -208,19 +223,18 @@ begin
     LineTo(Img.Width - OFFSET, OFFSET);
     LineTo(OFFSET, OFFSET);
     // Labels
-    for K := Low(fXLabels) to High(fXLabels) do
-      FreeAndNil(fXLabels[K]);
-    SetLength(fXLabels, Length(fGeneHistory[0,0]));
-    for K := Low(fGeneHistory[0,0]) to High(fGeneHistory[0,0]) do
+    SetLength(fXGenLab, Length(fGeneHistory[0,0]));
+    for K := Low(fXGenLab) to High(fXGenLab) do
     begin
       X := OFFSET + Round(ScaleX * K);
-      fXLabels[K] := TLabel.Create(Img.Parent);
-      fXLabels[K].Parent := Img.Parent;
-      //fXLabels[K].Alignment := taRightJustify;
-      //fXLabels[K].Transparent := True;
-      fXLabels[K].Left := X - 1;
-      fXLabels[K].Top := Img.Height - OFFSET + X_LABEL_INDENTATION;
-      fXLabels[K].Caption := IntToStr(K);
+      fXGenLab[K] := TLabel.Create(Img.Parent);
+      fXGenLab[K].Parent := Img.Parent;
+      //fXGenLab[K].Alignment := taRightJustify;
+      //fXGenLab[K].Transparent := True;
+      fXGenLab[K].Left := X - 1;
+      fXGenLab[K].Top := Img.Height - OFFSET + X_LABEL_INDENTATION;
+      fXGenLab[K].Caption := IntToStr(K);
+      fXGenLab[K].Font.Color := $00FFFFFF;
     end;
   end;
   // Draw genes
@@ -246,7 +260,8 @@ end;
 
 procedure TPlotGraph.PlotFitness();
 const
-  OFFSET = 10;
+  OFFSET = 15;
+  X_LABEL_INDENTATION = 5;
 var
   K,L,M, X,Y: Integer;
   ScaleX, ScaleY, MinF, MaxF, Mean, MaxVariance: Single;
@@ -254,26 +269,57 @@ var
   Img: TImage;
 begin
   Img := fImgFitness;
-  if (Img = nil) then
+  if (Img = nil) OR (Length(fFitnessHistory) <= 0) then
     Exit;
   // Clean image
   if (Img.Picture.Bitmap <> nil) then
     Img.Picture.Bitmap.SetSize(Img.Width, Img.Height);
+  Img.Canvas.Brush.Color := $00282828;
   Img.Canvas.FillRect(Img.Canvas.ClipRect);
+  for K := Low(fXFitLab) to High(fXFitLab) do
+    FreeAndNil(fXFitLab[K]);
+  for K := Low(fYFitLab) to High(fYFitLab) do
+    FreeAndNil(fYFitLab[K]);
+  // Get scale
+  GetMinMaxFit(MinF, MaxF);
+  ScaleX := Max(0, (Img.Width  - 2*OFFSET) / Max(1,Length(fFitnessHistory)-1));
+  ScaleY := Max(0, (Img.Height - 2*OFFSET) / Max(0.001, Abs(MaxF - MinF)) );
   // Add axis
   with Img.Canvas do
   begin
+    // Grid
     Pen.Color := clBlack;
+    Pen.Width := 5;
+    for K := Low(fFitnessHistory) to High(fFitnessHistory) do
+    begin
+      X := OFFSET + Round(ScaleX * K);
+      Img.Canvas.PenPos := Point(X-1, OFFSET);
+      Img.Canvas.LineTo(X-1,Img.Height - OFFSET);
+    end;
+    // Borders
+    Pen.Color := clSilver;
     Pen.Width := 2;
     PenPos := Point(OFFSET, OFFSET);
     LineTo(OFFSET, Img.Height - OFFSET);
     LineTo(Img.Width - OFFSET, Img.Height - OFFSET);
+    // Labels
+    SetLength(fXFitLab, Length(fFitnessHistory));
+    for K := Low(fXFitLab) to High(fXFitLab) do
+    begin
+      X := OFFSET + Round(ScaleX * K);
+      fXFitLab[K] := TLabel.Create(Img.Parent);
+      fXFitLab[K].Parent := Img.Parent;
+      //fXFitLab[K].Alignment := taRightJustify;
+      //fXFitLab[K].Transparent := True;
+      fXFitLab[K].Left := X - 1;
+      fXFitLab[K].Top := Img.Height - OFFSET + X_LABEL_INDENTATION;
+      fXFitLab[K].Caption := IntToStr(K);
+      fXFitLab[K].Font.Color := $00FFFFFF;
+    end;
   end;
   // Draw mean, relative fitness, and variance
-  GetMinMaxFit(MinF, MaxF);
-  ScaleX := Max(0, (Img.Width  - 2*OFFSET) / Max(1,Length(fFitnessHistory)-1));
-  ScaleY := Max(0, (Img.Height - 2*OFFSET) / Max(0.001, Abs(MaxF - MinF)) );
   SetLength( Samples, Length(fFitnessHistory[0]) );
+  SetLength( fYFitLab, Length(fFitnessHistory));
   SetLength( VarianceArr, Min( fActualGeneration, High(fFitnessHistory) ) + 1 );
   MaxVariance := -1E30;
   for K := Low(fFitnessHistory) to Min( fActualGeneration, High(fFitnessHistory) ) do
@@ -298,6 +344,13 @@ begin
       Img.Canvas.PenPos := Point(X, Y)
     else
       Img.Canvas.LineTo(X,Y);
+    // Draw description
+    fYFitLab[K] := TLabel.Create(Img.Parent);
+    fYFitLab[K].Parent := Img.Parent;
+    fYFitLab[K].Left := X + 5;
+    fYFitLab[K].Top := Y;
+    fYFitLab[K].Caption := Format('%5.0f',[Mean]);
+    fYFitLab[K].Font.Color := $00FFFFFF;
     // Get variance
     VarianceArr[K] := 0;
     for L := Low(Samples) to High(Samples) do
@@ -310,9 +363,28 @@ begin
   for K := Low(VarianceArr) to High(VarianceArr) do
   begin
     X := OFFSET + Round(ScaleX * K);
-    Img.Canvas.Pen.Color := 0;
+    Img.Canvas.Pen.Color := clSilver;
     Img.Canvas.Rectangle(X+5, Img.Height - OFFSET, X+10, Img.Height - OFFSET - Round(VarianceArr[K] / Max(0.001,MaxVariance) * 50));
   end;
+
+  // Draw statistics
+    // Labels
+    {
+  for K := Low(fXGenLab) to High(fXGenLab) do
+    FreeAndNil(fXGenLab[K]);
+  SetLength(fXGenLab, Length(fGeneHistory[0,0]));
+  for K := Low(fGeneHistory[0,0]) to High(fGeneHistory[0,0]) do
+  begin
+    X := OFFSET + Round(ScaleX * K);
+    fXGenLab[K] := TLabel.Create(Img.Parent);
+    fXGenLab[K].Parent := Img.Parent;
+    //fXGenLab[K].Alignment := taRightJustify;
+    //fXGenLab[K].Transparent := True;
+    fXGenLab[K].Left := X - 1;
+    fXGenLab[K].Top := Img.Height - OFFSET + X_LABEL_INDENTATION;
+    fXGenLab[K].Caption := IntToStr(K);
+  end;
+  }
 end;
 
 

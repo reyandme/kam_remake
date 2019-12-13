@@ -108,6 +108,7 @@ type
     fSpeedFast: Single;
     fSpeedVeryFast: Single;
     fWareDistribution: TKMWareDistribution;
+    fSaveWareDistribution: Boolean;
 
     fDayGamesCount: Integer;       //Number of games played today (used for saves namings)
     fLastDayGamePlayed: TDateTime; //Last day game played
@@ -135,6 +136,8 @@ type
 
     //Server
     fServerPort: string;
+    fServerUDPScanPort: Word;
+    fServerUDPAnnounce: Boolean;
     fMasterServerAddress: string;
     fServerName: AnsiString;
     fMasterAnnounceInterval: Integer;
@@ -175,6 +178,7 @@ type
     fMenu_LobbyMapType: Byte;
 
     fDebug_SaveRandomChecks: Boolean;
+    fDebug_SaveGameAsText: Boolean;
 
     fFavouriteMaps: TKMMapsCRCList;
 
@@ -227,6 +231,8 @@ type
     procedure SetMasterServerAddress(const aValue: string);
     procedure SetServerName(const aValue: AnsiString);
     procedure SetServerPort(const aValue: string);
+    procedure SetServerUDPAnnounce(aValue: Boolean);
+    procedure SetServerUDPScanPort(const aValue: Word);
     procedure SetServerWelcomeMessage(const aValue: UnicodeString);
     procedure SetAnnounceServer(aValue: Boolean);
     procedure SetAutoKickTimeout(aValue: Integer);
@@ -259,6 +265,7 @@ type
 
     //Debug
     procedure SetDebugSaveRandomChecks(aValue: Boolean);
+    procedure SetDebugSaveGameAsText(aValue: Boolean);
   protected
     function LoadFromINI(const FileName: UnicodeString): Boolean;
     procedure SaveToINI(const FileName: UnicodeString);
@@ -295,6 +302,7 @@ type
     property SpeedFast: Single read fSpeedFast;
     property SpeedVeryFast: Single read fSpeedVeryFast;
     property WareDistribution: TKMWareDistribution read fWareDistribution;
+    property SaveWareDistribution: Boolean read fSaveWareDistribution;
 
     property DayGamesCount: Integer read fDayGamesCount write SetDayGamesCount;
     property LastDayGamePlayed: TDateTime read fLastDayGamePlayed write SetLastDayGamePlayed;
@@ -323,6 +331,8 @@ type
 
     //Server
     property ServerPort: string read fServerPort write SetServerPort;
+    property ServerUDPAnnounce: Boolean read fServerUDPAnnounce write SetServerUDPAnnounce;
+    property ServerUDPScanPort: Word read fServerUDPScanPort write SetServerUDPScanPort;
     property MasterServerAddress: string read fMasterServerAddress write SetMasterServerAddress;
     property ServerName: AnsiString read fServerName write SetServerName;
     property MasterAnnounceInterval: Integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
@@ -365,7 +375,9 @@ type
     property MenuSPSaveFileName: UnicodeString read fMenu_SPSaveFileName write SetMenuSPSaveFileName;
     property MenuLobbyMapType: Byte read fMenu_LobbyMapType write SetMenuLobbyMapType;
 
+    //Debug
     property DebugSaveRandomChecks: Boolean read fDebug_SaveRandomChecks write SetDebugSaveRandomChecks;
+    property DebugSaveGameAsText: Boolean read fDebug_SaveGameAsText write SetDebugSaveGameAsText;
 
     property FavouriteMaps: TKMMapsCRCList read fFavouriteMaps;
   end;
@@ -619,6 +631,7 @@ begin
     fLastDayGamePlayed  := F.ReadDate     ('Game', 'LastDayGamePlayed', 0);
 
     fWareDistribution.LoadFromStr(F.ReadString ('Game','WareDistribution',''));
+    fSaveWareDistribution := F.ReadBool     ('Game', 'SaveWareDistribution', True); //Enabled by default
 
     fCampaignLastDifficulty := TKMMissionDifficulty(F.ReadInteger('Campaign', 'CampaignLastDifficulty', Byte(mdNormal))); //Normal as default
 
@@ -645,6 +658,9 @@ begin
     fFlashOnMessage         := F.ReadBool   ('Multiplayer','FlashOnMessage',True);
 
     fServerPort             := F.ReadString ('Server','ServerPort','56789');
+    fServerUDPScanPort      := F.ReadInteger('Server','UDPScanPort',SERVER_DEFAULT_UDP_SCAN_PORT);
+    fServerUDPAnnounce      := F.ReadBool   ('Server','UDPAnnounce',True);
+
     //We call it MasterServerAddressNew to force it to update in everyone's .ini file when we changed address.
     //If the key stayed the same then everyone would still be using the old value from their settings.
     fMasterServerAddress    := F.ReadString ('Server','MasterServerAddressNew','http://kam.hodgman.id.au/');
@@ -693,7 +709,10 @@ begin
     fMenu_SPSaveFileName    := F.ReadString('Menu', 'SPSaveFileName', '');
     fMenu_LobbyMapType      := F.ReadInteger('Menu', 'LobbyMapType', 0);
 
-    fDebug_SaveRandomChecks := F.ReadBool('Debug','SaveRandomChecks',False);
+    if SAVE_RANDOM_CHECKS then
+      fDebug_SaveRandomChecks := F.ReadBool('Debug','SaveRandomChecks', True);
+    if SAVE_GAME_AS_TEXT then
+      fDebug_SaveGameAsText   := F.ReadBool('Debug','SaveGameAsText', True);
   finally
     F.Free;
   end;
@@ -740,7 +759,8 @@ begin
     F.WriteInteger('Game','DayGamesCount',        fDayGamesCount);
     F.WriteDate   ('Game','LastDayGamePlayed',  fLastDayGamePlayed);
 
-    F.WriteString('Game','WareDistribution', fWareDistribution.PackToStr);
+    F.WriteString ('Game','WareDistribution', fWareDistribution.PackToStr);
+    F.WriteBool   ('Game','SaveWareDistribution', fSaveWareDistribution);
 
     F.WriteInteger('Campaign','CampaignLastDifficulty', Byte(fCampaignLastDifficulty));
 
@@ -767,6 +787,8 @@ begin
     F.WriteString ('Server','ServerName',                   '''' + UnicodeString(fServerName) + ''''); //Add single quotes for server name
     F.WriteString ('Server','WelcomeMessage',               {$IFDEF FPC} UTF8Encode {$ENDIF}(fServerWelcomeMessage));
     F.WriteString ('Server','ServerPort',                   fServerPort);
+    F.WriteInteger('Server','UDPScanPort',                  fServerUDPScanPort);
+    F.WriteBool   ('Server','UDPAnnounce',                  fServerUDPAnnounce);
     F.WriteBool   ('Server','AnnounceDedicatedServer',      fAnnounceServer);
     F.WriteInteger('Server','MaxRooms',                     fMaxRooms);
     F.WriteInteger('Server','PacketsAccumulatingDelay',     fServerPacketsAccumulatingDelay);
@@ -806,7 +828,10 @@ begin
     F.WriteString ('Menu',  'SPSaveFileName',     fMenu_SPSaveFileName);
     F.WriteInteger('Menu',  'LobbyMapType',       fMenu_LobbyMapType);
 
-    F.WriteBool   ('Debug','SaveRandomChecks',    fDebug_SaveRandomChecks);
+    if SAVE_RANDOM_CHECKS then
+      F.WriteBool   ('Debug','SaveRandomChecks',    fDebug_SaveRandomChecks);
+    if SAVE_GAME_AS_TEXT then
+      F.WriteBool   ('Debug','SaveGameAsText',      fDebug_SaveGameAsText);
 
     F.UpdateFile; //Write changes to file
   finally
@@ -976,6 +1001,13 @@ end;
 procedure TKMGameSettings.SetDebugSaveRandomChecks(aValue: Boolean);
 begin
   fDebug_SaveRandomChecks := aValue;
+  Changed;
+end;
+
+
+procedure TKMGameSettings.SetDebugSaveGameAsText(aValue: Boolean);
+begin
+  fDebug_SaveGameAsText := aValue;
   Changed;
 end;
 
@@ -1187,6 +1219,20 @@ end;
 procedure TKMGameSettings.SetServerPort(const aValue: string);
 begin
   fServerPort := aValue;
+  Changed;
+end;
+
+
+procedure TKMGameSettings.SetServerUDPAnnounce(aValue: Boolean);
+begin
+  fServerUDPAnnounce := aValue;
+  Changed;
+end;
+
+
+procedure TKMGameSettings.SetServerUDPScanPort(const aValue: Word);
+begin
+  fServerUDPScanPort := aValue;
   Changed;
 end;
 

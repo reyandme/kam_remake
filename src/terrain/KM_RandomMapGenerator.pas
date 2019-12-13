@@ -33,12 +33,12 @@ type
     Obstacle: record
       Active: Boolean;
       Ratio: array[TObstacleType] of Byte;
-      ProtectedRadius, Density, Size, Variance: Byte;
+      Density, Size, Variance: Byte;
     end;
     Locs: record
       Active: Boolean;
       Players: Byte;
-      LocsPosition: Byte;
+      LocsPosition, ProtectedRadius: Byte;
       Resource: record
         Active, ConnectLocs, MineFix: Boolean;
         Stone, Gold, Iron: Integer;
@@ -46,6 +46,7 @@ type
     end;
     Height: record
       Active, HideNonSmoothTransition: Boolean;
+      Step,Slope,Height: Integer;
     end;
     OnePath: record
       NoGoZones, ReplaceTerrain: Boolean;
@@ -224,12 +225,12 @@ begin
   //  Obstacle: record
   //    Active: Boolean;
   //    Ratio: array[TObstacleType] of Byte;
-  //    ProtectedRadius, Density, Size, Variance: Byte;
+  //    Density, Size, Variance: Byte;
   //  end;
   //  Locs: record
   //    Active: Boolean;
   //    Players: Byte;
-  //    LocsPosition: Byte;
+  //    LocsPosition, ProtectedRadius: Byte;
   //    Resource: record
   //      Active, ConnectLocs, MineFix: Boolean;
   //      Stone, Gold, Iron: Integer;
@@ -666,18 +667,19 @@ function TKMRandomMapGenerator.RandomPlayerLocs(): TKMPointArray;
 
   // Random locs selected from group of generated points (brute force algorithm but for 1-12 locs it is fine)
   procedure Random(var Locs: TKMPointArray; const Minimum,Maximum: TKMPoint);
-    var
-      I,K,L, min_idx_overall, min_dist, sum_dist, min_dist_overall, sum_dist_overall: Integer;
-      Size: TKMPoint;
-      Distances: TInteger2Array;
-      Points: TKMPointArray;
-      Used: TBooleanArray;
-    const
-      POINTS_PER_A_LOC = 5;
+  const
+    POINTS_PER_A_LOC = 20;
+  var
+    Change, PointSelected: Boolean;
+    I,K,L, RemIdx, overflow: Integer;
+    distNew, distOld: Single;
+    Size: TKMPoint;
+    LocIdx: TIntegerArray;
+    Distances: TSingle2Array;
+    Points: TKMPointArray;
   begin
-    min_idx_overall := 0;
+    SetLength(LocIdx, Length(Locs));
     SetLength(Points, POINTS_PER_A_LOC*Length(Locs));
-    SetLength(Used, Length(Points));
     SetLength(Distances, Length(Points), Length(Points));
 
   // Generate points
@@ -687,47 +689,59 @@ function TKMRandomMapGenerator.RandomPlayerLocs(): TKMPointArray;
       Points[I] := KMPoint(fRNG.RandomI(Size.X), fRNG.RandomI(Size.Y));
       for K := I-1 downto Low(Points) do
       begin
-        Distances[I,K] := KMDistanceAbs(Points[I], Points[K]); // Abs is faster than Euclidean space
+        Distances[I,K] := KMDistanceSqr(Points[I], Points[K]);
         Distances[K,I] := Distances[I,K];
       end;
-      //Distances[i,i] := High(Integer);
-      Used[I] := False;
     end;
 
-  // Find points with max distance
-    for I := 1 to (Length(Points) - Length(Locs)) do
+  // Select first set of indexes (points)
+  for I := Low(LocIdx) to High(LocIdx) do
+    LocIdx[I] := I;
+
+  // Try to remove every selected point and replace it with different point with max distance
+  overflow := 0;
+  repeat
+    overflow := overflow + 1;
+    // Get distances
+    Change := False;
+    // Try to find better point
+    for I := Low(Points) to High(Points) do
     begin
-      min_dist_overall := High(Integer);
-      sum_dist_overall := High(Integer);
-      for K := Low(Points) to High(Points) do
-        if not Used[K] then
+      // Check if point is already selected
+      PointSelected := False;
+      for K := Low(LocIdx) to High(LocIdx) do
+        if (I = LocIdx[K]) then
         begin
-          min_dist := High(Integer);
-          sum_dist := 0;
-          for L := Low(Points) to High(Points) do
-            if not Used[L] AND (K <> L) then
-            begin
-              if (Distances[K,L] < min_dist) then
-                min_dist := Distances[K,L];
-              sum_dist := sum_dist + Distances[K,L];
-            end;
-          if (min_dist_overall > min_dist) OR ( (min_dist_overall = min_dist) AND (sum_dist_overall > sum_dist) ) then
-          begin
-            min_idx_overall := K;
-            min_dist_overall := min_dist;
-            sum_dist_overall := sum_dist;
-          end;
+          PointSelected := True;
+          break;
         end;
-      Used[min_idx_overall] := True;
-    end;
-
-    I := Low(Locs);
-    for K := Low(Points) to High(Points) do
-      if not Used[K] then
+      if PointSelected then
+        continue;
+      // Try to replace the point
+      for RemIdx := Low(LocIdx) to High(LocIdx) do
       begin
-        Locs[I] := KMPoint(Minimum.X + Points[K].X, Minimum.Y + Points[K].Y);
-        I := I + 1;
+        // Compute the new best distances
+        distNew := 1e10;
+        distOld := 1e10;
+        for K := Low(LocIdx) to High(LocIdx) do
+          if (K <> RemIdx) then
+          begin
+            distNew := Min(distNew, Distances[LocIdx[K],I]);
+            distOld := Min(distOld, Distances[LocIdx[K],LocIdx[RemIdx]]);
+          end;
+        if (distNew > distOld) then
+        begin
+          Change := True;
+          LocIdx[RemIdx] := I;
+          break;
+        end;
       end;
+    end;
+  until not Change OR (overflow > 10000);
+
+  // Convert locs to real coords
+  for I := Low(LocIdx) to High(LocIdx) do
+    Locs[I] := KMPointAdd(Minimum,Points[ LocIdx[I] ]);
   end;
 
   // Get locs from center screen position
@@ -750,7 +764,7 @@ var
   MinOffset, MaxOffset: TKMPoint;
   Output: TKMPointArray;
 const
-  EDGE_DIST = 0.1; // in %, must be > 0 !!!
+  EDGE_DIST = 0.08; // in %, must be > 0 !!!
 begin
   SetLength(Output, RMGSettings.Locs.Players);
 
@@ -884,8 +898,6 @@ const
   Tr_Sand: array[0..2] of TBiomeType = (btGrassSand1,btGrassSand2,btGrassSand3);
   Tr_GroundSnow: array[0..2] of TBiomeType = (btGround,btGroundSnow,btSnow1);
 begin
-  // Declare variable to have peace with compiler
-//  RandBiom := 0;
   // Create Shapes (multiple layers)
   ShapeArr := LinearInterpolation((RMGSettings.Walkable.FirstLayerStep shl 4),1000);
   Shape2Arr := LinearInterpolation((RMGSettings.Walkable.FirstLayerStep shl 2),1000);
@@ -952,7 +964,8 @@ begin
     ShapeNum := -10;
 	  for Y := 1 to High(A) do
 		  for X := 1 to High(A[Y]) do
-			  if (Shape2Arr[Y,X] = -1) OR (Shape2Arr[Y,X] = -2) then begin
+			  if (Shape2Arr[Y,X] = -1) OR (Shape2Arr[Y,X] = -2) then
+        begin
           case A[Y,X-1] of
             Byte(btGrass):      RandBiom := Byte(  Tr_Grass[ fRNG.RandomI(length(Tr_BigGrass)) ]           );
             Byte(btBigGrass):   RandBiom := Byte(  Tr_BigGrass[ fRNG.RandomI(length(Tr_BigGrass)) ]        );
@@ -991,7 +1004,7 @@ const
   VORONOI_STEP = 3;
   RES_PROB: array[0..4] of Single = (0.000001,0.000001,0.15,0.08,0.08); // Probability penalization (only afect final shape: 0 = circle, 1 = multiple separated mountains)
   //SPEC_RES_RADIUS: array[0..4] of Byte = (5, 5, 5, 5, 5); // Iron, Gold, Stone, Coal, Coal
-  RES_AMOUNT: array[0..4] of Integer = (50, 50, 200, 100, 50);
+  RES_AMOUNT: array[0..4] of Integer = (1, 1, 1, 2, 1);
   RES_TILES_AMOUNT: array[0..4] of Single = (0.25, 0.25, 0.066, 0.25, 0.25);
   RES_MINES_CNT: array[0..4] of Single = (0.005, 0.01, 1.0, 1.0, 1.0);
 
@@ -1178,7 +1191,7 @@ begin
       else
         MinesCnt[I] := 0;
     end;
-    ALL_RES_RADIUS := Round(((Iron*3 + Gold*2 + Stone) shr 1) / VORONOI_STEP);
+    ALL_RES_RADIUS := Round(((ResAmount[1]*3 + ResAmount[2]*2 + ResAmount[3]) shr 1) / VORONOI_STEP);
     //CENTER_RES := Round(ALL_RES_RADIUS / 2);
   end;
 
@@ -1482,7 +1495,7 @@ begin
 // Create protected radius = array with smaller chance to spawn obstacle near aLocs
   if RMGSettings.Locs.Resource.Active then
   begin
-    ProbabilityReducer := (11 - RMGSettings.Obstacle.ProtectedRadius) * 0.02;
+    ProbabilityReducer := (11 - RMGSettings.Locs.ProtectedRadius) * 0.02;
     MaxCnt := Round(1 / ProbabilityReducer);
     if RMGSettings.Locs.Resource.ConnectLocs then
       ConnectLocs(aLocs);
@@ -2959,6 +2972,33 @@ procedure TKMRandomMapGenerator.GenerateHeight(aLocs: TKMPointArray; var TilesPa
         end;
   end;
 
+  procedure RandomSelector(aStep: Word; var ShapePoints: TKMPointArray);
+  var
+    Check: Boolean;
+    K,L, Cnt: Integer;
+  begin
+    K := 0;
+    Cnt := 0;
+    while (K < Length(ShapePoints)) do
+    begin
+      // Consider protected radius
+      Check := True;
+      for L := Low(aLocs) to High(aLocs) do
+        if (KMDistanceSqr(aLocs[L],ShapePoints[K]) < Sqr(RMGSettings.Locs.ProtectedRadius * 5) ) then
+        begin
+          Check := False;
+          break;
+        end;
+      if Check then
+      begin
+        ShapePoints[Cnt] := ShapePoints[K];
+        Cnt := Cnt + 1;
+      end;
+      K := K + Max(1,fRNG.RandomI(aStep));
+    end;
+    SetLength(ShapePoints,Cnt);
+  end;
+
 const
   //HeightMix: array [0..23] of Byte = (
   //  //20,18,15,15,15,21,19,22,23,24,25,20,20,19,18,17,18,21,20,20,20,20,20,20
@@ -2968,7 +3008,7 @@ const
   //10,15,0,0,0,10,5,0,15,15,20,20,10,5,btGrassSand1,btGrassSand2,btGrassSand3,btSand,btStone,btGold,btEgold,btIron,btEIron,btDark);
 
   HeightVariance: array [0..23] of Byte = (
-    10,10,5,5,3,5,10,10,10,10,20,20,0,5,10,10,15,20,10,20,20,0,0,0
+    10,10,5,5,3,5,10,10,10,10,15,15,0,5,10,10,15,20,10,20,20,0,0,0
   );
   HNST: array[0..23,0..23] of Byte = ( // Hide Non-Smooth Transition (height fix)
     (0,0,0,2,3,5,2,5,1,5,5,5,5,3,1,4,3,4,0,0,0,0,0,0),
@@ -2997,6 +3037,7 @@ const
     (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
   );
   DECREASE_HEIGHT_SET: set of Byte = [Byte(btWater),Byte(btWetland),Byte(btSwamp)];
+  CHANGE_HEIGHT_SET: set of Byte = [Byte(btBigGrass), Byte(btGrassGround), Byte(btTreeGrass), Byte(btGroundSnow), Byte(btSnow1), Byte(btSnow2), Byte(btGrassSand2), Byte(btSand)];
 var
   X_0,Y_0,X_1,Y_1,X_2,Y_2,X1,X2,Y1,Y2,sum: Integer;
   H1,H2,H3: TInteger2Array;
@@ -3013,7 +3054,7 @@ begin
   HFWA := TKMHeightFillWalkableAreas.Create(A,H3);
   try
    CreateCliffs(H3, HFWA);
-   // Decrease height of swamp / wetland / water
+   // Decrease height of swamp / wetland / water and change height of special biomes
     // Init VisitedArr
     SetLength(VisitedArr,Length(TilesPartsArr.Terrain), Length(TilesPartsArr.Terrain[0]));
     for Y1 := Low(VisitedArr) to High(VisitedArr) do
@@ -3023,35 +3064,58 @@ begin
     try
       for Y1 := Low(VisitedArr) to High(VisitedArr) do
         for X1 := Low(VisitedArr[Y1]) to High(VisitedArr[Y1]) do
-          if (VisitedArr[Y1,X1] = 0) AND (A[Y1,X1] in DECREASE_HEIGHT_SET) then
+          if (VisitedArr[Y1,X1] = 0) AND ((A[Y1,X1] in DECREASE_HEIGHT_SET) OR (A[Y1,X1] in CHANGE_HEIGHT_SET)) then
           begin
             SPE.QuickFlood(X1,Y1,A[Y1,X1],1, ShapePoints);
+            {
             case A[Y1,X1] of
-              Byte(btWater):   HFWA.ExpandHeight(ShapePoints, -10 -fRNG.RandomI(5), 6 + fRNG.RandomI(3));
-              Byte(btWetland): HFWA.ExpandHeight(ShapePoints, -3 -fRNG.RandomI(3),  5 + fRNG.RandomI(3));
-              Byte(btSwamp):   HFWA.ExpandHeight(ShapePoints, -3 -fRNG.RandomI(3),  5 + fRNG.RandomI(3));
+              Byte(btBigGrass):    RandomSelector(RMGSettings.Height.H1+fRNG.RandomI(5),ShapePoints);
+              Byte(btGrassGround): RandomSelector(RMGSettings.Height.H1+fRNG.RandomI(3),ShapePoints);
+              Byte(btTreeGrass):   RandomSelector(RMGSettings.Height.H1+fRNG.RandomI(5),ShapePoints);
+              Byte(btGroundSnow):  RandomSelector(RMGSettings.Height.H1+fRNG.RandomI(3),ShapePoints);
+              Byte(btSnow1):       RandomSelector(RMGSettings.Height.H1+fRNG.RandomI(10),ShapePoints);
+              Byte(btSnow2):       RandomSelector(RMGSettings.Height.H1+fRNG.RandomI(10),ShapePoints);
+              Byte(btGrassSand2):  RandomSelector(RMGSettings.Height.H1+fRNG.RandomI(3),ShapePoints);
+              Byte(btSand):        RandomSelector(RMGSettings.Height.H1+fRNG.RandomI(10),ShapePoints);
+            end;
+            //}
+            case A[Y1,X1] of
+              Byte(btWater):       HFWA.ExpandHeight(ShapePoints, -40 - fRNG.RandomI(5), 10 + fRNG.RandomI(3));
+              Byte(btWetland):     HFWA.ExpandHeight(ShapePoints, -10 - fRNG.RandomI(3), 5 + fRNG.RandomI(3));
+              Byte(btSwamp):       HFWA.ExpandHeight(ShapePoints, -10 - fRNG.RandomI(3), 5 + fRNG.RandomI(3));
+              {
+              Byte(btBigGrass):    HFWA.ExpandHeight(ShapePoints, RMGSettings.Height.H2 + 10 + fRNG.RandomI(15),  3 + fRNG.RandomI(3));
+              Byte(btGrassGround): HFWA.ExpandHeight(ShapePoints, RMGSettings.Height.H2 + 15 + fRNG.RandomI(10),  3 + fRNG.RandomI(4));
+              Byte(btTreeGrass):   HFWA.ExpandHeight(ShapePoints, RMGSettings.Height.H2 + 10 + fRNG.RandomI(15),  3 + fRNG.RandomI(3));
+              Byte(btGroundSnow):  HFWA.ExpandHeight(ShapePoints, RMGSettings.Height.H2 + 15 + fRNG.RandomI(10),  3 + fRNG.RandomI(4));
+              Byte(btSnow1):       HFWA.ExpandHeight(ShapePoints, RMGSettings.Height.H2 + 20 + fRNG.RandomI(15),  5 + fRNG.RandomI(3));
+              Byte(btSnow2):       HFWA.ExpandHeight(ShapePoints, RMGSettings.Height.H2 + 20 + fRNG.RandomI(15),  5 + fRNG.RandomI(3));
+              Byte(btGrassSand2):  HFWA.ExpandHeight(ShapePoints, RMGSettings.Height.H2 + 15 + fRNG.RandomI(10),  3 + fRNG.RandomI(3));
+              Byte(btSand):        HFWA.ExpandHeight(ShapePoints, RMGSettings.Height.H2 + 20 + fRNG.RandomI(5),   3 + fRNG.RandomI(3));
+              //}
             end;
           end;
     finally
       SPE.Free;
     end;
 
+    // Protected radius
+    if RMGSettings.Locs.Active AND (Length(aLocs) > 0) then
+    begin
+      for Y1 := Low(VisitedArr) to High(VisitedArr) do
+        FillChar(VisitedArr[Y1,0], SizeOf(VisitedArr[Y1,0]) * Length(VisitedArr[Y1]), #0);
+      HFWA.ExpandHeight(aLocs, -100, 15 / RMGSettings.Locs.ProtectedRadius, True);
+    end;
+
   finally
     HFWA.Free();
   end;
 
-  H1 := LinearInterpolation(7,30);
-  H2 := LinearInterpolation(4,45);
-  //H2 := LinearInterpolation(2,10);
+  H1 := LinearInterpolation(Max(1, 5 - Trunc(RMGSettings.Height.Step / 2)),RMGSettings.Height.Slope);
+  H2 := LinearInterpolation(Max(1, 6 + Round(RMGSettings.Height.Step / 2)),RMGSettings.Height.Height);
 	for Y1 := 1 to fMapY-1 do
     for X1 := 1 to fMapX-1 do
-    begin
-      //TilesPartsArr.Height[Y1,X1] := Min(100, Max(0, 50 + H3[Y1,X1]) );
-
       TilesPartsArr.Height[Y1,X1] := Min(100, Min(90,Max(0, -H1[Y1,X1] + H2[Y1,X1] + H3[Y1,X1])) + fRNG.RandomI(HeightVariance[ A[Y1,X1] ]));
-      //TilesPartsArr.Height[Y1,X1] := Min(100, Min(93,Max(0, H2[Y1,X1])) + fRNG.RandomI(HeightVariance[ A[Y1,X1] ]));
-      //TilesPartsArr.Height[Y1,X1] := Min(100, Min(93,Max(0, H1[Y1,X1] + H2[Y1,X1])) + fRNG.RandomI(HeightVariance[ A[Y1,X1] ]));
-    end;
 
   for Y_1 := 1 to fMapY-1 do
   begin

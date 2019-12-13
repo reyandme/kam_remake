@@ -1,3 +1,8 @@
+{
+NavMesh - flood fill algorithm
+@author: Martin Toupal
+@e-mail: poznamenany@gmail.com
+}
 unit KM_NavMeshFloodFill;
 {$I KaM_Remake.inc}
 interface

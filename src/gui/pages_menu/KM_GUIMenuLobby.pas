@@ -34,8 +34,6 @@ type
     fMapsSortUpdateNeeded: Boolean;
     fMainHeight: Integer;
 
-    fLastMapOrSaveSent: String; //Last Map or Save choosen
-
     procedure UpdateMappings;
     procedure UpdateSpectatorDivide;
 
@@ -115,6 +113,7 @@ type
     procedure Lobby_OnFileTransferProgress(aTotal, aProgress: Cardinal);
     procedure Lobby_OnPlayerFileTransferProgress(aNetPlayerIndex: Integer; aTotal, aProgress: Cardinal);
     procedure Lobby_OnSetPassword(const aPassword: AnsiString);
+    procedure Lobby_AbortAllTransfers;
 
     procedure StartBtnChangeEnabled(Sender: TObject; aEnable: Boolean);
 
@@ -211,7 +210,7 @@ var
 
 implementation
 uses
-  KM_CommonTypes, KM_ResLocales, KM_CommonUtils, KM_Sound, KM_ResSound, KM_RenderUI,
+  KM_Log, KM_CommonTypes, KM_ResLocales, KM_CommonUtils, KM_Sound, KM_ResSound, KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp, KM_Points, KM_MapTypes;
 
 const
@@ -401,6 +400,7 @@ const
   CW = 690; C1 = 35; C2 = 200; C3 = 360; C4 = 445; C5 = 570; C6 = 650;
   C1W = 155; C2W = 150; C3W = 75; C4W = 80;
   TC2_ADD = 50;
+  ALL_TXT_W_MIN = 35;
 var
   I, K, OffY, SlotTxtWidth, AllTxtWidth, SpeedsCnt: Integer;
 begin
@@ -449,7 +449,7 @@ begin
                                                                           gResTexts[TX_AI_PLAYER_CLASSIC],
                                                                           gResTexts[TX_AI_PLAYER_ADVANCED]]));
 
-      AllTxtWidth := Max(40, gRes.Fonts[fntGrey].GetMaxPrintWidthOfStrings([gResTexts[TX_LOBBY_SLOT_OPEN_ALL],
+      AllTxtWidth := Max(ALL_TXT_W_MIN, gRes.Fonts[fntGrey].GetMaxPrintWidthOfStrings([gResTexts[TX_LOBBY_SLOT_OPEN_ALL],
                                                                              gResTexts[TX_LOBBY_SLOT_CLOSED_ALL],
                                                                              gResTexts[TX_LOBBY_SLOT_AI_ALL]]));
 
@@ -465,9 +465,8 @@ begin
         Label_Player[I] := TKMLabel.Create(Panel_Players, C1, OffY+2, C1W, 20, '', fntGrey, taLeft);
         Label_Player[I].Hide;
 
-
         DropBox_PlayerSlot[I] := TKMDropColumns.Create(Panel_Players, C1, OffY, C1W, 20, fntGrey, '', bsMenu, False);
-        DropBox_PlayerSlot[I].DropWidth := SlotTxtWidth + 5 + AllTxtWidth;
+        DropBox_PlayerSlot[I].DropWidth := SlotTxtWidth + 5 + AllTxtWidth + 7*Byte(AllTxtWidth > ALL_TXT_W_MIN); //Add some extra space for 'All' word
         DropBox_PlayerSlot[I].SetColumns(fntOutline, ['', gResTexts[TX_MENU_MAP_TITLE]], [0, SlotTxtWidth + 5], [True, False]);
         //1st column is used to set 'All' (All Open/All AI/All Closed),
         //Its external button analogue, so we do not want to invoke f.e. OnChange (AI) when 'AI All' clicked
@@ -884,6 +883,7 @@ begin
   fNetworking.OnFileTransferProgress := Lobby_OnFileTransferProgress;
   fNetworking.OnPlayerFileTransferProgress := Lobby_OnPlayerFileTransferProgress;
   fNetworking.OnSetPassword := Lobby_OnSetPassword;
+  fNetworking.OnAbortAllTransfers := Lobby_AbortAllTransfers;
 
   Radio_MapType.ItemIndex := gGameApp.GameSettings.MenuLobbyMapType;
   UpdateMapList;
@@ -1222,9 +1222,11 @@ begin
   if aShow then
   begin
     DropBox_Loc[aPlayerIndex].Hide;
-    PercentBar_DownloadProgress[aPlayerIndex].Show;
+    PercentBar_DownloadProgress[aPlayerIndex].DoSetVisible; //Don't use Show here, since it will Show parent panels as well...
   end else begin
-    DropBox_Loc[aPlayerIndex].Show;
+    //Don't use Show here, since it will Show parent panels as well...
+    //And since we call this method on disconnection we will see Lobby window over Multiplayer list window then...
+    DropBox_Loc[aPlayerIndex].DoSetVisible;
     PercentBar_DownloadProgress[aPlayerIndex].Hide;
   end;
 end;
@@ -1514,6 +1516,7 @@ end;
 
 //Players list has been updated
 //We should reflect it to UI
+//Not very fast operation - ~4ms per player = ~60ms per all
 procedure TKMMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
 
   function ConvertSpeedRange(aSpeedRng: TKMRangeSingle): TKMRangeInt;
@@ -1527,6 +1530,24 @@ procedure TKMMenuLobby.Lobby_OnPlayersSetup(Sender: TObject);
     if not fNetworking.CanTakeLocation(fLocalToNetPlayers[aIndex], aLocation, False) then
       LocationName := '[$707070]' + LocationName + '[]';
     DropBox_Loc[aIndex].Add(LocationName, aLocation);
+  end;
+
+  function ImgReadyToStart(aNetPlayer: TKMNetPlayerInfo): Integer;
+  begin
+    if aNetPlayer.IsSpectator then
+    begin
+      if not aNetPlayer.ReadyToStart then
+        Result := 32 //Not ready
+      else
+      begin
+        if aNetPlayer.HasMapOrSave then
+          Result := 33 //Ready
+        else
+          Result := 88; //Spec ready, but need DL map
+      end;
+    end
+    else
+      Result := 32 + Byte(aNetPlayer.ReadyToStart and aNetPlayer.HasMapOrSave); //Not ready or ready
   end;
 
 var
@@ -1711,7 +1732,7 @@ begin
       if CurPlayer.IsClosed then
         Image_Ready[I].TexID := 0
       else
-        Image_Ready[I].TexID := 32 + Byte(CurPlayer.ReadyToStart and (CurPlayer.HasMapOrSave or CurPlayer.IsSpectator));
+        Image_Ready[I].TexID := ImgReadyToStart(CurPlayer);
 
       MyNik := (fLocalToNetPlayers[I] = fNetworking.MyIndex); //Our index
       //We are allowed to edit if it is our nickname and we are set as NOT ready,
@@ -1795,7 +1816,13 @@ begin
   CheckBox_RandomizeTeamLocations.Checked := fNetworking.NetPlayers.RandomizeTeamLocations;
   CheckBox_Spectators.Checked := fNetworking.NetPlayers.SpectatorsAllowed;
   if fNetworking.IsHost then
-    Button_Start.Enabled := fNetworking.CanStart;
+  begin
+    Button_Start.Enabled := IsGameStartAllowed(fNetworking.CanStart);
+    if fNetworking.CanStart in [gsmNoStartWithWarn, gsmStartWithWarn] then
+      Button_Start.Caption := gResTexts[TX_MENU_LOBBY_TRY_TO_START]
+    else
+      Button_Start.Caption := gResTexts[TX_LOBBY_START];
+  end;
 
   UpdateSpectatorDivide;
 end;
@@ -1849,9 +1876,12 @@ begin
     4:  //Saved Game
         begin
           fSavesMP.Refresh(MapList_ScanUpdate, True);
-          DropCol_Maps.DropWidth := 600;
+          DropCol_Maps.DropWidth := 800;
           DropCol_Maps.DefaultCaption := gResTexts[TX_LOBBY_MAP_SELECT_SAVED];
-          DropCol_Maps.SetColumns(fntOutline, [gResTexts[TX_MENU_LOAD_FILE], '#', gResTexts[TX_MENU_SAVE_TIME], gResTexts[TX_MENU_LOAD_DATE]], [0, 290, 320, 430]);
+          DropCol_Maps.SetColumns(fntOutline,
+                                  [gResTexts[TX_MENU_LOAD_FILE], '#', gResTexts[TX_MENU_SAVE_TIME], gResTexts[TX_MENU_LOAD_DATE],
+                                   gResTexts[TX_MENU_LOAD_MAP_NAME], gResTexts[TX_MENU_LOAD_GAME_VERSION]],
+                                  [0, 290, 320, 400, 540, 740]);
         end;
     else
         begin
@@ -1954,6 +1984,7 @@ var
   PrevMap: string;
   AddMap: Boolean;
   Row: TKMListRow;
+  LobbyCl: Cardinal;
 begin
   //Remember previous map selected
   if DropCol_Maps.ItemIndex <> -1 then
@@ -1979,8 +2010,10 @@ begin
 
       if AddMap and fNetworking.NetGameFilter.FilterMap(fMapsMP[I].CRC) then
       begin
+        LobbyCl := fMapsMP[I].GetLobbyColor;
+
         Row := MakeListRow(['', fMapsMP[I].FileName, IntToStr(fMapsMP[I].HumanPlayerCountMP), fMapsMP[I].SizeText], //Texts
-                           [fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor, fMapsMP[I].GetLobbyColor], //Colors
+                           [LobbyCl, LobbyCl, LobbyCl, LobbyCl], //Colors
                            I);
         Row.Cells[0].Pic := fMapsMP[I].FavouriteMapPic;
         Row.Cells[0].HighlightOnMouseOver := True;
@@ -2028,7 +2061,8 @@ procedure TKMMenuLobby.RefreshSaveList(aJumpToSelected: Boolean);
   end;
 var
   I, PrevTop: Integer;
-  PrevSave: string;
+  PrevSave, MapName: UnicodeString;
+  Color: Cardinal;
 begin
   //Remember previous save selected
   if DropCol_Maps.ItemIndex <> -1 then
@@ -2043,13 +2077,36 @@ begin
   fSavesMP.Lock;
   try
     for I := 0 to fSavesMP.Count - 1 do
-    if fSavesMP[I].IsValid then
-      DropCol_Maps.Add(MakeListRow([fSavesMP[I].FileName,
-                                         IntToStr(fSavesMP[I].GameInfo.PlayerCount),
-                                         fSavesMP[I].GameInfo.GetTimeText,
-                                         fSavesMP[I].GameInfo.GetSaveTimestamp], I))
-    else
-      DropCol_Maps.Add(MakeListRow([fSavesMP[I].FileName, '', '', ''], I));
+    begin
+      if fSavesMP[I].IsValidStrictly then
+      begin
+        Color := clSaveLoadOk;
+        MapName := fSavesMP[I].GameInfo.Title;
+      end
+      else
+      if fSavesMP[I].IsValid then
+      begin
+        Color := clSaveLoadTry;
+        MapName := gResTexts[TX_SAVE_UNSUPPORTED_VERSION_SHORT];
+      end
+      else
+      begin
+        Color := clSaveLoadError;
+        MapName := gResTexts[TX_SAVE_UNSUPPORTED_VERSION_SHORT];
+      end;
+
+      if Color = clSaveLoadError then
+        DropCol_Maps.Add(MakeListRow([fSavesMP[I].FileName, '', '', '', MapName, fSavesMP[I].GameInfo.VersionU],
+                                     [Color, Color, Color, Color, Color, Color], I))
+      else
+        DropCol_Maps.Add(MakeListRow([fSavesMP[I].FileName,
+                                      IntToStr(fSavesMP[I].GameInfo.PlayerCount),
+                                      fSavesMP[I].GameInfo.GetTimeText,
+                                      fSavesMP[I].GameInfo.GetSaveTimestamp,
+                                      MapName,
+                                      fSavesMP[I].GameInfo.VersionU],
+                                     [Color, Color, Color, Color, Color, Color], I));
+    end;
 
     //Restore previously selected save
     if PrevSave <> '' then
@@ -2126,25 +2183,33 @@ begin
   begin
     //Determine Sort method depending on which column user clicked
     with DropCol_Maps.List do
-    case SortIndex of
-      0:  if SortDirection = sdDown then
-            SSM := smByFileNameDesc
-          else
-            SSM := smByFileNameAsc;
-      1:  if SortDirection = sdDown then
-            SSM := smByPlayerCountDesc
-          else
-            SSM := smByPlayerCountAsc;
-      2:  if SortDirection = sdDown then
-            SSM := smByTimeDesc
-          else
-            SSM := smByTimeAsc;
-      3:  if SortDirection = sdDown then
-            SSM := smByDateDesc
-          else
-            SSM := smByDateAsc;
-      else SSM := smByFileNameAsc;
-    end;
+      case SortIndex of
+        0:  if SortDirection = sdDown then
+              SSM := smByFileNameDesc
+            else
+              SSM := smByFileNameAsc;
+        1:  if SortDirection = sdDown then
+              SSM := smByPlayerCountDesc
+            else
+              SSM := smByPlayerCountAsc;
+        2:  if SortDirection = sdDown then
+              SSM := smByTimeDesc
+            else
+              SSM := smByTimeAsc;
+        3:  if SortDirection = sdDown then
+              SSM := smByDateDesc
+            else
+              SSM := smByDateAsc;
+        4:  if SortDirection = sdDown then
+              SSM := smByMapNameDesc
+            else
+              SSM := smByMapNameAsc;
+        5:  if SortDirection = sdDown then
+              SSM := smByGameVersionDesc
+            else
+              SSM := smByGameVersionAsc;
+        else SSM := smByFileNameAsc;
+      end;
     fSavesMP.Sort(SSM, MapList_SortUpdate);
   end;
 end;
@@ -2178,37 +2243,31 @@ end;
 
 //Just pass FileName to Networking, it will check validity itself
 procedure TKMMenuLobby.MapChange(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
   I := DropCol_Maps.Item[DropCol_Maps.ItemIndex].Tag;
   if Radio_MapType.ItemIndex < 4 then
   begin
-    //Skip Map choose if we already have it choosen
-    //This could happen if Control element (ColumnBox f.e.) will trigger several times on Click event
-    //Otherwise we will spam lots of packets, that will be seen in Lobby as higher pings for players for a while
-    if fLastMapOrSaveSent <> fMapsMP[I].FileName then
-    begin
-      fMapsMP.Lock;
-      try
-        fNetworking.SelectMap(fMapsMP[I].FileName, fMapsMP[I].MapFolder);
-        fLastMapOrSaveSent := fMapsMP[I].FileName;
-      finally
-        fMapsMP.Unlock;
-      end;
-      GameOptionsChange(nil); //Need to update GameOptions, since we could get new MissionDifficulty
+    fMapsMP.Lock;
+    try
+      fNetworking.SelectMap(fMapsMP[I].FileName, fMapsMP[I].MapFolder);
+    finally
+      fMapsMP.Unlock;
     end;
+    GameOptionsChange(nil); //Need to update GameOptions, since we could get new MissionDifficulty
+    Button_Start.Caption := gResTexts[TX_LOBBY_START];
   end
   else
   begin
-    if fLastMapOrSaveSent <> fSavesMP[I].FileName then
-    begin
-      fSavesMP.Lock;
-      try
-        fNetworking.SelectSave(fSavesMP[I].FileName);
-        fLastMapOrSaveSent := fSavesMP[I].FileName;
-      finally
-        fSavesMP.Unlock;
-      end;
+    fSavesMP.Lock;
+    try
+      fNetworking.SelectSave(fSavesMP[I].FileName);
+//      if True then
+
+//      Button_Start.Caption := gResTexts[TX_MENU_LOBBY_TRY_TO_START];
+    finally
+      fSavesMP.Unlock;
     end;
   end;
 end;
@@ -2304,6 +2363,7 @@ procedure TKMMenuLobby.Lobby_OnMapName(const aData: UnicodeString);
 var
   M: TKMapInfo;
   S: TKMSaveInfo;
+  Txt: UnicodeString;
 begin
   //Common settings
   MinimapView.Visible := (fNetworking.SelectGameKind = ngkMap) and fNetworking.MapInfo.IsValid;
@@ -2346,7 +2406,14 @@ begin
     ngkSave: begin
                 S := fNetworking.SaveInfo;
                 Label_MapName.Caption := aData; //Show save name on host (local is always "downloaded")
-                Memo_MapDesc.Text := S.GameInfo.GetTitleWithTime + '|' + S.GameInfo.GetSaveTimestamp;
+                Txt := S.GameInfo.GetTitleWithTime + '|' + S.GameInfo.GetSaveTimestamp;
+                if not S.IsValid then
+                  Txt := S.SaveError.ErrorString + '||' + Txt
+                else
+                if not S.IsValidStrictly then //Allow try Load unsupported saves
+                  Txt := WrapColor(S.SaveError.ErrorString, clSaveLoadTry) + '||' +
+                         WrapColor(gResTexts[TX_UNSUPPORTED_SAVE_LOAD_WARNING_TXT], clSaveLoadError) + '||' + Txt;
+                Memo_MapDesc.Text := Txt;
                 Lobby_OnUpdateMinimap(nil);
                 UpdateDifficultyLevels(S);
               end;
@@ -2593,6 +2660,17 @@ begin
 end;
 
 
+//Abort all transfers
+procedure TKMMenuLobby.Lobby_AbortAllTransfers;
+var
+  I: Integer;
+begin
+  for I := 1 to MAX_LOBBY_SLOTS do
+    PercentBar_PlayerDl_ChVisibility(I, False);
+  fNetworking.NetPlayers.SetDownloadAborted; //Mark all players as not downloading
+end;
+
+
 procedure TKMMenuLobby.StartBtnChangeEnabled(Sender: TObject; aEnable: Boolean);
 begin
   Button_SettingsAskReady.Enabled := (((fNetworking.MapInfo <> nil) and fNetworking.MapInfo.IsValid)
@@ -2602,9 +2680,37 @@ end;
 
 
 procedure TKMMenuLobby.StartClick(Sender: TObject);
+var
+  LoadError, Version, Path: UnicodeString;
 begin
   if fNetworking.IsHost then
-    fNetworking.StartClick
+  begin
+    if fNetworking.IsSave then
+    begin
+      Version := fNetworking.SaveInfo.GameInfo.VersionU;
+      Path := fNetworking.SaveInfo.Path;
+      if not fNetworking.SaveInfo.IsValidStrictly then //We are trying to load other version save
+      begin
+        try
+          fNetworking.StartClick;
+        except
+          on E: Exception do
+          begin
+            LoadError := Format(gResTexts[TX_UNSUPPORTED_SAVE_LOAD_ERROR_MSG], [Version, Path])
+                         + '||' + E.ClassName + ': ' + E.Message;
+            gLog.AddTime('Replay load Exception: ' + LoadError
+              {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
+              );
+            fOnPageChange(gpError, LoadError);
+          end;
+        end;
+      end
+      else
+        fNetworking.StartClick;
+    end
+    else
+      fNetworking.StartClick;
+  end
   else
   begin
     if fNetworking.ReadyToStart then

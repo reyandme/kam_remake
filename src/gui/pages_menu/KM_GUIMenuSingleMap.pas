@@ -31,6 +31,8 @@ type
     fDifficulty: TKMMissionDifficulty;
     fAIType: TKMAIType;
 
+    function GetPanelHalf: Integer;
+
     procedure Create_SingleMap(aParent: TKMPanel);
     procedure MapTypeChanged(Sender: TObject);
 
@@ -53,7 +55,7 @@ type
 
     procedure BackClick(Sender: TObject);
   protected
-    Panel_Single:TKMPanel;
+    Panel_Single: TKMPanel;
       Label_MapType: TKMLabel;
       Radio_MapType: TKMRadioGroup;
       Panel_Desc: TKMPanel;
@@ -88,6 +90,12 @@ type
 implementation
 uses
   KM_ResTexts, KM_GameApp, KM_CommonUtils, KM_RenderUI, KM_ResFonts;
+
+const
+  PAD_VERT = 44; //Padding from top/bottom
+  PAD_SIDE = 40; //Padding from sides
+  BUTTON_DIST = 6;
+  FLAG_W = 22;
 
 
 { TKMGUIMenuSingleMap }
@@ -124,20 +132,24 @@ begin
 end;
 
 
+function TKMMenuSingleMap.GetPanelHalf: Integer;
+begin
+  Result := (Panel_Single.Width - PAD_SIDE) div 2 - PAD_SIDE;
+end;
+
+
+
 procedure TKMMenuSingleMap.Create_SingleMap(aParent: TKMPanel);
-const
-  PAD_VERT = 44; //Padding from top/bottom
-  PAD_SIDE = 44; //Padding from sides
 var
-  I: Integer;
-  Half: Word; //Half width for panes
+  I, Left: Integer;
+  Half, ButtonW: Word; //Half width for panes
   L: TKMLabel;
   B: TKMBevel;
 begin
   Panel_Single := TKMPanel.Create(aParent, 0, 0, aParent.Width, aParent.Height);
   Panel_Single.AnchorsStretch;
 
-    Half := (aParent.Width - PAD_SIDE) div 2 - PAD_SIDE;
+    Half := GetPanelHalf;
 
     TKMBevel.Create(Panel_Single, (aParent.Width + PAD_SIDE) div 2, PAD_VERT + 20, Half, 70);
 
@@ -259,18 +271,24 @@ begin
       B.Anchors := [anLeft, anBottom];
       L := TKMLabel.Create(Panel_Desc, 4, 614, 190, 20, gResTexts[TX_MENU_ENEMIES], fntMetal, taLeft);
       L.Anchors := [anLeft, anBottom];
+
+
+      Left := Min(200, Half - 1 - MAX_HANDS*FLAG_W);
       for I := 0 to MAX_HANDS - 1 do
       begin
-        Image_Allies[I] := TKMImage.Create(Panel_Desc, 200 + I*22, 593, 50, 20, 81, rxGuiMain);
+        Image_Allies[I] := TKMImage.Create(Panel_Desc, 200 + I*FLAG_W, 593, 50, 20, 81, rxGuiMain);
         Image_Allies[I].Anchors := [anLeft, anBottom];
-        Image_Enemies[I] := TKMImage.Create(Panel_Desc, 200 + I*22, 613, 50, 20, 81, rxGuiMain);
+        Image_Enemies[I] := TKMImage.Create(Panel_Desc, 200 + I*FLAG_W, 613, 50, 20, 81, rxGuiMain);
         Image_Enemies[I].Anchors := [anLeft, anBottom];
       end;
 
-    Button_Back := TKMButton.Create(Panel_Single, 45, aParent.Height - PAD_VERT - 30, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
+    ButtonW := (Half - BUTTON_DIST) div 2;
+    Button_Back := TKMButton.Create(Panel_Single, PAD_SIDE, aParent.Height - PAD_VERT - 30,
+                                    ButtonW, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_Back.Anchors := [anLeft, anBottom];
     Button_Back.OnClick := BackClick;
-    Button_Start := TKMButton.Create(Panel_Single, 270, aParent.Height - PAD_VERT - 30, 220, 30, gResTexts[TX_MENU_SINGLE_START_MAP], bsMenu);
+    Button_Start := TKMButton.Create(Panel_Single, PAD_SIDE + BUTTON_DIST + ButtonW, aParent.Height - PAD_VERT - 30,
+                                     ButtonW, 30, gResTexts[TX_MENU_SINGLE_START_MAP], bsMenu);
     Button_Start.Anchors := [anLeft, anBottom];
     Button_Start.OnClick := StartClick;
 end;
@@ -329,6 +347,9 @@ begin
       R.Tag := I;
       ColumnBox_Maps.AddItem(R);
 
+      //This will cause some jumps on slow load machines, when select manually item in list during map list load
+      //Probably because of desynchronisation of fLastMapCRC for main thread and map scanner thread
+      //Small issue, will fix sometime later
       if (fMaps[I].CRC = fLastMapCRC) then
       begin
         ColumnBox_Maps.ItemIndex := ListI;
@@ -359,6 +380,12 @@ var
   LastColor: Integer;
   MD: TKMMissionDifficulty;
 begin
+  //Do not update UI if this page is not visible
+  //It could be called by still running map scanner threads
+  //because we do not terminate them now, because of possible deadlocks
+  if not Panel_Single.Visible then
+    Exit;
+
   fMaps.Lock;
   try
     if ColumnBox_Maps.IsSelected then
@@ -586,7 +613,13 @@ var
   M: TKMapInfo;
   G: TKMMapGoalInfo;
 begin
-   if (fSingleLoc <> -1) and (ColumnBox_Maps.IsSelected) then
+  //Do not update UI if this page is not visible
+  //It could be called by still running map scanner threads
+  //because we do not terminate them now, because of possible deadlocks
+  if not Panel_Single.Visible then
+    Exit;
+
+  if (fSingleLoc <> -1) and (ColumnBox_Maps.IsSelected) then
   begin
     MapId := ColumnBox_Maps.SelectedItem.Tag;
     //Do not update same item several times
@@ -646,6 +679,15 @@ begin
                         Inc(K);
                       end;
           end;
+        end;
+
+        for I := 0 to MAX_HANDS - 1 do
+        begin
+          if Image_Allies[I].Right > GetPanelHalf then
+            Image_Allies[I].Hide;
+
+          if Image_Enemies[I].Right > GetPanelHalf then
+            Image_Enemies[I].Hide;
         end;
       finally
         fMaps.Unlock;
@@ -730,6 +772,10 @@ procedure TKMMenuSingleMap.Show;
 begin
   Radio_MapType.ItemIndex := gGameApp.GameSettings.MenuMapSPType;
 
+  //Show panel first!
+  //Otherwise list update will be not be applied
+  Panel_Single.Show;
+
   ResetUI;
   //Terminate all
   fMaps.TerminateScan;
@@ -741,8 +787,6 @@ begin
   ListUpdate;
 
   fMaps.Refresh(ScanUpdate, ScanTerminate);
-
-  Panel_Single.Show;
 end;
 
 

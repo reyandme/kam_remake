@@ -168,10 +168,10 @@ begin
   Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fntGrey, taLeft);
   Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fntOutline, taLeft);
 
-  TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fntOutline, taLeft);
+//  TKMLabel.Create(Panel_Main, TB_PAD, 190, TB_WIDTH, 0, gResTexts[TX_MAPED_PLAYERS], fntOutline, taLeft);
   for I := 0 to MAX_HANDS - 1 do
   begin
-    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, TB_PAD + (I mod 6)*24, 208 + 24*(I div 6), 21, 21, IntToStr(I+1), fntGrey, $FF0000FF);
+    Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, TB_PAD + (I mod 6)*24, 190 + 24*(I div 6), 21, 21, IntToStr(I+1), fntGrey, $FF0000FF);
     Button_PlayerSelect[I].Tag     := I;
     Button_PlayerSelect[I].OnClick := Player_ActiveClick;
   end;
@@ -529,7 +529,7 @@ var
   I: Integer;
 begin
   gMySpectator.HandID := aIndex;
-  fGuiMission.GuiMissionPlayers.UpdatePlayer;
+  fGuiMission.GuiMissionPlayers.UpdatePlayer(aIndex);
 
   for I := 0 to MAX_HANDS - 1 do
     Button_PlayerSelect[I].Down := (I = gMySpectator.HandID);

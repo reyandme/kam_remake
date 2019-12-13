@@ -43,6 +43,7 @@ uses
   KM_CityPlanner in 'src\ai\newAI\KM_CityPlanner.pas',
   KM_CityPredictor in 'src\ai\newAI\KM_CityPredictor.pas',
   KM_Supervisor in 'src\ai\newAI\KM_Supervisor.pas',
+  KM_AIParameters in 'src\ai\newAI\KM_AIParameters.pas',
 
   KM_Alerts in 'src\KM_Alerts.pas',
   KM_BuildList in 'src\KM_BuildList.pas',
@@ -228,7 +229,7 @@ uses
   KM_PerfLog in 'src\KM_PerfLog.pas',
   KM_Projectiles in 'src\KM_Projectiles.pas',
   
-  KM_Random in 'src\KM_Random.pas',
+  KM_RandomChecks in 'src\KM_RandomChecks.pas',
 
   KM_Render in 'src\render\KM_Render.pas',
   KM_RenderAux in 'src\render\KM_RenderAux.pas',

@@ -105,7 +105,7 @@ begin
   TilesRotate.OnClick := TilesChange;
 
   NumEdit_SetTileNumber := TKMNumericEdit.Create(Panel_Tiles, TB_TLS_M + 108, 29, 0, MAX_TILE_TO_SHOW - 1);
-  NumEdit_SetTileNumber.Hint := 'Enter tile ID to select it'; // Todo translate
+  NumEdit_SetTileNumber.Hint := gResTexts[TX_MAPED_TERRAIN_TILE_ID_EDIT_HINT];
   NumEdit_SetTileNumber.OnChange := TilesChange;
   NumEdit_SetTileNumber.AutoFocusable := False;
 

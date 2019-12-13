@@ -83,7 +83,8 @@ type
     function PaintBucket_UnitToRender(aUnit: TObject): Boolean;
     function PaintBucket_GroupToRender(aGroup: TObject): Boolean;
 
-    procedure RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
+    procedure RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; DoHighlight: Boolean = False;
+                           HighlightColor: TColor4 = 0; aForced: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Word; aWoodProgress: Single; pX, pY: Single; aId2: Word = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderMapElement1(aIndex: Word; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderMapElement4(aIndex: Word; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
@@ -92,8 +93,9 @@ type
     // Terrain rendering sub-class
     procedure CollectPlans(const aRect: TKMRect);
     procedure CollectTerrainObjects(const aRect: TKMRect; aAnimStep: Cardinal);
-    procedure PaintRallyPoint(const aHouseEntrance, aRallyPoint: TKMPoint; aColor: Cardinal; aTexId: Word; aPass: Byte; aDoImmediateRender: Boolean = False);
-    procedure PaintRallyPoints(aPass: Byte);
+    procedure PaintFlagPoint(const aHouseEntrance, aFlagPoint: TKMPoint; aColor: Cardinal; aTexId: Word; aFirstPass: Boolean;
+                             aDoImmediateRender: Boolean = False);
+    procedure PaintFlagPoints(aFirstPass: Boolean);
 
     procedure RenderWireHousePlan(const P: TKMPoint; aHouseType: TKMHouseType);
     procedure RenderMapEdLayers(const aRect: TKMRect);
@@ -126,7 +128,7 @@ type
 
     procedure RenderMapElement(aIndex: Word; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderSpriteOnTile(const aLoc: TKMPoint; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
-    procedure RenderSpriteOnTerrain(const aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
+    procedure RenderSpriteOnTerrain(const aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF; aForced: Boolean = False);
     procedure RenderTile(aTerrainId: Word; pX,pY,Rot: Integer);
     procedure RenderWireTile(const P: TKMPoint; Col: TColor4; aInset: Single = 0.0; aLineWidth: Single = -1);
 
@@ -285,7 +287,7 @@ begin
     // Sprites are added by Terrain/Players/Projectiles, then sorted by position
     fRenderList.Clear;
     CollectTerrainObjects(ClipRect, gTerrain.AnimStep);
-    PaintRallyPoints(0);
+    PaintFlagPoints(True);
 
     gHands.Paint(ClipRect); // Units and houses
     gProjectiles.Paint;
@@ -299,7 +301,7 @@ begin
     fRenderTerrain.RenderFOW(gMySpectator.FogOfWar);
 
     // Alerts/rally second pass is rendered after FOW
-    PaintRallyPoints(1);
+    PaintFlagPoints(False);
     if gGame.GamePlayInterface <> nil then
       gGame.GamePlayInterface.Alerts.Paint(1);
 
@@ -403,7 +405,8 @@ begin
 end;
 
 
-procedure TRenderPool.PaintRallyPoint(const aHouseEntrance, aRallyPoint: TKMPoint; aColor: Cardinal; aTexId: Word; aPass: Byte; aDoImmediateRender: Boolean = False);
+procedure TRenderPool.PaintFlagPoint(const aHouseEntrance, aFlagPoint: TKMPoint; aColor: Cardinal; aTexId: Word; aFirstPass: Boolean;
+                                     aDoImmediateRender: Boolean = False);
 
   procedure RenderLineToPoint(const aP: TKMPointF);
   begin
@@ -412,37 +415,38 @@ procedure TRenderPool.PaintRallyPoint(const aHouseEntrance, aRallyPoint: TKMPoin
 
 var P: TKMPointF;
 begin
-  P := KMPointF(aRallyPoint.X - 0.5, aRallyPoint.Y - 0.5);
+  P := KMPointF(aFlagPoint.X - 0.5, aFlagPoint.Y - 0.5);
   if not aDoImmediateRender then
-    case aPass of
-      0: begin
-           AddAlert(P, aTexId, aColor);
-           RenderLineToPoint(P);
-         end;
-      1: if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
-         RenderSpriteOnTerrain(P, aTexId, aColor);
+  begin
+    if aFirstPass then
+    begin
+      AddAlert(P, aTexId, aColor);
+      RenderLineToPoint(P);
     end
+    else
+    if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
+      RenderSpriteOnTerrain(P, aTexId, aColor, True); //Force to paint, even under FOW
+  end
   else begin
-    RenderSpriteOnTile(aRallyPoint, aTexId, aColor);
+    RenderSpriteOnTile(aFlagPoint, aTexId, aColor);
     RenderLineToPoint(P);
   end;
 end;
 
 
-procedure TRenderPool.PaintRallyPoints(aPass: Byte);
+procedure TRenderPool.PaintFlagPoints(aFirstPass: Boolean);
 var
   HWFP: TKMHouseWFlagPoint;
 begin
-  if not (gMySpectator.Selected is TKMHouseBarracks) and
-     not (gMySpectator.Selected is TKMHouseTownHall) and
-     not (gMySpectator.Selected is TKMHouseWoodcutters) then
+  //Skip render if no house with flagpoint is chosen
+  if  not (gMySpectator.Selected is TKMHouseWFlagPoint) then
     Exit;
 
   if gMySpectator.Selected is TKMHouseWFlagPoint then
   begin
     HWFP := TKMHouseWFlagPoint(gMySpectator.Selected);
     if HWFP.IsFlagPointSet then
-      PaintRallyPoint(HWFP.Entrance, HWFP.FlagPoint, gHands[HWFP.Owner].GameFlagColor, HWFP.FlagPointTexId, aPass);
+      PaintFlagPoint(HWFP.Entrance, HWFP.FlagPoint, gHands[HWFP.Owner].GameFlagColor, HWFP.FlagPointTexId, aFirstPass);
   end;
 end;
 
@@ -1096,13 +1100,16 @@ begin
   glPopMatrix;
 end;}
 
-procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
+procedure TRenderPool.RenderSprite(aRX: TRXType; aId: Word; pX,pY: Single; Col: TColor4; DoHighlight: Boolean = False;
+                                   HighlightColor: TColor4 = 0; aForced: Boolean = False);
 var
   X,Y: Integer;
 begin
   X := EnsureRange(Round(pX),1,gTerrain.MapX);
   Y := EnsureRange(Round(pY),1,gTerrain.MapY);
-  if (gMySpectator.FogOfWar.CheckTileRenderRev(X,Y) <= FOG_OF_WAR_MIN) then Exit;
+  //Do not render if sprite is under FOW
+  if not aForced and (gMySpectator.FogOfWar.CheckTileRenderRev(X,Y) <= FOG_OF_WAR_MIN) then
+    Exit;
 
   with gGFXData[aRX, aId] do
   begin
@@ -1337,7 +1344,7 @@ begin
 end;
 
 
-procedure TRenderPool.RenderSpriteOnTerrain(const aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF);
+procedure TRenderPool.RenderSpriteOnTerrain(const aLoc: TKMPointF; aId: Word; aFlagColor: TColor4 = $FFFFFFFF; aForced: Boolean = False);
 var
   pX, pY: Single;
 begin
@@ -1345,7 +1352,7 @@ begin
   pX := aLoc.X + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
   pY := gTerrain.FlatToHeight(aLoc.X, aLoc.Y) +
         fRXData[rxGui].Pivot[aId].Y / CELL_SIZE_PX;
-  RenderSprite(rxGui, aId, pX, pY, aFlagColor);
+  RenderSprite(rxGui, aId, pX, pY, aFlagColor, False, 0, aForced);
 end;
 
 
@@ -1387,7 +1394,7 @@ begin
     MARKER_RALLY_POINT:   if gMySpectator.Selected is TKMHouseWFlagPoint then
                           begin
                             HWFP := TKMHouseWFlagPoint(gMySpectator.Selected);
-                            PaintRallyPoint(HWFP.Entrance, P, gMySpectator.Hand.FlagColor, HWFP.FlagPointTexId, 0, True);
+                            PaintFlagPoint(HWFP.Entrance, P, gMySpectator.Hand.FlagColor, HWFP.FlagPointTexId, True, True);
                           end;
   end;
 end;

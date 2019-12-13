@@ -187,7 +187,7 @@ begin
 	iGroup[2] := States.GroupAt(34, 102); //Militia
 	//Difficulty
 	case States.MissionDifficulty() of
-		mdEasy:
+		mdEasy1:
 			begin
 				Actions.HouseAddWaresTo(States.HouseAt(104, 102), 1, 50);
 				Actions.GiveGroup(0, 15, 97, 105, 0, 15, 5);

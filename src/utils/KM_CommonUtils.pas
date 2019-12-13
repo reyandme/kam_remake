@@ -28,6 +28,8 @@ uses
   function Max4(const A,B,C,D: Integer): Integer;
   function Min4(const A,B,C,D: Integer): Integer;
 
+  function GetStackTrace(aLinesCnt: Integer): UnicodeString;
+
   function RGB2BGR(aRGB: Cardinal): Cardinal;
   function BGR2RGB(aRGB: Cardinal): Cardinal;
   function ApplyColorCoef(aColor: Cardinal; aAlpha, aRed, aGreen, aBlue: Single): Cardinal;
@@ -61,10 +63,16 @@ uses
   function KaMRandomWSeed(var aSeed: Integer; aMax: Integer): Integer; overload;
   function KaMRandom(const aCaller: String; aLogRng: Boolean = True): Extended; overload;
   function KaMRandom(aMax: Integer; const aCaller: String; aLogRng: Boolean = True): Integer; overload;
-  function KaMRandomS(Range_Both_Directions: Integer; const aCaller: String): Integer; overload;
-  function KaMRandomS(Range_Both_Directions: Single; const aCaller: String): Single; overload;
+  function KaMRandomS1(aMax: Single; const aCaller: String): Single;
+  function KaMRandomS2(Range_Both_Directions: Integer; const aCaller: String): Integer; overload;
+  function KaMRandomS2(Range_Both_Directions: Single; const aCaller: String): Single; overload;
+
+  function IsGameStartAllowed(aGameStartMode: TKMGameStartMode): Boolean;
+  function GetGameVersionNum(const aGameVersionStr: AnsiString): Integer; overload;
+  function GetGameVersionNum(const aGameVersionStr: UnicodeString): Integer; overload;
 
   function TimeGet: Cardinal;
+  function TimeGetUsec: Int64;
   function GetTimeSince(aTime: Cardinal): Cardinal;
   function UTCNow: TDateTime;
   function UTCToLocal(Input: TDateTime): TDateTime;
@@ -79,11 +87,16 @@ uses
   procedure KMSwapInt(var A,B: Smallint); overload;
   procedure KMSwapInt(var A,B: Word); overload;
   procedure KMSwapInt(var A,B: Integer); overload;
-  procedure KMSwapInt(var A,B: Cardinal); overload;
+  procedure KMSwapInt(var A,B: LongWord); overload;
 
   procedure KMSwapFloat(var A,B: Single); overload;
   procedure KMSwapFloat(var A,B: Double); overload;
+
+  //Extended == Double, so already declared error
+  //https://forum.lazarus.freepascal.org/index.php?topic=29678.0
+  {$IFDEF WDC}
   procedure KMSwapFloat(var A,B: Extended); overload;
+  {$ENDIF}
 
   procedure KMSummArr(aArr1, aArr2: PKMCardinalArray);
   procedure KMSummAndEnlargeArr(aArr1, aArr2: PKMCardinalArray);
@@ -131,19 +144,19 @@ uses
 const
   DEFAULT_ATTEMPS_CNT_TO_TRY = 3;
 
-  function TryExecuteMethod(aObjParam: TObject; const aStrParam, aMethodName: String; var aErrorStr: String;
+  function TryExecuteMethod(aObjParam: TObject; const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
                             aMethod: TUnicodeStringObjEvent; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 
-  function TryExecuteMethodProc(const aStrParam, aMethodName: String; var aErrorStr: String;
+  function TryExecuteMethodProc(const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
                                 aMethodProc: TUnicodeStringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
 
-  function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: String; var aErrorStr: String;
+  function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
                                 aMethodProc: TUnicode2StringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
 
 implementation
 uses
   StrUtils, Types,
-  {$IFDEF WDC} KM_Random, {$ENDIF}
+  {$IFDEF WDC} KM_RandomChecks, {$ENDIF}
   KM_Log;
 
 const
@@ -201,7 +214,7 @@ begin
   S:=A; A:=B; B:=S;
 end;
 
-procedure KMSwapInt(var A,B: Cardinal);
+procedure KMSwapInt(var A,B: LongWord);
 var S: cardinal;
 begin
   S:=A; A:=B; B:=S;
@@ -220,11 +233,13 @@ begin
   S:=A; A:=B; B:=S;
 end;
 
+{$IFDEF WDC}
 procedure KMSwapFloat(var A,B: Extended);
 var S: Extended;
 begin
   S:=A; A:=B; B:=S;
 end;
+{$ENDIF}
 
 
 procedure KMSummArr(aArr1, aArr2: PKMCardinalArray);
@@ -333,6 +348,31 @@ begin
 end;
 
 
+function IsGameStartAllowed(aGameStartMode: TKMGameStartMode): Boolean;
+begin
+  Result := not (aGameStartMode in [gsmNoStart, gsmNoStartWithWarn]);
+end;
+
+
+function GetGameVersionNum(const aGameVersionStr: AnsiString): Integer;
+begin
+  Result := GetGameVersionNum(UnicodeString(aGameVersionStr));
+end;
+
+
+function GetGameVersionNum(const aGameVersionStr: UnicodeString): Integer;
+var
+  Rev: Integer;
+begin
+  Result := 0;
+  if Copy(aGameVersionStr, 1, 1) <> 'r' then
+    Exit;
+
+  if TryStrToInt(Copy(aGameVersionStr, 2, Length(aGameVersionStr) - 1), Rev) then
+    Result := Rev;
+end;
+
+
 //This unit must not know about KromUtils because it is used by the Linux Dedicated servers
 //and KromUtils is not Linux compatible. Therefore this function is copied directly from KromUtils.
 //Do not remove and add KromUtils to uses, that would cause the Linux build to fail
@@ -343,6 +383,25 @@ begin
   {$ENDIF}
   {$IFDEF Unix}
   Result := Cardinal(Trunc(Now * 24 * 60 * 60 * 1000) mod high(Cardinal));
+  {$ENDIF}
+end;
+
+// Returns time in micro-seconds (usec)
+function TimeGetUsec: Int64;
+var
+  freq: Int64;
+  newTime: Int64;
+  factor: Double;
+begin
+  {$IFDEF FPC}
+  //Stub for now
+  Result := Int64(Trunc(Now * 24 * 60 * 60 * 1000000) mod High(Int64));
+  {$ENDIF}
+  {$IFDEF WDC}
+  QueryPerformanceFrequency(freq);
+  QueryPerformanceCounter(newTime);
+  factor := 1000000 / freq; // Separate calculation to avoid "big Int64 * 1 000 000" overflow
+  Result := Round(newTime * factor);
   {$ENDIF}
 end;
 
@@ -567,6 +626,30 @@ end;
 function Min4(const A,B,C,D: Integer): Integer;
 begin
   Result := Min(Min(A, B), Min(C, D));
+end;
+
+
+function GetStackTrace(aLinesCnt: Integer): UnicodeString;
+var
+  I: Integer;
+  SList: TStringList;
+begin
+  Result := '';
+
+  try
+    raise Exception.Create('');
+  except
+    on E: Exception do
+    begin
+      SList := TStringList.Create;
+      SList.Text := E.StackTrace;
+
+      for I := 1 to aLinesCnt do //Do not print last line (its this method line)
+        Result := Result + SList[I] + sLineBreak;
+
+      SList.Free;
+    end;
+  end;
 end;
 
 
@@ -1074,19 +1157,30 @@ begin
 end;
 
 
-function KaMRandomS(Range_Both_Directions: Integer; const aCaller: String): Integer;
+//Returns random number from -Range_Both_Directions to +Range_Both_Directions
+function KaMRandomS2(Range_Both_Directions: Integer; const aCaller: String): Integer;
 begin
-  Result := KaMRandom(Range_Both_Directions*2+1, 'SI*' + aCaller, False) - Range_Both_Directions;
+  Result := KaMRandom(Range_Both_Directions*2+1, 'S2I*' + aCaller, False) - Range_Both_Directions;
 
-  LogKamRandom(Result, aCaller, 'SI*');
+  LogKamRandom(Result, aCaller, 'S2I*');
 end;
 
 
-function KaMRandomS(Range_Both_Directions: Single; const aCaller: String): Single;
+//Returns random number from -Range_Both_Directions to +Range_Both_Directions
+function KaMRandomS2(Range_Both_Directions: Single; const aCaller: String): Single;
 begin
-  Result := KaMRandom(Round(Range_Both_Directions*20000)+1, 'SS*' + aCaller, False)/10000-Range_Both_Directions;
+  Result := KaMRandom(Round(Range_Both_Directions*20000)+1, 'S2S*' + aCaller, False)/10000-Range_Both_Directions;
 
-  LogKamRandom(Result, aCaller, 'SS*');
+  LogKamRandom(Result, aCaller, 'S2S*');
+end;
+
+
+//Returns random number from 0 to +aMax
+function KaMRandomS1(aMax: Single; const aCaller: String): Single;
+begin
+  Result := KaMRandom(Round(aMax*10000), 'S1S*' + aCaller, False)/10000;
+
+  LogKamRandom(Result, aCaller, 'S1S*');
 end;
 
 
@@ -1400,7 +1494,7 @@ begin
 end;
 {$ENDIF}
 
-function TryExecuteMethod(aObjParam: TObject; const aStrParam, aMethodName: String; var aErrorStr: String;
+function TryExecuteMethod(aObjParam: TObject; const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
                           aMethod: TUnicodeStringObjEvent; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 var
   Success: Boolean;
@@ -1431,7 +1525,7 @@ begin
 end;
 
 
-function TryExecuteMethodProc(const aStrParam, aMethodName: String; var aErrorStr: String;
+function TryExecuteMethodProc(const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
                               aMethodProc: TUnicodeStringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 var
   Success: Boolean;
@@ -1462,7 +1556,7 @@ begin
 end;
 
 
-function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: String; var aErrorStr: String;
+function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
                               aMethodProc: TUnicode2StringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 var
   Success: Boolean;

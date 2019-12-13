@@ -44,7 +44,7 @@ type
     property Included[I: Integer]: TKMScriptFileInfo read GetIncluded; default;
     property IncludedCount: Integer read fIncludedCnt;
     procedure AddIncludeInfo(const aIncludeInfo: TKMScriptFileInfo);
-    function FindCodeLine(const aLine: AnsiString; out aFileNamesArr: TStringArray; out aRowsArr: TIntegerArray): Integer;
+    function FindCodeLine(const aLine: AnsiString; out aFileNamesArr: TKMStringArray; out aRowsArr: TIntegerArray): Integer;
   end;
 
 
@@ -66,8 +66,8 @@ type
     property WarningsString: TKMScriptErrorMessage read fWarningsString;
 
     procedure HandleScriptError(aType: TKMScriptErrorType; aError: TKMScriptErrorMessage);
-    procedure HandleScriptErrorString(aType: TKMScriptErrorType; aErrorString: String;
-                                      const aDetailedErrorString: String = '');
+    procedure HandleScriptErrorString(aType: TKMScriptErrorType; aErrorString: UnicodeString;
+                                      const aDetailedErrorString: UnicodeString = '');
     function HasErrors: Boolean;
     function HasWarnings: Boolean;
     procedure AppendError(aError: TKMScriptErrorMessage);
@@ -138,7 +138,7 @@ type
 
     function GetScriptFilesInfo: TKMScriptFilesCollection;
     function GetCodeLine(aRowNum: Cardinal): AnsiString;
-    function FindCodeLine(aRowNumber: Integer; out aFileNamesArr: TStringArray; out aRowsArr: TIntegerArray): Integer;
+    function FindCodeLine(aRowNumber: Integer; out aFileNamesArr: TKMStringArray; out aRowsArr: TIntegerArray): Integer;
     procedure RecreateValidationIssues;
     constructor Create(aOnScriptError: TUnicodeStringEvent); // Scripting has to be created via special TKMScriptingCreator
   public
@@ -378,14 +378,14 @@ begin
 
     Sender.AddTypeS('TKMGroupOrder', '(goNone, goWalkTo, goAttackHouse, goAttackUnit, goStorm)');
 
-    Sender.AddTypeS('TKMAudioFormat', '(afWav,afOgg)'); //Needed for PlaySound
+    Sender.AddTypeS('TKMAudioFormat', '(afWav, afOgg)'); //Needed for PlaySound
 
     // Types needed for MapTilesArraySet function
     Sender.AddTypeS('TKMTerrainTileBrief', 'record X,Y:Byte;Terrain:Word;Rotation:Byte;Height:Byte;Obj:Word;UpdateTerrain,UpdateRotation,UpdateHeight,UpdateObject:Boolean;end');
 
     Sender.AddTypeS('TKMAIAttackTarget', '(attClosestUnit,attClosestBuildingFromArmy,attClosestBuildingFromStartPos,attCustomPosition)');
 
-    Sender.AddTypeS('TKMMissionDifficulty', '(mdNone,mdEasy,mdNormal,mdHard)');
+    Sender.AddTypeS('TKMMissionDifficulty', '(mdNone,mdEasy3,mdEasy2,mdEasy1,mdNormal,mdHard1,mdHard2,mdHard3)');
     Sender.AddTypeS('TKMMissionDifficultySet', 'set of TKMMissionDifficulty');
 
     // Register classes and methods to the script engine.
@@ -424,6 +424,7 @@ begin
     RegisterMethodCheck(c, 'function GroupColumnCount(aGroupID: Integer): Integer');
     RegisterMethodCheck(c, 'function GroupDead(aGroupID: Integer): Boolean');
     RegisterMethodCheck(c, 'function GroupIdle(aGroupID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function GroupInFight(aGroupID: Integer; aCountCitizens: Boolean): Boolean');
     RegisterMethodCheck(c, 'function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
     RegisterMethodCheck(c, 'function GroupMemberCount(aGroupID: Integer): Integer');
     RegisterMethodCheck(c, 'function GroupOrder(aGroupID: Integer): TKMGroupOrder');
@@ -561,6 +562,7 @@ begin
     RegisterMethodCheck(c, 'function UnitTypeName(aUnitType: Byte): AnsiString');
 
     RegisterMethodCheck(c, 'function WareTypeName(aWareType: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function WarriorInFight(aUnitID: Integer; aCountCitizens: Boolean): Boolean');
 
     c := Sender.AddClassN(nil, AnsiString(fActions.ClassName));
     RegisterMethodCheck(c, 'function AIAttackAdd(aPlayer: Byte; aRepeating: Boolean; aDelay: Cardinal; aTotalMen: Integer;' +
@@ -639,6 +641,7 @@ begin
     RegisterMethodCheck(c, 'function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
     RegisterMethodCheck(c, 'procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');
     RegisterMethodCheck(c, 'procedure HouseTakeWaresFrom(aHouseID: Integer; aType, aCount: Word)');
+    RegisterMethodCheck(c, 'function  HouseTownHallEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
     RegisterMethodCheck(c, 'procedure HouseTownHallMaxGold(aHouseID: Integer; aMaxGold: Integer)');
     RegisterMethodCheck(c, 'procedure HouseUnlock(aPlayer, aHouseType: Word)');
     RegisterMethodCheck(c, 'procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
@@ -884,8 +887,8 @@ procedure TKMScripting.CompileScript;
 var
   I: Integer;
   Compiler: TPSPascalCompiler;
+  compileSuccess: Boolean;
   Msg: TPSPascalCompilerMessage;
-  Success: Boolean;
 begin
   Compiler := TPSPascalCompiler.Create; // create an instance of the compiler
   try
@@ -896,16 +899,15 @@ begin
     Compiler.AllowNoEnd := True; //Scripts only use event handlers now, main section is unused
     Compiler.BooleanShortCircuit := True; //Like unchecking "Complete booolean evaluation" in Delphi compiler options
 
-    Success := Compiler.Compile(fScriptCode); // Compile the Pascal script into bytecode
+    compileSuccess := Compiler.Compile(fScriptCode); // Compile the Pascal script into bytecode
 
     for I := 0 to Compiler.MsgCount - 1 do
     begin
       Msg := Compiler.Msg[I];
 
       if Msg.ErrorType = 'Hint' then
-      begin
-        fValidationIssues.AddHint(Msg.Row, Msg.Col, Msg.Param, Msg.ShortMessageToString);
-      end else if Msg.ErrorType = 'Warning' then
+        fValidationIssues.AddHint(Msg.Row, Msg.Col, Msg.Param, Msg.ShortMessageToString)
+      else if Msg.ErrorType = 'Warning' then
       begin
         fErrorHandler.AppendWarning(GetErrorMessage(Msg));
         fValidationIssues.AddWarning(Msg.Row, Msg.Col, Msg.Param, Msg.ShortMessageToString);
@@ -913,7 +915,7 @@ begin
         AddError(Msg);
     end;
 
-    if not Success then
+    if not compileSuccess then
       Exit;
 
     Compiler.GetOutput(fByteCode);            // Save the output of the compiler in the string Data.
@@ -999,6 +1001,7 @@ begin
       RegisterMethod(@TKMScriptStates.GroupColumnCount,                         'GroupColumnCount');
       RegisterMethod(@TKMScriptStates.GroupDead,                                'GroupDead');
       RegisterMethod(@TKMScriptStates.GroupIdle,                                'GroupIdle');
+      RegisterMethod(@TKMScriptStates.GroupInFight,                             'GroupInFight');
       RegisterMethod(@TKMScriptStates.GroupMember,                              'GroupMember');
       RegisterMethod(@TKMScriptStates.GroupMemberCount,                         'GroupMemberCount');
       RegisterMethod(@TKMScriptStates.GroupOrder,                               'GroupOrder');
@@ -1136,6 +1139,7 @@ begin
       RegisterMethod(@TKMScriptStates.UnitTypeName,                             'UnitTypeName');
 
       RegisterMethod(@TKMScriptStates.WareTypeName,                             'WareTypeName');
+      RegisterMethod(@TKMScriptStates.WarriorInFight,                           'WarriorInFight');
     end;
 
     with ClassImp.Add(TKMScriptActions) do
@@ -1214,6 +1218,7 @@ begin
       RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,                     'HouseSchoolQueueAdd');
       RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove,                  'HouseSchoolQueueRemove');
       RegisterMethod(@TKMScriptActions.HouseTakeWaresFrom,                      'HouseTakeWaresFrom');
+      RegisterMethod(@TKMScriptActions.HouseTownHallEquip,                      'HouseTownHallEquip');
       RegisterMethod(@TKMScriptActions.HouseTownHallMaxGold,                    'HouseTownHallMaxGold');
       RegisterMethod(@TKMScriptActions.HouseUnlock,                             'HouseUnlock');
       RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly,                 'HouseWoodcutterChopOnly');
@@ -1652,7 +1657,7 @@ begin
 end;
 
 
-function TKMScripting.FindCodeLine(aRowNumber: Integer; out aFileNamesArr: TStringArray; out aRowsArr: TIntegerArray): Integer;
+function TKMScripting.FindCodeLine(aRowNumber: Integer; out aFileNamesArr: TKMStringArray; out aRowsArr: TIntegerArray): Integer;
 begin
   Result := fPreProcessor.fScriptFilesInfo.FindCodeLine(GetCodeLine(aRowNumber), aFileNamesArr, aRowsArr);
 end;
@@ -1666,7 +1671,7 @@ end;
 
 function TKMScripting.GetErrorMessage(const aErrorType, aShortErrorDescription: String; aRow, aCol: Integer): TKMScriptErrorMessage;
 var I, CodeLinesFound: Integer;
-    FileNamesArr: TStringArray;
+    FileNamesArr: TKMStringArray;
     RowsArr: TIntegerArray;
     ErrorMsg, DetailedErrorMsg, ErrorMsgTemplate, FirstError, ErrorTemplate: UnicodeString;
 begin
@@ -1807,8 +1812,8 @@ begin
 end;
 
 
-procedure TKMScriptErrorHandler.HandleScriptErrorString(aType: TKMScriptErrorType; aErrorString: String;
-                                                        const aDetailedErrorString: String = '');
+procedure TKMScriptErrorHandler.HandleScriptErrorString(aType: TKMScriptErrorType; aErrorString: UnicodeString;
+                                                        const aDetailedErrorString: UnicodeString = '');
 var
   fl: TextFile;
   LogErrorMsg: UnicodeString;
@@ -2310,7 +2315,7 @@ end;
 
 //Try to find line of code in all script files
 //Returns number of occurences
-function TKMScriptFilesCollection.FindCodeLine(const aLine: AnsiString; out aFileNamesArr: TStringArray;
+function TKMScriptFilesCollection.FindCodeLine(const aLine: AnsiString; out aFileNamesArr: TKMStringArray;
                                                out aRowsArr: TIntegerArray): Integer;
 
   procedure AddFoundLineInfo(var aFoundCnt: Integer; const aFileNameFound: String; aRowFound: Integer);

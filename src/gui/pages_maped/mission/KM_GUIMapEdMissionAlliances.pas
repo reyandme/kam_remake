@@ -126,12 +126,17 @@ end;
 procedure TKMMapEdMissionAlliances.Mission_AlliancesUpdate;
 var
   I,K: Integer;
+  HasAssetsI, HasAssetsK: Boolean;
 begin
   for I := 0 to gHands.Count - 1 do
-  for K := 0 to gHands.Count - 1 do
   begin
-    CheckBox_Alliances[I,K].Enabled := gHands[I].HasAssets and gHands[K].HasAssets;
-    CheckBox_Alliances[I,K].Checked := gHands[I].HasAssets and gHands[K].HasAssets and (gHands[I].Alliances[K] = atAlly);
+    HasAssetsI := gHands[I].HasAssets;
+    for K := 0 to gHands.Count - 1 do
+    begin
+      HasAssetsK := gHands[K].HasAssets;
+      CheckBox_Alliances[I,K].Enabled := HasAssetsI and HasAssetsK;
+      CheckBox_Alliances[I,K].Checked := HasAssetsI and HasAssetsK and (gHands[I].Alliances[K] = atAlly);
+    end;
   end;
 end;
 

@@ -1,22 +1,22 @@
+{
+Artificial intelligence
+@author: Martin Toupal
+@e-mail: poznamenany@gmail.com
+}
 unit KM_CityManagement;
 {$I KaM_Remake.inc}
 interface
 uses
   Math, KM_CommonUtils, SysUtils, KM_Defaults, KM_CommonClasses, KM_Points,
   KM_AISetup, KM_ResHouses, KM_ResWares, KM_ResUnits, KM_HandStats, KM_HouseCollection,
-  KM_CityPredictor, KM_CityBuilder, KM_CityPlanner, KM_AIArmyEvaluation;
-
-var
-  GA_MANAGEMENT_CheckUnitCount_SerfCoef    : Single = 0.393; //0.193077
-  GA_MANAGEMENT_CheckUnitCount_SerfLimit   : Single = 0.825; //2.178943
-
+  KM_CityPredictor, KM_CityBuilder, KM_CityPlanner, KM_AIArmyEvaluation, KM_AIParameters;
 
 type
   TKMWarfareArr = array[WARFARE_MIN..WARFARE_MAX] of record
     Available, Required: Word;
     Fraction: Single;
   end;
-  TKMWarriorsDemands = array[WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX] of Integer;
+  TKMWarriorsDemands = array[WARRIOR_EQUIPABLE_BARRACKS_MIN..WARRIOR_EQUIPABLE_BARRACKS_MAX] of Integer;
 
   TKMCityManagement = class
   private
@@ -66,10 +66,6 @@ implementation
 uses
   Classes, KM_Game, KM_Houses, KM_HouseSchool, KM_HandsCollection, KM_Hand, KM_Resource,
   KM_AIFields, KM_Units, KM_UnitsCollection, KM_NavMesh, KM_HouseMarket;
-
-
-const
-  GOLD_SHORTAGE = 10;
 
 
 { TKMCityManagement }
@@ -136,10 +132,8 @@ procedure TKMCityManagement.AfterMissionInit();
 begin
   if SP_DEFAULT_ADVANCED_AI then
   begin
-    //SetKaMSeed(773852237);
     gGame.GameOptions.Peacetime := SP_DEFAULT_PEACETIME;
     fSetup.EnableAdvancedAI(True);
-    //fSetup.EnableAdvancedAI(fOwner <= 3);
   end;
 
   // Find resources around Loc and change building policy
@@ -152,18 +146,15 @@ end;
 procedure TKMCityManagement.UpdateState(aTick: Cardinal);
 const
   LONG_UPDATE = MAX_HANDS * 2; // 30 sec
-var
-  FreeWorkersCnt: Integer;
 begin
   if fSetup.AutoBuild AND (aTick mod MAX_HANDS = fOwner) then
   begin
-    FreeWorkersCnt := 0;
-    fBuilder.UpdateState(aTick, FreeWorkersCnt);
+    fBuilder.UpdateState(aTick);
     fPredictor.UpdateState(aTick);
     fBalanceText := '';
     if not SKIP_RENDER AND SHOW_AI_WARE_BALANCE then
       fPredictor.LogStatus(fBalanceText);
-    fBuilder.ChooseHousesToBuild(FreeWorkersCnt, aTick);
+    fBuilder.ChooseHousesToBuild(aTick);
     if not SKIP_RENDER AND SHOW_AI_WARE_BALANCE then // Builder LogStatus cannot be merged with predictor
     begin
       fBuilder.LogStatus(fBalanceText);
@@ -223,7 +214,7 @@ var
     Result := Output;
   end;
 
-  function RequiredServCount(): Integer;
+  function RequiredSerfCount(): Integer;
   var
     I,Serfs, Cnt: Integer;
   begin
@@ -236,9 +227,11 @@ var
          AND (P.Units[I].IsIdle) then
         Cnt := Cnt + 1;
     // Increase count of serfs carefully (compute fraction of serfs who does not have job)
-    if (Cnt < GA_MANAGEMENT_CheckUnitCount_SerfLimit)
-       AND (Cnt / (Serfs*1.0) < GA_MANAGEMENT_CheckUnitCount_SerfCoef) then
-      Result := Max( 1 + Byte(Serfs < 40) + Byte(Serfs < 60), Result);
+    if (Cnt = 0) then
+      Result := Max( 1
+        + Byte(Serfs < GA_MANAGEMENT_CheckUnitCount_SerfLimit1)
+        + Byte(Serfs < GA_MANAGEMENT_CheckUnitCount_SerfLimit2)
+        + Byte(Serfs < GA_MANAGEMENT_CheckUnitCount_SerfLimit3), Result);
   end;
 
   procedure TrainByPriority(const aPrior: TKMTrainPriorityArr; var aUnitReq: TKMUnitReqArr; var aSchools: TKMSchoolHouseArray; aSchoolCnt: Integer);
@@ -285,7 +278,7 @@ begin
   //Citizens
   // Make sure we have enough gold left for self-sufficient city
   GoldProduced := Stats.GetWaresProduced(wtGold);
-  GoldShortage := (Stats.GetWareBalance(wtGold) < GOLD_SHORTAGE) AND (GoldProduced = 0);
+  GoldShortage := (Stats.GetWareBalance(wtGold) < GA_MANAGEMENT_GoldShortage) AND (GoldProduced = 0);
   if GoldShortage then
   begin
     UnitReq[utSerf] := 3; // 3x Serf
@@ -319,13 +312,13 @@ begin
     UnitReq[utRecruit] := 0;
     UnitReq[utSerf] := 0;
     UnitReq[utWorker] := 0;
-    if (Stats.GetWareBalance(wtGold) > GOLD_SHORTAGE * 2.5) OR (GoldProduced > 0) then // Dont train servs / workers / recruits when we will be out of gold
+    if (Stats.GetWareBalance(wtGold) > GA_MANAGEMENT_GoldShortage * GA_MANAGEMENT_CheckUnitCount_WorkerGoldCoef) OR (GoldProduced > 0) then // Dont train servs / workers / recruits when we will be out of gold
     begin
       UnitReq[utWorker] :=  fPredictor.WorkerCount * Byte(not gHands[fOwner].AI.ArmyManagement.Defence.CityUnderAttack) + Byte(not fSetup.AutoBuild) * Byte(fSetup.AutoRepair) * 5;
       UnitReq[utRecruit] := RecruitsNeeded(Houses[htWatchTower]);
     end;
-    if (Stats.GetWareBalance(wtGold) > GOLD_SHORTAGE * 1.5) OR (GoldProduced > 0) then // Dont train servs / workers / recruits when we will be out of gold
-      UnitReq[utSerf] := Stats.GetUnitQty(utSerf) + RequiredServCount();
+    if (Stats.GetWareBalance(wtGold) > GA_MANAGEMENT_GoldShortage * GA_MANAGEMENT_CheckUnitCount_SerfGoldCoef) OR (GoldProduced > 0) then // Dont train servs / workers / recruits when we will be out of gold
+      UnitReq[utSerf] := Stats.GetUnitQty(utSerf) + RequiredSerfCount();
   end;
 
   // Get required houses
@@ -451,12 +444,11 @@ const
     //wtSteel,        wtGold,     wtIronOre,    wtCoal,     wtGoldOre,
     //wtStone
   );
-  MIN_GOLD_AMOUNT = GOLD_SHORTAGE * 3;
   LACK_OF_STONE = 50;
   WARFARE_SELL_LIMIT = 10;
   SELL_LIMIT = 30;
 var
-  MarketCnt, I, WareCnt: Word;
+  MIN_GOLD_AMOUNT, MarketCnt, I, WareCnt: Word;
 begin
 
   MarketCnt := gHands[fOwner].Stats.GetHouseQty(htMarketplace);
@@ -471,13 +463,14 @@ begin
   begin
     // Gold
     if (GetHouseQty(htMetallurgists) = 0)
-       AND (GetWareBalance(wtGold) <= GOLD_SHORTAGE) then
+       AND (GetWareBalance(wtGold) <= GA_MANAGEMENT_GoldShortage) then
        AddWare(wtGold);
     // Stone
     if (GetWareBalance(wtStone)-GetHouseQty(htWatchTower)*5 < LACK_OF_STONE)
       AND (Builder.Planner.PlannedHouses[htQuary].Completed = 0) then
       AddWare(wtStone);
     // Gold ore
+    MIN_GOLD_AMOUNT := GA_MANAGEMENT_GoldShortage * 3;
     if ( fPredictor.WareBalance[wtGoldOre].Exhaustion < 20 )
       AND ( GetWareBalance(wtGold) < MIN_GOLD_AMOUNT )
       AND ( GetWareBalance(wtGoldOre) < MIN_GOLD_AMOUNT ) then
@@ -661,7 +654,7 @@ begin
     else if GetGoldBalance() then
     begin
       gHands[fOwner].Stats.WareDistribution[wtCoal, htMetallurgists] := 5;
-      gHands[fOwner].Stats.WareDistribution[wtCoal, htIronSmithy] := 2;
+      gHands[fOwner].Stats.WareDistribution[wtCoal, htIronSmithy] := 1;
       gHands[fOwner].Stats.WareDistribution[wtCoal, htWeaponSmithy] := 1;
       gHands[fOwner].Stats.WareDistribution[wtCoal, htArmorSmithy] := 1;
     end
@@ -767,7 +760,7 @@ var
   procedure CheckMinArmyReq();
   const
     DEFAULT_COEFICIENT = 15;
-    DEFAULT_ARMY_REQUIREMENTS: array[WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX] of Single = (
+    DEFAULT_ARMY_REQUIREMENTS: array[WARRIOR_EQUIPABLE_BARRACKS_MIN..WARRIOR_EQUIPABLE_BARRACKS_MAX] of Single = (
       1, 1, 1, 3,//utMilitia,      utAxeFighter,   utSwordsman,     utBowman,
       3, 1, 1, 0.5,//utArbaletman,   utPikeman,      utHallebardman,  utHorseScout,
       0.5//utCavalry
@@ -884,7 +877,7 @@ begin
   end;
 
   // Get count of needed weapons
-  for UT := utAxeFighter to WARRIOR_EQUIPABLE_MAX do // Skip militia
+  for UT := utAxeFighter to WARRIOR_EQUIPABLE_BARRACKS_MAX do // Skip militia
     for I := Low(TROOP_COST[UT]) to High(TROOP_COST[UT]) do
       if (TROOP_COST[UT,I] <> wtNone) then
       begin

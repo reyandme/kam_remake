@@ -241,12 +241,7 @@ begin
     Image_CampaignFlags[I].Highlight := (fMapIndex = I);
     Color := icLightGray2;
     if I < fCampaign.MapCount then
-      case fCampaign.MapsProgressData[I].BestCompleteDifficulty of
-        mdNone: Color := icLightGray2;
-        mdEasy: Color := icGreen;
-        mdNormal: Color := icYellow;
-        mdHard: Color := icRed;
-      end;
+      Color := DIFFICULTY_LEVELS_COLOR[fCampaign.MapsProgressData[I].BestCompleteDifficulty];
     Label_CampaignFlags[I].FontColor := Color;
   end;
 

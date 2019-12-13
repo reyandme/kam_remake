@@ -1,0 +1,56 @@
+//-- Helpers --//
+//By Strangelove
+//v0.2
+//04.03.2018
+//Developed for r8754
+
+
+procedure PlanAddHouse(PlayerID, HouseType, X, Y: Byte);
+begin
+	{$IFDEF DEBUG}
+	if not Actions.PlanAddHouse(PlayerID, HouseType, X, Y) then
+		Actions.Log('House plan could not be placed: Actions.PlanAddHouse: ' + inttostr(PlayerID) + ', ' + inttostr(HouseType) + ', ' + inttostr(X) + ', ' + inttostr(Y) + '; GameTime: ' + inttostr(States.GameTime()));
+	{$ELSE}
+	Actions.PlanAddHouse(PlayerID, HouseType, X, Y);
+	{$ENDIF}
+end;
+
+procedure PlanAddRoad(PlayerID, X, Y: Byte);
+begin
+	{$IFDEF DEBUG}
+	if not Actions.PlanAddRoad(PlayerID, X, Y) then
+		Actions.Log('Road plan could not be placed: Actions.PlanAddRoad: ' + inttostr(PlayerID) + ', ' + inttostr(X) + ', ' + inttostr(Y) + '; GameTime: ' + inttostr(States.GameTime()));
+	{$ELSE}
+	Actions.PlanAddRoad(PlayerID, X, Y);
+	{$ENDIF}
+end;
+
+procedure PlanAddField(PlayerID, X, Y: Byte);
+begin
+	{$IFDEF DEBUG}
+	if not Actions.PlanAddField(PlayerID, X, Y) then
+		Actions.Log('Field plan could not be placed: Actions.PlanAddField: ' + inttostr(PlayerID) + ', ' + inttostr(X) + ', ' + inttostr(Y) + '; GameTime: ' + inttostr(States.GameTime()));
+	{$ELSE}
+	Actions.PlanAddField(PlayerID, X, Y);
+	{$ENDIF}
+end;
+
+procedure PlanAddWinefield(PlayerID, X, Y: Byte);
+begin
+	{$IFDEF DEBUG}
+	if not Actions.PlanAddWinefield(PlayerID, X, Y) then
+		Actions.Log('Winefield plan could not be placed: Actions.PlanAddWinefield: ' + inttostr(PlayerID) + ', ' + inttostr(X) + ', ' + inttostr(Y) + '; GameTime: ' + inttostr(States.GameTime()));
+	{$ELSE}
+	Actions.PlanAddWinefield(PlayerID, X, Y);
+	{$ENDIF}
+end;
+
+procedure PlanConnectRoad(PlayerID, X1, Y1, X2, Y2: Byte; Completed: Boolean);
+begin
+	{$IFDEF DEBUG}
+	if not Actions.PlanConnectRoad(PlayerID, X1, Y1, X2, Y2, Completed) then
+		Actions.Log('Autoconnect Road plan could not be placed: Actions.PlanConnectRoad: ' +inttostr(PlayerID) + ', ' +inttostr(X1) + ', ' +inttostr(Y1) + ', ' +inttostr(X2) + ', ' +inttostr(Y2) + ', true/false' + '; GameTime: ' +inttostr(States.GameTime()));
+	{$ELSE}
+	Actions.PlanConnectRoad(PlayerID, X1, Y1, X2, Y2, Completed);
+	{$ENDIF}
+end;

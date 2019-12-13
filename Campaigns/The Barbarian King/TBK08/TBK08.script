@@ -1,0 +1,188 @@
+//-- TBK08 --//
+//By Strangelove
+//v2.0
+//04.03.2018
+
+{$I improvestaticai.script}
+{$I transformunits.script}
+{$I difficulty.script}
+
+{$DEFINE DEBUG} //Enable extended Debug
+//{$UNDEF DEBUG}
+
+var
+	aEnemyKnights: array[0..2] of Integer;
+	
+	aBackstab: array[0..3] of Integer;
+	iBackstabSheduler: Byte;
+	iDefeatCounter, iDeathCounter: Byte;
+
+
+procedure OnMissionStart();
+begin
+	iDefeatCounter := 0;
+	iBackstabSheduler := 0;
+	//AI village does not share fog with other AI Players
+	Actions.PlayerShareFog(1, 4, false);
+	Actions.PlayerShareFog(2, 4, false);
+	Actions.PlayerShareFog(3, 4, false);
+	Actions.FogCoverAll(4); //Hide everything
+end;
+
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+	if (aIndex = 1) or (aIndex = 2) then
+	begin
+		iDefeatCounter := iDefeatCounter + 1;
+		//Actions.ShowMsg(-1, 'iDefeatCounter = ' +inttostr(iDefeatCounter));
+	end;
+	if aIndex = 1 then
+		iBackstabSheduler := 1;	//Grab Groups again and attack
+end;
+
+procedure OnTick;
+var
+	iClosestGroup, iClosestGroupLeader, iAttackGroupLeader: Integer;
+	i, h, k, iClosestGroupX, iClosestGroupY: Byte;
+begin
+	//Difficulty-scaling
+	if States.GameTime() = 14 then
+		case States.MissionDifficulty() of
+			mdEasy1: 
+			begin
+				Actions.GiveGroup(0, 20, 112, 122, 0, 6, 3);
+				RemoveDefencePositionAndGroup(1, 32, 32); //Remove some troops from the reserve
+				RemoveDefencePositionAndGroup(2, 30, 62);
+				RemoveDefencePositionAndGroup(3, 138, 18);
+				RemoveDefencePositionAndGroup(3, 122, 16);
+			end;
+			mdNormal: 	exit;
+			mdHard1:
+			begin
+				IncreaseGroupSize(5, 0);
+				GiveHouseAndConnect(2, 17, 41, 71); //Add Towers
+				GiveHouseAndConnect(2, 17, 41, 62);
+			end;
+		end;
+	
+	//Initial Attack
+	if States.GameTime() = 300 then
+		Actions.ShowMsg(0, '<$2>');
+		
+	//Show AI village
+	if States.GameTime() = 2100 then
+	begin
+		Actions.FogRevealCircle(0, 127, 57, 20);
+		Actions.ShowMsgGoto(0, 136, 57, '<$0>');
+	end;
+	
+	//Change Alliances
+	if (iDefeatCounter = 2) and (iBackstabSheduler = 3) then
+	begin
+		Actions.PlayerAllianceChange(1, 4, true, false); //Break alliance other AI Player(s)
+		Actions.PlayerAllianceChange(2, 4, true, false);
+		Actions.PlayerAllianceChange(3, 4, true, false);
+		iDefeatCounter := 3;
+	end;
+	if iDefeatCounter = 3 then
+	begin
+		Actions.ShowMsgGoto(0, 136, 57, '<$1>');
+		Actions.PlayerAllianceChange(0, 4, true, true); //Ally to HumanPlayer
+		Actions.AIDefencePositionRemoveAll(4); //Delete defence positions
+		//Add new defence positions
+		Actions.AIDefencePositionAdd(4, 125, 44, 0, 0, 15, 0); //Militia
+		Actions.AIDefencePositionAdd(4, 123, 50, 0, 0, 15, 0);
+		Actions.AIDefencePositionAdd(4, 129, 49, 0, 0, 15, 0);
+		Actions.AIDefencePositionAdd(4, 125, 47, 0, 2, 15, 0); //Rogue
+		Actions.AIDefencePositionAdd(4, 119, 44, 1, 2, 15, 0);
+		Actions.AIDefencePositionAdd(4, 119, 48, 1, 2, 15, 0);
+		Actions.AIDefencePositionAdd(4, 120, 54, 0, 1, 15, 0); //Rebel
+		iDefeatCounter := 4;
+	end;
+	
+	if iBackstabSheduler = 1 then
+	begin
+		//Get Groups at Defence Positions
+		aBackstab[0] := States.GroupAt(113, 4);
+		aBackstab[1] := States.GroupAt(120, 6);
+		aBackstab[2] := States.GroupAt(133, 13);
+		aBackstab[3] := States.GroupAt(139, 11);
+		//Count non-existent Groups as Dead ones
+		for k := 0 to Length(aBackStab) -1 do
+			if aBackStab[k] = -1 then
+				iDeathCounter := iDeathCounter +1;
+		//Delete Defence Position to prevent abnormal behavior
+		Actions.AIDefencePositionRemove(3, 113, 4);
+		Actions.AIDefencePositionRemove(3, 120, 6);
+		Actions.AIDefencePositionRemove(3, 133, 13);
+		Actions.AIDefencePositionRemove(3, 139, 11);
+		//Actions.ShowMsg(-1, 'Get Groups from Defence Positions!');
+		iBackstabSheduler := 2;
+	end;
+	
+	if iBackstabSheduler = 2 then
+		if States.GameTime() mod 61 = 0 then
+			for h := 0 to Length(aBackstab) -1 do
+				if (aBackstab[h] <> -1) then
+				begin
+					if not States.GroupDead(aBackstab[h]) then
+					begin
+						if States.GroupIdle(aBackstab[h]) then
+						begin
+							//Get ClosestGroups from Enemy Groups and attack those
+							iAttackGroupLeader := States.GroupMember(aBackStab[h], 0);
+							iClosestGroup := States.ClosestGroup(0, States.UnitPositionX(iAttackGroupLeader), States.UnitPositionY(iAttackGroupLeader), -1);
+							iClosestGroupLeader := States.GroupMember(iClosestGroup, 0);
+							iClosestGroupX := States.UnitPositionX(iClosestGroupLeader);
+							iClosestGroupY := States.UnitPositionY(iClosestGroupLeader);
+							Actions.GroupOrderAttackUnit(aBackstab[h], iClosestGroupLeader); //Attack
+						end;
+					end else
+					begin
+						aBackstab[h] := -1;
+						iDeathCounter := iDeathCounter +1;
+						//Actions.ShowMsg(-1, 'iDeathCounter = ' + inttostr(iDeathCounter));
+					end;
+				end else
+				begin
+					if iDeathCounter = Length(aBackstab) then
+					begin			
+						//Create Defence Positions again
+						Actions.AIDefencePositionAdd(3, 133, 13, 4, 1, 20, 1);
+						Actions.AIDefencePositionAdd(3, 113, 4, 4, 3, 20, 1);
+						Actions.AIDefencePositionAdd(3, 120, 6, 4, 0, 20, 1);
+						Actions.AIDefencePositionAdd(3, 139, 11, 4, 2, 20, 1);
+						//Actions.ShowMsg(-1, 'iBackstabSheduler is 2!||iDeathCounter = ' + inttostr(iDeathCounter));
+						iDeathCounter := 0;
+						iBackstabSheduler := 3;
+						break;
+					end;
+				end;
+end;
+
+procedure OnUnitDied(aUnitID, aKillerIndex: Integer);
+var
+	iOwner: Byte;
+begin
+	if iBackstabSheduler = 0 then
+	begin
+		iOwner := States.UnitOwner(aUnitID);
+		if (aKillerIndex <> -1) and (iOwner = 2) then
+			if States.UnitsGroup(aUnitID) <> -1 then
+				//Check if Player2 got less than 95 units; if yes, make Player4 attack with all Groups that are at Defence Position (Attacking ones);
+				if Length(States.PlayerGetAllUnits(iOwner)) < 95 then
+					iBackstabSheduler := 1;
+	end;
+end;
+
+procedure OnUnitTrained(aUnitID: Integer);
+var
+	iOwner: Byte;
+begin
+	iOwner := States.UnitOwner(aUnitID);
+	//Reactivate Backstab when Player has rebuild troops
+	if iOwner = 2 then
+		if iBackstabSheduler > 2 then
+			if Length(States.PlayerGetAllUnits(iOwner)) > 120 then
+				iBackstabSheduler := 0;
+end;

@@ -61,6 +61,7 @@ begin
                                                 fSettings.AutoKickTimeout,
                                                 fSettings.PingInterval,
                                                 fSettings.MasterAnnounceInterval,
+                                                fSettings.ServerUDPScanPort,
                                                 fSettings.MasterServerAddress,
                                                 fSettings.HTMLStatusFile,
                                                 fSettings.ServerWelcomeMessage,
@@ -73,7 +74,7 @@ begin
                                       KMRange(fSettings.ServerLimitSpeedAfterPTFrom, fSettings.ServerLimitSpeedAfterPTTo));
   fDedicatedServer.Server.GameFilter := GameFilter;
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
-  fDedicatedServer.Start(fSettings.ServerName, StrToInt(fSettings.ServerPort), fSettings.AnnounceServer);
+  fDedicatedServer.Start(fSettings.ServerName, StrToInt(fSettings.ServerPort), fSettings.AnnounceServer, fSettings.ServerUDPAnnounce);
 
   while fDedicatedServer <> nil do
   begin
@@ -89,9 +90,11 @@ begin
         fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
         fDedicatedServer.UpdateSettings(fSettings.ServerName,
                                         fSettings.AnnounceServer,
+                                        fSettings.ServerUDPAnnounce,
                                         fSettings.AutoKickTimeout,
                                         fSettings.PingInterval,
                                         fSettings.MasterAnnounceInterval,
+                                        fSettings.ServerUDPScanPort,
                                         fSettings.MasterServerAddress,
                                         fSettings.HTMLStatusFile,
                                         fSettings.ServerWelcomeMessage,

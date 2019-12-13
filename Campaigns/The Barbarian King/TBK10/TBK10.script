@@ -1,0 +1,380 @@
+//-- TBK10 --//
+//By Strangelove
+//v2.1
+//04.03.2018
+
+{$I improvestaticai.script}
+{$I transformunits.script}
+{$I helpers.script}
+{$I difficulty.script}
+
+{$DEFINE DEBUG} //Enable extended Debug
+//{$UNDEF DEBUG}
+
+{$DEFINE NOSTANDALONE}
+//{$UNDEF NOSTANDALONE} //For limited testing! Turn this on if you want to extract that map from the campaign folder!
+
+
+{$IFDEF NOSTANDALONE}
+const	//Set Offsets in case mapsize differs from previous one (Add roads manually, since there is no "PlayerGetAllRoads")
+	OFFSETX = -10;
+	OFFSETY = 42;
+{$ENDIF}
+
+var 
+	GolbalDestroyerIndex, iCoalBuildIndex: Integer;
+	SerfPosX: Byte;
+
+
+procedure OnMissionStart();
+var 
+	{$IFDEF NOSTANDALONE}R, H, M, U, G, O, D, iNewHouseID, DestroyedHouseID: Integer;
+	{$ELSE}	Storehouse: Integer;
+	w: Byte;{$ENDIF}
+begin
+	{$IFDEF NOSTANDALONE}
+	//Set Corn and Grapes
+	for O := 0 to Length(CampaignData.TBK09.aTileObjectData)-1 do
+		Actions.MapTileObjectSet(CampaignData.TBK09.aTileObjectData[O][0] +OFFSETX, CampaignData.TBK09.aTileObjectData[O][1] +OFFSETY, CampaignData.TBK09.aTileObjectData[O][2]);
+	//Add Roads/Fields/Winefields
+	for R := 0 to Length(CampaignData.TBK09.aRoadworksData)-1 do
+	begin
+		if CampaignData.TBK09.aRoadworksData[R][3] = 0 then
+			Actions.GiveRoad(0, CampaignData.TBK09.aRoadworksData[R][1] +OFFSETX, CampaignData.TBK09.aRoadworksData[R][2] +OFFSETY);
+		if CampaignData.TBK09.aRoadworksData[R][3] = 1 then
+			Actions.GiveField(0, CampaignData.TBK09.aRoadworksData[R][1] +OFFSETX, CampaignData.TBK09.aRoadworksData[R][2] +OFFSETY);
+	end;
+	//Add Buildings/Units/Groups from previous Mission TBK09 (Dont mess with this shit! Seriously.)
+	for H := 0 to Length(CampaignData.TBK09.aHouseData)-1 do
+	begin
+		iNewHouseID := Actions.GiveHouse(0, CampaignData.TBK09.aHouseData[H][0], CampaignData.TBK09.aHouseData[H][1] +OFFSETX, CampaignData.TBK09.aHouseData[H][2] +OFFSETY);
+		Actions.HouseAddDamage(iNewHouseID, CampaignData.TBK09.aHouseData[H][3]);
+		for M := 4 to 31 do
+			if CampaignData.TBK09.aHouseData[H][M] <> 0 then //Dont try to add stuff that werent there before
+				Actions.HouseAddWaresTo(iNewHouseID, M-4, CampaignData.TBK09.aHouseData[H][M]);
+	end;
+	for D := 0 to Length(CampaignData.TBK09.aDestroyedHouseData) -1 do
+	begin
+		DestroyedHouseID := Actions.GiveHouse(0, CampaignData.TBK09.aDestroyedHouseData[D][1], CampaignData.TBK09.aDestroyedHouseData[D][2] +OFFSETX, CampaignData.TBK09.aDestroyedHouseData[D][3] +OFFSETY);
+			if DestroyedHouseID <> -1 then
+				Actions.HouseDestroy(DestroyedHouseID, false);
+	end;
+	for U := 0 to Length(CampaignData.TBK09.aUnitData)-1 do
+		if CampaignData.TBK09.aUnitData[U][0] <> -1 then //Used to belong to a group -> dont add
+			Actions.GiveUnit(0, CampaignData.TBK09.aUnitData[U][0], CampaignData.TBK09.aUnitData[U][1] +OFFSETX, CampaignData.TBK09.aUnitData[U][2] +OFFSETY, CampaignData.TBK09.aUnitData[U][3]);
+	for G := 0 to Length(CampaignData.TBK09.aGroupData)-1 do
+		Actions.GiveGroup(0, CampaignData.TBK09.aGroupData[G][0], CampaignData.TBK09.aGroupData[G][1] +OFFSETX, CampaignData.TBK09.aGroupData[G][2] +OFFSETY, CampaignData.TBK09.aGroupData[G][3], CampaignData.TBK09.aGroupData[G][4], CampaignData.TBK09.aGroupData[G][5]);
+		
+	{$ELSE}
+	Storehouse := Actions.GiveHouse(0, 11, 48, 83);
+	for w := 0 to 27 do 
+		Actions.HouseAddWaresTo(Storehouse, w, 900);
+	Actions.GiveGroup(0, 22, 56, 83, 2, 40, 10);
+	Actions.GiveUnit(0, 9, 46, 85, 4);
+	Actions.GiveUnit(0, 9, 47, 85, 4);
+	Actions.GiveUnit(0, 9, 48, 85, 4);
+	{$ENDIF}
+	
+	//Check for a healthy serf count and add if neccessary
+	SerfPosX := 45;
+	while States.StatUnitTypeCount(0, 0) < 8 do 
+	begin
+		if States.UnitAt(SerfPosX, 84) = -1 then //Check if Position is occupied
+			Actions.GiveUnit(0, 0, SerfPosX, 84, 4);
+		Inc(SerfPosX);
+	end;
+	
+	//Bullshit...
+	Actions.UnitKill(States.UnitAt(6, 48), false); //Unit needed to activate player0
+	Actions.FogCoverCircle(0, 6, 48, 10); //Dont give vision of killed unit
+	iCoalBuildIndex := 0;
+	GolbalDestroyerIndex := 0;
+	
+	{$IFDEF DEBUG}
+	Actions.Log('GroupLength: ' + inttostr(Length(CampaignData.TBK09.aGroupData)));
+	Actions.Log('HouseLength: ' + inttostr(Length(CampaignData.TBK09.aHouseData)));	
+	Actions.Log('UnitLength: ' + inttostr(Length(CampaignData.TBK09.aUnitData)));
+	Actions.Log('RoadworksLength: ' + inttostr(Length(CampaignData.TBK09.aRoadworksData)));
+	Actions.Log('TileObjectLength: ' + inttostr(Length(CampaignData.TBK09.aTileObjectData)));
+	Actions.Log('aDestroyedHouseData: ' + inttostr(Length(CampaignData.TBK09.aDestroyedHouseData)));
+	{$ENDIF}
+end;
+
+procedure OnTick;
+var 
+	k: Integer;
+	aHouses: array of Integer;
+begin
+	if States.GameTime() = 14 then
+		//Difficulty
+		case States.MissionDifficulty() of
+			mdEasy1:
+			begin
+				RemoveDefencePositionAndGroup(1, 140, 47); //Remove some Leather Units
+				RemoveDefencePositionAndGroup(1, 148, 52);
+				RemoveDefencePositionAndGroup(2, 29, 5); //Knights
+			end;
+			mdNormal:
+			begin
+				GiveHouseAndConnect(3, 17, 98, 22); //Add Towers
+				GiveHouseAndConnect(3, 17, 89, 21);
+			end;
+			mdHard1:
+			begin
+				GiveHouseAndConnect(3, 17, 98, 22); //Add Towers
+				GiveHouseAndConnect(3, 17, 89, 21);
+				AddDefencePositionAndGroup(3, 22, 107, 4, 4, 21); //Knights
+				AddDefencePositionAndGroup(3, 22, 74, 21, 3, 21);
+				AddDefencePositionAndGroup(2, 22, 11, 31, 0, 21);
+			end;
+		end;
+	//Destory CoalMines of AIPlayer3 when exhausted
+	if iCoalBuildIndex < 10 then
+		if States.GameTime mod 601 = 0 then //Check every minute
+		begin
+			aHouses := States.PlayerGetAllHouses(3); 
+			for k := 0 to Length(aHouses)-1 do
+				if States.HouseType(aHouses[k]) = 3 then
+					if not States.HouseCanReachResources(aHouses[k]) and (States.HouseResourceAmount(aHouses[k], 5) = 0) then
+					begin
+						Actions.HouseDestroy(aHouses[k], false);
+						break; //Only destroy one at a time
+					end;
+		end;
+end;
+
+procedure OnHouseDestroyed(aHouseID, aDestroyerIndex: Integer);
+var 
+	iHouseOwner: Byte;
+begin
+	GolbalDestroyerIndex := aDestroyerIndex;
+	iHouseOwner := States.HouseOwner(aHouseID);	
+	//Build more coalmines
+	if (iHouseOwner = 3) and (aDestroyerIndex = -1) then
+	begin
+		iCoalBuildIndex := iCoalBuildIndex +1;
+		if iCoalBuildIndex = 1 then
+		begin
+			PlanAddHouse(iHouseOwner, 3, 136, 27);
+			PlanAddRoad(iHouseOwner, 136, 28);
+			PlanAddRoad(iHouseOwner, 135, 28);
+			PlanAddRoad(iHouseOwner, 134, 28);
+			PlanAddRoad(iHouseOwner, 134, 29);
+			PlanAddRoad(iHouseOwner, 133, 29);
+		end;
+		if iCoalBuildIndex = 2 then
+		begin
+			PlanAddHouse(iHouseOwner, 3, 138, 23);
+			PlanAddRoad(iHouseOwner, 134, 24);
+			PlanAddRoad(iHouseOwner, 135, 24);
+			PlanAddRoad(iHouseOwner, 136, 24);
+			PlanAddRoad(iHouseOwner, 137, 24);
+			PlanAddRoad(iHouseOwner, 138, 24);
+		end;
+		if iCoalBuildIndex = 3 then
+		begin
+			PlanAddHouse(iHouseOwner, 3, 137, 19);
+			PlanAddRoad(iHouseOwner, 137, 20);
+			PlanAddRoad(iHouseOwner, 136, 20);
+			PlanAddRoad(iHouseOwner, 135, 20);
+			PlanAddRoad(iHouseOwner, 135, 21);
+			PlanAddRoad(iHouseOwner, 134, 21);
+			PlanAddRoad(iHouseOwner, 133, 21);
+		end;
+		if iCoalBuildIndex = 4 then
+		begin
+			PlanAddHouse(iHouseOwner, 3, 142, 17);
+			PlanAddRoad(iHouseOwner, 142, 18);
+			PlanAddRoad(iHouseOwner, 141, 18);
+			PlanAddRoad(iHouseOwner, 140, 18);
+			PlanAddRoad(iHouseOwner, 139, 18);
+			PlanAddRoad(iHouseOwner, 139, 19);
+			PlanAddRoad(iHouseOwner, 139, 20);
+			PlanAddRoad(iHouseOwner, 138, 20);
+			PlanAddRoad(iHouseOwner, 137, 20);
+			PlanAddRoad(iHouseOwner, 139, 17);
+			PlanAddRoad(iHouseOwner, 138, 17);
+			PlanAddRoad(iHouseOwner, 138, 16);
+		end;
+		if iCoalBuildIndex = 5 then
+		begin
+			PlanAddHouse(iHouseOwner, 3, 147, 15);
+			PlanAddRoad(iHouseOwner, 147, 16);
+			PlanAddRoad(iHouseOwner, 146, 16);
+			PlanAddRoad(iHouseOwner, 146, 17);
+			PlanAddRoad(iHouseOwner, 145, 17);
+			PlanAddRoad(iHouseOwner, 144, 17);
+			PlanAddRoad(iHouseOwner, 144, 18);
+			PlanAddRoad(iHouseOwner, 143, 18);
+		end;
+		if iCoalBuildIndex = 6 then
+		begin
+			PlanAddHouse(iHouseOwner, 3, 152, 16);
+			PlanAddRoad(iHouseOwner, 152, 17);
+			PlanAddRoad(iHouseOwner, 151, 17);
+			PlanAddRoad(iHouseOwner, 150, 17);
+			PlanAddRoad(iHouseOwner, 150, 16);
+			PlanAddRoad(iHouseOwner, 149, 16);
+			PlanAddRoad(iHouseOwner, 148, 16);
+		end;
+		if iCoalBuildIndex = 7 then
+		begin
+			PlanAddHouse(iHouseOwner, 3, 151, 12);
+			PlanAddRoad(iHouseOwner, 151, 13);
+			PlanAddRoad(iHouseOwner, 150, 13);
+			PlanAddRoad(iHouseOwner, 149, 13);
+			PlanAddRoad(iHouseOwner, 149, 14);
+			PlanAddRoad(iHouseOwner, 149, 15);
+		end;
+		if iCoalBuildIndex = 8 then
+		begin
+			PlanAddHouse(iHouseOwner, 3, 146, 12);
+			PlanAddRoad(iHouseOwner, 146, 13);
+			PlanAddRoad(iHouseOwner, 147, 13);
+			PlanAddRoad(iHouseOwner, 148, 13);
+			PlanAddHouse(iHouseOwner, 4, 142, 9); //Add additional Iron Mine
+			PlanAddRoad(iHouseOwner, 142, 10);
+			PlanAddRoad(iHouseOwner, 142, 11);
+			PlanAddRoad(iHouseOwner, 142, 12);
+			PlanAddRoad(iHouseOwner, 143, 12);
+			PlanAddRoad(iHouseOwner, 143, 13);
+			PlanAddRoad(iHouseOwner, 144, 13);
+			PlanAddRoad(iHouseOwner, 145, 13);
+		end;
+		if iCoalBuildIndex = 9 then
+		begin
+			PlanAddHouse(iHouseOwner, 3, 156, 14);
+			PlanAddRoad(iHouseOwner, 156, 15);
+			PlanAddRoad(iHouseOwner, 155, 15);
+			PlanAddRoad(iHouseOwner, 155, 16);
+			PlanAddRoad(iHouseOwner, 154, 16);
+			PlanAddRoad(iHouseOwner, 154, 17);
+			PlanAddRoad(iHouseOwner, 153, 17);
+		end;
+	end;
+end;
+
+procedure OnHouseAfterDestroyed(aHouseType, aOwner, aX, aY: Integer); //Add additional buildings where previously have been coalmines
+begin
+	if (GolbalDestroyerIndex = -1) and (aOwner = 3) then //Make sure it does not conflict with other factors
+	begin
+		GolbalDestroyerIndex := -2; //Just in case...
+		if (aX = 123) and (aY = 23) then
+		begin
+			PlanAddHouse(aOwner, 8, 122, 23); //Farm
+			PlanAddRoad(aOwner, 124, 20);
+			PlanAddRoad(aOwner, 125, 20);
+			PlanAddField(aOwner, 121, 25); //Add fields
+			PlanAddField(aOwner, 121, 26);
+			PlanAddField(aOwner, 122, 26);
+			PlanAddField(aOwner, 123, 26);
+			PlanAddField(aOwner, 120, 27);
+			PlanAddField(aOwner, 121, 27);
+			PlanAddField(aOwner, 122, 27);
+			PlanAddField(aOwner, 123, 27);
+			PlanAddField(aOwner, 124, 27);
+			PlanAddField(aOwner, 119, 28);
+			PlanAddField(aOwner, 120, 28);
+			PlanAddField(aOwner, 121, 28);
+			PlanAddField(aOwner, 122, 28);
+			PlanAddField(aOwner, 123, 28);
+			PlanAddField(aOwner, 124, 28);
+			PlanAddField(aOwner, 125, 28);
+			PlanAddField(aOwner, 118, 29);
+			PlanAddField(aOwner, 119, 29);
+			PlanAddField(aOwner, 120, 29);
+			PlanAddField(aOwner, 121, 29);
+			PlanAddField(aOwner, 122, 29);
+			PlanAddField(aOwner, 123, 29);
+			PlanAddField(aOwner, 124, 29);
+			PlanAddField(aOwner, 125, 29);
+			PlanAddField(aOwner, 122, 30);
+			PlanAddField(aOwner, 123, 30);
+			PlanAddField(aOwner, 124, 30);
+		end;
+		if (aX = 127) and (aY = 27) then
+		begin
+			PlanAddHouse(aOwner, 8, 126, 27); //Farm
+			PlanAddRoad(aOwner, 126, 28);
+		end;
+		if (aX = 133) and (aY = 23) then
+			PlanAddHouse(aOwner, 25, 133, 23); //Tannery
+			PlanAddRoad(aOwner, 135, 23);
+			PlanAddRoad(aOwner, 135, 22);
+		if (aX = 132) and (aY = 28) then
+		begin
+			PlanAddHouse(aOwner, 16, 133, 28); //Swinefarm
+			PlanAddRoad(aOwner, 134, 25);
+			PlanAddRoad(aOwner, 134, 26);
+			PlanAddRoad(aOwner, 134, 27);
+		end;
+		if (aX = 132) and (aY = 20) then
+		begin
+			PlanAddHouse(aOwner, 24, 134, 20); //Butcher
+			PlanAddHouse(aOwner, 16, 130, 23); //Swinefarm
+			PlanAddRoad(aOwner, 131, 20);
+		end;
+		if (aX = 136) and (aY = 27) then
+			PlanAddHouse(aOwner, 20, 135, 27); //armory workshop
+		if (aX = 138) and (aY = 23) then
+		begin
+			PlanAddHouse(aOwner, 20, 136, 23); //armory workshop
+			PlanAddRoad(aOwner, 139, 21);
+			PlanAddRoad(aOwner, 139, 22);
+			PlanAddRoad(aOwner, 140, 22);
+			PlanAddRoad(aOwner, 141, 22);
+			PlanAddHouse(aOwner, 19, 141, 21); //weapon workshop
+			PlanAddRoad(aOwner, 139, 23);
+			PlanAddRoad(aOwner, 139, 24);
+			PlanAddRoad(aOwner, 139, 25);
+			PlanAddRoad(aOwner, 139, 26);
+			PlanAddRoad(aOwner, 140, 26);
+			PlanAddRoad(aOwner, 141, 26);
+			PlanAddHouse(aOwner, 19, 141, 25); //weapon workshop
+		end;
+		if (aX = 137) and (aY = 19) then
+			PlanAddHouse(aOwner, 20, 136, 19); //armory workshop
+		if (aX = 142) and (aY = 17) then
+		begin
+			PlanAddHouse(aOwner, 11, 142, 17); //Storehouse
+			PlanAddRoad(aOwner, 140, 19);
+			PlanAddRoad(aOwner, 141, 19);
+			PlanAddRoad(aOwner, 142, 19);
+			PlanAddRoad(aOwner, 143, 19);
+			PlanAddRoad(aOwner, 144, 16);
+			PlanAddRoad(aOwner, 144, 15);
+			PlanAddRoad(aOwner, 144, 14);
+		end;
+	end;
+end;
+
+procedure OnHouseBuilt(aHouseID: Integer);
+begin
+	if (States.HouseType(aHouseID) = 11)  and (States.HouseOwner(aHouseID) = 3) then
+	begin
+		Actions.HouseAddWaresTo(aHouseID, 1, 9000); //Add stuff to newly build sotrehouse of Player3
+		Actions.HouseAddWaresTo(aHouseID, 2, 9000);
+		Actions.HouseAddWaresTo(aHouseID, 3, 9000);
+		Actions.HouseAddWaresTo(aHouseID, 5, 9000);
+		Actions.HouseAddWaresTo(States.HouseAt(112, 12), 5, 9000); //Add Coal to main storehouse
+		//Block Wares to new build storehouse
+		Actions.HouseWareBlock(aHouseID, 0, true); //Treetrunk
+		Actions.HouseWareBlock(aHouseID, 1, true); //Stone
+		Actions.HouseWareBlock(aHouseID, 2, true); //Timber
+		//Actions.HouseWareBlock(aHouseID, 3, true); //Iron Ore
+		Actions.HouseWareBlock(aHouseID, 4, true); //Gold Ore
+		//Actions.HouseWareBlock(aHouseID, 5, true); //Coal
+		//Actions.HouseWareBlock(aHouseID, 6, true); //Iron
+		Actions.HouseWareBlock(aHouseID, 7, true); //Gold
+		//Actions.HouseWareBlock(aHouseID, 8, true); //Wine
+		Actions.HouseWareBlock(aHouseID, 9, true); //Corn
+		//Actions.HouseWareBlock(aHouseID, 10, true); //Loaves
+		Actions.HouseWareBlock(aHouseID, 11, true); //Flour
+		Actions.HouseWareBlock(aHouseID, 12, true); //Leather
+		//Actions.HouseWareBlock(aHouseID, 13, true); //Sausages
+		//Actions.HouseWareBlock(aHouseID, 14, true); //Pig
+		//Actions.HouseWareBlock(aHouseID, 15, true); //Skin
+		//16-26 = Military Equipment
+		//Actions.HouseWareBlock(aHouseID, 15, true); //Fish
+	end;
+end;

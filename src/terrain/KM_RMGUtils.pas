@@ -249,6 +249,7 @@ TKMSharpShapeFixer = class(TKMInternalTileCounter)
   TKMHeightFillWalkableAreas = class
   private
     fQueue: TQueue;
+    fIgnoreTileType: Boolean;
     fVisited: Byte;
     fHeight: Integer;
     fDecreaseCoef, fMaxDistance: Single;
@@ -264,7 +265,7 @@ TKMSharpShapeFixer = class(TKMInternalTileCounter)
   public
     constructor Create(var aBiomeArr: TKMByte2Array; var aHeightArr: TInteger2Array); reintroduce;
     destructor Destroy(); override;
-    procedure ExpandHeight(aInitPoints: TKMPointArray; aHeight: Integer; aDecreaseCoef: Single);
+    procedure ExpandHeight(aInitPoints: TKMPointArray; aHeight: Integer; aDecreaseCoef: Single; aIgnoreTileTypes: Boolean = False);
   end;
 
   // Get all points which are inside of specific shape (biome)
@@ -1028,6 +1029,7 @@ end;
 function TKMHeightFillWalkableAreas.CanBeExpanded(const aX,aY: SmallInt; const aDistance: Word): Boolean;
 begin
   Result := (aDistance < fMaxDistance) AND (
+              fIgnoreTileType OR
               (fBiomeArr[aY,aX] < Byte(btStone)) OR
               (fBiomeArr[Max(0,aY-1),aX] < Byte(btStone)) OR
               (fBiomeArr[aY,Max(0,aX-1)] < Byte(btStone)) OR
@@ -1068,13 +1070,14 @@ begin
   end;
 end;
 
-procedure TKMHeightFillWalkableAreas.ExpandHeight(aInitPoints: TKMPointArray; aHeight: Integer; aDecreaseCoef: Single);
+procedure TKMHeightFillWalkableAreas.ExpandHeight(aInitPoints: TKMPointArray; aHeight: Integer; aDecreaseCoef: Single; aIgnoreTileTypes: Boolean = False);
 var
   I,X,Y: SmallInt;
   Distance: Word;
 begin
   fHeight := aHeight;
   fDecreaseCoef := aDecreaseCoef;
+  fIgnoreTileType := aIgnoreTileTypes;
   if (aHeight < 0) then
     fDecreaseCoef := -fDecreaseCoef;
   fMaxDistance := abs(aHeight / aDecreaseCoef);

@@ -148,8 +148,8 @@
 149:Equip current soldier type
 150:Next profession
 151:Previous profession
-152:Add to queue
-153:Switch between delivery modes of wares: demand / closed / offer. Use LMB/RMB to switch forward/backward
+152:Add to queue. Use RMB, Shift or Ctrl to modify the queue
+153:Switch between delivery modes of wares: demand / closed / offer. Use LMB / RMB to switch forward/backward
 154:Cost:
 155:Switch on/off house repair
 156:Building not available at this time
@@ -368,7 +368,7 @@
 370:Heights
 371:Tiles
 372:Objects
-373:Heights
+373:Elevations
 374:Brush shape
 375:Size
 376:Slide to change brush size
@@ -382,12 +382,12 @@
 384:Unequalize / Flatten
 385:Elevate (left click) / Lower (right click)
 386:Unequalize (left click) / Flatten (right click)
-387:Brush
+387:Brush & Masks
 388:Random elements
 389:Random Direction
 390:Tick for randomized tile direction or use right click to rotate the selected tile
 392:Block walking
-393:Remove an object
+393:Remove object
 394:Village planning
 395:Visual scripts
 396:Global scripting
@@ -407,7 +407,7 @@
 410:Overwrite
 411:Map already exists
 412:Players:
-413:Default
+413:Default human player
 414:Player types
 415:Symmetrical
 416:Alliances
@@ -418,10 +418,10 @@
 421:Center screen on mission start
 422:Center screen
 423:Reveal all
-424:Reveal a portion of map
+424:Reveal a portion of the map
 425:Reveal fog
 426:Block trade
-427:Block/release houses
+427:Block/Enable houses
 428:Colors
 429:Goal
 432:Player
@@ -471,7 +471,7 @@
 481:Equip rate leather
 482:Equip rate iron
 483:Autodefence
-484:AI creates and manages defence positions automatically
+484:AI creates and manages defense positions automatically. Ignores all manually set defense positions
 485:Place defence position for AI
 486:AI defence positions
 487:Laborers
@@ -610,7 +610,7 @@
 621:Game time:|%s
 622:Halt troop
 623:Link up troop
-624:Separate troop
+624:Separate troop (%s). Separate one unit from troop (Ctrl + %s)
 625:Replay Viewer
 626:View Replay
 627:Unsupported format %s
@@ -655,9 +655,10 @@
 666:Information
 667:Please wait a moment...
 668:Save Map
-669:Delay in minutes before the AI starts training recruits
+669:Delay in minutes before the AI starts training recruits. Recruits for Towers are not affected
 670:Recruit delay (mins)
-671:Magic water - sets the direction for all tiles in a body of water
+671:Magic water: Sets the direction for all tiles in a body of water
+672:Magic water
 673:Copy
 674:Paste
 675:Paste apply
@@ -680,7 +681,7 @@
 694:Delete current defence position
 695:Return to the defence page
 696:Defence position
-697:Units
+697:Units & Animals
 698:Wolf
 699:Fish
 700:Watersnake
@@ -760,7 +761,7 @@
 807:Hide scripted overlay
 808:Show scripted overlay
 809:You cannot change host when the server is running in your client
-810:AI creates and manages attacks automatically
+810:AI creates and manages attacks automatically. Ignores manually set attacks
 811:Unlimited equip
 812:Classic AI: Soldiers are equipped as fast as possible. Equip rates still affect village planning|Advanced AI: No equip limit
 813:Apply AI defaults
@@ -913,7 +914,7 @@
 962:Game Keys
 963:Map Editor Keys
 964:Waiting for disconnected players data:
-965:Eyedropper - select the type of tile under the cursor
+965:Eyedropper: Select the type of tile under the cursor
 966:This armor smithy is not occupied
 967:This armory workshop is not occupied
 968:This bakery is not occupied
@@ -969,7 +970,7 @@
 1018:Spectate/Replay view Keys
 1019:%s has muted you. You can no longer send messages or beacons to him
 1020:Objects palette
-1021:Universal erasor
+1021:Universal eraser
 1022:Your woodcutter cannot find any free place to plant a tree
 1023:PT-
 1024:%s has won!
@@ -1020,6 +1021,7 @@
 1069:Move borders:
 1070:Resize and Save
 1071:Resize map and then save it
+1072:Map resize
 1073:Are you sure want to resize the map?||It will automatically override current map
 1074:Resize is not available||You need to save new map first
 1075:Change owner for object
@@ -1033,7 +1035,7 @@
 1083:Save map and start game for selected player
 1084:In Barracks:
 1085:In TownHall:
-1086:Rotate tile
+1086:Rotate tile on map
 1087:Objects palette
 1088:Close palette
 1089:Remove units/groups
@@ -1097,7 +1099,7 @@
 1147:Mission parameters
 1148:Author
 1149:Small description
-1150:Big description
+1150:Long description
 1151:Libx text ID
 1152:This map will be always visible in singleplayer maps list
 1153:Block team selection
@@ -1146,11 +1148,11 @@
 1196:Shift + Mouse wheel
 1197:Force paint
 1198:Force to override manually set tiles from tiles table while painting with brushes (if possible)
-1199:Magic brush - automatically fix all generated or missing tile transitions with chosen mask
-1200:No mask - use exiting tiles for transitions
-1201:Softest mask - use automatically created transitions
-1202:Soft mask - use automatically created transitions
-1203:Hard mask - use automatically created transitions
+1199:Magic brush: Using chosen mask, fixes tile transitions, for tiles that don't have transition graphics from one to the other type of terrain
+1200:No mask: Use exiting tiles for transitions
+1201:Softest mask: Use automatically created transitions
+1202:Soft mask: Use automatically created transitions
+1203:Hard mask: Use automatically created transitions
 1204:Custom TownHall units cost
 1205:Custom gold market prices
 1206:Additional options
@@ -1159,7 +1161,7 @@
 1209:Fix terrain brushes
 1210:Try to repair internal terrain information to make brushes work
 1211:Fix terrain brushes
-1212:Are you sure want to repair|all terrain brushes internal info?|That will allow to use brushes|over manually set tiles from tiles table
+1212:Are you sure want to repair|all terrain brushes internal info?|That will allow to use brushes|in spots where manual tiles were used
 1213:Def.
 1214:Human player
 1215:Classic AI Player %d
@@ -1179,33 +1181,150 @@
 1229:Classic AI|Parameters
 1230:Setup AI Parameters used only by Classic AI
 1231:Classic AI Parameters
-1232:Take every group type
+1232:Take any group type
 1233:Difficulty
 1234:%s is away from keyboard for last %s [$00B0FF]minutes[]
 1235:Data export could take up to several minutes.\nExported data will be stored in '%s' folder.\nDo you confirm operation?
 1236:The procedure [ %s ] declared for the script console command /%s was not found
-1237:Wrong parameter type for script command /%s: [%s]
-1238:Wrong first parameter type for script command /%s. Expected: [%s], actual: [%s]
-1239:Too many parameters for script command /%s: [%s]. Max number of parameters is [%s] (including mandatory HandID parameter)
-1240:Wrong parameters for script command /%s. Expected parameters types are: [%s]
+1237:Wrong parameter type for script console command /%s: [%s]
+1238:Wrong first parameter type for script command /%s. Expected: [ %s ], actual: [ %s ]
+1239:Too many parameters for script command /%s: [ %s ]. Max number of parameters is [ %s ] (including mandatory HandID parameter)
+1240:Wrong parameters for script command /%s. Expected parameters types are: [ %s ]
 1241:Too many parameters passed to script command /%s: Expected parameters count [ %s ], actual: [ %s ]
 1242:Command called: /%s(%s)
 1243:Error while calling script command /%s(%s)
 1244:Script console command /%s not found
-1245:Enable/Disable copy-paste from chat window and chat history
+1245:Enable/Disable chat history and copy from chat window
 1246:Save replay state to be able to load while watching this replay
 1247:Load replay at %s
 1248:Players colors:
 1249:Default
 1250:Ally / Enemy
 1251:Teams
-1252:Show initial players colors
-1253:Show self / ally / enemy players colors
-1254:Show teams colors
+1252:Show player colors according to their choice in lobby
+1253:Show 3 different colors (yours, allied, hostile) for citizens and buildings
+1254:Show colors according to team membership
 1255:Error: Player name '%s' is reserved
 1256:Citizens (S/L/R)
 1257:Citizens (Others)
 1258:Open/Close spectator stats panel
 1259:Deliver %s is prohibited
-1260:Take out %s is prohibited while in the "offer" delivery mode
+1260:Take out '%s' is prohibited while in the 'offer' delivery mode
 1261:Recruit is not allowed to get into Barracks
+1262:Search tile by ID 
+1263:Random Map Generator - Settings
+1264:Random map generator settings
+1265:RMG Settings
+1266:Map size:
+1267:Locations
+1268:Enable locations with resources
+1269:Number of locations
+1270:Set number of locations
+1271:Protected radius
+1272:Specify the size of the protected area. It secures the buildable area around each location.
+1273:Connect locations
+1274:Create walking paths between locations
+1275:Layout
+1276:The layout of the locations
+1277:Rectangle
+1278:Vertical
+1279:Horizontal
+1280:Random
+1281:Center Screen
+1282:Resources
+1283:Enable resources in each location (coal is computed automatically)
+1284:Mine fix
+1285:Secure that resources are mineable (gold mine and iron mine)
+1286:Resource quantity: stones
+1287:Resource quantity: gold
+1288:Resource quantity: iron
+1289:Obstacles
+1290:Enable obstacles (mountains, rivers, swamps, etc.)
+1291:Size
+1292:The average size of generated obstacles
+1293:Density
+1294:The density of generated obstacles
+1295:Variance
+1296:The variance in size of generated obstacles
+1297:Ratio
+1298:Type and ratio of generated obstacles
+1299:Empty gold
+1300:Empty gold ratio
+1301:Empty iron
+1302:Empty iron ratio
+1303:Swamp
+1304:Swamp ratio
+1305:Wetland
+1306:Wetland ratio
+1307:Water
+1308:Water ratio
+1309:Biomes
+1310:Enable biomes
+1311:Type of biome
+1312:Select required biomes
+1313:Grass
+1314:The grass is default biome and cannot be removed
+1315:Ground
+1316:Enable ground
+1317:Snow
+1318:Enable snow
+1319:Sand
+1320:Enable sand
+1321:First layer
+1322:The first layer of biome (properties of the primary texture)
+1323:Second layer
+1324:The second layer of biome (properties of secondary textures)
+1325:Step
+1326:Step of the primary texture (higher value = larger biome)
+1327:Step of secondary textures (higher value = larger biome)
+1328:Limit
+1329:Limitation of biome borders (higher value = larger biome)
+1330:Height
+1331:Enable height
+1332:Hide jagged edges
+1333:Adjust terrain height so rough texture transitions are hidden
+1334:Inaccesible places
+1335:Treatment of inaccessible places
+1336:Block walking
+1337:Block walking (improves game pathfinding and generation of the navigation mesh)
+1338:Change texture
+1339:Replace terrain with special biomes
+1340:Objects
+1341:Enable objects
+1342:Animals
+1343:Enable animals
+1344:Object density
+1345:Forests
+1346:Number of forests
+1347:Trees
+1348:Number of trees in the forest
+1349:Seed
+1350:A number that is used as an identifier to generate a map with a specific configuration
+1351:New Random Seed
+1352:Generate map with new Seed
+1353:Generate map
+1354:Generate map with current Seed
+1355:Close Random Map Generator
+1356:Map size:
+1357:Play next tick in replay
+1358:Easier
+1359:Very easy
+1360:Harder
+1361:Very hard
+1362:Host game version doesn't match your game version
+1363:All
+1364:Allow '%s' for all available locs
+1365:Prohibit '%s' for all available locs
+1366:Step of the height algorithm (1 = small, 10 = big)
+1367:Slope of the height evaluation (0 = plateau, 15 = peak)
+1368:Maximum height of walkable tiles
+1377:Try to start
+1378:Try to load save
+1379:Try to view replay
+1380:Error loading unsupported version %s save from %s
+1381:Error loading unsupported version %s replay from %s
+1382:Map name
+1383:Time
+1384:Vers.
+1385:Loading unsupported version could cause game not being properly loaded or even cause game crash
+1386:Unsupported version

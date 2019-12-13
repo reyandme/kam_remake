@@ -8,10 +8,10 @@ uses
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',
   Runner_Game in 'Runner_Game.pas',
-  KM_Defaults in '..\..\src\common\KM_Defaults.pas',
   ComInterface in 'ComInterface.pas',
   ParallelRun in 'ParallelRun.pas',
-  GeneticAlgorithm in 'GeneticAlgorithm.pas';
+  GeneticAlgorithm in 'GeneticAlgorithm.pas',
+  GeneticAlgorithmParameters in 'GeneticAlgorithmParameters.pas';
 
 {$R *.res}
 

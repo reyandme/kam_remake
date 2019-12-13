@@ -10,7 +10,7 @@ type
   TAlertType = (atBeacon, atFight);
 
 const
-  ALERT_DURATION: array [TAlertType] of Byte = (80, 60); //Typical beacon duration after which it will be gone
+  ALERT_DURATION: array [TAlertType] of Byte = (80, 50); //Typical beacon duration after which it will be gone
 
 type
   TKMAlert = class
@@ -106,7 +106,7 @@ type
 
 
 const
-  FIGHT_DISTANCE = 24; //Fights this far apart are treated as separate
+  FIGHT_DISTANCE = 12; //Fights this far apart are treated as separate
   INTERVAL_ATTACKED_MSG = 20; //Time between audio messages saying you are being attacked
   MAX_BEACONS = 5; //Maximum number of simultanious beacons per player
 

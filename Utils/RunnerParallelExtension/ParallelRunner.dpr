@@ -8,6 +8,9 @@ uses
   SimThread in 'SimThread.pas',
   ComInterface in '../Runner/ComInterface.pas',
   GeneticAlgorithm in '../Runner/GeneticAlgorithm.pas',
+  GeneticAlgorithmParameters in '../Runner/GeneticAlgorithmParameters.pas',
+  KM_Log in '../../src/KM_Log.pas',
+  KM_AIParameters in '../../src/ai/newAI/KM_AIParameters.pas',
   Log in 'Log.pas';
 
 {$R *.res}

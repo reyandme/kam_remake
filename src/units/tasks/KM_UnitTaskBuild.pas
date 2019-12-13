@@ -81,6 +81,7 @@ type
     property DigState: ShortInt read LastToDig;
     procedure SyncLoad; override;
     destructor Destroy; override;
+    property House: TKMHouse read fHouse;
     function WalkShouldAbandon: Boolean; override;
     procedure CancelThePlan; override;
     function Digging: Boolean;
@@ -99,6 +100,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
+    property House: TKMHouse read fHouse;
     function WalkShouldAbandon: Boolean; override;
     function CouldBeCancelled: Boolean; override;
     function Execute: TKMTaskResult; override;
@@ -116,6 +118,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
+    property House: TKMHouse read fHouse;
     function WalkShouldAbandon: Boolean; override;
     function CouldBeCancelled: Boolean; override;
     function Execute: TKMTaskResult; override;

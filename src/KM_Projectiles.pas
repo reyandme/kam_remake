@@ -129,7 +129,7 @@ begin
     B = 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y)
     C = sqr(TargetPosition.X) + sqr(TargetPosition.Y) }
 
-  Speed := ProjectileSpeeds[aProjType] + KaMRandomS(0.05, 'TKMProjectiles.AimTarget');
+  Speed := ProjectileSpeeds[aProjType] + KaMRandomS2(0.05, 'TKMProjectiles.AimTarget');
 
   A := sqr(TargetVector.X) + sqr(TargetVector.Y) - sqr(Speed);
   B := 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y);
@@ -160,8 +160,8 @@ begin
             + KMLength(KMPOINTF_ZERO, TargetVector) * ProjectilePredictJitter[aProjType];
 
     //Calculate the target position relative to start position (the 0;0)
-    Target.X := TargetPosition.X + TargetVector.X*TimeToHit + KaMRandomS(Jitter, 'TKMProjectiles.AimTarget 2');
-    Target.Y := TargetPosition.Y + TargetVector.Y*TimeToHit + KaMRandomS(Jitter, 'TKMProjectiles.AimTarget 3');
+    Target.X := TargetPosition.X + TargetVector.X*TimeToHit + KaMRandomS2(Jitter, 'TKMProjectiles.AimTarget 2');
+    Target.Y := TargetPosition.Y + TargetVector.Y*TimeToHit + KaMRandomS2(Jitter, 'TKMProjectiles.AimTarget 3');
 
     //We can try and shoot at a target that is moving away,
     //but the arrows can't flight any further than their max_range
@@ -171,7 +171,7 @@ begin
     Target.Y := aStart.Y + Target.Y / DistanceToHit * DistanceInRange;
 
     //Calculate the arc, less for shorter flights
-    Arc := ((DistanceInRange-aMinRange)/(aMaxRange-aMinRange))*(ProjectileArcs[aProjType, 1] + KaMRandomS(ProjectileArcs[aProjType, 2], 'TKMProjectiles.AimTarget 4'));
+    Arc := ((DistanceInRange-aMinRange)/(aMaxRange-aMinRange))*(ProjectileArcs[aProjType, 1] + KaMRandomS2(ProjectileArcs[aProjType, 2], 'TKMProjectiles.AimTarget 4'));
 
     //Check whether this predicted target will hit a friendly unit
     if gTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
@@ -196,16 +196,16 @@ var
   DistanceToHit, DistanceInRange: Single;
   Aim, Target: TKMPointF;
 begin
-  Speed := ProjectileSpeeds[aProjType] + KaMRandomS(0.05, 'TKMProjectiles.AimTarget 5');
+  Speed := ProjectileSpeeds[aProjType] + KaMRandomS2(0.05, 'TKMProjectiles.AimTarget 5');
 
   Aim := KMPointF(aTarget.GetRandomCellWithin);
-  Target.X := Aim.X + KaMRandomS(ProjectileJitterHouse[aProjType], 'TKMProjectiles.AimTarget 6'); //So that arrows were within house area, without attitude to tile corners
-  Target.Y := Aim.Y + KaMRandomS(ProjectileJitterHouse[aProjType], 'TKMProjectiles.AimTarget 7');
+  Target.X := Aim.X + KaMRandomS2(ProjectileJitterHouse[aProjType], 'TKMProjectiles.AimTarget 6'); //So that arrows were within house area, without attitude to tile corners
+  Target.Y := Aim.Y + KaMRandomS2(ProjectileJitterHouse[aProjType], 'TKMProjectiles.AimTarget 7');
 
   //Calculate the arc, less for shorter flights
   DistanceToHit := GetLength(Target.X, Target.Y);
   DistanceInRange := EnsureRange(DistanceToHit, aMinRange, aMaxRange);
-  Arc := (DistanceInRange/DistanceToHit)*(ProjectileArcs[aProjType, 1] + KaMRandomS(ProjectileArcs[aProjType, 2], 'TKMProjectiles.AimTarget 8'));
+  Arc := (DistanceInRange/DistanceToHit)*(ProjectileArcs[aProjType, 1] + KaMRandomS2(ProjectileArcs[aProjType, 2], 'TKMProjectiles.AimTarget 8'));
 
   Result := AddItem(aStart, Aim, Target, Speed, Arc, aMaxRange, aProjType, aOwner);
 end;

@@ -17,45 +17,48 @@ type
     {$IFDEF FPC} fUDP: TKMNetUDPLNet;     {$ENDIF}
 
     fOnError: TGetStrProc;
-    procedure Receive(const aAddress: string; aData:pointer; aLength:cardinal); virtual; abstract;
+    procedure Receive(const aAddress: string; aData: Pointer; aLength: Cardinal); virtual; abstract;
     procedure Error(const msg: string);
+  protected
+    fScanPort: Word;
   public
-    constructor Create;
+    constructor Create(aScanPort: Word);
     destructor Destroy; override;
     procedure UpdateStateIdle;
-    property OnError:TGetStrProc write fOnError;
+    property OnError: TGetStrProc write fOnError;
   end;
 
   TKMNetUDPAnnounce = class(TKMNetUDP)
   private
     fGamePort: Word;
     fServerName: AnsiString;
-    procedure Receive(const aAddress: string; aData:pointer; aLength:cardinal); override;
+    procedure Receive(const aAddress: string; aData: Pointer; aLength: Cardinal); override;
   public
-    procedure StartAnnouncing(const aGamePort: Word; const aName: AnsiString);
+    procedure StartAnnouncing(const aGamePort: Word; const aName: AnsiString; aAnnounce: Boolean);
     procedure StopAnnouncing;
-    procedure UpdateSettings(const aName: AnsiString);
+    procedure UpdateSettings(const aName: AnsiString; aScanPort: Word);
   end;
 
   TKMNetUDPScan = class(TKMNetUDP)
   private
     fOnServerDetected: TNotifyServerDetectedEvent;
-    procedure Receive(const aAddress: string; aData:pointer; aLength:cardinal); override;
+    procedure Receive(const aAddress: String; aData: Pointer; aLength: Cardinal); override;
   public
     procedure ScanForServers;
     procedure TerminateScan;
-    property OnServerDetected:TNotifyServerDetectedEvent write fOnServerDetected;
+    property OnServerDetected: TNotifyServerDetectedEvent write fOnServerDetected;
   end;
 
 
 implementation
 
 
-constructor TKMNetUDP.Create;
+constructor TKMNetUDP.Create(aScanPort: Word);
 begin
   Inherited Create;
   {$IFDEF WDC} fUDP := TKMNetUDPOverbyte.Create; {$ENDIF}
   {$IFDEF FPC} fUDP := TKMNetUDPLNet.Create;     {$ENDIF}
+  fScanPort := aScanPort;
   fUDP.OnError := Error;
   fUDP.OnRecieveData := Receive;
 end;
@@ -68,7 +71,7 @@ begin
 end;
 
 
-procedure TKMNetUDP.Error(const msg: string);
+procedure TKMNetUDP.Error(const Msg: String);
 begin
   if Assigned(fOnError) then fOnError(msg);
 end;
@@ -81,18 +84,19 @@ end;
 
 
 { TKMNetUDPAnnounce }
-procedure TKMNetUDPAnnounce.StartAnnouncing(const aGamePort: Word; const aName: AnsiString);
+procedure TKMNetUDPAnnounce.StartAnnouncing(const aGamePort: Word; const aName: AnsiString; aAnnounce: Boolean);
 begin
   fGamePort := aGamePort;
   fServerName := aName;
   fUDP.StopListening;
-  try
-    fUDP.Listen(56789);
-  except
-    //UDP announce is not that important, and will fail whenever you start more than 1 server per machine
-    on E: Exception do
-      if Assigned(fOnError) then fOnError('UDP listen for local server detection failed to start: '+E.Message);
-  end;
+  if aAnnounce then
+    try
+      fUDP.Listen(SERVER_DEFAULT_UDP_ANNOUNCE_PORT);
+    except
+      //UDP announce is not that important, and will fail whenever you start more than 1 server per machine
+      on E: Exception do
+        if Assigned(fOnError) then fOnError('UDP listen for local server detection failed to start: ' + E.Message);
+    end;
 end;
 
 
@@ -102,13 +106,14 @@ begin
 end;
 
 
-procedure TKMNetUDPAnnounce.UpdateSettings(const aName: AnsiString);
+procedure TKMNetUDPAnnounce.UpdateSettings(const aName: AnsiString; aScanPort: Word);
 begin
   fServerName := aName;
+  fScanPort := aScanPort;
 end;
 
 
-procedure TKMNetUDPAnnounce.Receive(const aAddress: string; aData:pointer; aLength:cardinal);
+procedure TKMNetUDPAnnounce.Receive(const aAddress: string; aData: Pointer; aLength: Cardinal);
 var
   M: TKMemoryStreamBinary;
   S: AnsiString;
@@ -137,7 +142,7 @@ begin
     M.Write(fGamePort);
     M.WriteA(fServerName);
 
-    fUDP.SendPacket(aAddress, 56788, M.Memory, M.Size);
+    fUDP.SendPacket(aAddress, fScanPort, M.Memory, M.Size);
   finally
     M.Free;
   end;
@@ -152,7 +157,7 @@ begin
   //Prepare to receive responses
   fUDP.StopListening;
   try
-    fUDP.Listen(56788);
+    fUDP.Listen(fScanPort);
   except
     //UDP scan is not that important, and could fail during debugging if running two KaM Remake instances
     on E: Exception do
@@ -190,7 +195,7 @@ begin
 end;
 
 
-procedure TKMNetUDPScan.Receive(const aAddress: string; aData:pointer; aLength:cardinal);
+procedure TKMNetUDPScan.Receive(const aAddress: String; aData: Pointer; aLength: Cardinal);
 var
   M: TKMemoryStreamBinary;
   S, ServerName: AnsiString;

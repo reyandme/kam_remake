@@ -1,0 +1,42 @@
+//-- TBK07 --//
+//By Strangelove
+//v2.0b
+//05.04.2019
+
+
+{$I improvestaticai.script}
+{$I transformunits.script}
+{$I difficulty.script}
+
+{$DEFINE DEBUG} //Enable extended Debug
+//{$UNDEF DEBUG}
+
+
+procedure OnTick;
+begin
+	//RemoveDefencePositionAndGroup can only be applied after Tick13
+	if States.GameTime = 14 then
+		case States.MissionDifficulty() of
+			mdEasy1:
+			begin
+				RemoveDefencePositionAndGroup(2, 108, 58); //Melee
+				RemoveDefencePositionAndGroup(2, 115, 60);
+			end;
+			mdNormal: 	exit;
+			mdHard1: //Add additional Units for defence
+			begin
+				AddDefencePositionAndGroup(4, 16, 55, 45, 6, 32); //Swordies
+				AddDefencePositionAndGroup(4, 16, 80, 50, 2, 32);
+				AddDefencePositionAndGroup(4, 16, 96, 18, 4, 32);
+				AddDefencePositionAndGroup(4, 20, 85, 25, 2, 32); //Pikes
+				AddDefencePositionAndGroup(4, 20, 66, 50, 6, 32);
+				AddDefencePositionAndGroup(3, 22, 110, 10, 4, 32); //Knights
+			end;
+		end;
+		
+	if States.GameTime() = 450 then
+	begin
+		Actions.ShowMsgGoto(-1, 60, 69, '<$0>');
+		Actions.FogRevealCircle(0, 60, 69, 15);
+	end;
+end;

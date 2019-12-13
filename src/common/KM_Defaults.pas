@@ -24,6 +24,7 @@ const
   MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
   MIN_RESOLUTION_HEIGHT = 576;          //Lowest supported resolution Y
   {$I KM_Revision.inc};
+  {$I KM_NetProtocolRevision.inc};
   {$IFDEF USESECUREAUTH}
     GAME_VERSION_POSTFIX  = '';
   {$ELSE}
@@ -105,6 +106,8 @@ var
   SKIP_RNG_CHECKS_FOR_SOME_GIC: Boolean = True; //Skip rng checks for Autosave and few other commands to have same AI city with predefined seed + mapconfig
   ALLOW_SELECT_ALLY_UNITS :Boolean = DEBUG_CFG; //Do we allow to select ally units or groups
   ALLOW_SELECT_ENEMIES    :Boolean = DEBUG_CFG; //Do we allow to select enemies houses/units/groups
+  ALLOW_LOAD_UNSUP_VERSION_SAVE:
+                           Boolean = True;  //Allow to try load saves / replay with unsupported version
   SHOW_ENEMIES_STATS      :Boolean = False; //Do we allow to show enemies stats during the game
   SHOW_DEBUG_CONTROLS     :Boolean = False; //Show debug panel / Form1 menu (F11)
   SHOW_CONTROLS_OVERLAY   :Boolean = False; //Draw colored overlays ontop of controls! always Off here
@@ -173,6 +176,7 @@ var
   INI_HITPOINT_RESTORE    :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN           :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN          :Boolean = False; //Scan saves with a pause to emulate uncached file access
+  SLOW_MAP_SAVE_LOAD      :Boolean = False; //Load map or save to emulate slow network
   DO_PERF_LOGGING         :Boolean = False; //Write each ticks time to log
   MP_RESULTS_IN_SP        :Boolean = False; //Display each players stats in SP
   SHOW_DEBUG_OVERLAY_BEVEL:Boolean = True; //Show debug text overlay Bevel (for better text readability)
@@ -181,7 +185,7 @@ var
   CUSTOM_SEED_VALUE     :Integer = 0;     //Custom seed value
   PAUSE_GAME_AT_TICK    :Integer = -1;    //Pause at specified game tick
   ALLOW_SAVE_IN_REPLAY  :Boolean = DEBUG_CFG; //Allow to save game from replay, good for debug
-  SAVE_GAME_AS_TEXT     :Boolean = False; //Save game serialized
+  SAVE_GAME_AS_TEXT     :Boolean = True; //Save game serialized //Todo DEBUG. set to False before releases
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
@@ -214,7 +218,7 @@ const
   MAX_WOODCUTTER_CUT_PNT_DISTANCE = 5; //Max distance for woodcutter new cutting point from his house
 
 const
-  MAX_HANDS            = 12; //Maximum players (human or AI) per map
+  MAX_HANDS            = 18; //Maximum players (human or AI) per map
   MAX_LOBBY_PLAYERS    = 12;  //Maximum number of players (not spectators) allowed in the lobby. Map can have additional AI locations up to MAX_HANDS (for co-op).
   MAX_LOBBY_SPECTATORS = 2;  //Slots available in lobby. Additional slots can be used by spectators
   MAX_LOBBY_SLOTS      = MAX_LOBBY_PLAYERS + MAX_LOBBY_SPECTATORS;
@@ -226,12 +230,13 @@ const
   AUTOSAVE_FREQUENCY_MIN  = 600;
   AUTOSAVE_FREQUENCY_MAX  = 3000;
   AUTOSAVE_FREQUENCY_DEFAULT      = 600; //How often to do autosave, every N ticks
-  AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX = 3; //Max number of autosaves to be included into crashreport
+  AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX = 5; //Max number of autosaves to be included into crashreport
   AUTOSAVE_NOT_MORE_OFTEN_THEN = 10000; //= 10s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
 
   REPLAY_AUTOSAVE_FREQUENCY_MIN  = 300; //30 sec
   REPLAY_AUTOSAVE_FREQUENCY_MAX  = 10*60*60; // 1hour
   REPLAY_AUTOSAVE_FREQUENCY_DEFAULT = 3000; //5 min
+  REPLAY_AUTOSAVE_MAX_SAVE_POINTS = 40; //Default max number of replay autosaves
 
 
   BEACON_COOLDOWN         = 400;  //Minimum time in milliseconds between beacons
@@ -285,12 +290,19 @@ const
   RETURN_TO_LOBBY_SAVE = 'paused';
   DOWNLOADED_LOBBY_SAVE = 'downloaded';
 
+  SERVER_DEFAULT_UDP_SCAN_PORT = 56788;
+  SERVER_DEFAULT_UDP_ANNOUNCE_PORT = 56789;
+  EMPTY_ROOM_DEFAULT_GAME_REVISION = 0; //Placeholder for game revision in room
+
   LOC_RANDOM = 0;
   LOC_SPECTATE = -1;
   LOC_ANY = -1000;
 
+  EXT_SAVE_TXT_DOT = '.txt';
+
   EXT_SAVE_REPLAY = 'rpl';
   EXT_SAVE_MAIN = 'sav';
+  EXT_SAVE_MAIN_TXT = EXT_SAVE_MAIN + EXT_SAVE_TXT_DOT;
   EXT_SAVE_BASE = 'bas';
   EXT_SAVE_MP_LOCAL = 'sloc';
   EXT_SAVE_RNG_LOG = 'rng';
@@ -299,6 +311,7 @@ const
 
   EXT_SAVE_REPLAY_DOT = '.' + EXT_SAVE_REPLAY;
   EXT_SAVE_MAIN_DOT = '.' + EXT_SAVE_MAIN;
+  EXT_SAVE_MAIN_TXT_DOT = '.' + EXT_SAVE_MAIN_TXT;
   EXT_SAVE_BASE_DOT = '.' + EXT_SAVE_BASE;
   EXT_SAVE_MP_LOCAL_DOT = '.' + EXT_SAVE_MP_LOCAL;
   EXT_SAVE_RNG_LOG_DOT = '.' + EXT_SAVE_RNG_LOG;
@@ -492,8 +505,10 @@ const
   CITIZEN_MAX = utRecruit;
   WARRIOR_MIN = utMilitia;
   WARRIOR_MAX = utHorseman;
-  WARRIOR_EQUIPABLE_MIN = utMilitia; //Available from barracks
-  WARRIOR_EQUIPABLE_MAX = utCavalry;
+  WARRIOR_EQUIPABLE_BARRACKS_MIN = utMilitia; //Available from barracks
+  WARRIOR_EQUIPABLE_BARRACKS_MAX = utCavalry;
+  WARRIOR_EQUIPABLE_TH_MIN = utBarbarian; //Available from Townhall
+  WARRIOR_EQUIPABLE_TH_MAX = utHorseman;
   HUMANS_MIN = utSerf;
   HUMANS_MAX = utHorseman;
   ANIMAL_MIN = utWolf;
@@ -790,6 +805,12 @@ const
   $FFFF0707, //Blue
   $FF0BE73F, //Light green
   $FF720468, //Purple
+  $FF22B3EE, //Yellowish
+  $FF668ACC, //Peach
+  $FF1A50B2, //Brownish
+  $FFB2611A, //Blueish
+  $FF60CC00, //Greenish + blue
+  $FF4F1AB2, //Purpleish
   $FFFFFFFF, //White
   $FF000000  //Black
   );
@@ -817,7 +838,11 @@ const
   icLightOrange = $FF80CCFF;
   icLightRed   = $FF7070FF;
   icLight2Red   = $FFB0B0FF;
+  icLightLightRed = $FF9DB4FB;
+  icDarkOrange = $FF0060FF;
   icDarkCyan   = $FFB0B000;
+  icLightGreen = $FF00F000;
+  icGreenYellow = $FF00FFBB;
 
   icPink = $FFFF00FF;
   icDarkPink = $FFAA00AA;
@@ -884,6 +909,10 @@ const
   clScriptCmdName = icYellow;
   clScriptCmdParam = icLightGray;
 
+  clSaveLoadOk = icWhite;
+  clSaveLoadTry = icLightLightRed;
+  clSaveLoadError = icLightRed;
+
 //  clGameSelf = icRed;
 //  clGameAlly = icYellow;
 //  clGameEnemy = icCyan;
@@ -897,7 +926,8 @@ initialization
 begin
   GAME_REVISION := AnsiString('r' + IntToStr(GAME_REVISION_NUM));
   GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX;
-  NET_PROTOCOL_REVISON := GAME_REVISION;     //Clients of this version may connect to the dedicated server
+  //Clients of this net protocol version may connect to the dedicated server
+  NET_PROTOCOL_REVISON := AnsiString('r' + IntToStr(NET_PROTOCOL_REVISION_NUM));
 end;
 
 end.

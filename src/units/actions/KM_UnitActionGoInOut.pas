@@ -50,7 +50,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_UnitActionWalkTo,
-  KM_HouseBarracks, KM_ResHouses, KM_ResUnits;
+  KM_HouseBarracks, KM_ResHouses, KM_ResUnits, KM_CommonUtils;
 
 
 { TUnitActionGoInOut }
@@ -158,42 +158,69 @@ end;
 //Attempt to find a tile below the door (on the street) we can walk to
 //We can push idle units away. Check center first
 function TKMUnitActionGoInOut.FindBestExit(const aLoc: TKMPoint): TKMBestExit;
+
+  function ChooseBestExit(aL, aR: Boolean): TKMBestExit;
+  begin
+    //Choose randomly between left and right
+    if (aL and aR) then
+    begin
+      if KaMRandom(2, 'TKMUnitActionGoInOut.FindBestExit.ChooseBestExit') = 0 then
+        Result := beLeft
+      else
+        Result := beRight;
+    end
+    else
+    if aL then
+      Result := beLeft
+    else
+    if aR then
+      Result := beRight
+    else
+      Result := beNone;
+  end;
+
 var
-  U: TKMUnit;
+  U, UC, UL, UR: TKMUnit;
+  L, R: Boolean;
 begin
   if fUnit.CanStepTo(aLoc.X, aLoc.Y, tpWalk) then
     Result := beCenter
   else
-  if fUnit.CanStepTo(aLoc.X-1, aLoc.Y, tpWalk) then
-    Result := beLeft
-  else
-  if fUnit.CanStepTo(aLoc.X+1, aLoc.Y, tpWalk) then
-    Result := beRight
-  else
   begin
-    //U could be nil if tile is unwalkable for some reason
-    U := TileHasIdleUnit(aLoc.X, aLoc.Y);
-    if U <> nil then
-      Result := beCenter
-    else
+    L := fUnit.CanStepTo(aLoc.X-1, aLoc.Y, tpWalk);
+    R := fUnit.CanStepTo(aLoc.X+1, aLoc.Y, tpWalk);
+
+    Result := ChooseBestExit(L, R);
+
+    if Result = beNone then
     begin
-      U := TileHasIdleUnit(aLoc.X-1, aLoc.Y);
-      if U <> nil then
-        Result := beLeft
+      U := nil;
+      UL := nil;
+      UR := nil;
+      //U could be nil if tile is unwalkable for some reason
+      UC := TileHasIdleUnit(aLoc.X, aLoc.Y);
+      if UC <> nil then
+        Result := beCenter
       else
       begin
-        U := TileHasIdleUnit(aLoc.X+1, aLoc.Y);
-        if U <> nil then
-          Result := beRight
-        else
-          Result := beNone;
+        UL := TileHasIdleUnit(aLoc.X-1, aLoc.Y);
+        L := UL <> nil;
+        UR := TileHasIdleUnit(aLoc.X+1, aLoc.Y);
+        R := UR <> nil;
+        Result := ChooseBestExit(L, R);
       end;
-    end;
 
-    if U <> nil then
-    begin
-      fPushedUnit := U.GetUnitPointer;
-      fPushedUnit.SetActionWalkPushed(gTerrain.GetOutOfTheWay(U, KMPOINT_ZERO, tpWalk));
+      case Result of
+        beCenter: U := UC;
+        beLeft:   U := UL;
+        beRight:  U := UR;
+      end;
+
+      if U <> nil then
+      begin
+        fPushedUnit := U.GetUnitPointer;
+        fPushedUnit.SetActionWalkPushed(gTerrain.GetOutOfTheWay(U, KMPOINT_ZERO, tpWalk));
+      end;
     end;
   end;
 end;

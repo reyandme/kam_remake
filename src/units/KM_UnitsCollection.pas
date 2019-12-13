@@ -43,8 +43,9 @@ type
 
 implementation
 uses
-  SysUtils, KM_Game, KM_HandsCollection, KM_Log, KM_Resource, KM_ResUnits, KM_UnitWarrior,
-  KM_GameTypes;
+  SysUtils,
+  KM_Game, KM_HandsCollection, KM_Log, KM_Resource, KM_ResUnits, KM_UnitWarrior,
+  KM_UnitActionWalkTo, KM_GameTypes;
 
 
 { TKMUnitsCollection }
@@ -330,7 +331,12 @@ begin
   growRect := KMRectGrow(aRect, Margin);
 
   for I := 0 to Count - 1 do
-  if (Units[I] <> nil) and not Units[I].IsDead and KMInRect(Units[I].PositionF, growRect) then
+  if (Units[I] <> nil)
+    and not Units[I].IsDead
+    and ((SHOW_UNIT_ROUTES
+          and (Units[I].Action is TKMUnitActionWalkTo)
+          and TKMUnitActionWalkTo(Units[I].Action).NeedToPaint(growRect))
+        or KMInRect(Units[I].PositionF, growRect)) then
     Units[I].Paint;
 end;
 

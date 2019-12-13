@@ -395,7 +395,7 @@ end;
 
 procedure TKMSaveStreamText.WriteA(const Value: AnsiString);
 begin
-  WriteText(Value);
+  WriteText(UnicodeString(Value));
 end;
 
 procedure TKMSaveStreamText.WriteANSI(const aValue: string);

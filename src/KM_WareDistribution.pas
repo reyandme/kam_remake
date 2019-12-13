@@ -95,9 +95,7 @@ procedure TKMWareDistribution.LoadFromStr(aString: String);
     Result := Length(aString) = 16; // Ware distribution string length should be equal to 16
     if Result then
       for I := 1 to 16 do
-        begin
-          Result := Result and InRange(Ord(aString[I]), 48, 53); //In ware distribution string only digits from 0 to 5 are allowed'
-        end;
+        Result := Result and InRange(Ord(aString[I]), 48, 53); //In ware distribution string only digits from 0 to 5 are allowed'
 
   end;
 var I, J: Integer;

@@ -115,39 +115,40 @@ end;
 
 procedure TForm1.Reinit;
 var
-  Settings: TINIFile;
+  ini: TINIFile;
 begin
-  Settings := TINIFile.Create(fSettingsPath);
+  ini := TINIFile.Create(fSettingsPath);
 
   if not FileExists(fSettingsPath) then
   begin
-    Settings.WriteString('INPUT',  'Actions', '..\..\src\scripting\KM_ScriptingActions.pas');
-    Settings.WriteString('INPUT',  'Events',  '..\..\src\scripting\KM_ScriptingEvents.pas');
-    Settings.WriteString('INPUT',  'States',  '..\..\src\scripting\KM_ScriptingStates.pas');
-    Settings.WriteString('INPUT',  'Utils',  '..\..\src\scripting\KM_ScriptingUtils.pas');
-    Settings.WriteString('HEADER', 'Actions', 'header\Actions.header');
-    Settings.WriteString('HEADER', 'Events',  'header\Events.header');
-    Settings.WriteString('HEADER', 'States',  'header\States.header');
-    Settings.WriteString('HEADER', 'Utils',   'header\Utils.header');
-    Settings.WriteString('OUTPUT', 'Actions', 'wiki\Actions.wiki');
-    Settings.WriteString('OUTPUT', 'Events',  'wiki\Events.wiki');
-    Settings.WriteString('OUTPUT', 'States',  'wiki\States.wiki');
-    Settings.WriteString('OUTPUT', 'Utils',   'wiki\Utils.wiki');
+    ini.WriteString('INPUT',  'Actions', '..\..\src\scripting\KM_ScriptingActions.pas');
+    ini.WriteString('INPUT',  'Events',  '..\..\src\scripting\KM_ScriptingEvents.pas');
+    ini.WriteString('INPUT',  'States',  '..\..\src\scripting\KM_ScriptingStates.pas');
+    ini.WriteString('INPUT',  'Utils',  '..\..\src\scripting\KM_ScriptingUtils.pas');
+    ini.WriteString('HEADER', 'Actions', 'header\Actions.header');
+    ini.WriteString('HEADER', 'Events',  'header\Events.header');
+    ini.WriteString('HEADER', 'States',  'header\States.header');
+    ini.WriteString('HEADER', 'Utils',   'header\Utils.header');
+    ini.WriteString('OUTPUT', 'Actions', 'wiki\Actions.wiki');
+    ini.WriteString('OUTPUT', 'Events',  'wiki\Events.wiki');
+    ini.WriteString('OUTPUT', 'States',  'wiki\States.wiki');
+    ini.WriteString('OUTPUT', 'Utils',   'wiki\Utils.wiki');
   end;
 
-  edtActionsFile.Text       := Settings.ReadString('INPUT',  'Actions', '');
-  edtEventsFile.Text        := Settings.ReadString('INPUT',  'Events',  '');
-  edtStatesFile.Text        := Settings.ReadString('INPUT',  'States',  '');
-  edtUtilsFile.Text         := Settings.ReadString('INPUT',  'Utils',   '');
-  edtHeaderFileActions.Text := Settings.ReadString('HEADER', 'Actions', '');
-  edtHeaderFileEvents.Text  := Settings.ReadString('HEADER', 'Events',  '');
-  edtHeaderFileStates.Text  := Settings.ReadString('HEADER', 'States',  '');
-  edtHeaderFileUtils.Text   := Settings.ReadString('HEADER', 'Utils',   '');
-  edtOutputFileActions.Text := Settings.ReadString('OUTPUT', 'Actions', '');
-  edtOutputFileEvents.Text  := Settings.ReadString('OUTPUT', 'Events',  '');
-  edtOutputFileStates.Text  := Settings.ReadString('OUTPUT', 'States',  '');
-  edtOutputFileUtils.Text   := Settings.ReadString('OUTPUT', 'Utils',   '');
-  FreeAndNil(Settings);
+  edtActionsFile.Text       := ini.ReadString('INPUT',  'Actions', '');
+  edtEventsFile.Text        := ini.ReadString('INPUT',  'Events',  '');
+  edtStatesFile.Text        := ini.ReadString('INPUT',  'States',  '');
+  edtUtilsFile.Text         := ini.ReadString('INPUT',  'Utils',   '');
+  edtHeaderFileActions.Text := ini.ReadString('HEADER', 'Actions', '');
+  edtHeaderFileEvents.Text  := ini.ReadString('HEADER', 'Events',  '');
+  edtHeaderFileStates.Text  := ini.ReadString('HEADER', 'States',  '');
+  edtHeaderFileUtils.Text   := ini.ReadString('HEADER', 'Utils',   '');
+  edtOutputFileActions.Text := ini.ReadString('OUTPUT', 'Actions', '');
+  edtOutputFileEvents.Text  := ini.ReadString('OUTPUT', 'Events',  '');
+  edtOutputFileStates.Text  := ini.ReadString('OUTPUT', 'States',  '');
+  edtOutputFileUtils.Text   := ini.ReadString('OUTPUT', 'Utils',   '');
+
+  FreeAndNil(ini);
 
   fSafeToWrite := True;
 end;
@@ -517,51 +518,26 @@ end;
 
 procedure TForm1.edtOnTextChange(Sender: TObject);
 var
-  Settings: TINIFile;
+  ini: TINIFile;
 begin
   if not fSafeToWrite then Exit;
 
-  Settings := TINIFile.Create(fSettingsPath);
+  ini := TINIFile.Create(fSettingsPath);
 
-  if Sender = edtActionsFile then
-    Settings.WriteString('INPUT',  'Actions', edtActionsFile.Text);
+  ini.WriteString('INPUT',  'Actions', edtActionsFile.Text);
+  ini.WriteString('INPUT',  'Events',  edtEventsFile.Text);
+  ini.WriteString('INPUT',  'States',  edtStatesFile.Text);
+  ini.WriteString('INPUT',  'Utils',   edtUtilsFile.Text);
+  ini.WriteString('HEADER', 'Actions', edtHeaderFileActions.Text);
+  ini.WriteString('HEADER', 'Events',  edtHeaderFileEvents.Text);
+  ini.WriteString('HEADER', 'States',  edtHeaderFileStates.Text);
+  ini.WriteString('HEADER', 'Utils',   edtHeaderFileUtils.Text);
+  ini.WriteString('OUTPUT', 'Actions', edtOutputFileActions.Text);
+  ini.WriteString('OUTPUT', 'Events',  edtOutputFileEvents.Text);
+  ini.WriteString('OUTPUT', 'States',  edtOutputFileStates.Text);
+  ini.WriteString('OUTPUT', 'Utils',   edtOutputFileUtils.Text);
 
-  if Sender = edtEventsFile then
-    Settings.WriteString('INPUT',  'Events',  edtEventsFile.Text);
-
-  if Sender = edtStatesFile then
-    Settings.WriteString('INPUT',  'States',  edtStatesFile.Text);
-
-  if Sender = edtUtilsFile then
-    Settings.WriteString('INPUT',  'Utils',   edtUtilsFile.Text);
-
-  //-------------------------------
-  if Sender = edtHeaderFileActions then
-    Settings.WriteString('HEADER', 'Actions', edtHeaderFileActions.Text);
-
-  if Sender = edtHeaderFileEvents then
-    Settings.WriteString('HEADER', 'Events',  edtHeaderFileEvents.Text);
-
-  if Sender = edtHeaderFileStates then
-    Settings.WriteString('HEADER', 'States',  edtHeaderFileStates.Text);
-
-  if Sender = edtHeaderFileUtils then
-    Settings.WriteString('HEADER', 'Utils',   edtHeaderFileUtils.Text);
-
-  //-------------------------------
-  if Sender = edtOutputFileActions then
-    Settings.WriteString('OUTPUT', 'Actions', edtOutputFileActions.Text);
-
-  if Sender = edtOutputFileEvents then
-    Settings.WriteString('OUTPUT', 'Events',  edtOutputFileEvents.Text);
-
-  if Sender = edtOutputFileStates then
-    Settings.WriteString('OUTPUT', 'States',  edtOutputFileStates.Text);
-
-  if Sender = edtOutputFileUtils then
-    Settings.WriteString('OUTPUT', 'Utils',   edtOutputFileUtils.Text);
-
-  FreeAndNil(Settings);
+  FreeAndNil(ini);
 end;
 
 

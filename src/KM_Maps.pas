@@ -166,9 +166,11 @@ type
   private
     fOnMapAdd: TKMapEvent;
     fOnMapAddDone: TNotifyEvent;
+    fIsStopped: Boolean;
     procedure ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder); override;
   public
     constructor Create(aMapFolders: TKMapFolderSet; aOnMapAdd: TKMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
+    procedure Stop;
   end;
 
   TTMapsCacheUpdater = class(TTCustomMapsScanner)
@@ -239,7 +241,8 @@ type
 
 implementation
 uses
-  SysUtils, StrUtils, Math, KromShellUtils, KromUtils,
+  SysUtils, StrUtils, TypInfo, Math,
+  KromShellUtils, KromUtils,
   KM_GameApp, KM_FileIO,
   KM_MissionScript_Info, KM_Scripting,
   KM_Utils, KM_CommonUtils, KM_Log;
@@ -868,6 +871,7 @@ procedure TKMMapTxtInfo.SaveTXTInfo(const aFilePath: String);
 var
   St: String;
   ft: TextFile;
+  MD: TKMMissionDifficulty;
 
   procedure WriteLine(const aLineHeader: String; const aLineValue: String = '');
   begin
@@ -924,20 +928,13 @@ begin
   if HasDifficultyLevels then
   begin
     St := '';
-    if St <> '' then
-      St := St + ',';
-    if mdEasy in DifficultyLevels then
-      St := 'Easy';
-    if mdNormal in DifficultyLevels then
-    begin
-      if St <> '' then
-        St := St + ',';
-      St := St + 'Normal';
-    end;
-    if mdHard in DifficultyLevels then
-    begin
-      St := St + ',Hard';
-    end;
+    for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
+      if MD in DifficultyLevels then
+      begin
+        if St <> '' then
+          St := St + ',';
+        St := St + GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD));
+      end;
     WriteLine('DifficultyLevels', St);
   end;
 
@@ -963,6 +960,7 @@ var
   St, S: String;
   ft: TextFile;
   StList: TStringList;
+  MD: TKMMissionDifficulty;
 begin
   //Load additional text info
   if FileExists(aFilePath) then
@@ -1019,14 +1017,9 @@ begin
         StList := TStringList.Create;
         StringSplit(S, ',', StList);
         for I := 0 to StList.Count - 1 do
-        begin
-          if SameText(StList[I], 'Easy') then
-            Include(DifficultyLevels, mdEasy);
-          if SameText(StList[I], 'Normal') then
-            Include(DifficultyLevels, mdNormal);
-          if SameText(StList[I], 'Hard') then
-            Include(DifficultyLevels, mdHard);
-        end;
+          for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
+            if SameText(StList[I], GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD))) then
+              Include(DifficultyLevels, MD);
         StList.Free;
       end;
     until(eof(ft));
@@ -1072,12 +1065,13 @@ end;
 
 
 function TKMMapTxtInfo.HasDifficultyLevels: Boolean;
+var
+  MD: TKMMissionDifficulty;
 begin
+  Result := (DifficultyLevels <> []);
   //We consider there is no difficulty levels, if only one is presented
-  Result := (DifficultyLevels <> [])
-            and (DifficultyLevels <> [mdEasy])
-            and (DifficultyLevels <> [mdNormal])
-            and (DifficultyLevels <> [mdHard]);
+  for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
+    Result := Result and (DifficultyLevels <> [MD]);
 end;
 
 
@@ -1387,11 +1381,15 @@ begin
   if (fScanner <> nil) then
   begin
     fScanner.Terminate;
-    fScanner.WaitFor;
-    fScanner.Free;
-    fScanner := nil;
-    fScanning := False;
+    fScanner.Stop;
+//We use Stop instead now, since WaitFor sometimes freeze (deadlock?)
+//Thread will be not terminated, but its not a big problem actually
+//Need to Free object here actually, but we still could get deadlock on it...
+//    fScanner.WaitFor;
+//    fScanner.Free;
+//    fScanner := nil;
   end;
+  fScanning := False;
   fUpdateNeeded := False; //If the scan was terminated we should not run fOnRefresh next UpdateState
 end;
 
@@ -1460,9 +1458,13 @@ end;
 //No need to resort since that was done in last MapAdd event
 procedure TKMapsCollection.ScanTerminate(Sender: TObject);
 begin
+  if not fScanning then
+    Exit;
+
   Lock;
   try
     fScanning := False;
+//    Stop;
     if Assigned(fOnTerminate) then
       fOnTerminate(Self);
   finally
@@ -1608,7 +1610,8 @@ end;
 //aOnMapAddDone - signal that map has been added
 //aOnTerminate - scan was terminated (but could be not complete yet)
 //aOnComplete - scan is complete
-constructor TTMapsScanner.Create(aMapFolders: TKMapFolderSet; aOnMapAdd: TKMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
+constructor TTMapsScanner.Create(aMapFolders: TKMapFolderSet; aOnMapAdd: TKMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent;
+                                 aOnComplete: TNotifyEvent = nil);
 begin
   inherited Create(aMapFolders, aOnComplete);
 
@@ -1625,6 +1628,9 @@ procedure TTMapsScanner.ProcessMap(const aPath: UnicodeString; aFolder: TKMapFol
 var
   Map: TKMapInfo;
 begin
+  if fIsStopped then
+    Exit;
+
   Map := TKMapInfo.Create(aPath, False, aFolder);
 
   if SLOW_MAP_SCAN then
@@ -1632,6 +1638,17 @@ begin
 
   fOnMapAdd(Map);
   fOnMapAddDone(Self);
+end;
+
+
+procedure TTMapsScanner.Stop;
+begin
+//  inherited;
+
+  if Self <> nil then
+    fIsStopped := True;
+
+//  OnTerminate := nil;
 end;
 
 

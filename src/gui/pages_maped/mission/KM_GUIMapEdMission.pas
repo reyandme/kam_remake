@@ -85,6 +85,7 @@ end;
 
 procedure TKMMapEdMission.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
+  fGuiMissionPlayers.KeyDown(Key, Shift, aHandled);
   fGuiMissionAlliances.KeyDown(Key, Shift, aHandled);
 end;
 

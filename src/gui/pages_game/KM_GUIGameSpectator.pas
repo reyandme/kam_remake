@@ -679,13 +679,15 @@ begin
     Result := HouseProgress.BuildingProgress / HouseProgress.MaxHealth;
 end;
 
+function ConstructingGetVerifyHouseSketchFnInline(aSketch: TKMHouseSketch; aBoolParam: Boolean): Boolean;
+begin
+  Result := (aSketch <> nil)
+            and (not (aSketch is TKMHouse) or not TKMHouse(aSketch).IsComplete);
+end;
+
 function TKMGUIGameSpectatorItemLineConstructing.GetVerifyHouseSketchFn: TAnonHouseSketchBoolFn;
 begin
-  Result := function(aSketch: TKMHouseSketch; aBoolParam: Boolean): Boolean
-    begin
-      Result := (aSketch <> nil)
-                and (not (aSketch is TKMHouse) or not TKMHouse(aSketch).IsComplete);
-    end;
+  Result := ConstructingGetVerifyHouseSketchFnInline;
 end;
 
 { TKMGUIGameSpectatorItemLineBuildings }
@@ -736,17 +738,19 @@ begin
     Result := HouseHealth.GetHealth / HouseHealth.MaxHealth;
 end;
 
+function HousesGetVerifyHouseSketchFnInline(aSketch: TKMHouseSketch; aBoolParam: Boolean): Boolean;
+begin
+  //Show only damaged houses or all houses, depending on param
+  //param - do we have damaged houses (on LMB) or RMB (all houses)
+  Result := (aSketch <> nil)
+            and (not (aSketch is TKMHouse)
+              or (TKMHouse(aSketch).GetDamage > 0)
+              or not aBoolParam); //Show
+end;
+
 function TKMGUIGameSpectatorItemLineHouses.GetVerifyHouseSketchFn: TAnonHouseSketchBoolFn;
 begin
-  Result := function(aSketch: TKMHouseSketch; aBoolParam: Boolean): Boolean
-    begin
-      //Show only damaged houses or all houses, depending on param
-      //param - do we have damaged houses (on LMB) or RMB (all houses)
-      Result := (aSketch <> nil)
-                and (not (aSketch is TKMHouse)
-                  or (TKMHouse(aSketch).GetDamage > 0)
-                  or not aBoolParam); //Show
-    end;
+  Result := HousesGetVerifyHouseSketchFnInline;
 end;
 
 

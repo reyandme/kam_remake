@@ -21,9 +21,9 @@ var
 begin
 	//Apply Difficulty
 	case States.MissionDifficulty() of
-		mdEasy: 
+		mdEasy1: 
 			IncreaseGroupSize(0, 0);
-		mdHard:
+		mdHard1:
 			IncreaseGroupSize(5, 0);
 	end;
 	//Disable Sharing Fog With Ally

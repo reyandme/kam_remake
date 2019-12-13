@@ -58,7 +58,7 @@ function Max(const A,B,C: Single): Single; overload;
   procedure SwapInt(var A, B: Word); overload;
   procedure SwapInt(var A, B: Integer); overload;
   procedure SwapInt(var A, B: Cardinal); overload;
-  {$IFDEF WDC}
+  {$IFDEF WDC} //Cardinal == NativeUInt == LongWord for 32bit FPC
   procedure SwapInt(var A, B: NativeUInt); overload;
   {$ENDIF}
   procedure SwapFloat(var A, B: Single);

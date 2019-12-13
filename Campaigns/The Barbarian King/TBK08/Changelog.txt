@@ -1,0 +1,43 @@
+TBK07
+*****
+
+Version 1.1 (03.09.2015)
+- Fixed a bug where white player did not ally to you after you defeated the enemy on the island (Thanks for vatrix for noticing)
+- Minor other fixes made to script
+
+Version 1.1b (15.01.2018)
+- Fixed a bug where the Backstab of Northern Barbarian Village wouldnt happen
+- Removed ugly waterfalls from the map
+
+
+Version 2.0 (04.03.2018)
+- Moved map to KaMRemake r8754 beta version
+- Overhauled scripts
+- Deactivated Townhall
+- Increased starting army of Player0
+- Added Initial Attack with 3x 12 Knights
+- Added Ingame Briefing before Knights attack
+- 2nd Briefing about Village now comes a bit later (after defeat of the initial attack)
+- First attack of Brown and Violet happens now 5Minutes earlier
+
+Version 2.1: (17.02.2019)
+- Map renamed from TBK07 to TBK08
+- Updated map so it fuses better from TBK07 to TBK08 (Updated tiles and tree deversity)
+- Replaced Lava-Tiles with Stone-Tiles to make it more consistant with Lore/Story. Was pretty ilogiacally before...
+- Dynamicmap-script removed
+- Other minor updates to the Map made
+
+Version 2.1b: (09.04.2019)
+- Recruits in Barracks for all enemy AIs increased from 5 to 10
+- Initial Attack is now handled by MapEd
+- Swapped some Defence Position priorities around for player1
+- Integrated Difficulty Settings; usual 33% scaling
+	- Easy: Additional Group of Pikes given to Human Player; Removed some troop reserves of Enemies
+	- Normal: No changes
+	- Hard: Increased troops of initial Attack for AI; Added Towers to Player2s defence
+- Changed to AI Attacks:
+	- Changed AI Starting Position Locations
+	- AI Attacks now target "Closest House from Start Position", making AI attack from different angles to make it less boring
+	- Player3 now targets Storehouse
+	- Player2 targets Iron Mines
+	- Player1 targets Gold Mines

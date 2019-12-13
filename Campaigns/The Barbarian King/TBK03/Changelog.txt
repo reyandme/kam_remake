@@ -1,0 +1,19 @@
+TBK03
+*****
+
+Version 1.1 (30.08.2015)
+- Fixed some errors in the script
+- Improved performance of script
+
+Version 2.0 (04.03.2018)
+- Minor changes to script formatting
+- Integrated Hunger Script
+
+Version 2.1 (08.03.2018)
+- Vagabonds replaced with Scouts
+
+Version 2.1b (05.04.2019)
+- Replaced uncuttable trees
+- Map now supports difficulty settings: Groupsize of Enemies change according
+- Removed all Houses, Roadworks and Destroyed Houses in MapEd
+- Data is now loaded from campaign.dat on Mission start

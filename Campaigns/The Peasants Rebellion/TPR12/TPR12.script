@@ -111,9 +111,9 @@ begin
 	UnitsRandomHungerSet();
 	//Apply Difficulty
 	case States.MissionDifficulty() of
-		mdEasy: 
+		mdEasy1: 
 			IncreaseGroupSize(0, 0);
-		mdHard:
+		mdHard1:
 		begin
 			IncreaseTargetGroupSize(4, 63, 92, 0); //Initial Knights
 			IncreaseTargetGroupSize(4, 67, 97, 0);

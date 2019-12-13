@@ -312,7 +312,7 @@ procedure TKMArmyEvaluation.UpdateState(aTick: Cardinal);
 const
   PERF_SUM = MAX_HANDS * 10;
 var
-  PL: TKMHandID;
+  PL: Integer;
 begin
   PL := aTick mod PERF_SUM;
   if (PL < gHands.Count) AND gHands[PL].Enabled then

@@ -1,0 +1,152 @@
+//-- Transform Units --//
+//By Strangelove
+//v0.1
+//03.03.2018
+//Developed for r8754
+
+//Replace Units from Barracks with different ones. F.E. Swordmen with Warrior
+//This script is NOT "set and forget"!
+
+{$EVENT evtMissionStart:TransformUnitsOnMissionStart}
+{$EVENT evtWarriorEquipped:TransformUnitsOnWarriorEquipped}
+{$EVENT evtTick:TransformUnitsOnTick}
+{$EVENT evtPlayerDefeated:TransformUnitsOnPlayerDefeated}
+
+
+Type
+	TTransformer = record
+		iGiveU, iGiveG: Integer;
+		iX, iY, iD, iType, iOwner: Byte;
+		bGiveNext: Boolean;
+	end;
+	
+var 
+	aTransformer: array of TTransformer;
+	
+	
+function GiveTransformedUnit(PlayerID, UnitType, X, Y, Direction, UnitCount, Row: Byte): Integer;
+begin
+
+	Result := Actions.GiveGroup(PlayerID, UnitType, X, Y, Direction, UnitCount, Row);
+	{$IFDEF DEBUG}
+	if Result = -1 then
+		Actions.Log('Transformed Unit could not be added: Actions.GiveGroup: ' + inttostr(PlayerID) + ', ' + inttostr(UnitType) + ', ' + inttostr(X) + ', ' + inttostr(Y) + ', ' + inttostr(Direction) + ', ' + inttostr(UnitCount) + ', ' + inttostr(Row) + '; GameTime: ' + inttostr(States.GameTime()));
+	{$ENDIF}
+end;
+	
+procedure KilledUnitData(aUnitID, aGroupID: Integer; i: Byte);
+begin
+	aTransformer[i].iX := States.UnitPositionX(aUnitID);
+	aTransformer[i].iY := States.UnitPositionY(aUnitID);
+	aTransformer[i].iD := States.UnitDirection(aUnitID);
+	aTransformer[i].iGiveU := aUnitID;
+	aTransformer[i].iGiveG := aGroupID;
+	aTransformer[i].iOwner := States.UnitOwner(aUnitID);
+	aTransformer[i].iType := States.UnitType(aUnitID);
+	Actions.UnitKill(aUnitID, true);
+end;
+
+
+//Needed to scale arrays accordingly
+function TransformUnitsAIPlayerCount(): Byte;
+var
+	p, AIPlayer: Byte;
+begin
+	for p := 0 to States.LocationCount() -1 do
+		if States.PlayerEnabled(p) then
+			if States.PlayerIsAI(p) then
+				AIPlayer := AIPlayer +1;
+	Result := AIPlayer;
+end;
+
+
+procedure TransformUnitsOnMissionStart();
+var
+	i: Byte;
+begin
+	//Scale Array dynamicly
+	SetLength(aTransformer, 5 +TransformUnitsAIPlayerCount());
+	//Assign values to arrays
+	for i := 0 to Length(aTransformer) -1 do
+		aTransformer[i].iGiveU := -1;
+end;
+
+procedure TransformUnitsOnWarriorEquipped(aUnitID, aGroupID: Integer);
+var
+	i, iTypeLocal, iOwnerLocal: Byte;
+begin
+	iOwnerLocal := States.UnitOwner(aUnitID);
+	//"Transform" Units of AI Players
+	if States.PlayerIsAI(iOwnerLocal) then
+	begin
+		iTypeLocal := States.UnitType(aUnitID);
+		if iOwnerLocal = 4 then //Map specific adjustment
+			for i := 0 to Length(aTransformer)-1 do
+				if (aTransformer[i].iGiveU = -1) then
+				begin
+					//Map specific
+					if ((iTypeLocal = 19) or (iTypeLocal = 17)) then KilledUnitData(aUnitID, aGroupID, i);
+					exit;
+				end;
+		//UnitType is the same as the Units in the Group its gonna get linked to: Do nothing
+		if (States.GroupMemberCount(aGroupID) > 1) and (States.UnitType(aUnitID) = States.UnitType(States.GroupMember(aGroupID, 0))) then
+			exit;
+		//UnitType is a different Unit: Kill it and give appropriate Type
+		if (States.GroupMemberCount(aGroupID) > 1) and (States.UnitType(aUnitID) <> States.UnitType(States.GroupMember(aGroupID, 0))) then
+			for i := 0 to Length(aTransformer) -1 do
+				if (aTransformer[i].iGiveU = -1) then
+				begin
+					//Map specific
+					if ((iOwnerLocal = 1) or (iOwnerLocal = 2)) and (iTypeLocal = 16) then KilledUnitData(aUnitID, aGroupID, i);
+					if (iOwnerLocal = 3) and (iTypeLocal = 15) then KilledUnitData(aUnitID, aGroupID, i); //Axe Fighter
+					exit;
+				end;
+		//First Member of a Group (New Group): Leave as is or kill (by chance)
+		if (States.GroupMemberCount(aGroupID) = 1) then
+			if States.KaMRandomI(2) = 0 then //50% Chance
+				for i := 0 to Length(aTransformer) -1 do
+					if (aTransformer[i].iGiveU = -1) then
+					begin
+						//Map specific
+						if ((iOwnerLocal = 1) or (iOwnerLocal = 2)) and (iTypeLocal = 16) then KilledUnitData(aUnitID, aGroupID, i);
+						if (iOwnerLocal = 3) and (iTypeLocal = 15) then KilledUnitData(aUnitID, aGroupID, i); //Axe Fighter
+						exit;
+					end;
+	end;
+end;
+
+//Give Transformed Unit to Player
+procedure TransformUnitsOnTick();
+var 
+	i: Byte;
+	iGroup: Integer;
+begin
+	for i := 0 to Length(aTransformer) -1 do
+		//Check if position in Array is not empty and if original Unit is dead
+		if (aTransformer[i].iGiveU <> -1) and States.UnitDead(aTransformer[i].iGiveU) then
+			if aTransformer[i].bGiveNext then //1Tick delay
+			begin
+				aTransformer[i].bGiveNext := false;
+				aTransformer[i].iGiveU := -1; //Delete Unit from Array
+				//Replace Units (Map specific)
+				if aTransformer[i].iType = 19 then iGroup := GiveTransformedUnit(aTransformer[i].iOwner, 24, aTransformer[i].iX, aTransformer[i].iY, aTransformer[i].iD, 1, 1); //Lancer -> Rebel
+				if aTransformer[i].iType = 17 then iGroup := GiveTransformedUnit(aTransformer[i].iOwner, 25, aTransformer[i].iX, aTransformer[i].iY, aTransformer[i].iD, 1, 1); //Bowman -> Rogue
+				//if aTransformer[i].iType = 14 then iGroup := GiveTransformedUnit(aTransformer[i].iOwner, 23, aTransformer[i].iX, aTransformer[i].iY, aTransformer[i].iD, 1, 1); //Milita -> Barbarian
+				if aTransformer[i].iType = 15 then iGroup := GiveTransformedUnit(aTransformer[i].iOwner, 23, aTransformer[i].iX, aTransformer[i].iY, aTransformer[i].iD, 1, 1); //Axefighter -> Barbarian
+				if aTransformer[i].iType = 16 then iGroup := GiveTransformedUnit(aTransformer[i].iOwner, 26, aTransformer[i].iX, aTransformer[i].iY, aTransformer[i].iD, 1, 1); //Swordmen -> Warrior
+				//Check if Unit belongs to a Group and Link it
+				if not States.GroupDead(aTransformer[i].iGiveG) then 
+					Actions.GroupOrderLink(iGroup, aTransformer[i].iGiveG);
+			end else aTransformer[i].bGiveNext := true;
+end;
+
+//Remove stored Values of defeated AIPlayer from Array to free up space
+procedure TransformUnitsOnPlayerDefeated(aIndex: Integer);
+var
+	i: Byte;
+begin
+	if States.PlayerIsAI(aIndex) then
+		for i := 0 to Length(aTransformer) -1 do
+			if aTransformer[i].iOwner = aIndex then
+				aTransformer[i].iGiveU := -1;
+end;

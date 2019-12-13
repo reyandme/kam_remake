@@ -1,3 +1,8 @@
+{
+NavMesh - positioning in walkable tiles
+@author: Martin Toupal
+@e-mail: poznamenany@gmail.com
+}
 unit KM_NavMeshFloodPositioning;
 {$I KaM_Remake.inc}
 interface

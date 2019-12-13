@@ -172,21 +172,28 @@ type
     function CheckHeightPass(const aLoc: TKMPoint; aPass: TKMHeightPass): Boolean;
     procedure AddHouseRemainder(const Loc: TKMPoint; aHouseType: TKMHouseType; aBuildState: TKMHouseBuildState);
 
+    procedure FindWineFieldLocs(const aLoc: TKMPoint; aRadius: Integer; aCornLocs: TKMPointList);
     function FindWineField(const aLoc: TKMPoint; aRadius: Integer; const aAvoidLoc: TKMPoint; out FieldPoint: TKMPointDir): Boolean;
+    procedure FindCornFieldLocs(const aLoc: TKMPoint; aRadius: Integer; aCornLocs: TKMPointList);
     function FindCornField(const aLoc: TKMPoint; aRadius:integer; const aAvoidLoc: TKMPoint; aPlantAct: TKMPlantAct;
                            out PlantAct: TKMPlantAct; out FieldPoint: TKMPointDir): Boolean;
     function FindStone(const aLoc: TKMPoint; aRadius: Byte; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits: Boolean;
                        out StonePoint: TKMPointDir): Boolean;
+    procedure FindStoneLocs(const aLoc: TKMPoint; aRadius: Byte; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits: Boolean;
+                            aStoneLocs: TKMPointList);
     function FindOre(const aLoc: TKMPoint; aRes: TKMWareType; out OrePoint: TKMPoint): Boolean;
     procedure FindOrePoints(const aLoc: TKMPoint; aRes: TKMWareType; var aPoints: TKMPointListArray);
     procedure FindOrePointsByDistance(aLoc: TKMPoint; aRes: TKMWareType; var aPoints: TKMPointListArray);
-    function CanFindTree(const aLoc: TKMPoint; aRadius: Word; aOnlyAgeFull: Boolean = False):Boolean; 
+    function CanFindTree(const aLoc: TKMPoint; aRadius: Word; aOnlyAgeFull: Boolean = False):Boolean;
     procedure FindTree(const aLoc: TKMPoint; aRadius: Word; const aAvoidLoc: TKMPoint; aPlantAct: TKMPlantAct;
-                       Trees: TKMPointDirList; BestToPlant,SecondBestToPlant: TKMPointList);
-    function FindFishWater(const aLoc: TKMPoint; aRadius:integer; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits:
+                       Trees: TKMPointDirCenteredList; BestToPlant,SecondBestToPlant: TKMPointCenteredList);
+    procedure FindPossibleTreePoints(const aLoc: TKMPoint; aRadius: Word; aTiles: TKMPointList);
+    procedure FindFishWaterLocs(const aLoc: TKMPoint; aRadius: Integer; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits: Boolean;
+                                ChosenTiles: TKMPointDirList);
+    function FindFishWater(const aLoc: TKMPoint; aRadius: Integer; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits:
                            Boolean; out FishPoint: TKMPointDir): Boolean;
-    function CanFindFishingWater(const aLoc: TKMPoint; aRadius:integer): Boolean;
-    function ChooseTreeToPlant(const aLoc: TKMPoint):integer;
+    function CanFindFishingWater(const aLoc: TKMPoint; aRadius: Integer): Boolean;
+    function ChooseTreeToPlant(const aLoc: TKMPoint): Integer;
     procedure GetHouseMarks(const aLoc: TKMPoint; aHouseType: TKMHouseType; aList: TKMPointTagList);
 
     function WaterHasFish(const aLoc: TKMPoint): Boolean;
@@ -205,7 +212,7 @@ type
     procedure DecStoneDeposit(const Loc: TKMPoint);
     function DecOreDeposit(const Loc: TKMPoint; rt: TKMWareType): Boolean;
 
-    function GetPassablePointWithinSegment(OriginPoint, TargetPoint: TKMPoint; aPassability: TKMTerrainPassability; MaxDistance: Integer = -1): TKMPoint;
+    function GetPassablePointWithinSegment(OriginPoint, TargetPoint: TKMPoint; aPass: TKMTerrainPassability; MaxDistance: Integer = -1): TKMPoint;
     function CheckPassability(const Loc: TKMPoint; aPass: TKMTerrainPassability): Boolean;
     function HasUnit(const Loc: TKMPoint): Boolean;
     function HasVertexUnit(const Loc: TKMPoint): Boolean;
@@ -2006,6 +2013,50 @@ begin
 end;
 
 
+procedure TKMTerrain.FindCornFieldLocs(const aLoc: TKMPoint; aRadius: Integer; aCornLocs: TKMPointList);
+var
+  I: Integer;
+  P: TKMPoint;
+  ValidTiles: TKMPointList;
+begin
+  ValidTiles := TKMPointList.Create;
+  try
+    fFinder.GetTilesWithinDistance(aLoc, aRadius, tpWalk, ValidTiles);
+
+    for I := 0 to ValidTiles.Count - 1 do
+    begin
+      P := ValidTiles[I];
+      if TileIsCornField(P) and Route_CanBeMade(aLoc, P, tpWalk, 0) then
+        aCornLocs.Add(P);
+    end;
+  finally
+    ValidTiles.Free;
+  end;
+end;
+
+
+procedure TKMTerrain.FindWineFieldLocs(const aLoc: TKMPoint; aRadius: Integer; aCornLocs: TKMPointList);
+var
+  I: Integer;
+  P: TKMPoint;
+  ValidTiles: TKMPointList;
+begin
+  ValidTiles := TKMPointList.Create;
+  try
+    fFinder.GetTilesWithinDistance(aLoc, aRadius, tpWalk, ValidTiles);
+
+    for I := 0 to ValidTiles.Count - 1 do
+    begin
+      P := ValidTiles[I];
+      if TileIsWineField(P) and Route_CanBeMade(aLoc, P, tpWalk, 0) then
+        aCornLocs.Add(P);
+    end;
+  finally
+    ValidTiles.Free;
+  end;
+end;
+
+
 { Finds a corn field }
 function TKMTerrain.FindCornField(const aLoc: TKMPoint; aRadius: Integer; const aAvoidLoc: TKMPoint; aPlantAct: TKMPlantAct;
                                   out PlantAct: TKMPlantAct; out FieldPoint: TKMPointDir): Boolean;
@@ -2055,35 +2106,50 @@ begin
 end;
 
 
+procedure TKMTerrain.FindStoneLocs(const aLoc: TKMPoint; aRadius: Byte; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits: Boolean;
+                                   aStoneLocs: TKMPointList);
+var
+  I: Integer;
+  ValidTiles: TKMPointList;
+  P: TKMPoint;
+begin
+  ValidTiles := TKMPointList.Create;
+  try
+    fFinder.GetTilesWithinDistance(aLoc, aRadius, tpWalk, ValidTiles);
+
+    for I := 0 to ValidTiles.Count - 1 do
+    begin
+      P := ValidTiles[I];
+      if (P.Y >= 2) //Can't mine stone from top row of the map (don't call TileIsStone with Y=0)
+        and not KMSamePoint(aAvoidLoc, P)
+        and TileHasStone(P.X, P.Y - 1)
+        and (aIgnoreWorkingUnits or not TileIsLocked(P)) //Already taken by another stonemason
+        and Route_CanBeMade(aLoc, P, tpWalk, 0) then
+        aStoneLocs.Add(P);
+    end;
+  finally
+    ValidTiles.Free;
+  end;
+end;
+
+
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
 function TKMTerrain.FindStone(const aLoc: TKMPoint; aRadius: Byte; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits: Boolean;
                               out StonePoint: TKMPointDir): Boolean;
 var
-  I: Integer;
-  ValidTiles: TKMPointList;
   ChosenTiles: TKMPointList;
   P: TKMPoint;
 begin
-  ValidTiles := TKMPointList.Create;
-  fFinder.GetTilesWithinDistance(aLoc, aRadius, tpWalk, ValidTiles);
-
   ChosenTiles := TKMPointList.Create;
-  for I := 0 to ValidTiles.Count - 1 do
-  begin
-    P := ValidTiles[I];
-    if (P.Y >= 2) //Can't mine stone from top row of the map (don't call TileIsStone with Y=0)
-    and not KMSamePoint(aAvoidLoc, P)
-    and TileHasStone(P.X, P.Y - 1)
-    and (aIgnoreWorkingUnits or not TileIsLocked(P)) //Already taken by another stonemason
-    and Route_CanBeMade(aLoc, P, tpWalk, 0) then
-      ChosenTiles.Add(P);
-  end;
+  try
+    FindStoneLocs(aLoc, aRadius, aAvoidLoc, aIgnoreWorkingUnits, ChosenTiles);
 
-  Result := ChosenTiles.GetRandom(P);
-  StonePoint := KMPointDir(P, dirN);
-  ChosenTiles.Free;
-  ValidTiles.Free;
+    Result := ChosenTiles.GetRandom(P);
+    StonePoint := KMPointDir(P, dirN);
+  finally
+    ChosenTiles.Free;
+  end;
 end;
 
 
@@ -2268,7 +2334,7 @@ begin
     end;
   end;
   ValidTiles.Free;
-end; 
+end;
 
 
 //Return location of a Tree or a place to plant a tree depending on TreeAct
@@ -2278,7 +2344,7 @@ end;
 //taAny - Anything will do since Woodcutter is querying from home
 //Result indicates if desired TreeAct place was found successfully
 procedure TKMTerrain.FindTree(const aLoc: TKMPoint; aRadius: Word; const aAvoidLoc: TKMPoint; aPlantAct: TKMPlantAct;
-                              Trees: TKMPointDirList; BestToPlant, SecondBestToPlant: TKMPointList);
+                              Trees: TKMPointDirCenteredList; BestToPlant, SecondBestToPlant: TKMPointCenteredList);
 var
   ValidTiles: TKMPointList;
   I: Integer;
@@ -2328,39 +2394,81 @@ begin
 end;
 
 
+procedure TKMTerrain.FindPossibleTreePoints(const aLoc: TKMPoint; aRadius: Word; aTiles: TKMPointList);
+var
+  ValidTiles: TKMPointList;
+  I: Integer;
+  T: TKMPoint;
+  CuttingPoint: TKMPointDir;
+begin
+  ValidTiles := TKMPointList.Create;
+  try
+    //Scan terrain and add all trees/spots into lists
+    fFinder.GetTilesWithinDistance(aLoc, aRadius, tpWalk, ValidTiles);
+    for I := 0 to ValidTiles.Count - 1 do
+    begin
+       //Store in temp variable for speed
+      T := ValidTiles[I];
+
+      if (KMLengthDiag(aLoc, T) <= aRadius)
+        and Route_CanBeMadeToVertex(aLoc, T, tpWalk)
+        and ChooseCuttingDirection(aLoc, T, CuttingPoint) then
+        aTiles.Add(T);
+    end;
+  finally
+    ValidTiles.Free;
+  end;
+end;
+
+
+procedure TKMTerrain.FindFishWaterLocs(const aLoc: TKMPoint; aRadius: Integer; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits: Boolean;
+                                       ChosenTiles: TKMPointDirList);
+var
+  I,J,K: Integer;
+  P: TKMPoint;
+  ValidTiles: TKMPointList;
+begin
+  ValidTiles := TKMPointList.Create;
+  try
+    fFinder.GetTilesWithinDistance(aLoc, aRadius, tpWalk, ValidTiles);
+
+    for I := 0 to ValidTiles.Count - 1 do
+    begin
+      P := ValidTiles[I];
+      //Check that this tile is valid
+      if (aIgnoreWorkingUnits or not TileIsLocked(P)) //Taken by another fisherman
+      and Route_CanBeMade(aLoc, P, tpWalk, 0)
+      and not KMSamePoint(aAvoidLoc, P) then
+        //Now find a tile around this one that is water
+        for J := -1 to 1 do
+          for K := -1 to 1 do
+            if ((K <> 0) or (J <> 0))
+            and TileInMapCoords(P.X+J, P.Y+K)
+            and TileIsWater(P.X+J, P.Y+K)
+            and WaterHasFish(KMPoint(P.X+J, P.Y+K)) then //Limit to only tiles which are water and have fish
+              ChosenTiles.Add(KMPointDir(P, KMGetDirection(J, K)));
+    end;
+  finally
+    ValidTiles.Free;
+  end;
+end;
+
+
 {Find seaside}
 {Return walkable tile nearby}
 function TKMTerrain.FindFishWater(const aLoc: TKMPoint; aRadius: Integer; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits: Boolean;
                                   out FishPoint: TKMPointDir): Boolean;
-var I,J,K: Integer;
-    P: TKMPoint;
-    ValidTiles: TKMPointList;
-    ChosenTiles: TKMPointDirList;
+var
+  ChosenTiles: TKMPointDirList;
 begin
-  ValidTiles := TKMPointList.Create;
-  fFinder.GetTilesWithinDistance(aLoc, aRadius, tpWalk, ValidTiles);
-
   ChosenTiles := TKMPointDirList.Create;
-  for I := 0 to ValidTiles.Count - 1 do
-  begin
-    P := ValidTiles[I];
-    //Check that this tile is valid
-    if (aIgnoreWorkingUnits or not TileIsLocked(P)) //Taken by another fisherman
-    and Route_CanBeMade(aLoc, P, tpWalk, 0)
-    and not KMSamePoint(aAvoidLoc, P) then
-      //Now find a tile around this one that is water
-      for J := -1 to 1 do
-        for K := -1 to 1 do
-          if ((K <> 0) or (J <> 0))
-          and TileInMapCoords(P.X+J, P.Y+K)
-          and TileIsWater(P.X+J, P.Y+K)
-          and WaterHasFish(KMPoint(P.X+J, P.Y+K)) then //Limit to only tiles which are water and have fish
-            ChosenTiles.Add(KMPointDir(P, KMGetDirection(J, K)));
-  end;
+  try
+    FindFishWaterLocs(aLoc, aRadius, aAvoidLoc, aIgnoreWorkingUnits, ChosenTiles);
 
-  Result := ChosenTiles.GetRandom(FishPoint);
-  ChosenTiles.Free;
-  ValidTiles.Free;
+    Result := ChosenTiles.GetRandom(FishPoint);
+  finally
+    ChosenTiles.Free;
+  end;
 end;
 
 
@@ -3058,9 +3166,9 @@ end;
 //Find closest passable point to TargetPoint within line segment OriginPoint <-> TargetPoint
 //MaxDistance - maximum distance between finded point and origin point. MaxDistance = -1 means there is no distance restriction
 function TKMTerrain.GetPassablePointWithinSegment(OriginPoint, TargetPoint: TKMPoint;
-                                                  aPassability: TKMTerrainPassability;
+                                                  aPass: TKMTerrainPassability;
                                                   MaxDistance: Integer = -1): TKMPoint;
-  function IsDistanceBetweenPointsAllowed(const OriginPoint, TargetPoint: TKMPoint): Boolean;
+  function IsDistBetweenPointsAllowed(const OriginPoint, TargetPoint: TKMPoint): Boolean;
   begin
     Result := (MaxDistance = -1) or (KMDistanceSqr(OriginPoint, TargetPoint) <= Sqr(MaxDistance));
   end;
@@ -3074,8 +3182,8 @@ begin
     NormDistance := Min(MaxDistance, Floor(KMLength(OriginPoint, TargetPoint)));
 
   while (NormDistance >= 0)
-    and (not IsDistanceBetweenPointsAllowed(OriginPoint, TargetPoint)
-         or not CheckPassability(TargetPoint, aPassability)) do
+    and (not IsDistBetweenPointsAllowed(OriginPoint, TargetPoint)
+         or not CheckPassability(TargetPoint, aPass)) do
   begin
     NormVector := KMNormVector(KMPoint(TargetPoint.X - OriginPoint.X, TargetPoint.Y - OriginPoint.Y), NormDistance);
     TargetPoint := KMPoint(OriginPoint.X + NormVector.X, OriginPoint.Y + NormVector.Y);
@@ -3145,67 +3253,75 @@ begin
 end;
 
 
-//Return random tile surrounding Loc with aPass property. PusherLoc is the unit that pushed us
-//which is preferable to other units (otherwise we can get two units swapping places forever)
+// Return random tile surrounding Loc with aPass property. PusherLoc is the unit that pushed us
+// which is preferable to other units (otherwise we can get two units swapping places forever)
 function TKMTerrain.GetOutOfTheWay(aUnit: Pointer; const PusherLoc: TKMPoint; aPass: TKMTerrainPassability): TKMPoint;
 var
   U: TKMUnit;
   Loc: TKMPoint;
 
-  function GoodForWorker(X,Y: Word): Boolean;
+  function GoodForBuilder(X,Y: Word): Boolean;
   var
     DistNext: Single;
   begin
     DistNext := gHands.DistanceToEnemyTowers(KMPoint(X,Y), U.Owner);
     Result := (DistNext > RANGE_WATCHTOWER_MAX)
-    or (DistNext >= gHands.DistanceToEnemyTowers(Loc, U.Owner));
+      or (DistNext >= gHands.DistanceToEnemyTowers(Loc, U.Owner));
   end;
 var
   I, K: Integer;
-  L1, L2, L3: TKMPointList;
+  tx, ty: Integer;
+  isFree, isOffroad, isPushable: Boolean;
+  newWeight, bestWeight: Single;
   TempUnit: TKMUnit;
 begin
   U := TKMUnit(aUnit);
   Loc := U.CurrPosition;
+  Result := Loc;
+  bestWeight := -1;
 
-  //List 1 holds all available walkable positions except self
-  L1 := TKMPointList.Create;
-  for I:=-1 to 1 do for K:=-1 to 1 do
-    if ((I<>0) or (K<>0))
-    and TileInMapCoords(Loc.X+K, Loc.Y+I)
-    and CanWalkDiagonaly(Loc, Loc.X + K, Loc.Y + I) //Check for trees that stop us walking on the diagonals!
-    and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
-    and (aPass in Land[Loc.Y+I,Loc.X+K].Passability)
-    and (not (U is TKMUnitWorker) or GoodForWorker(Loc.X+K, Loc.Y+I)) then
-      L1.Add(KMPoint(Loc.X+K, Loc.Y+I));
-
-  //List 2 holds the best positions, ones which are not occupied
-  L2 := TKMPointList.Create;
-  for I := 0 to L1.Count - 1 do
-    if Land[L1[I].Y, L1[I].X].IsUnit = nil then
-      L2.Add(L1[I]);
-
-  //List 3 holds the second best positions, ones which are occupied with an idle units
-  L3 := TKMPointList.Create;
-  for I := 0 to L1.Count - 1 do
-    if Land[L1[I].Y, L1[I].X].IsUnit <> nil then
+  // Check all available walkable positions except self
+  for I := -1 to 1 do for K := -1 to 1 do
+  if (I <> 0) or (K <> 0) then
     begin
-      TempUnit := UnitsHitTest(L1[I].X, L1[I].Y);
-      //Always include the pushers loc in the possibilities, otherwise we can get two units swapping places forever
-      if KMSamePoint(L1[I],PusherLoc)
-      or ((TempUnit <> nil) and (TempUnit.Action is TKMUnitActionStay)
-          and (not TKMUnitActionStay(TempUnit.Action).Locked)) then
-        L3.Add(L1[I]);
+      tx := Loc.X + K;
+      ty := Loc.Y + I;
+      newWeight := 0;
+
+      if TileInMapCoords(tx, ty)
+        and CanWalkDiagonaly(Loc, tx, ty) //Check for trees that stop us walking on the diagonals!
+        and (Land[ty,tx].TileLock in [tlNone, tlFenced])
+        and (aPass in Land[ty,tx].Passability)
+        and (not (U is TKMUnitWorker) or GoodForBuilder(tx, ty)) then
+      begin
+        // Try to be pushed to empty tiles
+        isFree := Land[ty, tx].IsUnit = nil;
+
+        // Try to be pushed out to non-road tiles when possible
+        isOffroad := not TileHasRoad(tx, ty);
+        // Try to be pushed to exchange with pusher or to push other non-locked units
+        isPushable := False;
+        if Land[ty, tx].IsUnit <> nil then
+        begin
+          TempUnit := UnitsHitTest(tx, ty);
+          // Always include the pushers loc in the possibilities, otherwise we can get two units swapping places forever
+          if (KMPoint(tx, ty) = PusherLoc)
+          or ((TempUnit <> nil) and (TempUnit.Action is TKMUnitActionStay)
+              and (not TKMUnitActionStay(TempUnit.Action).Locked)) then
+            isPushable := True;
+        end;
+
+        // If everything is bad, don't consider it (and remain at 0 - original Loc)
+        if isFree or isOffroad or isPushable then
+          newWeight := Ord(isFree) * 8 + Ord(isOffroad) * 4 + Ord(isPushable) * 2 + KaMRandom('TKMTerrain.GetOutOfTheWay');
+
+        if newWeight > bestWeight then
+        begin
+          bestWeight := newWeight;
+          Result := KMPoint(tx, ty);
+        end;
+      end;
     end;
-
-  if not(L2.GetRandom(Result)) then
-    if not(L3.GetRandom(Result)) then
-      if not(L1.GetRandom(Result)) then
-        Result := Loc;
-
-  L1.Free;
-  L2.Free;
-  L3.Free;
 end;
 
 

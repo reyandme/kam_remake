@@ -1,0 +1,34 @@
+TBK10
+*****
+
+Version 0.9b: (08.10.2017)
+- Cover vision of killed unit thats needed to activate player0
+
+Version 0.9c: (03.03.2018)
+- Added additional defence positions for Player1 (Brown Player)
+
+Version 2.0 (04.03.2018)
+- Moved map to KaMRemake r8754 beta version
+- Overhauled scripts
+- Deactivated Townhall
+- Attacks from brown happen now more frequently and faster
+- Map can now be tested outside of campaign folder (very limited tho!)
+
+Version 2.1: (02.03.2019)
+- Map renamed from TBK09 to TBK10
+- Modified Script accordingly
+- Map slightly updated
+
+Version 2.1b: (02.04.2019)
+- Added additional Coal field
+- Added Gold to one of the Mountains
+
+Version 2.1c: (06.04.2019)
+- Added Difficulty support
+- Increased Recruits in Barracks of all AIs from 5 to 10
+- Turned off Defend Allies for Player2
+- Recruitment Delay of Player3 decreased from 60 to 55
+- First Attack of Player3 has less Units
+- Ramp up of Player1 attacks are more smooth now
+- Removed all Houses, Roads, Fields and so on from Town
+- Now add everything via from campaign.dat on Mission Start

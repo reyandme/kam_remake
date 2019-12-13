@@ -112,9 +112,9 @@ begin
 	UnitsRandomHungerSet();
 	//Apply Difficulty
 	case States.MissionDifficulty() of
-		mdEasy: 
+		mdEasy1: 
 			IncreaseGroupSize(0, 0);
-		mdHard:
+		mdHard1:
 		begin
 			IncreaseGroupSize(3, 0); //Initial Attack: Brown
 			IncreaseGroupSize(5, 0); //Initial Attack: Brown

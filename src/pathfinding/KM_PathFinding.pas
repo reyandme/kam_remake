@@ -259,100 +259,98 @@ end;
 
 
 function TPathFinding.TryRouteFromCache(NodeList: TKMPointList): Boolean;
-  //Check if we can straightly walk to Route from our loc
-  function NearStart(const aRoute: TKMPointList): Boolean;
-  begin
-    Result := (KMLengthDiag(aRoute[0], fLocB) < 2)
-           or (KMLengthDiag(aRoute[1], fLocB) < 2)
-           or (KMLengthDiag(aRoute[2], fLocB) < 2);
-  end;
-  //Check if we can straightly walk to target from any of last Routes points
-  function NearEnd(const aRoute: TKMPointList): Boolean;
-  begin
-    Result := (KMLengthDiag(aRoute[aRoute.Count-1], fLocB) < 2)
-           or (KMLengthDiag(aRoute[aRoute.Count-2], fLocB) < 2)
-           or (KMLengthDiag(aRoute[aRoute.Count-3], fLocB) < 2);
-  end;
+const
+  MIN_POINTS_TO_CHECK_START = 10;
+
 var
   I,K: Integer;
-  BestStart, BestEnd: Word;
+  BestStart, BestEnd: Integer;
   NewL, BestL: Single;
   P: TKMPoint;
   IsWalkable: Boolean;
 begin
   //Makes compiler happy
-  BestStart := 0;
-  BestEnd := 0;
   Result := False;
 
   for I := 0 to PATH_CACHE_MAX - 1 do
-  if (fCache[I].Route.Count > 0)
-  and (fCache[I].Pass = fPass) then
   begin
-
-    //Check if route starts within reach
-    BestL := MaxSingle;
-    for K := 0 to 5 do
+    BestStart := -1;
+    BestEnd := -1;
+    if (fCache[I].Route.Count > 0)
+      and (fCache[I].Pass = fPass) then
     begin
-      NewL := KMLengthDiag(fLocA, fCache[I].Route[K]);
-      if (NewL <= 1) OR ((NewL < 2) AND gTerrain.CanWalkDiagonaly(fLocA, fCache[I].Route[K].X, fCache[I].Route[K].Y)) then
-      //if (NewL < 2) then
+      //Check if route goes through out position
+      //We could check almost all points
+      for K := 0 to Max(MIN_POINTS_TO_CHECK_START,
+                        fCache[I].Route.Count - 1 - PATH_CACHE_NODES_MIN_CNT) do
       begin
-        BestStart := K;
-        BestL := NewL;
+        //Restrict cache to go through our starting point,
+        //otherwise some bad-looking behaviour possible
+        //F.e. units going in a row could make side step occasionaly,
+        //cause 1st one change route
+        if KMLengthDiag(fLocA, fCache[I].Route[K]) = 0 then
+        begin
+          BestStart := K;
+          Break;
+        end;
       end;
-    end;
 
-    if BestL >= 2 then Continue;
+      if BestStart = -1 then Continue;
 
-    //Check if route ends within reach
-    BestL := MaxSingle;
-    for K := fCache[I].Route.Count - 1 downto fCache[I].Route.Count - 5 do
-    begin
-      NewL := KMLengthDiag(fLocB, fCache[I].Route[K]);
-      if (NewL <= 1) OR ((NewL < 2) AND gTerrain.CanWalkDiagonaly(fLocB, fCache[I].Route[K].X, fCache[I].Route[K].Y)) then
-      //if (NewL < 2) then
+      //Check if route ends within reach
+      BestL := MaxSingle;
+      for K := fCache[I].Route.Count - 1 downto BestStart + 1 do
       begin
-        BestEnd := K;
-        BestL := NewL;
+        NewL := KMLengthDiag(fLocB, fCache[I].Route[K]);
+        if (NewL <= 1)
+          or ((NewL < 2)
+            and gTerrain.CanWalkDiagonaly(fLocB, fCache[I].Route[K].X, fCache[I].Route[K].Y)) then
+        begin
+          BestEnd := K;
+          BestL := NewL;
+          if NewL = 0 then //Path goes through our Destination
+            Break;
+        end;
       end;
-    end;
 
-    if BestL >= 2 then Continue;
+      if BestL >= 2 then Continue;
 
-    //Check if cached path is still walkable
-    IsWalkable := True;
-    for K := BestStart to BestEnd do
-    begin
-      P := fCache[I].Route[K];
-      if not IsWalkableTile(P.X, P.Y) then
+      //Check if cached path is still walkable
+      IsWalkable := True;
+      for K := BestStart to BestEnd do
       begin
-        IsWalkable := False;
-        Break;
+        P := fCache[I].Route[K];
+        if not IsWalkableTile(P.X, P.Y) then
+        begin
+          IsWalkable := False;
+          Break;
+        end;
       end;
+
+      //If not walkable anymore, then mark it as unused
+      //and continue
+      if not IsWalkable then
+      begin
+        fCache[I].Weight := 0;
+        fCache[I].Pass := [];
+        Continue;
+      end;
+
+      //Assemble the route
+      NodeList.Clear;
+      //No need to add fLocA, since its equal to BestStart point from Cached Route
+      for K := BestStart to BestEnd do
+        NodeList.Add(fCache[I].Route[K]);
+
+      if fLocB <> fCache[I].Route[BestEnd] then //No need to duplicate fLocB
+        NodeList.Add(fLocB);
+
+      //Mark the cached route as more useful
+      Inc(fCache[I].Weight);
+
+      Result := True;
+      Exit;
     end;
-
-    //If not walkable anymore, then mark it as unused
-    //and continue
-    if not IsWalkable then
-    begin
-      fCache[I].Weight := 0;
-      fCache[I].Pass := [];
-      Continue;
-    end;
-
-    //Assemble the route
-    NodeList.Clear;
-    NodeList.Add(fLocA);
-    for K := BestStart to BestEnd do
-      NodeList.Add(fCache[I].Route[K]);
-    NodeList.Add(fLocB);
-
-    //Mark the cached route as more useful
-    Inc(fCache[I].Weight);
-
-    Result := True;
-    Exit;
   end;
 end;
 

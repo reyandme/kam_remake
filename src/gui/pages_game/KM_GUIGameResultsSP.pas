@@ -182,6 +182,11 @@ begin
     Label_Results.Caption := Label_Results.Caption + ' - ';
   Label_Results.Caption := Label_Results.Caption + gGame.GameName; //Don't show the mission time in SP because it's already shown elsewhere
 
+  //Append difficulty level to game results caption
+  if gGame.MissionDifficulty <> mdNone then
+    Label_Results.Caption := Label_Results.Caption + ' (' + gResTexts[DIFFICULTY_LEVELS_TX[gGame.MissionDifficulty]] + ')';
+
+
   //This is SP menu, we are dead sure there's only one Human player
   HumanId := -1;
   for I := 0 to gHands.Count - 1 do

@@ -141,7 +141,7 @@ begin
   BrushOptions.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_BRUSH_OPTIONS_HINT, SC_MAPEDIT_SUB_MENU_ACTION_3);
   BrushOptions.OnClick := BrushSettings_Click;
 
-  PopUp_BrushOptions := TKMPopUpPanel.Create(aParent.MasterParent, 400, 200, gResTexts[TX_MAPED_TERRAIN_BRUSH_OPTIONS_TITLE], pubgit_Gray);
+  PopUp_BrushOptions := TKMPopUpPanel.Create(aParent.MasterParent, 400, 200, gResTexts[TX_MAPED_TERRAIN_BRUSH_OPTIONS_TITLE], pubgitGray);
 
     RandomElements := TKMCheckBox.Create(PopUp_BrushOptions, 10, 10, 280, 40, gResTexts[TX_MAPED_TERRAIN_BRUSH_RANDOM], fntMetal);
     RandomElements.OnClick := BrushChange;
@@ -156,7 +156,7 @@ begin
     Button_FixTerrainBrushes.Hint := gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_HINT];
     Button_FixTerrainBrushes.OnClick := BrushFixTerrain_Click;
 
-    PopUp_FixTerrainConfirm := TKMPopUpPanel.Create(aParent.MasterParent, 400, 200, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_TITLE], pubgit_Gray);
+    PopUp_FixTerrainConfirm := TKMPopUpPanel.Create(aParent.MasterParent, 400, 200, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_TITLE], pubgitGray);
       TKMLabel.Create(PopUp_FixTerrainConfirm, PopUp_FixTerrainConfirm.Width div 2, 10, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_CONFIRM], fntGrey, taCenter);
 
       Button_FixTerrain_Yes := TKMButton.Create(PopUp_FixTerrainConfirm, 10, PopUp_FixTerrainConfirm.Height - 40, 

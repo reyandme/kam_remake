@@ -98,14 +98,18 @@ type
     function Execute: TKMActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Paint; override; //Used only for debug so far
+    function NeedToPaint(aRect: TKMRect): Boolean; //Used only for debug so far
   end;
 
 
 implementation
 uses
-  KM_RenderAux, KM_Game, KM_HandsCollection, KM_Terrain, KM_ResUnits,
+  KM_RenderAux, KM_Game, KM_HandsCollection, KM_Terrain, KM_ResUnits, KM_UnitGroup,
   KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitTaskBuild, KM_UnitTaskDismiss,
   KM_UnitWarrior, KM_Log, KM_Resource, KM_CommonClassesExt;
+
+type
+  TKMSetByteSet = TSet<TKMByteSet>;
 
 //INTERACTION CONSTANTS: (may need to be tweaked for optimal performance)
 //TIMEOUT is the time after which each solution things will be checked.
@@ -200,7 +204,7 @@ begin
     gLog.AddNoTimeNoFlush('Unable to make a route for ' + gRes.Units[aUnit.UnitType].GUIName +
                    ' from ' + KM_Points.TypeToString(fWalkFrom) + ' to ' + KM_Points.TypeToString(fWalkTo) +
                    ' with "' + PassabilityGuiText[fPass] + '"' +
-                   ' TargetWalkConnectSet = ' + TSet<TKMByteSet>.SetToString(aTargetWalkConnectSet));
+                   ' TargetWalkConnectSet = ' + TKMSetByteSet.SetToString(aTargetWalkConnectSet));
 end;
 
 
@@ -1261,7 +1265,11 @@ end;
 procedure TKMUnitActionWalkTo.Paint;
 begin
   if SHOW_UNIT_ROUTES then
-    if not (gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected = fUnit) then
+    if not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup))
+      or (gMySpectator.Selected = fUnit)
+      or ((fUnit is TKMUnitWarrior)
+        and (gMySpectator.Selected is TKMUnitGroup)
+        and (TKMUnitGroup(gMySpectator.Selected).SelectedUnit = fUnit)) then
       gRenderAux.UnitRoute(NodeList, NodePos, byte(fUnit.UnitType));
 end;
 
@@ -1269,6 +1277,21 @@ end;
 function TKMUnitActionWalkTo.CanBeInterrupted(aForced: Boolean = True): Boolean;
 begin
   Result := CanAbandonExternal and StepDone;//Only when unit is idling during Interaction pauses
+end;
+
+
+//Check if our path is through viewport, to show debug unit route
+function TKMUnitActionWalkTo.NeedToPaint(aRect: TKMRect): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to NodeList.Count - 1 do
+  begin
+    Result := Result or KMInRect(NodeList[I], aRect);
+    if Result then
+      Exit;
+  end;
 end;
 
 

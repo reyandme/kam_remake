@@ -110,7 +110,7 @@ type
     procedure RadioWareTypeChange(Sender: TObject);
     procedure RadioArmyTypeChange(Sender: TObject);
 
-    function GetChartLegendDetailedTitles(aStatType: TKMStatType; aLineI: Integer): TStringArray;
+    function GetChartLegendDetailedTitles(aStatType: TKMStatType; aLineI: Integer): TKMStringArray;
     function GetChartLegendDetailedColors(aStatType: TKMStatType; aLineI: Integer): TKMCardinalArray;
 
     procedure Reinit;
@@ -133,9 +133,9 @@ type
       Label_ResultsMP: TKMLabel;
       Panel_Bars: TKMPanel;
         Panel_BarsUpper, Panel_BarsLower: TKMPanel;
-          Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0 .. MAX_LOBBY_PLAYERS - 1] of TKMLabel;
-          Bar_Results: array [0 .. MAX_LOBBY_PLAYERS - 1, 0 .. 9] of TKMPercentBar;
-          Image_ResultsRosette: array [0 .. MAX_LOBBY_PLAYERS - 1, 0 .. 9] of TKMImage;
+          Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0 .. MAX_HANDS - 1] of TKMLabel;
+          Bar_Results: array [0 .. MAX_HANDS - 1, 0 .. 9] of TKMPercentBar;
+          Image_ResultsRosette: array [0 .. MAX_HANDS - 1, 0 .. 9] of TKMImage;
       Panel_ChartsEconomy: TKMPanel;
         Chart_Players_Citizens: TKMChart;
         Chart_Players_Houses: TKMChart;
@@ -177,7 +177,7 @@ type
 implementation
 uses
   KM_Main, KM_ResTexts, KM_Game, KM_HandsCollection, KM_CommonUtils, KM_Resource, KM_ResFonts,
-  KM_RenderUI, KM_Hand, KM_ResUnits,
+  KM_RenderUI, KM_Hand, KM_ResUnits, KM_MapTypes,
   KM_GameTypes;
 
 
@@ -396,14 +396,14 @@ begin
     Panel_BarsUpper := TKMPanel.Create(Panel_Bars, 0, 0, Panel_Bars.Width, Middle - 3);
     Panel_BarsUpper.Anchors := [anTop];
 
-      for I := 0 to MAX_LOBBY_PLAYERS - 1 do
+      for I := 0 to MAX_HANDS - 1 do
         Label_ResultsPlayerName1[I] := TKMLabel.Create(Panel_BarsUpper, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fntMetal, taLeft);
 
       for K := 0 to 4 do
       begin
         with TKMLabel.Create(Panel_BarsUpper, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns1[K]], fntMetal, taCenter) do
           AutoWrap := True;
-        for I := 0 to MAX_LOBBY_PLAYERS - 1 do
+        for I := 0 to MAX_HANDS - 1 do
         begin
           Bar_Results[I,K] := TKMPercentBar.Create(Panel_BarsUpper, 160 + K*BarStep, 35+I*BAR_ROW_HEIGHT, BarWidth, 20, fntGrey);
           Bar_Results[I,K].TextYOffset := -3;
@@ -414,14 +414,14 @@ begin
     Panel_BarsLower := TKMPanel.Create(Panel_Bars, 0, Middle+3, Panel_Bars.Width, Middle - 10);
     Panel_BarsLower.Anchors := [anBottom];
 
-      for I := 0 to MAX_LOBBY_PLAYERS - 1 do
+      for I := 0 to MAX_HANDS - 1 do
         Label_ResultsPlayerName2[I] := TKMLabel.Create(Panel_BarsLower, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fntMetal, taLeft);
 
       for K := 0 to 4 do
       begin
         with TKMLabel.Create(Panel_BarsLower, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns2[K]], fntMetal, taCenter) do
           AutoWrap := True;
-        for I := 0 to MAX_LOBBY_PLAYERS - 1 do
+        for I := 0 to MAX_HANDS - 1 do
         begin
           Bar_Results[I,K+5] := TKMPercentBar.Create(Panel_BarsLower, 160 + K*BarStep, 35+I*BAR_ROW_HEIGHT, BarWidth, 20, fntGrey);
           Bar_Results[I,K+5].TextYOffset := -3;
@@ -689,7 +689,7 @@ begin
 end;
 
 
-function TKMGameResultsMP.GetChartLegendDetailedTitles(aStatType: TKMStatType; aLineI: Integer): TStringArray;
+function TKMGameResultsMP.GetChartLegendDetailedTitles(aStatType: TKMStatType; aLineI: Integer): TKMStringArray;
 var
   I: Integer;
 begin
@@ -819,7 +819,7 @@ begin
   StatsValues := fStatsValues[aStatType];
 
   //Update visibility depending on players count (note, players may be sparsed)
-  for I := 0 to MAX_LOBBY_PLAYERS - 1 do
+  for I := 0 to MAX_HANDS - 1 do
     SetPlayerControls(I, False); //Disable them all to start
 
   for I := 0 to ListToShow.Count - 1 do
@@ -1380,7 +1380,14 @@ begin
   if ResultsLabelCap <> '' then
     Label_ResultsMP.Caption := Label_ResultsMP.Caption + ' - ';
 
-  Label_ResultsMP.Caption := Label_ResultsMP.Caption + gGame.GameName + ' - ' + TimeToString(gGame.MissionTime);
+  Label_ResultsMP.Caption := Label_ResultsMP.Caption + gGame.GameName;
+
+  //Append difficulty level to game results caption
+  if gGame.MissionDifficulty <> mdNone then
+    Label_ResultsMP.Caption := Label_ResultsMP.Caption + ' (' + gResTexts[DIFFICULTY_LEVELS_TX[gGame.MissionDifficulty]] + ')';
+
+  //Append mission time
+  Label_ResultsMP.Caption := Label_ResultsMP.Caption + ' - ' + TimeToString(gGame.MissionTime);
 
   ReinitPlayersToShow;
   ReinitTeamsToShow; //Should be done after ReinitPlayersToShow
@@ -1459,7 +1466,7 @@ procedure TKMGameResultsMP.ReinitBars;
   begin
     ListToShow := fListToShow[aStatType];
     //Update visibility depending on players count (note, players may be sparsed)
-    for I := 0 to MAX_LOBBY_PLAYERS - 1 do
+    for I := 0 to MAX_HANDS - 1 do
       FillChar(fStatsValues[aStatType,I], SizeOf(fStatsValues[aStatType,I]), #0);
 
     for I := 0 to ListToShow.Count - 1 do

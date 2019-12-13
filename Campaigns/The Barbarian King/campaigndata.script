@@ -1,0 +1,104 @@
+record
+	TBK02: record
+		aHouseData: array of array[0..32] of Integer; // Owner as well
+		aTileObjectData: array of array[0..2] of Byte; //Only Corn and Grapes
+		aRoadworksData: array of array[0..3] of Byte;
+		aDestroyedHouseData: array of array[0..3] of Byte;
+	end;
+	TBK09: record
+		aHouseData: array of array[0..31] of Integer;
+		aUnitData: array of array[0..3] of Integer;
+		aGroupData: array of array[0..5] of Integer;
+		aTileObjectData: array of array[0..2] of Byte; //Only Corn and Grapes
+		aRoadworksData: array of array[0..3] of Byte;
+		aDestroyedHouseData: array of array[0..3] of Byte;
+	end;
+	{TBK14: record
+		aGroupData: array of array[0..5] of Integer;
+	end;}
+end;
+
+
+//-------------//
+//--- LEGEND --//
+//-------------//
+
+
+//-- TBK02  --//
+
+//aHouseData:
+//0: Owner
+//1: Type
+//2: X
+//3: Y
+//4: Damage
+//5-32: Resources (0-27)
+
+//aTileObjectData (Only corn and grapes)
+//0: X
+//1: Y
+//2: Type
+
+//aRoadworksData
+//0: Owner
+//1: X
+//2: Y
+//3: Type
+
+//aDestroyedHouseData
+//0: Owner
+//1: Type
+//2: X
+//3: Y
+
+
+//-- TBK09  --//
+
+//aHouseData:
+//0: Type
+//1: X
+//2: Y
+//3: Damage
+//4-31: Resources (0-27)
+
+//aUnitData:
+//0: Type
+//1: X
+//2: Y
+//3: Direction
+
+//aGroupData:
+//0: Type
+//1: X
+//2: Y
+//3: Direction
+//4: Unit Count
+//5: Unit/Row
+
+//aTileObjectData (Only corn and grapes)
+//0: X
+//1: Y
+//2: Type
+
+//aRoadworksData
+//0: Owner
+//1: X
+//2: Y
+//3: Type
+
+//aDestroyedHouseData
+//0: Owner
+//1: Type
+//2: X
+//3: Y
+
+
+//-- TBK14 --//
+
+//aGroupData:
+//0: Type
+//1: X (not used)
+//2: Y (not used)
+//3: Direction (not used)
+//4: Unit Count
+//5: Unit/Row

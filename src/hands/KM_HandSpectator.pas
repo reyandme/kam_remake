@@ -44,7 +44,7 @@ type
     function HitTestCursor(aIncludeAnimals: Boolean = False): TObject;
     function HitTestCursorWGroup(aIncludeAnimals: Boolean = False): TObject;
     procedure UpdateNewSelected; overload;
-    procedure UpdateSelect;
+    procedure UpdateSelect(aCheckUnderCursor: Boolean = True);
     procedure Load(LoadStream: TKMemoryStream);
     procedure Save(SaveStream: TKMemoryStream);
     procedure UpdateState(aTick: Cardinal);
@@ -229,48 +229,59 @@ end;
 
 
 //Select anything player CAN select below cursor
-procedure TKMSpectator.UpdateSelect;
+procedure TKMSpectator.UpdateSelect(aCheckUnderCursor: Boolean = True);
 var
   NewSelected: TObject;
   UID: Integer;
 begin
-  NewSelected := gHands.GetUnitByUID(gGameCursor.ObjectUID);
+  NewSelected := nil;
 
-  //In-game player can select only own and ally Units
-  UpdateNewSelected(NewSelected);
-
-  //Don't allow the player to select dead units
-  if ((NewSelected is TKMUnit) and TKMUnit(NewSelected).IsDeadOrDying)
-    or (NewSelected is TKMUnitAnimal) then //...or animals
-    NewSelected := nil;
-
-  //If Id belongs to some Warrior, try to select his group instead
-  if NewSelected is TKMUnitWarrior then
+  if aCheckUnderCursor then
   begin
-    NewSelected := gHands.GetGroupByMember(TKMUnitWarrior(NewSelected));
-    UpdateNewSelected(NewSelected);
-  end;
-
-  //Update selected groups selected unit
-  if NewSelected is TKMUnitGroup then
-    TKMUnitGroup(NewSelected).SelectedUnit := TKMUnitGroup(NewSelected).MemberByUID(gGameCursor.ObjectUID);
-
-  //If there's no unit try pick a house on the Cell below
-  if NewSelected = nil then
-  begin
-    NewSelected := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
+    NewSelected := gHands.GetUnitByUID(gGameCursor.ObjectUID);
 
     //In-game player can select only own and ally Units
-    UpdateNewSelected(NewSelected, True);
+    UpdateNewSelected(NewSelected);
 
-    //Don't allow the player to select destroyed houses
-    if (NewSelected is TKMHouse) and TKMHouse(NewSelected).IsDestroyed then
+    //Don't allow the player to select dead units
+    if ((NewSelected is TKMUnit) and TKMUnit(NewSelected).IsDeadOrDying)
+      or (NewSelected is TKMUnitAnimal) then //...or animals
       NewSelected := nil;
-  end;
 
-  //Don't clear the old selection unless we found something new
-  if NewSelected <> nil then
-    Selected := NewSelected;
+    //If Id belongs to some Warrior, try to select his group instead
+    if NewSelected is TKMUnitWarrior then
+    begin
+      NewSelected := gHands.GetGroupByMember(TKMUnitWarrior(NewSelected));
+      UpdateNewSelected(NewSelected);
+    end;
+
+    //Update selected groups selected unit
+    if NewSelected is TKMUnitGroup then
+      TKMUnitGroup(NewSelected).SelectedUnit := TKMUnitGroup(NewSelected).MemberByUID(gGameCursor.ObjectUID);
+
+    //If there's no unit try pick a house on the Cell below
+    if NewSelected = nil then
+    begin
+      NewSelected := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
+
+      //In-game player can select only own and ally Units
+      UpdateNewSelected(NewSelected, True);
+
+      //Don't allow the player to select destroyed houses
+      if (NewSelected is TKMHouse) and TKMHouse(NewSelected).IsDestroyed then
+        NewSelected := nil;
+    end;
+
+    //Don't clear the old selection unless we found something new
+    if NewSelected <> nil then
+      Selected := NewSelected;
+  end
+  else
+  begin
+    NewSelected := Selected; //To avoid nil-ing of fSelected
+    //In-game player can select only own and ally Units
+    UpdateNewSelected(NewSelected, fSelected is TKMHouse); //Updates fIsSelectedMyObj
+  end;
 
   // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
   if gGame.GameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti] then

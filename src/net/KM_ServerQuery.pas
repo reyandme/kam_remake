@@ -23,9 +23,10 @@ type
 
   TKMRoomInfo = record
     ServerIndex: Integer; //Points to some TKMServerInfo in TKMServerList
+    GameRevision: TKMGameRevision;
     RoomID: Integer;
     OnlyRoom: Boolean; //Is this the only room in the server?
-    GameInfo: TMPGameInfo;
+    GameInfo: TKMPGameInfo;
   end;
 
   TServerDataEvent = procedure(aServerID: Integer; aStream: TKMemoryStreamBinary; aPingStarted: Cardinal) of object;
@@ -41,31 +42,31 @@ type
   TKMQuery = class
   private
     fNetClient: TKMNetClient;
-    fQueryActive:boolean;
-    fQueryIsDone: boolean;
-    fPingStarted:cardinal;
-    fQueryStarted:cardinal;
-    fIndexOnServer:integer;
-    fServerID:integer;
+    fQueryActive: Boolean;
+    fQueryIsDone: Boolean;
+    fPingStarted: Cardinal;
+    fQueryStarted: Cardinal;
+    fIndexOnServer: Integer;
+    fServerID: Integer;
     fOnServerData: TServerDataEvent;
     fOnQueryDone: TNotifyEvent;
-    procedure NetClientReceive(aNetClient: TKMNetClient; aSenderIndex: TKMNetHandleIndex; aData:pointer; aLength:cardinal);
+    procedure NetClientReceive(aNetClient: TKMNetClient; aSenderIndex: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal);
     procedure PacketSend(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind); overload;
   public
     constructor Create;
     destructor Destroy; override;
     procedure PerformQuery(const aAddress: string; aPort: Word; aServerID: Integer);
     procedure Disconnect;
-    property OnServerData:TServerDataEvent read fOnServerData write fOnServerData;
-    property OnQueryDone:TNotifyEvent read fOnQueryDone write fOnQueryDone;
+    property OnServerData: TServerDataEvent read fOnServerData write fOnServerData;
+    property OnQueryDone: TNotifyEvent read fOnQueryDone write fOnQueryDone;
     procedure UpdateStateIdle;
   end;
 
   TKMRoomList = class
   private
-    fCount:integer;
-    fRooms:array of TKMRoomInfo;
-    procedure AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoStream: TKMemoryStreamBinary);
+    fCount: Integer;
+    fRooms: array of TKMRoomInfo;
+    procedure AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom: Boolean; aGameRev: TKMGameRevision; aGameInfoStream: TKMemoryStreamBinary);
     function GetRoom(aIndex: Integer): TKMRoomInfo;
     procedure SetRoom(aIndex: Integer; aValue: TKMRoomInfo);
     procedure Clear;
@@ -73,24 +74,24 @@ type
     destructor Destroy; override;
     property Rooms[aIndex: Integer]: TKMRoomInfo read GetRoom write SetRoom; default;
     property Count: Integer read fCount;
-    procedure LoadData(aServerID:integer; aStream: TKMemoryStreamBinary);
-    procedure SwapRooms(A,B:Integer);
+    procedure LoadData(aServerID: Integer; aStream: TKMemoryStreamBinary);
+    procedure SwapRooms(A,B: Integer);
   end;
 
   TKMServerList = class
   private
-    fCount:integer;
-    fLastQueried:integer;
-    fServers:array of TKMServerInfo;
-    procedure AddServer(const aIP, aName: string; aPort: Word; aType: TKMServerType; aPing: word);
+    fCount: Integer;
+    fLastQueried: Integer;
+    fServers: array of TKMServerInfo;
+    procedure AddServer(const aIP, aName: String; aPort: Word; aType: TKMServerType; aPing: Word);
     function GetServer(aIndex: Integer): TKMServerInfo;
     procedure Clear;
     procedure AddFromText(const aText: UnicodeString);
   public
     property Servers[aIndex: Integer]: TKMServerInfo read GetServer; default;
     property Count: Integer read fCount;
-    procedure TakeNewQuery(aQuery:TKMQuery);
-    procedure SetPing(aServerID:integer; aPing: Cardinal);
+    procedure TakeNewQuery(aQuery: TKMQuery);
+    procedure SetPing(aServerID: Integer; aPing: Cardinal);
   end;
 
   //Handles the master-server querrying and carries ServerList
@@ -109,19 +110,19 @@ type
     fOnListUpdated: TNotifyEvent;
     fOnAnnouncements: TUnicodeStringEvent;
 
-    procedure DetectUDPServer(const aAddress: string; const aPort: Word; const aName: string);
-    procedure ReceiveServerList(const S: string);
-    procedure ReceiveAnnouncements(const S: string);
+    procedure DetectUDPServer(const aAddress: String; const aPort: Word; const aName: string);
+    procedure ReceiveServerList(const S: String);
+    procedure ReceiveAnnouncements(const S: String);
 
     procedure ServerDataReceive(aServerID: Integer; aStream: TKMemoryStreamBinary; aPingStarted: Cardinal);
-    procedure QueryDone(Sender:TObject);
+    procedure QueryDone(Sender: TObject);
 
     procedure Sort;
     procedure SetSortMethod(aMethod: TServerSortMethod);
 
     function ActiveQueryCount: Integer;
   public
-    constructor Create(const aMasterServerAddress: string);
+    constructor Create(const aMasterServerAddress: String; aServerUDPScanPort: Word);
     destructor Destroy; override;
 
     property OnListUpdated: TNotifyEvent read fOnListUpdated write fOnListUpdated;
@@ -153,19 +154,21 @@ begin
 end;
 
 
-procedure TKMRoomList.AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoStream: TKMemoryStreamBinary);
+procedure TKMRoomList.AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom: Boolean; aGameRev: TKMGameRevision;
+                              aGameInfoStream: TKMemoryStreamBinary);
 begin
   if Length(fRooms) <= fCount then SetLength(fRooms, fCount+16);
   fRooms[fCount].ServerIndex := aServerIndex;
+  fRooms[fCount].GameRevision := aGameRev;
   fRooms[fCount].RoomID := aRoomID;
   fRooms[fCount].OnlyRoom := aOnlyRoom;
-  fRooms[fCount].GameInfo := TMPGameInfo.Create;
+  fRooms[fCount].GameInfo := TKMPGameInfo.Create;
   fRooms[fCount].GameInfo.LoadFromStream(aGameInfoStream);
-  inc(fCount);
+  Inc(fCount);
 end;
 
 
-function TKMRoomList.GetRoom(aIndex:integer):TKMRoomInfo;
+function TKMRoomList.GetRoom(aIndex:integer): TKMRoomInfo;
 begin
   Result := fRooms[aIndex];
 end;
@@ -188,15 +191,17 @@ begin
 end;
 
 
-procedure TKMRoomList.LoadData(aServerID:integer; aStream: TKMemoryStreamBinary);
+procedure TKMRoomList.LoadData(aServerID: Integer; aStream: TKMemoryStreamBinary);
 var
-  i, RoomCount, RoomID: Integer;
+  I, RoomCount, RoomID: Integer;
+  GameRev: TKMGameRevision;
 begin
   aStream.Read(RoomCount);
-  for i := 0 to RoomCount - 1 do //We don't actually use i as the server sends us RoomID (rooms might not be in order)
+  for I := 0 to RoomCount - 1 do //We don't actually use i as the server sends us RoomID (rooms might not be in order)
   begin
     aStream.Read(RoomID);
-    AddRoom(aServerID, RoomID, (RoomCount = 1), aStream);
+    aStream.Read(GameRev);
+    AddRoom(aServerID, RoomID, (RoomCount = 1), GameRev, aStream);
   end;
 end;
 
@@ -269,7 +274,7 @@ end;
 
 procedure TKMServerList.TakeNewQuery(aQuery: TKMQuery);
 begin
-  if fLastQueried < fCount-1 then
+  if fLastQueried < fCount - 1 then
   begin
     Inc(fLastQueried);
     aQuery.PerformQuery(Servers[fLastQueried].IP, Servers[fLastQueried].Port, fLastQueried);
@@ -392,15 +397,16 @@ end;
 
 
 { TKMServerQuery }
-constructor TKMServerQuery.Create(const aMasterServerAddress: string);
-var I: Integer;
+constructor TKMServerQuery.Create(const aMasterServerAddress: String; aServerUDPScanPort: Word);
+var
+  I: Integer;
 begin
   inherited Create;
   fMasterServer := TKMMasterServer.Create(aMasterServerAddress, False);
   fMasterServer.OnServerList := ReceiveServerList;
   fMasterServer.OnAnnouncements := ReceiveAnnouncements;
 
-  fUDPScanner := TKMNetUDPScan.Create;
+  fUDPScanner := TKMNetUDPScan.Create(aServerUDPScanPort);
   fUDPScanner.OnServerDetected := DetectUDPServer;
 
   fSortMethod := ssmByStateAsc; //Default sorting is by state
@@ -432,7 +438,8 @@ end;
 
 
 procedure TKMServerQuery.RefreshList;
-var I: Integer;
+var
+  I: Integer;
 begin
   //Clean up first
   for I := 0 to MAX_QUERIES - 1 do
@@ -456,7 +463,7 @@ var
   I: Integer;
 begin
   //Make sure this isn't a duplicate (UDP is connectionless so we could get a response from an old query)
-  for I := 0 to fServerList.Count-1 do
+  for I := 0 to fServerList.Count - 1 do
     if (fServerList[I].IP = aAddress) and (fServerList[I].Port = aPort) then
       Exit;
 

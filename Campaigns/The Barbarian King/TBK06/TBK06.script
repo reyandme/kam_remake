@@ -1,0 +1,193 @@
+//-- TBK06 --//
+//By Strangelove
+//v2.0c
+//14.08.2019
+
+
+{$I improvestaticai.script}
+{$I transformunits.script}
+{$I custommarket.script}
+{$I difficulty.script}
+
+
+{$DEFINE DEBUG} //Enable extended Debug
+//{$UNDEF DEBUG}
+
+const
+	TICKER = 600; //600Ticks = 1Minute
+
+Type
+	TAllyKnights = record
+		iX, iY: Byte;
+		iGroup: Integer;
+	end;
+
+
+var 
+	aAllyKnights: array of TAllyKnights;
+
+	iInitialAttackGroup: array of Integer; //Length is set OnTick
+	bAttack, bDefend: Boolean;
+	iAttackCounter, iDefendCounter: Byte;
+	Tick: Word;
+
+
+procedure OnMissionStart();
+var
+	l, AllyKnightCount: Byte;
+begin
+	iAttackCounter := 0;
+	iDefendCounter := 0;
+	bAttack := false;
+	bDefend := true;
+	AllyKnightCount := 12;
+	//Difficulty
+	case States.MissionDifficulty() of
+		mdEasy1:	
+			Tick := Round(TICKER *(1 +MODIFIER_EQUIPRATE));
+		mdNormal:	
+			Tick := TICKER;
+		mdHard1:		
+		begin
+			Tick := Round(TICKER *(1 -MODIFIER_EQUIPRATE));
+			AllyKnightCount := 9; //Decrease amount of Ally Knights
+		end;
+	end;
+	//Set Length of array
+	SetLength(aAllyKnights, 3);
+	//Define X, Y for Defence Positions for Ally
+	aAllyKnights[0].iX := 18;
+	aAllyKnights[0].iY := 76;
+	aAllyKnights[1].iX := 23;
+	aAllyKnights[1].iY := 78;
+	aAllyKnights[2].iX := 20;
+	aAllyKnights[2].iY := 83;
+	//Add Defence Positions and Groups
+	for l := 0 to Length(aAllyKnights) -1 do
+	begin
+		Actions.AIDefencePositionAdd(4, aAllyKnights[l].iX, aAllyKnights[l].iY, 2, 3, 60, 0);
+		aAllyKnights[l].iGroup := Actions.GiveGroup(4, 22, aAllyKnights[l].iX, aAllyKnights[l].iY, 2, AllyKnightCount, AllyKnightCount /3);
+	end;
+end;
+
+procedure OnTick;
+var 
+	iClosestGroup, iClosestGroupLeader: Integer;
+	k, h, iClosestGroupX, iClosestGroupY, iPlayer: Byte;
+begin
+	//Make Ally Knights defend area
+	if bDefend then
+	begin
+		//Get Closest Enemy Group from Player0 storehouse (Check every 10sec)
+		if States.GameTime() mod 61 = 0 then
+		begin
+			for iPlayer := 1 to 3 do
+			begin
+				iClosestGroup := States.ClosestGroup(iPlayer, 27, 93, -1);
+				iClosestGroupLeader := States.GroupMember(iClosestGroup, 0);
+				iClosestGroupX := States.UnitPositionX(iClosestGroupLeader);
+				iClosestGroupY := States.UnitPositionY(iClosestGroupLeader);
+				//Check if EnemyGroup is in specified Area (was X80/Y60 before)
+				if (iClosestGroupX < 73) and (iClosestGroupY > 64) then 
+				begin
+					for h := 0 to Length(aAllyKnights)-1 do
+					begin
+						if (aAllyKnights[h].iGroup <> -1) then
+						begin
+							if not States.GroupDead(aAllyKnights[h].iGroup) then
+							begin
+								if States.GroupIdle(aAllyKnights[h].iGroup) then
+									Actions.GroupOrderAttackUnit(aAllyKnights[h].iGroup, iClosestGroupLeader); //Attack
+							end else
+							begin
+								aAllyKnights[h].iGroup := -1;
+								iDefendCounter := iDefendCounter +1;
+								//Actions.ShowMsg(-1, 'iDefendCounter = ' + inttostr(iDefendCounter));
+								if iDefendCounter = Length(aAllyKnights) then
+								begin
+									bDefend := false; //Set to true once new attack groups are created
+									//Actions.ShowMsg(-1, 'bDefend is false!||iDefendCounter = ' + inttostr(iDefendCounter));
+									break;
+								end;
+							end;
+						end;
+					end;
+					break;
+				end;
+			end;
+		end;
+	end;
+	
+	//Initial Msg
+	if States.GameTime() = 30 then
+		Actions.ShowMsg(-1, '<$0>');
+	//Add Initial Attack Groups 
+	if States.GameTime() = Tick *4 then //Player1 (Rightside) @4min (previously: 3min)
+	begin
+		SetLength(iInitialAttackGroup, 2);
+		iInitialAttackGroup[0] := Actions.GiveGroup(1, 15, 94, 107, 6, 12, 4);
+		iInitialAttackGroup[1] := Actions.GiveGroup(1, 23, 98, 107, 6, 10, 5);
+		bAttack := true;
+	end;
+	if States.GameTime() = Tick *8 then //Player2 (Topside) @8min (previously: 6min)
+	begin
+		SetLength(iInitialAttackGroup, 5);
+		iInitialAttackGroup[2] := Actions.GiveGroup(2, 15, 104, 42, 4, 12, 4);
+		iInitialAttackGroup[3] := Actions.GiveGroup(2, 23, 104, 45, 4, 8, 4);
+		iInitialAttackGroup[4] := Actions.GiveGroup(2, 23, 104, 48, 4, 6, 3);
+		bAttack := true;
+	end;
+	
+	//Add AI Defence Positions for Player1 (Rightside)
+	if States.GameTime() = Tick *8 then //@Start building @8min
+	begin
+		Actions.AIDefencePositionAdd(1, 96, 106, 6, 0, 20, 1);
+		Actions.AIDefencePositionAdd(1, 100, 106, 6, 2, 20, 1);
+	end;
+	if States.GameTime() = Tick *60 then //@35min (up from 33min)
+	begin
+		Actions.AIDefencePositionAdd(1, 96, 65, 6, 0, 20, 1);
+		Actions.AIDefencePositionAdd(1, 97, 58, 6, 0, 20, 1);
+		Actions.AIDefencePositionAdd(1, 99, 65, 6, 2, 20, 1);
+		Actions.AIDefencePositionAdd(1, 101, 59, 6, 1, 20, 1);
+	end;
+	//Add AI Defence Positions for Player2 (Topside)
+	if States.GameTime() = Tick *12 then //Start building @12min (up from 7min)
+	begin
+		Actions.AIDefencePositionAdd(2, 88, 7, 4, 0, 20, 1);
+		Actions.AIDefencePositionAdd(2, 82, 8, 4, 0, 20, 1);
+	end;
+	if States.GameTime() = Tick *45 then //@45min (previously: 36min)
+		Actions.AIDefencePositionAdd(2, 89, 3, 4, 2, 20, 1);
+		
+	//Add AI Defence Positions for Player3 (Iron)
+	if States.GameTime() = Tick *60 then //Start building @60min
+	begin
+		Actions.AIDefencePositionAdd(3, 56, 30, 2, 3, 20, 1);
+		Actions.AIDefencePositionAdd(3, 51, 28, 2, 0, 20, 1);
+		Actions.AIDefencePositionAdd(3, 49, 34, 4, 2, 20, 1);
+		Actions.AIDefencePositionAdd(3, 59, 25, 2, 1, 20, 1);
+	end;
+	
+	//Make iInitialAttackGroups Attack
+	if bAttack then
+		if States.GameTime() mod 60 = 0 then
+			for k := 0 to Length(iInitialAttackGroup)-1 do
+				if (iInitialAttackGroup[k] <> -1) then
+					if not States.GroupDead(iInitialAttackGroup[k]) then
+					begin
+						if States.GroupIdle(iInitialAttackGroup[k]) then
+							Actions.GroupOrderAttackHouse(iInitialAttackGroup[k], States.HouseAt(27, 93));
+					end else
+					begin
+						iInitialAttackGroup[k] := -1;
+						Inc(iAttackCounter);
+						//Actions.ShowMsg(-1, 'iAttackCounter = ' + inttostr(iAttackCounter));
+						if iAttackCounter = Length(iInitialAttackGroup) then
+						begin
+							bAttack := false; //Set to true once new attack groups are created
+							//Actions.ShowMsg(-1, 'bAttack is false!||iAttackCounter = ' + inttostr(iAttackCounter));
+							break;
+						end;
+					end;
+end;

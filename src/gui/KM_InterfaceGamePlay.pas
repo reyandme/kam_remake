@@ -90,7 +90,7 @@ type
     procedure Beacon_Cancel;
     procedure Beacon_Place(const aLoc: TKMPointF);
     procedure Chat_Click(Sender: TObject);
-    procedure House_Demolish;
+    procedure House_Demolish(Sender: TObject; Shift: TShiftState);
     procedure Reset_Menu;
     function ArmyCanTakeOrder(aObject: TObject): Boolean;
     function IsSelectingTroopDirection(aObject: TObject): Boolean;
@@ -101,9 +101,10 @@ type
     procedure Allies_Click(Sender: TObject);
     procedure Allies_Show(Sender: TObject);
     procedure MessageStack_UpdatePositions;
-    procedure Message_Click(Sender: TObject);
+    procedure Message_Click(Sender: TObject; Shift: TShiftState);
     procedure Message_Close(Sender: TObject);
-    procedure Message_Delete(Sender: TObject);
+    procedure Message_Delete(aIndex: Integer);
+    procedure Message_DeleteClick(Sender: TObject);
     procedure Message_Show(aIndex: Integer);
     procedure Message_GoTo(Sender: TObject);
     procedure Message_UpdateStack;
@@ -271,8 +272,11 @@ type
           Button_NetConfirmYes,Button_NetConfirmNo: TKMButton;
     Panel_Menu: TKMPanel;
       Button_Menu_Save, Button_Menu_Load, Button_Menu_ReturnLobby, Button_Menu_Settings, Button_Menu_Quit,
-      Button_Menu_TrackUp, Button_Menu_TrackDown, Button_ShowStats: TKMButton;
-      Label_Menu_Track, Label_GameTime, Label_MapName: TKMLabel;
+      Button_ShowStats: TKMButton;
+      Label_GameTime, Label_MapName: TKMLabel;
+      Panel_Track: TKMPanel;
+        Label_Menu_Track: TKMLabel;
+        Button_Menu_TrackUp, Button_Menu_TrackDown: TKMButton;
 
       Panel_Save: TKMPanel;
         ListBox_Save: TKMListBox;
@@ -352,12 +356,13 @@ uses
   KM_Utils, KM_ScriptingEvents,
   KM_CommonUtils, KM_ResLocales, KM_ResSound, KM_Resource, KM_Log, KM_ResCursors, KM_ResFonts, KM_ResKeys,
   KM_ResSprites, KM_ResUnits, KM_ResWares, KM_FogOfWar, KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes,
-  KM_InterfaceMapEditor, KM_HouseWoodcutters,
+  KM_InterfaceMapEditor, KM_HouseWoodcutters, KM_MapTypes,
   KM_GameTypes;
 
 const
   ALLIES_ROWS = 7;
   PANEL_ALLIES_WIDTH = 840;
+  PANEL_TRACK_TOP = 285;
 
 
 procedure TKMGamePlayInterface.Menu_Save_ListChange(Sender: TObject);
@@ -458,7 +463,7 @@ begin
   try
     Button_Load.Enabled := InRange(ListBox_Load.ItemIndex, 0, fSaves.Count - 1)
                            and fSaves[ListBox_Load.ItemIndex].IsValid;
-    if InRange(ListBox_Load.ItemIndex,0,fSaves.Count-1) then
+    if InRange(ListBox_Load.ItemIndex, 0 ,fSaves.Count - 1) then
     begin
       Label_LoadDescription.Caption := fSaves[ListBox_Load.ItemIndex].GameInfo.GetTitleWithTime;
       fSave_Selected := ListBox_Load.ItemIndex;
@@ -706,7 +711,9 @@ begin
       gSoundPlayer.PlayWarrior(Group.UnitType, spMove);
     end;
   end;
-  if ((gMySpectator.Selected is TKMHouseBarracks) or (gMySpectator.Selected is TKMHouseWoodcutters)) and not fPlacingBeacon
+  if  ((gMySpectator.Selected is TKMHouseBarracks)
+    or (gMySpectator.Selected is TKMHouseTownHall)
+    or (gMySpectator.Selected is TKMHouseWoodcutters)) and not fPlacingBeacon
     and (fUIMode in [umSP, umMP]) and not HasLostMPGame then
   begin
     if gTerrain.Route_CanBeMade(TKMHouse(gMySpectator.Selected).PointBelowEntrance, Loc, tpWalk, 0) then
@@ -1049,7 +1056,7 @@ begin
     Image_Message[I].Hide;
     Image_Message[I].HighlightOnMouseOver := True;
     Image_Message[I].Tag := I;
-    Image_Message[I].OnClick := Message_Click;
+    Image_Message[I].OnClickShift := Message_Click;
   end;
 end;
 
@@ -1162,7 +1169,7 @@ begin
     Button_MessageDelete := TKMButton.Create(Panel_Message, 490, 104, 100, 24, gResTexts[TX_MSG_DELETE], bsGame);
     Button_MessageDelete.Font := fntAntiqua;
     Button_MessageDelete.Hint := gResTexts[TX_MSG_DELETE_HINT];
-    Button_MessageDelete.OnClick := Message_Delete;
+    Button_MessageDelete.OnClick := Message_DeleteClick;
     Button_MessageDelete.MakesSound := False; // Don't play default Click as these buttons use sfxMessageClose
 
     Image_MessageClose := TKMImage.Create(Panel_Message, 600 - 76, 24, 32, 32, 52);
@@ -1343,19 +1350,24 @@ begin
   Button_Menu_Quit.Hint := gResTexts[TX_MENU_QUIT_MISSION];
   Button_Menu_Quit.OnClick := SwitchPage;
 
-  Button_Menu_TrackUp := TKMButton.Create(Panel_Menu, 160, 300, 20, 30, '>', bsGame);
-  Button_Menu_TrackDown := TKMButton.Create(Panel_Menu, 0, 300, 20, 30, '<', bsGame);
-  Button_Menu_TrackUp.Hint := gResTexts[TX_MUSIC_NEXT_HINT];
-  Button_Menu_TrackDown.Hint := gResTexts[TX_MUSIC_PREV_HINT];
-  Button_Menu_TrackUp.OnClick := Menu_NextTrack;
-  Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
-  TKMLabel.Create(Panel_Menu, 0, 285, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fntOutline, taCenter);
-  Label_Menu_Track := TKMLabel.Create(Panel_Menu, 23, 306, TB_WIDTH - 46, 30, '', fntGrey, taCenter);
-  Label_Menu_Track.Hitable := False; // It can block hits for the track Up/Down buttons as they overlap
   TKMLabel.Create(Panel_Menu, 0, 198, TB_WIDTH, 30, gResTexts[TX_GAMEPLAY_GAME_TIME] + ':', fntOutline, taCenter);
   Label_GameTime := TKMLabel.Create(Panel_Menu, 0, 218, TB_WIDTH, 20, '', fntGrey, taCenter);
   TKMLabel.Create(Panel_Menu, 0, 240, TB_WIDTH, 30, gResTexts[TX_WORD_MAP] + ':', fntOutline, taCenter);
   Label_MapName := TKMLabel.Create(Panel_Menu, -3, 260, TB_WIDTH + 3, 20, '', fntGrey, taCenter);
+
+  Panel_Track := TKMPanel.Create(Panel_Menu, 0, PANEL_TRACK_TOP, TB_WIDTH, 60);
+  TKMLabel.Create(Panel_Track, 0, 0, TB_WIDTH, 30, gResTexts[TX_MUSIC_PLAYER], fntOutline, taCenter);
+  Label_Menu_Track := TKMLabel.Create(Panel_Track, 23, 21, TB_WIDTH - 46, 30, '', fntGrey, taCenter);
+  Label_Menu_Track.Hitable := False; // It can block hits for the track Up/Down buttons as they overlap
+
+  Button_Menu_TrackUp := TKMButton.Create(Panel_Track, 160, 15, 20, 30, '>', bsGame);
+  Button_Menu_TrackDown := TKMButton.Create(Panel_Track, 0, 15, 20, 30, '<', bsGame);
+  Button_Menu_TrackUp.Hint := gResTexts[TX_MUSIC_NEXT_HINT];
+  Button_Menu_TrackDown.Hint := gResTexts[TX_MUSIC_PREV_HINT];
+  Button_Menu_TrackUp.OnClick := Menu_NextTrack;
+  Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
+
+
 end;
 
 
@@ -1372,6 +1384,7 @@ begin
 
     ListBox_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fntMetal, bsGame);
     ListBox_Save.AutoHideScrollBar := True;
+    ListBox_Save.SearchEnabled := True;
     ListBox_Save.OnChange := Menu_Save_ListChange;
 
     Label_SaveExists := TKMLabel.Create(Panel_Save,0,260,TB_WIDTH,30,gResTexts[TX_GAMEPLAY_SAVE_EXISTS],fntOutline,taLeft);
@@ -1390,6 +1403,7 @@ begin
 
     ListBox_Load := TKMListBox.Create(Panel_Load, 0, 2, TB_WIDTH, 260, fntMetal, bsGame);
     ListBox_Load.AutoHideScrollBar := True;
+    ListBox_Load.SearchEnabled := True;
     ListBox_Load.OnChange := Menu_Load_ListClick;
     ListBox_Load.OnDoubleClick := Menu_Load_Click;
 
@@ -1438,7 +1452,8 @@ end;
 
 
 procedure TKMGamePlayInterface.CinematicUpdate;
-var I: Integer;
+var
+  I: Integer;
 begin
   if gMySpectator.Hand.InCinematic then
   begin
@@ -1464,6 +1479,8 @@ begin
   else
   begin
     SetMenuState(gGame.MissionMode = mmTactic); // Enable main buttons
+
+    Viewport.CinematicReset; //Reset Pan points for future cinematics
 
     MinimapView.Enable;
     Sidebar_Top.Enable;
@@ -1502,9 +1519,11 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.House_Demolish;
+procedure TKMGamePlayInterface.House_Demolish(Sender: TObject; Shift: TShiftState);
 begin
   SwitchPage(Button_Main[tbBuild]);
+  if ssShift in Shift then
+    fGuiGameBuild.ErasePlan; //Enable Delete mode again
 end;
 
 
@@ -1527,12 +1546,19 @@ end;
 
 
 // Click on the same message again closes it
-procedure TKMGamePlayInterface.Message_Click(Sender: TObject);
+procedure TKMGamePlayInterface.Message_Click(Sender: TObject; Shift: TShiftState);
 begin
-  if TKMImage(Sender).Tag <> fShownMessage then
-    Message_Show(TKMImage(Sender).Tag)
+  if ssLeft in Shift then
+  begin
+    if TKMImage(Sender).Tag <> fShownMessage then
+      Message_Show(TKMImage(Sender).Tag)
+    else
+      Message_Close(Sender);
+  end
   else
-    Message_Close(Sender);
+  begin
+    Message_Delete(TKMImage(Sender).Tag);
+  end;
 end;
 
 
@@ -1577,16 +1603,24 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
+procedure TKMGamePlayInterface.Message_DeleteClick(Sender: TObject);
 var
   OldMsg: Integer;
 begin
   if fShownMessage = -1 then Exit; // Player pressed DEL with no Msg opened
 
   OldMsg := fShownMessage;
-
   Message_Close(Sender);
-  fMessageStack.RemoveStack(OldMsg);
+  Message_Delete(OldMsg);
+end;
+
+
+procedure TKMGamePlayInterface.Message_Delete(aIndex: Integer);
+begin
+  if aIndex = fShownMessage then
+    Message_Close(nil);
+
+  fMessageStack.RemoveStack(aIndex);
 
   Message_UpdateStack;
   DisplayHint(nil);
@@ -2145,6 +2179,14 @@ begin
 
   Label_GameTime.Caption := TimeToString(gGame.MissionTime);
   Label_MapName.Caption := Copy(gGame.GameName, 0, EnsureRange(Length(gGame.GameName), 1, MAX_MAPNAME_LENGTH));
+  if gGame.HasMissionDifficulty then
+  begin
+    Label_MapName.Caption := Format('%s|[$%s]( %s )[]', [Label_MapName.Caption,
+                                    IntToHex(DIFFICULTY_LEVELS_COLOR[gGame.MissionDifficulty] and $00FFFFFF, 6),
+                                    gResTexts[DIFFICULTY_LEVELS_TX[gGame.MissionDifficulty]]]);
+    Panel_Track.Top := PANEL_TRACK_TOP + 15;
+  end else
+    Panel_Track.Top := PANEL_TRACK_TOP;
 
   Label_Menu_Track.Enabled      := not gGameApp.GameSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not gGameApp.GameSettings.MusicOff;
@@ -3369,6 +3411,9 @@ begin
         Exit;
       end;
     end;
+
+    if (Key = gResKeys[SC_REPLAY_PLAY_NEXT_TICK].Key) and Button_ReplayStep.Enabled then
+      ReplayClick(Button_ReplayStep);
   end;
 
   fGuiGameUnit.KeyUp(Key, Shift);
@@ -3697,7 +3742,7 @@ end;
 
 procedure TKMGamePlayInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
-  P: TKMPoint;
+  P, P2: TKMPoint;
   Obj: TObject;
   H: TKMHouse;
   Group, Group2: TKMUnitGroup;
@@ -3848,7 +3893,9 @@ begin
                 if H <> nil then
                 begin
                   gMySpectator.Selected := H; // Select the house irregardless of unit below/above
-                  gMySpectator.UpdateSelect; //Update select, to set up fIsSelectedMyObj
+                  //Update select, to set up fIsSelectedMyObj
+                  //Don't update selected object again!
+                  gMySpectator.UpdateSelect(False);
                   HidePages;
                   SwitchPage(nil); // Hide main back button if we were in e.g. stats
                   fGuiGameHouse.Show(H, True);
@@ -3888,7 +3935,10 @@ begin
           and (fUIMode in [umSP, umMP])
           and not HasLostMPGame then
         begin
-          if gTerrain.Route_CanBeMade(TKMHouse(gMySpectator.Selected).PointBelowEntrance, P, tpWalk, 0) then
+          P2 := TKMHouse(gMySpectator.Selected).PointBelowEntrance;
+          if gTerrain.Route_CanBeMade(P2, P, tpWalk, 0)
+            or gTerrain.Route_CanBeMade(KMPointLeft(P2), P, tpWalk, 0)
+            or gTerrain.Route_CanBeMade(KMPointRight(P2), P, tpWalk, 0) then
           begin
             if gMySpectator.Selected is TKMHouseBarracks then
               gGame.GameInputProcess.CmdHouse(gicHouseBarracksRally, TKMHouse(gMySpectator.Selected), P)
@@ -4280,7 +4330,9 @@ begin
     begin
       if ObjToShowInfo is TKMUnit then
         S := S + TKMUnit(ObjToShowInfo).ObjToString
-      else if ObjToShowInfo is TKMUnitGroup then
+      else if (ObjToShowInfo is TKMUnitGroup)
+        and not TKMUnitGroup(ObjToShowInfo).IsDead
+        and (TKMUnitGroup(ObjToShowInfo).SelectedUnit <> nil) then
         S := S + TKMUnitGroup(ObjToShowInfo).SelectedUnit.ObjToString
       else if ObjToShowInfo is TKMHouse then
         S := S + TKMHouse(ObjToShowInfo).ObjToString;

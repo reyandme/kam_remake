@@ -43,6 +43,7 @@ type
     function GroupColumnCount(aGroupID: Integer): Integer;
     function GroupDead(aGroupID: Integer): Boolean;
     function GroupIdle(aGroupID: Integer): Boolean;
+    function GroupInFight(aGroupID: Integer; aCountCitizens: Boolean): Boolean;
     function GroupMember(aGroupID, aMemberIndex: Integer): Integer;
     function GroupMemberCount(aGroupID: Integer): Integer;
     function GroupOrder(aGroupID: Integer): TKMGroupOrder;
@@ -176,7 +177,9 @@ type
     function UnitsGroup(aUnitID: Integer): Integer;
     function UnitType(aUnitID: Integer): Integer;
     function UnitTypeName(aUnitType: Byte): AnsiString;
+
     function WareTypeName(aWareType: Byte): AnsiString;
+    function WarriorInFight(aUnitID: Integer; aCountCitizens: Boolean): Boolean;
   end;
 
 
@@ -3293,6 +3296,31 @@ end;
 
 
 //* Version: 7000+
+//* Returns true if specified warrior is in fight
+//* aCountCitizens - including fights with citizens
+//* Result: InFight
+function TKMScriptStates.WarriorInFight(aUnitID: Integer; aCountCitizens: Boolean): Boolean;
+var
+  U: TKMUnit;
+begin
+  try
+    Result := False;
+    if aUnitID > 0 then
+    begin
+      U := fIDCache.GetUnit(aUnitID);
+      if (U <> nil) and (U is TKMUnitWarrior) then
+        Result := TKMUnitWarrior(U).InFight(aCountCitizens);
+    end
+    else
+      LogParamWarning('States.WarriorInFight', [aUnitID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
 //* Returns current hitpoints for specified unit or -1 if Unit ID invalid
 //* Result: HitPoints
 function TKMScriptStates.UnitHPCurrent(aUnitID: Integer): Integer;
@@ -3631,6 +3659,31 @@ begin
     end
     else
       LogParamWarning('States.GroupIdle', [aGroupID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Returns true if specified group is in fight
+//* aCountCitizens - including fights with citizens
+//* Result: InFight
+function TKMScriptStates.GroupInFight(aGroupID: Integer; aCountCitizens: Boolean): Boolean;
+var
+  G: TKMUnitGroup;
+begin
+  try
+    Result := False;
+    if aGroupID > 0 then
+    begin
+      G := fIDCache.GetGroup(aGroupID);
+      if G <> nil then
+        Result := G.InFight(aCountCitizens);
+    end
+    else
+      LogParamWarning('States.GroupInFight', [aGroupID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, Math, SysUtils,
-  KM_CommonUtils, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Defaults;
+  KM_CommonUtils, KM_CommonTypes, KM_Controls, KM_Saves, KM_InterfaceDefaults, KM_Minimap, KM_Defaults;
 
 
 type
@@ -18,7 +18,9 @@ type
 
     fLastSaveFileName: String; //Name of selected save
 
-    function CanLoadSave: Boolean;
+    fLoadKind: TKMGameStartMode;
+
+    function CanLoadSave(aStrict: Boolean = True): Boolean;
     procedure UpdateUI;
     procedure LoadMinimap;
     procedure SetLastSaveFileName(const aFileName: String = '');
@@ -59,7 +61,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_Pics;
+  KM_Log, KM_ResTexts, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_Pics;
 
 
 { TKMGUIMenuLoad }
@@ -74,32 +76,37 @@ begin
   fMinimap := TKMMinimap.Create(True, True);
   fSaves := TKMSavesCollection.Create;
 
+  fLoadKind := gsmNoStart;
+
   Panel_Load := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Load.AnchorsStretch;
 
     TKMLabel.Create(Panel_Load, aParent.Width div 2, 50, gResTexts[TX_MENU_LOAD_LIST], fntOutline, taCenter);
 
-    ColumnBox_Load := TKMColumnBox.Create(Panel_Load, 22, 86, 770, 485, fntMetal, bsMenu);
+    ColumnBox_Load := TKMColumnBox.Create(Panel_Load, 22, 86, 956, 450, fntMetal, bsMenu);
     ColumnBox_Load.Anchors := [anLeft,anTop,anBottom];
-    ColumnBox_Load.SetColumns(fntOutline, ['', gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_DESCRIPTION]], [0, 22, 250, 430]);
+    ColumnBox_Load.SetColumns(fntOutline,
+                              ['', gResTexts[TX_MENU_LOAD_FILE], gResTexts[TX_MENU_LOAD_DATE], gResTexts[TX_MENU_LOAD_MAP_NAME],
+                               gResTexts[TX_MENU_LOAD_TIME], gResTexts[TX_MENU_LOAD_GAME_VERSION]],
+                              [0, 22, 440, 580, 825, 897]);
     ColumnBox_Load.SearchColumn := 1;
     ColumnBox_Load.OnColumnClick := Load_Sort;
     ColumnBox_Load.OnChange := Load_ListClick;
     ColumnBox_Load.OnDoubleClick := LoadClick;
 
-    Button_Load := TKMButton.Create(Panel_Load, 337, 590, 350, 30, gResTexts[TX_MENU_LOAD_LOAD], bsMenu);
+    Button_Load := TKMButton.Create(Panel_Load, 200, 555, 350, 30, gResTexts[TX_MENU_LOAD_LOAD], bsMenu);
     Button_Load.Anchors := [anLeft,anBottom];
     Button_Load.OnClick := LoadClick;
 
-    Button_Delete := TKMButton.Create(Panel_Load, 337, 624, 350, 30, gResTexts[TX_MENU_LOAD_DELETE], bsMenu);
+    Button_Delete := TKMButton.Create(Panel_Load, 200, 595, 350, 30, gResTexts[TX_MENU_LOAD_DELETE], bsMenu);
     Button_Delete.Anchors := [anLeft,anBottom];
     Button_Delete.OnClick := Load_Delete_Click;
 
-    Button_LoadBack := TKMButton.Create(Panel_Load, 337, 700, 350, 30, gResTexts[TX_MENU_BACK], bsMenu);
+    Button_LoadBack := TKMButton.Create(Panel_Load, 200, 700, 350, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_LoadBack.Anchors := [anLeft,anBottom];
     Button_LoadBack.OnClick := BackClick;
 
-    MinimapView_Load := TKMMinimapView.Create(Panel_Load, 809, 230, 191, 191, True);
+    MinimapView_Load := TKMMinimapView.Create(Panel_Load, 630, 555, 191, 191, True);
     MinimapView_Load.Anchors := [anLeft];
 
     //Delete PopUp
@@ -141,33 +148,65 @@ begin
 end;
 
 
-function TKMMenuLoad.CanLoadSave: Boolean;
+function TKMMenuLoad.CanLoadSave(aStrict: Boolean = True): Boolean;
 begin
-  Result := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1)
-             and fSaves[ColumnBox_Load.ItemIndex].IsValid
+  Result := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count - 1)
+            and (fSaves[ColumnBox_Load.ItemIndex].IsValidStrictly
+                or (not aStrict and fSaves[ColumnBox_Load.ItemIndex].IsValid))
 end;
 
 
 procedure TKMMenuLoad.UpdateUI;
 begin
-  Button_Delete.Enabled := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1);
-  Button_Load.Enabled := CanLoadSave;
+  Button_Delete.Enabled := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count - 1);
+
+  if CanLoadSave then
+  begin
+    Button_Load.Enable;
+    Button_Load.Caption := gResTexts[TX_MENU_LOAD_LOAD];
+    fLoadKind := gsmStart;
+  end
+  else
+  if CanLoadSave(False) then
+  begin
+    Button_Load.Enable;
+    Button_Load.Caption := gResTexts[TX_MENU_SAVE_TRY_TO_LOAD];
+    fLoadKind := gsmStartWithWarn;
+  end
+  else
+  begin
+    Button_Load.Disable;
+    Button_Load.Caption := gResTexts[TX_MENU_LOAD_LOAD];
+    fLoadKind := gsmNoStart;
+  end;
 end;
 
 
 procedure TKMMenuLoad.LoadMinimap;
 begin
+  if not Panel_Load.Visible then Exit;
+
   MinimapView_Load.Hide; //Hide by default, then show it if we load the map successfully
-  if CanLoadSave and fSaves[ColumnBox_Load.ItemIndex].LoadMinimap(fMinimap) then
+  if fLoadKind in [gsmStart, gsmStartWithWarn] then
   begin
-    MinimapView_Load.SetMinimap(fMinimap);
-    MinimapView_Load.Show;
+    try
+      if fSaves[ColumnBox_Load.ItemIndex].LoadMinimap(fMinimap) then
+      begin
+        MinimapView_Load.SetMinimap(fMinimap);
+        MinimapView_Load.Show;
+      end;
+    except
+      on E: Exception do
+        gLog.AddTime('Error loading minimap for save ' + fSaves[ColumnBox_Load.ItemIndex].Path); //Silently catch exception
+    end;
   end;
 end;
 
 
 procedure TKMMenuLoad.Load_ListClick(Sender: TObject);
 begin
+  if not Panel_Load.Visible then Exit;
+
   fSaves.Lock;
   try
     //Hide delete confirmation if player has selected a different savegame item
@@ -189,11 +228,42 @@ end;
 
 
 procedure TKMMenuLoad.LoadClick(Sender: TObject);
+
+  procedure DoLoad;
+  begin
+    gGameApp.NewSingleSave(fSaves[ColumnBox_Load.ItemIndex].FileName);
+  end;
+
+var
+  ID: Integer;
+  LoadError: UnicodeString;
 begin
-  if not Button_Load.Enabled then exit; //This is also called by double clicking
-  if not InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
+  if not Button_Load.Enabled then Exit; //This is also called by double clicking
+
+  ID := ColumnBox_Load.ItemIndex;
+  if not InRange(ID, 0, fSaves.Count - 1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  gGameApp.NewSingleSave(fSaves[ColumnBox_Load.ItemIndex].FileName);
+
+  case fLoadKind of
+    gsmNoStart, gsmNoStartWithWarn: ;
+    gsmStart: DoLoad;
+    gsmStartWithWarn:
+      begin
+        try
+          DoLoad;
+        except
+          on E: Exception do
+          begin
+            LoadError := Format(gResTexts[TX_UNSUPPORTED_SAVE_LOAD_ERROR_MSG], [fSaves[ID].GameInfo.Version, fSaves[ID].Path])
+              + '||' + E.ClassName + ': ' + E.Message;
+            gLog.AddTime('Game load Exception: ' + LoadError
+              {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
+              );
+            fOnPageChange(gpError, LoadError);
+          end;
+        end;
+      end;
+  end;
 end;
 
 
@@ -253,8 +323,10 @@ end;
 
 
 procedure TKMMenuLoad.Load_RefreshList(aJumpToSelected:Boolean);
-var I, PrevTop: Integer;
-    Row: TKMListRow;
+var
+  I, PrevTop: Integer;
+  Row: TKMListRow;
+  Color: Cardinal;
 begin
   PrevTop := ColumnBox_Load.TopIndex;
   ColumnBox_Load.Clear;
@@ -263,8 +335,17 @@ begin
   try
     for I := 0 to fSaves.Count - 1 do
     begin
-      Row := MakeListRow(['', fSaves[i].FileName, fSaves[i].GameInfo.GetSaveTimestamp, fSaves[I].GameInfo.GetTitleWithTime],
-                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF]);
+      if fSaves[I].IsValidStrictly then
+        Color := clSaveLoadOk
+      else
+      if fSaves[I].IsValid then
+        Color := clSaveLoadTry
+      else
+        Color := clSaveLoadError;
+
+      Row := MakeListRow(['', fSaves[I].FileName, fSaves[I].GameInfo.GetSaveTimestamp, fSaves[I].GameInfo.Title,
+                          TickToTimeStr(fSaves[I].GameInfo.TickCount), fSaves[I].GameInfo.VersionU],
+                         [Color, Color, Color, Color, Color, Color]);
       Row.Cells[0].Pic := MakePic(rxGui, 657 + Byte(fSaves[I].GameInfo.MissionMode = mmTactic));
       ColumnBox_Load.AddItem(Row);
     end;
@@ -298,34 +379,53 @@ end;
 
 
 procedure TKMMenuLoad.Load_Sort(aIndex: Integer);
+var
+  SSM: TKMSavesSortMethod;
 begin
-  case ColumnBox_Load.SortIndex of
-    0:  if ColumnBox_Load.SortDirection = sdDown then
-          fSaves.Sort(smByModeDesc, Load_SortUpdate)
-        else
-          fSaves.Sort(smByModeAsc, Load_SortUpdate);
-    //Sorting by filename goes A..Z by default
-    1:  if ColumnBox_Load.SortDirection = sdDown then
-          fSaves.Sort(smByFileNameDesc, Load_SortUpdate)
-        else
-          fSaves.Sort(smByFileNameAsc, Load_SortUpdate);
-    //Sorting by description goes Old..New by default
-    2:  if ColumnBox_Load.SortDirection = sdDown then
-          fSaves.Sort(smByDateDesc, Load_SortUpdate)
-        else
-          fSaves.Sort(smByDateAsc, Load_SortUpdate);
-    //Sorting by description goes A..Z by default
-    3:  if ColumnBox_Load.SortDirection = sdDown then
-          fSaves.Sort(smByDescriptionDesc, Load_SortUpdate)
-        else
-          fSaves.Sort(smByDescriptionAsc, Load_SortUpdate);
-  end;
+  with ColumnBox_Load do
+    case SortIndex of
+      //Sorting by filename goes A..Z by default
+      0:  if SortDirection = sdDown then
+            SSM := smByModeDesc
+          else
+            SSM := smByModeAsc;
+      1:  if SortDirection = sdDown then
+            SSM := smByFileNameDesc
+          else
+            SSM := smByFileNameAsc;
+      //Sorting by description goes Old..New by default
+      2:  if SortDirection = sdDown then
+            SSM := smByDateDesc
+          else
+            SSM := smByDateAsc;
+      //Sorting by description goes A..Z by default
+      3:  if SortDirection = sdDown then
+            SSM := smByMapNameDesc
+          else
+            SSM := smByMapNameAsc;
+      4:  if SortDirection = sdDown then
+            SSM := smByTimeDesc
+          else
+            SSM := smByTimeAsc;
+      5:  if SortDirection = sdDown then
+            SSM := smByGameVersionDesc
+          else
+            SSM := smByGameVersionAsc;
+      else
+          if SortDirection = sdDown then
+            SSM := smByFileNameDesc
+          else
+            SSM := smByFileNameAsc;
+    end;
+  fSaves.Sort(SSM, Load_SortUpdate);
 end;
 
 
 //Shortcut to choose if DeleteConfirmation should be displayed or hid
 procedure TKMMenuLoad.Load_DeleteConfirmation(aVisible: Boolean);
 begin
+  if not Panel_Load.Visible then Exit;
+
   if aVisible then
   begin
     PopUp_Delete.Show;
@@ -368,6 +468,8 @@ end;
 
 procedure TKMMenuLoad.Show;
 begin
+  Panel_Load.Show;
+
   //Stop current scan so it can't add a save after we clear the list
   fSaves.TerminateScan;
   ColumnBox_Load.Clear; //clear the list
@@ -381,7 +483,7 @@ begin
   //Apply sorting from last time we were on this page
   Load_Sort(ColumnBox_Load.SortIndex);
 
-  Panel_Load.Show;
+
 end;
 
 

@@ -490,7 +490,7 @@ begin
     for I := 0 to NodeList.Count - 1 do
       //We must check if we can add the plan ontop of plans placed earlier in this turn
       if P.CanAddFieldPlan(NodeList[I], ftRoad) then
-        P.BuildList.FieldworksList.AddField(NodeList[I], ftRoad);
+         P.BuildList.FieldworksList.AddField(NodeList[I], ftRoad);
     Result := True;
   finally
     NodeList.Free;
@@ -535,6 +535,11 @@ begin
     P.RemHousePlan(Loc);
     Exit;
   end;
+  
+  //I tried to use this when the bug occured but it didn't always work because AI places multiple house/field plans at once (if P.CanAddFieldPlan(KMPointBelow(Loc), ftRoad) then)
+  //Fixes Classical AI bug related to houses never being finished/connected to road network
+   P.BuildList.FieldworksList.RemFieldPlan(KMPointBelow(Loc)); //Make sure our entrance to the house has no plan (vine/corn) in front of it
+   P.BuildList.FieldworksList.AddField(KMPointBelow(Loc), ftRoad); //Place a road below house entrance to make sure it is connected to our city!
 
   //Build fields for Farm
   if aHouse = htFarm then

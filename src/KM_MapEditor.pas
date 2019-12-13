@@ -86,8 +86,12 @@ uses
   KM_Terrain, KM_FileIO,
   KM_AIDefensePos, 
   KM_Units, KM_UnitGroup, KM_Houses, KM_HouseCollection, KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
-  KM_Game, KM_GameCursor, KM_ResMapElements, KM_ResHouses, KM_ResWares,
+  KM_Game, KM_GameCursor, KM_ResMapElements, KM_ResHouses, KM_ResWares, KM_Resource, KM_ResUnits,
   KM_RenderAux, KM_Hand, KM_HandsCollection, KM_InterfaceMapEditor, KM_CommonUtils, KM_Utils;
+
+//defines default defence position radius for static AI 
+const
+  DEFAULT_DEFENCE_POSITION_RADIUS = 20;
 
 
 { TKMMapEditor }
@@ -379,8 +383,8 @@ end;
 procedure TKMMapEditor.DeletePlayer(aIndex: TKMHandID);
 begin
   if gHands = nil then Exit;
-
   if gHands.Count = 0 then Exit;
+  if not InRange(aIndex, 0, gHands.Count - 1) then Exit;
 
   Revealers[aIndex].Clear;
 
@@ -573,7 +577,7 @@ begin
                 cmUnits:      ProceedUnitsCursorMode;
                 cmMarkers:    case gGameCursor.Tag1 of
                                 MARKER_REVEAL:        fRevealers[gMySpectator.HandID].Add(P, gGameCursor.MapEdSize);
-                                MARKER_DEFENCE:       gMySpectator.Hand.AI.General.DefencePositions.Add(KMPointDir(P, dirN), gtMelee, 10, adtFrontLine);
+                                MARKER_DEFENCE:       gMySpectator.Hand.AI.General.DefencePositions.Add(KMPointDir(P, dirN), gtMelee, DEFAULT_DEFENCE_POSITION_RADIUS, adtFrontLine);
                                 MARKER_CENTERSCREEN:  begin
                                                         gMySpectator.Hand.CenterScreen := P;
                                                         //Updating XY display is done in InterfaceMapEd
@@ -701,6 +705,11 @@ const
   GOLD_ORE_COLOR = icYellow;
   IRON_ORE_COLOR = icSteelBlue;
   COAL_ORE_COLOR = icGray;
+  WOODCUTTER_COLOR = icGreen;
+  QUARRY_COLOR = icBlack;
+  FISHERHUT_COLOR = icBlue;
+  FARM_COLOR = icYellow;
+  WINEYARD_COLOR = icLightCyan;
   SELECTED_ORE_COLOR = icLight2Red;
 
   procedure AddOrePoints(aOreP, aAllOreP: TKMPointListArray);
@@ -746,7 +755,7 @@ const
 
     for I := 1 to Length(aOreP) - 1 do
     begin
-      Color := Color and $40FFFFFF;
+      Color := Color and $40FFFFFF; //Add some transparency
       Color := MultiplyBrightnessByFactor(Color, Coef);
       for K := Length(aOreP) - 1 downto 0 do
         for L := 0 to aOreP[K].Count - 1 do
@@ -761,10 +770,35 @@ const
     end;
   end;
 
+  procedure PaintMiningPoints(aPoints: TKMPointList; Color: Cardinal; aHighlight: Boolean = False; aDeepCl: Boolean = False);
+  var
+    I: Integer;
+    Coef: Single;
+  begin
+    Coef := 0.15;
+    if aHighlight then
+    begin
+      Color := SELECTED_ORE_COLOR;
+      Coef := 0.3;
+    end;
+
+    if aDeepCl then
+      Color := Color and $80FFFFFF //Add some transparency
+    else
+      Color := Color and $40FFFFFF; //Add more transparency
+    Color := MultiplyBrightnessByFactor(Color, Coef);
+
+    for I := 0 to aPoints.Count - 1 do
+      gRenderAux.Quad(aPoints[I].X, aPoints[I].Y, Color);
+  end;
+
 var
   I, J, K: Integer;
   H: TKMHouse;
   IronOreP, GoldOreP, CoalOreP, OreP, SelectedOreP: TKMPointListArray;
+  WoodcutterPts, QuarryPts, FisherHutPts, FarmPts, WineyardPts: TKMPointList;
+  HouseDirPts: TKMPointDirList;
+  HousePts, SelectedPts: TKMPointList;
 begin
   if (mlMiningRadius in fVisibleLayers) and (aLayer = plTerrain) then
   begin
@@ -783,30 +817,79 @@ begin
       SelectedOreP[I] := TKMPointList.Create;
     end;
 
+    WoodcutterPts := TKMPointList.Create;
+    QuarryPts := TKMPointList.Create;
+    FisherHutPts := TKMPointList.Create;
+    FarmPts := TKMPointList.Create;
+    WineyardPts := TKMPointList.Create;
+    HousePts := TKMPointList.Create;
+    HouseDirPts := TKMPointDirList.Create;
+    SelectedPts := TKMPointList.Create;
+
     for I := 0 to gHands.Count - 1 do
     begin
       for J := 0 to gHands[I].Houses.Count - 1 do
       begin
+        HousePts.Clear;
+        HouseDirPts.Clear;
         H := gHands[I].Houses[J];
         case H.HouseType of
-          htIronMine:  begin
+          htIronMine:   begin
                           gTerrain.FindOrePointsByDistance(H.PointBelowEntrance, wtIronOre, OreP);
                           AddOrePoints(OreP, IronOreP);
                         end;
-          htGoldMine:  begin
+          htGoldMine:   begin
                           gTerrain.FindOrePointsByDistance(H.PointBelowEntrance, wtGoldOre, OreP);
                           AddOrePoints(OreP, GoldOreP);
                         end;
-          htCoalMine:  begin
+          htCoalMine:   begin
                           gTerrain.FindOrePointsByDistance(H.PointBelowEntrance, wtCoal, OreP);
                           AddOrePoints(OreP, CoalOreP);
+                        end;
+          htWoodcutters:begin
+                          gTerrain.FindPossibleTreePoints(TKMHouseWoodcutters(H).FlagPoint,
+                                                          gRes.Units[utWoodcutter].MiningRange,
+                                                          HousePts);
+                          WoodcutterPts.AddList(HousePts);
+                        end;
+          htQuary:      begin
+                          gTerrain.FindStoneLocs(H.PointBelowEntrance,
+                                                 gRes.Units[utStoneCutter].MiningRange,
+                                                 KMPOINT_ZERO, True, HousePts);
+                          QuarryPts.AddList(HousePts);
+                        end;
+          htFisherHut:  begin
+                          gTerrain.FindFishWaterLocs(H.PointBelowEntrance,
+                                                     gRes.Units[utFisher].MiningRange,
+                                                     KMPOINT_ZERO, True, HouseDirPts);
+                          HouseDirPts.ToPointList(HousePts, True);
+                          FisherHutPts.AddList(HousePts);
+                        end;
+          htFarm:       begin
+                          gTerrain.FindCornFieldLocs(H.PointBelowEntrance,
+                                                     gRes.Units[utFarmer].MiningRange,
+                                                     HousePts);
+                          FarmPts.AddList(HousePts);
+                        end;
+          htWineyard:   begin
+                          gTerrain.FindWineFieldLocs(H.PointBelowEntrance,
+                                                     gRes.Units[utFarmer].MiningRange,
+                                                     HousePts);
+                          WineyardPts.AddList(HousePts);
                         end;
           else Continue;
         end;
 
         if gMySpectator.Selected = H then
-          for K := 0 to Length(OreP) - 1 do
-            SelectedOreP[K].AddList(OreP[K]);
+        begin
+          if H.HouseType in [htIronMine, htGoldMine, htCoalMine] then
+          begin
+            for K := 0 to Length(OreP) - 1 do
+              SelectedOreP[K].AddList(OreP[K]);
+          end
+          else
+            SelectedPts.AddList(HousePts);
+        end;
 
         for K := 0 to Length(OreP) - 1 do
           OreP[K].Clear;
@@ -818,6 +901,13 @@ begin
     PaintOrePoints(CoalOreP, COAL_ORE_COLOR);
     PaintOrePoints(SelectedOreP, 0, True);
 
+    PaintMiningPoints(WoodcutterPts, WOODCUTTER_COLOR);
+    PaintMiningPoints(QuarryPts, QUARRY_COLOR);
+    PaintMiningPoints(FisherHutPts, FISHERHUT_COLOR);
+    PaintMiningPoints(FarmPts, FARM_COLOR, False, True);
+    PaintMiningPoints(WineyardPts, WINEYARD_COLOR);
+    PaintMiningPoints(SelectedPts, 0, True);
+
     for I := 0 to Length(OreP) - 1 do
     begin
       OreP[I].Free;
@@ -826,6 +916,14 @@ begin
       CoalOreP[I].Free;
       SelectedOreP[I].Free;
     end;
+    WoodcutterPts.Free;
+    QuarryPts.Free;
+    FisherHutPts.Free;
+    FarmPts.Free;
+    WineyardPts.Free;
+    HousePts.Free;
+    HouseDirPts.Free;
+    SelectedPts.Free;
   end;
 end;
 

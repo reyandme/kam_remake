@@ -244,4 +244,13 @@ object RXXForm1: TRXXForm1
     Left = 32
     Top = 128
   end
+  object SelectDirectoryDialog1: TFileOpenDialog
+    FavoriteLinks = <>
+    FileTypes = <>
+    OkButtonLabel = 'Select'
+    Options = [fdoPickFolders, fdoForceFileSystem, fdoPathMustExist]
+    Title = 'Select Directory'
+    Left = 136
+    Top = 72
+  end
 end

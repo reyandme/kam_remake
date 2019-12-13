@@ -372,6 +372,7 @@ function TKMTaskDeliver.Execute: TKMTaskResult;
   var
     RC, RCFrom, RCTo: Byte;
   begin
+    Result := False;
     //Check if we already reach destination, no need to check anymore.
     //Also there is possibility when connected path (not diagonal) to house was cut and we have only diagonal path
     //then its possible, that fPointBelowToHouse Connect Area will have only 1 tile, that means its WalkConnect will be 0
@@ -379,6 +380,7 @@ function TKMTaskDeliver.Execute: TKMTaskResult;
     if (fUnit.CurrPosition = fToHouse.PointBelowEntrance)
       //If we also just left From house then no need to go anywhere...
       or (fUnit.CurrPosition = fFrom.PointBelowEntrance) then
+      Exit;
 
     RC := gTerrain.GetRoadConnectID(fUnit.CurrPosition);
     RCFrom := gTerrain.GetRoadConnectID(fPointBelowFromHouse);

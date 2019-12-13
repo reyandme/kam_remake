@@ -420,7 +420,7 @@ begin
     else        begin
                   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
                   if aType = utRecruit then
-                    for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                    for UT := WARRIOR_EQUIPABLE_BARRACKS_MIN to WARRIOR_EQUIPABLE_BARRACKS_MAX do
                       if UT = utMilitia then
                         Dec(Result, Units[UT].Trained - MilitiaTrainedInTownHall) //Do not count militia, trained in TownHall, only in Barracks
                       else

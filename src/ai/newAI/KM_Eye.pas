@@ -1,3 +1,8 @@
+{
+Artificial intelligence
+@author: Martin Toupal
+@e-mail: poznamenany@gmail.com
+}
 unit KM_Eye;
 {$I KaM_Remake.inc}
 interface
@@ -5,22 +10,11 @@ uses
   Classes, Graphics, KromUtils, Math, SysUtils, Contnrs,
   KM_Defaults, KM_Points, KM_CommonClasses, KM_CommonTypes, KM_CommonUtils,
   KM_ResHouses, KM_Houses, KM_ResWares, KM_Units,
-  KM_AIArmyEvaluation, KM_AIInfluences, KM_FloodFill, KM_NavMeshFloodFill;
+  KM_AIArmyEvaluation, KM_AIInfluences, KM_FloodFill, KM_NavMeshFloodFill, KM_AIParameters;
 
 const
   MAX_SCAN_DIST_FROM_HOUSE = 10;
   MIN_SCAN_DIST_FROM_HOUSE = 2; // Houses must have at least 1 tile of space between them
-
-var
-//{
-  GA_EYE_GetForests_MaxAB          : Single = 155.750323295593; // <0.201> Ignore trees in existing forest <0.255-AVOID_BUILDING_FOREST_MINIMUM)
-  GA_EYE_GetForests_Radius         : Single =   8.670244455338; // Forest radius
-  GA_EYE_GetForests_MinTrees       : Single =   3.150522664189; // Min trees in forest
-  GA_EYE_GetForests_SPRndOwnLimMin : Single =  99.770336151123; // Minimum influence of potential forest
-  GA_EYE_GetForests_SPRndOwnLimMax : Single = 201.641844511032; // Maximum influence of potential forest
-  GA_EYE_GetForests_MinRndSoil     : Single =  81.396015167236; // 0-82
-//}
-
 
 type
   TDirection = (dirN,dirE,dirS,dirW);

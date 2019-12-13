@@ -1,0 +1,20 @@
+TBK05:
+*****
+
+Version 1.0: (14.01.2018)
+- Increased Hunger Level of Player0's Units to 95%
+- Replaced one of the Armor Smitheries with a Siege workshop (cosmetical change)
+- Replaced all Scouts with Vagabounds
+- Amount of Player01's Warrior Groups reduced from 12 to 8 (each Group)
+- Recruitment Rate of Player01 increased from 45 to 55; Delay increased from 5 to 10;
+- Amount of Player03's Bowman reduced from 8 to 6
+
+Version 2.0 (04.03.2018)
+- Moved map to KaMRemake r8754 beta version
+- Overhauled scripts
+- Enemies now only build barbs instead of milita (shouldnt really impact anything tho)
+- Integrated improvestaticai.script
+
+Version 2.1 (06.04.2019)
+- Amount of Enemy Units and Player0 Reinforcements now scale with difficulty settings
+- Disabled Defend Allies for Player1

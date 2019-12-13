@@ -4,10 +4,18 @@ interface
 
 uses
   Windows,
-  Classes, SysUtils, IOUtils, System.Math,
-  ComInterface, SimThread, GeneticAlgorithm, PlotGraph;
+  Classes, SysUtils, StrUtils, IOUtils, System.Math,
+  ComInterface, SimThread, GeneticAlgorithm, GeneticAlgorithmParameters, PlotGraph,
+  KM_Log, KM_AIParameters;
+
+const
+  SAVE_RESULTS = True;
+  CREATE_BACKUPS = True;
+  dir_RESULTS = 'Results';
+  dir_BACKUPS = 'Backups';
 
 type
+  TStringArr = array of String;
   TKMSimulationRequest = (srRun,srNone,srTerminate);
   TMainSimThread = class(TThread)
   private
@@ -17,12 +25,14 @@ type
     fPlotGraph: TPlotGraph;
     fSimSetup: TSimSetup;
     fGASetup: TGASetup;
+    fParLog: TKMLog;
+    fParametrization: TGAParameterization;
 
     function RunThreads(const THREADS: Byte): Boolean;
     procedure RunSimulation();
-    procedure SaveResults(const aFileName: String; aGenNumber: Integer; aPopulation: TGAPopulation);
+    procedure SaveResults(aGenNumber: Integer; aPopulation: TGAPopulation);
     function SaveBackup(): Boolean;
-    function LoadBackup(aBackupIdx: Integer): Boolean;
+    function LoadBackup(aBackup: String): Boolean;
   protected
     procedure Execute; override;
   public
@@ -47,49 +57,53 @@ type
 
     property SimulationRequest: TKMSimulationRequest read fSimulationRequest write fSimulationRequest;
     property SimulationInitialized: boolean read fSimulationInitialized write fSimulationInitialized;
+    property Parametrization: TGAParameterization read fParametrization;
 
-    function InitSimulation(aBackupIdx: Integer): Boolean;
+    function InitSimulation(aBackup: String): Boolean;
+    function GetBackups(var aBackups: TStringList): Boolean;
   end;
 
 implementation
 uses
   Log;
 
-const
-  SAVE_RESULTS = True;
-  CREATE_BACKUPS = True;
-  SAVE_RESULTS_NAME = 'Results.txt';
-  SAVE_BACKUPS_NAME = 'Backups.txt';
-
 
 constructor TMainSimThread.Create(aPlotGraph: TPlotGraph; aExePath: String);
+var
+  dir: String;
 begin
   inherited Create;
   gLog.Log('TMainSimThread: Create');
   fExePath := aExePath;
   fPlotGraph := aPlotGraph;
+  // Create folder for logs
+  dir := Format('%s\..\%s',[ParamStr(0),dir_RESULTS]);
+  if not DirectoryExists(dir) then
+    CreateDir(dir);
+  dir := Format('%s\%s.txt',[dir,FormatDateTime('yy-mm-dd_hh-nn-ss-zzz',Now)]);
+  fParLog := TKMLog.Create(dir);
+  fParametrization := TGAParameterization.Create();
+  fParametrization.SetLogPar := fParLog;
+  // Create folder for backups
+  dir := Format('%s\..\%s',[ParamStr(0),dir_BACKUPS]);
+  if not DirectoryExists(dir) then
+    CreateDir(dir);
 
   fSimulationRequest := srNone;
   fSimulationInitialized := False;
 
-  {
-    TKMRunnerGA_TestParRun
-    TKMRunnerGA_Farm
-    TKMRunnerGA_Quarry
-    TKMRunnerGA_CityPlanner
-    TKMRunnerGA_CityRoadPlanner
-    TKMRunnerGA_Forest
-  }
-  SIM_Class           := 'TKMRunnerGA_Forest';//
-  SIM_TimeInMin       := 75; // Time of each simulation (GA doest not take simulation from game menu because it is only in minutes)
+  // Default cfg
+  fParametrization.CurrentClass := 'TKMRunnerGA_TestParRun';
+  SIM_Class           := fParametrization.CurrentClass;
+  SIM_TimeInMin       := 65; // Time of each simulation (GA doest not take simulation from game menu because it is only in minutes)
   SIM_CountThreads    := 3; //3;
-  GA_Generations      := 25; //40; // Count of generations
+  GA_Generations      := 30; //40; // Count of generations
   GA_CountIndividuals := 30; // Count of individuals in population
-  GA_CountGenes       := 20; // Count of genes
+  GA_CountGenes       := fParametrization.GetParCnt(); // Count of genes
   GA_CountMaps        := 27; // Count of simulated maps for each invididual
   GA_START_TOURNAMENT_IndividualsCnt := 3; // Initial count of individuals in tournament
   GA_FINAL_TOURNAMENT_IndividualsCnt := 5; // Final count of individuals in tournament
-  GA_START_MUTATION_ResetGene := 0.05; // Initial mutation (first generation)
+  GA_START_MUTATION_ResetGene := 0.01; // Initial mutation (first generation)
   GA_FINAL_MUTATION_ResetGene := 0.001; // Final mutation (last generation)
   GA_START_MUTATION_Gaussian := 0.1; // Initial mutation (first generation)
   GA_FINAL_MUTATION_Gaussian := 0.4; // Final mutation (last generation)
@@ -103,6 +117,8 @@ destructor TMainSimThread.Destroy();
 begin
   if (fGASetup.Population <> nil) then
     FreeAndNil(fGASetup.Population);
+  fParametrization.Free;
+  fParLog.Free;
   gLog.Log('TKMMainSimThread: Destroy');
   inherited;
 end;
@@ -217,7 +233,7 @@ begin
 end;
 
 
-function TMainSimThread.InitSimulation(aBackupIdx: Integer): Boolean;
+function TMainSimThread.InitSimulation(aBackup: String): Boolean;
 var
   K, L: Integer;
 begin
@@ -233,7 +249,7 @@ begin
     FreeAndNil(fGASetup.Population);
 
   // Use save to load data
-  if (aBackupIdx >= 0) AND LoadBackup(aBackupIdx) then
+  if LoadBackup(aBackup) then
   begin
     Result := True;
     SIM_Class := fSimSetup.RunningClass;
@@ -307,7 +323,7 @@ var
 begin
   // Do not override loaded simulation
   if not fSimulationInitialized then
-    InitSimulation(-1);
+    InitSimulation('');
   fSimulationInitialized := False;
   // The configuration could be changed (if load from file) so reset fPlotGraph
   if (fPlotGraph <> nil) then
@@ -339,7 +355,7 @@ begin
       end;
       // Save results
       if SAVE_RESULTS then
-        SaveResults(SAVE_RESULTS_NAME, K, fGASetup.Population);
+        SaveResults(K, fGASetup.Population);
       // Save backups
       if CREATE_BACKUPS then
         SaveBackup();
@@ -370,39 +386,33 @@ begin
 end;
 
 
-procedure TMainSimThread.SaveResults(const aFileName: String; aGenNumber: Integer; aPopulation: TGAPopulation);
+procedure TMainSimThread.SaveResults(aGenNumber: Integer; aPopulation: TGAPopulation);
 var
   K: Integer;
-  ResultsFile: TextFile;
   BestWIdv,BestIdv: TGAIndividual;
 begin
   gLog.Log('Saving results...');
-  // Init result file
-  AssignFile(ResultsFile, aFileName);
-  try
-    if FileExists(aFileName) then
-      Append(ResultsFile)
-    else
-      Rewrite(ResultsFile);
+  BestWIdv := aPopulation.GetFittest(nil, True);
+  fParLog.AddTime('');
+  fParLog.AddTime(Format('%.2d. generation; best weighted individual (fitness = %f15.5)',[aGenNumber,BestWIdv.FitnessSum]));
+  fParLog.AddTime('');
+  fParLog.AddTime('GA parameters:');
+  for K := 0 to BestWIdv.GenesCount - 1 do
+    fParLog.AddTime(Format('%16.15f',[BestWIdv.Gene[K]]));
+  fParLog.AddTime('KaM Parameters:');
+  fParametrization.SetPar(BestWIdv,True);
 
-    BestWIdv := aPopulation.GetFittest(nil, True);
-    Writeln(ResultsFile, IntToStr(aGenNumber) + '. generation; best weighted individual (fitness = ' + FloatToStr(BestWIdv.FitnessSum) + ')');
-    for K := 0 to BestWIdv.GenesCount - 1 do
-      Writeln(ResultsFile, FloatToStr(BestWIdv.Gene[K]));
-
-    BestIdv := aPopulation.GetFittest(nil, True);
-    if (BestWIdv <> BestIdv) then
-    begin
-      Writeln(ResultsFile, IntToStr(aGenNumber) + '. generation; best individual (fitness = ' + FloatToStr(BestIdv.FitnessSum) + ')');
-      for K := 0 to BestIdv.GenesCount - 1 do
-        Writeln(ResultsFile, FloatToStr(BestIdv.Gene[K]));
-    end;
-    CloseFile(ResultsFile);
-  except
-    on E: EInOutError do
-      gLog.Log('TMainSimThread: File handling error occurred.');
+  BestIdv := aPopulation.GetFittest(nil, True);
+  if (BestWIdv <> BestIdv) then
+  begin
+    fParLog.AddTime(Format('%.2d. generation; best individual (fitness = %f15.5)',[aGenNumber,BestIdv.FitnessSum]));
+    fParLog.AddTime('GA parameters:');
+    for K := 0 to BestIdv.GenesCount - 1 do
+      fParLog.AddTime(Format('%16.15f',[BestIdv.Gene[K]]));
+    fParLog.AddTime('KaM Parameters:');
+    fParametrization.SetPar(BestIdv,True);
   end;
-  gLog.Log('Results were saved!');
+  gLog.Log('Results have been saved!');
 end;
 
 
@@ -415,9 +425,9 @@ begin
   Result := True;
   CI := TKMComInterface.Create();
   try
-    AssignFile(BackupFile, SAVE_BACKUPS_NAME);
+    AssignFile(BackupFile, Format('%s/%s_%s.txt',[dir_BACKUPS,SIM_Class,FormatDateTime('yy-mm-dd_hh-nn-ss-zzz',Now)]) );
     try
-      Rewrite(BackupFile); //Append
+      Rewrite(BackupFile);
       Writeln(BackupFile, CI.EncryptSetup(fSimSetup, fGASetup, False, False) );
       CloseFile(BackupFile);
     except
@@ -426,27 +436,47 @@ begin
   finally
     CI.Free();
   end;
-  gLog.Log('Backup was saved!');
+  gLog.Log('Backup has been saved!');
 end;
 
 
-function TMainSimThread.LoadBackup(aBackupIdx: Integer): Boolean;
+function TMainSimThread.LoadBackup(aBackup: String): Boolean;
 var
   CI: TKMComInterface;
 begin
-  gLog.Log('Loading backup...');
   Result := True;
+  gLog.Log('Loading backup...');
+  if not FileExists(aBackup) then
+  begin
+    gLog.Log(Format('Backup %s does not exist!!!',[aBackup]));
+    Exit(False);
+  end;
   CI := TKMComInterface.Create();
   try
     try
-      CI.DecryptSetup(TFile.ReadAllText(SAVE_BACKUPS_NAME), fSimSetup, fGASetup);
+      CI.DecryptSetup(TFile.ReadAllText(aBackup), fSimSetup, fGASetup);
     except
+      gLog.Log('Backup is corrupted!!!');
       Result := False;
     end;
   finally
     CI.Free();
   end;
-  gLog.Log('Backup was loaded!');
+  if Result then
+    gLog.Log('Backup has been loaded!');
+end;
+
+
+function TMainSimThread.GetBackups(var aBackups: TStringList): Boolean;
+var
+  Backup: String;
+begin
+  FreeAndNil(aBackups);
+  aBackups := TStringList.Create();
+  for Backup in TDirectory.GetFiles(dir_BACKUPS) do
+    if (CompareStr(ExtractFileExt(Backup),'.txt') = 0) AND ContainsText(ExtractFileName(Backup),'TKMRunnerGA_') then
+      aBackups.Add(Backup);
+  Result := aBackups.Count > 0;
 end;
 
 

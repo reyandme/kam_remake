@@ -61,38 +61,39 @@
 60:0// Select Group 18
 61:0// Select Group 19
 62:0// Select Group 20
-63:82// Open/Close spectator panel stats
-64:49// Spectate player 1
-65:50// Spectate player 2
-66:51// Spectate player 3
-67:52// Spectate player 4
-68:53// Spectate player 5
-69:54// Spectate player 6
-70:55// Spectate player 7
-71:56// Spectate player 8
-72:57// Spectate player 9
-73:48// Spectate player 10
-74:189// Spectate player 11
-75:61// Spectate player 12
-76:13// Extra's Menu
-77:112// Terrain Editor
-78:113// Village Planning
-79:114// Visual Scripting
-80:115// Global Scripting
-81:116// Main Menu
-82:49// Sub-menu 1
-83:50// Sub-menu 2
-84:51// Sub-menu 3
-85:52// Sub-menu 4
-86:53// Sub-menu 5
-87:54// Sub-menu 6
-88:81// Sub-menu action 1
-89:87// Sub-menu action 2
-90:69// Sub-menu action 3
-91:82// Sub-menu action 4
-92:84// Sub-menu action 5
-93:89// Sub-menu action 6
-94:85// Sub-menu action 7
-95:32// Objects palette
-96:46// Universal erasor
-97:45// Paint bucket (change owner)
+63:0// Open/Close spectator stats panel
+64:78// Play next tick in replay
+65:49// Spectate player 1
+66:50// Spectate player 2
+67:51// Spectate player 3
+68:52// Spectate player 4
+69:53// Spectate player 5
+70:54// Spectate player 6
+71:55// Spectate player 7
+72:56// Spectate player 8
+73:57// Spectate player 9
+74:48// Spectate player 10
+75:189// Spectate player 11
+76:61// Spectate player 12
+77:13// Extra's Menu
+78:112// Terrain Editor
+79:113// Village Planning
+80:114// Visual Scripting
+81:115// Global Scripting
+82:116// Main Menu
+83:49// Sub-menu 1
+84:50// Sub-menu 2
+85:51// Sub-menu 3
+86:52// Sub-menu 4
+87:53// Sub-menu 5
+88:54// Sub-menu 6
+89:81// Sub-menu action 1
+90:87// Sub-menu action 2
+91:69// Sub-menu action 3
+92:82// Sub-menu action 4
+93:84// Sub-menu action 5
+94:89// Sub-menu action 6
+95:85// Sub-menu action 7
+96:32// Objects palette
+97:46// Universal eraser
+98:45// Paint bucket (change owner)

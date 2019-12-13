@@ -17,6 +17,8 @@ type
     class function SetToString(const Value: T): String; static;
   end;
 
+  function GetCardinality(const PSet: PByteArray; const SizeOfSet(*in bytes*): Integer): Integer; inline;
+
 const
   Masks: array[0..7] of Byte = (1, 2, 4, 8, 16, 32, 64, 128);
 
@@ -57,14 +59,24 @@ var
   BaseType: PTypeInfo;
 begin
   Result := '';
-  BaseType := GetTypeData(TypeInfo).CompType^;
+
+  BaseType := GetTypeData(TypeInfo).CompType{$IFDEF WDC}^{$ENDIF}; //FPC has PTypeInfo here, while WDC has PPTypeInfo
+
   for I := 0 to SizeOfSet - 1 do
     for J := 0 to 7 do
       if (PSet^[I] and Masks[J]) > 0 then
       begin
         if Result <> '' then
           Result := Result + ', ';
+        {$IFDEF WDC}
         Result := Result + GetEnumName(BaseType, J + I*8);
+        {$ENDIF}
+        {$IFDEF FPC}
+        if BaseType^.Kind = tkInteger then //For some reason FPC can't return EnumName, at least for tkInteger values
+          Result := Result + IntToStr(J + I*8)
+        else
+          Result := Result + GetEnumName(BaseType, J + I*8);
+        {$ENDIF}
       end;
   Result := '[' + Result + ']';
 end;

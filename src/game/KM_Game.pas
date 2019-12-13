@@ -101,6 +101,10 @@ type
 
     function PlayNextTick: Boolean;
     procedure UserAction(aActionType: TKMUserActionType);
+    function GetReplayAutosaveEffectiveFrequency: Integer;
+
+    function DoSaveRandomChecks: Boolean;
+    function DoSaveGameAsText: Boolean;
   public
     GameResult: TKMGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -119,7 +123,7 @@ type
     procedure AfterStart;
     procedure MapEdStartEmptyMap(aSizeX, aSizeY: Integer);
     procedure LoadFromStream(var LoadStream: TKMemoryStreamBinary; aReplayStream: Boolean = False);
-    procedure LoadFromFile(const aPathName: UnicodeString);
+    procedure LoadFromFile(const aPathName: UnicodeString; aCustomReplayFile: UnicodeString = '');
     procedure LoadSavedReplay(aTick: Cardinal; aSaveFile: UnicodeString);
     procedure AfterLoad;
 
@@ -129,7 +133,7 @@ type
     procedure GameMPReadyToPlay(Sender: TObject);
     procedure GameHold(DoHold: Boolean; Msg: TKMGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg: TKMGameResultMsg);
-    procedure PlayerVictory(aPlayerIndex: TKMHandID);
+    procedure PlayerVictory(aHandIndex: TKMHandID);
     procedure PlayerDefeat(aPlayerIndex: TKMHandID; aShowDefeatMessage: Boolean = True);
     procedure WaitingPlayersDisplay(aWaiting: Boolean);
     procedure WaitingPlayersDrop;
@@ -164,6 +168,12 @@ type
     function IsSingleplayer: Boolean;
     function IsSpeedUpAllowed: Boolean;
     function IsMPGameSpeedChangeAllowed: Boolean;
+
+    function IsWareDistributionStoredBetweenGames: Boolean;
+
+    function IsTactic: Boolean;
+    function IsNormalMission: Boolean;
+
     property MapTxtInfo: TKMMapTxtInfo read fMapTxtInfo;
     procedure ShowMessage(aKind: TKMMessageKind; aTextID: Integer; const aLoc: TKMPoint; aHandIndex: TKMHandID);
     procedure ShowMessageLocal(aKind: TKMMessageKind; const aText: UnicodeString; const aLoc: TKMPoint);
@@ -193,6 +203,8 @@ type
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     property MissionDifficulty: TKMMissionDifficulty read fMissionDifficulty write fMissionDifficulty;
     property GameLockedMutex: Boolean read fGameLockedMutex write fGameLockedMutex;
+
+    function HasMissionDifficulty: Boolean;
     function GetNewUID: Integer;
     function GetNormalGameSpeed: Single;
     procedure StepOneFrame;
@@ -245,7 +257,7 @@ uses
   KM_Terrain, KM_Hand, KM_HandsCollection, KM_HandSpectator,
   KM_MissionScript, KM_MissionScript_Standard, KM_GameInputProcess_Multi, KM_GameInputProcess_Single,
   KM_Resource, KM_ResCursors, KM_ResSound, KM_InterfaceDefaults,
-  KM_Log, KM_ScriptingEvents, KM_Saves, KM_FileIO, KM_CommonUtils, KM_Random;
+  KM_Log, KM_ScriptingEvents, KM_Saves, KM_FileIO, KM_CommonUtils, KM_RandomChecks;
 
 
 //Create template for the Game
@@ -376,6 +388,9 @@ begin
   gRes.Cursors.Cursor := kmcDefault;
 
   FreeAndNil(gMySpectator);
+
+  if gRandomCheckLogger <> nil then
+    gRandomCheckLogger.Clear;
 
   if Assigned(fOnDestroy) then
     fOnDestroy();
@@ -843,6 +858,7 @@ begin
     begin
       Save('crashreport', UTCNow);
       AttachFile(SaveName('crashreport', EXT_SAVE_MAIN, IsMultiPlayerOrSpec));
+      AttachFile(SaveName('crashreport', EXT_SAVE_MAIN_TXT, IsMultiPlayerOrSpec)); //Todo Debug. remove before release
       AttachFile(SaveName('crashreport', EXT_SAVE_BASE, IsMultiPlayerOrSpec));
       AttachFile(SaveName('crashreport', EXT_SAVE_REPLAY, IsMultiPlayerOrSpec));
       AttachFile(SaveName('crashreport', EXT_SAVE_MP_LOCAL, IsMultiPlayerOrSpec));
@@ -880,6 +896,7 @@ begin
     AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_BASE_DOT));
     AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_REPLAY_DOT));
     AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_MAIN_DOT));
+    AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_MAIN_TXT_DOT)); //Todo Debug. remove before release
     AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_MP_LOCAL_DOT));
   end else if (fGameMode <> gmMapEd) then // no need autosaves for MapEd error...
     //For other game modes attach last autosaves
@@ -888,6 +905,7 @@ begin
       AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_REPLAY, IsMultiPlayerOrSpec));
       AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_BASE, IsMultiPlayerOrSpec));
       AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MAIN, IsMultiPlayerOrSpec));
+      AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MAIN_TXT, IsMultiPlayerOrSpec)); //Todo Debug. remove before release
       AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MP_LOCAL, IsMultiPlayerOrSpec));
       AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_RNG_LOG, IsMultiPlayerOrSpec));
     end;
@@ -967,12 +985,15 @@ begin
 end;
 
 
-procedure TKMGame.PlayerVictory(aPlayerIndex: TKMHandID);
+procedure TKMGame.PlayerVictory(aHandIndex: TKMHandID);
 begin
   if IsMultiPlayerOrSpec then
   begin
+    if fNetworking.NetPlayers.PlayerIndexToLocal(aHandIndex) = -1 then
+      Exit;
+      
     fNetworking.PostLocalMessage(
-      Format(gResTexts[TX_MULTIPLAYER_PLAYER_WON], [gHands[aPlayerIndex].GetOwnerNameColoredU]),
+      Format(gResTexts[TX_MULTIPLAYER_PLAYER_WON], [gHands[aHandIndex].GetOwnerNameColoredU]),
       csSystem);
 
     if Assigned(fNetworking.OnPlayersSetup) then
@@ -982,12 +1003,12 @@ begin
   if fGameMode = gmMultiSpectate then
     Exit;
 
-  if aPlayerIndex = gMySpectator.HandID then
+  if aHandIndex = gMySpectator.HandID then
     gSoundPlayer.Play(sfxnVictory, 1, True); //Fade music
 
   if fGameMode = gmMulti then
   begin
-    if aPlayerIndex = gMySpectator.HandID then
+    if aHandIndex = gMySpectator.HandID then
     begin
       GameResult := grWin;
       fGamePlayInterface.ShowMPPlayMore(grWin);
@@ -1303,6 +1324,26 @@ begin
 end;
 
 
+function TKMGame.IsWareDistributionStoredBetweenGames: Boolean;
+begin
+  Result := IsNormalMission //No need to store ware distribution for Tactic mission
+            and gGameApp.GameSettings.SaveWareDistribution //If "save ware distribution" is ON
+            and (fGameMode in [gmSingle, gmCampaign, gmMulti]); //Not for Replay / MapEd
+end;
+
+
+function TKMGame.IsTactic: Boolean;
+begin
+  Result := fMissionMode = mmTactic;
+end;
+
+
+function TKMGame.IsNormalMission: Boolean;
+begin
+  Result := fMissionMode = mmNormal;
+end;
+
+
 // We often need to see if game is MP
 function TKMGame.IsMultiPlayerOrSpec: Boolean;
 begin
@@ -1432,6 +1473,12 @@ begin
 
   fUIDTracker := (fUIDTracker + step) mod max_value + 1; //1..N range, 0 is nothing for colorpicker
   Result := fUIDTracker;
+end;
+
+
+function TKMGame.HasMissionDifficulty: Boolean;
+begin
+  Result := fMissionDifficulty <> mdNone;
 end;
 
 
@@ -1670,9 +1717,10 @@ end;
 
 
 //Saves the game in all its glory
-procedure TKMGame.SaveGameToFile(const aPathName: String; aTimestamp: TDateTime; const aMPLocalDataPathName: String = '');
+procedure TKMGame.SaveGameToFile(const aPathName: String; aTimestamp: TDateTime;
+                                 const aMPLocalDataPathName: String = '');
 var
-  SaveStream: TKMemoryStream;
+  SaveStream, SaveStreamTxt: TKMemoryStream;
   GameMPLocalData: TKMGameMPLocalData;
 begin
   if BLOCK_SAVE then // This must be here because of paraller Runner
@@ -1681,10 +1729,11 @@ begin
 
   Assert((fGameMode <> gmMapEd) and (ALLOW_SAVE_IN_REPLAY or not IsReplay), 'Saving from wrong state');
 
-  if SAVE_GAME_AS_TEXT then
-    SaveStream := TKMemoryStreamText.Create
-  else
-    SaveStream := TKMemoryStreamBinary.Create;
+  SaveStreamTxt := nil;
+  if DoSaveGameAsText then
+    SaveStreamTxt := TKMemoryStreamText.Create;
+
+  SaveStream := TKMemoryStreamBinary.Create;
 
   try
     SaveGameToStream(aTimestamp, SaveStream);
@@ -1713,10 +1762,16 @@ begin
             );
       end
     end;
-
     SaveStream.SaveToFile(aPathName); //Some 70ms for TPR7 map
+    if DoSaveGameAsText then
+    begin
+      SaveGameToStream(aTimestamp, SaveStreamTxt);
+      SaveStreamTxt.SaveToFile(aPathName + EXT_SAVE_TXT_DOT);
+    end;
   finally
     FreeAndNil(SaveStream);
+    if DoSaveGameAsText then
+      FreeAndNil(SaveStreamTxt);
   end;
 
   gLog.AddTime('Saving game end: ' + aPathName);
@@ -1726,7 +1781,7 @@ end;
 //Saves game by provided name
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 var
-  fullPath, mpLocalDataPath, NewSaveName: UnicodeString;
+  fullPath, RngPath, mpLocalDataPath, NewSaveName: UnicodeString;
 begin
   //Convert name to full path+name
   fullPath := SaveName(aSaveName, EXT_SAVE_MAIN, IsMultiPlayerOrSpec);
@@ -1749,8 +1804,14 @@ begin
   gLog.AddTime('Saving replay info');
   fGameInputProcess.SaveToFile(ChangeFileExt(fullPath, EXT_SAVE_REPLAY_DOT));
 
-  if gGameApp.GameSettings.DebugSaveRandomChecks and (gRandomCheckLogger <> nil) then
-    gRandomCheckLogger.SaveToPath(ChangeFileExt(fullPath, EXT_SAVE_RNG_LOG_DOT));
+  if DoSaveRandomChecks then
+    try
+      RngPath := ChangeFileExt(fullPath, EXT_SAVE_RNG_LOG_DOT);
+      gRandomCheckLogger.SaveToPath(RngPath);
+    except
+      on E: Exception do
+        gLog.AddTime('Error saving random checks to ' + RngPath); //Silently log error, don't propagate error further
+    end;
 
   gLog.AddTime('Saving game', True);
 end;
@@ -1890,10 +1951,11 @@ begin
 end;
 
 
-procedure TKMGame.LoadFromFile(const aPathName: UnicodeString);
+procedure TKMGame.LoadFromFile(const aPathName: UnicodeString; aCustomReplayFile: UnicodeString = '');
 var
   LoadStream: TKMemoryStreamBinary;
   GameMPLocalData: TKMGameMPLocalData;
+  RngPath: UnicodeString;
 begin
   fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), EXT_SAVE_MAIN_DOT);
 
@@ -1908,7 +1970,13 @@ begin
 
     LoadFromStream(LoadStream, False);
 
-    fGameInputProcess.LoadFromFile(ChangeFileExt(aPathName, EXT_SAVE_REPLAY_DOT));
+    if aCustomReplayFile = '' then
+      fGameInputProcess.LoadFromFile(ChangeFileExt(aPathName, EXT_SAVE_REPLAY_DOT))
+    else
+    begin
+      gLog.AddTime('Loading game replay from: ' + aCustomReplayFile);
+      fGameInputProcess.LoadFromFile(aCustomReplayFile);
+    end;
 
     //Load MP game local data
     if fGameMode = gmReplayMulti then
@@ -1923,6 +1991,15 @@ begin
     end;
 
     // SetSeed was there, I dont know the dependencies so please check if it is ok to include it in LoadGameStream
+
+    if DoSaveRandomChecks then
+      try
+        RngPath := ChangeFileExt(aPathName, EXT_SAVE_RNG_LOG_DOT);
+        gRandomCheckLogger.LoadFromPath(RngPath);
+      except
+        on E: Exception do
+          gLog.AddTime('Error loading random checks from ' + RngPath); //Silently log error, don't propagate error further
+      end;
 
     gLog.AddTime('Loading game', True);
   finally
@@ -2205,9 +2282,6 @@ begin
 
                           IncGameTick;
 
-                          if gRandomCheckLogger <> nil then
-                            gRandomCheckLogger.UpdateState(fGameTick);
-
                           fLastReplayTick := fGameTick;
 
                           if (fGameMode in [gmMulti, gmMultiSpectate]) then
@@ -2241,7 +2315,8 @@ begin
                             fGameInputProcess.CmdTemp(gicTempDoNothing);
 
                           // Update our ware distributions from settings at the start of the game
-                          if (fGameTick = 1) and (fGameMode in [gmSingle, gmCampaign, gmMulti]) then
+                          if (fGameTick = 1)
+                            and IsWareDistributionStoredBetweenGames then
                             fGameInputProcess.CmdWareDistribution(gicWareDistributions, gGameApp.GameSettings.WareDistribution.PackToStr);
 
                           if (fGameTick mod gGameApp.GameSettings.AutosaveFrequency) = 0 then
@@ -2253,6 +2328,9 @@ begin
                           CheckPauseGameAtTick;
 
                           Result := True;
+
+                          if DoSaveRandomChecks then
+                            gRandomCheckLogger.UpdateState(fGameTick);
                         end
                         else
                         begin
@@ -2289,10 +2367,10 @@ begin
                         //Save replay to memory (to be able to load it later)
                         //Make replay save only after everything is updated (UpdateState)
                         if gGameApp.GameSettings.ReplayAutosave
-                          and (
-                            (fGameTick = 1)//First tick
+                          and (fSavedReplays.Count <= REPLAY_AUTOSAVE_MAX_SAVE_POINTS) //Do not allow to spam saves, could cause OUT_OF_MEMORY error
+                          and ((fGameTick = 1) //First tick
                             or (fGameTick = (fGameOptions.Peacetime*60*10)) //At PT end
-                            or ((fGameTick mod gGameApp.GameSettings.ReplayAutosaveFrequency) = 0)) then
+                            or ((fGameTick mod GetReplayAutosaveEffectiveFrequency) = 0)) then
                         begin
                           SaveReplayToMemory;
                           if fGamePlayInterface <> nil then
@@ -2331,6 +2409,31 @@ begin
   finally
     fBlockGetPointer := True;
   end;
+end;
+
+
+function TKMGame.DoSaveRandomChecks: Boolean;
+begin
+  Result := gGameApp.GameSettings.DebugSaveRandomChecks
+            and SAVE_RANDOM_CHECKS
+            and (gRandomCheckLogger <> nil);
+end;
+
+
+function TKMGame.DoSaveGameAsText: Boolean;
+begin
+  Result := gGameApp.GameSettings.DebugSaveGameAsText
+            and SAVE_GAME_AS_TEXT;
+end;
+
+
+function TKMGame.GetReplayAutosaveEffectiveFrequency: Integer;
+begin
+  Assert(IsReplay, 'Wrong game mode');
+  Result := Math.Max(gGameApp.GameSettings.ReplayAutosaveFrequency,
+                     //Do not save too often, that could cause OUT_OF_MEMORY error
+                     fGameInputProcess.GetLastTick div (REPLAY_AUTOSAVE_MAX_SAVE_POINTS - 2)); // - 2 for starting one and for PT
+  Result := Ceil(Result / 300)*300; //Ceil to every 30 sec
 end;
 
 

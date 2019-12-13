@@ -232,7 +232,7 @@ begin
       //gLog.AddTime(Format('pack %d: sender = %s length = %d' , [PacksCnt - PNativeUInt(@fBuffer[0])^ + 1,
 //                                                    GetNetAddressStr(PacketSender), PacketLength]));
       //Buffer is lengthy enough to contain full packet, process it
-      if PacketLength <= fBufferSize-7 then
+      if PacketLength <= fBufferSize - 7 then
       begin
         Inc(fTotalSize, PacketLength);
         //Skip packet header
@@ -243,8 +243,8 @@ begin
           Exit;
 
         //Trim received packet from buffer
-        if PacketLength < fBufferSize-7 then //Check range
-          Move(fBuffer[7+PacketLength], fBuffer[1], fBufferSize-PacketLength-7);
+        if PacketLength < fBufferSize - 7 then //Check range
+          Move(fBuffer[7 + PacketLength], fBuffer[1], fBufferSize-PacketLength-7);
         fBufferSize := fBufferSize - PacketLength - 6;
         PByte(@fBuffer[0])^ := PByte(@fBuffer[0])^ - 1;
       end else
