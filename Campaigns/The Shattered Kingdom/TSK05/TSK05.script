@@ -1,5 +1,5 @@
 //-- TSK05 --//
-//24.01.2018
+//09.11.2019
 
 {$I difficulty.script}
 
@@ -165,6 +165,36 @@ begin
 	LockBuildings(0);
 	//Set Hunger Level of AIs
 	UnitsRandomHungerSet();
+	//Apply Diffculty
+	case States.MissionDifficulty() of
+		mdEasy2:
+		begin
+			IncreaseTargetGroupSize(0, 47, 67, 0); //Miltia
+			IncreaseTargetGroupSize(3, 89, 48, 0); //Allied Lancers
+			Actions.GiveGroup(0, 19, 66, 76, 0, 9, 3); //Additional Lancers
+			Actions.GiveGroup(0, 15, 58, 70, 6, 6, 3); //Additional Axe Fighters
+		end;
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 47, 67, 0); //Miltia
+			IncreaseTargetGroupSize(0, 70, 76, 0); //Lancers
+			IncreaseTargetGroupSize(3, 89, 48, 0); //Allied Lancers
+		end;
+		mdHard1:
+		begin
+			IncreaseTargetGroupSize(4, 32, 61, 0); //Initial Attacks @Human Player
+			IncreaseTargetGroupSize(2, 95, 4, 0); //@Lancers
+			IncreaseTargetGroupSize(5, 104, 8, 0); //@Rax (2. Wave)
+		end;
+		mdHard2:
+		begin
+			IncreaseTargetGroupSize(4, 32, 61, 0); //Initial Attacks @Human Player
+			IncreaseTargetGroupSize(4, 27, 69, 0);
+			IncreaseTargetGroupSize(2, 95, 4, 0); //@Lancers
+			IncreaseTargetGroupSize(4, 89, 4, 0); 
+			IncreaseTargetGroupSize(5, 104, 8, 0); //@Rax (2. Wave)
+		end;
+	end;
 	//Setup AI Defaults
 	SetupAI();
 	//Unlock Houses

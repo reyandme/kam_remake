@@ -15,6 +15,8 @@ type
     fCount: Byte;
     fHandsList: array of TKMHand;
     fPlayerAnimals: TKMHandAnimals;
+    fCheckGoals: Boolean; //Do we need to check goals. Used to prevent check goals for all hands if some hand does not choose first storehouse
+    //Not saved
     fTeams: TKMByteSetArray;
     fTeamsDirty: Boolean; //Need to recalc teams
 
@@ -76,6 +78,7 @@ type
     procedure SyncFogOfWar;
     procedure AddDefaultGoalsToAll(aMissionMode: TKMissionMode);
     procedure UpdateGoalsForHand(aHandIndex: TKMHandID; aEnable: Boolean);
+    function DoCheckGoals: Boolean;
     procedure PostLoadMission;
 
     procedure Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
@@ -171,6 +174,9 @@ procedure TKMHandsCollection.AfterMissionInit(aFlattenRoads: Boolean);
 var
   I: Integer;
 begin
+  //RMG place storehouse before assembling NavMesh and create influences so AI initialize correctly
+  gAIFields.Eye.AfterMissionInit(); // Update Eye so it sees all mines on the map
+
   gAIFields.AfterMissionInit;
 
   GetTeamsLazy;
@@ -491,6 +497,8 @@ var
 begin
   for I := 0 to fCount - 1 do
     fHandsList[I].PostLoadMission;
+
+  fCheckGoals := False;
 end;
 
 
@@ -889,6 +897,23 @@ begin
 end;
 
 
+function TKMHandsCollection.DoCheckGoals: Boolean;
+var
+  I: Integer;
+begin
+  Result := True;
+
+  if fCheckGoals then //Already set all to true
+    Exit;
+
+  for I := 0 to fCount - 1 do
+    Result := Result and (fHandsList[I].Disabled or fHandsList[I].DoCheckGoals);
+
+  if Result then
+    fCheckGoals := True;
+end;
+
+
 procedure TKMHandsCollection.UpdateGoalsForHand(aHandIndex: TKMHandID; aEnable: Boolean);
 var
   I: Integer;
@@ -906,6 +931,7 @@ var
 begin
   SaveStream.PlaceMarker('Players');
   SaveStream.Write(fCount);
+  SaveStream.Write(fCheckGoals);
   for I := 0 to fCount - 1 do
     fHandsList[I].Save(SaveStream);
   PlayerAnimals.Save(SaveStream);
@@ -918,6 +944,7 @@ var
 begin
   LoadStream.CheckMarker('Players');
   LoadStream.Read(fCount);
+  LoadStream.Read(fCheckGoals);
 
   if fCount > MAX_HANDS then
     gLog.AddAssert('Player count in savegame exceeds MAX_PLAYERS allowed by Remake');

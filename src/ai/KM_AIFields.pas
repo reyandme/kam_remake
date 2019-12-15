@@ -72,7 +72,7 @@ begin
 
   fNavMesh.AfterMissionInit();
   fInfluences.AfterMissionInit();
-  fEye.AfterMissionInit();
+  //fEye.AfterMissionInit(); Eye is updated from HandsCollection (so mines are already visible for game with random map and automatic selection of storehouse)
   fSupervisor.AfterMissionInit();
 end;
 

@@ -367,68 +367,15 @@ end;
 
 
 function TKMTaskDeliver.Execute: TKMTaskResult;
-
-  function NeedGoToRoad: Boolean;
-  var
-    RC, RCFrom, RCTo: Byte;
-  begin
-    Result := False;
-    //Check if we already reach destination, no need to check anymore.
-    //Also there is possibility when connected path (not diagonal) to house was cut and we have only diagonal path
-    //then its possible, that fPointBelowToHouse Connect Area will have only 1 tile, that means its WalkConnect will be 0
-    //then no need actually need to go to road
-    if (fUnit.CurrPosition = fToHouse.PointBelowEntrance)
-      //If we also just left From house then no need to go anywhere...
-      or (fUnit.CurrPosition = fFrom.PointBelowEntrance) then
-      Exit;
-
-    RC := gTerrain.GetRoadConnectID(fUnit.CurrPosition);
-    RCFrom := gTerrain.GetRoadConnectID(fPointBelowFromHouse);
-    RCTo := gTerrain.GetRoadConnectID(fPointBelowToHouse);
-
-    Result := (RC = 0) or not (RC in [RCFrom, RCTo]);
-  end;
-
 var
   Worker: TKMUnit;
-  NeedWalkBackToRoad: Boolean;
 begin
   Result := trTaskContinues;
 
-  //Check if need walk back to road
-  //that could happen, when serf was pushd out of road or if he left offer house not onto road
-  //Used only if we walk from house to other house or construction site
-  NeedWalkBackToRoad := (((fDeliverKind = dkToHouse) and ((fPhase - 1) in [4,5])) //Phase 4 could be if we just left Offer House
-                          or (((fPhase - 1) in [4,5,6]) and (fDeliverKind = dkToConstruction))) //Phase 4 could be if we just left Offer House
-                        and NeedGoToRoad();
-
-  if not NeedWalkBackToRoad then
-    fPhase2 := 0;
-
-  if WalkShouldAbandon and fUnit.Visible and not (NeedWalkBackToRoad or FindBestDestination) then
+  if WalkShouldAbandon and fUnit.Visible and not FindBestDestination then
   begin
     Result := trTaskDone;
     Exit;
-  end;
-
-  if NeedWalkBackToRoad then
-  begin
-    case fPhase2 of
-  //No need to think if need go back to road
-  //No need 2 phases here, but let's keep old code for a while
-//      0:  begin
-//            fUnit.SetActionStay(1, uaWalk);
-////            fUnit.Thought := thQuest;
-//          end;
-      0:  begin
-            fUnit.SetActionWalkToRoad(uaWalk, 0, tpWalkRoad,
-                              [gTerrain.GetRoadConnectID(fPointBelowToHouse), gTerrain.GetRoadConnectID(fPointBelowFromHouse)]);
-            fUnit.Thought := thNone;
-            fPhase := 5; //Start walk to Demand house again
-            fPhase2 := 10; //Some magic (yes) meaningless number...
-            Exit;
-          end;
-    end;
   end;
 
   with TKMUnitSerf(fUnit) do

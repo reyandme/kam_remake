@@ -20,6 +20,51 @@ var
 
 
 { KM_ArmyAttack }
+//{ 2019-12-14
+  GA_ATTACK_SQUAD_ChangeTarget_DistTolerance         : Single =     1.9587301016;
+  GA_ATTACK_SQUAD_ChangeTarget_Delay                 : Word =  415;
+  GA_ATTACK_SQUAD_TargetReached_Position             : Word =    6;
+  GA_ATTACK_SQUAD_TargetReached_Unit                 : Word =   10;
+  GA_ATTACK_SQUAD_TargetReached_House                : Word =    8;
+  GA_ATTACK_SQUAD_TargetReached_RangedSquad          : Word =   15;
+  GA_ATTACK_SQUAD_MinWalkingDistance                 : Word =    6;
+
+  GA_ATTACK_COMPANY_AttackRadius                     : Word =   11;
+  GA_ATTACK_COMPANY_ProtectRangedRadius              : Word =    9;
+  GA_ATTACK_COMPANY_AttackRangedGain                 : Single =     1.8996825218;
+  GA_ATTACK_COMPANY_ProtectRangedGain                : Single =     5.0222282410;
+  GA_ATTACK_COMPANY_ProtectRangedAllInDist           : Word =    8;
+  GA_ATTACK_COMPANY_DecreaseThreat_Prio1             : Single =     0.8563764095;
+  GA_ATTACK_COMPANY_DecreaseThreat_Prio2             : Single =     0.4269955456;
+  GA_ATTACK_COMPANY_DecreaseThreat_Prio3             : Single =     0.6608481407;
+  GA_ATTACK_COMPANY_DecreaseThreat_Prio4             : Single =     0.4229704440;
+  GA_ATTACK_COMPANY_TimePerATile_Slow                : Word =    5;
+  GA_ATTACK_COMPANY_TimePerATile_Fast                : Word =   11;
+//}
+
+{ 2019-12-13
+  GA_ATTACK_SQUAD_ChangeTarget_DistTolerance         : Single = 6; // 1-12 ~6 Archers change target if the enemy is too close
+  GA_ATTACK_SQUAD_ChangeTarget_Delay                 : Word = 200; // [ticks] Archers cannot change target too often otherwise they don't shoot
+  GA_ATTACK_SQUAD_TargetReached_Position             : Word =   4; // Tolerance between reached point and actual position it is useful in traffic problems
+  GA_ATTACK_SQUAD_TargetReached_Unit                 : Word =   4; // Target unit should have lower tolerance because of group type pathfinding (cav will avoid spears etc)
+  GA_ATTACK_SQUAD_TargetReached_House                : Word =   8; // Houses should have larger tolerance because NavMesh does not work in cities properly
+  GA_ATTACK_SQUAD_TargetReached_RangedSquad          : Word =  15; // This should be more than maximal range of ranged groups (11*11)
+  GA_ATTACK_SQUAD_MinWalkingDistance                 : Word =   4; // Avoid group to be stucked in cities (higher = less stuck)
+
+
+  GA_ATTACK_COMPANY_AttackRadius                     : Word =  20; // Attack radius of company
+  GA_ATTACK_COMPANY_ProtectRangedRadius              : Word =  10; // Radius around ranged units where requires close combat protection
+  GA_ATTACK_COMPANY_AttackRangedGain                 : Single = 5;
+  GA_ATTACK_COMPANY_ProtectRangedGain                : Single = 1; // Gain of threat level if enemy is close to ranged group
+  GA_ATTACK_COMPANY_ProtectRangedAllInDist           : Word =   7; // If is enemy too cloose aim him but dont decrease threat level
+  GA_ATTACK_COMPANY_DecreaseThreat_Prio1             : Single = 1;
+  GA_ATTACK_COMPANY_DecreaseThreat_Prio2             : Single = 0.7;
+  GA_ATTACK_COMPANY_DecreaseThreat_Prio3             : Single = 0.5;
+  GA_ATTACK_COMPANY_DecreaseThreat_Prio4             : Single = 0.2;
+  GA_ATTACK_COMPANY_TimePerATile_Slow                : Word =   7; // Max ticks per a tile (slow mode)
+  GA_ATTACK_COMPANY_TimePerATile_Fast                : Word =   4; // Max ticks per a tile (fast mode)
+//}
+
 
 
 { KM_ArmyDefence }
@@ -159,7 +204,7 @@ var
 
 // Note: it is interesting to see different GA strategy for pathfinding
 // of first road to new house and pathfinding of shortcuts
-//{ 2019_11_24
+//{ 2019-11-24
   GA_PATHFINDING_BasePrice                           : Word =   53;
   GA_PATHFINDING_TurnPenalization                    : Word =   31;
   GA_PATHFINDING_Road                                : Word =   41;
@@ -178,7 +223,7 @@ var
   GA_SHORTCUTS_Forest                                : Word =   45;
   GA_SHORTCUTS_OtherCase                             : Word =   41;
 //}
-{ 2019_11_23
+{ 2019-11-23
   GA_PATHFINDING_BasePrice                           : Word =   68;
   GA_PATHFINDING_TurnPenalization                    : Word =   20;
   GA_PATHFINDING_Road                                : Word =   29;
@@ -200,7 +245,7 @@ var
 
 
 { KM_CityPredictor }
-//{ 2019_11_20
+//{ 2019-11-20
   GA_PREDICTOR_WareNeedPerAWorker_Stone              : Single = 0.7038065791;
   GA_PREDICTOR_WareNeedPerAWorker_Wood               : Single = 0.2908146679;
 //}
@@ -214,6 +259,18 @@ var
   GA_EYE_GetForests_SPRndOwnLimMin : Single =  99.770336151123; // Minimum influence of potential forest
   GA_EYE_GetForests_SPRndOwnLimMax : Single = 201.641844511032; // Maximum influence of potential forest
   GA_EYE_GetForests_MinRndSoil     : Single =  81.396015167236; // 0-82
+//}
+
+
+{  KM_NavMeshPathFinding }
+//{ 2019-12-14
+  GA_PATHFINDING_AvoidTraffic                        : Single =     2.4100508690;
+  GA_PATHFINDING_AvoidSpecEnemy                      : Single =     0.9644539356;
+//}
+
+{ 2019-12-13
+  GA_PATHFINDING_AvoidTraffic      : Single =  1.5; // 1 tile is max 10 points, max value of ArmyTraffic is 20, this coefficient must increase the price
+  GA_PATHFINDING_AvoidSpecEnemy    : Single =  1;
 //}
 
 

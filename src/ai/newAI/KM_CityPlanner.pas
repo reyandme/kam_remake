@@ -1841,12 +1841,12 @@ const
     BuildFF := gAIFields.Eye.BuildFF;
 
     HouseCnt := 0;
-    for HT in HOUSE_DEPENDENCE[aHT] do
+    for HT := Low(fPlannedHouses) to High(fPlannedHouses) do
       HouseCnt := HouseCnt + fPlannedHouses[HT].Count;
 
     SetLength(InitPointsArr, HouseCnt);
     HouseCnt := 0;
-    for HT in HOUSE_DEPENDENCE[aHT] do
+    for HT := Low(fPlannedHouses) to High(fPlannedHouses) do
       for I := 0 to fPlannedHouses[HT].Count - 1 do
       begin
         InitPointsArr[HouseCnt] := KMPointBelow(fPlannedHouses[HT].Plans[I].Loc); // Place under mines can be problematic

@@ -1294,8 +1294,8 @@
 1342:Animals
 1343:Enable animals
 1344:Object density
-1345:Forests
-1346:Number of forests
+1345:Forests density
+1346:Forests density
 1347:Trees
 1348:Number of trees in the forest
 1349:Seed
@@ -1318,6 +1318,14 @@
 1366:Step of the height algorithm (1 = small, 10 = big)
 1367:Slope of the height evaluation (0 = plateau, 15 = peak)
 1368:Maximum height of walkable tiles
+1369:Random map
+1370:Map was generated automatically with random map generator
+1371:Initial resources
+1372:Amount of initial resources in the storehouse
+1373:Low
+1374:Medium
+1375:High
+1376:Select size of the map
 1377:Try to start
 1378:Try to load save
 1379:Try to view replay

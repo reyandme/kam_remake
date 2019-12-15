@@ -37,6 +37,7 @@ type
     fFFA: Boolean;
     fPL2Alli: TKMHandByteArr;
     fAlli2PL: TKMHandID2Arr;
+    procedure UpdateFFA();
     procedure UpdateDefSupport(aTeamIdx: Byte);
     procedure UpdateDefPos(aTeamIdx: Byte);
     procedure UpdateAttack(aTeamIdx: Byte);
@@ -176,7 +177,10 @@ begin
   if not gGame.IsPeaceTime
     AND (Modulo >= ATTACKS) AND (Modulo - ATTACKS < Length(fAlli2PL))
     AND (  (gGame.MissionMode = mmTactic) OR (aTick > (gGame.GameOptions.Peacetime+3) * 10 * 60)  ) then // In normal mode wait 3 minutes after peace
+  begin
+    UpdateFFA();
     UpdateAttack(Modulo - ATTACKS);
+  end;
 end;
 
 
@@ -203,7 +207,23 @@ begin
       Inc(AlliCnt);
     end;
   SetLength(fAlli2PL, AlliCnt);
-  fFFA := AlliCnt > 2;
+  UpdateFFA();
+end;
+
+
+procedure TKMSupervisor.UpdateFFA();
+var
+  Team,PL,Cnt: Integer;
+begin
+  Cnt := 0;
+  for Team := Low(fAlli2PL) to High(fAlli2PL) do
+    for PL := Low(fAlli2PL[Team]) to High(fAlli2PL[Team]) do
+      if gHands[ fAlli2PL[Team,PL] ].Enabled AND not gHands[ fAlli2PL[Team,PL] ].AI.HasLost then
+      begin
+        Inc(Cnt);
+        break;
+      end;
+  fFFA := Cnt > 2;
 end;
 
 
@@ -472,7 +492,7 @@ procedure TKMSupervisor.UpdateAttack(aTeamIdx: Byte);
           MaxDist := Max(MaxDist, aEnemyStats[I].Distance);
       end;
       invDistInterval := 1 / Max(1,MaxDist - MinDist);
-      DistCoef := ifthen(Length(fAlli2PL) > 2, DISTANCE_COEF_FFA, DISTANCE_COEF_1v1);
+      DistCoef := ifthen(fFFA, DISTANCE_COEF_FFA, DISTANCE_COEF_1v1);
 
       for I := 0 to Length(aEnemyStats) - 1 do
       begin
@@ -506,7 +526,7 @@ begin
   if not NewAIInTeam(aTeamIdx, False, True) OR (Length(fAlli2PL) < 2) then // I sometimes use my loc as a spectator (alliance with everyone) so make sure that search for enemy will use AI loc
     Exit;
   // Check if alliance can attack (have available soldiers) in the FFA mode (if there are just 2 teams attack if we have advantage)
-  if (Length(fAlli2PL) > 2) AND not (gGame.MissionMode = mmTactic) then
+  if fFFA AND not (gGame.MissionMode = mmTactic) then
   begin
     DefRatio := 0;
     for IdxPL := 0 to Length( fAlli2PL[aTeamIdx] ) - 1 do

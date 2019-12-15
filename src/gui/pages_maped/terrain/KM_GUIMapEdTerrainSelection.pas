@@ -2,7 +2,9 @@ unit KM_GUIMapEdTerrainSelection;
 {$I KaM_Remake.inc}
 interface
 uses
-   Math, SysUtils, KM_Utils,
+   {$IFDEF MSWindows} Windows, {$ENDIF}
+   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+   Classes, Math, SysUtils, KM_Utils,
    KM_Controls, KM_Defaults,
    KM_InterfaceDefaults,
    KM_GUIMapEdRMG;
@@ -28,6 +30,7 @@ type
     property GuiRMGPopUp: TKMMapEdRMG read fRMGPopUp write fRMGPopUp;
     procedure Show;
     function Visible: Boolean; override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
     procedure Hide;
     procedure UpdateState;
   end;
@@ -209,6 +212,16 @@ end;
 procedure TKMMapEdTerrainSelection.UpdateState;
 begin
   Button_SelectPaste.Enabled := gGame.MapEditor.Selection.Selection_DataInBuffer;
+end;
+
+
+procedure TKMMapEdTerrainSelection.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+begin
+  if (Key = VK_ESCAPE) and fRMGPopUp.Visible then
+  begin
+    fRMGPopUp.Hide;
+    aHandled := True;
+  end;
 end;
 
 

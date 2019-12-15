@@ -429,6 +429,7 @@ object Paraller_Runner: TParaller_Runner
       Font.Style = []
       ItemHeight = 13
       Items.Strings = (
+        'TKMRunnerGA_ArmyAttack'
         'TKMRunnerGA_CityBuilder'
         'TKMRunnerGA_CityPlanner'
         'TKMRunnerGA_Farm'

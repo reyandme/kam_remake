@@ -676,7 +676,7 @@ begin
   end;
 
   //Clear chat for SP game, as it useddthere only for console commands
-  if gGame.IsSingleplayer then
+  if gGame.IsSingleplayerGame then
     fChat.Clear;
 
   gGame.AfterStart; //Call after start separately, so errors in it could be sended in crashreport

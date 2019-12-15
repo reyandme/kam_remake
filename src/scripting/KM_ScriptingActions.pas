@@ -176,7 +176,7 @@ uses
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_CommonUtils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
   KM_UnitsCollection, KM_PathFindingRoad, KM_ResMapElements, KM_BuildList,
-  KM_HouseWoodcutters, KM_HouseTownHall;
+  KM_HouseWoodcutters, KM_HouseTownHall, KM_Supervisor;
 
 const
   MIN_SOUND_AT_LOC_RADIUS = 28;
@@ -1981,7 +1981,7 @@ begin
     if aHouseID > 0 then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if H <> nil then
+      if (H <> nil) and H.IsComplete then
         H.AddRepair(aRepair);
     end
     else
@@ -2028,7 +2028,7 @@ begin
     begin
       Res := WareIndexToType[aType];
       H := fIDCache.GetHouse(aHouseID);
-      if H <> nil then
+      if (H <> nil) and not H.IsDestroyed and H.IsComplete then
         if H.ResCanAddToIn(Res) or H.ResCanAddToOut(Res) then
         begin
           if aCount > 0 then
@@ -2064,7 +2064,7 @@ begin
     begin
       Res := WareIndexToType[aType];
       H := fIDCache.GetHouse(aHouseID);
-      if H <> nil then
+      if (H <> nil) and not H.IsDestroyed and H.IsComplete then
         //Store/barracks mix input/output (add to input, take from output) so we must process them together
         if H.ResCanAddToIn(Res) or H.ResCanAddToOut(Res) then
         begin
@@ -2103,7 +2103,7 @@ begin
         or (aUnitType in [UnitTypeToIndex[WARRIOR_EQUIPABLE_TH_MIN]..UnitTypeToIndex[WARRIOR_EQUIPABLE_TH_MAX]])) then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and (H is TKMHouseTownHall) then
+      if (H <> nil) and (H is TKMHouseTownHall) and not H.IsDestroyed and H.IsComplete then
         Result := TKMHouseTownHall(H).Equip(UnitIndexToType[aUnitType], aCount);
     end
     else
@@ -2125,7 +2125,7 @@ begin
     if (aHouseID > 0) and InRange(aMaxGold, 0, High(Word)) then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if H is TKMHouseTownHall then
+      if (H <> nil) and (H is TKMHouseTownHall) and not H.IsDestroyed and H.IsComplete then
         TKMHouseTownHall(H).SetGoldMaxCnt(aMaxGold, True);
     end
     else
@@ -2146,7 +2146,7 @@ begin
     if aHouseID > 0 then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) then
+      if (H <> nil) and not H.IsDestroyed and H.IsComplete then
         H.BuildingRepair := aRepairEnabled;
     end
     else
@@ -2167,7 +2167,9 @@ begin
     if aHouseID > 0 then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and gRes.Houses[H.HouseType].AcceptsWares then
+      if (H <> nil)
+        and not H.IsDestroyed //Allow to change delivery mode for not completed houses
+        and gRes.Houses[H.HouseType].AcceptsWares then
       begin
         if aDeliveryBlocked then
           H.SetDeliveryModeInstantly(dmClosed)
@@ -2198,6 +2200,7 @@ begin
     begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil)
+        and not H.IsDestroyed //Allow to change delivery mode for not completed houses
         and gRes.Houses[H.HouseType].AcceptsWares then
         H.SetDeliveryModeInstantly(TKMDeliveryMode(aDeliveryMode));
     end
@@ -2220,7 +2223,7 @@ begin
     if aHouseID > 0 then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) then
+      if (H <> nil) and not H.IsDestroyed then
         H.DisableUnoccupiedMessage := aDisabled;
     end
     else
@@ -2244,7 +2247,10 @@ begin
     if aHouseID > 0 then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if H is TKMHouseWoodcutters then
+      if (H <> nil)
+        and (H is TKMHouseWoodcutters)
+        and not H.IsDestroyed
+        and H.IsComplete then
         TKMHouseWoodcutters(H).WoodcutterMode := CHOP_ONLY[aChopOnly];
     end
     else
@@ -2270,7 +2276,10 @@ begin
     if (aHouseID > 0) and (aWoodcutterMode <= Byte(High(TKMWoodcutterMode))) then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if H is TKMHouseWoodcutters then
+      if (H <> nil)
+        and (H is TKMHouseWoodcutters)
+        and not H.IsDestroyed
+        and H.IsComplete then
         TKMHouseWoodcutters(H).WoodcutterMode := TKMWoodcutterMode(aWoodcutterMode);
     end
     else
@@ -2295,9 +2304,15 @@ begin
     begin
       Res := WareIndexToType[aWareType];
       H := fIDCache.GetHouse(aHouseID);
-      if H is TKMHouseStore then
+      if (H <> nil)
+        and (H is TKMHouseStore)
+        and not H.IsDestroyed then
         TKMHouseStore(H).NotAcceptFlag[Res] := aBlocked;
-      if (H is TKMHouseBarracks) and (Res in [WARFARE_MIN..WARFARE_MAX]) then
+
+      if (H <> nil)
+        and (H is TKMHouseBarracks)
+        and not H.IsDestroyed
+        and (Res in [WARFARE_MIN..WARFARE_MAX]) then
         TKMHouseBarracks(H).NotAcceptFlag[Res] := aBlocked;
     end
     else
@@ -2323,7 +2338,9 @@ begin
     begin
       Res := WareIndexToType[aWareType];
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) then
+      if (H <> nil)
+        and not H.IsDestroyed
+        and H.IsComplete then
         for I := 1 to 4 do
           if gRes.Houses[H.HouseType].ResOutput[I] = Res then
           begin
@@ -2351,7 +2368,10 @@ begin
     if (aHouseID > 0) and InRange(QueueIndex, 0, 5) then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and (H is TKMHouseSchool) then
+      if (H <> nil)
+        and (H is TKMHouseSchool)
+        and not H.IsDestroyed
+        and H.IsComplete then
         TKMHouseSchool(H).RemUnitFromQueue(QueueIndex);
     end
     else
@@ -2376,7 +2396,10 @@ begin
     and (aUnitType in [UnitTypeToIndex[CITIZEN_MIN]..UnitTypeToIndex[CITIZEN_MAX]]) then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and (H is TKMHouseSchool) then
+      if (H <> nil)
+        and (H is TKMHouseSchool)
+        and not H.IsDestroyed
+        and H.IsComplete then
         Result := TKMHouseSchool(H).AddUnitToQueue(UnitIndexToType[aUnitType], aCount);
     end
     else
@@ -2401,7 +2424,10 @@ begin
     and (aUnitType in [UnitTypeToIndex[WARRIOR_EQUIPABLE_BARRACKS_MIN]..UnitTypeToIndex[WARRIOR_EQUIPABLE_BARRACKS_MAX]]) then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and (H is TKMHouseBarracks) then
+      if (H <> nil)
+        and (H is TKMHouseBarracks)
+        and not H.IsDestroyed
+        and H.IsComplete then
         Result := TKMHouseBarracks(H).Equip(UnitIndexToType[aUnitType], aCount);
     end
     else
@@ -2423,7 +2449,10 @@ begin
     if aHouseID > 0 then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and (H is TKMHouseBarracks) then
+      if (H <> nil)
+        and (H is TKMHouseBarracks)
+        and not H.IsDestroyed
+        and H.IsComplete then
         TKMHouseBarracks(H).CreateRecruitInside(False);
     end
     else
@@ -2848,9 +2877,11 @@ begin
       H := fIDCache.GetHouse(aMarketID);
       ResFrom := WareIndexToType[aFrom];
       ResTo := WareIndexToType[aTo];
-      if (H is TKMHouseMarket) and not H.IsDestroyed
-      and TKMHouseMarket(H).AllowedToTrade(ResFrom)
-      and TKMHouseMarket(H).AllowedToTrade(ResTo) then
+      if (H is TKMHouseMarket)
+        and not H.IsDestroyed
+        and H.IsComplete
+        and TKMHouseMarket(H).AllowedToTrade(ResFrom)
+        and TKMHouseMarket(H).AllowedToTrade(ResTo) then
       begin
         if (TKMHouseMarket(H).ResFrom <> ResFrom) or (TKMHouseMarket(H).ResTo <> ResTo) then
         begin
@@ -3435,7 +3466,9 @@ begin
     begin
       G := fIDCache.GetGroup(aGroupID);
       H := fIDCache.GetHouse(aHouseID);
-      if (G <> nil) and (H <> nil) then
+      if (G <> nil)
+        and (H <> nil)
+        and not H.IsDestroyed then
         G.OrderAttackHouse(H, True);
     end
     else

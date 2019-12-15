@@ -347,9 +347,6 @@ begin
       R.Tag := I;
       ColumnBox_Maps.AddItem(R);
 
-      //This will cause some jumps on slow load machines, when select manually item in list during map list load
-      //Probably because of desynchronisation of fLastMapCRC for main thread and map scanner thread
-      //Small issue, will fix sometime later
       if (fMaps[I].CRC = fLastMapCRC) then
       begin
         ColumnBox_Maps.ItemIndex := ListI;
@@ -380,12 +377,6 @@ var
   LastColor: Integer;
   MD: TKMMissionDifficulty;
 begin
-  //Do not update UI if this page is not visible
-  //It could be called by still running map scanner threads
-  //because we do not terminate them now, because of possible deadlocks
-  if not Panel_Single.Visible then
-    Exit;
-
   fMaps.Lock;
   try
     if ColumnBox_Maps.IsSelected then
@@ -613,13 +604,7 @@ var
   M: TKMapInfo;
   G: TKMMapGoalInfo;
 begin
-  //Do not update UI if this page is not visible
-  //It could be called by still running map scanner threads
-  //because we do not terminate them now, because of possible deadlocks
-  if not Panel_Single.Visible then
-    Exit;
-
-  if (fSingleLoc <> -1) and (ColumnBox_Maps.IsSelected) then
+   if (fSingleLoc <> -1) and (ColumnBox_Maps.IsSelected) then
   begin
     MapId := ColumnBox_Maps.SelectedItem.Tag;
     //Do not update same item several times
@@ -702,6 +687,7 @@ end;
 procedure TKMMenuSingleMap.StartClick(Sender: TObject);
 var
   I: Integer;
+  Map: TKMapInfo;
 begin
   //This is also called by double clicking on a list entry
   if not Button_Start.Enabled then
@@ -712,15 +698,24 @@ begin
     for I := 0 to fMaps.Count - 1 do
       if fLastMapCRC = fMaps[I].CRC then
       begin
+        Map := fMaps[I]; //save map locally, cause we will unlock fMaps before using it
+
+        //Unlock before TerminateScan,
+        //or we can get deadlock when try to start game quickly while scanning is still in progress
+        //it could be done if press Enter to start the game just after entering SP maps list menu
+        fMaps.Unlock;
         //Scan should be terminated, as it is no longer needed
         fMaps.TerminateScan;
 
         //Provide mission FileName mask and title here
-        gGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName, fSingleLoc, fSingleColor, fDifficulty, fAIType);
+        gGameApp.NewSingleMap(Map.FullPath('.dat'), Map.FileName, fSingleLoc, fSingleColor, fDifficulty, fAIType);
         Exit;
       end;
   finally
-    fMaps.Unlock; // Even if Exit; happens Unlock will be called anyway
+    //Even if Exit; happens Unlock will be called anyway
+    //Double call Unlock should not harm
+    //we just allow other threads to use code after that point
+    fMaps.Unlock;
   end;
 
   raise Exception.Create('We should NOT reach here, since we checked that the start button was enabled'); //We should NOT reach here, since we checked that the start button was enabled
@@ -772,10 +767,6 @@ procedure TKMMenuSingleMap.Show;
 begin
   Radio_MapType.ItemIndex := gGameApp.GameSettings.MenuMapSPType;
 
-  //Show panel first!
-  //Otherwise list update will be not be applied
-  Panel_Single.Show;
-
   ResetUI;
   //Terminate all
   fMaps.TerminateScan;
@@ -787,6 +778,8 @@ begin
   ListUpdate;
 
   fMaps.Refresh(ScanUpdate, ScanTerminate);
+
+  Panel_Single.Show;
 end;
 
 

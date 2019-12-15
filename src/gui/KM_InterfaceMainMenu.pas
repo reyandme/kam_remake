@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, Math, SysUtils, KromUtils,
-  KM_Controls, KM_Defaults, KM_Pics, KM_Networking,
+  KM_Controls, KM_Points, KM_Defaults, KM_Pics, KM_Networking, KM_ResFonts,
   KM_InterfaceDefaults,
   KM_GUIMenuCampaign,
   KM_GUIMenuCampaigns,
@@ -45,6 +45,8 @@ type
   protected
     Panel_Menu: TKMPanel;
     Label_Version: TKMLabel;
+    function GetHintPositionBase: TKMPoint; override;
+    function GetHintFont: TKMFont; override;
   public
     constructor Create(X,Y: Word);
     destructor Destroy; override;
@@ -68,7 +70,7 @@ type
 
 implementation
 uses
-  KM_Main, KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Game, KM_Log, KM_RenderUI, KM_ResFonts;
+  KM_Main, KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Game, KM_Log, KM_RenderUI;
 
 
 { TKMMainMenuInterface }
@@ -119,6 +121,7 @@ begin
     S.Hitable := False;
   end;
 
+  AfterCreateComplete;
   gLog.AddTime('Main menu init done');
 end;
 
@@ -141,6 +144,18 @@ begin
   fMenuSinglePlayer.Free;
 
   inherited;
+end;
+
+
+function TKMMainMenuInterface.GetHintPositionBase: TKMPoint;
+begin
+  Result := KMPoint(Panel_Menu.Left - 5, Min(Panel_Menu.Bottom + 15, Panel_Main.Height));
+end;
+
+
+function TKMMainMenuInterface.GetHintFont: TKMFont;
+begin
+  Result := fntGrey;
 end;
 
 

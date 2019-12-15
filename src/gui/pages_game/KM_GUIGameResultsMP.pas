@@ -218,7 +218,7 @@ end;
 
 function GetOwnerName(aHandId: Integer): String;
 begin
-  Result := gHands[aHandId].OwnerName(not (gGame.GameMode in [gmSingle, gmCampaign, gmReplaySingle]));
+  Result := gHands[aHandId].OwnerName(not gGame.IsSingleplayer);
 end;
 
 

@@ -480,7 +480,7 @@ const
   MAX_IRON_PRODUCTION = 6;
   INV_REQUIRED_TILES_PER_IRON = 1/250;
   MIN_WOOD_PRODUCTION = 2;
-  MAX_WOOD_PRODUCTION = 5;
+  MAX_WOOD_PRODUCTION = 6;
   INV_REQUIRED_TILES_PER_WOOD = 1/450.0;
   TILE_RESERVE = 1000;
 var
@@ -615,7 +615,7 @@ procedure TKMCityPredictor.FilterRequiredHouses(aTick: Cardinal);
 
   procedure CheckPeaceFactor();
   const
-    MINES: set of TKMHouseType = [htCoalMine, htGoldMine, htIronMine];
+    MINES: set of TKMHouseType = [htCoalMine, htGoldMine, htIronMine, htQuary];
   var
     Cnt: Integer;
     HT: TKMHouseType;

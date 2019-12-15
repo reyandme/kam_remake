@@ -2244,7 +2244,7 @@ end;
 //* Result: Is plan found
 function TKMScriptStates.IsPlanAt(var aPlayer: Integer; var aFieldType: TKMFieldType; X, Y: Word): Boolean;
 
-  function FindPlan(aHandId, aX, aY: Word; var aFieldType: TKMFieldType): Boolean; inline;
+  function FindPlan(aHandId, aX, aY: Word; var aFieldType: TKMFieldType): Boolean;
   var
     FT: TKMFieldType;
   begin

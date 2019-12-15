@@ -62,7 +62,7 @@ var
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = not DEBUG_CFG;  //Do not allow to run multiple games at once (to prevent MP cheating)
   SHOW_DISMISS_UNITS_BTN:Boolean = True; //The button to order citizens go back to school
   RESET_DEBUG_CONTROLS  :Boolean = not DEBUG_CFG; //Reset Debug controls (F11) on game start
 
@@ -418,6 +418,7 @@ const
   MAPS_FOLDER_NAME = 'Maps';
   MAPS_MP_FOLDER_NAME = 'MapsMP';
   MAPS_DL_FOLDER_NAME = 'MapsDL';
+  MAPS_RMG_NAME = 'Randomly generated map';
   TUTORIALS_FOLDER_NAME = 'Tutorials';
   CAMPAIGNS_FOLDER_NAME = 'Campaigns';
   SAVES_FOLDER_NAME = 'Saves';

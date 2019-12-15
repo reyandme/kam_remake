@@ -8,7 +8,7 @@ unit KM_RandomMapGenerator;
 interface
 uses
   KM_CommonTypes, KM_Terrain, KM_Utils, Math,  // KM_Utils = random number
-  KM_Points, KM_RMGUtils, KM_Defaults, KM_CommonUtils;
+  KM_Points, KM_RMGUtils, KM_Defaults, KM_ResWares, KM_CommonUtils;
 
 
 type
@@ -26,23 +26,24 @@ type
   end;
 
   TKMRMGSettings = record
-    Walkable: record
-      Active, Grass, Ground, Snow, Sand: Boolean;
-      FirstLayerStep, FirstLayerLimit, SecondLayerStep, SecondLayerLimit: Word;
+    Locs: record
+      Active: Boolean;
+      Players: Byte;
+      Layout, ProtectedRadius: Byte;
+      Resource: record
+        Active, ConnectLocs, MineFix: Boolean;
+        Stone, Gold, Iron: Integer;
+      end;
+      InitialResources: Word;
     end;
     Obstacle: record
       Active: Boolean;
       Ratio: array[TObstacleType] of Byte;
       Density, Size, Variance: Byte;
     end;
-    Locs: record
-      Active: Boolean;
-      Players: Byte;
-      LocsPosition, ProtectedRadius: Byte;
-      Resource: record
-        Active, ConnectLocs, MineFix: Boolean;
-        Stone, Gold, Iron: Integer;
-      end;
+    Walkable: record
+      Active, Grass, Ground, Snow, Sand: Boolean;
+      FirstLayerStep, FirstLayerLimit, SecondLayerStep, SecondLayerLimit: Word;
     end;
     Height: record
       Active, HideNonSmoothTransition: Boolean;
@@ -53,7 +54,7 @@ type
     end;
     Objects: record
       Active, Animals: Boolean;
-      ObjectDensity, Forests, Trees: Byte;
+      ObjectDensity, ForestDensity, Trees: Byte;
     end;
     Seed: Integer;
     BasicTiles, CA: Boolean;
@@ -104,7 +105,7 @@ type
 
     property Resources: TKMBalancedResources read fRes;
   // Random number generators
-    procedure GenerateMap(var aTiles: TKMTerrainTileBriefArray);
+    procedure GenerateMap();
   end;
 
 
@@ -190,7 +191,7 @@ type
 implementation
 
 uses
-  SysUtils, KM_HandsCollection, KM_Hand, Dialogs, KM_Log;
+  SysUtils, KM_HandsCollection, KM_CommonClasses, KM_Game, KM_Hand, Dialogs, KM_Log;
 
 
 
@@ -198,7 +199,76 @@ uses
 constructor TKMRandomMapGenerator.Create();
 begin
   fRNG := TKMRandomNumberGenerator.Create;
-  fRes := TKMBalancedResources.Create
+  fRes := TKMBalancedResources.Create;
+
+  // Default configuration
+  with RMGSettings do
+  begin
+    with Locs do
+    begin
+      Active := True;
+      Players := 4;
+      Layout := 0;
+      ProtectedRadius := 6;
+      with Resource do
+      begin
+        Active := True;
+        ConnectLocs := True;
+        MineFix := True;
+        Stone := 1000;
+        Gold := 350;
+        Iron := 300;
+      end;
+    end;
+    with Obstacle do
+    begin
+      Active := True;
+      Density := 10;
+      Size := 10;
+      Variance := 10;
+      Ratio[otEgold] := 8;
+      Ratio[otEIron] := 7;
+      Ratio[otSwamp] := 1;
+      Ratio[otWetland] := 2;
+      Ratio[otWater] := 4;
+    end;
+    with Walkable do
+    begin
+      Active := True;
+      Grass := True;
+      Ground := True;
+      Snow := True;
+      Sand := True;
+      FirstLayerStep := 5;
+      FirstLayerLimit := 6;
+      SecondLayerStep := 5;
+      SecondLayerLimit := 6;
+    end;
+    with OnePath do
+    begin
+      NoGoZones := True;
+      ReplaceTerrain := True;
+    end;
+    with Height do
+    begin
+      Active := True;
+      Step := 4;
+      Slope := 40;
+      Height := 10;
+      HideNonSmoothTransition := True;
+    end;
+    with Objects do
+    begin
+      Active := True;
+      ObjectDensity := 6;
+      ForestDensity := 10;
+      Trees := 20;
+      Animals := True;
+    end;
+    Seed := 0;
+    BasicTiles := False;
+    CA := True;
+  end;
 end;
 
 
@@ -217,145 +287,218 @@ end;
 
 procedure TKMRandomMapGenerator.LoadSettings();
 begin
-  //TKMRMGSettings = record
-  //  Walkable: record
-  //    Active, Grass, Ground, Snow, Sand: Boolean;
-  //    FirstLayerStep, FirstLayerLimit, SecondLayerStep, SecondLayerLimit: Word;
-  //  end;
-  //  Obstacle: record
-  //    Active: Boolean;
-  //    Ratio: array[TObstacleType] of Byte;
-  //    Density, Size, Variance: Byte;
-  //  end;
-  //  Locs: record
-  //    Active: Boolean;
-  //    Players: Byte;
-  //    LocsPosition, ProtectedRadius: Byte;
-  //    Resource: record
-  //      Active, ConnectLocs, MineFix: Boolean;
-  //      Stone, Gold, Iron: Integer;
-  //    end;
-  //  end;
-  //  Height: record
-  //    Active, HideNonSmoothTransition: Boolean;
-  //  end;
-  //  OnePath: record
-  //    NoGoZones, ReplaceTerrain: Boolean;
-  //  end;
-  //  Objects: record
-  //    Active, Animals: Boolean;
-  //    ObjectDensity, Forests, Trees: Byte;
-  //  end;
-  //  Seed: Integer;
-  //  BasicTiles, CA: Boolean;
-  //end;
+
 end;
 
 
 // Main procedure for RMG - requires also RMGSettings: TKMRMGSettings (global variable)
-// aTiles = empty TKMTerrainTileBriefArray
-procedure TKMRandomMapGenerator.GenerateMap(var aTiles: TKMTerrainTileBriefArray);
+procedure TKMRandomMapGenerator.GenerateMap();
 var
-  Y, X, K: Integer;
+  Y, X, K, L: Integer;
   A,TileTemplateArr: TKMByte2Array;
-  S: TInteger2Array;
   TilesPartsArr: TTileParts;
   Locs: TKMPointArray;
+  LocProperty: TKMChooseLoc;
+  Revealers: TKMPointTagList;
+  Tiles: TKMTerrainTileBriefArray;
+  Errors: TKMTerrainTileChangeErrorArray;
+  InitResStr: String;
 begin
-  fMapX := gTerrain.MapX;
-  fMapY := gTerrain.MapY;
+  // Clean memory (data from the previous generation)
   fRes.ClearArray();
+
   // Seed MUST be <> 0!!!
-  if RMGSettings.Seed = 0 then
+  if (RMGSettings.Seed = 0) then
     RMGSettings.Seed := Round(High(Integer)*Random);
 
-  fRNG.Seed := RMGSettings.Seed;
-
+  // Init arrays and variables
+  fMapX := gTerrain.MapX;
+  fMapY := gTerrain.MapY;
+  SetLength(Tiles, 16);
+  SetLength(Errors, 16);
   SetLength(A, fMapY+1, fMapX+1);
-  SetLength(TilesPartsArr.Terrain, fMapY+1, fMapX+1);
-  SetLength(TilesPartsArr.Rotation, fMapY+1, fMapX+1);
-  SetLength(TilesPartsArr.Height, fMapY+1, fMapX+1);
-  SetLength(TilesPartsArr.Obj, fMapY+1, fMapX+1);
+  SetLength(TilesPartsArr.Terrain,  Length(A), Length(A[0]));
+  SetLength(TilesPartsArr.Rotation, Length(A), Length(A[0]));
+  SetLength(TilesPartsArr.Height,   Length(A), Length(A[0]));
+  SetLength(TilesPartsArr.Obj,      Length(A), Length(A[0]));
   for Y := Low(A) to High(A) do
-  	for X := Low(A[Y]) to High(A[Y]) do
-    begin
-  		A[Y,X] := 0;
-      TilesPartsArr.Obj[Y,X] := 255;
-  	end;
-
-  SetLength(S, fMapY+1, fMapX+1);
-  for Y := Low(S) to High(S) do
-  	for X := Low(S[Y]) to High(S[Y]) do
-      S[Y,X] := 0;
+  begin
+    FillChar(A[Y,0], Length(A[Y])*SizeOf(A[Y,0]), #0);
+    FillChar(TilesPartsArr.Obj[Y,0], Length(TilesPartsArr.Obj[Y])*SizeOf(TilesPartsArr.Obj[Y,0]), #255);
+  end;
 
   SetLength(Locs, 0);
   fRNG.Seed := RMGSettings.Seed;
   if RMGSettings.Locs.Active then
     Locs := RandomPlayerLocs();
 
-  // Generate layers of shapes
+  // Generate map
+
+  // Create resources
   fRNG.Seed := RMGSettings.Seed;
   CreateResources(Locs, A);
 
+  // Create biomes
   fRNG.Seed := RMGSettings.Seed;
   if RMGSettings.Walkable.Active then
     CreateBiomes(A);
 
+  // Apply cellular automaton
   if RMGSettings.CA then
     CellularAutomaton(A);
 
+  // Fix mines
   if RMGSettings.Locs.Resource.MineFix AND (Length(Locs) > 0) then
     MineFix(A);
 
+  // Detect and replace inaccessible terrain
   fRNG.Seed := RMGSettings.Seed;
   if RMGSettings.OnePath.ReplaceTerrain then
     SnowMountains(A);
 
+  // Create tile decomposition (every tile have 4 parts and max 2 biomes)
   fRNG.Seed := RMGSettings.Seed;
   TileTemplateArr := TileTemplate(A);
 
+  // Generate correct  tiles
   fRNG.Seed := RMGSettings.Seed;
   if RMGSettings.BasicTiles then
     GenerateBasicTiles(TilesPartsArr,A)
   else
     GenerateTiles(TilesPartsArr, A, TileTemplateArr);
 
+  // Mark inaccessible places with no-walk object
   fRNG.Seed := RMGSettings.Seed;
   if RMGSettings.OnePath.NoGoZones AND (Length(Locs) > 0) then
     NoGoZones(Locs, TilesPartsArr);
 
+  // Generate height
   fRNG.Seed := RMGSettings.Seed;
   if RMGSettings.Height.Active then
     GenerateHeight(Locs, TilesPartsArr, A, TileTemplateArr);
 
+  // Generate objects
   fRNG.Seed := RMGSettings.Seed;
   if RMGSettings.Objects.Active then
     GenerateObjects(TilesPartsArr, A);
 
+  // Fix mine (Final version)
   if RMGSettings.Locs.Resource.MineFix then
     MineFinalFixer(TilesPartsArr, A);
 
-  SetLength(aTiles, fMapY * fMapX);
+  // Update Tiles + Rotation, Height and Objects
+  SetLength(Tiles, fMapY * fMapX);
   K := 0;
   for Y := 1 to fMapY-1 do
     for X := 1 to fMapX-1 do
     begin
       //K := (Y-1)*(fMapX-1)+X-1;
-      aTiles[K].Y := Y;
-      aTiles[K].X := X;
-      aTiles[K].Terrain := TilesPartsArr.Terrain[Y,X];
-      aTiles[K].Rotation := TilesPartsArr.Rotation[Y,X];
-      aTiles[K].Height := TilesPartsArr.Height[Y,X];
-      aTiles[K].Obj := TilesPartsArr.Obj[Y,X];
-      aTiles[K].UpdateTerrain := True;
-      aTiles[K].UpdateRotation := True;
-      aTiles[K].UpdateHeight := True;
-      aTiles[K].UpdateObject := True;
+      Tiles[K].Y := Y;
+      Tiles[K].X := X;
+      Tiles[K].Terrain := TilesPartsArr.Terrain[Y,X];
+      Tiles[K].Rotation := TilesPartsArr.Rotation[Y,X];
+      Tiles[K].Height := TilesPartsArr.Height[Y,X];
+      Tiles[K].Obj := TilesPartsArr.Obj[Y,X];
+      Tiles[K].UpdateTerrain := True;
+      Tiles[K].UpdateRotation := True;
+      Tiles[K].UpdateHeight := True;
+      Tiles[K].UpdateObject := True;
       K := K + 1;
     end;
+  gTerrain.ScriptTrySetTilesArray(Tiles, False, Errors);
+
+  // Add animals
+   //gHands[K].CanBeHuman := True;
+   // if gTerrain.CanPlaceUnit(P, TKMUnitType(gGameCursor.Tag1)) then
+   // gHands.PlayerAnimals.AddUnit(TKMUnitType(gGameCursor.Tag1), P);
+   // gMySpectator.Hand.AddUnit(TKMUnitType(gGameCursor.Tag1), P, False)
+
+  // Prepare init resources
+  FillChar(LocProperty, SizeOf(LocProperty), #0);
+  with LocProperty do
+  begin
+    Allowed := True;
+    Placed := False;
+    case RMGSettings.Locs.InitialResources of
+      0:
+        begin
+          Resources[wtStone] := 70;
+          Resources[wtWood] := 50;
+          Resources[wtGold] := 60;
+          Resources[wtWine] := 60;
+          Resources[wtBread] := 35;
+          Resources[wtSausages] := 15;
+          Resources[wtFish] := 30;
+          Units[utSerf] := 4;
+          Units[utWorker] := 3;
+          InitResStr := 'Low';
+        end;
+      1:
+        begin
+          Resources[wtStone] := 90;
+          Resources[wtWood] := 65;
+          Resources[wtGold] := 70;
+          Resources[wtWine] := 60;
+          Resources[wtBread] := 50;
+          Resources[wtSausages] := 25;
+          Resources[wtFish] := 30;
+          Units[utSerf] := 5;
+          Units[utWorker] := 4;
+          InitResStr := 'Medium';
+        end;
+      2:
+        begin
+          Resources[wtStone] := 120;
+          Resources[wtWood] := 80;
+          Resources[wtGold] := 80;
+          Resources[wtWine] := 80;
+          Resources[wtBread] := 60;
+          Resources[wtSausages] := 35;
+          Resources[wtFish] := 40;
+          Units[utSerf] := 7;
+          Units[utWorker] := 5;
+          InitResStr := 'High';
+        end;
+    end;
+  end;
+  // Hand properties
+  for K := 0 to Length(Locs) - 1 do
+  begin
+    gHands[K].CenterScreen := Locs[K];
+    gHands[K].ChooseLocation := LocProperty;
+    Revealers := gGame.MapEditor.Revealers[K];
+    Revealers.Clear;
+    Revealers.Add(Locs[K], 20);
+    for L := 0 to fRes.Count - 1 do
+      with fRes.Resources[L] do
+        if (InitOwner = K) then //InitOwner, Resource, MinesCnt: Byte;
+          for X := Low(Points) to High(Points) do
+            Revealers.Add(Points[X], 10);
+  end;
+
+  // Update game info
+  if (gGame <> nil) then
+  begin
+    //gGame.MissionMode := mmNormal;
+
+    if (Length(gGame.MapTxtInfo.Author) = 0) then
+      gGame.MapTxtInfo.Author := 'Random number generator';
+    if (Length(gGame.MapTxtInfo.SmallDesc) = 0) then
+      gGame.MapTxtInfo.SmallDesc := 'Randomly generated map';
+    if (Length(gGame.MapTxtInfo.GetBigDesc) = 0) then
+      with RMGSettings.Locs do
+        gGame.MapTxtInfo.SetBigDesc( Format(
+          'This is a randomly generated map [%dx%d] for %d players||Parameters:| Stones = %d| Gold = %d| Iron = %d| Initial resources: %s',
+          [fMapX, fMapY, Players, Resource.Stone, Resource.Gold, Resource.Iron, InitResStr]
+        ));
+
+    gGame.MapTxtInfo.IsRMG := True;
+
+    gGame.MapTxtInfo.BlockTeamSelection := False;
+    gGame.MapTxtInfo.BlockPeacetime := False;
+    gGame.MapTxtInfo.BlockFullMapPreview := False;
+  end;
 end;
-
-
 
 
 
@@ -773,7 +916,7 @@ begin
   MaxOffset.X := Min(fMapX - 1, fMapX - MinOffset.X);
   MaxOffset.Y := Min(fMapY - 1, fMapY - MinOffset.Y);
 
-  case RMGSettings.Locs.LocsPosition of
+  case RMGSettings.Locs.Layout of
     0: Rectangle(Output, MinOffset, MaxOffset);
     1: Vertical(Output, MinOffset, MaxOffset);
     2: Horizontal(Output, MinOffset, MaxOffset);
@@ -788,7 +931,7 @@ end;
 
 // Generator of random points with minimal distance between them (algorithmic from division into areas with indetical size = very fast)
 // aCnt = minimal count (it will adapt to map size to secure that it is balanced
-// aSpace = minimal space between generated points (when it is high number points will be in grid)
+// aSpace = minimal space between generated points (points will be in grid if it is equal to infinity)
 // aMinimum, aMaximum = point will be generated in rectangle given by this points
 // Result = TKMPointArray of pseudorandom points
 function TKMRandomMapGenerator.RNDPointsInGrid(const aCnt: Single; aSpace: Integer; const aMinimum,aMaximum: TKMPoint): TKMPointArray;
@@ -1002,10 +1145,10 @@ procedure TKMRandomMapGenerator.CreateResources(aLocs: TKMPointArray; var A: TKM
 const
   RESOURCES: array[0..4] of TBiomeType = (btIron,btGold,btStone,btCoal,btCoal);
   VORONOI_STEP = 3;
-  RES_PROB: array[0..4] of Single = (0.000001,0.000001,0.15,0.08,0.08); // Probability penalization (only afect final shape: 0 = circle, 1 = multiple separated mountains)
+  RES_PROB: array[0..4] of Single = (0.000001,0.000001,0.1,0.08,0.08); // Probability penalization (only afect final shape: 0 = circle, 1 = multiple separated mountains)
   //SPEC_RES_RADIUS: array[0..4] of Byte = (5, 5, 5, 5, 5); // Iron, Gold, Stone, Coal, Coal
   RES_AMOUNT: array[0..4] of Integer = (1, 1, 1, 2, 1);
-  RES_TILES_AMOUNT: array[0..4] of Single = (0.25, 0.25, 0.066, 0.25, 0.25);
+  RES_TILES_AMOUNT: array[0..4] of Single = (0.25, 0.25, 0.066, 0.35, 0.35);
   RES_MINES_CNT: array[0..4] of Single = (0.005, 0.01, 1.0, 1.0, 1.0);
 
   // Find best place for resources (scan area around and find empy space)
@@ -1628,25 +1771,19 @@ var
     end;
 
   // Detect shape of resource
-    //if RMGSettings.Objects.Active then // DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG DEBUG
-    //begin
-    //
-      MineSearch := TKMMinerFixSearch.Create(  KMPoint(  Low(A[0]), Low(A) ), KMPoint( High(A[0]), High(A) ), MinLimit, MaxLimit, aVisited, A  );
-      try
-        MineSearch.QuickFlood(aPosition.X,aPosition.Y,Resource);
-      finally
-        MineSearch.Free;
+    MineSearch := TKMMinerFixSearch.Create(  KMPoint(  Low(A[0]), Low(A) ), KMPoint( High(A[0]), High(A) ), MinLimit, MaxLimit, aVisited, A  );
+    try
+      MineSearch.QuickFlood(aPosition.X,aPosition.Y,Resource);
+    finally
+      MineSearch.Free;
+    end;
+    for X := Low(Shape) to High(Shape) do
+      if (Shape[X].Min <> MinLimit[X]) then
+      begin
+        Shape[X].Active := True;
+        Shape[X].Min := MinLimit[X];
+        Shape[X].Max := MaxLimit[X];
       end;
-      for X := Low(Shape) to High(Shape) do
-        if (Shape[X].Min <> MinLimit[X]) then
-        begin
-          Shape[X].Active := True;
-          Shape[X].Min := MinLimit[X];
-          Shape[X].Max := MaxLimit[X];
-        end;
-    //end
-    //else
-    //  MinerFixFloodSearch(Resource, aPosition.Y, aPosition.X, aVisited);
 
   // Find start index of shape
     X := 0;
@@ -3267,12 +3404,12 @@ var
 begin
 
 	// Forests
-  if (RMGSettings.Objects.Forests > 0) then
+  if (RMGSettings.Objects.ForestDensity > 0) then
   begin
     Minimum := KMPoint(1,1);
     Maximum.X := Max(fMapX - FOREST_RADIUS, Minimum.X + 1);
     Maximum.Y := Max(fMapY - FOREST_RADIUS, Minimum.Y + 1);
-    forests := RNDPointsInGrid(RMGSettings.Objects.Forests*10, 0, Minimum, Maximum);
+    forests := RNDPointsInGrid(fMapX*fMapY / sqr(4*(12-RMGSettings.Objects.ForestDensity)), 0, Minimum, Maximum);
 	  for cntForests := Low(forests) to High(forests) do
     begin
 		  count := 0;
@@ -3329,7 +3466,7 @@ begin
 
                 end;
               end;
-              //aTiles[K].Obj := GetObjectFromMix(omWater);
+              //Tiles[K].Obj := GetObjectFromMix(omWater);
 
             Byte(btGrassGround),Byte(btGround),Byte(btTreeGrass):
               TilesPartsArr.Obj[Y,X] := GetObjectFromMix(omGround);

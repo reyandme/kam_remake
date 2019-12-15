@@ -1,1 +1,33 @@
+//--TSK06--//
+//07.11.2019
+
 {$I difficulty.script}
+
+procedure OnMissionStart();
+begin
+	case States.MissionDifficulty() of
+		mdEasy2:
+		begin
+			IncreaseGroupSize(0, 0);
+			IncreaseGroupSize(2, 0); //Allied Lancers
+		end;
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 58, 70, 0);
+			IncreaseTargetGroupSize(0, 61, 76, 0);
+			IncreaseTargetGroupSize(0, 68, 73, 0);
+			IncreaseGroupSize(2, 0); //Allied Lancers
+		end;
+		mdHard1:
+		begin
+			IncreaseTargetGroupSize(1, 16, 33, 0);
+			IncreaseTargetGroupSize(1, 4, 34, 0);
+			IncreaseTargetGroupSize(1, 33, 65, 0);
+			IncreaseTargetGroupSize(1, 10, 73, 0);
+			IncreaseTargetGroupSize(3, 35, 17, 0); //Axe
+			IncreaseTargetGroupSize(3, 33, 51, 0);
+		end;
+		mdHard2:
+			IncreaseGroupSize(1, 0);
+	end;
+end;

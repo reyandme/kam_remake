@@ -139,6 +139,7 @@ type
     LoadSavThenRpl: TMenuItem;
     N7: TMenuItem;
     ReloadLibx: TMenuItem;
+    chkSnowHouses: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -857,6 +858,9 @@ begin
     SHOW_UIDs := chkUIDs.Checked;
     SHOW_SELECTED_OBJ_INFO := chkSelectedObjInfo.Checked;
     SHOW_HANDS_INFO := chkHands.Checked;
+    {$IFDEF WDC} //one day update .lfm for lazarus...
+    SNOW_HOUSES := chkSnowHouses.Checked;
+    {$ENDIF}
 
     SKIP_RENDER := chkSkipRender.Checked;
     SKIP_SOUND := chkSkipSound.Checked;

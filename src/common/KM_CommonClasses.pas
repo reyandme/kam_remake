@@ -269,14 +269,19 @@ type
 
   TKMPointListArray = array of TKMPointList;
 
-  TKMPointCenteredList = class(TKMPointList)
-  private
-    fCenter: TKMPoint;
+  TKMWeightedPointList = class(TKMPointList)
     fWeight: array of Single;
   public
-    constructor Create(aCenter: TKMPoint);
-    procedure Add(const aLoc: TKMPoint); override;
+    procedure Add(const aLoc: TKMPoint; aWeight: Single); reintroduce;
     function GetWeightedRandom(out Point: TKMPoint): Boolean;
+  end;
+
+  TKMPointCenteredList = class(TKMWeightedPointList)
+  private
+    fCenter: TKMPoint;
+  public
+    constructor Create(aCenter: TKMPoint);
+    procedure Add(const aLoc: TKMPoint); reintroduce;
   end;
 
   TKMPointTagList = class(TKMPointList)
@@ -724,35 +729,19 @@ begin
 end;
 
 
-{ TKMPointCenteredList }
-constructor TKMPointCenteredList.Create(aCenter: TKMPoint);
+{ TKMWeightedList }
+procedure TKMWeightedPointList.Add(const aLoc: TKMPoint; aWeight: Single);
 begin
-  inherited Create;
-  fCenter := aCenter;
-end;
-
-
-procedure TKMPointCenteredList.Add(const aLoc: TKMPoint);
-const
-  BASE_VAL = 100;
-var
-  Len: Single;
-begin
-  inherited;
+  inherited Add(aLoc);
 
   if fCount >= Length(fWeight) then
     SetLength(fWeight, fCount + 32);
 
-  Len := KMLength(fCenter, aLoc);
-  //Special case when we aLoc is in the center
-  if Len = 0 then
-    fWeight[fCount - 1] := BASE_VAL * 2
-  else
-    fWeight[fCount - 1] := BASE_VAL / Len; //smaller weight for distant locs
+  fWeight[fCount - 1] := aWeight;
 end;
 
 
-function TKMPointCenteredList.GetWeightedRandom(out Point: TKMPoint): Boolean;
+function TKMWeightedPointList.GetWeightedRandom(out Point: TKMPoint): Boolean;
 var
   I: Integer;
   WeightsSum, Rnd: Extended;
@@ -778,6 +767,31 @@ begin
     Rnd := Rnd - fWeight[I];
   end;
   Assert(False, 'Error getting weighted random');
+end;
+
+
+{ TKMPointCenteredList }
+constructor TKMPointCenteredList.Create(aCenter: TKMPoint);
+begin
+  inherited Create;
+  fCenter := aCenter;
+end;
+
+
+procedure TKMPointCenteredList.Add(const aLoc: TKMPoint);
+const
+  BASE_VAL = 100;
+var
+  Len, Weight: Single;
+begin
+  Len := KMLength(fCenter, aLoc);
+  //Special case when we aLoc is in the center
+  if Len = 0 then
+    Weight := BASE_VAL * 2
+  else
+    Weight := BASE_VAL / Len; //smaller weight for distant locs
+
+  inherited Add(aLoc, Weight);
 end;
 
 

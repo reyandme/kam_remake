@@ -1,5 +1,5 @@
 //-- TSK02 --//
-//04.02.2018
+//09.11.2019
 
 {$I difficulty.script}
 
@@ -167,6 +167,15 @@ begin
 	UnitsRandomHungerSet();
 	//Setup AI Defaults
 	SetupAI();
+	case States.MissionDifficulty() of
+		mdEasy2:
+		begin
+			IncreaseTargetGroupSize(0, 30, 73, 0); //Axe
+			Actions.GiveGroup(0, 17, 23, 71, 1, 6, 2);
+		end;
+		mdEasy1:
+			IncreaseTargetGroupSize(0, 30, 73, 0); //Axe
+	end;
 	//Unlock Houses
 	aHouses := States.PlayerGetAllHouses(0);
 	for h := 0 to Length(aHouses) -1 do

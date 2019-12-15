@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Controls, Classes,
-  KM_Controls;
+  KM_Controls, KM_Points, KM_ResFonts;
 
 
 type
@@ -44,9 +44,21 @@ type
 
 
   TKMUserInterfaceCommon = class
+  private
+    fPrevHint: TObject;
+    fPrevHintMessage: UnicodeString;
   protected
     fMyControls: TKMMasterControl;
     Panel_Main: TKMPanel;
+
+    Label_Hint: TKMLabel;
+    Bevel_HintBG: TKMBevel;
+
+    procedure DisplayHint(Sender: TObject);
+    procedure AfterCreateComplete;
+
+    function GetHintPositionBase: TKMPoint; virtual; abstract;
+    function GetHintFont: TKMFont; virtual; abstract;
   public
     constructor Create(aScreenX, aScreenY: Word);
     destructor Destroy; override;
@@ -117,7 +129,7 @@ const
 
 implementation
 uses
-  KM_ResKeys;
+  KM_Resource, KM_ResKeys, KM_RenderUI;
 
 
 { TKMUserInterface }
@@ -129,6 +141,9 @@ begin
 
   //Parent Panel for whole UI
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
+
+  // Controls without a hint will reset the Hint to ''
+  fMyControls.OnHint := DisplayHint;
 end;
 
 
@@ -136,6 +151,58 @@ destructor TKMUserInterfaceCommon.Destroy;
 begin
   fMyControls.Free;
   inherited;
+end;
+
+
+procedure TKMUserInterfaceCommon.AfterCreateComplete;
+var
+  HintBase: TKMPoint;
+begin
+  HintBase := GetHintPositionBase;
+  //Hints should be created last, as they should be above everything in UI, to be show on top of all other Controls
+  Bevel_HintBG := TKMBevel.Create(Panel_Main, HintBase.X + 35, HintBase.Y - 23, 300, 21);
+  Bevel_HintBG.BackAlpha := 0.5;
+  Bevel_HintBG.EdgeAlpha := 0.5;
+  Bevel_HintBG.Hide;
+  Label_Hint := TKMLabel.Create(Panel_Main, HintBase.X + 40, HintBase.Y - 21, 0, 0, '', GetHintFont, taLeft);
+
+  // Controls without a hint will reset the Hint to ''
+  fMyControls.OnHint := DisplayHint;
+end;
+
+
+procedure TKMUserInterfaceCommon.DisplayHint(Sender: TObject);
+var
+  TxtSize: TKMPoint;
+begin
+  if (Label_Hint = nil) or (Bevel_HintBG = nil) then
+    Exit;
+
+  if (fPrevHint = nil) and (Sender = nil) then Exit; //in this case there is nothing to do
+
+  if (fPrevHint <> nil) and (Sender = fPrevHint)
+    and (TKMControl(fPrevHint).Hint = fPrevHintMessage) then Exit; // Hint didn't change (not only Hint object, but also Hint message didn't change)
+
+  if (Sender = Label_Hint) or (Sender = Bevel_HintBG) then Exit; // When previous Hint obj is covered by Label_Hint or Bevel_HintBG ignore it.
+
+  if (Sender = nil) or (TKMControl(Sender).Hint = '') then
+  begin
+    Label_Hint.Caption := '';
+    Bevel_HintBG.Hide;
+    fPrevHintMessage := '';
+  end
+  else
+  begin
+    Label_Hint.Caption := TKMControl(Sender).Hint;
+    TxtSize := gRes.Fonts[Label_Hint.Font].GetTextSize(Label_Hint.Caption);
+    Bevel_HintBG.Width := 10 + TxtSize.X;
+    Bevel_HintBG.Height := 2 + TxtSize.Y;
+    Bevel_HintBG.Top := GetHintPositionBase.Y - Bevel_HintBG.Height - 2;
+    Bevel_HintBG.Show;
+    Label_Hint.Top := Bevel_HintBG.Top + 2;
+    fPrevHintMessage := TKMControl(Sender).Hint;
+  end;
+  fPrevHint := Sender;
 end;
 
 
@@ -159,9 +226,20 @@ end;
 
 
 procedure TKMUserInterfaceCommon.Resize(X, Y: Word);
+var
+  HintBase: TKMPoint;
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
+
+  if (Bevel_HintBG = nil) or (Label_Hint = nil) then
+    Exit;
+
+  HintBase := GetHintPositionBase;
+  Bevel_HintBG.Left := HintBase.X + 35;
+  Bevel_HintBG.Top := HintBase.Y - 23;
+  Label_Hint.Left := HintBase.X + 40;
+  Label_Hint.Top := HintBase.Y - 21;
 end;
 
 

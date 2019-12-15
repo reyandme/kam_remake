@@ -7075,8 +7075,6 @@ function TKMSearchableList.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key, Shift);
   if inherited KeyUp(Key, Shift) then Exit;
-
-  if Assigned(fOnChange) then fOnChange(Self);
 end;
 
 

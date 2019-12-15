@@ -37,6 +37,7 @@ type
     SmallDescLibx, BigDescLibx: Integer;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
     IsSpecial: Boolean; //Some missions are defined as special (e.g. tower defence, quest, etc.)
+    IsRMG: Boolean; //Missions that were generated via Random Map Generator
     IsPlayableAsSP: Boolean; //Is MP map playable as SP map ?
 
     DifficultyLevels: TKMMissionDifficultySet;
@@ -166,11 +167,9 @@ type
   private
     fOnMapAdd: TKMapEvent;
     fOnMapAddDone: TNotifyEvent;
-    fIsStopped: Boolean;
     procedure ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder); override;
   public
     constructor Create(aMapFolders: TKMapFolderSet; aOnMapAdd: TKMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
-    procedure Stop;
   end;
 
   TTMapsCacheUpdater = class(TTCustomMapsScanner)
@@ -913,6 +912,9 @@ begin
   if IsSpecial then
     WriteLine('SetSpecial');
 
+  if IsRMG then
+    WriteLine('RMG');
+
   if IsPlayableAsSP then
     WriteLine('PlayableAsSP');
 
@@ -1002,6 +1004,8 @@ begin
 
       if SameText(St, 'SetSpecial') then
         IsSpecial := True;
+      if SameText(St, 'RMG') then
+        IsRMG := True;
       if SameText(St, 'PlayableAsSP') then
         IsPlayableAsSP := True;
       if SameText(St, 'BlockPeacetime') then
@@ -1055,7 +1059,7 @@ end;
 
 function TKMMapTxtInfo.IsEmpty: Boolean;
 begin
-  Result := not (IsCoop or IsSpecial or IsPlayableAsSP
+  Result := not (IsCoop or IsSpecial or IsPlayableAsSP or IsRMG
             or BlockTeamSelection or BlockPeacetime or BlockFullMapPreview
             or (Author <> '')
             or (SmallDesc <> '') or IsSmallDescLibxSet
@@ -1079,6 +1083,7 @@ procedure TKMMapTxtInfo.ResetInfo;
 begin
   IsCoop := False;
   IsSpecial := False;
+  IsRMG := False;
   IsPlayableAsSP := False;
   BlockTeamSelection := False;
   BlockPeacetime := False;
@@ -1096,6 +1101,7 @@ procedure TKMMapTxtInfo.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(IsCoop);
   LoadStream.Read(IsSpecial);
+  LoadStream.Read(IsRMG);
   LoadStream.Read(IsPlayableAsSP);
 
   LoadStream.Read(BlockTeamSelection);
@@ -1112,6 +1118,7 @@ procedure TKMMapTxtInfo.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(IsCoop);
   SaveStream.Write(IsSpecial);
+  SaveStream.Write(IsRMG);
   SaveStream.Write(IsPlayableAsSP);
 
   SaveStream.Write(BlockTeamSelection);
@@ -1300,8 +1307,8 @@ var TempMaps: array of TKMapInfo;
       smByHumanPlayersDesc:   Result := A.HumanPlayerCount > B.HumanPlayerCount;
       smByHumanPlayersMPAsc:  Result := A.HumanPlayerCountMP < B.HumanPlayerCountMP;
       smByHumanPlayersMPDesc: Result := A.HumanPlayerCountMP > B.HumanPlayerCountMP;
-      smByMissionModeAsc:            Result := A.MissionMode < B.MissionMode;
-      smByMissionModeDesc:           Result := A.MissionMode > B.MissionMode;
+      smByMissionModeAsc:     Result := A.MissionMode < B.MissionMode;
+      smByMissionModeDesc:    Result := A.MissionMode > B.MissionMode;
     end;
     if fDoSortWithFavourites and not (fSortMethod in [smByFavouriteAsc, smByFavouriteDesc]) then
     begin
@@ -1381,15 +1388,11 @@ begin
   if (fScanner <> nil) then
   begin
     fScanner.Terminate;
-    fScanner.Stop;
-//We use Stop instead now, since WaitFor sometimes freeze (deadlock?)
-//Thread will be not terminated, but its not a big problem actually
-//Need to Free object here actually, but we still could get deadlock on it...
-//    fScanner.WaitFor;
-//    fScanner.Free;
-//    fScanner := nil;
+    fScanner.WaitFor;
+    fScanner.Free;
+    fScanner := nil;
+    fScanning := False;
   end;
-  fScanning := False;
   fUpdateNeeded := False; //If the scan was terminated we should not run fOnRefresh next UpdateState
 end;
 
@@ -1458,13 +1461,9 @@ end;
 //No need to resort since that was done in last MapAdd event
 procedure TKMapsCollection.ScanTerminate(Sender: TObject);
 begin
-  if not fScanning then
-    Exit;
-
   Lock;
   try
     fScanning := False;
-//    Stop;
     if Assigned(fOnTerminate) then
       fOnTerminate(Self);
   finally
@@ -1610,8 +1609,7 @@ end;
 //aOnMapAddDone - signal that map has been added
 //aOnTerminate - scan was terminated (but could be not complete yet)
 //aOnComplete - scan is complete
-constructor TTMapsScanner.Create(aMapFolders: TKMapFolderSet; aOnMapAdd: TKMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent;
-                                 aOnComplete: TNotifyEvent = nil);
+constructor TTMapsScanner.Create(aMapFolders: TKMapFolderSet; aOnMapAdd: TKMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
 begin
   inherited Create(aMapFolders, aOnComplete);
 
@@ -1628,9 +1626,6 @@ procedure TTMapsScanner.ProcessMap(const aPath: UnicodeString; aFolder: TKMapFol
 var
   Map: TKMapInfo;
 begin
-  if fIsStopped then
-    Exit;
-
   Map := TKMapInfo.Create(aPath, False, aFolder);
 
   if SLOW_MAP_SCAN then
@@ -1638,17 +1633,6 @@ begin
 
   fOnMapAdd(Map);
   fOnMapAddDone(Self);
-end;
-
-
-procedure TTMapsScanner.Stop;
-begin
-//  inherited;
-
-  if Self <> nil then
-    fIsStopped := True;
-
-//  OnTerminate := nil;
 end;
 
 

@@ -3,7 +3,7 @@ unit KM_AI;
 interface
 uses
   KM_CommonClasses, KM_CommonTypes, KM_CommonUtils, KM_Defaults,
-  KM_Houses, KM_Units, KM_UnitWarrior,
+  KM_Houses, KM_Units, KM_UnitWarrior, KM_Points,
   KM_AISetup, KM_AIMayor, KM_AIGoals, KM_AIGeneral,
   KM_CityManagement, KM_ArmyManagement;
 
@@ -57,8 +57,9 @@ type
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad();
-    procedure UpdateState(aTick: Cardinal);
+    procedure UpdateState(aTick: Cardinal; aCheckGoals: Boolean);
     procedure AfterMissionInit();
+    procedure PlaceFirstStorehouse(aLoc: TKMPoint); //RMG
 
     function ObjToString: String;
   end;
@@ -66,10 +67,10 @@ type
 
 implementation
 uses
-  SysUtils, TypInfo,
+  SysUtils, TypInfo, Math,
   KM_GameTypes, KM_GameApp, KM_Game, KM_Hand, KM_HandsCollection, KM_HandStats, KM_UnitGroup,
-  KM_ResHouses, KM_ResSound, KM_ScriptingEvents, KM_Alerts, KM_Points,
-  KM_AIFields;
+  KM_ResHouses, KM_ResSound, KM_ScriptingEvents, KM_Alerts,
+  KM_AIFields, KM_Terrain, KM_ResMapElements;
 
 
 { TKMHandAI }
@@ -459,13 +460,14 @@ begin
 end;
 
 
-procedure TKMHandAI.UpdateState(aTick: Cardinal);
+procedure TKMHandAI.UpdateState(aTick: Cardinal; aCheckGoals: Boolean);
 begin
   if (WonOrLost <> wolNone) then
     Exit;
+
   //Check goals for all players to maintain multiplayer consistency
   //AI victory/defeat is used in scripts (e.g. OnPlayerDefeated in battle tutorial)
-  if (aTick + Byte(fOwner)) mod MAX_HANDS = 0 then
+  if aCheckGoals and (((aTick + Byte(fOwner)) mod MAX_HANDS) = 0) then
     CheckGoals; //This procedure manages victory and loss
 
   case gHands[fOwner].HandType of
@@ -492,6 +494,111 @@ end;
 function TKMHandAI.ObjToString: String;
 begin
   Result := 'WOL = ' + GetEnumName(TypeInfo(TWonOrLost), Integer(fWonOrLost));
+end;
+
+
+// RMG
+procedure TKMHandAI.PlaceFirstStorehouse(aLoc: TKMPoint);
+
+  // Get closest resource to location
+  function GetClosestResource(var aRes: TKMPoint; aList: TKMPointList): Boolean;
+  const
+    SQR_MAX_DISTANCE = 20*20;
+  var
+    K: Integer;
+    Distance, BestDistance: Single;
+  begin
+    BestDistance := 1e10;
+    for K := 0 to aList.Count - 1 do
+    begin
+      Distance := KMDistanceSqr(aLoc, aList[K]);
+      if (Distance < BestDistance) then
+      begin
+        BestDistance := Distance;
+        aRes := aList[K];
+      end;
+    end;
+    Result := BestDistance < SQR_MAX_DISTANCE;
+  end;
+
+  // Place road and return true if it is possible
+  function AddRoad(aPoint: TKMPoint): Boolean;
+  begin
+    Result := gHands[fOwner].CanAddFieldPlan(KMPoint(aPoint.X, aPoint.Y), ftRoad);
+    if Result then
+    begin
+      gTerrain.SetRoad(aPoint, fOwner);
+      //Terrain under roads is flattened (fields are not)
+      gTerrain.FlattenTerrain(aPoint);
+      if gMapElements[gTerrain.Land[aPoint.Y,aPoint.X].Obj].WineOrCorn then
+        gTerrain.RemoveObject(aPoint);
+    end;
+  end;
+
+  // Find place for store
+  procedure FindPlaceForStore(bStone, bGold, bIron: Boolean; aInitP, Stone, Gold, Iron: TKMPoint);
+  const
+    RAD = 15;
+  var
+    X,Y: Integer;
+    Price, BestPrice: Single;
+    Loc,BestLoc: TKMPoint;
+  begin
+    BestPrice := 1e10;
+    for X := Max(1,aInitP.X-RAD) to Min(gTerrain.MapX-1,aInitP.X+RAD) do
+    for Y := Max(1,aInitP.Y-RAD) to Min(gTerrain.MapY-1,aInitP.Y+RAD) do
+      if gHands[fOwner].CanAddHousePlanAI(X,Y,htStore,False) AND gHands[fOwner].CanAddFieldPlan(KMPoint(X,Y+1), ftRoad) then
+      begin
+        //gTerrain.ScriptTrySetTileObject(X, Y, 0); // Debug (visualization)
+        Loc := KMPoint(X,Y);
+        Price :=
+          Byte(bStone) * KMDistanceSqr(Loc, Stone)
+
+
+          ;
+
+        if (Price < BestPrice) then
+        begin
+          BestPrice := Price;
+          BestLoc := Loc;
+        end;
+      end;
+    // Place storehouse
+    if (BestPrice < 1E10) then
+      gHands[fOwner].AddFirstStorehouse(BestLoc);
+  end;
+
+const
+  MAX_DIST_FROM_STONES = 10;
+var
+  bGold, bIron, bStone: Boolean;
+  Gold, Iron, Stone, InitPoint: TKMPoint;
+begin
+  // Find the closest resource
+  bGold := GetClosestResource(Gold, gAIFields.Eye.GoldLocs);
+  bIron := GetClosestResource(Iron, gAIFields.Eye.IronLocs);
+  bStone := GetClosestResource(Stone, gAIFields.Eye.StoneMiningTiles);
+  // Apply logic
+  if bStone then
+  begin
+    if bGold then
+      InitPoint := KMPoint( Round((Stone.X*4+Gold.X*2+aLoc.X)/7), Round((Stone.Y*4+Gold.Y*2+aLoc.Y)/7) )
+    else if bIron then
+      InitPoint := KMPoint( Round((Stone.X*4+Iron.X+aLoc.X)/6), Round((Stone.Y*4+Iron.Y+aLoc.Y)/6) )
+    else
+      InitPoint := Stone;
+  end
+  else
+  begin
+    if bGold then
+      InitPoint := Gold
+    else if bIron then
+      InitPoint := Iron
+    else
+      Exit;
+  end;
+  // Find place for store
+  FindPlaceForStore(bStone, bGold, bIron, InitPoint, Stone, Gold, Iron);
 end;
 
 

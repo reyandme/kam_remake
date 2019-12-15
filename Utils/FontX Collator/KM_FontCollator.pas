@@ -19,7 +19,7 @@ type
     destructor Destroy; override;
 
     property Fonts: TStringList read fFonts;
-    procedure Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TStringArray; var aFont: TKMFontDataEdit);
+    procedure Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TKMStringArray; var aFont: TKMFontDataEdit);
     function FontCodepages(aIndex: Integer): string;
     procedure ListFonts(aPath: string);
   end;
@@ -49,7 +49,7 @@ begin
 end;
 
 
-procedure TKMFontCollator.Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TStringArray; var aFont: TKMFontDataEdit);
+procedure TKMFontCollator.Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TKMStringArray; var aFont: TKMFontDataEdit);
 var
   I: Integer;
   srcFonts: array of TKMFontDataEdit;

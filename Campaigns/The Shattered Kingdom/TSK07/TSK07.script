@@ -167,6 +167,23 @@ begin
 	UnitsRandomHungerSet();
 	//Setup AI Defaults
 	SetupAI();
+	//Apply Diffculty
+	case States.MissionDifficulty() of
+		mdEasy2:
+			IncreaseGroupSize(0, 0);
+		mdEasy1:
+			IncreaseTargetGroupSize(0, 96, 108, 0); //Axe
+		mdHard1:
+		begin
+			IncreaseGroupSize(3, 0); //Pink Lancers
+			IncreaseTargetGroupSize(5, 92, 34, 0);
+		end;
+		mdHard2:
+		begin
+			IncreaseGroupSize(3, 0); //Pink Lancers
+			IncreaseGroupSize(1, 0); //Blue lancers
+		end;
+	end;
 	//Unlock Houses
 	aHouses := States.PlayerGetAllHouses(0);
 	for h := 0 to Length(aHouses) -1 do

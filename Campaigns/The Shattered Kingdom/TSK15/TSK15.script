@@ -1,5 +1,5 @@
 //-- TSK15 --//
-//29.01.2018
+//08.11.2018
 
 {$I difficulty.script}
 
@@ -165,6 +165,19 @@ begin
 	LockBuildings(0);
 	//Set Hunger Level of AIs
 	UnitsRandomHungerSet();
+	//Apply Diffculty
+	case States.MissionDifficulty() of
+		mdEasy2:
+			IncreaseGroupSize(0, 0);
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 24, 143, 0);
+			IncreaseTargetGroupSize(0, 19, 143, 0);
+			IncreaseTargetGroupSize(0, 26, 158, 0);
+		end;
+		mdHard1, mdHard2:
+			Actions.GiveGroup(1, 22, 4, 57, 4, 8, 4); //Add Knight group
+	end;
 	//Setup AI Defaults
 	SetupAI();
 	//Unlock Houses

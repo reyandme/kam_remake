@@ -96,6 +96,12 @@ const
     $2383FB, //Orange
     $FF0707, //Blue
     $0BE73F, //Light green
+    $FFFFFF, //White
+    $FFFFFF, //White
+    $FFFFFF, //White
+    $FFFFFF, //White
+    $FFFFFF, //White
+    $FFFFFF, //White
     $FFFFFF  //White
   );
 

@@ -9,6 +9,8 @@ uses
 type
   TKMFogOfWarCommon = class
   public
+    function CheckTileInitialRevelation(const X,Y: Word): Boolean; virtual; abstract;
+
     function CheckVerticeRevelation(const X,Y: Word): Byte; virtual; abstract;
     function CheckTileRevelation(const X,Y: Word): Byte; virtual; abstract;
     function CheckRevelation(const aPoint: TKMPointF): Byte; virtual; abstract;
@@ -21,15 +23,19 @@ type
   TKMFogOfWar = class(TKMFogOfWarCommon)
   private
     fAnimStep: Cardinal;
-    MapX: Word;
-    MapY: Word;
+    fMapX: Word;
+    fMapY: Word;
+
+    //Initial revealers from static script
+    fInitialRevealAll: Boolean;
+    fInitialRevealers: TKMPointTagList;
 
     // Used to optimize RevealCircle
     // It doesn't work if a cover function is called
     // No need to save/load it, it's just an optimisation
-    RevealedRadius: array [0..MAX_MAP_SIZE-1, 0..MAX_MAP_SIZE-1] of Word;
-    RenderRevRevealedRad: array [0..MAX_MAP_SIZE-1, 0..MAX_MAP_SIZE-1] of Word;
-    CoverHasBeenCalled: Boolean;
+    fRevealedRadius: array [0..MAX_MAP_SIZE-1, 0..MAX_MAP_SIZE-1] of Word;
+    fRenderRevRevealedRad: array [0..MAX_MAP_SIZE-1, 0..MAX_MAP_SIZE-1] of Word;
+    fCoverHasBeenCalled: Boolean;
     fRevealedToMax: TBoolean2Array;
 
     (*Revelation: array of array of packed record
@@ -47,13 +53,21 @@ type
   public
     Revelation: TKMByte2Array; //Public for faster access from Render
     RenderRevelation: TKMByte2Array; //Revelation for render - we have to render sprites a bit around actual FOW revelation
+
     constructor Create(X,Y: Word);
+    destructor Destroy; override;
+
+    property InitialRevealAll: Boolean read fInitialRevealAll write fInitialRevealAll;
+    property InitialRevealers: TKMPointTagList read fInitialRevealers;
+
     procedure RevealCircle(const Pos: TKMPoint; Radius,Amount: Word);
     procedure CoverCircle(const Pos: TKMPoint; Radius: Word);
     procedure RevealRect(const TL, BR: TKMPoint; Amount: Word);
     procedure CoverRect(const TL, BR: TKMPoint);
     procedure RevealEverything;
     procedure CoverEverything;
+
+    function CheckTileInitialRevelation(const X,Y: Word): Boolean; override;
 
     function CheckVerticeRevelation(const X,Y: Word): Byte; override;
     function CheckTileRevelation(const X,Y: Word): Byte; override;
@@ -74,6 +88,8 @@ type
   //FOW that is always revealed (used by MapEd, Replays)
   TKMFogOfWarOpen = class(TKMFogOfWarCommon)
   public
+    function CheckTileInitialRevelation(const X,Y: Word): Boolean; override;
+
     function CheckVerticeRevelation(const X,Y: Word): Byte; override;
     function CheckTileRevelation(const X,Y: Word): Byte; override;
     function CheckRevelation(const aPoint: TKMPointF): Byte; override;
@@ -94,7 +110,7 @@ const
 
 implementation
 uses
-  Math, KM_GameApp;
+  Math, SysUtils, KM_GameApp;
 
 const
   //Addition to Revelation radius for Render revelation
@@ -106,14 +122,25 @@ const
 constructor TKMFogOfWar.Create(X,Y: Word);
 begin
   inherited Create;
+
+  fInitialRevealAll := False;
+  fInitialRevealers := TKMPointTagList.Create;
   SetMapSize(X,Y);
+end;
+
+
+destructor TKMFogOfWar.Destroy;
+begin
+  FreeAndNil(fInitialRevealers);
+
+  inherited;
 end;
 
 
 procedure TKMFogOfWar.SetMapSize(X,Y: Word);
 begin
-  MapX := X;
-  MapY := Y;
+  fMapX := X;
+  fMapY := Y;
   SetLength(fRevealedToMax, Y, X);
   SetLength(Revelation, Y, X);
   SetLength(RenderRevelation, Y, X);
@@ -138,9 +165,9 @@ procedure TKMFogOfWar.RevealCircle(const Pos: TKMPoint; Radius, Amount: Word);
 
     //Avoid repeated computing (+2% performance)
     I1 := max(Pos.Y-aRadius, 0);
-    I2 := min(Pos.Y+aRadius, MapY-1);
+    I2 := min(Pos.Y+aRadius, fMapY-1);
     K1 := max(Pos.X-aRadius, 0);
-    K2 := min(Pos.X+aRadius, MapX-1);
+    K2 := min(Pos.X+aRadius, fMapX-1);
     SqrRadius := Sqr(aRadius);
 
     //Inline maths here to gain performance
@@ -170,16 +197,16 @@ var
   AroundRadius: Word;
 begin
   AroundRadius := Radius + RENDER_RADIUS_ADD;
-  if not CoverHasBeenCalled and not gGameApp.DynamicFOWEnabled then
+  if not fCoverHasBeenCalled and not gGameApp.DynamicFOWEnabled then
   begin
-    if RevealedRadius[Pos.Y, Pos.X] < Radius then
+    if fRevealedRadius[Pos.Y, Pos.X] < Radius then
     begin
-      RevealedRadius[Pos.Y, Pos.X] := Radius;
+      fRevealedRadius[Pos.Y, Pos.X] := Radius;
       RevealFor(True, Radius, Amount);
     end;
-    if RenderRevRevealedRad[Pos.Y, Pos.X] < AroundRadius then
+    if fRenderRevRevealedRad[Pos.Y, Pos.X] < AroundRadius then
     begin
-      RenderRevRevealedRad[Pos.Y, Pos.X] := AroundRadius;
+      fRenderRevRevealedRad[Pos.Y, Pos.X] := AroundRadius;
       RevealFor(False, AroundRadius, FOG_OF_WAR_MAX);
     end;
   end else begin
@@ -205,9 +232,9 @@ procedure TKMFogOfWar.CoverCircle(const Pos: TKMPoint; Radius: Word);
 
     //Avoid repeated computing (+2% performance)
     I1 := max(Pos.Y-aRadius, 0);
-    I2 := min(Pos.Y+aRadius, MapY-1);
+    I2 := min(Pos.Y+aRadius, fMapY-1);
     K1 := max(Pos.X-aRadius, 0);
-    K2 := min(Pos.X+aRadius, MapX-1);
+    K2 := min(Pos.X+aRadius, fMapX-1);
     SqrRadius := Sqr(aRadius);
 
     //Inline maths here to gain performance
@@ -221,7 +248,7 @@ begin
   CoverFor(True, Radius);
   CoverFor(False, Radius - RENDER_RADIUS_ADD);
 
-  CoverHasBeenCalled := True;
+  fCoverHasBeenCalled := True;
 end;
 
 
@@ -238,8 +265,8 @@ begin
     end;
 
   // Reveal with bigger radius for AroundRevelation
-  for I := Max(0, TL.Y - RENDER_RADIUS_ADD) to Min(MapY - 1, BR.Y + RENDER_RADIUS_ADD) do
-    for K := Max(0, TL.X - RENDER_RADIUS_ADD) to Min(MapX - 1, BR.X + RENDER_RADIUS_ADD) do
+  for I := Max(0, TL.Y - RENDER_RADIUS_ADD) to Min(fMapY - 1, BR.Y + RENDER_RADIUS_ADD) do
+    for K := Max(0, TL.X - RENDER_RADIUS_ADD) to Min(fMapX - 1, BR.X + RENDER_RADIUS_ADD) do
       RenderRevelation[I,K] := FOG_OF_WAR_MAX;
 end;
 
@@ -253,11 +280,11 @@ begin
       Revelation[I,K] := 0;
 
   // Cover with smaller radius for AroundRevelation, as nearby could be reveled tiles
-  for I := Min(MapY - 1, TL.Y + RENDER_RADIUS_ADD) to Max(0, BR.Y - RENDER_RADIUS_ADD) do
-    for K := Min(MapX - 1, TL.X + RENDER_RADIUS_ADD) to Max(0, BR.X - RENDER_RADIUS_ADD) do
+  for I := Min(fMapY - 1, TL.Y + RENDER_RADIUS_ADD) to Max(0, BR.Y - RENDER_RADIUS_ADD) do
+    for K := Min(fMapX - 1, TL.X + RENDER_RADIUS_ADD) to Max(0, BR.X - RENDER_RADIUS_ADD) do
       RenderRevelation[I,K] := 0;
 
-  CoverHasBeenCalled := True;
+  fCoverHasBeenCalled := True;
 end;
 
 
@@ -266,8 +293,8 @@ procedure TKMFogOfWar.RevealEverything;
 var
   I,K: Word;
 begin
-  for I := 0 to MapY - 1 do
-    for K := 0 to MapX - 1 do
+  for I := 0 to fMapY - 1 do
+    for K := 0 to fMapX - 1 do
     begin
       Revelation[I, K] := FOG_OF_WAR_MAX;
       RenderRevelation[I, K] := FOG_OF_WAR_MAX;
@@ -279,14 +306,14 @@ procedure TKMFogOfWar.CoverEverything;
 var
   I,K: Word;
 begin
-  for I := 0 to MapY - 1 do
-    for K := 0 to MapX - 1 do
+  for I := 0 to fMapY - 1 do
+    for K := 0 to fMapX - 1 do
     begin
       Revelation[I, K] := 0;
       RenderRevelation[I, K] := FOG_OF_WAR_MAX;
     end;
 
-  CoverHasBeenCalled := True;
+  fCoverHasBeenCalled := True;
 end;
 
 
@@ -347,14 +374,30 @@ begin
 end;
 
 
+function TKMFogOfWar.CheckTileInitialRevelation(const X,Y: Word): Boolean;
+var
+  I: Integer;
+  P: TKMPoint;
+begin
+  if fInitialRevealAll then
+    Exit(True);
+
+
+  Result := False;
+  P := KMPoint(X, Y);
+  for I := 0 to fInitialRevealers.Count - 1 do
+    Result := Result or (KMDistanceSqr(P, fInitialRevealers[I]) < Sqr(fInitialRevealers.Tag[I]));
+end;
+
+
 //Check if requested tile is revealed for given player
 //Input values for tiles (X,Y) are in 1..N range
 //Return value of revelation within 0..255 (0 unrevealed, 255 fully revealed)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
 function TKMFogOfWar.CheckTileRev(aRevArray: PKMByte2Array; const X,Y: Word): Byte;
 begin
-  if (X <= 0) or (X >= MapX)
-    or (Y <= 0) or (Y >= MapY) then
+  if (X <= 0) or (X >= fMapX)
+    or (Y <= 0) or (Y >= fMapY) then
   begin
     Result := 0;
     Exit;
@@ -365,17 +408,17 @@ begin
 
   if Result = 255 then Exit;
 
-  if X <= MapX-1 then
+  if X <= fMapX-1 then
     Result := Max(Result, CheckVerticeRev(aRevArray,X,Y-1));
 
   if Result = 255 then Exit;
 
-  if (X <= MapX-1) and (Y <= MapY-1) then
+  if (X <= fMapX-1) and (Y <= fMapY-1) then
     Result := Max(Result, CheckVerticeRev(aRevArray,X,Y));
 
   if Result = 255 then Exit;
 
-  if Y <= MapY-1 then
+  if Y <= fMapY-1 then
     Result := Max(Result, CheckVerticeRev(aRevArray,X-1,Y));
 end;
 
@@ -384,8 +427,8 @@ end;
 function TKMFogOfWar.CheckRev(aRevArray: PKMByte2Array; const aPoint: TKMPointF): Byte;
 var A, B, C, D, Y1, Y2: Byte;
 begin
-  if (aPoint.X <= 0) or (aPoint.X >= MapX - 1)
-    or (aPoint.Y <= 0) or (aPoint.Y >= MapY - 1) then
+  if (aPoint.X <= 0) or (aPoint.X >= fMapX - 1)
+    or (aPoint.Y <= 0) or (aPoint.Y >= fMapY - 1) then
   begin
     Result := 0;
     Exit;
@@ -410,8 +453,8 @@ end;
 procedure TKMFogOfWar.SyncFOW(aFOW: TKMFogOfWar);
 var I,K: Word;
 begin
-  for I := 0 to MapY - 1 do
-    for K := 0 to MapX - 1 do
+  for I := 0 to fMapY - 1 do
+    for K := 0 to fMapX - 1 do
     begin
       Revelation[I, K] := Max(Revelation[I, K], aFOW.Revelation[I, K]);
       RenderRevelation[I, K] := Max(RenderRevelation[I, K], aFOW.RenderRevelation[I, K]);
@@ -425,13 +468,15 @@ var
 begin
   SaveStream.PlaceMarker('FOW');
   SaveStream.Write(fAnimStep);
+  SaveStream.Write(fInitialRevealAll);
+  fInitialRevealers.SaveToStream(SaveStream);
   //Because each player has FOW it can become a bottleneck (8.7ms per run) due to autosaving (e.g. on Paradise Island)
   //so save it out 1 row at a time (due to 2D arrays not being continguous we can't save it all at once)
-  for I := 0 to MapY - 1 do
+  for I := 0 to fMapY - 1 do
   begin
-    SaveStream.Write(fRevealedToMax[I, 0], MapX * SizeOf(fRevealedToMax[I, 0]));
-    SaveStream.Write(Revelation[I, 0], MapX * SizeOf(Revelation[I, 0]));
-    SaveStream.Write(RenderRevelation[I, 0], MapX * SizeOf(RenderRevelation[I, 0]));
+    SaveStream.Write(fRevealedToMax[I, 0], fMapX * SizeOf(fRevealedToMax[I, 0]));
+    SaveStream.Write(Revelation[I, 0], fMapX * SizeOf(Revelation[I, 0]));
+    SaveStream.Write(RenderRevelation[I, 0], fMapX * SizeOf(RenderRevelation[I, 0]));
   end;
 end;
 
@@ -442,12 +487,15 @@ var
 begin
   LoadStream.CheckMarker('FOW');
   LoadStream.Read(fAnimStep);
-  SetMapSize(MapX, MapY);
-  for I := 0 to MapY - 1 do
+  LoadStream.Write(fInitialRevealAll);
+  fInitialRevealers.LoadFromStream(LoadStream);
+
+  SetMapSize(fMapX, fMapY);
+  for I := 0 to fMapY - 1 do
   begin
-    LoadStream.Read(fRevealedToMax[I, 0], MapX * SizeOf(fRevealedToMax[I, 0]));
-    LoadStream.Read(Revelation[I, 0], MapX * SizeOf(Revelation[I, 0]));
-    LoadStream.Read(RenderRevelation[I, 0], MapX * SizeOf(RenderRevelation[I, 0]));
+    LoadStream.Read(fRevealedToMax[I, 0], fMapX * SizeOf(fRevealedToMax[I, 0]));
+    LoadStream.Read(Revelation[I, 0], fMapX * SizeOf(Revelation[I, 0]));
+    LoadStream.Read(RenderRevelation[I, 0], fMapX * SizeOf(RenderRevelation[I, 0]));
   end;
 end;
 
@@ -461,10 +509,10 @@ begin
 
   Inc(fAnimStep);
 
-  for I := 0 to MapY - 1 do
-    for K := 0 to MapX - 1 do
+  for I := 0 to fMapY - 1 do
+    for K := 0 to fMapX - 1 do
       if {(Revelation[I, K] > 0)//(Revelation[I, K] > FOG_OF_WAR_MIN)
-        and }((I * MapX + K + fAnimStep) mod FOW_PACE = 0) then
+        and }((I * fMapX + K + fAnimStep) mod FOW_PACE = 0) then
       begin
         if (Revelation[I, K] > FOG_OF_WAR_MAX - FOG_OF_WAR_DEC) then
         begin
@@ -487,34 +535,39 @@ end;
 
 
 { TKMFogOfWarOpen }
+function TKMFogOfWarOpen.CheckTileInitialRevelation(const X,Y: Word): Boolean;
+begin
+  Result := True;
+end;
+
 function TKMFogOfWarOpen.CheckRenderRev(const aPoint: TKMPointF): Byte;
 begin
-  Result := 255;
+  Result := FOG_OF_WAR_MAX;
 end;
 
 function TKMFogOfWarOpen.CheckRevelation(const aPoint: TKMPointF): Byte;
 begin
-  Result := 255;
+  Result := FOG_OF_WAR_MAX;
 end;
 
 function TKMFogOfWarOpen.CheckTileRenderRev(const X, Y: Word): Byte;
 begin
-  Result := 255;
+  Result := FOG_OF_WAR_MAX;
 end;
 
 function TKMFogOfWarOpen.CheckTileRevelation(const X, Y: Word): Byte;
 begin
-  Result := 255;
+  Result := FOG_OF_WAR_MAX;
 end;
 
 function TKMFogOfWarOpen.CheckVerticeRenderRev(const X, Y: Word): Byte;
 begin
-  Result := 255;
+  Result := FOG_OF_WAR_MAX;
 end;
 
 function TKMFogOfWarOpen.CheckVerticeRevelation(const X, Y: Word): Byte;
 begin
-  Result := 255;
+  Result := FOG_OF_WAR_MAX;
 end;
 
 

@@ -50,7 +50,7 @@ begin
 
   Label1.Caption := 'Master-server: ' + fGameSettings.MasterServerAddress;
 
-  fServerQuery := TKMServerQuery.Create(fGameSettings.MasterServerAddress);
+  fServerQuery := TKMServerQuery.Create(fGameSettings.MasterServerAddress, fGameSettings.ServerUDPScanPort);
 
   fServerQuery.OnAnnouncements := AnnouncementsUpdate;
   fServerQuery.FetchAnnouncements(AnsiString('eng'));

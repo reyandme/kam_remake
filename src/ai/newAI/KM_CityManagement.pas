@@ -895,6 +895,16 @@ begin
     with fRequiredWeapons[WT] do
       Fraction := Available / Max(1,Required);
 
+  // Dont produce bows and spears when we dont produce leather
+  if (gGame.GameOptions.Peacetime < 45) AND (
+    (gHands[fOwner].Stats.GetWareBalance(wtLeather) = 0) AND
+    (gHands[fOwner].Stats.GetWareBalance(wtArmor) = 0) ) then
+  begin
+    fRequiredWeapons[wtBow].Fraction := 1;
+    fRequiredWeapons[wtPike].Fraction := 1;
+    fRequiredWeapons[wtAxe].Fraction := 0;
+  end;
+
   // Calculate mean fraction of iron weapons and distribute steal
   WeaponFraction := 0;
   for WT in IRON_WEAPONS do

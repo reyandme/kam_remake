@@ -62,7 +62,7 @@ type
 
 implementation
 uses
-   KM_AIFields, KM_NavMesh, KM_NavMeshGenerator;
+   KM_AIFields, KM_NavMesh, KM_NavMeshGenerator, KM_AIParameters;
 
 
 { TNavMeshPathFinding }
@@ -123,10 +123,8 @@ end;
 function TNavMeshPathFinding.MovementCost(aFrom, aTo: Word; var aSPoint, aEPoint: TKMPoint): Cardinal;
 
   function AvoidTraffic(): Cardinal;
-  const
-    COEFICIENT = 1.5; // 1 tile is max 10 points, max value of ArmyTraffic is 20, this coefficient must increase the price
   begin
-    Result := Round(gAIFields.Influences.ArmyTraffic[fOwner, aTo] * COEFICIENT);
+    Result := Round(gAIFields.Influences.ArmyTraffic[fOwner, aTo] * GA_PATHFINDING_AvoidTraffic);
   end;
 
   function AvoidSpecEnemy(): Word;
@@ -144,7 +142,7 @@ function TNavMeshPathFinding.MovementCost(aFrom, aTo: Word; var aSPoint, aEPoint
   begin
     Weight := 0;
     for GT := Low(TKMGroupType) to High(TKMGroupType) do
-      Weight := Weight + CHANCES[fGroupType,GT] * gAIFields.Influences.EnemyGroupPresence[fOwner, aTo, GT];
+      Weight := Weight + CHANCES[fGroupType,GT] * gAIFields.Influences.EnemyGroupPresence[fOwner, aTo, GT] * GA_PATHFINDING_AvoidSpecEnemy;
     Result := Round(Weight);
   end;
 

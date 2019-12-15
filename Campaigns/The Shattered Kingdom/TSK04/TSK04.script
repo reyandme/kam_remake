@@ -171,6 +171,16 @@ begin
 	aHouses := States.PlayerGetAllHouses(0);
 	for h := 0 to Length(aHouses) -1 do
 		TraditionalUnlock(0, aHouses[h]);
+	//Difficulty
+	case States.MissionDifficulty() of
+		mdEasy2:
+		begin
+			IncreaseTargetGroupSize(0, 26, 35, 0);
+			Actions.GiveGroup(0, 17, 17, 34, 2, 6, 3);
+		end;
+		mdEasy1:
+			IncreaseTargetGroupSize(0, 26, 35, 0);
+	end;
 end;
 
 procedure OnHouseBuilt(aHouseID: Integer);

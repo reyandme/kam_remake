@@ -1,5 +1,5 @@
 //-- TSK01 --//
-//24.01.2018
+//07.11.2019
 
 {$I difficulty.script}
 
@@ -98,7 +98,10 @@ begin
 		24: exit;//Butcher's
 		25: Actions.HouseAllow(iPlayer, 20, true); //Tannery -> Armor Workshop
 		26: exit; //Unused
-		27: Actions.HouseAllow(iPlayer, 9, true); //Inn -> Woodcutter
+		27: begin
+				Actions.HouseAllow(iPlayer, 9, true); //Inn -> Woodcutter
+				Actions.HouseAllow(iPlayer, 14, true); //Inn -> Quarry
+			end;
 		28: exit; //Vineyard
 		29: exit; //Market
 	end;
@@ -171,6 +174,29 @@ begin
 	UnitsRandomHungerSet();
 	//Setup AI Defaults
 	SetupAI();
+	//Apply Difficulty
+	case States.MissionDifficulty() of
+		mdEasy2:
+		begin
+			IncreaseTargetGroupSize(0, 64, 55, 0);
+			IncreaseTargetGroupSize(0, 58, 82, 0);
+			IncreaseTargetGroupSize(0, 77, 67, 0);
+		end;
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 64, 55, 0);
+			IncreaseTargetGroupSize(0, 58, 82, 0);
+		end;
+		mdHard1:
+			IncreaseGroupSize(3, 0);
+		mdHard2:
+		begin
+			IncreaseGroupSize(3, 0);
+			IncreaseGroupSize(4, 0);
+			AddDefencePositionAndGroup(1, 15, 31, 8, 2, 8);
+			AddDefencePositionAndGroup(1, 15, 27, 6, 2, 8);
+		end;
+	end;
 	//Unlock Houses
 	aHouses := States.PlayerGetAllHouses(0);
 	for h := 0 to Length(aHouses) -1 do
@@ -223,7 +249,7 @@ end;
 procedure OnTick;
 begin
 	//Enable Player2 to build Bowman and Lancers again
-	if States.GameTime() = 18000 then //30mins
+	if States.GameTime() = Round(18000 *(EquipRateMod[Byte(States.MissionDifficulty()) -1])) then //30mins on Normal
 	begin
 		Actions.UnitBlock(2, 17, false); //Bowman
 		Actions.UnitBlock(2, 19, false); //Lancer

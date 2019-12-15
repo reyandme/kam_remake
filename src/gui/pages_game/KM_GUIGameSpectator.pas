@@ -451,7 +451,7 @@ end;
 procedure TKMGUIGameSpectatorItemLine.PaintPanel(aPaintLayer: Integer);
 begin
   Image.TexId := GUI_SPEC_HEADER_FLAG + gGame.GameTick mod GUI_SPEC_HEADER_FLAG_FRAME;
-  Label_Text.Caption := IfThen(gHands[FHandIndex].OwnerNiknameU <> '', gHands[FHandIndex].OwnerNiknameU, gHands[FHandIndex].OwnerName);
+  Label_Text.Caption := gHands[FHandIndex].OwnerName(not gGame.IsSingleplayer);
 
   inherited;
 end;

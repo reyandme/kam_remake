@@ -25,6 +25,7 @@ type
 
     f_SIM_SimulationTimeInMin: Single; // Time of each simulation (GA doest not take simulation from game menu because it is only in minutes)
     f_SIM_NumberOfMaps: Word; // Count of simulated maps for each invididual
+    f_SIM_MapNamePrefix: String; // Prefix of map names
     f_GA_POPULATION_CNT: Word; // Population count
     f_GA_GENE_CNT: Word; // Count of genes
     f_GA_START_TOURNAMENT_IndividualsCnt: Word; // Initial count of individuals in tournament
@@ -92,6 +93,11 @@ type
   end;
 
   TKMRunnerGA_CityPlanner = class(TKMRunnerGA_Common)
+  protected
+    procedure InitGAParameters(); override;
+  end;
+
+  TKMRunnerGA_ArmyAttack = class(TKMRunnerGA_Common)
   protected
     procedure InitGAParameters(); override;
   end;
@@ -175,6 +181,7 @@ procedure TKMRunnerGA_Common.InitGAParameters();
 begin
   f_SIM_SimulationTimeInMin      := 10;
   f_SIM_NumberOfMaps             := 3;
+  f_SIM_MapNamePrefix            := 'GA_S1_%.3d';
   f_GA_POPULATION_CNT            := 2;
   f_GA_GENE_CNT                  := 5;
   f_GA_START_TOURNAMENT_IndividualsCnt := 3;
@@ -309,10 +316,24 @@ const
   WOOD_SOLDIER = 10;
   MILITIA_SOLDIER = 3;
   COMPLETE_HOUSE = 5;
+  {
+    utMilitia,      utAxeFighter,   utSwordsman,     utBowman,
+    utArbaletman,   utPikeman,      utHallebardman,  utHorseScout,
+    utCavalry,      utBarbarian,
+    utPeasant,      utSlingshot,    utMetalBarbarian,utHorseman,
+  }
+  WARRIOR_PRICE: array[WARRIOR_MIN..WARRIOR_MAX] of Integer = (
+    1, 3, 6, 3,
+    5, 3, 5, 4,
+    7, 6,
+    2, 2, 6, 3
+    );
 var
-  I: Integer;
+  K: Integer;
   IronArmy, WoodArmy, Militia, Output: Single;
+  UT: TKMUnitType;
 begin
+  // Production of weapons
   with gHands[PL].Stats do
   begin
     Output := + GetHouseQty(htAny) * HOUSE_WEIGHT
@@ -334,9 +355,17 @@ begin
               + WoodArmy * WOOD_SOLDIER
               + Militia * MILITIA_SOLDIER;
   end;
+  // Completed houses
+  for K := 0 to gHands[PL].Houses.Count - 1 do
+    Output := Output + Byte(gHands[PL].Houses[K].IsComplete) * COMPLETE_HOUSE;
 
-  for I := 0 to gHands[PL].Houses.Count - 1 do
-    Output := Output + Byte(gHands[PL].Houses[I].IsComplete) * COMPLETE_HOUSE;
+  // Defeated soldiers
+  with gHands[PL].Stats do
+    for UT := WARRIOR_MIN to WARRIOR_MAX do
+    begin
+      Output := Output - GetUnitLostQty(UT) * WARRIOR_PRICE[UT];
+      Output := Output + GetUnitKilledQty(UT) * WARRIOR_PRICE[UT];
+    end;
 
   Result := Output;
 end;
@@ -378,7 +407,7 @@ begin
         fLogPar := TKMLog.Create(Format('%s\Utils\Runner\LOG_GA_PAR.log',[ExeDir]));
         fParametrization.SetPar(fOldPopulation[K], True);
       end;
-      SimulateMap(aRun, K, aRun, Format('GA_S1_%.3d',[MapNum]));// Name of maps are GA_001, GA_002 so use %.3d to fill zeros
+      SimulateMap(aRun, K, aRun, Format(f_SIM_MapNamePrefix,[MapNum]));// Name of maps are GA_001, GA_002 so use %.3d to fill zeros
       fOldPopulation[K].Fitness[MapNum-1] := CostFunction();
     end;
 
@@ -499,6 +528,16 @@ procedure TKMRunnerGA_CityPlanner.InitGAParameters();
 begin
   inherited;
   f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_CityPlanner');
+end;
+
+{ TKMRunnerGA_ArmyAttack }
+procedure TKMRunnerGA_ArmyAttack.InitGAParameters();
+begin
+  inherited;
+  f_SIM_SimulationTimeInMin := 10;
+  f_SIM_NumberOfMaps  := 17;
+  f_SIM_MapNamePrefix := 'GA_S2_%.3d';
+  f_GA_GENE_CNT := fParametrization.GetParCnt('TKMRunnerGA_ArmyAttack');
 end;
 
 
@@ -1020,6 +1059,7 @@ initialization
   RegisterRunner(TKMRunnerGA_Forest);
   RegisterRunner(TKMRunnerGA_CityBuilder);
   RegisterRunner(TKMRunnerGA_CityPlanner);
+  RegisterRunner(TKMRunnerGA_ArmyAttack);
   RegisterRunner(TKMRunnerFindBugs);
   RegisterRunner(TKMRunnerStone);
   RegisterRunner(TKMRunnerFight95);

@@ -119,6 +119,7 @@ procedure TKMMapEdTerrain.KeyDown(Key: Word; Shift: TShiftState; var aHandled: B
 begin
   fGuiBrushes.KeyDown(Key, Shift, aHandled);
   fGuiObjects.KeyDown(Key, Shift, aHandled);
+  fGuiSelection.KeyDown(Key, Shift, aHandled);
 end;
 
 

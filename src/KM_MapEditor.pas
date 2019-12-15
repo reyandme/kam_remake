@@ -402,6 +402,8 @@ begin
 
   gHands.Hands[aIndex].AI.General.DefencePositions.Clear;
 
+  gHands.Hands[aIndex].ResetChooseLocation;
+
 end;
 
 

@@ -1,7 +1,35 @@
 //-- TSK10 --//
-//24.01.2018
+//09.11.2019
 
 {$I difficulty.script}
+
+procedure OnMissionStart();
+begin
+	case States.MissionDifficulty() of
+		mdEasy2:
+			IncreaseGroupSize(0, 0);
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 12, 26, 0);
+			IncreaseTargetGroupSize(0, 6, 15, 0);
+			IncreaseTargetGroupSize(0, 8, 22, 0);
+		end;
+		mdHard1:
+		begin
+			IncreaseTargetGroupSize(2, 70, 10, 0);
+			IncreaseTargetGroupSize(2, 70, 29, 0);
+			IncreaseTargetGroupSize(3, 73, 53, 0);
+		end;
+		mdHard2:
+		begin
+			IncreaseTargetGroupSize(2, 76, 4, 0);
+			IncreaseTargetGroupSize(2, 70, 10, 0);
+			IncreaseTargetGroupSize(1, 60, 19, 0);
+			IncreaseTargetGroupSize(2, 70, 29, 0);
+			IncreaseTargetGroupSize(3, 73, 53, 0);
+		end;
+	end;
+end;
 
 procedure OnTick;
 begin

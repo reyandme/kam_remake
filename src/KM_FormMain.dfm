@@ -81,11 +81,11 @@ object FormMain: TFormMain
     HeaderStyle = hsThemed
     TabOrder = 1
     object cpLogs: TCategoryPanel
-      Top = 559
+      Top = 489
       Height = 179
       Caption = 'Logs'
       TabOrder = 0
-      ExplicitTop = 523
+      ExplicitTop = 559
       object chkLogCommands: TCheckBox
         Left = 100
         Top = 8
@@ -159,13 +159,10 @@ object FormMain: TFormMain
       end
     end
     object cpGraphicTweaks: TCategoryPanel
-      Top = 535
-      Height = 24
+      Top = 365
+      Height = 124
       Caption = 'Graphic tweaks'
-      Collapsed = True
       TabOrder = 1
-      ExplicitTop = 499
-      ExpandedHeight = 103
       object Label1: TLabel
         Left = 101
         Top = 55
@@ -251,14 +248,23 @@ object FormMain: TFormMain
         TickStyle = tsNone
         OnChange = ControlsUpdate
       end
+      object chkSnowHouses: TCheckBox
+        Left = 8
+        Top = 78
+        Width = 86
+        Height = 17
+        Caption = 'Snow houses'
+        TabOrder = 4
+        OnClick = ControlsUpdate
+      end
     end
     object cpUserInreface: TCategoryPanel
-      Top = 511
+      Top = 341
       Height = 24
       Caption = 'User Interface'
       Collapsed = True
       TabOrder = 2
-      ExplicitTop = 475
+      ExplicitTop = 511
       ExpandedHeight = 72
       object chkUIControlsBounds: TCheckBox
         Left = 8
@@ -289,11 +295,11 @@ object FormMain: TFormMain
       end
     end
     object cpAI: TCategoryPanel
-      Top = 345
+      Top = 175
       Height = 166
       Caption = 'AI'
       TabOrder = 3
-      ExplicitTop = 309
+      ExplicitTop = 345
       object Label5: TLabel
         Left = 106
         Top = 111
@@ -453,10 +459,11 @@ object FormMain: TFormMain
     end
     object cpDebugRender: TCategoryPanel
       Top = 151
-      Height = 194
+      Height = 24
       Caption = 'Debug Render'
+      Collapsed = True
       TabOrder = 4
-      ExplicitTop = 115
+      ExpandedHeight = 194
       object Label2: TLabel
         Left = 100
         Top = 4

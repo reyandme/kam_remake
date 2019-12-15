@@ -1,1 +1,39 @@
+//--TSK03--//
+//07.11.2019
+
 {$I difficulty.script}
+
+procedure OnMissionStart();
+begin
+	case States.MissionDifficulty() of
+		mdEasy2:
+		begin
+			IncreaseTargetGroupSize(0, 11, 12, 0);
+			IncreaseTargetGroupSize(0, 14, 16, 0);
+			Actions.GroupOrderWalk(Actions.GiveGroup(0, 15, 20, 22, 3, 12, 4), 63, 47 ,4);
+		end;
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 11, 12, 0);
+			IncreaseTargetGroupSize(0, 14, 16, 0);
+		end;
+		mdHard1:
+		begin
+			IncreaseTargetGroupSize(1, 46, 5, 0);
+			IncreaseTargetGroupSize(1, 56, 9, 0);
+			IncreaseTargetGroupSize(1, 58, 28, 0);
+			IncreaseTargetGroupSize(1, 45, 58, 0);
+			IncreaseTargetGroupSize(1, 40, 55, 0);
+		end;
+		mdHard2:
+		begin
+			IncreaseTargetGroupSize(1, 46, 5, 0);
+			IncreaseTargetGroupSize(1, 56, 9, 0);
+			IncreaseTargetGroupSize(1, 59, 6, 0);
+			IncreaseTargetGroupSize(1, 58, 28, 0);
+			IncreaseTargetGroupSize(1, 58, 60, 0);
+			IncreaseTargetGroupSize(1, 45, 58, 0);
+			IncreaseTargetGroupSize(1, 40, 55, 0);
+		end;
+	end;
+end;

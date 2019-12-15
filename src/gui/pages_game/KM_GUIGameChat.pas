@@ -141,7 +141,7 @@ begin
     //Sending chat during reconnections at best causes messages to be lost and at worst causes
     //crashes due to intermediate connecting states. Therefore we block sending completely.
     VK_RETURN:  Result := ((gGame.Networking <> nil) and not gGame.Networking.IsReconnecting)
-                           or gGame.IsSingleplayer;
+                           or gGame.IsSingleplayerGame;
     VK_UP,
     VK_DOWN:    Result := Button_ChatActionsAllowed.Down;
   end;

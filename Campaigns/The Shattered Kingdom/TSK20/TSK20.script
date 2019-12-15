@@ -1,5 +1,5 @@
 //-- TSK20 --//
-//29.01.2018
+//08.11.2019
 
 {$I difficulty.script}
 
@@ -168,6 +168,43 @@ begin
 	UnitsRandomHungerSet();
 	//Setup AI Defaults
 	SetupAI();
+	//Apply Diffculty
+	case States.MissionDifficulty() of
+		mdEasy2:
+		begin
+			IncreaseGroupSize(0, 0);
+			IncreaseGroupSize(1, 0);
+		end;
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 16, 119, 0); //Barbs
+			IncreaseTargetGroupSize(0, 57, 134, 0); //Pikes
+			IncreaseTargetGroupSize(0, 68, 140, 0); //Swords
+			IncreaseTargetGroupSize(1, 146, 150, 0); //Ally Groups
+			IncreaseTargetGroupSize(1, 155, 157, 0);
+		end;
+		mdHard1:
+		begin
+			IncreaseTargetGroupSize(7, 25, 100, 0); //Pikes @ Barbs
+			IncreaseTargetGroupSize(7, 41, 111, 0); //Swords
+			IncreaseTargetGroupSize(5, 95, 116, 0); //Pikes
+			IncreaseTargetGroupSize(5, 77, 115, 0); //Swords
+			IncreaseTargetGroupSize(6, 152, 115, 0); //Knights @Ally
+			IncreaseTargetGroupSize(6, 123, 129, 0);
+		end;
+		mdHard2:
+		begin
+			IncreaseTargetGroupSize(7, 25, 100, 0); //Pikes @ Barbs
+			IncreaseTargetGroupSize(7, 41, 111, 0); //Swords
+			IncreaseTargetGroupSize(7, 31, 111, 0); //Pikes @ Barbs
+			IncreaseTargetGroupSize(5, 100, 101, 0); //Knights @Storehouse
+			IncreaseTargetGroupSize(5, 95, 116, 0); //Pikes
+			IncreaseTargetGroupSize(5, 77, 115, 0); //Swords
+			IncreaseTargetGroupSize(6, 152, 115, 0); //Knights @Ally
+			IncreaseTargetGroupSize(6, 123, 129, 0);
+			IncreaseTargetGroupSize(6, 141, 125, 0);
+		end;
+	end;
 	//Unlock Houses
 	aHouses := States.PlayerGetAllHouses(0);
 	for h := 0 to Length(aHouses) -1 do

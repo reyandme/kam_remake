@@ -1,1 +1,32 @@
+//-- TSK17 --//
+//08.11.2019
+
 {$I difficulty.script}
+
+procedure OnMissionStart();
+begin
+	case States.MissionDifficulty() of
+		mdEasy2:
+			IncreaseGroupSize(0, 0);
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 35, 86, 0); //Knights
+			IncreaseTargetGroupSize(0, 21, 91, 0); //xbow
+			IncreaseTargetGroupSize(0, 29, 88, 0); //Swords
+		end;
+		mdHard1:
+		begin
+			IncreaseGroupSize(1, 0);
+			IncreaseGroupSize(2, 0);
+			IncreaseGroupSize(5, 0);
+		end;
+		mdHard2:
+		begin
+			IncreaseGroupSize(1, 0);
+			IncreaseGroupSize(2, 0);
+			IncreaseGroupSize(3, 0);
+			IncreaseGroupSize(5, 0);
+			IncreaseGroupSize(6, 0);
+		end;
+	end;
+end;

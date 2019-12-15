@@ -100,7 +100,7 @@ end;
 procedure TForm1.btnCollateClick(Sender: TObject);
 var
   I,K: Integer;
-  files: TStringArray;
+  files: TKMStringArray;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
 

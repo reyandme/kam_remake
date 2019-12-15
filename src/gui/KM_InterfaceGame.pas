@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   SysUtils, Controls, Classes, Math, KM_Defaults, KM_Controls, KM_Points,
   KM_InterfaceDefaults, KM_CommonUtils, KM_CommonTypes,
-  KM_GameCursor, KM_Render, KM_Minimap, KM_Viewport, KM_ResHouses, KM_ResWares;
+  KM_GameCursor, KM_Render, KM_Minimap, KM_Viewport, KM_ResHouses, KM_ResWares, KM_ResFonts;
 
 
 type
@@ -15,8 +15,6 @@ type
   private
     fDragScrollingCursorPos: TPoint;
     fDragScrollingViewportPos: TKMPointF;
-    fPrevHint: TObject;
-    fPrevHintMessage: UnicodeString;
     fOnUserAction: TKMUserActionEvent;
     procedure ResetDragScrolling;
   protected
@@ -24,13 +22,9 @@ type
     fViewport: TKMViewport;
     fDragScrolling: Boolean;
 
-    Panel_Hint: TKMPanel;
-      Label_Hint: TKMLabel;
-      Bevel_HintBG: TKMBevel;
-
     function IsDragScrollingAllowed: Boolean; virtual;
-    procedure DisplayHint(Sender: TObject);
-    procedure AfterCreateComplete;
+    function GetHintPositionBase: TKMPoint; override;
+    function GetHintFont: TKMFont; override;
   public
     constructor Create(aRender: TRender); reintroduce;
     destructor Destroy; override;
@@ -167,7 +161,7 @@ const
 
 implementation
 uses
-  KM_Main, KM_Game, KM_HandSpectator, KM_Terrain, KM_RenderPool, KM_Resource, KM_ResCursors, KM_ResKeys, KM_RenderUI, KM_ResFonts;
+  KM_Main, KM_Game, KM_HandSpectator, KM_Terrain, KM_RenderPool, KM_Resource, KM_ResCursors, KM_ResKeys, KM_RenderUI;
 
 
 { TKMUserInterfaceGame }
@@ -187,28 +181,24 @@ begin
 end;
 
 
-procedure TKMUserInterfaceGame.AfterCreateComplete;
-begin
-  //Hints should be created last, as they should be above everything in UI, to be show on top of all other Controls
-  Bevel_HintBG := TKMBevel.Create(Panel_Main,224+35,Panel_Main.Height-23,300,21);
-  Bevel_HintBG.BackAlpha := 0.5;
-  Bevel_HintBG.EdgeAlpha := 0.5;
-  Bevel_HintBG.Hide;
-  Bevel_HintBG.Anchors := [anLeft, anBottom];
-  Label_Hint := TKMLabel.Create(Panel_Main,224+40,Panel_Main.Height-21,0,0,'',fntOutline,taLeft);
-  Label_Hint.Anchors := [anLeft, anBottom];
-
-  // Controls without a hint will reset the Hint to ''
-  fMyControls.OnHint := DisplayHint;
-end;
-
-
 destructor TKMUserInterfaceGame.Destroy;
 begin
   FreeAndNil(fMinimap);
   FreeAndNil(fViewport);
   FreeAndNil(gRenderPool);
   Inherited;
+end;
+
+
+function TKMUserInterfaceGame.GetHintPositionBase: TKMPoint;
+begin
+  Result := KMPoint(224, Panel_Main.Height);
+end;
+
+
+function TKMUserInterfaceGame.GetHintFont: TKMFont;
+begin
+  Result := fntOutline;
 end;
 
 
@@ -293,38 +283,6 @@ end;
 function TKMUserInterfaceGame.IsDragScrollingAllowed: Boolean;
 begin
   Result := True; // Allow drag scrolling by default
-end;
-
-
-procedure TKMUserInterfaceGame.DisplayHint(Sender: TObject);
-var
-  TxtSize: TKMPoint;
-begin
-  if (fPrevHint = nil) and (Sender = nil) then Exit; //in this case there is nothing to do
-
-  if (fPrevHint <> nil) and (Sender = fPrevHint)
-    and (TKMControl(fPrevHint).Hint = fPrevHintMessage) then Exit; // Hint didn't change (not only Hint object, but also Hint message didn't change)
-
-  if (Sender = Label_Hint) or (Sender = Bevel_HintBG) then Exit; // When previous Hint obj is covered by Label_Hint or Bevel_HintBG ignore it.
-
-  if (Sender = nil) or (TKMControl(Sender).Hint = '') then
-  begin
-    Label_Hint.Caption := '';
-    Bevel_HintBG.Hide;
-    fPrevHintMessage := '';
-  end
-  else
-  begin
-    Label_Hint.Caption := TKMControl(Sender).Hint;
-    TxtSize := gRes.Fonts[Label_Hint.Font].GetTextSize(Label_Hint.Caption);
-    Bevel_HintBG.Width := 10 + TxtSize.X;
-    Bevel_HintBG.Height := 2 + TxtSize.Y;
-    Bevel_HintBG.Top := Panel_Main.Height - Bevel_HintBG.Height - 2;
-    Bevel_HintBG.Show;
-    Label_Hint.Top := Bevel_HintBG.Top + 2;
-    fPrevHintMessage := TKMControl(Sender).Hint;
-  end;
-  fPrevHint := Sender;
 end;
 
 

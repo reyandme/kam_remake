@@ -677,6 +677,8 @@ TX_LOBBY_SELECT = 538; //Select...
 TX_LOBBY_RANDOM = 539; //Random
 TX_LOBBY_MAP_NONE = 540; //None
 TX_LOBBY_MAP_SAVED = 541; //Saved Game
+TX_LOBBY_MAP_RANDOM = 1369; //Random map
+TX_LOBBY_MAP_RANDOM_HINT = 1370; //Map was generated automatically with random map generator
 TX_LOBBY_MAP_SELECT = 542; //Select a map...
 TX_LOBBY_MAP_SELECT_SAVED = 543; //Select a save...
 TX_LOBBY_QUIT = 544; //Quit lobby
@@ -1389,8 +1391,8 @@ TX_MAPED_RMG_SETTINGS_OBJECTS_HINT = 1341; //Enable objects
 TX_MAPED_RMG_SETTINGS_ANIMALS = 1342; //Animals
 TX_MAPED_RMG_SETTINGS_ANIMALS_HINT = 1343; //Enable animals
 TX_MAPED_RMG_SETTINGS_OBJECTS_DENSITY_HINT = 1344; //Object density
-TX_MAPED_RMG_SETTINGS_FORESTS = 1345; //Forests
-TX_MAPED_RMG_SETTINGS_FORESTS_HINT = 1346; //Number of forests
+TX_MAPED_RMG_SETTINGS_FORESTS_DENSITY = 1345; //Forests density
+TX_MAPED_RMG_SETTINGS_FORESTS_DENSITY_HINT = 1346; //Forests density
 TX_MAPED_RMG_SETTINGS_TREES = 1347; //Trees
 TX_MAPED_RMG_SETTINGS_TREES_HINT = 1348; //Number of trees in the forest
 TX_MAPED_RMG_SETTINGS_SEED = 1349; //Seed
@@ -1403,6 +1405,12 @@ TX_MAPED_RMG_SETTINGS_CLOSE_RMG_HINT = 1355; //Close Random Map Generator
 TX_MAPED_RMG_SETTINGS_HEIGHT_STEP_HINT = 1366; //Step of the height algorithm (1 = small, 10 = big)
 TX_MAPED_RMG_SETTINGS_HEIGHT_SLOPE_HINT = 1367; //Slope of the height evaluation (0 = plateau, 15 = peak)
 TX_MAPED_RMG_SETTINGS_HEIGHT_HEIGHTS_HINT = 1368; //Maximum height of walkable tiles
+TX_MAPED_RMG_SETTINGS_INITIAL_RESOURCES = 1371; //Initial resources
+TX_MAPED_RMG_SETTINGS_INITIAL_RESOURCES_HINT = 1372; //Amount of initial resources in the storehouse
+TX_MAPED_RMG_SETTINGS_LOW = 1373; //Low
+TX_MAPED_RMG_SETTINGS_MEDIUM = 1374; //Medium
+TX_MAPED_RMG_SETTINGS_HIGH = 1375; //High
+TX_MAPED_RMG_SETTINGS_MAP_SIZE_HINT = 1376; //Select size of the map
 
 TX_MENU_LOBBY_TRY_TO_START = 1377; //Try to start 
 TX_MENU_SAVE_TRY_TO_LOAD = 1378; //Try to load save
@@ -1410,3 +1418,4 @@ TX_MENU_REPLAY_TRY_TO_VIEW = 1379; //Try to view replay
 TX_UNSUPPORTED_SAVE_LOAD_ERROR_MSG = 1380; //Error loading unsupported version %s save from %s
 TX_UNSUPPORTED_REPLAY_LOAD_ERROR_MSG = 1381; //Error loading unsupported version %s replay from %s
 TX_UNSUPPORTED_SAVE_LOAD_WARNING_TXT = 1385; //Loading unsupported version could cause game not being properly loaded or even cause game crash
+

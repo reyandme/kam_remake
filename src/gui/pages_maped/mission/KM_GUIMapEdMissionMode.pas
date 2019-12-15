@@ -31,7 +31,7 @@ type
           Edit_SmallDesc: TKMEdit;
           NumEdit_SmallDesc: TKMNumericEdit;
           Panel_CheckBoxes: TKMPanel;
-            CheckBox_Coop, CheckBox_Special, CheckBox_PlayableAsSP,
+            CheckBox_Coop, CheckBox_Special, CheckBox_RMG, CheckBox_PlayableAsSP,
             CheckBox_BlockTeamSelection, CheckBox_BlockPeacetime, CheckBox_BlockFullMapPreview: TKMCheckBox;
 
           CheckBox_Difficulty: array [MISSION_DIFFICULTY_MIN..MISSION_DIFFICULTY_MAX] of TKMCheckBox;
@@ -85,7 +85,7 @@ begin
   Button_MissionParams.Hint := gResTexts[TX_MAPED_MISSION_PARAMETERS_BTN_HINT];
   Button_MissionParams.OnClick := MissionParams_Click;
 
-  PopUp_MissionParams := TKMPopUpPanel.Create(aParent.MasterParent, 700, 655, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE]);
+  PopUp_MissionParams := TKMPopUpPanel.Create(aParent.MasterParent, 700, 675, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE]);
 
     Panel_MissionParams := TKMPanel.Create(PopUp_MissionParams, 5, 5, PopUp_MissionParams.Width - 10, PopUp_MissionParams.Height - 10);
 
@@ -109,10 +109,10 @@ begin
     Inc(Top, 55);
     TKMLabel.Create(Panel_MissionParams, 0, Top, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE], fntOutline, taLeft);
     Inc(Top, 25);
-    TKMBevel.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 65);
+    TKMBevel.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 85);
 
     Inc(Top, 5);
-    Panel_CheckBoxes := TKMPanel.Create(Panel_MissionParams, 5, Top, Panel_MissionParams.Width - 10, 90);
+    Panel_CheckBoxes := TKMPanel.Create(Panel_MissionParams, 5, Top, Panel_MissionParams.Width - 10, 110);
 
       CheckBox_Coop := TKMCheckBox.Create(Panel_CheckBoxes, 0, 0,  CHK_W, 20, gResTexts[TX_LOBBY_MAP_COOP], fntMetal);
       CheckBox_Coop.Hint := gResTexts[TX_LOBBY_MAP_COOP];
@@ -123,6 +123,9 @@ begin
       CheckBox_PlayableAsSP := TKMCheckBox.Create(Panel_CheckBoxes, 0, 40, CHK_W, 20, gResTexts[TX_MENU_MAP_PLAYABLE_AS_SP],  fntMetal);
       CheckBox_PlayableAsSP.Hint := gResTexts[TX_MAPED_MISSION_PLAYABLE_AS_SP_HINT];
 
+      CheckBox_RMG := TKMCheckBox.Create(Panel_CheckBoxes, 0, 60, CHK_W, 20, gResTexts[TX_LOBBY_MAP_RANDOM], fntMetal);
+      CheckBox_RMG.Hint := gResTexts[TX_LOBBY_MAP_RANDOM_HINT];
+
       CheckBox_BlockTeamSelection := TKMCheckBox.Create(Panel_CheckBoxes, CHK_W + 10, 0, CHK_W, 20, gResTexts[TX_MAPED_MISSION_BLOCK_TEAM_SEL],  fntMetal);
       CheckBox_BlockTeamSelection.Hint := gResTexts[TX_MAPED_MISSION_BLOCK_TEAM_SEL_HINT];
 
@@ -132,7 +135,7 @@ begin
       CheckBox_BlockFullMapPreview := TKMCheckBox.Create(Panel_CheckBoxes, CHK_W + 10, 40, CHK_W, 20, gResTexts[TX_MAPED_MISSION_BLOCK_FULL_MAP_PREVIEW], fntMetal);
       CheckBox_BlockFullMapPreview.Hint := gResTexts[TX_MAPED_MISSION_BLOCK_FULL_MAP_PREVIEW_HINT];
 
-    Inc(Top, 70);
+    Inc(Top, 90);
     with TKMLabel.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 20, gResTexts[TX_MAPED_MISSION_DIFFICULTY_LEVELS], fntOutline, taLeft) do
       Hint := gResTexts[TX_MAPED_MISSION_DIFFICULTY_LEVELS_HINT];
     Inc(Top, 20);
@@ -181,6 +184,7 @@ begin
     NumEdit_BigDesc.OnChange             := UpdateMapTxtInfo;
     CheckBox_Coop.OnClick                := UpdateMapTxtInfo;
     CheckBox_Special.OnClick             := UpdateMapTxtInfo;
+    CheckBox_RMG.OnClick                 := UpdateMapTxtInfo;
     CheckBox_PlayableAsSP.OnClick        := UpdateMapTxtInfo;
     CheckBox_BlockTeamSelection.OnClick  := UpdateMapTxtInfo;
     CheckBox_BlockPeacetime.OnClick      := UpdateMapTxtInfo;
@@ -361,6 +365,7 @@ begin
 
   gGame.MapTxtInfo.IsCoop         := CheckBox_Coop.Checked;
   gGame.MapTxtInfo.IsSpecial      := CheckBox_Special.Checked;
+  gGame.MapTxtInfo.IsRMG          := CheckBox_RMG.Checked;
   gGame.MapTxtInfo.IsPlayableAsSP := CheckBox_PlayableAsSP.Checked;
 
   gGame.MapTxtInfo.BlockTeamSelection  := CheckBox_BlockTeamSelection.Checked;
@@ -399,6 +404,7 @@ begin
 
   CheckBox_Coop.Checked         := gGame.MapTxtInfo.IsCoop;
   CheckBox_Special.Checked      := gGame.MapTxtInfo.IsSpecial;
+  CheckBox_RMG.Checked          := gGame.MapTxtInfo.IsRMG;
   CheckBox_PlayableAsSP.Checked := gGame.MapTxtInfo.IsPlayableAsSP;
 
   CheckBox_BlockTeamSelection.Checked   := gGame.MapTxtInfo.BlockTeamSelection;

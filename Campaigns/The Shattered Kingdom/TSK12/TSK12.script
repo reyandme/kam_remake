@@ -1,5 +1,5 @@
 //-- TSK12 --//
-//29.01.2018
+//09.11.2019
 
 {$I difficulty.script}
 
@@ -163,6 +163,26 @@ var
 	aHouses: array of Integer;
 begin
 	LockBuildings(0);
+	//Apply Diffculty
+	case States.MissionDifficulty() of
+		mdEasy2:
+			IncreaseGroupSize(0, 0); //Axe
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 36, 95, 0); //Axe
+			IncreaseTargetGroupSize(0, 24, 102, 0); //Knights
+		end;
+		mdHard1:
+		begin
+			Actions.GiveGroup(1, 21, 56, 70, 5, 5, 4); //Add Scout groups
+			Actions.GiveGroup(1, 21, 41, 63, 5, 6, 4); 
+		end;
+		mdHard2:
+		begin
+			Actions.GiveGroup(1, 21, 56, 70, 5, 7, 4); //Add Scout groups
+			Actions.GiveGroup(1, 21, 41, 63, 5, 9, 4); 
+		end;
+	end;
 	//Set Hunger Level of AIs
 	UnitsRandomHungerSet();
 	//Setup AI Defaults

@@ -148,6 +148,7 @@
 
 !SET_AI_DEFENSE 16 17 6 0 15 1
 !SET_AI_DEFENSE 21 20 5 2 1 1
+!SET_AI_DEFENSE 15 13 5 0 15 1
 
 
 !SET_AI_ATTACK TYPE 0
@@ -197,6 +198,7 @@
 
 !SET_AI_DEFENSE 14 42 6 0 15 1
 !SET_AI_DEFENSE 19 41 7 2 1 1
+!SET_AI_DEFENSE 12 46 7 0 15 1
 
 
 !SET_AI_ATTACK TYPE 0
@@ -291,4 +293,4 @@
 !SET_UNIT 24 53 8
 !SET_UNIT 24 49 18
 
-//This mission was made with KaM Remake Map Editor version r9700 at 31/03/2019 14:44:28
+//This mission was made with KaM Remake Map Editor version r10548 at 14/12/2019 10:50:34

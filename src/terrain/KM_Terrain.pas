@@ -3272,56 +3272,55 @@ var
   I, K: Integer;
   tx, ty: Integer;
   isFree, isOffroad, isPushable: Boolean;
-  newWeight, bestWeight: Single;
   TempUnit: TKMUnit;
+  weigthedList: TKMWeightedPointList;
 begin
   U := TKMUnit(aUnit);
   Loc := U.CurrPosition;
   Result := Loc;
-  bestWeight := -1;
 
-  // Check all available walkable positions except self
-  for I := -1 to 1 do for K := -1 to 1 do
-  if (I <> 0) or (K <> 0) then
-    begin
-      tx := Loc.X + K;
-      ty := Loc.Y + I;
-      newWeight := 0;
-
-      if TileInMapCoords(tx, ty)
-        and CanWalkDiagonaly(Loc, tx, ty) //Check for trees that stop us walking on the diagonals!
-        and (Land[ty,tx].TileLock in [tlNone, tlFenced])
-        and (aPass in Land[ty,tx].Passability)
-        and (not (U is TKMUnitWorker) or GoodForBuilder(tx, ty)) then
+  weigthedList := TKMWeightedPointList.Create;
+  try
+    // Check all available walkable positions except self
+    for I := -1 to 1 do for K := -1 to 1 do
+      if (I <> 0) or (K <> 0) then
       begin
-        // Try to be pushed to empty tiles
-        isFree := Land[ty, tx].IsUnit = nil;
+        tx := Loc.X + K;
+        ty := Loc.Y + I;
 
-        // Try to be pushed out to non-road tiles when possible
-        isOffroad := not TileHasRoad(tx, ty);
-        // Try to be pushed to exchange with pusher or to push other non-locked units
-        isPushable := False;
-        if Land[ty, tx].IsUnit <> nil then
+        if TileInMapCoords(tx, ty)
+          and CanWalkDiagonaly(Loc, tx, ty) //Check for trees that stop us walking on the diagonals!
+          and (Land[ty,tx].TileLock in [tlNone, tlFenced])
+          and (aPass in Land[ty,tx].Passability)
+          and (not (U is TKMUnitWorker) or GoodForBuilder(tx, ty)) then
         begin
-          TempUnit := UnitsHitTest(tx, ty);
-          // Always include the pushers loc in the possibilities, otherwise we can get two units swapping places forever
-          if (KMPoint(tx, ty) = PusherLoc)
-          or ((TempUnit <> nil) and (TempUnit.Action is TKMUnitActionStay)
-              and (not TKMUnitActionStay(TempUnit.Action).Locked)) then
-            isPushable := True;
-        end;
+          // Try to be pushed to empty tiles
+          isFree := Land[ty, tx].IsUnit = nil;
 
-        // If everything is bad, don't consider it (and remain at 0 - original Loc)
-        if isFree or isOffroad or isPushable then
-          newWeight := Ord(isFree) * 8 + Ord(isOffroad) * 4 + Ord(isPushable) * 2 + KaMRandom('TKMTerrain.GetOutOfTheWay');
+          // Try to be pushed out to non-road tiles when possible
+          isOffroad := not TileHasRoad(tx, ty);
+          // Try to be pushed to exchange with pusher or to push other non-locked units
+          isPushable := False;
+          if Land[ty, tx].IsUnit <> nil then
+          begin
+            TempUnit := UnitsHitTest(tx, ty);
+            // Always include the pushers loc in the possibilities, otherwise we can get two units swapping places forever
+            if (KMPoint(tx, ty) = PusherLoc)
+            or ((TempUnit <> nil) and (TempUnit.Action is TKMUnitActionStay)
+                and (not TKMUnitActionStay(TempUnit.Action).Locked)) then
+              isPushable := True;
+          end;
 
-        if newWeight > bestWeight then
-        begin
-          bestWeight := newWeight;
-          Result := KMPoint(tx, ty);
+          weigthedList.Add(KMPoint(tx, ty),
+                           Ord(isFree)*8 + Ord(isOffroad)*4 + Ord(isPushable)*2 + KaMRandom('TKMTerrain.GetOutOfTheWay'));
         end;
       end;
-    end;
+    //Choose loc to be pushed to randomly, according to loc weight
+    if weigthedList.Count > 0 then
+      weigthedList.GetWeightedRandom(Result);
+  finally
+    weigthedList.Free;
+  end;
 end;
 
 

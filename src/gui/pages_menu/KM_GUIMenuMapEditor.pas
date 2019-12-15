@@ -457,36 +457,40 @@ end;
 procedure TKMMenuMapEditor.LoadClick(Sender: TObject);
 var
   MapEdSizeX, MapEdSizeY: Integer;
-  ID: Integer;
+  Map: TKMapInfo;
 begin
+  fMaps.Lock;
+  try
+  //This is also called by double clicking on a map in the list
+    if ((Sender = Button_Load) or (Sender = ColumnBox_MapEd)) and
+       Button_Load.Enabled and ColumnBox_MapEd.IsSelected then
+    begin
+      //Make local copy of Map before Unlock
+      Map := fMaps[ColumnBox_MapEd.SelectedItemTag];
+
+      //Unlock before Terminate!
+      fMaps.Unlock;
+
+      //Terminate all
+      fMaps.TerminateScan;
+
+      gGameApp.NewMapEditor(Map.FullPath('.dat'), 0, 0, Map.CRC);
+
+      //Keep MP/SP selected in the map editor interface
+      //(if mission failed to load we would have gGame = nil)
+      if (gGame <> nil) and (gGame.ActiveInterface is TKMapEdInterface) then
+        TKMapEdInterface(gGame.ActiveInterface).SetLoadMode(Radio_MapType.ItemIndex <> 0);
+    end;
+  finally
+    fMaps.Unlock; //Double unlock should not harm
+  end;
+
   //Create new map (NumEdits hold actual dimensions)
   if Sender = Button_Create then
   begin
     MapEdSizeX := NumEdit_MapSizeX.Value;
     MapEdSizeY := NumEdit_MapSizeY.Value;
     gGameApp.NewMapEditor('', MapEdSizeX, MapEdSizeY);
-  end;
-
-  //This is also called by double clicking on a map in the list
-  if ((Sender = Button_Load) or (Sender = ColumnBox_MapEd)) and
-     Button_Load.Enabled and ColumnBox_MapEd.IsSelected then
-  begin
-    ID := ColumnBox_MapEd.SelectedItemTag;
-
-    //Terminate all
-    fMaps.TerminateScan;
-
-    fMaps.Lock;
-    try
-      gGameApp.NewMapEditor(fMaps[ID].FullPath('.dat'), 0, 0, fMaps[ID].CRC);
-    finally
-      fMaps.Unlock;
-    end;
-
-    //Keep MP/SP selected in the map editor interface
-    //(if mission failed to load we would have gGame = nil)
-    if (gGame <> nil) and (gGame.ActiveInterface is TKMapEdInterface) then
-      TKMapEdInterface(gGame.ActiveInterface).SetLoadMode(Radio_MapType.ItemIndex <> 0);
   end;
 end;
 

@@ -194,6 +194,9 @@ type
     property Soil[const aY,aX: Word]: Byte read GetSoil write SetSoil;
     property Routes[const aY,aX: Word]: Byte read GetRoutes write SetRoutes;
     property FlatArea[const aY,aX: Word]: Byte read GetFlatArea write SetFlatArea;
+    property GoldLocs: TKMPointList read fGoldLocs;
+    property IronLocs: TKMPointList read fIronLocs;
+    property StoneMiningTiles: TKMPointList read fStoneMiningTiles;
 
     procedure AfterMissionInit();
     procedure UpdateState(aTick: Cardinal);
@@ -397,9 +400,9 @@ begin
   SetLength(fSoil, fMapX * fMapY);
   SetLength(fRoutes, fMapX * fMapY);
   SetLength(fFlatArea, fMapX * fMapY);
-  FillChar(fSoil, fSoil[0] * Length(fSoil), #0);
-  FillChar(fRoutes, fRoutes[0] * Length(fRoutes), #0);
-  FillChar(fFlatArea, fFlatArea[0] * Length(fFlatArea), #0);
+  FillChar(fSoil[0], SizeOf(fSoil[0]) * Length(fSoil), #0);
+  FillChar(fRoutes[0], SizeOf(fRoutes[0]) * Length(fRoutes), #0);
+  FillChar(fFlatArea[0], SizeOf(fFlatArea[0]) * Length(fFlatArea), #0);
 
   StoneCheck := TKMFFCheckStoneTiles.Create(MIN_STONES_IN_MINE);
   try

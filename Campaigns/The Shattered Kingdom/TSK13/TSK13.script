@@ -1,192 +1,42 @@
-//-- TSK05 --//
-//24.01.2018
+//--TSK13--//
+//07.11.2019
 
 {$I difficulty.script}
 
-//Gives AI-Players Units a Random Hunger Level (2/3 to Max)
-procedure UnitsRandomHungerSet();
-var 
-	aUnits: array of Integer;
-	i, iGroup: Integer;
-	iPlayerLoop: Byte;
-begin
-for iPlayerLoop := 0 to States.StatPlayerCount()-1 do
-	begin
-		if States.PlayerIsAI(iPlayerLoop) then
-		begin
-			aUnits := States.PlayerGetAllUnits(iPlayerLoop);
-			for i := 0 to Length(aUnits)-1 do
-			begin
-				if States.UnitsGroup(aUnits[i]) = -1 then
-				begin
-					Actions.UnitHungerSet(aUnits[i], States.UnitMaxHunger/2 + States.KaMRandomI(States.UnitMaxHunger/2 +1));
-				end else
-				begin
-					iGroup := States.UnitsGroup(aUnits[i]);
-					if States.GroupMember(iGroup, 0) = aUnits[i] then
-						Actions.GroupHungerSet(iGroup, States.UnitMaxHunger/2 + States.KaMRandomI(States.UnitMaxHunger/2 +1));
-				end;
-			end;
-		end;
-	end;
-end;
-
-//UnAllow ALL Buildings for specified Player
-procedure LockBuildings(iPlayer: Byte);
-var i: Byte;
-begin
-	for i := 0 to 29 do
-		if i <> 26 then //26 is not in use
-			Actions.HouseAllow(iPlayer, i, false);
-	Actions.HouseAllow(iPlayer, 11, true); //Storehouse always unlocked
-end;
-
-//Use Traditionl Unlock Order for Houses (Overwrites Static Script settings: Comment out Houses that are supposed to be blocked here!)
-procedure TraditionalUnlock(iPlayer: Byte; iHouseID: Integer);
-begin
-	case States.HouseType(iHouseID) of
-		0: 	begin //Sawmill
-				Actions.HouseAllow(iPlayer, 4, true); //Iron Mine
-				Actions.HouseAllow(iPlayer, 5, true); //Gold Mine
-				Actions.HouseAllow(iPlayer, 3, true); //Coal Mine
-				Actions.HouseAllow(iPlayer, 28, true); //Vineyard
-				Actions.HouseAllow(iPlayer, 8, true); //Farm
-				Actions.HouseAllow(iPlayer, 19, true); //Weapons Workshop
-				Actions.HouseAllow(iPlayer, 21, true); //Barracks
-			//	Actions.HouseAllow(iPlayer, 6, true); //Fisherman
-			end;
-		1: 	begin // Iron Smithy
-				Actions.HouseAllow(iPlayer, 2, true); //Weapon Smithy
-				Actions.HouseAllow(iPlayer, 10, true); //Armor Smithy
-			end;
-		2: exit; // Weapon Smithy
-		3: exit; //Coal Mine
-		4: Actions.HouseAllow(iPlayer, 1, true); //Iron Mine -> Iron Smithy
-		5: Actions.HouseAllow(iPlayer, 15, true); //Gold Mine -> Metallurgist
-		6: exit; //Fisherman's Hut
-		7: exit; //Bakery
-		8: 	begin //Farm
-				Actions.HouseAllow(iPlayer, 12, true); //Stables
-				Actions.HouseAllow(iPlayer, 16, true); //Swine Farm
-				Actions.HouseAllow(iPlayer, 22, true); //Mill
-			end;
-		9: Actions.HouseAllow(iPlayer, 0, true); //Woodcutter -> Sawmill
-		10: exit; //Armor Smithy
-		11: Actions.HouseAllow(iPlayer, 13, true); //Storehouse -> School
-		12: exit; //Stables
-		13: Actions.HouseAllow(iPlayer, 27, true); //School -> Inn
-		14: begin //Quarry
-				Actions.HouseAllow(iPlayer, 9, true); //Woodcutter
-			//	Actions.HouseAllow(iPlayer, 17, true); //Watch Tower
-			end;
-		15: exit; //Metallurgist's
-		16:	begin //Swine Farm
-				Actions.HouseAllow(iPlayer, 24, true); //Butcher
-				Actions.HouseAllow(iPlayer, 25, true); //Tannery
-			end;
-		17: exit; //Watch Tower
-		18: exit; //Townhall
-		19: exit; //Weapons Workshop
-		20: exit; //Armor Workshop
-		21: exit; //Barracks
-		22: Actions.HouseAllow(iPlayer, 7, true); //Mill -> Bakery
-		23: exit; //Vehicles Workshop
-		24: exit;//Butcher's
-		25: Actions.HouseAllow(iPlayer, 20, true); //Tannery -> Armor Workshop
-		26: exit; //Unused
-		27: Actions.HouseAllow(iPlayer, 14, true); //Inn -> Quarry
-		28: exit; //Vineyard
-		29: exit; //Market
-	end;
-end;
-
-procedure SetupAI();
-var
-	p: Byte;
-	h: SmallInt;
-	aHouses: array of Integer;
-begin
-	for p := 0 to States.StatPlayerCount() -1 do
-	begin
-		if States.PlayerIsAI(p) then
-		begin
-			//Adjust Ware Distribution
-			//Iron
-			Actions.PlayerWareDistribution(p, 6, 2, 5); //Weapon Smithy
-			Actions.PlayerWareDistribution(p, 6, 10, 5); //Armor smithy
-			//Coal
-			Actions.PlayerWareDistribution(p, 5, 1, 5);	//Iron smity
-			Actions.PlayerWareDistribution(p, 5, 15, 5); //Metallurgist
-			Actions.PlayerWareDistribution(p, 5, 2, 5);	//Weapon Smithy
-			Actions.PlayerWareDistribution(p, 5, 10, 5); //Armor Smithy
-			//Timber
-			Actions.PlayerWareDistribution(p, 2, 20, 5); //Armory workshop
-			Actions.PlayerWareDistribution(p, 2, 19, 5); //Weapon Workshop
-			//Corn
-			Actions.PlayerWareDistribution(p, 9, 22, 5); //Mill
-			Actions.PlayerWareDistribution(p, 9, 16, 5); //Swine farm
-			Actions.PlayerWareDistribution(p, 9, 12, 5); //Stables
-			//Block Wares in Storehouses
-			aHouses := States.PlayerGetAllHouses(p);
-			for h := 0 to Length(aHouses) -1 do
-			begin
-				if States.HouseType(aHouses[h]) = 11 then
-				begin
-					Actions.HouseWareBlock(aHouses[h], 0, true); //Treetrunk
-					//Actions.HouseWareBlock(aHouses[h], 1, true); //Stone
-					//Actions.HouseWareBlock(aHouses[h], 2, true); //Timber
-					Actions.HouseWareBlock(aHouses[h], 3, true); //Iron Ore
-					Actions.HouseWareBlock(aHouses[h], 4, true); //Gold Ore
-					Actions.HouseWareBlock(aHouses[h], 5, true); //Coal
-					Actions.HouseWareBlock(aHouses[h], 6, true); //Iron
-					//Actions.HouseWareBlock(aHouses[h], 7, true); //Gold
-					//Actions.HouseWareBlock(aHouses[h], 8, true); //Wine
-					Actions.HouseWareBlock(aHouses[h], 9, true); //Corn
-					//Actions.HouseWareBlock(aHouses[h], 10, true); //Loaves
-					Actions.HouseWareBlock(aHouses[h], 11, true); //Flour
-					Actions.HouseWareBlock(aHouses[h], 12, true); //Leather
-					//Actions.HouseWareBlock(aHouses[h], 13, true); //Sausages
-					Actions.HouseWareBlock(aHouses[h], 14, true); //Pig
-					Actions.HouseWareBlock(aHouses[h], 15, true); //Skin
-					//16-26 = Military Equipment
-					//Actions.HouseWareBlock(aHouses[h], 15, true); //Fish
-				end;
-			end;
-		end;
-	end;
-end;
-
-
 procedure OnMissionStart();
-var
-	h: Integer;
-	aHouses: array of Integer;
 begin
-	LockBuildings(0);
-	//Set Hunger Level of AIs
-	UnitsRandomHungerSet();
-	//Setup AI Defaults
-	SetupAI();
-	//Unlock Houses
-	aHouses := States.PlayerGetAllHouses(0);
-	for h := 0 to Length(aHouses) -1 do
-		TraditionalUnlock(0, aHouses[h]);
-end;
-
-procedure OnHouseBuilt(aHouseID: Integer);
-var iOwner: Byte;
-begin
-	iOwner := States.HouseOwner(aHouseID);
-	if iOwner = 0 then
-		TraditionalUnlock(iOwner, aHouseID);
-end;
-
-procedure OnTick;
-begin
-//Message After Mission Start
-  if States.GameTime = 10 then
-	Actions.ShowMsg(0, '<$0>');
-//Message After 2 Minutes
-  if States.GameTime = 1200 then
-	Actions.ShowMsg(0, '<$1>');
+	case States.MissionDifficulty() of
+		mdEasy2:
+		begin
+			IncreaseTargetGroupSize(0, 5, 23, 0);
+			IncreaseTargetGroupSize(0, 5, 28, 0);
+			IncreaseTargetGroupSize(0, 5, 33, 0);
+			IncreaseTargetGroupSize(0, 4, 37, 0);
+			IncreaseTargetGroupSize(0, 10, 27, 0);
+			IncreaseTargetGroupSize(0, 10, 33, 0);
+		end;
+		mdEasy1:
+		begin
+			IncreaseTargetGroupSize(0, 5, 23, 0);
+			IncreaseTargetGroupSize(0, 5, 28, 0);
+			IncreaseTargetGroupSize(0, 5, 33, 0);
+			IncreaseTargetGroupSize(0, 4, 37, 0);
+		end;
+		mdHard1:
+		begin
+			IncreaseTargetGroupSize(2, 17, 18, 0);
+			IncreaseTargetGroupSize(3, 15, 43, 0);
+			IncreaseTargetGroupSize(4, 58, 7, 0);
+			IncreaseTargetGroupSize(1, 60, 57, 0);
+		end;
+		mdHard2:
+		begin
+			IncreaseTargetGroupSize(2, 17, 18, 0);
+			Actions.GiveGroup(2, 16, 16, 14, 5, 6, 3);
+			IncreaseTargetGroupSize(3, 15, 43, 0);
+			Actions.GiveGroup(3, 16, 13, 47, 7, 6, 3);
+			IncreaseTargetGroupSize(4, 58, 7, 0);
+			IncreaseTargetGroupSize(1, 60, 57, 0);
+		end;
+	end;
 end;
