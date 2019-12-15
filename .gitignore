@@ -11,11 +11,13 @@
 *.a
 *.rsj
 *.dcu
+*.iml
 *.ini
 *.stat
 *.rar
 *.log.txt
 bugreport.txt
+/.idea
 /bat/rsvars_local.bat
 /KaM_Remake.drc
 /KaM_Remake.map

@@ -270,6 +270,10 @@ object Form1: TForm1
         Caption = 'Export all translations as ZIP'
         OnClick = mmSaveAllZIPClick
       end
+      object mmSaveSelZIP: TMenuItem
+        Caption = 'Export selected languages as ZIP'
+        OnClick = mmSaveSelZIPClick
+      end
       object mnuExit: TMenuItem
         Caption = 'Exit'
         OnClick = mnuExitClick
