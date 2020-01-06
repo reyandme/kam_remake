@@ -291,7 +291,7 @@ begin
   begin
     Hide;
     aHandled := True;
-  end;
+  end else if Key = VK_DELETE then PlayerDelete_Click(Button_PlayerDelete);
 end;
 
 
