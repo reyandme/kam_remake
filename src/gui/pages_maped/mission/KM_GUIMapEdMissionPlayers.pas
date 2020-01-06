@@ -287,11 +287,13 @@ end;
 procedure TKMMapEdMissionPlayers.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
   aHandled := False;
-  if (Key = VK_ESCAPE) and Visible then
-  begin
-    Hide;
-    aHandled := True;
-  end else if Key = VK_DELETE then PlayerDelete_Click(Button_PlayerDelete);
+  if Visible then
+    case Key of
+      VK_DELETE: PlayerDelete_Click(Button_PlayerDelete);
+      VK_NUMPAD8: if fPlayerIdToDelete > 0 then UpdatePlayer(fPlayerIdToDelete - 1);
+      VK_NUMPAD2: if fPlayerIdToDelete < MAX_HANDS-1 then UpdatePlayer(fPlayerIdToDelete + 1);
+      VK_ESCAPE: begin Hide; aHandled := True; end;
+    end;
 end;
 
 
