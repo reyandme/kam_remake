@@ -289,10 +289,28 @@ begin
   aHandled := False;
   if Visible then
     case Key of
-      VK_DELETE: PlayerDelete_Click(Button_PlayerDelete);
-      VK_NUMPAD8: if fPlayerIdToDelete > 0 then UpdatePlayer(fPlayerIdToDelete - 1);
-      VK_NUMPAD2: if fPlayerIdToDelete < MAX_HANDS-1 then UpdatePlayer(fPlayerIdToDelete + 1);
-      VK_ESCAPE: begin Hide; aHandled := True; end;
+      VK_DELETE:
+      begin
+        PlayerDelete_Click(Button_PlayerDelete);
+        aHandled := True;
+      end;
+      VK_UP:
+      begin
+        if fPlayerIdToDelete > 0 then
+          UpdatePlayer(fPlayerIdToDelete - 1);
+        aHandled := True;
+      end;
+      VK_DOWN:
+      begin
+        if fPlayerIdToDelete < MAX_HANDS-1 then
+          UpdatePlayer(fPlayerIdToDelete + 1);
+        aHandled := True;
+      end;
+      VK_ESCAPE:
+      begin
+        Hide;
+        aHandled := True;
+      end;
     end;
 end;
 
