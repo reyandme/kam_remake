@@ -1,21 +1,23 @@
+procedure OnMissionStart;
+begin
+  Actions.PlayWAVAtLocationLooped(-1, 'Waterfall Creek', 2.5, 32, 29, 76);
+  Actions.PlayWAVAtLocationLooped(-1, 'Fall', 2.5, 32, 160, 5);
+  Actions.PlayWAVAtLocationLooped(-1, 'Small Fall', 2.5, 32, 99, 99);
+end;
+
+
 procedure OnTick;
 var
   I, K: Integer;
   UnitsToFeed: array of Integer;
 begin
   if States.GameTime mod 12000 = 0 then
-  for I := 3 to 11 do
+  for I := 3 to 9 do
   begin
     UnitsToFeed := States.PlayerGetAllUnits(I);
     for K := 0 to Length(UnitsToFeed) - 1 do
     begin
-      Actions.UnitHungerSet(UnitsToFeed[K], 45*60*10);
+      Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
     end;
   end; 
 end;
-
-
-{procedure OnHouseBuilt(aHouseID: Integer);
-begin
-  Actions.HouseRepairEnable(aHouseID, True);
-end;}

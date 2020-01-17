@@ -1,5 +1,5 @@
 BigDesc
-A coop mission by andreus & Rayzel.
+A coop madmission by andreus & Rayzel.
 
 SetCoop
 

@@ -1,0 +1,217 @@
+const
+  RADIUS = 5;
+
+
+var
+  Barracks, AIGroup, Store0, Store1: Integer;
+  Msg: Boolean;
+
+
+function InRange(Value, Min, Max: Integer): Boolean;
+begin
+  if Min < Max then
+    Result := (Value >= Min)
+              and (Value <= Max)
+  else
+    Result := (Value >= Max)
+              and (Value <= Min);
+end;
+
+
+procedure OnMissionStart;
+var
+  G, G1, I: Integer;
+  H: array of Integer;
+begin
+  Actions.PlayWAVAtLocationLooped(-1, 'Waterfall Creek', 2.5, 32, 148, 17);
+  Actions.PlayWAVAtLocationLooped(-1, 'Fall', 2.5, 32, 57, 10);
+  Actions.PlayWAVAtLocationLooped(-1, 'Small Fall', 2.5, 32, 99, 145);
+  Actions.PlayWAVAtLocationLooped(-1, 'Lava', 2.5, 32, 7, 74);
+  Actions.PlayWAVAtLocationLooped(-1, 'Lava', 2.5, 32, 105, 100);
+  Actions.PlayWAVAtLocationLooped(-1, 'Lava', 2.5, 32, 132, 73);
+  Actions.PlayWAVAtLocationLooped(-1, 'Lava', 2.5, 32, 151, 55);
+  Barracks := States.HouseAt(13, 61);
+  AIGroup := States.GroupAt(10, 63);
+  Msg := False;
+  G := Actions.GiveGroup(2, 16, 74, 88, 6, 1, 1);
+  for I := 0 to 5 + States.KaMRandomI(5) do
+  begin
+    G1 := Actions.GiveGroup(2, 14 + States.KaMRandomI(3), 75, 88, 6, 1, 1);
+    Actions.GroupOrderLink(G1, G);
+    Actions.GroupSetFormation(G, 4);
+    Actions.GroupOrderWalk(G, 59, 94, 6);
+    if States.PlayerEnabled(0) then
+      H := States.PlayerGetAllHouses(0);
+    if Length(H) > 0 then
+      Store0 := H[Length(H) - 1];
+    if States.PlayerEnabled(1) then
+      H := States.PlayerGetAllHouses(1);
+    if Length(H) > 0 then
+      Store1 := H[Length(H) - 1];
+  end;
+  if States.MissionDifficulty = mdHard1 then
+  begin
+    if States.PlayerEnabled(0) then
+      for I := 0 to 27 do
+        Actions.HouseTakeWaresFrom(Store0, I, 10);
+    if States.PlayerEnabled(1) then
+      for I := 0 to 27 do
+        Actions.HouseTakeWaresFrom(Store1, I, 10);
+    Actions.AIRecruitDelay(2, 21000);
+    Actions.GiveGroup(8, 22, 3, 38, 2, 21, 7);
+    Actions.GiveGroup(8, 22, 25, 10, 4, 18, 6);
+    Actions.GiveGroup(8, 22, 94, 24, 4, 16, 4);
+    Actions.AIEquipRate(3, 0, 150);
+    Actions.AIEquipRate(3, 1, 180);
+    Actions.AIEquipRate(4, 0, 150);
+    Actions.AIEquipRate(4, 1, 180);
+    Actions.AIEquipRate(6, 0, 150);
+    Actions.AIEquipRate(6, 1, 180);
+    Actions.AIEquipRate(7, 0, 150);
+    Actions.AIEquipRate(7, 1, 180);
+  end;
+  if States.MissionDifficulty = mdEasy1 then
+  begin
+    Actions.AIEquipRate(5, 0, 60);
+    Actions.AIEquipRate(5, 1, 90);
+    if States.PlayerEnabled(0) then
+    begin
+      Actions.GiveWares(0, 7, 5);
+      Actions.GiveWares(0, 9, 10);
+      Actions.GiveWares(0, 27, 15);
+      Actions.GiveGroup(0, 22, 112, 107, 1, 12, 4);
+      Actions.GiveUnit(0, 0, 134, 129, 4);
+      Actions.GiveUnit(0, 0, 137, 129, 4);
+      Actions.GiveUnit(0, 9, 136, 130, 4);
+    end;
+    if States.PlayerEnabled(1) then
+    begin
+      Actions.GiveWares(1, 7, 5);
+      Actions.GiveWares(1, 9, 10);
+      Actions.GiveWares(1, 27, 15);
+      Actions.GiveGroup(1, 19, 35, 106, 0, 12, 4);
+      Actions.GiveUnit(1, 0, 22, 132, 4);
+      Actions.GiveUnit(1, 0, 24, 132, 4);
+      Actions.GiveUnit(1, 9, 23, 133, 4);
+    end;
+  end;
+  if States.MissionDifficulty = mdNormal then
+  begin
+    Actions.AIEquipRate(5, 0, 50);
+    Actions.AIEquipRate(5, 1, 60);
+    Actions.AIRecruitDelay(2, 15000);
+  end;
+end;
+
+
+procedure AutoFeed;
+var
+  UnitsToFeed: array of Integer;
+  I, K: Integer;
+begin
+  for K := 2 to 8 do
+  begin
+    UnitsToFeed := States.PlayerGetAllUnits(K);
+    for I := 0 to Length(UnitsToFeed) - 1 do
+      Actions.UnitHungerSet(UnitsToFeed[I], States.UnitMaxHunger);
+  end;
+end;
+
+
+procedure CheckFences(AI: Integer);
+var
+  G: array of Integer;
+  K, H, U, X, Y, X1, Y1: Integer;
+begin
+  G := States.PlayerGetAllGroups(AI);
+  if Length(G) > 0 then
+    for K := 0 to Length(G) - 1 do
+      if G[K] > 0 then
+      begin
+        U := States.GroupMember(G[K], States.KaMRandomI(States.GroupMemberCount(G[K])));
+        X := States.UnitPositionX(U);
+        Y := States.UnitPositionY(U);
+        for X1 := X - RADIUS to X + RADIUS do
+        for Y1 := Y - RADIUS to Y + RADIUS do
+          if (InRange(X1, 1, 159))
+          and (InRange(Y1, 1, 159)) then
+            H := States.HouseAt(X1, Y1);
+        if H > 0 then
+          if (not States.HouseIsComplete(H))
+          and (InRange(States.HouseOwner(H), 0, 1)) then
+            Actions.GroupOrderAttackHouse(G[K], H);
+      end;
+end;
+
+
+procedure OnTick;
+var
+  I: Integer;
+begin
+  if States.GameTime mod 6000 = 0 then
+    AutoFeed;
+
+  if States.GameTime mod 50 = 0 then
+    for I := 3 to 8 do
+      CheckFences(I);
+
+  if States.GameTime = 30 then
+    Actions.ShowMsg(-1, '<$0>');
+
+  if (States.GroupDead(AIGroup))
+  and (not Msg) then
+  begin
+    Actions.ShowMsg(-1, '<$1>');
+    Msg := True;
+  end;
+
+  if (States.GameTime = 36000)
+  and (States.MissionDifficulty = mdHard1) then
+  begin
+    Actions.GiveGroup(8, 22, 3, 38, 2, 27, 9);
+    Actions.GiveGroup(8, 22, 25, 10, 4, 24, 8);
+    Actions.GiveGroup(8, 22, 94, 24, 4, 25, 5);
+  end;
+
+  if States.MapTileType(76, 69) <> 153 then
+    Actions.MapTileSet(76, 69, 153, 0);
+
+  if States.MapTileType(71, 68) <> 153 then
+    Actions.MapTileSet(71, 68, 153, 0);
+
+  if States.MapTileType(61, 82) <> 153 then
+    Actions.MapTileSet(61, 82, 153, 0);
+
+  if States.MapTileType(62, 86) <> 153 then
+    Actions.MapTileSet(62, 86, 153, 0);
+
+  if States.MapTileType(87, 111) <> 153 then
+    Actions.MapTileSet(87, 111, 153, 0);
+
+  if States.MapTileType(86, 108) <> 153 then
+    Actions.MapTileSet(86, 108, 153, 0);
+
+  if States.MapTileType(84, 115) <> 153 then
+    Actions.MapTileSet(84, 115, 153, 0);
+
+  if States.MapTileType(82, 107) <> 153 then
+    Actions.MapTileSet(82, 107, 153, 0);
+
+  if States.MapTileType(69, 78) <> 147 then
+    Actions.MapTileSet(69, 78, 147, 0);
+
+  if States.MapTileType(75, 112) <> 151 then
+    Actions.MapTileSet(75, 112, 151, 0);
+
+  if States.GameTime = 108000 then
+    for I := 3 to 8 do
+      Actions.AIDefendAllies(I, True);
+
+end;
+
+
+procedure OnWarriorEquipped(U, G: Integer);
+begin
+  if States.UnitOwner(U) = 5 then
+    Actions.HouseBarracksGiveRecruit(Barracks);
+end;

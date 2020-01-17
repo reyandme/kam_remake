@@ -1,0 +1,717 @@
+const
+  OFFSET_Y = 12;
+  OFFSET_X = 55;
+
+
+type
+  aBattleship = Record
+    X, Y: array[1..4] of Integer;
+    Killed: Boolean;
+  end;
+
+
+type
+  aCruiser = Record
+    X, Y: array[1..3] of Integer;
+    Killed: Boolean;
+  end;
+
+
+type
+  aDestroyer = Record
+    X, Y: array[1..2] of Integer;
+    Killed: Boolean;
+  end;
+
+
+type
+  aBoat = Record
+    X, Y: Integer;
+    Killed: Boolean;
+  end;
+
+
+type
+  aBattlefield = Record
+    X, Y: array[1..10] of Integer;
+    TileType: array[1..10] of array[1..10] of Integer;
+  end;
+
+
+{type
+  aGameState = (gsPlaceBattleship, gsPlaceCruiser1, gsPlaceCruiser2,
+                gsPlaceDestroyer1, gsPlaceDestroyer2, gsPlaceDestroyer3,
+                gsPlaceBoat1, gsPlaceBoat2, gsPlaceBoat3, gsPlaceBoat4,
+                gsReady, gsShoot, gsWait, gsGameOver);}
+
+
+var
+  Battleship: array[0..1] of aBattleship;
+  Cruiser: array[1..2] of array[0..1] of aCruiser;
+  Destroyer: array[1..3] of array[0..1] of aDestroyer;
+  Boat: array[0..4] of array[0..1] of aBoat;
+  I, K: Integer;
+  GameState, Score: array[0..1] of Integer;
+  NewGame: Boolean;
+  KillSound: array[0..1] of array[1..10] of Boolean;
+  Winner: ANSIString;
+
+
+function InRange(Value, Min, Max: Integer): Boolean;
+begin
+  Result := (Value >= Min) and (Value <= Max);
+end;
+
+
+procedure OnMissionStart;
+var
+  Units: array of Integer;
+begin
+  for I := 0 to 1 do
+  begin
+    GameState[I] := 1;
+    Score[I] := 0;
+    for K := 1 to 10 do
+      KillSound[I][K] := False;
+    if States.PlayerEnabled(I) then
+      Units := States.PlayerGetAllUnits(I);
+    for K := 0 to Length(Units) - 1 do
+      Actions.UnitKill(Units[K], True);
+  end;
+
+  Actions.ShowMsg(-1, '<$4>');
+  Actions.ShowMsg(-1, '<$5>');
+  Actions.ShowMsg(-1, '<$12>');
+
+  NewGame := False;
+
+  Winner := '';
+
+end;
+
+
+function BoatsCount(P: Integer): Integer;
+begin
+  Result := Byte(not Boat[1][P].Killed) + Byte(not Boat[2][P].Killed) + Byte(not Boat[3][P].Killed) + Byte(not Boat[4][P].Killed);
+end;
+
+
+function DestroyersCount(P: Integer): Integer;
+begin
+  Result := Byte(not Destroyer[1][P].Killed) + Byte(not Destroyer[2][P].Killed) + Byte(not Destroyer[3][P].Killed);
+end;
+
+
+function CruisersCount(P: Integer): Integer;
+begin
+  Result := Byte(not Cruiser[1][P].Killed) + Byte(not Cruiser[2][P].Killed);
+end;
+
+
+function BattleshipsCount(P: Integer): Integer;
+begin
+  Result := Byte(not Battleship[P].Killed);
+end;
+
+
+function OwnBattlefieldLimitX(P, aType: Integer): Integer;
+begin
+
+  if aType = 0 then
+    case P of
+      0: Result := 16;
+      1: Result := 71
+      else Result := -1;
+    end;
+
+  if aType = 1 then
+    case P of
+      0: Result := 25;
+      1: Result := 80
+      else Result := -1;
+    end;
+
+end;
+
+
+function OwnBattlefieldLimitY(P, aType: Integer): Integer;
+begin
+
+  if aType = 0 then
+    case P of
+      0, 1: Result := 23
+      else Result := -1;
+    end;
+
+  if aType = 1 then
+    case P of
+      0, 1: Result := 32
+      else Result := -1;
+    end;
+
+end;
+
+
+function TileOnOwnBattlefield(P, X, Y: Integer): Boolean;
+begin
+  Result := InRange(X, OwnBattlefieldLimitX(P, 0), OwnBattlefieldLimitX(P, 1)) and (InRange(Y, OwnBattlefieldLimitY(P, 0), OwnBattlefieldLimitY(P, 1)));
+  Result := Result and (States.MapTileType(X, Y) <> 214) and (States.MapTileType(X, Y) <> 193);
+end;
+
+
+function TileOnEnemyBattlefield(P, X, Y: Integer): Boolean;
+begin
+  Result := InRange(X, OwnBattlefieldLimitX(P, 0), OwnBattlefieldLimitX(P, 1)) and (InRange(Y, OFFSET_Y + OwnBattlefieldLimitY(P, 0), OFFSET_Y + OwnBattlefieldLimitY(P, 1)));
+end;
+
+
+function FieldToFieldX(P, X: Integer): Integer;
+begin
+  case P of
+    0: Result := X + OFFSET_X;
+    1: Result := X - OFFSET_X
+    else Result := -1;
+  end;
+end;
+
+
+function FieldToFieldY(P, Y: Integer): Integer;
+begin
+  case P of
+    0, 1: Result := Y - OFFSET_Y
+    else Result := -1;
+  end;
+end;
+
+
+function Enemy(P: Integer): Integer;
+begin
+  case P of
+    0: Result := 1;
+    1: Result := 0;
+  end;
+end;
+
+
+procedure PlaceBattleship(P, X, Y, aType: Integer);
+var
+  aX, aY, C: Integer;
+begin
+  case aType of
+
+    0: begin
+         if (TileOnOwnBattlefield(P, X, Y))
+         and (TileOnOwnBattlefield(P, X + 1, Y))
+         and (TileOnOwnBattlefield(P, X + 2, Y))
+         and (TileOnOwnBattlefield(P, X + 3, Y)) then
+         begin
+           for aX := X to X + 3 do
+           begin
+             C := C + 1;
+             Actions.MapTileSet(aX, Y, 214, 0);
+             Battleship[P].X[C] := aX;
+             Battleship[P].Y[C] := Y;
+             Battleship[P].Killed := False;
+           end;
+           for aX := X - 1 to X + 4 do
+           for aY := Y - 1 to Y + 1 do
+             if TileOnOwnBattlefield(P, aX, aY)
+             and (States.MapTileType(aX, aY) <> 214) then
+               Actions.MapTileSet(aX, aY, 193, 0);
+             GameState[P] := 2;
+         end;
+       end;
+
+    1: begin
+         if (TileOnOwnBattlefield(P, X, Y))
+         and (TileOnOwnBattlefield(P, X, Y + 1))
+         and (TileOnOwnBattlefield(P, X, Y + 2))
+         and (TileOnOwnBattlefield(P, X, Y + 3)) then
+         begin
+           for aY := Y to Y + 3 do
+           begin
+             C := C + 1;
+             Actions.MapTileSet(X, aY, 214, 0);
+             Battleship[P].X[C] := X;
+             Battleship[P].Y[C] := aY;
+             Battleship[P].Killed := False;
+           end;
+           for aX := X - 1 to X + 1 do
+           for aY := Y - 1 to Y + 4 do
+             if (TileOnOwnBattlefield(P, aX, aY))
+             and (States.MapTileType(aX, aY) <> 214) then
+               Actions.MapTileSet(aX, aY, 193, 0);
+             GameState[P] := 2;
+         end;
+       end;
+
+  end;
+
+end;
+
+
+procedure PlaceCruiser(P, X, Y, aType, aID: Integer);
+var
+  aX, aY, C: Integer;
+begin
+  case aType of
+
+    0: begin
+         if (TileOnOwnBattlefield(P, X, Y))
+         and (TileOnOwnBattlefield(P, X + 1, Y))
+         and (TileOnOwnBattlefield(P, X + 2, Y)) then
+         begin
+           for aX := X to X + 2 do
+           begin
+             C := C + 1;
+             Actions.MapTileSet(aX, Y, 214, 0);
+             Cruiser[aID][P].X[C] := aX;
+             Cruiser[aID][P].Y[C] := Y;
+             Cruiser[aID][P].Killed := False;
+           end;
+           for aX := X - 1 to X + 3 do
+           for aY := Y - 1 to Y + 1 do
+             if (TileOnOwnBattlefield(P, aX, aY))
+             and (States.MapTileType(aX, aY) <> 214) then
+               Actions.MapTileSet(aX, aY, 193, 0);
+             GameState[P] := 2 + aID;
+         end;
+       end;
+
+    1: begin
+         if (TileOnOwnBattlefield(P, X, Y))
+         and (TileOnOwnBattlefield(P, X, Y + 1))
+         and (TileOnOwnBattlefield(P, X, Y + 2)) then
+         begin
+           for aY := Y to Y + 2 do
+           begin
+             C := C + 1;
+             Actions.MapTileSet(X, aY, 214, 0);
+             Cruiser[aID][P].X[C] := X;
+             Cruiser[aID][P].Y[C] := aY;
+             Cruiser[aID][P].Killed := False;
+           end;
+           for aX := X - 1 to X + 1 do
+           for aY := Y - 1 to Y + 3 do
+             if (TileOnOwnBattlefield(P, aX, aY))
+             and (States.MapTileType(aX, aY) <> 214) then
+               Actions.MapTileSet(aX, aY, 193, 0);
+             GameState[P] := 2 + aID;
+         end;
+       end;
+
+  end;
+
+end;
+
+
+procedure PlaceDestroyer(P, X, Y, aType, aID: Integer);
+var
+  aX, aY, C: Integer;
+begin
+  case aType of
+
+    0: begin
+         if (TileOnOwnBattlefield(P, X, Y))
+         and (TileOnOwnBattlefield(P, X + 1, Y)) then
+         begin
+           for aX := X to X + 1 do
+           begin
+             C := C + 1;
+             Actions.MapTileSet(aX, Y, 214, 0);
+             Destroyer[aID][P].X[C] := aX;
+             Destroyer[aID][P].Y[C] := Y;
+             Destroyer[aID][P].Killed := False;
+           end;
+           for aX := X - 1 to X + 2 do
+           for aY := Y - 1 to Y + 1 do
+             if (TileOnOwnBattlefield(P, aX, aY))
+             and (States.MapTileType(aX, aY) <> 214) then
+               Actions.MapTileSet(aX, aY, 193, 0);
+             GameState[P] := 4 + aID;
+         end;
+       end;
+
+    1: begin
+         if (TileOnOwnBattlefield(P, X, Y))
+         and (TileOnOwnBattlefield(P, X, Y + 1)) then
+         begin
+           for aY := Y to Y + 1 do
+           begin
+             C := C + 1;
+             Actions.MapTileSet(X, aY, 214, 0);
+             Destroyer[aID][P].X[C] := X;
+             Destroyer[aID][P].Y[C] := aY;
+             Destroyer[aID][P].Killed := False;
+           end;
+           for aX := X - 1 to X + 1 do
+           for aY := Y - 1 to Y + 2 do
+             if (TileOnOwnBattlefield(P, aX, aY))
+             and (States.MapTileType(aX, aY) <> 214) then
+               Actions.MapTileSet(aX, aY, 193, 0);
+             GameState[P] := 4 + aID;
+         end;
+       end;
+
+  end;
+
+end;
+
+
+procedure PlaceBoat(P, X, Y, aID: Integer);
+var
+  aX, aY: Integer;
+begin
+  if TileOnOwnBattlefield(P, X, Y) then
+  begin
+    Actions.MapTileSet(X, Y, 214, 0);
+    Boat[aID][P].X := X;
+    Boat[aID][P].Y := Y;
+    Boat[aID][P].Killed := False;
+    for aX := X - 1 to X + 1 do
+    for aY := Y - 1 to Y + 1 do
+      if (TileOnOwnBattlefield(P, aX, aY))
+      and (States.MapTileType(aX, aY) <> 214) then
+        Actions.MapTileSet(aX, aY, 193, 0);
+    if aID = 4 then
+    begin
+      for aX := OwnBattlefieldLimitX(P, 0) to OwnBattlefieldLimitX(P, 1) do
+      for aY := OwnBattlefieldLimitY(P, 0) to OwnBattlefieldLimitY(P, 1) do
+        if TileOnOwnBattlefield(P, aX, aY)
+        and (States.MapTileType(aX, aY) <> 214) then
+          Actions.MapTileSet(aX, aY, 193, 0);
+    end;
+    GameState[P] := 7 + aID;
+
+  end;
+
+end;
+
+
+procedure RandomShips(P: Integer);
+var
+  aX, aY: Integer;
+begin
+  if (GameState[P] <= 11)
+  or (GameState[P] = 15) then
+  begin
+    for aX := OwnBattlefieldLimitX(P, 0) to OwnBattlefieldLimitX(P, 1) do
+    for aY := OwnBattlefieldLimitY(P, 0) to OwnBattlefieldLimitY(P, 1) do
+      Actions.MapTileSet(aX, aY, 37, 0);
+
+    GameState[P] := 1;
+
+    while GameState[P] = 1 do
+      PlaceBattleship(P, OwnBattlefieldLimitX(P, 0) + States.KaMRandomI(10), OwnBattlefieldLimitY(P, 0) + States.KaMRandomI(10), States.KaMRandomI(2));
+
+    while InRange(GameState[P], 2, 3) do
+      PlaceCruiser(P, OwnBattlefieldLimitX(P, 0) + States.KaMRandomI(10), OwnBattlefieldLimitY(P, 0) + States.KaMRandomI(10), States.KaMRandomI(2), GameState[P] - 1);
+
+    while InRange(GameState[P], 4, 6) do
+      PlaceDestroyer(P, OwnBattlefieldLimitX(P, 0) + States.KaMRandomI(10), OwnBattlefieldLimitY(P, 0) + States.KaMRandomI(10), States.KaMRandomI(2), GameState[P] - 3);
+
+    while InRange(GameState[P], 7, 10) do
+      PlaceBoat(P, OwnBattlefieldLimitX(P, 0) + States.KaMRandomI(10), OwnBattlefieldLimitY(P, 0) + States.KaMRandomI(10), GameState[P] - 6);
+
+  end;
+
+end;
+
+
+function Defeated(P: Integer): Boolean;
+begin
+  Result := (Battleship[P].Killed)
+  and (Cruiser[1][P].Killed)
+  and (Cruiser[2][P].Killed)
+  and (Destroyer[1][P].Killed)
+  and (Destroyer[2][P].Killed)
+  and (Destroyer[3][P].Killed)
+  and (Boat[1][P].Killed)
+  and (Boat[2][P].Killed)
+  and (Boat[3][P].Killed)
+  and (Boat[4][P].Killed)
+end;
+
+
+procedure StartNewGame;
+var
+  aX, aY: Integer;
+begin
+
+  for I := 0 to 1 do
+  begin
+
+    for K := 1 to 10 do
+      KillSound[I][K] := False;
+
+    for aX := OwnBattlefieldLimitX(I, 0) to OwnBattlefieldLimitX(I, 1) do
+    for aY := OwnBattlefieldLimitY(I, 0) to OwnBattlefieldLimitY(I, 1) do
+    begin
+      Actions.MapTileSet(aX, aY, 37, States.KaMRandomI(4));
+      Actions.MapTileObjectSet(aX, aY, 255);
+    end;
+
+    for aX := OwnBattlefieldLimitX(I, 0) to OwnBattlefieldLimitX(I, 1) do
+    for aY := OwnBattlefieldLimitY(I, 0) + OFFSET_Y to OwnBattlefieldLimitY(I, 1) + OFFSET_Y do
+    begin
+      Actions.MapTileSet(aX, aY, 215, States.KaMRandomI(4));
+      Actions.MapTileObjectSet(aX, aY, 255);
+    end;
+
+  end;
+
+  for K := 0 to 1 do
+  begin
+    if not Defeated(K) then
+      Score[K] := Score[K] + 1;
+    GameState[K] := 1;
+  end;
+
+  NewGame := True;
+
+  Winner := '';
+
+end;
+
+
+function GameStatus(P: Integer): ANSIString;
+begin
+  case GameState[P] of
+    0: Result := '<$17> ' + Winner;
+    1: Result := '<$0>';
+    2, 3: Result := '<$1>';
+    4..6: Result := '<$2>';
+    7..10: Result := '<$3>';
+    11: Result := '<$13>';
+    12: Result := '<$10>';
+    13: Result := '[$' + States.PlayerColorText(Enemy(P)) + ']' + States.PlayerName(Enemy(P)) + '[] <$7>';
+    14: Result := '[$' + States.PlayerColorText(P) + ']' + States.PlayerName(P) + '[] <$7>';
+    15: Result := '<$11>';
+    16: Result := '<$9> ' + '<$11>';
+    17: Result := '<$8> ' + '<$11>'
+    else Result := '';
+  end;
+end;
+
+
+procedure OnPlanFieldPlaced(P, X, Y: Integer);
+begin
+  Actions.PlanRemove(P, X, Y);
+
+  case GameState[P] of
+    1: PlaceBattleship(P, X, Y, 0);
+    2, 3: PlaceCruiser(P, X, Y, 0, GameState[P] - 1);
+    4..6: PlaceDestroyer(P, X, Y, 0, GameState[P] - 3);
+    7..10: PlaceBoat(P, X, Y, GameState[P] - 6)
+    else Exit;
+  end;
+
+end;
+
+
+procedure OnPlanWinefieldPlaced(P, X, Y: Integer);
+begin
+  Actions.PlanRemove(P, X, Y);
+
+  case GameState[P] of
+    1: PlaceBattleship(P, X, Y, 1);
+    2, 3: PlaceCruiser(P, X, Y, 1, GameState[P] - 1);
+    4..6: PlaceDestroyer(P, X, Y, 1, GameState[P] - 3);
+    7..10: PlaceBoat(P, X, Y, GameState[P] - 6)
+    else Exit;
+  end;
+
+end;
+
+
+procedure OnPlanRoadPlaced(P, X, Y: Integer);
+var
+  aX, aY: Integer;
+begin
+  Actions.PlanRemove(P, X, Y);
+  if (TileOnEnemyBattlefield(P, X, Y))
+  and (GameState[P] = 14)
+  and not(Defeated(P))
+  and not (Defeated(Enemy(P))) then
+  begin
+    Actions.MapTileSet(X, Y, States.MapTileType(FieldToFieldX(P, X), FieldToFieldY(P, Y)), States.MapTileRotation(FieldToFieldX(P, X), FieldToFieldY(P, Y)));
+    if States.MapTileType(FieldToFieldX(P, X), FieldToFieldY(P, Y)) = 193 then
+    begin
+      GameState[P] := 13;
+      GameState[Enemy(P)] := 14;
+      Actions.MapTileObjectSet(FieldToFieldX(P, X), FieldToFieldY(P, Y), 80);
+      Actions.PlayWAV(-1, 'Miss', 1);
+    end;
+    if States.MapTileType(FieldToFieldX(P, X), FieldToFieldY(P, Y)) = 214 then
+    begin
+      Actions.MapTileObjectSet(FieldToFieldX(P, X), FieldToFieldY(P, Y), 68 + States.KaMRandomI(6));
+      Actions.MapTileObjectSet(X, Y, 68 + States.KaMRandomI(6));
+      Actions.MapTileSet(FieldToFieldX(P, X), FieldToFieldY(P, Y), 7, 0);
+      Actions.MapTileSet(X, Y, 7, 0);
+      Actions.PlayWAV(-1, 'Target', 1);
+    end;
+  end;
+
+  for I := 0 to 1 do
+  begin
+
+    Battleship[I].Killed := (InRange(States.MapTileObject(Battleship[I].X[1], Battleship[I].Y[1]), 68, 73))
+    and (InRange(States.MapTileObject(Battleship[I].X[2], Battleship[I].Y[2]), 68, 73))
+    and (InRange(States.MapTileObject(Battleship[I].X[3], Battleship[I].Y[3]), 68, 73))
+    and (InRange(States.MapTileObject(Battleship[I].X[4], Battleship[I].Y[4]), 68, 73));
+
+    if Battleship[I].Killed then
+    begin
+      for aX := FieldToFieldX(I, Battleship[I].X[1] - 1) to FieldToFieldX(I, Battleship[I].X[4] + 1) do
+      for aY := Battleship[I].Y[1] + 11 to Battleship[I].Y[4] + 13 do
+       if TileOnEnemyBattlefield(Enemy(I), aX, aY)
+       and (States.MapTileType(aX, aY) <> 214)
+       and (States.MapTileType(aX, aY) <> 7) then
+         Actions.MapTileSet(aX, aY, 193, 0);
+      if not KillSound[I][1] then
+      begin
+        Actions.PlayWAV(-1, 'Kill', 1);
+        KillSound[I][1] := True;
+      end;
+    end;
+
+    for K := 1 to 2 do
+    begin
+      Cruiser[K][I].Killed := (InRange(States.MapTileObject(Cruiser[K][I].X[1], Cruiser[K][I].Y[1]), 68, 73))
+      and (InRange(States.MapTileObject(Cruiser[K][I].X[2], Cruiser[K][I].Y[2]), 68, 73))
+      and (InRange(States.MapTileObject(Cruiser[K][I].X[3], Cruiser[K][I].Y[3]), 68, 73));
+
+      if Cruiser[K][I].Killed then
+      begin
+        for aX := FieldToFieldX(I, Cruiser[K][I].X[1] - 1) to FieldToFieldX(I, Cruiser[K][I].X[3] + 1) do
+        for aY := Cruiser[K][I].Y[1] + 11 to Cruiser[K][I].Y[3] + 13 do
+         if TileOnEnemyBattlefield(Enemy(I), aX, aY)
+         and (States.MapTileType(aX, aY) <> 214)
+         and (States.MapTileType(aX, aY) <> 7) then
+           Actions.MapTileSet(aX, aY, 193, 0);
+        if not KillSound[I][1 + K] then
+        begin
+          Actions.PlayWAV(-1, 'Kill', 1);
+          KillSound[I][1 + K] := True;
+        end;
+      end;
+
+    end;
+
+    for K := 1 to 3 do
+    begin
+      Destroyer[K][I].Killed := (InRange(States.MapTileObject(Destroyer[K][I].X[1], Destroyer[K][I].Y[1]), 68, 73))
+      and (InRange(States.MapTileObject(Destroyer[K][I].X[2], Destroyer[K][I].Y[2]), 68, 73));
+
+      if Destroyer[K][I].Killed then
+      begin
+        for aX := FieldToFieldX(I, Destroyer[K][I].X[1] - 1) to FieldToFieldX(I, Destroyer[K][I].X[2] + 1) do
+        for aY := Destroyer[K][I].Y[1] + 11 to Destroyer[K][I].Y[2] + 13 do
+         if TileOnEnemyBattlefield(Enemy(I), aX, aY)
+         and (States.MapTileType(aX, aY) <> 214)
+         and (States.MapTileType(aX, aY) <> 7) then
+           Actions.MapTileSet(aX, aY, 193, 0);
+        if not KillSound[I][3 + K] then
+        begin
+          Actions.PlayWAV(-1, 'Kill', 1);
+          KillSound[I][3 + K] := True;
+        end;
+      end;
+
+    end;
+
+    for K := 1 to 4 do
+    begin
+      Boat[K][I].Killed := (InRange(States.MapTileObject(Boat[K][I].X, Boat[K][I].Y), 68, 73));
+
+      if Boat[K][I].Killed then
+      begin
+        for aX := FieldToFieldX(I, Boat[K][I].X - 1) to FieldToFieldX(I, Boat[K][I].X + 1) do
+        for aY := Boat[K][I].Y + 11 to Boat[K][I].Y + 13 do
+         if TileOnEnemyBattlefield(Enemy(I), aX, aY)
+         and (States.MapTileType(aX, aY) <> 214)
+         and (States.MapTileType(aX, aY) <> 7) then
+           Actions.MapTileSet(aX, aY, 193, 0);
+        if not KillSound[I][6 + K] then
+        begin
+          Actions.PlayWAV(-1, 'Kill', 1);
+          KillSound[I][6 + K] := True;
+        end;
+      end;
+
+    end;
+  
+  end;
+
+end;
+
+
+procedure OnHousePlanPlaced(P, X, Y, aType: Integer);
+begin
+  Actions.PlanRemove(P, X, Y);
+
+  if (aType = 29)
+  and (GameState[P] <> 0) then
+    RandomShips(P);
+
+  if (aType = 21)
+  and (GameState[P] = 11) then
+  begin
+    GameState[P] := 12;
+    NewGame := False;
+  end;
+
+  if (aType = 17)
+  and (GameState[P] >= 15) then
+    StartNewGame;
+
+end;
+
+
+procedure OnTick;
+begin
+  if (GameState[0] = 12)
+  and (GameState[1] = 12) then
+  begin
+    if States.KaMRandom < 0.5 then
+    begin
+      GameState[0] := 13;
+      GameState[1] := 14;
+    end
+    else
+    begin
+      GameState[0] := 14;
+      GameState[1] := 13;
+    end;
+  end;
+
+  for I := 0 to 1 do
+    if (Defeated(I))
+    and (not NewGame) then
+    begin
+      GameState[I] := 16;
+      GameState[Enemy(I)] := 17;
+    end;
+
+  for I := 0 to 1 do
+    if Score[I] >= 2 then
+    begin
+      Actions.PlayerWin([I], True);
+      Actions.PlayerDefeat(Enemy(I));
+      Winner := '[$' + States.PlayerColorText(I) + ']' + States.PlayerName(I) + '[]';
+      GameState[I] := 0;
+      GameState[Enemy(I)] := 0;
+    end;
+
+  for I := 0 to 1 do
+    if States.PlayerEnabled(I) then
+    begin
+      if GameState[I] > 12 then
+        Actions.OverlayTextSet(I, GameStatus(I) + '||<$14>: '+ IntToStr(Score[I]) + ' : ' + IntToStr(Score[Enemy(I)])
+        + '||<$15>' + '|****: ' + IntToStr(BattleshipsCount(I)) + '| ***: ' + IntToStr(CruisersCount(I)) + '|   **: ' + IntToStr(DestroyersCount(I)) + '|    *: ' + IntToStr(BoatsCount(I))
+        + '||<$16>' + '|****: ' + IntToStr(BattleshipsCount(Enemy(I))) + '| ***: ' + IntToStr(CruisersCount(Enemy(I))) + '|   **: ' + IntToStr(DestroyersCount(Enemy(I))) + '|    *: ' + IntToStr(BoatsCount(Enemy(I))));
+      if GameState[I] <= 12 then
+        Actions.OverlayTextSet(I, GameStatus(I) + '||<$14>: '+ IntToStr(Score[I]) + ' : ' + IntToStr(Score[Enemy(I)]));
+    end;
+
+end;

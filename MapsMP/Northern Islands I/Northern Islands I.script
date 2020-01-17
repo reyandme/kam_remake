@@ -111,7 +111,7 @@ end;
 procedure CalculateAttacks;
 begin
   case AttacksCounter of
-    0..3: begin
+    0..6: begin
             AIAttacks.Count := 12;
             AIAttacks.Columns := 4;
             for J := 0 to 14 do
@@ -132,57 +132,24 @@ begin
                   AIAttacks.SoldiersType[J] := 21;
             end;
           end;
- 
-    4..6: begin
-            AIAttacks.Count := 15;
-            AIAttacks.Columns := 5;
-            for J := 0 to 14 do
-            begin
-              AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
 
-              if AIAttacks.SoldiersType[J] = 17 then
-                AIAttacks.SoldiersType[J] := 20;
+    7..12: begin
+             AIAttacks.Count := 15;
+             AIAttacks.Columns := 5;
+             for J := 0 to 14 do
+             begin
+               AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
 
-              if AIAttacks.SoldiersType[J] = 18 then
-                AIAttacks.SoldiersType[J] := 16;
+               if AIAttacks.SoldiersType[J] = 17 then
+                 AIAttacks.SoldiersType[J] := 20;
 
-              if AIAttacks.SoldiersType[J] = 22 then
-                AIAttacks.SoldiersType[J] := 21;
-            end;
-          end;
+               if AIAttacks.SoldiersType[J] = 18 then
+                 AIAttacks.SoldiersType[J] := 16;
 
-    7..9: begin
-            AIAttacks.Count := 18;
-            AIAttacks.Columns := 6;
-            for J := 0 to 14 do
-            begin
-              AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
-
-              if AIAttacks.SoldiersType[J] = 17 then
-                AIAttacks.SoldiersType[J] := 20;
-
-              if AIAttacks.SoldiersType[J] = 18 then
-                AIAttacks.SoldiersType[J] := 16;
-
-              if AIAttacks.SoldiersType[J] = 22 then
-                AIAttacks.SoldiersType[J] := 21;
-            end;
-          end;
-
-    10..12: begin
-              AIAttacks.Count := 18;
-              AIAttacks.Columns := 6;
-              for J := 0 to 14 do
-              begin
-                AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
-
-                if AIAttacks.SoldiersType[J] = 17 then
-                  AIAttacks.SoldiersType[J] := 20;
-
-                if AIAttacks.SoldiersType[J] = 18 then
-                  AIAttacks.SoldiersType[J] := 16;
-            end;
-          end;
+               if AIAttacks.SoldiersType[J] = 22 then
+                 AIAttacks.SoldiersType[J] := 21;
+             end;
+           end;
 
     13..15: begin
               AIAttacks.Count := 18;
@@ -221,7 +188,7 @@ begin
           end;
 
     19..21: begin
-              AIAttacks.Count := 25;
+              AIAttacks.Count := 20 + States.KaMRandomI(6);
               AIAttacks.Columns := 5;
               for J := 0 to 14 do
               begin
@@ -240,8 +207,8 @@ begin
 
     else
     begin
-      AIAttacks.Count := 40;
-      AIAttacks.Columns := 8;
+      AIAttacks.Count := 25 + States.KaMRandomI(6);
+      AIAttacks.Columns := 5;
       for J := 0 to 14 do
       begin
         AIAttacks.SoldiersType[J] := States.KaMRandomI(8) + 15;
@@ -264,34 +231,37 @@ begin
   AttacksCounter := AttacksCounter + 1;
   if not States.PlayerDefeated(5) then
   begin
-    Actions.GiveGroup(5, AIAttacks.SoldiersType[11], 141, 21, 6, AIAttacks.Count, AIAttacks.Columns);
-    Actions.GiveGroup(5, AIAttacks.SoldiersType[12], 127, 19, 4, AIAttacks.Count, AIAttacks.Columns);
-    Actions.GiveGroup(5, AIAttacks.SoldiersType[13], 118, 7, 4, AIAttacks.Count, AIAttacks.Columns);
-    Actions.GiveGroup(5, AIAttacks.SoldiersType[14], 95, 26, 4, AIAttacks.Count, AIAttacks.Columns);
+    Actions.GiveGroup(8, AIAttacks.SoldiersType[11], 141, 21, 6, AIAttacks.Count, AIAttacks.Columns);
+    Actions.GiveGroup(8, AIAttacks.SoldiersType[12], 127, 19, 4, AIAttacks.Count, AIAttacks.Columns);
+    Actions.GiveGroup(8, AIAttacks.SoldiersType[13], 118, 7, 4, AIAttacks.Count, AIAttacks.Columns);
+    Actions.GiveGroup(8, AIAttacks.SoldiersType[14], 95, 26, 4, AIAttacks.Count, AIAttacks.Columns);
   end;
 
-  if AttacksCounter > 4 then
+  if AttacksCounter <= 2 then
+    Actions.GiveGroup(8, 14, 32, 65, 2, 100, 10);
+
+  if AttacksCounter > 6 then
   begin 
     if not States.PlayerDefeated(6) then
     begin
-      Actions.GiveGroup(6, AIAttacks.SoldiersType[0], 159, 58, 0, AIAttacks.Count, AIAttacks.Columns);
-      Actions.GiveGroup(6, AIAttacks.SoldiersType[1], 185, 60, 0, AIAttacks.Count, AIAttacks.Columns);
-      Actions.GiveGroup(6, AIAttacks.SoldiersType[2], 187, 45, 6, AIAttacks.Count, AIAttacks.Columns);
-      Actions.GiveGroup(6, AIAttacks.SoldiersType[3], 158, 21, 6, AIAttacks.Count, AIAttacks.Columns);
-      Actions.GiveGroup(6, AIAttacks.SoldiersType[4], 166, 19, 6, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(9, AIAttacks.SoldiersType[0], 159, 58, 0, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(9, AIAttacks.SoldiersType[1], 185, 60, 0, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(9, AIAttacks.SoldiersType[2], 187, 45, 6, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(9, AIAttacks.SoldiersType[3], 158, 21, 6, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(9, AIAttacks.SoldiersType[4], 166, 19, 6, AIAttacks.Count, AIAttacks.Columns);
     end;
   end;
 
-  if AttacksCounter > 10 then
+  if AttacksCounter > 12 then
   begin
     if not States.PlayerDefeated(7) then
     begin
-      Actions.GiveGroup(7, AIAttacks.SoldiersType[5], 44, 55, 0, AIAttacks.Count, AIAttacks.Columns);
-      Actions.GiveGroup(7, AIAttacks.SoldiersType[6], 40, 59, 0, AIAttacks.Count, AIAttacks.Columns);
-      Actions.GiveGroup(7, AIAttacks.SoldiersType[7], 33, 61, 2, AIAttacks.Count, AIAttacks.Columns);
-      Actions.GiveGroup(7, AIAttacks.SoldiersType[8], 29, 63, 2, AIAttacks.Count, AIAttacks.Columns);
-      Actions.GiveGroup(7, AIAttacks.SoldiersType[9], 26, 64, 2, AIAttacks.Count, AIAttacks.Columns);
-      Actions.GiveGroup(7, AIAttacks.SoldiersType[10], 19, 65, 2, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(10, AIAttacks.SoldiersType[5], 44, 55, 0, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(11, AIAttacks.SoldiersType[6], 40, 59, 0, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(10, AIAttacks.SoldiersType[7], 33, 61, 2, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(11, AIAttacks.SoldiersType[8], 29, 63, 2, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(10, AIAttacks.SoldiersType[9], 26, 64, 2, AIAttacks.Count, AIAttacks.Columns);
+      Actions.GiveGroup(11, AIAttacks.SoldiersType[10], 19, 65, 2, AIAttacks.Count, AIAttacks.Columns);
     end;
   end;
 end;
@@ -340,12 +310,12 @@ begin
 
   if States.GameTime mod 12000 = 0 then
   begin
-    for I := 2 to 7 do
+    for I := 2 to 11 do
     begin
       UnitsToFeed := States.PlayerGetAllUnits(I);
       for K := 0 to Length(UnitsToFeed) - 1 do
       begin
-        Actions.UnitHungerSet(UnitsToFeed[K], 45*60*10);
+        Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
       end;
     end; 
   end;
