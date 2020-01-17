@@ -385,12 +385,15 @@ begin
 
     Sender.AddTypeS('TKMAIAttackTarget', '(attClosestUnit,attClosestBuildingFromArmy,attClosestBuildingFromStartPos,attCustomPosition)');
 
+    Sender.AddTypeS('TKMArmyType', '(atIronThenLeather,atLeather,atIron,atIronAndLeather)');
+
     Sender.AddTypeS('TKMMissionDifficulty', '(mdNone,mdEasy3,mdEasy2,mdEasy1,mdNormal,mdHard1,mdHard2,mdHard3)');
     Sender.AddTypeS('TKMMissionDifficultySet', 'set of TKMMissionDifficulty');
 
     // Register classes and methods to the script engine.
     // After that they can be used from within the script.
     c := Sender.AddClassN(nil, AnsiString(fStates.ClassName));
+    RegisterMethodCheck(c, 'function AIArmyType(aPlayer: Byte): TKMArmyType');
     RegisterMethodCheck(c, 'function AIAutoAttackRange(aPlayer: Byte): Integer');
     RegisterMethodCheck(c, 'function AIAutoBuild(aPlayer: Byte): Boolean');
     RegisterMethodCheck(c, 'function AIAutoDefence(aPlayer: Byte): Boolean');
@@ -565,6 +568,7 @@ begin
     RegisterMethodCheck(c, 'function WarriorInFight(aUnitID: Integer; aCountCitizens: Boolean): Boolean');
 
     c := Sender.AddClassN(nil, AnsiString(fActions.ClassName));
+    RegisterMethodCheck(c, 'procedure AIArmyType(aPlayer: Byte; aType: TKMArmyType)');
     RegisterMethodCheck(c, 'function AIAttackAdd(aPlayer: Byte; aRepeating: Boolean; aDelay: Cardinal; aTotalMen: Integer;' +
                            'aMelleCount, aAntiHorseCount, aRangedCount, aMountedCount: Word; ' +
                            'aRandomGroups: Boolean; aTarget: TKMAIAttackTarget; aCustomPosition: TKMPoint): Integer');
@@ -770,6 +774,8 @@ begin
 
     RegisterMethodCheck(c, 'function Power(Base, Exponent: Extended): Extended');
 
+    RegisterMethodCheck(c, 'function RoundTo(aValue: Single; aBase: Integer; aUpwards: Boolean): Integer');
+
     RegisterMethodCheck(c, 'function Sqr(A: Extended): Extended');
 
     RegisterMethodCheck(c, 'function SumI(aArray: array of Integer): Integer');
@@ -968,6 +974,7 @@ begin
     //(uppercase is not needed, FastUpperCase does this well. See uPSRuntime.pas, line 11387)
     with ClassImp.Add(TKMScriptStates) do
     begin
+      RegisterMethod(@TKMScriptStates.AIArmyType,                               'AIArmyType');
       RegisterMethod(@TKMScriptStates.AIAutoAttackRange,                        'AIAutoAttackRange');
       RegisterMethod(@TKMScriptStates.AIAutoBuild,                              'AIAutoBuild');
       RegisterMethod(@TKMScriptStates.AIAutoDefence,                            'AIAutoDefence');
@@ -1144,6 +1151,7 @@ begin
 
     with ClassImp.Add(TKMScriptActions) do
     begin
+      RegisterMethod(@TKMScriptActions.AIArmyType,                              'AIArmyType');
       RegisterMethod(@TKMScriptActions.AIAttackAdd,                             'AIAttackAdd');
       RegisterMethod(@TKMScriptActions.AIAttackRemove,                          'AIAttackRemove');
       RegisterMethod(@TKMScriptActions.AIAttackRemoveAll,                       'AIAttackRemoveAll');
@@ -1347,6 +1355,8 @@ begin
       RegisterMethod(@TKMScriptUtils.MinInArrayS,                               'MinInArrayS');
 
       RegisterMethod(@TKMScriptUtils.Power,                                     'Power');
+
+      RegisterMethod(@TKMScriptUtils.RoundTo,                                   'RoundTo');
 
       RegisterMethod(@TKMScriptUtils.SumI,                                      'SumI');
       RegisterMethod(@TKMScriptUtils.SumS,                                      'SumS');

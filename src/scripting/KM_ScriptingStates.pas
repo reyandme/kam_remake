@@ -10,6 +10,7 @@ uses
 type
   TKMScriptStates = class(TKMScriptEntity)
   public
+    function AIArmyType(aPlayer: Byte): TKMArmyType;
     function AIAutoAttackRange(aPlayer: Byte): Integer;
     function AIAutoBuild(aPlayer: Byte): Boolean;
     function AIAutoDefence(aPlayer: Byte): Boolean;
@@ -206,6 +207,22 @@ end;
 
 
 { TKMScriptStates }
+
+//* Version: 7000+
+//* Gets AI army type
+function TKMScriptStates.AIArmyType(aPlayer: Byte): TKMArmyType;
+begin
+  try
+    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+      Result := gHands[aPlayer].AI.Setup.ArmyType
+    else
+      LogParamWarning('States.AIArmyType', [aPlayer]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
 
 //* Version: 7000+
 //* Gets AI auto attack range.

@@ -12,6 +12,7 @@ type
   private
     procedure LogStr(const aText: String);
   public
+    procedure AIArmyType(aPlayer: Byte; aType: TKMArmyType);
     function AIAttackAdd(aPlayer: Byte; aRepeating: Boolean; aDelay: Cardinal; aTotalMen: Integer;
                          aMelleCount, aAntiHorseCount, aRangedCount, aMountedCount: Word; aRandomGroups: Boolean;
                          aTarget: TKMAIAttackTarget; aCustomPosition: TKMPoint): Integer;
@@ -1016,6 +1017,25 @@ begin
     end
     else
       LogParamWarning('Actions.GiveHouseSite', [aPlayer, aHouseType, X, Y, byte(aAddMaterials)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Sets AI army type
+//* aType = (atIronThenLeather, atLeather, atIron, atIronAndLeather)
+procedure TKMScriptActions.AIArmyType(aPlayer: Byte; aType: TKMArmyType);
+begin
+  try
+    if InRange(aPlayer, 0, gHands.Count - 1)
+    and (gHands[aPlayer].Enabled)
+    and (aType in [Low(TKMArmyType)..High(TKMArmyType)]) then
+      gHands[aPlayer].AI.Setup.ArmyType := aType
+    else
+      LogParamWarning('Actions.AIArmyType', [aPlayer, Byte(aType)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
