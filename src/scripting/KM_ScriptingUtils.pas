@@ -58,7 +58,8 @@ type
 
     function Power(aBase, aExp: Extended): Extended;
 
-    function RoundTo(aValue: Single; aBase: Integer; aUpwards: Boolean): Integer;
+    function RoundToDown(aValue: Single; aBase: Integer): Integer;
+    function RoundToUp(aValue: Single; aBase: Integer): Integer;
 
     function Sqr(A: Extended): Extended;
 
@@ -625,17 +626,24 @@ end;
 
 
 //* Version: 7000+
-//* Rounds specified single number aValue to nearest multiple of specified base aBase. Rounding up (aUpwards = True) or down (False). F.e. RoundTo(11.7, 5, True) = 15; RoundTo(11.7, 5, False) = 10.
-function TKMScriptUtils.RoundTo(aValue: Single; aBase: Integer; aUpwards: Boolean): Integer;
+//* Rounds specified single number aValue to nearest multiple of specified base aBase. Rounding down. F.e. RoundToDown(11.7, 5) = 10
+function TKMScriptUtils.RoundToDown(aValue: Single; aBase: Integer): Integer;
 begin
-  Result := Round(aValue);
   try
-  if aUpwards then
-    while Result mod aBase > 0 do
-      inc(Result);
-  if not aUpwards then
-    while Result mod aBase > 0 do
-      dec(Result);
+    Result := Trunc(aValue / aBase) * aBase
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 7000+
+//* Rounds specified single number aValue to nearest multiple of specified base aBase. Rounding up. F.e. RoundToUp(11.7, 5) = 15
+function TKMScriptUtils.RoundToUp(aValue: Single; aBase: Integer): Integer;
+begin
+  try
+    Result := Ceil(aValue / aBase) * aBase
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
