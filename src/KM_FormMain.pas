@@ -215,6 +215,7 @@ type
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
     procedure WMExitSizeMove(var Msg: TMessage) ; message WM_EXITSIZEMOVE;
     procedure WMAppCommand(var Msg: TMessage); message WM_APPCOMMAND;
+    procedure WMMouseWheel(var Msg: TMessage); message WM_MOUSEWHEEL;
   protected
     procedure WndProc(var Message : TMessage); override;
     {$ENDIF}
@@ -428,8 +429,10 @@ end;
 
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
+{$IFNDEF MSWINDOWS}
   if gGameApp <> nil then
     gGameApp.MouseWheel(Shift, WheelDelta, RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y);
+{$ENDIF}
 end;
 
 
@@ -1252,6 +1255,18 @@ end;
 procedure TFormMain.WMExitSizeMove(var Msg: TMessage) ;
 begin
   gMain.Move(GetWindowParams);
+end;
+
+
+procedure TFormMain.WMMouseWheel(var Msg: TMessage);
+var
+  MousePos : TPoint;
+begin
+  MousePos.X := SmallInt(LoWord(Msg.LParam));
+  MousePos.Y := SmallInt(HiWord(Msg.LParam));
+
+  if gGameApp <> nil then
+    gGameApp.MouseWheel([], SmallInt(HiWord(Msg.WParam)), RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y);
 end;
 {$ENDIF}
 
