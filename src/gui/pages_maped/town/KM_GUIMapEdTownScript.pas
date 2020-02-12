@@ -72,6 +72,7 @@ begin
     TrackBar_SerfsPer10Houses.OnChange := Town_ScriptChange;
     TrackBar_WorkerCount := TKMTrackBar.Create(PopUp_ClassicAIParams, 10, 55, 280, 0, 50);
     TrackBar_WorkerCount.Caption := gResTexts[TX_MAPED_AI_WORKERS];
+    TrackBar_WorkerCount.Hint := gResTexts[TX_MAPED_AI_COUNT_WORKERS_HINT];
     TrackBar_WorkerCount.OnChange := Town_ScriptChange;
 
     TKMLabel.Create(PopUp_ClassicAIParams, 10, 110, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_ARMY_TYPE], fntMetal, taLeft);
@@ -94,11 +95,13 @@ begin
 
   TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Script, 9, 155, TB_MAP_ED_WIDTH - 9, 10, 300);
   TrackBar_EquipRateLeather.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER];
+  TrackBar_EquipRateLeather.Hint := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_LEATHER_HINT];
   TrackBar_EquipRateLeather.Step := 5;
   TrackBar_EquipRateLeather.OnChange := Town_ScriptChange;
 
   TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Script, 9, 200, TB_MAP_ED_WIDTH - 9, 10, 300);
   TrackBar_EquipRateIron.Caption := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_IRON];
+  TrackBar_EquipRateIron.Hint := gResTexts[TX_MAPED_AI_DEFENSE_EQUIP_IRON_HINT];
   TrackBar_EquipRateIron.Step := 5;
   TrackBar_EquipRateIron.OnChange := Town_ScriptChange;
 

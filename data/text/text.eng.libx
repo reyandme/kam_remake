@@ -1338,3 +1338,6 @@
 1386:Unsupported version
 1387:Are you sure want to unlock all campaigns?\nThis can't be undone.\n\nIf you want to save your campaigns progress be sure you backed up your 'Campaigns.dat' file located at\n'%s'\n\nDo you confirm this operation?
 1388:Hard mask - use automatically created transitions
+1389:After how many seconds, the AI equips a recruit in leather armor.
+1390:After how many seconds, the AI equips the recruit in iron armor.
+1391:Sets the number of AI workers.
