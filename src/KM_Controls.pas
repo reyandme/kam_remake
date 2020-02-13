@@ -429,7 +429,7 @@ type
     Lightness: Single;
     ClipToBounds: Boolean;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui;
-                       aPaintLayer: Integer = 0);
+                       aPaintLayer: Integer = 0; aImageAnchors: TKMAnchorsSet = [anLeft, anTop]);
     property RX: TRXType read fRX write fRX;
     property TexID: Word read fTexID write fTexID;
     property FlagColor: TColor4 read fFlagColor write fFlagColor;
@@ -3240,13 +3240,13 @@ end;
 
 { TKMImage }
 constructor TKMImage.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui;
-                            aPaintLayer: Integer = 0);
+                            aPaintLayer: Integer = 0; aImageAnchors: TKMAnchorsSet = [anLeft, anTop]);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight, aPaintLayer);
   fRX := aRX;
   fTexID := aTexID;
   fFlagColor := $FFFF00FF;
-  ImageAnchors := [anLeft, anTop];
+  ImageAnchors := aImageAnchors;
   Highlight := False;
   HighlightOnMouseOver := False;
   HighlightCoef := DEFAULT_HIGHLIGHT_COEF;

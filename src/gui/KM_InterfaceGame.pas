@@ -55,7 +55,7 @@ const
   // Toolbar pads
   TB_PAD = 9; // Picked up empirically
   TB_WIDTH = 180; // Max width of sidebar elements
-  TB_MAP_ED_WIDTH = 189;
+  TB_MAP_ED_WIDTH = 214; //Max width of sidebar elements in Map Editor
   PAGE_TITLE_Y = 5; // Page title offset
   STATS_LINES_CNT = 13; //Number of stats (F3) lines
 
@@ -147,8 +147,8 @@ const
   MARKET_RES_HEIGHT = 35;
 
   // Big tab buttons in MapEd
-  BIG_TAB_W = 36;
-  BIG_PAD_W = 36;
+  BIG_TAB_W = 41;
+  BIG_PAD_W = 41;
   BIG_TAB_H = 36;
   // Small sub-tab buttons in MapEd
   SMALL_TAB_W = 30;

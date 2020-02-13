@@ -102,24 +102,27 @@ begin
   fLastBrush := Byte(SURFACES[0,0]);
   fLastMagicBrush := False;
 
-  Panel_Brushes := TKMScrollPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH + 22, aParent.Height - 28, [saVertical], bsMenu, ssCommon, True);
-  Panel_Brushes.Anchors := [anLeft, anTop, anBottom];
+  Panel_Brushes := TKMScrollPanel.Create(aParent, 0, 28, aParent.Width, aParent.Height - 28, [saVertical], bsMenu, ssCommon, True);
+  Panel_Brushes.Anchors := [anLeft, anTop, anRight, anBottom];
 //  TKMScrollPanel.Create(Panel_MultiPlayer, 675, 240, SERVER_DETAILS_W, 465, [saVertical], bsMenu, ssCommon);
 
-  TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_BRUSH], fntOutline, taCenter);
-  BrushSize   := TKMTrackBar.Create(Panel_Brushes, 9, 27, BTN_TKIND_W_SP*5 - 2*BTN_BRUSH_SIZE_W_SPACE, 0, BRUSH_MAX_SIZE);
+  TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, Panel_Brushes.Width, 0, gResTexts[TX_MAPED_TERRAIN_BRUSH], fntOutline, taCenter);
+  BrushSize   := TKMTrackBar.Create(Panel_Brushes, 9, 27, (Panel_Brushes.Width - (BTN_BRUSH_SIZE * 2) - 18) - 18, 0, BRUSH_MAX_SIZE);
+  BrushSize.Anchors := [anLeft, anTop, anRight];
   BrushSize.Position := 4;
   BrushSize.OnChange := BrushChange;
   BrushSize.Hint := GetHintWHotKey(TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT, gResTexts[TX_KEY_CTRL_MOUSEWHEEL]);
 
-  BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 9 + BTN_TKIND_W_SP*5 - BTN_BRUSH_SIZE_W_SPACE - BTN_BRUSH_SIZE - 1,
+  BrushCircle := TKMButtonFlat.Create(Panel_Brushes, Panel_Brushes.Width - (BTN_BRUSH_SIZE * 2) - 18,
                                                      25, BTN_BRUSH_SIZE, BTN_BRUSH_SIZE, 592);
+  BrushCircle.Anchors := [anTop, anRight];
   BrushCircle.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_HEIGHTS_CIRCLE, SC_MAPEDIT_SUB_MENU_ACTION_1);
   BrushCircle.OnClick := BrushChange;
   BrushCircle.TexOffsetX := 1;
   BrushCircle.TexOffsetY := 1;
 
-  BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 9 + BTN_TKIND_W_SP*5 - BTN_BRUSH_SIZE - 1, 25, BTN_BRUSH_SIZE, BTN_BRUSH_SIZE, 593);
+  BrushSquare := TKMButtonFlat.Create(Panel_Brushes, Panel_Brushes.Width - BTN_BRUSH_SIZE - 9, 25, BTN_BRUSH_SIZE, BTN_BRUSH_SIZE, 593);
+  BrushSquare.Anchors := [anTop, anRight];
   BrushSquare.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_HEIGHTS_SQUARE, SC_MAPEDIT_SUB_MENU_ACTION_2);
   BrushSquare.OnClick := BrushChange;
   BrushSquare.TexOffsetX := 1;
@@ -140,28 +143,30 @@ begin
   for MK := Low(TKMTileMaskKind) to High(TKMTileMaskKind) do
     CreateBrushMaskBtn(MK);
 
-  with TKMLabel.Create(Panel_Brushes, 9, 305 + 40, TB_MAP_ED_WIDTH - 9, 20, gResTexts[TX_MAPED_TERRAIN_BRUSH_BLENDING], fntMetal, taLeft) do
+  with TKMLabel.Create(Panel_Brushes, 9, 305 + 40, Panel_Brushes.Width - 18, 20, gResTexts[TX_MAPED_TERRAIN_BRUSH_BLENDING], fntMetal, taLeft) do
     Hint := gResTexts[TX_MAPED_TERRAIN_BRUSH_BLENDING_HINT];
 
-  BrushBlending := TKMTrackBar.Create(Panel_Brushes, 9, 305 + 60, TB_MAP_ED_WIDTH - 49, 0, TERRAIN_MAX_BLENDING_LEVEL);
+  BrushBlending := TKMTrackBar.Create(Panel_Brushes, 9, 305 + 60, (BTN_TKIND_W_SP*4) - 9, 0, TERRAIN_MAX_BLENDING_LEVEL);
   BrushBlending.Position := 0;
   BrushBlending.MouseWheelStep := 5;
   BrushBlending.OnChange := BrushChange;
   BrushBlending.Hint := gResTexts[TX_MAPED_TERRAIN_BRUSH_BLENDING_HINT];
 
-  MagicBrush := TKMButtonFlat.Create(Panel_Brushes, 9 + BTN_TKIND_W_SP*4, 305 + 60, 34, 34, 673, rxGui);
+  MagicBrush := TKMButtonFlat.Create(Panel_Brushes, Panel_Brushes.Width - 34 - 9, 305 + 60, 34, 34, 673, rxGui);
+  MagicBrush.Anchors := [anTop, anRight];
   MagicBrush.Hint := gResTexts[TX_MAPED_TERRAIN_MAGIC_BRUSH_HINT];
   MagicBrush.OnClick := BrushChange;
 
-  RandomElements := TKMCheckBox.Create(Panel_Brushes, 9, 405, TB_MAP_ED_WIDTH, 40, gResTexts[TX_MAPED_TERRAIN_BRUSH_RANDOM], fntMetal);
+  RandomElements := TKMCheckBox.Create(Panel_Brushes, 9, 405, Panel_Brushes.Width - 18, 40, gResTexts[TX_MAPED_TERRAIN_BRUSH_RANDOM], fntMetal);
   RandomElements.OnClick := BrushChange;
   RandomElements.Hint := gResTexts[TX_MAPED_TERRAIN_BRUSH_RANDOM];
 
-  OverrideCustomTiles := TKMCheckBox.Create(Panel_Brushes, 9, 430, TB_MAP_ED_WIDTH, 40, gResTexts[TX_MAPED_TERRAIN_OVERRIDE_CUSTOM_TILES], fntMetal);
+  OverrideCustomTiles := TKMCheckBox.Create(Panel_Brushes, 9, 430, Panel_Brushes.Width - 18, 40, gResTexts[TX_MAPED_TERRAIN_OVERRIDE_CUSTOM_TILES], fntMetal);
   OverrideCustomTiles.OnClick := BrushChange;
   OverrideCustomTiles.Hint := gResTexts[TX_MAPED_TERRAIN_OVERRIDE_CUSTOM_TILES_HINT];
 
-  Button_FixTerrainBrushes := TKMButton.Create(Panel_Brushes, 9, 480, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN], bsGame);
+  Button_FixTerrainBrushes := TKMButton.Create(Panel_Brushes, 9, 480, Panel_Brushes.Width - 18, 30, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN], bsGame);
+  Button_FixTerrainBrushes.Anchors := [anLeft, anTop, anRight];
   Button_FixTerrainBrushes.AutoHeight := True;
   Button_FixTerrainBrushes.Hint := gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_HINT];
   Button_FixTerrainBrushes.OnClick := BrushFixTerrain_Click;

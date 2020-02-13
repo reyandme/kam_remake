@@ -76,7 +76,7 @@ uses
 
 const
   OBJECTS_PALETTE_MAX_COLS_CNT = 17;
-  OBJ_CELL_W = 64;
+  OBJ_CELL_W = 68;
   OBJ_CELL_H = 84;
 
   OBJ_NONE_TAG = -100;
@@ -95,9 +95,10 @@ begin
 
   CompactMapElements;
 
-  Panel_Objects := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter);
-  ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 7, 295, TB_MAP_ED_WIDTH - 7, 20, saHorizontal, bsGame);
+  Panel_Objects := TKMPanel.Create(aParent, 0, 28, aParent.Width, 400);
+  TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter);
+  ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 9, 295, Panel_Objects.Width - 9, 20, saHorizontal, bsGame);
+  ObjectsScroll.Anchors := [anLeft, anTop, anRight];
   ObjectsScroll.MinValue := 0;
   ObjectsScroll.MaxValue := (fCountCompact - 1) div 3 - 2;
   ObjectsScroll.Position := 0;
@@ -105,7 +106,7 @@ begin
   for I := 0 to 2 do
     for J := 0 to 2 do
     begin
-      ObjectsTable[I*3+J] := TKMButtonFlat.Create(Panel_Objects, 2 + I*(OBJ_CELL_W + 1), 40 + J*(OBJ_CELL_H + 1),
+      ObjectsTable[I*3+J] := TKMButtonFlat.Create(Panel_Objects, 9 + I*(OBJ_CELL_W + 1), 40 + J*(OBJ_CELL_H + 1),
                                                   OBJ_CELL_W, OBJ_CELL_H, 1, rxTrees); //RXid=1  // 1 2
       ObjectsTable[I*3+J].CapOffsetY := 15;
       ObjectsTable[I*3+J].Tag := I*3+J; //Store ID
@@ -117,12 +118,14 @@ begin
   ObjectErase.Tag := OBJ_NONE_TAG; //no object
   ObjectErase.OnClick := ObjectsChange;
 
-  ObjectBlock := TKMButtonFlat.Create(Panel_Objects, TB_MAP_ED_WIDTH-32, 4, 32, 32, 254,rxTrees);
+  ObjectBlock := TKMButtonFlat.Create(Panel_Objects, Panel_Objects.Width - 32, 4, 32, 32, 254,rxTrees);
+  ObjectBlock.Anchors := [anTop, anRight];
   ObjectBlock.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_OBJECTS_BLOCK, SC_MAPEDIT_SUB_MENU_ACTION_2);
   ObjectBlock.Tag := OBJ_BLOCK_TAG; //block object
   ObjectBlock.OnClick := ObjectsChange;
 
-  ObjectsPalette_Button := TKMButtonFlat.Create(Panel_Objects, 7, 320, TB_MAP_ED_WIDTH - 7, 21, 0);
+  ObjectsPalette_Button := TKMButtonFlat.Create(Panel_Objects, 9, 320, Panel_Objects.Width - 9, 21, 0);
+  ObjectsPalette_Button.Anchors := [anLeft, anTop, anRight];
   ObjectsPalette_Button.Caption := gResTexts[TX_MAPED_TERRAIN_OBJECTS_PALETTE];
   ObjectsPalette_Button.CapOffsetY := -11;
   ObjectsPalette_Button.Hint := GetHintWHotKey(TX_MAPED_TERRAIN_OBJECTS_PALETTE, SC_MAPEDIT_OBJ_PALETTE);

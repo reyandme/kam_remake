@@ -79,8 +79,8 @@ const
 
   TB_TLS_M = 9;
   TB_TLS_R = 9;
-  TB_TLS_S = 4;
-  TB_TLS_T = 4;
+  TB_TLS_S = 13;
+  TB_TLS_T = 13;
 var
   J,K: Integer;
 begin
@@ -89,8 +89,8 @@ begin
 //  TABLE_ELEMS_CNT := Ceil(TILES_CNT / MAPED_TILES_Y) * MAPED_TILES_Y;
   TABLE_ELEMS_CNT := TABLE_ELEMS;
 
-  Panel_Tiles := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_TERRAIN_HINTS_TILES], fntOutline, taCenter);
+  Panel_Tiles := TKMPanel.Create(aParent, 0, 28, aParent.Width, 400);
+  TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, Panel_Tiles.Width, 0, gResTexts[TX_MAPED_TERRAIN_HINTS_TILES], fntOutline, taCenter);
 
   TilesMagicWater := TKMButtonFlat.Create(Panel_Tiles, TB_TLS_M, 25, BTN_SIZE_S, BTN_SIZE_S, 670);
   TilesMagicWater.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_MAGIC_WATER_HINT, SC_MAPEDIT_SUB_MENU_ACTION_1);
@@ -104,12 +104,13 @@ begin
   TilesRotate.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_ROTATE_TILE, SC_MAPEDIT_SUB_MENU_ACTION_3);
   TilesRotate.OnClick := TilesChange;
 
-  NumEdit_SetTileNumber := TKMNumericEdit.Create(Panel_Tiles, TB_TLS_M + 108, 29, 0, MAX_TILE_TO_SHOW - 1);
+  NumEdit_SetTileNumber := TKMNumericEdit.Create(Panel_Tiles, Panel_Tiles.Width - 73, 29, 0, MAX_TILE_TO_SHOW - 1);
+  NumEdit_SetTileNumber.Anchors := [anTop, anRight];
   NumEdit_SetTileNumber.Hint := gResTexts[TX_MAPED_TERRAIN_TILE_ID_EDIT_HINT];
   NumEdit_SetTileNumber.OnChange := TilesChange;
   NumEdit_SetTileNumber.AutoFocusable := False;
 
-  TilesRandom := TKMCheckBox.Create(Panel_Tiles, TB_TLS_R, 25 + BTN_SIZE + 5, TB_WIDTH, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fntMetal);
+  TilesRandom := TKMCheckBox.Create(Panel_Tiles, TB_TLS_R, 25 + BTN_SIZE + 5, Panel_Tiles.Width - TB_TLS_R, 20, gResTexts[TX_MAPED_TERRAIN_TILES_RANDOM], fntMetal);
   TilesRandom.Checked := True;
   TilesRandom.OnClick := TilesChange;
   TilesRandom.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_TILES_RANDOM_HINT, SC_MAPEDIT_SUB_MENU_ACTION_4);
