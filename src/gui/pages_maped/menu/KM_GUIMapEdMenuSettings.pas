@@ -45,32 +45,40 @@ begin
 
   fOnDone := aOnDone;
 
-  Panel_Settings := TKMPanel.Create(aParent, 0, 44, TB_MAP_ED_WIDTH, 332);
+  Panel_Settings := TKMPanel.Create(aParent, 0, 44, aParent.Width, 332);
   Panel_Settings.Anchors := [anLeft, anTop, anBottom];
 
-    TKMLabel.Create(Panel_Settings, 9, PAGE_TITLE_Y, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MENU_SETTINGS], fntOutline, taLeft);
+    with TKMLabel.Create(Panel_Settings, 9, PAGE_TITLE_Y, Panel_Settings.Width - 9, 30, gResTexts[TX_MENU_SETTINGS], fntOutline, taLeft) do
+      Anchors := [anLeft, anTop, anBottom, anRight];
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,40,WID,0,20);
+    TrackBar_Settings_Brightness.Anchors := [anLeft, anTop, anBottom, anRight];
     TrackBar_Settings_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];
     TrackBar_Settings_Brightness.OnChange := Menu_Settings_Change;
     TrackBar_Settings_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,PAD,95,WID,0,20);
+    TrackBar_Settings_ScrollSpeed.Anchors := [anLeft, anTop, anBottom, anRight];
     TrackBar_Settings_ScrollSpeed.Caption := gResTexts[TX_MENU_OPTIONS_SCROLL_SPEED];
     TrackBar_Settings_ScrollSpeed.OnChange := Menu_Settings_Change;
     TrackBar_Settings_SFX := TKMTrackBar.Create(Panel_Settings,PAD,150,WID,0,20);
+    TrackBar_Settings_SFX.Anchors := [anLeft, anTop, anBottom, anRight];
     TrackBar_Settings_SFX.Caption := gResTexts[TX_MENU_SFX_VOLUME];
     TrackBar_Settings_SFX.Hint := gResTexts[TX_MENU_SFX_VOLUME_HINT];
     TrackBar_Settings_SFX.OnChange := Menu_Settings_Change;
     TrackBar_Settings_Music := TKMTrackBar.Create(Panel_Settings,PAD,205,WID,0,20);
+    TrackBar_Settings_Music.Anchors := [anLeft, anTop, anBottom, anRight];
     TrackBar_Settings_Music.Caption := gResTexts[TX_MENU_MUSIC_VOLUME];
     TrackBar_Settings_Music.Hint := gResTexts[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
     CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,260,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_SHORT],fntMetal);
+    CheckBox_Settings_MusicOff.Anchors := [anLeft, anTop, anBottom, anRight];
     CheckBox_Settings_MusicOff.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
     CheckBox_Settings_MusicOff.OnClick := Menu_Settings_Change;
+    CheckBox_Settings_MusicOff.Anchors := [anLeft, anTop, anBottom, anRight];
     CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,285,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fntMetal);
     CheckBox_Settings_ShuffleOn.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_HINT];
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
 
     Button_Cancel := TKMButton.Create(Panel_Settings, PAD, 310, WID, 30, gResTexts[TX_MENU_DONT_QUIT_MISSION], bsGame);
+    Button_Cancel.Anchors := [anLeft, anTop, anBottom, anRight];
 
     Button_Cancel.Hint := gResTexts[TX_MENU_DONT_QUIT_MISSION];
     Button_Cancel.OnClick := Back_Click;

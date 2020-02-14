@@ -62,28 +62,33 @@ begin
   fGuiMenuQuit := TKMMapEdMenuQuit.Create(aParent, MenuDone);
   fGuiMenuSettings := TKMMapEdMenuSettings.Create(aParent, MenuDone);
 
-  Panel_Menu := TKMPanel.Create(aParent, 0, 45, TB_MAP_ED_WIDTH, aParent.Height - 45);
+  Panel_Menu := TKMPanel.Create(aParent, 0, 45, aParent.Width, aParent.Height - 45);
   Panel_Menu.Anchors := [anLeft, anTop, anBottom];
 
-  Button_Resize := TKMButton.Create(Panel_Menu, 9, 10, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MAPED_MAP_RESIZE], bsGame);
+  Button_Resize := TKMButton.Create(Panel_Menu, 9, 10, Panel_Menu.Width - 9, 30, gResTexts[TX_MAPED_MAP_RESIZE], bsGame);
+  Button_Resize.Anchors := [anLeft, anTop, anRight];
   Button_Resize.Hint := GetHintWHotKey(TX_MAPED_MAP_RESIZE, MAPED_SUBMENU_HOTKEYS[0]);
   Button_Resize.OnClick := MenuClick;
 
-  Button_QuickPlay := TKMButton.Create(Panel_Menu, 9, 50, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY], bsGame);
+  Button_QuickPlay := TKMButton.Create(Panel_Menu, 9, 50, Panel_Menu.Width - 9, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY], bsGame);
+  Button_QuickPlay.Anchors := [anLeft, anTop, anRight];
   Button_QuickPlay.Hint := GetHintWHotKey(TX_MAPED_MAP_QUICK_PLAY_HINT, MAPED_SUBMENU_HOTKEYS[1]);
   Button_QuickPlay.OnClick := MenuClick;
 
-  Button_Menu_Load := TKMButton.Create(Panel_Menu, 9, 110, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MAPED_LOAD_TITLE], bsGame);
+  Button_Menu_Load := TKMButton.Create(Panel_Menu, 9, 110, Panel_Menu.Width - 9, 30, gResTexts[TX_MAPED_LOAD_TITLE], bsGame);
+  Button_Menu_Load.Anchors := [anLeft, anTop, anRight];
   Button_Menu_Load.OnClick := MenuClick;
   Button_Menu_Load.Hint := GetHintWHotKey(TX_MAPED_LOAD_TITLE, MAPED_SUBMENU_HOTKEYS[2]);
-  Button_Menu_Save := TKMButton.Create(Panel_Menu, 9, 150, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MAPED_SAVE_TITLE], bsGame);
+  Button_Menu_Save := TKMButton.Create(Panel_Menu, 9, 150, Panel_Menu.Width - 9, 30, gResTexts[TX_MAPED_SAVE_TITLE], bsGame);
+  Button_Menu_Save.Anchors := [anLeft, anTop, anRight];
   Button_Menu_Save.OnClick := MenuClick;
   Button_Menu_Save.Hint := GetHintWHotKey(TX_MAPED_SAVE_TITLE, MAPED_SUBMENU_HOTKEYS[3]);
   Button_Menu_Settings := TKMButton.Create(Panel_Menu, 9, 190, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MENU_SETTINGS], bsGame);
   Button_Menu_Settings.Hint := GetHintWHotKey(TX_MENU_SETTINGS, MAPED_SUBMENU_HOTKEYS[4]);
   Button_Menu_Settings.OnClick := MenuClick;
 
-  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 9, 250, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
+  Button_Menu_Quit := TKMButton.Create(Panel_Menu, 9, 250, Panel_Menu.Width - 9, 30, gResTexts[TX_MENU_QUIT_MAPED], bsGame);
+  Button_Menu_Quit.Anchors := [anLeft, anTop, anRight];
   Button_Menu_Quit.Hint := GetHintWHotKey(TX_MENU_QUIT_MAPED, MAPED_SUBMENU_HOTKEYS[5]);
   Button_Menu_Quit.OnClick := MenuClick;
 end;

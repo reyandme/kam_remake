@@ -72,16 +72,20 @@ var
 begin
   inherited Create;
 
-  Panel_Mode := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_Mode, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_MISSION_MODE], fntOutline, taCenter);
-  TKMBevel.Create(Panel_Mode, 9, 25, TB_MAP_ED_WIDTH - 9, 45);
+  Panel_Mode := TKMPanel.Create(aParent, 0, 28, aParent.Width, 400);
+  with TKMLabel.Create(Panel_Mode, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_MISSION_MODE], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
+  with TKMBevel.Create(Panel_Mode, 9, 25, Panel_Mode.Width - 9, 45) do
+    Anchors := [anLeft, anTop, anRight];
 
-  Radio_MissionMode := TKMRadioGroup.Create(Panel_Mode, 14, 30, TB_MAP_ED_WIDTH - 28, 40, fntMetal);
+  Radio_MissionMode := TKMRadioGroup.Create(Panel_Mode, 14, 30, Panel_Mode.Width - 28, 40, fntMetal);
+  Radio_MissionMode.Anchors := [anLeft, anTop, anRight];
   Radio_MissionMode.Add(gResTexts[TX_MAPED_MISSION_NORMAL]);
   Radio_MissionMode.Add(gResTexts[TX_MAPED_MISSION_TACTIC]);
   Radio_MissionMode.OnChange := Mission_ModeChange;
 
-  Button_MissionParams := TKMButton.Create(Panel_Mode, 9, 80, TB_MAP_ED_WIDTH - 9, 45, gResTexts[TX_MAPED_MISSION_PARAMETERS_BTN], bsGame);
+  Button_MissionParams := TKMButton.Create(Panel_Mode, 9, 80, Panel_Mode.Width - 9, 45, gResTexts[TX_MAPED_MISSION_PARAMETERS_BTN], bsGame);
+  Button_MissionParams.Anchors := [anLeft, anTop, anRight];
   Button_MissionParams.Hint := gResTexts[TX_MAPED_MISSION_PARAMETERS_BTN_HINT];
   Button_MissionParams.OnClick := MissionParams_Click;
 
@@ -200,19 +204,23 @@ begin
 
   PopUp_MissionParams.OnKeyDown := MissionParams_OnKeyDown;
 
-  TKMLabel.Create(Panel_Mode, 0, 140, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_AI_DEFAULTS_HEADING], fntOutline, taCenter);
+  with TKMLabel.Create(Panel_Mode, 0, 140, Panel_Mode.Width, 0, gResTexts[TX_MAPED_AI_DEFAULTS_HEADING], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
 
-  Button_AIBuilderSetup := TKMButton.Create(Panel_Mode, 9, 170, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MAPED_AI_DEFAULTS_MP_BUILDER], bsGame);
+  Button_AIBuilderSetup := TKMButton.Create(Panel_Mode, 9, 170, Panel_Mode.Width - 9, 30, gResTexts[TX_MAPED_AI_DEFAULTS_MP_BUILDER], bsGame);
+  Button_AIBuilderSetup.Anchors := [anLeft, anTop, anRight];
   Button_AIBuilderSetup.Hint := gResTexts[TX_MAPED_AI_DEFAULTS_MP_BUILDER_HINT];
   Button_AIBuilderSetup.OnClick := AIBuilderChange;
 
-  Button_AIBuilderWarn := TKMLabel.Create(Panel_Mode, 9, 160, TB_MAP_ED_WIDTH - 9, 0, gResTexts[TX_MAPED_AI_DEFAULTS_CONFIRM], fntGrey, taLeft);
+  Button_AIBuilderWarn := TKMLabel.Create(Panel_Mode, 9, 160, Panel_Mode.Width - 9, 0, gResTexts[TX_MAPED_AI_DEFAULTS_CONFIRM], fntGrey, taLeft);
+  Button_AIBuilderWarn.Anchors := [anLeft, anTop, anRight];
   Button_AIBuilderWarn.AutoWrap := True;
   Button_AIBuilderWarn.Hide;
   Button_AIBuilderOK := TKMButton.Create(Panel_Mode, 9, 250, 88, 20, gResTexts[TX_MAPED_OK], bsGame);
   Button_AIBuilderOK.OnClick := AIBuilderChange;
   Button_AIBuilderOK.Hide;
-  Button_AIBuilderCancel := TKMButton.Create(Panel_Mode, 101, 250, 88, 20, gResTexts[TX_MAPED_CANCEL], bsGame);
+  Button_AIBuilderCancel := TKMButton.Create(Panel_Mode, Panel_Mode.Width - 88, 250, 88, 20, gResTexts[TX_MAPED_CANCEL], bsGame);
+  Button_AIBuilderCancel.Anchors := [anTop, anRight];
   Button_AIBuilderCancel.OnClick := AIBuilderChange;
   Button_AIBuilderCancel.Hide;
 end;

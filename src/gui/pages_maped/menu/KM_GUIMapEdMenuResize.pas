@@ -53,22 +53,27 @@ begin
   fOnDone := aOnDone;
   fOnPageChange := aOnPageChange;
 
-  Panel_Resize := TKMPanel.Create(aParent, 0, 45, TB_MAP_ED_WIDTH, aParent.Height - 45);
+  Panel_Resize := TKMPanel.Create(aParent, 0, 45, aParent.Width, aParent.Height - 45);
   Panel_Resize.Anchors := [anLeft, anTop, anBottom];
 
     Panel_Resize_Edit := TKMPanel.Create(Panel_Resize, 9, 0, Panel_Resize.Width - 9, Panel_Resize.Height);
 
       Y := PAGE_TITLE_Y;
-      TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 45, gResTexts[TX_MAPED_MAP_RESIZE_TITLE], fntOutline, taCenter);
+      with TKMLabel.Create(Panel_Resize_Edit, 0, Y, Panel_Resize_Edit.Width, 45, gResTexts[TX_MAPED_MAP_RESIZE_TITLE], fntOutline, taCenter) do
+        Anchors := [anLeft, anTop, anRight];
       Inc(Y, 45);
-      TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, gResTexts[TX_MAPED_MAP_RESIZE_MOVE_BORDERS], fntGrey, taCenter);
+      with TKMLabel.Create(Panel_Resize_Edit, 0, Y, Panel_Resize_Edit.Width, 30, gResTexts[TX_MAPED_MAP_RESIZE_MOVE_BORDERS], fntGrey, taCenter) do
+        Anchors := [anLeft, anTop, anRight];
       Inc(Y, 25);
 
       // Use left-top-right-bottom order of creation. Same order will be used for Tab focus change
       NumEdit_Resize_Left   := TKMNumericEdit.Create(Panel_Resize_Edit, 0,   Y+30, -224, 224);
-      NumEdit_Resize_Top    := TKMNumericEdit.Create(Panel_Resize_Edit, 50,  Y,    -224, 224);
-      NumEdit_Resize_Right  := TKMNumericEdit.Create(Panel_Resize_Edit, 100, Y+30, -224, 224);
-      NumEdit_Resize_Bottom := TKMNumericEdit.Create(Panel_Resize_Edit, 50,  Y+60, -224, 224);
+      NumEdit_Resize_Top    := TKMNumericEdit.Create(Panel_Resize_Edit, (Panel_Resize_Edit.Width div 2) - 39,  Y,    -224, 224);
+      NumEdit_Resize_Top.Anchors := [anLeft, anTop, anRight];
+      NumEdit_Resize_Right  := TKMNumericEdit.Create(Panel_Resize_Edit, Panel_Resize_Edit.Width - 78, Y+30, -224, 224);
+      NumEdit_Resize_Right.Anchors := [anLeft, anTop, anRight];
+      NumEdit_Resize_Bottom := TKMNumericEdit.Create(Panel_Resize_Edit, (Panel_Resize_Edit.Width div 2) - 39,  Y+60, -224, 224);
+      NumEdit_Resize_Bottom.Anchors := [anLeft, anTop, anRight];
 
       NumEdit_Resize_Left.OnChange    := ResizeRefresh;
       NumEdit_Resize_Right.OnChange   := ResizeRefresh;
@@ -82,24 +87,27 @@ begin
       Label_NewMapSize := TKMLabel.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, '', fntOutline, taCenter);
       Inc(Y, 45);
 
-      Button_Resize := TKMButton.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 45, gResTexts[TX_MAPED_MAP_RESIZE_AND_SAVE], bsGame);
+      Button_Resize := TKMButton.Create(Panel_Resize_Edit, 0, Y, Panel_Resize_Edit.Width, 45, gResTexts[TX_MAPED_MAP_RESIZE_AND_SAVE], bsGame);
+      Button_Resize.Anchors := [anLeft, anTop, anRight];
       Button_Resize.Hint := gResTexts[TX_MAPED_MAP_RESIZE_AND_SAVE_HINT];
       Button_Resize.OnClick := PanelConfirm_Switch;
       Button_Resize.Disable;
       Inc(Y, 60);
 
-      Button_Cancel := TKMButton.Create(Panel_Resize_Edit, 0, Y, TB_WIDTH, 30, gResTexts[TX_WORD_CANCEL], bsGame);
+      Button_Cancel := TKMButton.Create(Panel_Resize_Edit, 0, Y, Panel_Resize_Edit.Width, 30, gResTexts[TX_WORD_CANCEL], bsGame);
+      Button_Cancel.Anchors := [anLeft, anTop, anRight];
       Button_Cancel.OnClick   := Menu_Click;
 
-    Panel_Resize_Confirm := TKMPanel.Create(Panel_Resize, 9, 0, Panel_Resize.Width, Panel_Resize.Height);
-      Label_Resize_Confirm := TKMLabel.Create(Panel_Resize_Confirm, 0, 0, TB_WIDTH, 20, gResTexts[TX_MAPED_MAP_RESIZE_CONFIRM_TITLE], fntOutline, taCenter);
+    Panel_Resize_Confirm := TKMPanel.Create(Panel_Resize, 9, 0, Panel_Resize.Width - 9, Panel_Resize.Height);
+      Label_Resize_Confirm := TKMLabel.Create(Panel_Resize_Confirm, 0, 0, Panel_Resize_Confirm.Width, 20, gResTexts[TX_MAPED_MAP_RESIZE_CONFIRM_TITLE], fntOutline, taCenter);
+      Label_Resize_Confirm.Anchors := [anLeft, anTop, anRight];
       Label_Resize_Confirm.AutoWrap := True;
 
       Button_Resize_Confirm_Yes := TKMButton.Create(Panel_Resize_Confirm, 0, Max(150, Label_Resize_Confirm.TextSize.Y + 10),
-                                                    TB_WIDTH, 30, gResTexts[TX_WORD_YES], bsGame);
+                                                    Panel_Resize_Confirm.Width, 30, gResTexts[TX_WORD_YES], bsGame);
       Button_Resize_Confirm_Yes.Hint := gResTexts[TX_MAPED_MAP_RESIZE_AND_SAVE_HINT];
       Button_Resize_Confirm_No := TKMButton.Create(Panel_Resize_Confirm, 0, Max(190, Label_Resize_Confirm.TextSize.Y + 50),
-                                                   TB_WIDTH, 30, gResTexts[TX_WORD_NO], bsGame);
+                                                   Panel_Resize_Confirm.Width, 30, gResTexts[TX_WORD_NO], bsGame);
       Button_Resize_Confirm_No.Hint := gResTexts[TX_GO_PREV_MENU];
 
       Button_Resize_Confirm_Yes.OnClick := Resize_Click;

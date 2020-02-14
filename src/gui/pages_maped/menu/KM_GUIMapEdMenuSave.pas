@@ -24,7 +24,7 @@ type
     Button_SaveSave: TKMButton;
     Button_SaveCancel: TKMButton;
     constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent; aOnMapTypChanged: TBooleanEvent;
-                       aLeftPanelInset: Integer = TB_PAD; aTopPanelInset: Integer = 45; aControlsWidth: Integer = TB_WIDTH);
+                       aLeftPanelInset: Integer = TB_PAD; aTopPanelInset: Integer = 45; aControlsWidth: Integer = TB_MAP_ED_WIDTH-TB_PAD);
 
     procedure SetLoadMode(aMultiplayer: Boolean);
     procedure Show;
@@ -39,7 +39,7 @@ uses
 
 { TKMMapEdMenuSave }
 constructor TKMMapEdMenuSave.Create(aParent: TKMPanel; aOnDone: TNotifyEvent; aOnMapTypChanged: TBooleanEvent;
-                                    aLeftPanelInset: Integer = 9; aTopPanelInset: Integer = 45; aControlsWidth: Integer = TB_WIDTH);
+                                    aLeftPanelInset: Integer = TB_PAD; aTopPanelInset: Integer = 45; aControlsWidth: Integer = TB_MAP_ED_WIDTH - TB_PAD);
 begin
   inherited Create;
 

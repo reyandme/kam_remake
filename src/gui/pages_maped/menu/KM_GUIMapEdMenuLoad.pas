@@ -52,24 +52,30 @@ begin
   fMapsMP := TKMapsCollection.Create(mfMP);
   fMapsDL := TKMapsCollection.Create(mfDL);
 
-  Panel_Load := TKMPanel.Create(aParent,0,45,TB_MAP_ED_WIDTH,aParent.Height - 45);
+  Panel_Load := TKMPanel.Create(aParent,0,45,aParent.Width,aParent.Height - 45);
   Panel_Load.Anchors := [anLeft, anTop, anBottom];
 
-  TKMLabel.Create(Panel_Load, 9, PAGE_TITLE_Y, TB_MAP_ED_WIDTH - 9, 30, gResTexts[TX_MAPED_LOAD_TITLE], fntOutline, taLeft);
-  TKMBevel.Create(Panel_Load, 9, 30, TB_MAP_ED_WIDTH - 9, 57);
-  Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,9,32,TB_MAP_ED_WIDTH - 9,54,fntGrey);
+  with TKMLabel.Create(Panel_Load, 9, PAGE_TITLE_Y, Panel_Load.Width - 9, 30, gResTexts[TX_MAPED_LOAD_TITLE], fntOutline, taLeft) do
+    Anchors := [anLeft, anTop, anRight];
+  with TKMBevel.Create(Panel_Load, 9, 30, TB_MAP_ED_WIDTH - 9, 57) do
+    Anchors := [anLeft, anTop, anRight];
+  Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,9,32,Panel_Load.Width - 9,54,fntGrey);
+  Radio_Load_MapType.Anchors := [anLeft, anTop, anRight];
   Radio_Load_MapType.ItemIndex := 0;
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_SPMAPS]);
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_MPMAPS_SHORT]);
   Radio_Load_MapType.Add(gResTexts[TX_MENU_MAPED_DLMAPS]);
   Radio_Load_MapType.OnChange := Menu_LoadChange;
-  ListBox_Load := TKMListBox.Create(Panel_Load, 9, 104, TB_MAP_ED_WIDTH - 9, 205, fntGrey, bsGame);
+  ListBox_Load := TKMListBox.Create(Panel_Load, 9, 104, Panel_Load.Width - 9, 205, fntGrey, bsGame);
+  ListBox_Load.Anchors := [anLeft, anTop, anRight];
   ListBox_Load.ItemHeight := 18;
   ListBox_Load.AutoHideScrollBar := True;
   ListBox_Load.SearchEnabled := True;
   ListBox_Load.OnDoubleClick := Menu_LoadClick;
-  Button_LoadLoad     := TKMButton.Create(Panel_Load,9,318,TB_MAP_ED_WIDTH - 9,30,gResTexts[TX_MAPED_LOAD],bsGame);
-  Button_LoadCancel   := TKMButton.Create(Panel_Load,9,354,TB_MAP_ED_WIDTH - 9,30,gResTexts[TX_MAPED_LOAD_CANCEL],bsGame);
+  Button_LoadLoad     := TKMButton.Create(Panel_Load,9,318,Panel_Load.Width - 9,30,gResTexts[TX_MAPED_LOAD],bsGame);
+  Button_LoadLoad.Anchors := [anLeft, anTop, anRight];
+  Button_LoadCancel   := TKMButton.Create(Panel_Load,9,354,Panel_Load.Width - 9,30,gResTexts[TX_MAPED_LOAD_CANCEL],bsGame);
+  Button_LoadCancel.Anchors := [anLeft, anTop, anRight];
   Button_LoadLoad.OnClick     := Menu_LoadClick;
   Button_LoadCancel.OnClick   := Menu_LoadClick;
 end;
