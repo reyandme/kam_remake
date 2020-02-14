@@ -48,20 +48,22 @@ constructor TKMMapEdTownOffence.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-  Panel_Offence := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_AI_ATTACK], fntOutline, taCenter);
+  Panel_Offence := TKMPanel.Create(aParent, 0, 28, aParent.Width, 400);
+  with TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, Panel_Offence.Width, 0, gResTexts[TX_MAPED_AI_ATTACK], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
 
-  CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 9, 24, TB_MAP_ED_WIDTH - 9, 20, gResTexts[TX_MAPED_AI_ATTACK_AUTO], fntMetal);
+  CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 9, 24, Panel_Offence.Width - 9, 20, gResTexts[TX_MAPED_AI_ATTACK_AUTO], fntMetal);
   CheckBox_AutoAttack.Hint := GetHintWHotKey(TX_MAPED_AI_ATTACK_AUTO_HINT, MAPED_SUBMENU_ACTIONS_HOTKEYS[0]);
   CheckBox_AutoAttack.OnClick := AutoAttackClick;
 
-  ColumnBox_Attacks := TKMColumnBox.Create(Panel_Offence, 9, 50, TB_MAP_ED_WIDTH - 9, 210, fntGame, bsGame);
+  ColumnBox_Attacks := TKMColumnBox.Create(Panel_Offence, 9, 50, Panel_Offence.Width - 9, 210, fntGame, bsGame);
   ColumnBox_Attacks.SetColumns(fntOutline,
     [gResTexts[TX_MAPED_AI_ATTACK_COL_TYPE],
      gResTexts[TX_MAPED_AI_ATTACK_COL_DELAY],
      gResTexts[TX_MAPED_AI_ATTACK_COL_MEN],
      gResTexts[TX_MAPED_AI_ATTACK_COL_TARGET],
-     gResTexts[TX_MAPED_AI_ATTACK_COL_LOC]], [0, 20, 60, 100, 130], True);
+     gResTexts[TX_MAPED_AI_ATTACK_COL_LOC]], [0, 20, 60, 102, 165], True);
+  ColumnBox_Attacks.Anchors := [anLeft, anTop, anRight];
   ColumnBox_Attacks.OnClick := Attacks_ListClick;
   ColumnBox_Attacks.OnDoubleClick := Attacks_ListDoubleClick;
 

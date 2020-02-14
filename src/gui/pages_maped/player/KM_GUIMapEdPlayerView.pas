@@ -39,17 +39,20 @@ constructor TKMMapEdPlayerView.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-  Panel_PlayerView := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_PlayerView, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_FOG], fntOutline, taCenter);
+  Panel_PlayerView := TKMPanel.Create(aParent, 0, 28, aParent.Width, 400);
+  with TKMLabel.Create(Panel_PlayerView, 0, PAGE_TITLE_Y, Panel_PlayerView.Width, 0, gResTexts[TX_MAPED_FOG], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
   Button_Reveal         := TKMButtonFlat.Create(Panel_PlayerView, 9, 30, 33, 33, 394);
   Button_Reveal.Hint    := gResTexts[TX_MAPED_FOG_HINT];
   Button_Reveal.OnClick := Player_ViewClick;
-  TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_PlayerView, 46, 35, 140, 1, 64);
+  TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_PlayerView, 46, 35, Panel_PlayerView.Width - 46, 1, 64);
+  TrackBar_RevealNewSize.Anchors := [anLeft, anTop, anRight];
   TrackBar_RevealNewSize.OnChange := Player_ViewClick;
   TrackBar_RevealNewSize.Position := 8;
   CheckBox_RevealAll          := TKMCheckBox.Create(Panel_PlayerView, 9, 75, 140, 20, gResTexts[TX_MAPED_FOG_ALL], fntMetal);
   CheckBox_RevealAll.OnClick  := Player_ViewClick;
-  TKMLabel.Create(Panel_PlayerView, 0, 100, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_FOG_CENTER], fntOutline, taCenter);
+  with TKMLabel.Create(Panel_PlayerView, 0, 100, Panel_PlayerView.Width, 0, gResTexts[TX_MAPED_FOG_CENTER], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
   Button_CenterScreen         := TKMButtonFlat.Create(Panel_PlayerView, 9, 120, 33, 33, 391);
   Button_CenterScreen.Hint    := gResTexts[TX_MAPED_FOG_CENTER_HINT];
   Button_CenterScreen.OnClick := Player_ViewClick;

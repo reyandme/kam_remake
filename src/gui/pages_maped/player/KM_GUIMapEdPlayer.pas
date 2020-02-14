@@ -69,7 +69,7 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  Panel_Player := TKMPanel.Create(aParent, 0, 45, TB_MAP_ED_WIDTH, aParent.Height - 45);
+  Panel_Player := TKMPanel.Create(aParent, 0, 45, aParent.Width, aParent.Height - 45);
   Panel_Player.Anchors := [anLeft, anTop, anBottom];
 
   for PT := Low(TKMPlayerTab) to High(TKMPlayerTab) do

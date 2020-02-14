@@ -42,8 +42,9 @@ var
 begin
   inherited Create;
 
-  Panel_Units := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_Units, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_UNITS], fntOutline, taCenter);
+  Panel_Units := TKMPanel.Create(aParent, 9, 28, aParent.Width - 9, 400);
+  with TKMLabel.Create(Panel_Units, 0, PAGE_TITLE_Y, Panel_Units.Width, 0, gResTexts[TX_MAPED_UNITS], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
 
   LineY := 30;
 

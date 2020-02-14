@@ -44,13 +44,15 @@ constructor TKMMapEdPlayerGoals.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-  Panel_Goals := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_GOALS], fntOutline, taCenter);
-  ColumnBox_Goals := TKMColumnBox.Create(Panel_Goals, 9, 30, TB_MAP_ED_WIDTH - 9, 230, fntGame, bsGame);
+  Panel_Goals := TKMPanel.Create(aParent, 0, 28, aParent.Width, 400);
+  with TKMLabel.Create(Panel_Goals, 0, PAGE_TITLE_Y, Panel_Goals.Width, 0, gResTexts[TX_MAPED_GOALS], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
+  ColumnBox_Goals := TKMColumnBox.Create(Panel_Goals, 9, 30, Panel_Goals.Width - 9, 230, fntGame, bsGame);
   ColumnBox_Goals.SetColumns(fntOutline,
     [gResTexts[TX_MAPED_GOALS_TYPE],
      gResTexts[TX_MAPED_GOALS_CONDITION],
      gResTexts[TX_MAPED_GOALS_PLAYER]], [0, 25, 155], True);
+  ColumnBox_Goals.Anchors := [anLeft, anTop, anRight];
   ColumnBox_Goals.OnClick := Goals_ListClick;
   ColumnBox_Goals.OnDoubleClick := Goals_ListDoubleClick;
   ColumnBox_Goals.ColumnIdForScroll := 2;

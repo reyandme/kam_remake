@@ -96,7 +96,8 @@ begin
   CompactMapElements;
 
   Panel_Objects := TKMPanel.Create(aParent, 0, 28, aParent.Width, 400);
-  TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter);
+  with TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
   ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 9, 295, Panel_Objects.Width - 9, 20, saHorizontal, bsGame);
   ObjectsScroll.Anchors := [anLeft, anTop, anRight];
   ObjectsScroll.MinValue := 0;

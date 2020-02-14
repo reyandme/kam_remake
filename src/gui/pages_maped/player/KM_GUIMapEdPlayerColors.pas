@@ -45,37 +45,50 @@ uses
 constructor TKMMapEdPlayerColors.Create(aParent: TKMPanel);
 const
   MAX_COL = 288;
-  COLOR_TYPE_W = 65;
+  SCOLOR_C = 16;
+  SCOLOR_R = 18;
+  SCOLOR_S = 12;
+  COLOR_TYPE_W = 70;
+  COLOR_TYPE_H = 70;
 var
   Hue, Sat, Bri, I, K: Integer;
   R, G, B: Byte;
   Col: array [0..MAX_COL-1] of Cardinal;
+  XRCCode, YRCCode: Integer;
 begin
   inherited Create;
 
-  Panel_Color := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_PLAYER_COLORS], fntOutline, taCenter);
-  TKMBevel.Create(Panel_Color, 9, 30, TB_MAP_ED_WIDTH - 9, 202);
-  ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 11, 32, 16, 18, 11);
+  Panel_Color := TKMPanel.Create(aParent, 0, 28, aParent.Width, 400);
+  with TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, Panel_Color.Width, 0, gResTexts[TX_MAPED_PLAYER_COLORS], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
+  with TKMBevel.Create(Panel_Color, (9 + (((Panel_Color.Width - 9) div 2) - ((SCOLOR_C * SCOLOR_S) div 2))) - 2, 30, (SCOLOR_C * SCOLOR_S) + 2, (SCOLOR_R * SCOLOR_S) + 2) do
+    Anchors := [anLeft, anTop, anRight];
+  ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 9 + (((Panel_Color.Width - 9) div 2) - ((SCOLOR_C * SCOLOR_S) div 2)), 32, SCOLOR_C, SCOLOR_R, SCOLOR_S);
 
   //Show Color Code
-  TKMLabel.Create(Panel_Color, 9, 240, gResTexts[TX_MAPED_PLAYER_COLOR_CODE], fntOutline, taLeft);
-  TKMBevel.Create(Panel_Color, 9, 260, COLOR_TYPE_W, 70);
-  Radio_ColorCodeType := TKMRadioGroup.Create(Panel_Color, 11, 273, COLOR_TYPE_W - 5, 50, fntMetal);
+  TKMLabel.Create(Panel_Color, 9, ColorSwatch_Color.Top + ColorSwatch_Color.Height + 8, gResTexts[TX_MAPED_PLAYER_COLOR_CODE], fntOutline, taLeft);
+  with TKMBevel.Create(Panel_Color, 9, ColorSwatch_Color.Top + ColorSwatch_Color.Height + 8 + 20, COLOR_TYPE_W, COLOR_TYPE_H) do
+  begin
+    XRCCode := Left;
+    YRCCode := Top;
+  end;
+  Radio_ColorCodeType := TKMRadioGroup.Create(Panel_Color, XRCCode + ((COLOR_TYPE_W div 2) - ((COLOR_TYPE_W - 8) div 2)), YRCCode + ((COLOR_TYPE_H div 2) - 25), COLOR_TYPE_W - 8, 50, fntMetal);
   Radio_ColorCodeType.Add('BGR', gResTexts[TX_MAPED_PLAYER_COLOR_BGR_HINT]); //No need to translate BGR / RGB
   Radio_ColorCodeType.Add('RGB', gResTexts[TX_MAPED_PLAYER_COLOR_RGB_HINT]);
   Radio_ColorCodeType.OnChange := ColorCodeChange;
   Radio_ColorCodeType.ItemIndex := 0;
 
-  TKMBevel.Create(Panel_Color, 9 + COLOR_TYPE_W + 5, 260, 20, 20);
-  Shape_Color := TKMShape.Create(Panel_Color, 9 + COLOR_TYPE_W + 7, 262, 17, 17);
-  Edit_ColorCode := TKMEdit.Create(Panel_Color, 9 + COLOR_TYPE_W + 25, 260, TB_MAP_ED_WIDTH - 9 - COLOR_TYPE_W - 25, 20, fntMetal, True);
+  TKMBevel.Create(Panel_Color, XRCCode +  COLOR_TYPE_W + 5, YRCCode, 20, 20);
+  Shape_Color := TKMShape.Create(Panel_Color, XRCCode + COLOR_TYPE_W + 7, YRCCode + 2, 17, 17);
+  Edit_ColorCode := TKMEdit.Create(Panel_Color, XRCCode + COLOR_TYPE_W + 25, YRCCode, Panel_Color.Width - 9 - COLOR_TYPE_W - 25, 20, fntMetal, True);
+  Edit_ColorCode.Anchors := [anLeft, anTop, anRight];
   Edit_ColorCode.AllowedChars := acHex;
   Edit_ColorCode.MaxLen := 6;
   Edit_ColorCode.OnChange := ColorCodeChange;
 
 
-  Panel_TextColor := TKMPanel.Create(Panel_Color, 9 + COLOR_TYPE_W + 5, 290, TB_MAP_ED_WIDTH - 9 - COLOR_TYPE_W - 5, 40);
+  Panel_TextColor := TKMPanel.Create(Panel_Color, XRCCode +  COLOR_TYPE_W + 5, YRCCode + COLOR_TYPE_H - 40, Panel_Color.Width - 9 - COLOR_TYPE_W - 5, 40);
+  Panel_TextColor.Anchors := [anLeft, anTop, anRight];
   Panel_TextColor.Hint := gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR_HINT];
     Label_TextColor := TKMLabel.Create(Panel_TextColor, 0, 0, gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR], fntGrey, taLeft);
     //Edit to show text color code (desaturated) Could be used for scripts overlay
@@ -84,6 +97,7 @@ begin
     Shape_TextColor := TKMShape.Create(Panel_TextColor, 2, 22, 17, 17);
     Shape_TextColor.Hint := gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR_HINT];
     Edit_TextColorCode := TKMEdit.Create(Panel_TextColor, 20, 20, Panel_TextColor.Width - 20, 20, fntMetal, True);
+    Edit_TextColorCode.Anchors := [anLeft, anTop, anRight, anBottom];
     Edit_TextColorCode.BlockInput := True;
     Edit_TextColorCode.Hint := gResTexts[TX_MAPED_PLAYER_COLOR_TEXT_COLOR_HINT];
 

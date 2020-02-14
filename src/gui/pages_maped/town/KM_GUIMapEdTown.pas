@@ -73,7 +73,7 @@ begin
 
   fOnPageChange := aOnPageChange;
 
-  Panel_Town := TKMPanel.Create(aParent, 0, 45, TB_MAP_ED_WIDTH, aParent.Height - 45);
+  Panel_Town := TKMPanel.Create(aParent, 0, 45, aParent.Width, aParent.Height - 45);
   Panel_Town.Anchors := [anLeft, anTop, anBottom];
 
   for I := Low(TKMTownTab) to High(TKMTownTab) do

@@ -36,8 +36,9 @@ var
 begin
   inherited Create;
 
-  Panel_BlockTrade := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_BlockTrade, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_TRADE], fntOutline, taCenter);
+  Panel_BlockTrade := TKMPanel.Create(aParent, 9, 28, aParent.Width - 9, 400);
+  with TKMLabel.Create(Panel_BlockTrade, 0, PAGE_TITLE_Y, Panel_BlockTrade.Width, 0, gResTexts[TX_MAPED_BLOCK_TRADE], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
   for I := 1 to STORE_RES_COUNT do
   begin
     Button_BlockTrade[I] := TKMButtonFlat.Create(Panel_BlockTrade, 9 + ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33, 0);

@@ -36,8 +36,9 @@ var
 begin
   inherited Create;
 
-  Panel_BlockHouse := TKMPanel.Create(aParent, 0, 28, TB_MAP_ED_WIDTH, 400);
-  TKMLabel.Create(Panel_BlockHouse, 0, PAGE_TITLE_Y, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_BLOCK_HOUSES], fntOutline, taCenter);
+  Panel_BlockHouse := TKMPanel.Create(aParent, 9, 28, aParent.Width - 9, 400);
+  with TKMLabel.Create(Panel_BlockHouse, 0, PAGE_TITLE_Y, Panel_BlockHouse.Width, 0, gResTexts[TX_MAPED_BLOCK_HOUSES], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> htNone then
   begin
