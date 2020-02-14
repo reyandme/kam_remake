@@ -20,12 +20,13 @@ type
     fPanTo, fPanFrom: TKMPointF;
     fPanImmidiately : Boolean;
     fPanDuration, fPanProgress: Cardinal;
+    fToolBarWidth : Integer;
     function GetPosition: TKMPointF;
     procedure SetPosition(const Value: TKMPointF);
     procedure SetZoom(aZoom: Single);
   public
     ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown, ZoomKeyIn, ZoomKeyOut: boolean;
-    constructor Create(aWidth, aHeight: Integer);
+    constructor Create(aToolBarWidth: Integer; aWidth, aHeight: Integer);
 
     property Position: TKMPointF read GetPosition write SetPosition;
     property Scrolling: Boolean read fScrolling;
@@ -60,9 +61,11 @@ uses
 
 
 { TKMViewport }
-constructor TKMViewport.Create(aWidth, aHeight: Integer);
+constructor TKMViewport.Create(aToolBarWidth: Integer; aWidth, aHeight: Integer);
 begin
   inherited Create;
+
+  fToolBarWidth := aToolBarWidth;
 
   fMapX := 1; //Avoid division by 0
   fMapY := 1; //Avoid division by 0
@@ -96,7 +99,7 @@ end;
 
 procedure TKMViewport.Resize(NewWidth, NewHeight: Integer);
 begin
-  fViewRect.Left   := TOOLBAR_WIDTH;
+  fViewRect.Left   := fToolBarWidth;
   fViewRect.Top    := 0;
   fViewRect.Right  := NewWidth;
   fViewRect.Bottom := NewHeight;
@@ -145,9 +148,9 @@ end;
 function TKMViewport.GetClip: TKMRect;
 begin
   Result.Left   := Math.Max(Round(fPosition.X
-                         - (fViewportClip.X/2 - fViewRect.Left + TOOLBAR_WIDTH) / CELL_SIZE_PX / fZoom), 1);
+                         - (fViewportClip.X/2 - fViewRect.Left + fToolBarWidth) / CELL_SIZE_PX / fZoom), 1);
   Result.Right  := Math.Min(Round(fPosition.X
-                         + (fViewportClip.X/2 + fViewRect.Left - TOOLBAR_WIDTH) / CELL_SIZE_PX / fZoom) + 1, fMapX - 1);
+                         + (fViewportClip.X/2 + fViewRect.Left - fToolBarWidth) / CELL_SIZE_PX / fZoom) + 1, fMapX - 1);
   //Small render problem could be encountered at the top of clip rect
   //This small problem could be seen with reshade app (with displaydepth filter ON)
   //Enlarge clip viewport by 1 to fix it
@@ -164,8 +167,8 @@ end;
 //Same as above function but with some values changed to suit minimap
 function TKMViewport.GetMinimapClip: TKMRect;
 begin
-  Result.Left   := Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1, 1);
-  Result.Right  := Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1, fMapX);
+  Result.Left   := Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+fToolBarWidth)/CELL_SIZE_PX/fZoom)+1, 1);
+  Result.Right  := Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-fToolBarWidth)/CELL_SIZE_PX/fZoom)+1, fMapX);
   Result.Top    := Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+2, 1);
   Result.Bottom := Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom), fMapY);
 end;
@@ -199,7 +202,7 @@ end;
 
 function TKMViewport.MapToScreen(const aMapLoc: TKMPointF): TKMPoint;
 begin
-  Result.X := Round((aMapLoc.X - fPosition.X) * CELL_SIZE_PX * fZoom + fViewRect.Right / 2 + TOOLBAR_WIDTH / 2);
+  Result.X := Round((aMapLoc.X - fPosition.X) * CELL_SIZE_PX * fZoom + fViewRect.Right / 2 + fToolBarWidth / 2);
   Result.Y := Round((aMapLoc.Y - fPosition.Y) * CELL_SIZE_PX * fZoom + fViewRect.Bottom / 2);
 end;
 

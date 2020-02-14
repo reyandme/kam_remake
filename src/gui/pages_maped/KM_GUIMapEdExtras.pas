@@ -55,7 +55,7 @@ begin
 
   fOnChange := aOnChange;
 
-  Panel_Extra := TKMPanel.Create(aParent, TOOLBAR_WIDTH+30, aParent.Height - PANEL_HEIGHT, 600, PANEL_HEIGHT);
+  Panel_Extra := TKMPanel.Create(aParent, MAPED_TOOLBAR_WIDTH+30, aParent.Height - PANEL_HEIGHT, 600, PANEL_HEIGHT);
   Panel_Extra.Anchors := [anLeft, anBottom];
   Panel_Extra.Hide;
 

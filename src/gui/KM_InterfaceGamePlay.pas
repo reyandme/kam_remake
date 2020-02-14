@@ -296,6 +296,8 @@ type
         Button_ReturnToMapEd: TKMButton;
 
       function IsDragScrollingAllowed: Boolean; override;
+
+      function GetToolBarWidth: Integer; override;
   public
     constructor Create(aRender: TRender; aUIMode: TUIMode); reintroduce;
     destructor Destroy; override;
@@ -3147,6 +3149,12 @@ procedure TKMGamePlayInterface.GameStarted;
 begin
   if gGame.IsMultiPlayerOrSpec and (gGameApp.Chat.Text <> '') then
     fGuiGameChat.Show;
+end;
+
+
+function TKMGamePlayInterface.GetToolBarWidth: Integer;
+begin
+  Result := TOOLBAR_WIDTH;
 end;
 
 

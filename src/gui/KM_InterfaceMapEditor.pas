@@ -101,6 +101,8 @@ type
       Label_MissionName: TKMLabel;
       Image_Extra: TKMImage;
       Image_Message: TKMImage;
+
+    function GetToolBarWidth: Integer; override;
   public
     constructor Create(aRender: TRender);
     destructor Destroy; override;
@@ -700,6 +702,12 @@ begin
   HidePages;
   fGuiUnit.Show(TKMUnit(nil));
   gGameApp.PrintScreen(path + 'Unit.jpg');
+end;
+
+
+function TKMapEdInterface.GetToolBarWidth: Integer;
+begin
+  Result := MAPED_TOOLBAR_WIDTH;
 end;
 
 

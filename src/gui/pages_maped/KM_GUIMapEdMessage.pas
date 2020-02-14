@@ -33,7 +33,7 @@ constructor TKMMapEdMessage.Create(aParent: TKMPanel);
 begin
   inherited Create;
 
-  Panel_Message := TKMPanel.Create(aParent, TOOLBAR_WIDTH+30, aParent.Height - 190, 600, 190);
+  Panel_Message := TKMPanel.Create(aParent, MAPED_TOOLBAR_WIDTH+30, aParent.Height - 190, 600, 190);
   Panel_Message.Anchors := [anLeft, anBottom];
   Panel_Message.Hide;
 
