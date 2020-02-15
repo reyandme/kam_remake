@@ -3445,7 +3445,9 @@ end;
 
 
 procedure TKMColorSwatch.Paint;
-var i,Start: Integer;
+var
+  i,Start: Integer;
+  selColor: TColor4;
 begin
   inherited;
 
@@ -3464,9 +3466,15 @@ begin
   for i:=Start to Length(Colors)-1 do
     TKMRenderUI.WriteShape(AbsLeft+(i mod fColumnCount)*fCellSize, AbsTop+(i div fColumnCount)*fCellSize, fCellSize, fCellSize, Colors[i]);
 
+  if fColorIndex < 0 then Exit;
+
+  if GetBrightnessColor(Colors[fColorIndex]) >= 0.5 then
+    selColor := $FF000000
+  else
+    selColor := $FFFFFFFF;
+
   //Paint selection
-  if fColorIndex <> -1 then
-    TKMRenderUI.WriteOutline(AbsLeft+(fColorIndex mod fColumnCount)*fCellSize, AbsTop+(fColorIndex div fColumnCount)*fCellSize, fCellSize, fCellSize, 1, $FFFFFFFF);
+  TKMRenderUI.WriteOutline(AbsLeft+(fColorIndex mod fColumnCount)*fCellSize, AbsTop+(fColorIndex div fColumnCount)*fCellSize, fCellSize, fCellSize, 1, selColor);
 end;
 
 

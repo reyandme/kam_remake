@@ -36,6 +36,8 @@ uses
   function GetGreyColor(aGreyLevel: Byte): Cardinal;
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
+  function GetBrightnessColor(aR, aG, aB: Integer): Single; Overload;
+  function GetBrightnessColor(aRGB: Cardinal): Single; Overload;
   function GetRandomColorWSeed(aSeed: Integer): Cardinal;
   function EnsureBrightness(aColor: Cardinal; aMinBrightness: Single; aMaxBrightness: Single = 1): Cardinal;
   function MultiplyBrightnessByFactor(aColor: Cardinal; aBrightnessFactor: Single; aMinBrightness: Single = 0; aMaxBrightness: Single = 1): Cardinal;
@@ -848,6 +850,31 @@ begin
   R := Round(Rt * 255);
   G := Round(Gt * 255);
   B := Round(Bt * 255);
+end;
+
+
+function GetBrightnessColor(aR, aG, aB: Integer): Single;
+var
+  R, G, B: Single;
+  Vmin, Vmax: Single;
+begin
+  R := aR / 255;
+  G := aG / 255;
+  B := aB / 255;
+  Vmin := Math.min(R, Math.min(G, B));
+  Vmax := Math.max(R, Math.max(G, B));
+  Result := (Vmax + Vmin) / 2;
+end;
+
+
+function GetBrightnessColor(aRGB: Cardinal): Single;
+var
+  R, G, B: Byte;
+begin
+  B := aRGB and $FF;
+  G := aRGB shr 8 and $FF;
+  R := aRGB shr 16 and $FF;
+  Result := GetBrightnessColor(R, G, B);
 end;
 
 
