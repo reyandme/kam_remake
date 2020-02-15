@@ -3468,7 +3468,7 @@ begin
 
   if fColorIndex < 0 then Exit;
 
-  if GetBrightnessColor(Colors[fColorIndex]) >= 0.5 then
+  if GetColorBrightness(Colors[fColorIndex]) >= 0.5 then
     selColor := $FF000000
   else
     selColor := $FFFFFFFF;
