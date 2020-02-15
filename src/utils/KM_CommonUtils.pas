@@ -36,8 +36,8 @@ uses
   function GetGreyColor(aGreyLevel: Byte): Cardinal;
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
-  function GetColorBrightness(aR, aG, aB: Integer): Single; Overload;
-  function GetColorBrightness(aRGB: Cardinal): Single; Overload;
+  function GetColorBrightness(aR, aG, aB: Integer): Single; overload;
+  function GetColorBrightness(aRGB: Cardinal): Single; overload;
   function GetRandomColorWSeed(aSeed: Integer): Cardinal;
   function EnsureBrightness(aColor: Cardinal; aMinBrightness: Single; aMaxBrightness: Single = 1): Cardinal;
   function MultiplyBrightnessByFactor(aColor: Cardinal; aBrightnessFactor: Single; aMinBrightness: Single = 0; aMaxBrightness: Single = 1): Cardinal;
