@@ -1261,12 +1261,14 @@ end;
 procedure TFormMain.WMMouseWheel(var Msg: TMessage);
 var
   MousePos : TPoint;
+  KeyState : TKeyboardState;
 begin
   MousePos.X := SmallInt(LoWord(Msg.LParam));
   MousePos.Y := SmallInt(HiWord(Msg.LParam));
+  GetKeyboardState(KeyState);
 
   if gGameApp <> nil then
-    gGameApp.MouseWheel([], SmallInt(HiWord(Msg.WParam)), RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y);
+    gGameApp.MouseWheel(KeyboardStateToShiftState(KeyState), SmallInt(HiWord(Msg.WParam)), RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y);
 end;
 {$ENDIF}
 
