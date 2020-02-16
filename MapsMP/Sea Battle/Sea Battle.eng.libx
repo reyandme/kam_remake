@@ -5,7 +5,7 @@
 4:You can place your ships randomly. Use Marketplace plan.
 5:You can place your ships horizontally or vertically. Place field plan (left to right) or vinefield plan (top down).
 6:Ready? Place Barracks plan!
-7:'s turn now
+7:'s turn
 8:You won.
 9:You lose.
 10:Waiting for opponent...
@@ -16,4 +16,7 @@
 15:Your ships:
 16:Enemy ships:
 17:Game over. Winner is
-18:Classic sea battle. Now in KaM too :D|You can place your ships horizontally or vertically. Place field plan (left to right) or vinefield plan (top down).|You can place your ships randomly. Use Marketplace plan.|Place Barracks plan to set ready.|To attack enemy ships, place road plan.|To start a new game, place Watchtower plan.
+18:Time left:
+19:Place Storehouse plan to cancel all ships placement.
+20:Place Schoolhouse plan to undo ships placement one step backwards.
+21:Classic sea battle. Now in KaM too :D||You can place your ships horizontally or vertically. Place field plan (left to right) or vinefield plan (top down).||You can place your ships randomly. Use Marketplace plan.||Place Barracks plan to set ready.||To attack enemy ships, place road plan.||To start a new game, place Watchtower plan.||Place Storehouse plan to cancel all ships placement.||Place Schoolhouse plan to undo ships placement one step backwards.

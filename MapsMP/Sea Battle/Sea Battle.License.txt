@@ -1,0 +1,5 @@
+Map made by andreus
+
+"Sea Battle" dynamic script is licensed under GPLv2. You can find its text here: http://www.gnu.org/licenses/gpl-2.0.html
+
+Additional sounds derived from WAV-Library.net (sound15114, sound3769) and noisefx.ru (id 04601).

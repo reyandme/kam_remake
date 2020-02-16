@@ -36,4 +36,4 @@
 {$ENDIF}
 
 //Use secure authentication unit (KM_NetAuthSecure)
-{$DEFINE USESECUREAUTH}
+//{$DEFINE USESECUREAUTH}

@@ -1,16 +1,108 @@
-  procedure OnTick;
+var
+  AIGroups: array[0..12] of Integer;
+
+
+procedure OnMissionStart;
+begin
+  AIGroups[0] := States.GroupAt(37, 43); //15 scouts - blue
+  AIGroups[1] := States.GroupAt(37, 48); //15 knights - blue
+  AIGroups[2] := States.GroupAt(34, 43); //12 bows - blue
+  AIGroups[3] := States.GroupAt(33, 51); //15 axes - violet
+  AIGroups[4] := States.GroupAt(33, 65); //12 axes - blue
+  AIGroups[5] := States.GroupAt(30, 69); //12 bows - blue
+  AIGroups[6] := States.GroupAt(16, 62); //12 axes - blue
+  AIGroups[7] := States.GroupAt(16, 33); //12 lances - blue
+  AIGroups[8] := States.GroupAt(10, 73); //15 axes - blue
+  AIGroups[9] := States.GroupAt(6, 76);  //12 bows - blue
+  AIGroups[10] := States.GroupAt(4, 34); //12 knights - blue
+  AIGroups[11] := States.GroupAt(38, 24);//15 scouts - violet
+  AIGroups[12] := States.GroupAt(35, 17);//15 axes - violet
+end;
+
+
+procedure OnTick;
+var
+  U: array of Integer;
+  I: Integer;
+begin
+
+  for I := 0 to 3 do
+    if States.PlayerEnabled(I) then
     begin
-      if States.GameTime = 200 then begin
-       Actions.GiveGroup(1, 15, 10, 73, 1, 15, 5);
-       Actions.GiveGroup(1, 17, 6, 76, 1, 12, 4);
-       Actions.GiveGroup(3, 15, 33, 51, 2, 15, 5);
-       Actions.GiveGroup(3, 21, 38, 24, 3, 18, 6);
-     end;
+      if not States.PlayerAllianceCheck(1, I) then
+        U := States.PlayerGetAllUnits(I);
+    end;
 
-      if States.GameTime = 600 then
-       Actions.GiveGroup(3, 15, 35, 17, 4, 18, 6);
+  if Length(U) <= 0 then
+    Exit;
 
-      if States.GameTime = 650 then
-       Actions.GiveGroup(4, 22, 4, 34, 2, 12, 4);
+  if States.GameTime > 100 then
+  begin
 
-     end;
+    for I := 0 to 2 do
+      if not States.GroupDead(AIGroups[I]) then
+        if States.GroupIdle(AIGroups[I]) then
+          Actions.GroupOrderAttackUnit(AIGroups[I], U[States.KaMRandomI(Length(U))]);
+
+    for I := 4 to 7 do
+      if not States.GroupDead(AIGroups[I]) then
+        if States.GroupIdle(AIGroups[I]) then
+          Actions.GroupOrderAttackUnit(AIGroups[I], U[States.KaMRandomI(Length(U))]);
+
+  end;
+
+  if States.GameTime = 200 then
+  begin
+    Actions.GroupOrderWalk(AIGroups[11], 78, 53, 3);
+    Actions.GroupOrderWalk(AIGroups[3], 67, 75, 2);
+  end;
+
+  if States.GameTime > 300 then
+  begin
+
+    if not States.GroupDead(AIGroups[11]) then
+      if States.GroupIdle(AIGroups[11]) then
+        Actions.GroupOrderAttackUnit(AIGroups[11], U[States.KaMRandomI(Length(U))]);
+
+    if not States.GroupDead(AIGroups[3]) then
+      if States.GroupIdle(AIGroups[3]) then
+        Actions.GroupOrderAttackUnit(AIGroups[3], U[States.KaMRandomI(Length(U))]);
+
+  end;
+
+  if States.GameTime = 280 then
+  begin
+    Actions.GroupOrderWalk(AIGroups[8], 67, 70, 2);
+    Actions.GroupOrderWalk(AIGroups[9], 45, 66, 2);
+  end;
+
+  if States.GameTime > 320 then
+  begin
+
+    for I := 8 to 9 do
+      if not States.GroupDead(AIGroups[I]) then
+        if States.GroupIdle(AIGroups[I]) then
+          Actions.GroupOrderAttackUnit(AIGroups[I], U[States.KaMRandomI(Length(U))]);
+
+  end;
+
+  if States.GameTime = 800 then
+  begin
+    Actions.GroupOrderWalk(AIGroups[12], 78, 53, 2);
+    Actions.GroupOrderWalk(AIGroups[10], 78, 55, 2);
+  end;
+
+  if States.GameTime > 1000 then
+  begin
+
+    if not States.GroupDead(AIGroups[10]) then
+      if States.GroupIdle(AIGroups[10]) then
+        Actions.GroupOrderAttackUnit(AIGroups[10], U[States.KaMRandomI(Length(U))]);
+
+    if not States.GroupDead(AIGroups[12]) then
+      if States.GroupIdle(AIGroups[12]) then
+        Actions.GroupOrderAttackUnit(AIGroups[12], U[States.KaMRandomI(Length(U))]);
+
+  end;
+
+end;
