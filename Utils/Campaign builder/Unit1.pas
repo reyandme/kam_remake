@@ -62,6 +62,8 @@ type
                                     Shift: TShiftState; X, Y: Integer);
     procedure cbShowBriefingPositionClick(Sender: TObject);
     procedure btnUnloadCMPClick(Sender: TObject);
+    procedure Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
   private
     fExePath: string;
     fCampaignsPath: string;
@@ -244,8 +246,8 @@ begin
     seMapCount.Value := curItem + 1;
     C.MapCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
-    C.Maps[C.MapCount - 1].Flag.X := EnsureRange(X - Image1.Left, 0, 1024 - imgNewFlag.Width);
-    C.Maps[C.MapCount - 1].Flag.Y := EnsureRange(Y - Image1.Top, 0, 768 - imgNewFlag.Height);
+    C.Maps[C.MapCount - 1].Flag.X := EnsureRange(X - Image1.Left - ScrollBox1.HorzScrollBar.ScrollPos, 0, 1024 - imgNewFlag.Width);
+    C.Maps[C.MapCount - 1].Flag.Y := EnsureRange(Y - Image1.Top - ScrollBox1.VertScrollBar.ScrollPos, 0, 768 - imgNewFlag.Height);
 
     fSelectedMap := C.MapCount - 1; //Always select last, just added MapFlag
   end else if (fSelectedMap <> -1) and (Source = imgNewNode) then
@@ -254,8 +256,8 @@ begin
     seNodeCount.Value              := curItem + 1;
     C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
 
-    C.Maps[fSelectedMap].Nodes[curItem].X := (X - Image1.Left);
-    C.Maps[fSelectedMap].Nodes[curItem].Y := (Y - Image1.Top);
+    C.Maps[fSelectedMap].Nodes[curItem].X := (X - Image1.Left - ScrollBox1.HorzScrollBar.ScrollPos);
+    C.Maps[fSelectedMap].Nodes[curItem].Y := (Y - Image1.Top - ScrollBox1.VertScrollBar.ScrollPos);
 
     fSelectedNode := C.Maps[fSelectedMap].NodeCount - 1; //Always select last, just added Node
   end;
@@ -272,6 +274,14 @@ procedure TForm1.Image1DragOver(Sender, Source: TObject; X, Y: Integer;
 begin
   Accept := (Source = imgNewFlag) or
             ((fSelectedMap <> -1) and (Source = imgNewNode));
+end;
+
+
+procedure TForm1.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  //Test function for catching bugs
+  StatusBar1.Panels[3].Text := 'X:' + IntToStr(X) + ' x Y: ' + IntToStr(Y);
 end;
 
 

@@ -158,6 +158,9 @@ object Form1: TForm1
       end
       item
         Width = 200
+      end
+      item
+        Width = 100
       end>
   end
   object ScrollBox1: TScrollBox
@@ -175,6 +178,7 @@ object Form1: TForm1
       Stretch = True
       OnDragDrop = Image1DragDrop
       OnDragOver = Image1DragOver
+      OnMouseMove = Image1MouseMove
     end
     object imgBlackFlag: TImage
       Left = 0
