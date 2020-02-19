@@ -517,6 +517,7 @@ begin
 
     RegisterMethodCheck(c, 'function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
     RegisterMethodCheck(c, 'function PlayerColorText(aPlayer: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function PlayerColorBrightness(aPlayer: Byte): Single');
     RegisterMethodCheck(c, 'function PlayerDefeated(aPlayer: Byte): Boolean');
     RegisterMethodCheck(c, 'function PlayerEnabled(aPlayer: Byte): Boolean');
     RegisterMethodCheck(c, 'function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
@@ -1103,6 +1104,7 @@ begin
 
       RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,                      'PlayerAllianceCheck');
       RegisterMethod(@TKMScriptStates.PlayerColorText,                          'PlayerColorText');
+      RegisterMethod(@TKMScriptStates.PlayerColorBrightness,                    'PlayerColorBrightness');
       RegisterMethod(@TKMScriptStates.PlayerDefeated,                           'PlayerDefeated');
       RegisterMethod(@TKMScriptStates.PlayerEnabled,                            'PlayerEnabled');
       RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,                       'PlayerGetAllGroups');

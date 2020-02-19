@@ -132,6 +132,7 @@ type
 
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
     function PlayerColorText(aPlayer: Byte): AnsiString;
+    function PlayerColorBrightness(aPlayer: Byte): Single;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
     function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
@@ -1392,6 +1393,27 @@ begin
     begin
       Result := '';
       LogParamWarning('States.PlayerColorText', [aPlayer]);
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 10936+
+//* Get players color as brightness in Single format
+//* Result: Player color brightness
+function TKMScriptStates.PlayerColorBrightness(aPlayer: Byte): Single;
+begin
+  try
+    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+    begin
+      Result := GetColorBrightness(gHands[aPlayer].FlagColor);
+    end else
+    begin
+      Result := -1;
+      LogParamWarning('States.PlayerColorBrightness', [aPlayer]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
