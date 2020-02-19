@@ -67,6 +67,11 @@ type
     function SumS(aArray: array of Single): Single;
 
     function TimeToString(aTicks: Integer): AnsiString;
+    function TimeToTick(aHour, aMinutes, aSeconds: Integer): Cardinal;
+
+    function RGBToBGR(aHexColor: string): AnsiString;
+
+    function ColorBrightness(aHexColor: string): Single;
 
   end;
 
@@ -718,6 +723,66 @@ begin
     end
     else
       Result := '';
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 10940
+//* Converts Time in game ticks
+//* Result: game ticks
+function TKMScriptUtils.TimeToTick(aHour, aMinutes, aSeconds: Integer): Cardinal;
+begin
+  try
+    Result := (((aHour * 60) * 60) * 10) + ((aMinutes * 60) * 10) + (aSeconds * 10);
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 10940
+//* Converts HEX RGB to BGR color
+//* Result: BGR Color
+function TKMScriptUtils.RGBToBGR(aHexColor: string): AnsiString;
+var hexclr: String;
+begin
+  try
+    if aHexColor[1] <> '$' then
+      if Length(aHexColor) = 6 then
+        hexclr := '$' + aHexColor
+      else if Length(aHexColor) = 7 then
+        hexclr := '$' + Copy(aHexColor, 2, Length(aHexColor))
+      else
+        hexclr := '$FFFFFF';
+
+    Result := AnsiString(Format('%.6x', [RGB2BGR(StrToInt(hexclr))]));
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 10940
+//* Get Color Brightness from HEX BGR color
+//* Result: Color Brightness
+function TKMScriptUtils.ColorBrightness(aHexColor: string): Single;
+var hexclr: String;
+begin
+  try
+    if aHexColor[1] <> '$' then
+      if Length(aHexColor) = 6 then
+        hexclr := '$' + aHexColor
+      else if Length(aHexColor) = 7 then
+        hexclr := '$' + Copy(aHexColor, 2, Length(aHexColor))
+      else
+        hexclr := '$FFFFFF';
+
+    Result := GetColorBrightness(StrToInt(hexclr));
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;

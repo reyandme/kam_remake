@@ -132,7 +132,7 @@ type
 
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
     function PlayerColorText(aPlayer: Byte): AnsiString;
-    function PlayerColorBrightness(aPlayer: Byte): Single;
+    function PlayerColorFlag(aPlayer: Byte): AnsiString;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
     function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
@@ -146,6 +146,7 @@ type
     function StatAIDefencePositionsCount(aPlayer: Byte): Integer;
     function StatArmyCount(aPlayer: Byte): Integer;
     function StatCitizenCount(aPlayer: Byte): Integer;
+    function StatHouseCount(aPlayer: Byte): Integer;
     function StatHouseMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
     function StatHouseTypeCount(aPlayer, aHouseType: Byte): Integer;
     function StatHouseTypePlansCount(aPlayer, aHouseType: Byte): Integer;
@@ -877,6 +878,25 @@ begin
   end;
 end;
 
+//* Version: 10940
+//* Returns the number of houses of the specified player
+//* Result: Number of houses
+function TKMScriptStates.StatHouseCount(aPlayer: Byte): Integer;
+begin
+  try
+    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+      Result := gHands[aPlayer].Stats.GetHouseQty(htAny)
+    else
+    begin
+      Result := 0;
+      LogParamWarning('States.StatHouseCount', [aPlayer]);
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
 
 //* Version: 6328
 //* Returns number of specified house types for specified player.
@@ -1379,7 +1399,7 @@ end;
 
 //* Version: 4758
 //* Get players color as text in hex format
-//* Result: Player color
+//* Result: Player color as text
 function TKMScriptStates.PlayerColorText(aPlayer: Byte): AnsiString;
 begin
   try
@@ -1401,19 +1421,20 @@ begin
 end;
 
 
-//* Version: 10936+
-//* Get players color as brightness in Single format
-//* Result: Player color brightness
-function TKMScriptStates.PlayerColorBrightness(aPlayer: Byte): Single;
+//* Version: 10940
+//* Get players color in hex format
+//* Result: Player color
+function TKMScriptStates.PlayerColorFlag(aPlayer: Byte): AnsiString;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
     begin
-      Result := GetColorBrightness(gHands[aPlayer].FlagColor);
-    end else
+      Result := AnsiString(Format('%.6x', [gHands[aPlayer].FlagColor and $FFFFFF]))
+    end
+    else
     begin
-      Result := -1;
-      LogParamWarning('States.PlayerColorBrightness', [aPlayer]);
+      Result := '';
+      LogParamWarning('States.PlayerColorFlag', [aPlayer]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
