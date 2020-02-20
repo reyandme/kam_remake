@@ -131,8 +131,8 @@ type
     function PeaceTime: Cardinal;
 
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
-    function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerColorFlag(aPlayer: Byte): AnsiString;
+    function PlayerColorText(aPlayer: Byte): AnsiString;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function PlayerEnabled(aPlayer: Byte): Boolean;
     function PlayerGetAllUnits(aPlayer: Byte): TIntegerArray;
@@ -1397,6 +1397,26 @@ begin
 end;
 
 
+//* Version: 10940
+//* Get players color in hex format
+//* Result: Player color
+function TKMScriptStates.PlayerColorFlag(aPlayer: Byte): AnsiString;
+begin
+  try
+    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+      Result := AnsiString(Format('%.6x', [gHands[aPlayer].FlagColor and $FFFFFF]))
+    else
+    begin
+      Result := '';
+      LogParamWarning('States.PlayerColorFlag', [aPlayer]);
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 4758
 //* Get players color as text in hex format
 //* Result: Player color as text
@@ -1413,26 +1433,6 @@ begin
     begin
       Result := '';
       LogParamWarning('States.PlayerColorText', [aPlayer]);
-    end;
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-end;
-
-
-//* Version: 10940
-//* Get players color in hex format
-//* Result: Player color
-function TKMScriptStates.PlayerColorFlag(aPlayer: Byte): AnsiString;
-begin
-  try
-    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-      Result := AnsiString(Format('%.6x', [gHands[aPlayer].FlagColor and $FFFFFF]))
-    else
-    begin
-      Result := '';
-      LogParamWarning('States.PlayerColorFlag', [aPlayer]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
