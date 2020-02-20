@@ -1002,8 +1002,6 @@ begin
       RegisterMethod(@TKMScriptStates.AIStartPosition,                          'AIStartPosition');
       RegisterMethod(@TKMScriptStates.AIWorkerLimit,                            'AIWorkerLimit');
 
-
-
       RegisterMethod(@TKMScriptStates.ClosestGroup,                             'ClosestGroup');
       RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes,                'ClosestGroupMultipleTypes');
       RegisterMethod(@TKMScriptStates.ClosestHouse,                             'ClosestHouse');
