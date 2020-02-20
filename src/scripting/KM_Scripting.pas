@@ -516,8 +516,8 @@ begin
     RegisterMethodCheck(c, 'function PeaceTime: Cardinal');
 
     RegisterMethodCheck(c, 'function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean');
-    RegisterMethodCheck(c, 'function PlayerColorText(aPlayer: Byte): AnsiString');
     RegisterMethodCheck(c, 'function PlayerColorFlag(aPlayer: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function PlayerColorText(aPlayer: Byte): AnsiString');
     RegisterMethodCheck(c, 'function PlayerDefeated(aPlayer: Byte): Boolean');
     RegisterMethodCheck(c, 'function PlayerEnabled(aPlayer: Byte): Boolean');
     RegisterMethodCheck(c, 'function PlayerGetAllGroups(aPlayer: Byte): TIntegerArray');
@@ -748,6 +748,8 @@ begin
 
     RegisterMethodCheck(c, 'function BoolToStr(aBool: Boolean): AnsiString');
 
+    RegisterMethodCheck(c, 'function ColorBrightness(aHexColor: string): Single');
+
     RegisterMethodCheck(c, 'function EnsureRangeS(aValue, aMin, aMax: Single): Single');
     RegisterMethodCheck(c, 'function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
 
@@ -782,6 +784,9 @@ begin
     RegisterMethodCheck(c, 'function RoundToDown(aValue: Single; aBase: Integer): Integer');
     RegisterMethodCheck(c, 'function RoundToUp(aValue: Single; aBase: Integer): Integer');
 
+    RegisterMethodCheck(c, 'function RGBToBGRHex(aHexColor: string): AnsiString');
+    RegisterMethodCheck(c, 'function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString');
+
     RegisterMethodCheck(c, 'function Sqr(A: Extended): Extended');
 
     RegisterMethodCheck(c, 'function SumI(aArray: array of Integer): Integer');
@@ -789,11 +794,6 @@ begin
 
     RegisterMethodCheck(c, 'function TimeToString(aTicks: Integer): AnsiString');
     RegisterMethodCheck(c, 'function TimeToTick(aHours, aMinutes, aSeconds: Integer): Cardinal');
-
-    RegisterMethodCheck(c, 'function RGBToBGRHex(aHexColor: string): AnsiString');
-    RegisterMethodCheck(c, 'function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString');
-
-    RegisterMethodCheck(c, 'function ColorBrightness(aHexColor: string): Single');
 
     // Register objects
     AddImportedClassVariable(Sender, 'States', AnsiString(fStates.ClassName));
@@ -1002,6 +1002,8 @@ begin
       RegisterMethod(@TKMScriptStates.AIStartPosition,                          'AIStartPosition');
       RegisterMethod(@TKMScriptStates.AIWorkerLimit,                            'AIWorkerLimit');
 
+
+
       RegisterMethod(@TKMScriptStates.ClosestGroup,                             'ClosestGroup');
       RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes,                'ClosestGroupMultipleTypes');
       RegisterMethod(@TKMScriptStates.ClosestHouse,                             'ClosestHouse');
@@ -1110,8 +1112,8 @@ begin
       RegisterMethod(@TKMScriptStates.PeaceTime,                                'PeaceTime');
 
       RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,                      'PlayerAllianceCheck');
-      RegisterMethod(@TKMScriptStates.PlayerColorText,                          'PlayerColorText');
       RegisterMethod(@TKMScriptStates.PlayerColorFlag,                          'PlayerColorFlag');
+      RegisterMethod(@TKMScriptStates.PlayerColorText,                          'PlayerColorText');
       RegisterMethod(@TKMScriptStates.PlayerDefeated,                           'PlayerDefeated');
       RegisterMethod(@TKMScriptStates.PlayerEnabled,                            'PlayerEnabled');
       RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,                       'PlayerGetAllGroups');
@@ -1343,6 +1345,8 @@ begin
 
       RegisterMethod(@TKMScriptUtils.BoolToStr,                                 'BoolToStr');
 
+      RegisterMethod(@TKMScriptUtils.ColorBrightness,                           'ColorBrightness');
+
       RegisterMethod(@TKMScriptUtils.EnsureRangeI,                              'EnsureRangeI');
       RegisterMethod(@TKMScriptUtils.EnsureRangeS,                              'EnsureRangeS');
 
@@ -1377,6 +1381,9 @@ begin
       RegisterMethod(@TKMScriptUtils.RoundToDown,                               'RoundToDown');
       RegisterMethod(@TKMScriptUtils.RoundToUp,                                 'RoundToUp');
 
+      RegisterMethod(@TKMScriptUtils.RGBToBGRHex,                               'RGBToBGRHex');
+      RegisterMethod(@TKMScriptUtils.RGBDecToBGRHex,                            'RGBDecToBGRHex');
+
       RegisterMethod(@TKMScriptUtils.SumI,                                      'SumI');
       RegisterMethod(@TKMScriptUtils.SumS,                                      'SumS');
 
@@ -1385,10 +1392,6 @@ begin
       RegisterMethod(@TKMScriptUtils.TimeToString,                              'TimeToString');
       RegisterMethod(@TKMScriptUtils.TimeToTick,                                'TimeToTick');
 
-      RegisterMethod(@TKMScriptUtils.RGBToBGRHex,                               'RGBToBGRHex');
-      RegisterMethod(@TKMScriptUtils.RGBDecToBGRHex,                            'RGBDecToBGRHex');
-
-      RegisterMethod(@TKMScriptUtils.ColorBrightness,                           'ColorBrightness');
     end;
 
     //Append classes info to Exec
