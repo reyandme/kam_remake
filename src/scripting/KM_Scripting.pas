@@ -793,7 +793,7 @@ begin
     RegisterMethodCheck(c, 'function RGBToBGRHex(aHexColor: string): AnsiString');
     RegisterMethodCheck(c, 'function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString');
 
-    RegisterMethodCheck(c, 'function BGRColorBrightness(aHexColor: string): Single');
+    RegisterMethodCheck(c, 'function ColorBrightness(aHexColor: string): Single');
 
     // Register objects
     AddImportedClassVariable(Sender, 'States', AnsiString(fStates.ClassName));
@@ -1388,7 +1388,7 @@ begin
       RegisterMethod(@TKMScriptUtils.RGBToBGRHex,                               'RGBToBGRHex');
       RegisterMethod(@TKMScriptUtils.RGBDecToBGRHex,                            'RGBDecToBGRHex');
 
-      RegisterMethod(@TKMScriptUtils.BGRColorBrightness,                        'BGRColorBrightness');
+      RegisterMethod(@TKMScriptUtils.ColorBrightness,                           'ColorBrightness');
     end;
 
     //Append classes info to Exec

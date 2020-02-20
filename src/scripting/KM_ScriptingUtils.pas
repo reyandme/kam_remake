@@ -72,7 +72,7 @@ type
     function RGBToBGRHex(aHexColor: string): AnsiString;
     function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString;
 
-    function BGRColorBrightness(aHexColor: string): Single;
+    function ColorBrightness(aHexColor: string): Single;
 
   end;
 
@@ -805,7 +805,7 @@ end;
 //* Version: 10940
 //* Get Color Brightness from HEX BGR color
 //* Result: Color Brightness OR -1 if aHexColor not equal to HEX BGR
-function TKMScriptUtils.BGRColorBrightness(aHexColor: string): Single;
+function TKMScriptUtils.ColorBrightness(aHexColor: string): Single;
 var hexclr: String;
 begin
   try
