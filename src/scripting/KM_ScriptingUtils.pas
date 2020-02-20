@@ -83,8 +83,9 @@ uses
   SysUtils, KM_CommonUtils;
 
 
-function HexRGB(aHexColor: string; out aResult: string): Boolean;
+function TryParseHexColor(aHexColor: string; out aResult: string): Boolean;
 begin
+  aHexColor := UpperCase(aHexColor);
   if aHexColor[1] <> '$' then
   begin
     if Length(aHexColor) = 6 then
@@ -354,11 +355,13 @@ end;
 //* Get Color Brightness from HEX BGR color
 //* Result: Color Brightness OR -1 if aHexColor not equal to HEX BGR
 function TKMScriptUtils.ColorBrightness(aHexColor: string): Single;
-var hexclr: String;
+var
+  hexclr: String;
+  Val: Integer;
 begin
   try
-    if HexRGB(aHexColor, hexclr) then
-      Result := GetColorBrightness(StrToInt(hexclr))
+    if TryParseHexColor(aHexColor, hexclr) and (TryStrToInt(hexclr, Val)) then
+      Result := GetColorBrightness(Val)
     else
       Result := -1;
   except
@@ -693,11 +696,13 @@ end;
 //* VAR := RGBToBGRHex('#FFFF00');
 //* The result of the VAR will be 00FFFF
 function TKMScriptUtils.RGBToBGRHex(aHexColor: string): AnsiString;
-var hexclr: String;
+var
+  hexclr: String;
+  Val: Integer;
 begin
   try
-    if HexRGB(aHexColor, hexclr) then
-      Result := AnsiString(Format('%.6x', [RGB2BGR(StrToInt(hexclr))]))
+    if TryParseHexColor(aHexColor, hexclr) and TryStrToInt(hexclr, Val) then
+      Result := AnsiString(Format('%.6x', [RGB2BGR(Val)]))
     else
       Result := '';
   except
