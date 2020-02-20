@@ -1428,9 +1428,7 @@ function TKMScriptStates.PlayerColorFlag(aPlayer: Byte): AnsiString;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-    begin
       Result := AnsiString(Format('%.6x', [gHands[aPlayer].FlagColor and $FFFFFF]))
-    end
     else
     begin
       Result := '';
