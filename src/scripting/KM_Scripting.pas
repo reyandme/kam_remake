@@ -781,11 +781,11 @@ begin
 
     RegisterMethodCheck(c, 'function Power(Base, Exponent: Extended): Extended');
 
+    RegisterMethodCheck(c, 'function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function RGBToBGRHex(aHexColor: string): AnsiString');
+
     RegisterMethodCheck(c, 'function RoundToDown(aValue: Single; aBase: Integer): Integer');
     RegisterMethodCheck(c, 'function RoundToUp(aValue: Single; aBase: Integer): Integer');
-
-    RegisterMethodCheck(c, 'function RGBToBGRHex(aHexColor: string): AnsiString');
-    RegisterMethodCheck(c, 'function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString');
 
     RegisterMethodCheck(c, 'function Sqr(A: Extended): Extended');
 
@@ -1376,11 +1376,11 @@ begin
 
       RegisterMethod(@TKMScriptUtils.Power,                                     'Power');
 
+      RegisterMethod(@TKMScriptUtils.RGBDecToBGRHex,                            'RGBDecToBGRHex');
+      RegisterMethod(@TKMScriptUtils.RGBToBGRHex,                               'RGBToBGRHex');
+
       RegisterMethod(@TKMScriptUtils.RoundToDown,                               'RoundToDown');
       RegisterMethod(@TKMScriptUtils.RoundToUp,                                 'RoundToUp');
-
-      RegisterMethod(@TKMScriptUtils.RGBToBGRHex,                               'RGBToBGRHex');
-      RegisterMethod(@TKMScriptUtils.RGBDecToBGRHex,                            'RGBDecToBGRHex');
 
       RegisterMethod(@TKMScriptUtils.SumI,                                      'SumI');
       RegisterMethod(@TKMScriptUtils.SumS,                                      'SumS');
