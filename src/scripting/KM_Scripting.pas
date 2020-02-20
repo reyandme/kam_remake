@@ -788,11 +788,12 @@ begin
     RegisterMethodCheck(c, 'function SumS(aArray: array of Single): Single');
 
     RegisterMethodCheck(c, 'function TimeToString(aTicks: Integer): AnsiString');
-    RegisterMethodCheck(c, 'function TimeToTick(aHour, aMinutes, aSeconds: Integer): Cardinal');
+    RegisterMethodCheck(c, 'function TimeToTick(aHours, aMinutes, aSeconds: Integer): Cardinal');
 
-    RegisterMethodCheck(c, 'function RGBToBGR(aHexColor: string): AnsiString');
+    RegisterMethodCheck(c, 'function RGBToBGRHex(aHexColor: string): AnsiString');
+    RegisterMethodCheck(c, 'function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString');
 
-    RegisterMethodCheck(c, 'function ColorBrightness(aHexColor: string): Single');
+    RegisterMethodCheck(c, 'function BGRColorBrightness(aHexColor: string): Single');
 
     // Register objects
     AddImportedClassVariable(Sender, 'States', AnsiString(fStates.ClassName));
@@ -1384,9 +1385,10 @@ begin
       RegisterMethod(@TKMScriptUtils.TimeToString,                              'TimeToString');
       RegisterMethod(@TKMScriptUtils.TimeToTick,                                'TimeToTick');
 
-      RegisterMethod(@TKMScriptUtils.RGBToBGR,                                  'RGBToBGR');
+      RegisterMethod(@TKMScriptUtils.RGBToBGRHex,                               'RGBToBGRHex');
+      RegisterMethod(@TKMScriptUtils.RGBDecToBGRHex,                            'RGBDecToBGRHex');
 
-      RegisterMethod(@TKMScriptUtils.ColorBrightness,                           'ColorBrightness');
+      RegisterMethod(@TKMScriptUtils.BGRColorBrightness,                        'BGRColorBrightness');
     end;
 
     //Append classes info to Exec

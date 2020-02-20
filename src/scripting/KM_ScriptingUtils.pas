@@ -67,11 +67,12 @@ type
     function SumS(aArray: array of Single): Single;
 
     function TimeToString(aTicks: Integer): AnsiString;
-    function TimeToTick(aHour, aMinutes, aSeconds: Integer): Cardinal;
+    function TimeToTick(aHours, aMinutes, aSeconds: Integer): Cardinal;
 
-    function RGBToBGR(aHexColor: string): AnsiString;
+    function RGBToBGRHex(aHexColor: string): AnsiString;
+    function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString;
 
-    function ColorBrightness(aHexColor: string): Single;
+    function BGRColorBrightness(aHexColor: string): Single;
 
   end;
 
@@ -733,10 +734,50 @@ end;
 //* Version: 10940
 //* Converts Time in game ticks
 //* Result: game ticks
-function TKMScriptUtils.TimeToTick(aHour, aMinutes, aSeconds: Integer): Cardinal;
+function TKMScriptUtils.TimeToTick(aHours, aMinutes, aSeconds: Integer): Cardinal;
 begin
   try
-    Result := (((aHour * 60) * 60) * 10) + ((aMinutes * 60) * 10) + (aSeconds * 10);
+    Result := ((aHours * 60 * 60) + (aMinutes * 60) + aSeconds) * 10;
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+function HexRGB(aHexColor: string; out aResult: string): Boolean;
+begin
+  if aHexColor[1] <> '$' then
+  begin
+    if Length(aHexColor) = 6 then
+      aResult := '$' + aHexColor
+    else if Length(aHexColor) = 7 then
+      aResult := '$' + Copy(aHexColor, 2, Length(aHexColor))
+    else
+      aResult := '';
+
+    Result := Length(aResult) > 0;
+  end else begin
+    aResult := aHexColor;
+    Result := True;
+  end;
+end;
+
+
+//* Version: 10940
+//* Converts HEX RGB to HEX BGR color
+//* Result: HEX BGR Color or '' if aHexColor not equal to HEX RGB
+//* Example
+//* VAR := RGBToBGRHex('#FFFF00');
+//* The result of the VAR will be 00FFFF
+function TKMScriptUtils.RGBToBGRHex(aHexColor: string): AnsiString;
+var hexclr: String;
+begin
+  try
+    if HexRGB(aHexColor, hexclr) then
+      Result := AnsiString(Format('%.6x', [RGB2BGR(StrToInt(hexclr))]))
+    else
+      Result := '';
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -745,21 +786,15 @@ end;
 
 
 //* Version: 10940
-//* Converts HEX RGB to BGR color
-//* Result: BGR Color
-function TKMScriptUtils.RGBToBGR(aHexColor: string): AnsiString;
-var hexclr: String;
+//* Converts RGB to HEX BGR color
+//* Result: HEX BGR Color
+//* Example
+//* VAR := RGBDecToBGRHex(255, 255, 0);
+//* The result of the VAR will be 00FFFF
+function TKMScriptUtils.RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString;
 begin
   try
-    if aHexColor[1] <> '$' then
-      if Length(aHexColor) = 6 then
-        hexclr := '$' + aHexColor
-      else if Length(aHexColor) = 7 then
-        hexclr := '$' + Copy(aHexColor, 2, Length(aHexColor))
-      else
-        hexclr := '$FFFFFF';
-
-    Result := AnsiString(Format('%.6x', [RGB2BGR(StrToInt(hexclr))]));
+    Result := AnsiString(Format('%.6x', [RGB2BGR(StrToInt('$' + IntToHex(aR) + IntToHex(aG) + IntToHex(aB)))]));
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
@@ -769,20 +804,15 @@ end;
 
 //* Version: 10940
 //* Get Color Brightness from HEX BGR color
-//* Result: Color Brightness
-function TKMScriptUtils.ColorBrightness(aHexColor: string): Single;
+//* Result: Color Brightness OR -1 if aHexColor not equal to HEX BGR
+function TKMScriptUtils.BGRColorBrightness(aHexColor: string): Single;
 var hexclr: String;
 begin
   try
-    if aHexColor[1] <> '$' then
-      if Length(aHexColor) = 6 then
-        hexclr := '$' + aHexColor
-      else if Length(aHexColor) = 7 then
-        hexclr := '$' + Copy(aHexColor, 2, Length(aHexColor))
-      else
-        hexclr := '$FFFFFF';
-
-    Result := GetColorBrightness(StrToInt(hexclr));
+    if HexRGB(aHexColor, hexclr) then
+      Result := GetColorBrightness(StrToInt(hexclr))
+    else
+      Result := -1;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;
