@@ -497,9 +497,8 @@ uses
   KM_CommonUtils;
 
 const
-  TILES_NOT_ALLOWED_TO_SET: array[0..17] of Word = (55,59,60,61,62,63, //wine and corn
+  TILES_NOT_ALLOWED_TO_SET: array[0..16] of Word = (55,59,60,61,62,63, //wine and corn
                                                     189,169,185, //duplicates of 108,109,110
-                                                    246, //some strange bridge...
                                                     248,249,250,251,252,253,254,255); //roads and overlays
 
 
