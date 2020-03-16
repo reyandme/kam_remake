@@ -2723,7 +2723,7 @@ begin
       if Land[Loc.Y, Loc.X].TileOverlay = toRoad then
         RemRoad(Loc);
       Land[Loc.Y, Loc.X].TileOverlay := Overlay;
-      if Overlay = toRoad then
+      if Overlay in [toRoad, toDig4] then
         if gMapElements[Land[Loc.Y, Loc.X].Obj].WineOrCorn then
           RemoveObject(Loc);
     end;
