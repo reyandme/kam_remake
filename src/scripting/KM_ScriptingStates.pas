@@ -3035,8 +3035,7 @@ end;
 function TKMScriptStates.MapTileHasOnlyTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean;
 begin
   try
-    if gTerrain.TileInMapCoords(X, Y)
-    and (TerKind in [Low(TKMTerrainKind)..High(TKMTerrainKind)]) then
+    if gTerrain.TileInMapCoords(X, Y) then
       Result := gTerrain.TileHasOnlyTerrainKind(X, Y, TerKind)
   else
   begin
@@ -3054,25 +3053,9 @@ end;
 //* Check if tile at XY coordinates has only requested terrain kinds. F.e. water and stone, but no dirt
 //* Result: Tile has only requested terrain kinds
 function TKMScriptStates.MapTileHasOnlyTerrainKinds(X, Y: Integer; TerKinds: array of TKMTerrainKind): Boolean;
-
-  function ValidKinds(aTerKinds: array of TKMTerrainKind): Boolean;
-  var
-    I: Integer;
-    TK: TKMTerrainKind;
-  begin
-    Result := True;
-    for I := Low(aTerKinds) to High(aTerKinds) do
-    begin
-      TK := aTerKinds[I];
-      if not (TK in [Low(TKMTerrainKind)..High(TKMTerrainKind)]) then
-        Exit(False);
-    end;
-  end;
-
 begin
   try
-    if (gTerrain.TileInMapCoords(X, Y))
-    and ValidKinds(TerKinds) then
+    if gTerrain.TileInMapCoords(X, Y) then
       Result := gTerrain.TileHasOnlyTerrainKinds(X, Y, TerKinds)
   else
   begin
