@@ -223,7 +223,6 @@ const
   PANEL_SETUP_OPTIONS_HEIGHT = 170;
   RESET_BANS_COOLDOWN = 1000;
   ASK_READY_COOLDOWN = 1000;
-  SPEED_MAX_VALUE = 2.5;
   SPEED_STEP = 0.1;
 
   MAP_TYPE_INDEX_RMG = 4;
@@ -627,7 +626,7 @@ begin
           TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
           TrackBar_LobbyPeacetime.OnChange := GameOptionsChange;
 
-          SpeedsCnt := Round((SPEED_MAX_VALUE - 1) / SPEED_STEP) + 1;
+          SpeedsCnt := Round((GAME_MP_SPEED_MAX - 1) / SPEED_STEP) + 1;
 
           TrackBar_SpeedPT := TKMTrackBar.Create(Panel_GameOptions, 10, 46, 250, 1, SpeedsCnt);
           TrackBar_SpeedPT.Anchors := [anLeft,anBottom];

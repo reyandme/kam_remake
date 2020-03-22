@@ -228,6 +228,9 @@ const
   MAX_LOBBY_SLOTS      = MAX_LOBBY_PLAYERS + MAX_LOBBY_SPECTATORS;
   MAX_TEAMS            = MAX_LOBBY_PLAYERS div 2;
 
+  GAME_MP_SPEED_MAX = 2.5;
+  GAME_SPEED_NORMAL = 1;
+
   AUTOSAVE_COUNT          = 5;    //How many autosaves to backup - this MUST be variable (Parallel Runner)
   AUTOSAVE_COUNT_MIN      = 2;
   AUTOSAVE_COUNT_MAX      = 10;

@@ -3603,7 +3603,7 @@ var
   Speed: Single;
 begin
   try
-    Speed := EnsureRange(aSpeed, 1, 2.5);
+    Speed := EnsureRange(aSpeed, GAME_SPEED_NORMAL, GAME_MP_SPEED_MAX);
     gGame.SetGameSpeed(Speed, False);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
