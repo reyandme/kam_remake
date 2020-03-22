@@ -4,7 +4,7 @@ interface
 uses
   Classes, Math, SysUtils, StrUtils, uPSRuntime,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_HandsCollection, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_MapTypes,
-  KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_Terrain;
+  KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_Terrain, KM_ResTileset;
 
 
 type
@@ -37,6 +37,7 @@ type
 
     function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 
+    function GameSpeed: Single;
     function GameTime: Cardinal;
 
     function GroupAssignedToDefencePosition(aGroupID, X, Y: Integer): Boolean;
@@ -105,6 +106,19 @@ type
     function KaMRandom: Single;
     function KaMRandomI(aMax: Integer): Integer;
     function LocationCount: Integer;
+
+    function MapTileHasOnlyTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean;
+    function MapTileHasOnlyTerrainKinds(X, Y: Integer; TerKinds: array of TKMTerrainKind): Boolean;
+    function MapTileHasTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean;
+    function MapTileIsCoal(X, Y: Integer): Word;
+    function MapTileIsGold(X, Y: Integer): Word;
+    function MapTileIsIce(X, Y: Integer): Boolean;
+    function MapTileIsIron(X, Y: Integer): Word;
+    function MapTileIsSand(X, Y: Integer): Boolean;
+    function MapTileIsSnow(X, Y: Integer): Boolean;
+    function MapTileIsSoil(X, Y: Integer): Boolean;
+    function MapTileIsStone(X, Y: Integer): Word;
+    function MapTileIsWater(X, Y: Integer; FullTilesOnly: Boolean): Boolean;
 
     function MapTileType(X, Y: Integer): Integer;
     function MapTileRotation(X, Y: Integer): Integer;
@@ -822,6 +836,20 @@ begin
       Result := 0;
       LogParamWarning('States.StatCitizenCount', [aPlayer]);
     end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Get the game speed
+//* Result: Game speed
+function TKMScriptStates.GameSpeed: Single;
+begin
+  try
+    Result := gGame.GameSpeed;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -2994,6 +3022,270 @@ begin
       Result := False;
       LogParamWarning('States.MapTilePassability', [X, Y, aPassability]);
     end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check if tile at XY coordinates has only requested terrain kind. F.e. water, but no transition with shallow or stone.
+//* Result: Tile has only requested terrain kind
+function TKMScriptStates.MapTileHasOnlyTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y)
+    and (TerKind in [Low(TKMTerrainKind)..High(TKMTerrainKind)]) then
+      Result := gTerrain.TileHasOnlyTerrainKind(X, Y, TerKind)
+  else
+  begin
+    Result := False;
+    LogParamWarning('States.MapTileHasOnlyTerrainKind', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check if tile at XY coordinates has only requested terrain kinds. F.e. water and stone, but no dirt
+//* Result: Tile has only requested terrain kinds
+function TKMScriptStates.MapTileHasOnlyTerrainKinds(X, Y: Integer; TerKinds: array of TKMTerrainKind): Boolean;
+
+  function ValidKinds(aTerKinds: array of TKMTerrainKind): Boolean;
+  var
+    I: Integer;
+    TK: TKMTerrainKind;
+  begin
+    Result := True;
+    for I := Low(aTerKinds) to High(aTerKinds) do
+    begin
+      TK := aTerKinds[I];
+      if not (TK in [Low(TKMTerrainKind)..High(TKMTerrainKind)]) then
+        Exit(False);
+    end;
+  end;
+
+begin
+  try
+    if (gTerrain.TileInMapCoords(X, Y))
+    and ValidKinds(TerKinds) then
+      Result := gTerrain.TileHasOnlyTerrainKinds(X, Y, TerKinds)
+  else
+  begin
+    Result := False;
+    LogParamWarning('States.MapTileHasOnlyTerrainKinds', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check if tile at XY coordinates has a part of requested terrain kind. F.e. water tile has corner transition with dirt
+//* Result: Tile has requested terrain kind part
+function TKMScriptStates.MapTileHasTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y)
+    and (TerKind in [Low(TKMTerrainKind)..High(TKMTerrainKind)]) then
+      Result := gTerrain.TileHasTerrainKindPart(X, Y, TerKind)
+  else
+  begin
+    Result := False;
+    LogParamWarning('States.MapTileHasTerrainKind', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check coal deposit size at the specified XY coordinates.
+//* Result: Coal deposit size at X, Y
+function TKMScriptStates.MapTileIsCoal(X, Y: Integer): Word;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y) then
+      Result := gTerrain.TileIsCoal(X, Y)
+  else
+  begin
+    Result := 0;
+    LogParamWarning('States.MapTileIsCoal', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check gold deposit size at the specified XY coordinates.
+//* Result: Gold deposit size at X, Y
+function TKMScriptStates.MapTileIsGold(X, Y: Integer): Word;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y) then
+      Result := gTerrain.TileIsGold(X, Y)
+  else
+  begin
+    Result := 0;
+    LogParamWarning('States.MapTileIsGold', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check if tile at the specified XY coordinates has ice
+//* Result: Tile has ice
+function TKMScriptStates.MapTileIsIce(X, Y: Integer): Boolean;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y) then
+      Result := gTerrain.TileIsIce(X, Y)
+  else
+  begin
+    Result := False;
+    LogParamWarning('States.MapTileIsIce', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check iron deposit size at the specified XY coordinates.
+//* Result: Iron deposit size at X, Y
+function TKMScriptStates.MapTileIsIron(X, Y: Integer): Word;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y) then
+      Result := gTerrain.TileIsIron(X, Y)
+  else
+  begin
+    Result := 0;
+    LogParamWarning('States.MapTileIsIron', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check if tile at the specified XY coordinates has sand
+//* Result: Tile has sand
+function TKMScriptStates.MapTileIsSand(X, Y: Integer): Boolean;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y) then
+      Result := gTerrain.TileIsSand(KMPoint(X, Y))
+  else
+  begin
+    Result := False;
+    LogParamWarning('States.MapTileIsSand', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check if tile at the specified XY coordinates has snow
+//* Result: Tile has snow
+function TKMScriptStates.MapTileIsSnow(X, Y: Integer): Boolean;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y) then
+      Result := gTerrain.TileIsSnow(X, Y)
+  else
+  begin
+    Result := False;
+    LogParamWarning('States.MapTileIsSnow', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check if tile at the specified XY coordinates has fertile soil (grass, dirt etc terrain good for fields, trees)
+//* Result: Tile has soil
+function TKMScriptStates.MapTileIsSoil(X, Y: Integer): Boolean;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y) then
+      Result := gTerrain.TileIsSoil(X, Y)
+  else
+  begin
+    Result := False;
+    LogParamWarning('States.MapTileIsSoil', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check stone deposit size at the specified XY coordinates.
+//* Result: Stone deposit size at X, Y
+function TKMScriptStates.MapTileIsStone(X, Y: Integer): Word;
+begin
+  try
+    if gTerrain.TileInMapCoords(X, Y) then
+      Result := gTerrain.TileIsStone(X, Y) * 3
+  else
+  begin
+    Result := 0;
+    LogParamWarning('States.MapTileIsStone', [X, Y]);
+  end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Check if tile at the specified XY coordinates has water.
+//* FullTilesOnly = True means we check only water tiles not containing transition with grass/sand/stone etc tiles.
+//* FullTilesOnly = False checks any water containing tiles including transitions.
+//* Result: Tile has water
+function TKMScriptStates.MapTileIsWater(X, Y: Integer; FullTilesOnly: Boolean): Boolean;
+begin
+  Result := False;
+  try
+    if gTerrain.TileInMapCoords(X, Y) then
+    begin
+      if FullTilesOnly then
+        Result := gTerrain.TileIsWater(X, Y)
+      else
+      if not FullTilesOnly then
+        Result := gTerrain.TileHasWater(X, Y);
+    end
+  else
+    LogParamWarning('States.MapTileIsWater', [X, Y]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

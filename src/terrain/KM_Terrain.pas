@@ -285,6 +285,8 @@ type
     function TileIsSand(const Loc: TKMPoint): Boolean;
     function TileIsSoil(X,Y: Word): Boolean; overload;
     function TileIsSoil(const Loc: TKMPoint): Boolean; overload;
+    function TileIsIce(X, Y: Word): Boolean;
+    function TileHasWater(X, Y: Word): Boolean;
     function TileIsFactorable(const Loc: TKMPoint): Boolean;
     function TileIsWalkable(const Loc: TKMPoint): Boolean;
     function TileIsRoadable(const Loc: TKMPoint): Boolean;
@@ -1392,6 +1394,18 @@ end;
 function TKMTerrain.TileIsSoil(const Loc: TKMPoint): Boolean;
 begin
   Result := TileIsSoil(Loc.X, Loc.Y);
+end;
+
+
+function TKMTerrain.TileIsIce(X, Y: Word): Boolean;
+begin
+  Result := TileHasParameter(X, Y, fTileset.TileIsIce);
+end;
+
+
+function TKMTerrain.TileHasWater(X, Y: Word): Boolean;
+begin
+  Result := fTileset.TileHasWater(Land[Y,X].BaseLayer.Terrain);
 end;
 
 

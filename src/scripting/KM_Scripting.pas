@@ -436,6 +436,7 @@ begin
 
     RegisterMethodCheck(c, 'function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean');
 
+    RegisterMethodCheck(c, 'function GameSpeed: Single');
     RegisterMethodCheck(c, 'function GameTime: Cardinal');
 
     RegisterMethodCheck(c, 'function GroupAssignedToDefencePosition(aGroupID, X, Y: Integer): Boolean');
@@ -507,7 +508,19 @@ begin
     RegisterMethodCheck(c, 'function LocationCount: Integer');
 
     RegisterMethodCheck(c, 'function MapHeight: Integer');
+    RegisterMethodCheck(c, 'function MapTileHasOnlyTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean');
+    RegisterMethodCheck(c, 'function MapTileHasOnlyTerrainKinds(X, Y: Integer; TerKinds: array of TKMTerrainKind): Boolean');
+    RegisterMethodCheck(c, 'function MapTileHasTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean');
     RegisterMethodCheck(c, 'function MapTileHeight(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function MapTileIsCoal(X, Y: Integer): Word');
+    RegisterMethodCheck(c, 'function MapTileIsGold(X, Y: Integer): Word');
+    RegisterMethodCheck(c, 'function MapTileIsIce(X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function MapTileIsIron(X, Y: Integer): Word');
+    RegisterMethodCheck(c, 'function MapTileIsSand(X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function MapTileIsSnow(X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function MapTileIsSoil(X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function MapTileIsStone(X, Y: Integer): Word');
+    RegisterMethodCheck(c, 'function MapTileIsWater(X, Y: Integer; FullTilesOnle: Boolean): Boolean');
     RegisterMethodCheck(c, 'function MapTileObject(X, Y: Integer): Integer');
     RegisterMethodCheck(c, 'function MapTileOverlay(X, Y: Integer): TKMTileOverlay');
     RegisterMethodCheck(c, 'function MapTileOwner(X, Y: Integer): Integer');
@@ -622,6 +635,8 @@ begin
     RegisterMethodCheck(c, 'procedure FogRevealAll(aPlayer: Byte)');
     RegisterMethodCheck(c, 'procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word)');
     RegisterMethodCheck(c, 'procedure FogRevealRect(aPlayer, X1, Y1, X2, Y2: Word)');
+
+    RegisterMethodCheck(c, 'procedure GameSpeed(aSpeed: Single)');
 
     RegisterMethodCheck(c, 'function  GiveAnimal(aType, X,Y: Word): Integer');
     RegisterMethodCheck(c, 'function  GiveField(aPlayer, X, Y: Word): Boolean');
@@ -808,6 +823,8 @@ begin
     RegisterMethodCheck(c, 'function MinInArrayS(aArray: array of Single): Single');
 
     RegisterMethodCheck(c, 'function Power(Base, Exponent: Extended): Extended');
+
+    RegisterMethodCheck(c, 'function RandomRangeI(aFrom, aTo: Integer): Integer');
 
     RegisterMethodCheck(c, 'function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString');
     RegisterMethodCheck(c, 'function RGBToBGRHex(aHexColor: string): AnsiString');
@@ -1047,6 +1064,7 @@ begin
 
       RegisterMethod(@TKMScriptStates.FogRevealed,                              'FogRevealed');
 
+      RegisterMethod(@TKMScriptStates.GameSpeed,                                'GameSpeed');
       RegisterMethod(@TKMScriptStates.GameTime,                                 'GameTime');
 
       RegisterMethod(@TKMScriptStates.GroupAssignedToDefencePosition,           'GroupAssignedToDefencePosition');
@@ -1118,7 +1136,19 @@ begin
       RegisterMethod(@TKMScriptStates.LocationCount,                            'LocationCount');
 
       RegisterMethod(@TKMScriptStates.MapHeight,                                'MapHeight');
+      RegisterMethod(@TKMScriptStates.MapTileHasOnlyTerrainKind,                'MapTileHasOnlyTerrainKind');
+      RegisterMethod(@TKMScriptStates.MapTileHasOnlyTerrainKinds,               'MapTileHasOnlyTerrainKinds');
+      RegisterMethod(@TKMScriptStates.MapTileHasTerrainKind,                    'MapTileHasTerrainKind');
       RegisterMethod(@TKMScriptStates.MapTileHeight,                            'MapTileHeight');
+      RegisterMethod(@TKMScriptStates.MapTileIsCoal,                            'MapTileIsCoal');
+      RegisterMethod(@TKMScriptStates.MapTileIsGold,                            'MapTileIsGold');
+      RegisterMethod(@TKMScriptStates.MapTileIsIce,                             'MapTileIsIce');
+      RegisterMethod(@TKMScriptStates.MapTileIsIron,                            'MapTileIsIron');
+      RegisterMethod(@TKMScriptStates.MapTileIsSand,                            'MapTileIsSand');
+      RegisterMethod(@TKMScriptStates.MapTileIsSnow,                            'MapTileIsSnow');
+      RegisterMethod(@TKMScriptStates.MapTileIsSoil,                            'MapTileIsSoil');
+      RegisterMethod(@TKMScriptStates.MapTileIsStone,                           'MapTileIsStone');
+      RegisterMethod(@TKMScriptStates.MapTileIsWater,                           'MapTileIsWater');
       RegisterMethod(@TKMScriptStates.MapTileObject,                            'MapTileObject');
       RegisterMethod(@TKMScriptStates.MapTileOverlay,                           'MapTileOverlay');
       RegisterMethod(@TKMScriptStates.MapTileOwner,                             'MapTileOwner');
@@ -1233,6 +1263,8 @@ begin
       RegisterMethod(@TKMScriptActions.FogRevealAll,                            'FogRevealAll');
       RegisterMethod(@TKMScriptActions.FogRevealCircle,                         'FogRevealCircle');
       RegisterMethod(@TKMScriptActions.FogRevealRect,                           'FogRevealRect');
+
+      RegisterMethod(@TKMScriptActions.GameSpeed,                               'GameSpeed');
 
       RegisterMethod(@TKMScriptActions.GiveAnimal,                              'GiveAnimal');
       RegisterMethod(@TKMScriptActions.GiveField,                               'GiveField');
@@ -1418,6 +1450,8 @@ begin
       RegisterMethod(@TKMScriptUtils.MinInArrayS,                               'MinInArrayS');
 
       RegisterMethod(@TKMScriptUtils.Power,                                     'Power');
+
+      RegisterMethod(@TKMScriptUtils.RandomRangeI,                              'RandomRangeI');
 
       RegisterMethod(@TKMScriptUtils.RGBDecToBGRHex,                            'RGBDecToBGRHex');
       RegisterMethod(@TKMScriptUtils.RGBToBGRHex,                               'RGBToBGRHex');

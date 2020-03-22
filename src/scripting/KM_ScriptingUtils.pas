@@ -58,6 +58,8 @@ type
 
     function Power(aBase, aExp: Extended): Extended;
 
+    function RandomRangeI(aFrom, aTo: Integer): Integer;
+
     function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString;
     function RGBToBGRHex(aHexColor: string): AnsiString;
 
@@ -665,6 +667,19 @@ function TKMScriptUtils.Power(aBase, aExp: Extended): Extended;
 begin
   try
     Result := Math.Power(aBase, aExp);
+  except
+    gScriptEvents.ExceptionOutsideScript := True;
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Generates a random number in requested range aFrom..aTo
+function TKMScriptUtils.RandomRangeI(aFrom, aTo: Integer): Integer;
+begin
+  try
+    Result := Math.RandomRange(aFrom, aTo);
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;

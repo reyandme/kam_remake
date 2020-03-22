@@ -59,6 +59,8 @@ type
     procedure FogRevealAll(aPlayer: Byte);
     procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word);
 
+    procedure GameSpeed(aSpeed: Single);
+
     procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean);
     procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean);
     procedure GroupHungerSet(aGroupID, aHungerLevel: Integer);
@@ -2577,7 +2579,7 @@ begin
     end
     else
     begin
-      LogParamWarning('Actions.MapBrushApply', [X, Y, Byte(aSquare), aSize, Byte(aTerKind),
+      LogParamWarning('Actions.MapBrush', [X, Y, Byte(aSquare), aSize, Byte(aTerKind),
                                                 Byte(aRandomTiles), Byte(aOverrideCustomTiles)]);
     end;
   except
@@ -2605,7 +2607,7 @@ begin
     end
     else
     begin
-      LogParamWarning('Actions.MapElevationApply', [X, Y, Byte(aSquare), aSize, aSlope, aSpeed]);
+      LogParamWarning('Actions.MapBrushElevation', [X, Y, Byte(aSquare), aSize, aSlope, aSpeed]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -2631,7 +2633,7 @@ begin
     end
     else
     begin
-      LogParamWarning('Actions.MapEqualizeApply', [X, Y, Byte(aSquare), aSize, aSlope, aSpeed]);
+      LogParamWarning('Actions.MapBrushEqualize', [X, Y, Byte(aSquare), aSize, aSlope, aSpeed]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -2657,7 +2659,7 @@ begin
     end
     else
     begin
-      LogParamWarning('Actions.MapFlattenApply', [X, Y, Byte(aSquare), aSize, aSlope, aSpeed]);
+      LogParamWarning('Actions.MapFlatten', [X, Y, Byte(aSquare), aSize, aSlope, aSpeed]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -2711,7 +2713,7 @@ begin
     end
     else
     begin
-      LogParamWarning('Actions.MapBrushMaskApply', [X, Y, Byte(aSquare), aSize, Byte(aTerKind), Byte(aRandomTiles),
+      LogParamWarning('Actions.MapBrushWithMask', [X, Y, Byte(aSquare), aSize, Byte(aTerKind), Byte(aRandomTiles),
                                                     Byte(aOverrideCustomTiles), Byte(aBrushMask), aBlendingLvl, Byte(aUseMagicBrush)]);
     end;
   except
@@ -3587,6 +3589,22 @@ begin
     end
     else
       LogParamWarning('Actions.UnitKill', [aUnitID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 11000
+//* Changes game speed
+procedure TKMScriptActions.GameSpeed(aSpeed: Single);
+var
+  Speed: Single;
+begin
+  try
+    Speed := EnsureRange(aSpeed, 1, 2.5);
+    gGame.SetGameSpeed(Speed, False);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

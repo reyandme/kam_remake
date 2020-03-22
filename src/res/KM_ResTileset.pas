@@ -470,7 +470,7 @@ type
     procedure ExportPatternDat(const aFilename: string);
 
     function TileIsWater(aTile: Word): Boolean;
-    //function TileHasWater(aTile: Word): Boolean;
+    function TileHasWater(aTile: Word): Boolean;
     function TileIsIce(aTile: Word): Boolean;
     function TileIsSand(aTile: Word): Boolean;
     function TileIsStone(aTile: Word): Word;
@@ -629,11 +629,11 @@ begin
 end;
 
 
-{//Check if requested tile has any water, including ground-water transitions
+//Check if requested tile has any water, including ground-water transitions
 function TKMResTileset.TileHasWater(aTile: Word): Boolean;
 begin
-  Result := aTile in [4,10,12,22,23,44,48,105..107,114..127,142,143,192..194,196,198..200,208..211,230,232..244];
-end;}
+  Result := aTile in [48,105..107,114..127,142,143,192..194,196,198..200,208..211,230,232..244];
+end;
 
 
 {Check if requested tile is sand suitable for crabs}
