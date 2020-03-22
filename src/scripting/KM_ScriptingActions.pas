@@ -2659,7 +2659,7 @@ begin
     end
     else
     begin
-      LogParamWarning('Actions.MapFlatten', [X, Y, Byte(aSquare), aSize, aSlope, aSpeed]);
+      LogParamWarning('Actions.MapBrushFlatten', [X, Y, Byte(aSquare), aSize, aSlope, aSpeed]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
