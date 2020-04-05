@@ -250,41 +250,41 @@ procedure TRenderTerrain.UpdateVBO(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
 var
   Fog: PKMByte2Array;
 
-  procedure SetTileVertexExt(var fTilesVtx: TTileVerticeExtArray; aH: Integer; aTX, aTY: Word;
+  procedure SetTileVertexExt(out aVert: TTileVerticeExt; aTX, aTY: Word;
                              aIsBottomRow: Boolean; aUTile, aVTile: Single); inline;
   begin
     with gTerrain do
     begin
-      fTilesVtx[aH].X := aTX;
-      fTilesVtx[aH].Y := aTY - Land[aTY+1, aTX+1].Height / CELL_HEIGHT_DIV;
-      fTilesVtx[aH].Z := aTY - Byte(aIsBottomRow);
-      fTilesVtx[aH].UTile := aUTile;
-      fTilesVtx[aH].VTile := aVTile;
-      fTilesVtx[aH].ULit := Land[aTY+1, aTX+1].Light;
-      fTilesVtx[aH].UShd := -Land[aTY+1, aTX+1].Light;
+      aVert.X := aTX;
+      aVert.Y := aTY - Land[aTY+1, aTX+1].Height / CELL_HEIGHT_DIV;
+      aVert.Z := aTY - Byte(aIsBottomRow);
+      aVert.UTile := aUTile;
+      aVert.VTile := aVTile;
+      aVert.ULit := Land[aTY+1, aTX+1].Light;
+      aVert.UShd := -Land[aTY+1, aTX+1].Light;
     end;
   end;
 
-  procedure SetTileFowVertex(var fTilesFowVtx: TTileFowVerticeArray; Fog: PKMByte2Array; aF: Integer; aTX, aTY: Word; aIsBottomRow: Boolean); inline;
+  procedure SetTileFowVertex(out aVert: TTileFowVertice; Fog: PKMByte2Array; aTX, aTY: Word; aIsBottomRow: Boolean); inline;
   begin
-    fTilesFowVtx[aF].X := aTX;
-    fTilesFowVtx[aF].Y := aTY - gTerrain.Land[aTY+1, aTX+1].Height / CELL_HEIGHT_DIV;
-    fTilesFowVtx[aF].Z := aTY - Byte(aIsBottomRow);
+    aVert.X := aTX;
+    aVert.Y := aTY - gTerrain.Land[aTY+1, aTX+1].Height / CELL_HEIGHT_DIV;
+    aVert.Z := aTY - Byte(aIsBottomRow);
     if Fog <> nil then
-      fTilesFowVtx[aF].UFow := Fog^[aTY, aTX] / 256
+      aVert.UFow := Fog^[aTY, aTX] / 256
     else
-      fTilesFowVtx[aF].UFow := 255;
+      aVert.UFow := 255;
   end;
 
-  procedure SetTileVertex(var aTilesVtxArr: TTileVerticeArray; aQ: Integer; aTX, aTY: Word; aIsBottomRow: Boolean; aUAnimTile, aVAnimTile: Single); inline;
+  procedure SetTileVertex(out aVert: TTileVertice; aTX, aTY: Word; aIsBottomRow: Boolean; aUAnimTile, aVAnimTile: Single); inline;
   begin
     with gTerrain do
     begin
-      aTilesVtxArr[aQ].X := aTX;
-      aTilesVtxArr[aQ].Y := aTY - Land[aTY+1, aTX+1].Height / CELL_HEIGHT_DIV;
-      aTilesVtxArr[aQ].Z := aTY - Byte(aIsBottomRow);
-      aTilesVtxArr[aQ].UAnim := aUAnimTile;
-      aTilesVtxArr[aQ].VAnim := aVAnimTile;
+      aVert.X := aTX;
+      aVert.Y := aTY - Land[aTY+1, aTX+1].Height / CELL_HEIGHT_DIV;
+      aVert.Z := aTY - Byte(aIsBottomRow);
+      aVert.UAnim := aUAnimTile;
+      aVert.VAnim := aVAnimTile;
     end;
   end;
 
@@ -298,10 +298,10 @@ var
       begin
         TexAnimC := GetTileUV(aTexOffset + aTerrain, aRotation mod 4);
 
-        SetTileVertex(fAnimTilesVtx, aQ,   aTX-1, aTY-1, False, TexAnimC[1][1], TexAnimC[1][2]);
-        SetTileVertex(fAnimTilesVtx, aQ+1, aTX-1, aTY,   True,  TexAnimC[2][1], TexAnimC[2][2]);
-        SetTileVertex(fAnimTilesVtx, aQ+2, aTX,   aTY,   True,  TexAnimC[3][1], TexAnimC[3][2]);
-        SetTileVertex(fAnimTilesVtx, aQ+3, aTX,   aTY-1, False, TexAnimC[4][1], TexAnimC[4][2]);
+        SetTileVertex(fAnimTilesVtx[aQ],   aTX-1, aTY-1, False, TexAnimC[1][1], TexAnimC[1][2]);
+        SetTileVertex(fAnimTilesVtx[aQ+1], aTX-1, aTY,   True,  TexAnimC[2][1], TexAnimC[2][2]);
+        SetTileVertex(fAnimTilesVtx[aQ+2], aTX,   aTY,   True,  TexAnimC[3][1], TexAnimC[3][2]);
+        SetTileVertex(fAnimTilesVtx[aQ+3], aTX,   aTY-1, False, TexAnimC[4][1], TexAnimC[4][2]);
 
         aQ := aQ + 4;
         Result := True;
@@ -373,10 +373,10 @@ begin
             TexTileC := fTileUVLookup[Land[tY, tX].BaseLayer.Terrain, Land[tY, tX].BaseLayer.Rotation mod 4];
 
             //Fill Tile vertices array
-            SetTileVertexExt(fTilesVtx, H,   tX-1, tY-1, False, TexTileC[1][1], TexTileC[1][2]);
-            SetTileVertexExt(fTilesVtx, H+1, tX-1, tY,   True,  TexTileC[2][1], TexTileC[2][2]);
-            SetTileVertexExt(fTilesVtx, H+2, tX,   tY,   True,  TexTileC[3][1], TexTileC[3][2]);
-            SetTileVertexExt(fTilesVtx, H+3, tX,   tY-1, False, TexTileC[4][1], TexTileC[4][2]);
+            SetTileVertexExt(fTilesVtx[H],   tX-1, tY-1, False, TexTileC[1][1], TexTileC[1][2]);
+            SetTileVertexExt(fTilesVtx[H+1], tX-1, tY,   True,  TexTileC[2][1], TexTileC[2][2]);
+            SetTileVertexExt(fTilesVtx[H+2], tX,   tY,   True,  TexTileC[3][1], TexTileC[3][2]);
+            SetTileVertexExt(fTilesVtx[H+3], tX,   tY-1, False, TexTileC[4][1], TexTileC[4][2]);
             H := H + 4;
 
 //            if Land[tY, tX].LayersCnt > 0 then
@@ -394,10 +394,10 @@ begin
           end;
 
           // Always set FOW
-          SetTileFowVertex(fTilesFowVtx, Fog, F,   tX-1, tY-1, False);
-          SetTileFowVertex(fTilesFowVtx, Fog, F+1, tX-1, tY,   True);
-          SetTileFowVertex(fTilesFowVtx, Fog, F+2, tX,   tY,   True);
-          SetTileFowVertex(fTilesFowVtx, Fog, F+3, tX,   tY-1, False);
+          SetTileFowVertex(fTilesFowVtx[F],   Fog, tX-1, tY-1, False);
+          SetTileFowVertex(fTilesFowVtx[F+1], Fog, tX-1, tY,   True);
+          SetTileFowVertex(fTilesFowVtx[F+2], Fog, tX,   tY,   True);
+          SetTileFowVertex(fTilesFowVtx[F+3], Fog, tX,   tY-1, False);
           F := F + 4;
 
           //Fill tiles animation vertices array
