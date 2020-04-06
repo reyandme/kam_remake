@@ -35,8 +35,12 @@ type
     fTextG: GLuint; //Shading gradient for lighting
     fTextB: GLuint; //Contrast BW for FOW over color-coder
     fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but needs GL1.5) or DrawCalls (slower but needs only GL1.1)
+
     fTilesVtx: TTileVerticeExtArray; //Vertice cache for tiles
+    fTilesVtxCount: Integer;
     fTilesInd: array of Integer;      //Indexes for tiles array
+    fTilesIndCount: Integer;
+
     fTilesLayersVtx: array of TTileVertice; //Vertice cache for tiles
     fTilesLayersInd: array of Integer;      //Indexes for tiles array
     fAnimTilesVtx: TTileVerticeArray; //Vertice cache for tiles animations (water/falls/swamp)
@@ -95,6 +99,7 @@ type
 
 const
   TILE_LAYERS_USE_VBO = False;
+  MAX_MAP_VERTICIES = 4 * (MAX_MAP_SIZE + 1) * (MAX_MAP_SIZE + 1);
 
 
 constructor TRenderTerrain.Create;
@@ -138,6 +143,13 @@ begin
     glGenBuffers(1, @fIndAnimTilesShd);
     glGenBuffers(1, @fVtxTilesFowShd);
     glGenBuffers(1, @fIndTilesFowShd);
+
+    //Allocate buffers large enough for the entire map
+    SetLength(fTilesVtx, MAX_MAP_VERTICIES);
+    SetLength(fTilesInd, MAX_MAP_VERTICIES);
+
+    fTilesVtxCount := 0;
+    fTilesIndCount := 0;
   end;
 end;
 
@@ -356,7 +368,6 @@ begin
       alSwamp: TexOffsetSwamp := 5000 + 300 * ((aAnimStep mod 24) div 8 + 1 + 8 + 5); // 9200..9800
     end;
 
-  SetLength(fTilesVtx, (SizeX + 1) * 4 * (SizeY + 1));
   SetLength(fTilesFowVtx, (SizeX + 1) * 4 * (SizeY + 1));
 //  SetLength(fTilesLayersVtx, (SizeX + 1) * 4 * 3 * (SizeY + 1));
   SetLength(fAnimTilesVtx, (SizeX + 1) * 4 * (SizeY + 1));
@@ -408,7 +419,7 @@ begin
         end;
 
   //Cut vertices arrays to actual size
-  SetLength(fTilesVtx, H);
+  fTilesVtxCount := H;
   SetLength(fTilesFowVtx, F);
 //  SetLength(fTilesLayersVtx, P);
   SetLength(fAnimTilesVtx, Q);
@@ -423,7 +434,7 @@ begin
   K := 0;
   KP := 0;
   KF := 0;
-  SetLength(fTilesInd, TilesCnt*6);
+  fTilesIndCount := TilesCnt*6;
   SetLength(fTilesFowInd, FowCnt*6);
 //  SetLength(fTileslayersInd, TilesLayersCnt*6);
   for I := 0 to SizeY do
@@ -564,7 +575,7 @@ begin
   //Draw with VBO only if all tiles are on the same texture
   if fUseVBO and TKMResSprites.AllTilesOnOneAtlas then
   begin
-    if Length(fTilesVtx) = 0 then Exit; //Nothing to render
+    if fTilesVtxCount = 0 then Exit; //Nothing to render
     BindVBOArray(vatTile);
     //Bind to tiles texture. All tiles should be places in 1 atlas,
     //so to get TexId we can use any of terrain tile Id (f.e. 1st)
@@ -578,7 +589,7 @@ begin
     glTexCoordPointer(2, GL_FLOAT, SizeOf(TTileVerticeExt), Pointer(12));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
-    glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
+    glDrawElements(GL_TRIANGLES, fTilesIndCount, GL_UNSIGNED_INT, Pointer(0));
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -864,7 +875,7 @@ begin
 
   if fUseVBO then
   begin
-    if Length(fTilesVtx) = 0 then Exit; //Nothing to render
+    if fTilesVtxCount = 0 then Exit; //Nothing to render
     BindVBOArray(vatTile);
     //Setup vertex and UV layout and offsets
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -874,7 +885,7 @@ begin
     glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVerticeExt), Pointer(20));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
-    glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
+    glDrawElements(GL_TRIANGLES, fTilesIndCount, GL_UNSIGNED_INT, Pointer(0));
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -928,7 +939,7 @@ begin
 
   if fUseVBO then
   begin
-    if Length(fTilesVtx) = 0 then Exit; //Nothing to render
+    if fTilesVtxCount = 0 then Exit; //Nothing to render
     BindVBOArray(vatTile);
     //Setup vertex and UV layout and offsets
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -938,7 +949,7 @@ begin
     glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileVerticeExt), Pointer(24));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
-    glDrawElements(GL_TRIANGLES, Length(fTilesInd), GL_UNSIGNED_INT, Pointer(0));
+    glDrawElements(GL_TRIANGLES, fTilesIndCount, GL_UNSIGNED_INT, Pointer(0));
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1112,13 +1123,13 @@ begin
   if fLastBindVBOArrayType = aVBOArrayType then Exit; // Do not to rebind for same tyle type
 
   case aVBOArrayType of
-    vatTile:       if Length(fTilesVtx) > 0 then
+    vatTile:       if fTilesVtxCount > 0 then
                     begin
                       glBindBuffer(GL_ARRAY_BUFFER, fVtxTilesShd);
-                      glBufferData(GL_ARRAY_BUFFER, Length(fTilesVtx) * SizeOf(TTileVerticeExt), @fTilesVtx[0].X, GL_STREAM_DRAW);
+                      glBufferData(GL_ARRAY_BUFFER, fTilesVtxCount * SizeOf(TTileVerticeExt), @fTilesVtx[0].X, GL_STREAM_DRAW);
 
                       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndTilesShd);
-                      glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesInd) * SizeOf(fTilesInd[0]), @fTilesInd[0], GL_STREAM_DRAW);
+                      glBufferData(GL_ELEMENT_ARRAY_BUFFER, fTilesIndCount * SizeOf(fTilesInd[0]), @fTilesInd[0], GL_STREAM_DRAW);
                     end else Exit;
     vatTileLayer:  if Length(fTilesLayersVtx) > 0 then
                     begin
