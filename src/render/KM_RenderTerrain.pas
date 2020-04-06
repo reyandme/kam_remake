@@ -360,7 +360,8 @@ var
   end;
 
 var
-  I,J,P,L,TilesCnt,FowCnt,TilesLayersCnt,AnimCnt,VtxOffset,IndOffset: Integer;
+  I,J,TilesCnt,FowCnt,AnimCnt,VtxOffset,IndOffset: Integer;
+//  P,L,TilesLayersCnt: Integer;
   SizeX, SizeY: Word;
   tX, tY: Word;
   TexTileC: TUVRect;
@@ -380,11 +381,6 @@ begin
   SizeX := Max(fClipRect.Right - fClipRect.Left, 0);
   SizeY := Max(fClipRect.Bottom - fClipRect.Top, 0);
 
-  TilesCnt := 0;
-  FowCnt := 0;
-  AnimCnt := 0;
-  P := 0;
-
   TexOffsetWater := 0;
   TexOffsetFalls := 0;
   TexOffsetSwamp := 0;
@@ -396,7 +392,12 @@ begin
       alSwamp: TexOffsetSwamp := 5000 + 300 * ((aAnimStep mod 24) div 8 + 1 + 8 + 5); // 9200..9800
     end;
 
+  TilesCnt := 0;
+  FowCnt := 0;
+  AnimCnt := 0;
+//  P := 0;
 //  SetLength(fTilesLayersVtx, (SizeX + 1) * 4 * 3 * (SizeY + 1));
+
   with gTerrain do
     if (MapX > 0) and (MapY > 0) then
       for I := 0 to SizeY do
@@ -440,20 +441,20 @@ begin
 //                SetTileVertex(fTilesLayersVtx, P+3, tX,   tY-1, False, TexTileC[4][1], TexTileC[4][2]);
 //                P := P + 4;
 //              end;
-
-//        if gTerrain.Land[tY, tX].LayersCnt > 0 then
-//          // Set Tile layers terrain indices
-//          for L := 0 to gTerrain.Land[tY, tX].LayersCnt - 1 do
-//          begin
-//            fTilesLayersInd[P+0] := KP shl 2; // shl 2 = *4
-//            fTilesLayersInd[P+1] := (KP shl 2) + 1;
-//            fTilesLayersInd[P+2] := (KP shl 2) + 2;
-//            fTilesLayersInd[P+3] := (KP shl 2);
-//            fTilesLayersInd[P+4] := (KP shl 2) + 3;
-//            fTilesLayersInd[P+5] := (KP shl 2) + 2;
-//            P := P + 6;
-//            Inc(KP);
-//          end;
+//
+//              if gTerrain.Land[tY, tX].LayersCnt > 0 then
+//                // Set Tile layers terrain indices
+//                for L := 0 to gTerrain.Land[tY, tX].LayersCnt - 1 do
+//                begin
+//                  fTilesLayersInd[P+0] := KP shl 2; // shl 2 = *4
+//                  fTilesLayersInd[P+1] := (KP shl 2) + 1;
+//                  fTilesLayersInd[P+2] := (KP shl 2) + 2;
+//                  fTilesLayersInd[P+3] := (KP shl 2);
+//                  fTilesLayersInd[P+4] := (KP shl 2) + 3;
+//                  fTilesLayersInd[P+5] := (KP shl 2) + 2;
+//                  P := P + 6;
+//                  Inc(KP);
+//                end;
           end;
 
           VtxOffset := FowCnt * 4;
@@ -482,19 +483,19 @@ begin
                 TryAddAnimTex(AnimCnt, tX, tY, TexOffsetSwamp);
         end;
 
-  //Cut vertices arrays to actual size
+  //Update vertex/index counts
   fTilesVtxCount := 4*TilesCnt;
   fTilesIndCount := 6*TilesCnt;
 
   fTilesFowVtxCount := 4*FowCnt;
   fTilesFowIndCount := 6*FowCnt;
 
-//  SetLength(fTilesLayersVtx, P);
-  TilesLayersCnt := P div 4;
-//  SetLength(fTileslayersInd, TilesLayersCnt*6);
-
   fAnimTilesVtxCount := 4*AnimCnt;
   fAnimTilesIndCount := 6*AnimCnt;
+
+//  SetLength(fTilesLayersVtx, P);
+//  TilesLayersCnt := P div 4;
+//  SetLength(fTileslayersInd, TilesLayersCnt*6);
 
   gPerfLogs.SectionLeave(psFrameUpdateVBO);
 end;
