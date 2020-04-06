@@ -45,8 +45,12 @@ type
     fTilesLayersInd: array of Integer;      //Indexes for tiles array
     fAnimTilesVtx: TTileVerticeArray; //Vertice cache for tiles animations (water/falls/swamp)
     fAnimTilesInd: array of Integer;          //Indexes for array tiles animation array
+
     fTilesFowVtx: TTileFowVerticeArray; //Vertice cache for tiles
+    fTilesFowVtxCount: Integer;
     fTilesFowInd: array of Integer;      //Indexes for tiles array
+    fTilesFowIndCount: Integer;
+
     fVtxTilesShd: GLUint;
     fIndTilesShd: GLUint;
     fVtxTilesLayersShd: GLUint;
@@ -99,7 +103,9 @@ type
 
 const
   TILE_LAYERS_USE_VBO = False;
-  MAX_MAP_VERTICIES = 4 * (MAX_MAP_SIZE + 1) * (MAX_MAP_SIZE + 1);
+  MAX_RENDERABLE_TILES = (MAX_MAP_SIZE + 1) * (MAX_MAP_SIZE + 1);
+  MAX_RENDERABLE_VERTICIES = 4 * MAX_RENDERABLE_TILES;
+  MAX_RENDERABLE_INDEXES = 6 * MAX_RENDERABLE_TILES;
 
 
 constructor TRenderTerrain.Create;
@@ -145,11 +151,15 @@ begin
     glGenBuffers(1, @fIndTilesFowShd);
 
     //Allocate buffers large enough for the entire map
-    SetLength(fTilesVtx, MAX_MAP_VERTICIES);
-    SetLength(fTilesInd, MAX_MAP_VERTICIES);
+    SetLength(fTilesVtx, MAX_RENDERABLE_VERTICIES);
+    SetLength(fTilesInd, MAX_RENDERABLE_INDEXES);
+    SetLength(fTilesFowVtx, MAX_RENDERABLE_VERTICIES);
+    SetLength(fTilesFowInd, MAX_RENDERABLE_INDEXES);
 
     fTilesVtxCount := 0;
     fTilesIndCount := 0;
+    fTilesFowVtxCount := 0;
+    fTilesFowIndCount := 0;
   end;
 end;
 
@@ -368,7 +378,6 @@ begin
       alSwamp: TexOffsetSwamp := 5000 + 300 * ((aAnimStep mod 24) div 8 + 1 + 8 + 5); // 9200..9800
     end;
 
-  SetLength(fTilesFowVtx, (SizeX + 1) * 4 * (SizeY + 1));
 //  SetLength(fTilesLayersVtx, (SizeX + 1) * 4 * 3 * (SizeY + 1));
   SetLength(fAnimTilesVtx, (SizeX + 1) * 4 * (SizeY + 1));
   with gTerrain do
@@ -420,7 +429,7 @@ begin
 
   //Cut vertices arrays to actual size
   fTilesVtxCount := H;
-  SetLength(fTilesFowVtx, F);
+  fTilesFowVtxCount := F;
 //  SetLength(fTilesLayersVtx, P);
   SetLength(fAnimTilesVtx, Q);
 
@@ -435,7 +444,7 @@ begin
   KP := 0;
   KF := 0;
   fTilesIndCount := TilesCnt*6;
-  SetLength(fTilesFowInd, FowCnt*6);
+  fTilesFowIndCount := FowCnt*6;
 //  SetLength(fTileslayersInd, TilesLayersCnt*6);
   for I := 0 to SizeY do
     for J := 0 to SizeX do
@@ -1019,7 +1028,7 @@ begin
   Fog := @TKMFogOfWar(aFOW).Revelation;
   if fUseVBO then
   begin
-    if Length(fTilesFowVtx) = 0 then Exit; //Nothing to render
+    if fTilesFowVtxCount = 0 then Exit; //Nothing to render
     BindVBOArray(vatFOW);
     
     //Setup vertex and UV layout and offsets
@@ -1030,7 +1039,7 @@ begin
     glTexCoordPointer(1, GL_FLOAT, SizeOf(TTileFowVertice), Pointer(12));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
-    glDrawElements(GL_TRIANGLES, Length(fTilesFowInd), GL_UNSIGNED_INT, Pointer(0));
+    glDrawElements(GL_TRIANGLES, fTilesFowIndCount, GL_UNSIGNED_INT, Pointer(0));
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1147,13 +1156,13 @@ begin
                       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndAnimTilesShd);
                       glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fAnimTilesInd) * SizeOf(fAnimTilesInd[0]), @fAnimTilesInd[0], GL_STREAM_DRAW);
                     end else Exit;
-    vatFOW:        if Length(fTilesFowVtx) > 0 then
+    vatFOW:        if fTilesFowVtxCount > 0 then
                     begin
                       glBindBuffer(GL_ARRAY_BUFFER, fVtxTilesFowShd);
-                      glBufferData(GL_ARRAY_BUFFER, Length(fTilesFowVtx) * SizeOf(TTileFowVertice), @fTilesFowVtx[0].X, GL_STREAM_DRAW);
+                      glBufferData(GL_ARRAY_BUFFER, fTilesFowVtxCount * SizeOf(TTileFowVertice), @fTilesFowVtx[0].X, GL_STREAM_DRAW);
 
                       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndTilesFowShd);
-                      glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesFowInd) * SizeOf(fTilesFowInd[0]), @fTilesFowInd[0], GL_STREAM_DRAW);
+                      glBufferData(GL_ELEMENT_ARRAY_BUFFER, fTilesFowIndCount * SizeOf(fTilesFowInd[0]), @fTilesFowInd[0], GL_STREAM_DRAW);
                     end else Exit;
   end;
   fLastBindVBOArrayType := aVBOArrayType;
