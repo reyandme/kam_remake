@@ -342,7 +342,7 @@ var
   end;
 
 var
-  I,J,K,KP,KF,H,F,Q,P,L,Buf,TilesCnt,FowCnt,TilesLayersCnt,AnimCnt: Integer;
+  I,J,H,Q,P,L,Buf,TilesCnt,FowCnt,TilesLayersCnt,AnimCnt,VtxOffset,IndOffset: Integer;
   SizeX, SizeY: Word;
   tX, tY: Word;
   TexTileC: TUVRect;
@@ -362,10 +362,10 @@ begin
   SizeX := Max(fClipRect.Right - fClipRect.Left, 0);
   SizeY := Max(fClipRect.Bottom - fClipRect.Top, 0);
 
-  H := 0;
+  TilesCnt := 0;
+  FowCnt := 0;
   Q := 0;
   P := 0;
-  F := 0;
 
   TexOffsetWater := 0;
   TexOffsetFalls := 0;
@@ -392,12 +392,24 @@ begin
           begin
             TexTileC := fTileUVLookup[Land[tY, tX].BaseLayer.Terrain, Land[tY, tX].BaseLayer.Rotation mod 4];
 
+            VtxOffset := TilesCnt * 4;
+            IndOffset := TilesCnt * 6;
+
             //Fill Tile vertices array
-            SetTileVertexExt(fTilesVtx[H],   tX-1, tY-1, False, TexTileC[1][1], TexTileC[1][2]);
-            SetTileVertexExt(fTilesVtx[H+1], tX-1, tY,   True,  TexTileC[2][1], TexTileC[2][2]);
-            SetTileVertexExt(fTilesVtx[H+2], tX,   tY,   True,  TexTileC[3][1], TexTileC[3][2]);
-            SetTileVertexExt(fTilesVtx[H+3], tX,   tY-1, False, TexTileC[4][1], TexTileC[4][2]);
-            H := H + 4;
+            SetTileVertexExt(fTilesVtx[VtxOffset],   tX-1, tY-1, False, TexTileC[1][1], TexTileC[1][2]);
+            SetTileVertexExt(fTilesVtx[VtxOffset+1], tX-1, tY,   True,  TexTileC[2][1], TexTileC[2][2]);
+            SetTileVertexExt(fTilesVtx[VtxOffset+2], tX,   tY,   True,  TexTileC[3][1], TexTileC[3][2]);
+            SetTileVertexExt(fTilesVtx[VtxOffset+3], tX,   tY-1, False, TexTileC[4][1], TexTileC[4][2]);
+
+            // Set Tile terrain indices
+            fTilesInd[IndOffset+0] := VtxOffset;
+            fTilesInd[IndOffset+1] := VtxOffset + 1;
+            fTilesInd[IndOffset+2] := VtxOffset + 2;
+            fTilesInd[IndOffset+3] := VtxOffset;
+            fTilesInd[IndOffset+4] := VtxOffset + 3;
+            fTilesInd[IndOffset+5] := VtxOffset + 2;
+
+            Inc(TilesCnt);
 
 //            if Land[tY, tX].LayersCnt > 0 then
 //              for L := 0 to Land[tY, tX].LayersCnt - 1 do
@@ -411,68 +423,7 @@ begin
 //                SetTileVertex(fTilesLayersVtx, P+3, tX,   tY-1, False, TexTileC[4][1], TexTileC[4][2]);
 //                P := P + 4;
 //              end;
-          end;
 
-          // Always set FOW
-          SetTileFowVertex(fTilesFowVtx[F],   Fog, tX-1, tY-1, False);
-          SetTileFowVertex(fTilesFowVtx[F+1], Fog, tX-1, tY,   True);
-          SetTileFowVertex(fTilesFowVtx[F+2], Fog, tX,   tY,   True);
-          SetTileFowVertex(fTilesFowVtx[F+3], Fog, tX,   tY-1, False);
-          F := F + 4;
-
-          //Fill tiles animation vertices array
-          if (aFOW.CheckTileRenderRev(tX,tY) > FOG_OF_WAR_ACT) then // Render animation only if tile is not covered by FOW
-            if not TryAddAnimTex(Q, tX, tY, TexOffsetWater) then  //every tile can have only 1 animation
-              if not TryAddAnimTex(Q, tX, tY, TexOffsetFalls) then
-                TryAddAnimTex(Q, tX, tY, TexOffsetSwamp);
-        end;
-
-  //Cut vertices arrays to actual size
-  fTilesVtxCount := H;
-  fTilesFowVtxCount := F;
-//  SetLength(fTilesLayersVtx, P);
-  SetLength(fAnimTilesVtx, Q);
-
-  TilesCnt := H div 4;
-  FowCnt := F div 4;
-  TilesLayersCnt := P div 4;
-  //Fill indexes array for tiles vertices array
-  H := 0;
-  P := 0;
-  F := 0;
-  K := 0;
-  KP := 0;
-  KF := 0;
-  fTilesIndCount := TilesCnt*6;
-  fTilesFowIndCount := FowCnt*6;
-//  SetLength(fTileslayersInd, TilesLayersCnt*6);
-  for I := 0 to SizeY do
-    for J := 0 to SizeX do
-    begin
-      tX := J + fClipRect.Left;
-      tY := I + fClipRect.Top;
-      // Set FOW indices
-      Buf := KF shl 2;
-      fTilesFowInd[F+0] := Buf; // shl 2 = *4
-      fTilesFowInd[F+1] := Buf + 1;
-      fTilesFowInd[F+2] := Buf + 2;
-      fTilesFowInd[F+3] := Buf;
-      fTilesFowInd[F+4] := Buf + 3;
-      fTilesFowInd[F+5] := Buf + 2;
-      F := F + 6;
-      Inc(KF);
-      if TileHasToBeRendered(I*J = 0,tX,tY,aFow) then // Do not render tiles fully covered by FOW
-      begin
-        // Set Tile terrain indices
-        Buf := K shl 2;
-        fTilesInd[H+0] := Buf; // shl 2 = *4
-        fTilesInd[H+1] := Buf + 1;
-        fTilesInd[H+2] := Buf + 2;
-        fTilesInd[H+3] := Buf;
-        fTilesInd[H+4] := Buf + 3;
-        fTilesInd[H+5] := Buf + 2;
-        H := H + 6;
-        Inc(K);
 //        if gTerrain.Land[tY, tX].LayersCnt > 0 then
 //          // Set Tile layers terrain indices
 //          for L := 0 to gTerrain.Land[tY, tX].LayersCnt - 1 do
@@ -486,14 +437,51 @@ begin
 //            P := P + 6;
 //            Inc(KP);
 //          end;
-      end;
-    end;
+          end;
 
+          VtxOffset := FowCnt * 4;
+          IndOffset := FowCnt * 6;
+
+          // Always set FOW
+          SetTileFowVertex(fTilesFowVtx[VtxOffset],   Fog, tX-1, tY-1, False);
+          SetTileFowVertex(fTilesFowVtx[VtxOffset+1], Fog, tX-1, tY,   True);
+          SetTileFowVertex(fTilesFowVtx[VtxOffset+2], Fog, tX,   tY,   True);
+          SetTileFowVertex(fTilesFowVtx[VtxOffset+3], Fog, tX,   tY-1, False);
+
+          // Set FOW indices
+          fTilesFowInd[IndOffset+0] := VtxOffset;
+          fTilesFowInd[IndOffset+1] := VtxOffset + 1;
+          fTilesFowInd[IndOffset+2] := VtxOffset + 2;
+          fTilesFowInd[IndOffset+3] := VtxOffset;
+          fTilesFowInd[IndOffset+4] := VtxOffset + 3;
+          fTilesFowInd[IndOffset+5] := VtxOffset + 2;
+
+          Inc(FowCnt);
+
+          //Fill tiles animation vertices array
+          if (aFOW.CheckTileRenderRev(tX,tY) > FOG_OF_WAR_ACT) then // Render animation only if tile is not covered by FOW
+            if not TryAddAnimTex(Q, tX, tY, TexOffsetWater) then  //every tile can have only 1 animation
+              if not TryAddAnimTex(Q, tX, tY, TexOffsetFalls) then
+                TryAddAnimTex(Q, tX, tY, TexOffsetSwamp);
+        end;
+
+  //Cut vertices arrays to actual size
+  fTilesVtxCount := 4*TilesCnt;
+  fTilesIndCount := 6*TilesCnt;
+
+  fTilesFowVtxCount := 4*FowCnt;
+  fTilesFowIndCount := 6*FowCnt;
+
+//  SetLength(fTilesLayersVtx, P);
+  TilesLayersCnt := P div 4;
+//  SetLength(fTileslayersInd, TilesLayersCnt*6);
+
+  SetLength(fAnimTilesVtx, Q);
   AnimCnt := Q div 4;
-  //Fill indexes array for tiles animation vertices array
-  H := 0;
-  I := 0;
   SetLength(fAnimTilesInd, AnimCnt*6);
+
+  I := 0;
+  H := 0;
   while I < AnimCnt do
   begin
     Buf := I shl 2;
