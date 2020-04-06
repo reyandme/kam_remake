@@ -36,19 +36,22 @@ type
     fTextB: GLuint; //Contrast BW for FOW over color-coder
     fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but needs GL1.5) or DrawCalls (slower but needs only GL1.1)
 
-    fTilesVtx: TTileVerticeExtArray; //Vertice cache for tiles
+    fTilesVtx: TTileVerticeExtArray;  //Vertice buffer for tiles
     fTilesVtxCount: Integer;
     fTilesInd: array of Integer;      //Indexes for tiles array
     fTilesIndCount: Integer;
 
-    fTilesLayersVtx: array of TTileVertice; //Vertice cache for tiles
-    fTilesLayersInd: array of Integer;      //Indexes for tiles array
-    fAnimTilesVtx: TTileVerticeArray; //Vertice cache for tiles animations (water/falls/swamp)
-    fAnimTilesInd: array of Integer;          //Indexes for array tiles animation array
+    fTilesLayersVtx: array of TTileVertice; //Vertice cache for layers
+    fTilesLayersInd: array of Integer;      //Indexes for layers array
 
-    fTilesFowVtx: TTileFowVerticeArray; //Vertice cache for tiles
+    fAnimTilesVtx: TTileVerticeArray;       //Vertice buffer for tiles animations (water/falls/swamp)
+    fAnimTilesVtxCount: Integer;
+    fAnimTilesInd: array of Integer;        //Indexes for array tiles animation array
+    fAnimTilesIndCount: Integer;
+
+    fTilesFowVtx: TTileFowVerticeArray;     //Vertice buffer for tiles
     fTilesFowVtxCount: Integer;
-    fTilesFowInd: array of Integer;      //Indexes for tiles array
+    fTilesFowInd: array of Integer;         //Indexes for tiles array
     fTilesFowIndCount: Integer;
 
     fVtxTilesShd: GLUint;
@@ -155,11 +158,15 @@ begin
     SetLength(fTilesInd, MAX_RENDERABLE_INDEXES);
     SetLength(fTilesFowVtx, MAX_RENDERABLE_VERTICIES);
     SetLength(fTilesFowInd, MAX_RENDERABLE_INDEXES);
+    SetLength(fAnimTilesVtx, MAX_RENDERABLE_VERTICIES);
+    SetLength(fAnimTilesInd, MAX_RENDERABLE_INDEXES);
 
     fTilesVtxCount := 0;
     fTilesIndCount := 0;
     fTilesFowVtxCount := 0;
     fTilesFowIndCount := 0;
+    fAnimTilesVtxCount := 0;
+    fAnimTilesIndCount := 0;
   end;
 end;
 
@@ -310,22 +317,33 @@ var
     end;
   end;
 
-  function TryAddAnimTex(var aQ: Integer; aTX, aTY, aTexOffset: Word): Boolean;
+  function TryAddAnimTex(var aAnimCnt: Integer; aTX, aTY, aTexOffset: Word): Boolean;
     function SetAnimTileVertex(aTerrain: Word; aRotation: Byte): Boolean;
     var
       TexAnimC: TUVRect;
+      VtxOffset, IndOffset: Integer;
     begin
       Result := False;
       if IsWaterAnimTerId(aTexOffset, aTerrain) then
       begin
         TexAnimC := GetTileUV(aTexOffset + aTerrain, aRotation mod 4);
 
-        SetTileVertex(fAnimTilesVtx[aQ],   aTX-1, aTY-1, False, TexAnimC[1][1], TexAnimC[1][2]);
-        SetTileVertex(fAnimTilesVtx[aQ+1], aTX-1, aTY,   True,  TexAnimC[2][1], TexAnimC[2][2]);
-        SetTileVertex(fAnimTilesVtx[aQ+2], aTX,   aTY,   True,  TexAnimC[3][1], TexAnimC[3][2]);
-        SetTileVertex(fAnimTilesVtx[aQ+3], aTX,   aTY-1, False, TexAnimC[4][1], TexAnimC[4][2]);
+        VtxOffset := aAnimCnt * 4;
+        IndOffset := aAnimCnt * 6;
 
-        aQ := aQ + 4;
+        SetTileVertex(fAnimTilesVtx[VtxOffset],   aTX-1, aTY-1, False, TexAnimC[1][1], TexAnimC[1][2]);
+        SetTileVertex(fAnimTilesVtx[VtxOffset+1], aTX-1, aTY,   True,  TexAnimC[2][1], TexAnimC[2][2]);
+        SetTileVertex(fAnimTilesVtx[VtxOffset+2], aTX,   aTY,   True,  TexAnimC[3][1], TexAnimC[3][2]);
+        SetTileVertex(fAnimTilesVtx[VtxOffset+3], aTX,   aTY-1, False, TexAnimC[4][1], TexAnimC[4][2]);
+
+        fAnimTilesInd[IndOffset+0] := VtxOffset;
+        fAnimTilesInd[IndOffset+1] := VtxOffset + 1;
+        fAnimTilesInd[IndOffset+2] := VtxOffset + 2;
+        fAnimTilesInd[IndOffset+3] := VtxOffset;
+        fAnimTilesInd[IndOffset+4] := VtxOffset + 3;
+        fAnimTilesInd[IndOffset+5] := VtxOffset + 2;
+
+        Inc(aAnimCnt);
         Result := True;
       end;
     end;
@@ -342,7 +360,7 @@ var
   end;
 
 var
-  I,J,H,Q,P,L,Buf,TilesCnt,FowCnt,TilesLayersCnt,AnimCnt,VtxOffset,IndOffset: Integer;
+  I,J,P,L,TilesCnt,FowCnt,TilesLayersCnt,AnimCnt,VtxOffset,IndOffset: Integer;
   SizeX, SizeY: Word;
   tX, tY: Word;
   TexTileC: TUVRect;
@@ -364,7 +382,7 @@ begin
 
   TilesCnt := 0;
   FowCnt := 0;
-  Q := 0;
+  AnimCnt := 0;
   P := 0;
 
   TexOffsetWater := 0;
@@ -379,7 +397,6 @@ begin
     end;
 
 //  SetLength(fTilesLayersVtx, (SizeX + 1) * 4 * 3 * (SizeY + 1));
-  SetLength(fAnimTilesVtx, (SizeX + 1) * 4 * (SizeY + 1));
   with gTerrain do
     if (MapX > 0) and (MapY > 0) then
       for I := 0 to SizeY do
@@ -460,9 +477,9 @@ begin
 
           //Fill tiles animation vertices array
           if (aFOW.CheckTileRenderRev(tX,tY) > FOG_OF_WAR_ACT) then // Render animation only if tile is not covered by FOW
-            if not TryAddAnimTex(Q, tX, tY, TexOffsetWater) then  //every tile can have only 1 animation
-              if not TryAddAnimTex(Q, tX, tY, TexOffsetFalls) then
-                TryAddAnimTex(Q, tX, tY, TexOffsetSwamp);
+            if not TryAddAnimTex(AnimCnt, tX, tY, TexOffsetWater) then  //every tile can have only 1 animation
+              if not TryAddAnimTex(AnimCnt, tX, tY, TexOffsetFalls) then
+                TryAddAnimTex(AnimCnt, tX, tY, TexOffsetSwamp);
         end;
 
   //Cut vertices arrays to actual size
@@ -476,24 +493,8 @@ begin
   TilesLayersCnt := P div 4;
 //  SetLength(fTileslayersInd, TilesLayersCnt*6);
 
-  SetLength(fAnimTilesVtx, Q);
-  AnimCnt := Q div 4;
-  SetLength(fAnimTilesInd, AnimCnt*6);
-
-  I := 0;
-  H := 0;
-  while I < AnimCnt do
-  begin
-    Buf := I shl 2;
-    fAnimTilesInd[H+0] := Buf; // shl 2 = *4
-    fAnimTilesInd[H+1] := Buf + 1;
-    fAnimTilesInd[H+2] := Buf + 2;
-    fAnimTilesInd[H+3] := Buf;
-    fAnimTilesInd[H+4] := Buf + 3;
-    fAnimTilesInd[H+5] := Buf + 2;
-    H := H + 6;
-    Inc(I);
-  end;
+  fAnimTilesVtxCount := 4*AnimCnt;
+  fAnimTilesIndCount := 6*AnimCnt;
 
   gPerfLogs.SectionLeave(psFrameUpdateVBO);
 end;
@@ -709,7 +710,7 @@ begin
 
   if fUseVBO and TKMResSprites.AllTilesOnOneAtlas then
   begin
-    if Length(fAnimTilesVtx) = 0 then Exit; //There is no animation on map
+    if fAnimTilesVtxCount = 0 then Exit; //There is no animation on map
     BindVBOArray(vatAnimTile);
     //Bind to tiles texture. All tiles should be placed in 1 atlas,
     //so to get TexId we can use any of terrain tile Id (f.e. 1st)
@@ -723,7 +724,7 @@ begin
     glTexCoordPointer(2, GL_FLOAT, SizeOf(TTileVertice), Pointer(12));
 
     //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
-    glDrawElements(GL_TRIANGLES, Length(fAnimTilesInd), GL_UNSIGNED_INT, Pointer(0));
+    glDrawElements(GL_TRIANGLES, fAnimTilesIndCount, GL_UNSIGNED_INT, Pointer(0));
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1136,13 +1137,13 @@ begin
                       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndTilesLayersShd);
                       glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fTilesLayersInd) * SizeOf(fTilesLayersInd[0]), @fTilesLayersInd[0], GL_STREAM_DRAW);
                     end else Exit;
-    vatAnimTile:   if Length(fAnimTilesVtx) > 0 then
+    vatAnimTile:   if fAnimTilesVtxCount > 0 then
                     begin
                       glBindBuffer(GL_ARRAY_BUFFER, fVtxAnimTilesShd);
-                      glBufferData(GL_ARRAY_BUFFER, Length(fAnimTilesVtx) * SizeOf(TTileVertice), @fAnimTilesVtx[0].X, GL_STREAM_DRAW);
+                      glBufferData(GL_ARRAY_BUFFER, fAnimTilesVtxCount * SizeOf(TTileVertice), @fAnimTilesVtx[0].X, GL_STREAM_DRAW);
 
                       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndAnimTilesShd);
-                      glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fAnimTilesInd) * SizeOf(fAnimTilesInd[0]), @fAnimTilesInd[0], GL_STREAM_DRAW);
+                      glBufferData(GL_ELEMENT_ARRAY_BUFFER, fAnimTilesIndCount * SizeOf(fAnimTilesInd[0]), @fAnimTilesInd[0], GL_STREAM_DRAW);
                     end else Exit;
     vatFOW:        if fTilesFowVtxCount > 0 then
                     begin
