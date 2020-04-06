@@ -250,7 +250,7 @@ procedure TRenderTerrain.UpdateVBO(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
 var
   Fog: PKMByte2Array;
 
-  procedure SetTileVertexExt(fTilesVtx: TTileVerticeExtArray; aH: Integer; aTX, aTY: Word;
+  procedure SetTileVertexExt(var fTilesVtx: TTileVerticeExtArray; aH: Integer; aTX, aTY: Word;
                              aIsBottomRow: Boolean; aUTile, aVTile: Single); inline;
   begin
     with gTerrain do
@@ -265,7 +265,7 @@ var
     end;
   end;
 
-  procedure SetTileFowVertex(fTilesFowVtx: TTileFowVerticeArray; Fog: PKMByte2Array; aF: Integer; aTX, aTY: Word; aIsBottomRow: Boolean); inline;
+  procedure SetTileFowVertex(var fTilesFowVtx: TTileFowVerticeArray; Fog: PKMByte2Array; aF: Integer; aTX, aTY: Word; aIsBottomRow: Boolean); inline;
   begin
     fTilesFowVtx[aF].X := aTX;
     fTilesFowVtx[aF].Y := aTY - gTerrain.Land[aTY+1, aTX+1].Height / CELL_HEIGHT_DIV;
