@@ -855,16 +855,20 @@ var
   K: Integer;
   ID: Word;
   TxCoords: TKMTexCoords;
+  HalfPixelOffsetU, HalfPixelOffsetV: Single;
 begin
+  HalfPixelOffsetU := 0.5 / aSpriteInfo.Width;
+  HalfPixelOffsetV := 0.5 / aSpriteInfo.Height;
+
   for K := 0 to High(aSpriteInfo.Sprites) do
   begin
     ID := aSpriteInfo.Sprites[K].SpriteID;
 
     TxCoords.ID := aTx;
-    TxCoords.u1 := aSpriteInfo.Sprites[K].PosX / aSpriteInfo.Width;
-    TxCoords.v1 := aSpriteInfo.Sprites[K].PosY / aSpriteInfo.Height;
-    TxCoords.u2 := (aSpriteInfo.Sprites[K].PosX + aSpritesPack.RXData.Size[ID].X) / aSpriteInfo.Width;
-    TxCoords.v2 := (aSpriteInfo.Sprites[K].PosY + aSpritesPack.RXData.Size[ID].Y) / aSpriteInfo.Height;
+    TxCoords.u1 := HalfPixelOffsetU + aSpriteInfo.Sprites[K].PosX / aSpriteInfo.Width;
+    TxCoords.v1 := HalfPixelOffsetV + aSpriteInfo.Sprites[K].PosY / aSpriteInfo.Height;
+    TxCoords.u2 := -HalfPixelOffsetU + (aSpriteInfo.Sprites[K].PosX + aSpritesPack.RXData.Size[ID].X) / aSpriteInfo.Width;
+    TxCoords.v2 := -HalfPixelOffsetV + (aSpriteInfo.Sprites[K].PosY + aSpritesPack.RXData.Size[ID].Y) / aSpriteInfo.Height;
 
     if aAtlasType = saBase then
     begin
