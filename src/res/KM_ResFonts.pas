@@ -150,6 +150,7 @@ var
   I, K, M, L: Integer;
   MaxHeight: Integer;
   pX, pY: Integer;
+  HalfPixelOffsetU, HalfPixelOffsetV: Single;
 begin
   MaxHeight := 0;
   if not FileExists(aFileName) then
@@ -208,6 +209,9 @@ begin
   SetLength(fAtlases, fAtlasCount);
   SetLength(fAtlases[fAtlasCount - 1].TexData, fTexSizeX * fTexSizeY);
 
+  HalfPixelOffsetU := 0.5 / fTexSizeX;
+  HalfPixelOffsetV := 0.5 / fTexSizeY;
+
   for I := 0 to fCharCount - 1 do
   if Used[I] <> 0 then
   begin
@@ -224,10 +228,10 @@ begin
       fAtlases[fAtlasCount - 1].TexData[(pY + L) * fTexSizeX + pX + M] :=
         aPalette.Color32(rawData[I, L * Letters[I].Width + M]);
 
-    Letters[I].u1 := pX / fTexSizeX;
-    Letters[I].v1 := pY / fTexSizeY;
-    Letters[I].u2 := (pX + Letters[I].Width) / fTexSizeX;
-    Letters[I].v2 := (pY + Letters[I].Height) / fTexSizeY;
+    Letters[I].u1 := HalfPixelOffsetU + pX / fTexSizeX;
+    Letters[I].v1 := HalfPixelOffsetV + pY / fTexSizeY;
+    Letters[I].u2 := -HalfPixelOffsetU + (pX + Letters[I].Width) / fTexSizeX;
+    Letters[I].v2 := -HalfPixelOffsetV + (pY + Letters[I].Height) / fTexSizeY;
 
     Inc(pX, Letters[I].Width + PAD);
   end;
