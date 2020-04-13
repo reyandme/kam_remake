@@ -69,7 +69,7 @@ begin
   inherited Create;
 
   fSepia := aSepia;
-  fMapTex.Tex := TRender.GenerateTextureCommon;
+  fMapTex.Tex := TRender.GenerateTextureCommon(ftNearest, ftNearest);
 
   //We don't need terrain on main menu, just a parser
   //Otherwise access synced Game terrain

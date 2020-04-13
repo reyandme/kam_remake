@@ -135,14 +135,14 @@ begin
   for I := 0 to 255 do
     pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
 
-  fTextG := TRender.GenTexture(256, 1, @pData[0], tfRGBA8);
+  fTextG := TRender.GenTexture(256, 1, @pData[0], tfRGBA8, ftNearest, ftNearest);
 
   //Sharp transition between black and white
   pData[0] := $FF000000;
   pData[1] := $00000000;
   pData[2] := $00000000;
   pData[3] := $00000000;
-  fTextB := TRender.GenTexture(4, 1, @pData[0], tfRGBA8);
+  fTextB := TRender.GenTexture(4, 1, @pData[0], tfRGBA8, ftNearest, ftNearest);
 
   fUseVBO := DoUseVBO;
 

@@ -13,8 +13,13 @@ type
     tfRGBA8,
     tfAlpha8 //Mask used for team colors and house construction steps (GL_ALPHA)
     );
+  TFilterType = (
+    ftNearest,
+    ftLinear
+  );
   const
-  TexFormatSize: array [TTexFormat] of Byte = (2, 4, 1);
+    TexFormatSize: array [TTexFormat] of Byte = (2, 4, 1);
+    TexFilter: array [TFilterType] of GLint = (GL_NEAREST, GL_LINEAR);
 
 type
   TRenderMode = (rm2D, rm3D);
@@ -36,8 +41,8 @@ type
     procedure SetRenderMode(aRenderMode: TRenderMode); //Switch between 2D and 3D perspectives
 
     class function GetMaxTexSize: Integer;
-    class function GenerateTextureCommon: GLuint;
-    class function GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat): GLUint;
+    class function GenerateTextureCommon(aMinFilter, aMagFilter: TFilterType): GLuint;
+    class function GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat; aMinFilter, aMagFilter: TFilterType): GLUint;
     class procedure DeleteTexture(aTex: GLUint);
     class procedure UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TTexFormat; const Data: Pointer);
     class procedure BindTexture(aTexId: Cardinal);
@@ -169,9 +174,10 @@ begin
 end;
 
 
-class function TRender.GenerateTextureCommon: GLuint;
+class function TRender.GenerateTextureCommon(aMinFilter, aMagFilter: TFilterType): GLuint;
 var
   Texture: GLuint;
+  MagFilter: GLint;
 begin
   Result := 0;
   if not Assigned(glGenTextures) then Exit;
@@ -185,9 +191,9 @@ begin
   //GL_REPLACE is also available since version 1.1
   //can't use GL_REPLACE cos it disallows blending of texture with custom color (e.g. trees in FOW)
 
-  {Keep original KaM grainy look}
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  {Use nearest filter to keep original KaM grainy look}
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, TexFilter[aMinFilter]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, TexFilter[aMagFilter]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 
   {Clamping UVs solves edge artifacts}
@@ -198,9 +204,9 @@ end;
 
 
 //Generate texture out of TCardinalArray
-class function TRender.GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat): GLUint;
+class function TRender.GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat; aMinFilter, aMagFilter: TFilterType): GLUint;
 begin
-  Result := GenerateTextureCommon;
+  Result := GenerateTextureCommon(aMinFilter, aMagFilter);
   UpdateTexture(Result, DestX, DestY, Mode, Data);
 end;
 

@@ -959,7 +959,7 @@ procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex:
       if aFillGFXData then
       begin
         //Generate texture once
-        Tx := TRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType);
+        Tx := TRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType, ftNearest, ftNearest);
         //Now that we know texture IDs we can fill GFXData structure
         SetGFXData(Tx, SpriteInfo[I], aMode, Self, fRT);
       end else begin
@@ -1432,7 +1432,7 @@ begin
     begin
       with gGFXPrepData[SAT,I] do
       begin
-        Tx := TRender.GenTexture(SpriteInfo.Width, SpriteInfo.Height, @Data[0], TexType);
+        Tx := TRender.GenTexture(SpriteInfo.Width, SpriteInfo.Height, @Data[0], TexType, ftNearest, ftNearest);
         //Now that we know texture IDs we can fill GFXData structure
         SetGFXData(Tx, SpriteInfo, SAT, SpritesPack, aRT);
 
