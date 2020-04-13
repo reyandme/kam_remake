@@ -1152,6 +1152,9 @@ begin
   if not aForced and (gMySpectator.FogOfWar.CheckVerticeRenderRev(X,Y) <= FOG_OF_WAR_MIN) then
     Exit;
 
+  pX := RoundToTilePixel(pX);
+  pY := RoundToTilePixel(pY);
+
   with gGFXData[aRX, aId] do
   begin
     // FOW is rendered over the top so no need to make sprites black anymore
@@ -1199,7 +1202,13 @@ begin
   if (gMySpectator.FogOfWar.CheckVerticeRenderRev(X,Y) <= FOG_OF_WAR_MIN) then Exit;
   // Skip rendering if alphas are zero (occurs so non-started houses can still have child sprites)
   if (aWoodProgress = 0) and (aStoneProgress = 0) then Exit;
-  
+
+  pX := RoundToTilePixel(pX);
+  pY := RoundToTilePixel(pY);
+
+  X2 := RoundToTilePixel(X2);
+  Y2 := RoundToTilePixel(Y2);
+
   glClear(GL_STENCIL_BUFFER_BIT);
 
   // Setup stencil mask
