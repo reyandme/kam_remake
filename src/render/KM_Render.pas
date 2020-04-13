@@ -177,7 +177,6 @@ end;
 class function TRender.GenerateTextureCommon(aMinFilter, aMagFilter: TFilterType): GLuint;
 var
   Texture: GLuint;
-  MagFilter: GLint;
 begin
   Result := 0;
   if not Assigned(glGenTextures) then Exit;
