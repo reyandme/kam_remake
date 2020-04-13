@@ -155,6 +155,7 @@ var
   SHOW_ATTACK_RADIUS      :Boolean = False; //Render towers/archers attack radius
   DISPLAY_SOUNDS          :Boolean = False; //Display sounds on map
   RENDER_3D               :Boolean = False; //Experimental 3D render
+  LINEAR_FILTER_SPRITES   :Boolean = True; //To check pixel sampling alignment issues (bouncing) at 100% zoom
   HOUSE_BUILDING_STEP     :Single = 0;
   OVERLAY_NAVMESH         :Boolean = False; //Show navmesh
   OVERLAY_DEFENCES        :Boolean = False; //Show AI defence perimeters

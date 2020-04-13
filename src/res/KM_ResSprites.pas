@@ -896,6 +896,7 @@ procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex:
     Tx: Cardinal;
     ID: Word;
     TD: TKMCardinalArray;
+    TexFilter: TFilterType;
   begin
     //Prepare atlases
     for I := 0 to High(SpriteInfo) do
@@ -959,7 +960,11 @@ procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex:
       if aFillGFXData then
       begin
         //Generate texture once
-        Tx := TRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType, ftNearest, ftNearest);
+        TexFilter := ftNearest;
+        if LINEAR_FILTER_SPRITES and (fRT in [rxTrees, rxHouses, rxUnits]) then
+          TexFilter := ftLinear;
+
+        Tx := TRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType, TexFilter, TexFilter);
         //Now that we know texture IDs we can fill GFXData structure
         SetGFXData(Tx, SpriteInfo[I], aMode, Self, fRT);
       end else begin
@@ -1425,6 +1430,7 @@ var
   SAT: TSpriteAtlasType;
   Tx: Cardinal;
   SpritesPack: TKMSpritePack;
+  TexFilter: TFilterType;
 begin
   SpritesPack := GetSprites(aRT);
   for SAT := Low(TSpriteAtlasType) to High(TSpriteAtlasType) do
@@ -1432,7 +1438,11 @@ begin
     begin
       with gGFXPrepData[SAT,I] do
       begin
-        Tx := TRender.GenTexture(SpriteInfo.Width, SpriteInfo.Height, @Data[0], TexType, ftNearest, ftNearest);
+        TexFilter := ftNearest;
+        if LINEAR_FILTER_SPRITES and (aRT in [rxTrees, rxHouses, rxUnits]) then
+          TexFilter := ftLinear;
+
+        Tx := TRender.GenTexture(SpriteInfo.Width, SpriteInfo.Height, @Data[0], TexType, TexFilter, TexFilter);
         //Now that we know texture IDs we can fill GFXData structure
         SetGFXData(Tx, SpriteInfo, SAT, SpritesPack, aRT);
 
