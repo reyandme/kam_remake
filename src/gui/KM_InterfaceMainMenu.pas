@@ -16,6 +16,7 @@ uses
   KM_GUIMenuLobby,
   KM_GUIMenuMain,
   KM_GUIMenuMapEditor,
+  KM_GUIMenuCampaignMapEditor,
   KM_GUIMenuMultiplayer,
   KM_GUIMenuOptions,
   KM_GUIMenuReplays,
@@ -35,6 +36,7 @@ type
     fMenuLobby: TKMMenuLobby;
     fMenuMain: TKMMenuMain;
     fMenuMapEditor: TKMMenuMapEditor;
+    fMenuCampaignMapEditor: TKMMenuCampaignMapEditor;
     fMenuMultiplayer: TKMMenuMultiplayer;
     fMenuOptions: TKMMenuOptions;
     fMenuReplays: TKMMenuReplays;
@@ -112,20 +114,21 @@ begin
   Panel_Background.Tiled := True;
   TKMImage.Create(Panel_Menu, -18, -18, 1071, 822, 18, rxGuiMain).AnchorsCenter;
 
-  fMenuMain          := TKMMenuMain.Create(Panel_Menu, PageChange);
-  fMenuSinglePlayer  := TKMMenuSinglePlayer.Create(Panel_Menu, PageChange);
-  fMenuCampaigns     := TKMMenuCampaigns.Create(Panel_Menu, aCampaigns, PageChange);
-  fMenuCampaign      := TKMMenuCampaign.Create(Panel_Menu, aCampaigns, PageChange);
-  fMenuSingleMap     := TKMMenuSingleMap.Create(Panel_Menu, PageChange);
-  fMenuLoad          := TKMMenuLoad.Create(Panel_Menu, PageChange);
-  fMenuMultiplayer   := TKMMenuMultiplayer.Create(Panel_Menu, PageChange);
-  fMenuLobby         := TKMMenuLobby.Create(Panel_Menu, PageChange);
-  fMenuMapEditor     := TKMMenuMapEditor.Create(Panel_Menu, PageChange);
-  fMenuReplays       := TKMMenuReplays.Create(Panel_Menu, PageChange);
-  fMenuOptions       := TKMMenuOptions.Create(Panel_Menu, PageChange);
-  fMenuCredits       := TKMMenuCredits.Create(Panel_Menu, PageChange);
-  fMenuError         := TKMMenuError.Create(Panel_Menu, PageChange);
-  fMenuLoading       := TKMMenuLoading.Create(Panel_Menu, PageChange);
+  fMenuMain              := TKMMenuMain.Create(Panel_Menu, PageChange);
+  fMenuSinglePlayer      := TKMMenuSinglePlayer.Create(Panel_Menu, PageChange);
+  fMenuCampaigns         := TKMMenuCampaigns.Create(Panel_Menu, aCampaigns, PageChange);
+  fMenuCampaign          := TKMMenuCampaign.Create(Panel_Menu, aCampaigns, PageChange);
+  fMenuSingleMap         := TKMMenuSingleMap.Create(Panel_Menu, PageChange);
+  fMenuLoad              := TKMMenuLoad.Create(Panel_Menu, PageChange);
+  fMenuMultiplayer       := TKMMenuMultiplayer.Create(Panel_Menu, PageChange);
+  fMenuLobby             := TKMMenuLobby.Create(Panel_Menu, PageChange);
+  fMenuMapEditor         := TKMMenuMapEditor.Create(Panel_Menu, PageChange);
+  fMenuCampaignMapEditor := TKMMenuCampaignMapEditor.Create(Panel_Menu, PageChange);
+  fMenuReplays           := TKMMenuReplays.Create(Panel_Menu, PageChange);
+  fMenuOptions           := TKMMenuOptions.Create(Panel_Menu, PageChange);
+  fMenuCredits           := TKMMenuCredits.Create(Panel_Menu, PageChange);
+  fMenuError             := TKMMenuError.Create(Panel_Menu, PageChange);
+  fMenuLoading           := TKMMenuLoading.Create(Panel_Menu, PageChange);
 
   fMenuSingleMap.OnNewSingleMap     := aOnNewSingleMap;
   fMenuSinglePlayer.OnNewSingleMap  := aOnNewSingleMap;
@@ -177,6 +180,7 @@ begin
   fMenuLobby.Free;
   fMenuMain.Free;
   fMenuMapEditor.Free;
+  fMenuCampaignMapEditor.Free;
   fMenuMultiplayer.Free;
   fMenuOptions.Free;
   fMenuReplays.Free;
@@ -308,6 +312,13 @@ begin
     gpMapEditor:    begin
                       fMenuMapEditor.Show;
                       fMenuPage := fMenuMapEditor;
+                    end;
+    gpCampaignMapEditor:  begin
+                      cmp[0] := Ord(aText[1]);
+                      cmp[1] := Ord(aText[2]);
+                      cmp[2] := Ord(aText[3]);
+                      fMenuCampaignMapEditor.Show(cmp);
+                      fMenuPage := fMenuCampaignMapEditor;
                     end;
     gpReplays:      begin
                       fMenuReplays.Show;

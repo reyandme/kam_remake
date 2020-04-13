@@ -157,6 +157,7 @@ uses
   KM_GUIMenuReplays in 'src\gui\pages_menu\KM_GUIMenuReplays.pas',
   KM_GUIMenuSingleMap in 'src\gui\pages_menu\KM_GUIMenuSingleMap.pas',
   KM_GUIMenuSinglePlayer in 'src\gui\pages_menu\KM_GUIMenuSinglePlayer.pas',
+  KM_GUIMenuCampaignMapEditor in 'src\gui\pages_menu\KM_GUIMenuCampaignMapEditor.pas',
 
   KM_Hand in 'src\hands\KM_Hand.pas',
   KM_HandsCollection in 'src\hands\KM_HandsCollection.pas',
@@ -356,7 +357,7 @@ uses
   KM_VLC in 'src\utils\KM_VLC.pas',
   KM_WindowParams in 'src\utils\KM_WindowParams.pas';
 
-  //KM_PerfLog in 'src\unused\KM_PerfLog.pas', //unused
+//KM_PerfLog in 'src\unused\KM_PerfLog.pas', //unused
 
 {$IFDEF WDC}
   {$R KaM_Remake_Icon.res} //Keeps the Icon

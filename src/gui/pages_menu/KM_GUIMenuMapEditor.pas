@@ -37,8 +37,6 @@ type
     procedure SortUpdate(Sender: TObject);
     procedure ScanComplete(Sender: TObject);
 
-    procedure Radio_MapSizes_HeightChange(Sender: TObject; aValue: Integer);
-
     procedure RefreshCampaignsList;
     procedure RefreshCampaignFlags;
     procedure RefreshList(aJumpToSelected: Boolean);
@@ -58,6 +56,7 @@ type
     procedure MoveConfirm(aVisible: Boolean);
     procedure MoveEditChange(Sender: TObject);
     procedure MoveClick(Sender: TObject);
+    procedure CampaignEditClick(Sender: TObject);
     procedure EscKeyDown(Sender: TObject);
     procedure KeyDown(Key: Word; Shift: TShiftState);
     function IsCampaign(aMapInfo: TKMapInfo; const aCampaignId: TKMCampaignId): Boolean;
@@ -269,7 +268,7 @@ begin
 
       Button_CampaignEdit := TKMButton.Create(Panel_Campaigns, 0, Panel_CampaignInfo.Bottom + 8, Panel_Campaigns.Width, 20, 'Edit', bsMenu);
       Button_CampaignEdit.Anchors := [anLeft, anBottom];
-      Button_CampaignEdit.OnClick := LoadClick;
+      Button_CampaignEdit.OnClick := CampaignEditClick;
       NumEdit_MapSizeX.AutoFocusable := False;
       NumEdit_MapSizeY.AutoFocusable := False;
 
@@ -441,37 +440,6 @@ begin
   fMinimap.Free;
 
   inherited;
-end;
-
-
-procedure TKMMenuMapEditor.Radio_MapSizes_HeightChange(Sender: TObject; aValue: Integer);
-const
-  RADIO_MAPSIZE_LINE_H = 20;
-  RADIO_MAPSIZE_LINE_MAX_H = 25;
-  //Indexes of new map sizes to skip. First less important
-  RADIO_SKIP_SIZES_I: array [0..MAPSIZES_COUNT - 1] of Integer = (1,5,7,3,4,6,0,2);
-var
-  I: Integer;
-begin
-  Assert(Sender is TKMRadioGroup);
-  I := TKMRadioGroup(Sender).Count - 1;
-
-  while (TKMRadioGroup(Sender).LineHeight < RADIO_MAPSIZE_LINE_H)
-    and (TKMRadioGroup(Sender).VisibleCount >= 0)
-    and (I >= 0) do
-  begin
-    TKMRadioGroup(Sender).SetItemVisible(RADIO_SKIP_SIZES_I[I], False);
-    Dec(I);
-  end;
-
-  I := 0;
-  while ((TKMRadioGroup(Sender).LineHeight > RADIO_MAPSIZE_LINE_MAX_H)
-      or ((TKMRadioGroup(Sender).LineHeight > RADIO_MAPSIZE_LINE_H) and (TKMRadioGroup(Sender).VisibleCount = 0)))
-    and (I < TKMRadioGroup(Sender).Count) do
-  begin
-    TKMRadioGroup(Sender).SetItemVisible(RADIO_SKIP_SIZES_I[I], True);
-    Inc(I);
-  end;
 end;
 
 
@@ -1161,6 +1129,17 @@ begin
 
   if Sender = CheckBox_MoveExists then
     Button_MapMoveConfirm.Enabled := CheckBox_MoveExists.Checked;
+end;
+
+procedure TKMMenuMapEditor.CampaignEditClick(Sender: TObject);
+var
+  Campaign: TKMCampaign;
+begin
+  if ListBox_Campaigns.ItemIndex >= 0 then
+  begin
+    Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
+    fOnPageChange(gpCampaignMapEditor, Campaign.ShortName);
+  end;
 end;
 
 procedure TKMMenuMapEditor.UpdateCampInfo;
