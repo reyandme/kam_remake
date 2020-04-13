@@ -167,8 +167,8 @@ end;
 
 function RoundToTilePixel(aVal: TKMPointF): TKMPointF; inline; overload;
 begin
-  Result.X := Round(aVal.X * CELL_SIZE_PX) / CELL_SIZE_PX;
-  Result.Y := Round(aVal.Y * CELL_SIZE_PX) / CELL_SIZE_PX;
+  Result.X := RoundToTilePixel(aVal.X);
+  Result.Y := RoundToTilePixel(aVal.Y);
 end;
 
 
