@@ -214,7 +214,10 @@ end;
 procedure TRenderPool.ApplyTransform;
 begin
   glLoadIdentity; // Reset The View
-  glTranslatef(fViewport.ViewportClip.X/2, fViewport.ViewportClip.Y/2, 0);
+
+  //Use integer division so we don't translate by half a pixel if clip is odd
+  glTranslatef(fViewport.ViewportClip.X div 2, fViewport.ViewportClip.Y div 2, 0);
+
   glScalef(fViewport.Zoom*CELL_SIZE_PX, fViewport.Zoom*CELL_SIZE_PX, 1 / 256);
 
   glTranslatef(-fViewport.Position.X + gGame.ActiveInterface.ToolbarWidth/CELL_SIZE_PX/fViewport.Zoom, -fViewport.Position.Y, 0);
