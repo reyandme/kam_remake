@@ -776,7 +776,7 @@ begin
     fMenu_MapEdMPMapName    := F.ReadString('Menu', 'MapEdMPMapName', '');
     fMenu_MapEdDLMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdDLMapCRC', '0'));
     fMenu_MapEdCMIndex      := F.ReadInteger('Menu', 'MapEdCMIndex', 0);
-    fMenu_MapEdCMMapCRC     := F.ReadInteger('Menu', 'MapEdCMMapCRC', 0);
+    fMenu_MapEdCMMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdCMMapCRC', '0'));
     fMenu_CampaignName      := F.ReadString('Menu', 'CampaignName', '');
     fMenu_ReplaySPSaveName  := F.ReadString('Menu', 'ReplaySPSaveName', '');
     fMenu_ReplayMPSaveName  := F.ReadString('Menu', 'ReplayMPSaveName', '');
@@ -913,7 +913,7 @@ begin
     F.WriteString ('Menu',  'MapEdMPMapName',     fMenu_MapEdMPMapName);
     F.WriteString ('Menu',  'MapEdDLMapCRC',      IntToStr(fMenu_MapEdDLMapCRC));
     F.WriteInteger('Menu',  'MapEdCMIndex',       fMenu_MapEdCMIndex);
-    F.WriteInteger('Menu',  'MapEdCMMapCRC',      fMenu_MapEdCMMapCRC);
+    F.WriteString ('Menu',  'MapEdCMMapCRC',      IntToStr(fMenu_MapEdCMMapCRC));
     F.WriteString ('Menu',  'CampaignName',       fMenu_CampaignName);
     F.WriteString ('Menu',  'ReplaySPSaveName',   fMenu_ReplaySPSaveName);
     F.WriteString ('Menu',  'ReplayMPSaveName',   fMenu_ReplayMPSaveName);
