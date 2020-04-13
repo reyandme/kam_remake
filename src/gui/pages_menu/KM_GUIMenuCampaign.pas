@@ -2,7 +2,7 @@ unit KM_GUIMenuCampaign;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, SysUtils, Math,
+  Classes, Controls, SysUtils, Math, KM_Maps,
   KM_Controls, KM_Pics, KM_MapTypes, KM_CampaignTypes, KM_GameTypes,
   KM_Campaigns, KM_InterfaceDefaults;
 

@@ -2,7 +2,7 @@ unit KM_GUIGameResultsSP;
 {$I KaM_Remake.inc}
 interface
 uses
-  Controls, SysUtils,
+  Controls, SysUtils, KM_Maps,
   KM_Controls, KM_Defaults, KM_Pics,
   KM_InterfaceDefaults, KM_MapTypes, KM_CampaignTypes,
   KM_GameTypes, KM_CommonTypes;

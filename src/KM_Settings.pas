@@ -158,8 +158,8 @@ type
     fMenu_MapEdMPMapCRC: Cardinal;
     fMenu_MapEdMPMapName: UnicodeString;
     fMenu_MapEdDLMapCRC: Cardinal;
-    fMenu_MapEdCamp: Byte;
-    fMenu_MapEdCampMap: Byte;
+    fMenu_MapEdCMIndex: Byte;
+    fMenu_MapEdCMMapCRC: Cardinal;
     fMenu_CampaignName: UnicodeString;
     fMenu_ReplaySPSaveName: UnicodeString;
     fMenu_ReplayMPSaveName: UnicodeString;
@@ -265,8 +265,8 @@ type
     procedure SetMenuMapEdSPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapName(const aValue: UnicodeString);
-    procedure SetMenuMapEdCamp(const aValue: Byte);
-    procedure SetMenuMapEdCampMap(const aValue: Byte);
+    procedure SetMenuMapEdCMIndex(aValue: Byte);
+    procedure SetMenuMapEdCMMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdDLMapCRC(aValue: Cardinal);
     procedure SetMenuCampaignName(const aValue: UnicodeString);
     procedure SetMenuReplaySPSaveName(const aValue: UnicodeString);
@@ -399,8 +399,8 @@ type
     property MenuMapEdSPMapCRC: Cardinal read fMenu_MapEdSPMapCRC write SetMenuMapEdSPMapCRC;
     property MenuMapEdMPMapCRC: Cardinal read fMenu_MapEdMPMapCRC write SetMenuMapEdMPMapCRC;
     property MenuMapEdMPMapName: UnicodeString read fMenu_MapEdMPMapName write SetMenuMapEdMPMapName;
-    property MenuMapEdCamp: Byte read fMenu_MapEdCamp write SetMenuMapEdCamp;
-    property MenuMapEdCampMap: Byte read fMenu_MapEdCampMap write SetMenuMapEdCampMap;
+    property MenuMapEdCMIndex: Byte read fMenu_MapEdCMIndex write SetMenuMapEdCMIndex;
+    property MenuMapEdCMMapCRC: Cardinal read fMenu_MapEdCMMapCRC write SetMenuMapEdCMMapCRC;
     property MenuMapEdDLMapCRC: Cardinal read fMenu_MapEdDLMapCRC write SetMenuMapEdDLMapCRC;
     property MenuCampaignName: UnicodeString read fMenu_CampaignName write SetMenuCampaignName;
     property MenuReplaySPSaveName: UnicodeString read fMenu_ReplaySPSaveName write SetMenuReplaySPSaveName;
@@ -775,8 +775,8 @@ begin
     fMenu_MapEdMPMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdMPMapCRC', '0'));
     fMenu_MapEdMPMapName    := F.ReadString('Menu', 'MapEdMPMapName', '');
     fMenu_MapEdDLMapCRC     := StrToInt64(F.ReadString('Menu', 'MapEdDLMapCRC', '0'));
-    fMenu_MapEdCamp         := F.ReadInteger('Menu', 'MapEdCamp', 0);
-    fMenu_MapEdCampMap      := F.ReadInteger('Menu', 'MapEdCampMap', 0);
+    fMenu_MapEdCMIndex      := F.ReadInteger('Menu', 'MapEdCMIndex', 0);
+    fMenu_MapEdCMMapCRC     := F.ReadInteger('Menu', 'MapEdCMMapCRC', 0);
     fMenu_CampaignName      := F.ReadString('Menu', 'CampaignName', '');
     fMenu_ReplaySPSaveName  := F.ReadString('Menu', 'ReplaySPSaveName', '');
     fMenu_ReplayMPSaveName  := F.ReadString('Menu', 'ReplayMPSaveName', '');
@@ -912,8 +912,8 @@ begin
     F.WriteString ('Menu',  'MapEdMPMapCRC',      IntToStr(fMenu_MapEdMPMapCRC));
     F.WriteString ('Menu',  'MapEdMPMapName',     fMenu_MapEdMPMapName);
     F.WriteString ('Menu',  'MapEdDLMapCRC',      IntToStr(fMenu_MapEdDLMapCRC));
-    F.WriteInteger('Menu',  'MapEdCamp',          fMenu_MapEdCamp);
-    F.WriteInteger('Menu',  'MapEdCampMap',       fMenu_MapEdCampMap);
+    F.WriteInteger('Menu',  'MapEdCMIndex',       fMenu_MapEdCMIndex);
+    F.WriteInteger('Menu',  'MapEdCMMapCRC',      fMenu_MapEdCMMapCRC);
     F.WriteString ('Menu',  'CampaignName',       fMenu_CampaignName);
     F.WriteString ('Menu',  'ReplaySPSaveName',   fMenu_ReplaySPSaveName);
     F.WriteString ('Menu',  'ReplayMPSaveName',   fMenu_ReplayMPSaveName);
@@ -1029,17 +1029,16 @@ begin
   Changed;
 end;
 
-
-procedure TKMGameSettings.SetMenuMapEdCamp(const aValue: Byte);
+procedure TKMGameSettings.SetMenuMapEdCMIndex(aValue: Byte);
 begin
-  fMenu_MapEdCamp := aValue;
+  fMenu_MapEdCMIndex := aValue;
   Changed;
 end;
 
 
-procedure TKMGameSettings.SetMenuMapEdCampMap(const aValue: Byte);
+procedure TKMGameSettings.SetMenuMapEdCMMapCRC(aValue: Cardinal);
 begin
-  fMenu_MapEdCampMap := aValue;
+  fMenu_MapEdCMMapCRC := aValue;
   Changed;
 end;
 
