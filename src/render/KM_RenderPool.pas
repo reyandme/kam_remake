@@ -159,6 +159,19 @@ const
   DELETE_COLOR = $1616FF;
 
 
+function RoundToTilePixel(aVal: Single): Single; inline; overload;
+begin
+  Result := Round(aVal * CELL_SIZE_PX) / CELL_SIZE_PX;
+end;
+
+
+function RoundToTilePixel(aVal: TKMPointF): TKMPointF; inline; overload;
+begin
+  Result.X := Round(aVal.X * CELL_SIZE_PX) / CELL_SIZE_PX;
+  Result.Y := Round(aVal.Y * CELL_SIZE_PX) / CELL_SIZE_PX;
+end;
+
+
 constructor TRenderPool.Create(aViewport: TKMViewport; aRender: TRender);
 var
   RT: TRXType;
@@ -212,7 +225,12 @@ end;
 
 
 procedure TRenderPool.ApplyTransform;
+var
+  ViewportPosRound: TKMPointF;
 begin
+  //Need to round the viewport position so we only translate by whole pixels
+  ViewportPosRound := RoundToTilePixel(fViewport.Position);
+
   glLoadIdentity; // Reset The View
 
   //Use integer division so we don't translate by half a pixel if clip is odd
@@ -220,7 +238,7 @@ begin
 
   glScalef(fViewport.Zoom*CELL_SIZE_PX, fViewport.Zoom*CELL_SIZE_PX, 1 / 256);
 
-  glTranslatef(-fViewport.Position.X + gGame.ActiveInterface.ToolbarWidth/CELL_SIZE_PX/fViewport.Zoom, -fViewport.Position.Y, 0);
+  glTranslatef(-ViewportPosRound.X + gGame.ActiveInterface.ToolbarWidth/CELL_SIZE_PX/fViewport.Zoom, -ViewportPosRound.Y, 0);
 
   if RENDER_3D then
   begin
@@ -230,14 +248,14 @@ begin
     glRotatef(rHeading,1,0,0);
     glRotatef(rPitch  ,0,1,0);
     glRotatef(rBank   ,0,0,1);
-    glTranslatef(-fViewport.Position.X + gGame.ActiveInterface.ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom, -fViewport.Position.Y - 8, 10);
+    glTranslatef(-ViewportPosRound.X + gGame.ActiveInterface.ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom, -ViewportPosRound.Y - 8, 10);
     glScalef(fViewport.Zoom, fViewport.Zoom, 1);
   end;
 
   glRotatef(rHeading,1,0,0);
   glRotatef(rPitch  ,0,1,0);
   glRotatef(rBank   ,0,0,1);
-  glTranslatef(0, 0, -fViewport.Position.Y);
+  glTranslatef(0, 0, -ViewportPosRound.Y);
 end;
 
 
