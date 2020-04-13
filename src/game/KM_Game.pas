@@ -236,9 +236,9 @@ type
     procedure SetGameSpeedActual(aSpeed: Single);
     procedure SetGameSpeedGIP(aSpeed: Single; aUpdateActual: Boolean = False);
 
-    function SavePath(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
-    function SaveName(const aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
-    function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
+    class function SavePath(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+    class function SaveName(const aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
+    class function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
 
     procedure UpdateMultiplayerTeams;
 
@@ -277,7 +277,7 @@ var
 implementation
 uses
   Classes, Controls, Dialogs, SysUtils, KromUtils, Math, TypInfo,
-  {$IFDEF WDC} UITypes, {$ENDIF}
+  {$IFDEF WDC} UITypes, System.Threading, {$ENDIF}
   KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
   KM_Projectiles, KM_AIFields, KM_AIArmyEvaluation,
   KM_Main, KM_GameApp, KM_RenderPool, KM_GameInfo, KM_GameClasses,
@@ -1223,21 +1223,41 @@ begin
 end;
 
 
-procedure TKMGame.AutoSave(aTimestamp: TDateTime);
+procedure DoAutoSaveRename(aIsMultiPlayerOrSpec: Boolean);
 var
   I: Integer;
 begin
-  Save('autosave', aTimestamp); //Save to temp file
-
   //Delete last autosave
-  KMDeleteFolder(SavePath('autosave' + Int2Fix(gGameApp.GameSettings.AutosaveCount, 2), IsMultiPlayerOrSpec));
+  KMDeleteFolder(TKMGame.SavePath('autosave' + Int2Fix(gGameApp.GameSettings.AutosaveCount, 2), aIsMultiPlayerOrSpec));
 
   //Shift remaining autosaves by 1 position back
   for I := gGameApp.GameSettings.AutosaveCount downto 2 do // 03 to 01
-    KMMoveFolder(SavePath('autosave' + Int2Fix(I - 1, 2), IsMultiPlayerOrSpec), SavePath('autosave' + Int2Fix(I, 2), IsMultiPlayerOrSpec));
+    KMMoveFolder(TKMGame.SavePath('autosave' + Int2Fix(I - 1, 2), aIsMultiPlayerOrSpec), TKMGame.SavePath('autosave' + Int2Fix(I, 2), aIsMultiPlayerOrSpec));
 
   //Rename temp to be first in list
-  KMMoveFolder(SavePath('autosave', IsMultiPlayerOrSpec), SavePath('autosave01', IsMultiPlayerOrSpec));
+  KMMoveFolder(TKMGame.SavePath('autosave', aIsMultiPlayerOrSpec), TKMGame.SavePath('autosave01', aIsMultiPlayerOrSpec));
+end;
+
+
+procedure TKMGame.AutoSave(aTimestamp: TDateTime);
+{$IFDEF WDC}
+var
+  LocalIsMultiPlayerOrSpec: Boolean;
+{$ENDIF}
+begin
+  Save('autosave', aTimestamp); //Save to temp file
+
+  //If possible perform file deletion/renaming in a different thread so we don't delay game
+  {$IFDEF WDC}
+    //Avoid accessing Self from async thread, copy required states to local variables
+    LocalIsMultiPlayerOrSpec := IsMultiPlayerOrSpec;
+    TTask.Run(procedure
+    begin
+      DoAutoSaveRename(LocalIsMultiPlayerOrSpec);
+    end);
+  {$ELSE}
+    DoAutoSaveRename(IsMultiPlayerOrSpec);
+  {$ENDIF}
 end;
 
 
@@ -2712,19 +2732,19 @@ begin
 end;
 
 
-function TKMGame.SavePath(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+class function TKMGame.SavePath(const aName: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
 begin
   Result := TKMSavesCollection.Path(aName, aIsMultiplayer);
 end;
 
 
-function TKMGame.SaveName(const aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+class function TKMGame.SaveName(const aFolder, aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
 begin
   Result := TKMSavesCollection.Path(aFolder, aIsMultiplayer) + aName + '.' + aExt;
 end;
 
 
-function TKMGame.SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
+class function TKMGame.SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
 begin
   Result := TKMSavesCollection.FullPath(aName, aExt, aIsMultiplayer);
 end;
