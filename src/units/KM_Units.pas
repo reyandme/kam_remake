@@ -1714,7 +1714,10 @@ begin
     Exit(True);
   end
   else
+  begin
+    newAction.Free;
     Exit(False);
+  end;
 end;
 
 
