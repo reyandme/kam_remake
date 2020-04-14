@@ -1,8 +1,8 @@
 Author
 andreus & Rayzel
 
-BigDesc
-A coop madmission by andreus & Rayzel||Version 1.6 (23 mar 2020)
+Version
+1.6 (23.03.2020)
 
 SetCoop
 

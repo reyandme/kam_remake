@@ -547,6 +547,7 @@
 !ADD_WARE_TO_LAST 1 5
 !SET_HOUSE 11 109 84
 !ADD_WARE 1 20000
+!ADD_WARE 2 20000
 !ADD_WARE 7 50000
 !ADD_WARE 8 20000
 !ADD_WARE 10 20000
@@ -3953,4 +3954,4 @@
 !SET_UNIT 31 67 23
 !SET_UNIT 31 68 23
 
-//This mission was made with KaM Remake Map Editor version r11222 at 10.04.2020 7:10:15
+//This mission was made with KaM Remake Map Editor version r11437 at 13.04.2020 13:23:18

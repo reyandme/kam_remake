@@ -444,7 +444,7 @@ begin
            Actions.GroupHungerSet(G, 15000 + States.KaMRandomI(10000) - States.KaMRandomI(5000));
            Actions.ShowMsgGoToFormatted(P, 156, 39, '<$7>', [Military[P].Count, States.UnitTypeName(Military[P].UnitType)]);
          end;
-       end;
+       end
 
     else Exit;
 
@@ -516,11 +516,48 @@ end;
 function BarbarianRage: Single; {old values 0.15 0.3 0.45 0.5 0.6 - seem too high}
 begin
   case States.MissionDifficulty of
-    mdEasy1: Result := 0.1;
+    mdEasy1:  Result := 0.1;
     mdNormal: Result := 0.15;
-    mdHard1: Result := 0.25;
-    mdHard2: Result := 0.35;
-    mdHard3: Result := 0.45;
+    mdHard1:  Result := 0.25;
+    mdHard2:  Result := 0.35;
+    mdHard3:  Result := 0.45;
+  end;
+end;
+
+
+procedure UpdateAttackTimers;
+var
+  Pos: TKMPoint;
+  K: Integer;
+begin
+  case States.MissionDifficulty of
+
+    mdEasy1: begin
+               for K := 4 to 11 do
+                 Actions.AIAttackRemoveAll(K);
+               Pos.X := 0;
+               Pos.Y := 0;
+               Actions.AIAttackAdd(4, True, 51000, 48, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(5, True, 51000, 48, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(6, True, 45000, 40, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(9, True, 63000, 40, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(10, True, 45000, 40, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(11, True, 63000, 48, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+             end;
+
+    mdNormal: begin
+                for K := 4 to 11 do
+                  Actions.AIAttackRemoveAll(K);
+                Pos.X := 0;
+                Pos.Y := 0;
+                Actions.AIAttackAdd(4, True, 48000, 48, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+                Actions.AIAttackAdd(5, True, 48000, 48, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+                Actions.AIAttackAdd(6, True, 42000, 40, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+                Actions.AIAttackAdd(9, True, 60000, 40, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+                Actions.AIAttackAdd(10, True, 42000, 40, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+                Actions.AIAttackAdd(11, True, 60000, 48, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+              end;
+
   end;
 end;
 
@@ -530,60 +567,78 @@ begin
   case States.MissionDifficulty of
 
     mdEasy1: begin
-               Actions.AIEquipRate(4, 0, 350);
-               Actions.AIEquipRate(4, 1, 350);
-               Actions.AIEquipRate(5, 0, 350);
-               Actions.AIEquipRate(5, 1, 350);
-               Actions.AIEquipRate(6, 0, 350);
-               Actions.AIEquipRate(6, 1, 350);
-               Actions.AIEquipRate(7, 0, 200);
-               Actions.AIEquipRate(7, 1, 200);
-               Actions.AIEquipRate(8, 0, 200);
-               Actions.AIEquipRate(8, 1, 200);
+               Actions.AIEquipRate(4, 0, 375);
+               Actions.AIEquipRate(4, 1, 375);
+               Actions.AIEquipRate(5, 0, 375);
+               Actions.AIEquipRate(5, 1, 375);
+               Actions.AIEquipRate(6, 0, 375);
+               Actions.AIEquipRate(6, 1, 375);
+               Actions.AIEquipRate(7, 0, 225);
+               Actions.AIEquipRate(7, 1, 225);
+               Actions.AIEquipRate(8, 0, 225);
+               Actions.AIEquipRate(8, 1, 225);
                Actions.AIEquipRate(9, 0, 450);
                Actions.AIEquipRate(9, 1, 450);
-               Actions.AIEquipRate(10, 0, 350);
-               Actions.AIEquipRate(10, 1, 350);
+               Actions.AIEquipRate(10, 0, 375);
+               Actions.AIEquipRate(10, 1, 375);
                Actions.AIEquipRate(11, 0, 450);
                Actions.AIEquipRate(11, 1, 450);
+               Actions.AIRecruitDelay(4, 35250);
+               Actions.AIRecruitDelay(5, 35250);
+               Actions.AIRecruitDelay(6, 12000);
+               Actions.AIRecruitDelay(9, 27000);
+               Actions.AIRecruitDelay(10, 5250);
+               Actions.AIRecruitDelay(11, 27000);
              end;
 
     mdNormal: begin
-                Actions.AIEquipRate(4, 0, 300);
-                Actions.AIEquipRate(4, 1, 300);
-                Actions.AIEquipRate(5, 0, 300);
-                Actions.AIEquipRate(5, 1, 300);
-                Actions.AIEquipRate(6, 0, 300);
-                Actions.AIEquipRate(6, 1, 300);
-                Actions.AIEquipRate(7, 0, 200);
-                Actions.AIEquipRate(7, 1, 200);
-                Actions.AIEquipRate(8, 0, 200);
-                Actions.AIEquipRate(8, 1, 200);
+                Actions.AIEquipRate(4, 0, 325);
+                Actions.AIEquipRate(4, 1, 325);
+                Actions.AIEquipRate(5, 0, 325);
+                Actions.AIEquipRate(5, 1, 325);
+                Actions.AIEquipRate(6, 0, 330);
+                Actions.AIEquipRate(6, 1, 330);
+                Actions.AIEquipRate(7, 0, 220);
+                Actions.AIEquipRate(7, 1, 220);
+                Actions.AIEquipRate(8, 0, 220);
+                Actions.AIEquipRate(8, 1, 220);
                 Actions.AIEquipRate(9, 0, 400);
                 Actions.AIEquipRate(9, 1, 400);
-                Actions.AIEquipRate(10, 0, 300);
-                Actions.AIEquipRate(10, 1, 300);
+                Actions.AIEquipRate(10, 0, 330);
+                Actions.AIEquipRate(10, 1, 330);
                 Actions.AIEquipRate(11, 0, 400);
                 Actions.AIEquipRate(11, 1, 400);
+                Actions.AIRecruitDelay(4, 34350);
+                Actions.AIRecruitDelay(5, 34350);
+                Actions.AIRecruitDelay(6, 12960);
+                Actions.AIRecruitDelay(9, 28000);
+                Actions.AIRecruitDelay(10, 7020);
+                Actions.AIRecruitDelay(11, 28000);
               end;
 
     mdHard1: begin
-               Actions.AIEquipRate(4, 0, 270);
-               Actions.AIEquipRate(4, 1, 270);
-               Actions.AIEquipRate(5, 0, 270);
-               Actions.AIEquipRate(5, 1, 270);
-               Actions.AIEquipRate(6, 0, 270);
-               Actions.AIEquipRate(6, 1, 270);
+               Actions.AIEquipRate(4, 0, 285);
+               Actions.AIEquipRate(4, 1, 285);
+               Actions.AIEquipRate(5, 0, 285);
+               Actions.AIEquipRate(5, 1, 285);
+               Actions.AIEquipRate(6, 0, 285);
+               Actions.AIEquipRate(6, 1, 285);
                Actions.AIEquipRate(7, 0, 100);
                Actions.AIEquipRate(7, 1, 100);
                Actions.AIEquipRate(8, 0, 100);
                Actions.AIEquipRate(8, 1, 100);
-               Actions.AIEquipRate(9, 0, 350);
-               Actions.AIEquipRate(9, 1, 350);
-               Actions.AIEquipRate(10, 0, 270);
-               Actions.AIEquipRate(10, 1, 270);
-               Actions.AIEquipRate(11, 0, 350);
-               Actions.AIEquipRate(11, 1, 350);
+               Actions.AIEquipRate(9, 0, 363);
+               Actions.AIEquipRate(9, 1, 363);
+               Actions.AIEquipRate(10, 0, 285);
+               Actions.AIEquipRate(10, 1, 285);
+               Actions.AIEquipRate(11, 0, 363);
+               Actions.AIEquipRate(11, 1, 363);
+               Actions.AIRecruitDelay(4, 33030);
+               Actions.AIRecruitDelay(5, 33030);
+               Actions.AIRecruitDelay(6, 13920);
+               Actions.AIRecruitDelay(9, 27960);
+               Actions.AIRecruitDelay(10, 8790);
+               Actions.AIRecruitDelay(11, 27000);
              end;
 
     mdHard2: begin
@@ -591,18 +646,24 @@ begin
                Actions.AIEquipRate(4, 1, 250);
                Actions.AIEquipRate(5, 0, 250);
                Actions.AIEquipRate(5, 1, 250);
-               Actions.AIEquipRate(6, 0, 250);
-               Actions.AIEquipRate(6, 1, 250);
+               Actions.AIEquipRate(6, 0, 255);
+               Actions.AIEquipRate(6, 1, 255);
                Actions.AIEquipRate(7, 0, 100);
                Actions.AIEquipRate(7, 1, 100);
                Actions.AIEquipRate(8, 0, 100);
                Actions.AIEquipRate(8, 1, 100);
-               Actions.AIEquipRate(9, 0, 320);
-               Actions.AIEquipRate(9, 1, 320);
-               Actions.AIEquipRate(10, 0, 250);
-               Actions.AIEquipRate(10, 1, 250);
-               Actions.AIEquipRate(11, 0, 320);
-               Actions.AIEquipRate(11, 1, 320);
+               Actions.AIEquipRate(9, 0, 325);
+               Actions.AIEquipRate(9, 1, 325);
+               Actions.AIEquipRate(10, 0, 255);
+               Actions.AIEquipRate(10, 1, 255);
+               Actions.AIEquipRate(11, 0, 325);
+               Actions.AIEquipRate(11, 1, 325);
+               Actions.AIRecruitDelay(4, 34500);
+               Actions.AIRecruitDelay(5, 34500);
+               Actions.AIRecruitDelay(6, 16560);
+               Actions.AIRecruitDelay(9, 31000);
+               Actions.AIRecruitDelay(10, 11970);
+               Actions.AIRecruitDelay(11, 31000);
              end;
 
     mdHard3: begin
@@ -616,12 +677,18 @@ begin
                Actions.AIEquipRate(7, 1, 50);
                Actions.AIEquipRate(8, 0, 50);
                Actions.AIEquipRate(8, 1, 50);
-               Actions.AIEquipRate(9, 0, 280);
-               Actions.AIEquipRate(9, 1, 280);
+               Actions.AIEquipRate(9, 0, 285);
+               Actions.AIEquipRate(9, 1, 285);
                Actions.AIEquipRate(10, 0, 225);
                Actions.AIEquipRate(10, 1, 225);
-               Actions.AIEquipRate(11, 0, 280);
-               Actions.AIEquipRate(11, 1, 280);
+               Actions.AIEquipRate(11, 0, 285);
+               Actions.AIEquipRate(11, 1, 285);
+               Actions.AIRecruitDelay(4, 35550);
+               Actions.AIRecruitDelay(5, 35550);
+               Actions.AIRecruitDelay(6, 19200);
+               Actions.AIRecruitDelay(9, 34200);
+               Actions.AIRecruitDelay(10, 15150);
+               Actions.AIRecruitDelay(11, 34200);
              end;
 
   end;
@@ -638,24 +705,36 @@ begin
 
                if States.PlayerEnabled(0) then
                begin
-                  G1 := Actions.GiveGroup(0, 16, 18, 45, 4, 12, 4);
-                  Actions.GroupHungerSet(G1, States.UnitMaxHunger);
-                  Actions.GiveGroup(0, 22, 35, 34, 2, 6, 3);
-                  Actions.GiveGroup(0, 19, 17, 29, 7, 8, 4);
-                  Actions.GiveUnit(0, 0, 20, 40, 4);
-                  Actions.GiveUnit(0, 0, 22, 40, 4);
-                  Actions.GiveUnit(0, 9, 21, 40, 4);
+                 G1 := Actions.GiveGroup(0, 16, 18, 45, 4, 12, 4);
+                 Actions.GroupHungerSet(G1, States.UnitMaxHunger);
+                 Actions.GiveGroup(0, 22, 35, 34, 2, 6, 3);
+                 Actions.GiveGroup(0, 19, 17, 29, 7, 8, 4);
+                 Actions.GiveUnit(0, 0, 20, 40, 4);
+                 Actions.GiveUnit(0, 0, 22, 40, 4);
+                 Actions.GiveUnit(0, 9, 21, 40, 4);
+                 Actions.GiveWares(0, 2, 10);
+                 Actions.GiveWares(0, 7, 15);
+                 Actions.GiveWares(0, 8, 10);
+                 Actions.GiveWares(0, 10, 10);
+                 Actions.GiveWares(0, 13, 5);
+                 Actions.GiveWares(0, 27, 5);
                end;
 
                if States.PlayerEnabled(1) then
                begin
-                  G1 := Actions.GiveGroup(1, 16, 102, 64, 5, 12, 4);
-                  Actions.GroupHungerSet(G1, States.UnitMaxHunger);
-                  Actions.GiveGroup(1, 22, 92, 52, 6, 6, 3);
-                  Actions.GiveGroup(1, 19, 117, 49, 0, 8, 4);
-                  Actions.GiveUnit(1, 0, 103, 58, 4);
-                  Actions.GiveUnit(1, 0, 105, 58, 4);
-                  Actions.GiveUnit(1, 9, 104, 58, 4);
+                 G1 := Actions.GiveGroup(1, 16, 102, 64, 5, 12, 4);
+                 Actions.GroupHungerSet(G1, States.UnitMaxHunger);
+                 Actions.GiveGroup(1, 22, 92, 52, 6, 6, 3);
+                 Actions.GiveGroup(1, 19, 117, 49, 0, 8, 4);
+                 Actions.GiveUnit(1, 0, 103, 58, 4);
+                 Actions.GiveUnit(1, 0, 105, 58, 4);
+                 Actions.GiveUnit(1, 9, 104, 58, 4);
+                 Actions.GiveWares(1, 2, 10);
+                 Actions.GiveWares(1, 7, 15);
+                 Actions.GiveWares(1, 8, 10);
+                 Actions.GiveWares(1, 10, 10);
+                 Actions.GiveWares(1, 13, 5);
+                 Actions.GiveWares(1, 27, 5);
                end;
 
              end;
@@ -664,24 +743,36 @@ begin
 
                 if States.PlayerEnabled(0) then
                 begin
-                   G1 := Actions.GiveGroup(0, 16, 18, 45, 4, 8, 5);
-                   G2 := Actions.GiveGroup(0, 15, 18, 43, 0, 7, 5);
-                   Actions.GroupHungerSet(G1, States.UnitMaxHunger);
-                   Actions.GroupHungerSet(G2, States.UnitMaxHunger);
-                   Actions.GroupOrderLink(G2, G1);
-                   Actions.GiveGroup(0, 22, 35, 34, 2, 8, 4);
-                   Actions.GiveUnit(0, 0, 21, 40, 4);
+                  G1 := Actions.GiveGroup(0, 16, 18, 45, 4, 8, 5);
+                  G2 := Actions.GiveGroup(0, 15, 18, 43, 0, 7, 5);
+                  Actions.GroupHungerSet(G1, States.UnitMaxHunger);
+                  Actions.GroupHungerSet(G2, States.UnitMaxHunger);
+                  Actions.GroupOrderLink(G2, G1);
+                  Actions.GiveGroup(0, 22, 35, 34, 2, 8, 4);
+                  Actions.GiveUnit(0, 0, 21, 40, 4);
+                  Actions.GiveWares(0, 2, 5);
+                  Actions.GiveWares(0, 7, 10);
+                  Actions.GiveWares(0, 8, 5);
+                  Actions.GiveWares(0, 10, 5);
+                  Actions.GiveWares(0, 13, 5);
+                  Actions.GiveWares(0, 27, 5);
                 end;
 
                 if States.PlayerEnabled(1) then
                 begin
-                   G1 := Actions.GiveGroup(1, 16, 102, 64, 5, 8, 5);
-                   G2 := Actions.GiveGroup(1, 15, 103, 65, 5, 7, 5);
-                   Actions.GroupHungerSet(G1, States.UnitMaxHunger);
-                   Actions.GroupHungerSet(G2, States.UnitMaxHunger);
-                   Actions.GroupOrderLink(G2, G1);
-                   Actions.GiveGroup(1, 22, 92, 52, 6, 8, 4);
-                   Actions.GiveUnit(1, 0, 104, 58, 4);
+                  G1 := Actions.GiveGroup(1, 16, 102, 64, 5, 8, 5);
+                  G2 := Actions.GiveGroup(1, 15, 103, 65, 5, 7, 5);
+                  Actions.GroupHungerSet(G1, States.UnitMaxHunger);
+                  Actions.GroupHungerSet(G2, States.UnitMaxHunger);
+                  Actions.GroupOrderLink(G2, G1);
+                  Actions.GiveGroup(1, 22, 92, 52, 6, 8, 4);
+                  Actions.GiveUnit(1, 0, 104, 58, 4);
+                  Actions.GiveWares(1, 2, 5);
+                  Actions.GiveWares(1, 7, 10);
+                  Actions.GiveWares(1, 8, 5);
+                  Actions.GiveWares(1, 10, 5);
+                  Actions.GiveWares(1, 13, 5);
+                  Actions.GiveWares(1, 27, 5);
                 end;
 
               end;
@@ -690,12 +781,12 @@ begin
 
                if States.PlayerEnabled(0) then
                begin
-                  G1 := Actions.GiveGroup(0, 16, 18, 45, 4, 7, 5);
-                  G2 := Actions.GiveGroup(0, 15, 18, 43, 0, 8, 5);
-                  Actions.GroupHungerSet(G1, States.UnitMaxHunger);
-                  Actions.GroupHungerSet(G2, States.UnitMaxHunger);
-                  Actions.GroupOrderLink(G2, G1);
-                  Actions.GiveGroup(0, 22, 35, 34, 2, 6, 3);
+                 G1 := Actions.GiveGroup(0, 16, 18, 45, 4, 7, 5);
+                 G2 := Actions.GiveGroup(0, 15, 18, 43, 0, 8, 5);
+                 Actions.GroupHungerSet(G1, States.UnitMaxHunger);
+                 Actions.GroupHungerSet(G2, States.UnitMaxHunger);
+                 Actions.GroupOrderLink(G2, G1);
+                 Actions.GiveGroup(0, 22, 35, 34, 2, 6, 3);
                end;
 
                if States.PlayerEnabled(1) then
@@ -714,12 +805,12 @@ begin
 
                if States.PlayerEnabled(0) then
                begin
-                  G1 := Actions.GiveGroup(0, 16, 18, 45, 4, 5, 5);
-                  G2 := Actions.GiveGroup(0, 15, 18, 44, 4, 10, 5);
-                  Actions.GroupHungerSet(G1, States.UnitMaxHunger);
-                  Actions.GroupHungerSet(G2, States.UnitMaxHunger);
-                  Actions.GroupOrderLink(G2, G1);
-                  Actions.GiveGroup(0, 22, 35, 34, 2, 6, 3);
+                 G1 := Actions.GiveGroup(0, 16, 18, 45, 4, 5, 5);
+                 G2 := Actions.GiveGroup(0, 15, 18, 44, 4, 10, 5);
+                 Actions.GroupHungerSet(G1, States.UnitMaxHunger);
+                 Actions.GroupHungerSet(G2, States.UnitMaxHunger);
+                 Actions.GroupOrderLink(G2, G1);
+                 Actions.GiveGroup(0, 22, 35, 34, 2, 6, 3);
                end;
 
                if States.PlayerEnabled(1) then
@@ -737,16 +828,16 @@ begin
     mdHard3: begin
                if States.PlayerEnabled(0) then
                begin
-                  G1 := Actions.GiveGroup(0, 15, 18, 45, 4, 15, 5);
-                  Actions.GroupHungerSet(G1, States.UnitMaxHunger);
-                  Actions.GiveGroup(0, 21, 35, 34, 2, 9, 3);
+                 G1 := Actions.GiveGroup(0, 15, 18, 45, 4, 15, 5);
+                 Actions.GroupHungerSet(G1, States.UnitMaxHunger);
+                 Actions.GiveGroup(0, 21, 35, 34, 2, 9, 3);
                end;
 
                if States.PlayerEnabled(1) then
                begin
-                  G1 := Actions.GiveGroup(1, 15, 102, 64, 5, 15, 5);
-                  Actions.GroupHungerSet(G1, States.UnitMaxHunger);
-                  Actions.GiveGroup(1, 21, 92, 52, 6, 9, 3);
+                 G1 := Actions.GiveGroup(1, 15, 102, 64, 5, 15, 5);
+                 Actions.GroupHungerSet(G1, States.UnitMaxHunger);
+                 Actions.GiveGroup(1, 21, 92, 52, 6, 9, 3);
                end;
              end;
 
@@ -994,6 +1085,8 @@ begin
   end;
 
   UpdateAIEquipRates;
+
+  UpdateAttackTimers;
 
   GiveInitialTroops;
 

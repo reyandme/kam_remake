@@ -1,8 +1,11 @@
 Author
 andreus
 
+Version
+1.3 (08.03.2020)
+
 BigDescLIBX
-3
+0
 
 SetCoop
 

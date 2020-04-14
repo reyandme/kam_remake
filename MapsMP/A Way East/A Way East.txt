@@ -1,8 +1,8 @@
 Author
 andreus
 
-BigDesc
-A coop mission by andreus||Version 1.5 Beta (15 mar 2020)
+Version
+1.5 Beta (15.03.2020)
 
 SetCoop
 

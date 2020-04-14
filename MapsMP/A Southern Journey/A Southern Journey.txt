@@ -1,6 +1,9 @@
 Author
 andreus
 
+Version
+0.8 (14.04.2020)
+
 BigDescLIBX
 9
 

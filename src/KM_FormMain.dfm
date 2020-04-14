@@ -83,12 +83,10 @@ object FormMain: TFormMain
     ParentDoubleBuffered = False
     TabOrder = 1
     object cpLogs: TCategoryPanel
-      Top = 1020
-      Height = 24
+      Top = 384
+      Height = 179
       Caption = 'Logs'
-      Collapsed = True
       TabOrder = 0
-      ExpandedHeight = 179
       object chkLogCommands: TCheckBox
         Left = 120
         Top = 8
@@ -162,7 +160,7 @@ object FormMain: TFormMain
       end
     end
     object cpGraphicTweaks: TCategoryPanel
-      Top = 996
+      Top = 360
       Height = 24
       Caption = 'Graphic tweaks'
       Collapsed = True
@@ -264,7 +262,7 @@ object FormMain: TFormMain
       end
     end
     object cpUserInreface: TCategoryPanel
-      Top = 972
+      Top = 336
       Height = 24
       Caption = 'User Interface'
       Collapsed = True
@@ -299,7 +297,7 @@ object FormMain: TFormMain
       end
     end
     object cpAI: TCategoryPanel
-      Top = 948
+      Top = 312
       Height = 24
       Caption = 'AI'
       Collapsed = True
@@ -464,9 +462,12 @@ object FormMain: TFormMain
     end
     object cpPerfLogs: TCategoryPanel
       Top = 288
-      Height = 660
+      Height = 24
       Caption = 'Perf Logs'
+      Collapsed = True
       TabOrder = 4
+      ExplicitWidth = 241
+      ExpandedHeight = 660
     end
     object cpDebugRender: TCategoryPanel
       Top = 73
@@ -475,6 +476,7 @@ object FormMain: TFormMain
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 5
+      ExplicitWidth = 241
       object Label2: TLabel
         Left = 100
         Top = 4
@@ -646,6 +648,7 @@ object FormMain: TFormMain
       Caption = 'Game additional'
       Collapsed = True
       TabOrder = 6
+      ExplicitWidth = 241
       ExpandedHeight = 136
       object chkLoadUnsupSaves: TCheckBox
         Left = 12
@@ -694,6 +697,7 @@ object FormMain: TFormMain
       Height = 49
       Caption = 'Game '
       TabOrder = 7
+      ExplicitWidth = 241
       object chkSuperSpeed: TCheckBox
         Left = 8
         Top = 5
