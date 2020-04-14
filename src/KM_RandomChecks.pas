@@ -434,6 +434,8 @@ begin
     SaveStream.CopyFrom(TickStream, 0);
   end;
 
+  enumerator.Free;
+
 //  SaveStream.CopyFrom(fSaveStream, 0);
 
 
