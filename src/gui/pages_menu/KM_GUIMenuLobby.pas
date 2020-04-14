@@ -266,6 +266,8 @@ begin
   fMapsMP.Free;
   fSavesMP.Free;
   fMinimap.Free;
+  if fGuiRMG <> nil then
+    fGuiRMG.Free;
 
   inherited;
 end;
