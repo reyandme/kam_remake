@@ -552,6 +552,7 @@ var
   T: TKMPoint;
   DistNext: Single;
   AllTilesAroundLocked: Boolean;
+  U: TKMUnit;
 begin
   Result := ocNoObstacle;
 
@@ -588,13 +589,14 @@ begin
         Exit(ocNoObstacle)
       else
       begin
-
+        U := fUnit; //Local copy since Self will get freed if TrySetActionWalk succeeds
         if fUnit.TrySetActionWalk(fWalkTo, fType, fDistance, fTargetUnit, fTargetHouse, False) then
         begin
+          //Now Self = nil since the walk action was replaced! Don't access members and exit ASAP
           //Restore direction, cause it usually looks unpleasant,
-        //when warrior turns to locked Loc and then immidiately (in 1 tick) turns away when on new route
-          fUnit.Direction := aDir;
-          Result := ocReRouteMade;
+          //when warrior turns to locked Loc and then immidiately (in 1 tick) turns away when on new route
+          U.Direction := aDir;
+          Exit(ocReRouteMade);
         end else
           Exit(ocNoObstacle); //Same as when AllTilesAroundLocked
       end;
@@ -615,7 +617,8 @@ begin
     if CanWalkToTarget(fUnit.CurrPosition, GetEffectivePassability) then
     begin
       fUnit.SetActionWalk(fWalkTo, fType, fDistance, fTargetUnit, fTargetHouse);
-      Result := ocReRouteMade;
+      //Now Self = nil since the walk action was replaced! Don't access members and exit ASAP
+      Exit(ocReRouteMade);
     end else
       Result := ocNoRoute;
 end;
@@ -1238,7 +1241,7 @@ begin
     if not fDoExchange then
       case CheckForObstacle(OldDir) of
         ocNoObstacle:   ;
-        ocReRouteMade:  Exit; //New route will pick-up
+        ocReRouteMade:  Exit; //Self was freed so exit immediately. New route will pick-up
         ocNoRoute:      begin Result := arActAborted; Exit; end; //
       end;
 
