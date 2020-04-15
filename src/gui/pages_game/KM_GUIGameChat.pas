@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Math, StrUtils, SysUtils, Generics.Collections,
-  KM_ScriptingConsoleCommands,
+
   KM_Networking, KM_NetworkTypes,
   KM_InterfaceGame, KM_InterfaceDefaults, KM_CommonTypes,
   KM_Controls, KM_Defaults, KM_Points, KM_Console;
@@ -61,7 +61,7 @@ type
 
 implementation
 uses
-  KM_Main, KM_GameApp, KM_RenderUI, KM_ResTexts, KM_Game, KM_CommonUtils, KM_GameInputProcess,
+  KM_Main, KM_GameApp, KM_RenderUI, KM_ResTexts, KM_Game, KM_CommonUtils,
   KM_ResSound, KM_Resource, KM_ResFonts, KM_Sound, KM_NetPlayersList;
 
 

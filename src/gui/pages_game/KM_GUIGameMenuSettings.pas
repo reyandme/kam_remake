@@ -3,7 +3,7 @@ unit KM_GUIGameMenuSettings;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_Defaults, KM_CommonTypes;
+   KM_Controls, KM_CommonTypes;
 
 type
   TKMGameMenuSettings = class
@@ -37,7 +37,7 @@ type
 
 implementation
 uses
-  KM_GameApp, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame, KM_Sound, KM_Game,
+  KM_GameApp, KM_ResTexts, KM_ResFonts, KM_InterfaceGame, KM_Sound, KM_Game,
   KM_GameTypes;
 
 

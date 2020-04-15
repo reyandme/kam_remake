@@ -3,7 +3,7 @@ unit KM_GUIMapEdMenuSettings;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_Defaults;
+   KM_Controls;
 
 type
   TKMMapEdMenuSettings = class

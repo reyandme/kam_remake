@@ -7,7 +7,7 @@ unit KM_NavMeshFloodPositioning;
 {$I KaM_Remake.inc}
 interface
 uses
-   Math, KM_Defaults, KM_CommonTypes,
+   Math, KM_CommonTypes,
    KM_Points, KM_NavMeshFloodFill;
 
 

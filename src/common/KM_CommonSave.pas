@@ -3,7 +3,7 @@ unit KM_CommonSave;
 interface
 uses
   Classes, Math, SysUtils,
-  KM_Points, KM_CommonTypes;
+  KM_Points;
 
 const
   OBJECT_SIZE = SizeOf(TObject);

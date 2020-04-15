@@ -3,7 +3,7 @@ unit KM_GUIMenuOptions;
 interface
 uses
   Classes, Controls, KromOGLUtils, Math, SysUtils,
-  KM_Controls, KM_Defaults, KM_Settings, KM_Pics, KM_Resolutions, KM_ResKeys,
+  KM_Controls, KM_Settings, KM_Pics, KM_Resolutions, KM_ResKeys,
   KM_InterfaceDefaults;
 
 

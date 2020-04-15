@@ -2,7 +2,7 @@ unit KM_MapEdTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_Defaults, KM_CommonTypes, KM_ResTileset, KM_Terrain;
+  KM_Defaults, KM_ResTileset, KM_Terrain;
 
 type
   // same as TKMTerrainLayer, but packed

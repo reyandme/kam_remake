@@ -3,7 +3,7 @@ unit KM_ResKeys;
 interface
 uses
   Classes, SysUtils, StrUtils, Math,
-  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_ResTexts;
+  KM_Defaults, KM_ResTexts;
 
 type
   TKMFuncArea = (faCommon, faGame, faSpecReplay, faMapEdit);

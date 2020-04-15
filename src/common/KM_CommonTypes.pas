@@ -3,7 +3,7 @@ unit KM_CommonTypes;
 interface
 
 uses
-  KM_Points, KM_Defaults;
+  KM_Points;
 
 type
   TKMByteSet = set of Byte;

@@ -8,7 +8,7 @@ unit KM_ArmyManagement;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
+  KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Units,
   KM_UnitGroup, KM_AISetup,
   KM_HandStats, KM_ArmyDefence, KM_AIAttacks, KM_ArmyAttack, KM_ArmyAttackNew,

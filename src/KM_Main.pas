@@ -86,7 +86,7 @@ uses
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   SysUtils, StrUtils, Math, KromUtils, KM_FileIO,
   KM_GameApp, KM_Helpers,
-  KM_Log, KM_CommonUtils, KM_Defaults, KM_Points, KM_DevPerfLog, KM_DevPerfLogTypes;
+  KM_Log, KM_CommonUtils, KM_Defaults, KM_Points, KM_DevPerfLog;
 
 
 const

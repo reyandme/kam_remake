@@ -5,7 +5,7 @@ uses
   {$IFDEF FPC}zstream, {$ENDIF}
   {$IFDEF WDC}ZLib, {$ENDIF}
   Generics.Collections,
-  KM_CommonTypes, KM_CommonClasses, KM_GameTypes;
+  KM_CommonClasses;
 
 type
   TKMLogRngType = (lrtNone, lrtInt, lrtSingle, lrtExt);

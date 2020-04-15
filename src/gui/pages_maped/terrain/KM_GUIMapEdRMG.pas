@@ -75,7 +75,7 @@ type
 implementation
 uses
   KM_RenderUI, KM_ResTexts, KM_ResFonts,
-  KM_TerrainSelection, KM_Terrain, KM_Game, KM_GameTypes;
+  KM_Terrain, KM_Game, KM_GameTypes;
 
 
 { TKMGUIMapEdGoal }

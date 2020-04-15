@@ -5,7 +5,7 @@ interface
 uses
   Generics.Collections,
   Classes, Math, SysUtils, StrUtils, uPSRuntime, uPSDebugger, uPSPreProcessor,
-  KM_CommonTypes, KM_Defaults, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_ScriptingConsoleCommands,
+  KM_Defaults, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_ScriptingConsoleCommands,
   KM_UnitGroup, KM_ResHouses, KM_ResWares, KM_ScriptingTypes, KM_CommonClasses;
 
 

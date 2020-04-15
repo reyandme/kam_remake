@@ -125,7 +125,7 @@ implementation
 uses
   SysUtils, Math, KromUtils,
   KM_GameClasses,
-  KM_Resource, KM_ResTexts, KM_FileIO, KM_NetworkTypes,
+  KM_Resource, KM_ResTexts, KM_FileIO,
   KM_CommonClasses, KM_Defaults, KM_CommonUtils, KM_Log;
 
 

@@ -165,7 +165,7 @@ const
 
 implementation
 uses
-  KM_Main, KM_Terrain, KM_RenderPool, KM_Resource, KM_ResCursors, KM_ResKeys, KM_RenderUI;
+  KM_Main, KM_Terrain, KM_RenderPool, KM_Resource, KM_ResCursors, KM_ResKeys;
 
 
 { TKMUserInterfaceGame }

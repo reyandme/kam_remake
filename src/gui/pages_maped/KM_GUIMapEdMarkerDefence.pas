@@ -40,7 +40,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Game, KM_CommonClasses,
+  KM_HandsCollection, KM_ResTexts, KM_Game,
   KM_RenderUI, KM_ResFonts, KM_AIDefensePos, KM_Hand;
 
 

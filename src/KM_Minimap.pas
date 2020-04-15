@@ -60,7 +60,7 @@ uses
   KM_Game, KM_Render,
   KM_Units, KM_UnitGroup, KM_Hand, KM_HandsCollection,
   KM_Resource, KM_ResUnits, KM_CommonUtils,
-  KM_GameTypes, KM_DevPerfLog, KM_DevPerfLogTypes;
+  KM_DevPerfLog, KM_DevPerfLogTypes;
 
 
 { TKMMinimap }

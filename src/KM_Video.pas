@@ -5,7 +5,7 @@ unit KM_Video;
 interface
 
 uses
-  Vcl.Forms, SysUtils, SyncObjs, Types, Messages, Classes, Dialogs, KromOGLUtils, KM_VLC
+  SysUtils, SyncObjs, Types, Messages, Classes, Dialogs, KromOGLUtils, KM_VLC
   {$IFDEF WDC} , UITypes {$ENDIF}
   {$IFDEF FPC} , Controls {$ENDIF}
   ;
@@ -88,7 +88,7 @@ var
 implementation
 
 uses
-  KM_Render, KM_RenderUI, dglOpenGL, KM_Controls, KM_ResLocales, KM_GameApp, KM_Sound;
+  KM_Render, KM_RenderUI, dglOpenGL, KM_ResLocales, KM_GameApp, KM_Sound;
 
 {$IFDEF VIDEOS}
 

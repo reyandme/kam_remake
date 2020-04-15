@@ -5,7 +5,7 @@ uses
   Controls, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics,
   KM_InterfaceDefaults, KM_Campaigns, KM_MapTypes,
-  KM_GameTypes, KM_CommonTypes, KM_CommonClasses;
+  KM_GameTypes, KM_CommonTypes;
 
 
 type

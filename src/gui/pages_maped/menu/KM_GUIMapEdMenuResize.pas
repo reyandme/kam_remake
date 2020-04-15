@@ -39,7 +39,7 @@ type
 
 implementation
 uses
-  KromUtils, Math, KM_Defaults, KM_GameApp, KM_Game, KM_Terrain, KM_InterfaceDefaults,
+  KromUtils, Math, KM_Defaults, KM_GameApp, KM_Game, KM_Terrain,
   KM_InterfaceGame, KM_ResFonts, KM_RenderUI, KM_Points, KM_Maps, KM_ResTexts, KM_ResTileset;
 
 

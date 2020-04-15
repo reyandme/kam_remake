@@ -2,7 +2,7 @@ unit KM_RMGUtils;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, Contnrs, KM_CommonTypes, KM_Defaults,
+  Classes, SysUtils, Math, Contnrs, KM_CommonTypes,
   KM_Points, KM_Terrain, KM_FloodFill;
 
 type

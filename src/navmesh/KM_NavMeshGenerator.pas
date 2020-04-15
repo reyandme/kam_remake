@@ -12,7 +12,7 @@ uses
     Windows,
   {$ENDIF}
   // System.Diagnostics, System.TimeSpan,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
+  KM_CommonClasses, KM_Defaults, KM_Points,
   KromUtils;
 
 const

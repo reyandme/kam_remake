@@ -7,7 +7,7 @@ uses
   uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly, uPSDebugger, uPSPreProcessor,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_FileIO,
   KM_ScriptingActions, KM_ScriptingEvents, KM_ScriptingIdCache, KM_ScriptingStates, KM_ScriptingTypes, KM_ScriptingUtils,
-  KM_Houses, ScriptValidatorResult;
+  ScriptValidatorResult;
 
   //Dynamic scripts allow mapmakers to control the mission flow
 
