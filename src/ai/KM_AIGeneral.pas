@@ -52,7 +52,12 @@ uses
 const
   //For compatibility with KaM these must be false. We can add a !REMAKE_AI command later
   //to make them more "intelligent", but for now these are required for the campaigns to be playable.
-  AI_FILL_CLOSEST = False;
+
+  //On the other hand, no need to reproduce KaM's flaws, so fill closest defence
+  //positions to avoid swapping. This shouldn't cause incorrect behaviour in
+  //campaigns since either way the priority order of positions will be respected
+
+  AI_FILL_CLOSEST = True;
   AI_LINK_IDLE = False;
 
 
