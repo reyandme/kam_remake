@@ -7,7 +7,7 @@ uses
    {$IFDEF FPC}KM_NetServerLNet, {$ENDIF}
   Classes, SysUtils, Math, VerySimpleXML,
   KM_CommonClasses, KM_NetworkClasses, KM_NetworkTypes,
-  KM_Defaults, KM_CommonUtils, KM_Points, KM_CommonTypes,
+  KM_Defaults, KM_CommonUtils, KM_CommonTypes,
   {$IFDEF WDC}
     {$IFDEF CONSOLE}
       KM_ConsoleTimer

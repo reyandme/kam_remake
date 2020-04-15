@@ -2,7 +2,7 @@ unit KM_ScriptingStates;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, StrUtils, uPSRuntime,
+  Classes, Math, SysUtils, StrUtils,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_HandsCollection, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_MapTypes,
   KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_Terrain, KM_ResTileset;
 
@@ -210,10 +210,10 @@ type
 
 implementation
 uses
-  KM_AI, KM_Game, KM_FogOfWar, KM_UnitWarrior,
-  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_Log, KM_CommonUtils, KM_HouseMarket,
+  KM_AI, KM_Game, KM_UnitWarrior,
+  KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_CommonUtils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Hand, KM_AIDefensePos, KM_CommonClasses,
-  KM_UnitsCollection, KM_PathFindingRoad, KM_HouseWoodcutters, KM_HouseTownHall,
+  KM_UnitsCollection, KM_HouseWoodcutters, KM_HouseTownHall,
   KM_ArmyDefence;
 
 

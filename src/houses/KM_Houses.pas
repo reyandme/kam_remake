@@ -365,8 +365,8 @@ implementation
 uses
   TypInfo, SysUtils, Math, KromUtils,
   KM_Game, KM_GameApp, KM_Terrain, KM_RenderPool, KM_RenderAux, KM_Sound, KM_FogOfWar,
-  KM_Hand, KM_HandsCollection, KM_HandLogistics, KM_InterfaceGame,
-  KM_UnitWarrior, KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
+  KM_Hand, KM_HandsCollection, KM_HandLogistics,
+  KM_UnitWarrior, KM_HouseWoodcutters,
   KM_Resource, KM_ResSound, KM_ResTexts, KM_ResUnits, KM_ResMapElements,
   KM_Log, KM_ScriptingEvents, KM_CommonUtils, KM_MapEditorHistory,
   KM_GameTypes;

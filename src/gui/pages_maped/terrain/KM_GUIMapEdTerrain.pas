@@ -56,7 +56,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI, KM_InterfaceGame, KM_Utils;
+  KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceGame, KM_Utils;
 
 
 { TKMMapEdTerrain }

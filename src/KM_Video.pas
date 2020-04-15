@@ -88,7 +88,7 @@ var
 implementation
 
 uses
-  KM_Render, KM_RenderUI, dglOpenGL, KM_Controls, KM_ResFonts, KM_ResLocales, KM_GameApp, KM_Log, KM_Sound;
+  KM_Render, KM_RenderUI, dglOpenGL, KM_Controls, KM_ResLocales, KM_GameApp, KM_Sound;
 
 {$IFDEF VIDEOS}
 

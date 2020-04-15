@@ -3,7 +3,7 @@ unit KM_UnitTaskDismiss;
 interface
 uses
   Classes, SysUtils,
-  KM_Defaults, KM_Units, KM_Houses, KM_Points, KM_CommonClasses;
+  KM_Defaults, KM_Units, KM_Houses, KM_CommonClasses;
 
 
 type
@@ -30,7 +30,7 @@ type
 
 implementation
 uses
-  KM_ResHouses, KM_HandsCollection, KM_UnitActionAbandonWalk, KM_Hand;
+  KM_ResHouses, KM_HandsCollection, KM_Hand;
 
 
 { TTaskDismiss }

@@ -107,7 +107,7 @@ type
 implementation
 uses
   KM_Render, KM_RenderAux, KM_RenderUI, KM_DevPerfLog,
-  KM_Points, KM_Utils, KM_CommonUtils, KM_CommonTypes, KM_ResFonts;
+  KM_Points, KM_CommonUtils, KM_CommonTypes, KM_ResFonts;
 
 
 { TKMSectionData }

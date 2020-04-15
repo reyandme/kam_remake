@@ -9,10 +9,10 @@ interface
 uses
   Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
-  KM_Houses, KM_Units, KM_UnitWarrior,
+  KM_Houses, KM_Units,
   KM_UnitGroup, KM_AISetup,
   KM_HandStats, KM_ArmyDefence, KM_AIAttacks, KM_ArmyAttack, KM_ArmyAttackNew,
-  KM_NavMeshFloodPositioning, KM_NavMeshInfluences;
+  KM_NavMeshInfluences;
 
 type
   // Agent interface (for Supervisor)
@@ -69,7 +69,7 @@ implementation
 uses
   KM_Game, KM_Hand, KM_HandsCollection, KM_Terrain, KM_AIFields,
   KM_HouseBarracks, KM_Supervisor,
-  KM_ResHouses, KM_NavMesh, KM_CommonUtils, KM_RenderAux,
+  KM_ResHouses, KM_CommonUtils,
   KM_AIParameters, KM_DevPerfLog, KM_DevPerfLogTypes;
 
 

@@ -8,7 +8,7 @@ unit KM_CityPredictor;
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils,
-  KM_Defaults, KM_Points, KM_CommonClasses, KM_CommonTypes,
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes,
   KM_AISetup, KM_ResHouses, KM_ResWares, KM_HandStats, KM_AIParameters;
 
 type
@@ -153,7 +153,7 @@ const
 
 implementation
 uses
-  KM_HandsCollection, KM_Hand, KM_Resource, KM_Game, KM_CityPlanner;
+  KM_HandsCollection, KM_Hand, KM_Game, KM_CityPlanner;
 
 
 { TKMCityPredictor }

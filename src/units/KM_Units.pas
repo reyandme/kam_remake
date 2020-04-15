@@ -341,7 +341,7 @@ uses
   TypInfo,
   KM_Game, KM_GameApp, KM_RenderPool, KM_RenderAux, KM_ResTexts, KM_ScriptingEvents,
   KM_HandsCollection, KM_FogOfWar, KM_UnitWarrior, KM_Resource, KM_ResUnits,
-  KM_Hand, KM_HouseWoodcutters, KM_MapEditorHistory,
+  KM_Hand, KM_MapEditorHistory,
 
   KM_UnitActionAbandonWalk,
   KM_UnitActionFight,
@@ -362,8 +362,7 @@ uses
   KM_UnitTaskMining,
   KM_UnitTaskSelfTrain,
   KM_UnitTaskThrowRock,
-  KM_GameTypes,
-  KM_Log;
+  KM_GameTypes;
 
 
 { TKMCivilUnit }

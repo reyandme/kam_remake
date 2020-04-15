@@ -218,8 +218,7 @@ var
 implementation
 uses
   KM_Log, KM_CommonTypes, KM_ResLocales, KM_CommonUtils, KM_Sound, KM_ResSound, KM_RenderUI,
-  KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp, KM_Points, KM_MapTypes,
-  KM_Game, KM_RandomMapGenerator; //RMG
+  KM_Resource, KM_ResFonts, KM_NetPlayersList, KM_Main, KM_GameApp, KM_Points, KM_MapTypes; //RMG
 
 const
   PANEL_SETUP_OPTIONS_TOP = 548;

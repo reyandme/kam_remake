@@ -67,7 +67,7 @@ uses
   KM_Houses, KM_HouseSchool,
   KM_Units, KM_UnitsCollection, KM_UnitActionWalkTo, KM_UnitTaskGoEat, KM_UnitTaskDelivery,
   KM_Resource, KM_ResWares,
-  KM_NavMesh, KM_CommonUtils, KM_DevPerfLog, KM_DevPerfLogTypes;
+  KM_CommonUtils, KM_DevPerfLog, KM_DevPerfLogTypes;
 
 
 const //Sample list made by AntonP

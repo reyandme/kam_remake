@@ -56,7 +56,7 @@ implementation
 uses
   KM_Resource, KM_ResFonts, KM_ResTexts, KM_ResTileset, KM_ResKeys,
   KM_GameCursor, KM_RenderUI, KM_InterfaceGame,
-  KM_CommonUtils, KM_Utils;
+  KM_Utils;
 
 const
   PAL_1ST_ROW = 29; // Ends at the end of stones

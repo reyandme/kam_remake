@@ -29,7 +29,7 @@ implementation
 
 {$R *.dfm}
 
-uses KM_HandLogistics;
+
 
 procedure TFormLogistics.TabControl1Change(Sender: TObject);
 begin

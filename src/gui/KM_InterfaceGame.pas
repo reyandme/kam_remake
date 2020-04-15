@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   SysUtils, Controls, Classes, Math, KM_Defaults, KM_Controls, KM_Points,
-  KM_InterfaceDefaults, KM_CommonUtils, KM_CommonTypes,
+  KM_InterfaceDefaults, KM_CommonTypes,
   KM_GameCursor, KM_Render, KM_Minimap, KM_Viewport, KM_ResHouses, KM_ResWares, KM_ResFonts;
 
 
@@ -165,7 +165,7 @@ const
 
 implementation
 uses
-  KM_Main, KM_Game, KM_HandSpectator, KM_Terrain, KM_RenderPool, KM_Resource, KM_ResCursors, KM_ResKeys, KM_RenderUI;
+  KM_Main, KM_Terrain, KM_RenderPool, KM_Resource, KM_ResCursors, KM_ResKeys, KM_RenderUI;
 
 
 { TKMUserInterfaceGame }

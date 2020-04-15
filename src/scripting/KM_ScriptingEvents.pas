@@ -5,8 +5,8 @@ interface
 uses
   Generics.Collections,
   Classes, Math, SysUtils, StrUtils, uPSRuntime, uPSDebugger, uPSPreProcessor,
-  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_ScriptingConsoleCommands,
-  KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingTypes, KM_CommonClasses;
+  KM_CommonTypes, KM_Defaults, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_ScriptingConsoleCommands,
+  KM_UnitGroup, KM_ResHouses, KM_ResWares, KM_ScriptingTypes, KM_CommonClasses;
 
 
 const
@@ -127,10 +127,10 @@ uses
   {$IFDEF FPC}
   RegExpr,
   {$ENDIF}
-  TypInfo, KromUtils, KM_AI, KM_Terrain, KM_Game, KM_FogOfWar, KM_HandsCollection, KM_UnitWarrior,
-  KM_HouseBarracks, KM_HouseSchool, KM_ResTexts, KM_ResUnits, KM_Log, KM_CommonUtils, KM_HouseMarket,
-  KM_Resource, KM_UnitTaskSelfTrain, KM_Hand, KM_AIDefensePos, KM_MethodParser,
-  KM_UnitsCollection, KM_PathFindingRoad, KM_DevPerfLog, KM_DevPerfLogTypes;
+  TypInfo, KromUtils, KM_Game,
+  KM_ResTexts, KM_ResUnits,
+  KM_Resource,
+  KM_DevPerfLog, KM_DevPerfLogTypes;
 
 
 type

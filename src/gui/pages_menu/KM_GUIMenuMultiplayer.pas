@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
+  StrUtils, SysUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_Pics,
   KM_InterfaceDefaults, KM_ServerQuery;
 
@@ -112,7 +112,7 @@ type
 implementation
 uses
   KM_Main, KM_NetworkTypes, KM_ResTexts, KM_GameApp, KM_ResLocales, KM_GUIMenuLobby, KM_MapTypes,
-  KM_CommonUtils, KM_CommonTypes, KM_Sound, KM_ResSound, KM_RenderUI, KM_ResFonts, KM_Resource;
+  KM_CommonUtils, KM_CommonTypes, KM_Sound, KM_ResSound, KM_RenderUI, KM_ResFonts;
 
 
 const

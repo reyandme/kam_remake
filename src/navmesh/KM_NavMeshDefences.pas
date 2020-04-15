@@ -157,7 +157,7 @@ const
   MIN_DEFENCE_CNT = 1; // Minimal count of defence polygons before penalization
 implementation
 uses
-  SysUtils, KM_Hand, KM_HandsCollection, KM_AIFields, KM_AIInfluences, KM_NavMesh, KM_NavMeshGenerator, KM_RenderAux;
+  SysUtils, KM_Hand, KM_HandsCollection, KM_AIFields, KM_AIInfluences, KM_NavMesh, KM_RenderAux;
 
 
 

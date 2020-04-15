@@ -2,8 +2,8 @@ unit KM_ResKeys;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, StrUtils, KromUtils, Math,
-  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_FileIO, KM_ResTexts;
+  Classes, SysUtils, StrUtils, Math,
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_ResTexts;
 
 type
   TKMFuncArea = (faCommon, faGame, faSpecReplay, faMapEdit);

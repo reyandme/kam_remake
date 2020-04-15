@@ -62,7 +62,7 @@ type
 implementation
 uses
   KM_Main, KM_GameApp, KM_RenderUI, KM_ResTexts, KM_Game, KM_CommonUtils, KM_GameInputProcess,
-  KM_ResSound, KM_Resource, KM_ResFonts, KM_Sound, KM_NetPlayersList, KM_ScriptingEvents;
+  KM_ResSound, KM_Resource, KM_ResFonts, KM_Sound, KM_NetPlayersList;
 
 
 { TKMGUIGameChat }

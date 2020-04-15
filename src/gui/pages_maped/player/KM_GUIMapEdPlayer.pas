@@ -46,7 +46,7 @@ type
 
 implementation
 uses
-  KM_Hand, KM_HandsCollection, KM_ResTexts, KM_GameCursor,
+  KM_HandsCollection, KM_ResTexts, KM_GameCursor,
   KM_RenderUI, KM_InterfaceGame, KM_Utils;
 
 

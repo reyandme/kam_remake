@@ -265,7 +265,7 @@ uses
   KM_Hand,
   KM_ResKeys, KM_FormLogistics, KM_Game,
   KM_RandomChecks,
-  KM_Log, KM_CommonClasses, KM_DevPerfLog;
+  KM_Log, KM_CommonClasses;
 
 
 //Remove VCL panel and use flicker-free TMyPanel instead

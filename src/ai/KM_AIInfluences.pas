@@ -3,10 +3,10 @@ unit KM_AIInfluences;
 interface
 uses
   Math,
-  KM_CommonClasses, KM_CommonTypes, KM_CommonUtils, KM_Defaults, KM_Points,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
   KM_Units, KM_UnitGroup,
   KM_NavMesh, KM_NavMeshGenerator, KM_NavMeshInfluences,
-  KM_NavMeshFloodFill, KM_FloodFill;
+  KM_NavMeshFloodFill;
 
 
 const
@@ -112,10 +112,9 @@ type
 implementation
 uses
   Classes, Graphics, SysUtils,
-  KM_RenderAux, KM_Resource,
+  KM_RenderAux,
   KM_Terrain, KM_Houses, KM_HouseCollection,
-  KM_Hand, KM_HandsCollection, KM_ResHouses,
-  KM_AIFields;
+  KM_Hand, KM_HandsCollection, KM_ResHouses;
 
 
 { TKMInfluenceMaps }

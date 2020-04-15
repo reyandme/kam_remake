@@ -138,7 +138,7 @@ implementation
 uses
   SysUtils, Math, KromUtils,
   KM_Game, KM_Resource, KM_ResLocales, KM_ResSprites,
-  KM_Log, KM_Defaults, KM_GameApp;
+  KM_Log, KM_Defaults;
 
 
 const

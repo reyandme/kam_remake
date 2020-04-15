@@ -26,8 +26,7 @@ type
 
   
 implementation
-uses
-  KM_Terrain;
+
 
 { TKMHouseWoodcutters }
 constructor TKMHouseWoodcutters.Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);

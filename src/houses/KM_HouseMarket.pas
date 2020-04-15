@@ -63,7 +63,7 @@ implementation
 uses
   Math, SysUtils, TypInfo,
   KM_RenderPool,
-  KM_Hand, KM_HandsCollection, KM_HandLogistics,
+  KM_HandsCollection, KM_HandLogistics,
   KM_Resource, KM_ResSound,
   KM_ScriptingEvents, KM_Sound;
 

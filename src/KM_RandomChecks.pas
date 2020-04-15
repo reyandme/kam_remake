@@ -76,7 +76,7 @@ var
 implementation
 uses
   Math,
-  KM_Log, Classes, SysUtils, KromUtils, KM_Defaults;
+  KM_Log, Classes, SysUtils, KM_Defaults;
 
 var
   MAX_TICKS_CNT: Integer = 10*60*10; // 10 minutes

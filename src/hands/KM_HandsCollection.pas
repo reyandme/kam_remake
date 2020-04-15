@@ -103,7 +103,7 @@ implementation
 uses
   SysUtils,
   KromUtils,
-  KM_Supervisor,
+
   KM_Game, KM_Terrain, KM_AIFields,
   KM_UnitsCollection, KM_MapEditorHistory,
   KM_Resource, KM_ResUnits, KM_ResTexts,

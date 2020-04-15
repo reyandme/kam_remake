@@ -7,7 +7,7 @@ uses
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   KM_Defaults, KM_CommonTypes, KM_CommonClasses, KM_Pics, KM_Points, KM_Render, KM_Viewport,
   KM_RenderTerrain, KM_ResHouses, KM_ResSprites, KM_ResWares, KM_Units,
-  KM_Houses, KM_Terrain, KM_Projectiles, OBJLoader;
+  KM_Houses, KM_Terrain, KM_Projectiles;
 
 type
   TKMPaintLayer = (plTerrain, plObjects, plCursors);
@@ -150,8 +150,8 @@ implementation
 uses
   KM_RenderAux, KM_HandsCollection, KM_Game, KM_GameApp, KM_Sound, KM_Resource, KM_ResUnits,
   KM_ResMapElements, KM_AIFields, KM_TerrainPainter, KM_GameCursor,
-  KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
-  KM_FogOfWar, KM_Hand, KM_UnitGroup, KM_UnitWarrior, KM_CommonUtils,
+
+  KM_FogOfWar, KM_Hand, KM_UnitGroup, KM_CommonUtils,
   KM_GameTypes, KM_Utils, KM_ResTileset, KM_DevPerfLog, KM_DevPerfLogTypes;
 
 

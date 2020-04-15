@@ -40,7 +40,7 @@ type
 implementation
 uses
   KM_RenderUI, KM_GameCursor, KM_HandsCollection, KM_ResTexts, KM_Resource, KM_ResFonts,
-  KM_Hand, KM_ResKeys, KM_Utils;
+  KM_ResKeys, KM_Utils;
 
 
 { TKMGUIGameBuild }

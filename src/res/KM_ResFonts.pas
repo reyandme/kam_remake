@@ -2,7 +2,7 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, Math, StrUtils, SysUtils, KromUtils, KM_PNG,
+  Classes, Graphics, Math, StrUtils, SysUtils, KM_PNG,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Render, KM_ResPalettes
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};

@@ -5,9 +5,9 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes,
-  Math, SysUtils, KM_Utils,
+  Math, SysUtils,
   KM_Controls, KM_Defaults, KM_Pics, KM_Minimap,
-  KM_RandomMapGenerator, KM_CommonUtils;
+  KM_RandomMapGenerator;
 
 type
 
@@ -74,7 +74,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_Hand, KM_RenderUI, KM_ResTexts, KM_ResWares, KM_ResFonts,
+  KM_RenderUI, KM_ResTexts, KM_ResFonts,
   KM_TerrainSelection, KM_Terrain, KM_Game, KM_GameTypes;
 
 

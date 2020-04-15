@@ -142,9 +142,9 @@ type
 
 implementation
 uses
-  KM_Game, KM_GameInputProcess, KM_Hand, 
+  KM_Game, KM_GameInputProcess, KM_Hand,
   KM_HouseBarracks, KM_HouseSchool, KM_HouseTownHall, KM_HouseWoodcutters,
-  KM_HandsCollection, KM_RenderUI, KM_CommonUtils,
+  KM_HandsCollection, KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_ResHouses, KM_ResTexts, KM_ResUnits, KM_Utils, KM_Points;
 
 const

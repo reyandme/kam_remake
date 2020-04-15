@@ -37,7 +37,7 @@ type
 
 implementation
 uses
-  StrUtils, KM_HandsCollection, KM_Game, KM_ResTexts, KM_RenderUI, KM_Resource, KM_ResFonts,
+  StrUtils, KM_HandsCollection, KM_Game, KM_ResTexts, KM_RenderUI, KM_ResFonts,
   KM_InterfaceGame, KM_Hand, KM_CommonUtils;
 
 

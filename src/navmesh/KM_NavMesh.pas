@@ -2,7 +2,7 @@ unit KM_NavMesh;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_PolySimplify,
+
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, Contnrs,
   KM_NavMeshDefences,
   KromUtils, KM_CommonUtils,
@@ -62,8 +62,8 @@ type
 
 implementation
 uses
-  SysUtils, Math, Delaunay,
-  KM_Terrain, KM_HandsCollection, KM_RenderAux, KM_Outline,
+  SysUtils, Math,
+  KM_Terrain, KM_RenderAux,
   Dialogs;
 
 

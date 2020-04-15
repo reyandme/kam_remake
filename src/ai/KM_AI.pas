@@ -2,7 +2,7 @@ unit KM_AI;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_CommonClasses, KM_CommonTypes, KM_CommonUtils, KM_Defaults,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
   KM_Houses, KM_Units, KM_UnitWarrior, KM_Points,
   KM_AISetup, KM_AIMayor, KM_AIGoals, KM_AIGeneral,
   KM_CityManagement, KM_ArmyManagement;

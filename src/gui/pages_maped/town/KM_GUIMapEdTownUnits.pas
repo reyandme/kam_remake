@@ -2,7 +2,7 @@ unit KM_GUIMapEdTownUnits;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Controls, KromUtils, Math, StrUtils, SysUtils,
+   Classes, Controls, Math, StrUtils, SysUtils,
    KM_InterfaceDefaults,
    KM_Controls, KM_Defaults, KM_Pics;
 
@@ -31,7 +31,7 @@ type
 implementation
 uses
   KM_HandsCollection, KM_GameCursor, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts,
-  KM_InterfaceGame, KM_ResUnits, KM_Hand, KM_Utils;
+  KM_InterfaceGame, KM_ResUnits, KM_Utils;
 
 
 { TKMMapEdTownUnits }

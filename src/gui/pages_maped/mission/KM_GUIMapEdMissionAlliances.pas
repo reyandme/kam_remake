@@ -35,7 +35,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Hand, KM_ResKeys, KM_Pics;
+  KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_Hand, KM_Pics;
 
 const
   TB_CHB_A_L = 32; //Left CheckBox_Alliances

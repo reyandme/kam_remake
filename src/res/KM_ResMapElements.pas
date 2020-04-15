@@ -3,7 +3,7 @@ unit KM_ResMapElements;
 interface
 uses
   Classes, SysUtils, KromUtils,
-  KM_CommonTypes, KM_Defaults, KM_Points;
+  KM_CommonTypes, KM_Defaults;
 
 
 type

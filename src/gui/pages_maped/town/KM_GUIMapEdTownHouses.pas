@@ -38,7 +38,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_GameCursor, KM_Resource, KM_ResHouses, KM_ResFonts, KM_ResWares,
+  KM_ResTexts, KM_GameCursor, KM_Resource, KM_ResHouses, KM_ResFonts,
   KM_RenderUI, KM_Terrain, KM_Points, KM_ResKeys, KM_Utils;
 
 

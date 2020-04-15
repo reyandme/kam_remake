@@ -10,8 +10,7 @@ uses
   Generics.Collections, Classes, KromUtils, Math, SysUtils,
   KM_Units, KM_UnitGroup,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
-  KM_Houses, KM_ResHouses, KM_ResWares, KM_NavMeshPathFinding,
-  KM_Eye, KM_NavMeshInfluences;
+  KM_Houses, KM_ResHouses, KM_NavMeshPathFinding;
 
 type
   TKMTargetType = (ttNone, ttPoint, ttHouse, ttGroup, ttUnit);
@@ -109,8 +108,8 @@ const
 implementation
 uses
   Types, TypInfo,
-  KM_Game, KM_Hand, KM_HandsCollection, KM_Terrain, KM_AIFields,
-  KM_NavMesh, KM_CommonUtils, KM_AISetup, KM_AI, KM_RenderAux,
+  KM_Game, KM_HandsCollection, KM_Terrain, KM_AIFields,
+  KM_NavMesh, KM_RenderAux,
   KM_UnitWarrior, KM_AIParameters, KM_UnitActionFight, KM_UnitActionWalkTo;
 
 

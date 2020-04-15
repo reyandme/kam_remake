@@ -3,7 +3,7 @@ unit KM_ScriptingUtils;
 
 interface
 uses
-  Math, uPSRuntime,
+  Math,
   KM_ScriptingEvents, KM_CommonTypes, KM_Points;
 
 type

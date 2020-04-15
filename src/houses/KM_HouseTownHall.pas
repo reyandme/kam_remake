@@ -4,7 +4,7 @@ interface
 uses
   KM_Houses,
   KM_ResHouses, KM_ResWares,
-  KM_CommonClasses, KM_Defaults, KM_Points;
+  KM_CommonClasses, KM_Defaults;
 
 const
   TH_MAX_GOLDMAX_VALUE = 999; //Max value for TownHall MaxGold parameter
@@ -60,7 +60,7 @@ type
 implementation
 uses
   Math,
-  KM_Hand, KM_HandsCollection, KM_HandLogistics, KM_Terrain,
+  KM_Hand, KM_HandsCollection, KM_HandLogistics,
   KM_UnitWarrior, KM_ResUnits, KM_ScriptingEvents,
   KM_InterfaceGame;
 

@@ -56,7 +56,7 @@ type
 implementation
 uses
   SysUtils,
-  KM_Hand, KM_ResUnits, KM_Houses, KM_HouseWoodcutters,
+  KM_ResUnits, KM_Houses, KM_HouseWoodcutters,
   KM_Resource, KM_CommonUtils;
 
 

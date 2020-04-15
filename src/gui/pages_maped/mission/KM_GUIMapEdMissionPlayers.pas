@@ -47,7 +47,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Game, KM_RenderUI, KM_ResFonts, KM_InterfaceGame,
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_RenderUI, KM_ResFonts,
   KM_Hand;
 
 const

@@ -100,7 +100,7 @@ var
 implementation
 uses
   KM_DevPerfLogForm,
-  TypInfo, KM_Defaults, KM_RenderUI, KM_RenderAux, KM_ResFonts, KM_Points;
+  TypInfo, KM_Defaults, KM_RenderUI, KM_RenderAux, KM_ResFonts;
 
 
 { TKMPerfLogs }

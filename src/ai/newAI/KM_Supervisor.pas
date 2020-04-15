@@ -10,7 +10,7 @@ uses
   Classes, KM_CommonClasses, KM_CommonTypes, KM_Defaults,
   KM_Points, KM_UnitGroup, KM_Units, KM_UnitWarrior, KM_Terrain,
   KM_NavMeshDefences, KM_NavMeshInfluences, KM_NavMeshArmyPositioning, KM_ArmyManagement, KM_AIArmyEvaluation,
-  KM_ArmyAttack, KM_ArmyAttackNew,
+  KM_ArmyAttackNew,
   KM_Houses, KM_ResHouses, KM_Sort;
 
 type
@@ -79,8 +79,8 @@ type
 implementation
 uses
   SysUtils, Math,
-  KM_Game, KM_HandsCollection, KM_Hand, KM_RenderAux,
-  KM_AIFields, KM_NavMesh, KM_CommonUtils, KM_AIParameters;
+  KM_Game, KM_HandsCollection, KM_Hand,
+  KM_AIFields, KM_CommonUtils, KM_AIParameters;
 
 type
   TByteArray = array [Word] of byte;

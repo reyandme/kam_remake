@@ -2,7 +2,7 @@ unit KM_Hand;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_AI, KM_AIArmyEvaluation,
+  KM_AI,
   KM_Units, KM_UnitsCollection, KM_UnitGroup, KM_UnitWarrior,
   KM_Houses, KM_HouseCollection, KM_HouseInn,
   KM_HandLogistics, KM_HandLocks, KM_HandStats,
@@ -235,7 +235,7 @@ type
 implementation
 uses
   Classes, SysUtils, KromUtils, Math, TypInfo,
-  KM_GameApp, KM_GameCursor, KM_Game, KM_Terrain, KM_HouseBarracks, KM_HouseTownHall,
+  KM_GameApp, KM_GameCursor, KM_Game, KM_Terrain,
   KM_HandsCollection, KM_Sound, KM_AIFields, KM_MapEditorHistory,
   KM_Resource, KM_ResSound, KM_ResTexts, KM_ResMapElements, KM_ScriptingEvents, KM_ResUnits,
   KM_GameTypes, KM_CommonUtils;

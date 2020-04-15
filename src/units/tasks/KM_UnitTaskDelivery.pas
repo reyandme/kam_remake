@@ -57,7 +57,7 @@ implementation
 uses
   Math, TypInfo,
   KM_HandsCollection, KM_Hand, KM_ResHouses,
-  KM_Terrain, KM_UnitWarrior, KM_HouseBarracks, KM_HouseTownHall, KM_HouseInn,
+  KM_UnitWarrior, KM_HouseInn,
   KM_UnitTaskBuild, KM_Log, KM_RenderAux;
 
 

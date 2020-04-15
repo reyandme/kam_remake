@@ -3,7 +3,7 @@ unit KM_AIFields;
 interface
 uses
   KM_NavMesh, KM_AIInfluences, KM_Eye, KM_Supervisor,
-  KM_CommonClasses, KM_CommonUtils, KM_Points;
+  KM_CommonClasses, KM_Points;
 
 
 type

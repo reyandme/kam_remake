@@ -7,8 +7,8 @@ unit KM_RandomMapGenerator;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_CommonTypes, KM_Terrain, KM_Utils, Math,  // KM_Utils = random number
-  KM_Points, KM_RMGUtils, KM_Defaults, KM_ResWares, KM_CommonUtils;
+  KM_CommonTypes, KM_Terrain, Math,  // KM_Utils = random number
+  KM_Points, KM_RMGUtils, KM_Defaults, KM_ResWares;
 
 
 type
@@ -227,7 +227,7 @@ type
 implementation
 
 uses
-  SysUtils, KM_HandsCollection, KM_CommonClasses, KM_Game, KM_ResMapElements, KM_Hand, Dialogs, KM_Log;
+  SysUtils, KM_HandsCollection, KM_CommonClasses, KM_Game, KM_ResMapElements, KM_Hand, Dialogs;
 
 
 

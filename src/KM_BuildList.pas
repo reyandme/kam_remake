@@ -213,7 +213,7 @@ type
 implementation
 uses
   Math,
-  KM_Game, KM_Hand, KM_HandsCollection, KM_Resource;
+  KM_Game, KM_HandsCollection, KM_Resource;
 
 
 const

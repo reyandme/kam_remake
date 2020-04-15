@@ -3,7 +3,7 @@ unit KM_ResLocales;
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
-  KM_CommonTypes, KM_FileIO;
+  KM_CommonTypes;
 
 
 type

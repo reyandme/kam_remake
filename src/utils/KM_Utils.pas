@@ -37,7 +37,7 @@ uses
 
 implementation
 uses
-  Math, KM_CommonUtils, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroup, KM_Log;
+  Math, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroup;
 
 
 

@@ -2,7 +2,7 @@ unit KM_UnitTaskGoOutShowHungry;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KM_Defaults, KM_Units, SysUtils, KM_Points;
+  Classes, KM_Defaults, KM_Units, SysUtils;
 
 type
   TKMTaskGoOutShowHungry = class(TKMUnitTask)

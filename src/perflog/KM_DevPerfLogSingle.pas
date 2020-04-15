@@ -67,7 +67,7 @@ type
 
 implementation
 uses
-  KM_Utils, KM_CommonUtils, KM_Points, KM_RenderAux, KM_Render;
+  KM_CommonUtils, KM_Points, KM_RenderAux, KM_Render;
 
 
 { TKMPerfLogSingle }

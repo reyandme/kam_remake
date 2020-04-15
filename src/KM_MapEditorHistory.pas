@@ -4,7 +4,7 @@ interface
 uses
   Classes, Generics.Collections, SysUtils,
   KM_Defaults, KM_Points, KM_CommonTypes, KM_Houses,
-  KM_ResWares, KM_ResHouses, KM_ResTileset, KM_MapEdTypes, KM_Terrain, KM_UnitGroup;
+  KM_ResWares, KM_ResHouses, KM_MapEdTypes, KM_Terrain, KM_UnitGroup;
 
 
 type
@@ -158,8 +158,8 @@ type
 implementation
 uses
   Math,
-  KM_HandsCollection, KM_Hand, KM_Units, KM_UnitsCollection, KM_CommonClasses, KM_UnitWarrior, KM_Utils,
-  KM_Game, KM_CommonUtils, KM_Resource, KM_HouseTownhall, KM_HouseBarracks, KM_HouseMarket;
+  KM_HandsCollection, KM_Hand, KM_Units, KM_UnitsCollection, KM_CommonClasses,
+  KM_Game, KM_CommonUtils, KM_Resource, KM_HouseTownhall, KM_HouseBarracks;
 
 const
   CHECKPOINTS_MAX_CNT = 500;

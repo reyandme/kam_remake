@@ -8,9 +8,9 @@ unit KM_Eye;
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils, Contnrs,
-  KM_Defaults, KM_Points, KM_CommonClasses, KM_CommonTypes, KM_CommonUtils,
-  KM_ResHouses, KM_Houses, KM_ResWares, KM_Units,
-  KM_AIArmyEvaluation, KM_AIInfluences, KM_FloodFill, KM_NavMeshFloodFill, KM_AIParameters;
+  KM_Defaults, KM_Points, KM_CommonClasses, KM_CommonTypes,
+  KM_ResHouses, KM_Houses, KM_Units,
+  KM_AIArmyEvaluation, KM_AIInfluences, KM_FloodFill, KM_AIParameters;
 
 const
   MAX_SCAN_DIST_FROM_HOUSE = 10;
@@ -223,7 +223,7 @@ type
 implementation
 uses
   KM_Game, KM_Terrain, KM_Hand, KM_Resource, KM_AIFields, KM_HandsCollection, KM_RenderAux, KM_ResMapElements,
-  KM_NavMesh, KM_NavMeshGenerator, KM_CityPlanner;
+  KM_NavMesh, KM_CityPlanner;
 
 
 { TKMEye }

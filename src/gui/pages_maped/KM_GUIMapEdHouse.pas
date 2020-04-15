@@ -94,9 +94,9 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI, KM_Hand, KM_ResUnits,
+  KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI, KM_ResUnits,
   KM_ResWares, KM_HouseBarracks, KM_HouseTownHall,
-  KM_ResFonts, KM_CommonUtils, KM_GameCursor, KM_Utils;
+  KM_ResFonts, KM_GameCursor, KM_Utils;
 
 
 { TKMMapEdHouse }

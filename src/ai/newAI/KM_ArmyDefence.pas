@@ -95,7 +95,7 @@ implementation
 uses
   Math,
   KM_Game, KM_HandsCollection, KM_Hand, KM_RenderAux,
-  KM_AIFields, KM_NavMesh, KM_NavMeshGenerator, KM_CommonUtils;
+  KM_AIFields, KM_NavMesh;
 
 
 { TKMDefencePosition }

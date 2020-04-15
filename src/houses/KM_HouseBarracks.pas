@@ -5,7 +5,7 @@ uses
   Classes,
   KM_Houses,
   KM_ResWares, KM_ResHouses,
-  KM_CommonClasses, KM_Defaults, KM_Points;
+  KM_CommonClasses, KM_Defaults;
 
 
 type
@@ -56,7 +56,7 @@ type
 implementation
 uses
   Math, Types,
-  KM_Hand, KM_HandsCollection, KM_Terrain,
+  KM_Hand, KM_HandsCollection,
   KM_Units, KM_UnitWarrior, KM_ScriptingEvents,
   KM_ResUnits;
 

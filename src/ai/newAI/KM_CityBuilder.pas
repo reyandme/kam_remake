@@ -8,7 +8,7 @@ unit KM_CityBuilder;
 interface
 uses
   KromUtils, Math, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_CommonUtils, KM_Points, KM_Sort,
+  KM_Defaults, KM_CommonClasses, KM_Points, KM_Sort,
   KM_ResHouses, KM_ResWares, KM_BuildList, KM_Houses,
   KM_AIInfluences, KM_CityPlanner, KM_CityPredictor, KM_Eye, KM_AIParameters;
 
@@ -93,8 +93,8 @@ type
 implementation
 uses
   Classes, KM_Game, KM_Hand, KM_HandsCollection, KM_Terrain, KM_Resource,
-  KM_AIFields, KM_Units, KM_UnitsCollection, KM_UnitTaskDelivery, KM_UnitTaskBuild, KM_UnitActionWalkTo,
-  KM_NavMesh, KM_RenderAux, KM_ResMapElements;
+  KM_AIFields, KM_Units, KM_UnitsCollection, KM_UnitTaskBuild,
+  KM_RenderAux, KM_ResMapElements;
 
 { Procedural functions }
 function CompareBuildNode(const aElem1, aElem2): Integer;

@@ -2,7 +2,7 @@ unit KM_PathFindingAStarOld;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Math, KromUtils, KM_PathFinding,
+  SysUtils, Math, KM_PathFinding,
   KM_CommonClasses, KM_Defaults, KM_Terrain, KM_Points;
 
 

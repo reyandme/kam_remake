@@ -86,7 +86,7 @@ type
 
 implementation
 uses
-  TypInfo, KM_Log,
+  TypInfo,
   SysUtils, Math, KromUtils,
   KM_GameApp, KM_Game, KM_HandsCollection,
   KM_ResTexts, KM_ResSound, KM_Sound, KM_CommonUtils,

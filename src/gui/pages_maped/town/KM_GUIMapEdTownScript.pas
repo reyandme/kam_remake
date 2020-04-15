@@ -2,7 +2,7 @@ unit KM_GUIMapEdTownScript;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Controls, KromUtils, Math, StrUtils, SysUtils,
+   Classes, Controls, Math, StrUtils, SysUtils,
    KM_InterfaceDefaults,
    KM_Controls;
 
@@ -43,7 +43,7 @@ implementation
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  KM_Game, KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame, KM_GameCursor, KM_ResKeys,
+  KM_Game, KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame, KM_GameCursor,
   KM_Defaults, KM_Pics, KM_Hand, KM_ResHouses, KM_Utils;
 
 

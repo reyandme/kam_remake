@@ -3,7 +3,7 @@ unit KM_UnitTaskAttackHouse;
 interface
 uses
   Classes, SysUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_CommonUtils, KM_Houses, KM_Units, KM_UnitWarrior, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_UnitWarrior, KM_Points;
 
 
 type

@@ -42,7 +42,7 @@ uses
   Classes, SysUtils, Math, KromUtils,
   KM_Hand, KM_Game, KM_HandsCollection,
   KM_UnitsCollection, KM_UnitWarrior,
-  KM_HouseCollection, KM_HouseBarracks, KM_HouseTownHall, KM_HouseWoodcutters,
+  KM_HouseCollection, KM_HouseBarracks,
   KM_AI, KM_AIDefensePos,
   KM_Resource, KM_ResHouses, KM_ResUnits, KM_ResWares,
   KM_CommonClasses, KM_CommonTypes, KM_Terrain;

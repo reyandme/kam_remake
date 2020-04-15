@@ -3,7 +3,7 @@ unit KM_UnitTaskGoHome;
 interface
 uses
   Classes, SysUtils,
-  KM_Defaults, KM_Units, KM_Points;
+  KM_Defaults, KM_Units;
 
 
 type

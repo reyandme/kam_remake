@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Pics,
-  KM_Render,
+
   KM_ResCursors,
   KM_ResFonts,
   KM_ResHouses,

@@ -9,7 +9,7 @@ interface
 uses
   Math, KM_Defaults, KM_CommonTypes,
   KM_Points, KM_UnitGroup, KM_Houses, KM_ResHouses,
-  KM_NavMeshGenerator, KM_NavMeshFloodFill;
+  KM_NavMeshFloodFill;
 
 type
 
@@ -131,11 +131,11 @@ implementation
 uses
   SysUtils,
   KM_Hand, KM_HandsCollection,
-  KM_AIFields, KM_AIInfluences, KM_NavMesh, KM_AIParameters,
+  KM_AIFields, KM_NavMesh, KM_AIParameters,
   {$IFDEF DEBUG_BattleLines}
   DateUtils,
   {$ENDIF}
-  KM_Game, KM_RenderAux;
+  KM_RenderAux;
 
 
 { TDistancePenalization }
