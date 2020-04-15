@@ -94,7 +94,7 @@ implementation
 uses
   Classes, KM_Game, KM_Hand, KM_HandsCollection, KM_Terrain, KM_Resource,
   KM_AIFields, KM_Units, KM_UnitsCollection, KM_UnitTaskBuild,
-  KM_RenderAux, KM_ResMapElements;
+  KM_RenderAux, KM_ResMapElements, KM_CommonUtils;
 
 { Procedural functions }
 function CompareBuildNode(const aElem1, aElem2): Integer;
