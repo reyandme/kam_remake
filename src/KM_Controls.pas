@@ -134,6 +134,11 @@ type
     fLastMouseDownButton: TMouseButton;
     fLastClickPos: TKMPoint;
 
+    fDragAndDropMovePosition: TKMPoint;
+    fDragAndDropMove: Boolean;
+    fDragAndDropWasMoving: Boolean;
+    fDragAndDrop: Boolean;
+
     fOnClick: TNotifyEvent;
     fOnClickShift: TNotifyEventShift;
     fOnClickRight: TPointEvent;
@@ -145,6 +150,10 @@ type
     fOnChangeEnableStatus: TBooleanObjEvent;
     fOnKeyDown: TNotifyEventKeyShiftFunc;
     fOnKeyUp: TNotifyEventKeyShiftFunc;
+
+    fOnBeginDragAndDrop: TNotifyEvent;
+    fOnMoveDragAndDrop: TNotifyEvent;
+    fOnEndDragAndDrop: TNotifyEvent;
 
     fOnWidthChange: TObjectIntegerEvent;
     fOnHeightChange: TObjectIntegerEvent;
@@ -302,6 +311,7 @@ type
     procedure MouseMove (X,Y: Integer; Shift: TShiftState); virtual;
     procedure MouseUp   (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
     procedure MouseWheel(Sender: TObject; WheelSteps: Integer; var aHandled: Boolean); virtual;
+    property DragAndDrop: Boolean read fDragAndDrop write fDragAndDrop;
 
     property OnClick: TNotifyEvent read fOnClick write fOnClick;
     property OnClickShift: TNotifyEventShift read fOnClickShift write fOnClickShift;
@@ -314,6 +324,9 @@ type
     property OnChangeEnableStatus: TBooleanObjEvent read fOnChangeEnableStatus write fOnChangeEnableStatus;
     property OnKeyDown: TNotifyEventKeyShiftFunc read fOnKeyDown write fOnKeyDown;
     property OnKeyUp: TNotifyEventKeyShiftFunc read fOnKeyUp write fOnKeyUp;
+    property OnBeginDragAndDrop: TNotifyEvent read fOnBeginDragAndDrop write fOnBeginDragAndDrop;
+    property OnMoveDragAndDrop: TNotifyEvent read fOnMoveDragAndDrop write fOnMoveDragAndDrop;
+    property OnEndDragAndDrop: TNotifyEvent read fOnEndDragAndDrop write fOnEndDragAndDrop;
 
     property OnWidthChange: TObjectIntegerEvent read fOnWidthChange write fOnWidthChange;
     property OnHeightChange: TObjectIntegerEvent read fOnHeightChange write fOnHeightChange;
@@ -2031,6 +2044,8 @@ begin
   HandleMouseWheelByDefault := True;
   fLastClickPos := KMPOINT_ZERO;
   fIsHitTestUseDrawRect := False;
+  fDragAndDrop  := False;
+  fDragAndDropMove := False;
 
 //  fKeyPressList := TList<TKMKeyPress>.Create;
 
@@ -2165,6 +2180,11 @@ begin
   fClickHoldMode := True;
   fTimeOfLastMouseDown := TimeGet;
   fLastMouseDownButton := Button;
+  if fDragAndDrop then
+  begin
+    fDragAndDropMove := True;
+    fDragAndDropMovePosition := KMPoint(X - AbsLeft, Y - AbsTop);
+  end;
 end;
 
 
@@ -2173,6 +2193,13 @@ begin
   //if Assigned(fOnMouseOver) then fOnMouseOver(Self); { Unused }
   if (csDown in State) then
   begin
+    if fDragAndDrop and fDragAndDropMove then
+    begin
+      AbsLeft := X - fDragAndDropMovePosition.X;
+      AbsTop := Y - fDragAndDropMovePosition.Y;
+      if Assigned(fOnMoveDragAndDrop) then
+        fOnMoveDragAndDrop(Self);
+    end;
     //Update fClickHoldMode
     if InRange(X, AbsLeft, AbsRight) and InRange(Y, AbsTop, AbsBottom) then
       fClickHoldMode := True
@@ -2186,6 +2213,7 @@ procedure TKMControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseBut
 var
   ClickHoldHandled: Boolean;
 begin
+  fDragAndDropMove := False;
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
 
   if (csDown in State) then
