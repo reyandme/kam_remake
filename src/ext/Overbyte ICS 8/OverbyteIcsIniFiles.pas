@@ -82,7 +82,7 @@ interface
 {$X+}           { Enable extended syntax              }
 {$H+}           { Use long Strings                    }
 {$J+}           { Allow typed constant to be modified }
-{$I ..\Source\Include\OverbyteIcsDefs.inc}
+{$I Include\OverbyteIcsDefs.inc}
 {$IFDEF DELPHI6_UP}
     {$WARN SYMBOL_PLATFORM   OFF}
     {$WARN SYMBOL_LIBRARY    OFF}
