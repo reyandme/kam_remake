@@ -56,9 +56,15 @@ type
     procedure MoveConfirm(aVisible: Boolean);
     procedure MoveEditChange(Sender: TObject);
     procedure MoveClick(Sender: TObject);
-    procedure CampaignEditClick(Sender: TObject);
     procedure EscKeyDown(Sender: TObject);
     procedure KeyDown(Key: Word; Shift: TShiftState);
+    procedure CampaignCreateClick(Sender: TObject);
+    procedure CampaignDeleteClick(Sender: TObject);
+    procedure CampaignEditClick(Sender: TObject);
+    procedure CampaignMapEditClick(Sender: TObject);
+    procedure CampaignEditOkClick(Sender: TObject);
+    procedure CampaignEditCancelClick(Sender: TObject);
+
     function IsCampaign(aMapInfo: TKMapInfo; const aCampaignId: TKMCampaignId): Boolean;
   protected
     Panel_MapEd: TKMPanel;
@@ -76,7 +82,7 @@ type
 
       Panel_Campaigns, Panel_CampaignInfo: TKMPanel;
         ListBox_Campaigns: TKMListBox;
-        Button_CampaignsNew, Button_CampaignsDelete, Button_CampaignEdit: TKMButton;
+        Button_CampaignsNew, Button_CampaignsDelete, Button_CampaignEdit, Button_CampaignMapEdit: TKMButton;
         Image_Campaign: TKMImage;
         Image_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMImage;
         Label_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMLabel;
@@ -114,6 +120,10 @@ type
         Label_MapMoveConfirmTitle, Label_MapMoveName: TKMLabel;
 
       Button_MapEdBack: TKMButton;
+
+    Panel_CampaignEdit: TKMPanel;
+    Edit_CampaignId, Edit_CampaignDirectoryName: TKMEdit;
+    Button_CampaignEditOk, Button_CampaignEditCancel: TKMButton;
 
   public
     OnNewMapEditor: TKMNewMapEditorEvent;
@@ -227,14 +237,17 @@ begin
       ListBox_Campaigns.Anchors := [anLeft, anTop];
       ListBox_Campaigns.OnChange := SelectCampaign;
 
-      Button_CampaignsNew := TKMButton.Create(Panel_Campaigns, 0, ListBox_Campaigns.Bottom + 8, Panel_Campaigns.Width div 2 - 4, 20, 'Add', bsMenu);
+      Button_CampaignsNew := TKMButton.Create(Panel_Campaigns, 0, ListBox_Campaigns.Bottom + 8, Panel_Campaigns.Width div 3 - 4, 20, 'Add', bsMenu);
       Button_CampaignsNew.Anchors := [anLeft, anBottom];
-      Button_CampaignsNew.OnClick := LoadClick;
+      Button_CampaignsNew.OnClick := CampaignCreateClick;
 
-      Button_CampaignsDelete := TKMButton.Create(Panel_Campaigns, Panel_Campaigns.Width div 2 + 4, ListBox_Campaigns.Bottom + 8, Panel_Campaigns.Width div 2 - 4, 20, 'Delete', bsMenu);
+      Button_CampaignEdit := TKMButton.Create(Panel_Campaigns, Panel_Campaigns.Width div 3 + 4, ListBox_Campaigns.Bottom + 8, Panel_Campaigns.Width div 3 - 4, 20, 'Edit', bsMenu);
+      Button_CampaignEdit.Anchors := [anLeft, anBottom];
+      Button_CampaignEdit.OnClick := CampaignEditClick;
+
+      Button_CampaignsDelete := TKMButton.Create(Panel_Campaigns, Panel_Campaigns.Width div 3 * 2 + 8, ListBox_Campaigns.Bottom + 8, Panel_Campaigns.Width div 3 - 4, 20, 'Delete', bsMenu);
       Button_CampaignsDelete.Anchors := [anLeft, anBottom];
-      Button_CampaignsDelete.OnClick := LoadClick;
-
+      Button_CampaignsDelete.OnClick := CampaignDeleteClick;
 
       Panel_CampaignInfo := TKMPanel.Create(Panel_Campaigns, 0, Button_CampaignsNew.Bottom + 18, Panel_Campaigns.Width, Round(Panel_Campaigns.Width * (768 / 1027)));
         TKMImage.Create(Panel_CampaignInfo, -5, -3, Panel_CampaignInfo.Width + 10, Panel_CampaignInfo.Height + 6, 18, rxGuiMain).ImageStretch;
@@ -266,9 +279,9 @@ begin
 
         Panel_CampaignInfo.Hide;
 
-      Button_CampaignEdit := TKMButton.Create(Panel_Campaigns, 0, Panel_CampaignInfo.Bottom + 8, Panel_Campaigns.Width, 20, 'Edit', bsMenu);
-      Button_CampaignEdit.Anchors := [anLeft, anBottom];
-      Button_CampaignEdit.OnClick := CampaignEditClick;
+      Button_CampaignMapEdit := TKMButton.Create(Panel_Campaigns, 0, Panel_CampaignInfo.Bottom + 8, Panel_Campaigns.Width, 20, 'Edit', bsMenu);
+      Button_CampaignMapEdit.Anchors := [anLeft, anBottom];
+      Button_CampaignMapEdit.OnClick := CampaignEditClick;
       NumEdit_MapSizeX.AutoFocusable := False;
       NumEdit_MapSizeY.AutoFocusable := False;
 
@@ -431,6 +444,31 @@ begin
         Button_MapMoveCancel  := TKMButton.Create(PopUp_Move, 210, 150, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
         Button_MapMoveCancel.Anchors := [anLeft, anBottom];
         Button_MapMoveCancel.OnClick := MoveClick;
+
+    // Create
+
+    Panel_CampaignEdit := TKMPanel.Create(aParent, 362, 250, 320, 300);
+    Panel_CampaignEdit.AnchorsCenter;
+      TKMBevel.Create(Panel_CampaignEdit, -2000,  -2000, 5000, 5000);
+      TKMImage.Create(Panel_CampaignEdit, -20, -75, 340, 310, 15, rxGuiMain);
+      TKMBevel.Create(Panel_CampaignEdit,   0,  0, 320, 300);
+
+      TKMLabel.Create(Panel_CampaignEdit, 20, 10, 280, 20, 'Campaign parameters', fntOutline, taCenter);
+
+      TKMLabel.Create(Panel_CampaignEdit, 20, 50, 280, 20, 'Id', fntOutline, taLeft);
+      Edit_CampaignId := TKMEdit.Create(Panel_CampaignEdit, 20, 70, 50, 20, fntGrey);
+      Edit_CampaignId.AllowedChars := acANSI7;
+      Edit_CampaignId.MaxLen := 3;
+
+      TKMLabel.Create(Panel_CampaignEdit, 20, 100, 284, 20, 'Directory name', fntOutline, taLeft);
+      Edit_CampaignDirectoryName := TKMEdit.Create(Panel_CampaignEdit, 20, 120, 280, 20, fntGrey);
+      Edit_CampaignDirectoryName.AllowedChars := acFileName;
+      Edit_CampaignDirectoryName.MaxLen := 255;
+
+      Button_CampaignEditOk  := TKMButton.Create(Panel_CampaignEdit, 20, 210, 280, 30, 'Ok',  bsMenu);
+      Button_CampaignEditOk.OnClick := CampaignEditOkClick;
+      Button_CampaignEditCancel := TKMButton.Create(Panel_CampaignEdit, 20, 250, 280, 30, 'Cancel',  bsMenu);
+      Button_CampaignEditCancel.OnClick := CampaignEditCancelClick;
 end;
 
 
@@ -1131,7 +1169,7 @@ begin
     Button_MapMoveConfirm.Enabled := CheckBox_MoveExists.Checked;
 end;
 
-procedure TKMMenuMapEditor.CampaignEditClick(Sender: TObject);
+procedure TKMMenuMapEditor.CampaignMapEditClick(Sender: TObject);
 var
   Campaign: TKMCampaign;
 begin
@@ -1261,6 +1299,43 @@ begin
   end;
 end;
 
+procedure TKMMenuMapEditor.CampaignCreateClick(Sender: TObject);
+begin
+  Edit_CampaignId.Text := '';
+  Edit_CampaignDirectoryName.Text := '';
+
+  Panel_CampaignEdit.Show;
+end;
+
+procedure TKMMenuMapEditor.CampaignEditClick(Sender: TObject);
+var
+  Campaign: TKMCampaign;
+begin
+  if ListBox_Campaigns.ItemIndex < 0 then
+    Exit;
+
+  Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
+
+  Edit_CampaignId.Text := Campaign.ShortName;
+  Edit_CampaignDirectoryName.Text := Copy(Campaign.Path, 11, Length(Campaign.Path));
+
+  Panel_CampaignEdit.Show;
+end;
+
+procedure TKMMenuMapEditor.CampaignDeleteClick(Sender: TObject);
+begin
+  //
+end;
+
+procedure TKMMenuMapEditor.CampaignEditOkClick(Sender: TObject);
+begin
+  Panel_CampaignEdit.Hide;
+end;
+
+procedure TKMMenuMapEditor.CampaignEditCancelClick(Sender: TObject);
+begin
+  Panel_CampaignEdit.Hide;
+end;
 
 procedure TKMMenuMapEditor.Show;
 begin
