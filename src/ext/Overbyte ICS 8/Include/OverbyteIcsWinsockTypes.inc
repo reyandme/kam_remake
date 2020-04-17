@@ -5,6 +5,8 @@
 {$ENDIF}
 {$MINENUMSIZE 4}
 
+{ Oct 21, 2016 V8.36 - Angus added new SO_xxx types }
+
 {.$IFNDEF NO_WINSOCK_2}
     (*$HPPEMIT '#include <Winsock2.h>'*)
     (*$HPPEMIT '#include <Mswsock.h>'*)
@@ -494,6 +496,8 @@ const
 
   SO_DONTLINGER  =   $ff7f;
   {$EXTERNALSYM SO_DONTLINGER}
+  SO_EXCLUSIVEADDRUSE = NOT SO_REUSEADDR; { V8.36 disallow local address reuse }
+  {$EXTERNALSYM SO_EXCLUSIVEADDRUSE}
 
 { Additional options. }
 
@@ -513,6 +517,45 @@ const
   {$EXTERNALSYM SO_ERROR}
   SO_TYPE         = $1008;          { get socket type }
   {$EXTERNALSYM SO_TYPE}
+  SO_BSP_STATE    = $1009;          { V8.36 get socket 5-tuple state }
+  {$EXTERNALSYM SO_BSP_STATE}
+
+{ V8.36 WinSock 2 extension -- new options }
+
+  SO_GROUP_ID       = $2001; // ID of a socket group
+  {$EXTERNALSYM SO_GROUP_ID}
+  SO_GROUP_PRIORITY = $2002; // the relative priority within a group
+  {$EXTERNALSYM SO_GROUP_PRIORITY}
+  SO_MAX_MSG_SIZE   = $2003; // maximum message size
+  {$EXTERNALSYM SO_MAX_MSG_SIZE}
+  SO_PROTOCOL_INFOA = $2004; // WSAPROTOCOL_INFOA structure
+  {$EXTERNALSYM SO_PROTOCOL_INFOA}
+  SO_PROTOCOL_INFOW = $2005; // WSAPROTOCOL_INFOW structure
+  {$EXTERNALSYM SO_PROTOCOL_INFOW}
+
+  {$IFDEF UNICODE}
+  SO_PROTOCOL_INFO = SO_PROTOCOL_INFOW;
+  {$EXTERNALSYM SO_PROTOCOL_INFO}
+  {$ELSE}
+  SO_PROTOCOL_INFO = SO_PROTOCOL_INFOA;
+  {$EXTERNALSYM SO_PROTOCOL_INFO}
+  {$ENDIF UNICODE}
+
+  PVD_CONFIG            = $3001; // configuration info for service provider
+  {$EXTERNALSYM PVD_CONFIG}
+  SO_CONDITIONAL_ACCEPT = $3002; // enable true conditional accept:
+                                 //  connection is not ack-ed to the
+                                 //  other side until conditional
+                                 //  function returns CF_ACCEPT
+  {$EXTERNALSYM SO_CONDITIONAL_ACCEPT}
+  SO_PAUSE_ACCEPT     = $3003;   // pause accepting new connections
+  {$EXTERNALSYM SO_PAUSE_ACCEPT}
+  SO_COMPARTMENT_ID   = $3004;   // get/set the compartment for a socket
+  {$EXTERNALSYM SO_COMPARTMENT_ID}
+  SO_RANDOMIZE_PORT   = $3005;   // randomize assignment of wildcard ports
+  {$EXTERNALSYM SO_RANDOMIZE_PORT}
+  SO_PORT_SCALABILITY = $3006;   // enable port scalability
+  {$EXTERNALSYM SO_PORT_SCALABILITY}
 
 { Options for connect and disconnect data and options.  Used only by
   non-TCP/IP transports such as DECNet, OSI TP4, etc. }

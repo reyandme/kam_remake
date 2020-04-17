@@ -2,7 +2,7 @@
 
 Author:       François PIETTE
 Creation:     Jan 01, 2004
-Version:      8.00
+Version:      8.61
 Description:  This is an implementation of the NTLM authentification
               messages used within HTTP protocol (client side).
               NTLM protocol documentation can be found at:
@@ -13,9 +13,8 @@ Credit:       This code is based on a work by Diego Ariel Degese
               Csonka Tibor <bee@rawbite.ro> worked a lot on my original code,
               fixing it and making it work properly.
 EMail:        francois.piette@overbyte.be     http://www.overbyte.be
-Support:      Use the mailing list twsocket@elists.org
-              Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2004-2011 by François PIETTE
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 2004-2019 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -62,6 +61,8 @@ Feb 17, 2012 V6.06 Arno added NTLMv2 and NTLMv2 session security (basics).
 Feb 29, 2012 V6.07 Arno - Use IcsRandomInt, .Net code removed.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+Mar 29, 2019 V8.61 OAS : for Single Sign On with Session on Windows Domain
+                   update types and make some records "packed" for Windows standard
 
 
 HowTo NTLMv2:
@@ -138,6 +139,7 @@ interface
 uses
 {$IFDEF MSWINDOWS}
     {$IFDEF RTL_NAMESPACES}Winapi.Windows{$ELSE}Windows{$ENDIF},
+    OverbyteIcsSspi,
 {$ENDIF}
 {$IFDEF POSIX}
     Posix.Time,
@@ -150,8 +152,8 @@ uses
     OverbyteIcsMimeUtils;
 
 const
-    IcsNtlmMsgsVersion     = 800;
-    CopyRight : String     = ' IcsNtlmMsgs (c) 2004-2012 F. Piette V8.00 ';
+    IcsNtlmMsgsVersion     = 861;
+    CopyRight : String     = ' IcsNtlmMsgs (c) 2004-2019 F. Piette V8.61 ';
 
 const
     Flags_Negotiate_Unicode               = $00000001;
@@ -229,7 +231,7 @@ type
 {$ENDIF}
 
     // interesting information from message 2
-    TNTLM_Msg2_Info = record                      { V6.13 }
+    TNTLM_Msg2_Info = packed record                      { V6.13 }
         SrvRespOk       : Boolean;                // server response was ok ?
         Unicode         : Boolean;
         Target          : UnicodeString;
@@ -253,6 +255,11 @@ type
         Flags         : Cardinal;
         //OSVer         : TNTLM_OSVersion;
     end;
+
+{$IFDEF MSWINDOWS}
+  CredentialUse = (cuInbound = SECPKG_CRED_INBOUND, cuOutbound = SECPKG_CRED_OUTBOUND, cuBoth = SECPKG_CRED_BOTH) ; // V8.61 OAS
+{$ENDIF}
+
 
 function NtlmGetMessage1(const AHost, ADomain: String; { V6.13 }
     ALmCompatLevel: Integer = 0): String;

@@ -4,9 +4,8 @@ Author:       Arno Garrels <arno.garrels@gmx.de>
 Description:  Windows API interface Unit for Object Pascal.
               Includes portions of the original file sspi.h as well as security.h.
 Creation:     Jan 11, 2006
-Version:      8.00
-Legal issues: Portions Copyright (C) 2006 by Arno Garrels, Berlin, Germany,
-              contact: <arno.garrels@gmx.de>
+Version:      8.63
+Legal issues: Portions Copyright (C) 2006-2019 by Arno Garrels, Berlin, Germany,
               Portions created by Microsoft are Copyright (C) 1995-2001
               Microsoft Corporation. All Rights Reserved.
               This software is provided 'as-is', without any express or
@@ -38,6 +37,9 @@ Sep 04, 2006 V1.01 Reworked by A.Garrels in order to support BCB as well as
 Apr 25, 2008 V1.0.2 A.Garrels some changes to prepare code for Unicode;
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+Mar 29, 2019 V8.61 OAS : for Single Sign On with Session on Windows Domain
+                   update types and make some records "packed"
+Aug 13, 2019 V8.63 Fixed last update
 
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -60,7 +62,7 @@ interface
 
 uses
   {$IFDEF RTL_NAMESPACES}Winapi.Windows{$ELSE}Windows{$ENDIF};
-  
+
 {$HPPEMIT '#include <security.h>'}
 {$HPPEMIT '#include <sspi.h>'}
 
@@ -85,8 +87,8 @@ const
   SEC_E_INSUFFICIENT_MEMORY     = $80090300;
   {$EXTERNALSYM SEC_E_INTERNAL_ERROR}
   SEC_E_INTERNAL_ERROR          = $80090304;
-  {$EXTERNALSYM SEC_E_INVALID_HANDLE}
-  SEC_E_INVALID_HANDLE          = $80100003;
+//  {$EXTERNALSYM SEC_E_INVALID_HANDLE}
+//  SEC_E_INVALID_HANDLE          = $80100003; //OAS 2019 $80100003 fom MS, it's "SCARD_E_INVALID_HANDLE" error code, modified below
   {$EXTERNALSYM SEC_E_INVALID_TOKEN}
   SEC_E_INVALID_TOKEN           = $80090308;
   {$EXTERNALSYM SEC_E_LOGON_DENIED}
@@ -106,6 +108,43 @@ const
 
   {$EXTERNALSYM STATUS_LOGON_FAILURE}
   STATUS_LOGON_FAILURE          = $C000006D;
+
+//OAS 2019 for tests with Domain, check results <
+  {$EXTERNALSYM SEC_E_INVALID_HANDLE}        // V8.63
+  SEC_E_INVALID_HANDLE          = $80090301; //OAS 2019 Update from MS codes : to check ???
+
+  SEC_I_LOCAL_LOGON                = HRESULT($00090315);
+  {$EXTERNALSYM SEC_I_LOCAL_LOGON}
+  SEC_E_BAD_PKGID                  = HRESULT($80090316);
+  {$EXTERNALSYM SEC_E_BAD_PKGID}
+  SEC_E_CONTEXT_EXPIRED            = HRESULT($80090317);
+  {$EXTERNALSYM SEC_E_CONTEXT_EXPIRED}
+  SEC_E_INCOMPLETE_CREDENTIALS     = HRESULT($80090320);
+  {$EXTERNALSYM SEC_E_INCOMPLETE_CREDENTIALS}
+  SEC_E_BUFFER_TOO_SMALL           = HRESULT($80090321);
+  {$EXTERNALSYM SEC_E_BUFFER_TOO_SMALL}
+  SEC_I_INCOMPLETE_CREDENTIALS     = HRESULT($00090320);
+  {$EXTERNALSYM SEC_I_INCOMPLETE_CREDENTIALS}
+  SEC_I_RENEGOTIATE                = HRESULT($00090321);
+  {$EXTERNALSYM SEC_I_RENEGOTIATE}
+  SEC_E_WRONG_PRINCIPAL            = HRESULT($80090322);
+  {$EXTERNALSYM SEC_E_WRONG_PRINCIPAL}
+  SEC_I_NO_LSA_CONTEXT             = HRESULT($00090323);
+  {$EXTERNALSYM SEC_I_NO_LSA_CONTEXT}
+  SEC_E_TIME_SKEW                  = HRESULT($80090324);
+  {$EXTERNALSYM SEC_E_TIME_SKEW}
+  SEC_E_UNTRUSTED_ROOT             = HRESULT($80090325);
+  {$EXTERNALSYM SEC_E_UNTRUSTED_ROOT}
+  SEC_E_ILLEGAL_MESSAGE            = HRESULT($80090326);
+  {$EXTERNALSYM SEC_E_ILLEGAL_MESSAGE}
+  SEC_E_CERT_UNKNOWN               = HRESULT($80090327);
+  {$EXTERNALSYM SEC_E_CERT_UNKNOWN}
+  SEC_E_CERT_EXPIRED               = HRESULT($80090328);
+  {$EXTERNALSYM SEC_E_CERT_EXPIRED}
+  SEC_E_ENCRYPT_FAILURE            = HRESULT($80090329);
+  {$EXTERNALSYM SEC_E_ENCRYPT_FAILURE}
+//OAS 2019 >
+
 
 { sspi.h }
 
@@ -217,7 +256,7 @@ type
   ULONG_PTR = Longword;
 
   {$EXTERNALSYM _SEC_WINNT_AUTH_IDENTITY_A}
-  _SEC_WINNT_AUTH_IDENTITY_A = record
+  _SEC_WINNT_AUTH_IDENTITY_A = packed record
     User            : PAnsiChar;
     UserLength      : Cardinal;
     Domain          : PAnsiChar;
@@ -234,7 +273,7 @@ type
   PSecWinntAuthIdentityA = PSEC_WINNT_AUTH_IDENTITY_A;
 
   {$EXTERNALSYM _SEC_WINNT_AUTH_IDENTITY_W}
-  _SEC_WINNT_AUTH_IDENTITY_W = record
+  _SEC_WINNT_AUTH_IDENTITY_W = packed record
     User: PWideChar;
     UserLength: Cardinal;
     Domain: PWideChar;
@@ -271,7 +310,7 @@ type
 {$ENDIF}
 
   {$EXTERNALSYM _SecHandle}
-  _SecHandle = record
+  _SecHandle = packed record
     dwLower : ULONG_PTR;
     dwUpper : ULONG_PTR;
   end;
@@ -282,7 +321,7 @@ type
   TSecHandle = SecHandle;
 
   {$EXTERNALSYM _SecBuffer}
-  _SecBuffer = record
+  _SecBuffer = packed record
     cbBuffer    : Cardinal;     // Size of the buffer, in bytes
     BufferType  : Cardinal;     // Type of the buffer (below)
     pvBuffer    : Pointer;      // Pointer to the buffer
@@ -294,7 +333,7 @@ type
   TSecBuffer = SecBuffer;
 
     {$EXTERNALSYM _SecBufferDesc}
-  _SecBufferDesc = record
+  _SecBufferDesc = packed record
     ulVersion   : Cardinal;     // Version number
     cBuffers    : Cardinal;     // Number of buffers
     pBuffers    : PSecBuffer;   // Pointer to array of buffers
@@ -307,7 +346,7 @@ type
 
   TCredHandle = TSecHandle;
   {$EXTERNALSYM CredHandle}
-  CredHandle = SecHandle; 
+  CredHandle = SecHandle;
   {$EXTERNALSYM PCredHandle}
   PCredHandle = PSecHandle;
 
@@ -316,7 +355,7 @@ type
   PCtxtHandle = PSecHandle;
 
   {$EXTERNALSYM _SecPkgInfoA}
-  _SecPkgInfoA = record
+  _SecPkgInfoA = packed record
     fCapabilities   : Cardinal;    // Capability bitmask
     wVersion        : Word;        // Version of driver
     wRPCID          : Word;        // ID for RPC Runtime
@@ -331,7 +370,7 @@ type
   TSecPkgInfoA = SecPkgInfoA;
 
   {$EXTERNALSYM _SecPkgInfoW}
-  _SecPkgInfoW = record
+  _SecPkgInfoW = packed record
     fCapabilities   : Cardinal;    // Capability bitmask
     wVersion        : Word;        // Version of driver
     wRPCID          : Word;        // ID for RPC Runtime
@@ -522,7 +561,7 @@ type
   TSecurityFunctionTable = TSecurityFunctionTableA;
   {$EXTERNALSYM PSecurityFunctionTable}
   PSecurityFunctionTable = PSecurityFunctionTableA;
-{$ENDIF} 
+{$ENDIF}
 
   {$EXTERNALSYM _SecPkgContext_NamesA}
   _SecPkgContext_NamesA = record
@@ -605,4 +644,3 @@ type
 implementation
 
 end.
- 

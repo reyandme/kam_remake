@@ -3,11 +3,10 @@
 Author:       Arno Garrels <arno.garrels@gmx.de>
 Description:  A place for common utilities.
 Creation:     Apr 25, 2008
-Version:      8.09
+Version:      8.63
 EMail:        http://www.overbyte.be       francois.piette@overbyte.be
-Support:      Use the mailing list twsocket@elists.org
-              Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2002-2016 by François PIETTE
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 2002-2019 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -137,6 +136,56 @@ Jul 13, 2013 V8.07 Arno added an overloaded version of IcsGetBufferCodepage that
              returns BOM's size.
 Nov 23, 2015 V8.08 Eugene Kotlyarov fix MacOSX compilation and compiler warnings
 Feb 22, 2016 V8.09 Angus moved RFC1123_Date and RFC1123_StrToDate from HttpProt
+Nov 15, 2016 V8.38 Angus moved IcsGetFileVerInfo from OverbyteIcsSSLEAY
+                   Added IcsVerifyTrust to check authenticode code signing digital
+                     certificate and hash on EXE and DLL files, note currently
+                     ignores certificate revoke checking since so slow
+Apr 4, 2017  V8.45 Added $EXTERNALSYM to satisfy C++. thanks to Jarek Karciarz
+May 12, 2017 V8.47 Added IcsCheckTrueFalse
+Jun 23, 2017 V8.49 Fixes for MacOs
+                   Added several functions for copying and searching TBytes buffers
+                     that receive socket data, converting them to Strings
+                   Moved IcsGetFileSize and IcsGetUAgeSizeFile here from FtpSrvT
+Sep 19, 2017 V8.50 Added IcsMoveTBytesToString and IcsMoveStringToTBytes that take
+                      a codepage for proper Unicode conversion
+Nov 17, 2017 V8.51 Added IcsGetFileUAge
+Feb 12, 2018 V8.52 Added IcsFmtIpv6Addr, IcsFmtIpv6AddrPort and IcsStripIpv6Addr to
+                      format browser friendly IPv6 addresses with []
+                   Added useful constants like IcsLF and IcsCR, etc.
+Apr 04, 2018 V8.53 Added sanity test to IcsBufferToHex to avoid exceptions
+                   Added RFC3339_StrToDate and RFC3339_DateToStr, aka ISO 8601 dates
+                   Added IcsBufferToHex overload with AnsiString
+                   Added IcsHextoBin
+Apr 25, 2018 V8.54 Moved IntToKbyte and ticks stuff from OverbyteIcsFtpSrvT
+Sep 18, 2018 V8.57 Added IcsWireFmtToStrList and IcsStrListToWireFmt converting
+                     Wire Format concatenated length prefixed strings to TStrings
+                     and vice versa, used by SSL hello.
+                   Added IcsEscapeCRLF and IcsUnEscapeCRLF to change CRLF to \n
+                     and vice versa
+                   Added IcsSetToInt, IcsIntToSet, IcsSetToStr, IcsStrToSet to
+                     ease saving set bit maps to INI files and registry.
+                   Added IcsExtractNameOnly and IsPathDelim
+Dec 17, 2019 V8.59 Added IcsGetExceptMess
+Mar 11, 2019 V8.60 Added IcsFormatSettings to replace formatting public vars removed in XE3.
+                   Added IcsAddThouSeps to add thousand separators to a numeric string.
+                   Added IcsInt64ToCStr and IcsIntToCStr integer to thou sep strings.
+                   Added GetBomFromCodePage
+                   Added TIcsFindList descendent of TList with a Find function
+                        using binary search identical to sorting.
+                   Added IcsDeleteFile, IcsRenameFile and IcsForceDirsEx
+                   Added IcsTransChar, IcsPathUnixToDos and IcsPathDosToUnix
+                   Added IcsSecsToStr and IcsGetTempPath
+Jun 19, 2019 V8.62 Added IcsGetLocalTZBiasStr get time zone bias as string, ie -0700.
+                   Added Time Zone support for date string conversions, to UTC time with
+                      a time zone, and back to local time using a time zone.
+                   RFC3339_DateToStr and RFC1123_Date add time zone bias if AddTZ=True, ie -0700.
+                   Added RFC3339_DateToUtcStr and RFC1123_UtcDate which convert local
+                      time to UTC and format it per RFC3339 with time zone bias.
+                   RFC3339_StrToDate and RFC1123_StrToDate now recognise time zone
+                      bias and adjust result if UseTZ=True from UTC to local time.
+Nov 7, 2018  V8.63 Better error handling in RFC1123_StrToDate to avoid exceptions.
+                   Added TypeInfo enumeration sanity check for IcsSetToStr and IcsStrToSet.
+
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsUtils;
@@ -193,6 +242,8 @@ uses
     {$IFDEF RTL_NAMESPACES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
     {$IFDEF RTL_NAMESPACES}System.RtlConsts{$ELSE}RtlConsts{$ENDIF},
     {$IFDEF RTL_NAMESPACES}System.SysConst{$ELSE}SysConst{$ENDIF},
+    {$IFDEF RTL_NAMESPACES}System.TypInfo{$ELSE}TypInfo{$ENDIF},
+    {$IFDEF Rtl_Namespaces}System.DateUtils{$ELSE}DateUtils{$ENDIF},  { V8.60 }
 {$IFDEF COMPILER16_UP}
     System.SyncObjs,
 {$ENDIF}
@@ -213,7 +264,7 @@ type
     PLongBool     =  ^LongBool;
 {$ENDIF}
     TIcsDbcsLeadBytes = TSysCharset;
-    
+
 const
     { From Win 7 GetCPInfoEx() DBCS lead bytes }
     ICS_LEAD_BYTES_932   : TIcsDbcsLeadBytes = [#$81..#$9F, #$E0..#$FC];              // (ANSI/OEM - Japanese Shift-JIS) DBCS Lead Bytes: 81..9F E0..FC
@@ -249,6 +300,50 @@ const
     CP_UTF16Be    = 1201;
     CP_UTF32      = 12000;
     CP_UTF32Be    = 12001;
+
+{ V8.52 some useful constants, make sure names are unique }
+const
+  IcsNULL            =  #0;
+  IcsSTX             =  #2;
+  IcsETX             =  #3;
+  IcsEOT             =  #4;
+  IcsBACKSPACE       =  #8;
+  IcsTAB             =  #9;
+  IcsLF              = #10;
+  IcsFF              = #12;
+  IcsCR              = #13;
+  IcsEOF             = #26;
+  IcsESC             = #27;
+  IcsFIELDSEP        = #28;
+  IcsRECSEP          = #30;
+  IcsBLANK           = #32;
+  IcsSQUOTE          = #39 ;
+  IcsDQUOTE          = #34 ;
+  IcsSPACE           = #32;
+  IcsHEX_PREFIX      = '$';     { prefix for hexnumbers }
+  IcsCRLF            = #13#10;
+  IcsDoubleCRLF      = #13#10#13#10;
+
+  { V8.54 Tick and Trigger constants }
+  TicksPerDay      : longword =  24 * 60 * 60 * 1000 ;
+  TicksPerHour     : longword = 60 * 60 * 1000 ;
+  TicksPerMinute   : longword = 60 * 1000 ;
+  TicksPerSecond   : longword = 1000 ;
+  TriggerDisabled  : longword = $FFFFFFFF ;
+  TriggerImmediate : longword = 0 ;
+  OneSecondDT: TDateTime = 1 / SecsPerDay ;         { V8.60 }
+  OneMinuteDT: TDateTime = 1 / (SecsPerDay / 60) ;  { V8.60 }
+  MinutesPerDay      = 60.0 * 24.0;                 { V8.62 }
+
+  { V8.60 date and time masks }
+  ISOTimeMask = 'hh:nn:ss' ;
+  ISOLongTimeMask = 'hh:nn:ss:zzz' ;
+  ISODateMask = 'yyyy-mm-dd' ;
+  ISODateTimeMask = 'yyyy-mm-dd"T"hh:nn:ss' ;
+  ISODateLongTimeMask = 'yyyy-mm-dd"T"hh:nn:ss.zzz' ;
+
+var
+  IcsFormatSettings: TFormatSettings;  { V8.60 }
 
 type
     EIcsStringConvertError = class(Exception);
@@ -310,11 +405,21 @@ const
     procedure IcsCharLowerA(var ACh: AnsiChar); {$IFDEF USE_INLINE} inline; {$ENDIF}
     function  IcsGetCurrentThreadID: TThreadID;
     function  IcsGetFreeDiskSpace(const APath: String): Int64;
-    function  IcsGetLocalTimeZoneBias: LongInt;
+    function  IcsGetLocalTimeZoneBias: LongInt; 
+    function  IcsGetLocalTZBiasStr: String;                   { V8.62 }
     function  IcsDateTimeToUTC (dtDT: TDateTime): TDateTime;
     function  IcsUTCToDateTime (dtDT: TDateTime): TDateTime;
-    function  RFC1123_Date(aDate : TDateTime) : String;       { V8.09 }
-    function  RFC1123_StrToDate(aDate : String) : TDateTime;  { V8.09 }
+    function  RFC1123_Date(aDate : TDateTime; AddTZ: Boolean = False) : String;      { V8.09, V8.62 AddTZ }
+    function  RFC1123_UtcDate(aDate : TDateTime) : String;    { V8.62 }
+    function  RFC1123_StrToDate(aDate : String; UseTZ: Boolean = False) : TDateTime;  { V8.09, V8.62 UseTZ }
+    function  RFC3339_StrToDate(aDate: String; UseTZ: Boolean = False): TDateTime;   { V8.53, V8.62 UseTZ }
+    function  RFC3339_DateToStr(DT: TDateTime; AddTZ: Boolean = False): String;   { V8.53, V8.62 AddTZ }
+    function  RFC3339_DateToUtcStr(DT: TDateTime): String;    { V8.62 }
+    function  IcsGetUTCTime: TDateTime;                       { V8.60 }
+    function  IcsSetUTCTime (DateTime: TDateTime): boolean ;  { V8.60 }
+    function  IcsGetNewTime (DateTime, Difference: TDateTime): TDateTime ; { V8.60 }
+    function  IcsChangeSystemTime (Difference: TDateTime): boolean ;       { V8.60 }
+    function  IcsGetUnixTime: Int64;                          { V8.60 }
     function  IcsGetTickCount: LongWord;
     function  IcsWcToMb(CodePage: LongWord; Flags: Cardinal;
                         WStr: PWideChar; WStrLen: Integer; MbStr: PAnsiChar;
@@ -373,7 +478,7 @@ const
     function  Utf8ToStringW(const Str: RawByteString): UnicodeString; {$IFDEF USE_INLINE} inline; {$ENDIF}
     function  Utf8ToStringA(const Str: RawByteString; ACodePage: LongWord = CP_ACP): AnsiString; {$IFDEF USE_INLINE} inline; {$ENDIF}
     function  CheckUnicodeToAnsi(const Str: UnicodeString; ACodePage: LongWord = CP_ACP): Boolean;
-    { This is a weak check, it does not detect whether it's a valid UTF-8 byte }  
+    { This is a weak check, it does not detect whether it's a valid UTF-8 byte }
     function  IsUtf8TrailByte(const B: Byte): Boolean; {$IFDEF USE_INLINE} inline; {$ENDIF}
     function  IsUtf8LeadByte(const B: Byte): Boolean; {$IFDEF USE_INLINE} inline; {$ENDIF}
     function  IcsUtf8Size(const LeadByte: Byte): Integer; {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -387,12 +492,15 @@ const
     function  IcsCharNextUtf8(const Str: PAnsiChar): PAnsiChar; {$IFDEF USE_INLINE} inline; {$ENDIF}
     function  IcsCharPrevUtf8(const Start, Current: PAnsiChar): PAnsiChar; {$IFDEF USE_INLINE} inline; {$ENDIF}
     function  ConvertCodepage(const Str: RawByteString; SrcCodePage: LongWord; DstCodePage: LongWord = CP_ACP): RawByteString;
+    function  GetBomFromCodePage(ACodePage: LongWord) : TBytes;  { V8.60 }
     function  htoin(Value : PWideChar; Len : Integer) : Integer; {$IFDEF USE_INLINE} inline; {$ENDIF} overload;
     function  htoin(Value : PAnsiChar; Len : Integer) : Integer; {$IFDEF USE_INLINE} inline; {$ENDIF} overload;
     function  htoi2(value : PWideChar): Integer; overload;
     function  htoi2(value : PAnsiChar): Integer; overload;
     function  IcsBufferToHex(const Buf; Size: Integer): String; overload;
     function  IcsBufferToHex(const Buf; Size: Integer; Separator: Char): String; overload;
+    function  IcsBufferToHex(const BufStr: AnsiString): String; overload;    { V8.53 }
+    function  IcsHexToBin(const HexBuf: AnsiString): AnsiString;             { V8.53 }
     function  IsXDigit(Ch : WideChar): Boolean; overload;
     function  IsXDigit(Ch : AnsiChar): Boolean; overload;
     function  XDigit(Ch : WideChar): Integer; overload;
@@ -407,6 +515,8 @@ const
     function  IsCRLF(Ch : AnsiChar) : Boolean; {$IFDEF USE_INLINE} inline; {$ENDIF} overload;
     function  IsSpaceOrCRLF(Ch : WideChar) : Boolean; {$IFDEF USE_INLINE} inline; {$ENDIF} overload;
     function  IsSpaceOrCRLF(Ch : AnsiChar) : Boolean; {$IFDEF USE_INLINE} inline; {$ENDIF} overload;
+    function  IsPathSep(Ch : WideChar) : Boolean;{$IFDEF USE_INLINE} inline; {$ENDIF} overload;   { V8.57  }
+    function  IsPathSep(Ch : AnsiChar) : Boolean;{$IFDEF USE_INLINE} inline; {$ENDIF} overload;   { V8.57  }
     function  XDigit2(S : PChar) : Integer; {$IFDEF USE_INLINE} inline; {$ENDIF}
     function  stpblk(PValue : PWideChar) : PWideChar; overload;
     function  stpblk(PValue : PAnsiChar) : PAnsiChar; overload;
@@ -491,6 +601,9 @@ const
     function IcsFileAgeW(const Utf8FileName: UTF8String): Integer; {$IFDEF USE_INLINE} inline; {$ENDIF} overload;
     function IcsFileExistsW(const FileName: UnicodeString): Boolean; overload;
     function IcsFileExistsW(const Utf8FileName: UTF8String): Boolean; {$IFDEF USE_INLINE} inline; {$ENDIF} overload;
+    function IcsGetUAgeSizeFile (const filename: string; var FileUDT: TDateTime;
+                                                    var FSize: Int64): boolean;   { V8.49 moved from FtpSrvT }
+    function IcsGetFileSize(const FileName : String) : Int64;                     { V8.49 moved from FtpSrvT }
     function IcsAnsiLowerCaseW(const S: UnicodeString): UnicodeString;     // angus
     function IcsAnsiUpperCaseW(const S: UnicodeString): UnicodeString;     // angus
     function IcsMakeWord(L, H: Byte): Word; {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -500,6 +613,78 @@ const
     function IcsLoByte(W: Word): Byte; {$IFDEF USE_INLINE} inline; {$ENDIF}
     function IcsLoWord(LW: LongWord): Word; {$IFDEF USE_INLINE} inline; {$ENDIF}
     procedure IcsCheckOSError(ALastError: Integer); {$IFDEF USE_INLINE} inline; {$ENDIF}
+    function IcsCheckTrueFalse(const Value: string): boolean;    { V8.47 }
+{ we receive socket as single byte raw data into TBytes buffer without a
+  character set, then convertit onto Delphi Strings for ease of processing }
+{ Beware - this function treats buffers as ANSI, no Unicode conversion }
+    procedure IcsMoveTBytesToString(const Buffer: TBytes; OffsetFrom: Integer;
+                      var Dest: String; OffsetTo: Integer; Count: Integer); overload; { V8.49 }
+{ this function converts buffers to Unicode }
+    procedure IcsMoveTBytesToString(const Buffer: TBytes; OffsetFrom: Integer;
+        var Dest: UnicodeString; OffsetTo: Integer; Count: Integer; ACodePage: LongWord); overload; { V8.50 }
+{ this function converts buffers to Unicode }
+    procedure IcsMoveTBytesToString(const Buffer: TBytes; OffsetFrom: Integer;
+        var Dest: AnsiString; OffsetTo: Integer; Count: Integer; ACodePage: LongWord); overload; { V8.50 }
+{ Beware - this function treats buffers as ANSI, no Unicode conversion }
+ //   procedure IcsMoveStringToTBytes(const Source: String; var Buffer: TBytes; Count: Integer);  { V8.49 }
+    function IcsMoveStringToTBytes(const Source: String; var Buffer: TBytes;
+                                                        Count: Integer): Integer; overload;  { V8.50 }
+    function IcsMoveStringToTBytes(const Source: UnicodeString; var Buffer: TBytes;
+                 Count: Integer; ACodePage: LongWord; Bom: Boolean = false): Integer; overload;  { V8.50 }
+    procedure IcsMoveTBytes(var Buffer: TBytes; OffsetFrom: Integer; OffsetTo: Integer;
+                                Count: Integer); {$IFDEF USE_INLINE} inline; {$ENDIF}   { V8.49 }
+    procedure IcsMoveTBytesEx(const BufferFrom: TBytes; var BufferTo: TBytes;
+              OffsetFrom, OffsetTo, Count: Integer); {$IFDEF USE_INLINE} inline; {$ENDIF}  { V8.49 }
+{ Pos that ignores nulls in the TBytes buffer, so avoid PAnsiChar functions }
+    function IcsTBytesPos(const Substr: String; const S: TBytes; Offset, Count: Integer): Integer;  { V8.49 }
+    function IcsTbytesStarts(Source: TBytes; Find: PAnsiChar) : Boolean;    { V8.49 }
+    function IcsTbytesContains(Source : TBytes; Find : PAnsiChar) : Boolean;   { V8.49 }
+    function IcsGetFileUAge(const FileName : String) : TDateTime;            { V8.51 }
+    function IcsFmtIpv6Addr (const Addr: string): string;              { V8.52 }
+    function IcsFmtIpv6AddrPort (const Addr, Port: string): string;    { V8.52 }
+    function IcsStripIpv6Addr (const Addr: string): string;            { V8.52 }
+    function IntToKbyte (Value: Int64; Bytes: boolean = false): String; { V8.54  moved here from OverbyteIcsFtpSrvT }
+    function IcsWireFmtToStrList(Buffer: TBytes; Len: Integer; SList: TStrings): Integer;  { V8.57 }
+    function IcsStrListToWireFmt(SList: TStrings; var Buffer: TBytes): Integer;            { V8.57 }
+    function IcsEscapeCRLF(const Value: String): String;               { V8.57 }
+    function IcsUnEscapeCRLF(const Value: String): String;             { V8.57 }
+    function IcsSetToInt(const aSet; const aSize: Integer): Integer;      { V8.57 }
+    procedure IcsIntToSet(const Value: Integer; var aSet; const aSize: Integer);    { V8.57 }
+    function IcsSetToStr(TypInfo: PTypeInfo; const aSet; const aSize: Integer): string;   { V8.57 }
+    procedure IcsStrToSet(TypInfo: PTypeInfo; const Values: String; var aSet; const aSize: Integer);  { V8.57 }
+    function IcsExtractNameOnly(const FileName: String): String; { V8.57 }
+    function IcsGetCompName: String;                             { V8.57 }
+    function IcsGetExceptMess(ExceptObject: TObject): string;   { V8.59 }
+    function IcsAddThouSeps (const S: String): String;          { V8.60 }
+    function IcsInt64ToCStr (const N: Int64): String ;          { V8.60 }
+    function IcsIntToCStr (const N: Integer): String ;          { V8.60 }
+    function IcsDeleteFile(const Fname: string; const ReadOnly: boolean): Integer;   { V8.60 }
+    function IcsRenameFile(const OldName, NewName: string;
+                                        const Replace, ReadOnly: boolean): Integer;  { V8.60 }
+    function IcsForceDirsEx(const Dir: String): Boolean;  { V8.60 }
+    function IcsTransChar(const S: string; FromChar, ToChar: Char): string;  { V8.60 }
+    function IcsTransCharW(const S: UnicodeString; FromChar, ToChar: WideChar): UnicodeString;  { V8.60 }
+    function IcsPathUnixToDos(const Path: string): string;   { V8.60 }
+    function IcsPathDosToUnix(const Path: string): string;   { V8.60 }
+    function IcsPathUnixToDosW(const Path: UnicodeString): UnicodeString;   { V8.60 }
+    function IcsPathDosToUnixW(const Path: UnicodeString): UnicodeString;   { V8.60 }
+    function IcsSecsToStr(Seconds: Integer): String;         { V8.60 }
+    function IcsGetTempPath: String;                         { V8.60 }
+
+    { V8.54 Tick and Trigger functions for timing stuff moved here from OverbyteIcsFtpSrvT   }
+    function IcsGetTickCountX: longword ;
+    function IcsDiffTicks (const StartTick, EndTick: longword): longword ;
+    function IcsElapsedTicks (const StartTick: longword): longword ;
+    function IcsElapsedMsecs (const StartTick: longword): longword ;
+    function IcsElapsedSecs (const StartTick: longword): integer ;
+    function IcsElapsedMins (const StartTick: longword): integer ;
+    function IcsWaitingSecs (const EndTick: longword): integer ;
+    function IcsGetTrgMSecs (const MilliSecs: integer): longword ;
+    function IcsGetTrgSecs (const DurSecs: integer): longword ;
+    function IcsGetTrgMins (const DurMins: integer): longword ;
+    function IcsTestTrgTick (const TrgTick: longword): boolean ;
+    function IcsAddTrgMsecs (const TickCount, MilliSecs: longword): longword ;
+    function IcsAddTrgSecs (const TickCount, DurSecs: integer): longword ;
 
 { Moved from OverbyteIcsLibrary.pas prefix "_" replaced by "Ics" }
     function IcsIntToStrA(N : Integer): AnsiString;
@@ -540,7 +725,7 @@ const
   {$IFDEF COMPILER12_UP} overload;
     function IcsStrPCopy(Dest: PAnsiChar; const Source: AnsiString): PAnsiChar; overload;
   {$ENDIF}
-    function IcsStrPLCopy(Dest: PChar; const Source: String; MaxLen: Cardinal): PChar; 
+    function IcsStrPLCopy(Dest: PChar; const Source: String; MaxLen: Cardinal): PChar;
   {$IFDEF COMPILER12_UP} overload;
     function IcsStrPLCopy(Dest: PAnsiChar; const Source: AnsiString; MaxLen: Cardinal): PAnsiChar; overload;
   {$ENDIF}
@@ -592,6 +777,227 @@ type
         procedure Leave; {$IFDEF USE_INLINE} inline; {$ENDIF}
         function TryEnter: Boolean;
     end;
+
+{ V8.38 handle for wintrust.dll }
+var
+    WinTrustHandle : THandle;
+
+{$IFDEF MSWINDOWS}
+{ V8.38 moved from OverbyteIcsSSLEAY }
+function IcsGetFileVerInfo(
+    const AppName         : String;
+    out   FileVersion     : String;
+    out   FileDescription : String): Boolean;
+{$ENDIF}
+
+{$IFDEF MSWINDOWS}
+{ V8.38 constants and records for Wintrust }
+{ V8.45 added $EXTERNALSYM to satisfy C++ }
+const
+  WINTRUST_ACTION_GENERIC_VERIFY_V2: TGUID = '{00AAC56B-CD44-11d0-8CC2-00C04FC295EE}' ;
+  {$EXTERNALSYM WINTRUST_ACTION_GENERIC_VERIFY_V2}
+
+  TRUST_E_NOSIGNATURE = HRESULT($800B0100);
+  {$EXTERNALSYM TRUST_E_NOSIGNATURE}
+  CERT_E_EXPIRED = HRESULT($800B0101);
+  {$EXTERNALSYM CERT_E_EXPIRED}
+  CERT_E_VALIDITYPERIODNESTING = HRESULT($800B0102);
+  {$EXTERNALSYM CERT_E_VALIDITYPERIODNESTING}
+  CERT_E_ROLE = HRESULT($800B0103);
+   {$EXTERNALSYM CERT_E_ROLE}
+  CERT_E_PATHLENCONST = HRESULT($800B0104);
+   {$EXTERNALSYM CERT_E_PATHLENCONST}
+  CERT_E_CRITICAL = HRESULT($800B0105);
+   {$EXTERNALSYM CERT_E_CRITICAL}
+  CERT_E_PURPOSE = HRESULT($800B0106);
+   {$EXTERNALSYM CERT_E_PURPOSE}
+  CERT_E_ISSUERCHAINING = HRESULT($800B0107);
+   {$EXTERNALSYM CERT_E_ISSUERCHAINING}
+  CERT_E_MALFORMED = HRESULT($800B0108);
+   {$EXTERNALSYM CERT_E_MALFORMED}
+  CERT_E_UNTRUSTEDROOT = HRESULT($800B0109);
+   {$EXTERNALSYM CERT_E_UNTRUSTEDROOT}
+  CERT_E_CHAINING = HRESULT($800B010A);
+   {$EXTERNALSYM CERT_E_CHAINING}
+  TRUST_E_FAIL = HRESULT($800B010B);
+   {$EXTERNALSYM TRUST_E_FAIL}
+  CERT_E_REVOKED = HRESULT($800B010C);
+   {$EXTERNALSYM CERT_E_REVOKED}
+  CERT_E_UNTRUSTEDTESTROOT = HRESULT($800B010D);
+   {$EXTERNALSYM CERT_E_UNTRUSTEDTESTROOT}
+  CERT_E_REVOCATION_FAILURE = HRESULT($800B010E);
+   {$EXTERNALSYM CERT_E_REVOCATION_FAILURE}
+  CERT_E_CN_NO_MATCH = HRESULT($800B010F);
+   {$EXTERNALSYM CERT_E_CN_NO_MATCH}
+  CERT_E_WRONG_USAGE = HRESULT($800B0110);
+   {$EXTERNALSYM CERT_E_WRONG_USAGE}
+  TRUST_E_EXPLICIT_DISTRUST = HRESULT($800B0111);
+   {$EXTERNALSYM TRUST_E_EXPLICIT_DISTRUST}
+  CERT_E_UNTRUSTEDCA = HRESULT($800B0112);
+   {$EXTERNALSYM CERT_E_UNTRUSTEDCA}
+  CERT_E_INVALID_POLICY = HRESULT($800B0113);
+   {$EXTERNALSYM CERT_E_INVALID_POLICY}
+  CERT_E_INVALID_NAME = HRESULT($800B0114);
+   {$EXTERNALSYM CERT_E_INVALID_NAME}
+  TRUST_E_SYSTEM_ERROR = HRESULT($80096001);
+   {$EXTERNALSYM TRUST_E_SYSTEM_ERROR}
+  TRUST_E_NO_SIGNER_CERT = HRESULT($80096002);
+   {$EXTERNALSYM TRUST_E_NO_SIGNER_CERT}
+  TRUST_E_COUNTER_SIGNER = HRESULT($80096003);
+   {$EXTERNALSYM TRUST_E_COUNTER_SIGNER}
+  TRUST_E_CERT_SIGNATURE = HRESULT($80096004);
+   {$EXTERNALSYM TRUST_E_CERT_SIGNATURE}
+  TRUST_E_TIME_STAMP = HRESULT($80096005);
+   {$EXTERNALSYM TRUST_E_TIME_STAMP}
+  TRUST_E_BAD_DIGEST = HRESULT($80096010);
+   {$EXTERNALSYM TRUST_E_BAD_DIGEST}
+  TRUST_E_BASIC_CONSTRAINTS = HRESULT($80096019);
+   {$EXTERNALSYM TRUST_E_BASIC_CONSTRAINTS}
+  TRUST_E_FINANCIAL_CRITERIA = HRESULT($8009601E);
+   {$EXTERNALSYM TRUST_E_FINANCIAL_CRITERIA}
+  CRYPT_E_SECURITY_SETTINGS = HRESULT($80092026);
+   {$EXTERNALSYM CRYPT_E_SECURITY_SETTINGS}
+
+  WTCI_DONT_OPEN_STORES = $00000001 ; // only open dummy "root" all other are in pahStores.
+   {$EXTERNALSYM WTCI_DONT_OPEN_STORES}
+  WTCI_OPEN_ONLY_ROOT = $00000002 ;
+   {$EXTERNALSYM WTCI_OPEN_ONLY_ROOT}
+
+// _WINTRUST_DATA.dwUIChoice
+    WTD_UI_ALL    = 1 ;
+   {$EXTERNALSYM WTD_UI_ALL}
+    WTD_UI_NONE   = 2 ;
+   {$EXTERNALSYM WTD_UI_NONE}
+    WTD_UI_NOBAD  = 3 ;
+   {$EXTERNALSYM WTD_UI_NOBAD}
+    WTD_UI_NOGOOD = 4 ;
+   {$EXTERNALSYM WTD_UI_NOGOOD}
+
+// _WINTRUST_DATA.fdwRevocationChecks
+    WTD_REVOKE_NONE       = $00000000 ;
+   {$EXTERNALSYM WTD_REVOKE_NONE}
+    WTD_REVOKE_WHOLECHAIN = $00000001 ;
+   {$EXTERNALSYM WTD_REVOKE_WHOLECHAIN}
+
+// _WINTRUST_DATA.dwUnionChoice
+    WTD_CHOICE_FILE    = 1 ;
+   {$EXTERNALSYM WTD_CHOICE_FILE}
+    WTD_CHOICE_CATALOG = 2 ;
+   {$EXTERNALSYM WTD_CHOICE_CATALOG}
+    WTD_CHOICE_BLOB    = 3 ;
+   {$EXTERNALSYM WTD_CHOICE_BLOB}
+    WTD_CHOICE_SIGNER  = 4 ;
+   {$EXTERNALSYM WTD_CHOICE_SIGNER}
+    WTD_CHOICE_CERT    = 5 ;
+   {$EXTERNALSYM WTD_CHOICE_CERT}
+
+// _WINTRUST_DATA.dwStateAction
+    WTD_STATEACTION_IGNORE  = $00000000 ;
+   {$EXTERNALSYM WTD_STATEACTION_IGNORE}
+    WTD_STATEACTION_VERIFY  = $00000001 ;
+   {$EXTERNALSYM WTD_STATEACTION_VERIFY}
+    WTD_STATEACTION_CLOSE   = $00000002 ;
+   {$EXTERNALSYM WTD_STATEACTION_CLOSE}
+    WTD_STATEACTION_AUTO_CACHE       = $00000003 ;
+   {$EXTERNALSYM WTD_STATEACTION_AUTO_CACHE}
+    WTD_STATEACTION_AUTO_CACHE_FLUSH = $00000004 ;
+   {$EXTERNALSYM WTD_STATEACTION_AUTO_CACHE_FLUSH}
+    WTD_PROV_FLAGS_MASK     = $0000FFFF ;
+   {$EXTERNALSYM WTD_PROV_FLAGS_MASK}
+    WTD_USE_IE4_TRUST_FLAG  = $00000001 ;
+   {$EXTERNALSYM WTD_USE_IE4_TRUST_FLAG}
+    WTD_NO_IE4_CHAIN_FLAG   = $00000002 ;
+   {$EXTERNALSYM WTD_NO_IE4_CHAIN_FLAG}
+    WTD_NO_POLICY_USAGE_FLAG = $00000004 ;
+   {$EXTERNALSYM WTD_NO_POLICY_USAGE_FLAG}
+    WTD_REVOCATION_CHECK_NONE = $00000010 ;
+   {$EXTERNALSYM WTD_REVOCATION_CHECK_NONE}
+    WTD_REVOCATION_CHECK_END_CERT = $00000020 ;
+   {$EXTERNALSYM WTD_REVOCATION_CHECK_END_CERT}
+    WTD_REVOCATION_CHECK_CHAIN    = $00000040 ;
+   {$EXTERNALSYM WTD_REVOCATION_CHECK_CHAIN}
+    WTD_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT = $00000080 ;
+   {$EXTERNALSYM WTD_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT}
+    WTD_SAFER_FLAG                 = $00000100 ;
+   {$EXTERNALSYM WTD_SAFER_FLAG}
+    WTD_HASH_ONLY_FLAG             = $00000200 ;
+   {$EXTERNALSYM WTD_HASH_ONLY_FLAG}
+    WTD_USE_DEFAULT_OSVER_CHECK    = $00000400 ;
+   {$EXTERNALSYM WTD_USE_DEFAULT_OSVER_CHECK}
+    WTD_LIFETIME_SIGNING_FLAG      = $00000800 ;
+   {$EXTERNALSYM WTD_LIFETIME_SIGNING_FLAG}
+    WTD_CACHE_ONLY_URL_RETRIEVAL   = $00001000 ; { affects CRL retrieval and AIA retrieval }
+   {$EXTERNALSYM WTD_CACHE_ONLY_URL_RETRIEVAL}
+    WTD_UICONTEXT_EXECUTE = 0 ;
+   {$EXTERNALSYM WTD_UICONTEXT_EXECUTE}
+    WTD_UICONTEXT_INSTALL = 1 ;
+   {$EXTERNALSYM WTD_UICONTEXT_INSTALL}
+
+type
+    PVOID           = Pointer;
+   {$EXTERNALSYM PVOID}
+
+  WINTRUST_FILE_INFO_ = record
+    cbStruct: DWORD;
+    pcwszFilePath: LPCWSTR;
+    hFile: THandle;
+    pgKnownSubject: PGUID;
+  end {WINTRUST_FILE_INFO_};
+  TWinTrustFileInfo = WINTRUST_FILE_INFO_ ;
+  PWinTrustFileInfo = ^WINTRUST_FILE_INFO_ ;
+
+type
+  _WINTRUST_DATA = record
+    cbStruct: DWORD;                // = sizeof(WINTRUST_DATA)
+    pPolicyCallbackData: PVOID;     // optional: used to pass data between the app and policy
+    pSIPClientData: PVOID;          // optional: used to pass data between the app and SIP.
+    dwUIChoice: DWORD;              // required: UI choice, one of WTD_UI_xx
+    fdwRevocationChecks: DWORD;     // required: certificate revocation check options, one of WTD_REVOKE_xx
+    dwUnionChoice: DWORD;           // required: which structure is being passed in, one of WTD_CHOICE_xx
+    Info: record {union part of the original struct }
+    case integer of
+        0: (pFile: PWinTrustFileInfo);           // individual file
+  //      1: (pCatalog: PWinTrustCatalogInfo);     // member of a Catalog File
+  //      2: (pBlob: PWinTrustBlobInfo);           // memory blob
+  //      3: (pSgnr: PWinTrustSgnrInfo);           // signer structure only
+  //      4: (pCert: PWinTrustCertInfo);
+    end ;
+// end union
+    dwStateAction: DWORD;       // optional (Catalog File Processing), WTD_STATEACTION_xx
+    hWVTStateData: THANDLE;     // optional (Catalog File Processing)
+    pwszURLReference: LPCWSTR ; // angus ???  // optional: (future) used to determine zone.
+    dwProvFlags: DWORD;         // optional:  WTD_PROV_FLAGS, etc
+    dwUIContext: DWORD;         // optional: used to determine action text in UI. WTD_UICONTEXT_xx
+  end {_WINTRUST_DATA};
+  TWinTrustData = _WINTRUST_DATA ;
+  PWinTrustData = ^_WINTRUST_DATA ;
+
+var
+  WinVerifyTrust: function(hwnd: HWND; var pgActionID: TGUID;
+                                      pWVTData: Pointer): DWORD stdcall ;
+
+{ V8.38 Windows API to check authenticode code signing digital certificate on EXE and DLL files }
+  function IcsVerifyTrust (const Fname: string; const HashOnly,
+                          Expired: boolean; var Response: string): integer;
+{$ENDIF}
+
+type
+{ V8.60 descendent of TList added a Find function using binary search identical to sorting }
+    TIcsFindList = class(TList)
+    private
+      { Private declarations }
+    protected
+      { Protected declarations }
+    public
+      { Public declarations }
+      Sorted: boolean ;
+      function AddSorted(const Item2: Pointer; Compare: TListSortCompare): Integer; virtual;
+      function Find(const Item2: Pointer; Compare: TListSortCompare;
+                                                      var index: longint): Boolean; virtual;
+  end;
+
+  function CompareGTMem (P1, P2: Pointer; Length: Integer): Integer ;
+
 
 implementation
 
@@ -847,6 +1253,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ Get time zone bias a signed integer in minutes }
 function IcsGetLocalTimeZoneBias: LongInt;
 {$IFDEF MSWINDOWS}
 var
@@ -855,6 +1262,7 @@ begin
     case GetTimeZoneInformation(tzInfo) of
         TIME_ZONE_ID_STANDARD: Result := tzInfo.Bias + tzInfo.StandardBias;
         TIME_ZONE_ID_DAYLIGHT: Result := tzInfo.Bias + tzInfo.DaylightBias;
+    //    TIME_ZONE_ID_DAYLIGHT: Result := tzInfo.Bias + tzInfo.StandardBias;  // cheating winter
         TIME_ZONE_ID_UNKNOWN : Result := tzInfo.Bias;
     else
         Result := 0; // Error
@@ -888,12 +1296,28 @@ begin
 end;
 {$ENDIF}
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.62 Get time zone bias as string, ie -0730 }
+function IcsGetLocalTZBiasStr: String;
+var
+    Bias: Integer;
+    Sign: String;
+begin
+    Bias := IcsGetLocalTimeZoneBias;
+    if Bias > 0 then
+        Sign := '-'
+    else
+        Sign := '+';
+    Bias := Abs(Bias);
+    Result := Format('%s%.2d%.2d', [Sign, Bias div 60, Bias mod 60]);
+end;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { convert local date/time to UTC/GMT }
 function IcsDateTimeToUTC (dtDT: TDateTime): TDateTime;
 begin
-    Result := dtDT + IcsGetLocalTimeZoneBias / (60.0 * 24.0);
+    Result := dtDT + (IcsGetLocalTimeZoneBias / MinutesPerDay);
 end;
 
 
@@ -901,49 +1325,233 @@ end;
 { convert UTC/GMT to local date/time }
 function IcsUTCToDateTime (dtDT: TDateTime): TDateTime;
 begin
-    Result := dtDT - IcsGetLocalTimeZoneBias / (60.0 * 24.0);
+    Result := dtDT - (IcsGetLocalTimeZoneBias / MinutesPerDay);
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ RFC1123/RFC822 TDateTime to short alpha time, HTTP and SMPT headers }
+{ V8.62 optionally add time zone }
 const
    RFC1123_StrWeekDay : String = 'MonTueWedThuFriSatSun';
    RFC1123_StrMonth   : String = 'JanFebMarAprMayJunJulAugSepOctNovDec';
 { We cannot use Delphi own function because the date must be specified in   }
 { english and Delphi use the current language.                              }
-function RFC1123_Date(aDate : TDateTime) : String;
+function RFC1123_Date(aDate : TDateTime; AddTZ: Boolean = False) : String;
 var
-   Year, Month, Day       : Word;
-   Hour, Min,   Sec, MSec : Word;
-   DayOfWeek              : Word;
+    Year, Month, Day       : Word;
+    Hour, Min,   Sec, MSec : Word;
+    DayOfWeek              : Word;
 begin
-   DecodeDate(aDate, Year, Month, Day);
-   DecodeTime(aDate, Hour, Min,   Sec, MSec);
-   DayOfWeek := ((Trunc(aDate) - 2) mod 7);
-   Result := Copy(RFC1123_StrWeekDay, 1 + DayOfWeek * 3, 3) + ', ' +
+    DecodeDate(aDate, Year, Month, Day);
+    DecodeTime(aDate, Hour, Min,   Sec, MSec);
+    DayOfWeek := ((Trunc(aDate) - 2) mod 7);
+    Result := Copy(RFC1123_StrWeekDay, 1 + DayOfWeek * 3, 3) + ', ' +
              Format('%2.2d %s %4.4d %2.2d:%2.2d:%2.2d',
                     [Day, Copy(RFC1123_StrMonth, 1 + 3 * (Month - 1), 3),
                      Year, Hour, Min, Sec]);
+    { Tue, 11 Jun 2019 12:24:13 +0100 }
+    if AddTZ then Result := Result + ' ' + IcsGetLocalTZBiasStr;  { V8.62 }
 end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ Bug: time zone is ignored !! }
+{ V8.62 RFC1123/RFC822 TDateTime to UTC then to string, HTTP and SMPT headers, add Z or GMT }
+function RFC1123_UtcDate(aDate : TDateTime): String;
+begin
+    Result := RFC1123_Date(IcsDateTimeToUTC(aDate), False);
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { RFC1123 5.2.14 redefine RFC822 Section 5.                                 }
-function RFC1123_StrToDate(aDate : String) : TDateTime;
+{ V8.62 optionally process time zone and convert to local time }
+function RFC1123_StrToDate(aDate : String; UseTZ: Boolean = False) : TDateTime;
 var
     Year, Month, Day : Word;
     Hour, Min,   Sec : Word;
+    tzvalue: Integer;
+    sign: String;
+    timeDT: TDateTime;
 begin
+    Result := 0;
+    if Length(aDate) < 17 then Exit ;  // V8.63 must have date
     { Fri, 30 Jul 2004 10:10:35 GMT }
+    { Tue, 11 Jun 2019 12:24:13 +0100 }
     Day    := StrToIntDef(Copy(aDate, 6, 2), 0);
     Month  := (Pos(Copy(aDate, 9, 3), RFC1123_StrMonth) + 2) div 3;
     Year   := StrToIntDef(Copy(aDate, 13, 4), 0);
+    if NOT TryEncodeDate(Year, Month, Day, Result) then Exit;
+
+    if Length(aDate) < 25 then Exit ;  // V8.63 no time
     Hour   := StrToIntDef(Copy(aDate, 18, 2), 0);
     Min    := StrToIntDef(Copy(aDate, 21, 2), 0);
     Sec    := StrToIntDef(Copy(aDate, 24, 2), 0);
-    Result := EncodeDate(Year, Month, Day);
-    Result := Result + EncodeTime(Hour, Min, Sec, 0);
+    if NOT TryEncodeTime(Hour, Min, Sec, 0, timeDT) then Exit;
+    Result := Result + timeDT;   // V8.63 add time
+
+{ V8.62 check for time zone, GMT, +0700, -1000, -0330 }
+    if NOT UseTZ then Exit;
+    if Length(aDate) < 29 then Exit ;  // no time zone
+    sign := aDate [27];
+    if (sign = '-') or (sign = '+') then begin // ignore GMT/UTC
+        tzvalue := StrToIntDef(copy (aDate, 28, 2), 0) * 60;
+        if (aDate [30] = '3') then
+            tzvalue := tzvalue + 30;
+        if sign = '-' then
+            Result := Result + (tzvalue / MinutesPerDay)
+        else
+            Result := Result - (tzvalue / MinutesPerDay);
+    end;
+    Result := Result - (IcsGetLocalTimeZoneBias / MinutesPerDay);
 end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.53 RFC3339 string date to TDateTime, aka ISO 8601 date }
+{ V8.62 optionally process time zone and convert to local time }
+{  yyyy-mm-ddThh:nn:ssZ (ISODateTimeMask), might be NULL
+   yyyy-mm-ddThh:nn:ss.sss (milliseconds on end
+   yyyy-mm-ddThh:nn:ss-hh:mm (time offset on end
+   or just yyyy-mm-dd
+   or just hh:nn:ss }
+function RFC3339_StrToDate(aDate: String; UseTZ: Boolean = False): TDateTime;
+var
+    yy, mm, dd, hh, nn, ss, sss: Word;
+    timeDT: TDateTime;
+    tzoffset, tzvalue: Integer;
+    sign: String;
+begin
+    Result := 0;
+    aDate := Trim(aDate);
+    if Length(aDate) = 8 then // check time only
+    begin
+        if aDate[3] <> ':' then Exit;
+        if aDate[6] <> ':' then Exit;
+        hh := StrToIntDef(copy (aDate, 1, 2), 0);
+        nn := StrToIntDef(copy (aDate, 4, 2), 0);
+        ss := StrToIntDef(copy (aDate, 7, 2), 0);
+        if NOT TryEncodeTime(hh, nn, ss, 0, Result) then exit ;
+        Exit ;
+    end;
+    if Length(aDate) < 10 then Exit ;  // must have date
+    if aDate[5] <> '-' then Exit ;
+    if aDate[8] <> '-' then Exit ;
+    yy := StrToIntDef(copy (aDate, 1, 4), 0);
+    mm := StrToIntDef(copy (aDate, 6, 2), 0);
+    dd := StrToIntDef(copy (aDate, 9, 2), 0);
+    if NOT TryEncodeDate(yy, mm, dd, Result) then
+    begin
+        Result := -1 ;
+        Exit ;
+    end ;
+    if Length(aDate) < 19 then Exit ;  // no time
+    if aDate[14] <> ':' then Exit ;
+    if aDate[17] <> ':' then Exit ;
+    hh := StrToIntDef(copy (aDate, 12, 2), 0);
+    nn := StrToIntDef(copy (aDate, 15, 2), 0);
+    ss := StrToIntDef(copy (aDate, 18, 2), 0);
+    sss := 0;
+    tzoffset := 20;
+{ V8.62 check for milliseconds }
+    if Length(aDate) >= 23 then begin  // check for MS
+        if (aDate [20] = '.') or (aDate [20] = ',') then begin
+            sss := StrToIntDef(copy (aDate, 21, 3), 0);
+            tzoffset := 24;
+        end;
+    end;
+    if NOT TryEncodeTime(hh, nn, ss, sss, timeDT) then Exit ;
+    Result := Result + timeDT ;
+    if NOT UseTZ then Exit;
+
+{ V8.62 check for time zone, Z, GMT, +07:00, +0200, -1000, -03:30 }
+    if Length(aDate) < (tzoffset + 2) then Exit ;  // no time zone
+    sign := aDate [tzoffset];
+    if (sign = '-') or (sign = '+') then begin // ignore Z
+        tzvalue := StrToIntDef(copy (aDate, tzoffset + 1, 2), 0) * 60;
+        if Length(aDate) > (tzoffset + 4) then begin
+            if (aDate [tzoffset + 3] = '3') or (aDate [tzoffset + 4] = '3') then
+                tzvalue := tzvalue + 30;
+        end;
+        if sign = '-' then
+            Result := Result + (tzvalue / MinutesPerDay)
+        else
+            Result := Result - (tzvalue / MinutesPerDay);
+    end;
+    Result := Result - (IcsGetLocalTimeZoneBias / MinutesPerDay);
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.53 RFC3339 Local Time TDateTime to string, aka ISO 8601 date }
+{ TDateTime to to yyyy-mm-ddThh:nn:ss - no quotes }
+{ V8.62 optionally add time zone }
+function RFC3339_DateToStr(DT: TDateTime; AddTZ: Boolean = False): String;
+begin
+    Result := FormatDateTime(ISODateTimeMask, DT);
+    if AddTZ then Result := Result + IcsGetLocalTZBiasStr;  { V8.62 }
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.62 RFC3339 TDateTime to UTC then to time zone string, aka ISO 8601 date }
+{ TDateTime to to yyyy-mm-ddThh:nn:ss+hhmm - no quotes, no Z }
+function RFC3339_DateToUtcStr(DT: TDateTime): String;
+begin
+    Result := RFC3339_DateToStr(IcsDateTimeToUTC(DT), False);
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 get system date and time as UTC/GMT into Delphi time }
+function IcsGetUTCTime: TDateTime;
+var
+    SystemTime: TSystemTime;
+begin
+    GetSystemTime(SystemTime);
+    with SystemTime do begin
+        Result := EncodeTime (wHour, wMinute, wSecond, wMilliSeconds) +
+                                              EncodeDate (wYear, wMonth, wDay);
+    end ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 set system date and time as UTC/GMT, requires administrator rights }
+function IcsSetUTCTime (DateTime: TDateTime): boolean;
+var
+    SystemTime: TSystemTime;
+begin
+    with SystemTime do DecodeDateTime (DateTime, wYear, wMonth,
+                                 wDay, wHour, wMinute, wSecond, wMilliSeconds);
+    Result := SetSystemTime (SystemTime);
+end ;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 get time adjusted by a difference }
+function IcsGetNewTime (DateTime, Difference: TDateTime): TDateTime;
+begin
+    result := DateTime + Difference;
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 change PC system time by a difference, requires administrator rights }
+function IcsChangeSystemTime (Difference: TDateTime): boolean;
+var
+    NewUTCTime: TDateTime;
+begin
+    NewUTCTime := IcsGetUTCTime + Difference;
+    Result := IcsSetUTCTime (NewUTCTime);
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 get current Unix time (in UTC) -}
+function IcsGetUnixTime: Int64;
+begin
+    result := DateTimeToUnix (IcsGetUTCTime);
+end ;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFDEF MSWINDOWS}
@@ -1173,7 +1781,7 @@ begin
                             DstBytesLeft := SizeOf(SBuf);
                         end
                         else begin
-                            Result := 0;
+                            //Result := 0; { V8.49 }
                             SetLastError(ERROR_INSUFFICIENT_BUFFER);
                             Break;
                         end;
@@ -1389,126 +1997,126 @@ function IcsIsSBCSCodePage(CodePage: LongWord): Boolean;
 begin
     case CodePage of
         {
-        1250  (ANSI - Mitteleuropa)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        1251  (ANSI - Kyrillisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        1252  (ANSI - Lateinisch I)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        1253  (ANSI - Griechisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        1254  (ANSI - Türkisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        1255  (ANSI - Hebräisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        1256  (ANSI - Arabisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        1257  (ANSI - Baltisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        1258  (ANSI/OEM - Vietnam)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        1250  (ANSI - Mitteleuropa) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        1251  (ANSI - Kyrillisch)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        1252  (ANSI - Lateinisch I) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        1253  (ANSI - Griechisch)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        1254  (ANSI - Türkisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        1255  (ANSI - Hebräisch)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        1256  (ANSI - Arabisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        1257  (ANSI - Baltisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        1258  (ANSI/OEM - Vietnam)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
         }
         1250..1258,
-        20127, // (US-ASCII)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        21866, // (Ukrainisch - KOI8-U)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        20127, // (US-ASCII)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        21866, // (Ukrainisch - KOI8-U) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
         {
-        28591 (ISO 8859-1 Lateinisch I)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        28592 (ISO 8859-2 Mitteleuropa)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        28593 (ISO 8859-3 Lateinisch 3)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        28594 (ISO 8859-4 Baltisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        28595 (ISO 8859-5 Kyrillisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        28596 (ISO 8859-6 Arabisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        28597 (ISO 8859-7 Griechisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        28598 (ISO 8859-8 Hebräisch: Visuelle Sortierung)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        28599 (ISO 8859-9 Lateinisch 5)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        28591 (ISO 8859-1 Lateinisch I) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        28592 (ISO 8859-2 Mitteleuropa) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        28593 (ISO 8859-3 Lateinisch 3) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        28594 (ISO 8859-4 Baltisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        28595 (ISO 8859-5 Kyrillisch)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        28596 (ISO 8859-6 Arabisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        28597 (ISO 8859-7 Griechisch)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        28598 (ISO 8859-8 Hebräisch: Visuelle Sortierung)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        28599 (ISO 8859-9 Lateinisch 5) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
         }
         28591..28599,
-        28605, // (ISO 8859-15 Lateinisch 9)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        38598, // (ISO 8859-8 Hebräisch: Logische Sortierung)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        20866, // (Russisch - KOI8)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        28605, // (ISO 8859-15 Lateinisch 9)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        38598, // (ISO 8859-8 Hebräisch: Logische Sortierung)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        20866, // (Russisch - KOI8) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
 
-        37,   // (IBM EBCDIC - USA/Kanada)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        437,  // (OEM - Vereinigte Staaten)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        500,  // (IBM EBCDIC - International)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        708,  // (Arabisch - ASMO)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        720,  // (Arabisch- Transparent ASMO)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        737,  // (OEM - Griechisch 437G)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        775,  // (OEM - Baltisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        850,  // (OEM - Multilingual Lateinisch I)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        852,  // (OEM - Lateinisch II)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        855,  // (OEM - Kyrillisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        857,  // (OEM - Türkisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        858,  // (OEM - Multilingual Lateinisch I + Euro)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        37,   // (IBM EBCDIC - USA/Kanada)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        437,  // (OEM - Vereinigte Staaten) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        500,  // (IBM EBCDIC - International)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        708,  // (Arabisch - ASMO)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        720,  // (Arabisch- Transparent ASMO)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        737,  // (OEM - Griechisch 437G)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        775,  // (OEM - Baltisch)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        850,  // (OEM - Multilingual Lateinisch I)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        852,  // (OEM - Lateinisch II)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        855,  // (OEM - Kyrillisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        857,  // (OEM - Türkisch)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        858,  // (OEM - Multilingual Lateinisch I + Euro)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
         {
-        860   (OEM - Portugisisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        861   (OEM - Isländisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        862   (OEM - Hebräisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        863   (OEM - Französch (Kanada))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        864   (OEM - Arabisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        865   (OEM - Nordisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        866   (OEM - Russisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        860   (OEM - Portugisisch)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        861   (OEM - Isländisch)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        862   (OEM - Hebräisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        863   (OEM - Französch (Kanada))    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        864   (OEM - Arabisch)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        865   (OEM - Nordisch)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        866   (OEM - Russisch)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
         }
         860..866,
-        869,  // (OEM - Modernes Griechisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        //874,  // (ANSI/OEM - Thai)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        874..875,  // (IBM EBCDIC - Modernes Griechisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        1026, // (IBM EBCDIC - Türkisch (Lateinisch-5))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        869,  // (OEM - Modernes Griechisch)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        //874,  // (ANSI/OEM - Thai)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        874..875,  // (IBM EBCDIC - Modernes Griechisch)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        1026, // (IBM EBCDIC - Türkisch (Lateinisch-5)) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
         {
-        1140  (IBM EBCDIC - USA/Kanada (37 + Euro))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        1141  (IBM EBCDIC - Deutschland (20273 + Euro))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        1142  (IBM EBCDIC - Dänemark/Norwegen (20277 + Euro))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        1143  (IBM EBCDIC - Finnland/Schweden (20278 + Euro))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        1144  (IBM EBCDIC - Italien (20280 + Euro))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        1145  (IBM EBCDIC - Lateinamerika/Spanien (20284 + Euro))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        1140  (IBM EBCDIC - USA/Kanada (37 + Euro)) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        1141  (IBM EBCDIC - Deutschland (20273 + Euro)) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        1142  (IBM EBCDIC - Dänemark/Norwegen (20277 + Euro))   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        1143  (IBM EBCDIC - Finnland/Schweden (20278 + Euro))   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        1144  (IBM EBCDIC - Italien (20280 + Euro)) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        1145  (IBM EBCDIC - Lateinamerika/Spanien (20284 + Euro))   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
         }
         1140..1145,
-        1147, // (IBM EBCDIC - Frankreich (20297 + Euro))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        1149, // (IBM EBCDIC - Isländisch (20871 + Euro))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        1147, // (IBM EBCDIC - Frankreich (20297 + Euro))   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        1149, // (IBM EBCDIC - Isländisch (20871 + Euro))   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
 
 
-        10000, // (MAC - Roman)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        10000, // (MAC - Roman) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
         {
-        10004 (MAC - Arabisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        10005 (MAC - Hebräisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        10006 (MAC - Griechisch I)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        10007 (MAC - Kyrillisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        10004 (MAC - Arabisch)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        10005 (MAC - Hebräisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        10006 (MAC - Griechisch I)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        10007 (MAC - Kyrillisch)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
         }
         10004..10007,
-        10010, // (MAC - Rumänisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        10017, // (MAC - Ukrainisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        10021, // (MAC - Thai)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        10029, // (MAC - Lateinisch II)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        10079, // (MAC - Isländisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        10081, // (MAC - Türkisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        10082, // (MAC - Kroatisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        10010, // (MAC - Rumänisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        10017, // (MAC - Ukrainisch)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        10021, // (MAC - Thai)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        10029, // (MAC - Lateinisch II) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        10079, // (MAC - Isländisch)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        10081, // (MAC - Türkisch)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        10082, // (MAC - Kroatisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
         {
-        20105 (IA5 IRV Internationales Alphabet Nr. 5)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        20106 (IA5 Deutsch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        20107 (IA5 Swedisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        20108 (IA5 Norwegisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
+        20105 (IA5 IRV Internationales Alphabet Nr. 5)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        20106 (IA5 Deutsch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        20107 (IA5 Swedisch)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        20108 (IA5 Norwegisch)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
         }
         20105..20108,
 
-        20269, // (ISO 6937 Akzent ohne Zwischenraum)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:003F
-        20273, // (IBM EBCDIC - Deutschland)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        20269, // (ISO 6937 Akzent ohne Zwischenraum)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:003F
+        20273, // (IBM EBCDIC - Deutschland)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
         {
-        20277 (IBM EBCDIC - Dänemark/Norwegen)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20278 (IBM EBCDIC - Finnland/Schweden)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        20277 (IBM EBCDIC - Dänemark/Norwegen)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20278 (IBM EBCDIC - Finnland/Schweden)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
         }
         20277..20278,
-        20280, // (IBM EBCDIC - Italien)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        20280, // (IBM EBCDIC - Italien)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
         {
-        20284, // (IBM EBCDIC - Lateinamerika/Spanien)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20285, // (IBM EBCDIC - Großbritannien)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        20284, // (IBM EBCDIC - Lateinamerika/Spanien)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20285, // (IBM EBCDIC - Großbritannien) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
         }
         20284..20285,
-        20290, // (IBM EBCDIC - Japanisch (erweitertes Katakana))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20297, // (IBM EBCDIC - Frankreich)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20420, // (IBM EBCDIC - Arabisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        20290, // (IBM EBCDIC - Japanisch (erweitertes Katakana))   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20297, // (IBM EBCDIC - Frankreich) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20420, // (IBM EBCDIC - Arabisch)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
         {
-        20423, // (IBM EBCDIC - Griechisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20424, // (IBM EBCDIC - Hebräisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        20423, // (IBM EBCDIC - Griechisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20424, // (IBM EBCDIC - Hebräisch)  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
         }
         20423..20424,
-        20833, // (IBM EBCDIC - erweitertes Koreanisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20838, // (IBM EBCDIC - Thai)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20871, // (IBM EBCDIC - Isländisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20880, // (IBM EBCDIC - Kyrillisch (Russisch))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20905, // (IBM EBCDIC - Türkisch)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        20924, // (IBM EBCDIC - Lateinisch-1/Offenes System (1047 + Euro))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        21025, // (IBM EBCDIC - Kyrillisch (Serbisch, Bulgarisch))	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
-        21027 // (Ext Alpha Kleinbuchstaben)	SBCS Size: 1	UnicodeDefaultChar: 003F	DefaultChar:006F
+        20833, // (IBM EBCDIC - erweitertes Koreanisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20838, // (IBM EBCDIC - Thai)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20871, // (IBM EBCDIC - Isländisch) SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20880, // (IBM EBCDIC - Kyrillisch (Russisch))  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20905, // (IBM EBCDIC - Türkisch)   SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        20924, // (IBM EBCDIC - Lateinisch-1/Offenes System (1047 + Euro))  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        21025, // (IBM EBCDIC - Kyrillisch (Serbisch, Bulgarisch))  SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
+        21027 // (Ext Alpha Kleinbuchstaben)    SBCS Size: 1    UnicodeDefaultChar: 003F    DefaultChar:006F
         : Result := TRUE;
     else
         Result := FALSE;
@@ -1585,7 +2193,7 @@ begin
             Len2 := IcsWcToMb(ACodePage, 0, Pointer(Str), Length(Str),
                                 Pointer(Result), Len, nil, nil);
             if Len2 <> Len then // May happen, very rarely
-                SetLength(Result, Len2);                    
+                SetLength(Result, Len2);
         {$IFDEF COMPILER12_UP}
             if SetCodePage and (ACodePage <> CP_ACP) then
                 PWord(INT_PTR(Result) - 12)^ := ACodePage;
@@ -2040,7 +2648,7 @@ end;
 { BufferCodePage may include CP_UTF16, CP_UTF16Be, CP_UTF32 and CP_UTF32Be    }
 function IcsGetWideCharCount(const Buffer; BufferSize: Integer;
   BufferCodePage: LongWord; out InvalidEndByteCount: Integer): Integer;
-    
+
     function GetMbcsInvalidEndBytes(const EndBuf: PAnsiChar): Integer;
     var
         P : PAnsiChar;
@@ -2160,7 +2768,7 @@ function IcsGetWideChars(const Buffer; BufferSize: Integer;
 var
     PUCS4 : PUCS4Char;
     I     : Integer;
-    
+
     procedure UCS4ToU16;
     begin
         I := 0;
@@ -2415,7 +3023,7 @@ begin
     begin // No conversion needed
         if Bom <> nil then
             AStream.Write(Bom[0], Length(Bom));
-        Result := AStream.Write(Pointer(Str)^, cLen * 2); //Use const char length 
+        Result := AStream.Write(Pointer(Str)^, cLen * 2); //Use const char length
     end
     else begin
         if Dump and Swap then
@@ -3155,17 +3763,46 @@ var
     P : PChar;
     B : PAnsiChar;
 begin
-    if Size <= 0 then
+    if (Size <= 0) then
         Result := ''
     else begin
         SetLength(Result, (Fact * Size));
         P := PChar(Result);
         B := @Buf;
-        for I := 0 to Size -1 do begin
-            P[I * Fact]     := HexTable[(Ord(B[I]) shr 4) and 15];
-            P[I * Fact + 1] := HexTable[Ord(B[I]) and 15];
+        if (NOT Assigned(B)) then  { V8.53 sanity test }
+            Result := ''
+        else begin
+            for I := 0 to Size -1 do begin
+                P[I * Fact]     := HexTable[(Ord(B[I]) shr 4) and 15];
+                P[I * Fact + 1] := HexTable[Ord(B[I]) and 15];
+            end;
         end;
-    end;    
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function  IcsBufferToHex(const BufStr: AnsiString): String; overload;    { V8.53 }
+begin
+    Result := '';
+    if Length(BufStr) > 0 then
+        Result := IcsBufferToHex(BufStr[1], Length(BufStr));
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsHexToBin(const HexBuf: AnsiString): AnsiString;             { V8.53 }
+var
+    Source: PAnsiChar;
+    I, binlen: integer;
+begin
+    binlen := Length(HexBuf) div 2;
+    SetLength(Result, binlen);
+    Source := Pointer (HexBuf) ;
+    for I := 1 to binlen do begin
+        Result[I] := AnsiChar(htoin(Source, 2));
+        Inc (Source, 2);
+    end;
 end;
 
 
@@ -4896,6 +5533,91 @@ begin
 {$ENDIF}
 end;
 
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{$IFDEF MSWINDOWS}
+function FileTimeToInt64 (const FileTime: TFileTime): Int64 ;    { V8.49 moved from FtpSrvT }
+begin
+    Move (FileTime, Result, SizeOf (Result));    // 29 Sept 2004, poss problem with 12/00 mixup
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function Int64ToFileTime (const FileTime: Int64): TFileTime ;     { V8.49 moved from FtpSrvT }
+begin
+    Move (FileTime, Result, SizeOf (Result));
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+const
+  FileTimeBase = -109205.0;   // days between years 1601 and 1900
+  FileTimeStep: Extended = 24.0 * 60.0 * 60.0 * 1000.0 * 1000.0 * 10.0; // 100 nsec per Day
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function FileTimeToDateTime(const FileTime: TFileTime): TDateTime;    { V8.49 moved from FtpSrvT }
+begin
+    Result := FileTimeToInt64 (FileTime) / FileTimeStep ;
+    Result := Result + FileTimeBase ;
+end;
+{$ENDIF MSWINDOWS}
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ get file written UTC DateTime and size in bytes - no change for summer time }
+function IcsGetUAgeSizeFile (const filename: string; var FileUDT: TDateTime;
+                                                    var FSize: Int64): boolean;   { V8.49 moved from FtpSrvT }
+var
+   SResult: integer ;
+   SearchRec: TSearchRec ;
+{$IFDEF MSWINDOWS}
+   TempSize: ULARGE_INTEGER; { V8.42 was TULargeInteger } { 64-bit integer record }
+{$ENDIF}
+begin
+   Result := FALSE ;
+   FSize := -1;
+   FileUDT := 0;   { V8.51 }
+   SResult := {$IFDEF RTL_NAMESPACES}System.{$ENDIF}SysUtils.FindFirst(filename, faAnyFile, SearchRec);
+   if SResult = 0 then begin
+     {$IFDEF MSWINDOWS}
+        TempSize.LowPart  := SearchRec.FindData.nFileSizeLow ;
+        TempSize.HighPart := SearchRec.FindData.nFileSizeHigh ;
+        FSize             := TempSize.QuadPart ;
+        FileUDT := FileTimeToDateTime (SearchRec.FindData.ftLastWriteTime);
+      {$ENDIF}
+      {$IFDEF POSIX}
+        FSize := SearchRec.Size;
+        FileUDT := SearchRec.TimeStamp;
+      {$ENDIF}
+        Result            := TRUE ;
+   end;
+   {$IFDEF RTL_NAMESPACES}System.{$ENDIF}SysUtils.FindClose(SearchRec);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsGetFileSize(const FileName : String) : Int64;            { V8.49 moved from FtpSrvT }
+var
+    FileUDT: TDateTime;
+begin
+    Result := -1 ;
+    IcsGetUAgeSizeFile (FileName, FileUDT, Result);
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsGetFileUAge(const FileName : String) : TDateTime;            { V8.51 }
+var
+    FSize: Int64;
+begin
+    Result := 0 ;
+    IcsGetUAgeSizeFile (FileName, Result, FSize);
+end;
+
+
+
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { Note: despite the name, this is a full Unicode function changing non-ANSI characters }
 function IcsAnsiLowerCaseW(const S: UnicodeString): UnicodeString;
@@ -5183,4 +5905,1184 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{$IFDEF MSWINDOWS}
+function IcsGetFileVerInfo(      { V8.27 added Ics to prevent conflicts }
+    const AppName         : String;
+    out   FileVersion     : String;
+    out   FileDescription : String): Boolean;
+const
+    DEFAULT_LANG_ID       = $0409;
+    DEFAULT_CHAR_SET_ID   = $04E4;
+type
+    TTranslationPair = packed record
+        Lang, CharSet: WORD;
+    end;
+    PTranslationIDList = ^TTranslationIDList;
+    TTranslationIDList = array[0..MAXINT div SizeOf(TTranslationPair) - 1]
+                             of TTranslationPair;
+var
+    Buffer, PStr    : PChar;
+    BufSize         : DWORD;
+    StrSize, IDsLen : DWORD;
+    Status          : Boolean;
+    LangCharSet     : String;
+    IDs             : PTranslationIDList;
+begin
+    Result          := FALSE;
+    FileVersion     := '';
+    FileDescription := '';
+    BufSize         := GetFileVersionInfoSize(PChar(AppName), StrSize);
+    if BufSize = 0 then
+        Exit;
+    GetMem(Buffer, BufSize);
+    try
+        // get all version info into Buffer
+        Status := GetFileVersionInfo(PChar(AppName), 0, BufSize, Buffer);
+        if not Status then
+            Exit;
+        // set language Id
+        LangCharSet := '040904E4';
+        if VerQueryValue(Buffer, PChar('\VarFileInfo\Translation'),
+                         Pointer(IDs), IDsLen) then begin
+            if IDs^[0].Lang = 0 then
+                IDs^[0].Lang := DEFAULT_LANG_ID;
+            if IDs^[0].CharSet = 0 then
+                IDs^[0].CharSet := DEFAULT_CHAR_SET_ID;
+            LangCharSet := Format('%.4x%.4x',
+                                  [IDs^[0].Lang, IDs^[0].CharSet]);
+        end;
+
+        // now read real information
+        Status := VerQueryValue(Buffer, PChar('\StringFileInfo\' +
+                                LangCharSet + '\FileVersion'),
+                                Pointer(PStr), StrSize);
+        if Status then begin
+            FileVersion := StrPas(PStr);
+            Result      := TRUE;
+        end;
+        Status := VerQueryValue(Buffer, PChar('\StringFileInfo\' +
+                                LangCharSet + '\FileDescription'),
+                                Pointer(PStr), StrSize);
+        if Status then
+            FileDescription := StrPas(PStr);
+    finally
+        FreeMem(Buffer);
+    end;
+end;
+{$ENDIF}
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{$IFDEF MSWINDOWS}
+{ V8.38 Windows API to check authenticode code signing digital certificate on EXE and DLL files }
+{ HashOnly ignores certificate, Expired ignores expired certificate }
+{ note currently ignores rovoked certificate check since very slow }
+function IcsVerifyTrust (const Fname: string; const HashOnly,
+                          Expired: boolean; var Response: string): integer;
+var
+    ActionID: TGUID ;
+    WinTrustData: TWinTrustData ;
+    WinTrustFileInfo: TWinTrustFileInfo ;
+    WFname: WideString ;
+begin
+    result := -1;
+    WinTrustHandle := LoadLibrary('WINTRUST.DLL');
+    if WinTrustHandle = 0 then begin
+        response := 'WINTRUST.DLL Not Found' ;
+        exit;
+    end ;
+    @WinVerifyTrust := GetProcAddress(WinTrustHandle, 'WinVerifyTrust');
+    if (@WinVerifyTrust = nil) then begin
+        response := 'WinVerifyTrust Not Found';
+        exit;
+    end ;
+    if NOT FileExists (Fname) then  begin
+        Response := 'Program File Not Found - ' + Fname;
+        exit;
+    end ;
+    WinTrustFileInfo.cbStruct := SizeOf (TWinTrustFileInfo);
+    WFname := Fname;
+    WinTrustFileInfo.pcwszFilePath := @WFname [1];
+    WinTrustFileInfo.hFile := 0;
+    WinTrustFileInfo.pgKnownSubject := Nil;
+    WinTrustData.cbStruct := SizeOf (TWinTrustData);
+    WinTrustData.pPolicyCallbackData := Nil;
+    WinTrustData.pSIPClientData := Nil;
+    WinTrustData.dwUIChoice := WTD_UI_NONE;
+    WinTrustData.fdwRevocationChecks := WTD_REVOKE_NONE;   // revoke check is horribly slow
+    WinTrustData.dwUnionChoice := WTD_CHOICE_FILE;
+    WinTrustData.Info.pFile := @WinTrustFileInfo;
+    WinTrustData.dwStateAction := 0;
+    WinTrustData.hWVTStateData := 0;
+    WinTrustData.pwszURLReference := Nil;
+    WinTrustData.dwProvFlags := WTD_REVOCATION_CHECK_NONE;
+    if HashOnly then WinTrustData.dwProvFlags :=
+                            WinTrustData.dwProvFlags OR WTD_HASH_ONLY_FLAG;      // ignore certificate
+    if Expired then WinTrustData.dwProvFlags :=
+                        WinTrustData.dwProvFlags OR WTD_LIFETIME_SIGNING_FLAG;   // check expired date
+    WinTrustData.dwUIContext := WTD_UICONTEXT_EXECUTE;
+    ActionID := WINTRUST_ACTION_GENERIC_VERIFY_V2;
+    Result := WinVerifyTrust (INVALID_HANDLE_VALUE, ActionID, @WinTrustData);
+    case Result of
+      ERROR_SUCCESS:
+         response := 'Trusted Code';
+      TRUST_E_SUBJECT_NOT_TRUSTED:
+         response := 'Not Trusted Code';
+      TRUST_E_PROVIDER_UNKNOWN:
+         response := 'Trust Provider Unknown';
+      TRUST_E_ACTION_UNKNOWN:
+         response := 'Trust Provider Action Unknown';
+      TRUST_E_SUBJECT_FORM_UNKNOWN:
+         response := 'Trust Provider Form Unknown';
+      TRUST_E_NOSIGNATURE:
+         response := 'Unsigned Code';
+      TRUST_E_EXPLICIT_DISTRUST:
+         response := 'Certificate Marked as Untrusted by the User';
+      TRUST_E_BAD_DIGEST:
+         response := 'Code has been Modified' ;
+      CERT_E_EXPIRED:
+        response := 'Signed Code But Certificate Expired' ;
+      CERT_E_CHAINING:
+        response := 'Signed Code But Certificate Chain Not Trusted' ;
+      CERT_E_UNTRUSTEDROOT:
+        response := 'Signed Code But Certificate Root Not Trusted' ;
+      CERT_E_UNTRUSTEDTESTROOT:
+        response := 'Signed Code But With Untrusted Test Certificate' ;
+      CRYPT_E_SECURITY_SETTINGS:
+         response := 'Local Security Options Prevent Verification';
+      else
+         response := 'Trust Error: ' + SysErrorMessage (Result);
+    end ;
+end ;
+{$ENDIF}
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ INI file support read TRUE, true or 1 for a boolean }
+function IcsCheckTrueFalse(const Value: string): boolean;   { V8.47 }
+begin
+    result := (IcsLowerCase((Copy(Value, 1, 1))) = 't') OR (Value = '1') ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ we receive socket as single byte raw data into TBytes buffer without a
+  character set, then convertit onto Delphi Strings for ease of processing }
+{ Beware - this function treats buffers as ANSI, no Unicode conversion }
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure IcsMoveTBytesToString(const Buffer: TBytes; OffsetFrom: Integer;
+                      var Dest: String; OffsetTo: Integer; Count: Integer);  { V8.49 }
+{$IFDEF UNICODE}
+var
+    PSrc  : PByte;
+    PDest : PChar;
+begin
+    PSrc  := Pointer(Buffer);
+    if Length(Dest) < (OffsetTo + Count - 1) then
+        SetLength(Dest, OffsetTo + Count - 1);
+    PDest := Pointer(Dest);
+    Dec(OffsetTo); // String index!
+    while Count > 0 do begin
+        PDest[OffsetTo] := Char(PSrc[OffsetFrom]);
+        Inc(OffsetTo);
+        Inc(OffsetFrom);
+        Dec(Count);
+    end;
+{$ELSE}
+begin
+    if Length(Dest) < (OffsetTo + Count - 1) then
+        SetLength(Dest, OffsetTo + Count - 1);
+    Move(Buffer[OffsetFrom], Dest[OffsetTo], Count);
+{$ENDIF}
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ we receive socket as single byte raw data into TBytes buffer without a
+  character set, then convertit onto Delphi Strings for ease of processing }
+{ this function handles Unicode conversion, returns widestring }
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure IcsMoveTBytesToString(const Buffer: TBytes; OffsetFrom: Integer;
+        var Dest: UnicodeString; OffsetTo: Integer; Count: Integer; ACodePage: LongWord);  { V8.50 }
+var
+    WS: UnicodeString;
+    FailedByteCount: Integer;
+begin
+    if (ACodePage = CP_UTF16) or (ACodePage = CP_UTF16Be) then
+        WS := IcsBufferToUnicode(Pointer(@Buffer[OffsetFrom])^, Count, ACodePage, FailedByteCount)  // no-8bit ansi
+     else
+        WS := AnsiToUnicode(PAnsiChar(@Buffer[OffsetFrom]), ACodePage);  // no 16-bit unicode
+    if (OffsetTo > 1) and (Length(Dest) > 0) then
+        Dest := Copy (Dest, 1, OffsetTo) + WS
+    else
+        Dest := WS;
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ we receive socket as single byte raw data into TBytes buffer without a
+  character set, then convertit onto Delphi Strings for ease of processing }
+{ this function handles Unicode conversion, returns AnsiString }
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure IcsMoveTBytesToString(const Buffer: TBytes; OffsetFrom: Integer;
+        var Dest: AnsiString; OffsetTo: Integer; Count: Integer; ACodePage: LongWord);  { V8.50 }
+var
+    WS: UnicodeString;
+begin
+    IcsMoveTBytesToString(Buffer, OffsetFrom, WS, OffsetTo, Count, ACodePage);
+    Dest := String(WS);   { ? may appear for non-ANSI characters }
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ Converts a String to a TBytes buffer as ANSI, no Unicode conversion }
+function IcsMoveStringToTBytes(const Source: String; var Buffer: TBytes;
+                                                Count: Integer): integer;  { V8.50 }
+{$IFDEF UNICODE}
+var
+    PDest : PByte;
+    PSrc  : PChar;
+    I     : Integer;
+begin
+    PSrc  := Pointer(Source);
+    if Count > Length(Source) then
+        Count := Length(Source);
+    if Length(Buffer) < Count then
+        SetLength(Buffer, Count);
+    PDest := Pointer(Buffer);
+    for I := 0 to Count - 1 do begin
+        PDest[I] := Byte(PSrc[I]);
+    end;
+{$ELSE}
+begin
+    if Count > Length(Source) then
+        Count := Length(Source);
+    if Length(Buffer) < Count then
+        SetLength(Buffer, Count);
+    Move(Source[1], Buffer[0], Count);
+{$ENDIF}
+    Result := Count;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ Converts an UnicodeString to a TBytes buffer with correct codepage }
+function IcsMoveStringToTBytes(const Source: UnicodeString; var Buffer: TBytes;
+                            Count: Integer; ACodePage: LongWord; Bom: Boolean = false): Integer;  { V8.50 }
+var
+    Len2, Offset: Integer;
+    Newbom: TBytes;
+begin
+    Result := 0;
+    if Length(Source) < Count then Count := Length(Source);
+    if Count > 0 then begin
+
+      // two byte code page, cheat and copy unicode string with CP_UTF16 BOM
+        if (ACodePage = CP_UTF16) or (ACodePage = CP_UTF16Be) then begin
+            Newbom := IcsGetBomBytes(CP_UTF16);
+            Offset := Length(Newbom);
+            Result := (Count * 2) + Offset;
+            if Length(Buffer) < Result then
+                SetLength(Buffer, Result);
+            Move(newbom[0], Buffer[0], Offset);
+            Move(Source[1], Buffer[2], Count);
+        end
+
+     // handle all other codepages
+        else begin
+            Result := IcsWcToMb(ACodePage, 0, Pointer(Source), Count, nil, 0, nil, nil);
+            Offset := 0;
+            SetLength(NewBom, 0); { V8.54 keep D7 happy }
+            if Bom then begin
+                Newbom := IcsGetBomBytes(ACodePage);
+                Offset := Length(Newbom);
+                Result := Result + Offset;
+            end;
+            if Length(Buffer) < Result then
+                SetLength(Buffer, Result);
+            if Result > 0 then begin
+                if Bom and (Length(NewBom) > 0) then begin { V8.54 keep D7 happy }
+                    Move(NewBom[0], Buffer[0], Offset);
+                end;
+                Len2 := IcsWcToMb(ACodePage, 0, Pointer(Source), Count,
+                                    PAnsiChar(@Buffer[Offset]), Result, nil, nil);
+                if Len2 <> Result then begin // May happen, very rarely
+                    Result := Len2 + Offset;
+                    SetLength(Buffer, Result);
+                end;
+            end;
+        end
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure IcsMoveTBytes(var Buffer: TBytes; OffsetFrom: Integer; OffsetTo: Integer;
+                                Count: Integer); {$IFDEF USE_INLINE} inline; {$ENDIF}   { V8.49 }
+begin
+    Move(Buffer[OffsetFrom], Buffer[OffsetTo], Count);
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure IcsMoveTBytesEx(const BufferFrom: TBytes; var BufferTo: TBytes;
+              OffsetFrom, OffsetTo, Count: Integer); {$IFDEF USE_INLINE} inline; {$ENDIF}  { V8.49 }
+begin
+    Move(BufferFrom[OffsetFrom], BufferTo[OffsetTo], Count);
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ Pos that ignores nulls in the TBytes buffer, so avoid PAnsiChar functions }
+function IcsTBytesPos(const Substr: String; const S: TBytes; Offset, Count: Integer): Integer;  { V8.49 }
+var
+    Ch: Byte;
+    SubLen, I, J: Integer;
+    Found: Boolean;
+begin
+    Result := -1;
+    SubLen := Length(Substr);
+    if SubLen = 0 then Exit;
+    Ch := Byte(SubStr[1]);
+    for I := Offset to Count - SubLen do begin
+        if S[I] = Ch then begin
+            Found := True;
+            if SubLen > 1 then begin
+                for J := 2 to SubLen do begin
+                    if Byte(Substr[J]) <> S[I+J-1] then begin
+                        Found := False;
+                        Break;
+                     end;
+                end;
+            end;
+            if Found then begin
+                Result := I;
+                Exit;
+            end;
+        end;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ case insensitive check for null terminated Find at start of buffer }
+function IcsTbytesStarts(Source: TBytes; Find: PAnsiChar) : Boolean;    { V8.49 }
+begin
+    Result := FALSE;
+{$IFDEF COMPILER18_UP}
+    if (System.AnsiStrings.StrLIComp(PAnsiChar(Source), Find, Length(Find)) = 0) then
+       Result := TRUE;
+{$ELSE}
+    if (StrLIComp(PAnsiChar(Source), Find, Length(Find)) = 0) then
+       Result := TRUE;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ case sensitive check for Find within null terminated buffer }
+function IcsTbytesContains(Source : TBytes; Find : PAnsiChar) : Boolean;   { V8.49 }
+begin
+    Result := FALSE;
+{$IFDEF COMPILER18_UP}
+    if (System.AnsiStrings.StrPos(PAnsiChar(Source), Find) <> nil) then
+      Result := TRUE;
+{$ELSE}
+    if (StrPos(PAnsiChar(Source), Find) <> nil) then
+      Result := TRUE;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ format an IPv6 address with browser friendly [] }
+function IcsFmtIpv6Addr (const Addr: string): string;    { V8.52 }
+begin
+    if (Pos ('.', Addr) = 0) and (Pos ('[', Addr) = 0) and (Pos (':', Addr) > 0) then
+        result := '[' + Addr + ']'
+    else
+        result := Addr;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ format an IPv6 address with browser friendly [] and port }
+function IcsFmtIpv6AddrPort (const Addr, Port: string): string;    { V8.52 }
+begin
+    result := IcsFmtIpv6Addr (Addr) + ':' + Port;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ strip [] off IPv6 address }
+function IcsStripIpv6Addr (const Addr: string): string;         { V8.52 }
+begin
+    if (Pos ('[', Addr) = 1) and (Addr [Length (Addr)] = ']') then
+        result := Copy (Addr, 2, Length (Addr) - 2)
+    else
+        result := Addr;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IntToKbyte (Value: Int64; Bytes: boolean = false): String;
+var
+    float, float2: Extended;
+    mask, suffix: string;
+const
+    KBYTE = Sizeof(Byte) shl 10;
+    MBYTE = KBYTE shl 10;
+    GBYTE = MBYTE shl 10;
+begin
+    float := Value;
+    if (float / 100) >= GBYTE then
+    begin
+        mask := '%5.0f';
+        suffix := 'G';
+        float2 := float / GBYTE;  // 134G
+    end
+    else if (float / 10) >= GBYTE then
+    begin
+        mask := '%5.1f';
+        suffix := 'G';
+        float2 := float / GBYTE;  // 13.4G
+    end
+    else if float >= GBYTE then
+    begin
+        mask := '%5.2f';
+        suffix := 'G';
+        float2 := float / GBYTE;  // 3.44G
+    end
+    else if float >= (MBYTE * 100) then
+    begin
+        mask := '%5.0f';
+        suffix := 'M';
+        float2 := float / MBYTE;  // 234M
+    end
+    else if float >= (MBYTE * 10) then
+    begin
+        mask := '%5.1f' ;
+        suffix := 'M';
+        float2 := float / MBYTE;  // 12.4M
+    end
+    else if float >= MBYTE then
+    begin
+        mask := '%5.2f';
+        suffix := 'M';
+        float2 := float / MBYTE;  // 12.4M
+    end
+    else if float >= (KBYTE * 100) then
+    begin
+        mask := '%5.0f';
+        suffix := 'K';
+        float2 := float / KBYTE;  // 678K
+    end
+    else if float >= (KBYTE * 10) then
+    begin
+        mask := '%5.1f';
+        suffix := 'K';
+        float2 := float / KBYTE ;  // 76.5K
+    end
+    else if float >= KBYTE then
+    begin
+        mask := '%5.2f';
+        suffix := 'K';
+        float2 := float / KBYTE;  // 4.78K
+    end
+    else
+    begin
+        mask := '%5.0f';
+        suffix := '';
+        float2 := float;  // 123
+    end ;
+    Result := Trim(Format (mask, [float2]));
+    if Bytes then  { V8.54 improve result a little }
+        Result := Result + IcsSPACE + suffix + 'bytes'
+    else
+        Result := Result + suffix;
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ helper functions for timers and triggers using GetTickCount - which wraps after 49 days }
+{ note: Vista/2008 and later have GetTickCount64 which returns 64-bits }
+{ V8.54 moved here from OverbyteIcsFtpSrvT }
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+var
+   TicksTestOffset: longword ;  { testing GetTickCount wrapping }
+
+function IcsGetTickCountX: longword ;
+var
+    newtick: Int64 ;
+begin
+    Result := IcsGetTickCount ;
+  {ensure special trigger values never returned - V7.07 }
+    if (Result = TriggerDisabled) or (Result = TriggerImmediate) then Result := 1 ;
+    if TicksTestOffset = 0 then
+        exit;  { no testing, bye bye }
+
+{ TicksTestOffset is set in initialization so that the counter wraps five mins after startup }
+    newtick := Int64 (Result) + Int64 (TicksTestOffset);
+    if newtick >= $FFFFFFFF then
+        Result := newtick - $FFFFFFFF
+    else
+        Result := newtick ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsDiffTicks (const StartTick, EndTick: longword): longword ;
+begin
+    if (StartTick = TriggerImmediate) or (StartTick = TriggerDisabled) then
+        Result := 0
+    else
+    begin
+        if EndTick >= StartTick then
+            Result := EndTick - StartTick
+        else
+            Result := ($FFFFFFFF - StartTick) + EndTick ;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsElapsedMSecs (const StartTick: longword): longword ;
+begin
+    Result := IcsDiffTicks (StartTick, IcsGetTickCountX);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsElapsedTicks (const StartTick: longword): longword ;
+begin
+    Result := IcsDiffTicks (StartTick, IcsGetTickCountX);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsElapsedSecs (const StartTick: longword): integer ;
+begin
+    Result := (IcsDiffTicks (StartTick, IcsGetTickCountX)) div TicksPerSecond ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsWaitingSecs (const EndTick: longword): integer ;
+begin
+    if (EndTick = TriggerImmediate) or (EndTick = TriggerDisabled) then
+        Result := 0
+    else
+        Result := (IcsDiffTicks (IcsGetTickCountX, EndTick)) div TicksPerSecond ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsElapsedMins (const StartTick: longword): integer ;
+begin
+    Result := (IcsDiffTicks (StartTick, IcsGetTickCountX)) div TicksPerMinute ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsAddTrgMsecs (const TickCount, MilliSecs: longword): longword ;
+begin
+    Result := MilliSecs ;
+    if Result > ($FFFFFFFF - TickCount) then
+        Result := ($FFFFFFFF - TickCount) + Result
+    else
+        Result := Result + TickCount ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsAddTrgSecs (const TickCount, DurSecs: integer): longword ;
+begin
+    Result := TickCount ;
+    if DurSecs < 0 then
+        exit;
+    Result := IcsAddTrgMsecs (TickCount, longword (DurSecs) * TicksPerSecond);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsGetTrgMsecs (const MilliSecs: integer): longword ;
+begin
+    Result := TriggerImmediate ;
+    if MilliSecs < 0 then
+        exit;
+    Result := IcsAddTrgMsecs (IcsGetTickCountX,  MilliSecs);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsGetTrgSecs (const DurSecs: integer): longword ;
+begin
+    Result := TriggerImmediate ;
+    if DurSecs < 0 then
+        exit;
+    Result := IcsAddTrgMsecs (IcsGetTickCountX, longword (DurSecs) * TicksPerSecond);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsGetTrgMins (const DurMins: integer): longword ;
+begin
+    Result := TriggerImmediate ;
+    if DurMins < 0 then
+        exit;
+    Result := IcsAddTrgMsecs (IcsGetTickCountX, longword (DurMins) * TicksPerMinute);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsTestTrgTick (const TrgTick: longword): boolean ;
+var
+    curtick: longword ;
+begin
+    Result := FALSE ;
+    if TrgTick = TriggerDisabled then
+        exit;  { special case for trigger disabled }
+    if TrgTick = TriggerImmediate then begin
+        Result := TRUE ;  { special case for now }
+        exit;
+    end;
+    curtick := IcsGetTickCountX ;
+    if curtick <= $7FFFFFFF then  { less than 25 days, keep it simple }
+    begin
+        if curtick >= TrgTick then Result := TRUE ;
+        exit;
+    end;
+    if TrgTick <= $7FFFFFFF then
+        exit;  { trigger was wrapped, can not have been reached  }
+    if curtick >= TrgTick then
+        Result := TRUE ;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 convert wire-format concactanted length prefixed strings to TStrings }
+function IcsWireFmtToStrList(Buffer: TBytes; Len: Integer; SList: TStrings): Integer;
+var
+    offset, mylen: integer;
+    AStr: AnsiString;
+begin
+    Result := 0;
+    if NOT Assigned(SList) then Exit;
+    SList.Clear;
+    offset := 0;
+    while offset < Len do begin
+        mylen := Buffer[offset];
+        if mylen = 0 then Exit;  // illegal
+        offset := offset + 1;
+        SetLength(AStr, mylen);
+        Move(Buffer[offset], AStr[1], mylen);
+        SList.Add(String(AStr));
+        offset := offset + mylen;
+    end;
+    Result := Slist.Count;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 convert TStrings to wire-format concactanted length prefixed strings  }
+function IcsStrListToWireFmt(SList: TStrings; var Buffer: TBytes): Integer;
+var
+    I, offset, mylen: integer;
+begin
+    Result := 0;
+    if NOT Assigned(SList) then Exit;
+    if SList.Count = 0 then Exit;
+    for I := 0 to SList.Count - 1 do
+        Result := Result + Length(SList[I]) + 1;
+    SetLength(Buffer, Result);
+    offset := 0;
+    for I := 0 to SList.Count - 1 do  begin
+        mylen := Length(SList[I]);
+        if mylen > 0 then begin
+            Buffer[offset] := mylen;
+            offset := offset + 1;
+            Move(SList[I] [1], Buffer[offset], mylen);
+            offset := offset + mylen;
+        end;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 convert CRLF to \n  }
+function IcsEscapeCRLF(const Value: String): String;
+var
+    I: Integer;
+begin
+    Result := Value;
+    while True do begin
+        I := Pos(IcsCRLF, Result);
+        if I <= 0 then Exit;
+        Result[I] := '\';
+        Result[I+1] := 'n';
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 convert \n to CRLF  }
+function IcsUnEscapeCRLF(const Value: String): String;
+var
+    I: Integer;
+begin
+    Result := Value;
+    while True do begin
+        I := Pos('\n', Result);
+        if I <= 0 then Exit;
+        Result[I] := IcsCR;
+        Result[I+1] := IcsLF;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 convert Set bit map to Integer }
+function IcsSetToInt(const aSet; const aSize: Integer): Integer;
+begin
+    Result := 0;
+    Move(aSet, Result, aSize);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 convert Integer to Set bit map }
+procedure IcsIntToSet(const Value: Integer; var aSet; const aSize: Integer);
+begin
+    Move(Value, aSet, aSize);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 convert Set bit map to [] comma string with enumerated names,
+ ie [OutFmtSep,OutFmtBudl,OutFmtP12] for TCertOutFmt }
+function IcsSetToStr(TypInfo: PTypeInfo; const aSet; const aSize: Integer): string;
+var
+    I, W: Integer;
+begin
+    if TypInfo.Kind <> tkEnumeration then begin  { V8.63 sanity check }
+        Result := '[]';
+        Exit;
+    end;
+    W := IcsSetToInt(aSet, aSize);
+    Result := '[';
+    for I := 0 to (aSize * 8) - 1 do begin
+        if I in TIntegerSet(W) then begin
+            if Length(Result) <> 1 then Result := Result + ',';
+            Result := Result + GetEnumName (TypInfo, I);
+        end;
+    end;
+  Result := Result + ']';
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 convert [] comma string with enumerated names to Set bit map,
+ ie [OutFmtSep,OutFmtBudl,OutFmtP12] for TCertOutFmt }
+procedure IcsStrToSet(TypInfo: PTypeInfo; const Values: String; var aSet; const aSize: Integer);
+var
+    ValueList: TStringList;
+    I, J, W: Integer;
+begin
+    W := 0;
+    ValueList := TStringList.Create;
+    try
+        if TypInfo.Kind <> tkEnumeration then Exit;  { V8.63 sanity check }
+        if Length(Values) < 3 then Exit;
+        if Pos('[', Values) <> 1 then Exit;
+        ValueList.CommaText := Copy (Values, 2, Length(Values) - 2);
+        if ValueList.Count = 0 then Exit;
+        for J := 0 to ValueList.Count - 1 do begin
+            try
+                if ValueList[J] = '' then Continue;
+                I := GetEnumValue (TypInfo, ValueList[J]);
+                if I >= 0 then Include(TIntegerSet(W), I);
+            except
+            end;
+        end;
+    finally
+        IcsIntToSet(W, aSet, aSize);
+        ValueList.Free;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IsPathSep(Ch : WideChar) : Boolean;   { V8.57  }
+begin
+    Result := (Ch = '.') or (Ch = '\') or (Ch = ':') ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IsPathSep(Ch : AnsiChar) : Boolean;    { V8.57  }
+begin
+    Result := (Ch = '.') or (Ch = '\') or (Ch = ':') ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 extract file name less extension, drive and path }
+function IcsExtractNameOnly(const FileName: String): String;
+var
+    I: Integer;
+begin
+    Result := ExtractFileName(FileName);  // remove path
+    I := Length(Result);
+    while (I > 0) and (NOT (IsPathSep (Result[I]))) do
+        Dec(I);
+    if (I > 1) and (Result[I] = '.') then
+        Result := Copy(Result, 1, I - 1) ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.57 get the computer name from networking, moved from web sample }
+function IcsGetCompName: String;
+var
+    Buffer: array[0..255] of WideChar ;
+    NLen: DWORD ;
+begin
+    Buffer [0] := #0 ;
+    result := '' ;
+    NLen := Length (Buffer) ;
+    if GetComputerNameW (Buffer, NLen) then Result := Buffer ;
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.59 get exception literal message }
+function IcsGetExceptMess(ExceptObject: TObject): string;
+var
+    MsgPtr: PChar;
+    MsgEnd: PChar;
+    MsgLen: Integer;
+    MessEnd: String;
+begin
+    MsgPtr := '';
+    MsgEnd := '';
+    if ExceptObject is Exception then begin
+        MsgPtr := PChar(Exception(ExceptObject).Message);
+        MsgLen := StrLen(MsgPtr);
+        if (MsgLen <> 0) and (MsgPtr[MsgLen - 1] <> '.') then MsgEnd := '.';
+    end;
+    result := Trim (MsgPtr);
+    MessEnd := Trim (MsgEnd);
+    if Length (MessEnd) > 5 then
+        result := result + ' - ' + MessEnd;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 add thousand separators to a string of numbers (not checked }
+function IcsAddThouSeps (const S: String): String;
+var
+    LS, L2, I, N: Integer;
+    Temp: String;
+begin
+    Result := S;
+    LS := Length(S);
+    N := 1;
+    if LS > 1 then begin
+        if S [1] = '-' then begin // check for negative value
+            N := 2;
+            LS := LS - 1;
+        end ;
+    end ;
+    if LS <= 3 then exit;
+    L2 := (LS - 1) div 3;
+    Temp := '';
+    for I := 1 to L2 do
+        Temp := IcsFormatSettings.ThousandSeparator + Copy (S, LS - 3 * I + 1, 3) + Temp;
+    Result := Copy (S, N, (LS - 1) mod 3 + 1) + Temp;
+    if N > 1 then Result := '-' + Result;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 integer to string with thousand separators }
+function IcsIntToCStr (const N: Integer): String ;
+begin
+    result := IcsAddThouSeps (IntToStr (N)) ;
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 int64 to string with thousand separators }
+function IcsInt64ToCStr (const N: Int64): String ;
+begin
+    result := IcsAddThouSeps (IntToStr (N)) ;
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 get format settings, allowing compatability all compilers }
+procedure GetIcsFormatSettings;
+begin
+{$IF CompilerVersion >= 23.0}   // XE2 and later
+     IcsFormatSettings := TFormatSettings.Create (GetThreadLocale) ;
+{$ELSE}
+     GetLocaleFormatSettings (GetThreadLocale, IcsFormatSettings) ;
+{$IFEND}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 compare two memory buffers, used for sorting.
+ ideally ASM SysUtils.CompareMem should be modified to return less or greater }
+
+function CompareGTMem (P1, P2: Pointer; Length: Integer): Integer;
+var
+    I: Integer;
+    PC1, PC2: PAnsiChar;
+begin
+    result := 0;   // equals
+    if Length <= 0 then exit;
+    PC1 := P1;
+    PC2 := P2;
+    for I := 1 to Length do begin
+        if (PC1^ <> PC2^) then begin
+            if (PC1^ < PC2^) then
+                result := -1   // less than
+            else
+                result := 1;  // greater than
+            exit ;
+        end ;
+        Inc (PC1);
+        Inc (PC2);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 descendent of TList, adding sorted, works on sorted list }
+function TIcsFindList.AddSorted(const Item2: Pointer; Compare: TListSortCompare): Integer;
+begin
+    if NOT Sorted then
+        Result := Count
+    else begin
+       if Find (Item2, Compare, Result) then exit;
+    end ;
+    Insert (Result, Item2) ;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 adding binary FIND works on sorted list }
+function TIcsFindList.Find(const Item2: Pointer; Compare: TListSortCompare;
+                                                    var Index: longint): Boolean;
+var
+    l, h, i, c: longint;
+begin
+    Result := False;
+    Index := 0 ;
+    if (List = nil) or (Count = 0) then exit ;
+    l := 0;
+    h := Count - 1;
+    while (l <= h) do begin
+        i := (l + h) shr 1;  // binary shifting
+        c := Compare (List[i], Item2) ;
+        if c < 0 then
+            l := i + 1
+        else begin
+            h := i - 1;
+            if c = 0 then begin
+                Result := True;
+                l := i;
+            end;
+        end;
+    end;
+    Index := l;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60  Delete a single file, optionally read only }
+function IcsDeleteFile(const Fname: string; const ReadOnly: boolean): Integer;
+var
+    attrs: integer ;
+begin
+    result := -1 ;    // file not found
+    attrs := FileGetAttr (Fname);
+    if attrs < 0 then exit;
+    if ((attrs and faReadOnly) <> 0) and ReadOnly then begin
+        result := FileSetAttr (Fname, 0);
+        if result <> 0 then result := 1;
+        if result <> 0 then exit;  // 1 could not change file attribute, ignore system error
+    end ;
+    if DeleteFile (Fname) then
+        result := 0   // OK
+    else
+        result := GetLastError; // system error
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 Rename a single file, optionally replacing, optionally read only }
+function IcsRenameFile(const OldName, NewName: string;
+                                        const Replace, ReadOnly: boolean): Integer;
+begin
+    if FileExists (NewName) then begin
+        result := 2 ;  // rename failed, new file exists
+        if NOT Replace then exit;
+        result := IcsDeleteFile (NewName, ReadOnly);
+        if result <> 0 then exit ;  // 1 could not change file attribute, higher could not delete file
+    end ;
+    if RenameFile (OldName, NewName) then
+        result := 0   // OK
+    else
+        result := GetLastError; // system error
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ force sub directories, replacing file of same name if necessary }
+function IcsForceDirsEx(const Dir: String): Boolean;  { V8.60 }
+begin
+    Result := True;
+    if Length(Dir) = 0 then begin
+        Result := False;
+        Exit;
+    end;
+    if (Pos ('\', Dir) = 0) and (Pos (':', Dir) = 0) then Exit;
+    if DirectoryExists (Dir) then Exit;
+    if FileExists(ExcludeTrailingPathDelimiter(Dir)) then
+            IcsDeleteFile(ExcludeTrailingPathDelimiter(Dir), True);
+    Result := ForceDirectories (Dir);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.60 borrowed from IcsStreams }
+function GetBomFromCodePage(ACodePage: LongWord) : TBytes;
+begin
+    case ACodePage of
+        CP_UTF16 :
+            begin
+                SetLength(Result, 2);
+                Result[0] := $FF;
+                Result[1] := $FE;
+            end;
+        CP_UTF16Be :
+            begin
+                SetLength(Result, 2);
+                Result[0] := $FE;
+                Result[1] := $FF;
+            end;
+        CP_UTF8    :
+            begin
+                SetLength(Result, 3);
+                Result[0] := $EF;
+                Result[1] := $BB;
+                Result[2] := $BF;
+            end;
+        else
+            SetLength(Result, 0);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsTransChar(const S: string; FromChar, ToChar: Char): string;  { V8.60 }
+var
+    I: Integer;
+begin
+    Result := S;
+    for I := 1 to Length(Result) do begin
+        if Result[I] = FromChar then
+            Result[I] := ToChar;
+    end;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsPathUnixToDos(const Path: string): string;   { V8.60 }
+begin
+  Result := IcsTransChar(Path, '/', '\');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsPathDosToUnix(const Path: string): string;   { V8.60 }
+begin
+  Result := IcsTransChar(Path, '\', '/');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsTransCharW(const S: UnicodeString; FromChar, ToChar: WideChar): UnicodeString;  { V8.60 }
+var
+    I: Integer;
+begin
+    Result := S;
+    for I := 1 to Length(Result) do begin
+        if Result[I] = FromChar then
+            Result[I] := ToChar;
+    end;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsPathUnixToDosW(const Path: UnicodeString): UnicodeString;   { V8.60 }
+begin
+  Result := IcsTransCharW(Path, '/', '\');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsPathDosToUnixW(const Path: UnicodeString): UnicodeString;   { V8.60 }
+begin
+  Result := IcsTransCharW(Path, '\', '/');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ converts a seconds duration to hours, minutes and seconds string, ie 37:12:30 }
+function IcsSecsToStr(Seconds: Integer): String;  { V8.60 }
+var
+    DurationDT: TDateTime;
+    Hours: Integer;
+    S: String;
+begin
+    Result := '0';
+    if Seconds <= 0 then Exit;
+    DurationDT := Seconds / SecsPerDay ;
+    S := Copy(FormatDateTime ('hh:mm:ss', Frac(DurationDT)), 4, 5);
+    Hours := Trunc(DurationDT * 24) ;
+    if (Hours = 0) then begin
+        if (Length (S) > 0) and (S [1] = '0') then
+            Result := Copy(S, 2, 9)
+        else
+            result := S;
+    end
+    else
+        Result := IntToStr(Hours) + String(IcsFormatSettings.TimeSeparator) + S;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsGetTempPath: String;      { V8.60 }
+var
+    Buffer: array [0..MAX_PATH] of WideChar;
+begin
+    SetString(Result, Buffer, GetTempPathW (Length (Buffer) - 1, Buffer));
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+
+initialization
+    TicksTestOffset := 0 ;
+{ force GetTickCount wrap in 5 mins - next line normally commented out }
+{    TicksTestOffset := MaxLongWord - GetTickCount - (5 * 60 * 1000);  }
+    GetIcsFormatSettings;  { V8.60 }
+finalization
+    if WinTrustHandle <> 0 then FreeLibrary (WinTrustHandle);
+    WinTrustHandle := 0;
+
 end.

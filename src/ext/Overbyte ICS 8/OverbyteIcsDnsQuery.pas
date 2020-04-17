@@ -2,14 +2,13 @@
 
 Author:       François PIETTE
 Description:  Component to query DNS records.
-              Implement a subset of RFC 1035 (A and MX records).
+              Implement most of RFC 1035 (A, NS, AAAA, PTR, MX, etc).
 Creation:     January 29, 1999
-Version:      8.00
+Version:      8.61
 EMail:        http://www.overbyte.be        francois.piette@overbyte.be
-Support:      Use the mailing list twsocket@elists.org
-              Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1999-2010 by François PIETTE
-              Rue de Grady 24, 4053 Embourg, Belgium. Fax: +32-4-365.74.56
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 1999-2019 by François PIETTE
+              Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
               This software is provided 'as-is', without any express or
@@ -62,7 +61,28 @@ Oct 09, 2009 V6.03 Yaroslav Chernykh fixed a bug in WSocketSessionConnected()
                    when using UDP.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+Apr 22 2019 V8.61  Angus added more DnsQuery literals and removed obsolete ones.
+                   DecodeWireResp split from WSocketDataAvailable so can be
+                     used for DNS over HTTPS.
+                   Queries now started with QueryAny.
+                   Added QueryAll to return results from seven queries.
+                   No longer ignores NS and Alternate results that sometimes
+                     return extra useful records (like A for NS and CNAME).
+                   New result array AnswerRecord with AnswerTotal records which
+                     is a TRRRecord response record with all result information
+                     so other arrays can be ignored, based on unpublished work
+                     by Holger Lembke but implemented with backward compatibility.
+                  Added DnsReqTable of common queries with descriptive literals.
+                  Added DnsPublicServerTable and DnsPublicHttpsTabl of public
+                    DNS server addresses.
+                  Supporting all queries and responses including AAAA, NS and TXT,
+                    common ones decoded in TRRRecord, rest returned as text or hex.
+                  PTR query now supports IPv6 addresses as well as IPV4.
+                  Call RequestDone if connection fails.
 
+Note - OverbyteIcsHttpRest contains a derived component DnsQueryHttps which makes
+DNS over HTTPS requests per RFC8484, illustrated in the OverbyteIcsHttpRest sample
+which displays results in a more friendly grid.
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -107,91 +127,234 @@ uses
 {$ELSE}
     OverbyteIcsWSocket,
 {$ENDIF}
+    OverbyteIcsUtils,
     OverbyteIcsWinsock;
 
 const
-  DnsQueryVersion    = 800;
-  CopyRight : String = ' TDnsQuery  (c) 1999-2012 F. Piette V8.00 ';
+  DnsQueryVersion    = 861;
+  CopyRight : String = ' TDnsQuery  (c) 1999-2019 F. Piette V8.61 ';
 
   { Maximum answers (responses) count }
   MAX_ANCOUNT     = 50;
   { Maximum number of MX records taken into account in responses }
-  MAX_MX_RECORDS  = 50;
-  MAX_A_RECORDS   = 50;
+  MAX_MX_RECORDS  = 20;
+  MAX_A_RECORDS   = 30;
   MAX_PTR_RECORDS = 10;
+
+// https://www.iana.org/assignments/dns-parameters/dns-parameters.txt
 
   { DNS Classes }
   DnsClassIN      = 1;   { The internet                                      }
-  DnsClassCS      = 2;   { The CSNET class (obsolete, used only for examples)}
+  DnsClassCS      = 2;   { obsolete }
   DnsClassCH      = 3;   { The CHAOS class                                   }
   DnsClassHS      = 4;   { Hesiod name service                               }
   DnsClassALL     = 255; { Any class                                         }
 
   { Type of query/response a DNS can handle }
+  { https://en.wikipedia.org/wiki/List_of_DNS_record_types }
+  { V8.61 suppress obsolete types so we don't waste time using them }
   DnsQueryA       = 1;  { A     HostAddress                                  }
   DnsQueryNS      = 2;  { NS    Authoritative name server                    }
-  DnsQueryMD      = 3;  { MD    MailDestination, obsolete, use Mail Exchange }
-  DnsQueryMF      = 4;  { MF    MailForwarder, obsolete, use Mail Exchange   }
+//DnsQueryMD      = 3;  { MD    MailDestination, obsolete, use Mail Exchange }
+//DnsQueryMF      = 4;  { MF    MailForwarder, obsolete, use Mail Exchange   }
   DnsQueryCNAME   = 5;  { CNAME CanonicalName                                }
   DnsQuerySOA     = 6;  { SOA   Start of a Zone of Authority                 }
-  DnsQueryMB      = 7;  { MB    MailBox, experimental                        }
-  DnsQueryMG      = 8;  { MG    MailGroup, experimental                      }
-  DnsQueryMR      = 9;  { MR    MailRename, experimental                     }
-  DnsQueryNULL    = 10; { NULL  Experimental                                 }
-  DnsQueryWKS     = 11; { WKS   Well Known Service Description               }
+//DnsQueryMB      = 7;  { MB    MailBox, experimental                        }
+//DnsQueryMG      = 8;  { MG    MailGroup, experimental                      }
+//DnsQueryMR      = 9;  { MR    MailRename, experimental                     }
+//DnsQueryNULL    = 10; { NULL  Experimental                                 }
+//DnsQueryWKS     = 11; { WKS   Well Known Service Description               }
   DnsQueryPTR     = 12; { PTR   Domain Name Pointer                          }
-  DnsQueryHINFO   = 13; { HINFO Host Information                             }
-  DnsQueryMINFO   = 14; { MINFO Mailbox information                          }
+//DnsQueryHINFO   = 13; { HINFO Host Information                             }
+//DnsQueryMINFO   = 14; { MINFO Mailbox information                          }
   DnsQueryMX      = 15; { MX    Mail Exchange                                }
   DnsQueryTXT     = 16; { TXT   Text Strings                                 }
   { !!KAP!! }
-  DnsQueryRP      = 17;
+//DnsQueryRP      = 17;
   DnsQueryAFSDB   = 18;
-  DnsQueryX25     = 19;
-  DnsQueryISDN    = 20;
-  DnsQueryRT      = 21;
-  DnsQueryNSAP    = 22;
-  DnsQueryNSAPPTR = 23;
+//DnsQueryX25     = 19;
+//DnsQueryISDN    = 20;
+//DnsQueryRT      = 21;
+//DnsQueryNSAP    = 22;
+//DnsQueryNSAPPTR = 23;
   DnsQuerySIG     = 24; { see RFC-2065                                       }
   DnsQueryKEY     = 25; { see RFC-2065                                       }
-  DnsQueryPX      = 26;
-  DnsQueryGPOS    = 27; { GPOS has the following format:
-                          <owner> <ttl> <class> GPOS <longitude> <latitude> <altitude> }
+//DnsQueryPX      = 26;
+//DnsQueryGPOS    = 27;
   DnsQueryAAAA    = 28; { see IP6 Address                                    }
-  DnsQueryLOC     = 29; (* see RFC-1876  http://rfc.net/rfc1876.html
-                         <owner> <TTL> <class> LOC ( d1 [m1 [s1]] {"N"|"S"} d2 [m2 [s2]]
-                               {"E"|"W"} alt["m"] [siz["m"] [hp["m"]
-                               [vp["m"]]]] )
-                        *)
-  DnsQueryNXT     = 30; { see RFC-2065                                       }
-
+  DnsQueryLOC     = 29; { see RFC-1876  http://rfc.net/rfc1876.html  }
+//DnsQueryNXT     = 30; { see RFC-2065                                     }
+//DnsQueryEID     = 31;                                    }
+//DnsQueryNB      = 32;                                    }
+//DnsQueryNBSTAT  = 33;                                    }
   DnsQuerySRV     = 33; { see RFC-2052                                       }
+//DnsQueryATMA    = 34;                                    }
   DnsQueryNAPTR   = 35; { see RFC-2168                                       }
-  DnsQueryKX      = 36;
-
+// following V8.61
+  DnsQueryKX           = 36;  // Key Exchanger   [RFC2230]
+  DnsQueryCERT         = 37;  // CERT            [RFC4398]
+//DnsQueryA6           = 38;  // A6 (OBSOLETE -  use AAAA)
+  DnsQueryDNAME        = 39;  // DNAME           [RFC6672]
+//DnsQuerySINK         = 40;  // SINK            [Donald_E_Eastlake]
+  DnsQueryOPT          = 41;  // OPT             [RFC6891][RFC3225]
+//DnsQueryAPL          = 42;  // APL             [RFC3123]
+  DnsQueryDS           = 43;  // Delegation Signer     [RFC4034][RFC3658]
+  DnsQuerySSHFP        = 44;  // SSH Key Fingerprint        [RFC4255]
+  DnsQueryIPSECKEY     = 45;  // IPSECKEY        [RFC4025]
+  DnsQueryRRSIG        = 46;  // RRSIG           [RFC4034][RFC3755]
+  DnsQueryNSEC         = 47;  // NSEC            [RFC4034][RFC3755]
+  DnsQueryDNSKEY       = 48;  // DNSKEY          [RFC4034][RFC3755]
+  DnsQueryDHCID        = 49;  // DHCID           [RFC4701]
+  DnsQueryNSEC3        = 50;  // NSEC3           [RFC5155]
+  DnsQueryNSEC3PARAM   = 51;  // NSEC3PARAM      [RFC5155]
+  DnsQueryTLSA         = 52;  // TLSA            [RFC6698]
+  DnsQuerySMIMEA       = 53;  // S/MIME cert association    [RFC8162]
+  DnsQueryHIP          = 55;  // Host Identity Protocol   [RFC8005]
+//DnsQueryNINFO        = 56;  // NINFO           [Jim_Reid]
+//DnsQueryRKEY         = 57;  // RKEY            [Jim_Reid]
+  DnsQueryTALINK       = 58;  // Trust Anchor LINK  [Wouter_Wijngaards]
+  DnsQueryCDS          = 59;  // Child DS DNSKEY(s) the        [RFC7344]
+  DnsQueryCDNSKEY      = 60;  // Child wants reflected in DS    [RFC7344]
+  DnsQueryOPENPGPKEY   = 61;  // OpenPGP Key     [RFC7929]
+  DnsQueryCSYNC        = 62;  // Child-To-Parent Synchronization [RFC7477]
+  DnsQueryZONEMD       = 63;  // message digest for DNS zone  [draft-wessels-dns-zone-digest]
+//DnsQuerySPF          = 99;  // [RFC7208]
+//DnsQueryUINFO        = 100; // [IANA-Reserved]
+//DnsQueryUID          = 101; // [IANA-Reserved]
+//DnsQueryGID          = 102; // [IANA-Reserved]
+//DnsQueryUNSPEC       = 103; // [IANA-Reserved]
+  DnsQueryNID          = 104; // [Identifier-Locator Network Protocol (ILNP) RFC6742]
+  DnsQueryL32          = 105; // [Identifier-Locator Network Protocol (ILNP) RFC6742]
+  DnsQueryL64          = 106; // [Identifier-Locator Network Protocol (ILNP) RFC6742]
+  DnsQueryLP           = 107; // [Identifier-Locator Network Protocol (ILNP) RFC6742]
+  DnsQueryEUI48        = 108; // an EUI-48 address      [RFC7043]
+  DnsQueryEUI64        = 109; // an EUI-64 address      [RFC7043]
+  DnsQueryTKEY         = 249; // Transaction Key [RFC2930]
+  DnsQueryTSIG         = 250; // Transaction Signature    [RFC2845]
+  DnsQueryIXFR         = 251; // incremental transfer    [RFC1995]
   { Some additional type only allowed in queries }
-  DnsQueryAXFR    = 252; { Transfer for an entire zone                       }
-  DnsQueryMAILB   = 253; { Mailbox related records (MB, MG or MR)            }
-  DnsQueryMAILA   = 254; { MailAgent, obsolete, use MX instead               }
-  DnsQueryALL     = 255; { Request ALL records                               }
+  DnsQueryAXFR        = 252; { Transfer for an entire zone                       }
+//DnsQueryMAILB        = 253; { Mailbox related records (MB, MG or MR)            }
+//DnsQueryMAILA        = 254; { MailAgent, obsolete, use MX instead               }
+//DnsQueryALL          = 255; { * Request ALL records  - ofifically deaD          }
+  DnsQueryURI          = 256; // URI Certification  [RFC7553]
+  DnsQueryCAA          = 257; // Authority Restriction Application  [RFC6844]
+  DnsQueryAVC          = 258; // Visibility and Control [Wolfgang_Riedel]
+  DnsQueryDOA          = 259; // Digital Object Architecture [draft-durand-doa-over-dns]
+  DnsQueryAMTRELAY     = 260; // Automatic Multicast Tunneling Relay      [draft-ietf-mboned-driad-amt-discovery]
+  DnsQueryTA           = 32768;  // DNSSEC TrustAuthorities
+  DnsQueryDLV          = 32769;  //DNSSEC Lookaside  Validation     [RFC4431]
 
-  { Opcode field in query flags }
+{ Opcode field in query flags }
   DnsOpCodeQUERY  = 0;
   DnsOpCodeIQUERY = 1;
   DnsOpCodeSTATUS = 2;
+  DnsOpCodeNOTIFY = 4;
+  DnsOpCodeUPDATE = 5;
+  DnsOpCodeDSO    = 6;
+
+{ V8.61 status response codes }
+  DnsRCodeNoError        = 0;
+  DnsRCodeFormaatError   = 1;
+  DnsRCodeServerFailure  = 2;
+  DnsRCodeNameError      = 3;
+  DnsRCodeNotImplemented = 4;
+  DnsRCodeRefused        = 5;
+
+
+{ V8.61 table of common DNS record types }
+type
+    TQueryInfo = record
+        Num  : Integer;
+        Asc  : String;
+        Desc : String;
+    end;
+
+const
+    DnsReqTable: array[0..40] of TQueryInfo = (
+      (Num: DnsQueryA;      Asc: 'A';      Desc: 'Host Address IPv4'),
+      (Num: DnsQueryNS;     Asc: 'NS';     Desc: 'Name Server'),
+      (Num: DnsQueryCNAME;  Asc: 'CNAME';  Desc: 'Canonical Name'),
+      (Num: DnsQuerySOA;    Asc: 'SOA';    Desc: 'Start of a Zone of Authority'),
+      (Num: DnsQueryPTR;    Asc: 'PTR';    Desc: 'Domain Name Pointer'),
+      (Num: DnsQueryMX;     Asc: 'MX';     Desc: 'Mail Exchange'),
+      (Num: DnsQueryTXT;    Asc: 'TXT';    Desc: 'SPF, DKIM, DMARC, etc'),
+      (Num: DnsQueryAFSDB;  Asc: 'AFSDB';  Desc: 'AFS DB'),
+      (Num: DnsQuerySIG;    Asc: 'SIG';    Desc: 'Signature'),
+      (Num: DnsQueryKEY;    Asc: 'KEY';    Desc: 'Key record'),
+      (Num: DnsQueryAAAA;   Asc: 'AAAA' ;  Desc: 'Host Address IPv6'),
+      (Num: DnsQueryLOC;    Asc: 'LOC';    Desc: 'Location'),
+      (Num: DnsQuerySRV;    Asc: 'SRV';    Desc: 'Service Locator'),
+      (Num: DnsQueryNAPTR;  Asc: 'NAPTR';  Desc: 'Name Authority Pointer'),
+      (Num: DnsQueryKX ;    Asc: 'KX';     Desc: 'Key Exchanger'),
+      (Num: DnsQueryCERT;   Asc: 'CERT';   Desc: 'Certificate'),
+      (Num: DnsQueryDNAME;  Asc: 'DNAME';  Desc: 'Canonical Name'),
+      (Num: DnsQueryOPT;    Asc: 'OPT';    Desc: 'OPT'),
+      (Num: DnsQueryDS;     Asc: 'DS';     Desc: 'Delegation Signer (DNSSEC)'),
+      (Num: DnsQuerySSHFP;  Asc: 'SSHFP';  Desc: 'SSH Key Fingerprint'),
+      (Num: DnsQueryIPSECKEY;  Asc: 'IPSECKEY';   Desc: 'IPSec key'),
+      (Num: DnsQueryRRSIG;  Asc: 'RRSIG';  Desc: 'DNSSEC Signature (DNSSEC)'),
+      (Num: DnsQueryNSEC;   Asc: 'NSEC';   Desc: 'Next Secure Record (DNSSEC)'),
+      (Num: DnsQueryDNSKEY; Asc: 'DNSKEY'; Desc: 'DNS key (DNSSEC)'),
+      (Num: DnsQueryDHCID;  Asc: 'DHCID';  Desc: 'DHCP ID'),
+      (Num: DnsQueryNSEC3;  Asc: 'NSEC3';  Desc: 'Next Secure Record v3 (DNSSEC)'),
+      (Num: DnsQueryNSEC3PARAM;  Asc: 'NSEC3PARAM'; Desc: 'NSEC3 Params (DNSSEC)'),
+      (Num: DnsQueryTLSA;   Asc: 'TLSA';   Desc: 'TLSA Certificate'),
+      (Num: DnsQuerySMIMEA; Asc: 'SMIMEA'; Desc: 'S/MIME cert association'),
+      (Num: DnsQueryHIP;    Asc: 'HIP';    Desc: 'Host Identity Protocol'),
+      (Num: DnsQueryTALINK; Asc: 'TALINK'; Desc: 'Trust Anchor LINK'),
+      (Num: DnsQueryCDS;    Asc: 'CDS';    Desc: 'Child DS DNSKEY (DNSSEC)'),
+      (Num: DnsQueryCDNSKEY;Asc: 'CDNDKEY';Desc: 'Child copy of DNSKEY (DNSSEC)'),
+      (Num: DnsQueryOPENPGPKEY;   Asc: 'OPENPGKEY'; Desc: 'OpenPGP Key'),
+      (Num: DnsQueryCSYNC;  Asc: 'CSYNC';  Desc: 'Child-To-Parent Sync'),
+      (Num: DnsQueryZONEMD; Asc: 'ZONEMD'; Desc: 'Message digest for DNS zone'),
+      (Num: DnsQueryEUI48;  Asc: 'EUI48';  Desc: 'an EUI-48 address'),
+      (Num: DnsQueryEUI64;  Asc: 'EUI64';  Desc: 'an EUI-64 address'),
+      (Num: DnsQueryTKEY;   Asc: 'TKEY';   Desc: 'Transaction Key'),
+      (Num: DnsQueryURI;    Asc: 'URI';    Desc: 'URI Certification'),
+      (Num: DnsQueryCAA;    Asc: 'CAA';    Desc: 'Authority Restriction Application') );
+
+  { V8.61 status respoonse code literals }
+    DnsRCodeTable: array[DnsRCodeNoError..DnsRCodeRefused] of String = (
+      'Success', 'Formaat Error', 'Server Failure', 'Name Error', 'Not Implemented', 'Refused');
+
+  { V8.61 perform all (or most) requests sequentiually }
+    DnsAllReqTot = 7;
+    DnsAllReqTable:  array[1..DnsAllReqTot] of Integer = (
+       DnsQueryA, DnsQueryAAAA, DnsQueryCNAME, DnsQueryNS, DnsQueryMX, DnsQuerySOA, DnsQueryTXT);
+
+  { V8.61 public DNS servers }
+    DnsPublicServerTable: array[0..15] of String = (
+       '1.1.1.1 [Cloudfare]',
+       '8.8.8.8 [Google]',
+       '9.9.9.9 [Quad9]',
+       '208.67.222.222 [OpenDNS]',
+       '1.0.0.1 [Cloudfare]',
+       '8.8.4.4 [Google]',
+       '149.112.112.112 [Quad9]',
+       '208.67.220.220 [OpenDNS]',
+       '2606:4700:4700::1111 [Cloudfare]',
+       '2001:4860:4860::8888 [Google]',
+       '2620:fe::fe [Quad9]',
+       '2620:119:35::35 [OpenDNS]',
+       '2606:4700:4700::1001 [Cloudfare]',
+       '2001:4860:4860::8844 [Google]',
+       '2620:fe::9 [Quad9]',
+       '2620:119:53::53 [OpenDNS]');
+
+  { V8.61 public DNS servers using DOS - Dns over Https }
+    DnsPublicHttpsTable: array[0..6] of String = (
+        'https://cloudflare-dns.com/dns-query',
+        'https://dns.quad9.net/dns-query',
+        'https://doh.powerdns.org',
+        'https://doh.securedns.eu/dns-query',
+        'https://doh.appliedprivacy.net/query',
+        'https://dns.google.com/resolve',         // only supports Json
+        'https://dns.google.com/experimental');   // only supports wire format
 
 type
-  TDnsAnswerNameArray   = packed array [0..MAX_ANCOUNT - 1]     of AnsiString;
-  TDnsAnswerTypeArray   = packed array [0..MAX_ANCOUNT - 1]     of Integer;
-  TDnsAnswerClassArray  = packed array [0..MAX_ANCOUNT - 1]     of Integer;
-  TDnsAnswerTTLArray    = packed array [0..MAX_ANCOUNT - 1]     of LongInt;
-  TDnsAnswerTagArray    = packed array [0..MAX_ANCOUNT - 1]     of Integer;
-  TDnsMXPreferenceArray = packed array [0..MAX_MX_RECORDS - 1]  of Integer;
-  TDnsMXExchangeArray   = packed array [0..MAX_MX_RECORDS - 1]  of AnsiString;
-  TDnsAddressArray      = packed array [0..MAX_A_RECORDS - 1]   of TInAddr;
-  TDnsHostnameArray     = packed array [0..MAX_PTR_RECORDS - 1] of AnsiString;
-
   TDnsRequestDoneEvent = procedure (Sender : TObject; Error : WORD) of Object;
+
   TDnsRequestHeader = packed record
       ID      : WORD;
       Flags   : WORD;
@@ -201,6 +364,35 @@ type
       ARCount : WORD;
   end;
   PDnsRequestHeader = ^TDnsRequestHeader;
+
+  // rfc 1035 p.19
+  TSoaRecord = record
+    mname   : AnsiString;
+    rname   : AnsiString;
+    serial  : Cardinal;
+    refresh : Cardinal;
+    retry   : Cardinal;
+    expire  : Cardinal;
+    minimum : Cardinal;
+  end;
+
+  // Question Data rfc1035 p.28
+  TQuestion = record
+    QuestionType   : word;
+    QuestionClass  : word;
+    QuestionName   : AnsiString;
+  end;
+
+
+  // rfc 1035 p.10
+  TRRInternal = packed record
+    rrtype   : word;     // r due to token conflict
+    rrclass  : word;     // same
+    rrttl    : cardinal; // same
+    rdlength : word;
+  end;
+  pRRInternal = ^TRRInternal;
+
 
   TLOCInfo = packed record { need to be 16 bytes }
     version    : byte;
@@ -222,12 +414,38 @@ type
     vertpre             : integer;
     { Latitude, degree, minutes, seconds, milliseconds }
     lad, lam, las, lams : integer;
-    lahem               : ansichar;
+    lahem               : AnsiChar;
     { same for Longitude }
     lod, lom, los, loms : integer;
-    lohem               : ansichar;
+    lohem               : AnsiChar;
     altitude            : integer;
   end;
+
+ // V8.61 Result Record
+  TRRRecord = packed record
+    RRName    : AnsiString;
+    RRType    : Word;      // r due to token conflict
+    RRClass   : Word;      // same
+    TTL       : Cardinal;  // same
+    RDLength  : Word;
+    RDData    : AnsiString;  // actual result as string
+    IPV4      : TInAddr;
+    IPv6      : TIcsIPv6Address;
+    MxPref    : Integer;
+    SOA       : TSoaRecord;
+    Locdecode : TLogGeo;
+ end;
+
+  TDnsAnswerNameArray   = packed array [0..MAX_ANCOUNT - 1]     of AnsiString;
+  TDnsAnswerTypeArray   = packed array [0..MAX_ANCOUNT - 1]     of Integer;
+  TDnsAnswerClassArray  = packed array [0..MAX_ANCOUNT - 1]     of Integer;
+  TDnsAnswerTTLArray    = packed array [0..MAX_ANCOUNT - 1]     of LongInt;
+  TDnsAnswerTagArray    = packed array [0..MAX_ANCOUNT - 1]     of Integer;
+  TDnsRRRecordArray     = packed array [0..MAX_ANCOUNT - 1]     of TRRRecord; // V8.61
+  TDnsMXPreferenceArray = packed array [0..MAX_MX_RECORDS - 1]  of Integer;
+  TDnsMXExchangeArray   = packed array [0..MAX_MX_RECORDS - 1]  of AnsiString;
+  TDnsAddressArray      = packed array [0..MAX_A_RECORDS - 1]   of TInAddr;
+  TDnsHostnameArray     = packed array [0..MAX_PTR_RECORDS - 1] of AnsiString;
 
   TDnsQuery = class(TComponent)
   protected
@@ -235,9 +453,9 @@ type
     FPort                       : String;
     FAddr                       : String;
     FIDCount                    : WORD;
-    FQueryBuf                   : array [0..511] of ansichar;
+    FQueryBuf                   : array [0..511] of AnsiChar;
     FQueryLen                   : Integer;
-    FResponseBuf                : array [0..511] of ansichar;
+    FResponseBuf                : array [0..2047] of AnsiChar;
     FResponseLen                : Integer;
     FResponseID                 : Integer;
     FResponseCode               : Integer;
@@ -257,6 +475,10 @@ type
     FAnswerClassArray           : TDnsAnswerClassArray;
     FAnswerTTLArray             : TDnsAnswerTTLArray;
     FAnswerTagArray             : TDnsAnswerTagArray;
+    FAnswerRecordArray          : TDnsRRRecordArray;   { V8.61 }
+    FAnsTot                     : Integer;             { V8.61 }
+    FMultiReqSeq                : Integer;             { V8.61 }
+    FMultiHost                  : AnsiString;          { V8.61 }
     FMXRecordCount              : Integer;
     FMXPreferenceArray          : TDnsMXPreferenceArray; { For MX request  }
     FMXExchangeArray            : TDnsMXExchangeArray;   { For MX request  }
@@ -275,21 +497,10 @@ type
     function GetAnswerType(nIndex : Integer)   : Integer;
     function GetAnswerClass(nIndex : Integer)  : Integer;
     function GetAnswerTTL(nIndex : Integer)    : LongInt;
+    function GetAnswerRecord(nIndex : Integer) : TRRRecord;   { V8.61 }
     function GetAnswerTag(nIndex : Integer)    : Integer;
     function GetAddress(nIndex : Integer)      : TInAddr;
     function GetHostname(nIndex : Integer)     : AnsiString;
-    procedure BuildRequestHeader(Dst       : PDnsRequestHeader;
-                                 ID        : WORD;
-                                 OPCode    : BYTE;
-                                 Recursion : Boolean;
-                                 QDCount   : WORD;
-                                 ANCount   : WORD;
-                                 NSCount   : WORD;
-                                 ARCount   : WORD); virtual;
-    function  BuildQuestionSection(Dst         : PAnsiChar;
-                                   const QName : AnsiString;
-                                   QType       : WORD;
-                                   QClass      : WORD) : Integer; virtual;
     procedure WSocketDataAvailable(Sender: TObject; Error: WORD); virtual;
     procedure WSocketSessionConnected(Sender: TObject; Error: WORD); virtual;
     procedure TriggerRequestDone(Error: WORD); virtual;
@@ -298,32 +509,23 @@ type
     function  ExtractName(Base       : PAnsiChar;
                           From       : PAnsiChar;
                           var Name   : AnsiString) : PAnsiChar;
-    function  DecodeQuestion(Base       : PAnsiChar;
-                             From       : PAnsiChar;
-                             var Name   : AnsiString;
-                             var QType  : Integer;
-                             var QClass : Integer) : PAnsiChar;
-    function DecodeAnswer(Base         : PAnsiChar;
-                          From         : PAnsiChar;
-                          var Name     : AnsiString;
-                          var QType    : Integer;
-                          var QClass   : Integer;
-                          var TTL      : LongInt;
-                          var RDataPtr : Pointer;
-                          var RDataLen : Integer) : PAnsiChar;
-    function DecodeMXData(Base           : PAnsiChar;
-                          From           : PAnsiChar;
-                          var Preference : Integer;
-                          var Exchange   : AnsiString) : PAnsiChar;
-    function DecodeAData(Base        : PAnsiChar;
-                         From        : PAnsiChar;
-                         var Address : TInAddr) : PAnsiChar;
-    function DecodePTRData(Base         : PAnsiChar;
-                           From         : PAnsiChar;
-                           var Hostname : AnsiString) : PAnsiChar;
     function  GetMultiThreaded: Boolean;
     procedure SetMultiThreaded(const Value: Boolean);
     procedure SetProto(const Value : String);
+    procedure SetAddr(const Value : String);
+    function    DecodeWireResp(RespBuffer: PAnsiChar; BufLen: Integer): Boolean;
+    procedure   BuildRequestHeader(Dst     : PDnsRequestHeader;
+                                 ID        : WORD;
+                                 OPCode    : BYTE;
+                                 Recursion : Boolean;
+                                 QDCount   : WORD;
+                                 ANCount   : WORD;
+                                 NSCount   : WORD;
+                                 ARCount   : WORD); virtual;
+    function    BuildQuestionSection(Dst       : PAnsiChar;
+                                   QName       : AnsiString;
+                                   QType       : WORD;
+                                   QClass      : WORD) : Integer; virtual;
   public
     constructor Create(AOwner : TComponent); override;
     destructor  Destroy; override;
@@ -331,7 +533,9 @@ type
     function    MXLookup(Domain : AnsiString) : Integer;
     function    ALookup(Host : AnsiString) : Integer;
     function    PTRLookup(IP : AnsiString) : Integer;
-    function    QueryAny(Host : AnsiString; QNumber : Integer) : Integer;
+    function    QueryAll(Host : AnsiString) : Integer;     { V8.61 }
+    function    QueryAny(Host : AnsiString; QNumber : integer; MultiRequests: Boolean = False) : Integer;   { V8.61 }
+    procedure   AbortQuery;                                { V8.61 }
     property ResponseID                 : Integer read FResponseID;
     property ResponseCode               : Integer read FResponseCode;
     property ResponseOpCode             : Integer read FResponseOpCode;
@@ -352,6 +556,8 @@ type
     property AnswerClass[nIndex : Integer]  : Integer read GetAnswerClass;
     property AnswerTTL[nIndex : Integer]    : LongInt read GetAnswerTTL;
     property AnswerTag[nIndex : Integer]    : Integer read GetAnswerTag;
+    property AnswerRecord[nIndex : Integer] : TRRRecord read GetAnswerRecord;  { V8.61 }
+    property AnswerTotal                    : Integer read FAnsTot;            { V8.61 }
     property MXPreference[nIndex : Integer] : Integer read GetMXPreference;
     property MXExchange[nIndex : Integer]   : AnsiString  read GetMXExchange;
     property Address[nIndex : Integer]      : TInAddr read GetAddress;
@@ -359,7 +565,7 @@ type
     property Loc                            : TLOCInfo read fLOCInfo;
   published
     property Port    : String read  FPort  write FPort;
-    property Addr    : String read  FAddr  write FAddr;
+    property Addr    : String read  FAddr  write SetAddr;
     property Proto   : String read  FProto write SetProto;
     property MultiThreaded   : Boolean            read  GetMultiThreaded
                                                   write SetMultiThreaded;
@@ -369,8 +575,11 @@ type
 
 
 function ReverseIP(const IP : AnsiString) : AnsiString;
+function ReverseIPv6(const IPv6: AnsiString): AnsiString;  { V8.61 }
 function LongLatToDMS(longlat : longint; hemis : AnsiString) : AnsiString; { !!KAP!! }
 function Loc2Geo(loc : TLOCInfo) : TLogGeo;                        { !!KAP!! }
+function FindDnsReqTypeName(TypeID: Integer): String;  { V8.61 }
+function FindDnsReqTypeId(TypeName: String): Integer;  { V8.61 }
 
 implementation
 
@@ -400,14 +609,72 @@ begin
         Delete(Result, 1, 1);
 end;
 
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function ReverseIPv6(const IPv6: AnsiString): AnsiString;    { V8.61 }
+var
+    I, J: Integer;
+    Pair: Word;
+    IPv6Addr: TIcsIPv6Address;
+    Success: Boolean;
+    Hex: AnsiString;
+begin
+    Result := '';
+    IPv6Addr := WSocketStrToIPv6(String(IPv6), Success);
+    if NOT Success then Exit;
+    for I := 7 downto 0 do begin
+        pair := IPv6Addr.Words[I];
+    {$IFNDEF BIG_ENDIAN}
+        pair := IcsSwap16(pair);
+    {$ENDIF}
+        Hex := AnsiString(IntToHex(pair, 4));
+        for J := 4 downto 1 do
+            Result := Result + Hex[J] + '.';
+    end;
+    Result := IcsLowerCaseA(Result);
+    SetLength(Result, Length(Result) - 1);
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function FindDnsReqTypeName(TypeID: Integer): String;  { V8.61 }
+var
+    I: integer;
+begin
+    Result := '';
+    for I := Low(DnsReqTable) to High(DnsReqTable) do begin
+        if DnsReqTable[I].Num = TypeID then begin
+             Result := DnsReqTable[I].Asc;
+             Exit;
+        end;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function FindDnsReqTypeId(TypeName: String): Integer;  { V8.61 }
+var
+    I: integer;
+begin
+    Result := 0;
+    for I := Low(DnsReqTable) to High(DnsReqTable) do begin
+        if DnsReqTable[I].Asc = TypeName then begin
+             Result := DnsReqTable[I].Num;
+             Exit;
+        end;
+    end;
+end;
+
+
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 constructor TDnsQuery.Create(AOwner : TComponent);
 begin
     inherited Create(AOwner);
     FWSocket         := TWSocket.Create(nil);
     FPort            := '53';
-    FProto           := 'udp';
+    FProto           := 'tcp';
     FGotPacketLength := FALSE;
+    FMultiReqSeq     := 0;
+    FAnsTot          := 0;
 end;
 
 
@@ -419,6 +686,45 @@ begin
         FWSocket := nil;
     end;
     inherited Destroy;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TDnsQuery.SetMultiThreaded(const Value: Boolean);
+begin
+    if Assigned(FWSocket) then
+        FWSocket.Multithreaded := Value;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TDnsQuery.GetMultiThreaded: Boolean;
+begin
+    if Assigned(FWSocket) then
+        Result := FWSocket.Multithreaded
+    else
+        Result := FALSE;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TDnsQuery.SetProto(const Value: String);
+var
+    Buf : String;
+begin
+    Buf := LowerCase(Value);
+    if not ((Buf = 'tcp') or (Buf = 'udp')) then
+        raise Exception.Create('TDnsQuery accept only TCP or UDP protocol');
+    FProto := Value;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TDnsQuery.SetAddr(const Value : String);  { V8.61 }
+var
+    I: Integer;
+begin
+    FAddr := Value;
+    I := Pos (' [', FAddr);  // remove comment after IP address
+    if I > 1 then SetLength (FAddr, I - 1);
 end;
 
 
@@ -516,6 +822,17 @@ begin
         Result := FAnswerTagArray[nIndex];
 end;
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TDnsQuery.GetAnswerRecord(nIndex : Integer) : TRRRecord;   { V8.61 }
+begin
+    { Silently ignore index out of bounds error }
+    if (nIndex < Low(FAnswerRecordArray)) or
+       (nIndex > High(FAnswerRecordArray)) then
+     //   Result := Nil
+    else
+        Result := FAnswerRecordArray[nIndex];
+end;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TDnsQuery.GetAddress(nIndex : Integer) : TInAddr;
@@ -551,31 +868,41 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TDnsQuery.MXLookup(Domain : AnsiString) : Integer;
 begin
-    Inc(FIDCount);
-    BuildRequestHeader(PDnsRequestHeader(@FQueryBuf), FIDCount, DnsOpCodeQuery, TRUE, 1, 0, 0, 0);
-    FQueryLen := BuildQuestionSection(@FQueryBuf[SizeOf(TDnsRequestHeader)], Domain, DnsQueryMX, DnsClassIN);
-    FQueryLen := FQueryLen + SizeOf(TDnsRequestHeader);
-    Result    := FIDCount;
-    SendQuery;
+    Result := QueryAny(Domain, DnsQueryMX);
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TDnsQuery.ALookup(Host : AnsiString) : Integer;
 begin
-    Inc(FIDCount);
-    BuildRequestHeader(PDnsRequestHeader(@FQueryBuf), FIDCount, DnsOpCodeQuery, TRUE, 1, 0, 0, 0);
-    FQueryLen := BuildQuestionSection(@FQueryBuf[SizeOf(TDnsRequestHeader)], Host, DnsQueryA, DnsClassIN);
-    FQueryLen := FQueryLen + SizeOf(TDnsRequestHeader);
-    Result    := FIDCount;
-    SendQuery;
+    Result := QueryAny(Host, DnsQueryA);
 end;
 
+
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ !!KAP!! }
-function TDnsQuery.QueryAny(Host : AnsiString; QNumber : integer) : Integer;
+function TDnsQuery.PTRLookup(IP : AnsiString) : Integer;
+begin
+    Result := QueryAny(IP, DnsQueryPTR);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+ { V8.61 simulate ALL by asking list of multiple questions }
+function TDnsQuery.QueryAll(Host : AnsiString) : Integer;
+begin
+    FMultiReqSeq  := 1;
+    FMultiHost := Host;
+    FAnsTot := 0;
+    Result := QueryAny(FMultiHost, DnsAllReqTable[FMultiReqSeq], True);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.61 support all request }
+function TDnsQuery.QueryAny(Host : AnsiString; QNumber : integer; MultiRequests: Boolean = False) : Integer;
 begin
     Inc(FIDCount);
+    if NOT MultiRequests then FAnsTot := 0;  { V8.61 reset result records }
     BuildRequestHeader(PDnsRequestHeader(@FQueryBuf), FIDCount, DnsOpCodeQuery, TRUE, 1, 0, 0, 0);
     FQueryLen := BuildQuestionSection(@FQueryBuf[SizeOf(TDnsRequestHeader)], Host, QNumber, DnsClassIN);
     FQueryLen := FQueryLen + SizeOf(TDnsRequestHeader);
@@ -585,16 +912,14 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TDnsQuery.PTRLookup(IP : AnsiString) : Integer;
+procedure TDnsQuery.AbortQuery;                                { V8.61 }
 begin
-    Inc(FIDCount);
-    BuildRequestHeader(PDnsRequestHeader(@FQueryBuf), FIDCount, DnsOpCodeQuery, TRUE, 1, 0, 0, 0);
-    FQueryLen := BuildQuestionSection(@FQueryBuf[SizeOf(TDnsRequestHeader)],
-                                      ReverseIP(IP) + '.in-addr.arpa',
-                                      DnsQueryPTR, DnsClassIN);
-    FQueryLen := FQueryLen + SizeOf(TDnsRequestHeader);
-    Result    := FIDCount;
-    SendQuery;
+    FWSocket.Abort;
+    FResponseLen := -1;
+    FMultiReqSeq  := 1;
+    FMultiHost := '';
+    FAnsTot := 0;
+    TriggerRequestDone(999);
 end;
 
 
@@ -604,7 +929,7 @@ begin
     FResponseLen                := -1;
     FGotPacketLength            := FALSE;
     FWSocket.OnDataAvailable    := nil;
-    FWSocket.Abort;
+    if FWSocket.State = wsConnected then FWSocket.Abort;
     FWSocket.OnDataAvailable    := WSocketDataAvailable;
     FWSocket.OnSessionConnected := WSocketSessionConnected;
     FWSocket.Proto              := FProto;
@@ -620,7 +945,7 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TDnsQuery.BuildQuestionSection(
     Dst         : PAnsiChar;
-    const QName : AnsiString;
+    QName       : AnsiString;
     QType       : WORD;
     QClass      : WORD) : Integer;
 var
@@ -634,6 +959,15 @@ begin
         Exit;
     end;
     I := 1;
+
+// IPv6  4321:0:1:2:3:4:567:89ab becomes  b.a.9.8.7.6.5.0.4.0.0.0.3.0.0.0.2.0.0.0.1.0.0.0.0.0.0.0.1.2.3.4.ip6.arpa.
+// IPv4  217.146.102.139 becomes 139.102.146.217.in-addr.arpa.
+    if QType = DnsQueryPTR then begin   { V8.61 }
+        if Pos (':', String(QName)) > 1 then
+            QName := ReverseIPv6(QName) + '.ip6.arpa.'
+        else
+            QName := ReverseIP(QName) + '.in-addr.arpa.';
+    end;
     while I <= Length(QName) do begin
         p := Ptr;
         Inc(Ptr);
@@ -689,12 +1023,6 @@ end;
 procedure TDnsQuery.WSocketDataAvailable(Sender: TObject; Error: WORD);
 var
     Len    : Integer;
-    Ans    : PDnsRequestHeader;
-    Flags  : Integer;
-    P      : PAnsiChar;
-    RDataPtr : Pointer;
-    RDataLen : Integer;
-    I        : Integer;
 begin
     if FProto = 'tcp' then begin
         if not FGotPacketLength then begin
@@ -708,11 +1036,10 @@ begin
         if not FGotPacketLength then
             Exit
         else begin
-            Ans := PDnsRequestHeader(@FResponseBuf);
-            Len := FWSocket.PeekData(Ans, FLengthByte[0] * 256 + FLengthByte[1]);
+            Len := FWSocket.PeekData(@FResponseBuf, FLengthByte[0] * 256 + FLengthByte[1]);
             if Len < FLengthByte[0] * 256 + FLengthByte[1] then
                 Exit;
-            Len := FWSocket.Receive(Ans, FLengthByte[0] * 256 + FLengthByte[1]);
+            Len := FWSocket.Receive(@FResponseBuf, FLengthByte[0] * 256 + FLengthByte[1]);
             if Error <> 0 then begin
                 TriggerRequestDone(Error);
                 Exit;
@@ -720,34 +1047,195 @@ begin
         end;
     end
     else begin
-        Ans := PDnsRequestHeader(@FResponseBuf);
-        Len := FWSocket.Receive(Ans, SizeOf(FResponseBuf));
+        Len := FWSocket.Receive(@FResponseBuf, SizeOf(FResponseBuf));
         if Error <> 0 then begin
             TriggerRequestDone(Error);
             Exit;
         end;
     end;
+
+ // get results
+    DecodeWireResp(@FResponseBuf, Len); { V8.61 }
+    FWSocket.Close;  // note TCP session closed each request
+
+ // if simulating ALL request make next request in sequence
+    if FMultiReqSeq > 0 then begin
+        FMultiReqSeq := FMultiReqSeq + 1;
+        if FMultiReqSeq <= DnsAllReqTot then begin
+            QueryAny(FMultiHost, DnsAllReqTable[FMultiReqSeq], True);
+            Exit;
+        end;
+        FMultiReqSeq := 0;
+    end;
+    TriggerRequestDone(0);  // all done
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function ntohs(V : WORD) : Integer;
+begin
+    Result := ((V and $FF) shl 8) or ((V shr 8) and $FF);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function ntohl(V : DWORD) : LongInt;
+begin
+    Result := (ntohs(V and $FFFF) shl 16) or ntohs((V shr 16) and $FFFF);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TDnsQuery.DecodeWireResp(RespBuffer: PAnsiChar; BufLen: Integer): Boolean; { V8.61 }
+var
+    AnsPtr: PDnsRequestHeader;
+    Flags  : Integer;
+    P, PEnd  : PAnsiChar;
+
+    function ProcessRespRecord: Boolean;
+    var
+        RRRecord : TRRRecord;  { V8.61 keep everything in single record }
+        RDataPtr : PAnsiChar;
+    begin
+        Result := False;
+        FillChar(RRRecord, SizeOf(RRRecord), 0);
+        P := ExtractName(RespBuffer, P, RRRecord.RRName);
+        RRRecord.RRType := ntohs(PWORD(P)^);  { 06/03/2005 WSocket_ntohs(PWORD(P)^); }
+      // ignore if SOA response to different question
+        Inc(P, 2);
+        RRRecord.RRClass := ntohs(PWORD(P)^);  { 06/03/2005 WSocket_ntohs(PWORD(P)^); }
+        Inc(P, 2);
+        RRRecord.TTL := ntohl(PDWORD(P)^); { 06/03/2005 WSocket_ntohl(PDWORD(P)^); }
+        Inc(P, 4);
+        RRRecord.RDLength := ntohs(PWORD(P)^);  { 06/03/2005 WSocket_ntohs(PWORD(P)^) };
+        Inc(P, 2);
+        RDataPtr := P;
+        P := P + RRRecord.RDLength;
+        if (RRRecord.RRType = DnsQuerySOA) and (FQuestionType <> DnsQuerySOA) then Exit;
+        if FAnsTot >= MAX_ANCOUNT then Exit;  // sanity test, too many results
+
+     // keep backward compatible vy filling old arrays
+        FAnswerNameArray[FAnsTot] :=  RRRecord.RRName;
+        FAnswerTypeArray[FAnsTot] := RRRecord.RRType;
+        FAnswerClassArray[FAnsTot] := RRRecord.RRClass;
+        FAnswerTTLArray[FAnsTot] := RRRecord.TTL;
+        FAnswerTagArray[FAnsTot] := -1;
+
+        case RRRecord.RRType of
+            DnsQueryMX:  begin
+                    if FMXRecordCount <= High(FMXPreferenceArray) then begin
+                        FAnswerTagArray[FAnsTot] := FMXRecordCount;
+                        RRRecord.MxPref := WSocket_ntohs(PWORD(RDataPtr)^);
+                        FMXPreferenceArray[FMXRecordCount] := RRRecord.MxPref;
+                        Inc(RDataPtr, 2);
+                        ExtractName(RespBuffer, RDataPtr, RRRecord.RDData);
+                        FMXExchangeArray[FMXRecordCount] := RRRecord.RDData;
+                        Inc(FMXRecordCount);
+                    end;
+            end;
+            DnsQueryA: begin
+                    if FARecordCount <= High(FAddressArray) then begin
+                        FAnswerTagArray[FAnsTot] := FARecordCount;
+                        RRRecord.IPv4.S_addr := Integer(PDWORD(RDataPtr)^);   { 06/03/2005 added cast }
+                        FAddressArray[FARecordCount].S_addr := RRRecord.IPv4.S_addr;
+                        RRRecord.RDData := WSocket_inet_ntoa(RRRecord.IPv4);
+                        Inc(FARecordCount);
+                    end;
+            end;
+            DnsQueryPTR: begin
+                    if FPTRRecordCount <= High(FHostnameArray) then begin
+                        FAnswerTagArray[FAnsTot] := FPTRRecordCount;
+                        ExtractName(RespBuffer, RDataPtr, RRRecord.RDData);
+                        FHostnameArray[FPTRRecordCount] := RRRecord.RDData;
+                        Inc(FPTRRecordCount);
+                    end;
+            end;
+            { !!KAP!! }
+            DnsQueryLOC: begin
+                    { for security reasons, if recompiled with future versions of delphi }
+                    // alink.net return LOC!!
+                    if (RRRecord.RDLength = 16) and (RRRecord.RDLength = sizeof(fLOCInfo)) then begin
+                        Move(RDataPtr^, fLOCInfo, 16);
+                        RRRecord.LocDecode := Loc2Geo(fLOCInfo);
+                        RRRecord.RDData := AnsiString('Lat: ' + IntToStr(RRRecord.LocDecode.lad) + '°' +
+                                         IntToStr(RRRecord.LocDecode.lam) + '''' +
+                                         IntToStr(RRRecord.LocDecode.las) + '"' +
+                                         ', Long: ' + IntToStr(RRRecord.LocDecode.lod) + '°' +
+                                         IntToStr(RRRecord.LocDecode.lom) + '''' +
+                                         IntToStr(RRRecord.LocDecode.los) + '"' +
+                                         ', Alt: ' + IntToStr(RRRecord.LocDecode.altitude));
+                    end
+                    else
+                        FillChar(fLOCInfo, SizeOf(fLOCInfo), 0);
+            end;
+            DnsQueryAAAA: begin
+                   Move(RDataPtr^, RRRecord.IPv6, sizeof(RRRecord.IPv6));
+                   RRRecord.RDData := AnsiString(WSocketIPv6ToStr (RRRecord.IPv6));  // April 2013
+            end;
+            DnsQuerySOA: begin
+                   RDataPtr := ExtractName(RespBuffer, RDataPtr, RRRecord.SOA.mname);
+                   RDataPtr := ExtractName(RespBuffer, RDataPtr, RRRecord.SOA.rname);
+                   RRRecord.SOA.serial := WSocket_ntohl(PDWORD(RDataPtr)^);
+                   Inc(RDataPtr, 4);
+                   RRRecord.SOA.refresh := WSocket_ntohl(PDWORD(RDataPtr)^);
+                   Inc(RDataPtr, 4);
+                   RRRecord.SOA.retry := WSocket_ntohl(PDWORD(RDataPtr)^);
+                   Inc(RDataPtr, 4);
+                   RRRecord.SOA.expire := WSocket_ntohl(PDWORD(RDataPtr)^);
+                   Inc(RDataPtr, 4);
+                   RRRecord.SOA.minimum := WSocket_ntohl(PDWORD(RDataPtr)^);
+                   RRRecord.RDData := AnsiString('name: ' + String(RRRecord.SOA.mname) +
+                                    ', email: ' + String(RRRecord.SOA.rname) +
+                                    ', serial: ' + IntToStr(RRRecord.SOA.serial) +
+                                    ', refresh: ' + IntToStr(RRRecord.SOA.refresh) +
+                                    ', retry: ' + IntToStr(RRRecord.SOA.retry) +
+                                    ', expire: ' + IntToStr(RRRecord.SOA.expire) +
+                                    ', default TTL: ' + IntToStr(RRRecord.SOA.minimum));
+            end;
+
+        // pending, DNSSEC buffers contain several fields, should handle them properly
+        // so tempoarily return them as hex
+            DnsQueryRRSIG, DnsQueryDNSKEY, DnsQueryDS, DnsQueryNSEC, DnsQueryNSEC3,
+              DnsQueryCDS, DnsQueryCDNSKEY, DnsQueryTLSA, DnsQuerySMIMEA: begin
+                   RRRecord.RDData := AnsiString(IcsBufferToHex(RDataPtr^, RRRecord.RDLength));
+            end
+            else begin   // assume all other records are textual
+                ExtractName(RespBuffer, RDataPtr, RRRecord.RDData);
+            end;
+        end;
+        FAnswerRecordArray[FAnsTot] := RRRecord;
+        Result := True;
+    end;
+
+begin
+    Result := False;
     { Check for minimum response length }
-    if Len < SizeOf(TDnsRequestHeader) then
+    if BufLen < SizeOf(TDnsRequestHeader) then
         Exit;
-    Flags := WSocket_ntohs(Ans^.Flags);
+   AnsPtr := PDnsRequestHeader(RespBuffer);
+   Flags := WSocket_ntohs(AnsPtr^.Flags);
     { Check if we got a response }
     if (Flags and $8000) = 0 then
         Exit;
-    FResponseLen := Len;
+    FResponseLen := BufLen;
+
     { Decode response header }
-    FResponseID                 := WSocket_ntohs(Ans^.ID);
+    FResponseID                 := WSocket_ntohs(AnsPtr^.ID);
     FResponseCode               := Flags and $000F;
+//  fDnsRequestAnswer.qr        := (Flags and $8000) = $8000;
     FResponseOpCode             := (Flags shr 11) and $000F;
     FResponseAuthoritative      := (Flags and $0400) = $0400;
     FResponseTruncation         := (Flags and $0200) = $0200;
+//  fDnsRequestAnswer.RecursionDesired := (Flags and $0100) = $0100;
     FResponseRecursionAvailable := (Flags and $0080) = $0080;
-    FResponseQDCount            := WSocket_ntohs(Ans^.QDCount);
-    FResponseANCount            := WSocket_ntohs(Ans^.ANCount);
-    FResponseNSCount            := WSocket_ntohs(Ans^.NSCount);
-    FResponseARCount            := WSocket_ntohs(Ans^.ARCount);
+//  fDnsRequestAnswer.z         := (Flags shr 4) and $0007;
+//  fDnsRequestAnswer.rcode     := (Flags and $000F);
+    FResponseQDCount            := WSocket_ntohs(AnsPtr^.QDCount);
+    FResponseANCount            := WSocket_ntohs(AnsPtr^.ANCount);
+    FResponseNSCount            := WSocket_ntohs(AnsPtr^.NSCount);
+    FResponseARCount            := WSocket_ntohs(AnsPtr^.ARCount);
 
-    P := @ResponseBuf[SizeOf(TDnsRequestHeader)];
+    P := RespBuffer + SizeOf(TDnsRequestHeader);
+    PEnd := RespBuffer + FResponseLen;
     if FResponseQDCount = 0 then begin
         { I don't think we could receive 0 questions }
         FQuestionName  := '';
@@ -756,69 +1244,28 @@ begin
     end
     else begin
         { Should never be greater than 1 because we sent only one question }
-        P := DecodeQuestion(@FResponseBuf, P,
-                            FQuestionName, FQuestionType, FQuestionClass);
+        P := ExtractName(RespBuffer, P, FQuestionName);
+        FQuestionType := WSocket_ntohs(PWORD(P)^);
+        Inc(P, 2);
+        FQuestionClass := WSocket_ntohs(PWORD(P)^);
+        Inc(P, 2);
     end;
-    if FResponseANCount = 0 then begin
-        RDataPtr        := nil;
-        RDataLen        := 0;
-        FMXRecordCount  := 0;
-        FARecordCount   := 0;
-        FPTRRecordCount := 0;
-    end
-    else begin
-        FMXRecordCount  := 0;
-        FARecordCount   := 0;
-        FPTRRecordCount := 0;
-        for I := 0 to FResponseANCount - 1 do begin
-            P := DecodeAnswer(@FResponseBuf,        P,
-                              FAnswerNameArray[I],  FAnswerTypeArray[I],
-                              FAnswerClassArray[I], FAnswerTTLArray[I],
-                              RDataPtr,             RDataLen);
-            FAnswerTagArray[I] := -1;
-            case FAnswerTypeArray[I] of
-            DnsQueryMX:
-                begin
-                    if FMXRecordCount <= High(FMXPreferenceArray) then begin
-                        FAnswerTagArray[I] := FMXRecordCount;
-                        DecodeMXData(@FResponseBuf, RDataPtr,
-                                     FMXPreferenceArray[FMXRecordCount],
-                                     FMXExchangeArray[FMXRecordCount]);
-                        Inc(FMXRecordCount);
-                    end;
-                end;
-            DnsQueryA:
-                begin
-                    if FARecordCount <= High(FAddressArray) then begin
-                        FAnswerTagArray[I] := FARecordCount;
-                        DecodeAData(@FResponseBuf, RDataPtr,
-                                    FAddressArray[FARecordCount]);
-                        Inc(FARecordCount);
-                    end;
-                end;
-            DnsQueryPTR:
-                begin
-                    if FPTRRecordCount <= High(FHostnameArray) then begin
-                        FAnswerTagArray[I] := FPTRRecordCount;
-                        DecodePTRData(@FResponseBuf, RDataPtr,
-                                      FHostnameArray[FPTRRecordCount]);
-                        Inc(FPTRRecordCount);
-                    end;
-                end;
-            { !!KAP!! }
-            DnsQueryLOC:
-                begin
-                    { for security reasons, if recompiled with future versions of delphi }
-                    if (RDataLen = 16) and (rdatalen = sizeof(fLOCInfo)) then
-                        Move(rdataptr^, fLOCInfo, 16)
-                    else
-                        FillChar(fLOCInfo, SizeOf(fLOCInfo), 0);
-                end;
-            end;
-        end;
-        FWSocket.Close;
+
+    FMXRecordCount  := 0;
+    FARecordCount   := 0;
+    FPTRRecordCount := 0;
+  // note we don't reset FAnsTot here to collect answers from multiple queries
+
+ // read all answers
+    while PEnd > P do begin
+        if ProcessRespRecord then begin
+          // special case, Cloudfare add empty record which we ignore
+            if (FAnswerRecordArray[FAnsTot].RRType <> DnsQueryOPT) or
+                            (FAnswerRecordArray[FAnsTot].RRName <> '') then
+                                  FAnsTot := FAnsTot + 1;
+         end;
     end;
-    TriggerRequestDone(0);
+    Result := True;
 end;
 
 
@@ -835,7 +1282,9 @@ begin
             FWSocket.Send(@Buf[0], 2);
         end;
         FWSocket.Send(@FQueryBuf, FQueryLen);
-    end;
+    end
+    else
+        TriggerRequestDone(Error);  { V8.61 don't ignore error }
 end;
 
 
@@ -886,103 +1335,6 @@ begin
     end;
     Result := P;
 end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TDnsQuery.DecodeQuestion(
-    Base       : PAnsiChar;
-    From       : PAnsiChar;
-    var Name   : AnsiString;
-    var QType  : Integer;
-    var QClass : Integer) : PAnsiChar;
-var
-    P : PAnsiChar;
-begin
-    P := ExtractName(Base, From, Name);
-    QType  := WSocket_ntohs(PWORD(P)^);
-    Inc(P, 2);
-    QClass := WSocket_ntohs(PWORD(P)^);
-    Inc(P, 2);
-    Result := P;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function ntohs(V : WORD) : Integer;
-begin
-    Result := ((V and $FF) shl 8) or ((V shr 8) and $FF);
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function ntohl(V : DWORD) : LongInt;
-begin
-    Result := (ntohs(V and $FFFF) shl 16) or ntohs((V shr 16) and $FFFF);
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TDnsQuery.DecodeAnswer(
-    Base         : PAnsiChar;
-    From         : PAnsiChar;
-    var Name     : AnsiString;
-    var QType    : Integer;
-    var QClass   : Integer;
-    var TTL      : LongInt;
-    var RDataPtr : Pointer;
-    var RDataLen : Integer) : PAnsiChar;
-var
-    P : PAnsiChar;
-begin
-    P        := ExtractName(Base, From, Name);
-    QType    := ntohs(PWORD(P)^);  { 06/03/2005 WSocket_ntohs(PWORD(P)^); }
-    Inc(P, 2);
-    QClass   := ntohs(PWORD(P)^);  { 06/03/2005 WSocket_ntohs(PWORD(P)^); }
-    Inc(P, 2);
-    TTL      := ntohl(PDWORD(P)^); { 06/03/2005 WSocket_ntohl(PDWORD(P)^); }
-    Inc(P, 4);
-    RDataLen := ntohs(PWORD(P)^);  { 06/03/2005 WSocket_ntohs(PWORD(P)^) };
-    Inc(P, 2);
-    RDataPtr := P;
-    Result   := P + RDataLen;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TDnsQuery.DecodeMXData(
-    Base           : PAnsiChar;
-    From           : PAnsiChar;
-    var Preference : Integer;
-    var Exchange   : AnsiString) : PAnsiChar;
-begin
-    Result := From;
-    Preference := WSocket_ntohs(PWORD(Result)^);
-    Inc(Result, 2);
-    Result := ExtractName(Base, Result, Exchange);
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TDnsQuery.DecodePTRData(
-    Base         : PAnsiChar;
-    From         : PAnsiChar;
-    var Hostname : AnsiString) : PAnsiChar;
-begin
-    Result := ExtractName(Base, From, Hostname);
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TDnsQuery.DecodeAData(
-    Base        : PAnsiChar;
-    From        : PAnsiChar;
-    var Address : TInAddr) : PAnsiChar;
-begin
-    Result := From;
-    Address.S_addr := Integer(PDWORD(Result)^);   { 06/03/2005 added cast }
-    Inc(Result, 4);
-end;
-
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {
@@ -1127,37 +1479,5 @@ begin
     Result.altitude := LocAltToAlt(loc.altitude);
 end;
 
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TDnsQuery.SetMultiThreaded(const Value: Boolean);
-begin
-    if Assigned(FWSocket) then
-        FWSocket.Multithreaded := Value;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TDnsQuery.GetMultiThreaded: Boolean;
-begin
-    if Assigned(FWSocket) then
-        Result := FWSocket.Multithreaded
-    else
-        Result := FALSE;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TDnsQuery.SetProto(const Value: String);
-var
-    Buf : String;
-begin
-    Buf := LowerCase(Value);
-    if not ((Buf = 'tcp') or (Buf = 'udp')) then
-        raise Exception.Create('TDnsQuery accept only TCP or UDP protocol');
-    FProto := Value;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 
 end.

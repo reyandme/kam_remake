@@ -9,11 +9,10 @@ Description:  THttpServer implement the HTTP server protocol, that is a
               check for '..\', '.\', drive designation and UNC.
               Do the check in OnGetDocument and similar event handlers.
 Creation:     Oct 10, 1999
-Version:      8.11
+Version:      8.612
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
-Support:      Use the mailing list twsocket@elists.org
-              Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1999-2016 by François PIETTE
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 1999-2019 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
@@ -44,23 +43,6 @@ Legal issues: Copyright (C) 1999-2016 by François PIETTE
                  to the author. Use a nice stamp and mention your name, street
                  address, EMail address and any comment you like to say.
 
-How-To:
-
-Authentication:
-  To implement authentication in your website, you must install an event
-  handler for OnAuthGetType. In this handler, you check for each
-  Client.Path which need to be password protected. For each selected path, you
-  have to set Client.AuthType to whatever authentication method you need (none,
-  basic or digest). You could also set Client.AuthRealm to whatever realm you
-  need. By default AuthType and AuthRealm are initialized from the corresponding
-  values ate the server component level.
-  The next thing to do is to implement an event handler for the
-  OnAuthGetPassword event. This event is triggered whenever the component need
-  to get a password to check with what the client sent. Usually, you'll get
-  the password using Client.AuthUsername property which is the username
-  provided by the client. You may also use the path and the realm to
-  implement more complex passwrod system.
-  Use the OnAuthResult event to log authentication success or failure.
 
 History:
 If not otherwise noted, changes are by Francois Piette
@@ -394,6 +376,102 @@ Feb 23 2016 V8.11 Angus get If-Modified-Since request header to RequestIfModSinc
                   Added Answer304
                   Moved RFC1123_Date to Utils
                   renamed TBufferedFileStream to TIcsBufferedFileStream
+Apr 25 2016 V8.12 Angus added RequestStartTick to allow timing of request processing
+                  Moved TextToHtmlText and RemoveHtmlSpecialChars to
+                    OverbyteIcsFormDataDecoder to share with others units
+Nov 04 2016 V8.37 Added ExclusiveAddr property to stop other applications listening on same socket
+                  Added extended exception information, set SocketErrs = wsErrFriendly for
+                      some more friendly messages (without error numbers)
+                  MakeCookie has new Secure property that sets secure cookies
+Apr 11 2017 V8.45 Added multiple SSL host support using SNI or Host header.
+                  There is a new IcsHosts property which allows multiple hosts
+                    to be specified, each with one or two IP addresses and
+                    non-SSL and SSL port bindings, SSL certificates and private
+                    key, SSL context and security level.
+                  If IcsHosts is specified, TSslWSocketServer ignores existing
+                   bindings and SSLContext, and creates new bindings and
+                   initialises an SSL context for each host checking and reporting
+                   all certificates.
+                  For HttpSrv, IcsHostCollection includes four new properties,
+                   WebDocDir, WebTemplDir, WebDefDoc and WebLogDir, which set
+                   the client DocDir, TemplateDir and DefaultDoc according to
+                   the request Host, so the server supports multiple web sites.
+                  Note IcsHosts is only in the SSL server TSslHttpServer
+                   but may be used for HTTP or HTTPS connections.
+May 24 2017 V8.48 ValidateHosts has more options
+                  Host: header checking higher priority than binding
+                  Added ListenAllOK, ListenStates, RecheckSslCerts
+Jul 5 2017  V8.49 Added .well-known directory support.  If WellKnownPath is
+                     specified as a path, any access to /.well-known/xx is
+                     handled locally either in the OnWellKnownDir Event or
+                     by returning a file from WellKnownPath instead of DocDir.
+                     This is primarily for Let's Encrypt challenges.
+                   Start is now a function that optionally opens all possible
+                      sockets ignoring errors, which are returned as a string.
+                      This is primarily when using MultiListenrs where one
+                      failing no longer stops all of them.
+                   Moved DocumentToContentType to OverbyteIcsFormDataDecoder to share
+                   Fixed bug locating HostTag from Host must check port as well.
+                   Added RequestProtocol either http or https, useful to build links
+Aug 10, 2017 V8.50 Fixed bug setting WebRedirectStat
+                   Fixed bug that first IcsHost could not be SSL
+                   Internal FSslEnable now FHttpSslEnable to ease confusion
+Jul 6, 2018  V8.56 Added OnSslAlpnSelect called after OnSslServerName for HTTP/2
+Oct 5, 2018 V8.57  Added SslCliCertMethod to allow server to request a client
+                       SSL certificate from the browser, NOTE you should check it
+                       the OnSslHandshakeDone event and close the connection if
+                       invalid, beware this usually causes the browser to request
+                       a certificate which can be obtrusive.
+                   Allow SSL certificates to be ordered and installed automatically
+                       by RecheckSslCerts if SslCertAutoOrder=True and so specified in
+                       IcsHosts, if a TSslX509Certs component is attached and a
+                       certificate supplier account has been created (by the
+                       OverbyteIcsX509CertsTst sample application).
+Oct 19, 2018 V8.58 Increased ListenBacklog property default to 15 to handle
+                      higher server loads before rejecting new connections.
+                   Some documentation on IcsHosts and main components.
+Dec 04, 2018 V8.59 Added AUTO_X509_CERTS define set in OverbyteIcsDefs.inc which
+                      can be disabled to remove a lot of units if automatic SSL/TLS
+                      ordering is not required, saves up to 1 meg of code.
+Feb 20, 2019 V8.60 Added WebLogIdx to THttpConnection for web logging.
+                   Fixed bug Close did not close multi-listener sockets.
+Mar 29, 2019 V8.61 OAS : Add InBound value for TNtlmAuthSession creation
+                   because server NTLM auth is inbound and Client is outbound
+Aug 7, 2019  V8.62 Builds without USE_SSL
+
+
+
+Quick reference guide:
+----------------------
+
+See OverbyteIcsWSocketS.pas for documentation on TSslWSocketServer whose
+properties are exposed by TSslHttpServer, TSslWSocketClient for properties
+exposed by THttpConnection, and for IcsHosts which allows the web server to
+support multiple Hosts on multiple IP addresses and ports with SSL support,
+including automatic SSL certificate ordering.
+
+TSslHttpAppSrv in OverbyteIcsHttpAppServer.pas descends from TSslHttpServer
+and adds session support and template processing based on URLs, it is generally
+preferred over TSslHttpServer.  It includes a function IcsLoadTHttpAppSrvFromIni
+that will load all major server settings from an INI file, as documented in that
+unit and the OverbyteIcsSslMultiWebServ sample application.
+
+
+Authentication:
+  To implement authentication in your website, you must install an event
+  handler for OnAuthGetType. In this handler, you check for each
+  Client.Path which need to be password protected. For each selected path, you
+  have to set Client.AuthType to whatever authentication method you need (none,
+  basic or digest). You could also set Client.AuthRealm to whatever realm you
+  need. By default AuthType and AuthRealm are initialized from the corresponding
+  values ate the server component level.
+  The next thing to do is to implement an event handler for the
+  OnAuthGetPassword event. This event is triggered whenever the component need
+  to get a password to check with what the client sent. Usually, you'll get
+  the password using Client.AuthUsername property which is the username
+  provided by the client. You may also use the path and the realm to
+  implement more complex passwrod system.
+  Use the OnAuthResult event to log authentication success or failure.
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -478,10 +556,20 @@ uses
     OverbyteIcsWSocket,
     OverbyteIcsWSocketS,
 {$ENDIF FMX}
+{$IFDEF USE_SSL}
+{$IFDEF AUTO_X509_CERTS}  { V8.59 }
+{$IFDEF FMX}
+    Ics.Fmx.OverbyteIcsSslX509Certs,  { V8.57 }
+{$ELSE}
+    OverbyteIcsSslX509Certs,  { V8.57 }
+{$ENDIF}
+{$ENDIF} // AUTO_X509_CERTS
+{$ENDIF}
 
 {$IFDEF USE_NTLM_AUTH}
     OverbyteIcsSspi,
     OverbyteIcsNtlmSsp,
+    OverbyteIcsNtlmMsgs,
 {$ENDIF}
 {$IFNDEF NO_DIGEST_AUTH}
     OverbyteIcsDigestAuth,
@@ -490,15 +578,18 @@ uses
     OverbyteIcsMimeUtils,
     OverbyteIcsTypes,
     OverbyteIcsUtils,
-    OverbyteIcsWinsock;
+    OverbyteIcsWinsock,
+    OverbyteIcsFormDataDecoder;
 
 const
-    THttpServerVersion = 811;
-    CopyRight : String = ' THttpServer (c) 1999-2016 F. Piette V8.11 ';
-    DefServerHeader : string = 'Server: ICS-HttpServer-8.11';   { V8.09 }
+    THttpServerVersion = 862;
+    CopyRight : String = ' THttpServer (c) 1999-2019 F. Piette V8.62 ';
+    DefServerHeader : string = 'Server: ICS-HttpServer-8.62';   { V8.09 }
     CompressMinSize = 5000;  { V7.20 only compress responses within a size range, these are defaults only }
     CompressMaxSize = 5000000;
     MinSndBlkSize = 8192 ;  { V7.40 }
+    WellKnownDirStr = '/.well-known/';    { V8.49 }
+    { see http://www.iana.org/assignments/well-known-uris/well-known-uris.xhtml }
 
 type
     THttpServer          = class;
@@ -564,6 +655,15 @@ type
     TMimeContentTypeEvent= procedure (Sender    : TObject;         { V7.41 }
                                       const FileName: string;
                                       var ContentType: string) of object;
+
+    TWellKnownEvent= procedure (Sender          : TObject;         { V8.49 }
+                                Client          : TObject;
+                                const Path      : string;
+                                var BodyStr     : string)of object;
+
+    TWellKnownConnEvent= procedure (Sender          : TObject;     { V8.49 }
+                                    const Path      : string;
+                                    var BodyStr     : string)of object;
 
     THttpConnectionState = (hcRequest, hcHeader, hcPostedData, hcSendData);   { V8.01 }
     THttpOption          = (hoAllowDirList, hoAllowOutsideRoot, hoContentEncoding, { V7.20 }
@@ -785,6 +885,14 @@ type
         FOnConnectDocument     : THttpGetConnEvent;    { V8.08 }
         FReqTarget             : string;               { V8.10 }
         FRequestIfModSince     : TDateTime;            { V8.11 }
+        FRequestStartTick      : LongWord;             { V8.12 }
+        FWebLogDir             : string;               { V8.45 }
+        FWellKnownPath         : String;               { V8.49 }
+        FWebRedirectURL        : string;               { V8.49 }
+        FWebRedirectStat       : integer;              { V8.49 }
+        FonWellKnownDir        : TWellKnownConnEvent;  { V8.49 }
+        FRequestProtocol       : String;               { V8.49 }
+        FWebLogIdx             : Integer;              { V8.60 }
         procedure SetSndBlkSize(const Value: Integer);
         procedure ConnectionDataAvailable(Sender: TObject; Error : Word); virtual;
         procedure ConnectionDataSent(Sender : TObject; Error : WORD); virtual;
@@ -801,6 +909,7 @@ type
         procedure ProcessConnect; virtual;     { V8.08 }
         procedure ProcessGetHeadDel; virtual;  { V8.08 }
         procedure ProcessPostPutPat; virtual;  { V8.08 }
+        procedure ProcessWellKnownDir;         { V8.49 }
         procedure Answer416; virtual;
         procedure Answer404; virtual;
         procedure Answer304; virtual;   { V8.11 }
@@ -829,6 +938,7 @@ type
         procedure TriggerContEncoded; virtual;    { V7.20 }
         procedure TriggerUnknownRequestMethod(var Handled : Boolean); virtual; { V7.29 }
         procedure TriggerMimeContentType(const FileName: string; var ContentType: string); virtual; { V7.41 }
+        procedure TriggerWellKnownDir(const Path: string; var BodyStr: string); virtual;   { V8.49 }
         function  CheckContentEncoding(const ContType : String): Boolean; virtual; { V7.21 are we allowed to compress content }
         function  DoContentEncoding: String; virtual; { V7.21 compress content returning Content-Encoding header }
 {$IFNDEF NO_AUTHENTICATION_SUPPORT}
@@ -1012,8 +1122,10 @@ type
                                                      write FMaxRequestsKeepAlive;
         property AnswerStatus          : Integer     read  FAnswerStatus;  { V7.19 }
         property RequestMethod         : THttpMethod read  FRequestMethod; { V8.08 }
-        property RequestUpgrade        : string      read  FRequestUpgrade; { V8.08 }
+        property RequestUpgrade        : String      read  FRequestUpgrade; { V8.08 }
         property RequestIfModSince     : TDateTime   read  FRequestIfModSince; { V8.11 }
+        property RequestStartTick      : LongWord    read  FRequestStartTick;  { V8.12 }
+        property RequestProtocol       : String      read  FRequestProtocol;   { V8.49 }
     published
         { Where all documents are stored. Default to c:\wwwroot }
         property DocDir         : String            read  FDocDir
@@ -1137,6 +1249,19 @@ type
         property AuthNtlmSession   : TNtlmAuthSession
                                                     read  FAuthNtlmSession;
     {$ENDIF}
+        property WebLogDir         : string         read  FWebLogDir            { V8.45 }
+                                                    write FWebLogDir;
+        property WellKnownPath     : String         read  FWellKnownPath        { V8.49 }
+                                                    write FWellKnownPath;
+        property WebRedirectURL    : string         read  FWebRedirectURL       { V8.49 }
+                                                    write FWebRedirectURL;
+        property WebRedirectStat   : integer        read  FWebRedirectStat      { V8.49 }
+                                                    write FWebRedirectStat;
+        property onWellKnownDir    : TWellKnownConnEvent  read  FonWellKnownDir  { V8.49 }
+                                                          write FonWellKnownDir;
+        property WebLogIdx         : integer        read  FWebLogIdx      { V8.60 }
+                                                    write FWebLogIdx;
+
 {$ENDIF}
     end;
 
@@ -1148,7 +1273,7 @@ type
         FWSocketServer            : TWSocketServer;
         FPort                     : String;
         FAddr                     : String;
-        FSocketFamily             : TSocketFamily;        { V8.00 } 
+        FSocketFamily             : TSocketFamily;        { V8.00 }
         FMaxClients               : Integer;              {DAVID}
         FClientClass              : THttpConnectionClass;
         FDocDir                   : String;
@@ -1170,7 +1295,7 @@ type
         FOnFilterDirEntry         : THttpFilterDirEntry;
         FListenBacklog            : Integer; {Bjørnar}
         FKeepAliveTimeSec         : Cardinal;
-        FKeepAliveTimeXferSec     : Cardinal;  { V8.05 } 
+        FKeepAliveTimeXferSec     : Cardinal;  { V8.05 }
         FMaxRequestsKeepAlive     : Integer;
         FHeartBeat                : TIcsTimer;
         FHeartBeatBusy            : Boolean;
@@ -1211,6 +1336,10 @@ type
 {$ENDIF}
         FOnAuthGetType            : TAuthGetTypeEvent;
 {$ENDIF}
+        FSocketErrs               : TSocketErrs;   { V8.37 }
+        FExclusiveAddr            : Boolean;       { V8.37 }
+        FWellKnownPath            : String;        { V8.49 }
+        FonWellKnownDir           : TWellKnownEvent;  { V8.49 }
 {$IFNDEF NO_DEBUG_LOG}
         function  GetIcsLogger: TIcsLogger;                       { V1.38 }
         procedure SetIcsLogger(const Value: TIcsLogger);
@@ -1272,6 +1401,7 @@ type
         procedure TriggerContEncoded(Client : TObject);   { V7.20 }
         procedure TriggerUnknownRequestMethod(Client : TObject; var Handled : Boolean); { V7.29 }
         procedure TriggerMimeContentType(Client : TObject; const FileName: string; var ContentType: string); virtual; { V7.41 }
+        procedure TriggerWellKnownDir(Client : TObject; const Path: string; var BodyStr: string); virtual;   { V8.49 }
         procedure SetPortValue(const newValue : String);
         procedure SetAddr(const newValue : String);
         procedure SetDocDir(const Value: String);
@@ -1282,11 +1412,14 @@ type
         procedure SetKeepAliveTimeSec(const Value: Cardinal);
         procedure SetKeepAliveTimeXferSec(const Value: Cardinal); { V8.05 }
         procedure SetMimeTypesList(const Value: TMimeTypesList); { V7.47 }
+        procedure SetWellKnownPath(const Value: String);    { V8.49 }
     public
         constructor Create(AOwner: TComponent); override;
         destructor  Destroy; override;
-        procedure   Start; virtual;
+        function    Start(ReturnErrs: Boolean = false): String; virtual; { V8.49 made function }
         procedure   Stop; virtual;
+        function    ListenAllOK: Boolean;                              { V8.48 }
+        function    ListenStates: String;                              { V8.48 }
         { Check  if a given object is one of our clients }
         function    IsClient(SomeThing : TObject) : Boolean;
         { Runtime readonly property which gives number of connected clients }
@@ -1344,7 +1477,7 @@ type
         property KeepAliveTimeSec : Cardinal     read  FKeepAliveTimeSec
                                                  write SetKeepAliveTimeSec;
         property KeepAliveTimeXferSec : Cardinal read  FKeepAliveTimeXferSec
-                                                 write SetKeepAliveTimeXferSec;  { V8.05 } 
+                                                 write SetKeepAliveTimeXferSec;  { V8.05 }
         property MaxRequestsKeepAlive : Integer  read  FMaxRequestsKeepAlive
                                                  write FMaxRequestsKeepAlive;
         { Size between which textual responses should be compressed, too small is a
@@ -1501,6 +1634,18 @@ type
     {$ENDIF}
 {$ENDIF}
         property OnBgException;  { F.Piette V7.27 }
+        { wsErrFriendly gives more friendly error messages }
+        property SocketErrs        : TSocketErrs read  FSocketErrs
+                                                 write FSocketErrs;      { V8.37 }
+        { stop other applications listening on our socket }
+        property ExclusiveAddr     : Boolean     read  FExclusiveAddr
+                                                 write FExclusiveAddr;   { V8.37 }
+        { Where /.well-known/ documents are stored. Default is blank for ignore
+          for Let'S Encrypt challenges and other special uses }
+        property WellKnownPath     : String      read  FWellKnownPath
+                                                 write SetWellKnownPath;      { V8.49 }
+        property onWellKnownDir    : TWellKnownEvent  read  FonWellKnownDir
+                                                      write FonWellKnownDir; { V8.49 }
     end;
 
     THttpDirEntry = class
@@ -1590,13 +1735,14 @@ Description:  A component adding SSL support to THttpServer.
 type
     TCustomSslHttpServer = class(THttpServer)  //  V8.02 Angus - was TSslHttpServer
     protected
-        FSslEnable                     : Boolean;  //  V8.02 Angus
+        FHttpSslEnable                 : Boolean;  //  V8.02 Angus renamed V8.50
         FOnSslHandshakeDone            : TSslHandshakeDoneEvent;
         FOnSslVerifyPeer               : TSslVerifyPeerEvent;
         FOnSslSetSessionIDContext      : TSslSetSessionIDContext;
         FOnSslSvrNewSession            : TSslSvrNewSession;
         FOnSslSvrGetSession            : TSslSvrGetSession;
         FOnSslServerName               : TSslServerNameEvent;     // V8.09
+        FOnSslAlpnSelect               : TSslAlpnSelect;     { V8.56 }
         procedure CreateSocket; override;
         procedure SetSslContext(Value: TSslContext);
         function  GetSslContext: TSslContext;
@@ -1628,15 +1774,53 @@ type
                                             Client : TWSocketClient); override;
         procedure TransferSslServerName(Sender: TObject;   // V8.09
                      var Ctx: TSslContext; var ErrCode: TTlsExtError); virtual;
+        function  GetIcsHosts: TIcsHostCollection;                    { V8.45 }
+        procedure SetIcsHosts(const Value: TIcsHostCollection);       { V8.45 }
+        function  GetRootCA: String;                                  { V8.46 }
+        procedure SetRootCA(const Value: String);                     { V8.46 }
+        function  GetDHParams: String;                                { V8.45 }
+        procedure SetDHParams(const Value: String);                   { V8.45 }
+        procedure TransferSslAlpnSelect(Sender: TObject;
+          ProtoList: TStrings; var SelProto : String; var ErrCode: TTlsExtError);  { V8.56 }
+{$IFDEF AUTO_X509_CERTS}  { V8.59 }
+        function  GetSslX509Certs: TSslX509Certs;                     { V8.57 }
+        procedure SetSslX509Certs(const Value : TSslX509Certs);       { V8.57 }
+{$ENDIF} // AUTO_X509_CERTS
+        function  GetSslCliCertMethod: TSslCliCertMethod;             { V8.57 }
+        procedure SetSslCliCertMethod(const Value : TSslCliCertMethod); { V8.57 }
+        function  GetCertExpireDays: Integer;                         { V8.57 }
+        procedure SetCertExpireDays(const Value : Integer);           { V8.57 }
+        function  GetSslCertAutoOrder: Boolean;                       { V8.57 }
+        procedure SetSslCertAutoOrder(const Value : Boolean);         { V8.57 }
     public
         constructor Create(AOwner : TComponent); override;
         destructor  Destroy; override;
         procedure   SetAcceptableHostsList(const SemiColonSeparatedList : String);
-//    published V8.02 Angus stop them being published
-        property  SslEnable          : Boolean             read  FSslEnable  //  V8.02 Angus
-                                                           write FSslEnable;
+        function    ValidateHosts(Stop1stErr: Boolean=True;
+                      NoExceptions: Boolean=False): String; virtual; { V8.48 }
+        function    RecheckSslCerts(var CertsInfo: String;
+                      Stop1stErr: Boolean=True; NoExceptions: Boolean=False): Boolean; { V8.48 }
+//    published V8.02 Angus stop them being published in custom component
+        property  SslEnable          : Boolean             read  FHttpSslEnable  //  V8.02 Angus, internal renamed V8.50
+                                                           write FHttpSslEnable;
         property  SslContext         : TSslContext         read  GetSslContext
                                                            write SetSslContext;
+        property  IcsHosts           : TIcsHostCollection  read  GetIcsHosts
+                                                           write SetIcsHosts;    { V8.45 }
+        property  RootCA             : String              read  GetRootCA
+                                                           write SetRootCA;      { V8.45 }
+        property  DHParams           : String              read  GetDHParams
+                                                           write SetDHParams;    { V8.45 }
+        property  SslCliCertMethod   : TSslCliCertMethod   read  GetSslCliCertMethod
+                                                           write SetSslCliCertMethod; { V8.57 }
+        property  SslCertAutoOrder   : Boolean             read  GetSslCertAutoOrder
+                                                           write SetSslCertAutoOrder; { V8.57 }
+        property  CertExpireDays     : Integer             read  GetCertExpireDays
+                                                           write SetCertExpireDays; { V8.57 }
+{$IFDEF AUTO_X509_CERTS}  { V8.59 }
+        property  SslX509Certs       : TSslX509Certs       read  GetSslX509Certs
+                                                           write SetSslX509Certs; { V8.57 }
+{$ENDIF} // AUTO_X509_CERTS
         property  OnSslVerifyPeer    : TSslVerifyPeerEvent read  FOnSslVerifyPeer
                                                            write FOnSslVerifyPeer;
         property  OnSslSetSessionIDContext : TSslSetSessionIDContext
@@ -1652,18 +1836,30 @@ type
         property  OnSslServerName    : TSslServerNameEvent
                                                            read  FOnSslServerName     // V8.09
                                                            write FOnSslServerName;
+        property  OnSslAlpnSelect : TSslAlpnSelect         read  FOnSslAlpnSelect
+                                                           write FOnSslAlpnSelect;     { V8.56 }
     end;
 
     TSslHttpServer = class(TCustomSslHttpServer)     //  V8.02 Angus
     published
         property SslEnable;
         property SslContext;
+        property IcsHosts;                      { V8.45 }
+        property RootCA;                        { V8.45 }
+        property DHParams;                      { V8.45 }
+        property SslCliCertMethod;              { V8.57 }
+        property SslCertAutoOrder;              { V8.57 }
+        property CertExpireDays;                { V8.57 }
+{$IFDEF AUTO_X509_CERTS}  { V8.59 }
+        property SslX509Certs;                  { V8.57 }
+{$ENDIF} // AUTO_X509_CERTS
         property OnSslVerifyPeer;
         property OnSslSetSessionIDContext;
         property OnSslSvrNewSession;
         property OnSslSvrGetSession;
         property OnSslHandshakeDone;
         property OnSslServerName;
+        property OnSslAlpnSelect;              { V8.56 } 
     end;
 
 {$ENDIF} // USE_SSL
@@ -1711,9 +1907,9 @@ function UrlDecode(const Url   : RawByteString;
 function FileDate(FileName : String) : TDateTime; deprecated
   {$IFDEF COMPILER12_UP}'Use OverbyteIcsUtils.IcsFileUtcModified'{$ENDIF};
 { function RFC1123_Date(aDate : TDateTime) : String;  }
-function DocumentToContentType(const FileName : String) : String;
-function TextToHtmlText(const Src : UnicodeString) : String; overload;
-function TextToHtmlText(const Src : RawByteString) : String; overload;
+//function DocumentToContentType(const FileName : String) : String;
+//function TextToHtmlText(const Src : UnicodeString) : String; overload;
+//function TextToHtmlText(const Src : RawByteString) : String; overload;
 function TranslateChar(const Str: String; FromChar, ToChar: Char): String;
 function UnixPathToDosPath(const Path: String): String;
 function DosPathToUnixPath(const Path: String): String;
@@ -1723,7 +1919,8 @@ function AbsolutisePath(const Path : String) : String;
 function MakeCookie(const Name, Value : String;
                     Expires           : TDateTime;
                     const Path        : String;
-                    const Domain      : String = '') : String;
+                    const Domain      : String = '';
+                    const Secure      : Boolean = false) : String;   { V8.37 }
 function HtmlPageProducer(const FromStream   : TStream;
                           Tags               : array of const;
                           RowDataGetter      : PTableRowDataGetter;
@@ -1750,7 +1947,7 @@ function HtmlPageProducer(const ResName      : String;
                           RowDataGetter      : PTableRowDataGetter;
                           UserData           : TObject;
                           DestStream         : TStream
-                      {$IFDEF COMPILER12_UP};                          
+                      {$IFDEF COMPILER12_UP};
                           ResCodepage        : LongWord = CP_ACP;
                           DestCodePage       : LongWord = CP_ACP
                       {$ENDIF}
@@ -1767,7 +1964,7 @@ function HtmlPageProducerFromMemory(
 {$ENDIF}
     ) : Boolean;
 function HtmlPageProducerSetTagPrefix(const Value : String) : String;
-function RemoveHtmlSpecialChars(const S : String) : String;
+//function RemoveHtmlSpecialChars(const S : String) : String;
 {$IFNDEF NO_AUTHENTICATION_SUPPORT}
 function AuthTypesToString(Types : TAuthenticationTypes) : String;
 {$ENDIF}
@@ -1898,12 +2095,13 @@ begin
     FOptions        := [];
     FAddr           := ICS_ANY_HOST_V4;
     FPort           := '80';
-    FSocketFamily   := DefaultSocketFamily;        { V8.00 } 
+    FSocketFamily   := DefaultSocketFamily;        { V8.00 }
     FMaxClients     := 0;                {DAVID}
-    FListenBacklog  := 5; {Bjørnar}
+    FListenBacklog  := 15; {Bjørnar} { V8.57 was 5 }
     FDefaultDoc     := 'index.html';
     FDocDir         := 'c:\wwwroot';
     FTemplateDir    := 'c:\wwwroot\templates';
+    FWellKnownPath  := '';                        { V8.49 blank means ignore }
     FLingerOnOff    := wsLingerNoSet;
     FLingerTimeout  := 0;
 {$IFNDEF NO_AUTHENTICATION_SUPPORT}
@@ -1914,7 +2112,7 @@ begin
     FAuthTypes                    := [];
 {$ENDIF}
     FKeepAliveTimeSec     := 10;
-    FKeepAliveTimeXferSec := 300;  { V8.05 } 
+    FKeepAliveTimeXferSec := 300;  { V8.05 }
     FMaxRequestsKeepAlive := 100;
     FHeartBeat            := TIcsTimer.Create(FWSocketServer);
     FHeartBeat.OnTimer    := HeartBeatOnTimer;
@@ -1928,6 +2126,7 @@ begin
     FBandwidthSampling    := 1000;    { angus V7.34 Msec sampling interval, less is not possible }
 {$ENDIF}
     FServerHeader         := DefServerHeader;  { V8.08 }
+    FExclusiveAddr        := True;    { 8.37 make our sockets exclusive  }
 end;
 
 
@@ -1975,10 +2174,12 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { Start the server. That is make FWSocketServer listening to the port.      }
-procedure THttpServer.Start;
+{ V8.49 optionally return list of errors instead of exception on fail }
+function THttpServer.Start(ReturnErrs: Boolean = false): String;
 const
     BusyText = 'Server overloaded. Retry later.' + #13#10;
 begin
+    Result := '';
     { Create a new FWSocketServer if needed }
     if not Assigned(FWSocketServer) then
         CreateSocket;
@@ -2011,10 +2212,28 @@ begin
 {$IFNDEF NO_DIGEST_AUTH}
     FAuthDigestServerSecret           := CreateServerSecret;
 {$ENDIF}
-    FWSocketServer.MultiListen;       { V8.00 listen on multiple sockets, if more than one configured }
+{$IFDEF USE_SSL}
+ { V8.45 if using IcsHosts, set default directories }
+    if FWSocketServer is TSslWSocketServer then begin
+      if TSslWSocketServer(FWSocketServer).IcsHosts.Count > 0 then begin
+          with TSslWSocketServer(FWSocketServer).IcsHosts [0] do begin
+              Self.FDocDir := WebDocDir;
+              Self.FTemplateDir := WebTemplDir;
+              Self.FDefaultDoc := WebDefDoc;
+              Self.FWellKnownPath := WellKnownPath;   { V8.49 }
+          end;
+      end;
+    end;
+{$ENDIF}
+    FWSocketServer.ExclusiveAddr      := FExclusiveAddr;     { V8.37 }
+    FWSocketServer.SocketErrs         := FSocketErrs;        { V8.37 }
+    if ReturnErrs then
+        Result := FWSocketServer.MultiListenEx     { V8.49 no exception, opens as many as possible }
+    else
+        FWSocketServer.MultiListen;       { V8.00 listen on multiple sockets, if more than one configured }
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loProtSpecInfo) then                           { V1.38 }
-        DebugLog(loProtSpecInfo, Name + ' started');
+        DebugLog(loProtSpecInfo, Name + ' started, errors: ' + Result);
 {$ENDIF}
 end;
 
@@ -2024,7 +2243,7 @@ procedure THttpServer.Stop;
 begin
     if not Assigned(FWSocketServer) then
         Exit;
-    FWSocketServer.Close;
+    FWSocketServer.MultiClose;     { V8.60 close all hosts }
     { Disconnect all clients }
     FWSocketServer.DisconnectAll;
 {$IFNDEF NO_DEBUG_LOG}
@@ -2044,7 +2263,7 @@ begin
     { new port. Do not disconnect already connected clients.                }
     if Assigned(FWSocketServer) and
        (FWSocketServer.State = wsListening) then begin
-        FWSocketServer.Close;
+        FWSocketServer.MultiClose;     { V8.60 close all hosts }
         Start;
     end;
 end;
@@ -2060,7 +2279,7 @@ begin
     { new Addr. Do not disconnect already connected clients.                }
     if Assigned(FWSocketServer) and
        (FWSocketServer.State = wsListening) then begin
-        FWSocketServer.Close;
+        FWSocketServer.MultiClose;     { V8.60 close all hosts }
         Start;
     end;
 end;
@@ -2073,6 +2292,16 @@ begin
         FDocDir := AbsolutisePath(Copy(Value, 1, Length(Value) - 1))
     else
         FDocDir := AbsolutisePath(Value);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure THttpServer.SetWellKnownPath(const Value: String);    { V8.49 }
+begin
+    if (Value > '') and (Value[Length(Value)] = PathDelim) then
+        FWellKnownPath := AbsolutisePath(Copy(Value, 1, Length(Value) - 1))
+    else
+        FWellKnownPath := AbsolutisePath(Value);
 end;
 
 
@@ -2157,7 +2386,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure THttpServer.SetKeepAliveTimeXferSec(const Value: Cardinal);  { V8.05 } 
+procedure THttpServer.SetKeepAliveTimeXferSec(const Value: Cardinal);  { V8.05 }
 begin
     if Value > High(Cardinal) div 1000 then
         FKeepAliveTimeXferSec := High(Cardinal) div 1000
@@ -2206,7 +2435,7 @@ begin
     Client.LingerTimeout                       := FLingerTimeout;
     (Client as THttpConnection).Options        := FOptions;
     THttpConnection(Client).KeepAliveTimeSec     := FKeepAliveTimeSec;
-    THttpConnection(Client).KeepAliveTimeXferSec := FKeepAliveTimeXferSec;  { V8.05 } 
+    THttpConnection(Client).KeepAliveTimeXferSec := FKeepAliveTimeXferSec;  { V8.05 }
     Client.CreateCounter;
     Client.Counter.SetConnected;               { V7.23 }
     {$IFDEF USE_SSL}
@@ -2254,6 +2483,8 @@ begin
     THttpConnection(Client).OnContEncoded     := TriggerContEncoded;   { V7.20 }
     THttpConnection(Client).OnUnknownRequestMethod  := TriggerUnknownRequestMethod; { V2.29 }
     THttpConnection(Client).OnMimeContentType := TriggerMimeContentType; { V7.41 }
+    THttpConnection(Client).WellKnownPath     := Self.WellKnownPath;    { V8.49 }
+    THttpConnection(Client).onWellKnownDir    := TriggerWellKnownDir;  { V8.49 }
     TriggerClientConnect(Client, Error);
 end;
 
@@ -2484,12 +2715,22 @@ begin
 end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure THttpServer.TriggerWellKnownDir
+    (Client : TObject;
+     const Path      : string;
+     var BodyStr     : string);                                     { V8.49 }
+begin
+    if Assigned(FonWellKnownDir) then
+        FonWellKnownDir(Self, Client, Path, BodyStr);
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure THttpServer.HeartBeatOnTimer(Sender: TObject);
 var
     CurTicks : Cardinal;
     I        : Integer;
     Cli      : THttpConnection;
-    Timeout  : Cardinal;  { V8.05 } 
+    Timeout  : Cardinal;  { V8.05 }
 begin
     if not FHeartBeatBusy then  { Avoid reentrance }
     try
@@ -2497,7 +2738,7 @@ begin
         CurTicks := IcsGetTickCount;
         for I := ClientCount - 1 downto 0 do begin
             Cli := Client[I];
-            if (Cli.FState = hcRequest) then  { V8.05 } 
+            if (Cli.FState = hcRequest) then  { V8.05 }
                 Timeout := Cli.KeepAliveTimeSec
             else
                 Timeout := Cli.KeepAliveTimeXferSec;
@@ -2523,11 +2764,31 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure THttpServer.SetMultiListenSockets(                                 { V8.00 } 
+procedure THttpServer.SetMultiListenSockets(                                 { V8.00 }
   const Value: TWSocketMultiListenCollection);
 begin
     if Assigned(FWSocketServer) then
         FWSocketServer.MultiListenSockets := Value;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function THttpServer.ListenAllOK: Boolean;                              { V8.48 }
+begin
+    if Assigned(FWSocketServer) then
+        Result := FWSocketServer.ListenAllOK
+    else
+        Result := False;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function THttpServer.ListenStates: String;                              { V8.48 }
+begin
+    if Assigned(FWSocketServer) then
+        Result := FWSocketServer.ListenStates
+    else
+        Result := '';
 end;
 
 
@@ -2830,7 +3091,7 @@ begin
 {$IFDEF USE_NTLM_AUTH}
     else if AuthType = atNtlm then begin
         if not Assigned(FAuthNtlmSession) then begin
-           FAuthNtlmSession := TNtlmAuthSession.Create;
+           FAuthNtlmSession := TNtlmAuthSession.Create (cuInBound) ;
            FAuthNtlmSession.OnBeforeValidate := AuthNtlmSessionBeforeValidate;
         end;
         FAuthenticated := FAuthNtlmSession.ProcessNtlmMsg(Copy(FRequestAuth, 6, Length(FRequestAuth)));
@@ -2942,6 +3203,7 @@ begin
         FRequestHostPort       := '';     {DAVID}
         FRequestConnection     := '';
         FRequestIfModSince     := 0;      { V8.11 }
+        FRequestStartTick      := IcsGetTickCount;  { V8.12 }
         FDataSent              := 0;      {TURCAN}
         FDocSize               := 0;      {TURCAN}
 {$IFNDEF NO_AUTHENTICATION_SUPPORT}
@@ -2971,6 +3233,13 @@ begin
             FSendType := httpSendHead   { V7.44 }
         else                            { V7.44 }
             FSendType := httpSendDoc;   { V7.44 }
+      {  V8.49keep protocol, useful for building URLs  }
+{$IFDEF USE_SSL}
+        if FSslEnable then     { V8.50 was SslEnable }
+            FRequestProtocol := 'https'
+        else
+{$ENDIF}
+            FRequestProtocol := 'http';
         { Next lines will be header lines }
         FState := hcHeader;
         FRequestHasContentLength := FALSE;
@@ -3856,7 +4125,7 @@ begin
     SendHeader(FVersion + ' 501 Unimplemented' + #13#10 +
                'Content-Type: text/plain' + #13#10 +
                'Content-Length: ' + IntToStr(Length(Body)) + #13#10 +
-               GetKeepAliveHdrLines + 
+               GetKeepAliveHdrLines +
                #13#10);
     FAnswerStatus := 501;   { V7.19 }
     if FSendType = httpSendHead then  { V7.44 }
@@ -3871,13 +4140,73 @@ end;
 procedure THttpConnection.ProcessRequest;
 var
     Handled : Boolean;
+{$IFDEF USE_SSL}
+    I, J, TotHosts, NewIdx, MLIndx: integer;
+{$ENDIF}
 begin
     FRequestMethod := httpMethodNone;   { V8.08 keep method as literal }
     if FKeepAlive and (FKeepAliveTimeSec > 0) then
         FKeepAlive := FMaxRequestsKeepAlive > 0;
 
+  { V8.48 see if checking Host: against IcsHosts, should have already
+    been done using SSL server name indication, or bind address/port,
+    but Host: is the preferred choice }
+{$IFDEF USE_SSL}
+    if FServer.WSocketServer is TSslWSocketServer then begin
+        TotHosts := TCustomSslHttpServer(FServer).IcsHosts.Count;
+        MLIndx := FServer.WSocketServer.MultiListenIndex;
+        if (TotHosts > 0) and (FRequestHostName <> '') then begin
+            NewIdx := -1;
+            for I := 0 to TotHosts - 1 do begin
+                with TCustomSslHttpServer(FServer).IcsHosts [I] do begin
+                    if ((BindIdxNone = MLIndx) or  { V8.49 check port as well }
+                        (BindIdx2None = MLIndx) or (BindIdxSsl = MLIndx) or
+                        (BindIdx2Ssl = MLIndx)) and (HostNameTot > 0) then begin
+                        for J := 0 to HostNameTot - 1 do begin
+                            if ((HostNames [J] = '*') or
+                              (HostNames [J] = FRequestHostName)) then begin
+                                NewIdx := I;
+                                break ;
+                            end;
+                        end;
+                    end;
+                end;
+            end;
+            if NewIdx >= 0 then Self.FIcsHostIdx := NewIdx;
+
+       { V8.45 change directories to host site, if found }
+            if FIcsHostIdx >= 0 then begin
+                with TCustomSslHttpServer(FServer).IcsHosts[FIcsHostIdx] do begin
+                    Self.FDocDir := WebDocDir;
+                    Self.FTemplateDir := WebTemplDir;
+                    Self.FDefaultDoc := WebDefDoc;
+                    Self.FHostTag := HostTag;
+                    Self.FWebLogDir := WebLogDir;
+                    Self.FWellKnownPath := WellKnownPath;      { V8.49 }
+                    Self.FWebRedirectURL := WebRedirectURL;    { V8.49 }
+                    Self.FWebRedirectStat := WebRedirectStat;  { V8.50 }
+                    Self.FWebLogIdx := WebLogIdx;              { V8.60 }
+
+                end;
+            end;
+        end;
+    end;
+{$ENDIF}
+
     TriggerBeforeProcessRequest;
 
+  { check for well-known directory, which we treat outside the normal web root }
+    if (FMethod = 'GET') and (FWellKnownPath <> '') then begin
+        if Pos (WellKnownDirStr, IcsLowercase(FPath)) = 1 then begin
+            FDocument := FWellKnownPath + Copy(FPath, Length(WellKnownDirStr), 9999);
+            ProcessWellKnownDir;
+            FKeepAlive := False;
+            CloseDelayed;
+            Exit;
+        end;
+    end;
+
+  { build document file name }
     if FPath = '/' then
         FDocument := FDocDir
     else if (FPath <> '') and (FPath[1] = '/') then
@@ -4107,6 +4436,13 @@ begin
         FOnContEncoded(Self);
 end;
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure THttpConnection.TriggerWellKnownDir(const Path: string; var BodyStr: string);   { V8.49 }
+begin
+    if Assigned(FOnWellKnownDir) then
+        FOnWellKnownDir(Self, Path, BodyStr);
+end;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { handle all methods that don't send any body content }
@@ -4129,10 +4465,10 @@ begin
     else
         Flags := hgSendDoc;
 
-   if (FRequestMethod = httpMethodHead) then begin
+    if (FRequestMethod = httpMethodHead) then begin
         FSendType := httpSendHead;
         TriggerHeadDocument(Flags);
-   end
+    end
     else if (FRequestMethod = httpMethodGet) then
         TriggerGetDocument(Flags)
     else if (FRequestMethod = httpMethodDelete) then
@@ -4200,6 +4536,62 @@ begin
     else
         if FKeepAlive = FALSE then {Bjornar}
             CloseDelayed;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ handle well-known directory separately to main root }
+procedure THttpConnection.ProcessWellKnownDir;  { V8.49 }
+var
+    BodyStr    : string;
+    TempStream : TFileStream;
+    OK         : Boolean;
+begin
+
+  { application event may generate a body to send }
+    BodyStr := '';
+    if Assigned(onWellKnownDir) then begin
+        TriggerWellKnownDir(FPath, BodyStr);
+    end;
+
+  { nothing returned, look for file }
+    if BodyStr = '' then begin
+        OK := FALSE;
+        try
+            if not FileExists(FDocument) then begin
+                { File not found }
+                PrepareGraceFullShutDown;
+                Answer404;
+            end
+            else begin
+                { see if we have access to file, but don't read it yet }
+                TempStream := TFileStream.Create(FDocument, fmOpenRead + fmShareDenyWrite);
+                TempStream.Destroy;
+                OK := TRUE;
+            end;
+        except
+            PrepareGraceFullShutDown;
+            Answer404;
+        end;
+        if OK then begin
+            SendDocument('');  // no custom headers
+            Exit;
+        end;
+    end;
+
+  { create page and send it }
+    if BodyStr = '' then
+        Answer404
+    else begin
+        SendHeader(FVersion + ' 200 OK' + #13#10 +
+               'Content-Length: ' + IntToStr(Length(BodyStr)) + #13#10 +
+               #13#10);
+        FAnswerStatus := 200;
+        if FSendType = httpSendHead then
+            Send(nil, 0)
+        else
+            SendStr(BodyStr);
     end;
 end;
 
@@ -4301,94 +4693,9 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure THttpConnection.ProcessPost;
-{var
-    Flags : THttpGetFlag;  }
 begin
     FRequestMethod := httpMethodPost;
     ProcessPostPutPat;
-(* V8.08 commonise code
-    { POST and no content-length received, we treat this as "bad request"     }
-    { and don't pass it to the component user.                                }
-    if (not FRequestHasContentLength) or (FRequestContentLength < 0) then begin
-        { HTTP/1.0
-          A valid Content-Length is required on all HTTP/1.0 POST requests.
-          An HTTP/1.0 server should respond with a 400 (bad request) message
-          if it cannot determine the length of the request message's content.
-
-          HTTP/1.1
-          The presence of a message-body in a request is signaled by the
-          inclusion of a Content-Length or Transfer-Encoding header field in
-          the request's message-headers.
-          For compatibility with HTTP/1.0 applications, HTTP/1.1 requests
-          containing a message-body MUST include a valid Content-Length header
-          field unless the server is known to be HTTP/1.1 compliant. If a
-          request contains a message-body and a Content-Length is not given,
-          the server SHOULD respond with 400 (bad request) if it cannot
-          determine the length of the message, or with 411 (length required)
-          if it wishes to insist on receiving a valid Content-Length.
-
-          Currently we act as a HTTP/1.0 server. }
-        FKeepAlive := FALSE;
-        Answer400;
-        { We close the connection non-gracefully otherwise we might receive
-          data we cannot handle properly. }
-        CloseDelayed;
-        Exit;
-    end;
-
-{$IFNDEF NO_AUTHENTICATION_SUPPORT}
-    if not FAuthenticated then
-        Flags := hg401
-    else
-{$ENDIF}
-    if FOutsideFlag and (not (hoAllowOutsideRoot in FOptions)) then
-        Flags := hg403
-    else
-        Flags := hg404;
-    FAcceptPostedData := FALSE;
-    TriggerPostDocument(Flags);
-
-    if (not FAcceptPostedData) and (FRequestContentLength > 0) then begin { V7.30 }
-    { The component user doesn't handle posted data.               }
-    { Turn LineMode off if RequestContentLength > 0, we'll turn it }
-    { back on again in our overridden method Receive.              }
-        LineMode     := FALSE;
-        FPostCounter := FRequestContentLength;
-    end
-    else
-        FPostCounter := 0;
-
-    case Flags of
-    hg400:
-        begin
-            FKeepAlive := FALSE;
-            Answer400;
-            CloseDelayed;
-        end;                                                              {/V7.30 }
-    hg401:
-        begin
-            if FKeepAlive = FALSE then {Bjornar}
-                PrepareGraceFullShutDown;
-            Answer401;
-        end;
-    hg403:
-        begin
-            if FKeepAlive = FALSE then {Bjornar}
-                PrepareGraceFullShutDown;
-            Answer403;
-        end;
-    hg404:
-        begin
-            if FKeepAlive = FALSE then {Bjornar}
-                PrepareGraceFullShutDown;
-            Answer404;
-        end;
-    hgAcceptData:
-        FAcceptPostedData := TRUE;
-    else
-        if FKeepAlive = FALSE then {Bjornar}
-            CloseDelayed;
-    end;       *)
 end;
 
 
@@ -4405,148 +4712,17 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure THttpConnection.ProcessHead;
-{var
-    Flags : THttpGetFlag;  }
 begin
     FRequestMethod := httpMethodHead;
     ProcessGetHeadDel;
-(* V8.08 commonise code
-{$IFNDEF NO_AUTHENTICATION_SUPPORT}
-    if not FAuthenticated then
-        Flags := hg401
-    else
-{$ENDIF}
-    if FOutsideFlag and (not (hoAllowOutsideRoot in FOptions)) then
-        Flags := hg403
-    else if (hoAllowDirList in FOptions) and IsDirectory(FDocument) then
-        Flags := hgSendDirList
-    else
-        Flags := hgSendDoc;
-    TriggerHeadDocument(Flags);
-    case Flags of
-    hg401:
-        begin
-            if FKeepAlive = FALSE then {Bjornar}
-                PrepareGraceFullShutDown;
-            Answer401;
-        end;
-    hg403:
-        begin
-            if FKeepAlive = FALSE then {Bjornar}
-                PrepareGraceFullShutDown;
-            Answer403;
-        end;
-    hg404:
-        begin
-            if FKeepAlive = FALSE then {Bjornar}
-                PrepareGraceFullShutDown;
-            Answer404;
-        end;
-    hgSendDoc:
-        begin
-            if FileExists(FDocument) then
-                SendDocument(httpSendHead)
-            else begin
-                if FKeepAlive = FALSE then {Bjornar}
-                    PrepareGraceFullShutDown;
-                Answer404;
-            end;
-        end;
-    hgSendStream:
-        SendStream;
-    hgSendDirList:
-        SendDirList(httpSendHead);
-    hgWillSendMySelf:
-        { Nothing to do };
-    else
-        if FKeepAlive = FALSE then {Bjornar}
-            CloseDelayed;
-    end;    *)
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure THttpConnection.ProcessGet;
-{var
-    Flags      : THttpGetFlag;
-    TempStream : TFileStream;
-    OK         : Boolean;  }
 begin
     FRequestMethod := httpMethodGet;
     ProcessGetHeadDel;
-(*  V8.08 commonise code
-{$IFNDEF NO_AUTHENTICATION_SUPPORT}
-    if not FAuthenticated then
-        Flags := hg401
-    else
-{$ENDIF}
-    if FOutsideFlag and (not (hoAllowOutsideRoot in FOptions)) then
-        Flags := hg403
-    else if (hoAllowDirList in FOptions) and IsDirectory(FDocument) then
-        Flags := hgSendDirList
-    else
-        Flags := hgSendDoc;
-
-    TriggerGetDocument(Flags);
-    case Flags of
-    hg400:                             { V7.30 }
-        begin
-            if FKeepAlive = FALSE then
-                PrepareGraceFullShutDown;
-            Answer400;
-        end;
-    hg401:
-        begin
-            if FKeepAlive = FALSE then {Bjornar}
-                PrepareGraceFullShutDown;
-            Answer401;
-        end;
-    hg403:
-        begin
-            if FKeepAlive = FALSE then {Bjornar}
-                PrepareGraceFullShutDown;
-            Answer403;
-        end;
-    hg404:
-        begin
-            if FKeepAlive = FALSE then {Bjornar}
-                PrepareGraceFullShutDown;
-            Answer404;
-        end;
-    hgSendDoc:
-        begin
-            OK := FALSE;
-            try
-                if not FileExists(FDocument) then begin
-                    { File not found }
-                    if FKeepAlive = FALSE then {Bjornar}
-                        PrepareGraceFullShutDown;
-                    Answer404;
-                end
-                else begin
-                    { see if we have access to file, but don't read it yet }
-                    TempStream := TFileStream.Create(FDocument, fmOpenRead + fmShareDenyWrite);
-                    TempStream.Destroy;
-                    OK := TRUE;
-                end;
-            except
-                if FKeepAlive = FALSE then {Bjornar}
-                    PrepareGraceFullShutDown;
-                Answer404;
-            end;
-            if OK then
-                SendDocument(httpSendDoc)
-        end;
-    hgSendStream:
-        SendStream;
-    hgSendDirList:
-        SendDirList(httpSendDoc);
-    hgWillSendMySelf:
-        { Nothing to do };
-    else
-        if FKeepAlive = FALSE then {Bjornar}
-            CloseDelayed;
-    end;  *)
 end;
 
 
@@ -4678,6 +4854,7 @@ begin
 end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+(* V8.49 moved to OverbyteIcsFormDataDecoder
 function DocumentToContentType(const FileName : String) : String;
 var
     Ext : String;
@@ -4726,28 +4903,6 @@ begin
         Result := 'application/xhtml+xml'    { V7.20 }
     else
         Result := 'application/binary';
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-(* { See also RFC822_DateTime function in SmtpCli component                    }
-{ RFC1123 5.2.14 redefine RFC822 Section 5.                                 }
-function RFC1123_Date(aDate : TDateTime) : String;
-const
-    StrWeekDay : String = 'MonTueWedThuFriSatSun';
-    StrMonth   : String = 'JanFebMarAprMayJunJulAugSepOctNovDec';
-var
-    Year, Month, Day       : Word;
-    Hour, Min,   Sec, MSec : Word;
-    DayOfWeek              : Word;
-begin
-    DecodeDate(aDate, Year, Month, Day);
-    DecodeTime(aDate, Hour, Min,   Sec, MSec);
-    DayOfWeek := ((Trunc(aDate) - 2) mod 7);
-    Result := Copy(StrWeekDay, 1 + DayOfWeek * 3, 3) + ', ' +
-              Format('%2.2d %s %4.4d %2.2d:%2.2d:%2.2d',
-                     [Day, Copy(StrMonth, 1 + 3 * (Month - 1), 3),
-                      Year, Hour, Min, Sec]);
 end;   *)
 
 
@@ -5441,177 +5596,6 @@ begin
 end;
 
 
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TextToHtmlText(const Src: RawByteString) : String;
-begin
-    { Convert the ANSI string to Unicode, HTML entities represent           }
-    { iso-8859-1 (Latin1) and Unicode code points                           }
-    Result := TextToHtmlText(UnicodeString(Src));
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ Convert a string in Windows character set to HTML texte. That is replace  }
-{ all character with code between 160 and 255 by special sequences.         }
-{ For example, 'fête' is replaced by 'f&ecirc;te'                           }
-{ Also handle '<', '>', quote and double quote                              }
-{ Replace multiple spaces by a single space followed by the required number }
-{ of non-breaking-spaces (&nbsp;)                                           }
-{ Replace TAB by a non-breaking-space.                                      }
-function TextToHtmlText(const Src : UnicodeString) : String;
-const
-    HtmlSpecialChars : array [160..255] of String = (
-        'nbsp'   , { #160 no-break space = non-breaking space               }
-        'iexcl'  , { #161 inverted exclamation mark                         }
-        'cent'   , { #162 cent sign                                         }
-        'pound'  , { #163 pound sign                                        }
-        'curren' , { #164 currency sign                                     }
-        'yen'    , { #165 yen sign = yuan sign                              }
-        'brvbar' , { #166 broken bar = broken vertical bar,                 }
-        'sect'   , { #167 section sign                                      }
-        'uml'    , { #168 diaeresis = spacing diaeresis                     }
-        'copy'   , { #169 copyright sign                                    }
-        'ordf'   , { #170 feminine ordinal indicator                        }
-        'laquo'  , { #171 left-pointing double angle quotation mark         }
-        'not'    , { #172 not sign                                          }
-        'shy'    , { #173 soft hyphen = discretionary hyphen,               }
-        'reg'    , { #174 registered sign = registered trade mark sign,     }
-        'macr'   , { #175 macron = spacing macron = overline = APL overbar  }
-        'deg'    , { #176 degree sign                                       }
-        'plusmn' , { #177 plus-minus sign = plus-or-minus sign,             }
-        'sup2'   , { #178 superscript two = superscript digit two = squared }
-        'sup3'   , { #179 superscript three = superscript digit three = cubed }
-        'acute'  , { #180 acute accent = spacing acute,                     }
-        'micro'  , { #181 micro sign                                        }
-        'para'   , { #182 pilcrow sign = paragraph sign,                    }
-        'middot' , { #183 middle dot = Georgian comma = Greek middle dot    }
-        'cedil'  , { #184 cedilla = spacing cedilla                         }
-        'sup1'   , { #185 superscript one = superscript digit one           }
-        'ordm'   , { #186 masculine ordinal indicator,                      }
-        'raquo'  , { #187 right-pointing double angle quotation mark = right pointing guillemet }
-        'frac14' , { #188 vulgar fraction one quarter = fraction one quarter}
-        'frac12' , { #189 vulgar fraction one half = fraction one half      }
-        'frac34' , { #190 vulgar fraction three quarters = fraction three quarters }
-        'iquest' , { #191 inverted question mark = turned question mark     }
-        'Agrave' , { #192 latin capital letter A with grave = latin capital letter A grave, }
-        'Aacute' , { #193 latin capital letter A with acute,                }
-        'Acirc'  , { #194 latin capital letter A with circumflex,           }
-        'Atilde' , { #195 latin capital letter A with tilde,                }
-        'Auml'   , { #196 latin capital letter A with diaeresis,            }
-        'Aring'  , { #197 latin capital letter A with ring above = latin capital letter A ring, }
-        'AElig'  , { #198 latin capital letter AE = latin capital ligature AE, }
-        'Ccedil' , { #199 latin capital letter C with cedilla,              }
-        'Egrave' , { #200 latin capital letter E with grave,                }
-        'Eacute' , { #201 latin capital letter E with acute,                }
-        'Ecirc'  , { #202 latin capital letter E with circumflex,           }
-        'Euml'   , { #203 latin capital letter E with diaeresis,            }
-        'Igrave' , { #204 latin capital letter I with grave,                }
-        'Iacute' , { #205 latin capital letter I with acute,                }
-        'Icirc'  , { #206 latin capital letter I with circumflex,           }
-        'Iuml'   , { #207 latin capital letter I with diaeresis,            }
-        'ETH'    , { #208 latin capital letter ETH                          }
-        'Ntilde' , { #209 latin capital letter N with tilde,                }
-        'Ograve' , { #210 latin capital letter O with grave,                }
-        'Oacute' , { #211 latin capital letter O with acute,                }
-        'Ocirc'  , { #212 latin capital letter O with circumflex,           }
-        'Otilde' , { #213 latin capital letter O with tilde,                }
-        'Ouml'   , { #214 latin capital letter O with diaeresis,            }
-        'times'  , { #215 multiplication sign                               }
-        'Oslash' , { #216 latin capital letter O with stroke = latin capital letter O slash, }
-        'Ugrave' , { #217 latin capital letter U with grave,                }
-        'Uacute' , { #218 latin capital letter U with acute,                }
-        'Ucirc'  , { #219 latin capital letter U with circumflex,           }
-        'Uuml'   , { #220 latin capital letter U with diaeresis,            }
-        'Yacute' , { #221 latin capital letter Y with acute,                }
-        'THORN'  , { #222 latin capital letter THORN,                       }
-        'szlig'  , { #223 latin small letter sharp s = ess-zed,             }
-        'agrave' , { #224 latin small letter a with grave = latin small letter a grave, }
-        'aacute' , { #225 latin small letter a with acute,                  }
-        'acirc'  , { #226 latin small letter a with circumflex,             }
-        'atilde' , { #227 latin small letter a with tilde,                  }
-        'auml'   , { #228 latin small letter a with diaeresis,              }
-        'aring'  , { #229 latin small letter a with ring above = latin small letter a ring, }
-        'aelig'  , { #230 latin small letter ae = latin small ligature ae   }
-        'ccedil' , { #231 latin small letter c with cedilla,                }
-        'egrave' , { #232 latin small letter e with grave,                  }
-        'eacute' , { #233 latin small letter e with acute,                  }
-        'ecirc'  , { #234 latin small letter e with circumflex,             }
-        'euml'   , { #235 latin small letter e with diaeresis,              }
-        'igrave' , { #236 latin small letter i with grave,                  }
-        'iacute' , { #237 latin small letter i with acute,                  }
-        'icirc'  , { #238 latin small letter i with circumflex,             }
-        'iuml'   , { #239 latin small letter i with diaeresis,              }
-        'eth'    , { #240 latin small letter eth                            }
-        'ntilde' , { #241 latin small letter n with tilde,                  }
-        'ograve' , { #242 latin small letter o with grave,                  }
-        'oacute' , { #243 latin small letter o with acute,                  }
-        'ocirc'  , { #244 latin small letter o with circumflex,             }
-        'otilde' , { #245 latin small letter o with tilde,                  }
-        'ouml'   , { #246 latin small letter o with diaeresis,              }
-        'divide' , { #247 division sign                                     }
-        'oslash' , { #248 latin small letter o with stroke, = latin small letter o slash, }
-        'ugrave' , { #249 latin small letter u with grave,                  }
-        'uacute' , { #250 latin small letter u with acute,                  }
-        'ucirc'  , { #251 latin small letter u with circumflex,             }
-        'uuml'   , { #252 latin small letter u with diaeresis,              }
-        'yacute' , { #253 latin small letter y with acute,                  }
-        'thorn'  , { #254 latin small letter thorn,                         }
-        'yuml');   { #255 latin small letter y with diaeresis,              }
-var
-    I, J : Integer;
-    Sub  : String;
-begin
-    Result := '';
-    I := 1;
-    while I <= Length(Src) do begin
-        J   := I;
-        Sub := '';
-        while (I <= Length(Src)) and (Ord(Src[I]) < Low(HtmlSpecialChars)) do begin
-            case Src[I] of
-            ' '  : begin
-                       if (I > 1) and (Src[I - 1] = ' ') then begin
-                           { Replace multiple spaces by &nbsp; }
-                           while (I <= Length(Src)) and (Src[I] = ' ') do begin
-                               Sub := Sub + '&nbsp;';
-                               Inc(I);
-                           end;
-                           Dec(I);
-                       end
-                       else
-                           Inc(I);
-                   end;
-            '<'  : Sub := '&lt;';
-            '>'  : Sub := '&gt;';
-            '''' : sub := '&#39;';
-            '"'  : Sub := '&#34;';
-            '&'  : Sub := '&amp;';
-            #9   : Sub := '&nbsp;';
-            #10  : Sub := #10'<BR>';
-            else
-                Inc(I);
-            end;
-            if Length(Sub) > 0 then begin
-                Result := Result + Copy(Src, J, I - J) + Sub;
-                Inc(I);
-                J      := I;
-                Sub    := '';
-            end;
-        end;
-
-        if I > Length(Src) then begin
-            Result := Result + Copy(Src, J, I - J);
-            Exit;
-        end;
-        if Ord(Src[I]) > 255 then
-            Result := Result + Copy(Src, J, I - J) + '&#' + IntToStr(Ord(Src[I])) + ';'
-        else
-            Result := Result + Copy(Src, J, I - J) + '&' +
-                    HtmlSpecialChars[Ord(Src[I])] + ';';
-        Inc(I);
-    end;
-end;
-
-
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TranslateChar(const Str: String; FromChar, ToChar: Char): String;
 var
@@ -5648,7 +5632,7 @@ begin
   {$ENDIF}
 end;
 
-
+(*
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function RemoveHtmlSpecialChars(const S : String) : String;
 const
@@ -5672,7 +5656,7 @@ begin
             Result := Result + S[I];
         I := I + 1;
     end;
-end;
+end;   *)
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -5750,7 +5734,8 @@ function MakeCookie(
     const Name, Value : String;
     Expires           : TDateTime;
     const Path        : String;
-    const Domain      : String = '') : String;
+    const Domain      : String = '';
+    const Secure      : Boolean = false) : String;   { V8.37 }
 begin
     Result := 'Set-Cookie: ' + Name + '=' + UrlEncode(Value);
     if Length(Value) = 0 then
@@ -5758,7 +5743,9 @@ begin
     else if Expires <> 0 then
         Result := Result + '; EXPIRES=' + RFC1123_Date(Expires);
     if Domain <> '' then Result := Result + '; DOMAIN=' + Domain;   { 7.49 }
-    Result := Result + '; PATH=' + Path + #13#10;
+    Result := Result + '; PATH=' + Path;
+    if Secure then Result := Result + '; Secure; HttpOnly';   { V8.37 }
+    Result := Result + #13#10;
 end;
 
 
@@ -6496,7 +6483,8 @@ begin
     FWSocketServer.OnSslSvrGetSession       := TransferSslSvrGetSession;
     FWSocketServer.OnSslHandshakeDone       := TransferSslHandshakeDone;
     FWSocketServer.OnSslServerName          := TransferSslServerName;  // V8.09
-    fSslEnable                              := TRUE;   // V8.02 Angus
+    FWSocketServer.OnSslAlpnSelect          := TransferSslAlpnSelect;  { V8.56 }
+    fHttpSslEnable                          := TRUE;   // V8.02 Angus, renamed V8.50
 end;
 
 
@@ -6526,7 +6514,8 @@ begin
     THttpConnection(Client).OnSslSetSessionIDContext := TransferSslSetSessionIDContext;
     THttpConnection(Client).OnSslHandshakeDone       := TransferSslHandshakeDone;
     THttpConnection(Client).OnSslServerName          := TransferSslServerName; // V8.09 Angus
-    FWSocketServer.SslEnable                         := fSslEnable;    // V8.02 Angus
+    THttpConnection(Client).OnSslAlpnSelect          := TransferSslAlpnSelect;  { V8.56 }
+    FWSocketServer.SslEnable                         := fHttpSslEnable;    // V8.02 Angus, renamed V8.50
     inherited WSocketServerClientCreate(Sender, Client);
 end;
 
@@ -6616,6 +6605,16 @@ begin
         FOnSslServerName(Sender, Ctx, ErrCode);
 end;
 
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslHttpServer.TransferSslAlpnSelect(Sender: TObject;
+    ProtoList: TStrings; var SelProto : String; var ErrCode: TTlsExtError);  { V8.56 }
+begin
+    if Assigned(FOnSslAlpnSelect) then
+        FOnSslAlpnSelect(Sender, ProtoList, SelProto, ErrCode);
+end;
+
+
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TCustomSslHttpServer.WSocketServerClientConnect(
     Sender  : TObject;
@@ -6632,6 +6631,164 @@ procedure TCustomSslHttpServer.SetAcceptableHostsList(
 begin
     FWSocketServer.SetAcceptableHostsList(SemiColonSeparatedList);
 end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomSslHttpServer.GetIcsHosts: TIcsHostCollection;                     { V8.45 }
+begin
+    if Assigned(FWSocketServer) then
+        Result := TSslWSocketServer(FWSocketServer).GetIcsHosts
+    else
+        Result := nil;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslHttpServer.SetIcsHosts(const Value: TIcsHostCollection);      { V8.45 }
+begin
+    if Assigned(FWSocketServer) then
+        TSslWSocketServer(FWSocketServer).SetIcsHosts(Value);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomSslHttpServer.GetRootCA: String;                                  { V8.46 }
+begin
+    if Assigned(FWSocketServer) then
+        Result := TSslWSocketServer(FWSocketServer).RootCA
+    else
+        Result := '';
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslHttpServer.SetRootCA(const Value: String);                    { V8.46 }
+begin
+    if Assigned(FWSocketServer) then
+        TSslWSocketServer(FWSocketServer).RootCA := Value;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomSslHttpServer.GetDHParams: String;                                { V8.45 }
+begin
+    if Assigned(FWSocketServer) then
+        Result := TSslWSocketServer(FWSocketServer).DHParams
+    else
+        Result := '';
+end;
+
+
+   {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslHttpServer.SetDHParams(const Value: String);                   { V8.45 }
+begin
+    if Assigned(FWSocketServer) then
+        TSslWSocketServer(FWSocketServer).DHParams := Value;
+end;
+
+
+   {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomSslHttpServer.ValidateHosts(Stop1stErr: Boolean=True;
+                                              NoExceptions: Boolean=False): String; { V8.48 }
+
+begin
+    if Assigned(FWSocketServer) then begin
+        Result := TSslWSocketServer(FWSocketServer).ValidateHosts(Stop1stErr, NoExceptions);
+      { bodge because Start sets these again, make it backward compabible }
+        if TSslWSocketServer(FWSocketServer).IcsHosts.Count > 0 then begin
+            FPort := FWSocketServer.Port;
+            FAddr := FWSocketServer.Addr;
+            FHttpSslEnable := FWSocketServer.SslEnable; { V8.50 }
+        end;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomSslHttpServer.RecheckSslCerts(var CertsInfo: String;
+                    Stop1stErr: Boolean=True; NoExceptions: Boolean=False): Boolean;  { V8.48 }
+begin
+    Result := False;
+    if Assigned(FWSocketServer) then begin
+        Result := TSslWSocketServer(FWSocketServer).RecheckSslCerts(CertsInfo,
+                                                        Stop1stErr, NoExceptions);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomSslHttpServer.GetSslCliCertMethod: TSslCliCertMethod;             { V8.57 }
+begin
+    if Assigned(FWSocketServer) then
+        Result := TSslWSocketServer(FWSocketServer).SslCliCertMethod
+    else
+        Result := sslCliCertNone;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslHttpServer.SetSslCliCertMethod(const Value : TSslCliCertMethod); { V8.57 }
+begin
+    if Assigned(FWSocketServer) then
+        TSslWSocketServer(FWSocketServer).SslCliCertMethod := Value;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomSslHttpServer.GetSslCertAutoOrder: Boolean;                       { V8.57 }
+begin
+    if Assigned(FWSocketServer) then
+        Result := TSslWSocketServer(FWSocketServer).SslCertAutoOrder
+    else
+        Result := False;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslHttpServer.SetSslCertAutoOrder(const Value : Boolean);         { V8.57 }
+begin
+    if Assigned(FWSocketServer) then
+        TSslWSocketServer(FWSocketServer).SslCertAutoOrder := Value;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomSslHttpServer.GetCertExpireDays: Integer;                         { V8.57 }
+begin
+    if Assigned(FWSocketServer) then
+        Result := TSslWSocketServer(FWSocketServer).CertExpireDays
+    else
+        Result := 30;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslHttpServer.SetCertExpireDays(const Value : Integer);           { V8.57 }
+begin
+    if Assigned(FWSocketServer) then
+        TSslWSocketServer(FWSocketServer).CertExpireDays := Value;
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{$IFDEF AUTO_X509_CERTS}  { V8.59 }
+function TCustomSslHttpServer.GetSslX509Certs: TSslX509Certs;    { V8.57 }
+begin
+    if Assigned(FWSocketServer) then
+        Result := TSslWSocketServer(FWSocketServer).GetSslX509Certs as TSslX509Certs
+    else
+        Result := nil;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslHttpServer.SetSslX509Certs(const Value : TSslX509Certs);    { V8.57 }
+begin
+    if Assigned(FWSocketServer) then
+        TSslWSocketServer(FWSocketServer).SetSslX509Certs(Value);
+end;
+{$ENDIF} // AUTO_X509_CERTS
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -6961,7 +7118,7 @@ begin
         for I := 0 to RangeList.Count-1 do begin
             if RangeList.Count > 1 then begin
                 AStream := TMemoryStream.Create;
-                if I <> 0 then 
+                if I <> 0 then
                     StreamWriteLnA(AStream, '');
                 StreamWriteLnA(AStream, '--' + ByteRangeSeparator);
                 StreamWriteLnA(AStream, 'Content-Type: ' + ContentString);
@@ -7038,7 +7195,9 @@ var
     Rec       : THttpPartStream;
 begin
 {$IFNDEF WIN64}  { V7.37 }
+  {$IFNDEF DELPHI24_UP}
     Rec := nil;  { Just to remove a compiler warning }
+  {$ENDIF}
 {$ENDIF}
     if (FPosition >= 0) and (Count >= 0) then begin
         //Result := FSize - FPosition;

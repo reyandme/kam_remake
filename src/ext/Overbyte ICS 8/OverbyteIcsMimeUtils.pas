@@ -4,11 +4,11 @@
 Author:       François PIETTE
 Object:       Mime support routines (RFC2045).
 Creation:     May 03, 2003  (Extracted from SmtpProt unit)
-Version:      8.04
+Version:      8.57
 EMail:        francois.piette@overbyte.be   http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2003-2016 by François PIETTE
+Legal issues: Copyright (C) 2003-2018 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -68,7 +68,7 @@ May 01, 2008  V6.06 A. Garrels - Function names adjusted according to changes in
                     OverbyteIcsLibrary.pas and use of OverbyteIcsUtils.pas.
 Jul 20, 2008  V6.07 A. Garrels Changed IcsWrapText according to SysUtils.WrapText,
                     added parameter CodePage to StrEncodeQP, added an overloaded
-                    version of func. NeedsEncoding. 
+                    version of func. NeedsEncoding.
 Jul 24, 2008 V6.08  A. Garrels - NeedsEncoding() returned "False" for character
                     #127.
 Aug 03, 2008 v6.09  A. Garrels changed some string types again.
@@ -119,7 +119,12 @@ Oct 17, 2012 V8.01 Max Terentiev fixed a serious bug in StrEncodeQPEx()
 Feb 10, 2014 V8.02 Angus added builtin MIME types for js and json
 Nov 23, 2015 V8.03 Eugene Kotlyarov fix MacOSX compilation and compiler warnings
 Feb 23, 2016 V8.04 - Angus renamed TBufferedFileStream to TIcsBufferedFileStream
-
+Aug 16, 2017 V8.50 - Angus TMimeTypesList always adds major missing standard MIME
+                      types after other methods to avoid unknown types
+                     AddContentType has option to ignore duplicate extensions to
+                       avoid changing previous ones
+Nov 23, 2017 V8.51 - Angus fixed memory leak introduced in V8.50
+Oct 5, 2018  V8.57 - Added AnsiStrings to resolve compiler warnings
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsMimeUtils;
@@ -170,14 +175,17 @@ uses
     {$IFDEF RTL_NAMESPACES}System.Classes{$ELSE}Classes{$ENDIF},
     {$IFDEF RTL_NAMESPACES}System.IniFiles{$ELSE}IniFiles{$ENDIF},
     {$IFDEF RTL_NAMESPACES}System.Math{$ELSE}Math{$ENDIF},
+{$IFDEF COMPILER18_UP}
+    {$IFDEF RTL_NAMESPACES}System.AnsiStrings{$ELSE}AnsiStrings{$ENDIF},
+{$ENDIF}
     OverbyteIcsTypes,
     OverbyteIcsUtils,
     OverbyteIcsCsc,
     OverbyteIcsCharsetUtils;
 
 const
-    TMimeUtilsVersion = 804;
-    CopyRight : String = ' MimeUtils (c) 2003-2016 F. Piette V8.04 ';
+    TMimeUtilsVersion = 857;
+    CopyRight : String = ' MimeUtils (c) 2003-2018 F. Piette V8.57 ';
 
     SmtpDefaultLineLength = 76; // without CRLF
     SMTP_SND_BUF_SIZE     = 2048;
@@ -404,6 +412,7 @@ private
     FContentList: THashedStringList;
     FExtensionList: THashedStringList;
     FDefaultTypes: TStringList;
+    FStndTypes: TStringList;      { V8.50 }
     FUnknownType: string;
     FMimeTypesFile: string;
     FLoadOSonDemand: boolean;
@@ -425,7 +434,7 @@ public
   This method ignores duplicate contents but updates duplicate extensions
   with new content This method may be used to correct any erroneous
   MIME types read from the OS }
-    function AddContentType (const AExtn, AContent: string): boolean;
+    function AddContentType (const AExtn, AContent: string; IgnoreDup: Boolean = false): boolean;  { V8.50 new ignore }
 {$IFDEF MSWINDOWS}
 { load MIME type list from Windows classes registry }
     function LoadWinReg: boolean;
@@ -435,7 +444,7 @@ public
 { load MIME type list from DefaultTypes string list }
     function LoadFromList: boolean;
 { load MIME type list from an Apache format MIME file (usually called mime.types)
-  with format  text/html					html htm }
+  with format  text/html                    html htm }
     function LoadMimeFile (const AFileName: string): boolean;
 { load MIME type list from a program resource in key=value format }
     function LoadFromResource (const AResName: string): boolean;
@@ -449,7 +458,7 @@ public
   This method ignores duplicate contents but updates duplicate extensions
   with new content This method may be used to correct any erroneous
   MIME types read from the OS }
-    procedure AddContentTypes (AList: TStrings);
+    procedure AddContentTypes (AList: TStrings; IgnoreDup: Boolean = false);  { V8.50 new ignore }
 { get MIME type list to a string list in key=value format }
     procedure GetContentTypes (AList: TStrings);
 { get the MIME content type for a file extension with leading dot }
@@ -667,6 +676,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ note this function not really used, instead use TMimeTypesList }
 function FilenameToContentType(FileName : String) : String;
 var
     Ext : String;
@@ -837,7 +847,7 @@ begin
             end
             else begin
                 Inc(I);
-                Result[I] := Buf; 
+                Result[I] := Buf;
             end;
         end;
     end;
@@ -1019,7 +1029,7 @@ begin
         SB[I] := Char(DataOut[I]);
     Result := SB.ToString;
 {$ELSE}
-    Result := StrPas(PAnsiChar(@DataOut[0]));
+    Result := IcsStrPas(PAnsiChar(@DataOut[0]));    { V8.57 }
 {$ENDIF}
 end;
 
@@ -1459,6 +1469,7 @@ end;
 {$ENDIF}
 
 
+
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { Any BreakStr not in a quoted string is truncated and the function returns!   }
 { i.e. when BreakStr #13#10#9 is found cPos returned is pos of char #9 + 1.    }
@@ -1506,9 +1517,11 @@ begin
         //else begin
             if CurChar = BreakStr[1] then begin
                 if QuoteChar = #0 then begin
-                    ExistingBreak := StrLComp(PAnsiChar(BreakStr),
-                                              PAnsiChar(@Line[cPos]),
-                                              BreakLen) = 0;
+{$IFDEF COMPILER18_UP}
+                    ExistingBreak := System.AnsiStrings.StrLComp(PAnsiChar(BreakStr), PAnsiChar(@Line[cPos]), BreakLen) = 0;   { V8.57 }
+{$ELSE}
+                    ExistingBreak := StrLComp(PAnsiChar(BreakStr), PAnsiChar(@Line[cPos]), BreakLen) = 0;
+{$ENDIF}
                     if ExistingBreak then begin
                         Inc(cPos, BreakLen - 1);
                         BreakPos := cPos;
@@ -1968,7 +1981,7 @@ var
         Inc(cPos);
         lPos := 1;
     end;
-    
+
 begin;
     if MaxCol < 16 then MaxCol := 16;
     { Allocate max. possible result string        }
@@ -1996,7 +2009,7 @@ begin;
         if (Ord(Input[rPos]) > 126)  or
            (Ord(Input[rPos]) < 32)   or
            (Input[rPos]      = '=')  or
-           (Input[rPos] in Specials) then begin            
+           (Input[rPos] in Specials) then begin
             Result[cPos] := '=';
             Inc(cPos);
             Result[cPos] := HexTable[(Ord(Input[rPos]) shr 4) and 15];
@@ -2294,7 +2307,7 @@ var
                     DstPtr^ := HexTable[(Ord(C) shr 4) and 15];
                     Inc(DstPtr);
                     DstPtr^ := HexTable[Ord(C) and 15];
-                end;    
+                end;
             end
             else
                 DstPtr^ := C;
@@ -2513,44 +2526,49 @@ begin
     FContentList := THashedStringList.Create;
     FExtensionList := THashedStringList.Create;  // there are often multiple file extensions for each content type
     FDefaultTypes := TStringList.Create;
+    FStndTypes := TStringList.Create;      { V8.50 }
     FMimeTypesFile := MIME_TYPE_FILE;
     FUnknownType := 'application/octet-stream';  // or  'application/binary'
     FLoadOSonDemand := true;
     FLoaded := false;
     FMimeTypeSrc := MTypeList ;
-    FDefaultTypes.Add ('.htm=text/html');
-    FDefaultTypes.Add ('.html=text/html');
-    FDefaultTypes.Add ('.gif=image/gif');
-    FDefaultTypes.Add ('.bmp=image/bmp');
-    FDefaultTypes.Add ('.jpg=image/jpeg');
-    FDefaultTypes.Add ('.jpeg=image/jpeg');
-    FDefaultTypes.Add ('.tif=image/tiff');
-    FDefaultTypes.Add ('.tiff=image/tiff');
-    FDefaultTypes.Add ('.txt=text/plain');
-    FDefaultTypes.Add ('.css=text/css');
-    FDefaultTypes.Add ('.wav=audio/x-wav');
-    FDefaultTypes.Add ('.ico=image/x-icon');
-    FDefaultTypes.Add ('.wml=text/vnd.wap.wml');
-    FDefaultTypes.Add ('.wbmp=image/vnd.wap.wbmp');
-    FDefaultTypes.Add ('.wmlc=application/vnd.wap.wmlc');
-    FDefaultTypes.Add ('.wmlscript=text/vnd.wap.wmlscript');
-    FDefaultTypes.Add ('.wmlscriptc=application/vnd.wap.wmlscriptc');
-    FDefaultTypes.Add ('.pdf=application/pdf');
-    FDefaultTypes.Add ('.png=image/png');
-    FDefaultTypes.Add ('.xml=application/xml');   // 'application/xml' (Apache) or 'text/xml' (Windows)
-    FDefaultTypes.Add ('.xhtml=application/xhtml+xml');
-    FDefaultTypes.Add ('.zip=application/zip');           // or 'application/binary'
-    FDefaultTypes.Add ('.exe=application/x-msdownload');  // or 'application/binary'
-    FDefaultTypes.Add ('.msi=application/x-msdownload');  // or 'application/binary'
-    FDefaultTypes.Add ('.bin=application/octet-stream');  // or 'application/binary'
-    FDefaultTypes.Add ('.iso=application/octet-stream');  // or 'application/binary'
-    FDefaultTypes.Add ('.js=application/javascript');     // V8.02
-    FDefaultTypes.Add ('.json=application/json');         // V8.02
+
+  { V8.50 these detaults are always added after any other lists, in case some missing }
+    FStndTypes.Add ('.htm=text/html');
+    FStndTypes.Add ('.html=text/html');
+    FStndTypes.Add ('.gif=image/gif');
+    FStndTypes.Add ('.bmp=image/bmp');
+    FStndTypes.Add ('.jpg=image/jpeg');
+    FStndTypes.Add ('.jpeg=image/jpeg');
+    FStndTypes.Add ('.tif=image/tiff');
+    FStndTypes.Add ('.tiff=image/tiff');
+    FStndTypes.Add ('.txt=text/plain');
+    FStndTypes.Add ('.css=text/css');
+    FStndTypes.Add ('.wav=audio/x-wav');
+    FStndTypes.Add ('.ico=image/x-icon');
+    FStndTypes.Add ('.wml=text/vnd.wap.wml');
+    FStndTypes.Add ('.wbmp=image/vnd.wap.wbmp');
+    FStndTypes.Add ('.wmlc=application/vnd.wap.wmlc');
+    FStndTypes.Add ('.wmlscript=text/vnd.wap.wmlscript');
+    FStndTypes.Add ('.wmlscriptc=application/vnd.wap.wmlscriptc');
+    FStndTypes.Add ('.pdf=application/pdf');
+    FStndTypes.Add ('.png=image/png');
+    FStndTypes.Add ('.xml=application/xml');   // 'application/xml' (Apache) or 'text/xml' (Windows)
+    FStndTypes.Add ('.xhtml=application/xhtml+xml');
+    FStndTypes.Add ('.zip=application/zip');           // or 'application/binary'
+    FStndTypes.Add ('.exe=application/x-msdownload');  // or 'application/binary'
+    FStndTypes.Add ('.msi=application/x-msdownload');  // or 'application/binary'
+    FStndTypes.Add ('.bin=application/octet-stream');  // or 'application/binary'
+    FStndTypes.Add ('.iso=application/octet-stream');  // or 'application/binary'
+    FStndTypes.Add ('.js=application/javascript');     // V8.02
+    FStndTypes.Add ('.json=application/json');         // V8.02
+    FDefaultTypes.Assign(FStndTypes);    { V8.50 }
 end ;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 destructor TMimeTypesList.Destroy;
 begin
+    FStndTypes.Free;      { V8.51 }
     FContentList.Free;
     FExtensionList.Free;
     FDefaultTypes.Free;
@@ -2584,7 +2602,8 @@ begin
     if FDefaultTypes.Count  =  0 then exit;
     Clear;
     FLoaded := true;
-    AddContentTypes (FDefaultTypes);
+    AddContentTypes(FDefaultTypes, False);
+    AddContentTypes(FStndTypes, True);  { V8.50 add any missing standard types }
     result := true;
 end;
 
@@ -2690,6 +2709,7 @@ begin
         FreeMem(Buf);
         RegCloseKey(KeyHandle);
     end;
+    AddContentTypes(FStndTypes, True);  { V8.50 add any missing standard types }
 end;
 {$IFDEF WIN64}  { V8.03 }
 {$HINTS ON}
@@ -2700,7 +2720,7 @@ end;
 { this is the mime.types file distributed with Apache, the Linux web server
  it will load about 880 file extensions for 680 content types with latest file
  which has content type followed by tabs or space, then one or more extensions:
-text/html					html htm
+text/html                   html htm
 # text/javascript  }
 
 function TMimeTypesList.LoadMimeFile (const AFileName: string): boolean;
@@ -2725,35 +2745,37 @@ begin
     Clear;
     FLoaded := true;
     FLoadOSonDemand := false;
-    if NOT FileExists (AFileName) then exit ;
-    try
-        Lines := TStringList.Create;
+    if FileExists (AFileName) then begin
         try
-            Lines.LoadFromFile (AFileName);
-            for I := 0 to Lines.Count - 1 do
-            begin
-                S := Lines [I] ;
-                if Pos ('#', S) > 0 then continue;  // skip comment lines
-                C1 := ScanArg (1) ;  // find end of content type
-                X1 := C1 + 1 ;
-                while X1 < Length (S) do  // multiple extensions per content type
+            Lines := TStringList.Create;
+            try
+                Lines.LoadFromFile (AFileName);
+                for I := 0 to Lines.Count - 1 do
                 begin
-                    while IsSpace (S [X1]) do
+                    S := Lines [I] ;
+                    if Pos ('#', S) > 0 then continue;  // skip comment lines
+                    C1 := ScanArg (1) ;  // find end of content type
+                    X1 := C1 + 1 ;
+                    while X1 < Length (S) do  // multiple extensions per content type
                     begin
-                        inc (X1);
-                        if X1 > Length (S) then break ;
+                        while IsSpace (S [X1]) do
+                        begin
+                            inc (X1);
+                            if X1 > Length (S) then break ;
+                        end;
+                        X2 := ScanArg (X1) ;
+                        if X2 > X1 then AddContentType ('.' + Copy (S, X1, X2 - X1), Copy (S, 1, C1 - 1)) ;
+                        X1 := X2 + 1 ;
                     end;
-                    X2 := ScanArg (X1) ;
-                    if X2 > X1 then AddContentType ('.' + Copy (S, X1, X2 - X1), Copy (S, 1, C1 - 1)) ;
-                    X1 := X2 + 1 ;
-                end;
-            end ;
-            Result := True;
-        except
+                end ;
+                Result := True;
+            except
+            end;
+        finally
+           FreeAndNil (Lines);
         end;
-    finally
-       FreeAndNil (Lines);
     end;
+    AddContentTypes(FStndTypes, True);  { V8.50 add any missing standard types }
 end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -2783,6 +2805,7 @@ begin
         FreeAndNil (Rs);
         FreeAndNil (Lines);
     end;
+    AddContentTypes(FStndTypes, True);  { V8.50 add any missing standard types }
 end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -2793,19 +2816,21 @@ var
     Lines: TStringList;
 begin
     result := false ;
-    if NOT FileExists (AFileName) then exit ;
-    try
-        Lines := TStringList.Create;
+    if NOT FileExists (AFileName) then begin
         try
-            Lines.LoadFromFile (AFileName);
-            LoadContentTypes (Lines);
-            Result := True;
-        except
+            Lines := TStringList.Create;
+            try
+                Lines.LoadFromFile (AFileName);
+                LoadContentTypes (Lines);
+                Result := True;
+            except
+            end;
+        finally
+           FreeAndNil (Lines);
         end;
-    finally
-       FreeAndNil (Lines);
     end;
-end;
+    AddContentTypes(FStndTypes, True);  { V8.50 add any missing standard types }
+ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { a list in key/value format, ie: .htm=text/html  }
@@ -2830,10 +2855,11 @@ begin
 end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ extension needs leading dot, ignores duplicate contents but updates
+{ extension needs leading dot, ignores duplicate contents but optionally updates
   duplicate extensions with new content }
 
-function TMimeTypesList.AddContentType (const AExtn, AContent: string): boolean;
+function TMimeTypesList.AddContentType (const AExtn, AContent: string;
+                                                IgnoreDup: Boolean = false): boolean;  { V8.50 new ignore }
 var
     IX, IC: integer;
     SX, SC: string;
@@ -2859,7 +2885,8 @@ begin
     end
     else
     begin
-        if Integer (FExtensionList.Objects [IX]) <> IC then  // update pointer to content if wrong
+       // update pointer to content if wrong - V8.50 made optional
+        if (NOT IgnoreDup) and (Integer (FExtensionList.Objects [IX]) <> IC) then
         begin
             FExtensionList.Objects [IX] := TObject (IC);
             result := true;
@@ -2870,7 +2897,7 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { a list in key/value format without clearing old list, ie: .htm=text/html  }
 
-procedure TMimeTypesList.AddContentTypes (AList: TStrings);
+procedure TMimeTypesList.AddContentTypes (AList: TStrings; IgnoreDup: Boolean = false);  { V8.50 new ignore }
 var
     I, J: integer ;
 begin
@@ -2879,7 +2906,8 @@ begin
     for I := 0 to AList.Count - 1 do
     begin
         J := Pos ('=', AList [I]) ;
-        if J > 1 then AddContentType (Copy (AList [I], 1, J-1), Copy (AList [I], J+1, 99)) ;
+        if J > 1 then
+            AddContentType (Copy (AList [I], 1, J-1), Copy (AList [I], J+1, 99), IgnoreDup) ;
     end;
 end;
 
@@ -2891,7 +2919,7 @@ begin
     if NOT Assigned (AList) then exit;
     Clear;
     FLoaded := true;
-    AddContentTypes (AList);
+    AddContentTypes (AList, False);
 end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -2914,14 +2942,16 @@ end;
 function TMimeTypesList.TypeFromExtn(const AExtn: string): string;
 var
     IX, IC: integer;
+    SX: String;
 begin
     if NOT FLoaded then LoadTypeList;
+    SX := LowerCase (AExtn);  // V8.50 clean up
     IC := -1;
-    IX := FExtensionList.IndexOf (LowerCase (AExtn));
+    IX := FExtensionList.IndexOf (SX);
     if (IX < 0) and FLoadOSonDemand then  // not found extension, see if looking harder
     begin
         LoadFromOS;
-        IX := FExtensionList.IndexOf (LowerCase (AExtn));
+        IX := FExtensionList.IndexOf (SX);
     end;
     if IX >= 0 then IC := Integer (FExtensionList.Objects [IX]);
     if IC >= 0 then
@@ -2978,6 +3008,7 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TMimeTypesList.LoadTypeList: boolean;
 begin
+    Clear;    { V8.50 clear now }
     case FMimeTypeSrc of
         MTypeList: result := LoadFromList;
         MTypeOS: result := LoadFromOS;

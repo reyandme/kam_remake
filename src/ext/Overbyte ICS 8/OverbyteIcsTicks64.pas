@@ -4,9 +4,9 @@ Author:       Angus Robertson, Magenta Systems Ltd
 Description:  GetTickCount64 support for all versions of Windows
 Creation:     3 September 2009
 Updated:      22 May 2012
-Version:      8.00
+Version:      8.01
 Email:        delphi@magsys.co.uk  http://www.magsys.co.uk
-Legal issues: Copyright (C) 2009 by Magenta Systems Ltd, England
+Legal issues: Copyright (C) 2016 by Magenta Systems Ltd, England
 
               This software is provided 'as-is', without any express or
               implied warranty.  In no event will the author be held liable
@@ -34,7 +34,7 @@ Updates:
 3 Sep 2009 - 1.00 baseline Angus
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
-
+Aug 2016 - V8.01 - avoid integer overflow in IcsAddTrgMsecs64
 
 
 Background:
@@ -377,7 +377,10 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function IcsAddTrgMsecs64 (const TickCount, MilliSecs: int64): int64;
 begin
-    Result := MilliSecs + TickCount ;
+    if TickCount >= Trigger64Immediate then  { V8.01 avoid integer overflow }
+        Result := IcsGetTickCount64
+    else
+        Result := MilliSecs + TickCount ;
 end;
 
 

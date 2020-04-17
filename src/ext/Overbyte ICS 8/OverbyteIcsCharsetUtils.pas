@@ -14,11 +14,11 @@ Description:  A place for MIME-charset stuff.
               http://msdn.microsoft.com/en-us/library/ms776446.aspx
               http://www.iana.org/assignments/character-sets
 Creation:     July 17, 2008
-Version:      V8.00
+Version:      V8.61
 EMail:        http://www.overbyte.be       francois.piette@overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2002-2012 by François PIETTE
+Legal issues: Copyright (C) 2002-2019 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -89,6 +89,15 @@ Nov 18, 2009 V7.11 Added MimeCharsetToCodePageEx(), MimeCharsetToCodePageExDef()
 May 07, 2010 v7.12 Should be POSIX-ready.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+Sep 18, 2017 V8.40 Added various functions to find the codepage for an HTML page
+                     and convert a buffer to a unicode string, IcsFindHtmlCharset,
+                     IcsFindHtmlCodepage, IcsContentCodepage, IcsHtmlToStr, which
+                     take either a TBytes buffer or stream as input.
+Apr 25, 2018 V8.54 IcsHtmlToStr accepts json/xml as textual
+Apr 24, 2019 V8.61 IcsHtmlToStr returns javascript content as well as XML and Json.
+                   IcsHtmlToStr doesn't give up on tiny responses.
+
+                   
 
 //
 // Windows codepage Identifiers, June 2008, for a current list try
@@ -283,7 +292,9 @@ uses
     {$IFDEF RTL_NAMESPACES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
     {$IFDEF RTL_NAMESPACES}System.Classes{$ELSE}Classes{$ENDIF},
     {$IFDEF RTL_NAMESPACES}System.Contnrs{$ELSE}Contnrs{$ENDIF},
-    OverbyteIcsUtils;
+    OverbyteIcsFormDataDecoder,    { V8.50 }
+    OverbyteIcsUtils,
+    OverbyteIcsTypes;  { V8.50 for TBytes }
 
 const
     MAX_CODEPAGE          = High(WORD);
@@ -536,6 +547,24 @@ function  GetCPInfoEx(CodePage: UINT; dwFlags: DWORD; var lpCPInfoEx: CPINFOEX):
 procedure GetFriendlyCharsetList(Items: TStrings; IncludeList: TMimeCharsets; ClearItems: Boolean = True);
 procedure GetMimeCharsetList(Items: TStrings; IncludeList: TMimeCharsets; ClearItems: Boolean = True);
 
+{ find charset for HTML page in buffer from meta tags }
+function IcsFindHtmlCharset(HtmlData: TBytes; Count: Integer): String;      { V8.50 }
+{ find codepage for HTML page in buffer }
+function IcsFindHtmlCodepage(HtmlData: TBytes; Count: Integer; var BOMSize: Integer): Longword; overload;  { V8.50 }
+{ find codepage for HTML page in stream }
+function IcsFindHtmlCodepage(HtmlStream: TStream; var BOMSize: Integer): Longword; overload;  { V8.50 }
+{ find codepage from HTTP content-type header }
+function IcsContentCodepage(ContentType: String): Longword;   { V8.50 }
+{ convert HTML page in buffer to string with correct codepage }
+function IcsHtmlToStr(HtmlData: TBytes; Count: Integer; ACodePage: Longword;
+                                            Entities: Boolean = False): UnicodeString; overload;   { V8.50 }
+{ convert HTML page in stream to string with correct codepage }
+function IcsHtmlToStr(HtmlStream: TStream; ACodePage: Longword;
+                                            Entities: Boolean = False): UnicodeString; overload;    { V8.50 }
+{ convert HTML page in stream to string with correct codepage }
+function IcsHtmlToStr(HtmlStream: TStream; const ContentHdr: String;
+                                            Entities: Boolean = False): UnicodeString; overload;    { V8.50 }
+
 var
     IcsSystemCodePage     : LongWord;
 {$IFDEF MSWINDOWS}
@@ -547,7 +576,7 @@ var
 implementation
 
 resourcestring
-    { Charsets, user-friendly names, known from OE and IE }  
+    { Charsets, user-friendly names, known from OE and IE }
     sArabicISO                  = 'Arabic (ISO)'; //28596
     sArabicWindows              = 'Arabic (Windows)'; //1256
     sBalticISO                  = 'Baltic (ISO)'; //28594
@@ -1578,6 +1607,247 @@ begin
         //CharsetInfos[Ord(CS_DEFAULT)].FriendlyName := CharsetInfos[Ord(CS)].FriendlyName;
     end;
 end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ find charset for HTML page in buffer from meta tags }
+function IcsFindHtmlCharset(HtmlData: TBytes; Count: Integer): String;    { V8.50 }
+var
+    offset, I: Integer;
+    value: String;
+
+    procedure SkipBlanks;
+    begin
+        while (IsSpaceOrCRLF(AnsiChar(HtmlData[offset])) or
+                (HtmlData[offset] = Byte('/'))) and (offset < count) do inc(offset);
+    end;
+
+    procedure FindValue;
+    var
+        delim: Byte;
+        start: Integer;
+    begin
+        value := '';
+        while (HtmlData[offset] <> Byte('=')) and (offset < count) do inc(offset);
+        inc(offset);
+        delim := HtmlData[offset];
+        inc(offset);
+        start := offset;
+        while (HtmlData[offset] <> delim) and (offset < count) do inc(offset);
+        if (HtmlData[offset] <> delim) then exit;
+        IcsMoveTBytesToString(HtmlData, start, value, 1, offset - start);
+        value := IcsLowercase(value);
+        inc(offset);
+    end;
+
+begin
+    Result := '';
+    if Count > Length(HtmlData) then Count := Length(HtmlData);  { sanity check }
+
+ { look for meta charset header }
+    offset := 0;
+    while (offset < Count) do begin
+
+      { skip comments '<!-- xx --> }
+        if HtmlData[offset] = Byte('<') then begin
+            if IcsTbytesStarts(TBytes(@HtmlData[Offset]), '<!--'#0) then begin
+                offset := offset + 4;
+                while (HtmlData[offset] <> Byte('>')) and
+                        (HtmlData[offset - 2] <> Byte('-'))  and
+                                             (offset < count) do inc(offset);
+            end;
+        end ;
+
+     { check for meta tag, then attribute }
+     { ie <meta charset="UTF-8"/>   }
+     { ie <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> }
+     { ie <meta content="text/html; charset=utf-8" http-equiv="Content-Type" > }
+     { ignore <meta content="en-gb" http-equiv="Content-Language">  }
+        if HtmlData[offset] = Byte('<') then begin
+            if IcsTbytesStarts(TBytes(@HtmlData [Offset]), '<meta'#0) then begin  // META, Meta or meta
+                offset := offset + 5;
+                SkipBlanks;
+                if IcsTbytesStarts(TBytes(@HtmlData[Offset]), 'charset'#0) then begin
+                    FindValue;
+                    if value <> '' then begin
+                        Result := value;
+                        Exit;
+                    end;
+                 end;
+                SkipBlanks;
+                if IcsTbytesStarts(TBytes(@HtmlData[Offset]), 'http-equiv='#0) then begin
+                  //  FindValue;
+                 //   if value = 'content-type' then pragma := True;  // don't really care
+                 end;
+                SkipBlanks;
+                if IcsTbytesStarts(TBytes(@HtmlData[Offset]), 'content='#0) then begin
+                    FindValue;
+                    I := Pos('charset=', value);
+                    if I > 0 then begin
+                        Result := Copy(value, I + 8, 999);
+                        Exit;
+                    end;
+                end;
+            end;
+        end ;
+        inc(offset);
+    end ;
+
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ find codepage for HTML page in buffer }
+function IcsFindHtmlCodepage(HtmlData: TBytes; Count: Integer; var BOMSize: Integer): Longword;   { V8.50 }
+var
+    charset: CsuString;
+    CharsetDetectResult: TCharsetDetectResult;
+begin
+    BOMSize := 0;
+    Result := 0;
+    if Count > Length(HtmlData) then Count := Length(HtmlData);  { sanity check }
+
+ { html may have BOM bytes are the front, very easy }
+    Result := IcsGetBufferCodepage (@HtmlData[0], 4, BOMSize);
+    if BOMSize <> 0 then Exit;   // found it already, remember to remove it
+
+ { check two byte unicode }
+    if (HtmlData[1] = 0) and (HtmlData[3] = 0) then begin
+        Result := CP_UTF16;
+        Exit;
+    end;
+
+ { look for charset in meta headers }
+    charset := IcsFindHtmlCharset(HtmlData, Count);
+    if (charset <> '') then begin
+        if MimeCharsetToCodePage(charset, Result) then Exit;
+    end;
+
+ { look for UTF8 characters, beware may only small part of page }
+ { warning - MSIE and Firefox don't do this and assume page is ANSI }
+    CharsetDetectResult := CharSetDetect(HtmlData, Count);
+    if CharsetDetectResult = cdrUtf8 then Result := CP_UTF8;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ find codepage for HTML page in stream }
+function IcsFindHtmlCodepage(HtmlStream: TStream; var BOMSize: Integer): Longword;     { V8.50 }
+var
+    HtmlData: TBytes;
+    Count: Integer;
+begin
+    SetLength(HtmlData, 2048 + 2);
+    HtmlStream.Seek(0, soFromBeginning);
+    count := HtmlStream.Size;
+    if count > 2048 then count := 2048;
+    HtmlStream.ReadBuffer(HtmlData[0], count);
+    HtmlData[count] := 0;
+    HtmlData[count+1] := 0;
+    HtmlStream.Seek(0, soFromBeginning);
+    Result := IcsFindHtmlCodepage(HtmlData, Count, BOMSize);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ find codepage from HTTP content-type header }
+function IcsContentCodepage(ContentType: String): Longword;   { V8.50 }
+var
+    charset: CsuString;
+    I: Integer;
+begin
+    Result := 0;
+    ContentType := IcsLowerCase(ContentType);
+    I := Pos('charset=', ContentType);
+    if I = 0 then Exit;
+    charset := Copy(ContentType, I + 8, 999);
+    if (charset <> '') then
+         MimeCharsetToCodePage(charset, Result);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ convert HTML page in buffer to string with correct codepage }
+function IcsHtmlToStr(HtmlData: TBytes; Count: Integer; ACodePage: Longword;
+                                            Entities: Boolean = False): UnicodeString;   { V8.50 }
+var
+    BOMSize: Integer;
+begin
+    BOMSize := 0;
+    Result := '';
+    if Count > Length(HtmlData) then Count := Length(HtmlData);  { sanity check }
+
+ { html may have BOM bytes are the front, very easy }
+    if Count >= 4 then  { V8.61 don't give up on tiny responses }
+        IcsGetBufferCodepage(@HtmlData[0], 4, BOMSize);
+
+    if (ACodePage = CP_UTF16) or (ACodePage = CP_UTF16Be) or (NOT Entities) then
+ { convert to unicode, ignoring entities like &pound; and &#9741; }
+        IcsMoveTBytesToString(HtmlData, BOMSize, Result, 1, Count - BOMSize, ACodePage)
+     else
+ { convert to unicode, including entities like &pound; and &#9741; }
+        Result := IcsHtmlValuesToUnicode(PAnsiChar(@HtmlData[BOMSize]), ACodePage, False, True);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ convert HTML page in stream to string with correct codepage }
+function IcsHtmlToStr(HtmlStream: TStream; ACodePage: Longword;
+                                            Entities: Boolean = False): UnicodeString;   { V8.50 }
+var
+    HtmlData: TBytes;
+    Count: Integer;
+begin
+    Result := '';
+    Count := HtmlStream.Size ;
+    if Count < 1 then Exit;
+    SetLength(HtmlData, Count  + 1);
+    HtmlStream.Seek(0, soFromBeginning);
+    HtmlStream.ReadBuffer (HtmlData[0], count);
+    HtmlData[count] := 0;
+    HtmlStream.Seek(0, soFromBeginning);
+    Result := IcsHtmlToStr(HtmlData, Count, ACodePage, Entities);
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ convert HTML page in stream to string with correct codepage }
+function IcsHtmlToStr(HtmlStream: TStream; const ContentHdr: String;
+                                            Entities: Boolean = False): UnicodeString;   { V8.50 }
+var
+    HtmlData: TBytes;
+    Count: Integer;
+    ACodePage: Longword;
+    BOMSize: Integer;
+begin
+    Result := '';
+    if (ContentHdr <>'') then begin
+        if (Pos ('text/', ContentHdr) <> 1) and
+            (Pos ('json', ContentHdr) = 0)  and
+               (Pos ('javascript', ContentHdr) = 0) and  { V8.61 }
+                  (Pos ('xml', ContentHdr) = 0) then Exit;  { V8.54 json/xml is text }
+    end;
+    Count := HtmlStream.Size ;
+    if Count < 1 then Exit;
+    SetLength(HtmlData, Count  + 2);
+    HtmlStream.Seek(0, soFromBeginning);
+    HtmlStream.ReadBuffer (HtmlData[0], count);
+    HtmlData[count] := 0;
+    HtmlData[count+1] := 0;
+    HtmlStream.Seek(0, soFromBeginning);
+
+// first look for charset in HTTP header }
+    ACodepage := IcsContentCodepage(ContentHdr);
+
+ // if none, look for charset in file BOM or META headers in HTML
+    if ACodepage = 0 then
+        ACodepage := IcsFindHtmlCodepage(HtmlData, Count, BOMSize);
+
+  // convert html to unicode string
+    Result := IcsHtmlToStr(HtmlData, Count, ACodePage, Entities);
+end;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 

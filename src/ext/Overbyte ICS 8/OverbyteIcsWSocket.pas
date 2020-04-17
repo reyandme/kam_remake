@@ -3,15 +3,14 @@
 Author:       François PIETTE
 Description:  TWSocket class encapsulate the Windows Socket paradigm
 Creation:     April 1996
-Version:      8.26
+Version:      8.63
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
-Support:      Use the mailing list twsocket@elists.org
-              Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1996-2016 by François PIETTE
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 1996-2019 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
-              Berlin, Germany, contact: <arno.garrels@gmx.de>
+              Berlin, Germany
 
               This software is provided 'as-is', without any express or
               implied warranty.  In no event will the author be held liable
@@ -870,9 +869,9 @@ Mar 16, 2011 V7.68 Anton S. added two debug messages.
 Mar 21, 2011 V7.69 Method Abort no longer triggers an exception nor event OnError
                    if a call to winsock API WSACancelAsyncRequest in method
                    CancelDnsLookup failed for some reason.
-Apr 10, 2011 V7.70 Arno added property SslVerifyFlags to the TSslContext.
-                   This enables the component user to include CRLs added
-                   thru SslCRLFile and SslCRLPath in the certificate verification
+Apr 10, 2011 V7.70 Arno added property SslVerifyFlags to the TSslContext. This enables
+                   the component user to include certificate revocation lists (CRL)
+                   added thru SslCRLFile and SslCRLPath in the certificate verification
                    process. However enabling CRL-checks needs some additional
                    action in the OnSslVerifyPeer event since OpenSSL will the
                    trigger any error related to CRLs. If there's, for instance,
@@ -993,15 +992,401 @@ Mar 3, 2016  V8.24 Angus, OpenSSL 1.0.2g and 1.0.1s, and later, no longer genera
                       to be specifically selected for older DLLs or new ones that specifically
                       have SSLv2 support compiled.
                    Don't attempt to set DH, EC and SNI that SSLv2 does not support
-Mar 17, 2015  V8.25 Angus, updated sslCiphersMozillaSrvxxx cipher literals to latest versions,
+Mar 17, 2016  V8.25 Angus, updated sslCiphersMozillaSrvxxx cipher literals to latest versions,
                     but left old versions with suffix 38 for backward compatibility
                     OverbyteIcsSslWebServ1 has cipher menu selection to allow comparison testing
-Mar 22, 2015  V8.26 Angus, OnSslServerName event error now defaults to OK instead of
+Mar 22, 2016  V8.26 Angus, OnSslServerName event error now defaults to OK instead of
                       ERR_ALERT_WARNING which prevented Java clients connecting with SSL.
-                      
+May 24, 2016  V8.27 Angus, initial support for OpenSSL 1.1.0, new DLL file names, old exports gone
+                    Add public variable GSSLEAY_DLL_IgnoreNew which should be set to TRUE before calling
+                      any SSL functions if OpenSSL 1.1.0 should be ignored.  Otherwise libcrypto32.dll
+                      found in the PATH will override libeay32.dll in the local directory
+                    Added public variable GSSL_BUFFER_SIZE defaults to 16384, previously fixed
+                      at 4096, may improve SSL performance if larger
+                    Added public variable GSSL_DLL_DIR if set before OpenSSL loaded,
+                      will use this directory for DLLs, must have trailing \
+                    SslContext adds SslMinVersion and SslMaxVersion properties to
+                      specify the minimum and maximum SSL/TLS versions supported from:
+                      sslVerSSL3,sslVerTLS1,sslVerTLS1_1,sslVerTLS1_2,sslVerTLS1_3,sslVerMax,
+                      note 1.3 is not yet supported.  Although introduced for 1.1.0,
+                      these properties have also been implemented for 1.0.1/1.0.2 by
+                      internally using Options.  SslVersionMethod is ignored for 1.1.0
+                      and SslMinVersion > sslVerSSL3 or SslMaxVersion < sslVerMax.
+                   SslContext now allows SSL certificates, private keys, CA bundles and
+                      DHParams to be loaded from strings instead of files, allowing
+                      them to be saved or created in the application without using any
+                      files.  New properties SslCertLines, SslPrivKeyLines, SslCALines
+                      and SslDHParamLines allow PEM formatted certificates and keys to
+                      be saved with the form or loaded as TStrings.  SslCertLines may
+                      be a single certificate or a bundle including one or more
+                      intermediates, but must not include the private key.  There
+                      are new public methods LoadCertFromString, LoadPKeyFromString,
+                      LoadCAFromString and LoadDHParamsFromString that can be used to
+                      update the certificates after SslContext is initialised.
+                    SslContext has a new method SslGetAllCiphers that returns a multi
+                      line list of the ciphers supported by OpenSSL although some may
+                      be unusable if the correct protocols,  EC and DHParams are not set.
+                    TSslWSocket has a new method SslGetSupportedCiphers (Supported, Remote)
+                      that returns a multi line list of ciphers. Supported=True is only for
+                      1.1.0 and later and returns the actual ciphers available for the
+                      session allowed by the protocols, EC and DHParams.  Remote=True for
+                      list received by server from remote client, Remote=False is list
+                      supported by client or server. Supported=False is list of all ciphers.
+                    Added sslDHParams2048 and sslDHParams4096 constants, the latter is used
+                      as SslDHParamLines default so applications support DH and ECDH ciphers
+                      without needed a DHParams file.  Still better to generate your own
+                      DHParams and load them.
+                    Added sslRootCACertsBundle constant as a Root CA Certs Bundle of about
+                      30 PEM certificates extracted from Windows 2012 R2 server by
+                      OverbyteIcsPemtool, assign this to SslContext.SslCALines.Text to
+                      verify remote SSL certificates in client applications, not for servers.
+                      This is not used as a default to avoid linking the list unless needed.
+                    Many SslOptions are no longer supported for 1.1.0 and are now ignored.
+                    Cleaned up SSL initialisation
+                    SSL debug logging has been improved by logging SSL certificate
+                      subjects when loaded from lines, and logging ciphers when
+                      SslContext is initialised.
+                    SslECDHMethod is ignored for 1.1.0, always enabled.
+                    Various internal SSL changes to accommodate new or removed functions
+                       with 1.1.0.
+                    X509Base has new methods LoadFromText and PrivateKeyLoadFromText
+                      that load a PEM SSL certificate and private key from strings.
+May 27, 2016  V8.28 Angus corrected SslMinVersion and SslMaxVersion setting protocols
+                      for OSLL 1.0.1 and 1.0.2
+                    Debug list all SSL Options
+June 26, 2016 V8.29 Angus check for WSAESHUTDOWN in TryToSend and clean close down
+                      instead of exception
+                    Implement GSSL_DLL_DIR properly to report full file path on error
+July 7, 2016  V8.30 Angus corrected FCounter.FLastRecvTick not updated in DoRecvFrom
+                       or in SSL DoRecv, and FCounter.FLastSendTick not in SentTo
+                       so timeouts did not always work
+                    Corrected ReadCount/WriteCount with SSL so xmit no longer includes
+                       encryption overhead (recv ignored overhead)
+Aug 5, 2016   V8.31 Angus, testing OpenSSL 1.1.0 beta 6
+Aug 27, 2016  V8.32 Angus, suuport final release OpenSSL 1.1.0
+                    OpenSSL 64-bit DLLs have different file names with -x64 added
+                    Fix sslRootCACertsBundle long constant would not compile under
+                       C++ Builder, by aplitting smaller and making function
+Aug 29, 2016  V8.33 Angus, free GLIBEAY_DLL_Handle before GSSLEAY_DLL_Handle to avoid exception
+Sept 5, 2016  V8.34 Angus, correct next OpenSSL release is 1.1.1 not 1.1.0a
+                    Added public variable GSSLEAY_DLL_IgnoreOld so only OpenSSL 1.1.0 and later are loaded
+Oct 18, 2016  V8.35 Angus, major rewrite to simplify loading OpenSSL DLL functions
+                    Reversed V8.34 fix so this release only supports 1.1.0 not 1.1.1
+                    OPENSSL_ALLOW_SSLV2 gone with all SSLv2 functions
+                    stub more removed functions to save some exceptions
+                    moved all imports from OverbyteIcsLibeayEx to OverbyteIcsLibeay to make
+                        maintenance and use easier, OverbyteIcsLibeayEx may be removed
+                    EVP_CIPHER_CTX_xx is now backward compatible with 1.1.0
+Oct 26, 2016  V8.36 Now using new names for imports renamed in OpenSSL 1.1.0
+                    Added ExclusiveAddr property to stop other applications listening on same socket
+                    Added extended exception information, set SocketErrs = wsErrFriendly for
+                      some more friendly messages (without error numbers)
+                    ESocketException has several more properties to detail errors
+Nov 04, 2016  V8.37 Fixed memory leak in RaiseException in last build
+Nov 15, 2016  V8.38 Don't hide detailed load SSL exceptions
+                    Added IcsVerifyTrust to check authenticode code signing digital
+                      certificate and hash on EXE and DLL files, note currently
+                      ignores certificate revoke checking since so slow
+                    Added public variable GSSL_SignTest_Check to check OpenSSL
+                      DLLs are digitally signed, and GSSL_SignTest_Certificate to
+                      check for a valid certificate, both default to false
+Nov 23, 2016  V8.39 Minimum OpenSSL support is now 1.0.2 (1.0.1 support ceases Dec 2016)
+                    Added functions to check certificate params using X509_VERIFY_PARAM,
+                      which means the peer certificate common name is now checked against
+                      the host set as SslServerName during handshaking instead of needing
+                      to use PostConnectionCheck in the handshake event.
+                    Added more SslVerifyFlags for extra certificate verification options
+                    Added SslCheckHostFlags to context to control host name checking
+                    Added SslCertPeerName property set after successfull SSL handshake
+                      and peer certificate check that returns matched name from certificate
+                    Combined TX509Ex properties into TX509Base from OverbyteIcsSslX509Utils
+                    TX509Base has new methods CheckHost, CheckEmail and CheckIPaddr as
+                      alternatives to PostConnectionCheck using OpenSSL APIs
+                    Added SslGetAllCerts to context to get list of certificates from
+                      context store, may be used to check CA certificates have been
+                      correctly loaded from files, 1.1.0 and later
+                    TX509List has new LoadAllFromFile method to load all certificates
+                      from a bundle file
+                    Added IcsSslOpenFileBio and IcsSslLoadStackFromInfoFile which were
+                       previously methods in TSslContext so they can be used elsewhere
+                    Added IcsUnwrapNames which changes multi-line string to comma string
+                    Added SslCertX509 to context which returns last certificate loaded
+                       for reporting purposes (can not be set yet)
+Jan 27, 2017  V8.40 TX509Base can now read and save all common X509 certificate file formats:
+                       .PEM, .CER, .CRT - Base64 encoded DER - LoadFromPemFile/SaveToPemFile
+                       .DER, .CER, .CRT - binary DER - LoadFromPEMFile/SaveToDERFile
+                       .P7B, .P7R, .SPC - PKCS#7 - LoadFromP7BFile/SaveToP7BFile
+                       .PFX, .P12 - PKCS#12 - LoadFromP12File/SaveToP12File
+                       PEM/P12 may have certificate and private key
+                       PEM/P7B/P12 may have extra intermediate certificates
+                    LoadFromFile/SaveToFile uses file extension to choose file format
+                    Extra options for TX509Base methods to load and save files to
+                      specify if private key should be read or saved and the password
+                    TX509Base will now encrypt private keys with a password
+                    CheckCertAndPKey in TX509Base checks cert and pkey match
+                    SslCertX509 in context now public not published, returns certificate and
+                       private key from the context rather than what was loaded, and may be
+                       used to set both, overriding any previous settings
+                    Fixed bug in TX509Base.SerialNumHex to show correct serial, note most
+                       browsers display serial in hex not a numeric value,
+                    Added SerialNumHexto GetCertInfo
+                    Fixed bug in TX509Base.SerialNum to clear SSL error for an illegal serial,
+                        to avoid handshaking later failing with 'asn1_get_uint64:too large'
+                        (mainly when logging was enabled)
+                    TX509Base.SerialNum now returns an int64 instead of integer, but only
+                        correctly with 1.1.0 and later (or use SerialNumHex instead)
+                    Added SslSecLevel to context to set security level (1.1.0 and later),
+                       defaults to sslSecLevel80bits, set sslSecLevelNone for SSLv3
+                    Added CheckPrivateKey to context which checks loaded certificate and
+                       private key match
+                    Added OnSslProtoMsg event which receives SSL protocol messages
+                        (in binary, need decoding) for debugging purposes
+                    Added loSslDevel to ICS logger which replaces many loSslInfo logging
+                       lines for BIO. read and write which are really internal ICS development
+                       use to make logging more readable, added more useful loSslInfo lines
+                    Added SslBuildCertChain to context for servers to validate correct
+                       certificates loaded OK  (not sure how useful yet)
+                    Added ReadOnly option to IcsSslOpenFileBio since mostly we don't
+                       want to update certificates
+                    GetKeyInfo now support both RSA and EC keys, displays curve names
+                    Added GetPKeyRawText to display private key raw values
+                    Added PrivateKeyInfo to display private key type and size
+                    Added CertPolicies, AuthorityKeyId, SubjectKeyId and CRLDistribution
+                      extended certificate properties
+                    Added ExtendedValidation returns true for EV certificates
+Feb 26, 2017  V8.41 Fix bug in last build with TX509Base PEM cert error handling
+                    Simplified checks for base64 certificates
+                    Binary format certificate files are now saved correctly
+                    Implemented intermediate certificate support in TX509Base which
+                      includes loading and saving them from file formats supporting
+                      them, and LoadIntersFromPemFile, LoadIntersFromString,
+                      SaveIntersToToPemFile, GetIntersList and ListInters.
+                    Implemented CA certificate support in TX509Base mainly for
+                      chain verification, LoadCAFromPemFile, LoadCAFromString.
+                    KeyInfo displays correct key length and curve for certificates
+                    CertInfo has Brief option for shorter description
+                    ValidateCertChain in TX509Base checks and reports cert and inters
+                       and can save a lot of cert problems in servers
+                    Added AllCertInfo to TX509List that reports all certificates and
+                       can save code in clients reporting certificates
+                    Added sslCiphersMozillaSrvInterFS with only forward security ciphers
+                    Added IsCertLoaded, IsPkeyLoaded and IsInterLoaded to TX509Base
+                    Added SslKeyAuth property to get cipher key authentication
+                    Added SslGetCerts to context to get cert, key and intermediates
+                    Added SslSetCertX509 to context which sets cert, key and
+                       intermediates from FSslCertX509 to load all together
+                    If FSslCertX509 in Context has cert loaded when context is
+                      initialised, context file properties are ignored and
+                      SslSetCertX509 called to load them.
+                    Made InitializeSsl public in TSslBaseComponent for more control
+                      over SSL loading and unloading
+Mar 3, 2017  V8.42 Angus couple of cross platform fixes, thanks to Bill Florac
+                   Fixed a change of behaviour made in V8.22 to only effect SSL,
+                     beware this means non-SSL applications that break ICS design
+                     rules by calling the message handler in the OnDataAvailable
+                     event risking re-entrancy may again fail (which was the
+                     case before V8.22).
+Mar 7, 2017  V8.43  Added new ComponentOptions wsoAsyncDnsLookup and
+                        wsoIcsDnsLookup, thanks to ant_s@rambler.ru.
+                    Setting wsoAsyncDnsLookup causes Connect to use async DNS
+                      lookups instead of blocking sync without needing to call
+                      DnsLookUp first and then Connect.
+                    Setting wsoIcsDnsLookup causes DnsLookUp to use a thread for
+                       async DNS lookups for IPv4 (previously only IPv6) to avoid
+                       a windows limitation of one active DNS lookup per thread.
+Mar 14, 2017  V8.44 ReverseDnsLookup supports wsoIcsDnsLookup to use thread
+                    SslSetCertX509 did not load Inter unless Cert set
+Apr 11, 2017  V8.45 Added multiple SSL host support to TSslWSocketServer.
+                    CertInfo shows expiry date for brief (it's important).
+                    Added TriggerSslServerName so it can be overriden.
+                    Added TSslSrvSecurity SSL server security level, used by
+                       TIcsHost, sets protocol, cipher and SslSecLevel.
+Apr 20, 2017  V8.46 Added sslCiphersNoDH which blocks DH and DHE ciphers,
+                       needed for forums.embarcadero.com
+                    Adjusted a V8.42 cross platform fix
+May 15, 2017  V8.47 Fixed ValidateCertChain ignoring some warnings
+May 22, 2017  V8.48 Added added wsDnsLookup SocketState during wsoAsyncDnsLookup
+                    Cancel async DNS if close called before connect
+June 26, 2017 V8.49 SSL changes in other units, MacOS fixes in other units
+Sep 21, 2017  V8.50 LoadFromP12File correctly supports croYes as well as croTry
+                    PrivKeyECX25519 is now correctly PrivKeyEd25519
+Nov 23, 2017  V8.51 Testing OpenSSL 1.1.1 that adds TLS/1.3, not enabled yet.
+                    Added SHA3 digests to TEvpDigest
+                    Added RSS-PSS keys to TSslPrivKeyType
+                    Better reporting of ED25519 and RSS-PSS keys, report number
+                      of security bits for private keys.
+                    Fixed SslContext Options being ignored with 1.1.0 due to macros
+                       being changed to exported functions.  This meant some features
+                       like server cipher preference never worked with 1.1.0.
+                    Added SslIntOptions2 to replace SslIntOptions with 1.1.0 and
+                       later removing all obsolete options and adding new, set
+                       in SslContext as SslOptions2.
+                    Changed the way SSlContext Options are set since it did not
+                      work properly until OpenSSL was loaded with 1.1.0 and later
+                    Added SslContext SslCryptoGroups for 1.1.1 to set which
+                       curve groups are supported in preference order.
+                    Improved debug diagnostics and added more for SSL.
+Feb 19, 2018 V8.52  LocalIpList only uses GetHostByName for Windows XP, 2003 and
+                       earlier which also solves a MacOS issue.
+                    Renamed PublicKey property to X509PublicKey to avoid confusion.
+                    Added PublicKeySaveToText saves public part of private key.
+                    Added PublicKeyLoadFromText loads public key into private key
+                    Fixed a problem with BIO_get_flags and 1.1.1 that caused SSL to
+                      fail, thanks to Rui for finding this.
+                    Added sslCipherTLS13 server cipher suites for TLSv1.3.
+                    Cleaned up SSL handshake message for TLSv1.3 .
+                    IcsSslOpenFileBio now checks PEM files not empty to avoid
+                      strange ASN1 errors parsing them.
+                    Fixed IcsSslGetEVPDigest to work with 1.1.1
+Apr 06, 2018 V8.53  CertInfo shows OU if available, but less in brief mode
+                    ValidateCertChain checks issuer OU for duplicate roots
+                    Added sanity check to GetSha1Hex if certificate not loaded
+                    Ignore CliNewSession event with TLSv1.3 since session not yet
+                      established until after handshake.
+                    Ignore second handshake start in InfoCallback with TLSv1.3
+                       since renegotiation not supported by protocol.
+May 21, 2018 V8.54  Added TSslCliSecurity similar to TSslSrvSecurity
+                    Added SslCliSecurity to SslContext which if set to other
+                      than sslCliSecIgnore sets the protocols, security and
+                      ciphers to standardised settings, may be changed without
+                      reinitialising the context.
+                    Improved SSL handshake failed error message with protocol
+                      state information instead of just saying closed unexpectedly.
+                    CertInfo shows Valid From date
+Jun 27, 2018 V8.55  Server also ignores second handshake start in InfoCallback with
+                        TLSv1.3, so it works again.
+                    Prevent multiple SslHandshakeDone events for TLSv1.3 which broke
+                       FTP client and possibly other protocols.
+                    Use NewSessionCallback for clients as well as servers.
+                    TX509Base adds SslPWUtf8 to use UTF8 for private key passwords,
+                       defaults to true for OSSL 1.1.0 and later, otherwise ANSI.
+                    sslSrvSecInter/FS, sslCliSecInter now requires TLS1.1, PCI
+                      council EOF TLS1.0 30 June 2018.
+                    Added SslCliSecurityNames for TSslCliSecurity dialogs and
+                      SslSrvSecurityNames for TSslSrvSecurity dialogs.
+                    OnSslHandshakeDone is now called if StartSslHandshake or
+                      AcceptSslHandshake raises an exception to report the SSL
+                      error (previously only in the debug log).
+                    Added sslCliSecDefault and sslSrvSecDefault recommended
+                       security defaults, two more client security levels
+                    Ensure that SSL alerts are logged with more detail.
+Jul 14, 2018 V8.56  Support SSL application layer protocol negotiation (ALPN)
+                     extension which is sent with the initial SSL hello.
+                    For clients, SslAlpnProtocols sets SslContext with a list of
+                      protocols the application supports (ie http/1.1, h2), and
+                      SslAlpnProtocol property after connection returns whatever
+                      the server selected (if any).
+                    For servers, there is a new OnSslAlpnSelect event that has
+                       the list of protocols from the client, from which one
+                       may be selected (ie H2 to support HTTP/2).
+                    Added IPv6 support for TCustomSocksWSocket and
+                       TCustomHttpTunnelWSocket, thanks to Max Terentiev.
+Oct 5, 2018  V8.57  Tidy up UnwrapNames.
+                    WriteIntersToBio now ignores self signed certificate which
+                       are roots not an intermediate.
+                    Added TSslCliCertMethod so an SSL server asks a client to
+                       send an SSL certificate.
+                    Support OpenSSL 1.1.1 final with TLS/1.3.
+                    CertInfo returns blank if no certificate loaded.
+                    ValidateCertChain ExpireDays warning now configurable,
+                      defaults to 30 days, used to order new certificates.
+                    Moved some SSL types and lits to OverbyteIcsSSLEAY.
+                    Fixed compiler hints in GetProc
+Nov 2, 2018  V8.58 Increased ListenBacklog property default to 15 to handle
+                      higher server loads before rejecting new connections.
+                   Corrected some debug error loSslInfo to loSslErr.
+Dec 11, 2018 V8.59 Too many lines in SSL diags for errors only, bug in V8.55
+Mar 18, 2019 V8.60 Added AddrResolvedStr read only resolved IPv4 or IPv6 address
+                     set during Connect method after DNS lookup.
+                   Clean-up old commented out code.
+                   Made SocketFamilyNames more descriptive.
+                   Moved OnDNSLookupDone before internal Connect attempt so
+                      user can change DNS result, bug in V8.43.
+                   DnsResult can now be updated in OnDNSLookupDone event.
+                   Added TLS version to SslSrvSecurityNames.
+                   Added sslSrvSecTls12Less and sslSrvSecTls13Only to disable
+                     in server IcsHosts if TLS1.3 fails.
+Apr 16, 2019 V8.61 Fixed ValidateCertChain to check certificate start and expiry
+                      dates in UTC time instead of local time.
+Aug 07, 2019 V8.62 Added SslCtxPtr to SslContext to allow use of OpenSSL functions
+                     outside this unit.
+                   DHParams only needed for servers, don't use if using client
+                     security to avoid issues with high security levels.
+                   Raise background exception for user exceptions in OnDataAvailable
+                     event rather than silently ignoring them.
+                   SSL ALPN now properly tested, for client SslAlpnProtocol property
+                     returns what the server selects (if anything), for server the
+                     selected protocol is now correctly sent.
+                   Moved FIcsLogger to TIcsWndControl ao that unit can log errors.
+                   Added source to HandleBackGroundException so we know where
+                       errors come from, when using IcsLogger.
+Nov 18, 2019 V8.63 Corrected fix for user exceptions in OnDataAvailable in last
+                     version to break receive loop after exception handling.
+                   Added LoadFromP12Buffer to load PFX certificate from buffer to
+                     TX509Base, thanks to Mitzi.
+                   GetSelfSigned now has better check for self signed certificates.
+                   Added Sha256Digest and Sha256Hex to TX509Base.
+                   CertInfo in TX509Base shows SHA256 fingerprint instead of SHA1.
 
-}
-{
+
+
+Pending - server certificate bundle files may not have server certificate as first
+Pending - intermediate certificate bundle files may have self signed root that should be ignored
+
+
+Use of certificates for SSL clients:
+Client SSL applications will usually work without any certificates because all
+the encryption is done by the server.  If a client needs to confirm the identity
+of a server, set SslVerifyPeer=true and specify a certificate authority root
+bundle as SslCAFile, SslCAPath or SslCALines, that contains the certificates
+used to sign the server certificate or intermediate certificate, to confirm
+they are trusted.  To permanently trust an unknown certificate, save it to
+the CA file or path, or add it temporarily using TrustCert.
+
+More rarely in high security operations, the server will need
+a client to identify itself with a private certificate before granting access,
+and this is where a client SSL certificate and private key are needed.  Client
+certificate checking is controlled by the server.  An SslPassPhrase is only
+needed if the private key is password protected.
+
+Use of certificates for SSL servers:
+Server SSL applications always require an SSL certificate and matching private
+key because these control the SSL encryption.  The certificate may also confirm
+the identity of the web site using the domain name and often the company name.
+To be trusted by browsers and other applications, the SSL certificate needs to
+be signed by a root certificate available for local checking.  SSL certificates
+are often signed by intermediate certificates rather than root certificates, and
+these also need to sent by the server as part of a chain, the intermediate will
+have been signed by a trusted root certificate.  To configure an SSL server,
+SslCertFile or SslCertLines specify the SSL certificate and optionally
+intermediate certificates in same file as a bundle; SslPrivKeyFile or
+SslPrivKeyLines specify the private key used to generate the certificate, which
+may be optionally password protected by SslPassPhrase; and SslCAFile, SslCAPath
+or SslCALines specifies the intermediate certificates if not in the certificate
+bundle file.  Also, SslDHParamFile or SslDHParamLines should specify DHParams
+which are a secondary encryption key used for some ciphers, ICS has default
+DHParams but ideally applications should use unique DHParams.
+
+Sometimes SSL certificates are withdrawn due to misuse such as being stolen
+and appear in Certificate Revocation Lists (CRL) that are published by SSL
+certificate issuers.  Such lists in PEM format may be loaded by
+LoadCrlFromFile or LoadCrlFromPath.
+
+Rarely, a server may want to check the identify of clients by requesting a
+client SSL certificate by setting SslVerifyPeerModes=SslVerifyMode_PEER.
+AddClientCAFromFile and SetClientCAListFromFile are used to set acceptable
+CAs For the client certificate.
+
+OpenSSL 1.1.0 and later support security levels, as follows:
+    TSslSecLevel = (
+         sslSecLevelAny,        // 0 - anything allowed, old compatibility
+         sslSecLevel80bits,     // 1 - default, RSA/DH keys=>1024, ECC=>160, no MD5
+         sslSecLevel112bits,    // 2 - RSA/DH keys=>2048, ECC=>224, no RC4, no SSL3, no SHA1 certs
+         sslSecLevel128bits,    // 3 - RSA/DH keys=>3072, ECC=>256, FS forced, no TLS/1.0
+         sslSecLevel192bits,    // 4 - RSA/DH keys=>7680, ECC=>384, no SHA1 suites, no TLS/1.1
+         sslSecLevel256bits);   // 5 - RSA/DH keys=>15360, ECC=>512
+
+
 About multithreading and event-driven:
     TWSocket is a pure asynchronous component. It is non-blocking and
     event-driven. It means that when you request an operation such as connect,
@@ -1093,6 +1478,7 @@ uses
   {$IFDEF RTL_NAMESPACES}System.Contnrs{$ELSE}Contnrs{$ENDIF},
   {$IFDEF RTL_NAMESPACES}System.SyncObjs{$ELSE}SyncObjs{$ENDIF},
   {$IFDEF RTL_NAMESPACES}System.SysConst{$ELSE}SysConst{$ENDIF},
+  {$IFDEF RTL_NAMESPACES}System.TypInfo{$ELSE}TypInfo{$ENDIF},  { V8.40 }
 {$IFDEF POSIX}
   System.Generics.Collections,
   Posix.Pthread,
@@ -1150,10 +1536,18 @@ type
   TSocketFamily = (sfAny, sfAnyIPv4, sfAnyIPv6, sfIPv4, sfIPv6);
 
 const
-  WSocketVersion            = 826;
-  CopyRight    : String     = ' TWSocket (c) 1996-2016 Francois Piette V8.26 ';
+  WSocketVersion            = 863;
+  CopyRight    : String     = ' TWSocket (c) 1996-2019 Francois Piette V8.63 ';
   WSA_WSOCKET_TIMEOUT       = 12001;
   DefaultSocketFamily       = sfIPv4;
+
+{$IFDEF MSWINDOWS}
+type
+//TSockAddr      = sockaddr_in;   { V8.42 assists cross platform use }
+  TSockAddrIn    = sockaddr_in;   { V8.46 assists cross platform use }
+  TSockAddrIn6   = sockaddr_in6;
+{$ENDIF}
+
 
 {$IFDEF POSIX}
   {.$DEFINE NO_ADV_MT}
@@ -1327,23 +1721,51 @@ type
   TIcsIPv4Address    = {$IFDEF POSIX} LongWord {$ELSE} Integer {$ENDIF};
   PIcsIPv4Address    = ^TIcsIPv4Address;
   TWndMethod         = procedure(var Message: TMessage) of object;
-  ESocketException   = class(Exception);
   TBgExceptionEvent  = TIcsBgExceptionEvent; { V7.35 }
   TSocketState       = (wsInvalidState,
                         wsOpened,     wsBound,
                         wsConnecting, wsSocksConnected, wsConnected,
                         wsAccepting,  wsListening,
-                        wsClosed);
+                        wsClosed, wsDnsLookup);  { V8.48 added DnsLookup }
   TSocketSendFlags   = (wsSendNormal, wsSendUrgent);
   TSocketLingerOnOff = (wsLingerOff, wsLingerOn, wsLingerNoSet);
   TSocketKeepAliveOnOff = (wsKeepAliveOff, wsKeepAliveOnCustom,
                            wsKeepAliveOnSystem);
+  TSocketErrs        = (wsErrTech, wsErrFriendly);  { V8.36 }
+
+  ESocketException   = class(Exception)  { V8.36 more detail }
+  private
+    FErrorMessage : string;
+    FIPStr        : String;
+    FPortStr      : String;
+    FProtoStr     : String;
+    FErrorCode    : Integer;
+    FFriendlyMsg  : String;
+    FFunc         : String;
+  public
+    constructor Create(const AMessage       : String;
+                       AErrorCode           : Integer = 0;
+                       const AErrorMessage  : String = '';
+                       const AFriendlyMsg   : String = '';
+                       const AFunc          : String = '';
+                       const AIP            : String = '';
+                       const APort          : String = '';
+                       const AProto         : String = '');
+    property IPStr        : String  read FIPStr;
+    property PortStr      : String  read FPortStr;
+    property ProtoStr     : String  read FProtoStr;
+    property ErrorCode    : Integer read FErrorCode;
+    property ErrorMessage : String  read FErrorMessage;
+    property FriendlyMsg  : String  read FFriendlyMsg;
+    property Func         : String  read FFunc;
+  end;
+
 const
   SocketStateNames: array [TSocketState] of PChar = ('Invalid', 'Opened', 'Bound',
       'Connecting', 'SocksConnected', 'Connected', 'Accepting', 'Listening',
-      'Closed');
-  SocketFamilyNames: array [TSocketFamily] of PChar = ('Any', 'AnyIPv4', 'AnyIPv6',  { V8.01 }
-      'IPv4', 'IPv6');
+      'Closed', 'DnsLookup');                                                        { V8.48 }
+  SocketFamilyNames: array [TSocketFamily] of PChar = ('Any', 'Prefer IPv4',
+    'Prefer IPv6', 'Only IPv4', 'Only IPv6');   { V8.60 made more descriptive }
 type
   TNetChangeEvent    = procedure (Sender: TObject; ErrCode: Word) of object;
   TDataAvailable     = procedure (Sender: TObject; ErrCode: Word) of object;
@@ -1356,14 +1778,17 @@ type
   TChangeState       = procedure (Sender: TObject;
                                  OldState, NewState : TSocketState) of object;
   TDebugDisplay      = procedure (Sender: TObject; var Msg : String) of object;
+  TIcsException      = procedure (Sender: TObject; SocExcept: ESocketException) of object; { V8.36 }
   TWSocketSyncNextProc = procedure of object;
   TWSocketOption       = (wsoNoReceiveLoop, wsoTcpNoDelay, wsoSIO_RCVALL,
                          { The HTTP tunnel supports HTTP/1.1. If next option }
                          { is set HTTP/1.0 responses are treated as errors.  }
                           wsoNoHttp10Tunnel,
                           wsoNotifyAddressListChange,
-                          wsoNotifyRoutingInterfaceChange);
-  TWSocketOptions      = set of TWSocketOption;
+                          wsoNotifyRoutingInterfaceChange,
+                          wsoAsyncDnsLookup,    { V8.43 Connect uses Async lookup }
+                          wsoIcsDnsLookup);     { V8.43 DNSLookup uses thread }
+  TWSocketOptions      = set of TWSocketOption;   { published as ComponentOptions }
 
   TTcpKeepAlive = packed record
     OnOff             : u_long;
@@ -1426,13 +1851,12 @@ type  { <== Required to make D7 code explorer happy, AG 05/24/2007 }
     FDnsResultList      : TStrings;
     FSendFlags          : Integer;
     FLastError          : Integer;
-    //FWindowHandle       : HWND;
   {$IFDEF MSWINDOWS}
     FDnsLookupBuffer    : array [0..MAXGETHOSTSTRUCT] of AnsiChar;
   {$ENDIF}
+    FInternalDnsActive  : Boolean;      { V8.43 }
     FDnsLookupCheckMsg  : Boolean;
     FDnsLookupTempMsg   : TMessage;
-    // FHandle             : HWND;
     FCounter            : TWSocketCounter;
     FCounterClass       : TWsocketCounterClass;
     { ThreadID at the time of the first call to one of the IcsAsyncXxxx methods}
@@ -1517,6 +1941,7 @@ type  { <== Required to make D7 code explorer happy, AG 05/24/2007 }
     FMultiCastAddrStr   : String;
     FMultiCastIpTTL     : Integer;
     FReuseAddr          : Boolean;
+    FExclusiveAddr      : Boolean;   { V8.36 }
     FComponentOptions   : TWSocketOptions;
     FState              : TSocketState;
     FRcvdFlag           : Boolean;
@@ -1538,11 +1963,14 @@ type  { <== Required to make D7 code explorer happy, AG 05/24/2007 }
     FSocketRcvBufSize   : Integer;  { Winsock internal socket Recv buffer size }
     FOnAddressListChanged : TNetChangeEvent;
     FOnRoutingInterfaceChanged : TNetChangeEvent;
+    FSocketErrs         : TSocketErrs;   { V8.36 }
+    FonException        : TIcsException; { V8.36 }
+    FAddrResolvedStr    : String;        { V8.60 IPv4 or IPv6 address }
 {$IFNDEF NO_DEBUG_LOG}
-    FIcsLogger          : TIcsLogger;                                           { V5.21 }
-    procedure   SetIcsLogger(const Value : TIcsLogger); virtual;                { V5.21 }
-    procedure   DebugLog(LogOption : TLogOption; const Msg : String); virtual;  { V5.21 }
-    function    CheckLogOptions(const LogOption: TLogOption): Boolean; virtual; { V5.21 }
+//  FIcsLogger          : TIcsLogger;                        { V5.21, V8.62 moved to TIcsWndControl }
+  procedure   SetIcsLogger(const Value : TIcsLogger); virtual;                { V5.21 }
+  procedure   DebugLog(LogOption : TLogOption; const Msg : String); virtual;  { V5.21 }
+  function    CheckLogOptions(const LogOption: TLogOption): Boolean; virtual; { V5.21 }
 {$ENDIF}
     procedure   AbortComponent; override; { V7.35 }
     procedure   WndProc(var MsgRec: TMessage); override;
@@ -1551,7 +1979,8 @@ type  { <== Required to make D7 code explorer happy, AG 05/24/2007 }
     procedure   FreeMsgHandlers; override;
     procedure   AllocateSocketHWnd; virtual;
     procedure   DeallocateSocketHWnd; virtual;
-    procedure   SocketError(sockfunc: String; LastError: Integer = 0);
+    procedure   SocketError(sockfunc: String; LastError: Integer = 0;
+                                      FriendlyMsg: String = ''); virtual;   { V8.36 added FriendlyMsg }
     procedure   WMASyncSelect(var msg: TMessage); virtual;
     procedure   WMAsyncGetHostByName(var msg: TMessage);
     procedure   WMAsyncGetHostByAddr(var msg: TMessage);
@@ -1589,7 +2018,15 @@ type  { <== Required to make D7 code explorer happy, AG 05/24/2007 }
     procedure   SendText(const Str : UnicodeString; ACodePage : LongWord); overload;
                                                      {$ENDIF}
     function    RealSend(var Data : TWSocketData; Len : Integer) : Integer; virtual;
-    procedure   RaiseException(const Msg : String); virtual;
+    procedure   RaiseException(const Msg : String); overload; virtual;
+    procedure   RaiseException(const Msg : String;
+                       AErrorCode           : Integer;   { V8.36 more }
+                       const AErrorMessage  : String = '';
+                       const AFriendlyMsg   : String = '';
+                       const AFunc          : String = '';
+                       const AIP            : String = '';
+                       const APort          : String = '';
+                       const AProto         : String = ''); overload; virtual;
     function    GetReqVerLow: BYTE;
     procedure   SetReqVerLow(const Value: BYTE);
     function    GetReqVerHigh: BYTE;
@@ -1605,6 +2042,7 @@ type  { <== Required to make D7 code explorer happy, AG 05/24/2007 }
     procedure   TriggerChangeState(OldState, NewState : TSocketState); virtual;
     procedure   TriggerDNSLookupDone(Error : Word); virtual;
     procedure   TriggerError; virtual;
+    procedure   TriggerException (E: ESocketException); virtual;   { V8.36 }
     procedure   TriggerAddressListChanged(ErrCode: Word);
     procedure   TriggerRoutingInterfaceChanged(ErrCode: Word);
     function    DoRecv(var Buffer : TWSocketData;
@@ -1733,6 +2171,7 @@ type  { <== Required to make D7 code explorer happy, AG 05/24/2007 }
     procedure   DestroyCounter;
     property    BufferedByteCount  : LongInt        read FBufferedByteCount;  { V5.20 }
     property    CurrentSocketFamily: TSocketFamily  read GetCurrentSocketFamily;
+    property    AddrResolvedStr : String            read FAddrResolvedStr;    { V8.60 IPv4 or IPv6 address }
   protected
 {$IFNDEF NO_DEBUG_LOG}
     property IcsLogger : TIcsLogger                 read  FIcsLogger          { V5.21 }
@@ -1765,9 +2204,12 @@ type  { <== Required to make D7 code explorer happy, AG 05/24/2007 }
     property ReuseAddr       : Boolean              read  FReuseAddr
                                                     write FReuseAddr
                                                     default False;
+    property ExclusiveAddr   : Boolean              read  FExclusiveAddr
+                                                    write FExclusiveAddr;   { V8.36 }
     property PeerAddr : String                      read  GetPeerAddr;
     property PeerPort : String                      read  GetPeerPort;
-    property DnsResult : String                     read  FDnsResult;
+    property DnsResult : String                     read  FDnsResult
+                                                    write FDnsResult;     { V8.60 }
     property DnsResultList : TStrings               read  FDnsResultList;
     property State : TSocketState                   read  FState;
     property AllSent   : Boolean                    read  bAllSent;
@@ -1812,6 +2254,10 @@ type  { <== Required to make D7 code explorer happy, AG 05/24/2007 }
                                                     write FOnDnsLookupDone;
     property OnError            : TNotifyEvent      read  FOnError
                                                     write FOnError;
+    property SocketErrs         : TSocketErrs       read  FSocketErrs
+                                                    write FSocketErrs;   { V8.36 }
+    property onException        : TicsException     read  FonException
+                                                    write FonException;  { V8.36 }
     { FlushTimeout property is not used anymore }
     property FlushTimeout : Integer                 read  FFlushTimeOut
                                                     write FFlushTimeout
@@ -2173,16 +2619,11 @@ Later SSL changes are detailed above with main changes
 {$IFDEF DEBUG_DUMP}
     {$DEFINE DEBUG_OUTPUT}
 {$ENDIF}
-{const
-     SslWSocketVersion            = 100;
-     SslWSocketDate               = 'Jan 18, 2006';
-     SslWSocketCopyRight : String = ' TSslWSocket (c) 2003-2010 Francois Piette V1.00.5e ';
-}
 const
 
      //SSL_POST_CONNECTION_CHECK_FAILED = 12101;
      sslProtocolError                 = 20100;
-     SSL_BUFFER_SIZE                  = 4096;
+  {   SSL_BUFFER_SIZE                  = 4096;  V8.27 moved to SSLEAY and made configurable }
      msgSslCtxNotInit                 = 'SSL context not initialized';
 
   { V8.10 - TSslContext default SslCipherList
@@ -2192,6 +2633,13 @@ const
     sslCiphersNormal = 'ALL:!ADH:RC4+RSA:+SSLv2:@STRENGTH';
     sslCiphersServer = 'TLSv1+HIGH:!SSLv2:RC4+MEDIUM:!aNULL:!eNULL:!3DES:!CAMELLIA@STRENGTH';
 
+  { V8.46 similar to normal but blocking DH and DHE ciphers, needed for forums.embarcadero.com }
+    sslCiphersNoDH = 'ALL:!ADH:!DH:RC4+RSA:+SSLv2:@STRENGTH';
+
+  { V8.51 1.1.1 and later, curves in order of preference }
+    sslCryptoGroupsDef = 'P-256:X25519:P-384:P-512';
+
+
 { from https://wiki.mozilla.org/Security/Server_Side_TLS - Version 4.0 - February 2016
    Note these ciphers change peridically, old ones remain with their version
     Configuration   Oldest compatible client
@@ -2199,18 +2647,8 @@ const
         sslCiphersMozillaSrvInter -  Firefox 1, Chrome 1, IE 7, Opera 5, Safari 1, Windows XP IE8, Android 2.3, Java 7
         sslCiphersMozillaSrvBack - Windows XP IE6, Java 6 }
 
-   { Backward Compatible, works with all clients back to Windows XP/IE6,  Versions: SSLv3, TLSv1, TLSv1.1, TLSv1.2
-    RSA key size: 2048, DH Parameter size: 1024, Elliptic curves: secp256r1, secp384r1, secp521r1,
-    Certificate signature: SHA-1 (windows XP pre-sp3 is incompatible with sha-256)  }
-    sslCiphersMozillaSrvBack38 =
-        'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:' +
-        'ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:' +
-        'ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:' +
-        'ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:' +
-        'DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:' +
-        'DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:' +
-        'AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:' +
-        '!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA' ;
+    { Nov 2017 - beware the Mozilla ciphers don't support TLS/1.3 yet, but ICS adds special TLS/1.3
+      ciphers to these lists if enabled }
 
    { Backward Compatible, works with all clients back to Windows XP/IE6,  Versions: SSLv3, TLSv1, TLSv1.1, TLSv1.2
     RSA key size: 2048, DH Parameter size: 1024, Elliptic curves: secp256r1, secp384r1, secp521r1,
@@ -2226,16 +2664,6 @@ const
         'ES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:DES-CBC3-SHA:HIGH:SEED:' +
         '!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!RSAPSK:!aDH:!aECDH:!EDH-DSS-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA:!SRP' ;
 
-  { For services that don't need backward compatibility, the parameters below provide a higher level of security
-   Versions: TLSv1.1, TLSv1.2, RSA key size: 2048, DH Parameter size: 2048, Elliptic curves: secp256r1, secp384r1, secp521r1,
-   Certificate signature: SHA-256, HSTS: max-age=15724800  }
-    sslCiphersMozillaSrvHigh38 =
-        'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:' +
-        'ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:' +
-        'ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:' +
-        'ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:' +
-        'DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:' +
-        'DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK' ;
 
   { For services that don't need backward compatibility, the parameters below provide a higher level of security
    Versions: TLSv1.2, RSA key size: 2048, DH Parameter size: none, Elliptic curves: secp256r1, secp384r1, secp521r1,
@@ -2245,21 +2673,6 @@ const
         'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:' +
         'ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:' +
         'ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
-
-  {Intermediate compatibility - For services that don't need compatibility with legacy clients (mostly WinXP),
-   but still need to support a wide range of clients, this configuration is recommended. It is is compatible with
-   Firefox 1, Chrome 1, IE 7, Opera 5 and Safari 1.   Versions: TLSv1, TLSv1.1, TLSv1.2,  RSA key size: 2048
-    DH Parameter size: 2048 (1024 tolerable), Elliptic curves: secp256r1, secp384r1, secp521r1 (at a minimum)
-    Certificate signature: SHA-256 }
-    sslCiphersMozillaSrvInter38 =
-        'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:' +
-        'ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:' +
-        'ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:' +
-        'ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:' +
-        'DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:' +
-        'DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:' +
-        'AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:' +
-        '!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';
 
   {Intermediate compatibility - For services that don't need compatibility with legacy clients (mostly WinXP),
    but still need to support a wide range of clients, this configuration is recommended. It is is compatible with
@@ -2275,6 +2688,47 @@ const
         'DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:' +
         'AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS';
 
+  { V8.41 similar to Intermediate compatibility but removing all ciphers without forward security }
+    sslCiphersMozillaSrvInterFS =
+        'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:' +
+        'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:' +
+        'DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:' +
+        'ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:' +
+        'ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:' +
+        'DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA';
+
+  { V8.52 TLSv1.3 ciphers supported by OpenSSL 1.1.1 and later, should be added to front
+    of one of the sslCiphersMozilla cipheers }
+    sslCipherTLS13 =
+        'TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-256-GCM-SHA384:TLS13-AES-128-GCM-SHA256:' +
+        'TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256:';
+
+   { V8.27 default 2048 and 4096-bit DH Params needed for DH/DHE ciphers - ideally create your own !!!! }
+   { note DH params are not needed for ECDHE ciphers, only DHE, so not needed for sslCiphersMozillaSrvHigh }
+    sslDHParams2048 =
+        '-----BEGIN DH PARAMETERS-----' + #13#10 +
+        'MIIBCAKCAQEA5lgSzWKPV8ZthosYUuPWuawgmUFfSyR/1srizVn7tXNPYE10Pz/t' + #13#10 +
+        'z1i0f1JppaoBBdFQMQnVlTrZjEIinavAZwLH9HRbmjvglO0gNL46NpgzgcXQbKbn' + #13#10 +
+        'jZs4BSFF9LbhP4VvvIIKI7lR/yQFNw5GtKtV+Pi/tZ5dCaRvALadAtzAXOmEadv0' + #13#10 +
+        'KNZXc7hONXf9kyRmtwr6C5AdeIH50enVBss6zRwwGi3fW7e5D6z3FvUrHzD9fot+' + #13#10 +
+        'y89hX5iXD/v3BurTkN3rG12JoTypQ3W1VD1lEfRrJm8rbvQTqO0RCSgxc2KwIULb' + #13#10 +
+        '3ONsf1ln/Lb+UuRiUpGeb4GQqPDkn7XW8wIBAg==' + #13#10 +
+        '-----END DH PARAMETERS-----' + #13#10;
+
+    sslDHParams4096 =
+        '-----BEGIN DH PARAMETERS-----' + #13#10 +
+        'MIICCAKCAgEA45KZVdTCptcakXZb7jJvSuuOdMlUbl1tpncHbQcYbFhRbcFmmefp' + #13#10 +
+        'bOmZsTowlWHQpoYRRTe6NEvYox8J+44i/X5cJkMTlIgMb0ZBty7t76U9f6qAId/O' + #13#10 +
+        '6elE0gnk2ThER9nmBcUA0ZKgSXn0XCBu6j5lzZ0FS+bx9OVNhlzvIFBclRPXbI58' + #13#10 +
+        '71dRoTjOjfO1SIzV69T3FoKJcqur58l8b+no/TOQzekMzz4XJTRDefqvePhj7ULP' + #13#10 +
+        'Z/Zg7vtEh11h8gHR0/rlF378S05nRMq5hbbJeLxIbj9kxQunETSbwwy9qx0SyQgH' + #13#10 +
+        'g+90+iUCrKCJ9Fb7WKqtQLkQuzJIkkXkXUyuxUuyBOeeP9XBUAOQu+eYnRPYSmTH' + #13#10 +
+        'GkhyRbIRTPCDiBWDFOskdyGYYDrxiK7LYJQanqHlEFtjDv9t1XmyzDm0k7W9oP/J' + #13#10 +
+        'p0ox1+WIpFgkfv6nvihqCPHtAP5wevqXNIQADhDk5EyrR3XWRFaySeKcmREM9tbc' + #13#10 +
+        'bOvmsEp5MWCC81ZsnaPAcVpO66aOPojNiYQZUbmm70fJsr8BDzXGpcQ44+wmL4Ds' + #13#10 +
+        'k3+ldVWAXEXs9s1vfl4nLNXefYl74cV8E5Mtki9hCjUrUQ4dzbmNA5fg1CyQM/v7' + #13#10 +
+        'JuP6PBYFK7baFDjG1F5YJiO0uHo8sQx+SWdJnGsq8piI3w0ON9JhUvMCAQI=' + #13#10 +
+        '-----END DH PARAMETERS-----' + #13#10;
 
 {$IFNDEF NO_SSL_MT}
 var
@@ -2298,6 +2752,8 @@ type
     protected
         FSslInitialized : Boolean;
         FLastSslError   : Integer;
+        FLastSslErrMsg  : String;                   { V8.55 }
+        FSslPWUtf8      : Boolean;                  { V8.55 }
 
     {$IFNDEF NO_DEBUG_LOG}                                             { V5.21 }
         FIcsLogger  : TIcsLogger;
@@ -2311,43 +2767,22 @@ type
         procedure   RaiseLastOpenSslError(EClass          : ExceptClass;
                                           Dump            : Boolean = FALSE;
                                           const CustomMsg : String  = ''); virtual;
-        procedure   InitializeSsl; {$IFDEF USE_INLINE} inline; {$ENDIF}
-        procedure   FinalizeSsl;
     public
         constructor Create(AOwner: TComponent); override;
         destructor  Destroy; override;
-        property    LastSslError : Integer read FLastSslError;
+        procedure   InitializeSsl; {$IFDEF USE_INLINE} inline; {$ENDIF}    { V8.41 was protected }
+        procedure   FinalizeSsl;                                           { V8.41 }
+        function    PasswordConvert(const PW: String): AnsiString;   { V8.55 }
+        property    LastSslError : Integer                read FLastSslError;
+        property    LastSslErrMsg : String                read FLastSslErrMsg;   { V8.55 }
+        property    IsSslInitialized: Boolean             read FSslInitialized;  { V8.41 }
 {$IFNDEF NO_DEBUG_LOG}
     published
         property    IcsLogger : TIcsLogger                read  FIcsLogger    { V5.21 }
                                                           write SetIcsLogger;
 {$ENDIF}
     end;
-    (*
-    TX509Stack = class(TObject) // Not yet used, but will be soon!
-    private
-        FStack : PSTACK;
-        FCount : Integer;
-    protected
-        function    GetCert(Index : Integer): PX509;
-        procedure   SetCert(Index : Integer; const Value : PX509);
-        procedure   SetStack(const Value : PStack);
-        function    InternalInsert(Cert : PX509; Index : Integer): Integer;
-    public
-        constructor Create;
-        destructor  Destroy; override;
-        function    Add(Cert : PX509): Integer;
-        procedure   Clear;
-        procedure   Insert(Cert : PX509; Index : Integer);
-        function    IndexOf(Cert : PX509): Integer;
-        procedure   Delete(Index : Integer);
-        property    Count                   : Integer           read  FCount;
-        property    Certs[index : Integer]  : PX509             read  GetCert
-                                                                write SetCert; default;
-        property    Stack: PSTACK                               read  FStack
-                                                                write SetStack;
-    end;
-    *)
+
 {$IFNDEF COMPILER6_UP}
 const                                                             {AG 02/06/06}
     MinDateTime: TDateTime = -657434.0;      { 01/01/0100 12:00:00.000 AM }
@@ -2365,33 +2800,46 @@ type
 
     THashBytes20 = array of Byte;
 
-    TBioOpenMethode = (bomRead, bomWrite);
+type
+    { V8.40 added read only, V8.41 added WriteBin }
+    TBioOpenMethode = (bomRead, bomWrite, bomReadOnly, bomWriteBin);
+
+    TX509List  = class;
+
     TX509Base = class(TSslBaseComponent)
     private
         FX509               : Pointer;
         FPrivateKey         : Pointer;
         FSha1Digest         : THashBytes20;
         FSha1Hex            : String;
+        FX509Inters         : PStack;     { V8.41 }
+        FX509CATrust        : PStack;     { V8.41 }
+        FSha256Digest       : THashBytes20;  { V8.63 }
+        FSha256Hex          : String;        { V8.63 }
     protected
         FVerifyResult       : Integer;  // current verify result
-        //FSha1Hash           : AnsiString; // Deprecated
         FVerifyDepth        : Integer;
         FCustomVerifyResult : Integer;
         FFirstVerifyResult  : Integer;                      {05/21/2007 AG}
         procedure   FreeAndNilX509;
+        procedure   FreeAndNilX509Inters;               { V8.41 }
+        procedure   FreeAndNilX509CATrust;              { V8.41 }
         procedure   FreeAndNilPrivateKey;
         procedure   SetX509(X509: Pointer);
         procedure   SetPrivateKey(PKey: Pointer);
-        function    GetPublicKey: Pointer;
+        procedure   SetX509Inters(X509Inters: PStack);   { V8.41 }
+        procedure   SetX509CATrust(X509CATrust: PStack); { V8.41 }
+        function    GetX509PublicKey: Pointer;           { V8.52 renamed from GetPublicKey }
         function    GetVerifyErrorMsg: String;
         function    GetFirstVerifyErrorMsg: String;         {05/21/2007 AG}
         function    GetIssuerOneLine: String;
         function    GetSubjectOneLine: String;
-        function    GetSerialNum: Integer; virtual;
+        function    GetSerialNum: Int64; virtual;           { V8.40 was integer }
         function    GetSubjectCName: String;
         function    GetSubjectAltName: TExtension; virtual;
         function    GetExtension(Index: Integer): TExtension; virtual;
         function    GetExtensionCount: Integer;
+        function    ExtByName(const ShortName: String): Integer;
         function    GetValidNotBefore: TDateTime;              {AG 02/06/06}
         function    GetValidNotAfter: TDateTime;               {AG 02/06/06}
         function    GetHasExpired: Boolean;                    {AG 02/06/06}
@@ -2401,34 +2849,138 @@ type
         function    GetSha1Hash: AnsiString; deprecated
           {$IFDEF COMPILER12_UP}'Use GetSha1Digest or GetSha1Hex'{$ENDIF};
         function    GetSha1Digest: THashBytes20;
-        function    GetSha1Hex: String;
-        function    OpenFileBio(const FileName  : String;
-                                Methode         : TBioOpenMethode): PBIO;
-        procedure   ReadFromBio(ABio: PBIO; IncludePrivateKey: Boolean = FALSE;
-                                const Password: String = ''); virtual;
-        procedure   WriteToBio(ABio: PBIO; IncludePrivateKey: Boolean = FALSE;
-                               AddRawText: Boolean = FALSE); virtual;
+        function    GetSha1Hex: String;                { aka fingerprint }
+//        function    OpenFileBio(const FileName  : String;       { V8.40 now function }
+//                                Methode         : TBioOpenMethode): PBIO;
+       { V8.39 moved these from TX509Ex }
+        function    GetSubjectOName : String;
+        function    GetSubjectOUName : String;
+        function    GetSubjectCOName: String;
+        function    GetSubjectSTName: String;
+        function    GetSubjectLName: String;
+        function    GetSubjectEmailName: String;
+        function    GetSubjectSerialName: String;
+        function    GetSubAltNameDNS: String;
+        function    GetSubAltNameIP: String;
+        function    GetKeyUsage: String;
+        function    GetExKeyUsage: String;
+        function    GetBasicConstraints: String;
+        function    GetAuthorityInfoAccess: String;
+        function    GetIssuerOName: String;
+        function    GetIssuerOUName: String;
+        function    GetIssuerCName: String;
+        function    GetIssuerCOName: String;
+        function    GetIssuerSTName: String;
+        function    GetIssuerLName: String;
+        function    GetIssuerEmailName: String;
+        function    GetSignAlgo: String;
+        function    GetKeyInfo: string;
+        function    GetSerialNumHex: String;
+        function    GetKeyDesc(pkey: PEVP_PKEY): string;                   { V8.41 }
+        function    GetPrivateKeyInfo: string;                             { V8.40 }
+        function    GetCertPolicies: String;                               { V8.40 }
+        function    GetAuthorityKeyId: String;                             { V8.40 }
+        function    GetSubjectKeyId: String;                               { V8.40 }
+        function    GetCRLDistribution: String;                            { V8.40 }
+        function    GetExtendedValidation: boolean;                        { V8.40 }
+        function    GetIsCertLoaded: Boolean;                              { V8.41 }
+        function    GetIsPKeyLoaded: Boolean;                              { V8.41 }
+        function    GetIsInterLoaded: Boolean;                             { V8.41 }
+        function    GetIsCATrustLoaded : Boolean;                          { V8.41 }
+        function    GetInterCount: Integer;                                { V8.41 }
+        function    GetCATrustCount: Integer;                              { V8.41 }
+        function    GetSha256Digest: THashBytes20;                         { V8.63 }
+        function    GetSha256Hex: String;        { aka fingerprint }       { V8.63 }
     public
         constructor Create(AOwner: TComponent; X509: Pointer = nil); reintroduce;
         destructor  Destroy; override;
-        function    ExtByName(const ShortName: String): Integer;
         function    PostConnectionCheck(HostOrIp: String): Boolean; virtual;
-        function    GetRawText: String;                        {05/21/2007 AG}
+        function    CheckHost(const Host: string; Flags: integer): String;       { V8.39 }
+        function    CheckEmail(const Email: string; Flags: integer): Boolean;    { V8.39 }
+        function    CheckIPaddr(const IPadddr: string; Flags: integer): Boolean; { V8.39 }
+        procedure   ReadFromBio(ABio: PBIO; IncludePKey: TCertReadOpt = croNo;
+                          IncludeInters: TCertReadOpt = croNo; const Password:
+                                 String = ''; const FName: String = ''); overload; virtual;   { V8.40 }
+        procedure   ReadFromBio(ABio: PBIO; IncludePrivateKey: Boolean = FALSE;
+                                           const Password: String = ''); overload; virtual;
+        procedure   WriteToBio(ABio: PBIO; IncludePrivateKey: Boolean = FALSE;
+                          AddInfoText: Boolean = FALSE; const FName: String = ''); virtual;
+        procedure   WriteCertToBio(ABio: PBIO; AddInfoText: Boolean = FALSE; const FName: String = ''); virtual;  { V8.40 }
+        procedure   WritePkeyToBio(ABio: PBIO; const Password: String = '';
+                                PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone; const FName: String = ''); virtual;  { V8.40 }
+        procedure   WriteIntersToBio(ABio: PBIO; AddInfoText: Boolean = FALSE; const FName: String = ''); virtual;  { V8.41 }
+        function    ReadStrBio(ABio: PBIO; MaxLen: Integer): AnsiString;  { V8.41 }
+        procedure   WriteStrBio(ABio: PBIO; Str: AnsiString; StripCR: Boolean = False);  { V8.41 }
+        function    GetRawText: String;
+        function    SavePKeyToText(const Password: String = '';
+                     PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone): String;   { V8.40}
+        function    SaveCertToText(AddInfoText: Boolean = FALSE): String;       { V8.40}
+        procedure   LoadFromPemFile(const FileName: String; IncludePKey: TCertReadOpt;
+                       IncludeInters: TCertReadOpt = croNo; const Password: String = ''); overload;   { V8.40 }
         procedure   LoadFromPemFile(const FileName: String;
                                     IncludePrivateKey: Boolean = False;
-                                    const Password: String = '');
+                                    const Password: String = ''); overload;   { V8.40 }
         procedure   SaveToPemFile(const FileName: String;
-                                  IncludePrivateKey: Boolean = FALSE;
-                                  AddRawText: Boolean = FALSE);
+                        IncludePrivateKey: Boolean = FALSE; AddInfoText: Boolean = FALSE;
+                           IncludeInters: Boolean = FALSE; const Password: String = '';
+                                        PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone);   { V8.40 added inters and password }
         procedure   PrivateKeyLoadFromPemFile(const FileName: String;
                                               const Password: String = '');
-        procedure   PrivateKeySaveToPemFile(const FileName: String);
+        procedure   PrivateKeySaveToPemFile(const FileName: String; const Password:
+                         String = ''; PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone);   { V8.40 more params }
+        procedure   LoadFromText(Lines: String; IncludePKey: TCertReadOpt = croNo;
+                       IncludeInters: TCertReadOpt = croNo; const Password: String = ''); overload;    { V8.40 }
+        procedure   LoadFromText(Lines: String; IncludePrivateKey: Boolean = False;     { V8.27 }
+                                                  const Password: String = ''); overload;
+        procedure   PrivateKeyLoadFromText(Lines: String; const Password: String = '');  { V8.27 }
+        procedure   LoadFromP12File(const FileName: String; IncludePKey: TCertReadOpt = croNo;
+                       IncludeInters: TCertReadOpt = croNo; const Password: String = '');     { V8.40 }
+        procedure   LoadFromP12Buffer(ABuffer: Pointer; ABufferSize: Cardinal;
+                       IncludePKey, IncludeInters: TCertReadOpt; const Password: String);  { V8.63 }
+        procedure   LoadFromP7BFile(const FileName: String; IncludeInters: TCertReadOpt = croNo); { V8.40 }
+        procedure   LoadFromFile(const FileName: String; IncludePKey: TCertReadOpt = croNo;
+                       IncludeInters: TCertReadOpt = croNo; const Password: String = ''); { V8.40 }
+        procedure   SaveToP12File(const FileName, Password: String; IncludeInters: Boolean = FALSE;
+                                         PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone);   { V8.40 }
+        procedure   SaveToDERFile(const FileName: String);                     { V8.40 }
+        procedure   SaveToP7BFile(const FileName: String; IncludeInters: Boolean = FALSE;
+                                                                  Base64: Boolean = FALSE);  { V8.41 }
+        procedure   SaveToFile(const FileName: String; IncludePrivateKey: Boolean = FALSE;
+                        AddInfoText: Boolean = False; IncludeInters: Boolean = FALSE;
+                          const Password: String = '';  PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone);   { V8.40 }
+        function    CheckCertAndPKey: boolean;                             { V8.40 }
+        procedure   ClearAll;                                              { V8.40 }
+        function    GetPKeyRawText: String;                                { V8.40 }
+        procedure   PublicKeySaveToPemFile(const FileName: String);        { V8.40 }
+        function    PublicKeySaveToText: String;                           { V8.52 }
+        procedure   PublicKeyLoadFromText(const Lines: String);                  { V8.52 }
+        function    CertInfo(Brief: Boolean=False): String;                { V8.41 added Brief }
+        procedure   LoadIntersFromPemFile(const FileName: String);         { V8.41 }
+        procedure   LoadIntersFromString(const Value: String);             { V8.41 }
+        procedure   SaveIntersToToPemFile(const FileName: String; AddInfoText: Boolean = FALSE);         { V8.41 }
+        procedure   GetIntersList(CertList: TX509List);                    { V8.41 }
+        procedure   AddToInters(X509: Pointer);                            { V8.41 }
+        function    ListInters: string;                                    { V8.41 }
+        procedure   LoadCATrustFromPemFile(const FileName: String);        { V8.41 }
+        procedure   LoadCATrustFromString(const Value: String);            { V8.41 }
+        procedure   GetCATrustList(CertList: TX509List);                   { V8.41 }
+        procedure   AddToCATrust(X509: Pointer);                           { V8.41 }
+        function    ValidateCertChain(Host: String; var CertStr, ErrStr: String; ExpireDays: Integer = 30): TChainResult;  { V8.57 }
+        function    GetPX509NameByNid(XName: PX509_NAME; ANid: Integer): String;  { V8.41 }
+        function    CheckExtName(Ext: PX509_EXTENSION; const ShortName: String): Boolean;  { V8.41 }
+        function    GetExtDetail(Ext: PX509_EXTENSION): TExtension;        { V8.41 }
         function    IssuedBy(ACert: TX509Base): Boolean;
         function    IssuerOf(ACert: TX509Base): Boolean;
         function    SameHash(const ACert: TX509Base): Boolean;
+       { V8.39 moved next four from TX509Ex }
+        function    GetNameEntryByNid(IsSubject: Boolean; ANid: Integer): String;
+        function    GetExtensionByName(const S: String): TExtension;
+        function    GetExtField(Ext: TExtension; const FieldName: String): String;   { V8.41 }
+        function    GetExtensionValuesByName(const ShortName, FieldName: String): String;
+        function    UnwrapNames(const S: String): String;
         property    IssuerOneLine       : String        read  GetIssuerOneLine;
         property    SubjectOneLine      : String        read  GetSubjectOneLine;
-        property    SerialNum           : Integer       read  GetSerialNum;
+        property    SerialNum           : Int64         read  GetSerialNum;      { V8.40 was integer }
         property    VerifyResult        : Integer       read  FVerifyResult
                                                         write FVerifyResult;
         property    VerifyErrMsg        : String        read  GetVerifyErrorMsg;
@@ -2443,7 +2995,13 @@ type
                                                         write SetX509;
         property    PrivateKey          : Pointer       read  FPrivateKey
                                                         write SetPrivateKey;
-        property    PublicKey           : Pointer       read  GetPublicKey;      {AG 11/08/07}
+        property    X509PublicKey       : Pointer       read  GetX509PublicKey; { V8.52 renamed from PublicKey }
+        property    X509Inters          : PStack        read  FX509Inters
+                                                        write SetX509Inters;    { V8.41 }
+        property    X509CATrust         : PStack        read  FX509CATrust
+                                                        write SetX509CATrust;   { V8.41 }
+        property    SslPWUtf8           : Boolean       read  FSslPWUtf8
+                                                        write FSslPWUtf8;       { V8.55 }
         property    SubjectCName        : String        read  GetSubjectCName;
         property    SubjectAltName      : TExtension    read  GetSubjectAltName;
         property    ExtensionCount      : Integer       read  GetExtensionCount;
@@ -2451,16 +3009,53 @@ type
         function    Sha1Hash            : AnsiString;   deprecated
           {$IFDEF COMPILER12_UP}'Use Sha1Digest or Sha1Hex'{$ENDIF};
         property    Sha1Digest          : THashBytes20  read  GetSha1Digest;
-        property    Sha1Hex             : String        read  GetSha1Hex;
+        property    Sha1Hex             : String        read  GetSha1Hex;        { aka fingerprint }
         property    ValidNotBefore      : TDateTime     read  GetValidNotBefore; {AG 02/06/06}
         property    ValidNotAfter       : TDateTime     read  GetValidNotAfter;  {AG 02/06/06}
         property    HasExpired          : Boolean       read  GetHasexpired;     {AG 02/06/06}
         property    SelfSigned          : Boolean       read  GetSelfSigned;
+       { V8.39 moved these from TX509Ex }
+        property    SubjectOName        : String        read GetSubjectOName;
+        property    SubjectOUName       : String        read GetSubjectOUName;
+        property    SubjectCOName       : String        read GetSubjectCOName;
+        property    SubjectSTName       : String        read GetSubjectSTName;
+        property    SubjectLName        : String        read GetSubjectLName;
+        property    SubjectEmailName    : String        read GetSubjectEmailName;
+        property    SubjectSerialName   : String        read GetSubjectSerialName;
+        property    SubAltNameDNS       : String        read GetSubAltNameDNS;
+        property    SubAltNameIP        : String        read GetSubAltNameIP;
+        property    KeyUsage            : String        read GetKeyUsage;
+        property    ExKeyUsage          : String        read GetExKeyUsage;
+        property    BasicConstraints    : String        read GetBasicConstraints;
+        property    AuthorityInfoAccess : String        read GetAuthorityInfoAccess;
+        property    IssuerOName         : String        read GetIssuerOName;
+        property    IssuerOUName        : String        read GetIssuerOUName;
+        property    IssuerCName         : String        read GetIssuerCName;
+        property    IssuerCOName        : String        read GetIssuerCOName;
+        property    IssuerSTName        : String        read GetIssuerSTName;
+        property    IssuerLName         : String        read GetIssuerLName;
+        property    IssuerEmailName     : String        read GetIssuerEmailName;
+        property    SignatureAlgorithm  : String        read GetSignAlgo;
+        property    KeyInfo             : string        read GetKeyInfo;
+        property    SerialNumHex        : String        read GetSerialNumHex;
+        property    PrivateKeyInfo      : String        read GetPrivateKeyInfo;       { V8.40 }
+        property    CertPolicies        : String        read GetCertPolicies;         { V8.40 }
+        property    AuthorityKeyId      : String        read GetAuthorityKeyId;       { V8.40 }
+        property    SubjectKeyId        : String        read GetSubjectKeyId;         { V8.40 }
+        property    CRLDistribution     : String        read GetCRLDistribution;      { V8.40 }
+        property    ExtendedValidation  : boolean       read GetExtendedValidation;   { V8.40 }
+        property    IsCertLoaded        : Boolean       read GetIsCertLoaded;         { V8.41 }
+        property    IsPKeyLoaded        : Boolean       read GetIsPKeyLoaded;         { V8.41 }
+        property    IsInterLoaded       : Boolean       read GetIsInterLoaded;        { V8.41 }
+        property    IsCATrustLoaded     : Boolean       read GetIsCATrustLoaded;      { V8.41 }
+        property    InterCount          : Integer       read GetInterCount;           { V8.41 }
+        property    CATrustCount        : Integer       read GetCATrustCount;         { V8.41 }
+        property    Sha256Digest        : THashBytes20  read  GetSha256Digest;        { V8.63 }
+        property    Sha256Hex           : String        read  GetSha256Hex; { aka fingerprint V8.63 }
     end;
 
     TX509Class = class of TX509Base;
-
-    TCustomSslWSocket = class; //forward
+    TX509Ex = TX509Base;  { V8.39 moved from OverbyteIcsSslX509Utils }
 
     TX509ListSort = (xsrtIssuerFirst, xsrtIssuedFirst);
     TX509List  = class(TObject)
@@ -2495,6 +3090,9 @@ type
         function    Find(const AX509: PX509): TX509Base; overload;
         function    Remove(Item: TX509Base): Integer;
         function    Extract(Item: TX509Base): TX509Base;
+        function    LoadAllFromFile(const Filename: string): integer;    { V8.39 }
+        function    LoadAllStack(CertStack: PStack): integer;            { V8.41 }
+        function    AllCertInfo(Brief: Boolean=False; Reverse: Boolean=False): String;   { V8.41 }
         procedure   SortChain(ASortOrder: TX509ListSort);
         property    Count                       : Integer       read  GetCount;
         property    Items[index: Integer]       : TX509Base     read  GetX509Base
@@ -2508,10 +3106,10 @@ type
 
     TSslContextRemoveSession = procedure(Sender: TObject;
                                          SslSession : Pointer) of object;
-    // SSL Version selection
-    TSslVersionMethod = (sslV2,
-                         sslV2_CLIENT,
-                         sslV2_SERVER,
+    // single SSL Version selection  - old
+    TSslVersionMethod = (sslV2,                 { V8.27 gone 1.1.0 }
+                         sslV2_CLIENT,          { V8.27 gone 1.1.0 }
+                         sslV2_SERVER,          { V8.27 gone 1.1.0 }
                          sslV3,
                          sslV3_CLIENT,
                          sslV3_SERVER,
@@ -2531,6 +3129,14 @@ type
                          sslBestVer_CLIENT,
                          sslBestVer_SERVER);
 
+    // range SSL Version selection  - new V8.27 used to set minimum and maxium supported versions
+    TSslVerMethod = (sslVerSSL3,
+                     sslVerTLS1,
+                     sslVerTLS1_1,
+                     sslVerTLS1_2,
+                     sslVerTLS1_3,  { not yet supported, still draft }
+                     sslVerMax);
+
     TSslVerifyPeerMode = (SslVerifyMode_NONE,
                           SslVerifyMode_PEER,
                           SslVerifyMode_FAIL_IF_NO_PEER_CERT,
@@ -2544,32 +3150,60 @@ type
                       sslX509_V_FLAG_CRL_CHECK_ALL,
                       sslX509_V_FLAG_IGNORE_CRITICAL,
                       sslX509_V_FLAG_X509_STRICT,
-                      sslX509_V_FLAG_ALLOW_PROXY_CERTS);
+                      sslX509_V_FLAG_ALLOW_PROXY_CERTS,
+                      sslX509_V_FLAG_POLICY_CHECK,    { V8.39 lots more flags }
+                      sslX509_V_FLAG_EXPLICIT_POLICY,
+                      sslX509_V_FLAG_INHIBIT_ANY,
+                      sslX509_V_FLAG_INHIBIT_MAP ,
+                      sslX509_V_FLAG_NOTIFY_POLICY,
+                      sslX509_V_FLAG_EXTENDED_CRL_SUPPORT,
+                      sslX509_V_FLAG_USE_DELTAS,
+                      sslX509_V_FLAG_CHECK_SS_SIGNATURE,
+                      sslX509_V_FLAG_TRUSTED_FIRST,
+                      sslX509_V_FLAG_SUITEB_128_LOS_ONLY,
+                      sslX509_V_FLAG_SUITEB_192_LOS,
+                      sslX509_V_FLAG_SUITEB_128_LOS,
+                      sslX509_V_FLAG_PARTIAL_CHAIN,
+                      sslX509_V_FLAG_NO_ALT_CHAINS,
+                      sslX509_V_FLAG_NO_CHECK_TIME);
     TSslVerifyFlags = set of TSslVerifyFlag;
 
+   { V8.39 }
+    TSslCheckHostFlag = (
+                     sslX509_NO_HOST_CHECK,
+                     sslX509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT,
+                     sslX509_CHECK_FLAG_NO_WILDCARDS,
+                     sslX509_CHECK_FLAG_NO_PARTIAL_WILDCARDS,
+                     sslX509_CHECK_FLAG_MULTI_LABEL_WILDCARDS,
+                     sslX509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS,
+                     sslX509_CHECK_FLAG_NEVER_CHECK_SUBJECT);
+    TSslCheckHostFlags = set of TSslCheckHostFlag;
+
+type
+  { V8.51 now only used for 1.0.2 and 1.1.0, many unused for 1.1.0, ignored for 1.1.1 and later }
     TSslOption  = (sslOpt_CIPHER_SERVER_PREFERENCE,
-                   sslOpt_MICROSOFT_SESS_ID_BUG,
-                   sslOpt_NETSCAPE_CHALLENGE_BUG,
-                   sslOpt_NETSCAPE_REUSE_CIPHER_CHANGE_BUG,
-                   sslOpt_SSLREF2_REUSE_CERT_TYPE_BUG,  { V8.15 unused }
-                   sslOpt_MICROSOFT_BIG_SSLV3_BUFFER,
-                   sslOpt_MSIE_SSLV2_RSA_PADDING,       { V8.15 unused }
-                   sslOpt_SSLEAY_080_CLIENT_DH_BUG,
-                   sslOpt_TLS_D5_BUG,
-                   sslOpt_TLS_BLOCK_PADDING_BUG,
+                   sslOpt_MICROSOFT_SESS_ID_BUG,        { V8.27 gone 1.1.0 }
+                   sslOpt_NETSCAPE_CHALLENGE_BUG,       { V8.27 gone 1.1.0 }
+                   sslOpt_NETSCAPE_REUSE_CIPHER_CHANGE_BUG,   { V8.27 gone 1.1.0 }
+                   sslOpt_SSLREF2_REUSE_CERT_TYPE_BUG,  { V8.27 gone 1.1.0 }
+                   sslOpt_MICROSOFT_BIG_SSLV3_BUFFER,   { V8.27 gone 1.1.0 }
+                   sslOpt_MSIE_SSLV2_RSA_PADDING,       { V8.27 gone 1.1.0 }
+                   sslOpt_SSLEAY_080_CLIENT_DH_BUG,     { V8.27 gone 1.1.0 }
+                   sslOpt_TLS_D5_BUG,                   { V8.27 gone 1.1.0 }
+                   sslOpt_TLS_BLOCK_PADDING_BUG,        { V8.27 gone 1.1.0 }
                    sslOpt_TLS_ROLLBACK_BUG,
                    sslOpt_DONT_INSERT_EMPTY_FRAGMENTS,
-                   sslOpt_SINGLE_DH_USE,
-                   sslOpt_EPHEMERAL_RSA,
-                   sslOpt_NO_SSLv2,
+                   sslOpt_SINGLE_DH_USE,                { V8.27 gone 1.1.0 }
+                   sslOpt_EPHEMERAL_RSA,                { V8.27 gone 1.1.0 }
+                   sslOpt_NO_SSLv2,                     { V8.27 gone 1.1.0 }
                    sslOpt_NO_SSLv3,
                    sslOpt_NO_TLSv1,
-                   sslOpt_PKCS1_CHECK_1,          { V8.15 unused }
-                   sslOpt_PKCS1_CHECK_2,          { V8.15 unused }
-                   sslOpt_NETSCAPE_CA_DN_BUG,
+                   sslOpt_PKCS1_CHECK_1,                { V8.27 gone 1.1.0 }
+                   sslOpt_PKCS1_CHECK_2,                { V8.27 gone 1.1.0 }
+                   sslOpt_NETSCAPE_CA_DN_BUG,           { V8.27 gone 1.1.0 }
                    //sslOP_NO_TICKET,             { no session tickets, this is forced later }
                    sslOpt_NO_SESSION_RESUMPTION_ON_RENEGOTIATION, // 12/09/05
-                   sslOpt_NETSCAPE_DEMO_CIPHER_CHANGE_BUG,
+                   sslOpt_NETSCAPE_DEMO_CIPHER_CHANGE_BUG,  { V8.27 gone 1.1.0 }
                    sslOpt_ALLOW_UNSAFE_LEGACY_RENEGOTIATION, // Since OSSL 0.9.8n
                    sslOpt_NO_COMPRESSION,         { V8.15 }
                    sslOpt_TLSEXT_PADDING,         { V8.15 }
@@ -2577,18 +3211,125 @@ type
                    sslOpt_CISCO_ANYCONNECT,       { V8.15 }
                    sslOpt_NO_TLSv1_1,             { V8.15 }
                    sslOpt_NO_TLSv1_2,             { V8.15 }
-                   SslOpt_SINGLE_ECDH_USE);       { V8.16 }
+                   SslOpt_SINGLE_ECDH_USE);       { V8.27 gone 1.1.0 }
    TSslOptions = set of TSslOption;
 
+ { V8.51 only options supported by 1.1.0 and later }
+   TSslOption2  = (sslOpt2_CIPHER_SERVER_PREFERENCE,      { server only }
+                   sslOpt2_NO_RENEGOTIATION,       { V8.51 new 1.1.1 }
+                   sslOpt2_NO_SESSION_RESUMPTION_ON_RENEGOTIATION,  { server only }
+                   sslOpt2_NO_COMPRESSION,         { V8.15 }
+                   SslOpt2_NO_ENCRYPT_THEN_MAC,    { V8.51 new 1.1.1 }
+                   sslOpt2_NO_TICKET,              { V8.51 no longer forced later }
+                   sslOpt2_NO_SSLv3,               { No_xx are deprecated for 1.1.0, use Min/MaxProto }
+                   sslOpt2_NO_TLSv1,
+                   sslOpt2_NO_TLSv1_1,             { V8.15 }
+                   sslOpt2_NO_TLSv1_2,             { V8.15 }
+                   sslOpt2_NO_TLSv1_3,             { V8.51 new 1.1.1 }
+                   sslOpt2_TLS_ROLLBACK_BUG,
+                   sslOpt2_DONT_INSERT_EMPTY_FRAGMENTS,
+                   sslOpt2_ALLOW_UNSAFE_LEGACY_RENEGOTIATION, // Since OSSL 0.9.8n
+                   sslOpt2_TLSEXT_PADDING,         { V8.15 }
+                   sslOpt2_SAFARI_ECDHE_ECDSA_BUG, { V8.15 }
+                   sslOpt2_CISCO_ANYCONNECT,       { V8.15 }
+                   SslOpt2_LEGACY_SERVER_CONNECT,  { V8.51 new 1.1.0 }
+                   SslOpt2_ALLOW_NO_DHE_KEX);      { V8.51 new 1.1.1 }
+   TSslOptions2 = set of TSslOption2;
 
-    TSslSessCacheMode = (//sslSESS_CACHE_OFF,
-                         sslSESS_CACHE_CLIENT,
+const
+    SslIntOptions: array[TSslOption] of Integer =                   { V7.30 }
+           (SSL_OP_CIPHER_SERVER_PREFERENCE,
+            SSL_OP_MICROSOFT_SESS_ID_BUG,
+            SSL_OP_NETSCAPE_CHALLENGE_BUG,
+            SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG,
+            SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG,
+            SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER,
+            SSL_OP_MSIE_SSLV2_RSA_PADDING,
+            SSL_OP_SSLEAY_080_CLIENT_DH_BUG,
+            SSL_OP_TLS_D5_BUG,
+            SSL_OP_TLS_BLOCK_PADDING_BUG,
+            SSL_OP_TLS_ROLLBACK_BUG,
+            SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS,
+            SSL_OP_SINGLE_DH_USE,
+            SSL_OP_EPHEMERAL_RSA,
+            SSL_OP_NO_SSLv2,
+            SSL_OP_NO_SSLv3,
+            SSL_OP_NO_TLSv1,
+            SSL_OP_PKCS1_CHECK_1,
+            SSL_OP_PKCS1_CHECK_2,
+            SSL_OP_NETSCAPE_CA_DN_BUG,
+            SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION,
+            SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG,
+            SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION,  // Since OSSL 0.9.8n
+            SSL_OP_NO_COMPRESSION,         { V8.15 }
+            SSL_OP_TLSEXT_PADDING,         { V8.15 }
+            SSL_OP_SAFARI_ECDHE_ECDSA_BUG, { V8.15 }
+            SSL_OP_CISCO_ANYCONNECT,       { V8.15 }
+            SSL_OP_NO_TLSv1_1,             { V8.15 }
+            SSL_OP_NO_TLSv1_2,             { V8.15 }
+            SSL_OP_SINGLE_ECDH_USE);        { V8.16 }
+
+   { V8.27 OSSL 1.1.0 lost many old options }
+    SslIntOptions110: array[TSslOption] of Integer =
+           (SSL_OP_CIPHER_SERVER_PREFERENCE,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            SSL_OP_TLS_ROLLBACK_BUG,
+            SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS,
+            0,
+            0,
+            0,
+            SSL_OP_NO_SSLv3,
+            SSL_OP_NO_TLSv1,
+            0,
+            0,
+            0,
+            SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION,
+            0,
+            SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION,
+            SSL_OP_NO_COMPRESSION,
+            SSL_OP_TLSEXT_PADDING,
+            SSL_OP_SAFARI_ECDHE_ECDSA_BUG,
+            SSL_OP_CISCO_ANYCONNECT,
+            SSL_OP_NO_TLSv1_1,
+            SSL_OP_NO_TLSv1_2,
+            0);
+
+   { V8.51 OSSL 1.1.0 and 1.1.1, latter has few new options }
+    SslIntOptions2: array[TSslOption2] of Integer =
+           (SSL_OP_CIPHER_SERVER_PREFERENCE,
+            SSL_OP_NO_RENEGOTIATION,       { V8.51 }
+            SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION,
+            SSL_OP_NO_COMPRESSION,
+            SSL_OP_NO_ENCRYPT_THEN_MAC,    { V8.51 }
+            SSL_OP_NO_TICKET,
+            SSL_OP_NO_SSLv3,
+            SSL_OP_NO_TLSv1,
+            SSL_OP_NO_TLSv1_1,
+            SSL_OP_NO_TLSv1_2,
+            SSL_OP_NO_TLSv1_3,             { V8.51 }
+            SSL_OP_TLS_ROLLBACK_BUG,
+            SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS,
+            SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION,
+            SSL_OP_TLSEXT_PADDING,
+            SSL_OP_SAFARI_ECDHE_ECDSA_BUG,
+            SSL_OP_CISCO_ANYCONNECT,
+            SSL_OP_LEGACY_SERVER_CONNECT,  { V8.51 }
+            SSL_OP_ALLOW_NO_DHE_KEX);      { V8.51 }
+
+type
+    TSslSessCacheMode = (sslSESS_CACHE_CLIENT,
                          sslSESS_CACHE_SERVER,
-                         //sslSESS_CACHE_BOTH,
                          sslSESS_CACHE_NO_AUTO_CLEAR,
                          sslSESS_CACHE_NO_INTERNAL_LOOKUP,
-                         sslSESS_CACHE_NO_INTERNAL_STORE{,
-                         sslSESS_CACHE_NO_INTERNAL});
+                         sslSESS_CACHE_NO_INTERNAL_STORE);
     TSslSessCacheModes = set of TSslSessCacheMode;
 
     TSslSessionIdContext = String;//[SSL_MAX_SSL_SESSION_ID_LENGTH];
@@ -2600,15 +3341,94 @@ type
                       sslECDH_P384,
                       sslECDH_P521);
 
-    {
-    TSslX509Trust = (ssl_X509_TRUST_NOT_DEFINED, // Custom value
-                     ssl_X509_TRUST_COMPAT,
-                     ssl_X509_TRUST_SSL_CLIENT,
-                     ssl_X509_TRUST_SSL_SERVER,
-                     ssl_X509_TRUST_EMAIL,
-                     ssl_X509_TRUST_OBJECT_SIGN,
-                     ssl_X509_TRUST_OCSP_SIGN,
-                     ssl_X509_TRUST_OCSP_REQUEST); }
+const
+  SslIntSessCacheModes: array[TSslSessCacheMode] of Integer =     { V7.30 }
+            (SSL_SESS_CACHE_CLIENT,
+             SSL_SESS_CACHE_SERVER,
+             SSL_SESS_CACHE_NO_AUTO_CLEAR,
+             SSL_SESS_CACHE_NO_INTERNAL_LOOKUP,
+             SSL_SESS_CACHE_NO_INTERNAL_STORE);
+
+
+  SslIntVerifyFlags: array[TSslVerifyFlag] of Integer =
+           (X509_V_FLAG_CB_ISSUER_CHECK,
+            X509_V_FLAG_USE_CHECK_TIME,
+            X509_V_FLAG_CRL_CHECK,
+            X509_V_FLAG_CRL_CHECK_ALL,
+            X509_V_FLAG_IGNORE_CRITICAL,
+            X509_V_FLAG_X509_STRICT,
+            X509_V_FLAG_ALLOW_PROXY_CERTS,
+            X509_V_FLAG_POLICY_CHECK,          { V8.39 lots more flags }
+            X509_V_FLAG_EXPLICIT_POLICY,
+            X509_V_FLAG_INHIBIT_ANY,
+            X509_V_FLAG_INHIBIT_MAP,
+            X509_V_FLAG_NOTIFY_POLICY,
+            X509_V_FLAG_EXTENDED_CRL_SUPPORT,
+            X509_V_FLAG_USE_DELTAS,
+            X509_V_FLAG_CHECK_SS_SIGNATURE,
+            X509_V_FLAG_TRUSTED_FIRST,
+            X509_V_FLAG_SUITEB_128_LOS_ONLY,
+            X509_V_FLAG_SUITEB_192_LOS,
+            X509_V_FLAG_SUITEB_128_LOS,
+            X509_V_FLAG_PARTIAL_CHAIN,
+            X509_V_FLAG_NO_ALT_CHAINS,
+            X509_V_FLAG_NO_CHECK_TIME);
+
+  SslIntCheckHostFlags: array[TSslCheckHostFlag] of Integer =     {V8.39 }
+           (0,
+            X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT,
+            X509_CHECK_FLAG_NO_WILDCARDS,
+            X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS,
+            X509_CHECK_FLAG_MULTI_LABEL_WILDCARDS,
+            X509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS,
+            X509_CHECK_FLAG_NEVER_CHECK_SUBJECT);
+
+ SslECDHMethods: array [TSslECDHMethod] of integer =   { V8.15 }
+           (0,
+            0,
+            NID_X9_62_prime256v1,
+            NID_secp384r1,
+            NID_secp521r1);
+
+ SslVerMethods: array [TSslVerMethod] of LongWord =   { V8.27 }
+           (SSL3_VERSION,
+            TLS1_VERSION,
+            TLS1_1_VERSION,
+            TLS1_2_VERSION,
+            TLS1_3_VERSION,                   { V8.51 }
+            TLS_MAX_VERSION);
+
+
+  SslSrvSecurityNames: array [TSslSrvSecurity ] of PChar = (   { V8.55, V8.60 added TLS version and 1.2/1.3 only }
+                     'None',                                      { 0 - all protocols and ciphers, any key lengths }
+                     'SSLv3 Only',                                { 1 - SSL3 only, all ciphers, any key lengths, MD5 }
+                     'Backward Ciphers, TLS1 or Later',           { 2 - TLS1 or later, backward ciphers, RSA/DH keys=>1024, ECC=>160, no MD5, SHA1 }
+                     'Intermediate Ciphers, TLS1.1 or Later',     { 3 - TLS1.1 or later, intermediate ciphers, RSA/DH keys=>2048, ECC=>224, no RC4, no SHA1 certs }
+                     'Intermediate Ciphers FS, TLS1.1 or Later',  { 4 - TLS1.1 or later, intermediate FS ciphers, RSA/DH keys=>2048, ECC=>224, no RC4, no SHA1 certs }
+                     'High 112 bit Ciphers, TLS1.2 or Later',     { 5 - TLS1.2 or later, high ciphers, RSA/DH keys=>2048, ECC=>224, no RC4, no SHA1 certs }
+                     'High 128 bit Ciphers, TLS1.2 or Later',     { 6 - TLS1.2 or later, high ciphers, RSA/DH keys=>3072, ECC=>256, FS forced }
+                     'High 192 bit Ciphers, TLS1.2 or Later',     { 7 - TLS1.2 or later, high ciphers, RSA/DH keys=>7680, ECC=>384, FS forced }
+                     'TLSv1.2 or Earlier',                        { 8 - TLSv1.2 or earlier, intermediate FS ciphers, RSA/DH keys=>2048, ECC=>224, no RC4, no SHA1 certs }
+                     'TLSv1.3 Only');                             { 9 - TLSv1.3 only, intermediate FS ciphers, RSA/DH keys=>2048, ECC=>224, no RC4, no SHA1 certs }
+
+ SslCliSecurityNames: array [TSslCliSecurity] of PChar = (   { V8.55 }
+                     'Ignore',         { 0 - ignore, use old settings }
+                     'None',           { 1 - all protocols and ciphers, any key lengths }
+                     'SSLv3 Only',     { 2 - SSLv3 only, all ciphers, any key lengths, MD5 }
+                     'TLSv1 Only',     { 3 - TLSv1 only, all ciphers, RSA/DH keys=>2048 }
+                     'TLSv1.1 Only',   { 4 - TLSv1.1 only, all ciphers, RSA/DH keys=>2048 }
+                     'TLSv1.2 Only',   { 5 - TLSv1.2 only, all ciphers, RSA/DH keys=>2048 }
+                     'TLSv1.3 Only',   { 6 - TLSv1.3 only, all ciphers, RSA/DH keys=>2048 }
+                     'TLSv1 or Better',       { 7 - TLSv1 or later, all ciphers, RSA/DH keys=>1024 }
+                     'TLSv1.1 or Better',     { 8 - TLSv1.1 or later, all ciphers, RSA/DH keys=>1024 }
+                     'TLSv1.2 or Better',     { 9 - TLSv1.2 or later, all ciphers, RSA/DH keys=>2048 }
+                     'Backward Ciphers',      { 10 - TLSv1 or later, backward ciphers, RSA/DH keys=>1024, ECC=>160, no MD5, SHA1 }
+                     'Intermediate Ciphers',  { 11 - TLSv1.1 or later, intermediate ciphers, RSA/DH keys=>2048, ECC=>224, no RC4, no SHA1 certs }
+                     'High Ciphers, 2048 keys',  { 12 - TLSv1.2 or later, high ciphers, RSA/DH keys=>2048, ECC=>224, no RC4, no SHA1 certs }
+                     'High Ciphers, 3072 keys',  { 13 - TLSv1.2 or later, high ciphers, RSA/DH keys=>3072, ECC=>256, FS forced }
+                     'High Ciphers, 7680 keys'); { 14 - TLSv1.2 or later, high ciphers, RSA/DH keys=>7680, ECC=>384, FS forced }
+
+type
 
 {$IFNDEF OPENSSL_NO_ENGINE}
     ESslEngineError = class(Exception);
@@ -2646,23 +3466,35 @@ type
     TSslContext = class(TSslBaseComponent)
     protected
         FSslCtx                     : PSSL_CTX;
-        FSslVersionMethod           : TSslVersionMethod;
+        FSslVersionMethod           : TSslVersionMethod;  { V8.27 ignored }
+        FSslMinVersion              : TSslVerMethod; { V8.27 }
+        FSslMaxVersion              : TSslVerMethod; { V8.27 }
         FSslCertFile                : String;
+        FSslCertLines               : TStrings;  { V8.27 }
+        FSslCertX509                : TX509Base; { V8.39 }
         FSslPassPhrase              : String;
         FSslPrivKeyFile             : String;
+        FSslPrivKeyLines            : TStrings;  { V8.27 }
         FSslCAFile                  : String;
+        FSslCALines                 : TStrings;  { V8.27 }
         FSslCAPath                  : String;
         FSslCRLFile                 : String;
         FSslCRLPath                 : String;
-        FSslDHParamFile             : String;  { V8.15 }
-        //FSslIntermCAFile            : String;
-        //FSslIntermCAPath            : String;
+        FSslDHParamFile             : String;    { V8.15 }
+        FSslDHParamLines            : TStrings;  { V8.27 }
         FSslVerifyPeer              : Boolean;
         FSslVerifyDepth             : Integer;
         FSslVerifyFlags             : Integer;
-        FSslOptionsValue            : Longint;
+//        FSslOptionsValue            : Longint;  {V8.51 now storing TSslOptions instead }
+        FSslOptions                 : TSslOptions;     { V8.51 }
+        FSslOptions2                : TSslOptions2;    { V8.51 }
         FSslCipherList              : String;
-        FSslECDHMethod              : TSslECDHMethod; { V8.15 }
+        FSslECDHMethod              : TSslECDHMethod;  { V8.15 }
+        FSslCheckHostFlags          : Longint;         { V8.39 }
+        FSslSecLevel                : TSslSecLevel;    { V8.40 }
+        FSslCryptoGroups            : String;          { V8.51 1.1.1 and later, 'P-256:X25519:P-384:P-512' }
+        FSslCliSecurity             : TSslCliSecurity; { V8.54 }
+        FSslAlpnProtoList           : TStrings;        { V8.56 }
         FSslSessCacheModeValue      : Longint;
         FSslSessionCacheSize        : Longint;
         FSslSessionTimeout          : Longword;
@@ -2670,7 +3502,6 @@ type
         FOnRemoveSession            : TSslContextRemoveSession;
         FSslVerifyPeerModes         : TSslVerifyPeerModes;
         FSslVerifyPeerModesValue    : Integer;
-        //FSslX509Trust               : TSslX509Trust;
         FOnBeforeInit               : TNotifyEvent;
         //FSslKeyFormat             : TSslCertKeyFormat;
     {$IFNDEF OPENSSL_NO_ENGINE}
@@ -2684,16 +3515,20 @@ type
 {$ENDIF}
         function  InitializeCtx : PSSL_CTX;
         procedure SetSslCertFile(const Value : String);
+        procedure SetSslCertLines(Value: TStrings);    { V8.27 }
         procedure SetSslPassPhrase(const Value : String);
         procedure SetSslPrivKeyFile(const Value : String);
+        procedure SetSslPrivKeyLines(Value: TStrings); { V8.27 }
         procedure SetSslCAFile(const Value : String);
+        procedure SetSslCALines(Value: TStrings);      { V8.27 }
         procedure SetSslCAPath(const Value : String);
-        procedure SetSslDHParamFile(const Value : String);    { V8.15 }
+        procedure SetSslDHParamFile(const Value : String);   { V8.15 }
+        procedure SetSslDHParamLines(Value: TStrings); { V8.27 }
         procedure SetSslCRLFile(const Value : String);
         procedure SetSslCRLPath(const Value : String);
         procedure SetSslSessionCacheSize(Value : Longint);
-        procedure SetSslOptions(Value : TSslOptions);
-        function  GetSslOptions : TSslOptions;
+//        procedure SetSslOptions(Value : TSslOptions);    {V8.51 now storing TSslOptions instead }
+//        function  GetSslOptions : TSslOptions;           {V8.51 now storing TSslOptions instead }
         procedure SetSslSessCacheModes(Value : TSslSessCacheModes);
         function  GetSslSessCacheModes : TSslSessCacheModes;
         procedure SetSslCipherList(const Value : String);
@@ -2702,20 +3537,19 @@ type
         procedure SetSslDefaultSessionIDContext(Value: TSslSessionIdContext);
         procedure SetSslSessionTimeout(Value : Longword);
         procedure SetSslVersionMethod(Value : TSslVersionMethod);
-        function  OpenFileBio(const FileName : String;
-            Methode : TBioOpenMethode): PBIO;
-        function  LoadStackFromInfoFile(const FileName : String;
-            Mode : TInfoExtractMode): PStack;
-        procedure LoadVerifyLocations(const CAFile, CAPath: String);
-        procedure LoadCertFromChainFile(const FileName : String);
-        procedure LoadPKeyFromFile(const FileName : String);
-        procedure LoadDHParamsFromFile(const FileName: String);   { V8.15 }
+        procedure SetSslMinVersion(Value : TSslVerMethod);   { V8.27 }
+        procedure SetSslMaxVersion(Value : TSslVerMethod);   { V8.27 }
+//        function  OpenFileBio(const FileName : String; Methode : TBioOpenMethode): PBIO;     { V8.39 now function }
+//        function  LoadStackFromInfoFile(const FileName : String; Mode : TInfoExtractMode): PStack;  { V8.39 now function }
         procedure SetSslECDHMethod(Value : TSslECDHMethod);
-        //procedure DebugLogInfo(const Msg: string);        { V5.21 }
-        //procedure SetSslX509Trust(const Value: TSslX509Trust);
         function  GetIsCtxInitialized : Boolean;
         function  GetSslVerifyFlags: TSslVerifyFlags;
         procedure SetSslVerifyFlags(const Value: TSslVerifyFlags);
+        function  GetSslCheckHostFlags: TSslCheckHostFlags;                 { V8.39 }
+        procedure SetSslCheckHostFlags(const Value: TSslCheckHostFlags);    { V8.39 }
+        procedure SetSslCliSecurity(Value: TSslCliSecurity);                { V8.54 }
+        procedure SetSslCliSec;                                             { V8.54 }
+        procedure UpdateAlpnProtocols;                                      { V8.56 }
     {$IFNDEF OPENSSL_NO_ENGINE}
         procedure Notification(AComponent: TComponent; Operation: TOperation); override;
         procedure SetCtxEngine(const Value: TSslEngine);
@@ -2728,6 +3562,14 @@ type
         function    TrustCert(Cert : TX509Base): Boolean;
         procedure   LoadCrlFromFile(const Filename: String);
         procedure   LoadCrlFromPath(const Path: String);
+        procedure   LoadVerifyLocations(const CAFile, CAPath: String);
+        procedure   LoadCertFromChainFile(const FileName : String);
+        procedure   LoadPKeyFromFile(const FileName : String);
+        procedure   LoadDHParamsFromFile(const FileName: String); { V8.15 }
+        procedure   LoadCertFromString(const Value: String);      { V8.27 }
+        procedure   LoadPKeyFromString(const Value: String);      { V8.27 }
+        procedure   LoadDHParamsFromString(const Value: String);  { V8.27 }
+        procedure   LoadCAFromString(const Value: String);        { V8.27 }
     {$IFNDEF OPENSSL_NO_ENGINE}
         procedure   LoadPKeyFromEngine(CtxEngine: TSslEngine);
         //function    SetupEngine(Engine: String; Commands: TStrings): PENGINE;
@@ -2737,15 +3579,33 @@ type
         procedure   RemoveFreeNotification(AComponent: TComponent);
         procedure   SetClientCAListFromFile(const FileName: String);
         property    IsCtxInitialized : Boolean read GetIsCtxInitialized;
+        function    SslGetAllCiphers: String;     { V8.27 }
+        function    SslGetAllCerts(CertList: TX509List): integer;       { V8.39 }
+        function    SslBuildCertChain(Flags: Integer): integer;         { V8.40 }
+        procedure   LoadCAFromStack(CertStack: PStack);                 { V8.41 }
+        function    CheckPrivateKey: boolean;                           { V8.40 }
+        function    SslGetCerts(Cert: TX509Base): integer;              { V8.41 }
+        procedure   SslSetCertX509;                                     { V8.41 }
+        procedure   SetProtoSec;                                        { V8.54 }
+        procedure   SetSslAlpnProtocols(ProtoList: TStrings);           { V8.56 }
+        property    SslCertX509     : TX509Base         read  FSslCertX509
+                                                        write FSslCertX509;   { V8.41 }
+        property    SslCtxPtr      : PSSL_CTX           read  FSslCtx;        { V8.62 }
     published
         property  SslCertFile       : String            read  FSslCertFile
                                                         write SetSslCertFile;
+        property  SslCertLines      : TStrings          read  FSslCertLines     { V8.27 }
+                                                        write SetSslCertLines;
         property  SslPassPhrase     : String            read  FSslPassPhrase
                                                         write SetSslPassPhrase;
         property  SslPrivKeyFile    : String            read  FSslPrivKeyFile
                                                         write SetSslPrivKeyFile;
+        property  SslPrivKeyLines   : TStrings          read  FSslPrivKeyLines  { V8.27 }
+                                                        write SetSslPrivKeyLines;
         property  SslCAFile         : String            read  FSslCAFile
                                                         write SetSslCAFile;
+        property  SslCALines        : TStrings          read  FSslCALines       { V8.27 }
+                                                        write SetSslCALines;
         property  SslCAPath         : String            read  FSslCAPath
                                                         write SetSslCAPath;
         property  SslCRLFile        : String            read  FSslCRLFile
@@ -2754,18 +3614,22 @@ type
                                                         write SetSslCRLPath;
         property  SslDHParamFile    : String            read  FSslDHParamFile
                                                         write SetSslDHParamFile; { V8.15 }
-        {property  SslIntermCAFile   : String            read  FSslIntermCAFile
-                                                        write FSslIntermCAFile;
-        property  SslIntermCAPath    : String           read  FSslIntermCAPath
-                                                        write FSslIntermCAPath;}
+        property  SslDHParamLines   : TStrings          read  FSslDHParamLines   { V8.27 }
+                                                        write SetSslDHParamLines;
         property  SslVerifyPeer     : Boolean           read  FSslVerifyPeer
                                                         write SetSslVerifyPeer;
         property  SslVerifyDepth    : Integer           read  FSslVerifyDepth
                                                         write FSslVerifyDepth;
         property  SslVerifyFlags    : TSslVerifyFlags   read  GetSslVerifyFlags
                                                         write SetSslVerifyFlags;
-        property  SslOptions        : TSslOptions       read  GetSslOptions
-                                                        write SetSslOptions;
+        property  SslCheckHostFlags : TSslCheckHostFlags  read  GetSslCheckHostFlags  { V8.39 }
+                                                          write SetSslCheckHostFlags;
+        property  SslSecLevel       : TSslSecLevel      read FSslSecLevel             { V8.40 }
+                                                        write FSslSecLevel;
+        property  SslOptions        : TSslOptions       read  FSslOptions
+                                                        write FSslOptions;    { V8.51 removed setters }
+        property  SslOptions2       : TSslOptions2      read  FSslOptions2
+                                                        write FSslOptions2;   { V8.51 }
         property  SslVerifyPeerModes : TSslVerifyPeerModes
                                                     read  FSslVerifyPeerModes
                                                     write SetSslVerifyPeerModes;
@@ -2777,9 +3641,19 @@ type
         property  SslVersionMethod  : TSslVersionMethod
                                                     read  FSslVersionMethod
                                                     write SetSslVersionMethod;
+        property  SslMinVersion  : TSslVerMethod    read  FSslMinVersion        { V8.27 }
+                                                    write SetSslMinVersion;
+        property  SslMaxVersion  : TSslVerMethod    read  FSslMaxVersion        { V8.27 }
+                                                    write SetSslMaxVersion;
         property  SslECDHMethod  : TSslECDHMethod  { V8.15 }
                                                     read  FSslECDHMethod
                                                     write SetSslECDHMethod;
+        property  SslCryptoGroups  : String         read  FSslCryptoGroups
+                                                    write FSslCryptoGroups;    { V8.51 }
+        property  SslCliSecurity  : TSslCliSecurity read  FSslCliSecurity
+                                                    write SetSslCliSecurity;   { V8.54 }
+        property  SslAlpnProtocols : TStrings       read  FSslAlpnProtoList
+                                                    write SetSslAlpnProtocols; { V8.56 }
         property  SslSessionTimeout : Longword      read  FSslSessionTimeout
                                                     write SetSslSessionTimeout;
         property  SslSessionCacheSize : Integer
@@ -2788,8 +3662,6 @@ type
         property  SslDefaultSessionIDContext : TSslSessionIdContext
                                                 read  FSslDefaultSessionIDContext
                                                 write SetSslDefaultSessionIDContext;
-        {property  SslX509Trust      : TSslX509Trust         read  FSslX509Trust
-                                                            write SetSslX509Trust;}
         property  OnRemoveSession   : TSslContextRemoveSession
                                                     read  FOnRemoveSession
                                                     write FOnRemoveSession;
@@ -2804,21 +3676,6 @@ type
         property  CtxEngine : TSslEngine read FCtxEngine write SetCtxEngine;
     {$ENDIF}
     end;
-
-    {TSslState = (sslNone,
-                 sslWantConnect,
-                 sslConnectWantRead,
-                 sslConnectWantWrite,
-                 sslConnected,
-                 sslAccepted,
-                 sslAcceptWantRead,
-                 sslAcceptWantWrite,
-                 sslWriteWantRead,
-                 sslWriteWantWrite,
-                 sslShutdown,
-                 sslShutdownWantRead,
-                 sslShutdownWantWrite);
-     }
 
     TSslState = (sslNone,  // Not yet finished, Francois, could you care about states ??
                  sslHandshakeInit,
@@ -2867,14 +3724,24 @@ type
                                         Bidirectional   : Boolean;
                                         ErrCode         : Integer) of object;
   TTlsExtError = (teeOk, teeAlertWarning, teeAlertFatal, teeNoAck);
-{
-  SSL_TLSEXT_ERR_OK                           = 0;
-  SSL_TLSEXT_ERR_ALERT_WARNING                = 1;
-  SSL_TLSEXT_ERR_ALERT_FATAL                  = 2;
-  SSL_TLSEXT_ERR_NOACK                        = 3;
-}
+
   TSslServerNameEvent       = procedure(Sender               : TObject;
                                         var Ctx              : TSslContext;
+                                        var ErrCode          : TTlsExtError) of object;
+
+ { V8.40 handshake protocol message callback }
+  TSslProtoMsgEvent        = procedure (Sender               : TObject;
+                                        Info                 : String;
+                                        Sending              : integer;
+                                        Version              : integer;
+                                        ContentType          : integer;
+                                        Buffer               : PAnsiChar;
+                                        BuffSize             : integer) of object;
+
+ { V8.56 SSL ALPN protocol selectiopn }
+  TSslAlpnSelect           = procedure (Sender               : TObject;
+                                        ProtoList            : TStrings;
+                                        var SelProto         : String;
                                         var ErrCode          : TTlsExtError) of object;
 
   TCustomSslWSocket = class(TCustomSocksWSocket)
@@ -2893,7 +3760,6 @@ type
         FSslCertChain               : TX509List;
         FSslPeerCert                : TX509Base;
         FSslMode                    : TSslMode;
-        //FTriggerCount               : Integer; //Test
         FSslBufList                 : TIcsBufferHandler;
         FExplizitSsl                : Boolean;
         bSslAllSent                 : Boolean;
@@ -2901,14 +3767,11 @@ type
         FMayTriggerFD_Write         : Boolean;
         FMayTriggerDoRecv           : Boolean;
         FMayTriggerSslTryToSend     : Boolean;
-        //FHandShakeDoneInvoked       : Boolean;
         FCloseCalled                : Boolean;
-        //FCloseReceived              : Boolean;
         FPendingSslEvents           : TSslPendingEvents;
         FSslIntShutDown             : Integer;
         FShutDownHow                : Integer;
         FSslEnable                  : Boolean;
-        //FSslEstablished           : Boolean;
         FLastSslError               : Integer;
         FSslInRenegotiation         : Boolean;    // <= 01/01/06
         FSslBioWritePendingBytes    : Integer;
@@ -2917,8 +3780,9 @@ type
         FOnSslShutDownComplete      : TSslShutDownComplete;
         FNetworkError               : Integer;
         FSslInitialized             : Boolean;
-        FInHandshake                : Boolean;
-        FHandshakeDone              : Boolean;
+//        FInHandshake                : Boolean;      { V8.55 unused }
+        FHandshakeDone              : Boolean;        { only used to trigger event once }
+        FHandshakeEventDone         : Boolean;        { V8.55 don't trigger event more than once }
         FSslHandshakeErr            : Integer;       { V8.14  }
         FSslHandshakeRespMsg        : string;        { V8.14  }
         FSslVersNum                 : Integer;        //12/09/05
@@ -2936,6 +3800,8 @@ type
         FSslEncryption              : String;       { V8.14  }
         FSslKeyExchange             : String;       { V8.14  }
         FSslMessAuth                : String;       { V8.14  }
+        FSslCertPeerName            : String;       { V8.39 }
+        FSslKeyAuth                 : String;       { V8.41 }
         FSslTotalBits               : Integer;
         FSslSecretBits              : Integer;
         FSslSupportsSecureRenegotiation : Boolean;
@@ -2948,7 +3814,10 @@ type
         FOnSslHandshakeDone         : TSslHandshakeDoneEvent;
         FHandShakeCount             : Integer;
         FSslServerName              : String;
-        //procedure   SetSslEnable(const Value: Boolean); virtual;
+        FOnSslProtoMsg              : TSslProtoMsgEvent;  { V8.40 }
+        FOnSslAlpnSelect            : TSslAlpnSelect;     { V8.56 }
+        FAlpnProtoAnsi              : AnsiString;         { V8.62 server sending response }
+        FSslAlpnProto               : String;             { V8.62 client received response }
         procedure   RaiseLastOpenSslError(EClass          : ExceptClass;
                                           Dump            : Boolean = FALSE;
                                           const CustomMsg : String  = ''); virtual;
@@ -2978,7 +3847,6 @@ type
         procedure InitializeSsl;
         procedure FinalizeSsl;
         procedure InitSSLConnection(ClientMode : Boolean; pSSLContext : PSSL_CTX = nil);
-        //function  LoadCertificate(out ErrMsg : String) : Boolean;
         procedure DupConnected; override;
         procedure InternalClose(bShut : Boolean; Error : Word); override;
         procedure InternalAbort(ErrCode : Word); override;
@@ -2993,6 +3861,9 @@ type
         procedure SetSslContext(const Value: TSslContext);
         procedure Notification(AComponent: TComponent; Operation: TOperation); override;
         procedure TriggerSslShutDownComplete(ErrCode: Integer); virtual;
+        procedure TriggerSslServerName(var Ctx: TSslContext; var ErrCode: TTlsExtError); virtual;  { V8.45 }
+        procedure TriggerSslAlpnSelect(ProtoList: TStrings; var SelProto: String; var ErrCode: TTlsExtError); virtual; { V8.56 }
+        procedure SslGetAlpnProtocol;                                   { V8.62 was function }
         function  MsgHandlersCount : Integer; override;
         procedure AllocateMsgHandlers; override;
         procedure FreeMsgHandlers; override;
@@ -3019,6 +3890,7 @@ type
         procedure   StartSslHandshake;
         procedure   AcceptSslHandshake;
         procedure   SetAcceptableHostsList(const SemiColonSeparatedList : String);
+        function    SslGetSupportedCiphers (Supported, Remote: boolean): String;    { V8.27 }
 
         property    LastSslError       : Integer          read FLastSslError;
         property    ExplizitSsl        : Boolean          read  FExplizitSsl
@@ -3062,6 +3934,12 @@ type
         property  OnSslServerName    : TSslServerNameEvent
                                                           read  FOnSslServerName
                                                           write FOnSslServerName;
+        property  OnSslAlpnSelect  : TSslAlpnSelect       read  FOnSslAlpnSelect
+                                                          write FOnSslAlpnSelect;    { V8.56 }
+{$IFNDEF NO_DEBUG_LOG}
+        property  OnSslProtoMsg  : TSslProtoMsgEvent      read  FOnSslProtoMsg            { V8.40 }
+                                                          write FOnSslProtoMsg;
+{$ENDIF}
         property  SslAcceptableHosts : TStrings           read  FSslAcceptableHosts
                                                           write SetSslAcceptableHosts;
         property  SslMode            : TSslMode           read  FSslMode
@@ -3077,6 +3955,9 @@ type
         property  SslEncryption  : String                 read  FSslEncryption;          { V8.14  }
         property  SslKeyExchange : String                 read  FSslKeyExchange;         { V8.14  }
         property  SslMessAuth    : String                 read  FSslMessAuth;            { V8.14  }
+        property  SslCertPeerName : String                read  FSslCertPeerName;        { V8.39  }
+        property  SslKeyAuth     : String                 read  FSslKeyAuth;             { V8.41  }
+        property  SslAlpnProto   : String                 read  FSslAlpnProto;           { V8.62  }
   private
       function my_WSocket_recv(s: TSocket;
                                var Buf: TWSocketData; len, flags: Integer): Integer;
@@ -3095,6 +3976,14 @@ type
   end;
 
 //procedure OutputDebugString(const Msg: String);
+    function IcsSslOpenFileBio( const FileName : String;  Methode: TBioOpenMethode): PBIO;         { V8.39 was in TSslContext }
+    function IcsSslLoadStackFromBIO(InBIO: PBIO; Mode: TInfoExtractMode;
+                                              const FileName: String = ''): PStack;                { V8.41 consolidation }
+    function IcsSslLoadStackFromInfoFile(const FileName: String; Mode: TInfoExtractMode): PStack;  { V8.39 was in TSslContext }
+    function IcsSslLoadStackFromInfoString(const Value: String; Mode: TInfoExtractMode): PStack;   { V8.41 was in TSslContext }
+    function IcsUnwrapNames(const S: String): String;                                              { V8.39 multi-line with comma line }
+    function IcsSslGetEVPCipher(Cipher: TEvpCipher): PEVP_CIPHER;      { V8.40 }
+    function IcsSslGetEVPDigest(Digest: TEvpDigest): PEVP_MD;          { V8.40 }
 
 var
     SslCritSect : TIcsCriticalSection;
@@ -3334,6 +4223,7 @@ type
     property SocksAuthentication;
     property LastError;
     property ReuseAddr;
+    property ExclusiveAddr;
     property ComponentOptions;
     property ListenBacklog;
     property ReqVerLow;
@@ -3361,6 +4251,8 @@ type
     property OnBgException;
     property OnSocksError;
     property OnSocksAuthState;
+    property SocketErrs;
+    property onException;
 {$IFNDEF NO_DEBUG_LOG}
     property IcsLogger;                       { V5.21 }
 {$ENDIF}
@@ -4386,26 +5278,6 @@ begin
             ASocketFamily := sfAnyIPv6;
     end;
 end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TCustomWSocket.RaiseException(const Msg : String);
-begin
-    if Assigned(FOnError) then
-        TriggerError                 { Should be modified to pass Msg ! }
-    else
-        raise ESocketException.Create(Msg);
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-//procedure TCustomWSocket.RaiseExceptionFmt(const Fmt : String; args : array of const);
-//begin
-//    if Assigned(FOnError) then
-//        TriggerError
-//    else
-//        raise ESocketException.CreateFmt(Fmt, args);
-//end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -6132,6 +7004,76 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.36 extended exception handler }
+constructor ESocketException.Create(
+                       const AMessage       : String;
+                       AErrorCode           : Integer = 0;
+                       const AErrorMessage  : String = '';
+                       const AFriendlyMsg   : String = '';
+                       const AFunc          : String = '';
+                       const AIP            : String = '';
+                       const APort          : String = '';
+                       const AProto         : String = '');
+begin
+    FErrorCode    := AErrorCode;
+    FErrorMessage := AErrorMessage;
+    FIPStr        := AIP;
+    FPortStr      := APort;
+    FProtoStr     := AProto;
+    FFriendlyMsg  := AFriendlyMsg;
+    FFunc         := AFunc;
+    if (FErrorCode > 0) and (FErrorMessage = '') then
+                    FErrorMessage := WSocketErrorDesc(FErrorCode);   { V8.42 }
+    if FFriendlyMsg = '' then FFriendlyMsg := AMessage;
+    inherited Create(AMessage);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.36 extended exception information, set FSocketErrs = wsErrFriendly for
+  more friendly messages (without error numbers) }
+procedure TCustomWSocket.RaiseException(const Msg : String;
+                       AErrorCode           : Integer;
+                       const AErrorMessage  : String = '';
+                       const AFriendlyMsg   : String = '';
+                       const AFunc          : String = '';
+                       const AIP            : String = '';
+                       const APort          : String = '';
+                       const AProto         : String = '');
+var
+    MyException: ESocketException;
+    MyMessage: String;
+begin
+    if Assigned(FOnError) then
+        TriggerError                 { Should be modified to pass Msg ! }
+    else begin
+        MyMessage := Msg ;
+        if (FSocketErrs = wsErrFriendly) and (AFriendlyMsg <> '') then
+                                                    MyMessage := AFriendlyMsg;
+        MyException := ESocketException.Create(MyMessage, AErrorCode, AErrorMessage,
+                                               AFriendlyMsg, AFunc, AIP, APort, AProto);
+        if Assigned (FonException) then
+        begin
+            TriggerException (MyException) ;       { V8.36 }
+        end
+        else
+        begin
+            TriggerException (MyException) ;       { V8.37 }
+            raise MyException;
+        end;
+        if Assigned (MyException) then MyException.Free;  { V8.37 }
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomWSocket.RaiseException(const Msg : String);
+begin
+    RaiseException(Msg, 0, '', '', '', '', '', '');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TWSocketCounter.GetLastAliveTick : Cardinal;
 {$IFDEF PUREPASCAL}
 begin
@@ -6260,6 +7202,8 @@ begin
 {   FReadCount          := 0;  V7.24 only reset when connection opened, not closed }
     FCloseInvoked       := FALSE;
     FFlushTimeout       := 60;
+    FInternalDnsActive  := FALSE;    { V8.43 }
+    FAddrResolvedStr    := '';       { V8.60 }
 end;
 
 
@@ -6418,7 +7362,7 @@ begin
         end;
     except
         on E:Exception do
-            HandleBackGroundException(E);
+            HandleBackGroundException(E, 'TCustomWSocket.WndProc');
     end;
 end;
 
@@ -6513,7 +7457,7 @@ begin
     FBufHandler.BufSize := 1460; {1514;}             { Default buffer size }
     FDnsResultList      := TStringList.Create;
     FMultiCastIpTTL     := IP_DEFAULT_MULTICAST_TTL;
-    ListenBacklog       := 5;
+    ListenBacklog       := 15; { V8.57 was 5 }
     FBufferedByteCount  := 0;  { V5.20 }
     FMultiCastAddrStr   := '';
     FAddrStr            := '';
@@ -6521,6 +7465,7 @@ begin
     FCounterClass       := TWSocketCounter;
     FSocketFamily       := DefaultSocketFamily;
     FOldSocketFamily    := FSocketFamily;
+    FSocketErrs         := wsErrTech;  { V8.36 }
     AssignDefaultValue;
 {$IFDEF MSWINDOWS}
     EnterCriticalSection(GWSockCritSect);
@@ -6832,8 +7777,12 @@ begin
 {   FRcvdFlag := (Result > 0);}
     { If we received the requested size, we may need to receive more }
     FRcvdFlag := (Result >= BufferSize);
-    if Assigned(FCounter) and (Result > 0) then
-        FCounter.FLastRecvTick := IcsGetTickCount;
+    if (Result > 0) then begin
+        if Flags <> MSG_PEEK then
+            FReadCount := FReadCount + Result; { V8.30 was done in Receive }
+        if Assigned(FCounter) then
+            FCounter.FLastRecvTick := IcsGetTickCount;
+    end;
 end;
 
 
@@ -6844,12 +7793,9 @@ function TCustomWSocket.Receive(Buffer : TWSocketData; BufferSize: Integer) : In
 begin
     Result := DoRecv(Buffer, BufferSize, 0);
     if Result < 0 then
-        FLastError := WSocket_Synchronized_WSAGetLastError
-    else
-        { Here we should check for overflows ! It is well possible to }
-        { receive more than 2GB during a single session.              }
-        { Or we could use an Int64 variable...                        }
-        FReadCount := FReadCount + Result;
+        FLastError := WSocket_Synchronized_WSAGetLastError;
+   { else
+        FReadCount := FReadCount + Result;  V8.30 done in DoRecvFrom   }
 end;
 
 
@@ -6924,8 +7870,12 @@ begin
     if (not FPaused) and ((Result > -1) or (errno = WSAEWOULDBLOCK)) then
         WSocketSynchronizedEnableReadEvent(Self);
   {$ENDIF}
-{   FRcvdFlag := (Result > 0); }
     FRcvdFlag := (Result >= BufferSize);
+    if Result > 0 then begin
+        FReadCount := FReadCount + Result;               { V8.30 was in ReceiveFrom }
+        if Assigned(FCounter) then
+            FCounter.FLastRecvTick := IcsGetTickCount;    { V8.30 was missing }
+    end;
 end;
 
 
@@ -6938,9 +7888,9 @@ function TCustomWSocket.ReceiveFrom(
 begin
     Result := DoRecvFrom(FHSocket, Buffer, BufferSize, 0, From, FromLen);
     if Result < 0 then
-        FLastError := WSocket_Synchronized_WSAGetLastError
-    else
-        FReadCount := FReadCount + Result;
+        FLastError := WSocket_Synchronized_WSAGetLastError;
+   { else
+        FReadCount := FReadCount + Result;  V8.30 done in DoRecvFrom   }
 end;
 
 
@@ -6953,9 +7903,9 @@ function TCustomWSocket.ReceiveFrom6(       { V8.07 }
 begin
     Result := DoRecvFrom(FHSocket, Buffer, BufferSize, 0, PSockAddrIn(@From)^, FromLen);
     if Result < 0 then
-        FLastError := WSocket_Synchronized_WSAGetLastError
-    else
-        FReadCount := FReadCount + Result;
+        FLastError := WSocket_Synchronized_WSAGetLastError;
+  {  else
+        FReadCount := FReadCount + Result;    V8.30 done in DoRecvFrom   }
 end;
 
 
@@ -6997,6 +7947,8 @@ begin
                                           TSockAddr(Dest), DestLen);
     if Result > 0 then begin
         FWriteCount := FWriteCount + Result;  { 7.24 }
+        if Assigned(FCounter) then            { V8.30 }
+            FCounter.FLastSendTick := IcsGetTickCount;
         TriggerSendData(Result);
         { Post FD_WRITE message to have OnDataSent event triggered }
         if bAllSent and (FType = SOCK_DGRAM) then
@@ -7020,6 +7972,8 @@ begin
                                                    PSockAddrIn(@Dest)^, DestLen);
     if Result > 0 then begin
         FWriteCount := FWriteCount + Result;  { 7.24 }
+        if Assigned(FCounter) then            { V8.30 }
+            FCounter.FLastSendTick := IcsGetTickCount;
         TriggerSendData(Result);
         { Post FD_WRITE message to have OnDataSent event triggered }
         if bAllSent and (FType = SOCK_DGRAM) then
@@ -7034,15 +7988,13 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TCustomWSocket.RealSend(var Data : TWSocketData; Len : Integer) : Integer;
 begin
-{ MoulinCnt := (MoulinCnt + 1) and 3; }
-{ Write('S', Moulin[MoulinCnt], #13); }
     if FType = SOCK_DGRAM then
         Result := WSocket_Synchronized_SendTo(FHSocket, Data, Len, FSendFlags,
                                                  PSockAddr(@Fsin)^, SizeOfAddr(Fsin))
     else
         Result := WSocket_Synchronized_Send(FHSocket, Data, Len, FSendFlags);
     if Result > 0 then begin
-        FWriteCount := FWriteCount + Result;  { 7.24 }
+    {    FWriteCount := FWriteCount + Result;  V8.30 done in TryToSend to avoid SSL overhead }
         if Assigned(FCounter) then
             FCounter.FLastSendTick := IcsGetTickCount;
         TriggerSendData(Result);
@@ -7077,6 +8029,7 @@ begin
                 Dec(FBufferedByteCount, Count);
                 if FBufferedByteCount < 0 then
                     FBufferedByteCount := 0;
+                FWriteCount := FWriteCount + Count;  { V8.30 was in RealSend }
             end;
             if Count = 0 then
                 break;  // Closed by remote
@@ -7085,7 +8038,8 @@ begin
                 LastError := WSocket_Synchronized_WSAGetLastError;
                 if (LastError = WSAECONNRESET) or (LastError = WSAENOTSOCK) or
                    (LastError = WSAENOTCONN)   or (LastError = WSAEINVAL)   or
-                   (LastError = WSAECONNABORTED)     { 07/05/99 }
+                   (LastError = WSAECONNABORTED) { 07/05/99 } or
+                   (LastError = WSAESHUTDOWN)    { V8.29 Can't send after socket shutdown }
                 then begin
                   {$IFNDEF NO_DEBUG_LOG}
                     if CheckLogOptions(loWsockErr) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
@@ -7334,7 +8288,10 @@ begin
             else if lCount = 0 then
                 bMore := FALSE;
         except
-            bMore := FALSE;
+            on E:Exception do begin
+                HandleBackGroundException(E, 'TCustomWSocket.ASyncReceive');  { V8.62 don't ignore user errors }
+                bMore := FALSE;                                               { V8.63 and don't continue looping }
+            end;
         end;
     end;
 end;
@@ -7606,7 +8563,7 @@ begin
     ErrCode := IcsHiWord(Msg.LParam);
     if ErrCode = 0 then begin
       {$IFDEF MSWINDOWS}
-        if FSocketFamily = sfIPv4 then begin
+        if (FSocketFamily = sfIPv4) and not (wsoIcsDnsLookup in ComponentOptions) then begin  { V8.43 }
             Phe := PHostent(@FDnsLookupBuffer);
             if phe <> nil then begin
                 GetIpList(Phe, FDnsResultList);
@@ -7641,7 +8598,7 @@ begin
     if ErrCode = 0 then begin
         FDnsResultList.Clear;
       {$IFDEF MSWINDOWS}
-        if FSocketFamily = sfIPv4 then begin
+        if (FSocketFamily = sfIPv4) and (not (wsoIcsDnsLookup in ComponentOptions)) then begin  { V8.44 }
             Phe := PHostent(@FDnsLookupBuffer);
             if phe <> nil then begin
                 //SetLength(FDnsResult, StrLen(Phe^.h_name));
@@ -8243,10 +9200,9 @@ begin
                 Result := WSocketIPv4ToStr(PSockAddrIn(@saddr)^.sin_addr.S_addr)
             else
                 Result := WSocketIPv6ToStr(@saddr);
-            //Result := String(WSocket_Synchronized_inet_ntoa(saddr.sin6_addr))
         end
         else begin
-            SocketError('GetPeerName');
+            SocketError('GetPeerAddr');  { V8.51 corrected literal }
             Exit;
         end;
     end;
@@ -8290,8 +9246,9 @@ var
 begin
     if FDnsLookupHandle = 0 then
         Exit;
+    FInternalDnsActive := FALSE;     { V8.43 }
   {$IFDEF MSWINDOWS}
-    if FSocketFamily = sfIPv4 then
+    if (FSocketFamily = sfIPv4) and not (wsoIcsDnsLookup in ComponentOptions) then   { V8.43 }
         RetVal := WSocket_Synchronized_WSACancelAsyncRequest(FDnsLookupHandle)
     else
   {$ENDIF}
@@ -8302,8 +9259,11 @@ begin
         Exit;
     end;
     FDnsLookupHandle := 0;
-    if not (csDestroying in ComponentState) then
+    if not (csDestroying in ComponentState) then begin
         TriggerDnsLookupDone(WSAEINTR);
+        if FState = wsDnsLookup then
+            ChangeState(wsClosed);  { V8.48 }
+    end;
 end;
 
 
@@ -8330,22 +9290,27 @@ var
     HostName : AnsiString;
     Success  : Boolean;
     ScopeID  : LongWord;
+    Err      : integer;
 begin
     if AHostName = '' then begin
-        RaiseException('DNS lookup: invalid host name.');
-        TriggerDnsLookupDone(WSAEINVAL);
+        try
+            RaiseException('DNS lookup: invalid host name.');
+        finally   { V8.36 }
+            TriggerDnsLookupDone(WSAEINVAL);
+        end;
         Exit;
     end;
 
     { Cancel any pending lookup }
     if FDnsLookupHandle <> 0 then begin
     {$IFDEF MSWINDOWS}
-        if FSocketFamily = sfIPv4 then
+        if (FSocketFamily = sfIPv4) and not (wsoIcsDnsLookup in ComponentOptions) then   { V8.43 }
             WSocket_Synchronized_WSACancelAsyncRequest(FDnsLookupHandle)
         else
     {$ENDIF}
             IcsCancelAsyncRequest(FDnsLookupHandle);
         FDnsLookupHandle := 0;
+        FInternalDnsActive := FALSE;      { V8.43 }
     end;
 
     FDnsResult := '';
@@ -8376,16 +9341,21 @@ begin
         end;
     end;
 
-    if FWindowHandle = 0 then
+    if FWindowHandle = 0 then begin
         RaiseException('DnsLookup: Window not assigned');
+        Exit;   { V8.36 }
+    end;
 
     { John Goodwin found a case where winsock dispatch WM_ASYNCGETHOSTBYNAME }
     { message before returning from WSAAsyncGetHostByName call. Because of   }
     { that, FDnsLookupHandle is not yet assigned when execution comes in     }
     { WMAsyncGetHostByName. John use a flag to check this situation.         }
     FDnsLookupCheckMsg := FALSE;
+
   {$IFDEF MSWINDOWS}
-    if FSocketFamily = sfIPv4 then
+   { V8.43 new option for IPv4 DNS lookups to be done using thread, previously
+     only IPv6 used thread.  This avoids windows limitation of one lookup at a time }
+    if (FSocketFamily = sfIPv4) and (not (wsoIcsDnsLookup in ComponentOptions)) then
         FDnsLookupHandle   := WSocket_Synchronized_WSAAsyncGetHostByName(
                                   FWindowHandle,
                                   FMsg_WM_ASYNCGETHOSTBYNAME,
@@ -8402,8 +9372,9 @@ begin
                                   AProtocol);
 
     if FDnsLookupHandle = 0 then begin
+        Err := WSocket_Synchronized_WSAGetLastError;
         RaiseException(String(HostName) + ': can''t start DNS lookup - ' +
-                       GetWinsockErr(WSocket_Synchronized_WSAGetLastError));  { V5.26 }
+                                                GetWinsockErr(Err), Err);  { V5.26, V8.36 }
         Exit;
     end;
     if FDnsLookupCheckMsg then begin
@@ -8429,31 +9400,39 @@ var
 {$ENDIF}
 begin
     if HostAddr = '' then begin
-        RaiseException('Reverse DNS Lookup: Invalid host name.'); { V5.26 }
-        TriggerDnsLookupDone(WSAEINVAL);
+        try
+            RaiseException('Reverse DNS Lookup: Invalid host name.'); { V5.26 }
+        finally    { V8.36 }
+            TriggerDnsLookupDone(WSAEINVAL);
+        end;
         Exit;
     end;
     { Cancel any pending lookup }
     if FDnsLookupHandle <> 0 then begin
       {$IFDEF MSWINDOWS}
-        if FSocketFamily = sfIPv4 then
+        if (FSocketFamily = sfIPv4) and (not (wsoIcsDnsLookup in ComponentOptions)) then  { V8.44 }
             WSocket_Synchronized_WSACancelAsyncRequest(FDnsLookupHandle)
         else
       {$ENDIF}
             IcsCancelAsyncRequest(FDnsLookupHandle);
         FDnsLookupHandle := 0;
+        FInternalDnsActive := FALSE;      { V8.43 }
     end;
 
     FDnsResult := '';
     FDnsResultList.Clear;
   {$IFDEF MSWINDOWS}
-    if FSocketFamily = sfIPv4 then
+    if (FSocketFamily = sfIPv4) and (not (wsoIcsDnsLookup in ComponentOptions)) then  { V8.44 }
         lAddr := WSocket_Synchronized_inet_addr(PAnsiChar(AnsiString(HostAddr)));
   {$ENDIF}
-    if FWindowHandle = 0 then
+    if FWindowHandle = 0 then begin
         RaiseException('Reverse DNS Lookup: Window not assigned');  { V5.26 }
+        exit;  { V8.36 }
+    end;
   {$IFDEF MSWINDOWS}
-    if FSocketFamily = sfIPv4 then
+   { V8.44 new option for IPv4 DNS lookups to be done using thread, previously
+     only IPv6 used thread.  This avoids windows limitation of one lookup at a time }
+    if (FSocketFamily = sfIPv4) and (not (wsoIcsDnsLookup in ComponentOptions)) then
         FDnsLookupHandle := WSocket_Synchronized_WSAAsyncGetHostByAddr(
                             FWindowHandle,
                             FMsg_WM_ASYNCGETHOSTBYADDR,
@@ -8462,7 +9441,7 @@ begin
                             SizeOf(FDnsLookupBuffer))
     else
   {$ENDIF}
-        FDnsLookupHandle := {WSocket_Synchronized_}IcsAsyncGetHostByAddr(
+        FDnsLookupHandle := IcsAsyncGetHostByAddr(
                             FWindowHandle,
                             FMsg_WM_ASYNCGETHOSTBYADDR,
                             FSocketFamily,
@@ -8492,19 +9471,24 @@ var
 
 begin
     if (Length(HostAddr) = 0) or (Length(HostAddr) >= SizeOf(szAddr)) then begin
-        RaiseException('Reverse DNS Lookup: Invalid host name.');   { V5.26 }
-        TriggerDnsLookupDone(WSAEINVAL);
+        try
+            RaiseException('Reverse DNS Lookup: Invalid host name.');   { V5.26 }
+        finally   { V8.36 }
+            TriggerDnsLookupDone(WSAEINVAL);
+        end;
         Exit;
     end;
     { Cancel any pending lookup }
     if FDnsLookupHandle <> 0 then
     begin
       {$IFDEF MSWINDOWS}
-        if FSocketFamily = sfIPv4 then
+        if (FSocketFamily = sfIPv4) and (not (wsoIcsDnsLookup in ComponentOptions)) then  { V8.44 }
             WSocket_Synchronized_WSACancelAsyncRequest(FDnsLookupHandle)
         else
       {$ENDIF}
             IcsCancelAsyncRequest(FDnsLookupHandle);
+      FDnsLookupHandle := 0;
+      FInternalDnsActive := FALSE;        { V8.43 }
     end;
     FDnsResult := '';
     if FSocketFamily = sfIPv4 then
@@ -8554,6 +9538,8 @@ var
     LocalSockName : TSockAddrIn6;
     LLocalAddr    : String;
     LSocketFamily : TSocketFamily;
+    ErrorCode     : integer;
+    FriendlyMsg   : String;
 begin
     if FAddrFormat = AF_INET6 then // requires Addr being resolved
     begin
@@ -8577,8 +9563,13 @@ begin
     end;
     SockNamelen := SizeOfAddr(LocalSockName);
     if WSocket_Synchronized_bind(HSocket, PSockAddrIn(@LocalSockName)^, SockNamelen) <> 0 then begin
-        RaiseException('Bind socket failed - ' +
-                       GetWinsockErr(WSocket_Synchronized_WSAGetLastError));  { V5.26 }
+        ErrorCode := WSocket_Synchronized_WSAGetLastError;
+        if (ErrorCode = WSAEADDRINUSE) or (ErrorCode = WSAEACCES)  then   { V8.36 more friendly message for common error }
+            FriendlyMsg := 'Another client is using address ' +
+                                LLocalAddr + ':' + IntToStr(FLocalPortNum) ;
+        RaiseException('Bind socket failed - ' + GetWinsockErr(ErrorCode),
+                   ErrorCode, '', FriendlyMsg, 'Bind Socket',
+                            LLocalAddr, IntToStr(FLocalPortNum), FProtoStr);  { V8.36 }
         Exit;
     end;
     if WSocket_Synchronized_GetSockName(FHSocket, PSockAddrIn(@SockName)^, SockNamelen) <> 0 then begin
@@ -8749,8 +9740,11 @@ var
     optval  : Integer;
     optlen  : Integer;
     lAddr   : TSockAddrIn6;
+    TmpOnError: TNotifyEvent;
 begin
-    if (FHSocket <> INVALID_SOCKET) and (FState <> wsClosed) then begin
+    if ((FHSocket <> INVALID_SOCKET) and
+         (NOT (FState in [wsClosed, wsDnsLookup]))) or
+                            FInternalDnsActive then begin    { V8.48 }
         RaiseException('Connect: Socket already in use');
         Exit;
     end;
@@ -8797,16 +9791,33 @@ begin
             FLocalPortResolved := TRUE;
         end;
 
+       { V8.43 see if doing an async DNS lookup instead of blocking sync DNS lookup }
         if not FAddrResolved then begin
-            { The next line will trigger an exception in case of failure }
-            if FSocketFamily = sfIPv4 then
-            begin
-                Fsin.sin6_family := AF_INET;
-                PSockAddrIn(@Fsin).sin_addr.S_addr := WSocket_Synchronized_ResolveHost(AnsiString(FAddrStr)).s_addr;
+            if (wsoAsyncDnsLookup in ComponentOptions) and not WSocketIsDottedIP(AnsiString(FAddrStr)) then begin
+                  { If Socket.OnError is assigned, any raised exception will be transferred to }
+                  { the handler silently. So clear the handler temporarily to catch exception. }
+                  TmpOnError := OnError;
+                  OnError := nil;
+                  { Trigger OnChangeState event }
+                  ChangeState(wsDnsLookup);     { V8.48 }
+                  try
+                      DnsLookup(FAddrStr);
+                      FInternalDnsActive := TRUE;
+                      Exit; { Actual connect will happen on DNS lookup done }
+                  finally
+                      OnError := TmpOnError;
+                  end;
             end
-            else
-                WSocket_Synchronized_ResolveHost(FAddrStr, Fsin, FSocketFamily, FProto);
-
+            else begin
+              { The next line will trigger an exception in case of failure }
+              if FSocketFamily = sfIPv4 then
+              begin
+                  Fsin.sin6_family := AF_INET;
+                  PSockAddrIn(@Fsin).sin_addr.S_addr := WSocket_Synchronized_ResolveHost(AnsiString(FAddrStr)).s_addr;
+              end
+              else
+                  WSocket_Synchronized_ResolveHost(FAddrStr, Fsin, FSocketFamily, FProto);
+            end;
             FAddrResolved := TRUE;
             FAddrFormat := Fsin.sin6_family;
         end;
@@ -8817,6 +9828,12 @@ begin
             Exit;
         end;
     end;
+
+    { V8.60 keep resolived IP address as string, code from debug log later }
+    if Fsin.sin6_family = AF_INET then
+        FAddrResolvedStr := String(WSocket_Synchronized_inet_ntoa(PSockAddrIn(@Fsin).sin_addr))
+    else
+        FAddrResolvedStr := WSocketIPv6ToStr(PIcsIpv6Address(@Fsin.sin6_addr)^);
 
     { Remove any data from the internal output buffer }
     { (should already be empty !)                     }
@@ -8833,7 +9850,7 @@ begin
     if CheckLogOptions(loWsockInfo) then
         DebugLog(loWsockInfo,
                 IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) + ' ' +
-                'Socket handle created ' + IntToStr(FHSocket));
+                'Socket handle created handle=' + IntToStr(FHSocket));
   {$ENDIF}
 
   {$IFDEF MACOS}
@@ -8905,7 +9922,7 @@ begin
                ((FAddrFormat = AF_INET6) and (FLocalAddr6 <> ICS_ANY_HOST_V6)) then begin
                 if FAddrFormat = PF_INET then
                     PSockAddrIn(@laddr)^.sin_addr.S_addr :=
-                    WSocket_Synchronized_ResolveHost(AnsiString(FLocalAddr)).S_addr
+                        WSocket_Synchronized_ResolveHost(AnsiString(FLocalAddr)).S_addr
                 else
                     WSocket_Synchronized_ResolveHost(FLocalAddr6, laddr, sfIPv6, FProto);
 
@@ -9018,14 +10035,21 @@ begin
     else begin
       {$IFNDEF NO_DEBUG_LOG}
         if CheckLogOptions(loWsockInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-            if Fsin.sin6_family = AF_INET then
+
+            if Fsin.sin6_family = AF_INET then  { V8.60 kept the string earlier }
+                DebugLog(loWsockInfo, 'TWSocket will connect to ' + IcsFmtIpv6AddrPort(FAddrResolvedStr,
+                                       IntToStr(WSocket_Synchronized_ntohs(PSockAddrIn(@Fsin).sin_port))))
+            else
+                DebugLog(loWsockInfo, 'TWSocket will connect to ' + IcsFmtIpv6AddrPort(FAddrResolvedStr,
+                                                    IntToStr(WSocket_Synchronized_ntohs(Fsin.sin6_port))));
+     {       if Fsin.sin6_family = AF_INET then
                 DebugLog(loWsockInfo, 'TWSocket will connect to ' +
                   WSocket_Synchronized_inet_ntoa(PSockAddrIn(@Fsin).sin_addr) + ':' +
                   IntToStr(WSocket_Synchronized_ntohs(PSockAddrIn(@Fsin).sin_port)))
             else
                 DebugLog(loWsockInfo, 'TWSocket will connect to ' +
                   WSocketIPv6ToStr(PIcsIpv6Address(@Fsin.sin6_addr)^) + ':' +
-                  IntToStr(WSocket_Synchronized_ntohs(Fsin.sin6_port)));
+                  IntToStr(WSocket_Synchronized_ntohs(Fsin.sin6_port)));   }
 
       {$ENDIF}
         iStatus := WSocket_Synchronized_Connect(FHSocket, PSockAddrIn(@Fsin)^,
@@ -9057,12 +10081,15 @@ var
     mreq           : ip_mreq;
     mreqv6         : TIpv6MReq;
     Success        : Boolean;
+    FriendlyMsg    : String;
+    ErrorCode      : Integer;
 {$IFDEF MSWINDOWS}
     dwBufferInLen  : DWORD;
     dwBufferOutLen : DWORD;
     dwDummy        : DWORD;
 {$ENDIF}
 begin
+    FriendlyMsg := '';
     if not FPortAssigned then begin
         WSocket_Synchronized_WSASetLastError(WSAEINVAL);
         SocketError('listen: port not assigned');
@@ -9137,7 +10164,7 @@ begin
         exit;
     end;
 
-    if FType = SOCK_DGRAM then begin
+    if FType = SOCK_DGRAM then begin  { UDP }
         if FReuseAddr then begin
         { Enable multiple tasks to listen on duplicate address and port }
             optval  := -1;
@@ -9153,13 +10180,34 @@ begin
         end;
     end;
 
+{$IFDEF MSWINDOWS}
+    if FExclusiveAddr then begin
+    { V8.36 Prevent other applications accessing this address and port }
+    { V8.42 this iw windows specific }
+        optval  := -1;
+        iStatus := WSocket_Synchronized_SetSockOpt(FHSocket, SOL_SOCKET,
+                                                   SO_EXCLUSIVEADDRUSE,
+                                                   @optval, SizeOf(optval));
+
+        if iStatus <> 0 then begin
+            SocketError('setsockopt(SO_EXCLUSIVEADDRUSE)');
+            Close;
+            Exit;
+        end;
+    end;
+{$ENDIF}
+
     iStatus := WSocket_Synchronized_bind(FHSocket, PSockAddr(@Fsin)^,
                                          SizeOfAddr(Fsin));
     if iStatus = 0 then
         ChangeState(wsBound)
     else begin
         try
-            SocketError('Bind');
+            ErrorCode := WSocket_Synchronized_WSAGetLastError;
+            if (ErrorCode = WSAEADDRINUSE) or (ErrorCode = WSAEACCES)  then   { V8.36 more friendly message for common error }
+                FriendlyMsg := 'Another server is already listening on ' +
+                                                  FAddrStr + ':' + FPortStr ;
+            SocketError('listen: Bind', ErrorCode, FriendlyMsg);
         finally
             WSocket_Synchronized_closesocket(FHSocket);
             FHSocket := INVALID_SOCKET;
@@ -9190,7 +10238,7 @@ begin
             TriggerSessionConnectedSpecial(0);
         end;
 {$ENDIF}
-    SOCK_DGRAM :
+    SOCK_DGRAM :  { UDP }
         begin
             if FMultiCast then begin
                 if FAddrFormat = AF_INET then begin
@@ -9237,7 +10285,7 @@ begin
             ChangeState(wsConnected);
             TriggerSessionConnectedSpecial(0);
         end;
-    SOCK_STREAM :
+    SOCK_STREAM : { TCP }
         begin
             iStatus := WSocket_Synchronized_Listen(FHSocket, FListenBacklog);
             if iStatus = 0 then
@@ -9400,7 +10448,7 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loWsockInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
       DebugLog(loWsockInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) + ' ' +
-               'TCustomWSocket.Shutdown ' + IntToStr(How) + ' ' + IntToStr(FHSocket));
+               'TCustomWSocket.Shutdown ' + IntToStr(How) + ' handle=' + IntToStr(FHSocket));
 {$ENDIF}
     if FHSocket <> INVALID_SOCKET then begin
       {$IFDEF POSIX}
@@ -9500,6 +10548,7 @@ var
     iStatus : Integer;
 {    Buffer  : array [0..127] of Char; }
 begin
+    InternalCancelDnsLookup(TRUE);   { V8.48 }
     if FHSocket = INVALID_SOCKET then begin
         if FState <> wsClosed then begin
             ChangeState(wsClosed);
@@ -9715,12 +10764,15 @@ begin
         IPList.Clear;
         Result := IPList;
 
-        if ASocketFamily = sfIPv4 then begin
-            phe  := WSocketGetHostByName(LocalHostName);
+      { V8.52 only use GetHostByName for Windows XP, 2003 and earlier }
+        {$IFDEF MSWINDOWS}
+        if (ASocketFamily = sfIPv4) and (Win32MajorVersion <= 5) then begin
+            phe  := WSocketGetHostByName(LocalHostName);   { deprecated since 2003 and Vista }
             if phe <> nil then
                 GetIpList(Phe, IPList);
         end
         else begin
+        {$ENDIF}
             LHostName := string(LocalHostName);
             FillChar(Hints, SizeOf(Hints), 0);
             if ASocketFamily = sfIPv6 then
@@ -9730,7 +10782,7 @@ begin
             AddrInfo := nil;
             Hints.ai_protocol := AProtocol;
           {$IFDEF MSWINDOWS}
-            RetVal := WSocket_GetAddrInfo(PChar(LHostName), nil, @Hints, AddrInfo);
+            RetVal := WSocket_GetAddrInfo(PChar(LHostName), nil, @Hints, AddrInfo);  { only 2003 and Vista and later }
           {$ELSE}
             RetVal := WSocket_GetAddrInfo(PAnsiChar(UnicodeToAnsi(LHostName, CP_UTF8)), nil, @Hints, AddrInfo);
           {$ENDIF}
@@ -9781,7 +10833,9 @@ begin
             finally
                 WSocket_FreeAddrInfo(AddrInfo);
             end;
+        {$IFDEF MSWINDOWS}
         end;
+        {$ENDIF}
 {$IFNDEF NO_ADV_MT}
     finally
         CritSecIpList.Leave;
@@ -9947,7 +11001,7 @@ begin
     if CheckLogOptions(loWsockDump) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
         DebugLog(loWsockDump,
                 IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) + ' ' +
-                'TriggerDataSent ' + IntToStr(FHSocket));
+                'TriggerDataSent handle=' + IntToStr(FHSocket));
 {$ENDIF}
     if Assigned(FOnDataSent) then
         FOnDataSent(Self, Error);
@@ -9963,10 +11017,59 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TCustomWSocket.TriggerDNSLookupDone(Error : Word);
+procedure TCustomWSocket.TriggerException (E: ESocketException);   { V8.36 }
 begin
+    if Assigned(FOnException) then
+        FOnException(Self, E);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomWSocket.TriggerDNSLookupDone(Error : Word);
+var
+    TmpOnError: TNotifyEvent;
+begin
+    { Actions if it was internal DNS call.           }
+    { In case of error call TriggerSessionConnected  }
+
+   { PENDING - round robin DNS for multiple IP addresses on failure }
+
+   { V8.60 moved before Connect attempt so user can change DnsResult }
     if Assigned(FOnDNSLookupDone) then
         FOnDNSLookupDone(Self, Error);
+
+   { V8.43 finished an async lookup, now trigger connect }
+    if FInternalDnsActive then
+    begin
+        FInternalDnsActive := FALSE;
+        if Error = 0 then
+            try
+                { The next line will trigger an exception in case of failure }
+                if FSocketFamily = sfIPv4 then
+                begin
+                    Fsin.sin6_family := AF_INET;
+                    PSockAddrIn(@Fsin).sin_addr.S_addr := WSocket_Synchronized_ResolveHost(AnsiString(DnsResult)).s_addr;
+                end
+                else
+                    WSocket_Synchronized_ResolveHost(DnsResult, Fsin, FSocketFamily, FProto);
+                FAddrResolved := TRUE;
+                { If Socket.OnError is assigned, any raised exception will be transferred to }
+                { the handler silently. So clear the handler temporarily to catch exception. }
+                TmpOnError := OnError;
+                OnError := nil;
+                try
+                    Connect;
+                finally
+                    OnError := TmpOnError;
+                end;
+            except on E: Exception do
+                HandleBackGroundException(E, 'TCustomWSocket.TriggerDNSLookupDone');
+            end
+        else
+            TriggerSessionConnected(Error);
+        Exit;
+    end;
+
 end;
 
 
@@ -9979,7 +11082,8 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TCustomWSocket.SocketError(sockfunc: String; LastError: Integer = 0);
+procedure TCustomWSocket.SocketError(sockfunc: String; LastError: Integer = 0;
+                                                      FriendlyMsg: String = '');   { V8.36 added FriendlyMsg }
 var
     Error  : Integer;
     Line   : String;
@@ -9988,11 +11092,11 @@ begin
         Error := WSocket_Synchronized_WSAGetLastError
     else
         Error := LastError;
-{    Line  := 'Error '+ IntToStr(Error) + ' in function ' + sockfunc +
-             #13#10 + WSocketErrorDesc(Error);  }
-    Line  := WSocketErrorDesc(Error) + ' (#' + IntToStr(Error) +
-                                         ' in ' + sockfunc + ')' ;   { V5.26 }
-
+    Line  := WSocketErrorDesc(Error) ;
+    if (FSocketErrs = wsErrFriendly) then
+        Line := Line + ' in ' + sockfunc    { V8.36 }
+    else
+        Line := Line + ' (#' + IntToStr(Error) + ' in ' + sockfunc + ')' ;   { V5.26 }
     if (Error = WSAECONNRESET) or
        (Error = WSAENOTCONN) then begin
         WSocket_Synchronized_closesocket(FHSocket);
@@ -10001,9 +11105,9 @@ begin
            TriggerSessionClosed(Error);
         ChangeState(wsClosed);
     end;
-
     FLastError := Error;
-    RaiseException(Line);
+    RaiseException(Line, Error, WSocketErrorDesc(Error), FriendlyMsg,
+                                   sockfunc, FAddrStr, FPortStr, FProtoStr);  { V8.42 }
 end;
 
 
@@ -10589,6 +11693,8 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TCustomSocksWSocket.Connect;
+var
+    LSocketFamily: TSocketFamily;
 begin
     { Check if we really wants to use socks server }
     if not FSocksServerAssigned then begin
@@ -10602,6 +11708,16 @@ begin
         Exit;
     end;
 
+    { V8.56 IPv6 support from Max Terentiev }
+    if WSocketIsIP(FSocksServer, LSocketFamily) then begin // is socks proxy IP is IPv6 ?
+        if (LSocketFamily = sfIPv4) or (IsIPv6APIAvailable) then
+            FSocketFamily := LSocketFamily
+        else
+            FSocketFamily := DefaultSocketFamily;
+      end
+      else
+          raise ESocketException.Create('Unsupported socks address format');
+
     try
         if not FPortResolved then begin
             { The next line will trigger an exception in case of failure }
@@ -10613,8 +11729,7 @@ begin
 
         if not FAddrResolved then begin
             { The next line will trigger an exception in case of failure }
-            if FSocketFamily = sfIPv4 then
-            begin
+            if FSocketFamily = sfIPv4 then begin
                 Fsin.sin6_family := AF_INET;
                 PSockAddrIn(@Fsin).sin_addr.s_addr :=
                 WSocket_Synchronized_ResolveHost(AnsiString(FSocksServer)).s_addr;
@@ -10625,6 +11740,8 @@ begin
                     raise ESocketException.Create('IPv6 not supported with current socks version');
             end;
             FAddrResolved := TRUE;
+        { V8.56 IPv6 support from Max Terentiev }
+            FAddrFormat := Fsin.sin6_family;
         end;
         { The next line will trigger an exception in case of failure }
         FPortNum := WSocket_Synchronized_ResolvePort(AnsiString(FPortStr), AnsiString(FProtoStr));
@@ -10639,21 +11756,6 @@ begin
     FRcvCnt     := 0;
     inherited Connect;
 end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{function BufToStr(Buf : PChar; Cnt : Integer) : String;
-begin
-    Result := '';
-    while Cnt > 0 do begin
-        if Buf^ in [#32..#126] then
-            Result := Result + Buf^
-        else
-            Result := Result + '#' + Format('%2.2d', [ord(Buf^)]);
-        Inc(Buf);
-        Dec(Cnt);
-    end;
-end;}
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -10772,6 +11874,10 @@ var
 {$IFDEF COMPILER12_UP}
     S : AnsiString;
 {$ENDIF}
+    LSocketFamily : TSocketFamily;
+    ConvOk : Boolean;
+    v4Addr : TIcsIPv4Address;
+    v6Addr : TIcsIPv6Address;
 begin
     FSocksState := socksConnect;
     if FSocksLevel[1] = '4' then begin
@@ -10827,17 +11933,44 @@ begin
         Buf[0] := #$05;            { Socks version }
         Buf[1] := #$01;            { Connect command }
         Buf[2] := #$00;            { Reserved, must be $00 }
-        Buf[3] := #$03;            { Address type is domain name }
+
+     (* Buf[3] := #$03;            { Address type is domain name }
         Buf[4] := AnsiChar((Length(FAddrStr)));
         { Should check buffer overflow }
         Move(AnsiString(FAddrStr)[1], Buf[5], Length(FAddrStr)); // No length change expected (ASCII)
         I := 5 + Length(FAddrStr);
         PWord(@Buf[I])^ := WSocket_Synchronized_htons(FPortNum);
-        I := I + 2;
+        I := I + 2;  *)
+
+    { V8.56 IPv6 support from Max Terentiev }
+        if not WSocketIsIP(FAddrStr,LSocketFamily) then begin
+            Buf[3] := #$03;            { Address type is domain name }
+            Buf[4] := AnsiChar((Length(FAddrStr)));
+            { Should check buffer overflow }
+            Move(AnsiString(FAddrStr)[1], Buf[5], Length(FAddrStr)); // No length change expected (ASCII)
+            I := 5 + Length(FAddrStr);
+            PWord(@Buf[I])^ := WSocket_Synchronized_htons(FPortNum);
+            I := I + 2;
+        end
+        else begin
+            if LSocketFamily=sfIPv4 then begin
+                Buf[3] := #$01; // IPv4
+                v4Addr := WSocketStrToIPv4(FAddrStr,ConvOk);
+                Move(v4Addr,Buf[4],4);
+                PWord(@Buf[8])^ := WSocket_Synchronized_htons(FPortNum);
+                I := 10;
+            end
+            else begin
+                Buf[3] := #$04; // IPv6
+                v6Addr := WSocketStrToIPv6(FAddrStr,ConvOk);
+                Move(v6Addr,Buf[4],16);
+                PWord(@Buf[20])^ := WSocket_Synchronized_htons(FPortNum);
+                I := 22;
+            end;
+        end;
     end;
 
     try
-{TriggerDisplay('Send = ''' + BufToStr(Buf, I + 2) + '''');}
         Send(@Buf, I);
     except
     end;
@@ -10890,7 +12023,6 @@ begin
             Exit;
         FRcvCnt := FRcvCnt + Len;
 
-{TriggerDisplay('socksNegociateMethods FrcvBuf = ''' + BufToStr(FRcvBuf, FRcvCnt) + '''');}
         if FSocksLevel[1] = '4' then begin
             { We should never comes here }
             DataAvailableError(socksProtocolError, 'TWSocket logic error');
@@ -10900,10 +12032,6 @@ begin
             { We are waiting only two bytes }
             if FRcvCnt < 2 then
                 Exit;
-{            if FRcvCnt <> 2 then begin  06/03/99}
-{                DataAvailableError(socksProtocolError, 'too much data availaible');}
-{                Exit;                                                              }
-{            end;                                                                   }
             FRcvCnt := 0; { Clear receive counter }
             if FRcvBuf[0] <> $05 then begin
                 DataAvailableError(socksVersionError, 'socks version error');
@@ -10929,7 +12057,6 @@ begin
     end
     else if FSocksState = socksConnect then begin
         Result := TRUE;
-{TriggerDisplay('socksConnect FrcvBuf = ''' + BufToStr(FRcvBuf, FRcvCnt) + '''');}
         if FSocksLevel[1] = '4' then begin
             { We want at most 8 characters }
             Len := Receive(@FRcvBuf[FRcvCnt], 8 - FRcvCnt);
@@ -10967,11 +12094,8 @@ begin
                 Exit;
             end;
             FSocksState := socksData;
-{           inherited TriggerSessionConnectedSpecial(0); }
-{           Result := inherited TriggerDataAvailable(0); }
-            {inherited} TriggerSessionConnectedSpecial(0);
-            {**ALON** removed 'inherited' now calls top level}
-            Result := {inherited} TriggerDataAvailable(0);
+            TriggerSessionConnectedSpecial(0);
+            Result := TriggerDataAvailable(0);
             {**ALON** removed 'inherited' now calls top level}
         end
         else begin { SOCKS5 }
@@ -11040,7 +12164,6 @@ begin
 
             if FRcvBuf[3] = $01 then begin
                 { IP V4 address }
-                //Move(FRcvBuf[4], InAddr, 4);
                 InAddr.S_addr := FRcvBuf[4] or
                                  (FRcvBuf[5] shl 8) or
                                  (FRcvBuf[6] shl 16) or
@@ -11053,6 +12176,10 @@ begin
                 SetLength(FBoundAddr, Ord(FRcvBuf[4]));
                 Move(FRcvBuf[5], FBoundAddr[1], Length(FBoundAddr)); { david.brock }
                 I := 4 + Ord(FRcvBuf[4]) + 1;
+            end
+           { V8.56 IPv6 support from Max Terentiev }
+            else if FRcvBuf[3] = $04 then begin
+                I := 16 + 4 // IPv6
             end
             else begin
                 { Unsupported address type }
@@ -11087,19 +12214,16 @@ begin
         { We expect 2 bytes }
         if FRcvCnt < 2 then  {AG 15/02/11}
             Exit;            {AG 15/02/11}
-{TriggerDisplay('socksAuthenticate FrcvBuf = ''' + BufToStr(FRcvBuf, FRcvCnt) + '''');}
-        //if FRcvCnt >= 1 then begin
-            { First byte is version of the subnegotiation proto (rfc1929), }
-            { we expect version 1. However i.e. WinGate returns socks      }
-            { version 5 here if user credentials are wrong, so don't       }
-            { trigger a version error but socksAuthenticationFailed. AG 15/02/11 }
-            if FRcvBuf[0] <> $01 then begin { 06/03/99 }
+        { First byte is version of the subnegotiation proto (rfc1929), }
+        { we expect version 1. However i.e. WinGate returns socks      }
+        { version 5 here if user credentials are wrong, so don't       }
+        { trigger a version error but socksAuthenticationFailed. AG 15/02/11 }
+        if FRcvBuf[0] <> $01 then begin { 06/03/99 }
 {                TriggerSocksAuthState(socksAuthFailure); Burlakov 12/11/99 }
 {                DataAvailableError(socksVersionError, 'socks version error'); AG 15/02/11 }
-                DataAvailableError(socksAuthenticationFailed, 'socks authentication failed'); {AG 15/02/11}
-                Exit;
-            end;
-        //end;
+            DataAvailableError(socksAuthenticationFailed, 'socks authentication failed'); {AG 15/02/11}
+            Exit;
+        end;
         if FRcvCnt = 2 then begin
             { Second byte is status }
             if FRcvBuf[1] <> $00 then begin
@@ -11204,7 +12328,7 @@ begin
                 WMTriggerDataAvailable(MsgRec)
             except
                 on E:Exception do
-                    HandleBackGroundException(E);
+                    HandleBackGroundException(E, 'TCustomLineWSocket.WndProc');
             end;
         end
         else
@@ -11966,7 +13090,7 @@ begin
         if CheckLogOptions(loWsockInfo) then
             DebugLog(loWsockInfo,
                      IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                     ' Bandwidth ON ' + IntToStr(FHSocket));
+                     ' Bandwidth ON handle=' + IntToStr(FHSocket));
     {$ENDIF}
     end
     else begin
@@ -11979,7 +13103,7 @@ begin
                 if CheckLogOptions(loWsockInfo) then
                     DebugLog(loWsockInfo,
                             IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                            ' Bandwidth OFF ' + IntToStr(FHSocket));
+                            ' Bandwidth OFF handle=' + IntToStr(FHSocket));
             {$ENDIF}
             end;
         end;
@@ -12043,7 +13167,7 @@ begin
                 if CheckLogOptions(loWsockInfo) then
                     DebugLog(loWsockInfo,
                             IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                            ' Bandwidth Paused on send ' + IntToStr(FHSocket));
+                            ' Bandwidth Paused on send handle=' + IntToStr(FHSocket));
            {$ENDIF}
            end;
        end;
@@ -12077,7 +13201,7 @@ begin
                 if CheckLogOptions(loWsockInfo) then
                     DebugLog(loWsockInfo,
                              IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                             ' Bandwidth Paused on receive ' + IntToStr(FHSocket));
+                             ' Bandwidth Paused on receive handle=' + IntToStr(FHSocket));
             {$ENDIF}
             end;
         end;
@@ -12142,8 +13266,7 @@ end;
 {$IFDEF USE_SSL}
 
 var
-    //GSslInitialized     : Integer = 0;
-    SslRefCount               : Integer = 0;
+    SslRefCount               : Integer = 0;      { count intialisations }
     GSslRegisterAllCompleted  : Boolean = FALSE;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -12170,97 +13293,48 @@ end; *)
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure LoadSsl;
-const
-    LenErrMsg = 512;
 var
     Tick : Cardinal;
-    S    : String;
-{$IFDEF LOADSSL_ERROR_FILE} // Optional define in OverbyteIcsSslDefs.inc
-    F    : TextFile;
-    I, J : Integer;
-{$ENDIF}
 begin
     SslCritSect.Enter;
     try
         if SslRefCount = 0 then begin
-            // Load LIBEAY DLL
-            // Must be loaded before SSlEAY for the versioncheck to work!
-            if not OverbyteIcsLIBEAY.Load then begin
-                S := OverbyteIcsLIBEAY.WhichFailedToLoad;
-            {$IFDEF LOADSSL_ERROR_FILE}
-                AssignFile(F, _ExtractFilePath(ParamStr(0)) + 'FailedIcsLIBEAY.txt');
-                Rewrite(F);
-                I := 1;
-                while I < Length(S) do begin
-                    J := I;
-                    while (I <= Length(S)) and (S[I] <> ' ') do
-                        Inc(I);
-                    Inc(I);
-                    WriteLn(F, Copy(S, J, I - J));
-                end;
-                CloseFile(F);
-            {$ENDIF}
-                if OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle <> 0 then begin
-                    FreeLibrary(OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle);
-                    OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle := 0
-                end;
-                if Length(S) > LenErrMsg then begin
-                    SetLength(S, LenErrMsg);
-                    S[Length(S) - 1] := '.';
-                    S[Length(S)]     := '.';
-                end;
-                raise EIcsLibeayException.Create('Unable to load LIBEAY DLL. Can''t find ' + S);
-            end;
-            // Load SSlEAY DLL
-            if not OverbyteIcsSSLEAY.Load then begin
-                S := OverbyteIcsSSLEAY.WhichFailedToLoad;
-            {$IFDEF LOADSSL_ERROR_FILE}
-                AssignFile(F, _ExtractFilePath(ParamStr(0)) + 'FailedIcsSSLEAY.txt');
-                Rewrite(F);
-                I := 1;
-                while I < Length(S) do begin
-                    J := I;
-                    while (I <= Length(S)) and (S[I] <> ' ') do
-                        Inc(I);
-                    Inc(I);
-                    WriteLn(F, Copy(S, J, I - J));
-                end;
-                CloseFile(F);
-            {$ENDIF}
-                if OverbyteIcsSSLEAY.GSSLEAY_DLL_Handle <> 0 then begin
-                    FreeLibrary(OverbyteIcsSSLEAY.GSSLEAY_DLL_Handle);
-                    OverbyteIcsSSLEAY.GSSLEAY_DLL_Handle := 0;
-                end;
-                if OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle <> 0 then begin
-                    FreeLibrary(OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle);
-                    OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle := 0
-                end;
-                if Length(S) > LenErrMsg then begin
-                    SetLength(S, LenErrMsg);
-                    S[Length(S) - 1] := '.';
-                    S[Length(S)]     := '.';
-                end;
-                raise EIcsSsleayException.Create('Unable to load SSLEAY DLL. Can''t find ' + S);
-            end;
 
-            // Global system initialization
-            if f_SSL_library_init <> 1 then begin
-                if OverbyteIcsSSLEAY.GSSLEAY_DLL_Handle <> 0 then begin
-                    FreeLibrary(OverbyteIcsSSLEAY.GSSLEAY_DLL_Handle);
-                    OverbyteIcsSSLEAY.GSSLEAY_DLL_Handle := 0;
+            // Load LIBEAY DLL, V8.27 change Load and WhichFailedToLoad to unique names
+            // Must be loaded before SSlEAY for the versioncheck to work!
+            LibeayLoad;   { now libcrypto-1_1.dll }
+
+            // Load SSlEAY DLL
+            SsleayLoad;   { now libssl-1_1.dll }
+
+           // Global system initialization, V8.27 not needed for 1.1.0 and later
+            try   { V8.38 moved here so don't hide earlier exception messages }
+                if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then begin
+                    if f_SSL_library_init <> 1 then begin
+                        if GSSLEAY_DLL_Handle <> 0 then begin
+                            FreeLibrary(GSSLEAY_DLL_Handle);
+                            GSSLEAY_DLL_Handle := 0;
+                        end;
+                        if GLIBEAY_DLL_Handle <> 0 then begin
+                            FreeLibrary(GLIBEAY_DLL_Handle);
+                            GLIBEAY_DLL_Handle := 0
+                        end;
+                        raise EIcsSsleayException.Create('Unable to initialise OpenSSL');
+                    end;
+                    f_SSL_load_error_strings;
                 end;
-                if OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle <> 0 then begin
-                    FreeLibrary(OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle);
-                    OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle := 0
-                end;
+
+            // important key functions should call IcsRandPoll for a better random seed
+                Tick := IcsGetTickCount;           // probably weak
+                f_RAND_seed(@Tick, SizeOf(Tick));
+
+            {$IFNDEF OPENSSL_NO_ENGINE}
+                //* Load all bundled ENGINEs into memory and make them visible */
+                f_ENGINE_load_builtin_engines;
+            {$ENDIF}
+            except
+                raise EIcsSsleayException.Create('Unable to initialise OpenSSL');
             end;
-            f_SSL_load_error_strings;
-            Tick := IcsGetTickCount;           // probably weak
-            f_RAND_seed(@Tick, SizeOf(Tick));
-        {$IFNDEF OPENSSL_NO_ENGINE}
-            //* Load all bundled ENGINEs into memory and make them visible */
-            f_ENGINE_load_builtin_engines;
-        {$ENDIF}
         end; // SslRefCount = 0
         Inc(SslRefCount);
     finally
@@ -12270,52 +13344,44 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ Reminder:
-  /* thread-local cleanup */
-  ERR_remove_state(0);  // deprecated
-  ERR_remove_thread_state(nil) // v1.0.0+ ** check for nil **
 
-  /* thread-safe cleanup */
-  ENGINE_cleanup();
-  CONF_modules_unload(1);
-
-  /* global application exit cleanup (after all SSL activity is shutdown) */
-  ERR_free_strings();
-  EVP_cleanup();
-  CRYPTO_cleanup_all_ex_data();
-}
 procedure UnloadSsl;
 begin
     SslCritSect.Enter;
     try
-        if SslRefCount > 0 then        {AG 12/30/07}
-            Dec(SslRefCount);
+        if SslRefCount = 0 then Exit;  { V8.27 sanity check }
+        Dec(SslRefCount);
         if SslRefCount = 0 then begin  {AG 12/30/07}
 
-            //* thread-local cleanup */
-            if @f_ERR_remove_thread_state <> nil then
-                f_ERR_remove_thread_state(nil) // OSSL v1.0.0+
-            else
-                f_ERR_remove_state(0); // deprecated
+           { V8.27 sanity check }
+            if (GSSLEAY_DLL_Handle = 0) and (GLIBEAY_DLL_Handle = 0) then Exit;
 
-            //* thread-safe cleanup */
-            f_CONF_modules_unload(1);
-        {$IFNDEF OPENSSL_NO_ENGINE}
-            f_ENGINE_cleanup;
-        {$ENDIF}
+            // cleanup, V8.27 not needed for 1.1.0 and later
+            if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then begin
 
-            //* global application exit cleanup (after all SSL activity is shutdown) */
-            f_ERR_free_strings;
-            f_EVP_cleanup;
-            f_CRYPTO_cleanup_all_ex_data;
+                //* thread-local cleanup */
+                f_ERR_remove_thread_state(nil); // OSSL v1.0.0+
 
-            if OverbyteIcsSSLEAY.GSSLEAY_DLL_Handle <> 0 then begin
-                FreeLibrary(OverbyteIcsSSLEAY.GSSLEAY_DLL_Handle);
-                OverbyteIcsSSLEAY.GSSLEAY_DLL_Handle := 0;
+                //* thread-safe cleanup */
+                f_CONF_modules_unload(1);
+            {$IFNDEF OPENSSL_NO_ENGINE}
+                f_ENGINE_cleanup;
+            {$ENDIF}
+
+                //* global application exit cleanup (after all SSL activity is shutdown) */
+                f_ERR_free_strings;
+                f_EVP_cleanup;
+                f_CRYPTO_cleanup_all_ex_data;
             end;
-            if OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle <> 0 then begin
-                FreeLibrary(OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle);
-                OverbyteIcsLIBEAY.GLIBEAY_DLL_Handle := 0
+
+         { V8.33 free GLIBEAY_DLL_Handle before GSSLEAY_DLL_Handle to avoid exception }
+            if GLIBEAY_DLL_Handle <> 0 then begin
+                FreeLibrary(GLIBEAY_DLL_Handle);
+                GLIBEAY_DLL_Handle := 0
+            end;
+            if GSSLEAY_DLL_Handle <> 0 then begin   { V8.27 removed unit names }
+                FreeLibrary(GSSLEAY_DLL_Handle);
+                GSSLEAY_DLL_Handle := 0;
             end;
         end;
     finally
@@ -12377,6 +13443,81 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsSslGetEVPCipher(Cipher: TEvpCipher): PEVP_CIPHER;      { V8.40 }
+begin
+    case Cipher of
+        Cipher_none :               result := f_EVP_enc_null;
+        Cipher_aes_128_cbc :        result := f_EVP_aes_128_cbc;
+        Cipher_aes_128_cfb :        result := f_EVP_aes_128_cfb128;
+        Cipher_aes_128_ecb :        result := f_EVP_aes_128_ecb;
+        Cipher_aes_128_ofb :        result := f_EVP_aes_128_ofb;
+        Cipher_aes_128_gcm :        result := f_EVP_aes_128_gcm;
+        Cipher_aes_128_ocb :        result := f_EVP_aes_128_ocb;
+        Cipher_aes_128_ccm :        result := f_EVP_aes_128_ccm;
+        Cipher_aes_192_cbc :        result := f_EVP_aes_192_cbc;
+        Cipher_aes_192_cfb :        result := f_EVP_aes_192_cfb128;
+        Cipher_aes_192_ecb :        result := f_EVP_aes_192_ecb;
+        Cipher_aes_192_ofb :        result := f_EVP_aes_192_ofb;
+        Cipher_aes_192_gcm :        result := f_EVP_aes_192_gcm;
+        Cipher_aes_192_ocb :        result := f_EVP_aes_192_ocb;
+        Cipher_aes_192_ccm :        result := f_EVP_aes_192_ccm;
+        Cipher_aes_256_cbc :        result := f_EVP_aes_256_cbc;
+        Cipher_aes_256_cfb :        result := f_EVP_aes_256_cfb128;
+        Cipher_aes_256_ecb :        result := f_EVP_aes_256_ecb;
+        Cipher_aes_256_ofb :        result := f_EVP_aes_256_ofb;
+        Cipher_aes_256_gcm :        result := f_EVP_aes_256_gcm;
+        Cipher_aes_256_ocb :        result := f_EVP_aes_256_ocb;
+        Cipher_aes_256_ccm :        result := f_EVP_aes_256_ccm;
+        Cipher_bf_cbc :             result := f_EVP_bf_cbc;       { blowfish needs key length set }
+        Cipher_bf_cfb64 :           result := f_EVP_bf_cfb64;
+        Cipher_bf_ecb :             result := f_EVP_bf_ecb;
+        Cipher_bf_ofb :             result := f_EVP_bf_ofb;
+        Cipher_chacha20 :           result := f_EVP_chacha20;
+        Cipher_des_ede3_cbc :       result := f_EVP_des_ede3_cbc;
+        Cipher_des_ede3_cfb64 :     result := f_EVP_des_ede3_cfb64;
+        Cipher_des_ede3_ecb :       result := f_EVP_des_ede3_ecb;
+        Cipher_des_ede3_ofb :       result := f_EVP_des_ede3_ofb;
+        Cipher_idea_cbc :           result := f_EVP_idea_cbc;
+        Cipher_idea_cfb64 :         result := f_EVP_idea_cfb64;
+        Cipher_idea_ecb :           result := f_EVP_idea_ecb;
+        Cipher_idea_ofb :           result := f_EVP_idea_ofb;
+    else
+        Result := f_EVP_enc_null;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsSslGetEVPDigest(Digest: TEvpDigest): PEVP_MD;      { V8.40 }
+begin
+    case Digest of
+        Digest_md5 :                result := f_EVP_md5;
+        Digest_mdc2 :               result := f_EVP_mdc2;
+        Digest_sha1 :               result := f_EVP_sha1;
+        Digest_sha224 :             result := f_EVP_sha224;
+        Digest_sha256 :             result := f_EVP_sha256;
+        Digest_sha384 :             result := f_EVP_sha384;
+        Digest_sha512 :             result := f_EVP_sha512;
+        Digest_ripemd160 :          result := f_EVP_ripemd160;    { not for certificates }
+    else
+        result := Nil;
+    end;
+    if Assigned(result) then Exit;                          { V8.52 }
+
+ { V8.51 added SHA3 digests for OpenSSL 1.1.1 }
+    if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1101 then Exit;
+    case Digest of
+        Digest_sha3_224 :           result := f_EVP_sha3_224;
+        Digest_sha3_256 :           result := f_EVP_sha3_256;
+        Digest_sha3_384 :           result := f_EVP_sha3_384;
+        Digest_sha3_512 :           result := f_EVP_sha3_512;
+        Digest_shake128 :           result := f_EVP_shake128;    { not for certificates }
+        Digest_shake256 :           result := f_EVP_shake256;    { not for certificates }
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function OpenSslErrMsg(const AErrCode: LongWord): String;
 var
     Buf : AnsiString;
@@ -12418,11 +13559,10 @@ procedure TSslBaseComponent.RaiseLastOpenSslError(
     const CustomMsg : String  = '');
 begin
     FLastSslError := f_ERR_peek_error;
+    FLastSslErrMsg := String(LastOpenSslErrMsg(False));   { V8.55 }
     if Length(CustomMsg) > 0 then
-        raise EClass.Create(#13#10 + CustomMsg + #13#10 +
-                            String(LastOpenSslErrMsg(Dump)) + #13#10)
-    else
-        raise EClass.Create(#13#10 + String(LastOpenSslErrMsg(Dump)) + #13#10);
+        FLastSslErrMsg := CustomMsg + ' - ' + FLastSslErrMsg;
+    raise EClass.Create(#13#10 + FLastSslErrMsg + #13#10)
 end;
 
 
@@ -12462,8 +13602,22 @@ procedure TSslBaseComponent.InitializeSsl;
 begin
     if FSslInitialized then
         Exit;
+{$IFNDEF NO_DEBUG_LOG}
+   if CheckLogOptions(loSslInfo) then  { V8.40 }
+        DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) + ' LoadSSL');
+{$ENDIF}
     LoadSsl;
     FSslInitialized := TRUE;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslBaseComponent.PasswordConvert(const PW: String): AnsiString;    { V8.55 }
+begin
+    if (ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1100) and FSslPWUtf8 then
+        Result := StringToUtf8(PW)
+    else
+        Result := AnsiString(PW);
 end;
 
 
@@ -12801,6 +13955,63 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.39 load all certificates from a PEM file }
+function TX509List.LoadAllFromFile(const Filename: string): integer;
+var
+    MyStack: PStack;
+begin
+    MyStack := IcsSslLoadStackFromInfoFile(FileName, emCert);
+    Result := f_OPENSSL_sk_num(MyStack);
+    try
+        while f_OPENSSL_sk_num(MyStack) > 0 do begin
+            Add(f_X509_dup(PX509(f_OPENSSL_sk_delete(MyStack, 0))));
+        end;
+    finally
+       f_OPENSSL_sk_pop_free(MyStack, @f_X509_free);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.41 load all certificates from an X509 stack }
+function TX509List.LoadAllStack(CertStack: PStack): integer;
+var
+    I: integer;
+begin
+    Result := 0;
+    if NOT Assigned (CertStack) then Exit;
+    Result := f_OPENSSL_sk_num(CertStack);   { don't free stack }
+    if Result = 0 then Exit;
+    for I := 0 to Result - 1 do begin
+        Add(f_X509_dup(PX509(f_OPENSSL_sk_value(CertStack, I))));
+    end;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.41 list all certificates, forwards or backwards (client handshake) }
+function TX509List.AllCertInfo(Brief: Boolean=False; Reverse: Boolean=False): String;   { V8.41 }
+var
+    I, J: Integer;
+begin
+    Result := '';
+    if FList.Count = 0 then Exit;
+    if Reverse then
+        J := FList.Count - 1
+    else
+        J := 0;
+    for I := 0 to FList.Count - 1 do begin
+         if I > 0 then Result := Result + #13#10#13#10;
+         Result := Result + '#' + IntToStr(J + 1) + ' ' +
+                         TX509Base(FList[J]).CertInfo(True);
+         if Reverse then
+            J := J - 1
+         else
+            J := J + 1;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { TSslEngine }
 
 {$IFNDEF OPENSSL_NO_ENGINE}
@@ -12937,62 +14148,6 @@ end;
 {$ENDIF OPENSSL_NO_ENGINE}
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-const
-    SslIntOptions: array[TSslOption] of Integer =                   { V7.30 }
-           (SSL_OP_CIPHER_SERVER_PREFERENCE,
-            SSL_OP_MICROSOFT_SESS_ID_BUG,
-            SSL_OP_NETSCAPE_CHALLENGE_BUG,
-            SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG,
-            SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG,
-            SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER,
-            SSL_OP_MSIE_SSLV2_RSA_PADDING,
-            SSL_OP_SSLEAY_080_CLIENT_DH_BUG,
-            SSL_OP_TLS_D5_BUG,
-            SSL_OP_TLS_BLOCK_PADDING_BUG,
-            SSL_OP_TLS_ROLLBACK_BUG,
-            SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS,
-            SSL_OP_SINGLE_DH_USE,
-            SSL_OP_EPHEMERAL_RSA,
-            SSL_OP_NO_SSLv2,
-            SSL_OP_NO_SSLv3,
-            SSL_OP_NO_TLSv1,
-            SSL_OP_PKCS1_CHECK_1,
-            SSL_OP_PKCS1_CHECK_2,
-            SSL_OP_NETSCAPE_CA_DN_BUG,
-            SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION,
-            SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG,
-            SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION,  // Since OSSL 0.9.8n
-            SSL_OP_NO_COMPRESSION,         { V8.15 }
-            SSL_OP_TLSEXT_PADDING,         { V8.15 }
-            SSL_OP_SAFARI_ECDHE_ECDSA_BUG, { V8.15 }
-            SSL_OP_CISCO_ANYCONNECT,       { V8.15 }
-            SSL_OP_NO_TLSv1_1,             { V8.15 }
-            SSL_OP_NO_TLSv1_2,             { V8.15 }
-            SSL_OP_SINGLE_ECDH_USE);       { V8.16 }
-
-  SslIntSessCacheModes: array[TSslSessCacheMode] of Integer =     { V7.30 }
-            (SSL_SESS_CACHE_CLIENT,
-             SSL_SESS_CACHE_SERVER,
-             SSL_SESS_CACHE_NO_AUTO_CLEAR,
-             SSL_SESS_CACHE_NO_INTERNAL_LOOKUP,
-             SSL_SESS_CACHE_NO_INTERNAL_STORE);
-
-
-  SslIntVerifyFlags: array[TSslVerifyFlag] of Integer =
-           (X509_V_FLAG_CB_ISSUER_CHECK,
-            X509_V_FLAG_USE_CHECK_TIME,
-            X509_V_FLAG_CRL_CHECK,
-            X509_V_FLAG_CRL_CHECK_ALL,
-            X509_V_FLAG_IGNORE_CRITICAL,
-            X509_V_FLAG_X509_STRICT,
-            X509_V_FLAG_ALLOW_PROXY_CERTS);
-
- SslECDHMethods: array [TSslECDHMethod] of integer =   { V8.15 }
-           (0,
-            0,
-            NID_X9_62_prime256v1,
-            NID_secp384r1,
-            NID_secp521r1);
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -13007,10 +14162,22 @@ begin
     SetSslVerifyPeerModes([SslVerifyMode_PEER]);
     SetSslCipherList(sslCiphersNormal);  // V8.10 same as 'ALL:!ADH:RC4+RSA:+SSLv2:@STRENGTH'
     FSslVersionMethod    := sslBestVer;  // V8.15 same as sslV23 but easier to understand
+    FSslMinVersion       := sslVerSSL3;  { V8.27 }
+    FSslMaxVersion       := sslVerMax;   { V8.27 }
     FSslECDHMethod       := sslECDHAuto; // V8.20 web sites are increasingly needing ECDH so default it on
     SslVerifyDepth       := 9;
     FSslSessionTimeOut   := 0; // OSSL-default
     FSslSessionCacheSize := SSL_SESSION_CACHE_MAX_SIZE_DEFAULT;
+    FSslCertLines        := TStringList.Create;  { V8.27 }
+    FSslPrivKeyLines     := TStringList.Create;  { V8.27 }
+    FSslCALines          := TStringList.Create;  { V8.27 }
+    FSslDHParamLines     := TStringList.Create;  { V8.27 }
+    FSslDHParamLines.Text := sslDHParams4096;    { V8.27 set default, ideally change if for your own }
+    FSslCertX509         := TX509Base.Create(Self);   { V8.39 }
+    FSslSecLevel         := sslSecLevel80bits;   { V8.40 }
+    FSslCryptoGroups     := sslCryptoGroupsDef;  { V8.51 1.1.1 and later }
+    FSslCliSecurity      := sslCliSecIgnore;     { V8.54 make backward compatible }
+    FSslAlpnProtoList    := TStringList.Create;  { V8.56 }
 end;
 
 
@@ -13018,6 +14185,12 @@ end;
 destructor TSslContext.Destroy;
 begin
     DeInitContext;
+    FSslCertLines.Free;     { V8.27 }
+    FSslPrivKeyLines.Free;  { V8.27 }
+    FSslCALines.Free;       { V8.27 }
+    FSslDHParamLines.Free;  { V8.27 }
+    FSslCertX509.Free;      { V8.39 }
+    FSslAlpnProtoList.Free; { V8.56 }
 {$IFNDEF NO_SSL_MT}
     FLock.Free;
 {$ENDIF}
@@ -13085,31 +14258,43 @@ function TSslContext.InitializeCtx: PSSL_CTX;
 var
     Meth : PSSL_METHOD;
 begin
-    case FSslVersionMethod of
-{$IFDEF OPENSSL_ALLOW_SSLV2}
-    sslV2:            Meth := f_SSLv2_method;
-    sslV2_CLIENT:     Meth := f_SSLv2_client_method;
-    sslV2_SERVER:     Meth := f_SSLv2_server_method;
-{$ELSE}
-    sslV2, sslV2_CLIENT, sslV2_SERVER:             { V8.24 }
-        raise ESslContextException.Create('SSLv2 not supported');
+ { V8.27 ignore FSslVersionMethod for OpenSSL 1.1.0 and later }
+    if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then begin
+      { V8.27 see if set a version change do it later with options }
+        if (FSslMaxVersion >= FSslMinVersion) and
+          (FSslMinVersion > sslVerSSL3) and (FSslMaxVersion < sslVerMax) then
+            Meth := f_SSLv23_method
+        else begin
+            case FSslVersionMethod of
+            sslV2, sslV2_CLIENT, sslV2_SERVER:             { V8.24 }
+                raise ESslContextException.Create('SSLv2 not supported');
+            sslV3:            Meth := f_SSLv3_method;
+            sslV3_CLIENT:     Meth := f_SSLv3_client_method;
+            sslV3_SERVER:     Meth := f_SSLv3_server_method;
+            sslTLS_V1:        Meth := f_TLSv1_method;
+            sslTLS_V1_CLIENT: Meth := f_TLSv1_client_method;
+            sslTLS_V1_SERVER: Meth := f_TLSv1_server_method;
+            sslTLS_V1_1:          Meth := f_TLSv1_1_method;          { V8.15 added 1.1 and 1.2  }
+            sslTLS_V1_1_CLIENT:   Meth := f_TLSv1_1_client_method;
+            sslTLS_V1_1_SERVER:   Meth := f_TLSv1_1_server_method;
+            sslTLS_V1_2:          Meth := f_TLSv1_2_method;
+            sslTLS_V1_2_CLIENT:   Meth := f_TLSv1_2_client_method;
+            sslTLS_V1_2_SERVER:   Meth := f_TLSv1_2_server_method;
+            sslV23, sslBestVer:                Meth := f_SSLv23_method;
+            sslV23_CLIENT, sslBestVer_CLIENT:  Meth := f_SSLv23_client_method;
+            sslV23_SERVER, sslBestVer_SERVER:  Meth := f_SSLv23_server_method;
+            else
+                raise ESslContextException.Create('Unknown SslVersionMethod');
+            end;
+{$IFNDEF NO_DEBUG_LOG}
+           if CheckLogOptions(loSslInfo) then  { V8.40 }
+               DebugLog(loSslInfo, 'SslVersionMethod: ' +
+                  GetEnumName(TypeInfo(TSslVersionMethod), Ord(FSslVersionMethod)));
 {$ENDIF}
-    sslV3:            Meth := f_SSLv3_method;
-    sslV3_CLIENT:     Meth := f_SSLv3_client_method;
-    sslV3_SERVER:     Meth := f_SSLv3_server_method;
-    sslTLS_V1:        Meth := f_TLSv1_method;
-    sslTLS_V1_CLIENT: Meth := f_TLSv1_client_method;
-    sslTLS_V1_SERVER: Meth := f_TLSv1_server_method;
-    sslTLS_V1_1:          Meth := f_TLSv1_1_method;          { V8.15 added 1.1 and 1.2  }
-    sslTLS_V1_1_CLIENT:   Meth := f_TLSv1_1_client_method;
-    sslTLS_V1_1_SERVER:   Meth := f_TLSv1_1_server_method;
-    sslTLS_V1_2:          Meth := f_TLSv1_2_method;
-    sslTLS_V1_2_CLIENT:   Meth := f_TLSv1_2_client_method;
-    sslTLS_V1_2_SERVER:   Meth := f_TLSv1_2_server_method;
-    sslV23, sslBestVer:                Meth := f_SSLv23_method;
-    sslV23_CLIENT, sslBestVer_CLIENT:  Meth := f_SSLv23_client_method;
-    sslV23_SERVER, sslBestVer_SERVER:  Meth := f_SSLv23_server_method;
-    else              raise ESslContextException.Create('Unknown SslVersionMethod');
+        end;
+    end
+    else begin
+        Meth := f_TLS_method;  { we set min/max versions later }
     end;
     Result := f_SSL_CTX_new(Meth);
 end;
@@ -13156,6 +14341,12 @@ begin
 {$ENDIF}
 end;
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsUnwrapNames(const S: String): String;     { V8.39 multi-line with comma line }
+begin
+    Result := StringReplace(S, #13#10, ', ', [rfReplaceAll]);
+end;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function PasswordCallBack(
@@ -13176,7 +14367,7 @@ begin
            (Length(Obj.SslPassPhrase) = 0) then
             Result := 0
         else begin
-            SslPassPhraseA := AnsiString(Obj.SslPassPhrase);
+            SslPassPhraseA := Obj.PasswordConvert(Obj.SslPassPhrase);      { V8.55 }
             Move(Pointer(SslPassPhraseA)^, Buf^, Length(SslPassPhraseA) + 1);
             Result := Length(SslPassPhraseA);
         end;
@@ -13240,8 +14431,6 @@ begin
                 CurCert := Obj.SslCertChain.Find(Cert);
                 { Add it to our list }
                 if not Assigned(CurCert) then begin
-                    //SslCertChain.X509Class was set in InitSslConnection
-                    //Obj.SslCertChain.X509Class := Obj.X509Class;
                     CurCert := Obj.SslCertChain.Add(Cert);
                     CurCert.VerifyResult := f_X509_STORE_CTX_get_error(StoreCtx);
                     CurCert.FFirstVerifyResult := CurCert.VerifyResult;
@@ -13249,12 +14438,11 @@ begin
                 else { Unfortunately me must overwrite here }
                     CurCert.VerifyResult := f_X509_STORE_CTX_get_error(StoreCtx);
                 CurCert.VerifyDepth := f_X509_STORE_CTX_get_error_depth(StoreCtx);
-                //CurCert.CustomVerifyResult := CurCert.VerifyResult; // don't overwrite
                 Obj.SslCertChain.FLastVerifyResult := CurCert.VerifyResult;
 {$IFNDEF NO_DEBUG_LOG}
                 if Obj.CheckLogOptions(loSslInfo) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
                     Obj.DebugLog(loSslInfo,'VCB> VerifyPeer: Subject = '  + CurCert.SubjectOneLine);
-                    Obj.DebugLog(loSslInfo,'VCB> VerifyPeer: Serial  = $' + IntToHex(CurCert.SerialNum, 8));
+                    Obj.DebugLog(loSslInfo,'VCB> VerifyPeer: Serial  = $' + CurCert.SerialNumHex);  { V8.40 }
                     Obj.DebugLog(loSslInfo,'VCB> VerifyPeer: Error   = '  + CurCert.VerifyErrMsg);
                 end;
 {$ENDIF}
@@ -13308,17 +14496,6 @@ begin
         LockRemSessCB.Leave;
     end;
 {$ENDIF}
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function Ics_EVP_PKEY_dup(PKey: PEVP_PKEY): PEVP_PKEY;
-begin
-    Result := nil;
-    if PKey <> nil then begin
-        Ics_Ssl_EVP_PKEY_IncRefCnt(PKey);
-        Result := PKey;
-    end;
 end;
 
 
@@ -13423,6 +14600,8 @@ var
     AddToInternalCache : Boolean;
     SessID             : Pointer;
     IdLen              : Integer;
+    CurrentSession     : Pointer;
+    IncRefCount        : Boolean;
 begin
    { If this callback is not null, it will be called each                  }
    { time a session id is added to the cache.  If this function            }
@@ -13436,7 +14615,9 @@ begin
     LockNewSessCB.Enter;
     try
 {$ENDIF}
+{xIFNDEF DELPHI25_UP}
         Result := 0;
+{xENDIF}
         Obj := TCustomSslWSocket(f_SSL_get_ex_data(SSL, 0));
         if not Assigned(Obj) then
             raise Exception.Create('NewSessionCallback Obj not assigned');
@@ -13446,15 +14627,36 @@ begin
             if Obj.CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
                 Obj.DebugLog(loSslInfo, 'NSCB> New session created');
 {$ENDIF}
-            //f_SSL_session_get_id(Sess, SessID, IdLen); { 03/02/07 AG }
-            SessID := f_SSL_SESSION_get_id(Sess, IdLen); { 03/02/07 AG }
-            AddToInternalCache := FALSE; // not sure about the default value
-            if Assigned(Obj.FOnSslSvrNewSession) then
-                Obj.FOnSslSvrNewSession(Obj, Sess, SessID, IdLen, AddToInternalCache);
-            if AddToInternalCache then
-                Result := 1
-            else
-                Result := 0;
+      { V8.55 client now handled here as well }
+            if (Obj.SslMode = sslModeClient) then begin
+                if Assigned(Obj.FOnSslCliNewSession) then begin
+                    CurrentSession := f_SSL_get_Session(Obj.FSsl);
+                    IncRefCount := FALSE;
+            {$IFNDEF NO_DEBUG_LOG}
+                    if Obj.CheckLogOptions(loSslInfo) then
+                        Obj.DebugLog(loSslInfo, IntToHex(INT_PTR(Obj), SizeOf(Pointer) * 2) +
+                                 ' CliNewSessionCB [' +
+                                 IntToHex(INT_PTR(CurrentSession), SizeOf(CurrentSession) * 2) + '] ' +
+                                 'Reused: ' + BoolToStr(Obj.SslSessionReused, TRUE));
+            {$ENDIF}
+                    Obj.FOnSslCliNewSession(Obj, CurrentSession, Obj.SslSessionReused, IncRefCount);
+                    if IncRefCount and (CurrentSession <> nil) then begin   // external cache sets this false
+                       f_SSL_get1_Session(Obj.FSsl); // inc reference counter
+                       Result := 1;
+                    end;
+                end;
+            end
+        { sever only }
+            else begin
+                SessID := f_SSL_SESSION_get_id(Sess, IdLen); { 03/02/07 AG }
+                AddToInternalCache := FALSE; // not sure about the default value
+                if Assigned(Obj.FOnSslSvrNewSession) then
+                    Obj.FOnSslSvrNewSession(Obj, Sess, SessID, IdLen, AddToInternalCache);
+                if AddToInternalCache then   // external cache sets this false
+                    Result := 1
+                else
+                    Result := 0;
+            end;
         finally
             Obj.FSsl_In_CB := FALSE;
             if Obj.FHSocket = INVALID_SOCKET then
@@ -13491,7 +14693,9 @@ begin
     LockGetSessCB.Enter;
     try
 {$ENDIF}
+{$IFNDEF COMPILER25_UP}
         Result := nil;
+{$ENDIF}
         Obj := TCustomSslWSocket(f_SSL_get_ex_data(SSL, 0));
         if not Assigned(Obj) then
             raise Exception.Create('GetSessionCallback Obj not assigned');
@@ -13524,80 +14728,92 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TSslContext.OpenFileBio(
-    const FileName    : String;
-    Methode           : TBioOpenMethode): PBIO;
+function IcsSslOpenFileBio( const FileName : String;  Methode: TBioOpenMethode): PBIO;   { V8.39 was in TSslContext }
+var
+    fsize: Integer;
 begin
     if Filename = '' then
         raise ESslContextException.Create('File name not specified');
-    if (Methode = bomRead) and (not FileExists(Filename)) then
-        raise ESslContextException.Create('File not found "' +
-                                          Filename + '"');
+    if (Methode in [bomRead, bomReadOnly]) then begin
+        fsize := IcsGetFileSize(Filename);   { V8.52 check PEM file not empty, which gives strange ASN errors }
+        if fsize < 0 then
+            raise ESslContextException.Create('File not found "' + Filename + '"');
+        if fsize < 16 then    { V8.52 }
+            raise ESslContextException.Create('File empty "' + Filename + '"');
+    end;
     if Methode = bomRead then
-        Result := f_BIO_new_file(PAnsiChar(AnsiString(Filename)), PAnsiChar('r+'))
+        Result := f_BIO_new_file(PAnsiChar(AnsiString(Filename)), PAnsiChar('r+b'))
+    else if Methode = bomReadOnly then             { V8.40 mostly we don't want to update certs }
+        Result := f_BIO_new_file(PAnsiChar(AnsiString(Filename)), PAnsiChar('rb'))
+    else if Methode = bomWriteBin then             { V8.40 mostly we don't want to update certs }
+        Result := f_BIO_new_file(PAnsiChar(AnsiString(Filename)), PAnsiChar('w+b'))   { V8.41 binary write mode }
     else
-        Result := f_BIO_new_file(PAnsiChar(AnsiString(Filename)), PAnsiChar('w+'));
+        Result := f_BIO_new_file(PAnsiChar(AnsiString(Filename)), PAnsiChar('w+'));   { writes ASCII CRLF }
     if Result = nil then
-        RaiseLastOpenSslError(ESslContextException, FALSE,
-                              'Error on opening file "' + Filename + '"');
+        raise ESslContextException.Create ('Error on opening file "' + Filename + '"');
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ A X509_INFO may contain x509/crl/pkey sets, PEM format only }
-function TSslContext.LoadStackFromInfoFile(const FileName: String;
-    Mode: TInfoExtractMode): PStack;
+{ V8.41 consolidation, read multiple certificates from BIO, build stack }
+function IcsSslLoadStackFromBIO(InBIO: PBIO; Mode: TInfoExtractMode;
+                                        const FileName: String = ''): PStack;
 var
     InfoStack   : PStack;
     CertInfo    : PX509_INFO;
-    InBIO       : PBIO;
     //PKey        : PX509_PKEY;
 begin
-    //InfoStack := nil;
-    //CertInfo  := nil;
-    //InBIO     := nil;
-    Result      := nil;
-    if not Assigned(FSslCtx) then
-        raise ESslContextException.Create(msgSslCtxNotInit);
-    if FileName = '' then
-        Exit;
-    InBIO := OpenFileBio(FileName, bomRead);
+    Result := nil;
+    if NOT Assigned (InBIO) then Exit;
+
+ // loads stack of x509/crl/pkey sets
+    f_BIO_ctrl(InBio, BIO_CTRL_RESET, 0, nil);
+    InfoStack := PStack(f_PEM_X509_INFO_read_bio(InBIO, nil, nil, nil));
+    if not Assigned(InfoStack) then
+        raise ESslContextException.CreateFmt('Error reading info file "%s"', [FileName]);
     try
-        // This loads from a file, a stack of x509/crl/pkey sets
-        InfoStack := PStack(f_PEM_X509_INFO_read_bio(InBIO, nil, nil, nil));
-        if not Assigned(InfoStack) then
-            raise ESslContextException.CreateFmt('Error reading info file "%s"',
-                                                 [FileName]);
-        try
-            if f_sk_num(InfoStack) > 0 then
-                Result := f_sk_new_null
-            else
-                Exit;
-            if Result = nil then
-                raise ESslContextException.Create('Error creating Stack');
-            // Scan over it and pull out what is needed
-            while f_sk_num(InfoStack) > 0 do begin
-                CertInfo := PX509_INFO(f_sk_delete(InfoStack, 0));
-                case Mode of
-                emCert :
-                    if CertInfo^.x509 <> nil then
-                        f_sk_insert(Result, PAnsiChar(f_X509_dup(CertInfo^.x509)),
-                                                  f_sk_num(Result) + 1);
-                { A Dup-function for X509_PKEY is still missing in OpenSsl arrg!
-                emKey :
-                    if CertInfo^.x_pkey <> nil then
-                        f_sk_insert(Result, PChar(f_X509_PKEY_dup(CertInfo^.x_pkey)),
-                                                  f_sk_num(Result) + 1);}
-                emCrl :
-                    if CertInfo^.crl <> nil then
-                        f_sk_insert(Result, PAnsiChar(f_X509_CRL_dup(CertInfo^.crl)),
-                                                  f_sk_num(Result) + 1);
-                end; //case
-                f_X509_INFO_free(CertInfo);
-            end;
-        finally
-             f_sk_pop_free(InfoStack, @f_X509_INFO_free);
+        if f_OPENSSL_sk_num(InfoStack) > 0 then
+            Result := f_OPENSSL_sk_new_null
+        else
+            Exit;
+        if Result = nil then
+            raise ESslContextException.Create('Error creating Stack');
+        // Scan over it and pull out what is needed
+        while f_OPENSSL_sk_num(InfoStack) > 0 do begin
+            CertInfo := PX509_INFO(f_OPENSSL_sk_delete(InfoStack, 0));
+
+       { X509_INFO may contain x509/crl/pkey sets }
+            case Mode of
+            emCert :
+                if CertInfo^.x509 <> nil then
+                    f_OPENSSL_sk_insert(Result, PAnsiChar(f_X509_dup(CertInfo^.x509)),
+                                              f_OPENSSL_sk_num(Result) + 1);
+         {   emKey :  does not return PKCS8 PRIVATE KEY, only RSA PRIVATE KEY, DSA PRIVATE KEY, EC PRIVATE KEY
+                if CertInfo^.x_pkey <> nil then
+                    f_OPENSSL_sk_insert(Result, PAnsiChar(ics_EVP_PKEY_dup(CertInfo^.x_pkey.dec_pkey)),
+                                              f_OPENSSL_sk_num(Result) + 1); }
+            emCrl :
+                if CertInfo^.crl <> nil then
+                    f_OPENSSL_sk_insert(Result, PAnsiChar(f_X509_CRL_dup(CertInfo^.crl)),
+                                              f_OPENSSL_sk_num(Result) + 1);
+            end; //case
+            f_X509_INFO_free(CertInfo);
         end;
+    finally
+         f_OPENSSL_sk_pop_free(InfoStack, @f_X509_INFO_free);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ read multiple certificates from PEM base64 file, build stack }
+function IcsSslLoadStackFromInfoFile(const FileName: String; Mode: TInfoExtractMode): PStack;  { V8.39 was in TSslContext }
+var
+    InBIO : PBIO;
+begin
+    InBIO := IcsSslOpenFileBio(FileName, bomReadOnly);     { V8.40 }
+    try
+        Result := IcsSslLoadStackFromBIO(InBIO, Mode, FileName);
     finally
        f_Bio_free(InBio);
     end;
@@ -13605,6 +14821,25 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.41 read multiple certificates from lines as base64, build stack }
+function IcsSslLoadStackFromInfoString(const Value: String; Mode: TInfoExtractMode): PStack;
+var
+    MemBIO : PBIO;
+begin
+    if (Pos(PEM_STRING_HDR_BEGIN, Value) = 0) and
+            (Pos(PEM_STRING_HDR_END, Value) = 0) then
+        raise ESslContextException.Create('Expected Base64 encoded PEM certificates');
+    MemBio := f_BIO_new_mem_buf(PAnsiChar(AnsiString(Value)), Length (Value));
+    try
+        Result := IcsSslLoadStackFromBIO(MemBIO, Mode, 'Lines');
+    finally
+       f_Bio_free(MemBio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ certificate revocation list (CRL)                                         }
 { PEM format only, the file may contain multiple certificates.              }
 { Loads intermediate CA certificates needed to build a complete chain.      }
 { PEM format only, any file of a given directory }
@@ -13626,7 +14861,7 @@ begin
                                               Filename + '"');
         if Filename <> '' then begin
             //CrlStack := nil;
-            CrlStack := LoadStackFromInfoFile(FileName, emCrl);
+            CrlStack := IcsSslLoadStackFromInfoFile(FileName, emCrl);   { V8.39 }
             if not Assigned(CrlStack) then
                 raise ESslContextException.Create('Error on reading CRL file "' +
                                                   Filename + '"');
@@ -13635,9 +14870,9 @@ begin
                 St := f_SSL_CTX_get_cert_store(FSslCtx);
                 if not Assigned(St) then
                     raise ESslContextException.Create('Error on opening store');
-                while f_sk_num(CrlStack) > 0 do begin
+                while f_OPENSSL_sk_num(CrlStack) > 0 do begin
                     //Crl := nil;
-                    Crl := PX509_CRL(f_sk_delete(CrlStack, 0));
+                    Crl := PX509_CRL(f_OPENSSL_sk_delete(CrlStack, 0));
                     if Assigned(Crl) then
                         try
                             { Fails if CRL is already in hash table }
@@ -13653,7 +14888,7 @@ begin
                         end;
                     end;
             finally
-                f_sk_pop_free(CrlStack, @f_X509_CRL_free);
+                f_OPENSSL_sk_pop_free(CrlStack, @f_X509_CRL_free);
             end;
         end;
 {$IFNDEF NO_SSL_MT}
@@ -13665,6 +14900,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ certificate revocation list (CRL)                                         }
 { PEM format only, any file of a given directory }
 procedure TSslContext.LoadCrlFromPath(const Path: String);
 var
@@ -13737,13 +14973,98 @@ begin
                                         PCAFile, PCAPath) = 0) then
         RaiseLastOpenSslError(ESslContextException, TRUE,
                               'Can''t read CA File "' +
-                              FSslCAFile + '" or ' +
+                              CAFile + '" or ' +
                               'CA Path "' + CAPath + '"');
     if (PCAFile = nil) and (PCAPath = nil) and
        (f_SSL_CTX_set_default_verify_paths(FSslCtx) <> 1) then
         RaiseLastOpenSslError(ESslContextException, TRUE,
                               'Error loading default CA file ' +
                               'and/or directory');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function GetX509SubjectOneLine(Cert: PX509): String;   { V8.27 }
+var
+    Str : AnsiString;
+begin
+    Result := '';
+    if not Assigned(Cert) then  Exit;
+    SetLength(Str, 512);
+    Str := f_X509_NAME_oneline(f_X509_get_subject_name(Cert), PAnsiChar(Str), Length(Str));
+    SetLength(Str, StrLen(PAnsiChar(Str)));
+    Result := String(Str);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.LoadCAFromStack(CertStack: PStack);        { V8.41 }
+var
+    Cert: PX509;
+    Store: PX509_STORE;
+    Tot, I: integer;
+begin
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+    if not Assigned(CertStack) then
+        raise ESslContextException.Create('No CA stack to load');
+    Tot := f_OPENSSL_sk_num(CertStack);
+    if Tot = 0 then Exit;
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        Store := f_SSL_CTX_get_cert_store(FSslCtx);
+        if not Assigned(Store) then
+            raise ESslContextException.Create('Error on opening store');
+{$IFNDEF NO_DEBUG_LOG}
+        if CheckLogOptions(loSslInfo) then
+            DebugLog(loSslInfo, 'Read ' + IntToStr(Tot) + ' CA certificates from stack');
+{$ENDIF};
+        for I := 0 to Tot - 1 do begin
+            Cert := f_X509_dup(PX509(f_OPENSSL_sk_value(CertStack, I)));
+            if Assigned(Cert) then
+            try
+{$IFNDEF NO_DEBUG_LOG}
+                if CheckLogOptions(loSslInfo) then
+                    DebugLog(loSslInfo, 'Certificate: ' + GetX509SubjectOneLine(Cert));
+{$ENDIF};
+              { Fails if Cert is already in hash table }
+                if f_X509_STORE_add_cert(Store, Cert) = 0 then
+{$IFNDEF NO_DEBUG_LOG}
+                    if CheckLogOptions(loSslErr) then
+                        DebugLog(loSslErr, String(LastOpenSslErrMsg(True)));
+{$ELSE}
+                    f_ERR_clear_error;
+{$ENDIF};
+            finally
+                f_X509_free(Cert);
+            end;
+        end;
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock;
+    end;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.LoadCAFromString(const Value: String);        { V8.27 }
+var
+    CertStack: PStack;
+begin
+    if Length(Value) = 0 then Exit;
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+        CertStack := IcsSslLoadStackFromInfoString(Value, emCert);
+        if not Assigned(CertStack) then
+            raise ESslContextException.Create('Error on reading CA certificate lines');
+        try
+           LoadCAFromStack(CertStack);
+         finally
+            f_OPENSSL_sk_pop_free(CertStack, @f_X509_free);
+         end;
 end;
 
 
@@ -13759,19 +15080,159 @@ begin
         raise ESslContextException.Create(msgSslCtxNotInit);
     if (FileName <> '') and (not FileExists(FileName)) then
         raise ESslContextException.Create('File not found "' + FileName + '"');
-    if (FileName <> '') and
-       (f_SSL_CTX_use_certificate_chain_file(FSslCtx,
-                                             PAnsiChar(AnsiString(FileName))) = 0) then begin
+    if (FileName <> '') then begin
+       if (f_SSL_CTX_use_certificate_chain_file(FSslCtx,
+                              PAnsiChar(AnsiString(FileName))) = 0) then begin
 {$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loSslErr) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-            DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
+            if CheckLogOptions(loSslErr) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+                DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
 {$ELSE}
-        f_ERR_clear_error;
+            f_ERR_clear_error;
 {$ENDIF}
-        RaiseLastOpenSslError(ESslContextException, TRUE,
+            RaiseLastOpenSslError(ESslContextException, TRUE,
                               'Can''t read certificate ' +
                               'file "' + FileName + '"');
+        end ;
     end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.41 get X509 certificate, private key and intermediates from context }
+function TSslContext.SslGetCerts(Cert: TX509Base): integer;
+var
+    Store: PX509_STORE;
+    MyStack: PStack;
+    Tot, I: integer;
+    MyX509Obj: PX509_OBJECT;
+begin
+    Result := 0;
+    if not Assigned(FSslCtx) then exit;
+    if not Assigned(Cert) then exit;
+    Cert.X509 := f_SSL_CTX_get0_certificate(FSslCtx);
+    Cert.PrivateKey := f_SSL_CTX_get0_privatekey(FSslCtx);
+    Cert.FreeAndNilX509Inters;
+    if ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1100 then begin
+        Store := f_SSL_CTX_get_cert_store(FSslCtx);
+        if NOT Assigned(Store) then Exit;
+        MyStack := f_X509_STORE_get0_objects(Store);
+        Tot := f_OPENSSL_sk_num(MyStack);   { !!! don't free stack }
+        if Tot = 0 then Exit;
+        for I := 0 to Tot - 1 do begin
+            MyX509Obj := PX509_OBJECT(f_OPENSSL_sk_value(MyStack, I));
+            if f_X509_OBJECT_get_type(MyX509Obj) = X509_LU_X509 then
+               Cert.AddToInters(f_X509_dup(f_X509_OBJECT_get0_X509 (MyX509Obj)));
+        end;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.41 set context certificate and/or private key and intermediate certificates }
+procedure TSslContext.SslSetCertX509;
+begin
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+    if FSslCertX509.IsCertLoaded then begin   { V8.44 did not load inter unless cert set }
+        if (f_SSL_CTX_use_certificate(FSslCtx, FSslCertX509.X509) = 0) then begin
+        {$IFNDEF NO_DEBUG_LOG}
+            if CheckLogOptions(loSslErr) then
+                    DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
+        {$ELSE}
+            f_ERR_clear_error;
+        {$ENDIF}
+            RaiseLastOpenSslError(ESslContextException, TRUE,
+                                      'Can''t add certificate to context');
+        end;
+        if FSslCertX509.IsPKeyLoaded then begin
+            if (f_SSL_CTX_use_PrivateKey(FSslCtx, FSslCertX509.PrivateKey) = 0) then begin
+            {$IFNDEF NO_DEBUG_LOG}
+                if CheckLogOptions(loSslErr) then
+                        DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
+            {$ELSE}
+                f_ERR_clear_error;
+            {$ENDIF}
+                RaiseLastOpenSslError(ESslContextException, TRUE,
+                                          'Can''t add private key to context');
+            end;
+       end;
+    end;
+    if FSslCertX509.IsInterLoaded then begin
+        LoadCAFromStack(FSslCertX509.X509Inters);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.40 check certificate and private key match }
+function TSslContext.CheckPrivateKey: boolean;
+begin
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+    result := f_SSL_CTX_check_private_key(FSslCtx) <> 0;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.27 load a PEM certificate chain from a string }
+procedure TSslContext.LoadCertFromString(const Value: String);
+var
+    Cert: PX509;
+    CertStack: PStack;
+begin
+    if Length(Value) = 0 then Exit;
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        CertStack := IcsSslLoadStackFromInfoString(Value, emCert);
+        if not Assigned(CertStack) then
+            raise ESslContextException.Create('Error on reading certificate lines');
+        try
+          if (f_SSL_CTX_clear_chain_certs(FSslCtx) = 0) then
+                raise ESslContextException.Create('Error on clearing chain certs');
+{$IFNDEF NO_DEBUG_LOG}
+            if CheckLogOptions(loSslInfo) then  { V5.21 }
+                DebugLog(loSslInfo, 'Read ' + IntToStr(f_OPENSSL_sk_num(CertStack)) +
+                                                    ' certificates from strings');
+{$ENDIF};
+         { first certificate is current used for encryption and identification }
+            Cert := PX509(f_OPENSSL_sk_delete(CertStack, 0));
+            if Assigned(Cert) then
+            try
+{$IFNDEF NO_DEBUG_LOG}
+                if CheckLogOptions(loSslInfo) then  { V5.21 }
+                     DebugLog(loSslInfo, 'Current certificate: ' + GetX509SubjectOneLine(Cert));
+{$ENDIF};
+                if (f_SSL_CTX_use_certificate(FSslCtx, Cert) = 0) then begin
+            {$IFNDEF NO_DEBUG_LOG}
+                    if CheckLogOptions(loSslErr) then
+                        DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
+            {$ELSE}
+                    f_ERR_clear_error;
+            {$ENDIF}
+                    RaiseLastOpenSslError(ESslContextException, TRUE,
+                                          'Can''t add certificate to context');
+                end;
+            finally
+                f_X509_free(Cert);
+            end;
+
+        { remaining certificates are chain used to sign current certificate, usually one or two }
+        { !! this function is supposed to be for a server requesting a client certificate, but
+             seems to also store extra chain certificates }
+            LoadCAFromStack(CertStack);
+         finally
+            f_OPENSSL_sk_pop_free(CertStack, @f_X509_free);
+         end;
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock;
+    end;
+{$ENDIF}
+
 end;
 
 
@@ -13786,8 +15247,8 @@ begin
        (f_SSL_CTX_use_PrivateKey_file(FSslCtx, PAnsiChar(AnsiString(FileName)),
                                       SSL_FILETYPE_PEM) = 0) then begin
 {$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-            DebugLog(loSslInfo, String(LastOpenSslErrMsg(TRUE)));
+        if CheckLogOptions(loSslErr) then   { V8.57 was loSslInfo }
+            DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
 {$ELSE}
         f_ERR_clear_error;
 {$ENDIF}
@@ -13797,6 +15258,52 @@ begin
     end;
 end;
 
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.27 load a PEM private key from a string }
+procedure TSslContext.LoadPKeyFromString(const Value: String);
+var
+    Bio: PBIO;
+    Pkey: PEVP_PKEY;
+begin
+    if Length(Value) = 0 then Exit;
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+    if (Pos(PEM_STRING_HDR_BEGIN, Value) = 0) and
+         (Pos(PEM_STRING_HDR_END, Value) = 0) then
+             raise ESslContextException.Create('Expected a Base64 encoded PEM private key');
+
+    Pkey := nil;
+    Bio := f_BIO_new_mem_buf(PAnsiChar(AnsiString(Value)), Length (Value));
+    try
+        if NOT Assigned(Bio) then
+            raise ESslContextException.Create('Failed to read encoded PEM private key');
+        Pkey := f_PEM_read_bio_PrivateKey(Bio, nil, PasswordCallBack, Self);
+        if NOT Assigned (Pkey) then begin
+    {$IFNDEF NO_DEBUG_LOG}
+            if CheckLogOptions(loSslErr) then
+                DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
+    {$ELSE}
+            f_ERR_clear_error;
+    {$ENDIF}
+            RaiseLastOpenSslError(ESslContextException, TRUE,
+                                  'Can''t read private key lines');
+        end;
+        if (f_SSL_CTX_use_PrivateKey(FSslCtx, Pkey) = 0) then begin
+    {$IFNDEF NO_DEBUG_LOG}
+            if CheckLogOptions(loSslErr) then
+                DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
+    {$ELSE}
+            f_ERR_clear_error;
+    {$ENDIF}
+            RaiseLastOpenSslError(ESslContextException, TRUE,
+                                  'Can''t read add private key to context');
+        end;
+    finally
+        if Assigned (Pkey) then f_EVP_PKEY_free(Pkey);
+        if Assigned (Bio) then f_BIO_free(Bio);
+    end;
+end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TSslContext.LoadDHParamsFromFile(const FileName: String);   { V8.15 }
@@ -13810,7 +15317,7 @@ begin
     if (FileName <> '') and (not FileExists(FileName)) then
         raise ESslContextException.Create('File not found "' + FileName + '"');
     if (FileName <> '') then begin
-        FileBio := OpenFileBio(FileName, bomRead);
+        FileBio := IcsSslOpenFileBio(FileName, bomReadOnly);  { V8.40 }
         MyPDH := nil;
         try
             MyPDH := f_PEM_read_bio_DHParams(FileBio, nil, nil, nil);
@@ -13819,8 +15326,8 @@ begin
                      'Error reading DHparam file "' +  Filename + '"');
             if (f_SSL_CTX_set_tmp_dh(FSslCtx, MyPDH) = 0) then begin
 {$IFNDEF NO_DEBUG_LOG}
-               if CheckLogOptions(loSslInfo) then
-                    DebugLog(loSslInfo, String(LastOpenSslErrMsg(TRUE)));
+               if CheckLogOptions(loSslErr) then       { V8.57 was loSslInfo }
+                    DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
 {$ELSE}
                f_ERR_clear_error;
 {$ENDIF}
@@ -13834,6 +15341,45 @@ begin
     end;
 
 end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.LoadDHParamsFromString(const Value: String);
+var
+    Bio: PBIO;
+    MyPDH: PDH;
+begin
+    if Length(Value) = 0 then Exit;
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+    if (FSslVersionMethod < sslV3) then Exit;   { V8.24 SSLv2 does not support DH }
+    if (Pos(PEM_STRING_HDR_BEGIN, Value) = 0) and
+         (Pos(PEM_STRING_HDR_END, Value) = 0) then
+            raise ESslContextException.Create('Expected a Base64 encoded DH params');
+
+    MyPDH := nil;
+    Bio := f_BIO_new_mem_buf(PAnsiChar(AnsiString(Value)), Length (Value));
+    try
+        if NOT Assigned(Bio) then
+            raise ESslContextException.Create('Failed to read encoded DH params');
+        MyPDH := f_PEM_read_bio_DHParams(Bio, nil, PasswordCallBack, Self);
+        if not Assigned(MyPDH) then
+            RaiseLastOpenSslError(EX509Exception, TRUE, 'Error reading DHparams');
+        if (f_SSL_CTX_set_tmp_dh(FSslCtx, MyPDH) = 0) then begin
+{$IFNDEF NO_DEBUG_LOG}
+           if CheckLogOptions(loSslErr) then   { V8.57 was loSslInfo }
+                DebugLog(loSslErr, String(LastOpenSslErrMsg(TRUE)));
+{$ELSE}
+           f_ERR_clear_error;
+{$ENDIF}
+           RaiseLastOpenSslError(ESslContextException, TRUE, 'Can''t load DHParamss');
+        end;
+    finally
+        if Assigned (MyPDH) then f_DH_free(MyPDH);
+        if Assigned (Bio) then f_BIO_free(Bio);
+    end;
+end;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF OPENSSL_NO_ENGINE}
@@ -13905,7 +15451,7 @@ begin
     if Filename <> '' then begin
         X := TX509Base.Create(nil);
         try
-            X.LoadFromPemFile(FileName);
+            X.LoadFromPemFile(FileName, croNo, croNo, '');   { V8.40 }
             if f_SSL_CTX_add_client_CA(FSslCtx, X.X509) <> 1 then
                 RaiseLastOpenSslError(ESslContextException, TRUE,
                                       'Can''t load client CA ' +
@@ -13919,7 +15465,7 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { Scan all certificates in a PEM CAfile and list their names as acceptable  }
-{ CAs sent to the client when we request a client certificate. Usefull only }
+{ CAs sent to the client when we request a client certificate. Useful only }
 { in server mode.                                                           }
 procedure TSslContext.SetClientCAListFromFile(const FileName: String);
 var
@@ -13939,13 +15485,202 @@ begin
     end;
 end;
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.54, set TLS protocol and security level, before loading certs }
+procedure TSslContext.SetProtoSec;
+var
+    LOpts, NewOpts: Longint;
+    Opt: TSslOption;     { V8.51 }
+    Opt2: TSslOption2;   { V8.51 }
+
+{$IFNDEF NO_DEBUG_LOG}
+    function GetMaskBits(Value: Longword): string;
+    var
+        MyOpts, I: Longint;
+    begin
+        result := '';
+        MyOpts := 1;
+        for I := 0 to 30 do begin
+            if (Value and MyOpts) <> 0 then begin
+                result := result + IntToHex(MyOpts, 8) + ', ';
+            end;
+            MyOpts := MyOpts * 2;
+        end;
+    end;
+{$ENDIF}
+
+begin
+    if ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1100 then begin
+        f_SSL_CTX_set_security_level(FSslCtx, Ord(FSslSecLevel));
+{$IFNDEF NO_DEBUG_LOG}
+        if CheckLogOptions(loSslInfo) then  { V8.40 }
+            DebugLog(loSslInfo, 'Set Security Level: ' +
+                    GetEnumName(TypeInfo(TSslSecLevel), Ord(FSslSecLevel)));
+{$ENDIF}
+    end;
+
+// V8.52 build options bit mask from Delphi sets
+    LOpts := 0;
+    for Opt := Low(TSslOption) to High(TSslOption) do begin
+        if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then begin
+            if Opt in FSslOptions then
+                LOpts := LOpts or SslIntOptions[Opt];
+        end
+          { V8.27 fewer options in 1.1.0  }
+        else begin
+            if Opt in FSslOptions then
+                LOpts := LOpts or SslIntOptions110[Opt];
+        end;
+    end;
+    if (FSslOptions2 <> []) and (ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1100) then begin
+        LOpts := 0 ; // ignore FSslOptions
+        for Opt2 := Low(TSslOption2) to High(TSslOption2) do begin
+            if Opt2 in FSslOptions2 then
+                LOpts := LOpts or SslIntOptions2[Opt2];
+        end;
+    end;
+
+  //  LOpts := LOpts or SSL_OP_NO_TICKET; // V8.51 may be a default
+
+  // V8.27 set TLS min and max versions for OpenSSL 1.1.0 and later }
+    if (FSslMinVersion = sslVerMax) then FSslMinVersion := sslVerSSL3;  { sanity check }
+    if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1101 then begin  { V8.51 need 1.1.1 for TLS1_3 }
+        if FSslMinVersion > sslVerTLS1_2 then FSslMinVersion := sslVerTLS1_2;
+        if FSslMaxVersion > sslVerTLS1_2 then FSslMaxVersion := sslVerTLS1_2;
+    end;
+    if ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1100 then begin
+        if FSslMaxVersion >= FSslMinVersion then begin
+            f_SSL_CTX_set_min_proto_version(FSslCtx, SslVerMethods [FSslMinVersion]);
+            f_SSL_CTX_set_max_proto_version(FSslCtx, SslVerMethods [FSslMaxVersion]);
+          // remove version specific protocols options
+            LOpts := LOpts AND (NOT SSL_OP_NO_SSLv3) AND (NOT SSL_OP_NO_TLSv1) AND
+                                  (NOT SSL_OP_NO_TLSv1_2) AND (NOT SSL_OP_NO_TLSv1_1);
+        end;
+    end
+
+  { V8.27 for OpenSSL 1.0.2 and earlier simulate range of versions, if not set to defaults }
+    else begin
+        if (FSslMaxVersion >= FSslMinVersion) then begin
+            LOpts := LOpts AND (NOT SSL_OP_NO_SSLv3) AND (NOT SSL_OP_NO_TLSv1) AND
+                                  (NOT SSL_OP_NO_TLSv1_2) AND (NOT SSL_OP_NO_TLSv1_1);
+            if (FSslMinVersion > sslVerSSL3) then begin
+                if (FSslMinVersion = sslVerTLS1) then
+                    LOpts := LOpts OR SSL_OP_NO_SSLv3
+                else if (FSslMinVersion = sslVerTLS1_1) then
+                    LOpts := LOpts OR SSL_OP_NO_SSLv3 OR SSL_OP_NO_TLSv1
+                else if (FSslMinVersion = sslVerTLS1_2) then
+                    LOpts := LOpts OR SSL_OP_NO_SSLv3 OR SSL_OP_NO_TLSv1 OR SSL_OP_NO_TLSv1_1;
+            end;
+            if (FSslMaxVersion < sslVerMax) then begin { V8.28 corrected maximum support }
+                if (FSslMaxVersion = sslVerSSL3) then
+                    LOpts := LOpts OR SSL_OP_NO_TLSv1 OR SSL_OP_NO_TLSv1_1 OR SSL_OP_NO_TLSv1_2
+                else if (FSslMaxVersion = sslVerTLS1) then
+                    LOpts := LOpts OR SSL_OP_NO_TLSv1_1 OR SSL_OP_NO_TLSv1_2
+                else if (FSslMaxVersion = sslVerTLS1_1) then
+                    LOpts := LOpts OR SSL_OP_NO_TLSv1_2;
+            end;
+         end;
+    end;
+{$IFNDEF NO_DEBUG_LOG}
+    if CheckLogOptions(loSslInfo) then  { V8.40 }
+        DebugLog(loSslInfo, 'SslMinVersion: ' +  GetEnumName(TypeInfo(TSslVerMethod),
+                 Ord(FSslMinVersion)) + ', SslMaxVersion: ' +
+                        GetEnumName(TypeInfo(TSslVerMethod), Ord(FSslMaxVersion)));
+{$ENDIF}
+
+  { This is a workaround a possible bug in OSSL 1.0.0(d)
+          check if future versions fix it.
+          SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER causes
+          error:1408F044:SSL routines:SSL3_GET_RECORD:internal error
+          on session resumption in InitSslConnection. }
+    if ICS_OPENSSL_VERSION_NUMBER <= OSSL_VER_1100 then begin
+        if LOpts and SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER = SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER then
+            LOpts := LOpts and not SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER;
+    end;
+
+    { Adds the options set via bitmask to Ctx, leaving defaults alone }
+    NewOpts := f_Ics_SSL_CTX_set_options(FSslCtx, LOpts);   { V8.51 }
+    if NewOpts <> LOpts then begin             { V8.51 check it worked }
+        if (NewOpts = 0) and (Lopts <> 0) then
+            raise ESslContextException.Create('Failed to set context options');
+    end;
+
+    if FSslCipherList <> '' then begin
+        if f_SSL_CTX_set_cipher_list(FSslCtx, PAnsiChar(AnsiString(FSslCipherList))) = 0 then
+            RaiseLastOpenSslError(ESslContextException, TRUE, 'Error loading cipher list');
+    end
+    else
+        raise ESslContextException.Create('Cipher list empty');
+
+{$IFNDEF NO_DEBUG_LOG}
+        { V8.28 list all options }
+            if CheckLogOptions(loSslInfo) then begin
+                DebugLog(loSslInfo, 'SSL Options, Requested: ' +  GetMaskBits(LOpts));
+                DebugLog(loSslInfo, 'SSL Options, Actual: ' +  GetMaskBits(NewOpts));  { V8.51 and what was set }
+        { V8.27 list all ciphers available for connection }
+                DebugLog(loSslInfo, 'SSL Ciphers Available: ' + #13#10 + SslGetAllCiphers);
+           end;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.56 application layer protocol negotiation, servers only }
+{ client sends us a list of protocols it supports, and we can select one or
+ ignore them all, ie spdy/1, http/1.1, h2 (http/2). pop3, acme-tls/1, etc }
+function AlpnSelectCallBack(SSL: PSSL; var output: Pointer; var outlen: Integer;
+                     input: Pointer; inlen: Integer; arg: Pointer): Integer; cdecl;
+var
+    Ws: TCustomSslWSocket;
+    Err: TTlsExtError;
+    ProtoList: TStringList;
+    Count: Integer;
+    SelProto: String;
+begin
+    Result := SSL_TLSEXT_ERR_NOACK;
+    outlen := 0;
+    Ws := TCustomSslWSocket(f_SSL_get_ex_data(SSL, 0));
+    if Assigned(Ws) then begin
+        ProtoList := TStringList.Create;
+        try
+            Count := IcsWireFmtToStrList(TBytes(input), inlen, ProtoList);
+            if Count > 0 then begin
+
+                {$IFNDEF NO_DEBUG_LOG}
+                    if Ws.CheckLogOptions(loSslInfo) then
+                        Ws.DebugLog(loSslInfo, 'AlpnCB> Protocols: ' + ProtoList.CommaText);
+                {$ENDIF}
+
+             { ask user if they want to select a single protocol to use from the list }
+                SelProto := '';
+                Err := teeNoAck;
+                Ws.TriggerSslAlpnSelect(ProtoList, SelProto, Err);
+                outlen := Length(SelProto);
+                if (Err = teeOk) and (outlen > 0) then begin
+                    WS.FAlpnProtoAnsi := AnsiString(SelProto);   { V8.62 made static }
+                    output := @WS.FAlpnProtoAnsi[1];
+                    Result := SSL_TLSEXT_ERR_OK;  { V8.62 }
+                end
+                else if Err = teeAlertWarning then
+                    Result := SSL_TLSEXT_ERR_ALERT_WARNING    { V8.62 }
+                else if Err = teeAlertFatal then
+                    Result := SSL_TLSEXT_ERR_ALERT_FATAL;     { V8.62 }
+            end;
+        finally
+            ProtoList.Free;
+        end;
+    end;
+end;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TSslContext.InitContext;
 var
     SslSessCacheModes : TSslSessCacheModes;
-    LOpts: LongWord;
+//    LOpts, NewOpts: Longint;
     MyECkey: PEC_KEY;
+//    Opt: TSslOption;     { V8.51 }
+//    Opt2: TSslOption2;   { V8.51 }
 begin
     InitializeSsl; //loads libs
 {$IFNDEF NO_SSL_MT}
@@ -13954,7 +15689,7 @@ begin
 {$ENDIF}
     {$IFNDEF NO_DEBUG_LOG}
         if CheckLogOptions(loSslInfo) then
-         DebugLog(loSslInfo, 'InitCtx> OpenSSL version: ' + OpenSslVersion);
+         DebugLog(loSslInfo, 'Init SSL Context, OpenSSL version: ' + OpenSslVersion);
     {$ENDIF}
     {$IFNDEF OPENSSL_NO_ENGINE}
         if (not GSslRegisterAllCompleted) and FAutoEnableBuiltinEngines then
@@ -13976,10 +15711,27 @@ begin
             if Assigned(FOnBeforeInit) then
                 FOnBeforeInit(Self);
 
-            // Load our key and certificate
+         { V8.40 set security level for 1.1.0 and later
+           rarely more than sslSecLevel80bits if backward compatibility needed }
+            if FSslCliSecurity = sslCliSecIgnore then
+                SetProtoSec  { V8.54 commonise code, security, protocol, cipher, options }
+            else
+                SetSslCliSec; { V8.54 sets security, protocol, cipher }
+
+          { V8.51 other context stuff we could set
+              f_SSL_CTX_set_mode(ctx, SSL_MODE_ASYNC);
+              f_SSL_CTX_set_max_send_fragment(ctx, max_send_fragment))
+              f_SSL_CTX_set_split_send_fragment(ctx, split_send_fragment));
+              f_SSL_CTX_set_max_pipelines(ctx, max_pipelines);
+              f_SSL_CTX_set_default_read_buffer_len(ctx, read_buf_len);
+              f_SSL_CTX_set_tlsext_max_fragment_length(ctx, maxfraglen);
+          }
+
+          { Load our key and certificate }
+
         {$IFNDEF OPENSSL_NO_ENGINE}
             if (FCtxEngine <> nil) and
-               (eccLoadPrivKey in FCtxEngine.CtxCapabilities) then
+                      (eccLoadPrivKey in FCtxEngine.CtxCapabilities) then
                 LoadPKeyFromEngine(FCtxEngine)
             else begin
         {$ENDIF}
@@ -13987,87 +15739,93 @@ begin
                 f_SSL_CTX_set_default_passwd_cb(FSslCtx, PasswordCallBack);
                 f_SSL_CTX_set_default_passwd_cb_userdata(FSslCtx, Self);
 
-                LoadPKeyFromFile(FSslPrivKeyFile);
+              { V8.27 load server private key from file or PEM string list }
+              { V8.41 unless about to load it from FSslCertX509 }
+                if NOT FSslCertX509.IsPKeyLoaded then begin
+                    if (FSslPrivKeyLines.Count > 0) and (FSslPrivKeyFile = '') then
+                        LoadPkeyFromString(FSslPrivKeyLines.Text)
+                    else
+                        LoadPKeyFromFile(FSslPrivKeyFile);
+                end;
         {$IFNDEF OPENSSL_NO_ENGINE}
             end;
         {$ENDIF}
 
-            LoadCertFromChainFile(FSslCertFile);
-
-            // See notes in the procedure
-            LoadVerifyLocations(FSslCAFile, FSslCAPath);
-
-            LoadCRLFromFile(FSslCRLFile);
-            LoadCRLFromPath(FSslCRLPath);
-            //f_SSL_CTX_ctrl(FSslCtx, SSL_CTRL_MODE, SSL_MODE_ENABLE_PARTIAL_WRITE, nil); // Test
-
-            // V8.15 Diffie-Hellman key agreement protocol.- DHparam file needed to generate DH keys
-            LoadDHParamsFromFile(FSslDHParamFile);
-
-            // V8.15 Elliptic Curve to generate Ephemeral ECDH keys
-            if (ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1002) and  { V8.17 do this after SSL initialised }
-                (FSslECDHMethod = sslECDHAuto) then FSslECDHMethod := sslECDH_P256;
-            if (FSslVersionMethod < sslV3) then FSslECDHMethod := sslECDHNone;   { V8.24 SSLv2 does not support EC }
-
-            if FSslECDHMethod = sslECDHAuto then begin
-                if f_SSL_CTX_set_ecdh_auto(FSslCtx, 1) = 0 then
-                    RaiseLastOpenSslError(ESslContextException, TRUE,
-                                          'Error setting auto elliptic curve');
+         { V8.27 load server certificate from file or PEM string list }
+         { note this may include one or more intermediate certificates, or they may be in CAFile }
+            if FSslCertX509.IsCertLoaded or FSslCertX509.IsInterLoaded then begin  { V8.41 load from FSslCertX509 }
+                SslSetCertX509;
             end
-            else if FSslECDHMethod > sslECDHNone then begin
-                MyECkey := f_EC_KEY_new_by_curve_name (SslECDHMethods[FSslECDHMethod]);
-                if NOT Assigned (MyECkey) then
-                    RaiseLastOpenSslError(ESslContextException, TRUE,
-                                          'Error getting elliptic curve key');
-                if f_SSL_CTX_set_tmp_ecdh (FSslCtx, MyECkey) = 0 then
-                    RaiseLastOpenSslError(ESslContextException, TRUE,
-                                          'Error setting elliptic curve key');
-                f_EC_KEY_free(MyECkey);
+            else begin
+                if (FSslCertLines.Count > 0) and (FSslCertFile = '') then
+                    LoadCertFromString(FSslCertLines.Text)
+                else
+                    LoadCertFromChainFile(FSslCertFile);
             end;
 
-            // verify flags
-            f_X509_STORE_set_flags(f_SSL_CTX_get_cert_store(FSslCtx),
-                                   FSslVerifyFlags);
+         { V8.27 load CA certificate from file or PEM string list }
+          { V8.41 unless loaded it from FSslCertX509 }
+            if NOT FSslCertX509.IsInterLoaded then begin
+                if (FSslCALines.Count > 0) and (FSslCAFile = '') and (FSslCAPath = '') then
+                    LoadCAFromString(FSslCALines.Text)
+                else
+                    LoadVerifyLocations(FSslCAFile, FSslCAPath);
+            end;
+
+          { load certificate revocation lists (CRL) - need to set SslVerifyFlags to use them }
+            LoadCRLFromFile(FSslCRLFile);
+            LoadCRLFromPath(FSslCRLPath);
+
+            //f_SSL_CTX_ctrl(FSslCtx, SSL_CTRL_MODE, SSL_MODE_ENABLE_PARTIAL_WRITE, nil); // Test
+
+            // V8.51 Don't want any retries
+            f_SSL_CTX_set_mode(FSslCtx, SSL_MODE_AUTO_RETRY);
+
+            { V8.15 Diffie-Hellman key agreement protocol.
+              DHparam file needed to generate DH and DHE keys, but not ECDH or ECDHE.
+              V8.27 load DHParams from file or PEM string list, note FSslDHParamLines
+                is defaulted with 4096 params so used if FSslDHParamFile blank  }
+           { V8.62 only needed for servers, don't if using client security }
+            if FSslCliSecurity = sslCliSecIgnore then begin
+                if (FSslDHParamLines.Count > 0) and (FSslDHParamFile = '') then
+                    LoadDHParamsFromString(FSslDHParamLines.Text)
+                else
+                    LoadDHParamsFromFile(FSslDHParamFile);
+             end;
+
+            // V8.15 Elliptic Curve to generate Ephemeral ECDH keys V8.39 old stuff gone
+            if (ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100) then begin    { V8.51 }
+                if FSslECDHMethod = sslECDHAuto then begin
+                    if f_SSL_CTX_set_ecdh_auto(FSslCtx, 1) = 0 then   { V8.27 ignored for 1.1.0, auto always enabled }
+                        RaiseLastOpenSslError(ESslContextException, TRUE,
+                                              'Error setting auto elliptic curve');
+                end
+                else if FSslECDHMethod > sslECDHNone then begin
+                    MyECkey := f_EC_KEY_new_by_curve_name (SslECDHMethods[FSslECDHMethod]);
+                    if NOT Assigned (MyECkey) then
+                        RaiseLastOpenSslError(ESslContextException, TRUE,
+                                              'Error getting elliptic curve key');
+                    if f_SSL_CTX_set_tmp_ecdh (FSslCtx, MyECkey) = 0 then
+                        RaiseLastOpenSslError(ESslContextException, TRUE,
+                                              'Error setting elliptic curve key');
+                    f_EC_KEY_free(MyECkey);
+                end;
+            end;
 
             //raise Exception.Create('Test');
 
             // Now the verify stuff
             SetSslVerifyPeerModes(SslVerifyPeerModes);
-            {if FSslX509Trust <> ssl_X509_TRUST_NOT_DEFINED then
-                if f_SSL_CTX_set_trust(FSslCtx, Integer(FSslX509Trust)) = 0 then
-                    raise Exception.Create('Error setting trust'); }
-
-            { No s yet - angus don't want it since it stops forward secrecy ciphers }
-            LOpts := FSslOptionsValue or SSL_OP_NO_TICKET;
-
-        //    if ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1000 then begin
-                { This is a workaround a possible bug in OSSL 1.0.0(d)
-                  check if future versions fix it.
-                  SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER causes
-                  error:1408F044:SSL routines:SSL3_GET_RECORD:internal error
-                  on session resumption in InitSslConnection. }
-                if LOpts and SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER =
-                  SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER then
-                    LOpts := LOpts and not SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER;
-        //    end;
-            { Adds the options set via bitmask to Ctx.    }
-            { Options already set before are not cleared? }
-            f_SSL_CTX_set_options(FSslCtx, LOpts);
-
-            if FSslCipherList <> '' then begin
-                if f_SSL_CTX_set_cipher_list(FSslCtx,
-                                             PAnsiChar(AnsiString(FSslCipherList))) = 0 then
-                    RaiseLastOpenSslError(ESslContextException, TRUE,
-                                          'Error loading cipher list');
-            end
-            else
-                raise ESslContextException.Create('Cipher list empty');
 
             // Session caching stuff
             SslSessCacheModes := GetSslSessCacheModes;
 
-            //if SslSessCacheModes <> [] then   // AG 03/03/06 internal cache is ON by default
+            if SslSessCacheModes <> [] then   // AG 03/03/06 internal cache is ON by default
                 f_SSL_CTX_set_session_cache_mode(FSslCtx, FSslSessCacheModeValue);
+
+       { In TLSv1.3 NewSessionTicket messages arrive after the handshake and can
+         come at any time. Therefore we use a callback to write out the session
+         when we know about it. This approach works for < TLSv1.3 as well. }
 
             if not (sslSESS_CACHE_NO_INTERNAL_STORE in SslSessCacheModes) then begin
                 { Exdata needed in RemoveCallback only }
@@ -14078,21 +15836,32 @@ begin
                 if FSslSessionCacheSize <> SSL_SESSION_CACHE_MAX_SIZE_DEFAULT then
                     f_SSL_CTX_sess_set_cache_size(FSslCtx, FSslSessionCacheSize);
             end;
-            if (sslSESS_CACHE_SERVER in SslSessCacheModes) then begin
+           { V8.55 callback for both client and server }
+        //    if (sslSESS_CACHE_SERVER in SslSessCacheModes) then begin
                 { Set the timeout for newly created sessions                }
-                if FSslSessionTimeout > 0 then
-                    f_SSL_CTX_set_timeout(FSslCtx, FSslSessionTimeout);
-                { Set session callbacks, ssl server mode only               }
-                f_SSL_CTX_sess_set_new_cb(FSslCtx, NewSessionCallback);
-                f_SSL_CTX_sess_set_get_cb(FSslCtx, GetSessionCallback);
-                if Length(FSslDefaultSessionIDContext) > 0 then
-                    if f_SSL_CTX_set_session_id_context(FSslCtx,
-                                  @FSslDefaultSessionIDContext[1],
-                                  Length(FSslDefaultSessionIDContext)) = 0 then
-                        RaiseLastOpenSslError(ESslContextException, TRUE,
-                                              'ssl_ctx_set_session_id_context ' +
-                                              'failed');
-            end;
+            if FSslSessionTimeout > 0 then
+                f_SSL_CTX_set_timeout(FSslCtx, FSslSessionTimeout);
+            { Set session callbacks, ssl server mode only               }
+            f_SSL_CTX_sess_set_new_cb(FSslCtx, NewSessionCallback);
+            f_SSL_CTX_sess_set_get_cb(FSslCtx, GetSessionCallback);
+            if Length(FSslDefaultSessionIDContext) > 0 then
+                if f_SSL_CTX_set_session_id_context(FSslCtx,
+                              @FSslDefaultSessionIDContext[1],
+                              Length(FSslDefaultSessionIDContext)) = 0 then
+                    RaiseLastOpenSslError(ESslContextException, TRUE,
+                                 'ssl_ctx_set_session_id_context failed');
+{$IFNDEF NO_DEBUG_LOG}
+            if CheckLogOptions(loSslInfo) then  { V8.40 }
+                DebugLog(loSslInfo, 'Set sslSESS_CACHE_SERVER');
+{$ENDIF}
+        //     end;
+
+          { V8.56 see if setting APLN Protocol for HTTP/2 or something, client only  }
+            UpdateAlpnProtocols;
+
+          { V8.56 set application layer protocol select callback, servers only }
+            f_SSL_CTX_set_alpn_select_cb(FSslCtx, @AlpnSelectCallBack, Self);
+
         except
             if Assigned(FSslCtx) then begin
                 f_SSL_CTX_free(FSslCtx);
@@ -14149,8 +15918,29 @@ begin
         if IcsCompareStr(FSslCAFile, Value) = 0 then
             Exit;
         FSslCAFile := Value;
-        if Assigned(FSslCtx) then
+        if Assigned(FSslCtx) and (FSslCAFile <> '') then  { V8.27 }
             LoadVerifyLocations(FSslCAFile, FSslCAPath);
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock
+    end;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslCALines(Value: TStrings);    { V8.27 }
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        if IcsCompareStr(FSslCALines.Text, Value.Text) = 0 then
+            Exit;
+        FSslCALines.Assign(Value);
+        if Assigned(FSslCtx) and (FSslCALines.Count > 0) and
+            (FSslCAFile = '') and (FSslCAPath = '') then
+                  LoadCAFromString(FSslCALines.Text);
 {$IFNDEF NO_SSL_MT}
     finally
         Unlock
@@ -14169,7 +15959,7 @@ begin
         if IcsCompareStr(FSslCAPath, Value) = 0 then
             Exit;
         FSslCAPath := Value;
-        if Assigned(FSslCtx) then
+        if Assigned(FSslCtx) and (FSslCAPath <> '') then  { V8.27 }
             LoadVerifyLocations(FSslCAFile, FSslCAPath);
 {$IFNDEF NO_SSL_MT}
     finally
@@ -14189,8 +15979,32 @@ begin
         if IcsCompareStr(Value, FSslCertFile) = 0 then
             Exit;
         FSslCertFile := Value;
-        if Assigned(FSslCtx) then
-            LoadCertFromChainFile(FSslCertFile);
+        if (FSslCertFile <> '') and
+                Assigned(FSslCtx) then begin
+                    LoadCertFromChainFile(FSslCertFile);
+                end;
+
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock
+    end;
+{$ENDIF}
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslCertLines(Value: TStrings);    { V8.27 }
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        if IcsCompareStr(Value.Text, FSslCertLines.Text) = 0 then
+            Exit;
+        FSslCertLines.Assign(Value);
+        if (FSslCertFile = '') and
+          (FSslCertLines.Count > 0) and
+              Assigned(FSslCtx) then
+                 LoadCertFromString(FSslCertLines.Text);
 {$IFNDEF NO_SSL_MT}
     finally
         Unlock
@@ -14205,7 +16019,28 @@ begin
     Lock;
     try
 {$ENDIF}
-        FSslDHParamFile := Value
+        FSslDHParamFile := Value;
+        if (FSslDHParamFile <> '') and Assigned(FSslCtx) then
+           LoadDHParamsFromFile(FSslDHParamFile);   { V8.27 }
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock
+    end;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslDHParamLines(Value : TStrings);     { V8.27 }
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        FSslDHParamLines.Assign(Value);
+       if (FSslDHParamLines.Count > 0) and
+         (FSslDHParamFile = '') and Assigned(FSslCtx) then
+             LoadDHParamsFromString(FSslDHParamLines.Text);
 {$IFNDEF NO_SSL_MT}
     finally
         Unlock
@@ -14272,8 +16107,31 @@ begin
         if (IcsCompareStr(Value, FSslPrivKeyFile) = 0) then
             Exit;
         FSslPrivKeyFile := Value;
-        if Assigned(FSslCtx) then
+        if (FSslPrivKeyFile <> '') and
+          Assigned(FSslCtx) then
             LoadPKeyFromFile(FSslPrivKeyFile);
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock
+    end;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslPrivKeyLines(Value: TStrings);      { V8.27 }
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        if (IcsCompareStr(Value.Text, FSslPrivKeyLines.Text) = 0) then
+            Exit;
+        FSslPrivKeyLines.Assign(Value);
+        if (FSslPrivKeyFile = '') and
+          (FSslPrivKeyLines.Count > 0) and
+             Assigned(FSslCtx) then
+                LoadPKeyFromString(FSslPrivKeyLines.Text);
 {$IFNDEF NO_SSL_MT}
     finally
         Unlock
@@ -14329,17 +16187,15 @@ begin
 {$ENDIF}
 end;
 
+
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TSslContext.SetSslECDHMethod(Value : TSslECDHMethod);    { V8.15 }
+procedure TSslContext.SetSslMinVersion(Value : TSslVerMethod);   { V8.27 }
 begin
 {$IFNDEF NO_SSL_MT}
     Lock;
     try
 {$ENDIF}
-        FSslECDHMethod := Value;
-   {     if (ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1002) and    V8.17 do this after SSL initialised
-                         (FSslECDHMethod = sslECDHAuto) then
-                              FSslECDHMethod := sslECDH_P256;  }
+        FSslMinVersion := Value;
 {$IFNDEF NO_SSL_MT}
     finally
         Unlock
@@ -14348,6 +16204,38 @@ begin
 end;
 
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslMaxVersion(Value : TSslVerMethod);   { V8.27 }
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        FSslMaxVersion := Value
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock
+    end;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslECDHMethod(Value : TSslECDHMethod);    { V8.15 }
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        FSslECDHMethod := Value;
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock
+    end;
+{$ENDIF}
+end;
+
+(* V8.51 now saving TSslOptions and converting to SslIntOptions when setting context
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TSslContext.GetSslOptions: TSslOptions; { V7.30 }
 var
@@ -14358,16 +16246,23 @@ begin
     try
 {$ENDIF}
         Result := [];
-        for Opt := Low(TSslOption) to High(TSslOption) do
-            if (FSslOptionsValue and SslIntOptions[Opt]) <> 0 then
-                Include(Result, Opt);
+        for Opt := Low(TSslOption) to High(TSslOption) do begin
+            if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then begin
+                if (FSslOptionsValue and SslIntOptions[Opt]) <> 0 then
+                    Include(Result, Opt);
+            end
+             { V8.27 fewer options in 1.1.0 }
+            else begin
+                if (FSslOptionsValue and SslIntOptions110[Opt]) <> 0 then
+                    Include(Result, Opt);
+            end;
+        end;
 {$IFNDEF NO_SSL_MT}
     finally
         Unlock
     end;
 {$ENDIF}
 end;
-
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TSslContext.SetSslOptions(Value: TSslOptions); { V7.30 }
@@ -14380,14 +16275,21 @@ begin
 {$ENDIF}
         FSslOptionsValue := 0;
         for Opt := Low(TSslOption) to High(TSslOption) do
-            if Opt in Value then
-                FSslOptionsValue := FSslOptionsValue or SslIntOptions[Opt];
+            if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then begin
+                if Opt in Value then
+                    FSslOptionsValue := FSslOptionsValue or SslIntOptions[Opt];
+            end
+              { V8.27 fewer options in 1.1.0  }
+            else begin
+                if Opt in Value then
+                    FSslOptionsValue := FSslOptionsValue or SslIntOptions110[Opt];
+            end;
 {$IFNDEF NO_SSL_MT}
     finally
         Unlock;
     end;
 {$ENDIF}
-end;
+end;   *)
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -14476,6 +16378,162 @@ begin
 end;
 
 
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.54  simplify setting SSL client security by using common levels
+         which set protocols, security and ciphers  }
+procedure TSslContext.SetSslCliSec;
+
+    function AddTls13(const Ciphers: String): String;
+    begin
+        if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1101 then
+            result := Ciphers
+        else
+            result := sslCipherTLS13 + Ciphers;
+    end;
+
+begin
+    if FSslCliSecurity = sslCliSecIgnore then Exit;
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        FSslMinVersion := sslVerTLS1;
+        FSslMaxVersion := sslVerMax;
+        FSslCipherList := 'ALL';
+        FSslSecLevel := sslSecLevelAny;
+        case FSslCliSecurity of
+            sslCliSecNone: begin        { all protocols, any key lengths }
+              FSslMinVersion := sslVerSSL3;
+            end;
+            sslCliSecSsl3Only: begin    { SSL3 only, any key lengths, MD5 }
+              FSslMinVersion := sslVerSSL3;
+              FSslMaxVersion := sslVerSSL3;
+            end;
+            sslCliSecTls1Only: begin   { TLS1 only }
+              FSslMinVersion := sslVerTLS1;
+              FSslMaxVersion := sslVerTLS1;
+              FSslSecLevel := sslSecLevel112bits;
+            end;
+            sslCliSecTls11Only: begin   { TLS1.1 only }
+              FSslMinVersion := sslVerTLS1_1;
+              FSslMaxVersion := sslVerTLS1_1;
+              FSslSecLevel := sslSecLevel112bits;
+            end;
+            sslCliSecTls12Only: begin   { TLS1.2 only }
+              FSslMinVersion := sslVerTLS1_2;
+              FSslMaxVersion := sslVerTLS1_2;
+              FSslSecLevel := sslSecLevel112bits;
+            end;
+            sslCliSecTls13Only: begin   { TLS1.3 only }
+              FSslMinVersion := sslVerTLS1_3;
+              FSslMaxVersion := sslVerTLS1_3;
+              FSslSecLevel := sslSecLevel112bits;
+            end;
+            sslCliSecTls1: begin   { TLS1 or later }
+              FSslMinVersion := sslVerTLS1;
+              FSslSecLevel := sslSecLevel80bits;
+            end;
+            sslCliSecTls12: begin   { TLS1.2 or later }
+              FSslMinVersion := sslVerTLS1_2;
+              FSslSecLevel := sslSecLevel112bits;
+            end;
+            sslCliSecBack: begin   { TLS1 or later, backward ciphers, RSA/DH keys=>1024, ECC=>160, no MD5, SHA1 }
+              FSslMinVersion := sslVerTLS1;
+              FSslCipherList := AddTls13(sslCiphersMozillaSrvBack);
+              FSslSecLevel := sslSecLevel80bits;
+            end;
+            sslCliSecInter: begin   { TLS1.1 or later, intermediate ciphers, RSA/DH keys=>2048, ECC=>224, no RC4, no SHA1 certs }
+              FSslMinVersion := sslVerTLS1_1;  { V8.55 }
+              FSslCipherList := AddTls13(sslCiphersMozillaSrvInter);
+              FSslSecLevel := sslSecLevel112bits;
+            end;
+            sslCliSecHigh: begin    { TLS1.2 or later, high ciphers, RSA/DH keys=>2048, ECC=>224, no RC4, no SHA1 certs }
+              FSslMinVersion := sslVerTLS1_2;
+              FSslCipherList := AddTls13(sslCiphersMozillaSrvHigh);
+              FSslSecLevel := sslSecLevel112bits;
+            end;
+            sslCliSecHigh128: begin { TLS1.2 or later, high ciphers, RSA/DH keys=>3072, ECC=>256, FS forced }
+              FSslMinVersion := sslVerTLS1_2;
+              FSslCipherList := AddTls13(sslCiphersMozillaSrvHigh);
+              FSslSecLevel :=sslSecLevel128bits;
+            end;
+            sslCliSecHigh192: begin { TLS1.2 or later, high ciphers, RSA/DH keys=>7680, ECC=>384, FS forced }
+              FSslMinVersion := sslVerTLS1_2;
+              FSslCipherList := AddTls13(sslCiphersMozillaSrvHigh);
+              FSslSecLevel := sslSecLevel192bits;
+            end;
+        end;
+        if GetIsCtxInitialized then
+            SetProtoSec;  { set security, protocol, options }
+
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock
+    end;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslCliSecurity(Value: TSslCliSecurity);                { V8.54 }
+begin
+    if Value = FSslCliSecurity then Exit;
+    FSslCliSecurity := Value;
+    SetSslCliSec;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslContext.GetSslCheckHostFlags: TSslCheckHostFlags;                 { V8.39 }
+var
+    VFlag: TSslCheckHostFlag;
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        Result := [];
+        if FSslCheckHostFlags = -1 then begin
+            Result := [sslX509_NO_HOST_CHECK];
+            Exit;
+        end;
+        for VFlag := Low(TSslCheckHostFlag) to High(TSslCheckHostFlag) do
+            if (FSslCheckHostFlags and SslIntCheckHostFlags[VFlag]) <> 0 then
+                Include(Result, VFlag);
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock;
+    end;
+{$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslContext.SetSslCheckHostFlags(const Value: TSslCheckHostFlags);    { V8.39 }
+var
+    VFlag: TSslCheckHostFlag;
+begin
+{$IFNDEF NO_SSL_MT}
+    Lock;
+    try
+{$ENDIF}
+        FSslCheckHostFlags := 0;
+        if sslX509_NO_HOST_CHECK in Value then begin
+            FSslCheckHostFlags  := -1;
+            Exit;
+        end;
+        for VFlag := Low(TSslCheckHostFlag) to High(TSslCheckHostFlag) do
+            if VFlag in Value then
+               FSslCheckHostFlags := FSslCheckHostFlags or SslIntCheckHostFlags[VFlag];
+{$IFNDEF NO_SSL_MT}
+    finally
+        Unlock;
+    end;
+{$ENDIF}
+end;
+
+
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TSslContext.SetSslCipherList(const Value: String);
 begin
@@ -14523,11 +16581,7 @@ begin
         if FSslVerifyPeer then begin
             if f_SSL_CTX_get_verify_mode(FSslCtx) <> FSslVerifyPeerModesValue then begin
                 f_SSL_CTX_set_verify(FSslCtx, FSslVerifyPeerModesValue, PeerVerifyCallback);
-{$IFDEF OPENSSL_VERSION_NUMBER_LESS_THAN_0x00905100L}
-                f_SSL_CTX_set_verify_depth(FSslCtx, 1);
-{$ELSE}
                 f_SSL_CTX_set_verify_depth(FSslCtx, FSslVerifyDepth);
-{$ENDIF}
             end;
         end
         else begin
@@ -14592,148 +16646,85 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{procedure TSslContext.SetSslX509Trust(const Value: TSslX509Trust);
-begin
-    if Value <> FSslX509Trust then begin
-        FSslX509Trust := Value;
-        if Assigned(FSslCtx) then
-            if FSslX509Trust <> ssl_X509_TRUST_NOT_DEFINED then
-                if f_SSL_CTX_set_trust(FSslCtx, Integer(FSslX509Trust)) = 0 then
-                    raise Exception.Create('Error setting trust');
-    end;
-end; }
-
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-(*
-{ TX509Stack }
-constructor TX509Stack.Create;
-begin
-    inherited Create;
-    FStack := nil;
-    FStack := f_sk_new_null;
-    FCount := 0;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-destructor TX509Stack.Destroy;
-begin
-    if Assigned(FStack) then begin
-        Clear;
-        f_sk_free(FStack);
-        FStack := nil;
-    end;
-    inherited Destroy;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Stack.Add(Cert: PX509): Integer;
-begin
-    Result := InternalInsert(Cert, f_sk_num(FStack)) - 1;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TX509Stack.Clear;
-begin
-     while FCount > 0 do
-        Delete(0);
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TX509Stack.SetStack(const Value: PSTACK);
+{ V8.27 list all ciphers for current SSL context which must be initialised }
+{ seems to return all ciphers irrespective of whether supported by protocols }
+function TSslContext.SslGetAllCiphers: String;
 var
-    I: Integer;
+    Next: PAnsiChar;
+    Priority: Integer;
+    MySsl: PSSL;
 begin
-    Clear;
-    if Value <> nil then
-        for I := 0 to f_sk_num(Value) - 1 do
-            Add(PX509(f_sk_value(Value, I)));
+    Result := '';
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+  //Create temporary SSL Object
+    MySsl := f_SSL_new(FSslCtx);
+    if not Assigned(MySsl) then
+        RaiseLastOpenSslError(Exception, TRUE,
+                              'Error on creating the Ssl object');
+    Priority := 0;
+    while True do begin
+        Next := f_SSL_get_cipher_list(MySsl, Priority);
+        if Next = Nil then Break;
+        Inc (Priority);
+        if Priority > 100 then Break; // sanity check
+        Result := Result + String(Next) + #13#10;
+    end;
+    f_SSL_free(MySsl);
 end;
 
-
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TX509Stack.Delete(Index: Integer);
+{ V8.39 list all certificates saved in the context CA store, note this
+  excludes the server or client certtificate  }
+function TSslContext.SslGetAllCerts (CertList: TX509List): integer;
 var
-    P : PChar;
-begin
-    P := nil;
-    P := f_sk_delete(FStack, Index);
-    if P <> nil then begin
-        Dec(FCount);
-        f_X509_free(PX509(P));
-    end else
-        raise EX509Exception.Create('Delete failed');
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Stack.IndexOf(Cert: PX509): Integer;
+    MyStack: PStack;
+    I: integer;
+    MyX509Obj: PX509_OBJECT;
 begin
     Result := 0;
-    while (Result < FCount) and
-          (PX509(f_sk_value(FStack, Result)) <> Cert) do
-        Inc(Result);
-    if Result = FCount then
-        Result := -1;
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+    if NOT Assigned(CertList) then exit;
+    CertList.Clear;
+    if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then Exit;
+    MyStack := f_X509_STORE_get0_objects(f_SSL_CTX_get_cert_store(FSslCtx));
+    Result := f_OPENSSL_sk_num(MyStack);   { !!! don't free stack }
+    if Result = 0 then Exit;
+    for I := 0 to Result - 1 do begin
+        MyX509Obj := PX509_OBJECT(f_OPENSSL_sk_value(MyStack, I));
+        if f_X509_OBJECT_get_type(MyX509Obj) = X509_LU_X509 then
+           CertList.Add(f_X509_dup(f_X509_OBJECT_get0_X509 (MyX509Obj)));
+      //  if f_X509_OBJECT_get_type (MyX509Obj) = X509_LU_CRL then  not needed yet }
+    end;
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TX509Stack.Insert(Cert: PX509; Index: Integer);
+{ V8.40 for servers, build certificate chain for current context certificate  }
+{ use SSL_BUILD_CHAIN_FLAG_xx flags OR'd to control verification, 1=OK }
+{ flag SSL_BUILD_CHAIN_FLAG_IGNORE_ERROR will return 2 on error instead of exception }
+{ !! WARNING - may stop intermediates being sent if error returned }
+function TSslContext.SslBuildCertChain (Flags: Integer): integer;
 begin
-    InternalInsert(Cert, Index)
+    if not Assigned(FSslCtx) then
+        raise ESslContextException.Create(msgSslCtxNotInit);
+    result := f_SSL_CTX_build_cert_chain(FSslCtx, Flags);
+    if result = 0 then RaiseLastOpenSslError(Exception, TRUE,
+                              'Failed to build certificate chain');
 end;
 
 
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Stack.InternalInsert(Cert: PX509; Index: Integer): Integer;
-var
-    P : PX509;
-begin
-    if (Index < 0) then
-        raise EX509Exception.Create('Invalid index');
-    if Cert = nil then
-        raise EX509Exception.Create('Cert not assigned');
-    P := nil;
-    P := f_X509_dup(Cert);  // increment reference count
-    if P = nil then
-        raise EX509Exception.Create('X509_dup failed');
-    Result := f_sk_insert(FStack, PChar(P), Index);
-    if Result = 0 then
-        f_X509_free(P)
-    else
-        FCount := Result;
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Stack.GetCert(Index: Integer): PX509;
-begin
-    Result := PX509(f_sk_value(FStack, Index));
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TX509Stack.SetCert(Index: Integer; const Value: PX509);
-begin
-    if (Index < 0) or (Index >= FCount) then
-        raise EX509Exception.Create('Invalid index');
-    Delete(Index);
-    InternalInsert(Value, Index);
-end;
-
-*)
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 constructor TX509Base.Create(AOwner: TComponent; X509: Pointer = nil);
 begin
     inherited Create(AOwner);
+    FX509 := nil;
     FPrivateKey := nil;
+    FX509Inters := nil;     { V8.41 }
+    FX509CATrust := nil;    { V8.41 }
     AssignDefaults;
+    FSslPWUtf8 := True;     { V8.55 }
     if Assigned(X509) then begin
         InitializeSsl;
         FX509     := f_X509_dup(X509);
@@ -14744,8 +16735,7 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 destructor TX509Base.Destroy;
 begin
-    FreeAndNilX509;
-    FreeAndNilPrivateKey;
+    ClearAll;
     inherited Destroy;
 end;
 
@@ -14756,9 +16746,30 @@ begin
     if Assigned(FX509) then begin
         f_X509_free(FX509);
         FX509 := nil;
-        //FSha1Hash := '';
         FSha1Hex  := '';
         FSha1Digest  := nil;
+        FSha256Hex  := '';      { V8.83 }
+        FSha256Digest  := nil;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.FreeAndNilX509Inters;         { V8.41 }
+begin
+    if Assigned(FX509Inters) then begin
+        f_OPENSSL_sk_free(FX509Inters);
+        FX509Inters := nil;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.FreeAndNilX509CATrust;         { V8.41 }
+begin
+    if Assigned(FX509CATrust) then begin
+        f_OPENSSL_sk_free(FX509CATrust);
+        FX509CATrust := nil;
     end;
 end;
 
@@ -14774,6 +16785,17 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.ClearAll;       { V8.40 }
+begin
+    if NOT FSslInitialized then Exit;
+    FreeAndNilX509;
+    FreeAndNilPrivateKey;
+    FreeAndNilX509Inters;
+    FreeAndNilX509CATrust;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TX509Base.SetX509(X509: Pointer);
 begin
     InitializeSsl;
@@ -14781,6 +16803,28 @@ begin
     AssignDefaults;
     if Assigned(X509) then begin
         FX509     := f_X509_dup(X509);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.SetX509Inters(X509Inters: PStack);  { V8.41 }
+begin
+    InitializeSsl;
+    FreeAndNilX509Inters;
+    if Assigned(X509Inters) then begin
+        FX509Inters := f_OPENSSL_sk_dup(X509Inters);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.SetX509CATrust(X509CATrust: PStack);  { V8.41 }
+begin
+    InitializeSsl;
+    FreeAndNilX509CATrust;
+    if Assigned(X509CATrust) then begin
+        FX509CATrust := f_OPENSSL_sk_dup(X509CATrust);
     end;
 end;
 
@@ -14799,12 +16843,57 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Base.GetPublicKey: Pointer;                       {AG 11/08/07}
+function TX509Base.GetX509PublicKey: Pointer;    { V8.52 renamed from GetPublicKey }
 begin
     if Assigned(FX509) then
         Result := f_X509_get_pubkey(FX509)
     else
         Result := nil;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIsCertLoaded : Boolean;     { V8.41 }
+begin
+    result := Assigned(FX509);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function  TX509Base.GetIsPKeyLoaded : Boolean;     { V8.41 }
+begin
+    result := Assigned(FPrivateKey);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIsInterLoaded : Boolean;    { V8.41 }
+begin
+    result := Assigned(FX509Inters);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIsCATrustLoaded : Boolean;                          { V8.41 }
+begin
+    result := Assigned(FX509CATrust);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base. GetInterCount: Integer;                                { V8.41 }
+begin
+    Result := 0;
+    if NOT GetIsInterLoaded then Exit;
+    Result := f_OPENSSL_sk_num(FX509Inters);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetCATrustCount: Integer;                              { V8.41 }
+begin
+    result := 0;
+    if NOT GetIsCATrustLoaded then Exit;
+    Result := f_OPENSSL_sk_num(FX509CATrust);
 end;
 
 
@@ -14819,58 +16908,291 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Base.ExtByName(const ShortName: String): Integer;
+function TX509Base.CheckExtName(Ext: PX509_EXTENSION; const ShortName: String): Boolean;  { V8.41 }
 var
-    Ext     : PX509_EXTENSION;
-    Count   : Integer;
-    I       : Integer;
     Len     : Integer;
     ExtStr  : PAnsiChar;
     B       : PBIO;
     Nid     : Integer;
 begin
+    Result := False;
+    if NOT Assigned(Ext) then Exit;
+    Nid := f_OBJ_obj2nid(f_X509_EXTENSION_get_object(Ext));
+    if Nid <> NID_undef then begin
+        ExtStr := f_OBJ_nid2sn(Nid);
+        if StrLIComp(ExtStr, PAnsiChar(AnsiString(ShortName)), 255) = 0 then begin
+            Result := True;
+            Exit;
+        end;
+    end
+    else begin // custom extension
+        B := f_BIO_new(f_BIO_s_mem);
+        if Assigned(B) then begin
+            try
+                f_i2a_ASN1_OBJECT(B, f_X509_EXTENSION_get_object(Ext));
+                Len := f_BIO_ctrl(B, BIO_CTRL_PENDING, 0, nil);
+                if Len > 0 then begin
+                    GetMem(ExtStr, Len);
+                    try
+                        f_Bio_read(B, ExtStr, Len);
+                        if StrLIComp(ExtStr, PAnsiChar(AnsiString(ShortName)), 255) = 0 then begin
+                            Result := True;
+                            Exit;
+                        end;
+                    finally
+                        FreeMem(ExtStr);
+                    end;
+                end;
+            finally
+                f_bio_free(B);
+            end;
+        end;
+    end;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetExtDetail(Ext: PX509_EXTENSION): TExtension;      { V8.41 }
+var
+    J        : Integer;
+    Value    : PAnsiChar;
+    Meth     : PX509V3_EXT_METHOD;
+    Data     : PAnsiChar;
+    Val      : PSTACK;
+    NVal     : PCONF_VALUE;
+    ext_str  : Pointer;
+    B        : PBIO;
+    Nid      : Integer;
+    Extvalue : PASN1_STRING;   { V8.40 was octetstring  }
+    Extlen   : Integer;
+begin
+    Result.Critical  := FALSE;
+    Result.ShortName := '';
+    Result.Value     := '';
+    if not Assigned(Ext) then
+        raise EX509Exception.Create('Extension not assigned');
+    Value   := nil;
+    Meth    := nil;
+    Val     := nil;
+    ext_str := nil;
+    Result.Critical := f_X509_EXTENSION_get_critical(Ext) > 0;
+    Nid := f_OBJ_obj2nid(f_X509_EXTENSION_get_object(Ext));
+    if Nid <> NID_undef then
+        Result.ShortName := String(StrPas(f_OBJ_nid2sn(Nid)))
+    else begin // custom extension
+        //B := nil;
+        B := f_BIO_new(f_BIO_s_mem);
+        if Assigned(B) then begin
+            try
+                f_i2a_ASN1_OBJECT(B, f_X509_EXTENSION_get_object(Ext));
+                J := f_BIO_ctrl(B, BIO_CTRL_PENDING, 0, nil);
+                Result.ShortName := String(ReadStrBio(B, J));   { V8.41 }
+            finally
+                f_bio_free(B);
+            end;
+        end;
+    end;
+
+    try
+        Meth := f_X509V3_EXT_get(Ext);
+        if Meth = nil then begin
+            Result.Value := UnknownExtDataToStr(Ext);
+            Exit;
+        end;
+     //   Data := Ext^.value^.data;   { V8.27 Ext structure now hidden }
+        Extvalue := f_X509_EXTENSION_get_data(Ext);   { V8.27 }
+    //    Data := Extvalue^.data;                        { V8.27 }
+    //    Extlen := Extvalue^.length;                    { V8.27 }
+        Data := f_ASN1_STRING_get0_data(Extvalue);    { V8.40 }
+        Extlen := f_ASN1_STRING_length(Extvalue);
+        if Assigned(Meth^.it) then
+            ext_str := f_ASN1_item_d2i(nil,
+                                       @Data,
+                                       Extlen,
+                                       ASN1_ITEM_ptr(Meth^.it))
+        else
+            ext_str := Meth^.d2i(nil, @Data, Extlen);
+
+        if not Assigned(ext_str) then begin
+            Result.Value := UnknownExtDataToStr(Ext);
+            Exit;
+        end;
+
+        if Assigned(Meth^.i2s) then begin
+            Value := Meth^.i2s(Meth, ext_str);
+            if Assigned(Value) then
+                Result.Value := String(StrPas(Value));
+        end
+        else if Assigned(Meth^.i2v) then begin
+            Val := Meth^.i2v(Meth, ext_str, nil);
+            if not Assigned(Val) then
+                Exit;
+            J := 0;
+            while J < f_OPENSSL_sk_num(val) do begin
+                NVal := PCONF_VALUE(f_OPENSSL_sk_value(Val, J));
+                if Length(Result.Value) > 0 then
+                    Result.Value := Result.Value + #13#10;
+                Result.Value := Result.Value + String(StrPas(NVal^.name));
+                if (StrPas(NVal^.value) <> '') and (StrPas(NVal^.name) <> '') then
+                    Result.Value := Result.Value + '=';
+                Result.Value := Result.Value + String(StrPas(NVal^.value));
+                Inc(J);
+            end;
+        end
+        else if Assigned(Meth^.i2r) then begin
+            //B := nil;
+            B := f_BIO_new(f_BIO_s_mem);
+            if Assigned(B) then
+                try
+                    Meth.i2r(Meth, ext_str, B, 0);
+                    J := f_BIO_ctrl(B, BIO_CTRL_PENDING, 0, nil);
+                    if J > 0 then begin
+                        Result.Value := String(ReadStrBio(B, J)); { V8.41 }
+                        { This method separates multiple values by LF } // should I remove this stuff?
+                        while (Length(Result.Value) > 0) and
+                              (Result.Value[Length(Result.Value)] = #10) do
+                            SetLength(Result.Value, Length(Result.Value) -1);
+                        Result.Value := StringReplace(Result.Value, #10, #13#10, [rfReplaceAll]);
+                    end;
+                finally
+                    f_bio_free(B);
+                end;
+        end;
+    finally
+        if Assigned(Val) then
+            f_OPENSSL_sk_pop_free(Val, @f_X509V3_conf_free);
+        if Assigned(Value) then
+            f_CRYPTO_free(Value);
+        if Assigned(Meth) and Assigned(ext_str) then
+            if Assigned(Meth^.it) then
+                f_ASN1_item_free(ext_str, ASN1_ITEM_ptr(Meth^.it))
+            else
+                Meth^.ext_free(ext_str);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.ExtByName(const ShortName: String): Integer;
+var
+    Ext     : PX509_EXTENSION;
+    Count   : Integer;
+    I       : Integer;
+begin
     Result := -1;
     if Assigned(FX509) then begin
         Count := GetExtensionCount;
         for I := 0 to Count -1 do begin
-            //Ext := nil;
             Ext := f_X509_get_ext(FX509, I);
             if not Assigned(Ext) then
                 Continue;
-            Nid := f_OBJ_obj2nid(f_X509_EXTENSION_get_object(Ext));
-            if Nid <> NID_undef then begin
-                ExtStr := f_OBJ_nid2sn(Nid);
-                if StrLIComp(ExtStr, PAnsiChar(AnsiString(ShortName)), 255) = 0 then begin
-                    Result := I;
-                    Exit;
-                end;
-            end
-            else begin // custom extension
-                //B := nil;
-                B := f_BIO_new(f_BIO_s_mem);
-                if Assigned(B) then begin
-                    try
-                        f_i2a_ASN1_OBJECT(B, f_X509_EXTENSION_get_object(Ext));
-                        Len := f_BIO_ctrl(B, BIO_CTRL_PENDING, 0, nil);
-                        if Len > 0 then begin
-                            GetMem(ExtStr, Len);
-                            try
-                                f_Bio_read(B, ExtStr, Len);
-                                if StrLIComp(ExtStr, PAnsiChar(AnsiString(ShortName)), 255) = 0 then begin
-                                    Result := I;
-                                    Exit;
-                                end;
-                            finally
-                                FreeMem(ExtStr);
-                            end;
-                        end;
-                    finally
-                        f_bio_free(B);
-                    end;
-                end;
+            if CheckExtName(Ext, ShortName) then begin    { V8.41 simplify }
+                Result := I;
+                Exit;
             end;
         end;
     end
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.UnknownExtDataToStr(Ext: PX509_Extension) : String;
+begin
+    Result := Asn1ToString(PASN1_STRING(f_X509_EXTENSION_get_data(Ext)));
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetExtension(Index: Integer): TExtension;
+var
+    ExtCount : Integer;
+    Ext      : PX509_EXTENSION;
+begin
+    Result.Critical  := FALSE;
+    Result.ShortName := '';
+    Result.Value     := '';
+    if not Assigned(FX509) then
+        Exit;
+    ExtCount := ExtensionCount;
+    if (Index < 0) or (Index > ExtCount -1) then
+        raise EX509Exception.Create('Extension index out of bounds');
+    Ext := f_X509_get_ext(FX509, Index);
+    if not Assigned(Ext) then
+        raise EX509Exception.Create('Extension not assigned');
+    Result := GetExtDetail(Ext);        { V8.41 simplify }
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetExtensionByName(const S: String): TExtension;
+var
+    I       : Integer;
+    Ext     : PX509_EXTENSION;
+    Count   : Integer;
+begin
+    Result.Critical  := FALSE;
+    Result.ShortName := '';
+    Result.Value     := '';
+    if NOT Assigned(FX509) then Exit;
+    Count := GetExtensionCount;
+    for I := 0 to Count - 1 do begin
+        Ext := f_X509_get_ext(FX509, I);
+        if not Assigned(Ext) then
+            Continue;
+        if CheckExtName(Ext, S) then begin    { V8.41 simplify }
+            Result := GetExtDetail(Ext);
+            Exit;
+        end;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetExtField(Ext: TExtension; const FieldName: String): String;   { V8.41 simplify }
+var
+    I  : Integer;
+    Li : TStringList;
+begin
+    Result := '';
+    Li := TStringList.Create;
+    try
+        if Length(Ext.ShortName) > 0 then begin
+            Li.Text := Ext.Value;
+            for I := 0 to Li.Count -1 do begin
+                if (FieldName = '') then begin
+                    if Result <> '' then Result := Result + #13#10;
+                    Result := Result + Li[I];
+                end
+                else if (Pos(FieldName, IcsUpperCase(Li.Names[I])) = 1) then begin
+                    if Result <> '' then Result := Result + #13#10;
+                    Result := Result + Copy (Li[I], Length(Li.Names[I])+2,999);
+                end;
+            end;
+        end;
+    finally
+        Li.Free;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetExtensionValuesByName(const ShortName, FieldName: String): String;
+var
+    Ext : TExtension;
+begin
+    Result := '';
+    if not Assigned(X509) then
+        Exit;
+    Ext := GetExtensionByName(ShortName);
+    if Length(Ext.ShortName) > 0 then begin
+        Result := GetExtField(Ext, FieldName);   { V8.41 simplify }
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.UnwrapNames(const S: String): String;
+begin
+    Result := IcsUnwrapNames(S);     { V8.56 simplify }
 end;
 
 
@@ -14893,10 +17215,27 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Base.GetSerialNum: Integer;
+function TX509Base.GetSerialNum: Int64;      { V8.40 was integer }
+var
+    serial_asn1: PASN1_INTEGER;
+    serial_uint: UInt64;
 begin
-    if Assigned(FX509) then
-        Result := f_ASN1_INTEGER_get(f_X509_get_serialNumber(FX509))
+    if Assigned(FX509) then begin
+        serial_asn1 := f_X509_get_serialNumber(FX509);
+        if ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1100 then begin
+            serial_uint := 0;
+            if (f_ASN1_INTEGER_get_uint64(serial_uint, serial_asn1) = 0) then begin
+                Result := -1;
+                f_ERR_clear_error;
+            end
+            else
+                Result := Int64 (serial_uint);
+        end
+        else begin
+            Result := f_ASN1_INTEGER_get(serial_asn1);
+            if Result = -1 then f_ERR_clear_error;  { V8.40 allow for bad serials }
+        end;
+    end
     else
         Result := -1;
 end;
@@ -14941,183 +17280,50 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Base.GetSha1Hex: String;
+function TX509Base.GetSha1Hex: String;            { aka fingerprint }
 begin
-    if FSha1Hex = '' then
-        FSha1Hex := IcsBufferToHex(Sha1Digest[0], 20);
+    if FSha1Hex = '' then begin
+        GetSha1Digest;
+        if Assigned(FSha1Digest) then   { V8.53 sanity test, may be no certificate }
+            FSha1Hex := IcsBufferToHex(FSha1Digest[0], 20);
+    end;
     Result := FSha1Hex;
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Base.UnknownExtDataToStr(Ext: PX509_Extension) : String;
-{var
-    B   : PBIO;
-    Len : Integer; }
+function TX509Base.GetSha256Digest: THashBytes20;                 { V8.63 }
+var
+    Len : Integer;
 begin
-    Result := Asn1ToString(PASN1_STRING(f_X509_EXTENSION_get_data(Ext)));
-    {B := f_BIO_new(f_BIO_s_mem);
-    if Assigned(B) then begin
-        try
-            f_ASN1_STRING_print(B, PASN1_STRING(f_X509_EXTENSION_get_data(Ext)));
-            Len := f_BIO_ctrl(B, BIO_CTRL_PENDING, 0, nil);
-            SetLength(Result, Len);
-            if Len > 0 then begin
-                f_Bio_read(B, PChar(Result), Len);
-                SetLength(Result, StrLen(PChar(Result)));
-            end;
-        finally
-            f_BIO_free(B);
+    if Assigned(FX509) and (FSha256Digest = nil) then begin
+        SetLength(FSha256Digest, 32);
+        if f_X509_digest(FX509, f_EVP_sha256, @FSha256Digest[0], @Len) = 0 then
+        begin
+            FSha256Digest := nil;
+            RaiseLastOpenSslError(EX509Exception, TRUE);
         end;
-    end
-    else
-        Result := '';}
+    end;
+    Result := FSha256Digest;
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Base.GetExtension(Index: Integer): TExtension;
-var
-    ExtCount : Integer;
-    J        : Integer;
-    Ext      : PX509_EXTENSION;
-    Value    : PAnsiChar;
-    Meth     : PX509V3_EXT_METHOD;
-    Data     : PAnsiChar;
-    Val      : PSTACK;
-    NVal     : PCONF_VALUE;
-    ext_str  : Pointer;
-    B        : PBIO;
-    Nid      : Integer;
-    ABuf     : AnsiString;
+function TX509Base.GetSha256Hex: String;            { aka fingerprint V8.63 }
 begin
-    Result.Critical  := FALSE;
-    Result.ShortName := '';
-    Result.Value     := '';
-    if not Assigned(FX509) then
-        Exit;
-    ExtCount := ExtensionCount;
-    if (Index < 0) or (Index > ExtCount -1) then
-        raise EX509Exception.Create('Extension index out of bounds');
-    Value   := nil;
-    Meth    := nil;
-    Val     := nil;
-    ext_str := nil;
-    //Ext   := nil;
-    Ext     := f_X509_get_ext(FX509, Index);
-    if not Assigned(Ext) then
-        raise EX509Exception.Create('Extension not assigned');
-    Result.Critical := f_X509_EXTENSION_get_critical(Ext) > 0;
-    Nid := f_OBJ_obj2nid(f_X509_EXTENSION_get_object(Ext));
-    if Nid <> NID_undef then
-        Result.ShortName := String(StrPas(f_OBJ_nid2sn(Nid)))
-    else begin // custom extension
-        //B := nil;
-        B := f_BIO_new(f_BIO_s_mem);
-        if Assigned(B) then begin
-            try
-                f_i2a_ASN1_OBJECT(B, f_X509_EXTENSION_get_object(Ext));
-                J := f_BIO_ctrl(B, BIO_CTRL_PENDING, 0, nil);
-                SetLength(ABuf, J);
-                if J > 0 then begin
-                    f_Bio_read(B, PAnsiChar(ABuf), J);
-                    SetLength(ABuf, StrLen(PAnsiChar(ABuf)));
-                    Result.ShortName := String(ABuf);
-                end;
-            finally
-                f_bio_free(B);
-            end;
-        end;
+    if FSha256Hex = '' then begin
+        GetSha256Digest;
+        if Assigned(FSha256Digest) then
+            FSha256Hex := IcsBufferToHex(FSha256Digest[0], 32);
     end;
-
-    try
-        Meth := f_X509V3_EXT_get(Ext);
-        if Meth = nil then begin
-            Result.Value := UnknownExtDataToStr(Ext);
-            Exit;
-        end;
-        Data := Ext^.value^.data;
-        if Assigned(Meth^.it) then
-            ext_str := f_ASN1_item_d2i(nil,
-                                       @Data,
-                                       Ext^.value^.length,
-                                       ASN1_ITEM_ptr(Meth^.it))
-        else
-            ext_str := Meth^.d2i(nil, @Data, Ext^.value^.length);
-
-        if not Assigned(ext_str) then begin
-            Result.Value := UnknownExtDataToStr(Ext);
-            Exit;
-        end;
-
-        if Assigned(Meth^.i2s) then begin
-            Value := Meth^.i2s(Meth, ext_str);
-            if Assigned(Value) then
-                Result.Value := String(StrPas(Value));
-        end
-        else if Assigned(Meth^.i2v) then begin
-            Val := Meth^.i2v(Meth, ext_str, nil);
-            if not Assigned(Val) then
-                Exit;
-            J := 0;
-            while J < f_sk_num(val) do begin
-                NVal := PCONF_VALUE(f_sk_value(Val, J));
-                if Length(Result.Value) > 0 then
-                    Result.Value := Result.Value + #13#10;
-                Result.Value := Result.Value + String(StrPas(NVal^.name));
-                if (StrPas(NVal^.value) <> '') and (StrPas(NVal^.name) <> '') then
-                    Result.Value := Result.Value + '=';
-                Result.Value := Result.Value + String(StrPas(NVal^.value));
-                Inc(J);
-            end;
-        end
-        else if Assigned(Meth^.i2r) then begin
-            //B := nil;
-            B := f_BIO_new(f_BIO_s_mem);
-            if Assigned(B) then
-                try
-                    Meth.i2r(Meth, ext_str, B, 0);
-                    J := f_BIO_ctrl(B, BIO_CTRL_PENDING, 0, nil);
-                    SetLength(ABuf, J);                          { V7.31 }
-                    if J > 0 then begin
-                        f_Bio_read(B, PAnsiChar(ABuf), J);
-                        SetLength(ABuf, StrLen(PAnsiChar(ABuf)));
-                        Result.Value := String(ABuf);
-                        { This method separates multiple values by LF } // should I remove this stuff?
-                        while (Length(Result.Value) > 0) and
-                              (Result.Value[Length(Result.Value)] = #10) do
-                            SetLength(Result.Value, Length(Result.Value) -1);
-                        Result.Value := StringReplace(Result.Value, #10, #13#10, [rfReplaceAll]);
-                    end;
-                finally
-                    f_bio_free(B);
-                end;
-        end;
-    finally
-        if Assigned(Val) then
-            f_sk_pop_free(Val, @f_X509V3_conf_free);
-        if Assigned(Value) then
-            f_CRYPTO_free(Value);
-        if Assigned(Meth) and Assigned(ext_str) then
-            if Assigned(Meth^.it) then
-                f_ASN1_item_free(ext_str, ASN1_ITEM_ptr(Meth^.it))
-            else
-                Meth^.ext_free(ext_str);
-    end;
+    Result := FSha256Hex;
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TX509Base.GetSubjectAltName: TExtension;
-var
-    I : Integer;
 begin
-    Result.Critical  := FALSE;
-    Result.ShortName := '';
-    Result.Value     := '';
-    I := ExtByName('subjectAltName');
-    if I > -1 then
-        Result := GetExtension(I);
+    Result := GetExtensionByName('subjectAltName');  { V8.41 simplify }
 end;
 
 
@@ -15132,7 +17338,9 @@ var
 begin
     Result := '';
 {$IFNDEF WIN64}    { V7.81 }
-    Entry  := nil; { Make dcc32 happy }
+  {$IFNDEF COMPILER24_UP}
+    Entry  := nil;
+  {$ENDIF}
 {$ENDIF}
     if not Assigned(FX509) then
         Exit;
@@ -15181,7 +17389,7 @@ end;
 function TX509Base.GetVerifyErrorMsg: String;
 begin
     if Assigned(FX509) then
-        Result := String(StrPas(f_X509_verify_cert_error_string(FVerifyResult)))
+        Result := IcsX509VerifyErrorToStr(FVerifyResult)  { V8.39 better function }
     else
         Result := '';
 end;
@@ -15191,7 +17399,7 @@ end;
 function TX509Base.GetFirstVerifyErrorMsg: String;            {05/21/2007 AG}
 begin
     if Assigned(FX509) then
-        Result := String(StrPas(f_X509_verify_cert_error_string(FFirstVerifyResult)))
+        Result := IcsX509VerifyErrorToStr(FFirstVerifyResult)  { V8.39 better function }
     else
         Result := '';
 end;
@@ -15250,9 +17458,10 @@ end;
 procedure TX509Base.AssignDefaults;
 begin
     FVerifyDepth        := 0;
-    //FSha1Hash           := '';
     FSha1Hex            := '';
     FSha1Digest         := nil;
+    FSha256Hex          := '';
+    FSha256Digest       := nil;
     FVerifyResult       := X509_V_ERR_APPLICATION_VERIFICATION;
     FCustomVerifyResult := X509_V_ERR_APPLICATION_VERIFICATION;
     FFirstVerifyResult  := X509_V_ERR_APPLICATION_VERIFICATION;
@@ -15260,6 +17469,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ note - generally don't need this any more since Host is checked during verificaton }
 function TX509Base.PostConnectionCheck(HostOrIp: String): Boolean;
 var
     I      : Integer;
@@ -15309,27 +17519,6 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Base.OpenFileBio(
-    const FileName    : String;
-    Methode           : TBioOpenMethode): PBIO;
-begin
-    if (Filename = '') then
-        raise EX509Exception.Create('File name not specified');
-    if (Methode = bomRead) and (not FileExists(Filename)) then
-        raise EX509Exception.Create('File not found "' +
-                                          Filename + '"');
-    if Methode = bomRead then
-        Result := f_BIO_new_file(PAnsiChar(AnsiString(Filename)), PAnsiChar('r+'))
-    else
-        Result := f_BIO_new_file(PAnsiChar(AnsiString(Filename)), PAnsiChar('w+'));
-
-    if (Result = nil) then
-        RaiseLastOpenSslError(EX509Exception, TRUE,
-                             'Error on opening file "' + Filename + '"');
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TX509Base.PrivateKeyLoadFromPemFile(const FileName: String;
     const Password: String = '');
 var
@@ -15337,19 +17526,17 @@ var
     FileBio : PBIO;
 begin
     InitializeSsl;
-    FileBio := OpenFileBio(FileName, bomRead);
+    FileBio := IcsSslOpenFileBio(FileName, bomReadOnly);  { V8.40 }
     try
-        PKey := f_PEM_read_bio_PrivateKey(FileBio, nil, nil, PAnsiChar(AnsiString(Password)));
+        PKey := f_PEM_read_bio_PrivateKey(FileBio, nil, nil, PAnsiChar(PasswordConvert(Password)));  { V8.55 }
         if not Assigned(PKey) then
             RaiseLastOpenSslError(EX509Exception, TRUE,
-                                  'Error reading private key file "' +
-                                   Filename + '"');
+                    'Error reading private key file "' + Filename + '"');
         try
             if Assigned(FX509) then
                 if f_X509_check_private_key(FX509, PKey) < 1 then
-                    raise EX509Exception.Create('Certificate and private key ' +
-                                                'do not match');
-            PrivateKey := PKey;
+                    raise EX509Exception.Create('Certificate and private key do not match');
+            SetPrivateKey(PKey);
         finally
             f_EVP_PKEY_free(PKey);
         end;
@@ -15360,20 +17547,101 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ todo: Actually the private key is written unprotected }
-procedure TX509Base.PrivateKeySaveToPemFile(const FileName: String);
+{ V8.40 allow encryption of private key with extra params }
+{ save as  PKCS#8 EncryptedPrivateKeyInfo with PKCS#5 v2.0 encryption }
+procedure TX509Base.PrivateKeySaveToPemFile(const FileName: String;
+    const Password: String = ''; PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone);
 var
     FileBio : PBIO;
 begin
     InitializeSsl;
     if not Assigned(FPrivateKey) then
         raise EX509Exception.Create('Private key not assigned');
-    FileBio := OpenFileBio(FileName, bomWrite);
+    FileBio := IcsSslOpenFileBio(FileName, bomWrite);  { V8.40 }
     try
-        if f_PEM_write_bio_PrivateKey(FileBio, FPrivateKey, nil, nil, 0,
-                                      nil, nil) = 0 then
+//        if f_PEM_write_bio_PrivateKey(FileBio, FPrivateKey, nil, nil, 0,
+ //                                     nil, nil) = 0 then //  "traditional" private key format
+        WritePkeyToBio(FileBio, Password, PrivKeyType);       { V8.40 }
+    finally
+        f_bio_free(FileBio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.PublicKeySaveToPemFile(const FileName: String);        { V8.40 }
+var
+    FileBio : PBIO;
+begin
+    InitializeSsl;
+    if not Assigned(FPrivateKey) then
+        raise EX509Exception.Create('Private key not assigned');
+    FileBio := IcsSslOpenFileBio(FileName, bomWrite);  { V8.40 }
+    try
+        if f_PEM_write_bio_PUBKEY(FileBio, FPrivateKey) = 0 then
             RaiseLastOpenSslError(EX509Exception, TRUE,
-                                  'Error writing private key to file');
+                                       'Error writing public key to ' + FileName);
+    finally
+        f_bio_free(FileBio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.PublicKeySaveToText: String;                             { V8.52 }
+var
+    MemBio: PBIO;
+    Len: Integer;
+begin
+    InitializeSsl;
+    Result := '';
+    if not Assigned(FPrivateKey) then
+        raise EX509Exception.Create('Private key not assigned');
+    MemBio := f_BIO_new(f_BIO_s_mem);
+    if Assigned(MemBio) then
+    try
+        if f_PEM_write_bio_PUBKEY(MemBio, FPrivateKey) = 0 then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                                       'Error writing public key to text');
+        Len := f_BIO_ctrl(MemBio, BIO_CTRL_PENDING, 0, nil);
+        Result := String(ReadStrBio(MemBio, Len));
+    finally
+        f_bio_free(MemBio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.PublicKeyLoadFromText(const Lines: String);               { V8.52 }
+var
+    MemBio : PBIO;
+begin
+    if (Pos(PEM_STRING_HDR_BEGIN, Lines) = 0) and
+            (Pos(PEM_STRING_HDR_END, Lines) = 0) then
+               Raise EX509Exception.Create('Expected a Base64 encoded PEM public key');
+    MemBio := f_BIO_new_mem_buf(PAnsiChar(AnsiString(Lines)), Length (Lines));
+    try
+        PrivateKey := f_PEM_read_bio_PUBKEY(MemBio, Nil, Nil, Nil);
+        if NOT Assigned (FPrivateKey) then
+            RaiseLastOpenSslError(EX509Exception, TRUE, 'Failed to read public key');
+    finally
+        f_bio_free(MemBio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ .PEM, .CER, .CRT - Base64 encoded DER  }
+{ .DER, .CER, .CRT - binary DER }
+procedure TX509Base.LoadFromPemFile(const FileName: String; IncludePKey: TCertReadOpt;
+                       IncludeInters: TCertReadOpt = croNo; const Password: String = '');    { V8.40 }
+var
+    FileBio : PBIO;
+begin
+    InitializeSsl;
+    FileBio := IcsSslOpenFileBio(FileName, bomReadOnly);  { V8.40 }
+    try
+        ReadFromBio(FileBio, IncludePKey, IncludeInters, Password, FileName);  { V8.40 handles base64 and binary DER }
     finally
         f_bio_free(FileBio);
     end;
@@ -15382,130 +17650,743 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TX509Base.LoadFromPemFile(const FileName: String;
-    IncludePrivateKey: Boolean = FALSE; const Password: String = '');
+                  IncludePrivateKey: Boolean = FALSE; const Password: String = '');
 var
-    FileBio : PBIO;
+    IncludePKey: TCertReadOpt;
 begin
+    if IncludePrivateKey then
+        IncludePKey := croYes
+    else
+        IncludePKey := croNo;
+    LoadFromPemFile(FileName, IncludePKey, croNo, Password);     { V8.40 }
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ base64 enccoded PEM }
+procedure TX509Base.LoadFromText(Lines: String; IncludePKey: TCertReadOpt = croNo;
+                  IncludeInters: TCertReadOpt = croNo; const Password: String = '');   { V8.40 }
+var
+    MemBio : PBIO;
+begin
+    if (Pos(PEM_STRING_HDR_BEGIN, Lines) = 0) and
+            (Pos(PEM_STRING_HDR_END, Lines) = 0) then
+        raise ESslContextException.Create('Expected a Base64 encoded PEM certificate');
     InitializeSsl;
-    FileBio := OpenFileBio(FileName, bomRead);
+    MemBio := f_BIO_new_mem_buf(PAnsiChar(AnsiString(Lines)), Length (Lines));
     try
-        ReadFromBio(FileBio, IncludePrivateKey, Password);
+        ReadFromBio(MemBio, IncludePKey, IncludeInters, Password, 'Text Lines');
     finally
-        f_bio_free(FileBio);
+        f_bio_free(MemBio);
     end;
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ todo: Currently private key is written unprotected }
-procedure TX509Base.SaveToPemFile(const FileName: String;
-    IncludePrivateKey: Boolean = FALSE; AddRawText: Boolean = FALSE);
+procedure TX509Base.LoadFromText(Lines: String;                     { V8.27 }
+                                 IncludePrivateKey: Boolean = False;
+                                 const Password: String = '');
 var
-    FileBio : PBIO;
+    IncludePKey: TCertReadOpt;
+begin
+    if IncludePrivateKey then
+        IncludePKey := croYes
+    else
+        IncludePKey := croNo;
+    LoadFromText(Lines, IncludePKey, croNo, Password);     { V8.40 }
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.LoadFromP12Buffer(ABuffer: Pointer; ABufferSize: Cardinal;
+                IncludePKey, IncludeInters: TCertReadOpt; const Password: String);  { V8.63 }
+var
+    FileBio: PBIO;
+    P12: PPKCS12;
+    Cert: PX509;
+    PKey: PEVP_PKEY;
+    Ca: PSTACK_OF_X509;
+    PW: PAnsiChar;
+    I: integer;
 begin
     InitializeSsl;
-    FileBio := OpenFileBio(FileName, bomWrite);
+
+    FileBio := f_BIO_new_mem_buf(ABuffer,ABufferSize);
+    if not Assigned(FileBio) then
+      RaiseLastOpenSslError(EX509Exception, TRUE,
+                              'Error reading PKCS12 certificates from buffer');
     try
-        WriteToBio(FileBio, IncludePrivateKey, AddRawText);
+        P12 := f_d2i_PKCS12_bio(FileBio, Nil);
+        if not Assigned(P12) then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                              'Error reading PKCS12 certificates from buffer');
+        try
+            Cert := Nil;
+            Pkey := Nil;
+            Ca := Nil;
+            PW := Nil;
+            if Length(Password) > 0 then PW := PAnsiChar(PasswordConvert(Password));   { V8.55 }
+            if f_PKCS12_parse(P12, PW, Pkey, Cert, Ca) = 0 then begin
+                if Ics_Ssl_ERR_GET_REASON(f_ERR_peek_error) = 113 then  { PKCS12_R_MAC_VERIFY_FAILURE }
+                    raise EX509Exception.Create('Error PKCS12 Certificate password invalid for buffer')
+                else
+                    RaiseLastOpenSslError(EX509Exception, TRUE,
+                              'Error parsing PKCS12 certificates from buffer');
+            end;
+            if (IncludePKey > croNo) then begin
+                if Assigned(PKey) then begin
+                    if (f_X509_check_private_key(Cert, PKey) < 1) then
+                        raise EX509Exception.Create('Certificate and private key do not match');
+                     SetX509(Cert);
+                     SetPrivateKey(PKey);
+                     f_EVP_PKEY_free(PKey);
+                end
+                else begin
+                    if IncludePKey = croYes then  { V8.50 require  private key so error }
+                        raise EX509Exception.Create('Error reading private key from buffer');
+                end;
+            end
+            else
+                SetX509(Cert);
+            f_X509_free(Cert);
+            FreeAndNilX509Inters;
+
+          { intermediate certificates are optional, no error if none found }
+            if (IncludeInters > croNo) and Assigned(Ca) then begin
+                FX509Inters := f_OPENSSL_sk_new_null;
+                for I := 0 to f_OPENSSL_sk_num(Ca) - 1 do
+                    f_OPENSSL_sk_insert(FX509Inters, PAnsiChar(f_X509_dup
+                                    (PX509(f_OPENSSL_sk_value(Ca, I)))), I);
+                f_OPENSSL_sk_free(Ca);
+            end;
+        finally
+            f_PKCS12_free(p12);
+        end;
     finally
         f_bio_free(FileBio);
     end;
 end;
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.PrivateKeyLoadFromText(Lines: String;          { V8.27 }
+                                           const Password: String = '');
+var
+    PKey    : PEVP_PKEY;
+    MemBio : PBIO;
+begin
+    if (Pos(PEM_STRING_HDR_BEGIN, Lines) = 0) and
+         (Pos(PEM_STRING_HDR_END, Lines) = 0) then
+             raise ESslContextException.Create('Expected a Base64 encoded PEM private key');
+    InitializeSsl;
+    MemBio := f_BIO_new_mem_buf(PAnsiChar(AnsiString(Lines)), Length (Lines));
+    try
+        PKey := f_PEM_read_bio_PrivateKey(MemBio, nil, nil, PAnsiChar(PasswordConvert(Password)));  { V8.55 }
+        if not Assigned(PKey) then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                                  'Error reading private key');
+        try
+            if Assigned(FX509) then
+                if f_X509_check_private_key(FX509, PKey) < 1 then
+                    raise EX509Exception.Create('Certificate and private key do not match');
+            SetPrivateKey(PKey);
+        finally
+            f_EVP_PKEY_free(PKey);
+        end;
+    finally
+        f_bio_free(MemBio);
+    end;
+end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-procedure TX509Base.ReadFromBio(ABio: PBIO; IncludePrivateKey: Boolean = FALSE;
-  const Password: String = '');
+{ V8.40 check certificate and private key loaded and they match }
+function TX509Base.CheckCertAndPKey: boolean;                         { V8.40 }
+begin
+    Result := False;
+   if NOT Assigned(FX509) then Exit;
+   if NOT Assigned(FPrivateKey) then Exit;
+   Result := (f_X509_check_private_key(FX509, FPrivateKey) = 1);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.40 reads base64 or binary DER certificates }
+{ warning - if PrivasteKey already loaded and not IncludePrivateKey will }
+{   attempt to verify new certificate and key match }
+procedure TX509Base.ReadFromBio(ABio: PBIO; IncludePKey: TCertReadOpt = croNo;
+                          IncludeInters: TCertReadOpt = croNo; const Password:
+                                          String = ''; const FName: String = '');
 var
-    X     : PX509;
-    PKey  : PEVP_PKEY;
+    X         : PX509;
+    PKey      : PEVP_PKEY;
+    TotInfo : Integer;
+    AStr      : AnsiString;
+    MyStack   : PStack;
+const
+    Readmax = 2048;  { PEM files may have comments before real base64 stuff }
 begin
     InitializeSsl;
     if not Assigned(ABio) then
-        raise EX509Exception.Create('BIO not assigned');
-    X := f_PEM_read_bio_X509(ABio, nil, nil, PAnsiChar(AnsiString(Password)));
-    if not Assigned(X) then
-        RaiseLastOpenSslError(EX509Exception, TRUE,
-                              'Error reading certificate from BIO');
+        raise EX509Exception.Create('BIO not assigned, ' + FName);
+
+ { V8.41 check if base64 or binary DER by search for ---BEGIN }
+    AStr := ReadStrBio(ABio, Readmax);
+    if Length(AStr) <= 0 then
+        raise EX509Exception.Create('Certificate file is empty, ' + FName);  {V8.41 }
+    f_BIO_ctrl(ABio, BIO_CTRL_RESET, 0, nil);
+    if (Pos(PEM_STRING_HDR_BEGIN, String(AStr)) = 0) then begin
+
+ { DER file only has a single certificate, no key }
+        X := f_d2i_X509_bio(ABio, Nil);  { V8.40 binary DER }
+        if NOT Assigned (X) then begin
+            f_ERR_clear_error; { ignore SSL error }
+            raise EX509Exception.Create('Error reading X509 DER certificate from ' + FName);  {V8.41 }
+        end;
+        SetX509(X);
+        Exit;
+    end;
+
+ { V8.41 read multiple base64 certificates from PEM file or lines }
+    MyStack := IcsSslLoadStackFromBIO(ABIO, emCert, FName);
+    if NOT Assigned (MyStack) then
+        raise EX509Exception.Create('No X509 Base64 certificate found');
     try
-        if (not IncludePrivateKey) and Assigned(FPrivateKey) then
-            if f_X509_check_private_key(X, FPrivateKey) < 1 then
-                raise EX509Exception.Create('Certificate and private key ' +
-                                            'do not match');
-        if IncludePrivateKey then begin
-            f_BIO_ctrl(ABio, BIO_CTRL_RESET, 0, nil);
-            PKey := f_PEM_read_bio_PrivateKey(ABio, nil, nil,
-                                              PAnsiChar(AnsiString(Password)));
-            if not Assigned(PKey) then
+        TotInfo := f_OPENSSL_sk_num(MyStack);
+        if TotInfo = 0 then
+            raise EX509Exception.Create('No X509 Base64 certificate found');
+
+    { first in stack is server certificate }
+        SetX509(PX509(f_OPENSSL_sk_delete(MyStack, 0)));
+
+    { remaineder are intermediates }
+        if (TotInfo > 1) and (IncludeInters > croNo) then begin
+            FreeAndNilX509Inters;
+            FX509Inters := f_OPENSSL_sk_new_null;
+            if FX509Inters = nil then
+                RaiseLastOpenSslError(EX509Exception, TRUE, 'Error creating X509 stack');
+            while f_OPENSSL_sk_num(MyStack) > 0 do begin
+                X := f_X509_dup(PX509(f_OPENSSL_sk_delete(MyStack, 0)));
+                f_OPENSSL_sk_insert(FX509Inters, PAnsiChar(X), - 1);
+            end;
+        end;
+   finally
+       f_OPENSSL_sk_pop_free(MyStack, @f_X509_free);
+   end;
+
+ { look for PKCS8 PRIVATE KEY or ENCRYPTED PRIVATE KEY in PEM file }
+    if IncludePKey > croNo then begin
+        f_BIO_ctrl(ABio, BIO_CTRL_RESET, 0, nil);
+        PKey := f_PEM_read_bio_PrivateKey(ABio, nil, nil, PAnsiChar(PasswordConvert(Password)));   { V8.55 }
+        if not Assigned(PKey) then begin
+            if IncludePKey = croYes then  { V8.40 require key so error }
                 RaiseLastOpenSslError(EX509Exception, TRUE,
-                                      'Error reading private key from BIO');
+                                  'Error reading private key from ' + FName);
+            f_ERR_clear_error; // ignore SSL error
+        end
+        else begin
             try
-                if f_X509_check_private_key(X, PKey) < 1 then
-                    raise EX509Exception.Create('Certificate and private key ' +
-                                                'do not match');
-                 X509       := X;
-                 PrivateKey := PKey;
+                if f_X509_check_private_key(FX509, PKey) < 1 then
+                    raise EX509Exception.Create('Certificate and private key do not match from ' + FName);
+                 SetPrivateKey(PKey);
             finally
                 f_EVP_PKEY_free(PKey);
             end;
-        end else
-            X509 := X;
-    finally
-        f_X509_free(X);
+        end;
     end;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.ReadFromBio(ABio: PBIO; IncludePrivateKey: Boolean = FALSE;
+                                                     const Password: String = '');
+var
+    IncludePKey: TCertReadOpt;
+begin
+    if IncludePrivateKey then
+        IncludePKey := croYes
+    else
+        IncludePKey := croNo;
+    ReadFromBio(ABio, IncludePKey, croNo, Password);     { V8.40 }
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ todo: Currently private key is written unprotected }
-procedure TX509Base.WriteToBio(ABio: PBIO;
-  IncludePrivateKey: Boolean = FALSE; AddRawText: Boolean = FALSE);
+{ V8.40 write X509 certificate to BIO, optionally with raw certificate fields }
+procedure TX509Base.WriteCertToBio(ABio: PBIO; AddInfoText: Boolean = FALSE; const FName: String = '');
 begin
-    InitializeSsl;
     if not Assigned(ABio) then
         raise EX509Exception.Create('BIO not assigned');
     if not Assigned(FX509) then
         raise EX509Exception.Create('X509 not assigned');
-    if IncludePrivateKey and not Assigned(FPrivateKey) then
-        raise EX509Exception.Create('Private key not assigned');
-    if AddRawText and
-       (f_X509_print(ABio, FX509) = 0) then
-        RaiseLastOpenSslError(EX509Exception, TRUE,
-                              'Error writing raw text to BIO');
-    if IncludePrivateKey and
-       (f_PEM_write_bio_PrivateKey(ABio, FPrivateKey, nil, nil, 0,
-                                   nil, nil) = 0) then
-        RaiseLastOpenSslError(EX509Exception, TRUE,
-                              'Error writing private key to BIO');
+    if AddInfoText then begin
+        WriteStrBio(ABio, AnsiString(CertInfo) + #13#10, True);
+    end;
     if f_PEM_write_bio_X509(ABio, FX509) = 0 then
-        RaiseLastOpenSslError(EX509Exception, TRUE,
-                              'Error writing certificate to BIO');
+        RaiseLastOpenSslError(EX509Exception, TRUE, 'Error writing certificate to ' + FName);
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function TX509Base.GetRawText: String;                        {05/21/2007 AG}
+{ V8.40 write private key to BIO with encryption }
+procedure TX509Base.WritePkeyToBio(ABio: PBIO; const Password: String = '';
+             PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone; const FName: String = '');
 var
-    Bio  : PBIO;
+    ret : integer;
+begin
+    if not Assigned(ABio) then
+        raise EX509Exception.Create('BIO not assigned');
+    if not Assigned(FPrivateKey) then
+        raise EX509Exception.Create('Private key not assigned');
+  //  ret := f_PEM_write_bio_PrivateKey(ABio, FPrivateKey, nil, nil, 0, nil, nil); // { old way }
+    if PrivKeyType = PrivKeyEncNone then  { V8.40 }
+        ret := f_PEM_write_bio_PKCS8PrivateKey(ABio, FPrivateKey, nil, nil, 0, nil, nil)
+    else
+        ret := f_PEM_write_bio_PKCS8PrivateKey(ABio, FPrivateKey,
+                 IcsSslGetEVPCipher (SslPrivKeyEvpCipher[PrivKeyType]),
+                    PAnsiChar(PasswordConvert(Password)), Length(PasswordConvert(Password)), Nil, Nil);   { V8.55 }
+    if ret = 0 then
+        RaiseLastOpenSslError(EX509Exception, TRUE, 'Error writing private key to ' + FName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.WriteToBio(ABio: PBIO; IncludePrivateKey: Boolean = FALSE;
+                            AddInfoText: Boolean = FALSE; const FName: String = '');
+begin
+    WriteCertToBio(ABio, AddInfoText, FName);          { V8.40 split writing cert and key }
+    if IncludePrivateKey then begin
+        WriteStrBio(ABio, #10#10);  { V8.41 blank lines between certs }
+        WritePkeyToBio(ABio, FName);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ returns formatted text with raw certificate fields }
+function TX509Base.GetRawText: String;    {05/21/2007 AG}
+var
+    ABio : PBIO;
     Len  : Integer;
-    AStr : AnsiString;
 begin
     Result := '';
     if FX509 = nil then Exit;
-    Bio := f_BIO_new(f_BIO_s_mem);
-    if Assigned(Bio) then
+    ABio := f_BIO_new(f_BIO_s_mem);
+    if Assigned(ABio) then
     try
-        f_X509_print(Bio, FX509);
-        Len := f_BIO_ctrl(Bio, BIO_CTRL_PENDING, 0, nil);
-        SetLength(AStr, Len);
-        if Len > 0 then begin
-            f_Bio_read(Bio, PAnsiChar(AStr), Len);
-            SetLength(AStr, StrLen(PAnsiChar(AStr)));
-            Result := String(AStr);
+        f_X509_print(ABio, FX509);
+        Len := f_BIO_ctrl(ABio, BIO_CTRL_PENDING, 0, nil);
+        Result := String(ReadStrBio(ABio, Len));  { V8.41 }
+    finally
+        f_bio_free(ABio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ returns formatted text with raw private and public key fields }
+function TX509Base.GetPKeyRawText: String;    { V8.40}
+var
+    ABio : PBIO;
+    Len  : Integer;
+begin
+    Result := '';
+    if FPrivateKey = nil then Exit;
+    ABio := f_BIO_new(f_BIO_s_mem);
+    if Assigned(ABio) then
+    try
+        f_EVP_PKEY_print_private(ABio, FPrivateKey, 4, Nil);
+        f_EVP_PKEY_print_public(ABio, FPrivateKey, 4, Nil);
+        Len := f_BIO_ctrl(ABio, BIO_CTRL_PENDING, 0, nil);
+        Result := String(ReadStrBio(ABio, Len));  { V8.41 }
+    finally
+        f_bio_free(ABio);
+    end;
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ returns base64 encoded DER PEM certificate as string }
+function TX509Base.SaveCertToText(AddInfoText: Boolean = FALSE): String;       { V8.40}
+var
+    ABio : PBIO;
+    Len  : Integer;
+begin
+    Result := '';
+    if FX509 = nil then Exit;
+    ABio := f_BIO_new(f_BIO_s_mem);
+    if Assigned(ABio) then
+    try
+        WriteCertToBio(ABio, AddInfoText);          { V8.40 split writing cert and key }
+        Len := f_BIO_ctrl(ABio, BIO_CTRL_PENDING, 0, nil);
+        Result := String(ReadStrBio(ABio, Len));  { V8.41 }
+    finally
+        f_bio_free(ABio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.40 allow encryption of private key with extra params }
+procedure TX509Base.SaveToPemFile(const FileName: String;
+    IncludePrivateKey: Boolean = FALSE; AddInfoText: Boolean = FALSE;
+             IncludeInters: Boolean = FALSE; const Password: String = '';
+                            PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone);
+var
+    FileBio : PBIO;
+begin
+    InitializeSsl;
+    FileBio := IcsSslOpenFileBio(FileName, bomWrite);  { V8.40 }
+    try
+        WriteCertToBio(FileBio, AddInfoText, FileName);          { V8.40 split writing cert and key }
+        if IncludePrivateKey and IsPKeyLoaded then begin
+            if NOT CheckCertAndPKey then                   { V8.41 }
+                raise EX509Exception.Create('Certificate and private key do not match');
+            WriteStrBio(FileBio, #10#10);  { V8.41 blank lines between certs }
+            WriteStrBio(FileBio, AnsiString(GetPrivateKeyInfo) + #10);
+            WritePkeyToBio(FileBio, Password, PrivKeyType, FileName);
+        end;
+        // write intermediate certificates
+        if IncludeInters and IsInterLoaded then begin
+            WriteStrBio(FileBio, #10#10);  { blank lines between certs }
+            WriteIntersToBio(FileBio, AddInfoText, FileName);
         end;
     finally
-        f_bio_free(Bio);
+        f_bio_free(FileBio);
     end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ returns private key base64 encoded DER PEM }
+function TX509Base.SavePKeyToText(const Password: String = '';
+            PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone): String;   { V8.40}
+var
+    ABio  : PBIO;
+    Len  : Integer;
+begin
+    Result := '';
+    if not Assigned(FPrivateKey) then
+        raise EX509Exception.Create('Private key not assigned');
+    ABio := f_BIO_new(f_BIO_s_mem);
+    if Assigned(ABio) then
+    try
+        WritePkeyToBio(ABio, Password, PrivKeyType);
+        Len := f_BIO_ctrl(ABio, BIO_CTRL_PENDING, 0, nil);
+        Result := String(ReadStrBio(ABio, Len));  { V8.41 }
+    finally
+        f_bio_free(ABio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ PKCS#12, may contain binary certificate(s) and private keys (password protected)
+  typical file extension .P12 or .PFX }
+procedure TX509Base.LoadFromP12File(const FileName: String; IncludePKey: TCertReadOpt = croNo;
+                       IncludeInters: TCertReadOpt = croNo; const Password: String = '');    { V8.40 }
+var
+    FileBio : PBIO;
+    P12 : PPKCS12;
+    Cert : PX509;
+    PKey : PEVP_PKEY;
+    Ca: PSTACK_OF_X509;
+    PW: PAnsiChar;
+    I: integer;
+begin
+    InitializeSsl;
+    FileBio := IcsSslOpenFileBio(FileName, bomReadOnly);
+    try
+        P12 := f_d2i_PKCS12_bio(FileBio, Nil);
+        if not Assigned(P12) then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                              'Error reading PKCS12 certificates from ' + FileName);
+        try
+            Cert := Nil;
+            Pkey := Nil;
+            Ca := Nil;
+            PW := Nil;
+            if Length(Password) > 0 then PW := PAnsiChar(PasswordConvert(Password));   { V8.55 }
+            if f_PKCS12_parse(P12, PW, Pkey, Cert, Ca) = 0 then begin
+                if Ics_Ssl_ERR_GET_REASON(f_ERR_peek_error) = 113 then  { PKCS12_R_MAC_VERIFY_FAILURE }
+                    raise EX509Exception.Create('Error PKCS12 Certificate password invalid for  ' + FileName)
+                else
+                    RaiseLastOpenSslError(EX509Exception, TRUE,
+                              'Error parsing PKCS12 certificates from ' + FileName);
+            end;
+            if (IncludePKey > croNo) then begin   { V8.50 don't ignore croYes }
+                if Assigned(PKey) then begin
+                    if (f_X509_check_private_key(Cert, PKey) < 1) then
+                        raise EX509Exception.Create('Certificate and private key do not match');
+                     SetX509(Cert);
+                     SetPrivateKey(PKey);
+                     f_EVP_PKEY_free(PKey);
+                end
+                else begin
+                    if IncludePKey = croYes then  { V8.50 require  private key so error }
+                        raise EX509Exception.Create('Error reading private key from ' + FileName);
+                end;
+            end
+            else
+                SetX509(Cert);
+            f_X509_free(Cert);
+            FreeAndNilX509Inters;
+          { intermediate certificates are optional, no error if none found }
+            if (IncludeInters > croNo) and Assigned(Ca) then begin   { V8.50 don't ignore croYes }
+                FX509Inters := f_OPENSSL_sk_new_null;
+                for I := 0 to f_OPENSSL_sk_num(Ca) - 1 do
+                    f_OPENSSL_sk_insert(FX509Inters, PAnsiChar(f_X509_dup
+                                    (PX509(f_OPENSSL_sk_value(Ca, I)))), I);
+                f_OPENSSL_sk_free(Ca);
+            end;
+        finally
+            f_PKCS12_free(p12);
+        end;
+    finally
+        f_bio_free(FileBio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ PKCS#7 certificates, typical file extension .P7B, .P7R, .P7S, .SPC }
+procedure TX509Base.LoadFromP7BFile(const FileName: String;
+                                      IncludeInters: TCertReadOpt = croNo);   { V8.40 }
+var
+    FileBio : PBIO;
+    p7 : PPKCS7;
+    nid, total, I : integer;
+    MyStack: PSTACK_OF_X509;
+    AStr: AnsiString;
+const
+    ReadMax = 2048;
+begin
+    InitializeSsl;
+    FileBio := IcsSslOpenFileBio(FileName, bomReadOnly);
+    MyStack := Nil;
+    try
+     { V8.41 check if base64 or binary DER by search for ---BEGIN }
+        AStr := ReadStrBio(FileBio, Readmax);
+        if Length(AStr) <= 0 then
+            raise EX509Exception.Create('Certificate file is empty, ' + FileName);  {V8.41 }
+        f_BIO_ctrl(FileBio, BIO_CTRL_RESET, 0, nil);
+        if (Pos(PEM_STRING_HDR_BEGIN, String(AStr)) > 0) then
+            p7 := f_PEM_read_bio_PKCS7(FileBio, Nil, Nil, Nil)  { base64 version }
+        else
+            p7 := f_d2i_PKCS7_bio(FileBio, Nil);            { DER binary version }
+        if NOT Assigned (p7) then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                                  'Error reading PKCS7 certificate from file ' + FileName);
+        // now extract X509
+        nid := f_OBJ_obj2nid(p7.type_);
+        if nid = NID_pkcs7_signed then
+            if p7.sign <> Nil then MyStack := p7.sign.cert
+        else if nid = NID_pkcs7_signedAndEnveloped then
+            if p7.signed_and_enveloped <> Nil then MyStack := p7.signed_and_enveloped.cert
+        else
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                                  'Error no signed type found in PKCS7 file ' + FileName);
+        total := f_OPENSSL_sk_num(MyStack);   { don't free stack }
+        if total = 0 then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                                  'Error no certificate found in PKCS7 file ' + FileName);
+        SetX509(PX509_OBJECT(f_OPENSSL_sk_value(MyStack, 0))); // first is cert
+        FreeAndNilX509Inters;
+     // save others as CA
+        if (IncludeInters > croNo) and (total >= 2) then begin
+            FX509Inters := f_OPENSSL_sk_new_null;
+            for I := 1 to total - 1 do
+                f_OPENSSL_sk_insert(FX509Inters, PAnsiChar(f_X509_dup
+                                (PX509(f_OPENSSL_sk_value(MyStack, I)))), I-1);
+        end;
+        f_PKCS7_free(p7);
+    finally
+        f_bio_free(FileBio);
+     //   if Assigned (MyStack) then f_OPENSSL_sk_free(MyStack);
+    end;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ check certificate file extension for content, ignores unknown file extensions }
+{ .PEM, .CER, .CRT, .0, .1, .2, etc - Base64 encoded DER  }
+{ .DER, .CER, .CRT - binary DER }
+{ .P7B, .P7R, .P7S, .SPC - PKCS#7 }
+{ .PFX, .P12 - PKCS#12 }
+procedure TX509Base.LoadFromFile(const FileName: String; IncludePKey: TCertReadOpt = croNo;
+                       IncludeInters: TCertReadOpt = croNo; const Password: String = '');  { V8.40 }
+var
+    fext: string;
+    digit: boolean;
+begin
+    ClearAll;           { free anything we might update so no mismatches }
+    digit := false;
+    fext := IcsLowerCase(ExtractFileExt(FileName));
+    if Length(fext) = 2 then digit := IsXDigit(fext [2]);    { assume .0, .1, .2 etc are PEM }
+    if (fext = '.pfx') or  (fext = '.p12') then
+        LoadFromP12File(FileName, IncludePKey, IncludeInters, Password)
+    else if (fext = '.p7b') or (fext = '.p7r') or (fext = '.p7s') or (fext = '.spc') then
+        LoadFromP7BFile(FileName, IncludeInters)
+    else if (fext = '.pem') or (fext = '.der') or (fext = '.cer') or (fext = '.crt') or digit then
+        LoadFromPemFile(FileName, IncludePKey, IncludeInters, Password); // handles DER as well
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.SaveToP12File(const FileName, Password: String;
+         IncludeInters: Boolean = FALSE; PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone);   { V8.40 }
+var
+    FileBio : PBIO;
+    P12 : PPKCS12;
+    PW: PAnsiChar;
+    certenc, keyenc: integer;
+    castack: Pointer;
+const
+{ MS key usage constants }
+    KEY_EX  = $10;   { signing and encryption }
+    KEY_SIG = $80;   { signing only }
+    PKCS12_DEFAULT_ITER = 128;
+    { pending, our modern encryption don't map well to these old ones }
+begin
+    if not Assigned(FX509) then
+        raise EX509Exception.Create('X509 not assigned');
+  { must write cert and key, otherwise assumes only intermediates }
+    if not Assigned(FPrivateKey) then
+        raise EX509Exception.Create('Private key not assigned');
+    if IncludeInters and not Assigned(FX509Inters) then
+        raise EX509Exception.Create('Intermediate X509 not assigned');
+    if NOT CheckCertAndPKey then                   { V8.41 }
+        raise EX509Exception.Create('Certificate and private key do not match');
+    FileBio := IcsSslOpenFileBio(FileName, bomWriteBin);   { binary file }
+    try
+        PW := Nil;
+        castack := Nil;
+        keyenc := -1;
+        certenc := -1;
+        if (Length(Password) > 0) and (PrivKeyType <> PrivKeyEncNone) then begin
+            PW := PAnsiChar(PasswordConvert(Password));  { V8.55 }
+            certenc := NID_pbe_WithSHA1And128BitRC2_CBC;
+            keyenc := NID_pbe_WithSHA1And3_Key_TripleDES_CBC;
+        end;
+        if IncludeInters then
+            castack := f_OPENSSL_sk_dup(FX509Inters);    { V8.41 only if required }
+        P12 := f_PKCS12_create(PW, PAnsiChar(AnsiString(IcsUnwrapNames(SubjectCName))),
+                 Ics_EVP_PKEY_dup(FPrivateKey), f_X509_dup(FX509), castack,
+                                keyenc, certenc, PKCS12_DEFAULT_ITER, 1, KEY_EX);
+
+        if not Assigned(P12) then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                                           'Error creating PKCS12 certificate');
+        if f_i2d_PKCS12_bio(FileBio, P12) = 0 then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                                  'Error writing PKCS12 certificate to ' + FileName);
+        f_PKCS12_free(P12);
+    finally
+        f_bio_free(FileBio);
+    end;
+
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.SaveToDERFile(const FileName: String);      { V8.40 }
+var
+    FileBio : PBIO;
+begin
+    if not Assigned(FX509) then
+        raise EX509Exception.Create('Certificate not assigned');
+    FileBio := IcsSslOpenFileBio(FileName, bomWriteBin);    { binary file }
+    try
+        if f_i2d_X509_bio(FileBio, FX509) = 0 then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                           'Error writing DER certificate to ' + FileName);
+    finally
+        f_bio_free(FileBio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.SaveToP7BFile(const FileName: String; IncludeInters:
+                                  Boolean = FALSE; Base64: Boolean = FALSE);  { V8.41 }
+var
+    FileBio : PBIO;
+    p7  : PPKCS7;
+    p7s : PPKCS7_SIGNED;
+    Tot,I : Integer;
+begin
+    if not Assigned(FX509) then
+        raise EX509Exception.Create('Certificate not assigned');
+    if IncludeInters and not Assigned(FX509Inters) then
+        raise EX509Exception.Create('Intermediate X509 not assigned');
+    FileBio := IcsSslOpenFileBio(FileName, bomWriteBin);   { binary file }
+    try
+        p7 := f_PKCS7_new;
+        if NOT Assigned(p7)then
+            RaiseLastOpenSslError(EX509Exception, TRUE, 'Error creating PKCS7 object');
+        p7s := f_PKCS7_SIGNED_new;
+        if NOT Assigned(p7s)then
+            RaiseLastOpenSslError(EX509Exception, TRUE, 'Error creating PKCS7 Signed object');
+        p7.type_ := f_OBJ_nid2obj(NID_pkcs7_signed);  // set structure type
+        p7.sign := p7s;
+        p7s.contents.type_ := f_OBJ_nid2obj(NID_pkcs7_data);        { V8.41 }
+        if f_ASN1_INTEGER_set(p7s.version, 1) = 0 then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                           'Error setting version in PKCS7 file - ' + FileName);
+        if f_PKCS7_add_certificate(p7, FX509) = 0 then
+            RaiseLastOpenSslError(EX509Exception, TRUE,
+                           'Error adding certificate to PKCS7 file - ' + FileName);
+
+     // write intermediate certificates
+        if IncludeInters then begin
+            Tot := f_OPENSSL_sk_num(FX509Inters);
+            if Tot > 0 then begin
+                for I := 0 to Pred (Tot) do begin
+                    if f_PKCS7_add_certificate(p7,
+                             PX509(f_OPENSSL_sk_value(FX509Inters, I))) = 0 then
+                        RaiseLastOpenSslError(EX509Exception, TRUE,
+                            'Error adding certificate to PKCS7 file - ' + FileName);
+                end;
+            end;
+        end;
+
+     // write to file
+        if NOT Base64 then begin
+            if f_i2d_PKCS7_bio(FileBio, P7) = 0 then // binary DER
+                RaiseLastOpenSslError(EX509Exception, TRUE,
+                           'Error writing PKCS7 binary certificate to ' + FileName);
+        end
+        else begin
+            if f_PEM_write_bio_PKCS7(FileBio, P7) = 0 then  // base64 PEM
+                RaiseLastOpenSslError(EX509Exception, TRUE,
+                           'Error writing PKCS7 base64 certificate to ' + FileName);
+        end;
+        f_PKCS7_free(p7);
+    finally
+        f_bio_free(FileBio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ check certificate file extension for content }
+{ .PEM, .CER, .CRT - Base64 encoded DER  }
+{ .DER - binary DER }
+{ .P7B, .P7R, .P7S, .SPC - PKCS#7 }
+{ .PFX, .P12 - PKCS#12 }
+procedure TX509Base.SaveToFile(const FileName: String; IncludePrivateKey: Boolean = FALSE;
+            AddInfoText: Boolean = False; IncludeInters: Boolean = FALSE;
+             const Password: String = ''; PrivKeyType: TSslPrivKeyCipher = PrivKeyEncNone);   { V8.40 }
+var
+    fext: string;
+begin
+    fext := IcsLowerCase(ExtractFileExt(FileName));
+    if (fext = '.pfx') or  (fext = '.p12') then
+        SaveToP12File(FileName, Password, IncludeInters, PrivKeyType)
+    else if (fext = '.p7b') or (fext = '.p7r') or (fext = '.p7s') or (fext = '.spc') then
+        SaveToP7BFile(FileName, IncludeInters, false) { binary not base64 }
+    else if (fext = '.der') then
+        SaveToDERFile(FileName)
+    else
+        SaveToPemFile(FileName, IncludePrivateKey, AddInfoText,
+                                            IncludeInters, Password, PrivKeyType);
 end;
 
 
@@ -15513,7 +18394,8 @@ end;
 function TX509Base.GetSelfSigned: Boolean;
 begin
     if Assigned(FX509) then
-        Result := f_X509_check_issued(FX509, FX509) = 0
+        Result := (f_X509_check_issued(FX509, FX509) = 0) or (IssuerCName = SubjectCName)
+          { V8.63 double check, check_issued does not always work }   
     else
         Result := FALSE;
 end;
@@ -15565,7 +18447,819 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ Returns a CRLF-separated list if multiple entries exist }
+{ used for certs and requests }
+function TX509Base.GetPX509NameByNid(XName: PX509_NAME; ANid: Integer): String;  { V8.41 }
+var
+    Entry   : PX509_NAME_ENTRY;
+    Asn1    : PASN1_STRING;
+    LastPos : Integer;
+begin
+    Result := '';
+{$IFNDEF WIN64}
+  {$IFNDEF COMPILER24_UP}
+    Entry  := nil; { Make dcc32 happy }
+  {$ENDIF}
+{$ENDIF}
+    if XName = nil then Exit;
+    LastPos := -1;
+    repeat
+        LastPos := f_X509_NAME_get_index_by_NID(XName, ANid, LastPos);
+        if LastPos > -1 then
+            Entry := f_X509_NAME_get_entry(XName, LastPos)
+        else
+            Break;
+        if Assigned(Entry) then begin
+            Asn1 := f_X509_NAME_ENTRY_get_data(Entry);
+            if Assigned(Asn1) then
+                Result := Result + Asn1ToString(Asn1) + #13#10;
+        end;
+    until
+        LastPos = -1;
 
+    while (Length(Result) > 0) and
+                  (Word(Result[Length(Result)]) in [Ord(#13), Ord(#10)]) do
+        SetLength(Result, Length(Result) - 1);
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ Returns a CRLF-separated list if multiple entries exist }
+function TX509Base.GetNameEntryByNid(IsSubject: Boolean; ANid: Integer): String;
+var
+    Name    : PX509_NAME;
+begin
+    Result := '';
+{$IFNDEF WIN64}
+//    Entry  := nil; { Make dcc32 happy }
+{$ENDIF}
+    if not Assigned(X509) then
+        Exit;
+    if IsSubject then
+        Name := f_X509_get_subject_name(X509)
+    else
+        Name := f_X509_get_issuer_name(X509);
+    if Name <> nil then
+        Result := GetPX509NameByNid(Name, ANid);   { V8.41 simplify }
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubjectOName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_organizationName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubjectOUName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_organizationalUnitName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubjectCOName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_countryName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubjectSTName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_stateOrProvinceName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubjectLName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_localityName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubjectEmailName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_pkcs9_emailAddress);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubjectSerialName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_serialNumber);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIssuerOName: String;
+begin
+    Result := GetNameEntryByNid(FALSE, NID_organizationName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIssuerOUName: String;
+begin
+    Result := GetNameEntryByNid(FALSE, NID_organizationalUnitName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIssuerCName: String;
+begin
+    Result := GetNameEntryByNid(FALSE, NID_commonName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubAltNameDNS: String;
+begin
+    Result := GetExtensionValuesByName('subjectAltName', 'DNS');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubAltNameIP: String;
+begin
+    Result := GetExtensionValuesByName('subjectAltName', 'IP');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetKeyUsage: String;
+begin
+    Result := GetExtensionValuesByName('keyUsage', '');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetExKeyUsage: String;
+begin
+    Result := GetExtensionValuesByName('extendedKeyUsage', '');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetBasicConstraints: String;
+begin
+    Result := GetExtensionValuesByName('basicConstraints', '');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetAuthorityInfoAccess: String;
+begin
+    Result := GetExtensionValuesByName('authorityInfoAccess', '');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetCertPolicies: String;            { V8.40 }
+begin
+    Result := GetExtensionValuesByName('certificatePolicies', '');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetExtendedValidation: boolean;            { V8.40 }
+var
+    policy: String;
+    I: Integer;
+begin
+    Result := False;
+    policy := GetExtensionValuesByName('certificatePolicies', '');
+    I :=  Pos('1.3.6.1.4.1.', policy);     { V8.41 need to check more carefully }
+    if (I > 0) then begin
+        if Length (policy) < (I+16) then Exit;
+        policy := Copy(policy, I+12, 99);
+        Result := (Pos('34697.2', policy) <> 0) or          // AffirmTrust
+                  (Pos('6449.1.2.1.5.1', policy) <> 0) or   // Comodo
+                  (Pos('14370.1.6', policy) <> 0) or        // Geotrust
+                  (Pos('4146.1.1', policy) <> 0) or         // GlobalSign
+                  (Pos('782.1.2.1.8.1', policy) <> 0) or    // Network Solutions
+                  (Pos('22234.2.5.2.3.1', policy) <> 0) or  // OpenTrust
+                  (Pos('23223.2', policy) <> 0) or          // Startcom
+                  (Pos('6334.1.100.1', policy) <> 0) or     // Verizon
+                  (Pos('36305.2', policy) <> 0);            // Wosign
+        Exit;
+    end;
+    I :=  Pos('2.16.840.1.', policy);
+    if (I > 0) then begin
+        if Length (policy) < (I+16) then Exit;
+        policy := Copy(policy, I+11, 99);
+        Result := (Pos('114412.2.1', policy) <> 0) or          // Digicert
+                  (Pos('114412.1.3.0.2', policy) <> 0) or      // Digicert
+                  (Pos('114028.10.1.2', policy) <> 0) or       // Entrust
+                  (Pos('114413.1.7.23.3', policy) <> 0) or     // GoDaddy
+                  (Pos('114414.1.7.23.3', policy) <> 0) or     // Starfield
+                  (Pos('113733.1.7.48.1', policy) <> 0) or     // Thawte
+                  (Pos('114404.1.1.2.4.1', policy) <> 0) or    // Trustwave
+                  (Pos('113733.1.7.23.6', policy) <> 0);       // Symantec/Verisign
+        Exit;
+    end;
+    Result := (Pos('2.16.756.1.83.21.0', policy) <> 0) or      // SwissCom
+              (Pos('2.16.756.80.1.1.1.1', policy) <> 0);       // SwissSign
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetAuthorityKeyId: String;           { V8.40 }
+begin
+    Result := GetExtensionValuesByName('authorityKeyIdentifier', '');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSubjectKeyId: String;           { V8.40 }
+begin
+    Result := GetExtensionValuesByName('subjectKeyIdentifier', '');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetCRLDistribution: String;           { V8.40 }
+begin
+    Result := GetExtensionValuesByName('crlDistributionPoints', '');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIssuerCOName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_countryName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIssuerSTName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_stateOrProvinceName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIssuerLName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_localityName);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetIssuerEmailName: String;
+begin
+    Result := GetNameEntryByNid(TRUE, NID_pkcs9_emailAddress);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSignAlgo: String;     { V1.09 }
+var
+    Nid: integer ;
+    Str : AnsiString;
+    MyX509: PX509;
+begin
+    Result := '';
+    if not Assigned(X509) then
+        Exit;
+    { V8.27 need new export for 1.1.0, was in 1.0.2 }
+    if (ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1100) then
+        Nid := f_X509_get_signature_nid(X509)
+    else begin
+        MyX509 := X509;
+        Nid := f_OBJ_obj2nid(MyX509^.sig_alg.algorithm);  // certificate signature
+    end;
+    if Nid <> NID_undef then begin
+        SetLength(Str, 256);
+        Str := f_OBJ_nid2ln(Nid);
+        SetLength(Str, IcsStrLen(PAnsiChar(Str)));     { V8.20 }
+        Result := String(Str);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetKeyDesc(pkey: PEVP_PKEY): string;       { V8.40 }
+var
+    Bits, Nid, keytype: Integer;
+    Str : AnsiString;
+    eckey: PEC_KEY;
+    ecgroup: PEC_GROUP;
+begin
+    result := '' ;
+    if not Assigned(pkey) then
+        Exit;
+    keytype := f_EVP_PKEY_base_id(pkey); { V8.41 key type }
+    Bits := f_EVP_PKEY_bits(pkey);   { V8.51 simplified by using old undocumented API }
+    if keytype = EVP_PKEY_RSA then begin
+        Result := 'RSA Key Encryption';
+    end
+    else if keytype = EVP_PKEY_DSA then begin
+        Result := 'DSA Key Encryption';
+    end
+    else if keytype = EVP_PKEY_DH then begin
+        Result := 'DH Key Encryption';
+    end
+    else if keytype = EVP_PKEY_EC then begin
+        Result := 'ECDSA Key Encryption';
+      // EC has curves, not bits
+        eckey := f_EVP_PKEY_get1_EC_KEY(pkey);  { V8.40 }
+        if eckey = nil then Exit;
+        ecgroup := f_EC_KEY_get0_group(eckey);
+        if Assigned (ecgroup) then begin
+            Nid := f_EC_GROUP_get_curve_name(ecgroup);
+            Result := Result + ' ' + String(f_OBJ_nid2ln(Nid));
+        end;
+        f_EC_KEY_free(eckey);
+    end
+    else if keytype = EVP_PKEY_ED25519 then begin    { V8.51 }
+        Result := 'ED25519 Key Encryption';
+    end
+    else if keytype = EVP_PKEY_X25519 then begin     { V8.52 }
+        Result := 'X25519 Key Encryption';
+    end
+    else if keytype = EVP_PKEY_RSA_PSS then begin    { V8.51 }
+        Result := 'RSA-PSS Key Encryption';
+    end
+    else begin   { lots of obscure key types }
+        SetLength(Str, 256);
+        Str := f_OBJ_nid2ln(keytype);   { V8.41 }
+        SetLength(Str, IcsStrLen(PAnsiChar(Str)));
+        Result := String(Str);   { V8.41 }
+    end;
+    if Bits > 0 then Result := Result + ' ' + IntToStr(Bits) + ' bits';
+    if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then Exit;  { V8.51 }
+    Bits := f_EVP_PKEY_security_bits(pkey);         { V8.51 }
+    if Bits > 0 then Result := Result + ', ' + IntToStr(Bits) + ' security bits';  { V8.51 }
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetKeyInfo: string;       { V1.09 }
+var
+    pubkey: PEVP_PKEY;
+begin
+    result := '' ;
+    if not Assigned(X509) then Exit;
+    pubkey := f_X509_get_pubkey(X509);
+    Result := GetKeyDesc(pubkey);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetSerialNumHex: String;   { V1.09 }
+var
+    serial: PASN1_INTEGER;
+begin
+    Result := '';
+    if not Assigned(X509) then Exit;
+    serial := f_X509_get_serialNumber(X509);
+    Result := IcsLowerCase(IcsBufferToHex(serial^.data [0], serial^.length)) ;  { V8.40 }
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.CertInfo(Brief: Boolean = False): String;   { V8.41 added Brief }
+begin
+    Result := '';
+    if NOT IsCertLoaded then Exit;  { V8.57 sanity check }
+    if SubjectCName = '' then
+        Result := 'Issued to (CN): (Blank)'    { V8.63 }
+    else
+        Result := 'Issued to (CN): ' + IcsUnwrapNames (SubjectCName);
+    if SubjectOName  <> '' then Result := Result + ', (O): '  + IcsUnwrapNames (SubjectOName);
+    if SubjectOUName <> '' then Result := Result + ', (OU): ' + IcsUnwrapNames (SubjectOUName);  { V8.53 }
+    Result := Result + #13#10;
+    if SubAltNameDNS <> '' then
+        Result := Result + 'Alt Domains (SAN): ' + IcsUnwrapNames (SubAltNameDNS) + #13#10;
+    if SubAltNameIP <> '' then
+        Result := Result + 'Alt IP: ' + IcsUnwrapNames (SubAltNameIP) + #13#10;   { V8.41 }
+    if SelfSigned then
+        Result := Result + 'Issuer: Self Signed' + #13#10
+    else begin
+        Result := Result + 'Issued by (CN): ' + IcsUnwrapNames (IssuerCName);
+        if IssuerOName  <> '' then Result := Result + ', (O): '  + IcsUnwrapNames (IssuerOName);
+        if IssuerOUName <> '' then Result := Result + ', (OU): ' + IcsUnwrapNames (IssuerOUName);   { V8.53 }
+        Result := Result + #13#10;
+    end;
+    Result := Result + 'Expires: ' + DateTimeToStr (ValidNotAfter) +    { V8.45 need expiry for brief, V8.61 added time }
+                       ', Signature: ' + SignatureAlgorithm + #13#10;
+    if NOT Brief then begin
+        Result := Result + 'Valid From: ' + DateTimeToStr (ValidNotBefore) +      { V8.61 added time }
+            ', Serial Number: ' + GetSerialNumHex + #13#10 +     { V8.40 }
+            'Fingerprint (sha256): ' + IcsLowerCase(Sha256Hex) + #13#10 +         { V8.41, V8.63 was Sha1 }
+            'Public Key: ' + KeyInfo;                                         { V8.53 not brief }
+        if ExtendedValidation then
+            Result := Result + #13#10 + 'Extended Validation (EV) SSL Server Certificate';   { V8.40 }
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ check if host matches certificate common name or alternate names, if so
+  returns the matching name or blank for failed.  Flags are X509_CHECK_Flag_xx
+  which may change how the check is performed }
+function TX509Base.CheckHost(const Host: string; Flags: integer): String;   { V8.39 }
+var
+    peername: AnsiString;
+begin
+    Result := '';
+    if not Assigned(X509) then Exit;
+    SetLength (peername, 512);
+    if f_X509_check_host (X509, PAnsiChar(AnsiString(Host)),
+                        Length(Host), Flags, peername) <> 1 then exit;
+    SetLength (peername, StrLen(PAnsiChar(peername)));
+    Result := String (peername);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ check if email matches certificate common name or alternate names }
+function TX509Base.CheckEmail(const Email: string; Flags: integer): Boolean;    { V8.39 }
+begin
+    Result := False;
+    if not Assigned(X509) then Exit;
+    result := (f_X509_check_email (X509, PAnsiChar(AnsiString(Email)), Length(Email), Flags) <> 1);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ check if IP address matches certificate common name or alternate names }
+function TX509Base.CheckIPaddr(const IPadddr: string; Flags: integer): Boolean; { V8.39 }
+begin
+    Result := False;
+    if not Assigned(X509) then Exit;
+    result := (f_X509_check_ip_asc (X509, PAnsiChar(AnsiString(IPadddr)), Length(IPadddr), Flags) <> 1);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.GetPrivateKeyInfo: string;                         { V8.40 }
+begin
+    result := '' ;
+    if not Assigned(PrivateKey) then Exit;
+    Result := GetKeyDesc(PrivateKey);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.LoadIntersFromPemFile(const FileName: String);         { V8.41 }
+begin
+    InitializeSsl;
+    SetX509Inters(IcsSslLoadStackFromInfoFile(FileName, emCert));
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.LoadIntersFromString(const Value: String);             { V8.41 }
+begin
+    InitializeSsl;
+    SetX509Inters(IcsSslLoadStackFromInfoString(Value, emCert));
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.ReadStrBio(ABio: PBIO; MaxLen: Integer): AnsiString;  { V8.41 }
+var
+    Len: integer;
+begin
+    if not Assigned(ABio) then
+        raise EX509Exception.Create('BIO not assigned');
+    Result := '';
+    if MaxLen < 0 then Exit;
+    SetLength(Result, MaxLen);
+    Len := f_Bio_read(ABio, PAnsiChar(Result), MaxLen);
+//    SetLength(Result, StrLen(PAnsiChar(Result)));
+    SetLength(Result, Len);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.WriteStrBio(ABio: PBIO; Str: AnsiString; StripCR: Boolean = False);  { V8.41 }
+begin
+    if not Assigned(ABio) then
+        raise EX509Exception.Create('BIO not assigned');
+    if Length (Str) = 0 then Exit;
+    if StripCR then      { OpenSSL assume LF only and adds CR for Windows, so remove them }
+        Str := AnsiString(StringReplace (String(Str), #13, '', [rfReplaceAll]));
+    if f_BIO_write(ABio, @Str [1], Length (Str)) = 0 then
+        RaiseLastOpenSslError(EX509Exception, TRUE, 'Error writing text to BIO');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.WriteIntersToBio(ABio: PBIO; AddInfoText: Boolean = FALSE; const FName: String = '');  { V8.41 }
+var
+    Tot,I : Integer;
+    Cert: TX509Base;
+begin
+    if not Assigned(ABio) then
+        raise EX509Exception.Create('BIO not assigned');
+    if not IsInterLoaded then
+        raise EX509Exception.Create('X509Inters not assigned');
+    Tot := GetInterCount;
+    if Tot = 0 then Exit;
+    Cert := TX509Base.Create (self);
+    try
+        for I := 0 to Pred (Tot) do begin
+            Cert.X509 := PX509(f_OPENSSL_sk_value(FX509Inters, I));
+         { V8.57 a self signed certificate is a root not an intermediate }
+            if (Cert.IsCertLoaded) and (NOT Cert.SelfSigned) then begin
+                if AddInfoText then
+                    WriteStrBio(ABio, AnsiString(Cert.CertInfo) + #13#10, True);
+                if f_PEM_write_bio_X509(ABio, Cert.X509) = 0 then
+                    RaiseLastOpenSslError(EX509Exception, TRUE, 'Error writing certificate to ' + FName);
+                WriteStrBio(ABio, #10#10);  { blank lines between certs }
+            end;
+        end;
+    finally
+        Cert.Free;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.SaveIntersToToPemFile(const FileName: String;
+                                            AddInfoText: Boolean = FALSE);    { V8.41 }
+var
+    FileBio : PBIO;
+begin
+    InitializeSsl;
+    FileBio := IcsSslOpenFileBio(FileName, bomWrite);
+    try
+        WriteIntersToBio(FileBio, AddInfoText);
+    finally
+        f_bio_free(FileBio);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.GetIntersList(CertList: TX509List);             { V8.41 }
+begin
+    if not Assigned(CertList) then Exit;
+    CertList.Clear;
+    if not IsInterLoaded then Exit;
+    CertList.LoadAllStack(FX509Inters);
+end ;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TX509Base.ListInters: string;                               { V8.41 }
+var
+    Tot: Integer;
+    Certs: TX509List;
+begin
+    Result := '';
+    Tot := GetInterCount;
+    if Tot = 0 then Exit;
+    Certs := TX509List.Create (self);
+    try
+        Result := 'Total ' + IntToStr (Tot) + #13#10;
+        Certs.LoadAllStack(FX509Inters);
+        Result := Result + Certs.AllCertInfo(True);
+    finally
+        Certs.Free;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.AddToInters(X509: Pointer);                       { V8.41 }
+begin
+    if NOT IsInterLoaded then begin
+        FX509Inters := f_OPENSSL_sk_new_null;
+    end;
+    f_OPENSSL_sk_insert(FX509Inters, PAnsiChar(f_X509_dup(PX509(X509))), -1);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.LoadCATrustFromPemFile(const FileName: String);   { V8.41 }
+begin
+    InitializeSsl;
+    SetX509CATrust(IcsSslLoadStackFromInfoFile(FileName, emCert));
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.LoadCATrustFromString(const Value: String);       { V8.41 }
+begin
+    InitializeSsl;
+    SetX509CATrust(IcsSslLoadStackFromInfoString(Value, emCert));
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.GetCATrustList(CertList: TX509List);              { V8.41 }
+begin
+    if not Assigned(CertList) then Exit;
+    CertList.Clear;
+    if not IsCATrustLoaded then Exit;
+    CertList.LoadAllStack(FX509CATrust);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TX509Base.AddToCATrust(X509: Pointer);                      { V8.41 }
+begin
+    if NOT IsCATrustLoaded then begin
+        FX509CATrust := f_OPENSSL_sk_new_null;
+    end;
+    f_OPENSSL_sk_insert(FX509CATrust, PAnsiChar(f_X509_dup(PX509(X509))), -1);
+
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ this function is designed to validate and report a server certificate chain
+ before the server SSL context is initialised.  It checks a server certificate
+ is loaded, any chained intermediate certificates and optionally a CA root
+ bundle (available as literal sslRootCACertsBundle), and also certificate
+ expiry dates.  If returns chainOK for no errors, chainWarning for non-fetal
+ error and chainFail if the chain is broken or expired.  CertStr returns a
+ reportable list of all certificates in the chain for logs, etc.  }
+{ V8.41, V8.57 make ExpireDaya configurable }
+function TX509Base.ValidateCertChain(Host: String; var CertStr, ErrStr: string; ExpireDays: Integer = 30): TChainResult;
+var
+    curUTC: TDateTime;
+    InterList, CAList: TX509List;
+    CertIssuer, NextIssuer, OUIssuer: string;
+    I: integer;
+
+    function FindInter(const AName: string): Boolean;
+    var
+        J: Integer;
+    begin
+        Result := False;
+        for J := 0 to InterList.Count - 1 do begin
+            if (InterList[J].SubjectCName = AName) or
+                   (InterList[J].SubjectOName = AName) then begin
+                CertStr := CertStr + #13#10 + 'Intermediate: ' +
+                                                InterList[J].CertInfo(False);
+                NextIssuer := InterList[J].IssuerCName;
+                OUIssuer := InterList[J].IssuerOUName;  { V8.53 }
+                if curUTC > InterList[J].ValidNotAfter then
+                    ErrStr := 'SSL certificate has expired - ' +
+                                            InterList[J].SubjectCName
+                else begin
+                    if (curUTC + ExpireDays) > InterList[J].ValidNotAfter then begin
+                        ErrStr := 'SSL certificate expires on ' +
+                              DateToStr(InterList[J].ValidNotAfter) +
+                                           ' - ' + InterList[J].SubjectCName;;
+                    end;
+                end;
+                Result := True;
+                Exit;
+            end;
+        end;
+    end;
+
+    function FindCA(const AName, OUName: string): Boolean;
+    var
+        J: Integer;
+    begin
+        Result := False;
+        if NOT IsCATrustLoaded then Exit;
+        for J := 0 to CAList.Count - 1 do begin
+            if ((CAList[J].SubjectCName = AName) or
+                  (CAList[J].SubjectOName = AName)) then begin
+              { V8.53 also check Organisation Name, if used }
+                if (OUName = '') or (CAList[J].SubjectOUName = OUName) then begin
+                    CertStr := CertStr + #13#10 + 'Trusted CA: ' +
+                                                    CAList[J].CertInfo(False);
+                    Result := True;
+                    Exit;
+                end;
+            end;
+        end;
+    end;
+
+begin
+    Result := chainFail;
+    CertStr := '';
+    ErrStr := '';
+    curUTC := IcsGetUTCTime;   { V8.61 certificates have UTC time }
+    if NOT IsCertLoaded then begin
+        ErrStr := 'No SSL certificate loaded';
+        Exit;
+    end;
+
+ { keep server cert details }
+    CertStr := 'Server: ' + CertInfo(False);
+
+ { check not expired }
+    if curUTC < ValidNotBefore then begin
+        ErrStr := 'SSL certificate not valid yet - ' + SubjectCName;
+        Exit;
+    end;
+    if curUTC > ValidNotAfter then begin
+        ErrStr := 'SSL certificate has expired - ' + SubjectCName;
+        Exit;
+    end;
+    if (curUTC + ExpireDays) > ValidNotAfter then begin
+        Result := chainWarn; // not fatal
+        ErrStr := 'SSL certificate expires on ' + DateToStr(ValidNotAfter) +
+                                                           ' - ' + SubjectCName;
+    end;
+
+  { check host is listed - optional, may not be using SNI }
+  { WARNING - Host may have several lines, should check each one }
+    if (Host <> '') and NOT PostConnectionCheck (Host) then begin
+        Result := chainWarn;
+        ErrStr := 'SSL certificate expected host name not found: ' +
+                         Host + ', certificate DNS: ';
+        if (SubAltNameDNS <> '') then         { V8.47 sometimes blank }
+            ErrStr := ErrStr + IcsUnwrapNames(SubAltNameDNS)
+        else
+            ErrStr := ErrStr + SubjectCName;
+    end;
+
+ { self signed means nothing to check }
+    if SelfSigned then begin
+        Result := chainWarn;
+        ErrStr := 'SSL certificate is self signed - ' + SubjectCName;;
+        Exit;
+    end;
+
+ { build lists of inter and CA }
+    InterList := Nil;
+    CAList := Nil;
+    if IsInterLoaded then begin
+        InterList := TX509List.Create(self);
+        InterList.LoadAllStack(FX509Inters);
+    end;
+    if IsCATrustLoaded then begin
+        CAList := TX509List.Create(self);
+        CAList.LoadAllStack(FX509CATrust);
+    end;
+
+  { check inter chain or CA contains certificate that signed ours  }
+    CertIssuer := IssuerCName;
+    OUIssuer := IssuerOUName;  { V8.53 }
+    NextIssuer := '';
+    try
+        if IsInterLoaded and (NOT Selfsigned) then begin
+
+        { keep inter cert details }
+            CertStr := CertStr + #13#10;
+
+         { check server certificate was issued by our iutermediates }
+            if FindInter(CertIssuer) then
+                CertIssuer := ''; { OK don't check again }
+
+        { now check for multiple intermediates }
+            if (InterList.Count > 1) and (NextIssuer <> '') then begin
+                for I := 0 to InterList.Count - 1 do begin
+                    if NOT FindInter(NextIssuer) then begin
+                        if NOT IsCATrustLoaded then begin
+                            CertStr := CertStr + #13#10 + 'Intermediates, Total ' +
+                                    IntToStr (InterList.Count) + #13#10 +
+                                        InterList.AllCertInfo(False, false);
+                            Result := chainWarn;
+                            ErrStr := 'Issuer for SSL certificate not found - ' +
+                                                            InterList[I].IssuerOName;
+                            Exit;
+                        end;
+                    end;
+                end ;
+            end;
+        end ;
+
+    { see if server signed directly by trusted CA }
+        if CertIssuer <> '' then begin
+            if IsCATrustLoaded and FindCA(CertIssuer, OUIssuer) then begin
+                if Result = chainFail then Result := chainOK;  // no warnings so OK  V8.47
+                Exit;
+            end;
+        end;
+
+   { see if intermediate signed by a trusted CA }
+        if (NextIssuer <> '') then begin
+            if IsCATrustLoaded and FindCA(NextIssuer, OUIssuer) then begin
+                if Result = chainFail then Result := chainOK;  // no warnings so OK  V8.47
+                Exit;
+            end;
+        end;
+        if CertIssuer <> '' then begin
+            Result := chainWarn;
+            ErrStr := 'Issuer ' + CertIssuer + ' not found for SSL certificate - ' + SubjectCName;
+        end
+        else if (NextIssuer <> '') then begin
+            Result := chainWarn;
+            ErrStr := 'Issuer for SSL certificate not found - ' + NextIssuer;
+        end;
+        if Result = chainFail then Result := chainOK;  // no warnings so OK
+    finally
+        if Assigned(InterList) then InterList.Free;
+        if Assigned(CAList) then CAList.Free;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF NO_DEBUG_LOG}
 function TCustomSslWSocket.GetMyBioName(B: PBIO) : String;
 begin
@@ -15586,9 +19280,9 @@ begin
     end;
     Result := f_BIO_ctrl_pending(B);
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
     Inc(TraceCount);
-        DebugLog(loSslInfo, Format('%s BIO_ctrl_pending(%s) = %d   [%d]',
+        DebugLog(loSslDevel, Format('%s BIO_ctrl_pending(%s) = %d   [%d]',
                  [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                  GetMyBioName(b), Result, TraceCount]));
     end;
@@ -15624,9 +19318,9 @@ begin
     end;
     Result := f_BIO_read(B, Buf, Len);
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
     Inc(TraceCount);
-        DebugLog(loSslInfo, Format('%s BIO_read(%s, 0x%x, %d) = %d   [%d]',
+        DebugLog(loSslDevel, Format('%s BIO_read(%s, 0x%x, %d) = %d   [%d]',
                        [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                        GetMyBioName(b), INT_PTR(Buf), Len, Result, TraceCount]));
     end
@@ -15655,7 +19349,7 @@ begin
         Exit;
     end;
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
         LArgName := IntToStr(LArg);
         case (cmd) of
         BIO_CTRL_FLUSH:         CmdName := 'BIO_CTRL_FLUSH';
@@ -15675,9 +19369,9 @@ begin
 {$ENDIF}
     Result := f_BIO_ctrl(bp, Cmd, LArg, PArg);
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
     Inc(TraceCount);
-        DebugLog(loSslInfo, Format('%s BIO_ctrl(%s, %s, %s, 0x%x) = %d   [%d]',
+        DebugLog(loSslDevel, Format('%s BIO_ctrl(%s, %s, %s, 0x%x) = %d   [%d]',
                              [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                              GetMyBioName(bp), CmdName, LArgName, INT_PTR(PArg),
                              Result, TraceCount]));
@@ -15696,9 +19390,9 @@ begin
     end;
     Result := f_BIO_ctrl_get_write_guarantee(b);
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 }
     Inc(TraceCount);
-        DebugLog(loSslInfo,
+        DebugLog(loSslDevel,
                  Format('%s BIO_ctrl_get_write_guarantee(%s) = %d   [%d]',
                  [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2), GetMyBioName(b),
                  Result, TraceCount]));
@@ -15718,9 +19412,9 @@ begin
     end;
     Result := f_BIO_ctrl_get_read_request(b);
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 }
         Inc(TraceCount);
-        DebugLog(loSslInfo, Format('%s BIO_ctrl_get_read_request(%s) = %d   [%d]',
+        DebugLog(loSslDevel, Format('%s BIO_ctrl_get_read_request(%s) = %d   [%d]',
                                    [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                                    GetMyBioName(b), Result, TraceCount]));
     end;
@@ -15738,9 +19432,9 @@ begin
     end;
     Result := f_BIO_write(B, Buf, Len);
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 }
         Inc(TraceCount);
-        DebugLog(loSslInfo, Format('%s BIO_write(%s, 0x%x, %d) = %d   [%d]',
+        DebugLog(loSslDevel, Format('%s BIO_write(%s, 0x%x, %d) = %d   [%d]',
                                    [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                                    GetMyBioName(b),
                                    INT_PTR(Buf),  Len, Result, TraceCount]));
@@ -15766,9 +19460,9 @@ begin
     FSslHandshakeErr := FLastSslError; { V8.14 }
     FSslHandshakeRespMsg := String(LastOpenSslErrMsg(TRUE));  { V8.14 }
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslErr) then begin
+    if CheckLogOptions(loSslErr) or CheckLogOptions(loSslInfo) then begin     { V8.55 }
         Inc(TraceCount);
-        DebugLog(loSslErr, Format('%s  %d  [%d] %s',
+        DebugLog(loSslErr, Format('%s HandleSslError handle=%d  [%d] %s',     { V8.55 }
                                   [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                                    FHSocket, TraceCount,
                                    FSslHandshakeRespMsg]));
@@ -15791,9 +19485,9 @@ begin
         WSocketSynchronizedEnableReadEvent(Self);
 {$ENDIF}
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 }
         Inc(TraceCount);
-        DebugLog(loSslInfo, Format('%s Winsock recv( %d, 0x%x, %d, %d) = %d   [%d]',
+        DebugLog(loSslDevel, Format('%s Winsock recv( %d, 0x%x, %d, %d) = %d   [%d]',
                                    [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                                    s, INT_PTR(Buf), Len, Flags, Result, TraceCount]));
     end;
@@ -15806,9 +19500,9 @@ function TCustomSslWSocket.my_RealSend(Buf : TWSocketData; Len : Integer) : Inte
 begin
     Result := RealSend(Buf, Len);
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 }
         Inc(TraceCount);
-        DebugLog(loSslInfo, Format('%s my_RealSend (0x%x, %d, %d) = %d   [%d]',
+        DebugLog(loSslDevel, Format('%s my_RealSend (0x%x, %d, %d) = %d   [%d]',
                                    [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                                    FHSocket,
                                    INT_PTR(Buf), Len, Result, TraceCount]));
@@ -15826,9 +19520,9 @@ begin
     end;
     Result := BIO_should_retry(b);
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 }
         Inc(TraceCount);
-        DebugLog(loSslInfo, Format('%s BIO_should_retry(%s) = %d   [%d]',
+        DebugLog(loSslDevel, Format('%s BIO_should_retry(%s) = %d   [%d]',
                                [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                                GetMyBioName(b), Ord(Result), TraceCount]))
     end;
@@ -15844,31 +19538,13 @@ begin
     FSslAcceptableHosts     := TStringList.Create;
     FSslCertChain           := TX509List.Create(nil);
     FX509Class              := TX509Base;
-    {
-    FSsl                    := nil;
-    FSslbio                 := nil;
-    FIBIO                   := nil;
-    FNBIO                   := nil;
-
-    FSslInitialized         := FALSE;
-    FNetworkError           := 0;
-    FSslIntShutDown         := 0;
-    FSslVerifyResult        := 0;
-    }
     FMayTriggerFD_Read      := TRUE;
     FMayTriggerFD_Write     := TRUE;
     FMayTriggerDoRecv       := TRUE;
     FMayTriggerSslTryToSend := TRUE;
-    //FCloseCalled            := FALSE;
-    //FCloseReceived          := FALSE;
-
-    //FMayInternalSslShut     := TRUE;
     inherited Create(AOwner);
     FSslBufList := TIcsBufferHandler.Create(nil);
-    FSslBufList.BufSize := SSL_BUFFER_SIZE;  // 4096              {AG 10/10/07}
-{ IFDEF DEBUG_OUTPUT}
-//    FSslDebugLevel := ssldbgDump;
-{ ENDIF}
+    FSslBufList.BufSize := GSSL_BUFFER_SIZE;  // 4096  { V8.27 size now configurable }
 end;
 
 
@@ -15919,9 +19595,9 @@ end;
 procedure TCustomSslWSocket.Do_FD_ACCEPT(var Msg: TMessage);
 begin
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-        DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' Do_FD_ACCEPT ' + IntToStr(FHSocket));
+    if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+        DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                      ' Do_FD_ACCEPT handle=' + IntToStr(FHSocket));
 {$ENDIF}
     inherited Do_FD_ACCEPT(msg);
 end;
@@ -15942,10 +19618,10 @@ begin
             FLastError := 0;
     end;
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then
-        DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+    if CheckLogOptions(loSslDevel) then
+        DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
                  ' Socket data pending: ' + IntToStr(Count) + ' Err: ' +
-                 IntToStr(FLastError) + ' ' + IntToStr(FHSocket));
+                 IntToStr(FLastError) + ' handle=' + IntToStr(FHSocket));
 {$ENDIF}
 end;
 
@@ -15965,19 +19641,22 @@ begin
     if CheckLogOptions(loSslInfo) then  { V5.21 }
         DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
                       ' TCustomSslWSocket.Do_FD_CLOSE error #' +
-                      IntToStr(msg.LParamHi) + ' ' + IntToStr(FHSocket));
+                      IntToStr(msg.LParamHi) + ' handle=' + IntToStr(FHSocket));
 {$ENDIF}
     if (FState = wsConnecting) or (FHSocket = INVALID_SOCKET) then
         Exit;
 
-    SslStOk := f_SSL_state(FSsl) = SSL_ST_OK;
+    SslStOk := IcsSslGetState(FSsl) = TLS_ST_OK;  { V8.27 }
 
     if not FCloseCalled then begin
         FCloseCalled := TRUE;
 {$IFNDEF NO_DEBUG_LOG}
         if CheckLogOptions(loSslInfo) then
             DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                     ' *CloseCalled ' + IntToStr(FHSocket));
+                     ' *CloseCalled handle=' + IntToStr(FHSocket) +
+                        ', State=' + String(f_SSL_state_string_long(Fssl)) +  { V8.27 }
+                        ' (' + GetEnumName(TypeInfo(TSslHandshakeState), Ord(IcsSslGetState(FSsl))) + { V8.54 }
+                        '), Err=' + OpenSslErrMsg(FLastSslError));            { V8.54 }
 {$ENDIF}
     end;
     if FNetworkError = 0 then begin
@@ -16010,9 +19689,10 @@ begin
             msg.LParamHi := FNetworkError;
     end;
 
-    if (not SslStOk) and
-       (not (csDestroying in ComponentState)) then begin         // AG 03/03/06
-        TriggerSslHandshakeDone(1);
+    if (not SslStOk) and (not (csDestroying in ComponentState)) then begin         // AG 03/03/06
+        if NOT FHandshakeEventDone then  { V8.55 }
+            TriggerSslHandshakeDone(1);  // error !!!
+        FHandshakeEventDone := TRUE;  { V8.55 }
         if (FState = wsConnected) and (FSslIntShutDown < 2) and  // AG 03/03/06
            (msg.LParamHi = 0) then begin                         // AG 03/03/06
             inherited ShutDown(1);                               // AG 03/03/06
@@ -16022,8 +19702,8 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loSslInfo) then
         DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                 ' FCloseInvoked=' + IntToStr(Ord(FCloseInvoked)) + ' ' +
-                 IntToStr(FHSocket));
+                 ' FCloseInvoked=' + IntToStr(Ord(FCloseInvoked)) + ' handle=' + IntToStr(FHSocket) +
+                 ', State=' + String(f_SSL_state_string_long(Fssl))); { V8.27 }
 {$ENDIF}
     if (FHSocket <> INVALID_SOCKET) and (not FCloseInvoked) and {AG 12/30/07}
        (not (csDestroying in ComponentState)) then begin   // AG 03/03/06
@@ -16035,7 +19715,6 @@ begin
     ResetSsl;
 
     if FState <> wsClosed then begin
-        //inherited ShutDown(1);              // call winsock shutdown
         inherited InternalClose(FALSE, msg.LParamHi);  // close the socket
     end;
 end;
@@ -16044,8 +19723,6 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TCustomSslWSocket.Do_FD_CONNECT(var Msg: TMessage);
 begin
-    {if FSslEnable and (Msg.LParamHi = 0) then
-        StartSslHandshake;} // moved to TriggerSessionConnected
     FCloseCalled    := FALSE;
     FSslIntShutDown := 0;
     inherited Do_FD_CONNECT(Msg);
@@ -16076,7 +19753,7 @@ begin
             FPendingSslEvents := FPendingSslEvents + [Event];
     end;
 {$IFNDEF NO_DEBUG_LOG}
-    if Result and CheckLogOptions(loSslInfo) then begin
+    if Result and CheckLogOptions(loSslDevel) then begin
         case Event of
             sslFdRead  : S := 'sslFdRead ';
             sslFdWrite : S := 'sslFdWrite ';
@@ -16084,8 +19761,8 @@ begin
             else
                 S := 'Unknown';
         end;
-        DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                 ' TriggerEvent ' + S + IntToStr(FHSocket));
+        DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                 ' TriggerEvent handle=' + S + IntToStr(FHSocket));
     end;
 {$ENDIF}
 end;
@@ -16144,38 +19821,49 @@ end;  *)
 procedure TCustomSslWSocket.Do_FD_READ(var Msg: TMessage);
 var
     Len        : Integer; // How much to receive
-    Buffer     : array [0..(SSL_BUFFER_SIZE * 2) -1] of AnsiChar;
+    Buffer     : array{ [0..(SSL_BUFFER_SIZE * 2) -1]} of AnsiChar;  { V8.27 size now configurable }
+    BuffSize   : Integer;  { V8.27 }
     NumRead    : Integer;
     nError     : Integer;
     Res        : Integer;
     PBuf       : TWSocketData;
     Dummy      : Byte;
 begin
+    if (not FSslEnable) or (FSocksState <> socksData) or  { V8.42 don't stop reading for non-SSL }
+       (FHttpTunnelState <> htsData) then begin
+        inherited Do_FD_READ(msg);
+        Exit;
+    end;
+
+    BuffSize := (GSSL_BUFFER_SIZE * 2)-1;  { V8.27 size now configurable }
+    SetLength(Buffer, BuffSize);
+
  { V8.22 moved here from Do_SSL_FD_READ  }
+ { stop read windows events until we've processed this block }
     WSocket_Synchronized_WSAASyncSelect({$IFDEF POSIX}Self,{$ENDIF}
          FHSocket, Handle, FMsg_WM_ASYNCSELECT, FD_WRITE or FD_CLOSE or FD_CONNECT);
     try
-        if (not FSslEnable) or (FSocksState <> socksData) or
+     {   if (not FSslEnable) or (FSocksState <> socksData) or     V8.42 moved before WSAASyncSelect
            (FHttpTunnelState <> htsData) then begin
             inherited Do_FD_READ(msg);
             Exit;
-        end;
+        end;     }
 
       {$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-            DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                          ' TCustomSslWSocket.Do_FD_READ ' + IntToStr(FHSocket));
+        if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+            DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                          ' TCustomSslWSocket.Do_FD_READ handle=' + IntToStr(FHSocket));
       {$ENDIF}
 
         if (FNetworkError > 0) then
             Exit;
 
-        if (f_SSL_state(FSsl) = SSL_ST_OK) and (FSslBioWritePendingBytes < 0) and // <= 12/08/05
+        if (IcsSslGetState(FSsl) = TLS_ST_OK){ V8.27 } and (FSslBioWritePendingBytes < 0) and // <= 12/08/05
            (my_BIO_ctrl_pending(FSslbio) > 0) then begin
           {$IFNDEF NO_DEBUG_LOG}
-            if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-                DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                   ' TriggerDataAvailable (Do_FD_READ_1) ' + IntToStr(FHSocket));
+            if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+                DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                   ' TriggerDataAvailable (Do_FD_READ_1) handle=' + IntToStr(FHSocket));
           {$ENDIF}
             TriggerDataAvailable(0);
             Exit;
@@ -16190,8 +19878,8 @@ begin
         Len := my_BIO_ctrl_get_read_request(FNBio);
         if Len = 0 then
             Len := my_BIO_ctrl_get_write_guarantee(FNBio);
-        if Len > SizeOf(Buffer) then
-            Len := SizeOf(Buffer)
+        if Len > BuffSize then   { V8.27 was sizeof(Buffer) }
+            Len := BuffSize
         else if Len = 0 then begin
             FMayTriggerFD_Read := TRUE;
             TriggerEvents;
@@ -16202,7 +19890,7 @@ begin
         NumRead := my_WSocket_recv(FHSocket, PBuf, Len, 0);
         if (NumRead > 0) then begin
             // Store it in the network input bio and process data
-            my_BIO_write(FNBio, @Buffer, NumRead);
+            my_BIO_write(FNBio, PBuf, NumRead);     { V8.27 was @Buffer }
             my_BIO_ctrl(FNBio, BIO_CTRL_FLUSH, 0, nil);
             // Look if input data was valid.
             // We may not call BIO_read if a write operation is pending !!
@@ -16212,7 +19900,7 @@ begin
                     if not my_BIO_should_retry(FSslBio) then begin
                         HandleSslError;
                         if (not FExplizitSsl) or
-                           (f_SSL_state(FSsl) <> SSL_ST_OK) then begin
+                           (IcsSslGetState(FSsl) <> TLS_ST_OK)  { V8.27 } then begin
                             WSocket_WSASetLastError(WSAECONNABORTED);
                             FNetworkError := WSAECONNABORTED;
                             FLastError    := WSAECONNABORTED; //XX
@@ -16227,8 +19915,8 @@ begin
                                 TriggerSslShutDownComplete(FLastSslError);
                         end;
                       {$IFNDEF NO_DEBUG_LOG}
-                        if CheckLogOptions(loSslInfo) then  { V5.21 }
-                            DebugLog(loSslInfo,
+                        if CheckLogOptions(loSslErr) then  { V5.21 }
+                            DebugLog(loSslErr,
                                     IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
                                      ' NetworkError #' + IntToStr(FNetworkError));
                       {$ENDIF}
@@ -16268,8 +19956,8 @@ begin
                 WSocket_WSASetLastError(WSAEWOULDBLOCK);
                 FLastError := WSAEWOULDBLOCK; //XX
               {$IFNDEF NO_DEBUG_LOG}
-                if CheckLogOptions(loSslInfo) then  { V5.21 }
-                   DebugLog(loSslInfo, 'SslBio write operation pending: ' +
+                if CheckLogOptions(loSslDevel) then  { V5.21 }
+                   DebugLog(loSslDevel, 'SslBio write operation pending: ' +
                                             IntToStr(FSslBioWritePendingBytes));
               {$ENDIF}
             end;
@@ -16295,14 +19983,13 @@ begin
             end;
         end;
 
-        if (f_SSL_state(FSsl) = SSL_ST_OK) {(FSslState >= sslEstablished)} and
+        if (IcsSslGetState(FSsl) = TLS_ST_OK) and  { V8.27 }
            (FSslBioWritePendingBytes < 0) and // <= 12/08/05
            (my_BIO_ctrl_pending(FSslbio) > 0) then begin
           {$IFNDEF NO_DEBUG_LOG}
-            if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-                DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                         ' TriggerDataAvailable (Do_FD_READ_2) ' +
-                         IntToStr(FHSocket));
+            if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+                DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                         ' TriggerDataAvailable (Do_FD_READ_2) handle=' + IntToStr(FHSocket));
           {$ENDIF}
             TriggerDataAvailable(0);
         end;
@@ -16327,7 +20014,8 @@ end;
 procedure TCustomSslWSocket.Do_FD_WRITE(var Msg: TMessage);
 var
     Len        : Integer;    // How much to send
-    Buffer     : array [0..16383] of AnsiChar;
+    Buffer     : array { [0..16383] } of AnsiChar;  { V8.27 size now configurable }
+    BuffSize   : integer;
     NumRead    : Integer;
     NumSent    : Integer;
     Err        : Longword;
@@ -16337,32 +20025,35 @@ begin
         inherited Do_FD_WRITE(msg);
         Exit;
     end;
+
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-        DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' TCustomSslWSocket.Do_FD_WRITE ' + IntToStr(FHSocket));
+    if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+        DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                      ' TCustomSslWSocket.Do_FD_WRITE handle=' + IntToStr(FHSocket));
 {$ENDIF}
     if (FNetworkError > 0) then
         Exit;
 
     FMayTriggerFD_Write := FALSE;
+    BuffSize := (GSSL_BUFFER_SIZE * 2)-1;  { V8.27 size now configurable }
+    SetLength(Buffer, BuffSize);
 
     // Send encrypted data in the send buffer
     inherited TryToSend;
     // May have closed the connection
     if (FHSocket = INVALID_SOCKET) then begin
 {$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-            DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+        if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+            DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
                                           ' INVALID_SOCKET');
 {$ENDIF}
         Exit;
     end
     else if not bAllSent then begin
 {$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-            DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                               ' * Not bAllSent ' + IntToStr(FHSocket));
+        if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+            DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                               ' * Not bAllSent handle=' + IntToStr(FHSocket));
 {$ENDIF}
         FMayTriggerFD_Write := TRUE;
         { AG 01/10/07 - Outcommented next line in order to avoid too many  }
@@ -16375,12 +20066,13 @@ begin
 
     // Send the data waiting in the network bio
     Len     := my_BIO_ctrl_pending(FNBio);
-    NumRead := my_BIO_read(FNBio, @Buffer, Len);
+    if Len > BuffSize then Len := BuffSize;            { V8.27 sanity check }
+    NumRead := my_BIO_read(FNBio, @Buffer[0], Len);    { V8.27 }
     if NumRead <= 0 then
         FMayTriggerFD_Write := TRUE;
 
     while (NumRead > 0) do begin
-        NumSent := my_RealSend(@Buffer, NumRead{len});
+        NumSent := my_RealSend(@Buffer[0], NumRead);  { V8.27 }
         if NumSent = 0 then begin
             if FState = wsconnected then
                 TriggerEvent(sslFdClose, 0);
@@ -16395,11 +20087,11 @@ begin
                     FLastError    := Err; //XX
                     TriggerEvent(sslFdClose, 0);
 {$IFNDEF NO_DEBUG_LOG}
-                    if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-                        DebugLog(loSslInfo,
+                    if CheckLogOptions(loSslErr) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+                        DebugLog(loSslErr,
                             IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
                             ' Winsock Error ' + WSocketErrorDesc(FNetworkError) +
-                            ' ' + IntToStr(FHSocket));
+                            ' handle=' + IntToStr(FHSocket));
 {$ENDIF}
                     Exit;
                 end
@@ -16417,12 +20109,13 @@ begin
             FMayTriggerFD_Write := TRUE;
             break;
         end;
-        NumRead := my_BIO_read(FNBio, @Buffer, Len);
+        if Len > BuffSize then Len := BuffSize;            { V8.27 sanity check }
+        NumRead := my_BIO_read(FNBio, @Buffer[0], Len);    { V8.27 }
         if Numread <= 0 then
             FMayTriggerFD_Write := TRUE;
     end;
 
-    if (f_Ssl_State(FSsl) = SSL_ST_OK) then begin                    // <= 12/08/05
+    if (IcsSslGetState(FSsl) = TLS_ST_OK) then begin { V8.27 }        // <= 12/08/05
         if not bSslAllSent then
             TryToSend
         (* else if {bSslAllSent and} bAllSent and (my_BIO_ctrl_pending(FNBio)= 0) and
@@ -16460,9 +20153,9 @@ begin
         Exit;
     end;
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-        DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' TCustomSslWSocket.DoRecv ' + IntToStr(FHSocket));
+    if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+        DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                      ' TCustomSslWSocket.DoRecv handle=' + IntToStr(FHSocket));
 {$ENDIF}
     if FNetworkError > 0 then begin
         if (my_BIO_ctrl_pending(FSslbio) > 0) and
@@ -16485,7 +20178,7 @@ begin
         Result := 0;
         Exit;
     end;
-    if (f_SSL_state(FSsl) <> SSL_ST_OK) or                //<= 01/01/06 AG
+    if (IcsSslGetState(FSsl) <> TLS_ST_OK) or { V8.27 }            //<= 01/01/06 AG
        (my_BIO_ctrl_pending(FSslbio) = 0) then begin
         if FState = wsclosed then begin
             Result := 0;
@@ -16558,8 +20251,8 @@ begin
                     TriggerSslShutDownComplete(FLastSslError);
             end;
 {$IFNDEF NO_DEBUG_LOG}
-            if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-                DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+            if CheckLogOptions(loSslErr) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+                DebugLog(loSslErr, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
                                  ' NetworkError #' + IntToStr(FNetworkError));
 {$ENDIF}
             Exit;
@@ -16577,6 +20270,11 @@ begin
     FMayTriggerDoRecv := TRUE;
     TriggerEvents;
     Result := Numread;
+    if (Result > 0) then begin
+        FReadCount := FReadCount + Result;             { V8.30 was in Receive }
+        if Assigned(FCounter) then
+            FCounter.FLastRecvTick := IcsGetTickCount;  { V8.30 was missing }
+    end;
 end;
 
 
@@ -16638,15 +20336,16 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
         if CheckLogOptions(loSslInfo) then
             DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                     ' *CloseCalled ' + IntToStr(FHSocket));
+                     ' SocketCloseCalled handle=' + IntToStr(FHSocket));
 {$ENDIF}
     end;
 
     if FSslEnable and Assigned(FSsl) and
-      (f_SSL_state(FSsl) = SSL_ST_OK) and (my_BIO_ctrl_pending(FSslbio) > 0) then
+      (IcsSslGetState(FSsl) = TLS_ST_OK) and (my_BIO_ctrl_pending(FSslbio) > 0) then  { V8.27 }
         TriggerEvents
-    else
-       inherited Close;
+    else begin
+        inherited Close;
+    end;
 end;
 
 
@@ -16662,8 +20361,7 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
         DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                 ' TCustomSslWSocket.ShutDown ' + IntToStr(How) + ' ' +
-                 IntToStr(FHSocket));
+                 ' TCustomSslWSocket.ShutDown ' + IntToStr(How) + ' handle=' + IntToStr(FHSocket));
 {$ENDIF}
     FShutDownHow       := How;
     FSslBiShutDownFlag := FALSE;
@@ -16741,8 +20439,7 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
         if CheckLogOptions(loSslInfo) then
             DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                     ' SslShutdownCompleted *'+ IntToStr(Ord(Result)) + '* ' +
-                     IntToStr(FHSocket));
+                     ' SslShutdownCompleted *'+ IntToStr(Ord(Result)) + '* handle=' + IntToStr(FHSocket));
 {$ENDIF}
     end;
 end;
@@ -16767,7 +20464,7 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loSslInfo) then
         DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                 ' SslInternalShutdown ' + IntToStr(FHSocket));
+                 ' SslInternalShutdown handle=' + IntToStr(FHSocket));
 {$ENDIF}
 
     if FSslIntShutDown = 0 then
@@ -16843,82 +20540,6 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-(*
-// Return FALSE if check failed and connection must be close
-function TCustomSslWSocket.PostConnectionCheck : Integer;
-var
-    Cert     : PX509;
-    ExtCount : Integer;
-    I, J     : Integer;
-    Ext      : PX509_EXTENSION;
-    ExtStr   : PChar;
-    Meth     : PX509V3_EXT_METHOD;
-    Data     : PChar;
-    Val      : PSTACK;
-    NVal     : PCONF_VALUE;
-    Subj     : PX509_NAME;
-    HostBuf  : String;
-begin
-    Result := X509_V_ERR_APPLICATION_VERIFICATION;
-    Cert   := f_SSL_get_peer_certificate(FSsl);
-    if Cert = nil then begin
-        OutputDebugString('PostConnectionCheck: No certificate');
-        Exit;
-    end;
-
-    ExtCount := f_X509_get_ext_count(Cert);
-    if ExtCount > 0 then begin
-        for I := 0 to ExtCount - 1 do begin
-            Ext    := f_X509_get_ext(Cert, I);
-            ExtStr := f_OBJ_nid2sn(f_OBJ_obj2nid(f_X509_EXTENSION_get_object(Ext)));
-            if StrLIComp(ExtStr, 'subjectAltName', 255) = 0 then begin
-                // UNTESTED CODE
-                Meth := f_X509V3_EXT_get(Ext);
-                if Meth = nil then
-                    break;
-                if not Assigned(Meth.i2v) then
-                    Break;
-                Data := Ext^.value^.data;
-                Val  := Meth^.i2v(Meth,
-                                  meth^.d2i(nil, @Data, Ext^.value^.length),
-                                  nil);
-                J := 0;
-                while J < f_sk_num(val) do begin
-                    NVal := PCONF_VALUE(f_sk_value(Val, J));
-                    if (StrLIComp(NVal^.name, 'DNS', 255) = 0) then begin
-                        HostBuf := StrPas(NVal^.value);
-                        if FSslAcceptableHosts.IndexOf(HostBuf) >= 0 then begin
-                            Result := FSslVerifyResult;
-                            f_X509_free(Cert);
-                            Exit;
-                        end;
-                    end;
-                    Inc(J);
-                end;
-                // END OF UNTESTED CODE
-            end;
-        end;
-    end;
-
-    Subj := f_X509_get_subject_name(Cert);
-    if Subj <> nil then begin
-        SetLength(HostBuf, 256);
-        if f_X509_NAME_get_text_by_NID(Subj, NID_commonName, @HostBuf[1], Length(HostBuf)) > 0 then begin
-            SetLength(HostBuf, StrLen(@HostBuf[1]));
-            if FSslAcceptableHosts.IndexOf(HostBuf) < 0 then begin
-                // Not found
-                f_X509_free(Cert);
-                Exit;
-            end
-        end;
-    end;
-
-    Result := FSslVerifyResult;
-    f_X509_free(Cert);
-end;
-
- *)
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TCustomSslWSocket.SetSslAcceptableHosts(Value : TStrings);
 begin
     FSslAcceptableHosts.Assign(Value);
@@ -16962,7 +20583,7 @@ begin
                 FSslEnable := FALSE;
                 ResetSSL;
                 inherited InternalClose(FALSE, WSAECONNABORTED);
-                HandleBackGroundException(E);
+                HandleBackGroundException(E, 'TCustomSslWSocket.Dup');
             end;
         end;
     end;
@@ -16989,7 +20610,7 @@ begin
           { The SSL-connection doesn't support secure renegotiations.   }
           (not Obj.FSslSupportsSecureRenegotiation) and
           { Unsafe legacy renegotiation is not set.                     }
-          (f_SSL_get_options(Obj.FSsl) and SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION = 0)
+          (f_Ics_SSL_get_options(Obj.FSsl) and SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION = 0)    { V8.51 }
         )
      );
 end;
@@ -17017,6 +20638,8 @@ begin
         Obj.FSsl_In_CB := TRUE;
         try
 {$IFNDEF NO_DEBUG_LOG}
+
+        { all this stuff is debug logging, not necessary for normal operation }
             if Obj.CheckLogOptions(loSslErr) or
                Obj.CheckLogOptions(loSslInfo) then begin
 
@@ -17027,84 +20650,95 @@ begin
                     Str := 'SSL_connect: '
                 else if (w and SSL_ST_ACCEPT) <> 0 then
                     Str := 'SSL_accept: '
+                else if (Where and SSL_CB_HANDSHAKE_START) <> 0 then
+                    Str := 'SSL_handshake_start: '                { V8.53 }
+                else if (Where and SSL_CB_HANDSHAKE_DONE) <> 0 then
+                    Str := 'SSL_handshake_done: '                 { V8.53 }
+                else if (Where and SSL_CB_ALERT) <> 0 then
+                    Str := 'SSL_alert: '                          { V8.55 }
                 else
                     Str := 'undefined: ';
 
                 if ((Where and SSL_CB_LOOP) <> 0) then begin
-                    if Obj.CheckLogOptions(loSslInfo) then
-                        Obj.DebugLog(loSslInfo, Pre + Str +
+                    if Obj.CheckLogOptions(loSslInfo) then    { V8.55 was SslDevel, really Errs }
+                        Obj.DebugLog(loSslInfo, Pre + Str +   { V8.59 really meant Info }
                                         String(f_SSL_state_string_long(ssl)));
                 end
                 else if ((Where and SSL_CB_ALERT) <> 0) and
-                        Obj.CheckLogOptions(loSslInfo) then begin
+                        Obj.CheckLogOptions(loSslInfo) then begin    { V8.59 was SslDevel, really meant Info }
                     if (Where and SSL_CB_READ) <> 0 then
                         Str := 'read '
                     else
                         Str := 'write ';
-
                     Obj.DebugLog(loSslInfo, Pre + 'SSL3 alert ' + Str +
                                  String(f_SSL_alert_type_string_long(ret)) + ' ' +
                                  String(f_SSL_alert_desc_string_long(ret)));
                 end
                 else if (Where and SSL_CB_EXIT) <> 0 then begin
                     if Ret = 0 then begin
-                        if Obj.CheckLogOptions(loSslInfo) then
-                            Obj.DebugLog(loSslInfo, Pre + Str + 'failed in ' +
+             //         if Obj.CheckLogOptions(loSslErr) then   { V8.59 was Devel, Err and Info }
+                            Obj.DebugLog(loSslErr, Pre + Str + 'failed in ' +
                                             String(f_SSL_state_string_long(ssl)));
                     end
                     else if Ret < 0 then begin
                         Err := f_ssl_get_error(ssl, Ret);
-                      {  if ((Err <> SSL_ERROR_WANT_READ) or
-                            (Err <> SSL_ERROR_WANT_WRITE)) then  }
                         if NOT ((Err = SSL_ERROR_WANT_READ) or        { V8.14 only want real errors }
-                            (Err = SSL_ERROR_WANT_WRITE)) then begin
-                                if Err = SSL_ERROR_SSL then  { V8.14 report proper error }
-                                    Obj.HandleSslError
-                                else
-                                    Obj.DebugLog(loSslInfo, Pre + Str + 'error ' + IntToStr (Err) + { V8.14 actual error }
-                                     ' in ' + String(f_SSL_state_string_long(ssl)));
-                            end;
+                                 (Err = SSL_ERROR_WANT_WRITE)) then begin
+                              {  if Err = SSL_ERROR_SSL then  { V8.14 report proper error }
+                              {      Obj.HandleSslError  V8.55 clears error, don't use for debug purposes }
+                              {  else   }
+                            Obj.DebugLog(loSslErr, Pre + Str + 'error ' + IntToStr (Err) + { V8.14 actual error }
+                                                    ' in ' + String(f_SSL_state_string_long(ssl)));
+                        end;
                     end;
+                end
+                else begin
+                    if Obj.CheckLogOptions(loSslInfo) then     { V8.59 really meant Info }
+                        Obj.DebugLog(loSslDevel, Pre + Str + 'where=' + IntToHex(where, 8) +
+                              ', state=' + String(f_SSL_state_string_long(ssl))); { V8.53 added state }
                 end;
             end;
 {$ENDIF}
+         { OpenSSL InfoCallback is when state changes }
             if (Where and SSL_CB_HANDSHAKE_START) <> 0 then begin
-                Obj.FInHandshake   := TRUE;
+             {   Obj.FInHandshake   := TRUE;   V8.55 does not seem to be used anywhere ???? }
                 Inc(Obj.FHandShakeCount);
-                if (Obj.FHandShakeCount > 1) and
-                    IsSslRenegotiationDisallowed(Obj) then begin
-                //if ICS_SSL_NO_RENEGOTIATION and (Obj.FHandShakeCount > 1) then
-                    Obj.CloseDelayed;
-                   { todo: We need to handle this much better }
-                {$IFNDEF NO_DEBUG_LOG}
-                    if Obj.CheckLogOptions(loSslErr) or
-                       Obj.CheckLogOptions(loSslInfo) then
-                        Obj.DebugLog(loSslInfo, Pre + 'Renegotiaton not supported ' +
-                                                'or not allowed. Connection ' +
-                                                'closed delayed');
-                {$ENDIF}
+
+           { V8.53 TLSv1.3 does not have renegotiation so skip these checks }
+                if (f_SSL_version(Obj.FSsl) < TLS1_3_VERSION) then begin   { V8.55 }
+                    if (Obj.FHandShakeCount > 1) and
+                                IsSslRenegotiationDisallowed(Obj) then begin
+                        Obj.CloseDelayed;
+                       { todo: We need to handle this much better }
+                    {$IFNDEF NO_DEBUG_LOG}
+                        if Obj.CheckLogOptions(loSslErr) or
+                           Obj.CheckLogOptions(loSslDevel) then
+                            Obj.DebugLog(loSslErr, Pre + 'Renegotiaton not supported ' +
+                                                    'or not allowed. Connection ' +
+                                                    'closed delayed');
+                    {$ENDIF}
+                    end;
+                    if Obj.FHandShakeCount > 1 then
+                        Obj.FSslInRenegotiation := TRUE;
+    {$IFNDEF NO_DEBUG_LOG}
+                    if Obj.CheckLogOptions(loSslInfo) then
+                        Obj.DebugLog(loSslInfo, Pre + 'SSL_CB_HANDSHAKE_START');
+    {$ENDIF}
                 end;
-                if Obj.FHandShakeCount > 1 then
-                    Obj.FSslInRenegotiation := TRUE;
-{$IFNDEF NO_DEBUG_LOG}
-                if Obj.CheckLogOptions(loSslInfo) then
-                    Obj.DebugLog(loSslInfo, Pre + 'SSL_CB_HANDSHAKE_START');
-{$ENDIF}
             end
-            else if (Where and SSL_CB_HANDSHAKE_DONE) > 0 then begin
-                Obj.FInHandshake     := FALSE;
-                Obj.FHandshakeDone   := TRUE;
-                //PostMessage(Obj.FWindowHandle, WM_TRIGGER_SSLHANDSHAKEDONE, 0, 0);
-                //Obj.TriggerSslHandshakeDone(Err);
-                //Obj.FSSLState  := sslEstablished;
+          { V8.55 TLSv1.3 comes here too often due to tickets, FHandshakeEventDone is
+            used to make sure the event is only called once }
+            else if ((Where and SSL_CB_HANDSHAKE_DONE) > 0) and
+                                             (NOT Obj.FHandshakeEventDone) then begin
+              {  Obj.FInHandshake     := FALSE;   V8.55 does not seem to be used anywhere ???? }
+                Obj.FHandshakeDone   := TRUE;  { triggers event once then reset }
 {$IFNDEF NO_DEBUG_LOG}
                 if Obj.CheckLogOptions(loSslErr) or
                    Obj.CheckLogOptions(loSslInfo) then begin
                     Err := f_SSL_get_verify_result(Ssl);
                     if Obj.CheckLogOptions(loSslInfo) or (Err <> X509_V_OK) then
-                       Obj.DebugLog(loSslInfo, Pre + 'SSL_CB_HANDSHAKE_DONE, Error ' +
-                                    String(StrPas(f_X509_verify_cert_error_string(Err))));   { V8.14 real literal }
-                                  //   'Error: ' + IntToStr(Err));
+                       Obj.DebugLog(loSslErr, Pre + 'SSL_CB_HANDSHAKE_DONE, Error ' +
+                            IcsX509VerifyErrorToStr (Err));   { V8.14 real literal, V8.39 better function }
                 end;
 {$ENDIF}
             end
@@ -17118,6 +20752,14 @@ begin
         LockInfoCB.Leave;
     end;
 {$ENDIF}
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TCustomSslWSocket.TriggerSslServerName(var Ctx: TSslContext; var ErrCode: TTlsExtError);  { V8.45 }
+begin
+    if Assigned(FOnSslServerName) then
+        FOnSslServerName(Self, Ctx, ErrCode);
 end;
 
 
@@ -17137,7 +20779,7 @@ begin
     if Assigned(PServerName) then
     begin
         Ws := TCustomSslWSocket(f_SSL_get_ex_data(SSL, 0));
-        if Assigned(Ws) and Assigned(Ws.FOnSslServerName) then
+        if Assigned(Ws) { and Assigned(Ws.FOnSslServerName) } then    { V8.45 }
         begin
             Ws.FSsl_In_CB := TRUE;
             try
@@ -17145,7 +20787,8 @@ begin
                 Ctx := nil;
              {   Err := teeAlertWarning; //SSL_TLSEXT_ERR_ALERT_WARNING  }
                 Err := teeOk;  { V8.26 warning stop Java clients connecting }
-                Ws.FOnSslServerName(Ws, Ctx, Err);
+            {   Ws.FOnSslServerName(Ws, Ctx, Err);  }
+                Ws.TriggerSslServerName(Ctx, Err);     { V8.45 }
                 { Do not switch context if not initialized }
                 if Assigned(Ctx) and Assigned(Ctx.FSslCtx) then
                 begin
@@ -17153,11 +20796,11 @@ begin
                     begin
                         { Clear the options inherited from current Ctx.    }
                         { Not sure whether it is required, shouldn't hurt. }
-                        f_SSL_clear_options(SSL,
-                                 f_SSL_CTX_get_options(Ws.SslContext.FSslCtx));
+                        f_Ics_SSL_clear_options(SSL,
+                                 f_Ics_SSL_CTX_get_options(Ws.SslContext.FSslCtx));     { V8.51 }
                         Ws.SslContext := Ctx;
                         f_SSL_set_SSL_CTX(SSL, Ctx.FSslCtx);
-                        f_SSL_set_options(SSL, f_SSL_CTX_get_options(ctx.FSslCtx));
+                        f_Ics_SSL_set_options(SSL, f_Ics_SSL_CTX_get_options(ctx.FSslCtx));    { V8.51 }
                         f_SSL_CTX_set_tlsext_servername_callback(Ctx.FSslCtx,
                                                          @ServerNameCallBack);
                     {$IFNDEF NO_DEBUG_LOG}
@@ -17189,9 +20832,170 @@ begin
 {$ENDIF}
 end;
 
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.56 application layer protocol negotiation, servers only }
+procedure TCustomSslWSocket.TriggerSslAlpnSelect(ProtoList: TStrings;
+                          var SelProto: String; var ErrCode: TTlsExtError);
+begin
+    if Assigned(FOnSslAlpnSelect) then
+        FOnSslAlpnSelect(Self, ProtoList, SelProto, ErrCode);
+end;
+
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{$IFDEF NEVER}
+{ V8.56 set application layer protocols supported, clients only }
+procedure TSslContext.UpdateAlpnProtocols;
+var
+    buffer: TBytes;
+    bufflen: Integer;
+begin
+    if FSslAlpnProtoList.Count = 0 then Exit;
+    if NOT Assigned(FSslCtx) then Exit;
+    IcsStrListToWireFmt(FSslAlpnProtoList, buffer);
+    bufflen := Length(buffer);
+    if bufflen = 0 then Exit;
+//   if f_SSL_CTX_set_alpn_protos(FSslCtx, @buffer[0], bufflen) <> 0 then
+    if f_SSL_CTX_set_alpn_protos(FSslCtx, buffer, bufflen) <> 0 then
+        RaiseLastOpenSslError(Exception, TRUE, 'Error setting alpn protos');
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.56 keep application layer protocols supported, clients only }
+procedure TSslContext.SetSslAlpnProtocols(ProtoList: TStrings);
+begin
+    if NOT Assigned(ProtoList) then Exit;
+    if FSslAlpnProtoList.Text <> ProtoList.Text then
+        FSslAlpnProtoList.Assign(ProtoList);
+    if Assigned(FSslCtx) then
+        UpdateAlpnProtocols;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.62 get application layer protocol sekected by server, clients only }
+procedure TCustomSslWSocket.SslGetAlpnProtocol;
+var
+    plen: integer;
+    pdata: Pointer;
+    temp: AnsiString;
+begin
+    FSslAlpnProto := '';
+    if NOT Assigned(FSsl) then Exit;
+    plen := 0;
+    pdata := Nil;
+    f_SSL_get0_alpn_selected(FSsl, pdata, plen);  // not null terminated
+    if (plen > 0) and Assigned(pdata) then begin
+        SetLength(temp, plen);
+        Move(pdata^, temp[1], plen);
+        FSslAlpnProto := String(temp);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{ V8.40 handshake protocol message callback }
+{$IFNDEF NO_DEBUG_LOG}
+
+function FindSslVersions(Lit: integer): string;
+var
+    I: integer;
+begin
+    result := '' ;
+    for I := 0 to High (LitsSslVersions) do begin
+        if LitsSslVersions[I].L = Lit then begin
+            result := LitsSslVersions[I].S;
+            exit;
+        end;
+    end;
+end ;
+
+function FindAlertTypes(Lit: integer): string;
+var
+    I: integer;
+begin
+    result := '' ;
+    for I := 0 to High (LitsAlertTypes) do begin
+        if LitsAlertTypes[I].L = Lit then begin
+            result := LitsAlertTypes[I].S;
+            exit;
+        end;
+    end;
+end ;
+
+function FindHandshake(Lit: integer): string;
+var
+    I: integer;
+begin
+    result := '' ;
+    for I := 0 to High (LitsHandshake) do begin
+        if LitsHandshake[I].L = Lit then begin
+            result := LitsHandshake[I].S;
+            exit;
+        end;
+    end;
+end ;
+
+function SslProtoMsgCallback(write_p, version, content_type: integer;
+              buf: PAnsiChar; len: size_t; ssl: PSSL; arg: Pointer): Integer; cdecl;  { V8.51 corrected len }
+var
+    Ws : TCustomSslWSocket;
+    info: string;
+    arg0, arg1: integer;
+begin
+    Result := 0;
+    Ws := TCustomSslWSocket(f_SSL_get_ex_data(ssl, 0));
+    arg0 := Ord(buf [0]);
+    arg1 := Ord(buf [1]);
+    if version <> 0 then begin
+        info := FindSslVersions(version);
+        case content_type of
+            SSL3_RT_CHANGE_CIPHER_SPEC: info := info + ' Change Cipher Spec';
+            SSL3_RT_ALERT: begin
+                info := info + ' Alert, ';
+                if arg0 = 1 then info := info + 'Warning: '
+                else  if arg0 = 2 then info := info + 'Fatal: ';
+                info := info + FindAlertTypes (arg1);
+            end;
+            SSL3_RT_HANDSHAKE: begin
+                info := info + ' Handshake: ';
+                info := info + FindHandshake (arg0);
+                // pending look at handshake packets, cipher lists, certificates, etc
+            end;
+            SSL3_RT_APPLICATION_DATA: begin
+                info := info + ' Application Data';
+            end;
+            DTLS1_RT_HEARTBEAT: begin
+                info := info + ' Heartbeat: ';
+                if arg0 = 1 then info := info + 'Request'
+                else  if arg0 = 2 then info := info + 'Response';
+            end;
+
+        end;
+    end
+    else
+        info := 'None';
+
+//    info := info + ', State: ' + String(f_SSL_state_string(ssl));  // four letters
+    info := info + ', State: ' + String(f_SSL_state_string_long(ssl));  // longer
+    if write_p = 1 then
+        info := info + ', Send'
+    else
+        info := info + ', Recv';
+
+    if Ws.CheckLogOptions(loSslInfo) then begin
+        Ws.DebugLog(loSslInfo, Format('ProtoMsg: %s, DataLen: %d, Data= %s',
+                           [info, len, IcsBufferToHex (buf[0], len)]));
+    end;
+
+    if Assigned (Ws.FOnSslProtoMsg) then
+        Ws.FOnSslProtoMsg(Ws, info, write_p, version, content_type, buf, len);
+end;
+{$ENDIF}
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{x$IFDEF NEVER V84.0 enabled this }
+{$IFNDEF NO_DEBUG_LOG}
 procedure TlsExtension_cb(SSL: PSSL; client_server: Integer; type_: Integer;
   data: PAnsiChar; len: Integer; arg: Pointer); cdecl;
 var
@@ -17219,6 +21023,42 @@ begin
           ExtName := 'EC point formats';
       TLSEXT_TYPE_session_ticket :
           ExtName := 'server ticket';
+      TLSEXT_TYPE_signature_algorithms :
+          ExtName := 'signature algorithms';    { V8.56 }
+      TLSEXT_TYPE_use_srtp :
+          ExtName := 'use srtp';    { V8.56 }
+      TLSEXT_TYPE_heartbeat :
+          ExtName := 'heartbeat';    { V8.56 }
+      TLSEXT_TYPE_application_layer_protocol_negotiation :
+          ExtName := 'application layer protocol negotiation';    { V8.56 }
+      TLSEXT_TYPE_signed_certificate_timestamp :
+          ExtName := 'signed certificate timestamp';    { V8.56 }
+      TLSEXT_TYPE_padding :
+          ExtName := 'padding';    { V8.56 }
+      TLSEXT_TYPE_encrypt_then_mac :
+          ExtName := 'encrypt then mac';    { V8.56 }
+      TLSEXT_TYPE_extended_master_secret :
+          ExtName := 'extended master secret';    { V8.56 }
+      TLSEXT_TYPE_psk :
+          ExtName := 'psk';    { V8.56 }
+      TLSEXT_TYPE_early_data :
+          ExtName := 'early_data';    { V8.56 }
+      TLSEXT_TYPE_supported_versions :
+          ExtName := 'supported_versions';    { V8.56 }
+      TLSEXT_TYPE_cookie :
+          ExtName := 'cookie';    { V8.56 }
+      TLSEXT_TYPE_psk_kex_modes :
+          ExtName := 'psk_kex_modes';    { V8.56 }
+      TLSEXT_TYPE_certificate_authorities :
+          ExtName := 'certificate_authorities';    { V8.56 }
+      TLSEXT_TYPE_post_handshake_auth :
+          ExtName := 'post_handshake_auth';    { V8.56 }
+      TLSEXT_TYPE_signature_algorithms_cert :
+          ExtName := 'signature_algorithms_cert';    { V8.56 }
+      TLSEXT_TYPE_key_share :
+          ExtName := 'key_share';    { V8.56 }
+      TLSEXT_TYPE_renegotiate :
+          ExtName := 'renegotiate';    { V8.56 }
     else
         ExtName := 'unknown';
     end;
@@ -17233,30 +21073,60 @@ end;
 {$ENDIF}
 
 
-
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{
-procedure TCustomSslWSocket.WMSslHandshakeDone(var msg: TMessage);
+{ V8.27 list all ciphers supported for current SSL context which must be initialised }
+{ Supported=True returns only ciphers acceptable according to protocol and settings,
+  otherwise it's complete list available
+  Remote=True for server client connections gets list sent by remote client,
+  otherwise it's the list the client or servers supports according to protocol settings }
+function TCustomSslWSocket.SslGetSupportedCiphers (Supported, Remote: boolean): String;
+var
+    I, Total: Integer;
+    NewSSL: Boolean;
+    MySsl: PSSL;
+    MyStack: PSTACK_OF_SSL_CIPHER;
+    MyCipher: PAnsiChar;
 begin
-    TriggerSslHandshakeDone(0);
+    Result := '';
+    if (ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100) and Supported then exit;  // not supported
+    NewSSL := false;
+    if (NOT Assigned(FSsl)) then begin
+        if NOT Assigned(FSslContext.FSslCtx) then Exit;
+      //Create temporary SSL Object
+        MySsl := f_SSL_new(FSslContext.FSslCtx);
+        if not Assigned(MySsl) then
+            RaiseLastOpenSslError(Exception, TRUE,
+                                  'Error on creating the Ssl object');
+       NewSSL := true;
+    end
+    else
+       MySsl := FSsl;
+
+    if Supported then begin
+       if Remote then
+            MyStack := f_SSL_get_client_ciphers(MySsl)   // list received by server from remote client
+       else
+            MyStack := f_SSL_get1_supported_ciphers(MySsl)  // list supported by client or server
+    end
+    else
+        MyStack := f_SSL_get_ciphers(MySsl);   // all ciphers
+    Total := f_OPENSSL_sk_num(MyStack);
+    if Total = 0 then Exit;
+    for I := 0 to Total - 1 do begin
+        MyCipher := f_OPENSSL_sk_value(MyStack, I);
+        if Assigned (MyCipher) then
+            Result := Result + String(f_SSL_CIPHER_get_name(MyCipher)) + #13#10;
+    end;
+    if Supported and (NOT Remote) then f_OPENSSL_sk_free(MyStack);
+    if NewSSL then f_SSL_free(MySsl);
 end;
-}
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-(*procedure TCustomSslWSocket.SslDebugLog(Msg : String);
-begin
-    // Not yet fully done, ToDo!
-{$IFDEF DEBUG_OUTPUT}
-    OutputDebugString(Msg);
-{$ENDIF}
-    //TriggerDebugDisplay(Msg);
-end;    *)
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TCustomSslWSocket.SslSessionReused : Boolean;
 begin
-    Result := FSslEnable and Assigned(FSsl) and (f_SSL_session_reused(FSsl) = 1);
+    Result := FSslEnable and Assigned(FSsl) and
+                (f_Ics_SSL_session_reused(FSsl) = 1);   { V8.51 }
 end;
 
 
@@ -17280,27 +21150,32 @@ var
 begin
     Result := FALSE;
     if FSslEnable and Assigned(FSsl) then begin
-        TmpInt  := f_SSL_state(FSsl);
+      { TmpInt  := IcsSslGetState(FSsl); }
         Ver     := f_SSL_version(FSsl);
         Pen     := f_SSL_renegotiate_pending(FSsl);
         NoReneg := IsSslRenegotiationDisallowed(Self);
         if NoReneg or
-            not ((TmpInt = SSL_ST_OK) and
+            not ((IcsSslGetState(FSsl) = TLS_ST_OK) and   { V8.27 }
                  (Ver >= SSL3_VERSION) and
                  (Pen = 0)) then begin
 {$IFNDEF NO_DEBUG_LOG}
             if CheckLogOptions(loSslErr) then begin
                 DebugLog(loSslErr,
-                         Format('%s ! Cannot start re-negotiation  State ' +
-                                '%d Version (0x%x) RenegotiatePending %d ' +
+                         Format('%s ! Cannot start re-negotiation  State= ' +
+                                '%s ,Version (0x%x) RenegotiatePending %d ' +
                                 'NO_RENEGOTIATION %d HSocket %d',
                                 [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
-                                TmpInt, Ver, Pen, Ord(NoReneg),
-                                FHSocket]));
+                                String(f_SSL_state_string_long(Fssl)), Ver,   { V8.27 }
+                                Pen, Ord(NoReneg), FHSocket]));
             end;
 {$ENDIF}
             Exit;
         end;
+{$IFNDEF NO_DEBUG_LOG}
+        if CheckLogOptions(loSslInfo) then  { V8.40 }
+                DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                          ' StartSslRe-negotiation handle=' + IntToStr(FHSocket));
+{$ENDIF}
         if f_SSL_renegotiate(FSsl) = 0 then begin
             HandleSslError;
 {$IFNDEF NO_DEBUG_LOG}
@@ -17331,7 +21206,7 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
             if CheckLogOptions(loSslInfo) then  { V5.21 }
                 DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                         ' ! Re-negotiation started ' +  IntToStr(FHSocket));
+                         ' ! Re-negotiation started handle=' +  IntToStr(FHSocket));
 {$ENDIF}
             Result := TRUE;
             if FMayTriggerFD_Write then begin          //<= 02/01/06 AG
@@ -17349,7 +21224,7 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loSslInfo) then  { V5.21 }
         DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' StartSslHandshake ' + IntToStr(FHSocket));
+                      ' StartSslHandshake handle=' + IntToStr(FHSocket));
 {$ENDIF}
     if not FSslEnable then
         Exit;
@@ -17367,12 +21242,14 @@ begin
         on E : Exception do begin
             FSslState := sslNone;
 {$IFNDEF NO_DEBUG_LOG}
-            if CheckLogOptions(loSslInfo) then  { V5.21 }
-                DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                          ' Fatal error SSL handshake ' + IntToStr(FHSocket) +
+            if CheckLogOptions(loSslErr) then  { V8.57 was loSslInfo }
+                DebugLog(loSslErr, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                          ' Fatal error StartSslHandshake handle=' + IntToStr(FHSocket) +
                           ' ' + E.Classname + ' ' + E.Message);
 {$ENDIF}
-            //TriggerSslHandshakeDone(2); ?
+            if NOT FHandshakeEventDone then
+                TriggerSslHandshakeDone(1);  { V8.55 handshake failed during negotiation }
+            FHandshakeEventDone := TRUE;  { V8.55 }
             raise
         end;
     end;
@@ -17385,7 +21262,7 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loSslInfo) then  { V5.21 }
         DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' AcceptSslHandshake ' + IntToStr(FHSocket));
+                      ' AcceptSslHandshake handle=' + IntToStr(FHSocket));
 {$ENDIF}
     if not FSslEnable then
         Exit;
@@ -17393,8 +21270,9 @@ begin
         raise ESslContextException.Create('SSL requires a context object');
     if Assigned(FSsl) then
         ResetSsl;
-    FSslState      := sslHandshakeInit;
-    FSslMode       := sslModeServer;
+    FSslState := sslHandshakeInit;
+    FSslMode  := sslModeServer;
+    FHandshakeEventDone := FALSE;  { V8.55 }
     try
         if (FSslContext.FSslCtx = nil) then
             FSslContext.InitContext;
@@ -17403,12 +21281,14 @@ begin
         on E : Exception do begin
             FSslState  := sslNone;
 {$IFNDEF NO_DEBUG_LOG}
-            if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-                DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                          ' Fatal error SSL handshake ' + IntToStr(FHSocket) +
+            if CheckLogOptions(loSslErr) then  { V8.57 was loSslInfo }
+                DebugLog(loSslErr, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                          ' Fatal error AcceptSslHandshake handle=' + IntToStr(FHSocket) +
                           ' ' + E.Classname + ': ' + E.Message);
 {$ENDIF}
-            //TriggerSslHandshakeDone(2); ?
+            if NOT FHandshakeEventDone then
+                TriggerSslHandshakeDone(1);  { V8.55 handshake failed during negotiation }
+            FHandshakeEventDone := TRUE;  { V8.55 }
             raise
         end;
     end;
@@ -17453,7 +21333,7 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
         DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' SslInternalClose ' + IntToStr(FHSocket));
+                      ' SslInternalClose handle=' + IntToStr(FHSocket));
 {$ENDIF}
     if FHSocket = INVALID_SOCKET then begin
         if FState <> wsClosed then begin
@@ -17507,25 +21387,24 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{var
-    FCount : Integer = 0; //Test}
 procedure TCustomSslWSocket.InitSSLConnection(ClientMode : Boolean;
     pSSLContext : PSSL_CTX = nil);
 var
-    Options           : Integer;
+    Count             : Integer;
+    ReadBytes         : size_t;  { V8.51 }
     SessionIDContext  : TSslSessionIdContext; // for session caching in ssl server mode
     SslCachedSession  : Pointer;
     FreeSession       : Boolean;
     SIdCtxLen         : Integer;
     Dummy             : Byte;
+    VerifyParam       : PX509_VERIFY_PARAM;  { V8.39 }
 begin
     if not FSslEnable then
         Exit;
-    //Inc(FCount); // Test
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
         DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' InitSSLConnection ' + IntToStr(FHSocket));
+                      ' InitSSLConnection handle=' + IntToStr(FHSocket));
 {$ENDIF}
     FSslCertChain.Clear;
     FSslCertChain.X509Class := FX509Class;
@@ -17541,14 +21420,15 @@ begin
     FLastSslError            := 0;
     FSslBiShutDownFlag       := FALSE;
     FCloseCalled             := FALSE;
-    //FCloseReceived           := FALSE;
-    //FHandShakeDoneInvoked    := FALSE;
     FSslHandshakeRespMsg     := '';  { V8.14 set with success or failure message once handshake completes }
     FSslHandshakeErr         := 0;   { V8.14 }
     FSslCipherDesc           := '';  { V8.14  }
     FSslEncryption           := '';  { V8.14  }
     FSslKeyExchange          := '';  { V8.14  }
     FSslMessAuth             := '';  { V8.14  }
+    FSslCertPeerName         := '';  { V8.39  }
+    FHandshakeEventDone      := FALSE;  { V8.55 }
+    FSslAlpnProto            := '';  { V8.62  }
     FPendingSslEvents        := [];
     FMayTriggerFD_Read       := TRUE;  // <= 01/06/2006 AG
     FMayTriggerFD_Write      := TRUE;  // <= 01/06/2006 AG
@@ -17558,48 +21438,40 @@ begin
     try
         SslCritSect.Enter;
         try
-            //Create new SSL Object
+          //Create new SSL Object
             FSsl := f_SSL_new(pSSLContext); // FSsl inherits all options
             if not Assigned(FSsl) then
                 RaiseLastOpenSslError(Exception, TRUE,
                                       'Error on creating the Ssl object');
-            //Create BIOs
+
+          //Create filter BIO for SSL I/O
             FSslBio := f_BIO_new(f_BIO_f_ssl);
-            f_BIO_new_bio_pair(@FIBio, SSL_BUFFER_SIZE, @FNBio, SSL_BUFFER_SIZE);
-            if (FSslBio = nil) or (FNBio = nil) or (FIBio = nil) then
-                RaiseLastOpenSslError(Exception, TRUE,
-                                      'Creating BIOs failed');
+            if (FSslBio = nil) then
+                RaiseLastOpenSslError(Exception, TRUE, 'Creating SslBIO failed');
 
-            (*
-            Since FSsl inherits all options this was not required,
-            also adding SSL_OP_ALL overwrote user defined options.
-            Just set the right ctx-options in TSslContext.InitContext.
-            Options := f_SSL_get_options(FSsl);
-            { Currently no Tickets! Otherwise handshake fatal }
-            { errors or session resumption won't work.        }
-            Options := Options or SSL_OP_ALL or SSL_OP_NO_TICKET;
-            f_SSL_set_options(FSsl, Options);
-            *)
+          // create two more BIOs for reading and writing
+            f_BIO_new_bio_pair(@FIBio, GSSL_BUFFER_SIZE, @FNBio, GSSL_BUFFER_SIZE);  { V8.27 size now configurable }
+            if (FNBio = nil) or (FIBio = nil) then
+                RaiseLastOpenSslError(Exception, TRUE, 'Creating Read/Write BIOs failed');
 
+          // set Self object pointer for callbacks
             if f_SSL_set_ex_data(FSsl, 0, Self) <> 1 then
-                RaiseLastOpenSslError(Exception, TRUE,
-                                      'SSL_set_ex_data failed');
+                RaiseLastOpenSslError(Exception, TRUE, 'SSL_set_ex_data failed');
 
             {if FCount mod 2 = 0 then  // Test
                 raise Exception.Create('Test exception');}
 
-            // Init SSL connection
+          // Init SSL connection
             if ClientMode then begin
                 // If we want send client certificates different from default
                 if (FSslContext.SslCertFile = '') and
                    Assigned(FOnSslCliCertRequest) and
-                   (not Assigned(f_SSL_CTX_get_client_cert_cb(
-                          pSSLContext{FSslContext.FSslCtx}))) then
-                    f_SSL_CTX_set_client_cert_cb(pSSLContext{FSslContext.FSslCtx},
-                                                 ClientCertCallBack);
+                   (not Assigned(f_SSL_CTX_get_client_cert_cb(pSSLContext))) then
+                    f_SSL_CTX_set_client_cert_cb(pSSLContext, ClientCertCallBack);
                 // Get a cached session from the application
                 SslCachedSession := nil;
                 FreeSession      := TRUE;
+
                 if Assigned(FOnSslCliGetSession) then
                     FOnSslCliGetSession(Self, SslCachedSession, FreeSession);
                 if Assigned(SslCachedSession) and
@@ -17616,15 +21488,34 @@ begin
                         f_SSL_SESSION_Free(SslCachedSession);
                     SslCachedSession := nil;
                 end
-                else
-                    f_SSL_set_session(FSsl, nil);
+                else begin
+                    if f_SSL_set_session(FSsl, nil) = 0 then
+                        RaiseLastOpenSslError(EOpenSslError, TRUE, 'Unable to set session');
+                end;
+
+               { V8.39 get pointer to verify parameters, which we may alter in a moment }
+                VerifyParam := f_SSL_get0_param(FSsl);    { do not free it! }
 
                 { FSslServerName is the servername to be sent in client helo. }
                 { If not empty, enables SNI in SSL client mode.               }
-                if (FSslServerName <> '') and (FSslContext.FSslVersionMethod >= sslV3) and   { V8.24 not SSLv2 }
-                    (f_SSL_set_tlsext_host_name(FSsl, FSslServerName) = 0) then
+                if (FSslServerName <> '') then begin
+                    if (f_SSL_set_tlsext_host_name(FSsl, FSslServerName) = 0) then
                         RaiseLastOpenSslError(EOpenSslError, TRUE,
                              'Unable to set TLS servername extension');
+
+                 { V8.39 set host so certificate common name or domains can be validated }
+                    if (FSslContext.FSslCheckHostFlags <> -1) then begin
+                        f_X509_VERIFY_PARAM_set_flags(VerifyParam, FSslContext.FSslVerifyFlags);
+                        f_X509_VERIFY_PARAM_set_depth(VerifyParam, FSslContext.FSslVerifyDepth);
+                        f_X509_VERIFY_PARAM_set_hostflags(VerifyParam, FSslContext.FSslCheckHostFlags);
+                        if (f_X509_VERIFY_PARAM_set1_host(VerifyParam,
+                               Pointer(AnsiString(FSslServerName)), Length (FSslServerName)) = 0) then
+                                 RaiseLastOpenSslError(EOpenSslError, TRUE,
+                                    'Unable to set host varify param');
+                    end;
+                end
+                else
+                    f_X509_VERIFY_PARAM_set1_host(VerifyParam, Nil, 0);  { clear old host }
 
                 f_SSL_set_connect_state(FSsl);
             end
@@ -17647,15 +21538,13 @@ begin
                             if CheckLogOptions(loSslErr) then { V5.21 }
                                 DebugLog(loSslErr,
                                 IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                                    ' ssl_set_session_id_context failed' +
-                                    IntToStr(FHSocket));
+                                    ' ssl_set_session_id_context failed handle=' + IntToStr(FHSocket));
                         end
                         else begin
                             if CheckLogOptions(loSslInfo) then
                                 DebugLog(loSslInfo,
                                 IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                                ' SessionIDContext: ' + SessionIDContext + ' ' +
-                                IntToStr(FHSocket));
+                                ' SessionIDContext: ' + SessionIDContext + ' handle=' + IntToStr(FHSocket));
                     {$ENDIF}
                         end;
                     end;
@@ -17664,39 +21553,72 @@ begin
                 { FSslServerName receives the servername from client helo if }
                 { FOnSslServerName was assigned in SSL server mode.          }
                 FSslServerName := '';
-                if Assigned(FOnSslServerName) and (FSslContext.FSslVersionMethod >= sslV3) and   { V8.24 not SSLv2 }
-                   (f_SSL_CTX_set_tlsext_servername_callback(pSSLContext,
-                                            @ServerNameCallBack) = 0) then
+//              if { Assigned(FOnSslServerName) and }
+//                    (FSslContext.FSslVersionMethod >= sslV3) then begin   { V8.24 not SSLv2, V8.56 always enabled }
+{$IFNDEF NO_DEBUG_LOG}
+                if CheckLogOptions(loSslInfo) then  { V8.40 }
+                    DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                      ' Setting servername callback for SNI');
+{$ENDIF}
+                if (f_SSL_CTX_set_tlsext_servername_callback(pSSLContext,
+                                              @ServerNameCallBack) = 0) then
                     RaiseLastOpenSslError(EOpenSslError, TRUE,
-                            'Unable to initialize servername callback for SNI');
-                {$IFDEF NEVER}
-                    if CheckLogOptions(loSslInfo) then
+                        'Unable to initialize servername callback for SNI');
+
+//              end;
+{$IFNDEF NO_DEBUG_LOG}
+                if CheckLogOptions(loSslInfo) then
                         f_SSL_set_tlsext_debug_callback(FSsl, @TlsExtension_CB);
-                {$ENDIF}
+{$ENDIF}
 
                 f_SSL_set_accept_state(FSsl);
             end;
 
+         // connect our read and write BIOs to the SSL object
             f_SSL_set_bio(FSsl, FIBio, FIBio);
+
+         // callback to receive state information
             f_SSL_set_info_callback(FSsl, InfoCallBack);
+
+{$IFNDEF NO_DEBUG_LOG}
+          { V8.40 protocol message callback for handshake debugging }
+            if (CheckLogOptions(loSslInfo) or Assigned (FOnSslProtoMsg)) then
+                f_SSL_set_msg_callback(FSsl, @SslProtoMsgCallback);
+{$ENDIF}
 
             f_ERR_clear_error;
 
-            my_BIO_ctrl(FSslBio, BIO_C_SET_SSL, BIO_NOCLOSE, FSsl);
+         // sets the internal SSL pointer to our filter BIO
+            if my_BIO_ctrl(FSslBio, BIO_C_SET_SSL, BIO_NOCLOSE, FSsl) = 0 then     { BIO_set_ssl macro }
+                RaiseLastOpenSslError(EOpenSslError, TRUE, 'Unable to set BIO as SSL');
 
-            Options := my_BIO_read(FSslbio, @Dummy, 0); // reuse of int var Options!
-            if Options < 0 then begin
-                if not my_BIO_should_retry(FSslbio) then
-                    //HandleSslError;
+         // try and read 0 to check filter BIO is set
+{$IFNDEF NO_DEBUG_LOG}
+            if CheckLogOptions(loSslInfo) then  { V8.51 }
+                DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) + ' Start Ssl ReadBIO');
+{$ENDIF}
+            if ICS_OPENSSL_VERSION_NUMBER >= OSSL_VER_1101 then begin
+                Count := f_BIO_read_ex(FSslbio, @Dummy, 0, ReadBytes);     { V8.51 new in 1.1.1 }
+                if Count = 0 then Count := -1;
+            end
+            else
+                Count := my_BIO_read(FSslbio, @Dummy, 0);
+            if Count < 0 then begin
+                if not my_BIO_should_retry(FSslbio) then begin
                     { Usually happens with an invalid context option set }
+                    { V8.55 such as no ciphers available, tell someone!! }
+                    Count := f_BIO_get_retry_reason(FSslbio);
                     RaiseLastOpenSslError(EOpenSslError, TRUE,
-                                          'InitSSLConnection:');
+                        'InitSSLConnection: ReadBIO, Retry Reason ' + IntToStr(Count));
+                end;
             end;
+
             //Initialize SSL negotiation
             if (FState = wsConnected) then begin
                 TriggerEvent(sslFdRead, 0);
                 TriggerEvent(sslFdWrite, 0);
             end;
+
             // Not a real error. Used to break the loop in TCustomWSocket.ASyncReceive
             FLastError := -1;
             FSslState  := sslHandshakeStarted;
@@ -17741,20 +21663,19 @@ procedure TCustomSslWSocket.PutDataInSslBuffer(Data : Pointer; Len : Integer);
 begin
     FSendPending := TRUE;
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin  { V5.21 }
+    if CheckLogOptions(loSslDevel) then begin  { V5.21 }
         Inc(TraceCount);
-        DebugLog(loSslInfo,
-                 Format('%s PutDataInSslBuffer %s len %d  [%d] ',
+        DebugLog(loSslDevel,
+                 Format('%s PutDataInSslBuffer handle= %s len %d  [%d] ',
                        [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                        IntToStr(FHSocket), Len, TraceCount]));
     end
     else if CheckLogOptions(loSslDump) then begin  { V5.21 }
         Inc(TraceCount);
         DebugLog(loSslDump,
-                 Format('%s PutDataInSslBuffer %s [%d] Data:%s',
+                 Format('%s PutDataInSslBuffer handle=%s [%d] Data:%s',
                         [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
-                        IntToStr(FHSocket),
-                        TraceCount, DataToString(Data, Len)]));
+                        IntToStr(FHSocket), TraceCount, DataToString(Data, Len)]));
     end;
 {$ENDIF}
     if (Len <= 0) or (Data = nil) then
@@ -17793,7 +21714,7 @@ begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loSslInfo) and Assigned(FSsl) then  { V5.21 }
         DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                 ' ResetSslSession ' + IntToStr(FHSocket));
+                 ' ResetSslSession handle=' + IntToStr(FHSocket));
 {$ENDIF}
     DeleteBufferedSslData;
     FSslVersion              := 'Unknown';
@@ -17803,10 +21724,12 @@ begin
     FSslVersNum              := 0;
     FSslCipherDesc           :='';     { V8.14 }
 
-    FInHandshake             := FALSE;
+  {  FInHandshake             := FALSE;  V8.55 }
+    FHandshakeEventDone      := FALSE;  { V8.55 }
     FHandshakeDone           := FALSE;
-    FSslHandshakeRespMsg     := '';  { V8.14 set with success or failure message once handshake completes }
-    FSslHandshakeErr         := 0;   { V8.14 }
+// V8.55 reset is called during error handling, don't clear error reasons
+//    FSslHandshakeRespMsg     := '';  { V8.14 set with success or failure message once handshake completes }
+//    FSslHandshakeErr         := 0;   { V8.14 }
     FSslCipherDesc           := '';  { V8.14  }
     FSslEncryption           := '';  { V8.14  }
     FSslKeyExchange          := '';  { V8.14  }
@@ -17847,164 +21770,12 @@ procedure TCustomSslWSocket.RaiseLastOpenSslError(
     const CustomMsg : String  = '');
 begin
     FLastSslError := f_ERR_peek_error;
+    FSslHandshakeRespMsg := String(LastOpenSslErrMsg(TRUE));  { V8.55 }
     if Length(CustomMsg) > 0 then
-        raise EClass.Create(#13#10 + CustomMsg + #13#10 +
-                            String(LastOpenSslErrMsg(Dump)) + #13#10)
-    else
-        raise EClass.Create(#13#10 + String(LastOpenSslErrMsg(Dump)) + #13#10);
+        FSslHandshakeRespMsg := CustomMsg + ' - ' + FSslHandshakeRespMsg;
+    raise EClass.Create(#13#10 + FSslHandshakeRespMsg + #13#10);  { V8.55 }
 end;
 
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-(*
-function TCustomSslWSocket.LoadCertificate(out ErrMsg : String) : Boolean;
-var
-    PCAPath    : PChar;
-    PCAFile    : PChar;
-    Mode       : Integer;
-    ErrCode    : Integer;
-    LibErrCode : Integer;
-    FctErrCode : Integer;
-    WhyErrCode : Integer;
-begin
-    Result := FALSE;
-    try
-        // Load our keys and certificates
-        if (FSslCertFile <> '') and
-           (not FileExists(FSslCertFile)) then begin
-            ErrMsg := 'File not found "' + FSslCertFile + '"';
-            Exit;
-        end;
-        if (FSslPrivKeyFile <> '') and
-           (not FileExists(FSslPrivKeyFile)) then begin
-            ErrMsg := 'File not found "' + FSslPrivKeyFile + '"';
-            Exit;
-           end;
-        if (FSslCAFile <> '') and
-           (not FileExists(FSslCAFile)) then begin
-            ErrMsg := 'File not found "' + FSslCAFile + '"';
-            Exit;
-        end;
-
-        if (FSslCertFile <> '') and
-           (f_SSL_CTX_use_certificate_chain_file(FSslCtx,
-                                                 PChar(FSslCertFile)) = 0)
-        then begin
-            ErrCode    := f_ERR_peek_error;
-            LibErrCode := ERR_GET_LIB(ErrCode);
-            FctErrCode := ERR_GET_FUNC(ErrCode);
-            WhyErrCode := ERR_GET_REASON(ErrCode);
-            if ((LibErrCode = ERR_LIB_SSL) or
-                (LibErrCode = ERR_LIB_SSL23) or
-                (LibErrCode = ERR_LIB_SSL2) or
-                (LibErrCode = ERR_LIB_SSL3)) then begin
-                // No an error related to the certificate file, but the SSL
-                // protocol (probably remote has shutdown). This error is
-                // catched later. We can safely ignore here.
-                // ToDo: confirm this behaviour
-                Result := TRUE;
-                Exit;
-            end;
-            OutputDebugString('ErrCode           = ' + IntToHex(ErrCode, 8));
-            OutputDebugString('Library(ErrCode)  = ' + IntToStr(LibErrCode));
-            OutputDebugString('Function(ErrCode) = ' + IntToStr(FctErrCode));
-            OutputDebugString('Reason(ErrCode)   = ' + IntToStr(WhyErrCode));
-            print_errors;
-            ErrMsg := 'Can''t read certificate file "' + FSslCertFile + '"';
-            Exit;
-        end;
-
-        f_SSL_CTX_set_default_passwd_cb(FSslCtx, @PasswordCallBack);
-        f_SSL_CTX_set_default_passwd_cb_userdata(FSslCtx, Self);
-        if (Length(FSslPrivKeyFile) > 0) and
-           (f_SSL_CTX_use_PrivateKey_file(FSslCtx, PChar(FSslPrivKeyFile),
-                                          SSL_FILETYPE_PEM) = 0) then begin
-            ErrCode    := f_ERR_peek_error;
-            LibErrCode := ERR_GET_LIB(ErrCode);
-            FctErrCode := ERR_GET_FUNC(ErrCode);
-            WhyErrCode := ERR_GET_REASON(ErrCode);
-            OutputDebugString('ErrCode           = ' + IntToHex(ErrCode, 8));
-            OutputDebugString('Library(ErrCode)  = ' + IntToStr(LibErrCode));
-            OutputDebugString('Function(ErrCode) = ' + IntToStr(FctErrCode));
-            OutputDebugString('Reason(ErrCode)   = ' + IntToStr(WhyErrCode));
-            print_errors;
-            ErrMsg := 'Can''t read key file "' + FSslPrivKeyFile + '"';
-            Exit;
-        end;
-
-        if Length(FSslContext.SslCAPath) > 0 then
-            PCAPath := PChar(FSslContext.SslCAPath)
-        else
-            PCAPath := nil;
-        if Length(FSslCAFile) > 0 then
-            PCAFile := PChar(FSslCAFile)
-        else
-            PCAFile := nil;
-
-        // Load the CAs we trust
-        //
-        // If CAfile is not NIL, it points to a file of CA certificates in PEM
-        // format. The file can contain several CA certificates.
-        //
-        // If CApath is not NIL, it points to a directory containing CA
-        // certificates in PEM format. The files each contain one CA certificate.
-        // The files are looked up by the CA subject name hash value, which must
-        // hence be available. If more than one CA certificate with the same name
-        // hash value exist, the extension must be different (e.g. 9d66eef0.0,
-        // 9d66eef0.1 etc). The search is performed in the ordering of the
-        // extension number, regardless of other properties of the certificates.
-        if ((PCAFile <> nil) or (PCAPath <> nil)) and
-           (f_SSL_CTX_load_verify_locations(FSslCtx,
-                                            PCAFile, PCAPath) = 0) then begin
-            ErrMsg := 'Can''t read CA File "' + FSslCAFile + '" or ' +
-                                   'CA Path "' + FSslContext.SslCAPath + '"';
-            Exit;
-        end;
-
-        if (PCAFile = nil) and (PCAPath = nil) and
-           (f_SSL_CTX_set_default_verify_paths(FSslCtx) <> 1) then begin
-            ErrMsg := 'Error loading default CA file and/or directory';
-            Exit;
-        end;
-
-        if FSslVerifyPeer then begin
-            Mode := 0;
-            if (SslVerifyMode_NONE in FSslVerifyPeerModes) then
-                Mode := Mode or SSL_VERIFY_NONE;
-            if (SslVerifyMode_PEER in FSslVerifyPeerModes) then
-                Mode := Mode or SSL_VERIFY_PEER;
-            if (SslVerifyMode_FAIL_IF_NO_PEER_CERT in FSslVerifyPeerModes) then
-                Mode := Mode or SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-            if (SslVerifyMode_CLIENT_ONCE in FSslVerifyPeerModes) then
-                Mode := Mode or SSL_VERIFY_CLIENT_ONCE;
-
-            f_SSL_CTX_set_verify(FSslCtx, Mode, PeerVerifyCallback);
-            f_SSL_CTX_set_verify_depth(FSslCtx, FSslVerifyDepth);
-        end;
-
-        if FSslOptionsValue <> 0 then
-            f_SSL_CTX_set_options(FSslCtx, FSslOptionsValue);
-
-        if FSslCipherList <> '' then begin
-            if f_SSL_CTX_set_cipher_list(FSslCtx,
-                                         PChar(FSslCipherList)) <> 1 then begin
-                ErrMsg := 'Error loading cipher list';
-            end;
-        end;
-
-{$IFDEF  OPENSSL_VERSION_NUMBER_LESS_THAN_0x00905100L}
-        f_SSL_CTX_set_verify_depth(FSslCtx, 1);
-{$ENDIF}
-        Result := TRUE;
-    except
-        on E:Exception do begin
-            ErrMsg := 'LoadCertificate failed. ' +
-                      E.ClassName + ': ' + E.Message;
-            OutputDebugString(ErrMsg);
-        end;
-    end;
-end;
- *)
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { Writes unencrypted data from the buffer to the SslBio                     }
@@ -18017,17 +21788,17 @@ begin
     if (not FSslEnable) or (FSocksState <> socksData) or
        (FHttpTunnelState <> htsData) then begin
 {$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-            DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' TryToSend ' + IntToStr(FHSocket));
+        if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+            DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                      ' TryToSend handle=' + IntToStr(FHSocket));
 {$ENDIF}
         inherited TryToSend;
         Exit;
     end;
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-        DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                      ' SslTryToSend ' + IntToStr(FHSocket));
+    if CheckLogOptions(loSslDevel) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+        DebugLog(loSslDevel, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
+                      ' SslTryToSend handle=' + IntToStr(FHSocket));
 {$ENDIF}
     FSslBufList.Lock;
     try
@@ -18066,7 +21837,7 @@ begin
                     TriggerEvent(sslFdClose, 0);
                 Exit;
             end;
-            if (not Assigned(FSsl)) or (f_SSL_state(FSsl) <> SSL_ST_OK) or {(FSslState < sslEstablished)}
+            if (not Assigned(FSsl)) or (IcsSslGetState(FSsl) <> TLS_ST_OK) or   { V8.27 }
                (f_SSL_renegotiate_pending(FSsl) = 1) then begin    // <= 12/31/05 AG
                { Don't write app. data while in handshake }        // <= 12/31/05 AG
                 FMayTriggerSslTryToSend := TRUE;
@@ -18116,18 +21887,6 @@ begin
                     FLastError := FNetworkError; //XX
                     Exit;
                 end;
-(*
-{$IFNDEF NO_DEBUG_LOG}
-                    if CheckLogOptions(loSslInfo) then begin  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-                        Err := f_SSL_get_error(FSSL, Count);
-                        DebugLog(loSslInfo, IntToHex(Integer(Self), 8) +
-                                 ' BIO_write error: ' + IntToStr(Err) +
-                                 ' ' +  SslErrorToStr(Err) + ' ' +
-                                 IntToStr(FHSocket));
-                        DebugLog(loSslInfo, LastOpenSslErrMsg(TRUE));
-                    end;
-{$ENDIF}
-*)
                 WSocket_WSASetLastError(WSAECONNABORTED);
                 FLastError := WSAECONNABORTED; //XX
                 TriggerEvent(sslFdClose, 0);
@@ -18136,6 +21895,7 @@ begin
             my_BIO_ctrl(FSslbio, BIO_CTRL_FLUSH, 0, nil);
             FSslBioWritePendingBytes := -1;
             FSslBufList.Remove(Count);
+            FWriteCount := FWriteCount + Count;  { V8.30 was in RealSend }
             if Count < Len then
                 { Could not write as much as we wanted. Stop sending }
                 break;
@@ -18177,15 +21937,15 @@ procedure TCustomSslWSocket.WMSslASyncSelect(var msg: TMessage);
 begin
 { Select messages not posted by the socket but from the component }
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin { V5.21 }
+    if CheckLogOptions(loSslDevel) then begin { V5.21 }
         if __DataSocket = Self then
-            DebugLog(loSslInfo,
+            DebugLog(loSslDevel,
                      IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
                      ' SslAsyncSelect DataSocket ' +
                      IntToStr(msg.wParam) +  ', ' +
                      IntToStr(msg.LParamLo) + WinsockMsgToString(Msg))
         else
-            DebugLog(loSslInfo,
+            DebugLog(loSslDevel,
                      IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
                      ' SslAsyncSelect ' +
                      IntToStr(msg.wParam) + ', ' +
@@ -18222,8 +21982,6 @@ begin
             WMSslASyncSelect(MsgRec)
         else if MsgRec.Msg = FMsg_WM_TRIGGER_DATASENT then
             TriggerDataSent(0)
-        {else if MsgRec.Msg = WM_TRIGGER_SSLHANDSHAKEDONE then
-            WMSslHandshakeDone(MsgRec)}
         else if MsgRec.Msg = FMsg_WM_RESET_SSL then
             ResetSsl
         else if MsgRec.Msg = FMsg_WM_BI_SSL_SHUTDOWN then
@@ -18234,7 +21992,7 @@ begin
             inherited WndProc(MsgRec);
     except                                                       // <= 12/12/05
         on E:Exception do
-            HandleBackGroundException(E);
+            HandleBackGroundException(E, 'TCustomSslWSocket.WndProc');  { V8.62 }
     end;
 end;
 
@@ -18253,26 +22011,21 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TCustomSslWSocket.TriggerEvents;
 var
-    State   : Integer;
+    State   : TSslHandshakeState;    { V8.27 }
 {$IFNDEF NO_DEBUG_LOG}
     Str   : String;
 {$ENDIF}
 begin
     if not Assigned(FSsl) or (not FSslEnable) then
         Exit;
-    State := f_SSL_state(FSsl);
+    State := IcsSslGetState(FSsl);  { V8.27 }
 {$IFNDEF NO_DEBUG_LOG}
-    if CheckLogOptions(loSslInfo) then begin { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
+    if CheckLogOptions(loSslDevel) then begin { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
         Str := IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-               ' TriggerEvents ' + IntToStr(FHSocket) + ' SslState: ';
-        if State and SSL_ST_INIT <> 0  then
-            Str := Str + 'SSL_ST_INIT '
-        else if State = SSL_ST_OK then
-            Str := Str + 'SSL_ST_OK '
-        else
-            Str := Str + IntToHex(State, 8);
+               ' TriggerEvents handle=' + IntToStr(FHSocket) + ' State=' +
+               String(f_SSL_state_string_long(FSsl));  { V8.27  }
 
-        DebugLog(loSslInfo, Str +
+        DebugLog(loSslDevel, Str +
               ' // MayFD_Read='      + BoolToStr(FMayTriggerFD_Read, True) +
               ' MayDoRecv='       + BoolToStr(FMayTriggerDoRecv, True)  +
               ' MayFD_Write='     + BoolToStr(FMayTriggerFD_Write, True) +
@@ -18284,7 +22037,8 @@ begin
 
     if FHandshakeDone = TRUE then begin
         FHandshakeDone := FALSE;
-        TriggerSslHandshakeDone(0);
+        FHandshakeEventDone := TRUE;  { V8.55 TLS1.3 stop multiple events }
+        TriggerSslHandshakeDone(0);  // OK
         if FSslInRenegotiation then
             FSslInRenegotiation := FALSE;
     end;
@@ -18295,25 +22049,24 @@ begin
                 FMayTriggerFD_Write := FALSE;
         end;
     end
-    else if (not bAllSent) and (State = SSL_ST_OK) and
+    else if (not bAllSent) and (State = TLS_ST_OK) and    { V8.27 }
             (my_BIO_ctrl_get_write_guarantee(FSslbio) > 0) and
-             FMayTriggerFD_Write{FMayTriggerSslTryToSend} then begin  // AG 03/03/06
+             FMayTriggerFD_Write then begin  // AG 03/03/06
         if TriggerEvent(sslFdWrite, 0) then
-            FMayTriggerFD_Write{FMayTriggerSslTryToSend} := FALSE;    // AG 03/03/06
+            FMayTriggerFD_Write := FALSE;    // AG 03/03/06
     end
-    else if (not bSslAllSent) and (State = SSL_ST_OK) and
+    else if (not bSslAllSent) and (State = TLS_ST_OK) and  { V8.27 }
              FMayTriggerSslTryToSend then begin
         FMayTriggerSslTryToSend := FALSE;
         TryToSend;
     end
     else if bAllSent and bSslAllSent and FSendPending and
-       (State = SSL_ST_OK) then begin
-        //Inc(FTriggerCount);
+       (State = TLS_ST_OK) then begin   { V8.27 }
         FSendPending := FALSE;
         TriggerDataSent(0);
     end;
 
-    if (State = SSL_ST_OK) and (my_BIO_ctrl_pending(FSslbio) > 0) then begin
+    if (State = TLS_ST_OK) and (my_BIO_ctrl_pending(FSslbio) > 0) then begin   { V8.27 }
         if FMayTriggerDoRecv  then begin
             if TriggerEvent(sslFdRead, 0) then
                 FMayTriggerDoRecv := FALSE;
@@ -18325,12 +22078,9 @@ begin
             FMayTriggerFD_Read := FALSE;
     end;
 
-    {if FCloseReceived and (FSslIntShutDown = 0) then
-        TriggerEvent(sslFdClose, 0)
-    else}
     if ((FCloseCalled and (FSslIntShutDown = 0)) or
        ((FSslIntShutDown = 2) and not FSslBiShutdownFlag)) and   // AG 03/03/06
-       (State = SSL_ST_OK) and (my_BIO_ctrl_pending(FSslbio) = 0) then
+       (State = TLS_ST_OK) and (my_BIO_ctrl_pending(FSslbio) = 0) then    { V8.27 }
         TriggerEvent(sslFdClose, 0);
 end;
 
@@ -18353,7 +22103,7 @@ begin
                 FSslEnable := FALSE;
                 ResetSsl;
                 inherited InternalClose(FALSE, WSAECONNABORTED);
-                HandleBackGroundException(E);
+                HandleBackGroundException(E, 'TCustomSslWSocket.TriggerSessionConnected');
             end;
         end;
     end;
@@ -18391,37 +22141,10 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+// code moved to callback V8.55
 procedure TCustomSslWSocket.TriggerSslCliNewSession;
-var
-    CurrentSession : Pointer;
-    IncRefCount    : Boolean;
 begin
-    // Sessions are created by a ssl server only
-    if (FSslMode = sslModeClient) and Assigned(FOnSslCliNewSession) and
-        Assigned(FSsl) then begin
-        if FSslState = sslEstablished then
-            CurrentSession := f_SSL_get_Session(FSsl)
-        else
-            CurrentSession := nil; // bad session
-        IncRefCount := FALSE;
-{$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-            DebugLog(loSslInfo, IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2) +
-                     ' CliNewSession [' +
-                     IntToHex(INT_PTR(CurrentSession), SizeOf(CurrentSession) * 2) + '] ' +
-                     'Reused: ' + BoolToStr(SslSessionReused, TRUE));
-{$ENDIF}
-        SslCritSect.Enter;
-        try
-            FOnSslCliNewSession(Self, CurrentSession,
-                                SslSessionReused,
-                                IncRefCount);
-            if IncRefCount and (CurrentSession <> nil) then
-                f_SSL_get1_Session(FSsl);
-        finally
-            SslCritSect.Leave;
-        end;
-    end;
+//
 end;
 
 
@@ -18433,18 +22156,28 @@ var
     Disconnect   : Boolean;
     RefCert      : TX509Base;
     Buffer       : array [0..128] of AnsiChar; { V8.14 }
+    VerifyParam  : PX509_VERIFY_PARAM;  { V8.39 }
+
+  { examples of SSL_CIPHER_description():
+   <ciphername> <first protocol version> <key exchange> <authentication> <symmetric encryption method> <message authentication code>
+      TLS13-CHACHA20-POLY1305-SHA256 TLSv1.3 Kx=any      Au=any  Enc=CHACHA20/POLY1305(256) Mac=AEAD
+      ECDHE-RSA-AES256-GCM-SHA256    TLSv1.2 Kx=ECDH   Au=RSA   Enc=AESGCM(256) Mac=AEAD
+      ECDHE-ECDSA-AES256-GCM-SHA384  TLSv1.2 Kx=ECDH   Au=ECDSA Enc=AESGCM(256) Mac=AEAD
+      ECDHE-RSA-CHACHA20-POLY1305    TLSv1.2 Kx=ECDH   Au=RSA   Enc=CHACHA20/POLY1305(256) Mac=AEAD
+      AES256-SHA256                  TLSv1.2 Kx=RSA    Au=RSA   Enc=AES(256)    Mac=SHA256
+      RSA-PSK-AES256-CBC-SHA384      TLSv1.0 Kx=RSAPSK Au=RSA   Enc=AES(256)    Mac=SHA384 }
 
     function FindCiphArg (const key: string): string;
     var
         I: integer;
     begin
-        I := Pos (key, FSslCipherDesc);
+        I := Pos(key, FSslCipherDesc);
         if I <= 0 then
             Result := ''
         else begin
-            Result := Copy (FSslCipherDesc, I + Length (key), 99);
-            I := Pos (' ', Result);
-            if I <= 0 then I := Pos (#10, Result);
+            Result := Copy(FSslCipherDesc, I + Length (key), 99);
+            I := Pos(' ', Result);
+            if I <= 0 then I := Pos(#10, Result);
             if I > 0 then SetLength(Result, I - 1);
         end;
     end;
@@ -18472,6 +22205,7 @@ begin
             f_SSL_get_secure_renegotiation_support(FSsl) = 1;
         FSslVersion := String(f_SSL_get_version(FSsl));
         FSslVersNum := f_SSL_version(FSsl);
+        SslGetAlpnProtocol;  { V8.62 }
         Cipher      := f_SSL_get_current_cipher(FSsl);
         if Assigned(Cipher) then begin
             FSslCipher     := String(f_SSL_CIPHER_get_name(Cipher));
@@ -18480,33 +22214,49 @@ begin
             FSslEncryption := FindCiphArg ('Enc=');       { V8.14  }
             FSslKeyExchange := FindCiphArg ('Kx=');       { V8.14  }
             FSslMessAuth   := FindCiphArg ('Mac=');       { V8.14  }
+            FSslKeyAuth    := FindCiphArg ('Au=');        { V8.41  }
         end;
-        if FSslContext.SslVerifyPeer then
+        if FSslContext.SslVerifyPeer then begin
         { Get the peer cert from OSSL. Note that servers always send their }
         { certificates, clients on server request only. This gets the peer }
         { cert also when a session was reused.                             }
             PeerX := f_SSL_get_peer_certificate(FSsl);
+
+          { V8.39 get pointer to verify parameters, which we may alter in a moment }
+            VerifyParam := f_SSL_get0_param(FSsl);    { do not free it! }
+            FSslCertPeerName := String (f_X509_VERIFY_PARAM_get0_peername (VerifyParam));
+        end;
+
      { V8.14 set with success or failure message once handshake completes }
-        FSslHandshakeRespMsg := Format('SSL Connected OK with %s, cipher %s, key exchange %s, ' +
-                        'encryption %s, message authentication %s',
-                          [SslVersion, SslCipher, FSslKeyExchange, FSslEncryption, FSslMessAuth]);
+        if FSslKeyAuth = 'any' then   { V8.52 TLSv1.3 does not have all params }
+            FSslHandshakeRespMsg := Format('SSL Connected OK with %s, cipher %s, ' +
+              'encryption %s, message auth %s',
+                [SslVersion, SslCipher, FSslEncryption, FSslMessAuth])
+        else
+            FSslHandshakeRespMsg := Format('SSL Connected OK with %s, cipher %s, ' +
+              'key auth %s, key exchange %s, encryption %s, message auth %s',
+                [SslVersion, SslCipher, FSslKeyAuth, FSslKeyExchange,
+                                                FSslEncryption, FSslMessAuth]);
     end  // FSslState = sslEstablished
     else begin
         if (FSslHandshakeRespMsg = '') then begin  { V8.14  }
-            if (ErrCode = 1) then
-               FSslHandshakeRespMsg := 'Error, connection closed unexpectedly'
-            else
+            if (ErrCode = 1) then begin
+                if Fssl = Nil then    { V8.57 }
+                    FSslHandshakeRespMsg := 'Error, connection closed unexpectedly'
+                else
+                    FSslHandshakeRespMsg := 'Failed TLS protocol negotiation: ' +
+                                          String(f_SSL_state_string_long(Fssl));   { V8.54 }
+            end else
                FSslHandshakeRespMsg := String(LastOpenSslErrMsg(true));
         end;
     end;
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loSslInfo) then  { V5.21 } { replaces $IFDEF DEBUG_OUTPUT  }
-        DebugLog(loSslInfo, Format('%s SslHandshakeDone(%d) %d. Secure connection ' +
-                             'with %s, cipher %s, %d secret bits (%d total), ' +
+        DebugLog(loSslInfo, Format('%s SslHandshakeDone(%d) Handle=%d. %s, ' +
                              'session reused=%s',
                              [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
-                             ErrCode, FHSocket, SslVersion, SslCipher, SslSecretBits,
-                             SslTotalBits, BoolToStr(SslSessionReused, TRUE)]));
+                             ErrCode, FHSocket, FSslHandshakeRespMsg,    { 8.54 simplified }
+                             BoolToStr(SslSessionReused, TRUE)]));
 {$ENDIF}
     FSslPeerCert.X509 := PeerX;
     if Assigned(PeerX) then begin
@@ -18519,6 +22269,8 @@ begin
         begin
             FSslPeerCert.FSha1Digest        := RefCert.FSha1Digest;
             FSslPeerCert.FSha1Hex           := RefCert.FSha1Hex;
+            FSslPeerCert.FSha256Digest      := RefCert.FSha256Digest;    { V8.63 } 
+            FSslPeerCert.FSha256Hex         := RefCert.FSha256Hex;
             FSslPeerCert.VerifyResult       := RefCert.VerifyResult;
             FSslPeerCert.CustomVerifyResult := RefCert.CustomVerifyResult;
             FSslPeerCert.FirstVerifyResult  := RefCert.FirstVerifyResult;
@@ -18538,9 +22290,12 @@ begin
         FOnSslHandshakeDone(Self, ErrCode, FSslPeerCert, Disconnect);
     if Disconnect and (ErrCode = 0) then
         Close{Delayed?}
-    else if ErrCode = 0 then
-        // Publish the new session so that the application can cache it.
-        TriggerSslCliNewSession;
+    else if ErrCode = 0 then begin
+       { V8.53 session not yet established yet with TLSv1.3 so skip event }
+       { V8.55, use SSL_CTX_sess_set_get_cb instead }
+          // Publish the new session so that the application can cache it.
+          // TriggerSslCliNewSession;
+    end;
 end;
 
 
@@ -18550,15 +22305,15 @@ begin
     if (not FSslEnable) or (FSocksState <> socksData) or
        (FHttpTunnelState <> htsData) then begin
 {$IFNDEF NO_DEBUG_LOG}
-        if CheckLogOptions(loSslInfo) then begin { V5.21 }
+        if CheckLogOptions(loSslDevel) then begin { V5.21 }
             Inc(TraceCount);
-            DebugLog(loSslDump, Format('%s PutDataInSendBuffer %s  len %d [%d]',
+            DebugLog(loSslDump, Format('%s PutDataInSendBuffer handle=%s  len %d [%d]',
                              [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                              IntToStr(FHSocket), Len, TraceCount]));
         end
         else if CheckLogOptions(loSslDump) then begin { V5.21 }
             Inc(TraceCount);
-            DebugLog(loSslDump, Format('%s PutDataInSendBuffer %s [%d] Data:%s',
+            DebugLog(loSslDump, Format('%s PutDataInSendBuffer handle=%s [%d] Data:%s',
                              [IntToHex(INT_PTR(Self), SizeOf(Pointer) * 2),
                              IntToStr(FHSocket), TraceCount,
                              DataToString(Data, Len)]));
@@ -18655,6 +22410,8 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure TCustomHttpTunnelWSocket.Connect;
+var
+  LSocketFamily:TSocketFamily;
 begin
     if not FHttpTunnelServerAssigned then
         inherited Connect
@@ -18662,6 +22419,20 @@ begin
     else if (IcsLowerCase(FProtoStr) <> 'tcp') and (IcsTrim(FProtoStr) <> '6') then
         RaiseException('TCP is the only protocol supported by HTTP proxies')
     else begin
+     { V8.56 IPv6 support from Max Terentiev }
+        if WSocketIsIP(String(FHttpTunnelServer), LSocketFamily) then begin
+            if (LSocketFamily = sfIPv4) or (IsIPv6APIAvailable) then
+                FSocketFamily := LSocketFamily
+            else
+                FSocketFamily := DefaultSocketFamily;
+        end
+        else
+          raise ESocketException.Create('Unsupported http proxy address format');
+        if WSocketIsIP(FAddrStr, LSocketFamily) then begin
+            if LSocketFamily=sfIPv6 then
+                FAddrStr:='['+FAddrStr+']';  // IPv6 must be in [ ]
+        end;
+
         try
             if not FPortResolved then begin
                 { The next line will trigger an exception in case of failure }
@@ -18683,6 +22454,8 @@ begin
                     WSocket_Synchronized_ResolveHost(HttpTunnelServer, Fsin,
                                                      FSocketFamily, IPPROTO_TCP);
                 FAddrResolved := TRUE;
+            { V8.56 IPv6 support from Max Terentiev }
+                FAddrFormat := Fsin.sin6_family; // IPv6 support
             end;
             { The next line will trigger an exception in case of failure }
             FPortNum := WSocket_Synchronized_ResolvePort(AnsiString(FPortStr),
@@ -19612,7 +23385,7 @@ begin
         WMHttpTunnelReconnect(MsgRec)
     except
         on E: Exception do
-            HandleBackGroundException(E);
+            HandleBackGroundException(E, 'TCustomHttpTunnelWSocket');
     end
     else
         inherited WndProc(MsgRec);
@@ -20785,7 +24558,7 @@ begin
     LockQueue;
     try
       {$IFDEF MSWINDOWS}
-        if not IsIPv6APIAvailable then begin
+        if (ASocketFamily = sfIPv6) and not IsIPv6APIAvailable then begin    { V8.43 }
             SetLastError(WSAVERNOTSUPPORTED);
             Exit;
         end;
@@ -20870,13 +24643,6 @@ var
 begin
     LockQueue;
     try
-      {$IFDEF MSWINDOWS}
-        if not IsIPv6APIAvailable then begin
-            Result := -1;
-            SetLastError(WSAVERNOTSUPPORTED);
-            Exit;
-        end;
-      {$ENDIF}
         I := FQueue.IndexOf(Pointer(AReq));
         if (I > -1) then
             Req := TIcsAsyncDnsLookupRequest(FQueue[I])
@@ -20884,6 +24650,13 @@ begin
             Req := nil;
 
         if Req <> nil then begin
+          {$IFDEF MSWINDOWS}
+            if (Req.FSocketFamily = sfIPv6) and not IsIPv6APIAvailable then begin  { V8.43 }
+                Result := -1;
+                SetLastError(WSAVERNOTSUPPORTED);
+                Exit;
+            end;
+          {$ENDIF}
             if Req.FState = lrsNone then begin
                 Req.Free;
                 FQueue.Delete(I);
@@ -21122,31 +24895,6 @@ begin
         Result := nil;
 end;
 
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-(*
-function WSocket_Synchronized_IcsAsyncGetHostByName(AWnd: HWND; AMsgID: UINT;
-  const ASocketFamily: TSocketFamily; const AName: string): THandle;
-begin
-    Result := GAsyncDnsLookup.ExecAsync(AWnd, AMsgID, ASocketFamily, AName, FALSE);
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function WSocket_Synchronized_IcsAsyncGetHostByAddr(AWnd: HWND; AMsgID: UINT;
-  const ASocketFamily: TSocketFamily; const AAddr: string): THandle;
-begin
-    Result := GAsyncDnsLookup.ExecAsync(AWnd, AMsgID, ASocketFamily, AAddr, TRUE);
-end;
-
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function WSocket_Synchronized_IcsCancelAsyncRequest(
-  const ARequest: THandle): Integer;
-begin
-    Result := GAsyncDnsLookup.CancelAsyncRequest(ARequest);
-end;
-*)
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 initialization

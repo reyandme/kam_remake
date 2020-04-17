@@ -3,11 +3,11 @@
 Author:       Arno Garrels <arno.garrels@gmx.de>
 Description:  Logger class donated to ICS.
 Creation:     December 2005
-Version:      8.00
+Version:      8.40
 EMail:        francois.piette@overbyte.be      http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2005-2011 by François PIETTE
+Legal issues: Copyright (C) 2005-2017 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -52,6 +52,7 @@ Dec 06, 2010 V6.05 Thread-safe FreeNotification and RemoveFreeNotification.
 Apr 15, 2011 V6.06 Arno prepared for 64-bit.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+Dec 19, 2016 V8.40 Angus added loSslDevel
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsLogger;
@@ -92,15 +93,15 @@ uses
     OverbyteIcsUtils;
 
 const
-    TIcsLoggerVersion   = 800;
-    CopyRight : String  = ' IcsLogger (c) 2005-2012 by François PIETTE V8.00 ';
+    TIcsLoggerVersion   = 840;
+    CopyRight : String  = ' IcsLogger (c) 2005-2017 by François PIETTE V8.40 ';
 
 type
     ELoggerException = class(Exception);
     TLogOption = (loDestEvent,   loDestFile,     loDestOutDebug,  { Output Destinations }
                   loAddStamp,                                     { Adds something (slow) }
                   loWsockErr,    loWsockInfo,    loWsockDump,
-                  loSslErr,      loSslInfo,      loSslDump,
+                  loSslErr,      loSslInfo,      loSslDevel,   loSslDump,  { V8.40 added Devel }
                   loProtSpecErr, loProtSpecInfo, loProtSpecDump);
     TLogOptions = set of TLogOption;
     TLogFileOption = (lfoAppend, lfoOverwrite);

@@ -64,6 +64,9 @@ Jul 18, 2011 V7.02 Arno reverted breaking changes from V7.01.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
 Apr 11, 2013  V8.01 Angus added SocketFamily, LocalAddr and LocalAddr6 for IPv6
+Apr 15, 2017  V8.02 FPiette fixed TTnCnx.Send (Added J variable). The problem
+                    occured when sending buffer longer than 1460 bytes.
+                    Thanks to "Hadi gh - 2140" who reported the issue.
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsTnCnx;
@@ -451,7 +454,7 @@ function  TTnCnx.Send(
 
 {$IFDEF COMPILER12_UP}
 var
-    I, L : Integer;
+    I, J, L : Integer;
     SBuf : array[0..1460 - 1] of AnsiChar;
 {$ENDIF}
 
@@ -461,18 +464,20 @@ begin
 {$IFDEF COMPILER12_UP}
     begin
         L := Len;
+        J := 0;
         Result := 0;
         while L > SizeOf(SBuf) do begin
             for I := 0 to SizeOf(SBuf) - 1 do begin
-                SBuf[I] := AnsiChar(Data[I]);
+                SBuf[I] := AnsiChar(Data[I + J]);
                 Inc(Result);
             end;
             Socket.PutDataInSendBuffer(@SBuf, SizeOf(SBuf));
             Dec(L, SizeOf(SBuf));
+            Inc(J, SizeOf(SBuf));
         end;
         if L > 0 then begin
             for I := 0 to L - 1 do begin
-                SBuf[I] := AnsiChar(Data[I]);
+                SBuf[I] := AnsiChar(Data[I + J]);
                 Inc(Result);
             end;
             Socket.PutDataInSendBuffer(@SBuf, L);

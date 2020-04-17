@@ -3,11 +3,11 @@
 Author:       François PIETTE
 Description:  TSnmpCli class encapsulate the SNMP client paradigm
 Creation:     March 2011
-Version:      1.01
+Version:      8.50
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2011 by François PIETTE
+Legal issues: Copyright (C) 2017 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               The Initial Developer of the Original Code is Lukas Gebauer.
@@ -39,6 +39,8 @@ Legal issues: Copyright (C) 2011 by François PIETTE
 
 History:
 May 11, 2012 V1.01 Arno - Unit did not compile with Ansi Delphi
+Aug 17, 2017 V8.50 IsBinaryString and StrToHex now public, thanks to xlxia@sina.com
+                   Added ansi version of IsBinaryString for unicode compilers
 
 |==============================================================================|
 | Copyright (c)1999-2007, Lukas Gebauer                                        |
@@ -93,8 +95,8 @@ uses
   OverbyteIcsAsn1Utils;
 
 const
-  SnmpMsgsVersion       = 101;
-  CopyRight    : String = ' AnmpMsgs (c) 2011 Francois Piette V1.01 ';
+  SnmpMsgsVersion       = 850;
+  CopyRight    : String = ' AnmpMsgs (c) 2017 Francois Piette V8.50 ';
 
 const
   cSnmpProtocol         = '161';
@@ -377,6 +379,12 @@ type
   end;
 
 function SnmpErrorToString(ErrCode : Integer) : String;
+
+{ V8.50 }
+function IsBinaryString(const Value: string): Boolean; {$IFDEF COMPILER12_UP} overload;
+function IsBinaryString(const Value: Ansistring): Boolean; overload;
+                    {$ENDIF}
+function StrToHex(const Value: Ansistring): string;
 
 implementation
 
@@ -1001,6 +1009,32 @@ begin
         Break;
       end;
 end;
+
+{==============================================================================}
+// Extracted from synautil
+{:If string is binary string (contains non-printable characters), then is
+ returned true.}
+{$IFDEF COMPILER12_UP}
+{ V8.50 added AnsiString version to avoid conversions }
+function IsBinaryString(const Value: Ansistring): Boolean;
+var
+  n: integer;
+begin
+  Result := False;
+  for n := 1 to Length(Value) do
+  {$IFDEF UNICODE}
+    if CharInSet(Value[n], [#0..#8, #10..#31]) then
+  {$ELSE}
+    if Value[n] in [#0..#8, #10..#31] then
+  {$ENDIF}
+      //ignore null-terminated strings
+      if not ((n = Length(value)) and (Value[n] = #0)) then
+      begin
+        Result := True;
+        Break;
+      end;
+end;
+{$ENDIF}
 
 {==============================================================================}
 // Extracted from synautil

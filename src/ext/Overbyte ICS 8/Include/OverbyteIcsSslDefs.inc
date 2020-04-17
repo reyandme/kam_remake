@@ -32,16 +32,12 @@
 { The default should be "OPENSSL_NO_ENGINE" it's currently very experimental   }
 {.$DEFINE OPENSSL_NO_ENGINE}
 
-{ Uncomment next define if OpenSSL needs to support the oboslete SSLv2 protocol}
-{ OpenSSL 1.0.2g and 1.0.1s and later no longer export SSlv2 methods and will  }
-{ not load (unless special DLLs are built).                                     }
-{.$DEFINE OPENSSL_ALLOW_SSLV2}
-
 { Do not modify below this line                                                }
 { -----------------------------------------------------------------------------}
 { Angus - March 2015, no longer supporting 098 so nothing left                 }
 { Angus - June 2015, enable engine support, which are cryptographic            }
 {                    modules adding extra algorithms                           }
 { Angus - March 2016, added define OPENSSL_ALLOW_SSLV2                               }
+{ Angus - Oct 2016,   removed OPENSSL_ALLOW_SSLV2, too old                                }
 
 

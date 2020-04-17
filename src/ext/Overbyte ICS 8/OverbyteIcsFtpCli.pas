@@ -2,13 +2,12 @@
 
 Author:       François PIETTE
 Creation:     May 1996
-Version:      V8.09
+Version:      V8.63
 Object:       TFtpClient is a FTP client (RFC 959 implementation)
               Support FTPS (SSL) if ICS-SSL is used (RFC 2228 implementation)
 EMail:        http://www.overbyte.be        francois.piette@overbyte.be
-Support:      Use the mailing list twsocket@elists.org
-              Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1996-2016 by François PIETTE
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 1996-2019 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
@@ -1074,6 +1073,24 @@ Jun 01, 2015 V8.07 - Angus update SslServerName for SSL SNI support allowing ser
                        select correct SSL context and certificate
 Oct 25, 2015 V8.08 - Angus report SSL certificate check failed in HandshakeDone event
 Feb 23, 2016 V8.09 - Angus renamed TBufferedFileStream to TIcsBufferedFileStream
+Nov 10, 2016 V8.37 - Added extended exception information, set SocketErrs = wsErrFriendly for
+                      some more friendly messages (without error numbers)
+Mar 3, 2017  V8.42 - Angus TULargeInteger now ULARGE_INTEGER
+Jun 21, 2017 V8.49 - Angus using IcsGetFileSize instead of local version
+Mar 6, 2019  V8.60 - Added AddrResolvedStr read only property which is the IPv4/IPv6
+                       address to which the client is trying to connect.
+                     Added IP address and port to 500 Connect error.
+                     Added round robin DNS lookup if DNSLookup returns multiple
+                        IP addresses so they are used in turn after a failure
+                        when the component is called repeatedly.
+Jun 18, 2019 V8.62  Set ftpFeatProtC when no PROT parameters passed.
+Nov 3, 2019  V8.63  Added Option ftpFixPasvLanIP for when '227 Entering Passive Mode ()'
+                      returns a LAN IP instead of a WAN IP, so use control IP instead.
+                      This fixes failed downloads if the FTP server is behind a NAT
+                      router and is not configured to present the external IP.
+                    Log IP addresses and ports for passive connections to ease debugging.
+
+
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -1154,9 +1171,11 @@ uses
 {$IFDEF FMX}
     Ics.Fmx.OverbyteIcsWndControl,
     Ics.Fmx.OverbyteIcsWSocket,
+    Ics.Fmx.OverbyteIcsSocketUtils,   { V8.63 }
 {$ELSE}
     OverbyteIcsWndControl,
     OverbyteIcsWSocket,
+    OverbyteIcsSocketUtils,   { V8.63 }
 {$ENDIF}
     OverbyteIcsStreams,
     OverbyteIcsUtils,
@@ -1164,9 +1183,9 @@ uses
     OverByteIcsFtpSrvT;
 
 const
-  FtpCliVersion      = 809;
-  CopyRight : String = ' TFtpCli (c) 1996-2016 F. Piette V8.09 ';
-  FtpClientId : String = 'ICS FTP Client V8.09 ';   { V2.113 sent with CLNT command  }
+  FtpCliVersion      = 863;
+  CopyRight : String = ' TFtpCli (c) 1996-2019 F. Piette V8.63 ';
+  FtpClientId : String = 'ICS FTP Client V8.63 ';   { V2.113 sent with CLNT command  }
 
 const
 //  BLOCK_SIZE       = 1460; { 1514 - TCP header size }
@@ -1194,7 +1213,8 @@ type
   TFtpCliSslType  = (sslTypeNone, sslTypeAuthTls, sslTypeAuthSsl,        { V2.106 }
                      sslTypeImplicit);
   TFtpOption      = (ftpAcceptLF, ftpNoAutoResumeAt, ftpWaitUsingSleep,
-                     ftpBandwidthControl, ftpAutoDetectCodePage); { V2.106 }{ AG V7.02 }
+                     ftpBandwidthControl, ftpAutoDetectCodePage, 
+                     ftpFixPasvLanIP); { V2.106 }{ AG V7.02 } { V8.63 FixPasvLan }
   TFtpOptions     = set of TFtpOption;
   TFtpExtension   = (ftpFeatNone, ftpFeatSize, ftpFeatRest, ftpFeatMDTMYY,
                      ftpFeatMDTM, ftpFeatMLST, ftpFeatMFMT, ftpFeatMD5,
@@ -1411,6 +1431,10 @@ type
     FOnZlibProgress     : TZlibProgress; { V2.113 call back event during ZLIB processing }
     FZCompFileName      : String;        { V2.113 zlib file name of compressed file }
     FZlibWorkDir        : String;        { V2.113 zlib work directory }
+    FSocketErrs         : TSocketErrs;   { V8.37 }
+    FCurrDnsResult      : Integer;       { V8.60 round robin DNS results }
+    FTotDnsResult       : Integer;       { V8.60 round robin DNS results }
+    FLastAddrOK         : String;        { V8.60 round robin DNS results }
 {$IF DEFINED(UseBandwidthControl) or DEFINED(BUILTIN_THROTTLE)}
     FBandwidthLimit     : Integer;  // Bytes per second
     FBandwidthSampling  : Integer;  // mS sampling interval
@@ -1521,6 +1545,7 @@ type
     procedure   HandleSocksError(Sender: TObject; ErrCode: Integer; Msg: String);
     procedure   SetDSocketSndBufSize(const Value: Integer);{AG V7.26}
     procedure   SetDSocketRcvBufSize(const Value: Integer);{AG V7.26}
+    function    GetAddrResolvedStr: String;            { V8.60 }
   public
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -1629,6 +1654,7 @@ type
     property    MLSTFacts         : String               read  FMLSTFacts;     { V2.90 specific new list stuff supported }
     property    RemFacts          : String               read  FRemFacts;      { V2.90 facts about remote file           }
     property    SupportedExtensions : TFtpExtensions     read  FSupportedExtensions;   { V2.94  which supported features }
+    property    AddrResolvedStr   : String               read  GetAddrResolvedStr;    { V8.60 }
     property    RemFileDT         : TDateTime            read  FRemFileDT      { V2.90 date/time for MdtmAsync           }
                                                          write FRemFileDT;     {       and MdtmYYYYAsync;                }
     property    Md5Result         : String               read  FMd5Result;     { V2.94 MD5 sum                           }
@@ -1765,6 +1791,8 @@ type
     property OnReadyToTransmit    : TFtpReadyToTransmit  read  FOnReadyToTransmit
                                                          write FOnReadyToTransmit;
     property OnBgException;   { V7.15 }
+    property SocketErrs          : TSocketErrs           read  FSocketErrs
+                                                         write FSocketErrs;      { V8.37 }
   end;
 
   TFtpClient = class(TCustomFtpCli)
@@ -1908,6 +1936,7 @@ type
     property BandwidthSampling;                                    { V2.106 }
 {$IFEND}
     property SocketFamily;
+    property SocketErrs;                                           { V8.37 }
   end;
 
 { You must define USE_SSL so that SSL code is included in the component.   }
@@ -2150,11 +2179,12 @@ begin
 end ;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+(*  V8.49 using version n Utils
 function GetFileSize(FileName : String) : TFtpBigInt; { V2.108 }
 var
     SR : TSearchRec;
 {$IFDEF MSWINDOWS}
-    TempSize: TULargeInteger;  // 64-bit integer record
+    TempSize: ULARGE_INTEGER; { V8.42 was TULargeInteger } { 64-bit integer record }
 {$ENDIF}
 begin
     if FindFirst(FileName, faReadOnly or faHidden or
@@ -2171,7 +2201,7 @@ begin
     end
     else
         Result := -1;
-end;
+end;       *)
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -2350,7 +2380,9 @@ begin
     FLanguage := 'EN';    { V7.01 or EN-uk, FR, etc, only for messages }
     FDSocketSndBufSize := 8192;  {AG V7.26}
     FDSocketRcvBufSize := 8192;  {AG V7.26}
-end;
+    FLastAddrOK := '';        { V8.60 }
+    FCurrDnsResult := -1;     { V8.60 } 
+ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
@@ -2603,6 +2635,16 @@ end;
 procedure TCustomFtpCli.LocalStreamWrite(const Buffer; Count : Integer);
 begin
     FLocalStream.WriteBuffer(Buffer, Count);
+end;
+
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TCustomFtpCli.GetAddrResolvedStr: String;            { V8.60 }
+begin
+    Result := '';
+   if Assigned(FControlSocket) then
+        Result := FControlSocket.AddrResolvedStr;
 end;
 
 
@@ -2894,6 +2936,7 @@ begin
     FLastResponse        := '';
     FErrorMessage        := '';
     FStatusCode          := 0;
+    FControlSocket.SocketErrs := FSocketErrs;        { V8.37 }
 
 { angus V7.00 always set proxy and SOCKS options before opening socket  }
     FControlSocket.SocksAuthentication := socksNoAuthentication;
@@ -2908,7 +2951,7 @@ begin
     end;
 
     case FConnectionType of
-       // ftpProxy:   FPassive := TRUE;     { V7.22 } 
+       // ftpProxy:   FPassive := TRUE;     { V7.22 }
         ftpSocks4:  FControlSocket.SocksLevel := '4';
         ftpSocks4A: FControlSocket.SocksLevel := '4A';
         ftpSocks5:  FControlSocket.SocksLevel := '5';
@@ -3318,7 +3361,7 @@ begin
     { value. This property could be initialized using Size command.         }
     if (not (FRequestType in [ftpRestartPutAsync, ftpRestPutAsync])) and
        (not (ftpNoAutoResumeAt in FOptions)) then
-        FResumeAt := GetFileSize(FLocalFileName)
+        FResumeAt := IcsGetFileSize(FLocalFileName);
 end;
 
 
@@ -5086,7 +5129,7 @@ begin
     { passive mode.                                                         }
     case FConnectionType of
         ftpDirect, ftpProxy     : FPassive := NewValue;             { V7.22 }
-        ftpSocks4, ftpSocks4A, 
+        ftpSocks4, ftpSocks4A,
         ftpSocks5, ftpHttpProxy : FPassive := TRUE;                 { V7.22 }
     end;
 end;
@@ -5103,6 +5146,7 @@ begin
     FDataSocket.LingerOnOff        := wsLingerOff;
     FDataSocket.LingerTimeout      := 0;
     FDataSocket.ComponentOptions   := [wsoNoReceiveLoop];   { 26/10/02 } { 2.109 }
+    FDataSocket.SocketErrs         := FSocketErrs;        { V8.37 }
 {$IFDEF BUILTIN_THROTTLE}
     if ftpBandwidthControl in FOptions then begin
         FDataSocket.BandwidthLimit     := FBandwidthLimit;
@@ -5230,7 +5274,7 @@ begin
                 { We MUST check for file size >= RestartPos since Seek in any      } { V2.108 }
                 { write-mode may write to the stream returning always the correct  }
                 { new position.                                                    }
-                NewPos := GetFileSize(FLocalFileName);                    { V2.108 }
+                NewPos := IcsGetFileSize(FLocalFileName);                 { V2.108 }
                 if FResumeAt <= NewPos then                               { V2.108 }
                     NewPos := FLocalStream.Seek(FResumeAt, soBeginning);
                 if NewPos <> FResumeAt then begin
@@ -5291,6 +5335,19 @@ begin
             TargetPort := StrToInt(Copy(Temp, 1, Pos(',', Temp) - 1)) * 256;
             Delete(Temp, 1, Pos(',', Temp));
             TargetPort := TargetPort + StrToInt(Copy(Temp, 1, Pos(')', Temp) - 1));
+
+         { V8.63 see if FTP server has returned a LAN IP address when the server
+            had a WAN IP for the control channel, use that instead }
+            TriggerDisplay('! Passive connection requested to: ' + TargetIP + ':' +
+               IntToStr(TargetPort) + ', control channel: ' + FControlSocket.AddrResolvedStr);
+            if (TargetIP <> FControlSocket.AddrResolvedStr) and
+                                      (ftpFixPasvLanIP in FOptions) then begin
+                if IcsIsIpPrivate(AnsiString(TargetIP)) and
+                     (NOT IcsIsIpPrivate(AnsiString(FControlSocket.AddrResolvedStr))) then begin
+                    TriggerDisplay('! Suspicious LAN IP changed to control channel address');
+                    TargetIP := FControlSocket.AddrResolvedStr
+                end;
+            end;
 
             DataSocketGetInit(IntToStr(TargetPort), TargetIP);
         end
@@ -5445,7 +5502,8 @@ begin
     FDataSocket.LingerOnOff        := wsLingerOff;
     FDataSocket.LingerTimeout      := 0;
     FDataSocket.ComponentOptions   := [wsoNoReceiveLoop];   { 26/10/02 }
-    FDataSocketSentFlag            := FALSE;          { V7.11 }    
+    FDataSocketSentFlag            := FALSE;          { V7.11 }
+    FDataSocket.SocketErrs         := FSocketErrs;        { V8.37 }
 {$IFDEF BUILTIN_THROTTLE}
     if ftpBandwidthControl in FOptions then begin
         FDataSocket.BandwidthLimit     := FBandwidthLimit;
@@ -5764,6 +5822,7 @@ begin
     FDataSocket.OnSessionClosed    := nil;
     FDataSocket.OnDataAvailable    := nil;
     FDataSocketSentFlag            := FALSE;     { V7.11 }
+    FDataSocket.SocketErrs := FSocketErrs;        { V8.37 }
 {$IFDEF BUILTIN_THROTTLE}
     if ftpBandwidthControl in FOptions then begin
         FDataSocket.BandwidthLimit     := FBandwidthLimit;
@@ -5895,10 +5954,13 @@ end;
 procedure TCustomFtpCli.ControlSocketDnsLookupDone(
     Sender  : TObject;
     ErrCode : Word);
+var
+    I: Integer;
 begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loProtSpecInfo) then
-        DebugLog(loProtSpecInfo, 'Control DNS Lookup Done - '  + FControlSocket.DnsResult);  { V8.03 }
+        DebugLog(loProtSpecInfo, 'Control DNS Lookup Done - '  +
+                                FControlSocket.DnsResultList.CommaText);  { V8.60 }
 {$ENDIF}
     if ErrCode <> 0 then begin
         FLastResponse  := '500 DNS lookup error - ' + GetWinsockErr(ErrCode) ;
@@ -5908,7 +5970,49 @@ begin
         TriggerRequestDone(ErrCode);
     end
     else begin
-        FDnsResult               := FControlSocket.DnsResult;
+      { V8.60 DNS lookup may return multiple IP addrese, round robin through
+        them trying each on multiple retries.  Addresses taken consecutively
+        from DnsResultList unless FLastAddrOK has been set on a successful
+        connect, when it will re-used for the next attempt if still in
+        DnsResultList.  Loop to start again when all addresses tried.  }
+
+        FTotDnsResult := FControlSocket.DnsResultList.Count;
+        if (FTotDnsResult <= 0) then Exit;  { sanity check }
+
+      { single DNS result, nothing more to do }
+        if (FTotDnsResult = 1) then
+            FDnsResult := FControlSocket.DnsResult
+        else begin
+          { if last succesaful IP address in list of results, use it again }
+            FDnsResult := '';
+            if (FLastAddrOK <> '') then begin
+                for I := 0 to FTotDnsResult - 1 do begin
+                    if FLastAddrOK = FControlSocket.DnsResultList[I] then begin
+                        FCurrDnsResult := I;
+                        FDnsResult := FLastAddrOK;
+{$IFNDEF NO_DEBUG_LOG}
+                        if CheckLogOptions(loProtSpecInfo) then
+                            DebugLog(loProtSpecInfo, 'Reusing Last OK Address: ' + FLastAddrOK);
+{$ENDIF}
+                        break;
+                    end;
+                end;
+            end;
+
+          { not found it, find next, loop to start if gone past last }
+            if FDnsResult = '' then begin
+                inc (FCurrDnsResult);
+                if (FCurrDnsResult >= FTotDnsResult) then
+                    FCurrDnsResult := 0;
+                FDnsResult := FControlSocket.DnsResultList[FCurrDnsResult];
+{$IFNDEF NO_DEBUG_LOG}
+                if CheckLogOptions(loProtSpecInfo) then
+                    DebugLog(loProtSpecInfo, 'Alternate Address: ' + FDnsResult);
+{$ENDIF}
+            end;
+        end;
+
+     { connect to IP address }
         FControlSocket.Addr      := FDnsResult;
         FControlSocket.LocalAddr := FLocalAddr; {bb}
         FControlSocket.LocalAddr6 := FLocalAddr6; { V8.01 }
@@ -5963,7 +6067,8 @@ procedure TCustomFtpCli.ControlSocketSessionConnected(Sender: TObject; ErrCode: 
 begin
 {$IFNDEF NO_DEBUG_LOG}
     if CheckLogOptions(loProtSpecInfo) then
-        DebugLog(loProtSpecInfo, 'Control Socket Connect, error='  + IntToStr (ErrCode));  { V8.03 }
+        DebugLog(loProtSpecInfo, 'Control Socket Connect, error='  +
+          IntToStr (ErrCode) + ' to ' + IcsFmtIpv6AddrPort(AddrResolvedStr, FPort));  { V8.60 }
 {$ENDIF}
     { Do not trigger the client SessionConnected from here. We must wait }
     { to have received the server banner.                                }
@@ -5980,6 +6085,9 @@ begin
         else
             FLastResponse  := '500 Connect Unknown Error (#' +
                               IntToStr(ErrCode) + ')';
+        FLastResponse := FLastResponse + ' to ' +
+                           IcsFmtIpv6AddrPort(AddrResolvedStr, FPort);  { V8.60 }
+        FLastAddrOK := '';  { V8.60 }
         FStatusCode    := 500;
         FRequestResult := FStatusCode;  { Heedong Lim, 05/14/1999 }
         SetErrorMessage; { Heedong Lim, 05/14/1999 }
@@ -5988,8 +6096,10 @@ begin
         FControlSocket.Close;
         StateChange(ftpReady);
     end
-    else
+    else begin
         FConnected := TRUE;
+        FLastAddrOK := AddrResolvedStr;  { V8.60 }
+    end;
 end;
 
 
@@ -5999,7 +6109,7 @@ var
     Len  : Integer;
     I, J : Integer;
     p    : PChar;
-    Feat : String;
+    Feat, Arg : String;
     ACodePage : LongWord;
     RawResponse: AnsiString;  { V7.01 }{ AG V7.02 we no not need RawByteString here }
 const
@@ -6126,10 +6236,14 @@ begin
                         FSupportedExtensions := FSupportedExtensions + [ftpFeatAuthTLS];
                 end;
                 if Pos('PROT', Feat) = 1 then begin
-                    if Pos('C', Feat) > 5 then
-                        FSupportedExtensions := FSupportedExtensions + [ftpFeatProtC];
-                    if (Pos('P', Feat) > 5) then
-                        FSupportedExtensions := FSupportedExtensions + [ftpFeatProtP];
+                    Arg := '';
+                    if (Length(Feat) > 4) then Arg := Copy(Feat, 5, 5);
+                    if Pos('C', Arg) > 0 then   { V8.62 allow for no space }
+                        FSupportedExtensions := FSupportedExtensions + [ftpFeatProtC]  { Clear }
+                    else if (Pos('P', Arg) > 0) then
+                        FSupportedExtensions := FSupportedExtensions + [ftpFeatProtP]  { Private }
+                    else
+                        FSupportedExtensions := FSupportedExtensions + [ftpFeatProtC]; { V8.62 no argument is Clear }
                 end;
                 if Feat = 'PBSZ' then
                     FSupportedExtensions := FSupportedExtensions + [ftpFeatPbsz];    { V2.106 }
@@ -6926,7 +7040,9 @@ var
 {$ENDIF}
 begin
 {$IFNDEF WIN64}                  { V7.25 }
+  {$IFNDEF COMPILER24_UP}
     Result    := TRUE;           { Make dcc32 happy }
+  {$ENDIF}
 {$ENDIF}
     FTimeStop := LongInt(IcsGetTickCount) + LongInt(FTimeout) * 1000;
   {$IFDEF MSWINDOWS}

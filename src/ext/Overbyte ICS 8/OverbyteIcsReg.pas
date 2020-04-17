@@ -10,6 +10,22 @@ May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
 Jun 2012 - V8.00 - Angus added SysLog and SNMP components VCL only for now
 Jul 2012   V8.02   Angus added TSslHttpAppSrv
 Sep 2013   V8.03 - Angus added TSmtpSrv and TSslSmtpSrv
+May 2017   V8.45 - Angus added TIcsProxy, TIcsHttpProxy
+Apr 2018   V8.54 - Angus added TSslHttpRest, TSimpleWebSrv and TRestOAuth
+May 2018   V8.54 - Angus added TSslX509Certs
+Oct 2018   V8.58 - New components now installed for FMX and VCL
+                   Added subversion to sIcsLongProductName for splash screen
+Nov 2019   V8.59 - Version only
+Mar 2019   V8.60 - Angus added TIcsMailQueue, TIcsIpStrmLog, TIcsWhoisCli,
+                     TIcsTimeServer, TIcsTimeClient, TIcsBlacklist,
+                     TIcsFileCopy, TIcsFtpMulti, TIcsHttpMulti.
+                   For Delphi 2007 only, added TFtpClientW, TFtpServerW,
+                     TIcsFileCopyW, TIcsFtpMultiW and TIcsHttpMultiW.
+                   Added Forum and Wiki URLs to About Box.
+Apr 2019  V8.61  - Added TDnsQueryHttps, TIcsSms
+May 2019  V8.62  - Version only
+Oct 2019  V8.63  - Version only
+
 }
 
 
@@ -65,9 +81,20 @@ uses
     {$IFDEF USE_SSL}
       Ics.Fmx.OverbyteIcsSslSessionCache,
       Ics.Fmx.OverbyteIcsSslThrdLock,
+      Ics.Fmx.OverbyteIcsProxy,
+      Ics.Fmx.OverbyteIcsSslHttpRest,
+      Ics.Fmx.OverbyteIcsSslX509Certs,
+      Ics.Fmx.OverbyteIcsIpStreamLog,
+      Ics.Fmx.OverbyteIcsMailQueue,
+      Ics.Fmx.OverbyteIcsFtpMulti,
+      Ics.Fmx.OverbyteIcsHttpMulti,
     {$ENDIF}
     Ics.Fmx.OverbyteIcsWSocketE,
     Ics.Fmx.OverbyteIcsWSocketS,
+    Ics.Fmx.OverbyteIcsWhoisCli,
+    Ics.Fmx.OverbyteIcsSntp,
+    Ics.Fmx.OverbyteIcsBlacklist,
+    Ics.Fmx.OverbyteIcsFileCopy,
   {$ENDIF FMX}
   {$IFDEF VCL}
     Controls,
@@ -90,6 +117,13 @@ uses
     {$IFDEF USE_SSL}
       OverbyteIcsSslSessionCache,
       OverbyteIcsSslThrdLock,
+      OverbyteIcsProxy,
+      OverbyteIcsSslHttpRest,
+      OverbyteIcsSslX509Certs,
+      OverbyteIcsIpStreamLog,
+      OverbyteIcsMailQueue,
+      OverbyteIcsFtpMulti,
+      OverbyteIcsHttpMulti,
     {$ENDIF}
     OverbyteIcsWSocketE,
     OverbyteIcsWSocketS,
@@ -97,6 +131,17 @@ uses
     OverbyteIcsSysLogServer,
     OverbyteIcsSnmpCli,
     OverbyteIcsSmtpSrv,
+    OverbyteIcsWhoisCli,
+    OverbyteIcsSntp,
+    OverbyteIcsBlacklist,
+    OverbyteIcsFileCopy,
+   {$IFDEF DELPHI11}
+      OverbyteIcsFtpCliW,
+      OverbyteIcsFtpSrvW,
+      OverbyteIcsFileCopyW,
+      OverbyteIcsFtpMultiW,
+      OverbyteIcsHttpMultiW,
+   {$ENDIF}
     // VCL only
     OverbyteIcsMultiProgressBar,
     OverbyteIcsEmulVT, OverbyteIcsTnCnx, OverbyteIcsTnEmulVT, OverbyteIcsTnScript,
@@ -164,7 +209,14 @@ begin
       TPop3Cli, TSyncPop3Cli,
       TNntpCli, THtmlNntpCli,
       TDnsQuery, TFingerCli, TPing,
-      TIcsCharsetComboBox
+      TIcsCharsetComboBox,
+      TIcsBlacklist,     { V8.60 }
+      {$IFDEF DELPHI11}
+        TFtpClientW,    { V8.60 }
+        TFtpServerW,    { V8.60 }
+        TIcsFileCopyW,  { V8.60 }
+      {$ENDIF}
+      TIcsFileCopy       { V8.60 }
     ]);
 {$ENDIF}
 {$IFDEF VCL}
@@ -178,13 +230,19 @@ begin
       TSysLogClient,
       TSysLogServer,
       TSnmpCli,
-      TSmtpServer
+      TSmtpServer,
+      TIcsWhoisCli,      { V8.60 }
+      TIcsTimeServer,    { V8.60 }
+      TIcsTimeClient     { V8.60 }
     ]);
 {$ENDIF VCL}
 {$IFDEF ICS_COMMON}
     RegisterComponents('Overbyte ICS', [
       { Components neither depending on the FMX nor on the VCL package }
-      TMimeDecode, TMimeDecodeEx, TMimeDecodeW, TMimeTypesList,
+      TMimeDecode,
+      TMimeDecodeEx,
+      TMimeDecodeW,
+      TMimeTypesList,
    {$IFNDEF BCB}
       TIcsCookies,
    {$ENDIF !BCB}
@@ -210,6 +268,24 @@ begin
       TSslSmtpCli, TSslHtmlSmtpCli,
       TSslNntpCli,
       TSslAvlSessionCache,
+      TIcsProxy,
+      TIcsHttpProxy,
+      TSslHttpRest,   { V8.54 }
+      TSimpleWebSrv,  { V8.54 }
+      TRestOAuth,     { V8.54 }
+      TSslX509Certs,  { V8.54 }
+      TIcsMailQueue,  { V8.60 }
+      TIcsIpStrmLog,  { V8.60 }
+      TIcsFtpMulti,   { V8.60 }
+      TIcsHttpMulti,  { V8.60 }
+      TDnsQueryHttps, { V8.61 }
+      TIcsSms,        { V8.61 }
+      {$IFDEF DELPHI11}
+        TSslFtpClientW,  { V8.60 }
+        TSslFtpServerW,  { V8.60 }
+        TIcsFtpMultiW,   { V8.60 }
+        TIcsHttpMultiW,  { V8.60 }
+      {$ENDIF}
     {$IFDEF VCL}
       {$IFNDEF BCB}
         TSslWSocketThrdServer,
@@ -257,14 +333,16 @@ const
         sIcsSplashImg   = 'ICSPRODUCTICON';
     {$ENDIF}
 {$ENDIF}
-    sIcsLongProductName = 'Internet Component Suite V8';
+    sIcsLongProductName = 'Internet Component Suite V8.63';
     sIcsFreeware        = 'Freeware';
     sIcsDescription     = sIcsLongProductName + #13#10 +
-                          //'Copyright (C) 1996-2012 by François PIETTE'+ #13#10 +
+                          //'Copyright (C) 1996-2018 by François PIETTE'+ #13#10 +
                           // Actually there's source included with different
                           // copyright, so either all or none should be mentioned
                           // here.
-                          'http://www.overbyte.be/' + #13#10 +
+                          'http://www.overbyte.eu/' + #13#10 +
+                          'Wiki: http://wiki.overbyte.eu/' + #13#10 +
+                          'Support: https://en.delphipraxis.net/forum/37-ics-internet-component-suite/' + #13#10 +
                           'svn://svn.overbyte.be/ics/trunk' + #13#10 +
                           'http://svn.overbyte.be:8443/svn/ics/trunk' + #13#10 +
                           'User and password = "ics"';

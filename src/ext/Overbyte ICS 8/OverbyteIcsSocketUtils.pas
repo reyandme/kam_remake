@@ -4,11 +4,10 @@ Author:       Arno Garrels
               Contact address <forename.surname@gmx.de>
 Description:  Crossplatform socket utilities for ICS.
 Creation:     January 2012
-Version:      8.00
-EMail:        francois.piette@overbyte.be  http://www.overbyte.be
-Support:      Use the mailing list twsocket@elists.org
-              Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2012 by François PIETTE and Author
+Version:      8.63
+EMail:        http://www.overbyte.be        francois.piette@overbyte.be
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 2019 by François PIETTE and Author
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -39,6 +38,8 @@ Jan 04, 2012 Moved code from unit OverbyteIcsWinsock2 here and made some
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
 Mar 21, 2016 - V8.01 - added Types to remove inline warning
+Nov 3, 2019  - V8.63 - added IcsIsIpPrivate override with a simple string IP
+
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -130,7 +131,8 @@ type
     procedure IcsGetInterfaceList(StrList : TStrings); overload;
     function  IcsAddrSameSubNet(const LocalIPv4Addr, SomeIPv4Addr: in_addr) : Boolean; overload;
     function  IcsAddrSameSubNet(const LocalIpv4Addr, SomeIPv4Addr : AnsiString) : Boolean; overload;
-    function  IcsIsIpPrivate(saddr : in_addr): Boolean;
+    function  IcsIsIpPrivate(saddr : in_addr): Boolean; overload;
+    function  IcsIsIpPrivate(SomeIPv4Addr : AnsiString): Boolean; overload;  { V8.63 }
 
 implementation
 
@@ -231,6 +233,17 @@ begin
     Result := (Byte(PIcsInAddr(@saddr).S_un_b.s_b1) = 10) or   // private class A
               (PIcsInAddr(@saddr).S_un_w.s_w1       = 4268) or // private class B
               (PIcsInAddr(@saddr).S_un_w.s_w1       = 43200);  // private class C
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function IcsIsIpPrivate(SomeIPv4Addr: AnsiString): Boolean; overload;  { V8.63 }
+var
+    Some : TInAddr;
+begin
+    Result := False;
+    if (SomeIPv4Addr = '') then Exit;
+    Some.S_addr := WSocket_inet_addr(PAnsiChar(SomeIPv4Addr));
+    Result := IcsIsIpPrivate(Some);
 end;
 
 

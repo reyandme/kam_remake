@@ -663,6 +663,8 @@ initialization
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 finalization
   ContCodings.Free;
+  ContCodings := nil;   // Avoid exception at package uninstall when
+                        // UnregisterAuthenticateClass is called
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}

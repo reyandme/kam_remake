@@ -3,12 +3,12 @@
 Author:       Angus Robertson, Magenta Systems Ltd
 Description:  Client Cookie Handling, see RFC2109/RFC6265 (RFC2965 is obsolete)
 Creation:     19 March 2012
-Updated:      5 Nov 2015
-Version:      8.03
+Updated:      Feb 2019
+Version:      8.60
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1997-2011 by François PIETTE
+Legal issues: Copyright (C) 1997-2019 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -54,7 +54,8 @@ Oct 8, 2012  V8.01 remove compiler warning
 Dec 15, 2012 V8.02 Arno removed Windows.pas from uses clause and fixed a small bug
                    in GetCookies() when path was empty. Also removed use of "with"
                    in GetCookies() for better debugging.
-Nov 5, 2015 V8.03  restored Windows to remove compiler warning 
+Nov 5, 2015 V8.03  restored Windows to remove compiler warning
+Feb 8 2019  V8.60  Using new ISO date functions in Utils instead of local versions
 
 Note - needs more testing for domain and path matching
 Pending - not yet thread safe
@@ -86,7 +87,8 @@ uses
   {$IFDEF RTL_NAMESPACES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
   {$IFDEF RTL_NAMESPACES}System.Classes{$ELSE}Classes{$ENDIF},
   {$IFDEF RTL_NAMESPACES}System.IniFiles{$ELSE}IniFiles{$ENDIF},
-  OverbyteIcsUrl, OverbyteIcsUtils;
+  OverbyteIcsUrl,
+  OverbyteIcsUtils;
 
 type
     TCookie = record       // RFC6265 says save this lot (except URL)
@@ -111,8 +113,6 @@ type
                                  var Save: Boolean) of object;
 
 const
-    ISODateTimeMask = 'yyyy-mm-dd"T"hh:nn:ss' ;
-
     PerCookDomain = 0; PerCookPath = 1; PerCookName = 2;
     PerCookValue = 3; PerCookExpireDT = 4; PerCookCreateDT = 5;
     PerCookAccessDT = 6; PerCookHostOnly = 7; PerCookSecureOnly = 8;
@@ -170,57 +170,12 @@ type
         property OnNewCookie: TNewCookieEvent      read FNewCookieEvent write FNewCookieEvent;
     end;
 
-{ convert ASCII ISO time string to Date/Time - no quotes }
-{ yyyy-mm-ddThh:nn:ss (ISODateTimeMask) (time may be missing) }
-function PackedISOToDT (const ISO: string): TDateTime ;
-{ convert Date/Time to ASCII ISO time string - no quotes }
-{ yyyy-mm-ddThh:nn:ss (ISODateTimeMask) }
-function DTToPackedISO (D: TDateTime): string ;
 { convert ASCII cookies date and time to Date/Time - similar to RFC1123 but may have two digit year }
 { note this function does not currently process the date exactly according to RFC6265 }
 { Sun, 16-Mar-2014 12:31:40 GMT or  Mon, 18-Mar-13 18:53:09 GMT }
 function Cookie_StrToDate (aDate: String): TDateTime;
 
 implementation
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ convert ASCII ISO time string to Date/Time - no quotes }
-{ yyyy-mm-ddThh:nn:ss (ISODateTimeMask) (time may be missing) }
-function PackedISOToDT (const ISO: string): TDateTime ;
-var
-    yy, mm, dd: word ;
-    hh, nn, ss: word ;
-    timeDT: TDateTime ;
-    info: string;
-begin
-    result := 0 ;
-    info := trim (ISO) ;
-    if length (info) < 10 then exit ;
-    if info [5] <> '-' then exit ;
-    yy :=  atoi (copy (info, 1, 4)) ;
-    mm := atoi (copy (info, 6, 2)) ;
-    dd := atoi (copy (info, 9, 2)) ;
-    if NOT TryEncodeDate (yy, mm, dd, result) then     // D6 only
-    begin
-        result := -1 ;
-        exit ;
-    end ;
-    if length (info) <> 19 then exit ;
-    if info [14] <> ':' then exit ;
-    hh := atoi (copy (info, 12, 2)) ;
-    nn := atoi (copy (info, 15, 2)) ;
-    ss := atoi (copy (info, 18, 2)) ;
-    if NOT TryEncodeTime (hh, nn, ss, 0, timeDT) then exit ;   // D6 only
-    result := result + timeDT ;
-end ;
-
-{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-{ convert Date/Time to ASCII ISO time string - no quotes }
-{ yyyy-mm-ddThh:nn:ss (ISODateTimeMask) }
-function DTToPackedISO (D: TDateTime): string ;
-begin
-    result := FormatDateTime (ISODateTimeMask, D) ;
-end ;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 { convert ASCII cookies date and time to Date/Time - similar to RFC1123 but may have two digit year }
@@ -616,10 +571,10 @@ begin
                 CPath := Fields [PerCookPath];
                 CName := Fields [PerCookName];
                 CValue := Fields [PerCookValue];
-                CExpireDT := PackedISOToDT (Fields [PerCookExpireDT]);
+                CExpireDT := RFC3339_StrToDate (Fields [PerCookExpireDT]);  { V8.60 }
                 if CExpireDT < curDT then continue;  // ignore expired cookie
-                CCreateDT := PackedISOToDT (Fields [PerCookCreateDT]);
-                CAccessDT := PackedISOToDT (Fields [PerCookAccessDT]);
+                CCreateDT := RFC3339_StrToDate (Fields [PerCookCreateDT]);  { V8.60 }
+                CAccessDT := RFC3339_StrToDate (Fields [PerCookAccessDT]);  { V8.60 }
                 CHostOnly := (Fields [PerCookHostOnly]='1');
                 CSecureOnly := (Fields [PerCookSecureOnly]='1');
                 CHttpOnly := (Fields [PerCookHttpOnly]='1');
@@ -684,9 +639,9 @@ begin
                 Fields [PerCookPath] := CPath;
                 Fields [PerCookName] := CName;
                 Fields [PerCookValue] := CValue;
-                Fields [PerCookExpireDT] := DTToPackedISO (CExpireDT);
-                Fields [PerCookCreateDT] := DTToPackedISO (CCreateDT);
-                Fields [PerCookAccessDT] := DTToPackedISO (CAccessDT);
+                Fields [PerCookExpireDT] := RFC3339_DateToStr (CExpireDT);   { V8.60 }
+                Fields [PerCookCreateDT] := RFC3339_DateToStr (CCreateDT);   { V8.60 }
+                Fields [PerCookAccessDT] := RFC3339_DateToStr (CAccessDT);   { V8.60 }
                 Fields [PerCookHostOnly] := IntToStr (Ord (CHostOnly));
                 Fields [PerCookSecureOnly] := IntToStr (Ord (CSecureOnly));
                 Fields [PerCookHttpOnly] := IntToStr (Ord (CHttpOnly));

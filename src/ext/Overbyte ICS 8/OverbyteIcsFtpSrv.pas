@@ -4,11 +4,10 @@ Author:       François PIETTE
 Description:  TFtpServer class encapsulate the FTP protocol (server side)
               See RFC-959 for a complete protocol description.
 Creation:     April 21, 1998
-Version:      8.06
+Version:      8.63
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
-Support:      Use the mailing list twsocket@elists.org
-              Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1998-2013 by François PIETTE
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 1998-2019 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
@@ -419,6 +418,33 @@ Jun 24, 2013 V8.04 Angus added new Options of ftpsCompressDirs defaults false
                       size less than one meg since really a straight stream copy
 Dec 09, 2014 V8.05 - Angus added SslHandshakeRespMsg for better error handling
 Feb 23, 2016 V8.06 - Angus renamed TBufferedFileStream to TIcsBufferedFileStream
+Nov 09 2016  V8.37 - Added ExclusiveAddr property to stop other applications listening on same socket
+                     Added extended exception information, set FSocketErrs = wsErrFriendly for
+                       some more friendly messages (without error numbers)
+Oct 5, 2017  V8.50 - Angus stopped LIST/RETV using ..\..\..\ (already stopped for CWD)
+                     Minor fix for MacOS
+Mar 8, 2019  V8.60 - Version and copyright dates only. 
+Nov 7, 2019  V8.63 - ftpsNoPasvIpAddrInLan and ftpsNoPasvIpAddrSameSubnet options
+                       now work correctly to present local passive IP address on
+                       LAN rather than PassIpAddr which is usually external address.
+                     Logging various IP addresses for PASV command for debugging. 
+                     New IcsHosts property which allows multiple hosts to be
+                       specified, each with one or two IP addresses and non-SSL and
+                       SSL port bindings, SSL certificates and private key, SSL
+                       context and security level.
+                     If IcsHosts is specified, TSslWSocketServer ignores existing
+                       bindings and SSLContext, and creates new bindings and
+                       initialises an SSL context for each host checking and reporting
+                       all certificates.
+                     Allow SSL certificates to be ordered and installed automatically
+                       by RecheckSslCerts if SslCertAutoOrder=True and so specified in
+                       IcsHosts, if a TSslX509Certs component is attached and a
+                       certificate supplier account has been created (by the
+                       OverbyteIcsX509CertsTst sample application).
+                     New IcsLoadFtpServerWFromIni function that reads server settings
+                       from INI file, IcsHosts can be read using IcsLoadIcsHostsFromIni. 
+                     When using IcsHosts, FtpSslTypes is set automatically to Implicit
+                       if an SSL port is specified or Explicit if AuthSslCmd is true. 
 
 
 Angus pending -
@@ -488,8 +514,10 @@ uses
     Ics.Posix.Messages,
     System.IOUtils,
 {$ENDIF}
+    {$IFDEF RTL_NAMESPACES}System.Types{$ELSE}Types{$ENDIF},
     {$IFDEF RTL_NAMESPACES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
     {$IFDEF RTL_NAMESPACES}System.Classes{$ELSE}Classes{$ENDIF},
+    {$IFDEF RTL_NAMESPACES}System.IniFiles{$ELSE}IniFiles{$ENDIF},
 {$IFNDEF NOFORMS}
   {$IFDEF FMX}
     FMX.Forms,
@@ -529,13 +557,22 @@ uses
     OverbyteIcsOneTimePw,  { angus V1.54 }
     OverbyteIcsCRC,        { angus V1.54 }
     OverbyteIcsMD5,
+{$IFDEF USE_SSL}
+{$IFDEF AUTO_X509_CERTS}
+{$IFDEF FMX}
+    Ics.Fmx.OverbyteIcsSslX509Certs,  { V8.63 }
+{$ELSE}
+    OverbyteIcsSslX509Certs,  { V8.63 }
+{$ENDIF}
+{$ENDIF} // AUTO_X509_CERTS
+{$ENDIF}
     OverbyteIcsWSockBuf;   { AG V6.02 }
 
 
 
 const
-    FtpServerVersion         = 806;
-    CopyRight : String       = ' TFtpServer (c) 1998-2016 F. Piette V8.06 ';
+    FtpServerVersion         = 863;
+    CopyRight : String       = ' TFtpServer (c) 1998-2019 F. Piette V8.63 ';
     UtcDateMaskPacked        = 'yyyymmddhhnnss';         { angus V1.38 }
     DefaultRcvSize           = 16384;    { V7.00 used for both xmit and recv, was 2048, too small }
 
@@ -1120,6 +1157,8 @@ type
         FOnLang                 : TFtpSrvLangEvent;          { angus V7.01 }
         FSystemCodePage         : LongWord;                  { AG 7.02 }
         FOnAddVirtFiles         : TFtpSrvAddVirtFilesEvent;  { angus V7.08 }
+        FSocketErrs             : TSocketErrs;               { V8.37 }
+        FExclusiveAddr          : Boolean;                   { V8.37 }
         procedure CreateSocket; virtual;
         function  GetMultiListenIndex: Integer;
         function  GetMultiListenSockets: TWSocketMultiListenCollection;
@@ -1799,6 +1838,11 @@ type
                                                       read  FOnAddVirtFiles
                                                       write FOnAddVirtFiles;
         property  OnBgException;
+        property SocketErrs              : TSocketErrs
+                                                      read  FSocketErrs
+                                                      write FSocketErrs;      { V8.37 }
+        property ExclusiveAddr           : Boolean    read  FExclusiveAddr
+                                                      write FExclusiveAddr;   { V8.37 }
     end;
 
 { You must define USE_SSL so that SSL code is included in the component.   }
@@ -1897,12 +1941,29 @@ Description:  A component adding TLS/SSL support to TFtpServer.
                                          Idlen          : Integer;
                                          var IncRefCount: Boolean); virtual;
         procedure SetFtpSslTypes(const Value: TFtpSslTypes); { 1.04 }
+        function  GetIcsHosts: TIcsHostCollection;                    { V8.63 }
+        procedure SetIcsHosts(const Value: TIcsHostCollection);       { V8.63 }
+        function  GetRootCA: String;                                  { V8.63 }
+        procedure SetRootCA(const Value: String);                     { V8.63 }
+{$IFDEF AUTO_X509_CERTS} 
+        function  GetSslX509Certs: TSslX509Certs;                     { V8.63 }
+        procedure SetSslX509Certs(const Value : TSslX509Certs);       { V8.63 }
+{$ENDIF} // AUTO_X509_CERTS
+        function  GetCertExpireDays: Integer;                         { V8.63 }
+        procedure SetCertExpireDays(const Value : Integer);           { V8.63 }
+        function  GetSslCertAutoOrder: Boolean;                       { V8.63 }
+        procedure SetSslCertAutoOrder(const Value : Boolean);         { V8.63 }
     public
         constructor Create(AOwner: TComponent); override;
         function  MsgHandlersCount : Integer; override;
         procedure AllocateMsgHandlers; override;
         procedure FreeMsgHandlers; override;
-        //destructor  Destroy; override;
+        function  ValidateHosts(Stop1stErr: Boolean=True;
+                      NoExceptions: Boolean=False): String; virtual; { V8.63 }
+        function  RecheckSslCerts(var CertsInfo: String;
+                      Stop1stErr: Boolean=True; NoExceptions: Boolean=False): Boolean; { V8.63 }
+        function  ListenAllOK: Boolean;                              { V8.63 }
+        function  ListenStates: String;                              { V8.63 }
     published
         property  SslContext         : TSslContext         read  GetSslContext
                                                            write SetSslContext;
@@ -1920,7 +1981,22 @@ Description:  A component adding TLS/SSL support to TFtpServer.
                                                            write FOnSslHandshakeDone;
         property  FtpSslTypes        : TFtpSslTypes        read  FFtpSslTypes  { 1.03 }
                                                            write SetFtpSslTypes; { 1.04 }
+        property  IcsHosts           : TIcsHostCollection  read  GetIcsHosts
+                                                           write SetIcsHosts;    { V8.63 }
+        property  RootCA             : String              read  GetRootCA
+                                                           write SetRootCA;      { V8.63 }
+        property  SslCertAutoOrder   : Boolean             read  GetSslCertAutoOrder
+                                                           write SetSslCertAutoOrder; { V8.63 }
+        property  CertExpireDays     : Integer             read  GetCertExpireDays
+                                                           write SetCertExpireDays; { V8.63 }
+{$IFDEF AUTO_X509_CERTS}
+        property  SslX509Certs       : TSslX509Certs       read  GetSslX509Certs
+                                                           write SetSslX509Certs; { V8.63 }
+{$ENDIF} // AUTO_X509_CERTS
     end;
+
+procedure IcsLoadFtpServerFromIni(MyIniFile: TCustomIniFile; SslFtpServer:
+                         TSslFtpServer; const Section: String = 'SslFtpServer');     { V8.63 }
 {$ENDIF} // USE_SSL
 
 function GetZlibCacheFileName(const S : String) : String;  { angus V1.54 }
@@ -2105,7 +2181,7 @@ end;
 {$ENDIF}
 {$IFDEF POSIX}
 begin
-    Result := SysUtils.DirectoryExists(Dir);
+    Result := System.SysUtils.DirectoryExists(Dir);  { V8.50 }
 end;
 {$ENDIF}
 
@@ -2298,6 +2374,7 @@ begin
     FSystemCodePage     := GetAcp;  { AG 7.02 }
     FMaxAttempts        := 12 ;     { angus V7.06 }
     FBindFtpData        := True;
+    FExclusiveAddr      := True;    { V8.37 make our sockets exclusive  }
 {$IFDEF BUILTIN_THROTTLE}
     FBandwidthLimit     := 0;       { angus V7.12 no bandwidth limit, yet, bytes per second }
     FBandwidthSampling  := 1000;    { angus V7.12 Msec sampling interval, less is not possible }
@@ -2536,6 +2613,8 @@ begin
     FSocketServer.ComponentOptions  := [wsoNoReceiveLoop];
     FSocketServer.BandwidthLimit    := fBandwidthLimit;     { angus V7.16 in client connect }
     FSocketServer.BandwidthSampling := fBandwidthSampling;  { angus V7.16 }
+    FSocketServer.ExclusiveAddr     := FExclusiveAddr;      { V8.37 }
+    FSocketServer.SocketErrs        := FSocketErrs;         { V8.37 }
     FSocketServer.MultiListen;                    { V8.01 }
     FEventTimer.Enabled := true;                  { angus V1.54 }
 {$IFNDEF NO_DEBUG_LOG}
@@ -2669,6 +2748,8 @@ begin
     MyClient.FFtpState       := ftpcWaitingUserCode;
     MyClient.FileModeRead    := SrvFileModeRead;     { angus V1.57 }
     MyClient.FileModeWrite   := SrvFileModeWrite;    { angus V1.57 }
+    MyClient.ExclusiveAddr   := FExclusiveAddr;      { V8.37 }
+    MyClient.SocketErrs      := FSocketErrs;         { V8.37 }
 {$IFDEF BUILTIN_THROTTLE}
     MyClient.CBandwidthLimit    := fBandwidthLimit;     { angus V7.12 may be changed in event for different limit }
     MyClient.CBandwidthSampling := fBandwidthSampling;  { angus V7.12 }
@@ -3752,6 +3833,8 @@ procedure TFtpServer.PrepareStorDataSocket(Client : TFtpCtrlSocket);
 begin
     Client.AbortingTransfer := FALSE;
     Client.TransferError    := 'Transfer Ok';
+    Client.DataSocket.ExclusiveAddr := FExclusiveAddr;      { V8.37 }
+    Client.DataSocket.SocketErrs    := FSocketErrs;         { V8.37 }
 
     if Client.PassiveMode then begin
         PreparePassiveStorDataSocket(Client);
@@ -4092,6 +4175,13 @@ function TFtpServer.IsPathAllowed(                                 { AG V1.52 }
 var
     NewFileName  : String;    { angus V7.08 }
 begin
+  { angus V8.50 check for nasty that allowed access to higher level directories than root }
+    if (Pos('.\', Path) <> 0) or (Pos('.%2f', Path) <> 0) or (Pos('.%5c', Path) <> 0) then begin
+        TriggerDisplay(Client, 'Blocked relative dot notation file path: ' + Path);
+        Result := False;
+        Exit;
+    end;
+
     if (ftpCdUpHome in Client.Options) then begin
     { angus V7.08 check if a virtual directory is being used, assume allowed if non-blank }
         NewFileName := '';
@@ -4482,6 +4572,8 @@ begin
     end;
     Client.DataSocket.LingerOnOff             := wsLingerOff;
     Client.DataSocket.LingerTimeout           := 0;
+    Client.DataSocket.ExclusiveAddr           := FExclusiveAddr;      { V8.37 }
+    Client.DataSocket.SocketErrs              := FSocketErrs;         { V8.37 }
 {$IFDEF BUILTIN_THROTTLE}
     Client.DataSocket.BandwidthLimit          := Client.CBandwidthLimit;     { angus V7.12 }
     Client.DataSocket.BandwidthSampling       := Client.CBandwidthSampling;  { angus V7.12 }
@@ -4503,7 +4595,9 @@ begin
     Client.AbortingTransfer              := FALSE;
     Client.DataSent                      := FALSE;
     Client.TransferError                 := 'Transfer Ok';
-    if Client.PassiveMode then begin
+    Client.DataSocket.ExclusiveAddr      := FExclusiveAddr;      { V8.37 }
+    Client.DataSocket.SocketErrs         := FSocketErrs;         { V8.37 }
+   if Client.PassiveMode then begin
         PreparePassiveRetrDataSocket(Client);
     end
     else begin
@@ -4808,6 +4902,10 @@ begin
             Client.DirListHidden := FALSE;
             Client.DirListSubDir := FALSE;
             Client.DirListType := ListType;
+
+          { angus V8.50 check for nasty that allowed indexing higher level directories than root }
+            if (Pos('.\', Params) <> 0) or (Pos('.%2f', Params) <> 0) or (Pos('.%5c', Params) <> 0) then
+                raise Exception.Create('Cannot accept relative path using dot notation');
 
          { angus 1.54  parse parameter for file/path and one argument }
             if Length (Params) > 0 then begin
@@ -5541,6 +5639,8 @@ begin
         Client.DataSocket.OnSessionClosed    := nil;
         Client.DataSocket.OnDataAvailable    := nil;
         Client.DataSocket.ComponentOptions   := [wsoNoReceiveLoop];
+        Client.DataSocket.ExclusiveAddr      := FExclusiveAddr;      { V8.37 }
+        Client.DataSocket.SocketErrs         := FSocketErrs;         { V8.37 }
         Client.DataSocket.Listen;
 
         { Get the port assigned by winsock }
@@ -5548,17 +5648,24 @@ begin
         Client.DataSocket.GetSockName(saddr, saddrlen);
         DataPort := WSocket_ntohs(saddr.sin_port);
 
+       { V8.63 log some IP addresses and ports for diagnostics }
+        TriggerDisplay (Client, '! Server IP: ' + Client.CServerAddr +
+                    ', Passive Port: ' + Client.DataSocket.Port + ', External IP: ' +
+                                   FPasvIpAddr + ', Remote IP: ' + Client.CPeerAddr);
+
         if Client.sin.sin_addr.s_addr = WSocket_htonl($7F000001) then
             Answer := Format(msgPasvLocal,
                           [IcsHiByte(DataPort),
                            IcsLoByte(DataPort)])
         else begin
-            APasvIp := FPasvIpAddr;
-            SetPasvIp := (APasvIp <> '') and (not
-                         (((ftpsNoPasvIpAddrInLan in FOptions) and
-                           IcsIsIpPrivate(Client.PeerSAddr.sin_addr)) or
-                          ((ftpsNoPasvIpAddrSameSubnet in FOptions) and
-                           IcsAddrSameSubNet(PInAddr(@IPAddr.S_addr)^, Client.PeerSAddr.sin_addr))));
+            APasvIp := FPasvIpAddr;  { configured external passive IP address }
+          { V8.63 easier to see what is happening here, use string IPs to avoid horrible casts }
+            SetPasvIp := (APasvIp <> '');
+            if (ftpsNoPasvIpAddrInLan in FOptions) and IcsIsIpPrivate(AnsiString(Client.CPeerAddr)) then
+                SetPasvIp := False;
+            if (ftpsNoPasvIpAddrSameSubnet in FOptions) and
+                          IcsAddrSameSubNet(AnsiString(Client.CServerAddr), AnsiString(Client.CPeerAddr)) then
+                SetPasvIp := False;
 
             if Assigned(FOnPasvIpAddr) then begin
                 FOnPasvIpAddr(Self, Client, APasvIp, SetPasvIp);
@@ -6842,7 +6949,9 @@ begin
         Client.DataSocket.OnSessionClosed    := nil;
         Client.DataSocket.OnDataAvailable    := nil;
         Client.DataSocket.ComponentOptions   := [wsoNoReceiveLoop];
-        Client.DataSocket.Listen;
+        Client.DataSocket.ExclusiveAddr      := FExclusiveAddr;      { V8.37 }
+        Client.DataSocket.SocketErrs         := FSocketErrs;         { V8.37 }
+       Client.DataSocket.Listen;
 
         { Get the port assigned by winsock }
         saddrlen := SizeOf(saddr);
@@ -7679,7 +7788,7 @@ begin
         else begin
             if UpperCase(newDrive[1]) <> UpperCase(FDirectory[1]) then
                 raise Exception.Create('Cannot accept path not relative to current directory');
-            if Pos('.\', newPath) <> 0 then
+            if (Pos('.\', newPath) <> 0) or (Pos('.%2f', newPath) <> 0) or (Pos('.%5c', NewPath) <> 0) then  { V8.50 }
                 raise Exception.Create('Cannot accept relative path using dot notation');
             if newPath = '.' then
                 newPath := Copy(FDirectory, 3, Length(FDirectory))
@@ -7688,7 +7797,7 @@ begin
         end;
     end
     else begin
-        if Pos('.\', newPath) <> 0 then
+        if (Pos('.\', newPath) <> 0) or (Pos('.%2f', newPath) <> 0) or (Pos('.%5c', NewPath) <> 0) then  { V8.50 }
             raise Exception.Create('Cannot accept relative path using dot notation');
     end;
 
@@ -8761,6 +8870,203 @@ function TFtpSslWSocketServer.MultiListenItemClass: TWSocketMultiListenItemClass
 begin
     Result := TSslFtpWSocketMultiListenItem;
 end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslFtpServer.GetIcsHosts: TIcsHostCollection;                     { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        Result := TSslWSocketServer(FSocketServer).GetIcsHosts
+    else
+        Result := nil;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslFtpServer.SetIcsHosts(const Value: TIcsHostCollection);      { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        TSslWSocketServer(FSocketServer).SetIcsHosts(Value);
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslFtpServer.GetRootCA: String;                                  { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        Result := TSslWSocketServer(FSocketServer).RootCA
+    else
+        Result := '';
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslFtpServer.SetRootCA(const Value: String);                    { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        TSslWSocketServer(FSocketServer).RootCA := Value;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslFtpServer.ValidateHosts(Stop1stErr: Boolean=True;
+                                              NoExceptions: Boolean=False): String; { V8.63 }
+var
+    J: Integer;
+begin
+    if Assigned(FSocketServer) then begin
+        Result := TSslWSocketServer(FSocketServer).ValidateHosts(Stop1stErr, NoExceptions);
+        if GetIcsHosts <> Nil then begin
+            if TSslWSocketServer(FSocketServer).IcsHosts.Count > 0 then begin
+         // set SSL modes for server if any Hosts have AuthSslCmd specified
+         // implicit handled by SslEnabled on the host
+                FtpSslTypes := [];
+                for J := 0 to TSslWSocketServer(FSocketServer).IcsHosts.Count - 1 do begin
+                    with TSslWSocketServer(FSocketServer).IcsHosts[J] do begin
+                        if AuthSslCmd then begin
+                           FtpSslTypes := [ftpAuthSsl,ftpAuthTls,ftpAuthTlsP,ftpAuthTlsC];
+                           Break;
+                        end;
+                    end ;
+                end;
+            end;
+        end;
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslFtpServer.RecheckSslCerts(var CertsInfo: String;
+                    Stop1stErr: Boolean=True; NoExceptions: Boolean=False): Boolean;  { V8.63 }
+begin
+    Result := False;
+    if Assigned(FSocketServer) then begin
+        Result := TSslWSocketServer(FSocketServer).RecheckSslCerts(CertsInfo,
+                                                        Stop1stErr, NoExceptions);
+    end;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslFtpServer.GetSslCertAutoOrder: Boolean;                       { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        Result := TSslWSocketServer(FSocketServer).SslCertAutoOrder
+    else
+        Result := False;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslFtpServer.SetSslCertAutoOrder(const Value : Boolean);         { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        TSslWSocketServer(FSocketServer).SslCertAutoOrder := Value;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslFtpServer.GetCertExpireDays: Integer;                         { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        Result := TSslWSocketServer(FSocketServer).CertExpireDays
+    else
+        Result := 30;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslFtpServer.SetCertExpireDays(const Value : Integer);           { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        TSslWSocketServer(FSocketServer).CertExpireDays := Value;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslFtpServer.ListenAllOK: Boolean;                              { V8.48 }
+begin
+    if Assigned(FSocketServer) then
+        Result := FSocketServer.ListenAllOK
+    else
+        Result := False;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TSslFtpServer.ListenStates: String;                              { V8.48 }
+begin
+    if Assigned(FSocketServer) then
+        Result := FSocketServer.ListenStates
+    else
+        Result := '';
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+{$IFDEF AUTO_X509_CERTS}
+function TSslFtpServer.GetSslX509Certs: TSslX509Certs;    { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        Result := TSslWSocketServer(FSocketServer).GetSslX509Certs as TSslX509Certs
+    else
+        Result := nil;
+end;
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure TSslFtpServer.SetSslX509Certs(const Value : TSslX509Certs);    { V8.63 }
+begin
+    if Assigned(FSocketServer) then
+        TSslWSocketServer(FSocketServer).SetSslX509Certs(Value);
+end;
+{$ENDIF} // AUTO_X509_CERTS
+
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+procedure IcsLoadFtpServerFromIni(MyIniFile: TCustomIniFile; SslFtpServer:
+                         TSslFtpServer; const Section: String = 'SslFtpServer');     { V8.63 }
+var
+    bandwidth: Integer;
+begin
+    if NOT Assigned (MyIniFile) then
+        raise ESocketException.Create('Must open and assign INI file first');
+    if NOT Assigned (SslFtpServer) then
+        raise ESocketException.Create('Must assign SslFtpServer first');
+
+    with SslFtpServer do begin
+        Banner := MyIniFile.ReadString(Section, 'BannerConnect', Banner);
+        MaxAttempts := MyIniFile.ReadInteger(Section, 'MaxAttempts', MaxAttempts);
+        MaxClients := MyIniFile.ReadInteger(Section, 'MaxClients', MaxClients);
+        PasvIpAddr := MyIniFile.ReadString(Section, 'PasvIpAddr', '');
+        PasvPortRangeStart := MyIniFile.ReadInteger(Section, 'PasvPortRangeStart', 0);
+        PasvPortRangeSize := MyIniFile.ReadInteger(Section, 'PasvPortRangeSize', 0);
+        MD5UseThreadFileSize := MyIniFile.ReadInteger(Section, 'MD5UseThreadFileSize', MD5UseThreadFileSize);
+        TimeoutSecsLogin := MyIniFile.ReadInteger(Section, 'TimeoutSecsLogin', TimeoutSecsLogin);
+        TimeoutSecsIdle := MyIniFile.ReadInteger(Section, 'TimeoutSecsIdle', TimeoutSecsIdle);
+        TimeoutSecsXfer := MyIniFile.ReadInteger(Section, 'TimeoutSecsXfer', TimeoutSecsXfer) ;
+        ZlibMinLevel := MyIniFile.ReadInteger(Section, 'ZlibMinLevel', ZlibMinLevel);
+        ZlibMaxLevel := MyIniFile.ReadInteger(Section, 'ZlibMaxLevel', ZlibMaxLevel);
+        ZlibNoCompExt := MyIniFile.ReadString(Section, 'ZlibNoCompExt', ZlibNoCompExt);
+        AlloExtraSpace := MyIniFile.ReadInteger(Section, 'AlloExtraSpace', AlloExtraSpace);
+        ZlibMinSpace := MyIniFile.ReadInteger(Section, 'ZlibMinSpace', ZlibMinSpace);
+        ZlibMaxSize := MyIniFile.ReadInteger(Section, 'ZlibMaxSize', ZlibMaxSize);
+        ListenBackLog := MyIniFile.ReadInteger(Section, 'ListenBackLog', ListenBackLog);
+        bandwidth := MyIniFile.ReadInteger(Section, 'BandwidthLimitKB', -1);
+        if bandwidth > 0 then
+            BandwidthLimit := bandwidth * 1024
+        else
+            BandwidthLimit := 0;
+        IcsStrToSet(TypeInfo(TFtpsOption), MyIniFile.ReadString(Section, 'SrvOptions', '[]'), FOptions, SizeOf(FOptions));
+{ ie SrvOptions=[ftpsCwdCheck, ftpsCdupHome, ftpsCalcMD5OnTheFly, ftpsCalcCRCOnTheFly, ftpsNoPasvIpAddrInLan, ftpsNoPasvIpAddrSameSubnet,
+                 ftpsHidePhysicalPath, ftpsModeZCompress, ftpsSiteXmlsd, ftpsThreadRecurDirs, ftpsThreadAllDirs, ftpsModeZNoResume,
+                 ftpsEnableUtf8, ftpsDefaultUtf8On, ftpsAutoDetectCodePage, ftpsCompressDirs]  }
+        RootCA := IcsTrim(MyIniFile.ReadString(Section, 'RootCA', ''));
+        SslCertAutoOrder := IcsCheckTrueFalse(MyIniFile.ReadString (section, 'SslCertAutoOrder', 'False'));
+        CertExpireDays := MyIniFile.ReadInteger(Section, 'CertExpireDays', CertExpireDays);
+    end;
+end;
+
 
 {$ENDIF} // USE_SSL{$ENDIF}
 end.

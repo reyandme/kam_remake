@@ -3,12 +3,12 @@
 Author:       François PIETTE
 Description:  TSnmpCli class encapsulate the SNMP client paradigm
 Creation:     March 2011
-Version:      1.00
+Version:      8.50
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 2011 by François PIETTE
-              Rue de Grady 24, 4053 Embourg, Belgium. Fax: +32-4-365.74.56
+Legal issues: Copyright (C) 2017 by François PIETTE
+              Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
               This software is provided 'as-is', without any express or
@@ -38,6 +38,8 @@ Legal issues: Copyright (C) 2011 by François PIETTE
 
 History:
 
+V8.50 Aug 17, 2017 UnicodeIntoAnsiToString now checks for binary string and
+                   converts them to hex, thanks to xlxia@sina.com
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsSnmpCli;
@@ -71,8 +73,8 @@ uses
     OverbyteIcsSnmpMsgs;
 
 const
-  SnmpClientVersion         = 800;
-  CopyRight    : String     = ' TSnmpClient (c) 2012 Francois Piette V8.00 ';
+  SnmpClientVersion         = 850;
+  CopyRight    : String     = ' TSnmpClient (c) 2017 Francois Piette V8.50 ';
 
 
 type
@@ -473,15 +475,19 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 // This function tries to discover we have unicode characters into an
-// ansistring and convert to string
+// ansistring and convert to string in hex if binary
 function UnicodeIntoAnsiToString(const S : AnsiString) : String;
 var
     Len, I, J : Integer;
+    isBinStr: Boolean;
 begin
     // If the length is not even, then it can't be a unicode (UTF-16) string
     Len := Length(S);
+    isBinStr := IsBinaryString(S);    { V8.50 check for binary string }
     if (Len and 1) <> 0 then begin
-        Result := String(S);
+        if isBinStr then
+          Result := StrtoHex(S)     { V8.50 return binary as hex }
+        else Result := String(S);
         Exit;
     end;
     I := 2;
@@ -492,12 +498,14 @@ begin
         Inc(I, 2);
     end;
     if J < 0 then begin
-        // Enough #à, consider it is already unicode
+        // Enough #? consider it is already unicode
         SetLength(Result, Len div 2);
         Move(PAnsiChar(S)^, PChar(Result)^, Len);
     end
     else
-        Result := String(S);  // Consider it is AnsiString
+        if isBinStr then
+          Result := StrtoHex(S)      { V8.50 return binary as hex }
+        else Result := String(S);  // Consider it is AnsiString
 end;
 
 

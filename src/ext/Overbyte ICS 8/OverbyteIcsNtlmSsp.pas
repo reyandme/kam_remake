@@ -2,9 +2,9 @@
 Author:       Arno Garrels <arno.garrels@gmx.de>
 Description:  Server-side NTLM, validation of user credentials using Windows SSPI.
 Creation:     Sep 04, 2006
-Version:      8.00
-Legal issues: Copyright (C) 2005-2011 by Arno Garrels, Berlin, Germany,
-              contact: <arno.garrels@gmx.de>
+Version:      8.61
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 2005-2019 by Arno Garrels, Berlin, Germany             
 
               This software is provided 'as-is', without any express or
               implied warranty.  In no event will the author be held liable
@@ -50,6 +50,8 @@ Feb 17, 2012 V1.07 Arno added NTLMv2 and NTLMv2 session security (basics),
              OverbyteIcsNtlmMsgs.pas.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+Mar 29, 2019 V8.61 OAS : for NTLM with Session on Windows Domain,
+                   update TNtlmAuthSession for Client as well as Server
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 unit OverbyteIcsNtlmSsp;
@@ -106,6 +108,7 @@ type
         FNtlmMessage       : String;
         FAuthError         : Integer;
         FLmCompatLevel     : LongWord;  { V1.07 }
+        FCredentialUse     : CredentialUse ; // V8.61 OAS store inbound, outbound or both
         FOnBeforeValidate  : TNtlmSessionBeforeValidate;
    protected
         procedure   NtlmMsg3GetAttributes(const NtlmMsg3: AnsiString);
@@ -113,12 +116,13 @@ type
         function    NtlmAccept(const InBuffer: AnsiString): AnsiString;
         function    NtlmErrorDesc(ErrCode: Integer): String;
    public
-        constructor Create;
+        constructor Create (const Usage : CredentialUse) ;  // V8.61
         destructor  Destroy; override;
         function    AuthErrorDesc: String;
         function    GetUserFromContext: {$IFNDEF UNICODE} String {$ELSE} WideString {$ENDIF};
         function    GetAuthorityFromContext: {$IFNDEF UNICODE} String {$ELSE} WideString {$ENDIF};
         function    ProcessNtlmMsg(const InBuffer: String): Boolean;
+        function    GetUserCredentials : string ;           // V8.61
         function    ValidateUserCredentials(const AUser, APassword, ADomain: String;
                                             CleanUpSession: Boolean): Boolean;
         function    ImpersonateContext: Boolean;
@@ -251,12 +255,13 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-constructor TNtlmAuthSession.Create;
+constructor TNtlmAuthSession.Create (const Usage : CredentialUse) ;  // V8.61
 begin
     inherited Create;
     LoadSecPackage;
     FPSFT := PSFT;
     CleanUpLogonSession;
+    FCredentialUse := Usage ;          // V8.61
 end;
 
 
@@ -265,6 +270,179 @@ destructor TNtlmAuthSession.Destroy;
 begin
     CleanUpLogonSession;
     inherited Destroy;
+end;
+
+{* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
+function TNtlmAuthSession.GetUserCredentials : string ;
+// V8.61 OAS : Getting credentials for User session
+//             Maybe could add Impersonalization of Session ???
+var
+    Sec                 : TSecurityStatus;
+    Lifetime            : LARGE_INTEGER;
+    OutBuffDesc         : TSecBufferDesc;
+    InBuffDesc          : TSecBufferDesc;
+    InSecBuff           : TSecBuffer;
+    OutSecBuff          : TSecBuffer;
+    ContextAttr         : Cardinal;
+//    pHCtx               : PCtxtHandle;
+//    Allow               : Boolean;
+//    MsgType             : Integer;
+    Msg : ansistring ;
+    InBuffer : ansistring ;
+//    Status : SECURITY_STATUS ;
+begin
+{ Authentification in 3 pass :
+      1 - start exchange with server with user credentials
+      2 - server answer with challenge
+      3 - User complete transaction with session info }
+
+    try
+        case FState of
+          lsNone : begin
+          // First pass, it's message1 type, initiate a context exchange with server
+            CleanupLogonSession;
+
+{$IFNDEF UNICODE}
+            Sec := FPSFT^.AcquireCredentialsHandleA (nil,
+                                           NTLMSP_NAME_A,
+{$ELSE}
+            Sec := FPSFT^.AcquireCredentialsHandleW (nil,
+                                           NTLMSP_NAME,
+{$ENDIF}
+                                           Cardinal (FCredentialUse),
+                                           nil,
+                                           nil,
+                                           nil,
+                                           nil,
+                                           FHCred,
+                                           Lifetime);
+
+            if Sec < 0 then begin
+                FAuthError := Sec;
+            {$IFDEF DEBUG_EXCEPTIONS}
+                raise Exception.CreateFmt('AcquireCredentials failed 0x%x', [Sec]);
+            {$ELSE}
+                FState := lsDoneErr;
+                Exit;
+            {$ENDIF}
+            end;
+            FHaveCredHandle := TRUE ;
+
+            // prepare output buffer
+            OutBuffDesc.ulVersion := SECBUFFER_VERSION;
+            OutBuffDesc.cBuffers  := 1;
+            OutBuffDesc.pBuffers  := @OutSecBuff;
+
+            SetLength (Msg, cbMaxMessage);
+            OutSecBuff.cbBuffer   := cbMaxMessage;
+            OutSecBuff.BufferType := SECBUFFER_TOKEN;
+            OutSecBuff.pvBuffer   := @Msg[1];
+
+{$IFDEF UNICODE}
+            Sec := FPSFT^.InitializeSecurityContextW (@FHCred,
+{$ELSE}
+            Sec := FPSFT^.InitializeSecurityContextA (@FHCred,
+{$ENDIF}
+                                           NIL,
+                                           nil,
+                                           0,
+                                           0,
+                                           SECURITY_NATIVE_DREP,
+                                           nil,
+                                           0,
+                                           @FHCtx,
+                                           @OutBuffDesc,
+                                           ContextAttr,
+                                           Lifetime);
+
+
+            if Sec < 0 then begin
+               FAuthError := Sec;
+        {$IFDEF DEBUG_EXCEPTIONS}
+                raise Exception.CreateFmt ('Init context failed: 0x%x', [Sec]);
+        {$ELSE}
+               Result := '';
+               FState := lsDoneErr;
+               Exit;
+        {$ENDIF}
+            end;
+
+            FHaveCtxHandle := TRUE;
+            // First pass done, change state
+            FState := lsInAuth ;
+        end;
+
+        lsInAuth : begin
+        // second pass, it's message3 type
+        //    receive message2 type with challenge
+        //    answer with security info completed
+            InBuffer := AnsiString(FNtlmMessage) ;
+
+            { prepare input buffer }
+            InSecBuff.BufferType := SECBUFFER_TOKEN;
+            InSecBuff.cbBuffer :=  length (InBuffer) ;
+            if InSecBuff.cbBuffer > 0 then
+                InSecBuff.pvBuffer := @InBuffer [1] ;
+
+            InBuffDesc.ulVersion := SECBUFFER_VERSION;
+            InBuffDesc.cBuffers := 1;
+            InBuffDesc.pBuffers := @InSecBuff ;
+
+            { prepare output buffer }
+            SetLength (Msg, cbMaxMessage);
+            OutSecBuff.cbBuffer   := cbMaxMessage;
+            OutSecBuff.BufferType := SECBUFFER_TOKEN;
+            OutSecBuff.pvBuffer   := @Msg[1];
+
+            OutBuffDesc.ulVersion := SECBUFFER_VERSION;
+            OutBuffDesc.cBuffers := 1;
+            OutBuffDesc.pBuffers := @OutSecBuff ;
+
+{$IFDEF UNICODE}
+            Sec := FPSFT^.InitializeSecurityContextW (@FHCred,
+{$ELSE}
+            Sec := FPSFT^.InitializeSecurityContextA (@FHCred,
+{$ENDIF}
+                                           @FHCtx,
+                                           nil,
+                                           0,
+                                           0,
+                                           SECURITY_NATIVE_DREP,
+                                           @InBuffDesc,
+                                           0,
+                                           @FHCtx,
+                                           @OutBuffDesc,
+                                           ContextAttr,
+                                           Lifetime);
+            { complete token if needed}
+            if (Sec = SEC_I_COMPLETE_NEEDED) or (Sec = SEC_I_COMPLETE_AND_CONTINUE) then
+                Sec := FPSFT^.CompleteAuthToken (@FHCred, @OutBuffDesc) ;
+
+            if Sec < 0 then begin
+                FAuthError := Sec;
+        {$IFDEF DEBUG_EXCEPTIONS}
+                raise Exception.CreateFmt('Init context failed: 0x%x', [Sec]);
+        {$ELSE}
+               Result := '';
+               FState := lsDoneErr;
+               Exit;
+        {$ENDIF}
+            end;
+
+            // Second pass done, change state
+            FState := lsDoneOK ;
+        end;
+      end;
+
+      // if all is ok then "OutSecBuff.cbBuffer" contain size of result data
+      // so adjust "Msg" size
+      Setlength (Msg, OutSecBuff.cbBuffer) ;
+      Result := Base64Encode (Msg) ;
+
+    except
+        FState := lsDoneErr;
+        Result := '';
+    end
 end;
 
 
@@ -632,7 +810,7 @@ end;
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 function TNtlmAuthSession.NtlmErrorDesc(ErrCode: Integer): String;
 begin
-    case Cardinal(ErrCode) of
+     case Cardinal(ErrCode) of  
         SEC_E_INCOMPLETE_MESSAGE : Result := 'The supplied message is incomplete.  The signature was not verified.';
         SEC_E_INSUFFICIENT_MEMORY: Result := 'Not enough memory is available to complete this request';
         SEC_E_INTERNAL_ERROR : Result := 'The Local Security Authority cannot be contacted';

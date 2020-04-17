@@ -3,11 +3,10 @@
 Author:       François PIETTE
 Description:  Version defines for ICS (Internet Component Suite)
 Creation:     2003
-Version:      8.09
+Version:      8.62
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
-Support:      Use the mailing list twsocket@elists.org
-              Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1996-2016 by François PIETTE
+Support:      https://en.delphipraxis.net/forum/37-ics-internet-component-suite/
+Legal issues: Copyright (C) 1996-2019 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
 
@@ -64,6 +63,12 @@ Feb 2015 - V8.06 - Angus XE8
 Jun 2015 - V8.07 - Angus XE9
 Aug 2015 - V8.08 - Angus XE9 is now Delphi 10 Seattle
 Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
+Mar 2017 - V8.42 - Angus couple more BCBs, added BDS numbers
+Jul 2018 - V8.55 - Angus added NO_DEBUG_LOG as disabled but used for testing
+Oct 2018 - V8.58 - Angus Delphi 10.3 Rio, updated BCB for 10.1 and later
+Dec 2019 - V8.59 - Angus added AUTO_X509_CERTS to enable automatic SSL/TLS ordering
+                      in SocketServer and other servers.
+Jul 2019 - V8.62 - Angus Turn off IMMUTABLE_STRINGS warnings in case project set them.
 
 
   SYMBOL           Compiler version
@@ -92,21 +97,22 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
   DELPHI7_UP       Delphi 7  or higher
   DELPHI8_UP       Delphi 8  or higher  (Delphi 8 is .NET only)
   DELPHI9_UP       Delphi 9  or higher  (Delphi 2005 - Diamondback, has W32 compiler)
-  DELPHI10_UP      Delphi 10 or higher  (Delphi 2006 - Dexter)
-  DELPHI11_UP      Delphi 11 or higher  (Delphi 2007 - Spacely)
-  DELPHI12_UP      Delphi 12 or higher  (Delphi 2009 - Tiburon)
-  DELPHI14_UP      Delphi 14 or higher  (Delphi 2010 - Weaver)
-  DELPHI15_UP      Delphi 15 or higher  (Delphi XE   - Fulcrum)
-  DELPHI16_UP      Delphi 16 or higher  (Delphi XE2  - Pulsar)
-  DELPHI17_UP      Delphi 17 or higher  (Delphi XE3  - WaterDragon)
-  DELPHI18_UP      Delphi 18 or higher  (Delphi XE4  - Quitessence)
-  DELPHI19_UP      Delphi 19 or higher  (Delphi XE5  - Zephyr)
-  DELPHI20_UP      Delphi 20 or higher  (Delphi XE6  - Proteus)
-  DELPHI21_UP      Delphi 21 or higher  (Delphi XE7  - Carpathia)
-  DELPHI22_UP      Delphi 22 or higher  (Delphi XE8  - Elbrus)
-  DELPHI23_UP      Delphi 23 or higher  (Delphi 10 Seattle - Aitana)
-  DELPHI24_UP      Delphi 24 or higher  (Delphi 10.1 Berlin - BigBen)
-  DELPHI25_UP      Delphi 25 or higher  (Delphi 10.2 - Godzilla)
+  DELPHI10_UP      Delphi 10 or higher  (Delphi 2006 - Dexter - BDS4)
+  DELPHI11_UP      Delphi 11 or higher  (Delphi 2007 - Spacely - BDS5)
+  DELPHI12_UP      Delphi 12 or higher  (Delphi 2009 - Tiburon - BDS6)
+  DELPHI14_UP      Delphi 14 or higher  (Delphi 2010 - Weaver - BDS7)
+  DELPHI15_UP      Delphi 15 or higher  (Delphi XE   - Fulcrum - BDS8)
+  DELPHI16_UP      Delphi 16 or higher  (Delphi XE2  - Pulsar - BDS9)
+  DELPHI17_UP      Delphi 17 or higher  (Delphi XE3  - WaterDragon - BDS10)
+  DELPHI18_UP      Delphi 18 or higher  (Delphi XE4  - Quitessence - BDS11)
+  DELPHI19_UP      Delphi 19 or higher  (Delphi XE5  - Zephyr - BDS12)
+  DELPHI20_UP      Delphi 20 or higher  (Delphi XE6  - Proteus - BDS14)
+  DELPHI21_UP      Delphi 21 or higher  (Delphi XE7  - Carpathia - BDS15)
+  DELPHI22_UP      Delphi 22 or higher  (Delphi XE8  - Elbrus - BDS16)
+  DELPHI23_UP      Delphi 23 or higher  (Delphi 10 Seattle - Aitana - BDS17)
+  DELPHI24_UP      Delphi 24 or higher  (Delphi 10.1 Berlin - BigBen - BDS18)
+  DELPHI25_UP      Delphi 25 or higher  (Delphi 10.2 Tokyo - Godzilla - BDS19)
+  DELPHI26_UP      Delphi 26 or higher  (Delphi 10.3 Rio - Carnival - BDS20)
 
   BCB1             C++ Builder 1
   BCB3             C++ Builder 3
@@ -131,6 +137,9 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
   BCB21_UP         C++ Builder XE7  or higher
   BCB22_UP         C++ Builder XE8  or higher
   BCB23_UP         C++ Builder 10 Seattle  or higher
+  BCB24_UP         C++ Builder 10.1 Berlin or higher
+  BCB25_UP         C++ Builder 10.2 Tokyo or higher
+  BCB26_UP         C++ Builder 10.3 Rio or higher
 
   COMPILER1        Delphi 1
   COMPILER2        Delphi 2  or C++ Builder 1
@@ -155,8 +164,9 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
   COMPILER21       Delphi or C++ Builder XE7
   COMPILER22       Delphi or C++ Builder XE8
   COMPILER23       Delphi or C++ Builder 10 Seattle
-  COMPILER24       Delphi or C++ Builder 10.1
-  COMPILER25       Delphi or C++ Builder 10.2
+  COMPILER24       Delphi or C++ Builder 10.1 Berlin
+  COMPILER25       Delphi or C++ Builder 10.2 Tokyo
+  COMPILER26       Delphi or C++ Builder 10.3 Rio
 
   COMPILER1_UP     Delphi 1  or higher
   COMPILER2_UP     Delphi 2  or C++ Builder 1 or higher
@@ -182,7 +192,8 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
   COMPILER22_UP    Delphi or C++ Builder XE8  or higher (Elbrus)
   COMPILER23_UP    Delphi or C++ Builder 10 Seattle or higher (Aitana)
   COMPILER24_UP    Delphi or C++ Builder 10.1 Berlin or higher (BigBen)
-  COMPILER25_UP    Delphi or C++ Builder 10.2 or higher (Godzilla)
+  COMPILER25_UP    Delphi or C++ Builder 10.2 Tokyo or higher (Godzilla)
+  COMPILER26_UP    Delphi or C++ Builder 10.3 Rio or higher (Carnival)
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * }
 
@@ -209,6 +220,13 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
 { Next symbols include extra features.                                       }
 {$DEFINE BUILTIN_TIMEOUT}
 {$DEFINE BUILTIN_THROTTLE}
+
+{ Next symbol removes a lot of debug logging code, to save space }
+{.$DEFINE NO_DEBUG_LOG}
+
+{ Next symbol enables automatic SSL/TLS ordering in SocketServer and other servers }
+{ Unfortunately this adds a lot of other units, HTTPS REST, Json, OAuth2, etc }
+{$DEFINE AUTO_X509_CERTS}
 
 
 { Do not change anything below this line !                                   }
@@ -245,6 +263,17 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
 {$ENDIF}
 
 {$DEFINE VER_UNKNOWN}
+
+{$IFDEF VER330}
+  {$UNDEF VER_UNKNOWN}
+  {$DEFINE COMPILER26}
+  {$IFDEF BCB}
+    {$DEFINE BCB26}
+  {$ELSE}
+    {$DEFINE DELPHI26}
+    {$DEFINE DELPHI}
+  {$ENDIF}
+{$ENDIF}
 
 {$IFDEF VER320}
   {$UNDEF VER_UNKNOWN}
@@ -516,6 +545,34 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
     {$DEFINE DELPHI23}
     {$DEFINE DELPHI}
   {$ENDIF}
+{$ENDIF}
+
+{$IFDEF DELPHI26}
+  {$DEFINE DELPHI26_UP}
+  {$DEFINE DELPHI25_UP}
+  {$DEFINE DELPHI24_UP}
+  {$DEFINE DELPHI23_UP}
+  {$DEFINE DELPHI22_UP}
+  {$DEFINE DELPHI21_UP}
+  {$DEFINE DELPHI20_UP}
+  {$DEFINE DELPHI19_UP}
+  {$DEFINE DELPHI18_UP}
+  {$DEFINE DELPHI17_UP}
+  {$DEFINE DELPHI16_UP}
+  {$DEFINE DELPHI15_UP}
+  {$DEFINE DELPHI14_UP}
+  {$DEFINE DELPHI12_UP}
+  {$DEFINE DELPHI11_UP}
+  {$DEFINE DELPHI10_UP}
+  {$DEFINE DELPHI9_UP}
+  {$DEFINE DELPHI8_UP}
+  {$DEFINE DELPHI7_UP}
+  {$DEFINE DELPHI6_UP}
+  {$DEFINE DELPHI5_UP}
+  {$DEFINE DELPHI4_UP}
+  {$DEFINE DELPHI3_UP}
+  {$DEFINE DELPHI2_UP}
+  {$DEFINE DELPHI1_UP}
 {$ENDIF}
 
 {$IFDEF DELPHI25}
@@ -888,6 +945,35 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
 
 {$IFDEF DELPHI1}
   {$DEFINE DELPHI1_UP}
+{$ENDIF}
+
+{$IFDEF COMPILER26}
+  {$DEFINE COMPILER26_UP}
+  {$DEFINE COMPILER25_UP}
+  {$DEFINE COMPILER24_UP}
+  {$DEFINE COMPILER23_UP}
+  {$DEFINE COMPILER22_UP}
+  {$DEFINE COMPILER21_UP}
+  {$DEFINE COMPILER20_UP}
+  {$DEFINE COMPILER19_UP}
+  {$DEFINE COMPILER18_UP}
+  {$DEFINE COMPILER17_UP}
+  {$DEFINE COMPILER16_UP}
+  {$DEFINE COMPILER15_UP}
+  {$DEFINE COMPILER14_UP}
+  {$DEFINE COMPILER12_UP}
+  {$DEFINE COMPILER11_UP}
+  {$DEFINE COMPILER10_UP}
+  {$DEFINE COMPILER9_UP}
+  {$DEFINE COMPILER8_UP}
+  {$DEFINE COMPILER7_UP}
+  {$DEFINE COMPILER6_UP}
+  {$DEFINE COMPILER5_UP}
+  {$DEFINE COMPILER4_UP}
+  {$DEFINE COMPILER35_UP}
+  {$DEFINE COMPILER3_UP}
+  {$DEFINE COMPILER2_UP}
+  {$DEFINE COMPILER1_UP}
 {$ENDIF}
 
 {$IFDEF COMPILER25}
@@ -1290,7 +1376,76 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
   {$DEFINE COMPILER1_UP}
 {$ENDIF}
 
+{$IFDEF BCB26}
+  {$DEFINE BCB26_UP}
+  {$DEFINE BCB25_UP}
+  {$DEFINE BCB24_UP}
+  {$DEFINE BCB23_UP}
+  {$DEFINE BCB22_UP}
+  {$DEFINE BCB21_UP}
+  {$DEFINE BCB20_UP}
+  {$DEFINE BCB19_UP}
+  {$DEFINE BCB18_UP}
+  {$DEFINE BCB17_UP}
+  {$DEFINE BCB16_UP}
+  {$DEFINE BCB15_UP}
+  {$DEFINE BCB14_UP}
+  {$DEFINE BCB12_UP}
+  {$DEFINE BCB11_UP}
+  {$DEFINE BCB10_UP}
+  {$DEFINE BCB6_UP}
+  {$DEFINE BCB5_UP}
+  {$DEFINE BCB4_UP}
+  {$DEFINE BCB3_UP}
+  {$DEFINE BCB1_UP}
+{$ENDIF}
+
+{$IFDEF BCB25}
+  {$DEFINE BCB25_UP}
+  {$DEFINE BCB24_UP}
+  {$DEFINE BCB23_UP}
+  {$DEFINE BCB22_UP}
+  {$DEFINE BCB21_UP}
+  {$DEFINE BCB20_UP}
+  {$DEFINE BCB19_UP}
+  {$DEFINE BCB18_UP}
+  {$DEFINE BCB17_UP}
+  {$DEFINE BCB16_UP}
+  {$DEFINE BCB15_UP}
+  {$DEFINE BCB14_UP}
+  {$DEFINE BCB12_UP}
+  {$DEFINE BCB11_UP}
+  {$DEFINE BCB10_UP}
+  {$DEFINE BCB6_UP}
+  {$DEFINE BCB5_UP}
+  {$DEFINE BCB4_UP}
+  {$DEFINE BCB3_UP}
+  {$DEFINE BCB1_UP}
+{$ENDIF}
+
+{$IFDEF BCB24}
+  {$DEFINE BCB23_UP}
+  {$DEFINE BCB22_UP}
+  {$DEFINE BCB21_UP}
+  {$DEFINE BCB20_UP}
+  {$DEFINE BCB19_UP}
+  {$DEFINE BCB18_UP}
+  {$DEFINE BCB17_UP}
+  {$DEFINE BCB16_UP}
+  {$DEFINE BCB15_UP}
+  {$DEFINE BCB14_UP}
+  {$DEFINE BCB12_UP}
+  {$DEFINE BCB11_UP}
+  {$DEFINE BCB10_UP}
+  {$DEFINE BCB6_UP}
+  {$DEFINE BCB5_UP}
+  {$DEFINE BCB4_UP}
+  {$DEFINE BCB3_UP}
+  {$DEFINE BCB1_UP}
+{$ENDIF}
+
 {$IFDEF BCB23}
+  {$DEFINE BCB24_UP}
   {$DEFINE BCB23_UP}
   {$DEFINE BCB22_UP}
   {$DEFINE BCB21_UP}
@@ -1590,3 +1745,6 @@ Apr 2016 - V8.09 - Angus Delphi 10.1 and 10.2, USE_SSL now enabled
   {$DEFINE RTL_NAMESPACES}
 {$ENDIF}
 
+{$IFDEF DELPHI17_UP}
+  {$WARN IMMUTABLE_STRINGS OFF}
+{$ENDIF}

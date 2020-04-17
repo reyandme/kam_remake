@@ -3,7 +3,7 @@
 Author:       Arno Garrels <arno.garrels@gmx.de>
 Creation:     Nov 01, 2005
 Description:  Implementation of OpenSsl thread locking (Windows);
-Version:      8.00
+Version:      8.01
 EMail:        francois.piette@overbyte.be  http://www.overbyte.be
 Support:      Use the mailing list ics-ssl@elists.org
               Follow "SSL" link at http://www.overbyte.be for subscription.
@@ -58,6 +58,8 @@ May 05, 2010 V1.02 A.Garrels changed synchronisation to use TRTLCriticalSection
 May 06, 2011 V1.03 Arno - Make use of new CRYPTO_THREADID_set_callback.
 May 2012 - V8.00 - Arno added FireMonkey cross platform support with POSIX/MacOS
                    also IPv6 support, include files now in sub-directory
+May 2016 V8.01 - Angus support for OpenSSL 1.1.0, thread locking no longer needed
+                   Unload SSL when disabling locks
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -234,45 +236,53 @@ var
 begin
     if Value = FEnabled then
         Exit;
-    if not (csDesigning in ComponentState) then
-    begin
-        InitializeSsl;
-        if Value then
-        begin
-            SetLength(MutexBuf, f_CRYPTO_num_locks);
-            try
-                FillChar(MutexBuf[0], Length(MutexBuf) * SizeOf(Pointer), 0);
-                for I := Low(MutexBuf) to High(MutexBuf) do
-                    MutexSetup(MutexBuf[I]);
-            except
-                on E: Exception do begin
+    if not (csDesigning in ComponentState) then begin
+        InitializeSsl;  { need version number }
+
+       { V8.01 no thread locking needed for OpenSSL 1.1.0 and later }
+        if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then begin
+            if Value then begin
+                SetLength(MutexBuf, f_CRYPTO_num_locks);
+                try
+                    FillChar(MutexBuf[0], Length(MutexBuf) * SizeOf(Pointer), 0);
                     for I := Low(MutexBuf) to High(MutexBuf) do
-                        MutexCleanup(MutexBuf[I]);
-                    SetLength(MutexBuf, 0);
-                    raise;
+                        MutexSetup(MutexBuf[I]);
+                except
+                    on E: Exception do begin
+                        for I := Low(MutexBuf) to High(MutexBuf) do
+                            MutexCleanup(MutexBuf[I]);
+                        SetLength(MutexBuf, 0);
+                        raise;
+                    end;
                 end;
-            end;
-        {$IFDEF MSWINDOWS}
-            f_CRYPTO_set_id_callback(IDCallback);
-        {$ELSE}
-            if Assigned(f_CRYPTO_THREADID_set_callback) then // OpenSSL v1.0.0+
-            begin
-                Assert(Assigned(f_CRYPTO_THREADID_set_pointer));
-                f_CRYPTO_THREADID_set_callback(ThreadIdCallback);
+            {$IFDEF MSWINDOWS}
+                f_CRYPTO_set_id_callback(IDCallback);
+            {$ELSE}
+                if Assigned(f_CRYPTO_THREADID_set_callback) then // OpenSSL v1.0.0+
+                begin
+                    Assert(Assigned(f_CRYPTO_THREADID_set_pointer));
+                    f_CRYPTO_THREADID_set_callback(ThreadIdCallback);
+                end
+                else
+            {$ENDIF}
+                f_CRYPTO_set_locking_callback(StatLockCallback);
             end
-            else
-        {$ENDIF}
-            f_CRYPTO_set_locking_callback(StatLockCallback);
+            else begin
+                if FSslInitialized then begin
+                    f_CRYPTO_set_locking_callback(nil);
+                    f_CRYPTO_set_id_callback(nil);
+                    FinalizeSsl;   { V8.01 }
+                end;
+                for I := Low(MutexBuf) to High(MutexBuf) do
+                    MutexCleanup(MutexBuf[I]);
+                SetLength(MutexBuf, 0);
+            end;
         end
         else begin
-            if FSslInitialized then begin
-                f_CRYPTO_set_locking_callback(nil);
-                f_CRYPTO_set_id_callback(nil);
-            end;
-            for I := Low(MutexBuf) to High(MutexBuf) do
-                MutexCleanup(MutexBuf[I]);
-            SetLength(MutexBuf, 0);
+            if NOT Value then  { V8.01 }
+                FinalizeSsl;
         end;
+
     end;
     FEnabled := Value;
 end;
@@ -321,23 +331,27 @@ var
 begin
     OldValue := FEnabled;
     inherited SetEnabled(Value);
-    if OldValue = FEnabled then
-        Exit;
-    if not (csDesigning in ComponentState) then begin
-        if Value then begin
-            InitializeSsl;
-            f_CRYPTO_set_dynlock_create_callback(DynCreateCallBack);
-            f_CRYPTO_set_dynlock_lock_callback(DynLockCallback);
-            f_CRYPTO_set_dynlock_destroy_callback(DynDestroyCallBack);
-        end
-        else begin
-            if FSslInitialized then begin
-                f_CRYPTO_set_dynlock_create_callback(nil);
-                f_CRYPTO_set_dynlock_lock_callback(nil);
-                f_CRYPTO_set_dynlock_destroy_callback(nil);
-            end;
-        end;
 
+   { V8.01 no thread locking needed for OpenSSL 1.1.0 and later }
+    if ICS_OPENSSL_VERSION_NUMBER < OSSL_VER_1100 then begin
+        if OldValue = FEnabled then
+            Exit;
+        if not (csDesigning in ComponentState) then begin
+            if Value then begin
+                InitializeSsl;
+                f_CRYPTO_set_dynlock_create_callback(DynCreateCallBack);
+                f_CRYPTO_set_dynlock_lock_callback(DynLockCallback);
+                f_CRYPTO_set_dynlock_destroy_callback(DynDestroyCallBack);
+            end
+            else begin
+                if FSslInitialized then begin
+                    f_CRYPTO_set_dynlock_create_callback(nil);
+                    f_CRYPTO_set_dynlock_lock_callback(nil);
+                    f_CRYPTO_set_dynlock_destroy_callback(nil);
+                end;
+            end;
+
+        end;
     end;
     FEnabled := Value;
 end;

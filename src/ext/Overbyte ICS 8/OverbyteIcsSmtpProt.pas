@@ -7,11 +7,11 @@ Object:       TSmtpCli class implements the SMTP protocol (RFC-821)
               Support authentification (RFC-2104)
               Support HTML mail with embedded images.
 Creation:     09 october 1997
-Version:      8.08
+Version:      8.55
 EMail:        http://www.overbyte.be        francois.piette@overbyte.be
 Support:      Use the mailing list twsocket@elists.org
               Follow "support" link at http://www.overbyte.be for subscription.
-Legal issues: Copyright (C) 1997-2016 by François PIETTE
+Legal issues: Copyright (C) 1997-2017 by François PIETTE
               Rue de Grady 24, 4053 Embourg, Belgium.
               <francois.piette@overbyte.be>
               SSL implementation includes code written by Arno Garrels,
@@ -415,6 +415,10 @@ Oct 05, 2015 V8.07 Angus changed to receive with LineMode for more reliable line
                      parsing, which fixes an endless loop if remote server returned
                      nulls, thanks to Max Terentiev for finding a bad server
 Feb 23, 2016 V8.08 - Angus renamed TBufferedFileStream to TIcsBufferedFileStream
+Nov 12, 2016 V8.37 - Added extended exception information, set SocketErrs = wsErrFriendly for
+                      some more friendly messages (without error numbers)
+Oct 5, 2017  V8.50 - Fixed bad error handling with V8.07
+Jul 2, 2018  V8.55 - Builds with NO_DEBUG_LOG
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFNDEF ICS_INCLUDE_MODE}
@@ -502,8 +506,8 @@ uses
     OverbyteIcsCharsetUtils;
 
 const
-  SmtpCliVersion     = 808;
-  CopyRight : String = ' SMTP component (c) 1997-2016 Francois Piette V8.08 ';
+  SmtpCliVersion     = 855;
+  CopyRight : String = ' SMTP component (c) 1997-2018 Francois Piette V8.55 ';
   smtpProtocolError  = 20600; {AG}
 {  SMTP_RCV_BUF_SIZE  = 4096;  V8.07 no longer used }
 
@@ -811,6 +815,7 @@ type
         FProxyPassword       : String;
         FProxyHttpAuthType   : THttpTunnelAuthType;
         FLmCompatLevel       : LongWord;  { V7.39 }
+        FSocketErrs          : TSocketErrs;   { V8.37 }
         procedure   HandleHttpTunnelError(Sender: TObject; ErrCode: Word;
             TunnelServerAuthTypes: THttpTunnelServerAuthTypes; const Msg: String);
         procedure   HandleSocksError(Sender: TObject; ErrCode: Integer; Msg: String);
@@ -1033,6 +1038,8 @@ type
                                                      write FXMailer;
         property SocketFamily : TSocketFamily        read  FSocketFamily
                                                      write FSocketFamily;
+        property SocketErrs        : TSocketErrs     read  FSocketErrs
+                                                     write FSocketErrs;      { V8.37 }
         property ProxyType         : TSmtpProxyType  read  FProxyType
                                                      write FProxyType;
         property ProxyServer       : String          read  FProxyServer
@@ -1154,7 +1161,9 @@ type
         property ProxyUserCode;
         property ProxyPassword;
         property ProxyHttpAuthType;
-        property IcsLogger;  { V8.03 }
+{$IFNDEF NO_DEBUG_LOG}
+        property IcsLogger;  { V8.55 }
+{$ENDIF}
 
         property EmailFiles : TStrings               read  FEmailFiles
                                                      write SetEmailFiles;
@@ -1175,6 +1184,7 @@ type
                                                      write FOnAfterFileOpen;
         {AG end}
         property SocketFamily;
+        property SocketErrs;   { V8.37 }
         {CLEM V8.01 start}
         property OnFileOpen  : TSmtpFileOpenEvent    read  FOnFileOpen
                                                      write FOnFileOpen;
@@ -2204,54 +2214,15 @@ end;
 procedure TCustomSmtpClient.WSocketDataAvailable(Sender: TObject; ErrorCode: Word);
 var
     Len : Integer;
- //I   : Integer;
     p   : PChar;
-{$IFDEF COMPILER12_UP}
- // TempS : AnsiString;
-{$ENDIF}
 begin
-    if (Error <> ERROR_SUCCESS) then begin   { V8.07 don't ignore errors }
+    if (ErrorCode <> 0) then begin   { V8.07 don't ignore errors, V8.50 actually works }
         FStatusCode := 500;
         SetErrorMessage;
         FRequestResult := FStatusCode;
         FWSocket.Close;
         Exit;
     end;
-
-  (* V8.07 now using line mode, which is simpler
-
-     Len := FWSocket.Receive(@FReceiveBuffer[FReceiveLen],
-                            sizeof(FReceiveBuffer) - FReceiveLen);
-
-    if Len <= 0 then
-        Exit;
-
-    FReceiveBuffer[FReceiveLen + Len] := #0;
-    FReceiveLen := FReceiveLen + Len;
-
-    while FReceiveLen > 0 do begin
-        //I :=  Pos(AnsiString(#13#10), FReceiveBuffer);  { AG allocates a string }
-        I := 0;
-        while FReceiveBuffer[I] <> AnsiChar(#0) do begin
-            if (FReceiveBuffer[I] = AnsiChar(#13)) and
-               (FReceiveBuffer[I + 1] = AnsiChar(#10)) then begin
-                Inc(I); // String index expected below
-                Break;
-            end;
-            Inc(I);
-        end;
-        if I <= 0 then  { V8.07 if buffer contains null, now enters endless loop }
-            break;
-        if I > FReceiveLen then
-            break;
-{$IFNDEF COMPILER12_UP}
-        FLastResponse := Copy(FReceiveBuffer, 1, I - 1);
-{$ELSE}
-        SetLength(Temps, I - 1);
-        Move(FReceiveBuffer[0], Pointer(Temps)^, I - 1);
-        FLastResponse := String(Temps);
-{$ENDIF}
-*)
 
   { V8.07 line mode gives us complete lines, need to remove CR/LF }
     FLastResponse := FWSocket.ReceiveStr;
@@ -2271,10 +2242,6 @@ begin
     FDumpBuf := '|' + #13#10;
     FDumpStream.WriteBuffer(FDumpBuf[1], Length(FDumpBuf));
 {$ENDIF}
-{        FReceiveLen := FReceiveLen - I - 1;
-        if FReceiveLen > 0 then
-            Move(FReceiveBuffer[I + 1], FReceiveBuffer[0], FReceiveLen + 1);
-}
     if FState = smtpWaitingBanner then begin
         DisplayLastResponse;
         p := GetInteger(@FLastResponse[1], FStatusCode);
@@ -3450,6 +3417,7 @@ begin
     FESmtpSupported   := FALSE;
     FErrorMessage     := '';
     FLastResponse     := '';
+    FWSocket.SocketErrs := FSocketErrs;        { V8.37 }
 
     if FProxyType <> smtpHttpProxy  then
     { Disable connection thru HTTP proxy. It's not done in   }
@@ -4563,7 +4531,9 @@ var
 {$ENDIF}
 begin
 {$IFNDEF WIN64}                  { V7.37 }
+  {$IFNDEF DELPHI24_UP}
     Result    := TRUE;           { Make dcc32 happy }
+  {$ENDIF}
 {$ENDIF}
     FTimeStop := Integer(IcsGetTickCount) + FTimeout * 1000;
   {$IFNDEF POSIX}
