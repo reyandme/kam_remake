@@ -54,10 +54,12 @@ const
   //to make them more "intelligent", but for now these are required for the campaigns to be playable.
 
   //On the other hand, no need to reproduce KaM's flaws, so fill closest defence
-  //positions to avoid swapping. This shouldn't cause incorrect behaviour in
-  //campaigns since either way the priority order of positions will be respected
+  //positions for idle groups to avoid swapping on mission start. This shouldn't
+  //cause incorrect behaviour in campaigns since either way the priority order
+  //of positions will be respected.
 
-  AI_FILL_CLOSEST = True;
+  AI_FILL_CLOSEST_IDLE = True;
+  AI_FILL_CLOSEST_EQUIPPED = False;
   AI_LINK_IDLE = False;
 
 
@@ -250,7 +252,7 @@ begin
       //In this case we choose the closest group, then move to a higher priority one later (see above)
       //This means at the start of the mission troops will take the position they are placed at rather than swapping around
       //With auto defence we reset defence positions regularly, so take closest rather than reshuffling all the time (newly equipped warriors still take highest priority)
-      if fDefencePositions.FindPlaceForGroup(Group, AI_FILL_CLOSEST or fSetup.AutoDefend) then Continue;
+      if fDefencePositions.FindPlaceForGroup(Group, AI_FILL_CLOSEST_IDLE or fSetup.AutoDefend) then Continue;
 
       //Just chill and link with other idle groups
       if AI_LINK_IDLE then
@@ -665,7 +667,7 @@ end;
 //Trained warrior reports for duty
 procedure TKMGeneral.WarriorEquipped(aGroup: TKMUnitGroup);
 begin
-  fDefencePositions.FindPlaceForGroup(aGroup, AI_FILL_CLOSEST);
+  fDefencePositions.FindPlaceForGroup(aGroup, AI_FILL_CLOSEST_EQUIPPED);
 end;
 
 
