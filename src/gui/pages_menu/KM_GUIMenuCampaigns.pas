@@ -127,9 +127,9 @@ begin
   end
   else
   begin
-    Button_Camp_Start.Enable;
     cmp := fCampaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampaignId;
     Camp := fCampaigns.CampaignById(cmp);
+    Button_Camp_Start.Enabled := Camp.MapCount > 0;
 
     Image_CampsPreview.RX := Camp.BackGroundPic.RX;
     Image_CampsPreview.TexID := Camp.BackGroundPic.ID;

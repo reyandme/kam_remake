@@ -14,6 +14,7 @@ type
   private
     fOnPageChange: TKMMenuChangeEventText; //will be in ancestor class
 
+    fImageDialogPath: string;
     fMaps: TKMapsCollection;
     fMinimap: TKMMinimap;
     fMinimapLastListId: Integer;  // column id, on which last time minimap was loaded. Avoid multiple loads of same minimap, which could happen on every RefreshList
@@ -58,12 +59,23 @@ type
     procedure MoveClick(Sender: TObject);
     procedure EscKeyDown(Sender: TObject);
     procedure KeyDown(Key: Word; Shift: TShiftState);
+
     procedure CampaignCreateClick(Sender: TObject);
-    procedure CampaignDeleteClick(Sender: TObject);
-    procedure CampaignEditClick(Sender: TObject);
-    procedure CampaignMapEditClick(Sender: TObject);
     procedure CampaignEditOkClick(Sender: TObject);
     procedure CampaignEditCancelClick(Sender: TObject);
+
+    procedure CampaignMapImageClick(Sender: TObject);
+    procedure FileChange(Sender: TObject);
+    procedure FileDoubleClick(Sender: TObject);
+    procedure CampaignImageDriveClick(Sender: TObject);
+    procedure CampaignImageOkClick(Sender: TObject);
+    procedure CampaignImageCancelClick (Sender: TObject);
+
+    procedure UpdateImageDialogDrives;
+    procedure UpdateImageDialogList;
+
+    procedure CampaignMapEditClick(Sender: TObject);
+    procedure EditCampaignChange(Sender: TObject);
 
     function IsCampaign(aMapInfo: TKMapInfo; const aCampaignId: TKMCampaignId): Boolean;
   protected
@@ -82,7 +94,7 @@ type
 
       Panel_Campaigns, Panel_CampaignInfo: TKMPanel;
         ListBox_Campaigns: TKMListBox;
-        Button_CampaignsNew, Button_CampaignsDelete, Button_CampaignEdit, Button_CampaignMapEdit: TKMButton;
+        Button_CampaignsNew, Button_CampaignMapIgame, Button_CampaignMapEdit: TKMButton;
         Image_Campaign: TKMImage;
         Image_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMImage;
         Label_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMLabel;
@@ -124,6 +136,15 @@ type
     Panel_CampaignEdit: TKMPanel;
     Edit_CampaignId, Edit_CampaignDirectoryName: TKMEdit;
     Button_CampaignEditOk, Button_CampaignEditCancel: TKMButton;
+
+    Panel_CampaignSave: TKMPanel;
+    Button_CampaignSaveOk, Button_CampaignSaveCancel: TKMButton;
+
+    Panel_CampaignImage: TKMPanel;
+    ButtonFlat_CampaignImageDrives: array['A'..'Z'] of TKMButtonFlat;
+    Label_CampaignImagePath: TKMLabel;
+    ColumnBox_CampaignImage: TKMColumnBox;
+    Button_CampaignImageOk, Button_CampaignImageCancel: TKMButton;
 
   public
     OnNewMapEditor: TKMNewMapEditorEvent;
@@ -237,17 +258,9 @@ begin
       ListBox_Campaigns.Anchors := [anLeft, anTop];
       ListBox_Campaigns.OnChange := SelectCampaign;
 
-      Button_CampaignsNew := TKMButton.Create(Panel_Campaigns, 0, ListBox_Campaigns.Bottom + 8, Panel_Campaigns.Width div 3 - 4, 20, 'Add', bsMenu);
+      Button_CampaignsNew := TKMButton.Create(Panel_Campaigns, 0, ListBox_Campaigns.Bottom + 8, Panel_Campaigns.Width, 20, 'Add', bsMenu);
       Button_CampaignsNew.Anchors := [anLeft, anBottom];
       Button_CampaignsNew.OnClick := CampaignCreateClick;
-
-      Button_CampaignEdit := TKMButton.Create(Panel_Campaigns, Panel_Campaigns.Width div 3 + 4, ListBox_Campaigns.Bottom + 8, Panel_Campaigns.Width div 3 - 4, 20, 'Edit', bsMenu);
-      Button_CampaignEdit.Anchors := [anLeft, anBottom];
-      Button_CampaignEdit.OnClick := CampaignEditClick;
-
-      Button_CampaignsDelete := TKMButton.Create(Panel_Campaigns, Panel_Campaigns.Width div 3 * 2 + 8, ListBox_Campaigns.Bottom + 8, Panel_Campaigns.Width div 3 - 4, 20, 'Delete', bsMenu);
-      Button_CampaignsDelete.Anchors := [anLeft, anBottom];
-      Button_CampaignsDelete.OnClick := CampaignDeleteClick;
 
       Panel_CampaignInfo := TKMPanel.Create(Panel_Campaigns, 0, Button_CampaignsNew.Bottom + 18, Panel_Campaigns.Width, Round(Panel_Campaigns.Width * (768 / 1027)));
         TKMImage.Create(Panel_CampaignInfo, -5, -3, Panel_CampaignInfo.Width + 10, Panel_CampaignInfo.Height + 6, 18, rxGuiMain).ImageStretch;
@@ -279,9 +292,13 @@ begin
 
         Panel_CampaignInfo.Hide;
 
-      Button_CampaignMapEdit := TKMButton.Create(Panel_Campaigns, 0, Panel_CampaignInfo.Bottom + 8, Panel_Campaigns.Width, 20, 'Edit', bsMenu);
+      Button_CampaignMapIgame := TKMButton.Create(Panel_Campaigns, 0, Panel_CampaignInfo.Bottom + 8, Panel_Campaigns.Width div 2 - 2, 20, 'Image', bsMenu);
+      Button_CampaignMapIgame.Anchors := [anLeft, anBottom];
+      Button_CampaignMapIgame.OnClick := CampaignMapImageClick;
+
+      Button_CampaignMapEdit := TKMButton.Create(Panel_Campaigns, Panel_Campaigns.Width div 2 + 2, Panel_CampaignInfo.Bottom + 8, Panel_Campaigns.Width div 2 - 2, 20, 'Edit', bsMenu);
       Button_CampaignMapEdit.Anchors := [anLeft, anBottom];
-      Button_CampaignMapEdit.OnClick := CampaignEditClick;
+      Button_CampaignMapEdit.OnClick := CampaignMapEditClick;
       NumEdit_MapSizeX.AutoFocusable := False;
       NumEdit_MapSizeY.AutoFocusable := False;
 
@@ -449,6 +466,8 @@ begin
 
     Panel_CampaignEdit := TKMPanel.Create(aParent, 362, 250, 320, 300);
     Panel_CampaignEdit.AnchorsCenter;
+    Panel_CampaignEdit.Hide;
+
       TKMBevel.Create(Panel_CampaignEdit, -2000,  -2000, 5000, 5000);
       TKMImage.Create(Panel_CampaignEdit, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_CampaignEdit,   0,  0, 320, 300);
@@ -457,18 +476,54 @@ begin
 
       TKMLabel.Create(Panel_CampaignEdit, 20, 50, 280, 20, 'Id', fntOutline, taLeft);
       Edit_CampaignId := TKMEdit.Create(Panel_CampaignEdit, 20, 70, 50, 20, fntGrey);
-      Edit_CampaignId.AllowedChars := acANSI7;
+      Edit_CampaignId.AllowedChars := acLatin;
+      Edit_CampaignId.TextCase := tcUpper;
       Edit_CampaignId.MaxLen := 3;
+      Edit_CampaignId.OnChange := EditCampaignChange;
 
       TKMLabel.Create(Panel_CampaignEdit, 20, 100, 284, 20, 'Directory name', fntOutline, taLeft);
       Edit_CampaignDirectoryName := TKMEdit.Create(Panel_CampaignEdit, 20, 120, 280, 20, fntGrey);
       Edit_CampaignDirectoryName.AllowedChars := acFileName;
       Edit_CampaignDirectoryName.MaxLen := 255;
+      Edit_CampaignDirectoryName.OnChange := EditCampaignChange;
 
       Button_CampaignEditOk  := TKMButton.Create(Panel_CampaignEdit, 20, 210, 280, 30, 'Ok',  bsMenu);
       Button_CampaignEditOk.OnClick := CampaignEditOkClick;
       Button_CampaignEditCancel := TKMButton.Create(Panel_CampaignEdit, 20, 250, 280, 30, 'Cancel',  bsMenu);
       Button_CampaignEditCancel.OnClick := CampaignEditCancelClick;
+
+    // Image dialog
+
+    Panel_CampaignImage := TKMPanel.Create(aParent, aParent.Width div 2 - 650 div 2, aParent.Height div 2 - 600 div 2, 650, 600);
+    Panel_CampaignImage.AnchorsCenter;
+    Panel_CampaignImage.Hide;
+
+      TKMBevel.Create(Panel_CampaignImage, -2000,  -2000, 5000, 5000);
+      //TKMImage.Create(Panel_CampaignImage, 0, 0, Panel_CampaignImage.Width, Panel_CampaignImage.Height, 15, rxGuiMain, 0, [anLeft, anRight, anTop, anBottom]).AnchorsStretch;
+      TKMImage.Create(Panel_CampaignImage, -20, -20, Panel_CampaignImage.Width + 40, Panel_CampaignImage.Height + 50, 18, rxGuiMain, 0, [anLeft, anRight, anTop, anBottom]).AnchorsStretch;
+
+      TKMLabel.Create(Panel_CampaignImage, 0, 20, Panel_CampaignImage.Width, 20, 'Select Image', fntOutline, taCenter);
+
+      TKMBevel.Create(Panel_CampaignImage, 20, 83, Panel_CampaignImage.Width - 40, 24);
+      Label_CampaignImagePath := TKMLabel.Create(Panel_CampaignImage, 24, 87, Panel_CampaignImage.Width - 48, 20, '', fntMetal, taLeft);
+
+      ColumnBox_CampaignImage := TKMColumnBox.Create(Panel_CampaignImage, 20, 110, Panel_CampaignImage.Width - 40, Panel_CampaignImage.Height - 110 - 60, fntMetal,  bsMenu);
+      ColumnBox_CampaignImage.Anchors := [anLeft, anTop, anBottom];
+      ColumnBox_CampaignImage.SetColumns(fntOutline, ['', 'Name', 'Size', 'Date'], [0, 20, Panel_CampaignImage.Width - 300, Panel_CampaignImage.Width - 165]);
+      ColumnBox_CampaignImage.Columns[2].TextAlign := taRight;
+      ColumnBox_CampaignImage.Columns[3].TextAlign := taRight;
+      ColumnBox_CampaignImage.OnChange := FileChange;
+      ColumnBox_CampaignImage.OnDoubleClick := FileDoubleClick;
+      //ColumnBox_CampaignImage.SearchColumn := 2;
+      //ColumnBox_CampaignImage.OnColumnClick := ColumnClick;
+      //ColumnBox_CampaignImage.OnCellClick := ColumnBoxMaps_CellClick;
+
+      Button_CampaignImageOk  := TKMButton.Create(Panel_CampaignImage, Panel_CampaignImage.Width div 2 - 150 - 2, Panel_CampaignImage.Height - 50, 150, 30, 'Ok',  bsMenu);
+      Button_CampaignImageOk.OnClick := CampaignImageOkClick;
+
+      Button_CampaignImageCancel := TKMButton.Create(Panel_CampaignImage, Panel_CampaignImage.Width div 2 + 2, Panel_CampaignImage.Height - 50, 150, 30, 'Cancel',  bsMenu);
+      Button_CampaignImageCancel.OnClick := CampaignImageCancelClick;
+
 end;
 
 
@@ -1180,6 +1235,184 @@ begin
   end;
 end;
 
+procedure TKMMenuMapEditor.CampaignMapImageClick(Sender: TObject);
+begin
+  fImageDialogPath := ExeDir;
+  Panel_CampaignImage.Show;
+  Button_CampaignImageOk.Enabled := False;
+  UpdateImageDialogList;
+end;
+
+procedure TKMMenuMapEditor.FileChange(Sender: TObject);
+begin
+  Button_CampaignImageOk.Enabled := ColumnBox_CampaignImage.IsSelected and (ColumnBox_CampaignImage.SelectedItemTag = 1);
+end;
+
+procedure TKMMenuMapEditor.FileDoubleClick(Sender: TObject);
+var
+  Str: string;
+begin
+  if ColumnBox_CampaignImage.SelectedItemTag = 0 then
+  begin
+    Str := ColumnBox_CampaignImage.SelectedItem.Cells[1].Caption;
+    Str := Copy(Str, 2, Str.Length - 2);
+    fImageDialogPath := ExpandFileName(fImageDialogPath + Str + PathDelim);
+    UpdateImageDialogList;
+  end
+  else
+    CampaignImageOkClick(Button_CampaignImageOk);
+end;
+
+procedure TKMMenuMapEditor.CampaignImageDriveClick(Sender: TObject);
+begin
+  fImageDialogPath := TKMButtonFlat(Sender).Caption + ':\';
+  UpdateImageDialogList;
+end;
+
+procedure TKMMenuMapEditor.UpdateImageDialogDrives;
+//DRIVE_UNKNOWN = 0; DRIVE_NO_ROOT_DIR = 1; DRIVE_REMOVABLE = 2; DRIVE_FIXED = 3; DRIVE_REMOTE = 4; DRIVE_CDROM = 5; DRIVE_RAMDISK = 6;
+const
+  DriveIcons: array [DRIVE_REMOVABLE..DRIVE_RAMDISK] of Integer = (703, 700, 704, 701, 705);
+var
+  Left: Integer;
+  Drive: Char;
+  DriveType: Cardinal;
+begin
+  Left := 20;
+  for Drive := 'A' to 'Z' do
+  begin
+    DriveType := GetDriveType(PChar(Drive + ':\'));
+
+    if not Assigned(ButtonFlat_CampaignImageDrives[Drive]) then
+    begin
+      ButtonFlat_CampaignImageDrives[Drive] := TKMButtonFlat.Create(Panel_CampaignImage, 0, 50, 50, 30, 38, rxGui);
+      ButtonFlat_CampaignImageDrives[Drive].TexOffsetX := -10;
+      ButtonFlat_CampaignImageDrives[Drive].TexOffsetY := 6;
+      ButtonFlat_CampaignImageDrives[Drive].CapOffsetX := 12;
+      ButtonFlat_CampaignImageDrives[Drive].CapOffsetY := -10;
+      ButtonFlat_CampaignImageDrives[Drive].OnClick := CampaignImageDriveClick;
+    end;
+
+    ButtonFlat_CampaignImageDrives[Drive].Visible := DriveType > DRIVE_NO_ROOT_DIR;
+    if ButtonFlat_CampaignImageDrives[Drive].Visible then
+    begin
+      ButtonFlat_CampaignImageDrives[Drive].Down := (fImageDialogPath.Length > 0) and (UpCase(fImageDialogPath[1]) = UpCase(Drive));
+      ButtonFlat_CampaignImageDrives[Drive].TexID := IfThen((DriveType = DRIVE_REMOVABLE) and (Drive in ['A'..'B']), 702, DriveIcons[DriveType]);
+      ButtonFlat_CampaignImageDrives[Drive].Left := Left;
+      ButtonFlat_CampaignImageDrives[Drive].Caption := UpCase(Drive);
+      Left := Left + ButtonFlat_CampaignImageDrives[Drive].Width + 5;
+    end;
+  end;
+end;
+
+procedure TKMMenuMapEditor.UpdateImageDialogList;
+
+  function SizeToStr(aSize: Int64): string;
+  var
+    I, n: Integer;
+    Str: string;
+  begin
+    Str := IntToStr(aSize);
+    if aSize < 10000 then
+      Exit(Str);
+
+    n := 0;
+    Result := '';
+    for I := Str.Length downto 1 do
+    begin
+      Result := Str[I] + Result;
+      Inc(n);
+      if (n = 3) and (I > 1) then
+      begin
+        n := 0;
+        Result := ' ' + Result;
+      end;
+    end;
+  end;
+
+  function CheckFormat(const aFileName: string): Boolean;
+  const
+    Exts: array [0..0] of string = ('.png');
+  var
+    I: Integer;
+    Ext: string;
+  begin
+    Ext := ExtractFileExt(aFileName);
+    for I := 0 to High(Exts) do
+      if CompareText(Exts[I], Ext) = 0 then
+        Exit(True);
+
+    Result := False;
+  end;
+
+var
+  SearchRec: TSearchRec;
+  Row: TKMListRow;
+begin
+  UpdateImageDialogDrives;
+  ColumnBox_CampaignImage.Clear;
+  if not DirectoryExists(fImageDialogPath) then
+  begin
+    Label_CampaignImagePath.Caption := '';
+    Label_CampaignImagePath.Hint := '';
+    Exit;
+  end;
+
+  Label_CampaignImagePath.Caption := fImageDialogPath;
+  Label_CampaignImagePath.Hint := fImageDialogPath;
+
+  FindFirst(fImageDialogPath + '*', faDirectory, SearchRec);
+  try
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Attr and faDirectory = faDirectory) then
+      begin
+        Row := MakeListRow(['', '[' + SearchRec.Name + ']', '', ''], 0);
+        Row.Cells[0].Pic := MakePic(rxGui, IfThen(SearchRec.Name = '..', 710, 711), True, 0, -2);
+        ColumnBox_CampaignImage.AddItem(Row);
+      end;
+    until (FindNext(SearchRec) <> 0);
+  finally
+    FindClose(SearchRec);
+  end;
+
+  FindFirst(fImageDialogPath + '*', faAnyFile , SearchRec);
+  try
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') and (SearchRec.Attr and faDirectory <> faDirectory) and CheckFormat(SearchRec.Name) then
+      begin
+        Row := MakeListRow(['', SearchRec.Name, SizeToStr(SearchRec.Size), DateToStr(SearchRec.TimeStamp)], 1);
+        Row.Cells[0].Pic := MakePic(rxGui, 712, True, 0, -2);
+        ColumnBox_CampaignImage.AddItem(Row);
+      end;
+    until (FindNext(SearchRec) <> 0);
+  finally
+    FindClose(SearchRec);
+  end;
+end;
+
+procedure TKMMenuMapEditor.CampaignImageOkClick(Sender: TObject);
+begin
+  fImageDialogPath := fImageDialogPath + ColumnBox_CampaignImage.SelectedItem.Cells[1].Caption;
+  Panel_CampaignImage.Hide;
+  {
+  try
+    fSprites.AddImage(ExtractFilePath(dlgOpenPicture.FileName),
+                      ExtractFileName(dlgOpenPicture.FileName), 1);
+    RefreshBackground;
+  except
+    on E: Exception do
+      ShowMessage(E.Message);
+  end;
+  }
+end;
+
+
+procedure TKMMenuMapEditor.CampaignImageCancelClick(Sender: TObject);
+begin
+  Panel_CampaignImage.Hide;
+end;
+
+
 procedure TKMMenuMapEditor.UpdateCampInfo;
 var
   Campaign: TKMCampaign;
@@ -1303,33 +1536,46 @@ procedure TKMMenuMapEditor.CampaignCreateClick(Sender: TObject);
 begin
   Edit_CampaignId.Text := '';
   Edit_CampaignDirectoryName.Text := '';
+  Button_CampaignEditOk.Enabled := False;
 
   Panel_CampaignEdit.Show;
 end;
 
-procedure TKMMenuMapEditor.CampaignEditClick(Sender: TObject);
-var
-  Campaign: TKMCampaign;
+procedure TKMMenuMapEditor.EditCampaignChange(Sender: TObject);
 begin
-  if ListBox_Campaigns.ItemIndex < 0 then
-    Exit;
-
-  Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
-
-  Edit_CampaignId.Text := Campaign.ShortName;
-  Edit_CampaignDirectoryName.Text := Copy(Campaign.Path, 11, Length(Campaign.Path));
-
-  Panel_CampaignEdit.Show;
-end;
-
-procedure TKMMenuMapEditor.CampaignDeleteClick(Sender: TObject);
-begin
-  //
+  Button_CampaignEditOk.Enabled := (Edit_CampaignId.Text.Length = 3) and (Trim(Edit_CampaignDirectoryName.Text).Length > 0) and
+                not DirectoryExists(CAMPAIGNS_FOLDER_NAME + PathDelim + Trim(Edit_CampaignDirectoryName.Text));
 end;
 
 procedure TKMMenuMapEditor.CampaignEditOkClick(Sender: TObject);
+var
+  I: Integer;
+  Path: string;
+  CampaignId: TKMCampaignId;
+  Campaign: TKMCampaign;
+  StringList: TStringList;
 begin
   Panel_CampaignEdit.Hide;
+
+  CampaignId := NO_CAMPAIGN;
+  for I := Low(Campaign.CampaignId) to High(Campaign.CampaignId) do
+    if Edit_CampaignId.Text.Length > I then
+      CampaignId[I] := Ord(Edit_CampaignId.Text[I + 1]);
+
+  Campaign := gGameApp.Campaigns.CreateCampaign(CampaignId);
+
+  Path := CAMPAIGNS_FOLDER_NAME + PathDelim + Trim(Edit_CampaignDirectoryName.Text) + PathDelim;
+  if not DirectoryExists(Path) then
+    ForceDirectories(Path);
+
+  Campaign.SaveToFile(Path + 'info.cmp');
+  StringList := TStringList.Create;
+  StringList.Add('0:' + Edit_CampaignDirectoryName.Text);
+  StringList.SaveToFile(Path + 'text.eng.libx');
+
+  Campaign.LoadFromPath(Path);
+
+  RefreshCampaignsList;
 end;
 
 procedure TKMMenuMapEditor.CampaignEditCancelClick(Sender: TObject);

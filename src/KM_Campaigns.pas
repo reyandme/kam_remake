@@ -60,7 +60,6 @@ type
     procedure SetUnlockedMap(aValue: Byte);
     procedure SetMapCount(aValue: Byte);
 
-    procedure LoadFromPath(const aPath: UnicodeString);
     procedure LoadMapsInfo;
     procedure LoadSprites;
 
@@ -71,6 +70,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure LoadFromPath(const aPath: UnicodeString);
     procedure LoadFromFile(const aFileName: UnicodeString);
     procedure SaveToFile(const aFileName: UnicodeString);
 
@@ -120,6 +120,8 @@ type
     procedure SaveProgress;
 
     //Usage
+
+    function CreateCampaign(const aCampaignId: TKMCampaignId): TKMCampaign;
     property ActiveCampaign: TKMCampaign read fActiveCampaign;// write fActiveCampaign;
     function Count: Integer;
     property Campaigns[aIndex: Integer]: TKMCampaign read GetCampaign; default;
@@ -337,6 +339,12 @@ begin
   Result := fList.Count;
 end;
 
+function TKMCampaignsCollection.CreateCampaign(const aCampaignId: TKMCampaignId): TKMCampaign;
+begin
+  Result := TKMCampaign.Create;
+  Result.CampaignId := aCampaignId;
+  fList.Add(Result);
+end;
 
 function TKMCampaignsCollection.CampaignById(const aCampaignId: TKMCampaignId): TKMCampaign;
 var
