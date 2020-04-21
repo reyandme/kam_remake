@@ -10,7 +10,8 @@ type
     rxUnits,
     rxGui,
     rxGuiMain,
-    rxCustom, //Used for loading stuff like campaign maps (there is no main RXX file)
+    rxCampaign, //Used for loading stuff like campaign maps (there is no main RXX file)
+    rxCustom,
     rxTiles //Tiles
     );
 

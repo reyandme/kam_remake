@@ -1759,6 +1759,44 @@ type
     procedure PaintPanel(aPaintLayer: Integer); override;
   end;
 
+  TKMOpenDialog = class(TKMPanel)
+  private
+    fPath: UnicodeString;
+    fFileName: UnicodeString;
+
+    fLabelCaption: TKMLabel;
+    fButtonFlatDrives: array['A'..'Z'] of TKMButtonFlat;
+    fBevelPath: TKMBevel;
+    fLabelPath: TKMLabel;
+    fColumnBoxFiles: TKMColumnBox;
+    fButtonOk, fButtonCancel: TKMButton;
+    fOnOk: TNotifyEvent;
+    fOnCancel: TNotifyEvent;
+
+    procedure UpdateImageDialogDrives;
+    procedure UpdateFiles;
+    procedure DriveClick(Sender: TObject);
+    procedure FileChange(Sender: TObject);
+    procedure FileDoubleClick(Sender: TObject);
+    procedure OkClick(Sender: TObject);
+    procedure CancelClick(Sender: TObject);
+
+    procedure SetCaption(aValue: UnicodeString);
+    function GetCaption: UnicodeString;
+  public
+    Exts: UnicodeString;
+    InitialDir: UnicodeString;
+
+    constructor Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '');
+    procedure Open;
+
+    property Caption: UnicodeString read GetCaption write SetCaption;
+    property Path: UnicodeString read fPath;
+    property FileName: UnicodeString read fFileName;
+    property OnOk: TNotifyEvent read fOnOk write fOnOk;
+    property OnCancel: TNotifyEvent read fOnCancel write fOnCancel;
+  end;
+
 
   TDragAxis = (daHoriz, daVertic, daAll);
 
@@ -8713,6 +8751,230 @@ begin
   end;
 end;
 
+{ TKMOpenDialog }
+
+constructor TKMOpenDialog.Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '');
+var
+  Drive: Char;
+begin
+  inherited Create(aParent, aParent.Width div 2 - aWidth div 2, aParent.Height div 2 - aHeight div 2, aWidth, aHeight);
+
+  TKMBevel.Create(Self, -2000,  -2000, 5000, 5000);
+  TKMImage.Create(Self, -20, -20, aWidth + 40, aHeight + 50, 18, rxGuiMain, 0, [anLeft, anRight, anTop, anBottom]).AnchorsStretch;
+
+  fLabelCaption := TKMLabel.Create(Self, 0, 20, aWidth, 20, aCaption, fntOutline, taCenter);
+
+  for Drive := 'A' to 'Z' do
+  begin
+    fButtonFlatDrives[Drive] := TKMButtonFlat.Create(Self, 0, 50, 50, 30, 38, rxGui);
+    fButtonFlatDrives[Drive].Caption := UpCase(Drive);
+    fButtonFlatDrives[Drive].TexOffsetX := -10;
+    fButtonFlatDrives[Drive].TexOffsetY := 6;
+    fButtonFlatDrives[Drive].CapOffsetX := 12;
+    fButtonFlatDrives[Drive].CapOffsetY := -10;
+    fButtonFlatDrives[Drive].OnClick := DriveClick;
+    fButtonFlatDrives[Drive].Hide;
+  end;
+
+  fBevelPath := TKMBevel.Create(Self, 20, 83, aWidth - 40, 24);
+  fLabelPath := TKMLabel.Create(Self, fBevelPath.Left + 4, fBevelPath.Top + 4, fBevelPath.Width - 8, fBevelPath.Height - 4, '', fntMetal, taLeft);
+
+  fColumnBoxFiles := TKMColumnBox.Create(Self, 20, 110, aWidth - 40, aHeight - 110 - 60, fntMetal, bsMenu);
+  fColumnBoxFiles.Anchors := [anLeft, anTop, anRight, anBottom];
+  fColumnBoxFiles.SetColumns(fntOutline, ['', 'Name', 'Size', 'Date'], [0, 20, aWidth - 300, aWidth - 165]);
+  fColumnBoxFiles.Columns[2].TextAlign := taRight;
+  fColumnBoxFiles.Columns[3].TextAlign := taRight;
+  fColumnBoxFiles.OnChange := FileChange;
+  fColumnBoxFiles.OnDoubleClick := FileDoubleClick;
+  //ColumnBox_CampaignImage.SearchColumn := 2;
+  //ColumnBox_CampaignImage.OnColumnClick := ColumnClick;
+  //ColumnBox_CampaignImage.OnCellClick := ColumnBoxMaps_CellClick;
+
+  fButtonOk  := TKMButton.Create(Self, aWidth div 2 - 150 - 2, aHeight - 50, 150, 30, 'Ok',  bsMenu);
+  fButtonOk.OnClick := OkClick;
+
+  fButtonCancel := TKMButton.Create(Self, aWidth div 2 + 2, aHeight - 50, 150, 30, 'Cancel',  bsMenu);
+  fButtonCancel.OnClick := CancelClick;
+
+  Hide;
+end;
+
+procedure TKMOpenDialog.SetCaption(aValue: UnicodeString);
+begin
+  fLabelCaption.Caption := aValue;
+end;
+
+function TKMOpenDialog.GetCaption: UnicodeString;
+begin
+  Result := fLabelCaption.Caption;
+end;
+
+procedure TKMOpenDialog.Open;
+begin
+  fPath := IfThen(DirectoryExists(InitialDir), InitialDir, ExeDir);
+  fFileName := '';
+  fButtonOk.Enabled := False;
+  Show;
+  UpdateFiles;
+end;
+
+procedure TKMOpenDialog.UpdateImageDialogDrives;
+//DRIVE_UNKNOWN = 0; DRIVE_NO_ROOT_DIR = 1; DRIVE_REMOVABLE = 2; DRIVE_FIXED = 3; DRIVE_REMOTE = 4; DRIVE_CDROM = 5; DRIVE_RAMDISK = 6;
+const
+  DriveIcons: array [DRIVE_REMOVABLE..DRIVE_RAMDISK] of Integer = (703, 700, 704, 701, 705);
+var
+  Left, Top, Height: Integer;
+  Drive: Char;
+  DriveType: Cardinal;
+begin
+  Top := 50;
+  Left := fColumnBoxFiles.Left;
+
+  for Drive := 'A' to 'Z' do
+  begin
+    DriveType := GetDriveType(PChar(Drive + ':\'));
+    Height := fButtonFlatDrives[Drive].Height;
+    fButtonFlatDrives[Drive].Visible := DriveType > DRIVE_NO_ROOT_DIR;
+    if fButtonFlatDrives[Drive].Visible then
+    begin
+      if Left + fButtonFlatDrives[Drive].Width > fColumnBoxFiles.Width then
+      begin
+        Left := fColumnBoxFiles.Left;
+        Top := Top + Height + 5;
+      end;
+
+      fButtonFlatDrives[Drive].Down := (fPath.Length > 0) and (UpCase(fPath[1]) = UpCase(Drive));
+      fButtonFlatDrives[Drive].TexID := IfThen((DriveType = DRIVE_REMOVABLE) and ((Drive = 'A') or (Drive = 'B')), 702, DriveIcons[DriveType]);
+      fButtonFlatDrives[Drive].Left := Left;
+      fButtonFlatDrives[Drive].Top := Top;
+      Left := Left + fButtonFlatDrives[Drive].Width + 5;
+    end;
+  end;
+  Top := Top + Height + 5;
+
+  fBevelPath.Top := Top;
+  fLabelPath.Top := Top + 4;
+  fColumnBoxFiles.Top := Top + fBevelPath.Height + 5;
+  fColumnBoxFiles.Height := Self.Height - fColumnBoxFiles.Top - 60;
+end;
+
+procedure TKMOpenDialog.UpdateFiles;
+
+  function SizeToStr(aSize: Int64): string;
+  var
+    I, n: Integer;
+    Str: string;
+  begin
+    Str := IntToStr(aSize);
+    if aSize < 10000 then
+      Exit(Str);
+
+    n := 0;
+    Result := '';
+    for I := Str.Length downto 1 do
+    begin
+      Result := Str[I] + Result;
+      Inc(n);
+      if (n = 3) and (I > 1) then
+      begin
+        n := 0;
+        Result := ' ' + Result;
+      end;
+    end;
+  end;
+
+  function CheckFormat(const aFileName: string): Boolean;
+  begin
+    Result := (Exts = '') or (pos(';' + ExtractFileExt(aFileName).ToLower + ';', ';' + Exts.ToLower + ';') > 0);
+  end;
+
+var
+  SearchRec: TSearchRec;
+  Row: TKMListRow;
+begin
+  UpdateImageDialogDrives;
+  fColumnBoxFiles.Clear;
+  if not DirectoryExists(fPath) then
+  begin
+    fLabelPath.Caption := '';
+    fLabelPath.Hint := '';
+    Exit;
+  end;
+
+  fLabelPath.Caption := fPath;
+  fLabelPath.Hint := fPath;
+
+  SysUtils.FindFirst(fPath + '*', faDirectory, SearchRec);
+  try
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Attr and faDirectory = faDirectory) then
+      begin
+        Row := MakeListRow(['', '[' + SearchRec.Name + ']', '<DIR>', DateToStr(SearchRec.TimeStamp)], 0);
+        Row.Cells[0].Pic := MakePic(rxGui, IfThen(SearchRec.Name = '..', 710, 711), True, 0, -2);
+        fColumnBoxFiles.AddItem(Row);
+      end;
+    until (SysUtils.FindNext(SearchRec) <> 0);
+  finally
+    SysUtils.FindClose(SearchRec);
+  end;
+
+  SysUtils.FindFirst(fPath + '*', faAnyFile , SearchRec);
+  try
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') and (SearchRec.Attr and faDirectory <> faDirectory) and CheckFormat(SearchRec.Name) then
+      begin
+        Row := MakeListRow(['', SearchRec.Name, SizeToStr(SearchRec.Size), DateToStr(SearchRec.TimeStamp)], 1);
+        Row.Cells[0].Pic := MakePic(rxGui, 712, True, 0, -2);
+        fColumnBoxFiles.AddItem(Row);
+      end;
+    until (SysUtils.FindNext(SearchRec) <> 0);
+  finally
+    SysUtils.FindClose(SearchRec);
+  end;
+end;
+
+procedure TKMOpenDialog.DriveClick(Sender: TObject);
+begin
+  fPath := TKMButtonFlat(Sender).Caption + ':\';
+  UpdateFiles;
+end;
+
+procedure TKMOpenDialog.FileChange(Sender: TObject);
+begin
+  fButtonOk.Enabled := fColumnBoxFiles.IsSelected and (fColumnBoxFiles.SelectedItemTag = 1);
+end;
+
+procedure TKMOpenDialog.FileDoubleClick(Sender: TObject);
+var
+  Str: string;
+begin
+  if fColumnBoxFiles.SelectedItemTag = 0 then
+  begin
+    Str := fColumnBoxFiles.SelectedItem.Cells[1].Caption;
+    Str := Copy(Str, 2, Str.Length - 2);
+    fPath := ExpandFileName(fPath + Str + PathDelim);
+    UpdateFiles;
+  end
+  else
+    OkClick(fButtonOk);
+end;
+
+procedure TKMOpenDialog.OkClick(Sender: TObject);
+begin
+  fFileName := fColumnBoxFiles.SelectedItem.Cells[1].Caption;
+  Hide;
+  if Assigned(fOnOk) then
+    fOnOk(Self);
+end;
+
+procedure TKMOpenDialog.CancelClick(Sender: TObject);
+begin
+  fPath := '';
+  fFileName := '';
+  Hide;
+  if Assigned(fOnCancel) then
+    fOnCancel(Self);
+end;
 
 { TKMDropCommon }
 constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont;
