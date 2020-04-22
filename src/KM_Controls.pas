@@ -1263,6 +1263,7 @@ type
     Glyph: TKMPic;
     HeaderHint: UnicodeString;
     Offset: Word; //Offsets are easier to handle than widths
+    SortAllowed: Boolean;
   end;
 
   TKMListHeader = class (TKMControl)
@@ -1759,10 +1760,20 @@ type
     procedure PaintPanel(aPaintLayer: Integer); override;
   end;
 
+  TKMOpenDialogItem = record
+    IsDir: Boolean;
+    Name: UnicodeString;
+    Size: Int64;
+    Date: TDateTime;
+  end;
+
   TKMOpenDialog = class(TKMPanel)
   private
     fPath: UnicodeString;
     fFileName: UnicodeString;
+
+    fItemCount: Integer;
+    fItems: array of TKMOpenDialogItem;
 
     fLabelCaption: TKMLabel;
     fButtonFlatDrives: array['A'..'Z'] of TKMButtonFlat;
@@ -1773,9 +1784,16 @@ type
     fOnOk: TNotifyEvent;
     fOnCancel: TNotifyEvent;
 
+    procedure AddItem(aIsDir: Boolean; const aName: UnicodeString; aSize: Int64; aDate: TDateTime);
+    procedure Clear;
+
     procedure UpdateImageDialogDrives;
     procedure UpdateFiles;
+    procedure Sort;
+    procedure Fill;
+
     procedure DriveClick(Sender: TObject);
+    procedure ColumnClick(aValue: Integer);
     procedure FileChange(Sender: TObject);
     procedure FileDoubleClick(Sender: TObject);
     procedure OkClick(Sender: TObject);
@@ -7474,6 +7492,9 @@ var ColumnID: Integer;
 begin
   //do not invoke inherited here, to fully override parent DoClick method
   ColumnID := GetColumnIndex(X);
+  if not fColumns[ColumnID].SortAllowed then
+    Exit;
+
   if (ColumnID <> -1) and Assigned(OnColumnClick) then
   begin
     //We could process the clicks here (i.e. do the sorting inplace)
@@ -7526,6 +7547,7 @@ begin
     fColumns[I].Caption := aColumns[I];
     fColumns[I].HeaderHint := aHints[I];
     fColumns[I].Offset := aColumnOffsets[I];
+    fColumns[I].SortAllowed := True;
   end;
 end;
 
@@ -7582,7 +7604,7 @@ begin
     ColumnLeft := AbsLeft + fColumns[I].Offset;
 
     TKMRenderUI.WriteBevel(ColumnLeft, AbsTop, ColumnWidth, Height, EdgeAlpha, BackAlpha);
-    if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = I) then
+    if Assigned(OnColumnClick) and fColumns[I].SortAllowed and (csOver in State) and (fColumnHighlight = I) then
       TKMRenderUI.WriteShape(ColumnLeft, AbsTop, ColumnWidth, Height, $20FFFFFF);
 
     if fColumns[I].Glyph.ID <> 0 then
@@ -8782,13 +8804,13 @@ begin
   fColumnBoxFiles := TKMColumnBox.Create(Self, 20, 110, aWidth - 40, aHeight - 110 - 60, fntMetal, bsMenu);
   fColumnBoxFiles.Anchors := [anLeft, anTop, anRight, anBottom];
   fColumnBoxFiles.SetColumns(fntOutline, ['', 'Name', 'Size', 'Date'], [0, 20, aWidth - 300, aWidth - 165]);
+  fColumnBoxFiles.Header.Columns[0].SortAllowed := False;
   fColumnBoxFiles.Columns[2].TextAlign := taRight;
   fColumnBoxFiles.Columns[3].TextAlign := taRight;
   fColumnBoxFiles.OnChange := FileChange;
   fColumnBoxFiles.OnDoubleClick := FileDoubleClick;
-  //ColumnBox_CampaignImage.SearchColumn := 2;
-  //ColumnBox_CampaignImage.OnColumnClick := ColumnClick;
-  //ColumnBox_CampaignImage.OnCellClick := ColumnBoxMaps_CellClick;
+  fColumnBoxFiles.SearchColumn := 2;
+  fColumnBoxFiles.OnColumnClick := ColumnClick;
 
   fButtonOk  := TKMButton.Create(Self, aWidth div 2 - 150 - 2, aHeight - 50, 150, 30, 'Ok',  bsMenu);
   fButtonOk.OnClick := OkClick;
@@ -8858,7 +8880,117 @@ begin
   fColumnBoxFiles.Height := Self.Height - fColumnBoxFiles.Top - 60;
 end;
 
+procedure TKMOpenDialog.AddItem(aIsDir: Boolean; const aName: UnicodeString; aSize: Int64; aDate: TDateTime);
+begin
+  if fItemCount = Length(fItems) then
+    SetLength(fItems, IfThen(fItemCount = 0, 64, fItemCount * 2));
+
+  fItems[fItemCount].IsDir := aIsDir;
+  fItems[fItemCount].Name := aName;
+  fItems[fItemCount].Size := aSize;
+  fItems[fItemCount].Date := aDate;
+  Inc(fItemCount);
+end;
+
+procedure TKMOpenDialog.Clear;
+begin
+  SetLength(fItems, 0);
+  fItemCount := 0;
+end;
+
 procedure TKMOpenDialog.UpdateFiles;
+
+  function CheckFormat(const aFileName: string): Boolean;
+  begin
+    Result := (Exts = '') or (pos(';' + ExtractFileExt(aFileName).ToLower + ';', ';' + Exts.ToLower + ';') > 0);
+  end;
+
+var
+  SearchRec: TSearchRec;
+  //Row: TKMListRow;
+begin
+  UpdateImageDialogDrives;
+  fColumnBoxFiles.Clear;
+  if not DirectoryExists(fPath) then
+  begin
+    fLabelPath.Caption := '';
+    fLabelPath.Hint := '';
+    Exit;
+  end;
+
+  fLabelPath.Caption := fPath;
+  fLabelPath.Hint := fPath;
+  fItemCount := 0;
+  SysUtils.FindFirst(fPath + '*', faAnyFile, SearchRec);
+  try
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+      begin
+        if (SearchRec.Attr and faDirectory = faDirectory) then
+          AddItem(True, SearchRec.Name, 0, SearchRec.TimeStamp)
+        else if CheckFormat(SearchRec.Name) then
+          AddItem(False, SearchRec.Name, SearchRec.Size, SearchRec.TimeStamp);
+      end;
+    until (SysUtils.FindNext(SearchRec) <> 0);
+  finally
+    SysUtils.FindClose(SearchRec);
+  end;
+
+  Sort;
+end;
+
+procedure TKMOpenDialog.Sort;
+
+  function Compare(const A, B: TKMOpenDialogItem): Boolean;
+  var
+    c: Integer;
+  begin
+    if A.IsDir <> B.IsDir then
+      Exit(B.IsDir);
+
+    if (fColumnBoxFiles.Header.SortIndex = 2) and (A.Size <> B.Size) then
+    begin
+      if fColumnBoxFiles.Header.fSortDirection = sdDown then
+        Exit(A.Size < B.Size)
+      else
+        Exit(A.Size > B.Size);
+    end;
+
+    if (fColumnBoxFiles.Header.SortIndex = 3) and (A.Date <> B.Date) then
+    begin
+      if fColumnBoxFiles.Header.fSortDirection = sdDown then
+        Exit(A.Date < B.Date)
+      else
+        Exit(A.Date > B.Date);
+    end;
+
+    if fColumnBoxFiles.Header.fSortDirection = sdDown then
+      Exit(CompareText(A.Name, B.Name) < 0)
+    else
+      Exit(CompareText(A.Name, B.Name) > 0);
+
+    Result := False;
+  end;
+
+var
+  I, J: Integer;
+  tempRow: TKMOpenDialogItem;
+begin
+  fLabelCaption.Caption := IntToStr(fColumnBoxFiles.Header.SortIndex) + ' - ' + IntToStr(Integer(fColumnBoxFiles.Header.SortDirection));
+
+  for J := 0 to fItemCount - 1 do
+    for I := 0 to fItemCount - 2 do
+      if Compare(fItems[I], fItems[I + 1]) then
+      begin
+        tempRow := fItems[I];
+        fItems[I] := fItems[I + 1];
+        fItems[I + 1] := tempRow;
+      end;
+
+  Fill;
+end;
+
+procedure TKMOpenDialog.Fill;
 
   function SizeToStr(aSize: Int64): string;
   var
@@ -8883,54 +9015,34 @@ procedure TKMOpenDialog.UpdateFiles;
     end;
   end;
 
-  function CheckFormat(const aFileName: string): Boolean;
-  begin
-    Result := (Exts = '') or (pos(';' + ExtractFileExt(aFileName).ToLower + ';', ';' + Exts.ToLower + ';') > 0);
-  end;
-
 var
-  SearchRec: TSearchRec;
+  I: Integer;
   Row: TKMListRow;
 begin
-  UpdateImageDialogDrives;
   fColumnBoxFiles.Clear;
-  if not DirectoryExists(fPath) then
-  begin
-    fLabelPath.Caption := '';
-    fLabelPath.Hint := '';
-    Exit;
-  end;
 
-  fLabelPath.Caption := fPath;
-  fLabelPath.Hint := fPath;
+  Row := MakeListRow(['', '[..]', '', ''], 0);
+  Row.Cells[0].Pic := MakePic(rxGui, 710, True, 0, -2);
+  fColumnBoxFiles.AddItem(Row);
 
-  SysUtils.FindFirst(fPath + '*', faDirectory, SearchRec);
-  try
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Attr and faDirectory = faDirectory) then
-      begin
-        Row := MakeListRow(['', '[' + SearchRec.Name + ']', '<DIR>', DateToStr(SearchRec.TimeStamp)], 0);
-        Row.Cells[0].Pic := MakePic(rxGui, IfThen(SearchRec.Name = '..', 710, 711), True, 0, -2);
-        fColumnBoxFiles.AddItem(Row);
-      end;
-    until (SysUtils.FindNext(SearchRec) <> 0);
-  finally
-    SysUtils.FindClose(SearchRec);
-  end;
+  for I := 0 to fItemCount - 1 do
+    if fItems[I].IsDir then
+    begin
+      Row := MakeListRow(['', '[' + fItems[I].Name + ']', '<DIR>', DateToStr(fItems[I].Date)], 0);
+      Row.Cells[0].Pic := MakePic(rxGui, 711, True, 0, -2);
+      fColumnBoxFiles.AddItem(Row);
+    end
+    else
+    begin
+      Row := MakeListRow(['', fItems[I].Name, SizeToStr(fItems[I].Size), DateToStr(fItems[I].Date)], 1);
+      Row.Cells[0].Pic := MakePic(rxGui, 712, True, 0, -2);
+      fColumnBoxFiles.AddItem(Row);
+    end;
+end;
 
-  SysUtils.FindFirst(fPath + '*', faAnyFile , SearchRec);
-  try
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') and (SearchRec.Attr and faDirectory <> faDirectory) and CheckFormat(SearchRec.Name) then
-      begin
-        Row := MakeListRow(['', SearchRec.Name, SizeToStr(SearchRec.Size), DateToStr(SearchRec.TimeStamp)], 1);
-        Row.Cells[0].Pic := MakePic(rxGui, 712, True, 0, -2);
-        fColumnBoxFiles.AddItem(Row);
-      end;
-    until (SysUtils.FindNext(SearchRec) <> 0);
-  finally
-    SysUtils.FindClose(SearchRec);
-  end;
+procedure TKMOpenDialog.ColumnClick(aValue: Integer);
+begin
+  Sort;
 end;
 
 procedure TKMOpenDialog.DriveClick(Sender: TObject);

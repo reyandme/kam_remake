@@ -436,6 +436,7 @@
         <DCCReference Include="src\KM_Video.pas"/>
         <DCCReference Include="src\utils\KM_VLC.pas"/>
         <DCCReference Include="src\utils\KM_WindowParams.pas"/>
+        <DCCReference Include="src\res\KM_ResSpritesEdit.pas"/>
         <None Include="Profiling\AQtimeModule1.aqt"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
