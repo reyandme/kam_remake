@@ -8940,6 +8940,8 @@ begin
 end;
 
 procedure TKMOpenDialog.Sort;
+var
+  TempItems: array of TKMOpenDialogItem;
 
   function Compare(const A, B: TKMOpenDialogItem): Boolean;
   var
@@ -8972,20 +8974,40 @@ procedure TKMOpenDialog.Sort;
     Result := False;
   end;
 
-var
-  I, J: Integer;
-  tempRow: TKMOpenDialogItem;
-begin
-  fLabelCaption.Caption := IntToStr(fColumnBoxFiles.Header.SortIndex) + ' - ' + IntToStr(Integer(fColumnBoxFiles.Header.SortDirection));
+  procedure MergeSort(aLeft, aRight: Integer);
+  var
+    Middle, I, J, Ind1, Ind2: integer;
+  begin
+    if aRight <= aLeft then
+      exit;
 
-  for J := 0 to fItemCount - 1 do
-    for I := 0 to fItemCount - 2 do
-      if Compare(fItems[I], fItems[I + 1]) then
+    Middle := (aLeft+aRight) div 2;
+    MergeSort(aLeft, Middle);
+    Inc(Middle);
+    MergeSort(Middle, aRight);
+    Ind1 := aLeft;
+    Ind2 := Middle;
+    for I := aLeft to aRight do
+    begin
+      if (Ind1 < Middle) and ((Ind2 > aRight) or not Compare(fItems[Ind1], fItems[Ind2])) then
       begin
-        tempRow := fItems[I];
-        fItems[I] := fItems[I + 1];
-        fItems[I + 1] := tempRow;
+        TempItems[I] := fItems[Ind1];
+        Inc(Ind1);
+      end
+      else
+      begin
+        TempItems[I] := fItems[Ind2];
+        Inc(Ind2);
       end;
+    end;
+
+    for J := aLeft to aRight do
+      fItems[J] := TempItems[J];
+  end;
+
+begin
+  SetLength(TempItems, fItemCount);
+  MergeSort(0, fItemCount - 1);
 
   Fill;
 end;
@@ -9021,9 +9043,12 @@ var
 begin
   fColumnBoxFiles.Clear;
 
-  Row := MakeListRow(['', '[..]', '', ''], 0);
-  Row.Cells[0].Pic := MakePic(rxGui, 710, True, 0, -2);
-  fColumnBoxFiles.AddItem(Row);
+  if fPath.Length > 3 then
+  begin
+    Row := MakeListRow(['', '[..]', '', ''], 0);
+    Row.Cells[0].Pic := MakePic(rxGui, 710, True, 0, -2);
+    fColumnBoxFiles.AddItem(Row);
+  end;
 
   for I := 0 to fItemCount - 1 do
     if fItems[I].IsDir then
