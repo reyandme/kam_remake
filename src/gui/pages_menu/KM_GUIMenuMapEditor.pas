@@ -707,17 +707,11 @@ begin
 end;
 
 function TKMMenuMapEditor.IsCampaign(aMapInfo: TKMapInfo; const aCampaignId: TKMCampaignId): Boolean;
-var
-  I: Integer;
 begin
   if not aMapInfo.IsCampaign then
     Exit(False);
 
-  for I := 0 to 2 do
-    if aMapInfo.CampaignId[I] <> aCampaignId[I] then
-      Exit(False);
-
-  Result := True;
+  Result := CompareCampaignId(aMapInfo.CampaignId, aCampaignId);
 end;
 
 procedure TKMMenuMapEditor.RefreshCampaignFlags;

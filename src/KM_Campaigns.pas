@@ -133,9 +133,10 @@ type
     procedure UnlockAllCampaignsMissions;
   end;
 
-
 const
   NO_CAMPAIGN: TKMCampaignId = (0, 0, 0);
+
+function CompareCampaignId(const A, B: TKMCampaignId): Boolean;
 
 implementation
 uses
@@ -148,6 +149,18 @@ const
   CAMP_HEADER_V1 = $FEED; //Just some header to separate right progress files from wrong
   CAMP_HEADER_V2 = $BEEF;
   CAMP_HEADER_V3 = $CEED;
+
+
+function CompareCampaignId(const A, B: TKMCampaignId): Boolean;
+var
+  I: Integer;
+begin
+  for I := 0 to 2 do
+    if A[I] <> B[I] then
+      Exit(False);
+
+  Result := True;
+end;
 
 
 { TCampaignsCollection }
