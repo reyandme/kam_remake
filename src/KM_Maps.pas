@@ -4,14 +4,11 @@ interface
 uses
   Classes, SyncObjs,
   KM_MapTypes,
+  KM_CampaignTypes,
   KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Pics, KM_ResTexts;
 
 
 type
-  //Unique campaign identification, stored as 3 ANSI letters (TSK, TPR, etc)
-  //3 bytes are used to avoid string types issues
-  TKMCampaignId = array [0..2] of Byte;
-
   TKMapsSortMethod = (
     smByIndexAsc, smByIndexDesc,
     smByFavouriteAsc, smByFavouriteDesc,

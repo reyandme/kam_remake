@@ -21,7 +21,9 @@ uses
   KM_GUIMenuOptions,
   KM_GUIMenuReplays,
   KM_GUIMenuSingleMap,
-  KM_GUIMenuSinglePlayer;
+  KM_GUIMenuSinglePlayer,
+  KM_CampaignTypes,
+  KM_NetworkTypes;
 
 
 type
@@ -85,7 +87,7 @@ type
 
 implementation
 uses
-  KM_Main, KM_ResTexts, KM_Campaigns, KM_GameApp, KM_Game, KM_Log, KM_RenderUI, KM_Maps;
+  KM_Main, KM_ResTexts, KM_GameApp, KM_Game, KM_Log, KM_RenderUI, KM_Maps;
 
 
 { TKMMainMenuInterface }
@@ -122,8 +124,8 @@ begin
   fMenuLoad              := TKMMenuLoad.Create(Panel_Menu, PageChange);
   fMenuMultiplayer       := TKMMenuMultiplayer.Create(Panel_Menu, PageChange);
   fMenuLobby             := TKMMenuLobby.Create(Panel_Menu, PageChange);
-  fMenuMapEditor         := TKMMenuMapEditor.Create(Panel_Menu, PageChange);
-  fMenuCampaignMapEditor := TKMMenuCampaignMapEditor.Create(Panel_Menu, PageChange);
+  fMenuMapEditor         := TKMMenuMapEditor.Create(Panel_Menu, aCampaigns, PageChange);
+  fMenuCampaignMapEditor := TKMMenuCampaignMapEditor.Create(Panel_Menu, aCampaigns, PageChange);
   fMenuReplays           := TKMMenuReplays.Create(Panel_Menu, PageChange);
   fMenuOptions           := TKMMenuOptions.Create(Panel_Menu, PageChange);
   fMenuCredits           := TKMMenuCredits.Create(Panel_Menu, PageChange);

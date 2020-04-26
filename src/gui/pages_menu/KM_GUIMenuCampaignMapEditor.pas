@@ -3,7 +3,7 @@ unit KM_GUIMenuCampaignMapEditor;
 interface
 uses
   Classes, Controls, SysUtils, Math, KM_Maps,
-  KM_Controls, KM_Pics, KM_MapTypes,
+  KM_Controls, KM_Pics, KM_MapTypes, KM_CampaignTypes,
   KM_Campaigns, KM_InterfaceDefaults;
 
 type
@@ -11,6 +11,7 @@ type
   private
     fOnPageChange: TKMMenuChangeEventText; //will be in ancestor class
 
+    fCampaigns: TKMCampaignsCollection;
     fCampaign: TKMCampaign;
 
     fScrollVisible: Boolean;
@@ -48,7 +49,7 @@ type
       Image_ScrollRestore: TKMImage;
       Button_ScrollPosition, Button_CampaignBack: TKMButton;
   public
-    constructor Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEventText);
+    constructor Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText);
 
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure Resize(X, Y: Word);
@@ -72,12 +73,12 @@ const
 
 { TKMMenuCampaignMapEditor }
 
-constructor TKMMenuCampaignMapEditor.Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEventText);
+constructor TKMMenuCampaignMapEditor.Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText);
 var
   I: Integer;
 begin
   inherited Create(gpCampaign);
-
+  fCampaigns := aCampaigns;
   fScrollPanelPosition := True;
   fScrollVisible := True;
   fOnPageChange := aOnPageChange;

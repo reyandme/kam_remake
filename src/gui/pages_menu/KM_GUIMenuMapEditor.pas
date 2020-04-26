@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, SysUtils, Math, Dialogs,
-  KM_Controls, KM_Maps, KM_Minimap, KM_Campaigns,
+  KM_Controls, KM_Maps, KM_Minimap, KM_Campaigns, KM_CampaignTypes,
   KM_InterfaceDefaults, KM_Defaults, KM_CommonTypes, KM_GameTypes;
 
 
@@ -18,6 +18,8 @@ type
     fMinimap: TKMMinimap;
     fMinimapLastListId: Integer;  // column id, on which last time minimap was loaded. Avoid multiple loads of same minimap, which could happen on every RefreshList
     fScanCompleted: Boolean;      // True, after scan was completed
+
+    fCampaigns: TKMCampaignsCollection;
 
     fSelectedMapInfo: TKMFileIdentInfo; // Identification info about last selected map
 
@@ -137,7 +139,7 @@ type
   public
     OnNewMapEditor: TKMNewMapEditorEvent;
 
-    constructor Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEventText);
+    constructor Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText);
     destructor Destroy; override;
     procedure Show;
     procedure UpdateState;
@@ -148,7 +150,7 @@ implementation
 uses
   KM_ResTexts, KM_Settings, KM_ResSpritesEdit,
   KM_RenderUI, KM_Resource, KM_ResFonts,
-  KM_Pics, KM_CommonUtils, KM_Campaigns, KromUtils;
+  KM_Pics, KM_CommonUtils, KromUtils;
 
 const
   MAPSIZES_COUNT = 8;
@@ -156,7 +158,7 @@ const
 
 
 { TKMGUIMainMapEditor }
-constructor TKMMenuMapEditor.Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEventText);
+constructor TKMMenuMapEditor.Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText);
 const
   FILTER_PAD_X = 10;
   FILTER_PAD_Y = 8;
@@ -166,7 +168,7 @@ var
   MS: TKMMapSize;
 begin
   inherited Create(gpMapEditor);
-
+  fCampaigns := aCampaigns;
   fOnPageChange := aOnPageChange;
   OnEscKeyDown := EscKeyDown;
   OnKeyDown := KeyDown;
@@ -287,8 +289,6 @@ begin
       Button_CampaignMapEdit := TKMButton.Create(Panel_Campaigns, Panel_Campaigns.Width div 2 + 2, Panel_CampaignInfo.Bottom + 8, Panel_Campaigns.Width div 2 - 2, 20, 'Edit', bsMenu);
       Button_CampaignMapEdit.Anchors := [anLeft, anBottom];
       Button_CampaignMapEdit.OnClick := CampaignMapEditClick;
-      NumEdit_MapSizeX.AutoFocusable := False;
-      NumEdit_MapSizeY.AutoFocusable := False;
 
     Panel_Campaigns.Hide;
 
@@ -556,10 +556,10 @@ begin
   end;
 
   //Create new map (NumEdits hold actual dimensions)
-  if Sender = Button_MapCreate then
-    gGameApp.NewMapEditor('', gGameApp.GameSettings.MenuMapEdNewMapX, gGameApp.GameSettings.MenuMapEdNewMapY);
-    if Assigned(OnNewMapEditor) then
-      OnNewMapEditor('', MapEdSizeX, MapEdSizeY);
+  //if Sender = Button_MapCreate then
+  //  gGameApp.NewMapEditor('', );
+  if Assigned(OnNewMapEditor) then
+    OnNewMapEditor('', gGameSettings.MenuMapEdNewMapX, gGameSettings.MenuMapEdNewMapY);
 end;
 
 procedure TKMMenuMapEditor.MapTypeChange(Sender: TObject);
@@ -636,7 +636,7 @@ begin
           fSelectedMapInfo.CRC := gGameSettings.MenuMapEdMPMapCRC;
           fSelectedMapInfo.Name := gGameSettings.MenuMapEdMPMapName;
         end;
-    2:  fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdCMMapCRC;
+    2:  fSelectedMapInfo.CRC := gGameSettings.MenuMapEdCMMapCRC;
     3:  fSelectedMapInfo.CRC := gGameSettings.MenuMapEdDLMapCRC;
   end;
 end;
@@ -729,7 +729,7 @@ begin
   Campaign := nil;
   Map := nil;
   if ListBox_Campaigns.ItemIndex >= 0 then
-    Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
+    Campaign := fCampaigns[ListBox_Campaigns.ItemIndex];
 
   if ColumnBox_MapEd.IsSelected then
   begin
@@ -787,15 +787,12 @@ end;
 procedure TKMMenuMapEditor.RefreshCampaignsList;
 var
   I: Integer;
-  Camps: TKMCampaignsCollection;
 begin
-  Camps := gGameApp.Campaigns;
-
   ListBox_Campaigns.Clear;
-  for I := 0 to Camps.Count - 1 do
-    ListBox_Campaigns.Add(Camps[I].GetCampaignTitle);
+  for I := 0 to fCampaigns.Count - 1 do
+    ListBox_Campaigns.Add(fCampaigns[I].GetCampaignTitle);
 
-  ListBox_Campaigns.ItemIndex := gGameApp.GameSettings.MenuMapEdCMIndex;
+  ListBox_Campaigns.ItemIndex := gGameSettings.MenuMapEdCMIndex;
 end;
 
 procedure TKMMenuMapEditor.RefreshList(aJumpToSelected: Boolean);
@@ -813,7 +810,7 @@ begin
   Panel_CampaignInfo.Visible := ListBox_Campaigns.ItemIndex >= 0;
   Campaign := nil;
   if ListBox_Campaigns.ItemIndex >= 0 then
-    Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
+    Campaign := fCampaigns[ListBox_Campaigns.ItemIndex];
 
   if Radio_MapType.ItemIndex = 2 then
     ColumnBox_MapEd.SetColumns(fntOutline, ['#', '', gResTexts[TX_MENU_MAP_TITLE], gResTexts[TX_MENU_MAP_SIZE]], [0, 22, 44, 370])
@@ -960,7 +957,7 @@ end;
 
 procedure TKMMenuMapEditor.SelectCampaign(Sender: TObject);
 begin
-  gGameApp.GameSettings.MenuMapEdCMIndex := ListBox_Campaigns.ItemIndex;
+  gGameSettings.MenuMapEdCMIndex := ListBox_Campaigns.ItemIndex;
   UpdateCampInfo;
   UpdateSelectedMapCRC;
   RefreshList(True);
@@ -1186,15 +1183,15 @@ var
 begin
   if ListBox_Campaigns.ItemIndex >= 0 then
   begin
-    Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
+    Campaign := fCampaigns[ListBox_Campaigns.ItemIndex];
     fOnPageChange(gpCampaignMapEditor, Campaign.ShortName);
   end;
 end;
 
 procedure TKMMenuMapEditor.CampaignMapImageClick(Sender: TObject);
 begin
-  if DirectoryExists(gGameApp.GameSettings.MenuMapEdImagePath) then
-    OpenDialog_CampaignImage.InitialDir := gGameApp.GameSettings.MenuMapEdImagePath
+  if DirectoryExists(gGameSettings.MenuMapEdImagePath) then
+    OpenDialog_CampaignImage.InitialDir := gGameSettings.MenuMapEdImagePath
   else
     OpenDialog_CampaignImage.InitialDir := ExeDir;
 
@@ -1207,8 +1204,8 @@ var
   Campaign: TKMCampaign;
   Sprites: TKMSpritePackEdit;
 begin
-  Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
-  gGameApp.GameSettings.MenuMapEdImagePath := OpenDialog_CampaignImage.Path;
+  Campaign := fCampaigns[ListBox_Campaigns.ItemIndex];
+  gGameSettings.MenuMapEdImagePath := OpenDialog_CampaignImage.Path;
 
   Sprites := TKMSpritePackEdit.Create(rxCustom, nil);
   try
@@ -1236,7 +1233,7 @@ begin
   if ListBox_Campaigns.ItemIndex < 0 then
     Exit;
 
-  Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
+  Campaign := fCampaigns[ListBox_Campaigns.ItemIndex];
   Image_Campaign.RX := Campaign.BackGroundPic.RX;
   Image_Campaign.TexID := Campaign.BackGroundPic.ID;
 end;
@@ -1271,7 +1268,7 @@ begin
 
     if Radio_MapType.ItemIndex = 2 then
     begin
-      Campaign := gGameApp.Campaigns.CampaignById(Map.CampaignId);
+      Campaign := fCampaigns.CampaignById(Map.CampaignId);
       if Assigned(Campaign) then
         Memo_MapDesc.Text := Campaign.GetMissionBriefing(Map.CampaignMapIndex)
       else
@@ -1377,7 +1374,7 @@ begin
     if Edit_CampaignId.Text.Length > I then
       CampaignId[I] := Ord(Edit_CampaignId.Text[I + 1]);
 
-  Campaign := gGameApp.Campaigns.CreateCampaign(CampaignId);
+  Campaign := fCampaigns.CreateCampaign(CampaignId);
 
   Path := CAMPAIGNS_FOLDER_NAME + PathDelim + Trim(Edit_CampaignDirectoryName.Text) + PathDelim;
   if not DirectoryExists(Path) then
