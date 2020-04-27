@@ -186,13 +186,13 @@ begin
 
   {$IFDEF WDC}
     //Can't run this async currently because of AutoSaveRename
-    TTask.Run(procedure
+    gGame.fSaveWorkerThread.QueueWork(procedure
     begin
       {$IFDEF DEBUG}
       TThread.NameThreadForDebugging('TKMSavedReplays.SaveToFile');
       {$ENDIF}
       DoCompressedSaveAndFree(aFileName, S);
-    end, gGame.fSaveWorkerPool);
+    end);
   {$ELSE}
     DoCompressedSaveAndFree(aFileName, S);
   {$ENDIF}

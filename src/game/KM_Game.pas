@@ -3,8 +3,8 @@ unit KM_Game;
 interface
 uses
   ExtCtrls,
-  {$IFDEF WDC} System.Threading, {$ENDIF}
   {$IFDEF USE_MAD_EXCEPT} MadExcept, {$ENDIF}
+  KM_CommonClassesExt,
   KM_Networking,
   KM_PathFinding,
   KM_GameInputProcess, KM_GameSavedReplays, KM_GameOptions, KM_Scripting, KM_MapEditor, KM_Campaigns, KM_Render, KM_Sound,
@@ -122,8 +122,7 @@ type
 
     function DoRenderGame: Boolean;
   public
-    fSaveWorkerPool: TThreadPool;
-    fLastAutoSaveRenameTask: ITask;
+    fSaveWorkerThread: TKMWorkerThread;
 
     GameResult: TKMGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -308,9 +307,7 @@ const
 begin
   inherited Create;
 
-  fSaveWorkerPool := TThreadPool.Create;
-  fSaveWorkerPool.SetMaxWorkerThreads(1);
-  fSaveWorkerPool.SetMinWorkerThreads(1);
+  fSaveWorkerThread := TKMWorkerThread.Create;
 
   fGameMode := aGameMode;
   fNetworking := aNetworking;
@@ -460,6 +457,8 @@ begin
 
   if Assigned(fOnDestroy) then
     fOnDestroy();
+
+  FreeAndNil(fSaveWorkerThread);
 
   inherited;
 end;
@@ -1273,22 +1272,19 @@ var
   LocalIsMultiPlayerOrSpec: Boolean;
 {$ENDIF}
 begin
-  if fLastAutoSaveRenameTask <> nil then
-    fLastAutoSaveRenameTask.Wait;
-
   Save('autosave', aTimestamp); //Save to temp file
 
   //If possible perform file deletion/renaming in a different thread so we don't delay game
   {$IFDEF WDC}
     //Avoid accessing Self from async thread, copy required states to local variables
     LocalIsMultiPlayerOrSpec := IsMultiPlayerOrSpec;
-    fLastAutoSaveRenameTask := TTask.Run(procedure
+  fSaveWorkerThread.QueueWork(procedure
     begin
       {$IFDEF DEBUG}
       TThread.NameThreadForDebugging('Game.AutoSave');
       {$ENDIF}
       DoAutoSaveRename(LocalIsMultiPlayerOrSpec);
-    end, fSaveWorkerPool);
+    end);
   {$ELSE}
     DoAutoSaveRename(IsMultiPlayerOrSpec);
   {$ENDIF}
@@ -2042,10 +2038,10 @@ end;
 
 procedure CopyFileAsync(const aSrc, aDest: UnicodeString; aOverwrite: Boolean);
 begin
-  TTask.Run(procedure
+  gGame.fSaveWorkerThread.QueueWork(procedure
   begin
     KMCopyFile(aSrc, aDest, aOverwrite);
-  end, gGame.fSaveWorkerPool);
+  end);
 end;
 
 

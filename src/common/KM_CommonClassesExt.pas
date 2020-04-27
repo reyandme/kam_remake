@@ -32,6 +32,8 @@ type
     fTaskQueue: TQueue<TKMWorkerThreadTask>;
   public
     constructor Create;
+    destructor Destroy; override;
+
     procedure Execute; override;
     procedure QueueWork(aProc: TProc);
   end;
@@ -134,7 +136,22 @@ end;
 { TKMWorkerThread }
 constructor TKMWorkerThread.Create;
 begin
+  //Thread isn't started until all constructors have run to completion
+  //so Create(False) may be put in front as well
+  inherited Create(False);
+
   fTaskQueue := TQueue<TKMWorkerThreadTask>.Create;
+end;
+
+destructor TKMWorkerThread.Destroy;
+begin
+  Terminate;
+  //Wake the thread if it's waiting
+  TMonitor.Enter(fTaskQueue);
+  TMonitor.Pulse(fTaskQueue);
+  TMonitor.Exit(fTaskQueue);
+
+  inherited;
 end;
 
 procedure TKMWorkerThread.Execute;
@@ -161,7 +178,7 @@ begin
       end
       else
       begin
-        TMonitor.Wait(fTaskQueue, 1000);
+        TMonitor.Wait(fTaskQueue, 10000);
         if fTaskQueue.Count > 0 then
           Job := fTaskQueue.Dequeue;
       end;
