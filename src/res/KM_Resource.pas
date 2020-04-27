@@ -243,11 +243,8 @@ begin
   if (fDataState <> rlsAll) or DoForceReload then
   begin
     fSprites.LoadGameResources(aAlphaShadows, DoForceReload);
-    if not DoForceReload then
-    begin
-      fDataState := rlsAll;
-      fSprites.ClearTemp;
-    end;
+    fDataState := rlsAll;
+    fSprites.ClearTemp;
   end;
 
   gLog.AddTime('Resource loading state - Game');
