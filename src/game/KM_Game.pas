@@ -3,6 +3,7 @@ unit KM_Game;
 interface
 uses
   ExtCtrls,
+  {$IFDEF WDC} System.Threading, {$ENDIF}
   {$IFDEF USE_MAD_EXCEPT} MadExcept, {$ENDIF}
   KM_Networking,
   KM_PathFinding,
@@ -121,6 +122,8 @@ type
 
     function DoRenderGame: Boolean;
   public
+    fSaveWorkerPool: TThreadPool;
+
     GameResult: TKMGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TKMGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
@@ -286,7 +289,7 @@ var
 implementation
 uses
   Classes, Controls, Dialogs, SysUtils, KromUtils, Math, TypInfo,
-  {$IFDEF WDC} UITypes, System.Threading, {$ENDIF}
+  {$IFDEF WDC} UITypes, {$ENDIF}
   KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
   KM_Projectiles, KM_AIFields,
   KM_Main, KM_GameApp, KM_RenderPool, KM_GameInfo, KM_GameClasses,
@@ -294,7 +297,6 @@ uses
   KM_MissionScript, KM_MissionScript_Standard, KM_GameInputProcess_Multi, KM_GameInputProcess_Single,
   KM_Resource, KM_ResCursors, KM_ResSound, KM_InterfaceDefaults,
   KM_Log, KM_ScriptingEvents, KM_Saves, KM_FileIO, KM_CommonUtils, KM_RandomChecks, KM_DevPerfLog, KM_DevPerfLogTypes;
-
 
 //Create template for the Game
 //aRender - who will be rendering the Game session
@@ -304,6 +306,10 @@ const
   UIMode: array[TKMGameMode] of TUIMode = (umSP, umSP, umMP, umSpectate, umSP, umReplay, umReplay);
 begin
   inherited Create;
+
+  fSaveWorkerPool := TThreadPool.Create;
+  fSaveWorkerPool.SetMaxWorkerThreads(1);
+  fSaveWorkerPool.SetMinWorkerThreads(1);
 
   fGameMode := aGameMode;
   fNetworking := aNetworking;
@@ -1278,7 +1284,7 @@ begin
       TThread.NameThreadForDebugging('Game.AutoSave');
       {$ENDIF}
       DoAutoSaveRename(LocalIsMultiPlayerOrSpec);
-    end);
+    end, fSaveWorkerPool);
   {$ELSE}
     DoAutoSaveRename(IsMultiPlayerOrSpec);
   {$ENDIF}
@@ -2030,6 +2036,15 @@ begin
 end;
 
 
+procedure CopyFileAsync(const aSrc, aDest: UnicodeString; aOverwrite: Boolean);
+begin
+  TTask.Run(procedure
+  begin
+    KMCopyFile(aSrc, aDest, aOverwrite);
+  end, gGame.fSaveWorkerPool);
+end;
+
+
 //Saves game by provided name
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 var
@@ -2054,13 +2069,13 @@ begin
   begin
     //Game was saved from replay (.bas file)
     if FileExists(fLoadFromFile) then
-      KMCopyFile(fLoadFromFile, NewSaveName, True);
+      CopyFileAsync(fLoadFromFile, NewSaveName, True);
   end else
     //Normally saved game
     {$IFDEF PARALLEL_RUNNER}
-      KMCopyFile(SaveName('basesave_thread_'+IntToStr(THREAD_NUMBER), EXT_SAVE_BASE, IsMultiplayer), NewSaveName, True);
+      CopyFileAsync(SaveName('basesave_thread_'+IntToStr(THREAD_NUMBER), EXT_SAVE_BASE, IsMultiplayer), NewSaveName, True);
     {$ELSE}
-      KMCopyFile(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer), NewSaveName, True);
+      CopyFileAsync(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer), NewSaveName, True);
     {$ENDIF}
 
   //Save replay queue

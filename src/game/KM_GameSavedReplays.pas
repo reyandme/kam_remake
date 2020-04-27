@@ -52,7 +52,8 @@ type
 
 implementation
 uses
-  SysUtils, Classes
+  SysUtils, Classes,
+  KM_Game
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF}
   {$IFDEF WDC}, System.Threading {$ENDIF};
@@ -185,13 +186,13 @@ begin
 
   {$IFDEF WDC}
     //Can't run this async currently because of AutoSaveRename
-    //TTask.Run(procedure
+    TTask.Run(procedure
     begin
       {$IFDEF DEBUG}
       TThread.NameThreadForDebugging('TKMSavedReplays.SaveToFile');
       {$ENDIF}
       DoCompressedSaveAndFree(aFileName, S);
-    end//);
+    end, gGame.fSaveWorkerPool);
   {$ELSE}
     DoCompressedSaveAndFree(aFileName, S);
   {$ENDIF}
