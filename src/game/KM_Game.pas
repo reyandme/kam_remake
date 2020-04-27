@@ -309,6 +309,10 @@ begin
 
   fSaveWorkerThread := TKMWorkerThread.Create;
 
+  {$IFDEF DEBUG}
+  TThread.NameThreadForDebugging('SaveWorker', fSaveWorkerThread.ThreadID);
+  {$ENDIF}
+
   fGameMode := aGameMode;
   fNetworking := aNetworking;
   fOnDestroy := aOnDestroy;
@@ -1278,11 +1282,8 @@ begin
   {$IFDEF WDC}
     //Avoid accessing Self from async thread, copy required states to local variables
     LocalIsMultiPlayerOrSpec := IsMultiPlayerOrSpec;
-  fSaveWorkerThread.QueueWork(procedure
+    fSaveWorkerThread.QueueWork(procedure
     begin
-      {$IFDEF DEBUG}
-      TThread.NameThreadForDebugging('Game.AutoSave');
-      {$ENDIF}
       DoAutoSaveRename(LocalIsMultiPlayerOrSpec);
     end);
   {$ELSE}

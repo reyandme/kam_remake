@@ -188,9 +188,6 @@ begin
     //Can't run this async currently because of AutoSaveRename
     gGame.fSaveWorkerThread.QueueWork(procedure
     begin
-      {$IFDEF DEBUG}
-      TThread.NameThreadForDebugging('TKMSavedReplays.SaveToFile');
-      {$ENDIF}
       DoCompressedSaveAndFree(aFileName, S);
     end);
   {$ELSE}
