@@ -52,7 +52,9 @@ type
 
 implementation
 uses
-  SysUtils;
+  SysUtils
+  {$IFDEF FPC}, zstream {$ENDIF}
+  {$IFDEF WDC}, ZLib {$ENDIF};
 
 
 { TKMSavedReplays }
@@ -154,12 +156,22 @@ end;
 
 procedure TKMSavedReplays.SaveToFile(const aFileName: UnicodeString);
 var
-  S: TKMemoryStreamBinary;
+  S, S2: TKMemoryStreamBinary;
+  CS: TCompressionStream;
 begin
   S := TKMemoryStreamBinary.Create;
   try
     Save(S);
-    S.SaveToFile(aFileName);
+
+    S2 := TKMemoryStreamBinary.Create;
+    S2.PlaceMarker('SavedReplaysCompressed');
+
+    CS := TCompressionStream.Create(cldefault, S2);
+    CS.CopyFrom(S, 0);
+    CS.Free;
+
+    S2.SaveToFile(aFileName);
+    S2.Free;
   finally
     S.Free;
   end;
@@ -168,16 +180,25 @@ end;
 
 procedure TKMSavedReplays.LoadFromFile(const aFileName: UnicodeString);
 var
-  S: TKMemoryStreamBinary;
+  S, S2: TKMemoryStreamBinary;
+  DS: TDecompressionStream;
 begin
   if not FileExists(aFileName) then Exit;
 
   S := TKMemoryStreamBinary.Create;
+  S2 := TKMemoryStreamBinary.Create;
   try
     S.LoadFromFile(aFileName);
-    Load(S);
+    S.CheckMarker('SavedReplaysCompressed');
+    DS := TDecompressionStream.Create(S);
+    S2.CopyFromDecompression(DS);
+    S2.Position := 0;
+    DS.Free;
+
+    Load(S2);
   finally
     S.Free;
+    S2.Free;
   end;
 end;
 
