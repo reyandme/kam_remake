@@ -52,9 +52,10 @@ type
 
 implementation
 uses
-  SysUtils
+  SysUtils, Classes
   {$IFDEF FPC}, zstream {$ENDIF}
-  {$IFDEF WDC}, ZLib {$ENDIF};
+  {$IFDEF WDC}, ZLib {$ENDIF}
+  {$IFDEF WDC}, System.Threading {$ENDIF};
 
 
 { TKMSavedReplays }
@@ -154,16 +155,13 @@ begin
 end;
 
 
-procedure TKMSavedReplays.SaveToFile(const aFileName: UnicodeString);
+procedure DoCompressedSaveAndFree(const aFileName: UnicodeString; S: TKMemoryStreamBinary);
 var
-  S, S2: TKMemoryStreamBinary;
+  S2: TKMemoryStreamBinary;
   CS: TCompressionStream;
 begin
-  S := TKMemoryStreamBinary.Create;
+  S2 := TKMemoryStreamBinary.Create;
   try
-    Save(S);
-
-    S2 := TKMemoryStreamBinary.Create;
     S2.PlaceMarker('SavedReplaysCompressed');
 
     CS := TCompressionStream.Create(cldefault, S2);
@@ -171,10 +169,33 @@ begin
     CS.Free;
 
     S2.SaveToFile(aFileName);
-    S2.Free;
   finally
     S.Free;
+    S2.Free;
   end;
+end;
+
+
+procedure TKMSavedReplays.SaveToFile(const aFileName: UnicodeString);
+var
+  S: TKMemoryStreamBinary;
+begin
+  S := TKMemoryStreamBinary.Create;
+  Save(S);
+
+  {$IFDEF WDC}
+    TTask.Run(procedure
+    begin
+      {$IFDEF DEBUG}
+      TThread.NameThreadForDebugging('TKMSavedReplays.SaveToFile');
+      {$ENDIF}
+      DoCompressedSaveAndFree(aFileName, S);
+    end);
+  {$ELSE}
+    DoCompressedSaveAndFree(aFileName, S);
+  {$ENDIF}
+
+  //S is freed in DoCompressedSaveAndFree
 end;
 
 
