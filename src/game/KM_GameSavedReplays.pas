@@ -184,13 +184,14 @@ begin
   Save(S);
 
   {$IFDEF WDC}
-    TTask.Run(procedure
+    //Can't run this async currently because of AutoSaveRename
+    //TTask.Run(procedure
     begin
       {$IFDEF DEBUG}
       TThread.NameThreadForDebugging('TKMSavedReplays.SaveToFile');
       {$ENDIF}
       DoCompressedSaveAndFree(aFileName, S);
-    end);
+    end//);
   {$ELSE}
     DoCompressedSaveAndFree(aFileName, S);
   {$ENDIF}
