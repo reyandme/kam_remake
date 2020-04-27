@@ -2468,8 +2468,8 @@ procedure TKMGame.IssueAutosaveCommand(aAfterPT: Boolean = False);
 var
   GICType: TKMGameInputCommandType;
 begin
-  if (fLastAutosaveTime > 0) and (GetTimeSince(fLastAutosaveTime) < AUTOSAVE_NOT_MORE_OFTEN_THEN) then
-    Exit; //Do not do autosave too often, because it can produce IO errors. Can happen on very fast speedups
+  //if (fLastAutosaveTime > 0) and (GetTimeSince(fLastAutosaveTime) < AUTOSAVE_NOT_MORE_OFTEN_THEN) then
+  //  Exit; //Do not do autosave too often, because it can produce IO errors. Can happen on very fast speedups
 
   if aAfterPT then
     GICType := gicGameAutoSaveAfterPT
