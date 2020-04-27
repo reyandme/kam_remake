@@ -56,8 +56,7 @@ uses
   KM_Game
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF}
-  {$IFDEF WDC}, System.Threading {$ENDIF};
-
+  ;
 
 { TKMSavedReplays }
 constructor TKMSavedReplays.Create();
