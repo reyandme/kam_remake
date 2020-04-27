@@ -2,7 +2,7 @@ unit KM_CommonClassesExt;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, TypInfo, Generics.Collections;
+  Classes, SysUtils, TypInfo, Generics.Collections;
 
 type
   ERuntimeTypeError = class(Exception);
@@ -21,6 +21,19 @@ type
   TKMListUnique<T> = class(TList<T>)
   public
     function Add(const Value: T): Integer; reintroduce;
+  end;
+
+  TKMWorkerThreadTask = class
+    Proc: TProc;
+  end;
+
+  TKMWorkerThread = class(TThread)
+  private
+    fTaskQueue: TQueue<TKMWorkerThreadTask>;
+  public
+    constructor Create;
+    procedure Execute; override;
+    procedure QueueWork(aProc: TProc);
   end;
 
   function GetCardinality(const PSet: PByteArray; const SizeOfSet(*in bytes*): Integer): Integer; inline;
@@ -117,5 +130,63 @@ begin
   inherited Add(Value);
 end;
 
+
+{ TKMWorkerThread }
+constructor TKMWorkerThread.Create;
+begin
+  fTaskQueue := TQueue<TKMWorkerThreadTask>.Create;
+end;
+
+procedure TKMWorkerThread.Execute;
+var
+  Job: TKMWorkerThreadTask;
+  LoopRunning: Boolean;
+begin
+  Job := nil;
+  LoopRunning := True;
+
+  while LoopRunning do
+  begin
+    TMonitor.Enter(fTaskQueue);
+    if fTaskQueue.Count > 0 then
+    begin
+      Job := fTaskQueue.Dequeue;
+    end
+    else
+    begin
+      //We may only terminate once we have finished all our work
+      if Terminated then
+      begin
+        LoopRunning := False;
+      end
+      else
+      begin
+        TMonitor.Wait(fTaskQueue, 1000);
+        if fTaskQueue.Count > 0 then
+          Job := fTaskQueue.Dequeue;
+      end;
+    end;
+    TMonitor.Exit(fTaskQueue);
+
+    if Job <> nil then
+    begin
+      Job.Proc();
+      FreeAndNil(Job);
+    end;
+  end;
+end;
+
+procedure TKMWorkerThread.QueueWork(aProc: TProc);
+var
+  Job: TKMWorkerThreadTask;
+begin
+  Job := TKMWorkerThreadTask.Create;
+  Job.Proc := aProc;
+
+  TMonitor.Enter(fTaskQueue);
+  fTaskQueue.Enqueue(Job);
+  TMonitor.Pulse(fTaskQueue);
+  TMonitor.Exit(fTaskQueue);
+end;
 
 end.
