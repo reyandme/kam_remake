@@ -123,6 +123,7 @@ type
     function DoRenderGame: Boolean;
   public
     fSaveWorkerPool: TThreadPool;
+    fLastAutoSaveRenameTask: ITask;
 
     GameResult: TKMGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
@@ -1272,13 +1273,16 @@ var
   LocalIsMultiPlayerOrSpec: Boolean;
 {$ENDIF}
 begin
+  if fLastAutoSaveRenameTask <> nil then
+    fLastAutoSaveRenameTask.Wait;
+
   Save('autosave', aTimestamp); //Save to temp file
 
   //If possible perform file deletion/renaming in a different thread so we don't delay game
   {$IFDEF WDC}
     //Avoid accessing Self from async thread, copy required states to local variables
     LocalIsMultiPlayerOrSpec := IsMultiPlayerOrSpec;
-    TTask.Run(procedure
+    fLastAutoSaveRenameTask := TTask.Run(procedure
     begin
       {$IFDEF DEBUG}
       TThread.NameThreadForDebugging('Game.AutoSave');
