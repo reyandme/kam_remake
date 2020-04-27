@@ -29,13 +29,15 @@ type
 
   TKMWorkerThread = class(TThread)
   private
+    fWorkCompleted: Boolean;
     fTaskQueue: TQueue<TKMWorkerThreadTask>;
   public
     constructor Create;
     destructor Destroy; override;
-
     procedure Execute; override;
+
     procedure QueueWork(aProc: TProc);
+    procedure WaitForAllWorkToComplete;
   end;
 
   function GetCardinality(const PSet: PByteArray; const SizeOfSet(*in bytes*): Integer): Integer; inline;
@@ -140,6 +142,7 @@ begin
   //so Create(False) may be put in front as well
   inherited Create(False);
 
+  fWorkCompleted := False;
   fTaskQueue := TQueue<TKMWorkerThreadTask>.Create;
 end;
 
@@ -178,6 +181,10 @@ begin
       end
       else
       begin
+        //Notify main thread that worker is idle if it's blocked in WaitForAllWorkToComplete
+        fWorkCompleted := True;
+        TMonitor.Pulse(fTaskQueue);
+
         TMonitor.Wait(fTaskQueue, 10000);
         if fTaskQueue.Count > 0 then
           Job := fTaskQueue.Dequeue;
@@ -201,8 +208,21 @@ begin
   Job.Proc := aProc;
 
   TMonitor.Enter(fTaskQueue);
+
+  fWorkCompleted := False;
   fTaskQueue.Enqueue(Job);
+
   TMonitor.Pulse(fTaskQueue);
+  TMonitor.Exit(fTaskQueue);
+end;
+
+procedure TKMWorkerThread.WaitForAllWorkToComplete;
+begin
+  TMonitor.Enter(fTaskQueue);
+  while not fWorkCompleted do
+  begin
+    TMonitor.Wait(fTaskQueue, 10000);
+  end;
   TMonitor.Exit(fTaskQueue);
 end;
 
