@@ -2037,15 +2037,6 @@ begin
 end;
 
 
-procedure CopyFileAsync(const aSrc, aDest: UnicodeString; aOverwrite: Boolean);
-begin
-  gGame.fSaveWorkerThread.QueueWork(procedure
-  begin
-    KMCopyFile(aSrc, aDest, aOverwrite);
-  end);
-end;
-
-
 //Saves game by provided name
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 var
@@ -2073,13 +2064,13 @@ begin
   begin
     //Game was saved from replay (.bas file)
     if FileExists(fLoadFromFile) then
-      CopyFileAsync(fLoadFromFile, NewSaveName, True);
+      KMCopyFileAsync(fLoadFromFile, NewSaveName, True, fSaveWorkerThread);
   end else
     //Normally saved game
     {$IFDEF PARALLEL_RUNNER}
-      CopyFileAsync(SaveName('basesave_thread_'+IntToStr(THREAD_NUMBER), EXT_SAVE_BASE, IsMultiplayer), NewSaveName, True);
+      KMCopyFileAsync(SaveName('basesave_thread_'+IntToStr(THREAD_NUMBER), EXT_SAVE_BASE, IsMultiplayer), NewSaveName, True, fSaveWorkerThread);
     {$ELSE}
-      CopyFileAsync(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer), NewSaveName, True);
+      KMCopyFileAsync(SaveName('basesave', EXT_SAVE_BASE, IsMultiplayer), NewSaveName, True, fSaveWorkerThread);
     {$ENDIF}
 
   //Save replay queue

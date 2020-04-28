@@ -6,7 +6,8 @@ uses
   {$IFDEF WDC} System.IOUtils, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  Classes, SysUtils;
+  Classes, SysUtils,
+  KM_CommonClassesExt;
 
   //Read text file into ANSI string (scripts, locale texts)
   function ReadTextA(const afilename: UnicodeString): AnsiString;
@@ -17,6 +18,8 @@ uses
   //Copy a file (CopyFile is different between Delphi and Lazarus)
   procedure KMCopyFile(const aSrc, aDest: UnicodeString); overload;
   procedure KMCopyFile(const aSrc, aDest: UnicodeString; aOverwrite: Boolean); overload;
+
+  procedure KMCopyFileAsync(const aSrc, aDest: UnicodeString; aOverwrite: Boolean; aWorkerThread: TKMWorkerThread);
 
   //Delete a folder (DeleteFolder is different between Delphi and Lazarus)
   procedure KMDeleteFolder(const aPath: UnicodeString);
@@ -168,6 +171,19 @@ begin
   {$ENDIF}
   {$IFDEF WDC}
   TFile.Copy(aSrc, aDest);
+  {$ENDIF}
+end;
+
+
+procedure KMCopyFileAsync(const aSrc, aDest: UnicodeString; aOverwrite: Boolean; aWorkerThread: TKMWorkerThread);
+begin
+  {$IFDEF WDC}
+  aWorkerThread.QueueWork(procedure
+  begin
+    KMCopyFile(aSrc, aDest, aOverwrite);
+  end);
+  {$ELSE}
+  KMCopyFile(aSrc, aDest, aOverwrite);
   {$ENDIF}
 end;
 
