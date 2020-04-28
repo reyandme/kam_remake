@@ -1993,8 +1993,8 @@ begin
   //Should do before save Minimap file for MP game
   if (aPathName <> '') then
   begin
-    //NOTE: Doing this async means that every part of saving must be done async!
-    //Seems error prone so I disabled it for now
+    //Doing this async would mean that every part of saving must be done async
+    //Seems error prone so I disabled it for now. It only takes ~0.3ms in my tests
     ForceDirectories(ExtractFilePath(aPathName));
     {fSaveWorkerThread.QueueWork(procedure
     begin
