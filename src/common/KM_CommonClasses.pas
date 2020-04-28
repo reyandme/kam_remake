@@ -462,14 +462,23 @@ begin
   Assert(TObject(aStream) is TKMemoryStream);
   LocalStream := TKMemoryStream(aStream);
   Pointer(aStream) := nil; //So caller doesn't use it by mistake
-  aWorkerThread.QueueWork(procedure
-  begin
+
+  {$IFDEF WDC}
+    aWorkerThread.QueueWork(procedure
+    begin
+      try
+        LocalStream.SaveToFile(aFileName);
+      finally
+        LocalStream.Free;
+      end;
+    end);
+  {$ELSE}
     try
       LocalStream.SaveToFile(aFileName);
     finally
       LocalStream.Free;
     end;
-  end);
+  {$ENDIF}
 end;
 
 
@@ -482,14 +491,23 @@ begin
   Assert(TObject(aStream) is TKMemoryStream);
   LocalStream := TKMemoryStream(aStream);
   Pointer(aStream) := nil; //So caller doesn't use it by mistake
-  aWorkerThread.QueueWork(procedure
-  begin
+
+  {$IFDEF WDC}
+    aWorkerThread.QueueWork(procedure
+    begin
+      try
+        LocalStream.SaveToFileCompressed(aFileName, aMarker);
+      finally
+        LocalStream.Free;
+      end;
+    end);
+  {$ELSE}
     try
       LocalStream.SaveToFileCompressed(aFileName, aMarker);
     finally
       LocalStream.Free;
     end;
-  end);
+  {$ENDIF}
 end;
 
 
