@@ -2,7 +2,7 @@ unit KM_CommonClassesExt;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, TypInfo, Generics.Collections;
+  SysUtils, TypInfo, Generics.Collections;
 
 type
   ERuntimeTypeError = class(Exception);
@@ -116,5 +116,6 @@ begin
 
   inherited Add(Value);
 end;
+
 
 end.
