@@ -83,6 +83,9 @@ type
     //it uses ReadBuffer. This procedure will work when Source is a TDecompressionStream
     procedure CopyFromDecompression(Source: TStream);
 
+    procedure SaveToFileCompressed(const aFileName: string; const aMarker: string);
+    procedure LoadFromFileCompressed(const aFileName: string; const aMarker: string);
+
     class procedure AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
   end;
 
@@ -388,7 +391,10 @@ type
 
 implementation
 uses
-  Math, KM_CommonUtils;
+  Math,
+  {$IFDEF FPC} zstream, {$ENDIF}
+  {$IFDEF WDC} ZLib, {$ENDIF}
+  KM_CommonUtils;
 
 const
   MAPS_CRC_DELIMITER = ':';
@@ -464,6 +470,7 @@ begin
   aStream := nil;
 end;
 
+
 procedure TKMemoryStream.CopyFromDecompression(Source: TStream);
 const
   MaxBufSize = $F000;
@@ -482,6 +489,51 @@ begin
     end;
   finally
     FreeMem(Buffer, MaxBufSize);
+  end;
+end;
+
+
+procedure TKMemoryStream.SaveToFileCompressed(const aFileName: string; const aMarker: string);
+var
+  S: TKMemoryStreamBinary;
+  CS: TCompressionStream;
+begin
+  S := TKMemoryStreamBinary.Create;
+  try
+    S.PlaceMarker(aMarker);
+
+    CS := TCompressionStream.Create(cldefault, S);
+    try
+      CS.CopyFrom(Self, 0);
+    finally
+      CS.Free;
+    end;
+
+    S.SaveToFile(aFileName);
+  finally
+    S.Free;
+  end;
+end;
+
+
+procedure TKMemoryStream.LoadFromFileCompressed(const aFileName: string; const aMarker: string);
+var
+  S: TKMemoryStreamBinary;
+  DS: TDecompressionStream;
+begin
+  S := TKMemoryStreamBinary.Create;
+  try
+    S.LoadFromFile(aFileName);
+    S.CheckMarker(aMarker);
+    DS := TDecompressionStream.Create(S);
+    try
+      CopyFromDecompression(DS);
+      Position := 0;
+    finally
+      DS.Free;
+    end;
+  finally
+    S.Free;
   end;
 end;
 
@@ -1309,6 +1361,7 @@ begin
   if I > 0 then
     Read(Pointer(Value)^, I);
 end;
+
 
 procedure TKMemoryStream.WriteHugeString(const Value: AnsiString);
 var I: Cardinal;

@@ -52,10 +52,7 @@ type
 
 implementation
 uses
-  SysUtils, Classes
-  {$IFDEF FPC}, zstream {$ENDIF}
-  {$IFDEF WDC}, ZLib {$ENDIF}
-  ;
+  SysUtils, Classes;
 
 { TKMSavedReplays }
 constructor TKMSavedReplays.Create();
@@ -154,27 +151,6 @@ begin
 end;
 
 
-procedure DoCompressedSaveAndFree(const aFileName: UnicodeString; S: TKMemoryStreamBinary);
-var
-  S2: TKMemoryStreamBinary;
-  CS: TCompressionStream;
-begin
-  S2 := TKMemoryStreamBinary.Create;
-  try
-    S2.PlaceMarker('SavedReplaysCompressed');
-
-    CS := TCompressionStream.Create(cldefault, S2);
-    CS.CopyFrom(S, 0);
-    CS.Free;
-
-    S2.SaveToFile(aFileName);
-  finally
-    S.Free;
-    S2.Free;
-  end;
-end;
-
-
 procedure TKMSavedReplays.SaveToFile(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
 var
   S: TKMemoryStreamBinary;
@@ -183,40 +159,30 @@ begin
   Save(S);
 
   {$IFDEF WDC}
-    //Can't run this async currently because of AutoSaveRename
     aWorkerThread.QueueWork(procedure
     begin
-      DoCompressedSaveAndFree(aFileName, S);
+      S.SaveToFileCompressed(aFileName, 'SavedReplaysCompressed');
+      S.Free;
     end);
   {$ELSE}
-    DoCompressedSaveAndFree(aFileName, S);
+    S.SaveToFileCompressed(aFileName, 'SavedReplaysCompressed');
+    S.Free;
   {$ENDIF}
-
-  //S is freed in DoCompressedSaveAndFree
 end;
 
 
 procedure TKMSavedReplays.LoadFromFile(const aFileName: UnicodeString);
 var
-  S, S2: TKMemoryStreamBinary;
-  DS: TDecompressionStream;
+  S: TKMemoryStreamBinary;
 begin
   if not FileExists(aFileName) then Exit;
 
   S := TKMemoryStreamBinary.Create;
-  S2 := TKMemoryStreamBinary.Create;
   try
-    S.LoadFromFile(aFileName);
-    S.CheckMarker('SavedReplaysCompressed');
-    DS := TDecompressionStream.Create(S);
-    S2.CopyFromDecompression(DS);
-    S2.Position := 0;
-    DS.Free;
-
-    Load(S2);
+    S.LoadFromFileCompressed(aFileName, 'SavedReplaysCompressed');
+    Load(S);
   finally
     S.Free;
-    S2.Free;
   end;
 end;
 
