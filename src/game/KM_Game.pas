@@ -2079,7 +2079,7 @@ begin
   if DoSaveRandomChecks then
     try
       RngPath := ChangeFileExt(fullPath, EXT_SAVE_RNG_LOG_DOT);
-      gRandomCheckLogger.SaveToPath(RngPath);
+      gRandomCheckLogger.SaveToPathAsync(RngPath, fSaveWorkerThread);
     except
       on E: Exception do
         gLog.AddTime('Error saving random checks to ' + RngPath); //Silently log error, don't propagate error further
