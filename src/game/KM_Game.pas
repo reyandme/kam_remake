@@ -4,7 +4,7 @@ interface
 uses
   ExtCtrls,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, {$ENDIF}
-  KM_CommonClassesExt,
+  KM_WorkerThread,
   KM_Networking,
   KM_PathFinding,
   KM_GameInputProcess, KM_GameSavedReplays, KM_GameOptions, KM_Scripting, KM_MapEditor, KM_Campaigns, KM_Render, KM_Sound,

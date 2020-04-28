@@ -3,7 +3,7 @@ unit KM_GameSavedReplays;
 interface
 uses
   Generics.Collections,
-  KM_CommonClasses, KM_CommonClassesExt;
+  KM_CommonClasses, KM_WorkerThread;
 
 type
   TKMSavedReplay = class

@@ -7,7 +7,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, SysUtils,
-  KM_CommonClassesExt;
+  KM_WorkerThread;
 
   //Read text file into ANSI string (scripts, locale texts)
   function ReadTextA(const afilename: UnicodeString): AnsiString;

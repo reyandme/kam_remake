@@ -1,4 +1,4 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{CB64F5E8-91AE-4497-A8C4-89668924F870}</ProjectGuid>
         <MainSource>KaM_Remake.dpr</MainSource>
@@ -162,6 +162,7 @@
         <DCCReference Include="src\common\KM_CommonSave.pas"/>
         <DCCReference Include="src\common\KM_Defaults.pas"/>
         <DCCReference Include="src\common\KM_Points.pas"/>
+        <DCCReference Include="src\common\KM_WorkerThread.pas"/>
         <DCCReference Include="src\KM_Controls.pas"/>
         <DCCReference Include="src\perflog\KM_DevPerfLog.pas"/>
         <DCCReference Include="src\perflog\KM_DevPerfLogForm.pas"/>

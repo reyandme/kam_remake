@@ -57,7 +57,8 @@ uses
   KM_CommonTypes in 'src\common\KM_CommonTypes.pas',
   KM_CommonSave in 'src\common\KM_CommonSave.pas',
 	KM_Defaults in 'src\common\KM_Defaults.pas',
-	KM_Points in 'src\common\KM_Points.pas', 
+	KM_Points in 'src\common\KM_Points.pas',
+	KM_WorkerThread in 'src\common\KM_WorkerThread.pas',
 	
   KM_Controls in 'src\KM_Controls.pas',
   
