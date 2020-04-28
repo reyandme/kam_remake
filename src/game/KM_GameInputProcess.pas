@@ -5,7 +5,7 @@ uses
   KM_Units, KM_UnitGroup,
   KM_Houses, KM_HouseWoodcutters,
   KM_ResHouses, KM_ResWares, KM_ScriptingConsoleCommands,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_WorkerThread;
 
 { A. This unit takes and adjoins players input from TGame and TGamePlayInterfaces clicks and keys
   Then passes it on to game events.
@@ -357,6 +357,7 @@ type
     //Replay methods
     procedure SaveToStream(SaveStream: TKMemoryStream);
     procedure SaveToFile(const aFileName: UnicodeString);
+    procedure SaveToFileAsync(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure LoadFromFile(const aFileName: UnicodeString);
     property Count: Integer read fCount;
@@ -1130,10 +1131,20 @@ begin
   S := TKMemoryStreamBinary.Create;
   try
     SaveToStream(S);
-    S.SaveToFile(aFileName);
+    S.SaveToFileCompressed(aFileName, 'GIPCompressed');
   finally
     S.Free;
   end;
+end;
+
+
+procedure TKMGameInputProcess.SaveToFileAsync(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
+var
+  S: TKMemoryStreamBinary;
+begin
+  S := TKMemoryStreamBinary.Create;
+  SaveToStream(S);
+  TKMemoryStream.AsyncSaveToFileCompressedAndFree(S, aFileName, 'GIPCompressed', aWorkerThread);
 end;
 
 
@@ -1169,7 +1180,7 @@ begin
 
   S := TKMemoryStreamBinary.Create;
   try
-    S.LoadFromFile(aFileName);
+    S.LoadFromFileCompressed(aFileName, 'GIPCompressed');
     LoadFromStream(S);
   finally
     S.Free;

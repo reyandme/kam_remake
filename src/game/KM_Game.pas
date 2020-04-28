@@ -2070,7 +2070,7 @@ begin
   //Save replay queue
   gLog.AddTime('Saving replay info');
   // Save replay info
-  fGameInputProcess.SaveToFile(ChangeFileExt(fullPath, EXT_SAVE_REPLAY_DOT));
+  fGameInputProcess.SaveToFileAsync(ChangeFileExt(fullPath, EXT_SAVE_REPLAY_DOT), fSaveWorkerThread);
 
   // Save checkpoints
   if gGameApp.GameSettings.SaveCheckpoints and not SKIP_SAVE_SAVPTS_TO_FILE then
