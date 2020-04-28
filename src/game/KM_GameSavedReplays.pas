@@ -157,17 +157,7 @@ var
 begin
   S := TKMemoryStreamBinary.Create;
   Save(S);
-
-  {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
-    begin
-      S.SaveToFileCompressed(aFileName, 'SavedReplaysCompressed');
-      S.Free;
-    end);
-  {$ELSE}
-    S.SaveToFileCompressed(aFileName, 'SavedReplaysCompressed');
-    S.Free;
-  {$ENDIF}
+  TKMemoryStream.AsyncSaveToFileCompressedAndFree(S, aFileName, 'SavedReplaysCompressed', aWorkerThread);
 end;
 
 

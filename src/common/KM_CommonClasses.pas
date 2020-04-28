@@ -86,7 +86,8 @@ type
     procedure SaveToFileCompressed(const aFileName: string; const aMarker: string);
     procedure LoadFromFileCompressed(const aFileName: string; const aMarker: string);
 
-    class procedure AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
+    class procedure AsyncSaveToFileAndFree(var aStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
+    class procedure AsyncSaveToFileCompressedAndFree(var aStream; const aFileName: string; const aMarker: string; aWorkerThread: TKMWorkerThread);
   end;
 
   // Extended with custom Read/Write commands which accept various types without asking for their length
@@ -453,12 +454,14 @@ begin
 end;
 
 
-class procedure TKMemoryStream.AsyncSaveToFileAndFree(var aStream: TKMemoryStream;
+class procedure TKMemoryStream.AsyncSaveToFileAndFree(var aStream;
   const aFileName: string; aWorkerThread: TKMWorkerThread);
 var
   LocalStream: TKMemoryStream;
 begin
-  LocalStream := aStream;
+  Assert(TObject(aStream) is TKMemoryStream);
+  LocalStream := TKMemoryStream(aStream);
+  Pointer(aStream) := nil; //So caller doesn't use it by mistake
   aWorkerThread.QueueWork(procedure
   begin
     try
@@ -467,7 +470,26 @@ begin
       LocalStream.Free;
     end;
   end);
-  aStream := nil;
+end;
+
+
+class procedure TKMemoryStream.AsyncSaveToFileCompressedAndFree(
+  var aStream; const aFileName: string; const aMarker: string;
+  aWorkerThread: TKMWorkerThread);
+var
+  LocalStream: TKMemoryStream;
+begin
+  Assert(TObject(aStream) is TKMemoryStream);
+  LocalStream := TKMemoryStream(aStream);
+  Pointer(aStream) := nil; //So caller doesn't use it by mistake
+  aWorkerThread.QueueWork(procedure
+  begin
+    try
+      LocalStream.SaveToFileCompressed(aFileName, aMarker);
+    finally
+      LocalStream.Free;
+    end;
+  end);
 end;
 
 
