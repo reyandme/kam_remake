@@ -189,10 +189,26 @@ end;
 
 
 procedure KMDeleteFolder(const aPath: UnicodeString);
+{$IFDEF WDC}
+var Dir: string;
+{$ENDIF}
 begin
   if DirectoryExists(aPath) then
-    {$IFDEF FPC} DeleteDirectory(aPath, False); {$ENDIF}
-    {$IFDEF WDC} TDirectory.Delete(aPath, True); {$ENDIF}
+  begin
+    {$IFDEF FPC}
+      DeleteDirectory(aPath, False);
+    {$ENDIF}
+    {$IFDEF WDC}
+      //TDirectory.Delete sometimes will return without deleting due to Windows.
+      //Suggested workaround is to empty the directory first which seems to work.
+      //https://stackoverflow.com/questions/42809389/tdirectory-delete-seems-to-be-asynchronous
+      for Dir in TDirectory.GetFiles(aPath) do
+        DeleteFile(Dir);
+
+      TDirectory.Delete(aPath, True);
+      //Assert(not DirectoryExists(aPath));
+    {$ENDIF}
+  end;
 end;
 
 
