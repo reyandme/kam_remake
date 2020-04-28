@@ -1992,7 +1992,15 @@ begin
   //Makes the folders in case they were deleted.
   //Should do before save Minimap file for MP game
   if (aPathName <> '') then
+  begin
+    //NOTE: Doing this async means that every part of saving must be done async!
+    //Seems error prone so I disabled it for now
     ForceDirectories(ExtractFilePath(aPathName));
+    {fSaveWorkerThread.QueueWork(procedure
+    begin
+      ForceDirectories(ExtractFilePath(aPathName));
+    end);}
+  end;
 
   //In MP each player has his own perspective, hence we dont save minimaps in the main save file to avoid cheating,
   //but save minimap in separate file with local game data
