@@ -2,7 +2,7 @@ unit KM_CommonClasses;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KM_Points, KM_CommonTypes;
+  Classes, SysUtils, KM_Points, KM_CommonTypes, KM_WorkerThread;
 
 
 type
@@ -82,6 +82,8 @@ type
     //ZLib's decompression streams don't work with the normal TStreams.CopyFrom since
     //it uses ReadBuffer. This procedure will work when Source is a TDecompressionStream
     procedure CopyFromDecompression(Source: TStream);
+
+    class procedure AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
   end;
 
   // Extended with custom Read/Write commands which accept various types without asking for their length
@@ -444,6 +446,23 @@ begin
   inherited Write(Pointer(Value)^, I);
 end;
 
+
+class procedure TKMemoryStream.AsyncSaveToFileAndFree(var aStream: TKMemoryStream;
+  const aFileName: string; aWorkerThread: TKMWorkerThread);
+var
+  LocalStream: TKMemoryStream;
+begin
+  LocalStream := aStream;
+  aWorkerThread.QueueWork(procedure
+  begin
+    try
+      LocalStream.SaveToFile(aFileName);
+    finally
+      LocalStream.Free;
+    end;
+  end);
+  aStream := nil;
+end;
 
 procedure TKMemoryStream.CopyFromDecompression(Source: TStream);
 const
