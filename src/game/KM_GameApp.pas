@@ -588,7 +588,7 @@ begin
   if (gGame.GamePlayInterface <> nil) and (gGame.GamePlayInterface.GuiGameSpectator <> nil) then
     gGame.GamePlayInterface.GuiGameSpectator.CloseDropBox;
 
-  if (gGame.GameResult in [grWin, grDefeat]) then
+  if (gGame.GameResult in [grWin, grDefeat]) and not gGame.IsReplay then
   begin
     GameFinished;
     if fGameSettings.AutosaveAtGameEnd then
