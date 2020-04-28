@@ -460,6 +460,7 @@ begin
   if Assigned(fOnDestroy) then
     fOnDestroy();
 
+  //This will ensure all queued work is completed before destruction
   FreeAndNil(fSaveWorkerThread);
 
   inherited;
@@ -1986,43 +1987,38 @@ begin
 
   SaveStream := TKMemoryStreamBinary.Create;
 
-  try
-    SaveGameToStream(aTimestamp, SaveStream);
+  SaveGameToStream(aTimestamp, SaveStream);
 
-    //Makes the folders in case they were deleted.
-    //Should do before save Minimap file for MP game
-    if (aPathName <> '') then
-      ForceDirectories(ExtractFilePath(aPathName));
+  //Makes the folders in case they were deleted.
+  //Should do before save Minimap file for MP game
+  if (aPathName <> '') then
+    ForceDirectories(ExtractFilePath(aPathName));
 
-    //In MP each player has his own perspective, hence we dont save minimaps in the main save file to avoid cheating,
-    //but save minimap in separate file with local game data
-    if IsMultiPlayerOrSpec and (aMPLocalDataPathName <> '') then
-    begin
+  //In MP each player has his own perspective, hence we dont save minimaps in the main save file to avoid cheating,
+  //but save minimap in separate file with local game data
+  if IsMultiPlayerOrSpec and (aMPLocalDataPathName <> '') then
+  begin
+    try
+      GameMPLocalData := TKMGameMPLocalData.Create(fLastReplayTick, fNetworking.MyNetPlayer.StartLocation, fGamePlayInterface.Minimap);
       try
-        GameMPLocalData := TKMGameMPLocalData.Create(fLastReplayTick, fNetworking.MyNetPlayer.StartLocation, fGamePlayInterface.Minimap);
-        try
-          GameMPLocalData.SaveToFile(aMPLocalDataPathName);
-        finally
-          FreeAndNil(GameMPLocalData);
-        end;
-      except
-        on E: Exception do
-          //Ignore any errors while saving minimap, because its optional for MP games
-          gLog.AddTime('Error while saving save minimap to ' + aMPLocalDataPathName + ': ' + E.Message
-            {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
-            );
-      end
-    end;
-    SaveStream.SaveToFile(aPathName); //Some 70ms for TPR7 map
-    if DoSaveGameAsText then
-    begin
-      SaveGameToStream(aTimestamp, SaveStreamTxt);
-      SaveStreamTxt.SaveToFile(aPathName + EXT_SAVE_TXT_DOT);
-    end;
-  finally
-    FreeAndNil(SaveStream);
-    if DoSaveGameAsText then
-      FreeAndNil(SaveStreamTxt);
+        GameMPLocalData.SaveToFile(aMPLocalDataPathName);
+      finally
+        FreeAndNil(GameMPLocalData);
+      end;
+    except
+      on E: Exception do
+        //Ignore any errors while saving minimap, because its optional for MP games
+        gLog.AddTime('Error while saving save minimap to ' + aMPLocalDataPathName + ': ' + E.Message
+          {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
+          );
+    end
+  end;
+
+  TKMemoryStream.AsyncSaveToFileAndFree(SaveStream, aPathName, fSaveWorkerThread);
+  if DoSaveGameAsText then
+  begin
+    SaveGameToStream(aTimestamp, SaveStreamTxt);
+    TKMemoryStream.AsyncSaveToFileAndFree(SaveStreamTxt, aPathName + EXT_SAVE_TXT_DOT, fSaveWorkerThread);
   end;
 
   gLog.AddTime('Saving game end: ' + aPathName);
