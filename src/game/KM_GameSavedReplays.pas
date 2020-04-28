@@ -46,7 +46,7 @@ type
     procedure Save(aSaveStream: TKMemoryStream);
     procedure Load(aLoadStream: TKMemoryStream);
 
-    procedure SaveToFile(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
+    procedure SaveToFileAsync(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
     procedure LoadFromFile(const aFileName: UnicodeString);
   end;
 
@@ -151,7 +151,7 @@ begin
 end;
 
 
-procedure TKMSavedReplays.SaveToFile(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
+procedure TKMSavedReplays.SaveToFileAsync(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
 var
   S: TKMemoryStreamBinary;
 begin

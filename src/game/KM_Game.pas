@@ -2074,7 +2074,7 @@ begin
 
   // Save checkpoints
   if gGameApp.GameSettings.SaveCheckpoints and not SKIP_SAVE_SAVPTS_TO_FILE then
-    fSavedReplays.SaveToFile(ChangeFileExt(fullPath, EXT_SAVE_GAME_SAVEPTS_DOT), fSaveWorkerThread);
+    fSavedReplays.SaveToFileAsync(ChangeFileExt(fullPath, EXT_SAVE_GAME_SAVEPTS_DOT), fSaveWorkerThread);
 
   if DoSaveRandomChecks then
     try
