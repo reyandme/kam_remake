@@ -1273,8 +1273,11 @@ procedure TKMGame.AutoSave(aTimestamp: TDateTime);
 {$IFDEF WDC}
 var
   LocalIsMultiPlayerOrSpec: Boolean;
+//  T: Int64;
 {$ENDIF}
 begin
+  //T := TimeGetUsec;
+
   Save('autosave', aTimestamp); //Save to temp file
 
   //If possible perform file deletion/renaming in a different thread so we don't delay game
@@ -1288,6 +1291,9 @@ begin
   {$ELSE}
     DoAutoSaveRename(IsMultiPlayerOrSpec);
   {$ENDIF}
+
+  //T := TimeGetUsec - T;
+  //gLog.AddTime('Autosave took '+IntToStr(T));
 end;
 
 
