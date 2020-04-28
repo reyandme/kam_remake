@@ -2001,7 +2001,7 @@ begin
     try
       GameMPLocalData := TKMGameMPLocalData.Create(fLastReplayTick, fNetworking.MyNetPlayer.StartLocation, fGamePlayInterface.Minimap);
       try
-        GameMPLocalData.SaveToFile(aMPLocalDataPathName);
+        GameMPLocalData.SaveToFileAsync(aMPLocalDataPathName, fSaveWorkerThread);
       finally
         FreeAndNil(GameMPLocalData);
       end;

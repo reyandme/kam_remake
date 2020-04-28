@@ -2,7 +2,8 @@ unit KM_GameClasses;
 interface
 uses
   KM_Minimap,
-  KM_CommonClasses;
+  KM_CommonClasses,
+  KM_WorkerThread;
 
 type
   //MP Game local data, which should not be transfered over net (for different reasons described below)
@@ -23,6 +24,7 @@ type
     procedure Load(LoadStream: TKMemoryStream; aMinimap: TKMMinimap = nil);
 
     procedure SaveToFile(const aFilePath: String);
+    procedure SaveToFileAsync(const aFilePath: String; aWorkerThread: TKMWorkerThread);
     function LoadFromFile(const aFilePath: String): Boolean;
   end;
 
@@ -89,6 +91,16 @@ begin
   finally
     SaveStream.Free;
   end;
+end;
+
+
+procedure TKMGameMPLocalData.SaveToFileAsync(const aFilePath: String; aWorkerThread: TKMWorkerThread);
+var
+  SaveStream: TKMemoryStreamBinary;
+begin
+  SaveStream := TKMemoryStreamBinary.Create;
+  Save(SaveStream);
+  TKMemoryStream.AsyncSaveToFileAndFree(SaveStream, aFilePath, aWorkerThread);
 end;
 
 
