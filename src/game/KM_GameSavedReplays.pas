@@ -3,7 +3,7 @@ unit KM_GameSavedReplays;
 interface
 uses
   Generics.Collections,
-  KM_CommonClasses;
+  KM_CommonClasses, KM_CommonClassesExt;
 
 type
   TKMSavedReplay = class
@@ -46,14 +46,13 @@ type
     procedure Save(aSaveStream: TKMemoryStream);
     procedure Load(aLoadStream: TKMemoryStream);
 
-    procedure SaveToFile(const aFileName: UnicodeString);
+    procedure SaveToFile(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
     procedure LoadFromFile(const aFileName: UnicodeString);
   end;
 
 implementation
 uses
-  SysUtils, Classes,
-  KM_Game
+  SysUtils, Classes
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF}
   ;
@@ -176,7 +175,7 @@ begin
 end;
 
 
-procedure TKMSavedReplays.SaveToFile(const aFileName: UnicodeString);
+procedure TKMSavedReplays.SaveToFile(const aFileName: UnicodeString; aWorkerThread: TKMWorkerThread);
 var
   S: TKMemoryStreamBinary;
 begin
@@ -185,7 +184,7 @@ begin
 
   {$IFDEF WDC}
     //Can't run this async currently because of AutoSaveRename
-    gGame.fSaveWorkerThread.QueueWork(procedure
+    aWorkerThread.QueueWork(procedure
     begin
       DoCompressedSaveAndFree(aFileName, S);
     end);

@@ -87,6 +87,8 @@ type
 
     fLoadFromFile: UnicodeString; //Path to file, from which game was loaded. '.bas' file for replays
 
+    fSaveWorkerThread: TKMWorkerThread;
+
     procedure GameMPDisconnect(const aData: UnicodeString);
     procedure OtherPlayerDisconnected(aDefeatedPlayerHandId: Integer);
     procedure MultiplayerRig(aNewGame: Boolean);
@@ -122,8 +124,6 @@ type
 
     function DoRenderGame: Boolean;
   public
-    fSaveWorkerThread: TKMWorkerThread;
-
     GameResult: TKMGameResultMsg;
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TKMGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
@@ -2089,7 +2089,7 @@ begin
 
   // Save checkpoints
   if gGameApp.GameSettings.SaveCheckpoints and not SKIP_SAVE_SAVPTS_TO_FILE then
-    fSavedReplays.SaveToFile(ChangeFileExt(fullPath, EXT_SAVE_GAME_SAVEPTS_DOT));
+    fSavedReplays.SaveToFile(ChangeFileExt(fullPath, EXT_SAVE_GAME_SAVEPTS_DOT), fSaveWorkerThread);
 
   if DoSaveRandomChecks then
     try
