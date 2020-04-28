@@ -77,8 +77,6 @@ type
     fGameSpeedChangeTime: Cardinal; //time of last game speed change
     fPausedTicksCnt: Cardinal;
 
-    fLastAutosaveTime: Cardinal;
-
     fLastTimeUserAction: Cardinal;
     fLastAfkMessageSent: Cardinal;
 
@@ -2459,9 +2457,6 @@ procedure TKMGame.IssueAutosaveCommand(aAfterPT: Boolean = False);
 var
   GICType: TKMGameInputCommandType;
 begin
-  //if (fLastAutosaveTime > 0) and (GetTimeSince(fLastAutosaveTime) < AUTOSAVE_NOT_MORE_OFTEN_THEN) then
-  //  Exit; //Do not do autosave too often, because it can produce IO errors. Can happen on very fast speedups
-
   if aAfterPT then
     GICType := gicGameAutoSaveAfterPT
   else
@@ -2472,14 +2467,12 @@ begin
     if fNetworking.IsHost then
     begin
       fGameInputProcess.CmdGame(GICType, UTCNow); //Timestamp must be synchronised
-      fLastAutosaveTime := TimeGet;
     end;
   end
   else
     if gGameApp.GameSettings.Autosave then
     begin
       fGameInputProcess.CmdGame(GICType, UTCNow);
-      fLastAutosaveTime := TimeGet;
     end;
 end;
 

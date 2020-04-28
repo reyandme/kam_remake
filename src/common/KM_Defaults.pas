@@ -256,7 +256,6 @@ const
   AUTOSAVE_FREQUENCY_MAX  = 3000;
   AUTOSAVE_FREQUENCY_DEFAULT      = 600; //How often to do autosave, every N ticks
   AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX = 5; //Max number of autosaves to be included into crashreport
-  AUTOSAVE_NOT_MORE_OFTEN_THEN = 10000; //= 10s - Time in ms, how often we can make autosaves. On high speedups we can get IO errors because of too often saves
 
   // Checkpoint, which are made in the memory while watching replay
   REPLAY_AUTOSAVE_FREQUENCY_MIN = 30*10; //30 sec
