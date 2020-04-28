@@ -14,6 +14,9 @@ type
     fWorkCompleted: Boolean;
     fTaskQueue: TQueue<TKMWorkerThreadTask>;
   public
+    //Special mode for exception handling. Runs work synchronously inside QueueWork
+    fSynchronousExceptionMode: Boolean;
+
     constructor Create;
     destructor Destroy; override;
     procedure Execute; override;
@@ -33,6 +36,7 @@ begin
   inherited Create(False);
 
   fWorkCompleted := False;
+  fSynchronousExceptionMode := False;
   fTaskQueue := TQueue<TKMWorkerThreadTask>.Create;
 end;
 
@@ -94,24 +98,38 @@ procedure TKMWorkerThread.QueueWork(aProc: TProc);
 var
   Job: TKMWorkerThreadTask;
 begin
-  Job := TKMWorkerThreadTask.Create;
-  Job.Proc := aProc;
+  if fSynchronousExceptionMode then
+  begin
+    aProc();
+  end
+  else
+  begin
+    if Finished then
+      raise Exception.Create('Worker thread not running in TKMWorkerThread.QueueWork');
 
-  TMonitor.Enter(fTaskQueue);
+    Job := TKMWorkerThreadTask.Create;
+    Job.Proc := aProc;
 
-  fWorkCompleted := False;
-  fTaskQueue.Enqueue(Job);
+    TMonitor.Enter(fTaskQueue);
 
-  TMonitor.Pulse(fTaskQueue);
-  TMonitor.Exit(fTaskQueue);
+    fWorkCompleted := False;
+    fTaskQueue.Enqueue(Job);
+
+    TMonitor.Pulse(fTaskQueue);
+    TMonitor.Exit(fTaskQueue);
+  end;
 end;
 
 procedure TKMWorkerThread.WaitForAllWorkToComplete;
 begin
+  if fSynchronousExceptionMode then
+    Exit;
+
   TMonitor.Enter(fTaskQueue);
-  while not fWorkCompleted do
+  if not fWorkCompleted and not Finished then
   begin
-    TMonitor.Wait(fTaskQueue, 10000);
+    if not TMonitor.Wait(fTaskQueue, 10000) then
+      raise Exception.Create('Timeout in TKMWorkerThread.WaitForAllWorkToComplete');
   end;
   TMonitor.Exit(fTaskQueue);
 end;

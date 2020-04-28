@@ -948,6 +948,7 @@ begin
   gLog.AddTime('Creating crash report...');
 
   //Attempt to save the game, but if the state is too messed up it might fail
+  fSaveWorkerThread.fSynchronousExceptionMode := True; //Do saving synchronously in main thread
   try
     if (fGameMode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate])
       and not (fGamePlayInterface.UIMode = umReplay) then //In case game mode was altered or loaded with logical error
@@ -964,6 +965,7 @@ begin
     on E : Exception do
       gLog.AddTime('Exception while trying to save game for crash report: ' + E.ClassName + ': ' + E.Message);
   end;
+  fSaveWorkerThread.fSynchronousExceptionMode := False;
 
   MissionFile := GetMissionFile;
   Path := ExtractFilePath(ExeDir + MissionFile);
