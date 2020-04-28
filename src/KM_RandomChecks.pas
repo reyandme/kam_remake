@@ -293,7 +293,7 @@ begin
   Clear;
   LoadStream := TKMemoryStreamBinary.Create;
   try
-    LoadStream.LoadFromFile(aPath);
+    LoadStream.LoadFromFileCompressed(aPath, 'RNGCompressed');
 
     LoadHeader(LoadStream);
 
@@ -338,7 +338,7 @@ begin
 
   LoadStream := TKMemoryStreamBinary.Create;
   try
-    LoadStream.LoadFromFile(aPath);
+    LoadStream.LoadFromFileCompressed(aPath, 'RNGCompressed');
     LoadFromStreamAndParseToDict(LoadStream);
   finally
     LoadStream.Free;
@@ -462,7 +462,7 @@ begin
   //SaveStream now contains the compressed data from SourceStream
 //  CompressionStream.Free;
 
-  TKMemoryStream.AsyncSaveToFileAndFree(SaveStream, aPath, aWorkerThread);
+  TKMemoryStream.AsyncSaveToFileCompressedAndFree(SaveStream, aPath, 'RNGCompressed', aWorkerThread);
 end;
 
 
