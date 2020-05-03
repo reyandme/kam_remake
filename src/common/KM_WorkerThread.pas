@@ -62,29 +62,32 @@ begin
   while LoopRunning do
   begin
     TMonitor.Enter(fTaskQueue);
-    if fTaskQueue.Count > 0 then
-    begin
-      Job := fTaskQueue.Dequeue;
-    end
-    else
-    begin
-      //We may only terminate once we have finished all our work
-      if Terminated then
+    try
+      if fTaskQueue.Count > 0 then
       begin
-        LoopRunning := False;
+        Job := fTaskQueue.Dequeue;
       end
       else
       begin
-        //Notify main thread that worker is idle if it's blocked in WaitForAllWorkToComplete
-        fWorkCompleted := True;
-        TMonitor.Pulse(fTaskQueue);
+        //We may only terminate once we have finished all our work
+        if Terminated then
+        begin
+          LoopRunning := False;
+        end
+        else
+        begin
+          //Notify main thread that worker is idle if it's blocked in WaitForAllWorkToComplete
+          fWorkCompleted := True;
+          TMonitor.Pulse(fTaskQueue);
 
-        TMonitor.Wait(fTaskQueue, 10000);
-        if fTaskQueue.Count > 0 then
-          Job := fTaskQueue.Dequeue;
+          TMonitor.Wait(fTaskQueue, 10000);
+          if fTaskQueue.Count > 0 then
+            Job := fTaskQueue.Dequeue;
+        end;
       end;
+    finally
+      TMonitor.Exit(fTaskQueue);
     end;
-    TMonitor.Exit(fTaskQueue);
 
     if Job <> nil then
     begin
@@ -111,12 +114,14 @@ begin
     Job.Proc := aProc;
 
     TMonitor.Enter(fTaskQueue);
+    try
+      fWorkCompleted := False;
+      fTaskQueue.Enqueue(Job);
 
-    fWorkCompleted := False;
-    fTaskQueue.Enqueue(Job);
-
-    TMonitor.Pulse(fTaskQueue);
-    TMonitor.Exit(fTaskQueue);
+      TMonitor.Pulse(fTaskQueue);
+    finally
+      TMonitor.Exit(fTaskQueue);
+    end;
   end;
 end;
 
@@ -126,12 +131,15 @@ begin
     Exit;
 
   TMonitor.Enter(fTaskQueue);
-  if not fWorkCompleted and not Finished then
-  begin
-    if not TMonitor.Wait(fTaskQueue, 10000) then
-      raise Exception.Create('Timeout in TKMWorkerThread.WaitForAllWorkToComplete');
+  try
+    if not fWorkCompleted and not Finished then
+    begin
+      if not TMonitor.Wait(fTaskQueue, 10000) then
+        raise Exception.Create('Timeout in TKMWorkerThread.WaitForAllWorkToComplete');
+    end;
+  finally
+    TMonitor.Exit(fTaskQueue);
   end;
-  TMonitor.Exit(fTaskQueue);
 end;
 
 end.
