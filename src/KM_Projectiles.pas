@@ -43,7 +43,7 @@ type
     function AimTarget(const aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single):word; overload;
 
     procedure UpdateState;
-    procedure Paint;
+    procedure Paint(aSubTick: Single);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -328,10 +328,10 @@ begin
 end;
 
 
-procedure TKMProjectiles.Paint;
+procedure TKMProjectiles.Paint(aSubTick: Single);
 var
   I: Integer;
-  MixValue,MixValueMax: Single;
+  MixValue, MixValueMax, SubOffset: Single;
   MixArc: Single; //mix Arc shape
   P: TKMPointF; //Arrows and bolts send 2 points for head and tail
   PTileBased: TKMPointF;
@@ -340,9 +340,12 @@ begin
   for I := 0 to Length(fItems) - 1 do
     if (fItems[I].fSpeed <> 0) and ProjectileVisible(I) then
     begin
+      SubOffset := aSubTick*fItems[I].fSpeed / fItems[I].fLength;
 
       MixValue := fItems[I].fPosition / fItems[I].fLength; // 0 >> 1
+      MixValue := Math.Min(MixValue + SubOffset, 1.0);
       MixValueMax := fItems[I].fPosition / fItems[I].fMaxLength; // 0 >> 1
+      MixValueMax := Math.Min(MixValueMax + SubOffset, 1.0);
       P := KMLerp(fItems[I].fScreenStart, fItems[I].fScreenEnd, MixValue);
       PTileBased := KMLerp(fItems[I].fShotFrom, fItems[I].fTarget, MixValue);
       case fItems[I].fType of

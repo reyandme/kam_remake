@@ -1425,13 +1425,19 @@ end;
 
 
 procedure TKMGame.Render(aRender: TRender);
+var t: Single;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psFrameFullC);
   {$ENDIF}
   try
+    t := GetTicksBehindCnt;
+    fSaveWorkerThread.QueueWork(procedure
+    begin
+      gLog.AddTimeNoFlush('Ticks Behind = '+FloatToStr(t));
+    end);
     if DoRenderGame then
-      gRenderPool.Render;
+      gRenderPool.Render(EnsureRange(GetTicksBehindCnt, 0.0, 1.0));
 
     aRender.SetRenderMode(rm2D);
     fActiveInterface.Paint;
