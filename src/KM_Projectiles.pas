@@ -340,12 +340,9 @@ begin
   for I := 0 to Length(fItems) - 1 do
     if (fItems[I].fSpeed <> 0) and ProjectileVisible(I) then
     begin
-      SubOffset := aSubTick*fItems[I].fSpeed / fItems[I].fLength;
-
-      MixValue := fItems[I].fPosition / fItems[I].fLength; // 0 >> 1
-      MixValue := Math.Min(MixValue + SubOffset, 1.0);
-      MixValueMax := fItems[I].fPosition / fItems[I].fMaxLength; // 0 >> 1
-      MixValueMax := Math.Min(MixValueMax + SubOffset, 1.0);
+      SubOffset := aSubTick*fItems[I].fSpeed;
+      MixValue := Math.Min((fItems[I].fPosition + SubOffset) / fItems[I].fLength, 1.0); // 0 >> 1
+      MixValueMax := Math.Min((fItems[I].fPosition + SubOffset) / fItems[I].fMaxLength, 1.0); // 0 >> 1
       P := KMLerp(fItems[I].fScreenStart, fItems[I].fScreenEnd, MixValue);
       PTileBased := KMLerp(fItems[I].fShotFrom, fItems[I].fTarget, MixValue);
       case fItems[I].fType of
