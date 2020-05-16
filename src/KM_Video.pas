@@ -51,6 +51,8 @@ type
     FInstance: PVLCInstance;
     FMediaPlayer: PVLCMediaPlayer;
 
+    fSoftwareVolume: Integer;
+
     FTrackList: TStringList;
     FVideoList: TList<TKMVideoFile>;
 
@@ -98,7 +100,7 @@ uses
   KM_Render, KM_RenderUI, dglOpenGL, KM_ResLocales, KM_GameApp, KM_Sound;
 
 const
-  FADE_MUSIC_TIME = 100; // Music fade / unfade time, in ms
+  FADE_MUSIC_TIME = 300; // Music fade / unfade time, in ms
 
 {$IFDEF VIDEOS}
 
@@ -130,6 +132,7 @@ begin
   FCriticalSection := TCriticalSection.Create;
   FVideoList := TList<TKMVideoFile>.Create;
   FTrackList :=  TStringList.Create;
+  fSoftwareVolume := 100; //Default value is 100
 
   VLCLoadLibrary;
 {$ENDIF}
@@ -411,8 +414,11 @@ var
   path: string;
   Media: PVLCMedia;
   Tracks: TVLCMediaTrackList;
+  Equalizer: PVLCEqualizer;
   TrackCount: LongWord;
   Track: PVLCMediaTrack;
+  preamp: Single;
+  res: integer;
 {$ENDIF}
 begin
   if Self = nil then
@@ -462,16 +468,34 @@ begin
 
     if(FWidth > 0) and (FHeight > 0) then
     begin
+
       SetLength(FBuffer, FWidth * FHeight * 3);
       FTexture.Tex := TRender.GenerateTextureCommon(ftNearest, ftNearest);
-
       FMediaPlayer := libvlc_media_player_new_from_media(Media);
       libvlc_video_set_format(FMediaPlayer, 'RV24', FWidth, FHeight, FWidth * 3);
       libvlc_video_set_callbacks(FMediaPlayer, @VLCLock, @VLCUnlock, nil, nil);
       //libvlc_media_player_set_hwnd(FMediaPlayer, Pointer(FPanel.Handle));
+
+      Equalizer := libvlc_audio_equalizer_new;
+      res := libvlc_audio_equalizer_set_preamp(Equalizer, -19.1);//Round(gGameApp.GameSettings.VideoVolume * 40) - 20);
+      if res < 0 then Exit;
+
+      res := libvlc_media_player_set_equalizer(FMediaPlayer, Equalizer);
+      if res < 0 then Exit;
+
+
       libvlc_media_player_play(FMediaPlayer);
       SetTrackByLocale;
-      libvlc_audio_set_volume(FMediaPlayer, Round(gGameApp.GameSettings.VideoVolume * 100));
+
+
+
+      preamp := libvlc_audio_equalizer_get_preamp(Equalizer);
+      if preamp > 0 then Exit;
+//      fSoftwareVolume := libvlc_audio_get_volume(FMediaPlayer);
+//      libvlc_audio_set_volume(FMediaPlayer, Round(gGameApp.GameSettings.VideoVolume * 200));
+
+      
+      //libvlc_audio_set_mute(FMediaPlayer, 1);
     end
     else
       Stop;
@@ -490,6 +514,10 @@ begin
 
   if Assigned(FMediaPlayer) then
   begin
+//    libvlc_media_player_pause(FMediaPlayer);
+//    while libvlc_media_player_is_playing(FMediaPlayer) = 1 do
+//      Sleep(100);
+//    libvlc_audio_set_volume(FMediaPlayer, fSoftwareVolume);
     libvlc_media_player_stop(FMediaPlayer);
     while libvlc_media_player_is_playing(FMediaPlayer) = 1 do
       Sleep(100);
@@ -531,7 +559,7 @@ begin
       if startingVideo then
         gGameApp.MusicLib.UnfadeStarting
       else
-        gGameApp.MusicLib.Unfade(FADE_MUSIC_TIME);
+        gGameApp.MusicLib.Unfade(2000);//FADE_MUSIC_TIME);
     end;
 
     if Assigned(FCallback) then

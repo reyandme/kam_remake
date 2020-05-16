@@ -46,10 +46,11 @@ type
     vlcttText    = 2
   );
 
-  PVLCInstance       = type Pointer;
-  PVLCMediaPlayer    = type Pointer;
-  PVLCMedia          = type Pointer;
-  PVLCEventManager   = type Pointer;
+  PVLCInstance      = type Pointer;
+  PVLCMediaPlayer   = type Pointer;
+  PVLCMedia         = type Pointer;
+  PVLCEventManager  = type Pointer;
+  PVLCEqualizer     = type Pointer;
 
   PVCBPlanes  = ^TVCBPlanes;
   TVCBPlanes  = packed array[0..VOUT_MAX_PLANES-1] of Pointer;
@@ -137,8 +138,18 @@ var
   libvlc_video_set_format : procedure(aMediaPlayer: PVLCMediaPlayer; aChroma: PAnsiChar; aWidth: Longword; aHeight: Longword; aPitch: Longword); cdecl;
   libvlc_video_set_callbacks : procedure(aMediaPlayer: PVLCMediaPlayer; aLock: TVLCVideoLock; aUnlock: TVLCVideoUnlock; aDisplay: TVLCVideoDisplay; aOpaque: Pointer); cdecl;
 
+  libvlc_audio_get_volume : function(aMediaPlayer: PVLCMediaPlayer): Integer; cdecl;
   libvlc_audio_set_volume : function(aMediaPlayer: PVLCMediaPlayer; aVolume: Integer): Integer; cdecl;
   libvlc_audio_set_track : function(aMediaPlayer: PVLCMediaPlayer; aTrackId: Integer): Integer; cdecl;
+
+  libvlc_audio_set_mute : procedure(aMediaPlayer: PVLCMediaPlayer; aStatus: Integer); cdecl;
+
+  libvlc_audio_equalizer_new : function(): PVLCEqualizer; cdecl;
+  libvlc_media_player_set_equalizer : function(aMediaPlayer: PVLCMediaPlayer; aEqualizer: PVLCEqualizer): Integer; cdecl;
+  libvlc_audio_equalizer_set_preamp : function(aEqualizer: PVLCEqualizer; aPreamp: Single): Integer; cdecl;
+  libvlc_audio_equalizer_get_preamp : function(aEqualizer: PVLCEqualizer): Double; cdecl;
+
+
 
   procedure VLCLoadLibrary;
   procedure VLCUnloadLibrary;
@@ -195,8 +206,16 @@ begin
   GetAProcAddress(vlcHandle, @libvlc_video_set_format, 'libvlc_video_set_format', failedList);
   GetAProcAddress(vlcHandle, @libvlc_video_set_callbacks, 'libvlc_video_set_callbacks', failedList);
 
+  GetAProcAddress(vlcHandle, @libvlc_audio_get_volume, 'libvlc_audio_get_volume', failedList);
   GetAProcAddress(vlcHandle, @libvlc_audio_set_volume, 'libvlc_audio_set_volume', failedList);
   GetAProcAddress(vlcHandle, @libvlc_audio_set_track, 'libvlc_audio_set_track', failedList);
+
+  GetAProcAddress(vlcHandle, @libvlc_audio_set_mute, 'libvlc_audio_set_mute', failedList);
+
+  GetAProcAddress(vlcHandle, @libvlc_audio_equalizer_new, 'libvlc_audio_equalizer_new', failedList);
+  GetAProcAddress(vlcHandle, @libvlc_media_player_set_equalizer, 'libvlc_media_player_set_equalizer', failedList);
+  GetAProcAddress(vlcHandle, @libvlc_audio_equalizer_set_preamp, 'libvlc_audio_equalizer_set_preamp', failedList);
+  GetAProcAddress(vlcHandle, @libvlc_audio_equalizer_get_preamp, 'libvlc_audio_equalizer_get_preamp', failedList);
 
   Result := failedList.Count = 0;
 end;
