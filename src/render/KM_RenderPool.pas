@@ -142,7 +142,7 @@ type
     property RenderTerrain: TRenderTerrain read fRenderTerrain;
     procedure SetRotation(aH,aP,aB: Integer);
 
-    procedure Render(aSubTick: Single);
+    procedure Render(aTickLag: Single);
   end;
 
 
@@ -271,7 +271,7 @@ end;
 // 2. Renders terrain
 // 3. Polls Game objects to add themselves to RenderList through Add** methods
 // 4. Renders cursor highlights
-procedure TRenderPool.Render(aSubTick: Single);
+procedure TRenderPool.Render(aTickLag: Single);
 var
   ClipRect: TKMRect;
 begin
@@ -330,7 +330,7 @@ begin
     PaintFlagPoints(True);
 
     gHands.Paint(ClipRect); // Units and houses
-    gProjectiles.Paint(aSubTick);
+    gProjectiles.Paint(aTickLag);
 
     if gGame.GamePlayInterface <> nil then
       gGame.GamePlayInterface.Alerts.Paint(0);

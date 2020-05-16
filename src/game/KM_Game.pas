@@ -79,6 +79,7 @@ type
 
     fLastTimeUserAction: Cardinal;
     fLastAfkMessageSent: Cardinal;
+    fLastUpdateState: Cardinal;
 
     fReadyToStop: Boolean;
     fGameSeed: Integer;
@@ -1425,19 +1426,19 @@ end;
 
 
 procedure TKMGame.Render(aRender: TRender);
-var t: Single;
+var tickLag: Single;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psFrameFullC);
   {$ENDIF}
   try
-    t := GetTicksBehindCnt;
-    fSaveWorkerThread.QueueWork(procedure
-    begin
-      gLog.AddTimeNoFlush('Ticks Behind = '+FloatToStr(t));
-    end);
+    //How far in the past should we render? (0.0=Current tick, 1.0=Previous tick)
+    tickLag := GetTimeSince(fLastUpdateState) / fGameSpeedActual / gGameApp.GameSettings.SpeedPace;
+    tickLag := 1.0 - tickLag;
+    tickLag := EnsureRange(tickLag, 0.0, 1.0);
+
     if DoRenderGame then
-      gRenderPool.Render(EnsureRange(GetTicksBehindCnt, 0.0, 1.0));
+      gRenderPool.Render(tickLag);
 
     aRender.SetRenderMode(rm2D);
     fActiveInterface.Paint;
@@ -2636,6 +2637,7 @@ begin
       WaitingPlayersDisplay(False);
 
     IncGameTick;
+    fLastUpdateState := TimeGet;
 
     fLastReplayTick := fGameTick;
 
@@ -2707,6 +2709,7 @@ begin
   Result := False;
 
   IncGameTick;
+  fLastUpdateState := TimeGet;
   {$IFDEF PERFLOG}
   gPerfLogs.TickBegin(fGameTick);
   {$ENDIF}
