@@ -1257,6 +1257,9 @@ begin
   LoadStream.Read(fDismissASAP);
   LoadStream.Read(Dismissable);
   LoadStream.Read(fLastTimeTrySetActionWalk);
+
+  //Create last so it can initialise with loaded values
+  fVisual := TKMUnitVisual.Create(Self);
 end;
 
 
