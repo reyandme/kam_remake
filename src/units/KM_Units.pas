@@ -241,6 +241,7 @@ type
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
     function UpdateState: Boolean; virtual;
+    procedure UpdateVisualState;
     procedure Paint(aTickLag: Single); virtual;
 
     class function GetDefaultCondition: Integer;
@@ -2087,6 +2088,11 @@ begin
   end;
 end;
 
+
+procedure TKMUnit.UpdateVisualState;
+begin
+  fVisual.UpdateState;
+end;
 
 procedure TKMUnit.VertexAdd(const aFrom, aTo: TKMPoint);
 begin

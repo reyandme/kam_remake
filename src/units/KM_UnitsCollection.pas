@@ -332,7 +332,10 @@ begin
   try
     for I := Count - 1 downto 0 do
       if not Units[I].IsDead then
-        Units[I].UpdateState
+      begin
+        Units[I].UpdateState;
+        Units[I].UpdateVisualState;
+      end
       else
         if FREE_POINTERS and (Units[I].GetPointerCount = 0) then
           fUnits.Delete(I);
