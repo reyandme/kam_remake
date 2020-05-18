@@ -85,7 +85,7 @@ var
   SHOW_DISMISS_GROUP_BTN:Boolean = False; //The button to kill group
   CHECK_8087CW          :Boolean = False; //Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   SCROLL_ACCEL          :Boolean = False; //Acceleration for viewport scrolling
-  INTERPOLATED_RENDER   :Boolean = True; //Interpolate positions/animations in render between game ticks
+  INTERPOLATED_RENDER   :Boolean = False; //Interpolate positions/animations in render between game ticks
   PathFinderToUse       :Byte = 1;
 
   //Cache / delivery / pathfinding
