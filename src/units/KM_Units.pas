@@ -3,7 +3,7 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils, Types,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_CommonUtils,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_CommonUtils, KM_UnitVisual,
   KM_Terrain, KM_ResHouses, KM_ResWares, KM_Houses, KM_HouseSchool, KM_HouseBarracks, KM_HouseInn;
 
 //Memo on directives:
@@ -103,6 +103,8 @@ type
 
     //No saved fields, used only in players UI
     fDismissInProgress: Boolean; //Mark unit as waiting for Dismiss GIC cmd, to show proper UI
+
+    fVisual: TKMUnitVisual;
 
     function GetDesiredPassability: TKMTerrainPassability;
     function GetHitPointsMax: Byte;
@@ -1149,6 +1151,8 @@ begin
 
   SetActionLockedStay(10, uaWalk); //Must be locked for this initial pause so animals don't get pushed
 
+  fVisual := TKMUnitVisual.Create(Self);
+
   // Do not add units which are trained inside house
   if not aInHouse then
     gTerrain.UnitAdd(NextPosition, Self);
@@ -1164,6 +1168,7 @@ begin
   if not IsDead then gTerrain.UnitRem(NextPosition); //Happens only when removing player from map on GameStart (network)
   FreeAndNil(fAction);
   FreeAndNil(fTask);
+  FreeAndNil(fVisual);
   SetInHouse(nil); //Free pointer
   inherited;
 end;

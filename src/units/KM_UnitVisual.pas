@@ -29,7 +29,7 @@ type
 implementation
 uses
   KromUtils, Math, SysUtils,
-  KM_Defaults, KM_Units, KM_Game, KM_Terrain;
+  KM_Units, KM_Game, KM_Terrain;
 
 
 { TKMUnitVisual }
@@ -50,8 +50,12 @@ begin
   Curr.Dir := U.Direction;
   Curr.SlideX := U.GetSlide(axX);
   Curr.SlideY := U.GetSlide(axY);
-  Curr.Action := U.Action;
   Curr.AnimStep := U.AnimStep;
+
+  if U.Action <> nil then
+    Curr.Action := U.Action.ActionType
+  else
+    Curr.Action := uaUnknown;
 end;
 
 
