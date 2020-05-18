@@ -61,7 +61,6 @@ begin
   Result.PosF := KMLerp(A.PosF, B.PosF, Mix);
   Result.SlideX := KromUtils.Lerp(A.SlideX, B.SlideX, Mix);
   Result.SlideY := KromUtils.Lerp(A.SlideY, B.SlideY, Mix);
-  Result.PosF := KMLerp(A.PosF, B.PosF, Mix);
   if Mix < 0.5 then
   begin
     Result.Dir := A.Dir;
