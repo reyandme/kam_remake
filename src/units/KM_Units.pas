@@ -21,7 +21,7 @@ type
 
   TKMUnitArray = array of TKMUnit;
 
-  TKMUnitAction = class
+  TKMUnitAction = class abstract
   protected
     fType: TKMUnitActionType;
     fUnit: TKMUnit;
@@ -43,7 +43,7 @@ type
 
   TKMTaskResult = (trTaskContinues, trTaskDone); //There's no difference between Done and Aborted
 
-  TKMUnitTask = class
+  TKMUnitTask = class abstract
   protected
     fType: TKMUnitTaskType;
     fUnit: TKMUnit; //Unit who's performing the Task
@@ -73,7 +73,7 @@ type
   end;
 
 
-  TKMUnit = class
+  TKMUnit = class abstract
   protected //Accessible for child classes
     fUID: Integer; //unique unit ID, used for save/load to sync to
     fType: TKMUnitType;
@@ -248,7 +248,7 @@ type
   end;
 
   //Common class for all civil units
-  TKMCivilUnit = class(TKMUnit)
+  TKMCivilUnit = class abstract(TKMUnit)
   public
     function GoEat(aInn: TKMHouseInn; aUnitAlreadyInsideInn: Boolean = False): Boolean;
     function CheckCondition: Boolean;
@@ -256,7 +256,7 @@ type
   end;
 
   //This is common class for all units, who can be an owner for house (recruits and all citizen workers)
-  TKMSettledUnit = class(TKMCivilUnit)
+  TKMSettledUnit = class abstract(TKMCivilUnit)
   private
     procedure CleanHousePointer(aFreeAndNilTask: Boolean = False);
   protected
