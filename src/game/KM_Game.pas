@@ -1433,9 +1433,14 @@ begin
   {$ENDIF}
   try
     //How far in the past should we render? (0.0=Current tick, 1.0=Previous tick)
-    tickLag := GetTimeSince(fLastUpdateState) / fGameSpeedActual / gGameApp.GameSettings.SpeedPace;
-    tickLag := 1.0 - tickLag;
-    tickLag := EnsureRange(tickLag, 0.0, 1.0);
+    if INTERPOLATED_RENDER then
+    begin
+      tickLag := GetTimeSince(fLastUpdateState) / fGameSpeedActual / gGameApp.GameSettings.SpeedPace;
+      tickLag := 1.0 - tickLag;
+      tickLag := EnsureRange(tickLag, 0.0, 1.0);
+    end
+    else
+      tickLag := 0.0;
 
     if DoRenderGame then
       gRenderPool.Render(tickLag);
