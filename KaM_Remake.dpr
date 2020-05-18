@@ -306,6 +306,7 @@ uses
   KM_UnitGroup in 'src\units\KM_UnitGroup.pas',
   KM_Units in 'src\units\KM_Units.pas',
   KM_UnitsCollection in 'src\units\KM_UnitsCollection.pas',
+  KM_UnitVisual in 'src\units\KM_UnitVisual.pas',
   KM_UnitWarrior in 'src\units\KM_UnitWarrior.pas',
   KM_UnitWorkPlan in 'src\units\KM_UnitWorkPlan.pas',
   

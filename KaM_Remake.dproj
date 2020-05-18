@@ -374,6 +374,7 @@
         <DCCReference Include="src\units\KM_UnitGroup.pas"/>
         <DCCReference Include="src\units\KM_Units.pas"/>
         <DCCReference Include="src\units\KM_UnitsCollection.pas"/>
+        <DCCReference Include="src\units\KM_UnitVisual.pas"/>
         <DCCReference Include="src\units\KM_UnitWarrior.pas"/>
         <DCCReference Include="src\units\KM_UnitWorkPlan.pas"/>
         <DCCReference Include="src\units\tasks\KM_UnitTaskAttackHouse.pas"/>
