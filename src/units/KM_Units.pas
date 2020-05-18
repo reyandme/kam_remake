@@ -435,6 +435,7 @@ end;
 
 procedure TKMSettledUnit.Paint(aTickLag: Single);
 var
+  V: TKMUnitVisualState;
   Act: TKMUnitActionType;
   XPaintPos, YPaintPos: Single;
   ID: Integer;
@@ -442,26 +443,28 @@ begin
   inherited;
   if not fVisible then exit;
   if fAction = nil then exit;
-  Act := fAction.fType;
 
-  XPaintPos := fPositionF.X + UNIT_OFF_X + GetSlide(axX);
-  YPaintPos := fPositionF.Y + UNIT_OFF_Y + GetSlide(axY);
+  V := fVisual.GetLerp(aTickLag);
+  Act := V.Action;
 
-  ID := fUID * Byte(not (fAction.fType in [uaDie, uaEat]));
+  XPaintPos := V.PosF.X + UNIT_OFF_X + V.SlideX;
+  YPaintPos := V.PosF.Y + UNIT_OFF_Y + V.SlideY;
+
+  ID := fUID * Byte(not (Act in [uaDie, uaEat]));
 
   case fAction.fType of
     uaWalk:
       begin
-        gRenderPool.AddUnit(fType, ID, uaWalk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
+        gRenderPool.AddUnit(fType, ID, uaWalk, V.Dir, V.AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, True);
         if gRes.Units[fType].SupportsAction(uaWalkArm) then
-          gRenderPool.AddUnit(fType, ID, uaWalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
+          gRenderPool.AddUnit(fType, ID, uaWalkArm, V.Dir, V.AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, False);
       end;
     uaWork..uaEat:
-        gRenderPool.AddUnit(fType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
+        gRenderPool.AddUnit(fType, ID, Act, V.Dir, V.AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, True);
     uaWalkArm .. uaWalkBooty2:
       begin
-        gRenderPool.AddUnit(fType, ID, uaWalk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
-        gRenderPool.AddUnit(fType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
+        gRenderPool.AddUnit(fType, ID, uaWalk, V.Dir, V.AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, True);
+        gRenderPool.AddUnit(fType, ID, Act, V.Dir, V.AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, False);
       end;
   end;
 
@@ -774,6 +777,7 @@ end;
 
 procedure TKMUnitSerf.Paint(aTickLag: Single);
 var
+  V: TKMUnitVisualState;
   Act: TKMUnitActionType;
   XPaintPos, YPaintPos: Single;
   ID: Integer;
@@ -781,24 +785,26 @@ begin
   inherited;
   if not fVisible then exit;
   if fAction = nil then exit;
-  Act := fAction.fType;
 
-  XPaintPos := fPositionF.X + UNIT_OFF_X + GetSlide(axX);
-  YPaintPos := fPositionF.Y + UNIT_OFF_Y + GetSlide(axY);
+  V := fVisual.GetLerp(aTickLag);
+  Act := V.Action;
 
-  ID := fUID * Byte(not (fAction.fType in [uaDie, uaEat]));
+  XPaintPos := V.PosF.X + UNIT_OFF_X + V.SlideX;
+  YPaintPos := V.PosF.Y + UNIT_OFF_Y + V.SlideY;
 
-  gRenderPool.AddUnit(UnitType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
+  ID := fUID * Byte(not (Act in [uaDie, uaEat]));
+
+  gRenderPool.AddUnit(UnitType, ID, Act, V.Dir, V.AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
 
   if fTask is TKMTaskDie then Exit; //Do not show unnecessary arms
 
   if Carry <> wtNone then
-    gRenderPool.AddUnitCarry(Carry, ID, Direction, AnimStep, XPaintPos, YPaintPos)
+    gRenderPool.AddUnitCarry(Carry, ID, V.Dir, V.AnimStep, XPaintPos, YPaintPos)
   else
-    gRenderPool.AddUnit(UnitType, ID, uaWalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
+    gRenderPool.AddUnit(UnitType, ID, uaWalkArm, V.Dir, V.AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
 
   if fThought <> thNone then
-    gRenderPool.AddUnitThought(fType, Act, Direction, fThought, XPaintPos, YPaintPos);
+    gRenderPool.AddUnitThought(fType, Act, V.Dir, fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -919,22 +925,24 @@ end;
 
 procedure TKMUnitWorker.Paint(aTickLag: Single);
 var
+  V: TKMUnitVisualState;
   XPaintPos, YPaintPos: Single;
   ID: Integer;
 begin
   inherited;
   if not fVisible then exit;
   if fAction = nil then exit;
+  V := fVisual.GetLerp(aTickLag);
 
-  XPaintPos := fPositionF.X + UNIT_OFF_X + GetSlide(axX);
-  YPaintPos := fPositionF.Y + UNIT_OFF_Y + GetSlide(axY);
+  XPaintPos := V.PosF.X + UNIT_OFF_X + V.SlideX;
+  YPaintPos := V.PosF.Y + UNIT_OFF_Y + V.SlideY;
 
-  ID := fUID * Byte(not (fAction.fType in [uaDie, uaEat]));
+  ID := fUID * Byte(not (V.Action in [uaDie, uaEat]));
 
-  gRenderPool.AddUnit(UnitType, ID, fAction.fType, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
+  gRenderPool.AddUnit(UnitType, ID, V.Action, V.Dir, V.AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
 
   if fThought <> thNone then
-    gRenderPool.AddUnitThought(fType, fAction.ActionType, Direction, fThought, XPaintPos, YPaintPos);
+    gRenderPool.AddUnitThought(fType, V.Action, V.Dir, fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -1046,21 +1054,23 @@ end;
 //For fish the action is the number of fish in the group
 procedure TKMUnitAnimal.Paint(aTickLag: Single);
 var
+  V: TKMUnitVisualState;
   Act: TKMUnitActionType;
   XPaintPos, YPaintPos: single;
 begin
   inherited;
   if fAction = nil then exit;
+  V := fVisual.GetLerp(aTickLag);
 
   Assert((fType <> utFish) or (InRange(fFishCount, 1, 5)));
 
   if fType = utFish then
     Act := FishCountAct[fFishCount]
   else
-    Act := fAction.fType;
+    Act := V.Action;
 
-  XPaintPos := fPositionF.X + UNIT_OFF_X + GetSlide(axX);
-  YPaintPos := fPositionF.Y + UNIT_OFF_Y + GetSlide(axY);
+  XPaintPos := V.PosF.X + UNIT_OFF_X + V.SlideX;
+  YPaintPos := V.PosF.Y + UNIT_OFF_Y + V.SlideY;
 
   //Make fish/watersnakes more visible in the MapEd
   if (gGame.GameMode = gmMapEd) and (fType in [utFish, utWatersnake, utSeastar]) then
@@ -1070,7 +1080,7 @@ begin
 
   //Animals share the same WalkTo logic as other units and they exchange places if necessary
   //Animals can be picked only in MapEd
-  gRenderPool.AddUnit(fType, fUID * Byte(gGame.IsMapEditor), Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
+  gRenderPool.AddUnit(fType, fUID * Byte(gGame.IsMapEditor), Act, V.Dir, V.AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
 end;
 
 
