@@ -118,7 +118,7 @@ type
 
     procedure Save(SaveStream: TKMemoryStream); override;
     function UpdateState: Boolean; override;
-    procedure Paint; override;
+    procedure Paint(aTickLag: Single); override;
   end;
 
 
@@ -1010,7 +1010,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.Paint;
+procedure TKMUnitWarrior.Paint(aTickLag: Single);
 var
   Act: TKMUnitActionType;
   UnitPos: TKMPointF;

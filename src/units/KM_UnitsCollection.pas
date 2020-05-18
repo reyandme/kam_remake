@@ -378,7 +378,7 @@ begin
           and (Units[I].Action is TKMUnitActionWalkTo)
           and TKMUnitActionWalkTo(Units[I].Action).NeedToPaint(growRect))
         or KMInRect(Units[I].PositionF, growRect)) then
-    Units[I].Paint;
+    Units[I].Paint(aTickLag);
 end;
 
 

@@ -241,7 +241,7 @@ type
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
     function UpdateState: Boolean; virtual;
-    procedure Paint; virtual;
+    procedure Paint(aTickLag: Single); virtual;
 
     class function GetDefaultCondition: Integer;
   end;
@@ -273,7 +273,7 @@ type
   public
     function CanWorkAt(aLoc: TKMPoint; aGatheringScript: TKMGatheringScript): Boolean;
     function GetActivityText: UnicodeString; override;
-    procedure Paint; override;
+    procedure Paint(aTickLag: Single); override;
   end;
 
 
@@ -281,7 +281,7 @@ type
   protected
     function InitiateActivity: TKMUnitTask; override;
   public
-    procedure Paint; override;
+    procedure Paint(aTickLag: Single); override;
   end;
 
   //Serf - transports all wares between houses
@@ -305,7 +305,7 @@ type
     function ObjToString(const aSeparator: String = '|'): String; override;
 
     function UpdateState: Boolean; override;
-    procedure Paint; override;
+    procedure Paint(aTickLag: Single); override;
   end;
 
   //Worker class - builds everything in game
@@ -318,7 +318,7 @@ type
     function PickRandomSpot(aList: TKMPointDirList; out Loc: TKMPointDir): Boolean;
 
     function UpdateState: Boolean; override;
-    procedure Paint; override;
+    procedure Paint(aTickLag: Single); override;
   end;
 
 
@@ -333,7 +333,7 @@ type
     function ReduceFish: Boolean;
     procedure Save(SaveStream: TKMemoryStream); override;
     function UpdateState: Boolean; override;
-    procedure Paint; override;
+    procedure Paint(aTickLag: Single); override;
   end;
 
 const
@@ -568,7 +568,7 @@ end;
 
 
 { TKMUnitCitizen }
-procedure TKMUnitCitizen.Paint;
+procedure TKMUnitCitizen.Paint(aTickLag: Single);
 var
   Act: TKMUnitActionType;
   XPaintPos, YPaintPos: Single;
@@ -689,7 +689,7 @@ end;
 
 
 { TKMUnitRecruit }
-procedure TKMUnitRecruit.Paint;
+procedure TKMUnitRecruit.Paint(aTickLag: Single);
 var
   Act: TKMUnitActionType;
   XPaintPos, YPaintPos: Single;
@@ -809,7 +809,7 @@ begin
 end;
 
 
-procedure TKMUnitSerf.Paint;
+procedure TKMUnitSerf.Paint(aTickLag: Single);
 var
   Act: TKMUnitActionType;
   XPaintPos, YPaintPos: Single;
@@ -954,7 +954,7 @@ begin
 end;
 
 
-procedure TKMUnitWorker.Paint;
+procedure TKMUnitWorker.Paint(aTickLag: Single);
 var
   XPaintPos, YPaintPos: Single;
   ID: Integer;
@@ -1081,7 +1081,7 @@ end;
 
 
 //For fish the action is the number of fish in the group
-procedure TKMUnitAnimal.Paint;
+procedure TKMUnitAnimal.Paint(aTickLag: Single);
 var
   Act: TKMUnitActionType;
   XPaintPos, YPaintPos: single;
@@ -2468,7 +2468,7 @@ begin
 end;
 
 
-procedure TKMUnit.Paint;
+procedure TKMUnit.Paint(aTickLag: Single);
 begin
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
   //Unit always meant to have some Action performed.
