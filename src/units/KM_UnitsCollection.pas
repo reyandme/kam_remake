@@ -40,7 +40,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState(aTick: Cardinal);
-    procedure Paint(const aRect: TKMRect);
+    procedure Paint(const aRect: TKMRect; aTickLag: Single);
   end;
 
 
@@ -361,7 +361,7 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.Paint(const aRect: TKMRect);
+procedure TKMUnitsCollection.Paint(const aRect: TKMRect; aTickLag: Single);
 const
   Margin = 2;
 var

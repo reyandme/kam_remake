@@ -43,7 +43,7 @@ type
     procedure SyncLoad; virtual;
 
     procedure UpdateState(aTick: Cardinal); virtual;
-    procedure Paint(const aRect: TKMRect); virtual;
+    procedure Paint(const aRect: TKMRect; aTickLag: Single); virtual;
   end;
 
 
@@ -220,7 +220,7 @@ type
     procedure SyncLoad; override;
     procedure IncAnimStep;
     procedure UpdateState(aTick: Cardinal); override;
-    procedure Paint(const aRect: TKMRect); override;
+    procedure Paint(const aRect: TKMRect; aTickLag: Single); override;
     function ObjToString: String;
   end;
 
@@ -272,10 +272,10 @@ begin
 end;
 
 
-procedure TKMHandCommon.Paint(const aRect: TKMRect);
+procedure TKMHandCommon.Paint(const aRect: TKMRect; aTickLag: Single);
 begin
   if mlUnits in gGame.VisibleLayers then
-    fUnits.Paint(aRect);
+    fUnits.Paint(aRect, aTickLag);
 end;
 
 
@@ -2059,7 +2059,7 @@ begin
 end;
 
 
-procedure TKMHand.Paint(const aRect: TKMRect);
+procedure TKMHand.Paint(const aRect: TKMRect; aTickLag: Single);
 begin
   if not Enabled then Exit;
 

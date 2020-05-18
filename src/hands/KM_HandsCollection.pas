@@ -91,7 +91,7 @@ type
     procedure IncAnimStep;
 
     procedure UpdateState(aTick: Cardinal);
-    procedure Paint(const aRect: TKMRect);
+    procedure Paint(const aRect: TKMRect; aTickLag: Single);
     function ObjToString: String;
 
     procedure ExportGameStatsToCSV(const aPath: String; const aHeader: String = '');
@@ -1177,14 +1177,14 @@ begin
 end;
 
 
-procedure TKMHandsCollection.Paint(const aRect: TKMRect);
+procedure TKMHandsCollection.Paint(const aRect: TKMRect; aTickLag: Single);
 var
   I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fHandsList[I].Paint(aRect);
+    fHandsList[I].Paint(aRect, aTickLag);
 
-  PlayerAnimals.Paint(aRect);
+  PlayerAnimals.Paint(aRect, aTickLag);
 end;
 
 

@@ -329,7 +329,7 @@ begin
 
     PaintFlagPoints(True);
 
-    gHands.Paint(ClipRect); // Units and houses
+    gHands.Paint(ClipRect, aTickLag); // Units and houses
     gProjectiles.Paint(aTickLag);
 
     if gGame.GamePlayInterface <> nil then
