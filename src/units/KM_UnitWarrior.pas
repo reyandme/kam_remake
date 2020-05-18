@@ -128,7 +128,7 @@ uses
   KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_UnitTaskAttackHouse, KM_HandLogistics,
   KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResUnits, KM_Hand, KM_UnitGroup,
-  KM_ResWares, KM_Game, KM_ResHouses, KM_CommonUtils, KM_RenderDebug;
+  KM_ResWares, KM_Game, KM_ResHouses, KM_CommonUtils, KM_RenderDebug, KM_UnitVisual;
 
 
 { TKMUnitWarrior }
@@ -1012,21 +1012,23 @@ end;
 
 procedure TKMUnitWarrior.Paint(aTickLag: Single);
 var
+  V: TKMUnitVisualState;
   Act: TKMUnitActionType;
   UnitPos: TKMPointF;
   fillColor, lineColor: Cardinal;
 begin
   inherited;
   if not fVisible then Exit;
+  V := fVisual.GetLerp(aTickLag);
 
-  Act := fAction.ActionType;
-  UnitPos.X := fPositionF.X + UNIT_OFF_X + GetSlide(axX);
-  UnitPos.Y := fPositionF.Y + UNIT_OFF_Y + GetSlide(axY);
+  Act := V.Action;
+  UnitPos.X := V.PosF.X + UNIT_OFF_X + V.SlideX;
+  UnitPos.Y := V.PosF.Y + UNIT_OFF_Y + V.SlideY;
 
-  gRenderPool.AddUnit(fType, fUID, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, gHands[fOwner].GameFlagColor, True);
+  gRenderPool.AddUnit(fType, fUID, Act, V.Dir, V.AnimStep, UnitPos.X, UnitPos.Y, gHands[fOwner].GameFlagColor, True);
 
   if fThought <> thNone then
-    gRenderPool.AddUnitThought(fType, Act, Direction, fThought, UnitPos.X, UnitPos.Y);
+    gRenderPool.AddUnitThought(fType, Act, V.Dir, fThought, UnitPos.X, UnitPos.Y);
 
   if SHOW_ATTACK_RADIUS or (mlUnitsAttackRadius in gGame.VisibleLayers) then
     if IsRanged then
