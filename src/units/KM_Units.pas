@@ -265,6 +265,7 @@ type
     procedure ProceedHouseClosedForWorker;
   public
     function UpdateState: Boolean; override;
+    procedure Paint(aTickLag: Single); override;
   end;
 
   //This is a common class for all units, who can work in house
@@ -274,7 +275,6 @@ type
   public
     function CanWorkAt(aLoc: TKMPoint; aGatheringScript: TKMGatheringScript): Boolean;
     function GetActivityText: UnicodeString; override;
-    procedure Paint(aTickLag: Single); override;
   end;
 
 
@@ -282,7 +282,6 @@ type
   protected
     function InitiateActivity: TKMUnitTask; override;
   public
-    procedure Paint(aTickLag: Single); override;
   end;
 
   //Serf - transports all wares between houses
@@ -434,6 +433,43 @@ begin
 end;
 
 
+procedure TKMSettledUnit.Paint(aTickLag: Single);
+var
+  Act: TKMUnitActionType;
+  XPaintPos, YPaintPos: Single;
+  ID: Integer;
+begin
+  inherited;
+  if not fVisible then exit;
+  if fAction = nil then exit;
+  Act := fAction.fType;
+
+  XPaintPos := fPositionF.X + UNIT_OFF_X + GetSlide(axX);
+  YPaintPos := fPositionF.Y + UNIT_OFF_Y + GetSlide(axY);
+
+  ID := fUID * Byte(not (fAction.fType in [uaDie, uaEat]));
+
+  case fAction.fType of
+    uaWalk:
+      begin
+        gRenderPool.AddUnit(fType, ID, uaWalk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
+        if gRes.Units[fType].SupportsAction(uaWalkArm) then
+          gRenderPool.AddUnit(fType, ID, uaWalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
+      end;
+    uaWork..uaEat:
+        gRenderPool.AddUnit(fType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
+    uaWalkArm .. uaWalkBooty2:
+      begin
+        gRenderPool.AddUnit(fType, ID, uaWalk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
+        gRenderPool.AddUnit(fType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
+      end;
+  end;
+
+  if fThought <> thNone then
+    gRenderPool.AddUnitThought(fType, Act, Direction, fThought, XPaintPos, YPaintPos);
+end;
+
+
 // Manage house is closed for worker process
 procedure TKMSettledUnit.ProceedHouseClosedForWorker;
 var
@@ -569,43 +605,6 @@ end;
 
 
 { TKMUnitCitizen }
-procedure TKMUnitCitizen.Paint(aTickLag: Single);
-var
-  Act: TKMUnitActionType;
-  XPaintPos, YPaintPos: Single;
-  ID: Integer;
-begin
-  inherited;
-  if not fVisible then exit;
-  if fAction = nil then exit;
-  Act := fAction.fType;
-
-  XPaintPos := fPositionF.X + UNIT_OFF_X + GetSlide(axX);
-  YPaintPos := fPositionF.Y + UNIT_OFF_Y + GetSlide(axY);
-
-  ID := fUID * Byte(not (fAction.fType in [uaDie, uaEat]));
-
-  case fAction.fType of
-    uaWalk:
-      begin
-        gRenderPool.AddUnit(fType, ID, uaWalk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
-        if gRes.Units[fType].SupportsAction(uaWalkArm) then
-          gRenderPool.AddUnit(fType, ID, uaWalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
-      end;
-    uaWork..uaEat:
-        gRenderPool.AddUnit(fType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
-    uaWalkArm .. uaWalkBooty2:
-      begin
-        gRenderPool.AddUnit(fType, ID, uaWalk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
-        gRenderPool.AddUnit(fType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
-      end;
-  end;
-
-  if fThought <> thNone then
-    gRenderPool.AddUnitThought(fType, Act, Direction, fThought, XPaintPos, YPaintPos);
-end;
-
-
 function TKMUnitCitizen.CanWorkAt(aLoc: TKMPoint; aGatheringScript: TKMGatheringScript): Boolean;
 var
   I: Integer;
@@ -690,43 +689,6 @@ end;
 
 
 { TKMUnitRecruit }
-procedure TKMUnitRecruit.Paint(aTickLag: Single);
-var
-  Act: TKMUnitActionType;
-  XPaintPos, YPaintPos: Single;
-  ID: Integer;
-begin
-  inherited;
-  if not fVisible then exit;
-  if fAction = nil then exit;
-  Act := fAction.fType;
-
-  XPaintPos := fPositionF.X + UNIT_OFF_X + GetSlide(axX);
-  YPaintPos := fPositionF.Y + UNIT_OFF_Y + GetSlide(axY);
-
-  ID := fUID * Byte(not (fAction.fType in [uaDie, uaEat]));
-
-  case fAction.fType of
-    uaWalk:
-      begin
-        gRenderPool.AddUnit(fType, ID, uaWalk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
-        if gRes.Units[fType].SupportsAction(uaWalkArm) then
-          gRenderPool.AddUnit(fType, ID, uaWalkArm, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
-      end;
-    uaWork..uaEat:
-        gRenderPool.AddUnit(fType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
-    uaWalkArm .. uaWalkBooty2:
-      begin
-        gRenderPool.AddUnit(fType, ID, uaWalk, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, true);
-        gRenderPool.AddUnit(fType, ID, Act, Direction, AnimStep, XPaintPos, YPaintPos, gHands[fOwner].GameFlagColor, false);
-      end;
-  end;
-
-  if fThought <> thNone then
-    gRenderPool.AddUnitThought(fType, Act, Direction, fThought, XPaintPos, YPaintPos);
-end;
-
-
 function TKMUnitRecruit.InitiateActivity: TKMUnitTask;
 var
   Enemy: TKMUnit;
