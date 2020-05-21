@@ -154,7 +154,7 @@ type
     fServerPort: string;
     fServerUDPScanPort: Word;
     fServerUDPAnnounce: Boolean;
-    fMasterServerAddress: string;
+    fMasterServerAddress: TStringList;
     fServerName: AnsiString;
     fMasterAnnounceInterval: Integer;
     fMaxRooms: Integer;
@@ -265,7 +265,7 @@ type
     procedure SetFlashOnMessage(aValue: Boolean);
 
     //Server
-    procedure SetMasterServerAddress(const aValue: string);
+    procedure SetMasterServerAddress(const aValue: TStringList);
     procedure SetServerName(const aValue: AnsiString);
     procedure SetServerPort(const aValue: string);
     procedure SetServerUDPAnnounce(aValue: Boolean);
@@ -387,7 +387,7 @@ type
     property ServerPort: string read fServerPort write SetServerPort;
     property ServerUDPAnnounce: Boolean read fServerUDPAnnounce write SetServerUDPAnnounce;
     property ServerUDPScanPort: Word read fServerUDPScanPort write SetServerUDPScanPort;
-    property MasterServerAddress: string read fMasterServerAddress write SetMasterServerAddress;
+    property MasterServerAddress: TStringList read fMasterServerAddress write SetMasterServerAddress;
     property ServerName: AnsiString read fServerName write SetServerName;
     property MasterAnnounceInterval: Integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
     property AnnounceServer: Boolean read fAnnounceServer write SetAnnounceServer;
@@ -741,7 +741,8 @@ begin
 
     //We call it MasterServerAddressNew to force it to update in everyone's .ini file when we changed address.
     //If the key stayed the same then everyone would still be using the old value from their settings.
-    fMasterServerAddress    := F.ReadString ('Server','MasterServerAddressNew','http://master.kamremake.com/');
+    fMasterServerAddress    := TStringList.Create;
+    fMasterServerAddress.commaText := F.ReadString ('Server','MasterServerAddressNew','http://master.kamremake.com/');
     fMasterAnnounceInterval := F.ReadInteger('Server','MasterServerAnnounceInterval',180);
     fAnnounceServer         := F.ReadBool   ('Server','AnnounceDedicatedServer',True);
 
@@ -895,7 +896,7 @@ begin
     F.WriteInteger('Server','PacketsAccumulatingDelay',     fServerPacketsAccumulatingDelay);
     F.WriteString ('Server','HTMLStatusFile',               fHTMLStatusFile);
     F.WriteInteger('Server','MasterServerAnnounceInterval', fMasterAnnounceInterval);
-    F.WriteString ('Server','MasterServerAddressNew',       fMasterServerAddress);
+    F.WriteString ('Server','MasterServerAddressNew',       fMasterServerAddress.commaText);
     F.WriteInteger('Server','AutoKickTimeout',              fAutoKickTimeout);
     F.WriteInteger('Server','PingMeasurementInterval',      fPingInterval);
 
@@ -1314,7 +1315,7 @@ begin
 end;
 
 
-procedure TKMGameSettings.SetMasterServerAddress(const aValue: string);
+procedure TKMGameSettings.SetMasterServerAddress(const aValue: TStringList);
 begin
   fMasterServerAddress := aValue;
   Changed;

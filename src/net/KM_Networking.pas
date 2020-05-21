@@ -178,7 +178,7 @@ type
     procedure WriteInfoToJoinRoom(aM: TKMemoryStream);
     function GetMapInfo: TKMapInfo;
   public
-    constructor Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
+    constructor Create(const aMasterServerAddress: TStringList; aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
                        aDynamicFOW, aMapsFilterEnabled: Boolean; const aMapsCRCListStr: UnicodeString; const aPeacetimeRng: TKMRangeInt;
                        const aSpeedRng: TKMRangeSingle; const aSpeedRngAfterPT: TKMRangeSingle);
     destructor Destroy; override;
@@ -315,7 +315,7 @@ uses
 
 
 { TKMNetworking }
-constructor TKMNetworking.Create(const aMasterServerAddress: string; aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
+constructor TKMNetworking.Create(const aMasterServerAddress: TStringList; aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
                                  aDynamicFOW, aMapsFilterEnabled: Boolean; const aMapsCRCListStr: UnicodeString; const aPeacetimeRng: TKMRangeInt;
                                  const aSpeedRng: TKMRangeSingle; const aSpeedRngAfterPT: TKMRangeSingle);
 var

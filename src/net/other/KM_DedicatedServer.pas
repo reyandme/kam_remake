@@ -11,7 +11,7 @@ type
   private
     fLastPing, fLastAnnounce: cardinal;
     fNetServer: TKMNetServer;
-    fMasterServer: TKMMasterServer;
+    fMasterServers: array of TKMMasterServer;
     fUDPAnnounce: TKMNetUDPAnnounce;
     fOnMessage: TUnicodeStringEvent;
     fPublishServer: Boolean;
@@ -22,9 +22,10 @@ type
     fAnnounceUDP: Boolean;
     procedure StatusMessage(const aData: string);
     procedure MasterServerError(const aData: string);
+    procedure RecreateMasterServers(const aMasterServerAddress: TStringList);
   public
     constructor Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
-                       const aMasterServerAddress: String; const aHTMLStatusFile: String;
+                       const aMasterServerAddress: TStringList; const aHTMLStatusFile: String;
                        const aWelcomeMessage: UnicodeString; aDedicated: Boolean);
     destructor Destroy; override;
 
@@ -33,7 +34,7 @@ type
     procedure UpdateState;
     procedure UpdateSettings(const aServerName: AnsiString; aPublishServer, aAnnounceUDP: Boolean;
                              aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
-                             const aMasterServerAddress: string; const aHTMLStatusFile: string;
+                             const aMasterServerAddress: TStringList; const aHTMLStatusFile: string;
                              const aWelcomeMessage: UnicodeString; const aServerPacketsAccDelay: Integer);
     property OnMessage: TUnicodeStringEvent write fOnMessage;
     
@@ -55,13 +56,13 @@ const
 
 //Announce interval of -1 means the server will not be published (LAN)
 constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
-                                      const aMasterServerAddress: String; const aHTMLStatusFile: String;
+                                      const aMasterServerAddress: TStringList; const aHTMLStatusFile: String;
                                       const aWelcomeMessage: UnicodeString; aDedicated: Boolean);
+var i: integer;
 begin
   inherited Create;
   fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
-  fMasterServer := TKMMasterServer.Create(aMasterServerAddress, aDedicated);
-  fMasterServer.OnError := MasterServerError;
+  RecreateMasterServers(aMasterServerAddress);
   fUDPAnnounce := TKMNetUDPAnnounce.Create(aServerUDPScanPort);
   fUDPAnnounce.OnError := StatusMessage;
 
@@ -73,9 +74,12 @@ end;
 
 
 destructor TKMDedicatedServer.Destroy;
+var i: integer;
 begin
   FreeAndNil(fNetServer);
-  FreeAndNil(fMasterServer);
+  for i := Low(fMasterServers) to High(fMasterServers) do
+    FreeAndNil(fMasterServers[i]);
+  fMasterServers := nil;
   FreeAndNil(fUDPAnnounce);
   StatusMessage('Server destroyed');
   inherited;
@@ -105,9 +109,11 @@ end;
 
 procedure TKMDedicatedServer.UpdateState;
 var TickCount:Cardinal;
+var i: integer;
 begin
   fNetServer.UpdateStateIdle;
-  fMasterServer.UpdateStateIdle;
+  for i := Low(fMasterServers) to High(fMasterServers) do
+    fMasterServers[i].UpdateStateIdle;
   fUDPAnnounce.UpdateStateIdle;
 
   if not fNetServer.Listening then Exit; //Do not measure pings or announce the server if we are not listening
@@ -121,7 +127,8 @@ begin
 
   if fPublishServer and (GetTimeSince(fLastAnnounce) >= fAnnounceInterval*1000) then
   begin
-    fMasterServer.AnnounceServer(UnicodeString(fServerName), fPort, fNetServer.GetPlayerCount, fAnnounceInterval + 20);
+    for i := Low(fMasterServers) to High(fMasterServers) do
+      fMasterServers[i].AnnounceServer(UnicodeString(fServerName), fPort, fNetServer.GetPlayerCount, fAnnounceInterval + 20);
     fLastAnnounce := TickCount;
   end;
 end;
@@ -129,13 +136,13 @@ end;
 
 procedure TKMDedicatedServer.UpdateSettings(const aServerName: AnsiString; aPublishServer, aAnnounceUDP: Boolean;
                                             aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort: Word;
-                                            const aMasterServerAddress: String; const aHTMLStatusFile: String;
+                                            const aMasterServerAddress: TStringList; const aHTMLStatusFile: String;
                                             const aWelcomeMessage: UnicodeString;
                                             const aServerPacketsAccDelay: Integer);
 begin
   fAnnounceInterval := Max(MINIMUM_ANNOUNCE_INTERVAL, aAnnounceInterval);
   fPingInterval := aPingInterval;
-  fMasterServer.MasterServerAddress := aMasterServerAddress;
+  RecreateMasterServers(aMasterServerAddress);
   fServerName := aServerName;
   fPublishServer := aPublishServer;
   fAnnounceUDP := aAnnounceUDP;
@@ -156,6 +163,31 @@ end;
 procedure TKMDedicatedServer.MasterServerError(const aData: string);
 begin
   StatusMessage('HTTP Master Server: '+aData);
+end;
+
+procedure TKMDedicatedServer.RecreateMasterServers(const aMasterServerAddress: TStringList);
+var recreate: boolean;
+var i: integer;
+begin
+  recreate := false;
+  if aMasterServerAddress.Count <> Length(fMasterServers) then
+    recreate := true
+  else
+    for i := 0 to aMasterServerAddress.Count-1 do
+      if aMasterServerAddress[i] <> fMasterServers[i].MasterServerAddress then
+        recreate := true;
+
+  StatusMessage('(Re-)creating connections to master servers');
+  for i := Low(fMasterServers) to High(fMasterServers) do
+    FreeAndNil(fMasterServers[i]);
+  fMasterServers := nil;
+
+  SetLength(fMasterServers, aMasterServerAddress.Count);
+  for i := 0 to aMasterServerAddress.Count-1 do
+  begin
+    fMasterServers[i] := TKMMasterServer.CreateDedicated(aMasterServerAddress[i]);
+    fMasterServers[i].OnError := MasterServerError;
+  end
 end;
 
 

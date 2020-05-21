@@ -122,7 +122,7 @@ type
 
     function ActiveQueryCount: Integer;
   public
-    constructor Create(const aMasterServerAddress: String; aServerUDPScanPort: Word);
+    constructor Create(const aMasterServerAddress: TStringList; aServerUDPScanPort: Word);
     destructor Destroy; override;
 
     property OnListUpdated: TNotifyEvent read fOnListUpdated write fOnListUpdated;
@@ -397,7 +397,7 @@ end;
 
 
 { TKMServerQuery }
-constructor TKMServerQuery.Create(const aMasterServerAddress: String; aServerUDPScanPort: Word);
+constructor TKMServerQuery.Create(const aMasterServerAddress: TStringList; aServerUDPScanPort: Word);
 var
   I: Integer;
 begin

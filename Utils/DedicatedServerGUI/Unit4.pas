@@ -282,6 +282,7 @@ end;
 procedure TForm4.ButtonApplyClick(Sender: TObject);
 var
   ServerPacketsAccDelay, UDPScanPort: Integer;
+  addresses : TStringList;
 begin
   //Disable the button asap to indicate we are at it
   ChangeEnableStateOfApplyButton(False);
@@ -301,7 +302,7 @@ begin
   fSettings.AutoKickTimeout         := cAutoKickTimeout.Value;
   fSettings.PingInterval            := cPingInterval.Value;
   fSettings.MasterAnnounceInterval  := cMasterAnnounceInterval.Value;
-  fSettings.MasterServerAddress     := cMasterServerAddress.Text;
+  fSettings.MasterServerAddress.CommaText     := cMasterServerAddress.Text;
   fSettings.HTMLStatusFile          := cHTMLStatusFile.Text;
   fSettings.ServerPort              := cServerPort.Text;
 
@@ -320,6 +321,8 @@ begin
   if fServerStatus = ssOnline then
   begin
 
+    addresses := TSTringList.Create;
+    addresses.CommaText := cMasterServerAddress.Text;
     fDedicatedServer.UpdateSettings(cServerName.Text,
                                     cAnnounceServer.Checked,
                                     cAnnounceUDP.Checked,
@@ -327,7 +330,7 @@ begin
                                     cPingInterval.Value,
                                     cMasterAnnounceInterval.Value,
                                     UDPScanPort,
-                                    cMasterServerAddress.Text,
+                                    addresses,
                                     cHTMLStatusFile.Text,
                                     cServerWelcomeMessage.Text,
                                     ServerPacketsAccDelay);
@@ -348,7 +351,7 @@ begin
   cAutoKickTimeout.Value        := fSettings.AutoKickTimeout;
   cPingInterval.Value           := fSettings.PingInterval;
   cMasterAnnounceInterval.Value := fSettings.MasterAnnounceInterval;
-  cMasterServerAddress.Text     := fSettings.MasterServerAddress;
+  cMasterServerAddress.Text     := fSettings.MasterServerAddress.Text;
   cHTMLStatusFile.Text          := fSettings.HTMLStatusFile;
   cServerPort.Text              := fSettings.ServerPort;
   cUDPScanPort.Text             := IntToStr(fSettings.ServerUDPScanPort);
