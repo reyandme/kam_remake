@@ -550,15 +550,12 @@ begin
 
       if Assigned(OnNewMapEditor) then
         OnNewMapEditor(Map.FullPath('.dat'), 0, 0, Map.CRC, Map.MapAndDatCRC, Radio_MapType.ItemIndex <> 0);
+
     finally
       fMaps.Unlock; //Double unlock should not harm
     end;
-  end;
-
-  //Create new map (NumEdits hold actual dimensions)
-  //if Sender = Button_MapCreate then
-  //  gGameApp.NewMapEditor('', );
-  if Assigned(OnNewMapEditor) then
+  end
+  else if Assigned(OnNewMapEditor) then
     OnNewMapEditor('', gGameSettings.MenuMapEdNewMapX, gGameSettings.MenuMapEdNewMapY);
 end;
 
