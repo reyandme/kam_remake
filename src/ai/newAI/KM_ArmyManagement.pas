@@ -382,6 +382,8 @@ type
     G: TKMUnitGroup;
     GT: TKMGroupType;
   begin
+    if (aTotalMen = 0) then
+      Exit;
     // Select the right number of groups
     StartIdx := 0;
     MenCnt := 0;

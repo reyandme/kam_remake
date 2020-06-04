@@ -39,9 +39,14 @@ type
     fGroupType: TKMGroupType;
     fMode: TPathfindingMode;
 
+    {$IFDEF DEBUG_NavMeshPathFinding}
+    fTimeSumShortest, fTimeSumShortestPoly, fTimeSumTraffic, fTimeSumEnemy: Int64;
+    fTimePeakShortest, fTimePeakShortestPoly, fTimePeakTraffic, fTimePeakEnemy: Int64;
+    {$ENDIF}
+
     function HeapCmp(A,B: Pointer): Boolean;
   protected
-    function MovementCost(aFrom, aTo: Word; var aSPoint, aEPoint: TKMPoint): Cardinal;
+    function MovementCost(aIdx, aFrom, aTo: Word; var aSPoint, aEPoint: TKMPoint): Cardinal;
 
     function InitPolygonRoute(aStart, aEnd: Word; out aDistance: Word; out aRoutePolygonArray: TKMWordArray): Boolean;
     function InitRoute(aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
@@ -58,12 +63,20 @@ type
     function ShortestRoute(aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
     function AvoidTrafficRoute(aOwner: TKMHandID; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
     function AvoidEnemyRoute(aOwner: TKMHandID; aGroup: TKMGroupType; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
+
+    {$IFDEF DEBUG_NavMeshPathFinding}
+    procedure Paint();
+    {$ENDIF}
   end;
 
 
 implementation
 uses
-   KM_AIFields, KM_NavMesh, KM_NavMeshGenerator, KM_AIParameters;
+   KM_AIFields, KM_NavMesh, KM_NavMeshGenerator,
+   {$IFDEF DEBUG_NavMeshPathFinding}
+   KM_RenderAux, KM_CommonUtils,
+   {$ENDIF}
+   KM_AIParameters;
 
 
 { TNavMeshPathFinding }
@@ -72,6 +85,16 @@ begin
   inherited;
   fHeap := TBinaryHeap.Create(MAX_POLYGONS);
   fHeap.Cmp := HeapCmp;
+  {$IFDEF DEBUG_NavMeshPathFinding}
+  fTimeSumShortest := 0;
+  fTimeSumShortestPoly := 0;
+  fTimeSumTraffic := 0;
+  fTimeSumEnemy := 0;
+  fTimePeakShortest := 0;
+  fTimePeakShortestPoly := 0;
+  fTimePeakTraffic := 0;
+  fTimePeakEnemy := 0;
+  {$ENDIF}
 end;
 
 
@@ -88,14 +111,17 @@ begin
 end;
 
 
-function TNavMeshPathFinding.MovementCost(aFrom, aTo: Word; var aSPoint, aEPoint: TKMPoint): Cardinal;
+function TNavMeshPathFinding.MovementCost(aIdx, aFrom, aTo: Word; var aSPoint, aEPoint: TKMPoint): Cardinal;
 
   function AvoidTraffic(): Cardinal;
   begin
+    {
     Result := Round(
                 + gAIFields.Influences.ArmyTraffic[fOwner, aTo] * AI_Par[ARMY_PATHFINDING_AvoidTraffic]
                 + (3 - gAIFields.NavMesh.Polygons[aTo].NearbyCount) * AI_Par[ARMY_PATHFINDING_AvoidEdges]
               );
+    //}
+    Result := (MAX_LINE_LENGTH - gAIFields.NavMesh.Polygons[aFrom].NearbyLineLength[aIdx]) * 2;
   end;
 
   function AvoidSpecEnemy(): Cardinal;
@@ -120,7 +146,10 @@ function TNavMeshPathFinding.MovementCost(aFrom, aTo: Word; var aSPoint, aEPoint
 
 begin
   //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
-  Result := Byte(aTo <> fEnd) * KMDistanceAbs(aSPoint, aEPoint);
+  if (aTo = fEnd) then
+    Exit(0);
+  Result := KMDistanceWalk(aSPoint, aEPoint); // Combo KMDistanceWalk in MovementCost and KMDistanceAbs in Estimation is the fastest
+  //Result := KMDistanceAbs(aSPoint, aEPoint);
   if      (fMode = pmAvoidTraffic  ) then Inc(Result, AvoidTraffic())
   else if (fMode = pmAvoidSpecEnemy) then Inc(Result, AvoidSpecEnemy());
   //else if (fMode = pmShortestWay   ) then begin end;
@@ -129,11 +158,28 @@ end;
 
 function TNavMeshPathFinding.MakeRoute(): Boolean;
 
+  //{
 	function EstimateToFinish(aIdx: Word): Word;
 	begin
     with gAIFields.NavMesh do
-	    Result := KMDistanceAbs(Polygons[aIdx].CenterPoint, Polygons[fEnd].CenterPoint);
+	    Result := KMDistanceAbs(Polygons[aIdx].CenterPoint, Polygons[fEnd].CenterPoint); // ~ 135
+	    //Result := KMDistanceWalk(Polygons[aIdx].CenterPoint, Polygons[fEnd].CenterPoint); // ~ 200
+      //Result := Round(Sqrt(KMDistanceSqr(Polygons[aIdx].CenterPoint, Polygons[fEnd].CenterPoint))); // ~ 165
 	end;
+  //}
+  { ~ 180
+	function EstimateToFinish(aIdx: Word): Word;
+  var
+    DX, DY: Word;
+	begin
+    with gAIFields.NavMesh do
+    begin
+      DX := Abs(Polygons[aIdx].CenterPoint.X - Polygons[fEnd].CenterPoint.X);
+      DY := Abs(Polygons[aIdx].CenterPoint.Y - Polygons[fEnd].CenterPoint.Y);
+      Result := Byte(DX > DY) * (DX * 10 + DY * 4) + Byte(DX <= DY) * (DY * 10 + DX * 4);
+    end;
+  end;
+  //}
 
 const
   C_CLOSED = 65535; // High(Word)
@@ -185,14 +231,14 @@ begin
           N.RouteID := fRouteID;
           N.Parent := fMinN;
           N.Point := NearbyPoints[K];
-          N.CostTo := fMinN.CostTo + MovementCost(fMinN.Idx, Idx, fMinN.Point, N.Point);
+          N.CostTo := fMinN.CostTo + MovementCost(K, fMinN.Idx, Idx, fMinN.Point, N.Point);
           N.Estim := EstimateToFinish(Idx);
           fHeap.Push(N);
         end
         // Visited polygon (recalculate estimation and update result if it is better)
         else if (fUsedNodes[Idx].Estim <> C_CLOSED) then
         begin
-          NewCost := fMinN.CostTo + MovementCost(fMinN.Idx, Idx, fMinN.Point, NearbyPoints[K]);
+          NewCost := fMinN.CostTo + MovementCost(K, fMinN.Idx, Idx, fMinN.Point, NearbyPoints[K]);
           if (NewCost < fUsedNodes[Idx].CostTo) then
           begin
             fUsedNodes[Idx].Parent := fMinN;
@@ -309,33 +355,124 @@ end;
 
 
 function TNavMeshPathFinding.ShortestPolygonRoute(aStart, aEnd: Word; out aDistance: Word; out aRoutePolygonArray: TKMWordArray): Boolean;
+{$IFDEF DEBUG_NavMeshPathFinding}
+var Time: Int64;
+{$ENDIF}
 begin
+  {$IFDEF DEBUG_NavMeshPathFinding}
+  Time := TimeGetUsec();
+  {$ENDIF}
   fMode := pmShortestWay;
   Result := InitPolygonRoute(aStart, aEnd, aDistance, aRoutePolygonArray);
+  {$IFDEF DEBUG_NavMeshPathFinding}
+  Time := TimeGetUsec() - Time;
+  fTimeSumShortestPoly := fTimeSumShortestPoly + Time;
+  fTimePeakShortestPoly := Max(fTimePeakShortestPoly,Time);
+  {$ENDIF}
 end;
 
 
 function TNavMeshPathFinding.ShortestRoute(aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
+{$IFDEF DEBUG_NavMeshPathFinding}
+var Time: Int64;
+{$ENDIF}
 begin
+  {$IFDEF DEBUG_NavMeshPathFinding}
+  Time := TimeGetUsec();
+  {$ENDIF}
   fMode := pmShortestWay;
   Result := InitRoute(aStart, aEnd, aDistance, aRoutePointArray);
+  {$IFDEF DEBUG_NavMeshPathFinding}
+  Time := TimeGetUsec() - Time;
+  fTimeSumShortest := fTimeSumShortest + Time;
+  fTimePeakShortest := Max(fTimePeakShortest,Time);
+  {$ENDIF}
 end;
 
 
 function TNavMeshPathFinding.AvoidTrafficRoute(aOwner: TKMHandID; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
+{$IFDEF DEBUG_NavMeshPathFinding}
+var Time: Int64;
+{$ENDIF}
 begin
+  {$IFDEF DEBUG_NavMeshPathFinding}
+  Time := TimeGetUsec();
+  {$ENDIF}
   fOwner := aOwner;
   fMode := pmAvoidTraffic;
   Result := InitRoute(aStart, aEnd, aDistance, aRoutePointArray);
+  {$IFDEF DEBUG_NavMeshPathFinding}
+  Time := TimeGetUsec() - Time;
+  fTimeSumTraffic := fTimeSumTraffic + Time;
+  fTimePeakTraffic := Max(fTimePeakTraffic,Time);
+  {$ENDIF}
 end;
 
 
 function TNavMeshPathFinding.AvoidEnemyRoute(aOwner: TKMHandID; aGroup: TKMGroupType; aStart, aEnd: TKMPoint; out aDistance: Word; out aRoutePointArray: TKMPointArray): Boolean;
+{$IFDEF DEBUG_NavMeshPathFinding}
+var Time: Int64;
+{$ENDIF}
 begin
+  {$IFDEF DEBUG_NavMeshPathFinding}
+  Time := TimeGetUsec();
+  {$ENDIF}
   fOwner := aOwner;
   fMode := pmAvoidSpecEnemy;
   fGroupType := aGroup;
   Result := InitRoute(aStart, aEnd, aDistance, aRoutePointArray);
+  {$IFDEF DEBUG_NavMeshPathFinding}
+  Time := TimeGetUsec() - Time;
+  fTimeSumEnemy := fTimeSumEnemy + Time;
+  fTimePeakEnemy := Max(fTimePeakEnemy,Time);
+  {$ENDIF}
 end;
+
+
+{$IFDEF DEBUG_NavMeshPathFinding}
+procedure TNavMeshPathFinding.Paint();
+const
+  COLOR_WHITE = $FFFFFF;
+  COLOR_BLACK = $000000;
+  COLOR_GREEN = $00FF00;
+  COLOR_RED = $0000FF;
+  COLOR_YELLOW = $00FFFF;
+  COLOR_BLUE = $FF0000;
+var
+  K: Integer;
+  P1,P2,P3: TKMPoint;
+  NMNode: PNavMeshNode;
+begin
+  if (Length(fUsedNodes) < gAIFields.NavMesh.PolygonsCnt) then
+    Exit;
+
+  // Draw polygon
+  for K := 0 to gAIFields.NavMesh.PolygonsCnt - 1 do
+    if (fUsedNodes[K].RouteID = fRouteID) then
+      with gAIFields.NavMesh do
+        gRenderAux.TriangleOnTerrain(
+          Nodes[ Polygons[K].Indices[0] ].X,
+          Nodes[ Polygons[K].Indices[0] ].Y,
+          Nodes[ Polygons[K].Indices[1] ].X,
+          Nodes[ Polygons[K].Indices[1] ].Y,
+          Nodes[ Polygons[K].Indices[2] ].X,
+          Nodes[ Polygons[K].Indices[2] ].Y, $90000000 OR COLOR_WHITE);
+
+  // Draw parent child relation
+  for K := 0 to gAIFields.NavMesh.PolygonsCnt - 1 do
+    if (fUsedNodes[K].RouteID = fRouteID) then
+      with gAIFields.NavMesh do
+      begin
+        NMNode := fUsedNodes[K].Parent;
+        if (NMNode = nil) then
+          continue;
+        P1 := Polygons[K].CenterPoint;
+        P2 := Polygons[ NMNode.Idx ].CenterPoint;
+        P3 := KMPointAverage(P1,P2);
+        gRenderAux.LineOnTerrain(P3, P2, $99000000 OR COLOR_RED);
+        gRenderAux.LineOnTerrain(P3, P1, $99000000 OR COLOR_BLUE);
+      end;
+end;
+{$ENDIF}
 
 end.

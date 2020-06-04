@@ -60,6 +60,9 @@ type
     procedure Paint(const aRect: TKMRect);
   end;
 
+const
+  MAX_LINE_LENGTH = 6;
+
 
 implementation
 uses
@@ -334,9 +337,9 @@ procedure TKMNavMesh.TieUpTilesWithPolygons();
         fPolygons[aIdx].NearbyPoints[K] := KMPoint(  Min( fMapX-1, Max(1,P.X) ), Min( fMapY-1, Max(1,P.Y) )  );
 
         if (fInnerNodesStartIdx >= Indices[0]) AND (fInnerNodesStartIdx > Indices[1]) then
-          fPolygons[aIdx].NearbyLineLength[K] := Min(6,  Max( abs(fNodes[ Indices[0] ].X - fNodes[ Indices[1] ].X), abs(fNodes[ Indices[0] ].Y - fNodes[ Indices[1] ].Y) )  )
+          fPolygons[aIdx].NearbyLineLength[K] := Min(MAX_LINE_LENGTH,  Max( abs(fNodes[ Indices[0] ].X - fNodes[ Indices[1] ].X), abs(fNodes[ Indices[0] ].Y - fNodes[ Indices[1] ].Y) )  )
         else
-          fPolygons[aIdx].NearbyLineLength[K] := 6;
+          fPolygons[aIdx].NearbyLineLength[K] := MAX_LINE_LENGTH;
       end
       else
       begin
@@ -474,7 +477,7 @@ begin
         fNodes[ Indices[2] ].Y, $50000000 OR COLOR_BLACK);
       for L := 0 to NearbyCount - 1 do
         if GetCommonPoints(K, Nearby[L], p1, p2) then
-          gRenderAux.LineOnTerrain(p1, p2, $99000000 OR ((6-NearbyLineLength[L])*16 shl 24) OR $770000 OR (NearbyLineLength[L]*20 shl 16) OR ((250-NearbyLineLength[L]*40) shl 0))
+          gRenderAux.LineOnTerrain(p1, p2, $99000000 OR ((MAX_LINE_LENGTH-NearbyLineLength[L])*16 shl 24) OR $770000 OR (NearbyLineLength[L]*20 shl 16) OR ((250-NearbyLineLength[L]*40) shl 0))
         else
         begin
           gRenderAux.TriangleOnTerrain(

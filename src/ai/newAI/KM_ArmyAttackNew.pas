@@ -106,11 +106,19 @@ const
   // All houses for final stage of attack algorithm
   ALL_HOUSES: THouseTypeSet = [HOUSE_MIN..HOUSE_MAX];
 
+{$IFDEF DEBUG_NewAI}
+var
+  gTimePathfinding, gTimeAiming: Int64;
+{$ENDIF}
+
 implementation
 uses
   Types, TypInfo,
   KM_Game, KM_GameParams, KM_HandsCollection, KM_Terrain, KM_AIFields,
   KM_NavMesh, KM_RenderAux,
+  {$IFDEF DEBUG_NewAI}
+    KM_CommonUtils,
+  {$ENDIF}
   KM_UnitWarrior, KM_AIParameters, KM_UnitActionFight, KM_UnitActionWalkTo;
 
 
@@ -318,7 +326,13 @@ procedure TKMCombatGroup.UpdateState(aTick: Cardinal);
   var
     K, CntFighting, CntWalking, CntCanFight: Integer;
     NodeList: TKMPointList;
+    {$IFDEF DEBUG_NewAI}
+      Timer: Int64;
+    {$ENDIF}
   begin
+    {$IFDEF DEBUG_NewAI}
+      Timer := TimeGetUsec();
+    {$ENDIF}
     // Target comes from behind
     K := Abs(Byte(KMGetDirection(Position,TargetAim)) - Byte(Group.OrderLoc.Dir));
     if (K > 1) AND (K < 7) then
@@ -356,6 +370,9 @@ procedure TKMCombatGroup.UpdateState(aTick: Cardinal);
     finally
       NodeList.Free;
     end;
+  {$IFDEF DEBUG_NewAI}
+    gTimeAiming := gTimeAiming + TimeGetUsec() - Timer;
+  {$ENDIF}
   end;
 
 var
@@ -459,7 +476,13 @@ var
   I: Integer;
   SQRDist: Single;
   PointPath: TKMPointArray;
+  {$IFDEF DEBUG_NewAI}
+    Timer: Int64;
+  {$ENDIF}
 begin
+  {$IFDEF DEBUG_NewAI}
+    Timer := TimeGetUsec();
+  {$ENDIF}
   Result := False;
   fOnPlace := False;
   SQRDist := KMDistanceSqr(aActualPosition, aTargetPosition);
@@ -510,6 +533,9 @@ begin
     end;
   end;
   Result := True;
+  {$IFDEF DEBUG_NewAI}
+    gTimePathfinding := gTimePathfinding + TimeGetUsec() - Timer;
+  {$ENDIF}
 end;
 
 
@@ -521,6 +547,10 @@ begin
   inherited Create;
   fCombatGroups := TObjectList<TKMCombatGroup>.Create();
   fOwner := aOwner;
+  {$IFDEF DEBUG_NewAI}
+    gTimePathfinding := 0;
+    gTimeAiming := 0;
+  {$ENDIF}
 end;
 
 
@@ -696,7 +726,9 @@ var
   Order, GroupOrder: UnicodeString;
   CG: TKMCombatGroup;
 begin
-  //
+  {$IFDEF DEBUG_NewAI}
+    aBalanceText := Format('%s||Time pathfinding: %d|Time aiming:%d',[aBalanceText,gTimePathfinding,gTimeAiming]);
+  {$ENDIF}
   if (gMySpectator.Selected is TKMUnitGroup) then
     for K := 0 to fCombatGroups.Count - 1 do
       if (gMySpectator.Selected = fCombatGroups[K].Group) then
@@ -761,8 +793,10 @@ var
     L: Integer;
   {$ENDIF}
 begin
-  //if (fOwner <> gMySpectator.HandID) then
-  //  Exit;
+  {$IFDEF DEBUG_NavMeshPathfinding}
+  if (fOwner = gMySpectator.HandID) then
+    gAIFields.NavMesh.Pathfinding.Paint();
+  {$ENDIF}
   //if (fOwner <> 1) then
   //  Exit;
 

@@ -190,7 +190,7 @@ AI_Par: array[TAIPar] of Single = (
          0.1000000, // ARMY_PATHFINDING_AvoidTraffic
          0.7500000, // ATTACK_ArmyVectorField_EvalClusters_InPlace
          1.5000000, // ATTACK_ArmyVectorField_EvalClusters_AtAdvantage
-         0.5000000, // ATTACK_ArmyVectorField_EvalClusters_Ambushed
+         0.2000000, // ATTACK_ArmyVectorField_EvalClusters_Ambushed
          0.5000000, // ATTACK_ArmyVectorField_DivideForces_DefendCityAdv
         14.0000000, // ATTACK_COMPANY_AttackRadius
          3.8477340, // ATTACK_COMPANY_AttackRangedGain

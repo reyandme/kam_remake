@@ -30,8 +30,7 @@ type
   TKMHandByteArr = array[0..MAX_HANDS-1] of Byte;
   TKMHandID2Arr = array of TKMHandIDArray;
 
-  TKMCombatStatus = (csNeutral = 0, csDefending, csAttackingCity, csAttackingEverything);
-  TKMCombatStatusArray = array[0..MAX_HANDS-1,0..MAX_HANDS-1] of TKMCombatStatus;
+  TKMCombatStatusPLArray = array[0..MAX_HANDS-1,0..MAX_HANDS-1] of TKMCombatStatus;
 
   TThreatArray = array of record
     DistRanged, Distance, Risk, WeightedCount: Single;
@@ -54,7 +53,7 @@ type
     fFFA: Boolean;
     fPL2Alli: TKMHandByteArr;
     fAlli2PL: TKMHandID2Arr;
-    fCombatStatus: TKMCombatStatusArray;
+    fCombatStatus: TKMCombatStatusPLArray;
     fArmyPos: TArmyForwardFF;
     fArmyVector: TArmyVectorField;
     {$IFDEF DEBUG_BattleLines}
@@ -64,7 +63,7 @@ type
 
     function HasAssets(aPL: TKMHandID; aIncludeArmy: Boolean = True): Boolean;
     procedure UpdateFFA();
-    function UpdateCombatStatus(aTeam: Byte): TKMCombatStatus;
+    function UpdateCombatStatus(aTeam: Byte; var aCityUnderAttack: Boolean): TKMCombatStatus;
     procedure UpdateDefPos(aTeam: Byte);
     procedure UpdateAttack(aTeam: Byte);
     procedure DivideResources();
@@ -83,7 +82,7 @@ type
 
     property PL2Alli: TKMHandByteArr read fPL2Alli;
     property Alli2PL: TKMHandID2Arr read fAlli2PL;
-    property CombatStatus: TKMCombatStatusArray read fCombatStatus;
+    property CombatStatus: TKMCombatStatusPLArray read fCombatStatus;
     property FFA: boolean read fFFA;
 
     function FindClosestEnemies(var aPlayers: TKMHandIDArray; var aEnemyStats: TKMEnemyStatisticsArray): Boolean;
@@ -241,7 +240,7 @@ end;
 
 
 
-function TKMSupervisor.UpdateCombatStatus(aTeam: Byte): TKMCombatStatus;
+function TKMSupervisor.UpdateCombatStatus(aTeam: Byte; var aCityUnderAttack: Boolean): TKMCombatStatus;
   procedure UpdateCS(aOwner,aEnemy: TKMHandID; aStatus: TKMCombatStatus);
   begin
     if (Byte(fCombatStatus[aOwner,aEnemy]) < Byte(aStatus)) then
@@ -264,11 +263,12 @@ var
   Owner, PL: TKMHandID;
 begin
   Result := csNeutral;
+  aCityUnderAttack := False;
   // Check if team have newAI
   if not NewAIInTeam(aTeam, False, False) OR (SP_OLD_ATTACK_AI = True) then
     Exit;
 
-  // Set default state = csNeutral (except attack combat states)
+  // Set default state = csNeutral (except attack combat status)
   for Owner in fAlli2PL[aTeam] do
     for PL := 0 to gHands.Count - 1 do
         if (gHands[Owner].Alliances[PL] <> atEnemy)
@@ -281,19 +281,19 @@ begin
   if not fArmyVector.DetectEnemyPresence(fAlli2PL[aTeam]) then
     Exit(csNeutral);
 
-  // Get closest distance from enemy group
+  // Get closest distance between ally and enemy groups
   for K := 0 to fArmyVector.Ally.GroupsCount - 1 do
   begin
     L := fArmyVector.Ally.GroupsPoly[K];
     if (fArmyVector.QueueArray[L].Visited > 0) then
     begin
-      pCluster := @fArmyVector.Clusters.Clusters[  fArmyVector.Clusters.Clusters[ fArmyVector.Influence[L].ClusterID ].ReferenceID  ];
+      pCluster := @fArmyVector.Clusters.Clusters[  fArmyVector.Clusters.Clusters[ fArmyVector.ClusterMapping[L] ].ReferenceID  ];
       for M := Low(fArmyVector.CCT) to High(fArmyVector.CCT) do
         if (fArmyVector.CCT[M].Cluster = pCluster) then
         begin
           fArmyVector.CCT[M].BestDist := Min(fArmyVector.CCT[M].BestDist, fArmyVector.QueueArray[L].Distance);
           for Owner in fArmyVector.CCT[M].Owners do
-            UpdateCS(fArmyVector.Ally.Groups[K].Owner,Owner,csDefending);
+            UpdateCS(fArmyVector.Ally.Groups[K].Owner, Owner, csDefending);
         end;
     end;
   end;
@@ -307,12 +307,13 @@ begin
     for M := 0 to pCluster.GroupsCount - 1 do
     begin
       G := fArmyVector.Enemy.Groups[ pCluster.Groups[M] ];
-      Inc(fArmyVector.CCT[K].WeightedCount[G.GroupType],G.Count);
+      Inc(fArmyVector.CCT[K].CounterWeight.WeightedCount[G.GroupType],G.Count);
       P := G.Position;
       for Owner in fAlli2PL[aTeam] do
         if (gAIFields.Influences.OwnPoint[Owner, P] > INFLUENCE_THRESHOLD) then
         begin
           fArmyVector.CCT[K].AttackingCity := True;
+          aCityUnderAttack := True;
           Result := csDefending;
           UpdateCS(Owner,G.Owner,csDefending);
         end;
@@ -327,7 +328,7 @@ begin
     // Estimate threat
     with fArmyVector.CCT[K] do
     begin
-      ThreatNearby := (WeightedCount[gtMelee] + WeightedCount[gtMounted] + WeightedCount[gtRanged] + WeightedCount[gtAntiHorse]);
+      ThreatNearby := (CounterWeight.WeightedCount[gtMelee] + CounterWeight.WeightedCount[gtMounted] + CounterWeight.WeightedCount[gtRanged] + CounterWeight.WeightedCount[gtAntiHorse]);
       Threat := Byte((BestDist < 1E4) OR AttackingCity) * ThreatNearby
                 + Byte( (CSNum >= Byte(csAttackingCity)) AND (pCluster.HousesCount > 0) );
     end;
@@ -432,8 +433,6 @@ begin
         G := A[IdxA];
         A[IdxA] := A[CntA];
         A[CntA] := G;
-        with fArmyVector.CCT[aCCTIdx] do
-          KMSwapPointDir(TargetPositions[IdxA], TargetPositions[CntA]);
       end;
     end;
   end;
@@ -619,9 +618,9 @@ procedure TKMSupervisor.UpdateAttacks(aTeam: Byte; aTick: Cardinal);
     CG: TKMCombatGroup;
   begin
     // Copy allied groups (they will be edited)
-    SetLength(AG, fArmyVector.CCT[aIdx].GroupsCount);
+    SetLength(AG, fArmyVector.CCT[aIdx].CounterWeight.GroupsCount);
     for K := 0 to Length(AG) - 1 do
-      AG[K] := fArmyVector.Ally.Groups[ fArmyVector.CCT[aIdx].Groups[K] ];
+      AG[K] := fArmyVector.CCT[aIdx].CounterWeight.Groups[K].Group;
     // Set orders to attack
     with fArmyVector.CCT[aIdx].Cluster^ do
     begin
@@ -639,68 +638,76 @@ procedure TKMSupervisor.UpdateAttacks(aTeam: Byte; aTick: Cardinal);
       begin
         CG := gHands[ AG[K].Owner ].AI.ArmyManagement.AttackNew.CombatGroup[ AG[K] ];
         if (CG <> nil) then
-          CG.TargetPosition := fArmyVector.CCT[aIdx].TargetPositions[K];
+          CG.TargetPosition := fArmyVector.CCT[aIdx].CounterWeight.Groups[K].TargetPosition;
       end;
   end;
 
 const
   GROUP_NEAR_LINE = 10*10;
 var
-  PlayerInCombat, TeamInCombat: Boolean;
+  PlayerInCombat, CityUnderAttack: Boolean;
   K, L: Integer;
+  PL: TKMHandID;
   CS: TKMCombatStatus;
+  CSA: TKMCombatStatusArray;
 begin
   // Check if team have newAI
   if not NewAIInTeam(aTeam, False, False) OR (SP_OLD_ATTACK_AI = True) then
     Exit;
   // Check if there are hostile units around
-  CS := UpdateCombatStatus(aTeam);
+  CityUnderAttack := False;
+  CS := UpdateCombatStatus(aTeam,CityUnderAttack);
   // Check if hostile units are around specific player (if not release combat groups)
-  for K := 0 to Length(fAlli2PL[aTeam]) - 1 do
-    if IsNewAI(fAlli2PL[aTeam,K]) then
-    begin
-      PlayerInCombat := False;
-      for L := 0 to Length(fCombatStatus[ fAlli2PL[aTeam,K] ]) - 1 do
-        PlayerInCombat := PlayerInCombat OR (fCombatStatus[ fAlli2PL[aTeam,K], L ] <> csNeutral);
-      if not PlayerInCombat then
-        gHands[ fAlli2PL[aTeam,K] ].AI.ArmyManagement.AttackNew.ReleaseGroups();
-    end;
+  if not CityUnderAttack then
+    for K := 0 to Length(fAlli2PL[aTeam]) - 1 do
+      if IsNewAI(fAlli2PL[aTeam,K]) then
+      begin
+        PlayerInCombat := False;
+        for L := 0 to Length(fCombatStatus[ fAlli2PL[aTeam,K] ]) - 1 do
+          PlayerInCombat := PlayerInCombat OR (fCombatStatus[ fAlli2PL[aTeam,K], L ] <> csNeutral);
+        if not PlayerInCombat then
+          gHands[ fAlli2PL[aTeam,K] ].AI.ArmyManagement.AttackNew.ReleaseGroups();
+      end;
   if (CS = csNeutral) then
     Exit;
-  // Add everything to defence if AI is defending
-  for K := 0 to Length(fAlli2PL[aTeam]) - 1 do
-    if IsNewAI(fAlli2PL[aTeam,K]) then
-      for L := Low(fCombatStatus) to High(fCombatStatus) do
-        if (fCombatStatus[ fAlli2PL[aTeam,K], L ] = csDefending) then
-        begin
-          with gHands[ fAlli2PL[aTeam,K] ].AI.ArmyManagement do
-            AttackNew.AddGroups( Defence.ReleaseAllGroups() );
-          break;
-        end;
-  // Check if team have combat groups
-  TeamInCombat := False;
-  for K := 0 to Length(fAlli2PL[aTeam]) - 1 do
-    TeamInCombat := TeamInCombat OR (gHands[ fAlli2PL[aTeam,K] ].AI.ArmyManagement.AttackNew.Count > 0);
-  if not TeamInCombat then
+  // Check if team have groups
+  if not (fArmyVector.Ally.GroupsCount > 0) then
     Exit;
 
+  for PL in fAlli2PL[aTeam] do
+    CSA[PL] := fCombatStatus[PL,PL];
+
   // Divide forces and find positions
-  fArmyVector.DivideForces();
+  fArmyVector.DivideForces(CS, CSA);
   fArmyVector.FindPositions();
 
-  // Set orders
   if (fArmyVector.Clusters.Count > 0) then
+  begin
+    // Add everything to defence if AI is defending
+    for K := Low(fArmyVector.CCT) to High(fArmyVector.CCT) do
+      if (fArmyVector.CCT[K].AttackingCity) then
+      begin
+        for PL in fAlli2PL[aTeam] do
+          if IsNewAI(PL) then
+            with gHands[PL].AI.ArmyManagement do
+              AttackNew.AddGroups( Defence.ReleaseAllGroups() );
+        break;
+      end;
+    // Set orders
     for K := 0 to Length(fArmyVector.CCT) - 1 do
-      with fArmyVector.CCT[K] do
+      with fArmyVector.CCT[K].CounterWeight do
         if (GroupsCount > 0) then
           EvaluateEnemy(InPlace OR AtAdvantage OR Ambushed, K);
+  end;
 end;
 
 
 procedure TKMSupervisor.UpdateAlliances();
 var
-  PL1,PL2: TKMHandID;
+  Check: Boolean;
   AlliCnt, PLCnt: Byte;
+  Idx: Integer;
+  PL1,PL2,PL3: TKMHandID;
 begin
   FillChar(fPL2Alli, SizeOf(fPL2Alli), #255); // TKMHandIndex = SmallInt => Byte(255) = -1 = PLAYER_NONE
   SetLength(fAlli2PL, gHands.Count, gHands.Count);
@@ -710,8 +717,16 @@ begin
     begin
       PLCnt := 0;
       for PL2 := 0 to gHands.Count - 1 do
-        if gHands[PL2].Enabled AND ((PL1 = PL2) OR (gHands[PL1].Alliances[PL2] = atAlly)) then
+        if gHands[PL2].Enabled AND (fPL2Alli[PL2] = 255) AND ((PL1 = PL2) OR (gHands[PL1].Alliances[PL2] = atAlly)) then
         begin
+          Check := True;
+          for Idx := 0 to PLCnt - 1 do
+          begin
+            PL3 := fAlli2PL[AlliCnt,Idx];
+            Check := Check AND ((gHands[PL3].Alliances[PL2] = atAlly) AND (gHands[PL2].Alliances[PL3] = atAlly));
+          end;
+          if not Check then
+            Continue;
           fPL2Alli[PL2] := AlliCnt;
           fAlli2PL[AlliCnt,PLCnt] := PL2;
           Inc(PLCnt);
