@@ -181,12 +181,12 @@ begin
 
   for I := 0 to High(Image_CampaignFlags) do
   begin
-    Image_CampaignFlags[I].Visible := I < fCampaign.MapCount;
+    Image_CampaignFlags[I].Visible := I < fCampaign.Maps.Count;
     Image_CampaignFlags[I].TexID   := MapPic[I <= ListBox_Maps.ItemIndex];
-    Label_CampaignFlags[I].Visible := (I < fCampaign.MapCount) and (I <= ListBox_Maps.ItemIndex);
+    Label_CampaignFlags[I].Visible := (I < fCampaign.Maps.Count) and (I <= ListBox_Maps.ItemIndex);
   end;
 
-  for I := 0 to fCampaign.MapCount - 1 do
+  for I := 0 to fCampaign.Maps.Count - 1 do
   begin
     Image_CampaignFlags[I].Left := fCampaign.Maps[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
     Image_CampaignFlags[I].Top  := fCampaign.Maps[I].Flag.Y - Round(Image_CampaignFlags[I].Height   *(1-Panel_Campaign_Flags.Scale));
@@ -267,7 +267,7 @@ begin
   Image_CampaignBG.Width := Round(1024*Panel_Campaign_Flags.Scale);
 
   if fCampaign <> nil then
-    for I := 0 to fCampaign.MapCount - 1 do
+    for I := 0 to fCampaign.Maps.Count - 1 do
       with Image_CampaignFlags[I] do
       begin
         Left := fCampaign.Maps[I].Flag.X - Round((Width/2)*(1-Panel_Campaign_Flags.Scale));
@@ -315,7 +315,7 @@ begin
 
   ListBox_Maps.Clear;
   DropBox_Missions.Clear;                               
-  for I := 0 to fCampaign.MapCount - 1 do
+  for I := 0 to fCampaign.Maps.Count - 1 do
   begin
     ListBox_Maps.Add(fCampaign.GetCampaignMissionTitle(I));
     DropBox_Missions.Add(fCampaign.GetCampaignMissionTitle(I));

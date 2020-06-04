@@ -747,9 +747,9 @@ begin
   K := Panel_CampaignInfo.Width / 1024;
   for I := 0 to High(Image_CampaignFlags) do
   begin
-    Image_CampaignFlags[I].Visible := Assigned(Campaign) and (I < Campaign.MapCount);
+    Image_CampaignFlags[I].Visible := Assigned(Campaign) and (I < Campaign.Maps.Count);
     Label_CampaignFlags[I].Visible := False;
-    if Assigned(Campaign) and (I < Campaign.MapCount) then
+    if Assigned(Campaign) and (I < Campaign.Maps.Count) then
     begin
       Unblocked := Assigned(Map) and (I <= Map.CampaignMapIndex);
       Label_CampaignFlags[I].Visible := Unblocked;

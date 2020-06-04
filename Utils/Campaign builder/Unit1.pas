@@ -3,7 +3,7 @@ unit Unit1;
 interface
 uses
   Windows, Classes, ComCtrls, Controls, Dialogs, ExtDlgs, ExtCtrls, Forms,
-  Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
+  Graphics, Mask, Math, Spin, StdCtrls, SysUtils, KM_CampaignTypes,
   KM_Defaults, KM_Campaigns, KM_Pics, KM_ResSpritesEdit, KromUtils, inifiles,
   KM_CampaignTypes;
 
@@ -187,7 +187,7 @@ begin
   fSelectedNode := -1;
 
   edtShortName.Text := C.ShortName;
-  seMapCount.Value := C.MapCount;
+  seMapCount.Value := C.Maps.Count;
 
   UpdateList;
   UpdateFlagCount;
@@ -240,6 +240,7 @@ end;
 procedure TForm1.Image1DragDrop(Sender, Source: TObject; X, Y: Integer);
 var
   curItem: Integer;
+  Map: TKMCampaignMap;
 begin
   if fUpdating then Exit;
 
@@ -247,12 +248,13 @@ begin
   begin
     curItem          := seMapCount.Value;
     seMapCount.Value := curItem + 1;
-    C.MapCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
+    Map := TKMCampaignMap.Create;
 
-    C.Maps[C.MapCount - 1].Flag.X := EnsureRange(X - Image1.Left - ScrollBox1.HorzScrollBar.ScrollPos, 0, 1024 - imgNewFlag.Width);
-    C.Maps[C.MapCount - 1].Flag.Y := EnsureRange(Y - Image1.Top - ScrollBox1.VertScrollBar.ScrollPos, 0, 768 - imgNewFlag.Height);
+    Map.Flag.X := EnsureRange(X - Image1.Left - ScrollBox1.HorzScrollBar.ScrollPos, 0, 1024 - imgNewFlag.Width);
+    Map.Flag.Y := EnsureRange(Y - Image1.Top - ScrollBox1.VertScrollBar.ScrollPos, 0, 768 - imgNewFlag.Height);
 
-    fSelectedMap := C.MapCount - 1; //Always select last, just added MapFlag
+    C.Maps.Add(Map);
+    fSelectedMap := C.Maps.Count - 1; //Always select last, just added MapFlag
   end else if (fSelectedMap <> -1) and (Source = imgNewNode) then
   begin
     curItem                        := seNodeCount.Value;
@@ -302,9 +304,8 @@ begin
   if Sender = imgNewFlag then
   begin
     seMapCount.Value := seMapCount.Value + 1;
-    C.MapCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
-
-    if fSelectedMap > C.MapCount - 1 then
+    C.Maps.Add(TKMCampaignMap.Create);
+    if fSelectedMap > C.Maps.Count - 1 then
       fSelectedMap := -1;
   end else if (fSelectedMap <> -1) and (Sender = imgNewNode) then
   begin
@@ -478,11 +479,11 @@ begin
     ReWrite(LibxFile);
 
     Writeln(LibxFile, '');
-    Writeln(LibxFile, 'MaxID:' + IntToStr(C.MapCount + 9) + EolW);
+    Writeln(LibxFile, 'MaxID:' + IntToStr(C.Maps.Count + 9) + EolW);
     Writeln(LibxFile, '0:' + edtName.Text);
     Writeln(LibxFile, '1:Mission %d');
     Writeln(LibxFile, '2:Campaign description');
-    for I := 0 to C.MapCount-1 do
+    for I := 0 to C.Maps.Count-1 do
       Writeln(LibxFile, IntToStr(10 + I) + ':Mission description ' + IntToStr(I + 1));
   finally
     CloseFile(LibxFile);
@@ -528,7 +529,7 @@ end;
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
-  if C.MapCount < 2 then
+  if C.Maps.Count < 2 then
   begin
     ShowMessage('Campaign must have at least 2 missions');
     Exit;
@@ -694,9 +695,13 @@ procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  C.MapCount := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
+  while (C.Maps.Count > 0) and (C.Maps.Count > seMapCount.Value) do
+    C.Maps.Delete(C.Maps.Count - 1);
 
-  if fSelectedMap > C.MapCount - 1 then
+  while C.Maps.Count < seMapCount.Value do
+    C.Maps.Add(TKMCampaignMap.Create);
+
+  if fSelectedMap > C.Maps.Count - 1 then
     fSelectedMap := -1;
 
   UpdateList;
@@ -747,7 +752,7 @@ procedure TForm1.RefreshFlags;
 var
   I: Integer;
 begin
-  for I := 0 to C.MapCount - 1 do
+  for I := 0 to C.Maps.Count - 1 do
   begin
     imgFlags[I].Left := C.Maps[I].Flag.X + Image1.Left;
     imgFlags[I].Top := C.Maps[I].Flag.Y + Image1.Top;
@@ -809,7 +814,7 @@ begin
 
   tvList.Items.Clear;
 
-  for I := 0 to C.MapCount - 1 do
+  for I := 0 to C.Maps.Count - 1 do
   begin
     N := tvList.Items.AddChild(nil, C.ShortName + ' mission ' + IntToStr(I + 1));
     if fSelectedMap = I then
@@ -851,11 +856,11 @@ var
   I: Integer;
 begin
   //Create more flags if needed
-  if C.MapCount > Length(imgFlags) then
+  if C.Maps.Count > Length(imgFlags) then
   begin
-    SetLength(imgFlags, C.MapCount);
+    SetLength(imgFlags, C.Maps.Count);
 
-    for I := 0 to C.MapCount - 1 do
+    for I := 0 to C.Maps.Count - 1 do
     if imgFlags[I] = nil then
     begin
       imgFlags[I] := TImage.Create(Image1);
@@ -872,7 +877,7 @@ begin
 
   // Hide unused flags
   for I := 0 to Length(imgFlags) - 1 do
-    imgFlags[I].Visible := (I <= C.MapCount - 1);
+    imgFlags[I].Visible := (I <= C.Maps.Count - 1);
 end;
 
 

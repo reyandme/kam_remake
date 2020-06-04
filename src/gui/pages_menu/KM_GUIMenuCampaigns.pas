@@ -96,7 +96,7 @@ begin
   for I := 0 to fCampaigns.Count - 1 do
   begin
     ColumnBox_Camps.AddItem(MakeListRow(
-                        [fCampaigns[I].GetCampaignTitle, IntToStr(fCampaigns[I].MapCount), IntToStr(fCampaigns[I].UnlockedMap + 1)],
+                        [fCampaigns[I].GetCampaignTitle, IntToStr(fCampaigns[I].Maps.Count), IntToStr(fCampaigns[I].UnlockedMap + 1)],
                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF], I));
     if fCampaigns[I].ShortName = gGameSettings.MenuCampaignName then
     begin
@@ -129,7 +129,7 @@ begin
   begin
     cmp := fCampaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampaignId;
     Camp := fCampaigns.CampaignById(cmp);
-    Button_Camp_Start.Enabled := Camp.MapCount > 0;
+    Button_Camp_Start.Enabled := Camp.Maps.Count > 0;
 
     Image_CampsPreview.RX := Camp.BackGroundPic.RX;
     Image_CampsPreview.TexID := Camp.BackGroundPic.ID;

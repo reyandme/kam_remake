@@ -163,14 +163,14 @@ begin
   //Setup sites
   for I := 0 to High(Image_CampaignFlags) do
   begin
-    Image_CampaignFlags[I].Visible := I < fCampaign.MapCount;
+    Image_CampaignFlags[I].Visible := I < fCampaign.Maps.Count;
     Image_CampaignFlags[I].TexID   := MapPic[I <= fCampaign.UnlockedMap];
     Image_CampaignFlags[I].HighlightOnMouseOver := I <= fCampaign.UnlockedMap;
-    Label_CampaignFlags[I].Visible := (I < fCampaign.MapCount) and (I <= fCampaign.UnlockedMap);
+    Label_CampaignFlags[I].Visible := (I < fCampaign.Maps.Count) and (I <= fCampaign.UnlockedMap);
   end;
 
   //Place sites
-  for I := 0 to fCampaign.MapCount - 1 do
+  for I := 0 to fCampaign.Maps.Count - 1 do
   begin
     //Pivot flags around Y=bottom X=middle, that's where the flag pole is
     Image_CampaignFlags[I].Left := fCampaign.Maps[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
@@ -193,9 +193,9 @@ var
 begin
   //Difficulty levels
   OldMD := mdNone;
-  if fCampaign.MapsInfo[fMapIndex].TxtInfo.HasDifficultyLevels then
+  if fCampaign.Maps[fMapIndex].TxtInfo.HasDifficultyLevels then
   begin
-    DiffLevels := fCampaign.MapsInfo[fMapIndex].TxtInfo.DifficultyLevels;
+    DiffLevels := fCampaign.Maps[fMapIndex].TxtInfo.DifficultyLevels;
 
     if gGameSettings.CampaignLastDifficulty in DiffLevels then
       OldMD := gGameSettings.CampaignLastDifficulty;
@@ -204,8 +204,8 @@ begin
     I := 0;
 
     //Set BestCompleteDifficulty as default
-    if fCampaign.MapsProgressData[fMapIndex].Completed then
-      DefMD := fCampaign.MapsProgressData[fMapIndex].BestCompleteDifficulty
+    if fCampaign.Maps[fMapIndex].Completed then
+      DefMD := fCampaign.Maps[fMapIndex].BestCompleteDifficulty
     else if OldMD <> mdNone then
       DefMD := OldMD
     else
@@ -254,8 +254,8 @@ begin
   begin
     Image_CampaignFlags[I].Highlight := (fMapIndex = I);
     Color := icLightGray2;
-    if I < fCampaign.MapCount then
-      Color := DIFFICULTY_LEVELS_COLOR[fCampaign.MapsProgressData[I].BestCompleteDifficulty];
+    if I < fCampaign.Maps.Count then
+      Color := DIFFICULTY_LEVELS_COLOR[fCampaign.Maps[I].BestCompleteDifficulty];
     Label_CampaignFlags[I].FontColor := Color;
   end;
 
@@ -299,7 +299,7 @@ begin
   if Assigned(OnNewCampaignMap) then
     OnNewCampaignMap(fCampaignId, fMapIndex, fDifficulty);
 
-  if fCampaign.MapsInfo[fMapIndex].TxtInfo.HasDifficultyLevels then
+  if fCampaign.Maps[fMapIndex].TxtInfo.HasDifficultyLevels then
     gGameSettings.CampaignLastDifficulty := TKMMissionDifficulty(DropBox_Difficulty.GetSelectedTag);
 end;
 
@@ -343,7 +343,7 @@ begin
   Image_CampaignBG.Width := Round(1024*Panel_Campaign_Flags.Scale);
   //Special rule to keep campaign flags pivoted at the right place (so the flagpole doesn't move when you resize)
   if fCampaign <> nil then
-    for I := 0 to fCampaign.MapCount - 1 do
+    for I := 0 to fCampaign.Maps.Count - 1 do
       with Image_CampaignFlags[I] do
       begin
         //Pivot flags around Y=bottom X=middle, that's where the flag pole is

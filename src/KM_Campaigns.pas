@@ -3,6 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes,
+  System.Generics.Collections,
   KM_ResTexts, KM_Pics, KM_Maps, KM_MapTypes, KM_CampaignTypes,
   KM_CommonClasses, KM_Points;
 
@@ -14,27 +15,22 @@ const
 type
   TKMBriefingCorner = (bcBottomRight, bcBottomLeft);
 
-  TKMCampaignMap = record
+  TKMCampaignMap = class
+  public
     Flag: TKMPointW;
     NodeCount: Byte;
     Nodes: array [0 .. MAX_CAMP_NODES - 1] of TKMPointW;
     TextPos: TKMBriefingCorner;
-  end;
 
-  TKMCampaignMapProgressData = record
     Completed: Boolean;
     BestCompleteDifficulty: TKMMissionDifficulty;
-  end;
 
-  TKMCampaignMapProgressDataArray = array of TKMCampaignMapProgressData;
-
-
-  TKMCampaignMapData = record
     TxtInfo: TKMMapTxtInfo;
     MissionName: UnicodeString;
-  end;
 
-  TKMCampaignMapDataArray = array of TKMCampaignMapData;
+    constructor Create;
+    destructor Destroy; override;
+  end;
 
   TKMCampaign = class
   private
@@ -51,20 +47,15 @@ type
     fShortName: UnicodeString;
     fViewed: Boolean;
 
-    fMapsInfo: TKMCampaignMapDataArray;
-
-    fMapsProgressData: TKMCampaignMapProgressDataArray; //Map data, saved in campaign progress
-
     function GetDefaultMissionTitle(aIndex: Byte): UnicodeString;
 
     procedure SetUnlockedMap(aValue: Byte);
-    procedure SetMapCount(aValue: Byte);
-
 
     procedure SetCampaignId(aCampaignId: TKMCampaignId);
     procedure UpdateShortName;
+    procedure MapsClear;
   public
-    Maps: array of TKMCampaignMap;
+    Maps: TList<TKMCampaignMap>;
     constructor Create;
     destructor Destroy; override;
 
@@ -77,13 +68,10 @@ type
 
     property Path: UnicodeString read fPath;
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
-    property MapCount: Byte read fMapCount write SetMapCount;
     property CampaignId: TKMCampaignId read fCampaignId write SetCampaignId;
     property ShortName: UnicodeString read fShortName;
     property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
     property ScriptData: TKMemoryStreamBinary read fScriptData;
-    property MapsInfo: TKMCampaignMapDataArray read fMapsInfo;
-    property MapsProgressData: TKMCampaignMapProgressDataArray read fMapsProgressData;
     property Viewed: Boolean read fViewed write fViewed;
 
     function GetCampaignTitle: UnicodeString;
@@ -163,6 +151,22 @@ begin
 end;
 
 
+{ TKMCampaignMap }
+
+constructor TKMCampaignMap.Create;
+begin
+
+end;
+
+destructor TKMCampaignMap.Destroy;
+begin
+  if Assigned(TxtInfo) then
+    TxtInfo.Free;
+
+  Inherited;
+end;
+
+
 { TCampaignsCollection }
 constructor TKMCampaignsCollection.Create;
 begin
@@ -184,7 +188,6 @@ begin
   inherited;
 end;
 
-
 procedure TKMCampaignsCollection.AddCampaign(const aPath: UnicodeString);
 var
   C: TKMCampaign;
@@ -193,7 +196,6 @@ begin
   C.LoadFromPath(aPath);
   fList.Add(C);
 end;
-
 
 //Scan campaigns folder
 procedure TKMCampaignsCollection.ScanFolder(const aPath: UnicodeString);
@@ -289,8 +291,11 @@ begin
       begin
         C.Viewed := True;
         C.UnlockedMap := unlocked;
-        for J := 0 to C.MapCount - 1 do
-          M.Read(C.fMapsProgressData[J], SizeOf(C.fMapsProgressData[J]));
+        for J := 0 to C.Maps.Count - 1 do
+        begin
+          M.Read(C.Maps[j].Completed, SizeOf(C.Maps[j].Completed));
+          M.Read(C.Maps[j].BestCompleteDifficulty, SizeOf(C.Maps[j].BestCompleteDifficulty));
+        end;
 
         C.ScriptData.Clear;
         if HasScriptData then
@@ -326,8 +331,11 @@ begin
       begin
         M.Write(Campaigns[I].CampaignId, SizeOf(TKMCampaignId));
         M.Write(Campaigns[I].UnlockedMap);
-        for J := 0 to Campaigns[I].MapCount - 1 do
-          M.Write(Campaigns[I].fMapsProgressData[J], SizeOf(Campaigns[I].fMapsProgressData[J]));
+        for J := 0 to Campaigns[I].Maps.Count - 1 do
+        begin
+          M.Write(Campaigns[I].Maps[J].Completed, SizeOf(Campaigns[I].Maps[J].Completed));
+          M.Write(Campaigns[I].Maps[J].BestCompleteDifficulty, SizeOf(Campaigns[I].Maps[J].BestCompleteDifficulty));
+        end;
         M.Write(Cardinal(Campaigns[I].ScriptData.Size));
         M.Write(Campaigns[I].ScriptData.Memory^, Campaigns[I].ScriptData.Size);
       end;
@@ -378,10 +386,10 @@ begin
   if ActiveCampaign <> nil then
   begin
     ActiveCampaign.UnlockedMap := fActiveCampaignMap + 1;
-    ActiveCampaign.MapsProgressData[fActiveCampaignMap].Completed := True;
+    ActiveCampaign.Maps[fActiveCampaignMap].Completed := True;
     //Update BestDifficulty if we won harder game
-    if Byte(ActiveCampaign.MapsProgressData[fActiveCampaignMap].BestCompleteDifficulty) < Byte(gGameParams.MissionDifficulty)  then
-      ActiveCampaign.MapsProgressData[fActiveCampaignMap].BestCompleteDifficulty := gGameParams.MissionDifficulty;
+    if Byte(ActiveCampaign.Maps[fActiveCampaignMap].BestCompleteDifficulty) < Byte(gGameParams.MissionDifficulty)  then
+      ActiveCampaign.Maps[fActiveCampaignMap].BestCompleteDifficulty := gGameParams.MissionDifficulty;
   end;
 end;
 
@@ -399,6 +407,7 @@ end;
 constructor TKMCampaign.Create;
 begin
   inherited;
+  Maps := TList<TKMCampaignMap>.Create;
 
   //1st map is always unlocked to allow to start campaign
   fViewed := False;
@@ -414,17 +423,24 @@ begin
   FreeAndNil(fTextLib);
   fScriptData.Free;
 
-  for I := 0 to Length(fMapsInfo) - 1 do
-    if fMapsInfo[I].TxtInfo <> nil then
-      fMapsInfo[I].TxtInfo.Free;
-
   //Free background texture
   if fBackGroundPic.ID <> 0 then
     gRes.Sprites[rxCampaign].DeleteSpriteTexture(fBackGroundPic.ID);
 
+  MapsClear;
+  Maps.Free;
   inherited;
 end;
 
+
+procedure TKMCampaign.MapsClear;
+var
+  i: Integer;
+begin
+  for i := 0 to Maps.Count - 1 do
+    Maps[I].Free;
+  Maps.Clear;
+end;
 
 procedure TKMCampaign.UpdateShortName;
 begin
@@ -437,6 +453,7 @@ end;
 procedure TKMCampaign.LoadFromFile(const aFileName: UnicodeString);
 var
   M: TKMemoryStreamBinary;
+  Map: TKMCampaignMap;
   I, K: Integer;
   cmp: TBytes;
 begin
@@ -455,15 +472,17 @@ begin
   UpdateShortName;
 
   M.Read(fMapCount);
-  SetMapCount(fMapCount); //Update array's sizes
+  Maps.Clear;
 
   for I := 0 to fMapCount - 1 do
   begin
-    M.Read(Maps[I].Flag);
-    M.Read(Maps[I].NodeCount);
-    for K := 0 to Maps[I].NodeCount - 1 do
-      M.Read(Maps[I].Nodes[K]);
-    M.Read(Maps[I].TextPos, SizeOf(TKMBriefingCorner));
+    Map := TKMCampaignMap.Create;
+    M.Read(Map.Flag);
+    M.Read(Map.NodeCount);
+    for K := 0 to Map.NodeCount - 1 do
+      M.Read(Map.Nodes[K]);
+    M.Read(Map.TextPos, SizeOf(TKMBriefingCorner));
+    Maps.Add(Map);
   end;
 
   M.Free;
@@ -519,19 +538,19 @@ begin
   for I := 0 to fMapCount - 1 do
   begin
     //Load TxtInfo
-    if fMapsInfo[I].TxtInfo = nil then
-      fMapsInfo[I].TxtInfo := TKMMapTxtInfo.Create
+    if Maps[I].TxtInfo = nil then
+      Maps[I].TxtInfo := TKMMapTxtInfo.Create
     else
-      fMapsInfo[I].TxtInfo.ResetInfo;
-    fMapsInfo[I].TxtInfo.LoadTXTInfo(GetMissionFile(I, '.txt'));
+      Maps[I].TxtInfo.ResetInfo;
+    Maps[I].TxtInfo.LoadTXTInfo(GetMissionFile(I, '.txt'));
 
-    fMapsInfo[I].MissionName := '';
+    Maps[I].MissionName := '';
     //Load mission name from mission Libx library
     TextMission := TKMTextLibraryMulti.Create;
     try
       TextMission.LoadLocale(GetMissionFile(I, '.%s.libx'));
       if TextMission.HasText(MISSION_NAME_LIBX_ID) then
-        fMapsInfo[I].MissionName := StringReplace(TextMission[MISSION_NAME_LIBX_ID], '|', ' ', [rfReplaceAll]); //Replace | with space
+        Maps[I].MissionName := StringReplace(TextMission[MISSION_NAME_LIBX_ID], '|', ' ', [rfReplaceAll]); //Replace | with space
     finally
       FreeAndNil(TextMission);
     end;
@@ -592,14 +611,6 @@ begin
 end;
 
 
-procedure TKMCampaign.SetMapCount(aValue: Byte);
-begin
-  fMapCount := aValue;
-  SetLength(Maps, fMapCount);
-  SetLength(fMapsProgressData, fMapCount);
-  SetLength(fMapsInfo, fMapCount);
-end;
-
 procedure TKMCampaign.SetCampaignId(aCampaignId: TKMCampaignId);
 begin
   fCampaignId := aCampaignId;
@@ -621,12 +632,12 @@ end;
 
 function TKMCampaign.GetDefaultMissionTitle(aIndex: Byte): UnicodeString;
 begin
-  if fMapsInfo[aIndex].MissionName <> '' then
-    Result := fMapsInfo[aIndex].MissionName
+  if Maps[aIndex].MissionName <> '' then
+    Result := Maps[aIndex].MissionName
   else
     //Have nothing - use default mission name
     //Otherwise just Append (by default MissionName is empty anyway)
-    Result := Format(gResTexts[TX_GAME_MISSION], [aIndex+1]) + fMapsInfo[aIndex].MissionName;
+    Result := Format(gResTexts[TX_GAME_MISSION], [aIndex+1]) + Maps[aIndex].MissionName;
 end;
 
 
@@ -643,12 +654,12 @@ begin
       //We can use different order for %d and %s, then choose Format 2 ways
       //First - %d %s
       if Pos('%d', fTextLib[3]) < Pos('%s', fTextLib[3]) then
-        Result := Format(fTextLib[3], [aIndex+1, fMapsInfo[aIndex].MissionName])  
+        Result := Format(fTextLib[3], [aIndex+1, Maps[aIndex].MissionName])
       else
-        Result := Format(fTextLib[3], [fMapsInfo[aIndex].MissionName, aIndex+1]); //Then order: %s %d
+        Result := Format(fTextLib[3], [Maps[aIndex].MissionName, aIndex+1]); //Then order: %s %d
     end else
       //Otherwise just Append (by default MissionName is empty anyway)
-      Result := Format(fTextLib[3], [aIndex+1]) + fMapsInfo[aIndex].MissionName;
+      Result := Format(fTextLib[3], [aIndex+1]) + Maps[aIndex].MissionName;
   end
   else
     Result := GetDefaultMissionTitle(aIndex);
