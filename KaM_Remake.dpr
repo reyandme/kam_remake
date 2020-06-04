@@ -341,8 +341,8 @@ uses
   KromUtils in 'src\utils\KromUtils.pas',
   KromShellUtils in 'src\utils\KromShellUtils.pas',
   
-  BinaryHeap in 'src\utils\heap\BinaryHeap.pas',
-  BinaryHeapGen in 'src\utils\heap\BinaryHeapGen.pas',
+  BinaryHeap in 'src\utils\BinaryHeap.pas',
+  BinaryHeapGen in 'src\utils\BinaryHeapGen.pas',
   
   KM_MethodParser in 'src\utils\method_parser\KM_MethodParser.pas',
   KM_MethodParserParams in 'src\utils\method_parser\KM_MethodParserParams.pas',
