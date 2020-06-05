@@ -112,6 +112,7 @@ type
 
   TKMDeliveryBid = class
   public
+    QueueID: Integer;
     OfferID: Integer;
     DemandID: Integer;
 
@@ -122,6 +123,7 @@ type
     Addition: Single;
 
     constructor Create; overload;
+    constructor Create(iQ: Integer; aImportance: TKMDemandImportance); overload;
     constructor Create(iO, iD: Integer; aImportance: TKMDemandImportance); overload;
 
     function Cost: Single;
@@ -216,7 +218,7 @@ type
     function ValidDelivery(iO, iD: Integer; aIgnoreOffer: Boolean = False): Boolean;
     function SerfCanDoDelivery(iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
     function PermitDelivery(iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
-    function TryCalculateBid(aCalcKind: TKMDeliveryCalcKind; iO, iD: Integer; var aBidTotalCost: Single; aSerf: TKMUnitSerf = nil): Boolean; overload;
+//    function TryCalculateBid(aCalcKind: TKMDeliveryCalcKind; iO, iD: Integer; var aBidTotalCost: Single; aSerf: TKMUnitSerf = nil): Boolean; overload;
     function TryCalculateBid(aCalcKind: TKMDeliveryCalcKind; iO, iD: Integer; var aBidCost: TKMDeliveryBid; aSerf: TKMUnitSerf = nil): Boolean; overload;
     function TryCalculateBidBasic(aCalcKind: TKMDeliveryCalcKind; iO, iD: Integer; var aBidBasicCost: TKMDeliveryBid; aSerf: TKMUnitSerf = nil;
                                   aAllowOffroad: Boolean = False): Boolean; overload;
@@ -451,7 +453,7 @@ procedure TKMHandLogistics.UpdateState(aTick: Cardinal);
 var
   I, K, iD, iO, {FoundO, FoundD, }bidsToCompare: Integer;
   bidVal, bestBidVal: Single;
-  bid, bestBid: TKMDeliveryBid;
+  bid: TKMDeliveryBid;
   bestImportance: TKMDemandImportance;
   availableDeliveries, availableSerfs: Integer;
   serf: TKMUnitSerf;
@@ -514,7 +516,7 @@ begin
       bidsToCompare := Min(BIDS_TO_COMPARE, bestBidCandidates.Count);
       bestBids := TObjectBinaryHeap<TKMDeliveryBid>.Create(bidsToCompare, CompareBids);
 
-      for K := 0 to bidsToCompare - 1 do //Carefull, we Pop while in the cycle
+      for K := 0 to bidsToCompare - 1 do
       begin
         bid := bestBidCandidates.Pop;
 
@@ -525,22 +527,22 @@ begin
           bestBids.Push(bid);
       end;
 
-      bestBid := bestBids.Pop;
+      bid := bestBids.Pop;
 
       bestBidCandidates.Free;
       bestBids.Free;
 
       //FoundO and FoundD give us the best delivery to do at this moment. Now find the best serf for the job.
-      if bestBid <> nil then
+      if bid <> nil then
       begin
         serf := nil;
         bestBidVal := MaxSingle;
 //        bestBid.ResetValues;
         for K := 0 to fSerfCount - 1 do
           if fSerfs[K].Serf.IsIdle then
-            if fQueue.SerfCanDoDelivery(bestBid.OfferID, bestBid.DemandID, fSerfs[K].Serf) then
+            if fQueue.SerfCanDoDelivery(bid.OfferID, bid.DemandID, fSerfs[K].Serf) then
             begin
-              bidVal := KMLength(fSerfs[K].Serf.CurrPosition, fQueue.fOffer[bestBid.OfferID].Loc_House.Entrance);
+              bidVal := KMLength(fSerfs[K].Serf.CurrPosition, fQueue.fOffer[bid.OfferID].Loc_House.Entrance);
               if (bidVal < bestBidVal) then
               begin
                 bestBidVal := bidVal;
@@ -548,13 +550,11 @@ begin
               end;
             end;
         if serf <> nil then
-          fQueue.AssignDelivery(bestBid.OfferID, bestBid.DemandID, serf);
+          fQueue.AssignDelivery(bid.OfferID, bid.DemandID, serf);
       end;
 
-
-
-      if bestBid <> nil then
-        bestBid.Free;
+      if bid <> nil then
+        bid.Free;
     end;
   finally
     {$IFDEF PERFLOG}
@@ -1409,13 +1409,13 @@ begin
 end;
 
 
-function TKMDeliveries.TryCalculateBid(aCalcKind: TKMDeliveryCalcKind; iO, iD: Integer; var aBidTotalCost: Single; aSerf: TKMUnitSerf = nil): Boolean;
-var
-  bidCost: TKMDeliveryBid;
-begin
-  Result := TryCalculateBid(aCalcKind, iO, iD, bidCost, aSerf);
-  aBidTotalCost := bidCost.Cost;
-end;
+//function TKMDeliveries.TryCalculateBid(aCalcKind: TKMDeliveryCalcKind; iO, iD: Integer; var aBidTotalCost: Single; aSerf: TKMUnitSerf = nil): Boolean;
+//var
+//  bidCost: TKMDeliveryBid;
+//begin
+//  Result := TryCalculateBid(aCalcKind, iO, iD, bidCost, aSerf);
+//  aBidTotalCost := bidCost.Cost;
+//end;
 
 
 function TKMDeliveries.TryCalculateBid(aCalcKind: TKMDeliveryCalcKind; iO, iD: Integer; var aBidCost: TKMDeliveryBid; aSerf: TKMUnitSerf = nil): Boolean;
@@ -1474,16 +1474,17 @@ end;
 
 procedure TKMDeliveries.CheckForBetterDemand(aDeliveryID: Integer; out aToHouse: TKMHouse; out aToUnit: TKMUnit; aSerf: TKMUnitSerf);
 var
-  iD, iO, BestD, OldD: Integer;
-  Bid, BestBid: Single;
-  BestImportance: TKMDemandImportance;
+  K, iD, iO, bestD, oldD, bidsToCompare: Integer;
+  bestImportance: TKMDemandImportance;
+  bid{, bestBid}: TKMDeliveryBid;
+  bestBidCandidates, bestBids: TObjectBinaryHeap<TKMDeliveryBid>;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
   {$ENDIF}
   try
     iO := fQueue[aDeliveryID].OfferID;
-    OldD := fQueue[aDeliveryID].DemandID;
+    oldD := fQueue[aDeliveryID].DemandID;
 
     //Special rule to prevent an annoying situation: If we were delivering to a unit
     //do not look for a better demand. Deliveries to units are closely watched/controlled
@@ -1496,60 +1497,92 @@ begin
     //the serf fetching the stone for him before the school digging was finished.
     //This "CheckForBetterDemand" feature is mostly intended to optimise house->house
     //deliveries within village and reduce delay in serf decision making.
-    if fDemand[OldD].Loc_Unit <> nil then
+    if fDemand[oldD].Loc_Unit <> nil then
     begin
-      aToHouse := fDemand[OldD].Loc_House;
-      aToUnit := fDemand[OldD].Loc_Unit;
+      aToHouse := fDemand[oldD].Loc_House;
+      aToUnit := fDemand[oldD].Loc_Unit;
       Exit;
     end;
 
     //By default we keep the old demand, so that's our starting bid
-    BestD := OldD;
-    if not fDemand[OldD].IsDeleted then
+    bestBidCandidates := TObjectBinaryHeap<TKMDeliveryBid>.Create(fDemandCount, CompareBids);
+    if not fDemand[oldD].IsDeleted then
     begin
-      TryCalculateBid(dckAccurate, iO, OldD, BestBid, aSerf);
-      BestImportance := fDemand[OldD].Importance;
+      bestImportance := fDemand[oldD].Importance;
+      bid := TKMDeliveryBid.Create(iO, oldD, bestImportance);
+      if TryCalculateBid(dckFast, iO, oldD, bid, aSerf) then
+        bestBidCandidates.Push(bid);
     end
     else
     begin
       //Our old demand is no longer valid (e.g. house destroyed), so give it minimum weight
       //If no other demands are found we can still return this invalid one, TaskDelivery handles that
-      BestBid := MaxSingle;
-      BestImportance := Low(TKMDemandImportance);
+//      BestBid := MaxSingle;
+//      bid := TKMDeliveryBid.Create;
+      bestImportance := Low(TKMDemandImportance);
     end;
 
     for iD := 1 to fDemandCount do
       if (fDemand[iD].Ware <> wtNone)
-      and (OldD <> Id)
-      and (fDemand[iD].Importance >= BestImportance) //Skip any less important than the best we found
-      and ValidDelivery(iO, iD, True)
-      and TryCalculateBid(dckAccurate, iO, iD, Bid, aSerf)
-      and ((Bid < BestBid) or (fDemand[iD].Importance > BestImportance)) then
+      and (oldD <> Id)
+      and (fDemand[iD].Importance >= bestImportance) //Skip any less important than the best we found
+      and ValidDelivery(iO, iD, True) then
       begin
-        BestD := iD;
-        BestBid := Bid;
-        BestImportance := fDemand[iD].Importance;
+        bid := TKMDeliveryBid.Create(iO, iD, fDemand[iD].Importance);
+        if TryCalculateBid(dckFast, iO, iD, bid) then
+        begin
+          bestBidCandidates.Push(bid);
+          bestImportance := bid.Importance;
+        end;
       end;
 
+    bidsToCompare := Min(BIDS_TO_COMPARE, bestBidCandidates.Count);
+    bestBids := TObjectBinaryHeap<TKMDeliveryBid>.Create(bidsToCompare, CompareBids);
+
+    for K := 0 to bidsToCompare - 1 do
+    begin
+      bid := bestBidCandidates.Pop;
+
+      if bid.Importance < bestImportance then
+        Continue;
+
+      if TryCalculateBid(dckAccurate, bid.OfferID, bid.DemandID, bid) then
+        bestBids.Push(bid);
+    end;
+
+    bid := bestBids.Pop;
+
+    bestBidCandidates.Free;
+    bestBids.Free;
+
+    if bid <> nil then
+    begin
+      bestD := bid.DemandID;
+      bid.Free;
+    end
+    else
+      bestD := oldD;
+
     //Did we switch jobs?
-    if BestD <> OldD then
+    if bestD <> oldD then
     begin
       //Remove old demand
-      Dec(fDemand[OldD].BeingPerformed);
-      if (fDemand[OldD].BeingPerformed = 0) and fDemand[OldD].IsDeleted then
-        CloseDemand(OldD);
+      Dec(fDemand[oldD].BeingPerformed);
+      if (fDemand[oldD].BeingPerformed = 0) and fDemand[oldD].IsDeleted then
+        CloseDemand(oldD);
 
-      UpdateDemandItem(OldD);
+      UpdateDemandItem(oldD);
 
       //Take new demand
-      fQueue[aDeliveryID].DemandID := BestD;
-      Inc(fDemand[BestD].BeingPerformed); //Places a virtual "Reserved" sign on Demand
+      fQueue[aDeliveryID].DemandID := bestD;
+      Inc(fDemand[bestD].BeingPerformed); //Places a virtual "Reserved" sign on Demand
 
-      UpdateDemandItem(BestD);
+      UpdateDemandItem(bestD);
     end;
+
     //Return chosen unit and house
-    aToHouse := fDemand[BestD].Loc_House;
-    aToUnit := fDemand[BestD].Loc_Unit;
+    aToHouse := fDemand[bestD].Loc_House;
+    aToUnit := fDemand[bestD].Loc_Unit;
   finally
     {$IFDEF PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
@@ -1601,17 +1634,44 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
   end;
 
   function FindBestDemandId(): Integer;
+
+    function GetBestBid(deliverToUnit: Boolean; bestImportance: TKMDemandImportance; bestBidCandidates, bestBids: TObjectBinaryHeap<TKMDeliveryBid>): TKMDeliveryBid;
+    var
+      K, bidsToCompare: Integer;
+    begin
+      bidsToCompare := Min(BIDS_TO_COMPARE, bestBidCandidates.Count);
+
+      // Nothing to compare
+      if bidsToCompare = 1 then
+        Exit(bestBidCandidates.Pop);
+
+      for K := 0 to bidsToCompare - 1 do
+      begin
+        Result := bestBidCandidates.Pop;
+        if Result.Importance < bestImportance then
+          Continue;
+
+        if TryCalculateBidBasic(dckFast, aSerf.CurrPosition, 1, htNone, aSerf.Owner, Result.DemandID, Result, nil,
+                                deliverToUnit or fQueue[aDeliveryId].IsFromUnit) then
+          bestBids.Push(Result);
+      end;
+
+      Result := bestBids.Pop;
+    end;
+
   var
     iD, oldDemandId: Integer;
-    bid, bestBid: TKMDeliveryBid;
+    bid{, bestBid}: TKMDeliveryBid;
     bestImportance: TKMDemandImportance;
     deliverToUnit: Boolean;
+    bestBidCandidates, bestBids: TObjectBinaryHeap<TKMDeliveryBid>;
   begin
     Result := -1;
     aForceDelivery := False;
     oldDemandId := fQueue[aDeliveryId].DemandID;
     bestImportance := Low(TKMDemandImportance);
-    bestBid := TKMDeliveryBid.Create;
+    bestBidCandidates := TObjectBinaryHeap<TKMDeliveryBid>.Create(fDemandCount, CompareBids);
+//    bestBid := TKMDeliveryBid.Create;
     deliverToUnit := fDemand[oldDemandId].Loc_Unit <> nil;
     //Mark that delivery as IsFromUnit (Serf), since we are looking for other destination while in delivery process
     fQueue[aDeliveryId].IsFromUnit := True;
@@ -1626,13 +1686,23 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
 //                                 deliverToUnit or fQueue[aDeliveryId].IsFromUnit)
 //        and ((bid < bestBid) or (fDemand[iD].Importance > bestImportance)) then //Calc bid to find the best demand
       begin
-        Result := iD;
-        bestBid := bid;
-        bestImportance := fDemand[iD].Importance;
+        bid := TKMDeliveryBid.Create(0, iD, fDemand[iD].Importance);
+        if TryCalculateBidBasic(dckFast, aSerf.CurrPosition, 1, htNone, aSerf.Owner, iD, bid, nil,
+                                deliverToUnit or fQueue[aDeliveryId].IsFromUnit) then
+        begin
+          bestBidCandidates.Push(bid);
+          bestImportance := bid.Importance;
+        end;
       end;
 
+    bestBids := TObjectBinaryHeap<TKMDeliveryBid>.Create(BIDS_TO_COMPARE, CompareBids);
+    bid := GetBestBid(deliverToUnit, bestImportance, bestBidCandidates, bestBids);
+    bestBidCandidates.Clear;
+    bestBids.Clear;
+
     // If nothing was found, then try to deliver to open for delivery Storage
-    if Result = -1 then
+    if bid = nil then
+    begin
       for iD := 1 to fDemandCount do
         if (fDemand[iD].Ware = wtAll)
           and (iD <> oldDemandId)
@@ -1644,12 +1714,23 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
 //                                   deliverToUnit or fQueue[aDeliveryId].IsFromUnit) //Choose the closest storage
 //          and (bid < bestBid) then
         begin
-          Result := iD;
-          bestBid := bid;
+          bid := TKMDeliveryBid.Create(0, iD, fDemand[iD].Importance);
+          if TryCalculateBidBasic(dckFast, aSerf.CurrPosition, 1, htNone, aSerf.Owner, iD, bid, nil,
+                                  deliverToUnit or fQueue[aDeliveryId].IsFromUnit) then
+          begin
+            bestBidCandidates.Push(bid);
+            bestImportance := bid.Importance;
+          end;
         end;
 
+      bid := GetBestBid(deliverToUnit, bestImportance, bestBidCandidates, bestBids);
+      bestBidCandidates.Clear;
+      bestBids.Clear;
+    end;
+
     // If no open storage for delivery found, then try to find any storage or any barracks
-    if Result = -1 then
+    if bid = nil then
+    begin
       for iD := 1 to fDemandCount do
         if (fDemand[iD].Ware = wtAll)
           and not fDemand[iD].IsDeleted
@@ -1658,12 +1739,27 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
 //                                   deliverToUnit or fQueue[aDeliveryId].IsFromUnit) //Choose the closest storage
 //          and (bid < bestBid) then
         begin
-          Result := iD;
-          bestBid := bid;
-          aForceDelivery := True;
+          bid := TKMDeliveryBid.Create(0, iD, fDemand[iD].Importance);
+          if TryCalculateBidBasic(dckFast, aSerf.CurrPosition, 1, htNone, aSerf.Owner, iD, bid, nil,
+                                  deliverToUnit or fQueue[aDeliveryId].IsFromUnit) then
+          begin
+            bestBidCandidates.Push(bid);
+            bestImportance := bid.Importance;
+            aForceDelivery := True;
+          end;
         end;
 
-    bestBid.Free;
+      bid := GetBestBid(deliverToUnit, bestImportance, bestBidCandidates, bestBids);
+    end;
+
+    if bid <> nil then
+    begin
+      Result := bid.DemandID;
+      bid.Free;
+    end;
+
+    bestBidCandidates.Free;
+    bestBids.Free;
   end;
 var
   BestDemandId, OldDemandId: Integer; // Keep Int to assign to Delivery down below
@@ -1726,10 +1822,10 @@ end;
 //Serf may ask for a job from within a house after completing previous delivery
 function TKMDeliveries.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = nil): Boolean;
 var
-  iQ, iD, iO, bestD, bestO, bestQ: Integer;
-  bid, bestBid: TKMDeliveryBid;
+  K, iQ, iD, iO, bidsToCompare {bestD, bestO, bestQ}: Integer;
+  bid{, bestBid}: TKMDeliveryBid;
   bestImportance: TKMDemandImportance;
-
+  bestBidCandidates, bestBids: TObjectBinaryHeap<TKMDeliveryBid>;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
@@ -1737,12 +1833,13 @@ begin
   try
     //Find Offer matching Demand
     //TravelRoute Asker>Offer>Demand should be shortest
-    bestBid := TKMDeliveryBid.Create;
-    bestO := -1;
-    bestD := -1;
+//    bestBid := TKMDeliveryBid.Create;
+//    bestO := -1;
+//    bestD := -1;
     bestImportance := Low(TKMDemandImportance);
     Result := False;
 
+    bestBidCandidates := TObjectBinaryHeap<TKMDeliveryBid>.Create(fDemandCount * fOfferCount, CompareBids);
     for iD := 1 to fDemandCount do
       if (fDemand[iD].Ware <> wtNone)
         and (fDemand[iD].Importance >= bestImportance) then //Skip any less important than the best we found
@@ -1751,7 +1848,13 @@ begin
             and (fOffer[iO].Ware <> wtNone)
             and PermitDelivery(iO, iD, aSerf) then
           begin
+            bid := TKMDeliveryBid.Create(iO, iD, fDemand[iD].Importance);
             if TryCalculateBid(dckFast, iO, iD, bid, aSerf) then
+            begin
+              bestBidCandidates.Push(bid);
+              bestImportance := bid.Importance;
+            end;
+//            if TryCalculateBid(dckFast, iO, iD, bid, aSerf) then
 
 //            fBestBidCandidates.Add()
           end;
@@ -1764,37 +1867,85 @@ begin
 //            BestImportance := fDemand[iD].Importance;
 //          end;
 
-    if (bestO <> -1) and (bestD <> -1) then
+    bidsToCompare := Min(BIDS_TO_COMPARE, bestBidCandidates.Count);
+    bestBids := TObjectBinaryHeap<TKMDeliveryBid>.Create(bidsToCompare, CompareBids);
+
+    for K := 0 to bidsToCompare - 1 do
     begin
-      AssignDelivery(bestO, bestD, aSerf);
+      bid := bestBidCandidates.Pop;
+
+      if bid.Importance < bestImportance then
+        Continue;
+
+      if TryCalculateBid(dckAccurate, bid.OfferID, bid.DemandID, bid) then
+        bestBids.Push(bid);
+    end;
+
+    bid := bestBids.Pop;
+
+    bestBidCandidates.Clear;
+    bestBids.Clear;
+
+
+    if bid <> nil then
+    begin
+      AssignDelivery(bid.OfferID, bid.DemandID, aSerf);
       Result := True;
     end else
       //Try to find ongoing delivery task from specified house and took it from serf, which is on the way to that house
       if aHouse <> nil then
       begin
-        bestBid.ResetValues;
-        bestQ := -1;
+//        bestBid.ResetValues;
+//        bestQ := -1;
         bestImportance := Low(TKMDemandImportance);
         for iQ := 1 to fQueueCount do
           if (fQueue[iQ].JobStatus = jsTaken)
             and (fOffer[fQueue[iQ].OfferID].Loc_House = aHouse)
-            and (fQueue[iQ].Serf <> nil)                                                //Should be always true
-            and (fQueue[iQ].Serf.Task is TKMTaskDeliver)                            //Should be always true
-            and (TKMTaskDeliver(fQueue[iQ].Serf.Task).DeliverStage = dsToFromHouse) then //Should be always true
+            and (fDemand[fQueue[iQ].DemandID].Importance >= bestImportance) then
+//            and  then //Should be always true
 //            and TryCalculateBid(dckAccurate, fQueue[iQ].OfferID, fQueue[iQ].DemandID, bid, aSerf)
 //            and ((bid < bestBid) or (fDemand[fQueue[iQ].DemandID].Importance > bestImportance)) then
           begin
-            bestQ := iQ;
-            bestBid := bid;
-            bestImportance := fDemand[fQueue[iQ].DemandID].Importance;
+            Assert((fQueue[iQ].Serf <> nil)                                                //Should be always true
+                    and (fQueue[iQ].Serf.Task is TKMTaskDeliver)                           //Should be always true
+                    and (TKMTaskDeliver(fQueue[iQ].Serf.Task).DeliverStage = dsToFromHouse));
+
+            bid := TKMDeliveryBid.Create(iQ, fDemand[fQueue[iQ].DemandID].Importance);
+            if TryCalculateBid(dckFast, fQueue[iQ].OfferID, fQueue[iQ].DemandID, bid, aSerf) then
+            begin
+              bestBidCandidates.Push(bid);
+              bestImportance := bid.Importance;
+            end;
+//            bestQ := iQ;
+//            bestBid := bid;
+//            bestImportance := fDemand[fQueue[iQ].DemandID].Importance;
           end;
-        if (bestQ <> -1) then
+
+        for K := 0 to bidsToCompare - 1 do
         begin
-          ReAssignDelivery(bestQ, aSerf);
+          bid := bestBidCandidates.Pop;
+
+          if bid.Importance < bestImportance then
+            Continue;
+
+          if TryCalculateBid(dckAccurate, fQueue[bid.QueueID].OfferID, fQueue[bid.QueueID].DemandID, bid, aSerf)  then
+            bestBids.Push(bid);
+        end;
+
+        bid := bestBids.Pop;
+
+        if bid <> nil then
+        begin
+          ReAssignDelivery(bid.QueueID, aSerf);
           Result := True;
         end;
       end;
-    bestBid.Free;
+
+    bestBidCandidates.Free;
+    bestBids.Free;
+
+    if bid <> nil then
+      bid.Free;
   finally
     {$IFDEF PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
@@ -2563,7 +2714,15 @@ end;
 { TKMDeliveryBidValue }
 constructor TKMDeliveryBid.Create;
 begin
+  Create(0, Low(TKMDemandImportance));
+end;
+
+
+constructor TKMDeliveryBid.Create(iQ: Integer; aImportance: TKMDemandImportance);
+begin
   Create(0, 0, Low(TKMDemandImportance));
+
+  QueueID := iQ;
 end;
 
 
@@ -2571,6 +2730,7 @@ constructor TKMDeliveryBid.Create(iO, iD: Integer; aImportance: TKMDemandImporta
 begin
   inherited Create;
 
+  QueueID := 0;
   OfferID := iO;
   DemandID := iD;
 
