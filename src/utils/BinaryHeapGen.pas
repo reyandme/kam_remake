@@ -6,17 +6,21 @@ uses Generics.Collections;
 
 
 type
-  TComparator<T: class> = function(A, B: T) : Boolean of object;
+  TComparator<T: class> = function(A, B: T) : Boolean;
 
-  TBinaryHeap<T: class> = class
+  TObjectBinaryHeap<T: class> = class
   private
-    fCount: Cardinal;
+    fCount: Integer;
     fItems: array of T;
     fCmp: TComparator<T>;
     procedure _siftdown(startpos, pos: SmallInt);
     procedure _siftup(pos: SmallInt);
   public
     constructor Create(aSize: Cardinal; aCmp: TComparator<T>);
+    destructor Destroy; override;
+
+    property Count: Integer read fCount;
+
     procedure Clear;
     function IsEmpty: Boolean;
     function Pop: T;
@@ -26,10 +30,12 @@ type
 
 
 implementation
+uses
+  SysUtils;
 
 
 { TBinaryHeap }
-constructor TBinaryHeap<T>.Create(aSize: Cardinal; aCmp: TComparator<T>);
+constructor TObjectBinaryHeap<T>.Create(aSize: Cardinal; aCmp: TComparator<T>);
 begin
   inherited Create;
 
@@ -39,20 +45,33 @@ begin
 end;
 
 
-procedure TBinaryHeap<T>.Clear;
+destructor TObjectBinaryHeap<T>.Destroy;
 begin
+  Clear;
+
+  inherited;
+end;
+
+
+procedure TObjectBinaryHeap<T>.Clear;
+var
+  I: Integer;
+begin
+  for I := fCount - 1 downto 0 do
+    FreeAndNil(fItems[I]);
+
   fCount := 0;
 end;
 
 
-function TBinaryHeap<T>.IsEmpty: Boolean;
+function TObjectBinaryHeap<T>.IsEmpty: Boolean;
 begin
   Result := (fCount = 0);
 end;
 
 
 //Push item onto heap, maintaining the heap invariant.
-procedure TBinaryHeap<T>.Push(x: T);
+procedure TObjectBinaryHeap<T>.Push(x: T);
 begin
   fItems[fCount] := x;
   Inc(fCount);
@@ -62,10 +81,12 @@ end;
 
 
 //Pop the smallest item off the heap, maintaining the heap invariant.
-function TBinaryHeap<T>.Pop: T;
+function TObjectBinaryHeap<T>.Pop: T;
 var
   lastelt, returnitem: T;
 begin
+  if fCount = 0 then Exit(nil);
+
   lastelt := fItems[fCount - 1];
   Dec(fCount);
 
@@ -86,9 +107,9 @@ end;
 
 //Update the position of the given item in the heap.
 //This function should be called every time the item is being modified.
-procedure TBinaryHeap<T>.UpdateItem(x: T);
+procedure TObjectBinaryHeap<T>.UpdateItem(x: T);
 var
-  I: ShortInt;
+  I: Integer;
 begin
   for I := 0 to fCount - 1 do
   if fItems[I] = x then
@@ -99,7 +120,7 @@ begin
 end;
 
 
-procedure TBinaryHeap<T>._siftdown(startpos, pos: SmallInt);
+procedure TObjectBinaryHeap<T>._siftdown(startpos, pos: SmallInt);
 var newitem, parent: T;
   parentpos: SmallInt;
 begin
@@ -120,7 +141,7 @@ begin
 end;
 
 
-procedure TBinaryHeap<T>._siftup(pos: SmallInt);
+procedure TObjectBinaryHeap<T>._siftup(pos: SmallInt);
 var childpos, endpos, rightpos, startpos: SmallInt;
   newitem: T;
 begin
