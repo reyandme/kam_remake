@@ -6,7 +6,7 @@ uses Generics.Collections;
 
 
 type
-  TComparator<T: class> = function(A, B: T) : Boolean;
+  TComparator<T: class> = function(A, B: T) : Boolean of object;
 
   TObjectBinaryHeap<T: class> = class
   private
@@ -21,10 +21,11 @@ type
 
     property Count: Integer read fCount;
 
+    procedure EnlargeTo(aSize: Cardinal);
     procedure Clear;
     function IsEmpty: Boolean;
     function Pop: T;
-    procedure Push(x: T);
+    procedure Push(aItem: T);
     procedure UpdateItem(x: T);
   end;
 
@@ -32,6 +33,9 @@ type
 implementation
 uses
   SysUtils;
+
+const
+  GROW_FACTOR = 1.618; // golden ratio
 
 
 { TBinaryHeap }
@@ -53,6 +57,13 @@ begin
 end;
 
 
+procedure TObjectBinaryHeap<T>.EnlargeTo(aSize: Cardinal);
+begin
+  if aSize > Length(fItems) then
+    SetLength(fItems, aSize);
+end;
+
+
 procedure TObjectBinaryHeap<T>.Clear;
 var
   I: Integer;
@@ -71,9 +82,12 @@ end;
 
 
 //Push item onto heap, maintaining the heap invariant.
-procedure TObjectBinaryHeap<T>.Push(x: T);
+procedure TObjectBinaryHeap<T>.Push(aItem: T);
 begin
-  fItems[fCount] := x;
+  if Length(fItems) <= fCount then
+    SetLength(fItems, Round(fCount * GROW_FACTOR));
+
+  fItems[fCount] := aItem;
   Inc(fCount);
 
   _siftdown(0, fCount - 1);
