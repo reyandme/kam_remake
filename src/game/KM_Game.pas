@@ -2679,6 +2679,8 @@ begin
 
     //Issue stored commands
     fGameInputProcess.ReplayTimer(fParams.GameTick);
+    if fParams.GameTick > 1 then
+      KaMRandom(MaxInt, 'TKMGameInputProcess.StoreCommand');
 
     if gGame = nil then
       Exit; //Quit if the game was stopped by a replay mismatch
