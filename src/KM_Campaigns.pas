@@ -36,6 +36,7 @@ type
   private
     //Runtime variables
     fPath: UnicodeString;
+    fName: UnicodeString;
     fTextLib: TKMTextLibrarySingle;
     fUnlockedMap: Byte;
     fScriptData: TKMemoryStreamBinary;
@@ -73,6 +74,7 @@ type
     property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
     property ScriptData: TKMemoryStreamBinary read fScriptData;
     property Viewed: Boolean read fViewed write fViewed;
+    property Name: UnicodeString read fName;
 
     function GetCampaignTitle: UnicodeString;
     function GetCampaignDescription: UnicodeString;
@@ -93,13 +95,13 @@ type
   private
     fActiveCampaign: TKMCampaign; //Campaign we are playing
     fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
-    fList: TList;
+    fList: TList<TKMCampaign>;
     function GetCampaign(aIndex: Integer): TKMCampaign;
     procedure AddCampaign(const aPath: UnicodeString);
 
     procedure ScanFolder(const aPath: UnicodeString);
     procedure SortCampaigns;
-    procedure LoadProgress(const aFileName: UnicodeString);
+    procedure LoadProgress(const aPath: UnicodeString);
   public
     constructor Create;
     destructor Destroy; override;
@@ -172,7 +174,7 @@ constructor TKMCampaignsCollection.Create;
 begin
   inherited Create;
 
-  fList := TList.Create;
+  fList := TList<TKMCampaign>.Create;
 end;
 
 
@@ -209,7 +211,7 @@ begin
     repeat
       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
       and (SearchRec.Attr and faDirectory = faDirectory)
-      and FileExists(aPath + SearchRec.Name + PathDelim+'info.cmp') then
+      and FileExists(aPath + SearchRec.Name + PathDelim + 'info.cmp') then
         AddCampaign(aPath + SearchRec.Name + PathDelim);
     until (FindNext(SearchRec) <> 0);
   finally
@@ -258,56 +260,45 @@ end;
 
 
 //Read progress from file trying to find matching campaigns
-procedure TKMCampaignsCollection.LoadProgress(const aFileName: UnicodeString);
+procedure TKMCampaignsCollection.LoadProgress(const aPath: UnicodeString);
 var
+  I, J: Integer;
+  Campaign: TKMCampaign;
   M: TKMemoryStreamBinary;
-  C: TKMCampaign;
-  I, J, campCount: Integer;
-  campName: TKMCampaignId;
   unlocked: Byte;
-  HasScriptData: Boolean;
   ScriptDataSize: Cardinal;
 begin
-  if not FileExists(aFileName) then Exit;
+  if not DirectoryExists(aPath) then
+    Exit;
 
-  M := TKMemoryStreamBinary.Create;
-  try
-    M.LoadFromFile(aFileName);
+  for I := 0 to Count - 1 do
+  begin
+    Campaign := Campaigns[I];
+    if not FileExists(aPath + Campaign.Name + '.dat') then
+      Continue;
 
-    M.Read(I); //Check for wrong file format
-    //All campaigns will be kept in initial state
-    if (I <> CAMP_HEADER_V1)
-      and (I <> CAMP_HEADER_V2)
-      and (I <> CAMP_HEADER_V3) then Exit;
-    HasScriptData := (I = CAMP_HEADER_V3);
+    Campaign.Viewed := True;
 
-    M.Read(campCount);
-    for I := 0 to campCount - 1 do
-    begin
-      M.Read(campName, sizeOf(TKMCampaignId));
+    M := TKMemoryStreamBinary.Create;
+    try
+      M.LoadFromFile(aPath + Campaign.Name + '.dat');
+
       M.Read(unlocked);
-      C := CampaignById(campName);
-      if C <> nil then
+      Campaign.UnlockedMap := unlocked;
+      for J := 0 to Campaign.Maps.Count - 1 do
       begin
-        C.Viewed := True;
-        C.UnlockedMap := unlocked;
-        for J := 0 to C.Maps.Count - 1 do
-        begin
-          M.Read(C.Maps[j].Completed, SizeOf(C.Maps[j].Completed));
-          M.Read(C.Maps[j].BestCompleteDifficulty, SizeOf(C.Maps[j].BestCompleteDifficulty));
-        end;
-
-        C.ScriptData.Clear;
-        if HasScriptData then
-        begin
-          M.Read(ScriptDataSize);
-          C.ScriptData.Write(Pointer(Cardinal(M.Memory) + M.Position)^, ScriptDataSize);
-          M.Seek(ScriptDataSize, soCurrent); //Seek past script data
-        end;
+        M.Read(Campaign.Maps[j].Completed, SizeOf(Campaign.Maps[j].Completed));
+        M.Read(Campaign.Maps[j].BestCompleteDifficulty, SizeOf(Campaign.Maps[j].BestCompleteDifficulty));
       end;
+
+      Campaign.ScriptData.Clear;
+      M.Read(ScriptDataSize);
+      Campaign.ScriptData.Write(Pointer(Cardinal(M.Memory) + M.Position)^, ScriptDataSize);
+      M.Seek(ScriptDataSize, soCurrent); //Seek past script data
+
+    finally
+      M.Free;
     end;
-  finally
-    M.Free;
   end;
 end;
 
@@ -315,34 +306,36 @@ end;
 procedure TKMCampaignsCollection.SaveProgress;
 var
   M: TKMemoryStreamBinary;
-  I,J: Integer;
+  I, J: Integer;
   FilePath: UnicodeString;
+  Campaign: TKMCampaign;
 begin
-  FilePath := ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat';
+  FilePath := ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns' + PathDelim;
   //Makes the folder incase it is missing
-  ForceDirectories(ExtractFilePath(FilePath));
+  ForceDirectories(FilePath);
 
-  M := TKMemoryStreamBinary.Create;
-  try
-    M.Write(Integer(CAMP_HEADER_V3)); //Identify our format
-    M.Write(Count);
-    for I := 0 to Count - 1 do
-      if Campaigns[I].Viewed then
+  for I := 0 to Count - 1 do
+  begin
+    Campaign := Campaigns[I];
+    if not Campaign.Viewed then
+      Continue;
+
+    M := TKMemoryStreamBinary.Create;
+    try
+      M.Write(Campaign.UnlockedMap);
+
+      for J := 0 to Campaign.Maps.Count - 1 do
       begin
-        M.Write(Campaigns[I].CampaignId, SizeOf(TKMCampaignId));
-        M.Write(Campaigns[I].UnlockedMap);
-        for J := 0 to Campaigns[I].Maps.Count - 1 do
-        begin
-          M.Write(Campaigns[I].Maps[J].Completed, SizeOf(Campaigns[I].Maps[J].Completed));
-          M.Write(Campaigns[I].Maps[J].BestCompleteDifficulty, SizeOf(Campaigns[I].Maps[J].BestCompleteDifficulty));
-        end;
-        M.Write(Cardinal(Campaigns[I].ScriptData.Size));
-        M.Write(Campaigns[I].ScriptData.Memory^, Campaigns[I].ScriptData.Size);
+        M.Write(Campaign.Maps[J].Completed, SizeOf(Campaign.Maps[J].Completed));
+        M.Write(Campaign.Maps[J].BestCompleteDifficulty, SizeOf(Campaign.Maps[J].BestCompleteDifficulty));
       end;
+      M.Write(Cardinal(Campaign.ScriptData.Size));
+      M.Write(Campaign.ScriptData.Memory^, Campaign.ScriptData.Size);
 
-    M.SaveToFile(FilePath);
-  finally
-    M.Free;
+      M.SaveToFile(FilePath + Campaign.Name + '.dat');
+    finally
+      M.Free;
+    end;
   end;
 
   gLog.AddTime('Campaigns.dat saved');
@@ -352,7 +345,7 @@ end;
 procedure TKMCampaignsCollection.Load;
 begin
   ScanFolder({ExeDir +} CAMPAIGNS_FOLDER_NAME + PathDelim);
-  LoadProgress({ExeDir +} SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
+  LoadProgress({ExeDir +} SAVES_FOLDER_NAME + PathDelim + 'Campaigns' + PathDelim);
 end;
 
 
@@ -590,6 +583,7 @@ end;
 procedure TKMCampaign.LoadFromPath(const aPath: UnicodeString);
 begin
   fPath := aPath;
+  fName := ExtractFileName(ExcludeTrailingBackslash(aPath));
 
   LoadFromFile(fPath + 'info.cmp');
   LoadMapsInfo;
