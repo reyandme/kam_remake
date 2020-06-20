@@ -121,6 +121,7 @@ begin
 
   {$IFDEF USEBASS}
   // Setup output - default device, 44100hz, stereo, 16 bits
+  BASS_SetConfig(BASS_CONFIG_DEV_DEFAULT, 1);
   if not BASS_Init(-1, 44100, 0, 0, nil) then
   begin
     gLog.AddTime('Failed to initialize the music playback device');
