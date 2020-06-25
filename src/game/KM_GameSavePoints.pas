@@ -197,7 +197,8 @@ begin
 
   Lock;
   try
-    fSavePoints.Add(aTick, TKMSavePoint.Create(aStream, aTick));
+    if not fSavePoints.ContainsKey(aTick) then // Check if we don't have same tick save here too, since we work in multithread enviroment
+      fSavePoints.Add(aTick, TKMSavePoint.Create(aStream, aTick));
   finally
     Unlock;
   end;
