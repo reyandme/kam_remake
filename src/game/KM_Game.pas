@@ -460,7 +460,10 @@ begin
   //This will ensure all queued work is completed before destruction
   FreeAndNil(fSaveWorkerThread);
   FreeAndNil(fAutoSaveWorkerThread);
-  FreeAndNil(fBaseSaveWorkerThread);
+
+  // BaseSaveWorker could be already destroyed
+  if fBaseSaveWorkerThread <> nil then
+    FreeAndNil(fBaseSaveWorkerThread);
 
   inherited;
 end;
@@ -2112,8 +2115,12 @@ begin
   gPerfLogs.SectionEnter(psGameSaveWait);
   {$ENDIF}
   try
-    if aSaveWorkerThread <> fBaseSaveWorkerThread then
+    if (fBaseSaveWorkerThread <> nil) and (aSaveWorkerThread <> fBaseSaveWorkerThread) then
+    begin
+      // We have to wait until basesave is made before first game save
       fBaseSaveWorkerThread.WaitForAllWorkToComplete;
+      FreeAndNil(fBaseSaveWorkerThread); //fBaseSaveWorkerThread has done its job, We can destroy it now to free resources and release thread
+    end;
 
     //Wait for previous save async tasks to complete before proceeding
     aSaveWorkerThread.WaitForAllWorkToComplete;
