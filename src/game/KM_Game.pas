@@ -85,7 +85,6 @@ type
     fDoHold: Boolean; //Request to run Hold after UpdateState has finished
     fDoHoldState: TKMGameResultMsg; //The type of Hold we want to occur due to DoGameHold
 
-
     // Worker threads
     fSaveWorkerThread: TKMWorkerThread; // Worker thread for normal saves and save at the end of PT
     fBaseSaveWorkerThread: TKMWorkerThread; // Worker thread for base save only

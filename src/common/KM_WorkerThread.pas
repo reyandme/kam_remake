@@ -85,26 +85,26 @@ end;
 
 procedure TKMWorkerThread.Execute;
 var
-  Job: TKMWorkerThreadTask;
-  LoopRunning: Boolean;
+  job: TKMWorkerThreadTask;
+  loopRunning: Boolean;
 begin
-  Job := nil;
-  LoopRunning := True;
+  job := nil;
+  loopRunning := True;
 
-  while LoopRunning do
+  while loopRunning do
   begin
     TMonitor.Enter(fTaskQueue);
     try
       if fTaskQueue.Count > 0 then
       begin
-        Job := fTaskQueue.Dequeue;
+        job := fTaskQueue.Dequeue;
       end
       else
       begin
         //We may only terminate once we have finished all our work
         if Terminated then
         begin
-          LoopRunning := False;
+          loopRunning := False;
         end
         else
         begin
@@ -114,22 +114,22 @@ begin
 
           TMonitor.Wait(fTaskQueue, 10000);
           if fTaskQueue.Count > 0 then
-            Job := fTaskQueue.Dequeue;
+            job := fTaskQueue.Dequeue;
         end;
       end;
     finally
       TMonitor.Exit(fTaskQueue);
     end;
 
-    if Job <> nil then
+    if job <> nil then
     begin
-      NameThread(Job.WorkName);
-      Job.Proc();
+      NameThread(job.WorkName);
+      job.Proc();
 
-      if Assigned(Job.Callback) then
-        Job.Callback(Job.WorkName);
+      if Assigned(job.Callback) then
+        job.Callback(job.WorkName);
 
-      FreeAndNil(Job);
+      FreeAndNil(job);
     end;
 
     NameThread;
@@ -145,7 +145,7 @@ end;
 
 procedure TKMWorkerThread.QueueWork(aProc: TProc; aCallback: TProc<String> = nil; aWorkName: string = '');
 var
-  Job: TKMWorkerThreadTask;
+  job: TKMWorkerThreadTask;
 begin
   if fSynchronousExceptionMode then
   begin
@@ -156,15 +156,15 @@ begin
     if Finished then
       raise Exception.Create('Worker thread not running in TKMWorkerThread.QueueWork');
 
-    Job := TKMWorkerThreadTask.Create;
-    Job.Proc := aProc;
-    Job.Callback := aCallback;
-    Job.WorkName := aWorkName;
+    job := TKMWorkerThreadTask.Create;
+    job.Proc := aProc;
+    job.Callback := aCallback;
+    job.WorkName := aWorkName;
 
     TMonitor.Enter(fTaskQueue);
     try
       fWorkCompleted := False;
-      fTaskQueue.Enqueue(Job);
+      fTaskQueue.Enqueue(job);
 
       TMonitor.Pulse(fTaskQueue);
     finally
