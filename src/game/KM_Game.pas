@@ -1878,6 +1878,9 @@ var
 begin
   gameInfo := TKMGameInfo.Create;
 
+  // Allocate memory for save stream, could save up to 25% of save time
+  aBodyStream.SetSize(gTerrain.MapX*gTerrain.MapY*32 + 10*1024*1024);
+
   if aHeaderStream = nil then
     aHeaderStream := aBodyStream; //Write into the body stream, since we don't use compression
   // ----------------------------------------------------------------
@@ -1999,6 +2002,9 @@ begin
   //For multiplayer consistency we compare all saves CRCs, they should be created identical on all player's computers.
   if not fParams.IsMultiPlayerOrSpec then
     fGamePlayInterface.Save(aBodyStream); //Saves message queue and school/barracks selected units
+
+  // Trim stream size to current position
+  aBodyStream.SetSize(aBodyStream.Position);
 
   //If we want stuff like the MessageStack and screen center to be stored in multiplayer saves,
   //we must send those "commands" through the GIP so all players know about them and they're in sync.
