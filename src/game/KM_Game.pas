@@ -2612,7 +2612,7 @@ begin
 
   if fParams.IsMultiPlayerOrSpec then
   begin
-    if gNetworking.IsHost then
+    if gNetworking.IsHost then // Host initiate autosave command
     begin
       fGameInputProcess.CmdGame(gicType, UTCNow); //Timestamp must be synchronised
     end;
