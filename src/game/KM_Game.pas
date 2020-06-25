@@ -2439,15 +2439,24 @@ procedure TKMGame.MakeSavePoint();
 var
   saveStream: TKMemoryStream;
 begin
-  if (fSavePoints = nil) or fSavePoints.Contains(fParams.Tick) then //No need to save twice on the same tick
-    Exit;
+  {$IFDEF PERFLOG}
+  gPerfLogs.SectionEnter(psGameSavePoint);
+  {$ENDIF}
+  try
+    if (fSavePoints = nil) or fSavePoints.Contains(fParams.Tick) then //No need to save twice on the same tick
+      Exit;
 
-  gLog.AddTime('Make savepoint at tick ' + IntToStr(fParams.Tick));
+    gLog.AddTime('Make savepoint at tick ' + IntToStr(fParams.Tick));
 
-  saveStream := TKMemoryStreamBinary.Create;
-  SaveGameToStream(0, saveStream); // Date is not important
+    saveStream := TKMemoryStreamBinary.Create;
+    SaveGameToStream(0, saveStream); // Date is not important
 
-  fSavePoints.NewSavePoint(saveStream, fParams.Tick);
+    fSavePoints.NewSavePoint(saveStream, fParams.Tick);
+  finally
+    {$IFDEF PERFLOG}
+    gPerfLogs.SectionLeave(psGameSavePoint);
+    {$ENDIF}
+  end;
 end;
 
 
