@@ -21,7 +21,9 @@ type
 
   TKMSavePointCollection = class
   private
-    fCriticalSection: TCriticalSection;
+    fAsyncSaveThreadsCnt: Byte; //Number of threads doing save atm. Usually should be not more then 1
+    fWaitCS: TCriticalSection;
+    fSaveCS: TCriticalSection;
     fSavePoints: TDictionary<Cardinal, TKMSavePoint>;
     //Properties to restore after load saved replay
     fLastTick: Cardinal;
@@ -60,14 +62,15 @@ type
 
 implementation
 uses
-  SysUtils, Classes;
+  SysUtils, Classes, KM_CommonUtils;
 
 { TKMSavedReplays }
 constructor TKMSavePointCollection.Create();
 begin
   inherited;
 
-  fCriticalSection := TCriticalSection.Create;
+  fSaveCS := TCriticalSection.Create;
+  fWaitCS := TCriticalSection.Create;
   fSavePoints := TDictionary<Cardinal, TKMSavePoint>.Create();
   fLastTick := 0;
 end;
@@ -75,9 +78,30 @@ end;
 
 destructor TKMSavePointCollection.Destroy();
 begin
-  Clear;
-  fSavePoints.Free; // TKMList will free all objects of the list
-  fCriticalSection.Free;
+  {$IFDEF WDC}
+  // Wait till all threads release waitLock
+  while True do
+  begin
+    fWaitCS.Enter;
+    try
+      if fAsyncSaveThreadsCnt = 0 then
+        Break;
+    finally
+      fWaitCS.Leave;
+    end;
+    Sleep(100);
+  end;
+  {$ENDIF}
+
+  Lock; // Lock even in destructor
+  try
+    Clear;
+    fSavePoints.Free; // TKMList will free all objects of the list
+  finally
+    Unlock;
+  end;
+  fSaveCS.Free;
+  fWaitCS.Free;
 
   inherited;
 end;
@@ -245,18 +269,32 @@ begin
   if Self = nil then Exit;
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
-    var
-      localStream: TKMemoryStream;
-    begin
-      localStream := TKMemoryStreamBinary.Create;
-      try
-        Save(localStream); // Save has Lock / Unlock inside already
-        localStream.SaveToFileCompressed(aFileName, 'SavePointsCompressed');
-      finally
-        localStream.Free;
-      end;
-    end, 'SavePointCollection.SaveToFileAsync');
+    fWaitCS.Enter;
+    try
+      Inc(fAsyncSaveThreadsCnt); // Increase save threads counter in main thread
+    finally
+      fWaitCS.Leave;
+    end;
+
+    aWorkerThread.QueueWork(
+      procedure
+      var
+        localStream: TKMemoryStream;
+      begin
+        localStream := TKMemoryStreamBinary.Create;
+        try
+          Save(localStream); // Save has Lock / Unlock inside already
+          fWaitCS.Enter;
+          try
+            Dec(fAsyncSaveThreadsCnt); // Decrease thread counter since we saved all data into thread local stream
+          finally
+            fWaitCS.Leave;
+          end;
+          localStream.SaveToFileCompressed(aFileName, 'SavePointsCompressed');
+        finally
+          localStream.Free;
+        end;
+      end, 'SavePointCollection.SaveToFileAsync');
   {$ELSE}
     localStream := TKMemoryStreamBinary.Create;
     try
@@ -273,7 +311,7 @@ procedure TKMSavePointCollection.Lock;
 begin
   if Self = nil then Exit;
 
-  fCriticalSection.Enter;
+  fSaveCS.Enter;
 end;
 
 
@@ -281,7 +319,7 @@ procedure TKMSavePointCollection.Unlock;
 begin
   if Self = nil then Exit;
 
-  fCriticalSection.Leave;
+  fSaveCS.Leave;
 end;
 
 
