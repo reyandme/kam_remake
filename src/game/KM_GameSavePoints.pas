@@ -29,11 +29,13 @@ type
     function GetCount(): Integer;
     function GetSavePoint(aTick: Cardinal): TKMSavePoint;
     function GetStream(aTick: Cardinal): TKMemoryStream;
+    function GetLastTick: Cardinal;
+    procedure SetLastTick(const aLastTick: Cardinal);
   public
     constructor Create();
     destructor Destroy; override;
 
-    property LastTick: Cardinal read fLastTick write fLastTick;
+    property LastTick: Cardinal read GetLastTick write SetLastTick;
     procedure Clear;
 
     procedure Lock;
@@ -83,6 +85,8 @@ end;
 
 function TKMSavePointCollection.GetCount(): Integer;
 begin
+  if Self = nil then Exit(0);
+
   Lock;
   try
     Result := fSavePoints.Count;
@@ -92,10 +96,28 @@ begin
 end;
 
 
+function TKMSavePointCollection.GetLastTick: Cardinal;
+begin
+  if Self = nil then Exit(0);
+
+  Result := fLastTick;
+end;
+
+
+procedure TKMSavePointCollection.SetLastTick(const aLastTick: Cardinal);
+begin
+  if Self = nil then Exit;
+
+  fLastTick := aLastTick;
+end;
+
+
 procedure TKMSavePointCollection.Clear;
 var
   savePoint: TKMSavePoint;
 begin
+  if Self = nil then Exit;
+
   Lock;
   try
     for savePoint in fSavePoints.Values do
@@ -110,6 +132,8 @@ end;
 
 function TKMSavePointCollection.Contains(aTick: Cardinal): Boolean;
 begin
+  if Self = nil then Exit(False);
+
   Lock;
   try
     Result := fSavePoints.ContainsKey(aTick);
@@ -123,6 +147,8 @@ procedure TKMSavePointCollection.FillTicks(aTicksList: TList<Cardinal>);
 var
   Tick: Cardinal;
 begin
+  if Self = nil then Exit;
+
   Lock;
   try
     for Tick in fSavePoints.Keys do
@@ -136,6 +162,8 @@ end;
 function TKMSavePointCollection.GetSavePoint(aTick: Cardinal): TKMSavePoint;
 begin
   Result := nil;
+  if Self = nil then Exit;
+
   Lock;
   try
     if fSavePoints.ContainsKey(aTick) then
@@ -151,6 +179,8 @@ var
   savePoint: TKMSavePoint;
 begin
   Result := nil;
+  if Self = nil then Exit;
+
   Lock;
   try
     if fSavePoints.TryGetValue(aTick, savePoint) then
@@ -163,6 +193,8 @@ end;
 
 procedure TKMSavePointCollection.NewSavePoint(aStream: TKMemoryStream; aTick: Cardinal);
 begin
+  if Self = nil then Exit;
+
   Lock;
   try
     fSavePoints.Add(aTick, TKMSavePoint.Create(aStream, aTick));
@@ -178,6 +210,8 @@ var
   key: Cardinal;
   savePoint: TKMSavePoint;
 begin
+  if Self = nil then Exit;
+
   Lock;
   try
     aSaveStream.PlaceMarker('SavePoints');
@@ -207,6 +241,8 @@ var
   localStream: TKMemoryStream;
 {$ENDIF}
 begin
+  if Self = nil then Exit;
+
   {$IFDEF WDC}
     aWorkerThread.QueueWork(procedure
     var
@@ -234,12 +270,16 @@ end;
 
 procedure TKMSavePointCollection.Lock;
 begin
+  if Self = nil then Exit;
+
   fCriticalSection.Enter;
 end;
 
 
 procedure TKMSavePointCollection.Unlock;
 begin
+  if Self = nil then Exit;
+
   fCriticalSection.Leave;
 end;
 
@@ -248,6 +288,7 @@ procedure TKMSavePointCollection.LoadFromFile(const aFileName: UnicodeString);
 var
   S: TKMemoryStream;
 begin
+  if Self = nil then Exit;
   if not FileExists(aFileName) then Exit;
 
   S := TKMemoryStreamBinary.Create;
@@ -267,6 +308,7 @@ var
   key: Cardinal;
 begin
   Result := 0;
+  if Self = nil then Exit;
 
   Lock;
   try
@@ -285,6 +327,8 @@ var
   savePoint: TKMSavePoint;
   stream: TKMemoryStream;
 begin
+  if Self = nil then Exit;
+
   Lock;
   try
     fSavePoints.Clear;
@@ -312,7 +356,7 @@ begin
 end;
 
 
-{ TKMSavedReplay }
+{ TKMSavePoint }
 constructor TKMSavePoint.Create(aStream: TKMemoryStream; aTick: Cardinal);
 begin
   inherited Create;
