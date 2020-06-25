@@ -82,11 +82,11 @@ end;
 
 function TPathFindingAStarNew.MakeRoute: Boolean;
 const
-  c_closed = 65535;
+  C_CLOSED = 65535;
 var
   N: PANodeRec;
   X, Y: Word;
-  NewCost: Word;
+  newCost: Word;
 begin
   // Do not build the route in case destination is not walkable
   if not IsWalkableTile(fLocA.X, fLocA.Y) then Exit(False);
@@ -115,7 +115,7 @@ begin
 
   while (fMinN <> nil) and not DestinationReached(fMinN.X, fMinN.Y) do
   begin
-    fMinN.Estim := c_closed;
+    fMinN.Estim := C_CLOSED;
 
     //Check all surrounding cells and issue costs to them
     for Y := Max(fMinN.Y-1,1) to Min(fMinN.Y+1, gTerrain.MapY-1) do
@@ -136,20 +136,20 @@ begin
             fHeap.Push(N);
           end
           else //If cell doesn't meets Passability then mark it as Closed
-            N.Estim := c_closed;
+            N.Estim := C_CLOSED;
         end;
       end
       else //Else cell is old
       begin
         //Node N is valid. If route through new cell is shorter than previous
-        if N.Estim <> c_closed then
+        if N.Estim <> C_CLOSED then
         if CanWalkTo(KMPoint(fMinN.X, fMinN.Y), X, Y) then
         begin
-          NewCost := MovementCost(fMinN.X, fMinN.Y, X, Y);
-          if fMinN.CostTo + NewCost < N.CostTo then
+          newCost := MovementCost(fMinN.X, fMinN.Y, X, Y);
+          if fMinN.CostTo + newCost < N.CostTo then
           begin
             N.Parent := fMinN;
-            N.CostTo := fMinN.CostTo + NewCost;
+            N.CostTo := fMinN.CostTo + newCost;
           end;
         end;
       end;

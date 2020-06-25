@@ -37,8 +37,10 @@ implementation
 
 { TPathFindingAStarOld }
 function TPathFindingAStarOld.MakeRoute: Boolean;
-const c_closed = 65535;
-var I, X, Y: Integer;
+const
+  C_CLOSED = 65535;
+var
+  I, X, Y: Integer;
 begin
   //Erase previous values
   SetLength(ORef, 0);
@@ -61,7 +63,7 @@ begin
   while not DestinationReached(fMinCost.Pos.X, fMinCost.Pos.Y) and (fMinCost.Cost <> 65535) do
   begin
 
-    OList[fMinCost.ID].Estim := c_closed;
+    OList[fMinCost.ID].Estim := C_CLOSED;
 
     //Check all surrounding cells and issue costs to them
     for y := Math.max(fMinCost.Pos.Y-1,1) to Math.min(fMinCost.Pos.Y+1, gTerrain.MapY-1) do
@@ -84,7 +86,7 @@ begin
           OList[OCount].Estim := (abs(x-fLocB.X) + abs(y-fLocB.Y)) * 10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
         end
         else //If cell doen't meets Passability then mark it as Closed
-          OList[OCount].Estim := c_closed;
+          OList[OCount].Estim := C_CLOSED;
       end;
 
     end
@@ -92,7 +94,7 @@ begin
     begin
 
       //If route through new cell is shorter than ORef[y,x] then
-      if OList[ORef[y,x]].Estim <> c_closed then
+      if OList[ORef[y,x]].Estim <> C_CLOSED then
       if CanWalkTo(fMinCost.Pos, x, y) then
       begin
         fNewCost := MovementCost(fMinCost.Pos.X, fMinCost.Pos.Y, X, Y);
@@ -108,7 +110,7 @@ begin
     //Find next cell with least (Estim+CostTo)
     fMinCost.Cost := 65535;
     for i := OCount downto 1 do //'downto' works faster here
-      if OList[i].Estim <> c_closed then
+      if OList[i].Estim <> C_CLOSED then
         if (OList[i].Estim + OList[i].CostTo) < fMinCost.Cost then
         begin
           fMinCost.Cost := OList[i].Estim + OList[i].CostTo;

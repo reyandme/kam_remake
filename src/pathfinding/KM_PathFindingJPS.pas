@@ -72,7 +72,7 @@ end;
 
 procedure TPathFindingJPS.Reset;
 var
-  I,K: Integer;
+  I, K: Integer;
 begin
   openList.Clear;
 
@@ -98,7 +98,7 @@ end;
 //Find and return the the path.
 function TPathFindingJPS.MakeRoute: Boolean;
 var
-  Node: TJPSPoint;
+  node: TJPSPoint;
 begin
   SetLength(Nodes, gTerrain.MapY+1, gTerrain.MapX+1);
 
@@ -115,16 +115,16 @@ begin
   while not openList.IsEmpty do
   begin
     // pop the position of node which has the minimum `f` value.
-    Node := openList.Pop;
-    Node.closed := True;
+    node := openList.Pop;
+    node.closed := True;
 
-    if Node = endNode then
+    if node = endNode then
     begin
       Result := True;
       Exit;
     end;
 
-    identifySuccessors(Node);
+    identifySuccessors(node);
   end;
 
   // fail to find the path
@@ -135,16 +135,16 @@ end;
 
 procedure TPathFindingJPS.ReturnRoute(NodeList: TKMPointList);
 var
-  Node: TJPSPoint;
+  node: TJPSPoint;
 begin
   NodeList.Clear;
 
-  Node := endNode;
+  node := endNode;
 
-  while Node <> nil do
+  while node <> nil do
   begin
-    NodeList.Add(KMPoint(Node.X, Node.Y));
-    Node := Node.parent;
+    NodeList.Add(KMPoint(node.X, node.Y));
+    node := node.parent;
   end;
 
   //Reverse the array
@@ -163,12 +163,12 @@ end;
  *}
 procedure TPathFindingJPS.identifySuccessors(node: TJPSPoint);
 var
+  I: Integer;
   endX, endY: SmallInt;
-  x,y,jx,jy: SmallInt;
+  x, y, jx, jy: SmallInt;
   neighbors: TPointArray;
   neighbor, jumpPoint: TPoint;
   jumpNode: TJPSPoint;
-  I: Integer;
   d, ng: Single;
 begin
     endX := endNode.X;
@@ -313,15 +313,17 @@ end;
 function TPathFindingJPS.findNeighbors(const node: TJPSPoint): TPointArray;
 var
   count: SmallInt;
+
   procedure Push(ax,ay: SmallInt);
   begin
     Result[count].X := ax;
     Result[count].Y := ay;
     Inc(count);
   end;
+
 var
   parent: TJPSPoint;
-  x,y: SmallInt;
+  x, y: SmallInt;
   px, py, dx, dy: SmallInt;
 begin
   count := 0;
