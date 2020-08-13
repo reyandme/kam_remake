@@ -1600,6 +1600,8 @@ begin
   else
   begin
     Message_Delete(TKMImage(Sender).Tag);
+    if (TKMImage(Sender).Tag < fShownMessage) then
+        Dec(fShownMessage);
   end;
 end;
 
