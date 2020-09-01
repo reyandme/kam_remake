@@ -194,9 +194,9 @@ var
 begin
   //Difficulty levels
   OldMD := mdNone;
-  if fCampaign.MapsInfo[fMapIndex].TxtInfo.HasDifficultyLevels then
+  if fCampaign.Maps[fMapIndex].TxtInfo.HasDifficultyLevels then
   begin
-    DiffLevels := fCampaign.MapsInfo[fMapIndex].TxtInfo.DifficultyLevels;
+    DiffLevels := fCampaign.Maps[fMapIndex].TxtInfo.DifficultyLevels;
 
     if gGameSettings.CampaignLastDifficulty in DiffLevels then
       OldMD := gGameSettings.CampaignLastDifficulty;
@@ -205,8 +205,8 @@ begin
     I := 0;
 
     //Set BestCompleteDifficulty as default
-    if fCampaign.MapsProgressData[fMapIndex].Completed then
-      DefMD := fCampaign.MapsProgressData[fMapIndex].BestCompleteDifficulty
+    if fCampaign.Maps[fMapIndex].Completed then
+      DefMD := fCampaign.Maps[fMapIndex].BestCompleteDifficulty
     else if OldMD <> mdNone then
       DefMD := OldMD
     else
@@ -254,7 +254,7 @@ begin
     Image_CampaignFlags[I].Highlight := (fMapIndex = I);
     color := icLightGray2;
     if I < fCampaign.MapCount then
-      color := DIFFICULTY_LEVELS_COLOR[fCampaign.MapsProgressData[I].BestCompleteDifficulty];
+      color := DIFFICULTY_LEVELS_COLOR[fCampaign.Maps[I].BestCompleteDifficulty];
     Label_CampaignFlags[I].FontColor := color;
   end;
 
@@ -308,7 +308,7 @@ begin
   if Assigned(OnNewCampaignMap) then
     OnNewCampaignMap(fCampaignId, fMapIndex, fDifficulty);
 
-  if fCampaign.MapsInfo[fMapIndex].TxtInfo.HasDifficultyLevels then
+  if fCampaign.Maps[fMapIndex].TxtInfo.HasDifficultyLevels then
     gGameSettings.CampaignLastDifficulty := TKMMissionDifficulty(DropBox_Difficulty.GetSelectedTag);
 end;
 
