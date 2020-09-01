@@ -164,14 +164,14 @@ begin
   //Setup sites
   for I := 0 to High(Image_CampaignFlags) do
   begin
-    Image_CampaignFlags[I].Visible := I < fCampaign.MapCount;
+    Image_CampaignFlags[I].Visible := I < fCampaign.Maps.Count;
     Image_CampaignFlags[I].TexID   := MapPic[I <= fCampaign.UnlockedMap];
     Image_CampaignFlags[I].HighlightOnMouseOver := I <= fCampaign.UnlockedMap;
-    Label_CampaignFlags[I].Visible := (I < fCampaign.MapCount) and (I <= fCampaign.UnlockedMap);
+    Label_CampaignFlags[I].Visible := (I < fCampaign.Maps.Count) and (I <= fCampaign.UnlockedMap);
   end;
 
   //Place sites
-  for I := 0 to fCampaign.MapCount - 1 do
+  for I := 0 to fCampaign.Maps.Count - 1 do
   begin
     //Pivot flags around Y=bottom X=middle, that's where the flag pole is
     Image_CampaignFlags[I].Left := fCampaign.Maps[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
@@ -253,7 +253,7 @@ begin
   begin
     Image_CampaignFlags[I].Highlight := (fMapIndex = I);
     color := icLightGray2;
-    if I < fCampaign.MapCount then
+    if I < fCampaign.Maps.Count then
       color := DIFFICULTY_LEVELS_COLOR[fCampaign.Maps[I].BestCompleteDifficulty];
     Label_CampaignFlags[I].FontColor := color;
   end;
@@ -352,7 +352,7 @@ begin
   Image_CampaignBG.Width := Round(1024*Panel_Campaign_Flags.Scale);
   //Special rule to keep campaign flags pivoted at the right place (so the flagpole doesn't move when you resize)
   if fCampaign <> nil then
-    for I := 0 to fCampaign.MapCount - 1 do
+    for I := 0 to fCampaign.Maps.Count - 1 do
       with Image_CampaignFlags[I] do
       begin
         //Pivot flags around Y=bottom X=middle, that's where the flag pole is

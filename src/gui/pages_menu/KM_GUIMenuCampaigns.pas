@@ -96,7 +96,7 @@ begin
   for I := 0 to fCampaigns.Count - 1 do
   begin
     ColumnBox_Camps.AddItem(MakeListRow(
-                        [fCampaigns[I].GetCampaignTitle, IntToStr(fCampaigns[I].MapCount), IntToStr(fCampaigns[I].UnlockedMap + 1)],
+                        [fCampaigns[I].GetCampaignTitle, IntToStr(fCampaigns[I].Maps.Count), IntToStr(fCampaigns[I].UnlockedMap + 1)],
                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF], I));
     if fCampaigns[I].ShortName = gGameSettings.MenuCampaignName then
     begin
