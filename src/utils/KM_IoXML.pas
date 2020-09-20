@@ -71,7 +71,14 @@ begin
   // When no file exists we create an empty XML and let caller handle it
   // e.g. by reading default values from it
   if FileExists(aFilename) then
-    fDocument.LoadFromFile(aFilename);
+  begin
+    try
+      fDocument.LoadFromFile(aFilename, 4096, True);
+    except on EEncodingError do
+      // Encoding error create back up, clear file and we try again
+      fDocument.LoadFromFile(aFilename, 4096, False);
+    end;
+  end;
 
   fRoot := fDocument.ChildNodes.FindNode('Root');
 

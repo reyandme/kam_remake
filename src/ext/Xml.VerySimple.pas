@@ -22,7 +22,8 @@ unit Xml.VerySimple;
 interface
 
 uses
-  Classes, SysUtils, Generics.Defaults, Generics.Collections, Variants, Rtti;
+  Classes, SysUtils, Generics.Defaults, Generics.Collections,
+  Variants, Rtti, dialogs ;
 
 const
   TXmlSpaces = #$20 + #$0A + #$0D + #9;
@@ -293,7 +294,9 @@ type
     /// <summary> Translates escaped characters back into XML control characters </summar>
     class function Unescape(const Value: String): String; virtual;
     ///	<summary> Loads the XML from a file </summary>
-    function LoadFromFile(const FileName: String; BufferSize: Integer = 4096): TXmlVerySimple; virtual;
+    function LoadFromFile(const FileName: String;
+      BufferSize: Integer = 4096;
+      const DoBackuponError: Boolean = False): TXmlVerySimple; virtual;
     ///	<summary> Loads the XML from a stream </summary>
     function LoadFromStream(const Stream: TStream; BufferSize: Integer = 4096): TXmlVerySimple; virtual;
     ///	<summary> Parse attributes into the attribute list for a given string </summary>
@@ -500,14 +503,56 @@ begin
     Walk(Writer, '', Child);
 end;
 
-function TXmlVerySimple.LoadFromFile(const FileName: String; BufferSize: Integer = 4096): TXmlVerySimple;
+function TXmlVerySimple.LoadFromFile(const FileName: String;
+  BufferSize: Integer = 4096;
+  const DoBackuponError: Boolean = False): TXmlVerySimple;
+
+  procedure saveFile(const path: String; const src: String);
+  var
+    Stream: TFileStream;
+  begin
+    try
+      Stream := TFileStream.create(path, fmCreate);
+      Stream.Write(Pointer(src)^, Length(src))
+    finally
+      Stream.Free;
+    end;
+  end;
+
 var
   Stream: TFileStream;
+  BackupPath : String;
+  BackupContent : String;
 begin
+  if DoBackuponError then
+  try
+    Stream := TFileStream.Create(FileName, fmOpenRead + fmShareDenyWrite);
+    SetLength(BackupContent, Stream.Size);
+    Stream.Read(Pointer(BackupContent)^, Stream.Size);
+  finally
+    Stream.Free;
+  end;
+
   Stream := TFileStream.Create(FileName, fmOpenRead + fmShareDenyWrite);
   try
-    LoadFromStream(Stream, BufferSize);
+    try
+
+      LoadFromStream(Stream, BufferSize);
+    except on err : EEncodingError do
+      begin
+          if (DoBackuponError = False) then begin
+            raise;
+          end;
+          BackupPath := ExtractFilePath(FileName) + 'backup_' + ExtractFileName(FileName);
+          saveFile(BackupPath, BackupContent);
+          ShowMessage('Error with file process. Err : ' + err.ToString()
+            + '. Did backup by path: ' + BackupPath
+            + '. BackupContent length : ' + BackupContent.Length.ToString());
+          raise;
+        end
+    end;
   finally
+    // idk why this action clear file on exception. By docs this not described
     Stream.Free;
   end;
   Result := Self;
