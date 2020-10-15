@@ -393,8 +393,6 @@ end;
 
 
 destructor TKMCampaign.Destroy;
-var
-  I: Integer;
 begin
   FreeAndNil(fTextLib);
   fScriptData.Free;
