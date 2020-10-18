@@ -249,14 +249,15 @@ begin
 
         for I := 0 to High(Image_CampaignSubNode) do
         begin
-          Image_CampaignSubNode[I] := TKMImage.Create(Panel_CampaignInfo, 0, 0, 4, 4, 16, rxGuiMain);
-          Image_CampaignSubNode[I].ImageCenter;
+          Image_CampaignSubNode[I] := TKMImage.Create(Panel_CampaignInfo, 0, 0, 7, 7, 16, rxGuiMain, 0, [anLeft, anRight, anTop, anBottom]);
+          Image_CampaignSubNode[I].AnchorsStretch;
           Image_CampaignSubNode[I].Hide;
         end;
 
         for I := 0 to High(Image_CampaignFlags) do
         begin
-          Image_CampaignFlags[I] := TKMImage.Create(Panel_CampaignInfo, 0, 0, 16, 22, 10, rxGuiMain);
+          Image_CampaignFlags[I] := TKMImage.Create(Panel_CampaignInfo, 0, 0, 17, 24, 10, rxGuiMain, 0, [anLeft, anRight, anTop, anBottom]);
+          Image_CampaignFlags[I].AnchorsStretch;
           Image_CampaignFlags[I].Tag := I;
           Image_CampaignFlags[I].Hide;
 
@@ -696,9 +697,12 @@ end;
 procedure TKMMenuMapEditor.RefreshCampaignFlags;
 const
   MapPic: array [Boolean] of Byte = (10, 11);
+  MapLeft: array [Boolean] of Byte = (1, 0);
+  MapWidth: array [Boolean] of Byte = (19, 17);
 var
   I: Integer;
   K: Single;
+  Unblocked: Boolean;
   Campaign: TKMCampaign;
   Map: TKMapInfo;
 begin
@@ -730,13 +734,14 @@ begin
     Label_CampaignFlags[I].Visible := False;
     if Assigned(Campaign) and (I < Campaign.Maps.Count) then
     begin
-      Label_CampaignFlags[I].Visible := Assigned(Map) and (I <= Map.CampaignMapIndex);
-      Image_CampaignFlags[I].TexID := MapPic[Assigned(Map) and (I <= Map.CampaignMapIndex)];
-      Image_CampaignFlags[I].Left := Round(Campaign.Maps[I].Flag.X * K - Image_CampaignFlags[I].Width / 2);
-      Image_CampaignFlags[I].Top  := Round(Campaign.Maps[I].Flag.Y * K - Image_CampaignFlags[I].Height);
-
-      Label_CampaignFlags[I].Left := Image_CampaignFlags[I].Left + 10;
-      Label_CampaignFlags[I].Top := Image_CampaignFlags[I].Top + 7;
+      Unblocked := Assigned(Map) and (I <= Map.CampaignMapIndex);
+      Label_CampaignFlags[I].Visible := Unblocked;
+      Image_CampaignFlags[I].TexID := MapPic[Unblocked];
+      Image_CampaignFlags[I].Width := MapWidth[Unblocked];
+      Image_CampaignFlags[I].Left := Round(Campaign.Maps[I].Flag.X * K - Image_CampaignFlags[I].Width / 2) + 3 + MapLeft[Unblocked];
+      Image_CampaignFlags[I].Top  := Round(Campaign.Maps[I].Flag.Y * K - Image_CampaignFlags[I].Height) + 8;
+      Label_CampaignFlags[I].Left := Image_CampaignFlags[I].Left + 7;
+      Label_CampaignFlags[I].Top := Image_CampaignFlags[I].Top + 4;
     end;
   end;
 
@@ -745,8 +750,8 @@ begin
     Image_CampaignSubNode[I].Visible := Assigned(Campaign) and Assigned(Map) and (I < Campaign.Maps[Map.CampaignMapIndex].NodeCount);
     if Assigned(Campaign) and Assigned(Map) and (I < Campaign.Maps[Map.CampaignMapIndex].NodeCount) then
     begin
-      Image_CampaignSubNode[I].Left := Round(Campaign.Maps[Map.CampaignMapIndex].Nodes[I].X * K);
-      Image_CampaignSubNode[I].Top  := Round(Campaign.Maps[Map.CampaignMapIndex].Nodes[I].Y * K);
+      Image_CampaignSubNode[I].Left := Round(Campaign.Maps[Map.CampaignMapIndex].Nodes[I].X * K) - 4;
+      Image_CampaignSubNode[I].Top  := Round(Campaign.Maps[Map.CampaignMapIndex].Nodes[I].Y * K) - 3;
     end;
   end;
 end;
