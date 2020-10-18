@@ -7,6 +7,7 @@ uses
   Classes, Controls, SysUtils, Math,
   KM_Controls, KM_Maps, KM_Minimap,
   KM_CampaignTypes,
+  KM_Campaigns,
   KM_InterfaceDefaults, KM_Defaults, KM_CommonTypes, KM_GameTypes;
 
 
@@ -41,6 +42,7 @@ type
     procedure Radio_MapSizes_HeightChange(Sender: TObject; aValue: Integer);
 
     procedure RefreshCampaignsList;
+    procedure RefreshCampaignFlags;
     procedure RefreshList(aJumpToSelected: Boolean);
     procedure ColumnClick(aValue: Integer);
     procedure UpdateMapInfo(aID: Integer = -1);
@@ -60,6 +62,7 @@ type
     procedure MoveClick(Sender: TObject);
     procedure EscKeyDown(Sender: TObject);
     procedure KeyDown(Key: Word; Shift: TShiftState);
+    function IsCampaign(aMapInfo: TKMapInfo; const aCampaignId: TKMCampaignId): Boolean;
   protected
     Panel_MapEd: TKMPanel;
 
@@ -74,10 +77,14 @@ type
           CheckBox_Sizes: array [MAP_SIZE_ENUM_MIN..MAP_SIZE_ENUM_MAX] of TKMCheckBox;
         Button_ResetFilter: TKMButton;
 
-      Panel_Campaigns: TKMPanel;
+      Panel_Campaigns, Panel_CampaignInfo: TKMPanel;
         ListBox_Campaigns: TKMListBox;
         Button_CampaignsNew, Button_CampaignsDelete, Button_CampaignEdit: TKMButton;
         Image_Campaign: TKMImage;
+        Image_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMImage;
+        Label_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMLabel;
+        Image_CampaignSubNode: array[0..MAX_CAMP_NODES - 1] of TKMImage;
+        Image_Scroll: TKMImage;
 
       Panel_MapEdLoad: TKMPanel;
         ColumnBox_MapEd: TKMColumnBox;
@@ -127,7 +134,7 @@ uses
   KM_GameSettings, 
   KM_ServerSettings,
   KM_RenderUI, KM_Resource, KM_ResFonts,
-  KM_Pics, KM_CommonUtils, KM_Campaigns, KM_GameApp;
+  KM_Pics, KM_CommonUtils, KM_GameApp;
 
 const
   MAPSIZES_COUNT = 8;
@@ -235,12 +242,36 @@ begin
       Button_CampaignsDelete.Anchors := [anLeft, anBottom];
       Button_CampaignsDelete.OnClick := LoadClick;
 
-      TKMImage.Create(Panel_Campaigns, -5, Button_CampaignsNew.Bottom + 5, Panel_Campaigns.Width+10, Round(Panel_Campaigns.Width * (768 / 1027))+10, 18, rxGuiMain).ImageStretch;
-      Image_Campaign := TKMImage.Create(Panel_Campaigns, 0, Button_CampaignsNew.Bottom + 8, Panel_Campaigns.Width, Round(Panel_Campaigns.Width * (768 / 1027)), 18, rxGuiMain);
-      Image_Campaign.ImageStretch;
-      Image_Campaign.Hide;
+      Panel_CampaignInfo := TKMPanel.Create(Panel_Campaigns, 0, Button_CampaignsNew.Bottom + 18, Panel_Campaigns.Width, Round(Panel_Campaigns.Width * (768 / 1027)));
+        TKMImage.Create(Panel_CampaignInfo, -5, -3, Panel_CampaignInfo.Width + 10, Panel_CampaignInfo.Height + 6, 18, rxGuiMain).ImageStretch;
+        Image_Campaign := TKMImage.Create(Panel_CampaignInfo, 0, 0, Panel_CampaignInfo.Width, Panel_CampaignInfo.Height, 18, rxGuiMain);
+        Image_Campaign.ImageStretch;
 
-      Button_CampaignEdit := TKMButton.Create(Panel_Campaigns, 0, Image_Campaign.Bottom + 8, Panel_Campaigns.Width, 20, 'Edit', bsMenu);
+        for I := 0 to High(Image_CampaignSubNode) do
+        begin
+          Image_CampaignSubNode[I] := TKMImage.Create(Panel_CampaignInfo, 0, 0, 4, 4, 16, rxGuiMain);
+          Image_CampaignSubNode[I].ImageCenter;
+          Image_CampaignSubNode[I].Hide;
+        end;
+
+        for I := 0 to High(Image_CampaignFlags) do
+        begin
+          Image_CampaignFlags[I] := TKMImage.Create(Panel_CampaignInfo, 0, 0, 16, 22, 10, rxGuiMain);
+          Image_CampaignFlags[I].Tag := I;
+          Image_CampaignFlags[I].Hide;
+
+          Label_CampaignFlags[I] := TKMLabel.Create(Panel_CampaignInfo, aParent.Width, aParent.Height, IntToStr(I+1), fntMini, taCenter);
+          Label_CampaignFlags[I].FontColor := icLightGray2;
+          Label_CampaignFlags[I].Hide;
+        end;
+
+        Image_Scroll := TKMImage.Create(Panel_CampaignInfo, 0, Panel_CampaignInfo.Height - Round(430 * Panel_CampaignInfo.Height / 768), Round(360 * Panel_CampaignInfo.Width / 1024), Round(430 * Panel_CampaignInfo.Height / 768), 410, rxGui);
+        Image_Scroll.ImageAnchors := [anLeft, anRight, anTop, anBottom];
+        Image_Scroll.AnchorsStretch;
+
+        Panel_CampaignInfo.Hide;
+
+      Button_CampaignEdit := TKMButton.Create(Panel_Campaigns, 0, Panel_CampaignInfo.Bottom + 8, Panel_Campaigns.Width, 20, 'Edit', bsMenu);
       Button_CampaignEdit.Anchors := [anLeft, anBottom];
       Button_CampaignEdit.OnClick := LoadClick;
 
@@ -578,7 +609,7 @@ begin
           fSelectedMapInfo.CRC := gGameSettings.MenuMapEdMPMapCRC;
           fSelectedMapInfo.Name := gGameSettings.MenuMapEdMPMapName;
         end;
-    2:  fSelectedMapInfo.CRC := gGameApp.GameSettings.MenuMapEdCMMapCRC;
+    2:  fSelectedMapInfo.CRC := gGameApp.GameSettings.MapEdCMMapCRC;
     3:  fSelectedMapInfo.CRC := gGameSettings.MenuMapEdDLMapCRC;
   end;
 end;
@@ -648,6 +679,78 @@ begin
   end;
 end;
 
+function TKMMenuMapEditor.IsCampaign(aMapInfo: TKMapInfo; const aCampaignId: TKMCampaignId): Boolean;
+var
+  I: Integer;
+begin
+  if not aMapInfo.IsCampaign then
+    Exit(False);
+
+  for I := 0 to 2 do
+    if aMapInfo.CampaignId[I] <> aCampaignId[I] then
+      Exit(False);
+
+  Result := True;
+end;
+
+procedure TKMMenuMapEditor.RefreshCampaignFlags;
+const
+  MapPic: array [Boolean] of Byte = (10, 11);
+var
+  I: Integer;
+  K: Single;
+  Campaign: TKMCampaign;
+  Map: TKMapInfo;
+begin
+  Campaign := nil;
+  Map := nil;
+  if ListBox_Campaigns.ItemIndex >= 0 then
+    Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
+
+  if ColumnBox_MapEd.IsSelected then
+  begin
+    Map := fMaps[ColumnBox_MapEd.SelectedItemTag];
+    if not IsCampaign(Map, Campaign.CampaignId) then
+      Map := nil;
+  end;
+
+  Image_Scroll.Visible := Assigned(Campaign) and Assigned(Map);
+  if Image_Scroll.Visible then
+  begin
+    if Campaign.Maps[Map.CampaignMapIndex].TextPos = bcBottomLeft then
+      Image_Scroll.Left := 0
+    else
+      Image_Scroll.Left := Image_Scroll.Parent.Width - Image_Scroll.Width;
+  end;
+
+  K := Panel_CampaignInfo.Width / 1024;
+  for I := 0 to High(Image_CampaignFlags) do
+  begin
+    Image_CampaignFlags[I].Visible := Assigned(Campaign) and (I < Campaign.Maps.Count);
+    Label_CampaignFlags[I].Visible := False;
+    if Assigned(Campaign) and (I < Campaign.Maps.Count) then
+    begin
+      Label_CampaignFlags[I].Visible := Assigned(Map) and (I <= Map.CampaignMapIndex);
+      Image_CampaignFlags[I].TexID := MapPic[Assigned(Map) and (I <= Map.CampaignMapIndex)];
+      Image_CampaignFlags[I].Left := Round(Campaign.Maps[I].Flag.X * K - Image_CampaignFlags[I].Width / 2);
+      Image_CampaignFlags[I].Top  := Round(Campaign.Maps[I].Flag.Y * K - Image_CampaignFlags[I].Height);
+
+      Label_CampaignFlags[I].Left := Image_CampaignFlags[I].Left + 10;
+      Label_CampaignFlags[I].Top := Image_CampaignFlags[I].Top + 7;
+    end;
+  end;
+
+  for I := 0 to High(Image_CampaignSubNode) do
+  begin
+    Image_CampaignSubNode[I].Visible := Assigned(Campaign) and Assigned(Map) and (I < Campaign.Maps[Map.CampaignMapIndex].NodeCount);
+    if Assigned(Campaign) and Assigned(Map) and (I < Campaign.Maps[Map.CampaignMapIndex].NodeCount) then
+    begin
+      Image_CampaignSubNode[I].Left := Round(Campaign.Maps[Map.CampaignMapIndex].Nodes[I].X * K);
+      Image_CampaignSubNode[I].Top  := Round(Campaign.Maps[Map.CampaignMapIndex].Nodes[I].Y * K);
+    end;
+  end;
+end;
+
 
 procedure TKMMenuMapEditor.ReadmeClick(Sender: TObject);
 var
@@ -669,26 +772,11 @@ begin
   for I := 0 to Camps.Count - 1 do
     ListBox_Campaigns.Add(Camps[I].GetCampaignTitle);
 
-  ListBox_Campaigns.ItemIndex := gGameApp.GameSettings.MenuMapEdCMIndex;
+  ListBox_Campaigns.ItemIndex := gGameApp.GameSettings.MapEdCMIndex;
 end;
 
 
 procedure TKMMenuMapEditor.RefreshList(aJumpToSelected: Boolean);
-
-  function IsCampaign(aMapInfo: TKMapInfo; const aCampaignId: TKMCampaignId): Boolean;
-  var
-    I: Integer;
-  begin
-    if not aMapInfo.IsCampaign then
-      Exit(False);
-
-    for I := 0 to 2 do
-      if aMapInfo.CampaignId[I] <> aCampaignId[I] then
-        Exit(False);
-
-    Result := True;
-  end;
-
 var
   I, ListI, PrevTop: Integer;
   R: TKMListRow;
@@ -700,7 +788,7 @@ begin
   PrevTop := ColumnBox_MapEd.TopIndex;
   ColumnBox_MapEd.Clear;
 
-  Image_Campaign.Visible := ListBox_Campaigns.ItemIndex >= 0;
+  Panel_CampaignInfo.Visible := ListBox_Campaigns.ItemIndex >= 0;
   Campaign := nil;
   if ListBox_Campaigns.ItemIndex >= 0 then
     Campaign := gGameApp.Campaigns[ListBox_Campaigns.ItemIndex];
@@ -848,10 +936,11 @@ end;
 
 procedure TKMMenuMapEditor.SelectCampaign(Sender: TObject);
 begin
-  gGameApp.GameSettings.MenuMapEdCMIndex := ListBox_Campaigns.ItemIndex;
+  gGameApp.GameSettings.MapEdCMIndex := ListBox_Campaigns.ItemIndex;
   UpdateCampInfo;
   UpdateSelectedMapCRC;
   RefreshList(True);
+  RefreshCampaignFlags;
 end;
 
 procedure TKMMenuMapEditor.SelectMap(Sender: TObject);
@@ -865,6 +954,9 @@ begin
 
     DeleteConfirm(False);
     MoveConfirm(False);
+
+    if Radio_MapType.ItemIndex = 2 then
+      RefreshCampaignFlags;
 
     fMaps.Lock;
     try
@@ -1031,7 +1123,7 @@ begin
           gGameSettings.MenuMapEdMPMapCRC := aCRC;
           gGameSettings.MenuMapEdMPMapName := aName;
         end;
-    2:  gGameApp.GameSettings.MenuMapEdCMMapCRC := aCRC;
+    2:  gGameApp.GameSettings.MapEdCMMapCRC := aCRC;
     3:  gGameSettings.MenuMapEdDLMapCRC := aCRC; // Set only CRC, because we do not save selected DL map name
   end;
 end;
@@ -1194,6 +1286,7 @@ begin
 
   ListUpdate;
   UpdateUI;
+  RefreshCampaignFlags;
 
   Panel_MapEd.Show;
   ColumnBox_MapEd.Focus;

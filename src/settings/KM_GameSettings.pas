@@ -77,6 +77,8 @@ type
     fVideoVolume: Single;
 
     //MapEd
+    fMapEdCMIndex: Byte;
+    fMapEdCMMapCRC: Cardinal;
     fMapEdHistoryDepth: Integer;
 
     //Multiplayer
@@ -101,8 +103,6 @@ type
     fMenu_MapEdMPMapCRC: Cardinal;
     fMenu_MapEdMPMapName: UnicodeString;
     fMenu_MapEdDLMapCRC: Cardinal;
-    fMenu_MapEdCMIndex: Byte;
-    fMenu_MapEdCMMapCRC: Cardinal;
     fMenu_CampaignName: UnicodeString;
     fMenu_ReplaySPSaveName: UnicodeString;
     fMenu_ReplayMPSaveName: UnicodeString;
@@ -171,6 +171,8 @@ type
     procedure SetVideoVolume(aValue: Single);
 
     //MapEd
+    procedure SetMapEdCMIndex(aValue: Byte);
+    procedure SetMapEdCMMapCRC(aValue: Cardinal);
     procedure SetMapEdHistoryDepth(const aValue: Integer);
 
     //Multiplayer
@@ -191,8 +193,6 @@ type
     procedure SetMenuMapEdSPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdMPMapName(const aValue: UnicodeString);
-    procedure SetMenuMapEdCMIndex(aValue: Byte);
-    procedure SetMenuMapEdCMMapCRC(aValue: Cardinal);
     procedure SetMenuMapEdDLMapCRC(aValue: Cardinal);
     procedure SetMenuCampaignName(const aValue: UnicodeString);
     procedure SetMenuReplaySPSaveName(const aValue: UnicodeString);
@@ -277,6 +277,8 @@ type
     property VideoVolume: Single read fVideoVolume write SetVideoVolume;
 
     //MapEd
+    property MapEdCMIndex: Byte read fMapEdCMIndex write SetMapEdCMIndex;
+    property MapEdCMMapCRC: Cardinal read fMapEdCMMapCRC write SetMapEdCMMapCRC;
     property MapEdHistoryDepth: Integer read fMapEdHistoryDepth write SetMapEdHistoryDepth;
 
     //Multiplayer
@@ -299,8 +301,6 @@ type
     property MenuMapEdSPMapCRC: Cardinal read fMenu_MapEdSPMapCRC write SetMenuMapEdSPMapCRC;
     property MenuMapEdMPMapCRC: Cardinal read fMenu_MapEdMPMapCRC write SetMenuMapEdMPMapCRC;
     property MenuMapEdMPMapName: UnicodeString read fMenu_MapEdMPMapName write SetMenuMapEdMPMapName;
-    property MenuMapEdCMIndex: Byte read fMenu_MapEdCMIndex write SetMenuMapEdCMIndex;
-    property MenuMapEdCMMapCRC: Cardinal read fMenu_MapEdCMMapCRC write SetMenuMapEdCMMapCRC;
     property MenuMapEdDLMapCRC: Cardinal read fMenu_MapEdDLMapCRC write SetMenuMapEdDLMapCRC;
     property MenuCampaignName: UnicodeString read fMenu_CampaignName write SetMenuCampaignName;
     property MenuReplaySPSaveName: UnicodeString read fMenu_ReplaySPSaveName write SetMenuReplaySPSaveName;
@@ -497,7 +497,9 @@ begin
 
   // MapEd
   nMapEd := nGameSettings.AddOrFindChild('MapEd');
-    MapEdHistoryDepth := nMapEd.Attributes['HistoryDepth'].AsInteger(MAPED_HISTORY_DEPTH_DEF); // With setter
+    fMapEdCMIndex        := nMapEd.Attributes['CMIndex'].AsInteger(0);
+    fMapEdCMMapCRC       := nMapEd.Attributes['CMMapCRC'].AsCardinal(0);
+    fMapEdHistoryDepth   := nMapEd.Attributes['HistoryDepth'].AsInteger(MAPED_HISTORY_DEPTH_DEF); // With setter
 
   // Multiplayer
   nMultiplayer := nGameSettings.AddOrFindChild('Multiplayer');
@@ -527,8 +529,6 @@ begin
       fMenu_SPTacticMapCRC    := StrToInt64(nMenuSP.Attributes['TacticMapCRC'].AsString('0'));
       fMenu_SPSpecialMapCRC   := StrToInt64(nMenuSP.Attributes['SpecialMapCRC'].AsString('0'));
       fMenu_SPSaveFileName    := nMenuSP.Attributes['SaveFileName'].AsString('');
-      fMenu_MapEdCMIndex      := nMenuSP.Attributes['MapEdCMIndex'].AsInteger(0);
-      fMenu_MapEdCMMapCRC     := nMenuSP.Attributes['MapEdCMMapCRC'].AsInteger(0);
 
     nMenuReplay := nMenu.AddOrFindChild('Replay');
       fMenu_ReplaysType       := nMenuReplay.Attributes['Type'].AsInteger(0);
@@ -677,6 +677,8 @@ begin
 
   // MapEd
   nMapEd := nGameSettings.AddOrFindChild('MapEd');
+    nMapEd.Attributes['CMIndex']      := fMapEdCMIndex;
+    nMapEd.Attributes['CMMapCRC']     := fMapEdCMMapCRC;
     nMapEd.Attributes['HistoryDepth'] := fMapEdHistoryDepth;
 
   // Multiplayer
@@ -705,8 +707,6 @@ begin
       nMenuSP.Attributes['TacticMapCRC']    := IntToStr(fMenu_SPTacticMapCRC);
       nMenuSP.Attributes['SpecialMapCRC']   := IntToStr(fMenu_SPSpecialMapCRC);
       nMenuSP.Attributes['SaveFileName']    := fMenu_SPSaveFileName;
-      nMenuSP.Attributes['MapEdCamp']       := fMenu_MapEdCMIndex;
-      nMenuSP.Attributes['MapEdCampMap']    := fMenu_MapEdCMMapCRC;
 
     nMenuReplay := nMenu.AddOrFindChild('Replay');
       nMenuReplay.Attributes['Type']       := fMenu_ReplaysType;
@@ -875,16 +875,16 @@ begin
   Changed;
 end;
 
-procedure TKMGameSettings.SetMenuMapEdCMIndex(aValue: Byte);
+procedure TKMGameSettings.SetMapEdCMIndex(aValue: Byte);
 begin
-  fMenu_MapEdCMIndex := aValue;
+  fMapEdCMIndex := aValue;
   Changed;
 end;
 
 
-procedure TKMGameSettings.SetMenuMapEdCMMapCRC(aValue: Cardinal);
+procedure TKMGameSettings.SetMapEdCMMapCRC(aValue: Cardinal);
 begin
-  fMenu_MapEdCMMapCRC := aValue;
+  fMapEdCMMapCRC := aValue;
   Changed;
 end;
 
