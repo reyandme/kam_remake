@@ -74,6 +74,7 @@ type
     function GetCampaignTitle: UnicodeString;
     function GetCampaignDescription: UnicodeString;
     function GetCampaignMissionTitle(aIndex: Byte): String;
+    function GetMissionIndex(aValue: string): Byte;
     function GetMissionFile(aIndex: Byte; const aExt: UnicodeString = '.dat'): String;
     function GetMissionName(aIndex: Byte): String;
     function GetMissionTitle(aIndex: Byte): String;
@@ -647,6 +648,18 @@ end;
 function TKMCampaign.GetMissionFile(aIndex: Byte; const aExt: UnicodeString = '.dat'): String;
 begin
   Result := fPath + GetMissionName(aIndex) + PathDelim + GetMissionName(aIndex) + aExt;
+end;
+
+
+function TKMCampaign.GetMissionIndex(aValue: string): Byte;
+var
+  I: Integer;
+begin
+  for I := 0 to Maps.Count - 1 do
+    if GetMissionName(I) = aValue then
+      Exit(I);
+
+  Result := 0;
 end;
 
 

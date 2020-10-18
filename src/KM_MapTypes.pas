@@ -34,7 +34,7 @@ const
      icRed);
 
   //Map folder name by folder type. Containing single maps, for SP/MP/DL mode
-  MAP_FOLDER: array [TKMapFolder] of string = (MAPS_FOLDER_NAME, MAPS_MP_FOLDER_NAME, MAPS_DL_FOLDER_NAME);
+  MAP_FOLDER: array [TKMapFolder] of string = (MAPS_FOLDER_NAME, MAPS_MP_FOLDER_NAME, CAMPAIGNS_FOLDER_NAME, MAPS_DL_FOLDER_NAME);
 
   CUSTOM_MAP_PARAM_DESCR_TX: array[TKMCustomScriptParam] of Integer = (TX_MAP_CUSTOM_PARAM_TH_TROOP_COST, TX_MAP_CUSTOM_PARAM_MARKET_PRICE);
 

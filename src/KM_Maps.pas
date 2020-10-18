@@ -4,11 +4,13 @@ interface
 uses
   Classes, SyncObjs,
   KM_MapTypes,
+  KM_CampaignTypes,
   KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Pics, KM_ResTexts;
 
 
 type
   TKMapsSortMethod = (
+    smByIndexAsc, smByIndexDesc,
     smByFavouriteAsc, smByFavouriteDesc,
     smByNameAsc, smByNameDesc,
     smBySizeAsc, smBySizeDesc,
@@ -79,6 +81,8 @@ type
     fInfoAmount: TKMMapInfoAmount;
     fMapFolder: TKMapFolder;
     fTxtInfo: TKMMapTxtInfo;
+    fCampaignId: TKMCampaignId;
+    fCampaignMapIndex: Byte;
     fSize: TKMMapSize;
     fSizeText: String;
     fCustomScriptParams: TKMCustomScriptParamDataArray;
@@ -114,12 +118,15 @@ type
     FlagColors: array [0..MAX_HANDS-1] of Cardinal;
     IsFavourite: Boolean;
 
-    constructor Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder); overload;
+    constructor Create(const aPath: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder); overload;
+    constructor Create(const aPath: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder; const aCampaignId: TKMCampaignId); overload;
     destructor Destroy; override;
 
     procedure AddGoal(aType: TKMGoalType; aPlayer: TKMHandID; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aPlayerIndex: TKMHandID);
     procedure LoadExtra;
 
+    property CampaignId: TKMCampaignId read fCampaignId;
+    property CampaignMapIndex: Byte read fCampaignMapIndex;
     property TxtInfo: TKMMapTxtInfo read GetTxtInfo;
     property BigDesc: UnicodeString read GetBigDesc write SetBigDesc;
     property InfoAmount: TKMMapInfoAmount read fInfoAmount;
@@ -150,6 +157,7 @@ type
     function IsPlayableForSP: Boolean;
     function IsSinglePlayer: Boolean;
     function IsMultiPlayer: Boolean;
+    function IsCampaign: Boolean;
     function IsDownloaded: Boolean;
     function IsNormalMission: Boolean;
     function IsTacticMission: Boolean;
@@ -167,7 +175,8 @@ type
   private
     fMapFolders: TKMapFolderSet;
     fOnComplete: TNotifyEvent;
-    procedure ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder); virtual; abstract;
+    procedure ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder; const aCampaignId: TKMCampaignId); virtual; abstract;
+    procedure ScanDirectory(aMapFolder: TKMapFolder; aPath: string; const aCampaignId: TKMCampaignId);
   public
     constructor Create(aMapFolders: TKMapFolderSet; aOnComplete: TNotifyEvent = nil);
     procedure Execute; override;
@@ -177,7 +186,7 @@ type
   private
     fOnMapAdd: TKMapEvent;
     fOnMapAddDone: TNotifyEvent;
-    procedure ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder); override;
+    procedure ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder; const aCampaignId: TKMCampaignId); override;
   public
     constructor Create(aMapFolders: TKMapFolderSet; aOnMapAdd: TKMapEvent; aOnMapAddDone, aOnTerminate: TNotifyEvent; aOnComplete: TNotifyEvent = nil);
   end;
@@ -185,7 +194,7 @@ type
   TTMapsCacheUpdater = class(TTCustomMapsScanner)
   private
     fIsStopped: Boolean;
-    procedure ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder); override;
+    procedure ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder; const aCampaignId: TKMCampaignId); override;
   public
     procedure Stop;
     constructor Create(aMapFolders: TKMapFolderSet);
@@ -252,13 +261,22 @@ implementation
 uses
   SysUtils, StrUtils, TypInfo, Math,
   KromShellUtils, KromUtils,
+  KM_Campaigns,
   KM_GameApp, KM_GameSettings, KM_FileIO,
   KM_MissionScript_Info, KM_Scripting,
   KM_CommonUtils, KM_Log;
 
 
 { TKMapInfo }
-constructor TKMapInfo.Create(const aFolder: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder);
+
+constructor TKMapInfo.Create(const aPath: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder);
+var
+  CampaignId: TKMCampaignId;
+begin
+  Create(aPath, aStrictParsing, aMapFolder, CampaignId);
+end;
+
+constructor TKMapInfo.Create(const aPath: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder; const aCampaignId: TKMCampaignId);
 
   function GetLIBXCRC(const aSearchFile: UnicodeString): Cardinal;
   var SearchRec: TSearchRec;
@@ -283,13 +301,19 @@ var
   ScriptPreProcessor: TKMScriptingPreProcessor;
   ScriptFiles: TKMScriptFilesCollection;
   CSP: TKMCustomScriptParam;
+  Campaign: TKMCampaign;
 begin
   inherited Create;
 
+  fCampaignId := aCampaignId;
   fTxtInfo := TKMMapTxtInfo.Create;
-  fPath := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aFolder + PathDelim;
-  fFileName := aFolder;
+  fPath := aPath + PathDelim;
+  fFileName := ExtractFileName(aPath);
   fMapFolder := aMapFolder;
+
+  Campaign := gGameApp.Campaigns.CampaignById(aCampaignId);
+  if Assigned(Campaign) then
+    fCampaignMapIndex := Campaign.GetMissionIndex(fFileName);
 
   for CSP := Low(TKMCustomScriptParam) to High(TKMCustomScriptParam) do
   begin
@@ -758,6 +782,12 @@ end;
 function TKMapInfo.IsMultiPlayer: Boolean;
 begin
   Result := fMapFolder = mfMP;
+end;
+
+
+function TKMapInfo.IsCampaign: Boolean;
+begin
+  Result := fMapFolder = mfCM;
 end;
 
 
@@ -1396,6 +1426,8 @@ var TempMaps: array of TKMapInfo;
   begin
     Result := False; //By default everything remains in place
     case fSortMethod of
+      smByIndexAsc:           Result := A.CampaignMapIndex < B.CampaignMapIndex;
+      smByIndexDesc:          Result := A.CampaignMapIndex > B.CampaignMapIndex;
       smByFavouriteAsc:       Result := A.IsFavourite and not B.IsFavourite;
       smByFavouriteDesc:      Result := not A.IsFavourite and B.IsFavourite;
       smByNameAsc:            Result := CompareText(A.FileName, B.FileName) < 0;
@@ -1670,40 +1702,56 @@ begin
   FreeOnTerminate := False;
 end;
 
+procedure TTCustomMapsScanner.ScanDirectory(aMapFolder: TKMapFolder; aPath: string; const aCampaignId: TKMCampaignId);
+var
+  fileName: string;
+  SearchRec: TSearchRec;
+begin
+  if not DirectoryExists(aPath) then
+    Exit;
+
+  FindFirst(aPath + '*', faDirectory, SearchRec);
+  try
+    repeat
+      fileName := aPath + SearchRec.Name + PathDelim + SearchRec.Name;
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and FileExists(fileName + '.dat') and FileExists(fileName + '.map') then
+      begin
+        try
+          ProcessMap(aPath + SearchRec.Name, aMapFolder, aCampaignId);
+        except
+          on E: Exception do
+            gLog.AddTime('Error loading map ''' + SearchRec.Name + ''''); //Just silently log an exception
+        end;
+      end;
+    until (FindNext(SearchRec) <> 0) or Terminated;
+  finally
+    FindClose(SearchRec);
+  end;
+end;
 
 procedure TTCustomMapsScanner.Execute;
 var
-  SearchRec: TSearchRec;
-  PathToMaps: string;
-  MF: TKMapFolder;
+  I: Integer;
+  Path: string;
+  MapFolder: TKMapFolder;
+  CampaignId: TKMCampaignId;
 begin
   gLog.MultithreadLogging := True; // We could log smth while create map cache or scan maps
   try
     try
-      for MF in fMapFolders do
+      for MapFolder in fMapFolders do
       begin
-        PathToMaps := ExeDir + MAP_FOLDER[MF] + PathDelim;
-
-        if not DirectoryExists(PathToMaps) then Exit;
-
-        FindFirst(PathToMaps + '*', faDirectory, SearchRec);
-        try
-          repeat
-            if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-              and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', MF))
-              and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', MF)) then
-            begin
-              try
-                ProcessMap(SearchRec.Name, MF);
-              except
-                on E: Exception do
-                  gLog.AddTime('Error loading map ''' + SearchRec.Name + ''''); //Just silently log an exception
-              end;
-            end;
-          until (FindNext(SearchRec) <> 0) or Terminated;
-        finally
-          FindClose(SearchRec);
-        end;
+        Path := ExeDir + MAP_FOLDER[MapFolder] + PathDelim;
+        if MapFolder = mfCM then
+        begin
+          for I := 0 to gGameApp.Campaigns.Count - 1 do
+          begin
+            ScanDirectory(MapFolder, ExeDir + gGameApp.Campaigns[I].Path, gGameApp.Campaigns[I].CampaignId);
+          end;
+        end
+        else
+          ScanDirectory(MapFolder, Path, CampaignId);
       end;
     finally
       if not Terminated and Assigned(fOnComplete) then
@@ -1737,11 +1785,11 @@ begin
 end;
 
 
-procedure TTMapsScanner.ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder);
+procedure TTMapsScanner.ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder; const aCampaignId: TKMCampaignId);
 var
   Map: TKMapInfo;
 begin
-  Map := TKMapInfo.Create(aPath, False, aFolder);
+  Map := TKMapInfo.Create(aPath, False, aFolder, aCampaignId);
 
   if SLOW_MAP_SCAN then
     Sleep(50);
@@ -1764,14 +1812,14 @@ begin
 end;
 
 
-procedure TTMapsCacheUpdater.ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder);
+procedure TTMapsCacheUpdater.ProcessMap(const aPath: UnicodeString; aFolder: TKMapFolder; const aCampaignId: TKMCampaignId);
 var
   Map: TKMapInfo;
 begin
   //Simply creating the TKMapInfo updates the .mi cache file
   if not fIsStopped then
   begin
-    Map := TKMapInfo.Create(aPath, False, aFolder);
+    Map := TKMapInfo.Create(aPath, False, aFolder, aCampaignId);
     Map.Free;
   end;
 end;
