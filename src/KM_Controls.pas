@@ -1784,7 +1784,6 @@ type
     fOnCancel: TNotifyEvent;
 
     procedure AddItem(aIsDir: Boolean; const aName: UnicodeString; aSize: Int64; aDate: TDateTime);
-    procedure Clear;
 
     procedure UpdateImageDialogDrives;
     procedure UpdateFiles;
@@ -8897,12 +8896,6 @@ begin
   Inc(fItemCount);
 end;
 
-procedure TKMOpenDialog.Clear;
-begin
-  SetLength(fItems, 0);
-  fItemCount := 0;
-end;
-
 procedure TKMOpenDialog.UpdateFiles;
 
   function CheckFormat(const aFileName: string): Boolean;
@@ -8949,8 +8942,6 @@ var
   TempItems: array of TKMOpenDialogItem;
 
   function Compare(const A, B: TKMOpenDialogItem): Boolean;
-  var
-    c: Integer;
   begin
     if A.IsDir <> B.IsDir then
       Exit(B.IsDir);
@@ -8975,8 +8966,6 @@ var
       Exit(CompareText(A.Name, B.Name) < 0)
     else
       Exit(CompareText(A.Name, B.Name) > 0);
-
-    Result := False;
   end;
 
   procedure MergeSort(aLeft, aRight: Integer);

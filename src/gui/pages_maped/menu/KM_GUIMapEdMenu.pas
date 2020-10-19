@@ -10,7 +10,8 @@ uses
    KM_GUIMapEdMenuSave,
    KM_GUIMapEdMenuQuit,
    KM_GUIMapEdMenuSettings,
-   KM_CommonTypes;
+   KM_CommonTypes,
+   KM_Defaults;
 
 type
   TKMMapEdMenu = class (TKMMapEdMenuPage)
@@ -33,12 +34,12 @@ type
       Button_Menu_Quit: TKMButton;
     procedure DoShowSubMenu(aIndex: Byte); override;
   public
-    constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent; aOnMapTypChanged: TBooleanEvent);
+    constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent; aOnMapFolderChanged: TKMapFolderEvent);
     destructor Destroy; override;
 
     property GuiMenuResize: TKMMapEdMenuResize read fGuiMenuResize;
     property GuiMenuQuickPlay: TKMMapEdMenuQuickPlay read fGuiMenuQuickPlay write fGuiMenuQuickPlay;
-    procedure SetLoadMode(aMultiplayer: Boolean);
+    procedure SetLoadMode(aMapFolder: TKMapFolder);
     procedure Show;
     procedure Hide;
     function Visible: Boolean; override;
@@ -52,13 +53,13 @@ uses
 
 
 { TKMapEdInterface }
-constructor TKMMapEdMenu.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent; aOnMapTypChanged: TBooleanEvent);
+constructor TKMMapEdMenu.Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent; aOnMapFolderChanged: TKMapFolderEvent);
 begin
   inherited Create;
 
   fGuiMenuResize := TKMMapEdMenuResize.Create(aParent, MenuDone, aOnPageChange);
   fGuiMenuLoad := TKMMapEdMenuLoad.Create(aParent, MenuDone);
-  fGuiMenuSave := TKMMapEdMenuSave.Create(aParent, MenuDone, aOnMapTypChanged);
+  fGuiMenuSave := TKMMapEdMenuSave.Create(aParent, MenuDone, aOnMapFolderChanged);
   fGuiMenuQuit := TKMMapEdMenuQuit.Create(aParent, MenuDone);
   fGuiMenuSettings := TKMMapEdMenuSettings.Create(aParent, MenuDone);
 
@@ -185,12 +186,12 @@ begin
 end;
 
 
-procedure TKMMapEdMenu.SetLoadMode(aMultiplayer: Boolean);
+procedure TKMMapEdMenu.SetLoadMode(aMapFolder: TKMapFolder);
 begin
-  fGuiMenuResize.SetLoadMode(aMultiplayer);
-  fGuiMenuQuickPlay.SetLoadMode(aMultiplayer);
-  fGuiMenuLoad.SetLoadMode(aMultiplayer);
-  fGuiMenuSave.SetLoadMode(aMultiplayer);
+  fGuiMenuResize.SetLoadMode(aMapFolder);
+  fGuiMenuQuickPlay.SetLoadMode(aMapFolder);
+  fGuiMenuLoad.SetLoadMode(aMapFolder);
+  fGuiMenuSave.SetLoadMode(aMapFolder);
 end;
 
 

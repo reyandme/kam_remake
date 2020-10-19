@@ -136,7 +136,7 @@ type
     GameResult: TKMGameResultMsg;
 
     StartedFromMapEditor: Boolean;    // True if we start game from map editor ('Quick Play')
-    StartedFromMapEdAsMPMap: Boolean; // True if we start game from map editor ('Quick Play') with MP map
+    StartedFromMapEdAsMPMap: TKMapFolder; // True if we start game from map editor ('Quick Play') with MP map
 
     constructor Create(aGameMode: TKMGameMode; aRender: TRender; aOnDestroy: TEvent;
                        aSaveWorkerThread: TKMWorkerThread; aBaseSaveWorkerThread: TKMWorkerThread; aAutoSaveWorkerThread: TKMWorkerThread);

@@ -85,7 +85,7 @@ type
     procedure ShowSubMenu(aIndex: Byte);
     procedure ExecuteSubMenuAction(aIndex: Byte; var aHandled: Boolean);
     procedure Update_Label_Coordinates;
-    procedure MapTypeChanged(aIsMultiplayer: Boolean);
+    procedure MapFolderChanged(aMapFolder: TKMapFolder);
 
     procedure UnRedo_Click(Sender: TObject);
     procedure History_Click(Sender: TObject);
@@ -137,7 +137,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseWheel(Shift: TShiftState; WheelSteps, X,Y: Integer; var aHandled: Boolean); override;
     procedure Resize(X,Y: Word); override;
-    procedure SetLoadMode(aMultiplayer: Boolean);
+    procedure SetLoadMode(aMapFolder: TKMapFolder);
 
     procedure DebugControlsUpdated(aSenderTag: Integer); override;
 
@@ -270,7 +270,7 @@ begin
   fGuiTown := TKMMapEdTown.Create(Panel_Common, PageChanged);
   fGuiPlayer := TKMMapEdPlayer.Create(Panel_Common, PageChanged);
   fGuiMission := TKMMapEdMission.Create(Panel_Common, PageChanged);
-  fGuiMenu := TKMMapEdMenu.Create(Panel_Common, PageChanged, MapTypeChanged);
+  fGuiMenu := TKMMapEdMenu.Create(Panel_Common, PageChanged, MapFolderChanged);
 
   //Objects pages
   fGuiUnit := TKMMapEdUnit.Create(Panel_Common);
@@ -283,7 +283,7 @@ begin
   fGuiFormations := TKMMapEdTownFormations.Create(Panel_Main);
   fGuiGoal := TKMMapEdPlayerGoal.Create(Panel_Main);
   fGuiRMG := TKMMapEdRMG.Create(Panel_Main);
-  fGuiMenuQuickPlay := TKMMapEdMenuQuickPlay.Create(Panel_Main, MapTypeChanged);
+  fGuiMenuQuickPlay := TKMMapEdMenuQuickPlay.Create(Panel_Main, MapFolderChanged);
 
   //Pass pop-ups to their dispatchers
   fGuiTown.GuiDefence.FormationsPopUp := fGuiFormations;
@@ -1042,9 +1042,9 @@ begin
 end;
 
 
-procedure TKMapEdInterface.MapTypeChanged(aIsMultiplayer: Boolean);
+procedure TKMapEdInterface.MapFolderChanged(aMapFolder: TKMapFolder);
 begin
-  SetLoadMode(aIsMultiplayer);
+  SetLoadMode(aMapFolder);
 end;
 
 
@@ -1472,9 +1472,9 @@ begin
 end;
 
 
-procedure TKMapEdInterface.SetLoadMode(aMultiplayer: Boolean);
+procedure TKMapEdInterface.SetLoadMode(aMapFolder: TKMapFolder);
 begin
-  fGuiMenu.SetLoadMode(aMultiplayer);
+  fGuiMenu.SetLoadMode(aMapFolder);
 end;
 
 

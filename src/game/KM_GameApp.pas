@@ -102,8 +102,8 @@ type
                              aCampMap: Byte; aLocation: Byte; aColor: Cardinal; aDifficulty: TKMMissionDifficulty = mdNone;
                              aAIType: TKMAIType = aitNone);
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
-    procedure NewMapEditor(const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
-                           aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0; aMultiplayerLoadMode: Boolean = False);
+    procedure NewMapEditor(aMapFolder: TKMapFolder; const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
+                           aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0);
     procedure NewReplay(const aFilePath: UnicodeString);
     procedure NewSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
     function TryLoadSavePoint(aTick: Integer): Boolean;
@@ -988,15 +988,15 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMapEditor(const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
-                                  aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0; aMultiplayerLoadMode: Boolean = False);
+procedure TKMGameApp.NewMapEditor(aMapFolder: TKMapFolder; const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
+                                  aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0);
 begin
   if aFileName <> '' then
   begin
     LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), aMapFullCRC, aMapSimpleCRC, nil, 0, gmMapEd, 0, 0);
     // gGame could be nil if we failed to load map
     if gGame <> nil then
-      gGame.MapEditorInterface.SetLoadMode(aMultiplayerLoadMode);
+      gGame.MapEditorInterface.SetLoadMode(aMapFolder);
   end
   else begin
     aSizeX := EnsureRange(aSizeX, MIN_MAP_SIZE, MAX_MAP_SIZE);
@@ -1004,7 +1004,7 @@ begin
     LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
     // gGame could be nil if we failed to load map
     if gGame <> nil then
-      gGame.MapEditorInterface.SetLoadMode(aMultiplayerLoadMode);
+      gGame.MapEditorInterface.SetLoadMode(aMapFolder);
   end;
 
   if Assigned(fOnGameStart) and (gGame <> nil) then

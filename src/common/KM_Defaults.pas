@@ -505,6 +505,7 @@ type
 
   TKMapFolder = (mfSP, mfMP, mfCM, mfDL);
   TKMapFolderSet = set of TKMapFolder;
+  TKMapFolderEvent = procedure (aMapFolder: TKMapFolder) of object;
 
 const
   FOG_OF_WAR_MIN  = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness

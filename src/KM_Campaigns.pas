@@ -121,6 +121,8 @@ type
 const
   NO_CAMPAIGN: TKMCampaignId = (0, 0, 0);
 
+function CompareCampaignId(const A, B: TKMCampaignId): Boolean;
+
 implementation
 uses
   SysUtils, Math, KromUtils,
@@ -133,6 +135,16 @@ const
   CAMP_HEADER_V2 = $BEEF;
   CAMP_HEADER_V3 = $CEED;
 
+function CompareCampaignId(const A, B: TKMCampaignId): Boolean;
+var
+  I: Integer;
+begin
+  for I := 0 to 2 do
+    if A[I] <> B[I] then
+      Exit(False);
+
+  Result := True;
+end;
 
 { TKMCampaignMap }
 

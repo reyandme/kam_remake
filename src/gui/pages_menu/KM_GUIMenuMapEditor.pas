@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  Classes, Controls, SysUtils, Math, Dialogs,
+  Classes, Controls, SysUtils, Math, Dialogs, UITypes,
   KM_Controls, KM_Maps, KM_Minimap,
   KM_CampaignTypes,
   KM_Campaigns,
@@ -70,8 +70,6 @@ type
 
     procedure CampaignMapEditClick(Sender: TObject);
     procedure EditCampaignChange(Sender: TObject);
-
-    function IsCampaign(aMapInfo: TKMapInfo; const aCampaignId: TKMCampaignId): Boolean;
   protected
     Panel_MapEd: TKMPanel;
 
@@ -550,18 +548,18 @@ begin
       fMaps.Unlock;
       //Terminate all
       fMaps.TerminateScan;
-      gGameApp.NewMapEditor(Map.FullPath('.dat'), 0, 0, Map.CRC, Map.MapAndDatCRC);
+      gGameApp.NewMapEditor(TKMapFolder(Radio_MapType.ItemIndex), Map.FullPath('.dat'), 0, 0, Map.CRC, Map.MapAndDatCRC);
     finally
       fMaps.Unlock; //Double unlock should not harm
     end;
 
     if Assigned(OnNewMapEditor) then
-      OnNewMapEditor(Map.FullPath('.dat'), 0, 0, Map.CRC, Map.MapAndDatCRC, Radio_MapType.ItemIndex <> 0);
+      OnNewMapEditor(TKMapFolder(Radio_MapType.ItemIndex), Map.FullPath('.dat'), 0, 0, Map.CRC, Map.MapAndDatCRC);
   end;
 
   //Create new map (NumEdits hold actual dimensions)
   if Sender = Button_MapCreate then
-    gGameApp.NewMapEditor('', gGameApp.GameSettings.MenuMapEdNewMapX, gGameApp.GameSettings.MenuMapEdNewMapY);
+    gGameApp.NewMapEditor(TKMapFolder(Radio_MapType.ItemIndex), '', gGameApp.GameSettings.MenuMapEdNewMapX, gGameApp.GameSettings.MenuMapEdNewMapY);
 end;
 
 procedure TKMMenuMapEditor.MapTypeChange(Sender: TObject);
@@ -705,20 +703,6 @@ begin
   end;
 end;
 
-function TKMMenuMapEditor.IsCampaign(aMapInfo: TKMapInfo; const aCampaignId: TKMCampaignId): Boolean;
-var
-  I: Integer;
-begin
-  if not aMapInfo.IsCampaign then
-    Exit(False);
-
-  for I := 0 to 2 do
-    if aMapInfo.CampaignId[I] <> aCampaignId[I] then
-      Exit(False);
-
-  Result := True;
-end;
-
 procedure TKMMenuMapEditor.RefreshCampaignFlags;
 const
   MapPic: array [Boolean] of Byte = (10, 11);
@@ -739,7 +723,7 @@ begin
   if ColumnBox_MapEd.IsSelected then
   begin
     Map := fMaps[ColumnBox_MapEd.SelectedItemTag];
-    if not IsCampaign(Map, Campaign.CampaignId) then
+    if not CompareCampaignId(Map.CampaignId, Campaign.CampaignId) then
       Map := nil;
   end;
 
@@ -836,7 +820,7 @@ begin
       SkipMap := False;
       if Radio_MapType.ItemIndex = 2 then
       begin
-        if not Assigned(Campaign) or not IsCampaign(fMaps[I], Campaign.CampaignId) then
+        if not Assigned(Campaign) or not Assigned(fMaps[I]) or not CompareCampaignId(fMaps[I].CampaignId, Campaign.CampaignId) then
           Continue;
       end
       else

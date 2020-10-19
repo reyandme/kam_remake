@@ -11,7 +11,7 @@ type
   TKMMapEdMenuQuickPlay = class
   private
     fMenuSave: TKMMapEdMenuSave;
-    fIsMultiplayer: Boolean;
+    fMapFolder: TKMapFolder;
     procedure Cancel_Click(Sender: TObject);
     procedure QuickPlay_Click(Sender: TObject);
     procedure StartQuickPlay(aMapSaved: Boolean);
@@ -30,10 +30,10 @@ type
       DropBox_Difficulty: TKMDropList;
       Button_QuickPlay, Button_Cancel: TKMButton;
   public
-    constructor Create(aParent: TKMPanel; aOnMapTypChanged: TBooleanEvent);
+    constructor Create(aParent: TKMPanel; aOnMapFolderChanged: TKMapFolderEvent);
     destructor Destroy; override;
 
-    procedure SetLoadMode(aMultiplayer: Boolean);
+    procedure SetLoadMode(aMapFolder: TKMapFolder);
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
@@ -52,7 +52,7 @@ const
   PANEL_QUICKPLAY_HEIGHT = 505;
 
 
-constructor TKMMapEdMenuQuickPlay.Create(aParent: TKMPanel; aOnMapTypChanged: TBooleanEvent);
+constructor TKMMapEdMenuQuickPlay.Create(aParent: TKMPanel; aOnMapFolderChanged: TKMapFolderEvent);
 const
   CTRLS_WIDTH = 220;
 var
@@ -101,7 +101,7 @@ begin
     Button_Cancel.Hint := gResTexts[TX_WORD_CANCEL];
     Button_Cancel.OnClick := Cancel_Click;
 
-  fMenuSave := TKMMapEdMenuSave.Create(Panel_Save, SaveDone, aOnMapTypChanged, 0, 10, 220);
+  fMenuSave := TKMMapEdMenuSave.Create(Panel_Save, SaveDone, aOnMapFolderChanged, 0, 10, 220);
 
   fMenuSave.Button_SaveCancel.Hide;
 
@@ -131,7 +131,7 @@ var
   GameName, MissionFile: String;
   Color: Cardinal;
   HandID: Integer;
-  IsMultiplayer: Boolean;
+  MapFolder: TKMapFolder;
   Difficulty: TKMMissionDifficulty;
   AIType: TKMAIType;
 begin
@@ -139,7 +139,7 @@ begin
   GameName := gGameParams.Name;
   HandId := DropList_SelectHand.GetSelectedTag;
   Color := gHands[HandId].FlagColor;
-  IsMultiplayer := fIsMultiplayer; //Somehow fIsMultiplayer sometimes change its value... have no time to debug it. Just save to local value for now
+  MapFolder := fMapFolder; //Somehow fIsMultiplayer sometimes change its value... have no time to debug it. Just save to local value for now
 
   Difficulty := mdNone;
   if DropBox_Difficulty.IsClickable and DropBox_Difficulty.IsSelected then
@@ -150,7 +150,7 @@ begin
   FreeThenNil(gGame);
   gGameApp.NewSingleMap(MissionFile, GameName, HandId, Color, Difficulty, AIType, not aMapSaved);
   gGame.StartedFromMapEditor := True;
-  gGame.StartedFromMapEdAsMPMap := IsMultiplayer;
+  gGame.StartedFromMapEdAsMPMap := MapFolder;
   TKMGamePlayInterface(gGame.ActiveInterface).UpdateUI;
 end;
 
@@ -249,10 +249,10 @@ begin
 end;
 
 
-procedure TKMMapEdMenuQuickPlay.SetLoadMode(aMultiplayer: Boolean);
+procedure TKMMapEdMenuQuickPlay.SetLoadMode(aMapFolder: TKMapFolder);
 begin
-  fIsMultiplayer := aMultiplayer;
-  fMenuSave.SetLoadMode(aMultiplayer);
+  fMapFolder := aMapFolder;
+  fMenuSave.SetLoadMode(aMapFolder);
 end;
 
 

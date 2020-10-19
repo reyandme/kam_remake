@@ -2,7 +2,7 @@ unit KM_GameTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_MapTypes, KM_CampaignTypes;
+  KM_MapTypes, KM_CampaignTypes, KM_Defaults;
 
 const
   SAVE_HEADER_MARKER = 'Header';
@@ -30,8 +30,8 @@ type
 
   TKMNewCampaignMapEvent = procedure (aCampaign: TKMCampaignId; aMap: Byte; aDifficulty: TKMMissionDifficulty = mdNone) of object;
 
-  TKMNewMapEditorEvent = procedure (const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0; aMapFullCRC: Cardinal = 0;
-                                    aMapSimpleCRC: Cardinal = 0; aMultiplayerLoadMode: Boolean = False) of object;
+  TKMNewMapEditorEvent = procedure (aMapFolder: TKMapFolder; const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0; aMapFullCRC: Cardinal = 0;
+                                    aMapSimpleCRC: Cardinal = 0) of object;
 
 implementation
 
