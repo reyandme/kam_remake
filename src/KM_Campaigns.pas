@@ -48,10 +48,6 @@ type
 
     procedure SetUnlockedMap(aValue: Byte);
 
-    procedure LoadFromPath(const aPath: UnicodeString);
-    procedure LoadMapsInfo;
-    procedure LoadSprites;
-
     procedure SetCampaignId(aCampaignId: TKMCampaignId);
     procedure UpdateShortName;
     procedure MapsClear;
@@ -60,8 +56,12 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure LoadFromPath(const aPath: UnicodeString);
     procedure LoadFromFile(const aFileName: UnicodeString);
     procedure SaveToFile(const aFileName: UnicodeString);
+
+    procedure LoadMapsInfo;
+    procedure LoadSprites;
 
     property Path: UnicodeString read fPath;
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
@@ -106,6 +106,7 @@ type
     procedure SaveProgress;
 
     //Usage
+    function CreateCampaign(const aCampaignId: TKMCampaignId): TKMCampaign;
     property ActiveCampaign: TKMCampaign read fActiveCampaign;// write fActiveCampaign;
     function Count: Integer;
     property Campaigns[aIndex: Integer]: TKMCampaign read GetCampaign; default;
@@ -345,6 +346,14 @@ begin
 end;
 
 
+function TKMCampaignsCollection.CreateCampaign(const aCampaignId: TKMCampaignId): TKMCampaign;
+begin
+  Result := TKMCampaign.Create;
+  Result.CampaignId := aCampaignId;
+  fList.Add(Result);
+end;
+
+
 function TKMCampaignsCollection.CampaignById(const aCampaignId: TKMCampaignId): TKMCampaign;
 var
   I: Integer;
@@ -400,7 +409,7 @@ begin
 
   //Free background texture
   if fBackGroundPic.ID <> 0 then
-    gRes.Sprites[rxCustom].DeleteSpriteTexture(fBackGroundPic.ID);
+    gRes.Sprites[rxCampaign].DeleteSpriteTexture(fBackGroundPic.ID);
 
   MapsClear;
   Maps.Free;
@@ -544,7 +553,7 @@ var
 begin
   if gRes.Sprites <> nil then
   begin
-    SP := gRes.Sprites[rxCustom];
+    SP := gRes.Sprites[rxCampaign];
     FirstSpriteIndex := SP.RXData.Count + 1;
     SP.LoadFromRXXFile(fPath + 'images.rxx', FirstSpriteIndex);
 
@@ -553,13 +562,13 @@ begin
       //Images were successfuly loaded
       SP.MakeGFX(False, FirstSpriteIndex);
       SP.ClearTemp;
-      fBackGroundPic.RX := rxCustom;
+      fBackGroundPic.RX := rxCampaign;
       fBackGroundPic.ID := FirstSpriteIndex;
     end
     else
     begin
       //Images were not found - use blank
-      fBackGroundPic.RX := rxCustom;
+      fBackGroundPic.RX := rxCampaign;
       fBackGroundPic.ID := 0;
     end;
   end;

@@ -38,6 +38,7 @@ var
     (FileName: 'Units';      TeamColors: True;  Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_UNITS;),
     (FileName: 'GUI';        TeamColors: True;  Usage: ruMenu;   LoadingTextID: 0;),
     (FileName: 'GUIMain';    TeamColors: False; Usage: ruMenu;   LoadingTextID: 0;),
+    (FileName: 'Campaign';   TeamColors: False; Usage: ruCustom; LoadingTextID: 0;),
     (FileName: 'Custom';     TeamColors: False; Usage: ruCustom; LoadingTextID: 0;),
     (FileName: 'Tileset';    TeamColors: False; Usage: ruMenu;   LoadingTextID: TX_MENU_LOADING_TILESET;));
 
@@ -475,7 +476,7 @@ begin
     Allocate(aIndex);
 
   LoadFromPng(aFolder + aFilename, pngWidth, pngHeight, pngData);
-  Assert((pngWidth <= 2048) and (pngHeight <= 2048), 'Image size should be less than 1024x1024 pixels');
+  Assert((pngWidth <= 2048) and (pngHeight <= 2048), 'Image size should be less than 2048x2048 pixels');
 
   fRXData.Flag[aIndex] := Byte(pngWidth * pngHeight <> 0); //Mark as used (required for saving RXX)
   fRXData.Size[aIndex].X := pngWidth;

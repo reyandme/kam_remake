@@ -263,6 +263,7 @@
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuLobby.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuMain.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuMapEditor.pas"/>
+        <DCCReference Include="src\gui\pages_menu\KM_GUIMenuCampaignMapEditor.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuMultiplayer.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuOptions.pas"/>
         <DCCReference Include="src\gui\pages_menu\KM_GUIMenuReplays.pas"/>
@@ -366,6 +367,7 @@
         <DCCReference Include="src\res\KM_ResPalettes.pas"/>
         <DCCReference Include="src\res\KM_ResSound.pas"/>
         <DCCReference Include="src\res\KM_ResSprites.pas"/>
+        <DCCReference Include="src\res\KM_ResSpritesEdit.pas"/>
         <DCCReference Include="src\res\KM_ResTexts.pas"/>
         <DCCReference Include="src\res\KM_ResTypes.pas"/>
         <DCCReference Include="src\res\KM_ResTileset.pas"/>

@@ -79,6 +79,7 @@ type
     //MapEd
     fMapEdCMIndex: Byte;
     fMapEdCMMapCRC: Cardinal;
+    fMapEdCMImagePath: UnicodeString;
     fMapEdHistoryDepth: Integer;
 
     //Multiplayer
@@ -173,6 +174,7 @@ type
     //MapEd
     procedure SetMapEdCMIndex(aValue: Byte);
     procedure SetMapEdCMMapCRC(aValue: Cardinal);
+    procedure SetMapEdCMImagePath(aValue: UnicodeString);
     procedure SetMapEdHistoryDepth(const aValue: Integer);
 
     //Multiplayer
@@ -279,6 +281,7 @@ type
     //MapEd
     property MapEdCMIndex: Byte read fMapEdCMIndex write SetMapEdCMIndex;
     property MapEdCMMapCRC: Cardinal read fMapEdCMMapCRC write SetMapEdCMMapCRC;
+    property MapEdCMImagePath: UnicodeString read fMapEdCMImagePath write SetMapEdCMImagePath;
     property MapEdHistoryDepth: Integer read fMapEdHistoryDepth write SetMapEdHistoryDepth;
 
     //Multiplayer
@@ -499,6 +502,7 @@ begin
   nMapEd := nGameSettings.AddOrFindChild('MapEd');
     fMapEdCMIndex        := nMapEd.Attributes['CMIndex'].AsInteger(0);
     fMapEdCMMapCRC       := nMapEd.Attributes['CMMapCRC'].AsCardinal(0);
+    fMapEdCMImagePath    := nMapEd.Attributes['CMImagePath'].AsString('');
     fMapEdHistoryDepth   := nMapEd.Attributes['HistoryDepth'].AsInteger(MAPED_HISTORY_DEPTH_DEF); // With setter
 
   // Multiplayer
@@ -679,6 +683,7 @@ begin
   nMapEd := nGameSettings.AddOrFindChild('MapEd');
     nMapEd.Attributes['CMIndex']      := fMapEdCMIndex;
     nMapEd.Attributes['CMMapCRC']     := fMapEdCMMapCRC;
+    nMapEd.Attributes['CMImagePath']  := fMapEdCMImagePath;
     nMapEd.Attributes['HistoryDepth'] := fMapEdHistoryDepth;
 
   // Multiplayer
@@ -885,6 +890,13 @@ end;
 procedure TKMGameSettings.SetMapEdCMMapCRC(aValue: Cardinal);
 begin
   fMapEdCMMapCRC := aValue;
+  Changed;
+end;
+
+
+procedure TKMGameSettings.SetMapEdCMImagePath(aValue: UnicodeString);
+begin
+  fMapEdCMImagePath := aValue;
   Changed;
 end;
 

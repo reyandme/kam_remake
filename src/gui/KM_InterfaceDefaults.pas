@@ -23,6 +23,7 @@ type
                           gpLobby,
                         gpReplays,
                         gpMapEditor,
+                        gpCampaignMapEditor,
                         gpOptions,
                         gpCredits,
                       gpLoading,

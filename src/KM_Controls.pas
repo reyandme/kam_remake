@@ -134,6 +134,10 @@ type
     fLastMouseDownButton: TMouseButton;
     fLastClickPos: TKMPoint;
 
+    fDragAndDropMovePosition: TKMPoint;
+    fDragAndDropMove: Boolean;
+    fDragAndDrop: Boolean;
+
     fOnClick: TNotifyEvent;
     fOnClickShift: TNotifyEventShift;
     fOnClickRight: TPointEvent;
@@ -145,6 +149,10 @@ type
     fOnChangeEnableStatus: TBooleanObjEvent;
     fOnKeyDown: TNotifyEventKeyShiftFunc;
     fOnKeyUp: TNotifyEventKeyShiftFunc;
+
+    fOnBeginDragAndDrop: TNotifyEvent;
+    fOnMoveDragAndDrop: TNotifyEvent;
+    fOnEndDragAndDrop: TNotifyEvent;
 
     fOnWidthChange: TObjectIntegerEvent;
     fOnHeightChange: TObjectIntegerEvent;
@@ -302,6 +310,7 @@ type
     procedure MouseMove (X,Y: Integer; Shift: TShiftState); virtual;
     procedure MouseUp   (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
     procedure MouseWheel(Sender: TObject; WheelSteps: Integer; var aHandled: Boolean); virtual;
+    property DragAndDrop: Boolean read fDragAndDrop write fDragAndDrop;
 
     property OnClick: TNotifyEvent read fOnClick write fOnClick;
     property OnClickShift: TNotifyEventShift read fOnClickShift write fOnClickShift;
@@ -314,6 +323,9 @@ type
     property OnChangeEnableStatus: TBooleanObjEvent read fOnChangeEnableStatus write fOnChangeEnableStatus;
     property OnKeyDown: TNotifyEventKeyShiftFunc read fOnKeyDown write fOnKeyDown;
     property OnKeyUp: TNotifyEventKeyShiftFunc read fOnKeyUp write fOnKeyUp;
+    property OnBeginDragAndDrop: TNotifyEvent read fOnBeginDragAndDrop write fOnBeginDragAndDrop;
+    property OnMoveDragAndDrop: TNotifyEvent read fOnMoveDragAndDrop write fOnMoveDragAndDrop;
+    property OnEndDragAndDrop: TNotifyEvent read fOnEndDragAndDrop write fOnEndDragAndDrop;
 
     property OnWidthChange: TObjectIntegerEvent read fOnWidthChange write fOnWidthChange;
     property OnHeightChange: TObjectIntegerEvent read fOnHeightChange write fOnHeightChange;
@@ -597,14 +609,20 @@ type
 
 
   TKMAllowedChars = (
-    acDigits, //Only 0..9 digits, for numeric input
-    acHex,    //Only 0..9 A..F a..f, for input hex values (colors)
-    acANSI7,  //#33..#123,#125,#126 - only basic latin chars and symbols for user nikname, except |
+    acDigits,   //Only 0..9 digits, for numeric input
+    acHex,      //Only 0..9 A..F a..f, for input hex values (colors)
+    acANSI7,    //#33..#123,#125,#126 - only basic latin chars and symbols for user nikname, except |
+    acLatin,    //#65..#90, #97..#122
     acFileName, //Exclude symbols that can't be used in filenames
-    acText,  //Anything is allowed except for eol symbol
-    acAll    //Anything is allowed
+    acText,     //Anything is allowed except for eol symbol
+    acAll       //Anything is allowed
   );
 
+  TKMTextCase = (
+    tcNone,
+    tcLower,
+    tcUpper
+  );
 
   // Check if specified aChar is allowed for specified aAllowedChars type
   function IsCharAllowed(aChar: WideChar; aAllowedChars: TKMAllowedChars): Boolean;
@@ -653,6 +671,7 @@ type
     fSelectionStart: Integer;
     fSelectionEnd: Integer;
     fSelectionInitialPos: Integer;
+    fTextCase: TKMTextCase;
 
     procedure SetCursorPos(aPos: Integer);
     function GetCursorPosAt(X: Integer): Integer;
@@ -662,6 +681,7 @@ type
     procedure SetSelectionStart(aValue: Integer);
     procedure SetSelectionEnd(aValue: Integer);
     procedure DeleteSelectedText;
+    procedure SetTextCase(aTextCase: TKMTextCase);
     procedure SetSelections(aValue1, aValue2: Integer);
     procedure UpdateSelection(aOldCursorPos: Integer; aIsSelecting: Boolean);
   protected
@@ -688,6 +708,7 @@ type
     property Selectable: Boolean read fSelectable write fSelectable;
     property SelectionStart: Integer read fSelectionStart write SetSelectionStart;
     property SelectionEnd: Integer read fSelectionEnd write SetSelectionEnd;
+    property TextCase: TKMTextCase read fTextCase write SetTextCase;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -1241,6 +1262,7 @@ type
     Glyph: TKMPic;
     HeaderHint: UnicodeString;
     Offset: Word; //Offsets are easier to handle than widths
+    SortAllowed: Boolean;
   end;
 
   TKMListHeader = class (TKMControl)
@@ -1737,6 +1759,60 @@ type
     procedure PaintPanel(aPaintLayer: Integer); override;
   end;
 
+  TKMOpenDialogItem = record
+    IsDir: Boolean;
+    Name: UnicodeString;
+    Size: Int64;
+    Date: TDateTime;
+  end;
+
+  TKMOpenDialog = class(TKMPanel)
+  private
+    fPath: UnicodeString;
+    fFileName: UnicodeString;
+
+    fItemCount: Integer;
+    fItems: array of TKMOpenDialogItem;
+
+    fLabelCaption: TKMLabel;
+    fButtonFlatDrives: array['A'..'Z'] of TKMButtonFlat;
+    fBevelPath: TKMBevel;
+    fLabelPath: TKMLabel;
+    fColumnBoxFiles: TKMColumnBox;
+    fButtonOk, fButtonCancel: TKMButton;
+    fOnOk: TNotifyEvent;
+    fOnCancel: TNotifyEvent;
+
+    procedure AddItem(aIsDir: Boolean; const aName: UnicodeString; aSize: Int64; aDate: TDateTime);
+    procedure Clear;
+
+    procedure UpdateImageDialogDrives;
+    procedure UpdateFiles;
+    procedure Sort;
+    procedure Fill;
+
+    procedure DriveClick(Sender: TObject);
+    procedure ColumnClick(aValue: Integer);
+    procedure FileChange(Sender: TObject);
+    procedure FileDoubleClick(Sender: TObject);
+    procedure OkClick(Sender: TObject);
+    procedure CancelClick(Sender: TObject);
+
+    procedure SetCaption(aValue: UnicodeString);
+    function GetCaption: UnicodeString;
+  public
+    Exts: UnicodeString;
+    InitialDir: UnicodeString;
+
+    constructor Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '');
+    procedure Open;
+
+    property Caption: UnicodeString read GetCaption write SetCaption;
+    property Path: UnicodeString read fPath;
+    property FileName: UnicodeString read fFileName;
+    property OnOk: TNotifyEvent read fOnOk write fOnOk;
+    property OnCancel: TNotifyEvent read fOnCancel write fOnCancel;
+  end;
 
   TDragAxis = (daHoriz, daVertic, daAll);
 
@@ -2032,6 +2108,8 @@ begin
   HandleMouseWheelByDefault := True;
   fLastClickPos := KMPOINT_ZERO;
   fIsHitTestUseDrawRect := False;
+  fDragAndDrop  := False;
+  fDragAndDropMove := False;
 
 //  fKeyPressList := TList<TKMKeyPress>.Create;
 
@@ -2166,6 +2244,11 @@ begin
   fClickHoldMode := True;
   fTimeOfLastMouseDown := TimeGet;
   fLastMouseDownButton := Button;
+  if fDragAndDrop then
+  begin
+    fDragAndDropMove := True;
+    fDragAndDropMovePosition := KMPoint(X - AbsLeft, Y - AbsTop);
+  end;
 end;
 
 
@@ -2174,6 +2257,13 @@ begin
   //if Assigned(fOnMouseOver) then fOnMouseOver(Self); { Unused }
   if (csDown in State) then
   begin
+    if fDragAndDrop and fDragAndDropMove then
+    begin
+      AbsLeft := X - fDragAndDropMovePosition.X;
+      AbsTop := Y - fDragAndDropMovePosition.Y;
+      if Assigned(fOnMoveDragAndDrop) then
+        fOnMoveDragAndDrop(Self);
+    end;
     //Update fClickHoldMode
     if InRange(X, AbsLeft, AbsRight) and InRange(Y, AbsTop, AbsBottom) then
       fClickHoldMode := True
@@ -2187,6 +2277,7 @@ procedure TKMControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseBut
 var
   ClickHoldHandled: Boolean;
 begin
+  fDragAndDropMove := False;
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
 
   if (csDown in State) then
@@ -3124,8 +3215,9 @@ end;
 // Check if specified aChar is allowed for specified aAllowedChars type
 function IsCharAllowed(aChar: WideChar; aAllowedChars: TKMAllowedChars): Boolean;
 const
-  HexDigits:        TSetOfAnsiChar = [#48..#57,#65..#70,#97..#102]; //0..9 A..F a..f
-  Ansi7Chars:       TSetOfAnsiChar = [#32..#123,#125..#126]; //except | character
+  HexDigits:        TSetOfAnsiChar = [#48..#57 ,#65..#70, #97..#102]; //0..9 A..F a..f
+  Ansi7Chars:       TSetOfAnsiChar = [#32..#123, #125..#126]; //except | character
+  LatinChars:       TSetOfAnsiChar = [#65..#90, #97..#122]; //except | character
   NonFileChars:     TSetOfAnsiChar = [#0 .. #31, '<', '>', #176, '|', '"', '\', '/', ':', '*', '?'];
   NonTextCharsWEOL: TSetOfAnsiChar = [#0 .. #31, #176, '|']; //° has negative width so acts like a backspace in KaM fonts
   NonTextChars:     TSetOfAnsiChar = [#0 .. #31, #176]; //° has negative width so acts like a backspace in KaM fonts
@@ -3133,6 +3225,7 @@ begin
   Result := not ((aAllowedChars = acDigits)   and not InRange(Ord(aChar), 48, 57)
               or (aAllowedChars = acHex)      and not CharInSet(aChar, HexDigits)
               or (aAllowedChars = acANSI7)    and not CharInSet(aChar, Ansi7Chars)
+              or (aAllowedChars = acLatin)    and not CharInSet(aChar, LatinChars)
               or (aAllowedChars = acFileName) and CharInSet(aChar, NonFileChars)
               or (aAllowedChars = acText)     and CharInSet(aChar, NonTextCharsWEOL)
               or (aAllowedChars = acAll)      and CharInSet(aChar, NonTextChars));
@@ -3946,6 +4039,18 @@ begin
 end;
 
 
+procedure TKMSelectableEdit.SetTextCase(aTextCase: TKMTextCase);
+begin
+  if fTextCase <> aTextCase then
+    case aTextCase of
+      tcLower: fText := fText.ToLower;
+      tcUpper: fText := fText.ToUpper;
+    end;
+
+  fTextCase := aTextCase;
+end;
+
+
 procedure TKMSelectableEdit.SetSelectionStart(aValue: Integer);
 begin
   if fSelectable then
@@ -4127,6 +4232,10 @@ begin
     if Length(fText) >= GetMaxLength then Exit;
 
   Insert(Key, fText, CursorPos + 1);
+  case fTextCase of
+    tcLower: fText := fText.ToLower;
+    tcUpper: fText := fText.ToUpper;
+  end;
   CursorPos := CursorPos + 1; //Before ValidateText so it moves the cursor back if the new char was invalid
   ValidateText;
 end;
@@ -7388,6 +7497,9 @@ var ColumnID: Integer;
 begin
   //do not invoke inherited here, to fully override parent DoClick method
   ColumnID := GetColumnIndex(X);
+  if not fColumns[ColumnID].SortAllowed then
+    Exit;
+
   if (ColumnID <> -1) and Assigned(OnColumnClick) then
   begin
     //We could process the clicks here (i.e. do the sorting inplace)
@@ -7440,6 +7552,7 @@ begin
     fColumns[I].Caption := aColumns[I];
     fColumns[I].HeaderHint := aHints[I];
     fColumns[I].Offset := aColumnOffsets[I];
+    fColumns[I].SortAllowed := True;
   end;
 end;
 
@@ -7496,7 +7609,7 @@ begin
     ColumnLeft := AbsLeft + fColumns[I].Offset;
 
     TKMRenderUI.WriteBevel(ColumnLeft, AbsTop, ColumnWidth, Height, EdgeAlpha, BackAlpha);
-    if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = I) then
+    if Assigned(OnColumnClick) and fColumns[I].SortAllowed and (csOver in State) and (fColumnHighlight = I) then
       TKMRenderUI.WriteShape(ColumnLeft, AbsTop, ColumnWidth, Height, $20FFFFFF);
 
     if fColumns[I].Glyph.ID <> 0 then
@@ -8291,7 +8404,7 @@ begin
 
     //Paint column
     if Rows[aIndex].Cells[I].Pic.ID <> 0 then
-      TKMRenderUI.WritePicture(X + 4 + fHeader.Columns[I].Offset - HiddenColumnsTotalWidth, Y + 1,
+      TKMRenderUI.WritePicture(X + 4 + fHeader.Columns[I].Offset - HiddenColumnsTotalWidth + Rows[aIndex].Cells[I].Pic.OffsetX, Y + 1 + Rows[aIndex].Cells[I].Pic.OffsetY,
                              AvailWidth, fItemHeight, [],
                              Rows[aIndex].Cells[I].Pic.RX,
                              Rows[aIndex].Cells[I].Pic.ID,
@@ -8665,6 +8778,346 @@ begin
   end;
 end;
 
+{ TKMOpenDialog }
+
+constructor TKMOpenDialog.Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '');
+var
+  Drive: Char;
+begin
+  inherited Create(aParent, aParent.Width div 2 - aWidth div 2, aParent.Height div 2 - aHeight div 2, aWidth, aHeight);
+
+  TKMBevel.Create(Self, -2000,  -2000, 5000, 5000);
+  TKMImage.Create(Self, -20, -20, aWidth + 40, aHeight + 50, 18, rxGuiMain, 0, [anLeft, anRight, anTop, anBottom]).AnchorsStretch;
+
+  fLabelCaption := TKMLabel.Create(Self, 0, 20, aWidth, 20, aCaption, fntOutline, taCenter);
+
+  for Drive := 'A' to 'Z' do
+  begin
+    fButtonFlatDrives[Drive] := TKMButtonFlat.Create(Self, 0, 50, 50, 30, 38, rxGui);
+    fButtonFlatDrives[Drive].Caption := UpCase(Drive);
+    fButtonFlatDrives[Drive].TexOffsetX := -10;
+    fButtonFlatDrives[Drive].TexOffsetY := 6;
+    fButtonFlatDrives[Drive].CapOffsetX := 12;
+    fButtonFlatDrives[Drive].CapOffsetY := -10;
+    fButtonFlatDrives[Drive].OnClick := DriveClick;
+    fButtonFlatDrives[Drive].Hide;
+  end;
+
+  fBevelPath := TKMBevel.Create(Self, 20, 83, aWidth - 40, 24);
+  fLabelPath := TKMLabel.Create(Self, fBevelPath.Left + 4, fBevelPath.Top + 4, fBevelPath.Width - 8, fBevelPath.Height - 4, '', fntMetal, taLeft);
+
+  fColumnBoxFiles := TKMColumnBox.Create(Self, 20, 110, aWidth - 40, aHeight - 110 - 60, fntMetal, bsMenu);
+  fColumnBoxFiles.Anchors := [anLeft, anTop, anRight, anBottom];
+  fColumnBoxFiles.SetColumns(fntOutline, ['', 'Name', 'Size', 'Date'], [0, 20, aWidth - 300, aWidth - 165]);
+  fColumnBoxFiles.Header.Columns[0].SortAllowed := False;
+  fColumnBoxFiles.Columns[2].TextAlign := taRight;
+  fColumnBoxFiles.Columns[3].TextAlign := taRight;
+  fColumnBoxFiles.OnChange := FileChange;
+  fColumnBoxFiles.OnDoubleClick := FileDoubleClick;
+  fColumnBoxFiles.SearchColumn := 2;
+  fColumnBoxFiles.OnColumnClick := ColumnClick;
+
+  fButtonOk  := TKMButton.Create(Self, aWidth div 2 - 150 - 2, aHeight - 50, 150, 30, 'Ok',  bsMenu);
+  fButtonOk.OnClick := OkClick;
+
+  fButtonCancel := TKMButton.Create(Self, aWidth div 2 + 2, aHeight - 50, 150, 30, 'Cancel',  bsMenu);
+  fButtonCancel.OnClick := CancelClick;
+
+  Hide;
+end;
+
+procedure TKMOpenDialog.SetCaption(aValue: UnicodeString);
+begin
+  fLabelCaption.Caption := aValue;
+end;
+
+function TKMOpenDialog.GetCaption: UnicodeString;
+begin
+  Result := fLabelCaption.Caption;
+end;
+
+procedure TKMOpenDialog.Open;
+begin
+  fPath := IfThen(DirectoryExists(InitialDir), InitialDir, ExeDir);
+  fFileName := '';
+  fButtonOk.Enabled := False;
+  Show;
+  UpdateFiles;
+end;
+
+procedure TKMOpenDialog.UpdateImageDialogDrives;
+//DRIVE_UNKNOWN = 0; DRIVE_NO_ROOT_DIR = 1; DRIVE_REMOVABLE = 2; DRIVE_FIXED = 3; DRIVE_REMOTE = 4; DRIVE_CDROM = 5; DRIVE_RAMDISK = 6;
+const
+  DriveIcons: array [DRIVE_REMOVABLE..DRIVE_RAMDISK] of Integer = (703, 700, 704, 701, 705);
+var
+  Left, Top, Height: Integer;
+  Drive: Char;
+  DriveType: Cardinal;
+begin
+  Top := 50;
+  Left := fColumnBoxFiles.Left;
+
+  for Drive := 'A' to 'Z' do
+  begin
+    DriveType := GetDriveType(PChar(Drive + ':\'));
+    Height := fButtonFlatDrives[Drive].Height;
+    fButtonFlatDrives[Drive].Visible := DriveType > DRIVE_NO_ROOT_DIR;
+    if fButtonFlatDrives[Drive].Visible then
+    begin
+      if Left + fButtonFlatDrives[Drive].Width > fColumnBoxFiles.Width then
+      begin
+        Left := fColumnBoxFiles.Left;
+        Top := Top + Height + 5;
+      end;
+
+      fButtonFlatDrives[Drive].Down := (fPath.Length > 0) and (UpCase(fPath[1]) = UpCase(Drive));
+      fButtonFlatDrives[Drive].TexID := IfThen((DriveType = DRIVE_REMOVABLE) and ((Drive = 'A') or (Drive = 'B')), 702, DriveIcons[DriveType]);
+      fButtonFlatDrives[Drive].Left := Left;
+      fButtonFlatDrives[Drive].Top := Top;
+      Left := Left + fButtonFlatDrives[Drive].Width + 5;
+    end;
+  end;
+  Top := Top + Height + 5;
+
+  fBevelPath.Top := Top;
+  fLabelPath.Top := Top + 4;
+  fColumnBoxFiles.Top := Top + fBevelPath.Height + 5;
+  fColumnBoxFiles.Height := Self.Height - fColumnBoxFiles.Top - 60;
+end;
+
+procedure TKMOpenDialog.AddItem(aIsDir: Boolean; const aName: UnicodeString; aSize: Int64; aDate: TDateTime);
+begin
+  if fItemCount = Length(fItems) then
+    SetLength(fItems, IfThen(fItemCount = 0, 64, fItemCount * 2));
+
+  fItems[fItemCount].IsDir := aIsDir;
+  fItems[fItemCount].Name := aName;
+  fItems[fItemCount].Size := aSize;
+  fItems[fItemCount].Date := aDate;
+  Inc(fItemCount);
+end;
+
+procedure TKMOpenDialog.Clear;
+begin
+  SetLength(fItems, 0);
+  fItemCount := 0;
+end;
+
+procedure TKMOpenDialog.UpdateFiles;
+
+  function CheckFormat(const aFileName: string): Boolean;
+  begin
+    Result := (Exts = '') or (pos(';' + ExtractFileExt(aFileName).ToLower + ';', ';' + Exts.ToLower + ';') > 0);
+  end;
+
+var
+  SearchRec: TSearchRec;
+begin
+  UpdateImageDialogDrives;
+  fColumnBoxFiles.Clear;
+  if not DirectoryExists(fPath) then
+  begin
+    fLabelPath.Caption := '';
+    fLabelPath.Hint := '';
+    Exit;
+  end;
+
+  fLabelPath.Caption := fPath;
+  fLabelPath.Hint := fPath;
+
+  fItemCount := 0;
+  SysUtils.FindFirst(fPath + '*', faAnyFile, SearchRec);
+  try
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+      begin
+        if (SearchRec.Attr and faDirectory = faDirectory) then
+          AddItem(True, SearchRec.Name, 0, SearchRec.TimeStamp)
+        else if CheckFormat(SearchRec.Name) then
+          AddItem(False, SearchRec.Name, SearchRec.Size, SearchRec.TimeStamp);
+      end;
+    until (SysUtils.FindNext(SearchRec) <> 0);
+  finally
+    SysUtils.FindClose(SearchRec);
+  end;
+  Sort;
+end;
+
+
+procedure TKMOpenDialog.Sort;
+var
+  TempItems: array of TKMOpenDialogItem;
+
+  function Compare(const A, B: TKMOpenDialogItem): Boolean;
+  var
+    c: Integer;
+  begin
+    if A.IsDir <> B.IsDir then
+      Exit(B.IsDir);
+
+    if (fColumnBoxFiles.Header.SortIndex = 2) and (A.Size <> B.Size) then
+    begin
+      if fColumnBoxFiles.Header.fSortDirection = sdDown then
+        Exit(A.Size < B.Size)
+      else
+        Exit(A.Size > B.Size);
+    end;
+
+    if (fColumnBoxFiles.Header.SortIndex = 3) and (A.Date <> B.Date) then
+    begin
+      if fColumnBoxFiles.Header.fSortDirection = sdDown then
+        Exit(A.Date < B.Date)
+      else
+        Exit(A.Date > B.Date);
+    end;
+
+    if fColumnBoxFiles.Header.fSortDirection = sdDown then
+      Exit(CompareText(A.Name, B.Name) < 0)
+    else
+      Exit(CompareText(A.Name, B.Name) > 0);
+
+    Result := False;
+  end;
+
+  procedure MergeSort(aLeft, aRight: Integer);
+  var
+    Middle, I, J, Ind1, Ind2: integer;
+  begin
+    if aRight <= aLeft then
+      exit;
+
+    Middle := (aLeft+aRight) div 2;
+    MergeSort(aLeft, Middle);
+    Inc(Middle);
+    MergeSort(Middle, aRight);
+    Ind1 := aLeft;
+    Ind2 := Middle;
+    for I := aLeft to aRight do
+    begin
+      if (Ind1 < Middle) and ((Ind2 > aRight) or not Compare(fItems[Ind1], fItems[Ind2])) then
+      begin
+        TempItems[I] := fItems[Ind1];
+        Inc(Ind1);
+      end
+      else
+      begin
+        TempItems[I] := fItems[Ind2];
+        Inc(Ind2);
+      end;
+    end;
+
+    for J := aLeft to aRight do
+      fItems[J] := TempItems[J];
+  end;
+
+begin
+  SetLength(TempItems, fItemCount);
+  MergeSort(0, fItemCount - 1);
+
+
+  Fill;
+end;
+
+procedure TKMOpenDialog.Fill;
+
+  function SizeToStr(aSize: Int64): string;
+  var
+    I, n: Integer;
+    Str: string;
+  begin
+    Str := IntToStr(aSize);
+    if aSize < 10000 then
+      Exit(Str);
+
+    n := 0;
+    Result := '';
+    for I := Str.Length downto 1 do
+    begin
+      Result := Str[I] + Result;
+      Inc(n);
+      if (n = 3) and (I > 1) then
+      begin
+        n := 0;
+        Result := ' ' + Result;
+      end;
+    end;
+  end;
+
+var
+  I: Integer;
+  Row: TKMListRow;
+begin
+  fColumnBoxFiles.Clear;
+
+  if fPath.Length > 3 then
+  begin
+    Row := MakeListRow(['', '[..]', '', ''], 0);
+    Row.Cells[0].Pic := MakePic(rxGui, 710, True, 0, -2);
+    fColumnBoxFiles.AddItem(Row);
+  end;
+
+  for I := 0 to fItemCount - 1 do
+    if fItems[I].IsDir then
+    begin
+      Row := MakeListRow(['', '[' + fItems[I].Name + ']', '<DIR>', DateToStr(fItems[I].Date)], 0);
+      Row.Cells[0].Pic := MakePic(rxGui, 711, True, 0, -2);
+      fColumnBoxFiles.AddItem(Row);
+    end
+    else
+    begin
+      Row := MakeListRow(['', fItems[I].Name, SizeToStr(fItems[I].Size), DateToStr(fItems[I].Date)], 1);
+      Row.Cells[0].Pic := MakePic(rxGui, 712, True, 0, -2);
+      fColumnBoxFiles.AddItem(Row);
+    end;
+end;
+
+procedure TKMOpenDialog.ColumnClick(aValue: Integer);
+begin
+  Sort;
+end;
+
+procedure TKMOpenDialog.DriveClick(Sender: TObject);
+begin
+  fPath := TKMButtonFlat(Sender).Caption + ':\';
+  UpdateFiles;
+end;
+
+procedure TKMOpenDialog.FileChange(Sender: TObject);
+begin
+  fButtonOk.Enabled := fColumnBoxFiles.IsSelected and (fColumnBoxFiles.SelectedItemTag = 1);
+end;
+
+procedure TKMOpenDialog.FileDoubleClick(Sender: TObject);
+var
+  Str: string;
+begin
+  if fColumnBoxFiles.SelectedItemTag = 0 then
+  begin
+    Str := fColumnBoxFiles.SelectedItem.Cells[1].Caption;
+    Str := Copy(Str, 2, Str.Length - 2);
+    fPath := ExpandFileName(fPath + Str + PathDelim);
+    UpdateFiles;
+  end
+  else
+    OkClick(fButtonOk);
+end;
+
+procedure TKMOpenDialog.OkClick(Sender: TObject);
+begin
+  fFileName := fColumnBoxFiles.SelectedItem.Cells[1].Caption;
+  Hide;
+  if Assigned(fOnOk) then
+    fOnOk(Self);
+end;
+
+procedure TKMOpenDialog.CancelClick(Sender: TObject);
+begin
+  fPath := '';
+  fFileName := '';
+  Hide;
+  if Assigned(fOnCancel) then
+    fOnCancel(Self);
+end;
 
 { TKMDropCommon }
 constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont;
