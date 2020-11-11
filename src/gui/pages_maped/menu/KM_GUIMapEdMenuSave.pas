@@ -17,6 +17,7 @@ type
   protected
     Panel_Save: TKMPanel;
       Radio_Save_MapType: TKMRadioGroup;
+      DropBox_Campaigns: TKMDropList;
       Edit_SaveName: TKMEdit;
       Label_SaveExists: TKMLabel;
       CheckBox_SaveExists: TKMCheckBox;
@@ -34,12 +35,14 @@ type
 
 implementation
 uses
-  KM_Game, KM_GameParams, KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_InterfaceDefaults;
+  KM_Game, KM_GameParams, KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_InterfaceDefaults, KM_GameApp, KM_GameSettings;
 
 
 { TKMMapEdMenuSave }
 constructor TKMMapEdMenuSave.Create(aParent: TKMPanel; aOnDone: TNotifyEvent; aOnMapFolderChanged: TKMapFolderEvent;
                                     aLeftPanelInset: Integer = TB_PAD; aTopPanelInset: Integer = 45; aControlsWidth: Integer = TB_MAP_ED_WIDTH - TB_PAD);
+var
+  I: Integer;
 begin
   inherited Create;
 
@@ -59,14 +62,23 @@ begin
   Radio_Save_MapType.Add(gResTexts[TX_MENU_CAMPAIGNS]);
   Radio_Save_MapType.OnChange := Menu_SaveClick;
 
-  Edit_SaveName       := TKMEdit.Create(Panel_Save,aLeftPanelInset,100,aControlsWidth,20, fntGrey);
+  DropBox_Campaigns := TKMDropList.Create(Panel_Save, 9, 100, Panel_Save.Width - 9, 20, fntMetal, gResTexts[TX_MISSION_DIFFICULTY], bsMenu);
+  DropBox_Campaigns.Anchors := [anLeft, anBottom];
+  DropBox_Campaigns.OnChange := Menu_SaveClick;
+  DropBox_Campaigns.Clear;
+  for I := 0 to gGameApp.Campaigns.Count - 1 do
+    DropBox_Campaigns.Add(gGameApp.Campaigns[I].GetCampaignTitle);
+  DropBox_Campaigns.ItemIndex := gGameSettings.MapEdCMIndex;
+  DropBox_Campaigns.Hide;
+
+  Edit_SaveName       := TKMEdit.Create(Panel_Save,aLeftPanelInset,125,aControlsWidth,20, fntGrey);
   Edit_SaveName.MaxLen := MAX_SAVENAME_LENGTH;
   Edit_SaveName.AllowedChars := acFileName;
   Edit_SaveName.AutoFocusable := False;
-  Label_SaveExists    := TKMLabel.Create(Panel_Save,aLeftPanelInset,130,aControlsWidth,0,gResTexts[TX_MAPED_SAVE_EXISTS],fntOutline,taCenter);
-  CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,aLeftPanelInset,150,aControlsWidth,20,gResTexts[TX_MAPED_SAVE_OVERWRITE], fntMetal);
-  Button_SaveSave     := TKMButton.Create(Panel_Save,aLeftPanelInset,170,aControlsWidth,30,gResTexts[TX_MAPED_SAVE],bsGame);
-  Button_SaveCancel   := TKMButton.Create(Panel_Save,aLeftPanelInset,210,aControlsWidth,30,gResTexts[TX_MAPED_SAVE_CANCEL],bsGame);
+  Label_SaveExists    := TKMLabel.Create(Panel_Save,aLeftPanelInset,155,aControlsWidth,0,gResTexts[TX_MAPED_SAVE_EXISTS],fntOutline,taCenter);
+  CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,aLeftPanelInset,175,aControlsWidth,20,gResTexts[TX_MAPED_SAVE_OVERWRITE], fntMetal);
+  Button_SaveSave     := TKMButton.Create(Panel_Save,aLeftPanelInset,195,aControlsWidth,30,gResTexts[TX_MAPED_SAVE],bsGame);
+  Button_SaveCancel   := TKMButton.Create(Panel_Save,aLeftPanelInset,245,aControlsWidth,30,gResTexts[TX_MAPED_SAVE_CANCEL],bsGame);
   Edit_SaveName.OnChange      := Menu_SaveClick;
   CheckBox_SaveExists.OnClick := Menu_SaveClick;
   Button_SaveSave.OnClick     := Menu_SaveClick;
@@ -75,15 +87,21 @@ end;
 
 
 procedure TKMMapEdMenuSave.Menu_SaveClick(Sender: TObject);
+var
+  str: string;
 
   function GetSaveName: UnicodeString;
   begin
-    Result := TKMapsCollection.FullPath(Trim(Edit_SaveName.Text), '.dat', TKMapFolder(Radio_Save_MapType.ItemIndex));
+    if Radio_Save_MapType.ItemIndex = 2 then
+      Result := ExeDir + gGameApp.Campaigns[DropBox_Campaigns.ItemIndex].Path + PathDelim + Trim(Edit_SaveName.Text) + PathDelim + Trim(Edit_SaveName.Text) + '.dat'
+    else
+      Result := TKMapsCollection.FullPath(Trim(Edit_SaveName.Text), '.dat', TKMapFolder(Radio_Save_MapType.ItemIndex));
   end;
 
 begin
-  if (Sender = Edit_SaveName) or (Sender = Radio_Save_MapType) then
+  if (Sender = Edit_SaveName) or (Sender = Radio_Save_MapType) or (Sender = DropBox_Campaigns) then
   begin
+    DropBox_Campaigns.Visible := Radio_Save_MapType.ItemIndex = 2;
     CheckBox_SaveExists.Enabled := FileExists(GetSaveName);
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := False;
@@ -123,7 +141,6 @@ end;
 
 procedure TKMMapEdMenuSave.Show;
 begin
-  SetLoadMode(fMapFolder);
   Edit_SaveName.Text := gGameParams.Name;
   Edit_SaveName.Focus;
   Menu_SaveClick(Edit_SaveName);
