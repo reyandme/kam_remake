@@ -99,6 +99,9 @@ begin
       Image_CampaignFlags[I].HighlightOnMouseOver := True;
       Image_CampaignFlags[I].DragAndDrop := True;
       Image_CampaignFlags[I].OnMoveDragAndDrop := MoveMap;
+      Image_CampaignFlags[I].DragAndDropRegionEnabled := True;
+      Image_CampaignFlags[I].DragAndDropRegion := Rect(Panel_Campaign_Flags.AbsLeft + 32, Panel_Campaign_Flags.AbsTop + 32,
+                                                       Panel_Campaign_Flags.AbsRight - 32, Panel_Campaign_Flags.AbsBottom - 64);
       Image_CampaignFlags[I].OnClick := SelectMap;
       Image_CampaignFlags[I].Tag := I;
 
@@ -114,6 +117,9 @@ begin
       Image_CampaignSubNode[I].ImageCenter;
       Image_CampaignSubNode[I].DragAndDrop := True;
       Image_CampaignSubNode[I].OnMoveDragAndDrop := MoveNode;
+      Image_CampaignSubNode[I].DragAndDropRegionEnabled := True;
+      Image_CampaignSubNode[I].DragAndDropRegion := Rect(Panel_Campaign_Flags.AbsLeft + 16, Panel_Campaign_Flags.AbsTop + 16,
+                                                         Panel_Campaign_Flags.AbsRight - 16, Panel_Campaign_Flags.AbsBottom - 64);
       Image_CampaignSubNode[I].OnClick := SelectNode;
       Image_CampaignSubNode[I].Tag := I;
 

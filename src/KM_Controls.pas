@@ -2,7 +2,7 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls,
+  Classes, Controls, System.Types,
   Generics.Collections,
   KromOGLUtils,
   KM_RenderUI, KM_Pics, KM_Minimap, KM_Viewport, KM_ResFonts,
@@ -137,6 +137,8 @@ type
     fDragAndDropMovePosition: TKMPoint;
     fDragAndDropMove: Boolean;
     fDragAndDrop: Boolean;
+    fDragAndDropRegionEnabled: Boolean;
+    fDragAndDropRegion: TRect;
 
     fOnClick: TNotifyEvent;
     fOnClickShift: TNotifyEventShift;
@@ -311,6 +313,8 @@ type
     procedure MouseUp   (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
     procedure MouseWheel(Sender: TObject; WheelSteps: Integer; var aHandled: Boolean); virtual;
     property DragAndDrop: Boolean read fDragAndDrop write fDragAndDrop;
+    property DragAndDropRegionEnabled: Boolean read fDragAndDropRegionEnabled write fDragAndDropRegionEnabled;
+    property DragAndDropRegion: TRect read fDragAndDropRegion write fDragAndDropRegion;
 
     property OnClick: TNotifyEvent read fOnClick write fOnClick;
     property OnClickShift: TNotifyEventShift read fOnClickShift write fOnClickShift;
@@ -2109,6 +2113,7 @@ begin
   fIsHitTestUseDrawRect := False;
   fDragAndDrop  := False;
   fDragAndDropMove := False;
+  fDragAndDropRegionEnabled := False;
 
 //  fKeyPressList := TList<TKMKeyPress>.Create;
 
@@ -2258,8 +2263,17 @@ begin
   begin
     if fDragAndDrop and fDragAndDropMove then
     begin
-      AbsLeft := X - fDragAndDropMovePosition.X;
-      AbsTop := Y - fDragAndDropMovePosition.Y;
+      if fDragAndDropRegionEnabled then
+      begin
+        AbsLeft := Clamp(X, fDragAndDropRegion.Left + fDragAndDropMovePosition.X, fDragAndDropRegion.Right - Width + fDragAndDropMovePosition.X) - fDragAndDropMovePosition.X;
+        AbsTop := Clamp(Y, fDragAndDropRegion.Top + fDragAndDropMovePosition.Y, fDragAndDropRegion.Bottom - Height + fDragAndDropMovePosition.Y) - fDragAndDropMovePosition.Y;
+      end
+      else
+      begin
+        AbsLeft := X - fDragAndDropMovePosition.X;
+        AbsTop := Y - fDragAndDropMovePosition.Y;
+      end;
+
       if Assigned(fOnMoveDragAndDrop) then
         fOnMoveDragAndDrop(Self);
     end;
