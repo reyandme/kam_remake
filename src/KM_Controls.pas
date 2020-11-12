@@ -136,6 +136,7 @@ type
 
     fDragAndDropMovePosition: TKMPoint;
     fDragAndDropMove: Boolean;
+    fDragAndDropTime: Cardinal;
     fDragAndDrop: Boolean;
     fDragAndDropRegionEnabled: Boolean;
     fDragAndDropRegion: TRect;
@@ -2252,6 +2253,7 @@ begin
   begin
     fDragAndDropMove := True;
     fDragAndDropMovePosition := KMPoint(X - AbsLeft, Y - AbsTop);
+    fDragAndDropTime := TimeGet;
   end;
 end;
 
@@ -2290,7 +2292,13 @@ procedure TKMControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseBut
 var
   ClickHoldHandled: Boolean;
 begin
-  fDragAndDropMove := False;
+  if fDragAndDropMove then
+  begin
+    fDragAndDropMove := False;
+    if TimeSince(fDragAndDropTime) > GetDoubleClickTime div 2 then
+      Exit;
+  end;
+
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
 
   if (csDown in State) then
