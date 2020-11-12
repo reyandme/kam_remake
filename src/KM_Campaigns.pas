@@ -15,7 +15,7 @@ const
 type
   TKMBriefingCorner = (bcBottomRight, bcBottomLeft);
 
-  TKMCampaignMap = class
+  TKMCampaignMission = class
   public
     Flag: TKMPointW;
     NodeCount: Byte;
@@ -35,7 +35,7 @@ type
     //Runtime variables
     fPath: UnicodeString;
     fTextLib: TKMTextLibrarySingle;
-    fUnlockedMap: Byte;
+    fUnlockedMission: Byte;
     fScriptData: TKMemoryStream;
 
     //Saved in CMP
@@ -46,13 +46,13 @@ type
 
     function GetDefaultMissionTitle(aIndex: Byte): UnicodeString;
 
-    procedure SetUnlockedMap(aValue: Byte);
+    procedure SetUnlockedMissions(aValue: Byte);
 
     procedure SetCampaignId(aCampaignId: TKMCampaignId);
     procedure UpdateShortName;
-    procedure MapsClear;
+    procedure MissionsClear;
   public
-    Maps: TList<TKMCampaignMap>;
+    Missions: TList<TKMCampaignMission>;
     constructor Create;
     destructor Destroy; override;
 
@@ -67,7 +67,7 @@ type
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property CampaignId: TKMCampaignId read fCampaignId write SetCampaignId;
     property ShortName: UnicodeString read fShortName;
-    property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
+    property UnlockedMissions: Byte read fUnlockedMission write SetUnlockedMissions;
     property ScriptData: TKMemoryStream read fScriptData;
     property Viewed: Boolean read fViewed write fViewed;
 
@@ -148,12 +148,12 @@ end;
 
 { TKMCampaignMap }
 
-constructor TKMCampaignMap.Create;
+constructor TKMCampaignMission.Create;
 begin
 
 end;
 
-destructor TKMCampaignMap.Destroy;
+destructor TKMCampaignMission.Destroy;
 begin
   if Assigned(TxtInfo) then
     TxtInfo.Free;
@@ -286,11 +286,11 @@ begin
       if C <> nil then
       begin
         C.Viewed := True;
-        C.UnlockedMap := unlocked;
-        for J := 0 to C.Maps.Count - 1 do
+        C.UnlockedMissions := unlocked;
+        for J := 0 to C.Missions.Count - 1 do
         begin
-          M.Read(C.Maps[j].Completed, SizeOf(C.Maps[j].Completed));
-          M.Read(C.Maps[j].BestCompleteDifficulty, SizeOf(C.Maps[j].BestCompleteDifficulty));
+          M.Read(C.Missions[j].Completed, SizeOf(C.Missions[j].Completed));
+          M.Read(C.Missions[j].BestCompleteDifficulty, SizeOf(C.Missions[j].BestCompleteDifficulty));
         end;
 
         C.ScriptData.Clear;
@@ -326,11 +326,11 @@ begin
       if Campaigns[I].Viewed then
       begin
         M.Write(Campaigns[I].CampaignId, SizeOf(TKMCampaignId));
-        M.Write(Campaigns[I].UnlockedMap);
-        for J := 0 to Campaigns[I].Maps.Count - 1 do
+        M.Write(Campaigns[I].UnlockedMissions);
+        for J := 0 to Campaigns[I].Missions.Count - 1 do
         begin
-          M.Write(Campaigns[I].Maps[J].Completed, SizeOf(Campaigns[I].Maps[J].Completed));
-          M.Write(Campaigns[I].Maps[J].BestCompleteDifficulty, SizeOf(Campaigns[I].Maps[J].BestCompleteDifficulty));
+          M.Write(Campaigns[I].Missions[J].Completed, SizeOf(Campaigns[I].Missions[J].Completed));
+          M.Write(Campaigns[I].Missions[J].BestCompleteDifficulty, SizeOf(Campaigns[I].Missions[J].BestCompleteDifficulty));
         end;
         M.Write(Cardinal(Campaigns[I].ScriptData.Size));
         M.Write(Campaigns[I].ScriptData.Memory^, Campaigns[I].ScriptData.Size);
@@ -383,11 +383,11 @@ procedure TKMCampaignsCollection.UnlockNextMap;
 begin
   if ActiveCampaign <> nil then
   begin
-    ActiveCampaign.UnlockedMap := fActiveCampaignMap + 1;
-    ActiveCampaign.Maps[fActiveCampaignMap].Completed := True;
+    ActiveCampaign.UnlockedMissions := fActiveCampaignMap + 1;
+    ActiveCampaign.Missions[fActiveCampaignMap].Completed := True;
     //Update BestDifficulty if we won harder game
-    if Byte(ActiveCampaign.Maps[fActiveCampaignMap].BestCompleteDifficulty) < Byte(gGameParams.MissionDifficulty)  then
-      ActiveCampaign.Maps[fActiveCampaignMap].BestCompleteDifficulty := gGameParams.MissionDifficulty;
+    if Byte(ActiveCampaign.Missions[fActiveCampaignMap].BestCompleteDifficulty) < Byte(gGameParams.MissionDifficulty)  then
+      ActiveCampaign.Missions[fActiveCampaignMap].BestCompleteDifficulty := gGameParams.MissionDifficulty;
   end;
 end;
 
@@ -405,11 +405,11 @@ end;
 constructor TKMCampaign.Create;
 begin
   inherited;
-  Maps := TList<TKMCampaignMap>.Create;
+  Missions := TList<TKMCampaignMission>.Create;
 
   //1st map is always unlocked to allow to start campaign
   fViewed := False;
-  fUnlockedMap := 0;
+  fUnlockedMission := 0;
   fScriptData := TKMemoryStreamBinary.Create;
 end;
 
@@ -423,19 +423,19 @@ begin
   if fBackGroundPic.ID <> 0 then
     gRes.Sprites[rxCampaign].DeleteSpriteTexture(fBackGroundPic.ID);
 
-  MapsClear;
-  Maps.Free;
+  MissionsClear;
+  Missions.Free;
 
   inherited;
 end;
 
-procedure TKMCampaign.MapsClear;
+procedure TKMCampaign.MissionsClear;
 var
   i: Integer;
 begin
-  for i := 0 to Maps.Count - 1 do
-    Maps[I].Free;
-  Maps.Clear;
+  for i := 0 to Missions.Count - 1 do
+    Missions[I].Free;
+  Missions.Clear;
 end;
 
 procedure TKMCampaign.UpdateShortName;
@@ -448,7 +448,7 @@ end;
 //It should be private, but it is used by CampaignBuilder
 procedure TKMCampaign.LoadFromFile(const aFileName: UnicodeString);
 var
-  Map: TKMCampaignMap;
+  Mission: TKMCampaignMission;
   M: TKMemoryStream;
   I, K: Integer;
   cmp: TBytes;
@@ -469,17 +469,17 @@ begin
   UpdateShortName;
 
   M.Read(MapCount);
-  Maps.Clear;
+  Missions.Clear;
 
   for I := 0 to MapCount - 1 do
   begin
-    Map := TKMCampaignMap.Create;
-    M.Read(Map.Flag);
-    M.Read(Map.NodeCount);
-    for K := 0 to Map.NodeCount - 1 do
-      M.Read(Map.Nodes[K]);
-    M.Read(Map.TextPos, SizeOf(TKMBriefingCorner));
-    Maps.Add(Map);
+    Mission := TKMCampaignMission.Create;
+    M.Read(Mission.Flag);
+    M.Read(Mission.NodeCount);
+    for K := 0 to Mission.NodeCount - 1 do
+      M.Read(Mission.Nodes[K]);
+    M.Read(Mission.TextPos, SizeOf(TKMBriefingCorner));
+    Missions.Add(Mission);
   end;
 
   M.Free;
@@ -502,21 +502,21 @@ begin
   cmp[2] := fCampaignId[2];
   M.WriteBytes(cmp);
 
-  MapCount := Maps.Count;
+  MapCount := Missions.Count;
   M.Write(MapCount);
 
-  for I := 0 to Maps.Count - 1 do
+  for I := 0 to Missions.Count - 1 do
   begin
-    M.Write(Maps[I].Flag);
-    M.Write(Maps[I].NodeCount);
-    for K := 0 to Maps[I].NodeCount - 1 do
+    M.Write(Missions[I].Flag);
+    M.Write(Missions[I].NodeCount);
+    for K := 0 to Missions[I].NodeCount - 1 do
     begin
       //One-time fix for campaigns made before r4880
       //Inc(Maps[I].Nodes[K].X, 5);
       //Inc(Maps[I].Nodes[K].Y, 5);
-      M.Write(Maps[I].Nodes[K]);
+      M.Write(Missions[I].Nodes[K]);
     end;
-    M.Write(Maps[I].TextPos, SizeOf(TKMBriefingCorner));
+    M.Write(Missions[I].TextPos, SizeOf(TKMBriefingCorner));
   end;
 
   M.SaveToFile(aFileName);
@@ -535,22 +535,22 @@ var
   I: Integer;
   TextMission: TKMTextLibraryMulti;
 begin
-  for I := 0 to Maps.Count - 1 do
+  for I := 0 to Missions.Count - 1 do
   begin
     //Load TxtInfo
-    if Maps[I].TxtInfo = nil then
-      Maps[I].TxtInfo := TKMMapTxtInfo.Create
+    if Missions[I].TxtInfo = nil then
+      Missions[I].TxtInfo := TKMMapTxtInfo.Create
     else
-      Maps[I].TxtInfo.ResetInfo;
-    Maps[I].TxtInfo.LoadTXTInfo(GetMissionFile(I, '.txt'));
+      Missions[I].TxtInfo.ResetInfo;
+    Missions[I].TxtInfo.LoadTXTInfo(GetMissionFile(I, '.txt'));
 
-    Maps[I].MissionName := '';
+    Missions[I].MissionName := '';
     //Load mission name from mission Libx library
     TextMission := TKMTextLibraryMulti.Create;
     try
       TextMission.LoadLocale(GetMissionFile(I, '.%s.libx'));
       if TextMission.HasText(MISSION_NAME_LIBX_ID) then
-        Maps[I].MissionName := StringReplace(TextMission[MISSION_NAME_LIBX_ID], '|', ' ', [rfReplaceAll]); //Replace | with space
+        Missions[I].MissionName := StringReplace(TextMission[MISSION_NAME_LIBX_ID], '|', ' ', [rfReplaceAll]); //Replace | with space
     finally
       FreeAndNil(TextMission);
     end;
@@ -601,13 +601,13 @@ begin
   LoadSprites;
 
   if UNLOCK_CAMPAIGN_MAPS then //Unlock more maps for debug
-    fUnlockedMap := Maps.Count - 1;
+    fUnlockedMission := Missions.Count - 1;
 end;
 
 
 procedure TKMCampaign.UnlockAllMissions;
 begin
-  fUnlockedMap := Maps.Count - 1;
+  fUnlockedMission := Missions.Count - 1;
 end;
 
 
@@ -632,12 +632,12 @@ end;
 
 function TKMCampaign.GetDefaultMissionTitle(aIndex: Byte): UnicodeString;
 begin
-  if Maps[aIndex].MissionName <> '' then
-    Result := Maps[aIndex].MissionName
+  if Missions[aIndex].MissionName <> '' then
+    Result := Missions[aIndex].MissionName
   else
     //Have nothing - use default mission name
     //Otherwise just Append (by default MissionName is empty anyway)
-    Result := Format(gResTexts[TX_GAME_MISSION], [aIndex+1]) + Maps[aIndex].MissionName;
+    Result := Format(gResTexts[TX_GAME_MISSION], [aIndex+1]) + Missions[aIndex].MissionName;
 end;
 
 
@@ -654,12 +654,12 @@ begin
       //We can use different order for %d and %s, then choose Format 2 ways
       //First - %d %s
       if Pos('%d', fTextLib[3]) < Pos('%s', fTextLib[3]) then
-        Result := Format(fTextLib[3], [aIndex+1, Maps[aIndex].MissionName])
+        Result := Format(fTextLib[3], [aIndex+1, Missions[aIndex].MissionName])
       else
-        Result := Format(fTextLib[3], [Maps[aIndex].MissionName, aIndex+1]); //Then order: %s %d
+        Result := Format(fTextLib[3], [Missions[aIndex].MissionName, aIndex+1]); //Then order: %s %d
     end else
       //Otherwise just Append (by default MissionName is empty anyway)
-      Result := Format(fTextLib[3], [aIndex+1]) + Maps[aIndex].MissionName;
+      Result := Format(fTextLib[3], [aIndex+1]) + Missions[aIndex].MissionName;
   end
   else
     Result := GetDefaultMissionTitle(aIndex);
@@ -676,7 +676,7 @@ function TKMCampaign.GetMissionIndex(aValue: string): Byte;
 var
   I: Integer;
 begin
-  for I := 0 to Maps.Count - 1 do
+  for I := 0 to Missions.Count - 1 do
     if GetMissionName(I) = aValue then
       Exit(I);
 
@@ -724,9 +724,9 @@ end;
 
 //When player completes one map we allow to reveal the next one, note that
 //player may be replaying previous maps, in that case his progress remains the same
-procedure TKMCampaign.SetUnlockedMap(aValue: Byte);
+procedure TKMCampaign.SetUnlockedMissions(aValue: Byte);
 begin
-  fUnlockedMap := EnsureRange(aValue, fUnlockedMap, Maps.Count - 1);
+  fUnlockedMission := EnsureRange(aValue, fUnlockedMission, Missions.Count - 1);
 end;
 
 

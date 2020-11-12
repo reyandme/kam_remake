@@ -164,25 +164,25 @@ begin
   //Setup sites
   for I := 0 to High(Image_CampaignFlags) do
   begin
-    Image_CampaignFlags[I].Visible := I < fCampaign.Maps.Count;
-    Image_CampaignFlags[I].TexID   := MapPic[I <= fCampaign.UnlockedMap];
-    Image_CampaignFlags[I].HighlightOnMouseOver := I <= fCampaign.UnlockedMap;
-    Label_CampaignFlags[I].Visible := (I < fCampaign.Maps.Count) and (I <= fCampaign.UnlockedMap);
+    Image_CampaignFlags[I].Visible := I < fCampaign.Missions.Count;
+    Image_CampaignFlags[I].TexID   := MapPic[I <= fCampaign.UnlockedMissions];
+    Image_CampaignFlags[I].HighlightOnMouseOver := I <= fCampaign.UnlockedMissions;
+    Label_CampaignFlags[I].Visible := (I < fCampaign.Missions.Count) and (I <= fCampaign.UnlockedMissions);
   end;
 
   //Place sites
-  for I := 0 to fCampaign.Maps.Count - 1 do
+  for I := 0 to fCampaign.Missions.Count - 1 do
   begin
     //Pivot flags around Y=bottom X=middle, that's where the flag pole is
-    Image_CampaignFlags[I].Left := fCampaign.Maps[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
-    Image_CampaignFlags[I].Top  := fCampaign.Maps[I].Flag.Y - Round(Image_CampaignFlags[I].Height   *(1-Panel_Campaign_Flags.Scale));
+    Image_CampaignFlags[I].Left := fCampaign.Missions[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
+    Image_CampaignFlags[I].Top  := fCampaign.Missions[I].Flag.Y - Round(Image_CampaignFlags[I].Height   *(1-Panel_Campaign_Flags.Scale));
 
     Label_CampaignFlags[I].AbsLeft := Image_CampaignFlags[I].AbsLeft + FLAG_LABEL_OFFSET_X;
     Label_CampaignFlags[I].AbsTop := Image_CampaignFlags[I].AbsTop + FLAG_LABEL_OFFSET_Y;
   end;
 
   //Select last map, no brifing will be played, since its set as
-  SelectMap(fCampaign.UnlockedMap);
+  SelectMap(fCampaign.UnlockedMissions);
 end;
 
 
@@ -194,9 +194,9 @@ var
 begin
   //Difficulty levels
   OldMD := mdNone;
-  if fCampaign.Maps[fMapIndex].TxtInfo.HasDifficultyLevels then
+  if fCampaign.Missions[fMapIndex].TxtInfo.HasDifficultyLevels then
   begin
-    DiffLevels := fCampaign.Maps[fMapIndex].TxtInfo.DifficultyLevels;
+    DiffLevels := fCampaign.Missions[fMapIndex].TxtInfo.DifficultyLevels;
 
     if gGameSettings.CampaignLastDifficulty in DiffLevels then
       OldMD := gGameSettings.CampaignLastDifficulty;
@@ -205,8 +205,8 @@ begin
     I := 0;
 
     //Set BestCompleteDifficulty as default
-    if fCampaign.Maps[fMapIndex].Completed then
-      DefMD := fCampaign.Maps[fMapIndex].BestCompleteDifficulty
+    if fCampaign.Missions[fMapIndex].Completed then
+      DefMD := fCampaign.Missions[fMapIndex].BestCompleteDifficulty
     else if OldMD <> mdNone then
       DefMD := OldMD
     else
@@ -253,8 +253,8 @@ begin
   begin
     Image_CampaignFlags[I].Highlight := (fMapIndex = I);
     color := icLightGray2;
-    if I < fCampaign.Maps.Count then
-      color := DIFFICULTY_LEVELS_COLOR[fCampaign.Maps[I].BestCompleteDifficulty];
+    if I < fCampaign.Missions.Count then
+      color := DIFFICULTY_LEVELS_COLOR[fCampaign.Missions[I].BestCompleteDifficulty];
     Label_CampaignFlags[I].FontColor := color;
   end;
 
@@ -264,17 +264,17 @@ begin
   for I := 0 to High(Image_CampaignSubNode) do
   begin
     Image_CampaignSubNode[I].Visible := false;
-    Image_CampaignSubNode[I].Left := fCampaign.Maps[fMapIndex].Nodes[I].X;
-    Image_CampaignSubNode[I].Top  := fCampaign.Maps[fMapIndex].Nodes[I].Y;
+    Image_CampaignSubNode[I].Left := fCampaign.Missions[fMapIndex].Nodes[I].X;
+    Image_CampaignSubNode[I].Top  := fCampaign.Missions[fMapIndex].Nodes[I].Y;
   end;
 
   Label_CampaignTitle.Caption := fCampaign.GetCampaignMissionTitle(fMapIndex);
   Label_CampaignText.Caption := fCampaign.GetMissionBriefing(fMapIndex);
 
-  Panel_CampScroll.Left := IfThen(fCampaign.Maps[fMapIndex].TextPos = bcBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
+  Panel_CampScroll.Left := IfThen(fCampaign.Missions[fMapIndex].TextPos = bcBottomRight, Panel_Campaign.Width - Panel_CampScroll.Width, 0);
   //Add offset from top and space on bottom to fit buttons
   Panel_CampScroll.Height := Label_CampaignText.Top + Label_CampaignText.TextSize.Y + 70
-                             + 25*Byte((DropBox_Difficulty.Count > 0) and (fCampaign.Maps[fMapIndex].TextPos = bcBottomRight));
+                             + 25*Byte((DropBox_Difficulty.Count > 0) and (fCampaign.Missions[fMapIndex].TextPos = bcBottomRight));
   Panel_CampScroll.Top := Panel_Campaign.Height - Panel_CampScroll.Height;
 
   Image_ScrollRestore.Top := Panel_Campaign.Height - 50 - 53 - 32*Byte(DropBox_Difficulty.Count > 0);
@@ -287,7 +287,7 @@ end;
 // Flag was clicked on the Map
 procedure TKMMenuCampaign.Campaign_SelectMap(Sender: TObject);
 begin
-  if TKMControl(Sender).Tag > fCampaign.UnlockedMap then Exit; //Skip closed maps
+  if TKMControl(Sender).Tag > fCampaign.UnlockedMissions then Exit; //Skip closed maps
 
   SelectMap(TKMControl(Sender).Tag);
 
@@ -308,7 +308,7 @@ begin
   if Assigned(OnNewCampaignMap) then
     OnNewCampaignMap(fCampaignId, fMapIndex, fDifficulty);
 
-  if fCampaign.Maps[fMapIndex].TxtInfo.HasDifficultyLevels then
+  if fCampaign.Missions[fMapIndex].TxtInfo.HasDifficultyLevels then
     gGameSettings.CampaignLastDifficulty := TKMMissionDifficulty(DropBox_Difficulty.GetSelectedTag);
 end;
 
@@ -324,7 +324,7 @@ end;
 
 procedure TKMMenuCampaign.AnimNodes(aTickCount: Cardinal);
 begin
-  if not InRange(fAnimNodeIndex, 0, fCampaign.Maps[fMapIndex].NodeCount-1) then Exit;
+  if not InRange(fAnimNodeIndex, 0, fCampaign.Missions[fMapIndex].NodeCount-1) then Exit;
   if (aTickCount mod CAMP_NODE_ANIMATION_PERIOD) <> 0 then Exit;
   if Image_CampaignSubNode[fAnimNodeIndex].Visible then Exit;
   Image_CampaignSubNode[fAnimNodeIndex].Visible := true;
@@ -335,7 +335,7 @@ end;
 procedure TKMMenuCampaign.UpdateState(aTickCount: Cardinal);
 begin
   if fCampaign <> nil then
-    if fCampaign.Maps[fMapIndex].NodeCount > 0 then
+    if fCampaign.Missions[fMapIndex].NodeCount > 0 then
       AnimNodes(aTickCount);
 end;
 
@@ -352,12 +352,12 @@ begin
   Image_CampaignBG.Width := Round(1024*Panel_Campaign_Flags.Scale);
   //Special rule to keep campaign flags pivoted at the right place (so the flagpole doesn't move when you resize)
   if fCampaign <> nil then
-    for I := 0 to fCampaign.Maps.Count - 1 do
+    for I := 0 to fCampaign.Missions.Count - 1 do
       with Image_CampaignFlags[I] do
       begin
         //Pivot flags around Y=bottom X=middle, that's where the flag pole is
-        Left := fCampaign.Maps[I].Flag.X - Round((Width/2)*(1-Panel_Campaign_Flags.Scale));
-        Top  := fCampaign.Maps[I].Flag.Y - Round(Height   *(1-Panel_Campaign_Flags.Scale));
+        Left := fCampaign.Missions[I].Flag.X - Round((Width/2)*(1-Panel_Campaign_Flags.Scale));
+        Top  := fCampaign.Missions[I].Flag.Y - Round(Height   *(1-Panel_Campaign_Flags.Scale));
 
         Label_CampaignFlags[I].AbsLeft := AbsLeft + FLAG_LABEL_OFFSET_X;
         Label_CampaignFlags[I].AbsTop := AbsTop + FLAG_LABEL_OFFSET_Y;

@@ -730,7 +730,7 @@ begin
   Image_Scroll.Visible := Assigned(Campaign) and Assigned(Map);
   if Image_Scroll.Visible then
   begin
-    if Campaign.Maps[Map.CampaignMapIndex].TextPos = bcBottomLeft then
+    if Campaign.Missions[Map.CampaignMapIndex].TextPos = bcBottomLeft then
       Image_Scroll.Left := 0
     else
       Image_Scroll.Left := Image_Scroll.Parent.Width - Image_Scroll.Width;
@@ -739,16 +739,16 @@ begin
   K := Panel_CampaignInfo.Width / 1024;
   for I := 0 to High(Image_CampaignFlags) do
   begin
-    Image_CampaignFlags[I].Visible := Assigned(Campaign) and (I < Campaign.Maps.Count);
+    Image_CampaignFlags[I].Visible := Assigned(Campaign) and (I < Campaign.Missions.Count);
     Label_CampaignFlags[I].Visible := False;
-    if Assigned(Campaign) and (I < Campaign.Maps.Count) then
+    if Assigned(Campaign) and (I < Campaign.Missions.Count) then
     begin
       Unblocked := Assigned(Map) and (I <= Map.CampaignMapIndex);
       Label_CampaignFlags[I].Visible := Unblocked;
       Image_CampaignFlags[I].TexID := MapPic[Unblocked];
       Image_CampaignFlags[I].Width := MapWidth[Unblocked];
-      Image_CampaignFlags[I].Left := Round(Campaign.Maps[I].Flag.X * K - Image_CampaignFlags[I].Width / 2) + 3 + MapLeft[Unblocked];
-      Image_CampaignFlags[I].Top  := Round(Campaign.Maps[I].Flag.Y * K - Image_CampaignFlags[I].Height) + 8;
+      Image_CampaignFlags[I].Left := Round(Campaign.Missions[I].Flag.X * K - Image_CampaignFlags[I].Width / 2) + 3 + MapLeft[Unblocked];
+      Image_CampaignFlags[I].Top  := Round(Campaign.Missions[I].Flag.Y * K - Image_CampaignFlags[I].Height) + 8;
       Label_CampaignFlags[I].Left := Image_CampaignFlags[I].Left + 7;
       Label_CampaignFlags[I].Top := Image_CampaignFlags[I].Top + 4;
     end;
@@ -756,11 +756,11 @@ begin
 
   for I := 0 to High(Image_CampaignSubNode) do
   begin
-    Image_CampaignSubNode[I].Visible := Assigned(Campaign) and Assigned(Map) and (I < Campaign.Maps[Map.CampaignMapIndex].NodeCount);
-    if Assigned(Campaign) and Assigned(Map) and (I < Campaign.Maps[Map.CampaignMapIndex].NodeCount) then
+    Image_CampaignSubNode[I].Visible := Assigned(Campaign) and Assigned(Map) and (I < Campaign.Missions[Map.CampaignMapIndex].NodeCount);
+    if Assigned(Campaign) and Assigned(Map) and (I < Campaign.Missions[Map.CampaignMapIndex].NodeCount) then
     begin
-      Image_CampaignSubNode[I].Left := Round(Campaign.Maps[Map.CampaignMapIndex].Nodes[I].X * K) - 4;
-      Image_CampaignSubNode[I].Top  := Round(Campaign.Maps[Map.CampaignMapIndex].Nodes[I].Y * K) - 3;
+      Image_CampaignSubNode[I].Left := Round(Campaign.Missions[Map.CampaignMapIndex].Nodes[I].X * K) - 4;
+      Image_CampaignSubNode[I].Top  := Round(Campaign.Missions[Map.CampaignMapIndex].Nodes[I].Y * K) - 3;
     end;
   end;
 end;

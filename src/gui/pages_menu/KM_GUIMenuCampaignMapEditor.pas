@@ -187,15 +187,15 @@ begin
 
   for I := 0 to High(Image_CampaignFlags) do
   begin
-    Image_CampaignFlags[I].Visible := I < fCampaign.Maps.Count;
+    Image_CampaignFlags[I].Visible := I < fCampaign.Missions.Count;
     Image_CampaignFlags[I].TexID   := MapPic[I <= ListBox_Maps.ItemIndex];
-    Label_CampaignFlags[I].Visible := (I < fCampaign.Maps.Count) and (I <= ListBox_Maps.ItemIndex);
+    Label_CampaignFlags[I].Visible := (I < fCampaign.Missions.Count) and (I <= ListBox_Maps.ItemIndex);
   end;
 
-  for I := 0 to fCampaign.Maps.Count - 1 do
+  for I := 0 to fCampaign.Missions.Count - 1 do
   begin
-    Image_CampaignFlags[I].Left := fCampaign.Maps[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
-    Image_CampaignFlags[I].Top  := fCampaign.Maps[I].Flag.Y - Round(Image_CampaignFlags[I].Height   *(1-Panel_Campaign_Flags.Scale));
+    Image_CampaignFlags[I].Left := fCampaign.Missions[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
+    Image_CampaignFlags[I].Top  := fCampaign.Missions[I].Flag.Y - Round(Image_CampaignFlags[I].Height   *(1-Panel_Campaign_Flags.Scale));
     Label_CampaignFlags[I].AbsLeft := Image_CampaignFlags[I].AbsLeft + FLAG_LABEL_OFFSET_X;
     Label_CampaignFlags[I].AbsTop := Image_CampaignFlags[I].AbsTop + FLAG_LABEL_OFFSET_Y;
   end;
@@ -214,14 +214,14 @@ begin
   ListBox_Nodes.Clear;
   for I := 0 to High(Image_CampaignSubNode) do
   begin
-    Image_CampaignSubNode[I].Visible := (ListBox_Maps.ItemIndex >= 0) and (I < fCampaign.Maps[ListBox_Maps.ItemIndex].NodeCount);
+    Image_CampaignSubNode[I].Visible := (ListBox_Maps.ItemIndex >= 0) and (I < fCampaign.Missions[ListBox_Maps.ItemIndex].NodeCount);
     Label_CampaignSubNode[I].Visible := Image_CampaignSubNode[I].Visible;
     if Image_CampaignSubNode[I].Visible then
     begin
       ListBox_Nodes.Add((I + 1).ToString);
       Image_CampaignSubNode[I].Highlight := False;
-      Image_CampaignSubNode[I].Left := fCampaign.Maps[ListBox_Maps.ItemIndex].Nodes[I].X - 8;
-      Image_CampaignSubNode[I].Top  := fCampaign.Maps[ListBox_Maps.ItemIndex].Nodes[I].Y - 8;
+      Image_CampaignSubNode[I].Left := fCampaign.Missions[ListBox_Maps.ItemIndex].Nodes[I].X - 8;
+      Image_CampaignSubNode[I].Top  := fCampaign.Missions[ListBox_Maps.ItemIndex].Nodes[I].Y - 8;
       Label_CampaignSubNode[I].AbsLeft := Image_CampaignSubNode[I].AbsLeft + NODE_LABEL_OFFSET_X;
       Label_CampaignSubNode[I].AbsTop := Image_CampaignSubNode[I].AbsTop + NODE_LABEL_OFFSET_Y;
     end;
@@ -272,11 +272,11 @@ begin
   Image_CampaignBG.Height := Min(768,Y);
   Image_CampaignBG.Width := Round(1024*Panel_Campaign_Flags.Scale);
   if fCampaign <> nil then
-    for I := 0 to fCampaign.Maps.Count - 1 do
+    for I := 0 to fCampaign.Missions.Count - 1 do
       with Image_CampaignFlags[I] do
       begin
-        Left := fCampaign.Maps[I].Flag.X - Round((Width/2)*(1-Panel_Campaign_Flags.Scale));
-        Top  := fCampaign.Maps[I].Flag.Y - Round(Height   *(1-Panel_Campaign_Flags.Scale));
+        Left := fCampaign.Missions[I].Flag.X - Round((Width/2)*(1-Panel_Campaign_Flags.Scale));
+        Top  := fCampaign.Missions[I].Flag.Y - Round(Height   *(1-Panel_Campaign_Flags.Scale));
 
         Label_CampaignFlags[I].AbsLeft := AbsLeft + FLAG_LABEL_OFFSET_X;
         Label_CampaignFlags[I].AbsTop := AbsTop + FLAG_LABEL_OFFSET_Y;
@@ -288,8 +288,8 @@ var
   MapIndex: Integer;
 begin
   MapIndex := TKMControl(Sender).Tag;
-  fCampaign.Maps[MapIndex].Flag.X := Image_CampaignFlags[MapIndex].Left + Round((Image_CampaignFlags[MapIndex].Width/2)*(1-Panel_Campaign_Flags.Scale));
-  fCampaign.Maps[MapIndex].Flag.Y := Image_CampaignFlags[MapIndex].Top + Round(Image_CampaignFlags[MapIndex].Height   *(1-Panel_Campaign_Flags.Scale));
+  fCampaign.Missions[MapIndex].Flag.X := Image_CampaignFlags[MapIndex].Left + Round((Image_CampaignFlags[MapIndex].Width/2)*(1-Panel_Campaign_Flags.Scale));
+  fCampaign.Missions[MapIndex].Flag.Y := Image_CampaignFlags[MapIndex].Top + Round(Image_CampaignFlags[MapIndex].Height   *(1-Panel_Campaign_Flags.Scale));
 
   Label_CampaignFlags[MapIndex].AbsLeft := Image_CampaignFlags[MapIndex].AbsLeft + FLAG_LABEL_OFFSET_X;
   Label_CampaignFlags[MapIndex].AbsTop := Image_CampaignFlags[MapIndex].AbsTop + FLAG_LABEL_OFFSET_Y;
@@ -300,8 +300,8 @@ var
   NodeIndex: Integer;
 begin
   NodeIndex := TKMControl(Sender).Tag;
-  fCampaign.Maps[ListBox_Maps.ItemIndex].Nodes[NodeIndex].X := Image_CampaignSubNode[NodeIndex].Left + 8;
-  fCampaign.Maps[ListBox_Maps.ItemIndex].Nodes[NodeIndex].Y := Image_CampaignSubNode[NodeIndex].Top + 8;
+  fCampaign.Missions[ListBox_Maps.ItemIndex].Nodes[NodeIndex].X := Image_CampaignSubNode[NodeIndex].Left + 8;
+  fCampaign.Missions[ListBox_Maps.ItemIndex].Nodes[NodeIndex].Y := Image_CampaignSubNode[NodeIndex].Top + 8;
 
   Label_CampaignSubNode[NodeIndex].AbsLeft := Image_CampaignSubNode[NodeIndex].AbsLeft + NODE_LABEL_OFFSET_X;
   Label_CampaignSubNode[NodeIndex].AbsTop := Image_CampaignSubNode[NodeIndex].AbsTop + NODE_LABEL_OFFSET_Y;
@@ -322,7 +322,7 @@ begin
 
   ListBox_Maps.Clear;
   DropBox_Missions.Clear;
-  for I := 0 to fCampaign.Maps.Count - 1 do
+  for I := 0 to fCampaign.Missions.Count - 1 do
   begin
     ListBox_Maps.Add(fCampaign.GetCampaignMissionTitle(I));
     DropBox_Missions.Add(fCampaign.GetCampaignMissionTitle(I));
