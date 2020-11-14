@@ -8,6 +8,8 @@ uses
   KM_RenderUI, KM_Pics, KM_Minimap, KM_Viewport, KM_ResFonts,
   KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Defaults;
 
+const
+  DEFAULT_HIGHLIGHT_COEF = 0.4;
 
 type
   TNotifyEventShift = procedure(Sender: TObject; Shift: TShiftState) of object;
@@ -19,14 +21,16 @@ type
   TNotifyEventKeyShift = procedure(Key: Word; Shift: TShiftState) of object;
   TNotifyEventKeyShiftFunc = function(Sender: TObject; Key: Word; Shift: TShiftState): Boolean of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
-  TNotifyEvenClickHold = procedure(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean) of object;
+  TNotifyEventClickHold = procedure(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean) of object;
   TPointEventShiftFunc = function (Sender: TObject; Shift: TShiftState; const X,Y: Integer): Boolean of object;
+  TNotifyEventContextPopup = procedure(Sender: TObject; X, Y: Integer; var Handled: Boolean) of object;
 
   TKMControlState = (csDown, csFocus, csOver);
   TKMControlStateSet = set of TKMControlState;
 
   TKMControl = class;
   TKMPanel = class;
+  TKMPopUpMenu = class;
 
   { TKMMasterControl }
   TKMMasterControl = class
@@ -87,7 +91,6 @@ type
     procedure UpdateState(aTickCount: Cardinal);
   end;
 
-
   {Base class for all TKM elements}
   TKMControl = class
 //  type
@@ -141,10 +144,12 @@ type
     fDragAndDropRegionEnabled: Boolean;
     fDragAndDropRegion: TRect;
 
+    fPopUpMenu: TKMPopUpMenu;
+
     fOnClick: TNotifyEvent;
     fOnClickShift: TNotifyEventShift;
     fOnClickRight: TPointEvent;
-    fOnClickHold: TNotifyEvenClickHold;
+    fOnClickHold: TNotifyEventClickHold;
     fOnDoubleClick: TNotifyEvent;
     fOnMouseWheel: TNotifyEventMW;
     fOnFocus: TBooleanObjEvent;
@@ -161,6 +166,8 @@ type
     fOnHeightChange: TObjectIntegerEvent;
     fOnSizeSet: TNotifyEvent;
     fOnPositionSet: TNotifyEvent;
+
+    fOnContextPopup: TNotifyEventContextPopup;
 
     fIsHitTestUseDrawRect: Boolean; //Should we use DrawRect for hitTest, or AbsPositions?
 
@@ -232,6 +239,8 @@ type
     function GetHint: UnicodeString; virtual;
     procedure SetHint(const aHint: UnicodeString); virtual;
     procedure SetPaintLayer(aPaintLayer: Integer);
+
+    procedure SetPopUpMenu(aPopUpMenu: TKMPopUpMenu);
 
     function CanFocusNext: Boolean; virtual;
   public
@@ -317,10 +326,12 @@ type
     property DragAndDropRegionEnabled: Boolean read fDragAndDropRegionEnabled write fDragAndDropRegionEnabled;
     property DragAndDropRegion: TRect read fDragAndDropRegion write fDragAndDropRegion;
 
+    property PopUpMenu: TKMPopUpMenu read fPopUpMenu write SetPopUpMenu;
+
     property OnClick: TNotifyEvent read fOnClick write fOnClick;
     property OnClickShift: TNotifyEventShift read fOnClickShift write fOnClickShift;
     property OnClickRight: TPointEvent read fOnClickRight write fOnClickRight;
-    property OnClickHold: TNotifyEvenClickHold read fOnClickHold write fOnClickHold;
+    property OnClickHold: TNotifyEventClickHold read fOnClickHold write fOnClickHold;
     property OnDoubleClick: TNotifyEvent read fOnDoubleClick write fOnDoubleClick;
     property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
     property OnFocus: TBooleanObjEvent read fOnFocus write fOnFocus;
@@ -336,6 +347,7 @@ type
     property OnHeightChange: TObjectIntegerEvent read fOnHeightChange write fOnHeightChange;
     property OnSizeSet: TNotifyEvent read fOnSizeSet write fOnSizeSet;
     property OnPositionSet: TNotifyEvent read fOnPositionSet write fOnPositionSet;
+    property OnContextPopup: TNotifyEventContextPopup read fOnContextPopup write fOnContextPopup;
 
     procedure Paint; virtual;
     procedure UpdateState(aTickCount: Cardinal); virtual;
@@ -628,15 +640,6 @@ type
     tcLower,
     tcUpper
   );
-
-  // Check if specified aChar is allowed for specified aAllowedChars type
-  function IsCharAllowed(aChar: WideChar; aAllowedChars: TKMAllowedChars): Boolean;
-
-const
-  DEFAULT_HIGHLIGHT_COEF = 0.4;
-
-
-type
 
   //Form that can be dragged around (and resized?)
   TKMForm = class(TKMPanel)
@@ -1706,7 +1709,8 @@ type
   private
     fShapeBG: TKMShape;
     fList: TKMColumnBox;
-    procedure MenuHide(Sender: TObject);
+    procedure BGLeftClick(Sender: TObject);
+    procedure BGRightClick(Sender: TObject; const X, Y: Integer);
     procedure MenuClick(Sender: TObject);
     procedure SetItemIndex(aValue: Integer);
     function GetItemIndex: Integer;
@@ -1956,6 +1960,8 @@ type
     procedure Paint; override;
   end;
 
+  // Check if specified aChar is allowed for specified aAllowedChars type
+  function IsCharAllowed(aChar: WideChar; aAllowedChars: TKMAllowedChars): Boolean;
 
   function MakeListRow(const aCaption: array of String; aTag: Integer = 0): TKMListRow; overload;
   function MakeListRow(const aCaption, aHint: array of String; aTag: Integer = 0): TKMListRow; overload;
@@ -2115,6 +2121,7 @@ begin
   fDragAndDrop  := False;
   fDragAndDropMove := False;
   fDragAndDropRegionEnabled := False;
+  fPopUpMenu := nil;
 
 //  fKeyPressList := TList<TKMKeyPress>.Create;
 
@@ -2249,7 +2256,7 @@ begin
   fClickHoldMode := True;
   fTimeOfLastMouseDown := TimeGet;
   fLastMouseDownButton := Button;
-  if fDragAndDrop then
+  if fDragAndDrop and (Button = mbLeft) then
   begin
     fDragAndDropMove := True;
     fDragAndDropMovePosition := KMPoint(X - AbsLeft, Y - AbsTop);
@@ -2292,13 +2299,6 @@ procedure TKMControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseBut
 var
   ClickHoldHandled: Boolean;
 begin
-  if fDragAndDropMove then
-  begin
-    fDragAndDropMove := False;
-    if TimeSince(fDragAndDropTime) > GetDoubleClickTime div 2 then
-      Exit;
-  end;
-
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
 
   if (csDown in State) then
@@ -2328,6 +2328,10 @@ begin
   Result := fHint;
 end;
 
+procedure TKMControl.SetPopUpMenu(aPopUpMenu: TKMPopUpMenu);
+begin
+  fPopUpMenu := aPopUpMenu;
+end;
 
 procedure TKMControl.SetHint(const aHint: UnicodeString);
 begin
@@ -2678,6 +2682,8 @@ end;
 
 //Let the control know that it was clicked to do its internal magic
 procedure TKMControl.DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var
+  ContextPopupHandled: Boolean;
 begin
   //Note that we process double-click separately (actual sequence is Click + Double-Click)
   //because we would not like to delay Click just to make sure it is single.
@@ -2689,23 +2695,51 @@ begin
   begin
     fTimeOfLastClick := 0;
     fOnDoubleClick(Self);
-  end
-  else
+    Exit;
+  end;
+
+  if (Button = mbLeft) and Assigned(fOnDoubleClick) then
   begin
-    if (Button = mbLeft) and Assigned(fOnDoubleClick) then
+    fTimeOfLastClick := TimeGet;
+    fLastClickPos := KMPoint(X,Y);
+  end;
+
+  if fDragAndDropMove and (Button = mbLeft)  then
+  begin
+    fDragAndDropMove := False;
+    if TimeSince(fDragAndDropTime) > GetDoubleClickTime div 2 then
+      Exit;
+  end;
+
+  if Assigned(fOnClickShift) then
+  begin
+    fOnClickShift(Self, Shift);
+    Exit;
+  end;
+
+  if (Button = mbLeft) and Assigned(fOnClick) then
+  begin
+    fOnClick(Self);
+    Exit;
+  end;
+
+  if (Button = mbRight) then
+  begin
+    if Assigned(fPopUpMenu) then
     begin
-      fTimeOfLastClick := TimeGet;
-      fLastClickPos := KMPoint(X,Y);
+      ContextPopupHandled := False;
+      if Assigned(fOnContextPopup) then
+        fOnContextPopup(Self, X, Y, ContextPopupHandled);
+
+      if not ContextPopupHandled then
+      begin
+        fPopUpMenu.ShowAt(X, Y);
+        Exit;
+      end;
     end;
 
-    if Assigned(fOnClickShift) then
-      fOnClickShift(Self, Shift)
-    else
-    if (Button = mbLeft) and Assigned(fOnClick) then
-      fOnClick(Self)
-    else
-    if (Button = mbRight) and Assigned(fOnClickRight) then
-      fOnClickRight(Self, X, Y);
+    if Assigned(fOnClickRight) then
+       fOnClickRight(Self, X, Y);
   end;
 end;
 
@@ -8528,9 +8562,10 @@ constructor TKMPopUpMenu.Create(aParent: TKMPanel; aWidth: Integer);
 begin
   inherited Create(aParent, 0, 0, aWidth, 0);
 
-  fShapeBG := TKMShape.Create(Self, 0, 0, aParent.Width, aParent.Height);
+  fShapeBG := TKMShape.Create(Self, -10000, -10000, 21024, 20768);
   fShapeBG.AnchorsStretch;
-  fShapeBG.OnClick := MenuHide;
+  fShapeBG.OnClick := BGLeftClick;
+  fShapeBG.fOnClickRight := BGRightClick;
   fShapeBG.Hide;
 
   fList := TKMColumnBox.Create(Self, 0, 0, aWidth, 0, fntGrey, bsMenu);
@@ -8588,21 +8623,24 @@ begin
   if Assigned(fOnClick) then
     fOnClick(Self);
 
-  MenuHide(Self);
+  HideMenu;
 end;
 
+procedure TKMPopUpMenu.BGLeftClick(Sender: TObject);
+begin
+  HideMenu;
+end;
 
-procedure TKMPopUpMenu.MenuHide(Sender: TObject);
+procedure TKMPopUpMenu.BGRightClick(Sender: TObject; const X, Y: Integer);
+begin
+  HideMenu;
+end;
+
+procedure TKMPopUpMenu.HideMenu;
 begin
   Hide;
   fList.Hide;
   fShapeBG.Hide;
-end;
-
-
-procedure TKMPopUpMenu.HideMenu;
-begin
-  MenuHide(nil);
 end;
 
 

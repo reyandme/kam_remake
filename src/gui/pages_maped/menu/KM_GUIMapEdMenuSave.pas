@@ -87,8 +87,6 @@ end;
 
 
 procedure TKMMapEdMenuSave.Menu_SaveClick(Sender: TObject);
-var
-  str: string;
 
   function GetSaveName: UnicodeString;
   begin
