@@ -39,10 +39,6 @@ function PickMin(Values: array of Single): Byte;
 function Max(const A,B,C: Integer): Integer; overload;
 function Max(const A,B,C: Single): Single; overload;
 
-function Clamp(value, min, max: integer): integer; overload;
-function Clamp(value, min, max: Single): Single; overload;
-function Clamp01(value: Single): Single; overload;
-
   function GetLengthSQR(ix,iy,iz: integer): integer; //Length without SQRT
   function GetLength(ix,iy,iz: single): single; overload;
   function GetLength(ix,iy: single): single; overload;
@@ -137,36 +133,6 @@ end;
 function Max(const A,B,C: single): single; overload;
 begin if A > B then if A > C then Result := A else Result := C
                else if B > C then Result := B else Result := C;
-end;
-
-function Clamp(value, min, max: integer): integer; overload;
-begin
-  if value > max then
-    Result := max
-  else if value < min then
-    Result := min
-  else
-    Result := value;
-end;
-
-function Clamp(value, min, max: Single): Single; overload;
-begin
-  if value > max then
-    Result := max
-  else if value < min then
-    Result := min
-  else
-    Result := value;
-end;
-
-function Clamp01(value: Single): Single; overload;
-begin
-  if value > 1.0 then
-    Result := 1.0
-  else if value < 0.0 then
-    Result := 0.0
-  else
-    Result := value;
 end;
 
 //I re-add this it is required by KM_Editor.

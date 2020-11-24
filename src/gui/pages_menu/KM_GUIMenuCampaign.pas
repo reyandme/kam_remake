@@ -245,6 +245,7 @@ var
   color: Cardinal;
 begin
   fMapIndex := aMapIndex;
+  Button_CampaignStart.Enabled := fCampaign.GetIsMissionFileExists(fMapIndex);
 
   UpdateDifficultyLevel;
 

@@ -28,6 +28,9 @@ type
 
     constructor Create;
     destructor Destroy; override;
+    procedure AddNode(X, Y: Integer);
+    procedure DeleteNode(aIndex: Integer);
+    procedure MoveNode(aCurIndex, aNewIndex: Integer);
   end;
 
   TKMCampaign = class
@@ -63,6 +66,10 @@ type
     procedure LoadMapsInfo;
     procedure LoadSprites;
 
+    procedure AddMission(X, Y: Integer);
+    procedure DeleteMission(aIndex: Integer);
+    procedure MoveMission(aCurIndex, aNewIndex: Integer);
+
     property Path: UnicodeString read fPath;
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property CampaignId: TKMCampaignId read fCampaignId write SetCampaignId;
@@ -75,6 +82,7 @@ type
     function GetCampaignDescription: UnicodeString;
     function GetCampaignMissionTitle(aIndex: Byte): String;
     function GetMissionIndex(aValue: string): Byte;
+    function GetIsMissionFileExists(aIndex: Byte): Boolean;
     function GetMissionFile(aIndex: Byte; const aExt: UnicodeString = '.dat'): String;
     function GetMissionName(aIndex: Byte): String;
     function GetMissionTitle(aIndex: Byte): String;
@@ -159,6 +167,35 @@ begin
     TxtInfo.Free;
 
   Inherited;
+end;
+
+procedure TKMCampaignMission.AddNode(X, Y: Integer);
+begin
+  Nodes[NodeCount].X := X;
+  Nodes[NodeCount].Y := Y;
+  Inc(NodeCount);
+end;
+
+procedure TKMCampaignMission.DeleteNode(aIndex: Integer);
+begin
+  Move(Nodes[aIndex + 1], Nodes[aIndex],  (NodeCount - aIndex) * SizeOf(TKMPointW));
+  Dec(NodeCount);
+end;
+
+procedure TKMCampaignMission.MoveNode(aCurIndex, aNewIndex: Integer);
+var
+  Node: TKMPointW;
+begin
+  if (aCurIndex = aNewIndex) or (aCurIndex < 0) or (aNewIndex < 0) or (aCurIndex >= NodeCount) or (aNewIndex >= NodeCount) then
+    Exit;
+
+  Node := Nodes[aCurIndex];
+  if aCurIndex < aNewIndex then
+    Move(Nodes[aCurIndex + 1], Nodes[aCurIndex],  (aNewIndex - aCurIndex) * SizeOf(TKMPointW))
+  else
+    Move(Nodes[aNewIndex + 1], Nodes[aNewIndex],  (aCurIndex - aNewIndex) * SizeOf(TKMPointW));
+
+  Nodes[aNewIndex] := Node;
 end;
 
 { TCampaignsCollection }
@@ -605,6 +642,29 @@ begin
 end;
 
 
+procedure TKMCampaign.AddMission(X, Y: Integer);
+var
+  Mission: TKMCampaignMission;
+begin
+  Mission := TKMCampaignMission.Create;
+  Mission.Flag.X := X;
+  Mission.Flag.Y := Y;
+  Missions.Add(Mission);
+  LoadMapsInfo;
+end;
+
+procedure TKMCampaign.DeleteMission(aIndex: Integer);
+begin
+  Missions.Delete(aIndex);
+  LoadMapsInfo;
+end;
+
+procedure TKMCampaign.MoveMission(aCurIndex, aNewIndex: Integer);
+begin
+  Missions.Move(aCurIndex, aNewIndex);
+  LoadMapsInfo;
+end;
+
 procedure TKMCampaign.UnlockAllMissions;
 begin
   fUnlockedMission := Missions.Count - 1;
@@ -663,6 +723,11 @@ begin
   end
   else
     Result := GetDefaultMissionTitle(aIndex);
+end;
+
+function TKMCampaign.GetIsMissionFileExists(aIndex: Byte): Boolean;
+begin
+  Result := FileExists(GetMissionFile(aIndex));
 end;
 
 
@@ -726,7 +791,10 @@ end;
 //player may be replaying previous maps, in that case his progress remains the same
 procedure TKMCampaign.SetUnlockedMissions(aValue: Byte);
 begin
-  fUnlockedMission := EnsureRange(aValue, fUnlockedMission, Missions.Count - 1);
+  repeat
+    fUnlockedMission := EnsureRange(aValue, fUnlockedMission, Missions.Count - 1);
+    Inc(aValue);
+  until (fUnlockedMission >= Missions.Count - 1) or GetIsMissionFileExists(fUnlockedMission);
 end;
 
 

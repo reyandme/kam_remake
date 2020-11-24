@@ -15,6 +15,7 @@ type
 
     fScrollVisible: Boolean;
     fScrollPanelPosition: Boolean;
+
     fPopUpMenuObject: TObject;
     fPopUpMenuPositionX: Integer;
     fPopUpMenuPositionY: Integer;
@@ -28,8 +29,11 @@ type
     procedure MoveMap(Sender: TObject);
     procedure MoveNode(Sender: TObject);
 
-    procedure PopUpMenuMapContextPopup(Sender: TObject; X, Y: Integer; var Handled: Boolean);
+    procedure PopUpMenuContextPopup(Sender: TObject; X, Y: Integer; var Handled: Boolean);
     procedure PopUpMenuMapClick(Sender: TObject);
+
+    procedure PopUpMenuFlagClick(Sender: TObject);
+    procedure PopUpMenuSubNodeClick(Sender: TObject);
 
     procedure UpdateMaps;
     procedure UpdateNodes;
@@ -39,7 +43,7 @@ type
       Label_Test: TKMLabel;
 
       Image_CampaignBG: TKMImage;
-      PopUpMenu_Map: TKMPopUpMenu;
+      PopUpMenu_Map, PopUpMenu_Flag, PopUpMenu_SubNode: TKMPopUpMenu;
       Panel_Campaign_Map: TKMPanel;
         Image_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMImage;
         Label_CampaignFlags: array[0..MAX_CAMP_MAPS - 1] of TKMLabel;
@@ -102,13 +106,21 @@ begin
   PopUpMenu_Map.AddItem('Add node', 1);
   PopUpMenu_Map.OnClick := PopUpMenuMapClick;
 
+  PopUpMenu_Flag := TKMPopUpMenu.Create(aParent, 200);
+  PopUpMenu_Flag.AddItem('Delete', 0);
+  PopUpMenu_Flag.OnClick := PopUpMenuFlagClick;
+
+  PopUpMenu_SubNode := TKMPopUpMenu.Create(aParent, 200);
+  PopUpMenu_SubNode.AddItem('Delete', 0);
+  PopUpMenu_SubNode.OnClick := PopUpMenuSubNodeClick;
+
     Panel_Campaign_Map := TKMPanel.Create(Panel_Campaign, 0, 0, aParent.Width, aParent.Height);
     Panel_Campaign_Map.AnchorsStretch;
 
     Image_CampaignBG := TKMImage.Create(Panel_Campaign_Map, 0, 0, aParent.Width, aParent.Height,0,rxGuiMain);
     Image_CampaignBG.ImageStretch;
     Image_CampaignBG.PopUpMenu := PopUpMenu_Map;
-    Image_CampaignBG.OnContextPopup := PopUpMenuMapContextPopup;
+    Image_CampaignBG.OnContextPopup := PopUpMenuContextPopup;
 
     Label_Test := TKMLabel.Create(Panel_Campaign_Map, aParent.Width, aParent.Height, 'ddd', fntMini, taLeft);
     Label_Test.FontColor := icLightGray2;
@@ -125,8 +137,8 @@ begin
                                                        Panel_Campaign_Map.AbsRight - 32, Panel_Campaign_Map.AbsBottom - 64);
       Image_CampaignFlags[I].OnClick := SelectMission;
       Image_CampaignFlags[I].Tag := I;
-      //Image_CampaignFlags[I].PopUpMenu := PopUpMenu_Map;
-      //Image_CampaignFlags[I].OnContextPopup := PopUpMenuContextPopup;
+      Image_CampaignFlags[I].PopUpMenu := PopUpMenu_Flag;
+      Image_CampaignFlags[I].OnContextPopup := PopUpMenuContextPopup;
 
       Label_CampaignFlags[I] := TKMLabel.Create(Panel_Campaign_Map, aParent.Width, aParent.Height, IntToStr(I+1), fntMini, taCenter);
       Label_CampaignFlags[I].FontColor := icLightGray2;
@@ -145,7 +157,8 @@ begin
                                                          Panel_Campaign_Map.AbsRight - 16, Panel_Campaign_Map.AbsBottom - 64);
       Image_CampaignSubNode[I].OnClick := SelectNode;
       Image_CampaignSubNode[I].Tag := I;
-      //Image_CampaignSubNode[I].PopUpMenu := PopUpMenu_Map;
+      Image_CampaignSubNode[I].PopUpMenu := PopUpMenu_SubNode;
+      Image_CampaignSubNode[I].OnContextPopup := PopUpMenuContextPopup;
 
       Label_CampaignSubNode[I] := TKMLabel.Create(Panel_Campaign_Map, aParent.Width, aParent.Height, IntToStr(I+1), fntMini, taCenter);
       Label_CampaignSubNode[I].FontColor := icLightGray2;
@@ -262,8 +275,9 @@ begin
     Image_CampaignSubNode[I].Highlight := I = ListBox_Nodes.ItemIndex;
 end;
 
-procedure TKMMenuCampaignMapEditor.PopUpMenuMapContextPopup(Sender: TObject; X, Y: Integer; var Handled: Boolean);
+procedure TKMMenuCampaignMapEditor.PopUpMenuContextPopup(Sender: TObject; X, Y: Integer; var Handled: Boolean);
 begin
+  fPopUpMenuObject := Sender;
   fPopUpMenuPositionX := X - TKMImage(Sender).AbsLeft;
   fPopUpMenuPositionY := Y - TKMImage(Sender).AbsTop;
 end;
@@ -273,7 +287,6 @@ var
   Mission: TKMCampaignMission;
   Index: Integer;
 begin
-
   case PopUpMenu_Map.ItemIndex of
     0: begin
       Mission := TKMCampaignMission.Create;
@@ -294,6 +307,36 @@ begin
       Mission.Nodes[Index].Y := fPopUpMenuPositionY + 2;
       UpdateMaps;
       ListBox_Nodes.ItemIndex := Index;
+    end;
+  end;
+end;
+
+procedure TKMMenuCampaignMapEditor.PopUpMenuFlagClick(Sender: TObject);
+var
+  Mission: TKMCampaignMission;
+  Index: Integer;
+begin
+  Mission := fCampaign.Missions[ListBox_Missions.ItemIndex];
+  Index := (fPopUpMenuObject as TKMImage).Tag;
+  case PopUpMenu_Flag.ItemIndex of
+    0: begin
+      fCampaign.DeleteMission(Index);
+      UpdateMaps;
+    end;
+  end;
+end;
+
+procedure TKMMenuCampaignMapEditor.PopUpMenuSubNodeClick(Sender: TObject);
+var
+  Mission: TKMCampaignMission;
+  Index: Integer;
+begin
+  Mission := fCampaign.Missions[ListBox_Missions.ItemIndex];
+  Index := (fPopUpMenuObject as TKMImage).Tag;
+  case PopUpMenu_SubNode.ItemIndex of
+    0: begin
+      Mission.DeleteNode(Index);
+      UpdateMaps;
     end;
   end;
 end;

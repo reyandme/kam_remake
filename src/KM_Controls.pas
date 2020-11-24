@@ -2274,8 +2274,8 @@ begin
     begin
       if fDragAndDropRegionEnabled then
       begin
-        AbsLeft := Clamp(X, fDragAndDropRegion.Left + fDragAndDropMovePosition.X, fDragAndDropRegion.Right - Width + fDragAndDropMovePosition.X) - fDragAndDropMovePosition.X;
-        AbsTop := Clamp(Y, fDragAndDropRegion.Top + fDragAndDropMovePosition.Y, fDragAndDropRegion.Bottom - Height + fDragAndDropMovePosition.Y) - fDragAndDropMovePosition.Y;
+        AbsLeft := EnsureRange(X, fDragAndDropRegion.Left + fDragAndDropMovePosition.X, fDragAndDropRegion.Right - Width + fDragAndDropMovePosition.X) - fDragAndDropMovePosition.X;
+        AbsTop := EnsureRange(Y, fDragAndDropRegion.Top + fDragAndDropMovePosition.Y, fDragAndDropRegion.Bottom - Height + fDragAndDropMovePosition.Y) - fDragAndDropMovePosition.Y;
       end
       else
       begin
