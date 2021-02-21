@@ -335,7 +335,6 @@ begin
 end;
 
 
-
 function TKMSupervisor.UpdateCombatStatus(aTeam: Byte; var aCityUnderAttack: Boolean): TKMCombatStatus;
   procedure UpdateCS(aOwner,aEnemy: TKMHandID; aStatus: TKMCombatStatus);
   begin
@@ -456,8 +455,6 @@ begin
     fCombatStatus[Owner,Owner] := CS; // Overall combat status of player
   end;
 end;
-
-
 
 
 procedure TKMSupervisor.AttackCluster(aAttack: Boolean; aCCTIdx: Word; var A: pTKMGroupCounterWeightArray; const E: TKMUnitGroupArray; const H: TKMHouseArray);
@@ -794,7 +791,8 @@ var
   Group: TKMUnitGroup;
   CenterPoints: TKMPointArray;
 begin
-  SetLength(Result,0);
+  SetLength(Result, 0);
+
   // Find center points of cities / armies (where we should start scan - init point / center screen is useless for this)
   for IdxPL := 0 to Length(aPlayers) - 1 do
   begin
@@ -804,7 +802,7 @@ begin
     if (Length(CenterPoints) = 0) then // Important houses were not found -> try find soldier
     begin
       if (gHands[Player].UnitGroups.Count = 0) then
-        continue;
+        Continue;
       Group := gHands[Player].UnitGroups.Groups[ KaMRandom(gHands[Player].UnitGroups.Count, 'TKMSupervisor.GetInitPoints') ];
       if (Group <> nil) AND not Group.IsDead AND not KMSamePoint(KMPOINT_ZERO,Group.Position) then
       begin
@@ -812,7 +810,7 @@ begin
         CenterPoints[0] := Group.Position;
       end
       else
-        continue;
+        Continue;
     end;
     SetLength(Result, Length(Result) + Length(CenterPoints));
     Move(CenterPoints[0], Result[ Length(Result) - Length(CenterPoints) ], SizeOf(CenterPoints[0]) * Length(CenterPoints));
@@ -919,7 +917,7 @@ procedure TKMSupervisor.AttackDecision(aTeam: Byte);
       begin
         ECnt := FindTargetAssets(TeamIdx, ATargetSoldiers, EnemyPoly);
         if (ECnt <= 0) then
-          continue;
+          Continue;
         for K := Low(AllyPoly) to High(AllyPoly) do
           if (AllyPoly[K] > 0) then
             for L := Low(EnemyPoly) to High(EnemyPoly) do
@@ -929,7 +927,7 @@ procedure TKMSupervisor.AttackDecision(aTeam: Byte);
                 TargetPL[TeamIdx] := L;
               end;
         if (DistArr[TeamIdx] = High(Word)) then
-          continue;
+          Continue;
         Result := True;
         MinDist := Min(MinDist, DistArr[TeamIdx]);
         MaxDist := Max(MaxDist, DistArr[TeamIdx]);
@@ -937,7 +935,7 @@ procedure TKMSupervisor.AttackDecision(aTeam: Byte);
     end;
 
     // Compute comparison
-    DistCoef := ifthen(FFA, DISTANCE_COEF_FFA, DISTANCE_COEF_1v1);
+    DistCoef := IfThen(FFA, DISTANCE_COEF_FFA, DISTANCE_COEF_1v1);
     for TeamIdx := Low(fAlli2PL) to High(fAlli2PL) do
       if (DistArr[TeamIdx] <> High(Word)) then
       begin
@@ -1018,7 +1016,6 @@ begin
     end;
   end;
 end;
-
 
 
 procedure TKMSupervisor.UpdateDefPos(aTeam: Byte);
@@ -1271,7 +1268,7 @@ begin
           if (PL <> PL2) then
           begin
             case fCombatStatus[PL,PL2] of
-              csNeutral: continue;
+              csNeutral:              Continue;
               csDefending:            CombatStatusText := 'def';
               csAttackingCity:        CombatStatusText := 'att city';
               csAttackingEverything:  CombatStatusText := 'att all';
@@ -1288,7 +1285,7 @@ begin
           with fArmyAttackDebug.Threat[K] do
           begin
             Result := Format('%s||Selected unit:|  Distance ranged = %f;|  Distance = %f;|  Risk = %f;|  Weighted count = %f;',[Result, DistRanged, Distance, Risk, WeightedCount]);
-            break;
+            Break;
           end;
   {$ENDIF}
 end;
@@ -1398,7 +1395,7 @@ begin
     for IdxPL := Low(fAlli2PL[Alli]) to High(fAlli2PL[Alli]) do
       GCnt := GCnt + gHands[ fAlli2PL[Alli,IdxPL] ].UnitGroups.Count;
     if (GCnt <= 0) then
-      continue;
+      Continue;
     SetLength(A[Alli], GCnt);
     FillChar(A[Alli,0], SizeOf(TKMGroupEval)*GCnt, #0);
     GIdx := 0;

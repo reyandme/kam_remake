@@ -215,8 +215,6 @@ begin
 end;
 
 
-
-
 { TKMClientsList }
 destructor TKMClientsList.Destroy;
 begin
@@ -814,7 +812,6 @@ begin
   if aFlushQueue then
     SendScheduledData(SenderClient);
 end;
-
 
 
 procedure TKMNetServer.RecieveMessage(aSenderHandle: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal);

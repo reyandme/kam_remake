@@ -4,7 +4,6 @@ interface
 uses
   KM_Points;
 
-
 type
   TKMNodesArray = record
     Count: Integer;

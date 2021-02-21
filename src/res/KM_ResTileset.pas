@@ -172,7 +172,6 @@ const
 //      ((0,0), (0,0))); // mt_4Square
 
 
-
   TERRAIN_EQUALITY_PAIRS: array[0..1] of record
       TK1, TK2: TKMTerrainKind;
     end =
@@ -582,8 +581,8 @@ type
   private
     fCRC: Cardinal;
     TileTable: array [1 .. 30, 1 .. 30] of packed record
-      Tile1, Tile2, Tile3: byte;
-      b1, b2, b3, b4, b5, b6, b7: boolean;
+      Tile1, Tile2, Tile3: Byte;
+      b1, b2, b3, b4, b5, b6, b7: Boolean;
     end;
 
     function LoadPatternDAT(const FileName: string): Boolean;
@@ -634,9 +633,11 @@ uses
   KM_CommonUtils;
 
 const
-  TILES_NOT_ALLOWED_TO_SET: array[0..16] of Word = (55,59,60,61,62,63, //wine and corn
-                                                    189,169,185, //duplicates of 108,109,110
-                                                    248,249,250,251,252,253,254,255); //roads and overlays
+  TILES_NOT_ALLOWED_TO_SET: array [0..16] of Word = (
+    55,59,60,61,62,63,              // wine and corn
+    189,169,185,                    // duplicates of 108,109,110
+    248,249,250,251,252,253,254,255 // roads and overlays
+  );
 
 
 { TKMResTileset }
@@ -764,28 +765,28 @@ begin
 end;
 
 
-{Check if requested tile is water suitable for fish and/or sail. No waterfalls, but swamps/shallow water allowed}
+// Check if requested tile is water suitable for fish and/or sail. No waterfalls, but swamps/shallow water allowed
 function TKMResTileset.TileIsWater(aTile: Word): Boolean;
 begin
   Result := aTile in [48,114,115,119,192,193,194,196, 200, 208..211, 235,236, 240,244];
 end;
 
 
-//Check if requested tile has ice
+// Check if requested tile has ice
 function TKMResTileset.TileIsIce(aTile: Word): Boolean;
 begin
   Result := aTile in [4, 10, 12, 22, 23, 44];
 end;
 
 
-//Check if requested tile has any water, including ground-water transitions
+// Check if requested tile has any water, including ground-water transitions
 function TKMResTileset.TileHasWater(aTile: Word): Boolean;
 begin
   Result := aTile in [48,105..107,114..127,142,143,192..194,196,198..200,208..211,230,232..244];
 end;
 
 
-{Check if requested tile is sand suitable for crabs}
+// Check if requested tile is sand suitable for crabs
 function TKMResTileset.TileIsSand(aTile: Word): Boolean;
 const
   SAND_TILES: array[0..55] of Word =
@@ -797,7 +798,7 @@ begin
 end;
 
 
-{Check if requested tile is Stone and returns Stone deposit}
+// Check if requested tile is Stone and returns Stone deposit
 function TKMResTileset.TileIsStone(aTile: Word): Word;
 begin
   case aTile of
@@ -811,7 +812,7 @@ begin
 end;
 
 
-{Check if requested tile is snow}
+// Check if requested tile is snow
 function TKMResTileset.TileIsSnow(aTile: Word): Boolean;
 const
   SNOW_TILES: array[0..46] of Word =
@@ -891,7 +892,7 @@ begin
 end;
 
 
-{Check if requested tile is soil suitable for fields and trees}
+// Check if requested tile is soil suitable for fields and trees
 function TKMResTileset.TileIsSoil(aTile: Word): Boolean;
 const
   SOIL_TILES: array[0..176] of Word =
@@ -908,7 +909,7 @@ begin
 end;
 
 
-{Check if requested tile is generally walkable}
+// Check if requested tile is generally walkable
 function TKMResTileset.TileIsWalkable(aTile: Word): Boolean;
 begin
   //Includes 1/2 and 3/4 walkable as walkable
@@ -921,7 +922,7 @@ begin
 end;
 
 
-{Check if requested tile is generally suitable for road building}
+// Check if requested tile is generally suitable for road building
 function TKMResTileset.TileIsRoadable(aTile: Word): Boolean;
 begin
   //Do not include 1/2 and 1/4 walkable as roadable
@@ -945,7 +946,7 @@ begin
 end;
 
 
-//@Deprecated
+//@Deprecated. To be removed when?
 function TKMResTileset.TileIsFactorable(aTile: Word): Boolean;
 begin
   //List of tiles that cannot be factored (coordinates outside the map return true)

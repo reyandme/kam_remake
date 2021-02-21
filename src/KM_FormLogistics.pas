@@ -1,5 +1,4 @@
 unit KM_FormLogistics;
-
 interface
 uses
   {$IFDEF FPC} LResources, {$ENDIF}
@@ -16,10 +15,8 @@ type
     TabControl1: TTabControl;
     procedure TabControl1Change(Sender: TObject);
   private
-
   public
     procedure Clear;
-
   end;
 
 var
@@ -28,7 +25,6 @@ var
 implementation
 
 {$R *.dfm}
-
 
 
 procedure TFormLogistics.TabControl1Change(Sender: TObject);

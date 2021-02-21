@@ -104,8 +104,8 @@ begin
   end;
 
   aStream.Read(aMapY);
-  Assert(InRange(aMapX, 1, MAX_MAP_SIZE) and InRange(aMapY, 1, MAX_MAP_SIZE),
-         Format('Can''t open the map cos it has wrong dimensions: [%d:%d]', [aMapX, aMapY]));
+  if not InRange(aMapX, 1, MAX_MAP_SIZE) or not InRange(aMapY, 1, MAX_MAP_SIZE) then
+    raise Exception.Create(Format('Can''t open the map cos it has wrong dimensions: [%d:%d]', [aMapX, aMapY]));
 end;
 
 
@@ -333,7 +333,6 @@ function GetHintWHotKey(aTextId: Integer; aKeyFunc: TKMKeyFunction): String;
 begin
   Result := GetHintWHotKey(aTextId, gResKeys.GetKeyNameById(aKeyFunc));
 end;
-
 
 
 end.

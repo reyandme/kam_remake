@@ -167,8 +167,6 @@ begin
 end;
 
 
-
-
 { TKMInfluenceFloodFill }
 function TKMInfluenceFloodFill.CanBeExpanded(const aIdx: Word): Boolean;
 begin
@@ -208,8 +206,6 @@ begin
   fMaxDistance := aMaxDistance;
   Result := inherited FillPolygons(aMaximalIdx, aInitIdxArray);
 end;
-
-
 
 
 { TKMWalkableAreasDetector }

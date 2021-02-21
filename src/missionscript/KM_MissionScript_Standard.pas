@@ -28,13 +28,13 @@ type
     procedure HandleGroupOrders;
     procedure Init(aMode: TKMMissionParsingMode);
   protected
-    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean; override;
+    procedure ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''); override;
   public
     constructor Create(aMode: TKMMissionParsingMode); overload;
     constructor Create(aMode: TKMMissionParsingMode; var aPlayersEnabled: TKMHandEnabledArray); overload;
     destructor Destroy; override;
 
-    function LoadMission(const aFileName: string): Boolean; overload; override;
+    procedure LoadMission(const aFileName: string); override;
     procedure PostLoadMission;
 
     property DefaultLocation: ShortInt read fDefaultLocation;
@@ -112,7 +112,7 @@ begin
 end;
 
 
-function TKMMissionParserStandard.LoadMission(const aFileName: string): Boolean;
+procedure TKMMissionParserStandard.LoadMission(const aFileName: string);
 var
   FileText: AnsiString;
 begin
@@ -120,31 +120,19 @@ begin
 
   Assert((gTerrain <> nil) and (gHands <> nil));
 
-  Result := False;
-
   //Load the terrain since we know where it is beforehand
-  if FileExists(ChangeFileExt(fMissionFileName, '.map')) then
-  begin
-    gTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpmEditor);
-    gGame.TerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
-  end
-  else
-  begin
-    //Else abort loading and fail
-    AddError('Map file couldn''t be found', True);
-    Exit;
-  end;
+  if not FileExists(ChangeFileExt(fMissionFileName, '.map')) then
+    raise Exception.Create('Map file couldn''t be found');
+
+  gTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpmEditor);
+  gGame.TerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
 
   //Read the mission file into FileText
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then
-    Exit;
+    raise Exception.Create('Script is empty');
 
-  if not TokenizeScript(FileText, 6, []) then
-    Exit;
-
-  //If we have reach here without exiting then loading was successful if no errors were reported
-  Result := (fFatalErrors = '');
+  TokenizeScript(FileText, 6, []);
 end;
 
 
@@ -189,7 +177,7 @@ begin
 end;
 
 
-function TKMMissionParserStandard.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean;
+procedure TKMMissionParserStandard.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = '');
 
   function PointInMap(X, Y: Integer): Boolean;
   begin
@@ -208,8 +196,6 @@ var
   ChooseLoc: TKMChooseLoc;
   groupOrder: TKMMissionScriptGroupOrder;
 begin
-  Result := False; //Set it right from the start. There are several Exit points below
-
   case CommandType of
     ctSetMap:           begin
                           //Check for KaM format map path (disused, as Remake maps are always next to DAT script)
@@ -649,7 +635,10 @@ begin
 
     ctAICharacter:      if fLastHand <> PLAYER_NONE then
                         begin
-                          if gHands[fLastHand].HandType <> hndComputer then Exit;
+                          if gHands[fLastHand].HandType <> hndComputer then
+                            //@Rey we exited here, leading to FatalError.
+                            Assert(False, 'ctAICharacter gHands[fLastHand].HandType <> hndComputer');
+
                           iPlayerAI := gHands[fLastHand].AI; //Setup the AI's character
                           if TextParam = PARAMVALUES[cptRecruits]     then iPlayerAI.Setup.RecruitCount  := P[1];
                           if TextParam = PARAMVALUES[cptConstructors] then iPlayerAI.Setup.WorkerCount   := P[1];
@@ -822,7 +811,6 @@ begin
 
     ctSetNewRemap:      ;//Disused. Minimap color is used for all colors now. However it might be better to use these values in the long run as sometimes the minimap colors do not match well
   end;
-  Result := True; //Must have worked if we haven't exited by now
 end;
 
 

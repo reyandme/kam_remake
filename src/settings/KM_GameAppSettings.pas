@@ -218,6 +218,7 @@ begin
   Result := gGameAppSettings.fNeedsSave;
 end;
 
+
 function TKMGameAppSettingsPart.GetRoot: TXMLNode;
 begin
   Result := gGameAppSettings.fRoot;

@@ -18,7 +18,8 @@ const
   MIN_SCAN_DIST_FROM_HOUSE = 2; // Houses must have at least 1 tile of space between them
 
 type
-  TDirection = (dirN,dirE,dirS,dirW);
+  TDirection = (dirN, dirE, dirS, dirW);
+
   THouseMapping = record // Record of vectors from loc of house to specific point
     Tiles: TKMPointArray; // Tiles inside house plan
     Surroundings: array[1..MAX_SCAN_DIST_FROM_HOUSE] of array[TDirection] of TKMPointArray; // Tiles around house plan in specific distance and direction
@@ -26,7 +27,6 @@ type
     // Note: if we want place houses close to each other without "try and see" method we have to move from Loc of exist house into surrounding tiles and then move by entrance offset of new house)
   end;
   THouseMappingArray = array [HOUSE_MIN..HOUSE_MAX] of THouseMapping;
-
 
   TKMBuildState = (bsNoBuild = 0, bsHousePlan = 1, bsFieldPlan = 2, bsRoadPlan = 3, bsRoad = 4, bsBuild = 9, bsTree = 10, bsForest = 11, bsCoal = 12, bsMine = 13, bsDebug = 200, bsReserved = 255);
   TKMBuildInfo = record
@@ -218,7 +218,6 @@ type
 
     procedure Paint(aRect: TKMRect);
   end;
-
 
 
 implementation
@@ -466,7 +465,6 @@ end;
 //      else if (aHT = htIronMine) then
 //        Result := Result + gTerrain.TileIsIron(X, Y);
 //end;
-
 
 
 function TKMEye.FindSeparateMineLocs(aAllMines: Boolean; aMineType: TKMHouseType): TKMPointArray;
@@ -872,7 +870,7 @@ begin
         if gHands[PL].Constructions.HousePlanList.HasPlan(Point) then
           Exit;
     if (aHT in [htGoldMine, htIronMine]) then
-      continue;
+      Continue;
     // Quarry / Woodcutters / CoalMine / Towers may take place for mine so its arena must be scaned completely
     if aIgnoreAvoidBuilding then
     begin
@@ -1099,7 +1097,6 @@ begin
 end;
 
 
-
 function TKMEye.GetCityCenterPolygons(aMultiplePoints: Boolean = False): TKMWordArray;
 var
   K: Integer;
@@ -1145,7 +1142,6 @@ begin
 end;
 
 
-
 function TKMEye.GetClosestUnitAroundHouse(aHT: TKMHouseType; aLoc: TKMPoint; aInitPoint: TKMPoint): TKMUnit;
 const
   INIT_DIST = 10000;
@@ -1178,7 +1174,6 @@ begin
       end;
     end;
 end;
-
 
 
 procedure TKMEye.Paint(aRect: TKMRect);
@@ -1298,7 +1293,6 @@ begin
 end;
 
 
-
 { TKMBuildFF }
 constructor TKMBuildFF.Create();
 begin
@@ -1347,8 +1341,6 @@ begin
     SaveStream.Write(fInfoArr[0], SizeOf(fInfoArr[0]) * Len);
   //}
 end;
-
-
 
 
 procedure TKMBuildFF.Load(LoadStream: TKMemoryStream);
@@ -1691,7 +1683,7 @@ begin
         begin
           HT := HouseType;
           if (HT = htNone) then
-            continue;
+            Continue;
           P1 := KMPointAdd( Loc, KMPoint(gRes.Houses[HT].EntranceOffsetX,0) ); // Plans have moved offset so fix it (because there is never enought exceptions ;)
           // Internal house tiles
           for L := Low(gAIFields.Eye.HousesMapping[HT].Tiles) to High(gAIFields.Eye.HousesMapping[HT].Tiles) do
@@ -1714,7 +1706,7 @@ begin
       for K := 0 to gHands[PL].Constructions.FieldworksList.Count - 1 do
         with gHands[PL].Constructions.FieldworksList.Fields[K] do
           case FieldType of
-            ftNone: continue;
+            ftNone: Continue;
             ftRoad: State[Loc.Y, Loc.X] := bsRoadPlan;
             else State[Loc.Y, Loc.X] := bsFieldPlan;
           end;
@@ -1730,7 +1722,7 @@ begin
   begin
     Distance := fInfoArr[Idx].Distance + 1;
     if (Distance > aMaxDistance) then
-      break;
+      Break;
     if (Y-1 >= 1      ) AND CanBeVisited(X,Y-1,Idx-fMapX) then MarkAsVisited(Y-1, InsertInQueue(Idx-fMapX), Distance, GetTerrainState(X,Y-1));
     if (X-1 >= 1      ) AND CanBeVisited(X-1,Y,Idx-1    ) then MarkAsVisited(Y,   InsertInQueue(Idx-1)    , Distance, GetTerrainState(X-1,Y));
     if (X+1 <= fMapX-1) AND CanBeVisited(X+1,Y,Idx+1    ) then MarkAsVisited(Y,   InsertInQueue(Idx+1)    , Distance, GetTerrainState(X+1,Y));
@@ -1849,8 +1841,6 @@ begin
 end;
 
 
-
-
 { TKMFFInitPlace }
 constructor TKMFFInitPlace.Create(aMapX,aMapY: Word; var aArea: TKMByteArray);
 begin
@@ -1861,11 +1851,13 @@ begin
   fQueue := TQueue.Create();
 end;
 
+
 destructor TKMFFInitPlace.Destroy();
 begin
   fQueue.Free();
   inherited;
 end;
+
 
 function TKMFFInitPlace.CanBeVisited(const aX,aY, aDistance: Word): Boolean;
 var
@@ -1875,11 +1867,13 @@ begin
   Result := not fVisitArr[Idx] AND (fArea[Idx] < aDistance);
 end;
 
+
 procedure TKMFFInitPlace.MarkAsVisited(const aIdx, aDistance: Word);
 begin
   fVisitArr[aIdx] := True;
   fArea[aIdx] := aDistance;
 end;
+
 
 procedure TKMFFInitPlace.InsertInQueue(const aX,aY, aDistance: Word);
 var
@@ -1892,6 +1886,7 @@ begin
   DE^.Distance := aDistance;
   fQueue.Push(DE);
 end;
+
 
 function TKMFFInitPlace.RemoveFromQueue(var aX,aY, aDistance: Word): Boolean;
 var
@@ -1907,6 +1902,7 @@ begin
     Dispose(DE);
   end;
 end;
+
 
 procedure TKMFFInitPlace.FillArea(aCount: Word; aInitPoints: TKMPointArray);
 const
@@ -1929,7 +1925,6 @@ begin
       if (Y < fMapY-1) AND CanBeVisited(X,Y+1,Distance) then InsertInQueue(X,Y+1,Distance);
     end;
 end;
-
 
 
 { TKMFFCheckStoneTiles }

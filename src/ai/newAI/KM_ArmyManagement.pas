@@ -239,7 +239,7 @@ begin
       until (GroupReq[GT] > 0) OR (L > 9); // Limit number of attempts to guarantee it doesn't loop forever
 
       if (GroupReq[GT] = 0) then
-        continue; // Don't train
+        Continue; // Don't train
 
       for L := Low(AI_TROOP_TRAIN_ORDER[GT]) to High(AI_TROOP_TRAIN_ORDER[GT]) do
       begin
@@ -251,7 +251,7 @@ begin
           else if CanEquipLeather AND not (UT in WARRIORS_IRON) then
             pEquippedTime := @fLastEquippedTimeLeather
           else
-            continue;
+            Continue;
           while Barracks[K].CanEquip(UT)
             AND (GroupReq[GT] > 0)
             AND (  ( fSetup.MaxSoldiers = -1 ) OR ( gHands[fOwner].Stats.GetArmyCount < fSetup.MaxSoldiers )  ) do
@@ -517,7 +517,6 @@ begin
   SetLength(fAttackRequest.Enemies, Length(aAttackRequest.Enemies) );
   Move(aAttackRequest.Enemies[0], fAttackRequest.Enemies[0], SizeOf(fAttackRequest.Enemies[0])*Length(fAttackRequest.Enemies));
 end;
-
 
 
 procedure TKMArmyManagement.UpdateState(aTick: Cardinal);

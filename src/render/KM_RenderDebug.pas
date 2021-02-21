@@ -440,7 +440,6 @@ begin
 end;
 
 
-
 { TKMDefPosData }
 function TKMAreaData.GetData(X, Y: Integer): Boolean;
 begin

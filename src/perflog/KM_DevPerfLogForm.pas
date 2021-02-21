@@ -88,7 +88,6 @@ const
   end;
 
 
-
   procedure CreateCheckboxesLine(aPS: TPerfSectionDev; aIsGFX: Boolean = False);
   var
     I: Integer;

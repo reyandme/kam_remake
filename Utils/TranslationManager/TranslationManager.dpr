@@ -12,6 +12,9 @@ uses
 {$R *.res}
 {$ENDIF}
 
+var
+  Form1: TForm1;
+
 begin
   Application.Initialize;
 

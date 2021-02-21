@@ -10,6 +10,8 @@ uses
 
 
 type
+  // Provides basement for the Game App
+  // Should be abstract enough, so that the Game could be a race-sim or a quest or any other
   TKMMain = class
   private
     fFormMain: TFormMain;
@@ -94,7 +96,8 @@ uses
 
 
 const
-  //Random GUID generated in Delphi by Ctrl+G
+  // Mutex is used to block duplicate app launch on the same PC
+  // Random GUID generated in Delphi by Ctrl+G
   KAM_MUTEX = '07BB7CC6-33F2-44ED-AD04-1E255E0EDF0D';
 
 { TKMMain }
@@ -539,8 +542,8 @@ begin
     flashInfo.cbSize := 20;
     flashInfo.hwnd := Application.Handle;
     flashInfo.dwflags := FLASHW_ALL;
-    flashInfo.ucount := 5;
-    flashInfo.dwtimeout := 0;
+    flashInfo.ucount := 5; // Flash 5 times
+    flashInfo.dwtimeout := 0; // Use default cursor blink rate
     fFlashing := True;
     FlashWindowEx(flashInfo);
   end
@@ -675,7 +678,6 @@ begin
 
   gGameApp.Resize(aWidth, aHeight);
 end;
-
 
 
 procedure TKMMain.Resize(aWidth, aHeight: Integer; const aWindowParams: TKMWindowParamsRecord);

@@ -109,7 +109,6 @@ type
   end;
 
 
-
   const
   len_BIOME = 24;
   BT: array[0..len_BIOME-1,0..len_BIOME-1] of Integer = (
@@ -253,7 +252,6 @@ implementation
 uses
   SysUtils, KM_HandsCollection, KM_CommonClasses, KM_Game, KM_ResMapElements, KM_Hand, Dialogs,
   KM_ResTypes;
-
 
 
 { TKMRandomMapGenerator }
@@ -638,8 +636,6 @@ begin
 end;
 
 
-
-
 // Linear interpolation for grid of random points (for GenerateHeight or CreateBiomes functions)
 // aStep = step of linear interpolation (size of shapes)
 // aMaxNum = generated numbers will be in interval <0, aMaxNum)
@@ -705,7 +701,6 @@ begin
 
   Result := Output;
 end;
-
 
 
 // Create shapes using specific limits from TInteger2Array
@@ -846,8 +841,6 @@ begin
 
   Result := Output;
 end;
-
-
 
 
 // Generator of random points with best possible distance between them (quite slow algorithm, only for Locs)
@@ -996,7 +989,7 @@ function TKMRandomMapGenerator.RandomPlayerLocs(): TKMPointArray;
           break;
         end;
       if PointSelected then
-        continue;
+        Continue;
       // Try to replace the point
       for RemIdx := Low(LocIdx) to High(LocIdx) do
       begin
@@ -1063,7 +1056,6 @@ begin
   end;
   Result := Output;
 end;
-
 
 
 // Generator of random points with minimal distance between them (algorithmic from division into areas with indetical size = very fast)
@@ -1145,7 +1137,6 @@ begin
   Result.X := Min(  aMax.X, Max( aMin.X,Round(aCenter.X + radius * cos(angle)) )  );
   Result.Y := Min(  aMax.Y, Max( aMin.Y,Round(aCenter.Y + radius * sin(angle)) )  );
 end;
-
 
 
 // Biomes generator (basic ACCESSIBLE terrain)
@@ -1550,7 +1541,6 @@ end;
 //}
 
 
-
 // Create obstacles (eIron, eGold, watter, swamp and wetland) - obstacles are created via seeds and array of probabilities it is basicaly RANDOM WALK in probability array
 // aLocs = expected player's position (those will have protected radius to secure that player have place for city)
 // A = TKMByte2Array for obstacles
@@ -1852,9 +1842,6 @@ begin
 end;
 
 
-
-
-
 // Fixer of mountains with iron or gold to be able to place mines there
 procedure TKMRandomMapGenerator.MineFix(var A: TKMByte2Array);
 type
@@ -2004,16 +1991,13 @@ begin
     else if (Resources[I].Resource = Byte(btIron)) then
       RESOURCE := 3
     else // Coal and Stone are always fine
-      continue;
+      Continue;
     for K := Low(Resources[I].Points) to High(Resources[I].Points) do
       if not Visited[ Resources[I].Points[K].Y, Resources[I].Points[K].X ]
          AND (A[ Resources[I].Points[K].Y, Resources[I].Points[K].X ] = Resources[I].Resource) then
         Fixer(RESOURCE, Resources[I].Resource, Resources[I].MinesCnt, Resources[I].Points[K], Visited);
   end;
 end;
-
-
-
 
 
 // Cellular automaton - CA will secure that each tile has in his surrounding at leas another 3 tiles and together they make square
@@ -2120,7 +2104,6 @@ begin
     end;
   end;
 end;
-
 
 
 // This function will try to create smooth transitions with special decomposition of basic tiles
@@ -2511,7 +2494,6 @@ begin
 end;
 
 
-
 // Replace textures which are surrounded by mountains by snow biome
 // A = TKMByte2Array of biomes
 procedure TKMRandomMapGenerator.SnowMountains(var A: TKMByte2Array);
@@ -2630,7 +2612,6 @@ begin
     FillObject.Free;
   end;
 end;
-
 
 
 // Converts biomes into numbers which represents specific tiles with right direction and nice variance, it also make balanced resources
@@ -2949,7 +2930,7 @@ begin
           Resources[I].Points[K].X := X1;
           Resources[I].Points[K].Y := Y1;
           K := K + 1;
-          continue;
+          Continue;
         end
         // Already scanned tile from different shape (make 1 big shape with sum of all needed resources)
         // (for example coal tiles created as a part of gold tiles and coal tiles created as a part of iron tiles can be sometimes merged together but GenerateResources doesn't see it because CA can change it)
@@ -3167,14 +3148,13 @@ begin
   //  else if (Resources[I].Resource = Byte(btIron)) then
   //    RESOURCE := 3
   //  else // Coal and Stone are always fine
-  //    continue;
+  //    Continue;
   //  for K := Low(Resources[I].Points) to High(Resources[I].Points) do
   //    if not Visited[ Resources[I].Points[K].Y, Resources[I].Points[K].X ]
   //       AND (A[ Resources[I].Points[K].Y, Resources[I].Points[K].X ] = Resources[I].Resource) then
   //      Fixer(RESOURCE, Resources[I].Resource, Resources[I].MinesCnt, Resources[I].Points[K], Visited);
   //end;
 end;
-
 
 
 // Debug function (only full textures without transitions)
@@ -3220,7 +3200,6 @@ begin
 end;
 
 
-
 // Height generator
 // aLocs = player's locs
 // TilesPartsArr = tiles composition array
@@ -3236,7 +3215,7 @@ procedure TKMRandomMapGenerator.GenerateHeight(var aLocs: TKMPointArray; var Til
     X := aStartPoint.X;
     Y := aStartPoint.Y;
     v := aInitDir; // Init vector
-    //Dir := ifthen(aRightHanded, -1, 1); // Determine direction of rotation
+    //Dir := IfThen(aRightHanded, -1, 1); // Determine direction of rotation
     Counter := 0;
     aPointsCnt := 0;
     Overflow := 0;
@@ -3340,7 +3319,7 @@ procedure TKMRandomMapGenerator.GenerateHeight(var aLocs: TKMPointArray; var Til
                 P1 := Points[I];
                 P2 := Points[K];
                 if (Abs(H[P1.Y,P1.X]) > 10) OR (Abs(H[P2.Y,P2.X]) > 10) then
-                  continue;
+                  Continue;
                 if (H[P1.Y,P1.X] > H[P2.Y,P2.X]) // Make sure that cliff is just on 1 side
                    OR (H[P1.Y,P1.X] = 0) AND (H[P2.Y,P2.X] = 0) AND (fRNG.Random > 0.5) then // Random element
                   KMSwapPoints(P1,P2);
@@ -3575,7 +3554,6 @@ begin
 end;
 
 
-
 // Objects generator
 // TilesPartsArr = tiles composition array
 // A = array of biomes
@@ -3791,7 +3769,6 @@ begin
   //}
   end;
 end;
-
 
 
 // TileTemplate with Cellular automaton (developed but unfinished because of performance impact and results)
@@ -4158,7 +4135,6 @@ end;
 //end;
 
 
-
 // Old version of TileTemplate (version with CA and actual version provides better results)
 //function TKMRandomMapGenerator.TileTemplateOLD(var A: TKMByte2Array; const Settings: Byte): TKMByte2Array;
 //var
@@ -4425,7 +4401,6 @@ end;
 //
 //  Result := B;
 //end;
-
 
 
 // JUNK
@@ -4712,7 +4687,7 @@ begin
         else if (Output[I].Resource = Byte(btIron)) then
           RESOURCE := 3
         else // Coal and Stone are always fine
-          continue;
+          Continue;
         for K := Low(Output[I].Points) to High(Output[I].Points) do
           if not Visited[ Output[I].Points[K].Y , Output[I].Points[K].X ] then
             MineFix(Output[I].Points[K], RESOURCE, Output[I].Resource, Visited, A);
@@ -4787,9 +4762,6 @@ end;
 //}
 
 
-
-
-
 {
 // Generator of random points in 2d grid with minimal distance between them (brute force)
 function TKMRandomMapGenerator.RNDPointsInGridBF(const cnt: Integer; Minimum,Maximum: TKMPoint): TKMPointArray;
@@ -4850,8 +4822,6 @@ begin
   end;
 end;
 //}
-
-
 
 
 {
@@ -4967,9 +4937,6 @@ begin
   end;
 end;
 //}
-
-
-
 
 
 {
@@ -5187,7 +5154,7 @@ var
     for i := Low(CenterPoints) to High(CenterPoints) do
     begin
       if BASE_PROBABILITY < fRNG.Random() then
-        continue;
+        Continue;
       TP_S := CenterPoints[I];
       len := 9 - fRNG.RandomI(9);
       TP_E.X := Min(High(PointsArr[0]), CenterPoints[I].X + len);
@@ -5400,16 +5367,12 @@ begin
       else if Result[I].Resource = Byte(btIron) then
         RESOURCE := 3
       else // Coal and Stone are always fine
-        continue;
+        Continue;
       if not Visited[ Result[I].Point.Y , Result[I].Point.X ] then
         MinerFixer(Result[I].Point, RESOURCE, Result[I].Resource, Visited, A);
     end;
 end;
 //}
-
-
-
-
 
 
 {

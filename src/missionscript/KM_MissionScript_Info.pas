@@ -9,17 +9,17 @@ type
   TKMMissionParsing = (
     pmBase, //Load base map info for SP maplist (player count, tactic, description)
     pmExtra //Load extra map info to be displayed when map is selected (goals, alliances, etc)
-    );
+  );
 
 
   TKMMissionParserInfo = class(TKMMissionParserCommon)
   private
     fMapInfo: TKMapInfo; //We are given this structure and asked to fill it
-    function LoadMapInfo(const aFileName: string): Boolean;
+    procedure LoadMapInfo(const aFileName: string);
   protected
-    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean; override;
+    procedure ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''); override;
   public
-    function LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing): Boolean; reintroduce;
+    procedure LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing); reintroduce;
   end;
 
 
@@ -31,7 +31,7 @@ uses
 
 
 { TMissionParserInfo }
-function TKMMissionParserInfo.LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing): Boolean;
+procedure TKMMissionParserInfo.LoadMission(const aFileName: string; aMapInfo: TKMapInfo; aParsing: TKMMissionParsing);
 const
   CommandsBase: array [0..3] of AnsiString = (
     '!SET_MAX_PLAYER', '!SET_TACTIC', '!SET_CURR_PLAYER', '!SET_USER_PLAYER');
@@ -46,27 +46,21 @@ begin
 
   inherited LoadMission(aFileName);
 
-  Result := False;
-
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then
-    Exit;
+    raise Exception.Create('Script is empty');
 
-  //For info we need only few commands,
-  //it makes sense to skip the rest
+  // For info we need only few commands, it makes sense to skip the rest
   case aParsing of
-    pmBase:   if not TokenizeScript(FileText, 4, CommandsBase) then Exit;
-    pmExtra:  if not TokenizeScript(FileText, 4, CommandsExtra) then Exit;
+    pmBase:   TokenizeScript(FileText, 4, CommandsBase);
+    pmExtra:  TokenizeScript(FileText, 4, CommandsExtra);
   end;
 
-  if not LoadMapInfo(ChangeFileExt(fMissionFileName, '.map')) then
-    Exit;
-
-  Result := fFatalErrors = '';
+  LoadMapInfo(ChangeFileExt(fMissionFileName, '.map'));
 end;
 
 
-function TKMMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean;
+procedure TKMMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = '');
 begin
   case CommandType of
     ctSetMaxPlayer:    fMapInfo.LocCount := P[0];
@@ -123,44 +117,28 @@ begin
     ctSetRGBColor:     if fLastHand >= 0 then
                           fMapInfo.FlagColors[fLastHand] := P[0] or $FF000000;
   end;
-
-  Result := True;
 end;
 
 
-//Acquire essential terrain details
-function TKMMissionParserInfo.LoadMapInfo(const aFileName: string): Boolean;
+// Acquire essential terrain details
+procedure TKMMissionParserInfo.LoadMapInfo(const aFileName: string);
 var
   S: TKMemoryStream;
   newX, newY: Integer;
-  ErrorStr: UnicodeString;
 begin
-  Result := False;
-  if not FileExists(aFileName) then Exit;
+  if not FileExists(aFileName) then
+    raise Exception.Create('Map file couldn''t be found');
 
-  ErrorStr := '';
   S := TKMemoryStreamBinary.Create;
   try
     S.LoadFromFile(aFileName);
-    try
-      LoadMapHeader(S, newX, newY);
-    except
-      on E: Exception do
-        ErrorStr := E.Message;
-    end;
+    LoadMapHeader(S, newX, newY);
   finally
     S.Free;
   end;
 
-  if ErrorStr <> '' then
-  begin
-    AddError(ErrorStr, True);
-    Exit;
-  end;
-
   fMapInfo.MapSizeX := newX;
   fMapInfo.MapSizeY := newY;
-  Result := True;
 end;
 
 

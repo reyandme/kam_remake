@@ -1140,7 +1140,6 @@ begin
 end;
 
 
-
 procedure TKMapEdInterface.HistoryAddCheckpoint;
 begin
   HistoryUpdateUI;

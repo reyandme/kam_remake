@@ -17,6 +17,7 @@
 !ADD_GOAL 4 1 0 1
 !ADD_GOAL 4 1 0 2
 !ADD_GOAL 4 1 0 3
+!ADD_GOAL 4 1 0 4
 
 !SET_AI_START_POSITION 0 0
 !SET_AI_ARMY_TYPE 0
@@ -293,4 +294,4 @@
 !SET_UNIT 24 53 8
 !SET_UNIT 24 49 18
 
-//This mission was made with KaM Remake Map Editor version r11222 at 10.04.2020 7:11:01
+//This mission was made with KaM Remake Map Editor version r12485 at 12.11.2020 16:03:58

@@ -7,8 +7,8 @@ uses
 
 const
   MAX_SCRIPT_CONSOLE_COMMAND_PARAMS = 4;
-type
 
+type
   TKMScriptCommandParamsArray = array [0..MAX_SCRIPT_CONSOLE_COMMAND_PARAMS-1] of UnicodeString;
 
   TKMCmdProcParamTypeKind = (
@@ -1191,7 +1191,6 @@ begin
   for I := 0 to MAX_SCRIPT_CONSOLE_COMMAND_PARAMS - 1 do
     LoadStream.Read(fPT[I], SizeOf(fPT[I]));
 end;
-
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

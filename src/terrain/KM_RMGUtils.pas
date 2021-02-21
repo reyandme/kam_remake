@@ -285,8 +285,6 @@ uses
   KM_RandomMapGenerator;
 
 
-
-
 { TKMRandomNumberGenerator }
 procedure TKMRandomNumberGenerator.NextSeed();
 begin
@@ -309,8 +307,6 @@ function TKMRandomNumberGenerator.RandomI(const Max: Integer): Integer;
 begin
   Result := Trunc(Random() * Max);
 end;
-
-
 
 
 { TKMQuickFlood }
@@ -432,7 +428,6 @@ end;
 //}
 
 
-
 { TKMSearchBiome }
 constructor TKMSearchBiome.Create(aMinLimit, aMaxLimit: TKMPoint; var aSearchArr: TInteger2Array; const aScanEightTiles: Boolean = False);
 begin
@@ -465,7 +460,6 @@ begin
   fNewSearch := aNewSearch;
   inherited QuickFlood(aX,aY);
 end;
-
 
 
 { TKMSearchSimilarBiome }
@@ -501,10 +495,6 @@ begin
 end;
 
 
-
-
-
-
 { TKMSearchWalkableAreas }
 constructor TKMSearchWalkableAreas.Create(aMinLimit, aMaxLimit: TKMPoint; var aSearchArr: TInteger2Array; var aBiomeArr: TKMByte2Array; const aScanEightTiles: Boolean = False);
 begin
@@ -528,9 +518,6 @@ begin
 end;
 
 
-
-
-
 { TKMFillBiome }
 constructor TKMFillBiome.Create(aMinLimit, aMaxLimit: TKMPoint; var aSearchArr: TInteger2Array; var aFillArr: TKMByte2Array; const aScanEightTiles: Boolean = False);
 begin
@@ -551,10 +538,6 @@ begin
 end;
 
 
-
-
-
-
 { TKMFillObject }
 constructor TKMFillObject.Create(aMinLimit, aMaxLimit: TKMPoint; var aSearchArr: TInteger2Array; var aObjectArr: TKMByte2Array; var aBiomeArr: TKMWord2Array; const aScanEightTiles: Boolean = False);
 begin
@@ -571,10 +554,6 @@ procedure TKMFillObject.QuickFlood(aX,aY,aSearch,aNewSearch,aObject: SmallInt);
 begin
   inherited QuickFlood(aX,aY,aSearch,aNewSearch,aObject);
 end;
-
-
-
-
 
 
 { TKMMinerFixSearch }
@@ -613,11 +592,6 @@ begin
   fSearch := aSearch;
   inherited QuickFlood(aX,aY);
 end;
-
-
-
-
-
 
 
 { TKMTileFloodSearch }
@@ -684,9 +658,6 @@ begin
 end;
 
 
-
-
-
 { TKMInternalTileCounter }
 constructor TKMInternalTileCounter.Create(aMinLimit, aMaxLimit: TKMPoint; var aBiomeArr, aVisitedArr: TKMByte2Array; const aScanEightTiles: Boolean = False);
 begin
@@ -726,10 +697,6 @@ begin
   fVisitedNum := aVisitedNum;
   inherited QuickFlood(aX,aY);
 end;
-
-
-
-
 
 
 { TKMSharpShapeFixer }
@@ -805,10 +772,6 @@ begin
   if (cnt < 2) then
     InsertInQ();
 end;
-
-
-
-
 
 
 { TKMFloodWithQueue }
@@ -987,8 +950,6 @@ begin
 end;
 
 
-
-
 { TKMHeightFillWalkableAreas }
 constructor TKMHeightFillWalkableAreas.Create(var aBiomeArr: TKMByte2Array; var aHeightArr: TInteger2Array);
 begin
@@ -1096,7 +1057,6 @@ begin
       if (Y < High(fVisitedArr))    AND CanBeVisited(X,Y+1,Distance) then InsertInQueue(X,Y+1,Distance);
     end;
 end;
-
 
 
 { TKMShapePointsExtractor }

@@ -417,12 +417,12 @@ end;
 function TKMSettledUnit.FindHome: Boolean;
 var H: TKMHouse;
 begin
-  Result:=false;
+  Result := False;
   H := gHands[Owner].Houses.FindEmptyHouse(fType, fPosition);
   if H <> nil then
   begin
     fHome  := H.GetPointer;
-    Result := true;
+    Result := True;
   end;
 end;
 
@@ -681,7 +681,7 @@ begin
     and (fHome.CheckResOut(TM.WorkPlan.Product1) < MAX_WARES_IN_HOUSE)
     and (fHome.CheckResOut(TM.WorkPlan.Product2) < MAX_WARES_IN_HOUSE) then
   begin
-    //if fResource.HouseDat[fHome.HouseType].DoesOrders then
+    //if gRes.Houses[fHome.HouseType].DoesOrders then
       //Take order to production
       //fHome.ResOrder[Res] := fHome.ResOrder[Res] - 1;
     Result := TM;
@@ -933,8 +933,8 @@ var
   ID: Integer;
 begin
   inherited;
-  if not fVisible then exit;
-  if fAction = nil then exit;
+  if not fVisible then Exit;
+  if fAction = nil then Exit;
   V := fVisual.GetLerp(aTickLag);
 
   XPaintPos := V.PosF.X + UNIT_OFF_X + V.SlideX;
@@ -1039,7 +1039,8 @@ begin
 
   case fAction.Execute of
     arActContinues: Exit;
-    else            FreeAndNil(fAction);
+  else
+    FreeAndNil(fAction);
   end;
   SetCurrPosition(KMPointRound(fPositionF));
 
@@ -1047,7 +1048,7 @@ begin
   Assert((fTask = nil) or (fTask is TKMTaskDie));
   if fTask is TKMTaskDie then
   case fTask.Execute of
-    trTaskContinues:  exit;
+    trTaskContinues:  Exit;
     trTaskDone:       raise Exception.Create('Unexpected fUnitTask.Execute value = trTaskDone'); //TTaskDie never returns trTaskDone yet
   end;
 
@@ -1240,8 +1241,6 @@ begin
   LoadStream.Read(fDismissASAP);
   LoadStream.Read(Dismissable);
   LoadStream.Read(fLastTimeTrySetActionWalk);
-
-
 end;
 
 
@@ -1587,8 +1586,8 @@ end;
 procedure TKMUnit.SetCurrPosition(const aLoc: TKMPoint);
 begin
   if {not gGameApp.DynamicFOWEnabled
-    and }(Owner <> PLAYER_ANIMAL)
-    and (fPosition <> aLoc) then  //Update FOW only for new loc
+  and }(Owner <> PLAYER_ANIMAL)
+  and (fPosition <> aLoc) then  //Update FOW only for new loc
     gHands.RevealForTeam(Owner, aLoc, gRes.Units[fType].Sight, FOG_OF_WAR_MAX);
 
   fPosition := aLoc;

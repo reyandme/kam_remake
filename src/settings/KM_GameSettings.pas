@@ -802,7 +802,6 @@ begin
 end;
 
 
-
 procedure TKMGameSettings.SetMenuMapEdMPMapName(const aValue: UnicodeString);
 begin
   fMenu_MapEdMPMapName := aValue;
@@ -1051,7 +1050,6 @@ begin
 end;
 
 
-
 procedure TKMGameSettings.SetReplaySavepoint(aValue: Boolean);
 begin
   fReplaySavepoint := aValue;
@@ -1149,11 +1147,13 @@ begin
   Changed;
 end;
 
+
 procedure TKMGameSettings.SetVideoOn(aValue: Boolean);
 begin
   fVideoOn := aValue;
   Changed;
 end;
+
 
 procedure TKMGameSettings.SetVideoStretch(aValue: Boolean);
 begin
@@ -1161,11 +1161,13 @@ begin
   Changed;
 end;
 
+
 procedure TKMGameSettings.SetVideoStartup(aValue: Boolean);
 begin
   fVideoStartup := aValue;
   Changed;
 end;
+
 
 procedure TKMGameSettings.SetVideoVolume(aValue: Single);
 begin

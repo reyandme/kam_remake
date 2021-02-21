@@ -3,9 +3,7 @@ unit KM_Audio;
 interface
 
 type
-
   // Audio manager, dispatches audio between sound and music units
-
   TKMAudio = class
     class procedure PauseMusicToPlayFile(const aFileName: UnicodeString);
   end;

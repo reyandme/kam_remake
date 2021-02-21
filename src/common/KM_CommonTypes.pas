@@ -66,10 +66,10 @@ type
   TCoordDistanceFn = function (X, Y: Integer): Single;
 
   TKMAnimLoop = packed record
-                  Step: array [1 .. 30] of SmallInt;
-                  Count: SmallInt;
-                  MoveX, MoveY: Integer;
-                end;
+    Step: array [1 .. 30] of SmallInt;
+    Count: SmallInt;
+    MoveX, MoveY: Integer;
+  end;
 
   //Message kind determines icon and available actions for Message
   TKMMessageKind = (
@@ -77,7 +77,7 @@ type
     mkHouse,
     mkUnit,
     mkQuill //Utility message (warnings in script loading)
-    );
+  );
 
   TKMAudioFormat = (afWav, afOgg);
 

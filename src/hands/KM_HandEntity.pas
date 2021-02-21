@@ -144,8 +144,6 @@ end;
 
 function TKMHandEntity.IsSelectable: Boolean;
 begin
-  if Self = nil then Exit(False);
-
   Result := False;
 end;
 

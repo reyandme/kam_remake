@@ -317,7 +317,6 @@ begin
   if gScriptEvents.HasConsoleCommands then
     try
       gScriptEvents.ParseConsoleCommandsProcedures(fScriptCode);
-
     except
       on E: EConsoleCommandParseError do
       begin
@@ -1975,7 +1974,6 @@ begin
 end;
 
 
-
 procedure TKMScriptErrorHandler.HandleErrors;
 begin
   HandleScriptError(seCompileError, AppendErrorPrefix('Script compile errors:' + EolW, fErrorString));
@@ -2294,7 +2292,7 @@ const
     ErrorStr: UnicodeString;
     DirectiveParamSL: TStringList;
     HasError: Boolean;
-    THTroopCost: array[0..4] of Integer;
+    THTroopCost: array[Low(TH_TROOP_COST)..High(TH_TROOP_COST)] of Integer;
   begin
     if UpperCase(DirectiveName) = UpperCase(CUSTOM_TH_TROOP_COST_DIRECTIVE) then
     begin
@@ -2305,17 +2303,20 @@ const
         try
           StringSplit(DirectiveParam, ',', DirectiveParamSL);
 
-          if DirectiveParamSL.Count <> 6 then
+          HasError := False;
+          if DirectiveParamSL.Count <> Length(THTroopCost) then
           begin
-            fErrorHandler.AppendErrorStr(Format('Directive ''%s'' has wrong number of parameters: expected 6, actual: %d. At [%d:%d]' + sLineBreak,
-                                                [CUSTOM_TH_TROOP_COST_DIRECTIVE, DirectiveParamSL.Count, Parser.Row, Parser.Col]));
+            HasError := True;
+            fErrorHandler.AppendErrorStr(Format('Directive ''%s'' has wrong number of parameters: expected %d, actual: %d. At [%d:%d]' + sLineBreak,
+                                                [CUSTOM_TH_TROOP_COST_DIRECTIVE, Length(THTroopCost), DirectiveParamSL.Count,
+                                                 Parser.Row, Parser.Col]));
             if fValidationIssues <> nil then
               fValidationIssues.AddError(Parser.Row, Parser.Col, CUSTOM_TH_TROOP_COST_DIRECTIVE,
-                                         'Wrong number of parameters: expected 6, actual: ' + IntToStr(DirectiveParamSL.Count));
+                                         Format('Wrong number of parameters: expected %d, actual: %d',
+                                                [Length(THTroopCost), DirectiveParamSL.Count]));
           end;
 
-          HasError := False;
-          for I := 0 to 5 do
+          for I := Low(THTroopCost) to High(THTroopCost) do
             if TryStrToInt(DirectiveParamSL[I], TroopCost) then
               THTroopCost[I] := EnsureRange(TroopCost, 1, 255)
             else begin

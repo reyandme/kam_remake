@@ -6,8 +6,8 @@ uses
 
 
 type
-  //Scans folder and subfolders in search of a .libx files
-  TPathManager = class
+  // Scans folder and subfolders in search of .libx files
+  TKMPathManager = class
   private
     fPaths: TStringList;
     function GetPath(aIndex: Integer): string;
@@ -18,42 +18,47 @@ type
     property Count: Integer read GetCount;
     property Paths[aIndex: Integer]: string read GetPath; default;
     procedure Clear;
-    procedure AddPath(aBasePath, aSubPath: string);
+    procedure AddPath(const aBasePath, aSubPath: string);
   end;
 
 
 implementation
 
 
-{ TPathManager }
-constructor TPathManager.Create;
+{ TKMPathManager }
+constructor TKMPathManager.Create;
 begin
   inherited;
   fPaths := TStringList.Create;
 end;
 
-destructor TPathManager.Destroy;
+
+destructor TKMPathManager.Destroy;
 begin
   fPaths.Free;
   inherited;
 end;
 
-function TPathManager.GetCount: Integer;
+
+function TKMPathManager.GetCount: Integer;
 begin
   Result := fPaths.Count;
 end;
 
-function TPathManager.GetPath(aIndex: Integer): string;
+
+function TKMPathManager.GetPath(aIndex: Integer): string;
 begin
   Result := fPaths[aIndex];
 end;
 
-procedure TPathManager.Clear;
+
+procedure TKMPathManager.Clear;
 begin
   fPaths.Clear;
 end;
 
-procedure TPathManager.AddPath(aBasePath, aSubPath: string);
+
+procedure TKMPathManager.AddPath(const aBasePath, aSubPath: string);
 var
   I: Integer;
   FileMask: string;
@@ -66,7 +71,7 @@ begin
 
   I := 0;
   repeat
-    FindFirst(SubFolders[I]+'*', faAnyFile, SearchRec);
+    FindFirst(SubFolders[I] + '*', faAnyFile, SearchRec);
     repeat
       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
         if (SearchRec.Attr and faDirectory = faDirectory) then
@@ -83,5 +88,6 @@ begin
     PathAdded := False;
   until (I >= SubFolders.Count);
 end;
+
 
 end.

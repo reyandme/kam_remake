@@ -2620,7 +2620,6 @@ begin
 end;
 
 
-
 procedure TKMControl.SetEnabled(aValue: Boolean);
 var
   OldEnabled: Boolean;
@@ -10053,7 +10052,6 @@ begin
 
   fMouseMoveSubsList.Add(aMouseMoveEvent)
 end;
-
 
 
 procedure TKMMasterControl.SetCtrlDown(aCtrl: TKMControl);

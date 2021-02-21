@@ -32,15 +32,15 @@ type
 
     function GetTileInfo(X, Y: Integer): TKMTilePreview;
     function GetPlayerInfo(aIndex: Byte): TKMHandPreview;
-    function LoadMapData(const aFileName: string): Boolean;
+    procedure LoadMapData(const aFileName: string);
   protected
-    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean; override;
+    procedure ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''); override;
   public
     property MapPreview[X, Y: Integer]: TKMTilePreview read GetTileInfo;
     property PlayerPreview[aIndex: Byte]: TKMHandPreview read GetPlayerInfo;
     property MapX: Integer read fMapX;
     property MapY: Integer read fMapY;
-    function LoadMission(const aFileName: string; const aRevealFor: array of TKMHandID): Boolean; reintroduce;
+    procedure LoadMission(const aFileName: string; const aRevealFor: array of TKMHandID); reintroduce;
   end;
 
 
@@ -67,17 +67,15 @@ end;
 
 
 //Load terrain data into liteweight structure, take only what we need for preview
-function TKMMissionParserPreview.LoadMapData(const aFileName: string): Boolean;
+procedure TKMMissionParserPreview.LoadMapData(const aFileName: string);
 var
   I: Integer;
   S: TKMemoryStream;
   TileBasic: TKMTerrainTileBasic;
   GameRev: Integer;
 begin
-  Result := False;
-
   if not FileExists(aFileName) then
-    Exit;
+    raise Exception.Create('Map file couldn''t be found');
 
   S := TKMemoryStreamBinary.Create;
   try
@@ -100,12 +98,10 @@ begin
   finally
     S.Free;
   end;
-
-  Result := True;
 end;
 
 
-function TKMMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean;
+procedure TKMMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = '');
 
   function PointInMap(X, Y: Integer): Boolean;
   begin
@@ -125,10 +121,7 @@ function TKMMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P: 
     Result := False;
     for I := 0 to Length(fRevealFor)-1 do
     if (fRevealFor[I] = aPlayerIndex) then
-    begin
-      Result := True;
-      Exit;
-    end;
+      Exit(True);
   end;
 
   procedure RevealCircle(X,Y,Radius: Word);
@@ -233,13 +226,11 @@ begin
                             RevealCircle(P[0]+1, P[1]+1, P[2]);
                         end;
   end;
-
-  Result := True;
 end;
 
 
 //We use custom mission loader for speed (compare only used commands)
-function TKMMissionParserPreview.LoadMission(const aFileName: string; const aRevealFor: array of TKMHandID): Boolean;
+procedure TKMMissionParserPreview.LoadMission(const aFileName: string; const aRevealFor: array of TKMHandID);
 const
   Commands: array [0..16] of AnsiString = (
     '!SET_MAP', '!SET_MAP_COLOR', '!SET_RGB_COLOR', '!SET_AI_PLAYER', '!SET_ADVANCED_AI_PLAYER', '!CENTER_SCREEN',
@@ -252,8 +243,6 @@ var
 begin
   inherited LoadMission(aFileName);
 
-  Result := False;
-
   SetLength(fRevealFor, Length(aRevealFor));
   for I := Low(aRevealFor) to High(aRevealFor) do
     fRevealFor[I] := aRevealFor[I];
@@ -264,16 +253,12 @@ begin
 
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then
-    Exit;
+    raise Exception.Create('Script is empty');
 
-  //We need to load map dimensions first, so that SetGroup could access map bounds
-  if not LoadMapData(ChangeFileExt(fMissionFileName, '.map')) then
-    Exit;
+  // We need to load map dimensions first, so that SetGroup could access map bounds
+  LoadMapData(ChangeFileExt(fMissionFileName, '.map'));
 
-  if not TokenizeScript(FileText, 6, Commands) then
-    Exit;
-
-  Result := (fFatalErrors = '');
+  TokenizeScript(FileText, 6, Commands);
 end;
 
 

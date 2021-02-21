@@ -27,11 +27,11 @@ type
     function GetConst(aIndex: Integer): TTextInfo;
     function GetText(aIndex: Integer): TStringArray;
 
-    procedure LoadConsts(aConstPath: string);
-    procedure LoadText(aTextPath: string; TranslationID: integer; aCodePage: Word; aLoadText: Boolean = false);
+    procedure LoadConsts(const aFileName: string);
+    procedure LoadLibx(const aFileName: string; TranslationID: integer; aCodePage: Word; aLoadText: Boolean = false);
+    procedure SaveConsts(const aFileName: string);
+    procedure SaveLibx(const aFileName: string; TranslationID: integer);
     procedure AddMissingConsts;
-    procedure SaveTextLibraryConsts(aFileName: string);
-    procedure SaveTranslation(aTextPath: string; TranslationID: integer);
     procedure SetConst(aIndex: Integer; const Value: TTextInfo);
   public
     procedure Load(const aTextPath, aConstPath: string);
@@ -80,7 +80,7 @@ begin
     LoadConsts(fConstPath);
 
   for I := 0 to gResLocales.Count - 1 do
-    LoadText(Format(fTextPath, [gResLocales[I].Code]), I, gResLocales[I].FontCodepage, true);
+    LoadLibx(Format(fTextPath, [gResLocales[I].Code]), I, gResLocales[I].FontCodepage, true);
 
   if fConstPath <> '' then
     AddMissingConsts;
@@ -92,10 +92,10 @@ var
   I: Integer;
 begin
   if fConstPath <> '' then
-    SaveTextLibraryConsts(fConstPath);
+    SaveConsts(fConstPath);
 
   for I := 0 to gResLocales.Count - 1 do
-    SaveTranslation(Format(fTextPath, [gResLocales[I].Code]), I);
+    SaveLibx(Format(fTextPath, [gResLocales[I].Code]), I);
 end;
 
 
@@ -155,14 +155,14 @@ begin
 end;
 
 
-procedure TTextManager.SaveTextLibraryConsts(aFileName: string);
+procedure TTextManager.SaveConsts(const aFilename: string);
 var
   myFile : TextFile;
   I: integer;
   s: string;
   DefLoc: Integer;
 begin
-  AssignFile(myFile, aFileName);
+  AssignFile(myFile, aFilename);
   ReWrite(myFile);
 
   DefLoc := gResLocales.IndexByCode(DEFAULT_LOCALE);
@@ -191,14 +191,14 @@ begin
 end;
 
 
-procedure TTextManager.LoadConsts(aConstPath: string);
+procedure TTextManager.LoadConsts(const aFilename: string);
 var
   SL: TStringList;
   Line: string;
   I, K, CenterPos, CommentPos: Integer;
 begin
   SL := TStringList.Create;
-  SL.LoadFromFile(aConstPath);
+  SL.LoadFromFile(aFilename);
 
   SetLength(fConsts, SL.Count);
 
@@ -234,17 +234,17 @@ begin
 end;
 
 
-procedure TTextManager.LoadText(aTextPath: string; TranslationID: Integer; aCodePage: Word; aLoadText: Boolean = false);
+procedure TTextManager.LoadLibx(const aFilename: string; TranslationID: Integer; aCodePage: Word; aLoadText: Boolean = false);
 var
   SL: TStringList;
   firstDelimiter, topId: Integer;
   I, ID: Integer;
   Line: string;
 begin
-  if not FileExists(aTextPath) then Exit;
+  if not FileExists(aFilename) then Exit;
 
   SL := TStringList.Create;
-  SL.Text := ReadTextU(aTextPath, aCodePage);
+  SL.Text := ReadTextU(aFilename, aCodePage);
 
   for I := SL.Count - 1 downto 0 do
   begin
@@ -284,7 +284,7 @@ begin
 end;
 
 
-procedure TTextManager.SaveTranslation(aTextPath: string; TranslationID: Integer);
+procedure TTextManager.SaveLibx(const aFilename: string; TranslationID: Integer);
 var
   SL: TStringList;
   I: Integer;
@@ -304,8 +304,8 @@ begin
   end;
 
   //Don't create blank files for unused translations
-  if (SL.Count > 0) or FileExists(aTextPath) then
-    SL.SaveToFile(aTextPath);
+  if (SL.Count > 0) or FileExists(aFilename) then
+    SL.SaveToFile(aFilename);
   SL.Free;
 end;
 

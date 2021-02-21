@@ -265,7 +265,6 @@ begin
       CheckBox_MakeSavePoints.OnClick := Change;
 
 
-
     //Replays section
     Panel_Options_Replays := TKMPanel.Create(Panel_Options,300,top,280,50);
     NextBlock(top, Panel_Options_Replays, -6);

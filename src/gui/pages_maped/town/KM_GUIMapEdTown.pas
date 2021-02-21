@@ -240,7 +240,6 @@ begin
 end;
 
 
-
 procedure TKMMapEdTown.UpdateStateIdle;
 begin
   fGuiHouses.UpdateStateIdle;

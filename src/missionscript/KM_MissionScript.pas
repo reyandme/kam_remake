@@ -151,17 +151,19 @@ type
   protected
     fMissionFileName: string;
     fLastHand: TKMHandID; //Current Player
-    fFatalErrors: string; //Fatal errors descriptions accumulate here
-    fMinorErrors: string; //Minor error descriptions accumulate here
+
+    // Fatal errors generate exceptions
+    // Minor error descriptions accumulate here
+    fMinorErrors: string;
+
     function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
     function ReadMissionFile(const aFileName: string): AnsiString;
-    function TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString): Boolean;
-    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''): Boolean; virtual; abstract;
-    procedure AddError(const ErrorMsg: string; aFatal: Boolean = False);
+    procedure TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString);
+    procedure ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''); virtual; abstract;
+    procedure AddError(const ErrorMsg: string);
   public
-    property FatalErrors: string read fFatalErrors;
     property MinorErrors: string read fMinorErrors;
-    function LoadMission(const aFileName: string): Boolean; overload; virtual;
+    procedure LoadMission(const aFileName: string); virtual;
   end;
 
 
@@ -171,12 +173,10 @@ uses
 
 
 { TMissionParserCommon }
-function TKMMissionParserCommon.LoadMission(const aFileName: string):boolean;
+procedure TKMMissionParserCommon.LoadMission(const aFileName: string);
 begin
   fMissionFileName := aFileName;
   fLastHand := -1;
-
-  Result := true;
 end;
 
 
@@ -207,11 +207,7 @@ var
   F: TMemoryStream;
 begin
   if not FileExists(aFileName) then
-  begin
-    AddError(Format('Mission file %s could not be found', [aFileName]), True);
-    Result := '';
-    Exit;
-  end;
+    raise Exception.Create(Format('Mission file %s could not be found', [aFileName]));
 
   //Load and decode .DAT file into FileText
   F := TMemoryStream.Create;
@@ -219,11 +215,7 @@ begin
     F.LoadFromFile(aFileName);
 
     if F.Size = 0 then
-    begin
-      AddError(Format('Mission file %s is empty', [aFileName]), True);
-      Result := '';
-      Exit;
-    end;
+      raise Exception.Create(Format('Mission file %s is empty', [aFileName]));
 
     //Detect whether mission is encoded so we can support decoded/encoded .DAT files
     //We can't test 1st char, it can be any. Instead see how often common chracters meet
@@ -266,7 +258,7 @@ begin
 end;
 
 
-function TKMMissionParserCommon.TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString): Boolean;
+procedure TKMMissionParserCommon.TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString);
 var
   CommandText, strParam, TextParam: AnsiString;
   ParamList: array of Integer;
@@ -275,14 +267,12 @@ var
   J: Integer;
   DoProcess: Boolean;
 begin
-  Result := False;
   SetLength(ParamList, aMaxCmd);
 
   I := 1;
   repeat
     if aText[I] = '!' then
     begin
-
       //Default uninitialized values
       TextParam := '';
       CommandText := '';
@@ -327,28 +317,21 @@ begin
             if (I <= Length(aText)) and (aText[I] = #32) then
               Inc(I);
           end;
-        //We now have command text and parameters, so process them
 
-        if not ProcessCommand(CommandType, ParamList, TextParam) then
-        //A returned value of false indicates an error has occoured and we should exit
-          Exit;
+        // We now have command text and parameters, so process them
+        ProcessCommand(CommandType, ParamList, TextParam);
       end;
     end
     else
       Inc(I);
   until (I >= Length(aText));
-
-  Result := True;
 end;
 
 
-//A nice way of debugging script errors.
-//Shows the error to the user so they know exactly what they did wrong.
-procedure TKMMissionParserCommon.AddError(const ErrorMsg: string; aFatal: Boolean = False);
+// A nice way of debugging script errors.
+// Shows the error to the user so they know exactly what they did wrong.
+procedure TKMMissionParserCommon.AddError(const ErrorMsg: string);
 begin
-  if aFatal then
-    fFatalErrors := fFatalErrors + ErrorMsg + '|'
-  else
     fMinorErrors := fMinorErrors + ErrorMsg + '|';
 end;
 

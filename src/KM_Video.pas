@@ -1,9 +1,6 @@
 unit KM_Video;
-
 {$I KaM_Remake.inc}
-
 interface
-
 uses
   SysUtils, SyncObjs, Types, Messages, Classes, Dialogs, KromOGLUtils, Generics.Collections
   {$IFDEF WDC} , UITypes {$ENDIF}
@@ -11,17 +8,13 @@ uses
   {$IFDEF VIDEOS} , KM_VLC {$ENDIF}
   ;
 
-{$IFDEF VIDEOS}
-const
-  VIDEOFILE_PATH = 'data' + PathDelim + 'gfx' + PathDelim + 'video' + PathDelim;
-
-{$ENDIF}
-
 type
   TKMVideoPlayerCallback = reference to procedure;
 
-  TKMVideoFileKind = (vfkNone,
-                      vfkStarting); //Game starting video
+  TKMVideoFileKind = (
+    vfkNone,
+    vfkStarting //Game starting video
+  );
 
   TKMVideoFile = record
     Path: string;
@@ -29,8 +22,12 @@ type
   end;
 
   TKMVideoPlayer = class
-  private
+  {$IFDEF VIDEOS}
+  private const
+    VIDEOFILE_PATH = 'data' + PathDelim + 'gfx' + PathDelim + 'video' + PathDelim;
+  {$ENDIF}
 {$IFDEF VIDEOS}
+  private
     FCriticalSection: TCriticalSection;
 
     FBuffer: array of Byte;
@@ -117,9 +114,9 @@ end;
 {$ENDIF}
 
 { TKMVideoPlayer }
-
 constructor TKMVideoPlayer.Create;
 begin
+  inherited;
 {$IFDEF VIDEOS}
   FIndex := 0;
   FTexture.U := 1;

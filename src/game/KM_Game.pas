@@ -472,7 +472,7 @@ begin
 end;
 
 
-//New mission
+// New mission
 procedure TKMGame.Start(const aMissionFile, aName: UnicodeString; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
                             aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal;
                             aMapDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone;
@@ -554,8 +554,8 @@ begin
 
   parser := TKMMissionParserStandard.Create(parseMode, playerEnabled);
   try
-    if not parser.LoadMission(aMissionFile) then
-      raise Exception.Create(parser.FatalErrors);
+    // Any fatal errors in parsing will be raised as exceptions and caught up higher
+    parser.LoadMission(aMissionFile);
 
     if fParams.IsMapEditor then
     begin
@@ -976,13 +976,11 @@ end;
 
 {$IFDEF USE_MAD_EXCEPT}
 procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; const aZipFile: UnicodeString);
-
   procedure AttachFile(const aFile: UnicodeString);
   begin
-    if (aFile = '') or not FileExists(aFile) then Exit;
-    ExceptIntf.AdditionalAttachments.Add(aFile, '', aZipFile);
+    if (aFile <> '') and FileExists(aFile) then
+      ExceptIntf.AdditionalAttachments.Add(aFile, '', aZipFile);
   end;
-
 var
   I: Integer;
   missionFile, path: UnicodeString;
@@ -990,7 +988,7 @@ var
 begin
   gLog.AddTime('Creating crash report...');
 
-  //Attempt to save the game, but if the state is too messed up it might fail
+  // Attempt to save the game, but if the state is too messed up it might fail
   fSaveWorkerThread.fSynchronousExceptionMode := True; //Do saving synchronously in main thread
   try
     if (fParams.Mode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate])
@@ -1014,10 +1012,11 @@ begin
   missionFile := fParams.MissionFile;
   path := ExtractFilePath(ExeDir + missionFile);
 
+  // Try to attach the dat+map
   AttachFile(ExeDir + missionFile);
-  AttachFile(ExeDir + ChangeFileExt(missionFile, '.map')); //Try to attach the map
+  AttachFile(ExeDir + ChangeFileExt(missionFile, '.map'));
 
-  //Try to add main script file and all other scripts, because they could be included
+  // Try to add main script file and all other scripts, because they could be included
   if FileExists(ExeDir + ChangeFileExt(missionFile, '.script')) then
   begin
     FindFirst(path + '*.script', faAnyFile - faDirectory, searchRec);
@@ -1030,6 +1029,8 @@ begin
       FindClose(searchRec);
     end;
   end;
+
+  //@Rey: I found it might be helpful to also attach the fSaveFile (savegame from which the game was loaded and crashed)
 
   if fParams.IsReplay or (fGamePlayInterface.UIMode = umReplay) then //In case game mode was altered or loaded with logical error
   begin

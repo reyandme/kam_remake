@@ -10,7 +10,6 @@ uses
   KM_RandomMapGenerator;
 
 type
-
   TKMRMGCallback = procedure() of object;
 
   TKMMapEdRMG = class
@@ -71,14 +70,13 @@ type
   end;
 
 
-
 implementation
 uses
   KM_RenderUI, KM_ResTexts, KM_ResFonts,
   KM_Terrain, KM_Game, KM_GameTypes;
 
 
-{ TKMGUIMapEdGoal }
+{ TKMMapEdRMG }
 constructor TKMMapEdRMG.Create(aParent: TKMPanel; aMinimap: TKMMinimap = nil; aMP: Boolean = False);
   procedure SetDebugSettings();
   begin

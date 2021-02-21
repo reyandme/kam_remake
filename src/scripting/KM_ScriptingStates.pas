@@ -817,7 +817,6 @@ begin
 end;
 
 
-
 //* Version: 6323
 //* How many defence positions AI player has.
 //* Useful for scripts like "if not enough positions and too much groups then add a new position"
@@ -897,7 +896,6 @@ begin
     raise;
   end;
 end;
-
 
 
 //* Version: 11000
@@ -2630,7 +2628,6 @@ begin
 end;
 
 
-
 //* Version: 7000+
 //* Returns true if the specified player has a field plan (ftWine) at the specified location.
 //* If aPlayer index is -1 it will return true if any player has winefield plan at the specified location.
@@ -2750,7 +2747,6 @@ begin
     raise;
   end;
 end;
-
 
 
 //* Version: 7000+

@@ -361,8 +361,6 @@ type
   end;
 
 
-
-
 implementation
 uses
   TypInfo, SysUtils, Math, KromUtils,
@@ -1719,7 +1717,6 @@ function TKMHouse.GetResInLocked(aI: Byte): Word;
 begin
   Result := 0; //By default we do not lock any In res
 end;
-
 
 
 procedure TKMHouse.SetResIn(aI: Byte; aValue: Word);

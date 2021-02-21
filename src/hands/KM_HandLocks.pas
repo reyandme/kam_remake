@@ -8,7 +8,7 @@ uses
 
 
 type
-  // Permissions
+  // Permissions to build, trade and train
   TKMHandLocks = class
   private
     fHouseUnlocked: array [TKMHouseType] of Boolean; //If building requirements performed

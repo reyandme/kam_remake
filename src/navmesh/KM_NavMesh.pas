@@ -2,7 +2,6 @@ unit KM_NavMesh;
 {$I KaM_Remake.inc}
 interface
 uses
-
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, Contnrs,
   KM_NavMeshDefences,
   KromUtils, KM_CommonUtils,
@@ -10,9 +9,8 @@ uses
 
 
 type
-
-  //NavMesh is used to acess the map on a higher level than tiles
-  //terrain is represented as a mesh interconnected polygons
+  // NavMesh is used to acess the map on a higher level than tiles
+  // terrain is represented as a mesh of interconnected polygons
   TKMNavMesh = class
   private
     fMapX, fMapY: Word;               // Limits of arrays

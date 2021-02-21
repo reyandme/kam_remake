@@ -26,7 +26,6 @@ type
     fGameSettings: TKMGameSettings;
     fKeysSettings: TKMKeysSettings;
     fServerSettings: TKMServerSettings;
-    fMusic: TKMMusicLib;
     fNetworking: TKMNetworking;
     fTimerUI: TTimer;
     fMainMenuInterface: TKMMainMenuInterface;
@@ -116,7 +115,6 @@ type
     function Game: TKMGame;
     property GameSettings: TKMGameSettings read GetGameSettings;
     property MainMenuInterface: TKMMainMenuInterface read fMainMenuInterface;
-    property Music: TKMMusicLib read fMusic;
     property Networking: TKMNetworking read fNetworking;
     property GlobalTickCount: Cardinal read fGlobalTickCount;
     property Chat: TKMChat read fChat;
@@ -202,9 +200,9 @@ begin
     MessageDlg(gResTexts[TX_GAME_ERROR_OLD_OPENGL] + EolW + EolW + gResTexts[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
   gSoundPlayer  := TKMSoundPlayer.Create(fGameSettings.SoundFXVolume);
-  fMusic     := TKMMusicLib.Create(fGameSettings.MusicVolume);
-  gSoundPlayer.OnRequestFade   := fMusic.Fade;
-  gSoundPlayer.OnRequestUnfade := fMusic.Unfade;
+  gMusic     := TKMMusicLib.Create(fGameSettings.MusicVolume);
+  gSoundPlayer.OnRequestFade   := gMusic.Fade;
+  gSoundPlayer.OnRequestUnfade := gMusic.Unfade;
 
   fCampaigns    := TKMCampaignsCollection.Create;
   fCampaigns.Load;
@@ -219,9 +217,9 @@ begin
 
   //Start the Music playback as soon as loading is complete
   if (not NoMusic) and not fGameSettings.MusicOff then
-    fMusic.PlayMenuTrack;
+    gMusic.PlayMenuTrack;
 
-  fMusic.ToggleShuffle(fGameSettings.ShuffleOn); //Determine track order
+  gMusic.ToggleShuffle(fGameSettings.ShuffleOn); //Determine track order
 
   fSaveWorkerThread := TKMWorkerThread.Create('SaveWorker');
   fAutoSaveWorkerThread := TKMWorkerThread.Create('AutoSaveWorker');
@@ -252,8 +250,8 @@ begin
   //Doing so causes a 2nd exception which overrides 1st. Hence check <> nil on everything except Free (TObject.Free does that already)
 
   if fTimerUI <> nil then fTimerUI.Enabled := False;
-  //Stop music imediently, so it doesn't keep playing and jerk while things closes
-  if fMusic <> nil then fMusic.Stop;
+  // Stop music immediately, so it doesn't keep playing and jerk while things get destroyed
+  if gMusic <> nil then gMusic.Stop;
 
   StopGame(grSilent);
 
@@ -271,7 +269,7 @@ begin
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(gRes);
   FreeThenNil(gSoundPlayer);
-  FreeThenNil(fMusic);
+  FreeThenNil(gMusic);
   FreeAndNil(fNetworking);
   FreeAndNil(gRandomCheckLogger);
   FreeAndNil(gGameCursor);
@@ -1196,7 +1194,8 @@ begin
     gPerfLogs.StackGFX.FrameEnd;
   end;
 
-  gPerfLogs.Render(TOOLBAR_WIDTH + 10, gMain.FormMain.RenderArea.Width - 10, gMain.FormMain.RenderArea.Height - 10);
+  if gMain <> nil then
+    gPerfLogs.Render(TOOLBAR_WIDTH + 10, gMain.FormMain.RenderArea.Width - 10, gMain.FormMain.RenderArea.Height - 10);
   {$ENDIF}
 
   gRender.EndFrame;
@@ -1265,9 +1264,9 @@ begin
   //Every 1000ms
   if fGlobalTickCount mod 10 = 0 then
   begin
-    //Music
-    if not fGameSettings.MusicOff and fMusic.IsEnded then
-      fMusic.PlayNextTrack; //Feed new music track
+    // Music
+    if not fGameSettings.MusicOff and gMusic.IsEnded then
+      gMusic.PlayNextTrack; //Feed new music track
 
     //StatusBar
     if (gGame <> nil) and not gGame.IsPaused and Assigned(fOnCursorUpdate) then
@@ -1282,11 +1281,11 @@ begin
 end;
 
 
-//This is our real-time "thread", use it wisely
+// This is our real-time "thread", use it wisely
 procedure TKMGameApp.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   if gGame <> nil then gGame.UpdateStateIdle(aFrameTime);
-  if fMusic <> nil then fMusic.UpdateStateIdle;
+  if gMusic <> nil then gMusic.UpdateStateIdle;
   if gSoundPlayer <> nil then gSoundPlayer.UpdateStateIdle;
   if fNetworking <> nil then fNetworking.UpdateStateIdle;
   if gRes <> nil then gRes.UpdateStateIdle;

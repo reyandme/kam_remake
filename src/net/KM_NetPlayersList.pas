@@ -264,7 +264,6 @@ begin
 end;
 
 
-
 function TKMNetPlayerInfo.IsClassicComputer: Boolean;
 begin
   Result := PlayerNetType = nptComputerClassic;

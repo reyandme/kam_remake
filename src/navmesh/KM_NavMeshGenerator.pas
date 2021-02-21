@@ -21,7 +21,6 @@ const
 
 
 type
-
   TKMNavMeshByteArray = array[-1..257,-1..257] of Byte;
 
   // Borders
@@ -108,11 +107,10 @@ type
 implementation
 uses
   SysUtils, Math,
-  KM_Terrain,
   {$IFDEF DEBUG_NavMesh}
   KM_RenderAux,
   {$ENDIF}
-  Dialogs;
+  KM_Terrain;
 
 
 const
@@ -286,8 +284,6 @@ begin
       Result := True;
   end;
 end;
-
-
 
 
 function TKMNavMeshGenerator.ExtractNodes(): TKMNavMeshByteArray;
@@ -573,8 +569,6 @@ begin
 end;
 
 
-
-
 procedure TKMNavMeshGenerator.AddInnerNodes(var aW: TKMNavMeshByteArray);
 var
   E: TKMNavMeshByteArray;
@@ -620,8 +614,6 @@ begin
   for Y := Y to High(fIdxArr) do
     fIdxArr[Y] := fInnerPointEndIdx;
 end;
-
-
 
 
 procedure TKMNavMeshGenerator.PolygonTriangulation();
@@ -751,7 +743,7 @@ var
         AddPolygon(PPoly3, PPoly2);
         PPoly3^.Next := PPoly1;
         Dispose(PPoly2); // Remove verticle from memory
-        TryConnect( ifthen(aLeftDirection, PPoly1^.Node, PPoly3^.Node), aLineIdx, aLeftDirection, aBorderPoly, aCloseArea)
+        TryConnect( IfThen(aLeftDirection, PPoly1^.Node, PPoly3^.Node), aLineIdx, aLeftDirection, aBorderPoly, aCloseArea)
       end;
     end;
   end;
@@ -919,7 +911,7 @@ var
     PPrevLine, PActLine: PPolyLine;
   begin
     // Find relative position of point in stack
-    Point := fNodes[ ifthen(aBorder, fBord.Borders[aIdx].Node, aIdx) ];
+    Point := fNodes[ IfThen(aBorder, fBord.Borders[aIdx].Node, aIdx) ];
     PPrevLine := nil;
     PActLine := LineArray[aLineIdx]^.FirstLine;
     repeat
@@ -952,7 +944,7 @@ var
     Point, LeftP, FutureLeftP, RightP, FutureRightP: TKMPoint;
   begin
     Inserted := False;
-    Point := fNodes[ ifthen(aBorder, fBord.Borders[aIdx].Node, aIdx) ];
+    Point := fNodes[ IfThen(aBorder, fBord.Borders[aIdx].Node, aIdx) ];
     // Check position of point in area
     for I := 0 to LineArrayCnt - 1 do
     begin
@@ -1030,8 +1022,6 @@ begin
   while (LineArrayCnt > 0) do
     DisposeArea(LineArrayCnt - 1);
 end;
-
-
 
 
 // Polygon optimalization
@@ -1184,8 +1174,6 @@ begin
     if not Chck[ActIdx] then
         BeautifyPoly(ActIdx);
 end;
-
-
 
 
 function TKMNavMeshGenerator.Paint(const aRect: TKMRect): Boolean;

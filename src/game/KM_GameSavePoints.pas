@@ -13,7 +13,7 @@ type
     // Opened spectator menu, viewports position etc...
   public
     constructor Create(aStream: TKMemoryStream; aTick: Cardinal);
-    destructor Destroy(); override;
+    destructor Destroy; override;
 
     property Stream: TKMemoryStream read fStream;
     property Tick: Cardinal read fTick;
@@ -21,20 +21,20 @@ type
 
   TKMSavePointCollection = class
   private
-    fAsyncSaveThreadsCnt: Byte; //Number of threads doing save atm. Usually should be not more then 1
+    fAsyncSaveThreadsCnt: Byte; //Number of threads doing save atm. Usually should be not more than 1
     fWaitCS: TCriticalSection;
     fSaveCS: TCriticalSection;
     fSavePoints: TDictionary<Cardinal, TKMSavePoint>;
     //Properties to restore after load saved replay
     fLastTick: Cardinal;
 
-    function GetCount(): Integer;
+    function GetCount: Integer;
     function GetSavePoint(aTick: Cardinal): TKMSavePoint;
     function GetStream(aTick: Cardinal): TKMemoryStream;
     function GetLastTick: Cardinal;
     procedure SetLastTick(const aLastTick: Cardinal);
   public
-    constructor Create();
+    constructor Create;
     destructor Destroy; override;
 
     property LastTick: Cardinal read GetLastTick write SetLastTick;
@@ -60,23 +60,25 @@ type
     procedure LoadFromFile(const aFileName: UnicodeString);
   end;
 
+
 implementation
 uses
   SysUtils, Classes;
 
-{ TKMSavedReplays }
-constructor TKMSavePointCollection.Create();
+  
+{ TKMSavePointCollection }
+constructor TKMSavePointCollection.Create;
 begin
   inherited;
 
   fSaveCS := TCriticalSection.Create;
   fWaitCS := TCriticalSection.Create;
-  fSavePoints := TDictionary<Cardinal, TKMSavePoint>.Create();
+  fSavePoints := TDictionary<Cardinal, TKMSavePoint>.Create;
   fLastTick := 0;
 end;
 
 
-destructor TKMSavePointCollection.Destroy();
+destructor TKMSavePointCollection.Destroy;
 begin
   {$IFDEF WDC}
   // Wait till all threads release waitLock
@@ -107,7 +109,7 @@ begin
 end;
 
 
-function TKMSavePointCollection.GetCount(): Integer;
+function TKMSavePointCollection.GetCount: Integer;
 begin
   if Self = nil then Exit(0);
 
@@ -221,7 +223,7 @@ begin
 
   Lock;
   try
-    if not fSavePoints.ContainsKey(aTick) then // Check if we don't have same tick save here too, since we work in multithread enviroment
+    if not fSavePoints.ContainsKey(aTick) then // Check if we don't have same tick save here too, since we work in multithread environment
       fSavePoints.Add(aTick, TKMSavePoint.Create(aStream, aTick));
   finally
     Unlock;
@@ -405,7 +407,7 @@ begin
 end;
 
 
-destructor TKMSavePoint.Destroy();
+destructor TKMSavePoint.Destroy;
 begin
   fStream.Free;
 

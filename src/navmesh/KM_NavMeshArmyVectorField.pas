@@ -12,7 +12,6 @@ uses
   KM_NavMeshFloodFill, KM_ArmyAttackNew;
 
 type
-
   TKMCombatStatus = (csNeutral = 0, csDefending, csAttackingCity, csAttackingEverything);
   TKMCombatStatusArray = array[0..MAX_HANDS] of TKMCombatStatus;
 
@@ -166,8 +165,6 @@ uses
   KM_ResTypes;
 
 
-
-
 procedure DrawPolygon(aIdx: Integer; aOpacity: Byte; aFillColor: Cardinal; aOffset: Single = 0; aText: String = '');
 var
   P0,P1,P2: TKMPoint;
@@ -184,8 +181,6 @@ begin
       gRenderAux.Text(Polygons[aIdx].CenterPoint.X, Polygons[aIdx].CenterPoint.Y + aOffset, aText, $FFFFFFFF);
   end;
 end;
-
-
 
 
 { TKMFindClusters }
@@ -737,7 +732,7 @@ begin
             Pf.Y := Pf.Y + Position.Y * Count;
           end;
       if (SoldiersCnt = 0) then
-        continue;
+        Continue;
       P := KMPoint(  Round(Pf.X / SoldiersCnt), Round(Pf.Y / SoldiersCnt)  );
       // Target = city (clusters with houses) OR every cluster if there are no houses
       for K := Low(CCT) to High(CCT) do
@@ -879,7 +874,7 @@ procedure TArmyVectorField.FindPositions();
         PolyIdx := Ally.GroupsPoly[ Groups[K].Idx ];
         InitP := gAIFields.NavMesh.Polygons[PolyIdx].CenterPoint;
         if not IsVisited(PolyIdx) then
-          continue;
+          Continue;
 
         Distance := 0;
         for L := 0 to 10 do
@@ -1351,6 +1346,7 @@ begin
   end;
   {$ENDIF}
 end;
+
 
 end.
 

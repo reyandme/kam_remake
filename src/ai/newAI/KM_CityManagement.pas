@@ -370,7 +370,7 @@ begin
     begin
       Schools[cnt] := TKMHouseSchool(P.Houses[K]);
       if GoldShortage AND (Schools[cnt].CheckResIn(wtGold) = 0) then // Ignore empty schools when we are out of gold
-        continue;
+        Continue;
       for L := Schools[cnt].QueueLength - 1 downto 0 do
         if (Schools[cnt].Queue[L] <> utNone) then
         begin
@@ -767,13 +767,13 @@ var
     // Compute strength of specific enemy group
     with EnemyEval.Groups[aGT] do
       EnemyStrength := (Attack + AttackHorse * Byte(antiGT = gtMounted))
-                        * ifthen( (antiGT = gtRanged), DefenceProjectiles, Defence )
+                        * IfThen( (antiGT = gtRanged), DefenceProjectiles, Defence )
                         * HitPoints;
 
     // Decrease strength by owner's existing units
     with AllyEval.Groups[antiGT] do
       EnemyStrength := Max(0, EnemyStrength - (Attack + AttackHorse * Byte(aGT = gtMounted))
-                                               * ifthen( (aGT = gtRanged), DefenceProjectiles, Defence )
+                                               * IfThen( (aGT = gtRanged), DefenceProjectiles, Defence )
                                                * HitPoints);
 
     // Compute unit requirements
@@ -782,18 +782,18 @@ var
       UT := AI_TROOP_TRAIN_ORDER[antiGT,I];
       // Skip unit type in case that it is blocked
       if (UT = utNone) OR gHands[fOwner].Locks.GetUnitBlocked(UT) then
-        continue;
+        Continue;
       // Calculate required count of specific unit type
       UnitEval := gAIFields.Eye.ArmyEvaluation.UnitEvaluation(UT, True);
       with UnitEval do
         UnitStrength := Max(0, Attack + AttackHorse * Byte(aGT = gtMounted)
-                               * ifthen( (aGT = gtRanged), DefenceProjectiles, Defence )
+                               * IfThen( (aGT = gtRanged), DefenceProjectiles, Defence )
                                * HitPoints);
 
-      UnitsRequired := Power(EnemyStrength / UnitStrength, 1/3) * ifthen( (I = 1), aIronRatio, 1-aIronRatio );
+      UnitsRequired := Power(EnemyStrength / UnitStrength, 1/3) * IfThen( (I = 1), aIronRatio, 1-aIronRatio );
       fWarriorsDemands[UT] := fWarriorsDemands[UT] + Max(0, Round(UnitsRequired)   );
       if (I = 2) then // In case that utAxeFighter is not blocked skip militia
-        break;
+        Break;
     end;
   end;
 
@@ -986,7 +986,7 @@ begin
     // Check house cnt
     HouseCnt := gHands[fOwner].Stats.GetHouseQty(HT);
     if (HouseCnt = 0) then
-      continue;
+      Continue;
     // Find produced ware which is the most required
     MostRequired := 1.0;
     MaxWT := wtNone;
@@ -1007,7 +1007,7 @@ begin
         begin
           H := gHands[fOwner].Houses[I];
           if (H.HouseType <> HT) then
-            continue;
+            Continue;
           for K := 1 to 4 do
             H.ResOrder[K] := 0;
           H.ResOrder[MaxIdx] := WEAPONS_PER_A_UPDATE; // With update each 1-2 minutes there is not need to calculate something more
@@ -1019,7 +1019,7 @@ begin
               if (WT = wtArmor) then
               begin
                 H.ResOrder[K] := 10;
-                break;
+                Break;
               end;
             end;
           end;
@@ -1050,6 +1050,7 @@ begin
                         +COLOR_YELLOW+'%.2f'+COLOR_WHITE+')|', [Available, Required, Fraction]
                       );
 end;
+
 
 end.
 

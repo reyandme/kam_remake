@@ -5,7 +5,6 @@ uses
   KM_PolySimplify,
   KM_CommonTypes;
 
-
   //Procedure that converts 2D Byte array into outlines
   //aMap:   Values are 0/1,
   //        Note that procedure stores internal data in same array as 255

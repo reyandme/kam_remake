@@ -94,7 +94,6 @@ type
 
 
   TBackwardFF = class(TNavMeshFloodFill)
-  private
   protected
     fDefLinesRequired: Boolean;
     fOwner: TKMHandID;
@@ -135,7 +134,6 @@ type
   private
     fPolyCnt: Word;
     fBestDefLines, fAllDefLines: TKMDefenceLines;
-
   protected
     procedure InitQueue(aMaxIdx: Integer; aInitIdxArray: TKMWordArray); reintroduce;
     function IsVisited(const aIdx: Word): Boolean; override;
@@ -173,8 +171,6 @@ uses
   DateUtils,
   {$ENDIF}
   KM_AIFields, KM_AIInfluences, KM_NavMesh, KM_RenderAux;
-
-
 
 
 { TForwardFF }
@@ -409,8 +405,6 @@ begin
     fDebugDefPolyCnt := fDebugCounter;
   {$ENDIF}
 end;
-
-
 
 
 { TBackwardFF }
@@ -937,8 +931,6 @@ begin
 end;
 
 
-
-
 { TFilterFF }
 function TFilterFF.IsPolyInsideDef(aIdx: Word): Boolean;
 begin
@@ -1067,9 +1059,9 @@ begin
       begin
         for K := Low(aPLDefAreas) to High(aPLDefAreas) do
           if (aPLDefAreas[K] = VisitMark-1) then // fVisitedIdx starts with number 1, first player in array have 0 => decrease it
-            continue;
+            Continue;
         AddPLDefArea(VisitMark);
-        continue;
+        Continue;
       end;
       inherited InitQueue(0, StartPolygon); // Fill new defence area
     end;

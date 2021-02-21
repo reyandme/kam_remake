@@ -1536,7 +1536,6 @@ begin
 end;
 
 
-
 function TKMTerrain.TileHasTerrainKindPart(X, Y: Word; aTerKind: TKMTerrainKind; aDir: TKMDirection): Boolean;
 var
   cornersTKinds: TKMTerrainKindCorners;
@@ -4174,7 +4173,7 @@ begin
   //As we Cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
   for I := 0 to testDepth do begin
     P := GetPositionFromIndex(TargetLoc, I);
-    if not TileInMapCoords(P.X,P.Y) then continue;
+    if not TileInMapCoords(P.X,P.Y) then Continue;
     T := KMPoint(P.X,P.Y);
     if CheckPassability(T, aPass)
       and (walkConnectID = Land[T.Y,T.X].WalkConnect[wcType])
@@ -4999,7 +4998,6 @@ begin
   tmp2 := Mix(Land[Min(Yc+2, fMapY), Min(Xc+2, fMapX)].RenderHeight, Land[Min(Yc+2, fMapY), Xc+1].RenderHeight, Frac(inX));
   Result := inY - Mix(tmp2, tmp1, Frac(inY)) / CELL_HEIGHT_DIV;
 end;
-
 
 
 //Convert point from flat position to height position on terrain

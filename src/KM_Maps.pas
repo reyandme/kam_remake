@@ -749,7 +749,6 @@ begin
 end;
 
 
-
 function TKMapInfo.IsSinglePlayer: Boolean;
 begin
   Result := fMapFolder = mfSP;
@@ -1145,7 +1144,6 @@ function TKMMapTxtInfo.IsSmallDescLibxSet: Boolean;
 begin
   Result := SmallDescLibx <> -1;
 end;
-
 
 
 function TKMMapTxtInfo.IsBigDescLibxSet: Boolean;

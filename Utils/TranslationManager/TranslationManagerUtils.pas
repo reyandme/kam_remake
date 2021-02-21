@@ -1,9 +1,10 @@
 unit TranslationManagerUtils;
 {$I ..\..\KaM_Remake.inc}
-
 interface
 
+
 	function GetWorkDir(aShowWarningMess: Boolean = False): UnicodeString;
+
 
 implementation
 uses
@@ -11,31 +12,32 @@ uses
 
 
 function GetWorkDir(aShowWarningMess: Boolean = False): UnicodeString;
+const
+  TGT_FILE_NAME = 'data\locales.txt';
 var
   ExeDir, ProjectDir, WorkDir: UnicodeString;
 begin
   Result := '';
-	ExeDir := ExtractFilePath(ParamStr(0)); //if starts from kam_remake folder
-  WorkDir := ExeDir + '..\'; // If starts from kam_remake/Utils
-  ProjectDir := ExeDir + '..\..\'; //If start TranslationManager from kam_remake/Utils/TranslationManager folder
 
-  if not FileExists(WorkDir + 'data\locales.txt') then
-  begin
-    if FileExists(ExeDir + 'data\locales.txt') then
-      WorkDir := ExeDir //If start TranslationManager from KMR folder
-    else
-    if FileExists(ProjectDir + 'data\locales.txt') then
-      WorkDir := ProjectDir
-    else
-    begin
-      if aShowWarningMess then
-        ShowMessage('Can''t find locales.txt file at destinations:' + #13#10
-          + ExeDir + 'data\locales.txt' + #13#10
-          + WorkDir + 'data\locales.txt');
-      Exit;
-    end;
-  end;
-  Result := WorkDir;
+  WorkDir := ExeDir + '..\'; // Starting from kam_remake/Utils
+	ExeDir := ExtractFilePath(ParamStr(0)); // Starting from kam_remake folder
+  ProjectDir := ExeDir + '..\..\'; // Starting from kam_remake/Utils/TranslationManager folder
+
+  if FileExists(WorkDir + TGT_FILE_NAME) then
+    Exit(WorkDir);
+
+  if FileExists(ExeDir + TGT_FILE_NAME) then
+    Exit(ExeDir);
+
+  if FileExists(ProjectDir + TGT_FILE_NAME) then
+    Exit(ProjectDir);
+
+   if aShowWarningMess then
+     ShowMessage(
+      'Can''t find locales.txt file at destinations:' + sLineBreak +
+       ExpandFileName(WorkDir) + TGT_FILE_NAME + sLineBreak +
+       ExpandFileName(ExeDir) + TGT_FILE_NAME + sLineBreak +
+       ExpandFileName(ProjectDir) + TGT_FILE_NAME);
 end;
 
 

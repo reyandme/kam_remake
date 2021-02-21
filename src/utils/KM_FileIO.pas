@@ -55,9 +55,9 @@ var
 begin
   MS := TMemoryStream.Create;
   try
-    //We can't rely on StringList because it applies default codepage encoding,
-    //which may differ between MP players.
-    //Instead we read plain ansi text. If there's BOM - clip it
+    // We can't rely on StringList because it applies default codepage encoding,
+    // which may differ between MP players.
+    // Instead we read plain ANSI text. If there's BOM - clip it
     MS.LoadFromFile(aFileName);
 
     MS.Read(Head, 4);

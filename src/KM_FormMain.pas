@@ -1463,7 +1463,7 @@ begin
     and not (Sender is TEdit) then // TSpinEdit need focus to enter value
     ActiveControl := nil; //Do not allow to focus on anything on debug panel
 
-  if Assigned (fOnControlsUpdated) and (Sender is TControl) then
+  if Assigned(fOnControlsUpdated) and (Sender is TControl) then
     fOnControlsUpdated(Sender, TControl(Sender).Tag);
 
   SaveDevSettings;

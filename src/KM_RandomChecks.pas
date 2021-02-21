@@ -76,7 +76,6 @@ var
   gRandomCheckLogger: TKMRandomCheckLogger;
 
 
-
 implementation
 uses
   Math,
@@ -155,6 +154,7 @@ begin
   AddRecordToList(fGameTick, rec);
 end;
 
+
 procedure TKMRandomCheckLogger.AddToLog(const aCaller: AnsiString; aValue: Single; aSeed: Integer);
 var
   rec: TKMRngLogRecord;
@@ -168,6 +168,7 @@ begin
 
   AddRecordToList(fGameTick, rec);
 end;
+
 
 procedure TKMRandomCheckLogger.AddToLog(const aCaller: AnsiString; aValue: Extended; aSeed: Integer);
 var
@@ -198,7 +199,6 @@ begin
 
   list.Add(aRec);
 end;
-
 
 
 procedure TKMRandomCheckLogger.AddRecordToList(aTick: Cardinal; const aRec: TKMRngLogRecord);
@@ -371,6 +371,7 @@ var
 
   procedure ClearLogRec;
   begin
+    //@Rey: Consider using LogRec := default(TKMRngLogRecord);
     LogRec.ValueI := 0;
     LogRec.ValueS := 0;
     LogRec.ValueE := 0;

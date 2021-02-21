@@ -120,7 +120,6 @@ begin
 end;
 
 
-
 { TKMListUnique<T> }
 function TKMListUnique<T>.Add(const Value: T): Integer;
 begin
@@ -169,7 +168,6 @@ begin
   end;
   Assert(False, 'Error getting weighted random');
 end;
-
 
 
 end.

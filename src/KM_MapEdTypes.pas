@@ -55,7 +55,6 @@ type
 implementation
 
 
-
 { TKMTerrainLayerPacked }
 procedure TKMTerrainLayerPacked.PackRotNCorners(aRotation: Byte; aCorners: Byte);
 begin

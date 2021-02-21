@@ -1239,7 +1239,7 @@ var
         break;
       HT := PRODUCTION_WARE2HOUSE[ WareOrder[K] ];
       if (RequiredHouses[HT] <= 0) then // wtLeather and wtPig require the same building so avoid to place 2 houses at once
-        continue;
+        Continue;
       // Farms and wineyards should be placed ASAP because fields may change evaluation of terrain and change tpBuild status of surrouding tiles!
       case AddToConstruction(HT, HT in [htFarm, htWineyard], False) of
         csNoNodeAvailable: break;
@@ -1250,7 +1250,7 @@ var
           MaxPlans := MaxPlans - 1;
           MaxPlace := MaxPlace - 1;
           if (MaxPlans <= 0) then
-            break;
+            Break;
         end;
         csNoPlaceCanBeFound:
         begin
@@ -1471,8 +1471,6 @@ begin
 end;
 
 
-
-
 procedure TKMCityBuilder.CreateShortcuts();
 const
   MAX_SHORTCUTS_PER_HOUSE_TYPE = 2;
@@ -1519,7 +1517,7 @@ const
     for HT := Low(fPlanner.PlannedHouses) to High(fPlanner.PlannedHouses) do
     begin
       if (HT = htWoodcutters) then
-        continue;
+        Continue;
       with fPlanner.PlannedHouses[HT] do
         for K := 0 to Count - 1 do
           if Plans[K].Placed AND not Plans[K].ShortcutsCompleted then
@@ -1623,7 +1621,7 @@ begin
     for HT in HOUSE_CONNECTION[BaseHT] do
     begin
       if (HT = htNone) then
-        break;
+        Break;
 
       Locs.Clear();
       for L := 0 to PlannedHouses[HT].Count - 1 do
@@ -1639,7 +1637,7 @@ begin
       for HT := Low(PlannedHouses) to High(PlannedHouses) do
       begin
         if (HT = htWoodcutters) then
-          continue;
+          Continue;
         for K := 0 to PlannedHouses[HT].Count - 1 do
           with PlannedHouses[HT].Plans[K] do
             if Placed then
@@ -1764,9 +1762,6 @@ end;
 
 
 {
-
-
-
 // Remove units when is game in GA mode (avoid to place houses at unit)
 if GA_PLANNER then
   for I := 0 to gHands[fOwner].Units.Count - 1 do

@@ -152,7 +152,6 @@ begin
       CheckBox_BlockFullMapPreview.Hint := gResTexts[TX_MAPED_MISSION_BLOCK_FULL_MAP_PREVIEW_HINT];
 
 
-
     Inc(Top, 90);
     with TKMLabel.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 20, gResTexts[TX_MAPED_MISSION_DIFFICULTY_LEVELS], fntOutline, taLeft) do
       Hint := gResTexts[TX_MAPED_MISSION_DIFFICULTY_LEVELS_HINT];

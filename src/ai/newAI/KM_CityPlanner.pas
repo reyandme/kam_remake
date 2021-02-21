@@ -227,7 +227,6 @@ uses
   KM_RenderAux, KM_ResMapElements;
 
 
-
 { Procedural functions }
 function CompareForests(const aElem1, aElem2): Integer;
 var
@@ -238,7 +237,6 @@ begin
   else if (val1.Bid < val2.Bid) then Result := -1
   else                               Result := +1;
 end;
-
 
 
 { TKMCityPlanner }
@@ -399,7 +397,6 @@ begin
 end;
 
 
-
 procedure TKMCityPlanner.AfterMissionInit();
 begin
   // Actual houses will be added in UpdateState (script may remove / add something after mission init ...)
@@ -413,8 +410,6 @@ begin
   fRoadShortcutPlanner.OwnerUpdate(aPlayer);
   fFieldEval.OwnerUpdate(aPlayer);
 end;
-
-
 
 
 procedure TKMCityPlanner.UpdateState(aTick: Cardinal);
@@ -675,7 +670,7 @@ begin
         if RemoveTreeInPlanProcedure OR gAIFields.Eye.CanAddHousePlan(Loc, aHT, True, True) then
         begin
           if (aHT in [htGoldMine, htIronMine, htCoalMine, htQuary]) AND CheckMine(I) then // Filter mines / chop-only woodcutters
-            continue;
+            Continue;
           Bid := //+ DistFromStore(Loc)
                  + ObstaclesInHousePlan(aHT, Loc)
                  - gAIFields.Influences.OwnPoint[fOwner, Loc]
@@ -686,7 +681,7 @@ begin
             BestIdx := I;
           end;
           if aOnlyLatest then
-            break;
+            Break;
         end
         else
           RemovePlan(aHT, I);
@@ -998,7 +993,7 @@ begin
   if (aHT = htWineyard) then
     aFieldType := ftWine;
   aField.Clear;
-  PlanFields( ifthen(aHT = htWineyard,FIELDS_PER_WINE,FIELDS_PER_FARM), fPlannedHouses[aHT].Plans[aIdx].Loc, aFieldType, aField );
+  PlanFields( IfThen(aHT = htWineyard,FIELDS_PER_WINE,FIELDS_PER_FARM), fPlannedHouses[aHT].Plans[aIdx].Loc, aFieldType, aField );
 end;
 
 
@@ -1285,7 +1280,7 @@ begin
         {$ENDIF}
       end;
     TagList.SortByTag;
-    with fFields.Farms[ ifthen(aReplaceFarmIdx <> -1, aReplaceFarmIdx, fFields.Count) ] do
+    with fFields.Farms[ IfThen(aReplaceFarmIdx <> -1, aReplaceFarmIdx, fFields.Count) ] do
     begin
       X2 := aReplaceFieldIdx;
       for X := TagList.Count - 1 downto Max(0, TagList.Count - aCnt) do
@@ -1800,11 +1795,11 @@ const
               AND not ( (Loc.Y <> Locs.Items[I].Y) OR (Abs(Loc.X - Locs.Items[I].X) > (3 + Byte(aMine = htIronMine))) ) then
             begin
               Check := False;
-              continue;
+              Continue;
             end;
           end;
           if not Check then
-            continue;
+            Continue;
           Gain := Locs.Tag[I] + DistCrit(aMine, Locs.Items[I]) * 4;
           if (Gain > BestGain) then
           begin
@@ -1881,7 +1876,7 @@ const
     Result := (BestIdx <> -1);
   end;
 var
-  Output: Boolean;
+  Output: Boolean; //@Toxic: This kind of temp "Output" for "Result" is pointless
   {$IFDEF DEBUG_NewAI}
     Time: Cardinal;
   {$ENDIF}
@@ -2049,7 +2044,7 @@ begin
           else if (BuildFF.VisitIdx = BuildFF.Visited[ Y, Min(Items[I].X+1,gTerrain.MapX-1) ]) then
             Items[I] := KMPoint( Min(Items[I].X+1,gTerrain.MapX-1), Y)
           else
-            continue;
+            Continue;
           // Update tag
           Tag[I] := Max(0, 10000
                            + gAIFields.Influences.OwnPoint[fOwner, Items[I]]
@@ -2311,7 +2306,7 @@ begin
     begin
       Dec(FI.Count);
       FI.Forests[K] := FI.Forests[ FI.Count ];
-      continue;
+      Continue;
     end;
     // Delete forests around chop-only woodcutters
     for L := 0 to fPlannedHouses[htWoodcutters].Count - 1 do
@@ -2516,7 +2511,7 @@ begin
     if not (BuildFF.VisitIdx = BuildFF.Visited[ round(abs(P1.Y+P2.Y)/2), round(abs(P1.X+P2.X)/2) ])
       AND not (BuildFF.VisitIdx = BuildFF.Visited[ P1.Y, P1.X ])
       AND not (BuildFF.VisitIdx = BuildFF.Visited[ P2.Y, P2.X ]) then
-      continue;
+      Continue;
     DefCount := Ceil( KMLength(P1,P2) / DISTANCE_BETWEEN_TOWERS );
     for K := 0 to DefCount - 1 do
     begin
@@ -2656,11 +2651,6 @@ begin
 end;
 
 
-
-
-
-
-
 { TPathFindingCityPlanner }
 {$IFDEF DEBUG_NewAI}
 function TPathFindingCityPlanner.Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
@@ -2785,8 +2775,6 @@ begin
 end;
 
 
-
-
 { TKMFieldEvaluation }
 constructor TKMFieldEvaluation.Create(aMapX, aMapY: Word; aOwner: TKMHandID);
 begin
@@ -2899,7 +2887,6 @@ procedure TKMFieldEvaluation.OwnerUpdate(aPlayer: TKMHandID);
 begin
   fOwner := aPlayer;
 end;
-
 
 
 { JUNK:
@@ -3022,9 +3009,6 @@ end;
 //}
 
 
-
-
-
 // Faster method for placing house
 {
 function TKMCityPlanner.FindPlaceForHouse(aUnlockProcedure: Boolean; aHT: TKMHouseType; out aBestLocs: TKMPointArray): Byte;
@@ -3118,7 +3102,7 @@ var
             if not (gTerrain.TileInMapCoords(Loc.X, Loc.Y, 1))
               OR (fPerfArr[Loc.Y,Loc.X] >= fPerfIdx)
               OR (Dist > 4) AND (gAIFields.Influences.OwnPoint[fOwner, Loc] < INFLUENCE_LIMIT) then
-              continue;
+              Continue;
 
             fPerfArr[Loc.Y,Loc.X] := fPerfIdx;
             if gAIFields.Eye.CanAddHousePlan(Loc, aHT, False, not aUnlockProcedure) then
@@ -3404,7 +3388,7 @@ begin
     for Dir := Low(HMA[HT].Surroundings[Dist]) to High(HMA[HT].Surroundings[Dist]) do
     begin
       if (Dist = 1) AND (Dir = dirS) then // Don't plan fields 1 tile under farm plan
-        continue;
+        Continue;
       for I := Low(HMA[HT].Surroundings[Dist,Dir]) to High(HMA[HT].Surroundings[Dist,Dir]) do
       begin
         FieldLoc := KMPointAdd(aLoc, HMA[HT].Surroundings[Dist,Dir,I]);

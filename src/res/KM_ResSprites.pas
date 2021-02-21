@@ -883,7 +883,7 @@ begin
     IdealRAM := 0;
     for I := aStartingIndex to fRXData.Count do
     if fRXData.Flag[I] <> 0 then
-      Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
+      Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TEX_FORMAT_SIZE[TexType]);
 
     gLog.AddTime(IntToStr(TexCount) + ' Textures created');
     gLog.AddNoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
@@ -920,12 +920,15 @@ begin
       gGFXData[aRT, ID].Alt := TxCoords;
   end;
 
+  // This is pointless. OGL does its own RAM/VRAM management. To be deleted in 2021
+  {
   //Fake Render from Atlas, to force copy of it into video RAM, where it is supposed to be
   with gGFXData[aRT, aSpriteInfo.Sprites[0].SpriteID] do
     if aAtlasType = saBase then
       TRender.FakeRender(Tex.ID)
     else
       TRender.FakeRender(Alt.ID);
+  }
 end;
 
 
@@ -1021,9 +1024,9 @@ procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex:
       end;
 
       if aMode = saBase then
-        Inc(BaseRAM, SpriteInfo[I].Width * SpriteInfo[I].Height * TexFormatSize[aTexType])
+        Inc(BaseRAM, SpriteInfo[I].Width * SpriteInfo[I].Height * TEX_FORMAT_SIZE[aTexType])
       else
-        Inc(ColorRAM, SpriteInfo[I].Width * SpriteInfo[I].Height * TexFormatSize[aTexType]);
+        Inc(ColorRAM, SpriteInfo[I].Width * SpriteInfo[I].Height * TEX_FORMAT_SIZE[aTexType]);
 
       Inc(TexCount);
 

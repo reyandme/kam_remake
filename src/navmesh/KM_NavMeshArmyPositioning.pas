@@ -170,8 +170,6 @@ begin
 end;
 
 
-
-
 { TArmyForwardFF }
 constructor TArmyForwardFF.Create(aSorted: Boolean = False);
 begin
@@ -364,7 +362,6 @@ begin
     Result := HousesCount > 0;
   end;
 end;
-
 
 
 function TArmyForwardFF.ForwardFF(): Boolean;
@@ -675,11 +672,6 @@ begin
     fDebugDefPolyCnt := fDebugCounter;
   {$ENDIF}
 end;
-
-
-
-
-
 
 
 { TArmyBackwardFF }
@@ -1081,7 +1073,6 @@ begin
     fDebugDefPolyCnt := fDebugCounter;
   {$ENDIF}
 end;
-
 
 
 end.

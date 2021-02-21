@@ -469,7 +469,6 @@ begin
 end;
 
 
-
 procedure TKMMapEdTerrainObjects.ObjectsChange(Sender: TObject);
 var
   ObjIndex: Integer;

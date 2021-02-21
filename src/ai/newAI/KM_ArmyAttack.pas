@@ -167,8 +167,6 @@ uses
   KM_UnitWarrior, KM_AIParameters;
 
 
-
-
 { TAISquad }
 constructor TAISquad.Create(aGroup: TKMUnitGroup);
 begin
@@ -448,9 +446,6 @@ begin
   end;
   Result := True;
 end;
-
-
-
 
 
 { TAICompany }
@@ -1433,13 +1428,6 @@ begin
 end;
 
 
-
-
-
-
-
-
-
 { TKMArmyAttack }
 constructor TKMArmyAttack.Create(aOwner: TKMHandID);
 begin
@@ -1590,7 +1578,6 @@ begin
   else
     fCompanies.Remove( Company );
 end;
-
 
 
 procedure TKMArmyAttack.LogStatus(var aBalanceText: UnicodeString);

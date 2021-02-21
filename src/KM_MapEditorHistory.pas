@@ -299,7 +299,6 @@ begin
 end;
 
 
-
 { TKMCheckpointFields }
 //constructor TKMCheckpointFields.Create(const aCaption: string);
 //var
@@ -683,7 +682,7 @@ begin
     IncCounter;
   end;
 
-  if Assigned (fOnAddCheckpoint) then
+  if Assigned(fOnAddCheckpoint) then
     fOnAddCheckpoint;
 end;
 

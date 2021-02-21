@@ -334,7 +334,6 @@ begin
 end;
 
 
-
 function TKMSaveInfo.IsMultiplayer: Boolean;
 begin
   Result := GetFileDirName(Copy(fPath, 0, Length(fPath) - 1)) = SAVES_MP_FOLDER_NAME;

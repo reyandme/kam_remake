@@ -239,7 +239,6 @@ begin
 end;
 
 
-
 procedure TKMUnitWarrior.Kill(aFrom: TKMHandID; aShowAnimation, aForceDelay: Boolean);
 var
   alreadyDeadOrDying: Boolean;

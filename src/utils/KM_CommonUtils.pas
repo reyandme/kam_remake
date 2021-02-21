@@ -708,7 +708,6 @@ begin
 end;
 
 
-
 function GetPingColor(aPing: Word): Cardinal;
 begin
   case aPing of
@@ -1322,7 +1321,6 @@ begin
   if aLogRng then
     LogKamRandom(Integer(Result), aCaller, 'I64*');
 end;
-
 
 
 //Returns random number from -Range_Both_Directions to +Range_Both_Directions

@@ -81,7 +81,7 @@ type
     procedure mmSaveSelZIPClick(Sender: TObject);
     procedure ListBox1KeyPress(Sender: TObject; var Key: Char);
   private
-    fPathManager: TPathManager;
+    fPathManager: TKMPathManager;
     fTextManager: TTextManager;
     fWorkDir: string;
     fBuffer: array of string;
@@ -103,20 +103,17 @@ type
   end;
 
 
-var
-  Form1: TForm1;
-
-
 implementation
-{$R *.dfm}
 uses
   TranslationManagerUtils;
 
+{$R *.dfm}
 
 const
   eol: string = #13#10; // EndOfLine
 
 
+{ TForm1 }
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption := 'KaM Remake Translation Manager (' + GAME_REVISION + ')';
@@ -129,7 +126,7 @@ begin
 
   RefreshLocales;
 
-  fPathManager := TPathManager.Create;
+  fPathManager := TKMPathManager.Create;
   RefreshFolders;
 
   fTextManager := TTextManager.Create;
@@ -405,12 +402,12 @@ begin
   SetLength(TransLabels, gResLocales.Count);
   for I := 0 to gResLocales.Count - 1 do
   begin
-    TransLabels[I] := TLabel.Create(Form1);
+    TransLabels[I] := TLabel.Create(Self);
     TransLabels[I].Parent := ScrollBox1;
     TransLabels[I].Caption := gResLocales[I].Title + ' (' + gResLocales[I].Code + ')';
     TransLabels[I].Hide;
 
-    TransMemos[I] := TMemo.Create(Form1);
+    TransMemos[I] := TMemo.Create(Self);
     TransMemos[I].Parent := ScrollBox1;
     TransMemos[I].Anchors := [akLeft, akRight, akTop];
     TransMemos[I].Font.Name := 'Arial Unicode MS'; //If not found, parent font is used
@@ -439,21 +436,21 @@ end;
 procedure TForm1.LoadSettings(aPath: string);
 var
   I: Integer;
-  F: TIniFile;
+  ini: TIniFile;
   Locs: string;
 const
   DEFAULT_FOLDER_CHECKED: array[0..4] of Boolean =
     (True, True, True,
      False, False); //Maps/MapsMP are not ticked by default
 begin
-  F := TIniFile.Create(aPath);
+  ini := TIniFile.Create(aPath);
   try
-    Locs := F.ReadString('Root', 'Selected_Locales', 'eng');
+    Locs := ini.ReadString('Root', 'Selected_Locales', 'eng');
     for I := 0 to clbFolders.Items.Count-1 do
-      if F.ReadBool('Folders', clbFolders.Items[I], DEFAULT_FOLDER_CHECKED[I]) then
+      if ini.ReadBool('Folders', clbFolders.Items[I], DEFAULT_FOLDER_CHECKED[I]) then
         clbFolders.Checked[I] := True;
   finally
-    F.Free;
+    ini.Free;
   end;
 
   //If there are any items "All" should be greyed
@@ -472,7 +469,7 @@ end;
 procedure TForm1.SaveSettings(aPath: string);
 var
   I: Integer;
-  F: TIniFile;
+  ini: TIniFile;
   Locs: string;
 begin
   Locs := '';
@@ -480,32 +477,33 @@ begin
   if clbShowLang.Checked[I+1] then
     Locs := Locs + gResLocales[I].Code + ',';
 
-  F := TIniFile.Create(aPath);
+  ini := TIniFile.Create(aPath);
   try
-    F.WriteString('Root', 'Selected_Locales', Locs);
+    ini.WriteString('Root', 'Selected_Locales', Locs);
     for I := 0 to clbFolders.Items.Count-1 do
-      F.WriteBool('Folders', clbFolders.Items[I], clbFolders.Checked[I]);
+      ini.WriteBool('Folders', clbFolders.Items[I], clbFolders.Checked[I]);
   finally
-    F.Free;
+    ini.Free;
   end;
 end;
 
 
 procedure TForm1.ListBox1Click(Sender: TObject);
-var I,ID: Integer;
+var
+  I, idx: Integer;
 begin
   if (ListBox1.ItemIndex = -1) then exit;
 
   IgnoreChanges := true;
-  ID := ListboxLookup[ListBox1.ItemIndex];
+  idx := ListboxLookup[ListBox1.ItemIndex];
 
-  btnRename.Enabled := fTextManager.Consts[ID].TextID <> -1;
+  btnRename.Enabled := fTextManager.Consts[idx].TextID <> -1;
 
-  lblConstName.Caption := fTextManager.Consts[ID].ConstName;
+  lblConstName.Caption := fTextManager.Consts[idx].ConstName;
 
   for I := 0 to gResLocales.Count - 1 do
-    if fTextManager.Consts[ID].TextID <> -1 then
-      TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(fTextManager.Texts[fTextManager.Consts[ID].TextID][i])
+    if fTextManager.Consts[idx].TextID <> -1 then
+      TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(fTextManager.Texts[fTextManager.Consts[idx].TextID][i])
     else
       TransMemos[i].Text := '';
   IgnoreChanges := false;
@@ -555,56 +553,56 @@ end;
 
 procedure TForm1.mmSaveAllZIPClick(Sender: TObject);
 var
-  ExportPathManager: TPathManager;
+  exportPathManager: TKMPathManager;
   I, K: Integer;
   MyZip: TZippit;
   S: string;
 begin
   if not sdExportZIP.Execute(Handle) then Exit;
 
-  ExportPathManager := TPathManager.Create;
-  ExportPathManager.AddPath(fWorkDir, '');
+  exportPathManager := TKMPathManager.Create;
+  exportPathManager.AddPath(fWorkDir, '');
 
   MyZip := TZippit.Create;
-  for I:=0 to ExportPathManager.Count-1 do
+  for I := 0 to ExportPathManager.Count-1 do
     for K := 0 to gResLocales.Count - 1 do
     begin
-      S := Format(ExportPathManager[I], [gResLocales[K].Code]);
+      S := Format(exportPathManager[I], [gResLocales[K].Code]);
       if FileExists(fWorkDir + S) then
         MyZip.AddFile(fWorkDir + S, ExtractFilePath(S));
     end;
 
   MyZip.SaveToFile(sdExportZIP.FileName);
   MyZip.Free;
-  ExportPathManager.Free;
+  exportPathManager.Free;
 end;
 
 
 procedure TForm1.mmSaveSelZIPClick(Sender: TObject);
 var
-  ExportPathManager: TPathManager;
+  exportPathManager: TKMPathManager;
   I, K: Integer;
   MyZip: TZippit;
   S: string;
 begin
   if not sdExportZIP.Execute(Handle) then Exit;
 
-  ExportPathManager := TPathManager.Create;
-  ExportPathManager.AddPath(fWorkDir, '');
+  exportPathManager := TKMPathManager.Create;
+  exportPathManager.AddPath(fWorkDir, '');
 
   MyZip := TZippit.Create;
-  for I := 0 to ExportPathManager.Count - 1 do
+  for I := 0 to exportPathManager.Count - 1 do
     for K := 0 to gResLocales.Count - 1 do
       if clbShowLang.Checked[K + 1] then
       begin
-        S := Format(ExportPathManager[I], [gResLocales[K].Code]);
+        S := Format(exportPathManager[I], [gResLocales[K].Code]);
         if FileExists(fWorkDir + S) then
           MyZip.AddFile(fWorkDir + S, ExtractFilePath(S));
       end;
 
   MyZip.SaveToFile(sdExportZIP.FileName);
   MyZip.Free;
-  ExportPathManager.Free;
+  exportPathManager.Free;
 end;
 
 

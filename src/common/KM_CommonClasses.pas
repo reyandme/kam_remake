@@ -1539,13 +1539,13 @@ end;
 
 procedure TKMMapsCRCList.Remove(aMapCRC: Cardinal);
 var
-  index: Integer;
+  I: Integer;
 begin
   if not fEnabled then Exit;
 
-  index := fMapsList.IndexOf(IntToStr(aMapCRC));
-  if index <> -1 then
-    fMapsList.Delete(index);
+  I := fMapsList.IndexOf(IntToStr(aMapCRC));
+  if I <> -1 then
+    fMapsList.Delete(I);
 
   MapsUpdated;
 end;
@@ -1886,7 +1886,6 @@ begin
   DateTimeToString(str, 'dd.mm.yyyy hh:nn:ss.zzz', Value);
   WriteText(str);
 end;
-
 
 
 //Not implemented methods 

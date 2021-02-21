@@ -338,7 +338,6 @@ begin
 end;
 
 
-
 procedure TKMUnitsCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;

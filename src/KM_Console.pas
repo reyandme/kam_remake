@@ -5,7 +5,6 @@ uses
   KM_CommonTypes, KM_NetworkTypes;
 
 
-
 type
   TKMChatMode = (cmAll, cmTeam, cmSpectators, cmWhisper);
 
@@ -173,7 +172,6 @@ begin
 
   Add(aMessage);
 end;
-
 
 
 function TKMConsole.IsPostAllowed : Boolean;

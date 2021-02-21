@@ -126,8 +126,6 @@ uses
   KM_UnitGroupTypes;
 
 
-
-
 { TKMCombatGroup }
 constructor TKMCombatGroup.Create(aGroup: TKMUnitGroup);
 begin
@@ -537,8 +535,6 @@ begin
     gTimePathfinding := gTimePathfinding + TimeGetUsec() - Timer;
   {$ENDIF}
 end;
-
-
 
 
 { TKMArmyAttackNew }

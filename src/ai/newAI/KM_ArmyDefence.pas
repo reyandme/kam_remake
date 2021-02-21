@@ -190,9 +190,6 @@ begin
 end;
 
 
-
-
-
 { TKMArmyDefence }
 constructor TKMArmyDefence.Create(aOwner: TKMHandID);
 var

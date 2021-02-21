@@ -9,10 +9,10 @@ type
   end;
 
   TKMScreenResIndex = record
-    ResId, RefId: Integer;
+    ResId, RefId: Integer; // Allow for -1, when index not found
   end;
 
-  //Record storing resolution and list of its allowed refresh rates
+  // Store resolution and list of its allowed refresh rates
   TKMScreenResData = record
     Width, Height: Word;
     RefRateCount: Integer;

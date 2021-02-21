@@ -1061,17 +1061,15 @@ end;
 
 
 function TKMUnitGroup.IsAttackingHouse: Boolean;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := False;
 
   for I := 0 to Count - 1 do
-    if (Members[I].Task <> nil)
-    and (Members[I].Task.TaskType = uttAttackHouse) then
-    begin
-      Result := True;
-      Exit;
-    end;
+  if (Members[I].Task <> nil)
+  and (Members[I].Task.TaskType = uttAttackHouse) then
+    Exit(True);
 end;
 
 
@@ -1097,7 +1095,10 @@ end;
 
 
 function TKMUnitGroup.IsPositioned(const aLoc:TKMPoint; Dir: TKMDirection): Boolean;
-var I: Integer; P: TKMPointExact; U: TKMUnitWarrior;
+var
+  I: Integer;
+  P: TKMPointExact;
+  U: TKMUnitWarrior;
 begin
   Result := True;
   for I := 0 to Count - 1 do
@@ -1138,10 +1139,7 @@ begin
 
   for I := 0 to Count - 1 do
   if (Members[I].UID = aUID) and not Members[I].IsDead then
-  begin
-    Result := Members[I];
-    Break;
-  end;
+    Exit(Members[I]);
 end;
 
 
@@ -1153,10 +1151,7 @@ begin
 
   for I := 0 to Count - 1 do
   if Members[I].HitTest(X, Y) and not Members[I].IsDead then
-  begin
-    Result := True;
-    Break;
-  end;
+    Exit(True);
 end;
 
 
@@ -1371,7 +1366,8 @@ end;
 
 
 procedure TKMUnitGroup.OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
   if aClearOffenders and CanTakeOrders then ClearOffenders;
 
@@ -1862,7 +1858,9 @@ end;
 
 
 procedure TKMUnitGroup.ClearOffenders;
-var I: Integer; U: TKMUnit;
+var
+  I: Integer;
+  U: TKMUnit;
 begin
   for I := fOffenders.Count - 1 downto 0 do
   begin
@@ -2268,10 +2266,7 @@ begin
   Result := nil;
   for I := 0 to Count - 1 do
     if Groups[I].HasMember(aUnit) then
-    begin
-      Result := fGroups[I];
-      Break;
-    end;
+      Exit(fGroups[I]);
 end;
 
 
@@ -2322,10 +2317,7 @@ begin
   if (U <> nil) and (U is TKMUnitWarrior) then
   for I := 0 to Count - 1 do
     if Groups[I].HitTest(X,Y) then
-    begin
-      Result := Groups[I];
-      Break;
-    end;
+      Exit(Groups[I]);
 end;
 
 
@@ -2406,7 +2398,7 @@ begin
     if not Groups[I].IsDead AND (Groups[I].GroupType in aTypes) then
     begin
       K := 0;
-      MinDist := 1000000; //Any distance will be closer than that
+      MinDist := MaxSingle; //Any distance will be closer than that
       while (K < Groups[I].Count) do
         if Groups[I].Members[K].IsDeadOrDying then // Member must be alive
           K := K + 1
@@ -2501,13 +2493,13 @@ end;
 
 procedure TKMUnitGroups.Paint(const aRect: TKMRect);
 const
-  Margin = 2;
+  MARGIN = 2;
 var
   I: Integer;
   growRect: TKMRect;
 begin
-  //Add additional margin to compensate for units height
-  growRect := KMRectGrow(aRect, Margin);
+  // Add additional margin to compensate for units height
+  growRect := KMRectGrow(aRect, MARGIN);
 
   for I := 0 to Count - 1 do
   if not Groups[I].IsDead and KMInRect(Groups[I].Members[0].PositionF, growRect) then

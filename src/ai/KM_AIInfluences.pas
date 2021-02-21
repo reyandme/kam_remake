@@ -24,8 +24,7 @@ const
 
 
 type
-
-  //Collection of influence maps
+  // Collection of influence maps
   TKMInfluences = class
   private
     fMapX, fMapY, fPolyCnt: Word; // Limits of arrays
@@ -224,8 +223,6 @@ begin
 end;
 
 
-
-
 //Make the area around to be avoided by common houses
 procedure TKMInfluences.AddAvoidBuilding(aX,aY: Word; aRad: Single);
 var
@@ -240,6 +237,7 @@ begin
       AND (Sqr(aX-X) + Sqr(aY-Y) <= Sqr(aRad)) then
       AvoidBuilding[Y,X] := 255;
 end;
+
 
 procedure TKMInfluences.RemAvoidBuilding(aArea: TKMRect);
 var
@@ -400,7 +398,7 @@ begin
       begin
         G := gHands[PL].UnitGroups.Groups[K];
         if (G = nil) OR G.IsDead then
-          continue;
+          Continue;
         Increment := Min(G.Count, EACH_X_MEMBER_COEF);
         L := 0;
         while (L < G.Count) do
@@ -422,7 +420,7 @@ begin
       begin
         G := gHands[PL].UnitGroups.Groups[K];
         if (G = nil) OR G.IsDead then
-          continue;
+          Continue;
         Increment := Min(G.Count, EACH_X_MEMBER_COEF);
         GT := G.GroupType;
         L := 0;
@@ -600,7 +598,7 @@ begin
     if (PL <> aPL) then
     begin
       Ownership := OwnPoly[PL,aIdx];
-      Inc(Result, ifthen(gHands[aPL].Alliances[PL] = atAlly, Ownership, Ownership*ENEMY_COEF));
+      Inc(Result, IfThen(gHands[aPL].Alliances[PL] = atAlly, Ownership, Ownership*ENEMY_COEF));
     end;
 end;
 
@@ -613,10 +611,10 @@ end;
 
 function TKMInfluences.CanPlaceHouseByInfluence(const aPL: TKMHandID; const aIdx: Word; const aIgnoreAllies: Boolean = False): Boolean;
 var
-  BestOwner: TKMHandID;
+  bestOwner: TKMHandID;
 begin
-  BestOwner := GetBestOwner(aIdx);
-  Result := (BestOwner >= 0) AND (OwnPoly[aPL, aIdx] > 0) AND ((BestOwner = aPL) OR (not aIgnoreAllies AND (gHands[aPL].Alliances[BestOwner] = atAlly)));
+  bestOwner := GetBestOwner(aIdx);
+  Result := (bestOwner >= 0) AND (OwnPoly[aPL, aIdx] > 0) AND ((bestOwner = aPL) OR (not aIgnoreAllies AND (gHands[aPL].Alliances[bestOwner] = atAlly)));
 end;
 
 
@@ -626,32 +624,33 @@ const
   INIT_HOUSE_INFLUENCE = 255;
   MAX_INFLUENCE_DISTANCE = 150;
 var
-  AI: Boolean;
-  I, Cnt: Integer;
+  isAI: Boolean;
+  I, cnt: Integer;
   H: TKMHouse;
-  IdxArray: TKMWordArray;
+  idxArray: TKMWordArray;
 begin
-  //Clear array (is better to clear ~3000 polygons instead of 255*255 tiles)
+  //Clear array (it is better to clear ~3000 polygons instead of 255*255 tiles)
   FillChar(fOwnership[aPL*fPolyCnt], SizeOf(fOwnership[0]) * fPolyCnt, #0);
 
   // Create array of polygon indexes
-  SetLength(IdxArray, gHands[aPL].Houses.Count);
-  Cnt := 0;
-  AI := gHands[aPL].IsComputer;
+  SetLength(idxArray, gHands[aPL].Houses.Count);
+  cnt := 0;
+  isAI := gHands[aPL].IsComputer;
   for I := 0 to gHands[aPL].Houses.Count - 1 do
   begin
     H := gHands[aPL].Houses[I];
     if not H.IsDestroyed
-      AND not (H.HouseType in [htWatchTower, htWoodcutters])
-      AND (AI OR H.IsComplete) then // Player must finish the house to update influence so he cannot troll the AI
+    and not (H.HouseType in [htWatchTower, htWoodcutters])
+    and (isAI or H.IsComplete) then // Player must finish the house to update influence so he cannot troll the AI
     begin
-        IdxArray[Cnt] := fNavMesh.KMPoint2Polygon[ H.PointBelowEntrance ]; // Use point below entrance to match NavMeshDefence algorithm and city center detection in Eye
-        Cnt := Cnt + 1;
+      // Use point below entrance to match NavMeshDefence algorithm and city center detection in Eye
+      idxArray[cnt] := fNavMesh.KMPoint2Polygon[H.PointBelowEntrance];
+      Inc(cnt);
     end;
   end;
 
-  if (Cnt > 0) then
-    fInfluenceFloodFill.HouseInfluence(aPL, INIT_HOUSE_INFLUENCE, MAX_INFLUENCE_DISTANCE, Cnt - 1, IdxArray);
+  if cnt > 0 then
+    fInfluenceFloodFill.HouseInfluence(aPL, INIT_HOUSE_INFLUENCE, MAX_INFLUENCE_DISTANCE, cnt - 1, idxArray);
 end;
 
 
@@ -783,7 +782,7 @@ begin
     begin
       PL := GetBestOwner(K);
       if (PL = PLAYER_NONE) then
-        continue
+        Continue
       else
         Col := (gHands[PL].FlagColor AND tcWhite) OR (OwnPoly[PL,K] shl 24);
 

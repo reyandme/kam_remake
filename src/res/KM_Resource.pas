@@ -244,7 +244,6 @@ begin
 end;
 
 
-
 procedure TKMResource.LoadGameResources(aAlphaShadows: Boolean; aForceReload: Boolean = False);
 var
   DoForceReload: Boolean;

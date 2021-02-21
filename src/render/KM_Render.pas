@@ -4,32 +4,33 @@ interface
 uses
   {$IFDEF WDC} Windows, Graphics, JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet -> FPReadJPEG?
   {$IFDEF Unix} LCLIntf, LCLType, OpenGLContext, {$ENDIF}
-  Math, dglOpenGL, KromOGLUtils, KromUtils, KM_RenderControl, KM_RenderQuery, KM_RenderTypes;
+  Math, dglOpenGL, KromOGLUtils, KromUtils,
+  KM_RenderControl, KM_RenderQuery, KM_RenderTypes;
 
 
 const
-  TexFormatSize: array [TTexFormat] of Byte = (2, 4, 1);
-  TexFilter: array [TFilterType] of GLint = (GL_NEAREST, GL_LINEAR);
+  TEX_FORMAT_SIZE: array [TTexFormat] of Byte = (2, 4, 1);
+  TEX_FILTER: array [TFilterType] of GLint = (GL_NEAREST, GL_LINEAR);
 
 type
-  TRenderMode = (rm2D, rm3D);
+  TKMRenderMode = (rm2D, rm3D);
 
   //General OpenGL handling
   TRender = class
+  private class var
+    fLastBindedTextureId: Cardinal;
+    fMaxTextureSize: Cardinal;
   private
     fRenderControl: TKMRenderControl;
     fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version: UnicodeString;
     fScreenX, fScreenY: Word;
     fBlind: Boolean;
     fQuery: TKMRenderQuery;
-    class var
-      fLastBindedTextureId: Cardinal;
-      fMaxTextureSize: Cardinal;
   public
     constructor Create(aRenderControl: TKMRenderControl; ScreenX,ScreenY: Integer; aVSync: Boolean);
     destructor Destroy; override;
 
-    procedure SetRenderMode(aRenderMode: TRenderMode); //Switch between 2D and 3D perspectives
+    procedure SetRenderMode(aRenderMode: TKMRenderMode); //Switch between 2D and 3D perspectives
 
     class function GetMaxTexSize: Integer;
     class function GenerateTextureCommon(aMinFilter, aMagFilter: TFilterType): GLuint;
@@ -37,7 +38,8 @@ type
     class procedure DeleteTexture(aTex: GLUint);
     class procedure UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TTexFormat; const Data: Pointer);
     class procedure BindTexture(aTexId: Cardinal);
-    class procedure FakeRender(aID: Cardinal);
+    // This is pointless. OGL does its own RAM/VRAM management. To be deleted in 2021
+    //class procedure FakeRender(aID: Cardinal);
     class property MaxTextureSize: Cardinal read fMaxTextureSize;
 
     property RendererVersion: UnicodeString read fOpenGL_Version;
@@ -145,7 +147,7 @@ begin
 end;
 
 
-procedure TRender.SetRenderMode(aRenderMode: TRenderMode);
+procedure TRender.SetRenderMode(aRenderMode: TKMRenderMode);
 begin
   if fBlind then Exit;
 
@@ -180,8 +182,8 @@ begin
   //can't use GL_REPLACE cos it disallows blending of texture with custom color (e.g. trees in FOW)
 
   {Use nearest filter to keep original KaM grainy look}
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, TexFilter[aMinFilter]);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, TexFilter[aMagFilter]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, TEX_FILTER[aMinFilter]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, TEX_FILTER[aMagFilter]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 
   {Clamping UVs solves edge artifacts}
@@ -324,6 +326,8 @@ begin
 end;
 
 
+// This is pointless. OGL does its own RAM/VRAM management. To be deleted in 2021
+{
 //Fake Render from Atlas, to force copy of it into video RAM, where it is supposed to be
 class procedure TRender.FakeRender(aID: Cardinal);
 begin
@@ -336,6 +340,7 @@ begin
     glVertex2f(0, 0);
   glEnd;
 end;
+}
 
 
 end.

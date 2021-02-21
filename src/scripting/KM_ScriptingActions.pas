@@ -2726,7 +2726,7 @@ end;
 //* aRandomTiles: use random tiles
 //* aOverrideCustomTiles: override tiles, that were manually set from tiles table
 //* aBrushMask: brush mask type
-//* aBlendingLvl: blending level for masks. Allowed values are from 0 to 100
+//* aBlendingLvl: blending level for masks. Allowed values are from 0 to 15
 //* aUseMagicBrush: enable/disable magic brush to change/remove brush mask from the area
 procedure TKMScriptActions.MapBrushWithMask(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind; aRandomTiles, aOverrideCustomTiles: Boolean; aBrushMask: TKMTileMaskKind; aBlendingLvl: Integer; aUseMagicBrush: Boolean);
 begin

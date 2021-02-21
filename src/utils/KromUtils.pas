@@ -67,7 +67,7 @@ function Max(const A,B,C: Single): Single; overload;
   function Equals(A, B: single; const Epsilon: Single = 0.001): Boolean;
 
 function MakePOT(num: Integer): Integer;
-function Adler32CRC(TextPointer: Pointer; TextLength: Cardinal): Cardinal; overload;
+function Adler32CRC(aPointer: Pointer; aLength: Cardinal): Cardinal; overload;
 function Adler32CRC(const aPath: string): Cardinal; overload;
 function Adler32CRC(S: TMemoryStream): Cardinal; overload;
 function RandomS(Range_Both_Directions:integer):integer; overload;
@@ -500,20 +500,25 @@ begin
 end;
 
 
-function Adler32CRC(TextPointer: Pointer; TextLength: Cardinal): Cardinal;
+function Adler32CRC(aPointer: Pointer; aLength: Cardinal): Cardinal;
+const
+  MAX_PRIME_16BIT = 65521; // 65521 is the largest prime number smaller than 2^16
 var
   I, A, B: Cardinal;
 begin
   A := 1;
   B := 0; // A is initialized to 1, B to 0
-  for I := 1 to TextLength do
+
+  if aLength <> 0 then // Check to avoid CardinalOverflow on -1
+  for I := 0 to aLength - 1 do
   begin
-    Inc(A, pbyte(Cardinal(TextPointer) + I - 1)^);
-    Inc(B, A);
+    Inc(A, pByte(Cardinal(aPointer) + I)^);
+    // We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
+    B := (B + A) mod MAX_PRIME_16BIT;
   end;
-  A := A mod 65521; // 65521 (the largest prime number smaller than 2^16)
-  B := B mod 65521;
-  Adler32CRC := B + A shl 16; // reverse order for smaller numbers
+
+  A := A mod MAX_PRIME_16BIT;
+  Adler32CRC := B + A shl 16; // Reverse order for smaller numbers
 end;
 
 
@@ -536,21 +541,8 @@ end;
 
 
 function Adler32CRC(S: TMemoryStream): Cardinal;
-var
-  I, A, B: Cardinal;
 begin
-  A := 1;
-  B := 0; // A is initialized to 1, B to 0
-
-  // We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
-  if S.Size <> 0 then
-    for I := 0 to S.Size - 1 do
-    begin
-      Inc(A, pbyte(Cardinal(S.Memory) + I)^);
-      B := (B + A) mod 65521; // 65521 (the largest prime number smaller than 2^16)
-    end;
-  A := A mod 65521;
-  Result := B + A shl 16; // reverse order for smaller numbers
+  Result := Adler32CRC(S.Memory, S.Size);
 end;
 
 

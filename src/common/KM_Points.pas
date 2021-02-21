@@ -141,10 +141,10 @@ type
   function KMGetDirection(const P: TKMPointF): TKMDirection; overload;
   function KMGetDirection(const FromPos, ToPos: TKMPoint): TKMDirection; overload;
   function KMGetDirection(const FromPos, ToPos: TKMPointF): TKMDirection; overload;
-  function GetDirModifier(const Dir1,Dir2: TKMDirection): Byte;
+  function GetDirModifier(const aDir1, aDir2: TKMDirection): Byte;
   function KMGetVertexDir(X,Y: Integer): TKMDirection;
   function KMGetVertexTile(const P: TKMPoint; const Dir: TKMDirection): TKMPoint;
-  function KMGetVertex(const Dir: TKMDirection): TKMPointF;
+  function KMGetVertex(const aDir: TKMDirection): TKMPointF;
   function KMGetPointInDir(const aPoint: TKMPoint; const aDir: TKMDirection; aDist: Byte = 1): TKMPoint;
 
   function KMAddDirection(const aDir: TKMDirection; aAdd: Integer): TKMDirection;
@@ -192,7 +192,6 @@ type
   function TypeToString(const P: TKMPointDir): string; overload;
   function TypeToString(const P: TKMPointF): string; overload;
   function TypeToString(const T: TKMDirection): string; overload;
-  function TypeToString(const aRect: TKMRect): string; overload;
 
   function StringToType(const Str: String): TKMPoint; overload;
 
@@ -582,7 +581,8 @@ begin
     dirSE: Result := KMRectGrowBottomRight(aRect, aInset);
     dirSW: Result := KMRectGrowBottomLeft(aRect, aInset);
     dirNW: Result := KMRectGrowTopLeft(aRect, aInset);
-    dirN, dirE, dirS, dirW: Result := aRect; //not implemented yet
+  else
+    Result := aRect; //not implemented yet
   end;
 end;
 
@@ -649,10 +649,10 @@ end;
 
 function KMRectIntersect(const aRect1: TKMRect; X1,Y1,X2,Y2: Integer): TKMRect;
 begin
-  if   (aRect1.Right  < X1) 
-    or (aRect1.Left   > X2)
-    or (aRect1.Bottom < Y1)
-    or (aRect1.Top    > Y2) then
+  if (aRect1.Right  < X1) 
+  or (aRect1.Left   > X2)
+  or (aRect1.Bottom < Y1)
+  or (aRect1.Top    > Y2) then
     Result := KMRECT_INVALID_TILES
   else
     Result := KMClipRect(aRect1, X1,Y1,X2,Y2);
@@ -792,22 +792,22 @@ begin
 end;
 
 
-//How big is the difference between directions (in fights hit from behind is 5 times harder)
+// How big is the difference between directions (in fights hit from behind is 5 times stronger)
 //  1 0 1
 //  2   2
 //  3 4 3
-function GetDirModifier(const Dir1,Dir2: TKMDirection): Byte;
+function GetDirModifier(const aDir1, aDir2: TKMDirection): Byte;
 begin
-  Result := Abs(Byte(Dir1) - ((Byte(Dir2) + 4) mod 8));
+  Result := Abs(Ord(aDir1) - ((Ord(aDir2) + 4) mod 8));
 
   if Result > 4 then
-    Result := 8 - Result; //Mirror it, as the difference must always be 0..4
+    Result := 8 - Result; // Mirror it, as the difference must always be 0..4
 end;
 
 
 function KMGetVertexDir(X,Y: Integer): TKMDirection;
-const DirectionsBitfield: array [-1..0, -1..0] of TKMDirection =
-        ((dirSE, dirNE), (dirSW, dirNW));
+const
+  DirectionsBitfield: array [-1..0, -1..0] of TKMDirection = ((dirSE, dirNE), (dirSW, dirNW));
 begin
   Result := DirectionsBitfield[X,Y];
 end;
@@ -815,19 +815,19 @@ end;
 
 function KMGetVertexTile(const P: TKMPoint; const Dir: TKMDirection): TKMPoint;
 const
-  XBitField: array[TKMDirection] of smallint = (0,0,1,0,1,0,0,0,0);
-  YBitField: array[TKMDirection] of smallint = (0,0,0,0,1,0,1,0,0);
+  XBitField: array [TKMDirection] of SmallInt = (0,0,1,0,1,0,0,0,0);
+  YBitField: array [TKMDirection] of SmallInt = (0,0,0,0,1,0,1,0,0);
 begin
   Result := KMPoint(P.X+XBitField[Dir], P.Y+YBitField[Dir]);
 end;
 
 
-function KMGetVertex(const Dir: TKMDirection): TKMPointF;
+function KMGetVertex(const aDir: TKMDirection): TKMPointF;
 const
-  XBitField: array[TKMDirection] of single = (0, 0, 0.7,1,0.7,0,-0.7,-1,-0.7);
-  YBitField: array[TKMDirection] of single = (0,-1,-0.7,0,0.7,1, 0.7, 0,-0.7);
+  XBitField: array [TKMDirection] of single = (0, 0, 0.7,1,0.7,0,-0.7,-1,-0.7);
+  YBitField: array [TKMDirection] of single = (0,-1,-0.7,0,0.7,1, 0.7, 0,-0.7);
 begin
-  Result := KMPointF(XBitField[Dir], YBitField[Dir]);
+  Result := KMPointF(XBitField[aDir], YBitField[aDir]);
 end;
 
 
@@ -844,7 +844,7 @@ end;
 function KMAddDirection(const aDir: TKMDirection; aAdd: Integer): TKMDirection;
 begin
   Assert(aDir <> dirNA);
-  Result := TKMDirection((Byte(aDir) + aAdd - 1 + 8) mod 8 + 1);
+  Result := TKMDirection((Ord(aDir) + aAdd - 1 + 8) mod 8 + 1);
 end;
 
 
@@ -870,10 +870,8 @@ function KMPointsAround(const P: TKMPoint; aIncludeSelf: Boolean = False): TKMPo
 var
   I,J,K: Integer;
 begin
-  if aIncludeSelf then
-    SetLength(Result, 9)
-  else
-    SetLength(Result, 8);
+  SetLength(Result, 8 + Ord(aIncludeSelf));
+
   K := 0;
   for I := -1 to 1 do
     for J := -1 to 1 do
@@ -887,9 +885,9 @@ end;
 
 function KMGetDiagVertex(const P1,P2: TKMPoint): TKMPoint;
 begin
-  //Returns the position of the vertex inbetween the two diagonal points (points must be diagonal)
-  Result.X := max(P1.X,P2.X);
-  Result.Y := max(P1.Y,P2.Y);
+  // Returns the position of the vertex inbetween the two diagonal points (points must be diagonal)
+  Result.X := Max(P1.X,P2.X);
+  Result.Y := Max(P1.Y,P2.Y);
 end;
 
 
@@ -1151,7 +1149,6 @@ begin
       and TryStrToInt(Copy(Str, DelimPos + 2, Length(Str) - DelimPos - 2), Y) then
       Result := KMPoint(X,Y);
   end;
-
 end;
 
 
@@ -1160,12 +1157,6 @@ const
   S: array [TKMDirection] of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
 begin
   Result := S[T];
-end;
-
-
-function TypeToString(const aRect: TKMRect): string; overload;
-begin
-
 end;
 
 

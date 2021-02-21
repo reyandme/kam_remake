@@ -362,7 +362,7 @@ begin
       PL1 := gAIFields.Influences.GetBestAllianceOwner(fOwner, Point1, atAlly);
       PL2 := gAIFields.Influences.GetBestAllianceOwner(fOwner, Point2, atAlly);
       if (PL1 <> fOwner) AND (PL2 <> fOwner) AND (PL1 <> PLAYER_NONE) AND (PL2 <> PLAYER_NONE) then
-        continue;
+        Continue;
       DefCount := Ceil( KMLength(Point1, Point2) / DISTANCE_BETWEEN_TOWERS );
       for K := 0 to DefCount - 1 do
       begin

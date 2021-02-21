@@ -299,7 +299,6 @@ begin
 end;
 
 
-
 procedure TKMHandAI.OwnerUpdate(aPlayer: TKMHandID);
 begin
   fOwner := aPlayer;

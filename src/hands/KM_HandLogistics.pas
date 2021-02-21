@@ -2543,7 +2543,6 @@ begin
 end;
 
 
-
 procedure TKMDeliveryRouteEvaluator.UpdateState;
 begin
   {$IFDEF USE_HASH}
@@ -2652,7 +2651,6 @@ begin
 end;
 
 
-
 function TKMDeliveryBid.Cost: Single;
 begin
   if not IsValid then
@@ -2662,7 +2660,6 @@ begin
           + Byte(OfferToDemand.Pass <> tpUnused) * OfferToDemand.Value
           + Addition;
 end;
-
 
 
 procedure TKMDeliveryBid.IncAddition(aValue: Single);

@@ -10,7 +10,7 @@ uses
 
 
 type
-  //Barracks have 11 resources and Recruits
+  // Barracks have 11 wares and Recruits
   TKMHouseBarracks = class(TKMHouseWFlagPoint)
   private
     fRecruitsList: TList;

@@ -64,7 +64,7 @@ var
 
 implementation
 uses
-  KM_GameSettings;
+  KM_MainSettings, KM_GameSettings, KM_GameAppSettings;
 
 
 procedure RegisterRunner(aRunner: TKMRunnerClass);
@@ -178,8 +178,13 @@ begin
     tgtHeight := fRenderTarget.Height;
   end;
 
+  // Init settings global variables
+  TKMGameAppSettings.Create;
+  TKMainSettings.Create(tgtWidth, tgtHeight);
+
   gGameApp := TKMGameApp.Create(fRenderTarget, tgtWidth, tgtHeight, False, nil, nil, nil, True);
   gGameSettings.Autosave := False;
+  gGameSettings.SaveCheckpoints := False;
   gGameApp.PreloadGameResources;
 end;
 

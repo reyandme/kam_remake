@@ -10,12 +10,12 @@ uses
   Math, KM_CommonTypes, KM_Points,
   BinaryHeap, KM_Defaults;
 
-
 type
-  TPathfindingMode = ( pmShortestWay,   // Find shortest way in NavMesh
-                       pmAvoidTraffic,  // Try avoid traffic
-                       pmAvoidSpecEnemy // Try avoid anti type units (cav will keep distance form spears etc)
-                     );
+  TPathfindingMode = (
+    pmShortestWay,   // Find shortest way in NavMesh
+    pmAvoidTraffic,  // Try avoid traffic
+    pmAvoidSpecEnemy // Try avoid anti type units (cav will keep distance form spears etc)
+  );
 
   TNavMeshNode = record
     Idx: Word; // Index of NavMeshNode in NavMesh
@@ -442,7 +442,7 @@ begin
       begin
         NMNode := fUsedNodes[K].Parent;
         if (NMNode = nil) then
-          continue;
+          Continue;
         P1 := Polygons[K].CenterPoint;
         P2 := Polygons[ NMNode.Idx ].CenterPoint;
         P3 := KMPointAverage(P1,P2);
@@ -451,5 +451,6 @@ begin
       end;
 end;
 {$ENDIF}
+
 
 end.

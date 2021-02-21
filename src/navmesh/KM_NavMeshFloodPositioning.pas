@@ -10,7 +10,6 @@ uses
    Math, KM_CommonTypes,
    KM_Points, KM_NavMeshFloodFill;
 
-
 type
   // This class finds walkable positions for small groups of soldiers (3x3) around initial points
   // It uses only NavMesh -> it does not check passability so selected position may be inaccessible (by house / other unit)
