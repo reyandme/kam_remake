@@ -10079,11 +10079,14 @@ begin
     if fCtrlFocus <> nil then
     begin
       fCtrlFocus.FocusChanged(False);
-      if  Assigned(fCtrlFocus.fOnFocus) then
-        fCtrlFocus.fOnFocus(fCtrlFocus, False);
-      // Reset Parent Panel FocusedControlIndex only for different parents
-      if (aCtrl = nil) or (aCtrl.Parent <> fCtrlFocus.Parent) then
-        fCtrlFocus.Parent.ResetFocusedControlIndex;
+      if fCtrlFocus <> nil then
+      begin
+        if  Assigned(fCtrlFocus.fOnFocus) then
+            fCtrlFocus.fOnFocus(fCtrlFocus, False);
+        // Reset Parent Panel FocusedControlIndex only for different parents
+        if (aCtrl = nil) or (aCtrl.Parent <> fCtrlFocus.Parent) then
+            fCtrlFocus.Parent.ResetFocusedControlIndex;
+      end;
     end;
 
     if aCtrl <> nil then
