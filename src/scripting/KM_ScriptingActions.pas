@@ -3666,7 +3666,6 @@ begin
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
   end;
-
 end;
 
 

@@ -7,16 +7,18 @@ unit KM_RandomMapGenerator;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_CommonTypes, KM_Terrain, Math,  // KM_Utils = random number
+  KM_CommonTypes, KM_Terrain, Math,
   KM_Points, KM_RMGUtils, KM_Defaults;
 
 
 type
-
-  TBiomeType = (btGrass,btBigGrass,btWetland,btSwamp,btWater,btCoal,btGrassGround,btGround,btTreeGrass,btGroundSnow,btSnow1,btSnow2,btIce,btCoastSand,btGrassSand1,btGrassSand2,btGrassSand3,btSand,btStone,btGold,btEgold,btIron,btEIron,btDark);
-  TObstacleType = (otSwamp,otWater,otWetland,otEgold,otEIron);
-  TObjects = (oStone,oShrub,oBranch,oMushroom,oFlower,oGrass,oDebris,oTreeDry,oTree,oConifer,oTreeTropical,oCactus,oPalm,oWaterTypes);
-  TObjectMix = (omStone,omGrass,omSwamp,omGround,omSnow,omCoal,omDesert,omWater, omWetland);
+  TBiomeType = (btGrass, btBigGrass, btWetland, btSwamp, btWater, btCoal, btGrassGround, btGround, btTreeGrass, btGroundSnow,
+    btSnow1, btSnow2, btIce, btCoastSand, btGrassSand1, btGrassSand2, btGrassSand3, btSand, btStone, btGold, btEgold, btIron,
+    btEIron, btDark);
+  TObstacleType = (otSwamp, otWater, otWetland, otEgold, otEIron);
+  TObjects = (oStone, oShrub, oBranch, oMushroom, oFlower, oGrass, oDebris, oTreeDry, oTree, oConifer, oTreeTropical,
+    oCactus, oPalm, oWaterTypes);
+  TObjectMix = (omStone, omGrass, omSwamp, omGround, omSnow, omCoal, omDesert, omWater, omWetland);
   TBiomeTypeArray = array of TBiomeType;
 
 
@@ -98,10 +100,10 @@ type
     procedure MineFinalFixer(var TilesPartsArr: TTileParts; var A: TKMByte2Array);
   public
     RMGSettings: TKMRMGSettings;
-    constructor Create();
-    destructor Destroy(); override;
-    procedure SaveSettings();
-    procedure LoadSettings();
+    constructor Create;
+    destructor Destroy; override;
+    procedure SaveSettings;
+    procedure LoadSettings;
 
     property Resources: TKMBalancedResources read fRes;
   // Random number generators
@@ -109,7 +111,7 @@ type
   end;
 
 
-  const
+const
   len_BIOME = 24;
   BT: array[0..len_BIOME-1,0..len_BIOME-1] of Integer = (
   //  0  1  2  3  4   5  6  7  8  9  10 11 12 13 14  15 16 17 18 19  20 21 22 23
@@ -248,15 +250,16 @@ type
   );
 
 implementation
-
 uses
   SysUtils, KM_HandsCollection, KM_CommonClasses, KM_Game, KM_ResMapElements, KM_Hand, Dialogs,
   KM_ResTypes;
 
 
 { TKMRandomMapGenerator }
-constructor TKMRandomMapGenerator.Create();
+constructor TKMRandomMapGenerator.Create;
 begin
+  inherited;
+
   fRNG := TKMRandomNumberGenerator.Create;
   fRes := TKMBalancedResources.Create;
 
@@ -401,7 +404,7 @@ begin
 end;
 
 
-destructor TKMRandomMapGenerator.Destroy();
+destructor TKMRandomMapGenerator.Destroy;
 begin
   fRNG.Free;
   fRes.Free;
@@ -410,13 +413,13 @@ begin
 end;
 
 
-procedure TKMRandomMapGenerator.SaveSettings();
+procedure TKMRandomMapGenerator.SaveSettings;
 begin
 
 end;
 
 
-procedure TKMRandomMapGenerator.LoadSettings();
+procedure TKMRandomMapGenerator.LoadSettings;
 begin
 
 end;

@@ -58,6 +58,7 @@ var
 implementation
 uses
   SysUtils,
+  KM_Resource,
   KM_GameCursor, KM_RenderAux, KM_Defaults;
 
 
@@ -341,19 +342,16 @@ end;
 procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
 
   procedure SwapLayers(var Layer1, Layer2: TKMTerrainLayer);
-  var
-    I: Integer;
   begin
     SwapInt(Layer1.Terrain, Layer2.Terrain);
     SwapInt(Layer1.Rotation, Layer2.Rotation);
-    for I := 0 to 3 do
-      Layer1.SwapCorners(Layer2);
+    Layer1.SwapCorners(Layer2);
   end;
 
   procedure SwapTiles(X1, Y1, X2, Y2: Word);
   var
     L: Integer;
-    Tmp: TKMTerrainKind;
+    tmp: TKMTerrainKind;
   begin
     SwapLayers(gTerrain.Land[Y1,X1].BaseLayer, gTerrain.Land[Y2,X2].BaseLayer);
 
@@ -370,24 +368,24 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
       faHorizontal: SwapInt(gTerrain.Land[Y1,X1].Height, gTerrain.Land[Y2  ,X2+1].Height);
       faVertical:   SwapInt(gTerrain.Land[Y1,X1].Height, gTerrain.Land[Y2+1,X2  ].Height);
     end;
-    Tmp := fTerrainPainter.LandTerKind[Y1, X1].TerKind;
+    tmp := fTerrainPainter.LandTerKind[Y1, X1].TerKind;
     fTerrainPainter.LandTerKind[Y1, X1].TerKind := fTerrainPainter.LandTerKind[Y2, X2].TerKind;
-    fTerrainPainter.LandTerKind[Y2, X2].TerKind := Tmp;
+    fTerrainPainter.LandTerKind[Y2, X2].TerKind := tmp;
   end;
 
   procedure FixTerrain(X, Y: Integer);
     procedure FixLayer(var aLayer: TKMTerrainLayer; aFixRotation: Boolean);
     var
       I, J: Integer;
-      Rot: Byte;
-      Corners: array[0..3] of Integer;
+      rot: Byte;
+      corners: array[0..3] of Integer;
     begin
       J := 0;
 
       for I := 0 to 3 do
         if aLayer.Corner[I] then
         begin
-          Corners[J] := I;
+          corners[J] := I;
           Inc(J);
         end;
 
@@ -396,84 +394,140 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
         0,4:  Exit;  //nothing to fix here
         1:    begin
                 // For 1 corner - corner is equal to rotation
-                Rot := Corners[0];
-                if (Rot in [0,2]) xor (aAxis = faVertical) then
-                  Rot := (Rot+1) mod 4
+                rot := corners[0];
+                if (rot in [0,2]) xor (aAxis = faVertical) then
+                  rot := (rot+1) mod 4
                 else
-                  Rot := (Rot+3) mod 4;
-                aLayer.SetCorners([Rot]);
+                  rot := (rot+3) mod 4;
+                aLayer.SetCorners([rot]);
               end;
         2:    begin
-                if Abs(Corners[0] - Corners[1]) = 2 then  //Opposite corners
+                if Abs(corners[0] - corners[1]) = 2 then  //Opposite corners
                 begin
                   if aFixRotation then
-                    Rot := aLayer.Rotation // for opposite corners its not possible to get rotation from corners, as 1 rot equal to 3 rot etc.
+                    rot := aLayer.Rotation // for opposite corners its not possible to get rotation from corners, as 1 rot equal to 3 rot etc.
                   else
-                    Rot := Corners[0];
+                    rot := corners[0];
                   // Fixed Rot is same as for 1 corner
-                  if (Rot in [0,2]) xor (aAxis = faVertical) then
-                    Rot := (Rot+1) mod 4
+                  if (rot in [0,2]) xor (aAxis = faVertical) then
+                    rot := (rot+1) mod 4
                   else
-                    Rot := (Rot+3) mod 4;
-                  aLayer.SetCorners([(Corners[0] + 1) mod 4, (Corners[1] + 1) mod 4]); //no difference for +1 or +3, as they are same on (mod 4)
+                    rot := (rot+3) mod 4;
+                  aLayer.SetCorners([(corners[0] + 1) mod 4, (corners[1] + 1) mod 4]); //no difference for +1 or +3, as they are same on (mod 4)
                 end else begin
-                  if (Corners[0] = 0) and (Corners[1] = 3) then // left vertical straight  = initial Rot = 3
-                    Rot := 3
+                  if (corners[0] = 0) and (corners[1] = 3) then // left vertical straight  = initial Rot = 3
+                    rot := 3
                   else
-                    Rot := Corners[0];
+                    rot := corners[0];
                   // Fixed Rot calculation
-                  if (Rot in [1,3]) xor (aAxis = faVertical) then
+                  if (rot in [1,3]) xor (aAxis = faVertical) then
                   begin
-                    Rot := (Rot+2) mod 4;
-                    aLayer.SetCorners([(Corners[0] + 2) mod 4, (Corners[1] + 2) mod 4]);
+                    rot := (rot+2) mod 4;
+                    aLayer.SetCorners([(corners[0] + 2) mod 4, (corners[1] + 2) mod 4]);
                   end;
                 end;
               end;
         3:    begin
                 // Initial Rot - just go through all 4 possibilities
-                if (Corners[0] = 0) and (Corners[2] = 3) then
-                  Rot := IfThen(Corners[1] = 1, 0, 3)
+                if (corners[0] = 0) and (corners[2] = 3) then
+                  rot := IfThen(corners[1] = 1, 0, 3)
                 else
-                  Rot := Round((Corners[0] + Corners[2]) / 2);
+                  rot := Round((corners[0] + corners[2]) / 2);
                 // Fixed Rot calculation same as for corner
-                if (Rot in [0,2]) xor (aAxis = faVertical) then
-                  Rot := (Rot+1) mod 4
+                if (rot in [0,2]) xor (aAxis = faVertical) then
+                  rot := (rot+1) mod 4
                 else
-                  Rot := (Rot+3) mod 4;
+                  rot := (rot+3) mod 4;
                 aLayer.SetAllCorners;
-                aLayer.Corner[(Rot + 2) mod 4] := False; // all corners except opposite to rotation
+                aLayer.Corner[(rot + 2) mod 4] := False; // all corners except opposite to rotation
               end;
         else  raise Exception.Create('Wrong number of corners');
       end;
       if aFixRotation then
-        aLayer.Rotation := Rot;
+        aLayer.Rotation := rot;
+    end;
+
+    procedure FixObject;
+    const
+      OBJ_MIDDLE_X = [8,9,54..61,80,81,212,213,215];
+      OBJ_MIDDLE_Y = [8,9,54..61,80,81,212,213,215,  1..5,10..12,17..19,21..24,63,126,210,211,249..253];
+    begin
+      //Horizontal flip: Vertex (not middle) objects must be moved right by 1
+      if (aAxis = faHorizontal) and (X < fSelectionRect.Right)
+      and (gTerrain.Land[Y,X+1].Obj = OBJ_NONE) and not (gTerrain.Land[Y,X].Obj in OBJ_MIDDLE_X) then
+      begin
+        gTerrain.Land[Y,X+1].Obj := gTerrain.Land[Y,X].Obj;
+        gTerrain.Land[Y,X].Obj := OBJ_NONE;
+      end;
+
+      //Vertical flip: Vertex (not middle) objects must be moved down by 1
+      if (aAxis = faVertical) and (Y < fSelectionRect.Bottom)
+      and (gTerrain.Land[Y+1,X].Obj = OBJ_NONE) and not (gTerrain.Land[Y,X].Obj in OBJ_MIDDLE_Y) then
+      begin
+        gTerrain.Land[Y+1,X].Obj := gTerrain.Land[Y,X].Obj;
+        gTerrain.Land[Y,X].Obj := OBJ_NONE;
+      end;
     end;
 
   const
-    CORNERS = [10,15,18,21..23,25,38,49,51..54,56,58,65,66,68..69,71,72,74,78,80,81,83,84,86..87,89,90,92,93,95,96,98,99,101,102,104,105,107..108,110..111,113,114,116,118,119,120,122,123,126..127,138,142,143,165,176..193,196,202,203,205,213,220,234..241,243,247];
     CORNERS_REVERSED = [15,21,142,234,235,238];
-    EDGES = [4,12,19,39,50,57,64,67,70,73,76,79,82,85,88,91,94,97,100,103,106,109,112,115,117,121,124..125,139,141,166..175,194,198..200,204,206..212,216..219,223,224..233,242,244];
-    OBJ_MIDDLE_X = [8,9,54..61,80,81,212,213,215];
-    OBJ_MIDDLE_Y = [8,9,54..61,80,81,212,213,215,  1..5,10..12,17..19,21..24,63,126,210,211,249..253];
+
   var
     L: Integer;
-    Ter: Word;
-    Rot: Byte;
+    ter: Word;
+    rot: Byte;
   begin
-    Ter := gTerrain.Land[Y,X].BaseLayer.Terrain;
-    Rot := gTerrain.Land[Y,X].BaseLayer.Rotation mod 4; //Some KaM maps contain rotations > 3 which must be fixed by modding
+    ter := gTerrain.Land[Y,X].BaseLayer.Terrain;
+    rot := gTerrain.Land[Y,X].BaseLayer.Rotation mod 4; //Some KaM maps contain rotations > 3 which must be fixed by modding
 
     //Edges
-    if (Ter in EDGES) and ((Rot in [1,3]) xor (aAxis = faVertical)) then
-      gTerrain.Land[Y,X].BaseLayer.Rotation := (Rot+2) mod 4;
-
-    //Corners
-    if Ter in CORNERS then
+    if gRes.Tileset.TileIsEdge(ter) then
     begin
-      if (Rot in [1,3]) xor (Ter in CORNERS_REVERSED) xor (aAxis = faVertical) then
-        gTerrain.Land[Y,X].BaseLayer.Rotation := (Rot+1) mod 4
+      if (rot in [1,3]) xor (aAxis = faVertical) then
+        gTerrain.Land[Y,X].BaseLayer.Rotation := (rot + 2) mod 4
+    end else
+    //Corners
+    if gRes.Tileset.TileIsCorner(ter) then
+    begin
+      if (rot in [1,3]) xor (ter in CORNERS_REVERSED) xor (aAxis = faVertical) then
+        gTerrain.Land[Y,X].BaseLayer.Rotation := (rot+1) mod 4
       else
-        gTerrain.Land[Y,X].BaseLayer.Rotation := (Rot+3) mod 4;
+        gTerrain.Land[Y,X].BaseLayer.Rotation := (rot+3) mod 4;
+    end
+    else
+    begin
+      case aAxis of
+        faHorizontal: begin
+                        if ter <> ResTileset_MirrorTilesH[ter] then
+                        begin
+                          gTerrain.Land[Y,X].BaseLayer.Terrain := ResTileset_MirrorTilesH[ter];
+                          gTerrain.Land[Y,X].BaseLayer.Rotation := (8 - rot) mod 4; // Rotate left (in the opposite direction to normal rotation)
+                        end
+                        else
+                        if ter <> ResTileset_MirrorTilesV[ter] then
+                        begin
+                          gTerrain.Land[Y,X].BaseLayer.Terrain := ResTileset_MirrorTilesV[ter];
+                          // do not rotate mirrored tile on odd rotation
+                          if (rot mod 2) = 0 then
+                            gTerrain.Land[Y,X].BaseLayer.Rotation := (rot + 2) mod 4; // rotate 180 degrees
+                        end;
+                      end;
+        faVertical:   begin
+                        if ter <> ResTileset_MirrorTilesV[ter] then
+                        begin
+                          gTerrain.Land[Y,X].BaseLayer.Terrain := ResTileset_MirrorTilesV[ter];
+                          gTerrain.Land[Y,X].BaseLayer.Rotation := (8 - rot) mod 4; // Rotate left (in the opposite direction to normal rotation)
+                        end
+                        else
+                        if ter <> ResTileset_MirrorTilesH[ter] then
+                        begin
+                          gTerrain.Land[Y,X].BaseLayer.Terrain := ResTileset_MirrorTilesH[ter];
+                          // do not rotate mirrored tile on odd rotation
+                          if (rot mod 2) = 0 then
+                            gTerrain.Land[Y,X].BaseLayer.Rotation := (rot + 2) mod 4; // rotate 180 degrees
+                        end;
+                      end;
+      end;
     end;
 
     FixLayer(gTerrain.Land[Y,X].BaseLayer, False);
@@ -481,21 +535,7 @@ procedure TKMSelection.Selection_Flip(aAxis: TKMFlipAxis);
     for L := 0 to gTerrain.Land[Y,X].LayersCnt - 1 do
       FixLayer(gTerrain.Land[Y,X].Layer[L], True);
 
-    //Horizontal flip: Vertex (not middle) objects must be moved right by 1
-    if (aAxis = faHorizontal) and (X < fSelectionRect.Right)
-    and (gTerrain.Land[Y,X+1].Obj = OBJ_NONE) and not (gTerrain.Land[Y,X].Obj in OBJ_MIDDLE_X) then
-    begin
-      gTerrain.Land[Y,X+1].Obj := gTerrain.Land[Y,X].Obj;
-      gTerrain.Land[Y,X].Obj := OBJ_NONE;
-    end;
-
-    //Vertical flip: Vertex (not middle) objects must be moved down by 1
-    if (aAxis = faVertical) and (Y < fSelectionRect.Bottom)
-    and (gTerrain.Land[Y+1,X].Obj = OBJ_NONE) and not (gTerrain.Land[Y,X].Obj in OBJ_MIDDLE_Y) then
-    begin
-      gTerrain.Land[Y+1,X].Obj := gTerrain.Land[Y,X].Obj;
-      gTerrain.Land[Y,X].Obj := OBJ_NONE;
-    end;
+    FixObject;
   end;
 
 var

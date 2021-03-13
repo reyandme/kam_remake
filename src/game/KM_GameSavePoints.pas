@@ -65,7 +65,25 @@ implementation
 uses
   SysUtils, Classes;
 
-  
+
+{ TKMSavePoint }
+constructor TKMSavePoint.Create(aStream: TKMemoryStream; aTick: Cardinal);
+begin
+  inherited Create;
+
+  fStream := aStream;
+  fTick := aTick;
+end;
+
+
+destructor TKMSavePoint.Destroy;
+begin
+  fStream.Free;
+
+  inherited;
+end;
+
+
 { TKMSavePointCollection }
 constructor TKMSavePointCollection.Create;
 begin
@@ -394,24 +412,6 @@ begin
   finally
     Unlock;
   end;
-end;
-
-
-{ TKMSavePoint }
-constructor TKMSavePoint.Create(aStream: TKMemoryStream; aTick: Cardinal);
-begin
-  inherited Create;
-
-  fStream := aStream;
-  fTick := aTick;
-end;
-
-
-destructor TKMSavePoint.Destroy;
-begin
-  fStream.Free;
-
-  inherited;
 end;
 
 

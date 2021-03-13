@@ -56,7 +56,7 @@ type
     procedure SetCorners(const aCorners: TKMByteSet); overload;
     procedure ClearCorners;
     procedure CopyCorners(aLayer: TKMTerrainLayer);
-    procedure SwapCorners(aLayer: TKMTerrainLayer);
+    procedure SwapCorners(var aLayer: TKMTerrainLayer);
     procedure SetAllCOrners;
 
     procedure Save(aSaveStream: TKMemoryStream);
@@ -442,7 +442,7 @@ begin
     1:  Result := ToBoolean(Corners and $2); // and 0010
     2:  Result := ToBoolean(Corners and $4); // and 0100
     3:  Result := ToBoolean(Corners and $8); // and 1000
-    else raise Exception.Create('Wrong conner id');
+    else raise Exception.Create('Wrong corner id');
   end;
 end;
 
@@ -500,7 +500,7 @@ begin
 end;
 
 
-procedure TKMTerrainLayer.SwapCorners(aLayer: TKMTerrainLayer);
+procedure TKMTerrainLayer.SwapCorners(var aLayer: TKMTerrainLayer);
 begin
   SwapInt(Corners, aLayer.Corners);
 end;

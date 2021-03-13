@@ -1,4 +1,5 @@
 unit KM_GameCursor;
+{$I KaM_Remake.inc}
 interface
 uses
   Classes, KM_Defaults, KM_Points, KM_ResTileset;
@@ -51,6 +52,8 @@ implementation
 {TKMGameCursor}
 constructor TKMGameCursor.Create;
 begin
+  inherited;
+
   Reset;
 end;
 
@@ -76,5 +79,6 @@ begin
 
   Reset;
 end;
+
 
 end.

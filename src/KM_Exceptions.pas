@@ -1,4 +1,5 @@
 unit KM_Exceptions;
+{$I KaM_Remake.inc}
 interface
 uses
   MadExcept, madNVAssistant;

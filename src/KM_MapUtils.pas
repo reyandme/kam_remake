@@ -1,4 +1,5 @@
 unit KM_MapUtils;
+{$I KaM_Remake.inc}
 interface
 
   function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
