@@ -692,7 +692,7 @@ begin
           4: begin MapX := 256; MapY := 256; end;
         end;
       // Create empty map in background
-      gGame.MapEdStartEmptyMap(MapX, MapY);
+      gGame.MapEdStartEmptyMap(MapX, MapY, True);
       // Get RMG config
       GetSettingsFromGUI();
       // Call RMG

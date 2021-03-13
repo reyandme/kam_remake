@@ -147,7 +147,7 @@ type
                     aAIType: TKMAIType = aitNone; aAutoselectHumanLoc: Boolean = False);
 
     procedure AfterStart;
-    procedure MapEdStartEmptyMap(aSizeX, aSizeY: Integer);
+    procedure MapEdStartEmptyMap(aSizeX, aSizeY: Integer; aIsRMG: Boolean);
     procedure LoadFromStream(var LoadStream: TKMemoryStream);
     procedure LoadFromFile(const aPathName: UnicodeString; const aCustomReplayFile: UnicodeString = '');
     procedure LoadSavePoint(aTick: Cardinal; const aSaveFile: UnicodeString);
@@ -1260,7 +1260,7 @@ end;
 
 
 //Start MapEditor (empty map)
-procedure TKMGame.MapEdStartEmptyMap(aSizeX, aSizeY: Integer);
+procedure TKMGame.MapEdStartEmptyMap(aSizeX, aSizeY: Integer; aIsRMG: Boolean);
 var
   I: Integer;
 begin
@@ -1270,7 +1270,8 @@ begin
   fSaveFile := '';
 
   fMapEditor := TKMMapEditor.Create(True, fTerrainPainter, fMapEditorInterface.HistoryUndoRedo, fMapEditorInterface.HistoryAddCheckpoint);
-  fMapEditor.OnEyedropper := fMapEditorInterface.GuiTerrain.GuiTiles.TilesTableSetTileTexId;
+  if not aIsRMG then
+    fMapEditor.OnEyedropper := fMapEditorInterface.GuiTerrain.GuiTiles.TilesTableSetTileTexId;
   fMapEditor.MissionDefSavePath := fParams.Name + '.dat';
   gTerrain.MakeNewMap(aSizeX, aSizeY, True);
   fTerrainPainter.InitEmpty;

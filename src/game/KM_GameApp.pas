@@ -861,7 +861,7 @@ begin
   CreateGame(aGameMode);
   gGame.SetSeed(4); //Every time the game will be the same as previous. Good for debug.
   try
-    gGame.MapEdStartEmptyMap(aSizeX, aSizeY);
+    gGame.MapEdStartEmptyMap(aSizeX, aSizeY, False);
   except
     on E : Exception do
     begin
