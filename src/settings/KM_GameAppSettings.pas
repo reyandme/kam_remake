@@ -4,7 +4,8 @@ interface
 uses
   Generics.Collections,
   KM_IoXML,
-  KM_Settings;
+  KM_Settings,
+  dialogs;
 
 
 type
@@ -72,7 +73,7 @@ var
 
 implementation
 uses
-  SysUtils, INIfiles, Math,
+  SysUtils, INIfiles, Math, Classes,
 
   KM_XmlHelper,
   KM_Defaults;
@@ -94,12 +95,59 @@ begin
 end;
 
 
-procedure TKMSettingsXML.LoadFromFile(const aPath: string);
+procedure TKMSettingsXML.LoadFromFile(const aPath: String);
+// local procedure
+procedure saveFile(const path: String; const src: String);
+var
+  Stream: TFileStream;
+begin
+  Stream := TFileStream.create(path, fmCreate);
+  try
+    Stream.Write(Pointer(src)^, Length(src));
+  finally
+    Stream.Free;
+  end;
+end;
+// local function
+function readToStringFromFile(const FileName: String) : String;
+var
+  FileContent : String;
+  Stream: TFileStream;
+begin
+  Stream := TFileStream.Create(FileName, fmOpenRead + fmShareDenyWrite);
+  try
+     SetLength(FileContent, Stream.Size);
+     Stream.Read(Pointer(FileContent)^, Stream.Size);
+  finally
+    Stream.Free;
+  end;
+      Result := FileContent;
+end;
+
+var
+   BackupPath : String;
+   BackupContent : String;
 begin
   inherited;
+    BackupPath := ExtractFilePath(aPath) + 'backup_' + ExtractFileName(aPath);
+    BackupContent := readToStringFromFile(aPath);
+	
+	try
+           fXML.LoadFromFile(aPath);
+	except on err : EEncodingError do
+          begin
+	    fXML.Free;
+	    saveFile(BackupPath, BackupContent);
+	    ShowMessage('Error with file process. Err : ' + err.ToString()
+              + '. Did backup by path: ' + BackupPath
+              + '. BackupContent length : ' + BackupContent.Length.ToString());
 
-  fXML.LoadFromFile(aPath);
-  fRoot := fXML.Root;
+            DeleteFile(aPath);
+	    fXML := TKMXMLDocument.Create;
+	    fXML.LoadFromFile(aPath);
+          end;
+    end;
+    fRoot := fXML.Root;
 end;
 
 
