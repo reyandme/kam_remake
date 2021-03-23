@@ -1638,7 +1638,7 @@ const
   end;
 
 var
-  I,K,J,WareInGDP, SelectedItemTag, SelectedGDPItemTag: Integer;
+  I,K,J,WareInGDP, SelectedItemTag, SelectedGDPItemTag, SelectedTopIndex, SelectedGDPTopIndex: Integer;
   W: TKMWareType;
   ListRow: TKMListRow;
   ST: TKMStatType;
@@ -1651,6 +1651,8 @@ begin
   if Columnbox_WaresGDP.IsSelected then
     SelectedGDPItemTag := Columnbox_WaresGDP.SelectedItem.Tag;
 
+  SelectedTopIndex := Columnbox_Wares.TopIndex;
+  SelectedGDPTopIndex := Columnbox_WaresGDP.TopIndex;
   //Prepare columnboxes
   Columnbox_Wares.Clear;
   Columnbox_WaresGDP.Clear;
@@ -1679,6 +1681,9 @@ begin
       Break;
     end;
   end;
+
+  Columnbox_Wares.TopIndex := SelectedTopIndex;
+  Columnbox_WaresGDP.TopIndex := SelectedGDPTopIndex;
 
   //Fill in chart values
   for ST := Low(TKMStatType) to High(TKMStatType) do

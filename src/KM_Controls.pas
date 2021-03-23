@@ -1409,6 +1409,7 @@ type
     property RowCount: Integer read fRowCount;
     property ItemHeight: Byte read fItemHeight write fItemHeight;
     property Header: TKMListHeader read fHeader;
+    property TopIndex: Integer read GetTopIndex write SetTopIndex;
 
     //Sort properties are just hints to render Up/Down arrows. Actual sorting is done by client
     property OnColumnClick: TIntegerEvent read GetOnColumnClick write SetOnColumnClick;
