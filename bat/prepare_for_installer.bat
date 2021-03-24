@@ -4,4 +4,3 @@ call get_kam_folder.bat
 
 call create.bat
 
-PAUSE

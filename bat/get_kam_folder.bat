@@ -58,5 +58,3 @@ exit /B 2
 :exit0
 @echo off
 exit /B 0
-
-PAUSE
