@@ -86,7 +86,7 @@ type
     function HouseTypeToOccupantType(aHouseType: Integer): Integer;
     function HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
     function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
-	function HouseWareBlockedTakeOut(aHouseID, aWareType: Integer): Boolean;
+    function HouseWareBlockedTakeOut(aHouseID, aWareType: Integer): Boolean;
     function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer;
     function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
     function HouseWoodcutterMode(aHouseID: Integer): Integer;
@@ -2260,6 +2260,10 @@ begin
   end;
 end;
 
+
+//* Version: 12600
+//* Returns true if the specified ware in the specified storehouse or barracks is blocked for taking out (yellow triangle)
+//* Result: Ware blocked for taking out
 function TKMScriptStates.HouseWareBlockedTakeOut(aHouseID, aWareType: Integer): Boolean;
 var
   H: TKMHouse;
