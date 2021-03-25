@@ -102,7 +102,7 @@ type
     procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
     procedure HouseWoodcutterMode(aHouseID: Integer; aWoodcutterMode: Byte);
     procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
-	procedure HouseWareBlockTakeOut(aHouseID, aWareType: Integer; aBlocked: Boolean);
+    procedure HouseWareBlockTakeOut(aHouseID, aWareType: Integer; aBlocked: Boolean);
     procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
 
     procedure Log(const aText: AnsiString);
