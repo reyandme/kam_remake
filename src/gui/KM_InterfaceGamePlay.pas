@@ -2253,7 +2253,8 @@ var
   I: Integer;
   pad: Integer;
 begin
-  pad := Byte(fUIMode in [umMP, umSpectate]) * 2 +
+  pad := Byte(CanShowChat) +
+         Byte(CanShowAllies) +
          Byte(Image_MessageLog.Visible);
   for I := 0 to MAX_VISIBLE_MSGS do
     Image_Message[I].Top := Panel_Main.Height - 48 - (I + pad) * 48;
@@ -2466,6 +2467,10 @@ procedure TKMGamePlayInterface.UpdateMessageImages;
 var
   I: Integer;
 begin
+  Image_MessageLog.Top := Panel_Main.Height - 48
+                                            - IfThen(CanShowAllies, 48)
+                                            - IfThen(CanShowChat, 48);
+
   for I := 0 to MAX_VISIBLE_MSGS do
     Image_Message[I].Top := Panel_Main.Height - 48 - I * 48
                             - IfThen(CanShowChat, 48)
@@ -3713,7 +3718,8 @@ begin
     and not HasLostMPGame
     and not fGuiGameUnit.JoiningGroups
     and not fPlacingBeacon
-    and (gMySpectator.Selected is TKMUnitGroup) then
+    and (gMySpectator.Selected is TKMUnitGroup)
+    and gMySpectator.IsSelectedMyObj then
   begin
     group := TKMUnitGroup(gMySpectator.Selected);
     obj := gMySpectator.HitTestCursor;
@@ -3891,10 +3897,8 @@ begin
     // Only own and ally units/houses can be selected
     if (entity.Owner <> -1) and
       ((entity.Owner = gMySpectator.HandID)
-      or ((ALLOW_SELECT_ALLY_UNITS
-          or ((entity is TKMHouse) and TKMHouse(entity).AllowAllyToView))
-        and (gMySpectator.Hand.Alliances[entity.Owner] = atAlly))
-      or (ALLOW_SELECT_ENEMIES and (gMySpectator.Hand.Alliances[entity.Owner] = atEnemy)) // Enemies can be selected for debug
+      or ALLOW_SELECT_ALL
+      or (entity.AllowAllyToSelect and (gMySpectator.Hand.Alliances[entity.Owner] = atAlly))
       or (fUIMode in [umReplay, umSpectate])) then
     begin
       gRes.Cursors.Cursor := kmcInfo;
@@ -3902,7 +3906,8 @@ begin
     end;
   end;
 
-  if (gMySpectator.Selected.IsGroup)
+  if gMySpectator.Selected.IsGroup
+    and gMySpectator.IsSelectedMyObj
     and (fUIMode in [umSP, umMP]) and not HasLostMPGame
     and not gMySpectator.Hand.InCinematic
     and (gMySpectator.FogOfWar.CheckTileRevelation(gGameCursor.Cell.X, gGameCursor.Cell.Y) > 0) then

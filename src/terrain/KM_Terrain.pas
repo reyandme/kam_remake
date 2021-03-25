@@ -18,6 +18,8 @@ type
                     vuNESW);   //Vertex is used NE-SW like this: /
   TKMFenceKind = (fncNone, fncCorn, fncWine, fncHousePlan, fncHouseFence);
 
+  TKMTreeType = (ttNone, ttOnGrass, ttOnYellowGrass, ttOnDirt);
+
   TKMTileChangeType = (tctTerrain, tctRotation, tctHeight, tctObject);
 
   TKMTileChangeTypeSet = set of TKMTileChangeType;
@@ -230,6 +232,7 @@ type
                                 ChosenTiles: TKMPointDirList);
     function FindFishWater(const aLoc: TKMPoint; aRadius: Integer; const aAvoidLoc: TKMPoint; aIgnoreWorkingUnits:
                            Boolean; out FishPoint: TKMPointDir): Boolean;
+    function FindBestTreeType(const aLoc: TKMPoint): TKMTreeType;
     function CanFindFishingWater(const aLoc: TKMPoint; aRadius: Integer): Boolean;
     function ChooseTreeToPlant(const aLoc: TKMPoint): Integer;
     procedure GetHouseMarks(const aLoc: TKMPoint; aHouseType: TKMHouseType; aList: TKMPointTagList);
@@ -329,10 +332,10 @@ type
     function TileIsWalkable(const Loc: TKMPoint): Boolean; inline;
     function TileIsRoadable(const Loc: TKMPoint): Boolean; inline;
 
-    function TileCornerTerrain(aX, aY: Word; aCorner: Byte): Word;
-    function TileCornersTerrains(aX, aY: Word): TKMWordArray;
-    function TileCornerTerKind(aX, aY: Word; aCorner: Byte): TKMTerrainKind;
-    procedure GetTileCornersTerKinds(aX, aY: Word; out aCornerTerKinds: TKMTerrainKindCorners);
+    function TileCornerTerrain(aX, aY: Integer; aCorner: Byte): Word;
+    function TileCornersTerrains(aX, aY: Integer): TKMWordArray;
+    function TileCornerTerKind(aX, aY: Integer; aCorner: Byte): TKMTerrainKind;
+    procedure GetTileCornersTerKinds(aX, aY: Integer; out aCornerTerKinds: TKMTerrainKindCorners);
 
     procedure GetVerticeTerKinds(const aLoc: TKMPoint; out aVerticeTerKinds: TKMTerrainKindCorners);
 
@@ -1441,7 +1444,8 @@ begin
     and not Is_NW_SE_OnlyVertex
     //Woodcutter will dig out other object in favour of his tree
     and ((Land[Y,X].Obj = OBJ_NONE) or (gMapElements[Land[Y,X].Obj].CanBeRemoved))
-    and CheckHeightPass(KMPoint(X,Y), hpWalking);
+    and CheckHeightPass(KMPoint(X,Y), hpWalking)
+    and (FindBestTreeType(KMPoint(X,Y)) <> ttNone); // We could plant some tree type
 end;
 
 
@@ -1836,7 +1840,7 @@ end;
 
 
 //Get tile corner terrain id
-function TKMTerrain.TileCornerTerrain(aX, aY: Word; aCorner: Byte): Word;
+function TKMTerrain.TileCornerTerrain(aX, aY: Integer; aCorner: Byte): Word;
 const
   TOO_BIG_VALUE = 50000;
 var
@@ -1858,7 +1862,7 @@ end;
 
 
 //Get tile corners terrain id
-function TKMTerrain.TileCornersTerrains(aX, aY: Word): TKMWordArray;
+function TKMTerrain.TileCornersTerrains(aX, aY: Integer): TKMWordArray;
 var
   K: Integer;
   cornersTKinds: TKMTerrainKindCorners;
@@ -1870,7 +1874,7 @@ begin
 end;
 
 
-function TKMTerrain.TileCornerTerKind(aX, aY: Word; aCorner: Byte): TKMTerrainKind;
+function TKMTerrain.TileCornerTerKind(aX, aY: Integer; aCorner: Byte): TKMTerrainKind;
 var
   L: Integer;
 begin
@@ -1893,7 +1897,7 @@ end;
 
 
 //Get tile corners terrain kinds
-procedure TKMTerrain.GetTileCornersTerKinds(aX, aY: Word; out aCornerTerKinds: TKMTerrainKindCorners);
+procedure TKMTerrain.GetTileCornersTerKinds(aX, aY: Integer; out aCornerTerKinds: TKMTerrainKindCorners);
 var
   K: Integer;
 begin
@@ -1904,11 +1908,21 @@ end;
 
 //Get vertice terrain kinds
 procedure TKMTerrain.GetVerticeTerKinds(const aLoc: TKMPoint; out aVerticeTerKinds: TKMTerrainKindCorners);
+
+  function GetTerKind(aX, aY, aCorner: Integer): TKMTerrainKind;
+  begin
+    Result := tkCustom;
+    if TileInMapCoords(aX, aY) then
+      Result := TileCornerTerKind(aX, aY, aCorner);
+  end;
+
+var
+  I, X, Y: Integer;
 begin
-  aVerticeTerKinds[0] := TileCornerTerKind(aLoc.X - 1, aLoc.Y - 1, 2); //  0 | 1
-  aVerticeTerKinds[1] := TileCornerTerKind(aLoc.X    , aLoc.Y - 1, 3); //  __|__
-  aVerticeTerKinds[2] := TileCornerTerKind(aLoc.X    , aLoc.Y    , 0); //    |
-  aVerticeTerKinds[3] := TileCornerTerKind(aLoc.X - 1, aLoc.Y    , 1); //  3 | 2
+  aVerticeTerKinds[0] := GetTerKind(aLoc.X - 1, aLoc.Y - 1, 2); //  0 | 1
+  aVerticeTerKinds[1] := GetTerKind(aLoc.X    , aLoc.Y - 1, 3); //  __|__
+  aVerticeTerKinds[2] := GetTerKind(aLoc.X    , aLoc.Y    , 0); //    |
+  aVerticeTerKinds[3] := GetTerKind(aLoc.X - 1, aLoc.Y    , 1); //  3 | 2
 end;
 
 
@@ -2877,7 +2891,8 @@ begin
 
       if (KMLengthDiag(aLoc, T) <= aRadius)
         and Route_CanBeMadeToVertex(aLoc, T, tpWalk)
-        and ChooseCuttingDirection(aLoc, T, cuttingPoint) then
+        and ChooseCuttingDirection(aLoc, T, cuttingPoint)
+        and (FindBestTreeType(T) <> ttNone) then // Check if tile is ok to plant a tree there, according to vertex terrainKind
         aTiles.Add(T);
     end;
   finally
@@ -2953,10 +2968,7 @@ begin
 end;
 
 
-function TKMTerrain.ChooseTreeToPlant(const aLoc: TKMPoint): Integer;
-type
-  TKMTreeType = (ttNone, ttOnGrass, ttOnYellowGrass, ttOnDirt);
-
+function TKMTerrain.FindBestTreeType(const aLoc: TKMPoint): TKMTreeType;
 const
   // Dependancy found empirically
   TERKIND_TO_TREE_TYPE: array[TKMTerrainKind] of TKMTreeType = (
@@ -2991,27 +3003,27 @@ const
     ttNone,           //    tkFastWater,
     ttNone            //    tkLava);
   );
+var
+  I, K: Integer;
+  treeType: TKMTreeType;
+  verticeCornerTKinds: TKMTerrainKindCorners;
+begin
+  // Find tree type to plant by vertice corner terrain kinds
+  Result := ttNone;
+  GetVerticeTerKinds(aLoc, verticeCornerTKinds);
+  // Compare corner terKinds and find if there are at least 2 of the same tree type
+  for I := 0 to 3 do
+    for K := I + 1 to 3 do
+    begin
+      treeType := TERKIND_TO_TREE_TYPE[verticeCornerTKinds[I]];
+      if    (treeType <> ttNone)
+        and (treeType = TERKIND_TO_TREE_TYPE[verticeCornerTKinds[K]]) then //Pair found - we can choose this tree type
+        Exit(treeType);
+    end;
+end;
 
-  function FindBestTreeType: TKMTreeType;
-  var
-    I, K: Integer;
-    treeType: TKMTreeType;
-    verticeCornerTKinds: TKMTerrainKindCorners;
-  begin
-    // Find tree type to plant by vertice corner terrain kinds
-    Result := ttNone;
-    GetVerticeTerKinds(aLoc, verticeCornerTKinds);
-    // Compare corner terKinds and find if there are at least 2 of the same tree type
-    for I := 0 to 3 do
-      for K := I + 1 to 3 do
-      begin
-        treeType := TERKIND_TO_TREE_TYPE[verticeCornerTKinds[I]];
-        if    (treeType <> ttNone)
-          and (treeType = TERKIND_TO_TREE_TYPE[verticeCornerTKinds[K]]) then //Pair found - we can choose this tree type
-          Exit(treeType);
-      end;
-  end;
 
+function TKMTerrain.ChooseTreeToPlant(const aLoc: TKMPoint): Integer;
 var
   bestTreeType: TKMTreeType;
 begin
@@ -3022,7 +3034,7 @@ begin
     26..28,75..80,182,190:                                                 bestTreeType := ttOnYellowGrass;
     16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              bestTreeType := ttOnDirt;
     else
-      bestTreeType := FindBestTreeType;
+      bestTreeType := FindBestTreeType(aLoc);
   end;
 
   case bestTreeType of

@@ -2239,12 +2239,12 @@ begin
   if fTask <> nil then
     TaskStr := fTask.ObjToString;
 
-  Result := Format('UID = %d%sType = %s%sAction = %s%sTask = [%s]%sCurrPosition = %s%sIsDead = %s',
-                   [UID, aSeparator,
+  Result := inherited ObjToStringShort(aSeparator) +
+            Format('%sType = %s%sAction = %s%sTask = [%s]%sIsDead = %s',
+                   [aSeparator,
                     GetEnumName(TypeInfo(TKMUnitType), Integer(fType)), aSeparator,
                     ActStr, aSeparator,
                     TaskStr, aSeparator,
-                    TypeToString(fPosition), aSeparator,
                     BoolToStr(fIsDead, True)]);
 end;
 
@@ -2263,19 +2263,17 @@ begin
   if fInHouse <> nil then
     InHouseStr := Format('[UID = %d, Type = %s]', [fInHouse.UID, GetEnumName(TypeInfo(TKMHouseType), Integer(fInHouse.HouseType))]);
 
-  Result := ObjToStringShort(aSeparator) +
-            Format('%sPositionF = %s%sPrevPosition = %s%sNextPosition = %s%s' +
+  Result := inherited ObjToString(aSeparator) +
+            Format('%sPrevPosition = %s%sNextPosition = %s%s' +
                    'Thought = %s%sHitPoints = %d%sHitPointCounter = %d%sCondition = %d%s' +
-                   'Owner = %d%sHome = %s%sInHouse = %s%sVisible = %s%sAnimStep = %d',
+                   'Home = %s%sInHouse = %s%sVisible = %s%sAnimStep = %d',
                    [aSeparator,
-                    TypeToString(fPositionF), aSeparator,
                     TypeToString(fPrevPosition), aSeparator,
                     TypeToString(fNextPosition), aSeparator,
                     GetEnumName(TypeInfo(TKMUnitThought), Integer(fThought)), aSeparator,
                     fHitPoints, aSeparator,
                     fHitPointCounter, aSeparator,
                     fCondition, aSeparator,
-                    Owner, aSeparator,
                     HomeStr, aSeparator,
                     InHouseStr, aSeparator,
                     BoolToStr(fVisible, True), aSeparator,

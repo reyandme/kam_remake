@@ -44,6 +44,7 @@ type
     function GameSpeedChangeAllowed: Boolean;
     function GameTime: Cardinal;
 
+    function GroupAllowAllyToSelect(aGroupID: Integer): Boolean;
     function GroupAssignedToDefencePosition(aGroupID, X, Y: Integer): Boolean;
     function GroupAt(aX, aY: Word): Integer;
     function GroupColumnCount(aGroupID: Integer): Integer;
@@ -57,8 +58,8 @@ type
     function GroupOwner(aGroupID: Integer): Integer;
     function GroupType(aGroupID: Integer): Integer;
 
+    function HouseAllowAllyToSelect(aHouseID: Integer): Boolean;
     function HouseAt(aX, aY: Word): Integer;
-    function HouseAllowAllyToView(aHouseID: Integer): Boolean;
     function HouseBarracksRallyPointX(aBarracks: Integer): Integer;
     function HouseBarracksRallyPointY(aBarracks: Integer): Integer;
     function HouseBuildingProgress(aHouseID: Integer): Word;
@@ -186,6 +187,7 @@ type
     function StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
     function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 
+    function UnitAllowAllyToSelect(aUnitID: Integer): Boolean;
     function UnitAt(aX, aY: Word): Integer;
     function UnitCarrying(aUnitID: Integer): Integer;
     function UnitDead(aUnitID: Integer): Boolean;
@@ -1568,6 +1570,29 @@ begin
 end;
 
 
+//* Version: 10940
+//* Return if specified house is allowed to be selected and viewed by his allies
+function TKMScriptStates.HouseAllowAllyToSelect(aHouseID: Integer): Boolean;
+var
+  H: TKMHouse;
+begin
+  try
+    Result := False;
+    if aHouseID > 0 then
+    begin
+      H := fIDCache.GetHouse(aHouseID);
+      if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+        Result := H.AllowAllyToSelect;
+    end
+    else
+      LogParamWarning('States.HouseAllowAllyToSelect', [aHouseID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 5057
 //* Returns the ID of the house at the specified location or -1 if no house exists there
 //* Result: House ID
@@ -1592,30 +1617,6 @@ begin
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
   end;
-end;
-
-
-//* Version: 10940
-//* Return if specified house is allowed to be viewed by his allies
-function TKMScriptStates.HouseAllowAllyToView(aHouseID: Integer): Boolean;
-var
-  H: TKMHouse;
-begin
-  try
-    Result := False;
-    if aHouseID > 0 then
-    begin
-      H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and not H.IsDestroyed  and (H.IsComplete) then
-        Result := H.AllowAllyToView;
-    end
-    else
-      LogParamWarning('States.HouseAllowAllyToView', [aHouseID]);
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-
 end;
 
 
@@ -3528,6 +3529,30 @@ begin
 end;
 
 
+//* Version: 12600
+//* Return if specified unit is allowed to be selected and viewed by his allies
+//* For warriors returns if allies can select their group
+function TKMScriptStates.UnitAllowAllyToSelect(aUnitID: Integer): Boolean;
+var
+  U: TKMUnit;
+begin
+  try
+    Result := False;
+    if aUnitID > 0 then
+    begin
+      U := fIDCache.GetUnit(aUnitID);
+      if U <> nil then
+        Result := U.AllowAllyToSelect;
+    end
+    else
+      LogParamWarning('States.UnitAllowAllyToSelect', [aUnitID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 5057
 //* Returns the ID of the unit on the specified tile or -1 if no unit exists there
 //* Result: Unit ID
@@ -4037,6 +4062,29 @@ function TKMScriptStates.UnitLowHunger: Integer;
 begin
   try
     Result := UNIT_MIN_CONDITION*CONDITION_PACE;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 12600
+//* Return if specified group is allowed to be selected and viewed by his allies
+function TKMScriptStates.GroupAllowAllyToSelect(aGroupID: Integer): Boolean;
+var
+  G: TKMUnitGroup;
+begin
+  try
+    Result := False;
+    if aGroupID > 0 then
+    begin
+      G := fIDCache.GetGroup(aGroupID);
+      if G <> nil then
+        Result := G.AllowAllyToSelect;
+    end
+    else
+      LogParamWarning('States.GroupAllowAllyToSelect', [aGroupID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

@@ -120,7 +120,7 @@ procedure TForm1.Edit1Change(Sender: TObject);
 begin
   fIsValidatePath := fof_None;
 
-  if FileExists(Edit1.Text) and (ExtractFileExt(Edit1.Text) = '.' + EXT_FILE_SCRIPT) then
+  if FileExists(Edit1.Text) and (LowerCase(ExtractFileExt(Edit1.Text)) = '.' + EXT_FILE_SCRIPT) then
     fIsValidatePath := fof_File
   else
     if SysUtils.DirectoryExists(Edit1.Text) then

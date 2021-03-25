@@ -483,7 +483,10 @@ end;
 procedure TKMGUIGameUnit.Army_ActivateControls(aGroup: TKMUnitGroup);
 var AcceptOrders: Boolean;
 begin
-  AcceptOrders := aGroup.CanTakeOrders and OnArmyCanTakeOrder(nil);
+  AcceptOrders :=     aGroup.CanTakeOrders
+                  and OnArmyCanTakeOrder(nil)
+                  and (gMySpectator.Selected <> nil) // just in case
+                  and gMySpectator.IsSelectedMyObj;  // do not allow orders for allied units (for now)
 
   // Button_Army_GoTo.Enabled    := AcceptOrders;
   Button_Army_Stop.Enabled    := AcceptOrders;

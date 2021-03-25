@@ -2054,8 +2054,9 @@ function TKMUnitGroup.ObjToStringShort(const aSeparator: String = '|'): String;
 begin
   if Self = nil then Exit('nil');
 
-  Result := Format('UID = %d%sType = %s%sMembersCount = %d',
-                   [UID, aSeparator,
+  Result := inherited ObjToStringShort(aSeparator) +
+            Format('%sType = %s%sMembersCnt = %d',
+                   [aSeparator,
                     GetEnumName(TypeInfo(TKMGroupType), Integer(fGroupType)), aSeparator,
                     Count]);
 end;
@@ -2080,11 +2081,10 @@ begin
   if fOrderTargetHouse <> nil then
     TargetHouseStr := fOrderTargetHouse.ObjToStringShort(', ');
 
-  Result := ObjToStringShort +
-            Format('%sOwner = %d%sUnitsPerRow = %d%sGroupOrder = %s%sOrderLoc = %s%s' +
+  Result := inherited ObjToString(aSeparator) +
+            Format('%sUnitsPerRow = %d%sGroupOrder = %s%sOrderLoc = %s%s' +
                    'OrderTargetUnit = [%s]%sOrderTargetGroup = [%s]%sOrderTargetHouse = [%s]%sPushbackCommandsCnt = [%d]',
                    [aSeparator,
-                    Owner, aSeparator,
                     fUnitsPerRow, aSeparator,
                     GetEnumName(TypeInfo(TKMGroupOrder), Integer(fOrder)), aSeparator,
                     TypeToString(fOrderLoc), aSeparator,

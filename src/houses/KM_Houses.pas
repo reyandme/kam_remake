@@ -129,7 +129,6 @@ type
     fResourceDepletedMsgIssued: Boolean;
     fOrderCompletedMsgIssued: Boolean;
     fNeedIssueOrderCompletedMsg: Boolean;
-    fAllowAllyToView: Boolean;
     fPlacedOverRoad: Boolean; //Is house entrance placed over road
 
     procedure CheckOnSnow;
@@ -207,8 +206,6 @@ type
 
     procedure IssueResourceDepletedMsg;
     function GetResourceDepletedMessageId: Word;
-
-    property AllowAllyToView: Boolean read fAllowAllyToView write fAllowAllyToView;
 
     property ResourceDepleted: Boolean read fResourceDepletedMsgIssued write fResourceDepletedMsgIssued;
     property OrderCompletedMsgIssued: Boolean read fOrderCompletedMsgIssued;
@@ -433,8 +430,9 @@ function TKMHouseSketch.ObjToStringShort(const aSeparator: String = '|'): String
 begin
   if Self = nil then Exit('nil');
 
-  Result := Format('UID = %d%sType = %s%sEntrance = %s',
-                  [UID, aSeparator,
+  Result := inherited ObjToStringShort(aSeparator) +
+            Format('%sType = %s%sEntr = %s',
+                  [aSeparator,
                    GetEnumName(TypeInfo(TKMHouseType), Integer(fType)), aSeparator,
                    TypeToString(Entrance)]);
 end;
@@ -551,8 +549,8 @@ begin
   fNeedIssueOrderCompletedMsg := False;
   fOrderCompletedMsgIssued := False;
 
-  //ByDefault allow to show all human player houses to allies, or AI's not in Campaign
-  fAllowAllyToView := gHands[Owner].IsHuman or not gGameParams.IsCampaign;
+  //ByDefault allow to show all human player houses to allies, or AI's not in Campaign and on SP maps
+  AllowAllyToSelect := gHands[Owner].IsHuman or not gGameParams.IsSingleplayerGame;
 
   if aBuildState = hbsDone then //House was placed on map already Built e.g. in mission maker
   begin
@@ -618,7 +616,6 @@ begin
   end;
   LoadStream.Read(fResourceDepletedMsgIssued);
   LoadStream.Read(DoorwayUse);
-  LoadStream.Read(fAllowAllyToView);
   LoadStream.Read(fPlacedOverRoad);
 end;
 
@@ -1995,7 +1992,6 @@ begin
   if HasAct then CurrentAction.Save(SaveStream);
   SaveStream.Write(fResourceDepletedMsgIssued);
   SaveStream.Write(DoorwayUse);
-  SaveStream.Write(fAllowAllyToView);
   SaveStream.Write(fPlacedOverRoad);
 end;
 
@@ -2102,14 +2098,13 @@ begin
   end;
 
 
-  Result := '|' + ObjToStringShort(aSeparator) +
-            Format('%sHasOwner = %s%sOwner = %d%sAction = %s%sRepair = %s%sIsClosedForWorker = %s%sDeliveryMode = %s%s' +
+  Result := inherited ObjToString(aSeparator) +
+            Format('%sHasOwner = %s%sAction = %s%sRepair = %s%sIsClosedForWorker = %s%sDeliveryMode = %s%s' +
                    'NewDeliveryMode = %s%sDamage = %d%s' +
                    'BuildState = %s%sBuildSupplyWood = %d%sBuildSupplyStone = %d%sBuildingProgress = %d%sDoorwayUse = %d%s' +
                    'ResIn = %d,%d,%d,%d%sResDeliveryCnt = %d,%d,%d,%d%sResOut = %d,%d,%d,%d%sResOrder = %d,%d,%d,%d%sResOutPool = %s',
                    [aSeparator,
                     BoolToStr(fHasOwner, True), aSeparator,
-                    Owner, aSeparator,
                     ActStr, aSeparator,
                     BoolToStr(fBuildingRepair, True), aSeparator,
                     BoolToStr(fIsClosedForWorker, True), aSeparator,

@@ -461,6 +461,7 @@ begin
     RegisterMethodCheck(c, 'function GameSpeedChangeAllowed: Boolean');
     RegisterMethodCheck(c, 'function GameTime: Cardinal');
 
+    RegisterMethodCheck(c, 'function GroupAllowAllyToSelect(aGroupID: Integer): Boolean');
     RegisterMethodCheck(c, 'function GroupAssignedToDefencePosition(aGroupID, X, Y: Integer): Boolean');
     RegisterMethodCheck(c, 'function GroupAt(aX, aY: Word): Integer');
     RegisterMethodCheck(c, 'function GroupColumnCount(aGroupID: Integer): Integer');
@@ -475,7 +476,7 @@ begin
     RegisterMethodCheck(c, 'function GroupType(aGroupID: Integer): Integer');
 
     RegisterMethodCheck(c, 'function HouseAt(aX, aY: Word): Integer');
-    RegisterMethodCheck(c, 'function HouseAllowAllyToView(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseAllowAllyToSelect(aHouseID: Integer): Boolean');
     RegisterMethodCheck(c, 'function HouseBarracksRallyPointX(aBarracks: Integer): Integer');
     RegisterMethodCheck(c, 'function HouseBarracksRallyPointY(aBarracks: Integer): Integer');
     RegisterMethodCheck(c, 'function HouseBuildingProgress(aHouseID: Integer): Word');
@@ -604,6 +605,7 @@ begin
     RegisterMethodCheck(c, 'function StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
     RegisterMethodCheck(c, 'function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer');
 
+    RegisterMethodCheck(c, 'function UnitAllowAllyToSelect(aUnitID: Integer): Boolean');
     RegisterMethodCheck(c, 'function UnitAt(aX, aY: Word): Integer');
     RegisterMethodCheck(c, 'function UnitCarrying(aUnitID: Integer): Integer');
     RegisterMethodCheck(c, 'function UnitDead(aUnitID: Integer): Boolean');
@@ -680,6 +682,7 @@ begin
     RegisterMethodCheck(c, 'function  GiveWineField(aPlayer, X, Y: Word): Boolean');
     RegisterMethodCheck(c, 'function  GiveWineFieldAged(aPlayer, X, Y: Word; aStage: Byte; aRandomAge: Boolean): Boolean');
 
+    RegisterMethodCheck(c, 'procedure GroupAllowAllyToSelect(aGroupID: Integer; aAllow: Boolean)');
     RegisterMethodCheck(c, 'procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean)');
     RegisterMethodCheck(c, 'procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean)');
     RegisterMethodCheck(c, 'procedure GroupHungerSet(aGroupID, aHungerLevel: Integer)');
@@ -701,8 +704,8 @@ begin
     RegisterMethodCheck(c, 'procedure HouseAddRepair(aHouseID: Integer; aRepair: Word)');
     RegisterMethodCheck(c, 'procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word)');
     RegisterMethodCheck(c, 'procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean)');
-    RegisterMethodCheck(c, 'procedure HouseAllowAllyToView(aHouseID: Integer; aAllow: Boolean)');
-    RegisterMethodCheck(c, 'procedure HouseAllowAllyToViewAll(aPlayer: Byte; aAllow: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseAllowAllyToSelect(aHouseID: Integer; aAllow: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseAllowAllyToSelectAll(aPlayer: Byte; aAllow: Boolean)');
     RegisterMethodCheck(c, 'function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
     RegisterMethodCheck(c, 'procedure HouseBarracksGiveRecruit(aHouseID: Integer)');
     RegisterMethodCheck(c, 'procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
@@ -793,6 +796,7 @@ begin
     RegisterMethodCheck(c, 'procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; const aText: AnsiString)');
     RegisterMethodCheck(c, 'procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; const aText: AnsiString; Params: array of const)');
 
+    RegisterMethodCheck(c, 'procedure UnitAllowAllyToSelect(aUnitID: Integer; aAllow: Boolean)');
     RegisterMethodCheck(c, 'procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean)');
     RegisterMethodCheck(c, 'function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
     RegisterMethodCheck(c, 'procedure UnitDismiss(aUnitID: Integer)');
@@ -1127,6 +1131,7 @@ begin
       RegisterMethod(@TKMScriptStates.GameSpeedChangeAllowed,                   'GameSpeedChangeAllowed');
       RegisterMethod(@TKMScriptStates.GameTime,                                 'GameTime');
 
+      RegisterMethod(@TKMScriptStates.GroupAllowAllyToSelect,                   'GroupAllowAllyToSelect');
       RegisterMethod(@TKMScriptStates.GroupAssignedToDefencePosition,           'GroupAssignedToDefencePosition');
       RegisterMethod(@TKMScriptStates.GroupAt,                                  'GroupAt');
       RegisterMethod(@TKMScriptStates.GroupColumnCount,                         'GroupColumnCount');
@@ -1140,8 +1145,8 @@ begin
       RegisterMethod(@TKMScriptStates.GroupOwner,                               'GroupOwner');
       RegisterMethod(@TKMScriptStates.GroupType,                                'GroupType');
 
+      RegisterMethod(@TKMScriptStates.HouseAllowAllyToSelect,                   'HouseAllowAllyToSelect');
       RegisterMethod(@TKMScriptStates.HouseAt,                                  'HouseAt');
-      RegisterMethod(@TKMScriptStates.HouseAllowAllyToView,                     'HouseAllowAllyToView');
       RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointX,                 'HouseBarracksRallyPointX');
       RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointY,                 'HouseBarracksRallyPointY');
       RegisterMethod(@TKMScriptStates.HouseBuildingProgress,                    'HouseBuildingProgress');
@@ -1270,6 +1275,7 @@ begin
       RegisterMethod(@TKMScriptStates.StatUnitMultipleTypesCount,               'StatUnitMultipleTypesCount');
       RegisterMethod(@TKMScriptStates.StatUnitTypeCount,                        'StatUnitTypeCount');
 
+      RegisterMethod(@TKMScriptStates.UnitAllowAllyToSelect,                    'UnitAllowAllyToSelect');
       RegisterMethod(@TKMScriptStates.UnitAt,                                   'UnitAt');
       RegisterMethod(@TKMScriptStates.UnitCarrying,                             'UnitCarrying');
       RegisterMethod(@TKMScriptStates.UnitDead,                                 'UnitDead');
@@ -1346,6 +1352,7 @@ begin
       RegisterMethod(@TKMScriptActions.GiveWineField,                           'GiveWineField');
       RegisterMethod(@TKMScriptActions.GiveWineFieldAged,                       'GiveWineFieldAged');
 
+      RegisterMethod(@TKMScriptActions.GroupAllowAllyToSelect,                  'GroupAllowAllyToSelect');
       RegisterMethod(@TKMScriptActions.GroupBlockOrders,                        'GroupBlockOrders');
       RegisterMethod(@TKMScriptActions.GroupDisableHungryMessage,               'GroupDisableHungryMessage');
       RegisterMethod(@TKMScriptActions.GroupHungerSet,                          'GroupHungerSet');
@@ -1367,8 +1374,8 @@ begin
       RegisterMethod(@TKMScriptActions.HouseAddRepair,                          'HouseAddRepair');
       RegisterMethod(@TKMScriptActions.HouseAddWaresTo,                         'HouseAddWaresTo');
       RegisterMethod(@TKMScriptActions.HouseAllow,                              'HouseAllow');
-      RegisterMethod(@TKMScriptActions.HouseAllowAllyToView,                    'HouseAllowAllyToView');
-      RegisterMethod(@TKMScriptActions.HouseAllowAllyToViewAll,                 'HouseAllowAllyToViewAll');
+      RegisterMethod(@TKMScriptActions.HouseAllowAllyToSelect,                  'HouseAllowAllyToSelect');
+      RegisterMethod(@TKMScriptActions.HouseAllowAllyToSelectAll,               'HouseAllowAllyToSelectAll');
       RegisterMethod(@TKMScriptActions.HouseBarracksEquip,                      'HouseBarracksEquip');
       RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruit,                'HouseBarracksGiveRecruit');
       RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,                      'HouseDeliveryBlock');
@@ -1456,6 +1463,7 @@ begin
       RegisterMethod(@TKMScriptActions.ShowMsgGoto,                             'ShowMsgGoto');
       RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,                    'ShowMsgGotoFormatted');
 
+      RegisterMethod(@TKMScriptActions.UnitAllowAllyToSelect,                   'UnitAllowAllyToSelect');
       RegisterMethod(@TKMScriptActions.UnitBlock,                               'UnitBlock');
       RegisterMethod(@TKMScriptActions.UnitDirectionSet,                        'UnitDirectionSet');
       RegisterMethod(@TKMScriptActions.UnitDismiss,                             'UnitDismiss');

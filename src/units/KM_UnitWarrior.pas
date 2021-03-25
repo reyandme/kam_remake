@@ -55,6 +55,9 @@ type
     function GetRangeMax: Single;
     function GetProjectileType: TKMProjectileType;
     function GetAimSoundDelay: Byte;
+  protected
+    function GetAllowAllyToSelect: Boolean; override;
+    procedure SetAllowAllyToSelect(aAllow: Boolean); override;
   public
     OnWarriorDied: TKMWarriorEvent; //Separate event from OnUnitDied to report to Group
     OnPickedFight: TKMWarrior2Event;
@@ -728,6 +731,22 @@ begin
 end;
 
 
+function TKMUnitWarrior.GetAllowAllyToSelect: Boolean;
+begin
+  // Warriors considered to be allowed to select by allies at the same time as his group is
+  Result := (fGroup <> nil) and TKMUnitGroup(fGroup).AllowAllyToSelect;
+end;
+
+
+procedure TKMUnitWarrior.SetAllowAllyToSelect(aAllow: Boolean);
+begin
+  if fGroup = nil then Exit;
+
+  // Warriors considered to be allowed to select by allies at the same time as his group is
+  TKMUnitGroup(fGroup).AllowAllyToSelect := aAllow;
+end;
+
+
 function TKMUnitWarrior.GetRangeMin: Single;
 const
   RANGE_ARBALETMAN_MIN  = 4; //KaM: We will shoot a unit standing 4 tiles away, but not one standing 3 tiles away
@@ -929,7 +948,8 @@ begin
   if Self = nil then Exit('nil');
 
   Result := inherited ObjToStringShort(aSeparator) +
-            Format('%sWarriorOrder = %s%sNextOrder = %s%sNextOrderForced = %s%sOrderLoc = %s%sHasOrderTargetUnit = [%s]%sHasOrderTargetHouse = [%s]',
+            Format('%sWarriorOrder = %s%sNextOrder = %s%sNextOrderForced = %s%sOrderLoc = %s%s' +
+                   'HasOrderTargetUnit = [%s]%sHasOrderTargetHouse = [%s]',
                    [aSeparator,
                     GetEnumName(TypeInfo(TKMWarriorOrder), Integer(fOrder)), aSeparator,
                     GetEnumName(TypeInfo(TKMWarriorOrder), Integer(fNextOrder)), aSeparator,
@@ -951,7 +971,7 @@ begin
   houseStr := 'nil';
 
   if fGroup <> nil then
-    groupStr := TKMUnitGroup(fGroup).ObjToString(aSeparator);
+    groupStr := TKMUnitGroup(fGroup).ObjToString('|  ');
 
   if fOrderTargetUnit <> nil then
     unitStr := fOrderTargetUnit.ObjToStringShort('; ');
@@ -960,12 +980,8 @@ begin
     houseStr := fOrderTargetHouse.ObjToStringShort('; ');
 
   Result := inherited ObjToString(aSeparator) +
-            Format('%sWarriorOrder = %s%sNextOrder = %s%sNextOrderForced = %s%sOrderLoc = %s%sOrderTargetUnit = [%s]%sOrderTargetHouse = [%s]%sGroup = %s%s',
+            Format('%sOrderTargetUnit = [%s]%sOrderTargetHouse = [%s]%sGroup = %s%s',
                    [aSeparator,
-                    GetEnumName(TypeInfo(TKMWarriorOrder), Integer(fOrder)), aSeparator,
-                    GetEnumName(TypeInfo(TKMWarriorOrder), Integer(fNextOrder)), aSeparator,
-                    BoolToStr(fNextOrderForced, True), aSeparator,
-                    TypeToString(fOrderLoc), aSeparator,
                     unitStr, aSeparator,
                     houseStr, aSeparator,
                     groupStr, aSeparator]);

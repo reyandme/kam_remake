@@ -129,8 +129,8 @@ var
   DEBUG_LOGS              :Boolean = True;  //Log debug info
   DEBUG_SCRIPTING_EXEC    :Boolean = False; //Use slow debug executor (about 3 times slower! never use on release version). Using it we can find exact position of execution time error (row/col/pos/module)
   SKIP_RNG_CHECKS_FOR_SOME_GIC: Boolean = True; //Skip rng checks for Autosave and few other commands to have same AI city with predefined seed + mapconfig
-  ALLOW_SELECT_ALLY_UNITS :Boolean = DEBUG_CFG; //Do we allow to select ally units or groups
-  ALLOW_SELECT_ENEMIES    :Boolean = DEBUG_CFG; //Do we allow to select enemies houses/units/groups
+  ALLOW_SELECT_ALLIES     :Boolean = True;  //Do we allow to select ally units or groups
+  ALLOW_SELECT_ALL        :Boolean = DEBUG_CFG; //Do we allow to select all entities (allies and enemies)
   GAME_NO_UPDATE_ON_TIMER :Boolean = False; //Block game update by timer (only allow to update it manually)
   GAME_SAVE_STRIP_FOR_CRC :Boolean = False; //Strip unsynced data from Game saves, to compare saves CRC
   ALLOW_LOAD_UNSUP_VERSION_SAVE:

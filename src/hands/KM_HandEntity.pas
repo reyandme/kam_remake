@@ -10,6 +10,7 @@ type
     fUID: Integer; //unique entity ID
     fType: TKMHandEntityType;
     fOwner: TKMHandID;
+    fAllowAllyToSelect: Boolean; // Allow ally to select entity
     function GetUID: Integer;
     function GetOwner: TKMHandID;
     function GetType: TKMHandEntityType;
@@ -19,6 +20,8 @@ type
     function GetPositionF: TKMPointF; virtual; abstract;
     procedure SetPositionF(const aPositionF: TKMPointF); virtual; abstract;
     procedure SetOwner(const aOwner: TKMHandID); virtual;
+    function GetAllowAllyToSelect: Boolean; virtual;
+    procedure SetAllowAllyToSelect(aAllow: Boolean); virtual;
   public
     constructor Create(aType: TKMHandEntityType; aUID: Integer; aOwner: TKMHandID);
     constructor Load(LoadStream: TKMemoryStream); virtual;
@@ -30,6 +33,8 @@ type
     property UID: Integer read GetUID;
     property Position: TKMPoint read GetPosition;
     property PositionF: TKMPointF read GetPositionF write SetPositionF;
+
+    property AllowAllyToSelect: Boolean read GetAllowAllyToSelect write SetAllowAllyToSelect;
 
     function IsSelectable: Boolean; virtual;
 
@@ -71,6 +76,7 @@ begin
   fType := aType;
   fUID := aUID;
   fOwner := aOwner;
+  fAllowAllyToSelect := False; // Entity view for allies is blocked by default
 end;
 
 
@@ -82,6 +88,7 @@ begin
   LoadStream.Read(fUID);
   LoadStream.Read(fType, SizeOf(fType));
   LoadStream.Read(fOwner, SizeOf(fOwner));
+  LoadStream.Read(fAllowAllyToSelect);
 end;
 
 
@@ -91,6 +98,20 @@ begin
   SaveStream.Write(fUID);
   SaveStream.Write(fType, SizeOf(fType));
   SaveStream.Write(fOwner, SizeOf(fOwner));
+  SaveStream.Write(fAllowAllyToSelect);
+end;
+
+
+procedure TKMHandEntity.SetAllowAllyToSelect(aAllow: Boolean);
+begin
+  fAllowAllyToSelect := aAllow;
+end;
+
+
+
+function TKMHandEntity.GetAllowAllyToSelect: Boolean;
+begin
+  Result := ALLOW_SELECT_ALLIES and fAllowAllyToSelect;
 end;
 
 
@@ -160,15 +181,22 @@ begin
 end;
 
 
-function TKMHandEntity.ObjToString(const aSeparator: String = '|'): String;
+function TKMHandEntity.ObjToStringShort(const aSeparator: String = '|'): String;
 begin
-  Result := ''; // stub implementation
+  Result := Format('UID = %d%sPos = %s',
+                   [UID, aSeparator,
+                    Position.ToString]);
 end;
 
 
-function TKMHandEntity.ObjToStringShort(const aSeparator: String = '|'): String;
+function TKMHandEntity.ObjToString(const aSeparator: String = '|'): String;
 begin
-  Result := ''; // stub implementation
+  Result := ObjToStringShort(aSeparator) +
+            Format('%sOwner = %d%sPositionF = %s%sAllowAllyToSel = %s',
+                   [aSeparator,
+                    Owner, aSeparator,
+                    PositionF.ToString, aSeparator,
+                    BoolToStr(AllowAllyToSelect, True)]);
 end;
 
 

@@ -62,6 +62,7 @@ type
     procedure GameSpeed(aSpeed: Single);
     procedure GameSpeedChangeAllowed(aAllowed: Boolean);
 
+    procedure GroupAllowAllyToSelect(aGroupID: Integer; aAllow: Boolean);
     procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean);
     procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean);
     procedure GroupHungerSet(aGroupID, aHungerLevel: Integer);
@@ -83,8 +84,8 @@ type
     procedure HouseAddRepair(aHouseID: Integer; aRepair: Word);
     procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
     procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
-    procedure HouseAllowAllyToView(aHouseID: Integer; aAllow: Boolean);
-    procedure HouseAllowAllyToViewAll(aPlayer: Byte; aAllow: Boolean);
+    procedure HouseAllowAllyToSelect(aHouseID: Integer; aAllow: Boolean);
+    procedure HouseAllowAllyToSelectAll(aPlayer: ShortInt; aAllow: Boolean);
     function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseBarracksGiveRecruit(aHouseID: Integer);
     procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean);
@@ -176,6 +177,7 @@ type
     procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; const aText: AnsiString);
     procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; const aText: AnsiString; Params: array of const);
 
+    procedure UnitAllowAllyToSelect(aUnitID: Integer; aAllow: Boolean);
     procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean);
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitDismiss(aUnitID: Integer);
@@ -1927,7 +1929,7 @@ end;
 
 //* Version: 10940
 //* Allows allies to view specified house
-procedure TKMScriptActions.HouseAllowAllyToView(aHouseID: Integer; aAllow: Boolean);
+procedure TKMScriptActions.HouseAllowAllyToSelect(aHouseID: Integer; aAllow: Boolean);
 var
   H: TKMHouse;
 begin
@@ -1937,12 +1939,12 @@ begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) and not H.IsDestroyed and H.IsComplete then
       begin
-        H.AllowAllyToView := aAllow;
+        H.AllowAllyToSelect := aAllow;
       end;
       //Silently ignore if house doesn't exist
     end
     else
-      LogParamWarning('Actions.HouseAllowAllyView', [aHouseID, Byte(aAllow)]);
+      LogParamWarning('Actions.HouseAllowAllyToSelect', [aHouseID, Byte(aAllow)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1952,16 +1954,16 @@ end;
 
 //* Version: 10940
 //* Allows allies to view all houses of specified player
-procedure TKMScriptActions.HouseAllowAllyToViewAll(aPlayer: Byte; aAllow: Boolean);
+procedure TKMScriptActions.HouseAllowAllyToSelectAll(aPlayer: ShortInt; aAllow: Boolean);
 var
   I: Integer;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
       for I := 0 to gHands[aPlayer].Houses.Count - 1 do
-        gHands[aPlayer].Houses[I].AllowAllyToView := aAllow
+        gHands[aPlayer].Houses[I].AllowAllyToSelect := aAllow
     else
-      LogParamWarning('Actions.HouseAllowAllyToViewAll', [aPlayer, Byte(aAllow)]);
+      LogParamWarning('Actions.HouseAllowAllyToSelectAll', [aPlayer, Byte(aAllow)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -3396,6 +3398,32 @@ begin
 end;
 
 
+//* Version: 12600
+//* Allows allies to select and view specified unit
+//* For warriors: allow to select their group
+procedure TKMScriptActions.UnitAllowAllyToSelect(aUnitID: Integer; aAllow: Boolean);
+var
+  U: TKMUnit;
+begin
+  try
+    if aUnitID > 0 then
+    begin
+      U := fIDCache.GetUnit(aUnitID);
+      if U <> nil then
+      begin
+        U.AllowAllyToSelect := aAllow;
+      end;
+      //Silently ignore if unit doesn't exist
+    end
+    else
+      LogParamWarning('Actions.UnitAllowAllyToView', [aUnitID, Byte(aAllow)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 5993
 //* Sets whether the specified player can train/equip the specified unit type
 procedure TKMScriptActions.UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean);
@@ -3668,6 +3696,30 @@ begin
   end;
 end;
 
+
+//* Version: 12600
+//* Allows allies to select and view specified group
+procedure TKMScriptActions.GroupAllowAllyToSelect(aGroupID: Integer; aAllow: Boolean);
+var
+  G: TKMUnitGroup;
+begin
+  try
+    if aGroupID > 0 then
+    begin
+      G := fIDCache.GetGroup(aGroupID);
+      if G <> nil then
+      begin
+        G.AllowAllyToSelect := aAllow;
+      end;
+      //Silently ignore if house doesn't exist
+    end
+    else
+      LogParamWarning('Actions.GroupAllowAllyToSelect', [aGroupID, Byte(aAllow)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
 
 //* Version: 6277
 //* Disables (Disable = True) or enables (Disable = False) control over specifed warriors group
