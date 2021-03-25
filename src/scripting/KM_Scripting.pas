@@ -505,6 +505,7 @@ begin
     RegisterMethodCheck(c, 'function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
     RegisterMethodCheck(c, 'function HouseWoodcutterMode(aHouseID: Integer): Integer');
     RegisterMethodCheck(c, 'function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
+	RegisterMethodCheck(c, 'function HouseWareBlockedTakeOut(aHouseID, aWareType: Integer): Boolean');
     RegisterMethodCheck(c, 'function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
 
     RegisterMethodCheck(c, 'function IsFieldAt(aPlayer: ShortInt; X, Y: Word): Boolean');
@@ -721,6 +722,7 @@ begin
     RegisterMethodCheck(c, 'procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
     RegisterMethodCheck(c, 'procedure HouseWoodcutterMode(aHouseID: Integer; aWoodcutterMode: Byte)');
     RegisterMethodCheck(c, 'procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
+	RegisterMethodCheck(c, 'procedure HouseWareBlockTakeOut(aHouseID, aWareType: Integer; aBlocked: Boolean)');
     RegisterMethodCheck(c, 'procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer)');
 
     RegisterMethodCheck(c, 'procedure Log(const aText: AnsiString)');
@@ -1175,6 +1177,7 @@ begin
       RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly,                  'HouseWoodcutterChopOnly');
       RegisterMethod(@TKMScriptStates.HouseWoodcutterMode,                      'HouseWoodcutterMode');
       RegisterMethod(@TKMScriptStates.HouseWareBlocked,                         'HouseWareBlocked');
+	  RegisterMethod(@TKMScriptStates.HouseWareBlockedTakeOut,                  'HouseWareBlockedTakeOut');
       RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,                      'HouseWeaponsOrdered');
 
       RegisterMethod(@TKMScriptStates.IsFieldAt,                                'IsFieldAt');
@@ -1391,6 +1394,7 @@ begin
       RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly,                 'HouseWoodcutterChopOnly');
       RegisterMethod(@TKMScriptActions.HouseWoodcutterMode,                     'HouseWoodcutterMode');
       RegisterMethod(@TKMScriptActions.HouseWareBlock,                          'HouseWareBlock');
+	  RegisterMethod(@TKMScriptActions.HouseWareBlockTakeOut,                   'HouseWareBlockTakeOut');
       RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet,                    'HouseWeaponsOrderSet');
 
       RegisterMethod(@TKMScriptActions.Log,                                     'Log');
