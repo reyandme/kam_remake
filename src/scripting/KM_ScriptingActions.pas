@@ -2430,6 +2430,8 @@ begin
 end;
 
 
+//* Version: 12600
+//* Blocks taking out of a specific ware from a storehouse or barracks
 procedure TKMScriptActions.HouseWareBlockTakeOut(aHouseID, aWareType: Integer; aBlocked: Boolean);
 var
   H: TKMHouse;
