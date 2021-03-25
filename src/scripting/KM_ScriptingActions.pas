@@ -2429,6 +2429,7 @@ begin
   end;
 end;
 
+
 procedure TKMScriptActions.HouseWareBlockTakeOut(aHouseID, aWareType: Integer; aBlocked: Boolean);
 var
   H: TKMHouse;
