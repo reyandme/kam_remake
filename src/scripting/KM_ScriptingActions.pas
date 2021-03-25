@@ -102,7 +102,6 @@ type
     procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
     procedure HouseWoodcutterMode(aHouseID: Integer; aWoodcutterMode: Byte);
     procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
-	procedure HouseWareBlockTakeOut(aHouseID, aWareType: Integer; aBlocked: Boolean);
     procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
 
     procedure Log(const aText: AnsiString);
@@ -2428,37 +2427,6 @@ begin
     raise;
   end;
 end;
-
-procedure TKMScriptActions.HouseWareBlockTakeOut(aHouseID, aWareType: Integer; aBlocked: Boolean);
-var
-  H: TKMHouse;
-  Res: TKMWareType;
-begin
-  try
-    if (aHouseID > 0)
-    and (aWareType in [Low(WARE_ID_TO_TYPE) .. High(WARE_ID_TO_TYPE)]) then
-    begin
-      Res := WARE_ID_TO_TYPE[aWareType];
-      H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil)
-        and (H is TKMHouseStore)
-        and not H.IsDestroyed then
-        TKMHouseStore(H).NotAllowTakeOutFlag[Res] := aBlocked;
-
-      if (H <> nil)
-        and (H is TKMHouseBarracks)
-        and not H.IsDestroyed
-        and (Res in [WARFARE_MIN..WARFARE_MAX]) then
-        TKMHouseBarracks(H).NotAllowTakeOutFlag[Res] := aBlocked;
-    end
-    else
-      LogParamWarning('Actions.HouseWareBlockTakeOut', [aHouseID, aWareType, Byte(aBlocked)]);
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-end;
-
 
 
 //* Version: 5165
