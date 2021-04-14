@@ -11,13 +11,32 @@
  Dutch - dicsoupcan and TDL
  French - Shadaoe
  German - Siegfried (and Weekend? :P)
- Hungarian - Bence
- Polish - ah come on, I don't need other people, to translate to my own language :)
+ Hungarian - Bence, Thunder
  Russian - Mercenary, andreus
- 
+
+
  Everyone is allowed to use this script, or parts of it, as long as you give me credit by 
   mentioning who made the original script.  I'd like to encourage everyone to try and make 
   new different Conquest mode maps, I'll be glad to help with scripting :)
+------------------------------------------------------------------------------------------
+v 1.1
+- changes to map - opened middle, added lake near the lower stable, slight rebalance of buildings
+- 10 second time of taking a building
+- translation fixes
+
+TODO
+rebalance - more power to the players
+make sure the mid locs are interesting
+write down new timings in readme
+add PDF and translate it
+
+
+
+
+
+
+
+
 ------------------------------------------------------------------------------------------
 On each side:
 4 cutters - militia 
@@ -41,12 +60,15 @@ For 1 building, you get:
 -----------------------------------------------------------------------------------------}
 const
 TotalLocs = 6;
-Team1Name = 'left';
-Team2Name = 'right';
-TotalFails = 2;
+Team1Name = '<$4>';
+Team2Name = '<$5>';
+NrOfBuildings = 100; // number of buildings per player - I got pissed off and didn't know how to force PAscal to work with dynamic array properly here LOL
+TotalFails = 3;
+TIME_TAKE_BUILDING = 10;    // in seconds
 
 var Team1, Team2: Integer;
 var FailTimer, FailCount: array[0..(TotalFails - 1)] of array[0..(TotalLocs - 1)] of Integer;
+var HousesDetails: array[0..TotalLocs] of array[0..NrOfBuildings] of array[0..2] of Integer;
 
 //lines below are taken from Battle of Octumn script, used with permission
 function PlayerHasUndefeatedEnemy(aPlayer: Integer): Boolean;
@@ -98,71 +120,86 @@ end;
 
 procedure ReloadOverlay;
 begin
-	Actions.OverlayTextSet(-1, 'Team ' + Team1Name + ': ' + IntToStr(Team1) + ' buildings|Team ' + Team2Name + ': ' + IntToStr(Team2) + ' buildings');
+	Actions.OverlayTextSet(-1, '<$6>|' + Team1Name + ': ' + IntToStr(Team1) + '|' + Team2Name + ': ' + IntToStr(Team2));
 end;
 
-procedure FailCase(FailID, UnitOwner: Integer); //this is used both in YouFail and in SadoSetHouseOwner
+procedure FailCase(FailID, UnitOwner, ContextDetail: Integer); //this is used both in YouFail and in SadoSetHouseOwner
 begin
-if (FailCount[FailID][UnitOwner] = 3) and (FailTimer[FailID][UnitOwner] + 100 > States.GameTime) then //if 3 failures in 10 seconds
+if (FailCount[FailID][UnitOwner] = 3) and ((FailID = 2) or (FailTimer[FailID][UnitOwner] + 100 > States.GameTime)) then //if 3 failures in 10 seconds
 		case FailID of									      // then show the message for 10 seconds
-		0: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a building with a scout or a knight!|Read the rules next time :)');
-		1: Actions.OverlayTextAppend(UnitOwner, '|You can''t capture a tower owned by your ally.');
+		0: Actions.OverlayTextAppend(UnitOwner, '|<$1>');
+		1: Actions.OverlayTextAppend(UnitOwner, '|<$2>');
+		2: Actions.OverlayTextAppend(UnitOwner, '|<$3>: ' + States.HouseTypeName(States.HouseType(ContextDetail)));
 		end;
 end;
 
-procedure YouFail(FailID, UnitOwner: Integer); //this procedure handles overlay tips, in case someone didn't read the rules or something :)
+procedure YouFail(FailID, UnitOwner, ContextDetail: Integer); //this procedure handles overlay tips, in case someone didn't read the rules or something :)
 begin
 	if FailTimer[FailID][UnitOwner] = 0 then
 		FailTimer[FailID][UnitOwner] := States.GameTime;
 	FailCount[FailID][UnitOwner] := FailCount[FailID][UnitOwner] + 1;
-	FailCase(FailID, UnitOwner);
+	FailCase(FailID, UnitOwner, ContextDetail);
 end;
 
 procedure OnMissionStart;
-var P, HouseID, I, J, HouseType: Integer;
+var P, HouseID, I, J, B, HouseType: Integer;
 var Houses: array of Integer;
 begin
  CheckForWinner;
  //Actions.ShowMsg(-1,'<$0>'); //tutorial message
- for P := 0 to TotalLocs do
+ for P := 0 to TotalLocs-1 do
     begin
-      if P <> TotalLocs then
+      if States.PlayerEnabled(P) then
       begin
          Actions.PlayerShareFog(TotalLocs, P, False);
          Actions.FogCoverAll(P);
       end;
-	end;
- for P := 0 to TotalLocs do
-    begin
-      Houses := States.PlayerGetAllHouses(P);
-      for I := 0 to Length(Houses)-1 do
-      begin
-         HouseID := Houses[I];
-         HouseType := States.HouseType(HouseID);
-         case P of
-            TotalLocs: for J := 0 to ( TotalLocs - 1 ) do
-                 Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 3);
-            else for J := 0 to ( TotalLocs - 1 ) do
-			begin
-				if (States.PlayerAllianceCheck( P, J ) = True ) then
-					Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 16);
-				if (HouseType = 17) or (HouseType = 12) then
-					Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID)-1, 3);
-			end;
-         end;
-         Actions.HouseDisableUnoccupiedMessage(HouseID, True);
-         if HouseType = 13 then
-            Actions.HouseSchoolQueueAdd(HouseID, 13, 1);
-         //team buildings counters
-         if (P > (TotalLocs / 2 - 1)) and (P <> TotalLocs) and (HouseType <> 13) and (HouseType <> 21) then
-            begin
-               Inc(Team2);
-            end
-            else if (P <> TotalLocs) and (HouseType <> 13) and (HouseType <> 21) then
-               Inc(Team1);
-      end;
     end;
-	ReloadOverlay;
+ for P := 0 to TotalLocs do
+ begin
+    for B := 0 to NrOfBuildings-1 do
+    begin
+        //Actions.Log('poczatkowe1: P=' + IntToStr(P) + ' I=' + IntToStr(I) + ' HouseID=' + IntToStr(HouseID) );
+        HousesDetails[P][B][0] := -1;
+        //Actions.Log('poczatkowe2: P=' + IntToStr(P) + ' I=' + IntToStr(I) + ' HouseID=' + IntToStr(HouseID) );
+        HousesDetails[P][B][1] := -1;
+        //Actions.Log('poczatkowe3: P=' + IntToStr(P) + ' I=' + IntToStr(I) + ' HouseID=' + IntToStr(HouseID) );
+    end;
+    if States.PlayerEnabled(P) then
+        begin
+            Houses := States.PlayerGetAllHouses(P);
+            for I := 0 to Length(Houses)-1 do
+            begin
+                HouseID := Houses[I];
+                HouseType := States.HouseType(HouseID);
+                HousesDetails[P][I][0] := HouseID;
+                HousesDetails[P][I][1] := -1;
+                case P of
+                    TotalLocs: for J := 0 to ( TotalLocs - 1 ) do
+                            if States.PlayerEnabled(J) then
+                                Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 3);
+                    else for J := 0 to ( TotalLocs - 1 ) do
+                    begin
+                        if States.PlayerEnabled(J) and (States.PlayerAllianceCheck( P, J ) = True ) then
+                            Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID), 16);
+                        if States.PlayerEnabled(J) and (HouseType = 17) or (HouseType = 12) then
+                            Actions.FogRevealCircle(J, States.HousePositionX(HouseID), States.HousePositionY(HouseID)-1, 3);
+                    end;
+                end;
+                Actions.HouseDisableUnoccupiedMessage(HouseID, True);
+                if HouseType = 13 then
+                    Actions.HouseSchoolQueueAdd(HouseID, 13, 1);
+                //team buildings counters
+                if (P > (TotalLocs / 2 - 1)) and (P <> TotalLocs) and (HouseType <> 13) and (HouseType <> 21) then
+                    begin
+                    Inc(Team2);
+                    end
+                    else if (P <> TotalLocs) and (HouseType <> 13) and (HouseType <> 21) then
+                    Inc(Team1);
+            end;
+        end;
+ end;
+ ReloadOverlay;
 end;
 
 procedure SadoGivePlayerUnit(P: Integer; TypeOfHouse: Integer; TimeOffset: Integer; HouseID: Integer);
@@ -246,7 +283,7 @@ begin
 end;
 
 procedure SadoSetHouseOwner(ID: Integer; P: Integer); //P is player that wants to steal the house; Player is just a helper variable
-var TypeOfHouse, PreviousOwner, X, Y, NewHouse: Integer;
+var TypeOfHouse, PreviousOwner, X, Y, NewHouse, B: Integer;
 begin //the idea: we cant set owner, but we can destroy and create a building :)
    PreviousOwner := States.HouseOwner(ID);
    TypeOfHouse := States.HouseType(ID); //need to save parameters somewhere before I destroy the building
@@ -258,7 +295,15 @@ begin //the idea: we cant set owner, but we can destroy and create a building :)
    if (TypeOfHouse = 17) then
       Actions.UnitHungerSet( Actions.GiveUnit(P, 13, X, Y+1, 0), States.UnitMaxHunger);
    Actions.HouseDisableUnoccupiedMessage(NewHouse, True);
-	ReloadOverlay;
+   ReloadOverlay;
+   for B := 0 to length(HousesDetails[P])-1 do
+   begin
+    if (HousesDetails[P][B][0] = ID) then
+    begin
+        HousesDetails[P][B][0] := NewHouse;
+        HousesDetails[P][B][1] := -1;
+    end;
+   end;
    //here add overlay tip for all players
    {for Player := 0 to (TotalLocs - 1) do
 		for Fail := 0 to (TotalFails - 1) do
@@ -270,12 +315,12 @@ begin //the idea: we cant set owner, but we can destroy and create a building :)
 end;
 
 procedure OnTick;
-var I, P, F, HouseID, UnitID, HouseType, TimeOffset, Owner: Integer;
+var I, P, F, B, HouseID, UnitID, HouseType, TimeOffset, Owner: Integer;
 var Houses: array of Integer;
 begin
    for P := 0 to TotalLocs do
    begin
-    if ( (States.GameTime + P) mod 10 = 0) then  //each second(=10 ticks), do:
+    if (States.GameTime + P) mod 10 = 0 then  //each second(=10 ticks), do:
     begin
       //TimeOffset is current time + player number. We add player number to not do all
       //players at once - each player will be done in a separate "tick" (1/10th of a second)
@@ -283,7 +328,8 @@ begin
       //if you want to use something many times, it's better to optimize the code and save
       //it as a variable - thats why we save the array with houses, so we don't have to
       //call PlayerGetAllHouses each time in for loop...
-      Houses := States.PlayerGetAllHouses(P);
+      if States.PlayerEnabled(P) then
+         Houses := States.PlayerGetAllHouses(P);
       //we start from zero, but length is counted from 1... so we subtract 1 from the Length
       //so, we take all the buildings of a player, and I is the number of the house
       for I := 0 to Length(Houses)-1 do
@@ -295,7 +341,6 @@ begin
          //we set UnitID to ID of an unit which is supposed to be standing in front door of the
          //building; if there's no one standing there, the unit ID will be set to -1 by the game
          UnitID := States.UnitAt( States.HousePositionX(HouseID), States.HousePositionY(HouseID)+1 );
-         
          //We check:
          // if there's a soldier in the door (if not, then unit ID will be -1)
          // if the building is a school (13) or barracks (21),
@@ -305,8 +350,8 @@ begin
          //   then taking over buildings with horsemen is too easy and too hard to prevent... disable this
          //   if you're making a smaller and more closed Conquest map than this original one
          
-         if   (UnitID <> -1) then
-		 begin
+         if (UnitID <> -1) then
+         begin
 		  Owner := States.UnitOwner(UnitID);
           if (HouseType <> 13) and (HouseType <> 21)
           and (Owner <> P)
@@ -315,26 +360,54 @@ begin
 		  
           if (States.UnitType(UnitID) = 21) 
 		  or (States.UnitType(UnitID) = 22) then
-			YouFail(0, Owner)
-		  else if ( States.PlayerAllianceCheck( Owner, P ) ) and (HouseType = 17) then //and here 
-			YouFail(1, Owner)
-		  else begin
-			if (Owner > (TotalLocs/2 - 1)) and ( ( States.PlayerAllianceCheck( Owner, P ) = False ) or ( P = TotalLocs ) ) then
-            begin
-               Inc(Team2);
-               if P <> TotalLocs then
-                  Dec(Team1);
-            end
-            else if (Owner < (TotalLocs/2)) and ( ( States.PlayerAllianceCheck( Owner, P ) = False ) or ( P = TotalLocs ) ) then
-            begin
-               Inc(Team1);
-               if P <> TotalLocs then
-                  Dec(Team2);
-            end;
-			SadoSetHouseOwner(HouseID, States.UnitOwner(UnitID));
+			YouFail(0, Owner, 0)
+		  else if States.PlayerEnabled(P) and ( States.PlayerAllianceCheck( Owner, P ) ) and (HouseType = 17) then //and here 
+			YouFail(1, Owner, 0)
+          else begin
+                        //is someone trying to take this building now?
+              //                HousesDetails[P][I][0] := HouseID;
+              //  HousesDetails[P][I][1] := -1;
+              for B := 0 to length(HousesDetails[P])-1 do
+              begin
+                if (HousesDetails[P][B][0] = HouseID) then
+                begin
+                    YouFail(2, Owner, HouseID);
+                    if (HousesDetails[P][B][1] = -1) then
+                    begin
+                        HousesDetails[P][B][1] := States.GameTime;
+                    end 
+                    else if (HousesDetails[P][B][1] <> -2) and (HousesDetails[P][B][1] + 10*TIME_TAKE_BUILDING < States.GameTime) then
+                    begin 
+                        if (Owner > (TotalLocs/2 - 1)) and ( ( States.PlayerAllianceCheck( Owner, P ) = False ) or ( P = TotalLocs ) ) then
+                        begin
+                        Inc(Team2);
+                        if P <> TotalLocs then
+                            Dec(Team1);
+                        end
+                        else if (Owner < (TotalLocs/2)) and ( ( States.PlayerAllianceCheck( Owner, P ) = False ) or ( P = TotalLocs ) ) then
+                        begin
+                        Inc(Team1);
+                        if P <> TotalLocs then
+                            Dec(Team2);
+                        end;
+                        SadoSetHouseOwner(HouseID, States.UnitOwner(UnitID));
+                        HousesDetails[P][B][1] := -1;
+                    end;
+                end;
+              end;
           end; //if states.unittype... 
 		 end;  //if housetype...
-		 end;  //if unitid...
+         end  //if unitid...
+         else
+         begin
+             for B := 0 to length(HousesDetails[P])-1 do
+              begin
+                if (HousesDetails[P][B][0] = HouseID) then
+                begin
+                    HousesDetails[P][B][1] := -1;
+                end;
+              end;
+         end;  //if unitid...
          SadoGivePlayerUnit( P, HouseType, TimeOffset, HouseID );
       end; //for I...
 	  for F := 0 to (TotalFails - 1) do

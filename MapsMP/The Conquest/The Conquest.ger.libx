@@ -1,1 +1,10 @@
-ï»¿0:Eroberungs-Modus: nimm GebÃ¤ude ein um Waffen fÃ¼r deine Armee zu erhalten. GebÃ¤ude nimmst du ein indem du einen Soldaten vor den Eingang bewegst. Der Soldat muss nicht dauerhaft dort stehen. Warnung: mit Rittergarden und SpÃ¤hern kannst du keine GebÃ¤ude einnehmen! Du hast eine Kaserne und 3 SchulhÃ¤user, die mit unendlich Gold automatisch Rekruten ausbilden.||Script by sado, map by dicsoupcan.
+
+MaxID:1
+
+0:Conquest Modus: nimm Gebäude ein um Waffen für deine Armee zu erhalten. Gebäude nimmst du ein indem du einen Soldaten vor den Eingang bewegst. Der Soldat muss nicht dauerhaft dort stehen. Warnung: mit Rittergarden und Spähern kannst du keine Gebäude einnehmen! Du hast eine Kaserne und 3 Schulhäuser, die mit unendlich Gold automatisch Rekruten ausbilden.||Script by sado, map by dicsoupcan.
+1:You can't capture a building with a scout or a knight!|Read the map description next time :)
+2:You can't capture a tower owned by your ally.
+3:Capturing the building
+4:Left side
+5:Right side
+6:Number of buildings
