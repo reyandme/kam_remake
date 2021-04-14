@@ -1,3 +1,9 @@
+Author
+dicsoupcan, sado
+
+Version
+1.1
+
 BigDescLIBX
 0
 
