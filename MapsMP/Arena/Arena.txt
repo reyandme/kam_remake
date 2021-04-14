@@ -1,0 +1,13 @@
+Author
+Aasfresser
+
+Version
+0.11
+
+BigDesc
+In each of 10 rounds, you get a different unit. Get points by killing the human players, or standing on one of the two hills. After 10 rounds, the player with most kills will win.|Watch out for the neutral enemy and spike traps!||Version 0.1 by Aasfresser|0.11 update by sado
+
+SetSpecial
+
+BlockPeacetime
+
