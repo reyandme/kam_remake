@@ -496,6 +496,7 @@ end;
 constructor TKMHouseMarket.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+
   LoadStream.CheckMarker('HouseMarket');
   LoadStream.Read(fTradeAmount);
   LoadStream.Read(fResFrom, SizeOf(fResFrom));
@@ -509,6 +510,7 @@ end;
 procedure TKMHouseMarket.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+
   SaveStream.PlaceMarker('HouseMarket');
   SaveStream.Write(fTradeAmount);
   SaveStream.Write(fResFrom, SizeOf(fResFrom));
@@ -527,6 +529,7 @@ var
   maxRes: TKMWareType;
 begin
   inherited;
+
   if fBuildState < hbsDone then Exit;
 
   //Market can display only one ware at a time (lookup ware that has most count)

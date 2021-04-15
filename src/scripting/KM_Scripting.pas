@@ -409,7 +409,7 @@ begin
       + 'tkGoldMount,    tkIronMount,    tkAbyss,        tkGravel,    tkCoal,'
       + 'tkGold,         tkIron,         tkWater,        tkFastWater, tkLava)');
 
-    Sender.AddTypeS('TKMTileMaskKind', '(mkNone, mkSoft1, mkSoft2, mkSoft3, mkStraight)');
+    Sender.AddTypeS('TKMTileMaskKind', '(mkNone, mkSoft1, mkSoft2, mkSoft3, mkStraight, mkGradient)');
 
     Sender.AddTypeS('TKMUnitType', '(utNone, utAny,'
       + 'utSerf,          utWoodcutter,    utMiner,         utAnimalBreeder,'

@@ -1147,10 +1147,10 @@
 1197:Override manually|set tiles
 1198:Force to override manually set tiles from tiles table while painting with brushes (if possible)
 1199:Magic brush: Using chosen mask, fixes tile transitions, for tiles that don't have transition graphics from one to the other type of terrain
-1200:No mask: Use exiting tiles for transitions
-1201:Soft1 mask: Use automatically created transitions
-1202:Soft2 mask: Use automatically created transitions
-1203:Soft3 mask: Use automatically created transitions
+1200:No mask - use exiting tiles for transitions
+1201:Soft1 mask - use automatically created transitions
+1202:Soft2 mask - use automatically created transitions
+1203:Soft3 mask - use automatically created transitions
 1204:Custom TownHall units cost
 1205:Custom gold market prices
 1206:Options
@@ -1452,3 +1452,4 @@
 1502:Elevate (left click) / Lower (right click) all tiles on map with terrain kind at game cursor
 1503:Override Objects
 1504:Objects will be replaced by other objects or deleted
+1505:Gradient mask - use automatically created transitions

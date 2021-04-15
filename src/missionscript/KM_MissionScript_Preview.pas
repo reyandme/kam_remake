@@ -8,17 +8,17 @@ uses
 
 type
   TKMTilePreview = record
-                       TileID: Word;
-                       TileHeight: Byte; //Used for calculating light
-                       TileOwner: TKMHandID;
-                       Revealed: Boolean;
-                     end;
+    TileID: Word;
+    TileHeight: Byte; //Used for calculating light
+    TileOwner: TKMHandID;
+    Revealed: Boolean;
+  end;
 
   TKMHandPreview = record
-                       Color: Cardinal;
-                       StartingLoc: TKMPoint;
-                       CanHuman, CanAI: Boolean;
-                     end;
+    Color: Cardinal;
+    StartingLoc: TKMPoint;
+    CanHuman, CanAI: Boolean;
+  end;
 
   //Specially optimized mission parser for map previews
   TKMMissionParserPreview = class(TKMMissionParserCommon)
@@ -71,25 +71,25 @@ procedure TKMMissionParserPreview.LoadMapData(const aFileName: string);
 var
   I: Integer;
   S: TKMemoryStream;
-  TileBasic: TKMTerrainTileBasic;
-  GameRev: Integer;
+  tileBasic: TKMTerrainTileBasic;
+  gameRev: Integer;
 begin
   if not FileExists(aFileName) then
     raise Exception.Create('Map file couldn''t be found');
 
   S := TKMemoryStreamBinary.Create;
   try
-    GameRev := 0;
+    gameRev := 0;
     S.LoadFromFile(aFileName);
 
-    LoadMapHeader(S, fMapX, fMapY, GameRev);
+    LoadMapHeader(S, fMapX, fMapY, gameRev);
 
     SetLength(fMapPreview, fMapX * fMapY);
      for I := 0 to fMapX * fMapY - 1 do
       begin
-        TKMTerrain.ReadTileFromStream(S, TileBasic, GameRev);
-        fMapPreview[I].TileID := TileBasic.BaseLayer.Terrain;
-        fMapPreview[I].TileHeight := TileBasic.Height;
+        TKMTerrain.ReadTileFromStream(S, tileBasic, gameRev);
+        fMapPreview[I].TileID := tileBasic.BaseLayer.Terrain;
+        fMapPreview[I].TileHeight := tileBasic.Height;
 
         //Fill in blanks
         fMapPreview[I].TileOwner := PLAYER_NONE;
@@ -140,8 +140,8 @@ procedure TKMMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; P:
 var
   I, K: Integer;
   HA: THouseArea;
-  Valid: Boolean;
-  Loc: TKMPoint;
+  valid: Boolean;
+  loc: TKMPoint;
 begin
   case CommandType of
     ctSetCurrPlayer:   fLastHand := P[0];
@@ -207,10 +207,10 @@ begin
                           and PointInMap(P[1]+1, P[2]+1) then
                           for I := 0 to P[5] - 1 do
                           begin
-                            Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1), I, P[4],fMapX,fMapY,Valid);
-                            if Valid then
+                            loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1), I, P[4],fMapX,fMapY,valid);
+                            if valid then
                             begin
-                              SetOwner(Loc.X,Loc.Y);
+                              SetOwner(loc.X,loc.Y);
                               RevealCircle(P[1]+1, P[2]+1, gRes.Units[UNIT_OLD_ID_TO_TYPE[P[0]]].Sight);
                             end;
                           end;
@@ -229,17 +229,17 @@ begin
 end;
 
 
-//We use custom mission loader for speed (compare only used commands)
+// We use custom mission loader for speed (compare only used commands)
 procedure TKMMissionParserPreview.LoadMission(const aFileName: string; const aRevealFor: array of TKMHandID);
 const
-  Commands: array [0..16] of AnsiString = (
+  ALLOWED_COMMANDS: array [0..16] of AnsiString = (
     '!SET_MAP', '!SET_MAP_COLOR', '!SET_RGB_COLOR', '!SET_AI_PLAYER', '!SET_ADVANCED_AI_PLAYER', '!CENTER_SCREEN',
     '!SET_CURR_PLAYER', '!SET_HUMAN_PLAYER', '!SET_USER_PLAYER',
     '!SET_STREET', '!SET_FIELD', '!SET_WINEFIELD', '!SET_STOCK',
     '!SET_HOUSE', '!CLEAR_UP', '!SET_UNIT', '!SET_GROUP');
 var
-  FileText: AnsiString;
   I: Integer;
+  fileText: AnsiString;
 begin
   inherited LoadMission(aFileName);
 
@@ -251,14 +251,14 @@ begin
   for I := 0 to MAX_HANDS-1 do
     fHandPreview[I].Color := DefaultTeamColors[I];
 
-  FileText := ReadMissionFile(aFileName);
-  if FileText = '' then
+  fileText := ReadMissionFile(aFileName);
+  if fileText = '' then
     raise Exception.Create('Script is empty');
 
   // We need to load map dimensions first, so that SetGroup could access map bounds
   LoadMapData(ChangeFileExt(fMissionFileName, '.map'));
 
-  TokenizeScript(FileText, 6, Commands);
+  TokenizeScript(fileText, 6, ALLOWED_COMMANDS);
 end;
 
 

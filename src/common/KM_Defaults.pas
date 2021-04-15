@@ -56,6 +56,8 @@ const
   DEL_LOGS_OLDER_THAN   = 14;           //in days
 
   TEMPLATE_LIBX_FILE_TEXT = 'text.%s.libx';
+
+  DEFAULT_WATER_LIGHT_MULTIPLIER = 1.3; // Default multiplier for terrain water light
 const
   //Max number of ticks, played on 1 game update.
   //We must limit number of ticks per update to be able to leave update cycle fast (when turn off ultra fast speedup, f.e.)
@@ -194,6 +196,7 @@ var
   RENDER_3D               :Boolean = False; //Experimental 3D render
   LINEAR_FILTER_SPRITES   :Boolean = False; //To check pixel sampling alignment issues (bouncing) at 100% zoom
   HOUSE_BUILDING_STEP     :Single = 0;
+  WATER_LIGHT_MULTIPLIER  :Single = DEFAULT_WATER_LIGHT_MULTIPLIER; //Terrain light multiplier
   OVERLAY_NAVMESH         :Boolean = False; //Show navmesh
   OVERLAY_DEFENCES        :Boolean = False; //Show AI defence perimeters
   OVERLAY_DEFENCES_A      :Boolean = False; //Show AI defence perimeters (Animation)

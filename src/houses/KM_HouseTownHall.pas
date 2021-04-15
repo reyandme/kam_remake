@@ -85,6 +85,7 @@ end;
 constructor TKMHouseTownHall.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+
   LoadStream.CheckMarker('HouseTownHall');
   LoadStream.Read(fGoldCnt);
   LoadStream.Read(fGoldMaxCnt);
@@ -114,6 +115,8 @@ begin
   oldValue := fGoldCnt;
 
   fGoldCnt := EnsureRange(aValue, 0, IfThen(aLimitMaxGoldCnt, fGoldMaxCnt, High(Word)));
+
+  SetResInManageTakeOutDeliveryMode(wtGold, fGoldCnt - oldValue);
 
   if oldValue <> fGoldCnt then
     gScriptEvents.ProcHouseWareCountChanged(Self, wtGold, fGoldCnt, fGoldCnt - oldValue);

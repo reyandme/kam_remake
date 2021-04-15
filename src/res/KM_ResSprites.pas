@@ -906,7 +906,7 @@ begin
   if SKIP_RENDER then Exit;
   if fRXData.Count = 0 then Exit;
 
-  if aAlphaShadows and (fRT in [rxTrees,rxHouses,rxUnits,rxGui]) or not aAlphaShadows and (fRT = rxGuiMain) then
+  if aAlphaShadows and (fRT in [rxTrees,rxHouses,rxUnits,rxGui,rxTiles]) or not aAlphaShadows and (fRT = rxGuiMain) then
     texType := tfRGBA8
   else
     texType := tfRGB5A1;
@@ -1272,7 +1272,7 @@ var
 
   texId,{ K,} L, M, tmp, totalTex, uniqueTex: Integer;
   genTilesCnt, genTilesCntTemp: Integer;
-  straightPx{, RotatePixel}: Cardinal;
+  straightPx{, RotatePixel}, maskCol: Cardinal;
   generatedMasks: TDictionary<Integer, TKMMaskFullType>;
 begin
   Assert(not aLegacyGeneration or (aSprites = nil));
@@ -1390,8 +1390,14 @@ begin
       //              Rotate(K, L, M, P, Q, aSprites.fRXData.Size[TerrainId].X - 1);
                     straightPx := L * aSprites.fRXData.Size[terrainId].X  + M;
       //              RotatePixel := StraightPixel; //P * aSprites.fRXData.Size[TerrainId].X  + Q;
-                    aSprites.fRXData.RGBA[texId, straightPx] := ($FFFFFF or (aSprites.fRXData.RGBA[maskId, straightPx] shl 24))
-                                                       and aSprites.fRXData.RGBA[terrainId, straightPx{RotatePixel}];
+
+                    case TILE_MASK_KIND_USAGE[MK] of
+                      mkuPixel: maskCol := ($FFFFFF or (aSprites.fRXData.RGBA[maskId, straightPx] shl 24));
+                      mkuAlpha: maskCol := aSprites.fRXData.RGBA[maskId, straightPx];
+                      else      maskCol := 0; // makes compiler happy
+                    end;
+
+                    aSprites.fRXData.RGBA[texId, straightPx] := maskCol and aSprites.fRXData.RGBA[terrainId, straightPx{RotatePixel}];
                   end;
               end;
               Inc(uniqueTex);
@@ -1466,8 +1472,10 @@ begin
         fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
 
       gLog.AddTime('Reading ' + RXInfo[RT].FileName + '.rx');
-      LoadSprites(RT, RT = rxGUI); //Only GUI needs alpha shadows
-      fSprites[RT].MakeGFX(RT = rxGUI);
+      // Only GUI needs alpha channel for shadows
+      LoadSprites(RT, RT = rxGUI);
+      // We also use alpha channel in the generated tiles
+      fSprites[RT].MakeGFX(RT in [rxGUI, rxTiles]);
 
       if Assigned(fStepProgress) then
         fStepProgress;
@@ -1607,6 +1615,7 @@ begin
   // 'Sprites' folder name confused some of the players, cause there is already data/Sprites folder
   fSprites[aRT].OverloadFromFolder(ExeDir + 'Modding graphics' + PathDelim);
 
+  // Generate terrain transitions
   if aRT = rxTiles then
   begin
     GenerateTerrainTransitions(fSprites[aRT]);

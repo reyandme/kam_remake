@@ -312,6 +312,10 @@ procedure TKMMinimap.Update(aRevealAll: Boolean = False);
 begin
   if SKIP_RENDER then Exit;
 
+  // No need to update if we did not initialize map sizes yet
+  // F.e. when Cinematic starts in OnMissionStart script procedure in the replay
+  if fMapX*fMapY = 0 then Exit;
+
   if fParser <> nil then
     UpdateMinimapFromParser(aRevealAll)
   else

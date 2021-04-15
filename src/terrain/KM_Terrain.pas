@@ -1296,25 +1296,25 @@ end;
 //Check if requested tile is Stone and returns Stone deposit
 function TKMTerrain.TileIsStone(X,Y: Word): Byte;
 begin
-  Result := IfThen(Land[Y, X].LayersCnt = 0, fTileset.TileIsStone(Land^[Y, X].BaseLayer.Terrain), 0);
+  Result := IfThen(Land[Y, X].HasNoLayers, fTileset.TileIsStone(Land^[Y, X].BaseLayer.Terrain), 0);
 end;
 
 
 function TKMTerrain.TileIsCoal(X,Y: Word): Byte;
 begin
-  Result := IfThen(Land[Y, X].LayersCnt = 0, fTileset.TileIsCoal(Land^[Y, X].BaseLayer.Terrain), 0);
+  Result := IfThen(Land[Y, X].HasNoLayers, fTileset.TileIsCoal(Land^[Y, X].BaseLayer.Terrain), 0);
 end;
 
 
 function TKMTerrain.TileIsIron(X,Y: Word): Byte;
 begin
-  Result := IfThen(Land[Y, X].LayersCnt = 0, fTileset.TileIsIron(Land^[Y, X].BaseLayer.Terrain), 0);
+  Result := IfThen(Land[Y, X].HasNoLayers, fTileset.TileIsIron(Land^[Y, X].BaseLayer.Terrain), 0);
 end;
 
 
 function TKMTerrain.TileIsGold(X,Y: Word): Byte;
 begin
-  Result := IfThen(Land[Y, X].LayersCnt = 0, fTileset.TileIsGold(Land^[Y, X].BaseLayer.Terrain), 0);
+  Result := IfThen(Land[Y, X].HasNoLayers, fTileset.TileIsGold(Land^[Y, X].BaseLayer.Terrain), 0);
 end;
 
 
@@ -1473,7 +1473,7 @@ begin
 
   if not TileInMapCoords(X, Y) then Exit;
 
-  if Land^[Y,X].LayersCnt = 0 then
+  if Land^[Y,X].HasNoLayers then
     Result := aCheckTileFunc(Land^[Y, X].BaseLayer.Terrain)
   else
   begin
@@ -4307,16 +4307,25 @@ end;
 
 
 procedure TKMTerrain.UpdateLighting(X, Y: Integer);
+
+  function ConvertLightToByte(aSLight: Single): Byte;
+  begin
+    Result := Round((aSLight + 1) * 127.5);
+  end;
+
 var
   x0, y2: Integer;
+  sLight, sLightWater: Single;
 begin
   x0 := Max(X - 1, 1);
   y2 := Min(Y + 1, fMapY);
-  Land^[Y,X].Light := Round((EnsureRange((Land^[Y,X].RenderHeight - (Land^[y2,X].RenderHeight + Land^[Y,x0].RenderHeight)/2)/22, -1, 1) + 1) * 127.5); //  1.33*16 ~=22.
+  sLight := EnsureRange((Land^[Y,X].RenderHeight - (Land^[y2,X].RenderHeight + Land^[Y,x0].RenderHeight)/2)/22, -1, 1); // 1.33*16 ~=22.
+  sLightWater := EnsureRange(sLight*WATER_LIGHT_MULTIPLIER + 0.1, -1, 1);
+  Land^[Y,X].Light := ConvertLightToByte(sLight); //  1.33*16 ~=22.
 
   //Use more contrast lighting for Waterbeds
   if fTileset.TileIsWater(Land^[Y, X].BaseLayer.Terrain) then
-    Land^[Y,X].Light := Round(EnsureRange(Land^[Y,X].Light * 1.3 + 0.1, 0, 255));
+    Land^[Y,X].Light := ConvertLightToByte(sLightWater);
 
   //Map borders always fade to black
   if (Y = 1) or (Y = fMapY) or (X = 1) or (X = fMapX) then

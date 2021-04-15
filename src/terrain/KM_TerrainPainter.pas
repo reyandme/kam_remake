@@ -899,7 +899,7 @@ begin
   //Need to check if this tile was already smart-painted, "4-Nodes" hence default value is 0
   if (LandTerKind[pY,pX].Tiles <> Byte(ter1)*Byte(ter2)*(4-nodes))
     or ((nodes = 4) and not IsTerrainRepresentTerKind(gTerrain.Land^[pY,pX].BaseLayer.Terrain, ter1)) //All nodes, but terrain is different from needed TerKind
-    or (gTerrain.Land^[pY,pX].LayersCnt > 0) then
+    or gTerrain.Land^[pY,pX].HasLayers then
   begin
     LandTerKind[pY,pX].Tiles := Byte(ter1)*Byte(ter2)*(4-nodes);//store not only nodes info, but also terrain type used
     if found and ((nodes = 4) or (fBrushMask = mkNone)) then
@@ -1492,7 +1492,7 @@ begin
     ApplyMagicBrush(aMaskKind);
 
   //No need to update BlendingLvl for basic tiles (without auto transitions)
-  if gTerrain.Land^[Y,X].LayersCnt > 0 then
+  if gTerrain.Land^[Y,X].HasLayers then
     gTerrain.Land^[Y,X].BlendingLvl := fBlendingLvl;
 
   if fReplaceLayers then

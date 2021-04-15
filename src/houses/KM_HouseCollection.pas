@@ -83,23 +83,23 @@ end;
 
 function TKMHousesCollection.AddToCollection(aHouseType: TKMHouseType; PosX,PosY: Integer; aOwner: TKMHandID; aHBS: TKMHouseBuildState): TKMHouse;
 var
-  id: Cardinal;
+  uid: Cardinal;
 begin
-  id := gGame.GetNewUID;
+  uid := gGame.GetNewUID;
 
   case aHouseType of
     htSwine,
-    htStables:       Result := TKMHouseSwineStable.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    htInn:           Result := TKMHouseInn.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    htMarketplace:   Result := TKMHouseMarket.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    htSchool:        Result := TKMHouseSchool.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    htBarracks:      Result := TKMHouseBarracks.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    htTownHall:      Result := TKMHouseTownHall.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    htStore:         Result := TKMHouseStore.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    htWatchTower:    Result := TKMHouseTower.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    htWoodcutters:   Result := TKMHouseWoodcutters.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    htArmorWorkshop: Result := TKMHouseArmorWorkshop.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
-    else              Result := TKMHouse.Create(id, aHouseType,PosX,PosY, aOwner, aHBS);
+    htStables:       Result := TKMHouseSwineStable.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    htInn:           Result := TKMHouseInn.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    htMarketplace:   Result := TKMHouseMarket.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    htSchool:        Result := TKMHouseSchool.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    htBarracks:      Result := TKMHouseBarracks.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    htTownHall:      Result := TKMHouseTownHall.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    htStore:         Result := TKMHouseStore.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    htWatchTower:    Result := TKMHouseTower.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    htWoodcutters:   Result := TKMHouseWoodcutters.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    htArmorWorkshop: Result := TKMHouseArmorWorkshop.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
+    else              Result := TKMHouse.Create(uid, aHouseType,PosX,PosY, aOwner, aHBS);
   end;
 
   if Result <> nil then

@@ -174,7 +174,7 @@ end;
 procedure TKMHouseSchool.ChangeUnitTrainOrder(aOldPosition, aNewPosition: Integer);
 var
   tmpUnit: TKMUnitType;
-  I: Byte;
+  I: Integer;
 begin
   Assert((aNewPosition >= 0) and (aOldPosition <= 5));
 
@@ -322,7 +322,8 @@ end;
 // Returns position of the last unit in queue.
 // If queue is empty, return -1
 function TKMHouseSchool.LastUnitPosInQueue: Integer;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := -1;
   for I := 0 to High(fQueue) do
@@ -346,6 +347,7 @@ end;
 procedure TKMHouseSchool.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+
   SaveStream.PlaceMarker('HouseSchool');
   SaveStream.Write(TKMUnit(fUnitWip).UID); //Store ID, then substitute it with reference on SyncLoad
   SaveStream.Write(fHideOneGold);

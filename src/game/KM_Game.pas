@@ -1065,6 +1065,7 @@ begin
   // Try to attach the dat+map
   AttachFile(ExeDir + missionFile);
   AttachFile(ExeDir + ChangeFileExt(missionFile, '.map'));
+  AttachFile(ExeDir + ChangeFileExt(missionFile, '.txt'));
 
   // Try to add main script file and all other scripts, because they could be included
   if FileExists(ExeDir + ChangeFileExt(missionFile, '.script')) then

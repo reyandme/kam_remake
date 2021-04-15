@@ -409,16 +409,9 @@ begin
   sizeX := Max(fClipRect.Right - fClipRect.Left, 0);
   SizeY := Max(fClipRect.Bottom - fClipRect.Top, 0);
 
-  texOffsetWater := 0;
-  texOffsetFalls := 0;
-  texOffsetSwamp := 0;
-
-  for AL := Low(TAnimLayer) to High(TAnimLayer) do
-    case AL of
-      alWater: texOffsetWater := 5000 + 300 * (aAnimStep mod 8 + 1);       // 5300..7400
-      alFalls: texOffsetFalls := 5000 + 300 * (aAnimStep mod 5 + 1 + 8);   // 7700..8900
-      alSwamp: texOffsetSwamp := 5000 + 300 * ((aAnimStep mod 24) div 8 + 1 + 8 + 5); // 9200..9800
-    end;
+  texOffsetWater := 5000 + 300 * (aAnimStep mod 8 + 1);       // 5300..7400
+  texOffsetFalls := 5000 + 300 * (aAnimStep mod 5 + 1 + 8);   // 7700..8900
+  texOffsetSwamp := 5000 + 300 * ((aAnimStep mod 24) div 8 + 1 + 8 + 5); // 9200..9800
 
   tilesCnt := 0;
   fowCnt := 0;
@@ -436,7 +429,7 @@ begin
 
           if TileHasToBeRendered(I*J = 0,tX,tY,aFow) then // Do not render tiles fully covered by FOW
           begin
-            texTileC := fTileUVLookup[Land[tY, tX].BaseLayer.Terrain, Land^[tY, tX].BaseLayer.Rotation mod 4];
+            texTileC := fTileUVLookup[Land^[tY, tX].BaseLayer.Terrain, Land^[tY, tX].BaseLayer.Rotation mod 4];
 
             vtxOffset := tilesCnt * 4;
             indOffset := tilesCnt * 6;
@@ -1259,6 +1252,7 @@ begin
   DoTilesLayers(aFOW);
   DoOverlays(aFOW);
   DoLighting(aFOW);
+//  DoWater(aAnimStep, aFOW);
   DoShadows(aFOW);
 
   {$IFDEF PERFLOG}

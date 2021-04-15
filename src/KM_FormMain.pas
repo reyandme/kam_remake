@@ -206,6 +206,8 @@ type
     seDebugValue: TSpinEdit;
     edDebugText: TEdit;
     chkFindObjByUID: TCheckBox;
+    tbWaterLight: TTrackBar;
+    lblWaterLight: TLabel;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -630,6 +632,7 @@ begin
   {$ENDIF}
 
   chkShowFlatTerrain.Tag := Ord(dcFlatTerrain);
+  tbWaterLight.Tag := Ord(dcFlatTerrain);
 end;
 
 
@@ -1185,7 +1188,8 @@ procedure TFormMain.ResetControl(aCtrl: TControl);
     Result := {$IFDEF WDC}
                  (aCtrl = chkSnowHouses)
               or (aCtrl = chkLoadUnsupSaves)
-              or (aCtrl = chkDebugScripting);
+              or (aCtrl = chkDebugScripting)
+              or (aCtrl = tbWaterLight);
               {$ENDIF}
               {$IFDEF FPC} False; {$ENDIF}
   end;
@@ -1205,7 +1209,12 @@ begin
                                or (aCtrl = chkShowOverlays)
   else
   if aCtrl is TTrackBar then
-    TTrackBar(aCtrl).Position := 0
+  begin
+    if aCtrl = tbWaterLight then
+      TTrackBar(aCtrl).Position := Round(DEFAULT_WATER_LIGHT_MULTIPLIER * 100)
+    else
+      TTrackBar(aCtrl).Position := 0
+  end
   else
   if (aCtrl is TRadioGroup)
     and (aCtrl <> rgDebugFont) then
@@ -1577,6 +1586,9 @@ begin
       gMain.Render;
     end;
     HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
+
+    WATER_LIGHT_MULTIPLIER := tbWaterLight.Position / 100;
+    lblWaterLight.Caption := 'Water light x' + ReplaceStr(FormatFloat('0.##', WATER_LIGHT_MULTIPLIER), ',', '.');
   end;
 
   //Logs

@@ -10281,6 +10281,9 @@ function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean = F
   var I: Integer;
       Child: TKMControl;
   begin
+    // Could sometimes happen on game exit?
+    if (Self = nil) or (P = nil) then Exit(nil);
+
     Result := nil;
     //Process controls in reverse order since last created are on top
     for I := P.ChildCount - 1 downto 0 do

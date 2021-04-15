@@ -223,8 +223,7 @@ object FormMain: TFormMain
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 2
-      ExplicitWidth = 239
-      ExpandedHeight = 133
+      ExpandedHeight = 153
       object Label1: TLabel
         Left = 101
         Top = 55
@@ -252,6 +251,13 @@ object FormMain: TFormMain
         Width = 27
         Height = 13
         Caption = 'Angle'
+      end
+      object lblWaterLight: TLabel
+        Left = 101
+        Top = 74
+        Width = 124
+        Height = 13
+        Caption = 'Water light'
       end
       object tbAngleX: TTrackBar
         Left = 5
@@ -284,8 +290,8 @@ object FormMain: TFormMain
         OnChange = ControlsUpdate
       end
       object tbAngleZ: TTrackBar
-        Left = 5
-        Top = 39
+        Left = 2
+        Top = 42
         Width = 95
         Height = 17
         Max = 90
@@ -312,7 +318,7 @@ object FormMain: TFormMain
       end
       object chkSnowHouses: TCheckBox
         Left = 8
-        Top = 78
+        Top = 93
         Width = 86
         Height = 17
         Caption = 'Snow houses'
@@ -321,12 +327,25 @@ object FormMain: TFormMain
       end
       object chkInterpolatedRender: TCheckBox
         Left = 8
-        Top = 94
+        Top = 109
         Width = 113
         Height = 17
         Caption = 'Interpolated render'
         TabOrder = 5
         OnClick = ControlsUpdate
+      end
+      object tbWaterLight: TTrackBar
+        Left = 5
+        Top = 74
+        Width = 95
+        Height = 17
+        Max = 200
+        Position = 130
+        TabOrder = 6
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        OnChange = ControlsUpdate
       end
     end
     object cpUserInreface: TCategoryPanel
@@ -335,7 +354,6 @@ object FormMain: TFormMain
       Caption = 'User Interface'
       Collapsed = True
       TabOrder = 3
-      ExplicitWidth = 239
       ExpandedHeight = 85
       object chkUIControlsBounds: TCheckBox
         Left = 8
@@ -389,7 +407,6 @@ object FormMain: TFormMain
       Caption = 'Perf Logs'
       Collapsed = True
       TabOrder = 4
-      ExplicitWidth = 239
       ExpandedHeight = 660
     end
     object cpAI: TCategoryPanel
@@ -398,7 +415,6 @@ object FormMain: TFormMain
       Caption = 'AI'
       Collapsed = True
       TabOrder = 5
-      ExplicitWidth = 239
       object Label5: TLabel
         Left = 202
         Top = 111
@@ -605,7 +621,6 @@ object FormMain: TFormMain
       Caption = 'Scripting'
       Collapsed = True
       TabOrder = 6
-      ExplicitWidth = 239
       ExpandedHeight = 50
       object chkDebugScripting: TCheckBox
         Left = 8
@@ -628,7 +643,6 @@ object FormMain: TFormMain
       Caption = 'Game additional'
       Collapsed = True
       TabOrder = 7
-      ExplicitWidth = 239
       ExpandedHeight = 136
       object chkLoadUnsupSaves: TCheckBox
         Left = 12
@@ -679,7 +693,6 @@ object FormMain: TFormMain
       Caption = 'Debug Input'
       Collapsed = True
       TabOrder = 8
-      ExplicitWidth = 239
       ExpandedHeight = 210
       object gbFindObjByUID: TGroupBox
         Left = 8
@@ -815,7 +828,6 @@ object FormMain: TFormMain
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 9
-      ExplicitWidth = 239
       ExpandedHeight = 360
       object Label2: TLabel
         Left = 136
@@ -1166,7 +1178,6 @@ object FormMain: TFormMain
       Height = 121
       Caption = 'Game'
       TabOrder = 10
-      ExplicitWidth = 239
       object Label8: TLabel
         Left = 70
         Top = 30

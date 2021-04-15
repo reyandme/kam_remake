@@ -108,6 +108,8 @@ type
     Passability: TKMTerrainPassabilitySet; //Meant to be set of allowed actions on the tile
     WalkConnect: array [TKMWalkConnect] of Byte; //Whole map is painted into interconnected areas
 
+    function HasLayers: Boolean;
+    function HasNoLayers: Boolean;
     function RenderHeight: Byte;
     procedure IncJamMeter(aValue: Integer);
     function RenderLight: Single;
@@ -255,6 +257,18 @@ begin
   Result.TileOverlay  := TileOverlay;
   for L := 0 to 2 do
     Result.Layer[L] := Layer[L];
+end;
+
+
+function TKMTerrainTile.HasLayers: Boolean;
+begin
+  Result := LayersCnt > 0;
+end;
+
+
+function TKMTerrainTile.HasNoLayers: Boolean;
+begin
+  Result := LayersCnt = 0;
 end;
 
 

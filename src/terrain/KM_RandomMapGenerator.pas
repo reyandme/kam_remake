@@ -1238,21 +1238,22 @@ begin
     ShapeNum := -10;
 	  for Y := 1 to High(A) do
 		  for X := 1 to High(A[Y]) do
-			  if (Shape2Arr[Y,X] = -1) OR (Shape2Arr[Y,X] = -2) then
+			  if (Shape2Arr[Y,X] = -1) or (Shape2Arr[Y,X] = -2) then
         begin
           case A[Y,X-1] of
-            Byte(btGrass):      RandBiom := Byte(  Tr_Grass[ fRNG.RandomI(length(Tr_BigGrass)) ]           );
-            Byte(btBigGrass):   RandBiom := Byte(  Tr_BigGrass[ fRNG.RandomI(length(Tr_BigGrass)) ]        );
-            Byte(btGrassGround):RandBiom := Byte(  Tr_GrassGround[ fRNG.RandomI(length(Tr_GrassGround)) ]  );
-            Byte(btGround):     RandBiom := Byte(  Tr_Ground[ fRNG.RandomI(length(Tr_Ground)) ]            );
-            Byte(btTreeGrass):  RandBiom := Byte(  Tr_TreeGrass[ fRNG.RandomI(length(Tr_TreeGrass)) ]      );
-            Byte(btCoastSand):  RandBiom := Byte(  Tr_CoastSand[ fRNG.RandomI(length(Tr_CoastSand)) ]      );
-            Byte(btGrassSand1): RandBiom := Byte(  Tr_GrassSand1[ fRNG.RandomI(length(Tr_GrassSand1)) ]    );
-            Byte(btGrassSand2): RandBiom := Byte(  Tr_GrassSand2[ fRNG.RandomI(length(Tr_GrassSand2)) ]    );
-            Byte(btGrassSand3): RandBiom := Byte(  Tr_GrassSand3[ fRNG.RandomI(length(Tr_GrassSand3)) ]    );
-            Byte(btSand):       RandBiom := Byte(  Tr_Sand[ fRNG.RandomI(length(Tr_Sand)) ]                );
-            Byte(btGroundSnow): RandBiom := Byte(  Tr_GroundSnow[ fRNG.RandomI(length(Tr_GroundSnow)) ]    );
-            else begin Continue; end;
+            Ord(btGrass):      RandBiom := Ord(  Tr_Grass[ fRNG.RandomI(Length(Tr_BigGrass)) ]           );
+            Ord(btBigGrass):   RandBiom := Ord(  Tr_BigGrass[ fRNG.RandomI(Length(Tr_BigGrass)) ]        );
+            Ord(btGrassGround):RandBiom := Ord(  Tr_GrassGround[ fRNG.RandomI(Length(Tr_GrassGround)) ]  );
+            Ord(btGround):     RandBiom := Ord(  Tr_Ground[ fRNG.RandomI(Length(Tr_Ground)) ]            );
+            Ord(btTreeGrass):  RandBiom := Ord(  Tr_TreeGrass[ fRNG.RandomI(Length(Tr_TreeGrass)) ]      );
+            Ord(btCoastSand):  RandBiom := Ord(  Tr_CoastSand[ fRNG.RandomI(Length(Tr_CoastSand)) ]      );
+            Ord(btGrassSand1): RandBiom := Ord(  Tr_GrassSand1[ fRNG.RandomI(Length(Tr_GrassSand1)) ]    );
+            Ord(btGrassSand2): RandBiom := Ord(  Tr_GrassSand2[ fRNG.RandomI(Length(Tr_GrassSand2)) ]    );
+            Ord(btGrassSand3): RandBiom := Ord(  Tr_GrassSand3[ fRNG.RandomI(Length(Tr_GrassSand3)) ]    );
+            Ord(btSand):       RandBiom := Ord(  Tr_Sand[ fRNG.RandomI(Length(Tr_Sand)) ]                );
+            Ord(btGroundSnow): RandBiom := Ord(  Tr_GroundSnow[ fRNG.RandomI(Length(Tr_GroundSnow)) ]    );
+          else
+            Continue;
           end;
           SearchSimilarBiome.QuickFlood(X,Y, Shape2Arr[Y,X], ShapeNum, RandBiom);
           if (SearchSimilarBiome.Count > 3) then

@@ -317,6 +317,9 @@ begin
       then
       begin
         Inc(fCount);
+        if fCount > Length(fTracks) then
+          SetLength(fTracks, Length(fTracks) + 32);
+
         fTracks[fCount - 1] := aPath + searchRec.Name;
       end;
       {if GetFileExt(SearchRec.Name)='MID' then

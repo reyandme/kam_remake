@@ -38,7 +38,10 @@ type
 
   TKMTileMaskSubType = (mstMain, mstExtra);
 
-  TKMTileMaskKind = (mkNone, mkSoft1, mkSoft2, mkSoft3, mkStraight);
+  TKMTileMaskKind = (mkNone, mkSoft1, mkSoft2, mkSoft3, mkStraight, mkGradient);
+
+  // Mask usage: as a pixel mask, or as a gradient mask
+  TKMTileMaskKindUse = (mkuPixel, mkuAlpha);
 
   TKMMaskFullType = record
     Kind: TKMTileMaskKind;
@@ -108,9 +111,15 @@ const
     (1, 2, 2, 2, 2, 3, 3, 4);
 
   TILE_MASK_KINDS_PREVIEW: array[TKMTileMaskKind] of Integer =
-    (-1, 5551, 5561, 5571, 5581); //+1 here, so -1 is no image, and not grass
+    (-1, 5551, 5561, 5571, 5581, 5591); //+1 here, so -1 is no image, and not grass
 
-  TILE_MASKS_FOR_LAYERS: array[mkSoft1..mkStraight] of array[mt_2Straight..mt_4Square] of array[TKMTileMaskSubType] of Integer =
+  TILE_MASK_KIND_USAGE: array [TKMTileMaskKind] of TKMTileMaskKindUse =
+    (mkuPixel, mkuPixel, mkuPixel, mkuPixel, mkuPixel, mkuAlpha);
+
+
+  TILE_MASKS_FOR_LAYERS:  array[Succ(Low(TKMTileMaskKind))..High(TKMTileMaskKind)]
+                            of array[Succ(Low(TKMTileMaskType))..High(TKMTileMaskType)]
+                              of array[TKMTileMaskSubType] of Integer =
      //Softest
     (((5549, -1),
       (5550, -1),
@@ -142,7 +151,15 @@ const
       (5582, -1),
       (5581, 5579),
       (5581, 5582),
-      (5581, -1))
+      (5581, -1)),
+     //Gradient
+     ((5589, -1),
+      (5590, -1),
+      (5591, -1),
+      (5592, -1),
+      (5591, 5589),
+      (5591, 5592),
+      (5591, -1))
       //Hard2
      {((569, -1),
       (570, -1),
