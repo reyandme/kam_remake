@@ -4,7 +4,7 @@
  0.11 update by sado (add player names to overlay, add win/lose conditions)
 }
 
-var iLoop, iX, iY, iD, iTicks, iRounds, iSec, iRoundTicks, iSpikes, iSpikesEnd, iRandom, iNeutrals, iOrder, iPointtobeadded, iUnitKilled, iUnitKiller, iTowerTimerTop, iTowerTimerBot, iPlayer, iRoundStartTimer, iRoundEndTimer, iOrderBlocked, iXRoll, iYRoll, iXStart, iSpawn, iDeathCount: Integer;
+var iLoop, iX, iY, iD, iTicks, iRounds, iSec, iRoundTicks, iSpikes, iSpikesEnd, iRandom, iNeutrals, iOrder, iPointtobeadded, iUnitKilled, iUnitKiller, iTowerTimerTop, iTowerTimerBot, iPlayer, iRoundStartTimer, iRoundEndTimer, iXRoll, iYRoll, iXStart, iSpawn, iDeathCount: Integer;
 var bRoundStarted, bTowerTop, bTowerBot, bRoundEnds, bBabarian: Boolean;
 var bMilita, bAxe, bSword, bKnight, bLance, bPike, bRebel, bScout, bVagabond, bWarrior: array [0..3] of Boolean;
 var iPoints: array [0..6] of Integer;
@@ -24,7 +24,31 @@ SWORDMEN = 8;
 KNIGHT = 9;
 WARRIOR = 10;
 
+procedure TryToKill(X, Y: Integer; bSilent: boolean);
+var aUnit: Integer;
+begin
+	aUnit := States.UnitAt(X, Y);
+	if aUnit <> -1 then
+		Actions.UnitKill(aUnit, bSilent);
+end;
+
+procedure TryToKillClose(P, X, Y, T: Integer; bSilent: boolean);
+var aUnit: Integer;
+begin
+	aUnit := States.ClosestUnit(P, X, Y, T);
+	if aUnit <> -1 then
+		Actions.UnitKill(aUnit, bSilent);
+end;
+procedure TryToHalt(X, Y: Integer);
+var aUnit: Integer;
+begin
+	aUnit := States.UnitAt(X, Y);
+	if aUnit <> -1 then
+		Actions.GroupOrderHalt(aUnit);
+end;
+
 procedure RoundStart;
+var aUnit: Integer;
 begin
 	iXRoll := (iXRoll +1)
 	if iXRoll > 5 then
@@ -53,52 +77,69 @@ begin
 			if iPlayer = 3 then iY := 23;
 			if iPlayer = 3 then iD := 6;
 			if iPlayer = 3 then iXStart := 25;
-			iGroup[iPlayer] := Actions.GiveGroup(iPlayer, States.UnitType(States.UnitAt((iXStart + iXRoll), iYRoll)), iX, iY, iD, 1, 1);
-			Actions.UnitKill(States.UnitAt((iXStart + iXRoll), iYRoll), true);
+			aUnit := States.UnitAt((iXStart + iXRoll), iYRoll)
+			if aUnit <> -1 then
+				iGroup[iPlayer] := Actions.GiveGroup(iPlayer, States.UnitType(aUnit), iX, iY, iD, 1, 1);
+			TryToKill((iXStart + iXRoll), iYRoll, true);
 			iPlayer := (iPlayer +1);
 		end;
 	iPlayer := (0);
 		for iLoop := 1 to 4 do
 		begin
-			if (States.StatUnitTypeCount (iPlayer, 14) = 1) and (bMilita[iPlayer] = false) then bMilita[iPlayer] := true;
-			if (States.StatUnitTypeCount (iPlayer, 15) = 1) and (bAxe[iPlayer] = false) then bAxe[iPlayer] := true;
-			if (States.StatUnitTypeCount (iPlayer, 16) = 1) and (bSword[iPlayer] = false) then bSword[iPlayer] := true;
-			if (States.StatUnitTypeCount (iPlayer, 19) = 1) and (bLance[iPlayer] = false) then bLance[iPlayer] := true;
-			if (States.StatUnitTypeCount (iPlayer, 20) = 1) and (bPike[iPlayer] = false) then bPike[iPlayer] := true;
-			if (States.StatUnitTypeCount (iPlayer, 21) = 1) and (bScout[iPlayer] = false) then bScout[iPlayer] := true;
-			if (States.StatUnitTypeCount (iPlayer, 22) = 1) and (bKnight[iPlayer] = false) then bKnight[iPlayer] := true;
-			if (States.StatUnitTypeCount (iPlayer, 24) = 1) and (bRebel[iPlayer] = false) then bRebel[iPlayer] := true;
-			if (States.StatUnitTypeCount (iPlayer, 26) = 1) and (bWarrior[iPlayer] = false) then bWarrior[iPlayer] := true;
-			if (States.StatUnitTypeCount (iPlayer, 27) = 1) and (bVagabond[iPlayer] = false) then bVagabond[iPlayer] := true;
+			if States.PlayerEnabled(iPlayer) then
+			begin
+				if (States.StatUnitTypeCount (iPlayer, 14) = 1) and (bMilita[iPlayer] = false) then bMilita[iPlayer] := true;
+				if (States.StatUnitTypeCount (iPlayer, 15) = 1) and (bAxe[iPlayer] = false) then bAxe[iPlayer] := true;
+				if (States.StatUnitTypeCount (iPlayer, 16) = 1) and (bSword[iPlayer] = false) then bSword[iPlayer] := true;
+				if (States.StatUnitTypeCount (iPlayer, 19) = 1) and (bLance[iPlayer] = false) then bLance[iPlayer] := true;
+				if (States.StatUnitTypeCount (iPlayer, 20) = 1) and (bPike[iPlayer] = false) then bPike[iPlayer] := true;
+				if (States.StatUnitTypeCount (iPlayer, 21) = 1) and (bScout[iPlayer] = false) then bScout[iPlayer] := true;
+				if (States.StatUnitTypeCount (iPlayer, 22) = 1) and (bKnight[iPlayer] = false) then bKnight[iPlayer] := true;
+				if (States.StatUnitTypeCount (iPlayer, 24) = 1) and (bRebel[iPlayer] = false) then bRebel[iPlayer] := true;
+				if (States.StatUnitTypeCount (iPlayer, 26) = 1) and (bWarrior[iPlayer] = false) then bWarrior[iPlayer] := true;
+				if (States.StatUnitTypeCount (iPlayer, 27) = 1) and (bVagabond[iPlayer] = false) then bVagabond[iPlayer] := true;
+			end;
 			iPlayer := (iPlayer +1);
 		end;
 	iPlayer := (0);
 end;
 
 procedure RoundEnd;
-var I, counter, currentWinner: Integer;
+var I, counter, currentWinner, victim: Integer;
 var winners: array of Integer;
 begin
 	iSec := 0;
 	for iLoop := 1 to (States.StatUnitCount(4) + 10) do
-		Actions.UnitKill(States.ClosestUnitMultipleTypes(4, 1, 1, [0,14,23]), false);
-	if (States.GroupDead(iGroup[0]) = false) then iPoints[0] := iPoints[0] + 5;
-	if (States.GroupDead(iGroup[1]) = false) then iPoints[1] := iPoints[1] + 5;
-	if (States.GroupDead(iGroup[2]) = false) then iPoints[2] := iPoints[2] + 5;
-	if (States.GroupDead(iGroup[3]) = false) then iPoints[3] := iPoints[3] + 5;
+	begin
+		victim := States.ClosestUnitMultipleTypes(4, 1, 1, [0,14,23])
+		if (victim <> -1) then
+			Actions.UnitKill(victim, false);
+	end;
 	iRoundStartTimer := iTicks + 50;
 	iDeathCount := 0;
-	Actions.GroupKillAll(iGroup[0], true);
-	Actions.GroupKillAll(iGroup[1], true);
-	Actions.GroupKillAll(iGroup[2], true);
-	Actions.GroupKillAll(iGroup[3], true);
-	Actions.UnitKill(States.ClosestUnit(6, 1, 1, 23), false);
-	Actions.UnitKill(States.ClosestUnit(6, 14, 31, 17), false);
-	Actions.UnitKill(States.ClosestUnit(6, 14, 7, 17), false);
-	Actions.UnitKill(States.ClosestUnit(6, 14, 31, 18), false);
-	Actions.UnitKill(States.ClosestUnit(6, 14, 7, 18), false);
-	Actions.UnitKill(States.ClosestUnit(6, 14, 31, 25), false);
-	Actions.UnitKill(States.ClosestUnit(6, 14, 7, 25), false);
+	if iGroup[0] > 0 then begin 
+		if (States.GroupDead(iGroup[0]) = false) then iPoints[0] := iPoints[0] + 5;
+		Actions.GroupKillAll(iGroup[0], true);
+	end;
+	if iGroup[1] > 0 then begin
+		if (States.GroupDead(iGroup[1]) = false) then iPoints[1] := iPoints[1] + 5;
+		Actions.GroupKillAll(iGroup[1], true);
+	end;
+	if iGroup[2] > 0 then begin
+		if (States.GroupDead(iGroup[2]) = false) then iPoints[2] := iPoints[2] + 5;
+		Actions.GroupKillAll(iGroup[2], true);
+	end;
+	if iGroup[3] > 0 then begin
+		if (States.GroupDead(iGroup[3]) = false) then iPoints[3] := iPoints[3] + 5;
+		Actions.GroupKillAll(iGroup[3], true);
+	end;
+	TryToKillClose(6, 1, 1, 23, false);
+	TryToKillClose(6, 14, 31, 17, false);
+	TryToKillClose(6, 14, 7, 17, false);
+	TryToKillClose(6, 14, 31, 18, false);
+	TryToKillClose(6, 14, 7, 18, false);
+	TryToKillClose(6, 14, 31, 25, false);
+	TryToKillClose(6, 14, 7, 25, false);
   if (iRounds > NR_OF_ROUNDS-1) then
   begin
     counter := -50;
@@ -128,97 +169,104 @@ begin
 	iYRoll := 2;
 	iPlayer := (0);
 	iSpikesEnd := 11
-	Actions.UnitKill(States.UnitAt(7, 15), true);
-	Actions.UnitKill(States.UnitAt(7, 23), true);
-	Actions.UnitKill(States.UnitAt(21, 15), true);
-	Actions.UnitKill(States.UnitAt(21, 23), true);
-	Actions.UnitKill(States.UnitAt(14, 19), true);
-	Actions.UnitKill(States.UnitAt(15, 10), true);
-	
-	iSpawn := Actions.GiveGroup(0, 14, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(0, 15, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(0, 16, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(0, 19, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(0, 20, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(0, 21, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(0, 22, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(0, 24, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(0, 26, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(0, 27, (States.KamRandomI(5) +1), 4, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	
-	iSpawn := Actions.GiveGroup(1, 14, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(1, 15, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(1, 16, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(1, 19, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(1, 20, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(1, 21, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(1, 22, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(1, 24, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(1, 26, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(1, 27, (States.KamRandomI(5) +10), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	
-	iSpawn := Actions.GiveGroup(2, 14, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(2, 15, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(2, 16, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(2, 19, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(2, 20, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(2, 21, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(2, 22, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(2, 24, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(2, 26, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(2, 27, (States.KamRandomI(5) +18), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	
-	iSpawn := Actions.GiveGroup(3, 14, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(3, 15, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(3, 16, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(3, 19, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(3, 20, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(3, 21, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(3, 22, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(3, 24, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(3, 26, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	iSpawn := Actions.GiveGroup(3, 27, (States.KamRandomI(5) +26), 2, 4, 1, 1);
-	Actions.GroupBlockOrders(iSpawn, true);
-	
+	TryToKill(7,15, true);
+	TryToKill(7,23, true);
+	TryToKill(21,15, true);
+	TryToKill(21,23, true);
+	TryToKill(14,19, true);
+	TryToKill(15,10, true);
+	if States.PlayerEnabled(0) then
+	begin
+		iSpawn := Actions.GiveGroup(0, 14, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(0, 15, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(0, 16, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(0, 19, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(0, 20, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(0, 21, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(0, 22, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(0, 24, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(0, 26, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(0, 27, (States.KamRandomI(5) +1), 4, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+	end;
+	if States.PlayerEnabled(1) then
+	begin	
+		iSpawn := Actions.GiveGroup(1, 14, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(1, 15, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(1, 16, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(1, 19, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(1, 20, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(1, 21, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(1, 22, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(1, 24, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(1, 26, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(1, 27, (States.KamRandomI(5) +10), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+	end;
+	if States.PlayerEnabled(2) then
+	begin
+		iSpawn := Actions.GiveGroup(2, 14, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(2, 15, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(2, 16, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(2, 19, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(2, 20, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(2, 21, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(2, 22, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(2, 24, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(2, 26, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(2, 27, (States.KamRandomI(5) +18), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+	end;
+	if States.PlayerEnabled(3) then
+	begin
+		iSpawn := Actions.GiveGroup(3, 14, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(3, 15, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(3, 16, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(3, 19, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(3, 20, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(3, 21, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(3, 22, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(3, 24, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(3, 26, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+		iSpawn := Actions.GiveGroup(3, 27, (States.KamRandomI(5) +26), 2, 4, 1, 1);
+		if iSpawn > 0 then Actions.GroupBlockOrders(iSpawn, true);
+	end;
 	for iLoop := 1 to 15 do
 	begin
 	iX := States.KamRandomI(18)
@@ -252,7 +300,7 @@ begin
 end;
 
 procedure OnTick;
-var I,J: Integer;
+var I,J,iClosest1,iClosest2,tmpUnit: Integer;
 begin
 	iTicks := (iTicks + 1);
 	iSpikes := (iTicks /80)
@@ -293,11 +341,17 @@ begin
                     end;
                 end;
                 if bTowerTop = true then
-                  if (States.UnitOwner(States.UnitAt(14, 15)) = I) then
+				begin
+				  tmpUnit := States.UnitAt(14, 15);
+                  if ((tmpUnit <> -1) and (States.UnitOwner(tmpUnit) = I)) then
                     Actions.OverlayTextAppend(I,'Northern Tower: ' + inttostr((iTowerTimerTop - States.Gametime) /10));
+				end;
                 if bTowerBot = true then
-                  if (States.UnitOwner(States.UnitAt(14, 23)) = I) then
+				begin
+				  tmpUnit := States.UnitAt(14, 23);
+                  if ((tmpUnit <> -1) and (States.UnitOwner(tmpUnit) = I)) then
                     Actions.OverlayTextAppend(I,'Southern Tower: ' + inttostr((iTowerTimerBot - States.Gametime) /10));
+				end;
             end;
         end;
     end;
@@ -305,10 +359,10 @@ begin
 	if (bRoundStarted = false) and (iRoundStartTimer = iTicks) and (iRounds < 10) then RoundStart;
 	
 //Player Wins Round
-	if (States.GroupDead(iGroup[1]) = true) and (States.GroupDead(iGroup[2]) = true) and (States.GroupDead(iGroup[3]) = true) and (bRoundStarted = true) then bRoundEnds := true;
-	if (States.GroupDead(iGroup[0]) = true) and (States.GroupDead(iGroup[2]) = true) and (States.GroupDead(iGroup[3]) = true) and (bRoundStarted = true) then bRoundEnds := true;
-	if (States.GroupDead(iGroup[0]) = true) and (States.GroupDead(iGroup[1]) = true) and (States.GroupDead(iGroup[3]) = true) and (bRoundStarted = true) then bRoundEnds := true;
-	if (States.GroupDead(iGroup[0]) = true) and (States.GroupDead(iGroup[1]) = true) and (States.GroupDead(iGroup[2]) = true) and (bRoundStarted = true) then bRoundEnds := true;
+	if ((iGroup[1] <= 0) or States.GroupDead(iGroup[1]) = true) and ((iGroup[2] <= 0) or States.GroupDead(iGroup[2]) = true) and ((iGroup[3] <= 0) or States.GroupDead(iGroup[3]) = true) and (bRoundStarted = true) then bRoundEnds := true;
+	if ((iGroup[0] <= 0) or States.GroupDead(iGroup[0]) = true) and ((iGroup[2] <= 0) or States.GroupDead(iGroup[2]) = true) and ((iGroup[3] <= 0) or States.GroupDead(iGroup[3]) = true) and (bRoundStarted = true) then bRoundEnds := true;
+	if ((iGroup[0] <= 0) or States.GroupDead(iGroup[0]) = true) and ((iGroup[1] <= 0) or States.GroupDead(iGroup[1]) = true) and ((iGroup[3] <= 0) or States.GroupDead(iGroup[3]) = true) and (bRoundStarted = true) then bRoundEnds := true;
+	if ((iGroup[0] <= 0) or States.GroupDead(iGroup[0]) = true) and ((iGroup[1] <= 0) or States.GroupDead(iGroup[1]) = true) and ((iGroup[2] <= 0) or States.GroupDead(iGroup[2]) = true) and (bRoundStarted = true) then bRoundEnds := true;
 	
 //Spawn Barbarian	
 	if (iSec > 149) and (bBabarian = false) then
@@ -320,10 +374,10 @@ begin
 //Spawn Neutrals
 	if ((iTicks = (iNeutrals * 150)) and (iRoundTicks > 150) and (States.StatUnitCount(4) < 3)) then
 	begin
-		Actions.GroupOrderHalt(States.GroupAt(5, 28));
-		Actions.GroupOrderHalt(States.GroupAt(23, 10));
-		Actions.GroupOrderHalt(States.GroupAt(5, 10));
-		Actions.GroupOrderHalt(States.GroupAt(23, 28));
+		TryToHalt(5, 28);
+		TryToHalt(23, 10);
+		TryToHalt(5, 10);
+		TryToHalt(23, 28);
 		iRandom := States.KamRandomI(9);
 		if iRandom = 1 then Actions.GiveGroup(4, 14, 7, 19, 2, 1, 1);
 		if iRandom = 2 then Actions.GiveGroup(4, 14, 21, 17, 6, 1, 1);
@@ -456,10 +510,14 @@ begin
 //Move Neutrals
 	if iTicks = (iOrder * 5) then
 		begin
-			iX := States.KamRandomI(21);
-			iY := States.KamRandomI(26);
-			Actions.UnitOrderWalk(States.ClosestUnit(4, iX, iY, 0), iX, iY);
-			Actions.UnitOrderWalk(States.ClosestUnit(4, iX, iY, 14), iX, iY);
+			iX := States.KamRandomI(19)+2;
+			iY := States.KamRandomI(24)+2;
+			iClosest1 := States.ClosestUnit(4, iX, iY, 0);
+			if iClosest1 <> -1 then
+				Actions.UnitOrderWalk(iClosest1, iX, iY);
+			iClosest2 := States.ClosestUnit(4, iX, iY, 14);
+			if iClosest2 <> -1 then
+				Actions.UnitOrderWalk(iClosest2, iX, iY);
 		end;
 	
 //Tower Top	
@@ -472,7 +530,9 @@ begin
 	if (iTowerTimerTop = iTicks) and (bTowerTop = true) then
 	begin
 		bTowerTop := false
-		iPoints[(States.UnitOwner(States.UnitAt(14,15)))] := (iPoints[(States.UnitOwner(States.UnitAt(14,15)))] +1)
+		tmpUnit := States.UnitAt(14,15);
+		if tmpUnit <> -1 then
+			iPoints[(States.UnitOwner(States.UnitAt(14,15)))] := (iPoints[(States.UnitOwner(States.UnitAt(14,15)))] +1)
 	end;
 	
 	if (States.GroupAt(14, 15) = -1) and (bTowerTop = true) then
@@ -490,7 +550,9 @@ begin
 	if (iTowerTimerBot = iTicks) and (bTowerBot = true) then
 	begin
 		bTowerBot := false
-		iPoints[(States.UnitOwner(States.UnitAt(14,23)))] := (iPoints[(States.UnitOwner(States.UnitAt(14,23)))] +1)
+		tmpUnit := States.UnitAt(14,23);
+		if tmpUnit <> -1 then
+			iPoints[(States.UnitOwner(States.UnitAt(14,23)))] := (iPoints[(States.UnitOwner(States.UnitAt(14,23)))] +1)
 	end;
 	
 	if (States.GroupAt(14, 23) = -1) and (bTowerBot = true) then
@@ -510,10 +572,10 @@ begin
 			Actions.MapTileObjectSet(12, 19, 70);
 			Actions.MapTileObjectSet(11, 20, 70);
 			Actions.MapTileObjectSet(12, 20, 70);
-			Actions.UnitKill(States.UnitAt(11, 19), false);
-			Actions.UnitKill(States.UnitAt(12, 19), false);
-			Actions.UnitKill(States.UnitAt(11, 20), false);
-			Actions.UnitKill(States.UnitAt(12, 20), false);
+			TryToKill(11, 19, false);
+			TryToKill(12, 19, false);
+			TryToKill(11, 20, false);
+			TryToKill(12, 20, false);
 			iSpikesEnd := (iTicks + 15)
 		end;
 		if iRandom = 2 then
@@ -522,10 +584,10 @@ begin
 			Actions.MapTileObjectSet(16, 17, 70);
 			Actions.MapTileObjectSet(16, 16, 70);
 			Actions.MapTileObjectSet(17, 18, 70);
-			Actions.UnitKill(States.UnitAt(16, 18), false);
-			Actions.UnitKill(States.UnitAt(16, 17), false);
-			Actions.UnitKill(States.UnitAt(16, 16), false);
-			Actions.UnitKill(States.UnitAt(17, 18), false);
+			TryToKill(16, 18, false);
+			TryToKill(16, 17, false);
+			TryToKill(16, 16, false);
+			TryToKill(17, 18, false);
 			iSpikesEnd := (iTicks + 15)
 		end;
 		if iRandom = 3 then
@@ -534,10 +596,10 @@ begin
 			Actions.MapTileObjectSet(9, 24, 70);
 			Actions.MapTileObjectSet(10, 24, 70);
 			Actions.MapTileObjectSet(10, 25, 70);
-			Actions.UnitKill(States.UnitAt(9, 23), false);
-			Actions.UnitKill(States.UnitAt(9, 24), false);
-			Actions.UnitKill(States.UnitAt(10, 24), false);
-			Actions.UnitKill(States.UnitAt(10, 25), false);
+			TryToKill(9, 23, false);
+			TryToKill(9, 24, false);
+			TryToKill(10, 24, false);
+			TryToKill(10, 25, false);
 			iSpikesEnd := (iTicks + 15)
 		end;
 	end;
@@ -559,7 +621,26 @@ begin
 	end;
 end;
 
+function ScoreForUnit(aUnitID: Integer): Byte; // by Lewin
+begin
+//Find out what kind of unit it was and return the score for that unit
+    case States.UnitType(aUnitID) of
+        24:  Result := 1; //rebel
+		14:  Result := 2; //Militia
+		27:  Result := 3; //vagabond
+        19:  Result := 4; //Lance carrier
+        15:  Result := 5; //Axefighter
+        20:  Result := 6; //Pikeman
+        21:  Result := 7; //Scout
+        16:  Result := 8; //Swordfighter
+        22:  Result := 9; //Knight
+    23, 26:  Result := 10; //Barb/Warrior
+        else Result := 0; //Don't care about any other units
+    end;
+end;
+
 procedure OnUnitDied(aUnitID, aKillerIndex: Integer);
+var iKillersGroups: array of Integer;
 begin
 	if ((States.UnitType(aUnitID) = 0) and (aKillerIndex > -1) and (iPoints[aKillerIndex] > 0)) then iPoints[aKillerIndex] := (iPoints[aKillerIndex] - 1);
 	if ((aKillerIndex = 6) and ((States.UnitType(aUnitID) = 14) or (States.UnitType(aUnitID) = 24))) then iPoints[States.UnitOwner(aUnitID)] := iPoints[States.UnitOwner(aUnitID)] - 1;
@@ -575,65 +656,9 @@ begin
 	end;
 	if ((States.UnitOwner(aUnitID) = 0) or (States.UnitOwner(aUnitID) = 1) or (States.UnitOwner(aUnitID) = 2) or (States.UnitOwner(aUnitID) = 3)) and (aKillerIndex > -1) then
 	begin
-		if States.UnitType(aUnitID) = 24 then
-			iUnitKilled := REBEL
-		else
-			if States.UnitType(aUnitID) = 14 then
-				iUnitKilled := MILITA
-			else
-				if States.UnitType(aUnitID) = 27 then
-					iUnitKilled := VAGABOND
-				else
-					if States.UnitType(aUnitID) = 19 then
-						iUnitKilled := LANCECARRIER
-					else
-						if States.UnitType(aUnitID) = 15 then
-							iUnitKilled := AXEFIGHTER
-						else
-							if States.UnitType(aUnitID) = 20 then
-								iUnitKilled := PIKEMEN
-							else
-								if States.UnitType(aUnitID) = 21 then
-									iUnitKilled := SCOUT
-								else
-									if States.UnitType(aUnitID) = 16 then
-										iUnitKilled := SWORDMEN
-									else
-										if States.UnitType(aUnitID) = 22 then
-											iUnitKilled := KNIGHT
-										else
-											if States.UnitType(aUnitID) = 26 then
-												iUnitKilled := WARRIOR;
-
-		if States.StatUnitTypeCount(aKillerIndex, 24) = 1 then
-			iUnitKiller := REBEL
-		else
-			if States.StatUnitTypeCount(aKillerIndex, 14) = 1 then
-				iUnitKiller := MILITA
-			else
-				if States.StatUnitTypeCount(aKillerIndex, 27) = 1 then
-					iUnitKiller := VAGABOND
-				else
-					if States.StatUnitTypeCount(aKillerIndex, 19) = 1 then
-						iUnitKiller := LANCECARRIER
-					else
-						if States.StatUnitTypeCount(aKillerIndex, 15) = 1 then
-							iUnitKiller := AXEFIGHTER
-						else
-							if States.StatUnitTypeCount(aKillerIndex, 20) = 1 then
-								iUnitKiller := PIKEMEN
-							else
-								if States.StatUnitTypeCount(aKillerIndex, 21) = 1 then
-									iUnitKiller := SCOUT
-								else
-									if States.StatUnitTypeCount(aKillerIndex, 16) = 1 then
-										iUnitKiller := SWORDMEN
-									else
-										if States.StatUnitTypeCount(aKillerIndex, 22) = 1 then
-											iUnitKiller := KNIGHT
-										else
-											if States.StatUnitTypeCount(aKillerIndex, 26) = 1 then
-												iUnitKiller := WARRIOR;
+		iUnitKilled := ScoreForUnit(aUnitID);
+		iKillersGroups := States.PlayerGetAllGroups(aKillerIndex);
+		iUnitKiller := ScoreForUnit(States.GroupMember(iKillersGroups[0], 0));
 				
 		iPointtobeadded := (iUnitKilled - iUnitKiller);
 		if (iPointtobeadded < 1) then iPointtobeadded := 1;
