@@ -1,11 +1,35 @@
 /// :* 	 Town Merchants   *:
 /// *    v1.36	2013-2014 *
 /// *  by Random Lyrics   *
-//	*  	by Sado(terrain)  *			
+//	*  	by sado(terrain)  *			
 /// licensed under GPLv2
 /// https://gnu.org/licenses/old-licenses/gpl-2.0.txt
-//	Changes: -lower tax, win 30000,  
-//
+
+{
+Original map updated with LLL fix 1.4, with permission of original authors.
+Credits (LLL version)
+- Technical script support: Diedes
+- Report/ideas: Jomancool55, Alchemist, Troel, Marinana
+- Texts/map updates: Alchemist
+
+Changes (LLL version)
+1.4:
+-Create a overlay live timer
+-Some landcape fixes
+1.3:
+-Removed 1 iron sword forge at the leftside and replaced it for 1 iron armor forge.
+This is done to balance the production speed in relation to the rightside.
+-Put some roadtiles between cornerlocs/winefarms to make the distance equal/balanced to connect it with the rest of road network at the east/westside.
+1.2
+-There was a bug that caused a conflict in relation to the timer of events/quests.
+If it's right: Now we solved the bug
+Removed this line to solve the bug:
+-line 911: GLOBAL_EVENT_TIMER[j]:= 0;
+1.1:
+-Was a test-version
+1.0:
+You need 50.000 goldpieces to win, instead of 30.000
+}
 
 type aMERCHANT = 
 	record
@@ -29,6 +53,7 @@ type aPLAYER =
 	Tax: integer;
 	TaxPaid: boolean;
 	TaxX: Single;
+	CanPlacePlan: boolean;
 	end;
 
 
@@ -38,7 +63,7 @@ LOWER_SOUND_VOLUME = 0.5;
 EVENT_SOUND_VOLUME = 0.7;
 OFFER_SCHOOL_X = 122; //serfs spawn 
 OFFER_SCHOOL_Y = 122;
-VICTORY_GOLD_REQUIREMENT = 30000;
+VICTORY_GOLD_REQUIREMENT = 50000;
 MAX_PLAYERS = 6;
 PLAYER_START_GOLD = 1000;
 PLAYER_START_GOLD_CHESTS = 5; //max 5
@@ -302,6 +327,22 @@ begin
 		end;
 	end;
 end;
+
+
+
+function KeepTrackOfTime(): String; 
+var Min,Sec: Integer;
+Sek: String;
+begin
+	Sec := States.GameTime mod 600;
+	Sec := Sec/10
+	if Sec < 10 then Sek := '0'+IntToStr(Sec)
+	else Sek := IntToStr(Sec);
+	Min := States.GameTime/600;
+	Result := IntToStr(Min)+':'+Sek; // Put two forward slahes in front of this to disable seconds and instead active the one below.
+	// Result := IntToStr(Min) // Put two forward slashes in front of this to disable only reporting minutes and active the one above.
+end;
+
 
 function InRange(aInt, aFrom, aTo: integer): boolean;
 begin
@@ -744,6 +785,7 @@ begin
 			PLAYER[j].Gold:= PLAYER_START_GOLD;
 			PLAYER[j].Merchant.Exp:= PLAYER_START_EXP;
 			PLAYER[j].Merchant.Level:= PLAYER_START_LEVEL;
+			PLAYER[j].CanPlacePlan:= true;
 			aH:= States.PlayerGetAllHouses(j);
 			for k:= 0 to Length(aH)-1 do begin
 				if States.HouseType(aH[k]) = 11 then begin
@@ -880,6 +922,7 @@ begin
 				PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold - OFFER_HOUSE_COST;
 				OFFER_HOUSE_TIMER:= 0;
 				AllowHouseByClass(aPlayer, OFFER_HOUSE_CLASS);
+				PLAYER[aPlayer].CanPlacePlan := true;
 				PLAYER_SCORE_COUNTER[aPlayer][9]:= 20;
 				Actions.PlayWAV(aPlayer, 'townoffer', LOWER_SOUND_VOLUME+0.1);
 			end else 
@@ -908,7 +951,6 @@ begin
 			if QUEST_TYPE[j] = aWareType then begin
 				if ( x >= QUEST_COUNT[j]) then begin
 					x:= x - QUEST_COUNT[j];
-					GLOBAL_EVENT_TIMER[j]:= 0;
 					QUEST_ENABLED[j]:= false;
 					PLAYER[aPlayer].Gold:= PLAYER[aPlayer].Gold + QUEST_REWARD[j];
 					Actions.ShowMsgFormatted(aPlayer, '<$30>', [QUEST_REWARD[j]]);
@@ -1345,13 +1387,18 @@ begin
 		listOn[j]:= false;
 	end;
 	//desc
+	
 	for j:= 0 to MAX_PLAYERS-1 do begin
 		if States.PlayerEnabled(j) then begin
 		 if PLAYER[j].StorehouseID > 0 then begin
 			if States.HouseRepair(PLAYER[j].StorehouseID) then begin 
 				listOn[j]:= true;
 				if PLAYER_SCORE_TAB_COUNTER[j] = 0 then begin //wares
-					Actions.OverlayTextSet(j, '<$27>');
+					
+					Actions.OverlayTextSetFormatted(j, 'GameTime: [$BBBBFF]%s[]',[KeepTrackOfTime()]);
+					Actions.OverlayTextAppend(j, '|');
+					Actions.OverlayTextAppend(j, '|');
+					Actions.OverlayTextAppend(j, '<$27>');
 					Actions.OverlayTextAppend(j, '|');
 					for k:=0 to MAX_WARE_TYPE do begin
 						if WARE_SELL_PRICE[k] > WareTypeToStandardSellPrice(k) then
@@ -1363,7 +1410,11 @@ begin
 					if PLAYER_SCORE_TAB_ENABLED[j] = false then 
 						PLAYER_SCORE_TAB_ENABLED[j]:= true;
 				end else if PLAYER_SCORE_TAB_COUNTER[j] = 1 then begin //houses
-					Actions.OverlayTextSet(j, '<$29>');
+					
+					Actions.OverlayTextSetFormatted(j, 'GameTime: [$BBBBFF]%s[]',[KeepTrackOfTime()]);
+					Actions.OverlayTextAppend(j, '|');
+					Actions.OverlayTextAppend(j, '|');
+					Actions.OverlayTextAppend(j, '<$29>');
 					Actions.OverlayTextAppend(j, '|');
 					for k:=0 to MAX_HOUSE_TYPE do begin
 						if HouseTypeToGoldCost(k) <> 0 then begin
@@ -1390,7 +1441,11 @@ begin
 	for j:= 0 to MAX_PLAYERS-1 do begin
 	 if States.PlayerEnabled(j) and (States.PlayerDefeated(j) = false ) then begin
 		if listOn[j] = false then begin
-			Actions.OverlayTextSetFormatted(j, '<$1>', []);
+			
+			Actions.OverlayTextSetFormatted(j, 'GameTime: [$BBBBFF]%s[]',[KeepTrackOfTime()]);
+			Actions.OverlayTextAppend(j, '|');
+			Actions.OverlayTextAppend(j, '|');
+			Actions.OverlayTextAppendFormatted(j, '<$1>', []);
 			Actions.OverlayTextAppend(j, '|');
 			for k:= 0 to MAX_PLAYERS-1 do begin
 				if States.PlayerEnabled(k) and (States.PlayerDefeated(k) = false ) then begin
@@ -1511,7 +1566,11 @@ begin
 	//Actions.OverlayTextAppend(-1, States.HouseTypeName(4));
  end;
  if GAME_STATE = 1 then begin
-	Actions.OverlayTextSetFormatted(-1, '<$32>', []);
+	
+	Actions.OverlayTextSetFormatted(j, 'GameTime: [$BBBBFF]%s[]',[KeepTrackOfTime()]);
+	Actions.OverlayTextAppend(j, '|');
+	Actions.OverlayTextAppend(j, '|');
+	Actions.OverlayTextAppendFormatted(-1, '<$32>', []);
 	Actions.OverlayTextAppend(-1, '|');
 	Actions.OverlayTextAppend(-1, '|');
 	for j:= 0 to MAX_PLAYERS-1 do begin
@@ -1542,6 +1601,10 @@ procedure OnHousePlanPlaced(aPlayerIndex, X, Y, aHouseType: integer);
 begin
 	if InRange(aPlayerIndex, 0, MAX_PLAYERS-1) then begin
 		ClearAllowHouse(aPlayerIndex);
+		if PLAYER[aPlayerIndex].CanPlacePlan = false then
+			Actions.PlanRemove(aPlayerIndex, X, Y);
+			Actions.ShowMsg(aPlayerIndex, 'Can only place one house plan.');
+		PLAYER[aPlayerIndex].CanPlacePlan := false;
 	end;
 end;
 
