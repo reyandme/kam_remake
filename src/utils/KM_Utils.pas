@@ -25,6 +25,8 @@ uses
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
   function GetMultiplicator(aShift: TShiftState): Word; overload;
 
+  function ShiftStateToString(aShift: TShiftState): string;
+
   function RoundToTilePixel(aVal: Single): Single; inline; overload;
   function RoundToTilePixel(aVal: TKMPointF): TKMPointF; inline; overload;
 
@@ -304,6 +306,44 @@ begin
           + Byte(aShift = [ssRight]) * 10
           + Byte(aShift = [ssShift,ssLeft]) * 100
           + Byte(aShift = [ssShift,ssRight]) * 1000;
+end;
+
+
+function ShiftStateToString(aShift: TShiftState): string;
+begin
+  Result := '';
+  if ssShift in aShift then
+    Result := Result + 'ssShift ';
+
+  if ssAlt in aShift then
+    Result := Result + 'ssAlt ';
+
+  if ssCtrl in aShift then
+    Result := Result + 'ssCtrl ';
+
+  if ssLeft in aShift then
+    Result := Result + 'ssLeft ';
+
+  if ssRight in aShift then
+    Result := Result + 'ssRight ';
+
+  if ssMiddle in aShift then
+    Result := Result + 'ssMiddle ';
+
+  if ssDouble in aShift then
+    Result := Result + 'ssDouble ';
+
+  if ssTouch in aShift then
+    Result := Result + 'ssTouch ';
+
+  if ssPen in aShift then
+    Result := Result + 'ssPen ';
+
+  if ssCommand in aShift then
+    Result := Result + 'ssCommand ';
+
+  if ssHorizontal in aShift then
+    Result := Result + 'ssHorizontal ';
 end;
 
 

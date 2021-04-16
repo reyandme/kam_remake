@@ -36,6 +36,7 @@ type
     procedure Create_SingleMap(aParent: TKMPanel);
     procedure MapTypeChanged(Sender: TObject);
 
+    procedure ReadmeClick(Sender: TObject);
     procedure ScanUpdate(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
     procedure ScanTerminate(Sender: TObject);
@@ -68,6 +69,7 @@ type
         DropBox_Difficulty: TKMDropList;
         Label_AIPlayerType: TKMLabel;
         DropBox_AIPlayerType: TKMDropList;
+        Button_ViewReadme: TKMButton;
         Image_Allies: array [0..MAX_HANDS-1] of TKMImage;
         Image_Enemies: array [0..MAX_HANDS-1] of TKMImage;
         Image_VictGoal: array [0..MAX_UI_GOALS-1] of TKMImage;
@@ -235,6 +237,12 @@ begin
       DropBox_AIPlayerType.OnChange := OptionsChange;
       DropBox_AIPlayerType.Hide;
 
+
+      Button_ViewReadme := TKMButton.Create(Panel_Desc, 200, 480, 199, 25, gResTexts[TX_LOBBY_VIEW_README], bsMenu);
+      Button_ViewReadme.Anchors := [anLeft, anBottom];
+      Button_ViewReadme.OnClick := ReadmeClick;
+      Button_ViewReadme.Hide;
+
       //Goals
       B := TKMBevel.Create(Panel_Desc, 0, 530, Half, 30);
       B.Anchors := [anLeft, anBottom];
@@ -290,6 +298,13 @@ begin
                                      ButtonW, 30, gResTexts[TX_MENU_SINGLE_START_MAP], bsMenu);
     Button_Start.Anchors := [anLeft, anBottom];
     Button_Start.OnClick := StartClick;
+end;
+
+
+procedure TKMMenuSingleMap.ReadmeClick(Sender: TObject);
+begin
+  if ColumnBox_Maps.IsSelected then
+    fMaps[ ColumnBox_Maps.SelectedItemTag ].ViewReadme;
 end;
 
 

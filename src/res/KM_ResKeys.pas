@@ -29,7 +29,7 @@ type
     procedure SetFunc(aKeyFunc: TKMKeyFunction; const aFuncInfo: TKMKeySpec);
   public
     constructor Create;
-    function GetKeyName(aKey: Word): string;
+    function GetKeyName(aKey: Word; aUseDefaultLocale: Boolean = False): string;
     function GetKeyNameById(aKeyFunc: TKMKeyFunction): string;
     function GetKeyFunctionForKey(aKey: Word; aAreaSet: TKMKeyFuncAreaSet): TKMKeyFunction;
     function GetKeyFunctionName(aKeyFunc: TKMKeyFunction): string;
@@ -42,6 +42,7 @@ type
     procedure ResetKeymap;
 
 //    class function GetKeyFunction(aKeyFunStr: string): TKMKeyFunction;
+    class function GetKeyDescription(aKey: Word; aShift: TShiftState): string;
     class function GetKeyFunctionStr(aKeyFun: TKMKeyFunction): string;
   end;
 
@@ -51,7 +52,8 @@ var
 
 implementation
 uses
-  TypInfo{, RTTI};
+  TypInfo,{, RTTI}
+  KM_Utils;
 
 const
   // Default keys
@@ -288,130 +290,138 @@ begin
 end;
 
 
-function TKMResKeys.GetKeyName(aKey: Word): string;
+function TKMResKeys.GetKeyName(aKey: Word; aUseDefaultLocale: Boolean = False): string;
 begin
-  // All the special keys (not characters and not numbers) need a localized name
-  case aKey of
-    0:  Result := '';
-    1:  Result :=  gResTexts[TX_KEY_LMB];
-    2:  Result :=  gResTexts[TX_KEY_RMB];
-    3:  Result :=  gResTexts[TX_KEY_BREAK];
-    4:  Result :=  gResTexts[TX_KEY_MMB];
-    5:  Result :=  gResTexts[TX_KEY_MOUSE_FORWARD];
-    6:  Result :=  gResTexts[TX_KEY_MOUSE_BACKWARD];
-    8:  Result :=  gResTexts[TX_KEY_BACKSPACE];
-    9:  Result :=  gResTexts[TX_KEY_TAB];
-    12: Result :=  gResTexts[TX_KEY_CLEAR];
-    13: Result :=  gResTexts[TX_KEY_ENTER];
-    16: Result :=  gResTexts[TX_KEY_SHIFT];
-    17: Result :=  gResTexts[TX_KEY_CTRL];
-    18: Result :=  gResTexts[TX_KEY_ALT];
-    19: Result :=  gResTexts[TX_KEY_PAUSE];
-    20: Result :=  gResTexts[TX_KEY_CAPS];
-    27: Result :=  gResTexts[TX_KEY_ESC];
-    32: Result :=  gResTexts[TX_KEY_SPACE];
-    33: Result :=  gResTexts[TX_KEY_PG_UP];
-    34: Result :=  gResTexts[TX_KEY_PG_DOWN];
-    35: Result :=  gResTexts[TX_KEY_END];
-    36: Result :=  gResTexts[TX_KEY_HOME];
-    37: Result :=  gResTexts[TX_KEY_ARROW_LEFT];
-    38: Result :=  gResTexts[TX_KEY_ARROW_UP];
-    39: Result :=  gResTexts[TX_KEY_ARROW_RIGHT];
-    40: Result :=  gResTexts[TX_KEY_ARROW_DOWN];
-    41: Result :=  gResTexts[TX_KEY_SELECT];
-    42: Result :=  gResTexts[TX_KEY_PRINT];
-    43: Result :=  gResTexts[TX_KEY_EXECUTE];
-    44: Result :=  gResTexts[TX_KEY_PRINT_SCREEN];
-    45: Result :=  gResTexts[TX_KEY_INSERT];
-    46: Result :=  gResTexts[TX_KEY_DELETE];
-    47: Result :=  gResTexts[TX_KEY_HELP];
-    // NumPad keys
-    96: Result :=  gResTexts[TX_KEY_NUM_0];
-    97: Result :=  gResTexts[TX_KEY_NUM_1];
-    98: Result :=  gResTexts[TX_KEY_NUM_2];
-    99: Result :=  gResTexts[TX_KEY_NUM_3];
-    100: Result := gResTexts[TX_KEY_NUM_4];
-    101: Result := gResTexts[TX_KEY_NUM_5];
-    102: Result := gResTexts[TX_KEY_NUM_6];
-    103: Result := gResTexts[TX_KEY_NUM_7];
-    104: Result := gResTexts[TX_KEY_NUM_8];
-    105: Result := gResTexts[TX_KEY_NUM_9];
-    106: Result := gResTexts[TX_KEY_NUM_MULTIPLY];
-    107: Result := gResTexts[TX_KEY_NUM_PLUS];
-    108: Result := gResTexts[TX_KEY_SEPARATOR];
-    109: Result := gResTexts[TX_KEY_NUM_MINUS];
-    110: Result := gResTexts[TX_KEY_NUM_DOT];
-    111: Result := gResTexts[TX_KEY_NUM_DIVIDE];
-    // F keys
-    112: Result := 'F1';
-    113: Result := 'F2';
-    114: Result := 'F3';
-    115: Result := 'F4';
-    116: Result := 'F5';
-    117: Result := 'F6';
-    118: Result := 'F7';
-    119: Result := 'F8';
-    120: Result := 'F9';
-    121: Result := 'F10';
-    122: Result := 'F11';
-    123: Result := 'F12';
-    // F13..F24 are the special function keys, enabled by default in the EFI(UEFI) BIOS
-    //  This is especially the case with Windows 8/8.1 laptops.
-    //  Most manufacturers don't give the option to change it in the BIOS, hence we name them here anyways.
-    124: Result := 'F13';
-    125: Result := 'F14';
-    126: Result := 'F15';
-    127: Result := 'F16';
-    128: Result := 'F17';
-    129: Result := 'F18';
-    130: Result := 'F19';
-    131: Result := 'F20';
-    132: Result := 'F21';
-    133: Result := 'F22';
-    134: Result := 'F23';
-    135: Result := 'F24';
-    144: Result := gResTexts[TX_KEY_NUM_LOCK];
-    145: Result := gResTexts[TX_KEY_SCROLL_LOCK];
-    160: Result := gResTexts[TX_KEY_LEFT_SHIFT];
-    161: Result := gResTexts[TX_KEY_RIGHT_SHIFT];
-    162: Result := gResTexts[TX_KEY_LEFT_CTRL];
-    163: Result := gResTexts[TX_KEY_RIGHT_CTRL];
-    164: Result := gResTexts[TX_KEY_LEFT_ALT];
-    165: Result := gResTexts[TX_KEY_RIGHT_ALT];
-    // Media keys (additional keys on some keyboards)
-    166: Result := gResTexts[TX_KEY_BROWSER_BACK];
-    167: Result := gResTexts[TX_KEY_BROWSER_FORWARD];
-    168: Result := gResTexts[TX_KEY_BROWSER_REFRESH];
-    169: Result := gResTexts[TX_KEY_BROWSER_STOP];
-    170: Result := gResTexts[TX_KEY_BROWSER_SEARCH];
-    171: Result := gResTexts[TX_KEY_BROWSER_FAVORITES];
-    172: Result := gResTexts[TX_KEY_BROWSER_HOME];
-    173: Result := gResTexts[TX_KEY_VOLUME_MUTE];
-    174: Result := gResTexts[TX_KEY_VOLUME_DOWN];
-    175: Result := gResTexts[TX_KEY_VOLUME_UP];
-    176: Result := gResTexts[TX_KEY_MEDIA_NEXT_TRACK];
-    177: Result := gResTexts[TX_KEY_MEDIA_PREV_TRACK];
-    178: Result := gResTexts[TX_KEY_MEDIA_STOP];
-    179: Result := gResTexts[TX_KEY_MEDIA_PLAY_PAUSE];
-    180: Result := gResTexts[TX_KEY_LAUNCH_MAIL];
-    181: Result := gResTexts[TX_KEY_LAUNCH_MEDIA_SELECT];
-    182: Result := gResTexts[TX_KEY_LAUNCH_APP1];
-    183: Result := gResTexts[TX_KEY_LAUNCH_APP2];
-    186: Result := ';';
-    187: Result := '=';
-    188: Result := ',';
-    189: Result := '-';
-    190: Result := '.';
-    191: Result := '/';
-    192: Result := '`';
-    219: Result := '[';
-    220: Result := '\';
-    221: Result := ']';
-    222: Result := '''';
-    250: Result := gResTexts[TX_KEY_PLAY];
-    251: Result := gResTexts[TX_KEY_ZOOM];
-  else
-    Result := Char(aKey);
+  if aUseDefaultLocale then
+    gResTexts.ForceDefaultLocale := True;
+
+  try
+    // All the special keys (not characters and not numbers) need a localized name
+    case aKey of
+      0:  Result := '';
+      1:  Result :=  gResTexts[TX_KEY_LMB];
+      2:  Result :=  gResTexts[TX_KEY_RMB];
+      3:  Result :=  gResTexts[TX_KEY_BREAK];
+      4:  Result :=  gResTexts[TX_KEY_MMB];
+      5:  Result :=  gResTexts[TX_KEY_MOUSE_FORWARD];
+      6:  Result :=  gResTexts[TX_KEY_MOUSE_BACKWARD];
+      8:  Result :=  gResTexts[TX_KEY_BACKSPACE];
+      9:  Result :=  gResTexts[TX_KEY_TAB];
+      12: Result :=  gResTexts[TX_KEY_CLEAR];
+      13: Result :=  gResTexts[TX_KEY_ENTER];
+      16: Result :=  gResTexts[TX_KEY_SHIFT];
+      17: Result :=  gResTexts[TX_KEY_CTRL];
+      18: Result :=  gResTexts[TX_KEY_ALT];
+      19: Result :=  gResTexts[TX_KEY_PAUSE];
+      20: Result :=  gResTexts[TX_KEY_CAPS];
+      27: Result :=  gResTexts[TX_KEY_ESC];
+      32: Result :=  gResTexts[TX_KEY_SPACE];
+      33: Result :=  gResTexts[TX_KEY_PG_UP];
+      34: Result :=  gResTexts[TX_KEY_PG_DOWN];
+      35: Result :=  gResTexts[TX_KEY_END];
+      36: Result :=  gResTexts[TX_KEY_HOME];
+      37: Result :=  gResTexts[TX_KEY_ARROW_LEFT];
+      38: Result :=  gResTexts[TX_KEY_ARROW_UP];
+      39: Result :=  gResTexts[TX_KEY_ARROW_RIGHT];
+      40: Result :=  gResTexts[TX_KEY_ARROW_DOWN];
+      41: Result :=  gResTexts[TX_KEY_SELECT];
+      42: Result :=  gResTexts[TX_KEY_PRINT];
+      43: Result :=  gResTexts[TX_KEY_EXECUTE];
+      44: Result :=  gResTexts[TX_KEY_PRINT_SCREEN];
+      45: Result :=  gResTexts[TX_KEY_INSERT];
+      46: Result :=  gResTexts[TX_KEY_DELETE];
+      47: Result :=  gResTexts[TX_KEY_HELP];
+      // NumPad keys
+      96: Result :=  gResTexts[TX_KEY_NUM_0];
+      97: Result :=  gResTexts[TX_KEY_NUM_1];
+      98: Result :=  gResTexts[TX_KEY_NUM_2];
+      99: Result :=  gResTexts[TX_KEY_NUM_3];
+      100: Result := gResTexts[TX_KEY_NUM_4];
+      101: Result := gResTexts[TX_KEY_NUM_5];
+      102: Result := gResTexts[TX_KEY_NUM_6];
+      103: Result := gResTexts[TX_KEY_NUM_7];
+      104: Result := gResTexts[TX_KEY_NUM_8];
+      105: Result := gResTexts[TX_KEY_NUM_9];
+      106: Result := gResTexts[TX_KEY_NUM_MULTIPLY];
+      107: Result := gResTexts[TX_KEY_NUM_PLUS];
+      108: Result := gResTexts[TX_KEY_SEPARATOR];
+      109: Result := gResTexts[TX_KEY_NUM_MINUS];
+      110: Result := gResTexts[TX_KEY_NUM_DOT];
+      111: Result := gResTexts[TX_KEY_NUM_DIVIDE];
+      // F keys
+      112: Result := 'F1';
+      113: Result := 'F2';
+      114: Result := 'F3';
+      115: Result := 'F4';
+      116: Result := 'F5';
+      117: Result := 'F6';
+      118: Result := 'F7';
+      119: Result := 'F8';
+      120: Result := 'F9';
+      121: Result := 'F10';
+      122: Result := 'F11';
+      123: Result := 'F12';
+      // F13..F24 are the special function keys, enabled by default in the EFI(UEFI) BIOS
+      //  This is especially the case with Windows 8/8.1 laptops.
+      //  Most manufacturers don't give the option to change it in the BIOS, hence we name them here anyways.
+      124: Result := 'F13';
+      125: Result := 'F14';
+      126: Result := 'F15';
+      127: Result := 'F16';
+      128: Result := 'F17';
+      129: Result := 'F18';
+      130: Result := 'F19';
+      131: Result := 'F20';
+      132: Result := 'F21';
+      133: Result := 'F22';
+      134: Result := 'F23';
+      135: Result := 'F24';
+      144: Result := gResTexts[TX_KEY_NUM_LOCK];
+      145: Result := gResTexts[TX_KEY_SCROLL_LOCK];
+      160: Result := gResTexts[TX_KEY_LEFT_SHIFT];
+      161: Result := gResTexts[TX_KEY_RIGHT_SHIFT];
+      162: Result := gResTexts[TX_KEY_LEFT_CTRL];
+      163: Result := gResTexts[TX_KEY_RIGHT_CTRL];
+      164: Result := gResTexts[TX_KEY_LEFT_ALT];
+      165: Result := gResTexts[TX_KEY_RIGHT_ALT];
+      // Media keys (additional keys on some keyboards)
+      166: Result := gResTexts[TX_KEY_BROWSER_BACK];
+      167: Result := gResTexts[TX_KEY_BROWSER_FORWARD];
+      168: Result := gResTexts[TX_KEY_BROWSER_REFRESH];
+      169: Result := gResTexts[TX_KEY_BROWSER_STOP];
+      170: Result := gResTexts[TX_KEY_BROWSER_SEARCH];
+      171: Result := gResTexts[TX_KEY_BROWSER_FAVORITES];
+      172: Result := gResTexts[TX_KEY_BROWSER_HOME];
+      173: Result := gResTexts[TX_KEY_VOLUME_MUTE];
+      174: Result := gResTexts[TX_KEY_VOLUME_DOWN];
+      175: Result := gResTexts[TX_KEY_VOLUME_UP];
+      176: Result := gResTexts[TX_KEY_MEDIA_NEXT_TRACK];
+      177: Result := gResTexts[TX_KEY_MEDIA_PREV_TRACK];
+      178: Result := gResTexts[TX_KEY_MEDIA_STOP];
+      179: Result := gResTexts[TX_KEY_MEDIA_PLAY_PAUSE];
+      180: Result := gResTexts[TX_KEY_LAUNCH_MAIL];
+      181: Result := gResTexts[TX_KEY_LAUNCH_MEDIA_SELECT];
+      182: Result := gResTexts[TX_KEY_LAUNCH_APP1];
+      183: Result := gResTexts[TX_KEY_LAUNCH_APP2];
+      186: Result := ';';
+      187: Result := '=';
+      188: Result := ',';
+      189: Result := '-';
+      190: Result := '.';
+      191: Result := '/';
+      192: Result := '`';
+      219: Result := '[';
+      220: Result := '\';
+      221: Result := ']';
+      222: Result := '''';
+      250: Result := gResTexts[TX_KEY_PLAY];
+      251: Result := gResTexts[TX_KEY_ZOOM];
+    else
+      Result := Char(aKey);
+    end;
+  finally
+    if aUseDefaultLocale then
+      gResTexts.ForceDefaultLocale := False;
   end;
 end;
 
@@ -420,6 +430,19 @@ end;
 //begin
 //  Result := TRttiEnumerationType.GetValue<TKMKeyFunction>(aKeyFunStr);
 //end;
+
+
+class function TKMResKeys.GetKeyDescription(aKey: Word; aShift: TShiftState): string;
+var
+  keyName: string;
+begin
+  if gResKeys = nil then
+    keyName := gResKeys.GetKeyName(aKey, True) // Use default locale
+  else
+    keyName := '';
+
+  Result := Format('Key: %d [%s] Shift: %s', [aKey, keyName, ShiftStateToString(aShift)]);
+end;
 
 
 class function TKMResKeys.GetKeyFunctionStr(aKeyFun: TKMKeyFunction): string;

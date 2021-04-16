@@ -161,7 +161,8 @@ uses
   KM_Main, KM_Controls, KM_Log, KM_Sound, KM_GameInputProcess, KM_GameInputProcess_Multi,
   KM_GameSavePoints,
   KM_InterfaceDefaults, KM_GameCursor, KM_ResTexts,
-  KM_Saves, KM_CommonUtils, KM_RandomChecks, KM_DevPerfLog, KM_DevPerfLogTypes;
+  KM_Saves, KM_CommonUtils, KM_RandomChecks, KM_DevPerfLog, KM_DevPerfLogTypes,
+  KM_Utils, KM_ResKeys;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -413,6 +414,9 @@ begin
   //  others.. unknown
 
   keyHandled := False;
+
+  if KEY_SPY then
+    gLog.AddTime(TKMResKeys.GetKeyDescription(Key, Shift));
 
   if gGame <> nil then
     gGame.ActiveInterface.KeyUp(Key, Shift, keyHandled)

@@ -63,11 +63,21 @@ const
   //We must limit number of ticks per update to be able to leave update cycle fast (when turn off ultra fast speedup, f.e.)
   //Also there is a technical limit, of how many ticks we can calculate per update
   MAX_TICKS_PER_GAME_UPDATE = 100;
+
 {$IFDEF DEBUG}
   DEBUG_CFG = True; //Debug preset for most usable debug options. ON for Debug build configuration
+  RELEASE_BETA_CFG = True;
 {$ELSE}
   DEBUG_CFG = False; //Debug preset for most usable debug options. OFF for Release build configuration
 {$ENDIF}
+
+{$IFDEF DEBUG}
+  RELEASE_BETA_CFG = True; //RELEASE_BETA preset for some usable debug options in the beta version. ON for 'Release Beta' build configuration
+{$ELSE}
+  RELEASE_BETA_CFG = False; //RELEASE_BETA preset for most usable debug options. OFF for Release build configuration
+{$ENDIF}
+
+
 var
   // These should be True (we can occasionally turn them Off to speed up the debug)
   // We keep them as `var` to keep compiler happy (otherwise it sees a lot of "unused var usage" around)
@@ -85,6 +95,11 @@ var
   SHOW_DISMISS_UNITS_BTN:Boolean = True; //The button to order citizens go back to school
   RESET_DEBUG_CONTROLS  :Boolean = not DEBUG_CFG; //Reset Debug controls (F11) on game start
   SKIP_LOG_TEMP_COMMANDS:Boolean = True;
+
+  // Spy
+  KEY_SPY               :Boolean = not RELEASE_BETA_CFG;
+  MOUSE_SPY             :Boolean = not RELEASE_BETA_CFG;
+  RNG_SPY               :Boolean = not RELEASE_BETA_CFG;
 
   //Implemented
   FEAT_SETTINGS_IN_MYDOC:Boolean = True; //Save settings in the C:\Users\Username\My Documents\My Games\GAME_TITLE\ folder
