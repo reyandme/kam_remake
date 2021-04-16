@@ -66,12 +66,11 @@ const
 
 {$IFDEF DEBUG}
   DEBUG_CFG = True; //Debug preset for most usable debug options. ON for Debug build configuration
-  RELEASE_BETA_CFG = True;
 {$ELSE}
   DEBUG_CFG = False; //Debug preset for most usable debug options. OFF for Release build configuration
 {$ENDIF}
 
-{$IFDEF DEBUG}
+{$IFDEF RELEASE_BETA}
   RELEASE_BETA_CFG = True; //RELEASE_BETA preset for some usable debug options in the beta version. ON for 'Release Beta' build configuration
 {$ELSE}
   RELEASE_BETA_CFG = False; //RELEASE_BETA preset for most usable debug options. OFF for Release build configuration
@@ -97,9 +96,9 @@ var
   SKIP_LOG_TEMP_COMMANDS:Boolean = True;
 
   // Spy
-  KEY_SPY               :Boolean = not RELEASE_BETA_CFG;
-  MOUSE_SPY             :Boolean = not RELEASE_BETA_CFG;
-  RNG_SPY               :Boolean = not RELEASE_BETA_CFG;
+  KEY_SPY               :Boolean = RELEASE_BETA_CFG or DEBUG_CFG;
+  MOUSE_SPY             :Boolean = RELEASE_BETA_CFG or DEBUG_CFG;
+  RNG_SPY               :Boolean = RELEASE_BETA_CFG or DEBUG_CFG;
 
   //Implemented
   FEAT_SETTINGS_IN_MYDOC:Boolean = True; //Save settings in the C:\Users\Username\My Documents\My Games\GAME_TITLE\ folder

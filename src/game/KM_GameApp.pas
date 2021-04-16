@@ -380,6 +380,9 @@ procedure TKMGameApp.KeyDown(Key: Word; Shift: TShiftState);
 var
   keyHandled: Boolean;
 begin
+  if KEY_SPY then
+    gLog.AddTime('[KeyDown] ' + TKMResKeys.GetKeyDescription(Key, Shift));
+
   if gVideoPlayer.IsActive then
   begin
     gVideoPlayer.KeyDown(Key, Shift);
@@ -395,6 +398,9 @@ end;
 
 procedure TKMGameApp.KeyPress(Key: Char);
 begin
+  if KEY_SPY then
+    gLog.AddTime(Format('[KeyPress] [%d] %s', [Ord(Key), Key]));
+
   if gGame <> nil then
     gGame.ActiveInterface.KeyPress(Key)
   else
@@ -416,7 +422,7 @@ begin
   keyHandled := False;
 
   if KEY_SPY then
-    gLog.AddTime(TKMResKeys.GetKeyDescription(Key, Shift));
+    gLog.AddTime('[KeyUp] ' + TKMResKeys.GetKeyDescription(Key, Shift));
 
   if gGame <> nil then
     gGame.ActiveInterface.KeyUp(Key, Shift, keyHandled)
@@ -427,6 +433,9 @@ end;
 
 procedure TKMGameApp.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  if MOUSE_SPY then
+    gLog.AddTime('[MouseDown] ' + TKMResKeys.GetMouseBtnDescription(X, Y, Button, Shift));
+
   if gVideoPlayer.IsActive then
   begin
     gVideoPlayer.MouseDown(Button, Shift, X, Y);
@@ -479,6 +488,9 @@ end;
 
 procedure TKMGameApp.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  if MOUSE_SPY then
+    gLog.AddTime('[MouseUp]   ' + TKMResKeys.GetMouseBtnDescription(X, Y, Button, Shift));
+
   if gGame <> nil then
     gGame.ActiveInterface.MouseUp(Button,Shift,X,Y)
   else

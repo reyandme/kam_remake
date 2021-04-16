@@ -41,6 +41,7 @@ type
     fMaxPaintLayer: Integer;
     fCurrentPaintLayer: Integer;
 
+    fOnLog: TUnicodeStringEvent;
     fOnHint: TNotifyEvent; //Comes along with OnMouseOver
 
     fMouseMoveSubsList: TList<TKMMouseMoveEvent>;
@@ -53,7 +54,7 @@ type
     
     function GetNextCtrlID: Integer;
   public
-    constructor Create;
+    constructor Create(aOnLog: TUnicodeStringEvent);
     destructor Destroy; override;
 
     property MasterPanel: TKMPanel read fMasterPanel;
@@ -10082,9 +10083,11 @@ end;
 
 
 { TKMMasterControl }
-constructor TKMMasterControl.Create;
+constructor TKMMasterControl.Create(aOnLog: TUnicodeStringEvent);
 begin
-  inherited;
+  inherited Create;
+
+  fOnLog := aOnLog;
 
   fMouseMoveSubsList := TList<TKMMouseMoveEvent>.Create;
 end;
@@ -10315,22 +10318,26 @@ end;
 
 function TKMMasterControl.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 var
-  Control: TKMControl;
+  control: TKMControl;
 begin
   Result := False;
+  control := nil;
 
   if Self = nil then Exit;
 
   //CtrlFocus could be on another menu page and no longer visible
   if (CtrlFocus <> nil) and CtrlFocus.Visible then
   begin
-    Control := CtrlFocus;
+    control := CtrlFocus;
     //Lets try to find who can handle KeyDown event in controls tree
-    while (Control <> nil) and not Control.KeyDown(Key, Shift) do
-      Control := Control.Parent;
+    while (control <> nil) and not control.KeyDown(Key, Shift) do
+      control := control.Parent;
 
-    Result := Control <> nil; // means we find someone, who handle that event
+    Result := control <> nil; // means we find someone, who handle that event
   end;
+
+  if Result and KEY_SPY and Assigned(fOnLog) then
+    fOnLog(Format('MC KeyDown Ctrl [%d]', [control.ID]));
 
   if MODE_DESIGN_CONTROLS and (CtrlOver <> nil) then
     CtrlOver.DebugKeyDown(Key, Shift);
@@ -10343,28 +10350,36 @@ begin
 
   //CtrlFocus could be on another menu page and no longer visible
   if (CtrlFocus <> nil) and CtrlFocus.Visible then
+  begin
     CtrlFocus.KeyPress(Key);
+    if KEY_SPY and Assigned(fOnLog) then
+      fOnLog(Format('MC KeyPress Ctrl [%d]', [CtrlFocus.ID]));
+  end;
 end;
 
 
 function TKMMasterControl.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 var
-  Control: TKMControl;
+  control: TKMControl;
 begin
   Result := False;
+  control := nil;
 
   if Self = nil then Exit;
 
   //CtrlFocus could be on another menu page and no longer visible
   if (CtrlFocus <> nil) and CtrlFocus.Visible then
   begin
-    Control := CtrlFocus;
+    control := CtrlFocus;
     //Lets try to find who can handle KeyUp event in controls tree
-    while (Control <> nil) and not Control.KeyUp(Key, Shift) do
-      Control := Control.Parent;
+    while (control <> nil) and not control.KeyUp(Key, Shift) do
+      control := control.Parent;
 
-    Result := Control <> nil; // means we find someone, who handle that event
+    Result := control <> nil; // means we find someone, who handle that event
   end;
+
+  if Result and KEY_SPY and Assigned(fOnLog) then
+    fOnLog(Format('KeyUp Ctrl [%d]', [control.ID]));
 end;
 
 
@@ -10375,7 +10390,11 @@ begin
   CtrlDown := HitControl(X,Y);
   fMasterPanel.ControlMouseDown(CtrlDown, X, Y, Shift, Button);
   if CtrlDown <> nil then
+  begin
     CtrlDown.MouseDown(X, Y, Shift, Button);
+    if MOUSE_SPY and Assigned(fOnLog) then
+      fOnLog(Format('MC MouseDown Ctrl [%d]', [CtrlDown.ID]));
+  end;
 end;
 
 
@@ -10433,7 +10452,11 @@ begin
 
   fMasterPanel.ControlMouseUp(CtrlUp, X, Y, Shift, Button); // Must be invoked before CtrlUp.MouseUp to avoid problems on game Exit
   if CtrlUp <> nil then
+  begin
+    if MOUSE_SPY and Assigned(fOnLog) then
+      fOnLog(Format('MC MouseUp Ctrl [%d]', [CtrlUp.ID]));
     CtrlUp.MouseUp(X, Y, Shift, Button);
+  end;
 
   //Do not place any code here, we could have Exited in OnClick event
 end;

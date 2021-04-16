@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   Controls, Classes,
   KM_Controls, KM_Points, KM_ResFonts,
-  KM_ResTypes, KM_InterfaceTypes;
+  KM_ResTypes, KM_InterfaceTypes, KM_CommonTypes;
 
 
 type
@@ -31,6 +31,8 @@ type
   private
     fPrevHint: TObject;
     fPrevHintMessage: UnicodeString;
+
+    procedure DoLog(const aString: UnicodeString);
   protected
     fMyControls: TKMMasterControl;
     Panel_Main: TKMPanel;
@@ -104,7 +106,8 @@ uses
   KM_Music,
   KM_Sound,
   KM_GameSettings,
-  KM_Main;
+  KM_Main,
+  KM_Log;
 
 
 { TKMUserInterface }
@@ -112,7 +115,7 @@ constructor TKMUserInterfaceCommon.Create(aScreenX, aScreenY: Word);
 begin
   inherited Create;
 
-  fMyControls := TKMMasterControl.Create;
+  fMyControls := TKMMasterControl.Create(DoLog);
 
   //Parent Panel for whole UI
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
@@ -188,6 +191,12 @@ begin
   end;
 
   fPrevHint := Sender;
+end;
+
+
+procedure TKMUserInterfaceCommon.DoLog(const aString: UnicodeString);
+begin
+  gLog.AddTime(aString);
 end;
 
 

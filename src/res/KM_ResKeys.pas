@@ -3,6 +3,7 @@ unit KM_ResKeys;
 interface
 uses
   Classes, SysUtils, StrUtils, Math, Generics.Collections,
+  {$IFDEF WDC} UITypes, {$ENDIF}
   KM_ResTexts,
   KM_ResTypes,
   KM_KeysSettings;
@@ -43,6 +44,8 @@ type
 
 //    class function GetKeyFunction(aKeyFunStr: string): TKMKeyFunction;
     class function GetKeyDescription(aKey: Word; aShift: TShiftState): string;
+    class function GetMouseBtnDescription(X, Y: Integer; aButton: TMouseButton; aShift: TShiftState): string;
+
     class function GetKeyFunctionStr(aKeyFun: TKMKeyFunction): string;
   end;
 
@@ -436,12 +439,19 @@ class function TKMResKeys.GetKeyDescription(aKey: Word; aShift: TShiftState): st
 var
   keyName: string;
 begin
-  if gResKeys = nil then
+  if gResKeys <> nil then
     keyName := gResKeys.GetKeyName(aKey, True) // Use default locale
   else
     keyName := '';
 
-  Result := Format('Key: %d [%s] Shift: %s', [aKey, keyName, ShiftStateToString(aShift)]);
+  Result := Format('Key: %d [%s] Shift: [%s]', [aKey, keyName, ShiftStateToString(aShift)]);
+end;
+
+
+class function TKMResKeys.GetMouseBtnDescription(X, Y: Integer; aButton: TMouseButton; aShift: TShiftState): string;
+begin
+  Result := Format('at (%d;%d) Btn %s Shift: [%s]',
+                   [X, Y, GetEnumName(TypeInfo(TMouseButton), Integer(aButton)), ShiftStateToString(aShift)]);
 end;
 
 
