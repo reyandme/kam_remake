@@ -229,7 +229,7 @@ type
     property SaveFile: UnicodeString read fLoadFromFileRel;
 
     procedure AddScriptSoundRemoveRequest(aScriptSoundUID: Integer; aHandID: TKMHandID);
-    function GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
+    function GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
     property LastReplayTick: Cardinal read fLastReplayTick write fLastReplayTick;
     property SkipReplayEndCheck: Boolean read fSkipReplayEndCheck write fSkipReplayEndCheck;
     property IgnoreConsistencyCheckErrors: Boolean read fIgnoreConsistencyCheckErrors;
@@ -1557,15 +1557,24 @@ begin
 end;
 
 
-function TKMGame.GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
+function TKMGame.GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
 var
   ext: UnicodeString;
+  camp: TKMCampaign;
 begin
   case aAudioFormat of
     afWav: ext := WAV_FILE_EXT;
     afOgg: ext := OGG_FILE_EXT;
   end;
-  Result := ChangeFileExt(fParams.MissionFile, '.' + UnicodeString(aSound) + ext)
+
+  Result := ExeDir + ChangeFileExt(fParams.MissionFile, '.' + UnicodeString(aSound) + ext);
+
+  // Try to load Campaign specific audio file (not mission specific)
+  if fParams.IsCampaign and (gGameApp.Campaigns.ActiveCampaign <> nil) and not FileExists(Result) then
+  begin
+    camp := gGameApp.Campaigns.ActiveCampaign;
+    Result := ExeDir + camp.Path + camp.ShortName + '.' + UnicodeString(aSound) + ext;
+  end;
 end;
 
 

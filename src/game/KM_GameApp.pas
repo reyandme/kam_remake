@@ -906,6 +906,8 @@ begin
   camp := fCampaigns.CampaignById(aCampaignId);
   LoadGameFromScript(camp.GetMissionFile(aMap), camp.GetMissionTitle(aMap), 0, 0, camp, aMap, gmCampaign, -1, 0, aDifficulty);
 
+  fCampaigns.SetActive(camp, aMap);
+
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
 end;
