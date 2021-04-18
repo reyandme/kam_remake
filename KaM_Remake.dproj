@@ -3,7 +3,7 @@
         <ProjectGuid>{CB64F5E8-91AE-4497-A8C4-89668924F870}</ProjectGuid>
         <MainSource>KaM_Remake.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Release Beta</Config>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -107,7 +107,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
-        <DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
         <DCC_MapFile>3</DCC_MapFile>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
@@ -129,6 +128,7 @@
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <DCC_MapFile>3</DCC_MapFile>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -145,7 +145,6 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
     </PropertyGroup>
@@ -158,7 +157,7 @@
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <DCC_Define>madExcept;DEBUG;DEBUG_NewAI;DEBUG_AIInfluences;DEBUG_Supervisor;DEBUG_ArmyVectorField;DEBUG_NavMeshPathFinding;$(DCC_Define)</DCC_Define>
+        <DCC_Define>DEBUG;DEBUG_NewAI;DEBUG_AIInfluences;DEBUG_Supervisor;DEBUG_ArmyVectorField;DEBUG_NavMeshPathFinding;$(DCC_Define)</DCC_Define>
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_MapFile>3</DCC_MapFile>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
@@ -324,6 +323,7 @@
         <DCCReference Include="src\gui\KM_InterfaceMainMenu.pas"/>
         <DCCReference Include="src\gui\KM_InterfaceMapEditor.pas"/>
         <DCCReference Include="src\gui\KM_InterfaceTypes.pas"/>
+        <DCCReference Include="src\KM_InputLog.pas"/>
         <DCCReference Include="src\KM_Log.pas"/>
         <DCCReference Include="src\KM_Main.pas"/>
         <DCCReference Include="src\KM_Maps.pas"/>

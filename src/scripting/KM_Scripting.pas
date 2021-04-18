@@ -2453,6 +2453,7 @@ begin
     and Active
     and ((DirectiveName = 'IFDEF')
       or (DirectiveName = 'IFNDEF')
+      or (DirectiveName = 'ELSE')
       or (DirectiveName = 'DEFINE')
       or (DirectiveName = 'UNDEF')) then
     fScriptFilesInfo.fHasDefDirectives := True;
@@ -2466,7 +2467,7 @@ end;
 
 function TKMScriptingPreProcessor.ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: AnsiString; var aFileName, aOutput: AnsiString): Boolean;
 var
-  S, FileExt: String;
+  S, FileExt, errorStr: String;
   IncludedScriptFileInfo: TKMScriptFileInfo;
 begin
   Result := False;
@@ -2483,8 +2484,19 @@ begin
 
   // Check included file folder
   if ExtractFilePath(aFileName) <> fScriptFilesInfo.fMainFilePath then
-    raise Exception.Create(Format('Error including ''%s'' from ''%s'': |included script files should be in the same folder as main script file',
-                                  [aFileName, ExtractFileName(aCallingFileName)]));
+  begin
+    if (gGameParams = nil) or not gGameParams.IsCampaign then
+      errorStr := Format('Error including ''%s'' from ''%s'': |included script files should be in the same folder as main script file',
+                         [aFileName, ExtractFileName(aCallingFileName)])
+    else
+      errorStr := Format('Error including ''%s'' from ''%s'': |included script files should be in the same folder as main script file or in the campaign folder',
+                         [aFileName, ExtractFileName(aCallingFileName)]);
+    raise Exception.Create(errorStr);
+  end;
+
+
+//  if (gGameParams <> nil) and gGameParams.IsCampaign and not FileExists(aFileName) then
+//    aFileName :=
 
   if FileExists(aFileName) then
   begin

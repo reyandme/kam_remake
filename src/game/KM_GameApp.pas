@@ -399,7 +399,7 @@ end;
 procedure TKMGameApp.KeyPress(Key: Char);
 begin
   if KEY_SPY then
-    gLog.AddTime(Format('[KeyPress] [%d] %s', [Ord(Key), Key]));
+    gLog.AddTime(Format('[KeyPress] [%d] [%s]', [Ord(Key), Key]));
 
   if gGame <> nil then
     gGame.ActiveInterface.KeyPress(Key)
@@ -457,6 +457,9 @@ begin
   if not InRange(X, 1, gRender.ScreenX - 1)
   or not InRange(Y, 1, gRender.ScreenY - 1) then
     Exit; // Exit if Cursor is outside of frame
+
+  if MOUSE_SPY then
+    gLog.AddTime(Format('[MouseMove] at (%d;%d) sh [%s]', [X, Y, ShiftStateToString(Shift)]));
 
   if gGame <> nil then
     gGame.ActiveInterface.MouseMove(Shift,X,Y)

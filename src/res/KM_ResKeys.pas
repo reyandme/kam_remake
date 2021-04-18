@@ -444,13 +444,13 @@ begin
   else
     keyName := '';
 
-  Result := Format('Key: %d [%s] Shift: [%s]', [aKey, keyName, ShiftStateToString(aShift)]);
+  Result := Format('K %d [%s] sh [%s]', [aKey, keyName, ShiftStateToString(aShift)]);
 end;
 
 
 class function TKMResKeys.GetMouseBtnDescription(X, Y: Integer; aButton: TMouseButton; aShift: TShiftState): string;
 begin
-  Result := Format('at (%d;%d) Btn %s Shift: [%s]',
+  Result := Format('at (%d;%d) %s sh [%s]',
                    [X, Y, GetEnumName(TypeInfo(TMouseButton), Integer(aButton)), ShiftStateToString(aShift)]);
 end;
 

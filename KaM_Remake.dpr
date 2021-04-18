@@ -182,12 +182,16 @@ uses
   KM_HouseSchool in 'src\houses\KM_HouseSchool.pas',
   KM_HouseTownHall in 'src\houses\KM_HouseTownHall.pas',
   KM_HouseWoodcutters in 'src\houses\KM_HouseWoodcutters.pas',
+  
   KM_InterfaceDefaults in 'src\gui\KM_InterfaceDefaults.pas',
   KM_InterfaceGame in 'src\gui\KM_InterfaceGame.pas',
   KM_InterfaceGamePlay in 'src\gui\KM_InterfaceGamePlay.pas',
   KM_InterfaceMainMenu in 'src\gui\KM_InterfaceMainMenu.pas',
   KM_InterfaceMapEditor in 'src\gui\KM_InterfaceMapEditor.pas',
   KM_InterfaceTypes in 'src\gui\KM_InterfaceTypes.pas',
+  
+  KM_InputLog in 'src\KM_InputLog.pas',
+  
   KM_Log in 'src\KM_Log.pas',
   KM_Main in 'src\KM_Main.pas',
   KM_Maps in 'src\KM_Maps.pas',

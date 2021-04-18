@@ -310,40 +310,49 @@ end;
 
 
 function ShiftStateToString(aShift: TShiftState): string;
+
+  function Append(aStr: string): string;
+  begin
+    if Result <> '' then
+      Result := Result + '';
+
+    Result := Result + aStr;
+  end;
+
 begin
   Result := '';
   if ssShift in aShift then
-    Result := Result + 'ssShift ';
+    Append('ssShift');
 
   if ssAlt in aShift then
-    Result := Result + 'ssAlt ';
+    Append('ssAlt');
 
   if ssCtrl in aShift then
-    Result := Result + 'ssCtrl ';
+    Append('ssCtrl');
 
   if ssLeft in aShift then
-    Result := Result + 'ssLeft ';
+    Append('ssLeft');
 
   if ssRight in aShift then
-    Result := Result + 'ssRight ';
+    Append('ssRight');
 
   if ssMiddle in aShift then
-    Result := Result + 'ssMiddle ';
+    Append('ssMiddle');
 
   if ssDouble in aShift then
-    Result := Result + 'ssDouble ';
+    Append('ssDouble');
 
   if ssTouch in aShift then
-    Result := Result + 'ssTouch ';
+    Append('ssTouch');
 
   if ssPen in aShift then
-    Result := Result + 'ssPen ';
+    Append('ssPen');
 
   if ssCommand in aShift then
-    Result := Result + 'ssCommand ';
+    Append('ssCommand');
 
   if ssHorizontal in aShift then
-    Result := Result + 'ssHorizontal ';
+    Append('ssHorizontal');
 end;
 
 

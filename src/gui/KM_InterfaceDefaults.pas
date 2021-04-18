@@ -196,7 +196,7 @@ end;
 
 procedure TKMUserInterfaceCommon.DoLog(const aString: UnicodeString);
 begin
-  gLog.AddTime(aString);
+  gLog.AddNoTime(aString, False);
 end;
 
 

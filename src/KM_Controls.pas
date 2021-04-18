@@ -10337,7 +10337,7 @@ begin
   end;
 
   if Result and KEY_SPY and Assigned(fOnLog) then
-    fOnLog(Format('MC KeyDown Ctrl [%d]', [control.ID]));
+    fOnLog(Format('MC KeyDown ctrl.ID %d', [control.ID]));
 
   if MODE_DESIGN_CONTROLS and (CtrlOver <> nil) then
     CtrlOver.DebugKeyDown(Key, Shift);
@@ -10353,7 +10353,7 @@ begin
   begin
     CtrlFocus.KeyPress(Key);
     if KEY_SPY and Assigned(fOnLog) then
-      fOnLog(Format('MC KeyPress Ctrl [%d]', [CtrlFocus.ID]));
+      fOnLog(Format('MC KeyPress ctrl.ID %d', [CtrlFocus.ID]));
   end;
 end;
 
@@ -10379,7 +10379,7 @@ begin
   end;
 
   if Result and KEY_SPY and Assigned(fOnLog) then
-    fOnLog(Format('KeyUp Ctrl [%d]', [control.ID]));
+    fOnLog(Format('KeyUp ctrl.ID %d', [control.ID]));
 end;
 
 
@@ -10393,7 +10393,7 @@ begin
   begin
     CtrlDown.MouseDown(X, Y, Shift, Button);
     if MOUSE_SPY and Assigned(fOnLog) then
-      fOnLog(Format('MC MouseDown Ctrl [%d]', [CtrlDown.ID]));
+      fOnLog(Format('MC MouseDown ctrl.ID %d', [CtrlDown.ID]));
   end;
 end;
 
@@ -10454,7 +10454,7 @@ begin
   if CtrlUp <> nil then
   begin
     if MOUSE_SPY and Assigned(fOnLog) then
-      fOnLog(Format('MC MouseUp Ctrl [%d]', [CtrlUp.ID]));
+      fOnLog(Format('MC MouseUp ctrl.ID %d', [CtrlUp.ID]));
     CtrlUp.MouseUp(X, Y, Shift, Button);
   end;
 
