@@ -4,7 +4,7 @@ interface
 uses
   Classes, Controls, SysUtils, Math, KM_Maps,
   KM_Controls, KM_Pics, KM_MapTypes, KM_CampaignTypes,
-  KM_Campaigns, KM_InterfaceDefaults, KM_GameSettings;
+  KM_Campaigns, KM_InterfaceDefaults, KM_InterfaceTypes, KM_GameSettings;
 
 type
   TKMMenuCampaignMapEditor = class (TKMMenuPageCommon)
