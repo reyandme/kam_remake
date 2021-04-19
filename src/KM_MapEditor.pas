@@ -5,13 +5,15 @@ uses
   Classes, Controls,
   KM_RenderPool, KM_TerrainPainter, KM_TerrainDeposits, KM_TerrainSelection,
   KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Points, KM_MapEditorHistory,
-  KM_MapEdTypes;
+  KM_MapEdTypes, KM_ResTexts;
 
 
 type
   //Collection of map editing classes and map editor specific data
   TKMMapEditor = class
   private
+    fLandMapEd: TKMMapEdLand;
+    fMainLandMapEd: PKMMapEdLand;
     fIsNewMap: Boolean;
     fSavedMapIsPlayable: Boolean; // Saved map is playable if there is at elast 1 enabled human loc with assets
     fTerrainPainter: TKMTerrainPainter;
@@ -24,11 +26,15 @@ type
     //saving if the path is different
     fAttachedFiles: array of UnicodeString;
 
+    fLastErasedObjectLoc: TKMPoint;
+    fLastRemoveTxID: Integer;
+
     function GetRevealer(aIndex: Byte): TKMPointTagList;
     procedure ProceedRoadCursorMode;
     procedure ProceedUnitsCursorMode;
     procedure ProceedEraseCursorMode;
     procedure UpdateField(aStageIncrement: Integer; aCheckPrevCell: Boolean);
+    function EraseTerrainObject(var aRemoveTxID: Integer): Boolean;
     procedure EraseObject(aEraseAll: Boolean);
     function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandID): Boolean;
     procedure ChangeOwner(aChangeOwnerForAll: Boolean);
@@ -39,12 +45,14 @@ type
 
     procedure AddDefenceMarker(const aLoc: TKMPoint);
 
-    function GetCheckpointObjectsStr: string;
+    function GetCheckpointObjectsStr(removeTxID: Integer = TX_WORD_OBJECT): string; overload;
+    function GetCheckpointObjectsStr(aCell: TKMPoint; removeTxID: Integer = TX_WORD_OBJECT): string; overload;
     function GetHistory: TKMMapEditorHistory;
 
     function MapIsPlayable: Boolean;
   public
-    Land: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of TKMMapEdTerrainTile;
+    LandMapEd: PKMMapEdLand;
+
     MissionDefSavePath: UnicodeString;
 
     ActiveMarker: TKMMapEdMarker;
@@ -62,6 +70,10 @@ type
     destructor Destroy; override;
 
     procedure AfterCreated;
+
+    procedure SetMainLandMapEd;
+
+    property MainLandMapEd: PKMMapEdLand read fMainLandMapEd; //readonly
 
     property Deposits: TKMDeposits read fDeposits;
     property VisibleLayers: TKMMapEdVisibleLayerSet read fVisibleLayers write fVisibleLayers;
@@ -95,8 +107,8 @@ type
 implementation
 uses
   SysUtils, StrUtils, Math,
-  KM_Terrain, KM_FileIO,
-  KM_AIDefensePos, KM_ResTexts,
+  KM_TerrainTypes, KM_Terrain, KM_FileIO,
+  KM_AIDefensePos,
   KM_Units, KM_UnitGroup, KM_Houses, KM_HouseCollection,
   KM_GameParams, KM_GameCursor, KM_ResMapElements, KM_ResHouses, KM_Resource, KM_ResUnits,
   KM_RenderAux, KM_Hand, KM_HandsCollection, KM_CommonUtils, KM_RenderDebug,
@@ -115,12 +127,15 @@ var
 begin
   inherited Create;
 
+  SetMainLandMapEd;
+  fMainLandMapEd := @fLandMapEd;
+
   MissionDefSavePath := '';
 
   fVisibleLayers := [melDeposits];
   fIsNewMap := aNewMap;
 
-  FillChar(Land[1,1], SizeOf(Land[1,1])*MAX_MAP_SIZE*MAX_MAP_SIZE, #0);
+  FillChar(LandMapEd^[1,1], SizeOf(LandMapEd^[1,1])*MAX_MAP_SIZE*MAX_MAP_SIZE, #0);
 
   for I := 0 to MAX_HANDS - 1 do
   begin
@@ -244,6 +259,14 @@ end;
 procedure TKMMapEditor.AfterCreated;
 begin
   fSavedMapIsPlayable := MapIsPlayable;
+end;
+
+
+procedure TKMMapEditor.SetMainLandMapEd;
+begin
+  if Self = nil then Exit;
+
+  LandMapEd := @fLandMapEd;
 end;
 
 
@@ -410,6 +433,40 @@ begin
 end;
 
 
+function TKMMapEditor.EraseTerrainObject(var aRemoveTxID: Integer): Boolean;
+var
+  P: TKMPoint;
+  isCorn, isWine: Boolean;
+begin
+  Result := False;
+  P := gGameCursor.Cell;
+  isCorn := gTerrain.TileIsCornField(P);
+  isWine := gTerrain.TileIsWineField(P);
+
+  //Delete tile object (including corn/wine objects as well)
+  if (gTerrain.Land^[P.Y,P.X].Obj <> OBJ_NONE) then
+  begin
+    if isCorn and (gTerrain.GetCornStage(P) in [4,5]) then
+    begin
+      gTerrain.SetField(P, gTerrain.Land^[P.Y,P.X].TileOwner, ftCorn, 3); // For corn, when delete corn object reduce field stage to 3
+      aRemoveTxID := TX_WORD_CORN_FIELD;
+    end
+    else
+    if isWine then
+    begin
+      gTerrain.RemField(P);
+      aRemoveTxID := TX_WORD_WINE_FIELD;
+    end
+    else
+    begin
+      gTerrain.SetObject(P, OBJ_NONE);
+      aRemoveTxID := TX_WORD_OBJECT;
+    end;
+    Result := True; // We deleted smth here
+  end;
+end;
+
+
 //aEraseAll - if true all objects under the cursor will be deleted
 procedure TKMMapEditor.EraseObject(aEraseAll: Boolean);
 var
@@ -440,32 +497,11 @@ begin
     isCorn := gTerrain.TileIsCornField(P);
     isWine := gTerrain.TileIsWineField(P);
 
-    //Delete tile object (including corn/wine objects as well)
-    if (gTerrain.Land[P.Y,P.X].Obj <> OBJ_NONE) then
-    begin
-      if isCorn and (gTerrain.GetCornStage(P) in [4,5]) then
-      begin
-        gTerrain.SetField(P, gTerrain.Land[P.Y,P.X].TileOwner, ftCorn, 3); // For corn, when delete corn object reduce field stage to 3
-        removeTxID := TX_WORD_CORN_FIELD;
-      end
-      else
-      if isWine then
-      begin
-        gTerrain.RemField(P);
-        removeTxID := TX_WORD_WINE_FIELD;
-      end
-      else
-      begin
-        gTerrain.SetObject(P, OBJ_NONE);
-        removeTxID := TX_WORD_OBJECT;
-      end;
-
-      fieldsChanged := True; // We deleted smth here
-      if not aEraseAll then Exit;
-    end;
+    if EraseTerrainObject(removeTxID) and not aEraseAll then
+      Exit;
 
     //Delete tile overlay (road/corn/wine)
-    if gTerrain.Land[P.Y,P.X].TileOverlay = toRoad then
+    if gTerrain.Land^[P.Y,P.X].TileOverlay = toRoad then
     begin
       if not fieldsChanged then
         removeTxID := TX_WORD_ROAD;
@@ -473,7 +509,7 @@ begin
       gTerrain.RemRoad(P);
       fieldsChanged := True;
     end else
-    if gTerrain.Land[P.Y,P.X].TileOverlay <> toNone then
+    if gTerrain.Land^[P.Y,P.X].TileOverlay <> toNone then
     begin
       if not fieldsChanged then
         removeTxID := TX_WORD_OVERLAY;
@@ -536,10 +572,10 @@ begin
   //Fisrt try to change owner of object on tile
   if not ChangeObjectOwner(gMySpectator.HitTestCursorWGroup, gMySpectator.HandID) or aChangeOwnerForAll then
     //then try to change owner tile (road/field/wine)
-    if ((gTerrain.Land[P.Y, P.X].TileOverlay = toRoad) or (Land[P.Y, P.X].CornOrWine <> 0))
-      and (gTerrain.Land[P.Y, P.X].TileOwner <> gMySpectator.HandID) then
+    if ((gTerrain.Land^[P.Y, P.X].TileOverlay = toRoad) or (LandMapEd^[P.Y, P.X].CornOrWine <> 0))
+      and (gTerrain.Land^[P.Y, P.X].TileOwner <> gMySpectator.HandID) then
     begin
-      gTerrain.Land[P.Y, P.X].TileOwner := gMySpectator.HandID;
+      gTerrain.Land^[P.Y, P.X].TileOwner := gMySpectator.HandID;
       fHistory.MakeCheckpoint(caTerrain, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_CHOWNER_SMTH], [P.ToString, '']));
     end;
 end;
@@ -601,9 +637,13 @@ procedure TKMMapEditor.MouseDown(Button: TMouseButton);
 begin
   if (Button = mbLeft) then
     case gGameCursor.Mode of
-      cmSelection:  fSelection.Selection_Start;
+      cmSelection:  fSelection.Start;
       cmField,
       cmWine:       UpdateField(1, False);
+      cmObjects:    begin
+                      fLastErasedObjectLoc := KMPOINT_INVALID_TILE;
+                      fLastRemoveTxID := -1;
+                    end;
   end;
 end;
 
@@ -631,13 +671,13 @@ var
 begin
   P := gGameCursor.Cell;
   gHands.RemAnyHouse(P);
-  if gTerrain.Land[P.Y,P.X].TileOverlay = toRoad then
+  if gTerrain.Land^[P.Y,P.X].TileOverlay = toRoad then
   begin
     gTerrain.RemRoad(P);
     fHistory.MakeCheckpoint(caTerrain, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_REMOVE_SMTH],
                                              [gResTexts[TX_WORD_ROAD], P.ToString]));
   end else
-  if gTerrain.Land[P.Y,P.X].TileOverlay <> toNone then
+  if gTerrain.Land^[P.Y,P.X].TileOverlay <> toNone then
   begin
     gTerrain.SetOverlay(P, toNone, True);
     fHistory.MakeCheckpoint(caTerrain, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_REMOVE_SMTH],
@@ -674,7 +714,12 @@ begin
     cmWine:       UpdateField(1, True);
     cmUnits:      ProceedUnitsCursorMode;
     cmErase:      ProceedEraseCursorMode;
-    cmSelection:  fSelection.Selection_Resize;
+    cmSelection:  fSelection.Resize;
+    cmObjects:    if gGameCursor.Tag1 = OBJ_NONE then
+                  begin
+                    if EraseTerrainObject(fLastRemoveTxID) then
+                      fLastErasedObjectLoc := gGameCursor.Cell;
+                  end;
     cmPaintBucket:      ChangeOwner(ssShift in gGameCursor.SState);
     cmUniversalEraser:  EraseObject(ssShift in gGameCursor.SState);
   end;
@@ -716,12 +761,18 @@ begin
 end;
 
 
-function TKMMapEditor.GetCheckpointObjectsStr: string;
+function TKMMapEditor.GetCheckpointObjectsStr(removeTxID: Integer = TX_WORD_OBJECT): string;
+begin
+  Result := GetCheckpointObjectsStr(gGameCursor.Cell, removeTxID);
+end;
+
+
+function TKMMapEditor.GetCheckpointObjectsStr(aCell: TKMPoint; removeTxID: Integer = TX_WORD_OBJECT): string;
 begin
   if gGameCursor.Tag1 = OBJ_NONE then
-    Result := Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_REMOVE_SMTH], [gResTexts[TX_WORD_OBJECT], gGameCursor.Cell.ToString])
+    Result := Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_REMOVE_SMTH], [gResTexts[removeTxID], aCell.ToString])
   else
-    Result := Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_ADD_SMTH] + ' %s', [gResTexts[TX_WORD_OBJECT], IntToStr(gGameCursor.Tag1), gGameCursor.Cell.ToString])
+    Result := Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_ADD_SMTH] + ' %s', [gResTexts[removeTxID], IntToStr(gGameCursor.Tag1), aCell.ToString])
 end;
 
 
@@ -753,8 +804,26 @@ end;
 
 
 procedure TKMMapEditor.MouseUp(Button: TMouseButton; aOverMap: Boolean);
+
+  function IsObjectDeleting: Boolean;
+  begin
+    Result := gGameCursor.Tag1 = OBJ_NONE;
+  end;
+
+  procedure ManageObjects;
+  begin
+    if IsObjectDeleting then
+    begin
+      if (fLastErasedObjectLoc <> KMPOINT_INVALID_TILE) and (fLastRemoveTxID <> -1) then
+        fHistory.MakeCheckpoint(caTerrain, GetCheckpointObjectsStr(fLastErasedObjectLoc, fLastRemoveTxID));
+    end
+    else
+      fHistory.MakeCheckpoint(caTerrain, GetCheckpointObjectsStr);
+  end;
+
 var
   P: TKMPoint;
+  removeTxID: Integer;
 begin
   //If the mouse is released over controls, most actions don't happen
   if not aOverMap then
@@ -763,8 +832,11 @@ begin
     case gGameCursor.Mode of
       cmElevate:  fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE]);
       cmEqualize: fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE]);
+      cmElevateAll:   fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_HEIGHTS_ELEVATE_ALL]);
+      cmConstHeight:  fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_HEIGHTS_CONST]);
       cmBrush:    fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_BRUSH]);
-      cmObjects:  fHistory.MakeCheckpoint(caTerrain, GetCheckpointObjectsStr);
+      cmObjects:  ManageObjects;
+      cmObjectsBrush: fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_OBJECTS_BRUSH]);
       cmTiles:    fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_HINTS_TILES]);
       cmOverlays: fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_OVERLAYS]);
     end;
@@ -791,8 +863,19 @@ begin
                               end;
                 cmElevate:    fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE]);
                 cmEqualize:   fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE]);
+                cmElevateAll: fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_HEIGHTS_ELEVATE_ALL]);
+                cmConstHeight: fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_HEIGHTS_CONST]);
                 cmBrush:      fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_BRUSH]);
-                cmObjects:    fHistory.MakeCheckpoint(caTerrain, GetCheckpointObjectsStr);
+                cmObjects:    if IsObjectDeleting then
+                              begin
+                                if EraseTerrainObject(removeTxID) then
+                                  fHistory.MakeCheckpoint(caTerrain, GetCheckpointObjectsStr(removeTxID))
+                                else
+                                  ManageObjects;
+                              end
+                              else
+                                fHistory.MakeCheckpoint(caTerrain, GetCheckpointObjectsStr);
+                cmObjectsBrush: fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_OBJECTS_BRUSH]);
                 cmTiles:      fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_HINTS_TILES] + ' ' + P.ToString);
                 cmOverlays:   fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_OVERLAYS] + ' ' + P.ToString);
                 cmMagicWater: fTerrainPainter.MagicWater(P);
@@ -826,6 +909,7 @@ begin
                               //Actual change was made in UpdateStateIdle, we just register it is done here
                 cmElevate:    fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE]);
                 cmEqualize:   fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE]);
+                cmElevateAll: fHistory.MakeCheckpoint(caTerrain, gResTexts[TX_MAPED_HEIGHTS_ELEVATE_ALL]);
                 cmObjects,
                 cmEyedropper,
                 cmRotateTile: gGameCursor.Mode := cmNone;
@@ -931,7 +1015,7 @@ begin
     if gGameCursor.Mode = cmErase then
       if gTerrain.TileIsCornField(P)
         or gTerrain.TileIsWineField(P)
-        or (gTerrain.Land[P.Y,P.X].TileOverlay = toRoad)
+        or (gTerrain.Land^[P.Y,P.X].TileOverlay = toRoad)
         or (gHands.HousesHitTest(P.X, P.Y) <> nil) then
         gRenderPool.RenderWireTile(P, icCyan) //Cyan quad
       else
@@ -954,7 +1038,7 @@ begin
     for K := aClipRect.Left to aClipRect.Right do
     if gTerrain.TileIsWater(K,I) then
     begin
-      //TODO: Waterflow indication here
+      //todo: Waterflow indication here
       //gRenderPool.RenderSpriteOnTile(KMPoint(K,I), )
     end;
   end;

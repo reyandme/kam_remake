@@ -95,7 +95,7 @@ begin
   with Result do
   begin
     Count              := 1;
-    Hitpoints          := US.Hitpoints;
+    HitPoints          := US.HitPoints;
     Attack             := US.Attack;
     AttackHorse        := US.AttackHorse;
     Defence            := US.Defence;
@@ -118,7 +118,7 @@ begin
     GE := UnitEvaluation(TKMUnit(aGroup.Members[K]).UnitType,aConsiderHitChance);
     with Result do
     begin
-      Hitpoints          := Hitpoints          + GE.Hitpoints;
+      HitPoints          := HitPoints          + GE.HitPoints;
       Attack             := Attack             + GE.Attack;
       AttackHorse        := AttackHorse        + GE.AttackHorse;
       Defence            := Defence            + GE.Defence;
@@ -162,7 +162,7 @@ function TKMArmyEvaluation.CompareStrength(A, E: TKMArmyEval): Single;
     for GT := Low(TKMGroupType) to High(TKMGroupType) do
     begin
       aEval.Count              := aEval.Count              + Army.Groups[GT].Count             ;
-      aEval.Hitpoints          := aEval.Hitpoints          + Army.Groups[GT].Hitpoints         ;
+      aEval.HitPoints          := aEval.HitPoints          + Army.Groups[GT].HitPoints         ;
       aEval.Attack             := aEval.Attack             + Army.Groups[GT].Attack            ;
       aEval.AttackHorse        := aEval.AttackHorse        + Army.Groups[GT].AttackHorse       ;
       aEval.Defence            := aEval.Defence            + Army.Groups[GT].Defence           ;
@@ -183,7 +183,7 @@ begin
   // Get balance of power
   Result := (
     + 1 - Min(2,(EEval.Attack + EEval.AttackHorse        ) / Max(1,(AEval.Attack + AEval.AttackHorse        )))
-    + 1 - Min(2,(EEval.Hitpoints                         ) / Max(1,(AEval.Hitpoints                         )))
+    + 1 - Min(2,(EEval.HitPoints                         ) / Max(1,(AEval.HitPoints                         )))
     + 1 - Min(2,(EEval.Defence + EEval.DefenceProjectiles) / Max(1,(AEval.Defence + AEval.DefenceProjectiles)))
   ) / 3;
 end;
@@ -201,7 +201,7 @@ begin
       with Result.Groups[GT] do
       begin
         Count              := Count              + fEvals[PL].Groups[GT].Count;
-        Hitpoints          := Hitpoints          + fEvals[PL].Groups[GT].Hitpoints;
+        HitPoints          := HitPoints          + fEvals[PL].Groups[GT].HitPoints;
         Attack             := Attack             + fEvals[PL].Groups[GT].Attack;
         AttackHorse        := AttackHorse        + fEvals[PL].Groups[GT].AttackHorse;
         Defence            := Defence            + fEvals[PL].Groups[GT].Defence;
@@ -320,7 +320,7 @@ begin
     with fEvals[aPlayer].Groups[GT] do
     begin
       Count       := Count       + Qty;
-      Hitpoints   := Hitpoints   + Qty * US.HitPoints;
+      HitPoints   := HitPoints   + Qty * US.HitPoints;
       Attack      := Attack      + Qty * US.Attack;
       AttackHorse := AttackHorse + Qty * US.AttackHorse;
       Defence     := Defence     + Qty * US.Defence;

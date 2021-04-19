@@ -108,7 +108,7 @@ begin
 
   if (fUnit <> nil)
     and fHasStarted
-    and (gTerrain.Land[fUnit.NextPosition.Y, fUnit.NextPosition.X].IsUnit = fUnit) then
+    and (gTerrain.Land^[fUnit.NextPosition.Y, fUnit.NextPosition.X].IsUnit = fUnit) then
   begin
     case fDirection of
       //Clear terrain lock for house entrance that made while unit was entering the house
@@ -244,7 +244,7 @@ begin
   if gTerrain.TileInMapCoords(X,Y)
   and (gTerrain.CheckPassability(KMPoint(X,Y), fUnit.DesiredPassability))
   and (gTerrain.CanWalkDiagonaly(fUnit.Position, X, Y))
-  and (gTerrain.Land[Y,X].IsUnit <> nil) then //If there's some unit we need to do a better check on him
+  and (gTerrain.Land^[Y,X].IsUnit <> nil) then //If there's some unit we need to do a better check on him
   begin
     U := gTerrain.UnitsHitTest(X,Y); //Let's see who is standing there
 
@@ -361,7 +361,7 @@ begin
 
   if fWaitingForPush then
   begin
-    U := gTerrain.Land[fStreet.Y,fStreet.X].IsUnit;
+    U := gTerrain.Land^[fStreet.Y,fStreet.X].IsUnit;
     if (U = nil) then //Unit has walked away
     begin
       fWaitingForPush := False;

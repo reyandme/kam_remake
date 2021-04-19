@@ -1561,6 +1561,8 @@ end;
 
 
 procedure TKMGameInputProcess.Paint;
+const
+  GIP_FONT = fntMonospaced;
 var
   W: Integer;
   str: string;
@@ -1573,12 +1575,12 @@ begin
 
   if str = '' then Exit;
 
-  textSize := gRes.Fonts[fntMini].GetTextSize(str, False, False, TAB_WIDTH, True);
+  textSize := gRes.Fonts[GIP_FONT].GetTextSize(str, False, False, FONT_TAB_WIDTH);
 
   W := gGame.ActiveInterface.MyControls.MasterPanel.Width;
 
   TKMRenderUI.WriteBevel(W - textSize.X - 10, 0, textSize.X + 10, textSize.Y + 10);
-  TKMRenderUI.WriteText(W - textSize.X - 5, 0, 0, str, fntMini, taLeft, icWhite, False, False, False, TAB_WIDTH, True, True);
+  TKMRenderUI.WriteText(W - textSize.X - 5, 0, 0, str, GIP_FONT, taLeft, icWhite, False, False, False, FONT_TAB_WIDTH, True);
 end;
 
 

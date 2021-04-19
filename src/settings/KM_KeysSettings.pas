@@ -51,6 +51,7 @@ var
   KF: TKMKeyFunction;
   nHotkeys, nKey: TXMLNode;
   keyFuncName: string;
+  keySpec: TKMKeySpec;
 begin
   if Self = nil then Exit;
   inherited;
@@ -59,12 +60,16 @@ begin
 
   for KF := KEY_FUNC_LOW to High(TKMKeyFunction) do
   begin
-    keyFuncName := TKMKeyLibrary.GetKeyFunctionStr(KF);
+    keyFuncName := TKMResKeys.GetKeyFunctionStr(KF);
     if nHotkeys.HasChild(keyFuncName) then
     begin
       nKey := nHotkeys.AddOrFindChild(keyFuncName);
       if nKey.HasAttribute('Key') then
-        gResKeys[KF].Key := nKey.Attributes['Key'].AsInteger;
+      begin
+        keySpec := gResKeys[KF];
+        keySpec.Key := nKey.Attributes['Key'].AsInteger;
+        gResKeys[KF] := keySpec;
+      end;
     end;
   end;
 end;
@@ -81,7 +86,7 @@ begin
 
   for KF := KEY_FUNC_LOW to High(TKMKeyFunction) do
   begin
-    nKey := nHotkeys.AddOrFindChild(TKMKeyLibrary.GetKeyFunctionStr(KF));
+    nKey := nHotkeys.AddOrFindChild(TKMResKeys.GetKeyFunctionStr(KF));
     nKey.Attributes['Key'] := gResKeys[KF].Key;
     nKey.Attributes['KeyDesc'] := gResKeys.GetKeyName(gResKeys[KF].Key);
     nKey.Attributes['FuncDesc'] := gResTexts[gResKeys[KF].TextId];

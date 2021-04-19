@@ -1,4 +1,5 @@
 unit KM_Console;
+{$I KaM_Remake.inc}
 interface
 uses
   Generics.Collections,
@@ -9,45 +10,44 @@ type
   TKMChatMode = (cmAll, cmTeam, cmSpectators, cmWhisper);
 
   TKMConsole = class
-    private
-      fLastConsoleTime: Cardinal;
-      fHistory: TList<String>;
-      fCurrConsoleHistoryId: Integer;
-      fOnChange: TEvent;
-      fOnPost: TUnicodeStringEvent;
-      fOnPostLocal: TUnicodeStringEvent;
-      fOnError: TUnicodeStringEvent;
-      fMessages: UnicodeString;
+  private
+    fLastConsoleTime: Cardinal;
+    fHistory: TList<String>;
+    fCurrConsoleHistoryId: Integer;
+    fOnChange: TEvent;
+    fOnPost: TUnicodeStringEvent;
+    fOnPostLocal: TUnicodeStringEvent;
+    fOnError: TUnicodeStringEvent;
+    fMessages: UnicodeString;
 
-      procedure SetMessages(const aMessages: UnicodeString);
+    procedure SetMessages(const aMessages: UnicodeString);
 
-      function TryDoCallConsoleCommand: Boolean;
-    public
+    function TryDoCallConsoleCommand: Boolean;
+  public
+    Text: UnicodeString;
 
-      Text: UnicodeString;
+    constructor Create;
+    destructor Destroy; override;
 
-      constructor Create;
-      destructor Destroy; override;
+    property Messages: UnicodeString read fMessages write SetMessages;
 
-      property Messages: UnicodeString read fMessages write SetMessages;
+    property OnPost: TUnicodeStringEvent read fOnPost write fOnPost;
+    property OnPostLocal: TUnicodeStringEvent read fOnPostLocal write fOnPostLocal;
+    property OnError: TUnicodeStringEvent read fOnError write fOnError;
+    property OnChange: TEvent read fOnChange write fOnChange;
 
-      property OnPost: TUnicodeStringEvent read fOnPost write fOnPost;
-      property OnPostLocal: TUnicodeStringEvent read fOnPostLocal write fOnPostLocal;
-      property OnError: TUnicodeStringEvent read fOnError write fOnError;
-      property OnChange: TEvent read fOnChange write fOnChange;
+    procedure Post(aPropagate: Boolean = True);
+    function IsPostAllowed: Boolean;
+    function TryCallConsoleCommand: Boolean;
 
-      procedure Post(aPropagate: Boolean = True);
-      function IsPostAllowed: Boolean;
-      function TryCallConsoleCommand: Boolean;
+    function GetNextHistoryMsg: UnicodeString;
+    function GetPrevHistoryMsg: UnicodeString;
 
-      function GetNextHistoryMsg: UnicodeString;
-      function GetPrevHistoryMsg: UnicodeString;
+    procedure Add(const aMessage: UnicodeString);
+    procedure AddLine(const aMessage: UnicodeString);
 
-      procedure Add(const aMessage: UnicodeString);
-      procedure AddLine(const aMessage: UnicodeString);
-
-      procedure Clear; virtual;
-    end;
+    procedure Clear; virtual;
+  end;
 
 
   TKMChat = class(TKMConsole)
@@ -140,11 +140,7 @@ end;
 
 function TKMConsole.GetPrevHistoryMsg: UnicodeString;
 begin
-  if fHistory.Count = 0 then
-  begin
-    Result := '';
-    Exit;
-  end;
+  if fHistory.Count = 0 then Exit('');
 
   fCurrConsoleHistoryId := Max(0, fCurrConsoleHistoryId - 1);
   Result := fHistory[fCurrConsoleHistoryId];
@@ -186,7 +182,7 @@ begin
   if gGame = nil then //Can't manage console commands while not in the game
     Exit;
 
-  // Text starts with / and its long enought to have some script command in there
+  // Text starts with / and its long enough to have some script command in there
   if (Length(Text) > 1) and (Text[1] = '/') then
   begin
     if (Text[2] = '/') then

@@ -19,9 +19,9 @@ type
     destructor Destroy; override;
 
     property Fonts: TStringList read fFonts;
-    procedure Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TKMStringArray; var aFont: TKMFontDataEdit);
+    procedure Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TKMStringArray; var aFont: TKMFontSpecEdit);
     function FontCodepages(aIndex: Integer): string;
-    procedure ListFonts(aPath: string);
+    procedure ListFonts(const aPath: string);
   end;
 
 
@@ -49,10 +49,10 @@ begin
 end;
 
 
-procedure TKMFontCollator.Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TKMStringArray; var aFont: TKMFontDataEdit);
+procedure TKMFontCollator.Collate(aIndex: Integer; aX, aY, aPad: Word; aFiles: TKMStringArray; var aFont: TKMFontSpecEdit);
 var
   I: Integer;
-  srcFonts: array of TKMFontDataEdit;
+  srcFonts: array of TKMFontSpecEdit;
   pals: TKMResPalettes;
   fntPal: TKMPal;
   srcFontFile: string;
@@ -61,8 +61,8 @@ begin
 
   for I := Low(aFiles) to High(aFiles) do
   begin
-    srcFonts[I] := TKMFontDataEdit.Create(fntArial); //fntArial, why not, it looks like we dont care
-    srcFontFile := ExeDir + '..\..\data\gfx\fonts\' + aFiles[I];
+    srcFonts[I] := TKMFontSpecEdit.Create(fntArial); //fntArial, why not, it looks like we dont care
+    srcFontFile := ExeDir + '..\..\' + TKMFontSpec.FONTS_FOLDER + aFiles[I];
 
     //Guess font palette from filename
     pals := TKMResPalettes.Create;
@@ -76,7 +76,7 @@ begin
       srcFonts[I].LoadFont(srcFontFile, pals[fntPal]);
   end;
 
-  aFont := TKMFontDataEdit.Create(fntArial); //fntArial, why not, it looks like we dont care
+  aFont := TKMFontSpecEdit.Create(fntArial); //fntArial, why not, it looks like we dont care
   aFont.TexPadding := aPad;
   aFont.TexSizeX := aX;
   aFont.TexSizeY := aY;
@@ -101,7 +101,7 @@ begin
 end;
 
 
-procedure TKMFontCollator.ListFonts(aPath: string);
+procedure TKMFontCollator.ListFonts(const aPath: string);
 var
   SearchRec: TSearchRec;
   I: Integer;

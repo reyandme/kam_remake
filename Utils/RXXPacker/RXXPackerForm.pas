@@ -41,9 +41,10 @@ var
 
 
 implementation
-{$R *.dfm}
-uses KM_ResHouses, KM_ResUnits, KM_Points;
+uses
+  KM_ResHouses, KM_ResUnits, KM_Points;
 
+{$R *.dfm}
 
 function TRXXForm1.AddPackData(aName: String; aId: Integer): TRXXPackData;
 begin
@@ -65,7 +66,7 @@ begin
   SetLength(fPacksData, fPacksCnt);
   for RT := Low(TRXType) to High(TRXType) do
     if (RT = rxTiles) //Tiles are always in the list
-      or FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
+    or FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
     begin
       PackData := AddPackData(GetEnumName(TypeInfo(TRXType), Integer(RT)), Integer(RT));
       ListBox1.Items.Add(PackData.Name);
@@ -73,7 +74,7 @@ begin
 
   if ListBox1.Items.Count = 0 then
   begin
-    ShowMessage('No .RX file was found in'+#10+ExeDir + 'SpriteResource\');
+    ShowMessage('No .RX file was found in' + #10 + ExeDir + 'SpriteResource\');
     btnPackRXX.Enabled := false;
   end
   else

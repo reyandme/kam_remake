@@ -57,6 +57,7 @@ uses
   KM_CommonExceptions in 'src\common\KM_CommonExceptions.pas',
   KM_CommonTypes in 'src\common\KM_CommonTypes.pas',
   KM_Defaults in 'src\common\KM_Defaults.pas',
+  KM_Entity in 'src\common\KM_Entity.pas',
   KM_MarchingSquares in 'src\common\KM_MarchingSquares.pas',
   KM_Points in 'src\common\KM_Points.pas',
   KM_WorkerThread in 'src\common\KM_WorkerThread.pas',
@@ -81,6 +82,7 @@ uses
   KM_GameOptions in 'src\game\KM_GameOptions.pas',
   KM_GameParams in 'src\game\KM_GameParams.pas',
   KM_GameSavePoints in 'src\game\KM_GameSavePoints.pas',
+  KM_GameUIDTracker in 'src\game\KM_GameUIDTracker.pas',
   
   KM_GameInputProcess in 'src\game\KM_GameInputProcess.pas',
   KM_GameInputProcess_Multi in 'src\game\KM_GameInputProcess_Multi.pas',
@@ -186,6 +188,7 @@ uses
   KM_InterfaceGamePlay in 'src\gui\KM_InterfaceGamePlay.pas',
   KM_InterfaceMainMenu in 'src\gui\KM_InterfaceMainMenu.pas',
   KM_InterfaceMapEditor in 'src\gui\KM_InterfaceMapEditor.pas',
+  KM_InterfaceTypes in 'src\gui\KM_InterfaceTypes.pas',
   KM_Log in 'src\KM_Log.pas',
   KM_Main in 'src\KM_Main.pas',
   KM_Maps in 'src\KM_Maps.pas',
@@ -312,6 +315,7 @@ uses
   KM_TerrainFinder in 'src\terrain\KM_TerrainFinder.pas',
   KM_TerrainPainter in 'src\terrain\KM_TerrainPainter.pas',
   KM_TerrainSelection in 'src\terrain\KM_TerrainSelection.pas',
+  KM_TerrainTypes in 'src\terrain\KM_TerrainTypes.pas',
   KM_TerrainWalkConnect in 'src\terrain\KM_TerrainWalkConnect.pas',
 
   KM_UnitActionAbandonWalk in 'src\units\actions\KM_UnitActionAbandonWalk.pas',

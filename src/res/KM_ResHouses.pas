@@ -80,14 +80,14 @@ type
     property Anim: THouseAnim read fHouseDat.Anim;
     property WoodPicSteps: Word read fHouseDat.WoodPicSteps;
     property StonePicSteps: Word read fHouseDat.StonePicSteps;
-    property EntranceOffsetX: Shortint read fHouseDat.EntranceOffsetX;
-    property EntranceOffsetXpx: Shortint read fHouseDat.EntranceOffsetXpx;
-    property EntranceOffsetYpx: Shortint read fHouseDat.EntranceOffsetYpx;
+    property EntranceOffsetX: ShortInt read fHouseDat.EntranceOffsetX;
+    property EntranceOffsetXpx: ShortInt read fHouseDat.EntranceOffsetXpx;
+    property EntranceOffsetYpx: ShortInt read fHouseDat.EntranceOffsetYpx;
     property WoodCost: Byte read fHouseDat.WoodCost;
     property StoneCost: Byte read fHouseDat.StoneCost;
     property BuildSupply: THouseBuildSupply read fHouseDat.BuildSupply;
     property WorkerRest: Smallint read fHouseDat.WorkerRest;
-    property ResProductionX: Shortint read fHouseDat.ResProductionX;
+    property ResProductionX: ShortInt read fHouseDat.ResProductionX;
     property Sight: Smallint read fHouseDat.Sight;
     property OwnerType: TKMUnitType read GetOwnerType;
     //Additional properties added by Remake
@@ -221,8 +221,8 @@ type
   end;
 
 const
-  //Remake stores additional house properties here. This looks like House.Dat, but hardcoded.
-  HouseDatX: array [HOUSE_MIN..HOUSE_MAX] of THouseInfo = (
+  // Remake stores additional house properties here. This looks like House.Dat, but hardcoded.
+  HOUSE_DAT_X: array [HOUSE_MIN..HOUSE_MAX] of THouseInfo = (
     ( //Armor smithy
     PlanYX:           ((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1));
     NeedsPlayerOrder: True;
@@ -589,25 +589,25 @@ end;
 
 function TKMHouseSpec.GetArea: THouseArea;
 begin
-  Result := HouseDatX[fHouseType].PlanYX;
+  Result := HOUSE_DAT_X[fHouseType].PlanYX;
 end;
 
 
 function TKMHouseSpec.GetDoesOrders: Boolean;
 begin
-  Result := HouseDatX[fHouseType].NeedsPlayerOrder;
+  Result := HOUSE_DAT_X[fHouseType].NeedsPlayerOrder;
 end;
 
 
 function TKMHouseSpec.GetGroundVisibleArea: THouseArea;
 begin
-  Result := HouseDatX[fHouseType].GroundArea;
+  Result := HOUSE_DAT_X[fHouseType].GroundArea;
 end;
 
 
 function TKMHouseSpec.GetGUIIcon: Word;
 begin
-  Result := HouseDatX[fHouseType].BuildIcon;
+  Result := HOUSE_DAT_X[fHouseType].BuildIcon;
 end;
 
 
@@ -628,27 +628,27 @@ end;
 procedure TKMHouseSpec.Outline(aList: TKMPointList);
 var
   I, K: Integer;
-  Tmp: TKMByte2Array;
-  Outlines: TKMShapesArray;
+  tmp: TKMByte2Array;
+  outlines: TKMShapesArray;
 begin
   aList.Clear;
-  SetLength(Tmp, 6, 6);
+  SetLength(tmp, 6, 6);
 
   for I := 0 to 3 do
   for K := 0 to 3 do
-    Tmp[I+1,K+1] := Byte(HouseDatX[fHouseType].PlanYX[I+1,K+1] > 0);
+    tmp[I+1,K+1] := Byte(HOUSE_DAT_X[fHouseType].PlanYX[I+1,K+1] > 0);
 
-  GenerateOutline(Tmp, 2, Outlines);
-  Assert(Outlines.Count = 1, 'Houses are expected to have single outline');
+  GenerateOutline(tmp, 2, outlines);
+  Assert(outlines.Count = 1, 'Houses are expected to have single outline');
 
-  for I := 0 to Outlines.Shape[0].Count - 1 do
-    aList.Add(KMPoint(Outlines.Shape[0].Nodes[I].X, Outlines.Shape[0].Nodes[I].Y));
+  for I := 0 to outlines.Shape[0].Count - 1 do
+    aList.Add(KMPoint(outlines.Shape[0].Nodes[I].X, outlines.Shape[0].Nodes[I].Y));
 end;
 
 
 function TKMHouseSpec.GetOwnerType: TKMUnitType;
 begin
-  //fHouseDat.OwnerType is read from DAT file and is shortint, it can be out of range (i.e. -1)
+  //fHouseDat.OwnerType is read from DAT file and is ShortInt, it can be out of range (i.e. -1)
   if InRange(fHouseDat.OwnerType, Low(UNIT_ID_TO_TYPE), High(UNIT_ID_TO_TYPE)) then
     Result := UNIT_ID_TO_TYPE[fHouseDat.OwnerType]
   else
@@ -670,41 +670,42 @@ end;
 
 function TKMHouseSpec.GetReleasedBy: TKMHouseType;
 begin
-  Result := HouseDatX[fHouseType].UnlockedByHouse;
+  Result := HOUSE_DAT_X[fHouseType].UnlockedByHouse;
 end;
 
 
 function TKMHouseSpec.GetResInput: THouseRes;
 begin
-  Result := HouseDatX[fHouseType].Input;
+  Result := HOUSE_DAT_X[fHouseType].Input;
 end;
 
 
 function TKMHouseSpec.GetResOutput: THouseRes;
 begin
-  Result := HouseDatX[fHouseType].Output;
+  Result := HOUSE_DAT_X[fHouseType].Output;
 end;
 
 
 function TKMHouseSpec.GetSnowPic: SmallInt;
 begin
-  Result := HouseDatX[fHouseType].SnowSpriteId;
+  Result := HOUSE_DAT_X[fHouseType].SnowSpriteId;
 end;
 
 
 function TKMHouseSpec.GetTabletIcon: Word;
 begin
-  Result := HouseDatX[fHouseType].TabletSpriteId;
+  Result := HOUSE_DAT_X[fHouseType].TabletSpriteId;
 end;
 
 
 function TKMHouseSpec.GetUnoccupiedMsgId: SmallInt;
-var HouseUnnocupiedMsgIndex: ShortInt;
+var
+  houseUnnocupiedMsgIndex: ShortInt;
 begin
   Result := -1;
-  HouseUnnocupiedMsgIndex := HouseTypeToUnoccupiedMsgIndex[fHouseType];
-  if HouseUnnocupiedMsgIndex <> -1 then
-    Result := TX_MSG_HOUSE_UNOCCUPIED__22 + HouseUnnocupiedMsgIndex;
+  houseUnnocupiedMsgIndex := HouseTypeToUnoccupiedMsgIndex[fHouseType];
+  if houseUnnocupiedMsgIndex <> -1 then
+    Result := TX_MSG_HOUSE_UNOCCUPIED__22 + houseUnnocupiedMsgIndex;
 end;
 
 
@@ -718,7 +719,8 @@ end;
 constructor TKMResHouses.Create;
 
   procedure AddAnimation(aHouse: TKMHouseType; aAnim: TKMHouseActionType; aMoveX, aMoveY: Integer; const aSteps: array of SmallInt);
-  var I: Integer;
+  var
+    I: Integer;
   begin
     with fItems[aHouse].fHouseDat.Anim[aAnim] do
     begin
@@ -731,14 +733,17 @@ constructor TKMResHouses.Create;
   end;
 
   procedure AddMarketBeastAnim(aBeast: Integer; const aStep: array of SmallInt);
-  var I: Integer;
+  var
+    I: Integer;
   begin
     // Beast anims are 0 indexed
     for I := 1 to 30 do
       fMarketBeastAnim[aBeast].Step[I] := aStep[I - 1] + MARKET_WARES_TEX_START - 1;
   end;
 
-var H: TKMHouseType; I: Integer;
+var
+  H: TKMHouseType;
+  I: Integer;
 begin
   inherited;
 
@@ -808,7 +813,8 @@ end;
 
 
 destructor TKMResHouses.Destroy;
-var H: TKMHouseType;
+var
+  H: TKMHouseType;
 begin
   for H := HOUSE_MIN to HOUSE_MAX do
     FreeAndNil(fItems[H]);
@@ -847,7 +853,7 @@ end;
 function TKMResHouses.LoadHouseDat(const aPath: string): Cardinal;
 var
   S: TKMemoryStream;
-  i:integer;
+  i: Integer;
 begin
   Assert(FileExists(aPath));
 

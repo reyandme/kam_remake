@@ -118,7 +118,7 @@ begin
 
   if not aAddInHouse and gTerrain.HasUnit(PlaceTo) then
   begin
-    U := TKMUnit(gTerrain.Land[PlaceTo.Y,PlaceTo.X].IsUnit);
+    U := TKMUnit(gTerrain.Land^[PlaceTo.Y,PlaceTo.X].IsUnit);
     raise ELocError.Create(Format('No space for %s at %s, tile is already occupied by %s, ID = %d',
                                   [gRes.Units[aUnitType].GUIName, aLoc.ToString, gRes.Units[U.UnitType].GUIName, U.UID]),
                            PlaceTo);

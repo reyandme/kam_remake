@@ -73,7 +73,7 @@ implementation
 procedure TKMTextLibraryCommon.LoadLIBXFile(const FilePath: string; var aArray: TUnicodeStringArray);
   function TextToArray(const aText: UnicodeString): TUnicodeStringArray;
   var
-    P, Start: PWideChar;
+    P, start: PWideChar;
     S: UnicodeString;
   begin
     SetLength(Result, 0);
@@ -84,9 +84,9 @@ procedure TKMTextLibraryCommon.LoadLIBXFile(const FilePath: string; var aArray: 
     // LineBreak is the default (#13#10)
     while P^ <> #0 do
     begin
-      Start := P;
+      start := P;
       while not KromUtils.CharInSet(P^, [#0, #10, #13]) do Inc(P);
-      SetString(S, Start, P - Start);
+      SetString(S, start, P - start);
 
       SetLength(Result, Length(Result) + 1);
       Result[High(Result)] := S;
@@ -211,31 +211,31 @@ end;
 // Some locales may have no strings at all, just skip them
 function TKMTextLibraryMulti.GetTexts(aIndex: Word): UnicodeString;
 var
-  Found: Boolean;
+  found: Boolean;
 begin
-  Found := False;
+  found := False;
 
   if (fPref[0] <> -1) and (aIndex < Length(fTexts[fPref[0]])) and (fTexts[fPref[0], aIndex] <> '') then
   begin
     Result := fTexts[fPref[0], aIndex];
-    Found := True;
+    found := True;
   end
   else
   if (fPref[1] <> -1) and (aIndex < Length(fTexts[fPref[1]])) and (fTexts[fPref[1], aIndex] <> '') then
   begin
     Result := fTexts[fPref[1], aIndex];
-    Found := True;
+    found := True;
   end;
 
-  if (not Found or fForceDefaultLocale) then
+  if (not found or fForceDefaultLocale) then
   begin
     if (fPref[2] <> -1) and (aIndex < Length(fTexts[fPref[2]])) and (fTexts[fPref[2], aIndex] <> '') then
     begin
       Result := fTexts[fPref[2], aIndex];
-      Found := True;
+      found := True;
     end;
   end;
-  if not Found then
+  if not found then
     Result := '~~~String ' + IntToStr(aIndex) + ' out of range!~~~';
 end;
 
@@ -267,7 +267,7 @@ end;
 // - aTagSym says which tags should be replaced ($ for missions, % for game texts)
 function TKMTextLibraryMulti.DoParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
 var
-  I, ID, Last: Integer;
+  I, ID, last: Integer;
 begin
   Assert((aTagSym = '$') or (aTagSym = '%'));
 
@@ -277,12 +277,12 @@ begin
   begin
     if (I + 3 <= Length(aText)) and (aText[I] = '<') and (aText[I+1] = aTagSym) then
     begin
-      Last := PosEx('>', aText, I);
-      ID := StrToIntDef(Copy(aText, I+2, Last-(I+2)), -1);
+      last := PosEx('>', aText, I);
+      ID := StrToIntDef(Copy(aText, I+2, last-(I+2)), -1);
       if ID >= 0 then
       begin
         Result := Result + Texts[ID];
-        I := Last + 1;
+        I := last + 1;
         Continue;
       end;
     end;
@@ -310,7 +310,8 @@ end;
 procedure TKMTextLibraryMulti.Save(aStream: TKMemoryStream);
 
   function LocalesWithText: Integer;
-  var I: Integer;
+  var
+    I: Integer;
   begin
     Result := 0;
     for I := 0 to gResLocales.Count - 1 do
@@ -319,8 +320,8 @@ procedure TKMTextLibraryMulti.Save(aStream: TKMemoryStream);
   end;
 
 var
-  I,K: Integer;
-  TextCount: Integer;
+  I, K: Integer;
+  textCount: Integer;
 begin
   aStream.PlaceMarker('TextLibraryMulti');
   // Only save locales containing text (otherwise locale list must be synced in MP)
@@ -330,10 +331,10 @@ begin
     begin
       aStream.WriteA(gResLocales[I].Code);
 
-      TextCount := Length(fTexts[I]);
+      textCount := Length(fTexts[I]);
 
-      aStream.Write(TextCount);
-      for K := 0 to TextCount - 1 do
+      aStream.Write(textCount);
+      for K := 0 to textCount - 1 do
         aStream.WriteW(fTexts[I,K]);
     end;
 end;
@@ -341,11 +342,11 @@ end;
 
 procedure TKMTextLibraryMulti.Load(LoadStream: TKMemoryStream);
 var
-  I,K: Integer;
-  LocCount, TextCount: Integer;
+  I, K: Integer;
+  locCount, textCount: Integer;
   curLoc: AnsiString;
-  Id: Integer;
-  Tmp: UnicodeString;
+  ID: Integer;
+  tmp: UnicodeString;
 begin
   // Try to match savegame locales with players locales,
   // because some players might have non-native locales missing
@@ -353,24 +354,24 @@ begin
   LoadStream.CheckMarker('TextLibraryMulti');
   SetLength(fTexts, gResLocales.Count);
 
-  LoadStream.Read(LocCount);
-  for I := 0 to LocCount - 1 do
+  LoadStream.Read(locCount);
+  for I := 0 to locCount - 1 do
   begin
     LoadStream.ReadA(curLoc);
-    Id := gResLocales.IndexByCode(curLoc);
+    ID := gResLocales.IndexByCode(curLoc);
 
-    LoadStream.Read(TextCount);
+    LoadStream.Read(textCount);
 
-    if Id <> -1 then
+    if ID <> -1 then
     begin
-      SetLength(fTexts[Id], TextCount);
-      for K := 0 to TextCount - 1 do
-        LoadStream.ReadW(fTexts[Id,K]);
+      SetLength(fTexts[ID], textCount);
+      for K := 0 to textCount - 1 do
+        LoadStream.ReadW(fTexts[ID,K]);
     end
     else
     begin
-      for K := 0 to TextCount - 1 do
-        LoadStream.ReadW(Tmp);
+      for K := 0 to textCount - 1 do
+        LoadStream.ReadW(tmp);
     end;
   end;
 

@@ -5,30 +5,52 @@ uses
   Windows,
   {$IFDEF FPC} lconvencoding, {$ENDIF}
   Classes, Graphics, Math, SysUtils, Types,
-  KM_CommonTypes, KM_ResFonts
+  KM_CommonTypes, KM_ResFonts, KM_ResTypes, KM_IoXML
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
 
 
 type
   TWideCharArray = array of WideChar;
-  //Child class that has the advanced editing methods
-  TKMFontDataEdit = class(TKMFontData)
+
+  // Carried over from KP - needs rigging
+  // Font generation setup
+  // Part of this gets written to fntx
+  TKMFontGenInfo = record
+  public
+    Font: TKMFont;
+    FontName: string; // Name of the font to use
+    Size: Byte;
+    IsBold: Boolean;
+    IsItalic: Boolean;
+    AntiAlias: Boolean;
+    Fill: Cardinal;
+    OutlineWidth: Byte;
+    Outline: Cardinal;
+    CharSpacing: ShortInt;
+    LineSpacing: ShortInt;
+    CharYOffset: ShortInt;
+    WordSpacing: ShortInt;
+    TexPadding: Byte;
+    TexSizeX: Word;
+    TexSizeY: Word;
+//    TexFormat: TKMTextureFormat;
+//    TexMin: TKMTextureFilter;
+//    TexMag: TKMTextureFilter;
+    TexMipmaps: Boolean;
+    procedure LoadFromXml(aNode: TXMLNode);
+    procedure SaveToXml(aNode: TXMLNode);
+  end;
+  PKMFontGenInfo = ^TKMFontGenInfo;
+
+  // Child class that has the advanced editing methods
+  TKMFontSpecEdit = class(TKMFontSpec)
   private
     fTexPadding: Byte;
-    fCodepage: Word;
-    fIsUnicode: Boolean;
-    fTexSizeX: Word;
-    fTexSizeY: Word;
-    fUnknown: SmallInt;
-    fLineSpacing: Byte;
-    fBaseHeight: SmallInt;
-    fWordSpacing: SmallInt;
-    fCharSpacing: SmallInt;
     function GetTexData(aIndex: Integer): TKMCardinalArray;
   public
     procedure CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: TWideCharArray);
-    procedure CollateFonts(aFonts: array of TKMFontDataEdit);
+    procedure CollateFonts(aFonts: array of TKMFontSpecEdit);
     procedure ExportGridPng(const aFilename: string; aPadding: TRect);
     procedure ImportGridPng(const aFilename: string);
     procedure ImportPng(const aFilename: string; aIndex: Integer);
@@ -45,7 +67,7 @@ type
     property IsUnicode: Boolean read fIsUnicode;
     property Codepage: Word read fCodepage;
 
-    //Same as in TKMFontData, but writeable
+    // Same as in TKMFontSpec, but writeable
     property CharSpacing: SmallInt read fCharSpacing write fCharSpacing;
     property LineSpacing: Byte read fLineSpacing write fLineSpacing;
     property BaseHeight: SmallInt read fBaseHeight write fBaseHeight;
@@ -59,13 +81,64 @@ uses
   KM_PNG;
 
 const
-  BG_COLOR = $FFAF6B6B;
+  FONTS_BG_COLOR = $FFAF6B6B;
 
 
-{ TKMFontDataEdit }
-procedure TKMFontDataEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: TWideCharArray);
+{ TKMFontGenInfo }
+procedure TKMFontGenInfo.LoadFromXml(aNode: TXMLNode);
+begin
+  Font := NameToFont(aNode.Attributes['Font'].AsString);
+  FontName := aNode.Attributes['FontName'].AsString;
+  Size := aNode.Attributes['Size'].AsInteger;
+  IsBold := aNode.Attributes['IsBold'].AsBoolean;
+  IsItalic := aNode.Attributes['IsItalic'].AsBoolean;
+  AntiAlias := aNode.Attributes['AntiAlias'].AsBoolean;
+  Fill := aNode.Attributes['Fill'].AsCardinal;
+  OutlineWidth := aNode.Attributes['OutlineWidth'].AsInteger;
+  Outline := aNode.Attributes['Outline'].AsCardinal;
+  CharSpacing := aNode.Attributes['CharSpacing'].AsInteger;
+  LineSpacing := aNode.Attributes['LineSpacing'].AsInteger(5);
+  CharYOffset := aNode.Attributes['CharYOffset'].AsInteger;
+  WordSpacing := aNode.Attributes['WordSpacing'].AsInteger;
+  TexPadding := aNode.Attributes['TexPadding'].AsInteger;
+  TexSizeX := aNode.Attributes['TexSizeX'].AsInteger;
+  TexSizeY := aNode.Attributes['TexSizeY'].AsInteger;
+//  TexFormat := TKMTextureFormat(aNode.Attributes['TexFormat'].AsInteger);
+//  TexMin := TKMTextureFilter(aNode.Attributes['TexMin'].AsInteger);
+//  TexMag := TKMTextureFilter(aNode.Attributes['TexMag'].AsInteger);
+  TexMipmaps := aNode.Attributes['TexMipmaps'].AsBoolean;
+end;
+
+
+procedure TKMFontGenInfo.SaveToXml(aNode: TXMLNode);
+begin
+  aNode.Attributes['Font'] := FontTypeName[Font];
+  aNode.Attributes['FontName'] := FontName;
+  aNode.Attributes['Size'] := Size;
+  aNode.Attributes['IsBold'] := IsBold;
+  aNode.Attributes['IsItalic'] := IsItalic;
+  aNode.Attributes['AntiAlias'] := AntiAlias;
+  aNode.Attributes['Fill'] := Fill;
+  aNode.Attributes['OutlineWidth'] := OutlineWidth;
+  aNode.Attributes['Outline'] := Outline;
+  aNode.Attributes['CharSpacing'] := CharSpacing;
+  aNode.Attributes['LineSpacing'] := LineSpacing;
+  aNode.Attributes['CharYOffset'] := CharYOffset;
+  aNode.Attributes['WordSpacing'] := WordSpacing;
+  aNode.Attributes['TexPadding'] := TexPadding;
+  aNode.Attributes['TexSizeX'] := TexSizeX;
+  aNode.Attributes['TexSizeY'] := TexSizeY;
+//  aNode.Attributes['TexFormat'] := Ord(TexFormat);
+//  aNode.Attributes['TexMin'] := Ord(TexMin);
+//  aNode.Attributes['TexMag'] := Ord(TexMag);
+  aNode.Attributes['TexMipmaps'] := TexMipmaps;
+end;
+
+
+{ TKMFontSpecEdit }
+procedure TKMFontSpecEdit.CreateFont(aFontName: string; aFontSize: Byte; aFontStyle: TFontStyles; aAntialias: Boolean; const aChars: TWideCharArray);
 const
-  FONT_INTERLINE = 5; //Spacing between lines of text
+  FONT_INTERLINE = 5; // Spacing between lines of text
 var
   bmp:  TBitmap;
   I, J, K, pX, pY: Integer;
@@ -178,7 +251,7 @@ end;
 
 
 //Create font by collating several different codepages
-procedure TKMFontDataEdit.CollateFonts(aFonts: array of TKMFontDataEdit);
+procedure TKMFontSpecEdit.CollateFonts(aFonts: array of TKMFontSpecEdit);
   function AnsiCharToWideChar(ac: AnsiChar; CodePage: Word): WideChar;
   begin
     if MultiByteToWideChar(CodePage, 0, @ac, 1, @Result, 1) <> 1 then
@@ -277,7 +350,7 @@ begin
 end;
 
 
-procedure TKMFontDataEdit.ExportGridPng(const aFilename: string; aPadding: TRect);
+procedure TKMFontSpecEdit.ExportGridPng(const aFilename: string; aPadding: TRect);
 var
   cellX, cellY, pngWidth, pngHeight: Word;
   I, M, L: Integer;
@@ -295,7 +368,7 @@ begin
 
   //fill everything so we later cut the letters from it
   for I := 0 to pngWidth * pngHeight - 1 do
-    data[I] := BG_COLOR;
+    data[I] := FONTS_BG_COLOR;
 
   //Draw letters
   for I := 0 to fCharCount - 1 do
@@ -328,13 +401,13 @@ begin
 end;
 
 
-function TKMFontDataEdit.GetTexData(aIndex: Integer): TKMCardinalArray;
+function TKMFontSpecEdit.GetTexData(aIndex: Integer): TKMCardinalArray;
 begin
   Result := fAtlases[aIndex].TexData;
 end;
 
 
-procedure TKMFontDataEdit.ImportGridPng(const aFilename: string);
+procedure TKMFontSpecEdit.ImportGridPng(const aFilename: string);
 var
   cellX, cellY, pngWidth, pngHeight: Word;
   pngData: TKMCardinalArray;
@@ -369,7 +442,7 @@ begin
       cX := K * cellX + M;
       cY := I * cellY + L;
 
-      if pngData[cY * pngWidth + cX] <> BG_COLOR then
+      if pngData[cY * pngWidth + cX] <> FONTS_BG_COLOR then
       begin
         chMaxX := Math.Max(chMaxX, M);
         chMaxY := Math.Max(chMaxY, L);
@@ -432,7 +505,7 @@ begin
 end;
 
 
-procedure TKMFontDataEdit.ImportPng(const aFilename: string; aIndex: Integer);
+procedure TKMFontSpecEdit.ImportPng(const aFilename: string; aIndex: Integer);
 var
   I, K: Word;
   pngWidth, pngHeight: Word;
@@ -449,7 +522,7 @@ end;
 
 
 //Maximum letter height, used for atlas generation and export
-function TKMFontDataEdit.MaxLetterHeight: Byte;
+function TKMFontSpecEdit.MaxLetterHeight: Byte;
 var
   I: Integer;
 begin
@@ -460,7 +533,7 @@ begin
 end;
 
 
-function TKMFontDataEdit.MaxLetterWidth: Byte;
+function TKMFontSpecEdit.MaxLetterWidth: Byte;
 var
   I: Integer;
 begin
@@ -471,7 +544,7 @@ begin
 end;
 
 
-procedure TKMFontDataEdit.SaveToFont(const aFilename: string);
+procedure TKMFontSpecEdit.SaveToFont(const aFilename: string);
 const
   Zero: Word = 0;
 var
@@ -498,7 +571,7 @@ begin
       S.Write(Letters[I].YOffset, 2);
       S.Write(Zero, 2); //Unknown field
 
-      S.Write(rawData[I,0], Letters[I].Width * Letters[I].Height);
+      S.Write(fRawData[I,0], Letters[I].Width * Letters[I].Height);
     end;
 
     S.SaveToFile(aFilename);
@@ -508,10 +581,8 @@ begin
 end;
 
 
-//Save font in extended format (with unicode and 32bit support)
-procedure TKMFontDataEdit.SaveToFontX(const aFilename: string);
-const
-  FNTX_HEAD: AnsiString = 'FNTX';
+// Save font in extended format (with unicode and 32bit support)
+procedure TKMFontSpecEdit.SaveToFontX(const aFilename: string);
 var
   I: Integer;
   InputStream: TMemoryStream;
@@ -557,7 +628,7 @@ begin
 end;
 
 
-procedure TKMFontDataEdit.TrimLetterHeight;
+procedure TKMFontSpecEdit.TrimLetterHeight;
 var
   I, L, M: Integer;
   srcX, srcY: Word;

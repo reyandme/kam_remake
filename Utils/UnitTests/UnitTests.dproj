@@ -1,25 +1,20 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{2908561D-6379-4865-A733-6BBE805718F5}</ProjectGuid>
-        <ProjectVersion>18.8</ProjectVersion>
+        <ProjectVersion>19.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
-        <MainSource>KaM_RemakeTests.dpr</MainSource>
+        <MainSource>UnitTests.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
         <Base_Win32>true</Base_Win32>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
-        <Base_Win64>true</Base_Win64>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
@@ -40,22 +35,23 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_RangeChecking>true</DCC_RangeChecking>
+        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
         <DCC_Optimize>false</DCC_Optimize>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_UsePackage>bindcompfmx;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;inetdb;DBXInterBaseDriver;DataSnapCommon;DataSnapClient;DataSnapServer;DataSnapProviderClient;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;soaprtl;DBXOracleDriver;dsnap;DBXInformixDriver;IndyCore;fmxase;DBXFirebirdDriver;inet;fmxobj;inetdbxpress;DBXSybaseASADriver;fmxdae;dbexpress;DataSnapIndy10ServerTransport;IPIndyImpl;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\;..\src;..\src\ai;..\src\ai\newAI;..\src\ext\;..\src\ext\Overbyte ICS 8\Source;..\src\ext\pascalscript\Source;..\src\ext\OggVorbis;..\src\gui;..\src\gui\pages_game;..\src\gui\pages_maped;..\src\gui\pages_menu;..\src\hands;..\src\houses;..\src\net;..\src\render;..\src\res;..\src\scripting;..\src\terrain;..\src\units;..\src\units\actions;..\src\units\tasks;..\src\common;..\src\missionscript;..\src\utils;..\src\game;..\src\navmesh;..\src\pathfinding;..\src\gui\pages_maped\menu;..\src\gui\pages_maped\town;..\src\gui\pages_maped\player;..\src\gui\pages_maped\mission;..\src\gui\pages_maped\terrain;..\src\net\other;..\src\net\http;..\src\utils\method_parser;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_Define>_CONSOLE_TESTRUNNER;DUNIT_TEST;$(DCC_Define)</DCC_Define>
-        <Manifest_File>None</Manifest_File>
+        <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\..\;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\ext\;..\..\src\ext\Overbyte ICS 8\Source;..\..\src\ext\pascalscript\Source;..\..\src\ext\OggVorbis;..\..\src\gui;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\net;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\common;..\..\src\missionscript;..\..\src\utils;..\..\src\game;..\..\src\settings;..\..\src\navmesh;..\..\src\pathfinding;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\terrain;..\..\src\net\other;..\..\src\net\http;..\..\src\utils\method_parser;..\..\src\perflog;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_Define>_CONSOLE_TESTRUNNER;DUNIT_TEST;NO_MUSIC;NO_OGG_SOUND;$(DCC_Define)</DCC_Define>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_Locale>1049</VerInfo_Locale>
-        <DCC_DcuOutput>.\dcu\</DCC_DcuOutput>
-        <DCC_ExeOutput>.\</DCC_ExeOutput>
+        <DCC_DcuOutput>dcu</DCC_DcuOutput>
         <DCC_E>false</DCC_E>
         <DCC_N>false</DCC_N>
         <DCC_S>false</DCC_S>
         <DCC_F>false</DCC_F>
         <DCC_K>false</DCC_K>
-        <SanitizedProjectName>KaM_RemakeTests</SanitizedProjectName>
+        <SanitizedProjectName>UnitTests</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>vcldbx;frx16;TeeDB;Rave100VCL;vclib;Tee;inetdbbde;DBXOdbcDriver;svnui;ibxpress;DBXSybaseASEDriver;vclimg;frxDB16;intrawebdb_120_160;fmi;fs16;FMXTee;TeeUI;vclactnband;vcldb;vcldsnap;bindcompvcl;vclie;vcltouch;Intraweb_120_160;DBXDb2Driver;websnap;vclribbon;frxe16;VclSmp;fsDB16;vcl;DataSnapConnectors;CloudService;DBXMSSQLDriver;CodeSiteExpressPkg;FmxTeeUI;dsnapcon;vclx;webdsnap;svn;bdertl;adortl;$(DCC_UsePackage)</DCC_UsePackage>
@@ -64,11 +60,6 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>DBXOdbcDriver;DBXSybaseASEDriver;vclimg;vclactnband;vcldb;vcldsnap;bindcompvcl;vclie;vcltouch;DBXDb2Driver;websnap;VclSmp;vcl;DBXMSSQLDriver;dsnapcon;vclx;webdsnap;$(DCC_UsePackage)</DCC_UsePackage>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
     </PropertyGroup>
@@ -83,7 +74,6 @@
         <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
         <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
         <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -102,6 +92,7 @@
         </DelphiCompile>
         <DCCReference Include="TestKM_Campaigns.pas"/>
         <DCCReference Include="TestKM_CommonClasses.pas"/>
+        <DCCReference Include="TestKM_CommonUtils.pas"/>
         <DCCReference Include="TestKM_FogOfWar.pas"/>
         <DCCReference Include="TestKM_Points.pas"/>
         <DCCReference Include="TestKM_Utils.pas"/>
@@ -155,17 +146,16 @@
                     <VersionInfoKeys Name="Comments"/>
                 </VersionInfoKeys>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k220.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp220.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
                 <Source>
-                    <Source Name="MainSource">KaM_RemakeTests.dpr</Source>
+                    <Source Name="MainSource">UnitTests.dpr</Source>
                 </Source>
             </Delphi.Personality>
             <Deployment Version="3"/>
             <Platforms>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
             </Platforms>
             <UnitTesting>
                 <TestFramework>DUnit / Delphi Win32</TestFramework>

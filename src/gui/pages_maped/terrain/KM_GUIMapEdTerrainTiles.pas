@@ -16,7 +16,7 @@ const
   TABLE_ELEMS = 608;
 
 type
-  TKMMapEdTerrainTiles = class (TKMMapEdSubMenuPage)
+  TKMMapEdTerrainTiles = class(TKMMapEdSubMenuPage)
   private
     fLastTile: Word;
 
@@ -157,16 +157,22 @@ begin
   TilesPalette_Button.Hint := GetHintWHotKey(TX_MAPED_TERRAIN_TILES_PALETTE, kfMapedTilesPalette);
   TilesPalette_Button.OnClick := TilesPalette_ToggleVisibility;
 
-  palW := MAX_ROW_SIZE * PAL_S + 60;
-  palH := (Length(PAL_ROWS) - 1)*MAPED_TILES_Y*PAL_S + Length(PAL_ROWS) * PAL_Y_GAP + 40;
+  palW := Min(aParent.MasterControl.MasterPanel.Width,
+              MAX_ROW_SIZE * PAL_S + 60);
+  palH := Min(aParent.MasterControl.MasterPanel.Height,
+             (Length(PAL_ROWS) - 1)*MAPED_TILES_Y*PAL_S + Length(PAL_ROWS) * PAL_Y_GAP + 40);
 
   Panel_TilesPalettePopup := TKMPopUpPanel.Create(aParent.MasterControl.MasterPanel, palW, palH, gResTexts[TX_MAPED_TERRAIN_TILES_PALETTE],
                                                   pubgitYellow);//, True, False);
   Panel_TilesPalettePopup.DragEnabled := True;
   Panel_TilesPalettePopup.Anchors := [anTop];
   Panel_TilesPalettePopup.CapOffsetY := 5;
-    Panel_TilesPalette := TKMScrollPanel.Create(Panel_TilesPalettePopup, 20, 5, palW - 40,
-                                                palH - 20, [saVertical], bsGame, ssGame);
+    Panel_TilesPalette := TKMScrollPanel.Create(Panel_TilesPalettePopup, 10, 5,
+                                                Panel_TilesPalettePopup.Width - 40,
+                                                Panel_TilesPalettePopup.Bottom - 60, [saHorizontal, saVertical], bsGame, ssCommon);
+    Panel_TilesPalette.ScrollV.Left := Panel_TilesPalette.ScrollV.Left + 20;
+    Panel_TilesPalette.Padding.SetRight(10);
+    Panel_TilesPalette.Padding.SetBottom(10);
     Panel_TilesPalette.AnchorsStretch;
       lineWidthCnt := TABLE_ELEMS div MAPED_TILES_Y;
       for row := Low(PAL_ROWS) to High(PAL_ROWS) - 1 do

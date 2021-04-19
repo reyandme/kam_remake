@@ -72,7 +72,7 @@ var
 
 implementation
 uses
-  KM_Render, KM_Game, KM_GameParams, KM_Units, KM_Terrain, KM_Resource, KM_ResTileset, KM_CommonUtils;
+  KM_Render, KM_Game, KM_GameParams, KM_Units, KM_Terrain, KM_TerrainTypes, KM_Resource, KM_ResTileset, KM_CommonUtils;
 
 const
   TILE_TERRAIN_LAYERS_COLORS: array [0..3] of Cardinal =
@@ -118,10 +118,10 @@ begin
   TRender.BindTexture(0); // We have to reset texture to default (0), because it could be bind to any other texture (atlas)
   glBegin(GL_QUADS);
     with gTerrain do
-    glkQuad(pX-1,pY-1-Land[pY  ,pX  ].RenderHeight/CELL_HEIGHT_DIV,
-            pX  ,pY-1-Land[pY  ,pX+1].RenderHeight/CELL_HEIGHT_DIV,
-            pX  ,pY-  Land[pY+1,pX+1].RenderHeight/CELL_HEIGHT_DIV,
-            pX-1,pY-  Land[pY+1,pX  ].RenderHeight/CELL_HEIGHT_DIV);
+    glkQuad(pX-1,pY-1-Land^[pY  ,pX  ].RenderHeight/CELL_HEIGHT_DIV,
+            pX  ,pY-1-Land^[pY  ,pX+1].RenderHeight/CELL_HEIGHT_DIV,
+            pX  ,pY-  Land^[pY+1,pX+1].RenderHeight/CELL_HEIGHT_DIV,
+            pX-1,pY-  Land^[pY+1,pX  ].RenderHeight/CELL_HEIGHT_DIV);
   glEnd;
 end;
 
@@ -470,19 +470,20 @@ begin
     for J := aRect.Left to aRect.Right do
     begin
       customStr := '';
-      if gTerrain.Land[I,J].IsCustom then
+      if gTerrain.Land^[I,J].IsCustom then
         customStr := '-C';
-      customStr := customStr + '-' + IntToStr(gTerrain.Land[I,J].BlendingLvl);
-      if gTerrain.Land[I,J].LayersCnt = 0 then
-        Text(J, I, IntToStr(gTerrain.Land[I,J].BaseLayer.Terrain)+ '-' + IntToStr(gTerrain.Land[I,J].BaseLayer.Rotation) + customStr,
+      customStr := customStr + '-' + IntToStr(gTerrain.Land^[I,J].BlendingLvl);
+      if gTerrain.Land^[I,J].HasNoLayers then
+        Text(J, I, IntToStr(gTerrain.Land^[I,J].BaseLayer.Terrain)+ '-' + IntToStr(gTerrain.Land^[I,J].BaseLayer.Rotation) + customStr,
              TILE_TERRAIN_LAYERS_COLORS[0])
-      else begin
-        cnt := gTerrain.Land[I,J].LayersCnt + 1;
-        Text(J, I, IntToStr(gTerrain.Land[I,J].BaseLayer.Terrain) + '-' + IntToStr(gTerrain.Land[I,J].BaseLayer.Rotation) + customStr,
+      else
+      begin
+        cnt := gTerrain.Land^[I,J].LayersCnt + 1;
+        Text(J, I, IntToStr(gTerrain.Land^[I,J].BaseLayer.Terrain) + '-' + IntToStr(gTerrain.Land^[I,J].BaseLayer.Rotation) + customStr,
              TILE_TERRAIN_LAYERS_COLORS[0], KMPointF(0,-0.3));
-        for K := 0 to gTerrain.Land[I,J].LayersCnt - 1 do
-          Text(J, I, IntToStr(BASE_TERRAIN[gRes.Sprites.GetGenTerrainInfo(gTerrain.Land[I,J].Layer[K].Terrain).TerKind])
-                     + '*' + IntToStr(gTerrain.Land[I,J].Layer[K].Rotation),
+        for K := 0 to gTerrain.Land^[I,J].LayersCnt - 1 do
+          Text(J, I, IntToStr(BASE_TERRAIN[gRes.Sprites.GetGenTerrainInfo(gTerrain.Land^[I,J].Layer[K].Terrain).TerKind])
+                     + '*' + IntToStr(gTerrain.Land^[I,J].Layer[K].Rotation),
                TILE_TERRAIN_LAYERS_COLORS[K+1], KMPointF(0,-0.3 + 0.7*(K+1)/cnt));
       end;
     end;
@@ -515,7 +516,7 @@ begin
     begin
       DrawTerKind(J,I);
       for K := 0 to 3 do
-        with gTerrain.Land[I,J] do
+        with gTerrain.Land^[I,J] do
         begin
           if BaseLayer.Corner[K] then
             TextAtCorner(J, I, K,
@@ -538,10 +539,16 @@ end;
 procedure TRenderAux.TileTerrainOverlays(const aRect: TKMRect);
 var
   I, J: Integer;
+  str: string;
 begin
   for I := aRect.Top to aRect.Bottom do
     for J := aRect.Left to aRect.Right do
-      Text(J, I, IntToStr(Byte(gTerrain.Land[I,J].TileOverlay)), icDarkPink);
+    begin
+      str := IntToStr(Byte(gTerrain.Land^[I,J].TileOverlay));
+      if gGame.Params.IsMapEditor and (gGame.MapEditor.LandMapEd^[I,J].CornOrWine > 0) then
+        str := str + '-' + IntToStr(gGame.MapEditor.LandMapEd^[I,J].CornOrWineTerrain);
+      Text(J, I, str, icDarkPink);
+    end;
 end;
 
 
@@ -553,7 +560,7 @@ var
 begin
   for I := aRect.Top to aRect.Bottom do
     for J := aRect.Left to aRect.Right do
-      Text(J, I, TILE_LOCK_STR[gTerrain.Land[I,J].TileLock], icCyan);
+      Text(J, I, TILE_LOCK_STR[gTerrain.Land^[I,J].TileLock], icCyan);
 end;
 
 procedure TRenderAux.TileTerrainTileObjectID(const aRect: TKMRect);
@@ -562,7 +569,7 @@ var
 begin
   for I := aRect.Top to aRect.Bottom do
     for J := aRect.Left to aRect.Right do
-      Text(J, I, IntToStr(gTerrain.Land[I,J].Obj), icCyan);
+      Text(J, I, IntToStr(gTerrain.Land^[I,J].Obj), icCyan);
 end;
 
 procedure TRenderAux.TileTerrainTileUnit(const aRect: TKMRect);
@@ -572,9 +579,9 @@ var
 begin
   for I := aRect.Top to aRect.Bottom do
     for J := aRect.Left to aRect.Right do
-      if gTerrain.Land[I,J].IsUnit <> nil then
+      if gTerrain.Land^[I,J].IsUnit <> nil then
       begin
-        color := GetRandomColorWSeed(TKMUnit(gTerrain.Land[I,J].IsUnit).UID);
+        color := GetRandomColorWSeed(TKMUnit(gTerrain.Land^[I,J].IsUnit).UID);
         Quad(J, I, $80FFFFFF and color);
       end;
 end;
@@ -586,7 +593,7 @@ var
 begin
   for I := aRect.Top to aRect.Bottom do
     for J := aRect.Left to aRect.Right do
-      case gTerrain.Land[I,J].IsVertexUnit of
+      case gTerrain.Land^[I,J].IsVertexUnit of
         vuNone: ;
         vuNWSE: LineOnTerrain(J - 0.5, I - 0.5, J - 1.5, I - 1.5, icBlue);
         vuNESW: LineOnTerrain(J - 1.5, I - 0.5, J - 0.5, I - 1.5, icBlue);
@@ -600,7 +607,7 @@ var
 begin
   for I := aRect.Top to aRect.Bottom do
     for J := aRect.Left to aRect.Right do
-      Text(J, I, IntToStr(gTerrain.Land[I,J].TreeAge), icCyan);
+      Text(J, I, IntToStr(gTerrain.Land^[I,J].TreeAge), icCyan);
 end;
 
 
@@ -610,7 +617,7 @@ var
 begin
   for I := aRect.Top to aRect.Bottom do
     for J := aRect.Left to aRect.Right do
-      Text(J, I, IntToStr(gTerrain.Land[I,J].FieldAge), icCyan);
+      Text(J, I, IntToStr(gTerrain.Land^[I,J].FieldAge), icCyan);
 end;
 
 
@@ -623,13 +630,13 @@ begin
   for I := aRect.Top to aRect.Bottom do
     for J := aRect.Left to aRect.Right do
     begin
-      if gTerrain.Land[I,J].JamMeter = 0 then Continue;
+      if gTerrain.Land^[I,J].JamMeter = 0 then Continue;
 
-      limit := (gTerrain.Land[I,J].JamMeter + JAM_DRAW_STEP - 1) div JAM_DRAW_STEP;
+      limit := (gTerrain.Land^[I,J].JamMeter + JAM_DRAW_STEP - 1) div JAM_DRAW_STEP;
       for K := 0 to limit - 1 do
         Quad(J, I, $20FFFFFF and icOrange);
       //Draw text over quads
-      Text(J, I, IntToStr(gTerrain.Land[I,J].JamMeter), icRed);
+      Text(J, I, IntToStr(gTerrain.Land^[I,J].JamMeter), icRed);
     end;
 end;
 
@@ -641,7 +648,7 @@ begin
   for I := aRect.Top to aRect.Bottom + 1 do
     for J := aRect.Left to aRect.Right + 1 do
       //Use fHeight to show real height, even when 'Flat terrain' is checked
-      Text(J-0.5, I-0.5, IntToStr(gTerrain.Land[I,J].Height), icCyan);
+      Text(J-0.5, I-0.5, IntToStr(gTerrain.Land^[I,J].Height), icCyan);
 end;
 
 
@@ -658,7 +665,7 @@ begin
     glColor4f(0,1,0,0.25);
     for I := aRect.Top to aRect.Bottom do               
       for K := aRect.Left to aRect.Right do
-        if pass in gTerrain.Land[I,K].Passability then
+        if pass in gTerrain.Land^[I,K].Passability then
         begin
           if pass = tpCutTree then
             CircleOnTerrain(K-1,I-1,0.25,$3F00FF00,icCyan) //draw circle, because dot could be hidden under Trees
@@ -763,13 +770,13 @@ begin
   for I := aRect.Top to aRect.Bottom do
   for K := aRect.Left to aRect.Right do
   begin
-    if gTerrain.Land[I,K].IsVertexUnit <> vuNone then
+    if gTerrain.Land^[I,K].IsVertexUnit <> vuNone then
     begin
-      vertexUsage := byte(gTerrain.Land[I,K].IsVertexUnit);
+      vertexUsage := byte(gTerrain.Land^[I,K].IsVertexUnit);
       glColor4f(1-vertexUsage/3, vertexUsage/3, 0.6, 0.8);
       RenderDot(K, gTerrain.RenderFlatToHeight(K,I), 0.3);
     end;
-    if gTerrain.Land[I,K].IsUnit <> nil then
+    if gTerrain.Land^[I,K].IsUnit <> nil then
     begin
       glColor4f(0.17, 0.83, 0, 0.8);
       RenderQuad(K,I);
@@ -842,7 +849,7 @@ begin
     for K := aRect.Left to aRect.Right + 1 do
     begin
       glColor4f(0.8, 1, 0.6, 1);
-      glVertex2d(K - 1, I - 1 - gTerrain.Land[I, K].RenderHeight / CELL_HEIGHT_DIV);
+      glVertex2d(K - 1, I - 1 - gTerrain.Land^[I, K].RenderHeight / CELL_HEIGHT_DIV);
     end;
     glEnd;
   end;
@@ -853,9 +860,9 @@ begin
     for I := aRect.Top to aRect.Bottom + 1 do
     for K := aRect.Left to aRect.Right + 1 do
     begin
-      //glColor4f(gTerrain.Land[I,K].Height/100,0,0,1.2-sqrt(sqr(I-MapYc)+sqr(K-MapXc))/10);
+      //glColor4f(gTerrain.Land^[I,K].Height/100,0,0,1.2-sqrt(sqr(I-MapYc)+sqr(K-MapXc))/10);
       glColor4f(Byte(gTerrain.Fences[I,K].Kind = fncHousePlan), Byte(gTerrain.Fences[I,K].Kind = fncHousePlan), 0, 1);
-      glVertex2d(K - 1, I - 1 - gTerrain.Land[I, K].RenderHeight / CELL_HEIGHT_DIV);
+      glVertex2d(K - 1, I - 1 - gTerrain.Land^[I, K].RenderHeight / CELL_HEIGHT_DIV);
     end;
     glEnd;
   glPopAttrib;
@@ -875,10 +882,10 @@ begin
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
     with gTerrain do begin
-      glVertex2f(P.X-1 + aInset, P.Y-1 + aInset - Land[P.Y  ,P.X  ].RenderHeight/CELL_HEIGHT_DIV);
-      glVertex2f(P.X   - aInset, P.Y-1 + aInset - Land[P.Y  ,P.X+1].RenderHeight/CELL_HEIGHT_DIV);
-      glVertex2f(P.X   - aInset, P.Y   - aInset - Land[P.Y+1,P.X+1].RenderHeight/CELL_HEIGHT_DIV);
-      glVertex2f(P.X-1 + aInset, P.Y   - aInset - Land[P.Y+1,P.X  ].RenderHeight/CELL_HEIGHT_DIV);
+      glVertex2f(P.X-1 + aInset, P.Y-1 + aInset - Land^[P.Y  ,P.X  ].RenderHeight/CELL_HEIGHT_DIV);
+      glVertex2f(P.X   - aInset, P.Y-1 + aInset - Land^[P.Y  ,P.X+1].RenderHeight/CELL_HEIGHT_DIV);
+      glVertex2f(P.X   - aInset, P.Y   - aInset - Land^[P.Y+1,P.X+1].RenderHeight/CELL_HEIGHT_DIV);
+      glVertex2f(P.X-1 + aInset, P.Y   - aInset - Land^[P.Y+1,P.X  ].RenderHeight/CELL_HEIGHT_DIV);
     end;
   glEnd;
 end;

@@ -416,7 +416,7 @@ begin
       else if gTerrain.TileHasStone(X,Y) then
       begin
         Soil[Y,X] := 1; // Stone tile can be mined and used for farms
-        if (Y < fMapY - 1) AND (tpWalk in gTerrain.Land[Y+1,X].Passability) AND  StoneCheck.CheckCount(X,Y) then
+        if (Y < fMapY - 1) AND (tpWalk in gTerrain.Land^[Y+1,X].Passability) AND  StoneCheck.CheckCount(X,Y) then
           fStoneMiningTiles.Add(Loc);
       end
       else if CanAddHousePlan(Loc, htGoldMine, True, False) then
@@ -781,7 +781,7 @@ begin
     case aHT of
       htIronMine: Output := Output AND gTerrain.CanPlaceIronMine(X, Y);
       htGoldMine: Output := Output AND gTerrain.CanPlaceGoldMine(X, Y);
-      else         Output := Output AND ( (tpBuild in gTerrain.Land[Y,X].Passability)
+      else         Output := Output AND ( (tpBuild in gTerrain.Land^[Y,X].Passability)
                                           OR (aIgnoreTrees
                                               AND gTerrain.ObjectIsChopableTree(KMPoint(X,Y), [caAge1,caAge2,caAge3,caAgeFull])
                                               AND gHands[fOwner].CanAddFieldPlan(KMPoint(X,Y), ftWine))
@@ -801,9 +801,9 @@ end;
 function TKMEye.CanAddHousePlan(aLoc: TKMPoint; aHT: TKMHouseType; aIgnoreAvoidBuilding: Boolean = False; aIgnoreTrees: Boolean = False; aIgnoreLocks: Boolean = True): Boolean;
   function CanBeRoad(X,Y: Integer): Boolean;
   begin
-    Result := (gTerrain.Land[Y, X].Passability * [tpMakeRoads, tpWalkRoad] <> [])
+    Result := (gTerrain.Land^[Y, X].Passability * [tpMakeRoads, tpWalkRoad] <> [])
               OR (gHands[fOwner].Constructions.FieldworksList.HasField(KMPoint(X,Y)) <> ftNone) // We dont need strictly road just make sure that it is possible to place something here (and replace it by road later)
-              OR (gTerrain.Land[Y, X].TileLock in [tlFieldWork, tlRoadWork]);
+              OR (gTerrain.Land^[Y, X].TileLock in [tlFieldWork, tlRoadWork]);
   end;
 var
   LeftSideFree, RightSideFree: Boolean;
@@ -826,7 +826,7 @@ begin
   if not CanBeRoad(aLoc.X,aLoc.Y+1) then
     Exit;
 
-  // Make sure that we dont put new house into another plan (just entrance is enought because houses have similar size)
+  // Make sure that we dont put new house into another plan (just entrance is enough because houses have similar size)
   //if gHands[fOwner].Constructions.HousePlanList.HasPlan(KMPoint(aLoc.X,aLoc.Y)) then
   //  Exit;
 
@@ -915,7 +915,7 @@ begin
       X := Mines.Items[I].X;
       Y := Mines.Items[I].Y;
       Ownership := gAIFields.Influences.Ownership[fOwner, Y, X];
-      if ([tpMakeRoads, tpWalkRoad] * gTerrain.Land[Y+1,X].Passability <> [])
+      if ([tpMakeRoads, tpWalkRoad] * gTerrain.Land^[Y+1,X].Passability <> [])
         AND (Ownership > 0) AND gAIFields.Influences.CanPlaceHouseByInfluence(fOwner, X,Y) then
         if CanAddHousePlan(Mines.Items[I], aHT, True, False) AND CheckResourcesNearMine(Mines.Items[I], aHT) then
           Output.Add(Mines.Items[I], Ownership)
@@ -948,7 +948,7 @@ begin
     while not gTerrain.TileHasStone(X, Y) AND (Y > MaxDist) do
       Y := Y - 1;
     // Check if is possible to mine it
-    if gTerrain.TileHasStone(X, Y) AND (tpWalk in gTerrain.Land[Y+1,X].Passability) then
+    if gTerrain.TileHasStone(X, Y) AND (tpWalk in gTerrain.Land^[Y+1,X].Passability) then
     begin
       fStoneMiningTiles.Items[K] := KMPoint(X,Y);
       // Save tile as a potential point for quarry
@@ -1509,10 +1509,10 @@ function TKMBuildFF.CanBeVisited(const aX,aY,aIdx: Word; const aHouseQueue: Bool
 begin
   // tpOwn - walkable tile + height evaluation
   if aHouseQueue then
-    Result := (fInfoArr[aIdx].Visited = fVisitIdx) AND (fInfoArr[aIdx].VisitedHouse < fVisitIdxHouse) AND (tpOwn in gTerrain.Land[aY,aX].Passability)
-    //Result := (fInfoArr[aIdx].Visited = fVisitIdx) AND (fInfoArr[aIdx].VisitedHouse < fVisitIdxHouse) AND gTerrain.TileIsRoadable( KMPoint(aX,aY) ) AND (tpOwn in gTerrain.Land[aY,aX].Passability)
+    Result := (fInfoArr[aIdx].Visited = fVisitIdx) AND (fInfoArr[aIdx].VisitedHouse < fVisitIdxHouse) AND (tpOwn in gTerrain.Land^[aY,aX].Passability)
+    //Result := (fInfoArr[aIdx].Visited = fVisitIdx) AND (fInfoArr[aIdx].VisitedHouse < fVisitIdxHouse) AND gTerrain.TileIsRoadable( KMPoint(aX,aY) ) AND (tpOwn in gTerrain.Land^[aY,aX].Passability)
   else
-    Result := (fInfoArr[aIdx].Visited < fVisitIdx) AND gTerrain.TileIsRoadable( KMPoint(aX,aY) );//(tpOwn in gTerrain.Land[aY,aX].Passability);
+    Result := (fInfoArr[aIdx].Visited < fVisitIdx) AND gTerrain.TileIsRoadable( KMPoint(aX,aY) );//(tpOwn in gTerrain.Land^[aY,aX].Passability);
 end;
 
 
@@ -1619,14 +1619,14 @@ begin
   Result := bsNoBuild;
 
   // Passability
-  if (tpBuild in gTerrain.Land[aY,aX].Passability) then
+  if (tpBuild in gTerrain.Land^[aY,aX].Passability) then
     Output := bsBuild
   else if (gTerrain.ObjectIsChopableTree(KMPoint(aX,aY), [caAge1,caAge2,caAge3,caAgeFull])
         AND gHands[fOwner].CanAddFieldPlan(KMPoint(aX,aY), ftWine)) then
     Output := bsTree
-  else if (gTerrain.Land[aY,aX].Passability * [tpMakeRoads, tpWalkRoad] <> []) then
+  else if (gTerrain.Land^[aY,aX].Passability * [tpMakeRoads, tpWalkRoad] <> []) then
     Output := bsRoad
-  else if (gTerrain.Land[aY,aX].TileLock = tlRoadWork) then
+  else if (gTerrain.Land^[aY,aX].TileLock = tlRoadWork) then
     Output := bsRoadPlan
   else
     Exit;
@@ -1684,7 +1684,7 @@ begin
           HT := HouseType;
           if (HT = htNone) then
             Continue;
-          P1 := KMPointAdd( Loc, KMPoint(gRes.Houses[HT].EntranceOffsetX,0) ); // Plans have moved offset so fix it (because there is never enought exceptions ;)
+          P1 := KMPointAdd( Loc, KMPoint(gRes.Houses[HT].EntranceOffsetX,0) ); // Plans have moved offset so fix it (because there is never enough exceptions ;)
           // Internal house tiles
           for L := Low(gAIFields.Eye.HousesMapping[HT].Tiles) to High(gAIFields.Eye.HousesMapping[HT].Tiles) do
           begin
@@ -1696,7 +1696,7 @@ begin
             for L := Low(gAIFields.Eye.HousesMapping[HT].Surroundings[DIST,Dir]) to High(gAIFields.Eye.HousesMapping[HT].Surroundings[DIST,Dir]) do
             begin
               P2 := KMPointAdd(P1, gAIFields.Eye.HousesMapping[HT].Surroundings[DIST,Dir,L]);
-              if (gTerrain.Land[P2.Y,P2.X].Passability * [tpMakeRoads, tpWalkRoad] <> []) then
+              if (gTerrain.Land^[P2.Y,P2.X].Passability * [tpMakeRoads, tpWalkRoad] <> []) then
                 State[P2.Y, P2.X] := bsRoad
               else if (State[P2.Y, P2.X] <> bsNoBuild) then
                 State[P2.Y, P2.X] := bsHousePlan;

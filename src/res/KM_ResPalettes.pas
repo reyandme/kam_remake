@@ -18,7 +18,7 @@ type
     pal2_setup);
 
   // Individual palette info
-  TKMPaletteInfo = class
+  TKMPaletteSpec = class
   private
     fData: array [0..255, 1..3] of Byte;
     procedure GenerateBW;
@@ -31,16 +31,16 @@ type
   // All the palettes
   TKMResPalettes = class
   private
-    fPalettes: array [TKMPal] of TKMPaletteInfo;
-    function GetPalette(aIndex: TKMPal): TKMPaletteInfo;
+    fPalettes: array [TKMPal] of TKMPaletteSpec;
+    function GetPalette(aIndex: TKMPal): TKMPaletteSpec;
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure LoadPalettes(const aPath: UnicodeString);
     procedure LoadDefaultPalette(const aPath: UnicodeString);
-    property Palettes[aIndex: TKMPal]: TKMPaletteInfo read GetPalette; default;
-    function DefaultPalette: TKMPaletteInfo; //Default palette for the game
+    property Palettes[aIndex: TKMPal]: TKMPaletteSpec read GetPalette; default;
+    function DefaultPalette: TKMPaletteSpec; //Default palette for the game
     function PalFile(aIndex: TKMPal): UnicodeString;
   end;
 
@@ -49,8 +49,8 @@ implementation
 
 
 const
-  //Palette filenames, except pallin which is generated proceduraly
-  PAL_FILES: array [TKMPal] of string = (
+  // Palette filenames, except pallin which is generated proceduraly
+  PALETTE_FILENAME: array [TKMPal] of string = (
     'map.bbm',
     'pal0.bbm', //'pal1.bbm', 'pal2.bbm', 'pal3.bbm', 'pal4.bbm', 'pal5.bbm', unused
     'setup.bbm',
@@ -61,8 +61,8 @@ const
     'setup.lbm');
 
 
-{ TKMPaletteInfo }
-function TKMPaletteInfo.Color32(aIdx: Byte): Cardinal;
+{ TKMPaletteSpec }
+function TKMPaletteSpec.Color32(aIdx: Byte): Cardinal;
 begin
   //Index 0 means that pixel is transparent
   if aIdx = 0 then
@@ -73,7 +73,7 @@ end;
 
 
 //Black-and-white palette for fonts
-procedure TKMPaletteInfo.GenerateBW;
+procedure TKMPaletteSpec.GenerateBW;
 begin
   FillChar(fData, SizeOf(fData), #255);
   fData[0, 1] := 0;
@@ -83,7 +83,7 @@ end;
 
 
 //Gradient palette for missing files (used by pallin)
-procedure TKMPaletteInfo.GenerateLinear;
+procedure TKMPaletteSpec.GenerateLinear;
 var
   I: Byte;
 begin
@@ -96,7 +96,7 @@ begin
 end;
 
 
-procedure TKMPaletteInfo.LoadFromFile(const aFileName: UnicodeString);
+procedure TKMPaletteSpec.LoadFromFile(const aFileName: UnicodeString);
 var
   S: TKMemoryStream;
 begin
@@ -105,7 +105,7 @@ begin
     S := TKMemoryStreamBinary.Create;
     S.LoadFromFile(aFileName);
     S.Seek(48, soFromBeginning);
-    S.Read(fData, SizeOf(fData)); //768bytes
+    S.Read(fData, SizeOf(fData)); // 768bytes
     S.Free;
   end else
     GenerateLinear;
@@ -120,7 +120,7 @@ begin
   inherited Create;
 
   for I := Low(TKMPal) to High(TKMPal) do
-    fPalettes[I] := TKMPaletteInfo.Create;
+    fPalettes[I] := TKMPaletteSpec.Create;
 end;
 
 
@@ -135,14 +135,14 @@ begin
 end;
 
 
-function TKMResPalettes.DefaultPalette: TKMPaletteInfo;
+function TKMResPalettes.DefaultPalette: TKMPaletteSpec;
 begin
   // Default palette to use when generating full-color RGB textures
   Result := fPalettes[pal0];
 end;
 
 
-function TKMResPalettes.GetPalette(aIndex: TKMPal): TKMPaletteInfo;
+function TKMResPalettes.GetPalette(aIndex: TKMPal): TKMPaletteSpec;
 begin
   Result := fPalettes[aIndex];
 end;
@@ -156,7 +156,8 @@ begin
   case I of
     palbw:   fPalettes[I].GenerateBW;
     pallin:  fPalettes[I].GenerateLinear;
-    else      fPalettes[I].LoadFromFile(aPath + PAL_FILES[I]);
+  else
+    fPalettes[I].LoadFromFile(aPath + PALETTE_FILENAME[I]);
   end;
 end;
 
@@ -164,13 +165,13 @@ end;
 //Load only Default Palette
 procedure TKMResPalettes.LoadDefaultPalette(const aPath: UnicodeString);
 begin
-  fPalettes[pal0].LoadFromFile(aPath + PAL_FILES[pal0]);
+  fPalettes[pal0].LoadFromFile(aPath + PALETTE_FILENAME[pal0]);
 end;
 
 
 function TKMResPalettes.PalFile(aIndex: TKMPal): UnicodeString;
 begin
-  Result := PAL_FILES[aIndex];
+  Result := PALETTE_FILENAME[aIndex];
 end;
 
 

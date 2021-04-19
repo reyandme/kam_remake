@@ -89,7 +89,7 @@ end;
 
 procedure TKMGameInputProcess_Single.SaveExtra(SaveStream: TKMemoryStream);
 begin
-  SaveStream.Write(gGame.LastReplayTick);
+  SaveStream.Write(gGame.LastReplayTickLocal);
 end;
 
 
@@ -98,7 +98,7 @@ var
   lastReplayTick: Cardinal;
 begin
   LoadStream.Read(lastReplayTick);
-  gGame.LastReplayTick := lastReplayTick;
+  gGame.LastReplayTickLocal := lastReplayTick;
 end;
 
 

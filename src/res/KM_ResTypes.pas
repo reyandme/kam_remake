@@ -2,6 +2,10 @@ unit KM_ResTypes;
 interface
 
 type
+  TKMChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
+
+  TKMChopableAgeSet = set of TKMChopableAge;
+
   TKMWareType = (
     wtNone,
     wtTrunk,   wtStone,   wtWood,        wtIronOre,   wtGoldOre,
@@ -10,7 +14,9 @@ type
     wtSkin,    wtShield,  wtMetalShield, wtArmor,     wtMetalArmor,
     wtAxe,     wtSword,   wtPike,        wtHallebard, wtBow,
     wtArbalet, wtHorse,   wtFish,
-    wtAll,     wtWarfare, wtFood //Special ware types
+
+    // Special ware types
+    wtAll,     wtWarfare, wtFood
   );
 
 

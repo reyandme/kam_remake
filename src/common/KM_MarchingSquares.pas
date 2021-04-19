@@ -34,6 +34,16 @@ type
     function IdentifyPerimeter(out aPerimeterVertexes: TKMPointList; const aInitialX, aInitialY: Integer): Boolean;
   end;
 
+  // todo: There is a known bug, when area has single cells, connected diagonally, then half of them will be not bordered
+  //
+  //   Before        After      Expected
+  //         X             X          |X|
+  //       X            |X|         |X|
+  //     X     ->      X          |X|
+  //   X            |X|         |X|
+  //
+
+
 
 const
   POINT_ADJ: array[TKMDirection4] of TKMPoint = (
@@ -46,7 +56,7 @@ const
 
 implementation
 uses
-  Math;
+  Math, KM_DevPerfLog, KM_DevPerfLogTypes;
 
 
 { TKMMarchingSquares }
@@ -89,23 +99,33 @@ var
 begin
   Assert(fWidth*fHeight > 0, 'TKMMarchingSquares was not initialized');
 
-  countoursCnt := 0;
-  fCountouredData.Clear;
-  aPerimeters.Clear;
-  for I := 0 to fHeight - 1 do
-    for K := 0 to fWidth - 1 do
-      if fData.GetData(K, I) and not fCountouredData.ContainsKey(GetPlainIndex(K, I)) then
-      begin
-        perimeter := TKMPointList.Create;
-        if IdentifyPerimeter(perimeter, K, I) then
+  {$IFDEF PERFLOG}
+  gPerfLogs.SectionEnter(psMarchingSquares);
+  {$ENDIF}
+
+  try
+    countoursCnt := 0;
+    fCountouredData.Clear;
+    aPerimeters.Clear;
+    for I := 0 to fHeight - 1 do
+      for K := 0 to fWidth - 1 do
+        if fData.GetData(K, I) and not fCountouredData.ContainsKey(GetPlainIndex(K, I)) then
         begin
-          aPerimeters.Add(perimeter);
-          Inc(countoursCnt);
-        end
-        else
-          perimeter.Free;
-      end;
-  Result := (countoursCnt > 0);
+          perimeter := TKMPointList.Create;
+          if IdentifyPerimeter(perimeter, K, I) then
+          begin
+            aPerimeters.Add(perimeter);
+            Inc(countoursCnt);
+          end
+          else
+            perimeter.Free;
+        end;
+    Result := (countoursCnt > 0);
+  finally
+    {$IFDEF PERFLOG}
+    gPerfLogs.SectionLeave(psMarchingSquares);
+    {$ENDIF}
+  end;
 end;
 
 

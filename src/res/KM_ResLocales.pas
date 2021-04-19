@@ -7,6 +7,7 @@ uses
 
 
 type
+  //todo: Rename to TKMLocaleSpec
   TKMLocaleInfo = record
     Code: AnsiString;                // 3-letter code: 'eng', 'rus'
     Title: string;                   // Full name: 'English', 'Russian'
@@ -17,6 +18,7 @@ type
     TranslatorCredit: UnicodeString; // Who did the translation
   end;
 
+  //todo: Rename to TKMResLocales
   TKMLocales = class
   private
     fCount: Integer;
@@ -81,7 +83,7 @@ const
   PARAM_COUNT = 7;
 var
   I, L, R: Integer;
-  Chunk: UnicodeString;
+  chunk: UnicodeString;
 begin
   Result := False;
   //Skip short lines and comments
@@ -92,21 +94,21 @@ begin
   begin
     R := PosEx(',', aLine, L);
     if I = PARAM_COUNT then //Last parameter does not require delimeter
-      Chunk := Copy(aLine, L, Length(aLine) - L + 1)
+      chunk := Copy(aLine, L, Length(aLine) - L + 1)
     else
     begin
       if (R = 0) then Exit; //Skip line if some parameter is missing
-      Chunk := Copy(aLine, L, R - L);
+      chunk := Copy(aLine, L, R - L);
     end;
-    Chunk := Trim(Chunk);
+    chunk := Trim(chunk);
     case I of
-      1: aLocale.Code             := AnsiString(Chunk);
-      2: aLocale.Title            := Chunk;
-      3: aLocale.FontCodepage     := StrToIntDef(Chunk, 0);
-      4: aLocale.NeedsFullFonts   := Boolean(StrToIntDef(Chunk, 0));
-      5: aLocale.FlagSpriteID     := StrToIntDef(Chunk, 0);
-      6: aLocale.FallbackLocale   := AnsiString(Chunk);
-      7: aLocale.TranslatorCredit := Chunk;
+      1: aLocale.Code             := AnsiString(chunk);
+      2: aLocale.Title            := chunk;
+      3: aLocale.FontCodepage     := StrToIntDef(chunk, 0);
+      4: aLocale.NeedsFullFonts   := Boolean(StrToIntDef(chunk, 0));
+      5: aLocale.FlagSpriteID     := StrToIntDef(chunk, 0);
+      6: aLocale.FallbackLocale   := AnsiString(chunk);
+      7: aLocale.TranslatorCredit := chunk;
     end;
 
     L := R + 1;
@@ -119,7 +121,7 @@ procedure TKMLocales.LoadLocales(const aFile: string);
 var
   SL: TStringList;
   I: Integer;
-  NewLocale: TKMLocaleInfo;
+  newLocale: TKMLocaleInfo;
 begin
   Assert(FileExists(aFile), 'Locales file could not be found: ' + aFile);
 
@@ -129,11 +131,11 @@ begin
   {$IFDEF FPC} SL.Text := ReadTextU(aFile, 1252); {$ENDIF}
 
   for I := 0 to SL.Count - 1 do
-    if ParseLine(SL[I], NewLocale) then
+    if ParseLine(SL[I], newLocale) then
     begin
       if fCount >= Length(fLocaleList) then
         SetLength(fLocaleList, fCount + 8);
-      fLocaleList[fCount] := NewLocale;
+      fLocaleList[fCount] := newLocale;
       Inc(fCount);
     end;
 
@@ -154,10 +156,8 @@ var
 begin
   for I := 0 to fCount - 1 do
     if fLocaleList[I].Code = aCode then
-    begin
-      Result := fLocaleList[I];
-      Exit;
-    end;
+      Exit(fLocaleList[I]);
+
   raise Exception.Create(String(aCode) + ' is not a valid Locale');
 end;
 
@@ -169,10 +169,7 @@ begin
   Result := -1;
   for I := 0 to Count - 1 do
     if fLocaleList[I].Code = aLocaleCode then
-    begin
-      Result := I;
-      Exit;
-    end;
+      Exit(I);
 end;
 
 
@@ -189,7 +186,7 @@ end;
 
 function TKMLocales.CodePagesList: TKMWordArray;
 var
-  I,K: Integer;
+  I, K: Integer;
   added: Boolean;
   resCount: Word;
 begin

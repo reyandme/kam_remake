@@ -65,7 +65,25 @@ implementation
 uses
   SysUtils, Classes;
 
-  
+
+{ TKMSavePoint }
+constructor TKMSavePoint.Create(aStream: TKMemoryStream; aTick: Cardinal);
+begin
+  inherited Create;
+
+  fStream := aStream;
+  fTick := aTick;
+end;
+
+
+destructor TKMSavePoint.Destroy;
+begin
+  fStream.Free;
+
+  inherited;
+end;
+
+
 { TKMSavePointCollection }
 constructor TKMSavePointCollection.Create;
 begin
@@ -248,6 +266,7 @@ begin
     keyArray := fSavePoints.Keys.ToArray;
     TArray.Sort<Cardinal>(keyArray);
 
+    // todo: potential OutOfMemory error in this cycle
     for key in keyArray do
     begin
       aSaveStream.PlaceMarker('SavePoint');
@@ -394,24 +413,6 @@ begin
   finally
     Unlock;
   end;
-end;
-
-
-{ TKMSavePoint }
-constructor TKMSavePoint.Create(aStream: TKMemoryStream; aTick: Cardinal);
-begin
-  inherited Create;
-
-  fStream := aStream;
-  fTick := aTick;
-end;
-
-
-destructor TKMSavePoint.Destroy;
-begin
-  fStream.Free;
-
-  inherited;
 end;
 
 

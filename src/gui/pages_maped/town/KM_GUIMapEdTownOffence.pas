@@ -8,7 +8,7 @@ uses
    KM_Points, KM_AIAttacks, KM_GUIMapEdTownAttackPopUp;
 
 type
-  TKMMapEdTownOffence = class (TKMMapEdSubMenuPage)
+  TKMMapEdTownOffence = class(TKMMapEdSubMenuPage)
   private
     fAttackPopUp: TKMMapEdTownAttack;
     procedure Attacks_Add(Sender: TObject);

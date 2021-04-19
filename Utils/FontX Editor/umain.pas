@@ -7,8 +7,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
   StdCtrls, Math, ComCtrls, Buttons, Spin, StrUtils, KromUtils,
-  KM_Defaults, KM_ResFonts, KM_ResFontsEdit,
-  Constants; //Declared last to override TKMFont (we could redesign that later, but for now it works okay)
+  KM_Defaults, KM_ResFonts, KM_ResFontsEdit;
 
 
 type
@@ -72,7 +71,7 @@ type
     procedure CheckBox1Click(Sender: TObject);
   private
     fBmp: TBitmap;
-    fFnt: TKMFontDataEdit;
+    fFontSpec: TKMFontSpecEdit;
     fCellX: Byte;
     fCellY: Byte;
     fRows: Word;
@@ -91,17 +90,17 @@ type
 
 const
   TEX_SIZE = 512;
-  BG_COLOR = $AF6B6B;
+  FONTS_BG_COLOR = $AF6B6B;
 var
   ExeDir: string;
   DataDir: string;
 
 
 implementation
-{$R *.dfm}
 uses
   KromShellUtils;
 
+{$R *.dfm}
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
@@ -109,9 +108,9 @@ begin
 
   ExeDir := ExtractFilePath(ParamStr(0));
   DataDir := ExeDir;
-  if DirectoryExists(ExeDir + '..\..\data\gfx\fonts\') then //Remake project location
+  if DirectoryExists(ExeDir + '..\..\' + TKMFontSpec.FONTS_FOLDER) then //Remake project location
     DataDir := ExeDir + '..\..\';
-  if DirectoryExists(ExeDir + 'data\gfx\fonts\') then //Default location
+  if DirectoryExists(ExeDir + TKMFontSpec.FONTS_FOLDER) then //Default location
     DataDir := ExeDir;
 
   ScanFonts(DataDir);
@@ -146,16 +145,21 @@ end;
 
 procedure TfrmMain.btnSaveFontXClick(Sender: TObject);
 begin
-  if fFnt = nil then
+  if fFontSpec = nil then
   begin
     MessageBox(Handle, 'Please select editing font first', 'Error', MB_OK);
     Exit;
   end;
 
-  if not RunSaveDialog(SaveDialog1, lbFonts.Items[lbFonts.ItemIndex], DataDir + 'Data\Gfx\Fonts\', 'KaM FontX|*.fntx', 'fntx') then
+  if not RunSaveDialog(
+    SaveDialog1,
+    lbFonts.Items[lbFonts.ItemIndex],
+    DataDir + TKMFontSpec.FONTS_FOLDER,
+    'KaM FontX|*.' + TKMFontSpec.DEFAULT_EXT,
+    TKMFontSpec.DEFAULT_EXT) then
     Exit;
 
-  fFnt.SaveToFontX(SaveDialog1.FileName);
+  fFontSpec.SaveToFontX(SaveDialog1.FileName);
 end;
 
 
@@ -165,9 +169,9 @@ var
 begin
   lbFonts.Clear;
 
-  if not DirectoryExists(aPath + 'data\gfx\fonts\') then Exit;
+  if not DirectoryExists(aPath + TKMFontSpec.FONTS_FOLDER) then Exit;
 
-  FindFirst(aPath + 'data\gfx\fonts\*.fntx', faAnyFile - faDirectory, SearchRec);
+  FindFirst(aPath + TKMFontSpec.FONTS_FOLDER + '*.' + TKMFontSpec.DEFAULT_EXT, faAnyFile - faDirectory, SearchRec);
   repeat
     lbFonts.Items.Add(SearchRec.Name);
   until (FindNext(SearchRec) <> 0);
@@ -177,7 +181,7 @@ end;
 
 procedure TfrmMain.lbFontsClick(Sender: TObject);
 begin
-  LoadFont(DataDir + 'data\gfx\fonts\' + lbFonts.Items[lbFonts.ItemIndex]);
+  LoadFont(DataDir + TKMFontSpec.FONTS_FOLDER + lbFonts.Items[lbFonts.ItemIndex]);
 
   ShowBigImage(CheckCells.Checked);
   pbFont.Repaint;
@@ -190,19 +194,19 @@ procedure TfrmMain.LoadFont(const aFilename: string);
 begin
   if not FileExists(aFilename) then Exit;
 
-  FreeAndNil(fFnt);
-  fFnt := TKMFontDataEdit.Create(fntArial); //fntArial, why not, it looks like we dont care
+  FreeAndNil(fFontSpec);
+  fFontSpec := TKMFontSpecEdit.Create(fntArial); //fntArial, why not, it looks like we dont care
 
-  fFnt.LoadFontX(aFilename);
+  fFontSpec.LoadFontX(aFilename);
 
-  fCellX := fFnt.MaxLetterWidth + 1;
-  fCellY := fFnt.MaxLetterHeight + 1;
+  fCellX := fFontSpec.MaxLetterWidth + 1;
+  fCellY := fFontSpec.MaxLetterHeight + 1;
 
   fUpdating := True;
-  seBaseHeight.Value := fFnt.BaseHeight;
-  seWordSpacing.Value := fFnt.WordSpacing;
-  seCharSpacing.Value := fFnt.CharSpacing;
-  seLineSpacing.Value := fFnt.Unknown;
+  seBaseHeight.Value := fFontSpec.BaseHeight;
+  seWordSpacing.Value := fFontSpec.WordSpacing;
+  seCharSpacing.Value := fFontSpec.CharSpacing;
+  seLineSpacing.Value := fFontSpec.Unknown;
   seAllYOffset.Value := 0;
   fUpdating := False;
 end;
@@ -217,10 +221,10 @@ var
   offset: Word;
   letter: Integer;
 begin
-  fBmp.Canvas.Brush.Color := BG_COLOR;
+  fBmp.Canvas.Brush.Color := FONTS_BG_COLOR;
   fBmp.Canvas.FillRect(fBmp.Canvas.ClipRect);
 
-  if fFnt = nil then Exit;
+  if fFontSpec = nil then Exit;
 
   fCols := fBmp.Width div fCellX;
   fRows := fBmp.Height div fCellY;
@@ -234,20 +238,20 @@ begin
 
     //Dont render anything beyond 65535 if we have Scroll positioned past last char
     if letter > 65535 then Break;
-    if fFnt.Used[letter] = 0 then Continue;
+    if fFontSpec.Used[letter] = 0 then Continue;
 
-    Let := fFnt.Letters[letter];
+    Let := fFontSpec.Letters[letter];
     for L := 0 to Let.Height - 1 do
     for M := 0 to Let.Width - 1 do
     begin
-      pX := Round(Let.u1 * fFnt.TexSizeX) + M;
-      pY := Round(Let.v1 * fFnt.TexSizeY) + L;
-      T := fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX];
+      pX := Round(Let.u1 * fFontSpec.TexSizeX) + M;
+      pY := Round(Let.v1 * fFontSpec.TexSizeY) + L;
+      T := fFontSpec.TexData[Let.AtlasId][pY * fFontSpec.TexSizeX + pX];
 
       //Blend with background
-      R := Round(Lerp(BG_COLOR and $FF, T and $FF, T shr 24 / 255)) +
-           Round(Lerp(BG_COLOR shr 8 and $FF, T shr 8 and $FF, T shr 24 / 255)) shl 8 +
-           Round(Lerp(BG_COLOR shr 16 and $FF, T shr 16 and $FF, T shr 24 / 255)) shl 16;
+      R := Round(Lerp(FONTS_BG_COLOR and $FF, T and $FF, T shr 24 / 255)) +
+           Round(Lerp(FONTS_BG_COLOR shr 8 and $FF, T shr 8 and $FF, T shr 24 / 255)) shl 8 +
+           Round(Lerp(FONTS_BG_COLOR shr 16 and $FF, T shr 16 and $FF, T shr 24 / 255)) shl 16;
 
       fBmp.Canvas.Pixels[K * fCellX + M + 1, I * fCellY + L + 1] := R;
     end;
@@ -284,23 +288,23 @@ procedure TfrmMain.btnExportPngClick(Sender: TObject);
 begin
   if not RunSaveDialog(SaveDialog1, '', ExeDir, 'PNG images|*.png', 'png') then Exit;
 
-  fFnt.ExportGridPng(SaveDialog1.FileName, Rect(sePadLeft.Value, sePadTop.Value, sePadRight.Value, sePadBottom.Value));
+  fFontSpec.ExportGridPng(SaveDialog1.FileName, Rect(sePadLeft.Value, sePadTop.Value, sePadRight.Value, sePadBottom.Value));
 end;
 
 
 procedure TfrmMain.btnImportPngClick(Sender: TObject);
 begin
-  Assert(fFnt <> nil, 'Import needs donor font selected');
+  Assert(fFontSpec <> nil, 'Import needs donor font selected');
 
   if not RunOpenDialog(OpenDialog1, '', ExeDir, 'PNG images|*.png') then Exit;
 
-  fFnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
-  fFnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
-  fFnt.TexPadding := sePadding.Value;
-  fFnt.ImportGridPng(OpenDialog1.FileName);
+  fFontSpec.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
+  fFontSpec.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
+  fFontSpec.TexPadding := sePadding.Value;
+  fFontSpec.ImportGridPng(OpenDialog1.FileName);
 
-  fCellX := fFnt.MaxLetterWidth + 1;
-  fCellY := fFnt.MaxLetterHeight + 1;
+  fCellX := fFontSpec.MaxLetterWidth + 1;
+  fCellY := fFontSpec.MaxLetterHeight + 1;
 
   ShowBigImage(CheckCells.Checked);
   pbFont.Repaint;
@@ -313,12 +317,12 @@ var
   id, offset: Word;
   Let: TKMLetter;
 begin
-  if fFnt = nil then Exit;
+  if fFontSpec = nil then Exit;
 
   //Information about character below
   offset := ScrollBar1.Position;
   id := offset + (Y div fCellY) * fCols + X div fCellX;
-  Let := fFnt.Letters[id];
+  Let := fFontSpec.Letters[id];
   StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(id) + ' (' + IntToHex(id, 2) + 'h)';
   StatusBar1.Panels.Items[2].Text := Format('Width %d, Height %d, %d . %d',
                                             [Let.Width, Let.Height, Let.AtlasId, Let.YOffset]);
@@ -329,21 +333,21 @@ procedure TfrmMain.pbFontMouseUp(Sender: TObject; Button: TMouseButton; Shift: T
 var
   offset: Word;
 begin
-  if fFnt = nil then Exit;
+  if fFontSpec = nil then Exit;
 
   offset := ScrollBar1.Position;
 
   fSelectedLetter := offset + (Y div fCellY) * fCols + X div fCellX;
   GroupBox1.Caption := ' Letter: ' + IntToStr(fSelectedLetter) + ' (' + IntToHex(fSelectedLetter, 2) + 'h) ';
 
-  Shape1.Width := fFnt.Letters[fSelectedLetter].Width + 4;
-  Shape1.Height := fFnt.Letters[fSelectedLetter].Height + 4;
+  Shape1.Width := fFontSpec.Letters[fSelectedLetter].Width + 4;
+  Shape1.Height := fFontSpec.Letters[fSelectedLetter].Height + 4;
 
   Shape1.Left := pbFont.Left + (fSelectedLetter - offset) mod fCols * fCellX - 1;
   Shape1.Top := pbFont.Top + (fSelectedLetter - offset) div fCols * fCellY - 1;
 
   fUpdating := True;
-  seLetterY.Value := fFnt.Letters[fSelectedLetter].YOffset;
+  seLetterY.Value := fFontSpec.Letters[fSelectedLetter].YOffset;
   fUpdating := False;
 end;
 
@@ -382,7 +386,7 @@ begin
   dx := 10;
 
   //Fill area
-  Bmp.Canvas.Brush.Color := BG_COLOR;
+  Bmp.Canvas.Brush.Color := FONTS_BG_COLOR;
   Bmp.Canvas.FillRect(Bmp.Canvas.ClipRect);
 
   Bmp.Canvas.Pen.Style := psSolid;
@@ -393,17 +397,17 @@ begin
   for I := 1 to Length(fPreviewText) do
   if fPreviewText[I] <> ' ' then
   begin
-    Let := fFnt.Letters[Ord(fPreviewText[I])];
+    Let := fFontSpec.Letters[Ord(fPreviewText[I])];
 
     for L := 0 to Let.Height - 1 do
     for M := 0 to Let.Width - 1 do
     begin
-      pX := Round(Let.u1 * fFnt.TexSizeX) + M;
-      pY := Round(Let.v1 * fFnt.TexSizeY) + L;
+      pX := Round(Let.u1 * fFontSpec.TexSizeX) + M;
+      pY := Round(Let.v1 * fFontSpec.TexSizeY) + L;
 
-      srcCol := fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX] and $FFFFFF;
+      srcCol := fFontSpec.TexData[Let.AtlasId][pY * fFontSpec.TexSizeX + pX] and $FFFFFF;
       dstCol := Bmp.Canvas.Pixels[dx + M, Let.YOffset + L + PAD] and $FFFFFF;
-      alpha := 255 - (fFnt.TexData[Let.AtlasId][pY * fFnt.TexSizeX + pX] shr 24) and $FF;
+      alpha := 255 - (fFontSpec.TexData[Let.AtlasId][pY * fFontSpec.TexSizeX + pX] shr 24) and $FF;
 
       if fPreviewCells then
       begin
@@ -419,15 +423,15 @@ begin
         ((srcCol shr 16 and $FF) + ((dstCol shr 16 and $FF - srcCol shr 16 and $FF) * alpha) div 256) shl 16;
     end;
 
-    Inc(dx, Let.Width + fFnt.CharSpacing);
+    Inc(dx, Let.Width + fFontSpec.CharSpacing);
   end else
-    Inc(dx, fFnt.WordSpacing);
+    Inc(dx, fFontSpec.WordSpacing);
 
   //Match phrase bounds
-  Bmp.Width := Max(dx - Min(fFnt.CharSpacing, 0), 0) + 20; //Revert last char overlap (if spacing is negative)
+  Bmp.Width := Max(dx - Min(fFontSpec.CharSpacing, 0), 0) + 20; //Revert last char overlap (if spacing is negative)
   Bmp.Height := 22;
 
-  imgPreviewSmall.Canvas.Brush.Color := BG_COLOR;
+  imgPreviewSmall.Canvas.Brush.Color := FONTS_BG_COLOR;
   imgPreviewSmall.Canvas.FillRect(imgPreviewSmall.Canvas.ClipRect);
   imgPreviewSmall.Canvas.Draw((imgPreviewSmall.Width - Bmp.Width) div 2, (imgPreviewSmall.Height - Bmp.Height) div 2 + 2, Bmp); //Draw MyBitmap into Image1
 
@@ -436,7 +440,7 @@ begin
   MyRect.Right  := MyRect.Left + Bmp.Width*4;
   MyRect.Bottom := MyRect.Top + Bmp.Height*4;
 
-  imgPreviewBig.Canvas.Brush.Color := BG_COLOR;
+  imgPreviewBig.Canvas.Brush.Color := FONTS_BG_COLOR;
   imgPreviewBig.Canvas.FillRect(imgPreviewBig.Canvas.ClipRect);
   imgPreviewBig.Canvas.StretchDraw(MyRect, Bmp); //Draw MyBitmap into Image1
 
@@ -466,15 +470,15 @@ begin
 
   if (Sender is TSpinEdit) and (TSpinEdit(Sender).Text = '') then Exit;
 
-  fFnt.BaseHeight  := seBaseHeight.Value;
-  fFnt.WordSpacing := seWordSpacing.Value;
-  fFnt.CharSpacing := seCharSpacing.Value;
-  fFnt.Unknown     := seLineSpacing.Value;
+  fFontSpec.BaseHeight  := seBaseHeight.Value;
+  fFontSpec.WordSpacing := seWordSpacing.Value;
+  fFontSpec.CharSpacing := seCharSpacing.Value;
+  fFontSpec.Unknown     := seLineSpacing.Value;
 
   if Sender = seAllYOffset then
-  for I := 0 to fFnt.CharCount - 1 do
-  if fFnt.Letters[I].Width > 0 then
-    fFnt.Letters[I].YOffset := seAllYOffset.Value;
+  for I := 0 to fFontSpec.CharCount - 1 do
+  if fFontSpec.Letters[I].Width > 0 then
+    fFontSpec.Letters[I].YOffset := seAllYOffset.Value;
 
   RefreshTextPreview;
 end;
@@ -485,7 +489,7 @@ begin
   if fUpdating then Exit;
   if fSelectedLetter = 0 then Exit;
 
-  fFnt.Letters[fSelectedLetter].YOffset := seLetterY.Value;
+  fFontSpec.Letters[fSelectedLetter].YOffset := seLetterY.Value;
   RefreshTextPreview;
 end;
 

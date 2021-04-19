@@ -4,11 +4,11 @@ interface
 uses
   Classes, Controls, SysUtils, Math,
   KM_Controls, KM_Pics, KM_MapTypes, KM_CampaignTypes, KM_GameTypes,
-  KM_Campaigns, KM_InterfaceDefaults;
+  KM_Campaigns, KM_InterfaceDefaults, KM_InterfaceTypes;
 
 
 type
-  TKMMenuCampaign = class (TKMMenuPageCommon)
+  TKMMenuCampaign = class(TKMMenuPageCommon)
   private
     fOnPageChange: TKMMenuChangeEventText; //will be in ancestor class
 

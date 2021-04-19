@@ -545,7 +545,7 @@ begin
   FillChar(W, SizeOf(W), #0);
   for Y := 1 to fMapY - 1 do
   for X := 1 to fMapX - 1 do
-    if not (tpOwn in gTerrain.Land[Y,X].Passability) then
+    if not (tpOwn in gTerrain.Land^[Y,X].Passability) then
       W[Y,X] := UNVISITED_OBSTACLE;
   // Fill borders
   for Y := 0 to fMapY do
@@ -743,7 +743,7 @@ var
         AddPolygon(PPoly3, PPoly2);
         PPoly3^.Next := PPoly1;
         Dispose(PPoly2); // Remove verticle from memory
-        TryConnect( ifthen(aLeftDirection, PPoly1^.Node, PPoly3^.Node), aLineIdx, aLeftDirection, aBorderPoly, aCloseArea)
+        TryConnect( IfThen(aLeftDirection, PPoly1^.Node, PPoly3^.Node), aLineIdx, aLeftDirection, aBorderPoly, aCloseArea)
       end;
     end;
   end;
@@ -911,7 +911,7 @@ var
     PPrevLine, PActLine: PPolyLine;
   begin
     // Find relative position of point in stack
-    Point := fNodes[ ifthen(aBorder, fBord.Borders[aIdx].Node, aIdx) ];
+    Point := fNodes[ IfThen(aBorder, fBord.Borders[aIdx].Node, aIdx) ];
     PPrevLine := nil;
     PActLine := LineArray[aLineIdx]^.FirstLine;
     repeat
@@ -944,7 +944,7 @@ var
     Point, LeftP, FutureLeftP, RightP, FutureRightP: TKMPoint;
   begin
     Inserted := False;
-    Point := fNodes[ ifthen(aBorder, fBord.Borders[aIdx].Node, aIdx) ];
+    Point := fNodes[ IfThen(aBorder, fBord.Borders[aIdx].Node, aIdx) ];
     // Check position of point in area
     for I := 0 to LineArrayCnt - 1 do
     begin

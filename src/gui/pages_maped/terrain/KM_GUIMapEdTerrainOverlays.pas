@@ -4,11 +4,11 @@ interface
 uses
    Math, SysUtils,
    KM_InterfaceDefaults,
-   KM_Controls, KM_Defaults, KM_Pics, KM_Terrain;
+   KM_Controls, KM_Defaults, KM_Pics, KM_TerrainTypes;
 
 
 type
-  TKMMapEdTerrainOverlays = class (TKMMapEdSubMenuPage)
+  TKMMapEdTerrainOverlays = class(TKMMapEdSubMenuPage)
   private
     fLastOverlay: Word;
 

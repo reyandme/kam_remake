@@ -4,8 +4,9 @@ interface
 uses
   {$IFDEF WDC} Windows, {$ENDIF} //Declared first to get TBitmap overriden with VCL version
   {$IFDEF FPC} lconvencoding, {$ENDIF}
-  SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, StrUtils,
-  KM_CommonTypes, KM_Defaults, KM_ResFonts, KM_ResFontsEdit, KM_ResPalettes, Vcl.ComCtrls;
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls, StdCtrls, Spin, StrUtils, Vcl.ComCtrls,
+  KM_CommonTypes, KM_Defaults, KM_ResFonts, KM_ResFontsEdit,
+  KM_FontXGenerator;
 
 
 type
@@ -53,7 +54,8 @@ type
     procedure btnJpnRangeClick(Sender: TObject);
     procedure btnKorRangeClick(Sender: TObject);
   private
-    Fnt: TKMFontDataEdit;
+    fFontSpec: TKMFontSpecEdit;
+    fFontGenerator: TKMFontXGenerator;
   end;
 
 
@@ -62,22 +64,27 @@ var
 
 
 implementation
-uses CharsCollector;
+
 {$R *.dfm}
 
-
+{ TForm1 }
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption := 'KaM FontX Generator (' + GAME_REVISION + ')';
   ExeDir := ExtractFilePath(ParamStr(0));
 
-  cbFontName.Items.AddStrings(Screen.Fonts);
+  fFontGenerator := TKMFontXGenerator.Create;
+
+  fFontGenerator.LoadPresetsXML(ExeDir + 'fonts.xml');
+
+  TKMFontXGenerator.ListFonts(Self, cbFontName.Items);
 end;
 
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-  FreeAndNil(Fnt);
+  FreeAndNil(fFontSpec);
+  FreeAndNil(fFontGenerator);
 end;
 
 
@@ -87,8 +94,8 @@ var
   useChars: TWideCharArray;
   fntStyle: TFontStyles;
 begin
-  FreeAndNil(Fnt);
-  Fnt := TKMFontDataEdit.Create(fntArial); //fntArial, why not, it looks like we dont care
+  FreeAndNil(fFontSpec);
+  fFontSpec := TKMFontSpecEdit.Create(fntArial); //fntArial, why not, it looks like we dont care
 
   {$IFDEF WDC}
   chars := Memo1.Text;
@@ -105,32 +112,32 @@ begin
   if cbItalic.Checked then
     fntStyle := fntStyle + [fsItalic];
 
-  Fnt.TexPadding := sePadding.Value;
-  Fnt.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
-  Fnt.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
-  Fnt.CreateFont(cbFontName.Text, seFontSize.Value, fntStyle, cbAntialias.Checked, useChars);
-  tbAtlas.Max := Fnt.AtlasCount - 1;
+  fFontSpec.TexPadding := sePadding.Value;
+  fFontSpec.TexSizeX := StrToInt(rgSizeX.Items[rgSizeX.ItemIndex]);
+  fFontSpec.TexSizeY := StrToInt(rgSizeY.Items[rgSizeY.ItemIndex]);
+  fFontSpec.CreateFont(cbFontName.Text, seFontSize.Value, fntStyle, cbAntialias.Checked, useChars);
+  tbAtlas.Max := fFontSpec.AtlasCount - 1;
 
-  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, tbAtlas.Position, cbCells.Checked);
+  fFontSpec.ExportAtlasBmp(Image1.Picture.Bitmap, tbAtlas.Position, cbCells.Checked);
   Image1.Repaint;
 end;
 
 
 procedure TForm1.tbAtlasChange(Sender: TObject);
 begin
-  Fnt.ExportAtlasBmp(Image1.Picture.Bitmap, tbAtlas.Position, cbCells.Checked);
+  fFontSpec.ExportAtlasBmp(Image1.Picture.Bitmap, tbAtlas.Position, cbCells.Checked);
   Image1.Repaint;
 end;
 
 
 procedure TForm1.btnSaveClick(Sender: TObject);
 begin
-  dlgSave.DefaultExt := 'fntx';
+  dlgSave.DefaultExt := TKMFontSpec.DEFAULT_EXT;
   dlgSave.FileName := cbFontName.Text;
-  dlgSave.InitialDir := ExpandFileName(ExeDir + '..\..\data\gfx\fonts\');
+  dlgSave.InitialDir := ExpandFileName(ExeDir + '..\..\' + TKMFontSpec.FONTS_FOLDER);
   if not dlgSave.Execute then Exit;
 
-  Fnt.SaveToFontX(dlgSave.FileName);
+  fFontSpec.SaveToFontX(dlgSave.FileName);
 end;
 
 
@@ -227,12 +234,12 @@ end;
 
 procedure TForm1.btnCollectCharsClick(Sender: TObject);
 var
-  lab: string;
+  prevCaption: string;
   uniText: UnicodeString;
 begin
-  lab := btnCollectChars.Caption;
+  prevCaption := btnCollectChars.Caption;
   try
-    uniText := CollectChars(UpdateCaption);
+    uniText := TKMFontXGenerator.CollectChars(ExeDir, UpdateCaption);
 
     {$IFDEF WDC}
       Memo1.Text := uniText;
@@ -242,7 +249,7 @@ begin
       Memo1.Text := UTF8Encode(uniText);
     {$ENDIF}
   finally
-    btnCollectChars.Caption := lab;
+    btnCollectChars.Caption := prevCaption;
   end;
 end;
 
@@ -252,7 +259,7 @@ begin
   dlgSave.DefaultExt := 'png';
   if not dlgSave.Execute then Exit;
 
-  Fnt.ExportAtlasPng(dlgSave.FileName, tbAtlas.Position);
+  fFontSpec.ExportAtlasPng(dlgSave.FileName, tbAtlas.Position);
 end;
 
 
@@ -260,7 +267,7 @@ procedure TForm1.btnImportTexClick(Sender: TObject);
 begin
   if not dlgOpen.Execute then Exit;
 
-  Fnt.ImportPng(dlgOpen.FileName, tbAtlas.Position);
+  fFontSpec.ImportPng(dlgOpen.FileName, tbAtlas.Position);
 end;
 
 

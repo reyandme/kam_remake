@@ -4,7 +4,7 @@ interface
 uses
   Classes, Math, SysUtils, StrUtils,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_HandsCollection, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_MapTypes,
-  KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_Terrain, KM_ResTileset,
+  KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_TerrainTypes, KM_ResTileset,
   KM_UnitGroupTypes,
   KM_ResTypes;
 
@@ -44,6 +44,7 @@ type
     function GameSpeedChangeAllowed: Boolean;
     function GameTime: Cardinal;
 
+    function GroupAllowAllyToSelect(aGroupID: Integer): Boolean;
     function GroupAssignedToDefencePosition(aGroupID, X, Y: Integer): Boolean;
     function GroupAt(aX, aY: Word): Integer;
     function GroupColumnCount(aGroupID: Integer): Integer;
@@ -57,10 +58,11 @@ type
     function GroupOwner(aGroupID: Integer): Integer;
     function GroupType(aGroupID: Integer): Integer;
 
+    function HouseAllowAllyToSelect(aHouseID: Integer): Boolean;
     function HouseAt(aX, aY: Word): Integer;
-    function HouseAllowAllyToView(aHouseID: Integer): Boolean;
     function HouseBarracksRallyPointX(aBarracks: Integer): Integer;
     function HouseBarracksRallyPointY(aBarracks: Integer): Integer;
+    function HouseBarracksRecruitsCount(aBarracks: Integer): Integer;
     function HouseBuildingProgress(aHouseID: Integer): Word;
     function HouseCanReachResources(aHouseID: Integer): Boolean;
     function HouseDamage(aHouseID: Integer): Integer;
@@ -85,6 +87,7 @@ type
     function HouseTypeToOccupantType(aHouseType: Integer): Integer;
     function HouseUnlocked(aPlayer, aHouseType: Word): Boolean;
     function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
+    function HouseWareBlockedTakeOut(aHouseID, aWareType: Integer): Boolean;
     function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer;
     function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
     function HouseWoodcutterMode(aHouseID: Integer): Integer;
@@ -186,6 +189,7 @@ type
     function StatUnitMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
     function StatUnitTypeCount(aPlayer, aUnitType: Byte): Integer;
 
+    function UnitAllowAllyToSelect(aUnitID: Integer): Boolean;
     function UnitAt(aX, aY: Word): Integer;
     function UnitCarrying(aUnitID: Integer): Integer;
     function UnitDead(aUnitID: Integer): Boolean;
@@ -219,7 +223,7 @@ uses
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_CommonUtils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Hand, KM_AIDefensePos,
   KM_UnitsCollection, KM_HouseWoodcutters, KM_HouseTownHall,
-  KM_ArmyDefence;
+  KM_ArmyDefence, KM_Terrain;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -1568,6 +1572,30 @@ begin
 end;
 
 
+//@Rey: When signature changes it is good to update the description too (with new version and sometimes reference to old name)
+//* Version: 10940
+//* Return if specified house is allowed to be selected and viewed by his allies
+function TKMScriptStates.HouseAllowAllyToSelect(aHouseID: Integer): Boolean;
+var
+  H: TKMHouse;
+begin
+  try
+    Result := False;
+    if aHouseID > 0 then
+    begin
+      H := fIDCache.GetHouse(aHouseID);
+      if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+        Result := H.AllowAllyToSelect;
+    end
+    else
+      LogParamWarning('States.HouseAllowAllyToSelect', [aHouseID]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 5057
 //* Returns the ID of the house at the specified location or -1 if no house exists there
 //* Result: House ID
@@ -1592,30 +1620,6 @@ begin
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
   end;
-end;
-
-
-//* Version: 10940
-//* Return if specified house is allowed to be viewed by his allies
-function TKMScriptStates.HouseAllowAllyToView(aHouseID: Integer): Boolean;
-var
-  H: TKMHouse;
-begin
-  try
-    Result := False;
-    if aHouseID > 0 then
-    begin
-      H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and not H.IsDestroyed  and (H.IsComplete) then
-        Result := H.AllowAllyToView;
-    end
-    else
-      LogParamWarning('States.HouseAllowAllyToView', [aHouseID]);
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-
 end;
 
 
@@ -1674,6 +1678,35 @@ begin
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
   end;
+end;
+
+
+//* Version: 12600
+//* Return number of recruits in the specified barracks or 0 if BarracksID is invalid
+function TKMScriptStates.HouseBarracksRecruitsCount(aBarracks: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  try
+    Result := 0;
+    if aBarracks > 0 then
+    begin
+      H := fIDCache.GetHouse(aBarracks);
+      if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+      begin
+        if (H is TKMHouseBarracks) then
+          Result := TKMHouseBarracks(H).RecruitsCount
+        else
+          LogParamWarning('States.HouseBarracksRecruitsCount: Specified house is not Barracks', [aBarracks]);
+      end;
+    end
+    else
+      LogParamWarning('States.HouseBarracksRecruitsCount', [aBarracks]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+
 end;
 
 
@@ -2259,6 +2292,34 @@ begin
 end;
 
 
+//* Version: 12600
+//* Returns true if the specified ware in the specified storehouse or barracks is blocked for taking out (yellow triangle)
+//* Result: Ware blocked for taking out
+function TKMScriptStates.HouseWareBlockedTakeOut(aHouseID, aWareType: Integer): Boolean;
+var
+  H: TKMHouse;
+  Res: TKMWareType;
+begin
+  try
+    Result := False;
+    if (aHouseID > 0) and (aWareType in [Low(WARE_ID_TO_TYPE)..High(WARE_ID_TO_TYPE)]) then
+    begin
+      Res := WARE_ID_TO_TYPE[aWareType];
+      H := fIDCache.GetHouse(aHouseID);
+      if (H is TKMHouseStore) then
+        Result := TKMHouseStore(H).NotAllowTakeOutFlag[Res];
+      if (H is TKMHouseBarracks) and (Res in [WARFARE_MIN..WARFARE_MAX]) then
+        Result := TKMHouseBarracks(H).NotAllowTakeOutFlag[Res];
+    end
+    else
+      LogParamWarning('States.HouseWareBlockedTakeOut', [aHouseID, aWareType]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
 //* Version: 5165
 //* Returns the number of the specified weapon ordered to be produced in the specified house
 //* Result: Number of ordered weapons
@@ -2354,7 +2415,7 @@ begin
     //-1 stands for any player
     if InRange(aPlayer, -1, gHands.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
       Result := gTerrain.TileIsCornField(KMPoint(X,Y))
-                and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
+                and ((aPlayer = -1) or (gTerrain.Land^[Y, X].TileOwner = aPlayer))
     else
       LogParamWarning('States.IsFieldAt', [aPlayer, X, Y]);
   except
@@ -2374,8 +2435,8 @@ begin
     Result := False;
     //-1 stands for any player
     if InRange(aPlayer, -1, gHands.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
-      Result := (gTerrain.Land[Y,X].TileOverlay = toRoad)
-                and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
+      Result := (gTerrain.Land^[Y,X].TileOverlay = toRoad)
+                and ((aPlayer = -1) or (gTerrain.Land^[Y, X].TileOwner = aPlayer))
     else
       LogParamWarning('States.IsRoadAt', [aPlayer, X, Y]);
   except
@@ -2396,7 +2457,7 @@ begin
     //-1 stands for any player
     if InRange(aPlayer, -1, gHands.Count - 1) and gTerrain.TileInMapCoords(X, Y) then
       Result := gTerrain.TileIsWineField(KMPoint(X,Y))
-                and ((aPlayer = -1) or (gTerrain.Land[Y, X].TileOwner = aPlayer))
+                and ((aPlayer = -1) or (gTerrain.Land^[Y, X].TileOwner = aPlayer))
     else
       LogParamWarning('States.IsWinefieldAt', [aPlayer, X, Y]);
   except
@@ -2944,7 +3005,7 @@ function TKMScriptStates.MapTileType(X, Y: Integer): Integer;
 begin
   try
     if gTerrain.TileInMapCoords(X, Y) then
-      Result := gTerrain.Land[Y, X].BaseLayer.Terrain
+      Result := gTerrain.Land^[Y, X].BaseLayer.Terrain
     else
     begin
       Result := -1;
@@ -2965,7 +3026,7 @@ begin
   try
     if gTerrain.TileInMapCoords(X, Y) then
       //In KaM map format values can be >= 4. Convert again just in case it was missed by gTerrain
-      Result := gTerrain.Land[Y, X].BaseLayer.Rotation mod 4
+      Result := gTerrain.Land^[Y, X].BaseLayer.Rotation mod 4
     else
     begin
       Result := -1;
@@ -3013,7 +3074,7 @@ function TKMScriptStates.MapTileHeight(X, Y: Integer): Integer;
 begin
   try
     if gTerrain.TileInMapCoords(X, Y) then
-      Result := gTerrain.Land[Y, X].Height
+      Result := gTerrain.Land^[Y, X].Height
     else
     begin
       Result := -1;
@@ -3036,7 +3097,7 @@ function TKMScriptStates.MapTileObject(X, Y: Integer): Integer;
 begin
   try
     if gTerrain.TileInMapCoords(X, Y) then
-      Result := gTerrain.Land[Y, X].Obj
+      Result := gTerrain.Land^[Y, X].Obj
     else
     begin
       Result := -1;
@@ -3056,7 +3117,7 @@ function TKMScriptStates.MapTileOverlay(X, Y: Integer): TKMTileOverlay;
 begin
   try
     if gTerrain.TileInMapCoords(X, Y) then
-      Result := gTerrain.Land[Y, X].TileOverlay
+      Result := gTerrain.Land^[Y, X].TileOverlay
     else
     begin
       Result := toNone;
@@ -3076,7 +3137,7 @@ function TKMScriptStates.MapTileOwner(X, Y: Integer): Integer;
 begin
   try
     if gTerrain.TileInMapCoords(X, Y) then
-      Result := gTerrain.Land[Y, X].TileOwner
+      Result := gTerrain.Land^[Y, X].TileOwner
     else
     begin
       Result := -1;
@@ -3098,7 +3159,7 @@ begin
   try
     if (gTerrain.TileInMapCoords(X, Y))
     and (TKMTerrainPassability(aPassability) in [Low(TKMTerrainPassability)..High(TKMTerrainPassability)]) then
-      Result := TKMTerrainPassability(aPassability) in gTerrain.Land[Y, X].Passability
+      Result := TKMTerrainPassability(aPassability) in gTerrain.Land^[Y, X].Passability
     else
     begin
       Result := False;
@@ -3521,6 +3582,30 @@ begin
       Result := gHands[aPlayer].FogOfWar.CheckTileRevelation(aX, aY) > 0
     else
       LogParamWarning('States.FogRevealed', [aPlayer, aX, aY]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 12600
+//* Return if specified unit is allowed to be selected and viewed by his allies
+//* For warriors returns if allies can select their group
+function TKMScriptStates.UnitAllowAllyToSelect(aUnitID: Integer): Boolean;
+var
+  U: TKMUnit;
+begin
+  try
+    Result := False;
+    if aUnitID > 0 then
+    begin
+      U := fIDCache.GetUnit(aUnitID);
+      if U <> nil then
+        Result := U.AllowAllyToSelect;
+    end
+    else
+      LogParamWarning('States.UnitAllowAllyToSelect', [aUnitID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -4037,6 +4122,29 @@ function TKMScriptStates.UnitLowHunger: Integer;
 begin
   try
     Result := UNIT_MIN_CONDITION*CONDITION_PACE;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 12600
+//* Return if specified group is allowed to be selected and viewed by his allies
+function TKMScriptStates.GroupAllowAllyToSelect(aGroupID: Integer): Boolean;
+var
+  G: TKMUnitGroup;
+begin
+  try
+    Result := False;
+    if aGroupID > 0 then
+    begin
+      G := fIDCache.GetGroup(aGroupID);
+      if G <> nil then
+        Result := G.AllowAllyToSelect;
+    end
+    else
+      LogParamWarning('States.GroupAllowAllyToSelect', [aGroupID]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

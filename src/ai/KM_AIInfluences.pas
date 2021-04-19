@@ -598,7 +598,7 @@ begin
     if (PL <> aPL) then
     begin
       Ownership := OwnPoly[PL,aIdx];
-      Inc(Result, ifthen(gHands[aPL].Alliances[PL] = atAlly, Ownership, Ownership*ENEMY_COEF));
+      Inc(Result, IfThen(gHands[aPL].Alliances[PL] = atAlly, Ownership, Ownership*ENEMY_COEF));
     end;
 end;
 

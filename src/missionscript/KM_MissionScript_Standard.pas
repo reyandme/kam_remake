@@ -53,7 +53,8 @@ uses
   KM_CommonClasses, KM_CommonTypes, KM_Terrain,
   KM_HandTypes,
   KM_CommonExceptions,
-  KM_ResTypes;
+  KM_ResTypes,
+  KM_TerrainTypes;
 
 
 type
@@ -74,7 +75,8 @@ const
 { TMissionParserStandard }
 //Mode affect how certain parameters are loaded a bit differently
 constructor TKMMissionParserStandard.Create(aMode: TKMMissionParsingMode);
-var I: Integer;
+var
+  I: Integer;
 begin
   inherited Create;
 
@@ -114,7 +116,7 @@ end;
 
 procedure TKMMissionParserStandard.LoadMission(const aFileName: string);
 var
-  FileText: AnsiString;
+  fileText: AnsiString;
 begin
   inherited LoadMission(aFileName);
 
@@ -128,11 +130,11 @@ begin
   gGame.TerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
 
   //Read the mission file into FileText
-  FileText := ReadMissionFile(aFileName);
-  if FileText = '' then
+  fileText := ReadMissionFile(aFileName);
+  if fileText = '' then
     raise Exception.Create('Script is empty');
 
-  TokenizeScript(FileText, 6, []);
+  TokenizeScript(fileText, 6, []);
 end;
 
 
@@ -187,13 +189,13 @@ procedure TKMMissionParserStandard.ProcessCommand(CommandType: TKMCommandType; P
 
 var
   I: Integer;
-  Qty, HandI: Integer;
+  qty, HandI: Integer;
   H: TKMHouse;
   HT: TKMHouseType;
   WT: TKMWareType;
   UT: TKMUnitType;
   iPlayerAI: TKMHandAI;
-  ChooseLoc: TKMChooseLoc;
+  chooseLoc: TKMChooseLoc;
   groupOrder: TKMMissionScriptGroupOrder;
 begin
   case CommandType of
@@ -306,27 +308,27 @@ begin
 
     ctChooseLoc:        if (fLastHand <> PLAYER_NONE) then
                         begin
-                          ChooseLoc := gHands[fLastHand].ChooseLocation;
-                          ChooseLoc.Allowed := Boolean(P[0]);
-                          gHands[fLastHand].ChooseLocation := ChooseLoc;
+                          chooseLoc := gHands[fLastHand].ChooseLocation;
+                          chooseLoc.Allowed := Boolean(P[0]);
+                          gHands[fLastHand].ChooseLocation := chooseLoc;
                         end;
 
     ctChooseLocAddWare: if (fLastHand <> PLAYER_NONE) then
                         begin
-                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
-                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
-                          ChooseLoc := gHands[fLastHand].ChooseLocation;
-                          ChooseLoc.Resources[ WARE_ID_TO_TYPE[P[0]] ] := Qty;
-                          gHands[fLastHand].ChooseLocation := ChooseLoc;
+                          qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
+                          if qty = -1 then qty := High(Word); //-1 means maximum resources
+                          chooseLoc := gHands[fLastHand].ChooseLocation;
+                          chooseLoc.Resources[ WARE_ID_TO_TYPE[P[0]] ] := qty;
+                          gHands[fLastHand].ChooseLocation := chooseLoc;
                         end;
 
     ctChooseLocAddUnit: if (fLastHand <> PLAYER_NONE) then
                         begin
-                          Qty := EnsureRange(P[1], -1, High(Byte)); //Sometimes user can define it to be 999999
-                          if Qty = -1 then Qty := High(Byte); //-1 means maximum resources
-                          ChooseLoc := gHands[fLastHand].ChooseLocation;
-                          ChooseLoc.Units[ UNIT_ID_TO_TYPE[P[0]] ] := Qty;
-                          gHands[fLastHand].ChooseLocation := ChooseLoc;
+                          qty := EnsureRange(P[1], -1, High(Byte)); //Sometimes user can define it to be 999999
+                          if qty = -1 then qty := High(Byte); //-1 means maximum resources
+                          chooseLoc := gHands[fLastHand].ChooseLocation;
+                          chooseLoc.Units[ UNIT_ID_TO_TYPE[P[0]] ] := qty;
+                          gHands[fLastHand].ChooseLocation := chooseLoc;
                         end;
 
     ctClearUp:          if fLastHand <> PLAYER_NONE then
@@ -467,68 +469,68 @@ begin
     // @Deprecated, used AddWareToLast instead
     ctAddWare:          if fLastHand <> PLAYER_NONE then
                         begin
-                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
-                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+                          qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
+                          if qty = -1 then qty := High(Word); //-1 means maximum resources
                           H := gHands[fLastHand].FindHouse(htStore,1);
                           if (H <> nil) and H.ResCanAddToIn(WARE_ID_TO_TYPE[P[0]]) then
                           begin
-                            H.ResAddToIn(WARE_ID_TO_TYPE[P[0]], Qty, True);
-                            gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], Qty);
+                            H.ResAddToIn(WARE_ID_TO_TYPE[P[0]], qty, True);
+                            gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], qty);
                           end;
                         end;
     // @Deprecated, used AddWareToLast instead
     ctAddWareToAll:    begin
-                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
-                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+                          qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
+                          if qty = -1 then qty := High(Word); //-1 means maximum resources
                           for I := 0 to gHands.Count - 1 do
                           begin
                             H := gHands[i].FindHouse(htStore, 1);
                             if (H <> nil) and H.ResCanAddToIn(WARE_ID_TO_TYPE[P[0]]) then
                             begin
-                              H.ResAddToIn(WARE_ID_TO_TYPE[P[0]], Qty, True);
-                              gHands[i].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], Qty);
+                              H.ResAddToIn(WARE_ID_TO_TYPE[P[0]], qty, True);
+                              gHands[i].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], qty);
                             end;
                           end;
                         end;
     // @Deprecated, used AddWareToLast instead
     ctAddWareToSecond:  if fLastHand <> PLAYER_NONE then
                         begin
-                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
-                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+                          qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
+                          if qty = -1 then qty := High(Word); //-1 means maximum resources
 
                           H := TKMHouseStore(gHands[fLastHand].FindHouse(htStore, 2));
                           if (H <> nil) and H.ResCanAddToIn(WARE_ID_TO_TYPE[P[0]]) then
                           begin
-                            H.ResAddToIn(WARE_ID_TO_TYPE[P[0]], Qty, True);
-                            gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], Qty);
+                            H.ResAddToIn(WARE_ID_TO_TYPE[P[0]], qty, True);
+                            gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], qty);
                           end;
                         end;
 
     //Depreciated by ctAddWareToLast, but we keep it for backwards compatibility in loading
     ctAddWareTo:        if fLastHand <> PLAYER_NONE then
                         begin //HouseType, House Order, Ware Type, Count
-                          Qty := EnsureRange(P[3], -1, High(Word)); //Sometimes user can define it to be 999999
-                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+                          qty := EnsureRange(P[3], -1, High(Word)); //Sometimes user can define it to be 999999
+                          if qty = -1 then qty := High(Word); //-1 means maximum resources
 
                           H := gHands[fLastHand].FindHouse(HOUSE_ID_TO_TYPE[P[0]], P[1]);
                           if (H <> nil) and (H.ResCanAddToIn(WARE_ID_TO_TYPE[P[2]]) or H.ResCanAddToOut(WARE_ID_TO_TYPE[P[2]])) then
                           begin
-                            H.ResAddToEitherFromScript(WARE_ID_TO_TYPE[P[2]], Qty);
-                            gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[2]], Qty);
+                            H.ResAddToEitherFromScript(WARE_ID_TO_TYPE[P[2]], qty);
+                            gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[2]], qty);
                           end;
                         end;
 
     ctAddWareToLast:    if fLastHand <> PLAYER_NONE then
                         begin //Ware Type, Count
-                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
-                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+                          qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
+                          if qty = -1 then qty := High(Word); //-1 means maximum resources
 
                           if (fLastHouse <> nil) and (fLastHouse.ResCanAddToIn(WARE_ID_TO_TYPE[P[0]]) or fLastHouse.ResCanAddToOut(WARE_ID_TO_TYPE[P[0]])) then
                           begin
                             if not fLastHouse.IsDestroyed then //Could be destroyed already by damage
                             begin
-                              fLastHouse.ResAddToEitherFromScript(WARE_ID_TO_TYPE[P[0]], Qty);
-                              gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], Qty);
+                              fLastHouse.ResAddToEitherFromScript(WARE_ID_TO_TYPE[P[0]], qty);
+                              gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], qty);
                             end;
                           end
                           else
@@ -537,13 +539,13 @@ begin
     // @Deprecated, used AddWareToLast instead
     ctAddWeapon:        if fLastHand <> PLAYER_NONE then
                         begin
-                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
-                          if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
+                          qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
+                          if qty = -1 then qty := High(Word); //-1 means maximum weapons
                           H := gHands[fLastHand].FindHouse(htBarracks, 1);
                           if (H <> nil) and H.ResCanAddToIn(WARE_ID_TO_TYPE[P[0]]) then
                           begin
-                            H.ResAddToIn(WARE_ID_TO_TYPE[P[0]], Qty, True);
-                            gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], Qty);
+                            H.ResAddToIn(WARE_ID_TO_TYPE[P[0]], qty, True);
+                            gHands[fLastHand].Stats.WareInitial(WARE_ID_TO_TYPE[P[0]], qty);
                           end;
                         end;
 
@@ -820,60 +822,60 @@ const
   COMMANDLAYERS = 4;
 var
   I: longint; //longint because it is used for encoding entire output, which will limit the file size
-  K,J,iX,iY,CommandLayerCount: Integer;
-  StoreCount, BarracksCount: Integer;
+  K, J, iX, iY, commandLayerCount: Integer;
+  storeCount, barracksCount: Integer;
   WT: TKMWareType;
   G: TKMGroupType;
   U: TKMUnit;
   UT: TKMUnitType;
   H: TKMHouse;
-  Group: TKMUnitGroup;
+  group: TKMUnitGroup;
   HT: TKMHouseType;
-  ReleaseAllHouses: Boolean;
-  SaveString: AnsiString;
-  SaveStream: TFileStream;
+  releaseAllHouses: Boolean;
+  saveString: AnsiString;
+  saveStream: TFileStream;
 
   procedure AddData(const aText: AnsiString);
   begin
-    if CommandLayerCount = -1 then //No layering
-      SaveString := SaveString + aText + EolA //Add to the string normally
+    if commandLayerCount = -1 then //No layering
+      saveString := saveString + aText + EolA //Add to the string normally
     else
     begin
-      case (CommandLayerCount mod COMMANDLAYERS) of
-        0:   SaveString := SaveString + EolA + aText //Put a line break every 4 commands
-        else SaveString := SaveString + ' ' + aText; //Just put spaces so commands "layer"
+      case (commandLayerCount mod COMMANDLAYERS) of
+        0:   saveString := saveString + EolA + aText //Put a line break every 4 commands
+        else saveString := saveString + ' ' + aText; //Just put spaces so commands "layer"
       end;
-      Inc(CommandLayerCount);
+      Inc(commandLayerCount);
     end
   end;
 
   procedure AddCommand(aCommand: TKMCommandType; aComParam: TKMCommandParamType; aParams: TIntegerArray); overload;
   var
-    OutData: AnsiString;
     I: Integer;
+    outData: AnsiString;
   begin
-    OutData := '!' + COMMANDVALUES[aCommand];
+    outData := '!' + COMMANDVALUES[aCommand];
 
     if aComParam <> cptUnknown then
-      OutData := OutData + ' ' + PARAMVALUES[aComParam];
+      outData := outData + ' ' + PARAMVALUES[aComParam];
 
     for I:=Low(aParams) to High(aParams) do
-      OutData := OutData + ' ' + AnsiString(IntToStr(aParams[I]));
+      outData := outData + ' ' + AnsiString(IntToStr(aParams[I]));
 
-    AddData(OutData);
+    AddData(outData);
   end;
 
   procedure AddCommand(aCommand: TKMCommandType; aComParam: TAIAttackParamType; aParams: TIntegerArray); overload;
   var
-    OutData: AnsiString;
     I: Integer;
+    outData: AnsiString;
   begin
-    OutData := '!' + COMMANDVALUES[aCommand] + ' ' + AI_ATTACK_PARAMS[aComParam];
+    outData := '!' + COMMANDVALUES[aCommand] + ' ' + AI_ATTACK_PARAMS[aComParam];
 
     for I:=Low(aParams) to High(aParams) do
-      OutData := OutData + ' ' + AnsiString(IntToStr(aParams[I]));
+      outData := outData + ' ' + AnsiString(IntToStr(aParams[I]));
 
-    AddData(OutData);
+    AddData(outData);
   end;
 
   procedure AddCommand(aCommand: TKMCommandType; aParams: TIntegerArray); overload;
@@ -883,8 +885,8 @@ var
 
 begin
   //Put data into stream
-  SaveString := '';
-  CommandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
+  saveString := '';
+  commandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
 
   //Main header, use same filename for MAP
   //We will probably discontinue KAM format,
@@ -1039,21 +1041,21 @@ begin
     AddData(''); //NL
 
     //Release/block houses
-    ReleaseAllHouses := True;
+    releaseAllHouses := True;
     for HT := HOUSE_MIN to HOUSE_MAX do
     begin
       if gHands[I].Locks.HouseBlocked[HT] then
       begin
         AddCommand(ctBlockHouse, [HOUSE_TYPE_TO_ID[HT]-1]);
-        ReleaseAllHouses := false;
+        releaseAllHouses := false;
       end
       else
         if gHands[I].Locks.HouseGranted[HT] then
           AddCommand(ctReleaseHouse, [HOUSE_TYPE_TO_ID[HT]-1])
         else
-          ReleaseAllHouses := false;
+          releaseAllHouses := false;
     end;
-    if ReleaseAllHouses then
+    if releaseAllHouses then
       AddCommand(ctReleaseAllHouses, []);
 
     //Block units
@@ -1072,8 +1074,8 @@ begin
         AddCommand(ctBlockTrade, [WARE_TY_TO_ID[WT]]);
 
     //Houses
-    StoreCount := 0;
-    BarracksCount := 0;
+    storeCount := 0;
+    barracksCount := 0;
     for K := 0 to gHands[I].Houses.Count - 1 do
     begin
       H := gHands[I].Houses[K];
@@ -1116,12 +1118,12 @@ begin
     AddData(''); //NL
 
     //Roads and fields. We must check EVERY terrain tile
-    CommandLayerCount := 0; //Enable command layering
+    commandLayerCount := 0; //Enable command layering
     for iY := 1 to gTerrain.MapY do
       for iX := 1 to gTerrain.MapX do
-        if gTerrain.Land[iY,iX].TileOwner = gHands[I].ID then
+        if gTerrain.Land^[iY,iX].TileOwner = gHands[I].ID then
         begin
-          if gTerrain.Land[iY,iX].TileOverlay = toRoad then
+          if gTerrain.Land^[iY,iX].TileOverlay = toRoad then
           begin
             H := gHands.HousesHitTest(iX, iY);
             //Don't place road under the entrance of houses (it will be placed there if the house is destroyed on mission start)
@@ -1133,7 +1135,7 @@ begin
           if gTerrain.TileIsWineField(KMPoint(iX,iY)) then
             AddCommand(ctSetWinefieldStaged, [iX-1 + aLeftInset, iY-1 + aTopInset, gTerrain.GetWineStage(KMPoint(iX, iY))]);
         end;
-    CommandLayerCount := -1; //Disable command layering
+    commandLayerCount := -1; //Disable command layering
     AddData(''); //Extra NL because command layering doesn't put one
     AddData(''); //NL
 
@@ -1152,17 +1154,17 @@ begin
     //Unit groups
     for K := 0 to gHands[I].UnitGroups.Count - 1 do
     begin
-      Group := gHands[I].UnitGroups[K];
-      AddCommand(ctSetGroup, [UNIT_TYPE_TO_ID[Group.UnitType], Group.Position.X-1 + aLeftInset, Group.Position.Y-1 + aTopInset, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
-      if not Group.FlagBearer.StartWDefaultCondition then
-        AddCommand(ctSetGroupFood, [Group.FlagBearer.Condition]);
+      group := gHands[I].UnitGroups[K];
+      AddCommand(ctSetGroup, [UNIT_TYPE_TO_ID[group.UnitType], group.Position.X-1 + aLeftInset, group.Position.Y-1 + aTopInset, Byte(group.Direction)-1, group.UnitsPerRow, group.MapEdCount]);
+      if not group.FlagBearer.StartWDefaultCondition then
+        AddCommand(ctSetGroupFood, [group.FlagBearer.Condition]);
 
-      case Group.MapEdOrder.Order of
+      case group.MapEdOrder.Order of
         gioNoOrder: ;
         gioSendGroup:
-          AddCommand(ctSendGroup, [Group.MapEdOrder.Pos.Loc.X-1 + aLeftInset, Group.MapEdOrder.Pos.Loc.Y-1 + aTopInset, Byte(Group.MapEdOrder.Pos.Dir)-1]);
+          AddCommand(ctSendGroup, [group.MapEdOrder.Pos.Loc.X-1 + aLeftInset, group.MapEdOrder.Pos.Loc.Y-1 + aTopInset, Byte(group.MapEdOrder.Pos.Dir)-1]);
         gioAttackPosition:
-          AddCommand(ctAttackPosition, [Group.MapEdOrder.Pos.Loc.X-1 + aLeftInset, Group.MapEdOrder.Pos.Loc.Y-1 + aTopInset]);
+          AddCommand(ctAttackPosition, [group.MapEdOrder.Pos.Loc.X-1 + aLeftInset, group.MapEdOrder.Pos.Loc.Y-1 + aTopInset]);
         else
           raise Exception.Create('Unexpected group order in MapEd');
       end;
@@ -1191,18 +1193,18 @@ begin
   if aDoXorEncoding then
   begin
     //Write uncoded file for debug
-    SaveStream := TFileStream.Create(aFileName+'.txt', fmCreate);
-    SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
-    SaveStream.Free;
+    saveStream := TFileStream.Create(aFileName+'.txt', fmCreate);
+    saveStream.WriteBuffer(saveString[1], Length(saveString));
+    saveStream.Free;
 
     //Encode file
-    for I := 1 to Length(SaveString) do
-      SaveString[I] := AnsiChar(Byte(SaveString[I]) xor 239);
+    for I := 1 to Length(saveString) do
+      saveString[I] := AnsiChar(Byte(saveString[I]) xor 239);
   end;
 
-  SaveStream := TFileStream.Create(aFileName, fmCreate);
-  SaveStream.WriteBuffer(SaveString[1], Length(SaveString));
-  SaveStream.Free;
+  saveStream := TFileStream.Create(aFileName, fmCreate);
+  saveStream.WriteBuffer(saveString[1], Length(saveString));
+  saveStream.Free;
 end;
 
 

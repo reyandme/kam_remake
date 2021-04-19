@@ -391,7 +391,7 @@ type
         Inc(ActIdx);
       end;
     end;
-    // Add another groups if we dont have enought men
+    // Add another groups if we dont have enough men
     while (MenCnt < aTotalMen) AND (ActIdx < aAG.Count) do
     begin
       Inc(MenCnt, aAG.GroupArr[ActIdx].Count);
@@ -464,7 +464,7 @@ begin
     DefRatio := fDefence.DefenceStatus();
     with fAttackRequest do
     begin
-      // Exit if AI has NOT enought soldiers for defences in the FFA mode
+      // Exit if AI has NOT enough soldiers for defences in the FFA mode
       if FFA AND not FoodShortage AND (DefRatio < MIN_DEF_RATIO) AND (gGameParams.MissionMode <> mmTactic) then
         Exit;
       // 1v1 or special game mode
@@ -481,7 +481,7 @@ begin
     end;
     // Get array of pointers to available groups
     AG := GetGroups(MobilizationCoef);
-    // If we dont have enought groups then exit (if we should take all check if there are already some combat groups)
+    // If we dont have enough groups then exit (if we should take all check if there are already some combat groups)
     if (MobilizationCoef < 1) AND (AG.Count < MIN_GROUPS_IN_ATTACK) then
       Exit;
     // Order attack

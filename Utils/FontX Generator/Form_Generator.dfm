@@ -55,7 +55,6 @@ object Form1: TForm1
     Caption = 'Save font ...'
     TabOrder = 0
     OnClick = btnSaveClick
-    ExplicitTop = 624
   end
   object btnExportTex: TButton
     Left = 8
@@ -66,7 +65,6 @@ object Form1: TForm1
     Caption = 'Export texture ...'
     TabOrder = 1
     OnClick = btnExportTexClick
-    ExplicitTop = 624
   end
   object btnImportTex: TButton
     Left = 8
@@ -77,7 +75,6 @@ object Form1: TForm1
     Caption = 'Import texture ...'
     TabOrder = 2
     OnClick = btnImportTexClick
-    ExplicitTop = 656
   end
   object GroupBox2: TGroupBox
     Left = 8

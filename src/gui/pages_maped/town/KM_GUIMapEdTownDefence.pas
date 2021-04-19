@@ -8,7 +8,7 @@ uses
 
 
 type
-  TKMMapEdTownDefence = class (TKMMapEdSubMenuPage)
+  TKMMapEdTownDefence = class(TKMMapEdSubMenuPage)
   private
     procedure Town_DefenceFormations(Sender: TObject);
     procedure Town_DefenceAddClick(Sender: TObject);

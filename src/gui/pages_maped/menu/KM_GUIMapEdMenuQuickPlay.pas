@@ -37,7 +37,7 @@ type
     procedure Show;
     procedure Hide;
     function Visible: Boolean;
-    //Todo refactoring - do not use KeyDown in TKMMapEdMenuQuickPlay, but use PopUp_QuickPlay.OnKeyDown instead
+    //todo: refactoring - do not use KeyDown in TKMMapEdMenuQuickPlay, but use PopUp_QuickPlay.OnKeyDown instead
     function KeyDown(Key: Word; Shift: TShiftState): Boolean;
   end;
 
@@ -155,7 +155,7 @@ begin
 end;
 
 
-//Todo refactoring - do not use KeyDown in TKMMapEdMenuQuickPlay, but use PopUp_QuickPlay.OnKeyDown instead
+//todo: refactoring - do not use KeyDown in TKMMapEdMenuQuickPlay, but use PopUp_QuickPlay.OnKeyDown instead
 function TKMMapEdMenuQuickPlay.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := True; //We want to handle all keys here

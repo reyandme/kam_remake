@@ -5,7 +5,7 @@ uses
   KM_CommonClasses, KM_CommonTypes, KM_Defaults,
   KM_Houses, KM_Units, KM_UnitWarrior, KM_Points,
   KM_AISetup, KM_AIMayor, KM_AIGoals, KM_AIGeneral,
-  KM_CityManagement, KM_ArmyManagement;
+  KM_CityManagement, KM_ArmyManagement, KM_GameTypes;
 
 type
   //Things that player does automatically
@@ -23,6 +23,8 @@ type
     fArmyManagement: TKMArmyManagement;
 
     fWonOrLost: TWonOrLost; //Has this player won/lost? If so, do not check goals
+
+    fHandAITypes: TKMAITypeSet;
 
     procedure CheckGoals;
     function GetHasWon: Boolean;
@@ -59,7 +61,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad();
     procedure UpdateState(aTick: Cardinal; aCheckGoals: Boolean);
-    procedure AfterMissionInit();
+    procedure AfterMissionInit(aHandAITypes: TKMAITypeSet);
     procedure PlaceFirstStorehouse(aLoc: TKMPoint); //RMG
 
     function ObjToString: String;
@@ -431,14 +433,22 @@ begin
   SaveStream.PlaceMarker('HandAI');
   SaveStream.Write(fOwner);
   SaveStream.Write(fWonOrLost, SizeOf(fWonOrLost));
+  SaveStream.Write(fHandAITypes, SizeOf(fHandAITypes));
 
   fSetup.Save(SaveStream);
-  fGeneral.Save(SaveStream);
-  fMayor.Save(SaveStream);
   fGoals.Save(SaveStream);
 
-  fCityManagement.Save(SaveStream);
-  fArmyManagement.Save(SaveStream);
+  if aitClassic in fHandAITypes then
+  begin
+    fGeneral.Save(SaveStream);
+    fMayor.Save(SaveStream);
+  end;
+
+  if aitAdvanced in fHandAITypes then
+  begin
+    fCityManagement.Save(SaveStream);
+    fArmyManagement.Save(SaveStream);
+  end;
 end;
 
 
@@ -447,32 +457,54 @@ begin
   LoadStream.CheckMarker('HandAI');
   LoadStream.Read(fOwner);
   LoadStream.Read(fWonOrLost, SizeOf(fWonOrLost));
+  LoadStream.Read(fHandAITypes, SizeOf(fHandAITypes));
 
   fSetup.Load(LoadStream);
-  fGeneral.Load(LoadStream);
-  fMayor.Load(LoadStream);
   fGoals.Load(LoadStream);
 
-  fCityManagement.Load(LoadStream);
-  fArmyManagement.Load(LoadStream);
+  if aitClassic in fHandAITypes then
+  begin
+    fGeneral.Load(LoadStream);
+    fMayor.Load(LoadStream);
+  end;
+
+  if aitAdvanced in fHandAITypes then
+  begin
+    fCityManagement.Load(LoadStream);
+    fArmyManagement.Load(LoadStream);
+  end;
 end;
 
 
 procedure TKMHandAI.SyncLoad();
 begin
-  fGeneral.SyncLoad();
-  fArmyManagement.SyncLoad();
-  fCityManagement.SyncLoad();
+  if aitClassic in fHandAITypes then
+    fGeneral.SyncLoad();
+
+  if aitAdvanced in fHandAITypes then
+  begin
+    fArmyManagement.SyncLoad();
+    fCityManagement.SyncLoad();
+  end;
 end;
 
 
-procedure TKMHandAI.AfterMissionInit();
+procedure TKMHandAI.AfterMissionInit(aHandAITypes: TKMAITypeSet);
 begin
-  fMayor.AfterMissionInit();
+  fHandAITypes := aHandAITypes;
 
-  gAIFields.Eye.OwnerUpdate(fOwner);
-  fCityManagement.AfterMissionInit();
-  fArmyManagement.AfterMissionInit();
+  // Do AI initialization only if there could be any AI of a certain type
+  // We should do it at the game start, in case player will be swapped to AI player
+  // Also we have to do it only at the game start for Advanced AI, because it considers teams and divide mines according to the teams
+  if aitClassic in fHandAITypes then
+    fMayor.AfterMissionInit();
+
+  if aitAdvanced in fHandAITypes then
+  begin
+    gAIFields.Eye.OwnerUpdate(fOwner);
+    fCityManagement.AfterMissionInit();
+    fArmyManagement.AfterMissionInit();
+  end;
 end;
 
 
@@ -556,7 +588,7 @@ procedure TKMHandAI.PlaceFirstStorehouse(aLoc: TKMPoint);
       gTerrain.SetRoad(aPoint, fOwner);
       //Terrain under roads is flattened (fields are not)
       gTerrain.FlattenTerrain(aPoint);
-      if gMapElements[gTerrain.Land[aPoint.Y,aPoint.X].Obj].WineOrCorn then
+      if gMapElements[gTerrain.Land^[aPoint.Y,aPoint.X].Obj].WineOrCorn then
         gTerrain.RemoveObject(aPoint);
     end;
   end;

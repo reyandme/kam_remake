@@ -1251,7 +1251,7 @@ begin
                         end;
     end;
 
-    SaveGame;
+//    SaveGame; //Skip initial game save
   end;
 
   case fRunKind of
@@ -1447,7 +1447,7 @@ begin
         Continue;
       end;
 
-      SaveGame;
+//      SaveGame; //Skip game save at the end of the game
 
 //      LOG_GAME_TICK := False;
 //      Exclude(gLog.MessageTypes, lmtCommands);
@@ -1464,7 +1464,7 @@ begin
         if LOAD_SAVEPT_AT_TICK <> 0 then
           fSavePointTick := LOAD_SAVEPT_AT_TICK
         else
-          fSavePointTick := (I + Byte(MapsType <> rmtFight)*SKIP_FIRST_SAVEPT_CNT) * savesFreq;
+          fSavePointTick := (I + Byte(MapsType <> rmtFight)*SKIP_FIRST_SAVEPT_CNT) * savesFreq - 1;
 
         if gGameApp.TryLoadSavePoint(fSavePointTick) then
         begin

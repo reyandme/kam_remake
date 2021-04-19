@@ -1,4 +1,4 @@
-﻿0:Tartak
+0:Tartak
 1:Dymarka
 2:Kuźnia Płatnerska
 3:Kopalnia Węgla
@@ -840,12 +840,25 @@
 887:Wygraj (cheat)
 888:Porażka (cheat)
 889:Dodaj l. jazdę (cheat)
+890:Extra Menu
+891:Edytor terenu
+892:Planowanie wsi
+893:Skrypty wizualne
+894:Globalne skrypty
 895:Menu główne
+896:Podmenu 1
+897:Podmenu 2
+898:Podmenu 3
+899:Podmenu 4
+900:Podmenu 5
+901:Podmenu 6
 902:Ctrl i Shift nie mogą być przypisane
 903:~~~ Nieznana wartość
 904:Lewy przycisk myszy
 905:Środkowy przycisk myszy
 906:Prawy przycisk myszy
+908:Backspace
+909:TAB
 910:Wyczyść
 923:Strzałka w lewo
 924:Strzałka w górę
@@ -1088,9 +1101,9 @@
 1206:Dodatkowe opcje
 1207:Dodatkowe opcje pędzla
 1208:Dodatkowe opcje pędzla
-1209:Napraw malowanie terenu
+1209:Napraw pędzle
 1210:Spróbuj naprawić zawarte w mapie informacje na temat terenu, aby umożliwić malowanie terenu pędzlem
-1211:Napraw malowanie terenu
+1211:Napraw pędzle
 1212:Czy na pewno chcesz naprawić wszystkie informacje na|temat terenu? Umożliwi to używanie pędzli w miejscach,|w których płytki zostały wstawione ręcznie
 1213:D.
 1214:Gracz
@@ -1139,3 +1152,224 @@
 1259:Dostarczanie %s jest zablokowane
 1260:Wynoszenie %s jest zablokowane w trybie dostawy „oferowany”
 1261:Rekrut nie może wejść do Warowni
+1262:Szukaj płytki przez ID
+1263:Generator map losowych - ustawienia
+1264:Losowa generacja map ustawienia
+1265:RMG Ustawienia
+1266:Roz. mapy:
+1267:Lokalizacje
+1268:Włącz lokalizacje z zasobami
+1269:Liczba lokalizacji
+1270:Ustaw liczbę lokalizacji
+1271:Promień ochrony
+1272:Określ rozmiar chronionego obszaru. Zabezpiecza obszar do zbudowania wokół każdej lokalizacji.
+1273:Połącz lokalizacje
+1274:Twórz ścieżki spacerowe między lokalizacjami
+1275:Układ
+1276:Układ lokalizacji
+1277:Prostokąt
+1278:Pionowy
+1279:Poziomy
+1280:Losowy
+1281:Środkowy ekran
+1282:Zasoby
+1283:Włącz zasoby w każdej lokalizacji (węgiel jest obliczany automatycznie)
+1284:Korekta kopalni
+1285:Upewnij się, że zasoby można wydobywać (kopalnia złota i kopalnia żelaza)
+1286:Ilość surowców: kamienie
+1287:Ilość zasobów: złoto
+1288:Ilość surowców: żelazo
+1289:Przeszkody
+1290:Włącz przeszkody (góry, rzeki, bagna itp.)
+1291:Rozmiar
+1292:Średnia wielkość generowanych przeszkód
+1293:Gęstość
+1294:Gęstość generowanych przeszkód
+1295:Zmienność
+1296:Zróżnicowanie wielkości generowanych przeszkód
+1297:Stosunek/ proporcje
+1298:Rodzaj i stosunek generowanych przeszkód
+1299:Puste złoto
+1300:Wskaźnik/ proporcja pustego złota
+1301:Puste żelazko
+1302:Pusty stosunek/ proporcja żelaza
+1303:Bagno
+1304:Stosunek/ proporcja bagien
+1305:Tereny podmokłe
+1306:Wskaźnik/ proporcja terenów podmokłych
+1307:Woda
+1308:Stosunek/ proporcja wody
+1309:Biomy/ Krajobraz
+1310:Włącz Biomy/ Krajobraz
+1311:Rodzaj Krajobrazu
+1312:Wybierz wymagane Biomy/ Krajobrazy
+1313:Trawa
+1314:Trawa jest domyślnym biomem/ krajobrazem i nie można jej usunąć
+1315:Ziemia
+1316:Włącz ziemię
+1317:Śnieg
+1318:Włącz śnieg
+1319:Piasek
+1320:Włącz piasek
+1321:Pierwsza warstwa
+1322:Pierwsza warstwa biomu/ krajobrazu (właściwości pierwotnej tekstury)
+1323:Druga warstwa
+1324:Druga warstwa biomu/ krajobrazu (właściwości tekstur wtórnych)
+1325:Krok
+1326:Krok pierwotnej tekstury (wyższa wartość = większy biom/ krajobraz).  np: Równina pozbawiona drzew, rzek i jezior
+1327:Krok tekstur wtórnych (wyższa wartość = większy biom/ krajobraz).   np: Równina pozbawiona drzew, rzek i jezior
+1328:Limit
+1329:Ograniczenie granic biomów (wyższa wartość = większy biom/ krajobraz)
+1330:Wysokość
+1331:Włącz wysokość
+1332:Ukrywaj złe przejścia
+1333:Dostosuj wysokość terenu, aby ukryć nierówne przejścia tekstur
+1334:Niedostępne miejsca
+1335:Obróbka/ korygowanie miejsc niedostępnych
+1336:Zablokuj chodzenie
+1337:Zablokuj chodzenie (poprawia znajdowanie ścieżki gry i generowanie siatki nawigacyjnej)
+1338:Zmień teksturę
+1339:Zastąp teren specjalnymi biomami
+1340:Obiekty
+1341:Włącz obiekty
+1342:Zwierzęta
+1343:Włącz zwierzęta
+1344:Gęstość obiektów
+1345:Gęstość lasów
+1346:Gęstość lasów
+1347:Drzewa
+1348:Liczba drzew w lesie
+1349:Ziarno losowości
+1350:Liczba używana jako identyfikator do generowania mapy o określonej konfiguracji
+1351:Losowe generowanie
+1352:Wygeneruj mapę z nowym losowym identyfikatorem
+1353:Wygeneruj mapę
+1354:Wygeneruj mapę z aktualnym identyfikator/ ustawieniami
+1355:Zamknij generator map losowych
+1356:Rozmiar mapy:
+1357:Następny cykl
+1358:Łatwy
+1359:Bardzo łatwy
+1360:Wysoki
+1361:Bardzo wysoki
+1362:Wersja gry Hosta jest inna niż twoja wersja gry
+1363:Wszystko
+1364:Zezwól '%s' dla wszystkich lokacji
+1365:Zabroń '%s' dla wszystkich lokacji
+1366:Krok algorytmu wysokości (1 = mały, 10 = duży)
+1367:Nachylenie wysokości (0 = płaski, 15 = szczyt)
+1368:Maksymalna wysokość płytek, po których można chodzić
+1369:Mapa Losowa
+1370:mapa została wygenerowana automatycznie przez losowy generator map
+1371:Początkowe zasoby
+1372:Ilość początkowych surowców w magazynie
+1373:Niska
+1374:Średni
+1375:Wysoki
+1376:Wybierz rozmiar mapy
+1377:Spróbuj zacząć
+1378:Spróbuj załadować save
+1379:Spróbuj obejrzeć powtórkę
+1380:Błąd podczas ładowania nieobsługiwanej wersji % s zapisu z %s
+1381:Błąd podczas ładowania powtórki nieobsługiwanej wersji % s z %s
+1382:Nazwa mapy
+1383:Czas
+1384:Wersja
+1385:Wczytanie nieobsługiwanej wersji może spowodować, że gra nie zostanie poprawnie załadowana lub nawet spowoduje zawieszenie gry
+1386:Nieobsługiwana wersja
+1387:Napewno chcesz odblokować wszystkie kampanie?\nNie można tego odwrócić.\n\Jeśli chcesz zapisać stan kampanii, miej pewność, że zrobiłeś kopię zapasową pliku 'Campaigns.dat' zlokalizowanym w\n'%s'\n\nChcesz potwierdzić tą operację?
+1388:Twarda maska - użyj automatycznych przejść
+1389:Opóźnienie w cyklach zanim AI wyrekrutuje jednostki skórzane
+1390:Opóźnienie w cyklach zanim AI wyrekrutuje jednostki zbrojone
+1391:Ustaw ilość budowniczych dla AI
+1392:Poziom nakładania
+1393:Poziom nakładania dla automatycznych masek
+1394:Blokuje budowanie
+1395:Blokuje chodzenie i budowanie
+1396:Nakładanie płytek
+1397:Ustaw nakładanie płytek.|Użyj LPM dla trybu bezpiecznego i LPM+Shift by zastąpić drogi
+1398:Klipy :
+1399:Włącz
+1400:Rozciągnij
+1401:Pokaż przy uruchomieniu
+1402:Głosność
+1403:Klip testowy
+1404:Modyfikacje
+1405:Zaśnieżone budynki
+1406:Zablokuj kolory graczy
+1407:Zablokuj kolory graczy
+1408:Historia
+1409:Hostoria zmian na mapie
+1410:Historia
+1411:Przenieś do
+1412:Przejdź do zaznaczonego punktu historii
+1413:Initial
+1414:Dodaj %s %s
+1415:Usuń %s %s
+1416:Aktualizuj %s %s
+1417:Przenieś %s %s
+1418:Zmień właściciela: %s %s
+1419:droga
+1420:pole pszenicy
+1421:pole winogron
+1422:pokryj
+1423:obiekt
+1425:Paleta płytek
+1426:Paleta płytek
+1427:Wersja
+1428:Napraw pędzle terenu
+1429:Autozapis powtórek
+1430:Poprzednia jednostka
+1431:Wyszkól lub wyposarz jednostkę
+1432:Następna jednostka
+1433:Skróty Jednostek
+1434:Skróty Budynków
+1435:Pokaż pozycje obronne
+1436:Pokaż płaski teren
+1437:Prędkość gry może zostać zmieniona przez hosta tylko wtedy, gdy na mapie nie ma aktywnego gracza
+1438:Przesył surowca zakończony: [ %s ]
+1439:Wstecz
+1440:Dalej
+1441:Odśwież
+1442:Zatrzymaj
+1443:Szukaj
+1444:Ulubione
+1445:Okno początkowe
+1446:Wycisz muzykę
+1447:Ścisz
+1448:Zgłośnij
+1449:Następne wideo
+1450:Poprzednie wideo
+1451:Przerwij
+1452:Wstrzymanie/Odtwarzanie
+1453:Otwórz e-mail
+1454:Włącz zaznaczony film
+1455:Otwórz aplikację 1
+1456:Otwórz aplikację 2
+1457:Muzyka poprzedni utwór
+1458:Muzyka następny utwór
+1459:Wyłącz muzykę
+1460:Odtwarzaj losowo muzykę
+1461:Zwiększ głośność muzyki
+1462:Zmniejsz głośność muzyki
+1463:Wycisz muzykę
+1464:Zwiększenie głośności
+1465:Zmniejsz głośność
+1466:Wycisz dźwięki
+1467:Wycisz wszystko (muzykę i dźwięki)
+1468:Pędzel Obiektów
+1469:Drzewa
+1470:Wszystkie obiekty oprócz drzew
+1471:Kamienie
+1472:Kwiaty
+1473:Grzyby
+1474:Pniaki
+1475:Martwe drzewa
+1476:Kaktusy
+1477:Pustynne krzaki
+1478:Ruiny
+1479:Obiekty terenu
+1480:Postaw obiekty danego terenu
+1481:Gęstość
+1482:Gęstość obiektów/drzew
+1483:Wiek drzew

@@ -87,11 +87,14 @@ type
     procedure SoftenShadows(aIdList: TStringList); overload;
     procedure SoftenShadows(aStart: Integer = 1; aEnd: Integer = -1; aOnlyShadows: Boolean = True); overload;
     procedure SoftenShadows(aID: Integer; aOnlyShadows: Boolean = True); overload;
-    procedure DetermineImagesObjectSize(aStart: Integer = 1; aEnd: Integer = -1);
+    procedure DetermineImagesObjectSize(aStart: Integer = 1; aEnd: Integer = -1); overload;
+    procedure DetermineImagesObjectSize(aIdList: TStringList); overload;
     procedure RemoveMarketWaresShadows(aResHouses: TKMResHouses);
     procedure RemoveSnowHouseShadows(aResHouses: TKMResHouses);
 
     function GetSpriteColors(aCount: Word): TRGBArray;
+
+    function IsEmpty: Boolean;
 
     procedure ExportAll(const aFolder: string);
     procedure ExportFullImageData(const aFolder: string; aIndex: Integer; aTempList: TStringList = nil);
@@ -263,9 +266,9 @@ end;
 
 function TKMSpritePack.GetSoftenShadowType(aID: Integer): TSoftenShadowType;
 var
-  Step, SpriteID: Integer;
+  step, spriteID: Integer;
   UT: TKMUnitType;
-  Dir: TKMDirection;
+  dir: TKMDirection;
 begin
   Result := sstNone;
 
@@ -283,11 +286,11 @@ begin
                 end;
                 //Smooth all death animations for all units
                 for UT := HUMANS_MIN to HUMANS_MAX do
-                  for Dir := dirN to dirNW do
-                    for Step := 1 to 30 do
+                  for dir := dirN to dirNW do
+                    for step := 1 to 30 do
                     begin
-                      SpriteID := gRes.Units[UT].UnitAnim[uaDie,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
-                      if (aID = SpriteID) and (SpriteID > 0) then
+                      spriteID := gRes.Units[UT].UnitAnim[uaDie,dir].Step[step]+1; //Sprites in units.dat are 0 indexed
+                      if (aID = spriteID) and (spriteID > 0) then
                       begin
                         Result := sstBoth;
                         Exit;
@@ -309,31 +312,31 @@ end;
 procedure TKMSpritePack.SoftenShadows(aIdList: TStringList);
 var
   I, ID: Integer;
-  ShadowConverter: TKMSoftShadowConverter;
-  SoftenShadowType: TSoftenShadowType;
+  shadowConverter: TKMSoftShadowConverter;
+  softenShadowType: TSoftenShadowType;
 begin
   if aIdList.Count = 0 then Exit;
 
-  ShadowConverter := TKMSoftShadowConverter.Create(Self);
+  shadowConverter := TKMSoftShadowConverter.Create(Self);
   try
     for I := 0 to aIdList.Count - 1 do
     begin
       ID := StrToInt(aIdList[I]);
       if (fRXData.Flag[ID] <> 0) then
       begin
-        SoftenShadowType := GetSoftenShadowType(ID);
-        case SoftenShadowType of
+        softenShadowType := GetSoftenShadowType(ID);
+        case softenShadowType of
           sstNone: ;
-          sstOnlyShadow:  ShadowConverter.ConvertShadows(ID, True);
+          sstOnlyShadow:  shadowConverter.ConvertShadows(ID, True);
           sstBoth:        begin
-                            ShadowConverter.ConvertShadows(ID, False);
-                            ShadowConverter.ConvertShadows(ID, True);
+                            shadowConverter.ConvertShadows(ID, False);
+                            shadowConverter.ConvertShadows(ID, True);
                           end;
         end;
       end;
     end;
   finally
-    ShadowConverter.Free;
+    shadowConverter.Free;
   end;
 end;
 
@@ -342,16 +345,16 @@ end;
 procedure TKMSpritePack.SoftenShadows(aStart: Integer = 1; aEnd: Integer = -1; aOnlyShadows: Boolean = True);
 var
   I: Integer;
-  ShadowConverter: TKMSoftShadowConverter;
+  shadowConverter: TKMSoftShadowConverter;
 begin
-  ShadowConverter := TKMSoftShadowConverter.Create(Self);
+  shadowConverter := TKMSoftShadowConverter.Create(Self);
   try
     if aEnd = -1 then aEnd := fRXData.Count;
     for I := aStart to aEnd do
       if (fRXData.Flag[I] <> 0) then
-        ShadowConverter.ConvertShadows(I, aOnlyShadows);
+        shadowConverter.ConvertShadows(I, aOnlyShadows);
   finally
-    ShadowConverter.Free;
+    shadowConverter.Free;
   end;
 end;
 
@@ -359,38 +362,57 @@ end;
 procedure TKMSpritePack.DetermineImagesObjectSize(aStart: Integer = 1; aEnd: Integer = -1);
 var
   I: Integer;
-  ShadowConverter: TKMSoftShadowConverter;
+  shadowConverter: TKMSoftShadowConverter;
 begin
-  ShadowConverter := TKMSoftShadowConverter.Create(Self);
+  shadowConverter := TKMSoftShadowConverter.Create(Self);
   try
     if aEnd = -1 then aEnd := fRXData.Count;
     for I := aStart to aEnd do
       if (fRXData.Flag[I] <> 0) then
-        ShadowConverter.DetermineImageObjectSize(I);
+        shadowConverter.DetermineImageObjectSize(I);
   finally
-    ShadowConverter.Free;
+    shadowConverter.Free;
+  end;
+end;
+
+
+procedure TKMSpritePack.DetermineImagesObjectSize(aIdList: TStringList);
+var
+  I, ID: Integer;
+  shadowConverter: TKMSoftShadowConverter;
+begin
+  shadowConverter := TKMSoftShadowConverter.Create(Self);
+  try
+    for I := 0 to aIdList.Count - 1 do
+    begin
+      ID := StrToInt(aIdList[I]);
+      if (fRXData.Flag[ID] <> 0) then
+        shadowConverter.DetermineImageObjectSize(ID);
+    end;
+  finally
+    shadowConverter.Free;
   end;
 end;
 
 
 procedure TKMSpritePack.RemoveSnowHouseShadows(aResHouses: TKMResHouses);
 var
-  SnowID: Integer;
-  ShadowConverter: TKMSoftShadowConverter;
+  snowID: Integer;
+  shadowConverter: TKMSoftShadowConverter;
   HT: TKMHouseType;
 begin
   Assert(fRT = rxHouses);
 
-  ShadowConverter := TKMSoftShadowConverter.Create(Self);
+  shadowConverter := TKMSoftShadowConverter.Create(Self);
   try
     for HT := HOUSE_MIN to HOUSE_MAX do
     begin
-      SnowID := aResHouses[HT].SnowPic + 1;
-      if (fRXData.Flag[SnowID] <> 0) then
-        ShadowConverter.RemoveShadow(SnowID, True);
+      snowID := aResHouses[HT].SnowPic + 1;
+      if (fRXData.Flag[snowID] <> 0) then
+        shadowConverter.RemoveShadow(snowID, True);
     end;
   finally
-    ShadowConverter.Free;
+    shadowConverter.Free;
   end;
 end;
 
@@ -415,14 +437,14 @@ end;
 
 procedure TKMSpritePack.SoftenShadows(aID: Integer; aOnlyShadows: Boolean = True);
 var
-  ShadowConverter: TKMSoftShadowConverter;
+  shadowConverter: TKMSoftShadowConverter;
 begin
-  ShadowConverter := TKMSoftShadowConverter.Create(Self);
+  shadowConverter := TKMSoftShadowConverter.Create(Self);
   try
     if (fRXData.Flag[aID] <> 0) then
-      ShadowConverter.ConvertShadows(aID, aOnlyShadows);
+      shadowConverter.ConvertShadows(aID, aOnlyShadows);
   finally
-    ShadowConverter.Free;
+    shadowConverter.Free;
   end;
 end;
 
@@ -447,7 +469,8 @@ end;
 
 //Release RAM that is no longer needed
 procedure TKMSpritePack.ClearTemp;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to fRXData.Count do
   begin
@@ -459,14 +482,15 @@ end;
 
 //Add PNG images to spritepack if user has any addons in Sprites folder
 procedure TKMSpritePack.AddImage(const aFolder, aFilename: string; aIndex: Integer);
-type TMaskType = (mtNone, mtPlain, mtSmart);
+type
+  TMaskType = (mtNone, mtPlain, mtSmart);
 var
-  I,K:integer;
+  I,K: Integer;
   Tr, Tg, Tb, T: Byte;
   Thue, Tsat, Tbri: Single;
   ft: TextFile;
-  MaskFile: array [TMaskType] of string;
-  MaskTyp: TMaskType;
+  maskFile: array [TMaskType] of string;
+  maskTyp: TMaskType;
   pngWidth, pngHeight: Word;
   pngData: TKMCardinalArray;
 begin
@@ -489,19 +513,19 @@ begin
   for I := 0 to pngWidth - 1 do
     fRXData.RGBA[aIndex, K * pngWidth + I] := pngData[K * pngWidth + I];
 
-  MaskFile[mtPlain] := aFolder + StringReplace(aFilename, '.png', 'm.png', [rfReplaceAll, rfIgnoreCase]);
-  MaskFile[mtSmart] := aFolder + StringReplace(aFilename, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
+  maskFile[mtPlain] := aFolder + StringReplace(aFilename, '.png', 'm.png', [rfReplaceAll, rfIgnoreCase]);
+  maskFile[mtSmart] := aFolder + StringReplace(aFilename, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
 
   //Determine mask processing mode
-  if FileExists(MaskFile[mtPlain]) then
-    MaskTyp := mtPlain
+  if FileExists(maskFile[mtPlain]) then
+    maskTyp := mtPlain
   else
-  if FileExists(MaskFile[mtSmart]) then
-    MaskTyp := mtSmart
+  if FileExists(maskFile[mtSmart]) then
+    maskTyp := mtSmart
   else
-    MaskTyp := mtNone;
+    maskTyp := mtNone;
 
-  fRXData.HasMask[aIndex] := MaskTyp in [mtPlain, mtSmart];
+  fRXData.HasMask[aIndex] := maskTyp in [mtPlain, mtSmart];
 
   //Load and process the mask if it exists
   if fRXData.HasMask[aIndex] then
@@ -509,7 +533,7 @@ begin
     //Plain masks are used 'as is'
     //Smart masks are designed for the artist, they convert color brightness into a mask
 
-    LoadFromPng(MaskFile[MaskTyp], pngWidth, pngHeight, pngData);
+    LoadFromPng(maskFile[maskTyp], pngWidth, pngHeight, pngData);
 
     if (fRXData.Size[aIndex].X = pngWidth)
     and (fRXData.Size[aIndex].Y = pngHeight) then
@@ -517,7 +541,7 @@ begin
       //We don't handle transparency in Masks
       for K := 0 to pngHeight - 1 do
       for I := 0 to pngWidth - 1 do
-      case MaskTyp of
+      case maskTyp of
         mtPlain:  begin
                     //For now process just red (assume pic is greyscale)
                     fRXData.Mask[aIndex, K*pngWidth+I] := pngData[K*pngWidth+I] and $FF;
@@ -573,9 +597,9 @@ end;
 procedure TKMSpritePack.LoadFromRXXFile(const aFileName: string; aStartingIndex: Integer = 1);
 var
   I: Integer;
-  RXXCount: Integer;
-  InputStream: TFileStream;
-  DecompressionStream: TDecompressionStream;
+  rxxCount: Integer;
+  inputStream: TFileStream;
+  decompressionStream: TDecompressionStream;
 begin
   case fRT of
     rxTiles: if SKIP_RENDER and not DO_NOT_SKIP_LOAD_TILESET then Exit;
@@ -584,103 +608,108 @@ begin
 
   if not FileExists(aFileName) then Exit;
 
-  InputStream := TFileStream.Create(aFileName, fmOpenRead or fmShareDenyNone);
-  DecompressionStream := TDecompressionStream.Create(InputStream);
+  inputStream := TFileStream.Create(aFileName, fmOpenRead or fmShareDenyNone);
+  decompressionStream := TDecompressionStream.Create(inputStream);
 
   try
-    DecompressionStream.Read(RXXCount, 4);
+    decompressionStream.Read(rxxCount, 4);
     if gLog <> nil then
-      gLog.AddTime(RXInfo[fRT].FileName + ' -', RXXCount);
+      gLog.AddTime(RXInfo[fRT].FileName + ' -', rxxCount);
 
-    if RXXCount = 0 then
+    if rxxCount = 0 then
       Exit;
 
-    Allocate(aStartingIndex + RXXCount - 1);
+    Allocate(aStartingIndex + rxxCount - 1);
 
-    DecompressionStream.Read(fRXData.Flag[aStartingIndex], RXXCount);
+    decompressionStream.Read(fRXData.Flag[aStartingIndex], rxxCount);
 
-    for I := aStartingIndex to aStartingIndex + RXXCount - 1 do
+    for I := aStartingIndex to aStartingIndex + rxxCount - 1 do
       if fRXData.Flag[I] = 1 then
       begin
-        DecompressionStream.Read(fRXData.Size[I].X, 4);
-        DecompressionStream.Read(fRXData.Pivot[I].X, 8);
+        decompressionStream.Read(fRXData.Size[I].X, 4);
+        decompressionStream.Read(fRXData.Pivot[I].X, 8);
         //SizeNoShadow is used only for Units
         if fRT = rxUnits then
-          DecompressionStream.Read(fRXData.SizeNoShadow[I].left, 16);
+          decompressionStream.Read(fRXData.SizeNoShadow[I].left, 16);
         //Data part of each sprite is 32BPP RGBA in Remake RXX files
         SetLength(fRXData.RGBA[I], fRXData.Size[I].X * fRXData.Size[I].Y);
         SetLength(fRXData.Mask[I], fRXData.Size[I].X * fRXData.Size[I].Y);
-        DecompressionStream.Read(fRXData.RGBA[I, 0], 4 * fRXData.Size[I].X * fRXData.Size[I].Y);
-        DecompressionStream.Read(fRXData.HasMask[I], 1);
+        decompressionStream.Read(fRXData.RGBA[I, 0], 4 * fRXData.Size[I].X * fRXData.Size[I].Y);
+        decompressionStream.Read(fRXData.HasMask[I], 1);
         if fRXData.HasMask[I] then
-          DecompressionStream.Read(fRXData.Mask[I, 0], fRXData.Size[I].X * fRXData.Size[I].Y);
+          decompressionStream.Read(fRXData.Mask[I, 0], fRXData.Size[I].X * fRXData.Size[I].Y);
       end;
   finally
-    DecompressionStream.Free;
-    InputStream.Free;
+    decompressionStream.Free;
+    inputStream.Free;
   end;
 end;
 
 
 //Parse all valid files in Sprites folder and load them additionaly to or replacing original sprites
 procedure TKMSpritePack.OverloadFromFolder(const aFolder: string; aSoftenShadows: Boolean = True);
-  procedure ProcessFolder(const aProcFolder: string);
+  procedure ProcessFolder(const aProcFolder: string; aRT: TRXType);
   var
-    FileList, IDList: TStringList;
-    SearchRec: TSearchRec;
     I, ID: Integer;
+    fileList, IDList: TStringList;
+    searchRec: TSearchRec;
   begin
     if not DirectoryExists(aFolder) then Exit;
-    FileList := TStringList.Create;
+    fileList := TStringList.Create;
     try
       IDList := TStringList.Create;
       try
         try
           //PNGs
-          if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.png', faAnyFile - faDirectory, SearchRec) = 0 then
+          if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.png', faAnyFile - faDirectory, searchRec) = 0 then
           repeat
-            FileList.Add(SearchRec.Name);
-          until (FindNext(SearchRec) <> 0);
+            fileList.Add(searchRec.Name);
+          until (FindNext(searchRec) <> 0);
         finally
-          FindClose(SearchRec);
+          FindClose(searchRec);
         end;
 
         //PNG may be accompanied by some more files
         //#_####.png - Base texture
         //#_####a.png - Flag color mask
         //#_####.txt - Pivot info (optional)
-        for I := 0 to FileList.Count - 1 do
-          if TryStrToInt(Copy(FileList.Strings[I], 3, 4), ID) then
+        for I := 0 to fileList.Count - 1 do
+          if TryStrToInt(Copy(fileList.Strings[I], 3, 4), ID) then
           begin
-            AddImage(aProcFolder, FileList.Strings[I], ID);
+            AddImage(aProcFolder, fileList.Strings[I], ID);
             IDList.Add(IntToStr(ID));
           end;
 
         if aSoftenShadows then
           SoftenShadows(IDList); // Soften shadows for overloaded sprites
 
+        // Determine objects size only for units (used for hitbox)
+        //todo: do we need it for houses too ?
+        if aRT = rxUnits then
+          DetermineImagesObjectSize(IDList);
+
         try
           //Delete following sprites
-          if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????', faAnyFile - faDirectory, SearchRec) = 0 then
+          if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????', faAnyFile - faDirectory, searchRec) = 0 then
           repeat
-            if TryStrToInt(Copy(SearchRec.Name, 3, 4), ID) then
+            if TryStrToInt(Copy(searchRec.Name, 3, 4), ID) then
               fRXData.Flag[ID] := 0;
-          until (FindNext(SearchRec) <> 0);
+          until (FindNext(searchRec) <> 0);
         finally
-          FindClose(SearchRec);
+          FindClose(searchRec);
         end;
       finally
         IDList.Free;
       end;
     finally
-      FileList.Free;
+      fileList.Free;
     end;
   end;
 begin
   if SKIP_RENDER then Exit;
 
-  ProcessFolder(aFolder);
-  ProcessFolder(aFolder + IntToStr(Byte(fRT) + 1) + PathDelim);
+  ProcessFolder(aFolder, fRT);
+  ProcessFolder(aFolder + IntToStr(Byte(fRT) + 1) + PathDelim, fRT);
 end;
 
 
@@ -708,13 +737,13 @@ end;
 
 procedure TKMSpritePack.ExportFullImageData(const aFolder: string; aIndex: Integer; aTempList: TStringList = nil);
 var
-  ListCreated: Boolean;
+  listCreated: Boolean;
 begin
-  ListCreated := False;
+  listCreated := False;
   if aTempList = nil then
   begin
     aTempList := TStringList.Create;
-    ListCreated := True;
+    listCreated := True;
   end;
 
   if fRXData.Flag[aIndex] = 1 then
@@ -739,7 +768,7 @@ begin
     aTempList.SaveToFile(aFolder + Format('%d_%.4d.txt', [Byte(fRT)+1, aIndex]));
   end;
 
-  if ListCreated then
+  if listCreated then
     aTempList.Free;
 end;
 
@@ -748,7 +777,7 @@ procedure TKMSpritePack.ExportImage(const aFile: string; aIndex: Integer);
 var
   I, K: Integer;
   M: Byte;
-  TreatMask: Boolean;
+  treatMask: Boolean;
   pngWidth, pngHeight: Word;
   pngData: TKMCardinalArray;
 begin
@@ -761,7 +790,7 @@ begin
   for I := 0 to pngHeight - 1 do
   for K := 0 to pngWidth - 1 do
   begin
-    TreatMask := fRXData.HasMask[aIndex] and (fRXData.Mask[aIndex, I*pngWidth + K] > 0);
+    treatMask := fRXData.HasMask[aIndex] and (fRXData.Mask[aIndex, I*pngWidth + K] > 0);
     if (fRT = rxHouses)
       and ((aIndex < 680)
         or (aIndex = 1657)
@@ -769,9 +798,9 @@ begin
         or (aIndex = 1681)
         or (aIndex = 1683)
         or (aIndex > 2050)) then
-      TreatMask := False;
+      treatMask := False;
 
-    if TreatMask then
+    if treatMask then
     begin
       M := fRXData.Mask[aIndex, I*pngWidth + K];
 
@@ -804,7 +833,7 @@ var
   I, K: Integer;
   pngWidth, pngHeight: Word;
   pngData: TKMCardinalArray;
-  MaskColor: Cardinal;
+  maskColor: Cardinal;
 begin
   pngWidth := fRXData.Size[aIndex].X;
   pngHeight := fRXData.Size[aIndex].Y;
@@ -819,12 +848,12 @@ begin
       begin
         if fRT = rxHouses then
         begin
-          MaskColor := fRXData.Mask[aIndex, I * pngWidth + K];
-          if MaskColor <> 0 then
-            MaskColor := GetGreyColor(MaskColor) or $FF000000;
+          maskColor := fRXData.Mask[aIndex, I * pngWidth + K];
+          if maskColor <> 0 then
+            maskColor := GetGreyColor(maskColor) or $FF000000;
         end else
-          MaskColor := (Byte(fRXData.Mask[aIndex, I * pngWidth + K] > 0) * $FFFFFF) or $FF000000;
-        pngData[I * pngWidth + K] := MaskColor;
+          maskColor := (Byte(fRXData.Mask[aIndex, I * pngWidth + K] > 0) * $FFFFFF) or $FF000000;
+        pngData[I * pngWidth + K] := maskColor;
       end;
 
     SaveToPng(pngWidth, pngHeight, pngData, aFile);
@@ -835,7 +864,7 @@ end;
 function TKMSpritePack.GetSpriteColors(aCount: Word): TRGBArray;
 var
   I, L, M: Integer;
-  PixelCount: Word;
+  pixelCount: Word;
   R,G,B: Integer;
 begin
   SetLength(Result, Min(fRXData.Count, aCount));
@@ -852,11 +881,17 @@ begin
       Inc(G, fRXData.RGBA[I, L * fRXData.Size[I].X + M] shr 8 and $FF);
       Inc(B, fRXData.RGBA[I, L * fRXData.Size[I].X + M] shr 16 and $FF);
     end;
-    PixelCount := Max(1, fRXData.Size[I].X * fRXData.Size[I].Y);
-    Result[I-1].R := Round(R / PixelCount);
-    Result[I-1].G := Round(G / PixelCount);
-    Result[I-1].B := Round(B / PixelCount);
+    pixelCount := Max(1, fRXData.Size[I].X * fRXData.Size[I].Y);
+    Result[I-1].R := Round(R / pixelCount);
+    Result[I-1].G := Round(G / pixelCount);
+    Result[I-1].B := Round(B / pixelCount);
   end;
+end;
+
+
+function TKMSpritePack.IsEmpty: Boolean;
+begin
+  Result := fRXData.Count = 0;
 end;
 
 
@@ -865,31 +900,31 @@ end;
 //In result we have GFXData structure filled
 procedure TKMSpritePack.MakeGFX(aAlphaShadows: Boolean; aStartingIndex: Integer = 1; aFillGFXData: Boolean = True; aOnStopExecution: TBooleanFuncSimple = nil);
 var
-  TexType: TTexFormat;
-  BaseRAM, IdealRAM, ColorRAM, TexCount: Cardinal;
   I: Integer;
+  texType: TTexFormat;
+  baseRAM, idealRAM, colorRAM, texCount: Cardinal;
 begin
   if SKIP_RENDER then Exit;
   if fRXData.Count = 0 then Exit;
 
-  if aAlphaShadows and (fRT in [rxTrees,rxHouses,rxUnits,rxGui]) or not aAlphaShadows and (fRT = rxGuiMain) then
-    TexType := tfRGBA8
+  if aAlphaShadows and (fRT in [rxTrees,rxHouses,rxUnits,rxGui,rxTiles]) or not aAlphaShadows and (fRT = rxGuiMain) then
+    texType := tfRGBA8
   else
-    TexType := tfRGB5A1;
+    texType := tfRGB5A1;
 
-  MakeGFX_BinPacking(TexType, aStartingIndex, BaseRAM, ColorRAM, TexCount, aFillGFXData, aOnStopExecution);
+  MakeGFX_BinPacking(texType, aStartingIndex, baseRAM, colorRAM, texCount, aFillGFXData, aOnStopExecution);
 
   if LOG_EXTRA_GFX then
   begin
-    IdealRAM := 0;
+    idealRAM := 0;
     for I := aStartingIndex to fRXData.Count do
     if fRXData.Flag[I] <> 0 then
-      Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TEX_FORMAT_SIZE[TexType]);
+      Inc(idealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TEX_FORMAT_SIZE[texType]);
 
-    gLog.AddTime(IntToStr(TexCount) + ' Textures created');
-    gLog.AddNoTime(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
+    gLog.AddTime(IntToStr(texCount) + ' Textures created');
+    gLog.AddNoTime(Format('%d/%d', [baseRAM div 1024, idealRAM div 1024]) +
                   ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
-    gLog.AddNoTime(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
+    gLog.AddNoTime(IntToStr(colorRAM div 1024) + ' KBytes for team colors');
   end;
 end;
 
@@ -899,26 +934,26 @@ procedure SetGFXData(aTx: Cardinal; aSpriteInfo: TBinItem; aAtlasType: TSpriteAt
 var
   K: Integer;
   ID: Word;
-  TxCoords: TKMTexCoords;
+  txCoords: TKMTexCoords;
 begin
   for K := 0 to High(aSpriteInfo.Sprites) do
   begin
     ID := aSpriteInfo.Sprites[K].SpriteID;
 
-    TxCoords.ID := aTx;
-    TxCoords.u1 := aSpriteInfo.Sprites[K].PosX / aSpriteInfo.Width;
-    TxCoords.v1 := aSpriteInfo.Sprites[K].PosY / aSpriteInfo.Height;
-    TxCoords.u2 := (aSpriteInfo.Sprites[K].PosX + aSpritesPack.RXData.Size[ID].X) / aSpriteInfo.Width;
-    TxCoords.v2 := (aSpriteInfo.Sprites[K].PosY + aSpritesPack.RXData.Size[ID].Y) / aSpriteInfo.Height;
+    txCoords.ID := aTx;
+    txCoords.u1 := aSpriteInfo.Sprites[K].PosX / aSpriteInfo.Width;
+    txCoords.v1 := aSpriteInfo.Sprites[K].PosY / aSpriteInfo.Height;
+    txCoords.u2 := (aSpriteInfo.Sprites[K].PosX + aSpritesPack.RXData.Size[ID].X) / aSpriteInfo.Width;
+    txCoords.v2 := (aSpriteInfo.Sprites[K].PosY + aSpritesPack.RXData.Size[ID].Y) / aSpriteInfo.Height;
 
     if aAtlasType = saBase then
     begin
-      gGFXData[aRT, ID].Tex := TxCoords;
+      gGFXData[aRT, ID].Tex := txCoords;
       gGFXData[aRT, ID].PxWidth := aSpritesPack.RXData.Size[ID].X;
       gGFXData[aRT, ID].PxHeight := aSpritesPack.RXData.Size[ID].Y;
     end
     else
-      gGFXData[aRT, ID].Alt := TxCoords;
+      gGFXData[aRT, ID].Alt := txCoords;
   end;
 
   // This is pointless. OGL does its own RAM/VRAM management. To be deleted in 2021
@@ -944,7 +979,7 @@ procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex:
     Tx: Cardinal;
     ID: Word;
     TD: TKMCardinalArray;
-    TexFilter: TFilterType;
+    texFilter: TFilterType;
   begin
     //Prepare atlases
     for I := 0 to High(SpriteInfo) do
@@ -1008,11 +1043,11 @@ procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex:
       if aFillGFXData then
       begin
         //Generate texture once
-        TexFilter := ftNearest;
+        texFilter := ftNearest;
         if LINEAR_FILTER_SPRITES and (fRT in [rxTrees, rxHouses, rxUnits]) then
-          TexFilter := ftLinear;
+          texFilter := ftLinear;
 
-        Tx := TRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType, TexFilter, TexFilter);
+        Tx := TRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType, texFilter, texFilter);
         //Now that we know texture IDs we can fill GFXData structure
         SetGFXData(Tx, SpriteInfo[I], aMode, Self, fRT);
       end else begin
@@ -1044,79 +1079,79 @@ procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex:
 
 var
   I, K: Integer;
-  SpriteSizes: TIndexSizeArray;
-  SpriteInfo: TBinArray;
-  AtlasSize, AllTilesAtlasSize: Integer;
+  spriteSizes: TIndexSizeArray;
+  spriteInfo: TBinArray;
+  atlasSize, allTilesAtlasSize: Integer;
 begin
   BaseRAM := 0;
   ColorRAM := 0;
   //Prepare base atlases
-  SetLength(SpriteSizes, fRXData.Count - aStartingIndex + 1);
+  SetLength(spriteSizes, fRXData.Count - aStartingIndex + 1);
   K := 0;
   for I := aStartingIndex to fRXData.Count do
   if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) then
   begin
-    SpriteSizes[K].ID := I;
-    SpriteSizes[K].X := fRXData.Size[I].X;
-    SpriteSizes[K].Y := fRXData.Size[I].Y;
+    spriteSizes[K].ID := I;
+    spriteSizes[K].X := fRXData.Size[I].X;
+    spriteSizes[K].Y := fRXData.Size[I].Y;
     Inc(K);
   end;
-  SetLength(SpriteSizes, K);
+  SetLength(spriteSizes, K);
 
   //For RX with only 1 texture we can set small size, as 512, it will be auto enlarged to POT(image size)
   if K = 1 then
-    AtlasSize := 512
+    atlasSize := 512
   else if fRT = rxTiles then
   begin
-    AllTilesAtlasSize := MakePOT(Ceil(sqrt(K))*(32+2*fPad)); //Tiles are 32x32
-    AtlasSize := Min(GetMaxAtlasSize, AllTilesAtlasSize);       //Use smallest possible atlas size for tiles (should be 1024, until many new tiles were added)
-    if AtlasSize = AllTilesAtlasSize then
+    allTilesAtlasSize := MakePOT(Ceil(sqrt(K))*(32+2*fPad)); //Tiles are 32x32
+    atlasSize := Min(GetMaxAtlasSize, allTilesAtlasSize);       //Use smallest possible atlas size for tiles (should be 1024, until many new tiles were added)
+    if atlasSize = allTilesAtlasSize then
       AllTilesInOneTexture := True;
   end else
-    AtlasSize := GetMaxAtlasSize;
+    atlasSize := GetMaxAtlasSize;
 
-  SetLength(SpriteInfo, 0);
-  BinPack(SpriteSizes, AtlasSize, fPad, SpriteInfo);
+  SetLength(spriteInfo, 0);
+  BinPack(spriteSizes, atlasSize, fPad, spriteInfo);
 
   if StopExec then Exit; //Our thread could be terminated and asked to stop. Exit immidiately then
 
-  SetLength(gGFXPrepData[saBase], Length(SpriteInfo));
-  PrepareAtlases(SpriteInfo, saBase, aTexType);
+  SetLength(gGFXPrepData[saBase], Length(spriteInfo));
+  PrepareAtlases(spriteInfo, saBase, aTexType);
 
   if StopExec then Exit;
 
   //Prepare masking atlases
-  SetLength(SpriteSizes, fRXData.Count - aStartingIndex + 1);
+  SetLength(spriteSizes, fRXData.Count - aStartingIndex + 1);
   K := 0;
   for I := aStartingIndex to fRXData.Count do
   if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) and fRXData.HasMask[I] then
   begin
-    SpriteSizes[K].ID := I;
-    SpriteSizes[K].X := fRXData.Size[I].X;
-    SpriteSizes[K].Y := fRXData.Size[I].Y;
+    spriteSizes[K].ID := I;
+    spriteSizes[K].X := fRXData.Size[I].X;
+    spriteSizes[K].Y := fRXData.Size[I].Y;
     Inc(K);
   end;
-  SetLength(SpriteSizes, K);
+  SetLength(spriteSizes, K);
 
-  SetLength(SpriteInfo, 0);
-  BinPack(SpriteSizes, AtlasSize, fPad, SpriteInfo);
+  SetLength(spriteInfo, 0);
+  BinPack(spriteSizes, atlasSize, fPad, spriteInfo);
   if StopExec then Exit;
-  SetLength(gGFXPrepData[saMask], Length(SpriteInfo));
-  PrepareAtlases(SpriteInfo, saMask, tfAlpha8);
+  SetLength(gGFXPrepData[saMask], Length(spriteInfo));
+  PrepareAtlases(spriteInfo, saMask, tfAlpha8);
 end;
 
 
 procedure TKMSpritePack.SaveTextureToPNG(aWidth, aHeight: Word; const aFilename: string; const Data: TKMCardinalArray);
 var
   I, K: Word;
-  Folder: string;
+  folder: string;
   pngWidth, pngHeight: Word;
   pngData: TKMCardinalArray;
 begin
   if not EXPORT_SPRITE_ATLASES then Exit;
 
-  Folder := ExeDir + 'Export'+PathDelim+'GenTextures'+PathDelim;
-  ForceDirectories(Folder);
+  folder := ExeDir + 'Export'+PathDelim+'GenTextures'+PathDelim;
+  ForceDirectories(folder);
 
   pngWidth := aWidth;
   pngHeight := aHeight;
@@ -1126,7 +1161,7 @@ begin
   for K := 0 to aWidth - 1 do
     pngData[I * aWidth + K] := (PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^;
 
-  SaveToPng(pngWidth, pngHeight, pngData, Folder + aFilename + '.png');
+  SaveToPng(pngWidth, pngHeight, pngData, folder + aFilename + '.png');
 end;
 
 
@@ -1170,7 +1205,8 @@ end;
 
 //Clear unused RAM
 procedure TKMResSprites.ClearTemp;
-var RT: TRXType;
+var
+  RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
     fSprites[RT].ClearTemp;
@@ -1237,7 +1273,7 @@ var
 
   texId,{ K,} L, M, tmp, totalTex, uniqueTex: Integer;
   genTilesCnt, genTilesCntTemp: Integer;
-  straightPx{, RotatePixel}: Cardinal;
+  straightPx{, RotatePixel}, maskCol: Cardinal;
   generatedMasks: TDictionary<Integer, TKMMaskFullType>;
 begin
   Assert(not aLegacyGeneration or (aSprites = nil));
@@ -1355,8 +1391,14 @@ begin
       //              Rotate(K, L, M, P, Q, aSprites.fRXData.Size[TerrainId].X - 1);
                     straightPx := L * aSprites.fRXData.Size[terrainId].X  + M;
       //              RotatePixel := StraightPixel; //P * aSprites.fRXData.Size[TerrainId].X  + Q;
-                    aSprites.fRXData.RGBA[texId, straightPx] := ($FFFFFF or (aSprites.fRXData.RGBA[maskId, straightPx] shl 24))
-                                                       and aSprites.fRXData.RGBA[terrainId, straightPx{RotatePixel}];
+
+                    case TILE_MASK_KIND_USAGE[MK] of
+                      mkuPixel: maskCol := ($FFFFFF or (aSprites.fRXData.RGBA[maskId, straightPx] shl 24));
+                      mkuAlpha: maskCol := aSprites.fRXData.RGBA[maskId, straightPx];
+                      else      maskCol := 0; // makes compiler happy
+                    end;
+
+                    aSprites.fRXData.RGBA[texId, straightPx] := maskCol and aSprites.fRXData.RGBA[terrainId, straightPx{RotatePixel}];
                   end;
               end;
               Inc(uniqueTex);
@@ -1431,8 +1473,10 @@ begin
         fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
 
       gLog.AddTime('Reading ' + RXInfo[RT].FileName + '.rx');
-      LoadSprites(RT, RT = rxGUI); //Only GUI needs alpha shadows
-      fSprites[RT].MakeGFX(RT = rxGUI);
+      // Only GUI needs alpha channel for shadows
+      LoadSprites(RT, RT = rxGUI);
+      // We also use alpha channel in the generated tiles
+      fSprites[RT].MakeGFX(RT in [rxGUI, rxTiles]);
 
       if Assigned(fStepProgress) then
         fStepProgress;
@@ -1525,24 +1569,24 @@ var
   I: Integer;
   SAT: TSpriteAtlasType;
   Tx: Cardinal;
-  SpritesPack: TKMSpritePack;
-  TexFilter: TFilterType;
+  spritesPack: TKMSpritePack;
+  texFilter: TFilterType;
 begin
-  SpritesPack := GetSprites(aRT);
+  spritesPack := GetSprites(aRT);
   for SAT := Low(TSpriteAtlasType) to High(TSpriteAtlasType) do
     for I := Low(gGFXPrepData[SAT]) to High(gGFXPrepData[SAT]) do
     begin
       with gGFXPrepData[SAT,I] do
       begin
-        TexFilter := ftNearest;
+        texFilter := ftNearest;
         if LINEAR_FILTER_SPRITES and (aRT in [rxTrees, rxHouses, rxUnits]) then
-          TexFilter := ftLinear;
+          texFilter := ftLinear;
 
-        Tx := TRender.GenTexture(SpriteInfo.Width, SpriteInfo.Height, @Data[0], TexType, TexFilter, TexFilter);
+        Tx := TRender.GenTexture(SpriteInfo.Width, SpriteInfo.Height, @Data[0], TexType, texFilter, texFilter);
         //Now that we know texture IDs we can fill GFXData structure
-        SetGFXData(Tx, SpriteInfo, SAT, SpritesPack, aRT);
+        SetGFXData(Tx, SpriteInfo, SAT, spritesPack, aRT);
 
-        SpritesPack.SaveTextureToPNG(SpriteInfo.Width, SpriteInfo.Height, RXInfo[aRT].FileName + '_' +
+        spritesPack.SaveTextureToPNG(SpriteInfo.Width, SpriteInfo.Height, RXInfo[aRT].FileName + '_' +
                                      SPRITE_TYPE_EXPORT_NAME[SAT] + IntToStr(I+1), Data);
       end;
     end;
@@ -1568,8 +1612,11 @@ begin
   else
     Exit;
 
-  fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites' + PathDelim);
+  fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites' + PathDelim); // Legacy support
+  // 'Sprites' folder name confused some of the players, cause there is already data/Sprites folder
+  fSprites[aRT].OverloadFromFolder(ExeDir + 'Modding graphics' + PathDelim);
 
+  // Generate terrain transitions
   if aRT = rxTiles then
   begin
     GenerateTerrainTransitions(fSprites[aRT]);
@@ -1587,7 +1634,7 @@ end;
 {$IFDEF LOAD_GAME_RES_ASYNC}
 procedure TKMResSprites.ManageResLoader;
 var
-  NextRXTypeI: Integer;
+  nextRXTypeI: Integer;
 begin
   if (gGameSettings <> nil) and gGameSettings.AsyncGameResLoad
     and (fGameResLoader <> nil)
@@ -1603,14 +1650,14 @@ begin
 
     fSprites[fGameResLoader.RXType].ClearTemp;      //Clear fRXData sprites temp data, which is not needed anymore
     ClearGameResGenTemp;                                   //Clear all the temp data used for atlas texture generating
-    NextRXTypeI := GetNextLoadRxTypeIndex(fGameResLoader.RXType); // get next RXType to load
-    if NextRXTypeI = -1 then
+    nextRXTypeI := GetNextLoadRxTypeIndex(fGameResLoader.RXType); // get next RXType to load
+    if nextRXTypeI = -1 then
     begin
       //Load is completed, we can stop loading thread
       StopResourceLoader;
       fGameResLoadCompleted := True; // mark loading game res as completed
     end else begin
-      fGameResLoader.RXType := TRXType(StrToInt(fGameRXTypes[NextRXTypeI]));
+      fGameResLoader.RXType := TRXType(StrToInt(fGameRXTypes[nextRXTypeI]));
       fGameResLoader.LoadStepDone := False;
     end;
   end;

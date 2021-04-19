@@ -518,7 +518,7 @@ end;
 function TKMConsoleCommand.Params2String(const aParams: TKMScriptCommandParamsArray; aColorfull: Boolean = True): String;
 var
   I: Integer;
-  Str: String;
+  str: String;
 begin
   Result := '';
   for I := 0 to MAX_SCRIPT_CONSOLE_COMMAND_PARAMS - 1 do
@@ -530,11 +530,11 @@ begin
       Result := Result + ',';
 
     if aColorfull then
-      Str := WrapColor(aParams[I], clScriptCmdParam)
+      str := WrapColor(aParams[I], clScriptCmdParam)
     else
-      Str := aParams[I];
+      str := aParams[I];
 
-    Result := Result + Str;
+    Result := Result + str;
   end;
 end;
 
@@ -542,7 +542,7 @@ end;
 function TKMConsoleCommand.ParamsTypes2String(aColorfull: Boolean = True): String;
 var
   I: Integer;
-  Str: String;
+  str: String;
 begin
   Result := '';
   for I := 0 to MAX_SCRIPT_CONSOLE_COMMAND_PARAMS - 1 do
@@ -552,11 +552,11 @@ begin
         Result := Result + ',';
 
       if aColorfull then
-        Str := WrapColor(CLASS_TYPE_STR[fPT[I]], clScriptCmdParam)
+        str := WrapColor(CLASS_TYPE_STR[fPT[I]], clScriptCmdParam)
       else
-        Str := CLASS_TYPE_STR[fPT[I]];
+        str := CLASS_TYPE_STR[fPT[I]];
 
-      Result := Result + Str;
+      Result := Result + str;
     end;
 end;
 
@@ -570,9 +570,9 @@ const
   TX_SCRIPT_CONSOLE_CMD_WRONG_1ST_PARAM_TYPE_STR =
     'Wrong first parameter type for script command /%s. Expected: [ %s ], actual: [ %s ]';
 var
-  Method: TKMMethod;
   I: Integer;
-  ParamKind: TKMCmdProcParamTypeKind;
+  method: TKMMethod;
+  paramKind: TKMCmdProcParamTypeKind;
 
   function GetErrorStr(aTextID: Word): String;
   begin
@@ -597,36 +597,36 @@ var
   end;
 
 begin
-  Method := TKMMethod.ParseMethodStr(aProcedureStr);
+  method := TKMMethod.ParseMethodStr(aProcedureStr);
   try
-    if Method.Params.Count > MAX_SCRIPT_CONSOLE_COMMAND_PARAMS + 1 then //+1 for HandID parameter
+    if method.Params.Count > MAX_SCRIPT_CONSOLE_COMMAND_PARAMS + 1 then //+1 for HandID parameter
       raise EConsoleCommandParseError.Create(Format(GetErrorStr(TX_SCRIPT_CONSOLE_CMD_TOO_MANY_PROC_PARAMS),
                                                       [fName,
-                                                       IntToStr(Method.Params.Count),
+                                                       IntToStr(method.Params.Count),
                                                        IntToStr(MAX_SCRIPT_CONSOLE_COMMAND_PARAMS + 1)]),
                                              aRow, 0, aProcedureStr);
 
-    for I := 0 to Method.Params.Count - 1 do
+    for I := 0 to method.Params.Count - 1 do
     begin
-      ParamKind := GetCommandType(Method.Params[I].ParamType);
+      paramKind := GetCommandType(method.Params[I].ParamType);
       //Check if parameter type is valid
-      if ParamKind = cpkNone then
+      if paramKind = cpkNone then
         raise EConsoleCommandParseError.Create(Format(GetErrorStr(TX_SCRIPT_CONSOLE_CMD_WRONG_PARAM_TYPE),
-                                                      [fName, Method.Params[I].ParamType]),
+                                                      [fName, method.Params[I].ParamType]),
                                                aRow, 0, aProcedureStr);
       //1st parameter should be always Integer
-      if (I = 0) and (ParamKind <> cpkIntg) then
+      if (I = 0) and (paramKind <> cpkIntg) then
         raise EConsoleCommandParseError.Create(Format(GetErrorStr(TX_SCRIPT_CONSOLE_CMD_WRONG_1ST_PARAM_TYPE),
                                                       [fName,
                                                        CLASS_TYPE_STR[cpkIntg],
-                                                       Method.Params[I].ParamType]),
+                                                       method.Params[I].ParamType]),
                                                aRow, 0, aProcedureStr);
       if I > 0 then
-        fPT[I - 1] := ParamKind;
+        fPT[I - 1] := paramKind;
     end;
 
   finally
-    FreeAndNil(Method);
+    FreeAndNil(method);
   end;
 
   Result := True;

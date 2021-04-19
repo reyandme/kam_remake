@@ -5,10 +5,9 @@ uses
   Classes, SysUtils, KM_CommonClasses,
   KM_ResTypes;
 
-  //Collection of types and arrays for Wares usage
-
 type
-  TKMWare = class
+  // Ware type specification
+  TKMWareSpec = class
   private
     fType: TKMWareType;
     fMarketPrice: Single;
@@ -32,13 +31,13 @@ type
 
   TKMResWares = class
   private
-    fList: array [TKMWareType] of TKMWare;
+    fList: array [TKMWareType] of TKMWareSpec;
     procedure CalculateCostsTable;
-    function GetWare(aIndex: TKMWareType): TKMWare;
+    function GetWare(aIndex: TKMWareType): TKMWareSpec;
   public
     constructor Create;
     destructor Destroy; override;
-    property Wares[aIndex: TKMWareType]: TKMWare read GetWare; default;
+    property Wares[aIndex: TKMWareType]: TKMWareSpec read GetWare; default;
     procedure ExportCostsTable(const aFilename: string);
 
     procedure ResetToDefaults;
@@ -129,8 +128,8 @@ uses
   Math, KM_ResTexts;
 
 
-{ TKMWare }
-constructor TKMWare.Create(aType: TKMWareType);
+{ TKMWareSpec }
+constructor TKMWareSpec.Create(aType: TKMWareType);
 begin
   inherited Create;
 
@@ -140,7 +139,7 @@ begin
 end;
 
 
-function TKMWare.GetGUIColor: Cardinal;
+function TKMWareSpec.GetGUIColor: Cardinal;
 const
   //Resources colors for Results charts
   //Made by naospor from kamclub.ru
@@ -156,19 +155,19 @@ begin
 end;
 
 
-function TKMWare.GetMarketPrice: Single;
+function TKMWareSpec.GetMarketPrice: Single;
 begin
   Result := fMarketPrice * fMarketPriceMultiplier;
 end;
 
 
-procedure TKMWare.SetMarketPriceMultiplier(aValue: Single);
+procedure TKMWareSpec.SetMarketPriceMultiplier(aValue: Single);
 begin
   fMarketPriceMultiplier := EnsureRange(aValue, 0.01, 100);
 end;
 
 
-function TKMWare.GetGUIIcon: Word;
+function TKMWareSpec.GetGUIIcon: Word;
 begin
   case fType of
     WARE_MIN..WARE_MAX: Result := 351 + WARE_TY_TO_ID[fType];
@@ -181,7 +180,7 @@ begin
 end;
 
 
-function TKMWare.GetTextID: Integer;
+function TKMWareSpec.GetTextID: Integer;
 begin
   case fType of
     WARE_MIN..WARE_MAX: Result := TX_RESOURCES_NAMES__27 + WARE_TY_TO_ID[fType];
@@ -194,7 +193,7 @@ begin
 end;
 
 
-function TKMWare.GetTitle: UnicodeString;
+function TKMWareSpec.GetTitle: UnicodeString;
 begin
   if GetTextID <> -1 then
     Result := gResTexts[GetTextID]
@@ -203,7 +202,7 @@ begin
 end;
 
 
-function TKMWare.IsValid: Boolean;
+function TKMWareSpec.IsValid: Boolean;
 begin
   Result := fType in [WARE_MIN..WARE_MAX];
 end;
@@ -217,7 +216,7 @@ begin
   inherited;
 
   for I := Low(TKMWareType) to High(TKMWareType) do
-    fList[I] := TKMWare.Create(I);
+    fList[I] := TKMWareSpec.Create(I);
 
   // Calcuate the trade costs for marketplace once
   CalculateCostsTable;
@@ -235,7 +234,7 @@ begin
 end;
 
 
-function TKMResWares.GetWare(aIndex: TKMWareType): TKMWare;
+function TKMResWares.GetWare(aIndex: TKMWareType): TKMWareSpec;
 begin
   Result := fList[aIndex];
 end;

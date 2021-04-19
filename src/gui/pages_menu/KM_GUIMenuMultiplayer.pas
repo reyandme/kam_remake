@@ -6,11 +6,11 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   StrUtils, SysUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_CommonTypes, KM_Pics,
-  KM_InterfaceDefaults, KM_ServerQuery;
+  KM_InterfaceDefaults, KM_InterfaceTypes, KM_ServerQuery;
 
 
 type
-  TKMMenuMultiplayer = class (TKMMenuPageCommon)
+  TKMMenuMultiplayer = class(TKMMenuPageCommon)
   private
     fOnPageChange: TKMMenuChangeEventText; //will be in ancestor class
 

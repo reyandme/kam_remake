@@ -2224,7 +2224,7 @@ begin
               begin
                 PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
 
-                if not fVoteReturnToLobbySucceeded  // Do not allow late mkVote after we received enought votes (if it comes while still in game and receiveing mk_readyToReturnToLobby)
+                if not fVoteReturnToLobbySucceeded  // Do not allow late mkVote after we received enough votes (if it comes while still in game and receiveing mk_readyToReturnToLobby)
                   and not fNetPlayers[PlayerIndex].VotedYes //No need to vote more than once
                   and (fNetPlayers.HasOnlySpectators or not fNetPlayers[PlayerIndex].IsSpectator) //spectators don't get to vote unless there's only spectators left
                   then

@@ -8,11 +8,11 @@ uses
   KM_Controls, KM_Maps, KM_Minimap,
   KM_CampaignTypes,
   KM_Campaigns,
-  KM_InterfaceDefaults, KM_Defaults, KM_CommonTypes, KM_GameTypes;
+  KM_InterfaceDefaults, KM_InterfaceTypes, KM_Defaults, KM_CommonTypes, KM_GameTypes;
 
 
 type
-  TKMMenuMapEditor = class (TKMMenuPageCommon)
+  TKMMenuMapEditor = class(TKMMenuPageCommon)
   private
     fOnPageChange: TKMMenuChangeEventText; //will be in ancestor class
 

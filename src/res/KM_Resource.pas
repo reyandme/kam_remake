@@ -183,7 +183,7 @@ begin
   fCursors.MakeCursors(fSprites[rxGui]);
   fCursors.Cursor := kmcDefault;
 
-  gResKeys := TKMKeyLibrary.Create;
+  gResKeys := TKMResKeys.Create;
 
   LoadLocaleAndFonts(aLocale, aLoadFullFonts);
 
@@ -246,13 +246,13 @@ end;
 
 procedure TKMResource.LoadGameResources(aAlphaShadows: Boolean; aForceReload: Boolean = False);
 var
-  DoForceReload: Boolean;
+  doForceReload: Boolean;
 begin
   gLog.AddTime('LoadGameResources ... AlphaShadows: ' + BoolToStr(aAlphaShadows, True) + '. Forced: ' + BoolToStr(aForceReload, True));
-  DoForceReload := aForceReload or (aAlphaShadows <> fSprites.AlphaShadows);
-  if (fDataState <> rlsAll) or DoForceReload then
+  doForceReload := aForceReload or (aAlphaShadows <> fSprites.AlphaShadows);
+  if (fDataState <> rlsAll) or doForceReload then
   begin
-    fSprites.LoadGameResources(aAlphaShadows, DoForceReload);
+    fSprites.LoadGameResources(aAlphaShadows, doForceReload);
     fDataState := rlsAll;
     fSprites.ClearTemp;
   end;

@@ -191,14 +191,22 @@ procedure TKMLog.InitLog;
 begin
   if BLOCK_FILE_WRITE then Exit;
 
-  ForceDirectories(ExtractFilePath(fLogPath));
+  try
+    ForceDirectories(ExtractFilePath(fLogPath));
 
-  AssignFile(fl, fLogPath);
-  Rewrite(fl);
-  //           hh:nn:ss.zzz 12345.678s 1234567ms     text-text-text
-  WriteLn(fl, '   Timestamp    Elapsed     Delta     Description');
-  CloseFile(fl);
+    AssignFile(fl, fLogPath);
+    Rewrite(fl);
+    //           hh:nn:ss.zzz 12345.678s 1234567ms     text-text-text
+    WriteLn(fl, '   Timestamp    Elapsed     Delta     Description');
+    CloseFile(fl);
+  except
+    on Ex: Exception do
+    begin
+      Ex.Message := Ex.Message + '. Tried to init Log on path ''' + fLogPath + '''';
+      raise Ex;
+    end;
 
+  end;
   AddLineTime('Log is up and running. Game version: ' + UnicodeString(GAME_VERSION));
 end;
 

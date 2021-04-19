@@ -61,8 +61,8 @@ type
     function CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean; virtual;
     function DestinationReached(aX, aY: Word): Boolean; virtual;
     function IsWalkableTile(aX, aY: Word): Boolean; virtual;
-    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; virtual;
-    function EstimateToFinish(aX, aY: Word): Word; virtual;
+    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; virtual;
+    function EstimateToFinish(aX, aY: Word): Cardinal; virtual;
     function MakeRoute: Boolean; virtual; abstract;
     procedure ReturnRoute(NodeList: TKMPointList); virtual; abstract;
   public
@@ -249,13 +249,13 @@ end;
 function TPathFinding.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   //If cell meets Passability then estimate it
-  Result := ((fPass * gTerrain.Land[aY,aX].Passability) <> [])
+  Result := ((fPass * gTerrain.Land^[aY,aX].Passability) <> [])
             and ((fAvoidLocked <> palAvoidAsUnwalkable) or not gTerrain.TileIsLocked(KMPoint(aX,aY)));
 end;
 
 
 //How much it costs to move From -> To
-function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   DX, DY: Word;
   U: TKMUnit;
@@ -270,7 +270,7 @@ begin
   //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
   if (aToX <> fLocB.X) or (aToY <> fLocB.Y) then
   begin
-    U := gTerrain.Land[aToY,aToX].IsUnit;
+    U := gTerrain.Land^[aToY,aToX].IsUnit;
     //Always avoid congested areas on roads
     if DO_WEIGHT_ROUTES and (U <> nil) and ((tpWalkRoad in fPass) or U.PathfindingShouldAvoid) then
       Inc(Result, 15); //Unit = 1.5 extra tiles
@@ -280,7 +280,7 @@ begin
 end;
 
 
-function TPathFinding.EstimateToFinish(aX, aY: Word): Word;
+function TPathFinding.EstimateToFinish(aX, aY: Word): Cardinal;
 var
   DX, DY: Word;
 begin

@@ -294,11 +294,11 @@ constructor TKMapInfo.Create(const aPath: string; aStrictParsing: Boolean; aMapF
 
 var
   I: Integer;
-  DatFile, MapFile, ScriptFile, TxtFile, LIBXFiles: string;
-  DatCRC, MapCRC, OthersCRC: Cardinal;
-  fMissionParser: TKMMissionParserInfo;
-  ScriptPreProcessor: TKMScriptingPreProcessor;
-  ScriptFiles: TKMScriptFilesCollection;
+  datFile, mapFile, scriptFile, txtFile, libxFiles: string;
+  datCRC, mapCRC, othersCRC: Cardinal;
+  missionParser: TKMMissionParserInfo;
+  scriptPreProcessor: TKMScriptingPreProcessor;
+  scriptFiles: TKMScriptFilesCollection;
   CSP: TKMCustomScriptParam;
   Campaign: TKMCampaign;
 begin
@@ -320,15 +320,15 @@ begin
     fCustomScriptParams[CSP].Data := '';
   end;
 
-  DatFile := fPath + fFileName + '.dat';
-  MapFile := fPath + fFileName + '.map';
-  ScriptFile := fPath + fFileName + EXT_FILE_SCRIPT_DOT; //Needed for CRC
-  TxtFile := fPath + fFileName + '.txt'; //Needed for CRC
-  LIBXFiles := fPath + fFileName + '.*.libx'; //Needed for CRC
+  datFile := fPath + fFileName + '.dat';
+  mapFile := fPath + fFileName + '.map';
+  scriptFile := fPath + fFileName + EXT_FILE_SCRIPT_DOT; //Needed for CRC
+  txtFile := fPath + fFileName + '.txt'; //Needed for CRC
+  libxFiles := fPath + fFileName + '.*.libx'; //Needed for CRC
 
   fSizeText := ''; //Lazy initialization
 
-  if not FileExists(DatFile) then Exit;
+  if not FileExists(datFile) then Exit;
 
   //Try loading info from cache, since map scanning is rather slow
   LoadFromFile(fPath + fFileName + '.mi'); //Data will be empty if failed
@@ -337,65 +337,65 @@ begin
   //In SP mode (non-strict) we check DAT CRC and version, that is enough
   //In MP mode (strict) we also need exact CRCs to match maps between players
 
-  DatCRC := Adler32CRC(DatFile);
+  datCRC := Adler32CRC(datFile);
   //.map file CRC is the slowest, so only calculate it if necessary
-  OthersCRC := 0; //Supresses incorrect warning by Delphi
-  MapCRC := 0;
+  othersCRC := 0; //Supresses incorrect warning by Delphi
+  mapCRC := 0;
   if aStrictParsing then
   begin
-    MapCRC := Adler32CRC(MapFile);
-    OthersCRC := MapCRC xor Adler32CRC(TxtFile) xor GetLIBXCRC(LIBXFiles);
-    fMapAndDatCRC := DatCRC xor MapCRC;
+    mapCRC := Adler32CRC(mapFile);
+    othersCRC := mapCRC xor Adler32CRC(txtFile) xor GetLIBXCRC(libxFiles);
+    fMapAndDatCRC := datCRC xor mapCRC;
 
     //Add main script CRC and all included scripts CRC
-    if FileExists(ScriptFile) then
+    if FileExists(scriptFile) then
     begin
-      OthersCRC := OthersCRC xor Adler32CRC(ScriptFile);
-      ScriptPreProcessor := TKMScriptingPreProcessor.Create;
+      othersCRC := othersCRC xor Adler32CRC(scriptFile);
+      scriptPreProcessor := TKMScriptingPreProcessor.Create;
       try
-        if ScriptPreProcessor.PreProcessFile(ScriptFile) then
+        if scriptPreProcessor.PreProcessFile(scriptFile) then
         begin
           //Copy custom script params
           for CSP := Low(TKMCustomScriptParam) to High(TKMCustomScriptParam) do
-            fCustomScriptParams[CSP] := ScriptPreProcessor.CustomScriptParams[CSP];
+            fCustomScriptParams[CSP] := scriptPreProcessor.CustomScriptParams[CSP];
 
-          ScriptFiles := ScriptPreProcessor.ScriptFilesInfo;
-          for I := 0 to ScriptFiles.IncludedCount - 1 do
-            OthersCRC := OthersCRC xor Adler32CRC(ScriptFiles[I].FullFilePath);
+          scriptFiles := scriptPreProcessor.ScriptFilesInfo;
+          for I := 0 to scriptFiles.IncludedCount - 1 do
+            othersCRC := othersCRC xor Adler32CRC(scriptFiles[I].FullFilePath);
         end;
       finally
-        ScriptPreProcessor.Free;
+        scriptPreProcessor.Free;
       end;
     end;
   end;
 
   //Does the map need to be fully rescanned? (.mi cache is outdated?)
   if (fVersion <> GAME_REVISION) or
-     (fDatCRC <> DatCRC) or //In non-strict mode only DAT CRC matters (SP)
-     (aStrictParsing and (fCRC <> DatCRC xor OthersCRC)) //In strict mode we check all CRCs (MP)
+     (fDatCRC <> datCRC) or //In non-strict mode only DAT CRC matters (SP)
+     (aStrictParsing and (fCRC <> datCRC xor othersCRC)) //In strict mode we check all CRCs (MP)
   then
   begin
     //Calculate OthersCRC if it wasn't calculated before
     if not aStrictParsing then
     begin
-      MapCRC := Adler32CRC(MapFile);
-      OthersCRC := MapCRC xor Adler32CRC(ScriptFile) xor Adler32CRC(TxtFile);
+      mapCRC := Adler32CRC(mapFile);
+      othersCRC := mapCRC xor Adler32CRC(scriptFile) xor Adler32CRC(txtFile);
     end;
 
-    fCRC := DatCRC xor OthersCRC;
-    fDatCRC := DatCRC;
-    fMapAndDatCRC := DatCRC xor MapCRC;
+    fCRC := datCRC xor othersCRC;
+    fDatCRC := datCRC;
+    fMapAndDatCRC := datCRC xor mapCRC;
     fVersion := GAME_REVISION;
 
     //First reset everything because e.g. CanBeHuman is assumed false by default and set true when we encounter SET_USER_PLAYER
     ResetInfo;
 
-    fMissionParser := TKMMissionParserInfo.Create;
+    missionParser := TKMMissionParserInfo.Create;
     try
       //Fill Self properties with MissionParser
-      fMissionParser.LoadMission(DatFile, Self, pmBase);
+      missionParser.LoadMission(datFile, Self, pmBase);
     finally
-      fMissionParser.Free;
+      missionParser.Free;
     end;
 
     //Load additional text info
@@ -422,7 +422,8 @@ end;
 
 
 procedure TKMapInfo.AddGoal(aType: TKMGoalType; aPlayer: TKMHandID; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aPlayerIndex: TKMHandID);
-var G: TKMMapGoalInfo;
+var
+  G: TKMMapGoalInfo;
 begin
   G.Cond := aCondition;
   G.Play := aPlayerIndex;
@@ -572,8 +573,8 @@ end;
 //Load additional information for map that is not in main SP list
 procedure TKMapInfo.LoadExtra;
 var
-  DatFile: string;
-  fMissionParser: TKMMissionParserInfo;
+  datFile: string;
+  missionParser: TKMMissionParserInfo;
 begin
   //Do not append Extra info twice
   if fInfoAmount = iaExtra then Exit;
@@ -581,14 +582,14 @@ begin
   //First reset everything because e.g. CanBeHuman is assumed false by default and set true when we encounter SET_USER_PLAYER
   ResetInfo;
 
-  DatFile := fPath + fFileName + '.dat';
+  datFile := fPath + fFileName + '.dat';
 
-  fMissionParser := TKMMissionParserInfo.Create;
+  missionParser := TKMMissionParserInfo.Create;
   try
     //Fill Self properties with MissionParser
-    fMissionParser.LoadMission(DatFile, Self, pmExtra);
+    missionParser.LoadMission(datFile, Self, pmExtra);
   finally
-    fMissionParser.Free;
+    missionParser.Free;
   end;
 
   if IsTacticMission then
@@ -601,7 +602,8 @@ end;
 
 
 procedure TKMapInfo.ResetInfo;
-var I, K: Integer;
+var
+  I, K: Integer;
 begin
   MissionMode := mmNormal;
   DefaultHuman := 0;
@@ -657,7 +659,7 @@ end;
 procedure TKMapInfo.LoadFromFile(const aPath: UnicodeString);
 var
   S: TKMemoryStream;
-  ErrorStr: UnicodeString;
+  errorStr: UnicodeString;
 begin
   if not FileExists(aPath) then Exit;
 
@@ -665,8 +667,8 @@ begin
   try
     //Try to load map cache up to 3 times (in case its updating by other thread
     //its much easier and working well, then synchronize threads
-    if not TryExecuteMethod(TObject(S), aPath, 'LoadFromStreamObj', ErrorStr, LoadFromStreamObj) then
-      gLog.AddTime(ErrorStr);
+    if not TryExecuteMethod(TObject(S), aPath, 'LoadFromStreamObj', errorStr, LoadFromStreamObj) then
+      gLog.AddTime(errorStr);
   finally
     //Other properties are not saved, they are fast to reload
     S.Free;
@@ -689,7 +691,7 @@ end;
 procedure TKMapInfo.SaveToFile(const aPath: UnicodeString);
 var
   S: TKMemoryStream;
-  ErrorStr: UnicodeString;
+  errorStr: UnicodeString;
 begin
   S := TKMemoryStreamBinary.Create;
   try
@@ -710,8 +712,8 @@ begin
 
     //Try to save map cache up to 3 times (in case its updating by other thread
     //its much easier and working well, then synchronize threads
-    if not TryExecuteMethod(TObject(S), aPath, 'SaveToStreamObj', ErrorStr, SaveToStreamObj) then
-      gLog.AddTime(ErrorStr);
+    if not TryExecuteMethod(TObject(S), aPath, 'SaveToStreamObj', errorStr, SaveToStreamObj) then
+      gLog.AddTime(errorStr);
   finally
     //Other properties from text file are not saved, they are fast to reload
     S.Free;
@@ -728,7 +730,8 @@ end;
 
 
 function TKMapInfo.HumanPlayerCount: Byte;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to MAX_HANDS - 1 do
@@ -747,7 +750,8 @@ end;
 
 
 function TKMapInfo.AIOnlyLocCount: Byte;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to MAX_HANDS - 1 do
@@ -819,25 +823,25 @@ end;
 
 function TKMapInfo.DetermineReadmeFilePath: String;
 var
-  Path: String;
+  path: String;
 begin
   Assert(gGameApp <> nil, 'gGameApp = nil!');
   Assert(gGameSettings <> nil, 'gGameSettings = nil!');
 
   Result := '';
-  Path := fPath + fFileName + '.' + String(gGameSettings.Locale) + '.pdf'; // Try to file with our locale first
-  if FileExists(Path) then
-    Result := Path
+  path := fPath + fFileName + '.' + String(gGameSettings.Locale) + '.pdf'; // Try to file with our locale first
+  if FileExists(path) then
+    Result := path
   else
   begin
-    Path := fPath + fFileName + '.' + String(DEFAULT_LOCALE) + '.pdf'; // then with default locale
-    if FileExists(Path) then
-      Result := Path
+    path := fPath + fFileName + '.' + String(DEFAULT_LOCALE) + '.pdf'; // then with default locale
+    if FileExists(path) then
+      Result := path
     else
     begin
-      Path := fPath + fFileName + '.pdf'; // and finally without any locale
-      if FileExists(Path) then
-        Result := Path;
+      path := fPath + fFileName + '.pdf'; // and finally without any locale
+      if FileExists(path) then
+        Result := path;
     end;
   end;
 end;
@@ -1060,21 +1064,21 @@ procedure TKMMapTxtInfo.LoadTXTInfo(const aFilePath: String);
 
   function LoadDescriptionFromLIBX(aIndex: Integer): UnicodeString;
   var
-    MissionTexts: TKMTextLibrarySingle;
+    missionTexts: TKMTextLibrarySingle;
   begin
     Result := '';
     if aIndex = -1 then Exit;
-    MissionTexts := TKMTextLibrarySingle.Create;
-    MissionTexts.LoadLocale(ChangeFileExt(aFilePath, '.%s.libx'));
-    Result := MissionTexts.Texts[aIndex];
-    MissionTexts.Free;
+    missionTexts := TKMTextLibrarySingle.Create;
+    missionTexts.LoadLocale(ChangeFileExt(aFilePath, '.%s.libx'));
+    Result := missionTexts.Texts[aIndex];
+    missionTexts.Free;
   end;
 
 var
   I: Integer;
   St, S: String;
   ft: TextFile;
-  StList: TStringList;
+  stList: TStringList;
   MD: TKMMissionDifficulty;
 begin
   //Load additional text info
@@ -1135,13 +1139,13 @@ begin
       if SameText(St, 'DifficultyLevels') then
       begin
         Readln(ft, S);
-        StList := TStringList.Create;
-        StringSplit(S, ',', StList);
-        for I := 0 to StList.Count - 1 do
+        stList := TStringList.Create;
+        StringSplit(S, ',', stList);
+        for I := 0 to stList.Count - 1 do
           for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
-            if SameText(StList[I], GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD))) then
+            if SameText(stList[I], GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD))) then
               Include(DifficultyLevels, MD);
-        StList.Free;
+        stList.Free;
       end;
     until(eof(ft));
     CloseFile(ft);
@@ -1263,6 +1267,7 @@ end;
 constructor TKMapsCollection.Create(aMapFolders: TKMapFolderSet; aSortMethod: TKMapsSortMethod = smByNameDesc; aDoSortWithFavourites: Boolean = False);
 begin
   inherited Create;
+
   fMapFolders := aMapFolders;
   fSortMethod := aSortMethod;
   fDoSortWithFavourites := aDoSortWithFavourites;
@@ -1392,17 +1397,17 @@ end;
 procedure TKMapsCollection.MoveMap(aIndex: Integer; const aName: UnicodeString; aMapFolder: TKMapFolder);
 var
   I: Integer;
-  Dest: UnicodeString;
+  dest: UnicodeString;
 begin
   Assert(InRange(aIndex, 0, fCount - 1));
   if Trim(aName) = '' then Exit;
 
   Lock;
   try
-    Dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
-    Assert(fMaps[aIndex].Path <> Dest);
+    dest := ExeDir + MAP_FOLDER[aMapFolder] + PathDelim + aName + PathDelim;
+    Assert(fMaps[aIndex].Path <> dest);
 
-    KMMoveFolder(fMaps[aIndex].Path, Dest);
+    KMMoveFolder(fMaps[aIndex].Path, dest);
 
     //Remove the map from our list
     fMaps[aIndex].Free;
@@ -1418,7 +1423,8 @@ end;
 
 //For private access, where CS is managed by the caller
 procedure TKMapsCollection.DoSort;
-var TempMaps: array of TKMapInfo;
+var
+  tempMaps: array of TKMapInfo;
 
   //Return True if items should be exchanged
   function Compare(A, B: TKMapInfo): Boolean;
@@ -1453,35 +1459,36 @@ var TempMaps: array of TKMapInfo;
   end;
 
   procedure MergeSort(aLeft, aRight: Integer);
-  var Middle, I, J, Ind1, Ind2: integer;
+  var
+    middle, I, J, ind1, ind2: integer;
   begin
     if aRight <= aLeft then
       exit;
 
-    Middle := (aLeft+aRight) div 2;
-    MergeSort(aLeft, Middle);
-    Inc(Middle);
-    MergeSort(Middle, aRight);
-    Ind1 := aLeft;
-    Ind2 := Middle;
+    middle := (aLeft+aRight) div 2;
+    MergeSort(aLeft, middle);
+    Inc(middle);
+    MergeSort(middle, aRight);
+    ind1 := aLeft;
+    ind2 := middle;
     for I := aLeft to aRight do
     begin
-      if (Ind1 < Middle) and ((Ind2 > aRight) or not Compare(fMaps[Ind1], fMaps[Ind2])) then
+      if (ind1 < middle) and ((ind2 > aRight) or not Compare(fMaps[ind1], fMaps[ind2])) then
       begin
-        TempMaps[I] := fMaps[Ind1];
-        Inc(Ind1);
+        tempMaps[I] := fMaps[ind1];
+        Inc(ind1);
       end
       else
       begin
-        TempMaps[I] := fMaps[Ind2];
-        Inc(Ind2);
+        tempMaps[I] := fMaps[ind2];
+        Inc(ind2);
       end;
     end;
     for J := aLeft to aRight do
-      fMaps[J] := TempMaps[J];
+      fMaps[J] := tempMaps[J];
   end;
 begin
-  SetLength(TempMaps, fCount);
+  SetLength(tempMaps, fCount);
   MergeSort(0, fCount - 1);
 end;
 
@@ -1617,7 +1624,8 @@ end;
 
 
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMapFolder: TKMapFolder; aCRC: Cardinal): string;
-var S: UnicodeString;
+var
+  S: UnicodeString;
 begin
   S := aName;
   if aMapFolder = mfDL then
@@ -1640,45 +1648,45 @@ end;
 class procedure TKMapsCollection.GetAllMapPaths(const aExeDir: string; aList: TStringList);
 var
   I: Integer;
-  SearchRec: TSearchRec;
-  PathToMaps: TStringList;
+  searchRec: TSearchRec;
+  pathToMaps: TStringList;
 begin
   aList.Clear;
 
-  PathToMaps := TStringList.Create;
+  pathToMaps := TStringList.Create;
   try
-    PathToMaps.Add(aExeDir + MAPS_FOLDER_NAME + PathDelim);
-    PathToMaps.Add(aExeDir + MAPS_MP_FOLDER_NAME + PathDelim);
-    PathToMaps.Add(aExeDir + TUTORIALS_FOLDER_NAME + PathDelim);
+    pathToMaps.Add(aExeDir + MAPS_FOLDER_NAME + PathDelim);
+    pathToMaps.Add(aExeDir + MAPS_MP_FOLDER_NAME + PathDelim);
+    pathToMaps.Add(aExeDir + TUTORIALS_FOLDER_NAME + PathDelim);
 
     //Include all campaigns maps
-    FindFirst(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + '*', faDirectory, SearchRec);
+    FindFirst(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + '*', faDirectory, searchRec);
     try
       repeat
-        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-          PathToMaps.Add(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + SearchRec.Name + PathDelim);
-      until (FindNext(SearchRec) <> 0);
+        if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+          pathToMaps.Add(aExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim + searchRec.Name + PathDelim);
+      until (FindNext(searchRec) <> 0);
     finally
-      FindClose(SearchRec);
+      FindClose(searchRec);
     end;
 
-    for I := 0 to PathToMaps.Count - 1 do
-    if DirectoryExists(PathToMaps[I]) then
+    for I := 0 to pathToMaps.Count - 1 do
+    if DirectoryExists(pathToMaps[I]) then
     begin
-      FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
+      FindFirst(pathToMaps[I] + '*', faDirectory, searchRec);
       try
         repeat
-          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-          and FileExists(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.dat')
-          and FileExists(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.map') then
-            aList.Add(PathToMaps[I] + SearchRec.Name + PathDelim + SearchRec.Name + '.dat');
-        until (FindNext(SearchRec) <> 0);
+          if (searchRec.Name <> '.') and (searchRec.Name <> '..')
+          and FileExists(pathToMaps[I] + searchRec.Name + PathDelim + searchRec.Name + '.dat')
+          and FileExists(pathToMaps[I] + searchRec.Name + PathDelim + searchRec.Name + '.map') then
+            aList.Add(pathToMaps[I] + searchRec.Name + PathDelim + searchRec.Name + '.dat');
+        until (FindNext(searchRec) <> 0);
       finally
-        FindClose(SearchRec);
+        FindClose(searchRec);
       end;
     end;
   finally
-    PathToMaps.Free;
+    pathToMaps.Free;
   end;
 end;
 
@@ -1787,7 +1795,7 @@ begin
   if SLOW_MAP_SCAN then
     Sleep(50);
 
-  fOnMapAdd(Map);
+  fOnMapAdd(map);
   fOnMapAddDone(Self);
 end;
 
@@ -1829,7 +1837,8 @@ end;
 //Try to determine TMapFolder for specified aFolderName
 //Returns true when succeeded
 function DetermineMapFolder(const aFolderName: UnicodeString; out aMapFolder: TKMapFolder): Boolean;
-var F: TKMapFolder;
+var
+  F: TKMapFolder;
 begin
   for F := Low(TKMapFolder) to High(TKMapFolder) do
     if aFolderName = MAP_FOLDER[F] then

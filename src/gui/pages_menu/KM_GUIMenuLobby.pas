@@ -6,14 +6,14 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, Math, SysUtils,
   KM_Defaults, KM_NetworkTypes, KM_Console, KM_ResTexts,
-  KM_Controls, KM_Maps, KM_Saves, KM_Pics, KM_InterfaceDefaults, KM_Minimap,
+  KM_Controls, KM_Maps, KM_Saves, KM_Pics, KM_InterfaceDefaults, KM_InterfaceTypes, KM_Minimap,
   KM_GUIMapEdRMG;
 
 
 type
   TKMLobbyTab = (ltDesc, ltOptions);
 
-  TKMMenuLobby = class (TKMMenuPageCommon)
+  TKMMenuLobby = class(TKMMenuPageCommon)
   private
     fOnPageChange: TKMMenuChangeEventText; //will be in ancestor class
     fGuiRMG: TKMMapEdRMG; //RMG

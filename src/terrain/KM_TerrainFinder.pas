@@ -205,7 +205,7 @@ end;
 
 function TKMTerrainFinder.CanWalkHere(const X, Y: Word): Boolean;
 begin
-  Result := (fPassability * gTerrain.Land[Y,X].Passability <> []);
+  Result := (fPassability * gTerrain.Land^[Y,X].Passability <> []);
 end;
 
 
@@ -225,7 +225,7 @@ const
     //Test whether this tile is valid and exit immediately if not
     //Multiply the radius because of diagonal approximation (straight=5, diagonal=7)
     if (aWalkDistance > aRadius * STRAIGHT_COST)
-    or not (aPass in gTerrain.Land[Y,X].Passability) then
+    or not (aPass in gTerrain.Land^[Y,X].Passability) then
       Exit;
 
     visitX := aStart.X - X + aRadius;
@@ -244,10 +244,10 @@ const
     //calculations so we can still store it as bytes to save space and time
     if X-1 >= 1 then
     begin
-      if (Y-1 >= 1) and not gMapElements[gTerrain.Land[Y,X].Obj].DiagonalBlocked then
+      if (Y-1 >= 1) and not gMapElements[gTerrain.Land^[Y,X].Obj].DiagonalBlocked then
         Visit(X-1, Y-1, aWalkDistance + DIAG_COST);
       Visit(X-1, Y, aWalkDistance + STRAIGHT_COST);
-      if (Y+1 <= fMapY) and not gMapElements[gTerrain.Land[Y+1,X].Obj].DiagonalBlocked then
+      if (Y+1 <= fMapY) and not gMapElements[gTerrain.Land^[Y+1,X].Obj].DiagonalBlocked then
         Visit(X-1,Y+1, aWalkDistance + DIAG_COST);
     end;
 
@@ -256,10 +256,10 @@ const
 
     if X+1 <= fMapX then
     begin
-      if (Y-1 >= 1) and not gMapElements[gTerrain.Land[Y,X+1].Obj].DiagonalBlocked then
+      if (Y-1 >= 1) and not gMapElements[gTerrain.Land^[Y,X+1].Obj].DiagonalBlocked then
         Visit(X+1, Y-1, aWalkDistance + DIAG_COST);
       Visit(X+1, Y, aWalkDistance + STRAIGHT_COST);
-      if (Y+1 <= fMapY) and not gMapElements[gTerrain.Land[Y+1,X+1].Obj].DiagonalBlocked then
+      if (Y+1 <= fMapY) and not gMapElements[gTerrain.Land^[Y+1,X+1].Obj].DiagonalBlocked then
         Visit(X+1, Y+1, aWalkDistance + DIAG_COST);
     end;
   end;
@@ -286,7 +286,7 @@ begin
   begin
     for I := Max(aStart.Y-aRadius, 1) to Min(aStart.Y+aRadius, fMapY-1) do
       for K := Max(aStart.X-aRadius, 1) to Min(aStart.X+aRadius, fMapX-1) do
-        if (aPass in gTerrain.Land[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
+        if (aPass in gTerrain.Land^[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
           aList.Add(KMPoint(K,I));
   end;
   {$IFDEF PERFLOG}

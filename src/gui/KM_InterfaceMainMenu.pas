@@ -7,6 +7,7 @@ uses
   Classes, Controls, Math, SysUtils, KromUtils, KM_Campaigns,
   KM_Controls, KM_Points, KM_Defaults, KM_Pics, KM_Networking, KM_ResFonts, KM_CommonTypes, KM_GameTypes,
   KM_InterfaceDefaults,
+  KM_InterfaceTypes,
   KM_GUIMenuCampaign,
   KM_GUIMenuCampaigns,
   KM_GUIMenuCredits,
@@ -57,7 +58,7 @@ type
                         aOnNewMapEditor: TKMNewMapEditorEvent;
                         aOnNewReplay: TUnicodeStringEvent;
                         aOnNewSingleSave: TUnicodeStringEvent;
-                        aOnToggleLocale: TAnsiStringEvent;
+                        aOnToggleLocale: TKMToggleLocaleEvent;
                         aOnPreloadGameResources: TEvent;
                         aOnNetworkInit: TEvent);
     destructor Destroy; override;
@@ -95,7 +96,7 @@ constructor TKMMainMenuInterface.Create(X,Y: Word; aCampaigns: TKMCampaignsColle
                                         aOnNewMapEditor: TKMNewMapEditorEvent;
                                         aOnNewReplay: TUnicodeStringEvent;
                                         aOnNewSingleSave: TUnicodeStringEvent;
-                                        aOnToggleLocale: TAnsiStringEvent;
+                                        aOnToggleLocale: TKMToggleLocaleEvent;
                                         aOnPreloadGameResources: TEvent;
                                         aOnNetworkInit: TEvent);
 var
@@ -139,6 +140,8 @@ begin
 
   fMenuOptions.OnToggleLocale         := aOnToggleLocale;
   fMenuOptions.OnPreloadGameResources := aOnPreloadGameResources;
+
+  fMenuCredits.OnToggleLocale         := aOnToggleLocale;
 
   fMenuMultiplayer.OnNetworkInit      := aOnNetworkInit;
 
@@ -381,6 +384,8 @@ end;
 
 procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
+  inherited;
+
   aHandled := True; // assume we handle all keys here
 
   if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
@@ -409,6 +414,8 @@ end;
 
 procedure TKMMainMenuInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
+  inherited;
+
   fMyControls.MouseDown(X, Y, Shift, Button);
 end;
 

@@ -563,7 +563,7 @@ end;
 
 function TKMCampaign.GetScriptDataTypeFile: UnicodeString;
 begin
-  Result := fPath + 'campaigndata.script';
+  Result := fPath + CAMPAIGN_DATA_FILENAME + EXT_FILE_SCRIPT_DOT;
 end;
 
 

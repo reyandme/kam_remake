@@ -11,7 +11,7 @@ uses
   {$IFDEF FPC} FileUtil, {$ENDIF}
   {$IFDEF WDC} IOUtils, {$ENDIF}
 	SysUtils, StrUtils, Classes, Controls,
-  KM_Terrain,
+  KM_TerrainTypes,
   KM_Defaults, KM_CommonTypes, KM_CommonClasses, KM_Points,
   KM_ResTypes;
 
@@ -307,7 +307,7 @@ begin
 end;
 
 
-function GetHintWHotKey(const aText: String; aKeyFunc: TKMKeyFunction): String; overload;
+function GetHintWHotKey(const aText: String; aKeyFunc: TKMKeyFunction): String;
 var
   hotKeyStr: String;
 begin

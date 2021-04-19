@@ -19,7 +19,7 @@ uses
   KM_CommonClasses in '..\..\src\common\KM_CommonClasses.pas',
   KM_Points in '..\..\src\common\KM_Points.pas',
   KM_CommonUtils in '..\..\src\utils\KM_CommonUtils.pas',
-  KromUtils in '..\..\src\ext\KromUtils.pas',
+  KromUtils in '..\..\src\utils\KromUtils.pas',
   KM_FileIO in '..\..\src\utils\KM_FileIO.pas',
   KM_Outline in '..\..\src\navmesh\KM_Outline.pas',
   KM_PolySimplify in '..\..\src\navmesh\KM_PolySimplify.pas',
@@ -45,7 +45,7 @@ uses
   BGRAText in '..\..\src\ext\BGRABitmap\BGRAText.pas',
   {$ENDIF}
   dglOpenGL in '..\..\src\ext\dglOpenGL.pas',
-  KromOGLUtils in '..\..\src\ext\KromOGLUtils.pas';
+  KromOGLUtils in '..\..\src\utils\KromOGLUtils.pas';
 
 
 {$IFDEF WDC}

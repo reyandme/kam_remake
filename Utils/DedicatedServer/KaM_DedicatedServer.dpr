@@ -181,18 +181,21 @@ begin
   TimeBeginPeriod(1); //initialize timer precision
   SetConsoleCtrlHandler(@OnConsoleCtrl, True); //Handle requests for our process to terminate
   {$ENDIF}
-  fEventHandler := TKMServerEventHandler.Create;
-  Writeln('=========== KaM Remake '+GAME_VERSION+' Dedicated Server ===========');
-  Writeln('');
-  Writeln('Log file: ' + gLog.LogPath);
-  Writeln('Settings file: '+ExeDir+SETTINGS_FILE);
-  Writeln('');
 
-  fEventHandler.ServerStatusMessage('Using protocol for clients running '+NET_PROTOCOL_REVISON);
+  fEventHandler := TKMServerEventHandler.Create; // Will create gLog as well
 
   fSettings := TKMServerSettings.Create;
   fSettings.SaveSettings(true);
-  fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
+
+  Writeln('=========== KaM Remake ' + GAME_VERSION + ' Dedicated Server ===========');
+  Writeln('');
+  Writeln('Log file: ' + gLog.LogPath);
+  Writeln('Settings file: ' + fSettings.GetPath);
+  Writeln('');
+
+  fEventHandler.ServerStatusMessage('Using protocol for clients running ' + NET_PROTOCOL_REVISON);
+
+  fSettingsLastModified := FileAge(ExeDir + SETTINGS_FILE);
   fLastSettingsFileCheck := TimeGet;
 
   while True do

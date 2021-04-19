@@ -4,7 +4,7 @@ interface
 uses
   Classes, Generics.Collections, SysUtils,
   KM_Defaults, KM_Points, KM_CommonTypes, KM_Houses,
-  KM_ResWares, KM_ResHouses, KM_MapEdTypes, KM_Terrain,
+  KM_ResWares, KM_ResHouses, KM_MapEdTypes, KM_TerrainTypes,
   KM_UnitGroupTypes,
   KM_ResTypes;
 
@@ -44,8 +44,13 @@ type
   private
     // Each Undo step stores whole terrain for simplicity
     fData: array of array of TKMUndoTile;
-    function MakeUndoTile(const aTile: TKMTerrainTile; const aPaintedTile: TKMPainterTile; const aMapEdTile: TKMMapEdTerrainTile): TKMUndoTile;
-    procedure RestoreTileFromUndo(var aTile: TKMTerrainTile; var aPaintedTile: TKMPainterTile; var aMapEdTile: TKMMapEdTerrainTile; aUndoTile: TKMUndoTile;
+    function MakeUndoTile(const aTile: TKMTerrainTile;
+                          const aPaintedTile: TKMPainterTile;
+                          const aMapEdTile: TKMMapEdTerrainTile): TKMUndoTile;
+    procedure RestoreTileFromUndo(var aTile: TKMTerrainTile;
+                                  var aPaintedTile: TKMPainterTile;
+                                  var aMapEdTile: TKMMapEdTerrainTile;
+                                  aUndoTile: TKMUndoTile;
                                   aUnderHouse: Boolean);
   public
     constructor Create(const aCaption: string);
@@ -162,7 +167,7 @@ uses
   Math,
   KM_HandsCollection, KM_Hand, KM_Units, KM_UnitsCollection,
   KM_GameSettings, KM_Game, KM_CommonUtils, KM_Resource, KM_HouseTownhall, KM_HouseBarracks,
-  KM_UnitGroup;
+  KM_UnitGroup, KM_Terrain;
 
 
 { TKMCheckpoint }
@@ -213,11 +218,15 @@ begin
 
   for I := 0 to gTerrain.MapY - 1 do
   for K := 0 to gTerrain.MapX - 1 do
-    fData[I,K] := MakeUndoTile(gTerrain.Land[I+1,K+1], gGame.TerrainPainter.LandTerKind[I+1,K+1], gGame.MapEditor.Land[I+1,K+1]);
+    fData[I,K] := MakeUndoTile(gTerrain.MainLand^[I+1,K+1],
+                               gGame.TerrainPainter.MainLandTerKind[I+1,K+1],
+                               gGame.MapEditor.MainLandMapEd^[I+1,K+1]);
 end;
 
 
-function TKMCheckpointTerrain.MakeUndoTile(const aTile: TKMTerrainTile; const aPaintedTile: TKMPainterTile; const aMapEdTile: TKMMapEdTerrainTile): TKMUndoTile;
+function TKMCheckpointTerrain.MakeUndoTile(const aTile: TKMTerrainTile;
+                                           const aPaintedTile: TKMPainterTile;
+                                           const aMapEdTile: TKMMapEdTerrainTile): TKMUndoTile;
 var
   L: Integer;
 begin
@@ -288,14 +297,17 @@ var
 begin
   for I := 0 to gTerrain.MapY-1 do
   for K := 0 to gTerrain.MapX-1 do
-    RestoreTileFromUndo(gTerrain.Land[I+1,K+1], gGame.TerrainPainter.LandTerKind[I+1,K+1], gGame.MapEditor.Land[I+1,K+1],
+    RestoreTileFromUndo(gTerrain.MainLand^[I+1,K+1],
+                        gGame.TerrainPainter.MainLandTerKind[I+1,K+1],
+                        gGame.MapEditor.MainLandMapEd^[I+1,K+1],
                         fData[I,K], gHands.HousesHitTest(K+1,I+1) <> nil);
 
   if not aUpdateImmidiately then Exit;
 
 //  gTerrain.UpdatePassability(gTerrain.MapRect);
 //  gTerrain.UpdateLighting(gTerrain.MapRect);
-  gTerrain.UpdateAll(gTerrain.MapRect);
+
+  gTerrain.CallOnMainLand(gTerrain.UpdateAll);
 end;
 
 
@@ -316,9 +328,9 @@ end;
 //  begin
 //    P := KMPoint(K+1,I+1);
 //    fData[I,K].Field    := gTerrain.GetFieldType(P);
-//    fData[I,K].Owner    := gTerrain.Land[I+1,K+1].TileOwner;
+//    fData[I,K].Owner    := gTerrain.Land^[I+1,K+1].TileOwner;
 //    fData[I,K].Stage    := gTerrain.GetFieldStage(P);
-////    fData[I,K].Overlay  := gTerrain.Land[I+1,K+1].TileOverlay;
+////    fData[I,K].Overlay  := gTerrain.Land^[I+1,K+1].TileOverlay;
 //  end;
 //end;
 //
@@ -333,7 +345,7 @@ end;
 //  begin
 //    P := KMPoint(K+1, I+1);
 //
-////    if gTerrain.Land[I+1,K+1].TileOwner = PLAYER_NONE then Continue;
+////    if gTerrain.Land^[I+1,K+1].TileOwner = PLAYER_NONE then Continue;
 //
 //    // Do not remove roads under houses
 //    if (gHands.HousesHitTest(K+1,I+1) = nil) then
@@ -806,7 +818,7 @@ end;
 
 procedure TKMMapEditorHistory.UpdateAll;
 begin
-  gTerrain.UpdateAll(gTerrain.MapRect);
+  gTerrain.CallOnMainLand(gTerrain.UpdateAll);
 end;
 
 

@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{A5901296-43C7-446C-8113-93B25ADD188C}</ProjectGuid>
         <MainSource>KaM_Remake.dpr</MainSource>
@@ -7,7 +7,7 @@
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
-        <ProjectVersion>19.0</ProjectVersion>
+        <ProjectVersion>19.2</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -57,7 +57,7 @@
         <DCC_COMBINING_SIGNED_UNSIGNED>false</DCC_COMBINING_SIGNED_UNSIGNED>
         <DCC_MaxStackSize>2097152</DCC_MaxStackSize>
         <Manifest_File>None</Manifest_File>
-        <Icon_MainIcon>KaM_Remake_Icon.ico</Icon_MainIcon>
+        <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_UsePackage>vcl;rtl;dbrtl;adortl;vcldb;vclx;bdertl;vcldbx;ibxpress;dsnap;cds;bdecds;qrpt;teeui;teedb;tee;dss;teeqr;visualclx;visualdbclx;dsnapcrba;dsnapcon;VclSmp;vclshlctrls;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;inetdb;nmfast;webdsnap;websnap;dbexpress;dbxcds;indy;dclOffice2k;Krom;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_Keys>FileVersion=1.0.0.0</VerInfo_Keys>
@@ -73,6 +73,8 @@
         <VerInfo_Locale>1049</VerInfo_Locale>
         <DCC_E>false</DCC_E>
         <SanitizedProjectName>KaM_Remake_no_ext</SanitizedProjectName>
+        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
+        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -176,8 +178,10 @@
         <DCCReference Include="src\KM_Console.pas"/>
         <DCCReference Include="src\common\KM_CommonClasses.pas"/>
         <DCCReference Include="src\common\KM_CommonClassesExt.pas"/>
+        <DCCReference Include="src\common\KM_CommonExceptions.pas"/>
         <DCCReference Include="src\common\KM_CommonTypes.pas"/>
         <DCCReference Include="src\common\KM_Defaults.pas"/>
+        <DCCReference Include="src\common\KM_Entity.pas"/>
         <DCCReference Include="src\common\KM_MarchingSquares.pas"/>
         <DCCReference Include="src\common\KM_Points.pas"/>
         <DCCReference Include="src\common\KM_WorkerThread.pas"/>
@@ -198,6 +202,7 @@
         <DCCReference Include="src\game\KM_GameOptions.pas"/>
         <DCCReference Include="src\game\KM_GameParams.pas"/>
         <DCCReference Include="src\game\KM_GameSavePoints.pas"/>
+        <DCCReference Include="src\game\KM_GameUIDTracker.pas"/>
         <DCCReference Include="src\game\KM_GameInputProcess.pas"/>
         <DCCReference Include="src\game\KM_GameInputProcess_Multi.pas"/>
         <DCCReference Include="src\game\KM_GameInputProcess_Single.pas"/>
@@ -289,6 +294,7 @@
         <DCCReference Include="src\gui\KM_InterfaceGamePlay.pas"/>
         <DCCReference Include="src\gui\KM_InterfaceMainMenu.pas"/>
         <DCCReference Include="src\gui\KM_InterfaceMapEditor.pas"/>
+        <DCCReference Include="src\gui\KM_InterfaceTypes.pas"/>
         <DCCReference Include="src\KM_Log.pas"/>
         <DCCReference Include="src\KM_Main.pas"/>
         <DCCReference Include="src\KM_Maps.pas"/>
@@ -365,6 +371,7 @@
         <DCCReference Include="src\res\KM_ResSound.pas"/>
         <DCCReference Include="src\res\KM_ResSprites.pas"/>
         <DCCReference Include="src\res\KM_ResTexts.pas"/>
+        <DCCReference Include="src\res\KM_ResTypes.pas"/>
         <DCCReference Include="src\res\KM_ResTileset.pas"/>
         <DCCReference Include="src\res\KM_ResUnits.pas"/>
         <DCCReference Include="src\res\KM_ResWares.pas"/>
@@ -378,8 +385,13 @@
         <DCCReference Include="src\scripting\KM_ScriptingTypes.pas"/>
         <DCCReference Include="src\scripting\KM_ScriptingUtils.pas"/>
         <DCCReference Include="src\net\KM_ServerQuery.pas"/>
-        <DCCReference Include="src\KM_Settings.pas"/>
         <DCCReference Include="src\KM_Sound.pas"/>
+        <DCCReference Include="src\settings\KM_Settings.pas"/>
+        <DCCReference Include="src\settings\KM_GameAppSettings.pas"/>
+        <DCCReference Include="src\settings\KM_KeysSettings.pas"/>
+        <DCCReference Include="src\settings\KM_GameSettings.pas"/>
+        <DCCReference Include="src\settings\KM_MainSettings.pas"/>
+        <DCCReference Include="src\settings\KM_ServerSettings.pas"/>
         <DCCReference Include="src\terrain\KM_RandomMapGenerator.pas"/>
         <DCCReference Include="src\terrain\KM_RMGUtils.pas"/>
         <DCCReference Include="src\terrain\KM_Terrain.pas"/>
@@ -387,6 +399,7 @@
         <DCCReference Include="src\terrain\KM_TerrainFinder.pas"/>
         <DCCReference Include="src\terrain\KM_TerrainPainter.pas"/>
         <DCCReference Include="src\terrain\KM_TerrainSelection.pas"/>
+        <DCCReference Include="src\terrain\KM_TerrainTypes.pas"/>
         <DCCReference Include="src\terrain\KM_TerrainWalkConnect.pas"/>
         <DCCReference Include="src\units\actions\KM_UnitActionAbandonWalk.pas"/>
         <DCCReference Include="src\units\actions\KM_UnitActionFight.pas"/>
@@ -425,6 +438,7 @@
         <DCCReference Include="src\utils\KM_SoftShadows.pas"/>
         <DCCReference Include="src\utils\KM_Sort.pas"/>
         <DCCReference Include="src\utils\KM_Utils.pas"/>
+        <DCCReference Include="src\utils\KM_XmlHelper.pas"/>
         <DCCReference Include="src\utils\KromOGLUtils.pas"/>
         <DCCReference Include="src\utils\KromUtils.pas"/>
         <DCCReference Include="src\utils\KromShellUtils.pas"/>
@@ -635,6 +649,16 @@
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>res\drawable-xxhdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon192">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-xxxhdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-xxxhdpi</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -889,6 +913,32 @@
                         <Operation>0</Operation>
                     </Platform>
                 </DeployClass>
+                <DeployClass Name="iOS_AppStore1024">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_AppIcon152">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_AppIcon167">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="iPad_Launch1024x768">
                     <Platform Name="iOSDevice32">
                         <Operation>1</Operation>
@@ -1016,6 +1066,56 @@
                     </Platform>
                     <Platform Name="iOSSimulator">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\LaunchScreenImage.imageset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Notification40">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Setting58">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_SpotLight80">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_AppIcon120">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_AppIcon180">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -1213,6 +1313,66 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
+                <DeployClass Name="iPhone_Notification40">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Notification60">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Setting58">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Setting87">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Spotlight120">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Spotlight80">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen\Assets\AppIcon.appiconset</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectAndroidManifest">
                     <Platform Name="Android">
                         <Operation>1</Operation>
@@ -1262,6 +1422,10 @@
                 </DeployClass>
                 <DeployClass Name="ProjectiOSLaunchScreen">
                     <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen</RemoteDir>
+                        <Operation>64</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
                         <RemoteDir>..\$(PROJECTNAME).launchscreen</RemoteDir>
                         <Operation>64</Operation>
                     </Platform>

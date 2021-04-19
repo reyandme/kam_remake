@@ -11,7 +11,7 @@ uses
 type
   TFindNearest = (fnHouse, fnStone, fnTrees, fnSoil, fnWater, fnCoal, fnIron, fnGold);
 
-  //Terrain finder optimized for CityPlanner demands of finding resources and houses
+  // Terrain finder optimized for CityPlanner demands of finding resources and houses
   TKMTerrainFinderCity = class(TKMTerrainFinderCommon)
   protected
     fOwner: TKMHandID;
@@ -29,7 +29,7 @@ type
   TKMCityPlanner = class
   private
     fOwner: TKMHandID;
-    fListGold: TKMPointList; //List of possible goldmine locations
+    fListGold: TKMPointList; // List of possible goldmine locations
     fFinder: TKMTerrainFinderCity;
 
     function GetSeeds(aHouseType: array of TKMHouseType): TKMPointArray;
@@ -569,13 +569,13 @@ var
 begin
   //Check for specific passabilities
   case FindType of
-    fnIron:   Result := (fPassability * gTerrain.Land[Y,X].Passability <> [])
+    fnIron:   Result := (fPassability * gTerrain.Land^[Y,X].Passability <> [])
                         or gTerrain.CanPlaceIronMine(X, Y);
 
-    fnGold:   Result := (fPassability * gTerrain.Land[Y,X].Passability <> [])
+    fnGold:   Result := (fPassability * gTerrain.Land^[Y,X].Passability <> [])
                         or gTerrain.TileGoodForGoldmine(X, Y);
 
-    else      Result := (fPassability * gTerrain.Land[Y,X].Passability <> []);
+    else      Result := (fPassability * gTerrain.Land^[Y,X].Passability <> []);
   end;
 
   if not Result then Exit;

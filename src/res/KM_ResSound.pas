@@ -228,10 +228,10 @@ end;
 procedure TKMResSounds.LoadSoundsDAT;
 var
   S: TMemoryStream;
-  Head:record Size,Count:word; end;
-  Tab1:array[1..200]of integer;
-  Tab2:array[1..200]of smallint;
-  i,Tmp:integer;
+  Head: record Size, Count: Word; end;
+  Tab1: array[1..200] of Integer;
+  Tab2: array[1..200] of SmallInt;
+  I, Tmp: Integer;
 begin
   if not FileExists(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'sounds.dat') then Exit;
 
@@ -244,16 +244,17 @@ begin
   fWavesCount := Head.Count;
   SetLength(fWaves, fWavesCount+1);
 
-  for i:=1 to Head.Count do begin
+  for I := 1 to Head.Count do
+  begin
     S.Read(Tmp, 4); //Always '1' for existing waves
-    if Tab1[i]<>0 then begin
-      S.Read(fWaves[i].Head, SizeOf(fWaves[i].Head));
-      SetLength(fWaves[i].Data, fWaves[i].Head.DataSize);
-      S.Read(fWaves[i].Data[0], fWaves[i].Head.DataSize);
-      SetLength(fWaves[i].Foot, Tab1[i]-SizeOf(fWaves[i].Head)-fWaves[i].Head.DataSize);
-      S.Read(fWaves[i].Foot[0], Tab1[i]-SizeOf(fWaves[i].Head)-fWaves[i].Head.DataSize);
+    if Tab1[I] <> 0 then begin
+      S.Read(fWaves[I].Head, SizeOf(fWaves[I].Head));
+      SetLength(fWaves[I].Data, fWaves[I].Head.DataSize);
+      S.Read(fWaves[I].Data[0], fWaves[I].Head.DataSize);
+      SetLength(fWaves[I].Foot, Tab1[I]-SizeOf(fWaves[I].Head)-fWaves[I].Head.DataSize);
+      S.Read(fWaves[I].Foot[0], Tab1[I]-SizeOf(fWaves[I].Head)-fWaves[I].Head.DataSize);
     end;
-    fWaves[i].IsLoaded := True;
+    fWaves[I].IsLoaded := True;
   end;
 
   {BlockRead(f,c,20);
@@ -288,16 +289,17 @@ end;
 
 
 function TKMResSounds.FileOfCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech): UnicodeString;
-var SoundID: Byte;
+var
+  soundID: Byte;
 begin
   if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then Exit;
 
   if aSound = spDeath then
-    SoundID := CitizenSFX[aUnitType].DeathID
+    soundID := CitizenSFX[aUnitType].DeathID
   else
-    SoundID := CitizenSFX[aUnitType].SelectID;
+    soundID := CitizenSFX[aUnitType].SelectID;
 
-  Result := FileOfWarrior(CitizenSFX[aUnitType].WarriorVoice, aSound, SoundID);
+  Result := FileOfWarrior(CitizenSFX[aUnitType].WarriorVoice, aSound, soundID);
 end;
 
 
@@ -374,25 +376,25 @@ var
   U: TKMUnitType;
   WS: TWarriorSpeech;
   AN: TAttackNotification;
-  SpeechPath: string;
+  speechPath: string;
 begin
-  SpeechPath := ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(fLocaleString) + PathDelim;
+  speechPath := ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(fLocaleString) + PathDelim;
 
   //Reset counts from previous locale/unsuccessful load
   FillChar(WarriorSoundCount, SizeOf(WarriorSoundCount), #0);
   FillChar(NotificationSoundCount, SizeOf(NotificationSoundCount), #0);
   FillChar(fWarriorUseBackup, SizeOf(fWarriorUseBackup), #0);
 
-  if not DirectoryExists(SpeechPath) then Exit;
+  if not DirectoryExists(speechPath) then Exit;
 
   //Try to load counts from DAT,
   //otherwise we will rescan all the WAV files and write a new DAT
-  if LoadWarriorSoundsFromFile(SpeechPath + 'count.dat') then
+  if LoadWarriorSoundsFromFile(speechPath + 'count.dat') then
     Exit;
 
   //First inspect folders, if the prefered ones don't exist use the backups
   for U := WARRIOR_MIN to WARRIOR_MAX do
-    if not DirectoryExists(SpeechPath + WarriorSFXFolder[U] + PathDelim) then
+    if not DirectoryExists(speechPath + WarriorSFXFolder[U] + PathDelim) then
       fWarriorUseBackup[U] := True;
 
   //If the folder exists it is likely all the sounds are there
@@ -415,7 +417,7 @@ begin
       end;
 
   //Save counts to DAT file for faster access next time
-  SaveWarriorSoundsToFile(SpeechPath + 'count.dat');
+  SaveWarriorSoundsToFile(speechPath + 'count.dat');
 end;
 
 

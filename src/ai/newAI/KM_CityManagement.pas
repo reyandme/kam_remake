@@ -567,7 +567,7 @@ begin
         S.NotAcceptFlag[wtStone] := (aTick > STONE_STORE_DELAY) OR (S.CheckResIn(wtStone)*2 > Stats.GetUnitQty(utWorker));
         S.NotAcceptFlag[wtGold] := S.CheckResIn(wtGold) > 400; // Everyone needs as much gold as possible
 
-        // Food - don't store food when we have enought (it will cause trafic before storehouse)
+        // Food - don't store food when we have enough (it will cause trafic before storehouse)
         S.NotAcceptFlag[wtWine] := Stats.GetWareBalance(wtWine) > 100;
         S.NotAcceptFlag[wtSausages] := Stats.GetWareBalance(wtSausages) > 100;
         S.NotAcceptFlag[wtBread] := Stats.GetWareBalance(wtBread) > 100;
@@ -767,13 +767,13 @@ var
     // Compute strength of specific enemy group
     with EnemyEval.Groups[aGT] do
       EnemyStrength := (Attack + AttackHorse * Byte(antiGT = gtMounted))
-                        * ifthen( (antiGT = gtRanged), DefenceProjectiles, Defence )
+                        * IfThen( (antiGT = gtRanged), DefenceProjectiles, Defence )
                         * HitPoints;
 
     // Decrease strength by owner's existing units
     with AllyEval.Groups[antiGT] do
       EnemyStrength := Max(0, EnemyStrength - (Attack + AttackHorse * Byte(aGT = gtMounted))
-                                               * ifthen( (aGT = gtRanged), DefenceProjectiles, Defence )
+                                               * IfThen( (aGT = gtRanged), DefenceProjectiles, Defence )
                                                * HitPoints);
 
     // Compute unit requirements
@@ -787,10 +787,10 @@ var
       UnitEval := gAIFields.Eye.ArmyEvaluation.UnitEvaluation(UT, True);
       with UnitEval do
         UnitStrength := Max(0, Attack + AttackHorse * Byte(aGT = gtMounted)
-                               * ifthen( (aGT = gtRanged), DefenceProjectiles, Defence )
+                               * IfThen( (aGT = gtRanged), DefenceProjectiles, Defence )
                                * HitPoints);
 
-      UnitsRequired := Power(EnemyStrength / UnitStrength, 1/3) * ifthen( (I = 1), aIronRatio, 1-aIronRatio );
+      UnitsRequired := Power(EnemyStrength / UnitStrength, 1/3) * IfThen( (I = 1), aIronRatio, 1-aIronRatio );
       fWarriorsDemands[UT] := fWarriorsDemands[UT] + Max(0, Round(UnitsRequired)   );
       if (I = 2) then // In case that utAxeFighter is not blocked skip militia
         Break;
@@ -958,7 +958,7 @@ begin
     ArmorFraction := ArmorFraction / 2.0;
   end
   else
-    ArmorFraction := fRequiredWeapons[wtMetalArmor].Fraction; // Consider only metal armor in case that we have enought metal shields
+    ArmorFraction := fRequiredWeapons[wtMetalArmor].Fraction; // Consider only metal armor in case that we have enough metal shields
   // We always want the higher requirements equal to 5 + something between 1 <-> 5 for second production
   IronShare := 5 * (WeaponFraction + ArmorFraction) / Max(WeaponFraction, ArmorFraction);
   // Ware distribution = fraction / sum of fractions * 5

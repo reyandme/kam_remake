@@ -124,6 +124,8 @@ end;
 
 procedure TKMMessageStack.RemoveStack(aIndex: Integer);
 begin
+  if not InRange(aIndex, 0, fCountStack - 1) then Exit; // Somehow could happen (was reported), but hard to reproduce
+
   FreeAndNil(fListStack[aIndex]); //Release the deleted message
 
   //Move the messages to cover the gap

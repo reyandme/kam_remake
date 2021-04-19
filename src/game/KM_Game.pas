@@ -1,9 +1,10 @@
-unit KM_Game;
+﻿unit KM_Game;
 {$I KaM_Remake.inc}
 interface
 uses
   ExtCtrls,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, {$ENDIF}
+  Generics.Collections,
   KM_WorkerThread,
   KM_Networking,
   KM_PathFinding,
@@ -14,7 +15,8 @@ uses
   KM_Render, KM_Sound, KM_Scripting,
   KM_InterfaceGame, KM_InterfaceGamePlay, KM_InterfaceMapEditor,
   KM_ResTexts, KM_Hand,
-  KM_Defaults, KM_Points, KM_CommonTypes, KM_CommonClasses;
+  KM_Defaults, KM_Points, KM_CommonTypes, KM_CommonClasses, KM_CommonClassesExt,
+  KM_GameUIDTracker;
 
 type
 
@@ -41,7 +43,6 @@ type
     fSpeedMultiplier: Word; //How many ticks are compressed into one
     fWaitingForNetwork: Boolean; //Indicates that we are waiting for other players commands in MP
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
-    fSaveFile: UnicodeString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
     fLockedMutex: Boolean;
     fOverlayText: array[0..MAX_HANDS] of UnicodeString; //Needed for replays. Not saved since it's translated
     fIgnoreConsistencyCheckErrors: Boolean; // User can ignore all consistency check errors while watching SP replay
@@ -61,10 +62,10 @@ type
     fSpeedGIP: Single; //GameSpeed, recorded to GIP, could be requested by scripts
     fSpeedChangeAllowed: Boolean; //Is game speed change allowed?
 
-    fUIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
+    fUIDTracker: TKMGameUIDTracker;       //Units-Houses tracker, to issue unique IDs
 
     //Saved to local data
-    fLastReplayTick: Cardinal;
+    fLastReplayTickLocal: Cardinal; // stored / loaded in the .sloc file, if available
     fSkipReplayEndCheck: Boolean;
 
     //DO not save
@@ -79,7 +80,13 @@ type
     fReadyToStop: Boolean;
     fSeed: Integer;
 
-    fLoadFromFile: UnicodeString; //Path to file, from which game was loaded. '.bas' file for replays
+    //Relative pathname to savegame we are playing (game was loaded from it� '.bas' file for replays), so it gets saved to crashreport
+    fLoadFromFileRel: UnicodeString;
+    fLastSaveFileRel: UnicodeString;  //Relative pathname to last savegame we are playing, so game could restart from this point
+
+    fAutosavesCnt: Integer;
+    fLastSaves: TLimitedList<string>;
+
     fIsStarted: Boolean;
 
     fDoHold: Boolean; //Request to run Hold after UpdateState has finished
@@ -219,12 +226,15 @@ type
 
     property Scripting: TKMScripting read fScripting;
     property Params: TKMGameParams read fParams;
-    property SaveFile: UnicodeString read fSaveFile;
+    property SaveFile: UnicodeString read fLoadFromFileRel;
 
     procedure AddScriptSoundRemoveRequest(aScriptSoundUID: Integer; aHandID: TKMHandID);
-    function GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
-    property LastReplayTick: Cardinal read fLastReplayTick write fLastReplayTick;
+    function GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
+
+    property LastReplayTickLocal: Cardinal read fLastReplayTickLocal write fLastReplayTickLocal;
     property SkipReplayEndCheck: Boolean read fSkipReplayEndCheck write fSkipReplayEndCheck;
+    function GetReplayLastTick: Cardinal;
+
     property IgnoreConsistencyCheckErrors: Boolean read fIgnoreConsistencyCheckErrors;
 
     property LockedMutex: Boolean read fLockedMutex write fLockedMutex;
@@ -245,6 +255,8 @@ type
     class function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString; overload;
 
     procedure UpdateMultiplayerTeams;
+
+    function GetHandsCount: Integer;
 
     property Pathfinding: TPathFinding read fPathfinding;
     property GameInputProcess: TKMGameInputProcess read fGameInputProcess write fGameInputProcess;
@@ -278,18 +290,22 @@ var
 
 implementation
 uses
-  Classes, Controls, Dialogs, SysUtils, KromUtils, Math, TypInfo,
+  System.Types, Classes, Controls, Dialogs, SysUtils, KromUtils, Math, TypInfo,
   {$IFDEF WDC} UITypes, {$ENDIF}
   KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
   KM_Projectiles, KM_AIFields, KM_NetworkTypes,
   KM_Main, KM_GameApp, KM_RenderPool, KM_GameInfo, KM_GameClasses,
   KM_Terrain, KM_HandsCollection, KM_HandSpectator, KM_MapEditorHistory,
   KM_MissionScript, KM_MissionScript_Standard, KM_GameInputProcess_Multi, KM_GameInputProcess_Single,
-  KM_Resource, KM_ResCursors, KM_ResSound, KM_InterfaceDefaults, KM_GameSettings,
+  KM_Resource, KM_ResCursors, KM_ResSound,
+  KM_InterfaceDefaults, KM_InterfaceTypes, KM_GameSettings,
   KM_Log, KM_ScriptingEvents, KM_Saves, KM_FileIO, KM_CommonUtils, KM_RandomChecks, KM_DevPerfLog, KM_DevPerfLogTypes,
   KM_NetPlayersList,
   KM_HandTypes,
   KM_ServerSettings;
+
+const
+  LAST_SAVES_MAX_CNT = 5; // Max number of save names to collect for crashreport
 
 //Create template for the Game
 //aRender - who will be rendering the Game session
@@ -314,7 +330,7 @@ begin
   fOnDestroy := aOnDestroy;
 
   fAdvanceFrame := False;
-  fUIDTracker   := 0;
+  fUIDTracker   := TKMGameUIDTracker.Create;
   GameResult   := grCancel;
   fDoHold    := False;
   fSkipReplayEndCheck := False;
@@ -326,7 +342,6 @@ begin
   fPausedTicksCnt := 0;
   fLastTimeUserAction := TimeGet;
   fLastAfkMessageSent := 0;
-  fLoadFromFile := '';
 
   fIsStarted := False;
   fIsPaused := False;
@@ -337,6 +352,9 @@ begin
   fSavePoints := TKMSavePointCollection.Create;
 
   fMapTxtInfo := TKMMapTxtInfo.Create;
+
+  fLastSaves := TLimitedList<string>.Create(LAST_SAVES_MAX_CNT);
+  fAutosavesCnt := 0;
 
   //UserInterface is different between Gameplay and MapEd
   if (aRender = nil) then // Render can be nil if map is generated by Random Map Generator
@@ -434,6 +452,7 @@ begin
   FreeAndNil(fScripting);
   FreeAndNil(gScriptSounds);
   FreeAndNil(fMapTxtInfo);
+  FreeAndNil(fLastSaves);
 
   //Could be nil, if want to reuse fGIP for other gGame instance (gGame could be recreated when jump between checkpoints in replay)
   if fSavePoints <> nil then
@@ -447,6 +466,7 @@ begin
     FreeAndNil(fGameInputProcess);
 
   FreeAndNil(fOptions);
+  FreeAndNil(fUIDTracker);
   FreeAndNil(fTextMission);
 
   //When leaving the game we should always reset the cursor in case the user had beacon or linking selected
@@ -512,7 +532,8 @@ begin
   else
     fSetMissionFileSP(ExtractRelativePath(ExeDir, aMissionFile));
 
-  fSaveFile := '';
+  fLoadFromFileRel := '';
+  fLastSaveFileRel := '';
   FreeAndNil(gMySpectator); //In case somebody looks at it while parsing DAT, e.g. destroyed houses
 
   gLog.AddTime('Loading DAT file: ' + aMissionFile);
@@ -536,6 +557,11 @@ begin
                     playerEnabled[I] := True;
               end;
     gmSingle, gmCampaign: //Setup should tell us which player is AI and which not
+              // Set all hands in the SP game as Enabled
+              // In theory we could allow to prohibit some locs for AI
+              // In this case its better to delete all hand content after parser made his work done
+              // But there was no such a case or request yet, so we can simply set all hands as enabled
+              // So parser will load all hands assets
               for I := 0 to MAX_HANDS - 1 do
                 playerEnabled[I] := True;
     else      FillChar(playerEnabled, SizeOf(playerEnabled), #255);
@@ -591,6 +617,7 @@ begin
 
       Assert(InRange(aLocation, 0, gHands.Count - 1), 'No human player detected');
       gHands[aLocation].HandType := hndHuman;
+
       gMySpectator := TKMSpectator.Create(aLocation);
 
       // If no color specified use default from mission file (don't overwrite it)
@@ -671,7 +698,7 @@ var
   viewPos: TKMPointF;
 begin
   gLog.AddTime('After game start');
-  gHands.AfterMissionInit(not fParams.IsMapEditor); //Don't flatten roads in MapEd
+  gHands.AfterMissionInit;
 
   //Random after StartGame and ViewReplay should match
   if fParams.IsMultiPlayerOrSpec then
@@ -693,7 +720,7 @@ begin
   begin
     fMapEditor.History.Clear;
     fMapEditor.History.MakeCheckpoint(caAll, gResTexts[TX_MAPED_HISTORY_CHPOINT_INITIAL]);
-    fMapEditorInterface.GuiMission.GuiMissionPlayers.UpdatePlayerTypes; //Will update MapEditor PlayerHuman/PLayerAI etc //Todo refactor
+    fMapEditorInterface.GuiMission.GuiMissionPlayers.UpdatePlayerTypes; {Will update MapEditor PlayerHuman/PLayerAI etc} //todo: refactor
     fMapEditor.AfterCreated;
   end;
 
@@ -976,38 +1003,70 @@ end;
 
 {$IFDEF USE_MAD_EXCEPT}
 procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; const aZipFile: UnicodeString);
+var
+  attachedFilesStr: UnicodeString;
+
   procedure AttachFile(const aFile: UnicodeString);
   begin
     if (aFile <> '') and FileExists(aFile) then
-      ExceptIntf.AdditionalAttachments.Add(aFile, '', aZipFile);
+    begin
+
+      if Pos(aFile, attachedFilesStr) = 0 then
+      begin
+        attachedFilesStr := attachedFilesStr + aFile + '; ';
+        ExceptIntf.AdditionalAttachments.Add(aFile, '', aZipFile);
+        gLog.AddTime('Attached file: ' + aFile);
+      end
+      else
+        gLog.AddTime('File already attached: ' + aFile);
+    end;
   end;
+
+  procedure AttachSaveFiles(const aFile: UnicodeString; aAttachRNG: Boolean = True);
+  begin
+    AttachFile(ChangeFileExt(aFile, EXT_SAVE_MAIN_DOT));
+    AttachFile(ChangeFileExt(aFile, EXT_SAVE_BASE_DOT));
+    AttachFile(ChangeFileExt(aFile, EXT_SAVE_REPLAY_DOT));
+    AttachFile(ChangeFileExt(aFile, EXT_SAVE_MP_LOCAL_DOT));
+    if aAttachRNG then
+      AttachFile(ChangeFileExt(aFile, EXT_SAVE_RNG_LOG_DOT));
+  end;
+
+  procedure AttachLoadedFiles(aAttachRNG: Boolean);
+  begin
+    if fLoadFromFileRel = '' then Exit;
+
+    gLog.AddTime('Attaching game loaded file: ' + ExeDir + fLoadFromFileRel);
+    AttachSaveFiles(ExeDir + fLoadFromFileRel, aAttachRNG);
+  end;
+
 var
-  I: Integer;
+  index: Byte;
   missionFile, path: UnicodeString;
   searchRec: TSearchRec;
+  indexesSet: set of Byte;
 begin
   gLog.AddTime('Creating crash report...');
+  attachedFilesStr := '';
 
   // Attempt to save the game, but if the state is too messed up it might fail
   fSaveWorkerThread.fSynchronousExceptionMode := True; //Do saving synchronously in main thread
   try
-    if (fParams.Mode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate])
-      and not (fGamePlayInterface.UIMode = umReplay) then //In case game mode was altered or loaded with logical error
-    begin
-      Save('crashreport', UTCNow, fSaveWorkerThread);
-      fSaveWorkerThread.WaitForAllWorkToComplete; //Wait till save is made
-      AttachFile(SaveName('crashreport', EXT_SAVE_MAIN, fParams.IsMultiPlayerOrSpec));
-//      AttachFile(SaveName('crashreport', EXT_SAVE_MAIN_TXT, fParams.IsMultiPlayerOrSpec)); //Todo Debug. remove before release
-      AttachFile(SaveName('crashreport', EXT_SAVE_BASE, fParams.IsMultiPlayerOrSpec));
-      AttachFile(SaveName('crashreport', EXT_SAVE_REPLAY, fParams.IsMultiPlayerOrSpec));
-      AttachFile(SaveName('crashreport', EXT_SAVE_MP_LOCAL, fParams.IsMultiPlayerOrSpec));
-      AttachFile(SaveName('crashreport', EXT_SAVE_RNG_LOG, fParams.IsMultiPlayerOrSpec));
+    try
+      if (fParams.Mode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate])
+        and not (fGamePlayInterface.UIMode = umReplay) then //In case game mode was altered or loaded with logical error
+      begin
+        Save(CRASHREPORT_SAVE_NAME, UTCNow, fSaveWorkerThread);
+        fSaveWorkerThread.WaitForAllWorkToComplete; //Wait till save is made
+        AttachSaveFiles(SaveName(CRASHREPORT_SAVE_NAME, EXT_SAVE_MAIN, fParams.IsMultiPlayerOrSpec));
+      end;
+    except
+      on E : Exception do
+        gLog.AddTime('Exception while trying to save game for crash report: ' + E.ClassName + ': ' + E.Message);
     end;
-  except
-    on E : Exception do
-      gLog.AddTime('Exception while trying to save game for crash report: ' + E.ClassName + ': ' + E.Message);
+  finally
+    fSaveWorkerThread.fSynchronousExceptionMode := False;
   end;
-  fSaveWorkerThread.fSynchronousExceptionMode := False;
 
   missionFile := fParams.MissionFile;
   path := ExtractFilePath(ExeDir + missionFile);
@@ -1015,6 +1074,7 @@ begin
   // Try to attach the dat+map
   AttachFile(ExeDir + missionFile);
   AttachFile(ExeDir + ChangeFileExt(missionFile, '.map'));
+  AttachFile(ExeDir + ChangeFileExt(missionFile, '.txt'));
 
   // Try to add main script file and all other scripts, because they could be included
   if FileExists(ExeDir + ChangeFileExt(missionFile, '.script')) then
@@ -1030,29 +1090,33 @@ begin
     end;
   end;
 
-  //@Rey: I found it might be helpful to also attach the fSaveFile (savegame from which the game was loaded and crashed)
-
   if fParams.IsReplay or (fGamePlayInterface.UIMode = umReplay) then //In case game mode was altered or loaded with logical error
-  begin
-    //For replays attach only replay save files
-    AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_BASE_DOT));
-    AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_REPLAY_DOT));
-    AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_MAIN_DOT));
-//    AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_MAIN_TXT_DOT)); //Todo Debug. remove before release
-    AttachFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_MP_LOCAL_DOT));
-  end
+    // For replays attach only replay save files
+    AttachLoadedFiles(False)
   else
   if not fParams.IsMapEditor then // no need autosaves for MapEd error...
-    //For other game modes attach last autosaves
-    for I := 1 to Min(gGameSettings.AutosaveCount, AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX) do //Add autosaves
-    begin
-      AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_REPLAY, fParams.IsMultiPlayerOrSpec));
-      AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_BASE, fParams.IsMultiPlayerOrSpec));
-      AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MAIN, fParams.IsMultiPlayerOrSpec));
-//      AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MAIN_TXT, fParams.IsMultiPlayerOrSpec)); //Todo Debug. remove before release
-      AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_MP_LOCAL, fParams.IsMultiPlayerOrSpec));
-      AttachFile(SaveName('autosave' + Int2Fix(I, 2), EXT_SAVE_RNG_LOG, fParams.IsMultiPlayerOrSpec));
+  begin
+    // For other game modes attach last saves
+    
+    // We want to attach up to 3 saves, lets determine what are best indexes of last saves to attach
+    indexesSet := [];
+    // 0 is the oldest save
+    case fLastSaves.Count of
+      0:      ;
+      1,2,3:  indexesSet := [0,1,2];
+      4:      indexesSet := [0,2,3];
+      else    indexesSet := [0,Byte(Floor(fLastSaves.Count / 2)),fLastSaves.Count - 1];
     end;
+    for index in indexesSet do
+    begin
+      if index >= fLastSaves.Count then Break;
+      
+      AttachSaveFiles(SaveName(fLastSaves[index], EXT_SAVE_MAIN, fParams.IsMultiPlayerOrSpec));
+    end;
+
+    // It could be usefull to attach loaded file, to check what was wrong there
+    AttachLoadedFiles(True); // Also attach RNG file
+  end;
 
   gLog.AddTime('Crash report created');
 end;
@@ -1267,9 +1331,14 @@ begin
   fParams.Name := gResTexts[TX_MAPED_NEW_MISSION];
 
   fSetMissionFileSP('');
-  fSaveFile := '';
+  fLoadFromFileRel := '';
+  fLastSaveFileRel := '';
 
   fMapEditor := TKMMapEditor.Create(True, fTerrainPainter, fMapEditorInterface.HistoryUndoRedo, fMapEditorInterface.HistoryAddCheckpoint);
+
+  // We could use this method from the lobby to create RMG map, so fMapEditorInterface could be nil
+  if fMapEditorInterface <> nil then
+    fMapEditor.OnEyedropper := fMapEditorInterface.GuiTerrain.GuiTiles.TilesTableSetTileTexId;
   fMapEditor.MissionDefSavePath := fParams.Name + '.dat';
   gTerrain.MakeNewMap(aSizeX, aSizeY, True);
   fTerrainPainter.InitEmpty;
@@ -1286,7 +1355,7 @@ begin
   gMySpectator := TKMSpectator.Create(0);
   gMySpectator.FOWIndex := PLAYER_NONE;
 
-  gHands.AfterMissionInit(false);
+  gHands.AfterMissionInit;
 
   if fParams.IsSingleplayerGame then
     fGameInputProcess := TKMGameInputProcess_Single.Create(gipRecording);
@@ -1317,14 +1386,16 @@ var
   I: Integer;
 begin
   //Delete last autosave
-  KMDeleteFolder(TKMGame.SavePath('autosave' + Int2Fix(gGameSettings.AutosaveCount, 2), aIsMultiPlayerOrSpec));
+  KMDeleteFolder(TKMGame.SavePath(AUTOSAVE_SAVE_NAME + Int2Fix(gGameSettings.AutosaveCount, 2), aIsMultiPlayerOrSpec));
 
   //Shift remaining autosaves by 1 position back
   for I := gGameSettings.AutosaveCount downto 2 do // 03 to 01
-    KMMoveFolder(TKMGame.SavePath('autosave' + Int2Fix(I - 1, 2), aIsMultiPlayerOrSpec), TKMGame.SavePath('autosave' + Int2Fix(I, 2), aIsMultiPlayerOrSpec));
+    KMMoveFolder(TKMGame.SavePath(AUTOSAVE_SAVE_NAME + Int2Fix(I - 1, 2), aIsMultiPlayerOrSpec),
+                 TKMGame.SavePath(AUTOSAVE_SAVE_NAME + Int2Fix(I, 2), aIsMultiPlayerOrSpec));
 
   //Rename temp to be first in list
-  KMMoveFolder(TKMGame.SavePath('autosave', aIsMultiPlayerOrSpec), TKMGame.SavePath('autosave01', aIsMultiPlayerOrSpec));
+  KMMoveFolder(TKMGame.SavePath(AUTOSAVE_SAVE_NAME, aIsMultiPlayerOrSpec),
+               TKMGame.SavePath(AUTOSAVE_SAVE_NAME + '01', aIsMultiPlayerOrSpec));
 end;
 
 
@@ -1334,7 +1405,7 @@ var
   localIsMultiPlayerOrSpec: Boolean;
 {$ENDIF}
 begin
-  Save('autosave', aTimestamp, fAutoSaveWorkerThread); //Save to temp file
+  Save(AUTOSAVE_SAVE_NAME, aTimestamp, fAutoSaveWorkerThread); //Save to temp file
 
   //If possible perform file deletion/renaming in a different thread so we don't delay game
   {$IFDEF WDC}
@@ -1474,9 +1545,10 @@ begin
 end;
 
 
+// Used to restart game / replay while debugging
 procedure TKMGame.RestartReplay;
 begin
-  gGameApp.NewReplay(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_BASE_DOT));
+  gGameApp.NewReplay(ChangeFileExt(ExeDir + fLastSaveFileRel, EXT_SAVE_BASE_DOT));
 end;
 
 
@@ -1488,15 +1560,24 @@ begin
 end;
 
 
-function TKMGame.GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
+function TKMGame.GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
 var
   ext: UnicodeString;
+  camp: TKMCampaign;
 begin
   case aAudioFormat of
     afWav: ext := WAV_FILE_EXT;
     afOgg: ext := OGG_FILE_EXT;
   end;
-  Result := ChangeFileExt(fParams.MissionFile, '.' + UnicodeString(aSound) + ext)
+
+  Result := ExeDir + ChangeFileExt(fParams.MissionFile, '.' + UnicodeString(aSound) + ext);
+
+  // Try to load Campaign specific audio file (not mission specific)
+  if fParams.IsCampaign and (gGameApp.Campaigns.ActiveCampaign <> nil) and not FileExists(Result) then
+  begin
+    camp := gGameApp.Campaigns.ActiveCampaign;
+    Result := ExeDir + camp.Path + camp.ShortName + '.' + UnicodeString(aSound) + ext;
+  end;
 end;
 
 
@@ -1674,18 +1755,8 @@ end;
 
 
 function TKMGame.GetNewUID: Integer;
-const
-  //Prime numbers let us generate sequence of non-repeating values of max_value length
-  MAX_VALUE = 16777213;
-  STEP = 8765423;
 begin
-  //UIDs have the following properties:
-  // - allow -1 to indicate no UID (const UID_NONE = -1)
-  // - fit within 24bit (we can use that much for RGB colorcoding in unit picking)
-  // - Start from 1, so that black colorcode can be detected in render and then re-mapped to -1
-
-  fUIDTracker := (fUIDTracker + STEP) mod MAX_VALUE + 1; //1..N range, 0 is nothing for colorpicker
-  Result := fUIDTracker;
+  Result := fUIDTracker.GetNewUID;
 end;
 
 
@@ -1857,6 +1928,12 @@ begin
 end;
 
 
+function TKMGame.GetHandsCount: Integer;
+begin
+  Result := gHands.Count;
+end;
+
+
 procedure TKMGame.SetIsPaused(aValue: Boolean);
 begin
   fIsPaused := aValue;
@@ -1981,7 +2058,7 @@ begin
   if not fParams.IsMultiPlayerOrSpec then
     aBodyStream.WriteW(fParams.MissionFileSP);
 
-  aBodyStream.Write(fUIDTracker); //Units-Houses ID tracker
+  fUIDTracker.Save(aBodyStream); //Units-Houses ID tracker
   aBodyStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
   if not fParams.IsMultiPlayerOrSpec then
@@ -2001,7 +2078,10 @@ begin
   gHands.Save(aBodyStream, fParams.IsMultiPlayerOrSpec); //Saves all players properties individually
   if not fParams.IsMultiPlayerOrSpec then
     gMySpectator.Save(aBodyStream);
-  gAIFields.Save(aBodyStream);
+
+  if gHands.CanHaveAI() then
+    gAIFields.Save(aBodyStream);
+
   fPathfinding.Save(aBodyStream);
   gProjectiles.Save(aBodyStream);
   fScripting.Save(aBodyStream);
@@ -2074,7 +2154,7 @@ begin
   if fParams.IsMultiPlayerOrSpec and (aMPLocalDataPathName <> '') then
   begin
     try
-      gameMPLocalData := TKMGameMPLocalData.Create(fLastReplayTick, gNetworking.MyNetPlayer.StartLocation, fGamePlayInterface.Minimap);
+      gameMPLocalData := TKMGameMPLocalData.Create(fLastReplayTickLocal, gNetworking.MyNetPlayer.StartLocation, fGamePlayInterface.Minimap);
       try
         gameMPLocalData.SaveToFileAsync(aMPLocalDataPathName, aSaveWorkerThread);
       finally
@@ -2124,7 +2204,8 @@ end;
 //Saves game by provided name
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime; aSaveWorkerThread: TKMWorkerThread);
 var
-  fullPath, rngPath, mpLocalDataPath, newSaveName: UnicodeString;
+  I, index: Integer;
+  fullPath, rngPath, mpLocalDataPath, newSaveName, loadFrom: UnicodeString;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psGameSaveWait);
@@ -2157,15 +2238,16 @@ begin
       gGameSettings.MenuSPSaveFileName := aSaveName;
 
     //Remember which savegame to try to restart (if game was not saved before)
-    fSaveFile := ExtractRelativePath(ExeDir, fullPath);
+    fLastSaveFileRel := ExtractRelativePath(ExeDir, fullPath);
 
     newSaveName := SaveName(aSaveName, EXT_SAVE_BASE, fParams.IsMultiplayer);
     //Copy basesave so we have a starting point for replay
     if fParams.IsReplay then
     begin
+      loadFrom := ExeDir + fLoadFromFileRel;
       //Game was saved from replay (.bas file)
-      if FileExists(fLoadFromFile) then
-        KMCopyFileAsync(fLoadFromFile, newSaveName, True, aSaveWorkerThread);
+      if FileExists(loadFrom) then
+        KMCopyFileAsync(loadFrom, newSaveName, True, aSaveWorkerThread);
     end else
       //Normally saved game
       {$IFDEF PARALLEL_RUNNER}
@@ -2189,6 +2271,24 @@ begin
         on E: Exception do
           gLog.AddTime('Error saving random checks to ' + rngPath); //Silently log error, don't propagate error further
       end;
+
+    // Collect latest save names
+    if aSaveName = AUTOSAVE_SAVE_NAME then
+    begin
+      fAutosavesCnt := EnsureRange(fAutosavesCnt + 1, 1, gGameSettings.AutosaveCount);
+
+      // Increase numbers for autosave names in the list
+      for I := fAutosavesCnt - 1 downto 1 do
+      begin
+        index := fLastSaves.IndexOfItem(AUTOSAVE_SAVE_NAME + Int2Fix(I, 2), TDirection.FromEnd);
+        fLastSaves[index] := AUTOSAVE_SAVE_NAME + Int2Fix(I + 1, 2);
+      end;
+      fLastSaves.Add(AUTOSAVE_SAVE_NAME + '01');
+    end
+    else
+    if aSaveName <> CRASHREPORT_SAVE_NAME then
+      fLastSaves.Add(aSaveName);
+
   finally
     {$IFDEF PERFLOG}
     gPerfLogs.SectionLeave(psGameSave);
@@ -2302,7 +2402,7 @@ begin
       fSetMissionFileSP(missionFileSP);
     end;
 
-    bodyStream.Read(fUIDTracker);
+    fUIDTracker.Load(bodyStream);
     bodyStream.Read(loadedSeed);
 
     if not saveIsMultiplayer then
@@ -2316,7 +2416,10 @@ begin
     gMySpectator := TKMSpectator.Create(0);
     if not saveIsMultiplayer then
       gMySpectator.Load(bodyStream);
-    gAIFields.Load(bodyStream);
+
+    if gHands.CanHaveAI() then
+      gAIFields.Load(bodyStream);
+
     fPathfinding.Load(bodyStream);
     gProjectiles.Load(bodyStream);
     fScripting.Load(bodyStream);
@@ -2373,7 +2476,8 @@ var
   gameMPLocalData: TKMGameMPLocalData;
   rngPath: UnicodeString;
 begin
-  fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), EXT_SAVE_MAIN_DOT);
+  fLoadFromFileRel := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), EXT_SAVE_MAIN_DOT);
+  fLastSaveFileRel := fLoadFromFileRel; // We set last save to the loaded file, so we will be able to restart from this point
 
   gLog.AddTime('Loading game from: ' + aPathName);
 
@@ -2381,8 +2485,6 @@ begin
   try
     if not FileExists(aPathName) then
       raise Exception.Create('Savegame could not be found at ''' + aPathName + '''');
-
-    fLoadFromFile := aPathName;
 
     loadStream.LoadFromFile(aPathName);
 
@@ -2402,7 +2504,7 @@ begin
       gameMPLocalData := TKMGameMPLocalData.Create;
       try
         gameMPLocalData.LoadFromFile(ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), EXT_SAVE_MP_LOCAL_DOT));
-        fLastReplayTick := gameMPLocalData.LastReplayTick;
+        fLastReplayTickLocal := gameMPLocalData.LastReplayTick;
       finally
         FreeAndNil(gameMPLocalData);
       end;
@@ -2434,11 +2536,11 @@ var
   skipReplayEndCheck: Boolean;
 begin
   gLog.AddTime('Loading replay from save');
-  fSaveFile := aSaveFile;
+  fLastSaveFileRel := aSaveFile;
 
   if fSavePoints.Contains(aTick) then
   begin
-    lastReplayTick := fLastReplayTick;
+    lastReplayTick := fLastReplayTickLocal;
     skipReplayEndCheck := fSkipReplayEndCheck;
 
     loadStream := TKMemoryStreamBinary(fSavePoints[aTick]);
@@ -2446,7 +2548,7 @@ begin
     LoadFromStream(loadStream);
 
     // Restore game (replay) parameters, that are shared among all game savepoints
-    gGame.LastReplayTick := lastReplayTick;
+    gGame.LastReplayTickLocal := lastReplayTick;
     gGame.SkipReplayEndCheck := skipReplayEndCheck;
     gLog.AddTime('Loading replay from save done', True);
   end;
@@ -2497,7 +2599,7 @@ begin
   begin
     DeleteFile(SaveName('basesave', EXT_SAVE_BASE, fParams.IsMultiPlayerOrSpec));
     ForceDirectories(SavePath('basesave', fParams.IsMultiPlayerOrSpec)); //basesave directory could not exist at this moment, if this is the first game ever, f.e.
-    KMCopyFile(ChangeFileExt(ExeDir + fSaveFile, EXT_SAVE_BASE_DOT), SaveName('basesave', EXT_SAVE_BASE, fParams.IsMultiPlayerOrSpec));
+    KMCopyFile(ChangeFileExt(ExeDir + fLoadFromFileRel, EXT_SAVE_BASE_DOT), SaveName('basesave', EXT_SAVE_BASE, fParams.IsMultiPlayerOrSpec));
   end;
 
   //Repeat mission init if necessary
@@ -2658,11 +2760,24 @@ end;
 
 
 function TKMGame.IsReplayEnded: Boolean;
+var
+  lastReplayTick: Cardinal;
 begin
-  if fLastReplayTick > 0 then
-    Result := fParams.Tick >= fLastReplayTick
+  lastReplayTick := GetReplayLastTick;
+
+  if lastReplayTick > 0 then
+    Result := fParams.Tick >= lastReplayTick
   else
     Result := fGameInputProcess.ReplayEnded;
+end;
+
+
+function TKMGame.GetReplayLastTick: Cardinal;
+begin
+  Result := Max4(fLastReplayTickLocal,
+                 fGameInputProcess.GetLastTick,
+                 fParams.Tick,
+                 fSavePoints.LastTick);
 end;
 
 
@@ -2720,7 +2835,7 @@ begin
 
     fLastUpdateState := TimeGet;
 
-    fLastReplayTick := fParams.Tick;
+    fLastReplayTickLocal := fParams.Tick;
 
     if fParams.IsMultiPlayerOrSpec then
       gNetworking.LastProcessedTick := fParams.Tick;
@@ -2733,7 +2848,10 @@ begin
 
     fScripting.UpdateState;
     gTerrain.UpdateState;
-    gAIFields.UpdateState(fParams.Tick);
+
+    if gHands.CanHaveAI() then
+      gAIFields.UpdateState(fParams.Tick);
+
     gHands.UpdateState(fParams.Tick); //Quite slow
 
     if gGame = nil then Exit; //Quit the update if game was stopped for some reason
@@ -2845,6 +2963,7 @@ begin
     begin
       fAdvanceFrame := False;
       fIsPaused := True;
+      fGamePlayInterface.UpdateDebugInfo;
     end;
   finally
     {$IFDEF PERFLOG}
@@ -2903,9 +3022,15 @@ begin
         gmReplaySingle,
         gmReplayMulti:    Result := PlayReplayTick;
         gmMapEd:          begin
+                            {$IFDEF PERFLOG}
+                            gPerfLogs.TickBegin(gGameApp.GlobalTickCount);
+                            {$ENDIF}
                             gTerrain.IncAnimStep;
                             gHands.IncAnimStep;
                             gHands.UpdateVisualState;
+                            {$IFDEF PERFLOG}
+                            gPerfLogs.TickEnd;
+                            {$ENDIF}
                           end;
       end;
     except

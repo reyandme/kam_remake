@@ -13,9 +13,12 @@ type
   TKMSpectator = class
   private
     fHandIndex: TKMHandID;
-    fHighlight: TKMHandEntity; //Unit/House/Group that is shown highlighted to draw players attention
+    fHighlight: TKMHighlightEntity; //Unit/House/Group that is shown highlighted to draw players attention
     fHighlightEnd: Cardinal; //Highlight has a short time to live
-    fHighlightDebug: TKMHandEntity; //Unit/House/Group that is shown highlighted to draw players attention
+    fHighlightDebug: TKMHighlightEntity; //Unit/House/Group that is shown highlighted to draw players attention
+    fHighlightDebug2: TKMHighlightEntity;
+    fHighlightDebug3: TKMHighlightEntity;
+    fHighlightRoute: TKMHighlightEntity;
     fSelected: TKMHandEntity;
     fLastSelected: TKMHandEntity;
     fIsSelectedMyObj: Boolean; // We can select ally's house/unit
@@ -24,21 +27,28 @@ type
     fFogOfWarOpen: TKMFogOfWarOpen; //Stub for MapEd
     fFogOfWar: TKMFogOfWarCommon; //Pointer to current FOW view, updated by UpdateFogOfWarIndex
     procedure SetHighlight(Value: TKMHandEntity);
+    procedure SetHighlightEntity(Value: TKMHighlightEntity);
     procedure SetSelected(Value: TKMHandEntity);
     function GetSelected: TKMHandEntity;
     procedure SetHandIndex(const Value: TKMHandID);
     procedure SetFOWIndex(const Value: TKMHandID);
     procedure UpdateFogOfWarIndex;
     function GetLastSpecSelectedEntity: TKMHandEntity;
-    procedure UpdateNewSelected(var aNewSelected: TKMHandEntity; aAllowSelectAllies: Boolean = False); overload;
+    procedure UpdateNewSelected(var aNewSelected: TKMHandEntity); overload;
     function GetSelectedHandID: TKMHandID;
+    function GetHighlight: TKMHandEntity;
   public
     constructor Create(aHandIndex: TKMHandID);
     destructor Destroy; override;
-    property Highlight: TKMHandEntity read fHighlight write SetHighlight;
-    property HighlightDebug: TKMHandEntity read fHighlightDebug write fHighlightDebug;
+    property Highlight: TKMHandEntity read GetHighlight write SetHighlight;
+    property HighlightEntity: TKMHighlightEntity read fHighlight write SetHighlightEntity;
+    property HighlightDebug: TKMHighlightEntity read fHighlightDebug write fHighlightDebug;
+    property HighlightDebug2: TKMHighlightEntity read fHighlightDebug2 write fHighlightDebug2;
+    property HighlightDebug3: TKMHighlightEntity read fHighlightDebug3 write fHighlightDebug3;
+    property HighlightRoute: TKMHighlightEntity read fHighlightRoute write fHighlightRoute;
     property Selected: TKMHandEntity read GetSelected write SetSelected;
     property LastSelected: TKMHandEntity read fLastSelected;
+    procedure NilLastSelected;
     property IsSelectedMyObj: Boolean read fIsSelectedMyObj write fIsSelectedMyObj;
     function Hand: TKMHand;
     property HandID: TKMHandID read fHandIndex write SetHandIndex;
@@ -53,6 +63,8 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure Save(SaveStream: TKMemoryStream);
     procedure UpdateState(aTick: Cardinal);
+
+    procedure ResetHighlightDebug;
   end;
 
 
@@ -72,6 +84,11 @@ begin
   inherited Create;
 
   fHandIndex := aHandIndex;
+
+  fHighlight.Color        := DEFAULT_HIGHLIGHT_COL;
+  fHighlightDebug.Color   := DEFAULT_HIGHLIGHT_COL;
+  fHighlightDebug2.Color  := DEFAULT_HIGHLIGHT_COL;
+  fHighlightRoute.Color   := DEFAULT_HIGHLIGHT_COL;
 
   //Stub that always returns REVEALED
   fFogOfWarOpen := TKMFogOfWarOpen.Create;
@@ -101,6 +118,13 @@ begin
       fFogOfWar := gHands[FOWIndex].FogOfWar
   else
     fFogOfWar := gHands[HandID].FogOfWar;
+end;
+
+
+
+function TKMSpectator.GetHighlight: TKMHandEntity;
+begin
+  Result := fHighlight.Entity;
 end;
 
 
@@ -211,13 +235,13 @@ procedure TKMSpectator.UpdateNewSelected;
 var
   tmpSelected: TKMHandEntity;
 begin
-  //We do not want to change Selected object actually, just update fIsSelectedMyObj field is good enought
+  //We do not want to change Selected object actually, just update fIsSelectedMyObj field is good enough
   tmpSelected := Selected;
   UpdateNewSelected(tmpSelected);
 end;
 
 
-procedure TKMSpectator.UpdateNewSelected(var aNewSelected: TKMHandEntity; aAllowSelectAllies: Boolean = False);
+procedure TKMSpectator.UpdateNewSelected(var aNewSelected: TKMHandEntity);
 begin
   if gGameParams.Mode in [gmMultiSpectate, gmMapEd, gmReplaySingle, gmReplayMulti] then
     Exit;
@@ -226,9 +250,8 @@ begin
   begin
     if aNewSelected.Owner <> fHandIndex then  // check if we selected our unit/ally's or enemy's
     begin
-      if ((ALLOW_SELECT_ALLY_UNITS or aAllowSelectAllies) 
-            and (Hand.Alliances[aNewSelected.Owner] = atAlly))
-          or (ALLOW_SELECT_ENEMIES and (Hand.Alliances[aNewSelected.Owner] = atEnemy)) then // Enemies can be selected for debug
+      if ALLOW_SELECT_ALL
+        or (aNewSelected.AllowAllyToSelect and (Hand.Alliances[aNewSelected.Owner] = atAlly)) then
         fIsSelectedMyObj := False
       else
         aNewSelected := nil;
@@ -276,7 +299,7 @@ begin
 
       //In-game player can select only own and ally Units
       if (newSelected is TKMHouse) then
-        UpdateNewSelected(newSelected, TKMHouse(newSelected).AllowAllyToView);
+        UpdateNewSelected(newSelected);
 
       //Don't allow the player to select destroyed houses
       if (newSelected is TKMHouse) and TKMHouse(newSelected).IsDestroyed then
@@ -291,7 +314,7 @@ begin
   begin
     newSelected := Selected; //To avoid nil-ing of fSelected
     //In-game player can select only own and ally Units
-    UpdateNewSelected(newSelected, fSelected is TKMHouse); //Updates fIsSelectedMyObj
+    UpdateNewSelected(newSelected); //Updates fIsSelectedMyObj
   end;
 
   // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
@@ -316,7 +339,6 @@ begin
     if (Selected <> nil) and (UID <> UID_NONE) then
       fLastSpecSelectedObjUID[fHandIndex] := UID;
   end;
-
 end;
 
 
@@ -331,8 +353,16 @@ procedure TKMSpectator.SetHighlight(Value: TKMHandEntity);
 begin
   //We don't increase PointersCount of object because of savegames identicality over MP
   //Objects report on their destruction and set it to nil
-  fHighlight := Value;
+  fHighlight.Entity := Value;
+  fHighlight.Color := DEFAULT_HIGHLIGHT_COL;
   fHighlightEnd := TimeGet + 3000;
+end;
+
+
+procedure TKMSpectator.SetHighlightEntity(Value: TKMHighlightEntity);
+begin
+  fHighlight := Value;
+  SetHighlight(Value.Entity);
 end;
 
 
@@ -360,11 +390,26 @@ begin
 end;
 
 
+procedure TKMSpectator.NilLastSelected;
+begin
+  fLastSelected := nil;
+end;
+
+
+procedure TKMSpectator.ResetHighlightDebug;
+begin
+  fHighlightDebug.Reset;
+  fHighlightDebug2.Reset;
+  fHighlightDebug3.Reset;
+  HighlightRoute.Reset;
+end;
+
+
 procedure TKMSpectator.UpdateState;
 begin
   //Hide the highlight
   if TimeGet > fHighlightEnd then
-    fHighlight := nil;
+    fHighlight.Reset;
   //Units should be deselected when they go inside a house
   if Selected is TKMUnit then
     if not TKMUnit(Selected).Visible then
@@ -373,3 +418,4 @@ end;
 
 
 end.
+

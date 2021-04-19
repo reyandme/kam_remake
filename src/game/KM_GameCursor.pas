@@ -1,4 +1,5 @@
 unit KM_GameCursor;
+{$I KaM_Remake.inc}
 interface
 uses
   Classes, KM_Defaults, KM_Points, KM_ResTileset;
@@ -30,9 +31,20 @@ type
     MapEdRandomizeTiling: Boolean;
     MapEdOverrideCustomTiles: Boolean;
     MapEdBlendingLvl: Byte;
+    MapEdUseTerrainObjects: Boolean;
+
+    //Objects Brush
+    MapEdCleanBrush,
+    MapEdOverrideObjects: Boolean;
+    MapEdObjectsType: array[0..9] of Boolean;
+    MapEdForestAge: Integer;
+    MapEdObjectsDensity: Integer;
+
     // MapEd elevations page
     MapEdSlope: Byte;
     MapEdSpeed: Byte;
+    MapEdConstHeight: Byte;
+
     // MapEd other pages
     MapEdDir: Byte;
 
@@ -51,6 +63,8 @@ implementation
 {TKMGameCursor}
 constructor TKMGameCursor.Create;
 begin
+  inherited;
+
   Reset;
 end;
 
@@ -76,5 +90,6 @@ begin
 
   Reset;
 end;
+
 
 end.

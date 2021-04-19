@@ -436,7 +436,7 @@ begin
         ClosestPolygon := gAIFields.NavMesh.KMPoint2Polygon[ aTargetPosition ];
         I := I - 1;
       until (I < 0) OR ( (InitPolygon <> ClosestPolygon)
-                         AND (tpWalk in gTerrain.Land[aTargetPosition.Y, aTargetPosition.X].Passability)
+                         AND (tpWalk in gTerrain.Land^[aTargetPosition.Y, aTargetPosition.X].Passability)
                          AND (aOrderAttack OR (KMDistanceSqr(aActualPosition, aTargetPosition) > sqr(AI_Par[ATTACK_SQUAD_MinWalkingDistance]))) );
 
       {$IFDEF DEBUG_NewAI}
@@ -751,7 +751,7 @@ var
         begin
           Output := True;
           // Make sure that unit will not hunt target over the whole map and better stay inside company
-          if (GT <> gtRanged) then // ranged units are fixed in Squad class (set / reset target cause that they dont shoot and just reset animation)
+          if (GT <> gtRanged) then // ranged units are fixed in Squad class(set / reset target cause that they dont shoot and just reset animation)
           begin
             Squad.TargetUnit := nil;
             //Squad.TargetHouse := nil; // This cause same problem like with archers
@@ -974,7 +974,7 @@ var
   function OrderAttackHouse(): Boolean;
   const
     INIT_THREAT = 1000000;
-    LIMIT_RANGED_DESTROY_ALL_HOUSES = 6; // Archers will start to shoot at other houses if there is not enought close combat units in company
+    LIMIT_RANGED_DESTROY_ALL_HOUSES = 6; // Archers will start to shoot at other houses if there is not enough close combat units in company
     CLOSE_COMBAT_DISTANCE_LIMIT = 12; // Order to attack house starts at this distance (close combat groups; watchtowers have exception)
     MAX_SOLDIERS_VS_HOUSE = 12;
     MAX_ARCHERS_VS_TOWER = 9;
@@ -1030,7 +1030,7 @@ var
     // Target everything else with close combat units
     for GT := Low(TKMGroupType) to High(TKMGroupType) do
     begin
-      if (GT = gtRanged) then // Ignore ranged units if we have enought close combat support (avoid friendly fire)
+      if GT = gtRanged then // Ignore ranged units if we have enough close combat support (avoid friendly fire)
         with CompanyInfo do
           if (GTCnt[gtMelee] + GTCnt[gtAntiHorse] + GTCnt[gtMounted] > LIMIT_RANGED_DESTROY_ALL_HOUSES) then
             continue;

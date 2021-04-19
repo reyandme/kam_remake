@@ -935,7 +935,7 @@ procedure TKMSupervisor.AttackDecision(aTeam: Byte);
     end;
 
     // Compute comparison
-    DistCoef := ifthen(FFA, DISTANCE_COEF_FFA, DISTANCE_COEF_1v1);
+    DistCoef := IfThen(FFA, DISTANCE_COEF_FFA, DISTANCE_COEF_1v1);
     for TeamIdx := Low(fAlli2PL) to High(fAlli2PL) do
       if (DistArr[TeamIdx] <> High(Word)) then
       begin
@@ -981,7 +981,7 @@ begin
           DefRatio := Max(DefRatio, AI.ArmyManagement.Defence.DefenceStatus);
           KMSwapInt(fAlli2PL[aTeam, 0], fAlli2PL[aTeam, IdxPL]); // Make sure that player in first index is new AI
         end;
-    // AI does not have enought soldiers
+    // AI does not have enough soldiers
     if (DefRatio < MIN_DEF_RATIO) then
       Exit;
   end;

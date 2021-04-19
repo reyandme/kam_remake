@@ -65,14 +65,14 @@ uses
 
 
 const
-  ProjectileLaunchSounds:array[TKMProjectileType] of TSoundFX = (sfxBowShoot, sfxCrossbowShoot, sfxNone, sfxRockThrow);
+  ProjectileLaunchSounds: array[TKMProjectileType] of TSoundFX = (sfxBowShoot, sfxCrossbowShoot, sfxNone, sfxRockThrow);
   ProjectileHitSounds:   array[TKMProjectileType] of TSoundFX = (sfxArrowHit, sfxArrowHit, sfxArrowHit, sfxNone);
-  ProjectileSpeeds:array[TKMProjectileType] of Single = (0.75, 0.75, 0.6, 0.8);
-  ProjectileArcs:array[TKMProjectileType,1..2] of Single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
-  ProjectileJitter:array[TKMProjectileType] of Single = (0.26, 0.29, 0.26, 0.2); //Fixed Jitter added every time
-  ProjectileJitterHouse:array[TKMProjectileType] of Single = (0.6, 0.6, 0.6, 0); //Fixed Jitter added every time
-  //Jitter added according to target's speed (moving target harder to hit) Note: Walking = 0.1, so the added jitter is 0.1*X
-  ProjectilePredictJitter:array[TKMProjectileType] of Single = (2, 2, 2, 3);
+  ProjectileSpeeds: array[TKMProjectileType] of Single = (0.75, 0.75, 0.6, 0.8);
+  ProjectileArcs: array[TKMProjectileType,1..2] of Single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
+  ProjectileJitter: array[TKMProjectileType] of Single = (0.26, 0.29, 0.26, 0.2); //Fixed Jitter added every time
+  ProjectileJitterHouse: array[TKMProjectileType] of Single = (0.6, 0.6, 0.6, 0); //Fixed Jitter added every time
+  // Jitter added according to target's speed (moving target harder to hit) Note: Walking = 0.1, so the added jitter is 0.1*X
+  ProjectilePredictJitter: array[TKMProjectileType] of Single = (2, 2, 2, 3);
 
 
 { TKMProjectiles }

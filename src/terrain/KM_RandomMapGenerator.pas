@@ -7,16 +7,18 @@ unit KM_RandomMapGenerator;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_CommonTypes, KM_Terrain, Math,  // KM_Utils = random number
+  KM_CommonTypes, KM_Terrain, Math,
   KM_Points, KM_RMGUtils, KM_Defaults;
 
 
 type
-
-  TBiomeType = (btGrass,btBigGrass,btWetland,btSwamp,btWater,btCoal,btGrassGround,btGround,btTreeGrass,btGroundSnow,btSnow1,btSnow2,btIce,btCoastSand,btGrassSand1,btGrassSand2,btGrassSand3,btSand,btStone,btGold,btEgold,btIron,btEIron,btDark);
-  TObstacleType = (otSwamp,otWater,otWetland,otEgold,otEIron);
-  TObjects = (oStone,oShrub,oBranch,oMushroom,oFlower,oGrass,oDebris,oTreeDry,oTree,oConifer,oTreeTropical,oCactus,oPalm,oWaterTypes);
-  TObjectMix = (omStone,omGrass,omSwamp,omGround,omSnow,omCoal,omDesert,omWater, omWetland);
+  TBiomeType = (btGrass, btBigGrass, btWetland, btSwamp, btWater, btCoal, btGrassGround, btGround, btTreeGrass, btGroundSnow,
+    btSnow1, btSnow2, btIce, btCoastSand, btGrassSand1, btGrassSand2, btGrassSand3, btSand, btStone, btGold, btEgold, btIron,
+    btEIron, btDark);
+  TObstacleType = (otSwamp, otWater, otWetland, otEgold, otEIron);
+  TObjects = (oStone, oShrub, oBranch, oMushroom, oFlower, oGrass, oDebris, oTreeDry, oTree, oConifer, oTreeTropical,
+    oCactus, oPalm, oWaterTypes);
+  TObjectMix = (omStone, omGrass, omSwamp, omGround, omSnow, omCoal, omDesert, omWater, omWetland);
   TBiomeTypeArray = array of TBiomeType;
 
 
@@ -98,10 +100,10 @@ type
     procedure MineFinalFixer(var TilesPartsArr: TTileParts; var A: TKMByte2Array);
   public
     RMGSettings: TKMRMGSettings;
-    constructor Create();
-    destructor Destroy(); override;
-    procedure SaveSettings();
-    procedure LoadSettings();
+    constructor Create;
+    destructor Destroy; override;
+    procedure SaveSettings;
+    procedure LoadSettings;
 
     property Resources: TKMBalancedResources read fRes;
   // Random number generators
@@ -109,7 +111,7 @@ type
   end;
 
 
-  const
+const
   len_BIOME = 24;
   BT: array[0..len_BIOME-1,0..len_BIOME-1] of Integer = (
   //  0  1  2  3  4   5  6  7  8  9  10 11 12 13 14  15 16 17 18 19  20 21 22 23
@@ -248,15 +250,16 @@ type
   );
 
 implementation
-
 uses
   SysUtils, KM_HandsCollection, KM_CommonClasses, KM_Game, KM_ResMapElements, KM_Hand, Dialogs,
-  KM_ResTypes;
+  KM_ResTypes, KM_TerrainTypes;
 
 
 { TKMRandomMapGenerator }
-constructor TKMRandomMapGenerator.Create();
+constructor TKMRandomMapGenerator.Create;
 begin
+  inherited;
+
   fRNG := TKMRandomNumberGenerator.Create;
   fRes := TKMBalancedResources.Create;
 
@@ -401,7 +404,7 @@ begin
 end;
 
 
-destructor TKMRandomMapGenerator.Destroy();
+destructor TKMRandomMapGenerator.Destroy;
 begin
   fRNG.Free;
   fRes.Free;
@@ -410,13 +413,13 @@ begin
 end;
 
 
-procedure TKMRandomMapGenerator.SaveSettings();
+procedure TKMRandomMapGenerator.SaveSettings;
 begin
 
 end;
 
 
-procedure TKMRandomMapGenerator.LoadSettings();
+procedure TKMRandomMapGenerator.LoadSettings;
 begin
 
 end;
@@ -616,7 +619,7 @@ begin
     //gGameParams.IsNormalMission;
 
     if (Length(gGame.MapTxtInfo.Author) = 0) then
-      gGame.MapTxtInfo.Author := 'Random number generator';
+      gGame.MapTxtInfo.Author := 'Random map generator';
     if (Length(gGame.MapTxtInfo.SmallDesc) = 0) then
       gGame.MapTxtInfo.SmallDesc := 'Randomly generated map';
     if (Length(gGame.MapTxtInfo.GetBigDesc) = 0) then
@@ -1235,21 +1238,22 @@ begin
     ShapeNum := -10;
 	  for Y := 1 to High(A) do
 		  for X := 1 to High(A[Y]) do
-			  if (Shape2Arr[Y,X] = -1) OR (Shape2Arr[Y,X] = -2) then
+			  if (Shape2Arr[Y,X] = -1) or (Shape2Arr[Y,X] = -2) then
         begin
           case A[Y,X-1] of
-            Byte(btGrass):      RandBiom := Byte(  Tr_Grass[ fRNG.RandomI(length(Tr_BigGrass)) ]           );
-            Byte(btBigGrass):   RandBiom := Byte(  Tr_BigGrass[ fRNG.RandomI(length(Tr_BigGrass)) ]        );
-            Byte(btGrassGround):RandBiom := Byte(  Tr_GrassGround[ fRNG.RandomI(length(Tr_GrassGround)) ]  );
-            Byte(btGround):     RandBiom := Byte(  Tr_Ground[ fRNG.RandomI(length(Tr_Ground)) ]            );
-            Byte(btTreeGrass):  RandBiom := Byte(  Tr_TreeGrass[ fRNG.RandomI(length(Tr_TreeGrass)) ]      );
-            Byte(btCoastSand):  RandBiom := Byte(  Tr_CoastSand[ fRNG.RandomI(length(Tr_CoastSand)) ]      );
-            Byte(btGrassSand1): RandBiom := Byte(  Tr_GrassSand1[ fRNG.RandomI(length(Tr_GrassSand1)) ]    );
-            Byte(btGrassSand2): RandBiom := Byte(  Tr_GrassSand2[ fRNG.RandomI(length(Tr_GrassSand2)) ]    );
-            Byte(btGrassSand3): RandBiom := Byte(  Tr_GrassSand3[ fRNG.RandomI(length(Tr_GrassSand3)) ]    );
-            Byte(btSand):       RandBiom := Byte(  Tr_Sand[ fRNG.RandomI(length(Tr_Sand)) ]                );
-            Byte(btGroundSnow): RandBiom := Byte(  Tr_GroundSnow[ fRNG.RandomI(length(Tr_GroundSnow)) ]    );
-            else begin Continue; end;
+            Ord(btGrass):      RandBiom := Ord(  Tr_Grass[ fRNG.RandomI(Length(Tr_BigGrass)) ]           );
+            Ord(btBigGrass):   RandBiom := Ord(  Tr_BigGrass[ fRNG.RandomI(Length(Tr_BigGrass)) ]        );
+            Ord(btGrassGround):RandBiom := Ord(  Tr_GrassGround[ fRNG.RandomI(Length(Tr_GrassGround)) ]  );
+            Ord(btGround):     RandBiom := Ord(  Tr_Ground[ fRNG.RandomI(Length(Tr_Ground)) ]            );
+            Ord(btTreeGrass):  RandBiom := Ord(  Tr_TreeGrass[ fRNG.RandomI(Length(Tr_TreeGrass)) ]      );
+            Ord(btCoastSand):  RandBiom := Ord(  Tr_CoastSand[ fRNG.RandomI(Length(Tr_CoastSand)) ]      );
+            Ord(btGrassSand1): RandBiom := Ord(  Tr_GrassSand1[ fRNG.RandomI(Length(Tr_GrassSand1)) ]    );
+            Ord(btGrassSand2): RandBiom := Ord(  Tr_GrassSand2[ fRNG.RandomI(Length(Tr_GrassSand2)) ]    );
+            Ord(btGrassSand3): RandBiom := Ord(  Tr_GrassSand3[ fRNG.RandomI(Length(Tr_GrassSand3)) ]    );
+            Ord(btSand):       RandBiom := Ord(  Tr_Sand[ fRNG.RandomI(Length(Tr_Sand)) ]                );
+            Ord(btGroundSnow): RandBiom := Ord(  Tr_GroundSnow[ fRNG.RandomI(Length(Tr_GroundSnow)) ]    );
+          else
+            Continue;
           end;
           SearchSimilarBiome.QuickFlood(X,Y, Shape2Arr[Y,X], ShapeNum, RandBiom);
           if (SearchSimilarBiome.Count > 3) then
@@ -1505,7 +1509,7 @@ begin
             // Try find unused shape
             if not FindBestResLoc((RESOURCE <> Byte(btCoal)), BASE_RES_RADIUS[I] * RMGSettings.Locs.ProtectedRadius, TP_S,TP_E,Locs[Loc], CountArr, ResLoc) then
               break;
-            // Check if there is enought points to create mountains with specific size
+            // Check if there is enough points to create mountains with specific size
             SetSizeOfMountain(ResLoc, sizeMountain, newSize, CountArr, PointsArr, PointArr);
             // Merge shapes from Voronoi until we reach desired size
             if (RESOURCES[I] = btIron) OR (RESOURCES[I] = btGold) then
@@ -3215,7 +3219,7 @@ procedure TKMRandomMapGenerator.GenerateHeight(var aLocs: TKMPointArray; var Til
     X := aStartPoint.X;
     Y := aStartPoint.Y;
     v := aInitDir; // Init vector
-    //Dir := ifthen(aRightHanded, -1, 1); // Determine direction of rotation
+    //Dir := IfThen(aRightHanded, -1, 1); // Determine direction of rotation
     Counter := 0;
     aPointsCnt := 0;
     Overflow := 0;

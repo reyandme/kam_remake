@@ -41,7 +41,7 @@ uses
   KM_Defaults;
 
 
-{TKMWindowParams}
+{ TKMWindowParams }
 constructor TKMWindowParams.Create;
 begin
   inherited;
@@ -80,7 +80,8 @@ end;
 
 // Check window param, with current Screen object
 function TKMWindowParams.IsValid(aMonitorsInfo: TKMPointArray): Boolean;
-var I, ScreenMaxWidth, ScreenMaxHeight: Integer;
+var
+  I, ScreenMaxWidth, ScreenMaxHeight: Integer;
 begin
   ScreenMaxWidth := 0;
   ScreenMaxHeight := 0;
@@ -91,7 +92,7 @@ begin
     ScreenMaxWidth := ScreenMaxWidth + aMonitorsInfo[I].X;
     ScreenMaxHeight := Max(ScreenMaxHeight, aMonitorsInfo[I].Y);
   end;
-  // Do not let put window too much left or right. 100px is enought to get it back in that case
+  // Do not let put window too much left or right. 100px is enough to get it back in that case
   Result := (fWidth >= MIN_RESOLUTION_WIDTH)
         and (fWidth <= ScreenMaxWidth)
         and (fHeight >= MIN_RESOLUTION_HEIGHT)

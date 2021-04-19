@@ -2,7 +2,9 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF FPC} lconvencoding, FileUtil, LazUTF8, windirs, {$ENDIF}
+  {$IFDEF FPC} lconvencoding, FileUtil, LazUTF8,
+    // windirs does not work under old lazarus (1.8.0) / FPC versions, which we use to make linux dedi server
+    LazFileUtils,{ windirs,} {$ENDIF}
   {$IFDEF WDC} System.IOUtils, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
@@ -363,7 +365,9 @@ begin
   {$IFDEF WDC}
     Result := TPath.GetDocumentsPath + PathDelim + 'My Games' + PathDelim + GAME_TITLE + PathDelim
   {$ELSE}
-    Result := GetWindowsSpecialDir(CSIDL_PERSONAL) + PathDelim + 'My Games' + PathDelim + GAME_TITLE + PathDelim
+    // GetWindowsSpecialDir does not work under old lazarus (1.8.0) / FPC versions, which we use to make linux dedi server
+    //Result := GetWindowsSpecialDir(CSIDL_PERSONAL) + PathDelim + 'My Games' + PathDelim + GAME_TITLE + PathDelim
+    Result := GetUserDir + 'My Games' + PathDelim + GAME_TITLE + PathDelim
   {$ENDIF}
   else
     Result := ExtractFilePath(ParamStr(0));

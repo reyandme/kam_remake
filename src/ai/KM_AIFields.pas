@@ -3,7 +3,7 @@ unit KM_AIFields;
 interface
 uses
   KM_NavMesh, KM_AIInfluences, KM_Eye, KM_Supervisor,
-  KM_CommonClasses, KM_Points;
+  KM_CommonClasses, KM_Points, KM_GameTypes;
 
 
 type
@@ -15,6 +15,8 @@ type
     fInfluences: TKMInfluences;
     fEye: TKMEye;
     fSupervisor: TKMSupervisor;
+
+    fCanHaveAAI: Boolean; // Flag, if game can have AdvancedAI
   public
     constructor Create();
     destructor Destroy(); override;
@@ -24,7 +26,7 @@ type
     property Eye: TKMEye read fEye write fEye;
     property Supervisor: TKMSupervisor read fSupervisor write fSupervisor;
 
-    procedure AfterMissionInit();
+    procedure AfterMissionInit(aCanHaveAAI: Boolean);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -41,8 +43,10 @@ implementation
 uses
   SysUtils,
   KM_Defaults,
-
   KM_DevPerfLog, KM_DevPerfLogTypes;
+
+const
+  AIFIELDS_MARKER = 'AIFields';
 
 
 { TKMAIFields }
@@ -67,33 +71,52 @@ begin
 end;
 
 
-procedure TKMAIFields.AfterMissionInit();
+procedure TKMAIFields.AfterMissionInit(aCanHaveAAI: Boolean);
 begin
+  fCanHaveAAI := aCanHaveAAI;
+
   if not AI_GEN_NAVMESH then
     Exit;
 
   fNavMesh.AfterMissionInit();
   fInfluences.AfterMissionInit();
-  fSupervisor.AfterMissionInit();
-  //fEye.AfterMissionInit(); Eye is updated from HandsCollection (so mines are already visible for game with random map and automatic selection of storehouse)
+  if fCanHaveAAI then
+  begin
+    fSupervisor.AfterMissionInit();
+    // fEye.AfterMissionInit(); Eye is updated from HandsCollection (so mines are already visible for game with random map and automatic selection of storehouse)
+  end;
 end;
 
 
 procedure TKMAIFields.Save(SaveStream: TKMemoryStream);
 begin
+  SaveStream.PlaceMarker(AIFIELDS_MARKER);
+
+  SaveStream.Write(fCanHaveAAI);
   fNavMesh.Save(SaveStream);
   fInfluences.Save(SaveStream);
-  fEye.Save(SaveStream);
-  fSupervisor.Save(SaveStream);
+
+  if fCanHaveAAI then
+  begin
+    fEye.Save(SaveStream);
+    fSupervisor.Save(SaveStream);
+  end;
 end;
 
 
 procedure TKMAIFields.Load(LoadStream: TKMemoryStream);
 begin
+  LoadStream.CheckMarker(AIFIELDS_MARKER);
+
+  LoadStream.Read(fCanHaveAAI);
   fNavMesh.Load(LoadStream);
   fInfluences.Load(LoadStream);
-  fEye.Load(LoadStream);
-  fSupervisor.Load(LoadStream);
+
+  if fCanHaveAAI then
+  begin
+    fEye.Load(LoadStream);
+    fSupervisor.Load(LoadStream);
+  end;
 end;
 
 
@@ -105,8 +128,12 @@ begin
   try
     fNavMesh.UpdateState(aTick);
     fInfluences.UpdateState(aTick);
-    fEye.UpdateState(aTick);
-    fSupervisor.UpdateState(aTick);
+
+    if fCanHaveAAI then
+    begin
+      fEye.UpdateState(aTick);
+      fSupervisor.UpdateState(aTick);
+    end;
   finally
     {$IFDEF PERFLOG}
     gPerfLogs.SectionLeave(psAIFields);
@@ -124,9 +151,11 @@ begin
   if AI_GEN_NAVMESH then
     fNavMesh.Paint(aRect);
 
-  fEye.Paint(aRect);
-
-  fSupervisor.Paint(aRect);
+  if fCanHaveAAI then
+  begin
+    fEye.Paint(aRect);
+    fSupervisor.Paint(aRect);
+  end;
 end;
 
 

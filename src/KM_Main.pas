@@ -153,6 +153,8 @@ function TKMMain.Start: Boolean;
     end;
   end;
 
+var
+  logsPath: UnicodeString;
 begin
   Result := True;
   //Random is only used for cases where order does not matter, e.g. shuffle tracks
@@ -172,11 +174,12 @@ begin
   begin
     try
       CreateDir(ExeDir + 'Logs' + PathDelim);
-      gLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
+      logsPath := ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log';
+      gLog := TKMLog.Create(logsPath); //First thing - create a log
       gLog.DeleteOldLogs;
     except
       on E: Exception do
-        raise EGameInitError.Create('Error initializing logging:' + sLineBreak + E.Message);
+        raise EGameInitError.Create('Error initializing logging into file: ''' + logsPath + ''':' + sLineBreak + E.Message);
     end;
   end;
 
@@ -206,7 +209,7 @@ begin
      fMainSettings.WindowParams.NeedResetToDefaults := True;
 
   // Stop app if we did not ReinitRender properly (didn't pass game folder permissions test)
-  // TODO refactor. Separate folder permissions check and render initialization
+  //todo: refactor. Separate folder permissions check and render initialization
   // Locale and texts could be loaded separetely to show proper translated error message
   if not ReinitRender(False) then
   begin
@@ -235,7 +238,7 @@ begin
   Application.ProcessMessages;
   fFormLoading.Hide;
 
-  fFormMain.LoadDevSettings;
+  fFormMain.AfterFormCreated;
 end;
 
 
@@ -463,7 +466,7 @@ begin
 
   // Check if player has all permissions on game folder. Close the app if not
   // Check is done after gGameApp creating because we want to load texts first to shw traslated error message
-  // TODO refactor. Separate folder permissions check and render initialization
+  //todo: refactor. Separate folder permissions check and render initialization
   // Locale and texts could be loaded separetely to show proper translated error message
   if (gLog = nil)
     or (not aReturnToOptions and not DoHaveGenericPermission) then

@@ -496,7 +496,7 @@ begin
           //Worker
           if (fToUnit.UnitType = utWorker) and (fToUnit.Task <> nil) then
           begin
-            //ToDo: Replace phase numbers with enums to avoid hardcoded magic numbers
+            //todo: Replace phase numbers with enums to avoid hardcoded magic numbers
             // Check if worker is still digging
             if ((fToUnit.Task is TKMTaskBuildWine) and (fToUnit.Task.Phase < 5))
               or ((fToUnit.Task is TKMTaskBuildRoad) and (fToUnit.Task.Phase < 4)) then
@@ -547,6 +547,8 @@ function TKMTaskDeliver.ObjToString(const aSeparator: String = ', '): String;
 var
   FromStr, ToUStr, ToHStr: String;
 begin
+  if Self = nil then Exit('nil');
+
   FromStr := 'nil';
   ToHStr := 'nil';
   ToUStr := 'nil';

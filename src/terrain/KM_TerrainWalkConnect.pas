@@ -140,18 +140,18 @@ begin
     begin
       if aDiagObjectsEffected then
       begin
-        AllPass := AllPass and ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability));
-        AllFail := AllFail and ((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability));
+        AllPass := AllPass and ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land^[I,K].Passability));
+        AllFail := AllFail and ((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land^[I,K].Passability));
         //If all tiles that changed are walkable or not walkable currently and in our last UpdateWalkConnect, it's safe to skip
         Result := AllPass or AllFail;
       end else begin
         Result := Result and
                   //First case: Last time we did WalkConnect the tile WASN'T walkable,
                   //and Passability confirms this has not changed (tile still not walkable)
-                 (((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability)) or
+                 (((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land^[I,K].Passability)) or
                   //Second case: Last time we did WalkConnect the tile WAS walkable,
                   //and Passability confirms this has not changed (tile still walkable)
-                  ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability)));
+                  ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land^[I,K].Passability)));
       end;
       if not Result then Exit; //If one tile has changed, we need to do the whole thing
     end;
@@ -170,7 +170,7 @@ begin
     AreaID := 0;
     for Y := aRect.Top to aRect.Bottom do
       for X := aRect.Left to aRect.Right do
-        if (Land[Y,X].WalkConnect[aWC] <> 0) and (Land[Y,X].WalkConnect[aWC] <> AreaID) then
+        if (Land[Y,X].WalkConnect[aWC] <> 0) and (Land^[Y,X].WalkConnect[aWC] <> AreaID) then
         begin
           //If we already found a different AreaID then there's more than one, so we can exit immediately
           if (AreaID <> 0) then
@@ -178,7 +178,7 @@ begin
             Result := False;
             Exit;
           end;
-          AreaID := Land[Y,X].WalkConnect[aWC];
+          AreaID := Land^[Y,X].WalkConnect[aWC];
         end;
     Result := (AreaID <> 0); //If we haven't exited yet and AreaID <> 0 then there's exactly one
   end;
@@ -195,17 +195,17 @@ var
     with gTerrain do
       if KMInRect(KMPoint(X,Y), aRect) //Within rectangle
         and (not LocalWalkConnect[Y - aRect.Top, X - aRect.Left]) //Untested area
-        and (aPass in Land[Y,X].Passability) then //Matches passability
+        and (aPass in Land^[Y,X].Passability) then //Matches passability
       begin
         LocalWalkConnect[Y - aRect.Top, X - aRect.Left] := True;
         //Using custom TileInMapCoords replacement gives ~40% speed improvement
         //Using custom CanWalkDiagonally is also much faster
         if X-1 >= 1 then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land[Y,X].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land^[Y,X].Obj].DiagonalBlocked then
             LocalFillArea(X-1, Y-1);
           LocalFillArea(X-1, Y);
-          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land[Y+1,X].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land^[Y+1,X].Obj].DiagonalBlocked then
             LocalFillArea(X-1,Y+1);
         end;
 
@@ -214,10 +214,10 @@ var
 
         if X+1 <= MapX then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land[Y,X+1].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land^[Y,X+1].Obj].DiagonalBlocked then
             LocalFillArea(X+1, Y-1);
           LocalFillArea(X+1, Y);
-          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land[Y+1,X+1].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land^[Y+1,X+1].Obj].DiagonalBlocked then
             LocalFillArea(X+1, Y+1);
         end;
       end;
@@ -233,7 +233,7 @@ begin
   for Y := aRect.Top to aRect.Bottom do
     for X := aRect.Left to aRect.Right do
       if not LocalWalkConnect[Y - aRect.Top, X - aRect.Left] //Untested area
-        and (aPass in gTerrain.Land[Y,X].Passability) then //Passability matches
+        and (aPass in gTerrain.Land^[Y,X].Passability) then //Passability matches
       begin
         if FoundAnArea then
           Exit(False); //We've found two walkable areas
@@ -254,19 +254,19 @@ var
   procedure FillArea(X,Y: Word);
   begin
     with gTerrain do
-      if (Land[Y,X].WalkConnect[aWC] = 0) //Untested area
-      and (aPass in Land[Y,X].Passability) then //Matches passability
+      if (Land^[Y,X].WalkConnect[aWC] = 0) //Untested area
+      and (aPass in Land^[Y,X].Passability) then //Matches passability
       begin
-        Land[Y,X].WalkConnect[aWC] := AreaID;
+        Land^[Y,X].WalkConnect[aWC] := AreaID;
         Inc(Count);
         //Using custom TileInMapCoords replacement gives ~40% speed improvement
         //Using custom CanWalkDiagonally is also much faster
         if X-1 >= 1 then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land[Y,X].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land^[Y,X].Obj].DiagonalBlocked then
             FillArea(X-1, Y-1);
           FillArea(X-1, Y);
-          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land[Y+1,X].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land^[Y+1,X].Obj].DiagonalBlocked then
             FillArea(X-1,Y+1);
         end;
 
@@ -275,10 +275,10 @@ var
 
         if X+1 <= MapX then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land[Y,X+1].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not gMapElements[Land^[Y,X+1].Obj].DiagonalBlocked then
             FillArea(X+1, Y-1);
           FillArea(X+1, Y);
-          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land[Y+1,X+1].Obj].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= MapY) and not gMapElements[Land^[Y+1,X+1].Obj].DiagonalBlocked then
             FillArea(X+1, Y+1);
         end;
       end;
@@ -291,12 +291,12 @@ begin
   begin
     //Reset everything
     for I := 1 to MapY do for K := 1 to MapX do
-      Land[I,K].WalkConnect[aWC] := 0;
+      Land^[I,K].WalkConnect[aWC] := 0;
 
     AreaID := 0;
     for I := 1 to MapY do for K := 1 to MapX do
-      if (Land[I,K].WalkConnect[aWC] = 0)
-        and (aPass in Land[I,K].Passability) then
+      if (Land^[I,K].WalkConnect[aWC] = 0)
+        and (aPass in Land^[I,K].Passability) then
       begin
         Inc(AreaID);
         Count := 0;
@@ -306,7 +306,7 @@ begin
         begin
           Dec(AreaID);
           Count := 0;
-          Land[I,K].WalkConnect[aWC] := 0;
+          Land^[I,K].WalkConnect[aWC] := 0;
         end;
 
         Assert(AreaID < 255, 'UpdateWalkConnect failed due too many unconnected areas');
@@ -343,14 +343,14 @@ begin
   begin
     //Reset everything
     for I := 1 to MapY do for K := 1 to MapX do
-      Land[I,K].WalkConnect[aWC] := 0;
+      Land^[I,K].WalkConnect[aWC] := 0;
 
     FillChar(Parent, SizeOf(Parent), #0);
 
     AreaID := 1;
     for I := 1 to MapY do
     for K := 1 to MapX do
-    if (aPass in Land[I,K].Passability) then
+    if (aPass in Land^[I,K].Passability) then
     begin
 
       //Check 4 preceeding neighbors, if there is ID we will take it
@@ -360,17 +360,17 @@ begin
         X := K + Samples[H,0];
         Y := I + Samples[H,1];
 
-        if (Y >= 1) and InRange(X, 1, MapX) and (aPass in Land[Y,X].Passability) then
+        if (Y >= 1) and InRange(X, 1, MapX) and (aPass in Land^[Y,X].Passability) then
           if (H = 1) or (H = 3) or (aAllowDiag and (
-                                     ((H = 0) and not gMapElements[Land[I,K].Obj].DiagonalBlocked) or
-                                     ((H = 2) and not gMapElements[Land[I,K+1].Obj].DiagonalBlocked))) then
+                                     ((H = 0) and not gMapElements[Land^[I,K].Obj].DiagonalBlocked) or
+                                     ((H = 2) and not gMapElements[Land^[I,K+1].Obj].DiagonalBlocked))) then
           begin
             if (NCount = 0) then
-              Land[I,K].WalkConnect[aWC] := Land[Y,X].WalkConnect[aWC]
+              Land[I,K].WalkConnect[aWC] := Land^[Y,X].WalkConnect[aWC]
             else
               //Remember alias
-              if (Parent[Land[Y,X].WalkConnect[aWC]] <> Parent[Land[I,K].WalkConnect[aWC]]) then
-                AddAlias(TopParent(Land[Y,X].WalkConnect[aWC]), TopParent(Land[I,K].WalkConnect[aWC]));
+              if (Parent[Land[Y,X].WalkConnect[aWC]] <> Parent[Land^[I,K].WalkConnect[aWC]]) then
+                AddAlias(TopParent(Land[Y,X].WalkConnect[aWC]), TopParent(Land^[I,K].WalkConnect[aWC]));
 
             Inc(NCount);
           end;
@@ -379,7 +379,7 @@ begin
       //If there's no Area we create new one
       if NCount = 0 then
       begin
-        Land[I,K].WalkConnect[aWC] := AreaID;
+        Land^[I,K].WalkConnect[aWC] := AreaID;
         Parent[AreaID] := AreaID;
         Inc(AreaID);
         Assert(AreaID < 32767, 'UpdateWalkConnect failed due too many unconnected areas');
@@ -399,8 +399,8 @@ begin
     //Merge areas
     for I := 1 to MapY do
       for K := 1 to MapX do
-        if (Land[I,K].WalkConnect[aWC] <> 0) then
-          Land[I,K].WalkConnect[aWC] := Parent[Land[I,K].WalkConnect[aWC]];
+        if (Land^[I,K].WalkConnect[aWC] <> 0) then
+          Land[I,K].WalkConnect[aWC] := Parent[Land^[I,K].WalkConnect[aWC]];
   end;
 end;
 
@@ -429,20 +429,20 @@ begin
     AreaID := 0;
     for Y := aRect.Top to aRect.Bottom do
       for X := aRect.Left to aRect.Right do
-        if (Land[Y,X].WalkConnect[aWC] <> 0) and (Land[Y,X].WalkConnect[aWC] <> AreaID) then
+        if (Land[Y,X].WalkConnect[aWC] <> 0) and (Land^[Y,X].WalkConnect[aWC] <> AreaID) then
         begin
           Assert(AreaID = 0, 'Must not do local walk connect update with multiple AreaIDs in Rect');
-          AreaID := Land[Y,X].WalkConnect[aWC];
+          AreaID := Land^[Y,X].WalkConnect[aWC];
         end;
     Assert(AreaID <> 0, 'Must not do local walk connect update with zero AreaIDs in Rect');
 
     //Now update WalkConnect based on passability, setting it to either AreaID or 0
     for Y := aRect.Top to aRect.Bottom do
       for X := aRect.Left to aRect.Right do
-        if aPass in Land[Y,X].Passability then
-          Land[Y,X].WalkConnect[aWC] := AreaID //Walkable
+        if aPass in Land^[Y,X].Passability then
+          Land^[Y,X].WalkConnect[aWC] := AreaID //Walkable
         else
-          Land[Y,X].WalkConnect[aWC] := 0; //Unwalkable
+          Land^[Y,X].WalkConnect[aWC] := 0; //Unwalkable
   end;
 end;
 

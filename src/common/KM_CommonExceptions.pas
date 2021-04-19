@@ -1,4 +1,5 @@
 unit KM_CommonExceptions;
+{$I KaM_Remake.inc}
 interface
 uses
   SysUtils, KM_Points;

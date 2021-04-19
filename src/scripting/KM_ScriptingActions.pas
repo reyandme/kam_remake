@@ -3,7 +3,7 @@ unit KM_ScriptingActions;
 interface
 uses
   Classes, Math, SysUtils, StrUtils, KM_AIAttacks, KM_ResTileset,
-  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_Terrain, KM_Sound,
+  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_TerrainTypes, KM_Sound,
   KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_ScriptingTypes;
 
 
@@ -62,6 +62,7 @@ type
     procedure GameSpeed(aSpeed: Single);
     procedure GameSpeedChangeAllowed(aAllowed: Boolean);
 
+    procedure GroupAllowAllyToSelect(aGroupID: Integer; aAllow: Boolean);
     procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean);
     procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean);
     procedure GroupHungerSet(aGroupID, aHungerLevel: Integer);
@@ -83,8 +84,8 @@ type
     procedure HouseAddRepair(aHouseID: Integer; aRepair: Word);
     procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Word);
     procedure HouseAllow(aPlayer, aHouseType: Word; aAllowed: Boolean);
-    procedure HouseAllowAllyToView(aHouseID: Integer; aAllow: Boolean);
-    procedure HouseAllowAllyToViewAll(aPlayer: Byte; aAllow: Boolean);
+    procedure HouseAllowAllyToSelect(aHouseID: Integer; aAllow: Boolean);
+    procedure HouseAllowAllyToSelectAll(aPlayer: ShortInt; aAllow: Boolean);
     function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
     procedure HouseBarracksGiveRecruit(aHouseID: Integer);
     procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean);
@@ -101,6 +102,7 @@ type
     procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
     procedure HouseWoodcutterMode(aHouseID: Integer; aWoodcutterMode: Byte);
     procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
+    procedure HouseWareBlockTakeOut(aHouseID, aWareType: Integer; aBlocked: Boolean);
     procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer);
 
     procedure Log(const aText: AnsiString);
@@ -176,6 +178,7 @@ type
     procedure ShowMsgGoto(aPlayer: Shortint; aX, aY: Word; const aText: AnsiString);
     procedure ShowMsgGotoFormatted(aPlayer: Shortint; aX, aY: Word; const aText: AnsiString; Params: array of const);
 
+    procedure UnitAllowAllyToSelect(aUnitID: Integer; aAllow: Boolean);
     procedure UnitBlock(aPlayer: Byte; aType: Word; aBlock: Boolean);
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitDismiss(aUnitID: Integer);
@@ -197,7 +200,8 @@ uses
   KM_PathFindingRoad, KM_ResMapElements, KM_HandConstructions,
   KM_HouseWoodcutters, KM_HouseTownHall,
   KM_UnitGroupTypes,
-  KM_ResTypes;
+  KM_ResTypes,
+  KM_Terrain;
 
 const
   MIN_SOUND_AT_LOC_RADIUS = 28;
@@ -898,7 +902,7 @@ begin
     if gTerrain.TileInMapCoords(X, Y) then
     begin
       //Can't remove if tile is locked (house or roadwork)
-      if (gTerrain.Land[Y, X].TileOverlay = toRoad) and (gTerrain.Land[Y, X].TileLock = tlNone) then
+      if (gTerrain.Land^[Y, X].TileOverlay = toRoad) and (gTerrain.Land^[Y, X].TileLock = tlNone) then
         gTerrain.RemRoad(Pos);
     end
     else
@@ -1559,7 +1563,7 @@ begin
         gTerrain.SetRoad(KMPoint(X, Y), aPlayer);
         //Terrain under roads is flattened (fields are not)
         gTerrain.FlattenTerrain(KMPoint(X, Y));
-        if gMapElements[gTerrain.Land[Y,X].Obj].WineOrCorn then
+        if gMapElements[gTerrain.Land^[Y,X].Obj].WineOrCorn then
           gTerrain.RemoveObject(KMPoint(X,Y)); //Remove corn/wine like normally built road does
       end
     else
@@ -1925,9 +1929,10 @@ begin
 end;
 
 
+//@Rey: When signature changes it is good to update the description too (with new version and sometimes reference to old name)
 //* Version: 10940
 //* Allows allies to view specified house
-procedure TKMScriptActions.HouseAllowAllyToView(aHouseID: Integer; aAllow: Boolean);
+procedure TKMScriptActions.HouseAllowAllyToSelect(aHouseID: Integer; aAllow: Boolean);
 var
   H: TKMHouse;
 begin
@@ -1937,12 +1942,12 @@ begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) and not H.IsDestroyed and H.IsComplete then
       begin
-        H.AllowAllyToView := aAllow;
+        H.AllowAllyToSelect := aAllow;
       end;
       //Silently ignore if house doesn't exist
     end
     else
-      LogParamWarning('Actions.HouseAllowAllyView', [aHouseID, Byte(aAllow)]);
+      LogParamWarning('Actions.HouseAllowAllyToSelect', [aHouseID, Byte(aAllow)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1950,18 +1955,19 @@ begin
 end;
 
 
+//@Rey: When signature changes it is good to update the description too (with new version and sometimes reference to old name)
 //* Version: 10940
 //* Allows allies to view all houses of specified player
-procedure TKMScriptActions.HouseAllowAllyToViewAll(aPlayer: Byte; aAllow: Boolean);
+procedure TKMScriptActions.HouseAllowAllyToSelectAll(aPlayer: ShortInt; aAllow: Boolean);
 var
   I: Integer;
 begin
   try
     if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
       for I := 0 to gHands[aPlayer].Houses.Count - 1 do
-        gHands[aPlayer].Houses[I].AllowAllyToView := aAllow
+        gHands[aPlayer].Houses[I].AllowAllyToSelect := aAllow
     else
-      LogParamWarning('Actions.HouseAllowAllyToViewAll', [aPlayer, Byte(aAllow)]);
+      LogParamWarning('Actions.HouseAllowAllyToSelectAll', [aPlayer, Byte(aAllow)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -2039,7 +2045,7 @@ begin
         begin
           H.IncBuildingProgress;
           if H.IsStone
-          and (gTerrain.Land[H.Position.Y, H.Position.X].TileLock <> tlHouse) then
+          and (gTerrain.Land^[H.Position.Y, H.Position.X].TileLock <> tlHouse) then
             gTerrain.SetHouse(H.Position, H.HouseType, hsBuilt, H.Owner);
         end;
     end
@@ -2425,6 +2431,40 @@ begin
     raise;
   end;
 end;
+
+
+//* Version: 12600
+//* Blocks taking out of a specific ware from a storehouse or barracks
+procedure TKMScriptActions.HouseWareBlockTakeOut(aHouseID, aWareType: Integer; aBlocked: Boolean);
+var
+  H: TKMHouse;
+  Res: TKMWareType;
+begin
+  try
+    if (aHouseID > 0)
+    and (aWareType in [Low(WARE_ID_TO_TYPE) .. High(WARE_ID_TO_TYPE)]) then
+    begin
+      Res := WARE_ID_TO_TYPE[aWareType];
+      H := fIDCache.GetHouse(aHouseID);
+      if (H <> nil)
+        and (H is TKMHouseStore)
+        and not H.IsDestroyed then
+        TKMHouseStore(H).NotAllowTakeOutFlag[Res] := aBlocked;
+
+      if (H <> nil)
+        and (H is TKMHouseBarracks)
+        and not H.IsDestroyed
+        and (Res in [WARFARE_MIN..WARFARE_MAX]) then
+        TKMHouseBarracks(H).NotAllowTakeOutFlag[Res] := aBlocked;
+    end
+    else
+      LogParamWarning('Actions.HouseWareBlockTakeOut', [aHouseID, aWareType, Byte(aBlocked)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
 
 
 //* Version: 5165
@@ -3000,7 +3040,7 @@ function TKMScriptActions.MapTileHeightSet(X, Y, Height: Integer): Boolean;
 begin
   try
     //Height is vertex based not tile based
-    if gTerrain.VerticeInMapCoords(X, Y) and InRange(Height, 0, 100) then
+    if gTerrain.VerticeInMapCoords(X, Y) and InRange(Height, 0, HEIGHT_MAX) then
       Result := gTerrain.ScriptTrySetTileHeight(X, Y, Height)
     else
     begin
@@ -3317,7 +3357,7 @@ begin
             begin
               gTerrain.SetRoad(Points[I], aPlayer);
               gTerrain.FlattenTerrain(Points[I]);
-              if gMapElements[gTerrain.Land[Points[I].Y,Points[I].X].Obj].WineOrCorn then
+              if gMapElements[gTerrain.Land^[Points[I].Y,Points[I].X].Obj].WineOrCorn then
                 gTerrain.RemoveObject(Points[I]); //Remove corn/wine like normally built road does
             end;
         Result := True;
@@ -3389,6 +3429,32 @@ begin
     end
     else
       LogParamWarning('Actions.PlanAddHouse', [aPlayer, aHouseType, X, Y]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 12600
+//* Allows allies to select and view specified unit
+//* For warriors: allow to select their group
+procedure TKMScriptActions.UnitAllowAllyToSelect(aUnitID: Integer; aAllow: Boolean);
+var
+  U: TKMUnit;
+begin
+  try
+    if aUnitID > 0 then
+    begin
+      U := fIDCache.GetUnit(aUnitID);
+      if U <> nil then
+      begin
+        U.AllowAllyToSelect := aAllow;
+      end;
+      //Silently ignore if unit doesn't exist
+    end
+    else
+      LogParamWarning('Actions.UnitAllowAllyToView', [aUnitID, Byte(aAllow)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -3666,9 +3732,32 @@ begin
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
   end;
-
 end;
 
+
+//* Version: 12600
+//* Allows allies to select and view specified group
+procedure TKMScriptActions.GroupAllowAllyToSelect(aGroupID: Integer; aAllow: Boolean);
+var
+  G: TKMUnitGroup;
+begin
+  try
+    if aGroupID > 0 then
+    begin
+      G := fIDCache.GetGroup(aGroupID);
+      if G <> nil then
+      begin
+        G.AllowAllyToSelect := aAllow;
+      end;
+      //Silently ignore if house doesn't exist
+    end
+    else
+      LogParamWarning('Actions.GroupAllowAllyToSelect', [aGroupID, Byte(aAllow)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
 
 //* Version: 6277
 //* Disables (Disable = True) or enables (Disable = False) control over specifed warriors group

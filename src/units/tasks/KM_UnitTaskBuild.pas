@@ -268,7 +268,7 @@ begin
     7: begin
          gTerrain.IncDigState(fLoc);
          gTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
-         if gMapElements[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+         if gMapElements[gTerrain.Land^[fLoc.Y,fLoc.X].Obj].WineOrCorn then
            gTerrain.RemoveObject(fLoc); //Remove corn/wine/grass as they won't fit with road
          SetActionLockedStay(11,uaWork2,false);
        end;
@@ -512,7 +512,7 @@ begin
         SetActionLockedStay(11,uaWork1,false);
         inc(fPhase2);
         if fPhase2 = 2 then gTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        if (fPhase2 = 6) and gMapElements[gTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+        if (fPhase2 = 6) and gMapElements[gTerrain.Land^[fLoc.Y,fLoc.X].Obj].WineOrCorn then
           gTerrain.RemoveObject(fLoc); //Remove grass/corn/wine as they take up most of the tile
         if fPhase2 in [6,8] then gTerrain.IncDigState(fLoc);
        end;
@@ -857,7 +857,7 @@ begin
           Direction := BuildFrom.Dir;
           //Remove house plan when we start the stone phase (it is still required for wood)
           //But don't do it every time we hit if it's already done!
-          if fHouse.IsStone and (gTerrain.Land[fHouse.Position.Y, fHouse.Position.X].TileLock <> tlHouse) then
+          if fHouse.IsStone and (gTerrain.Land^[fHouse.Position.Y, fHouse.Position.X].TileLock <> tlHouse) then
             gTerrain.SetHouse(fHouse.Position, fHouse.HouseType, hsBuilt, Owner);
         end;
     3:  begin

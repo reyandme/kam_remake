@@ -282,7 +282,7 @@ begin
     if (fOpponent.UnitType in [low(UNIT_TO_GROUP_TYPE) .. high(UNIT_TO_GROUP_TYPE)]) and (UNIT_TO_GROUP_TYPE[fOpponent.UnitType] = gtMounted) then
       Damage := Damage + gRes.Units[fUnit.UnitType].AttackHorse;
 
-    Damage := Damage * (GetDirModifier(fUnit.Direction,fOpponent.Direction)+1); //Direction modifier
+    Damage := Damage * (GetDirModifier(fUnit.Direction, fOpponent.Direction) + 1); // Direction modifier
     //Defence modifier
     Damage := Damage div Math.max(gRes.Units[fOpponent.UnitType].Defence, 1); //Not needed, but animals have 0 defence
 

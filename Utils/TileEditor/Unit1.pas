@@ -18,19 +18,19 @@ type
 
 type
   TProperty = (
-       tpWater=0,
-       tpSand,     //Animals, Trees, Fields
-       tpSoil,     //Animals, Trees, Fields
-       tpWalkable, //Serfs
-       tpRoadable  //Workers
-       );
+    tpWater=0,
+    tpSand,     //Animals, Trees, Fields
+    tpSoil,     //Animals, Trees, Fields
+    tpWalkable, //Serfs
+    tpRoadable  //Workers
+  );
 
   TPropertySet = set of TProperty;
 
 var
   Form1: TForm1;
-  Bits:array[0..255]of TShape;
-  Tiles:array[0..255]of TPropertySet;
+  Bits: array[0..255]of TShape;
+  Tiles: array[0..255]of TPropertySet;
   fTileset: TKMResTileset;
 
 implementation

@@ -32,6 +32,31 @@ type
     function GetWeightedRandom(out aValue: T): Boolean;
   end;
 
+  TLimitedQueue<T> = class(TQueue<T>)
+  private
+    fMaxLength: Integer;
+  public
+    constructor Create(aMaxLength: Integer);
+
+    property MaxLength: Integer read fMaxLength write fMaxLength;
+
+    procedure EnqueueItem(const Value: T); inline;
+  end;
+
+  TLimitedList<T> = class(TList<T>)
+  private
+    fMaxLength: Integer;
+  public
+    constructor Create(aMaxLength: Integer);
+
+    property MaxLength: Integer read fMaxLength write fMaxLength;
+
+    function Add(const Value: T): Integer;
+    procedure Swap(const ValueFrom, ValueTo: T);
+
+  end;
+
+
   function GetCardinality(const PSet: PByteArray; const SizeOfSet(*in bytes*): Integer): Integer; inline;
 
 
@@ -170,4 +195,58 @@ begin
 end;
 
 
+{ TLimitedQueue<T> }
+
+constructor TLimitedQueue<T>.Create(aMaxLength: Integer);
+begin
+  inherited Create;
+
+  fMaxLength := aMaxLength;
+end;
+
+
+procedure TLimitedQueue<T>.EnqueueItem(const Value: T);
+begin
+  inherited Enqueue(Value);
+
+  if Count > fMaxLength then
+    Dequeue;
+end;
+
+
+{ TLimitedList<T> }
+constructor TLimitedList<T>.Create(aMaxLength: Integer);
+begin
+  inherited Create;
+
+  fMaxLength := aMaxLength;
+end;
+
+
+function TLimitedList<T>.Add(const Value: T): Integer;
+begin
+  inherited Add(Value);
+
+  if Count > fMaxLength then
+    Delete(0); // Delete the oldest save
+end;
+
+
+
+procedure TLimitedList<T>.Swap(const ValueFrom, ValueTo: T);
+var
+  fromI, toI: Integer;
+begin
+  fromI := IndexOf(ValueFrom);
+  toI := IndexOf(ValueTo);
+
+  // Do not swap items, if not found any
+  if (fromI = -1) or (toI = -1) then Exit;
+
+  Items[toI] := ValueFrom;
+  Items[fromI] := ValueTo;
+end;
+
+
 end.
+

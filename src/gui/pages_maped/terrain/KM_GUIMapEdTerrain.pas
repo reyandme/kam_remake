@@ -17,7 +17,7 @@ type
   TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttOverlays, ttObject, ttSelection);
 
   //Collection of terrain editing controls
-  TKMMapEdTerrain = class (TKMMapEdMenuPage)
+  TKMMapEdTerrain = class(TKMMapEdMenuPage)
   private
     fOnPageChange: TNotifyEvent;
 
@@ -134,6 +134,7 @@ procedure TKMMapEdTerrain.MouseWheel(Shift: TShiftState; WheelSteps, X, Y: Integ
 begin
   fGuiBrushes.MouseWheel(Shift, WheelSteps, X, Y, aHandled);
   fGuiHeights.MouseWheel(Shift, WheelSteps, X, Y, aHandled);
+  fGuiObjects.MouseWheel(Shift, WheelSteps, X, Y, aHandled);
 end;
 
 

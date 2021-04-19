@@ -22,8 +22,8 @@ type
     constructor Create(aRT: TRXType; aPalettes: TKMResPalettes);
 
     property IsLoaded: Boolean read GetLoaded;
-    procedure AdjoinHouseMasks(aHouseDat: TKMResHouses);
-    procedure GrowHouseMasks(aHouseDat: TKMResHouses);
+    procedure AdjoinHouseMasks(aResHouses: TKMResHouses);
+    procedure GrowHouseMasks(aResHouses: TKMResHouses);
     procedure SoftWater(aTileset: TKMResTileset);
     procedure Delete(aIndex: Integer);
     procedure LoadFromRXFile(const aFileName: string);
@@ -84,16 +84,16 @@ begin
   inherited;
   fRXData.Count := aCount;
 
-  SetLength(fRXData.Data,     aCount);
+  SetLength(fRXData.Data, aCount);
 end;
 
 
-//Convert paletted data into RGBA and select Team color layer from it
+// Convert paletted data into RGBA and select Team color layer from it
 procedure TKMSpritePackEdit.Expand;
-  function HouseWIP(aID: Integer): TKMPaletteInfo;
+  function HouseWIP(aID: Integer): TKMPaletteSpec;
   const
-    //These are sprites with house building steps
-    WIP: array[0..55] of word = (3,4,25,43,44,116,118,119,120,121,123,126,127,136,137,140,141,144,145,148,149,213,214,237,238,241,242,243,246,247,252,253,257,258,275,276,336,338,360,361,365,366,370,371,380,381,399,400,665,666,670,671,1658,1660,1682,1684);
+    // These are sprites with house building steps
+    WIP: array[0..55] of Word = (3,4,25,43,44,116,118,119,120,121,123,126,127,136,137,140,141,144,145,148,149,213,214,237,238,241,242,243,246,247,252,253,257,258,275,276,336,338,360,361,365,366,370,371,380,381,399,400,665,666,670,671,1658,1660,1682,1684);
   var
     I: Byte;
   begin
@@ -101,16 +101,13 @@ procedure TKMSpritePackEdit.Expand;
 
     for I := 0 to High(WIP) do
     if aID = WIP[I] then
-    begin
-      Result := fPalettes[pallin];
-      Exit;
-    end;
+      Exit(fPalettes[pallin]);
   end;
 var
   H: Integer;
   K, I: Integer;
-  Palette: TKMPaletteInfo;
-  L: byte;
+  Palette: TKMPaletteSpec;
+  L: Byte;
   Pixel: Integer;
 begin
   with fRXData do
@@ -120,7 +117,8 @@ begin
     case fRT of
       rxHouses:   Palette := HouseWIP(H);
       rxGuiMain:  Palette := fPalettes[RX5Pal[H]];
-      else        Palette := fPalettes.DefaultPalette;
+    else
+      Palette := fPalettes.DefaultPalette;
     end;
 
     if Flag[H] = 1 then
@@ -171,7 +169,7 @@ end;
 
 
 //
-procedure TKMSpritePackEdit.AdjoinHouseMasks(aHouseDat: TKMResHouses);
+procedure TKMSpritePackEdit.AdjoinHouseMasks(aResHouses: TKMResHouses);
 var
   HT: TKMHouseType;
   ID1, ID2: Integer; //RGB and A index
@@ -183,13 +181,13 @@ begin
   for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
   begin
     if Lay = 1 then begin
-      ID1 := aHouseDat[HT].WoodPic + 1;
-      ID2 := aHouseDat[HT].WoodPal + 1;
-      StepCount := aHouseDat[HT].WoodPicSteps;
+      ID1 := aResHouses[HT].WoodPic + 1;
+      ID2 := aResHouses[HT].WoodPal + 1;
+      StepCount := aResHouses[HT].WoodPicSteps;
     end else begin
-      ID1 := aHouseDat[HT].StonePic + 1;
-      ID2 := aHouseDat[HT].StonePal + 1;
-      StepCount := aHouseDat[HT].StonePicSteps;
+      ID1 := aResHouses[HT].StonePic + 1;
+      ID2 := aResHouses[HT].StonePal + 1;
+      StepCount := aResHouses[HT].StonePicSteps;
     end;
 
     //Fill in alpha RXData
@@ -212,8 +210,8 @@ begin
 end;
 
 
-//Grow house building masks to account for blurred shadows edges being visible
-procedure TKMSpritePackEdit.GrowHouseMasks(aHouseDat: TKMResHouses);
+// Grow house building masks to account for blurred shadows edges being visible
+procedure TKMSpritePackEdit.GrowHouseMasks(aResHouses: TKMResHouses);
 var
   HT: TKMHouseType;
   ID: Integer; //RGB and A index
@@ -224,7 +222,7 @@ begin
   for HT := HOUSE_MIN to HOUSE_MAX do
   for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
   begin
-    ID := IfThen(Lay = 1, aHouseDat[HT].WoodPic, aHouseDat[HT].StonePic) + 1;
+    ID := IfThen(Lay = 1, aResHouses[HT].WoodPic, aResHouses[HT].StonePic) + 1;
 
     //Grow the masks
     //Since shadows direction is X+ Y- we can do just one pass into that direction
@@ -476,6 +474,10 @@ var
   OutputStream: TFileStream;
   CompressionStream: TCompressionStream;
 begin
+  // No image was loaded yet
+  //@Rey: Perhaps we should erase the file in such case, otherwise mapmaker will have to go into folder to delete rxx himself if he decided to "clear" it
+  if IsEmpty then Exit;
+
   ForceDirectories(ExtractFilePath(aFileName));
 
   InputStream := TMemoryStream.Create;

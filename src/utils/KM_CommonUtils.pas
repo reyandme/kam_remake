@@ -150,8 +150,8 @@ uses
   function StrSubstring(const aStr: String; aFrom: Integer): String; overload;
   function StrContains(const aStr, aSubStr: String): Boolean;
   function StrTrimRight(const aStr: String; aCharsToTrim: TKMCharArray): String;
-  function StrTrimChar(const Str: String; Ch: Char): String;
-  procedure StringSplit(const Str: string; Delimiter: Char; ListOfStrings: TStrings);
+  function StrTrimChar(const aStr: String; aChar: Char): String;
+  procedure StringSplit(const aStr: string; aDelimiter: Char; aListOfStrings: TStrings);
   {$IFDEF WDC}
   procedure StrSplit(const aStr, aDelimiters: String; var aStrings: TStringList);
   {$ENDIF}
@@ -1048,20 +1048,22 @@ end;
 
 
 function StrToHex(const S: String): string;
-var I: Integer;
+var
+  I: Integer;
 begin
-  Result:= '';
-  for I := 1 to length (S) do
-    Result:= Result+IntToHex(ord(S[i]),2);
+  Result := '';
+  for I := 1 to Length(S) do
+    Result := Result + IntToHex(Ord(S[I]), 2);
 end;
 
 
 function HexToStr(const H: String): String;
-var I: Integer;
+var
+  I: Integer;
 begin
-  Result:= '';
-  for I := 1 to length (H) div 2 do
-    Result:= Result+Char(StrToInt('$'+Copy(H,(I-1)*2+1,2)));
+  Result := '';
+  for I := 1 to Length(H) div 2 do
+    Result := Result + Char(StrToInt('$' + Copy(H, (I-1)*2+1, 2)));
 end;
 
 
@@ -1119,7 +1121,8 @@ end;
 
 
 function FindMPColor(aColor: Cardinal): Integer;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
@@ -1555,7 +1558,7 @@ Names are the same as in new Delphi versions, but with 'Str' prefix
 }
 function StrIndexOf(const aStr, aSubStr: String): Integer;
 begin
-  //Todo refactor:
+  //todo: refactor:
   //@Krom: Why not just replace StrIndexOf with Pos everywhere in code?
   Result := AnsiPos(aSubStr, aStr) - 1;
 end;
@@ -1573,7 +1576,7 @@ end;
 
 function StrSubstring(const aStr: String; aFrom: Integer): String;
 begin
-  //Todo refactor:
+  //todo: refactor:
   //@Krom: Why not just replace StrSubstring with RightStr everywhere in code?
   Result := Copy(aStr, aFrom + 1, Length(aStr));
 end;
@@ -1581,7 +1584,7 @@ end;
 
 function StrSubstring(const aStr: String; aFrom, aLength: Integer): String;
 begin
-  //Todo refactor:
+  //todo: refactor:
   //@Krom: Why not just replace StrSubstring with Copy everywhere in code?
   Result := Copy(aStr, aFrom + 1, aLength);
 end;
@@ -1589,52 +1592,55 @@ end;
 
 function StrContains(const aStr, aSubStr: String): Boolean;
 begin
-  //Todo refactor:
+  //todo: refactor:
   //@Krom: Why not just replace StrContains with Pos() <> 0 everywhere in code?
   Result := StrIndexOf(aStr, aSubStr) <> -1;
 end;
 
 
 function StrTrimRight(const aStr: String; aCharsToTrim: TKMCharArray): String;
-var Found: Boolean;
-    I, J: Integer;
+var
+  found: Boolean;
+  I, J: Integer;
 begin
   for I := Length(aStr) downto 1 do
   begin
-    Found := False;
+    found := False;
     for J := Low(aCharsToTrim) to High(aCharsToTrim) do
     begin
       if aStr[I] = aCharsToTrim[J] then
       begin
-        Found := True;
+        found := True;
         Break;
       end;
     end;
-    if not Found then
+    if not found then
       Break;
   end;
   Result := Copy(aStr, 1, I);
 end;
 
 
-function StrTrimChar(const Str: String; Ch: Char): string;
+function StrTrimChar(const aStr: String; aChar: Char): string;
 var
-  S, E: Integer;
+  leftSide, rightSide: Integer;
 begin
-  S := 1;
-  while (S <= Length(Str)) and (Str[S] = Ch) do Inc(S);
-  E := Length(Str);
-  while (E >= 1) and (Str[E] = Ch) do Dec(E);
-  SetString(Result, PChar(@Str[S]), E - S + 1);
+  leftSide := 1;
+  while (leftSide <= Length(aStr)) and (aStr[leftSide] = aChar) do Inc(leftSide);
+
+  rightSide := Length(aStr);
+  while (rightSide >= 1) and (aStr[rightSide] = aChar) do Dec(rightSide);
+
+  Result := Copy(aStr, leftSide, rightSide - leftSide + 1)
 end;
 
 
-procedure StringSplit(const Str: string; Delimiter: Char; ListOfStrings: TStrings) ;
+procedure StringSplit(const aStr: string; aDelimiter: Char; aListOfStrings: TStrings) ;
 begin
-   ListOfStrings.Clear;
-   ListOfStrings.Delimiter       := Delimiter;
-   ListOfStrings.StrictDelimiter := True;
-   ListOfStrings.DelimitedText   := Str;
+  aListOfStrings.Clear;
+  aListOfStrings.Delimiter       := aDelimiter;
+  aListOfStrings.StrictDelimiter := True;
+  aListOfStrings.DelimitedText   := aStr;
 end;
 
 

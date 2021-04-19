@@ -44,6 +44,7 @@ type
 
 var
   Form1: TForm1;
+
 implementation
 uses
   KM_Maps, KM_CommonUtils, KM_ScriptingEvents;
@@ -52,7 +53,7 @@ uses
 
 procedure TForm1.FindFiles(aPath: String; out aList: TStringList);
 var
-  SearchRec:TSearchRec;
+  SearchRec: TSearchRec;
 begin
   FindFirst(aPath + PathDelim + '*', faAnyFile, SearchRec);
   repeat
@@ -67,14 +68,12 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  KmrDir: String;
 begin
-  KmrDir := ExtractFilePath(ParamStr(0));
+  ExeDir := ExtractFilePath(ParamStr(0));
 
   Caption                   := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
-  OpenDialog.InitialDir     := KmrDir;
-  FileOpenDlg.DefaultFolder := KmrDir;
+  OpenDialog.InitialDir     := ExeDir;
+  FileOpenDlg.DefaultFolder := ExeDir;
   fScripting                := TKMScriptingCreator.CreateScripting(nil);
   fListFileInFolder         := TStringList.Create;
   DragAcceptFiles(Handle, True);
@@ -99,7 +98,7 @@ end;
 
 procedure TForm1.btnBrowsePathClick(Sender: TObject);
 var
-  DirToValidate : String;
+  DirToValidate: String;
 begin
   if Win32MajorVersion >= 6 then // For Vista+ Windows version we can use FileOpenDlg
   begin
@@ -120,7 +119,7 @@ procedure TForm1.Edit1Change(Sender: TObject);
 begin
   fIsValidatePath := fof_None;
 
-  if FileExists(Edit1.Text) and (ExtractFileExt(Edit1.Text) = '.' + EXT_FILE_SCRIPT) then
+  if FileExists(Edit1.Text) and (LowerCase(ExtractFileExt(Edit1.Text)) = '.' + EXT_FILE_SCRIPT) then
     fIsValidatePath := fof_File
   else
     if SysUtils.DirectoryExists(Edit1.Text) then

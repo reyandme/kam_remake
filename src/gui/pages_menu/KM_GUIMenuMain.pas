@@ -3,11 +3,11 @@ unit KM_GUIMenuMain;
 interface
 uses
   Controls, Math, SysUtils,
-  KM_Controls, KM_Pics, KM_InterfaceDefaults;
+  KM_Controls, KM_Pics, KM_InterfaceDefaults, KM_InterfaceTypes;
 
 
 type
-  TKMMenuMain = class (TKMMenuPageCommon)
+  TKMMenuMain = class(TKMMenuPageCommon)
   private
     fOnPageChange: TKMMenuChangeEventText;
     procedure ButtonClick(Sender: TObject);

@@ -2,7 +2,7 @@ unit KM_UnitWorkPlan;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_Defaults, KM_CommonClasses, KM_Points, KM_Terrain, KM_Units,
+  KM_Defaults, KM_CommonClasses, KM_Points, KM_TerrainTypes, KM_Units,
   KM_ResHouses,
   KM_ResTypes;
 
@@ -58,6 +58,7 @@ implementation
 uses
   SysUtils,
   KM_ResUnits, KM_Houses, KM_HouseWoodcutters,
+  KM_Terrain,
   KM_Resource, KM_CommonUtils;
 
 

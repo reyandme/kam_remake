@@ -31,13 +31,16 @@ type
     procedure AllianceChanged;
 
     function FindPlaceForUnit(aX, aY: Integer; aUnit: TKMUnit; aUnitType: TKMUnitType; out aPlacePoint: TKMPoint; aRequiredWalkConnect: Byte): Boolean; overload;
+    function GetCount: Byte;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property Count: Byte read fCount;
+    property Count: Byte read GetCount;
     property Hands[aIndex: Integer]: TKMHand read GetHand; default;
     property PlayerAnimals: TKMHandAnimals read fPlayerAnimals;
+
+    procedure AfterMissionInit;
 
     procedure AddPlayers(aCount: Byte); //Batch add several players
 
@@ -46,10 +49,11 @@ type
     procedure RemoveEmptyPlayers;
     procedure RemoveEmptyPlayer(aIndex: TKMHandID);
     procedure RemoveAssetsOutOfBounds(const aInsetRect: TKMRect);
-    procedure AfterMissionInit(aFlattenRoads: Boolean);
+
     function HousesHitTest(X,Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
+
     function GetClosestGroup(const aLoc: TKMPoint; aIndex: TKMHandID; aAlliance: TKMAllianceType; aTypes: TKMGroupTypeSet = [Low(TKMGroupType)..High(TKMGroupType)]): TKMUnitGroup;
     function GetGroupsInRadius(const aLoc: TKMPoint; aSqrRadius: Single; aIndex: TKMHandID; aAlliance: TKMAllianceType; aTypes: TKMGroupTypeSet = [Low(TKMGroupType)..High(TKMGroupType)]): TKMUnitGroupArray;
     function GetGroupsMemberInRadius(const aLoc: TKMPoint; aSqrRadius: Single; aIndex: TKMHandID; aAlliance: TKMAllianceType; var aUGA: TKMUnitGroupArray; aTypes: TKMGroupTypeSet = [Low(TKMGroupType)..High(TKMGroupType)]): TKMUnitArray;
@@ -57,19 +61,24 @@ type
     function GetClosestHouse(const aLoc: TKMPoint; aIndex: TKMHandID; aAlliance: TKMAllianceType; aTypes: THouseTypeSet = [HOUSE_MIN..HOUSE_MAX]; aOnlyCompleted: Boolean = True): TKMHouse;
     function GetHousesInRadius(const aLoc: TKMPoint; aSqrRadius: Single; aIndex: TKMHandID; aAlliance: TKMAllianceType; aTypes: THouseTypeSet = [HOUSE_MIN..HOUSE_MAX]; aOnlyCompleted: Boolean = True): TKMHouseArray;
     function DistanceToEnemyTowers(const aLoc: TKMPoint; aIndex: TKMHandID): Single;
+
     procedure GetUnitsInRect(const aRect: TKMRect; List: TList);
     procedure GetGroupsInRect(const aRect: TKMRect; List: TList);
     procedure GetHousesInRect(const aRect: TKMRect; List: TList);
+
     function GetHouseByUID(aUID: Integer): TKMHouse;
     function GetUnitByUID(aUID: Integer): TKMUnit;
     function GetGroupByUID(aUID: Integer): TKMUnitGroup;
     function GetObjectByUID(aUID: Integer): TKMHandEntity;
+
     function GetNextHouseWSameType(aHouse: TKMHouse): TKMHouse;
     function GetNextUnitWSameType(aUnit: TKMUnit): TKMUnit;
     function GetNextGroupWSameType(aUnitGroup: TKMUnitGroup): TKMUnitGroup;
+
     function GetGroupByMember(aWarrior: TKMUnitWarrior): TKMUnitGroup;
     function HitTest(X,Y: Integer): TObject;
     function UnitCount: Integer;
+
     function FindPlaceForUnit(aX, aY: Integer; aUnit: TKMUnit; var aPlacePoint: TKMPoint; aRequiredWalkConnect: Byte): Boolean; overload;
     function FindPlaceForUnit(aX, aY: Integer; aUnitType: TKMUnitType; var aPlacePoint: TKMPoint; aRequiredWalkConnect: Byte): Boolean; overload;
 
@@ -90,6 +99,13 @@ type
     procedure UpdateGoalsForHand(aHandIndex: TKMHandID; aEnable: Boolean);
     function DoCheckGoals: Boolean;
     procedure PostLoadMission;
+
+    function CanHaveAI: Boolean;
+    function CanHaveAdvancedAI: Boolean;
+    function HaveAI: Boolean;
+    function HaveAdvancedAI: Boolean;
+    function IsAllowedAIAtAnyHand: Boolean;
+    function IsAllowedAdvancedAIAtAnyHand: Boolean;
 
     procedure Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
     procedure Load(LoadStream: TKMemoryStream);
@@ -117,7 +133,7 @@ uses
   KM_Game, KM_GameParams, KM_Terrain, KM_AIFields,
   KM_UnitsCollection, KM_MapEditorHistory,
   KM_Resource, KM_ResUnits, KM_ResTexts,
-  KM_Log, KM_CommonUtils, KM_DevPerfLog, KM_DevPerfLogTypes;
+  KM_Log, KM_CommonUtils, KM_DevPerfLog, KM_DevPerfLogTypes, KM_Entity;
 
 
 { TKMHandsCollection }
@@ -208,24 +224,95 @@ begin
 end;
 
 
-procedure TKMHandsCollection.AfterMissionInit(aFlattenRoads: Boolean);
+procedure TKMHandsCollection.AfterMissionInit;
 var
   I: Integer;
+  canHaveAdvAIOnMap: Boolean;
+  handsWithAIStartStorageI: TByteSet;
 begin
-  //RMG place storehouse before assembling NavMesh and create influences so AI initialize correctly
-  gAIFields.Eye.AfterMissionInit(); // Update Eye so it sees all mines on the map
+  canHaveAdvAIOnMap := CanHaveAdvancedAI();
+
+  // Find if there are some hands which has to place starting storehouse
+  handsWithAIStartStorageI := [];
   if not gGameParams.IsMapEditor then
     for I := 0 to fCount - 1 do
       with fHandsList[I] do
-        if IsComputer AND NeedToChooseFirstStorehouse() then
-          AI.PlaceFirstStorehouse(CenterScreen);
+        if IsComputer and NeedToChooseFirstStorehouse() then
+          handsWithAIStartStorageI := handsWithAIStartStorageI + [I];
 
-  gAIFields.AfterMissionInit;
+  //RMG place storehouse before assembling NavMesh and create influences so AI initialize correctly
+  if (handsWithAIStartStorageI <> []) or canHaveAdvAIOnMap then
+    gAIFields.Eye.AfterMissionInit(); // Update Eye so it sees all mines on the map
+
+  // Place first storehouse
+  for I in handsWithAIStartStorageI do
+    fHandsList[I].AI.PlaceFirstStorehouse(fHandsList[I].CenterScreen);
+
+  // For quick play we allow AI opponents even when loc does not allow it...
+  if CanHaveAI() then
+    gAIFields.AfterMissionInit(canHaveAdvAIOnMap);
 
   GetTeamsLazy;
 
   for I := 0 to fCount - 1 do
-    fHandsList[I].AfterMissionInit(aFlattenRoads);
+    fHandsList[I].AfterMissionInit(not gGameParams.IsMapEditor); // Don't flatten roads in MapEd
+end;
+
+
+function TKMHandsCollection.CanHaveAI: Boolean;
+begin
+  // SP game will set Classic AI by default, even if all AIs are prohibited on the loc
+  Result := HaveAI or IsAllowedAIAtAnyHand;
+end;
+
+
+function TKMHandsCollection.CanHaveAdvancedAI: Boolean;
+begin
+  Result := HaveAdvancedAI or IsAllowedAdvancedAIAtAnyHand;
+end;
+
+
+function TKMHandsCollection.HaveAI: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to fCount - 1 do
+    if fHandsList[I].IsComputer then
+      Exit(True);
+end;
+
+
+function TKMHandsCollection.HaveAdvancedAI: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to fCount - 1 do
+    if fHandsList[I].IsComputer and fHandsList[I].AI.Setup.NewAI then
+      Exit(True);
+end;
+
+
+function TKMHandsCollection.IsAllowedAIAtAnyHand: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to fCount - 1 do
+    if fHandsList[I].HandAITypes * [aitClassic, aitAdvanced] <> [] then // Some AI is allowed
+      Exit(True);
+end;
+
+
+function TKMHandsCollection.IsAllowedAdvancedAIAtAnyHand: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to fCount - 1 do
+    if aitAdvanced in fHandsList[I].HandAITypes then
+      Exit(True);
 end;
 
 
@@ -424,6 +511,14 @@ begin
     and ((Result = nil) or (KMLengthSqr(U.PositionF, KMPointF(aLoc)) < KMLengthSqr(Result.PositionF, KMPointF(aLoc)))) then
       Result := U;
   end;
+end;
+
+
+function TKMHandsCollection.GetCount: Byte;
+begin
+  if Self = nil then Exit(0);
+
+  Result := fCount;
 end;
 
 
@@ -712,7 +807,7 @@ function TKMHandsCollection.FindPlaceForUnit(aX, aY: Integer; aUnit: TKMUnit; aU
   //Unit can be placed on terrain if this tile is not occupied, or if its already occupied by this one unit
   function CanPlaceUnitOnTerrain(P: TKMPoint): Boolean;
   begin
-    Result := (gTerrain.Land[P.Y,P.X].IsUnit = nil) or (aUnit = gTerrain.Land[P.Y,P.X].IsUnit);
+    Result := (gTerrain.Land^[P.Y,P.X].IsUnit = nil) or (aUnit = gTerrain.Land^[P.Y,P.X].IsUnit);
   end;
 
 var
@@ -1237,7 +1332,7 @@ var
 begin
   Result := '|Hands: ';
   for I := 0 to fCount - 1 do
-    Result := Format('%s|%d: %s', [Result, I, fHandsList[I].ObjToString]);
+    Result := Format('%s|%d:' + #9 + '%s', [Result, I, fHandsList[I].ObjToString(#9)]);
 
 end;
 

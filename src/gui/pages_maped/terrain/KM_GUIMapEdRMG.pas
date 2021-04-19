@@ -25,6 +25,8 @@ type
     procedure RMG_Generate_Map(Sender: TObject);
     procedure RMG_Generate_New_Seed(Sender: TObject);
     function GetVisible: Boolean;
+
+    procedure PanelRMG_PositionChanged(Sender: TObject);
   protected
     Panel_RMG: TKMPanel;
     CheckGroup_Grass: TKMRadioGroup;
@@ -170,9 +172,13 @@ const
   INDENTATION_Bevel = 5;
   SIZE_Bevel_X = WIDTH_Column;
   SIZE_Bevel_Y = SIZE_Y - 140;
+  // Resources
+  STONE_MAX = 3000;
+  GOLD_MAX = 1000;
+  IRON_MAX = 1000;
 var
   Img: TKMImage;
-  Column_X,Column_Y: Integer;
+  Column_X, Column_Y: Integer;
   Panel_Settings: TKMPanel;
   Lab: TKMLabel;
 begin
@@ -184,10 +190,12 @@ begin
   fRMG := TKMRandomMapGenerator.Create;
   fOnNewMap := nil;
 
-  Panel_RMG := TKMPanel.Create(aParent, (aParent.Width - SIZE_X) div 2, (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
+  Panel_RMG := TKMPanel.Create(aParent, 0, (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
   Panel_RMG.AnchorsCenter;
   Panel_RMG.Hide;
   Panel_RMG.PanelHandleMouseWheelByDefault := False; //Allow to zoom in/out while RMG settings window is open
+  Panel_RMG.OnPositionSet := PanelRMG_PositionChanged;
+  PanelRMG_PositionChanged(nil);
 
   if aMP then
   begin
@@ -201,8 +209,8 @@ begin
   TKMBevel.Create(Panel_RMG, Column_1_X-INDENTATION_Bevel, 60, SIZE_Bevel_X, SIZE_Bevel_Y);
   TKMBevel.Create(Panel_RMG, Column_2_X-INDENTATION_Bevel, 60, SIZE_Bevel_X, SIZE_Bevel_Y);
   TKMBevel.Create(Panel_RMG, Column_3_X-INDENTATION_Bevel, 60, SIZE_Bevel_X, SIZE_Bevel_Y);
-  TKMBevel.Create(Panel_RMG, Column_4_X-INDENTATION_Bevel, 60, SIZE_Bevel_X, 220 - 80*Byte(aMP));
-  TKMBevel.Create(Panel_RMG, Column_4_X-INDENTATION_Bevel, 60+220+30 - 80*Byte(aMP), SIZE_Bevel_X, 170 - 30*Byte(aMP));
+  TKMBevel.Create(Panel_RMG, Column_4_X-INDENTATION_Bevel, 60, SIZE_Bevel_X, 220 - 80*Ord(aMP));
+  TKMBevel.Create(Panel_RMG, Column_4_X-INDENTATION_Bevel, 60+220+30 - 80*Ord(aMP), SIZE_Bevel_X, 170 - 30*Ord(aMP));
 
 // Title
   TKMLabel.Create(Panel_RMG, SIZE_X div 2, -10, gResTexts[TX_MAPED_RMG_SETTINGS_TITLE], fntOutline, taCenter);
@@ -227,7 +235,7 @@ begin
   // Loc radius
   Lab := TKMLabel.Create(Panel_Settings, Column_X, NextLine(Column_Y), BOX_X, BOX_Y, gResTexts[TX_MAPED_RMG_SETTINGS_PROTECTED_RADIUS], fntMetal, taLeft);
     Lab.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_PROTECTED_RADIUS_HINT];
-  TBar_ProtectedRadius := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 1+4*Byte(aMP), 10);
+  TBar_ProtectedRadius := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 1+4*Ord(aMP), 10);
     TBar_ProtectedRadius.Position := fRMG.RMGSettings.Locs.ProtectedRadius;
     TBar_ProtectedRadius.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_PROTECTED_RADIUS_HINT];
   // Connect locs
@@ -237,18 +245,18 @@ begin
     Check_ConnectLocs.Enabled := not aMP;
     if aMP then Check_ConnectLocs.Hide;
   // Layout (Locs)
-  Lab := TKMLabel.Create(Panel_Settings, Column_X, NextLine(Column_Y,PARAGRAPH_HEIGHT-20*Byte(aMP)), BOX_X, BOX_Y, gResTexts[TX_MAPED_RMG_SETTINGS_LAYOUT], fntMetal, taLeft);
+  Lab := TKMLabel.Create(Panel_Settings, Column_X, NextLine(Column_Y,PARAGRAPH_HEIGHT-20*Ord(aMP)), BOX_X, BOX_Y, gResTexts[TX_MAPED_RMG_SETTINGS_LAYOUT], fntMetal, taLeft);
     Lab.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_LAYOUT_HINT];
-    CheckGroup_LocPosition := TKMRadioGroup.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), BOX_X, 80 + 20*Byte(not aMP), fntMetal);
+    CheckGroup_LocPosition := TKMRadioGroup.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), BOX_X, 80 + 20*Ord(not aMP), fntMetal);
     CheckGroup_LocPosition.Add(gResTexts[TX_MAPED_RMG_SETTINGS_RECTANGLE], True);
     CheckGroup_LocPosition.Add(gResTexts[TX_MAPED_RMG_SETTINGS_VERTICAL], True);
-    CheckGroup_LocPosition.Add(gResTexts[TX_MAPED_RMG_SETTINGS_HORISONTAL], True);
+    CheckGroup_LocPosition.Add(gResTexts[TX_MAPED_RMG_SETTINGS_HORIZONTAL], True);
     CheckGroup_LocPosition.Add(gResTexts[TX_MAPED_RMG_SETTINGS_RANDOM], True);
     if not aMP then
       CheckGroup_LocPosition.Add(gResTexts[TX_MAPED_RMG_SETTINGS_CENTER_SCREEN], True);
     CheckGroup_LocPosition.ItemIndex := fRMG.RMGSettings.Locs.Layout;
     CheckGroup_LocPosition.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_LAYOUT_HINT];
-  NextLine(Column_Y,60 + 20*Byte(not aMP));
+  NextLine(Column_Y, 60 + 20 * Ord(not aMP));
   // Resources
   Check_Resources := TKMCheckBox.Create(Panel_Settings, Column_X, NextLine(Column_Y,PARAGRAPH_HEIGHT), BOX_X, BOX_Y, gResTexts[TX_MAPED_RMG_SETTINGS_RESOURCES], fntMetal);
     Check_Resources.Checked := fRMG.RMGSettings.Locs.Resource.Active;
@@ -263,21 +271,21 @@ begin
     // Stones
     Lab := TKMLabel.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), BOX_X, BOX_Y, gResTexts[TX_RESOURCES_STONES], fntMetal, taLeft);
       Lab.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_STONE_HINT];
-      TBar_Res_Stone := TKMTrackBar.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), WIDTH_TrackBar-OFFSET_1, 0+200*Byte(aMP), 2000);
+      TBar_Res_Stone := TKMTrackBar.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), WIDTH_TrackBar-OFFSET_1, 0+200*Ord(aMP), STONE_MAX);
       TBar_Res_Stone.Position := fRMG.RMGSettings.Locs.Resource.Stone;
       TBar_Res_Stone.Step := 200;
       TBar_Res_Stone.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_STONE_HINT];
     // Gold
     Lab := TKMLabel.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), BOX_X, BOX_Y, gResTexts[TX_RESOURCES_GOLD], fntMetal, taLeft);
       Lab.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_GOLD_HINT];
-      TBar_Res_Gold := TKMTrackBar.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), WIDTH_TrackBar-OFFSET_1, 0, 500);
+      TBar_Res_Gold := TKMTrackBar.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), WIDTH_TrackBar-OFFSET_1, 0, GOLD_MAX);
       TBar_Res_Gold.Position := fRMG.RMGSettings.Locs.Resource.Gold;
       TBar_Res_Gold.Step := 50;
       TBar_Res_Gold.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_GOLD_HINT];
     // Iron
     Lab := TKMLabel.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), BOX_X, BOX_Y, gResTexts[TX_RESOURCES_IRON], fntMetal, taLeft);
       Lab.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_IRON_HINT];
-      TBar_Res_Iron := TKMTrackBar.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), WIDTH_TrackBar-OFFSET_1, 0, 500);
+      TBar_Res_Iron := TKMTrackBar.Create(Panel_Settings, Column_X+OFFSET_1, NextLine(Column_Y), WIDTH_TrackBar-OFFSET_1, 0, IRON_MAX);
       TBar_Res_Iron.Position := fRMG.RMGSettings.Locs.Resource.Iron;
       TBar_Res_Iron.Step := 50;
       TBar_Res_Iron.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_IRON_HINT];
@@ -428,20 +436,20 @@ begin
   // Step
   Lab := TKMLabel.Create(Panel_Settings, Column_X, NextLine(Column_Y), BOX_X, BOX_Y, gResTexts[TX_MAPED_RMG_SETTINGS_STEP], fntMetal, taLeft);
     Lab.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_HEIGHT_STEP_HINT];
-  TBar_HeightStep := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 1, 7-2*Byte(aMP));
+  TBar_HeightStep := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 1, 7-2*Ord(aMP));
     TBar_HeightStep.Position := fRMG.RMGSettings.Height.Step;
     TBar_HeightStep.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_HEIGHT_STEP_HINT];
   // Slope
   Lab := TKMLabel.Create(Panel_Settings, Column_X, NextLine(Column_Y), BOX_X, BOX_Y, gResTexts[TX_MAPED_TERRAIN_HEIGHTS_SLOPE], fntMetal, taLeft);
     Lab.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_HEIGHT_SLOPE_HINT];
-  TBar_HeightSlope := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 0, 100-50*Byte(aMP));
+  TBar_HeightSlope := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 0, 100-50*Ord(aMP));
     TBar_HeightSlope.Position := fRMG.RMGSettings.Height.Slope;
     TBar_HeightSlope.Step := 10;
     TBar_HeightSlope.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_HEIGHT_SLOPE_HINT];
   // Height
   Lab := TKMLabel.Create(Panel_Settings, Column_X, NextLine(Column_Y), BOX_X, BOX_Y, gResTexts[TX_MAPED_TERRAIN_HEIGHTS], fntMetal, taLeft);
     Lab.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_HEIGHT_HEIGHTS_HINT];
-  TBar_HeightHeight := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 0, 100-30*Byte(aMP));
+  TBar_HeightHeight := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 0, 100-30*Ord(aMP));
     TBar_HeightHeight.Position := fRMG.RMGSettings.Height.Height;
     TBar_HeightHeight.Step := 10;
     TBar_HeightHeight.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_HEIGHT_HEIGHTS_HINT];
@@ -477,7 +485,7 @@ begin
   // Forests
   Lab := TKMLabel.Create(Panel_Settings, Column_X, NextLine(Column_Y), BOX_X, BOX_Y, gResTexts[TX_MAPED_RMG_SETTINGS_FORESTS_DENSITY], fntMetal, taLeft);
     Lab.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_FORESTS_DENSITY_HINT];
-    TBar_Forests := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 0, 10 - Byte(aMP) * 2);
+    TBar_Forests := TKMTrackBar.Create(Panel_Settings, Column_X, NextLine(Column_Y), WIDTH_TrackBar, 0, 10 - Ord(aMP) * 2);
     TBar_Forests.Position := fRMG.RMGSettings.Objects.ForestDensity;
     TBar_Forests.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_FORESTS_DENSITY_HINT];
   // Trees in forest
@@ -546,7 +554,7 @@ begin
 
 
 // Buttons
-  Column_X := SIZE_X - 160;// - 215 * Byte(aMP);
+  Column_X := SIZE_X - 160;// - 215 * Ord(aMP);
   Column_Y := SIZE_Y - 50;
   Button_RMG_Generate_New_Seed := TKMButton.Create(Panel_RMG, Column_X-320-60, Column_Y, 200, 30, gResTexts[TX_MAPED_RMG_SETTINGS_NEW_RANDOM_SEED], bsMenu);
   Button_RMG_Generate_New_Seed.OnClick := RMG_Generate_New_Seed;
@@ -752,6 +760,27 @@ procedure TKMMapEdRMG.RefreshMinimap();
 begin
   if Assigned(fMinimap) then
     MinimapView.SetMinimap(fMinimap);
+end;
+
+
+procedure TKMMapEdRMG.PanelRMG_PositionChanged(Sender: TObject);
+var
+  left, right: Integer;
+begin
+  left := (Panel_RMG.Parent.Width - Panel_RMG.Width) div 2;
+
+  if not fMPLobby then
+  begin
+    left := Max(left, MAPED_TOOLBAR_WIDTH);
+    right := Max(0, Panel_RMG.Parent.Width - left - Panel_RMG.Width);
+    left := Panel_RMG.Parent.Width - right - Panel_RMG.Width;
+  end;
+
+  Panel_RMG.OnPositionSet := nil;
+
+  Panel_RMG.Left := left;
+
+  Panel_RMG.OnPositionSet := PanelRMG_PositionChanged;
 end;
 
 

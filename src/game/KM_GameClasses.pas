@@ -1,4 +1,5 @@
 unit KM_GameClasses;
+{$I KaM_Remake.inc}
 interface
 uses
   KM_Minimap,
@@ -36,6 +37,8 @@ uses
 
 constructor TKMGameMPLocalData.Create;
 begin
+  inherited;
+
   Create(0, -1, nil);
 end;
 

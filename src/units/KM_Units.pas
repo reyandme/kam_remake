@@ -46,6 +46,8 @@ type
   TKMTaskResult = (trTaskContinues, trTaskDone); //There's no difference between Done and Aborted
 
   TKMUnitTask = class abstract
+  private
+    function GetPhase: Byte;
   protected
     fType: TKMUnitTaskType;
     fUnit: TKMUnit; //Unit who's performing the Task
@@ -59,7 +61,7 @@ type
     procedure SyncLoad; virtual;
     destructor Destroy; override;
 
-    property Phase: Byte read fPhase write fPhase;
+    property Phase: Byte read GetPhase write fPhase;
     property TaskType: TKMUnitTaskType read fType;
     function WalkShouldAbandon: Boolean; virtual;
 
@@ -124,6 +126,8 @@ type
     procedure DoDismiss;
 
     procedure UpdateLastTimeTrySetActionWalk;
+  private
+    function GetTask: TKMUnitTask;
   protected
     function GetInstance: TKMUnit; override;
     function GetPosition: TKMPoint; override;
@@ -194,7 +198,7 @@ type
 
     property  Home: TKMHouse read fHome write SetHome;
     property  Action: TKMUnitAction read fAction;
-    property  Task: TKMUnitTask read fTask;
+    property  Task: TKMUnitTask read GetTask;
     property  UnitType: TKMUnitType read fType;
     function  GetActionText: UnicodeString;
     property  Condition: Integer read fCondition write SetCondition;
@@ -417,12 +421,12 @@ end;
 function TKMSettledUnit.FindHome: Boolean;
 var H: TKMHouse;
 begin
-  Result:=false;
+  Result := False;
   H := gHands[Owner].Houses.FindEmptyHouse(fType, fPosition);
   if H <> nil then
   begin
     fHome  := H.GetPointer;
-    Result := true;
+    Result := True;
   end;
 end;
 
@@ -681,7 +685,7 @@ begin
     and (fHome.CheckResOut(TM.WorkPlan.Product1) < MAX_WARES_IN_HOUSE)
     and (fHome.CheckResOut(TM.WorkPlan.Product2) < MAX_WARES_IN_HOUSE) then
   begin
-    //if fResource.HouseDat[fHome.HouseType].DoesOrders then
+    //if gRes.Houses[fHome.HouseType].DoesOrders then
       //Take order to production
       //fHome.ResOrder[Res] := fHome.ResOrder[Res] - 1;
     Result := TM;
@@ -820,6 +824,8 @@ end;
 
 function TKMUnitSerf.ObjToString(const aSeparator: String = '|'): String;
 begin
+  if Self = nil then Exit('nil');
+
   Result := inherited ObjToString(aSeparator)
           + Format('%sCarry = %s', [aSeparator, GetEnumName(TypeInfo(TKMWareType), Integer(fCarry))]);
 end;
@@ -933,8 +939,8 @@ var
   ID: Integer;
 begin
   inherited;
-  if not fVisible then exit;
-  if fAction = nil then exit;
+  if not fVisible then Exit;
+  if fAction = nil then Exit;
   V := fVisual.GetLerp(aTickLag);
 
   XPaintPos := V.PosF.X + UNIT_OFF_X + V.SlideX;
@@ -954,6 +960,7 @@ begin
   Result := True; //Required for override compatibility
   if fAction = nil then
     raise ELocError.Create(gRes.Units[UnitType].GUIName + ' has no action at start of TKMUnitWorker.UpdateState', fPosition);
+
   if inherited UpdateState then Exit;
 
   CheckCondition;
@@ -961,12 +968,10 @@ begin
   if (fThought = thBuild) and (fTask = nil) then
     fThought := thNone; //Remove build thought if we are no longer doing anything
 
-  //If we are still stuck on a house for some reason, get off it ASAP
-  Assert(gTerrain.Land[fPosition.Y, fPosition.X].TileLock <> tlHouse);
-
   if (fTask = nil) and (fAction = nil) then SetActionStay(20, uaWalk);
 
-  if fAction=nil then raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at end of TKMUnitWorker.UpdateState',fPosition);
+  if fAction = nil then
+    raise ELocError.Create(gRes.Units[UnitType].GUIName + ' has no action at end of TKMUnitWorker.UpdateState', fPosition);
 end;
 
 
@@ -1039,7 +1044,8 @@ begin
 
   case fAction.Execute of
     arActContinues: Exit;
-    else            FreeAndNil(fAction);
+  else
+    FreeAndNil(fAction);
   end;
   SetCurrPosition(KMPointRound(fPositionF));
 
@@ -1047,7 +1053,7 @@ begin
   Assert((fTask = nil) or (fTask is TKMTaskDie));
   if fTask is TKMTaskDie then
   case fTask.Execute of
-    trTaskContinues:  exit;
+    trTaskContinues:  Exit;
     trTaskDone:       raise Exception.Create('Unexpected fUnitTask.Execute value = trTaskDone'); //TTaskDie never returns trTaskDone yet
   end;
 
@@ -1240,8 +1246,6 @@ begin
   LoadStream.Read(fDismissASAP);
   LoadStream.Read(Dismissable);
   LoadStream.Read(fLastTimeTrySetActionWalk);
-
-
 end;
 
 
@@ -1277,7 +1281,7 @@ begin
   end;
 
   if aRemoveTileUsage
-    and (gTerrain.Land[NextPosition.Y, NextPosition.X].IsUnit = Self) then //remove lock only if it was made by this unit
+    and (gTerrain.Land^[NextPosition.Y, NextPosition.X].IsUnit = Self) then //remove lock only if it was made by this unit
     gTerrain.UnitRem(fNextPosition); //Must happen before we nil NextPosition
 
   fIsDead       := True;
@@ -1587,8 +1591,8 @@ end;
 procedure TKMUnit.SetCurrPosition(const aLoc: TKMPoint);
 begin
   if {not gGameApp.DynamicFOWEnabled
-    and }(Owner <> PLAYER_ANIMAL)
-    and (fPosition <> aLoc) then  //Update FOW only for new loc
+  and }(Owner <> PLAYER_ANIMAL)
+  and (fPosition <> aLoc) then  //Update FOW only for new loc
     gHands.RevealForTeam(Owner, aLoc, gRes.Units[fType].Sight, FOG_OF_WAR_MAX);
 
   fPosition := aLoc;
@@ -1976,7 +1980,7 @@ end;
 function TKMUnit.CanStepTo(X,Y: Integer; aPass: TKMTerrainPassability): Boolean;
 begin
   Result := gTerrain.TileInMapCoords(X,Y)
-        and (gTerrain.Land[Y,X].IsUnit = nil)
+        and (gTerrain.Land^[Y,X].IsUnit = nil)
         and (gTerrain.CheckPassability(KMPoint(X,Y), aPass))
         and (not KMStepIsDiag(Position, KMPoint(X,Y)) //Only check vertex usage if the step is diagonal
              or (not gTerrain.HasVertexUnit(KMGetDiagVertex(Position, KMPoint(X,Y)))))
@@ -2036,7 +2040,7 @@ begin
       SetCurrPosition(NewCurrPosition); //will update FOW
 
       // Unit was occupying tile (he was walking inside house when house was destroyed)
-      placedOnOccupiedTile := gTerrain.Land[fPosition.Y, fPosition.X].IsUnit = Self;
+      placedOnOccupiedTile := gTerrain.Land^[fPosition.Y, fPosition.X].IsUnit = Self;
       //Make sure these are reset properly
       Assert(not gTerrain.HasUnit(fPosition) or placedOnOccupiedTile);
       IsExchanging := False;
@@ -2182,6 +2186,14 @@ begin
 end;
 
 
+function TKMUnit.GetTask: TKMUnitTask;
+begin
+  if Self = nil then Exit(nil);
+
+  Result := fTask;
+end;
+
+
 function TKMUnit.PathfindingShouldAvoid: Boolean;
 begin
   Result := not (fAction is TKMUnitActionWalkTo); //If we're walking, pathfinding should not route around us
@@ -2229,6 +2241,8 @@ function TKMUnit.ObjToStringShort(const aSeparator: String = '|'): String;
 var
   ActStr, TaskStr: String;
 begin
+  if Self = nil then Exit('nil');
+
   ActStr := 'nil';
   TaskStr := 'nil';
   if fAction <> nil then
@@ -2236,12 +2250,12 @@ begin
   if fTask <> nil then
     TaskStr := fTask.ObjToString;
 
-  Result := Format('UID = %d%sType = %s%sAction = %s%sTask = [%s]%sCurrPosition = %s%sIsDead = %s',
-                   [UID, aSeparator,
+  Result := inherited ObjToStringShort(aSeparator) +
+            Format('%sType = %s%sAction = %s%sTask = [%s]%sIsDead = %s',
+                   [aSeparator,
                     GetEnumName(TypeInfo(TKMUnitType), Integer(fType)), aSeparator,
                     ActStr, aSeparator,
                     TaskStr, aSeparator,
-                    TypeToString(fPosition), aSeparator,
                     BoolToStr(fIsDead, True)]);
 end;
 
@@ -2250,6 +2264,8 @@ function TKMUnit.ObjToString(const aSeparator: String = '|'): String;
 var
   HomeStr, InHouseStr: String;
 begin
+  if Self = nil then Exit('nil');
+
   HomeStr := 'nil';
   InHouseStr := 'nil';
 
@@ -2258,19 +2274,17 @@ begin
   if fInHouse <> nil then
     InHouseStr := Format('[UID = %d, Type = %s]', [fInHouse.UID, GetEnumName(TypeInfo(TKMHouseType), Integer(fInHouse.HouseType))]);
 
-  Result := ObjToStringShort(aSeparator) +
-            Format('%sPositionF = %s%sPrevPosition = %s%sNextPosition = %s%s' +
+  Result := inherited ObjToString(aSeparator) +
+            Format('%sPrevPosition = %s%sNextPosition = %s%s' +
                    'Thought = %s%sHitPoints = %d%sHitPointCounter = %d%sCondition = %d%s' +
-                   'Owner = %d%sHome = %s%sInHouse = %s%sVisible = %s%sAnimStep = %d',
+                   'Home = %s%sInHouse = %s%sVisible = %s%sAnimStep = %d',
                    [aSeparator,
-                    TypeToString(fPositionF), aSeparator,
                     TypeToString(fPrevPosition), aSeparator,
                     TypeToString(fNextPosition), aSeparator,
                     GetEnumName(TypeInfo(TKMUnitThought), Integer(fThought)), aSeparator,
                     fHitPoints, aSeparator,
                     fHitPointCounter, aSeparator,
                     fCondition, aSeparator,
-                    Owner, aSeparator,
                     HomeStr, aSeparator,
                     InHouseStr, aSeparator,
                     BoolToStr(fVisible, True), aSeparator,
@@ -2534,6 +2548,14 @@ begin
 end;
 
 
+function TKMUnitTask.GetPhase: Byte;
+begin
+  if Self = nil then Exit(0);
+
+  Result := fPhase;
+end;
+
+
 procedure TKMUnitTask.InitDefaultAction;
 begin
   fUnit.SetActionLockedStay(0, uaWalk);
@@ -2560,6 +2582,8 @@ end;
 
 function TKMUnitTask.ObjToString(const aSeparator: String = ', '): String;
 begin
+  if Self = nil then Exit('nil');
+
   Result := Format('Type %s%sPhase = %d%sPhase2 = %d',
                    [GetEnumName(TypeInfo(TKMUnitTaskType), Integer(fType)), aSeparator,
                     fPhase, aSeparator,

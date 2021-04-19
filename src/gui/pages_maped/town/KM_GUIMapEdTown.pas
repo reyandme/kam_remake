@@ -14,7 +14,7 @@ uses
 type
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
 
-  TKMMapEdTown = class (TKMMapEdMenuPage)
+  TKMMapEdTown = class(TKMMapEdMenuPage)
   private
     fOnPageChange: TNotifyEvent;
 

@@ -7,7 +7,7 @@ uses
    KM_Controls, KM_Defaults, KM_InterfaceGame;
 
 type
-  TKMMapEdTownHouses = class (TKMMapEdSubMenuPage)
+  TKMMapEdTownHouses = class(TKMMapEdSubMenuPage)
   private
     procedure Town_BuildChange(Sender: TObject);
     procedure Town_BuildRefresh;

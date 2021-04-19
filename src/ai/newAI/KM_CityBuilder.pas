@@ -562,7 +562,7 @@ procedure TKMCityBuilder.UpdateBuildNode(var aNode: TBuildNode);
   end;
   function IsPlan(aPoint: TKMPoint; aLock: TKMTileLock): Boolean; overload;
   begin
-    Result := gTerrain.Land[aPoint.Y, aPoint.X].TileLock = aLock;
+    Result := gTerrain.Land^[aPoint.Y, aPoint.X].TileLock = aLock;
   end;
   function IsPlan(aPoint: TKMPoint; aLock: TKMTileLock; aField: TKMFieldType): Boolean; overload;
   begin
@@ -789,7 +789,7 @@ procedure TKMCityBuilder.UpdateBuildNode(var aNode: TBuildNode);
           FieldList.Delete(K);
         end
         // There is digged wine / field
-        else if (gTerrain.Land[FieldList.Items[K].Y, FieldList.Items[K].X].TileLock = tlFieldWork) then
+        else if (gTerrain.Land^[FieldList.Items[K].Y, FieldList.Items[K].X].TileLock = tlFieldWork) then
         begin
           // do nothing (wait till worker finish tile and place road
         end
@@ -1791,7 +1791,7 @@ var
           begin
             gTerrain.SetRoad(FieldList.Items[I], fOwner);
             gTerrain.FlattenTerrain(FieldList.Items[I]);
-            if gMapElements[  gTerrain.Land[ FieldList.Items[I].Y,FieldList.Items[I].X ].Obj  ].WineOrCorn then
+            if gMapElements[  gTerrain.Land^[ FieldList.Items[I].Y,FieldList.Items[I].X ].Obj  ].WineOrCorn then
               gTerrain.RemoveObject(FieldList.Items[I]);
           end;
         ftCorn,ftWine:
@@ -2180,7 +2180,7 @@ procedure TKMCityBuilder.UpdateBuildNode(var aNode: TBuildNode);
   function IsPlan(aPoint: TKMPoint; aLock: TKMTileLock; aField: TKMFieldType): Boolean;
   begin
     Result := (gHands[fOwner].Constructions.FieldworksList.HasField(aPoint) = aField)
-              OR (gTerrain.Land[aPoint.Y, aPoint.X].TileLock = aLock);
+              OR (gTerrain.Land^[aPoint.Y, aPoint.X].TileLock = aLock);
   end;
   function IsCompletedRoad(aPoint: TKMPoint): Boolean;
   begin

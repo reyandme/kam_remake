@@ -104,8 +104,9 @@
           </Linking>
           <Other>
             <CompilerMessages>
-              <IgnoredMessages idx4081="True" idx4080="True" idx4079="True" idx4056="True" idx4055="True" idx4035="True"/>
+              <IgnoredMessages idx5025="True" idx5027="True" idx5057="True" idx5058="True" idx5023="True" idx5091="True" idx5092="True" idx4104="True" idx4105="True" idx3187="True" idx5024="True" idx5028="True" idx4081="True" idx4080="True" idx4079="True" idx4056="True" idx4055="True" idx4035="True"/>
             </CompilerMessages>
+            <CustomOptions Value="-dLINUX_DEDI_SERVER"/>
           </Other>
         </CompilerOptions>
       </Item3>
@@ -256,88 +257,7 @@
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
     </Units>
-    <JumpHistory Count="20" HistoryIndex="19">
-      <Position1>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="52" Column="23" TopLine="38"/>
-      </Position1>
-      <Position2>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="21" Column="35" TopLine="10"/>
-      </Position2>
-      <Position3>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="21" Column="35" TopLine="10"/>
-      </Position3>
-      <Position4>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="189" TopLine="159"/>
-      </Position4>
-      <Position5>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Column="34"/>
-      </Position5>
-      <Position6>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="190" TopLine="170"/>
-      </Position6>
-      <Position7>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="43" Column="30" TopLine="35"/>
-      </Position7>
-      <Position8>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="183" Column="26" TopLine="170"/>
-      </Position8>
-      <Position9>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="190" TopLine="170"/>
-      </Position9>
-      <Position10>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="174" Column="90" TopLine="161"/>
-      </Position10>
-      <Position11>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="175" Column="67" TopLine="161"/>
-      </Position11>
-      <Position12>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="173" Column="91" TopLine="162"/>
-      </Position12>
-      <Position13>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="190" TopLine="170"/>
-      </Position13>
-      <Position14>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="14" Column="21"/>
-      </Position14>
-      <Position15>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="15" Column="8"/>
-      </Position15>
-      <Position16>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="127" Column="37" TopLine="117"/>
-      </Position16>
-      <Position17>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="126" Column="21" TopLine="116"/>
-      </Position17>
-      <Position18>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="190" TopLine="170"/>
-      </Position18>
-      <Position19>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="183" Column="24" TopLine="170"/>
-      </Position19>
-      <Position20>
-        <Filename Value="KaM_DedicatedServer.dpr"/>
-        <Caret Line="190" TopLine="170"/>
-      </Position20>
-    </JumpHistory>
+    <JumpHistory Count="0" HistoryIndex="0"/>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>

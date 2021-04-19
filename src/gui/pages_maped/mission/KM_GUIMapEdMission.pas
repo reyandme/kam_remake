@@ -12,7 +12,7 @@ uses
 type
   TKMMissionTab = (mtMode, mtPlayers, mtAlliances);
 
-  TKMMapEdMission = class (TKMMapEdMenuPage)
+  TKMMapEdMission = class(TKMMapEdMenuPage)
   private
     fOnPageChange: TNotifyEvent;
 

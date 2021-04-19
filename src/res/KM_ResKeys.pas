@@ -11,7 +11,7 @@ const
   KEY_FUNC_LOW = Succ(kfNone); // 1st key function
 
 type
-  TKMFuncInfo = record
+  TKMKeySpec = record
   private
     fKey: Integer;    // Key assigned to this function
     procedure SetKey(const aKey: Integer);
@@ -22,11 +22,11 @@ type
     property Key: Integer read fKey write SetKey;
   end;
 
-  TKMKeyLibrary = class
+  TKMResKeys = class
   private
-    fFuncs: array [TKMKeyFunction] of TKMFuncInfo;
-    function GetFunc(aKeyFunc: TKMKeyFunction): TKMFuncInfo;
-    procedure SetFunc(aKeyFunc: TKMKeyFunction; const aFuncInfo: TKMFuncInfo);
+    fFuncs: array [TKMKeyFunction] of TKMKeySpec;
+    function GetFunc(aKeyFunc: TKMKeyFunction): TKMKeySpec;
+    procedure SetFunc(aKeyFunc: TKMKeyFunction; const aFuncInfo: TKMKeySpec);
   public
     constructor Create;
     function GetKeyName(aKey: Word): string;
@@ -36,7 +36,7 @@ type
     function AllowKeySet(aArea: TKMKeyFuncArea; aKey: Word): Boolean;
     procedure SetKey(aKeyFunc: TKMKeyFunction; aKey: Word);
     function Count: Integer;
-    property Funcs[aKeyFunc: TKMKeyFunction]: TKMFuncInfo read GetFunc write SetFunc; default;
+    property Funcs[aKeyFunc: TKMKeyFunction]: TKMKeySpec read GetFunc write SetFunc; default;
     procedure Load;
     procedure Save;
     procedure ResetKeymap;
@@ -47,7 +47,7 @@ type
 
 var
   // All Keys accessible from everywhere
-  gResKeys: TKMKeyLibrary;
+  gResKeys: TKMResKeys;
 
 implementation
 uses
@@ -165,8 +165,8 @@ const
     TX_KEY_FUNC_MAPEDIT_HISTORY                                                   // Map Editor history
   );
 
-{ TKMKeyLibrary }
-constructor TKMKeyLibrary.Create;
+{ TKMResKeys }
+constructor TKMResKeys.Create;
 var
   KF: TKMKeyFunction;
 begin
@@ -192,25 +192,25 @@ begin
 end;
 
 
-function TKMKeyLibrary.Count: Integer;
+function TKMResKeys.Count: Integer;
 begin
   Result := Integer(High(TKMKeyFunction));
 end;
 
 
-function TKMKeyLibrary.GetFunc(aKeyFunc: TKMKeyFunction): TKMFuncInfo;
+function TKMResKeys.GetFunc(aKeyFunc: TKMKeyFunction): TKMKeySpec;
 begin
   Result := fFuncs[aKeyFunc];
 end;
 
 
-procedure TKMKeyLibrary.SetFunc(aKeyFunc: TKMKeyFunction; const aFuncInfo :TKMFuncInfo);
+procedure TKMResKeys.SetFunc(aKeyFunc: TKMKeyFunction; const aFuncInfo :TKMKeySpec);
 begin
   fFuncs[aKeyFunc] := aFuncInfo;
 end;
 
 
-procedure TKMKeyLibrary.ResetKeymap;
+procedure TKMResKeys.ResetKeymap;
 var
   KF: TKMKeyFunction;
 begin
@@ -219,31 +219,31 @@ begin
 end;
 
 
-function TKMKeyLibrary.GetKeyFunctionName(aKeyFunc: TKMKeyFunction): string;
+function TKMResKeys.GetKeyFunctionName(aKeyFunc: TKMKeyFunction): string;
 begin
   Result := gResTexts[KEY_FUNC_TX[aKeyFunc]];
 end;
 
 
-function TKMKeyLibrary.GetKeyNameById(aKeyFunc: TKMKeyFunction): string;
+function TKMResKeys.GetKeyNameById(aKeyFunc: TKMKeyFunction): string;
 begin
   Result := GetKeyName(fFuncs[aKeyFunc].Key);
 end;
 
 
-procedure TKMKeyLibrary.Load;
+procedure TKMResKeys.Load;
 begin
   gKeySettings.LoadFromXML;
 end;
 
 
-procedure TKMKeyLibrary.Save;
+procedure TKMResKeys.Save;
 begin
   gKeySettings.SaveToXML;
 end;
 
 
-function TKMKeyLibrary.GetKeyFunctionForKey(aKey: Word; aAreaSet: TKMKeyFuncAreaSet): TKMKeyFunction;
+function TKMResKeys.GetKeyFunctionForKey(aKey: Word; aAreaSet: TKMKeyFuncAreaSet): TKMKeyFunction;
 var
   KF: TKMKeyFunction;
 begin
@@ -255,14 +255,14 @@ begin
 end;
 
 
-function TKMKeyLibrary.AllowKeySet(aArea: TKMKeyFuncArea; aKey: Word): Boolean;
+function TKMResKeys.AllowKeySet(aArea: TKMKeyFuncArea; aKey: Word): Boolean;
 begin
   // False if Key equals to Shift or Ctrl, which are used in game for specific bindings
   Result := not (aKey in [16, 17]);
 end;
 
 
-procedure TKMKeyLibrary.SetKey(aKeyFunc: TKMKeyFunction; aKey: Word);
+procedure TKMResKeys.SetKey(aKeyFunc: TKMKeyFunction; aKey: Word);
 var
   KF: TKMKeyFunction;
 begin
@@ -288,7 +288,7 @@ begin
 end;
 
 
-function TKMKeyLibrary.GetKeyName(aKey: Word): string;
+function TKMResKeys.GetKeyName(aKey: Word): string;
 begin
   // All the special keys (not characters and not numbers) need a localized name
   case aKey of
@@ -416,21 +416,21 @@ begin
 end;
 
 
-//class function TKMKeyLibrary.GetKeyFunction(aKeyFunStr: string): TKMKeyFunction;
+//class function TKMResKeys.GetKeyFunction(aKeyFunStr: string): TKMKeyFunction;
 //begin
 //  Result := TRttiEnumerationType.GetValue<TKMKeyFunction>(aKeyFunStr);
 //end;
 
 
-class function TKMKeyLibrary.GetKeyFunctionStr(aKeyFun: TKMKeyFunction): string;
+class function TKMResKeys.GetKeyFunctionStr(aKeyFun: TKMKeyFunction): string;
 begin
 //  Result := TRttiEnumerationType.GetName(aKeyFun);
   Result := GetEnumName(TypeInfo(TKMKeyFunction), Integer(aKeyFun));
 end;
 
 
-{ TKMFuncInfo }
-procedure TKMFuncInfo.SetKey(const aKey: Integer);
+{ TKMKeySpec }
+procedure TKMKeySpec.SetKey(const aKey: Integer);
 begin
   if (aKey = -1) or not InRange(aKey, 0, 255) then Exit;
 

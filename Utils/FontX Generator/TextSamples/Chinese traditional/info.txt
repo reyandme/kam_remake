@@ -1,0 +1,28 @@
+https://chinese.stackexchange.com/questions/22484/list-of-all-traditional-chinese-characters
+
+
+List of all traditional Chinese characters
+
+Question:
+I'm looking for a repository or database containing all traditional Chinese characters. Where can I find this?
+
+Answer:
+1. Download CJSYS-20110919.zip.
+2. Find /CJSYS-20110919/cjsys/yong/mb/cj5-13053.txt
+3. Copy the [DATA] section (from line 9 to 14136) into a spreadsheet.
+4. move whatever you don't need.
+5. sort.
+6. Remove duplicates.
+source: 倉頡平台2012
+
+By the way,
+
+cj5-8300.txt has the simplified characters. (8300餘個簡體漢字)
+
+cj5-20902.txt includes both of them. (國際標準碼20902個簡繁漢字)
+
+cj5-70000.txt includes the rare-used characters. (國際標準碼75000個簡繁中日韓越漢字)
+
+cj5-ftzk.txt is a table of the traditional phrases. (繁體詞庫)
+
+cj5-jtzk.txt is a table of the simplified phrases. (簡體詞庫)

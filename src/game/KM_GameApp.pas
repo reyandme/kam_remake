@@ -6,7 +6,7 @@ uses
   {$IFDEF FPC} Controls, {$ENDIF}
   Classes, Dialogs, ExtCtrls,
   KM_CommonTypes, KM_Defaults, KM_RenderControl, KM_Video,
-  KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_Resource,
+  KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_InterfaceTypes, KM_Resource,
   KM_Music, KM_Maps, KM_MapTypes, KM_CampaignTypes, KM_Networking,
   KM_GameSettings,
   KM_KeysSettings,
@@ -80,7 +80,7 @@ type
     procedure StopGameReturnToLobby;
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
-    procedure ToggleLocale(const aLocale: AnsiString);
+    procedure ToggleLocale(const aLocale: AnsiString; aReturnToMenuPage: TKMMenuPageType);
     procedure NetworkInit;
     procedure SendMPGameInfo;
     function RenderVersion: UnicodeString;
@@ -306,7 +306,7 @@ begin
 end;
 
 
-procedure TKMGameApp.ToggleLocale(const aLocale: AnsiString);
+procedure TKMGameApp.ToggleLocale(const aLocale: AnsiString; aReturnToMenuPage: TKMMenuPageType);
 begin
   Assert(gGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
@@ -341,7 +341,7 @@ begin
   fCampaigns := TKMCampaignsCollection.Create;
   fCampaigns.Load;
   InitMainMenu(gRender.ScreenX, gRender.ScreenY);
-  fMainMenuInterface.PageChange(gpOptions);
+  fMainMenuInterface.PageChange(aReturnToMenuPage);
   Resize(gRender.ScreenX, gRender.ScreenY); //Force the recreated main menu to resize to the user's screen
   fTimerUI.Enabled := True; //Safe to enable the timer again
 end;
@@ -817,7 +817,7 @@ begin
     gGame.SavePoints.Free;
     gGame.SavePoints := savedReplays;
     gGame.LoadSavePoint(aTick, saveFile);
-    gGame.LastReplayTick := Max(gGame.LastReplayTick, savedReplays.LastTick);
+    gGame.LastReplayTickLocal := Max(gGame.LastReplayTickLocal, savedReplays.LastTick);
     // Free GIP, which was created on game creation
     gGame.GameInputProcess.Free;
     // Restore GIP
@@ -889,6 +889,8 @@ var
 begin
   camp := fCampaigns.CampaignById(aCampaignId);
   LoadGameFromScript(camp.GetMissionFile(aMap), camp.GetMissionTitle(aMap), 0, 0, camp, aMap, gmCampaign, -1, 0, aDifficulty);
+
+  fCampaigns.SetActive(camp, aMap);
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
@@ -1070,6 +1072,9 @@ begin
     gMain.FormMain.SetExportGameStats(aGameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]);
     gMain.FormMain.SetSaveEditableMission(aGameMode = gmMapEd);
   end;
+
+  if Assigned(FormLogistics) then
+    FormLogistics.UpdateView(gGame.GetHandsCount, True);
 end;
 
 
@@ -1194,7 +1199,8 @@ begin
     gPerfLogs.StackGFX.FrameEnd;
   end;
 
-  gPerfLogs.Render(TOOLBAR_WIDTH + 10, gMain.FormMain.RenderArea.Width - 10, gMain.FormMain.RenderArea.Height - 10);
+  if gMain <> nil then
+    gPerfLogs.Render(TOOLBAR_WIDTH + 10, gMain.FormMain.RenderArea.Width - 10, gMain.FormMain.RenderArea.Height - 10);
   {$ENDIF}
 
   gRender.EndFrame;

@@ -236,7 +236,7 @@ begin
   wglUseFontBitmaps(h_dc,0,128,20000);
   {$ENDIF}
   {$IFDEF Unix}
-  //TODO need to emulate these functions (with freetype you should be able to code a multi platform solution).
+  //todo: need to emulate these functions (with freetype you should be able to code a multi platform solution).
   {$ENDIF}
 end;
 

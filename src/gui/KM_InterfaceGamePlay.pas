@@ -6,8 +6,9 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls, TypInfo,
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
-  KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
+  KM_InterfaceTypes, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
   KM_UnitGroup, KM_UnitWarrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
+  KM_HandEntity,
   KM_GUIGameResultsSP,
   KM_GUIGameResultsMP,
   KM_GUIGameBuild, KM_GUIGameChat, KM_GUIGameHouse, KM_GUIGameUnit, KM_GUIGameRatios, KM_GUIGameStats,KM_GUIGameMenuSettings,
@@ -23,10 +24,10 @@ const
 
 type
   //tbNone is the last, since we use Byte(Value) at some places
-  //TODO refactor
+  //todo: refactor
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu, tbNone);
 
-  TKMGamePlayInterface = class (TKMUserInterfaceGame)
+  TKMGamePlayInterface = class(TKMUserInterfaceGame)
   private
     fAlerts: TKMAlerts;
 
@@ -150,7 +151,6 @@ type
     procedure DirectionCursorShow(X,Y: Integer; Dir: TKMDirection);
     procedure DirectionCursorHide;
     function HasLostMPGame: Boolean;
-    procedure UpdateDebugInfo;
     procedure UpdateSelectedObject;
     procedure HidePages;
     procedure HideOverlay(Sender: TObject);
@@ -333,7 +333,8 @@ type
     property GuiGameSpectator: TKMGUIGameSpectator read fGuiGameSpectator;
 
     function StatsOpened: Boolean;
-    procedure SelectEntityByUID(aUID: Integer);
+    procedure SelectEntity(aEntity: TKMHandEntity);
+    procedure SelectNHighlightEntityByUID(aUID: Integer);
 
     property Alerts: TKMAlerts read fAlerts;
 
@@ -352,6 +353,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure Resize(X,Y: Word); override;
     procedure SyncUI(aMoveViewport: Boolean = True); override;
+    procedure UpdateDebugInfo;
     procedure UpdateState(aTickCount: Cardinal); override;
     procedure UpdateStateIdle(aFrameTime: Cardinal); override;
     procedure Paint; override;
@@ -368,7 +370,6 @@ uses
   KM_Sound, KM_NetPlayersList, KM_MessageLog, KM_NetworkTypes,
   KM_InterfaceMapEditor, KM_HouseWoodcutters, KM_MapTypes,
   KM_GameTypes, KM_GameParams, KM_Video, KM_Music,
-  KM_HandEntity,
   KM_HandEntityHelper,
   KM_ResTypes,
   KM_Utils;
@@ -838,8 +839,7 @@ begin
   Bevel_DebugInfo.BackAlpha := 0.5;
   Bevel_DebugInfo.Hitable := False;
   Bevel_DebugInfo.Hide;
-  Label_DebugInfo := TKMLabel.Create(Panel_Main, 224+8, 133, '', fntMini, taLeft);
-  Label_DebugInfo.Monospaced := True;
+  Label_DebugInfo := TKMLabel.Create(Panel_Main, 224+8, 133, '', fntMonospaced, taLeft);
   Label_DebugInfo.Hide;
 
 { I plan to store all possible layouts on different pages which gets displayed one at a time }
@@ -1152,7 +1152,7 @@ begin
     Button_ReplaySaveAt     := TKMButton.Create(Panel_ReplayCtrl,125, 0, 24, 24, 592, rxGui, bsGame);
 
     Button_ShowStatsReplay  := TKMButton.Create(Panel_ReplayCtrl, 185 - 24, 0, 24, 24, 669, rxGui, bsGame);
-    //TODO: Button_ReplayFF       := TKMButton.Create(Panel_ReplayCtrl,125, 24, 24, 24, 393, rxGui, bsGame);
+    //todo: Button_ReplayFF       := TKMButton.Create(Panel_ReplayCtrl,125, 24, 24, 24, 393, rxGui, bsGame);
     Button_ReplayRestart.OnClick := ReplayClick;
     Button_ReplayPause.OnClick   := ReplayClick;
     Button_ReplayStep.OnClick    := ReplayClick;
@@ -1600,6 +1600,8 @@ begin
   else
   begin
     Message_Delete(TKMImage(Sender).Tag);
+    if (TKMImage(Sender).Tag < fShownMessage) then
+        Dec(fShownMessage);
   end;
 end;
 
@@ -1899,7 +1901,25 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SelectEntityByUID(aUID: Integer);
+procedure TKMGamePlayInterface.SelectEntity(aEntity: TKMHandEntity);
+begin
+  if Self = nil then Exit;
+  if gHands = nil then Exit;
+
+  if (aEntity = nil) or not aEntity.IsSelectable then Exit;
+
+  fViewport.Position := aEntity.PositionF;
+
+  if aEntity is TKMUnitWarrior then
+    gMySpectator.Selected := aEntity.AsUnitWarrior.Group
+  else
+    gMySpectator.Selected := aEntity;
+
+  UpdateSelectedObject;
+end;
+
+
+procedure TKMGamePlayInterface.SelectNHighlightEntityByUID(aUID: Integer);
 var
   entity: TKMHandEntity;
 begin
@@ -1907,18 +1927,8 @@ begin
   if gHands = nil then Exit;
 
   entity := gHands.GetObjectByUID(aUID);
-  gMySpectator.HighlightDebug := entity;
-
-  if (entity = nil) or not entity.IsSelectable then Exit;
-
-  fViewport.Position := entity.PositionF;
-
-  if entity is TKMUnitWarrior then
-    gMySpectator.Selected := entity.AsUnitWarrior.Group
-  else
-    gMySpectator.Selected := entity;
-
-  UpdateSelectedObject;
+  SelectEntity(entity);
+  gMySpectator.HighlightDebug := TKMHighlightEntity.New(entity, icCyan);
 end;
 
 
@@ -2036,6 +2046,7 @@ begin
     gGame.StepOneFrame;
     gGame.IsPaused := False;
     UpdateReplayButtons(False);
+    UpdateDebugInfo;
   end;
 
   if Sender = Button_ReplayResume then
@@ -2252,8 +2263,10 @@ var
   I: Integer;
   pad: Integer;
 begin
-  pad := Byte(fUIMode in [umMP, umSpectate]) * 2 +
-         Byte(Image_MessageLog.Visible);
+  pad := Ord(CanShowChat) +
+         Ord(CanShowAllies) +
+         Ord(Image_MessageLog.Visible);
+
   for I := 0 to MAX_VISIBLE_MSGS do
     Image_Message[I].Top := Panel_Main.Height - 48 - (I + pad) * 48;
 end;
@@ -2465,6 +2478,10 @@ procedure TKMGamePlayInterface.UpdateMessageImages;
 var
   I: Integer;
 begin
+  Image_MessageLog.Top := Panel_Main.Height - 48
+                                            - IfThen(CanShowAllies, 48)
+                                            - IfThen(CanShowChat, 48);
+
   for I := 0 to MAX_VISIBLE_MSGS do
     Image_Message[I].Top := Panel_Main.Height - 48 - I * 48
                             - IfThen(CanShowChat, 48)
@@ -3681,6 +3698,8 @@ var
   windowRect: TRect;
   {$ENDIF}
 begin
+  inherited;
+
   fMyControls.MouseDown(X, Y, Shift, Button);
 
   if (gGame.IsPaused and (fUIMode in [umSP, umMP])) or (fMyControls.CtrlOver <> nil)
@@ -3712,7 +3731,8 @@ begin
     and not HasLostMPGame
     and not fGuiGameUnit.JoiningGroups
     and not fPlacingBeacon
-    and (gMySpectator.Selected is TKMUnitGroup) then
+    and (gMySpectator.Selected is TKMUnitGroup)
+    and gMySpectator.IsSelectedMyObj then
   begin
     group := TKMUnitGroup(gMySpectator.Selected);
     obj := gMySpectator.HitTestCursor;
@@ -3890,10 +3910,8 @@ begin
     // Only own and ally units/houses can be selected
     if (entity.Owner <> -1) and
       ((entity.Owner = gMySpectator.HandID)
-      or ((ALLOW_SELECT_ALLY_UNITS
-          or ((entity is TKMHouse) and TKMHouse(entity).AllowAllyToView))
-        and (gMySpectator.Hand.Alliances[entity.Owner] = atAlly))
-      or (ALLOW_SELECT_ENEMIES and (gMySpectator.Hand.Alliances[entity.Owner] = atEnemy)) // Enemies can be selected for debug
+      or ALLOW_SELECT_ALL
+      or (entity.AllowAllyToSelect and (gMySpectator.Hand.Alliances[entity.Owner] = atAlly))
       or (fUIMode in [umReplay, umSpectate])) then
     begin
       gRes.Cursors.Cursor := kmcInfo;
@@ -3901,7 +3919,8 @@ begin
     end;
   end;
 
-  if (gMySpectator.Selected.IsGroup)
+  if gMySpectator.Selected.IsGroup
+    and gMySpectator.IsSelectedMyObj
     and (fUIMode in [umSP, umMP]) and not HasLostMPGame
     and not gMySpectator.Hand.InCinematic
     and (gMySpectator.FogOfWar.CheckTileRevelation(gGameCursor.Cell.X, gGameCursor.Cell.Y) > 0) then
@@ -4050,6 +4069,8 @@ begin
                     and ((oldSelected <> group) or (oldSelectedUnit <> group.SelectedUnit)) then
                       gSoundPlayer.PlayWarrior(group.SelectedUnit.UnitType, spSelect);
                 end;
+
+                UpdateDebugInfo;
               end;
 
             cmRoad:  gGameCursor.Tag1 := Ord(cfmNone);
@@ -4295,6 +4316,7 @@ procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var
   I, lastTick: Integer;
   rect: TKMRect;
+  str: string;
 begin
   inherited;
   // Update minimap every 1000ms
@@ -4315,17 +4337,18 @@ begin
   // Update replay counters
   if fUIMode = umReplay then
   begin
-    lastTick := Max4(gGame.LastReplayTick,
-                     gGame.GameInputProcess.GetLastTick,
-                     gGameParams.Tick,
-                     gGame.SavePoints.LastTick);
+    lastTick := gGame.GetReplayLastTick;
     // Replays can continue after end, keep the bar in 0..1 range
     ReplayBar_Replay.SetParameters(gGameParams.Tick,
                                    gGame.Options.Peacetime*60*10,
                                    lastTick);
 
-    Label_ReplayBar.Caption := TimeToString(gGame.MissionTime) + ' / ' +
-                            TickToTimeStr(lastTick);
+    if lastTick = gGameParams.Tick then
+      str := TickToTimeStr(lastTick)
+    else
+      str := TimeToString(gGame.MissionTime) + ' / ' + TickToTimeStr(lastTick);
+
+    Label_ReplayBar.Caption := str;
   end;
 
   // Update speedup clocks
@@ -4550,15 +4573,11 @@ begin
 
   Label_DebugInfo.Caption := S;
   Label_DebugInfo.Visible := (Trim(S) <> '');
-  Label_DebugInfo.Monospaced := DEBUG_TEXT_MONOSPACED;
 
-  Assert(InRange(DEBUG_TEXT_FONT_ID, Byte(Low(TKMFont)), Byte(High(TKMFont))));
+  Assert(InRange(DEBUG_TEXT_FONT_ID, Ord(Low(TKMFont)), Ord(High(TKMFont))));
   Label_DebugInfo.Font := TKMFont(DEBUG_TEXT_FONT_ID);
 
-  if Label_DebugInfo.Monospaced then
-    textSize := gRes.Fonts[Label_DebugInfo.Font].GetMonospacedTextSize(S)
-  else
-    textSize := gRes.Fonts[Label_DebugInfo.Font].GetTextSize(S);
+  textSize := gRes.Fonts[Label_DebugInfo.Font].GetTextSize(S);
 
   Bevel_DebugInfo.Width := IfThen(textSize.X <= 1, 0, textSize.X + 20);
   Bevel_DebugInfo.Height := IfThen(textSize.Y <= 1, 0, textSize.Y + 20);

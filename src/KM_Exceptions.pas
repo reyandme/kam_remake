@@ -1,4 +1,5 @@
 unit KM_Exceptions;
+{$I KaM_Remake.inc}
 interface
 uses
   MadExcept, madNVAssistant;
@@ -23,6 +24,7 @@ var
 implementation
 uses
   SysUtils,
+  KM_FileIO,
   KM_Game,
   KM_Log, KM_ResTexts, KM_Defaults, KM_Points,
   KM_CommonExceptions;
@@ -93,6 +95,7 @@ end;
 
 procedure TKMExceptions.DoException(const ExceptIntf: IMEException; var Handled: boolean);
 var LogMessage, CrashFile: string;
+    settingsSavePath: string;
 begin
   if gLog = nil then Exit; //Could crash very early before even the log file is created
 
@@ -128,8 +131,12 @@ begin
   if gLog <> nil then ExceptIntf.AdditionalAttachments.Add(gLog.LogPath, '', CrashFile);
 
   //Do settings here not in fGame because we could crash before fGame is created
-  if FileExists(ExeDir + SETTINGS_FILE) then
-    ExceptIntf.AdditionalAttachments.Add(ExeDir + SETTINGS_FILE, '', CrashFile);
+  settingsSavePath := GetDocumentsSavePath;
+  if FileExists(settingsSavePath + SETTINGS_FILE) then
+    ExceptIntf.AdditionalAttachments.Add(settingsSavePath + SETTINGS_FILE, '', CrashFile);
+
+  if FileExists(settingsSavePath + SERVER_SETTINGS_FILE) then
+    ExceptIntf.AdditionalAttachments.Add(settingsSavePath + SERVER_SETTINGS_FILE, '', CrashFile);
 end;
 
 

@@ -214,7 +214,7 @@ type
 implementation
 uses
   Math,
-  KM_Game, KM_HandsCollection, KM_Resource;
+  KM_GameUIDTracker, KM_HandsCollection, KM_Resource;
 
 
 const
@@ -697,7 +697,7 @@ begin
   if I >= Length(fPlans) then
     SetLength(fPlans, Length(fPlans) + LENGTH_INC);
 
-  fPlans[I].UID := gGame.GetNewUID;
+  fPlans[I].UID := gGameUIDTracker.GetNewUID;
   fPlans[I].HouseType := aHouseType;
   fPlans[I].Loc := aLoc;
   fPlans[I].JobStatus := jsOpen;

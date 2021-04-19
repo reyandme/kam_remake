@@ -7,7 +7,7 @@ uses
    KM_Controls, KM_Defaults, KM_Pics;
 
 type
-  TKMMapEdTownUnits = class (TKMMapEdSubMenuPage)
+  TKMMapEdTownUnits = class(TKMMapEdSubMenuPage)
   private
     procedure Town_UnitChange(Sender: TObject);
     procedure Town_UnitRefresh;

@@ -6,31 +6,10 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   Controls, Classes,
   KM_Controls, KM_Points, KM_ResFonts,
-  KM_ResTypes;
+  KM_ResTypes, KM_InterfaceTypes;
 
 
 type
-  TUIMode = (umSP, umMP, umReplay, umSpectate);
-  TUIModeSet = set of TUIMode;
-
-  TKMMenuPageType =  (gpMainMenu,
-                        gpSinglePlayer,
-                          gpCampaign,
-                          gpCampSelect,
-                          gpSingleMap,
-                          gpLoad,
-                        gpMultiplayer,
-                          gpLobby,
-                        gpReplays,
-                        gpMapEditor,
-                        gpCampaignMapEditor,
-                        gpOptions,
-                        gpCredits,
-                      gpLoading,
-                      gpError);
-  TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPageType) of object;
-  TKMMenuChangeEventText = procedure (Dest: TKMMenuPageType; const aText: UnicodeString = '') of object;
-
   TKMMenuPageCommon = class
   protected
     fMenuType: TKMMenuPageType;
@@ -76,7 +55,7 @@ type
     procedure KeyPress(Key: Char); virtual;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); virtual;
     //Child classes don't pass these events to controls depending on their state
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); overload;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); overload; virtual; abstract;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual; abstract;
@@ -114,25 +93,9 @@ type
   end;
 
 
-const
-  //Options sliders
-  OPT_SLIDER_MIN = 0;
-  OPT_SLIDER_MAX = 20;
-  MAX_SAVENAME_LENGTH = 50;
-
-  CHAT_MENU_ALL = -1;
-  CHAT_MENU_TEAM = -2;
-  CHAT_MENU_SPECTATORS = -3;
-
-  RESULTS_X_PADDING = 50;
-
 var
   MAPED_SUBMENU_HOTKEYS: array[0..5] of TKMKeyFunction;
   MAPED_SUBMENU_ACTIONS_HOTKEYS: array[0..SUB_MENU_ACTIONS_CNT - 1] of TKMKeyFunction;
-
-
-const
-  ITEM_NOT_LOADED = -100; // smth, but not -1, as -1 is used for ColumnBox.ItemIndex, when no item is selected
 
 
 implementation
@@ -140,7 +103,8 @@ uses
   SysUtils, KM_Resource, KM_ResKeys, KM_RenderUI, KM_Defaults, KM_DevPerfLog, KM_DevPerfLogTypes,
   KM_Music,
   KM_Sound,
-  KM_GameSettings;
+  KM_GameSettings,
+  KM_Main;
 
 
 { TKMUserInterface }
@@ -224,6 +188,13 @@ begin
   end;
 
   fPrevHint := Sender;
+end;
+
+
+procedure TKMUserInterfaceCommon.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  // Defocus debug controls on any inout in the player GUI
+  gMain.FormMain.Defocus;
 end;
 
 

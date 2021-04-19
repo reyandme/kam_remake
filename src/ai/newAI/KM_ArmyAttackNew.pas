@@ -522,7 +522,7 @@ begin
         ClosestPolygon := gAIFields.NavMesh.KMPoint2Polygon[ aTargetPosition ];
         I := I - 1;
       until (I < 0) OR ( (InitPolygon <> ClosestPolygon)
-                         AND (tpWalk in gTerrain.Land[aTargetPosition.Y, aTargetPosition.X].Passability)
+                         AND (tpWalk in gTerrain.Land^[aTargetPosition.Y, aTargetPosition.X].Passability)
                          AND (KMDistanceSqr(aActualPosition, aTargetPosition) > sqr(AI_Par[ATTACK_SQUAD_MinWalkingDistance])));
 
       {$IFDEF DEBUG_NewAI}

@@ -15,7 +15,7 @@ uses
 type
   TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptBlockUnit, ptView);
 
-  TKMMapEdPlayer = class (TKMMapEdMenuPage)
+  TKMMapEdPlayer = class(TKMMapEdMenuPage)
   private
     fOnPageChange: TNotifyEvent;
 

@@ -72,7 +72,7 @@ uses
   KromUtils, KM_Maps, KM_Saves, KM_Scripting, KM_Log, KM_FileIO;
 
 const
-  //TODO: Add LIBX and WAV support for maps
+  //todo: Add LIBX and WAV support for maps
   VALID_MAP_EXTENSIONS:  array[1..5] of UnicodeString =         ('map','dat',EXT_FILE_SCRIPT,'txt','pdf');
   VALID_MAP_EXTENSIONS_POSTFIX:  array[1..3] of UnicodeString = ('libx','wav','ogg');
   VALID_SAVE_EXTENSIONS: array[1..3] of UnicodeString =         (EXT_SAVE_MAIN, EXT_SAVE_BASE, EXT_SAVE_REPLAY);
@@ -106,12 +106,12 @@ constructor TKMFileSender.Create(aType: TKMTransferType; const aName: UnicodeStr
                                  aReceiverIndex: TKMNetHandleIndex);
 var
   I, J: Integer;
-  FileName: UnicodeString;
   F: TSearchRec;
-  SourceStream: TKMemoryStream;
-  CompressionStream: TCompressionStream;
-  ScriptPreProcessor: TKMScriptingPreProcessor;
-  ScriptFiles: TKMScriptFilesCollection;
+  fileName: UnicodeString;
+  sourceStream: TKMemoryStream;
+  compressionStream: TCompressionStream;
+  scriptPreProcessor: TKMScriptingPreProcessor;
+  scriptFiles: TKMScriptFilesCollection;
 begin
   inherited Create;
   fReceiverIndex := aReceiverIndex;
@@ -124,37 +124,37 @@ begin
   kttMap: begin
             for I := Low(VALID_MAP_EXTENSIONS) to High(VALID_MAP_EXTENSIONS) do
             begin
-              FileName := GetFullSourceFileName(aType, aName, aMapFolder, '', VALID_MAP_EXTENSIONS[I]);
-              if FileExists(FileName) then
-                AddFileToStream(FileName, '', VALID_MAP_EXTENSIONS[I]);
+              fileName := GetFullSourceFileName(aType, aName, aMapFolder, '', VALID_MAP_EXTENSIONS[I]);
+              if FileExists(fileName) then
+                AddFileToStream(fileName, '', VALID_MAP_EXTENSIONS[I]);
               //Add all included script files
-              if (VALID_MAP_EXTENSIONS[I] = EXT_FILE_SCRIPT) and FileExists(FileName) then
+              if (VALID_MAP_EXTENSIONS[I] = EXT_FILE_SCRIPT) and FileExists(fileName) then
               begin
-                ScriptPreProcessor := TKMScriptingPreProcessor.Create;
+                scriptPreProcessor := TKMScriptingPreProcessor.Create;
                 try
-                  if not ScriptPreProcessor.PreProcessFile(FileName) then
+                  if not scriptPreProcessor.PreProcessFile(fileName) then
                     //throw an Exception if PreProcessor was not successful to cancel FileSender creation
                     raise Exception.Create('Can''n start send file because of error while script pre-processing');
-                  ScriptFiles := ScriptPreProcessor.ScriptFilesInfo;
-                  for J := 0 to ScriptFiles.IncludedCount - 1 do
+                  scriptFiles := scriptPreProcessor.ScriptFilesInfo;
+                  for J := 0 to scriptFiles.IncludedCount - 1 do
                   begin
-                    if FileExists(ScriptFiles[J].FullFilePath) then
-                      AddFileToStream(ScriptFiles[J].FullFilePath, '', VALID_MAP_EXTENSIONS[I]);
+                    if FileExists(scriptFiles[J].FullFilePath) then
+                      AddFileToStream(scriptFiles[J].FullFilePath, '', EXT_FILE_SCRIPT);
                   end;
                 finally
-                  ScriptPreProcessor.Free;
+                  scriptPreProcessor.Free;
                 end;
               end;
             end;
             for I := Low(VALID_MAP_EXTENSIONS_POSTFIX) to High(VALID_MAP_EXTENSIONS_POSTFIX) do
             begin
-              FileName := GetFullSourceFileName(aType, aName, aMapFolder, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
+              fileName := GetFullSourceFileName(aType, aName, aMapFolder, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
               try
-                if FindFirst(FileName, faAnyFile, F) = 0 then
+                if FindFirst(fileName, faAnyFile, F) = 0 then
                 begin
                   repeat
                     if (F.Attr and faDirectory = 0) then
-                      AddFileToStream(ExtractFilePath(FileName) + F.Name, ExtractFileExt(ChangeFileExt(F.Name,'')), VALID_MAP_EXTENSIONS_POSTFIX[I]);
+                      AddFileToStream(ExtractFilePath(fileName) + F.Name, ExtractFileExt(ChangeFileExt(F.Name,'')), VALID_MAP_EXTENSIONS_POSTFIX[I]);
                   until FindNext(F) <> 0;
                 end;
               finally
@@ -164,20 +164,20 @@ begin
           end;
     kttSave: for I := Low(VALID_SAVE_EXTENSIONS) to High(VALID_SAVE_EXTENSIONS) do
              begin
-               FileName := TKMSavesCollection.FullPath(aName, VALID_SAVE_EXTENSIONS[I], True);
-               if FileExists(FileName) then
-                 AddFileToStream(FileName, '', VALID_SAVE_EXTENSIONS[I]);
+               fileName := TKMSavesCollection.FullPath(aName, VALID_SAVE_EXTENSIONS[I], True);
+               if FileExists(fileName) then
+                 AddFileToStream(fileName, '', VALID_SAVE_EXTENSIONS[I]);
              end;
   end;
   //Compress fSendStream
-  SourceStream := fSendStream;
+  sourceStream := fSendStream;
   fSendStream := TKMemoryStreamBinary.Create;
   fSendStream.PlaceMarker('Transfer');
-  CompressionStream := TCompressionStream.Create(cldefault, fSendStream);
-  CompressionStream.CopyFrom(SourceStream, 0);
+  compressionStream := TCompressionStream.Create(cldefault, fSendStream);
+  compressionStream.CopyFrom(sourceStream, 0);
   //fSendStream now contains the compressed data from SourceStream
-  CompressionStream.Free;
-  SourceStream.Free;
+  compressionStream.Free;
+  sourceStream.Free;
   fSendStream.Position := 0;
 end;
 

@@ -1,0 +1,133 @@
+﻿0:ODGRYWANIE RÓL : Ty, Lothar, nowy wojownik, który niedawno skończyłeś szkolenie, zostałeś wezwany przez Króla Clovis'a, aby nadał ci pierwszą misję. Kryzys na kontynencie pogarsza się z każdym dniem, a królestwo cię potrzebuje! List z pieczęcią królewską został wam dziś rano wręczony.
+1:OPRAWA : Miejsce, w którym aktualnie przebywasz, reprezentuje wnętrze zamku królewskiego. Zaczynasz bez armii, ale rycerz, którego kontrolujesz, reprezentuje całe twoje wojsko i głównego bohatera, Lothara.
+2:PORADNIK : Aby porozmawiać ze zleceniodawcami, musisz stanąć obok nich, a historia się rozwinie. Postępuj zgodnie z instrukcjami każdego zadania. Na razie czeka na Ciebie król, postać chroniona przez dwóch pikinierów w lewym dolnym rogu sali zamkowej, idź obok niego. Zapisuj często i nie zapomnij o usuwaniu wiadomości.
+3:Pownienieś rozmawiać z Królem Clovis'em.
+4:Król Clovis : Witaj Lothar, nasz nowy rycerzu! Mroczne nastały czasy, a zadanie twoje nie będzie łatwe, nadal jesteś nowicjuszem, ale wielu naszych doświadczonych rycerzy poległo w bitwie. Obecnie daję ci moc dowodzenia niewielkim oddziałem wojskowym.
+5:Król Clovis : Możesz już wejść do obszaru rekrutacyjnego zamku, znajdującego się w ostatnim pomieszczeniu korytarza, tam jednak za niewielką opłatą będziesz mógł zdobyć przyzwoitą armię. Daję ci również 1000 złotych monet, a jeśli dobrze będziesz się sprawował, zarobisz więcej.
+6:Król Clovis : Przyjdź do mnie po zwerbowaniu kilku sił, ponad 15 ludzi powinno wykonać pracę, a dam ci pierwszą misję!
+7:Król Clovis otworzył ci obszar rekrutacyjny| znajdujący się w podziemiach zamku,| przyjdź do niego ponownie, gdy zrekrutujesz| co najmniej 15 mężczyzn.
+8:Król Clovis : Świetnie, widzę, że zebrałeś siły zbrojne! Otrzymaliśmy skargę z wioski rybackiej, proszą, żebyśmy kogoś wysłali i to będzie twoja pierwsza misja.
+9:Król Clovis : Wieśniacy grożą, że zbuntują się razem z innymi wioskami, jeśli nikt nie przyjdzie, więc jest to ważna misja, chociaż jeśli odniesiesz sukces, będziesz miał znacznie trudniejsze do wykonania.
+10:Król Clovis : Idź do wioski, położonej na północny wschód od stolicy, tuż przy wybrzeżu, i dowiedz się, co wywołuje niezadowolenie mieszkańców wioski!
+11:Król clovis wysłał cię, żebyś dowiedział się,| co się dzieje w wiosce rybackiej,| na północny wschód od stolicy, idź tam najszybciej | jak to możliwe!
+12:Człowiek w leśnym obozie: Witaj rycerzu, jesteś na naszej ziemi, ale ponieważ jesteś przedstawicielem prawa, jesteś tu tolerowany, chociaż nie oczekuj, że zrobimy dla ciebie cokolwiek, to, co się tutaj dzieje, to nie twoja sprawa.
+13:Wściekły Rybak : To ciebie przysłali ze stolicy ? Nareszcie !! Czasy są ciężkie dla chłopstwa i wielu mówi o buncie! Musisz jak najszybciej zmienić sytuację, inaczej królestwo się rozpadnie!
+14:Wściekły Rybak : W tej chwili mamy jeden główny problem. Niektórzy rabusie założyli obozowisko w lesie niedaleko stolicy. Ponieważ stolica nigdy nam nie pomogła, myślą, że nie grozi im niebezpieczeństwo, dlatego rozbili obóz niedaleko zamku!
+15:Wściekły Rybak : Pomóż nam i zabij złodziei! Jeśli to zrobisz, wrócimy do pracy, ale będziemy potrzebować dalszej pomocy Króla, a jeśli Ci się uda, wyślesz mu od nas wiadomość. Idź i zabij tych złoczyńców!
+16:Mieszkańcy wioski wysłali cię, byś zabił bandytów| z leśnego obozu na północ od stolicy.| Wyeliminuj ich i zniszcz ich obóz!
+17:Bandyta : Chcesz nas zaatakować ? Zginiesz tutaj, królewski psie!!
+18:Bandyta : Nie jesteś pierwszym, który chce bronić chłopów, przyjdź i dołącz do pozostałych!
+19:Powinieneś ponownie spotkać się z rybakiem i powiedzieć mu, że ci się udało, idź jak najszybciej do wioski!
+20:Udaj się do wioski i porozmawiaj z rybakiem.
+21:Rybak : Więc ci się udało? W końcu skończyliśmy z tymi atakami bandytów! Cała nasza wioska jest Panu na zawsze wdzięczna, panie, chciałbym jeszcze omówić ważne sprawy.
+22:Rybak : Czy możesz dostarczyć nam list do Króla Clovis'a? To petycja wielu wschodnich wiosek z prośbą o więcej patroli i dużo więcej uwagi dla nas!
+23:Rybak: Nie możemy Ci zaoferować niczego poza zapewnieniem, że zawsze zostaniesz przez nas dobrze przyjęty!
+24:Idź ponownie do zamku, zanieś petycję| chłopa do króla Clovisa i czekaj| na dalsze instrukcje.
+25:Król Clovis : Czy poszedłeś do wioski? Mówisz, że bandyci ... cóż, pozwól mi wyjaśnić. Od miesiąca bandyci z innego kontynentu napadają na nasze królestwo.
+26:Król Clovis : Wszystkie zachodnie wioski zostały najechane przez bandytów, wysłaliśmy armię po całym kraju i straciliśmy w bitwach wielu doświadczonych rycerzy. To musiała być ostatnia zabita przez ciebie siła bandytów.
+27:Król Clovis : To prawda, że w tym okresie nie wysyłaliśmy żołnierzy, aby chronić zachodnie wioski, ale musieliśmy też chronić stolicę przed kilkoma najazdami, jeśli stolica zostanie zniszczona, nasze osłabione królestwo wpadnie w chaos!
+28:Król Clovis : Jak wiecie, od zeszłego roku wschodni wasal, nasz największy wasal, próbuje odciąć się od naszego królestwa! Obawiam się, że jeśli rzeczywiście wypowie wojnę, będzie to koniec pokoju, który przynosiliśmy od dziesięcioleci na naszym kontynencie i że każdy będzie chciał własnego królestwa.
+29:Król Clovis : Będziesz miał ważne zadanie do wykonania, zanim zaopiekujesz się wasalem, nie otrzymaliśmy naszego codziennego raportu z kopalni złota na południowej pustyni, dowiedz się, co się stało! Znajduje się na południowy zachód od kontynentu.
+30:Król Clovis : Co do petycji chłopskiej, zgadzam się z nią i wyślę strażników do każdej wioski, a także obniżę podatki na następny rok. Dopilnuję, żeby chłopi wiedzieli, że przyniosłeś mi petycję.
+31:ODGRYWANIE RÓL : Królestwo ma centralną władzę w osobie Króla Clovisa, a także reprezentowaną przez stolicę. Są jednak wasale, którzy mają części królestw, reprezentujących starożytne plemiona kontynentu, gdy nie był zjednoczony.
+32:ODGRYWANIE RÓL : Wasal wschodni jest największym z królestwa, jest to bardzo potężna istota, która dostarczyła całemu królestwu mnóstwo broni. Ostatnio napięcia osiągnęły maksimum i nie handlują już, grożąc królowi.
+33:ODGRYWANIE RÓL : Południowo-zachodnia pustynia znana jest z kopalni złota, jest dość odizolowana od reszty królestwa, ale jest ważną częścią gospodarki. Gubernator pustynnych kopalni codziennie przesyła do stolicy raport.
+34:Udaj się na pustynię i dowiedz się,| dlaczego doniesienia o kopalniach złota nie dotarły do zamku.| Znajduje się w południowo-zachodniej części kontynentu.
+35:PORADNIK : Aby rozpocząć walkę z oddziałem, musisz zbliżyć się do postaci, która reprezentuje ten oddział. Obecnie idź do obozu leśnego i zbliż się do każdego bandyty, aby rozpocząć walkę, twoje wojska i ich oddziały zostaną umieszczone na polu bitwy. Jeśli przegrasz bitwę, przegrywasz.
+36:PORADNIK : Możesz już wyjść z zamku. Aby wyjść, udaj się w pobliże drzwi zamku, które znajdują się na szczycie sali (czarny obszar). Po wyjściu możesz również wrócić, zbliżając się do wejścia do zamku.
+37:OPRAWA : Kiedy przejdziesz przez drzwi zamku, znajdziesz się na mapie globalnej. Ta mapa przedstawia cały świat przygody! Wyobraź sobie, że każdy dom to paczka domów, a każdy poddany to konwój lub grupa ludzi przewożących towary.
+38:OPRAWA : Pojawisz się w stolicy, w której znajduje się zamek, wydaje się to mało na mapie globalnej, ale wyobraź sobie je jako wielkie miasto, twoja wyobraźnia jest twoim najlepszym przyjacielem do nawigacji i zanurzenia się w tym świecie. Twój rycerz reprezentuje twoją postać, Lothara, i twoje wojska.
+39:ODGRYWANIE RÓL : Na świecie są dwa kontynenty, jeden to legowisko bandytów, do którego od pokoleń nie przybywa oprócz złoczyńców. Drugi to sprzyjający kontynent, który składał się z wielu wrogich plemion, ale dekady temu zapanował pokój z centralną władzą.
+40:ODGRYWANIE RÓL : Jest teraz król kontynentu i nie ma wewnętrznego konfliktu. Czasy były szczęśliwe, aż do zeszłego roku, kiedy wschodni wasal przestał handlować z innymi bytami w królestwie, a od zeszłego miesiąca przybywają bandyci z innego kontynentu. Oba kontynenty są połączone podwodnym tunelem.
+41:ODGRYWANIE RÓL : Podczas bitwy i na zwłokach leżących na ziemi widzieliście, że ludzie, którzy zaatakowali kopalnie złota, mieli na sobie płaszcz wasala wschodu! Musisz natychmiast powiadomić króla!
+42:Zostałeś zaatakowany przez żołnierzy | wschodniego wasala, musisz poinformować | króla tak szybko, jak to możliwe!
+43:Król Clovis : Mówisz, że oddział wschodniego wasala? Odważyli się zaatakować kopalnie złota? Wyślę tam doświadczonego strażnika, żeby go chronił! Musisz teraz zrobić coś znacznie ważniejszego.
+44:Nwoicjusz
+45:Patrolujący
+46:Król Clovis : Do następnej misji będziesz potrzebować więcej i lepszych żołnierzy. Obecnie daję ci rycerską rangę patrolującego, obyś służył naszemu Królestwu tak dobrze, jak już to zrobiłeś! Idź do obszaru rekrutacji, będziesz potrzebować tych żołnierzy.
+47:Król Clovis : Teraz o samej misji. Musisz oblegać zamek i przynieść mi żywcem tego przeklętego lorda Childeberta, abym mógł przywrócić jedność! Wojna została oficjalnie wypowiedziana i jestem pewien, że będzie się bał w swoim zamku.
+48:Król Clovis : To trudna misja i możesz pomyśleć, że wysyłam cię na śmierć. To prawie prawda, nie mogę sobie pozwolić na utratę któregokolwiek z pięciu doświadczonych rycerzy i konkylorów, będą niezbędni do przywrócenia pokoju.
+49:Król Clovis : Dlatego wysyłam cię, jesteś najbardziej obiecującym z naszych nowych rycerzy i udowodniłeś, że umiesz dowodzić siłami, więc nie martwię się o ciebie, przyprowadź mi tego zdrajcę, a otrzymasz wysoki prestiż. Daję ci 580 złota, żeby ci pomóc.
+50:Na dalekim wschodzie znajduje się| zamek lorda Childeberta, zdrajcy! | Zaatakuj zamek i przyprowadź| go do stolicy!
+51:Król Clovis : Zamek znajduje się na dalekim wschodzie kontynentu, nie można go przegapić. Nie zapomnij zdobyć pełnego oddziału, powodzenia!
+52:PORADNIK : Musisz sprzedać każdego żołnierza w miejscu, zanim zmienisz typ żołnierza, nawet jeśli chcesz ulepszyć typ żołnierza po tym, jak Król udostępnił ci więcej! Przykład: kupiłeś milicje, teraz nie są dostępne, musisz je sprzedać przed zakupem toporników.
+53:ODGRYWANIE RÓL : Wygrałeś oblężenie i splądrowałeś zamek, ale nie znalazłeś lorda Childeberta. Ten tchórz musiał uciec, zanim przyszedłeś! Musisz przynieść tę złą wiadomość królowi.
+54:Wygrałeś oblężenie, ale nie znalazłeś| lorda Childeberta, powiedz to królowi.
+55:Król Clovis : Ten Lord Childebert ... gdziekolwiek się ukryje, zapłaci za swoje zbrodnie !! Nie przyprowadziłeś mi zdrajcy, ale to nie była twoja wina, udało ci się z sukcesem oblęczyć zamek, co jest wielkim osiągnięciem wojennym.
+56:Król Clovis : Dam ci nowy tytuł, będziesz teraz odkrywcą! Możesz rekrutować nowe wojska. Jednak mam złą wiadomość, w tunelu między dwoma kontynentami zauważono bandytów, musisz wzmocnić strażnika przy wejściu do tunelu!
+57:Król Clovis : Powodzenia, Lothar. Tunel znajduje się w pobliżu wioski, która została spalona podczas ataków w zeszłym miesiącu, na południowy wschód od stolicy. Daję ci 1600 sztuk złota, aby pomóc ci zdobyć armię. Nie wchodź jeszcze do tunelu, po prostu pomóż strażnikom!
+58:Idź na południowy wschód od stolicy i znajdź | wejście do tunelu, pomóż strażnikom | utrzymać linię!
+59:Strażnik: Niestety rycerzu, poproszę cię, żebyś nie wchodził do tej jaskini, została zapieczętowana na rozkaz króla.
+60:Odkrywca
+61:ODGRYWANIE RÓL : Zbliżając się do tunelu, rozumiesz, że strażnicy zostali zabici, na wsi panuje cisza, a obok wejścia do tunelu siedzą trzy obozy bandytów! Czujesz potrzebę ich zmiażdżenia, dla królestwa!
+62:Strażnicy zostali zabici, pomścij ich! | Zniszcz trzy armie bandytów.
+63:Król Clovis : Jeszcze raz dziękuję Lothar za obronę Królestwa, to szaleństwo nigdy się nie skończy ... Zajmę się sprawami obronnymi i upewnię się, że żaden bandyta nie wyjdzie ponownie z tunelu. Będę zajęty organizowaniem obrony, powinieneś porozmawiać z moim doradcą wojskowym, lordem Chilpéric.
+64:Król Clovis : Według naszych patrolowców, w zachodniej części kontynentu pozostały oddziały bandytów, prawdopodobnie byli oni częścią ostatniego ataku tunelowego bandytów. Daję ci 1100 złota, aby pomóc ci w twoich zadaniach.
+65:WAŻNE : Lord Chilpéric znajduje się tam, gdzie ta wiadomość cię wyśle.
+66:Powinieneś znaleźć lorda Chilpéric w zamku i porozmawiać z nim. Jest | blisko podziemi zamku.
+67:ODGRYWANIE RÓL : Udało ci się odeprzeć bandytów, twój władca musi wiedzieć o tym ataku! Pospiesz się do zamku.
+68:Udaj się do zamku i porozmawiaj z królem
+69:Lord Chilpéric : Słyszałem od ciebie Lothar, wydajesz się być obiecującym elementem; I właśnie tego potrzebujemy, aby zabić te szumowiny bandytów! Kilka paczek bandytów jest nadal w naszym królestwie, nie można tego zostawić bezkarnie. Mamy raporty i wiemy, gdzie one są.
+70:Lord Chilpéric : Wysłaliśmy już rycerzy do wyeliminowania niektórych z nich, ale pozostały trzy oddziały bandytów na zachodniej stronie kontynentu, jeden na pustyni i dwa na północnym zachodzie, zabij ich wszystkich!
+71:Musisz zabić trzech żołnierzy bandytów, jeden | jest na pustyni, a reszta na | północnym zachodzie kontynentu.
+72:Bandyta: Giń mały rycerzu!
+73:ODGRYWANIE RÓL : Armie, z którymi walczyłeś, były mieszanką bandytów i żołnierzy z armii lorda Childeberta! Opowiedz Lordowi Chilpéric'owi o swoich walkach.
+74:Lord Chilpéric potrzebuje| raportu o twoich walkach.
+75:Obrońca królestwa
+76:Lord Chilpéric : Wygląda na to, że Lord Childebert objął prowadzenie na drugim kontynencie i dowodzi siłami bandytów! Musimy powstrzymać tego cholernego głupca, zanim będzie za późno. Wejdź tunelem na drugi kontynent.
+77:Lord Chilpéric : Daję ci tytuł i medal Obrońcy Królestwa, jesteś zaszczytem dla naszej armii. Podejrzewamy, że lord Childebert ukryje się w swoim zamku i że wokół będą przebywać zdezorganizowane oddziały.
+78:Lord Chilpéric : Potrzebujemy cię w ostatecznej bitwie, razem podbijemy zamek! Jeśli potrzebujesz więcej armii, możesz zebrać zasoby, atakując obozy bandytów na drodze, które mają chronić złoto.
+79:Lord Chilpéric : Kiedy tylko będziesz gotowy, zaatakuj zamek, a przyjdą posiłki prowadzone przez naszego króla i mnie, aby pomóc ci zabić zdrajcę! Nie zapomnij użyć najlepszych żołnierzy, które ci dostarczyliśmy.
+80:Atakuj zamek, kiedy będziesz gotowy. | Jeśli potrzebujesz złota, zaatakuj obozy bandytów | znajdujące się w tunelu i na drugim | kontynencie.
+81:WYNIK BITWY :||Uzyskałes %d złota w tej bitwie.|Zabiłeś %d jednostek przeciwnika.|Straciłeś %d żołnierzy.
+82:[$%s]Statystyki bitewne : twoje wojska[]|
+83:Slot 1 : %d stracono %s z %d|
+84:Slot 1 : brak armii|
+85:Slot 2 : %d stracono %s z %d|
+86:Slot 2 : brak armii|
+87:Slot 3 : %d stracono %s z %d|
+88:Slot 3 : brak armii|
+89:Slot 4 : %d stracono %s z %d|
+90:Slot 4 : brak armii|
+91:[$%s]Statystyki bitewne : armia przeciwnika[]|
+92:Slot 1 : %d zabito %s z %d|
+93:Slot 1 : brak armii|
+94:Slot 2 : %d zabito %s z %d|
+95:Slot 2 : brak armii|
+96:Slot 3 : %d zabito %s z %d|
+97:Slot 3 : brak armii|
+98:Slot 4 : %d zabito %s z %d|
+99:Slot 4 : brak armii|
+110:[$%s]Główne zadanie[]|%s||
+111:Zadanie poboczne :|%s||
+112:Zadanie poboczne :|%s||
+113:Brak armii
+114:Żołdacy
+115:Łucznicy
+116:Piechurzy z lańcą
+117:Lekka jazda
+118:Ciężka jazda
+119:Topornicy
+120:Piechurzy z mierzem
+121:Kusznicy
+122:Pikinierzy
+123:Barbarzyńcy
+124:Rebeliańci
+125:Pachołkowie
+126:Wojownicy
+127:Włóczędzy
+128:PORADNIK : Aby kupić żołnierzy, stań na drodze pod każdym typem żołnierzy. każda linia reprezentuje inne miejsce na armię (od 1 do 4 od góry do dołu). Każdy kowal jest sprzedawcą jednego slotu. Musisz sprzedać każdą jednostkę w slocie przed zmianą typu jednostki.
+129:Każda sekunda na drodze kupuje lub sprzedaje jedną jednostkę. Sprzedajesz jednostki po tej samej cenie, w jakiej je kupujesz. Możesz użyć skrótów klawiszowych f5 f6 f7 f8, aby przyspieszyć rekrutację / sprzedaż.
+130:Koszt żołdaka : 20|Koszt łucznika: 35|Koszt piechura z lańcą : 30|Scout cost : 80|Koszt topornika : 55
+131:Koszt piechura z mieczem : 110|Koszt pikiniera : 100|Koszt kusznika : 80|Koszt ciężkiej jazdy : 160
+132:PORADNIK : Aby te wiadomości pojawiły się ponownie, stój na kilka sekund na drogach przy wejściu do strefy rekrutacyjnej.
+150:Slot 5 : %d zabito %s z %d|
+151:Slot 5 : brak armii|
+152:[$%s]Twoje statystyki[]|
+153:Gold : %d|
+154:Tytuł : %s||
+155:[$%s]Twoja armia[]|
+156:Slot 1 : %s  %d/%d|
+157:Slot 2 : %s  %d/%d|
+158:Slot 3 : %s  %d/%d|
+159:Slot 4 : %s  %d/%d||

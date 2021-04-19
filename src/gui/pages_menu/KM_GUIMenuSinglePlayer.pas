@@ -4,11 +4,11 @@ interface
 uses
   Controls, Math, SysUtils,
   KM_Defaults,
-  KM_Controls, KM_Pics, KM_InterfaceDefaults, KM_GameTypes;
+  KM_Controls, KM_Pics, KM_InterfaceDefaults, KM_InterfaceTypes, KM_GameTypes;
 
 
 type
-  TKMMenuSinglePlayer = class (TKMMenuPageCommon)
+  TKMMenuSinglePlayer = class(TKMMenuPageCommon)
   private
     fOnPageChange: TKMMenuChangeEventText;
 

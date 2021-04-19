@@ -107,8 +107,8 @@ uses
   SysUtils, KM_DevPerfLog, KM_DevPerfLogTypes;
 
 const
-  //Addition to Revelation radius for Render revelation
-  RENDER_RADIUS_ADD = 5; //4 is not enought sometimes (Barracks?), 5 looks good
+  // Addition to Revelation radius for Render revelation
+  RENDER_RADIUS_ADD = 5; // 4 is not enough sometimes (Barracks?), 5 looks good
 
 
 { TKMFogOfWar }
@@ -579,7 +579,7 @@ begin
           {//Remember what we have seen last
           if Revelation[I, K].Visibility <= FOG_OF_WAR_MIN then
           begin
-            Revelation[I, K].LastTerrain := gTerrain.Land[I, K].BaseLayer.Terrain;
+            Revelation[I, K].LastTerrain := gTerrain.Land^[I, K].BaseLayer.Terrain;
 
           end;}
         end;

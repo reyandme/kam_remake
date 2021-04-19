@@ -1,4 +1,4 @@
-﻿0:Sawmill
+0:Sawmill
 1:Iron smithy
 2:Weapon smithy
 3:Coal mine
@@ -1147,10 +1147,10 @@
 1197:Override manually|set tiles
 1198:Force to override manually set tiles from tiles table while painting with brushes (if possible)
 1199:Magic brush: Using chosen mask, fixes tile transitions, for tiles that don't have transition graphics from one to the other type of terrain
-1200:No mask: Use exiting tiles for transitions
-1201:Soft1 mask: Use automatically created transitions
-1202:Soft2 mask: Use automatically created transitions
-1203:Soft3 mask: Use automatically created transitions
+1200:No mask - use exiting tiles for transitions
+1201:Soft1 mask - use automatically created transitions
+1202:Soft2 mask - use automatically created transitions
+1203:Soft3 mask - use automatically created transitions
 1204:Custom TownHall units cost
 1205:Custom gold market prices
 1206:Options
@@ -1415,3 +1415,47 @@
 1465:Sound volume down
 1466:Mute sounds
 1467:Mute all (music and sounds)
+1468:Object Brushes
+1469:Trees
+1470:All objects except trees
+1471:Stones
+1472:Flowers
+1473:Mushrooms
+1474:Trunks
+1475:Dead trees
+1476:Cactus
+1477:Desert bushes
+1478:Ruins
+1479:Terrain objects
+1480:Set terrain objects to selected brush
+1481:Density
+1482:Objects / forest density
+1483:Forest age
+1484:Cleaning brush, removes all objects
+1485:All
+1486:Young
+1487:Medium
+1488:Chop
+1489:All ages
+1490:Young trees
+1491:Medium trees
+1492:Trees ready to chop
+1493:Apply terrain from copied area
+1494:Apply heights from copied area
+1495:Apply objects from copied area
+1496:Apply terrain overlays from copied area
+1497:Constant Height
+1498:Brush constant height level
+1499:Height level
+1500:Height level is used in 'Constant Height'
+1501:Elevate all
+1502:Elevate (left click) / Lower (right click) all tiles on map with terrain kind at game cursor
+1503:Override Objects
+1504:Objects will be replaced by other objects or deleted
+1505:Gradient mask - use automatically created transitions
+1506:Big
+1507:Big trees
+1508:Stomps
+1509:Stomps
+1510:All-
+1511:All ages, except stomps

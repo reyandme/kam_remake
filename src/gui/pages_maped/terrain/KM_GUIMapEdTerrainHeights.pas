@@ -9,7 +9,7 @@ uses
 
 type
   //Terrain height editing
-  TKMMapEdTerrainHeights = class (TKMMapEdSubMenuPage)
+  TKMMapEdTerrainHeights = class(TKMMapEdSubMenuPage)
   private
     fLastCursorMode: TKMCursorMode;
     fLastShape: TKMMapEdShape;
@@ -26,6 +26,9 @@ type
     HeightSquare: TKMButtonFlat;
     HeightElevate: TKMButtonFlat;
     HeightUnequalize: TKMButtonFlat;
+    HeightConstant: TKMButtonFlat;
+    HeightConstantNumber: TKMTrackBar;
+    HeightElevateAll: TKMButtonFlat;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -101,15 +104,43 @@ begin
   HeightUnequalize.CapOffsetY := -12;
   HeightUnequalize.Hint       := GetHintWHotkey(TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE_HINT, kfMapedSubMenuAction4);
 
+  HeightElevateAll               := TKMButtonFlat.Create(Panel_Heights, 9, 280, Panel_Heights.Width - 9, 20, 0);
+  HeightElevateAll.Anchors := [anLeft, anTop, anRight];
+  HeightElevateAll.OnClick       := HeightChange;
+  HeightElevateAll.Down          := True;
+  HeightElevateAll.Caption       := gResTexts[TX_MAPED_HEIGHTS_ELEVATE_ALL];
+  HeightElevateAll.CapOffsetY    := -12;
+  HeightElevateAll.Hint          := GetHintWHotkey(TX_MAPED_HEIGHTS_ELEVATE_ALL_HINT, kfMapedSubMenuAction5);
+
+
+  HeightConstant            := TKMButtonFlat.Create(Panel_Heights, 9, 305, Panel_Heights.Width - 9, 20, 0);
+  HeightConstant.Anchors := [anLeft, anTop, anRight];
+  HeightConstant.OnClick    := HeightChange;
+  HeightConstant.Caption    := gResTexts[TX_MAPED_HEIGHTS_CONST];
+  HeightConstant.CapOffsetY := -12;
+  HeightConstant.Hint       := GetHintWHotkey(TX_MAPED_HEIGHTS_CONST_HINT, kfMapedSubMenuAction6);
+
+  HeightConstantNumber           := TKMTrackBar.Create(Panel_Heights, 9, 340, Panel_Heights.Width - 9, 0, 100); //1..100 Height level
+  HeightConstantNumber.Anchors := [anLeft, anTop, anRight];
+  HeightConstantNumber.Caption   := gResTexts[TX_MAPED_HEIGHTS_LEVEL_SET];
+  HeightConstantNumber.Hint      := gResTexts[TX_MAPED_HEIGHTS_LEVEL_SET_HINT];
+  HeightConstantNumber.OnChange  := HeightChange;
+
+
+
   fSubMenuActionsEvents[0] := HeightChange;
   fSubMenuActionsEvents[1] := HeightChange;
   fSubMenuActionsEvents[2] := HeightChange;
   fSubMenuActionsEvents[3] := HeightChange;
+  fSubMenuActionsEvents[4] := HeightChange;
+  fSubMenuActionsEvents[5] := HeightChange;
 
   fSubMenuActionsCtrls[0,0] := HeightCircle;
   fSubMenuActionsCtrls[1,0] := HeightSquare;
   fSubMenuActionsCtrls[2,0] := HeightElevate;
   fSubMenuActionsCtrls[3,0] := HeightUnequalize;
+  fSubMenuActionsCtrls[4,0] := HeightElevateAll;
+  fSubMenuActionsCtrls[5,0] := HeightConstant;
 end;
 
 
@@ -144,6 +175,17 @@ begin
     fLastCursorMode := cmEqualize;
   end;
 
+  if Sender = HeightConstant then
+  begin
+    gGameCursor.Mode := cmConstHeight;
+    fLastCursorMode := cmConstHeight;
+  end;
+
+  if Sender = HeightElevateAll then
+  begin
+    gGameCursor.Mode := cmElevateAll;
+    fLastCursorMode := cmElevateAll;
+  end;
   HeightRefresh;
 end;
 
@@ -155,6 +197,10 @@ begin
 
   HeightElevate.Down := (gGameCursor.Mode = cmElevate);
   HeightUnequalize.Down := (gGameCursor.Mode = cmEqualize);
+
+  HeightConstant.Down := (gGameCursor.Mode = cmConstHeight);
+  HeightElevateAll.Down := (gGameCursor.Mode = cmElevateAll);
+  gGameCursor.MapEdConstHeight := HeightConstantNumber.Position;
 end;
 
 
@@ -180,30 +226,30 @@ end;
 
 procedure TKMMapEdTerrainHeights.MouseWheel(Shift: TShiftState; WheelSteps, X, Y: Integer; var aHandled: Boolean);
 begin
-  if not aHandled and Visible then
+  if aHandled or not Visible then
+    Exit;
+
+  // Do not use ssCtrl in Shift here, as it can sometimes be wrong values inside Shift (ssShift instead of ssCtrl)
+  if GetKeyState(VK_CONTROL) < 0 then
   begin
-    // Do not use ssCtrl in Shift here, as it can sometimes be wrong values inside Shift (ssShift instead of ssCtrl)
-    if (GetKeyState(VK_CONTROL) < 0) then
-    begin
-      HeightSize.Position := Max(0, HeightSize.Position - WheelSteps); //can't set negative number
-      aHandled := True;
-    end;
-
-    if (GetKeyState(VK_MENU) < 0) then
-    begin
-      HeightSlope.Position := Max(0, HeightSlope.Position - WheelSteps); //can't set negative number
-      aHandled := True;
-    end;
-
-    if (GetKeyState(VK_SHIFT) < 0) then
-    begin
-      HeightSpeed.Position := Max(0, HeightSpeed.Position - WheelSteps); //can't set negative number
-      aHandled := True;
-    end;
-
-    if aHandled then
-      UpdateHeightParams;
+    HeightSize.Position := Max(0, HeightSize.Position - WheelSteps); //can't set negative number
+    aHandled := True;
   end;
+
+  if GetKeyState(VK_MENU) < 0 then
+  begin
+    HeightSlope.Position := Max(0, HeightSlope.Position - WheelSteps); //can't set negative number
+    aHandled := True;
+  end;
+
+  if GetKeyState(VK_SHIFT) < 0 then
+  begin
+    HeightSpeed.Position := Max(0, HeightSpeed.Position - WheelSteps); //can't set negative number
+    aHandled := True;
+  end;
+
+  if aHandled then
+    UpdateHeightParams;
 end;
 
 

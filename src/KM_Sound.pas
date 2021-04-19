@@ -414,14 +414,14 @@ begin
 end;
 
 
-{Wrapper with fewer options for non-attenuated sounds}
+// Wrapper with fewer options for non-attenuated sounds
 procedure TKMSoundPlayer.Play(aSoundID: TSoundFX; aVolume: Single = 1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
   // Check for consecutive messageNotices
   // When many warrior groups are hungry at the same time or many houses are not occupied at the same time
-  // Sound should not be played N times, 1 is enought
+  // Sound should not be played N times, 1 is enough
   if aSoundID = sfxMessageNotice then
   begin
     if (fLastMessageNoticeTime > 0)
@@ -431,7 +431,7 @@ begin
       fLastMessageNoticeTime := TimeGet;
   end;
 
-  Play(aSoundID, KMPOINTF_ZERO, false, aVolume); //Redirect
+  Play(aSoundID, KMPOINTF_ZERO, false, aVolume); // Redirect
 end;
 
 
@@ -1016,18 +1016,18 @@ end;
 
 function TKMScriptSoundsManager.StartSound(aScriptSound: TKMScriptSound): Integer;
 var
-  S: UnicodeString;
+  soundFile: UnicodeString;
 begin
   Result := -1;
-  S := ExeDir + gGame.GetScriptSoundFile(aScriptSound.SoundName, aScriptSound.AudioFormat);
+  soundFile := gGame.GetScriptSoundFilePath(aScriptSound.SoundName, aScriptSound.AudioFormat);
 
   //Silently ignore missing files
-  if not FileExists(S) or not CanPlay(aScriptSound) then
+  if not FileExists(soundFile) or not CanPlay(aScriptSound) then
     Exit;
 
   with aScriptSound do
   begin
-    PlayingIndex := gSoundPlayer.PlayScriptSound(S, KMPointF(Loc), Attenuate, Volume, Radius, FadeMusic, Looped);
+    PlayingIndex := gSoundPlayer.PlayScriptSound(soundFile, KMPointF(Loc), Attenuate, Volume, Radius, FadeMusic, Looped);
     Result := PlayingIndex;
   end;
 end;
@@ -1047,12 +1047,11 @@ function TKMScriptSoundsManager.AddSound(aHandIndex: TKMHandID; const aSoundName
 const
   ERROR_EXIT_CODE = -1;
 var
-  newIndex: Integer;
   S: TKMScriptSound;
 begin
   if Self = nil then Exit(ERROR_EXIT_CODE);
 
-  Inc(fLastScriptUID); //fLastScriptUID only increases
+  Inc(fLastScriptUID); // fLastScriptUID always increases
 
   S := TKMScriptSound.Create;
 
@@ -1068,16 +1067,14 @@ begin
   S.Radius := aRadius;
   S.HandIndex := aHandIndex;
 
-  newIndex := fScriptSounds.Add(S);
+  StartSound(fScriptSounds.Add(S));
 
-  //Return -1 if sound (not looped) did not start successfully
-  Result := ERROR_EXIT_CODE;
-  if (StartSound(newIndex) <> -1) or aLooped then
-    Result := fLastScriptUID; //Return ScriptSoundUID if all is OK, or for Looped sound, since we could start it later
+  // Always return ScriptUID, since game logic should not depend on client sound subsystem
+  Result := fLastScriptUID;
 end;
 
 
-//Remove sound by its index in list
+// Remove sound by its index in list
 procedure TKMScriptSoundsManager.RemoveSoundByIndex(aIndex: Integer);
 begin
   StopSound(aIndex);

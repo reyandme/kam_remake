@@ -8,7 +8,7 @@ uses
   KM_HandLogistics, KM_HandLocks, KM_HandStats, KM_GameTypes,
   KM_FogOfWar, KM_HandConstructions, KM_MessageLog, KM_ResHouses,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_ResWares, KM_Points,
-  KM_HandTypes,
+  KM_HandEntity, KM_HandTypes,
   KM_ResTypes;
 
 
@@ -20,7 +20,7 @@ type
   end;
 
   //Player manages its assets
-  TKMHandCommon = class
+  TKMHandCommon = class abstract
   private
     fID: TKMHandID; //Index of this hand in gHands
     fUnits: TKMUnitsCollection;
@@ -49,6 +49,7 @@ type
   TKMHand = class(TKMHandCommon)
   private
     fAI: TKMHandAI;
+    fEnabled: Boolean;
     fConstructions: TKMHandConstructions;
     fDeliveries: TKMHandLogistics;
     fFogOfWar: TKMFogOfWar; //Stores FOW info for current player, which includes
@@ -87,9 +88,12 @@ type
     procedure SetShareFOW(aIndex: Integer; aValue: Boolean);
     function  GetShareBeacons(aIndex: Integer): Boolean;
     procedure SetShareBeacons(aIndex: Integer; aValue: Boolean);
+
+    procedure EntityDestroyed(aEntity: TKMHandEntity);
     procedure GroupDied(aGroup: TKMUnitGroup);
     procedure HouseDestroyed(aHouse: TKMHouse; aFrom: TKMHandID);
     procedure UnitDied(aUnit: TKMUnit; aFrom: TKMHandID);
+
     procedure UnitTrained(aUnit: TKMUnit);
     procedure WarriorWalkedOut(aWarrior: TKMUnitWarrior);
     function LocHasNoAllyPlans(const aLoc: TKMPoint): Boolean;
@@ -101,8 +105,11 @@ type
     procedure SetFlagColor(const Value: Cardinal);
 
     procedure SetOwnerNikname(const aName: AnsiString);
+    function GetDeliveries: TKMHandLogistics;
+    procedure SetHandType(const Value: TKMHandType);
+    procedure SetEnabled(const Value: Boolean);
   public
-    Enabled: Boolean;
+
     InCinematic: Boolean;
 
     //Used for syncing hotkeys in multiplayer saves only. UI keeps local value to avoid GIP delays
@@ -113,13 +120,15 @@ type
 
     property AI: TKMHandAI read GetAI;
     property Constructions: TKMHandConstructions read fConstructions;
-    property Deliveries: TKMHandLogistics read fDeliveries;
+    property Deliveries: TKMHandLogistics read GetDeliveries;
     property Houses: TKMHousesCollection read fHouses;
     property Locks: TKMHandLocks read fLocks;
     property Stats: TKMHandStats read fStats;
     property FogOfWar: TKMFogOfWar read fFogOfWar;
     property UnitGroups: TKMUnitGroups read fUnitGroups;
     property MessageLog: TKMMessageLog read fMessageLog;
+
+    property Enabled: Boolean read fEnabled write SetEnabled;
     property Disabled: Boolean read IsDisabled;
 
     procedure SetHandIndex(aNewIndex: TKMHandID);
@@ -131,7 +140,7 @@ type
     function GetOwnerNameColored: AnsiString;
     function GetOwnerNameColoredU: UnicodeString;
     function HasAssets: Boolean;
-    property HandType: TKMHandType read fHandType write fHandType; //Is it Human or AI
+    property HandType: TKMHandType read fHandType write SetHandType; //Is it Human or AI
     property CanBeHuman: Boolean read fCanBeHuman write fCanBeHuman;
     property HandAITypes: TKMAITypeSet read fHandAITypes;
     property FlagColor: Cardinal read fFlagColor write SetFlagColor;
@@ -151,6 +160,7 @@ type
     function IsAnimal: Boolean;
     function IsHuman: Boolean;
     function IsComputer: Boolean;
+    function CanBeAI: Boolean;
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
@@ -222,11 +232,11 @@ type
     procedure IncAnimStep;
     procedure UpdateState(aTick: Cardinal); override;
     procedure Paint(const aRect: TKMRect; aTickLag: Single); override;
-    function ObjToString: String;
+    function ObjToString(aSeparator: String = ' '): String;
   end;
 
 
-  TKMHandAnimals = class (TKMHandCommon)
+  TKMHandAnimals = class(TKMHandCommon)
   public
     function GetFishInWaterBody(aWaterID: Byte; FindHighestCount: Boolean = True): TKMUnitAnimal;
   end;
@@ -620,6 +630,12 @@ begin
 end;
 
 
+function TKMHand.CanBeAI: Boolean;
+begin
+  Result := (fHandAITypes <> []) and (fHandAITypes <> [aitNone]);
+end;
+
+
 //Lay out all roads at once to save time on Terrain lighting/passability recalculations
 procedure TKMHand.AfterMissionInit(aFlattenRoads: Boolean);
 begin
@@ -632,7 +648,7 @@ begin
   FreeAndNil(fRoadsList);
 
   if not gGameParams.IsMapEditor then
-    fAI.AfterMissionInit;
+    fAI.AfterMissionInit(fHandAITypes);
 end;
 
 
@@ -890,6 +906,12 @@ begin
 end;
 
 
+procedure TKMHand.SetHandType(const Value: TKMHandType);
+begin
+  fHandType := Value;
+end;
+
+
 procedure TKMHand.SetOwnerNikname(const aName: AnsiString); //MP owner nikname (empty in SP)
 begin
   fOwnerNikname := aName;
@@ -909,7 +931,7 @@ var
   obj: Word;
 begin
   isFieldSet := False;
-  obj := gTerrain.Land[aLoc.Y,aLoc.X].Obj;
+  obj := gTerrain.Land^[aLoc.Y,aLoc.X].Obj;
   //If we have corn/wine object on that tile, set appropriate field/wine stage
   if (aFieldType = ftCorn) and not gTerrain.TileIsCornField(aLoc) then
   begin
@@ -1091,17 +1113,17 @@ begin
 
     //Avoid placing houses in choke-points _/house\_ by checking upper corners
     if not (aHouseType in [htGoldMine, htIronMine]) then
-      if (gTerrain.Land[Ty-1, Tx - 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
-      or (gTerrain.Land[Ty-1, Tx + 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
+      if (gTerrain.Land^[Ty-1, Tx - 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
+      or (gTerrain.Land^[Ty-1, Tx + 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
       then
         Exit;
 
     //Make sure we can add road below house, full width + 1 on each side
     //Terrain already checked we are 1 tile away from map edge
     if (I = 4) and not (aHouseType in [htGoldMine, htIronMine]) then
-      if (gTerrain.Land[Ty+1, Tx - 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
-      or (gTerrain.Land[Ty+1, Tx    ].Passability * [tpMakeRoads, tpWalkRoad] = [])
-      or (gTerrain.Land[Ty+1, Tx + 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
+      if (gTerrain.Land^[Ty+1, Tx - 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
+      or (gTerrain.Land^[Ty+1, Tx    ].Passability * [tpMakeRoads, tpWalkRoad] = [])
+      or (gTerrain.Land^[Ty+1, Tx + 1].Passability * [tpMakeRoads, tpWalkRoad] = [])
       then
         Exit;
 
@@ -1456,6 +1478,29 @@ begin
 end;
 
 
+// Some entity was destroyed, but gMySpectator could have pointer to this entity, we have to nil it then
+procedure TKMHand.EntityDestroyed(aEntity: TKMHandEntity);
+begin
+  //gMySpectator is nil during loading, when houses can be destroyed at the start
+  if gMySpectator = nil then Exit;
+
+  if gMySpectator.Selected = aEntity then
+    gMySpectator.Selected := nil;
+  if gMySpectator.LastSelected = aEntity then
+    gMySpectator.NilLastSelected;
+  if gMySpectator.Highlight = aEntity then
+    gMySpectator.Highlight := nil;
+  if gMySpectator.HighlightDebug.Entity = aEntity then
+    gMySpectator.HighlightDebug.Reset;
+  if gMySpectator.HighlightDebug2.Entity = aEntity then
+    gMySpectator.HighlightDebug2.Reset;
+  if gMySpectator.HighlightDebug3.Entity = aEntity then
+    gMySpectator.HighlightDebug3.Reset;
+  if gMySpectator.HighlightRoute.Entity = aEntity then
+    gMySpectator.HighlightRoute.Reset;
+end;
+
+
 //Which house whas destroyed and by whom
 procedure TKMHand.HouseDestroyed(aHouse: TKMHouse; aFrom: TKMHandID);
 begin
@@ -1490,14 +1535,7 @@ begin
   //Scripting events happen AFTER updating statistics
   gScriptEvents.ProcHouseDestroyed(aHouse, aFrom);
 
-  //gMySpectator is nil during loading, when houses can be destroyed at the start
-  if gMySpectator <> nil then
-  begin
-    if gMySpectator.Highlight = aHouse then
-      gMySpectator.Highlight := nil;
-    if gMySpectator.Selected = aHouse then
-      gMySpectator.Selected := nil;
-  end;
+  EntityDestroyed(aHouse);
 end;
 
 
@@ -1535,6 +1573,14 @@ begin
   for I := 0 to 255 do
     if gRes.Palettes.DefaultPalette.Color32(I) = fFlagColor then
       Result := I;
+end;
+
+
+function TKMHand.GetDeliveries: TKMHandLogistics;
+begin
+  if Self = nil then Exit(nil);
+
+  Result := fDeliveries;
 end;
 
 
@@ -1667,6 +1713,12 @@ begin
 end;
 
 
+procedure TKMHand.SetEnabled(const Value: Boolean);
+begin
+  fEnabled := Value;
+end;
+
+
 procedure TKMHand.SetFlagColor(const Value: Cardinal);
 begin
   if Self = nil then Exit;
@@ -1714,7 +1766,7 @@ begin
   Result := 0;
     for I := 1 to gTerrain.MapY do
       for K := 1 to gTerrain.MapX do
-        if gTerrain.Land[I,K].TileOwner = fID then
+        if gTerrain.Land^[I,K].TileOwner = fID then
           Inc(Result);
 end;
 
@@ -1826,7 +1878,7 @@ end;
 procedure TKMHand.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.PlaceMarker('Hand');
-  SaveStream.Write(Enabled);
+  SaveStream.Write(fEnabled);
   SaveStream.Write(InCinematic);
   if not Enabled then Exit;
 
@@ -1859,7 +1911,7 @@ end;
 procedure TKMHand.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.CheckMarker('Hand');
-  LoadStream.Read(Enabled);
+  LoadStream.Read(fEnabled);
   LoadStream.Read(InCinematic);
   if not Enabled then Exit;
 
@@ -1947,24 +1999,13 @@ begin
   //Call script event after updating statistics
   gScriptEvents.ProcUnitDied(aUnit, aFrom);
 
-  //gMySpectator is nil during loading
-  if gMySpectator <> nil then
-  begin
-    if gMySpectator.Highlight = aUnit then
-      gMySpectator.Highlight := nil;
-    if gMySpectator.Selected = aUnit then
-      gMySpectator.Selected := nil;
-  end;
+  EntityDestroyed(aUnit);
 end;
 
 
 procedure TKMHand.GroupDied(aGroup: TKMUnitGroup);
 begin
-  //Groups arent counted in statistics
-  if gMySpectator.Highlight = aGroup then
-    gMySpectator.Highlight := nil;
-  if gMySpectator.Selected = aGroup then
-    gMySpectator.Selected := nil;
+  EntityDestroyed(aGroup);
 end;
 
 
@@ -2062,7 +2103,7 @@ procedure TKMHand.AddFirstStorehouse(aEntrance: TKMPoint);
       gTerrain.SetRoad(aPoint, fID);
       //Terrain under roads is flattened (fields are not)
       gTerrain.FlattenTerrain(aPoint);
-      if gMapElements[gTerrain.Land[aPoint.Y,aPoint.X].Obj].WineOrCorn then
+      if gMapElements[gTerrain.Land^[aPoint.Y,aPoint.X].Obj].WineOrCorn then
         gTerrain.RemoveObject(aPoint);
     end;
   end;
@@ -2137,14 +2178,14 @@ begin
 end;
 
 
-function TKMHand.ObjToString: String;
+function TKMHand.ObjToString(aSeparator: String = ' '): String;
 begin
-  Result := Format('Enabled = %5s ID = %d AI: [%s] Owner = %s HandType = %s',
-                   [BoolToStr(Enabled, True),
-                    fID,
-                    AI.ObjToString,
-                    OwnerName,
-                    GetEnumName(TypeInfo(TKMHandType), Integer(HandType))]);
+  Result := Format('Enabled = %5s%sID = %d%sAI: [%s]%sOwner = %s%sHandType = %s',
+                   [BoolToStr(Enabled, True), aSeparator,
+                    fID, aSeparator,
+                    AI.ObjToString, aSeparator,
+                    OwnerName, aSeparator,
+                    GetEnumName(TypeInfo(TKMHandType), Integer(fHandType))]);
 end;
 
 
@@ -2165,7 +2206,7 @@ begin
     if (U <> nil)
     and (U.UnitType = utFish)
     and (not U.IsDeadOrDying) //Fish are killed when they are caught or become stuck
-    and (gTerrain.Land[U.Position.Y, U.Position.X].WalkConnect[wcFish] = aWaterID)
+    and (gTerrain.Land^[U.Position.Y, U.Position.X].WalkConnect[wcFish] = aWaterID)
     and (TKMUnitAnimal(U).FishCount > highestGroupCount) then
     begin
       Result := TKMUnitAnimal(U);

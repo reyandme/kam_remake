@@ -18,8 +18,8 @@ type
     function CanWalkTo(const aFrom: TKMPoint; aToX, aToY: SmallInt): Boolean; override;
     function DestinationReached(aX, aY: Word): Boolean; override;
     function IsWalkableTile(aX, aY: Word): Boolean; override;
-    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
-    function EstimateToFinish(aX, aY: Word): Word; override;
+    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; override;
+    function EstimateToFinish(aX, aY: Word): Cardinal; override;
   public
     constructor Create(aOwner: TKMHandID);
 
@@ -35,14 +35,14 @@ type
   private
   protected
     function DestinationReached(aX, aY: Word): Boolean; override;
-    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
+    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; override;
   public
   end;
 
 
 implementation
 uses
-  KM_HandsCollection, KM_Terrain, KM_Hand;
+  KM_HandsCollection, KM_TerrainTypes, KM_Terrain, KM_Hand;
 
 
 { TPathFindingRoad }
@@ -84,13 +84,13 @@ begin
 end;
 
 
-function TPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+function TPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   isRoad: Boolean;
 begin
-  isRoad := (tpWalkRoad in gTerrain.Land[aToY, aToX].Passability)
+  isRoad := (tpWalkRoad in gTerrain.Land^[aToY, aToX].Passability)
             or (gHands[fOwner].Constructions.FieldworksList.HasField(KMPoint(aToX, aToY)) = ftRoad)
-            or (gTerrain.Land[aToY, aToX].TileLock = tlRoadWork);
+            or (gTerrain.Land^[aToY, aToX].TileLock = tlRoadWork);
 
   //Since we don't allow roads to be built diagonally we can assume
   //path is always 1 tile = 1 point
@@ -106,7 +106,7 @@ begin
 end;
 
 
-function TPathFindingRoad.EstimateToFinish(aX, aY: Word): Word;
+function TPathFindingRoad.EstimateToFinish(aX, aY: Word): Cardinal;
 begin
   case fDestination of
     pdLocation:    //Rough estimation
@@ -121,7 +121,7 @@ end;
 
 function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
-  Result := ( ([tpMakeRoads, tpWalkRoad] * gTerrain.Land[aY,aX].Passability <> []) OR (gTerrain.Land[aY, aX].TileLock = tlRoadWork) )
+  Result := ( ([tpMakeRoads, tpWalkRoad] * gTerrain.Land^[aY,aX].Passability <> []) OR (gTerrain.Land^[aY, aX].TileLock = tlRoadWork) )
             and (gHands[fOwner].Constructions.FieldworksList.HasField(KMPoint(aX, aY)) in [ftNone, ftRoad])
             and not gHands[fOwner].Constructions.HousePlanList.HasPlan(KMPoint(aX, aY)); // This will ignore allied plans but I guess that it will not cause trouble
 end;
@@ -130,7 +130,7 @@ end;
 function TPathFindingRoad.DestinationReached(aX, aY: Word): Boolean;
 begin
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)) //We reached destination point
-            or ((gTerrain.Land[aY, aX].TileOverlay = toRoad) //We reached destination road network
+            or ((gTerrain.Land^[aY, aX].TileOverlay = toRoad) //We reached destination road network
                and (fRoadConnectID <> 0) //No network
                and (gTerrain.GetRoadConnectID(KMPoint(aX, aY)) = fRoadConnectID));
 end;
@@ -151,7 +151,7 @@ end;
 
 
 { TPathFindingRoadShortcuts }
-function TPathFindingRoadShortcuts.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+function TPathFindingRoadShortcuts.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   isRoad: Boolean;
 begin
@@ -160,9 +160,9 @@ begin
   Result := 1;
 
   //Off road costs extra
-  isRoad := (tpWalkRoad in gTerrain.Land[aToY, aToX].Passability)
+  isRoad := (tpWalkRoad in gTerrain.Land^[aToY, aToX].Passability)
             or (gHands[fOwner].Constructions.FieldworksList.HasField(KMPoint(aToX, aToY)) = ftRoad)
-            or (gTerrain.Land[aToY, aToX].TileLock = tlRoadWork);
+            or (gTerrain.Land^[aToY, aToX].TileLock = tlRoadWork);
 
   if not isRoad then
     Inc(Result, 3);

@@ -7,7 +7,7 @@ uses
    KM_Controls;
 
 type
-  TKMMapEdTownScript = class (TKMMapEdSubMenuPage)
+  TKMMapEdTownScript = class(TKMMapEdSubMenuPage)
   private
     procedure Town_ScriptRefresh;
     procedure Town_ScriptChange(Sender: TObject);

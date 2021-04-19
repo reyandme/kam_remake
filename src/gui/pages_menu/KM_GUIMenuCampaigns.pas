@@ -6,11 +6,11 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Controls, SysUtils, Math,
   KM_Controls, KM_Pics,
-  KM_Campaigns, KM_InterfaceDefaults;
+  KM_Campaigns, KM_InterfaceDefaults, KM_InterfaceTypes;
 
 
 type
-  TKMMenuCampaigns = class (TKMMenuPageCommon)
+  TKMMenuCampaigns = class(TKMMenuPageCommon)
   private
     fOnPageChange: TKMMenuChangeEventText; //will be in ancestor class
 

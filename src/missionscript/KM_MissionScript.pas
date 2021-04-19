@@ -182,28 +182,23 @@ end;
 
 function TKMMissionParserCommon.TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
 var
-  I: TKMCommandType;
+  CT: TKMCommandType;
 begin
   Result := ctUnknown;
 
-  for I := Low(TKMCommandType) to High(TKMCommandType) do
-  begin
-    if ACommandText = '!' + COMMANDVALUES[I] then
-    begin
-      Result := I;
-      Break;
-    end;
-  end;
+  for CT := Low(TKMCommandType) to High(TKMCommandType) do
+    if ACommandText = '!' + COMMANDVALUES[CT] then
+      Exit(CT);
 
-  //Commented out because it slows down mission scanning
-  //if Result = ctUnknown then gLog.AddToLog(String(ACommandText));
+  // Commented out because it slows down mission scanning
+  //gLog.AddToLog(String(ACommandText));
 end;
 
 
-//Read mission file to a string and if necessary - decode it
+// Read mission file to a string and if necessary - decode it
 function TKMMissionParserCommon.ReadMissionFile(const aFileName: string): AnsiString;
 var
-  I,Num: Cardinal;
+  I, Num: Cardinal;
   F: TMemoryStream;
 begin
   if not FileExists(aFileName) then
@@ -220,7 +215,7 @@ begin
     //Detect whether mission is encoded so we can support decoded/encoded .DAT files
     //We can't test 1st char, it can be any. Instead see how often common chracters meet
     Num := 0;
-    for I:=0 to F.Size-1 do               //tab, eol, 0..9, space, !
+    for I := 0 to F.Size - 1 do           //tab, eol, 0..9, space, !
       if PByte(Cardinal(F.Memory)+I)^ in [9,10,13,ord('0')..ord('9'),$20,$21] then
         inc(Num);
 
@@ -260,42 +255,42 @@ end;
 
 procedure TKMMissionParserCommon.TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString);
 var
-  CommandText, strParam, TextParam: AnsiString;
-  ParamList: array of Integer;
+  commandText, strParam, textParam: AnsiString;
+  paramList: array of Integer;
   I, K, intParam: Integer;
-  CommandType: TKMCommandType;
+  commandType: TKMCommandType;
   J: Integer;
-  DoProcess: Boolean;
+  doProcess: Boolean;
 begin
-  SetLength(ParamList, aMaxCmd);
+  SetLength(paramList, aMaxCmd);
 
   I := 1;
   repeat
     if aText[I] = '!' then
     begin
       //Default uninitialized values
-      TextParam := '';
-      CommandText := '';
+      textParam := '';
+      commandText := '';
       for K := 0 to aMaxCmd - 1 do
-        ParamList[K] := -1;
+        paramList[K] := -1;
 
       //Extract command until a space
       repeat
-        CommandText := CommandText + aText[I];
+        commandText := commandText + aText[I];
         Inc(I);
       until((aText[I] = #32) or (I >= Length(aText)));
 
       //We can skip certain commands to speed up the scan
       //for implementations that need only Preview/Info
-      DoProcess := Length(aCommands) = 0;
+      doProcess := Length(aCommands) = 0;
       for J := Low(aCommands) to High(aCommands) do
-      if (CommandText = aCommands[J]) then
-        DoProcess := True;
+      if (commandText = aCommands[J]) then
+        doProcess := True;
 
-      if DoProcess then
+      if doProcess then
       begin
         //Now convert command into type
-        CommandType := TextToCommandType(CommandText);
+        commandType := TextToCommandType(commandText);
         Inc(I);
         //Extract parameters
         for K := 0 to aMaxCmd - 1 do
@@ -309,17 +304,17 @@ begin
 
             //Convert to an integer, if possible
             if TryStrToInt(string(strParam), intParam) then
-              ParamList[K] := intParam
+              paramList[K] := intParam
             else
               if K = 0 then
-                TextParam := strParam; //Accept text for first parameter
+                textParam := strParam; //Accept text for first parameter
 
             if (I <= Length(aText)) and (aText[I] = #32) then
               Inc(I);
           end;
 
         // We now have command text and parameters, so process them
-        ProcessCommand(CommandType, ParamList, TextParam);
+        ProcessCommand(commandType, paramList, textParam);
       end;
     end
     else
@@ -332,7 +327,7 @@ end;
 // Shows the error to the user so they know exactly what they did wrong.
 procedure TKMMissionParserCommon.AddError(const ErrorMsg: string);
 begin
-    fMinorErrors := fMinorErrors + ErrorMsg + '|';
+  fMinorErrors := fMinorErrors + ErrorMsg + '|';
 end;
 
 

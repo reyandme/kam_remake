@@ -481,21 +481,25 @@ end;
 
 
 procedure TKMGUIGameUnit.Army_ActivateControls(aGroup: TKMUnitGroup);
-var AcceptOrders: Boolean;
+var
+  acceptOrders: Boolean;
 begin
-  AcceptOrders := aGroup.CanTakeOrders and OnArmyCanTakeOrder(nil);
+  acceptOrders :=     aGroup.CanTakeOrders
+                  and OnArmyCanTakeOrder(nil)
+                  and (gMySpectator.Selected <> nil) // just in case
+                  and gMySpectator.IsSelectedMyObj;  // do not allow orders for allied units (for now)
 
-  // Button_Army_GoTo.Enabled    := AcceptOrders;
-  Button_Army_Stop.Enabled    := AcceptOrders;
-  // Button_Army_Attack.Enabled  := AcceptOrders;
-  Button_Army_RotCW.Enabled   := AcceptOrders;
-  Button_Army_Storm.Enabled   := AcceptOrders and (aGroup.GroupType = gtMelee);
-  Button_Army_RotCCW.Enabled  := AcceptOrders;
-  Button_Army_ForUp.Enabled   := AcceptOrders and (aGroup.Count > 1);
-  Button_Army_ForDown.Enabled := AcceptOrders and (aGroup.Count > 1);
-  Button_Army_Split.Enabled   := AcceptOrders and (aGroup.Count > 1);
-  Button_Army_Join.Enabled    := AcceptOrders;
-  Button_Army_Feed.Enabled    := AcceptOrders;
+  // Button_Army_GoTo.Enabled    := acceptOrders;
+  Button_Army_Stop.Enabled    := acceptOrders;
+  // Button_Army_Attack.Enabled  := acceptOrders;
+  Button_Army_RotCW.Enabled   := acceptOrders;
+  Button_Army_Storm.Enabled   := acceptOrders and (aGroup.GroupType = gtMelee);
+  Button_Army_RotCCW.Enabled  := acceptOrders;
+  Button_Army_ForUp.Enabled   := acceptOrders and (aGroup.Count > 1);
+  Button_Army_ForDown.Enabled := acceptOrders and (aGroup.Count > 1);
+  Button_Army_Split.Enabled   := acceptOrders and (aGroup.Count > 1);
+  Button_Army_Join.Enabled    := acceptOrders;
+  Button_Army_Feed.Enabled    := acceptOrders;
 end;
 
 

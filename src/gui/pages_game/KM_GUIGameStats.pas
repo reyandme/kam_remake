@@ -213,7 +213,7 @@ begin
       Qty := gMySpectator.Hand.Stats.GetUnitQty(UT);
       WipQty := gMySpectator.Hand.Stats.GetUnitWip(UT);
 
-      //Hightlight unit qty, when there are not enought workers
+      // Hightlight unit qty, when there are not enough workers
       DoHighlight := (I < High(StatPlan) - 1) // do not highlight last 2 rows - Barracks/Watch tower and Storehouse/Inn/School
         and (HTotalConstrOpenedQty > Qty + WipQty);
 

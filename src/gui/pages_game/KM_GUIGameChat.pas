@@ -7,7 +7,7 @@ uses
   Classes, Math, StrUtils, SysUtils,
 
   KM_Networking, KM_NetworkTypes,
-  KM_InterfaceGame, KM_InterfaceDefaults, KM_CommonTypes,
+  KM_InterfaceGame, KM_InterfaceTypes, KM_CommonTypes,
   KM_Controls, KM_Defaults, KM_Points, KM_Console;
 
 
