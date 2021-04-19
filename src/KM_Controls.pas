@@ -1710,7 +1710,7 @@ type
   end;
 
 
-  TKMPopUpBGImageType = (pubgitGray, pubgitYellow, pubgitScrollWCross);
+  TKMPopUpBGImageType = (pubgitTransparent, pubgitGray, pubgitYellow, pubgitScrollWCross);
 
   TKMPopUpPanel = class(TKMPanel)
   private
@@ -2299,7 +2299,12 @@ begin
     TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 2, $FF00D0FF);
 
   if (SHOW_CONTROL_OVER or MODE_DESIGN_CONTROLS) and (csOver in State) then
+  begin
+    if fID = 2733 then
+      TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 4, $FF0000FF)
+    else
     TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 2, $FFFFD000);
+  end;
 
   if SHOW_CONTROLS_ID then
     TKMRenderUI.WriteText(AbsLeft+1, AbsTop, fWidth, IntToStr(fID), fntMini, taLeft);
@@ -2417,21 +2422,29 @@ end;
 
 function TKMControl.GetLeft: Integer;
 begin
+  if Self = nil then Exit(0);
+
   Result := Round(fLeft)
 end;
 
 function TKMControl.GetTop: Integer;
 begin
+  if Self = nil then Exit(0);
+
   Result := Round(fTop)
 end;
 
 function TKMControl.GetBottom: Integer;
 begin
+  if Self = nil then Exit(0);
+
   Result := GetTop + GetHeight;
 end;
 
 function TKMControl.GetRight: Integer;
 begin
+  if Self = nil then Exit(0);
+
   Result := GetLeft + GetWidth;
 end;
 
@@ -3459,6 +3472,8 @@ end;
 
 procedure TKMImage.ImageStretch;
 begin
+  if Self = nil then Exit;
+  
   ImageAnchors := [anLeft, anRight, anTop, anBottom]; //Stretch image to fit
 end;
 
@@ -8579,10 +8594,14 @@ var
 begin
   topMargin := 0;
   case aImageType of
+    pubgitTransparent:  topMargin := 0;
     pubgitGray:         topMargin := 20;
     pubgitYellow:       topMargin := 25;
     pubgitScrollWCross: topMargin := 20;
   end;
+
+//  if aImageType = pubgitTransparent then
+//    Hitable := True;
 
   l := Max(0, (aParent.Width div 2) - (aWidth div 2));
   t := Max(topMargin, (aParent.Height div 2) - (aHeight div 2));
@@ -8602,6 +8621,7 @@ begin
     BevelShade := TKMBevel.Create(Self, -2000,  -2000, 5000, 5000);
 
   case fBGImageType of
+    pubgitTransparent:  ;
     pubgitGray:    ImageBG := TKMImage.Create(Self, -topMargin, -50, aWidth + 40, aHeight + 70,  15, rxGuiMain);
     pubgitYellow:  ImageBG := TKMImage.Create(Self, -topMargin, -80, aWidth + 50, aHeight + 130, 18, rxGuiMain);
     pubgitScrollWCross:
@@ -8621,7 +8641,10 @@ begin
 
   BevelBG := nil;
   if aShowBevel then
+  begin
     BevelBG := TKMBevel.Create(Self, 0, 0, aWidth, aHeight);
+    BevelBG.Hitable := True;
+  end;
 
   AnchorsCenter;
   Hide;

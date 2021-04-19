@@ -13,6 +13,7 @@ type
   TKMMapEdTerrainSelection = class(TKMMapEdSubMenuPage)
   private
     fRMGPopUp: TKMMapEdRMG;
+
     procedure SelectionClick(Sender: TObject);
     procedure GenerateMapClick(Sender: TObject);
   protected
@@ -27,7 +28,6 @@ type
 
   public
     constructor Create(aParent: TKMPanel);
-    destructor Destroy; override;
 
     property GuiRMGPopUp: TKMMapEdRMG read fRMGPopUp write fRMGPopUp;
     procedure Show;
@@ -128,12 +128,6 @@ begin
   fSubMenuActionsCtrls[6,0] := Button_RMGRND;
 end;
 
-
-destructor TKMMapEdTerrainSelection.Destroy;
-begin
-  fRMGPopUp.Free();
-  inherited;
-end;
 
 procedure TKMMapEdTerrainSelection.GenerateMapClick(Sender: TObject);
 begin

@@ -26,37 +26,37 @@ type
     procedure RMG_Generate_New_Seed(Sender: TObject);
     function GetVisible: Boolean;
   protected
-    Panel_RMG: TKMPanel;
-    CheckGroup_Grass: TKMRadioGroup;
-    CheckGroup_LocPosition: TKMRadioGroup;
+    Panel_RMG: TKMPopUpPanel;
+      CheckGroup_Grass: TKMRadioGroup;
+      CheckGroup_LocPosition: TKMRadioGroup;
 
-    MinimapView: TKMMinimapView;
+      MinimapView: TKMMinimapView;
 
-    Check_Biomes, Check_Ground,Check_Snow,Check_Sand,
-    Check_Obstacles,
-    Check_Locs, Check_Resources, Check_ConnectLocs, Check_MineFix,
-    Check_Height, Check_HideNonSmoothTransition,
-    Check_NoGo, Check_ReplaceTerrain,
-    Check_Objects, Check_Animals: TKMCheckBox;
+      Check_Biomes, Check_Ground,Check_Snow,Check_Sand,
+      Check_Obstacles,
+      Check_Locs, Check_Resources, Check_ConnectLocs, Check_MineFix,
+      Check_Height, Check_HideNonSmoothTransition,
+      Check_NoGo, Check_ReplaceTerrain,
+      Check_Objects, Check_Animals: TKMCheckBox;
 
-    TBar_Players, TBar_ProtectedRadius, TBar_Res_Stone, TBar_Res_Gold, TBar_Res_Iron,
-    TBar_NonWalk_Size, TBar_NonWalk_Density, TBar_NonWalk_Variance, TBar_NonWalk_EGold, TBar_NonWalk_EIron, TBar_NonWalk_Swamp, TBar_NonWalk_Wetland, TBar_NonWalk_Water,
-    TBar_Biomes1_Step, TBar_Biomes1_Limit, TBar_Biomes2_Step, TBar_Biomes2_Limit,
-    TBar_HeightStep, TBar_HeightSlope, TBar_HeightHeight,
-    TBar_Height1, TBar_Height2, TBar_Height3, TBar_Height4, TBar_ObjectDensity, TBar_Forests, TBar_Trees: TKMTrackBar;
+      TBar_Players, TBar_ProtectedRadius, TBar_Res_Stone, TBar_Res_Gold, TBar_Res_Iron,
+      TBar_NonWalk_Size, TBar_NonWalk_Density, TBar_NonWalk_Variance, TBar_NonWalk_EGold, TBar_NonWalk_EIron, TBar_NonWalk_Swamp, TBar_NonWalk_Wetland, TBar_NonWalk_Water,
+      TBar_Biomes1_Step, TBar_Biomes1_Limit, TBar_Biomes2_Step, TBar_Biomes2_Limit,
+      TBar_HeightStep, TBar_HeightSlope, TBar_HeightHeight,
+      TBar_Height1, TBar_Height2, TBar_Height3, TBar_Height4, TBar_ObjectDensity, TBar_Forests, TBar_Trees: TKMTrackBar;
 
-    {$IFDEF DEBUG_RMG}
-    Check_Decomposition,Check_BasicTiles,Check_CA: TKMCheckBox;
-    {$ENDIF}
+      {$IFDEF DEBUG_RMG}
+      Check_Decomposition,Check_BasicTiles,Check_CA: TKMCheckBox;
+      {$ENDIF}
 
-    DList_MapSize, DList_InitRes, DList_PreCfg: TKMDropList;
-    Label_MapSize: TKMLabel;
+      DList_MapSize, DList_InitRes, DList_PreCfg: TKMDropList;
+      Label_MapSize: TKMLabel;
 
-    NumPlayers,NumSeed: TKMNumericEdit;
+      NumPlayers,NumSeed: TKMNumericEdit;
 
-    Button_RMG_Generate_New_Seed: TKMButton;
-    Button_RMG_Generate: TKMButton;
-    Button_RMG_Cancel: TKMButton;
+      Button_RMG_Generate_New_Seed: TKMButton;
+      Button_RMG_Generate: TKMButton;
+      Button_RMG_Cancel: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aMinimap: TKMMinimap = nil; aMP: Boolean = False);
     destructor Destroy; override;
@@ -176,7 +176,7 @@ const
   IRON_MAX = 1000;
 var
   Img: TKMImage;
-  Column_X,Column_Y: Integer;
+  Column_X,Column_Y, left, top: Integer;
   Panel_Settings: TKMPanel;
   Lab: TKMLabel;
 begin
@@ -188,7 +188,20 @@ begin
   fRMG := TKMRandomMapGenerator.Create;
   fOnNewMap := nil;
 
-  Panel_RMG := TKMPanel.Create(aParent, (aParent.Width - SIZE_X) div 2, (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
+//  left := (aParent.MasterControl.MasterPanel.Width - SIZE_X) div 2;
+//  top := (aParent.MasterControl.MasterPanel.Height - SIZE_Y) div 2;
+
+//  Panel_RMG :=  TKMPanel.Create(aParent, left, top, SIZE_X, SIZE_Y);
+  Panel_RMG :=  TKMPopUpPanel.Create(aParent.MasterControl.MasterPanel, SIZE_X, SIZE_Y + 15,
+                                     ''{gResTexts[TX_MAPED_RMG_SETTINGS_TITLE]}, pubgitTransparent,
+                                     True, False);
+
+//  PopUp_History.Left := Panel_Main.Width - PopUp_History.Width;
+//  PopUp_History.Top  := 0;
+  Panel_RMG.DragEnabled := True;
+//  Panel_RMG.Hitable := True;
+//  Panel_RMG.Hide; // History is hidden by default
+
   Panel_RMG.AnchorsCenter;
   Panel_RMG.Hide;
   Panel_RMG.PanelHandleMouseWheelByDefault := False; //Allow to zoom in/out while RMG settings window is open
@@ -200,7 +213,8 @@ begin
     Img.ImageStretch;
   end
   else
-    TKMBevel.Create(Panel_RMG, 0, -15, SIZE_X, SIZE_Y);
+//  with TKMBevel.Create(Panel_RMG, 0, -15, SIZE_X, SIZE_Y) do
+//    Hitable := True;
   // Bevel panels
   TKMBevel.Create(Panel_RMG, Column_1_X-INDENTATION_Bevel, 60, SIZE_Bevel_X, SIZE_Bevel_Y);
   TKMBevel.Create(Panel_RMG, Column_2_X-INDENTATION_Bevel, 60, SIZE_Bevel_X, SIZE_Bevel_Y);
@@ -209,7 +223,7 @@ begin
   TKMBevel.Create(Panel_RMG, Column_4_X-INDENTATION_Bevel, 60+220+30 - 80*Ord(aMP), SIZE_Bevel_X, 170 - 30*Ord(aMP));
 
 // Title
-  TKMLabel.Create(Panel_RMG, SIZE_X div 2, -10, gResTexts[TX_MAPED_RMG_SETTINGS_TITLE], fntOutline, taCenter);
+  TKMLabel.Create(Panel_RMG, SIZE_X div 2, 0, gResTexts[TX_MAPED_RMG_SETTINGS_TITLE], fntOutline, taCenter);
 
 
 // RMG panel
@@ -495,7 +509,7 @@ begin
   begin
     MinimapView := TKMMinimapView.Create(Panel_Settings, Column_X, NextLine(Column_Y,30), 192, 132, True);
       MinimapView.ShowLocs := True; //In the minimap we want player locations to be shown
-      MinimapView.Show;
+      MinimapView.DoSetVisible;
   end;
 
 // Map size

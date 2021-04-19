@@ -350,6 +350,7 @@ begin
   fGuiFormations.Free;
   fGuiMenuQuickPlay.Free;
   fGuiGoal.Free;
+  fGuiRMG.Free;
   fGuiMarkerDefence.Free;
   fGuiMarkerReveal.Free;
   fGuiMenu.Free;
