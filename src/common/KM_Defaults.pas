@@ -101,11 +101,13 @@ var
   //Not fully implemented yet
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   DYNAMIC_FOG_OF_WAR    :Boolean = False; //Whenever dynamic fog of war is enabled or not
-  SHOW_DISMISS_GROUP_BTN:Boolean = False; //The button to kill group
+  SHOW_DISMISS_GROUP_BTN:Boolean = DEBUG_CFG; //The button to kill group
   CHECK_8087CW          :Boolean = False; //Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   SCROLL_ACCEL          :Boolean = False; //Acceleration for viewport scrolling
   ALLOW_INTERPOLATED_RENDER :Boolean = True; //Interpolate positions/animations in render between game ticks
   PATHFINDER_TO_USE     :Byte = 1;        //Use TPathfindingAStarNew
+
+  ENABLE_VIDEOS_UNDER_WINE: Boolean = DEBUG_CFG; //Do we enable videos under wine
 
   //Cache / delivery / pathfinding
   CACHE_PATHFINDING                       :Boolean = True; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
@@ -142,11 +144,13 @@ var
   SHOW_DEBUG_CONTROLS     :Boolean = False; //Show debug panel / Form1 menu (F11)
   SHOW_CONTROLS_OVERLAY   :Boolean = False; //Draw colored overlays ontop of controls! always Off here
   SHOW_CONTROLS_ID        :Boolean = False; //Draw controls ID
-  SHOW_FOCUSED_CONTROL     :Boolean = False; //Outline focused control
+  SHOW_FOCUSED_CONTROL    :Boolean = False; //Outline focused control
   SHOW_CONTROL_OVER       :Boolean = False; //Outline control with mouse over
   SHOW_TEXT_OUTLINES      :Boolean = False; //Display text areas outlines
+  SKIP_RENDER_TEXT        :Boolean = False; //Skip painting labels
   ENABLE_DESIGN_CONTORLS  :Boolean = False; //Enable special mode to allow to move/edit controls
   MODE_DESIGN_CONTROLS    :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
+
   OVERLAY_RESOLUTIONS     :Boolean = False; //Render constraining frame
   LOCAL_SERVER_LIST       :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
   SHOW_LOGS_IN_CHAT       :Boolean = False; //Show log messages in MP game chat

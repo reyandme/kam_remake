@@ -201,13 +201,13 @@ begin
   if clbFolders.Checked[0] then
     fPathManager.AddPath(fWorkDir, 'data' + PathDelim + 'text' + PathDelim);
   if clbFolders.Checked[1] then
-    fPathManager.AddPath(fWorkDir, 'Tutorials' + PathDelim);
+    fPathManager.AddPath(fWorkDir, TUTORIALS_FOLDER_NAME + PathDelim);
   if clbFolders.Checked[2] then
-    fPathManager.AddPath(fWorkDir, 'Campaigns' + PathDelim);
+    fPathManager.AddPath(fWorkDir, CAMPAIGNS_FOLDER_NAME + PathDelim);
   if clbFolders.Checked[3] then
-    fPathManager.AddPath(fWorkDir, 'Maps' + PathDelim);
+    fPathManager.AddPath(fWorkDir, MAPS_FOLDER_NAME + PathDelim);
   if clbFolders.Checked[4] then
-    fPathManager.AddPath(fWorkDir, 'MapsMP' + PathDelim);
+    fPathManager.AddPath(fWorkDir, MAPS_MP_FOLDER_NAME + PathDelim);
 
   for I := 0 to fPathManager.Count - 1 do
     lbFolders.Items.Add(fPathManager[I]);

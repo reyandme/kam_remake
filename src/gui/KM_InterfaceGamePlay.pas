@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  StrUtils, SysUtils, KromUtils, Math, Classes, Controls, TypInfo,
+  StrUtils, SysUtils, KromUtils, Math, Classes, Controls, TypInfo, Generics.Collections,
   KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
   KM_InterfaceTypes, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
   KM_UnitGroup, KM_UnitWarrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
@@ -58,9 +58,9 @@ type
     SelectingTroopDirection: Boolean;
     SelectingDirPosition: TPoint;
     fSaves: TKMSavesCollection;
-    fUnitsTeamNames: TList;
-    fGroupsTeamNames: TList;
-    fHousesTeamNames: TList;
+    fUnitsTeamNames: TList<TKMUnit>;
+    fGroupsTeamNames: TList<TKMUnitGroup>;
+    fHousesTeamNames: TList<TKMHouse>;
     fLastSyncedMessage: Word; // Last message that we synced with MessageLog
     fLastKbdSelectionTime: Cardinal; //Last we select object from keyboard
 
@@ -362,7 +362,6 @@ type
 
 implementation
 uses
-  Generics.Collections,
   KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_GameCursor, KM_Maps,
   KM_HandsCollection, KM_Hand, KM_RenderPool, KM_ResTexts, KM_Game, KM_GameApp, KM_HouseBarracks, KM_HouseTownHall,
   KM_ScriptingEvents, KM_AIFields, KM_GameSettings,
@@ -806,9 +805,9 @@ begin
   fMessageStack := TKMMessageStack.Create;
   fSaves := TKMSavesCollection.Create;
 
-  fUnitsTeamNames := TList.Create;
-  fGroupsTeamNames := TList.Create;
-  fHousesTeamNames := TList.Create;
+  fUnitsTeamNames := TList<TKMUnit>.Create;
+  fGroupsTeamNames := TList<TKMUnitGroup>.Create;
+  fHousesTeamNames := TList<TKMHouse>.Create;
 
   Label_TeamName := TKMLabel.Create(Panel_Main, 0, 0, '', fntGrey, taCenter);
 
@@ -4316,6 +4315,7 @@ procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var
   I, lastTick: Integer;
   rect: TKMRect;
+  str: string;
 begin
   inherited;
   // Update minimap every 1000ms
@@ -4336,17 +4336,18 @@ begin
   // Update replay counters
   if fUIMode = umReplay then
   begin
-    lastTick := Max4(gGame.LastReplayTick,
-                     gGame.GameInputProcess.GetLastTick,
-                     gGameParams.Tick,
-                     gGame.SavePoints.LastTick);
+    lastTick := gGame.GetReplayLastTick;
     // Replays can continue after end, keep the bar in 0..1 range
     ReplayBar_Replay.SetParameters(gGameParams.Tick,
                                    gGame.Options.Peacetime*60*10,
                                    lastTick);
 
-    Label_ReplayBar.Caption := TimeToString(gGame.MissionTime) + ' / ' +
-                            TickToTimeStr(lastTick);
+    if lastTick = gGameParams.Tick then
+      str := TickToTimeStr(lastTick)
+    else
+      str := TimeToString(gGame.MissionTime) + ' / ' + TickToTimeStr(lastTick);
+
+    Label_ReplayBar.Caption := str;
   end;
 
   // Update speedup clocks
@@ -4599,14 +4600,11 @@ begin
     Label_TeamName.Visible := True; // Only visible while we're using it, otherwise it shows up in other places
     for I := 0 to fUnitsTeamNames.Count - 1 do
       try
-        if not (TObject(fUnitsTeamNames[I]) is TKMUnit)
-          or (TKMUnit(fUnitsTeamNames[I]) = nil)
-          or TKMUnit(fUnitsTeamNames[I]).IsDeadOrDying then
+        if (fUnitsTeamNames[I] = nil)
+          or fUnitsTeamNames[I].IsDeadOrDying then
           Continue;
 
-        U := TKMUnit(fUnitsTeamNames[I]);
-        if U.IsDeadOrDying then
-          Continue;
+        U := fUnitsTeamNames[I];
 
         if SHOW_UIDs
           or (U.Visible and (gMySpectator.FogOfWar.CheckRevelation(U.PositionF) > FOG_OF_WAR_MIN)) then
@@ -4640,10 +4638,7 @@ begin
     begin
       for I := 0 to fGroupsTeamNames.Count - 1 do
         try
-          if not (TObject(fGroupsTeamNames[I]) is TKMUnitGroup) then
-            Continue;
-
-          G := TKMUnitGroup(fGroupsTeamNames[I]);
+          G := fGroupsTeamNames[I];
           if (G = nil) or G.IsDead then
             Continue;
 
@@ -4677,10 +4672,7 @@ begin
 
       for I := 0 to fHousesTeamNames.Count - 1 do
         try
-          if not (TObject(fHousesTeamNames[I]) is TKMHouse) then
-            Continue;
-
-          H := TKMHouse(fHousesTeamNames[I]);
+          H := fHousesTeamNames[I];
           if H.IsDestroyed then
             Continue;
 

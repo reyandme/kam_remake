@@ -201,7 +201,7 @@ uses
   KM_HouseWoodcutters, KM_HouseTownHall,
   KM_UnitGroupTypes,
   KM_ResTypes,
-  KM_Terrain;
+  KM_Terrain, KM_UnitWarrior;
 
 const
   MIN_SOUND_AT_LOC_RADIUS = 28;
@@ -4065,9 +4065,10 @@ begin
       U := fIDCache.GetUnit(aUnitID);
       if (G <> nil)
       and (U <> nil)
-      and (G.HasMember(U)) then
+      and (U is TKMUnitWarrior)
+      and (G.HasMember(TKMUnitWarrior(U))) then
       begin
-        G2 := G.OrderSplitUnit(U, True);
+        G2 := G.OrderSplitUnit(TKMUnitWarrior(U), True);
         if G2 <> nil then
           Result := G2.UID;
       end;

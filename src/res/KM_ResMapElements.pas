@@ -3,15 +3,12 @@ unit KM_ResMapElements;
 interface
 uses
   Classes, SysUtils, KromUtils,
+  KM_ResTypes,
   KM_CommonTypes, KM_Defaults;
 
 
 type
   TKMKillByRoad = (kbrNever, kbrNWCorner, kbrWest);
-
-  TKMChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
-
-  TKMChopableAgeSet = set of TKMChopableAge;
 
   TKMMapElement = packed record
     Anim: TKMAnimLoop;          //Animation loop info

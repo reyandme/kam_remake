@@ -16,6 +16,7 @@ type
   public
     Cmp: TComparator;
     constructor Create(aSize: Word);
+    property Count: Word read fCount;
     procedure Clear;
     function IsEmpty: Boolean;
     function Pop: Pointer;

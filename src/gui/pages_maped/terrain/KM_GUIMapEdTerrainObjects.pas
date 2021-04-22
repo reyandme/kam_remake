@@ -46,7 +46,7 @@ type
     procedure ObjectsPaletteButton_Click(Sender: TObject);
     procedure ObjectsPaletteClose_Click(Sender: TObject);
   protected
-    Panel_Objects: TKMPanel;
+    Panel_Objects: TKMScrollPanel;
       ObjectErase: TKMButtonFlat;
       ObjectBlock: TKMButtonFlat;
       ObjectsPalette_Button: TKMButtonFlat;
@@ -94,7 +94,7 @@ uses
   KM_ResTypes, KM_TerrainTypes;
 
 type
-  TKMObjBrushForestAge = (faAll, faYoung, faMedium, faChop);
+  TKMObjBrushForestAge = (faAll, faAllButStomps, faYoung, faMedium, faBig, faChop, faStomp);
 
 const
   OBJECTS_PALETTE_MAX_COLS_CNT = 17;
@@ -113,8 +113,36 @@ const
   OBJECT_MAX_DENSITY = 30;
 
 
+  FOREST_AGE_THUMB_TX: array[TKMObjBrushForestAge] of Integer = (TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL,
+                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL_BUT_STOMP,
+                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_YOUNG,
+                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_MEDIUM,
+                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_BIG,
+                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_RDY_2CHOP,
+                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_STOMP);
+
+  FOREST_AGE_HINT_TX: array[TKMObjBrushForestAge] of Integer = (TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL_HINT,
+                                                                TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL_BUT_STOMP_HINT,
+                                                                TX_MAPED_OBJECTS_BRUSH_TREES_AGE_YOUNG_HINT,
+                                                                TX_MAPED_OBJECTS_BRUSH_TREES_AGE_MEDIUM_HINT,
+                                                                TX_MAPED_OBJECTS_BRUSH_TREES_AGE_BIG_HINT,
+                                                                TX_MAPED_OBJECTS_BRUSH_TREES_AGE_RDY_2CHOP_HINT,
+                                                                TX_MAPED_OBJECTS_BRUSH_TREES_AGE_STOMP_HINT);
+
+
 { TKMMapEdTerrainObjects }
 constructor TKMMapEdTerrainObjects.Create(aParent: TKMPanel; aHideAllPages: TEvent);
+
+  function GetForestAgeThumbWidth(aFont: TKMFont): Integer;
+  var
+    BFA: TKMObjBrushForestAge;
+  begin
+    Result := 0;
+    for BFA := Low(FOREST_AGE_THUMB_TX) to High(FOREST_AGE_THUMB_TX) do
+      Result := Max(Result, gRes.Fonts[aFont].GetTextSize(gResTexts[FOREST_AGE_THUMB_TX[BFA]]).X);
+
+    Inc(Result, TKMTrackBar.THUMB_WIDTH_ADD);
+  end;
 
 var
   top: Integer;
@@ -131,6 +159,7 @@ var
   //For brushes
   rxIndex, K: Integer;
   objectsHint: String;
+
 begin
   inherited Create;
 
@@ -139,10 +168,15 @@ begin
 
   CompactMapElements;
 
-  Panel_Objects := TKMScrollPanel.Create(aParent, 0, 28, aParent.Width, aParent.Height - 40, [saVertical], bsMenu, ssCommon);
+  Panel_Objects := TKMScrollPanel.Create(aParent, 0, 28, aParent.Width, aParent.Height - 28, [saVertical], bsMenu, ssCommon);
+  Panel_Objects.Padding.SetBottom(10);
+  Panel_Objects.ScrollV_PadTop := 10;
+  Panel_Objects.ScrollV_PadBottom := 10;
   Panel_Objects.AnchorsStretch;
+
   with TKMLabel.Create(Panel_Objects, 0, TERRAIN_PAGE_TITLE_Y, Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter) do
     Anchors := [anLeft, anTop, anRight];
+
   ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 9, 295, Panel_Objects.Width - 9, 20, saHorizontal, bsGame);
   ObjectsScroll.Anchors := [anLeft, anTop, anRight];
   ObjectsScroll.MinValue := 0;
@@ -332,7 +366,10 @@ begin
   ForestAge.OnChange := ObjectsBrushChange;
   ForestAge.ThumbText := gResTexts[TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL];
   ForestAge.Hint := GetHintWHotKey(TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL_HINT, gResTexts[TX_KEY_SHIFT_MOUSEWHEEL]);
-  ForestAge.AutoThumbWidth := True; // Auto calc thumb width
+
+  ForestAge.FixedThumbWidth := True;
+  ForestAge.ThumbWidth := GetForestAgeThumbWidth(ForestAge.Font);
+//  ForestAge.AutoThumbWidth := True; // Auto calc thumb width
 
   Label_ForestAge := TKMLabel.Create(Panel_Objects, 9, NextTop(20) - 8, Panel_Objects.Width - 18, 20,
                                      gResTexts[TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL_HINT], fntGrey, taRight);
@@ -607,17 +644,6 @@ end;
 
 
 procedure TKMMapEdTerrainObjects.ObjectsBrushChange(Sender: TObject);
-const
-  FOREST_AGE_THUMB_TX: array[TKMObjBrushForestAge] of Integer = (TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL,
-                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_YOUNG,
-                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_MEDIUM,
-                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_RDY_2CHOP);
-
-  FOREST_AGE_HINT_TX: array[TKMObjBrushForestAge] of Integer = (TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL_HINT,
-                                                                TX_MAPED_OBJECTS_BRUSH_TREES_AGE_YOUNG_HINT,
-                                                                TX_MAPED_OBJECTS_BRUSH_TREES_AGE_MEDIUM_HINT,
-                                                                TX_MAPED_OBJECTS_BRUSH_TREES_AGE_RDY_2CHOP_HINT);
-
 var
   I, treeAgeHintTX: Integer;
 begin

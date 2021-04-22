@@ -2,6 +2,10 @@ unit KM_ResTypes;
 interface
 
 type
+  TKMChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
+
+  TKMChopableAgeSet = set of TKMChopableAge;
+
   TKMWareType = (
     wtNone,
     wtTrunk,   wtStone,   wtWood,        wtIronOre,   wtGoldOre,

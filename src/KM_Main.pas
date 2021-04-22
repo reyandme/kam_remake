@@ -92,7 +92,8 @@ uses
   SysUtils, StrUtils, Math, KromUtils, KM_FileIO,
   KM_GameApp, KM_Helpers,
   KM_Log, KM_CommonUtils, KM_Defaults, KM_Points, KM_DevPerfLog,
-  KM_CommonExceptions;
+  KM_CommonExceptions,
+  KM_Utils;
 
 
 const
@@ -198,7 +199,7 @@ begin
       fMainSettings.FullScreen := False;
   end;
 
-  gVideoPlayer := TKMVideoPlayer.Create;
+  gVideoPlayer := TKMVideoPlayer.Create(ENABLE_VIDEOS_UNDER_WINE or not IsUnderWine);
 
   fFormMain.Caption := 'KaM Remake - ' + UnicodeString(GAME_VERSION);
   //Will make the form slightly higher, so do it before ReinitRender so it is reset
@@ -428,12 +429,16 @@ function TKMMain.DoHaveGenericPermission: Boolean;
 const
   GRANTED: array[Boolean] of string = ('blocked', 'granted');
 var
-  readAcc, writeAcc, execAcc: Boolean;
+  readAcc, writeAcc, execAcc, dirWritable: Boolean;
 begin
   CheckFolderPermission(ExeDir, readAcc, writeAcc, execAcc);
-  gLog.AddTime(Format('Check game folder ''%s'' generic permissions: READ: %s; WRITE: %s; EXECUTE: %s',
-                      [ExeDir, GRANTED[readAcc], GRANTED[writeAcc], GRANTED[execAcc]]));
-  Result := readAcc and writeAcc and execAcc;
+
+  dirWritable := IsDirectoryWriteable(ExeDir);
+
+  gLog.AddTime(Format('Check game folder ''%s'' generic permissions: READ: %s; WRITE: %s; EXECUTE: %s; folder is writable: ',
+                      [ExeDir, GRANTED[readAcc], GRANTED[writeAcc], GRANTED[execAcc], BoolToStr(dirWritable, True)]));
+
+  Result := dirWritable and readAcc and writeAcc and execAcc;
 end;
 
 
@@ -470,7 +475,7 @@ begin
   // Locale and texts could be loaded separetely to show proper translated error message
   if (gLog = nil)
     or (not aReturnToOptions and not DoHaveGenericPermission) then
-    Exit(False);
+    Exit(False); // Will show 'You have not enough permissions' message to the player
 
   gGameApp.OnGameSpeedActualChange := GameSpeedChange;
   gGameApp.AfterConstruction(aReturnToOptions);

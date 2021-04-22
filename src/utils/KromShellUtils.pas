@@ -71,7 +71,7 @@ begin
   {$ENDIF}
 
   {$IFDEF FPC}
-  Result := OpenDocument(URL);
+  Result := OpenDocument(aURL);
   {$ENDIF}
 end;
 
@@ -101,12 +101,12 @@ begin
 
     p:=System.Pos('%s', BrowserParams);
     System.Delete(BrowserParams,p,2);
-    System.Insert(URL,BrowserParams,p);
+    System.Insert(aURL,BrowserParams,p);
 
     // start browser
     BrowserProcess:=TProcessUTF8.Create(nil);
     try
-      BrowserProcess.CommandLine:=BrowserPath+' '+BrowserParams;
+      BrowserProcess.CommandLine := BrowserPath + ' ' + BrowserParams;
       BrowserProcess.Execute;
       Result := True;
     finally

@@ -92,7 +92,7 @@ end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest('Campaigns', TestTKMCampaign.Suite);
+  RegisterTest(CAMPAIGNS_FOLDER_NAME, TestTKMCampaign.Suite);
 
 end.
 

@@ -2,7 +2,9 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF FPC} lconvencoding, FileUtil, LazUTF8, windirs, {$ENDIF}
+  {$IFDEF FPC} lconvencoding, FileUtil, LazUTF8,
+    // windirs does not work under old lazarus (1.8.0) / FPC versions, which we use to make linux dedi server
+    LazFileUtils,{ windirs,} {$ENDIF}
   {$IFDEF WDC} System.IOUtils, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
@@ -14,6 +16,8 @@ uses
 
   //Read text file into unicode string (locale texts)
   function ReadTextU(const afilename: UnicodeString; aEncoding: Word): UnicodeString;
+
+  procedure KMCreateEmptyFile(const aFilePath: UnicodeString);
 
   //Copy a file (CopyFile is different between Delphi and Lazarus)
   procedure KMCopyFile(const aSrc, aDest: UnicodeString); overload;
@@ -38,7 +42,9 @@ uses
 
   function IsFilePath(const aPath: UnicodeString): Boolean;
 
-  function GetDocumentsSavePath: string;
+  function IsDirectoryWriteable(const aDir: string): Boolean;
+
+  function CreateAndGetDocumentsSavePath: string;
 
   procedure CheckFolderPermission(const aPath: string; var aRead, aWrite, aExec: Boolean);
 
@@ -355,16 +361,49 @@ begin
 end;
 
 
-function GetDocumentsSavePath: string;
+function IsDirectoryWriteable(const aDir: string): Boolean;
+{$IFDEF WDC}
+var
+  tmpFilename: string;
+  hnd: THandle;
+{$ENDIF}
+begin
+  {$IFDEF WDC}
+  tmpFilename := IncludeTrailingPathDelimiter(aDir) + 'chk.tmp';
+
+  hnd := CreateFile(PChar(tmpFilename), GENERIC_READ or GENERIC_WRITE, 0, nil,
+    CREATE_NEW, FILE_ATTRIBUTE_TEMPORARY or FILE_FLAG_DELETE_ON_CLOSE, 0);
+
+  Result := hnd <> INVALID_HANDLE_VALUE;
+
+  if Result then
+    CloseHandle(hnd);
+  {$ELSE}
+  Result := True; // todo: add Read/Write permissions on lazarus / fpc
+  {$ENDIF}
+end;
+
+
+// Creates directory, if missing
+// If its not possible, or there are no read / write permissions on the directory,
+// then use execution directory (ExeDir)
+function CreateAndGetDocumentsSavePath: string;
 begin
   // Returns C:\Users\Username\My Documents\My Games\GAME_TITLE\
   // According to GDSE this is the most commonly used savegame location (https://gamedev.stackexchange.com/a/108243)
   if FEAT_SETTINGS_IN_MYDOC then
+  begin
   {$IFDEF WDC}
-    Result := TPath.GetDocumentsPath + PathDelim + 'My Games' + PathDelim + GAME_TITLE + PathDelim
+    Result := TPath.GetDocumentsPath + PathDelim + 'My Games' + PathDelim + GAME_TITLE + PathDelim;
   {$ELSE}
-    Result := GetWindowsSpecialDir(CSIDL_PERSONAL) + PathDelim + 'My Games' + PathDelim + GAME_TITLE + PathDelim
+    // GetWindowsSpecialDir does not work under old lazarus (1.8.0) / FPC versions, which we use to make linux dedi server
+    //Result := GetWindowsSpecialDir(CSIDL_PERSONAL) + PathDelim + 'My Games' + PathDelim + GAME_TITLE + PathDelim
+    Result := GetUserDir + 'My Games' + PathDelim + GAME_TITLE + PathDelim;
   {$ENDIF}
+    ForceDirectories(Result);
+    if not IsDirectoryWriteable(Result) then
+      Result := ExtractFilePath(ParamStr(0));
+  end
   else
     Result := ExtractFilePath(ParamStr(0));
 end;
@@ -444,6 +483,18 @@ begin
   aWrite  := True;
   aExec   := True;
   {$ENDIF}
+end;
+
+
+procedure KMCreateEmptyFile(const aFilePath: UnicodeString);
+var
+  ft: TextFile;
+begin
+  if FileExists(aFilePath) then Exit;
+
+  AssignFile(ft, aFilePath);
+  Rewrite(ft);
+  CloseFile(ft);
 end;
 
 

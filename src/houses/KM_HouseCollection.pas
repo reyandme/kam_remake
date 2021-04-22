@@ -2,7 +2,7 @@ unit KM_HouseCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes,
+  Classes, Generics.Collections,
   KM_Houses,
   KM_ResHouses,
   KM_CommonClasses, KM_Defaults, KM_Points,
@@ -28,7 +28,7 @@ type
     property Houses[aIndex: Integer]: TKMHouse read GetHouse; default;
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByUID(aUID: Integer): TKMHouse;
-    procedure GetHousesInRect(const aRect: TKMRect; List: TList);
+    procedure GetHousesInRect(const aRect: TKMRect; List: TList<TKMHouse>);
     function FindEmptyHouse(aUnitType: TKMUnitType; const Loc: TKMPoint): TKMHouse;
     function FindHouse(aType: TKMHouseType; X,Y: Word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse; overload;
     function FindHouse(const aTypes: THouseTypeSet; X,Y: Word; const aIndex: Byte = 1; aOnlyCompleted: Boolean = True): TKMHouse; overload;
@@ -221,7 +221,7 @@ begin
 end;
 
 
-procedure TKMHousesCollection.GetHousesInRect(const aRect: TKMRect; List: TList);
+procedure TKMHousesCollection.GetHousesInRect(const aRect: TKMRect; List: TList<TKMHouse>);
 var
   I: Integer;
 begin

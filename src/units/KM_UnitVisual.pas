@@ -80,6 +80,7 @@ end;
 constructor TKMUnitVisual.Create(aUnit: TObject);
 begin
   inherited Create;
+
   fUnit := TKMUnit(aUnit);
   fPrev.SetFromUnit(fUnit);
   fCurr.SetFromUnit(fUnit);

@@ -198,6 +198,8 @@ begin
       Button_Options_VideoTest := TKMButton.Create(Panel_Options_Video, 10, 150, 260, 30, gResTexts[TX_MENU_OPTIONS_VIDEOS_TEST], bsMenu);
       Button_Options_VideoTest.OnClick := TestVideo_Click;
 
+    Panel_Options_Video.Visible := gVideoPlayer.PlayerEnabled;
+
     {$IFNDEF VIDEOS}
     Panel_Options_Video.Hide; //Hide panel when no videos defined
     {$ENDIF}

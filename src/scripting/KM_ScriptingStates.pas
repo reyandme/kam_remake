@@ -62,6 +62,7 @@ type
     function HouseAt(aX, aY: Word): Integer;
     function HouseBarracksRallyPointX(aBarracks: Integer): Integer;
     function HouseBarracksRallyPointY(aBarracks: Integer): Integer;
+    function HouseBarracksRecruitsCount(aBarracks: Integer): Integer;
     function HouseBuildingProgress(aHouseID: Integer): Word;
     function HouseCanReachResources(aHouseID: Integer): Boolean;
     function HouseDamage(aHouseID: Integer): Integer;
@@ -1677,6 +1678,35 @@ begin
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
   end;
+end;
+
+
+//* Version: 12600
+//* Return number of recruits in the specified barracks or 0 if BarracksID is invalid
+function TKMScriptStates.HouseBarracksRecruitsCount(aBarracks: Integer): Integer;
+var
+  H: TKMHouse;
+begin
+  try
+    Result := 0;
+    if aBarracks > 0 then
+    begin
+      H := fIDCache.GetHouse(aBarracks);
+      if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+      begin
+        if (H is TKMHouseBarracks) then
+          Result := TKMHouseBarracks(H).RecruitsCount
+        else
+          LogParamWarning('States.HouseBarracksRecruitsCount: Specified house is not Barracks', [aBarracks]);
+      end;
+    end
+    else
+      LogParamWarning('States.HouseBarracksRecruitsCount', [aBarracks]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+
 end;
 
 

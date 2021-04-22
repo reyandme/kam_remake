@@ -38,6 +38,8 @@ uses
 
   procedure IterateOverArea(const aStartCell: TKMPoint; aSize: Integer; aIsSquare: Boolean; aOnCell: TPointEventSimple; aAroundArea: Boolean = False);
 
+  function IsUnderWine: Boolean;
+
 
 implementation
 uses
@@ -332,6 +334,20 @@ end;
 function GetHintWHotKey(aTextId: Integer; aKeyFunc: TKMKeyFunction): String;
 begin
   Result := GetHintWHotKey(aTextId, gResKeys.GetKeyNameById(aKeyFunc));
+end;
+
+
+function IsUnderWine: Boolean;
+var
+  H: Cardinal;
+begin
+  Result := False;
+  H := LoadLibrary('ntdll.dll');
+  if H > HINSTANCE_ERROR then
+  begin
+    Result := Assigned(GetProcAddress(H, 'wine_get_version'));
+    FreeLibrary(H);
+  end;
 end;
 
 

@@ -53,36 +53,36 @@ type
 
   TKMTerrainKind = (
 //    tkNone,
-    tkCustom,
-    tkGrass,
-    tkMoss,
-    tkPaleGrass,
-    tkCoastSand,
-    tkGrassSand1,
-    tkGrassSand2,
-    tkGrassSand3,
+    tkCustom,     //0
+    tkGrass,      //1
+    tkMoss,       //2
+    tkPaleGrass,  //3
+    tkCoastSand,  //4
+    tkGrassSand1, //5
+    tkGrassSand2, //6
+    tkGrassSand3, //7
     tkSand,       //8
-    tkGrassDirt,
+    tkGrassDirt,  //9
     tkDirt,       //10
-    tkCobbleStone,
+    tkCobbleStone,//11
     tkGrassyWater,//12
     tkSwamp,      //13
     tkIce,        //14
-    tkSnowOnGrass,
-    tkSnowOnDirt,
-    tkSnow,
-    tkDeepSnow,
-    tkStone,
-    tkGoldMount,
+    tkSnowOnGrass,//15
+    tkSnowOnDirt, //16
+    tkSnow,       //17
+    tkDeepSnow,   //18
+    tkStone,      //19
+    tkGoldMount,  //20
     tkIronMount,  //21
-    tkAbyss,
-    tkGravel,
-    tkCoal,
-    tkGold,
-    tkIron,
-    tkWater,
-    tkFastWater,
-    tkLava);
+    tkAbyss,      //22
+    tkGravel,     //23
+    tkCoal,       //24
+    tkGold,       //25
+    tkIron,       //26
+    tkWater,      //27
+    tkFastWater,  //28
+    tkLava);      //29
 
 
   TKMTerrainKindsArray = array of TKMTerrainKind;

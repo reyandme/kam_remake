@@ -2,7 +2,7 @@ unit KM_Campaigns;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes,
+  Classes, Generics.Collections,
   KM_ResTexts, KM_Pics, KM_Maps, KM_MapTypes, KM_CampaignTypes,
   KM_CommonClasses, KM_Points;
 
@@ -101,7 +101,7 @@ type
   private
     fActiveCampaign: TKMCampaign; //Campaign we are playing
     fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
-    fList: TList;
+    fList: TList<TKMCampaign>;
     function GetCampaign(aIndex: Integer): TKMCampaign;
     procedure AddCampaign(const aPath: UnicodeString);
 
@@ -149,7 +149,7 @@ constructor TKMCampaignsCollection.Create;
 begin
   inherited Create;
 
-  fList := TList.Create;
+  fList := TList<TKMCampaign>.Create;
 end;
 
 
@@ -482,7 +482,7 @@ end;
 
 function TKMCampaign.GetScriptDataTypeFile: UnicodeString;
 begin
-  Result := fPath + 'campaigndata.script';
+  Result := fPath + CAMPAIGN_DATA_FILENAME + EXT_FILE_SCRIPT_DOT;
 end;
 
 

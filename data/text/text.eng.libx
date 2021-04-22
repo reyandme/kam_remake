@@ -1,4 +1,4 @@
-﻿0:Sawmill
+0:Sawmill
 1:Iron smithy
 2:Weapon smithy
 3:Coal mine
@@ -1371,7 +1371,7 @@
 1421:wine field
 1422:overlay
 1423:object
-1424:You do not have enough permissions on the KaM Remake installation directory:\n'%s'\n\nPlease reinstall the game into another directory
+1424:You do not have enough permissions on the KaM Remake installation directory:\n'%s'\n\nTry to run it with administrative rights, reinstall the game into another directory or exclude KaM_Remake.exe from antivirus check
 1425:Tiles palette
 1426:Tiles palette
 1427:Version
@@ -1453,3 +1453,9 @@
 1503:Override Objects
 1504:Objects will be replaced by other objects or deleted
 1505:Gradient mask - use automatically created transitions
+1506:Big
+1507:Big trees
+1508:Stomps
+1509:Stomps
+1510:All-
+1511:All ages, except stomps

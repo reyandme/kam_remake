@@ -1016,18 +1016,18 @@ end;
 
 function TKMScriptSoundsManager.StartSound(aScriptSound: TKMScriptSound): Integer;
 var
-  S: UnicodeString;
+  soundFile: UnicodeString;
 begin
   Result := -1;
-  S := ExeDir + gGame.GetScriptSoundFile(aScriptSound.SoundName, aScriptSound.AudioFormat);
+  soundFile := gGame.GetScriptSoundFilePath(aScriptSound.SoundName, aScriptSound.AudioFormat);
 
   //Silently ignore missing files
-  if not FileExists(S) or not CanPlay(aScriptSound) then
+  if not FileExists(soundFile) or not CanPlay(aScriptSound) then
     Exit;
 
   with aScriptSound do
   begin
-    PlayingIndex := gSoundPlayer.PlayScriptSound(S, KMPointF(Loc), Attenuate, Volume, Radius, FadeMusic, Looped);
+    PlayingIndex := gSoundPlayer.PlayScriptSound(soundFile, KMPointF(Loc), Attenuate, Volume, Radius, FadeMusic, Looped);
     Result := PlayingIndex;
   end;
 end;

@@ -1,4 +1,4 @@
-﻿unit KM_Controls;
+unit KM_Controls;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -235,6 +235,8 @@ type
 
     Tag: Integer; //Some tag which can be used for various needs
     Tag2: Integer; //Some tag which can be used for various needs
+
+    DebugHighlight: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aPaintLayer: Integer = 0);
     destructor Destroy; override;
@@ -996,6 +998,7 @@ type
     fRange: TKMRangeInt;
     fThumbText: UnicodeString;
     fAutoThumbWidth: Boolean;
+    fFixedThumbWidth: Boolean;
     procedure SetCaption(const aValue: UnicodeString);
     procedure SetPosition(aValue: Word);
     procedure SetRange(const aRange: TKMRangeInt);
@@ -1020,12 +1023,15 @@ type
     property MaxValue: Word read fMaxValue;
     property ThumbText: UnicodeString read fThumbText write SetThumbText;
     property AutoThumbWidth: Boolean read fAutoThumbWidth write SetAutoThumbWidth;
+    property FixedThumbWidth: Boolean read fAutoThumbWidth write fFixedThumbWidth;
     procedure ResetRange;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelSteps: Integer; var aHandled: Boolean); override;
     procedure Paint; override;
+  const
+    THUMB_WIDTH_ADD = 24;
   end;
 
 
@@ -1085,6 +1091,8 @@ type
     fScrollAxisSet: TKMScrollAxisSet;
 
     fPadding: TKMRect;
+    fScrollV_PadTop: Integer;
+    fScrollV_PadBottom: Integer;
 
     procedure UpdateScrolls(Sender: TObject; aValue: Boolean); overload;
     procedure UpdateScrolls(Sender: TObject); overload;
@@ -1099,6 +1107,8 @@ type
 
     function AllowScrollV: Boolean;
     function AllowScrollH: Boolean;
+    procedure SetScrollVPadTop(const Value: Integer);
+    procedure SetScrollVPadBottom(const Value: Integer);
   protected
     procedure SetVisible(aValue: Boolean); override;
 
@@ -1125,6 +1135,8 @@ type
     function AddChild(aChild: TKMControl): Integer; override;
     property ClipRect: TKMRect read fClipRect;
     property Padding: TKMRect read fPadding write fPadding;
+    property ScrollV_PadTop: Integer read fScrollV_PadTop write SetScrollVPadTop;
+    property ScrollV_PadBottom: Integer read fScrollV_PadBottom write SetScrollVPadBottom;
 
     procedure MouseWheel(Sender: TObject; WheelSteps: Integer; var aHandled: Boolean); override;
 
@@ -2036,6 +2048,7 @@ begin
   HandleMouseWheelByDefault := True;
   fLastClickPos := KMPOINT_ZERO;
   fIsHitTestUseDrawRect := False;
+  DebugHighlight := False;
 
 //  fKeyPressList := TList<TKMKeyPress>.Create;
 
@@ -2281,7 +2294,8 @@ end;
 procedure TKMControl.Paint;
 var
   sColor: TColor4;
-  Tmp: TKMPoint;
+  tmp: TKMPoint;
+  skipText: Boolean;
 begin
   Inc(CtrlPaintCount);
 
@@ -2292,9 +2306,17 @@ begin
     TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 2, $FFFFD000);
 
   if SHOW_CONTROLS_ID then
-    TKMRenderUI.WriteText(AbsLeft+1, AbsTop, fWidth, IntToStr(fID), fntMini, taLeft);
+  begin
+    skipText := SKIP_RENDER_TEXT; //Save value
+    SKIP_RENDER_TEXT := False; // Force Render debug data
+    TKMRenderUI.WriteText(AbsLeft+1, AbsTop, fWidth, IntToStr(fID), TKMFont(DEBUG_TEXT_FONT_ID), taLeft);
+    SKIP_RENDER_TEXT := skipText; // Restore value
+  end;
 
-  if not SHOW_CONTROLS_OVERLAY then exit;
+  if DebugHighlight then
+    TKMRenderUI.WriteOutline(AbsLeft-2, AbsTop-2, Width+4, Height+4, 2, icRed);
+
+  if not SHOW_CONTROLS_OVERLAY then Exit;
 
   sColor := $00000000;
 
@@ -2302,8 +2324,8 @@ begin
 
   if Self is TKMLabel then
   begin //Special case for aligned text
-    Tmp := TKMLabel(Self).TextSize;
-    TKMRenderUI.WriteShape(TKMLabel(Self).TextLeft, AbsTop, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
+    tmp := TKMLabel(Self).TextSize;
+    TKMRenderUI.WriteShape(TKMLabel(Self).TextLeft, AbsTop, tmp.X, tmp.Y, $4000FFFF, $80FFFFFF);
     TKMRenderUI.WriteOutline(AbsLeft, AbsTop, fWidth, fHeight, 1, $FFFFFFFF);
     TKMRenderUI.WriteShape(AbsLeft-3, AbsTop-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
     Exit;
@@ -2311,8 +2333,8 @@ begin
 
   if Self is TKMLabelScroll then
   begin //Special case for aligned text
-    Tmp := TKMLabelScroll(Self).TextSize;
-    TKMRenderUI.WriteShape(TKMLabelScroll(Self).TextLeft, AbsTop, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
+    tmp := TKMLabelScroll(Self).TextSize;
+    TKMRenderUI.WriteShape(TKMLabelScroll(Self).TextLeft, AbsTop, tmp.X, tmp.Y, $4000FFFF, $80FFFFFF);
     TKMRenderUI.WriteOutline(AbsLeft, AbsTop, fWidth, fHeight, 1, $FFFFFFFF);
     TKMRenderUI.WriteShape(AbsLeft-3, AbsTop-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
     Exit;
@@ -5532,7 +5554,8 @@ begin
   CaptionWidth := -1;
 
   Step := 1;
-  AutoThumbWidth := False;
+  fAutoThumbWidth := False;
+  fFixedThumbWidth := False;
 
   UpdateThumbWidth;
 end;
@@ -5540,13 +5563,15 @@ end;
 
 procedure TKMTrackBar.UpdateThumbWidth;
 begin
+  if fFixedThumbWidth then Exit;
+  
   if AutoThumbWidth then
     ThumbWidth := Max(gRes.Fonts[SliderFont].GetTextSize(IntToStr(MaxValue)).X,
                       gRes.Fonts[SliderFont].GetTextSize(ThumbText).X)
   else
     ThumbWidth := gRes.Fonts[SliderFont].GetTextSize(IntToStr(MaxValue)).X;
 
-  ThumbWidth := ThumbWidth + 24;
+  ThumbWidth := ThumbWidth + THUMB_WIDTH_ADD;
 end;
 
 
@@ -5627,7 +5652,7 @@ begin
       stepX := (Width - ThumbWidth) / (fMaxValue - fMinValue) / Step; // width between marks
       posX := stepX * (Position / Step) + (ThumbWidth div 2); // actual marks positions on track
     end;
-    if not AutoThumbWidth 
+    if not AutoThumbWidth
       or not InRange(X - AbsLeft, posX - ThumbWidth div 2, posX + ThumbWidth div 2) then // do not update pos, if we hover over thumb
       NewPos := EnsureRange(fMinValue + Round(((X-AbsLeft-ThumbWidth div 2) / (Width - ThumbWidth - 4))*(fMaxValue - fMinValue)/Step)*Step, fMinValue, fMaxValue);
   end;
@@ -5986,6 +6011,9 @@ begin
 
   fIsHitTestUseDrawRect := True; // We want DrawRect to be used on the ScrollPanel
 
+  fScrollV_PadTop := 0;
+  fScrollV_PadBottom := 0;
+
 //  if aEnlargeParents then
 //  begin
 //    if saHorizontal in aScrollAxisSet then
@@ -6171,7 +6199,7 @@ begin
       fTop := fClipRect.Top; //Set directrly to avoid SetTop call
   end;
 
-  fScrollBarV.Height := Height;
+  fScrollBarV.Height := Height - fScrollV_PadTop - fScrollV_PadBottom;
   if ShowScroll <> fScrollBarV.Visible then
   begin
     fScrollBarV.Visible := ShowScroll;
@@ -6202,6 +6230,21 @@ begin
   Inc(fClipRect.Right, Left - OldValue);
 
   UpdateScrolls(nil);
+end;
+
+
+procedure TKMScrollPanel.SetScrollVPadBottom(const Value: Integer);
+begin
+  fScrollV_PadBottom := Value;
+  fScrollBarV.Height := fScrollBarV.Height - Value;
+end;
+
+
+procedure TKMScrollPanel.SetScrollVPadTop(const Value: Integer);
+begin
+  fScrollV_PadTop := Value;
+  fScrollBarV.Top := fScrollBarV.Top + Value;
+  fScrollBarV.Height := fScrollBarV.Height - Value;
 end;
 
 
@@ -8544,7 +8587,7 @@ constructor TKMPopUpPanel.Create(aParent: TKMPanel; aWidth, aHeight: Integer; co
                                  aImageType: TKMPopUpBGImageType = pubgitYellow; aShowBevel: Boolean = True;
                                  aShowShadeBevel: Boolean = True);
 var
-  imgWPad, imgTop, topMargin: Integer;
+  imgWPad, imgTop, topMargin, l, t, w, h: Integer;
 begin
   topMargin := 0;
   case aImageType of
@@ -8553,7 +8596,12 @@ begin
     pubgitScrollWCross: topMargin := 20;
   end;
 
-  inherited Create(aParent, Max(0, (aParent.Width div 2) - (aWidth div 2)), Max(topMargin, (aParent.Height div 2) - (aHeight div 2)), aWidth, aHeight);
+  l := Max(0, (aParent.Width div 2) - (aWidth div 2));
+  t := Max(topMargin, (aParent.Height div 2) - (aHeight div 2));
+  w := Min(aParent.Width, aWidth);
+  h := Min(aParent.Height, aHeight);
+
+  inherited Create(aParent, l, t, w, h);
 
   fBGImageType := aImageType;
 

@@ -70,6 +70,8 @@ type
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); override;
     destructor Destroy; override;
 
+    function GetPointer: TKMUnitWarrior; reintroduce;
+
     property Group: pointer read fGroup; // Property for GetGroupByMember function
     procedure SetGroup(aGroup: Pointer); // This procedure should not be called by anyone except UnitGroups class(it is out of property)
 
@@ -128,7 +130,7 @@ type
 
 implementation
 uses
-  TypInfo,
+  TypInfo, Generics.Collections,
   KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_UnitTaskAttackHouse, KM_HandLogistics,
   KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResUnits, KM_Hand, KM_UnitGroup,
@@ -220,6 +222,12 @@ begin
   gHands.CleanUpGroupPointer( TKMUnitGroup(fGroup) );
 
   inherited;
+end;
+
+
+function TKMUnitWarrior.GetPointer: TKMUnitWarrior;
+begin
+  Result := TKMUnitWarrior(inherited GetPointer);
 end;
 
 
@@ -316,7 +324,7 @@ begin
   //If the target unit has died then return nil
   //Don't clear fOrderTargetUnit here, since we could get called from UI
   //depending on player actions (getters should be side effect free)
-  if (fOrderTargetUnit <> nil) and (fOrderTargetUnit.IsDead) then
+  if (fOrderTargetUnit <> nil) and fOrderTargetUnit.IsDead then
     Result := nil
   else
     Result := fOrderTargetUnit;
@@ -439,14 +447,14 @@ end;
 function TKMUnitWarrior.FindLinkUnit(const aLoc: TKMPoint): TKMUnitWarrior;
 var
   I: Integer;
-  foundUnits: TList;
+  foundUnits: TList<TKMUnit>;
   U: TKMUnit;
   best, L: Single;
 begin
   Result := nil;
   best := MaxSingle;
 
-  foundUnits := TList.Create;
+  foundUnits := TList<TKMUnit>.Create;
   gHands[Owner].Units.GetUnitsInRect(KMRect(aLoc.X - LINK_RADIUS,
                                             aLoc.Y - LINK_RADIUS,
                                             aLoc.X + LINK_RADIUS,
@@ -949,7 +957,7 @@ begin
 
   Result := inherited ObjToStringShort(aSeparator) +
             Format('%sWarriorOrder = %s%sNextOrder = %s%sNextOrderForced = %s%sOrderLoc = %s%s' +
-                   'HasOrderTargetUnit = [%s]%sHasOrderTargetHouse = [%s]',
+                   'HasOTargetU = [%s]%sHasOTargetH = [%s]',
                    [aSeparator,
                     GetEnumName(TypeInfo(TKMWarriorOrder), Integer(fOrder)), aSeparator,
                     GetEnumName(TypeInfo(TKMWarriorOrder), Integer(fNextOrder)), aSeparator,
@@ -980,7 +988,7 @@ begin
     houseStr := fOrderTargetHouse.ObjToStringShort('; ');
 
   Result := inherited ObjToString(aSeparator) +
-            Format('%sOrderTargetUnit = [%s]%sOrderTargetHouse = [%s]%sGroup = %s%s',
+            Format('%sOrderTargetU = [%s]%sOrderTargetH = [%s]%sGroup = %s%s',
                    [aSeparator,
                     unitStr, aSeparator,
                     houseStr, aSeparator,

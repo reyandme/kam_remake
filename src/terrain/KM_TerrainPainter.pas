@@ -78,7 +78,7 @@ type
     LandTerKind: TKMLandTerKind;
 
     property MainLandTerKind: TKMLandTerKind read fLandTerKind; // readonly
-	
+
     procedure SetMainLandTerKind;
 
     procedure InitEmpty;
@@ -239,139 +239,6 @@ const
     (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),      // FastWater
     (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255)       // Lava
     );
-    RandomTreesAll: array[tkCustom..tkLava, 0..24] of Byte = (
-    //age 1
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),//tkCustom
-    (88,89,90,92,93,94,95,97,98,99,100,102,103,104,105,112,113,114,88,89,90,92,93,94,95), // Grass - reduced chance for "eye-catching" tiles
-    (107,108,109,109,110,112,113,114,116,117,118,119,149,150,151,154,155,168,167,169,170,107,108,109,109),     // Moss
-    (97,98,99,100,107,108,109,110,116,117,118,119,121,122,123,124,97,98,99,100,107,108,109,110,116),    // PaleGrass
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),   // CoastSand
-    (92,93,94,95,102,103,104,105,116,117,118,119,121,122,123,124,92,93,94,95,102,103,104,105,116),     // GrassSand1
-    (92,93,94,95,121,122,123,124,112,113,114,107,108,109,110,92,93,94,95,121,122,123,124,112,113),     // GrassSand2
-    (121,122,123,124,107,108,109,110,92,93,94,95,121,122,123,124,107,108,109,110,92,93,94,95,94),     // GrassSand3
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),    // Sand
-    (102,103,104,105,107,108,109,110,116,117,118,119,153,154,155,157,158,159,160,162,163,164,165,169,170),     // GrassDirt
-    (149,150,151,153,154,155,157,158,159,160,162,163,164,165,169,170,92,93,94,95,149,150,151,153,154),   // Dirt
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),     // Cobblestone
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),     // GrassyWater
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),  // Swamp
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),     // Ice
-    (88,89,90,92,93,94,95,97,98,99,100,102,103,104,105,112,113,114,88,89,90,92,93,94,95),     // SnowOnGrass
-    (149,150,151,153,154,155,157,158,159,160,162,163,164,165,169,170,92,93,94,95,149,150,151,153,154),     // SnowOnDirt
-    (167,168,169,170,172,162,163,164,165,157,158,159,160,167,168,169,170,172,162,163,164,165,157,158,159),// Snow
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),// DeepSnow
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),// StoneMount
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),// GoldMount
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),// IronMount
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),// Abyss
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255), // Gravel
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),  // Coal (enriched pattern)
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),  // Gold
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),  // Iron
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),  // Water
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255),      // FastWater
-    (255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255)       // Lava
-    );
-
-    RandomTrees1: array[tkCustom..tkLava, 0..6] of Byte = (
-    //age 1
-    (255,255,255,255,255,255,255),    //tkCustom
-    (88,92,97,102,112,88,92),            // Grass
-    (107,112,116,149,153,167,107),    // Moss
-    (97,107,116,121,97,107,116),      // PaleGrass
-    (255,255,255,255,255,255,255),    // CoastSand
-    (92,102,116,121,92,102,116),      // GrassSand1
-    (92,121,112,107,92,121,112),      // GrassSand2
-    (121,107,92,121,107,92,121),       // GrassSand3
-    (255,255,255,255,255,255,255),    // Sand
-    (102,107,116,153,157,162,167),     // GrassDirt
-    (149,153,157,162,92,149,157),   // Dirt
-    (255,255,255,255,255,255,255),     // Cobblestone
-    (255,255,255,255,255,255,255),     // GrassyWater
-    (255,255,255,255,255,255,255),     // Swamp
-    (255,255,255,255,255,255,255),     // Ice
-    (88,92,97,102,112,88,92),                     // SnowOnGrass
-    (149,153,157,162,92,149,153),        // SnowOnDirt
-    (167,162,157,167,162,157,167),    // Snow
-    (255,255,255,255,255,255,255),      // DeepSnow
-    (255,255,255,255,255,255,255),      // StoneMount
-    (255,255,255,255,255,255,255),      // GoldMount
-    (255,255,255,255,255,255,255),      // IronMount
-    (255,255,255,255,255,255,255),      // Abyss
-    (255,255,255,255,255,255,255),      // Gravel
-    (255,255,255,255,255,255,255),      // Coal (enriched pattern)
-    (255,255,255,255,255,255,255),      // Gold
-    (255,255,255,255,255,255,255),      // Iron
-    (255,255,255,255,255,255,255),      // Water
-    (255,255,255,255,255,255,255),      // FastWater
-    (255,255,255,255,255,255,255)       // Lava
-    );
-    //age 2
-    RandomTrees2: array[tkCustom..tkLava, 0..6] of Byte = (
-    (255,255,255,255,255,255,255),    //tkCustom
-    (89,93,98,103,113,89,93),            // Grass
-    (108,113,117,150,154,168,108),    // Moss
-    (98,108,117,122,98,108,117),      // PaleGrass
-    (255,255,255,255,255,255,255),    // CoastSand
-    (93,103,117,122,93,103,117),      // GrassSand1
-    (93,122,113,108,93,122,113),      // GrassSand2
-    (122,108,93,122,108,92,122),       // GrassSand3
-    (255,255,255,255,255,255,255),    // Sand
-    (103,108,117,154,158,163,167),     // GrassDirt
-    (150,154,158,163,93,150,158),   // Dirt
-    (255,255,255,255,255,255,255),     // Cobblestone
-    (255,255,255,255,255,255,255),     // GrassyWater
-    (255,255,255,255,255,255,255),     // Swamp
-    (255,255,255,255,255,255,255),     // Ice
-    (89,93,98,103,113,89,93),                     // SnowOnGrass
-    (150,154,158,163,93,150,158),        // SnowOnDirt
-    (168,163,158,168,163,158,168),    // Snow
-    (255,255,255,255,255,255,255),      // DeepSnow
-    (255,255,255,255,255,255,255),      // StoneMount
-    (255,255,255,255,255,255,255),      // GoldMount
-    (255,255,255,255,255,255,255),      // IronMount
-    (255,255,255,255,255,255,255),      // Abyss
-    (255,255,255,255,255,255,255),      // Gravel
-    (255,255,255,255,255,255,255),      // Coal (enriched pattern)
-    (255,255,255,255,255,255,255),      // Gold
-    (255,255,255,255,255,255,255),      // Iron
-    (255,255,255,255,255,255,255),      // Water
-    (255,255,255,255,255,255,255),      // FastWater
-    (255,255,255,255,255,255,255)       // Lava
-    );
-    //age 3
-    RandomTrees3: array[tkCustom..tkLava, 0..6] of Byte = (
-    (255,255,255,255,255,255,255),    //tkCustom
-    (90,95,100,105,114,90,85),            // Grass
-    (110,114,119,151,155,170,160),    // Moss
-    (100,110,119,124,100,110,119),      // PaleGrass
-    (255,255,255,255,255,255,255),    // CoastSand
-    (95,105,119,124,95,105,119),      // GrassSand1
-    (95,124,114,110,95,124,114),      // GrassSand2
-    (124,110,95,124,110,95,124),       // GrassSand3
-    (255,255,255,255,255,255,255),    // Sand
-    (105,110,119,155,160,165,170),     // GrassDirt
-    (151,155,160,165,95,151,160),   // Dirt
-    (255,255,255,255,255,255,255),     // Cobblestone
-    (255,255,255,255,255,255,255),     // GrassyWater
-    (255,255,255,255,255,255,255),     // Swamp
-    (255,255,255,255,255,255,255),     // Ice
-    (90,95,100,105,114,90,85),                     // SnowOnGrass
-    (151,155,160,165,95,151,160),        // SnowOnDirt
-    (170,165,160,170,165,160,170),    // Snow
-    (255,255,255,255,255,255,255),      // DeepSnow
-    (255,255,255,255,255,255,255),      // StoneMount
-    (255,255,255,255,255,255,255),      // GoldMount
-    (255,255,255,255,255,255,255),      // IronMount
-    (255,255,255,255,255,255,255),      // Abyss
-    (255,255,255,255,255,255,255),      // Gravel
-    (255,255,255,255,255,255,255),      // Coal (enriched pattern)
-    (255,255,255,255,255,255,255),      // Gold
-    (255,255,255,255,255,255,255),      // Iron
-    (255,255,255,255,255,255,255),      // Water
-    (255,255,255,255,255,255,255),      // FastWater
-    (255,255,255,255,255,255,255)       // Lava
-    );
     RandomMushrooms: array[0..3]  of Byte = (17,18,19,21);
     RandomStones:    array[0..11] of Byte = (0,1,2,3,4,8,9,0,1,2,3,4);
     RandomFlowers:   array[0..2]  of Byte = (22,23,24);
@@ -380,7 +247,6 @@ const
     RandomRuins:     array[0..5]  of Byte = (68,69,70,71,72,73);
     RandomDeadTrees: array[0..4]  of Byte = (190,191,192,193,194);
     RandomTrunks:    array[0..30] of Byte = (10,11,12,13,14,15,16,25,26,27,29,30,31,33,34,35,37,38,39,41,42,43,45,46,47,49,50,51,64,65,66);
-
 
 //  RMG2Painter: array [0..255] of TKMTerrainKind = (
 //    tkGrass, tkGrass, tkGrass, tkGrass, tkSnow, tkGrass, tkGrass, tkCustom, tkMoss, tkMoss, tkSnow, tkGrass, tkWater,
@@ -413,7 +279,7 @@ const
 implementation
 uses
   KM_Game, KM_GameCursor, KM_Resource, KM_Log, KM_CommonUtils, KM_Utils,
-  KM_ResSprites, KM_MapEditorHistory, KM_ResTexts, KM_Terrain;
+  KM_ResSprites, KM_MapEditorHistory, KM_ResTexts, KM_Terrain, KM_ResTypes;
 
 
 type
@@ -603,79 +469,74 @@ end;
 
 
 function TKMTerrainPainter.PickRandomObject(aTerrainKind: TKMTerrainKind; aObjType, aX, aY: Integer): Integer;
+const
+  TREE_AGE: array[0..4] of TKMChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeStump);
 var
   objRandom: Integer;
+  treeAge: TKMChopableAge;
 begin
   Result := OBJ_NONE;
-  if ( LandTerKind[aY+1, aX].TerKind = aTerrainKind )
-    and ( LandTerKind[aY-1, aX].TerKind = aTerrainKind )
-    and ( LandTerKind[aY, aX-1].TerKind = aTerrainKind )
-    and ( LandTerKind[aY, aX+1].TerKind = aTerrainKind ) then
-  case aObjType of
-    0:  begin
-        case gGameCursor.MapEdForestAge of
-          0:  begin
-                objRandom := KaMRandom(High(RandomTreesAll[aTerrainKind]), 'TKMTerrainPainter.PickRandomObject');
-                Result := RandomTreesAll[aTerrainKind, objRandom];
-              end;
-          1:  begin
-                objRandom := KaMRandom(High(RandomTrees1[aTerrainKind]), 'TKMTerrainPainter.PickRandomObject');
-                Result := RandomTrees1[aTerrainKind, objRandom];
-              end;
-          2:  begin
-                objRandom := KaMRandom(High(RandomTrees2[aTerrainKind]), 'TKMTerrainPainter.PickRandomObject');
-                Result := RandomTrees2[aTerrainKind, objRandom];
-              end;
-          3:  begin
-                objRandom := KaMRandom(High(RandomTrees3[aTerrainKind]), 'TKMTerrainPainter.PickRandomObject');
-                Result := RandomTrees3[aTerrainKind, objRandom];
-              end;
-        end;
+
+  if ( LandTerKind[aY+1, aX+1].TerKind = aTerrainKind ) then
+    case aObjType of
+      0:  begin
+            case gGameCursor.MapEdForestAge of
+              0:  treeAge := TREE_AGE[KaMRandom(Length(TREE_AGE), 'TKMTerrainPainter.PickRandomObject')];
+              1:  treeAge := TREE_AGE[KaMRandom(Length(TREE_AGE) - 1, 'TKMTerrainPainter.PickRandomObject')];
+              else
+                treeAge := TREE_AGE[gGameCursor.MapEdForestAge - 2];
+            end;
+
+            Result := gTerrain.ChooseTreeToPlace(KMPoint(aX, aY), treeAge, False);
+          end;
+      1:  begin
+            objRandom := KaMRandom(High(RandomObjects[aTerrainKind]), 'TKMTerrainPainter.PickRandomObject');
+            Result := RandomObjects[aTerrainKind, objRandom];
+          end;
+      2:  if (tpWolf in gTerrain.Land^[aY, aX].Passability) then begin
+            objRandom := KaMRandom(High(RandomFlowers), 'TKMTerrainPainter.PickRandomObject');
+            Result := RandomFlowers[objRandom];
+          end;
+      3:  if   (aTerrainKind in [tkGrass..tkPaleGrass])
+            or (aTerrainKind in [tkGrassSand1..tkGrassSand2])
+            or (aTerrainKind in [tkGrassDirt..tkDirt]) then
+          begin
+            objRandom := KaMRandom(High(RandomMushrooms), 'TKMTerrainPainter.PickRandomObject');
+            Result := RandomMushrooms[objRandom];
+          end;
+      4:  if   (aTerrainKind in [tkGrass..tkGrassSand3])
+            or (aTerrainKind in [tkGrassDirt..tkDirt]) then
+          begin
+            objRandom := KaMRandom(High(RandomTrunks), 'TKMTerrainPainter.PickRandomObject');
+            Result := RandomTrunks[objRandom];
+          end;
+      5:  if   (aTerrainKind in [tkGrass..tkGrassSand3])
+            or (aTerrainKind in [tkGrassDirt..tkDirt]) then
+          begin
+            objRandom := KaMRandom(High(RandomDeadTrees), 'TKMTerrainPainter.PickRandomObject');
+            Result := RandomDeadTrees[objRandom];
+          end;
+      6:  if (tpMakeRoads in gTerrain.Land^[aY, aX].Passability) then
+          begin
+            objRandom := KaMRandom(High(RandomStones), 'TKMTerrainPainter.PickRandomObject');
+            Result := RandomStones[objRandom];
+          end;
+      7:  if aTerrainKind in [tkGrassSand3..tkSand] then
+          begin
+            objRandom := KaMRandom(High(RandomBush), 'TKMTerrainPainter.PickRandomObject');
+            Result := RandomBush[objRandom];
+          end;
+      8:  if aTerrainKind in [tkGrassSand3..tkSand] then
+          begin
+            objRandom := KaMRandom(High(RandomCactus), 'TKMTerrainPainter.PickRandomObject');
+            Result := RandomCactus[objRandom];
+          end;
+      9:  if (tpMakeRoads in gTerrain.Land^[aY, aX].Passability) then
+          begin
+            objRandom := KaMRandom(High(RandomRuins), 'TKMTerrainPainter.PickRandomObject');
+            Result := RandomRuins[objRandom];
+          end;
     end;
-    1:  begin
-          objRandom := KaMRandom(High(RandomObjects[aTerrainKind]), 'TKMTerrainPainter.PickRandomObject');
-          Result := RandomObjects[aTerrainKind, objRandom];
-        end;
-    2:  if (tpWolf in gTerrain.Land^[aY, aX].Passability) then begin
-          objRandom := KaMRandom(High(RandomFlowers), 'TKMTerrainPainter.PickRandomObject');
-          Result := RandomFlowers[objRandom];
-        end;
-    3:  if InRange(Byte(aTerrainKind),1,3) or InRange(Byte(aTerrainKind),5,6) or InRange(Byte(aTerrainKind),9,10) then
-        begin
-          objRandom := KaMRandom(High(RandomMushrooms), 'TKMTerrainPainter.PickRandomObject');
-          Result := RandomMushrooms[objRandom];
-        end;
-    4:  if InRange(Byte(aTerrainKind),1,7) or InRange(Byte(aTerrainKind),9,10) then
-        begin
-          objRandom := KaMRandom(High(RandomTrunks), 'TKMTerrainPainter.PickRandomObject');
-          Result := RandomTrunks[objRandom];
-        end;
-    5:  if InRange(Byte(aTerrainKind),1,7) or InRange(Byte(aTerrainKind),9,10) then
-        begin
-          objRandom := KaMRandom(High(RandomDeadTrees), 'TKMTerrainPainter.PickRandomObject');
-          Result := RandomDeadTrees[objRandom];
-        end;
-    6:  if (tpMakeRoads in gTerrain.Land^[aY, aX].Passability) then
-        begin
-          objRandom := KaMRandom(High(RandomStones), 'TKMTerrainPainter.PickRandomObject');
-          Result := RandomStones[objRandom];
-        end;
-    7:  if InRange(Byte(aTerrainKind),7,8) then
-        begin
-          objRandom := KaMRandom(High(RandomBush), 'TKMTerrainPainter.PickRandomObject');
-          Result := RandomBush[objRandom];
-        end;
-    8:  if InRange(Byte(aTerrainKind),7,8) then
-        begin
-          objRandom := KaMRandom(High(RandomCactus), 'TKMTerrainPainter.PickRandomObject');
-          Result := RandomCactus[objRandom];
-        end;
-    9:  if (tpMakeRoads in gTerrain.Land^[aY, aX].Passability) then
-        begin
-          objRandom := KaMRandom(High(RandomRuins), 'TKMTerrainPainter.PickRandomObject');
-          Result := RandomRuins[objRandom];
-        end;
-  end;
 end;
 
 function TKMTerrainPainter.TryGetVertexEffectiveTerKind(X, Y: Word; var aEffectiveTKind: TKMTerrainKind): Boolean;
@@ -1673,13 +1534,15 @@ var
   key, I, randomObject: Integer;
 begin
   if not gTerrain.TileInMapCoords(X, Y) then
-  Exit;
+    Exit;
 
   if gGameCursor.MapEdCleanBrush then
      gTerrain.Land^[Y, X].Obj := OBJ_NONE
   else
   begin
-    If gGameCursor.MapEdOverrideObjects then gTerrain.Land^[Y, X].Obj := OBJ_NONE;
+    if gGameCursor.MapEdOverrideObjects then
+      gTerrain.Land^[Y, X].Obj := OBJ_NONE;
+
     for I := 0 to 9 do
       if gGameCursor.MapEdObjectsType[I] then
       begin
@@ -1689,7 +1552,7 @@ begin
           if aUseLandTKind then
             aTerKind := LandTerKind[Y, X].TerKind;
 
-          randomObject:= PickRandomObject(aTerKind, I, X, Y);
+          randomObject := PickRandomObject(aTerKind, I, X, Y);
           if gGameCursor.MapEdOverrideObjects then
             gTerrain.Land^[Y, X].Obj := randomObject
           else

@@ -26,8 +26,9 @@ type
   private const
     VIDEOFILE_PATH = 'data' + PathDelim + 'gfx' + PathDelim + 'video' + PathDelim;
   {$ENDIF}
-{$IFDEF VIDEOS}
   private
+    fPlayerEnabled: Boolean;
+  {$IFDEF VIDEOS}
     FCriticalSection: TCriticalSection;
 
     FBuffer: array of Byte;
@@ -61,8 +62,11 @@ type
     procedure AddVideoToList(aPath: string; aKind: TKMVideoFileKind = vfkNone);
 {$ENDIF}
   public
-    constructor Create;
+    constructor Create(aPlayerEnabled: Boolean);
     destructor Destroy; override;
+
+    property PlayerEnabled: Boolean read fPlayerEnabled;
+
     procedure AddCampaignVideo(const aCampaignPath, aVideoName: string);
     procedure AddMissionVideo(const aMissionFile, aVideoName: string);
     procedure AddVideo(const AVideoName: String; aKind: TKMVideoFileKind = vfkNone);
@@ -114,9 +118,14 @@ end;
 {$ENDIF}
 
 { TKMVideoPlayer }
-constructor TKMVideoPlayer.Create;
+constructor TKMVideoPlayer.Create(aPlayerEnabled: Boolean);
 begin
-  inherited;
+  inherited Create;
+
+  fPlayerEnabled := aPlayerEnabled;
+
+  if not fPlayerEnabled then Exit;
+
 {$IFDEF VIDEOS}
   FIndex := 0;
   FTexture.U := 1;
@@ -133,15 +142,19 @@ end;
 
 destructor TKMVideoPlayer.Destroy;
 begin
-{$IFDEF VIDEOS}
-  if Assigned(FMediaPlayer) then
-    libvlc_media_player_stop(FMediaPlayer); //Stop VLC
+  if fPlayerEnabled then
+  begin
+    {$IFDEF VIDEOS}
+    if Assigned(FMediaPlayer) then
+      libvlc_media_player_stop(FMediaPlayer); //Stop VLC
 
-  VLCUnloadLibrary;
-  FVideoList.Free;
-  FTrackList.Free;
-  FCriticalSection.Free;
-{$ENDIF}
+    VLCUnloadLibrary;
+    FVideoList.Free;
+    FTrackList.Free;
+    FCriticalSection.Free;
+    {$ENDIF}
+  end;
+
   inherited;
 end;
 
@@ -151,6 +164,9 @@ procedure TKMVideoPlayer.AddVideoToList(aPath: string; aKind: TKMVideoFileKind =
 var
   videoFileData: TKMVideoFile;
 begin
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
+
   videoFileData.Path := aPath;
   videoFileData.Kind := aKind;
   FVideoList.Add(videoFileData);
@@ -164,8 +180,8 @@ var
   Path: string;
 {$ENDIF}
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if not gGameSettings.VideoOn then
     Exit;
@@ -183,8 +199,8 @@ var
   Path: string;
 {$ENDIF}
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if not gGameSettings.VideoOn then
     Exit;
@@ -204,8 +220,8 @@ var
   Path: string;
 {$ENDIF}
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if not gGameSettings.VideoOn then
     Exit;
@@ -217,8 +233,8 @@ end;
 
 procedure TKMVideoPlayer.Pause;
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if FMediaPlayer <> nil then
     libvlc_media_player_pause(FMediaPlayer);
@@ -227,8 +243,8 @@ end;
 
 procedure TKMVideoPlayer.Resume;
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if FMediaPlayer <> nil then
     libvlc_media_player_play(FMediaPlayer);
@@ -237,8 +253,8 @@ end;
 
 procedure TKMVideoPlayer.SetCallback(aCallback: TKMVideoPlayerCallback);
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   FCallback := aCallback;
 {$ENDIF}
@@ -246,8 +262,8 @@ end;
 
 procedure TKMVideoPlayer.Resize(aWidth, aHeight: Integer);
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   FScreenWidth := aWidth;
   FScreenHeight := aHeight;
@@ -256,8 +272,8 @@ end;
 
 procedure TKMVideoPlayer.UpdateState;
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if not IsActive then
     Exit;
@@ -281,8 +297,8 @@ var
   Width, Height: Integer;
 {$ENDIF}
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if IsPlay and (Length(FBuffer) > 0) and (FTexture.Tex > 0)  then
   begin
@@ -343,8 +359,8 @@ end;
 
 procedure TKMVideoPlayer.KeyDown(Key: Word; Shift: TShiftState);
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if not IsActive then
     Exit;
@@ -381,8 +397,8 @@ end;
 
 function TKMVideoPlayer.IsActive: Boolean;
 begin
-  if Self = nil then
-    Exit(False);
+  if Self = nil then Exit(False);
+  if not fPlayerEnabled then Exit(False);
 {$IFDEF VIDEOS}
   Result := Assigned(FMediaPlayer) or (FVideoList.Count > 0);
 {$else}
@@ -392,8 +408,8 @@ end;
 
 function TKMVideoPlayer.IsPlay: Boolean;
 begin
-  if Self = nil then
-    Exit(False);
+  if Self = nil then Exit(False);
+  if not fPlayerEnabled then Exit(False);
 {$IFDEF VIDEOS}
   Result := GetState in [vlcpsPlaying, vlcpsPaused, vlcpsBuffering];
 {$else}
@@ -413,6 +429,7 @@ var
 {$ENDIF}
 begin
   if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if FIndex >= FVideoList.Count then Exit;
 
@@ -490,8 +507,8 @@ end;
 {$IFDEF VIDEOS}
 procedure TKMVideoPlayer.StopVideo;
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 
   if Assigned(FMediaPlayer) then
   begin
@@ -525,6 +542,9 @@ var
 {$ENDIF}
 begin
 {$IFDEF VIDEOS}
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
+
   StopVideo;
 
   startingVideo := ( FVideoList[FIndex].Kind = vfkStarting );
@@ -554,8 +574,8 @@ end;
 
 procedure TKMVideoPlayer.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  if Self = nil then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
   if not IsPlay then
     Exit;
@@ -572,6 +592,9 @@ var
   FileName, Path, f: string;
   LocalePostfixes: TStringList;
 begin
+  if Self = nil then Exit(False);
+  if not fPlayerEnabled then Exit(False);
+
   Result := False;
   aFileName := '';
 
@@ -614,14 +637,17 @@ begin
   end;
 end;
 
+
 procedure TKMVideoPlayer.SetTrackByLocale;
 const
   TIME_STEP = 50;
 var
   TrackId, TrackIndex: Integer;
 begin
-  if FTrackList.Count = 0 then
-    Exit;
+  if Self = nil then Exit;
+  if not fPlayerEnabled then Exit;
+
+  if FTrackList.Count = 0 then Exit;
 
   if not FTrackList.Find(UpperCase(string(gResLocales.UserLocale)), TrackIndex) and
     not FTrackList.Find(UpperCase(string(gResLocales.FallbackLocale)), TrackIndex) and

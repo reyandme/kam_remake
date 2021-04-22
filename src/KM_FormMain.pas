@@ -156,26 +156,7 @@ type
     chkShowHouses: TCheckBox;
     chkShowObjects: TCheckBox;
     chkShowFlatTerrain: TCheckBox;
-    {$ENDIF}
-    {$IFDEF FPC}
-    mainGroup: TGroupBox;
-    GroupBox2: TGroupBox;
-    GroupBox3: TGroupBox;
-    GroupBox4: TGroupBox;
-    GroupBox5: TGroupBox;
-    GroupBoxLogs: TGroupBox;
-    {$ENDIF}
-    N5: TMenuItem;
-    LoadSavThenRpl: TMenuItem;
-    N7: TMenuItem;
-    ReloadLibx: TMenuItem;
-    N8: TMenuItem;
-    N10: TMenuItem;
-    N9: TMenuItem;
-    Debug_UnlockCmpMissions: TMenuItem;
-    N11: TMenuItem;
-    mnExportRngChecks: TMenuItem;
-    chkGIP: TCheckBox;
+
     sePauseBeforeTick: TSpinEdit;
     Label8: TLabel;
     Label9: TLabel;
@@ -208,6 +189,28 @@ type
     chkFindObjByUID: TCheckBox;
     tbWaterLight: TTrackBar;
     lblWaterLight: TLabel;
+    chkSkipRenderText: TCheckBox;
+    {$ENDIF}
+    {$IFDEF FPC}
+    mainGroup: TGroupBox;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
+    GroupBox4: TGroupBox;
+    GroupBox5: TGroupBox;
+    GroupBoxLogs: TGroupBox;
+    {$ENDIF}
+    N5: TMenuItem;
+    LoadSavThenRpl: TMenuItem;
+    N7: TMenuItem;
+    ReloadLibx: TMenuItem;
+    N8: TMenuItem;
+    N10: TMenuItem;
+    N9: TMenuItem;
+    Debug_UnlockCmpMissions: TMenuItem;
+    N11: TMenuItem;
+    mnExportRngChecks: TMenuItem;
+    chkGIP: TCheckBox;
+
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -354,6 +357,7 @@ uses
   KM_RandomChecks,
   KM_Log, KM_CommonClasses, KM_Helpers, KM_Video,
   KM_GameSettings,
+  KM_ServerSettings,
 
   KM_IoXML,
   KM_GameInputProcess,
@@ -661,7 +665,7 @@ begin
 
   if not fStartVideoPlayed and (gGameSettings <> nil) and gGameSettings.VideoStartup then
   begin
-    gVideoPlayer.AddVideo('Campaigns' + PathDelim + 'The Peasants Rebellion' + PathDelim + 'Logo', vfkStarting);
+    gVideoPlayer.AddVideo(CAMPAIGNS_FOLDER_NAME + PathDelim + 'The Peasants Rebellion' + PathDelim + 'Logo', vfkStarting);
     gVideoPlayer.AddVideo('KaM', vfkStarting);
     gVideoPlayer.Play;
     fStartVideoPlayed := True;
@@ -730,6 +734,7 @@ end;
 procedure TFormMain.ReloadSettingsClick(Sender: TObject);
 begin
   gGameAppSettings.ReloadSettings;
+  gServerSettings.ReloadSettings;
 end;
 
 
@@ -1037,6 +1042,7 @@ end;
 procedure TFormMain.SaveSettingsClick(Sender: TObject);
 begin
   gGameAppSettings.SaveSettings(True);
+  gServerSettings.SaveSettings(True);
 end;
 
 
@@ -1562,6 +1568,7 @@ begin
   SHOW_CONTROLS_ID := chkUIControlsID.Checked;
   SHOW_FOCUSED_CONTROL := chkUIFocusedControl.Checked;
   SHOW_CONTROL_OVER := chkUIControlOver.Checked;
+  SKIP_RENDER_TEXT := chkSkipRenderText.Checked;
 
   {$IFDEF WDC} //one day update .lfm for lazarus...
 //  ALLOW_SNOW_HOUSES := chkSnowHouses.Checked;

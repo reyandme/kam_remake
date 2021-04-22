@@ -721,7 +721,7 @@ var
 var
   setupClipXApplied: Boolean;
 begin
-  if (aText = '') or (aColor = $00000000) then Exit;
+  if (aText = '') or (aColor = $00000000) or (SKIP_RENDER_TEXT) then Exit;
 
   if aResetTexture then
     TRender.BindTexture(0); // We have to reset texture to default (0), because it could be bind to any other texture (atlas)

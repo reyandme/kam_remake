@@ -24,6 +24,8 @@ xcopy ..\Docs\Readme "%kam_folder%"\ /y /r /s
 xcopy ..\Sounds "%kam_folder%"\Sounds\ /y /r /s
 xcopy ..\Music "%kam_folder%"\Music\ /y /r /s
 xcopy ..\lib "%kam_folder%"\lib\ /y /r /s
+xcopy ..\"Modding graphics" "%kam_folder%"\"Modding graphics"\ /y /r /s
+
 
 REM ============================================================
 REM Copy video files

@@ -174,7 +174,8 @@ begin
 
   fGameSettings := TKMGameSettings.Create;
 
-  fServerSettings := TKMServerSettings.Create;
+  // Create Server Settings in the shared folder
+  fServerSettings := TKMServerSettings.Create(False);
 
   fLastTimeRender := 0;
 
@@ -817,7 +818,7 @@ begin
     gGame.SavePoints.Free;
     gGame.SavePoints := savedReplays;
     gGame.LoadSavePoint(aTick, saveFile);
-    gGame.LastReplayTick := Max(gGame.LastReplayTick, savedReplays.LastTick);
+    gGame.LastReplayTickLocal := Max(gGame.LastReplayTickLocal, savedReplays.LastTick);
     // Free GIP, which was created on game creation
     gGame.GameInputProcess.Free;
     // Restore GIP
@@ -889,6 +890,8 @@ var
 begin
   camp := fCampaigns.CampaignById(aCampaignId);
   LoadGameFromScript(camp.GetMissionFile(aMap), camp.GetMissionTitle(aMap), 0, 0, camp, aMap, gmCampaign, -1, 0, aDifficulty);
+
+  fCampaigns.SetActive(camp, aMap);
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);

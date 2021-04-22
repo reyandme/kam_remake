@@ -68,14 +68,12 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  KmrDir: String;
 begin
-  KmrDir := ExtractFilePath(ParamStr(0));
+  ExeDir := ExtractFilePath(ParamStr(0));
 
   Caption                   := 'KaM Remake Script Validator (' + GAME_REVISION + ')';
-  OpenDialog.InitialDir     := KmrDir;
-  FileOpenDlg.DefaultFolder := KmrDir;
+  OpenDialog.InitialDir     := ExeDir;
+  FileOpenDlg.DefaultFolder := ExeDir;
   fScripting                := TKMScriptingCreator.CreateScripting(nil);
   fListFileInFolder         := TStringList.Create;
   DragAcceptFiles(Handle, True);

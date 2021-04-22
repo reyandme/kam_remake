@@ -129,7 +129,10 @@ type
                            Boolean; out FishPoint: TKMPointDir): Boolean;
     function FindBestTreeType(const aLoc: TKMPoint): TKMTreeType;
     function CanFindFishingWater(const aLoc: TKMPoint; aRadius: Integer): Boolean;
+
     function ChooseTreeToPlant(const aLoc: TKMPoint): Integer;
+    function ChooseTreeToPlace(const aLoc: TKMPoint; aTreeAge: TKMChopableAge; aAlwaysPlaceTree: Boolean): Integer;
+
     procedure GetHouseMarks(const aLoc: TKMPoint; aHouseType: TKMHouseType; aList: TKMPointTagList);
 
     function WaterHasFish(const aLoc: TKMPoint): Boolean;
@@ -2838,10 +2841,16 @@ end;
 
 
 function TKMTerrain.ChooseTreeToPlant(const aLoc: TKMPoint): Integer;
+begin
+  Result := ChooseTreeToPlace(aLoc, caAge1, True); // Default plant age is caAge1
+end;
+
+
+function TKMTerrain.ChooseTreeToPlace(const aLoc: TKMPoint; aTreeAge: TKMChopableAge; aAlwaysPlaceTree: Boolean): Integer;
 var
   bestTreeType: TKMTreeType;
 begin
-  Result := 0;
+  Result := OBJ_NONE;
   //This function randomly chooses a tree object based on the terrain type. Values matched to KaM, using all soil tiles.
   case Land^[aLoc.Y,aLoc.X].BaseLayer.Terrain of
     0..3,5,6,8,9,11,13,14,18,19,56,57,66..69,72..74,84..86,93..98,180,188: bestTreeType := ttOnGrass;
@@ -2852,10 +2861,11 @@ begin
   end;
 
   case bestTreeType of
-    ttNone:           Result := ChopableTrees[1 + KaMRandom(Length(ChopableTrees), 'TKMTerrain.ChooseTreeToPlant 4'), caAge1]; //If it isn't one of those soil types then choose a random tree
-    ttOnGrass:        Result := ChopableTrees[1 + KaMRandom(7, 'TKMTerrain.ChooseTreeToPlant'), caAge1]; //Grass (oaks, etc.)
-    ttOnYellowGrass:  Result := ChopableTrees[7 + KaMRandom(2, 'TKMTerrain.ChooseTreeToPlant 2'), caAge1]; //Yellow dirt
-    ttOnDirt:         Result := ChopableTrees[9 + KaMRandom(5, 'TKMTerrain.ChooseTreeToPlant 3'), caAge1]; //Brown dirt (pine trees)
+    ttNone:           if aAlwaysPlaceTree then
+                        Result := ChopableTrees[1 + KaMRandom(Length(ChopableTrees), 'TKMTerrain.ChooseTreeToPlant 4'), aTreeAge]; //If it isn't one of those soil types then choose a random tree
+    ttOnGrass:        Result := ChopableTrees[1 + KaMRandom(7, 'TKMTerrain.ChooseTreeToPlant'), aTreeAge]; //Grass (oaks, etc.)
+    ttOnYellowGrass:  Result := ChopableTrees[7 + KaMRandom(2, 'TKMTerrain.ChooseTreeToPlant 2'), aTreeAge]; //Yellow dirt
+    ttOnDirt:         Result := ChopableTrees[9 + KaMRandom(5, 'TKMTerrain.ChooseTreeToPlant 3'), aTreeAge]; //Brown dirt (pine trees)
   end;
 end;
 

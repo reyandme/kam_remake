@@ -49,6 +49,7 @@ type
   TKMHand = class(TKMHandCommon)
   private
     fAI: TKMHandAI;
+    fEnabled: Boolean;
     fConstructions: TKMHandConstructions;
     fDeliveries: TKMHandLogistics;
     fFogOfWar: TKMFogOfWar; //Stores FOW info for current player, which includes
@@ -105,8 +106,10 @@ type
 
     procedure SetOwnerNikname(const aName: AnsiString);
     function GetDeliveries: TKMHandLogistics;
+    procedure SetHandType(const Value: TKMHandType);
+    procedure SetEnabled(const Value: Boolean);
   public
-    Enabled: Boolean;
+
     InCinematic: Boolean;
 
     //Used for syncing hotkeys in multiplayer saves only. UI keeps local value to avoid GIP delays
@@ -124,6 +127,8 @@ type
     property FogOfWar: TKMFogOfWar read fFogOfWar;
     property UnitGroups: TKMUnitGroups read fUnitGroups;
     property MessageLog: TKMMessageLog read fMessageLog;
+
+    property Enabled: Boolean read fEnabled write SetEnabled;
     property Disabled: Boolean read IsDisabled;
 
     procedure SetHandIndex(aNewIndex: TKMHandID);
@@ -135,7 +140,7 @@ type
     function GetOwnerNameColored: AnsiString;
     function GetOwnerNameColoredU: UnicodeString;
     function HasAssets: Boolean;
-    property HandType: TKMHandType read fHandType write fHandType; //Is it Human or AI
+    property HandType: TKMHandType read fHandType write SetHandType; //Is it Human or AI
     property CanBeHuman: Boolean read fCanBeHuman write fCanBeHuman;
     property HandAITypes: TKMAITypeSet read fHandAITypes;
     property FlagColor: Cardinal read fFlagColor write SetFlagColor;
@@ -155,6 +160,7 @@ type
     function IsAnimal: Boolean;
     function IsHuman: Boolean;
     function IsComputer: Boolean;
+    function CanBeAI: Boolean;
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
@@ -624,6 +630,12 @@ begin
 end;
 
 
+function TKMHand.CanBeAI: Boolean;
+begin
+  Result := (fHandAITypes <> []) and (fHandAITypes <> [aitNone]);
+end;
+
+
 //Lay out all roads at once to save time on Terrain lighting/passability recalculations
 procedure TKMHand.AfterMissionInit(aFlattenRoads: Boolean);
 begin
@@ -636,7 +648,7 @@ begin
   FreeAndNil(fRoadsList);
 
   if not gGameParams.IsMapEditor then
-    fAI.AfterMissionInit;
+    fAI.AfterMissionInit(fHandAITypes);
 end;
 
 
@@ -891,6 +903,12 @@ begin
   fUnits.OwnerUpdate(aNewIndex);
   fHouses.OwnerUpdate(aNewIndex);
   fAI.OwnerUpdate(aNewIndex);
+end;
+
+
+procedure TKMHand.SetHandType(const Value: TKMHandType);
+begin
+  fHandType := Value;
 end;
 
 
@@ -1695,6 +1713,12 @@ begin
 end;
 
 
+procedure TKMHand.SetEnabled(const Value: Boolean);
+begin
+  fEnabled := Value;
+end;
+
+
 procedure TKMHand.SetFlagColor(const Value: Cardinal);
 begin
   if Self = nil then Exit;
@@ -1854,7 +1878,7 @@ end;
 procedure TKMHand.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.PlaceMarker('Hand');
-  SaveStream.Write(Enabled);
+  SaveStream.Write(fEnabled);
   SaveStream.Write(InCinematic);
   if not Enabled then Exit;
 
@@ -1887,7 +1911,7 @@ end;
 procedure TKMHand.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.CheckMarker('Hand');
-  LoadStream.Read(Enabled);
+  LoadStream.Read(fEnabled);
   LoadStream.Read(InCinematic);
   if not Enabled then Exit;
 
@@ -2161,7 +2185,7 @@ begin
                     fID, aSeparator,
                     AI.ObjToString, aSeparator,
                     OwnerName, aSeparator,
-                    GetEnumName(TypeInfo(TKMHandType), Integer(HandType))]);
+                    GetEnumName(TypeInfo(TKMHandType), Integer(fHandType))]);
 end;
 
 

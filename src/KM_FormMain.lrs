@@ -9,7 +9,7 @@ LazarusResources.Add('TFormMain','FORMDATA',[
   +'ery'#7#14'FormCloseQuery'#8'OnCreate'#7#10'FormCreate'#9'OnKeyDown'#7#11'Fo'
   +'rmKeyDown'#10'OnKeyPress'#7#12'FormKeyPress'#7'OnKeyUp'#7#9'FormKeyUp'#12'O'
   +'nMouseWheel'#7#14'FormMouseWheel'#6'OnShow'#7#8'FormShow'#10'LCLVersion'#6#7
-  +'2.0.6.0'#0#10'TStatusBar'#10'StatusBar1'#4'Left'#2#0#6'Height'#2#23#3'Top'#3
+  +'2.0.7.0'#0#10'TStatusBar'#10'StatusBar1'#4'Left'#2#0#6'Height'#2#23#3'Top'#3
   +'z'#3#5'Width'#3#17#2#6'Panels'#14#1#4'Text'#6'/KMR r7000+ / OpenGL 4.0.0 - '
   +'Build 9.99.99.99999'#5'Width'#3#19#1#0#1#4'Text'#6#17'Map size: 999x999'#5
   +'Width'#2'n'#0#1#4'Text'#6#17'Cursor: 1999:1999'#5'Width'#2'i'#0#1#4'Text'#6

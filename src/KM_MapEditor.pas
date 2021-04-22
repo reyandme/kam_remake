@@ -5,7 +5,7 @@ uses
   Classes, Controls,
   KM_RenderPool, KM_TerrainPainter, KM_TerrainDeposits, KM_TerrainSelection,
   KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Points, KM_MapEditorHistory,
-  KM_MapEdTypes, KM_ResTexts;
+  KM_MapEdTypes, KM_ResTexts, KM_HandEntity;
 
 
 type
@@ -36,7 +36,7 @@ type
     procedure UpdateField(aStageIncrement: Integer; aCheckPrevCell: Boolean);
     function EraseTerrainObject(var aRemoveTxID: Integer): Boolean;
     procedure EraseObject(aEraseAll: Boolean);
-    function ChangeObjectOwner(aObject: TObject; aOwner: TKMHandID): Boolean;
+    function ChangeEntityOwner(aEntity: TKMHandEntity; aOwner: TKMHandID): Boolean;
     procedure ChangeOwner(aChangeOwnerForAll: Boolean);
     procedure PaintDefences(aLayer: TKMPaintLayer);
     procedure PaintRevealFOW(aLayer: TKMPaintLayer);
@@ -112,7 +112,9 @@ uses
   KM_Units, KM_UnitGroup, KM_Houses, KM_HouseCollection,
   KM_GameParams, KM_GameCursor, KM_ResMapElements, KM_ResHouses, KM_Resource, KM_ResUnits,
   KM_RenderAux, KM_Hand, KM_HandsCollection, KM_CommonUtils, KM_RenderDebug,
+  KM_HandEntityHelper,
   KM_UnitGroupTypes,
+  KM_HandTypes,
   KM_ResTypes;
 
 //defines default defence position radius for static AI 
@@ -570,7 +572,7 @@ var
 begin
   P := gGameCursor.Cell;
   //Fisrt try to change owner of object on tile
-  if not ChangeObjectOwner(gMySpectator.HitTestCursorWGroup, gMySpectator.HandID) or aChangeOwnerForAll then
+  if not ChangeEntityOwner(gMySpectator.HitTestCursorWGroup, gMySpectator.HandID) or aChangeOwnerForAll then
     //then try to change owner tile (road/field/wine)
     if ((gTerrain.Land^[P.Y, P.X].TileOverlay = toRoad) or (LandMapEd^[P.Y, P.X].CornOrWine <> 0))
       and (gTerrain.Land^[P.Y, P.X].TileOwner <> gMySpectator.HandID) then
@@ -583,47 +585,40 @@ end;
 
 //Change owner for specified object
 //returns True if owner was changed successfully
-function TKMMapEditor.ChangeObjectOwner(aObject: TObject; aOwner: TKMHandID): Boolean;
+function TKMMapEditor.ChangeEntityOwner(aEntity: TKMHandEntity; aOwner: TKMHandID): Boolean;
 var
-  House: TKMHouse;
+  house: TKMHouse;
 begin
   Result := False;
-  if (aObject = nil) then Exit;
+  if (aEntity = nil) or (aEntity.Owner = aOwner) then Exit;
 
-  if aObject is TKMHouse then
-  begin
-    House := TKMHouse(aObject);
-    if House.Owner <> aOwner then
-    begin
-      House.OwnerUpdate(aOwner, True);
-      gTerrain.SetHouseAreaOwner(House.Position, House.HouseType, aOwner); // Update minimap colors
-      Result := True;
-      fHistory.MakeCheckpoint(caHouses, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_CHOWNER_SMTH],
-                                               [gRes.Houses[House.HouseType].HouseName, House.Entrance.ToString]));
-    end;
-  end
-  else
-  if aObject is TKMUnit then
-  begin
-    if (TKMUnit(aObject).Owner <> aOwner) and (TKMUnit(aObject).Owner <> PLAYER_ANIMAL) then
-    begin
-      TKMUnit(aObject).OwnerUpdate(aOwner, True);
-      Result := True;
-      fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_CHOWNER_SMTH],
-                                              [gRes.Units[TKMUnit(aObject).UnitType].GUIName,
-                                               TKMUnit(aObject).Position.ToString]));
-    end;
-  end
-  else
-  if aObject is TKMUnitGroup then
-    if TKMUnitGroup(aObject).Owner <> aOwner then
-    begin
-      TKMUnitGroup(aObject).OwnerUpdate(aOwner, True);
-      Result := True;
-      fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_CHOWNER_SMTH],
-                                              [gRes.Units[TKMUnitGroup(aObject).FlagBearer.UnitType].GUIName,
-                                               TKMUnitGroup(aObject).FlagBearer.Position.ToString]));
-    end
+  case aEntity.EntityType of
+    etNone:   ;
+    etHouse:  begin
+                house := aEntity.AsHouse;
+                house.OwnerUpdate(aOwner, True);
+                gTerrain.SetHouseAreaOwner(house.Position, house.HouseType, aOwner); // Update minimap colors
+                Result := True;
+                fHistory.MakeCheckpoint(caHouses, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_CHOWNER_SMTH],
+                                                         [gRes.Houses[house.HouseType].HouseName, house.Entrance.ToString]));
+              end;
+    etUnit:   begin
+                if aEntity.AsUnit.IsAnimal then Exit;
+
+                aEntity.AsUnit.OwnerUpdate(aOwner, True);
+                Result := True;
+                fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_CHOWNER_SMTH],
+                                                        [gRes.Units[aEntity.AsUnit.UnitType].GUIName,
+                                                         aEntity.AsUnit.Position.ToString]));
+              end;
+    etGroup:  begin
+                aEntity.AsGroup.OwnerUpdate(aOwner, True);
+                Result := True;
+                fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_CHOWNER_SMTH],
+                                                        [gRes.Units[aEntity.AsGroup.FlagBearer.UnitType].GUIName,
+                                                         aEntity.AsGroup.FlagBearer.Position.ToString]));
+              end;
+  end;
 end;
 
 

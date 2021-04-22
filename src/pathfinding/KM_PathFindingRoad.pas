@@ -18,8 +18,8 @@ type
     function CanWalkTo(const aFrom: TKMPoint; aToX, aToY: SmallInt): Boolean; override;
     function DestinationReached(aX, aY: Word): Boolean; override;
     function IsWalkableTile(aX, aY: Word): Boolean; override;
-    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
-    function EstimateToFinish(aX, aY: Word): Word; override;
+    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; override;
+    function EstimateToFinish(aX, aY: Word): Cardinal; override;
   public
     constructor Create(aOwner: TKMHandID);
 
@@ -35,7 +35,7 @@ type
   private
   protected
     function DestinationReached(aX, aY: Word): Boolean; override;
-    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
+    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; override;
   public
   end;
 
@@ -84,7 +84,7 @@ begin
 end;
 
 
-function TPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+function TPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   isRoad: Boolean;
 begin
@@ -106,7 +106,7 @@ begin
 end;
 
 
-function TPathFindingRoad.EstimateToFinish(aX, aY: Word): Word;
+function TPathFindingRoad.EstimateToFinish(aX, aY: Word): Cardinal;
 begin
   case fDestination of
     pdLocation:    //Rough estimation
@@ -151,7 +151,7 @@ end;
 
 
 { TPathFindingRoadShortcuts }
-function TPathFindingRoadShortcuts.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+function TPathFindingRoadShortcuts.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   isRoad: Boolean;
 begin

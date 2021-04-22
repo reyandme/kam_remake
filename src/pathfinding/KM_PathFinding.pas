@@ -61,8 +61,8 @@ type
     function CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean; virtual;
     function DestinationReached(aX, aY: Word): Boolean; virtual;
     function IsWalkableTile(aX, aY: Word): Boolean; virtual;
-    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; virtual;
-    function EstimateToFinish(aX, aY: Word): Word; virtual;
+    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; virtual;
+    function EstimateToFinish(aX, aY: Word): Cardinal; virtual;
     function MakeRoute: Boolean; virtual; abstract;
     procedure ReturnRoute(NodeList: TKMPointList); virtual; abstract;
   public
@@ -255,7 +255,7 @@ end;
 
 
 //How much it costs to move From -> To
-function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   DX, DY: Word;
   U: TKMUnit;
@@ -280,7 +280,7 @@ begin
 end;
 
 
-function TPathFinding.EstimateToFinish(aX, aY: Word): Word;
+function TPathFinding.EstimateToFinish(aX, aY: Word): Cardinal;
 var
   DX, DY: Word;
 begin

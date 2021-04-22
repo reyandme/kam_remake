@@ -255,7 +255,7 @@ object FormMain: TFormMain
       object lblWaterLight: TLabel
         Left = 101
         Top = 74
-        Width = 124
+        Width = 51
         Height = 13
         Caption = 'Water light'
       end
@@ -398,6 +398,15 @@ object FormMain: TFormMain
         Height = 17
         Caption = 'Control mouse over'
         TabOrder = 4
+        OnClick = ControlsUpdate
+      end
+      object chkSkipRenderText: TCheckBox
+        Left = 120
+        Top = 39
+        Width = 105
+        Height = 17
+        Caption = 'Skip render text'
+        TabOrder = 5
         OnClick = ControlsUpdate
       end
     end
@@ -1294,11 +1303,11 @@ object FormMain: TFormMain
         Caption = '-'
       end
       object ReloadSettings: TMenuItem
-        Caption = 'Reload settings.ini'
+        Caption = 'Reload settings'
         OnClick = ReloadSettingsClick
       end
       object SaveSettings: TMenuItem
-        Caption = 'Save settings.ini'
+        Caption = 'Save settings'
         OnClick = SaveSettingsClick
       end
       object N7: TMenuItem

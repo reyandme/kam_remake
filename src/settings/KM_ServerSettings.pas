@@ -59,7 +59,7 @@ type
     function GetDefaultSettingsName: string; override;
     function GetSettingsName: string; override;
   public
-    constructor Create;
+    constructor Create(aUseLocalFolder: Boolean);
     destructor Destroy; override;
 
     //Server
@@ -101,12 +101,12 @@ uses
 
 
 { TKMServerSettings }
-constructor TKMServerSettings.Create;
+constructor TKMServerSettings.Create(aUseLocalFolder: Boolean);
 begin
   fServerMapsRoster := TKMMapsCRCList.Create;
   fServerMapsRoster.OnMapsUpdate := SetServerMapsRosterStr;
 
-  inherited Create;
+  inherited Create(aUseLocalFolder);
 
   gServerSettings := Self;
 end;

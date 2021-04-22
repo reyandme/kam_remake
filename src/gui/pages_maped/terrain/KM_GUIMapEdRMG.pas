@@ -25,6 +25,8 @@ type
     procedure RMG_Generate_Map(Sender: TObject);
     procedure RMG_Generate_New_Seed(Sender: TObject);
     function GetVisible: Boolean;
+
+    procedure PanelRMG_PositionChanged(Sender: TObject);
   protected
     Panel_RMG: TKMPanel;
     CheckGroup_Grass: TKMRadioGroup;
@@ -176,7 +178,7 @@ const
   IRON_MAX = 1000;
 var
   Img: TKMImage;
-  Column_X,Column_Y: Integer;
+  Column_X, Column_Y: Integer;
   Panel_Settings: TKMPanel;
   Lab: TKMLabel;
 begin
@@ -188,10 +190,12 @@ begin
   fRMG := TKMRandomMapGenerator.Create;
   fOnNewMap := nil;
 
-  Panel_RMG := TKMPanel.Create(aParent, (aParent.Width - SIZE_X) div 2, (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
+  Panel_RMG := TKMPanel.Create(aParent, 0, (aParent.Height - SIZE_Y) div 2, SIZE_X, SIZE_Y);
   Panel_RMG.AnchorsCenter;
   Panel_RMG.Hide;
   Panel_RMG.PanelHandleMouseWheelByDefault := False; //Allow to zoom in/out while RMG settings window is open
+  Panel_RMG.OnPositionSet := PanelRMG_PositionChanged;
+  PanelRMG_PositionChanged(nil);
 
   if aMP then
   begin
@@ -756,6 +760,27 @@ procedure TKMMapEdRMG.RefreshMinimap();
 begin
   if Assigned(fMinimap) then
     MinimapView.SetMinimap(fMinimap);
+end;
+
+
+procedure TKMMapEdRMG.PanelRMG_PositionChanged(Sender: TObject);
+var
+  left, right: Integer;
+begin
+  left := (Panel_RMG.Parent.Width - Panel_RMG.Width) div 2;
+
+  if not fMPLobby then
+  begin
+    left := Max(left, MAPED_TOOLBAR_WIDTH);
+    right := Max(0, Panel_RMG.Parent.Width - left - Panel_RMG.Width);
+    left := Panel_RMG.Parent.Width - right - Panel_RMG.Width;
+  end;
+
+  Panel_RMG.OnPositionSet := nil;
+
+  Panel_RMG.Left := left;
+
+  Panel_RMG.OnPositionSet := PanelRMG_PositionChanged;
 end;
 
 

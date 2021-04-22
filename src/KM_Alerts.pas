@@ -2,7 +2,7 @@ unit KM_Alerts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes,
+  Classes, Generics.Collections,
   KM_Pics, KM_Viewport, KM_ResSound,
   KM_Defaults, KM_Points;
 
@@ -50,7 +50,7 @@ type
   TKMAlerts = class
   private
     fViewport: TKMViewport;
-    fList: TList;
+    fList: TList<TKMAlert>;
     function GetAlert(aIndex: Integer): TKMAlert;
     function GetCount: Integer;
   public
@@ -260,7 +260,7 @@ begin
   inherited Create;
 
   fViewport := aViewport;
-  fList := TList.Create;
+  fList := TList<TKMAlert>.Create;
 end;
 
 
@@ -269,7 +269,7 @@ var
   I: Integer;
 begin
   for I := 0 to fList.Count - 1 do
-    Items[I].Free;
+    fList[I].Free;
 
   fList.Free;
   inherited;
@@ -299,19 +299,19 @@ procedure TKMAlerts.AddBeacon(const aLoc: TKMPointF; aOwner: TKMHandID; aColor: 
     OldestID := -1;
     OldestExpiry := 0;
     for I := 0 to fList.Count - 1 do
-      if (Items[I].AlertType = atBeacon)
-      and (Items[I].Owner = aOwner) then
+      if (fList[I].AlertType = atBeacon)
+      and (fList[I].Owner = aOwner) then
       begin
         Inc(qty);
-        if (OldestID = -1) or (Items[I].fExpiration < OldestExpiry) then
+        if (OldestID = -1) or (fList[I].fExpiration < OldestExpiry) then
         begin
-          OldestExpiry := Items[I].fExpiration;
+          OldestExpiry := fList[I].fExpiration;
           OldestID := I;
         end;
       end;
     if (qty > MAX_BEACONS) and (OldestID <> -1) then
     begin
-      Items[OldestID].Free;
+      fList[OldestID].Free; // We probably should use TObjectList, tand skip manual list item freeing
       fList.Delete(OldestID);
     end;
   end;
@@ -330,10 +330,10 @@ var
   I: Integer;
 begin
   for I := fList.Count - 1 downto 0 do
-    if (Items[I].AlertType = atBeacon)
-      and (Items[I].Owner <> aOwner) then
+    if (fList[I].AlertType = atBeacon)
+      and (fList[I].Owner <> aOwner) then
     begin
-      Items[I].Free;
+      fList[I].Free; // We probably should use TObjectList, tand skip manual list item freeing
       fList.Delete(I);
     end;
 end;
@@ -346,8 +346,8 @@ var
 begin
   //Check previous alerts and see if there's one like that already
   for I := 0 to fList.Count - 1 do
-    if Items[I] is TKMAlertAttacked then
-      with TKMAlertAttacked(Items[I]) do
+    if fList[I] is TKMAlertAttacked then
+      with TKMAlertAttacked(fList[I]) do
         if (Owner = aPlayer) and (Asset = aAsset)
         and (KMLength(Loc, aLoc) < FIGHT_DISTANCE) then
         begin
@@ -368,11 +368,11 @@ begin
   Result := nil;
   Best := 0; //Makes compiler happy
   for I := 0 to fList.Count - 1 do
-    if TKMAlert(Items[I]).GetVisibleMinimap then
-      if (Result = nil) or (TKMAlert(Items[I]).Expiration >= Best) then
+    if fList[I].GetVisibleMinimap then
+      if (Result = nil) or (fList[I].Expiration >= Best) then
       begin
-        Result := TKMAlert(Items[I]);
-        Best := TKMAlert(Items[I]).Expiration;
+        Result := fList[I];
+        Best := fList[I].Expiration;
       end;
 end;
 
@@ -391,14 +391,14 @@ begin
   R := KMRectGrow(fViewport.GetMinimapClip, 4); //Beacons may stick up over a few tiles
 
   for I := 0 to fList.Count - 1 do
-  if Items[I].VisibleTerrain
-  and KMInRect(Items[I].Loc, R) then
+  if fList[I].VisibleTerrain
+  and KMInRect(fList[I].Loc, R) then
   begin
     case aPass of
-      0:  if gMySpectator.FogOfWar.CheckRevelation(Items[I].Loc) > 0 then
-            gRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
-      1:  if gMySpectator.FogOfWar.CheckRevelation(Items[I].Loc) < FOG_OF_WAR_MAX then
-            gRenderPool.RenderSpriteOnTerrain(Items[I].Loc, Items[I].TexTerrain.ID, Items[I].TeamColor);
+      0:  if gMySpectator.FogOfWar.CheckRevelation(fList[I].Loc) > 0 then
+            gRenderPool.AddAlert(fList[I].Loc, fList[I].TexTerrain.ID, fList[I].TeamColor);
+      1:  if gMySpectator.FogOfWar.CheckRevelation(fList[I].Loc) < FOG_OF_WAR_MAX then
+            gRenderPool.RenderSpriteOnTerrain(fList[I].Loc, fList[I].TexTerrain.ID, fList[I].TeamColor);
     end;
   end;
 end;
@@ -411,13 +411,13 @@ begin
   //Update alerts visibility
   if (aTickCount mod 10 = 0) then
   for I := fList.Count - 1 downto 0 do
-    Items[I].Update(fViewport.GetMinimapClip);
+    fList[I].Update(fViewport.GetMinimapClip);
 
   //Remove expired alerts
   for I := fList.Count - 1 downto 0 do
-    if Items[I].IsExpired(aTickCount) then
+    if fList[I].IsExpired(aTickCount) then
     begin
-      Items[I].Free;
+      fList[I].Free;  // We probably should use TObjectList, tand skip manual list item freeing
       fList.Delete(I);
     end;
 end;

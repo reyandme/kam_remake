@@ -5,6 +5,13 @@ interface
 type
   // Abstract settings entity
   TKMSettings = class abstract
+  private
+    fUseLocalFolder: Boolean;
+    procedure LoadFromDefaultFile;
+    procedure SaveToDefaultFile;
+
+    function GetDirectory: string;
+    function GetPath: string;
   protected
     fNeedsSave: Boolean;
 
@@ -15,16 +22,17 @@ type
     procedure LoadFromFile(const aPath: string); virtual; abstract;
     procedure SaveToFile(const aPath: string); virtual; abstract;
 
-    procedure LoadFromDefaultFile;
-    procedure SaveToDefaultFile;
-
     function GetSettingsName: string; virtual; abstract;
   public
-    constructor Create;
+    constructor Create(aUseLocalFolder: Boolean);
     destructor Destroy; override;
+
+    property Path: string read GetPath;
 
     procedure ReloadSettings;
     procedure SaveSettings(aForce: Boolean = False);
+
+    class function GetDir(aUseLocalFolder: Boolean = False): string;
   end;
 
 
@@ -37,9 +45,11 @@ uses
 
 
 { TKMSettings }
-constructor TKMSettings.Create;
+constructor TKMSettings.Create(aUseLocalFolder: Boolean);
 begin
-  inherited;
+  inherited Create;
+
+  fUseLocalFolder := aUseLocalFolder;
 
   LoadFromDefaultFile;
   // Save settings to default directory immidiately
@@ -58,11 +68,23 @@ begin
 end;
 
 
+function TKMSettings.GetPath: string;
+begin
+  Result := GetDirectory + GetDefaultSettingsName;
+end;
+
+
+function TKMSettings.GetDirectory: string;
+begin
+  Result := GetDir(fUseLocalFolder);
+end;
+
+
 procedure TKMSettings.LoadFromDefaultFile;
 var
   path: string;
 begin
-  path := GetDocumentsSavePath + GetDefaultSettingsName;
+  path := GetPath;
   gLog.AddTime(Format('Start loading ''%s'' from ''%s''', [GetSettingsName, path]));
   LoadFromFile(path);
   gLog.AddTime(Format('''%s'' was successfully loaded from ''%s''', [GetSettingsName, path]));
@@ -73,7 +95,7 @@ procedure TKMSettings.SaveToDefaultFile;
 var
   saveFolder, path: string;
 begin
-  saveFolder := GetDocumentsSavePath;
+  saveFolder := GetDirectory;
   ForceDirectories(saveFolder);
   path := saveFolder + GetDefaultSettingsName;
   gLog.AddTime(Format('Start saving ''%s'' to ''%s''', [GetSettingsName, path]));
@@ -106,6 +128,15 @@ end;
 procedure TKMSettings.Changed;
 begin
   fNeedsSave := True;
+end;
+
+
+class function TKMSettings.GetDir(aUseLocalFolder: Boolean = False): string;
+begin
+  if aUseLocalFolder then
+    Result := ExtractFilePath(ParamStr(0))
+  else
+    Result := CreateAndGetDocumentsSavePath; // Use %My documents%/My Games/
 end;
 
 

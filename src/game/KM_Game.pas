@@ -65,7 +65,7 @@ type
     fUIDTracker: TKMGameUIDTracker;       //Units-Houses tracker, to issue unique IDs
 
     //Saved to local data
-    fLastReplayTick: Cardinal;
+    fLastReplayTickLocal: Cardinal; // stored / loaded in the .sloc file, if available
     fSkipReplayEndCheck: Boolean;
 
     //DO not save
@@ -229,9 +229,12 @@ type
     property SaveFile: UnicodeString read fLoadFromFileRel;
 
     procedure AddScriptSoundRemoveRequest(aScriptSoundUID: Integer; aHandID: TKMHandID);
-    function GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
-    property LastReplayTick: Cardinal read fLastReplayTick write fLastReplayTick;
+    function GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
+
+    property LastReplayTickLocal: Cardinal read fLastReplayTickLocal write fLastReplayTickLocal;
     property SkipReplayEndCheck: Boolean read fSkipReplayEndCheck write fSkipReplayEndCheck;
+    function GetReplayLastTick: Cardinal;
+
     property IgnoreConsistencyCheckErrors: Boolean read fIgnoreConsistencyCheckErrors;
 
     property LockedMutex: Boolean read fLockedMutex write fLockedMutex;
@@ -554,6 +557,11 @@ begin
                     playerEnabled[I] := True;
               end;
     gmSingle, gmCampaign: //Setup should tell us which player is AI and which not
+              // Set all hands in the SP game as Enabled
+              // In theory we could allow to prohibit some locs for AI
+              // In this case its better to delete all hand content after parser made his work done
+              // But there was no such a case or request yet, so we can simply set all hands as enabled
+              // So parser will load all hands assets
               for I := 0 to MAX_HANDS - 1 do
                 playerEnabled[I] := True;
     else      FillChar(playerEnabled, SizeOf(playerEnabled), #255);
@@ -609,6 +617,7 @@ begin
 
       Assert(InRange(aLocation, 0, gHands.Count - 1), 'No human player detected');
       gHands[aLocation].HandType := hndHuman;
+
       gMySpectator := TKMSpectator.Create(aLocation);
 
       // If no color specified use default from mission file (don't overwrite it)
@@ -689,7 +698,7 @@ var
   viewPos: TKMPointF;
 begin
   gLog.AddTime('After game start');
-  gHands.AfterMissionInit(not fParams.IsMapEditor); //Don't flatten roads in MapEd
+  gHands.AfterMissionInit;
 
   //Random after StartGame and ViewReplay should match
   if fParams.IsMultiPlayerOrSpec then
@@ -1001,7 +1010,6 @@ var
   begin
     if (aFile <> '') and FileExists(aFile) then
     begin
-
       if Pos(aFile, attachedFilesStr) = 0 then
       begin
         attachedFilesStr := attachedFilesStr + aFile + '; ';
@@ -1346,7 +1354,7 @@ begin
   gMySpectator := TKMSpectator.Create(0);
   gMySpectator.FOWIndex := PLAYER_NONE;
 
-  gHands.AfterMissionInit(false);
+  gHands.AfterMissionInit;
 
   if fParams.IsSingleplayerGame then
     fGameInputProcess := TKMGameInputProcess_Single.Create(gipRecording);
@@ -1448,6 +1456,10 @@ begin
 
   fMapEditor.MissionDefSavePath := aPathName;
   fMapEditor.SaveAttachements(aPathName);
+
+  // Create empty script file, in there is no any. It will not harm anyone
+  KMCreateEmptyFile(ChangeFileExt(aPathName, EXT_FILE_SCRIPT_DOT));
+
   fMapTxtInfo.SaveTXTInfo(ChangeFileExt(aPathName, '.txt'));
   gTerrain.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
   fTerrainPainter.SaveToFile(ChangeFileExt(aPathName, '.map'), aInsetRect);
@@ -1551,15 +1563,24 @@ begin
 end;
 
 
-function TKMGame.GetScriptSoundFile(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
+function TKMGame.GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
 var
   ext: UnicodeString;
+  camp: TKMCampaign;
 begin
   case aAudioFormat of
     afWav: ext := WAV_FILE_EXT;
     afOgg: ext := OGG_FILE_EXT;
   end;
-  Result := ChangeFileExt(fParams.MissionFile, '.' + UnicodeString(aSound) + ext)
+
+  Result := ExeDir + ChangeFileExt(fParams.MissionFile, '.' + UnicodeString(aSound) + ext);
+
+  // Try to load Campaign specific audio file (not mission specific)
+  if fParams.IsCampaign and (gGameApp.Campaigns.ActiveCampaign <> nil) and not FileExists(Result) then
+  begin
+    camp := gGameApp.Campaigns.ActiveCampaign;
+    Result := ExeDir + camp.Path + camp.ShortName + '.' + UnicodeString(aSound) + ext;
+  end;
 end;
 
 
@@ -2060,7 +2081,10 @@ begin
   gHands.Save(aBodyStream, fParams.IsMultiPlayerOrSpec); //Saves all players properties individually
   if not fParams.IsMultiPlayerOrSpec then
     gMySpectator.Save(aBodyStream);
-  gAIFields.Save(aBodyStream);
+
+  if gHands.CanHaveAI() then
+    gAIFields.Save(aBodyStream);
+
   fPathfinding.Save(aBodyStream);
   gProjectiles.Save(aBodyStream);
   fScripting.Save(aBodyStream);
@@ -2133,7 +2157,7 @@ begin
   if fParams.IsMultiPlayerOrSpec and (aMPLocalDataPathName <> '') then
   begin
     try
-      gameMPLocalData := TKMGameMPLocalData.Create(fLastReplayTick, gNetworking.MyNetPlayer.StartLocation, fGamePlayInterface.Minimap);
+      gameMPLocalData := TKMGameMPLocalData.Create(fLastReplayTickLocal, gNetworking.MyNetPlayer.StartLocation, fGamePlayInterface.Minimap);
       try
         gameMPLocalData.SaveToFileAsync(aMPLocalDataPathName, aSaveWorkerThread);
       finally
@@ -2395,7 +2419,10 @@ begin
     gMySpectator := TKMSpectator.Create(0);
     if not saveIsMultiplayer then
       gMySpectator.Load(bodyStream);
-    gAIFields.Load(bodyStream);
+
+    if gHands.CanHaveAI() then
+      gAIFields.Load(bodyStream);
+
     fPathfinding.Load(bodyStream);
     gProjectiles.Load(bodyStream);
     fScripting.Load(bodyStream);
@@ -2480,7 +2507,7 @@ begin
       gameMPLocalData := TKMGameMPLocalData.Create;
       try
         gameMPLocalData.LoadFromFile(ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), EXT_SAVE_MP_LOCAL_DOT));
-        fLastReplayTick := gameMPLocalData.LastReplayTick;
+        fLastReplayTickLocal := gameMPLocalData.LastReplayTick;
       finally
         FreeAndNil(gameMPLocalData);
       end;
@@ -2516,7 +2543,7 @@ begin
 
   if fSavePoints.Contains(aTick) then
   begin
-    lastReplayTick := fLastReplayTick;
+    lastReplayTick := fLastReplayTickLocal;
     skipReplayEndCheck := fSkipReplayEndCheck;
 
     loadStream := TKMemoryStreamBinary(fSavePoints[aTick]);
@@ -2524,7 +2551,7 @@ begin
     LoadFromStream(loadStream);
 
     // Restore game (replay) parameters, that are shared among all game savepoints
-    gGame.LastReplayTick := lastReplayTick;
+    gGame.LastReplayTickLocal := lastReplayTick;
     gGame.SkipReplayEndCheck := skipReplayEndCheck;
     gLog.AddTime('Loading replay from save done', True);
   end;
@@ -2736,11 +2763,24 @@ end;
 
 
 function TKMGame.IsReplayEnded: Boolean;
+var
+  lastReplayTick: Cardinal;
 begin
-  if fLastReplayTick > 0 then
-    Result := fParams.Tick >= fLastReplayTick
+  lastReplayTick := GetReplayLastTick;
+
+  if lastReplayTick > 0 then
+    Result := fParams.Tick >= lastReplayTick
   else
     Result := fGameInputProcess.ReplayEnded;
+end;
+
+
+function TKMGame.GetReplayLastTick: Cardinal;
+begin
+  Result := Max4(fLastReplayTickLocal,
+                 fGameInputProcess.GetLastTick,
+                 fParams.Tick,
+                 fSavePoints.LastTick);
 end;
 
 
@@ -2798,7 +2838,7 @@ begin
 
     fLastUpdateState := TimeGet;
 
-    fLastReplayTick := fParams.Tick;
+    fLastReplayTickLocal := fParams.Tick;
 
     if fParams.IsMultiPlayerOrSpec then
       gNetworking.LastProcessedTick := fParams.Tick;
@@ -2811,7 +2851,10 @@ begin
 
     fScripting.UpdateState;
     gTerrain.UpdateState;
-    gAIFields.UpdateState(fParams.Tick);
+
+    if gHands.CanHaveAI() then
+      gAIFields.UpdateState(fParams.Tick);
+
     gHands.UpdateState(fParams.Tick); //Quite slow
 
     if gGame = nil then Exit; //Quit the update if game was stopped for some reason
