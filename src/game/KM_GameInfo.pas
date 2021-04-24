@@ -2,7 +2,7 @@ unit KM_GameInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_CommonClasses, KM_MapTypes, KM_Defaults,
+  KM_CommonClasses, KM_Maps, KM_MapTypes, KM_Defaults,
   KM_HandTypes;
 
 
@@ -17,9 +17,12 @@ type
   //Info that is relevant to any game, be it Save or a Mission
   TKMGameInfo = class
   private
+    fMapTxtInfo: TKMMapTxtInfo;
+    fMapTxtInfoNasToBeFreed: Boolean;
     fParseError: TKMGameInfoParseError;
     procedure ResetParseError;
     function GetVersionUnicode: UnicodeString;
+    procedure SetMapTxtInfo(const Value: TKMMapTxtInfo);
   public
     Title: UnicodeString; //Used for campaigns and to store in savegames
     Version: AnsiString; //Savegame version, yet unused in maps, they always have actual version
@@ -31,7 +34,6 @@ type
     MissionMode: TKMissionMode; //Fighting or Build-a-City map
     MissionDifficulty: TKMMissionDifficulty;
     MapSizeX, MapSizeY: Integer;
-    BlockColorSelection: Boolean;
 
     PlayerCount: Byte;
     Enabled: array [0..MAX_HANDS-1] of Boolean;
@@ -43,9 +45,13 @@ type
 
     //To be used in Savegames
     constructor Create;
+    destructor Destroy; override;
+
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
+    property TxtInfo: TKMMapTxtInfo read fMapTxtInfo write SetMapTxtInfo;
+    property MapTxtInfoNasToBeFreed: Boolean read fMapTxtInfoNasToBeFreed write fMapTxtInfoNasToBeFreed;
     property ParseError: TKMGameInfoParseError read fParseError;
     function IsValid(aCheckDATCRC: Boolean): Boolean;
     function AICount: Byte;
@@ -70,7 +76,19 @@ uses
 constructor TKMGameInfo.Create;
 begin
   inherited;
+  fMapTxtInfo := TKMMapTxtInfo.Create;
+  fMapTxtInfoNasToBeFreed := True;
+
   ResetParseError;
+end;
+
+
+destructor TKMGameInfo.Destroy;
+begin
+  if fMapTxtInfoNasToBeFreed then
+    FreeAndNil(fMapTxtInfo);
+
+  inherited;
 end;
 
 
@@ -104,7 +122,6 @@ procedure TKMGameInfo.Load(LoadStream: TKMemoryStream);
     LoadStream.Read(MissionDifficulty, SizeOf(MissionDifficulty));
     LoadStream.Read(MapSizeX);
     LoadStream.Read(MapSizeY);
-    LoadStream.Read(BlockColorSelection);
 
     LoadStream.Read(PlayerCount);
     for I := 0 to PlayerCount - 1 do
@@ -116,6 +133,8 @@ procedure TKMGameInfo.Load(LoadStream: TKMemoryStream);
       LoadStream.Read(Color[I]);
       LoadStream.Read(Team[I]);
     end;
+
+    fMapTxtInfo.Load(LoadStream);
   end;
 
 var
@@ -149,7 +168,6 @@ begin
   end
   else
     LoadGameInfoData; //Load without catching exception
-
 end;
 
 
@@ -177,7 +195,6 @@ begin
   SaveStream.Write(MissionDifficulty, SizeOf(MissionDifficulty));
   SaveStream.Write(MapSizeX);
   SaveStream.Write(MapSizeY);
-  SaveStream.Write(BlockColorSelection);
 
   SaveStream.Write(PlayerCount);
   for I := 0 to PlayerCount - 1 do
@@ -189,6 +206,20 @@ begin
     SaveStream.Write(Color[I]);
     SaveStream.Write(Team[I]);
   end;
+
+  fMapTxtInfo.Save(SaveStream);
+end;
+
+
+procedure TKMGameInfo.SetMapTxtInfo(const Value: TKMMapTxtInfo);
+begin
+  // Free initially created fMapTxtInfo object
+  if fMapTxtInfoNasToBeFreed then
+    FreeAndNil(fMapTxtInfo);
+
+  fMapTxtInfoNasToBeFreed := False; // We don't want to free object, created outside of this class instance
+
+  fMapTxtInfo := Value;
 end;
 
 

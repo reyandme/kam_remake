@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls, TypInfo, Generics.Collections,
-  KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points,
+  KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points, KM_CommonClassesExt,
   KM_InterfaceTypes, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
   KM_UnitGroup, KM_UnitWarrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
   KM_HandEntity,
@@ -71,6 +71,8 @@ type
     fLastSaveName: UnicodeString; // The file name we last used to save this file (used as default in Save menu)
     fMessageStack: TKMMessageStack;
     fSelection: array [0..DYNAMIC_HOTKEYS_NUM - 1] of Integer;
+
+    fLogStringList: TKMLimitedList<string>;
 
     procedure Create_Controls;
     procedure Create_Replay;
@@ -176,6 +178,8 @@ type
     procedure UpdateReplayBar;
 
     function CanUpdateClockUI: Boolean;
+    function GetLogString(aLimit: Integer): string;
+    procedure LogMessageHappened(const aLogMessage: UnicodeString);
   protected
     Sidebar_Top: TKMImage;
     Sidebar_Middle: TKMImage;
@@ -304,6 +308,7 @@ type
   public
     constructor Create(aRender: TRender; aUIMode: TUIMode); reintroduce;
     destructor Destroy; override;
+
     procedure MessageIssue(aKind: TKMMessageKind; const aText: UnicodeString); overload;
     procedure MessageIssue(aKind: TKMMessageKind; const aText: UnicodeString; const aLoc: TKMPoint); overload;
     procedure UpdateUI;
@@ -791,6 +796,9 @@ begin
 
   fAlerts := TKMAlerts.Create(fViewport);
 
+  gLog.AddOnLogEventSub(LogMessageHappened);
+  fLogStringList := TKMLimitedList<string>.Create(80); // 50 lines max
+
   // Instruct to use global Terrain
   fLastSaveName := '';
   fLastKbdSelectionTime := 0;
@@ -920,6 +928,10 @@ begin
   FreeAndNil(fGroupsTeamNames);
   FreeAndNil(fUnitsTeamNames);
   fAlerts.Free;
+
+  gLog.RemoveOnLogEventSub(LogMessageHappened);
+  fLogStringList.Free;
+
   inherited;
 end;
 
@@ -1760,15 +1772,15 @@ end;
 
 procedure TKMGamePlayInterface.Menu_ReturnToMapEd(Sender: TObject);
 var
-  mapPath, gameName: UnicodeString;
+  missionPath, gameName: UnicodeString;
   isMultiplayer: Boolean;
 begin
   isMultiplayer := gGame.StartedFromMapEdAsMPMap;
-  mapPath := TKMapsCollection.FullPath(gGameParams.Name, '.dat', isMultiplayer);
+  missionPath := gGameParams.MissionFile;
   gameName := gGameParams.Name;
   FreeThenNil(gGame);
-  gGameApp.NewMapEditor(mapPath, 0, 0, TKMapsCollection.GetMapCRC(gameName, isMultiplayer));
-  TKMapEdInterface(gGame.ActiveInterface).SetLoadMode(isMultiplayer);
+  // current TKMGamePlayInterface object is destroyed, be careful
+  gGameApp.NewMapEditor(missionPath, 0, 0, TKMapsCollection.GetMapCRC(missionPath), 0, isMultiplayer);
 end;
 
 
@@ -3081,6 +3093,26 @@ begin
 
   if not fGuiGameChat.Visible then
     Label_ChatUnread.Caption := IntToStr(StrToIntDef(Label_ChatUnread.Caption, 0) + 1); // New message
+end;
+
+
+function TKMGamePlayInterface.GetLogString(aLimit: Integer): string;
+var
+  I: Integer;
+begin
+  Result := '';  
+  // attach from the end, the most fresh log lines, till the limit
+  for I := fLogStringList.Count - 1 downto Max(fLogStringList.Count - aLimit - 1, 0) do
+    Result := fLogStringList[I] + '|' + Result;
+end;
+
+
+procedure TKMGamePlayInterface.LogMessageHappened(const aLogMessage: UnicodeString);
+begin
+  if Self = nil then Exit;
+  
+  if SHOW_LOG_IN_GUI or UPDATE_LOG_FOR_GUI then
+    fLogStringList.Add(ReplaceStr(DeleteDoubleSpaces(aLogMessage), EolW, '|'));
 end;
 
 
@@ -4455,12 +4487,15 @@ end;
 
 
 procedure TKMGamePlayInterface.UpdateDebugInfo;
+const
+  BEVEL_PAD = 20;
 var
   mKind: TKMessageKind;
   received, sent, receivedTotal, sentTotal, period: Cardinal;
   S, sPackets, S2: String;
   textSize: TKMPoint;
   objToShowInfo: TObject;
+  linesCnt: Integer;
 begin
   S := '';
 
@@ -4570,6 +4605,16 @@ begin
   if SHOW_HANDS_INFO then
     S := S + gHands.ObjToString;
 
+  if SHOW_LOG_IN_GUI then
+  begin
+    linesCnt := (Bevel_DebugInfo.Parent.Height 
+                  - Bevel_DebugInfo.Top 
+                  - BEVEL_PAD 
+                  - gRes.Fonts[Label_DebugInfo.Font].GetTextSize(S).Y) 
+                div gRes.Fonts[Label_DebugInfo.Font].LineHeight;
+    S := S + '|Logs:|' + GetLogString(linesCnt - 1);
+  end;
+
   Label_DebugInfo.Caption := S;
   Label_DebugInfo.Visible := (Trim(S) <> '');
 
@@ -4578,8 +4623,8 @@ begin
 
   textSize := gRes.Fonts[Label_DebugInfo.Font].GetTextSize(S);
 
-  Bevel_DebugInfo.Width := IfThen(textSize.X <= 1, 0, textSize.X + 20);
-  Bevel_DebugInfo.Height := IfThen(textSize.Y <= 1, 0, textSize.Y + 20);
+  Bevel_DebugInfo.Width := IfThen(textSize.X <= 1, 0, textSize.X + BEVEL_PAD);
+  Bevel_DebugInfo.Height := IfThen(textSize.Y <= 1, 0, textSize.Y + BEVEL_PAD);
 
   Bevel_DebugInfo.Visible := SHOW_DEBUG_OVERLAY_BEVEL and (Trim(S) <> '') ;
 end;

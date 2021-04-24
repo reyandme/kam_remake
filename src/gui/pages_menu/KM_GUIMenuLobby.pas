@@ -1443,7 +1443,7 @@ var
   Color: Cardinal;
 begin
   if (gNetworking.SelectGameKind = ngkMap) and not gNetworking.MapInfo.TxtInfo.BlockColorSelection then Exit;
-  if (gNetworking.SelectGameKind = ngkSave) and not gNetworking.SaveInfo.GameInfo.BlockColorSelection then Exit;
+  if (gNetworking.SelectGameKind = ngkSave) and not gNetworking.SaveInfo.GameInfo.TxtInfo.BlockColorSelection then Exit;
 
   if (DropBox_Loc[I].GetSelectedTag <> LOC_SPECTATE) then
   begin

@@ -83,7 +83,7 @@ type
     chkLogDelivery: TCheckBox;
     chkLogNetConnection: TCheckBox;
     RGLogNetPackets: TRadioGroup;
-    chkLogsShowInChat: TCheckBox;
+    chkLogShowInChat: TCheckBox;
     chkUIControlsID: TCheckBox;
     Debug_ShowLogistics: TMenuItem;
     chkShowTerrainIds: TCheckBox;
@@ -210,6 +210,8 @@ type
     N11: TMenuItem;
     mnExportRngChecks: TMenuItem;
     chkGIP: TCheckBox;
+    chkLogShowInGUI: TCheckBox;
+    chkLogUpdateForGUI: TCheckBox;
 
 
     procedure FormCreate(Sender: TObject);
@@ -1599,7 +1601,9 @@ begin
   end;
 
   //Logs
-  SHOW_LOGS_IN_CHAT := chkLogsShowInChat.Checked;
+  SHOW_LOG_IN_CHAT := chkLogShowInChat.Checked;
+  SHOW_LOG_IN_GUI := chkLogShowInGUI.Checked;
+  UPDATE_LOG_FOR_GUI := chkLogUpdateForGUI.Checked;
   LOG_GAME_TICK := chkLogGameTick.Checked;
 
   if allowDebugChange then

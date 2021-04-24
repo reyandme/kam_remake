@@ -448,6 +448,10 @@ begin
     RegisterMethodCheck(c, 'function AIStartPosition(aPlayer: Byte): TKMPoint');
     RegisterMethodCheck(c, 'function AIWorkerLimit(aPlayer: Byte): Integer');
 
+    RegisterMethodCheck(c, 'function CampaignMissionID: Integer');
+    RegisterMethodCheck(c, 'function CampaignMissionsCount: Integer');
+    RegisterMethodCheck(c, 'function CampaignUnlockedMissionID: Integer');
+
     RegisterMethodCheck(c, 'function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer');
     RegisterMethodCheck(c, 'function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer');
     RegisterMethodCheck(c, 'function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer');
@@ -1120,6 +1124,10 @@ begin
       RegisterMethod(@TKMScriptStates.AISoldiersLimit,                          'AISoldiersLimit');
       RegisterMethod(@TKMScriptStates.AIStartPosition,                          'AIStartPosition');
       RegisterMethod(@TKMScriptStates.AIWorkerLimit,                            'AIWorkerLimit');
+
+      RegisterMethod(@TKMScriptStates.CampaignMissionID,                        'CampaignMissionID');
+      RegisterMethod(@TKMScriptStates.CampaignMissionsCount,                    'CampaignMissionsCount');
+      RegisterMethod(@TKMScriptStates.CampaignUnlockedMissionID,                'CampaignUnlockedMissionID');
 
       RegisterMethod(@TKMScriptStates.ClosestGroup,                             'ClosestGroup');
       RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes,                'ClosestGroupMultipleTypes');

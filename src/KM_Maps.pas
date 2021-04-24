@@ -31,8 +31,6 @@ type
   private
     fBlockColorSelection: Boolean;
     function IsEmpty: Boolean;
-    procedure Load(LoadStream: TKMemoryStream);
-    procedure Save(SaveStream: TKMemoryStream);
     function GetBlockColorSelection: Boolean;
   public
     Author, Version, BigDesc, SmallDesc: UnicodeString;
@@ -49,6 +47,10 @@ type
     BlockFullMapPreview: Boolean;
 
     constructor Create;
+
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+
     procedure SetBigDesc(const aBigDesc: UnicodeString);
     function GetBigDesc: UnicodeString;
 
@@ -229,7 +231,7 @@ type
     class function FullPath(const aName, aExt: string; aMapFolder: TKMapFolder; aCRC: Cardinal): string; overload;
 //    class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
     class procedure GetAllMapPaths(const aExeDir: string; aList: TStringList);
-    class function GetMapCRC(const aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
+    class function GetMapCRC(const aMapPath: string): Cardinal;
 
     procedure Refresh(aOnRefresh: TNotifyEvent;  aOnTerminate: TNotifyEvent = nil;aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
@@ -255,6 +257,9 @@ uses
   KM_GameApp, KM_GameSettings, KM_FileIO,
   KM_MissionScript_Info, KM_Scripting,
   KM_CommonUtils, KM_Log;
+
+const
+  MAP_TXT_INFO_MARKER = 'MapTxtInfo';
 
 
 { TKMapInfo }
@@ -1200,6 +1205,10 @@ end;
 
 procedure TKMMapTxtInfo.Load(LoadStream: TKMemoryStream);
 begin
+  LoadStream.CheckMarker(MAP_TXT_INFO_MARKER);
+
+  LoadStream.ReadW(Author);
+  LoadStream.ReadW(Version);
   LoadStream.Read(IsCoop);
   LoadStream.Read(IsSpecial);
   LoadStream.Read(IsRMG);
@@ -1212,12 +1221,18 @@ begin
 
   LoadStream.ReadW(SmallDesc);
   LoadStream.Read(SmallDescLibx);
-//  aStream.ReadW(fBigDesc);
+
+  LoadStream.ReadW(BigDesc);
+  LoadStream.Read(BigDescLibx);
 end;
 
 
 procedure TKMMapTxtInfo.Save(SaveStream: TKMemoryStream);
 begin
+  SaveStream.PlaceMarker(MAP_TXT_INFO_MARKER);
+
+  SaveStream.WriteW(Author);
+  SaveStream.WriteW(Version);
   SaveStream.Write(IsCoop);
   SaveStream.Write(IsSpecial);
   SaveStream.Write(IsRMG);
@@ -1230,7 +1245,9 @@ begin
 
   SaveStream.WriteW(SmallDesc);
   SaveStream.Write(SmallDescLibx);
-//  aStream.WriteW(fBigDesc);
+
+  SaveStream.WriteW(BigDesc);
+  SaveStream.Write(BigDescLibx);
 end;
 
 
@@ -1609,14 +1626,11 @@ begin
 end;
 
 
-class function TKMapsCollection.GetMapCRC(const aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
-var
-  MapPath: UnicodeString;
+class function TKMapsCollection.GetMapCRC(const aMapPath: string): Cardinal;
 begin
   Result := 0;
-  MapPath := FullPath(aName, '.dat', aIsMultiplayer);
-  if FileExists(MapPath) then
-    Result := Adler32CRC(MapPath);
+  if FileExists(aMapPath) then
+    Result := Adler32CRC(aMapPath);
 end;
 
 

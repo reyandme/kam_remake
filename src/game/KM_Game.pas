@@ -85,7 +85,7 @@ type
     fLastSaveFileRel: UnicodeString;  //Relative pathname to last savegame we are playing, so game could restart from this point
 
     fAutosavesCnt: Integer;
-    fLastSaves: TLimitedList<string>;
+    fLastSaves: TKMLimitedList<string>;
 
     fIsStarted: Boolean;
 
@@ -353,7 +353,7 @@ begin
 
   fMapTxtInfo := TKMMapTxtInfo.Create;
 
-  fLastSaves := TLimitedList<string>.Create(LAST_SAVES_MAX_CNT);
+  fLastSaves := TKMLimitedList<string>.Create(LAST_SAVES_MAX_CNT);
   fAutosavesCnt := 0;
 
   //UserInterface is different between Gameplay and MapEd
@@ -657,6 +657,8 @@ begin
       //fScripting reports compile errors itself now
     end;
 
+    // MapTxtInfo should be loaded before MultiplayerRig, since we use map txt params there in UpdateHandState
+    fMapTxtInfo.LoadTXTInfo(ChangeFileExt(aMissionFile, '.txt'));
 
     case fParams.Mode of
       gmMulti, gmMultiSpectate:
@@ -684,8 +686,6 @@ begin
   finally
     parser.Free;
   end;
-
-  fMapTxtInfo.LoadTXTInfo(ChangeFileExt(aMissionFile, '.txt'));
 
   gLog.AddTime('Game options: ' + fOptions.ToString);
   gLog.AddTime('Gameplay initialized', True);
@@ -1993,7 +1993,7 @@ begin
     gameInfo.MissionDifficulty := fParams.MissionDifficulty;
     gameInfo.MapSizeX := gTerrain.MapX;
     gameInfo.MapSizeY := gTerrain.MapY;
-    gameInfo.BlockColorSelection := fMapTxtInfo.BlockColorSelection;
+    gameInfo.TxtInfo := fMapTxtInfo;
 
     gameInfo.PlayerCount := gHands.Count;
     for I := 0 to gHands.Count - 1 do
@@ -2343,6 +2343,8 @@ begin
       fSetGameTickEvent(gameInfo.TickCount);
       fParams.MissionMode := gameInfo.MissionMode;
       fParams.MissionDifficulty := gameInfo.MissionDifficulty;
+      fMapTxtInfo := gameInfo.TxtInfo;
+      gameInfo.MapTxtInfoNasToBeFreed := False; // Don't Free MapTxtInfo object in gameInfo, its used by our game now
     finally
       FreeAndNil(gameInfo);
     end;

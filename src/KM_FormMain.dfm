@@ -130,7 +130,7 @@ object FormMain: TFormMain
       Caption = 'Logs'
       Collapsed = True
       TabOrder = 1
-      ExpandedHeight = 179
+      ExpandedHeight = 198
       object chkLogCommands: TCheckBox
         Left = 120
         Top = 8
@@ -178,10 +178,10 @@ object FormMain: TFormMain
         TabOrder = 4
         OnClick = ControlsUpdate
       end
-      object chkLogsShowInChat: TCheckBox
+      object chkLogShowInChat: TCheckBox
         Left = 8
         Top = 138
-        Width = 137
+        Width = 129
         Height = 17
         Caption = 'Show logs in MP chat'
         TabOrder = 5
@@ -212,6 +212,24 @@ object FormMain: TFormMain
         Checked = True
         State = cbChecked
         TabOrder = 7
+        OnClick = ControlsUpdate
+      end
+      object chkLogShowInGUI: TCheckBox
+        Left = 8
+        Top = 156
+        Width = 106
+        Height = 17
+        Caption = 'Show logs in GUI'
+        TabOrder = 8
+        OnClick = ControlsUpdate
+      end
+      object chkLogUpdateForGUI: TCheckBox
+        Left = 120
+        Top = 156
+        Width = 113
+        Height = 17
+        Caption = 'Update log for GUI'
+        TabOrder = 9
         OnClick = ControlsUpdate
       end
     end

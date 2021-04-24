@@ -208,11 +208,17 @@ begin
   begin
     //For MP locs we will set AI MP setup only when loc is allowed for humans too.
     //For only AI locs there we should use AI params set from MapEd
-    if fHandsList[aHandID].CanBeHuman then
-      fHandsList[aHandID].AI.Setup.ApplyMultiplayerSetup(aAIType = aitAdvanced)
-    else
-      //Just enable Advanced AI, do not override MapEd AI params
-      fHandsList[aHandID].AI.Setup.EnableAdvancedAI(aAIType = aitAdvanced);
+    case aAIType of
+      aitAdvanced:  // Do not apply AI Multiplayer setup for special maps
+                    if not gGame.MapTxtInfo.IsSpecial and fHandsList[aHandID].CanBeHuman then
+                      fHandsList[aHandID].AI.Setup.ApplyMultiplayerSetup(True)
+                    else
+                      //Just enable Advanced AI, do not override MapEd AI params
+                      fHandsList[aHandID].AI.Setup.EnableAdvancedAI(True);
+                    // Do not enable MP setup for classic AI on the game start, only in the MapEd
+      aitClassic:   fHandsList[aHandID].AI.Setup.EnableAdvancedAI(False);
+    end;
+
   end
   else
   //We can start to play for defeated hand, f.e. if player just left the game and we restart from save with other player

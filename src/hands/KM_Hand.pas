@@ -201,6 +201,7 @@ type
     procedure ToggleFakeFieldPlan(const aLoc: TKMPoint; aFieldType: TKMFieldType);
     function AddHouse(aHouseType: TKMHouseType; PosX, PosY: Word; RelativeEntrace: Boolean): TKMHouse;
     procedure AddHousePlan(aHouseType: TKMHouseType; const aLoc: TKMPoint);
+    function HasHousePlan(const aLoc: TKMPoint): Boolean;
     function AddHouseWIP(aHouseType: TKMHouseType; const aLoc: TKMPoint): TKMHouse;
     function RemGroup(const Position: TKMPoint): Boolean;
     procedure RemHouse(const Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
@@ -1256,6 +1257,12 @@ begin
 
   if (ID = gMySpectator.HandID) and not gGameParams.IsReplayOrSpectate then
     gSoundPlayer.Play(sfxPlacemarker);
+end;
+
+
+function TKMHand.HasHousePlan(const aLoc: TKMPoint): Boolean;
+begin
+  Result := fConstructions.HousePlanList.HasPlan(aLoc);
 end;
 
 

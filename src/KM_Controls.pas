@@ -1,4 +1,4 @@
-unit KM_Controls;
+﻿unit KM_Controls;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -14,6 +14,7 @@ type
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelSteps: Integer; var aHandled: Boolean) of object;
   TKMMouseMoveEvent = procedure(Sender: TObject; X,Y: Integer; Shift: TShiftState) of object;
+  TKMMouseUpDownEvent = procedure(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
   TNotifyEventKeyFunc = function(Sender: TObject; Key: Word): Boolean of object;
   TNotifyEventKeyShift = procedure(Key: Word; Shift: TShiftState) of object;
@@ -44,6 +45,8 @@ type
     fOnHint: TNotifyEvent; //Comes along with OnMouseOver
 
     fMouseMoveSubsList: TList<TKMMouseMoveEvent>;
+    fMouseDownSubsList: TList<TKMMouseUpDownEvent>;
+    fMouseUpSubsList: TList<TKMMouseUpDownEvent>;
 
     function IsCtrlCovered(aCtrl: TKMControl): Boolean;
     procedure SetCtrlDown(aCtrl: TKMControl);
@@ -67,6 +70,8 @@ type
     property CtrlUp: TKMControl read fCtrlUp write SetCtrlUp;
 
     procedure AddMouseMoveCtrlSub(const aMouseMoveEvent: TKMMouseMoveEvent);
+    procedure AddMouseDownCtrlSub(const aMouseDownEvent: TKMMouseUpDownEvent);
+    procedure AddMouseUpCtrlSub(const aMouseUpEvent: TKMMouseUpDownEvent);
 
     property OnHint: TNotifyEvent write fOnHint;
 
@@ -213,8 +218,8 @@ type
     function GetSelfWidth: Integer; virtual;
     procedure UpdateVisibility; virtual;
     procedure UpdateEnableStatus; virtual;
-    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
-    procedure ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
+//    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
+//    procedure ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
     procedure FocusChanged(aFocused: Boolean); virtual;
     procedure DoClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean); virtual;
     function DoHandleMouseWheelByDefault: Boolean; virtual;
@@ -342,8 +347,8 @@ type
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
 
-    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+//    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+//    procedure ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure UpdateVisibility; override;
     procedure UpdateEnableStatus; override;
     function DoPanelHandleMouseWheelByDefault: Boolean; virtual;
@@ -667,7 +672,7 @@ type
     procedure UpdateSelection(aOldCursorPos: Integer; aIsSelecting: Boolean);
   protected
     fText: UnicodeString;
-    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure SelEditCtrlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
     procedure FocusChanged(aFocused: Boolean); override;
     function GetMaxLength: Word; virtual; abstract;
     function IsCharValid(aChar: WideChar): Boolean; virtual; abstract;
@@ -676,6 +681,7 @@ type
     procedure PaintSelection;
     function DrawEolSymbol: Boolean; virtual;
     function DoShowMarkup: Boolean; virtual;
+//    function GetControlMouseDownProc: TKMMouseUpDownEvent; virtual;
 
     procedure Changed;
   public
@@ -924,8 +930,9 @@ type
     procedure ValidateText(aTriggerOnChange: Boolean = True); override;
     procedure FocusChanged(aFocused: Boolean); override;
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean; override;
-    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure NumEdCtrlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
     function DoHandleMouseWheelByDefault: Boolean; override;
+
   public
     ValueMin: Integer;
     ValueMax: Integer;
@@ -1657,7 +1664,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetTop(aValue: Integer); override;
     procedure FocusChanged(aFocused: Boolean); override;
-    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
     function DoHandleMouseWheelByDefault: Boolean; override;
   public
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont; aStyle: TKMButtonStyle; aSelectable: Boolean = True);
@@ -1745,8 +1752,8 @@ type
 
     procedure ControlMouseMove(Sender: TObject; X,Y: Integer; Shift: TShiftState);
 
-    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
-    procedure ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+    procedure ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 
     property OnClose: TEvent read fOnClose write fOnClose;
 
@@ -2746,16 +2753,16 @@ begin
 end;
 
 
-procedure TKMControl.ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-begin
-  //Let descendants override this method
-end;
-
-
-procedure TKMControl.ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-begin
-  //Let descendants override this method
-end;
+//procedure TKMControl.ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+//begin
+//  //Let descendants override this method
+//end;
+//
+//
+//procedure TKMControl.ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+//begin
+//  //Let descendants override this method
+//end;
 
 
 procedure TKMControl.Enable;  begin SetEnabled(True);  end; //Overrides will be set too
@@ -3065,24 +3072,24 @@ begin
 end;
 
 
-procedure TKMPanel.ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var
-  I: Integer;
-begin
-  inherited;
-  for I := 0 to ChildCount - 1 do
-    Childs[I].ControlMouseDown(Sender, X, Y, Shift, Button);
-end;
-
-
-procedure TKMPanel.ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var
-  I: Integer;
-begin
-  inherited;
-  for I := 0 to ChildCount - 1 do
-    Childs[I].ControlMouseUp(Sender, X, Y, Shift, Button);
-end;
+//procedure TKMPanel.ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+//var
+//  I: Integer;
+//begin
+//  inherited;
+//  for I := 0 to ChildCount - 1 do
+//    Childs[I].ControlMouseDown(Sender, X, Y, Shift, Button);
+//end;
+//
+//
+//procedure TKMPanel.ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+//var
+//  I: Integer;
+//begin
+//  inherited;
+//  for I := 0 to ChildCount - 1 do
+//    Childs[I].ControlMouseUp(Sender, X, Y, Shift, Button);
+//end;
 
 
 procedure TKMPanel.UpdateState(aTickCount: Cardinal);
@@ -3917,7 +3924,9 @@ begin
   BlockInput := False;
   fSelectable := aSelectable;
 
-  //fOnControlMouseDown := ControlMouseDown;
+  // Subscribe to get other controls mouse down events
+  // Descendants of TKMSelectableEdit could add more event handlers
+  aParent.fMasterControl.AddMouseDownCtrlSub(SelEditCtrlMouseDown);
 end;
 
 
@@ -4252,12 +4261,17 @@ begin
 end;
 
 
-procedure TKMSelectableEdit.ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMSelectableEdit.SelEditCtrlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  inherited;
   if (Sender <> Self) then
     ResetSelection;
 end;
+
+
+//function TKMSelectableEdit.GetControlMouseDownProc: TKMMouseUpDownEvent;
+//begin
+//  Result := ControlMouseDown;
+//end;
 
 
 procedure TKMSelectableEdit.FocusChanged(aFocused: Boolean);
@@ -5057,6 +5071,9 @@ begin
   fButtonInc.OnMouseWheel := MouseWheel;
   fButtonDec.OnClickHold := ClickHold;
   fButtonInc.OnClickHold := ClickHold;
+
+  // Subscribe to get other controls mouse down events
+  aParent.fMasterControl.AddMouseDownCtrlSub(NumEdCtrlMouseDown);
 end;
 
 
@@ -5333,9 +5350,8 @@ begin
 end;
 
 
-procedure TKMNumericEdit.ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMNumericEdit.NumEdCtrlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  inherited;
   if (Sender <> Self) then
     CheckValueOnUnfocus;
 end;
@@ -6392,6 +6408,9 @@ begin
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, saVertical, aStyle);
   UpdateScrollBar; //Initialise the scrollbar
   fSelectable := aSelectable;
+
+  // Subscribe to get other controls mouse move events
+  aParent.fMasterControl.AddMouseDownCtrlSub(ControlMouseDown);
 end;
 
 
@@ -6968,7 +6987,6 @@ end;
 
 procedure TKMMemo.ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  inherited;
   // Reset all, if other control was clicked
   if Sender <> Self then
   begin
@@ -8640,6 +8658,12 @@ begin
 
   // Subscribe to get other controls mouse move events
   aParent.fMasterControl.AddMouseMoveCtrlSub(ControlMouseMove);
+
+  // Subscribe to get other controls mouse down events
+  aParent.fMasterControl.AddMouseDownCtrlSub(ControlMouseDown);
+
+    // Subscribe to get other controls mouse up events
+  fMasterControl.AddMouseUpCtrlSub(ControlMouseUp);
 end;
 
 
@@ -8654,8 +8678,6 @@ end;
 
 procedure TKMPopUpPanel.ControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  inherited;
-
   if Sender = ImageBG then
     MouseDown(X, Y, Shift, Button);
 end;
@@ -8671,8 +8693,6 @@ end;
 
 procedure TKMPopUpPanel.ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  inherited;
-
   MouseUp(X, Y, Shift, Button);
 end;
 
@@ -10135,12 +10155,17 @@ begin
   inherited;
 
   fMouseMoveSubsList := TList<TKMMouseMoveEvent>.Create;
+  fMouseDownSubsList := TList<TKMMouseUpDownEvent>.Create;
+  fMouseUpSubsList := TList<TKMMouseUpDownEvent>.Create;
 end;
 
 
 destructor TKMMasterControl.Destroy;
 begin
+  fMouseUpSubsList.Free;
+  fMouseDownSubsList.Free;
   fMouseMoveSubsList.Free;
+
   fMasterPanel.Free; //Will destroy all its childs as well
 
   inherited;
@@ -10151,7 +10176,23 @@ procedure TKMMasterControl.AddMouseMoveCtrlSub(const aMouseMoveEvent: TKMMouseMo
 begin
   if Self = nil then Exit;
 
-  fMouseMoveSubsList.Add(aMouseMoveEvent)
+  fMouseMoveSubsList.Add(aMouseMoveEvent);
+end;
+
+
+procedure TKMMasterControl.AddMouseDownCtrlSub(const aMouseDownEvent: TKMMouseUpDownEvent);
+begin
+  if Self = nil then Exit;
+
+  fMouseDownSubsList.Add(aMouseDownEvent);
+end;
+
+
+procedure TKMMasterControl.AddMouseUpCtrlSub(const aMouseUpEvent: TKMMouseUpDownEvent);
+begin
+  if Self = nil then Exit;
+
+  fMouseUpSubsList.Add(aMouseUpEvent);
 end;
 
 
@@ -10417,11 +10458,19 @@ end;
 
 
 procedure TKMMasterControl.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var
+  I: Integer;
 begin
   if Self = nil then Exit;
 
   CtrlDown := HitControl(X,Y);
-  fMasterPanel.ControlMouseDown(CtrlDown, X, Y, Shift, Button);
+
+  // Notify all ControlMouseDown subscribers
+  for I := 0 to fMouseDownSubsList.Count - 1 do
+    if Assigned(fMouseDownSubsList[I]) then
+      fMouseDownSubsList[I](CtrlDown, X, Y, Shift, Button);
+//  fMasterPanel.ControlMouseDown(CtrlDown, X, Y, Shift, Button);
+
   if CtrlDown <> nil then
     CtrlDown.MouseDown(X, Y, Shift, Button);
 end;
@@ -10466,6 +10515,8 @@ end;
 
 
 procedure TKMMasterControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var
+  I: Integer;
 begin
   CtrlUp := HitControl(X,Y);
 
@@ -10479,7 +10530,14 @@ begin
   else
     fCtrlDown := nil;
 
-  fMasterPanel.ControlMouseUp(CtrlUp, X, Y, Shift, Button); // Must be invoked before CtrlUp.MouseUp to avoid problems on game Exit
+
+  // Notify all ControlMouseUp subscribers
+  for I := 0 to fMouseUpSubsList.Count - 1 do
+    if Assigned(fMouseUpSubsList[I]) then
+      fMouseUpSubsList[I](CtrlUp, X, Y, Shift, Button);
+
+//  fMasterPanel.ControlMouseUp(CtrlUp, X, Y, Shift, Button); // Must be invoked before CtrlUp.MouseUp to avoid problems on game Exit
+
   if CtrlUp <> nil then
     CtrlUp.MouseUp(X, Y, Shift, Button);
 

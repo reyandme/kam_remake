@@ -956,7 +956,7 @@ begin
   if Self = nil then Exit('nil');
 
   Result := inherited ObjToStringShort(aSeparator) +
-            Format('%sWarriorOrder = %s%sNextOrder = %s%sNextOrderForced = %s%sOrderLoc = %s%s' +
+            Format('%sWOrder = %s%sNextOrder = %s%sNextOrderForced = %s%sOrderLoc = %s%s' +
                    'HasOTargetU = [%s]%sHasOTargetH = [%s]',
                    [aSeparator,
                     GetEnumName(TypeInfo(TKMWarriorOrder), Integer(fOrder)), aSeparator,

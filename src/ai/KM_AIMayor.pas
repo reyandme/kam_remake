@@ -531,6 +531,10 @@ begin
   //Place house before road, so that road is made around it
   P.AddHousePlan(aHouse, Loc);
 
+  // Script could delete house plan we placed, so check if we actually added it
+  if not P.HasHousePlan(Loc) then
+    Exit(False);
+
   //Try to connect newly planned house to road network
   //if it is not possible - scrap the plan
   if not TryConnectToRoad(KMPointBelow(Loc)) then
@@ -706,11 +710,7 @@ var
     Result := Max(1, Result);
   end;
 
-const
-  MAX_TRIES = 10; //We could get into infinite loop on some scripted maps, f.e. Furrioir Warriors
-
 var
-  K: Integer;
   H: TKMHouseType;
 begin
   P := gHands[fOwner];
@@ -732,10 +732,8 @@ begin
     while (fDefenceTowers.Count > 0) and (P.Stats.GetHouseWip(htAny) < MaxPlansForTowers) do
       TryBuildDefenceTower;
 
-  K := 0;
-  while (P.Stats.GetHouseWip(htAny) < GetMaxPlans) and (K < Max(GetMaxPlans, MAX_TRIES)) do
+  while P.Stats.GetHouseWip(htAny) < GetMaxPlans do
   begin
-    Inc(K);
     H := fBalance.Peek;
 
     //There are no more suggestions

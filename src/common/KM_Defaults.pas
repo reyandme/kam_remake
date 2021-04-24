@@ -153,7 +153,7 @@ var
 
   OVERLAY_RESOLUTIONS     :Boolean = False; //Render constraining frame
   LOCAL_SERVER_LIST       :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
-  SHOW_LOGS_IN_CHAT       :Boolean = False; //Show log messages in MP game chat
+  SHOW_LOG_IN_CHAT        :Boolean = False; //Show log messages in MP game chat
   LOG_GAME_TICK           :Boolean = False; //Log game tick
   SAVE_RANDOM_CHECKS      :Boolean = True; //Save random checks data to separate file
   MAPED_SHOW_CONDITION_UNIT_BTNS: Boolean = True; //Show condition Inc/Dec buttons for citizen units in MapEd
@@ -238,6 +238,8 @@ var
   DO_PERF_LOGGING         :Boolean = False; //Write each ticks time to log (DEPRECATED PERF_LOGGER)
   MP_RESULTS_IN_SP        :Boolean = False; //Display each players stats in SP
   SHOW_DEBUG_OVERLAY_BEVEL:Boolean = True;  //Show debug text overlay Bevel (for better text readability)
+  SHOW_LOG_IN_GUI         :Boolean = False; //Show log in GUI
+  UPDATE_LOG_FOR_GUI      :Boolean = False; //Update log to be shown in GUI
   DEBUG_TEXT_FONT_ID      :Integer = 7;     //Debug font ID (7 is fntMonospaced)
 
   {Gameplay}

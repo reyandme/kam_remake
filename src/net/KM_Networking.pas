@@ -282,7 +282,7 @@ begin
   fMutedPlayersList := TList<Integer>.Create;
   fFileSenderManager.OnTransferCompleted := TransferOnCompleted;
   fFileSenderManager.OnTransferPacket := TransferOnPacket;
-  gLog.OnLogMessage := PostLogMessageToChat;
+  gLog.AddOnLogEventSub(PostLogMessageToChat);
   fVoteReturnToLobbySucceeded := False;
 
   gNetworking := Self;
@@ -291,6 +291,7 @@ end;
 
 destructor TKMNetworking.Destroy;
 begin
+  gLog.RemoveOnLogEventSub(PostLogMessageToChat);
   fNetPlayers.Free;
   fNetServer.Free;
   fNetClient.Free;
@@ -1593,7 +1594,9 @@ end;
 
 procedure TKMNetworking.PostLogMessageToChat(const aLogMessage: UnicodeString);
 begin
-  if SHOW_LOGS_IN_CHAT then
+  if Self = nil then Exit;
+
+  if SHOW_LOG_IN_CHAT then
     PostLocalMessage(DeleteDoubleSpaces(aLogMessage), csNone);
 end;
 

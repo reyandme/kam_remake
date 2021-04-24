@@ -137,6 +137,7 @@ type
     gicpt_AnsiStr1,
     gicpt_Ansi1Int2,
     gicpt_Ansi1Int3,
+    // gicpt_Ansi1Int4, // does not work atm, since we limited pack size to 12 bytes atm (GIC_PACKED_DATA_SIZE)
     gicpt_Float,
     gicpt_UniStr1,
     gicpt_Ansi1Uni4,
@@ -1033,7 +1034,7 @@ begin
                                     gHands[IntParams[0]].AI.Defeat(False);
                                   end;
       gicGamePlayerAllianceSet:   gHands[IntParams[0]].Alliances[IntParams[1]] := TKMAllianceType(IntParams[2]);
-      gicGamePlayerAddDefGoals:     gHands[IntParams[0]].AI.AddDefaultGoals(IntToBool(IntParams[1]));
+      gicGamePlayerAddDefGoals:   gHands[IntParams[0]].AI.AddDefaultGoals(IntToBool(IntParams[1]));
       gicScriptConsoleCommand:    gScriptEvents.CallConsoleCommand(HandIndex, AnsiStrParam, UnicodeStrParams);
       gicScriptSoundRemoveRq:     gGame.AddScriptSoundRemoveRequest(IntParams[0], HandIndex);
       else                        raise Exception.Create('Unexpected gic command');

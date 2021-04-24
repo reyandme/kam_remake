@@ -19,7 +19,7 @@ type
     fTicker: Cardinal;
     fTargetFollowTicker: Cardinal;
     fMembers: TList<TKMUnitWarrior>;
-    fOffenders: TList<TKMUnitWarrior>;
+    fOffenders: TList<TKMUnitWarrior>; // enemy troops, which melee units are going to help with and which will be attacked first by ranged units
     fSelected: TKMUnitWarrior; //Unit selected by player in GUI. Should not be saved or affect game logic for MP consistency.
     fUnitsPerRow: Word;
     fTimeSinceHungryReminder: Integer;
@@ -794,9 +794,13 @@ end;
 //This only works for melee offenders(?)
 procedure TKMUnitGroup.Member_PickedFight(aMember: TKMUnitWarrior; aEnemy: TKMUnit);
 begin
-  if (aEnemy is TKMUnitWarrior) then
-    if not fOffenders.Contains(TKMUnitWarrior(aEnemy)) then
-      fOffenders.Add(TKMUnitWarrior(aEnemy).GetPointer);
+  // Add offender only if its a werrior and we did not have it in the list yet
+  // there is no much harm in duplicate offenders,
+  // but in some cases it could mean, that this offender will be attacked more frequently
+  // because of KaMRandom(Length(fOffenders)) code
+  if (aEnemy is TKMUnitWarrior)
+    and not fOffenders.Contains(TKMUnitWarrior(aEnemy)) then
+    fOffenders.Add(TKMUnitWarrior(aEnemy).GetPointer);
 end;
 
 
@@ -2076,10 +2080,11 @@ begin
   if Self = nil then Exit('nil');
 
   Result := inherited ObjToStringShort(aSeparator) +
-            Format('%sType = %s%sMembersCnt = %d',
+            Format('%sType = %s%sMembersCnt = %d%sOffendersCnt = %d',
                    [aSeparator,
                     GetEnumName(TypeInfo(TKMGroupType), Integer(fGroupType)), aSeparator,
-                    Count]);
+                    fMembers.Count, aSeparator,
+                    fOffenders.Count]);
 end;
 
 
@@ -2109,9 +2114,9 @@ begin
 
 
   Result := inherited ObjToString(aSeparator) +
-            Format('%sUnitsPerRow = %d%sGroupOrder = %s%sOrderLoc = %s%s' +
-                   'OTargetU = [%s]%sOTargetG = [%s]%sOTargetH = [%s]%sPushbackCmdCnt = [%d]%s' +
-                   'OffendersCnt = %d%sOffenders = [%s]',
+            Format('%sUnitsPerRow = %d%sGOrder = %s%sOrderLoc = %s%s' +
+                   'OTargetU = [%s]%sOTargetG = [%s]%sOTargetH = [%s]%sPushbackCmdCnt = %d%s' +
+                   'Offenders = [%s]',
                    [aSeparator,
                     fUnitsPerRow, aSeparator,
                     GetEnumName(TypeInfo(TKMGroupOrder), Integer(fOrder)), aSeparator,
@@ -2120,7 +2125,6 @@ begin
                     targetGroupStr, aSeparator,
                     targetHouseStr, aSeparator,
                     fMembersPushbackCommandsCnt, aSeparator,
-                    fOffenders.Count, aSeparator,
                     offendersStr]);
 end;
 
