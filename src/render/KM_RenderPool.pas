@@ -1770,13 +1770,13 @@ begin
       else
         groupFlagColor := aFlagColor;
 
-      if G.IsFlagRenderBeforeUnit then
+      if G.IsFlagRenderBeforeUnit(U.Direction) then
       begin
-        G.PaintHighlighted(aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
+        G.PaintHighlighted(0.0, aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
         RenderUnit(U, U.Position, aHandColor, aDoHighlight, aHighlightColor);
       end else begin
         RenderUnit(U, U.Position, aHandColor, aDoHighlight, aHighlightColor);
-        G.PaintHighlighted(aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
+        G.PaintHighlighted(0.0, aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
       end;
       Result := True;
     end;

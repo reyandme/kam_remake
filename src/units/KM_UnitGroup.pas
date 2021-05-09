@@ -61,7 +61,6 @@ type
     procedure ClearOffenders;
     procedure HungarianReorderMembers;
 
-    function GetFlagPositionF: TKMPointF;
     function GetFlagColor: Cardinal;
 
     procedure SetGroupOrder(aOrder: TKMGroupOrder);
@@ -146,9 +145,8 @@ type
     property DisableHungerMessage: Boolean read fDisableHungerMessage write fDisableHungerMessage;
     property BlockOrders: Boolean read fBlockOrders write fBlockOrders;
     property ManualFormation: Boolean read fManualFormation write fManualFormation;
-    property FlagPositionF: TKMPointF read GetFlagPositionF;
     property FlagColor: Cardinal read GetFlagColor;
-    function IsFlagRenderBeforeUnit: Boolean;
+    class function IsFlagRenderBeforeUnit(aDir: TKMDirection): Boolean; static;
 
     property OrderLoc: TKMPointDir read fOrderLoc;
     property OrderTargetUnit: TKMUnit read GetOrderTargetUnit write SetOrderTargetUnit;
@@ -183,8 +181,8 @@ type
     function ObjToString(const aSeparator: String = '|'): String; override;
 
     procedure UpdateState;
-    procedure PaintHighlighted(aHandColor, aFlagColor: Cardinal; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: Cardinal = 0);
-    procedure Paint;
+    procedure PaintHighlighted(aTickLag: Single; aHandColor, aFlagColor: Cardinal; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: Cardinal = 0);
+    procedure Paint(aTickLag: Single);
 
     class function GetDefaultCondition: Integer;
   end;
@@ -228,7 +226,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
-    procedure Paint(const aRect: TKMRect);
+    procedure Paint(const aRect: TKMRect; aTickLag: Single);
   end;
 
 
@@ -239,7 +237,7 @@ uses
   KM_Hungarian, KM_UnitActionWalkTo, KM_ResUnits, KM_ScriptingEvents,
   KM_UnitActionStormAttack, KM_CommonClassesExt, KM_RenderAux,
   KM_GameTypes, KM_Log, KM_DevPerfLog, KM_DevPerfLogTypes,
-  KM_HandTypes;
+  KM_HandTypes, KM_UnitVisual;
 
 
 const
@@ -1917,21 +1915,9 @@ begin
 end;
 
 
-function TKMUnitGroup.IsFlagRenderBeforeUnit: Boolean;
+class function TKMUnitGroup.IsFlagRenderBeforeUnit(aDir: TKMDirection): Boolean;
 begin
-  Result := FlagBearer.Direction in [dirSE, dirS, dirSW, dirW];
-end;
-
-
-function TKMUnitGroup.GetFlagPositionF: TKMPointF;
-begin
-  Result.X := FlagBearer.PositionF.X + UNIT_OFF_X + FlagBearer.GetSlide(axX);
-  Result.Y := FlagBearer.PositionF.Y + UNIT_OFF_Y + FlagBearer.GetSlide(axY);
-  //Flag needs to be rendered above or below unit depending on direction (see AddUnitFlag)
-  if IsFlagRenderBeforeUnit then
-    Result.Y := Result.Y - FLAG_X_OFFSET
-  else
-    Result.Y := Result.Y + FLAG_X_OFFSET;
+  Result := aDir in [dirSE, dirS, dirSW, dirW];
 end;
 
 
@@ -2182,16 +2168,29 @@ begin
 end;
 
 
-procedure TKMUnitGroup.Paint;
+procedure TKMUnitGroup.Paint(aTickLag: Single);
 begin
-  PaintHighlighted(gHands[FlagBearer.Owner].GameFlagColor, FlagColor);
+  PaintHighlighted(aTickLag, gHands[FlagBearer.Owner].GameFlagColor, FlagColor);
 end;
 
 
-procedure TKMUnitGroup.PaintHighlighted(aHandColor, aFlagColor: Cardinal; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: Cardinal = 0);
+procedure TKMUnitGroup.PaintHighlighted(aTickLag: Single; aHandColor, aFlagColor: Cardinal; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: Cardinal = 0);
+
+  function GetFlagPositionF(const V: TKMUnitVisualState): TKMPointF;
+  begin
+    Result.X := V.PosF.X + UNIT_OFF_X + V.SlideX;
+    Result.Y := V.PosF.Y + UNIT_OFF_Y + V.SlideY;
+    //Flag needs to be rendered above or below unit depending on direction (see AddUnitFlag)
+    if IsFlagRenderBeforeUnit(V.Dir) then
+      Result.Y := Result.Y - FLAG_X_OFFSET
+    else
+      Result.Y := Result.Y + FLAG_X_OFFSET;
+  end;
+
 var
+  V: TKMUnitVisualState;
+  UnitPos, FlagPos: TKMPointF;
   I: Integer;
-  unitPos: TKMPointF;
   flagStep: Cardinal;
   newPos: TKMPoint;
   doesFit: Boolean;
@@ -2214,9 +2213,11 @@ begin
     gRenderPool.AddUnit(FlagBearer.UnitType, 0, uaWalk, fOrderLoc.Dir, UNIT_STILL_FRAMES[fOrderLoc.Dir], unitPos.X, unitPos.Y, aHandColor, True, aDoImmediateRender, aDoHighlight, aHighlightColor);
   end;
 
+  V := FlagBearer.Visual.GetLerp(aTickLag);
   // We need to render Flag after MapEd virtual members
-  gRenderPool.AddUnitFlag(FlagBearer.UnitType, FlagBearer.Action.ActionType,
-    FlagBearer.Direction, flagStep, FlagPositionF.X, FlagPositionF.Y, aFlagColor, aDoImmediateRender);
+  FlagPos := GetFlagPositionF(V);
+  gRenderPool.AddUnitFlag(FlagBearer.UnitType, V.Action,
+    V.Dir, FlagStep, FlagPos.X, FlagPos.Y, aFlagColor, aDoImmediateRender);
 
   if SHOW_GROUP_MEMBERS_POS and not gGameParams.IsMapEditor then
     for I := 0 to Count - 1 do
@@ -2551,7 +2552,7 @@ begin
 end;
 
 
-procedure TKMUnitGroups.Paint(const aRect: TKMRect);
+procedure TKMUnitGroups.Paint(const aRect: TKMRect; aTickLag: Single);
 const
   MARGIN = 2;
 var
@@ -2563,7 +2564,7 @@ begin
 
   for I := 0 to Count - 1 do
   if not Groups[I].IsDead and KMInRect(Groups[I].fMembers[0].PositionF, growRect) then
-    Groups[I].Paint;
+    Groups[I].Paint(aTickLag);
 end;
 
 

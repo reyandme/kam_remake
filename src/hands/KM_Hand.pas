@@ -2170,7 +2170,7 @@ begin
   inherited;
 
   if mlUnits in gGameParams.VisibleLayers then
-    fUnitGroups.Paint(aRect);
+    fUnitGroups.Paint(aRect, aTickLag);
 
   if mlHouses in gGameParams.VisibleLayers then
     fHouses.Paint(aRect);

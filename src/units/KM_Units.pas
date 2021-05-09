@@ -203,6 +203,7 @@ type
     function  GetActionText: UnicodeString;
     property  Condition: Integer read fCondition write SetCondition;
     property  StartWDefaultCondition: Boolean read fStartWDefaultCondition write fStartWDefaultCondition;
+    property  Visual: TKMUnitVisual read fVisual;
 
     procedure OwnerUpdate(aOwner: TKMHandID; aMoveToNewOwner: Boolean = False);
     procedure HitPointsChangeFromScript(aAmount: Integer);
