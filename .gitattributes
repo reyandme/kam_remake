@@ -61,7 +61,6 @@
 *.bbm binary
 *.fnt binary
 *.fntx binary
-*.* binary
 
 
 # Force the following filetypes to have unix eols, so Windows does not break them
