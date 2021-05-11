@@ -1,0 +1,86 @@
+{$I Language.script}
+
+ var Tyrio,n1:Integer;
+{$I Statek.script}
+
+Procedure OnMarketTrade(aMarket: Integer; aFrom: Integer;  aTo: Integer);
+begin
+if (States.HouseOwner(aMarket) = 0) and (aFrom = 27) and not (aTo = 1) then
+	Actions.GiveWares(0,aFrom,1);
+end;
+
+Procedure OnHouseDestroyed(aHouse: Integer; aDestroyerIndex: Integer);
+begin
+if (aDestroyerIndex = 0) and (States.HouseOwner(aHouse) > 0) then
+	Actions.GiveWares(aDestroyerIndex,1,1);
+	Actions.GiveWares(aDestroyerIndex,2,1);
+end;
+
+ procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 1 to 3 do begin
+           UnitsToFeed := States.PlayerGetAllGroups(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end;
+	   
+Procedure OnBeacon(Player:Integer; X,Y:Word);
+begin
+	IF (X = States.UnitPositionX(Tyrio))and(Y = States.UnitPositionY(Tyrio)) then n1:=n1+1;
+	If n1 = 8 then Actions.PlayerWin([0],true);
+end;
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		Tyrio := States.UnitAt(24,29)
+	end;
+	if States.GameTime = 100 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []); end;
+	if States.GameTime = 300 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime MOD 600 = 0 then Actions.GiveAnimal(31,149,47);
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+	if States.UnitDead(Tyrio) then
+		Actions.PlayerDefeat(0);
+end;
+
+procedure OnMissionStart();
+var dMod:byte;
+	Count:Array of Integer;
+begin
+	Count:= [2,2,3,4,5,6,7]
+	dMod:= byte(States.MissionDifficulty)-1
+	if (CampaignData.HKS11.HorseCount=0) or (CampaignData.HKS11.HorseCount/Count[dMod]< 5) then begin Actions.GiveGroup(0,22,38,28,2,16,8); Actions.GiveGroup(0,22,36,47,2,16,8); end;
+	if (CampaignData.HKS11.HorseCount>0) then begin Actions.GiveGroup(0,22,38,28,2,CampaignData.HKS11.HorseCount/Count[dMod],8); Actions.GiveGroup(0,22,36,47,2,CampaignData.HKS11.HorseCount/Count[dMod],8); end;
+end;
+
+
+procedure OnPlayerVictory(aIndex: Integer);
+var
+	aGroup: array of Integer;
+	GROUPSL: Integer;
+begin
+	aGroup:= States.PlayerGetAllGroups(0)
+	SetLength(CampaignData.HKS12.Groups, Length(aGroup));
+	For GROUPSL := 0 to Length(aGroup)-1 do begin
+		If aGroup[GROUPSL] = States.UnitsGroup(Tyrio) then begin
+			CampaignData.HKS12.Groups[GROUPSL][0] := 0;
+			CampaignData.HKS12.Groups[GROUPSL][1] := 0;
+		end else begin
+			CampaignData.HKS12.Groups[GROUPSL][0] := States.UnitType(States.GroupMember(aGroup[GROUPSL],0));
+			CampaignData.HKS12.Groups[GROUPSL][1] := States.GroupMemberCount(aGroup[GROUPSL]);
+		end;
+	end;
+end;
+
+
+
+

@@ -1,0 +1,599 @@
+{$I difficulty.script}
+{$I Trade.script}
+var Alfa,Beta,k,i,D,j,Store,bohater,bohater01,bohater02,bohater03,T,Time,BramaT,BramaO,n1:Integer;
+	Count1:array of Integer;
+	Pikes:array[0..1] of array of integer;
+	Mode1:byte;
+	
+{$I Language.script}
+Procedure OnMarketTrade(aMarket: Integer; aFrom: Integer;  aTo: Integer);
+begin
+if (States.HouseOwner(aMarket) = 2) and (aFrom = 27) and not (aTo = 1) then
+	Actions.GiveWares(2,aFrom,1);
+end;
+
+procedure Bomb(Mode, X, Y: Integer); //makes "bombs" (rogues/barbs) explode - when they are hit by someone, they kill themselves and everyone in specified range
+var ki, pi: Integer;
+begin
+  case Mode of
+  0: begin
+    for ki := 0 to 2 do //rogue bomb - bombs only enemy targets in small range
+      for pi := 0 to 2 do
+	if (States.GroupAt(X-1+ki, Y-1+pi) <> -1) and (States.GroupOwner(States.GroupAt(X-1+ki, Y-1+pi) ) > 3) then 
+	begin
+	  Actions.UnitKill(States.UnitAt(X-1+ki, Y-1+pi), False);
+	end;
+  end;
+  1: begin
+    for ki := 0 to 7 do
+    for pi := 0 to 8 do
+	if (States.UnitAt(X-4+ki, Y-4+pi) <> -1) and (States.UnitOwner(States.UnitAt(X-4+ki, Y-4+pi) ) > 3)then begin
+	  Actions.UnitKill(States.UnitAt(X-4+ki, Y-4+pi), False);
+	end;
+	end;
+end;
+end;
+procedure Attack(mode:Integer);
+begin 
+	case mode of
+		0: begin
+			Actions.GiveGroup (9, 20, 10, 55, 4, i, 8)
+			Actions.GiveGroup (9, 20, 245, 171, 4, i, 8)
+			Actions.GiveGroup (9, 20, 6, 249, 2, i, 8)
+			i := i+4	
+		end;
+		1: begin
+			Actions.GiveGroup (9, 20, 10, 155, 5, i, 8)
+			Actions.GiveGroup (9, 20, 102, 215, 7, i, 8)
+			Actions.GiveGroup (9, 20, 139, 192, 5, i, 8)	
+			i := i+4
+		end;
+		2: begin
+			Actions.GiveGroup (9, 20, 131, 223, 6, i, 8)
+			Actions.GiveGroup (9, 20, 250, 236, 6, i, 8)
+			Actions.GiveGroup (9, 20, 46, 175, 5, i, 8)	
+			Actions.GiveGroup (9, 20, 6, 249, 2, i, 8)	
+			i := i+2
+		end;
+	end;
+end;
+Procedure OnHousePlanPlaced(aPlayer: Integer; X: Integer; Y: Integer; aType: Integer);
+begin
+	if (aPlayer = 0) and (States.HouseRepair(Store)) then begin
+		Actions.PlanConnectRoad(0,X,Y+1,States.HousePositionX(States.ClosestHouse(0,X,Y,11)),States.HousePositionY(States.ClosestHouse(0,X,Y,11))+1,false);
+	end;
+end;
+Procedure OnPlanFieldPlaced(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+if (aPlayer = 0) then begin
+	for a := 0to 1 do
+	for b := 0to 1 do
+	Actions.PlanAddField(0,X+a,Y+b);
+end;
+end;
+Procedure OnPlanWinefieldPlaced(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+if (aPlayer = 0) then begin
+	for a := 0to 1 do
+	for b := 0to 1 do
+	Actions.PlanAddWinefield(0,X+a,Y+b);
+end;
+end;
+
+Procedure OnPlanRoadPlaced(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+	if (aPlayer = 0) and (States.HouseRepair(Store)) then begin
+	for a := 0to 1 do
+	for b := 0to 1 do
+	Actions.PlanAddRoad(0,X+a,Y+b);
+end;
+end;
+Procedure OnPlanRoadRemoved(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+if (aPlayer = 0) then begin
+	for a := 0to 1 do
+	for b := 0to 1 do
+	Actions.PlanRemove(0,X+a,Y+b);
+end;
+end;
+Procedure OnHouseDestroyed(aHouse: Integer; aDestroyerIndex: Integer);
+begin
+if (aDestroyerIndex = 2) and (States.HouseOwner(aHouse) > 3) then
+	Actions.GiveWares(aDestroyerIndex,1,1);
+	Actions.GiveWares(aDestroyerIndex,2,1);
+end;
+
+procedure OnUnitWounded(UnitID: Integer; UnitKiller: Integer);
+var LEA:Integer;
+begin
+	If States.UnitOwner(UnitID) = 3 then begin
+		If (States.UnitType(UnitID)=20) and not (U.ArrayHasElementI(UnitID,Pikes[0])) then begin
+			If D=50 then D:=0;
+			SetLength(Pikes[0],D+1);
+			SetLength(Pikes[1],D+1);
+			Pikes[0][D]:=UnitID;
+			Pikes[1][D]:=1;
+			D:=D+1;
+		end;	
+		If (U.ArrayHasElementI(UnitID,Pikes[0])) then begin
+			for LEA:= 0 to length(Pikes[0])-1 do begin
+				If Pikes[0][LEA]>0 then begin	
+					If Pikes[1][LEA]>=4 then begin
+						Actions.UnitHPSetInvulnerable(UnitID,false);
+						If Pikes[1][LEA]=6 then Pikes[1][LEA]:=0;
+					end;
+					If (Pikes[1][LEA]<4)and(Pikes[1][LEA]>0) then begin
+						Pikes[1][LEA] := Pikes[1][LEA]+1;
+						If (States.UnitType(UnitKiller) = 13) then Actions.UnitKill(UnitID,false);
+						Actions.UnitHPSetInvulnerable(UnitID,true);
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+
+procedure Brama;
+var i,l : Integer;
+begin
+for i := 111 to 116 do
+for l := 177 to 180 do
+	Actions.MapTileSet(i,l,35,2);
+	Actions.MapTileSet(111,177,187,1);
+	Actions.MapTileSet(115,177,187,2);
+	Actions.MapTileSet(109,171,187,3);
+	Actions.MapTileSet(114,173,187,0);
+	Actions.MapTileSet(116,178,187,1);
+	Actions.MapTileSet(116,178,187,2);
+	Actions.MapTileSet(110,174,187,3);
+	Actions.MapTileSet(113,179,187,0);
+	Actions.MapTileSet(110,177,191,1);
+	Actions.MapTileSet(114,177,191,2);
+	Actions.MapTileSet(111,171,191,2);
+	Actions.MapTileSet(116,172,191,2);
+	Actions.MapTileSet(116,177,191,2);
+	Actions.MapTileSet(112,176,167,0);
+	Actions.MapTileSet(118,175,167,0);
+	Actions.MapTileSet(113,177,167,1);
+	Actions.MapTileSet(109,175,167,1);
+	Actions.MapTileSet(111,176,167,2);
+	Actions.MapTileSet(112,175,167,2);
+	Actions.MapTileSet(115,176,167,2);
+	Actions.MapTileObjectSet(i,l,255);
+	for i :=111 to 117 do
+	Actions.MapTileHeightSet(i,179,30);
+end;
+procedure BramaEnemy(Mode:Integer);
+var i,l : Integer;
+begin
+	Case Mode of
+		0: begin
+			for i := 109 to 118 do
+			for l := 175 to 179 do begin
+				Actions.MapTileSet(i,l,35,0)
+			end;
+			for l := 0 to 9 do begin
+				Actions.MapTileSet(109+l,179,206,0)
+				Actions.MapTileSet(109+l,178,206,2)
+			end;
+		end;
+		1: begin
+			for i := 109 to 118 do
+			for l := 175 to 179 do begin
+				Actions.MapTileSet(i,l,35,0)
+			end;
+			for l := 0 to 1 do begin
+				Actions.MapTileSet(109+l,179,206,0)
+				Actions.MapTileSet(117+l,179,206,0)
+				Actions.MapTileSet(111+l,177,206,2)
+				Actions.MapTileSet(115+l,177,206,2)
+				Actions.MapTileSet(109,178,206,2)
+				Actions.MapTileSet(118,178,206,2)
+				Actions.MapTileSet(112,178,206,0)
+				Actions.MapTileSet(115,178,206,0)
+				Actions.MapTileSet(116,179,202,0)
+				Actions.MapTileSet(117,178,202,0)
+				Actions.MapTileSet(116,178,202,2)
+				Actions.MapTileSet(117,177,202,2)
+				Actions.MapTileSet(110,177,202,1)
+				Actions.MapTileSet(111,178,202,1)
+				Actions.MapTileSet(110,178,202,3)
+				Actions.MapTileSet(111,179,202,3)
+			end;
+		end;
+		2: begin
+			for i := 109 to 118 do
+			for l := 175 to 179 do begin
+				Actions.MapTileSet(i,l,35,0)
+			end;
+			for l := 0 to 1 do begin
+				Actions.MapTileSet(109+l,179,206,0)
+				Actions.MapTileSet(117+l,179,206,0)
+				Actions.MapTileSet(111+l,177,206,2)
+				Actions.MapTileSet(115+l,177,206,2)
+				Actions.MapTileSet(109,178,206,2)
+				Actions.MapTileSet(118,178,206,2)
+				Actions.MapTileSet(112,178,206,0)
+				Actions.MapTileSet(115,178,206,0)
+				Actions.MapTileSet(116,179,202,0)
+				Actions.MapTileSet(117,178,202,0)
+				Actions.MapTileSet(116,178,202,2)
+				Actions.MapTileSet(117,177,202,2)
+				Actions.MapTileSet(110,177,202,1)
+				Actions.MapTileSet(111,178,202,1)
+				Actions.MapTileSet(110,178,202,3)
+				Actions.MapTileSet(111,179,202,3)
+			end;
+		end;
+		3: begin
+			for i := 109 to 118 do
+			for l := 175 to 179 do begin
+				Actions.MapTileSet(i,l,35,0)
+			end;
+			for l := 0 to 2 do begin
+				Actions.MapTileSet(110+l,179-l,202,3)
+				Actions.MapTileSet(117-l,179-l,202,0)
+				Actions.MapTileSet(109+l,178-l,202,1)
+				Actions.MapTileSet(118-l,178-l,202,2)
+				Actions.MapTileSet(109,179,206,0)
+				Actions.MapTileSet(118,179,206,0)
+				Actions.MapTileSet(110,178,206,1)
+				Actions.MapTileSet(111,177,206,1)
+				Actions.MapTileSet(117,178,206,3)
+				Actions.MapTileSet(116,177,206,3)
+			end;
+		end;
+		4: begin
+			for i := 109 to 118 do
+			for l := 175 to 179 do begin
+				Actions.MapTileSet(i,l,35,0)
+			end;
+			for l := 0 to 1 do begin
+				Actions.MapTileSet(117-l,179-l,202,0)
+				Actions.MapTileSet(118-l,178-l,202,0)
+				Actions.MapTileSet(110+l,179-l,202,3)
+				Actions.MapTileSet(109+l,178-l,202,3)
+				Actions.MapTileSet(109+l,177+l,202,1)
+				Actions.MapTileSet(118-l,177+l,202,2)
+				Actions.MapTileSet(110,175+l,206,1)
+				Actions.MapTileSet(117,175+l,206,3)
+			end;
+			for l := 0 to 2 do begin
+				Actions.MapTileSet(111,175+l,206,3)
+				Actions.MapTileSet(116,175+l,206,1)
+				Actions.MapTileSet(109,179,206,0)
+				Actions.MapTileSet(118,179,206,0)
+			end;
+		end;
+		5: begin
+			for i := 109 to 118 do
+			for l := 175 to 179 do begin
+				Actions.MapTileSet(i,l,35,0)
+			end;
+			for l := 0 to 3 do begin
+				Actions.MapTileSet(110,175+l,206,3)
+				Actions.MapTileSet(117,175+l,206,1)
+			end;
+			for l := 0 to 2 do begin
+				Actions.MapTileSet(118,175+l,206,3)
+				Actions.MapTileSet(109,175+l,206,1)
+				Actions.MapTileSet(117,179,202,0)
+				Actions.MapTileSet(118,178,202,0)
+				Actions.MapTileSet(109,178,202,3)
+				Actions.MapTileSet(110,179,202,3)
+				Actions.MapTileSet(109,179,206,0)
+				Actions.MapTileSet(118,179,206,0)
+			end;
+		end;
+	end;
+end; 
+  procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 1 to 11 do begin
+           UnitsToFeed := States.PlayerGetAllGroups(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end;
+procedure AutoFeed0;
+var K: Integer;
+	UnitID: array of Integer;
+	begin
+		UnitID := States.PlayerGetAllUnits(0);
+        for K := 0 to length(UnitID) - 13 do begin
+        Actions.UnitHungerSet(UnitID[K], States.UnitMaxHunger);
+    end; 
+end; 
+  procedure AutoFeed12;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 5 to 5 do begin
+           UnitsToFeed := States.PlayerGetAllUnits(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end;
+	   
+procedure Kamien;
+var X,Y:Integer;
+begin
+	for X:= 112 to 164 do
+	for Y:= 43 to 60 do begin
+		If (States.MapTileType(X,Y) = 128) or (States.MapTileType(X,Y) = 133) or(States.MapTileType(X,Y) = 195) then	
+			Actions.MapTileSet(X,Y,132,0)
+	end;
+end;
+procedure OnHouseDamaged(HouseID: Integer; AttackerID: Integer);
+begin
+	IF (States.GameTime > T) and (AttackerID = k) and (Alfa=0) then begin 
+		Actions.HouseAddDamage(HouseID,100);
+		Alfa := 1
+		Beta := States.GameTime
+	end;
+end;
+procedure OnUnitAttacked(UnitID: Integer; UnitKiller: Integer);
+begin
+  if (States.UnitType(UnitKiller) = 26) and (UnitKiller = k) and (States.UnitOwner(UnitID)>3) then
+    Bomb(0, States.UnitPositionX(UnitKiller), States.UnitPositionY(UnitKiller) );
+  if (UnitKiller = k) and (States.GameTime mod 5 = 0) then 
+    Bomb(1, States.UnitPositionX(UnitKiller), States.UnitPositionY(UnitKiller) );
+end;
+
+procedure OnWarriorEquipped(aUnitID: Integer; aGroupID: Integer);
+begin
+	If (States.UnitOwner(aUnitID) = 1) and(States.UnitType(aUnitID) = 16) then If States.KamRandomI(10)<5 then Actions.GiveGroup(1,26,States.UnitPositionX(aUnitID),States.UnitPositionY(aUnitID)+1,4,1,1);
+end;
+Procedure OnBeacon(Player:Integer; X,Y:Word);
+begin
+	IF (X = States.UnitPositionX(States.GroupMember(bohater,0)))and(Y = States.UnitPositionY(States.GroupMember(bohater,0))) then n1:=n1+1;
+	If n1 = 8 then Actions.PlayerWin([0],true);
+end;
+procedure OnTick;
+var l,G,H,X,Y,HType:Integer;
+	J : array of integer;
+begin
+	If States.GameTime mod 10=0 then begin
+		If (States.UnitPositionY(bohater) > 2) and(States.HouseAt(States.UnitPositionX(bohater),States.UnitPositionY(bohater)-1)<>-1) then begin
+			HType:= States.HouseType(States.HouseAt(States.UnitPositionX(bohater),States.UnitPositionY(bohater)-1))
+			If (States.HouseSiteIsDigged(States.HouseAt(States.UnitPositionX(bohater),States.UnitPositionY(bohater)-1)) = true)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(bohater),States.UnitPositionY(bohater)-1)) = 0) then
+				Actions.HouseAddBuildingProgress(States.HouseAt(States.UnitPositionX(bohater),States.UnitPositionY(bohater)-1));		
+			If (States.HouseIsComplete(States.HouseAt(States.UnitPositionX(bohater),States.UnitPositionY(bohater)-1)) = true) and(States.HouseDamage(States.HouseAt(States.UnitPositionX(bohater),States.UnitPositionY(bohater)-1)) < States.HouseTypeMaxHealth(HType)-5)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(bohater),States.UnitPositionY(bohater)-1)) = 0) then
+				Actions.HouseAddRepair(States.HouseAt(States.UnitPositionX(bohater),States.UnitPositionY(bohater)-1),5);
+		end;
+	end;
+	if States.GameTime MOD 100 = 0 then
+		Kamien;
+	if States.GameTime = 1 then	begin 
+		Count1:=[15,10,5,0,-2,-4,-6];
+		Mode1:= byte(States.MissionDifficulty)-1;
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		i := 30-Count1[Mode1];
+		bohater := States.GroupAt(47,231)
+		bohater01 := States.GroupAt(20,193)
+		bohater02 := States.GroupAt(173,247)
+		bohater03 := States.GroupAt(202,241)
+		T := 0
+		Time := 72000
+		BramaT:=States.GameTime
+		BramaO:=0	
+		Count1:=[5,6,7,8,9,10,11];	
+	end;
+	
+	if States.GameTime = 100 then
+		Actions.ShowMsg (-1, '<$15>');
+	if States.GameTime = 150 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []);end;
+	if States.GameTime = 6000 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []); end;
+	if States.GameTime = 6050 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$3>', []); end;
+	if States.GameTime = Time then begin
+		Actions.GiveGroup (2, 26, 122, 253, 0, 1, 1 )
+		k := States.UnitAt(122,253)
+		Actions.CinematicStart(0);
+		Actions.CinematicPanTo(0,122,253,0);
+		Actions.CinematicPanTo(0,113,180,800);
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$4>', []);
+		BramaO:= 3 end;
+	if States.GameTime = 300 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		
+		
+		
+	if States.GameTime = Time+3 then
+		Actions.GroupOrderWalk(States.GroupAt(122,253),113,180,0);
+	if States.GameTime = Time+75 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$5>', []); end;
+	if States.GameTime = Time+140 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$6>', []); end;
+	if States.GameTime = Time+160 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$7>', []); end;
+	if States.GameTime = Time+200 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$8>', []); end;
+	if States.GameTime = Time+750 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$9>', []); end;
+	if States.GameTime = Time+1100 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$10>', []); end;
+	if States.GameTime = Time+1150 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$11>', []); end;
+	if States.GameTime = Time+1300 then
+		Actions.ShowMSG(-1,'<$16>');
+	if States.GameTime = Time+1400 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime = Time+6000 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$12>', []); 
+		Actions.GiveGroup (10, 22, 88, 94, 0, 50, 10 )
+		Actions.GiveGroup (10, 22, 132, 99, 0, 50, 10 )
+		Actions.GiveGroup (10, 22, 52, 110, 0, 50, 10 ) end;
+	if States.GameTime = Time+9000 then begin
+		Actions.GiveGroup (10, 16, 88, 94, 0, 40, 10 )
+		Actions.GiveGroup (10, 16, 132, 99, 0, 40, 10 )
+		Actions.GiveGroup (10, 16, 52, 110, 0, 40, 10 ) end;
+	if States.GameTime = Time+12000 then begin
+		Actions.GiveGroup (10, 20, 88, 94, 0, 25, 5 )
+		Actions.GiveGroup (10, 20, 132, 99, 0, 25, 5 )
+		Actions.GiveGroup (10, 20, 52, 110, 0, 25, 5 ) end;
+	if States.GameTime = Time+15000 then begin
+		Actions.GiveGroup (10, 18, 88, 94, 0, 30, 10 )
+		Actions.GiveGroup (10, 18, 132, 99, 0, 30, 10 )
+		Actions.GiveGroup (10, 18, 52, 110, 0, 30, 10 ) end;
+	if States.GameTime = Time+6200 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime = Time+6050 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$13>', []); end;
+		
+		
+	if States.GameTime MOD 9000 = 0 then begin
+		Autofeed;
+		Autofeed12;
+	end;
+	
+	if (States.GameTime = 9000) then
+		Autofeed0;
+	
+	if  (States.StatArmyCount(4) > 200) and (States.StatArmyCount(5) >= 600) and (States.StatArmyCount(5) <745)and(States.GameTime MOD 60 = 0)  then begin
+		Actions.GiveGroup(5,20,181,134,6,1,1) end;
+	if  (States.StatArmyCount(4) > 200) and (States.StatArmyCount(5) >= 500) and (States.StatArmyCount(5) <600)and(States.GameTime MOD 60 = 0)  then begin
+		Actions.GiveGroup(5,20,166,63,0,1,1) end;
+	if  (States.StatArmyCount(4) > 200) and (States.StatArmyCount(5) >= 200) and (States.StatArmyCount(5) < 500)and(States.GameTime MOD 60 = 0)  then begin
+		Actions.GiveGroup(5,20,73,80,0,1,1) end;
+	if  (States.StatArmyCount(4) > 200) and (States.StatArmyCount(5) < 200)and(States.GameTime MOD 60 = 0)  then begin
+		Actions.GiveGroup(5,20,100,113,0,1,1) end;
+	if (States.GameTime < Time ) and (States.GameTime MOD 6000 = 0) and (States.GameTime MOD 12000 <> 0) then
+		Attack(States.KaMRandomI(2));
+	
+	If 	(States.GameTime > Time ) and(States.UnitPositionX(k)=113) and(States.UnitPositionY(k)=180) and (T=0)then begin
+		Actions.UnitKill((k),true)
+		Actions.GroupKillAll(States.GroupAt(105,179),false)
+		Actions.GroupKillAll(States.GroupAt(122,179),false)
+		Actions.GiveGroup(0, 26, 113, 181, 0, 1, 1 )
+		k := States.UnitAt(113,181)
+		Actions.AISoldiersLimit(4,-1)
+		Actions.AISoldiersLimit(1,-1)
+		Actions.AISoldiersLimit(2,-1)
+		Actions.AISoldiersLimit(3,-1)
+		Actions.CinematicEnd(0);
+		Actions.PlayerAllianceChange(2,6,false,false)
+		Actions.PlayerAllianceChange(1,11,false,false)
+		Actions.PlayerAllianceChange(2,11,false,false)
+		Actions.PlayerAllianceChange(3,11,false,false)
+		Actions.PlayerAllianceChange(11,3,false,false)
+		Brama;
+		T:=1
+	end;
+	
+	If (States.GameTime = 1) or (BramaO = 0) and (States.GameTime < Time-1000 ) and(States.GroupAt(106,117)<>-1) and(States.GroupMemberCount(States.GroupAt(106,117)) = 9) and (States.PlayerDefeated(4) = false) and not (States.StatHouseTypeCount(4,21) = 0) then begin
+		Actions.GroupKillAll(States.GroupAt(91,116),true)
+		Actions.GroupKillAll(States.GroupAt(99,117),true)
+		Actions.GroupKillAll(States.GroupAt(73,101),true)
+		Actions.GroupKillAll(States.GroupAt(70,136),true)
+		Actions.GroupKillAll(States.GroupAt(38,125),true)
+		Actions.GroupKillAll(States.GroupAt(106,117),true)
+		Actions.GiveGroup(9,20,110,138,4,9,3)
+		Actions.GiveGroup(9,20,115,138,4,9,3)
+		Actions.GiveGroup(9,20,120,138,4,9,3)
+		Actions.GiveGroup(9,20,125,138,4,9,3)
+		Actions.GiveGroup(9,20,130,138,4,9,3)
+		Actions.GiveGroup(9,20,135,138,4,9,3)
+		BramaEnemy(1);
+		BramaT:=States.GameTime
+	end;
+	
+	if (States.GroupDead(bohater)) or (States.GroupDead(bohater01)) or (States.GroupDead(bohater02)) or (States.GroupDead(bohater03)) or (States.GameTime >Time) and (States.UnitDead(k)) then
+		Actions.PlayerDefeat(0);
+		
+	If (BramaO = 1) and (States.GameTime = BramaT+1665) then begin
+		for l := 0 to 9 do begin
+			If States.UnitAt(109+l,177) >0 then Actions.UnitKill(States.UnitAt(109+l,177),false);
+			If States.UnitAt(109+l,180) >0 then Actions.UnitKill(States.UnitAt(109+l,180),false);
+			If States.UnitAt(109+l,179) >0 then Actions.UnitKill(States.UnitAt(109+l,179),false);
+			If States.UnitAt(109+l,178) >0 then Actions.UnitKill(States.UnitAt(109+l,178),false);
+			end;
+		end;
+		
+	If (BramaO = 0) and (States.GameTime = BramaT+20) then
+		BramaEnemy(2);
+	If (BramaO = 0) and (States.GameTime = BramaT+40) then
+		BramaEnemy(3);
+	If (BramaO = 0) and (States.GameTime = BramaT+60) then
+		BramaEnemy(4);
+	If (BramaO = 0) and (States.GameTime = BramaT+80) then begin
+		BramaEnemy(5);
+		BramaO:=1
+	end;
+	If (BramaO = 1) and (States.GameTime = BramaT+1600) then
+		BramaEnemy(4);
+	If (BramaO = 1) and (States.GameTime = BramaT+1620) then
+		BramaEnemy(3);
+	If (BramaO = 1) and (States.GameTime = BramaT+1640) then
+		BramaEnemy(2);
+	If (BramaO = 1) and (States.GameTime = BramaT+1660) then
+		BramaEnemy(1);
+	If (BramaO = 1) and (States.GameTime = BramaT+1680) then
+		BramaEnemy(0);
+	If (BramaO = 1) and (States.GameTime = BramaT+1680) then
+		BramaO:=0;
+	If (Alfa = 1) and (States.GameTime > T) and (States.GameTime = Beta+5)  then begin 
+		Alfa := 0
+	end;	
+	If (States.GameTime mod 10 =0) then begin
+		for G := 0 to 11 do begin
+			J := States.PlayerGetAllHouses(G);
+			for H := 0 to length(J) -1 do begin
+				If States.PlayerIsAI(G) = true then begin
+					If (States.HouseType(J[H])= 3) or  (States.HouseType(J[H])= 4) or  (States.HouseType(J[H])= 5) then begin
+						X:=States.HousePositionX(J[H]);
+						Y:=States.HousePositionY(J[H]);
+						If (States.HouseType(J[H])= 3) and (States.MapTileType(X,Y)<>155) then //węgiel
+							Actions.MapTileSet(X,Y,155,0);
+						If (States.HouseType(J[H])= 4) and (States.MapTileType(X,Y-2)<>151) then //żelazo
+							Actions.MapTileSet(X,Y-2,151,0);
+						If (States.HouseType(J[H])= 5) and (J[H] <> States.HouseAt(31,87)) and (J[H] <> States.HouseAt(41,72)) and (States.MapTileType(X,Y-2)<>147) then //złoto
+							Actions.MapTileSet(X,Y-2,147,0);
+					end;
+					If (States.GameTime = 10)and(States.HouseOwner(J[H]) <>4) then begin
+						X:=States.HousePositionX(J[H]);
+						Y:=States.HousePositionY(J[H]);
+						Actions.GiveUnit(States.HouseOwner(J[H]),States.HouseTypeToOccupantType( States.HouseType(States.HouseAt(X,Y))),X,Y+1,4);
+					end;
+				end;
+			end;
+		end;
+	end;
+	If (States.GameTime > Time ) and (States.GameTime mod Count1[Mode1] = 0) then Actions.UnitHPChange(k,States.UnitHPCurrent(k)+States.KaMRandomI(1));
+end;
+
+
+Procedure OnMissionStart;
+var Houses:array of integer;
+	LL:integer;
+begin
+	Houses:=States.PlayerGetAllHouses(0);
+	for LL:=0 to length(Houses)-1 do begin
+		If (States.HouseType(Houses[LL])=11) and (Store=0) then
+			Store:=Houses[LL];
+	end;
+end;

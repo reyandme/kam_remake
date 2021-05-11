@@ -187,6 +187,7 @@ const
 constructor TKMServerClient.Create(aHandle: TKMNetHandleIndex; aRoom: Integer);
 begin
   inherited Create;
+
   fHandle := aHandle;
   fRoom := aRoom;
   SetLength(fBuffer, 0);
@@ -219,6 +220,7 @@ end;
 destructor TKMClientsList.Destroy;
 begin
   Clear; //Free all clients
+
   inherited;
 end;
 
@@ -232,7 +234,7 @@ end;
 
 procedure TKMClientsList.AddPlayer(aHandle: TKMNetHandleIndex; aRoom: Integer);
 begin
-  inc(fCount);
+  Inc(fCount);
   SetLength(fItems, fCount);
   fItems[fCount - 1] := TKMServerClient.Create(aHandle, aRoom);
 end;
@@ -240,7 +242,7 @@ end;
 
 procedure TKMClientsList.RemPlayer(aHandle: TKMNetHandleIndex);
 var
-  I,ID: Integer;
+  I, ID: Integer;
 begin
   ID := -1; //Convert Handle to Index
   for I := 0 to fCount - 1 do
@@ -287,6 +289,7 @@ constructor TKMNetServer.Create(aMaxRooms, aKickTimeout: Word; const aHTMLStatus
                                 aPacketsAccDelay: Integer);
 begin
   inherited Create;
+
   fEmptyGameInfo := TKMPGameInfo.Create;
   fEmptyGameInfo.GameTime := -1;
 
@@ -375,15 +378,16 @@ end;
 
 
 procedure TKMNetServer.StopListening;
-var i:integer;
+var
+  I: Integer;
 begin
   fOnStatusMessage := nil;
   fServer.StopListening;
   fListening := false;
-  for i:=0 to fRoomCount-1 do
+  for I := 0 to fRoomCount - 1 do
   begin
-    FreeAndNil(fRoomInfo[i].GameInfo);
-    SetLength(fRoomInfo[i].BannedIPs, 0);
+    FreeAndNil(fRoomInfo[I].GameInfo);
+    SetLength(fRoomInfo[I].BannedIPs, 0);
   end;
   SetLength(fRoomInfo,0);
   fRoomCount := 0;
@@ -398,11 +402,11 @@ end;
 
 procedure TKMNetServer.MeasurePings;
 var
-  M: TKMemoryStream;
   I: Integer;
-  TickCount: DWord;
+  M: TKMemoryStream;
+  tickCount: DWord;
 begin
-  TickCount := TimeGet;
+  tickCount := TimeGet;
   //Sends current ping info to everyone
   M := TKMemoryStreamBinary.Create;
   M.Write(fClientList.Count);
@@ -420,7 +424,7 @@ begin
   for I:=fClientList.Count-1 downto 0 do
     if fClientList[I].fPingStarted = 0 then //We have recieved mkPong for our previous measurement, so start a new one
     begin
-      fClientList[I].fPingStarted := TickCount;
+      fClientList[I].fPingStarted := tickCount;
       SendMessage(fClientList[I].fHandle, mkPing);
     end
     else
@@ -442,11 +446,12 @@ end;
 
 
 function TKMNetServer.GetPlayerCount:integer;
-var i:integer;
+var
+  I: Integer;
 begin
   Result := 0;
-  for i:=0 to fClientList.fCount-1 do
-    if fClientList.Item[i].fRoom <> -1 then
+  for I := 0 to fClientList.fCount - 1 do
+    if fClientList.Item[I].fRoom <> -1 then
       inc(Result);
 end;
 
@@ -468,7 +473,8 @@ end;
 
 
 procedure TKMNetServer.GetServerInfo(aList: TList);
-var I: Integer;
+var
+  I: Integer;
 begin
   Assert(aList <> nil);
   for I := 0 to fRoomCount - 1 do
@@ -574,50 +580,50 @@ end;
 //Someone has disconnected from us.
 procedure TKMNetServer.ClientDisconnect(aHandle: TKMNetHandleIndex);
 var
-  Room: Integer;
-  Client: TKMServerClient;
+  room: Integer;
+  client: TKMServerClient;
   M: TKMemoryStream;
 begin
-  Client := fClientList.GetByHandle(aHandle);
-  if Client = nil then
+  client := fClientList.GetByHandle(aHandle);
+  if client = nil then
   begin
     Status('Warning: Client ' + inttostr(aHandle) + ' was already disconnected');
     exit;
   end;
-  Room := Client.Room;
-  if Room <> -1 then
+  room := client.Room;
+  if room <> -1 then
     Status('Client '+inttostr(aHandle)+' has disconnected'); //Only log messages for clients who entered a room
   fClientList.RemPlayer(aHandle);
 
-  if Room = -1 then Exit; //The client was not assigned a room yet
+  if room = -1 then Exit; //The client was not assigned a room yet
 
   //Send message to all remaining clients that client has disconnected
   SendMessageInd(NET_ADDRESS_ALL, mkClientLost, aHandle);
 
   //Assign a new host
-  if fRoomInfo[Room].HostHandle = aHandle then
+  if fRoomInfo[room].HostHandle = aHandle then
   begin
-    if GetRoomClientsCount(Room) = 0 then
+    if GetRoomClientsCount(room) = 0 then
     begin
-      fRoomInfo[Room].HostHandle := NET_ADDRESS_EMPTY; //Room is now empty so we don't need a new host
-      fRoomInfo[Room].Password := '';
-      fRoomInfo[Room].GameInfo.Free;
-      fRoomInfo[Room].GameInfo := TKMPGameInfo.Create;
-      SetLength(fRoomInfo[Room].BannedIPs, 0);
+      fRoomInfo[room].HostHandle := NET_ADDRESS_EMPTY; //Room is now empty so we don't need a new host
+      fRoomInfo[room].Password := '';
+      fRoomInfo[room].GameInfo.Free;
+      fRoomInfo[room].GameInfo := TKMPGameInfo.Create;
+      SetLength(fRoomInfo[room].BannedIPs, 0);
     end
     else
     begin
-      fRoomInfo[Room].HostHandle := GetFirstRoomClient(Room); //Assign hosting rights to the first client in the room
+      fRoomInfo[room].HostHandle := GetFirstRoomClient(room); //Assign hosting rights to the first client in the room
 
       //Tell everyone about the new host and password/description (so new host knows it)
       M := TKMemoryStreamBinary.Create;
-      M.Write(fRoomInfo[Room].HostHandle);
-      M.WriteA(fRoomInfo[Room].Password);
-      M.WriteW(fRoomInfo[Room].GameInfo.Description);
-      SendMessageToRoom(mkReassignHost, Room, M);
+      M.Write(fRoomInfo[room].HostHandle);
+      M.WriteA(fRoomInfo[room].Password);
+      M.WriteW(fRoomInfo[room].GameInfo.Description);
+      SendMessageToRoom(mkReassignHost, room, M);
       M.Free;
 
-      Status('Reassigned hosting rights for room ' + inttostr(Room) + ' to ' + inttostr(fRoomInfo[Room].HostHandle));
+      Status('Reassigned hosting rights for room ' + inttostr(room) + ' to ' + inttostr(fRoomInfo[room].HostHandle));
     end;
   end;
   SaveHTMLStatus;
@@ -690,7 +696,8 @@ end;
 
 
 procedure TKMNetServer.SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aStream: TKMemoryStream);
-var I: Integer;
+var
+  I: Integer;
 begin
   //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
   for I := fClientList.Count - 1 downto 0 do
@@ -772,7 +779,8 @@ end;
 
 
 procedure TKMNetServer.UpdateState(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to fClientList.Count - 1 do
   begin
@@ -794,44 +802,44 @@ end;
 
 procedure TKMNetServer.ScheduleSendData(aRecipient: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal; aFlushQueue: Boolean = False);
 var
-  SenderClient: TKMServerClient;
+  senderClient: TKMServerClient;
 begin
-  SenderClient := fClientList.GetByHandle(aRecipient);
+  senderClient := fClientList.GetByHandle(aRecipient);
 
-  if SenderClient = nil then Exit;
+  if senderClient = nil then Exit;
 
-  if (SenderClient.fScheduledPacketsSize + aLength > MAX_CUMULATIVE_PACKET_SIZE)
-    or (SenderClient.fScheduledPacketsCnt = 255) then //Max number of packets = 255 (we use 1 byte for that)
+  if (senderClient.fScheduledPacketsSize + aLength > MAX_CUMULATIVE_PACKET_SIZE)
+    or (senderClient.fScheduledPacketsCnt = 255) then //Max number of packets = 255 (we use 1 byte for that)
   begin
     //gLog.AddTime(Format('@@@ FLUSH fScheduledPacketsSize + aLength = %d > %d', [SenderClient.fScheduledPacketsSize + aLength, MAX_CUMULATIVE_PACKET_SIZE]));
-    SendScheduledData(SenderClient);
+    SendScheduledData(senderClient);
   end;
 
-  SenderClient.AddScheduledPacket(aData, aLength);
+  senderClient.AddScheduledPacket(aData, aLength);
 
   if aFlushQueue then
-    SendScheduledData(SenderClient);
+    SendScheduledData(senderClient);
 end;
 
 
 procedure TKMNetServer.RecieveMessage(aSenderHandle: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal);
 var
-  Kind: TKMessageKind;
+  kind: TKMessageKind;
   M, M2: TKMemoryStream;
   tmpInt: Integer;
   gameRev: TKMGameRevision;
   tmpSmallInt: TKMNetHandleIndex;
   tmpStringA: AnsiString;
-  Client: TKMServerClient;
-  SenderIsHost: Boolean;
-  SenderRoom: Integer;
+  client: TKMServerClient;
+  senderIsHost: Boolean;
+  senderRoom: Integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message');
 
   M := TKMemoryStreamBinary.Create;
   M.WriteBuffer(aData^, aLength);
   M.Position := 0;
-  M.Read(Kind, SizeOf(TKMessageKind));
+  M.Read(kind, SizeOf(TKMessageKind));
 
   //Sometimes client disconnects then we recieve a late packet (e.g. mkPong), in which case ignore it
   if fClientList.GetByHandle(aSenderHandle) = nil then
@@ -840,11 +848,11 @@ begin
     exit;
   end;
 
-  SenderRoom := fClientList.GetByHandle(aSenderHandle).Room;
-  SenderIsHost := (SenderRoom <> -1) and
-                  (fRoomInfo[SenderRoom].HostHandle = aSenderHandle);
+  senderRoom := fClientList.GetByHandle(aSenderHandle).Room;
+  senderIsHost := (senderRoom <> -1) and
+                  (fRoomInfo[senderRoom].HostHandle = aSenderHandle);
 
-  case Kind of
+  case kind of
     mkJoinRoom:
             begin
               M.Read(tmpInt); //Room to join
@@ -871,19 +879,19 @@ begin
                 SendMessage(aSenderHandle, mkReqPassword);
             end;
     mkSetPassword:
-            if SenderIsHost then
+            if senderIsHost then
             begin
               M.ReadA(tmpStringA); //Password
-              fRoomInfo[SenderRoom].Password := tmpStringA;
+              fRoomInfo[senderRoom].Password := tmpStringA;
             end;
     mkSetGameInfo:
-            if SenderIsHost then
+            if senderIsHost then
             begin
-              fRoomInfo[SenderRoom].GameInfo.LoadFromStream(M);
+              fRoomInfo[senderRoom].GameInfo.LoadFromStream(M);
               SaveHTMLStatus;
             end;
     mkKickPlayer:
-            if SenderIsHost then
+            if senderIsHost then
             begin
               M.Read(tmpSmallInt);
               if fClientList.GetByHandle(tmpSmallInt) <> nil then
@@ -893,36 +901,36 @@ begin
               end;
             end;
     mkBanPlayer:
-            if SenderIsHost then
+            if senderIsHost then
             begin
               M.Read(tmpSmallInt);
               if fClientList.GetByHandle(tmpSmallInt) <> nil then
               begin
-                BanPlayerFromRoom(tmpSmallInt, SenderRoom);
+                BanPlayerFromRoom(tmpSmallInt, senderRoom);
                 SendMessage(tmpSmallInt, mkKicked, TX_NET_BANNED_BY_HOST, True);
                 fServer.Kick(tmpSmallInt);
               end;
             end;
     mkGiveHost:
-            if SenderIsHost then
+            if senderIsHost then
             begin
               M.Read(tmpSmallInt);
               if fClientList.GetByHandle(tmpSmallInt) <> nil then
               begin
-                fRoomInfo[SenderRoom].HostHandle := tmpSmallInt;
+                fRoomInfo[senderRoom].HostHandle := tmpSmallInt;
                 //Tell everyone about the new host and password/description (so new host knows it)
                 M2 := TKMemoryStreamBinary.Create;
-                M2.Write(fRoomInfo[SenderRoom].HostHandle);
-                M2.WriteA(fRoomInfo[SenderRoom].Password);
-                M2.WriteW(fRoomInfo[SenderRoom].GameInfo.Description);
-                SendMessageToRoom(mkReassignHost, SenderRoom, M2);
+                M2.Write(fRoomInfo[senderRoom].HostHandle);
+                M2.WriteA(fRoomInfo[senderRoom].Password);
+                M2.WriteW(fRoomInfo[senderRoom].GameInfo.Description);
+                SendMessageToRoom(mkReassignHost, senderRoom, M2);
                 M2.Free;
               end;
             end;
     mkResetBans:
-            if SenderIsHost then
+            if senderIsHost then
             begin
-              SetLength(fRoomInfo[SenderRoom].BannedIPs, 0);
+              SetLength(fRoomInfo[senderRoom].BannedIPs, 0);
             end;
     mkGetServerInfo:
             begin
@@ -932,19 +940,19 @@ begin
               M2.Free;
             end;
     mkFPS: begin
-              Client := fClientList.GetByHandle(aSenderHandle);
+              client := fClientList.GetByHandle(aSenderHandle);
               M.Read(tmpInt);
-              Client.FPS := tmpInt;
+              client.FPS := tmpInt;
             end;
     mkPong:
             begin
-              Client := fClientList.GetByHandle(aSenderHandle);
+              client := fClientList.GetByHandle(aSenderHandle);
 //              M.Read(tmpInteger);
 //              Client.FPS := tmpInteger;
-              if (Client.fPingStarted <> 0) then
+              if (client.fPingStarted <> 0) then
               begin
-                Client.Ping := Math.Min(TimeSince(Client.fPingStarted), High(Word));
-                Client.fPingStarted := 0;
+                client.Ping := Math.Min(TimeSince(client.fPingStarted), High(Word));
+                client.fPingStarted := 0;
               end;
             end;
   end;
@@ -968,15 +976,15 @@ procedure TKMNetServer.DataAvailable(aHandle: TKMNetHandleIndex; aData: Pointer;
 //  end;
 
 var
-  PacketSender, PacketRecipient: TKMNetHandleIndex;
-  PacketLength: Word;
-  I, SenderRoom: Integer;
-  SenderClient: TKMServerClient;
+  I, senderRoom: Integer;
+  packetSender, packetRecipient: TKMNetHandleIndex;
+  packetLength: Word;
+  senderClient: TKMServerClient;
 //  Kind: TKMessageKind;
 begin
   Inc(BytesRX, aLength);
-  SenderClient := fClientList.GetByHandle(aHandle);
-  if SenderClient = nil then
+  senderClient := fClientList.GetByHandle(aHandle);
+  if senderClient = nil then
   begin
     Status('Warning: Data Available from an unassigned client');
 //    gLog.AddTime('Warning: Data Available from an unassigned client');
@@ -984,58 +992,58 @@ begin
   end;
 
   //Append new data to buffer
-  SetLength(SenderClient.fBuffer, SenderClient.fBufferSize + aLength);
-  Move(aData^, SenderClient.fBuffer[SenderClient.fBufferSize], aLength);
-  SenderClient.fBufferSize := SenderClient.fBufferSize + aLength;
+  SetLength(senderClient.fBuffer, senderClient.fBufferSize + aLength);
+  Move(aData^, senderClient.fBuffer[senderClient.fBufferSize], aLength);
+  senderClient.fBufferSize := senderClient.fBufferSize + aLength;
 
 //  gLog.AddTime('----  Received data from ' + GetNetAddressStr(aHandle) + ': length = ' + IntToStr(aLength));
 
   //Try to read data packet from buffer
-  while SenderClient.fBufferSize >= 6 do
+  while senderClient.fBufferSize >= 6 do
   begin
-    PacketSender := PKMNetHandleIndex(@SenderClient.fBuffer[0])^;
-    PacketRecipient := PKMNetHandleIndex(@SenderClient.fBuffer[2])^;
-    PacketLength := PWord(@SenderClient.fBuffer[4])^;
+    packetSender := PKMNetHandleIndex(@senderClient.fBuffer[0])^;
+    packetRecipient := PKMNetHandleIndex(@senderClient.fBuffer[2])^;
+    packetLength := PWord(@senderClient.fBuffer[4])^;
 
     //Do some simple range checking to try to detect when there is a serious error or flaw in the code (i.e. Random data in the buffer)
-    if not (IsValidHandle(PacketRecipient) and IsValidHandle(PacketSender) and (PacketLength <= MAX_PACKET_SIZE)) then
+    if not (IsValidHandle(packetRecipient) and IsValidHandle(packetSender) and (packetLength <= MAX_PACKET_SIZE)) then
     begin
       //When we receive corrupt data kick the client since we have no way to recover (if in-game client will auto reconnect)
       Status('Warning: Corrupt data received, kicking client ' + IntToStr(aHandle));
-      SenderClient.fBufferSize := 0;
-      SetLength(SenderClient.fBuffer, 0);
+      senderClient.fBufferSize := 0;
+      SetLength(senderClient.fBuffer, 0);
       fServer.Kick(aHandle);
       Exit;
     end;
 
-    if PacketLength > SenderClient.fBufferSize - 6 then
+    if packetLength > senderClient.fBufferSize - 6 then
       Exit; //This message was split, so we must wait for the remainder of the message to arrive
 
-    SenderRoom := fClientList.GetByHandle(aHandle).Room;
+    senderRoom := fClientList.GetByHandle(aHandle).Room;
 
     //If sender from packet contents doesn't match the socket handle, don't process this packet (client trying to fake sender)
-    if PacketSender = aHandle then
+    if packetSender = aHandle then
     begin
 //      Kind := GetMessKind(PacketSender, @SenderClient.fBuffer[6], PacketLength);
 //      gLog.AddTime(Format('Got msg %s from %d to %d',
 //                          [GetEnumName(TypeInfo(TKMessageKind), Integer(Kind)), PacketSender, PacketRecipient]));
-      case PacketRecipient of
+      case packetRecipient of
         NET_ADDRESS_OTHERS: //Transmit to all except sender
                 //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
                 for I := fClientList.Count - 1 downto 0 do
-                  if (aHandle <> fClientList[i].Handle) and (SenderRoom = fClientList[i].Room) then
-                    ScheduleSendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+6);
+                  if (aHandle <> fClientList[i].Handle) and (senderRoom = fClientList[i].Room) then
+                    ScheduleSendData(fClientList[i].Handle, @senderClient.fBuffer[0], packetLength+6);
         NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
                 //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
                 for I := fClientList.Count - 1 downto 0 do
-                  if SenderRoom = fClientList[i].Room then
-                    ScheduleSendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+6);
+                  if senderRoom = fClientList[i].Room then
+                    ScheduleSendData(fClientList[i].Handle, @senderClient.fBuffer[0], packetLength+6);
         NET_ADDRESS_HOST:
-                if SenderRoom <> -1 then
-                  ScheduleSendData(fRoomInfo[SenderRoom].HostHandle, @SenderClient.fBuffer[0], PacketLength+6);
+                if senderRoom <> -1 then
+                  ScheduleSendData(fRoomInfo[senderRoom].HostHandle, @senderClient.fBuffer[0], packetLength+6);
         NET_ADDRESS_SERVER:
-                RecieveMessage(PacketSender, @SenderClient.fBuffer[6], PacketLength);
-        else    ScheduleSendData(PacketRecipient, @SenderClient.fBuffer[0], PacketLength+6);
+                RecieveMessage(packetSender, @senderClient.fBuffer[6], packetLength);
+        else    ScheduleSendData(packetRecipient, @senderClient.fBuffer[0], packetLength+6);
       end;
     end;
 
@@ -1044,39 +1052,39 @@ begin
     if fClientList.GetByHandle(aHandle) = nil then
       Exit;
 
-    if SenderClient.fBufferSize > 6 + PacketLength then //Check range
-      Move(SenderClient.fBuffer[6 + PacketLength], SenderClient.fBuffer[0], SenderClient.fBufferSize-PacketLength-6);
-    SenderClient.fBufferSize := SenderClient.fBufferSize - PacketLength - 6;
+    if senderClient.fBufferSize > 6 + packetLength then //Check range
+      Move(senderClient.fBuffer[6 + packetLength], senderClient.fBuffer[0], senderClient.fBufferSize-packetLength-6);
+    senderClient.fBufferSize := senderClient.fBufferSize - packetLength - 6;
   end;
 end;
 
 
 procedure TKMNetServer.SaveToStream(aStream: TKMemoryStream);
 var
-  I, RoomsNeeded, EmptyRoomID: Integer;
-  NeedEmptyRoom: boolean;
+  I, roomsNeeded, emptyRoomID: Integer;
+  needEmptyRoom: boolean;
 begin
-  RoomsNeeded := 0;
+  roomsNeeded := 0;
   for I := 0 to fRoomCount - 1 do
     if GetRoomClientsCount(I) > 0 then
-      Inc(RoomsNeeded);
+      Inc(roomsNeeded);
 
-  if RoomsNeeded < fMaxRooms then
+  if roomsNeeded < fMaxRooms then
   begin
-    Inc(RoomsNeeded); //Need 1 empty room at the end, if there is space
-    NeedEmptyRoom := True;
+    Inc(roomsNeeded); //Need 1 empty room at the end, if there is space
+    needEmptyRoom := True;
   end
   else
-    NeedEmptyRoom := False;
+    needEmptyRoom := False;
 
-  aStream.Write(RoomsNeeded);
-  EmptyRoomID := fRoomCount;
+  aStream.Write(roomsNeeded);
+  emptyRoomID := fRoomCount;
   for I := 0 to fRoomCount - 1 do
   begin
     if GetRoomClientsCount(I) = 0 then
     begin
-      if EmptyRoomID = fRoomCount then
-        EmptyRoomID := I;
+      if emptyRoomID = fRoomCount then
+        emptyRoomID := I;
     end
     else
     begin
@@ -1086,9 +1094,9 @@ begin
     end;
   end;
   //Write out the empty room at the end
-  if NeedEmptyRoom then
+  if needEmptyRoom then
   begin
-    aStream.Write(EmptyRoomID); //RoomID
+    aStream.Write(emptyRoomID); //RoomID
     aStream.Write(TKMGameRevision(EMPTY_ROOM_DEFAULT_GAME_REVISION)); //no game revision was set yet
     fEmptyGameInfo.SaveToStream(aStream);
   end;
@@ -1123,12 +1131,13 @@ end;
 
 
 function TKMNetServer.GetFirstAvailableRoom: Integer;
-var i: Integer;
+var
+  I: Integer;
 begin
-  for i := 0 to fRoomCount-1 do
-    if GetRoomClientsCount(i) = 0 then
+  for I := 0 to fRoomCount-1 do
+    if GetRoomClientsCount(I) = 0 then
     begin
-      Result := i;
+      Result := I;
       exit;
     end;
   if AddNewRoom then //Otherwise we must create a room
@@ -1139,22 +1148,24 @@ end;
 
 
 function TKMNetServer.GetRoomClientsCount(aRoom: Integer): Integer;
-var i:integer;
+var
+  I: Integer;
 begin
   Result := 0;
-  for i := 0 to fClientList.Count-1 do
-    if fClientList[i].Room = aRoom then
+  for I := 0 to fClientList.Count - 1 do
+    if fClientList[I].Room = aRoom then
       inc(Result);
 end;
 
 
 function TKMNetServer.GetFirstRoomClient(aRoom: Integer): Integer;
-var i:integer;
+var
+  I: Integer;
 begin
-  for i:=0 to fClientList.Count-1 do
-    if fClientList[i].Room = aRoom then
+  for I := 0 to fClientList.Count - 1 do
+    if fClientList[I].Room = aRoom then
     begin
-      Result := fClientList[i].fHandle;
+      Result := fClientList[I].fHandle;
       exit;
     end;
   raise Exception.Create('');
@@ -1164,7 +1175,8 @@ end;
 procedure TKMNetServer.SaveHTMLStatus;
 
   function AddThousandSeparator(const S: string; Chr: Char=','): string;
-  var I: Integer;
+  var
+    I: Integer;
   begin
     Result := S;
     I := Length(S) - 2;
@@ -1183,97 +1195,98 @@ procedure TKMNetServer.SaveHTMLStatus;
 const
   BOOL_TEXT: array[Boolean] of string = ('0', '1');
 var
-  i,k,PlayerCount,ClientCount,RoomCount:integer;
-  XML: TXmlVerySimple;
-  HTML: string;
-  RoomCountNode, ClientCountNode, PlayerCountNode, Node: TXmlNode;
-  MyFile:TextFile;
+  I, K, playerCount, clientCount, roomCount: Integer;
+  xml: TXmlVerySimple;
+  html: string;
+  roomCountNode, clientCountNode, playerCountNode, node: TXmlNode;
+  myFile: TextFile;
 begin
   if fHTMLStatusFile = '' then exit; //Means do not write status
 
-  RoomCount := 0;
-  PlayerCount := 0;
-  ClientCount := 0;
+  roomCount := 0;
+  playerCount := 0;
+  clientCount := 0;
 
-  XML := TXmlVerySimple.Create;
+  xml := TXmlVerySimple.Create;
 
   try
     //HTML header
-    HTML := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'+sLineBreak+
+    html := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'+sLineBreak+
             '<HTML>'+sLineBreak+'<HEAD>'+sLineBreak+'  <TITLE>KaM Remake Server Status</TITLE>'+sLineBreak+
             '  <meta http-equiv="content-type" content="text/html; charset=utf-8">'+sLineBreak+'</HEAD>'+sLineBreak;
-    HTML := HTML + '<BODY>'+sLineBreak;
-    HTML := HTML + '<TABLE border="1">'+sLineBreak+'<TR><TD><b>Room ID</b></TD><TD><b>State</b><TD><b>Player Count</b></TD></TD><TD><b>Map</b></TD><TD><b>Game Time</b></TD><TD><b>Player Names</b></TD></TR>'+sLineBreak;
+    html := html + '<BODY>'+sLineBreak;
+    html := html + '<TABLE border="1">'+sLineBreak+'<TR><TD><b>Room ID</b></TD><TD><b>State</b><TD><b>Player Count</b></TD></TD><TD><b>Map</b></TD><TD><b>Game Time</b></TD><TD><b>Player Names</b></TD></TR>'+sLineBreak;
 
     //XML header
-    XML.Root.NodeName := 'server';
-    RoomCountNode := XML.Root.AddChild('roomcount'); //Set it later
-    PlayerCountNode := XML.Root.AddChild('playercount');
-    ClientCountNode := XML.Root.AddChild('clientcount');
-    XML.Root.AddChild('bytessent').Text := IntToStr(BytesTX);
-    XML.Root.AddChild('bytesreceived').Text := IntToStr(BytesRX);
+    xml.Root.NodeName := 'server';
+    roomCountNode := xml.Root.AddChild('roomcount'); //Set it later
+    playerCountNode := xml.Root.AddChild('playercount');
+    clientCountNode := xml.Root.AddChild('clientcount');
+    xml.Root.AddChild('bytessent').Text := IntToStr(BytesTX);
+    xml.Root.AddChild('bytesreceived').Text := IntToStr(BytesRX);
 
-    for i:=0 to fRoomCount-1 do
-      if GetRoomClientsCount(i) > 0 then
+    for I:=0 to fRoomCount-1 do
+      if GetRoomClientsCount(I) > 0 then
       begin
-        inc(RoomCount);
-        inc(PlayerCount, fRoomInfo[i].GameInfo.PlayerCount);
-        inc(ClientCount, fRoomInfo[i].GameInfo.ConnectedPlayerCount);
+        inc(roomCount);
+        inc(playerCount, fRoomInfo[I].GameInfo.PlayerCount);
+        inc(clientCount, fRoomInfo[I].GameInfo.ConnectedPlayerCount);
         //HTML room info
-        HTML := HTML + '<TR><TD>'+IntToStr(i)+
-                       '</TD><TD>r'+ IntToStr(fRoomInfo[i].GameRevision) +
-                       '</TD><TD>'+XMLEscape(GameStateText[fRoomInfo[i].GameInfo.GameState])+
-                       '</TD><TD>'+IntToStr(fRoomInfo[i].GameInfo.ConnectedPlayerCount)+
-                       '</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.Map)+
-                       '&nbsp;</TD><TD>'+XMLEscape(fRoomInfo[i].GameInfo.GetFormattedTime)+
+        html := html + '<TR><TD>'+IntToStr(I)+
+                       '</TD><TD>r'+ IntToStr(fRoomInfo[I].GameRevision) +
+                       '</TD><TD>'+XMLEscape(GameStateText[fRoomInfo[I].GameInfo.GameState])+
+                       '</TD><TD>'+IntToStr(fRoomInfo[I].GameInfo.ConnectedPlayerCount)+
+                       '</TD><TD>'+XMLEscape(fRoomInfo[I].GameInfo.Map)+
+                       '&nbsp;</TD><TD>'+XMLEscape(fRoomInfo[I].GameInfo.GetFormattedTime)+
                        //HTMLPlayersList does escaping itself
-                       '&nbsp;</TD><TD>'+fRoomInfo[i].GameInfo.HTMLPlayersList+'</TD></TR>'+sLineBreak;
+                       '&nbsp;</TD><TD>'+fRoomInfo[I].GameInfo.HTMLPlayersList+'</TD></TR>'+sLineBreak;
         //XML room info
-        Node := XML.Root.AddChild('room');
-        Node.Attribute['id'] := IntToStr(i);
-        Node.AddChild('state').Text := GameStateText[fRoomInfo[i].GameInfo.GameState];
-        Node.AddChild('roomplayercount').Text := IntToStr(fRoomInfo[i].GameInfo.PlayerCount);
-        Node.AddChild('map').Text := fRoomInfo[i].GameInfo.Map;
-        Node.AddChild('gametime').Text := fRoomInfo[i].GameInfo.GetFormattedTime;
-        with Node.AddChild('players') do
+        node := xml.Root.AddChild('room');
+        node.Attribute['id'] := IntToStr(I);
+        node.AddChild('state').Text := GameStateText[fRoomInfo[I].GameInfo.GameState];
+        node.AddChild('roomplayercount').Text := IntToStr(fRoomInfo[I].GameInfo.PlayerCount);
+        node.AddChild('map').Text := fRoomInfo[I].GameInfo.Map;
+        node.AddChild('gametime').Text := fRoomInfo[I].GameInfo.GetFormattedTime;
+        with node.AddChild('players') do
         begin
-          for k:=1 to fRoomInfo[i].GameInfo.PlayerCount do
+          for K:=1 to fRoomInfo[I].GameInfo.PlayerCount do
             with AddChild('player') do
             begin
-              Text := UnicodeString(fRoomInfo[i].GameInfo.Players[k].Name);
-              SetAttribute('color', ColorToText(fRoomInfo[i].GameInfo.Players[k].Color));
-              SetAttribute('connected', BOOL_TEXT[fRoomInfo[i].GameInfo.Players[k].Connected]);
-              SetAttribute('type', NetPlayerTypeName[fRoomInfo[i].GameInfo.Players[k].PlayerType]);
-              SetAttribute('langcode', UnicodeString(fRoomInfo[i].GameInfo.Players[k].LangCode));
-              SetAttribute('team', IntToStr(fRoomInfo[i].GameInfo.Players[k].Team));
-              SetAttribute('spectator', BOOL_TEXT[fRoomInfo[i].GameInfo.Players[k].IsSpectator]);
-              SetAttribute('host', BOOL_TEXT[fRoomInfo[i].GameInfo.Players[k].IsHost]);
-              SetAttribute('won_or_lost', WonOrLostText[fRoomInfo[i].GameInfo.Players[k].WonOrLost]);
+              Text := UnicodeString(fRoomInfo[I].GameInfo.Players[K].Name);
+              SetAttribute('color', ColorToText(fRoomInfo[I].GameInfo.Players[K].Color));
+              SetAttribute('connected', BOOL_TEXT[fRoomInfo[I].GameInfo.Players[K].Connected]);
+              SetAttribute('type', NetPlayerTypeName[fRoomInfo[I].GameInfo.Players[K].PlayerType]);
+              SetAttribute('langcode', UnicodeString(fRoomInfo[I].GameInfo.Players[K].LangCode));
+              SetAttribute('team', IntToStr(fRoomInfo[I].GameInfo.Players[K].Team));
+              SetAttribute('spectator', BOOL_TEXT[fRoomInfo[I].GameInfo.Players[K].IsSpectator]);
+              SetAttribute('host', BOOL_TEXT[fRoomInfo[I].GameInfo.Players[K].IsHost]);
+              SetAttribute('won_or_lost', WonOrLostText[fRoomInfo[I].GameInfo.Players[K].WonOrLost]);
             end;
         end;
       end;
     //Set counts in XML
-    RoomCountNode.Text := IntToStr(RoomCount);
-    PlayerCountNode.Text := IntToStr(PlayerCount);
-    ClientCountNode.Text := IntToStr(ClientCount);
+    roomCountNode.Text := IntToStr(roomCount);
+    playerCountNode.Text := IntToStr(playerCount);
+    clientCountNode.Text := IntToStr(clientCount);
 
     //HTML footer
-    HTML := HTML + '</TABLE>'+sLineBreak+
+    html := html + '</TABLE>'+sLineBreak+
                    '<p>Total sent: '+AddThousandSeparator(IntToStr(BytesTX))+' bytes</p>'+sLineBreak+
                    '<p>Total received: '+AddThousandSeparator(IntToStr(BytesRX))+' bytes</p>'+sLineBreak+
                    '</BODY>'+sLineBreak+'</HTML>';
 
     //Write HTML
-    AssignFile(MyFile, fHTMLStatusFile);
-    ReWrite(MyFile);
-    Write(MyFile,HTML);
-    CloseFile(MyFile);
+    AssignFile(myFile, fHTMLStatusFile);
+    ReWrite(myFile);
+    Write(myFile,html);
+    CloseFile(myFile);
     //Write XML
-    XML.SaveToFile(ChangeFileExt(fHTMLStatusFile,'.xml'));
+    xml.SaveToFile(ChangeFileExt(fHTMLStatusFile,'.xml'));
   finally
-    XML.Free;
+    xml.Free;
   end;
 end;
 
 
 end.
+

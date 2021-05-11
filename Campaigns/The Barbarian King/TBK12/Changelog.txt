@@ -1,4 +1,4 @@
-TBK11
+TBK12
 *****
 
 Version 1.0
@@ -45,3 +45,7 @@ Version 2.2: (30.12.2019)
 - integrated newest version of 'difficulty.script'
 - 'Easy' decreases Recruit Rate by 50% instead of 33%
 - Fixed a bug that was introduced when moving the campaign to version r10745
+
+Version 2.2b (01.09.2020)
+- Fixed a typo in the script that made the Player1 build a 2nd weapon smithy instead of a 3rd iron smelter
+- Prettied up stone mountain at player0 start position

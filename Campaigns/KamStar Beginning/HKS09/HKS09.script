@@ -1,0 +1,45 @@
+ {$I difficulty.script}{$I Language.script}
+Procedure Ludzie;
+var ile:Integer;
+	domy:array of Integer;
+begin
+	domy := States.PlayerGetAllHouses(0)
+	for ile := 0 to length(domy)-1 do begin
+		Actions.GiveUnit(0,States.HouseTypeToOccupantType(States.HouseType(domy[ile])),States.HousePositionX(domy[ile]),States.HousePositionY(domy[ile])+1,4);
+	end;
+end;
+
+procedure OnMissionStart();
+var 
+	H, M, iNewHouseID,R,U,G: Integer;
+begin
+
+	for H := 0 to Length(CampaignData.HKS08.Houses)-1 do
+	begin
+		iNewHouseID := Actions.GiveHouse(0, CampaignData.HKS08.Houses[H][0], CampaignData.HKS08.Houses[H][1]-1, CampaignData.HKS08.Houses[H][2]-3);
+		for M := 4 to 31 do
+			if CampaignData.HKS08.Houses[H][M] <> 0 then
+				Actions.HouseAddWaresTo(iNewHouseID, M-4, CampaignData.HKS08.Houses[H][M]);
+	end;
+	for R := 0 to Length(CampaignData.HKS08.Roads)-1 do begin
+		if CampaignData.HKS08.Roads[R][3] = 0 then
+			Actions.GiveRoad(0, CampaignData.HKS08.Roads[R][1]-1, CampaignData.HKS08.Roads[R][2]-3);
+		if CampaignData.HKS08.Roads[R][3] = 1 then
+			Actions.GiveField(0, CampaignData.HKS08.Roads[R][1]-1, CampaignData.HKS08.Roads[R][2]-3);
+		if CampaignData.HKS08.Roads[R][3] = 2 then
+			Actions.GiveWineField(0, CampaignData.HKS08.Roads[R][1]-1, CampaignData.HKS08.Roads[R][2]-3);
+	end;
+	for U := 0 to Length(CampaignData.HKS08.Units)-1 do begin
+		Actions.GiveUnit(0,CampaignData.HKS08.Units[U][0],CampaignData.HKS08.Units[U][1]-1,CampaignData.HKS08.Units[U][2]-3,CampaignData.HKS08.Units[U][3])
+	end;
+	for G := 0 to Length(CampaignData.HKS08.Groups)-1 do begin
+		Actions.GiveGroup(0,CampaignData.HKS08.Groups[G][0],CampaignData.HKS08.Groups[G][1]-1,CampaignData.HKS08.Groups[G][2]-3,CampaignData.HKS08.Groups[G][3],CampaignData.HKS08.Groups[G][4],CampaignData.HKS08.Groups[G][5])
+	end;
+	Ludzie;
+end;
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []); end;
+end;

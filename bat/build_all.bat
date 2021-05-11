@@ -1,3 +1,5 @@
+echo called build_all.bat
+
 @REM ============================================================
 @REM Build everything in the project group
 @REM ============================================================

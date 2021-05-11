@@ -26,11 +26,13 @@ type
 
   TKMNewSingleMapEvent = procedure (const aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
                                     aDesiredColor: Cardinal = $00000000; aDifficulty: TKMMissionDifficulty = mdNone;
-                                    aAIType: TKMAIType = aitNone; aAutoselectHumanLoc: Boolean = False) of object;
+                                    aAIType: TKMAIType = aitNone) of object;
 
   TKMNewCampaignMapEvent = procedure (aCampaign: TKMCampaignId; aMap: Byte; aDifficulty: TKMMissionDifficulty = mdNone) of object;
 
-  TKMNewMapEditorEvent = procedure (aMapFolder: TKMapFolder; const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0; aMapFullCRC: Cardinal = 0;
+  TKMNewMapEditorEvent = procedure (const aFullFilePath: UnicodeString; aMapFolder: TKMapFolder = mfSP;
+                                    aSizeX: Integer = 0; aSizeY: Integer = 0;
+                                    aMapFullCRC: Cardinal = 0;
                                     aMapSimpleCRC: Cardinal = 0) of object;
 
 implementation

@@ -1,8 +1,18 @@
+@echo off
+echo called get_kam_folder.bat
 
-@echo #                                                          # 
+if defined KAM_FOLDER_INIT (
+  if %KAM_FOLDER_INIT%==True (
+    goto exit0
+  )
+)
+
+@SET KAM_FOLDER_INIT=True
+
+@echo #                                                          #
 @echo #==========================================================#
-@echo #               Create new build folder                    #  
-@echo #==========================================================# 
+@echo #               Create new build folder                    #
+@echo #==========================================================#
 @echo #                                                          #
 
 @echo off
@@ -40,13 +50,13 @@ FOR /F "tokens=* USEBACKQ" %%F IN (`git rev-list --count HEAD`) DO (
 
 @REM Now we can have a constant with the right folder name
 @SET build_full_kmr_dir=%BuildFullDir%\kmr%YYYY%-%MM%-%DD% (%kam_version% r%kam_revision%)
-@SET installer_kmr_build_full_dir=..\Installer\BuildFull
+@REM @SET installer_kmr_build_full_dir=..\Installer\BuildFull
 
 @REM default kam_folder is build full directory
 @SET kam_folder=%build_full_kmr_dir%
 
 echo #
-echo kam_folder = `%kam_folder%`
+echo kam_folder = "%kam_folder%"
 
 
 goto exit0

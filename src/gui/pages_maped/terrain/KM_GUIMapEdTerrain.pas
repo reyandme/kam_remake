@@ -57,7 +57,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_InterfaceGame, KM_Utils;
+  KM_ResTexts, KM_Cursor, KM_RenderUI, KM_InterfaceGame, KM_Utils;
 
 
 { TKMMapEdTerrain }
@@ -75,7 +75,7 @@ const
   TB_PAD_TERRAIN_BTN_L = 9;
 
 var
-  I: TKMTerrainTab;
+  TT: TKMTerrainTab;
 begin
   inherited Create;
 
@@ -83,12 +83,12 @@ begin
 
   Panel_Terrain := TKMPanel.Create(aParent, 0, 45, aParent.Width, aParent.Height - 45);
   Panel_Terrain.AnchorsStretch;
-    for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
+    for TT := Low(TKMTerrainTab) to High(TKMTerrainTab) do
     begin
-      Button_Terrain[I] := TKMButton.Create(Panel_Terrain, TB_PAD_TERRAIN_BTN_L + (SMALL_PAD_W + 4) * Byte(I), 0,
-                                            SMALL_TAB_W + 4, SMALL_TAB_H + 4, BtnGlyph[I], rxGui, bsGame);
-      Button_Terrain[I].Hint := GetHintWHotKey(BtnHint[I], MAPED_SUBMENU_HOTKEYS[Ord(I)]);
-      Button_Terrain[I].OnClick := PageChange;
+      Button_Terrain[TT] := TKMButton.Create(Panel_Terrain, TB_PAD_TERRAIN_BTN_L + (SMALL_PAD_W + 4) * Byte(TT), 0,
+                                            SMALL_TAB_W + 4, SMALL_TAB_H + 4, BtnGlyph[TT], rxGui, bsGame);
+      Button_Terrain[TT].Hint := GetHintWHotKey(BtnHint[TT], MAPED_SUBMENU_HOTKEYS[Ord(TT)]);
+      Button_Terrain[TT].OnClick := PageChange;
     end;
 
     fGuiBrushes := TKMMapEdTerrainBrushes.Create(Panel_Terrain);
@@ -141,7 +141,7 @@ end;
 procedure TKMMapEdTerrain.PageChange(Sender: TObject);
 begin
   //Reset cursor mode
-  gGameCursor.Mode := cmNone;
+  gCursor.Mode := cmNone;
 
   //Hide existing pages
   fGuiBrushes.Hide;
@@ -235,7 +235,6 @@ end;
 
 procedure TKMMapEdTerrain.Resize;
 begin
-  fGuiTiles.Resize;
   fGuiObjects.Resize;
 end;
 

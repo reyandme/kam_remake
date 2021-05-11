@@ -1,0 +1,23 @@
+Author
+Strangelove
+
+Version
+0.7.2e (23.04.2021)
+
+SmallDescLIBX
+10
+
+BigDescLIBX
+11
+
+SetCoop
+
+BlockPeacetime
+
+BlockTeamSelection
+
+BlockFullMapPreview
+
+DifficultyLevels
+mdEasy1,mdNormal,mdHard1,mdHard2
+

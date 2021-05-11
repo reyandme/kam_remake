@@ -46,7 +46,7 @@ const
   SIZE_X = 600;
   SIZE_Y = 300;
 var
-  Img: TKMImage;
+  img: TKMImage;
 begin
   inherited Create;
 
@@ -55,8 +55,8 @@ begin
   Panel_Goal.Hide;
 
   TKMBevel.Create(Panel_Goal, -2000,  -2000, 5000, 5000);
-  Img := TKMImage.Create(Panel_Goal, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
-  Img.ImageStretch;
+  img := TKMImage.Create(Panel_Goal, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
+  img.ImageStretch;
   TKMBevel.Create(Panel_Goal,   0,  0, SIZE_X, SIZE_Y);
   TKMLabel.Create(Panel_Goal, SIZE_X div 2, 10, gResTexts[TX_MAPED_GOALS_TITLE], fntOutline, taCenter);
 

@@ -1,0 +1,14 @@
+
+Malcolm
+	"Building Scheme I" - after placing a building, it automatically connects it via a road with the nearest storehouse. Works when repair is turned on in the main storehouse
+	"Builder" - when below the building, hero helps to build it (if they are raw materials) and repair damaged ones, 
+	"XL Fields" - places 2x2 fields and vinefields markers. Works when repair is turned on in the main storehouse
+	"XL Streets" - places 2x2 road markers. Works when repair is turned on in the main storehouse
+	
+Dyron: 
+	"Kinetic Shock" - instantly kills enemy units around the character and has increased damage against buildings, 
+
+Tyrio: 
+	"Trade" - when exchanging a fish for another commodity, one fish returns to the nearest storehouse,
+	"Loot" - for each destroyed enemy building, you receive 1 timber and 1 stone for the main storehouse
+	"Ship" - You can send your troops by ship. Set the beacon ("B") at the group you want to send (it must be close to the water) and again the beacon ("B") at another location on the shore of any island. The duration of the cruise depends on the distance and number of units in the group.

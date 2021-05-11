@@ -1,0 +1,129 @@
+//-- Valley of Kings --//
+//By Strangelove
+//v0.3
+//22.01.2021
+//Developed for r12485
+
+{$I dynamicmap.script}
+{$I improvestaticai.script}
+{$I difficulty.script}
+
+
+var
+	DifficultySetting: TKMMissionDifficulty;
+	bMarketMsg, bMarketGift: array[0..2] of Boolean;
+
+
+procedure OnMissionStart();
+begin
+	DifficultySetting := States.MissionDifficulty();
+end;
+
+
+procedure OnHouseBuilt(aHouse: Integer);
+var
+	p: Byte;
+begin
+	//Display Message to Player when Market is available
+	if States.HouseType(aHouse) = 0 then //Sawmill unlocks Market
+		for p := 0 to 2 do
+			if States.HouseOwner(aHouse) =	p then
+				if not bMarketMsg[p] then
+				begin
+				Actions.ShowMsg(p, '<$1>');
+				bMarketMsg[p] := true;
+				end;
+	//Add stuff to newly built Market and display Msg to Player
+	if States.HouseType(aHouse) = 29 then 
+		for p := 0 to 2 do
+			if States.HouseOwner(aHouse) =	p then
+				if not bMarketGift[p] then
+				begin
+				Actions.ShowMsg(p, '<$2>');
+				Actions.HouseAddWaresTo(aHouse, 2, 10); //Wood
+				Actions.HouseAddWaresTo(aHouse, 1, 20); //Stone
+				bMarketGift[p] := true;
+				end;
+end;
+
+
+procedure OnTick();
+begin
+	//Make Waterfalls more dynamic (Change end tiles) Not automated yet...
+	if States.GameTime() mod 9 = 0 then
+	begin
+		ChangeWaterfallEndTiles(90, 91, 53); //Top-Middle
+		ChangeWaterfallEndTiles(8, 9, 226); //Bottom-Left
+	end;
+	
+	//Remove/Add Enemy Defence Positions and Groups
+	if States.GameTime() = (MAX_HANDS +1) then
+	begin
+		case DifficultySetting of
+			mdEasy2: //32?
+			begin
+
+			end;
+			mdEasy1: //23
+			begin
+				RemoveDefencePositionAndGroup(3, 87, 86); //Pikes
+				RemoveDefencePositionAndGroup(3, 97, 100); //Swords
+				RemoveDefencePositionAndGroup(3, 109, 99); //Pikes
+				RemoveDefencePositionAndGroup(3, 123, 99); //Pikes
+				RemoveDefencePositionAndGroup(4, 137, 88); //Xbow
+				RemoveDefencePositionAndGroup(4, 150, 73); //Knights
+				RemoveDefencePositionAndGroup(4, 143, 98); //Swords
+				RemoveDefencePositionAndGroup(5, 111, 46); //Knights
+				RemoveDefencePositionAndGroup(5, 124, 41); //Pikes
+				RemoveDefencePositionAndGroup(5, 133, 34); //Xbows
+				RemoveDefencePositionAndGroup(6, 157, 28); //Pikes
+				RemoveDefencePositionAndGroup(6, 136, 20); //Xbow
+				RemoveDefencePositionAndGroup(6, 126, 14); //Pikes
+				RemoveDefencePositionAndGroup(7, 35, 9); //Knights
+				RemoveDefencePositionAndGroup(7, 37, 18); //Pikes
+				RemoveDefencePositionAndGroup(7, 32, 29); //Pikes
+				RemoveDefencePositionAndGroup(8, 45, 74); //Pikes
+				RemoveDefencePositionAndGroup(8, 55, 70); //Pikes
+				RemoveDefencePositionAndGroup(8, 43, 68); //Knights
+				RemoveDefencePositionAndGroup(8, 64, 65); //Swords
+				RemoveDefencePositionAndGroup(9, 23, 72); //Swords
+				RemoveDefencePositionAndGroup(9, 17, 106); //Pikes
+				RemoveDefencePositionAndGroup(9, 20, 101); //Xbows
+			end;
+			mdNormal: //16
+			begin
+				RemoveDefencePositionAndGroup(3, 87, 86); //Pikes
+				RemoveDefencePositionAndGroup(3, 97, 100); //Swords
+				RemoveDefencePositionAndGroup(3, 113, 99); //Knights
+				RemoveDefencePositionAndGroup(4, 137, 88); //Xbow
+				RemoveDefencePositionAndGroup(4, 150, 73); //Knights
+				RemoveDefencePositionAndGroup(5, 111, 46); //Knights
+				RemoveDefencePositionAndGroup(5, 124, 41); //Pikes
+				RemoveDefencePositionAndGroup(6, 157, 28); //Pikes
+				RemoveDefencePositionAndGroup(6, 136, 20); //Xbow
+				RemoveDefencePositionAndGroup(7, 35, 9); //Knights
+				RemoveDefencePositionAndGroup(7, 32, 29); //Pikes
+				RemoveDefencePositionAndGroup(8, 45, 74); //Pikes
+				RemoveDefencePositionAndGroup(8, 67, 40); //Xbow
+				RemoveDefencePositionAndGroup(8, 55, 70); //Pikes
+				RemoveDefencePositionAndGroup(9, 23, 72); //Swords
+				RemoveDefencePositionAndGroup(9, 17, 106); //Pikes
+			end;
+			mdHard1: //8
+			begin
+				RemoveDefencePositionAndGroup(3, 87, 86); //Pikes
+				RemoveDefencePositionAndGroup(3, 109, 99); //Pikes
+				RemoveDefencePositionAndGroup(4, 137, 88); //Xbow
+				RemoveDefencePositionAndGroup(5, 111, 46); //Knights
+				RemoveDefencePositionAndGroup(6, 136, 20); //Xbow
+				RemoveDefencePositionAndGroup(7, 32, 20); //Knights
+				RemoveDefencePositionAndGroup(8, 45, 74); //Pikes
+				RemoveDefencePositionAndGroup(9, 23, 72); //Swords
+			end;
+			//No Defense Positions removed on mdHard2 (Harder)
+		end;
+	end;
+	
+	//if States.GameTime() = 600 then
+	//	Actions.ShowMsg(-1, '$0');
+end;

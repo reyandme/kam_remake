@@ -25,3 +25,6 @@ Version 2.2 (29.12.2019)
 - Fixed difficulty settings (Now actually winnable on 'hard', easier on other difficulties)
 - Attack is now handled by static script; script modified accordingly
 - Updated Stone Mountain
+
+Version 2.2b (01.09.2020)
+- Increased amount of Enemy Barbarians by 6 on each difficulty setting

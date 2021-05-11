@@ -23,6 +23,8 @@
 bugreport.txt
 /.idea
 /bat/rsvars_local.bat
+/bat/build_time.txt
+/bat/timer.txt
 /KaM_Remake.drc
 /KaM_Remake.map
 /KaM_Remake.res
@@ -46,6 +48,7 @@ bugreport.txt
 /Installer/BuildFull*
 /Installer/BuildUpdate*
 /Installer/CheckKaM.iss
+/Installer/Constants_local.iss
 /Utils/DedicatedServer/KaM_Remake_Server_linux_x86
 /Utils/DedicatedServer/KaM_Remake_Server_linux_x86_64
 /dcu
@@ -72,5 +75,6 @@ Trees.txt
 MapsDL/
 
 kmr_dev.xml
+KaM Remake Settings.xml
 
-KaM_Remake_Settings.xml
+!timer.exe

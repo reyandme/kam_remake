@@ -1,0 +1,172 @@
+{$I Trade.script}
+{$I Language.script}
+procedure WarriorChange(aUnitID: Integer; aGroupID: Integer);
+var aBarracks,PL: Integer;
+var aDone: Boolean;
+begin
+	if States.UnitType(aUnitID) = 21 then begin
+		aBarracks := States.ClosestHouse(States.UnitOwner(aUnitID), States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 21);
+		PL:=States.HouseOwner(aBarracks);
+		If States.HouseRepair(aBarracks) then begin
+			Actions.HouseAddWaresTo(aBarracks, 16, 1);
+			Actions.HouseAddWaresTo(aBarracks, 18, 1);
+			Actions.GroupOrderLink(Actions.GiveGroup(States.UnitOwner(aUnitID), 27, States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), States.UnitDirection(aUnitID),1,1), aGroupID);
+			Actions.UnitKill(aUnitID,true);
+		end;
+	end;
+	if States.UnitType(aUnitID) = 19 then begin
+		aBarracks := States.ClosestHouse(States.UnitOwner(aUnitID), States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 21);
+		PL:=States.HouseOwner(aBarracks);
+		If States.HouseRepair(aBarracks) then begin
+			Actions.HouseAddWaresTo(aBarracks, 18, 1);
+			Actions.GroupOrderLink(Actions.GiveGroup(States.UnitOwner(aUnitID), 24, States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), States.UnitDirection(aUnitID),1,1), aGroupID);
+			Actions.UnitKill(aUnitID,true);
+		end;
+	end;
+	if States.UnitType(aUnitID) = 17 then begin
+		aBarracks := States.ClosestHouse(States.UnitOwner(aUnitID), States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 21);
+		PL:=States.HouseOwner(aBarracks);
+		If States.HouseRepair(aBarracks) then begin
+			Actions.HouseAddWaresTo(aBarracks, 18, 1);
+			Actions.GroupOrderLink(Actions.GiveGroup(States.UnitOwner(aUnitID), 25, States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), States.UnitDirection(aUnitID),1,1), aGroupID);
+			Actions.UnitKill(aUnitID,true);
+		end;
+	end;
+	if States.UnitType(aUnitID) = 14 then begin
+		aBarracks := States.ClosestHouse(States.UnitOwner(aUnitID), States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), 21);
+		PL:=States.HouseOwner(aBarracks);
+		If States.HouseRepair(aBarracks) then begin
+			If (States.HouseResourceAmount(aBarracks,23) >= 2) and( States.HouseResourceAmount(aBarracks,23) >= 2) then begin
+			Actions.HouseAddWaresTo(aBarracks, 20, 1);
+			Actions.HouseTakeWaresFrom(aBarracks, 23, 2);
+			Actions.HouseTakeWaresFrom(aBarracks, 19, 1);
+			Actions.GroupOrderLink(Actions.GiveGroup(States.UnitOwner(aUnitID), 26, States.UnitPositionX(aUnitID), States.UnitPositionY(aUnitID), States.UnitDirection(aUnitID),1,1), aGroupID);
+			Actions.UnitKill(aUnitID,true);
+			end;
+		end;
+	end;
+end;
+
+procedure OnWarriorEquipped(aUnitID: Integer; aGroupID: Integer);
+begin
+	if (States.UnitType(aUnitID) = 14) or(States.UnitType(aUnitID) = 17) or (States.UnitType(aUnitID) = 19) or (States.UnitType(aUnitID) = 21) then begin
+		WarriorChange(aUnitID, aGroupID);
+	end;
+	If (States.UnitOwner(aUnitID) = 1) and(States.UnitType(aUnitID) = 20) then If States.KamRandomI(10)<5 then Actions.GiveGroup(1,26,States.UnitPositionX(aUnitID),States.UnitPositionY(aUnitID)+1,4,1,1);
+end;
+
+var Malcolm,Store,n1:Integer;
+	Count:array of integer;
+	dMod:byte;
+	
+Procedure OnMarketTrade(aMarket: Integer; aFrom: Integer;  aTo: Integer);
+begin
+if (States.HouseOwner(aMarket) = 2) and (aFrom = 27) and not (aTo = 1) then
+	Actions.HouseAddWaresTo(aMarket,aFrom,5);
+	If aTo = 17 then Actions.GiveWeapons(2,17,1);
+	If aTo = 19 then Actions.GiveWeapons(2,19,1);
+	If aTo = 17 then Actions.HouseTakeWaresFrom(aMarket,17,1);
+	If aTo = 19 then Actions.HouseTakeWaresFrom(aMarket,19,1);
+end;
+
+Procedure OnPlanFieldPlaced(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+	if (aPlayer = 0) then begin
+		for a := 0to 1 do
+		for b := 0to 1 do
+		Actions.PlanAddField(0,X+a,Y+b);
+	end;
+end;
+Procedure OnPlanWinefieldPlaced(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+	if (aPlayer = 0) then begin
+		for a := 0to 1 do
+		for b := 0to 1 do
+		Actions.PlanAddWinefield(0,X+a,Y+b);
+	end;
+end;
+Procedure OnHousePlanPlaced(aPlayer: Integer; X: Integer; Y: Integer; aType: Integer);
+begin
+	if (aPlayer = 0) and (States.HouseRepair(Store)) then begin
+		Actions.PlanConnectRoad(0,X,Y+1,States.HousePositionX(States.ClosestHouse(0,X,Y,11)),States.HousePositionY(States.ClosestHouse(0,X,Y,11))+1,false);
+	end;
+end;
+
+Procedure OnBeacon(Player:Integer; X,Y:Word);
+begin
+	IF (X = States.UnitPositionX(Malcolm))and(Y = States.UnitPositionY(Malcolm)) then n1:=n1+1;
+	If n1 = 8 then Actions.PlayerWin([0],true);
+end;
+procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 1 to 4 do begin
+           UnitsToFeed := States.PlayerGetAllGroups(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end; 
+procedure OnTick;
+var HType,Recruits:Integer;
+begin
+	If States.GameTime mod 10=0 then begin
+		If (States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)<>-1) then begin
+			HType:= States.HouseType(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1))
+			If (States.HouseSiteIsDigged(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddBuildingProgress(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1));		
+			If (States.HouseIsComplete(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true) and(States.HouseDamage(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) < States.HouseTypeMaxHealth(HType)-5)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddRepair(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1),5);
+		end;
+	end;
+	If (States.GameTime mod 100=0) and (States.HouseResourceAmount(States.HouseAt(13,87),1)>1)and(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)) <> 1) and (Actions.PlanRemove(0,States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)) <> false) then begin
+		Actions.GiveRoad(0,States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm));
+		Actions.HouseTakeWaresFrom(States.HouseAt(13,87),1,1);
+	end;
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', [])
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []);
+		Malcolm := States.UnitAt(13,96)end;
+	if States.GameTime = 200 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+	if States.UnitDead(Malcolm) then
+		Actions.PlayerDefeat(0);
+	If (States.GameTime mod 1800 = 0) and (States.StatHouseTypeCount(4,11) >2) then begin
+		for Recruits :=0 to Count[dMod] do begin
+			If (Recruits mod 2 = 0) then Actions.GiveUnit(4,13,195,107,4);
+			Actions.GiveWeapons(4,17,1);
+			Actions.GiveWeapons(4,19,1);
+			Actions.GiveWeapons(4,21,1);
+			Actions.GiveWeapons(4,26,2);
+		end;
+	end;
+end;
+
+Procedure OnMissionStart;
+var Houses:array of integer;
+	LL:integer;
+begin
+	Houses:=States.PlayerGetAllHouses(0);
+	for LL:=0 to length(Houses)-1 do begin
+		If (States.HouseType(Houses[LL])=11) and (Store=0) then
+			Store:=Houses[LL];
+	end;
+	Count:=[0,0,1,2,3,4,5]
+	dMod:=byte(States.MissionDifficulty)-1;
+	Actions.GiveGroup(0,16,5,90,4,CampaignData.HKS21.Groups[0]/2,5);
+	Actions.GiveGroup(0,16,20,90,4,CampaignData.HKS21.Groups[0]/2,5);
+	Actions.GiveGroup(0,20,6,98,3,CampaignData.HKS21.Groups[2]/2,5);
+	Actions.GiveGroup(0,20,19,97,5,CampaignData.HKS21.Groups[2]/2,5);
+	Actions.GiveGroup(0,22,5,84,3,CampaignData.HKS21.Groups[3]/2,5);
+	Actions.GiveGroup(0,22,20,84,5,CampaignData.HKS21.Groups[3]/2,5);
+	Actions.GiveGroup(0,18,13,83,4,CampaignData.HKS21.Groups[1]/2,5);
+	Actions.GiveGroup(0,18,13,102,4,CampaignData.HKS21.Groups[1]/2,5);
+	
+end;

@@ -2,7 +2,7 @@ unit KM_GUIMapEdMenuResize;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, SysUtils, KM_Controls, KM_Defaults;
+   Classes, SysUtils, KM_Controls, KM_Defaults, KM_MapTypes;
 
 
 type
@@ -131,7 +131,7 @@ end;
 
 procedure TKMMapEdMenuResize.ResizeRefresh(Sender: TObject);
 var
-  NewMapX, NewMapY: SmallInt;
+  newMapX, newMapY: SmallInt;
 begin
   Button_Resize.Enabled := (NumEdit_Resize_Left.Value   <> 0)
                         or (NumEdit_Resize_Right.Value  <> 0)
@@ -154,14 +154,14 @@ begin
   gGame.MapEditor.ResizeMapRect.Right := gTerrain.MapX - Abs(Min(0, NumEdit_Resize_Right.Value)) - 1;
   gGame.MapEditor.ResizeMapRect.Bottom := gTerrain.MapY - Abs(Min(0, NumEdit_Resize_Bottom.Value)) - 1;
 
-  NewMapX := gTerrain.MapX + NumEdit_Resize_Left.Value + NumEdit_Resize_Right.Value;
-  NewMapY := gTerrain.MapY + NumEdit_Resize_Top.Value + NumEdit_Resize_Bottom.Value;
+  newMapX := gTerrain.MapX + NumEdit_Resize_Left.Value + NumEdit_Resize_Right.Value;
+  newMapY := gTerrain.MapY + NumEdit_Resize_Top.Value + NumEdit_Resize_Bottom.Value;
 
   Label_CurrentMapSize.Caption := Format(gResTexts[TX_MAPED_MAP_RESIZE_CURR_MAP_SIZE] + '|[ %d : %d ]', [gTerrain.MapX, gTerrain.MapY]);
   Label_NewMapSize.Enabled := Button_Resize.Enabled;
   Label_NewMapSize.Caption := Format(gResTexts[TX_MAPED_MAP_RESIZE_NEW_MAP_SIZE] + '|[ %d : %d ]',
-                                    [EnsureRange(NewMapX, MIN_MAP_SIZE, MAX_MAP_SIZE),
-                                     EnsureRange(NewMapY, MIN_MAP_SIZE, MAX_MAP_SIZE)]);
+                                    [EnsureRange(newMapX, MIN_MAP_SIZE, MAX_MAP_SIZE),
+                                     EnsureRange(newMapY, MIN_MAP_SIZE, MAX_MAP_SIZE)]);
 end;
 
 
@@ -169,10 +169,11 @@ procedure TKMMapEdMenuResize.Resize_Click(Sender: TObject);
 type
   TDir4 = (dLeft, dTop, dRight, dBottom);
 var
-  SaveName: string;
+  saveNameFullPath: string;
   left, top, right, bot: Integer;
   DIR4: TDir4;
   rRect: array[TDir4] of TKMRect;
+  isMultiplayer: Boolean;
 begin
   left  := Max(0, NumEdit_Resize_Left.Value);
   top   := Max(0, NumEdit_Resize_Top.Value);
@@ -180,12 +181,13 @@ begin
   bot   := Max(0, NumEdit_Resize_Bottom.Value);
 
   gGame.TerrainPainter.FixTerrainKindInfoAtBorders(False);
+  isMultiplayer := fIsMultiplayer;
 
-  SaveName := TKMapsCollection.FullPath(gGameParams.Name, '.dat', fMapFolder);
-  gGame.SaveMapEditor(SaveName, KMRect(NumEdit_Resize_Left.Value,  NumEdit_Resize_Top.Value,
+  saveNameFullPath := TKMapsCollection.FullPath(gGameParams.Name, '.dat', fIsMultiplayer);
+  gGame.SaveMapEditor(saveNameFullPath, KMRect(NumEdit_Resize_Left.Value,  NumEdit_Resize_Top.Value,
                                        NumEdit_Resize_Right.Value, NumEdit_Resize_Bottom.Value));
   FreeThenNil(gGame);
-  gGameApp.NewMapEditor(fMapFolder, SaveName);
+  gGameApp.NewMapEditor(saveNameFullPath, isMultiplayer);
 
   // Collect generated map areas
   rRect[dLeft]   := KMRect(1, top + 1, left, gTerrain.MapY - bot);
@@ -204,7 +206,7 @@ begin
   end;
 
   // Save changes
-  gGame.SaveMapEditor(SaveName);
+  gGame.SaveMapEditor(saveNameFullPath);
 end;
 
 

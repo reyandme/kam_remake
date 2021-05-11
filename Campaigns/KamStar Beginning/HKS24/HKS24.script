@@ -1,0 +1,88 @@
+ Var AllGroups:array of array[0..1] of Integer;
+	Gleng,Dyron:Integer;
+	dMod:byte;
+	Count:array of Integer;
+	{$I Language.script}
+
+ procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 0 to 11 do begin
+           UnitsToFeed := States.PlayerGetAllGroups(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end;		 
+       end; 
+	   
+procedure Random;
+var GG2,AX,AY : Integer;
+	groups2:array of Integer;
+begin
+	groups2:=States.PlayerGetAllGroups(1);
+	for GG2 := 0 to length(groups2)-1 do begin
+		If (States.UnitIdle(States.GroupMember(groups2[GG2],0)) = true) then begin
+			Actions.GroupOrderWalk(groups2[GG2], AllGroups[GG2][0]-10+States.KaMRandomI(20), AllGroups[GG2][1]-10+States.KaMRandomI(20),States.KaMRandomI(7));
+		end;
+	end;
+end;
+
+Procedure Win;
+var XW,YW,aa,bb,r:Integer;
+begin
+	XW:=States.UnitPositionX(Dyron);
+	YW:=States.UnitPositionY(Dyron);
+	aa:=11
+	bb:=85
+	r:=2
+	If ((XW-aa)*(XW-aa)+(YW-bb)*(YW-bb)<=r*r) then Actions.PlayerWin([0],true);
+end;
+procedure OnTick;
+begin
+	if States.GameTime = 1 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);end;
+	if States.GameTime = 50 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []);end;
+	if States.GameTime = 100 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []);end;
+	if States.GameTime = 150 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$3>', []);end;
+	if States.GameTime = 200 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$4>', []);end;
+	if States.GameTime = 250 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$5>', []);end;
+	if States.GameTime = 300 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$6>', []);end;
+	if States.GameTime = 500 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+	If States.GameTime mod Count[dMod] = 0 then Random;
+	If States.GameTime mod 10 = 0 then Win;
+	if States.GameTime = 600 then
+		Actions.ShowMSG(-1,'<$7>');
+end;
+
+
+Procedure OnMissionStart;
+var groups:array of Integer;
+	GG:Integer;
+begin
+	Count:= [600,500,400,300,200,120,80];
+	dMod:= byte(States.MissionDifficulty)-1;
+	Dyron:=States.UnitAt(61,18);
+	groups:=States.PlayerGetAllGroups(1);
+	SetLength(AllGroups, length(groups));
+	for GG := 0 to length(groups)-1 do begin
+		AllGroups[GG][0] := States.UnitPositionX(States.GroupMember(groups[GG],0));
+		AllGroups[GG][1] := States.UnitPositionY(States.GroupMember(groups[GG],0));
+	end;
+end;

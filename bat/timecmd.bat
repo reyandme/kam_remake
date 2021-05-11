@@ -4,7 +4,7 @@
 set start=%time%
 
 :: Runs your command
-cmd /c %*
+cmd /c "%*"
 
 set end=%time%
 set options="tokens=1-4 delims=:.,"

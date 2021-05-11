@@ -1,0 +1,9 @@
+Author
+Harry
+
+Version
+1.1
+
+BigDesc
+This map uses no food start. So focusing on food early is important.
+

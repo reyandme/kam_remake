@@ -3,7 +3,8 @@ unit KM_Networking;
 interface
 uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
-  Classes, SysUtils, TypInfo, Forms, KromUtils,
+  Classes, SysUtils, TypInfo, Forms, Generics.Collections,
+  KromUtils,
   KM_Console,
   KM_CommonClasses, KM_CommonTypes, KM_NetworkClasses, KM_NetworkTypes, KM_Defaults, KM_Points,
   KM_Saves, KM_GameOptions, KM_ResLocales, KM_NetFileTransfer, KM_Maps, KM_MapTypes, KM_NetPlayersList,
@@ -50,7 +51,7 @@ type
     fJoinTimeout, fLastVoteTime: Cardinal;
     fReturnedToLobby: Boolean; //Did we get to the lobby by return to lobby feature?
     fNetPlayers: TKMNetPlayersList;
-    fMutedPlayersList: TList; // List of ServerIndexes of muted players.
+    fMutedPlayersList: TList<Integer>; // List of ServerIndexes of muted players.
     fMyPlayerCurrentFPS: Cardinal;
 
     fMapInfo: TKMapInfo; // Everything related to selected map
@@ -72,7 +73,7 @@ type
     procedure StartGame;
     procedure TryPlayGame;
     procedure PlayGame;
-    procedure SetGameState(aState: TKMNetGameState);
+    procedure SetGameState(aState: TKMNetGameState; aOnMPInfoChanged: Boolean = True);
     procedure SendMapOrSave(Recipient: TKMNetHandleIndex = NET_ADDRESS_OTHERS);
     procedure DoReconnection;
     function IsPlayerHandStillInGame(aPlayerIndex: Integer): Boolean;
@@ -260,7 +261,7 @@ constructor TKMNetworking.Create(const aMasterServerAddress: string; aKickTimeou
                                  aDynamicFOW, aMapsFilterEnabled: Boolean; const aMapsCRCListStr: UnicodeString; const aPeacetimeRng: TKMRangeInt;
                                  const aSpeedRng: TKMRangeSingle; const aSpeedRngAfterPT: TKMRangeSingle);
 var
-  GameFilter: TKMPGameFilter;
+  gameFilter: TKMPGameFilter;
 begin
   inherited Create;
 
@@ -268,8 +269,8 @@ begin
 
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aServerUDPScanPort,
                                           aMasterServerAddress, '', '', aPacketsAccDelay, False);
-  GameFilter := TKMPGameFilter.Create(aDynamicFOW, aMapsFilterEnabled, aMapsCRCListStr, aPeacetimeRng, aSpeedRng, aSpeedRngAfterPT);
-  fNetServer.Server.GameFilter := GameFilter;
+  gameFilter := TKMPGameFilter.Create(aDynamicFOW, aMapsFilterEnabled, aMapsCRCListStr, aPeacetimeRng, aSpeedRng, aSpeedRngAfterPT);
+  fNetServer.Server.GameFilter := gameFilter;
 
   fNetGameFilter := TKMPGameFilter.Create;
 
@@ -278,10 +279,10 @@ begin
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress, aServerUDPScanPort);
   fNetGameOptions := TKMGameOptions.Create;
   fFileSenderManager := TKMFileSenderManager.Create;
-  fMutedPlayersList := TList.Create;
+  fMutedPlayersList := TList<Integer>.Create;
   fFileSenderManager.OnTransferCompleted := TransferOnCompleted;
   fFileSenderManager.OnTransferPacket := TransferOnPacket;
-  gLog.OnLogMessage := PostLogMessageToChat;
+  gLog.AddOnLogEventSub(PostLogMessageToChat);
   fVoteReturnToLobbySucceeded := False;
 
   gNetworking := Self;
@@ -290,6 +291,7 @@ end;
 
 destructor TKMNetworking.Destroy;
 begin
+  gLog.RemoveOnLogEventSub(PostLogMessageToChat);
   fNetPlayers.Free;
   fNetServer.Free;
   fNetClient.Free;
@@ -450,7 +452,7 @@ end;
 procedure TKMNetworking.DropPlayers(aPlayers: TKMByteArray);
 var
   I: Integer;
-  ServerIndex: TKMNetHandleIndex;
+  serverIndex: TKMNetHandleIndex;
 begin
   Assert(IsHost, 'Only the host is allowed to drop players');
   for I := Low(aPlayers) to High(aPlayers) do
@@ -462,10 +464,10 @@ begin
     end
     else
     begin
-      ServerIndex := NetPlayers[aPlayers[I]].IndexOnServer;
+      serverIndex := NetPlayers[aPlayers[I]].IndexOnServer;
       //Make sure this player is properly disconnected from the server
-      PacketSendInd(NET_ADDRESS_SERVER, mkKickPlayer, ServerIndex);
-      NetPlayers.DropPlayer(ServerIndex);
+      PacketSendInd(NET_ADDRESS_SERVER, mkKickPlayer, serverIndex);
+      NetPlayers.DropPlayer(serverIndex);
     end;
     PostMessage(TX_NET_DROPPED, csLeave, NetPlayers[aPlayers[I]].NiknameColoredU);
   end;
@@ -491,39 +493,40 @@ end;
 
 procedure TKMNetworking.DecodePingInfo(aStream: TKMemoryStream);
 var
-  i: Integer;
-  PingCount: Integer;
-  PlayerHandle: TKMNetHandleIndex;
-  PingValue, FPSValue: Word;
-  LocalHandle: Integer;
+  I: Integer;
+  pingCount: Integer;
+  playerHandle: TKMNetHandleIndex;
+  pingValue, fpsValue: Word;
+  localHandle: Integer;
 begin
   if fIgnorePings > 0 then
   begin
-    dec(fIgnorePings);
-    exit;
+    Dec(fIgnorePings);
+    Exit;
   end;
   if fIgnorePings <> 0 then exit; //-1 means ignore all pings
 
-  aStream.Read(PingCount);
-  for i:=1 to PingCount do
+  aStream.Read(pingCount);
+  for I:=1 to pingCount do
   begin
-    aStream.Read(PlayerHandle);
-    LocalHandle := fNetPlayers.ServerToLocal(PlayerHandle);
-    aStream.Read(PingValue);
-    aStream.Read(FPSValue);
+    aStream.Read(playerHandle);
+    localHandle := fNetPlayers.ServerToLocal(playerHandle);
+    aStream.Read(pingValue);
+    aStream.Read(fpsValue);
     //This player might not be in the lobby yet, could still be asking to join. If so we do not care about their ping.
-    if LocalHandle <> -1 then
+    if localHandle <> -1 then
     begin
-      fNetPlayers[LocalHandle].AddPing(PingValue);
-      if LocalHandle <> fMyIndex then // our own FPS was set immidiately after measurement, without delay.
-        fNetPlayers[LocalHandle].FPS := FPSValue;
+      fNetPlayers[localHandle].AddPing(pingValue);
+      if localHandle <> fMyIndex then // our own FPS was set immidiately after measurement, without delay.
+        fNetPlayers[localHandle].FPS := fpsValue;
     end;
   end;
 end;
 
 
 procedure TKMNetworking.SendMapOrSave(Recipient: TKMNetHandleIndex = NET_ADDRESS_OTHERS);
-var M: TKMemoryStream;
+var
+  M: TKMemoryStream;
 begin
   M := TKMemoryStreamBinary.Create;
   case fSelectGameKind of
@@ -545,7 +548,7 @@ end;
 
 procedure TKMNetworking.MatchPlayersToSave(aPlayerID: Integer = -1);
 var
-  I,K: Integer;
+  I, K: Integer;
 begin
   Assert(IsHost, 'Only host can match players');
   Assert(fSelectGameKind = ngkSave, 'Not a save');
@@ -661,7 +664,7 @@ end;
 //Players will reset their starting locations and "Ready" status on their own
 procedure TKMNetworking.SelectSave(const aName: UnicodeString);
 var
-  Error: UnicodeString;
+  error: UnicodeString;
 begin
   Assert(IsHost, 'Only host can select saves');
 
@@ -672,8 +675,8 @@ begin
 
   if not fSaveInfo.IsValid then
   begin
-    Error := WrapColor(fSaveInfo.SaveError.ErrorString, clSaveLoadError); //Make a copy since fSaveInfo is freed in SelectNoMap
-    SelectNoMap(Error); //State the error, e.g. wrong version
+    error := WrapColor(fSaveInfo.SaveError.ErrorString, clSaveLoadError); //Make a copy since fSaveInfo is freed in SelectNoMap
+    SelectNoMap(error); //State the error, e.g. wrong version
     Exit;
   end;
 
@@ -711,7 +714,7 @@ end;
 //Each players choice should be unique
 procedure TKMNetworking.SelectLoc(aIndex: Integer; aPlayerIndex: Integer);
 var
-  NetPlayerIndex: Integer;
+  netPlayerIndex: Integer;
 begin
   //Check if position can be taken before doing anything
   if not CanTakeLocation(aPlayerIndex, aIndex, IsHost and fNetPlayers.HostDoesSetup) then
@@ -723,18 +726,18 @@ begin
   //If someone else has this index, switch them (only when HostDoesSetup)
   if IsHost and fNetPlayers.HostDoesSetup and (aIndex <> LOC_RANDOM) and (aIndex <> LOC_SPECTATE) then
   begin
-    NetPlayerIndex := fNetPlayers.StartingLocToLocal(aIndex);
-    if NetPlayerIndex <> -1 then
+    netPlayerIndex := fNetPlayers.StartingLocToLocal(aIndex);
+    if netPlayerIndex <> -1 then
     begin
-      fNetPlayers[NetPlayerIndex].StartLocation := fNetPlayers[aPlayerIndex].StartLocation;
+      fNetPlayers[netPlayerIndex].StartLocation := fNetPlayers[aPlayerIndex].StartLocation;
 
       //Spectators can't have team
-      if fNetPlayers[NetPlayerIndex].StartLocation = LOC_SPECTATE then
-        fNetPlayers[NetPlayerIndex].Team := 0;
+      if fNetPlayers[netPlayerIndex].StartLocation = LOC_SPECTATE then
+        fNetPlayers[netPlayerIndex].Team := 0;
 
       //If host pushes player to a different loc, the player should be set to not ready (they must agree to change)
-      if (NetPlayerIndex <> fMyIndex) and not fNetPlayers[NetPlayerIndex].IsComputer then
-        fNetPlayers[NetPlayerIndex].ReadyToStart := False;
+      if (netPlayerIndex <> fMyIndex) and not fNetPlayers[netPlayerIndex].IsComputer then
+        fNetPlayers[netPlayerIndex].ReadyToStart := False;
     end;
   end;
 
@@ -927,80 +930,80 @@ function TKMNetworking.CanStart: TKMGameStartMode;
 
 var
   I: Integer;
-  StartAllowed: Boolean;
+  startAllowed: Boolean;
 begin
   case fSelectGameKind of
-    ngkMap:   StartAllowed := fNetPlayers.AllReady and fMapInfo.IsValid;
+    ngkMap:   startAllowed := fNetPlayers.AllReady and fMapInfo.IsValid;
     ngkSave:  begin
-                StartAllowed := fNetPlayers.AllReady and fSaveInfo.IsValid;
+                startAllowed := fNetPlayers.AllReady and fSaveInfo.IsValid;
                 for I := 1 to fNetPlayers.Count do //In saves everyone must chose a location
-                  StartAllowed := StartAllowed and ((fNetPlayers[i].StartLocation <> LOC_RANDOM) or fNetPlayers[i].IsClosed);
+                  startAllowed := startAllowed and ((fNetPlayers[i].StartLocation <> LOC_RANDOM) or fNetPlayers[i].IsClosed);
               end;
-    else      StartAllowed := False;
+    else      startAllowed := False;
   end;
   //At least one player must NOT be a spectator or closed
   for I := 1 to fNetPlayers.Count do
     if not fNetPlayers[i].IsSpectator and not fNetPlayers[i].IsClosed then
-      Exit(BoolToGameStartMode(StartAllowed)); //Exit with result from above
+      Exit(BoolToGameStartMode(startAllowed)); //Exit with result from above
 
   //If we reached here then all players are spectators so only saves can be started,
   //unless this map has AI-only locations (spectators can watch the AIs)
   if (fSelectGameKind = ngkMap) and (fMapInfo.AIOnlyLocCount = 0) then
-    StartAllowed := False;
+    startAllowed := False;
 
-  Result := BoolToGameStartMode(StartAllowed);
+  Result := BoolToGameStartMode(startAllowed);
 end;
 
 
 //Tell other players we want to start
 procedure TKMNetworking.StartClick;
 var
-  HumanUsableLocs, AIUsableLocs, AdvancedAIUsableLocs: TKMHandIDArray;
-  ErrorMessage: UnicodeString;
+  humanUsableLocs, aiUsableLocs, advancedAIUsableLocs: TKMHandIDArray;
+  errorMessage: UnicodeString;
   M: TKMemoryStream;
-  CheckMapInfo: TKMapInfo;
-  FixedLocsColors: TKMCardinalArray;
+  checkMapInfo: TKMapInfo;
+  fixedLocsColors: TKMCardinalArray;
 begin
   Assert(IsHost, 'Only host can start the game');
   Assert(IsGameStartAllowed(CanStart), 'Can''t start the game now');
   Assert(fNetGameState = lgsLobby, 'Can only start from lobby');
 
-  SetLength(FixedLocsColors, 0);
+  SetLength(fixedLocsColors, 0);
 
   //Define random parameters (start locations and flag colors)
   //This will also remove odd players from the List, they will lose Host in few seconds
   case fSelectGameKind of
     ngkMap:  begin
-                HumanUsableLocs := fMapInfo.HumanUsableLocs;
-                AIUsableLocs := fMapInfo.AIUsableLocs;
-                AdvancedAIUsableLocs := fMapInfo.AdvancedAIUsableLocs;
-                FixedLocsColors := fMapInfo.FixedLocsColors;
+                humanUsableLocs := fMapInfo.HumanUsableLocs;
+                aiUsableLocs := fMapInfo.AIUsableLocs;
+                advancedAIUsableLocs := fMapInfo.AdvancedAIUsableLocs;
+                fixedLocsColors := fMapInfo.FixedLocsColors;
                 //Check that map's hash hasn't changed
-                CheckMapInfo := TKMapInfo.Create(fMapInfo.FileName, True, fMapInfo.MapFolder);
+                checkMapInfo := TKMapInfo.Create(fMapInfo.FileName, True, fMapInfo.MapFolder);
                 try
-                  if CheckMapInfo.CRC <> fMapInfo.CRC then
+                  if checkMapInfo.CRC <> fMapInfo.CRC then
                   begin
                     PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], [gResTexts[TX_NET_ERR_MAP_FILE_CHANGED]]), csSystem);
                     Exit;
                   end;
                 finally
-                  CheckMapInfo.Free;
+                  checkMapInfo.Free;
                 end;
               end;
     ngkSave: begin
-                HumanUsableLocs := fSaveInfo.GameInfo.HumanUsableLocs;
+                humanUsableLocs := fSaveInfo.GameInfo.HumanUsableLocs;
                 //AIs may replace humans
-                AIUsableLocs := fSaveInfo.GameInfo.HumanUsableLocs;
-                AdvancedAIUsableLocs := fSaveInfo.GameInfo.HumanUsableLocs;
+                aiUsableLocs := fSaveInfo.GameInfo.HumanUsableLocs;
+                advancedAIUsableLocs := fSaveInfo.GameInfo.HumanUsableLocs;
               end;
     else      begin
-                SetLength(HumanUsableLocs, 0);
-                SetLength(AIUsableLocs, 0);
+                SetLength(humanUsableLocs, 0);
+                SetLength(aiUsableLocs, 0);
               end;
   end;
-  if not fNetPlayers.ValidateSetup(HumanUsableLocs, AIUsableLocs, AdvancedAIUsableLocs, FixedLocsColors, ErrorMessage) then
+  if not fNetPlayers.ValidateSetup(humanUsableLocs, aiUsableLocs, advancedAIUsableLocs, fixedLocsColors, errorMessage) then
   begin
-    PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], [ErrorMessage]), csSystem);
+    PostLocalMessage(Format(gResTexts[TX_LOBBY_CANNOT_START], [errorMessage]), csSystem);
     Exit;
   end;
 
@@ -1030,7 +1033,7 @@ procedure TKMNetworking.SendPlayerListAndRefreshPlayersSetup(aPlayerIndex: TKMNe
 var
   I: Integer;
   M: TKMemoryStream;
-  AIOnlyColors: TKMCardinalArray;
+  aiOnlyColors: TKMCardinalArray;
 begin
   Assert(IsHost, 'Only host can send player list');
 
@@ -1055,11 +1058,11 @@ begin
   // Reset those colors then
   if (fNetGameState = lgsLobby) and (fSelectGameKind = ngkMap) then
   begin
-    AIOnlyColors := MapInfo.AIOnlyLocsColors; // save it locally to avoid multiple calculations
+    aiOnlyColors := MapInfo.AIOnlyLocsColors; // save it locally to avoid multiple calculations
     for I := 1 to NetPlayers.Count do
     begin
       if NetPlayers[I].IsColorSet
-        and IsColorCloseToColors(NetPlayers[I].FlagColor, AIOnlyColors, MIN_PLAYER_COLOR_DIST) then
+        and IsColorCloseToColors(NetPlayers[I].FlagColor, aiOnlyColors, MIN_PLAYER_COLOR_DIST) then
         NetPlayers[I].ResetColor;
     end;
   end;
@@ -1221,7 +1224,8 @@ end;
 
 procedure TKMNetworking.PostMessage(aTextID: Integer; aSound: TKMChatSound; const aText1: UnicodeString = '';
                                     const aText2: UnicodeString = ''; aRecipient: TKMNetHandleIndex = NET_ADDRESS_ALL; aTextID2: Integer = -1);
-var M: TKMemoryStream;
+var
+  M: TKMemoryStream;
 begin
   M := TKMemoryStreamBinary.Create;
   M.Write(aTextID);
@@ -1281,16 +1285,16 @@ end;
 
 procedure TKMNetworking.DoReconnection;
 var
-  TempMyIndex: Integer;
+  tempMyIndex: Integer;
 begin
   gLog.LogNetConnection(Format('DoReconnection: %s',[fMyNikname]));
   fReconnectRequested := 0;
   PostLocalMessage(gResTexts[TX_NET_RECONNECTING], csSystem);
   //Stop the previous connection without calling Self.Disconnect as that frees everything
   fNetClient.Disconnect;
-  TempMyIndex := fMyIndex;
+  tempMyIndex := fMyIndex;
   Join(fServerAddress,fServerPort,fMyNikname,fRoomToJoin, true); //Join the same server/room as before in reconnecting mode
-  fMyIndex := TempMyIndex; //Join overwrites it, but we must remember it
+  fMyIndex := tempMyIndex; //Join overwrites it, but we must remember it
 end;
 
 
@@ -1320,11 +1324,12 @@ end;
 
 // Handle mkReassignHost message
 procedure TKMNetworking.ReassignHost(aSenderIndex: TKMNetHandleIndex; M: TKMemoryStream);
-var NewHostIndex, OldHostIndex: TKMNetHandleIndex;
-    PasswordA: AnsiString;
-    DescriptionW: UnicodeString;
+var
+  newHostIndex, oldHostIndex: TKMNetHandleIndex;
+  passwordA: AnsiString;
+  descriptionW: UnicodeString;
 begin
-  M.Read(NewHostIndex);
+  M.Read(newHostIndex);
   if fFileReceiver <> nil then
   begin
     FreeAndNil(fFileReceiver); //Transfer is aborted if host disconnects/changes
@@ -1339,13 +1344,13 @@ begin
     if Assigned(OnReassignedJoiner) then OnReassignedJoiner; //Lobby/game might need to know
     if Assigned(OnPlayersSetup) then OnPlayersSetup;
   end;
-  if NewHostIndex = fMyIndexOnServer then
+  if newHostIndex = fMyIndexOnServer then
   begin
     //We are now the host
     fNetPlayerKind := lpkHost;
     fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
 
-    OldHostIndex := fHostIndex;
+    oldHostIndex := fHostIndex;
 
     if Assigned(OnReassignedHost) then
       OnReassignedHost; //Lobby/game might need to know that we are now hosting
@@ -1368,10 +1373,10 @@ begin
 
     //Server tells us the password and description in this packet,
     //so they aren't reset when the host is changed
-    M.ReadA(PasswordA);
-    M.ReadW(DescriptionW);
-    fPassword := PasswordA;
-    fDescription := DescriptionW;
+    M.ReadA(passwordA);
+    M.ReadW(descriptionW);
+    fPassword := passwordA;
+    fDescription := descriptionW;
 
     OnMPGameInfoChanged;
     if (fSelectGameKind = ngkNone)
@@ -1382,11 +1387,11 @@ begin
 
     //If host was dropped already, that mean we have to defeat him, because he intentionally quits the game
     //(dropped was set on his mkDisconnect message)
-    if fNetPlayers[OldHostIndex].Dropped
-      and IsPlayerHandStillInGame(OldHostIndex)
-      and (fNetPlayers[OldHostIndex].HandIndex <> -1)
+    if fNetPlayers[oldHostIndex].Dropped
+      and IsPlayerHandStillInGame(oldHostIndex)
+      and (fNetPlayers[oldHostIndex].HandIndex <> -1)
       and Assigned(OnJoinerDropped) then
-      OnJoinerDropped(fNetPlayers[OldHostIndex].HandIndex);
+      OnJoinerDropped(fNetPlayers[oldHostIndex].HandIndex);
 
     PostMessage(TX_NET_HOSTING_RIGHTS, csSystem, fNetPlayers[fMyIndex].NiknameColoredU);
     gLog.LogNetConnection('Hosting rights reassigned to us ('+UnicodeString(fMyNikname)+')');
@@ -1397,15 +1402,15 @@ end;
 // Handle mkPLayerList message
 procedure TKMNetworking.PlayersListReceived(aM: TKMemoryStream);
 var
-  OldLoc: Integer;
-  IsPlayerInitBefore: Boolean;
+  oldLoc: Integer;
+  isPlayerInitBefore: Boolean;
 begin
   if fNetPlayerKind = lpkJoiner then
   begin
-    OldLoc := -1234; // some randor value, make compiler happy
-    IsPlayerInitBefore := MyIndex > 0;
-    if IsPlayerInitBefore then
-      OldLoc := MyNetPlayer.StartLocation;
+    oldLoc := -1234; // some randor value, make compiler happy
+    isPlayerInitBefore := MyIndex > 0;
+    if isPlayerInitBefore then
+      oldLoc := MyNetPlayer.StartLocation;
 
     aM.Read(fHostIndex);
     fNetPlayers.LoadFromStream(aM); //Our index could have changed on players add/removal
@@ -1414,9 +1419,9 @@ begin
     if Assigned(OnPlayersSetup) then OnPlayersSetup;
 
     if Assigned(OnUpdateMinimap)
-    and ((IsPlayerInitBefore
-      and (OldLoc <> MyNetPlayer.StartLocation))
-      or not IsPlayerInitBefore) then
+    and ((isPlayerInitBefore
+      and (oldLoc <> MyNetPlayer.StartLocation))
+      or not isPlayerInitBefore) then
       OnUpdateMinimap;
   end;
 end;
@@ -1437,21 +1442,25 @@ procedure TKMNetworking.PlayerDisconnected(aSenderIndex: TKMNetHandleIndex; aLas
   end;
 
 var
-  PlayerIndex: Integer;
+  playerIndex: Integer;
 begin
-  gLog.AddTime(Format('PlayerDisconnected. LastSentCommandsTick = %d', [aLastSentCommandsTick]));
-  PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+  playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+  gLog.AddTime(Format('PlayerDisconnected [netPlayer %d [%s] HandID %d]. LastSentCommandsTick = %d',
+                      [playerIndex,
+                       fNetPlayers[playerIndex].Nikname,
+                       fNetPlayers[playerIndex].HandIndex,
+                       aLastSentCommandsTick]));
   case fNetPlayerKind of
     lpkHost:   begin
                   fFileSenderManager.ClientDisconnected(aSenderIndex);
-                  if PlayerIndex = -1 then Exit; //Has already disconnected
+                  if playerIndex = -1 then Exit; //Has already disconnected
 
-                  PostPlayerDisconnectedMsg(PlayerIndex);
+                  PostPlayerDisconnectedMsg(playerIndex);
 
                   if fNetGameState in [lgsGame] then
                   begin
-                    if IsPlayerHandStillInGame(PlayerIndex) and Assigned(OnJoinerDropped) then
-                      OnJoinerDropped(fNetPlayers[PlayerIndex].HandIndex);
+                    if IsPlayerHandStillInGame(playerIndex) and Assigned(OnJoinerDropped) then
+                      OnJoinerDropped(fNetPlayers[playerIndex].HandIndex);
                   end;
 
                   if fNetGameState in [lgsLoading, lgsGame] then
@@ -1465,11 +1474,11 @@ begin
                     ReturnToLobbyVoteSucceeded;
                 end;
     lpkJoiner: begin
-                  if PlayerIndex = -1 then exit; //Has already disconnected
+                  if playerIndex = -1 then exit; //Has already disconnected
 
-                  PostPlayerDisconnectedMsg(PlayerIndex);
+                  PostPlayerDisconnectedMsg(playerIndex);
 
-                  if fHostIndex = PlayerIndex then
+                  if fHostIndex = playerIndex then
                   begin
                     //Host has quit so drop them from the game
                     if fNetGameState in [lgsLoading, lgsGame] then
@@ -1543,6 +1552,7 @@ end;
 
 //Get printable name of network address
 function TKMNetworking.GetNetAddressPrintDescr(aNetworkAddress: Integer): String;
+
   function GetNetPlayerDescr: String;
   var NetPlayerIndex: Integer;
   begin
@@ -1552,6 +1562,7 @@ function TKMNetworking.GetNetAddressPrintDescr(aNetworkAddress: Integer): String
     else
       Result := Format('%d | %s', [NetPlayerIndex, fNetPlayers[NetPlayerIndex].Nikname]);
   end;
+
 begin
   case aNetworkAddress of
     NET_ADDRESS_EMPTY   : Result := 'EMPTY';
@@ -1565,6 +1576,20 @@ end;
 
 
 procedure TKMNetworking.LogPacket(aIsSending: Boolean; aKind: TKMessageKind; aNetworkAddress: TKMNetHandleIndex);
+const
+  LOGGED_PACKET_KINDS: set of TKMessageKind = [mkReadyToPlay,
+                                               mkPlay,
+                                               mkReconnectionAccepted,
+                                               mkResyncFromTick,
+                                               mkClientReconnected,
+                                               mkRefuseReconnect,
+                                               mkAskToReconnect,
+                                               mkStart,
+                                               mkGiveHost,
+                                               mkKicked,
+                                               mkDisconnect,
+                                               mkVote,
+                                               mkReadyToReturnToLobby];
 var
   logMessage: String;
 begin
@@ -1581,26 +1606,32 @@ begin
   logMessage := Format(logMessage, [GetEnumName(TypeInfo(TKMessageKind), Integer(aKind)),
                                     GetNetAddressPrintDescr(aNetworkAddress)]);
 
-  case aKind of
-    mkPing, mkPong,
-    mkPingInfo, mkFPS:  gLog.LogNetPacketPingFps(logMessage);
-    mkCommands       :  gLog.LogNetPacketCommand(logMessage);
-    else                gLog.LogNetPacketOther(logMessage);
-  end;
+  if aKind in LOGGED_PACKET_KINDS then
+    gLog.AddTime(logMessage)
+  else
+    case aKind of
+      mkPing, mkPong,
+      mkPingInfo, mkFPS:  gLog.LogNetPacketPingFps(logMessage);
+      mkCommands       :  gLog.LogNetPacketCommand(logMessage);
+      else                gLog.LogNetPacketOther(logMessage);
+    end;
 end;
 
 
 procedure TKMNetworking.PostLogMessageToChat(const aLogMessage: UnicodeString);
 begin
-  if SHOW_LOGS_IN_CHAT then
+  if Self = nil then Exit;
+
+  if SHOW_LOG_IN_CHAT then
     PostLocalMessage(DeleteDoubleSpaces(aLogMessage), csNone);
 end;
 
 
 procedure TKMNetworking.PacketRecieve(aNetClient: TKMNetClient; aSenderIndex: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal);
 var
+  I, locID, teamID, playerIndex: Integer;
   M, M2: TKMemoryStream;
-  Kind: TKMessageKind;
+  kind: TKMessageKind;
   err: UnicodeString;
   tmpInteger, tmpInteger2: Integer;
   tmpHandleIndex: TKMNetHandleIndex;
@@ -1608,8 +1639,7 @@ var
   tmpStringA: AnsiString;
   tmpStringW, replyStringW: UnicodeString;
   tmpChatMode: TKMChatMode;
-  I,LocID,TeamID,PlayerIndex: Integer;
-  ChatSound: TKMChatSound;
+  chatSound: TKMChatSound;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
   if not Connected then Exit;
@@ -1618,17 +1648,17 @@ begin
   try
     M.WriteBuffer(aData^, aLength);
     M.Position := 0;
-    M.Read(Kind, SizeOf(TKMessageKind)); //Depending on kind message contains either Text or a Number
+    M.Read(kind, SizeOf(TKMessageKind)); //Depending on kind message contains either Text or a Number
 
     //Make sure we are allowed to receive this packet at this point
-    if not (Kind in NET_ALLOWED_PACKETS_SET[fNetGameState]) then
+    if not (kind in NET_ALLOWED_PACKETS_SET[fNetGameState]) then
     begin
       //When querying or reconnecting to a host we may receive data such as commands, player setup, etc. These should be ignored.
       if not (fNetGameState in [lgsQuery, lgsReconnecting]) then
       begin
         err := 'Received a packet not intended for this state (' +
           GetEnumName(TypeInfo(TKMNetGameState), Integer(fNetGameState)) + '): ' +
-          GetEnumName(TypeInfo(TKMessageKind), Integer(Kind));
+          GetEnumName(TypeInfo(TKMessageKind), Integer(kind));
         //These warnings sometimes happen when returning to lobby, log them but don't show user
         gLog.AddTime(err);
         //PostLocalMessage('Error: ' + err, csSystem);
@@ -1636,9 +1666,9 @@ begin
       Exit;
     end;
 
-    LogPacket(False, Kind, aSenderIndex);
+    LogPacket(False, kind, aSenderIndex);
 
-    case Kind of
+    case kind of
       mkGameVersion:
               begin
                 M.ReadA(tmpStringA);
@@ -1741,18 +1771,18 @@ begin
       mkAskToReconnect:
               begin
                 M.ReadA(tmpStringA);
-                PlayerIndex := fNetPlayers.NiknameToLocal(tmpStringA);
-                tmpInteger := fNetPlayers.CheckCanReconnect(PlayerIndex);
+                playerIndex := fNetPlayers.NiknameToLocal(tmpStringA);
+                tmpInteger := fNetPlayers.CheckCanReconnect(playerIndex);
                 if tmpInteger = -1 then
                 begin
                   gLog.LogNetConnection(UnicodeString(tmpStringA) + ' successfully reconnected');
-                  fNetPlayers[PlayerIndex].SetIndexOnServer := aSenderIndex; //They will have a new index
-                  fNetPlayers[PlayerIndex].Connected := True; //This player is now back online
+                  fNetPlayers[playerIndex].SetIndexOnServer := aSenderIndex; //They will have a new index
+                  fNetPlayers[playerIndex].Connected := True; //This player is now back online
                   SendPlayerListAndRefreshPlayersSetup;
                   PacketSend(aSenderIndex, mkReconnectionAccepted); //Tell this client they are back in the game
                   PacketSendInd(NET_ADDRESS_OTHERS, mkClientReconnected, aSenderIndex); //Tell everyone to ask him to resync
                   PacketSend(aSenderIndex, mkResyncFromTick, Integer(fLastProcessedTick)); //Ask him to resync us
-                  PostMessage(TX_NET_HAS_RECONNECTED, csJoin, fNetPlayers[PlayerIndex].NiknameColoredU);
+                  PostMessage(TX_NET_HAS_RECONNECTED, csJoin, fNetPlayers[playerIndex].NiknameColoredU);
                 end
                 else
                 begin
@@ -1833,9 +1863,9 @@ begin
               begin
                 M.Read(tmpCardinal);
                 M.Read(tmpCardinal2);
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                if (PlayerIndex <> -1) and fNetPlayers[PlayerIndex].DownloadInProgress then
-                  OnPlayerFileTransferProgress(PlayerIndex, tmpCardinal, tmpCardinal2);
+                playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                if (playerIndex <> -1) and fNetPlayers[playerIndex].DownloadInProgress then
+                  OnPlayerFileTransferProgress(playerIndex, tmpCardinal, tmpCardinal2);
               end;
 
       mkFileSendStarted:
@@ -1848,9 +1878,9 @@ begin
       mkLangCode:
               begin
                 M.ReadA(tmpStringA);
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                if PlayerIndex <> -1 then
-                  fNetPlayers[PlayerIndex].LangCode := tmpStringA;
+                playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                if playerIndex <> -1 then
+                  fNetPlayers[playerIndex].LangCode := tmpStringA;
                 SendPlayerListAndRefreshPlayersSetup;
               end;
 
@@ -1922,12 +1952,12 @@ begin
                 if IsHost then
                 begin
                   fFileSenderManager.ClientDisconnected(tmpHandleIndex);
-                  PlayerIndex := fNetPlayers.ServerToLocal(tmpHandleIndex);
-                  if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
-                  if not fNetPlayers[PlayerIndex].Dropped then
+                  playerIndex := fNetPlayers.ServerToLocal(tmpHandleIndex);
+                  if playerIndex = -1 then exit; //Has already disconnected or not from our room
+                  if not fNetPlayers[playerIndex].Dropped then
                   begin
-                    PostMessage(TX_NET_LOST_CONNECTION, csLeave, fNetPlayers[PlayerIndex].NiknameColoredU);
-                    gLog.LogNetConnection(fNetPlayers[PlayerIndex].NiknameU + ' lost connection');
+                    PostMessage(TX_NET_LOST_CONNECTION, csLeave, fNetPlayers[playerIndex].NiknameColoredU);
+                    gLog.LogNetConnection(fNetPlayers[playerIndex].NiknameU + ' lost connection');
                   end;
                   if fNetGameState = lgsGame then
                     fNetPlayers.DisconnectPlayer(tmpHandleIndex)
@@ -2089,14 +2119,14 @@ begin
               if IsHost and not fNetPlayers.HostDoesSetup then
               begin
                 M.Read(tmpInteger);
-                LocID := tmpInteger;
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                if CanTakeLocation(PlayerIndex, LocID, False) then
+                locID := tmpInteger;
+                playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                if CanTakeLocation(playerIndex, locID, False) then
                 begin //Update Players setup
-                  fNetPlayers[PlayerIndex].StartLocation := LocID;
+                  fNetPlayers[playerIndex].StartLocation := locID;
                   //Spectators can't have team
-                  if LocID = LOC_SPECTATE then
-                    fNetPlayers[PlayerIndex].Team := 0;
+                  if locID = LOC_SPECTATE then
+                    fNetPlayers[playerIndex].Team := 0;
                   SendPlayerListAndRefreshPlayersSetup;
                 end
                 else //Quietly refuse
@@ -2107,9 +2137,9 @@ begin
               if IsHost and not fNetPlayers.HostDoesSetup then
               begin
                 M.Read(tmpInteger);
-                TeamID := tmpInteger;
+                teamID := tmpInteger;
                 //Update Players setup
-                fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Team := TeamID;
+                fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Team := teamID;
                 SendPlayerListAndRefreshPlayersSetup;
               end;
 
@@ -2131,16 +2161,16 @@ begin
       mkReadyToStart:
               if IsHost then
               begin
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                fNetPlayers[PlayerIndex].ReadyToStart := not fNetPlayers[PlayerIndex].ReadyToStart;
+                playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                fNetPlayers[playerIndex].ReadyToStart := not fNetPlayers[playerIndex].ReadyToStart;
                 SendPlayerListAndRefreshPlayersSetup;
               end;
 
       mkHasMapOrSave:
               if IsHost then
               begin
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                fNetPlayers[PlayerIndex].HasMapOrSave := True;
+                playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                fNetPlayers[playerIndex].HasMapOrSave := True;
                 SendPlayerListAndRefreshPlayersSetup;
               end;
 
@@ -2184,20 +2214,20 @@ begin
 
       mkCommands:
               begin
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                if (PlayerIndex<>-1) and not fNetPlayers[PlayerIndex].Dropped then
-                  if Assigned(OnCommands) then OnCommands(M, PlayerIndex);
+                playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                if (playerIndex<>-1) and not fNetPlayers[playerIndex].Dropped then
+                  if Assigned(OnCommands) then OnCommands(M, playerIndex);
               end;
 
       mkResyncFromTick:
               begin
                 M.Read(tmpInteger);
                 gLog.LogNetConnection('Asked to resync from tick ' + IntToStr(tmpInteger));
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                if Assigned(OnResyncFromTick) and (PlayerIndex<>-1) then
+                playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                if Assigned(OnResyncFromTick) and (playerIndex<>-1) then
                 begin
-                  gLog.LogNetConnection('Resyncing player ' + fNetPlayers[PlayerIndex].NiknameU);
-                  OnResyncFromTick(PlayerIndex, Cardinal(tmpInteger));
+                  gLog.LogNetConnection('Resyncing player ' + fNetPlayers[playerIndex].NiknameU);
+                  OnResyncFromTick(playerIndex, Cardinal(tmpInteger));
                 end;
               end;
 
@@ -2222,24 +2252,24 @@ begin
 
       mkVote:
               begin
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
 
                 if not fVoteReturnToLobbySucceeded  // Do not allow late mkVote after we received enough votes (if it comes while still in game and receiveing mk_readyToReturnToLobby)
-                  and not fNetPlayers[PlayerIndex].VotedYes //No need to vote more than once
-                  and (fNetPlayers.HasOnlySpectators or not fNetPlayers[PlayerIndex].IsSpectator) //spectators don't get to vote unless there's only spectators left
+                  and not fNetPlayers[playerIndex].VotedYes //No need to vote more than once
+                  and (fNetPlayers.HasOnlySpectators or not fNetPlayers[playerIndex].IsSpectator) //spectators don't get to vote unless there's only spectators left
                   then
                 begin
                   fLastVoteTime := TimeGet;
-                  fNetPlayers[PlayerIndex].VotedYes := True;
+                  fNetPlayers[playerIndex].VotedYes := True;
                   fNetPlayers.VoteActive := True;
                   if fNetPlayers.FurtherVotesNeededForMajority <= 0 then
                   begin
-                    PostMessage(TX_NET_VOTE_PASSED, csSystem, fNetPlayers[PlayerIndex].NiknameColoredU);
+                    PostMessage(TX_NET_VOTE_PASSED, csSystem, fNetPlayers[playerIndex].NiknameColoredU);
                     ReturnToLobbyVoteSucceeded;
                   end
                   else
                   begin
-                    PostMessage(TX_NET_VOTED, csSystem, fNetPlayers[PlayerIndex].NiknameColoredU, IntToStr(fNetPlayers.FurtherVotesNeededForMajority));
+                    PostMessage(TX_NET_VOTED, csSystem, fNetPlayers[playerIndex].NiknameColoredU, IntToStr(fNetPlayers.FurtherVotesNeededForMajority));
                     SendPlayerListAndRefreshPlayersSetup;
                   end;
                 end;
@@ -2248,14 +2278,14 @@ begin
       mkTextTranslated:
               begin
                 M.Read(tmpInteger);
-                M.Read(ChatSound, SizeOf(ChatSound));
+                M.Read(chatSound, SizeOf(chatSound));
                 M.ReadW(tmpStringW);
                 M.ReadW(replyStringW);
                 M.Read(tmpInteger2);
                 if tmpInteger2 = -1 then
-                  PostLocalMessage(Format(gResTexts[tmpInteger], [tmpStringW, replyStringW]), ChatSound)
+                  PostLocalMessage(Format(gResTexts[tmpInteger], [tmpStringW, replyStringW]), chatSound)
                 else
-                  PostLocalMessage(Format(gResTexts[tmpInteger], [gResTexts[tmpInteger2]]), ChatSound)
+                  PostLocalMessage(Format(gResTexts[tmpInteger], [gResTexts[tmpInteger2]]), chatSound)
               end;
 
       mkTextChat:
@@ -2268,18 +2298,18 @@ begin
                   cmTeam:
                     begin
                       tmpStringW := ' [$66FF66]('+gResTexts[TX_CHAT_TEAM]+')[]: ' + tmpStringW;
-                      ChatSound := csChatTeam;
+                      chatSound := csChatTeam;
                     end;
 
                   cmSpectators:
                     begin
                       tmpStringW := ' [$66FF66]('+gResTexts[TX_CHAT_SPECTATORS]+')[]: ' + tmpStringW;
-                      ChatSound := csChatTeam;
+                      chatSound := csChatTeam;
                     end;
 
                   cmWhisper:
                     begin
-                      ChatSound := csChatWhisper;
+                      chatSound := csChatWhisper;
                       I := NetPlayers.ServerToLocal(tmpHandleIndex);
                       if I <> -1 then
                         //we want to show colored nikname, so prepare nikname string
@@ -2292,20 +2322,20 @@ begin
                   cmAll:
                     begin
                       tmpStringW := ' ('+gResTexts[TX_CHAT_ALL]+'): ' + tmpStringW;
-                      ChatSound := csChat;
+                      chatSound := csChat;
                     end;
                 end;
 
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                if (PlayerIndex <> -1) then
+                playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                if (playerIndex <> -1) then
                 begin
-                  if not IsMuted(PlayerIndex) then
+                  if not IsMuted(playerIndex) then
                   begin
-                    if NetPlayers[PlayerIndex].IsColorSet then
-                      tmpStringW := WrapColor(NetPlayers[PlayerIndex].NiknameU, FlagColorToTextColor(NetPlayers[PlayerIndex].FlagColor)) + tmpStringW
+                    if NetPlayers[playerIndex].IsColorSet then
+                      tmpStringW := WrapColor(NetPlayers[playerIndex].NiknameU, FlagColorToTextColor(NetPlayers[playerIndex].FlagColor)) + tmpStringW
                     else
-                      tmpStringW := NetPlayers[PlayerIndex].NiknameU + tmpStringW;
-                    PostLocalMessage(tmpStringW, ChatSound);
+                      tmpStringW := NetPlayers[playerIndex].NiknameU + tmpStringW;
+                    PostLocalMessage(tmpStringW, chatSound);
                   end
                   else
                   if tmpChatMode = cmWhisper then
@@ -2512,8 +2542,7 @@ end;
 // Return if specified NetPlayer is muted locally
 function TKMNetworking.IsMuted(aNetPlayerIndex: Integer): Boolean;
 begin
-  //Use cast to Pointer to be able to store Integer value in TList
-  Result := (aNetPlayerIndex <> -1) and (fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer)) <> -1);
+  Result := (aNetPlayerIndex <> -1) and (fMutedPlayersList.IndexOf(fNetPlayers[aNetPlayerIndex].IndexOnServer) <> -1);
 end;
 
 
@@ -2531,24 +2560,26 @@ end;
 
 // Toggle mute status of specified NetPlayer
 procedure TKMNetworking.ToggleMuted(aNetPlayerIndex: Integer);
-var ListIndex: Integer;
+var
+  listIndex: Integer;
 begin
   if gLog.IsDegubLogEnabled then
     gLog.LogDebug(Format('TKMNetworking.ToggleMuted: IndexOnServer for NetPlayer %d [%s] = %d',
                          [aNetPlayerIndex, fNetPlayers[aNetPlayerIndex].Nikname, fNetPlayers[aNetPlayerIndex].IndexOnServer]));
-  //Use cast to Pointer to be able to store Integer value in TList
-  ListIndex := fMutedPlayersList.IndexOf(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer));
-  if ListIndex <> -1 then
-    fMutedPlayersList.Delete(ListIndex)
+  listIndex := fMutedPlayersList.IndexOf(fNetPlayers[aNetPlayerIndex].IndexOnServer);
+  if listIndex <> -1 then
+    fMutedPlayersList.Delete(listIndex)
   else
-    fMutedPlayersList.Add(Pointer(fNetPlayers[aNetPlayerIndex].IndexOnServer));
+    fMutedPlayersList.Add(fNetPlayers[aNetPlayerIndex].IndexOnServer);
 end;
 
 
-procedure TKMNetworking.SetGameState(aState: TKMNetGameState);
+procedure TKMNetworking.SetGameState(aState: TKMNetGameState; aOnMPInfoChanged: Boolean = True);
 begin
+  gLog.AddTime(Format('SetGameState from %s to %s', [GetEnumName(TypeInfo(TKMNetGameState), Integer(fNetGameState)),
+                                                     GetEnumName(TypeInfo(TKMNetGameState), Integer(aState))]));
   fNetGameState := aState;
-  if (fNetGameState in [lgsLobby,lgsLoading,lgsGame]) and IsHost and (fMyIndexOnServer <> -1) then
+  if aOnMPInfoChanged and (fNetGameState in [lgsLobby,lgsLoading,lgsGame]) and IsHost and (fMyIndexOnServer <> -1) then
     OnMPGameInfoChanged;
 end;
 
@@ -2556,9 +2587,9 @@ end;
 //Tell the server what we know about the game
 procedure TKMNetworking.AnnounceGameInfo(aGameTime: TDateTime; aMap: UnicodeString);
 var
-  MPGameInfo: TKMPGameInfo;
-  M: TKMemoryStream;
   I: Integer;
+  M: TKMemoryStream;
+  MPGameInfo: TKMPGameInfo;
 begin
   //Only one player per game should send the info - Host
   if not IsHost then Exit;
@@ -2716,11 +2747,11 @@ end;
 
 procedure TKMNetworking.SetDownloadlInProgress(aSenderIndex: TKMNetHandleIndex; aValue: Boolean);
 var
-  PlayerIndex: Integer;
+  playerIndex: Integer;
 begin
-  PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-  if PlayerIndex <> -1 then
-    fNetPlayers[PlayerIndex].DownloadInProgress := aValue;
+  playerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+  if playerIndex <> -1 then
+    fNetPlayers[playerIndex].DownloadInProgress := aValue;
 end;
 
 
@@ -2791,7 +2822,7 @@ begin
   OnReadyToPlay := nil;
   OnPlayersSetup := nil;
 
-  fNetGameState := lgsLobby;
+  SetGameState(lgsLobby, False);
   fReturnedToLobby := True; //Expect pause.sav to match host
   if IsHost then
   begin

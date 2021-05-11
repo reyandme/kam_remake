@@ -1,0 +1,75 @@
+{$I Language.script}
+{$I Statek.script}
+var CoalToSend:Integer;
+procedure AutoFeed;
+var	 K, I: Integer;
+	UnitsToFeed: array of Integer;
+ begin
+	for I := 1 to 3 do begin
+		UnitsToFeed := States.PlayerGetAllGroups(I);
+		for K := 0 to length(UnitsToFeed) - 1 do begin
+			Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+		end;
+	end; 	
+   UnitsToFeed := States.PlayerGetAllUnits(4);
+	for K := 0 to length(UnitsToFeed) - 1 do begin
+	 Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+   end;
+end;
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []);  end;
+	if States.GameTime = 300 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime = 150 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []);end;
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+	If States.GameTime mod 600 = 0 then begin
+		If States.HouseResourceAmount(States.HouseAt(4,18),5)>0 then iF States.KamRandomI(10)<=5 then begin Actions.HouseTakeWaresFrom(States.HouseAt(4,18),5,1);CoalToSend:=CoalToSend+1;end;
+		If States.HouseResourceAmount(States.HouseAt(9,13),5)>0 then iF States.KamRandomI(10)<=5 then begin Actions.HouseTakeWaresFrom(States.HouseAt(9,13),5,1);CoalToSend:=CoalToSend+1;end;
+		If States.HouseResourceAmount(States.HouseAt(4,10),5)>0 then iF States.KamRandomI(10)<=5 then begin Actions.HouseTakeWaresFrom(States.HouseAt(9,10),5,1);CoalToSend:=CoalToSend+1;end;
+		If States.HouseResourceAmount(States.HouseAt(8,5),5)>0 then iF States.KamRandomI(10)<=5 then begin Actions.HouseTakeWaresFrom(States.HouseAt(8,5),5,1);CoalToSend:=CoalToSend+1;end;
+		If States.HouseResourceAmount(States.HouseAt(15,4),5)>0 then iF States.KamRandomI(10)<=5 then begin Actions.HouseTakeWaresFrom(States.HouseAt(15,4),5,1);CoalToSend:=CoalToSend+1;end;
+		If States.HouseResourceAmount(States.HouseAt(14,8),5)>0 then iF States.KamRandomI(10)<=5 then begin Actions.HouseTakeWaresFrom(States.HouseAt(14,8),5,1);CoalToSend:=CoalToSend+1;end;
+	end;
+	If States.GameTime mod 6000 = 0 then begin
+		Actions.GiveWares(0,5,CoalToSend);
+		CoalToSend:=0;
+	end;
+end;
+
+
+procedure OnMissionStart();
+var dMod:byte;
+	Count:Array of Integer;
+begin
+	Count:= [2,2,3,4,5,6,7]
+	dMod:= byte(States.MissionDifficulty)-1
+	if (CampaignData.HKS11.HorseCount=0)or (CampaignData.HKS11.HorseCount/Count[dMod]< 5) then begin Actions.GiveGroup(0,22,42,74,2,20,10); Actions.GiveGroup(0,22,12,70,6,20,10); end;
+	if (CampaignData.HKS11.HorseCount>0) then begin Actions.GiveGroup(0,22,42,74,2,CampaignData.HKS11.HorseCount/Count[dMod],10); Actions.GiveGroup(0,22,12,70,6,CampaignData.HKS11.HorseCount/Count[dMod],10); end;
+end;
+
+procedure OnPlayerVictory(aIndex: Integer);
+var
+	aGroup: array of Integer;
+	GROUPSL: Integer;
+begin
+	aGroup:= States.PlayerGetAllGroups(0)
+	SetLength(CampaignData.HKS13.Groups, Length(aGroup));
+	For GROUPSL := 0 to Length(aGroup)-1 do begin
+		CampaignData.HKS13.Groups[GROUPSL][0] := States.UnitType(States.GroupMember(aGroup[GROUPSL],0));
+		CampaignData.HKS13.Groups[GROUPSL][1] := States.GroupMemberCount(aGroup[GROUPSL]);
+	end;
+end;
+
+
+
+
+
+

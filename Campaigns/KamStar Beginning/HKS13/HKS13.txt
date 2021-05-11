@@ -1,0 +1,6 @@
+SmallDescLIBX
+100
+
+DifficultyLevels
+mdEasy3,mdEasy2,mdEasy1,mdNormal,mdHard1,mdHard2,mdHard3
+

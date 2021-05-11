@@ -48,7 +48,8 @@ implementation
 
 
 constructor TKMNetServerOverbyte.Create;
-var wsaData: TWSAData;
+var
+  wsaData: TWSAData;
 begin
   Inherited Create;
   fLastTag := FIRST_TAG-1; //First client will be fLastTag+1
@@ -125,10 +126,10 @@ end;
 //We recieved data from someone
 procedure TKMNetServerOverbyte.DataAvailable(Sender: TObject; Error: Word);
 const
-  BufferSize = 10240; //10kb
+  BUFFER_SIZE = 10240; //10kb
 var
-  P:pointer;
-  L:integer; //L could be -1 when no data is available
+  P: Pointer;
+  L: Integer; //L could be -1 when no data is available
 begin
   if Error <> 0 then
   begin
@@ -136,8 +137,8 @@ begin
     exit;
   end;
 
-  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
-  L := TWSocket(Sender).Receive(P, BufferSize);
+  GetMem(P, BUFFER_SIZE+1); //+1 to avoid RangeCheckError when L = BufferSize
+  L := TWSocket(Sender).Receive(P, BUFFER_SIZE);
 
   if L > 0 then //if L=0 then exit;
     fOnDataAvailable(TWSocket(Sender).Tag, P, L);
@@ -148,7 +149,8 @@ end;
 
 //Make sure we send data to specified client
 procedure TKMNetServerOverbyte.SendData(aHandle: SmallInt; aData: Pointer; aLength: Cardinal);
-var I: integer;
+var
+  I: Integer;
 begin
   for I := 0 to fSocketServer.ClientCount - 1 do
     if fSocketServer.Client[i].Tag = aHandle then
@@ -166,7 +168,8 @@ end;
 
 
 procedure TKMNetServerOverbyte.Kick(aHandle: SmallInt);
-var I:integer;
+var
+  I: Integer;
 begin
   for I := 0 to fSocketServer.ClientCount - 1 do
     if fSocketServer.Client[I].Tag = aHandle then
@@ -179,17 +182,19 @@ end;
 
 
 function TKMNetServerOverbyte.GetIP(aHandle: SmallInt): string;
-var i:integer;
+var
+  I: Integer;
 begin
   Result := '';
-  for i:=0 to fSocketServer.ClientCount-1 do
-    if fSocketServer.Client[i].Tag = aHandle then
+  for I := 0 to fSocketServer.ClientCount - 1 do
+    if fSocketServer.Client[I].Tag = aHandle then
     begin
-      if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
-        Result := fSocketServer.Client[i].GetPeerAddr;
+      if fSocketServer.Client[I].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
+        Result := fSocketServer.Client[I].GetPeerAddr;
       Exit; //Only one client should have this handle
     end;
 end;
 
 
 end.
+

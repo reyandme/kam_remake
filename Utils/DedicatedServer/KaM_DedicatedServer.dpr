@@ -85,11 +85,11 @@ begin
     if TimeSince(fLastSettingsFileCheck) >= 5000 then
     begin
       fLastSettingsFileCheck := TimeGet;
-      if FileAge(ExeDir+SETTINGS_FILE) <> fSettingsLastModified then
+      if FileAge(fSettings.Path) <> fSettingsLastModified then
       begin
-        fEventHandler.ServerStatusMessage('Reloading updated settings from '+ExeDir+SETTINGS_FILE);
+        fEventHandler.ServerStatusMessage('Reloading updated settings from ' + fSettings.Path);
         fSettings.ReloadSettings;
-        fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
+        fSettingsLastModified := FileAge(fSettings.Path);
         fDedicatedServer.UpdateSettings(fSettings.ServerName,
                                         fSettings.AnnounceServer,
                                         fSettings.ServerUDPAnnounce,
@@ -184,19 +184,19 @@ begin
 
   fEventHandler := TKMServerEventHandler.Create; // Will create gLog as well
 
-  fSettings := TKMServerSettings.Create;
-  fSettings.SaveSettings(true);
+  // Create Server Settings in the local folder
+  fSettings := TKMServerSettings.Create(True);
+  fSettings.SaveSettings(True);
+  fSettingsLastModified := FileAge(fSettings.Path);
+  fLastSettingsFileCheck := TimeGet;
 
   Writeln('=========== KaM Remake ' + GAME_VERSION + ' Dedicated Server ===========');
   Writeln('');
   Writeln('Log file: ' + gLog.LogPath);
-  Writeln('Settings file: ' + fSettings.GetPath);
+  Writeln('Settings file: ' + fSettings.Path);
   Writeln('');
 
   fEventHandler.ServerStatusMessage('Using protocol for clients running ' + NET_PROTOCOL_REVISON);
-
-  fSettingsLastModified := FileAge(ExeDir + SETTINGS_FILE);
-  fLastSettingsFileCheck := TimeGet;
 
   while True do
   begin

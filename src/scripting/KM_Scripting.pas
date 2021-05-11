@@ -84,6 +84,10 @@ type
 
   TKMScriptingPreProcessor = class
   private
+    // in silent mode we don't parse event handlers and console commands
+    // since we affect global variables gScriptEvents
+    // but still parse LoadCustomTHTroopCost LoadCustomMarketGoldPrice, since they could be used in TKMapInfo.Create
+    fSilentMode: Boolean;
     fDestroyErrorHandler: Boolean;
     fScriptFilesInfo: TKMScriptFilesCollection;
     fErrorHandler: TKMScriptErrorHandler;
@@ -103,7 +107,7 @@ type
     procedure ScriptOnProcessDirective(Sender: TPSPreProcessor; Parser: TPSPascalPreProcessorParser; const Active: Boolean;
                                         const DirectiveName, DirectiveParam: tbtString; var aContinue: Boolean);
   public
-    constructor Create; overload;
+    constructor Create(aSilentMode: Boolean = False); overload;
     constructor Create(aOnScriptError: TUnicodeStringEvent); overload;
     constructor Create(aOnScriptError: TUnicodeStringEvent; aErrorHandler: TKMScriptErrorHandler); overload;
     destructor Destroy; override;
@@ -135,6 +139,7 @@ type
     fIDCache: TKMScriptingIdCache;
     fUtils: TKMScriptUtils;
 
+    function IsScriptCodeNeedToCompile: Boolean;
     procedure AddError(aMsg: TPSPascalCompilerMessage);
     procedure CompileScript;
     procedure LinkRuntime;
@@ -308,12 +313,27 @@ begin
 end;
 
 
+// Use separate function to check if script is worth to compile
+// Compilation will add 6 global vars for States/Actions/Utils/S/A/U
+// So we have to compile or not compile script in both LoadFromFile and Load procedures
+// to have no problems with number of global variables declared
+function TKMScripting.IsScriptCodeNeedToCompile: Boolean;
+begin
+  // No need to colpile script if its empty
+  Result := Trim(fScriptCode) <> '';
+end;
+
+
 procedure TKMScripting.LoadFromFile(const aFileName, aCampaignDataTypeFile: UnicodeString; aCampaignData: TKMemoryStream);
 begin
   RecreateValidationIssues;
 
   if not fPreProcessor.PreProcessFile(aFileName, fScriptCode) then
     Exit; // Continue only if PreProcess was successful;
+
+  // Do not continue compilation, if not needed, same as we do in Load procedure
+  if not IsScriptCodeNeedToCompile then
+    Exit;
 
   //Parse console commands procedures
   if gScriptEvents.HasConsoleCommands then
@@ -448,6 +468,10 @@ begin
     RegisterMethodCheck(c, 'function AIStartPosition(aPlayer: Byte): TKMPoint');
     RegisterMethodCheck(c, 'function AIWorkerLimit(aPlayer: Byte): Integer');
 
+    RegisterMethodCheck(c, 'function CampaignMissionID: Integer');
+    RegisterMethodCheck(c, 'function CampaignMissionsCount: Integer');
+    RegisterMethodCheck(c, 'function CampaignUnlockedMissionID: Integer');
+
     RegisterMethodCheck(c, 'function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer');
     RegisterMethodCheck(c, 'function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer');
     RegisterMethodCheck(c, 'function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer');
@@ -561,10 +585,6 @@ begin
     RegisterMethodCheck(c, 'function MapWidth: Integer');
 
     RegisterMethodCheck(c, 'function MissionAuthor: UnicodeString');
-    RegisterMethodCheck(c, 'function MissionBigDesc: UnicodeString');
-    RegisterMethodCheck(c, 'function MissionBigDescLibx: Integer');
-    RegisterMethodCheck(c, 'function MissionSmallDesc: UnicodeString');
-    RegisterMethodCheck(c, 'function MissionSmallDescLibx: Integer');
 
     RegisterMethodCheck(c, 'function MissionDifficulty: TKMMissionDifficulty');
     RegisterMethodCheck(c, 'function MissionDifficultyLevels: TKMMissionDifficultySet');
@@ -1001,8 +1021,7 @@ begin
         //Something is wrong, show an error
         //todo: Sender.MakeError reports the wrong line number so the user has no idea what the error is
         Sender.MakeError(PROCS[I].Names, ecTypeMismatch, '');
-        Result := False;
-        Exit;
+        Exit(False);
       end;
 end;
 
@@ -1121,6 +1140,10 @@ begin
       RegisterMethod(@TKMScriptStates.AIStartPosition,                          'AIStartPosition');
       RegisterMethod(@TKMScriptStates.AIWorkerLimit,                            'AIWorkerLimit');
 
+      RegisterMethod(@TKMScriptStates.CampaignMissionID,                        'CampaignMissionID');
+      RegisterMethod(@TKMScriptStates.CampaignMissionsCount,                    'CampaignMissionsCount');
+      RegisterMethod(@TKMScriptStates.CampaignUnlockedMissionID,                'CampaignUnlockedMissionID');
+
       RegisterMethod(@TKMScriptStates.ClosestGroup,                             'ClosestGroup');
       RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes,                'ClosestGroupMultipleTypes');
       RegisterMethod(@TKMScriptStates.ClosestHouse,                             'ClosestHouse');
@@ -1234,10 +1257,6 @@ begin
       RegisterMethod(@TKMScriptStates.MapWidth,                                 'MapWidth');
 
       RegisterMethod(@TKMScriptStates.MissionAuthor,                            'MissionAuthor');
-      RegisterMethod(@TKMScriptStates.MissionBigDesc,                           'MissionBigDesc');
-      RegisterMethod(@TKMScriptStates.MissionBigDescLibx,                       'MissionBigDescLibx');
-      RegisterMethod(@TKMScriptStates.MissionSmallDesc,                         'MissionSmallDesc');
-      RegisterMethod(@TKMScriptStates.MissionSmallDescLibx,                     'MissionSmallDescLibx');
 
       RegisterMethod(@TKMScriptStates.MissionDifficulty,                        'MissionDifficulty');
       RegisterMethod(@TKMScriptStates.MissionDifficultyLevels,                  'MissionDifficultyLevels');
@@ -1720,7 +1739,8 @@ begin
   gScriptEvents.Load(LoadStream);
   fIDCache.Load(LoadStream);
 
-  if fScriptCode <> '' then
+  // Do not compile script code, if not needed, same as we do in LoadFromFile procedure
+  if IsScriptCodeNeedToCompile then
     CompileScript;
 
   LoadStream.CheckMarker('ScriptVars');
@@ -1734,7 +1754,7 @@ begin
   end;
 
   //The log path can't be stored in the save since it might be in MapsMP or MapsDL on different clients
-  fErrorHandler.ScriptLogFile := ExeDir + ChangeFileExt(gGameParams.MissionFile, SCRIPT_LOG_EXT);
+  fErrorHandler.ScriptLogFile := ExeDir + ChangeFileExt(gGameParams.MissionFileRel, SCRIPT_LOG_EXT);
 end;
 
 
@@ -2082,12 +2102,13 @@ end;
 
 
 {TKMScriptingPreProcessor}
-constructor TKMScriptingPreProcessor.Create;
+constructor TKMScriptingPreProcessor.Create(aSilentMode: Boolean = False);
 var
   onScriptError: TUnicodeStringEvent;
 begin
   onScriptError := nil;
   Create(onScriptError);
+  fSilentMode := aSilentMode; // After overloaded Create call
 end;
 
 
@@ -2101,6 +2122,8 @@ end;
 constructor TKMScriptingPreProcessor.Create(aOnScriptError: TUnicodeStringEvent; aErrorHandler: TKMScriptErrorHandler);
 begin
   inherited Create;
+
+  fSilentMode := False;
 
   fPSPreProcessor := TPSPreProcessor.Create;
   fPSPreProcessor.OnNeedFile := ScriptOnNeedFile;
@@ -2196,7 +2219,7 @@ begin
   if not FileExists(aFileName) then
   begin
     gLog.AddNoTime(aFileName + ' was not found. It is okay for mission to have no dynamic scripts.');
-    Exit;
+    Exit(False);
   end;
 
   mainScriptCode := ReadTextA(aFileName);
@@ -2245,6 +2268,9 @@ const
     begin
       aContinue := False; //Custom directive should not be proccesed any further by pascal script preprocessor, as it will cause an error
 
+      // Skip event handlers in silent mode
+      if fSilentMode then Exit;
+
       //Do not do anything for while in MapEd
       //But we have to allow to preprocess file, as preprocessed file used for CRC calc in MapEd aswell
       //gGame could be nil here, but that does not change final CRC, so we can Exit
@@ -2291,6 +2317,9 @@ const
       or (UpperCase(DirectiveName) = UpperCase(CUSTOM_CONSOLE_COMMAND_DIRECTIVE_SHORT)) then
     begin
       aContinue := False; //Custom directive should not be proccesed any further by pascal script preprocessor, as it will cause an error
+
+      // Skip console commands in silent mode
+      if fSilentMode then Exit;
 
       //Do not do anything for while in MapEd
       //But we have to allow to preprocess file, as preprocessed file used for CRC calc in MapEd aswell

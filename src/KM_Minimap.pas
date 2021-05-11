@@ -135,7 +135,7 @@ end;
 procedure TKMMinimap.UpdateMinimapFromParser(aRevealAll: Boolean);
 var
   I, K, N: Integer;
-  Light: SmallInt;
+  light: SmallInt;
   x0,y2: Word;
 begin
   for I := 1 to fMapY do
@@ -153,10 +153,10 @@ begin
           //Formula for lighting is the same as in TTerrain.RebuildLighting
           x0 := Max(K-1, 1);
           y2 := Min(I+1, fMapY);
-          Light := Round(EnsureRange((TileHeight - (fParser.MapPreview[K,y2].TileHeight + fParser.MapPreview[x0,I].TileHeight)/2)/22, -1, 1)*64);
-          fBase[N] := Byte(EnsureRange(gRes.Tileset.TileColor[TileID].R+Light, 0, 255)) +
-                      Byte(EnsureRange(gRes.Tileset.TileColor[TileID].G+Light, 0, 255)) shl 8 +
-                      Byte(EnsureRange(gRes.Tileset.TileColor[TileID].B+Light, 0, 255)) shl 16 or $FF000000;
+          light := Round(EnsureRange((TileHeight - (fParser.MapPreview[K,y2].TileHeight + fParser.MapPreview[x0,I].TileHeight)/2)/22, -1, 1)*64);
+          fBase[N] := Byte(EnsureRange(gRes.Tileset.TileColor[TileID].R+light, 0, 255)) +
+                      Byte(EnsureRange(gRes.Tileset.TileColor[TileID].G+light, 0, 255)) shl 8 +
+                      Byte(EnsureRange(gRes.Tileset.TileColor[TileID].B+light, 0, 255)) shl 16 or $FF000000;
         end;
     end;
 end;
@@ -165,7 +165,8 @@ end;
 //Sepia method taken from:
 //http://www.techrepublic.com/blog/howdoi/how-do-i-convert-images-to-grayscale-and-sepia-tone-using-c/120
 procedure TKMMinimap.ApplySepia;
-const SEPIA_VAL = 0.4;
+const
+  SEPIA_VAL = 0.4;
 var
   I: Integer;
   R, G, B, R2, G2, B2: Byte;
@@ -195,16 +196,16 @@ end;
 //MapEditor stores only commanders instead of all groups members
 procedure TKMMinimap.UpdateMinimapFromGame;
 var
-  FOW: Byte;
+  I, J, K, MX, MY: Integer;
+  fow: Byte;
   ID: Word;
-  I,J,K,MX,MY: Integer;
   U: TKMUnit;
   P: TKMPoint;
-  DoesFit: Boolean;
-  Light: Smallint;
-  Group: TKMUnitGroup;
-  TileOwner: TKMHandID;
-  LandPtr: ^TKMTerrainTile;
+  doesFit: Boolean;
+  light: Smallint;
+  group: TKMUnitGroup;
+  tileOwner: TKMHandID;
+  landPtr: ^TKMTerrainTile;
   RGB: TRGB;
 begin
   {$IFDEF PERFLOG}
@@ -229,30 +230,30 @@ begin
     begin
       MX := K+1;
       MY := I+1;
-      FOW := gMySpectator.FogOfWar.CheckTileRevelation(MX,MY);
+      fow := gMySpectator.FogOfWar.CheckTileRevelation(MX,MY);
 
-      if FOW = 0 then
+      if fow = 0 then
         fBase[I*fMapX + K] := $FF000000
       else begin
-        LandPtr := @fMyTerrain.Land^[MY,MX];
-        TileOwner := -1;
-        if LandPtr.TileOwner <> -1 then
+        landPtr := @fMyTerrain.Land^[MY,MX];
+        tileOwner := -1;
+        if landPtr.TileOwner <> -1 then
         begin
           if fMyTerrain.TileHasRoad(MX, MY)
-            and (LandPtr.IsUnit <> nil)
-            and InRange(TKMUnit(LandPtr.IsUnit).Owner, 0, MAX_HANDS) then
-            TileOwner := TKMUnit(LandPtr.IsUnit).Owner
+            and (landPtr.IsUnit <> nil)
+            and InRange(TKMUnit(landPtr.IsUnit).Owner, 0, MAX_HANDS) then
+            tileOwner := TKMUnit(landPtr.IsUnit).Owner
           else
-            TileOwner := LandPtr.TileOwner;
+            tileOwner := landPtr.TileOwner;
         end;
 
-        if (TileOwner <> -1)
+        if (tileOwner <> -1)
           and not fMyTerrain.TileIsCornField(KMPoint(MX, MY)) //Do not show corn and wine on minimap
           and not fMyTerrain.TileIsWineField(KMPoint(MX, MY)) then
-          fBase[I*fMapX + K] := gHands[TileOwner].GameFlagColor
+          fBase[I*fMapX + K] := gHands[tileOwner].GameFlagColor
         else
         begin
-          U := LandPtr.IsUnit;
+          U := landPtr.IsUnit;
           if U <> nil then
             if U.Owner <> PLAYER_ANIMAL then
               fBase[I*fMapX + K] := gHands[U.Owner].GameFlagColor
@@ -260,17 +261,17 @@ begin
               fBase[I*fMapX + K] := gRes.Units[U.UnitType].MinimapColor
           else
           begin
-            ID := LandPtr.BaseLayer.Terrain;
+            ID := landPtr.BaseLayer.Terrain;
             // Do not use fMyTerrain.Land^[].Light for borders of the map, because it is set to -1 for fading effect
             // So assume fMyTerrain.Land^[].Light as medium value in this case
             if (I = 0) or (I = fMapY - 1) or (K = 0) or (K = fMapX - 1) then
-              Light := 255-FOW
+              light := 255-fow
             else
-              Light := Round(LandPtr.RenderLight*64)-(255-FOW); //it's -255..255 range now
+              light := Round(landPtr.RenderLight*64)-(255-fow); //it's -255..255 range now
             RGB := gRes.Tileset.TileColor[ID];
-            fBase[I*fMapX + K] := Byte(EnsureRange(RGB.R+Light,0,255)) or
-                                  Byte(EnsureRange(RGB.G+Light,0,255)) shl 8 or
-                                  Byte(EnsureRange(RGB.B+Light,0,255)) shl 16 or $FF000000;
+            fBase[I*fMapX + K] := Byte(EnsureRange(RGB.R+light,0,255)) or
+                                  Byte(EnsureRange(RGB.G+light,0,255)) shl 8 or
+                                  Byte(EnsureRange(RGB.B+light,0,255)) shl 16 or $FF000000;
           end;
         end;
       end;
@@ -281,12 +282,12 @@ begin
     for I := 0 to gHands.Count - 1 do
       for K := 0 to gHands[I].UnitGroups.Count - 1 do
       begin
-        Group := gHands[I].UnitGroups[K];
-        for J := 1 to Group.MapEdCount - 1 do
+        group := gHands[I].UnitGroups[K];
+        for J := 1 to group.MapEdCount - 1 do
         begin
           //GetPositionInGroup2 operates with 1..N terrain, while Minimap uses 0..N-1, hence the +1 -1 fixes
-          P := GetPositionInGroup2(Group.Position.X, Group.Position.Y, Group.Direction, J, Group.UnitsPerRow, fMapX+1, fMapY+1, DoesFit);
-          if not DoesFit then Continue; //Don't render units that are off the map in the map editor
+          P := GetPositionInGroup2(group.Position.X, group.Position.Y, group.Direction, J, group.UnitsPerRow, fMapX+1, fMapY+1, doesFit);
+          if not doesFit then Continue; //Don't render units that are off the map in the map editor
           fBase[(P.Y - 1) * fMapX + P.X - 1] := gHands[I].FlagColor;
         end;
       end;

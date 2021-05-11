@@ -1,0 +1,213 @@
+var Malcolm,Store,n1:Integer;
+ARMY: array [16..22] of integer;
+{$I Language.script}
+function ArmyTypeToQuestCount(aType: integer): integer;
+begin
+	case States.MissionDifficulty of
+		0:begin
+		  case aType of
+			16: RESULT := 45;
+			18: RESULT := 35;
+			22: RESULT := 38;
+			20: RESULT := 38; 
+			else RESULT := 0; 
+		  end;
+	  end;
+		1:begin
+		  case aType of
+			16: RESULT := 40;
+			18: RESULT := 30;
+			22: RESULT := 34;
+			20: RESULT := 34; 
+			else RESULT := 0; 
+		  end;
+	  end;
+		2:begin
+		  case aType of
+			16: RESULT := 35;
+			18: RESULT := 25;
+			22: RESULT := 32;
+			20: RESULT := 32; 
+			else RESULT := 0; 
+		  end;
+	  end;
+		3:begin
+		  case aType of
+			16: RESULT := 30;
+			18: RESULT := 20;
+			22: RESULT := 28;
+			20: RESULT := 28; 
+			else RESULT := 0; 
+		  end;
+	  end;
+		4:begin
+		  case aType of
+			16: RESULT := 25;
+			18: RESULT := 15;
+			22: RESULT := 24;
+			20: RESULT := 24; 
+			else RESULT := 0; 
+		  end;
+	  end;
+		5:begin
+		  case aType of
+			16: RESULT := 20;
+			18: RESULT := 10;
+			22: RESULT := 12;
+			20: RESULT := 12; 
+			else RESULT := 0; 
+		  end;
+	  end;
+		6:begin
+		  case aType of
+			16: RESULT := 15;
+			18: RESULT := 8;
+			22: RESULT := 8;
+			20: RESULT := 8; 
+			else RESULT := 0; 
+		  end;
+	  end;
+		7:begin
+		  case aType of
+			16: RESULT := 10;
+			18: RESULT := 5;
+			22: RESULT := 4;
+			20: RESULT := 4; 
+			else RESULT := 0; 
+		  end;
+	  end;
+	end;
+end;
+
+procedure GetArmyCount;
+var
+j, k: integer;
+begin
+	for j:= 16 to 22 do
+		ARMY[j]:= 0;
+		for k:= 16 to 22 do begin
+			if ( States.StatUnitTypeCount(0, k) > 0 ) and ( ArmyTypeToQuestCount(k) > 0 ) then
+				ARMY[k]:= ARMY[k] + States.StatUnitTypeCount(0, k);
+		end;
+			If (Army[16] >=ArmyTypeToQuestCount(16))and(Army[18] >=ArmyTypeToQuestCount(18))and(Army[20] >=ArmyTypeToQuestCount(20))and(Army[22] >=ArmyTypeToQuestCount(22)) then Actions.PlayerWin([0],true);
+end;
+
+procedure ShowMissionObjectives(aPlayer: integer);
+var j: integer;
+begin
+	Actions.OverlayTextSetFormatted(aPlayer, '', []);
+	Actions.OverlayTextAppendFormatted(aPlayer, '<$2>', []);
+	Actions.OverlayTextAppend(aPlayer, '|');
+	for j:= 16 to 22 do begin
+		if (ArmyTypeToQuestCount(j) > 0) then begin
+			if ARMY[j] >= ArmyTypeToQuestCount(j) then
+				Actions.OverlayTextAppendFormatted(-1, '<$4>', [States.UnitTypeName(j)])
+			else
+				Actions.OverlayTextAppendFormatted(aPlayer, '<$3>', [States.UnitTypeName(j), ARMY[j], ArmyTypeToQuestCount(j)]);
+				Actions.OverlayTextAppend(aPlayer, '|');
+		end;
+	end;
+end;
+
+Procedure OnPlanFieldPlaced(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+	if (aPlayer = 0) then begin
+		for a := 0to 1 do
+		for b := 0to 1 do
+		Actions.PlanAddField(0,X+a,Y+b);
+	end;
+end;
+Procedure OnPlanWinefieldPlaced(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+	if (aPlayer = 0) then begin
+		for a := 0to 1 do
+		for b := 0to 1 do
+		Actions.PlanAddWinefield(0,X+a,Y+b);
+	end;
+end;
+Procedure OnHousePlanPlaced(aPlayer: Integer; X: Integer; Y: Integer; aType: Integer);
+begin
+	if (aPlayer = 0) and (States.HouseRepair(Store)) then begin
+		Actions.PlanConnectRoad(0,X,Y+1,States.HousePositionX(States.ClosestHouse(0,X,Y,11)),States.HousePositionY(States.ClosestHouse(0,X,Y,11))+1,false);
+	end;
+end;
+
+Procedure OnBeacon(Player:Integer; X,Y:Word);
+begin
+	IF (X = States.UnitPositionX(Malcolm))and(Y = States.UnitPositionY(Malcolm)) then n1:=n1+1;
+	If n1 = 8 then Actions.PlayerWin([0],true);
+end;
+
+Procedure kamien;
+var H,X,Y:Integer;
+	J : array of integer;
+begin	
+	J := States.PlayerGetAllHouses(0);
+	for H := 0 to length(J) -1 do begin
+		If (States.HouseType(J[H])= 3) or  (States.HouseType(J[H])= 4) or  (States.HouseType(J[H])= 5) then begin
+			X:=States.HousePositionX(J[H]);
+			Y:=States.HousePositionY(J[H]);
+			If (States.HouseType(J[H])= 3) and (States.MapTileType(X,Y)<>155) then //węgiel
+				Actions.MapTileSet(X,Y,155,0);
+			If (States.HouseType(J[H])= 4) and (States.MapTileType(X,Y-2)<>151) then //żelazo
+				Actions.MapTileSet(X,Y-2,151,0);
+			If (States.HouseType(J[H])= 5) and (J[H] <> States.HouseAt(31,87)) and (J[H] <> States.HouseAt(41,72)) and (States.MapTileType(X,Y-2)<>147) then //złoto
+				Actions.MapTileSet(X,Y-2,147,0);
+		end;
+	end;
+end;
+procedure OnTick;
+var HType:Integer;
+begin
+	If States.GameTime mod 10=0 then begin
+		If (States.UnitPositionY(Malcolm) > 2) and(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)<>-1) then begin
+			HType:= States.HouseType(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1))
+			If (States.HouseSiteIsDigged(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddBuildingProgress(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1));		
+			If (States.HouseIsComplete(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true) and(States.HouseDamage(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) < States.HouseTypeMaxHealth(HType)-5)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddRepair(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1),5);
+		end;
+	end;
+	If (States.GameTime mod 100=0) and (States.HouseResourceAmount(States.HouseAt(40,36),1)>1)and(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)) <> 1) and (Actions.PlanRemove(0,States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)) <> false) then begin
+		Actions.GiveRoad(0,States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm));
+		Actions.HouseTakeWaresFrom(States.HouseAt(40,36),1,1);
+	end;
+	if (States.GameTime > 300) and(States.GameTime mod 50 = 0) then begin
+		GetArmyCount;
+		ShowMissionObjectives(0); end;
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		Malcolm := States.UnitAt(39,27) end;
+	if States.GameTime = 200 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.UnitDead(Malcolm) then
+		Actions.PlayerDefeat(0);
+	If States.GameTime mod 600 = 0 then kamien;
+end;
+
+
+
+Procedure OnMissionStart;
+var Houses:array of integer;
+	LL:integer;
+begin
+	Houses:=States.PlayerGetAllHouses(0);
+	for LL:=0 to length(Houses)-1 do begin
+		If (States.HouseType(Houses[LL])=11) and (Store=0) then
+			Store:=Houses[LL];
+	end;
+	if (CampaignData.HKS20.CrossBowMan > 0) then Actions.GiveGroup(0, 18, 48, 32, 0, CampaignData.HKS20.CrossBowMan,  CampaignData.HKS20.CrossBowMan/6);
+	if (CampaignData.HKS20.Swordman > 0) then Actions.GiveGroup(0, 16, 35, 31, 1, CampaignData.HKS20.Swordman,  CampaignData.HKS20.Swordman/3);
+end;
+
+Procedure OnPlayerVictory(aIndex:Integer);
+begin
+	CampaignData.HKS21.Groups[0] := States.StatUnitTypeCount(0,16)-1;
+	CampaignData.HKS21.Groups[1] := States.StatUnitTypeCount(0,18);
+	CampaignData.HKS21.Groups[2] := States.StatUnitTypeCount(0,20);
+	CampaignData.HKS21.Groups[3] := States.StatUnitTypeCount(0,22);
+end;
+

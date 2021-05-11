@@ -120,7 +120,8 @@ end;
 
 
 procedure TKMMapEdMarkerDefence.Marker_UpdateOrder(Sender: TObject; Shift: TShiftState);
-var I: Integer;
+var
+  I: Integer;
 begin
   if Sender = Button_Priority_Inc then
     for I := 1 to 1 + 9*Byte(ssRight in Shift) do

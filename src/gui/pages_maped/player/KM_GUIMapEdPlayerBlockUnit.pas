@@ -130,15 +130,15 @@ procedure TKMMapEdPlayerBlockUnit.Player_BlockUnitRefresh;
 var
   I: Integer;
   U: TKMUnitType;
-  Blocked: Boolean;
+  blocked: Boolean;
 begin
   for I := 0 to 13 do
   begin
     U := School_Order[I];
-    Blocked := gMySpectator.Hand.Locks.GetUnitBlocked(U);
-    if Blocked then
+    blocked := gMySpectator.Hand.Locks.GetUnitBlocked(U);
+    if blocked then
       Image_BlockUnit[I].TexID := 32
-    else if not Blocked then
+    else if not blocked then
       Image_BlockUnit[I].TexID := 0
     else
       Image_BlockUnit[I].TexID := 24;
@@ -150,15 +150,15 @@ procedure TKMMapEdPlayerBlockUnit.Player_BlockBarracksWarriorsRefresh;
 var
   K: Integer;
   W: TKMUnitType;
-  Blocked: Boolean;
+  blocked: Boolean;
 begin
   for K := 0 to High(Barracks_Order) do
   begin
     W := Barracks_Order[K];
-    Blocked := gMySpectator.Hand.Locks.GetUnitBlocked(W);
-    if Blocked then
+    blocked := gMySpectator.Hand.Locks.GetUnitBlocked(W);
+    if blocked then
       Image_BlockBarracksWarriors[K].TexID := 32
-    else if not Blocked then
+    else if not blocked then
       Image_BlockBarracksWarriors[K].TexID := 0
     else
       Image_BlockBarracksWarriors[K].TexID := 24;
@@ -170,15 +170,15 @@ procedure TKMMapEdPlayerBlockUnit.Player_BlockTHWarriorsRefresh;
 var
   K: Integer;
   W: TKMUnitType;
-  Blocked: Boolean;
+  blocked: Boolean;
 begin
   for K := 0 to High(TownHall_Order) do
   begin
     W := TownHall_Order[K];
-    Blocked := gMySpectator.Hand.Locks.GetUnitBlocked(W, True);
-    if Blocked then
+    blocked := gMySpectator.Hand.Locks.GetUnitBlocked(W, True);
+    if blocked then
       Image_BlockTHWarriors[K].TexID := 32
-    else if not Blocked then
+    else if not blocked then
       Image_BlockTHWarriors[K].TexID := 0
     else
       Image_BlockTHWarriors[K].TexID := 24;
@@ -189,16 +189,16 @@ end;
 procedure TKMMapEdPlayerBlockUnit.UpdatePlayerColor;
 var
   I: Integer;
-  Col: Cardinal;
+  col: Cardinal;
 begin
-  Col := gMySpectator.Hand.FlagColor;
+  col := gMySpectator.Hand.FlagColor;
 
   for I := Low(Button_BlockUnit) to High(Button_BlockUnit) do
-    Button_BlockUnit[I].FlagColor := Col;
+    Button_BlockUnit[I].FlagColor := col;
   for I := Low(Button_BlockBarracksWarriors) to High(Button_BlockBarracksWarriors) do
-    Button_BlockBarracksWarriors[I].FlagColor := Col;
+    Button_BlockBarracksWarriors[I].FlagColor := col;
   for I := Low(Button_BlockTHWarriors) to High(Button_BlockTHWarriors) do
-    Button_BlockTHWarriors[I].FlagColor := Col;
+    Button_BlockTHWarriors[I].FlagColor := col;
 end;
 
 

@@ -81,8 +81,8 @@ uses
 { TKMSettings }
 constructor TKMSettingsXML.Create;
 begin
-  inherited;
-
+  // Create xml Settings in the shared folder
+  inherited Create(False);
 end;
 
 

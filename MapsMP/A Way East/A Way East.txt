@@ -2,7 +2,10 @@ Author
 andreus
 
 Version
-1.5 (25.04.2020)
+1.6 (09.01.2021)
+
+BigDescLIBX
+1
 
 SetCoop
 
@@ -13,8 +16,5 @@ BlockTeamSelection
 BlockFullMapPreview
 
 DifficultyLevels
-mdEasy1,mdNormal,mdHard1
-
-BigDescLibx
-1
+mdEasy1,mdNormal,mdHard1,mdHard2
 

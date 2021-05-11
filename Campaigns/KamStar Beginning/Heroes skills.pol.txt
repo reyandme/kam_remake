@@ -1,0 +1,14 @@
+
+Malcolm
+	"Schemat BudowaniaI" - po postawieniu budowli, automatycznie łączy je drogą z najbliższym spichrzem. Działa kiedy jest włączona odbudowa w głównym spichrzu
+	"Budowniczy" - będąc pod budynkiem w budowie, zaczyna go budować(o ile są surowcwe) oraz naprawiać uszkodzone, 
+	"Pola XL" - postawia znaczniki pól i winnic w wielkości 2x2. Działa kiedy jest włączona odbudowa w głównym spichrzu 
+	"Jezdnia" - postawia znaczniki drogi 2x2.  Działa kiedy jest włączona odbudowa w głównym spichrzu
+	
+Dyron: 
+	"Uderzenie Kinetyczne" - natychmiastowo gładzi jednostki wroga dookoła postaci oraz posiada zwiększone obrażenia przeciwko budynkom, 
+
+Tyrio: 
+	"Handel" - podczas wymiany ryby na inny towar, jedna ryba wraca do najbliższego spichrza, 
+	"Łup" - za każdy zniszczony budynek nieprzyjaciela, otrzymujesz 1 deskę oraz 1 kamień do spichrza głównego,
+	"Statek" - Możesz wysyłać oddziały statkiem. Ustaw beacon/sygnał("B") na oddział, który chcesz wysłać(musi być blisko wody) i jeszcze raz sygnał ("B") w inne miejsce przy brzegu jakiejkolwiek wyspy. Czas rejsu zależy od odległości i ilości jednostek w oddziale.

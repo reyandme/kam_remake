@@ -43,7 +43,7 @@ implementation
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  KM_Main, KM_ResFonts, KM_ResTexts, KM_GameCursor, KM_RenderUI,
+  KM_Main, KM_ResFonts, KM_ResTexts, KM_Cursor, KM_RenderUI,
   KM_InterfaceGame, KM_Utils,
   KM_ResTypes;
 
@@ -146,44 +146,44 @@ end;
 
 procedure TKMMapEdTerrainHeights.HeightChange(Sender: TObject);
 begin
-  gGameCursor.MapEdSize := HeightSize.Position;
-  gGameCursor.MapEdSlope := HeightSlope.Position;
-  gGameCursor.MapEdSpeed := HeightSpeed.Position;
+  gCursor.MapEdSize := HeightSize.Position;
+  gCursor.MapEdSlope := HeightSlope.Position;
+  gCursor.MapEdSpeed := HeightSpeed.Position;
 
   //Shape
   if Sender = HeightCircle then
   begin
-    gGameCursor.MapEdShape := hsCircle;
+    gCursor.MapEdShape := hsCircle;
     fLastShape := hsCircle;
   end
   else
   if Sender = HeightSquare then
   begin
-    gGameCursor.MapEdShape := hsSquare;
+    gCursor.MapEdShape := hsSquare;
     fLastShape := hsSquare;
   end;
 
   //Kind
   if Sender = HeightElevate then
   begin
-    gGameCursor.Mode := cmElevate;
+    gCursor.Mode := cmElevate;
     fLastCursorMode := cmElevate;
   end else
   if Sender = HeightUnequalize then
   begin
-    gGameCursor.Mode := cmEqualize;
+    gCursor.Mode := cmEqualize;
     fLastCursorMode := cmEqualize;
   end;
 
   if Sender = HeightConstant then
   begin
-    gGameCursor.Mode := cmConstHeight;
+    gCursor.Mode := cmConstHeight;
     fLastCursorMode := cmConstHeight;
   end;
 
   if Sender = HeightElevateAll then
   begin
-    gGameCursor.Mode := cmElevateAll;
+    gCursor.Mode := cmElevateAll;
     fLastCursorMode := cmElevateAll;
   end;
   HeightRefresh;
@@ -192,33 +192,33 @@ end;
 
 procedure TKMMapEdTerrainHeights.HeightRefresh;
 begin
-  HeightCircle.Down := (gGameCursor.MapEdShape = hsCircle);
-  HeightSquare.Down := (gGameCursor.MapEdShape = hsSquare);
+  HeightCircle.Down := (gCursor.MapEdShape = hsCircle);
+  HeightSquare.Down := (gCursor.MapEdShape = hsSquare);
 
-  HeightElevate.Down := (gGameCursor.Mode = cmElevate);
-  HeightUnequalize.Down := (gGameCursor.Mode = cmEqualize);
+  HeightElevate.Down := (gCursor.Mode = cmElevate);
+  HeightUnequalize.Down := (gCursor.Mode = cmEqualize);
 
-  HeightConstant.Down := (gGameCursor.Mode = cmConstHeight);
-  HeightElevateAll.Down := (gGameCursor.Mode = cmElevateAll);
-  gGameCursor.MapEdConstHeight := HeightConstantNumber.Position;
+  HeightConstant.Down := (gCursor.Mode = cmConstHeight);
+  HeightElevateAll.Down := (gCursor.Mode = cmElevateAll);
+  gCursor.MapEdConstHeight := HeightConstantNumber.Position;
 end;
 
 
 procedure TKMMapEdTerrainHeights.UpdateHeightParams;
 begin
-  gGameCursor.MapEdSize  := HeightSize.Position;
-  gGameCursor.MapEdSlope := HeightSlope.Position;
-  gGameCursor.MapEdSpeed := HeightSpeed.Position;
+  gCursor.MapEdSize  := HeightSize.Position;
+  gCursor.MapEdSlope := HeightSlope.Position;
+  gCursor.MapEdSpeed := HeightSpeed.Position;
 end;
 
 
 procedure TKMMapEdTerrainHeights.Show;
 begin
   gMain.FormMain.SuppressAltForMenu := True;
-  gGameCursor.Mode := fLastCursorMode;
-  gGameCursor.MapEdShape := fLastShape;
+  gCursor.Mode := fLastCursorMode;
+  gCursor.MapEdShape := fLastShape;
   UpdateHeightParams;
-  gGameCursor.MapEdSpeed := HeightSpeed.Position;
+  gCursor.MapEdSpeed := HeightSpeed.Position;
   HeightRefresh;
   Panel_Heights.Show;
 end;

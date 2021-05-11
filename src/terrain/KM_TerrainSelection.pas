@@ -87,7 +87,7 @@ implementation
 uses
   SysUtils,
   KM_Resource, KM_HandsCollection,
-  KM_Game, KM_GameCursor, KM_RenderAux;
+  KM_Game, KM_Cursor, KM_RenderAux, KM_CommonUtils;
 
 
 { TKMSelection }
@@ -115,10 +115,10 @@ end;
 procedure TKMSelection.Selection_SyncCellRect;
 begin
   //Convert RawRect values that can be inverted to tilespace Rect
-  fSelectionRect.Left   := Trunc(Math.Min(fSelectionRectF.Left, fSelectionRectF.Right));
-  fSelectionRect.Top    := Trunc(Math.Min(fSelectionRectF.Top, fSelectionRectF.Bottom));
-  fSelectionRect.Right  := Ceil(Math.Max(fSelectionRectF.Left, fSelectionRectF.Right));
-  fSelectionRect.Bottom := Ceil(Math.Max(fSelectionRectF.Top, fSelectionRectF.Bottom));
+  fSelectionRect.Left   := Trunc(Max(0, Math.Min(fSelectionRectF.Left, fSelectionRectF.Right)));
+  fSelectionRect.Top    := Trunc(Max(0, Math.Min(fSelectionRectF.Top, fSelectionRectF.Bottom)));
+  fSelectionRect.Right  := Ceil(Max3(0, fSelectionRectF.Left, fSelectionRectF.Right));
+  fSelectionRect.Bottom := Ceil(Max3(0, fSelectionRectF.Top, fSelectionRectF.Bottom));
   //Selection must be at least one tile
   if fSelectionRect.Left = fSelectionRect.Right then Inc(fSelectionRect.Right);
   if fSelectionRect.Top = fSelectionRect.Bottom then Inc(fSelectionRect.Bottom);
@@ -133,10 +133,10 @@ var
   MoveX, MoveY: Integer;
 begin
   //Last row/col of the map is not visible or selectable
-  CursorFloat.X := EnsureRange(gGameCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
-  CursorFloat.Y := EnsureRange(gGameCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
-  CursorCell.X := EnsureRange(gGameCursor.Cell.X, 1, gTerrain.MapX-1);
-  CursorCell.Y := EnsureRange(gGameCursor.Cell.Y, 1, gTerrain.MapY-1);
+  CursorFloat.X := EnsureRange(gCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
+  CursorFloat.Y := EnsureRange(gCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
+  CursorCell.X := EnsureRange(gCursor.Cell.X, 1, gTerrain.MapX-1);
+  CursorCell.Y := EnsureRange(gCursor.Cell.Y, 1, gTerrain.MapY-1);
 
   case fSelectionEdit of
     seNone:       ;
@@ -180,10 +180,10 @@ var
   CursorCell: TKMPoint;
 begin
   //Last row/col of the map is not visible or selectable
-  CursorFloat.X := EnsureRange(gGameCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
-  CursorFloat.Y := EnsureRange(gGameCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
-  CursorCell.X := EnsureRange(gGameCursor.Cell.X, 1, gTerrain.MapX-1);
-  CursorCell.Y := EnsureRange(gGameCursor.Cell.Y, 1, gTerrain.MapY-1);
+  CursorFloat.X := EnsureRange(gCursor.Float.X, 0.1, gTerrain.MapX-1 - 0.1);
+  CursorFloat.Y := EnsureRange(gCursor.Float.Y, 0.1, gTerrain.MapY-1 - 0.1);
+  CursorCell.X := EnsureRange(gCursor.Cell.X, 1, gTerrain.MapX-1);
+  CursorCell.Y := EnsureRange(gCursor.Cell.Y, 1, gTerrain.MapY-1);
 
   if fSelectionMode = smSelecting then
   begin
@@ -315,7 +315,7 @@ end;
 
 procedure TKMSelection.DuplicateLandToTemp;
 var
-  I,K: Integer;
+  I, K: Integer;
 begin
   // Copy land to temp array
   // todo: optimise copying process
@@ -381,7 +381,7 @@ begin
 
   for I := fSelectionRect.Top to fSelectionRect.Bottom do
     for K := fSelectionRect.Left to fSelectionRect.Right do
-      if gTerrain.TileInMapCoords(K+1, I+1) then
+      if gTerrain.VerticeInMapCoords(K+1, I+1) then
       begin
         Bx := K - fSelectionRect.Left;
         By := I - fSelectionRect.Top;
@@ -803,7 +803,7 @@ end;
 procedure TKMSelection.CopyBufferToTempLand(aUpdateMainLand: Boolean = False; aUpdateAll: Boolean = True);
 var
   I, K: Integer;
-  Sx, Sy, Lx, Ly: Word;
+  Sx, Sy, Lx, Ly: Integer;
   updateRect: TKMRect;
 begin
   Sx := fSelectionRect.Right - fSelectionRect.Left;
@@ -816,10 +816,11 @@ begin
       Lx := fSelectionRect.Left + K + 1;
       Ly := fSelectionRect.Top + I + 1;
 
-      if gTerrain.TileInMapCoords(Lx, Ly)
-        and KMInRect(KMPoint(Lx, Ly), gRenderPool.RenderTerrain.ClipRect) then
+      if gTerrain.VerticeInMapCoords(Lx, Ly) then
       begin
-        if InRange(I, 0, Sy - 1) and InRange(K, 0, Sx - 1) then
+        if InRange(I, 0, Sy - 1)
+          and InRange(K, 0, Sx - 1)
+          and gTerrain.TileInMapCoords(Lx, Ly) then
         begin
           if aUpdateMainLand then
             // Update Main Land
@@ -834,13 +835,14 @@ begin
         else
         if ptHeight in fPasteTypes then
         begin
-          fLandTemp[Ly,Lx].Height := fSelectionBuffer[I,K].Height;
-
           if aUpdateMainLand then
-            gTerrain.MainLand^[Ly,Lx].Height := fSelectionBuffer[I,K].Height;
+            gTerrain.MainLand^[Ly,Lx].Height := fSelectionBuffer[I,K].Height
+          else
+            fLandTemp[Ly,Lx].Height := fSelectionBuffer[I,K].Height;
         end;
       end;
     end;
+
   if aUpdateAll then
   begin
     updateRect := KMRectGrow(fSelectionRect, 2); // 2 - just in case
@@ -852,7 +854,9 @@ end;
 
 procedure TKMSelection.SyncTempLand;
 begin
+  // Restore TempLand with 'original' gTerrain.Land first
   DuplicateLandToTemp;
+  // Copy data from the buffer onto TempLand
   CopyBufferToTempLand;
 end;
 

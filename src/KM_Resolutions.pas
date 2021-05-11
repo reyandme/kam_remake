@@ -81,15 +81,15 @@ end;
 procedure TKMResolutions.ReadAvailable;
 {$IFDEF MSWindows}
 var
-  I,M,N: Integer;
-  DevMode: TDevMode;
+  I, M, N: Integer;
+  devMode: TDevMode;
 {$ENDIF}
 begin
   {$IFDEF MSWindows}
   I := 0;
   fCount := 0;
-  while EnumDisplaySettings(nil, I, DevMode) do
-  with DevMode do //todo: Thats bad code, better get rid of this "with"
+  while EnumDisplaySettings(nil, I, devMode) do
+  with devMode do //todo: Thats bad code, better get rid of this "with"
   begin
     Inc(I);
     // Take only 32bpp modes
@@ -139,9 +139,9 @@ end;
 
 procedure TKMResolutions.Sort;
 var
-  I,J,K: Integer;
-  TempScreenResData: TKMScreenResData;
-  TempRefRate: Word;
+  I, J, K: Integer;
+  tempScreenResData: TKMScreenResData;
+  tempRefRate: Word;
 begin
   for I := 0 to fCount - 1 do
   begin
@@ -154,9 +154,9 @@ begin
              (fItems[I].RefRate[K] > 0)) do
       begin
         //Exchange places
-        TempRefRate := fItems[I].RefRate[K];
+        tempRefRate := fItems[I].RefRate[K];
         fItems[I].RefRate[K] := fItems[I].RefRate[K-1];
-        fItems[I].RefRate[K-1] := TempRefRate;
+        fItems[I].RefRate[K-1] := tempRefRate;
         dec(K);
       end;
     end;
@@ -171,9 +171,9 @@ begin
            (fItems[J].Height < fItems[J-1].Height)))) do
     begin
       //Exchange places
-      TempScreenResData := fItems[J];
+      tempScreenResData := fItems[J];
       fItems[J] := fItems[J-1];
-      fItems[J-1] := TempScreenResData;
+      fItems[J-1] := tempScreenResData;
       dec(J);
     end;
   end;
@@ -206,15 +206,15 @@ end;
 procedure TKMResolutions.SetResolution(const aResolution: TKMScreenRes);
 {$IFDEF MSWindows}
 var
-  DeviceMode: TDeviceMode;
+  deviceMode: TDeviceMode;
 {$ENDIF}
 begin
   //Double-check anything we get from outside
   Assert(IsValid(aResolution));
 
   {$IFDEF MSWindows}
-  ZeroMemory(@DeviceMode, SizeOf(DeviceMode));
-  with DeviceMode do
+  ZeroMemory(@deviceMode, SizeOf(deviceMode));
+  with deviceMode do
   begin
     dmSize := SizeOf(TDeviceMode);
     dmPelsWidth := aResolution.Width;
@@ -224,7 +224,7 @@ begin
     dmFields := DM_DISPLAYFREQUENCY or DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT;
   end;
 
-  ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
+  ChangeDisplaySettings(deviceMode, CDS_FULLSCREEN);
   {$ENDIF}
   fNeedsRestoring := True; //Resolution was changed so we must restore it when we exit
 end;
@@ -233,13 +233,13 @@ end;
 function TKMResolutions.FindCorrect(const aResolution: TKMScreenRes): TKMScreenRes;
 {$IFDEF MSWindows}
 var
-  DevMode: TDevMode;
+  devMode: TDevMode;
 {$ENDIF}
 begin
   //1. Try to reuse current resolution
   {$IFDEF MSWindows}
-  EnumDisplaySettings(nil, Cardinal(-1){ENUM_CURRENT_SETTINGS}, DevMode);
-  with DevMode do
+  EnumDisplaySettings(nil, Cardinal(-1){ENUM_CURRENT_SETTINGS}, devMode);
+  with devMode do
   if SupportedRes(dmPelsWidth, dmPelsHeight, dmDisplayFrequency, dmBitsPerPel) then
   begin
     Result.Width := dmPelsWidth;
@@ -270,7 +270,7 @@ end;
 //and everything is kept inside this class, not in TMainSettings
 function TKMResolutions.GetResolutionIDs(const aResolution: TKMScreenRes): TKMScreenResIndex;
 var
-  I,J: Integer;
+  I, J: Integer;
 begin
   Result.ResID := -1;
   Result.RefID := -1;

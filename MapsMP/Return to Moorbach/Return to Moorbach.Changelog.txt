@@ -1,0 +1,103 @@
+Return to Moorbach
+******************
+
+Version 0.8 (30.11.2019):
+- First limited release
+
+Version 0.8.1 (01.12.2019):
++ Reworked all AI Attacks
+  - Removed Ranged units from Attack positions of Player2 and 3
+  - AI soldier pathing changed so they only come from one side for the first few attacks
++ Reworked Human Players starting positions
+  - Moved Stone out of the way and closer together
+  - Removed some of the Sand on Location2
+  - Made building space bigger for Location1
+  - Moved Storehouse on Loc2 further away from Gold and Forest
+- Fixed some Broken Tiles (especially swamp)
+
+Version 0.8.2 (01.12.2019):
+- Readjusted Defense positions of AIs
++ AI Attacks reworked:
+  - Fixed a bug that caused Player3s Knights to not attack
+  - Fixed a bug where too many of Player5 Units attack at once
+  - Switched some of Player6 Attacks to HS from HA
+  - Fixed a bug that caused Player6s Attacks to happen in wrong order or not at all
+  - Removed some of Player5s unused Attack Positions that might mess up attacks
+  - Increased Player5 and Player6 Recruit Delay by 10mins
+  - Switched last/stongest Attack of Player2 and Player4 from once to repeating
++ Location1 fixes:
+  - Moved Storehouse 1 tile to the left
+  - Reworked stone to make it easier to mine
+  - Removed an annoying Bush
+- Fixed some broken Tiles
+- Fixed some unwalkable tiles
+
+Version 0.8.2b (02.12.2019):
++ Location1:
+  - Moved Center screen of Player0 to Storehouse
+  - Added a Road that was missing to Player0 start position
+  - Increased size and amount of Gold
++ Location2:
+  - Increased size and amount of NW Coal Field on loc2
+  - Fixed sand tiles on location2
+- Added objects to the map
+- Fixed broken tiles
+- Fixed unwalkable tiles
+
+Version 0.8.3 (02.12.2019):
+- Fixed Broken Tiles on Goldmountain North of Loc2
+- Added some additional objects and diversified tilesets on the west side of Loc1
+- Fixed Roads on Loc1 Storehouse
++ AI Rebalancing:
+  - Increased Recruit Delay of Player5 by 10mins
+  - Reduced Recruit Delay of Player4 by 5mins
+  - Increased Defense Radius of Southern Groups of Player2 and Player4
+  - Increased Serfs per House to a minimum of 8 for all AI Players
+  - Moved Attack Positions of Player5 slightly so they dont clip into each other
+
+Version 0.8.3b (04.12.2019):
+- Updated difficulty.script and settings to work with r10540 (now supports all 7 difficulties)
+
+Version 0.8.3c
+- Removed Player7
+- Removed Eel (RIP) from little Pond that trapped Units
+- Fixed Player5 Attack setup (Repeating attack now targets closest house instead of closest to start position)
+- Various small adjustments to difficulty settings to make them more scaled
+- Removed Difficulties 'Very Easy' and 'Very Hard' for now
+- Recruit Delay of Player4 increased from 45 to 50
+- Small improvements to the map
+
+Version 0.8.3d
+- Added wolfs to the forests
+- Fixed some broken sand tiles on location2
+- Finalized Enemy colors to match the original TSK Campaign Map
+- Added story and credits
+
+Version 0.8.3e
+- Fixed a bug that was introduced with KaM Remake version r10745
+- Integrated newest version of "difficulty.script" (0.8.5b)
+
+Version 0.8.4 (29.08.2020)
+- Increased MapSize by 32 Tiles between Players and AI (Changes to map and script made accordingly)
+- Removed Version Data from *.libx-Files
+- Various Difficulty settings rebalanced: 1st Attack now comes later, but attacks are more frequent
+- Adjusted Defense Radius of various Defense Positions (Player4 and Player6 especially)
+- Adjusted Starting and Recruits per Houses Amount of all AI Players
+- Added Equipment to Player4s Barracks that were missing before
+- Added Stones to Player4s Towers
+- Added 1 Mining Spot for Player0
+- Increased Forest Density for Human Players
+- Increased amount of Stone in Mountain of Player1
+- Removed obsolete revealers on Players Storehouses
+- Added Message to Player at Gamestart
++ Added console commands
+  - Show availible commands: /cmd
+  - Revealers of Deposits are now gated behind script command: /showmydeposits
+
+Version 0.8.4b (03.09.2020)
+- Minor elevation and texturing changes of newly added Hill north of Player0s location
+- Added Block Walking to Hill-tiles
+- Used new tiles to blend 3-tile-transitions
+
+Version 0.8.4c (01.04.2021)
+- Increased Defense Radius of most enemy groups

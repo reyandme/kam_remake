@@ -200,101 +200,101 @@ end;
 
 function TKMConsole.TryDoCallConsoleCommand: Boolean;
 var
-  I, ParamsI, ProcParamsCnt, SpacePos: Integer;
-  CmdName: AnsiString;
-  ParamsStr, Param, ParsingErrorStr: String;
-  Params: TKMScriptCommandParamsArray;
-  QuoteStart, ParsingError: Boolean;
+  I, paramsI, procParamsCnt, spacePos: Integer;
+  cmdName: AnsiString;
+  paramsStr, param, parsingErrorStr: String;
+  params: TKMScriptCommandParamsArray;
+  quoteStart, parsingError: Boolean;
 
   procedure AddParam(const aParam: String);
   begin
     if aParam <> '' then
     begin
-      if ParamsI < Length(Params) then
-        Params[ParamsI] := aParam;
-      Inc(ParamsI);
+      if paramsI < Length(params) then
+        params[paramsI] := aParam;
+      Inc(paramsI);
     end;
   end;
 
 begin
   Result := False;
-  SpacePos := Pos(' ', Text);
-  if SpacePos = 0 then
-    SpacePos := Length(Text) + 1;
+  spacePos := Pos(' ', Text);
+  if spacePos = 0 then
+    spacePos := Length(Text) + 1;
 
-  CmdName := AnsiString(Copy(Text, 2, SpacePos - 2));
+  cmdName := AnsiString(Copy(Text, 2, spacePos - 2));
 
-  if not gScriptEvents.HasConsoleCommand(CmdName)
+  if not gScriptEvents.HasConsoleCommand(cmdName)
     and Assigned(fOnError) then
   begin
-    fOnError(Format(gResTexts[TX_SCRIPT_CONSOLE_CMD_NOT_FOUND], [WrapColorA(CmdName, clScriptCmdName)]));
+    fOnError(Format(gResTexts[TX_SCRIPT_CONSOLE_CMD_NOT_FOUND], [WrapColorA(cmdName, clScriptCmdName)]));
     Exit;
   end;
 
-  ProcParamsCnt := gScriptEvents.ConsoleCommand[CmdName].ProcParamsCnt;
+  procParamsCnt := gScriptEvents.ConsoleCommand[cmdName].ProcParamsCnt;
 
-  ParamsStr := RightStr(Text, Length(Text) - (SpacePos - 1));
+  paramsStr := RightStr(Text, Length(Text) - (spacePos - 1));
 
-  ParamsI := 0;
-  Param := '';
-  QuoteStart := False;
-  ParamsStr := StringReplace(ParamsStr, '\''', #1, [rfReplaceAll]);
+  paramsI := 0;
+  param := '';
+  quoteStart := False;
+  paramsStr := StringReplace(paramsStr, '\''', #1, [rfReplaceAll]);
 
-  for I := 1 to Length(ParamsStr) do
+  for I := 1 to Length(paramsStr) do
   begin
-    if (ParamsStr[I] = ' ') and not QuoteStart then
+    if (paramsStr[I] = ' ') and not quoteStart then
     begin
-      AddParam(Param);
-      Param := '';
+      AddParam(param);
+      param := '';
     end
     else
-    if ParamsStr[I] = '''' then
-      QuoteStart := not QuoteStart
+    if paramsStr[I] = '''' then
+      quoteStart := not quoteStart
     else
-      Param := Param + ParamsStr[I];
+      param := param + paramsStr[I];
   end;
 
-  AddParam(Param);
+  AddParam(param);
 
-  ParsingError := False;
-  ParsingErrorStr := Format(gResTexts[TX_SCRIPT_CONSOLE_CMD_PARSING_ERROR] + '|',
-                            [WrapColorA(CmdName, clScriptCmdName),
-                            gScriptEvents.ConsoleCommand[CmdName].Params2String(Params)]);
+  parsingError := False;
+  parsingErrorStr := Format(gResTexts[TX_SCRIPT_CONSOLE_CMD_PARSING_ERROR] + '|',
+                            [WrapColorA(cmdName, clScriptCmdName),
+                            gScriptEvents.ConsoleCommand[cmdName].Params2String(params)]);
 
-  if (ParamsI > ProcParamsCnt)
+  if (paramsI > procParamsCnt)
     and Assigned(fOnError) then
   begin
-    fOnError(ParsingErrorStr +
+    fOnError(parsingErrorStr +
              Format(gResTexts[TX_SCRIPT_CONSOLE_CMD_TOO_MANY_PARAMS],
-                    [WrapColorA(CmdName, clScriptCmdName),
-                     WrapColor(IntToStr(ProcParamsCnt), clScriptCmdParam),
-                     WrapColor(IntToStr(ParamsI), clScriptCmdParam)])); //We Inc ParamsI at the end
-    ParsingError := True;
+                    [WrapColorA(cmdName, clScriptCmdName),
+                     WrapColor(IntToStr(procParamsCnt), clScriptCmdParam),
+                     WrapColor(IntToStr(paramsI), clScriptCmdParam)])); //We Inc ParamsI at the end
+    parsingError := True;
   end;
 
-  for I := 0 to ParamsI - 1 do
-    Params[I] := StringReplace(Params[I], #1, '''', [rfReplaceAll]);
+  for I := 0 to paramsI - 1 do
+    params[I] := StringReplace(params[I], #1, '''', [rfReplaceAll]);
 
-  for I := ParamsI to MAX_SCRIPT_CONSOLE_COMMAND_PARAMS - 1 do
-    Params[I] := '';
+  for I := paramsI to MAX_SCRIPT_CONSOLE_COMMAND_PARAMS - 1 do
+    params[I] := '';
 
-  if not gScriptEvents.ConsoleCommand[CmdName].ValidateParams(Params)
+  if not gScriptEvents.ConsoleCommand[cmdName].ValidateParams(params)
     and Assigned(fOnError) then
   begin
-    fOnError(ParsingErrorStr +
+    fOnError(parsingErrorStr +
              Format(gResTexts[TX_SCRIPT_CONSOLE_CMD_PARAMS_NOT_VALID],
-                    [WrapColorA(CmdName, clScriptCmdName),
-                     gScriptEvents.ConsoleCommand[CmdName].ParamsTypes2String]));
-    ParsingError := True;
+                    [WrapColorA(cmdName, clScriptCmdName),
+                     gScriptEvents.ConsoleCommand[cmdName].ParamsTypes2String]));
+    parsingError := True;
   end;
 
-  if not ParsingError then
+  if not parsingError then
   begin
-    gGame.GameInputProcess.CmdConsoleCommand(gicScriptConsoleCommand, CmdName, Params);
+    gGame.GameInputProcess.CmdConsoleCommand(gicScriptConsoleCommand, cmdName, params);
     if Assigned(fOnPostLocal) then
       fOnPostLocal(Format(gResTexts[TX_SCRIPT_CONSOLE_CMD_CALLED],
-                          [WrapColorA(CmdName, clScriptCmdName),
-                          gScriptEvents.ConsoleCommand[CmdName].Params2String(Params)]));
+                          [WrapColorA(cmdName, clScriptCmdName),
+                          gScriptEvents.ConsoleCommand[cmdName].Params2String(params)]));
     Result := True;
   end;
 end;

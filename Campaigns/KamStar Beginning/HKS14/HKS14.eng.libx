@@ -1,0 +1,16 @@
+MAXID:3
+
+0:Tyrio:We are lucky. We came across an abandoned village. Fortunately, we have citizens. Phew, half of the work is done.
+1:Tyrio: We must firmly approach the entire situation. Defeat the army. We cannot attack the civilians and the buildings.
+2:Tyrio: Only left us Valtaria's eastern and western support.
+3:Tyrio: Black supports Livius with his troops. Get ready to attack.
+4:If Livius joins us, Kregor will lose support from the south.
+5:Group marked.
+
+6:Group was sent, will arrive in approx %s.
+
+7:Group arrived.
+
+8:Suitable area.
+
+100:Additional Text

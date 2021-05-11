@@ -33,8 +33,6 @@ type
   private
     fBlockColorSelection: Boolean;
     function IsEmpty: Boolean;
-    procedure Load(LoadStream: TKMemoryStream);
-    procedure Save(SaveStream: TKMemoryStream);
     function GetBlockColorSelection: Boolean;
   public
     Author, Version, BigDesc, SmallDesc: UnicodeString;
@@ -51,6 +49,10 @@ type
     BlockFullMapPreview: Boolean;
 
     constructor Create;
+
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+
     procedure SetBigDesc(const aBigDesc: UnicodeString);
     function GetBigDesc: UnicodeString;
 
@@ -103,6 +105,7 @@ type
     function GetBigDesc: UnicodeString;
     procedure SetBigDesc(const aBigDesc: UnicodeString);
     function GetTxtInfo: TKMMapTxtInfo;
+    constructor Create; overload;
   public
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
@@ -121,6 +124,8 @@ type
     constructor Create(const aPath: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder); overload;
     constructor Create(const aPath: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder; const aCampaignId: TKMCampaignId); overload;
     destructor Destroy; override;
+
+    class function CreateDummy: TKMapInfo;
 
     procedure AddGoal(aType: TKMGoalType; aPlayer: TKMHandID; aCondition: TKMGoalCondition; aStatus: TKMGoalStatus; aPlayerIndex: TKMHandID);
     procedure LoadExtra;
@@ -237,7 +242,7 @@ type
     class function FullPath(const aName, aExt: string; aMapFolder: TKMapFolder; aCRC: Cardinal): string; overload;
 //    class function GuessMPPath(const aName, aExt: string; aCRC: Cardinal): string;
     class procedure GetAllMapPaths(const aExeDir: string; aList: TStringList);
-    class function GetMapCRC(const aName: UnicodeString; aMapFolder: TKMapFolder): Cardinal;
+    class function GetMapCRC(const aMapPath: string): Cardinal;
 
     procedure Refresh(aOnRefresh: TNotifyEvent;  aOnTerminate: TNotifyEvent = nil;aOnComplete: TNotifyEvent = nil);
     procedure TerminateScan;
@@ -252,9 +257,6 @@ type
     procedure UpdateState;
   end;
 
-  function GetMapFolderType(aIsMultiplayer: Boolean): TKMapFolder;
-  function DetermineMapFolder(const aFolderName: UnicodeString; out aMapFolder: TKMapFolder): Boolean;
-
 
 implementation
 uses
@@ -262,17 +264,31 @@ uses
   KromShellUtils, KromUtils,
   KM_Campaigns,
   KM_GameApp, KM_GameSettings, KM_FileIO,
-  KM_MissionScript_Info, KM_Scripting,
-  KM_CommonUtils, KM_Log;
+  KM_MissionScript_Info, KM_Scripting, KM_ResLocales,
+  KM_CommonUtils, KM_Log, KM_MapUtils, KM_Utils;
+
+const
+  MAP_TXT_INFO_MARKER = 'MapTxtInfo';
 
 
 { TKMapInfo }
+class function TKMapInfo.CreateDummy: TKMapInfo;
+begin
+  Result := Create;
+end;
+
+
+constructor TKMapInfo.Create;
+begin
+  inherited;
+end;
+
 
 constructor TKMapInfo.Create(const aPath: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder);
 var
-  CampaignId: TKMCampaignId;
+  campaignId: TKMCampaignId;
 begin
-  Create(aPath, aStrictParsing, aMapFolder, CampaignId);
+  Create(aPath, aStrictParsing, aMapFolder, campaignId);
 end;
 
 constructor TKMapInfo.Create(const aPath: string; aStrictParsing: Boolean; aMapFolder: TKMapFolder; const aCampaignId: TKMCampaignId);
@@ -351,7 +367,7 @@ begin
     if FileExists(scriptFile) then
     begin
       othersCRC := othersCRC xor Adler32CRC(scriptFile);
-      scriptPreProcessor := TKMScriptingPreProcessor.Create;
+      scriptPreProcessor := TKMScriptingPreProcessor.Create(True);
       try
         if scriptPreProcessor.PreProcessFile(scriptFile) then
         begin
@@ -822,28 +838,11 @@ end;
 
 
 function TKMapInfo.DetermineReadmeFilePath: String;
-var
-  path: String;
 begin
   Assert(gGameApp <> nil, 'gGameApp = nil!');
   Assert(gGameSettings <> nil, 'gGameSettings = nil!');
 
-  Result := '';
-  path := fPath + fFileName + '.' + String(gGameSettings.Locale) + '.pdf'; // Try to file with our locale first
-  if FileExists(path) then
-    Result := path
-  else
-  begin
-    path := fPath + fFileName + '.' + String(DEFAULT_LOCALE) + '.pdf'; // then with default locale
-    if FileExists(path) then
-      Result := path
-    else
-    begin
-      path := fPath + fFileName + '.pdf'; // and finally without any locale
-      if FileExists(path) then
-        Result := path;
-    end;
-  end;
+  Result := GetLocalizedFilePath(fPath + fFileName, gResLocales.UserLocale, gResLocales.FallbackLocale, '.pdf');
 end;
 
 
@@ -1229,6 +1228,10 @@ end;
 
 procedure TKMMapTxtInfo.Load(LoadStream: TKMemoryStream);
 begin
+  LoadStream.CheckMarker(MAP_TXT_INFO_MARKER);
+
+  LoadStream.ReadW(Author);
+  LoadStream.ReadW(Version);
   LoadStream.Read(IsCoop);
   LoadStream.Read(IsSpecial);
   LoadStream.Read(IsRMG);
@@ -1241,12 +1244,18 @@ begin
 
   LoadStream.ReadW(SmallDesc);
   LoadStream.Read(SmallDescLibx);
-//  aStream.ReadW(fBigDesc);
+
+  LoadStream.ReadW(BigDesc);
+  LoadStream.Read(BigDescLibx);
 end;
 
 
 procedure TKMMapTxtInfo.Save(SaveStream: TKMemoryStream);
 begin
+  SaveStream.PlaceMarker(MAP_TXT_INFO_MARKER);
+
+  SaveStream.WriteW(Author);
+  SaveStream.WriteW(Version);
   SaveStream.Write(IsCoop);
   SaveStream.Write(IsSpecial);
   SaveStream.Write(IsRMG);
@@ -1259,7 +1268,9 @@ begin
 
   SaveStream.WriteW(SmallDesc);
   SaveStream.Write(SmallDescLibx);
-//  aStream.WriteW(fBigDesc);
+
+  SaveStream.WriteW(BigDesc);
+  SaveStream.Write(BigDescLibx);
 end;
 
 
@@ -1634,14 +1645,11 @@ begin
 end;
 
 
-class function TKMapsCollection.GetMapCRC(const aName: UnicodeString; aMapFolder: TKMapFolder): Cardinal;
-var
-  MapPath: UnicodeString;
+class function TKMapsCollection.GetMapCRC(const aMapPath: string): Cardinal;
 begin
   Result := 0;
-  MapPath := FullPath(aName, '.dat', aMapFolder);
-  if FileExists(MapPath) then
-    Result := Adler32CRC(MapPath);
+  if FileExists(aMapPath) then
+    Result := Adler32CRC(aMapPath);
 end;
 
 
@@ -1830,33 +1838,6 @@ procedure TTMapsCacheUpdater.Stop;
 begin
   if Self <> nil then
     fIsStopped := True;
-end;
-
-
-{Utility methods}
-//Try to determine TMapFolder for specified aFolderName
-//Returns true when succeeded
-function DetermineMapFolder(const aFolderName: UnicodeString; out aMapFolder: TKMapFolder): Boolean;
-var
-  F: TKMapFolder;
-begin
-  for F := Low(TKMapFolder) to High(TKMapFolder) do
-    if aFolderName = MAP_FOLDER[F] then
-    begin
-      aMapFolder := F;
-      Result := True;
-      Exit;
-    end;
-  Result := False;
-end;
-
-
-function GetMapFolderType(aIsMultiplayer: Boolean): TKMapFolder;
-begin
-  if aIsMultiplayer then
-    Result := mfMP
-  else
-    Result := mfSP;
 end;
 
 

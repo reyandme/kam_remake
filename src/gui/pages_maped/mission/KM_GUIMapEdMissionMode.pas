@@ -68,8 +68,9 @@ constructor TKMMapEdMissionMode.Create(aParent: TKMPanel);
 const
   CHK_W = 300;
   RADIO_W = 250;
+  POPUP_H = 700;
 var
-  Dif_W, Top: Integer;
+  difW, Top: Integer;
   MD: TKMMissionDifficulty;
 begin
   inherited Create;
@@ -91,13 +92,17 @@ begin
   Button_MissionParams.Hint := gResTexts[TX_MAPED_MISSION_PARAMETERS_BTN_HINT];
   Button_MissionParams.OnClick := MissionParams_Click;
 
-  PopUp_MissionParams := TKMPopUpPanel.Create(aParent.MasterParent, 700, 675, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE]);
+  PopUp_MissionParams := TKMPopUpPanel.Create(aParent.MasterParent, 700, POPUP_H, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE], pubgitYellow, False, False);
+  PopUp_MissionParams.CapOffsetY := -5;
 
-    Panel_MissionParams := TKMPanel.Create(PopUp_MissionParams, 5, 5, PopUp_MissionParams.Width - 10, PopUp_MissionParams.Height - 10);
+    Panel_MissionParams := TKMPanel.Create(PopUp_MissionParams.ItemsPanel, 5, 5,
+                                           PopUp_MissionParams.ItemsPanel.Width - 10,
+                                           POPUP_H - 10);
+    Panel_MissionParams.AnchorsStretch;
 
     Top := 0;
-    TKMLabel.Create(Panel_MissionParams, 0, Top, gResTexts[TX_MAPED_MISSION_AUTHOR], fntOutline, taLeft);
-    TKMLabel.Create(Panel_MissionParams, (Panel_MissionParams.Width div 2) + 5, Top, gResTexts[TX_MAPED_MISSION_VERSION], fntOutline, taLeft);
+    TKMLabel.Create(Panel_MissionParams, 0, Top, gResTexts[TX_MAPED_MISSION_AUTHOR], fntMetal, taLeft);
+    TKMLabel.Create(Panel_MissionParams, (Panel_MissionParams.Width div 2) + 5, Top, gResTexts[TX_MAPED_MISSION_VERSION], fntMetal, taLeft);
     Inc(Top, 20);
     Edit_Author := TKMEdit.Create(Panel_MissionParams, 0, Top, (Panel_MissionParams.Width div 2) - 5, 20, fntArial);
     Edit_Author.ShowColors := True;
@@ -106,7 +111,7 @@ begin
     Edit_Version.ShowColors := True;
 
     Inc(Top, 30);
-    TKMLabel.Create(Panel_MissionParams, 0, Top, gResTexts[TX_MAPED_MISSION_SMALL_DESC], fntOutline, taLeft);
+    TKMLabel.Create(Panel_MissionParams, 0, Top, gResTexts[TX_MAPED_MISSION_SMALL_DESC], fntMetal, taLeft);
     Inc(Top, 20);
     TKMBevel.Create(Panel_MissionParams, 0, Top, RADIO_W + 10, 45);
 
@@ -120,7 +125,7 @@ begin
     NumEdit_SmallDesc := TKMNumericEdit.Create(Panel_MissionParams, RADIO_W + 20, Top, -1, 999, fntGrey);
 
     Inc(Top, 55);
-    TKMLabel.Create(Panel_MissionParams, 0, Top, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE], fntOutline, taLeft);
+    TKMLabel.Create(Panel_MissionParams, 0, Top, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE], fntMetal, taLeft);
     Inc(Top, 25);
     TKMBevel.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 85);
 
@@ -153,28 +158,28 @@ begin
 
 
     Inc(Top, 90);
-    with TKMLabel.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 20, gResTexts[TX_MAPED_MISSION_DIFFICULTY_LEVELS], fntOutline, taLeft) do
+    with TKMLabel.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 20, gResTexts[TX_MAPED_MISSION_DIFFICULTY_LEVELS], fntMetal, taLeft) do
       Hint := gResTexts[TX_MAPED_MISSION_DIFFICULTY_LEVELS_HINT];
     Inc(Top, 20);
     TKMBevel.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 65);
 
     Inc(Top, 5);
-    Dif_W := (PopUp_MissionParams.Width - 20) div 3;
+    difW := (PopUp_MissionParams.ItemsPanel.Width - 20) div 3;
     for MD := MISSION_DIFFICULTY_MIN to mdEasy1 do
       CheckBox_Difficulty[MD] := TKMCheckBox.Create(Panel_MissionParams,
                                        5, Top + (Integer(MD) - Integer(mdEasy3))*20,
-                                       Dif_W, 20, gResTexts[DIFFICULTY_LEVELS_TX[MD]], fntMetal);
+                                       difW, 20, gResTexts[DIFFICULTY_LEVELS_TX[MD]], fntMetal);
     CheckBox_Difficulty[mdNormal] := TKMCheckBox.Create(Panel_MissionParams,
-                                       5 + Dif_W + 5, Top + 20, Dif_W, 20,
+                                       5 + difW + 5, Top + 20, difW, 20,
                                        gResTexts[DIFFICULTY_LEVELS_TX[mdNormal]], fntMetal);
 
     for MD := mdHard1 to MISSION_DIFFICULTY_MAX do
       CheckBox_Difficulty[MD] := TKMCheckBox.Create(Panel_MissionParams,
-                                       5 + 2*Dif_W + 5, Top + (Integer(MD) - Integer(mdHard1))*20,
-                                       Dif_W, 20, gResTexts[DIFFICULTY_LEVELS_TX[MD]], fntMetal);
+                                       5 + 2*difW + 5, Top + (Integer(MD) - Integer(mdHard1))*20,
+                                       difW, 20, gResTexts[DIFFICULTY_LEVELS_TX[MD]], fntMetal);
 
     Inc(Top, 65);
-    TKMLabel.Create(Panel_MissionParams, 0, Top, gResTexts[TX_MAPED_MISSION_BIG_DESC], fntOutline, taLeft);
+    TKMLabel.Create(Panel_MissionParams, 0, Top, gResTexts[TX_MAPED_MISSION_BIG_DESC], fntMetal, taLeft);
     Inc(Top, 20);
     TKMBevel.Create(Panel_MissionParams, 0, Top, RADIO_W + 10, 45);
 
@@ -190,7 +195,7 @@ begin
     NumEdit_BigDesc := TKMNumericEdit.Create(Panel_MissionParams, RADIO_W + 20, Top, -1, 999, fntGrey);
 
     Inc(Top, 55);
-    Memo_BigDesc := TKMMemo.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 200, fntArial, bsGame);
+    Memo_BigDesc := TKMMemo.Create(Panel_MissionParams, 0, Top, Panel_MissionParams.Width, 225, fntArial, bsGame);
     Memo_BigDesc.AnchorsStretch;
     Memo_BigDesc.AutoWrap := True;
     Memo_BigDesc.ScrollDown := True;
@@ -213,10 +218,13 @@ begin
     for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
       CheckBox_Difficulty[MD].OnClick := UpdateMapTxtInfo;
 
-    Inc(Top, 215);
-    Button_Close := TKMButton.Create(Panel_MissionParams, 0, Top, 120, 30, gResTexts[TX_WORD_CLOSE], bsGame);
+    Button_Close := TKMButton.Create(Panel_MissionParams, 0, Panel_MissionParams.Height - 35, 120, 30, gResTexts[TX_WORD_CLOSE], bsGame);
     Button_Close.SetPosCenterW;
     Button_Close.OnClick := MissionParams_CloseClick;
+    Button_Close.Anchors := [anLeft, anRight, anBottom];
+
+  // Shrink panel height after all childs were added, so they will fit in according to their anchors
+  Panel_MissionParams.Height := PopUp_MissionParams.ItemsPanel.Height - 10;
 
   PopUp_MissionParams.OnKeyDown := MissionParams_OnKeyDown;
 
@@ -271,7 +279,8 @@ end;
 
 
 procedure TKMMapEdMissionMode.AIBuilderChange(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
   if Sender = Button_AIBuilderSetup then
   begin

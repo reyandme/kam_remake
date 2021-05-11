@@ -1,3 +1,4 @@
+echo called copy_post_pack.bat
 
 @REM ============================================================
 @REM Copy music files from original KaM TPR game
@@ -57,20 +58,21 @@ xcopy ..\bass.dll "%kam_folder%"\bass.dll* /y /r /i
 xcopy ..\ogg.dll "%kam_folder%"\ogg.dll* /y /r /i
 xcopy ..\vorbis.dll "%kam_folder%"\vorbis.dll* /y /r /i
 xcopy ..\vorbisfile.dll "%kam_folder%"\vorbisfile.dll* /y /r /i
+xcopy ..\Installer\uninst_clean.bat "%kam_folder%"\uninst_clean.bat* /y /r /i
 xcopy "%KMRPrevVersionDir%"\oalinst.exe "%kam_folder%"\oalinst.exe* /y /r /i
 
 mkdir "%kam_folder%"\Utils
 
 @REM copy ScriptingEditor
 if %IncludeScriptingEditor%==True (
-xcopy "%ScriptingEditorDir%"\bin\ScriptingEditor.exe* "%kam_folder%"\Utils\ScriptingEditor /y /r /i
-xcopy "%ScriptingEditorDir%"\bin\SE_Data_KMR "%kam_folder%"\Utils\ScriptingEditor\SE_Data\ /y /r /s
-xcopy "%ScriptingEditorDir%"\bin\SE_Data\Examples "%kam_folder%"\Utils\ScriptingEditor\SE_Data\Examples\ /y /r /s
-xcopy "..\Utils\ScriptValidator\ScriptValidator.exe" "%kam_folder%"\Utils\ScriptingEditor\SE_Data\ScriptValidator.exe* /y /r /i
-REM erase "%kam_folder%"\Utils\ScriptingEditor\SE_Data\ScriptValidator.exe
-@REM no need for OLD and Logs folders there
-rmdir /S /Q "%kam_folder%"\Utils\ScriptingEditor\SE_Data\OLD
-rmdir /S /Q "%kam_folder%"\Utils\ScriptingEditor\SE_Data\Logs
+  xcopy "%ScriptingEditorDir%"\bin\ScriptingEditor.exe* "%kam_folder%"\Utils\ScriptingEditor /y /r /i
+  xcopy "%ScriptingEditorDir%"\bin\SE_Data_KMR "%kam_folder%"\Utils\ScriptingEditor\SE_Data\ /y /r /s
+  xcopy "%ScriptingEditorDir%"\bin\SE_Data\Examples "%kam_folder%"\Utils\ScriptingEditor\SE_Data\Examples\ /y /r /s
+  xcopy "..\Utils\ScriptValidator\ScriptValidator.exe" "%kam_folder%"\Utils\ScriptingEditor\SE_Data\ScriptValidator.exe* /y /r /i
+  REM erase "%kam_folder%"\Utils\ScriptingEditor\SE_Data\ScriptValidator.exe
+  @REM no need for OLD and Logs folders there
+  rmdir /S /Q "%kam_folder%"\Utils\ScriptingEditor\SE_Data\OLD
+  rmdir /S /Q "%kam_folder%"\Utils\ScriptingEditor\SE_Data\Logs
 )
 
 

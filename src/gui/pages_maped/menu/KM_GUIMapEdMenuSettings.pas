@@ -99,11 +99,11 @@ end;
 
 procedure TKMMapEdMenuSettings.Menu_Settings_Change(Sender: TObject);
 var
-  MusicToggled, ShuffleToggled: Boolean;
+  musicToggled, shuffleToggled: Boolean;
 begin
   //Change these options only if they changed state since last time
-  MusicToggled   := (gGameSettings.MusicOff <> CheckBox_Settings_MusicOff.Checked);
-  ShuffleToggled := (gGameSettings.ShuffleOn <> CheckBox_Settings_ShuffleOn.Checked);
+  musicToggled   := (gGameSettings.MusicOff <> CheckBox_Settings_MusicOff.Checked);
+  shuffleToggled := (gGameSettings.ShuffleOn <> CheckBox_Settings_ShuffleOn.Checked);
 
   gGameSettings.Brightness    := TrackBar_Settings_Brightness.Position;
   gGameSettings.ScrollSpeed   := TrackBar_Settings_ScrollSpeed.Position;
@@ -114,13 +114,13 @@ begin
 
   gSoundPlayer.UpdateSoundVolume(gGameSettings.SoundFXVolume);
   gMusic.Volume := gGameSettings.MusicVolume;
-  if MusicToggled then
+  if musicToggled then
   begin
     gMusic.ToggleEnabled(not gGameSettings.MusicOff);
     if not gGameSettings.MusicOff then
-      ShuffleToggled := True; //Re-shuffle songs if music has been enabled
+      shuffleToggled := True; //Re-shuffle songs if music has been enabled
   end;
-  if ShuffleToggled then
+  if shuffleToggled then
     gMusic.ToggleShuffle(gGameSettings.ShuffleOn);
 
   TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOff.Checked;

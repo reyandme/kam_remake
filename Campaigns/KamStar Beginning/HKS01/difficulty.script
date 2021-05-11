@@ -1,0 +1,38 @@
+
+
+{$EVENT evtTick:DifficultyOnTick}
+{$EVENT evtMissionStart:DifficultyOnMissionStart}
+var Stats:array of array[0..4] of Integer;
+procedure DifficultyOnMissionStart();
+Var LE:Integer;
+	Army:Array Of Integer;
+begin
+	Army:=States.PlayerGetAllGroups(0)
+	SetLength(Stats,length(Army));
+	for LE:= 0 to length(Army)-1 do begin
+		Stats[LE][0]:= States.UnitType(States.GroupMember(Army[LE],0));
+		Stats[LE][1]:= States.UnitPositionX(States.GroupMember(Army[LE],0));
+		Stats[LE][2]:= States.UnitPositionY(States.GroupMember(Army[LE],0));
+		Stats[LE][3]:= States.UnitDirection(States.GroupMember(Army[LE],0));
+		Stats[LE][4]:= States.GroupColumnCount(Army[LE]);
+		Actions.GroupKillAll(Army[LE],true);
+	end;
+end;
+procedure DifficultyOnTick();
+var LE1:Integer;
+begin
+	If States.GameTime = 2 then begin
+		for LE1:= 0 to length(Stats)-1 do begin
+			Case States.MissionDifficulty of
+				0:Actions.GiveGroup(0,Stats[LE1][0],Stats[LE1][1],Stats[LE1][2],Stats[LE1][3],15+States.KamRandomI(3),Stats[LE1][4]);
+				1:Actions.GiveGroup(0,Stats[LE1][0],Stats[LE1][1],Stats[LE1][2],Stats[LE1][3],17+States.KamRandomI(3),Stats[LE1][4]);
+				2:Actions.GiveGroup(0,Stats[LE1][0],Stats[LE1][1],Stats[LE1][2],Stats[LE1][3],20+States.KamRandomI(3),Stats[LE1][4]);
+				3:Actions.GiveGroup(0,Stats[LE1][0],Stats[LE1][1],Stats[LE1][2],Stats[LE1][3],24+States.KamRandomI(3),Stats[LE1][4]);
+				4:Actions.GiveGroup(0,Stats[LE1][0],Stats[LE1][1],Stats[LE1][2],Stats[LE1][3],27+States.KamRandomI(3),Stats[LE1][4]);
+				5:Actions.GiveGroup(0,Stats[LE1][0],Stats[LE1][1],Stats[LE1][2],Stats[LE1][3],29+States.KamRandomI(3),Stats[LE1][4]);
+				6:Actions.GiveGroup(0,Stats[LE1][0],Stats[LE1][1],Stats[LE1][2],Stats[LE1][3],30+States.KamRandomI(3),Stats[LE1][4]);
+				7:Actions.GiveGroup(0,Stats[LE1][0],Stats[LE1][1],Stats[LE1][2],Stats[LE1][3],31+States.KamRandomI(3),Stats[LE1][4]);
+			end;
+		end;
+	end;
+end;

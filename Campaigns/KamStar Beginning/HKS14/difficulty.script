@@ -1,0 +1,13 @@
+
+{$EVENT evtMissionStart:DifficultyOnMissionStart}
+Procedure DifficultyOnMissionStart;
+var Difficulty: TKMMissionDifficulty;
+	RecruitDelay:array of Integer;
+	dMod:byte;
+begin
+	RecruitDelay:=[72000, 36000, 18000, 9000, 6000, 3000,0];
+	Difficulty:=States.MissionDifficulty;		
+	dMod := Byte(Difficulty)-1; 
+	Actions.AIRecruitDelay(2,RecruitDelay[dMod]);
+	Actions.AIRecruitDelay(3,RecruitDelay[dMod]);
+end;

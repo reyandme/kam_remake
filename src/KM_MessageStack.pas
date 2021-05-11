@@ -62,6 +62,7 @@ end;
 constructor TKMStackMessage.Load(LoadStream: TKMemoryStream);
 begin
   inherited Create;
+
   LoadStream.CheckMarker('StackMessage');
   LoadStream.Read(fLoc);
   LoadStream.ReadW(fText);
@@ -79,9 +80,10 @@ end;
 
 //GUIMain icon index associated with that message kind
 function TKMStackMessage.Icon: Word;
-const MsgIcon: array [TKMMessageKind] of Word = (491, 492, 493, 495);
+const
+  MSG_ICON: array [TKMMessageKind] of Word = (491, 492, 493, 495);
 begin
-  Result := MsgIcon[fKind];
+  Result := MSG_ICON[fKind];
 end;
 
 

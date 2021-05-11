@@ -1,0 +1,13 @@
+Author
+sado
+
+Version
+1.0
+
+BigDesc
+Arena 2 - fight with single hero against your enemies. ||New round starts when 2 players are left alive. Get points by killing human players, and standing on the hills, watch out for traps, bombs and neutral units.|Recommended number of players: 4-8||Original idea for Arena by Aasfresser|Script and map by sado
+
+SetSpecial
+
+BlockPeacetime
+

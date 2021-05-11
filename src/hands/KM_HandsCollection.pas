@@ -2,7 +2,7 @@ unit KM_HandsCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math,
+  Classes, Math, Generics.Collections,
   KM_Hand, KM_HandSpectator, KM_HouseCollection,
   KM_Houses, KM_ResHouses, KM_Units, KM_UnitGroup, KM_UnitWarrior,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
@@ -49,6 +49,7 @@ type
     procedure RemoveEmptyPlayers;
     procedure RemoveEmptyPlayer(aIndex: TKMHandID);
     procedure RemoveAssetsOutOfBounds(const aInsetRect: TKMRect);
+    procedure RemovePlayerAssets(aIndex: TKMHandID);
 
     function HousesHitTest(X,Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
@@ -62,9 +63,9 @@ type
     function GetHousesInRadius(const aLoc: TKMPoint; aSqrRadius: Single; aIndex: TKMHandID; aAlliance: TKMAllianceType; aTypes: THouseTypeSet = [HOUSE_MIN..HOUSE_MAX]; aOnlyCompleted: Boolean = True): TKMHouseArray;
     function DistanceToEnemyTowers(const aLoc: TKMPoint; aIndex: TKMHandID): Single;
 
-    procedure GetUnitsInRect(const aRect: TKMRect; List: TList);
-    procedure GetGroupsInRect(const aRect: TKMRect; List: TList);
-    procedure GetHousesInRect(const aRect: TKMRect; List: TList);
+    procedure GetUnitsInRect(const aRect: TKMRect; List: TList<TKMUnit>);
+    procedure GetGroupsInRect(const aRect: TKMRect; List: TList<TKMUnitGroup>);
+    procedure GetHousesInRect(const aRect: TKMRect; List: TList<TKMHouse>);
 
     function GetHouseByUID(aUID: Integer): TKMHouse;
     function GetUnitByUID(aUID: Integer): TKMUnit;
@@ -208,11 +209,17 @@ begin
   begin
     //For MP locs we will set AI MP setup only when loc is allowed for humans too.
     //For only AI locs there we should use AI params set from MapEd
-    if fHandsList[aHandID].CanBeHuman then
-      fHandsList[aHandID].AI.Setup.ApplyMultiplayerSetup(aAIType = aitAdvanced)
-    else
-      //Just enable Advanced AI, do not override MapEd AI params
-      fHandsList[aHandID].AI.Setup.EnableAdvancedAI(aAIType = aitAdvanced);
+    case aAIType of
+      aitAdvanced:  // Do not apply AI Multiplayer setup for special maps
+                    if not gGame.MapTxtInfo.IsSpecial and fHandsList[aHandID].CanBeHuman then
+                      fHandsList[aHandID].AI.Setup.ApplyMultiplayerSetup(True)
+                    else
+                      //Just enable Advanced AI, do not override MapEd AI params
+                      fHandsList[aHandID].AI.Setup.EnableAdvancedAI(True);
+                    // Do not enable MP setup for classic AI on the game start, only in the MapEd
+      aitClassic:   fHandsList[aHandID].AI.Setup.EnableAdvancedAI(False);
+    end;
+
   end
   else
   //We can start to play for defeated hand, f.e. if player just left the game and we restart from save with other player
@@ -300,7 +307,7 @@ var
 begin
   Result := False;
   for I := 0 to fCount - 1 do
-    if fHandsList[I].HandAITypes * [aitClassic, aitAdvanced] <> [] then // Some AI is allowed
+    if fHandsList[I].CanBeAITypes * [aitClassic, aitAdvanced] <> [] then // Some AI is allowed
       Exit(True);
 end;
 
@@ -311,7 +318,7 @@ var
 begin
   Result := False;
   for I := 0 to fCount - 1 do
-    if aitAdvanced in fHandsList[I].HandAITypes then
+    if aitAdvanced in fHandsList[I].CanBeAITypes then
       Exit(True);
 end;
 
@@ -335,6 +342,30 @@ begin
     fHandsList[I].Houses.RemoveHousesOutOfBounds(aInsetRect);
     fHandsList[I].Units.RemoveUnitsOutOfBounds(aInsetRect);
   end;
+end;
+
+
+procedure TKMHandsCollection.RemovePlayerAssets(aIndex: TKMHandID);
+begin
+  if Self = nil then Exit;
+  if fCount = 0 then Exit;
+  if not InRange(aIndex, 0, fCount - 1) then Exit;
+
+  fHandsList[aIndex].Units.RemoveAllUnits;
+
+  fHandsList[aIndex].UnitGroups.RemAllGroups;
+
+  fHandsList[aIndex].Houses.RemoveAllHouses;
+
+  gTerrain.ClearPlayerLand(aIndex);
+
+  fHandsList[aIndex].AI.Goals.Clear;
+
+  fHandsList[aIndex].AI.General.Attacks.Clear;
+
+  fHandsList[aIndex].AI.General.DefencePositions.Clear;
+
+  fHandsList[aIndex].ResetChooseLocation;
 end;
 
 
@@ -756,7 +787,7 @@ begin
 end;
 
 
-procedure TKMHandsCollection.GetUnitsInRect(const aRect: TKMRect; List: TList);
+procedure TKMHandsCollection.GetUnitsInRect(const aRect: TKMRect; List: TList<TKMUnit>);
 var
   I: Integer;
 begin
@@ -767,7 +798,7 @@ begin
 end;
 
 
-procedure TKMHandsCollection.GetGroupsInRect(const aRect: TKMRect; List: TList);
+procedure TKMHandsCollection.GetGroupsInRect(const aRect: TKMRect; List: TList<TKMUnitGroup>);
 var
   I: Integer;
 begin
@@ -778,7 +809,7 @@ begin
 end;
 
 
-procedure TKMHandsCollection.GetHousesInRect(const aRect: TKMRect; List: TList);
+procedure TKMHandsCollection.GetHousesInRect(const aRect: TKMRect; List: TList<TKMHouse>);
 var
   I: Integer;
 begin

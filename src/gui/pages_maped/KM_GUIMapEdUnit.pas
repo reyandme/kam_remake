@@ -196,46 +196,46 @@ end;
 procedure TKMMapEdUnit.UnitConditionsChange(Sender: TObject; Shift: TShiftState);
 var
   U: TKMUnit;
-  NewCondition: Integer;
+  newCondition: Integer;
 begin
   if fUnit = nil then
     U := fGroup.FlagBearer
   else
     U := fUnit;
 
-  NewCondition := U.Condition;
+  newCondition := U.Condition;
 
   if Sender = Button_ConditionDefault then
     U.StartWDefaultCondition := not U.StartWDefaultCondition
   else if Sender = Button_ConditionInc then
   begin
-    NewCondition := U.Condition + GetMultiplicator(Shift);
+    newCondition := U.Condition + GetMultiplicator(Shift);
     U.StartWDefaultCondition := False;
     Button_ConditionDefault.Enable;
   end else if Sender = Button_ConditionDec then
   begin
-    NewCondition := U.Condition - GetMultiplicator(Shift);
+    newCondition := U.Condition - GetMultiplicator(Shift);
     U.StartWDefaultCondition := False;
     Button_ConditionDefault.Enable;
   end else if Sender = Button_ArmyFood then
   begin
     if fGroup.Condition = UNIT_MAX_CONDITION then
     begin
-      NewCondition := TKMUnitGroup.GetDefaultCondition;
+      newCondition := TKMUnitGroup.GetDefaultCondition;
       U.StartWDefaultCondition := True;
       Button_ConditionDefault.Disable;
     end else
     begin
-      NewCondition := UNIT_MAX_CONDITION;
+      newCondition := UNIT_MAX_CONDITION;
       U.StartWDefaultCondition := False;
       Button_ConditionDefault.Enable;
     end;
   end;
 
   if fGroup <> nil then
-    fGroup.Condition := NewCondition
+    fGroup.Condition := newCondition
   else
-    fUnit.Condition := NewCondition;
+    fUnit.Condition := newCondition;
 
   if U.StartWDefaultCondition then
   begin
@@ -278,7 +278,7 @@ end;
 
 procedure TKMMapEdUnit.Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
 var
-  RotCnt: Integer;
+  rotCnt: Integer;
 begin
   if Sender = Button_Army_ForUp then
     SetUnitsPerRaw(fGroup.UnitsPerRow - GetMultiplicator(Shift));
@@ -291,16 +291,16 @@ begin
   if (Sender = Button_Army_RotCW) or (Sender = Button_Army_RotCCW) then
   begin
     if ssShift in Shift then
-      RotCnt := 4
+      rotCnt := 4
     else
     if ssRight in Shift then
-      RotCnt := 2
+      rotCnt := 2
     else
-      RotCnt := 1;
+      rotCnt := 1;
 
-    RotCnt := RotCnt * (2 * Byte(Sender = Button_Army_RotCW) - 1);
+    rotCnt := rotCnt * (2 * Byte(Sender = Button_Army_RotCW) - 1);
 
-    fGroup.Direction := KMAddDirection(fGroup.Direction, RotCnt);
+    fGroup.Direction := KMAddDirection(fGroup.Direction, rotCnt);
   end;
 
   fGroup.ResetAnimStep;
@@ -354,14 +354,14 @@ end;
 
 procedure TKMMapEdUnit.Unit_ArmyChange2(Sender: TObject; Shift: TShiftState);
 var
-  NewCount: Integer;
+  newCount: Integer;
 begin
   if Sender = Button_ArmyDec then //Decrease
-    NewCount := fGroup.MapEdCount - GetMultiplicator(Shift)
+    newCount := fGroup.MapEdCount - GetMultiplicator(Shift)
   else //Increase
-    NewCount := fGroup.MapEdCount + GetMultiplicator(Shift);
+    newCount := fGroup.MapEdCount + GetMultiplicator(Shift);
 
-  fGroup.MapEdCount := EnsureRange(NewCount, 1, 200); //Limit max members
+  fGroup.MapEdCount := EnsureRange(newCount, 1, 200); //Limit max members
 
   if ssCtrl in Shift then
     SetUnitsPerRaw(Ceil(Sqrt(1.5*fGroup.MapEdCount)));

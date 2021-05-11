@@ -171,13 +171,13 @@ end;
 
 procedure TKMNetClientLNet.Receive(aSocket: TLSocket);
 const
-  BufferSize = 10240; //10kb
+  BUFFER_SIZE = 10240; //10kb
 var
-  P:pointer;
-  L:integer; //L could be -1 when no data is available
+  P: Pointer;
+  L: Integer; //L could be -1 when no data is available
 begin
-  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
-  L := aSocket.Get(P^, BufferSize);
+  GetMem(P, BUFFER_SIZE+1); //+1 to avoid RangeCheckError when L = BufferSize
+  L := aSocket.Get(P^, BUFFER_SIZE);
 
   if L > 0 then //if L=0 then exit;
     fOnRecieveData(P, L);

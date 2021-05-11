@@ -1,1 +1,8 @@
-﻿0:Hódítás: foglalj el épületeket, hogy fegyvereket szerezz a seregednek! Úgy tudod megtenni, hogy a bejárata elé állsz a katonáiddal. Nem kell ott maradnod. Figyelem: a lovagok és felderítõk nem foglalhatnak el épületeket! Kapsz egy kaszárnyát és 3 iskolát. Az újoncképzés folyamatos, az arany végtelen.||Script by sado, map by dicsoupcan.
+﻿MaxID:6
+0:Hódítás: foglalj el épületeket, hogy fegyvereket szerezz a seregednek! Úgy tudod megtenni, hogy a bejárata elé állsz a katonáiddal 10 másodpercre. Nem kell ott maradnod. Figyelem: a lovagok és felderítõk nem foglalhatnak el épületeket! Kapsz egy kaszárnyát és 3 iskolát. Az újoncképzés folyamatos, az arany végtelen.||Script by sado, map by dicsoupcan.
+1:A lovagok és felderítõk nem foglalhatnak el épületeket! A pályaleírásban benne volt. ￼
+2:Nem foglalhatod el a szövetségesed tornyát.
+3:Az épületet elfoglalás alatt van.
+4:nyugati csapat
+5:keleti csapat
+6:Az elfoglalt épületek

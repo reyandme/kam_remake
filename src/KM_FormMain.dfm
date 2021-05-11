@@ -130,7 +130,7 @@ object FormMain: TFormMain
       Caption = 'Logs'
       Collapsed = True
       TabOrder = 1
-      ExpandedHeight = 179
+      ExpandedHeight = 198
       object chkLogCommands: TCheckBox
         Left = 120
         Top = 8
@@ -178,10 +178,10 @@ object FormMain: TFormMain
         TabOrder = 4
         OnClick = ControlsUpdate
       end
-      object chkLogsShowInChat: TCheckBox
+      object chkLogShowInChat: TCheckBox
         Left = 8
         Top = 138
-        Width = 137
+        Width = 129
         Height = 17
         Caption = 'Show logs in MP chat'
         TabOrder = 5
@@ -212,6 +212,24 @@ object FormMain: TFormMain
         Checked = True
         State = cbChecked
         TabOrder = 7
+        OnClick = ControlsUpdate
+      end
+      object chkLogShowInGUI: TCheckBox
+        Left = 8
+        Top = 156
+        Width = 106
+        Height = 17
+        Caption = 'Show logs in GUI'
+        TabOrder = 8
+        OnClick = ControlsUpdate
+      end
+      object chkLogUpdateForGUI: TCheckBox
+        Left = 120
+        Top = 156
+        Width = 113
+        Height = 17
+        Caption = 'Update log for GUI'
+        TabOrder = 9
         OnClick = ControlsUpdate
       end
     end
@@ -354,7 +372,7 @@ object FormMain: TFormMain
       Caption = 'User Interface'
       Collapsed = True
       TabOrder = 3
-      ExpandedHeight = 85
+      ExpandedHeight = 114
       object chkUIControlsBounds: TCheckBox
         Left = 8
         Top = 8
@@ -407,6 +425,15 @@ object FormMain: TFormMain
         Height = 17
         Caption = 'Skip render text'
         TabOrder = 5
+        OnClick = ControlsUpdate
+      end
+      object chkCursorCoordinates: TCheckBox
+        Left = 9
+        Top = 71
+        Width = 112
+        Height = 17
+        Caption = 'Cursor coordinates'
+        TabOrder = 6
         OnClick = ControlsUpdate
       end
     end
@@ -1188,21 +1215,21 @@ object FormMain: TFormMain
       Caption = 'Game'
       TabOrder = 10
       object Label8: TLabel
-        Left = 70
+        Left = 60
         Top = 30
         Width = 83
         Height = 13
         Caption = 'Pause before tick'
       end
       object Label9: TLabel
-        Left = 24
+        Left = 14
         Top = 54
         Width = 129
         Height = 13
         Caption = 'Make savepoint before tick'
       end
       object Label12: TLabel
-        Left = 92
+        Left = 82
         Top = 78
         Width = 61
         Height = 13
@@ -1219,18 +1246,18 @@ object FormMain: TFormMain
         OnClick = chkSuperSpeedClick
       end
       object Button_Stop: TButton
-        Left = 135
+        Left = 148
         Top = 5
-        Width = 89
+        Width = 92
         Height = 17
         Caption = 'Stop the game'
         TabOrder = 1
         OnClick = Button_StopClick
       end
       object sePauseBeforeTick: TSpinEdit
-        Left = 159
+        Left = 149
         Top = 28
-        Width = 66
+        Width = 90
         Height = 22
         Ctl3D = True
         MaxValue = 9999999
@@ -1241,9 +1268,9 @@ object FormMain: TFormMain
         OnChange = ControlsUpdate
       end
       object seMakeSaveptBeforeTick: TSpinEdit
-        Left = 159
+        Left = 149
         Top = 52
-        Width = 66
+        Width = 90
         Height = 22
         Ctl3D = True
         MaxValue = 9999999
@@ -1254,12 +1281,12 @@ object FormMain: TFormMain
         OnChange = ControlsUpdate
       end
       object seCustomSeed: TSpinEdit
-        Left = 159
+        Left = 149
         Top = 76
-        Width = 66
+        Width = 90
         Height = 22
         Ctl3D = True
-        MaxValue = 9999999
+        MaxValue = 2147483647
         MinValue = 0
         ParentCtl3D = False
         TabOrder = 4
@@ -1303,11 +1330,11 @@ object FormMain: TFormMain
         Caption = '-'
       end
       object ReloadSettings: TMenuItem
-        Caption = 'Reload settings.ini'
+        Caption = 'Reload settings'
         OnClick = ReloadSettingsClick
       end
       object SaveSettings: TMenuItem
-        Caption = 'Save settings.ini'
+        Caption = 'Save settings'
         OnClick = SaveSettingsClick
       end
       object N7: TMenuItem

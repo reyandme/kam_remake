@@ -116,7 +116,7 @@ end;
 procedure TKMMenuCampaigns.ListChange(Sender: TObject);
 var
   cmp: TKMCampaignId;
-  Camp: TKMCampaign;
+  camp: TKMCampaign;
 begin
   //Key press can cause ItemIndex = -1
   if ColumnBox_Camps.ItemIndex = -1 then
@@ -129,13 +129,13 @@ begin
   begin
     Button_Camp_Start.Enable;
     cmp := fCampaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampaignId;
-    Camp := fCampaigns.CampaignById(cmp);
+    camp := fCampaigns.CampaignById(cmp);
 
-    Image_CampsPreview.RX := Camp.BackGroundPic.RX;
-    Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
+    Image_CampsPreview.RX := camp.BackGroundPic.RX;
+    Image_CampsPreview.TexID := camp.BackGroundPic.ID;
 
-    Memo_CampDesc.Text := Camp.GetCampaignDescription;
-    gGameSettings.MenuCampaignName := Camp.ShortName;
+    Memo_CampDesc.Text := camp.GetCampaignDescription;
+    gGameSettings.MenuCampaignName := camp.ShortName;
   end;
 end;
 

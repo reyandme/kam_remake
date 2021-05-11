@@ -23,10 +23,13 @@ uses
 
   function FixDelim(const aString: UnicodeString): UnicodeString;
 
-  function Max3(const A,B,C: Integer): Integer;
-  function Min3(const A,B,C: Integer): Integer;
+  function Max3(const A,B,C: Integer): Integer; overload;
+  function Min3(const A,B,C: Integer): Integer; overload;
   function Max4(const A,B,C,D: Integer): Integer;
   function Min4(const A,B,C,D: Integer): Integer;
+
+  function Max3(const A,B,C: Single): Single; overload;
+  function Min3(const A,B,C: Single): Single; overload;
 
   function GetStackTrace(aLinesCnt: Integer): UnicodeString;
 
@@ -680,6 +683,21 @@ begin
 end;
 
 
+function Max3(const A,B,C: Single): Single;
+begin
+  Result := Max(A, Max(B, C));
+end;
+
+function Min3(const A,B,C: Single): Single;
+begin
+  Result := Min(A, Min(B, C));
+end;
+
+
+type
+  EStackTraceInfo = class(Exception);
+
+
 function GetStackTrace(aLinesCnt: Integer): UnicodeString;
 {$IFDEF WDC}
 var
@@ -691,14 +709,14 @@ begin
 
   {$IFDEF WDC}
   try
-    raise Exception.Create('');
+    raise EStackTraceInfo.Create('');
   except
-    on E: Exception do
+    on E: EStackTraceInfo do
     begin
       SList := TStringList.Create;
       SList.Text := E.StackTrace;
 
-      for I := 1 to aLinesCnt do //Do not print last line (its this method line)
+      for I := 1 to Min(SList.Count - 1, aLinesCnt) do //Do not print last line (its this method line)
         Result := Result + SList[I] + sLineBreak;
 
       SList.Free;
@@ -1355,18 +1373,22 @@ end;
 
 // Returns file directory name
 // F.e. for aFilePath = 'c:/kam/remake/fore.ver' returns 'remake'
+// and for 'Maps/My new map' returns 'Maps'
 function GetFileDirName(const aFilePath: UnicodeString): UnicodeString;
-var DirPath: UnicodeString;
+var
+  dirPath: UnicodeString;
 begin
   Result := '';
   if Trim(aFilePath) = '' then Exit;
 
-  DirPath := ExtractFileDir(aFilePath);
+  dirPath := ExtractFileDir(aFilePath);
 
-  if DirPath = '' then Exit;
+  if dirPath = '' then Exit;
 
-  if StrIndexOf(DirPath, PathDelim) <> -1 then
-    Result := copy(DirPath, StrLastIndexOf(DirPath, PathDelim) + 2);
+  if StrIndexOf(dirPath, PathDelim) <> -1 then
+    Result := copy(dirPath, StrLastIndexOf(dirPath, PathDelim) + 2)
+  else
+    Result := dirPath;
 end;
 
 

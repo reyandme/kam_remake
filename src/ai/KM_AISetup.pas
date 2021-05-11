@@ -9,8 +9,10 @@ type
   // Common AI settings
   // Could be a record, but we want to have default values initialization in constructor
   TKMHandAISetup = class
+  private
+    fNewAI: Boolean; // Enable advanced AI
+    function GetNewAI: Boolean;
   public
-    NewAI: Boolean; // Enable new AI
     Aggressiveness: Integer; //-1 means not used or default
     AutoAttack: Boolean;
     AutoRepair: Boolean;
@@ -30,6 +32,9 @@ type
     AutoAttackRange: Byte; // Auto attack range for close combat warriors (used in KM_UnitWarrior)
 
     constructor Create;
+
+    property NewAI: Boolean read GetNewAI write fNewAI;
+
     function GetEquipRate(aUnit: TKMUnitType): Word;
     function WarriorsPerMinute(aArmy: TKMArmyType): Single; overload;
     function WarriorsPerMinute: Single; overload;
@@ -79,6 +84,14 @@ begin
     Result := EquipRateIron
   else
     Result := EquipRateLeather;
+end;
+
+
+function TKMHandAISetup.GetNewAI: Boolean;
+begin
+  if Self = nil then Exit(False);
+
+  Result := fNewAI;
 end;
 
 
@@ -140,7 +153,7 @@ end;
 procedure TKMHandAISetup.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.PlaceMarker('AISetup');
-  SaveStream.Write(NewAI);
+  SaveStream.Write(fNewAI);
   SaveStream.Write(Aggressiveness);
   SaveStream.Write(AutoAttack);
   SaveStream.Write(AutoBuild);
@@ -165,7 +178,7 @@ end;
 procedure TKMHandAISetup.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.CheckMarker('AISetup');
-  LoadStream.Read(NewAI);
+  LoadStream.Read(fNewAI);
   LoadStream.Read(Aggressiveness);
   LoadStream.Read(AutoAttack);
   LoadStream.Read(AutoBuild);

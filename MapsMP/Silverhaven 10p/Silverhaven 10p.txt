@@ -1,0 +1,9 @@
+Author
+Harry
+
+Version
+1.0
+
+BigDesc
+Left vs Right is recommended. ||Note: Loc 1 and loc 10 are leather only/gold only locations without iron.
+

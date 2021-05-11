@@ -1,0 +1,30 @@
+{$EVENT evtTick:OnTickCH}
+Var AllGroups:array of array[0..2] of Integer;
+procedure Random;
+var GG2,AX,AY : Integer;
+	groups2:array of Integer;
+begin
+	groups2:=States.PlayerGetAllGroups(1);
+	for GG2 := 0 to length(groups2)-1 do begin
+		If (States.UnitIdle(States.GroupMember(groups2[GG2],0)) = true) then begin
+			Actions.GroupOrderWalk(groups2[GG2], States.UnitPositionX(States.GroupMember(groups2[GG2],0))-10+States.KaMRandomI(20), States.UnitPositionY(States.GroupMember(groups2[GG2],0))-10+States.KaMRandomI(20),States.KaMRandomI(7));
+		end;
+	end;
+end;
+procedure OnTickCH;
+begin
+	if States.GameTime mod 300= 0 then Random;
+end;
+{
+Procedure OnMissionStart;
+var groups:array of Integer;
+	GG:Integer;
+begin
+	groups:=States.PlayerGetAllGroups(1);
+	SetLength(AllGroups, length(groups));
+	for GG := 0 to length(groups)-1 do begin
+		AllGroups[GG][0] := States.UnitPositionX(States.GroupMember(groups[GG],0));
+		AllGroups[GG][1] := States.UnitPositionY(States.GroupMember(groups[GG],0));
+	end;
+end;
+}

@@ -1,7 +1,7 @@
 //-- TBK12 --//
 //By Strangelove
-//v2.2
-//30.12.2019
+//v2.2b
+//01.09.2020
 
 {$I improvestaticai.script}
 {$I transformunits.script}
@@ -194,7 +194,7 @@ begin
 			PlanAddRoad(1, 29, 131);
 			PlanAddRoad(1, 30, 131);
 			//Add 3rd Iron smithery and an additional Armor smithery
-			PlanAddHouse(1, 2, 35, 136);
+			PlanAddHouse(1, 1, 36, 136);
 			PlanAddHouse(1, 10, 40, 137);
 			PlanAddRoad(1, 34, 137);
 			PlanAddRoad(1, 35, 137);

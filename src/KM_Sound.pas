@@ -189,8 +189,8 @@ const
 { TKMSoundPlayer }
 constructor TKMSoundPlayer.Create(aVolume: Single);
 var
-  context: PALCcontext;
   I: Integer;
+  context: PALCcontext;
   numMono, numStereo: TALCint;
 begin
   inherited Create;
@@ -482,25 +482,25 @@ function TKMSoundPlayer.PlaySound(aSoundID: TSoundFX; const aFile: UnicodeString
                                   aAttenuated: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean;
                                   aFromScript: Boolean = False): Integer;
 var
-  Dif: array[1..3]of Single;
-  FreeBuf{,FreeSrc}: Integer;
-  I, ID, OggOpenResult: Integer;
+  dif: array[1..3]of Single;
+  freeBuf{,FreeSrc}: Integer;
+  I, ID, oggOpenResult: Integer;
   W: TKMSoundData;
-  Distance: Single;
-  ALState: TALint;
-  WAVformat: TALenum;
-  WAVdata: TALvoid;
-  WAVsize: TALsizei;
-  WAVfreq: TALsizei;
-  WAVloop: TALint;
-  WAVDuration: Cardinal;
-  FileExt: String;
+  distance: Single;
+  alState: TALint;
+  wavFormat: TALenum;
+  wavData: TALvoid;
+  wavSize: TALsizei;
+  wavFreq: TALsizei;
+  wavLoop: TALint;
+  wavDuration: Cardinal;
+  fileExt: String;
   {$IFNDEF NO_OGG_SOUND}
-  OggFileStream: TFileStream;
-  OggVorbisFile: OggVorbis_File;
-  VorbisInfo: P_Vorbis_Info;
-  OggBytesRead, OggBytesChanged: Longword;
-  OggBuffer: PChar;
+  oggFileStream: TFileStream;
+  oggVorbisFile: OggVorbis_File;
+  vorbisInfo: P_Vorbis_Info;
+  oggBytesRead, oggBytesChanged: Longword;
+  oggBuffer: PChar;
   {$ENDIF}
 begin
   Result := -1;
@@ -513,11 +513,11 @@ begin
 
   if aAttenuated then
   begin
-    Distance := GetLength(Loc.X-fListener.Pos[1], Loc.Y-fListener.Pos[2]);
+    distance := GetLength(Loc.X-fListener.Pos[1], Loc.Y-fListener.Pos[2]);
     //If sound source is further than Radius away then don't play it. This stops the buffer being filled with sounds on the other side of the map.
-    if (Distance >= aRadius) then Exit;
+    if (distance >= aRadius) then Exit;
     //If the sounds is a fairly long way away it should not play when we are short of slots
-    if (Distance >= aRadius*MAX_PRIORITY_DISTANCE_FACTOR) and (ActiveCount >= MAX_FAR_SOUNDS) then Exit;
+    if (distance >= aRadius*MAX_PRIORITY_DISTANCE_FACTOR) and (ActiveCount >= MAX_FAR_SOUNDS) then Exit;
     //Attenuated sounds are always lower priority, so save a few slots for non-attenuated so that troops
     //and menus always make sounds
     if (ActiveCount >= MAX_ATTENUATED_SOUNDS) then Exit;
@@ -533,17 +533,17 @@ begin
 
 
   //Find free buffer and use it
-  FreeBuf := -1;
+  freeBuf := -1;
   for I := Low(fALSounds) to High(fALSounds) do
   begin
-    alGetSourcei(fALSounds[i].ALSource, AL_SOURCE_STATE, @ALState);
-    if ALState<>AL_PLAYING then
+    alGetSourcei(fALSounds[i].ALSource, AL_SOURCE_STATE, @alState);
+    if alState<>AL_PLAYING then
     begin
-      FreeBuf := I;
+      freeBuf := I;
       Break;
     end;
   end;
-  if FreeBuf = -1 then Exit;//Don't play if there's no room left
+  if freeBuf = -1 then Exit;//Don't play if there's no room left
 
   //Fade music if required (don't fade it if the user has SoundGain = 0, that's confusing)
   if aFadeMusic and (fVolume > 0) and not fMusicIsFaded then
@@ -553,8 +553,8 @@ begin
   end;
 
   //Stop previously playing sound and release buffer
-  AlSourceStop(fALSounds[FreeBuf].ALSource);
-  AlSourcei(fALSounds[FreeBuf].ALSource, AL_BUFFER, 0);
+  AlSourceStop(fALSounds[freeBuf].ALSource);
+  AlSourcei(fALSounds[freeBuf].ALSource, AL_BUFFER, 0);
 
   //Assign new data to buffer and assign it to source
   if aSoundID = sfxNone then
@@ -563,62 +563,62 @@ begin
     if not FileExists(aFile) then
       Exit;
 
-    FileExt := ExtractFileExt(aFile);
+    fileExt := ExtractFileExt(aFile);
     try
-      if LowerCase(FileExt) = WAV_FILE_EXT then
+      if LowerCase(fileExt) = WAV_FILE_EXT then
       begin
-        alutLoadWAVFile(aFile,WAVformat,WAVdata,WAVsize,WAVfreq,WAVloop);
-        AlBufferData(fALSounds[FreeBuf].ALBuffer,WAVformat,WAVdata,WAVsize,WAVfreq);
-        alutUnloadWAV(WAVformat,WAVdata,WAVsize,WAVfreq);
-      end else if LowerCase(FileExt) = OGG_FILE_EXT then
+        alutLoadWAVFile(aFile,wavFormat,wavData,wavSize,wavFreq,wavLoop);
+        AlBufferData(fALSounds[freeBuf].ALBuffer,wavFormat,wavData,wavSize,wavFreq);
+        alutUnloadWAV(wavFormat,wavData,wavSize,wavFreq);
+      end else if LowerCase(fileExt) = OGG_FILE_EXT then
       begin
         {$IFNDEF NO_OGG_SOUND}
-        OggFileStream := TFileStream.Create(aFile, fmOpenRead or fmShareDenyNone);
+        oggFileStream := TFileStream.Create(aFile, fmOpenRead or fmShareDenyNone);
         try
-          OggOpenResult := ov_open_callbacks(OggFileStream, OggVorbisFile, nil, 0, ops_callbacks);
-          if OggOpenResult <> 0 then
+          oggOpenResult := ov_open_callbacks(oggFileStream, oggVorbisFile, nil, 0, ops_callbacks);
+          if oggOpenResult <> 0 then
           begin
-            gLog.AddTime('Error loading OGG sound file ''' + aFile + ''': ' + GetVorbisErrorName(OggOpenResult));
+            gLog.AddTime('Error loading OGG sound file ''' + aFile + ''': ' + GetVorbisErrorName(oggOpenResult));
             Exit; // Ignore all errors
           end;
 
           // get ogg file info
-          VorbisInfo := ov_info(OggVorbisFile, -1);
+          vorbisInfo := ov_info(oggVorbisFile, -1);
 
-          if VorbisInfo.Channels = 1 then
-            WAVformat := AL_FORMAT_MONO16
+          if vorbisInfo.Channels = 1 then
+            wavFormat := AL_FORMAT_MONO16
           else
-            WAVformat := AL_FORMAT_STEREO16;
+            wavFormat := AL_FORMAT_STEREO16;
 
-          WAVsize := ov_pcm_total(OggVorbisFile, -1) * 4;
-          WAVfreq := VorbisInfo.Rate;
+          wavSize := ov_pcm_total(oggVorbisFile, -1) * 4;
+          wavFreq := vorbisInfo.Rate;
 
-          GetMem(OggBuffer, WAVsize);
+          GetMem(oggBuffer, wavSize);
           try
-            OggBytesRead := 0;
+            oggBytesRead := 0;
             // Load ogg file into the buffer with ov_read
             repeat
-              OggBytesChanged := ov_read(OggVorbisFile, PKMStaticByteArray(OggBuffer)^[OggBytesRead], WAVsize - OggBytesRead, 0, 2, 1, nil);
-              OggBytesRead := OggBytesRead + OggBytesChanged;
-            until (OggBytesChanged = 0) or (OggBytesRead >= WAVsize);
+              oggBytesChanged := ov_read(oggVorbisFile, PKMStaticByteArray(oggBuffer)^[oggBytesRead], wavSize - oggBytesRead, 0, 2, 1, nil);
+              oggBytesRead := oggBytesRead + oggBytesChanged;
+            until (oggBytesChanged = 0) or (oggBytesRead >= wavSize);
 
-            AlBufferData(fALSounds[FreeBuf].ALBuffer,WAVformat,OggBuffer,WAVsize,WAVfreq);
+            AlBufferData(fALSounds[freeBuf].ALBuffer,wavFormat,oggBuffer,wavSize,wavFreq);
           finally
-            FreeMem(OggBuffer, WAVsize);
+            FreeMem(oggBuffer, wavSize);
           end;
         finally
-          OggFileStream.Free;
+          oggFileStream.Free;
         end;
         {$ENDIF}
       end
       else
-        raise Exception.Create('Unsupported sound file format: ' + FileExt);
+        raise Exception.Create('Unsupported sound file format: ' + fileExt);
 
-      WAVDuration := round(WAVsize / WAVfreq * 1000);
-      case WAVformat of
-        AL_FORMAT_STEREO16: WAVDuration := WAVDuration div 4;
-        AL_FORMAT_STEREO8: WAVDuration := WAVDuration div 2;
-        AL_FORMAT_MONO16: WAVDuration := WAVDuration div 2;
+      wavDuration := round(wavSize / wavFreq * 1000);
+      case wavFormat of
+        AL_FORMAT_STEREO16: wavDuration := wavDuration div 4;
+        AL_FORMAT_STEREO8: wavDuration := wavDuration div 2;
+        AL_FORMAT_MONO16: wavDuration := wavDuration div 2;
       end;
     except
       //This happens regularly if you run two copies of the game out of one folder and they share the MP chat sound.
@@ -641,53 +641,53 @@ begin
     W := gRes.Sounds.fWaves[ID];
 
     Assert(W.IsLoaded and (ID <= gRes.Sounds.fWavesCount), 'Sounds.dat seems to be short');
-    AlBufferData(fALSounds[FreeBuf].ALBuffer, AL_FORMAT_MONO8, @W.Data[0], W.Head.DataSize, W.Head.SampleRate);
-    WAVsize := W.Head.FileSize;
-    WAVfreq := W.Head.BytesPerSecond;
-    WAVDuration := round(WAVsize / WAVfreq * 1000);
+    AlBufferData(fALSounds[freeBuf].ALBuffer, AL_FORMAT_MONO8, @W.Data[0], W.Head.DataSize, W.Head.SampleRate);
+    wavSize := W.Head.FileSize;
+    wavFreq := W.Head.BytesPerSecond;
+    wavDuration := round(wavSize / wavFreq * 1000);
   end;
 
   //Set source properties
-  AlSourcei(fALSounds[FreeBuf].ALSource, AL_BUFFER, fALSounds[FreeBuf].ALBuffer);
-  AlSourcef(fALSounds[FreeBuf].ALSource, AL_PITCH, 1);
-  AlSourcef(fALSounds[FreeBuf].ALSource, AL_GAIN, 1 * aVolume * fVolume);
+  AlSourcei(fALSounds[freeBuf].ALSource, AL_BUFFER, fALSounds[freeBuf].ALBuffer);
+  AlSourcef(fALSounds[freeBuf].ALSource, AL_PITCH, 1);
+  AlSourcef(fALSounds[freeBuf].ALSource, AL_GAIN, 1 * aVolume * fVolume);
   if aAttenuated then
   begin
-    Dif[1]:=Loc.X; Dif[2]:=Loc.Y; Dif[3]:=0;
-    AlSourcefv(fALSounds[FreeBuf].ALSource, AL_POSITION, @Dif[1]);
-    AlSourcei(fALSounds[FreeBuf].ALSource, AL_SOURCE_RELATIVE, AL_FALSE); //If Attenuated then it is not relative to the listener
+    dif[1]:=Loc.X; dif[2]:=Loc.Y; dif[3]:=0;
+    AlSourcefv(fALSounds[freeBuf].ALSource, AL_POSITION, @dif[1]);
+    AlSourcei(fALSounds[freeBuf].ALSource, AL_SOURCE_RELATIVE, AL_FALSE); //If Attenuated then it is not relative to the listener
   end else
   begin
     //For sounds that do not change over distance, set to SOURCE_RELATIVE and make the position be 0,0,0 which means it will follow the listener
     //Do not simply set position to the listener as the listener could change while the sound is playing
-    Dif[1]:=0; Dif[2]:=0; Dif[3]:=0;
-    AlSourcefv(fALSounds[FreeBuf].ALSource, AL_POSITION, @Dif[1]);
-    AlSourcei(fALSounds[FreeBuf].ALSource, AL_SOURCE_RELATIVE, AL_TRUE); //Relative to the listener, meaning it follows us
+    dif[1]:=0; dif[2]:=0; dif[3]:=0;
+    AlSourcefv(fALSounds[freeBuf].ALSource, AL_POSITION, @dif[1]);
+    AlSourcei(fALSounds[freeBuf].ALSource, AL_SOURCE_RELATIVE, AL_TRUE); //Relative to the listener, meaning it follows us
   end;
-  AlSourcef(fALSounds[FreeBuf].ALSource, AL_REFERENCE_DISTANCE, 4);
-  AlSourcef(fALSounds[FreeBuf].ALSource, AL_MAX_DISTANCE, aRadius);
-  AlSourcef(fALSounds[FreeBuf].ALSource, AL_ROLLOFF_FACTOR, 1);
+  AlSourcef(fALSounds[freeBuf].ALSource, AL_REFERENCE_DISTANCE, 4);
+  AlSourcef(fALSounds[freeBuf].ALSource, AL_MAX_DISTANCE, aRadius);
+  AlSourcef(fALSounds[freeBuf].ALSource, AL_ROLLOFF_FACTOR, 1);
 
   if aLooped then
-    AlSourcei(fALSounds[FreeBuf].ALSource, AL_LOOPING, AL_TRUE)
+    AlSourcei(fALSounds[freeBuf].ALSource, AL_LOOPING, AL_TRUE)
   else
-    AlSourcei(fALSounds[FreeBuf].ALSource, AL_LOOPING, AL_FALSE);
+    AlSourcei(fALSounds[freeBuf].ALSource, AL_LOOPING, AL_FALSE);
 
   //Start playing
-  AlSourcePlay(fALSounds[FreeBuf].ALSource);
+  AlSourcePlay(fALSounds[freeBuf].ALSource);
   if aSoundID <> sfxNone then
-    fALSounds[FreeBuf].Name := GetEnumName(TypeInfo(TSoundFX), Integer(aSoundID))
+    fALSounds[freeBuf].Name := GetEnumName(TypeInfo(TSoundFX), Integer(aSoundID))
   else
-    fALSounds[FreeBuf].Name := ExtractFileName(aFile);
-  fALSounds[FreeBuf].Position := Loc;
-  fALSounds[FreeBuf].Duration := WAVDuration;
-  fALSounds[FreeBuf].PlaySince := TimeGet;
-  fALSounds[FreeBuf].Volume := aVolume;
-  fALSounds[FreeBuf].FromScript := aFromScript;
-  fALSounds[FreeBuf].Looped := aLooped;
-  fALSounds[FreeBuf].FadesMusic := aFadeMusic;
+    fALSounds[freeBuf].Name := ExtractFileName(aFile);
+  fALSounds[freeBuf].Position := Loc;
+  fALSounds[freeBuf].Duration := wavDuration;
+  fALSounds[freeBuf].PlaySince := TimeGet;
+  fALSounds[freeBuf].Volume := aVolume;
+  fALSounds[freeBuf].FromScript := aFromScript;
+  fALSounds[freeBuf].Looped := aLooped;
+  fALSounds[freeBuf].FadesMusic := aFadeMusic;
 
-  Result := FreeBuf;
+  Result := freeBuf;
 end;
 
 

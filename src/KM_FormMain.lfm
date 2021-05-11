@@ -21,7 +21,7 @@ object FormMain: TFormMain
   OnKeyUp = FormKeyUp
   OnMouseWheel = FormMouseWheel
   OnShow = FormShow
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.7.0'
   object StatusBar1: TStatusBar
     Left = 0
     Height = 23

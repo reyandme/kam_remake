@@ -1,1 +1,8 @@
-﻿0:Tryb Conquest: zdobywaj budynki, aby otrzymać broń dla twojej armii! Budynek przejmujesz, gdy twoi żołnierze staną przy jego wejściu. Nie muszą jednak stać tam cały czas. Uwaga: ciężka i lekka jazda nie może zdobywać budynków! Masz warownię oraz 3 szkoły. Produkcja rekrutów w szkołach jest automatyczna, a złoto nigdy się nie skończy.||Script by sado, map by dicsoupcan.
+﻿MaxID:6
+0:Tryb Conquest: zdobywaj budynki, aby otrzymać broń dla twojej armii! Budynek przejmujesz, gdy twoi żołnierze staną pod jego wejściem na 10 sekund. Uwaga: ciężka i lekka jazda nie może zdobywać budynków! Masz warownię oraz 3 szkoły. Produkcja rekrutów w szkołach jest automatyczna, a złoto nigdy się nie skończy.||Autor skryptu: sado, autor mapy: dicsoupcan.
+1:Nie możesz przejąć budynku, używając lekkiej lub ciężkiej jazdy!|Następnym razem przeczytaj opis mapy przed grą :)
+2:Nie możesz przejąć wieży należącej do twojego sojusznika.
+3:Przejmujesz budynek
+4:Lewa strona
+5:Prawa strona
+6:Liczba budynków

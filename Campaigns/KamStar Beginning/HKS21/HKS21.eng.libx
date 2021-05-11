@@ -1,0 +1,10 @@
+MAXID:1
+
+0:Malcolm: Let's quickly build a village and gather an army to fight in Andaro.
+
+1:Equip an army: 24 Sword fighters, 15 Crossbowmen, 24 Pikemen and 24 Knights.
+2:Equip army
+3:[$D2FAFA]%s[] - %d/%d
+4:%s[]
+
+100:Additional Text

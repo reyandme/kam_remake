@@ -17,6 +17,7 @@ type
     Label6: TLabel;
     Label7: TLabel;
     Label2: TLabel;
+    Label8: TLabel;
     procedure FormHide(Sender: TObject);
   public
     procedure LoadingStep;

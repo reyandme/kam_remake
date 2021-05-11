@@ -1,0 +1,114 @@
+
+{$EVENT evtTick:TradeOnTick}
+
+var Once:array[0..17] of boolean; //ta wartość ustali czy spichrz główny został przydzielony dla każdego komputera
+	AIStartPos:array[0..17] of TKMPoint;// ta wartość ustala kordynaty rozpoczęcia przez komputera gry(widok w którym zaczyna)
+	AIStores:array[0..17] of Integer;
+	
+Procedure CustomMarketing;//ta procedura będzie ustalała co za co wymienić, tylko będzie działać na komputerów
+var AllHouses:array of integer;
+	LE01,Players,WW,FromWare:Integer;
+	Ware:array[0..27] of Integer;
+begin
+	Actions.OverlayTextSetFormatted(-1, '', []);
+	for Players := 2 to 2 do begin //uwzględnia wszystkich możliwych graczy
+		If (States.StatHouseTypeCount(Players,29)> 0) and (States.PlayerIsAI(Players)) then begin
+			Actions.OverlayTextAppendFormatted(-1, '|', []);
+			Actions.OverlayTextAppendFormatted(-1, ''+IntToStr(Players), []);
+			Actions.OverlayTextAppendFormatted(-1, '|', []);
+			Actions.OverlayTextAppendFormatted(-1, '|', []);
+			If Once[Players] <> true then begin
+				AIStores[Players]:=States.HouseAt(AIStartPos[Players].X,AIStartPos[Players].Y);
+				Actions.HouseDeliveryBlock(AIStores[Players],true);
+				Once[Players]:=true;
+			end;//Ustawia główny spichrz każdemu graczowi
+			for WW:=0 to 26 do 
+			Ware[WW]:=0;
+			FromWare:=2;
+			AllHouses:=States.PlayerGetAllHouses(Players);//ustala wszystkie budynki danego gracza
+			for LE01:= 0 to length(AllHouses)-1 do 
+			for WW:=0 to 26 do begin
+				Ware[WW]:=Ware[WW]+States.HouseResourceAmount(AllHouses[LE01],WW);
+				If (WW=17)or(WW=17)or(WW=19)or(WW=21)or(WW=26) then begin
+					If (Ware[WW] < 40)and (Ware[WW] =  U.MinInArrayI([Ware[16],Ware[17],Ware[18],Ware[19],Ware[20],Ware[21],Ware[22],Ware[23],Ware[24],Ware[25],Ware[26]]))//ustala jakiego surowca jest najmniej
+					and (States.MarketOrderAmount(AllHouses[LE01])=0) then begin
+						If States.HouseType(AllHouses[LE01])=29 then begin
+							If Ware[2]>100 then begin
+								If (FromWare = 2) then begin Actions.MarketSetTrade(AllHouses[LE01],FromWare,WW,1); If Ware[1] > 100 then FromWare:=1; end else
+								If (FromWare = 1) and (WW<26) then begin Actions.MarketSetTrade(AllHouses[LE01],FromWare,WW+1,1);
+									If Ware[27] > 100 then FromWare:=27;
+								end else
+								If (FromWare = 27) and (WW<26) then begin Actions.MarketSetTrade(AllHouses[LE01],FromWare,WW+2,1);
+									If Ware[8] > 150 then FromWare:=8;
+								end else
+								If (FromWare = 8) and (WW<26) then begin Actions.MarketSetTrade(AllHouses[LE01],FromWare,WW+3,1);
+									If Ware[12] > 10 then FromWare:=12;
+								end else
+								If (FromWare = 12) and (WW<26) then begin Actions.MarketSetTrade(AllHouses[LE01],FromWare,WW+4,1);
+									If Ware[2] > 100 then FromWare:=2;
+								end;
+								Actions.OverlayTextAppendFormatted(-1, ' '+IntToStr(FromWare), []);
+							end;
+						end;					
+					end;
+				end;
+			end;
+			Actions.OverlayTextAppendFormatted(-1, '|', []);
+		end;
+	end;
+end;
+
+Procedure Markets;
+var LE01,Players,Xm,Ym,MarketCount:Integer;
+begin
+	for Players := 0 to S.LocationCount() do begin //uwzględnia wszystkich możliwych graczy
+		MarketCount:=0;
+		AIStartPos[Players]:= S.AIStartPosition(Players);
+		//Postawia znaczniki targowisk jeżeli gracz ich nie posiada
+		Once[Players]:=false;
+		If (S.StatHouseTypeCount(Players,29) = 0) and (States.PlayerIsAI(Players)) then begin
+			If Players<>4 then begin
+				for Xm:= 0 to 20 do begin
+					For Ym:= 0 to 20 do begin
+						If (MarketCount<=4) and (States.MapTilePassability(AIStartPos[Players].X+Xm-10,AIStartPos[Players].Y+Ym-10+1,4)) and (Actions.PlanAddHouse(Players,29,AIStartPos[Players].X+Xm-10,AIStartPos[Players].Y+Ym-10)) then begin	
+							A.HouseAllow(Players,29,true);
+							A.HouseUnlock(Players,29);
+							MarketCount:=MarketCount+1;	
+							A.PlanConnectRoad(Players,AIStartPos[Players].X+Xm-10,AIStartPos[Players].Y+Ym-10+1,AIStartPos[Players].X,AIStartPos[Players].Y+1,false)
+						end;
+						If (MarketCount=5) and (States.MapTilePassability(AIStartPos[Players].X+Xm-20,AIStartPos[Players].Y+Ym+-30+1,4)) and (Actions.PlanAddHouse(Players,11,AIStartPos[Players].X+Xm-20,AIStartPos[Players].Y+Ym-30)) then begin	
+							A.HouseAllow(Players,29,true);
+							A.HouseUnlock(Players,29);
+							MarketCount:=MarketCount+1;	
+							A.PlanConnectRoad(Players,AIStartPos[Players].X+Xm-20,AIStartPos[Players].Y+Ym-30+1,AIStartPos[Players].X,AIStartPos[Players].Y+1,false)
+						end;
+					end;
+				end;
+			end;
+			If Players=4 then begin
+				for Xm:= 0 to 30 do begin
+					For Ym:= 0 to 30 do begin
+						If (MarketCount<=4) and (States.MapTilePassability(AIStartPos[Players].X+Xm-20,AIStartPos[Players].Y+Ym-20+1,4)) and (Actions.PlanAddHouse(Players,29,AIStartPos[Players].X+Xm-20,AIStartPos[Players].Y+Ym-20)) then begin	
+							A.HouseAllow(Players,29,true);
+							A.HouseUnlock(Players,29);
+							MarketCount:=MarketCount+1;	
+							A.PlanConnectRoad(Players,AIStartPos[Players].X+Xm-20,AIStartPos[Players].Y+Ym-20+1,AIStartPos[Players].X,AIStartPos[Players].Y+1,false)
+						end;
+						If (MarketCount=5) and (States.MapTilePassability(AIStartPos[Players].X+Xm-20,AIStartPos[Players].Y+Ym+-30+1,4)) and (Actions.PlanAddHouse(Players,11,AIStartPos[Players].X+Xm-20,AIStartPos[Players].Y+Ym-30)) then begin	
+							A.HouseAllow(Players,29,true);
+							A.HouseUnlock(Players,29);
+							MarketCount:=MarketCount+1;	
+							A.PlanConnectRoad(Players,AIStartPos[Players].X+Xm-20,AIStartPos[Players].Y+Ym-30+1,AIStartPos[Players].X,AIStartPos[Players].Y+1,false)
+						end;
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+//Sprawdzam czy skrypt działa i ustawia wymianę towarów
+Procedure TradeOnTick;
+begin
+	If States.GameTime mod 2000 = 0 then CustomMarketing;
+	{If States.GameTime = 2000 then Markets;}
+end;

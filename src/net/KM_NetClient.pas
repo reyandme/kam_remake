@@ -206,8 +206,8 @@ end;
 //Split recieved data into single packets
 procedure TKMNetClient.RecieveData(aData: Pointer; aLength: Cardinal);
 var
-  PacketSender: TKMNetHandleIndex;
-  PacketLength: Word;
+  packetSender: TKMNetHandleIndex;
+  packetLength: Word;
 //  HeaderSize: Byte;
 begin
   //Append new data to buffer
@@ -225,29 +225,29 @@ begin
     //gLog.AddTime('%%%%% receive cumulative packet: packs Cnt = ' + IntToStr(PacksCnt));
     while (fBufferSize >= 7) and (PByte(@fBuffer[0])^ > 0) do
     begin
-      PacketSender := PKMNetHandleIndex(@fBuffer[1])^;
+      packetSender := PKMNetHandleIndex(@fBuffer[1])^;
       //We skip PacketRecipient because thats us
-      PacketLength := PWord(@fBuffer[5])^;
+      packetLength := PWord(@fBuffer[5])^;
 
       //gLog.AddTime(Format('pack %d: sender = %s length = %d' , [PacksCnt - PNativeUInt(@fBuffer[0])^ + 1,
 //                                                    GetNetAddressStr(PacketSender), PacketLength]));
       //Buffer is lengthy enough to contain full packet, process it
-      if PacketLength <= fBufferSize - 7 then
+      if packetLength <= fBufferSize - 7 then
       begin
-        Inc(fTotalSize, PacketLength);
+        Inc(fTotalSize, packetLength);
         //Skip packet header
         // Check if fOnReceiveData is assigned (TKMServerQuery could disconnect client but some messages can still arrive and we are in a different thread at this moment)
         if Assigned(fOnRecieveData) then
-          fOnRecieveData(Self, PacketSender, @fBuffer[7], PacketLength);
+          fOnRecieveData(Self, packetSender, @fBuffer[7], packetLength);
 
         //Check if Network was stopped by processing above packet (e.g. version mismatch)
         if not Assigned(fOnRecieveData) then
           Exit;
 
         //Trim received packet from buffer
-        if PacketLength < fBufferSize - 7 then //Check range
-          Move(fBuffer[7 + PacketLength], fBuffer[1], fBufferSize-PacketLength-7);
-        fBufferSize := fBufferSize - PacketLength - 6;
+        if packetLength < fBufferSize - 7 then //Check range
+          Move(fBuffer[7 + packetLength], fBuffer[1], fBufferSize-packetLength-7);
+        fBufferSize := fBufferSize - packetLength - 6;
         PByte(@fBuffer[0])^ := PByte(@fBuffer[0])^ - 1;
       end else
       begin

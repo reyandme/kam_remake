@@ -2175,6 +2175,8 @@ var
 begin
   for I := 1 to fMapY do
     for K := 1 to fMapX do
+      // On the game start TileOwner is not set for roads, be aware of that
+      // Its set only in AfterMissionInit procedures
       if (Land^[I, K].TileOwner = aPlayer) then
       begin
         P.X := K;
@@ -4366,8 +4368,6 @@ procedure TKMTerrain.UpdateWalkConnect(const aSet: TKMWalkConnectSet; aRect: TKM
 var
   WC: TKMWalkConnect;
 begin
-  if gGameParams.IsMapEditor then Exit;
-  
   aRect := KMClipRect(aRect, 1, 1, fMapX - 1, fMapY - 1);
 
   //Process all items from set

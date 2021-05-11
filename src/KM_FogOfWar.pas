@@ -151,28 +151,28 @@ procedure TKMFogOfWar.RevealCircle(const Pos: TKMPoint; Radius, Amount: Word);
   var
     I, K: Word;
     I1, I2, K1, K2: Word;
-    SqrRadius: Integer;
-    RevArray: PKMByte2Array;
+    sqrRadius: Integer;
+    revArray: PKMByte2Array;
   begin
     if aForRevelation then
-      RevArray := @Revelation
+      revArray := @Revelation
     else
-      RevArray := @RenderRevelation;
+      revArray := @RenderRevelation;
 
     //Avoid repeated computing (+2% performance)
     I1 := max(Pos.Y-aRadius, 0);
     I2 := min(Pos.Y+aRadius, fMapY-1);
     K1 := max(Pos.X-aRadius, 0);
     K2 := min(Pos.X+aRadius, fMapX-1);
-    SqrRadius := Sqr(aRadius);
+    sqrRadius := Sqr(aRadius);
 
     //Inline maths here to gain performance
     if aAmount >= FOG_OF_WAR_MAX then
     begin
       for I := I1 to I2 do for K := K1 to K2 do
-        if (Sqr(Pos.X - K) + Sqr(Pos.Y - I)) <= SqrRadius then
+        if (Sqr(Pos.X - K) + Sqr(Pos.Y - I)) <= sqrRadius then
         begin
-          RevArray^[I, K] := FOG_OF_WAR_MAX;
+          revArray^[I, K] := FOG_OF_WAR_MAX;
           if aForRevelation then
             fRevealedToMax[I, K] := True;
         end;
@@ -180,23 +180,23 @@ procedure TKMFogOfWar.RevealCircle(const Pos: TKMPoint; Radius, Amount: Word);
     else
     begin
       for I := I1 to I2 do for K := K1 to K2 do
-        if (Sqr(Pos.X - K) + Sqr(Pos.Y - I)) <= SqrRadius then
+        if (Sqr(Pos.X - K) + Sqr(Pos.Y - I)) <= sqrRadius then
         begin
-          RevArray^[I, K] := Min(RevArray^[I, K] + aAmount, FOG_OF_WAR_MAX);
-          if aForRevelation and (RevArray^[I, K] = FOG_OF_WAR_MAX) then
+          revArray^[I, K] := Min(revArray^[I, K] + aAmount, FOG_OF_WAR_MAX);
+          if aForRevelation and (revArray^[I, K] = FOG_OF_WAR_MAX) then
             fRevealedToMax[I, K] := True;
         end;
     end;
   end;
 
 var
-  AroundRadius: Word;
+  aroundRadius: Word;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
   {$ENDIF}
   try
-    AroundRadius := Radius + RENDER_RADIUS_ADD;
+    aroundRadius := Radius + RENDER_RADIUS_ADD;
     if not fCoverHasBeenCalled and not fDynamicFOW then
     begin
       if fRevealedRadius[Pos.Y, Pos.X] < Radius then
@@ -204,14 +204,14 @@ begin
         fRevealedRadius[Pos.Y, Pos.X] := Radius;
         RevealFor(True, Radius, Amount);
       end;
-      if fRenderRevRevealedRad[Pos.Y, Pos.X] < AroundRadius then
+      if fRenderRevRevealedRad[Pos.Y, Pos.X] < aroundRadius then
       begin
-        fRenderRevRevealedRad[Pos.Y, Pos.X] := AroundRadius;
-        RevealFor(False, AroundRadius, FOG_OF_WAR_MAX);
+        fRenderRevRevealedRad[Pos.Y, Pos.X] := aroundRadius;
+        RevealFor(False, aroundRadius, FOG_OF_WAR_MAX);
       end;
     end else begin
       RevealFor(True, Radius, Amount);
-      RevealFor(False, AroundRadius, FOG_OF_WAR_MAX);
+      RevealFor(False, aroundRadius, FOG_OF_WAR_MAX);
     end;
   finally
     {$IFDEF PERFLOG}
@@ -227,26 +227,26 @@ procedure TKMFogOfWar.CoverCircle(const Pos: TKMPoint; Radius: Word);
   var
     I, K: Word;
     I1, I2, K1, K2: Word;
-    SqrRadius: Integer;
-    RevArray: PKMByte2Array;
+    sqrRadius: Integer;
+    revArray: PKMByte2Array;
   begin
     if aForRevelation then
-      RevArray := @Revelation
+      revArray := @Revelation
     else
-      RevArray := @RenderRevelation;
+      revArray := @RenderRevelation;
 
     //Avoid repeated computing (+2% performance)
     I1 := max(Pos.Y-aRadius, 0);
     I2 := min(Pos.Y+aRadius, fMapY-1);
     K1 := max(Pos.X-aRadius, 0);
     K2 := min(Pos.X+aRadius, fMapX-1);
-    SqrRadius := Sqr(aRadius);
+    sqrRadius := Sqr(aRadius);
 
     //Inline maths here to gain performance
     for I := I1 to I2 do
       for K := K1 to K2 do
-        if (Sqr(Pos.X - K) + Sqr(Pos.Y - I)) <= SqrRadius then
-          RevArray^[I,K] := 0;
+        if (Sqr(Pos.X - K) + Sqr(Pos.Y - I)) <= sqrRadius then
+          revArray^[I,K] := 0;
   end;
 
 begin
@@ -323,7 +323,7 @@ end;
 {Reveal whole map to max value}
 procedure TKMFogOfWar.RevealEverything;
 var
-  I,K: Word;
+  I, K: Word;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
@@ -345,7 +345,7 @@ end;
 
 procedure TKMFogOfWar.CoverEverything;
 var
-  I,K: Word;
+  I, K: Word;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
@@ -472,7 +472,8 @@ end;
 
 //Check exact revelation of the point (interpolate between vertices)
 function TKMFogOfWar.CheckRev(aRevArray: PKMByte2Array; const aPoint: TKMPointF): Byte;
-var A, B, C, D, Y1, Y2: Byte;
+var
+  A, B, C, D, Y1, Y2: Byte;
 begin
   if (aPoint.X <= 0) or (aPoint.X >= fMapX - 1)
     or (aPoint.Y <= 0) or (aPoint.Y >= fMapY - 1) then
@@ -498,7 +499,8 @@ end;
 
 //Synchronize FOW revelation between players
 procedure TKMFogOfWar.SyncFOW(aFOW: TKMFogOfWar);
-var I,K: Word;
+var
+  I, K: Word;
 begin
   for I := 0 to fMapY - 1 do
     for K := 0 to fMapX - 1 do

@@ -99,7 +99,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   KM_HandsCollection, KM_ResTexts, KM_Resource, KM_RenderUI, KM_ResUnits,
   KM_ResWares, KM_HouseBarracks, KM_HouseTownHall,
-  KM_ResFonts, KM_GameCursor, KM_Utils,
+  KM_ResFonts, KM_Cursor, KM_Utils,
   KM_ResTypes;
 
 
@@ -296,9 +296,9 @@ procedure TKMMapEdHouse.UpdateState;
 begin
   if Visible then
     case fHouse.HouseType of
-      htBarracks:    Button_Barracks_RallyPoint.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_RALLY_POINT);
-      htTownHall:    Button_TownHall_RallyPoint.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_RALLY_POINT);
-      htWoodcutters: Button_Woodcutters_CuttingPoint.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_RALLY_POINT);
+      htBarracks:    Button_Barracks_RallyPoint.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_RALLY_POINT);
+      htTownHall:    Button_TownHall_RallyPoint.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_RALLY_POINT);
+      htWoodcutters: Button_Woodcutters_CuttingPoint.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_RALLY_POINT);
     end;
 end;
 
@@ -437,12 +437,12 @@ end;
 
 procedure TKMMapEdHouse.StoreRefresh;
 var
-  I, Tmp: Integer;
+  I, tmp: Integer;
 begin
   for I := 1 to STORE_RES_COUNT do
   begin
-    Tmp := TKMHouseStore(fHouse).CheckResIn(StoreResType[I]);
-    Button_Store[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
+    tmp := TKMHouseStore(fHouse).CheckResIn(StoreResType[I]);
+    Button_Store[I].Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
   end;
 end;
 
@@ -480,22 +480,22 @@ end;
 
 procedure TKMMapEdHouse.BarracksRefresh;
 var
-  I, Tmp: Integer;
+  I, tmp: Integer;
 begin
   for I := 1 to BARRACKS_RES_COUNT do
   begin
-    Tmp := TKMHouseBarracks(fHouse).CheckResIn(BarracksResType[I]);
-    Button_Barracks[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
+    tmp := TKMHouseBarracks(fHouse).CheckResIn(BarracksResType[I]);
+    Button_Barracks[I].Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
   end;
-  Tmp := TKMHouseBarracks(fHouse).MapEdRecruitCount;
-  Button_Barracks_Recruit.Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
-  Button_Barracks_RallyPoint.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_RALLY_POINT);
+  tmp := TKMHouseBarracks(fHouse).MapEdRecruitCount;
+  Button_Barracks_Recruit.Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
+  Button_Barracks_RallyPoint.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_RALLY_POINT);
 end;
 
 
 procedure TKMMapEdHouse.TownHallRefresh;
 begin
-  Button_TownHall_RallyPoint.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_RALLY_POINT);
+  Button_TownHall_RallyPoint.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_RALLY_POINT);
   WaresRow_TH_Gold_Input.OrderCount := fHouse.CheckResIn(wtGold);
   WaresRow_TH_Gold_Input.WareRow.WareCount := Min(MAX_WARES_IN_HOUSE, WaresRow_TH_Gold_Input.OrderCount);
 end;
@@ -503,7 +503,7 @@ end;
 
 procedure TKMMapEdHouse.WoodcuttersRefresh;
 begin
-  Button_Woodcutters_CuttingPoint.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_RALLY_POINT);
+  Button_Woodcutters_CuttingPoint.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_RALLY_POINT);
 end;
 
 
@@ -613,37 +613,37 @@ end;
 
 procedure TKMMapEdHouse.SetRallyPointClick(Sender: TObject);
 var
-  Btn: TKMButtonFlat;
+  btn: TKMButtonFlat;
 begin
   if (Sender <> Button_Barracks_RallyPoint)
   and (Sender <> Button_TownHall_RallyPoint)
   and (Sender <> Button_Woodcutters_CuttingPoint) then
     Exit;
 
-  Btn := TKMButtonFlat(Sender);
+  btn := TKMButtonFlat(Sender);
 
-  Btn.Down := not Btn.Down;
-  if Btn.Down then
+  btn.Down := not btn.Down;
+  if btn.Down then
   begin
-    gGameCursor.Mode := cmMarkers;
-    gGameCursor.Tag1 := MARKER_RALLY_POINT;
+    gCursor.Mode := cmMarkers;
+    gCursor.Tag1 := MARKER_RALLY_POINT;
   end else
-    gGameCursor.Mode := cmNone;
+    gCursor.Mode := cmNone;
 end;
 
 
 procedure TKMMapEdHouse.House_UpdateDeliveryMode(aMode: TKMDeliveryMode);
 var
-  TexId: Word;
+  texId: Word;
 begin
-  TexId := 0;
+  texId := 0;
 
   case aMode of
-    dmDelivery:  TexId := 37;
-    dmClosed:    TexId := 38;
-    dmTakeOut:   TexId := 664;
+    dmDelivery:  texId := 37;
+    dmClosed:    texId := 38;
+    dmTakeOut:   texId := 664;
   end;
-  Button_HouseDeliveryMode.TexID := TexId;
+  Button_HouseDeliveryMode.TexID := texId;
 end;
 
 
@@ -742,40 +742,40 @@ end;
 
 procedure TKMMapEdHouse.BarracksChange(Sender: TObject; Shift: TShiftState);
 var
-  Res: TKMWareType;
-  Barracks: TKMHouseBarracks;
-  NewCount: Word;
+  res: TKMWareType;
+  barracks: TKMHouseBarracks;
+  newCount: Word;
 begin
-  Barracks := TKMHouseBarracks(fHouse);
+  barracks := TKMHouseBarracks(fHouse);
   if fBarracksItem = -1 then
   begin
     //Recruits
     if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then
-      Barracks.MapEdRecruitCount := Math.Max(0, Barracks.MapEdRecruitCount - GetMultiplicator(Shift) * TKMButton(Sender).Tag);
+      barracks.MapEdRecruitCount := Math.Max(0, barracks.MapEdRecruitCount - GetMultiplicator(Shift) * TKMButton(Sender).Tag);
 
     if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then
-      Barracks.MapEdRecruitCount := Math.Min(High(Word), Barracks.MapEdRecruitCount + GetMultiplicator(Shift) * TKMButton(Sender).Tag);
+      barracks.MapEdRecruitCount := Math.Min(High(Word), barracks.MapEdRecruitCount + GetMultiplicator(Shift) * TKMButton(Sender).Tag);
 
-    Label_Barracks_WareCount.Caption := IntToStr(Barracks.MapEdRecruitCount);
+    Label_Barracks_WareCount.Caption := IntToStr(barracks.MapEdRecruitCount);
   end
   else
   begin
     //Wares
-    Res := BarracksResType[fBarracksItem];
+    res := BarracksResType[fBarracksItem];
 
     if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then
     begin
-      NewCount := Math.Min(Barracks.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
-      Barracks.ResTakeFromOut(Res, NewCount);
+      newCount := Math.Min(barracks.CheckResIn(res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
+      barracks.ResTakeFromOut(res, newCount);
     end;
 
     if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then
     begin
-      NewCount := Math.Min(High(Word) - Barracks.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
-      Barracks.ResAddToIn(Res, NewCount);
+      newCount := Math.Min(High(Word) - barracks.CheckResIn(res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
+      barracks.ResAddToIn(res, newCount);
     end;
 
-    Label_Barracks_WareCount.Caption := IntToStr(Barracks.CheckResIn(Res));
+    Label_Barracks_WareCount.Caption := IntToStr(barracks.CheckResIn(res));
   end;
   BarracksRefresh;
 end;
@@ -783,24 +783,24 @@ end;
 
 procedure TKMMapEdHouse.StoreChange(Sender: TObject; Shift: TShiftState);
 var
-  Res: TKMWareType;
-  Store: TKMHouseStore;
-  NewCount: Word;
+  res: TKMWareType;
+  store: TKMHouseStore;
+  newCount: Word;
 begin
-  Store := TKMHouseStore(fHouse);
-  Res := StoreResType[fStorehouseItem];
+  store := TKMHouseStore(fHouse);
+  res := StoreResType[fStorehouseItem];
 
   //We need to take no more than it is there, thats part of bugtracking idea
   if (Sender = Button_StoreDec100) or (Sender = Button_StoreDec) then begin
-    NewCount := Math.Min(Store.CheckResIn(Res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
-    Store.ResTakeFromOut(Res, NewCount);
+    newCount := Math.Min(store.CheckResIn(res), GetMultiplicator(Shift) * TKMButton(Sender).Tag);
+    store.ResTakeFromOut(res, newCount);
   end;
 
   //We can always add any amount of resource, it will be capped by Store
   if (Sender = Button_StoreInc100) or (Sender = Button_StoreInc) then
-    Store.ResAddToIn(Res, GetMultiplicator(Shift) * TKMButton(Sender).Tag);
+    store.ResAddToIn(res, GetMultiplicator(Shift) * TKMButton(Sender).Tag);
 
-  Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
+  Label_Store_WareCount.Caption := inttostr(store.CheckResIn(res));
   StoreRefresh;
 end;
 

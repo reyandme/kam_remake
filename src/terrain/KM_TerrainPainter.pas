@@ -278,7 +278,7 @@ const
 
 implementation
 uses
-  KM_Game, KM_GameCursor, KM_Resource, KM_Log, KM_CommonUtils, KM_Utils,
+  KM_Game, KM_Cursor, KM_Resource, KM_Log, KM_CommonUtils, KM_Utils,
   KM_ResSprites, KM_MapEditorHistory, KM_ResTexts, KM_Terrain, KM_ResTypes;
 
 
@@ -434,7 +434,7 @@ begin
   AddBrushAreaTerKind(X+1,Y+1);
   AddBrushAreaTerKind(X,  Y+1);
 
-  if gGameCursor.MapEdUseTerrainObjects
+  if gCursor.MapEdUseTerrainObjects
     and (fLastPosition <> KMPoint(fMapXc,fMapYc)) then
     begin
       fLastPosition := KMPoint(fMapXc,fMapYc);
@@ -480,11 +480,11 @@ begin
   if ( LandTerKind[aY+1, aX+1].TerKind = aTerrainKind ) then
     case aObjType of
       0:  begin
-            case gGameCursor.MapEdForestAge of
+            case gCursor.MapEdForestAge of
               0:  treeAge := TREE_AGE[KaMRandom(Length(TREE_AGE), 'TKMTerrainPainter.PickRandomObject')];
               1:  treeAge := TREE_AGE[KaMRandom(Length(TREE_AGE) - 1, 'TKMTerrainPainter.PickRandomObject')];
               else
-                treeAge := TREE_AGE[gGameCursor.MapEdForestAge - 2];
+                treeAge := TREE_AGE[gCursor.MapEdForestAge - 2];
             end;
 
             Result := gTerrain.ChooseTreeToPlace(KMPoint(aX, aY), treeAge, False);
@@ -1408,13 +1408,13 @@ end;
 // Set brush map ed params based on cursor (basically parames were set in mapEd GUI)
 procedure TKMTerrainPainter.SetMapEdParams;
 begin
-  SetCommonParams(gGameCursor.Float.X, gGameCursor.Float.Y, gGameCursor.MapEdShape);
-  SetBrushSpecialParams(gGameCursor.MapEdSize, TKMTerrainKind(gGameCursor.Tag1),
-                        gGameCursor.MapEdRandomizeTiling, gGameCursor.MapEdOverrideCustomTiles,
-                        gGameCursor.MapEdBrushMask, gGameCursor.MapEdBlendingLvl, gGameCursor.MapEdUseMagicBrush);
+  SetCommonParams(gCursor.Float.X, gCursor.Float.Y, gCursor.MapEdShape);
+  SetBrushSpecialParams(gCursor.MapEdSize, TKMTerrainKind(gCursor.Tag1),
+                        gCursor.MapEdRandomizeTiling, gCursor.MapEdOverrideCustomTiles,
+                        gCursor.MapEdBrushMask, gCursor.MapEdBlendingLvl, gCursor.MapEdUseMagicBrush);
 
-  SetHeightSpecialParams(gGameCursor.Mode = cmEqualize, ssLeft in gGameCursor.SState,
-                            gGameCursor.MapEdSize, gGameCursor.MapEdSlope, gGameCursor.MapEdSpeed);
+  SetHeightSpecialParams(gCursor.Mode = cmEqualize, ssLeft in gCursor.SState,
+                            gCursor.MapEdSize, gCursor.MapEdSlope, gCursor.MapEdSpeed);
 end;
 
 
@@ -1536,24 +1536,24 @@ begin
   if not gTerrain.TileInMapCoords(X, Y) then
     Exit;
 
-  if gGameCursor.MapEdCleanBrush then
+  if gCursor.MapEdCleanBrush then
      gTerrain.Land^[Y, X].Obj := OBJ_NONE
   else
   begin
-    if gGameCursor.MapEdOverrideObjects then
+    if gCursor.MapEdOverrideObjects then
       gTerrain.Land^[Y, X].Obj := OBJ_NONE;
 
     for I := 0 to 9 do
-      if gGameCursor.MapEdObjectsType[I] then
+      if gCursor.MapEdObjectsType[I] then
       begin
-        key := KaMRandom(400 div gGameCursor.MapEdObjectsDensity, 'TKMTerrainPainter.BrushObjects');
+        key := KaMRandom(400 div gCursor.MapEdObjectsDensity, 'TKMTerrainPainter.BrushObjects');
         if key < 2 then
         begin
           if aUseLandTKind then
             aTerKind := LandTerKind[Y, X].TerKind;
 
           randomObject := PickRandomObject(aTerKind, I, X, Y);
-          if gGameCursor.MapEdOverrideObjects then
+          if gCursor.MapEdOverrideObjects then
             gTerrain.Land^[Y, X].Obj := randomObject
           else
             if gTerrain.Land^[Y, X].Obj = OBJ_NONE then
@@ -1578,8 +1578,8 @@ begin
         begin
           case fShape of
             hsCircle: if Sqr(I - fMapYn) + sqr(K - fMapXn) <= Sqr(size) then
-                        gTerrain.Land[I,K].Height := gGameCursor.MapEdConstHeight;   // Negative number means that point is outside circle
-            hsSquare: gTerrain.Land[I,K].Height := gGameCursor.MapEdConstHeight;
+                        gTerrain.Land[I,K].Height := gCursor.MapEdConstHeight;   // Negative number means that point is outside circle
+            hsSquare: gTerrain.Land[I,K].Height := gCursor.MapEdConstHeight;
           end;
       end;
 
@@ -2200,8 +2200,8 @@ end;
 procedure TKMTerrainPainter.Eyedropper(const aLoc: TKMPoint);
 begin
   //Save specified loc's terrain info
-  gGameCursor.Tag1 := gTerrain.Land^[aLoc.Y, aLoc.X].BaseLayer.Terrain;
-  gGameCursor.MapEdDir := gTerrain.Land^[aLoc.Y, aLoc.X].BaseLayer.Rotation;
+  gCursor.Tag1 := gTerrain.Land^[aLoc.Y, aLoc.X].BaseLayer.Terrain;
+  gCursor.MapEdDir := gTerrain.Land^[aLoc.Y, aLoc.X].BaseLayer.Rotation;
 end;
 
 
@@ -2237,44 +2237,44 @@ end;
 
 procedure TKMTerrainPainter.UpdateStateIdle;
 begin
-  case gGameCursor.Mode of
+  case gCursor.Mode of
     cmElevate,
-    cmEqualize:     if (ssLeft in gGameCursor.SState) or (ssRight in gGameCursor.SState) then
+    cmEqualize:     if (ssLeft in gCursor.SState) or (ssRight in gCursor.SState) then
                     begin
                       SetMapEdParams; //Set mapEd params from gGameCursor
                       ApplyHeight;
                     end;
-    cmConstHeight:     if (ssLeft in gGameCursor.SState) then
+    cmConstHeight:     if (ssLeft in gCursor.SState) then
                     begin
                       SetMapEdParams; //Set mapEd params from gGameCursor
                       ApplyConstHeight;
                     end;
-    cmElevateAll:     if (ssLeft in gGameCursor.SState) or (ssRight in gGameCursor.SState) then
+    cmElevateAll:     if (ssLeft in gCursor.SState) or (ssRight in gCursor.SState) then
                     begin
                       SetMapEdParams; //Set mapEd params from gGameCursor
                       ApplyElevateKind(LandTerKind[fMapYc, fMapXc].TerKind);
                     end;
-    cmBrush:        if (ssLeft in gGameCursor.SState) then
+    cmBrush:        if (ssLeft in gCursor.SState) then
                     begin
                       SetMapEdParams; //Set mapEd params from gGameCursor
                       ApplyBrush;
                     end;
-    cmTiles:        if (ssLeft in gGameCursor.SState) then
+    cmTiles:        if (ssLeft in gCursor.SState) then
                     begin
-                      if gGameCursor.MapEdDir in [0..3] then //Defined direction
-                        EditTile(gGameCursor.Cell, gGameCursor.Tag1, gGameCursor.MapEdDir)
+                      if gCursor.MapEdDir in [0..3] then //Defined direction
+                        EditTile(gCursor.Cell, gCursor.Tag1, gCursor.MapEdDir)
                       else //Random direction
-                        EditTile(gGameCursor.Cell, gGameCursor.Tag1, KaMRandom(4, 'TKMTerrainPainter.UpdateStateIdle'));
+                        EditTile(gCursor.Cell, gCursor.Tag1, KaMRandom(4, 'TKMTerrainPainter.UpdateStateIdle'));
                     end;
-    cmObjects:      if ssLeft in gGameCursor.SState then
-                      gTerrain.SetObject(gGameCursor.Cell, gGameCursor.Tag1);
-    cmObjectsBrush: if (ssLeft in gGameCursor.SState) then
+    cmObjects:      if ssLeft in gCursor.SState then
+                      gTerrain.SetObject(gCursor.Cell, gCursor.Tag1);
+    cmObjectsBrush: if (ssLeft in gCursor.SState) then
                     begin
                       SetMapEdParams; //Set mapEd params from gGameCursor
                       ApplyObjectsBrush;
                     end;
-    cmOverlays:     if (ssLeft in gGameCursor.SState) then
-                      gTerrain.SetOverlay(gGameCursor.Cell, TKMTileOverlay(gGameCursor.Tag1), ssShift in gGameCursor.SState); //Holding shift allows overwrite roads
+    cmOverlays:     if (ssLeft in gCursor.SState) then
+                      gTerrain.SetOverlay(gCursor.Cell, TKMTileOverlay(gCursor.Tag1), ssShift in gCursor.SState); //Holding shift allows overwrite roads
   end;
 end;
 

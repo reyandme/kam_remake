@@ -1,0 +1,36 @@
+ {$I difficulty.script}
+ {$I Language.script} 
+  procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 0 to 11 do begin
+           UnitsToFeed := States.PlayerGetAllUnits(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end;
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []); end;
+	if States.GameTime = 300 then 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime = 150 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []); end;
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+end;
+
+
+procedure OnMissionStart();
+begin
+	if CampaignData.HKS04.Groups0>0 then Actions.GiveGroup(0,14,24,78,7,CampaignData.HKS04.Groups0,CampaignData.HKS04.Groups0/3) else Actions.GiveGroup(0,14,24,78,7,12,4);
+	if CampaignData.HKS04.Groups1>0 then Actions.GiveGroup(0,15,16,82,7,CampaignData.HKS04.Groups1,CampaignData.HKS04.Groups1/3) else Actions.GiveGroup(0,15,16,82,7,12,4);
+	if CampaignData.HKS04.Groups2>0 then Actions.GiveGroup(0,19,34,86,7,CampaignData.HKS04.Groups2,CampaignData.HKS04.Groups2/5) else Actions.GiveGroup(0,19,34,86,7,12,4);
+end;

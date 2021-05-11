@@ -1,1 +1,8 @@
-﻿0:Eroberungs-Modus: nimm Gebäude ein um Waffen für deine Armee zu erhalten. Gebäude nimmst du ein indem du einen Soldaten vor den Eingang bewegst. Der Soldat muss nicht dauerhaft dort stehen. Warnung: mit Rittergarden und Spähern kannst du keine Gebäude einnehmen! Du hast eine Kaserne und 3 Schulhäuser, die mit unendlich Gold automatisch Rekruten ausbilden.||Script by sado, map by dicsoupcan.
+﻿MaxID:6
+0:Conquest Modus: nimm Gebäude ein um Waffen für deine Armee zu erhalten. Gebäude nimmst du ein indem du einen Soldaten 10 Sekunden lang vor den Eingang bewegst. Der Soldat muss nicht dauerhaft dort stehen. Warnung: mit Rittergarden und Spähern kannst du keine Gebäude einnehmen! Du hast eine Kaserne und 3 Schulhäuser, die mit unendlich Gold automatisch Rekruten ausbilden.||Script by sado, map by dicsoupcan.
+1:Sie können ein Gebäude nicht mit einem Späher oder einem Ritter erobern! Lesen Sie beim nächsten Mal die Kartenbeschreibung :)
+2:Sie können keinen Turm erobern, der Ihrem Verbündeten gehört.
+3:Das Gebäude erobern
+4:linke Seite
+5:rechte Seite
+6:Anzahl der Gebäude

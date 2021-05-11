@@ -1,4 +1,6 @@
-﻿1:[$00D7FF]Coins[]:
+MaxID:58
+
+1:[$00D7FF]Coins[]:
 2:([$00FF00]%d[])[$%s]%s[]: %d
 3: - [$00FFFF]gold[]
 4: - [$00FFFF]house[]

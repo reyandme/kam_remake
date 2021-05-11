@@ -154,20 +154,20 @@ begin
 
     mdEasy1: for I := 5 to 17 do
              begin
-               Actions.AIEquipRate(I, 0, 325 + States.KaMRandomI(20) - States.KaMRandomI(15));
-               Actions.AIEquipRate(I, 1, 325 + States.KaMRandomI(20) - States.KaMRandomI(15));
+               Actions.AIEquipRate(I, 0, 330 + States.KaMRandomI(20) - States.KaMRandomI(15));
+               Actions.AIEquipRate(I, 1, 330 + States.KaMRandomI(20) - States.KaMRandomI(15));
              end;
 
     mdNormal: for I := 5 to 17 do
               begin
-                Actions.AIEquipRate(I, 0, 250 + States.KaMRandomI(20) - States.KaMRandomI(15));
-                Actions.AIEquipRate(I, 1, 250 + States.KaMRandomI(20) - States.KaMRandomI(15));
+                Actions.AIEquipRate(I, 0, 275 + States.KaMRandomI(20) - States.KaMRandomI(15));
+                Actions.AIEquipRate(I, 1, 275 + States.KaMRandomI(20) - States.KaMRandomI(15));
               end;
 
     mdHard1: for I := 5 to 17 do
              begin
-               Actions.AIEquipRate(I, 0, 170 + States.KaMRandomI(20) - States.KaMRandomI(15));
-               Actions.AIEquipRate(I, 1, 170 + States.KaMRandomI(20) - States.KaMRandomI(15));
+               Actions.AIEquipRate(I, 0, 230 + States.KaMRandomI(20) - States.KaMRandomI(15));
+               Actions.AIEquipRate(I, 1, 230 + States.KaMRandomI(20) - States.KaMRandomI(15));
              end;
   end;
 
@@ -202,7 +202,7 @@ begin
   case States.MissionDifficulty of
     mdEasy1:  Result := 15;
     mdNormal: Result := 18;
-    mdHard1:  Result := 16;
+    mdHard1:  Result := 15;
   end;
 end; 
 
@@ -467,10 +467,10 @@ begin
 
     mdHard1: 
       case States.KaMRandomI(100) of
-        0..20:  Result := 16;
-        21..50: Result := 20;
-        51..70: Result := 22;
-        71..80: Result := 17 + States.KaMRandomI(2);
+        0..15:  Result := 16;
+        16..45: Result := 20;
+        46..65: Result := 22;
+        66..80: Result := 17 + States.KaMRandomI(2);
         81..99: Result := 16 + 2 * States.KaMRandomI(2) + 4 * States.KaMRandomI(2);
       end;
 

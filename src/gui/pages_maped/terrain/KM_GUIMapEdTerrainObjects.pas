@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Math, SysUtils,
   KM_InterfaceDefaults,
-  KM_Controls, KM_Defaults, KM_Pics, KM_GameCursor, KM_Points, KM_CommonTypes;
+  KM_Controls, KM_Defaults, KM_Pics, KM_Cursor, KM_Points, KM_CommonTypes;
 
 type
   TKMTerrainObjectAttribute = (toaBlockDiagonal, toaBlockAllExceptBuild, toaBlockBuild, toaChoppableTree);
@@ -375,11 +375,11 @@ begin
                                      gResTexts[TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL_HINT], fntGrey, taRight);
   Label_ForestAge.Anchors := [anLeft, anTop, anRight];
 
-  gGameCursor.MapEdObjectsType[0] := True;
-  gGameCursor.MapEdObjectsType[1] := True;
+  gCursor.MapEdObjectsType[0] := True;
+  gCursor.MapEdObjectsType[1] := True;
 
-  gGameCursor.MapEdForestAge := 1;
-  gGameCursor.MapEdCleanBrush := False;
+  gCursor.MapEdForestAge := 1;
+  gCursor.MapEdCleanBrush := False;
 
   // hotkeys for object functions
   fSubMenuActionsEvents[0] := ObjectsChange;
@@ -503,15 +503,15 @@ end;
 
 procedure TKMMapEdTerrainObjects.ObjectsPalette_Refresh(Sender: TObject);
 var
-  I, J, K, LeftAdj, TopAdj: Integer;
+  I, J, K, leftAdj, topAdj: Integer;
 begin
-  LeftAdj := (PopUp_ObjectsPalette.Width - fObjPaletteTableSize.X*(OBJ_CELL_W + 1) - 25*Byte(Scroll_ObjectsPalette.Visible)) div 2;
-  TopAdj := Image_ObjectsPalette.Top + 60;
+  leftAdj := (PopUp_ObjectsPalette.Width - fObjPaletteTableSize.X*(OBJ_CELL_W + 1) - 25*Byte(Scroll_ObjectsPalette.Visible)) div 2;
+  topAdj := Image_ObjectsPalette.Top + 60;
 
   K := 0;
 
-  Button_ObjPaletteErase.Left := LeftAdj;
-  Button_ObjPaletteBlock.Left := LeftAdj + OBJ_CELL_W + 1;
+  Button_ObjPaletteErase.Left := leftAdj;
+  Button_ObjPaletteBlock.Left := leftAdj + OBJ_CELL_W + 1;
 
   for I := 0 to fObjPaletteTableSize.Y - 1 do
     for J := 0 to fObjPaletteTableSize.X - 1 do
@@ -519,8 +519,8 @@ begin
       K := (I + Scroll_ObjectsPalette.Position)*fObjPaletteTableSize.X + J;
       if K < fCountCompact then
       begin
-        ObjectsPaletteTable[K].Left := J*(OBJ_CELL_PALETTE_W + 1) + LeftAdj;
-        ObjectsPaletteTable[K].Top := 25 + I*(OBJ_CELL_PALETTE_H + 1)  + TopAdj;
+        ObjectsPaletteTable[K].Left := J*(OBJ_CELL_PALETTE_W + 1) + leftAdj;
+        ObjectsPaletteTable[K].Top := 25 + I*(OBJ_CELL_PALETTE_H + 1)  + topAdj;
         ObjectsPaletteTable[K].TexID := gMapElements[fCompactToMapElem[K]].Anim.Step[1] + 1;
         ObjectsPaletteTable[K].Caption := IntToStr(fCompactToMapElem[K]);
 
@@ -549,10 +549,10 @@ begin
 
   // Update palette buttons Down state
   for I := 0 to fCountCompact - 1 do
-    ObjectsPaletteTable[I].Down := (gGameCursor.Mode = cmObjects)
-                                and (gGameCursor.Tag1 <> OBJ_NONE)
-                                and (gGameCursor.Tag1 <> OBJ_BLOCK)
-                                and (ObjectsPaletteTable[I].Tag = fMapElemToCompact[gGameCursor.Tag1]);
+    ObjectsPaletteTable[I].Down := (gCursor.Mode = cmObjects)
+                                and (gCursor.Tag1 <> OBJ_NONE)
+                                and (gCursor.Tag1 <> OBJ_BLOCK)
+                                and (ObjectsPaletteTable[I].Tag = fMapElemToCompact[gCursor.Tag1]);
 end;
 
 
@@ -626,19 +626,19 @@ end;
 
 procedure TKMMapEdTerrainObjects.ObjPalette_ClickShift(Sender: TObject; Shift: TShiftState);
 var
-  ObjIndex: Integer;
+  objIndex: Integer;
 begin
   if ssRight in Shift then
     PopUp_ObjectsPalette.Hide
   else if (ssLeft in Shift) and (Sender is TKMButtonFlat) then
   begin
     PopUp_ObjectsPalette.Hide;
-    ObjIndex := TKMButtonFlat(Sender).Tag;
-    ObjectsUpdate(ObjIndex);
+    objIndex := TKMButtonFlat(Sender).Tag;
+    ObjectsUpdate(objIndex);
 
     if (Sender <> Button_ObjPaletteErase)
       and (Sender <> Button_ObjPaletteBlock) then
-      UpdateObjectsScrollPosToIndex(ObjIndex);
+      UpdateObjectsScrollPosToIndex(objIndex);
   end;
 end;
 
@@ -647,7 +647,7 @@ procedure TKMMapEdTerrainObjects.ObjectsBrushChange(Sender: TObject);
 var
   I, treeAgeHintTX: Integer;
 begin
-  gGameCursor.Mode := cmObjectsBrush;
+  gCursor.Mode := cmObjectsBrush;
 
   ForestAge.ThumbText := gResTexts[FOREST_AGE_THUMB_TX[TKMObjBrushForestAge(ForestAge.Position)]];
   treeAgeHintTX := FOREST_AGE_HINT_TX[TKMObjBrushForestAge(ForestAge.Position)];
@@ -658,42 +658,42 @@ begin
 
   for I := 0 to 9 do
     if Sender = ObjectTypeSet[I] then
-      gGameCursor.MapEdObjectsType[I] := not gGameCursor.MapEdObjectsType[I];
+      gCursor.MapEdObjectsType[I] := not gCursor.MapEdObjectsType[I];
 
   if Sender = CleanBrush then
   begin
     if CleanBrush.Down = False then
     begin
-      gGameCursor.MapEdCleanBrush := True;
+      gCursor.MapEdCleanBrush := True;
       CleanBrush.Down := True;
     end
     else
     begin
-      gGameCursor.MapEdCleanBrush := False;
+      gCursor.MapEdCleanBrush := False;
       CleanBrush.Down := False;
     end;
   end;
   if Sender = BrushCircle then
   begin
-    gGameCursor.MapEdShape := hsCircle;
+    gCursor.MapEdShape := hsCircle;
     BrushCircle.Down := True;
     BrushSquare.Down := False;
   end
   else
   if Sender = BrushSquare then
   begin
-    gGameCursor.MapEdShape := hsSquare;
+    gCursor.MapEdShape := hsSquare;
   end;
-  if gGameCursor.MapEdShape = hsSquare then
+  if gCursor.MapEdShape = hsSquare then
   begin
     BrushCircle.Down := False;
     BrushSquare.Down := True;
   end;
 
-  gGameCursor.MapEdOverrideObjects := OverrideObjects.Checked;
-  gGameCursor.MapEdSize := BrushSize.Position;
-  gGameCursor.MapEdForestAge := ForestAge.Position;
-  gGameCursor.MapEdObjectsDensity := ForestDensity.Position;
+  gCursor.MapEdOverrideObjects := OverrideObjects.Checked;
+  gCursor.MapEdSize := BrushSize.Position;
+  gCursor.MapEdForestAge := ForestAge.Position;
+  gCursor.MapEdObjectsDensity := ForestDensity.Position;
 end;
 
 
@@ -726,11 +726,11 @@ begin
     and (aObjIndex <> OBJ_NONE_TAG) then
     Exit;
 
-  gGameCursor.Mode := cmObjects;
+  gCursor.Mode := cmObjects;
   case aObjIndex of
-    OBJ_BLOCK_TAG:  gGameCursor.Tag1 := OBJ_BLOCK; //Block
-    OBJ_NONE_TAG:   gGameCursor.Tag1 := OBJ_NONE; //Erase
-    else gGameCursor.Tag1 := fCompactToMapElem[aObjIndex];
+    OBJ_BLOCK_TAG:  gCursor.Tag1 := OBJ_BLOCK; //Block
+    OBJ_NONE_TAG:   gCursor.Tag1 := OBJ_NONE; //Erase
+    else gCursor.Tag1 := fCompactToMapElem[aObjIndex];
   end;
 
   //Remember last selected object
@@ -755,17 +755,17 @@ end;
 procedure TKMMapEdTerrainObjects.ObjectsRefresh(Sender: TObject);
 var
   I: Integer;
-  ObjIndex: Integer;
+  objIndex: Integer;
 begin
   for I := 0 to 8 do
   begin
-    ObjIndex := ObjectsScroll.Position * 3 + I;
-    if ObjIndex < fCountCompact then
+    objIndex := ObjectsScroll.Position * 3 + I;
+    if objIndex < fCountCompact then
     begin
-      ObjectsTable[I].TexID := gMapElements[fCompactToMapElem[ObjIndex]].Anim.Step[1] + 1;
-      ObjectsTable[I].Caption := IntToStr(fCompactToMapElem[ObjIndex]);
+      ObjectsTable[I].TexID := gMapElements[fCompactToMapElem[objIndex]].Anim.Step[1] + 1;
+      ObjectsTable[I].Caption := IntToStr(fCompactToMapElem[objIndex]);
 
-      UpdateObjAttributesAndDesc(ObjectsTable[I], fCompactToMapElem[ObjIndex]);
+      UpdateObjAttributesAndDesc(ObjectsTable[I], fCompactToMapElem[objIndex]);
 
       ObjectsTable[I].Enable;
     end
@@ -776,17 +776,17 @@ begin
       ObjectsTable[I].Disable;
     end;
     //Mark the selected one using reverse lookup
-    ObjectsTable[I].Down := (gGameCursor.Mode = cmObjects)
-                             and (gGameCursor.Tag1 <> OBJ_NONE)
-                             and (gGameCursor.Tag1 <> OBJ_BLOCK)
-                             and (ObjIndex = fMapElemToCompact[gGameCursor.Tag1]);
+    ObjectsTable[I].Down := (gCursor.Mode = cmObjects)
+                             and (gCursor.Tag1 <> OBJ_NONE)
+                             and (gCursor.Tag1 <> OBJ_BLOCK)
+                             and (objIndex = fMapElemToCompact[gCursor.Tag1]);
   end;
 
   for I := 0 to 9 do
-    ObjectTypeSet[I].Down := gGameCursor.MapEdObjectsType[I];
+    ObjectTypeSet[I].Down := gCursor.MapEdObjectsType[I];
 
-  ObjectErase.Down := (gGameCursor.Mode = cmObjects) and (gGameCursor.Tag1 = OBJ_NONE);  //or delete button
-  ObjectBlock.Down := (gGameCursor.Mode = cmObjects) and (gGameCursor.Tag1 = OBJ_BLOCK); //or block button
+  ObjectErase.Down := (gCursor.Mode = cmObjects) and (gCursor.Tag1 = OBJ_NONE);  //or delete button
+  ObjectBlock.Down := (gCursor.Mode = cmObjects) and (gCursor.Tag1 = OBJ_BLOCK); //or block button
 end;
 
 
@@ -891,7 +891,7 @@ begin
   if aHandled then Exit;
 
   // Reset last object on RMB click
-  if gGameCursor.Mode = cmObjects then
+  if gCursor.Mode = cmObjects then
   begin
     fLastObjectIndex := -1;
     aHandled := True;

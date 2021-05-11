@@ -1,0 +1,41 @@
+record
+	HKS04: record
+		Groups0:Integer;
+		Groups1:Integer;
+		Groups2:Integer;
+	end;
+	HKS08: record
+		Houses: array of array[0..32] of Integer; // Owner as well
+		Units: array of array[0..3] of Integer; //Only Corn and Grapes
+		Groups: array of array[0..5] of Integer; //Only Corn and Grapes
+		Roads: array of array[0..3] of Byte;
+		aDestroyedHouseData: array of array[0..3] of Byte;
+	end;
+	HKS11: record
+		HorseCount: Integer;
+	end;
+	HKS12: record
+		Groups: array of array[0..1] of Integer;
+	end;
+	HKS13: record
+		Groups: array of array[0..1] of Integer;
+	end;
+	HKS14: record
+		Groups: array of array[0..5] of Integer;
+	end;
+	HKS16: record
+		Swordman:Integer;
+		Crossbowman:Integer;
+	end;
+	HKS18: record
+		Groups: array of array[0..5] of Integer;
+	end;
+	HKS20: record
+		SwordMan: Integer;
+		CrossBowMan: Integer;
+	end;
+	HKS21: record
+		Groups: array[0..3] of Integer;
+	end;
+end;
+

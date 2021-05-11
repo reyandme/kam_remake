@@ -6,6 +6,7 @@ const
   CONFIRM_TIME = 3000;
   IDLE_TIME = 50;
   AMBIENT_TIME = 250;
+  BT = 3;
 
 
 type
@@ -18,7 +19,8 @@ var
 
   Economy, Food, Military: array[0..1] of Offer;
   OffersAllowed: array[0..1] of Boolean;
-  OffersTimer, ConfirmTimer, MilitaryOfferType: array[0..1] of Integer;
+  OffersTimer, ConfirmTimer, MilitaryOfferType,
+  LastEconomy, LastFood, LastMilitary: array[0..1] of Integer;
   Wolves: array of Integer;
   SoundAllowed: array[0..1] of Boolean;
 
@@ -403,18 +405,31 @@ begin
   if OffersTimer[P] = 1 then
   begin
     Actions.PlayOGG(P, 'Notification', 1);
-    Economy[P].Count := OfferBase + States.KaMRandomI(OfferModifier);
     Economy[P].WareType := EconomyWareType;
-    Food[P].Count := OfferBase + States.KaMRandomI(OfferModifier);
+    Economy[P].Count := OfferBase + States.KaMRandomI(OfferModifier);
     Food[P].WareType := FoodWareType;
+    Food[P].Count := OfferBase + States.KaMRandomI(OfferModifier);
+    Military[P].WareType := MilitaryWareType;
+    Military[P].Count := OfferBase + States.KaMRandomI(OfferModifier);
+    while Economy[P].WareType = LastEconomy[P] do
+    begin
+      Economy[P].Count := OfferBase + States.KaMRandomI(OfferModifier);
+      Economy[P].WareType := EconomyWareType;
+    end;
+    while Food[P].WareType = LastFood[P] do
+    begin
+      Food[P].Count := OfferBase + States.KaMRandomI(OfferModifier);
+      Food[P].WareType := FoodWareType;
+    end;
     MilitaryOfferType[P] := 0;
     if States.StatHouseTypeCount(P, 21) > 0 then 
       MilitaryOfferType[P] := States.KaMRandomI(4);
     if MilitaryOfferType[P] < 3 then
-    begin
-      Military[P].Count := OfferBase + States.KaMRandomI(OfferModifier);
-      Military[P].WareType := MilitaryWareType;
-    end;
+      while Military[P].WareType = LastMilitary[P] do
+      begin
+        Military[P].Count := OfferBase + States.KaMRandomI(OfferModifier);
+        Military[P].WareType := MilitaryWareType;
+      end;
     if MilitaryOfferType[P] = 3 then
       CheckMilitaryUnits(P);
   end;
@@ -437,12 +452,26 @@ begin
 end;
 
 
+function FindMarket(P: Integer): Integer;
+var
+  H: array of Integer;
+  I: Integer;
+begin
+  H := States.PlayerGetAllHouses(P);
+  if Length(H) <= 0 then
+    Exit;
+  for I := 0 to Length(H) - 1 do
+    if States.HouseType(H[I]) = 29 then
+      Result := H[I];
+end;
+
+
 {$COMMAND getoffer: GetPlayerOffer}
 
 
 procedure GetPlayerOffer(P, ID: Integer);
 var
-  G: Integer;
+  G, OfferID: Integer;
 begin
 
   if not Utils.InRangeI(P, 0, 1) then
@@ -454,25 +483,30 @@ begin
   if OffersTimer[P] > 0 then
     Exit;
 
-  if not Utils.InRangeI(ID, 1, 3) then
+  if not Utils.InRangeI(ID, 0, 3) then
     Exit;
 
-  case ID of
+  OfferID := ID;
+
+  if OfferID = 0 then
+    OfferID := 1 + States.KaMRandomI(3);
+
+  case OfferID of
 
     1: begin
-         Actions.GiveWares(P, Economy[P].WareType, Economy[P].Count);
+         Actions.HouseAddWaresTo(FindMarket(P), Economy[P].WareType, Economy[P].Count);
          Actions.ShowMsgFormatted(P, '<$7>', [Economy[P].Count, States.WareTypeName(Economy[P].WareType)]);
        end;
 
     2: begin
-         Actions.GiveWares(P, Food[P].WareType, Food[P].Count);
+         Actions.HouseAddWaresTo(FindMarket(P), Food[P].WareType, Food[P].Count);
          Actions.ShowMsgFormatted(P, '<$7>', [Food[P].Count, States.WareTypeName(Food[P].WareType)]);
        end;
 
     3: begin
          if MilitaryOfferType[P] < 3 then
          begin
-           Actions.GiveWares(P, Military[P].WareType, Military[P].Count)
+           Actions.HouseAddWaresTo(FindMarket(P), Military[P].WareType, Military[P].Count)
            Actions.ShowMsgFormatted(P, '<$7>', [Military[P].Count, States.WareTypeName(Military[P].WareType)]);
          end;
          if MilitaryOfferType[P] = 3 then
@@ -487,11 +521,14 @@ begin
 
   end;
 
-  if Utils.InRangeI(ID, 1, 3) then
+  if Utils.InRangeI(ID, 0, 3) then
   begin
     OffersTimer[P] := OFFER_TIME;
     ConfirmTimer[P] := CONFIRM_TIME;
     Actions.PlayOGG(P, 'Offer', 1);
+    LastEconomy[P] := Economy[P].WareType;
+    LastFood[P] := Food[P].WareType;
+    LastMilitary[P] := Military[P].WareType;
   end;
 
 end;
@@ -508,11 +545,13 @@ begin
             + IntToStr(Economy[P].Count) + ' ' + States.WareTypeName(Economy[P].WareType)
             + '|[/getoffer 2] [$A97775]<$2>[] ' + IntToStr(Food[P].Count) + ' ' + States.WareTypeName(Food[P].WareType)
             + '|[/getoffer 3] [$5065EE]<$3>[] ' + IntToStr(Military[P].Count) + ' ' + States.WareTypeName(Military[P].WareType)
+            + '|[/getoffer 0] [$382873]<$12>[]'
             + '||[$87A2EE]<$6>[]' + '||[$526615]<$10>[] ' + Utils.TimeToString(ConfirmTimer[P]);
       3:    Result := '[$52A8CF]<$0>[]||[/getoffer 1] [$369210]<$1>[] '
             + IntToStr(Economy[P].Count) + ' ' + States.WareTypeName(Economy[P].WareType)
             + '|[/getoffer 2] [$A97775]<$2>[] ' + IntToStr(Food[P].Count) + ' ' + States.WareTypeName(Food[P].WareType)
             + '|[/getoffer 3] [$5065EE]<$3>[] ' + IntToStr(Military[P].Count) + ' ' + States.UnitTypeName(Military[P].UnitType)
+            + '|[/getoffer 0] [$382873]<$12>[]'
             + '||[$87A2EE]<$6>[]' + '||[$526615]<$10>[] ' + Utils.TimeToString(ConfirmTimer[P]);
     end;
   if (OffersTimer[P] > 0)
@@ -522,9 +561,19 @@ end;
 
 
 procedure OnHouseBuilt(aID: Integer);
+var
+  O: Integer;
 begin
+  O := States.HouseOwner(aID);
+  if not Utils.InRangeI(O, 0, 1) then
+    Exit;
   if States.HouseType(aID) = 29 then
-    OffersAllowed[States.HouseOwner(aID)] := True;
+  begin
+    OffersAllowed[O] := True;
+    LastEconomy[O] := EconomyWareType;
+    LastFood[O] := FoodWareType;
+    LastMilitary[O] := MilitaryWareType;
+  end;
 end;
 
 
@@ -1018,6 +1067,12 @@ begin
 end;
 
 
+procedure UB;
+begin
+  Actions.MapTilesArraySetS(['131, 2, -1, -1, -1, 254', '131, 4, -1, -1, -1, 254', '131, 6, -1, -1, -1, 254', '131, 8, -1, -1, -1, 254', '131, 10, -1, -1, -1, 254', '134, 3, -1, -1, -1, 254', '132, 3, -1, -1, -1, 254', '132, 5, -1, -1, -1, 254', '132, 7, -1, -1, -1, 254', '132, 9, -1, -1, -1, 254', '132, 11, -1, -1, -1, 254', '134, 10, -1, -1, -1, 254', '136, 10, -1, -1, -1, 254', '138, 10, -1, -1, -1, 254', '140, 10, -1, -1, -1, 254', '142, 10, -1, -1, -1, 254', '144, 10, -1, -1, -1, 254', '135, 11, -1, -1, -1, 254', '137, 11, -1, -1, -1, 254', '139, 11, -1, -1, -1, 254', '141, 11, -1, -1, -1, 254', '143, 11, -1, -1, -1, 254'], False, False);
+end;
+
+
 procedure OnTick;
 var
   I, K: Integer;
@@ -1038,6 +1093,9 @@ begin
 
   if States.GameTime mod IDLE_TIME = 0 then
     CheckIdleGroups;
+
+  if States.GameTime mod BT = 0 then
+    UB;
 
   if States.GameTime = 2400 then
     Actions.ShowMsg(-1, '<$8>');

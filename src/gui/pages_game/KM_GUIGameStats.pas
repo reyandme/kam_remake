@@ -52,7 +52,7 @@ var
   I, K: Integer;
   HT: TKMHouseType;
   UT: TKMUnitType;
-  OffX: Integer;
+  offX: Integer;
 begin
   inherited Create;
 
@@ -71,36 +71,36 @@ begin
       with TKMBevel.Create(Panel_StatBlock[I], 0, 0, 30, 30) do
         AnchorsStretch;
 
-      OffX := 0;
+      offX := 0;
       for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do
         if StatPlan[I].HouseType[K] <> htNone then
         begin
           HT := StatPlan[I].HouseType[K];
-          Stat_HousePic[HT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, HOUSE_W, 30, 41); //Filled with [?] at start
+          Stat_HousePic[HT] := TKMImage.Create(Panel_StatBlock[I], offX, 0, HOUSE_W, 30, 41); //Filled with [?] at start
           Stat_HousePic[HT].Hint := gRes.Houses[HT].HouseName;
           Stat_HousePic[HT].ImageCenter;
           Stat_HousePic[HT].Tag := Byte(HT);
-          Stat_HouseWip[HT] := TKMLabel.Create(Panel_StatBlock[I], OffX + HOUSE_W  ,  0,  '', fntGrey, taRight);
+          Stat_HouseWip[HT] := TKMLabel.Create(Panel_StatBlock[I], offX + HOUSE_W  ,  0,  '', fntGrey, taRight);
           Stat_HouseWip[HT].Hitable := False;
-          Stat_HouseQty[HT] := TKMLabel.Create(Panel_StatBlock[I], OffX + HOUSE_W-2, 16, '-', fntGrey, taRight);
+          Stat_HouseQty[HT] := TKMLabel.Create(Panel_StatBlock[I], offX + HOUSE_W-2, 16, '-', fntGrey, taRight);
           Stat_HouseQty[HT].Hitable := False;
-          Inc(OffX, HOUSE_W);
+          Inc(offX, HOUSE_W);
         end;
 
       for K := Low(StatPlan[I].UnitType) to High(StatPlan[I].UnitType) do
         if StatPlan[I].UnitType[K] <> utNone then
         begin
           UT := StatPlan[I].UnitType[K];
-          Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, UNIT_W, 30, gRes.Units[UT].GUIIcon);
+          Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], offX, 0, UNIT_W, 30, gRes.Units[UT].GUIIcon);
           Stat_UnitPic[UT].Hint := gRes.Units[UT].GUIName;
           Stat_UnitPic[UT].ImageCenter;
-          Stat_UnitWip[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + UNIT_W  ,  0,  '', fntGrey, taRight);
+          Stat_UnitWip[UT] := TKMLabel.Create(Panel_StatBlock[I], offX + UNIT_W  ,  0,  '', fntGrey, taRight);
           Stat_UnitWip[UT].Hitable := False;
-          Stat_UnitQty[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + UNIT_W-2, 16, '-', fntGrey, taRight);
+          Stat_UnitQty[UT] := TKMLabel.Create(Panel_StatBlock[I], offX + UNIT_W-2, 16, '-', fntGrey, taRight);
           Stat_UnitQty[UT].Hitable := False;
-          Inc(OffX, UNIT_W);
+          Inc(offX, UNIT_W);
         end;
-      Panel_StatBlock[I].Width := OffX;
+      Panel_StatBlock[I].Width := offX;
     end;
     Button_ShowStats  := TKMButtonFlat.Create(Panel_Stats, TB_WIDTH - 30, 0, 30, 30, 669, rxGui);
     Button_ShowStats.OnClick := fOnShowStats;
@@ -123,41 +123,41 @@ const
   PAD_X = 4;
   PAD_Y = 4;
 var
-  Rows: Integer;
   I, K: Integer;
-  OffX, NextWidth, LineHeight: Integer;
-  NeedToCompact: Boolean;
+  rows: Integer;
+  offX, nextWidth, lineHeight: Integer;
+  needToCompact: Boolean;
 begin
-  LineHeight := Panel_StatBlock[0].Height + PAD_Y;
+  lineHeight := Panel_StatBlock[0].Height + PAD_Y;
   //How many rows could fit
-  Rows := Panel_Stats.Height div (LineHeight);
+  rows := Panel_Stats.Height div (lineHeight);
 
   //Reposition ShowStats button
-  if Rows >= 12 then
+  if rows >= 12 then
     Button_ShowStats.Top := 0
-  else if Rows = 11 then
-    Button_ShowStats.Top := LineHeight
+  else if rows = 11 then
+    Button_ShowStats.Top := lineHeight
   else
-    Button_ShowStats.Top := 2 * LineHeight;
+    Button_ShowStats.Top := 2 * lineHeight;
 
   //Adjoin rows till they fit
   K := 0;
-  OffX := 0;
+  offX := 0;
   for I := 0 to High(StatPlan) do
   begin
-    Panel_StatBlock[I].Left := OffX;
-    Panel_StatBlock[I].Top := K * LineHeight;
+    Panel_StatBlock[I].Left := offX;
+    Panel_StatBlock[I].Top := K * lineHeight;
 
-    Inc(OffX, PAD_X + Panel_StatBlock[I].Width);
+    Inc(offX, PAD_X + Panel_StatBlock[I].Width);
 
     //Return caret
     if I <> High(StatPlan) then
     begin
-      NeedToCompact := (Length(StatPlan) - I) > (Rows - K);
-      NextWidth := Panel_StatBlock[I].Width + PAD_X;
-      if not NeedToCompact or (OffX + NextWidth > TB_WIDTH) then
+      needToCompact := (Length(StatPlan) - I) > (rows - K);
+      nextWidth := Panel_StatBlock[I].Width + PAD_X;
+      if not needToCompact or (offX + nextWidth > TB_WIDTH) then
       begin
-        OffX := 0;
+        offX := 0;
         Inc(K);
       end;
     end;
@@ -167,26 +167,26 @@ end;
 
 procedure TKMGUIGameStats.UpdateState;
 var
+  I, K: Integer;
   HT: TKMHouseType;
   UT: TKMUnitType;
-  Qty, WipQty, HTotalConstrOpenedQty: Integer;
-  I,K: Integer;
-  DoHighlight: Boolean;
+  qty, wipQty, hTotalConstrOpenedQty: Integer;
+  doHighlight: Boolean;
 begin
   //Update display values
   for I := 0 to High(StatPlan) do
   begin
-    HTotalConstrOpenedQty := 0;
+    hTotalConstrOpenedQty := 0;
     for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do
     if not (StatPlan[I].HouseType[K] in [htNone, htAny]) then
     begin
       HT := StatPlan[I].HouseType[K];
-      Qty := gMySpectator.Hand.Stats.GetHouseQty(HT);
-      WipQty := gMySpectator.Hand.Stats.GetHouseWip(HT);
-      HTotalConstrOpenedQty := HTotalConstrOpenedQty + gMySpectator.Hand.Stats.GetHouseOpenedQty(HT); // count total constructed OPENED houses
-      Stat_HouseQty[HT].Caption := IfThen(Qty  = 0, '-', IntToStr(Qty));
-      Stat_HouseWip[HT].Caption := IfThen(WipQty = 0, '', '+' + IntToStr(WipQty));
-      if gMySpectator.Hand.Locks.HouseCanBuild(HT) or (Qty > 0) then
+      qty := gMySpectator.Hand.Stats.GetHouseQty(HT);
+      wipQty := gMySpectator.Hand.Stats.GetHouseWip(HT);
+      hTotalConstrOpenedQty := hTotalConstrOpenedQty + gMySpectator.Hand.Stats.GetHouseOpenedQty(HT); // count total constructed OPENED houses
+      Stat_HouseQty[HT].Caption := IfThen(qty  = 0, '-', IntToStr(qty));
+      Stat_HouseWip[HT].Caption := IfThen(wipQty = 0, '', '+' + IntToStr(wipQty));
+      if gMySpectator.Hand.Locks.HouseCanBuild(HT) or (qty > 0) then
       begin
         Stat_HousePic[HT].TexID := gRes.Houses[HT].GUIIcon;
         Stat_HousePic[HT].Hint := gRes.Houses[HT].HouseName;
@@ -196,7 +196,7 @@ begin
         Stat_HousePic[HT].TexID := 41;
         Stat_HousePic[HT].Hint := gResTexts[TX_HOUSE_NOT_AVAILABLE]; //Building not available
       end;
-      if Qty + WipQty > 0 then
+      if qty + wipQty > 0 then
       begin
         Stat_HousePic[HT].HighlightOnMouseOver := True;
         Stat_HousePic[HT].OnClick := House_Stat_Clicked;
@@ -210,20 +210,20 @@ begin
     if StatPlan[I].UnitType[K] <> utNone then
     begin
       UT := StatPlan[I].UnitType[K];
-      Qty := gMySpectator.Hand.Stats.GetUnitQty(UT);
-      WipQty := gMySpectator.Hand.Stats.GetUnitWip(UT);
+      qty := gMySpectator.Hand.Stats.GetUnitQty(UT);
+      wipQty := gMySpectator.Hand.Stats.GetUnitWip(UT);
 
       // Hightlight unit qty, when there are not enough workers
-      DoHighlight := (I < High(StatPlan) - 1) // do not highlight last 2 rows - Barracks/Watch tower and Storehouse/Inn/School
-        and (HTotalConstrOpenedQty > Qty + WipQty);
+      doHighlight := (I < High(StatPlan) - 1) // do not highlight last 2 rows - Barracks/Watch tower and Storehouse/Inn/School
+        and (hTotalConstrOpenedQty > qty + wipQty);
 
-      if DoHighlight then
+      if doHighlight then
         Stat_UnitQty[UT].FontColor := clStatsUnitMissingHL
       else
         Stat_UnitQty[UT].FontColor := clStatsUnitDefault;
 
-      Stat_UnitQty[UT].Caption := IfThen(not DoHighlight and (Qty  = 0), '-', IntToStr(Qty));
-      Stat_UnitWip[UT].Caption := IfThen(WipQty = 0, '', '+' + IntToStr(WipQty));
+      Stat_UnitQty[UT].Caption := IfThen(not doHighlight and (qty  = 0), '-', IntToStr(qty));
+      Stat_UnitWip[UT].Caption := IfThen(wipQty = 0, '', '+' + IntToStr(wipQty));
       Stat_UnitPic[UT].Hint := gRes.Units[UT].GUIName;
       Stat_UnitPic[UT].FlagColor := gMySpectator.Hand.FlagColor;
     end;

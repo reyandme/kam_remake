@@ -198,7 +198,7 @@ end;
 // Read mission file to a string and if necessary - decode it
 function TKMMissionParserCommon.ReadMissionFile(const aFileName: string): AnsiString;
 var
-  I, Num: Cardinal;
+  I, num: Cardinal;
   F: TMemoryStream;
 begin
   if not FileExists(aFileName) then
@@ -214,13 +214,13 @@ begin
 
     //Detect whether mission is encoded so we can support decoded/encoded .DAT files
     //We can't test 1st char, it can be any. Instead see how often common chracters meet
-    Num := 0;
+    num := 0;
     for I := 0 to F.Size - 1 do           //tab, eol, 0..9, space, !
       if PByte(Cardinal(F.Memory)+I)^ in [9,10,13,ord('0')..ord('9'),$20,$21] then
-        inc(Num);
+        inc(num);
 
     //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
-    if (Num/F.Size < 0.20) then
+    if (num/F.Size < 0.20) then
     for I := 0 to F.Size - 1 do
       PByte(Cardinal(F.Memory)+I)^ := PByte(Cardinal(F.Memory)+I)^ xor 239;
 
@@ -232,20 +232,20 @@ begin
       if PByte(Cardinal(F.Memory)+I)^ in [9, 10, 13] then //tab, eol
         PByte(Cardinal(F.Memory)+I)^ := $20; //Space
 
-    Num := 0;
+    num := 0;
     for I := 0 to F.Size - 1 do
     begin
-      PByte(Cardinal(F.Memory)+Num)^ := PByte(Cardinal(F.Memory)+I)^;
-      if (Num <= 0)
+      PByte(Cardinal(F.Memory)+num)^ := PByte(Cardinal(F.Memory)+I)^;
+      if (num <= 0)
       or (
-          (PWord(Cardinal(F.Memory) + Num-1)^ <> $2020) //Skip double spaces and !!
-      and (PWord(Cardinal(F.Memory) + Num-1)^ <> $2121)) then
-        Inc(Num);
+          (PWord(Cardinal(F.Memory) + num-1)^ <> $2020) //Skip double spaces and !!
+      and (PWord(Cardinal(F.Memory) + num-1)^ <> $2121)) then
+        Inc(num);
     end;
 
-    SetLength(Result, Num); //Because some extra characters were removed
+    SetLength(Result, num); //Because some extra characters were removed
     F.Position := 0;
-    F.ReadBuffer(Result[1], Num);
+    F.ReadBuffer(Result[1], num);
   finally
     F.Free;
   end;
@@ -255,11 +255,10 @@ end;
 
 procedure TKMMissionParserCommon.TokenizeScript(const aText: AnsiString; aMaxCmd: Byte; aCommands: array of AnsiString);
 var
+  I, J, K, intParam: Integer;
   commandText, strParam, textParam: AnsiString;
   paramList: array of Integer;
-  I, K, intParam: Integer;
   commandType: TKMCommandType;
-  J: Integer;
   doProcess: Boolean;
 begin
   SetLength(paramList, aMaxCmd);

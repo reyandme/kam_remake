@@ -1,4 +1,6 @@
 @REM
+echo called 7z.bat
+
 call get_kam_folder.bat
 
 REM ============================================================

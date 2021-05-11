@@ -1,5 +1,11 @@
+Author
+Random Lyrics
+
+Version
+1.31
+
 BigDesc
-Become the richest merchant in the town! Earn 30 000 coins first by trading wares.||Check the Readme PDF before playing.||Map by Random Lyrics / Randziu ; Sado
+Become the richest merchant in the town! Earn 30 000 coins first by trading wares.||Check the Readme PDF before playing.||Original script by [$008CFF]Random Lyrics/Randziu[$FFFFFF]; map by [$008CFF]sado[$FFFFFF]|Version 1.31 credits:|- Technical script support: [$008CFF]Diedes, sado[$FFFFFF]|- Report/ideas: [$008CFF]Jomancool55, Alchemist[$FFFFFF]|- Texts/map updates: [$008CFF]Alchemist[$FFFFFF]||List of changes in .script file.
 
 SetSpecial
 

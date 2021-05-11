@@ -2,8 +2,7 @@ unit KM_Campaigns;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes,
-  System.Generics.Collections,
+  Classes, Generics.Collections,
   KM_ResTexts, KM_Pics, KM_Maps, KM_MapTypes, KM_CampaignTypes,
   KM_CommonClasses, KM_Points;
 
@@ -98,7 +97,7 @@ type
   private
     fActiveCampaign: TKMCampaign; //Campaign we are playing
     fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
-    fList: TList;
+    fList: TList<TKMCampaign>;
     function GetCampaign(aIndex: Integer): TKMCampaign;
     procedure AddCampaign(const aPath: UnicodeString);
 
@@ -203,7 +202,7 @@ constructor TKMCampaignsCollection.Create;
 begin
   inherited Create;
 
-  fList := TList.Create;
+  fList := TList<TKMCampaign>.Create;
 end;
 
 
@@ -233,20 +232,20 @@ end;
 //Scan campaigns folder
 procedure TKMCampaignsCollection.ScanFolder(const aPath: UnicodeString);
 var
-  SearchRec: TSearchRec;
+  searchRec: TSearchRec;
 begin
   if not DirectoryExists(aPath) then Exit;
 
-  FindFirst(aPath + '*', faDirectory, SearchRec);
+  FindFirst(aPath + '*', faDirectory, searchRec);
   try
     repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-      and (SearchRec.Attr and faDirectory = faDirectory)
-      and FileExists(aPath + SearchRec.Name + PathDelim+'info.cmp') then
-        AddCampaign(aPath + SearchRec.Name + PathDelim);
-    until (FindNext(SearchRec) <> 0);
+      if (searchRec.Name <> '.') and (searchRec.Name <> '..')
+      and (searchRec.Attr and faDirectory = faDirectory)
+      and FileExists(aPath + searchRec.Name + PathDelim + 'info.cmp') then
+        AddCampaign(aPath + searchRec.Name + PathDelim);
+    until (FindNext(searchRec) <> 0);
   finally
-    FindClose(SearchRec);
+    FindClose(searchRec);
   end;
 
   SortCampaigns;
@@ -268,7 +267,8 @@ procedure TKMCampaignsCollection.SortCampaigns;
     else                            Result := False;
   end;
 
-var I, K: Integer;
+var
+  I, K: Integer;
 begin
   for I := 0 to Count - 1 do
     for K := I to Count - 1 do
@@ -298,8 +298,8 @@ var
   I, J, campCount: Integer;
   campName: TKMCampaignId;
   unlocked: Byte;
-  HasScriptData: Boolean;
-  ScriptDataSize: Cardinal;
+  hasScriptData: Boolean;
+  scriptDataSize: Cardinal;
 begin
   if not FileExists(aFileName) then Exit;
 
@@ -312,7 +312,7 @@ begin
     if (I <> CAMP_HEADER_V1)
       and (I <> CAMP_HEADER_V2)
       and (I <> CAMP_HEADER_V3) then Exit;
-    HasScriptData := (I = CAMP_HEADER_V3);
+    hasScriptData := (I = CAMP_HEADER_V3);
 
     M.Read(campCount);
     for I := 0 to campCount - 1 do
@@ -331,11 +331,11 @@ begin
         end;
 
         C.ScriptData.Clear;
-        if HasScriptData then
+        if hasScriptData then
         begin
-          M.Read(ScriptDataSize);
-          C.ScriptData.Write(Pointer(Cardinal(M.Memory) + M.Position)^, ScriptDataSize);
-          M.Seek(ScriptDataSize, soCurrent); //Seek past script data
+          M.Read(scriptDataSize);
+          C.ScriptData.Write(Pointer(Cardinal(M.Memory) + M.Position)^, scriptDataSize);
+          M.Seek(scriptDataSize, soCurrent); //Seek past script data
         end;
       end;
     end;
@@ -347,13 +347,13 @@ end;
 
 procedure TKMCampaignsCollection.SaveProgress;
 var
+  I, J: Integer;
   M: TKMemoryStream;
-  I,J: Integer;
-  FilePath: UnicodeString;
+  filePath: UnicodeString;
 begin
-  FilePath := ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat';
+  filePath := ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat';
   //Makes the folder incase it is missing
-  ForceDirectories(ExtractFilePath(FilePath));
+  ForceDirectories(ExtractFilePath(filePath));
 
   M := TKMemoryStreamBinary.Create;
   try
@@ -373,7 +373,7 @@ begin
         M.Write(Campaigns[I].ScriptData.Memory^, Campaigns[I].ScriptData.Size);
       end;
 
-    M.SaveToFile(FilePath);
+    M.SaveToFile(filePath);
   finally
     M.Free;
   end;
@@ -384,8 +384,8 @@ end;
 
 procedure TKMCampaignsCollection.Load;
 begin
-  ScanFolder({ExeDir +} CAMPAIGNS_FOLDER_NAME + PathDelim);
-  LoadProgress({ExeDir +} SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
+  ScanFolder(ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim);
+  LoadProgress(ExeDir + SAVES_FOLDER_NAME + PathDelim + 'Campaigns.dat');
 end;
 
 

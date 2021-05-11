@@ -24,10 +24,10 @@ var
 implementation
 uses
   SysUtils,
-  KM_FileIO,
-  KM_Game,
+  KM_FileIO, KM_Cursor,
+  KM_GameApp, KM_Game,
   KM_Log, KM_ResTexts, KM_Defaults, KM_Points,
-  KM_CommonExceptions;
+  KM_CommonExceptions, KM_Settings, KM_GameAppSettings, KM_ServerSettings;
 
 
 { TKMExceptions }
@@ -94,16 +94,30 @@ end;
 
 
 procedure TKMExceptions.DoException(const ExceptIntf: IMEException; var Handled: boolean);
-var LogMessage, CrashFile: string;
-    settingsSavePath: string;
+
+var
+  crashFile: string;
+
+  procedure AttachFile(const aFile: UnicodeString);
+  begin
+    if (aFile <> '') and FileExists(aFile) then
+    begin
+      ExceptIntf.AdditionalAttachments.Add(aFile, '', crashFile);
+      gLog.AddTime('Attached file: ' + aFile);
+    end;
+  end;
+
+var
+  logMessage: string;
+  sharedSettingsPath: string;
 begin
   if gLog = nil then Exit; //Could crash very early before even the log file is created
 
   //It's nice to know when the exception happened in our log if the user decides to play on and sends the report later
-  LogMessage := 'Exception occurred: ' + ExceptIntf.ExceptClass + ': ' + ExceptIntf.ExceptMessage;
+  logMessage := 'Exception occurred: ' + ExceptIntf.ExceptClass + ': ' + ExceptIntf.ExceptMessage;
   if ExceptIntf.ExceptObject is ELocError then
-    LogMessage := LogMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
-  gLog.AddTime(LogMessage);
+    logMessage := logMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
+  gLog.AddTime(logMessage);
   gLog.AddNoTime('================================================================================');
   gLog.AddNoTime('                                START BUG REPORT                                ');
   gLog.AddNoTime('================================================================================');
@@ -115,28 +129,55 @@ begin
   //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
   //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.
   if gResTexts <> nil then
-    ExceptIntf.ExceptMsg := gResTexts[TX_ERROR_MESSAGE]+#13#10+#13#10+LogMessage
+    ExceptIntf.ExceptMsg := gResTexts[TX_ERROR_MESSAGE]+#13#10+#13#10+logMessage
   else
     //Still need a sensible message if gResTexts failed to load for some reason. ENG is default
-    ExceptIntf.ExceptMsg := 'An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!'+#13#10+#13#10+LogMessage;
+    ExceptIntf.ExceptMsg := 'An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!'+#13#10+#13#10+logMessage;
 
   //We want to add some of our own files to the report
-  CrashFile := 'KaM_Crash_' + UnicodeString(GAME_REVISION) + '_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss', Now) + '.zip';
-  MESettings.BugReportZip := CrashFile; //Exception info also goes in the zip
-  MESettings.ScreenShotZip := CrashFile; //Screenshot also goes in the zip
+  crashFile := 'KaM_Crash_' + UnicodeString(GAME_REVISION) + '_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss', Now) + '.zip';
+  MESettings.BugReportZip := crashFile; //Exception info also goes in the zip
+  MESettings.ScreenShotZip := crashFile; //Screenshot also goes in the zip
 
-  if gGame <> nil then gGame.AttachCrashReport(ExceptIntf, CrashFile);
+  if gGame <> nil then
+    gGame.AttachCrashReport(ExceptIntf, crashFile);
 
   //Do the log after fGame because fGame adds stuff to the log
-  if gLog <> nil then ExceptIntf.AdditionalAttachments.Add(gLog.LogPath, '', CrashFile);
+  if gLog <> nil then
+  begin
+    if gGameApp <> nil then
+      gLog.AddTime(Format('UI at crash time: MainPanel sizes: %s, cursor pos: %s, ' + sLineBreak +
+                          'CtrlDown = %s' + sLineBreak +
+                          'CtrlOver = %s' + sLineBreak +
+                          'CtrlUp = %s' + sLineBreak + 'CtrlFocus = %s',
+                          [gGameApp.ActiveInterface.GetMainPanelSize.ToString,
+                           gCursor.Pixel.ToString,
+                           gGameApp.ActiveInterface.MyControls.CtrlDown.ToStr,
+                           gGameApp.ActiveInterface.MyControls.CtrlOver.ToStr,
+                           gGameApp.ActiveInterface.MyControls.CtrlUp.ToStr,
+                           gGameApp.ActiveInterface.MyControls.CtrlFocus.ToStr]));
+
+    AttachFile(gLog.LogPath);
+  end;
+
+  sharedSettingsPath := TKMSettings.GetDir;
 
   //Do settings here not in fGame because we could crash before fGame is created
-  settingsSavePath := GetDocumentsSavePath;
-  if FileExists(settingsSavePath + SETTINGS_FILE) then
-    ExceptIntf.AdditionalAttachments.Add(settingsSavePath + SETTINGS_FILE, '', CrashFile);
+  if gGameAppSettings <> nil then
+    AttachFile(gGameAppSettings.Path)
+  else
+  begin
+    AttachFile(sharedSettingsPath + SETTINGS_FILE);
+    AttachFile(ExeDir + SETTINGS_FILE);
+  end;
 
-  if FileExists(settingsSavePath + SERVER_SETTINGS_FILE) then
-    ExceptIntf.AdditionalAttachments.Add(settingsSavePath + SERVER_SETTINGS_FILE, '', CrashFile);
+  if gServerSettings <> nil then
+    ExceptIntf.AdditionalAttachments.Add(gServerSettings.Path, '', crashFile)
+  else
+  begin
+    AttachFile(sharedSettingsPath + SERVER_SETTINGS_FILE);
+    AttachFile(ExeDir + SERVER_SETTINGS_FILE);
+  end;
 end;
 
 

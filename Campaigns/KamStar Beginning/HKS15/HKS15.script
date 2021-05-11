@@ -1,0 +1,14 @@
+ {$I difficulty.script}{$I Language.script}
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []); end;
+	if States.GameTime = 400 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []); end;
+	if States.GameTime = 700 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+end;

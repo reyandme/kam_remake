@@ -66,17 +66,17 @@ end;
 
 procedure TKMMapEdMarkerReveal.Marker_Change(Sender: TObject);
 var
-  Rev: TKMPointTagList;
+  rev: TKMPointTagList;
 begin
   //Shortcut to structure we update
-  Rev := gGame.MapEditor.Revealers[fOwner];
+  rev := gGame.MapEditor.Revealers[fOwner];
 
   if Sender = TrackBar_RevealSize then
-    Rev.Tag[fIndex] := TrackBar_RevealSize.Position;
+    rev.Tag[fIndex] := TrackBar_RevealSize.Position;
 
   if Sender = Button_RevealDelete then
   begin
-    Rev.Delete(fIndex);
+    rev.Delete(fIndex);
     Hide;
     fOnDone(Self);
   end;

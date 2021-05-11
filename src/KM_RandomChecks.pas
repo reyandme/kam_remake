@@ -119,12 +119,12 @@ end;
 
 function TKMRandomCheckLogger.GetCallerID(const aCaller: AnsiString; aValue: Extended; aValueType: TKMLogRngType): Byte;
 var
-  CallerPair: TPair<Byte, AnsiString>;
+  callerPair: TPair<Byte, AnsiString>;
 begin
-  for CallerPair in fCallers do
+  for callerPair in fCallers do
   begin
-    if CallerPair.Value = aCaller then
-      Exit(CallerPair.Key);
+    if callerPair.Value = aCaller then
+      Exit(callerPair.Key);
   end;
 
   Result := fCallers.Count;
@@ -212,7 +212,7 @@ end;
 procedure TKMRandomCheckLogger.SaveTickToStream(aStream: TKMemoryStream; aRngChecksInTick: TKMRLRecordList);
 var
   I: Integer;
-  RngValueType: TKMLogRngType;
+  rngValueType: TKMLogRngType;
 begin
   if (Self = nil) or not fEnabled then Exit;
 
@@ -222,10 +222,10 @@ begin
   for I := 0 to aRngChecksInTick.Count - 1 do
   begin
     aStream.Write(aRngChecksInTick[I].Seed);
-    RngValueType := aRngChecksInTick[I].ValueType;
-    aStream.Write(RngValueType, SizeOf(RngValueType));
+    rngValueType := aRngChecksInTick[I].ValueType;
+    aStream.Write(rngValueType, SizeOf(rngValueType));
     aStream.Write(aRngChecksInTick[I].CallerId);
-    case RngValueType of
+    case rngValueType of
       lrtInt:     aStream.Write(aRngChecksInTick[I].ValueI);
       lrtSingle:  aStream.Write(aRngChecksInTick[I].ValueS);
       lrtExt:     aStream.Write(aRngChecksInTick[I].ValueE);
@@ -262,8 +262,8 @@ end;
 procedure TKMRandomCheckLogger.LoadHeader(aLoadStream: TKMemoryStream);
 var
   I, Count: Integer;
-  CallerId: Byte;
-  CallerName: AnsiString;
+  callerId: Byte;
+  callerName: AnsiString;
 begin
   if (Self = nil) then Exit;
 
@@ -271,9 +271,9 @@ begin
   aLoadStream.Read(Count);
   for I := 0 to Count - 1 do
   begin
-    aLoadStream.Read(CallerId);
-    aLoadStream.ReadA(CallerName);
-    fCallers.Add(CallerId, CallerName);
+    aLoadStream.Read(callerId);
+    aLoadStream.ReadA(callerName);
+    fCallers.Add(callerId, callerName);
   end;
   aLoadStream.CheckMarker('KaMRandom_calls');
   aLoadStream.Read(fSavedTicksCnt);
@@ -284,7 +284,7 @@ procedure TKMRandomCheckLogger.LoadFromPath(const aPath: String);
 var
   I: Integer;
   tickStreamSize: Cardinal;
-  LoadStream, tickStream: TKMemoryStream;
+  loadStream, tickStream: TKMemoryStream;
 begin
   if Self = nil then Exit;
 
@@ -295,25 +295,25 @@ begin
   end;
 
   Clear;
-  LoadStream := TKMemoryStreamBinary.Create;
+  loadStream := TKMemoryStreamBinary.Create;
   try
-    LoadStream.LoadFromFileCompressed(aPath, 'RNGCompressed');
+    loadStream.LoadFromFileCompressed(aPath, 'RNGCompressed');
 
-    LoadHeader(LoadStream);
+    LoadHeader(loadStream);
 
     for I := 0 to fSavedTicksCnt - 1 do
     begin
       tickStream := TKMemoryStreamBinary.Create;
 
-      LoadStream.Read(tickStreamSize);
-      tickStream.CopyFrom(LoadStream, tickStreamSize);
+      loadStream.Read(tickStreamSize);
+      tickStream.CopyFrom(loadStream, tickStreamSize);
 
       fTickStreamQueue.Enqueue(tickStream);
     end;
 
 //    fSaveStream.CopyFrom(LoadStream, LoadStream.Size - LoadStream.Position);
   finally
-    LoadStream.Free;
+    loadStream.Free;
   end;
 end;
 
@@ -330,7 +330,7 @@ end;
 
 procedure TKMRandomCheckLogger.LoadFromPathAndParseToDict(const aPath: String);
 var
-  LoadStream: TKMemoryStream;
+  loadStream: TKMemoryStream;
 begin
   if Self = nil then Exit;
 
@@ -340,12 +340,12 @@ begin
     Exit;
   end;
 
-  LoadStream := TKMemoryStreamBinary.Create;
+  loadStream := TKMemoryStreamBinary.Create;
   try
-    LoadStream.LoadFromFileCompressed(aPath, 'RNGCompressed');
-    LoadFromStreamAndParseToDict(LoadStream);
+    loadStream.LoadFromFileCompressed(aPath, 'RNGCompressed');
+    LoadFromStreamAndParseToDict(loadStream);
   finally
-    LoadStream.Free;
+    loadStream.Free;
   end;
 end;
 
@@ -367,42 +367,42 @@ end;
 
 procedure TKMRandomCheckLogger.ParseStreamToDict(aLoadStream: TKMemoryStream);
 var
-  LogRec: TKMRngLogRecord;
+  logRec: TKMRngLogRecord;
 
   procedure ClearLogRec;
   begin
     //@Rey: Consider using LogRec := default(TKMRngLogRecord);
-    LogRec.ValueI := 0;
-    LogRec.ValueS := 0;
-    LogRec.ValueE := 0;
-    LogRec.CallerId := 0;
-    LogRec.ValueType := lrtNone;
+    logRec.ValueI := 0;
+    logRec.ValueS := 0;
+    logRec.ValueE := 0;
+    logRec.CallerId := 0;
+    logRec.ValueType := lrtNone;
   end;
 
 var
-  I, K, CountInTick: Integer;
-  Tick, tickStreamSize: Cardinal;
+  I, K, countInTick: Integer;
+  tick, tickStreamSize: Cardinal;
 begin
   for I := 0 to fSavedTicksCnt - 1 do
   begin
     aLoadStream.Read(tickStreamSize); // load tick stream size and omit it, we don't use it here
 
-    aLoadStream.Read(Tick);
-    aLoadStream.Read(CountInTick);
+    aLoadStream.Read(tick);
+    aLoadStream.Read(countInTick);
 
-    for K := 0 to CountInTick - 1 do
+    for K := 0 to countInTick - 1 do
     begin
       ClearLogRec;
-      aLoadStream.Read(LogRec.Seed);
-      aLoadStream.Read(LogRec.ValueType, SizeOf(LogRec.ValueType));
-      aLoadStream.Read(LogRec.CallerId);
+      aLoadStream.Read(logRec.Seed);
+      aLoadStream.Read(logRec.ValueType, SizeOf(logRec.ValueType));
+      aLoadStream.Read(logRec.CallerId);
 
-      case LogRec.ValueType of
-        lrtInt:     aLoadStream.Read(LogRec.ValueI);
-        lrtSingle:  aLoadStream.Read(LogRec.ValueS);
-        lrtExt:     aLoadStream.Read(LogRec.ValueE);
+      case logRec.ValueType of
+        lrtInt:     aLoadStream.Read(logRec.ValueI);
+        lrtSingle:  aLoadStream.Read(logRec.ValueS);
+        lrtExt:     aLoadStream.Read(logRec.ValueE);
       end;
-      AddRecordToDict(Tick, LogRec);
+      AddRecordToDict(tick, logRec);
     end;
   end;
 end;
@@ -418,43 +418,43 @@ end;
 {$IFDEF WDC OR FPC_FULLVERSION >= 30200}
 procedure TKMRandomCheckLogger.SaveToPathAsync(const aPath: String; aWorkerThread: TKMWorkerThread);
 var
-  SaveStream, TickStream: TKMemoryStream;
+  saveStream, tickStream: TKMemoryStream;
 //  CompressionStream: TCompressionStream;
-  CallerPair: TPair<Byte, AnsiString>;
+  callerPair: TPair<Byte, AnsiString>;
   enumerator: TEnumerator<TKMemoryStream>;
 begin
   if (Self = nil) then Exit;
 
-  SaveStream := TKMemoryStreamBinary.Create;
+  saveStream := TKMemoryStreamBinary.Create;
 
   // Allocate memory for save stream, could save up to 25% of save time
-  SaveStream.SetSize(MakePOT(fTickStreamQueue.Count * 2 * 1024));
+  saveStream.SetSize(MakePOT(fTickStreamQueue.Count * 2 * 1024));
 
-  SaveStream.PlaceMarker('CallersTable');
-  SaveStream.Write(Integer(fCallers.Count));
+  saveStream.PlaceMarker('CallersTable');
+  saveStream.Write(Integer(fCallers.Count));
 
-  for CallerPair in fCallers do
+  for callerPair in fCallers do
   begin
-    SaveStream.Write(CallerPair.Key);
-    SaveStream.WriteA(CallerPair.Value);
+    saveStream.Write(callerPair.Key);
+    saveStream.WriteA(callerPair.Value);
   end;
 
-  SaveStream.PlaceMarker('KaMRandom_calls');
+  saveStream.PlaceMarker('KaMRandom_calls');
 
-  SaveStream.Write(Integer(fSavedTicksCnt));
+  saveStream.Write(Integer(fSavedTicksCnt));
 
   enumerator := fTickStreamQueue.GetEnumerator;
 
   while enumerator.MoveNext do
   begin
-    TickStream := enumerator.Current;
-    SaveStream.Write(Cardinal(TickStream.Size));
-    SaveStream.CopyFrom(TickStream, 0);
+    tickStream := enumerator.Current;
+    saveStream.Write(Cardinal(tickStream.Size));
+    saveStream.CopyFrom(tickStream, 0);
   end;
 
   enumerator.Free;
 
-  SaveStream.TrimToPosition;
+  saveStream.TrimToPosition;
 //  SaveStream.CopyFrom(fSaveStream, 0);
 
 //  for LogPair in fRngLog do
@@ -471,7 +471,7 @@ begin
   //SaveStream now contains the compressed data from SourceStream
 //  CompressionStream.Free;
 
-  TKMemoryStream.AsyncSaveToFileCompressedAndFree(SaveStream, aPath, 'RNGCompressed', aWorkerThread);
+  TKMemoryStream.AsyncSaveToFileCompressedAndFree(saveStream, aPath, 'RNGCompressed', aWorkerThread);
 end;
 {$ENDIF}
 
@@ -479,55 +479,55 @@ end;
 procedure TKMRandomCheckLogger.SaveAsText(const aPath: String);
 var
 //  LogPair: TPair<Cardinal, TList<TKMRngLogRecord>>;
-  I, Cnt: Integer;
-  KeyTick: Cardinal;
+  I, cnt: Integer;
+  keyTick: Cardinal;
   SL: TStringList;
-  S, ValS: String;
-  CallersIdList: TList<Byte>;
-  CallerId: Byte;
-  LogTicksList: TList<Cardinal>;
-  LogRecList: TList<TKMRngLogRecord>;
+  S, valS: String;
+  callersIdList: TList<Byte>;
+  callerId: Byte;
+  logTicksList: TList<Cardinal>;
+  logRecList: TList<TKMRngLogRecord>;
 begin
   if Self = nil then Exit;
   
-  Cnt := 0;
+  cnt := 0;
   SL := TStringList.Create;
   try
-    CallersIdList := TList<Byte>.Create(fCallers.Keys);
+    callersIdList := TList<Byte>.Create(fCallers.Keys);
     try
-      SL.Add('Callers: ' + IntToStr(CallersIdList.Count));
-      CallersIdList.Sort;
-      for CallerId in CallersIdList do
-        SL.Add(Format('%d - %s', [CallerId, fCallers[CallerId]]));
+      SL.Add('Callers: ' + IntToStr(callersIdList.Count));
+      callersIdList.Sort;
+      for callerId in callersIdList do
+        SL.Add(Format('%d - %s', [callerId, fCallers[callerId]]));
     finally
-      CallersIdList.Free;
+      callersIdList.Free;
     end;
 
-    LogTicksList := TList<Cardinal>.Create(fRngLog.Keys);
+    logTicksList := TList<Cardinal>.Create(fRngLog.Keys);
     try
-      SL.Add('LogRngRecords: ' + IntToStr(LogTicksList.Count) + ' ticks');
-      LogTicksList.Sort;
-      for KeyTick in LogTicksList do
+      SL.Add('LogRngRecords: ' + IntToStr(logTicksList.Count) + ' ticks');
+      logTicksList.Sort;
+      for keyTick in logTicksList do
       begin
-        LogRecList := fRngLog[KeyTick];
-        SL.Add(Format('Tick: %d, Tick Rng Count: %d', [KeyTick, LogRecList.Count]));
-        Inc(Cnt, LogRecList.Count);
-        for I := 0 to LogRecList.Count - 1 do
+        logRecList := fRngLog[keyTick];
+        SL.Add(Format('Tick: %d, Tick Rng Count: %d', [keyTick, logRecList.Count]));
+        Inc(cnt, logRecList.Count);
+        for I := 0 to logRecList.Count - 1 do
         begin
-          ValS := 'NaN';
-          case LogRecList[I].ValueType of
-            lrtInt:     ValS := 'I ' + IntToStr(LogRecList[I].ValueI);
-            lrtSingle:  ValS := 'S ' + FormatFloat('0.##############################', LogRecList[I].ValueS);
-            lrtExt:     ValS := 'E ' + FormatFloat('0.##############################', LogRecList[I].ValueE);
+          valS := 'NaN';
+          case logRecList[I].ValueType of
+            lrtInt:     valS := 'I ' + IntToStr(logRecList[I].ValueI);
+            lrtSingle:  valS := 'S ' + FormatFloat('0.##############################', logRecList[I].ValueS);
+            lrtExt:     valS := 'E ' + FormatFloat('0.##############################', logRecList[I].ValueE);
           end;
-          S := Format('%3d. %-50sSeed: %12d Val: %s', [I, fCallers[LogRecList[I].CallerId], LogRecList[I].Seed, ValS]);
+          S := Format('%3d. %-50sSeed: %12d Val: %s', [I, fCallers[logRecList[I].CallerId], logRecList[I].Seed, valS]);
           SL.Add(S);
         end;
       end;
     finally
-      LogTicksList.Free;
+      logTicksList.Free;
     end;
-    SL.Add('Total randomchecks count = ' + IntToStr(Cnt));
+    SL.Add('Total randomchecks count = ' + IntToStr(cnt));
     SL.SaveToFile(aPath);
   finally
     SL.Free;

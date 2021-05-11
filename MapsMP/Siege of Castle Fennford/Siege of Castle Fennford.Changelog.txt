@@ -53,3 +53,30 @@ Version 0.8.1g: (17.05.2020)
   - Loc1: +3 Lancers
   - Loc2: +2 Crossbowman, +1 Swordman
   - Loc3: +2 Crossbowman
+
+Version 0.8.2: (28.08.2020)
+- Added 16 tiles on the left side of the map (script adjusted accordingly)
+
+Version 0.8.2b: (03.09.2020)
+- Added objects to the new parts of the map
+- Checked new parts of the map with "can build" and fixed elevation
+- Added some details on gold mountain on northern side
+- Adjusted defense radius of some enemy groups
+- Used new tiles to blend 3-tile-transitions
+
+Version 0.8.2c: (24.09.2020)
+- Added Story and credits by DDDDestroyer
+- Deleted outdated/obsolete Libx Translation-Files
+
+Version 0.8.2d: (05.10.2020)
+- Added Translations by HISKI and DDDDestroyer
+
+Version 0.8.2e: (13.01.2021)
+- Diversified Hunger Level of Player starting groups
+
+Version 0.8.2f: (01.04.2021)
+- Used new tiles to blend 3-tile-transitions
+- Other minor tile fixes
++ Increased amount of Starting Units for Human Players
+  - Loc2: +2 Knights
+  - Loc3: +3 Swordman

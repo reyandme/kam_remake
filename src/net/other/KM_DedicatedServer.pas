@@ -59,6 +59,7 @@ constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aA
                                       const aWelcomeMessage: UnicodeString; const aPacketsAccDelay: Integer; aDedicated: Boolean);
 begin
   inherited Create;
+
   fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout, aHTMLStatusFile, aWelcomeMessage, aPacketsAccDelay);
   fMasterServer := TKMMasterServer.Create(aMasterServerAddress, aDedicated);
   fMasterServer.OnError := MasterServerError;
@@ -78,6 +79,7 @@ begin
   FreeAndNil(fMasterServer);
   FreeAndNil(fUDPAnnounce);
   StatusMessage('Server destroyed');
+
   inherited;
 end;
 
@@ -104,7 +106,8 @@ end;
 
 
 procedure TKMDedicatedServer.UpdateState;
-var TickCount:Cardinal;
+var
+  tickCount:Cardinal;
 begin
   fNetServer.UpdateStateIdle;
   fMasterServer.UpdateStateIdle;
@@ -112,17 +115,17 @@ begin
 
   if not fNetServer.Listening then Exit; //Do not measure pings or announce the server if we are not listening
 
-  TickCount := TimeGet;
+  tickCount := TimeGet;
   if TimeSince(fLastPing) >= fPingInterval then
   begin
     fNetServer.MeasurePings;
-    fLastPing := TickCount;
+    fLastPing := tickCount;
   end;
 
   if fPublishServer and (TimeSince(fLastAnnounce) >= fAnnounceInterval*1000) then
   begin
     fMasterServer.AnnounceServer(UnicodeString(fServerName), fPort, fNetServer.GetPlayerCount, fAnnounceInterval + 20);
-    fLastAnnounce := TickCount;
+    fLastAnnounce := tickCount;
   end;
 end;
 

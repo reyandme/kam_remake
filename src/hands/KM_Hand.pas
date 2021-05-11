@@ -63,7 +63,7 @@ type
     fOwnerNikname: AnsiString; //Multiplayer owner nikname
     fHandType: TKMHandType;
     fCanBeHuman: Boolean;
-    fHandAITypes: TKMAITypeSet;
+    fCanBeAITypes: TKMAITypeSet;
     fFlagColor: Cardinal;
     fTeamColor: Cardinal;
     fCenterScreen: TKMPoint;
@@ -136,13 +136,14 @@ type
     property OwnerNiknameU: UnicodeString read GetOwnerNiknameU;
     function CalcOwnerName: UnicodeString; //Universal owner name
     function OwnerName(aNumberedAIs: Boolean = True; aLocalized: Boolean = True): UnicodeString; //Universal owner name
+    function GetHandOwnerName(aIsHuman, aIsAdvAI: Boolean; aNumberedAIs: Boolean = True; aLocalized: Boolean = True): UnicodeString;
     function GetOwnerName: UnicodeString;
     function GetOwnerNameColored: AnsiString;
     function GetOwnerNameColoredU: UnicodeString;
     function HasAssets: Boolean;
     property HandType: TKMHandType read fHandType write SetHandType; //Is it Human or AI
     property CanBeHuman: Boolean read fCanBeHuman write fCanBeHuman;
-    property HandAITypes: TKMAITypeSet read fHandAITypes;
+    property CanBeAITypes: TKMAITypeSet read fCanBeAITypes;
     property FlagColor: Cardinal read fFlagColor write SetFlagColor;
     property TeamColor: Cardinal read fTeamColor write fTeamColor;
     property GameFlagColor: Cardinal read GetGameFlagColor;
@@ -201,6 +202,7 @@ type
     procedure ToggleFakeFieldPlan(const aLoc: TKMPoint; aFieldType: TKMFieldType);
     function AddHouse(aHouseType: TKMHouseType; PosX, PosY: Word; RelativeEntrace: Boolean): TKMHouse;
     procedure AddHousePlan(aHouseType: TKMHouseType; const aLoc: TKMPoint);
+    function HasHousePlan(const aLoc: TKMPoint): Boolean;
     function AddHouseWIP(aHouseType: TKMHouseType; const aLoc: TKMPoint): TKMHouse;
     function RemGroup(const Position: TKMPoint): Boolean;
     procedure RemHouse(const Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
@@ -247,7 +249,7 @@ type
 implementation
 uses
   Classes, SysUtils, KromUtils, Math, TypInfo,
-  KM_GameCursor, KM_Game, KM_GameParams, KM_Terrain,
+  KM_Cursor, KM_Game, KM_GameParams, KM_Terrain,
   KM_HandsCollection, KM_Sound, KM_AIFields, KM_MapEditorHistory,
   KM_Resource, KM_ResSound, KM_ResTexts, KM_ResMapElements, KM_ScriptingEvents, KM_ResUnits,
   KM_CommonUtils, KM_GameSettings,
@@ -390,7 +392,7 @@ begin
   fOwnerNikname := '';
   fHandType     := hndComputer;
   fCanBeHuman   := False;
-  fHandAITypes  := [];
+  fCanBeAITypes  := [];
   for I := 0 to MAX_HANDS - 1 do
   begin
     fShareFOW[I] := True; //Share FOW between allies by default (it only affects allied players)
@@ -632,7 +634,7 @@ end;
 
 function TKMHand.CanBeAI: Boolean;
 begin
-  Result := (fHandAITypes <> []) and (fHandAITypes <> [aitNone]);
+  Result := (fCanBeAITypes <> []) and (fCanBeAITypes <> [aitNone]);
 end;
 
 
@@ -648,7 +650,7 @@ begin
   FreeAndNil(fRoadsList);
 
   if not gGameParams.IsMapEditor then
-    fAI.AfterMissionInit(fHandAITypes);
+    fAI.AfterMissionInit(fCanBeAITypes);
 end;
 
 
@@ -1259,6 +1261,12 @@ begin
 end;
 
 
+function TKMHand.HasHousePlan(const aLoc: TKMPoint): Boolean;
+begin
+  Result := fConstructions.HousePlanList.HasPlan(aLoc);
+end;
+
+
 function TKMHand.AddHouseWIP(aHouseType: TKMHouseType; const aLoc: TKMPoint): TKMHouse;
 begin
   Result := fHouses.AddHouseWIP(aHouseType, aLoc.X, aLoc.Y, fID);
@@ -1434,7 +1442,7 @@ end;
 
 procedure TKMHand.AddAIType(aHandAIType: TKMAIType);
 begin
-  Include(fHandAITypes, aHandAIType);
+  Include(fCanBeAITypes, aHandAIType);
 end;
 
 
@@ -1622,6 +1630,12 @@ end;
 
 
 function TKMHand.OwnerName(aNumberedAIs: Boolean = True; aLocalized: Boolean = True): UnicodeString;
+begin
+  Result := GetHandOwnerName(IsHuman, AI.Setup.NewAI, aNumberedAIs, aLocalized);
+end;
+
+
+function TKMHand.GetHandOwnerName(aIsHuman, aIsAdvAI: Boolean; aNumberedAIs: Boolean = True; aLocalized: Boolean = True): UnicodeString;
 
   function GetText(aId: Word; aLocalized: Boolean): UnicodeString; inline;
   begin
@@ -1634,7 +1648,7 @@ function TKMHand.OwnerName(aNumberedAIs: Boolean = True; aLocalized: Boolean = T
 begin
   //If this location is controlled by an MP player - show his nik
   if (fOwnerNikname <> '')
-    and IsHuman then //we could ask AI to play on ex human loc, so fOwnerNikname will be still some human name
+    and aIsHuman then //we could ask AI to play on ex human loc, so fOwnerNikname will be still some human name
     Exit(UnicodeString(fOwnerNikname));
 
   //Try to take player name from mission text if we are in SP
@@ -1642,7 +1656,7 @@ begin
   if (gGameParams.Mode in [gmSingle, gmCampaign, gmMapEd, gmReplaySingle])
     and gGame.TextMission.HasText(HANDS_NAMES_OFFSET + fID) then
   begin
-    if IsHuman then
+    if aIsHuman then
       Result := GetText(TX_PLAYER_YOU, aLocalized) + ' (' + gGame.TextMission[HANDS_NAMES_OFFSET + fID] + ')'
     else
       Result := gGame.TextMission[HANDS_NAMES_OFFSET + fID];
@@ -1651,10 +1665,10 @@ begin
   end;
 
   //Default names
-  if IsHuman then
+  if aIsHuman then
     Result := GetText(TX_PLAYER_YOU, aLocalized)
   else
-    if AI.Setup.NewAI then
+    if aIsAdvAI then
     begin
       if aNumberedAIs then
         Result := Format(GetText(TX_ADVANCED_AI_PLAYER_SHORT_X, aLocalized), [fID + 1])
@@ -1897,7 +1911,7 @@ begin
   SaveStream.WriteA(fOwnerNikname);
   SaveStream.Write(fHandType, SizeOf(fHandType));
   SaveStream.Write(fCanBeHuman, SizeOf(fCanBeHuman));
-  SaveStream.Write(fHandAITypes, SizeOf(fHandAITypes));
+  SaveStream.Write(fCanBeAITypes, SizeOf(fCanBeAITypes));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fShareFOW, SizeOf(fShareFOW));
   SaveStream.Write(fShareBeacons, SizeOf(fShareBeacons));
@@ -1930,7 +1944,7 @@ begin
   LoadStream.ReadA(fOwnerNikname);
   LoadStream.Read(fHandType, SizeOf(fHandType));
   LoadStream.Read(fCanBeHuman, SizeOf(fCanBeHuman));
-  LoadStream.Read(fHandAITypes, SizeOf(fHandAITypes));
+  LoadStream.Read(fCanBeAITypes, SizeOf(fCanBeAITypes));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fShareFOW, SizeOf(fShareFOW));
   LoadStream.Read(fShareBeacons, SizeOf(fShareBeacons));
@@ -2087,8 +2101,8 @@ begin
   and (gMySpectator.HandID = ID)
   and not fChooseLocation.Placed then
   begin
-    gGameCursor.Mode := cmHouses;
-    gGameCursor.Tag1 := Byte(htStore);
+    gCursor.Mode := cmHouses;
+    gCursor.Tag1 := Byte(htStore);
   end;
 end;
 
@@ -2132,7 +2146,7 @@ begin
       AddUnit(UT, KMPoint(aEntrance.X,aEntrance.Y+1));
   // Finish action
   fChooseLocation.Placed := True;
-  gGameCursor.Mode := cmNone; // Reset cursor
+  gCursor.Mode := cmNone; // Reset cursor
 end;
 
 
@@ -2156,7 +2170,7 @@ begin
   inherited;
 
   if mlUnits in gGameParams.VisibleLayers then
-    fUnitGroups.Paint(aRect);
+    fUnitGroups.Paint(aRect, aTickLag);
 
   if mlHouses in gGameParams.VisibleLayers then
     fHouses.Paint(aRect);

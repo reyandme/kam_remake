@@ -524,9 +524,24 @@ TBK12: Version 2.2: (30.12.2019)
 
 
 
----------------------------------------------------------------------------------------------------------------------------------------------
-
 Version 0.9.8c (12.04.2020):
 
 TBK01: Version 2.2b (12.04.2020)
 - Fixed a bug where it was not possible to win this mission
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Version 0.9.8d (01.09.2020):
+
+TBK09: Version 2.2b (01.09.2020)
+- Increased amount of Enemy Barbarians by 6 on each difficulty setting
+
+TBK11: Version 2.2b (01.09.2020)
+- Increased Recruit Delay by 10 for each Enemy Player
+
+TBK12: Version 2.2b (01.09.2020)
+- Fixed a typo in the script that made the Player1 build a 2nd weapon smithy instead of a 3rd iron smelter
+- Prettied up stone mountain at player0 start position

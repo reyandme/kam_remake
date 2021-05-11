@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   SysUtils, Controls, Classes, Math, KM_Defaults, KM_Controls, KM_Points,
   KM_InterfaceDefaults, KM_CommonTypes, KM_AIDefensePos,
-  KM_GameCursor, KM_Render, KM_Minimap, KM_Viewport, KM_ResFonts,
+  KM_Cursor, KM_Render, KM_Minimap, KM_Viewport, KM_ResFonts,
   KM_ResTypes;
 
 
@@ -30,6 +30,7 @@ type
     function IsDragScrollingAllowed: Boolean; virtual;
     function GetHintPositionBase: TKMPoint; override;
     function GetHintFont: TKMFont; override;
+    function GetHintKind: TKMHintKind; override;
 
     function GetToolBarWidth: Integer; virtual; abstract;
   public
@@ -219,13 +220,19 @@ end;
 
 function TKMUserInterfaceGame.GetHintPositionBase: TKMPoint;
 begin
-  Result := KMPoint(GetToolBarWidth, Panel_Main.Height);
+  Result := KMPoint(GetToolBarWidth + 35, Panel_Main.Height);
 end;
 
 
 function TKMUserInterfaceGame.GetHintFont: TKMFont;
 begin
   Result := fntOutline;
+end;
+
+
+function TKMUserInterfaceGame.GetHintKind: TKMHintKind;
+begin
+  Result := hkStatic;
 end;
 
 
@@ -274,8 +281,8 @@ begin
      windowRect := gMain.ClientRect(1); //Reduce ClientRect by 1 pixel, to fix 'jump viewport' bug when dragscrolling over the window border
      ClipCursor(@windowRect);
    {$ENDIF}
-   fDragScrollingCursorPos.X := gGameCursor.Pixel.X;
-   fDragScrollingCursorPos.Y := gGameCursor.Pixel.Y;
+   fDragScrollingCursorPos.X := gCursor.Pixel.X;
+   fDragScrollingCursorPos.Y := gCursor.Pixel.Y;
    fDragScrollingViewportPos.X := fViewport.Position.X;
    fDragScrollingViewportPos.Y := fViewport.Position.Y;
    gRes.Cursors.Cursor := kmcDrag;
@@ -390,15 +397,15 @@ begin
   if aHandled then Exit;
   
   UpdateGameCursor(X, Y, Shift); // Make sure we have the correct cursor position to begin with
-  prevCursor := gGameCursor.Float;
+  prevCursor := gCursor.Float;
   // +1 for ScrollSpeed = 0.
   // Sqrt to reduce Scroll speed importance
   // 11 = 10 + 1, 10 is default scroll speed
   fViewport.Zoom := fViewport.Zoom * (1 + WheelSteps * Sqrt((gGameSettings.ScrollSpeed + 1) / 11) / 12);
   UpdateGameCursor(X, Y, Shift); // Zooming changes the cursor position
   // Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-  fViewport.Position := KMPointF(fViewport.Position.X + prevCursor.X-gGameCursor.Float.X,
-                                 fViewport.Position.Y + prevCursor.Y-gGameCursor.Float.Y);
+  fViewport.Position := KMPointF(fViewport.Position.X + prevCursor.X-gCursor.Float.X,
+                                 fViewport.Position.Y + prevCursor.Y-gCursor.Float.Y);
   UpdateGameCursor(X, Y, Shift); // Recentering the map changes the cursor position
   aHandled := True;
 end;
@@ -482,20 +489,19 @@ end;
 // Compute cursor position and store it in global variables
 procedure TKMUserInterfaceGame.UpdateGameCursor(X, Y: Integer; Shift: TShiftState);
 begin
-  with gGameCursor do
+  UpdateCursor(X, Y, Shift);
+
+  with gCursor do
   begin
-    Pixel.X := X;
-    Pixel.Y := Y;
     Float := CursorToMapCoord(X, Y);
 
     PrevCell := Cell; //Save previous cell
 
     // Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
-    Cell.X := EnsureRange(round(Float.X+0.5), 1, gTerrain.MapX-1); // Cell below cursor in map bounds
-    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, gTerrain.MapY-1);
+    Cell.X := EnsureRange(Round(Float.X+0.5), 1, gTerrain.MapX-1); // Cell below cursor in map bounds
+    Cell.Y := EnsureRange(Round(Float.Y+0.5), 1, gTerrain.MapY-1);
 
     ObjectUID := gRenderPool.RenderList.GetSelectionUID(Float);
-    SState := Shift;
   end;
 end;
 

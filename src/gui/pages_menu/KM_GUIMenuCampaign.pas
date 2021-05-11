@@ -149,7 +149,7 @@ end;
 
 procedure TKMMenuCampaign.RefreshCampaign;
 const
-  MapPic: array [Boolean] of Byte = (10, 11);
+  MAP_PIC: array [Boolean] of Byte = (10, 11);
 var
   I: Integer;
 begin
@@ -165,7 +165,7 @@ begin
   for I := 0 to High(Image_CampaignFlags) do
   begin
     Image_CampaignFlags[I].Visible := I < fCampaign.Missions.Count;
-    Image_CampaignFlags[I].TexID   := MapPic[I <= fCampaign.UnlockedMissions];
+    Image_CampaignFlags[I].TexID   := MAP_PIC[I <= fCampaign.UnlockedMissions];
     Image_CampaignFlags[I].HighlightOnMouseOver := I <= fCampaign.UnlockedMissions;
     Label_CampaignFlags[I].Visible := (I < fCampaign.Missions.Count) and (I <= fCampaign.UnlockedMissions);
   end;
@@ -189,34 +189,34 @@ end;
 procedure TKMMenuCampaign.UpdateDifficultyLevel;
 var
   I: Integer;
-  MD, OldMD, DefMD: TKMMissionDifficulty;
-  DiffLevels: TKMMissionDifficultySet;
+  MD, oldMD, defMD: TKMMissionDifficulty;
+  diffLevels: TKMMissionDifficultySet;
 begin
   //Difficulty levels
-  OldMD := mdNone;
+  oldMD := mdNone;
   if fCampaign.Missions[fMapIndex].TxtInfo.HasDifficultyLevels then
   begin
-    DiffLevels := fCampaign.Missions[fMapIndex].TxtInfo.DifficultyLevels;
+    diffLevels := fCampaign.Missions[fMapIndex].TxtInfo.DifficultyLevels;
 
-    if gGameSettings.CampaignLastDifficulty in DiffLevels then
-      OldMD := gGameSettings.CampaignLastDifficulty;
+    if gGameSettings.CampaignLastDifficulty in diffLevels then
+      oldMD := gGameSettings.CampaignLastDifficulty;
 
     DropBox_Difficulty.Clear;
     I := 0;
 
     //Set BestCompleteDifficulty as default
     if fCampaign.Missions[fMapIndex].Completed then
-      DefMD := fCampaign.Missions[fMapIndex].BestCompleteDifficulty
-    else if OldMD <> mdNone then
-      DefMD := OldMD
+      defMD := fCampaign.Missions[fMapIndex].BestCompleteDifficulty
+    else if oldMD <> mdNone then
+      defMD := oldMD
     else
-      DefMD := mdNormal;
+      defMD := mdNormal;
 
-    for MD in DiffLevels do
+    for MD in diffLevels do
     begin
       DropBox_Difficulty.Add(gResTexts[DIFFICULTY_LEVELS_TX[MD]], Byte(MD));
 
-      if MD = DefMD then
+      if MD = defMD then
         DropBox_Difficulty.ItemIndex := I;
       Inc(I);
     end;

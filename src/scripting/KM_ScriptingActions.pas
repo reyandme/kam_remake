@@ -201,7 +201,7 @@ uses
   KM_HouseWoodcutters, KM_HouseTownHall,
   KM_UnitGroupTypes,
   KM_ResTypes,
-  KM_Terrain;
+  KM_Terrain, KM_UnitWarrior;
 
 const
   MIN_SOUND_AT_LOC_RADIUS = 28;
@@ -1929,7 +1929,6 @@ begin
 end;
 
 
-//@Rey: When signature changes it is good to update the description too (with new version and sometimes reference to old name)
 //* Version: 10940
 //* Allows allies to view specified house
 procedure TKMScriptActions.HouseAllowAllyToSelect(aHouseID: Integer; aAllow: Boolean);
@@ -1955,17 +1954,29 @@ begin
 end;
 
 
-//@Rey: When signature changes it is good to update the description too (with new version and sometimes reference to old name)
 //* Version: 10940
-//* Allows allies to view all houses of specified player
+//* Allows allies to view all houses of specified player, or for all players, if aPlayer is -1
 procedure TKMScriptActions.HouseAllowAllyToSelectAll(aPlayer: ShortInt; aAllow: Boolean);
+
+  procedure SetAllowAllyToHand(aHandID: ShortInt);
+  var
+    I: Integer;
+  begin
+    if gHands[aHandID].Enabled then
+      for I := 0 to gHands[aHandID].Houses.Count - 1 do
+        gHands[aHandID].Houses[I].AllowAllyToSelect := aAllow
+  end;
+
 var
   I: Integer;
 begin
   try
-    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
-      for I := 0 to gHands[aPlayer].Houses.Count - 1 do
-        gHands[aPlayer].Houses[I].AllowAllyToSelect := aAllow
+    if aPlayer = PLAYER_NONE then
+      for I := 0 to gHands.Count - 1 do
+        SetAllowAllyToHand(I)
+    else
+    if InRange(aPlayer, 0, gHands.Count - 1) then
+      SetAllowAllyToHand(aPlayer)
     else
       LogParamWarning('Actions.HouseAllowAllyToSelectAll', [aPlayer, Byte(aAllow)]);
   except
@@ -3714,7 +3725,7 @@ begin
     else
       Speed := EnsureRange(aSpeed, GAME_SPEED_NORMAL, GAME_SP_SPEED_MAX);
 
-    gGame.SetSpeedGIP(Speed, True);
+    gGame.SetSpeedGIP(Speed, True, True);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -4065,9 +4076,10 @@ begin
       U := fIDCache.GetUnit(aUnitID);
       if (G <> nil)
       and (U <> nil)
-      and (G.HasMember(U)) then
+      and (U is TKMUnitWarrior)
+      and (G.HasMember(TKMUnitWarrior(U))) then
       begin
-        G2 := G.OrderSplitUnit(U, True);
+        G2 := G.OrderSplitUnit(TKMUnitWarrior(U), True);
         if G2 <> nil then
           Result := G2.UID;
       end;

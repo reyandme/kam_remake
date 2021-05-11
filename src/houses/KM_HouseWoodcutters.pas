@@ -8,7 +8,7 @@ uses
   
 type
   TKMWoodcutterMode = (wcmChopAndPlant, wcmChop, wcmPlant);
-  
+
   TKMHouseWoodcutters = class(TKMHouseWFlagPoint)
   private
     fWoodcutterMode: TKMWoodcutterMode;
@@ -23,10 +23,14 @@ type
     constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
+
+    function ObjToString(const aSeparator: String = '|'): String; override;
   end;
 
   
 implementation
+uses
+  SysUtils, TypInfo;
 
 
 { TKMHouseWoodcutters }
@@ -89,6 +93,13 @@ begin
     ResourceDepleted := False;
 
   fWoodcutterMode := aWoodcutterMode;
+end;
+
+
+function TKMHouseWoodcutters.ObjToString(const aSeparator: String = '|'): String;
+begin
+  Result := inherited ObjToString(aSeparator) +
+            Format('%sWoodcutterMode = %s', [aSeparator, GetEnumName(TypeInfo(TKMWoodcutterMode), Integer(fWoodcutterMode))]);
 end;
 
 

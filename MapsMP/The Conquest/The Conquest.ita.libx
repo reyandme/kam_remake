@@ -1,1 +1,8 @@
-﻿0:Modalità Conquest: conquista edifici per ottenere armi per il tuo esercito! Puoi catturare un edificio occupandone l'ingresso con le tue truppe. Non è necessario restarvi per sempre. Attenzione: cavalieri ed esploratori non possono catturare edifici! Hai una caserma e 3 scuole. La produzione di Reclute è automatica, l'oro è infinito.||Script creato da sado, mappa creata da dicsoupcan.
+﻿MaxID:6
+0:Modalità Conquest: conquista edifici per ottenere armi per il tuo esercito! Puoi catturare un edificio occupandone l'ingresso con le tue truppe per 10 secondi. Non è necessario restarvi per sempre. Attenzione: cavalieri ed esploratori non possono catturare edifici! Hai una caserma e 3 scuole. La produzione di Reclute è automatica, l'oro è infinito.||Script creato da sado, mappa creata da dicsoupcan.
+1:You can't capture a building with a scout or a knight!|Read the map description next time :)
+2:You can't capture a tower owned by your ally.
+3:Capturing the building
+4:Left side
+5:Right side
+6:Number of buildings

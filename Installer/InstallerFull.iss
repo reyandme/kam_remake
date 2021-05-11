@@ -2,11 +2,13 @@
 
 ; REVISION
 #include "Revision.iss";
+#include "Constants_local.iss"
 
 ; These don't need to change
 #define InstallType 'Full'
-#define BuildFolder 'BuildFull'
-#define OutputEXE 'kam_remake_full'
+;#define BuildFolder {#BuildFolder_Local}
+;#define OutputFolder #OutputFolder_Local
+#define OutputEXE 'KaM Remake Beta'
 
 [Code]
 function CanInstall():boolean;

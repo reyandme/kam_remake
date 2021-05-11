@@ -1,0 +1,16 @@
+
+{$EVENT evtMissionStart:OnMissionStartD}
+
+Procedure OnMissionStartD;
+var Difficulty: TKMMissionDifficulty;
+	count:array of Integer;
+	dMod:byte;
+begin
+	Difficulty:=States.MissionDifficulty;		
+	dMod := Byte(Difficulty)-1; 
+	Count:= [5,6,8,10,12,15,20];
+	Actions.AIRecruitLimit(4,Count[dMod]);
+	Actions.AIRecruitLimit(6,Count[dMod]);
+	Actions.AIRecruitLimit(7,Count[dMod]);
+	Actions.AIRecruitLimit(8,Count[dMod]);
+end;

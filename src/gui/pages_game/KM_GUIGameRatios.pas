@@ -42,18 +42,22 @@ uses
 
 
 const
-  ResRatioType: array [TKMRatioTab] of TKMWareType = (wtSteel, wtCoal, wtWood, wtCorn);
+  RES_RATIO_TYPE: array [TKMRatioTab] of TKMWareType = (wtSteel, wtCoal, wtWood, wtCorn);
   //ResRatioHint: array [TKMRatioTab] of Word = (298, 300, 302, 304);
-  ResRatioHouseCount: array [TKMRatioTab] of Byte = (2, 4, 2, 3);
-  ResRatioHouse: array [TKMRatioTab, 0..3] of TKMHouseType = (
+  RES_RATIO_HOUSE_CNT: array [TKMRatioTab] of Byte = (2, 4, 2, 3);
+  RES_RATIO_HOUSE: array [TKMRatioTab, 0..3] of TKMHouseType = (
       (htWeaponSmithy,   htArmorSmithy,     htNone,          htNone),
       (htIronSmithy,     htMetallurgists,   htWeaponSmithy,  htArmorSmithy),
       (htArmorWorkshop,  htWeaponWorkshop,  htNone,          htNone),
       (htMill,           htSwine,           htStables,       htNone));
 
+  HEADER_BASELINE_Y = 80;
+
 
 { TKMGUIGameRatios }
 constructor TKMGUIGameRatios.Create(aParent: TKMPanel; aAllowEditing: Boolean);
+const
+  HEADER_IMAGE_SIZE = 18;
 var
   I: TKMRatioTab;
   K: Integer;
@@ -66,20 +70,27 @@ begin
   for I := Low(TKMRatioTab) to High(TKMRatioTab) do
   begin
     Button_Ratios[I]         := TKMButton.Create(Panel_Ratios, Byte(I) * 40, 20, 32, 32, 0, rxGui, bsGame);
-    Button_Ratios[I].TexID   := gRes.Wares[ResRatioType[I]].GUIIcon;
-    Button_Ratios[I].Hint    := gRes.Wares[ResRatioType[I]].Title;
+    Button_Ratios[I].TexID   := gRes.Wares[RES_RATIO_TYPE[I]].GUIIcon;
+    Button_Ratios[I].Hint    := gRes.Wares[RES_RATIO_TYPE[I]].Title;
     Button_Ratios[I].Tag     := Byte(I);
     Button_Ratios[I].OnClick := RatioTabClick;
   end;
 
-  Image_RatioHead := TKMImage.Create(Panel_Ratios, 0, 76, 32, 32, 327);
-  Label_RatioHead := TKMLabel.Create(Panel_Ratios, 36, 72, 148, 30, NO_TEXT, fntOutline, taLeft);
+  Image_RatioHead := TKMImage.Create(Panel_Ratios, 0,
+                                                   HEADER_BASELINE_Y - HEADER_IMAGE_SIZE div 2,
+                                                   32,
+                                                   HEADER_IMAGE_SIZE,
+                                                   327);
+  Image_RatioHead.ImageAnchors := [];
+
+  Label_RatioHead := TKMLabel.Create(Panel_Ratios, 36, HEADER_BASELINE_Y - 8, 148, 30, NO_TEXT, fntOutline, taLeft);
 
   for K := 0 to 3 do
   begin
-    Image_RatioPic[K]               := TKMImage.Create(Panel_Ratios, 0, 124 + K * 50, 32, 32, 327);
-    TrackBar_RatioValue[K]          := TKMTrackBar.Create(Panel_Ratios, 32, 116 + K * 50, 155, 0, 5);
-    TrackBar_RatioValue[K].CaptionWidth := 160;
+    Image_RatioPic[K]               := TKMImage.Create(Panel_Ratios, 0, 122 + K * 50, 32, 32, 327);
+    Image_RatioPic[K].ImageAnchors  := [anBottom];
+    TrackBar_RatioValue[K]          := TKMTrackBar.Create(Panel_Ratios, 36, 116 + K * 50, 140, 0, 5);
+    TrackBar_RatioValue[K].CaptionWidth := 150;
     TrackBar_RatioValue[K].Font     := fntGrey; //fntMetal doesn't fit the text
     TrackBar_RatioValue[K].Tag      := K;
     TrackBar_RatioValue[K].OnChange := RatiosChange;
@@ -107,21 +118,21 @@ begin
 
   fActiveTab := aTab;
 
-  Image_RatioHead.TexID := gRes.Wares[ResRatioType[fActiveTab]].GUIIcon;//Show resource icon
-  Label_RatioHead.Caption := gRes.Wares[ResRatioType[fActiveTab]].Title;
+  Image_RatioHead.TexID := gRes.Wares[RES_RATIO_TYPE[fActiveTab]].GUIIcon;//Show resource icon
+  Label_RatioHead.Caption := gRes.Wares[RES_RATIO_TYPE[fActiveTab]].Title;
   Image_RatioHead.Show;
   Label_RatioHead.Show;
 
-  for I := 0 to ResRatioHouseCount[fActiveTab] - 1 do
+  for I := 0 to RES_RATIO_HOUSE_CNT[fActiveTab] - 1 do
   begin
-    HT := ResRatioHouse[fActiveTab, I];
+    HT := RES_RATIO_HOUSE[fActiveTab, I];
     //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
     if (not gMySpectator.Hand.Locks.HouseBlocked[HT])
     or (gMySpectator.Hand.Stats.GetHouseQty(HT) > 0) then
     begin
       Image_RatioPic[I].TexID := gRes.Houses[HT].GUIIcon;
       TrackBar_RatioValue[I].Caption := gRes.Houses[HT].HouseName;
-      TrackBar_RatioValue[I].Position := gMySpectator.Hand.Stats.WareDistribution[ResRatioType[fActiveTab], HT];
+      TrackBar_RatioValue[I].Position := gMySpectator.Hand.Stats.WareDistribution[RES_RATIO_TYPE[fActiveTab], HT];
       TrackBar_RatioValue[I].Enabled := fAllowEditing;
     end else begin
       Image_RatioPic[I].TexID := 41; //Question mark
@@ -142,8 +153,8 @@ var
   house: TKMHouseType;
   value: Byte;
 begin
-  ware := ResRatioType[fActiveTab];
-  house := ResRatioHouse[fActiveTab, TKMTrackBar(Sender).Tag];
+  ware := RES_RATIO_TYPE[fActiveTab];
+  house := RES_RATIO_HOUSE[fActiveTab, TKMTrackBar(Sender).Tag];
   value := TKMTrackBar(Sender).Position;
 
   if gGame.IsWareDistributionStoredBetweenGames then
@@ -162,10 +173,10 @@ begin
   //Select the default tab, which is the first tab with an unblocked house
   //(so f.e. steel isn't the default tab when it's blocked by mission)
   for I := Low(TKMRatioTab) to High(TKMRatioTab) do
-    for K := 0 to ResRatioHouseCount[fActiveTab] - 1 do
+    for K := 0 to RES_RATIO_HOUSE_CNT[fActiveTab] - 1 do
       //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
-      if (not gMySpectator.Hand.Locks.HouseBlocked[ResRatioHouse[I, K]])
-      or (gMySpectator.Hand.Stats.GetHouseQty(ResRatioHouse[I, K]) > 0) then
+      if (not gMySpectator.Hand.Locks.HouseBlocked[RES_RATIO_HOUSE[I, K]])
+      or (gMySpectator.Hand.Stats.GetHouseQty(RES_RATIO_HOUSE[I, K]) > 0) then
       begin
         //Select first tab we find with an unblocked house
         RatioTabSet(I);

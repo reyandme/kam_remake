@@ -56,6 +56,7 @@ uses
 constructor TKMLogMessage.Create(aKind: TKMMessageKind; aTextID: Integer; const aLoc: TKMPoint);
 begin
   inherited Create;
+
   fKind := aKind;
   fLoc := aLoc;
   fTextID := aTextID;
@@ -65,6 +66,7 @@ end;
 constructor TKMLogMessage.Load(LoadStream: TKMemoryStream);
 begin
   inherited Create;
+
   LoadStream.CheckMarker('LogMessage');
   LoadStream.Read(fLoc);
   LoadStream.Read(fTextID);

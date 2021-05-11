@@ -1,0 +1,19 @@
+{$I Language.script}{$I difficulty.script}
+var bohater:Integer;
+
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		bohater := States.GroupAt(13,30) end;
+	if States.GameTime = 200 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GroupDead(bohater) then
+		Actions.PlayerDefeat(0);
+end;
+procedure OnPlayerVictory(aPlayerId:integer);
+begin
+	CampaignData.HKS20.SwordMan := States.StatUnitTypeCount(0, 16);
+	CampaignData.HKS20.CrossBowMan := States.StatUnitTypeCount(0, 18);
+end;

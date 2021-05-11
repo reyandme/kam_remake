@@ -66,7 +66,6 @@
 
 # Force the following filetypes to have unix eols, so Windows does not break them
 *.md text eol=lf
-*.iss text eol=lf
 
 # Windows forced line-endings
 *.pas text eol=crlf
@@ -76,6 +75,7 @@
 *.lpi text eol=crlf
 *.ini text eol=crlf
 *.txt text eol=crlf
+*.iss text eol=crlf
 *.xml text eol=crlf
 *.log text eol=crlf
 *.bat text eol=crlf

@@ -410,12 +410,12 @@ end;
 
 class function TKMSavesCollection.GetSaveCRC(const aName: UnicodeString; aIsMultiplayer: Boolean): Cardinal;
 var
-  SavePath: UnicodeString;
+  savePath: UnicodeString;
 begin
   Result := 0;
-  SavePath := FullPath(aName, EXT_SAVE_MAIN, aIsMultiplayer);
-  if FileExists(SavePath) then
-    Result := Adler32CRC(SavePath);
+  savePath := FullPath(aName, EXT_SAVE_MAIN, aIsMultiplayer);
+  if FileExists(savePath) then
+    Result := Adler32CRC(savePath);
 end;
 
 
@@ -465,17 +465,17 @@ end;
 procedure TKMSavesCollection.MoveSave(aIndex: Integer; const aName: UnicodeString);
 var
   I: Integer;
-  Dest: UnicodeString;
+  dest: UnicodeString;
 begin
   Assert(InRange(aIndex, 0, fCount - 1));
   if Trim(aName) = '' then Exit;
 
   Lock;
   try
-    Dest := Path(aName, fSaves[aIndex].IsMultiplayer);
-    Assert(fSaves[aIndex].Path <> Dest);
+    dest := Path(aName, fSaves[aIndex].IsMultiplayer);
+    Assert(fSaves[aIndex].Path <> dest);
 
-    KMMoveFolder(fSaves[aIndex].Path, Dest);
+    KMMoveFolder(fSaves[aIndex].Path, dest);
 
     //Remove the map from our list
     fSaves[aIndex].Free;
@@ -498,7 +498,8 @@ end;
 //For private acces, where CS is managed by the caller
 procedure TKMSavesCollection.DoSort;
 var
-  TempSaves: array of TKMSaveInfo;
+  tempSaves: array of TKMSaveInfo;
+
   //Return True if items should be exchanged
   function Compare(A, B: TKMSaveInfo): Boolean;
   begin
@@ -524,7 +525,8 @@ var
   end;
 
   procedure MergeSort(left, right: integer);
-  var middle, i, j, ind1, ind2: integer;
+  var
+    I, J, middle, ind1, ind2: integer;
   begin
     if right <= left then
       exit;
@@ -535,24 +537,24 @@ var
     MergeSort(middle, right);
     ind1 := left;
     ind2 := middle;
-    for i := left to right do
+    for I := left to right do
     begin
       if (ind1 < middle) and ((ind2 > right) or not Compare(fSaves[ind1], fSaves[ind2])) then
       begin
-        TempSaves[i] := fSaves[ind1];
+        tempSaves[I] := fSaves[ind1];
         Inc(ind1);
       end
       else
       begin
-        TempSaves[i] := fSaves[ind2];
+        tempSaves[I] := fSaves[ind2];
         Inc(ind2);
       end;
     end;
-    for j := left to right do
-      fSaves[j] := TempSaves[j];
+    for J := left to right do
+      fSaves[J] := tempSaves[J];
   end;
 begin
-  SetLength(TempSaves, fCount);
+  SetLength(tempSaves, fCount);
   MergeSort(0, fCount-1);
 end;
 
@@ -742,39 +744,39 @@ end;
 
 procedure TKMSavesScanner.Execute;
 var
-  PathToSaves: string;
-  SearchRec: TSearchRec;
-  Save: TKMSaveInfo;
+  pathToSaves: string;
+  searchRec: TSearchRec;
+  save: TKMSaveInfo;
 begin
   gLog.MultithreadLogging := True; // We could log smth while doing saves scan
   try
     try
-      PathToSaves := ExeDir + TKMSavesCollection.GetSaveFolder(fMultiplayerPath) + PathDelim;
+      pathToSaves := ExeDir + TKMSavesCollection.GetSaveFolder(fMultiplayerPath) + PathDelim;
 
-      if not DirectoryExists(PathToSaves) then Exit;
+      if not DirectoryExists(pathToSaves) then Exit;
 
-      FindFirst(PathToSaves + '*', faDirectory, SearchRec);
+      FindFirst(pathToSaves + '*', faDirectory, searchRec);
       try
         repeat
-          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-            and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_MAIN, fMultiplayerPath))
-            and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_REPLAY, fMultiplayerPath))
-            and FileExists(TKMSavesCollection.FullPath(SearchRec.Name, EXT_SAVE_BASE, fMultiplayerPath)) then
+          if (searchRec.Name <> '.') and (searchRec.Name <> '..')
+            and FileExists(TKMSavesCollection.FullPath(searchRec.Name, EXT_SAVE_MAIN, fMultiplayerPath))
+            and FileExists(TKMSavesCollection.FullPath(searchRec.Name, EXT_SAVE_REPLAY, fMultiplayerPath))
+            and FileExists(TKMSavesCollection.FullPath(searchRec.Name, EXT_SAVE_BASE, fMultiplayerPath)) then
           begin
             try
-              Save := TKMSaveInfo.Create(SearchRec.Name, fMultiplayerPath);
+              save := TKMSaveInfo.Create(searchRec.Name, fMultiplayerPath);
               if SLOW_SAVE_SCAN then
                 Sleep(50);
-              fOnSaveAdd(Save);
+              fOnSaveAdd(save);
               fOnSaveAddDone(Self);
             except
               on E: Exception do
-                gLog.AddTime('Error loading save ''' + SearchRec.Name + ''''); //Just silently log an exception
+                gLog.AddTime('Error loading save ''' + searchRec.Name + ''''); //Just silently log an exception
             end;
           end;
-        until (FindNext(SearchRec) <> 0) or Terminated;
+        until (FindNext(searchRec) <> 0) or Terminated;
       finally
-        FindClose(SearchRec);
+        FindClose(searchRec);
       end;
     finally
       if not Terminated and Assigned(fOnComplete) then

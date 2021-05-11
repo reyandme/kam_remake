@@ -32,7 +32,7 @@ implementation
 uses
   TypInfo,
   KM_ResFonts, KM_ResTexts,
-  KM_GameCursor, KM_RenderUI, KM_InterfaceGame;
+  KM_Cursor, KM_RenderUI, KM_InterfaceGame;
 
 
 constructor TKMMapEdTerrainOverlays.Create(aParent: TKMPanel);
@@ -73,8 +73,8 @@ begin
   for TTO := Low(OverlaysTable) to High(OverlaysTable) do
     if Sender = OverlaysTable[TTO] then
     begin
-      gGameCursor.Mode := cmOverlays;
-      gGameCursor.Tag1 := Byte(TTO);
+      gCursor.Mode := cmOverlays;
+      gCursor.Tag1 := Byte(TTO);
     end;
 end;
 
@@ -83,8 +83,8 @@ procedure TKMMapEdTerrainOverlays.OverlaySet(aIndex: Integer);
 begin
   if aIndex > 0 then
   begin
-    gGameCursor.Mode := cmOverlays;
-    gGameCursor.Tag1 := aIndex;
+    gCursor.Mode := cmOverlays;
+    gCursor.Tag1 := aIndex;
     fLastOverlay := aIndex;
   end;
 
@@ -97,14 +97,14 @@ var
   TTO: TKMTileOverlay;
 begin
   for TTO := Low(OverlaysTable) to High(OverlaysTable) do
-    OverlaysTable[TTO].Down := (gGameCursor.Mode = cmOverlays) and (gGameCursor.Tag1 = Byte(TTO));
+    OverlaysTable[TTO].Down := (gCursor.Mode = cmOverlays) and (gCursor.Tag1 = Byte(TTO));
 end;
 
 
 procedure TKMMapEdTerrainOverlays.Show;
 begin
   OverlaySet(fLastOverlay);
-  gGameCursor.MapEdDir := 0;
+  gCursor.MapEdDir := 0;
   Panel_Overlays.Show;
 end;
 

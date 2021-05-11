@@ -1,0 +1,20 @@
+{$EVENT evtMissionStart:DifficultyOnMissionStart}
+
+Procedure DifficultyOnMissionStart;
+var group1,group2:Integer;
+	Difficulty: TKMMissionDifficulty;
+	count,RecruitDelay:array of Integer;
+	dMod:byte;
+begin
+	count:=[5, 6, 8, 10, 11, 11,13];
+	RecruitDelay:=[36000, 18000, 12000, 9000, 6000, 3000,0];
+	Difficulty:=States.MissionDifficulty;		
+	dMod := Byte(Difficulty)-1; 
+	Actions.GroupKillAll(States.GroupAt(75,37),true);
+	Actions.GroupKillAll(States.GroupAt(44,16),true);
+	group1:=Actions.GiveGroup(1,14,75,52,2,count[dMod],4);
+	group2:=Actions.GiveGroup(1,14,30,15,0,count[dMod],4);
+	Actions.GroupOrderAttackHouse(group2,States.HouseAt(64,13));
+	Actions.GroupOrderAttackHouse(group1,States.HouseAt(78,18));
+	Actions.AIRecruitDelay(1,RecruitDelay[dMod]);
+end;

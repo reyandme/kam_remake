@@ -1,0 +1,77 @@
+{$I Language.script}
+var  Dyron:Integer;
+procedure OnTick;
+begin
+	if States.GameTime = 1 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);end;
+	if States.GameTime = 70 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []);end;
+	if States.GameTime = 94 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []);end;
+	if States.GameTime = 118 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$3>', []);end;
+	if States.GameTime = 160 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$4>', []);end;
+	if States.GameTime = 174 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$5>', []);end;
+	if States.GameTime = 190 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$6>', []);end;
+	if States.GameTime = 200 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$7>', []);end;
+	if States.GameTime = 212 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$8>', []);end;
+	if States.GameTime = 230 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$9>', []);end;
+	if States.GameTime = 261 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$10>', []);end;
+	if States.GameTime = 280 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$11>', []);end;
+	if States.GameTime = 300 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$12>', []);end;
+	if States.GameTime = 65 then begin
+	Actions.GiveUnit(2,0,149,116,5)
+	Actions.UnitOrderWalk(States.UnitAt(149,116),148,118);end;
+	if States.GameTime = 110 then 
+	Actions.UnitDirectionSet(States.UnitAt(148,118),5);
+	If (States.GameTime >55) and (States.GameTime <68) then begin
+		Actions.MapTileSet(149,116,46,States.KamRandomI(3));
+		Actions.MapTileSet(149,117,45,States.KamRandomI(3));
+		Actions.MapTileSet(149,115,45,States.KamRandomI(3));
+		
+		Actions.MapTileSet(150,116,45,States.KamRandomI(3));
+		Actions.MapTileSet(150,117,45,States.KamRandomI(3));
+		Actions.MapTileSet(150,115,45,States.KamRandomI(3));
+		
+		Actions.MapTileSet(148,116,45,States.KamRandomI(3));
+		Actions.MapTileSet(148,117,45,States.KamRandomI(3));
+		Actions.MapTileSet(148,115,45,States.KamRandomI(3));
+	end;
+	if States.GameTime = 340 then begin
+		Actions.PlayerWin([7], true) end;
+	
+	If (States.GameTime= 10) then 
+		Actions.GroupOrderWalk((Dyron),140,120,5);
+	If (States.GameTime= 50) then 
+		Actions.GroupOrderWalk((Dyron),146,123,5);
+	If (States.GameTime= 75) then 
+		Actions.GroupOrderWalk((Dyron),145,120,1);
+end;
+procedure OnMissionStart;
+begin
+		Dyron:= States.GroupAt(145,120);
+		Actions.CinematicStart(7)
+		Actions.CinematicPanTo(7,145,120,1)
+end;

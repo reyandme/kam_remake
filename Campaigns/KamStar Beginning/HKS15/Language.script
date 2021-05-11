@@ -1,0 +1,35 @@
+{$EVENT evtTick:OnTickL}
+{$EVENT evtMissionStart:OnMissionStartL}
+//{$I Language.script}
+var Language:integer;
+	Paran:AnsiString;
+
+Procedure LanguageSet;
+var Ansi:AnsiString;
+	D1:integer;
+	Klik:AnsiString;
+	Trip:Single;
+begin
+	Klik:=States.MissionSmallDesc;
+	If Klik = 'Dodatkowy tekst' then begin
+		Language:=0;
+		Paran:='pol-'
+	end;
+	If Klik = 'Additional Text' then begin
+		Language:=1;
+		Paran:='eng-'
+	end;
+end;
+
+procedure OnTickL;
+begin
+	if States.GameTime = 1 then 
+		Actions.PlayOggFadeMusic(-1,Paran+'01',1);
+	if States.GameTime = 400 then 
+		Actions.PlayOggFadeMusic(-1,Paran+'02',1);
+end;
+
+procedure OnMissionStartL;
+begin
+	LanguageSet;
+end;

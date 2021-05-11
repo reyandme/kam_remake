@@ -68,6 +68,7 @@ implementation
 constructor TClientInfo.Create(aTag: Integer);
 begin
   inherited Create;
+
   Tag := aTag;
 end;
 
@@ -79,17 +80,18 @@ end;
 
 
 procedure TClientInfo.AttemptSend(aSocket: TLSocket);
-var LenSent: Integer;
+var
+  lenSent: Integer;
 begin
   if BufferLen <= 0 then Exit;
 
-  LenSent := aSocket.Send(Buffer[0], BufferLen);
+  lenSent := aSocket.Send(Buffer[0], BufferLen);
 
-  if LenSent > 0 then
+  if lenSent > 0 then
   begin
-    BufferLen := BufferLen - LenSent;
+    BufferLen := BufferLen - lenSent;
     if BufferLen > 0 then
-      Move(Buffer[LenSent], Buffer[0], BufferLen);
+      Move(Buffer[lenSent], Buffer[0], BufferLen);
   end;
 end;
 
@@ -190,10 +192,10 @@ end;
 //We recieved data from someone
 procedure TKMNetServerLNet.ReceiveData(aSocket: TLSocket);
 const
-  BufferSize = 10240; //10kb
+  BUFFER_SIZE = 10240; //10kb
 var
-  P:pointer;
-  L:integer; //L could be -1 when no data is available
+  P: Pointer;
+  L: Integer; //L could be -1 when no data is available
 begin
   if aSocket.UserData = nil then
   begin
@@ -202,8 +204,8 @@ begin
     Exit;
   end;
 
-  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
-  L := aSocket.Get(P^, BufferSize);
+  GetMem(P, BUFFER_SIZE+1); //+1 to avoid RangeCheckError when L = BufferSize
+  L := aSocket.Get(P^, BUFFER_SIZE);
 
   if L > 0 then //if L=0 then exit;
     fOnDataAvailable(TClientInfo(aSocket.UserData).Tag, P, L);
@@ -248,20 +250,21 @@ end;
 
 
 procedure TKMNetServerLNet.Kick(aHandle:SmallInt);
-var Iter: TLSocket;
+var
+  iter: TLSocket;
 begin
   fSocketServer.IterReset;
   while fSocketServer.IterNext do
     if (fSocketServer.Iterator.UserData <> nil) and (TClientInfo(fSocketServer.Iterator.UserData).Tag = aHandle) then
     begin
       //Found the client that must be kicked
-      Iter := fSocketServer.Iterator; //Calling ClientDisconnect can reset Iterator due to sending a message, so we must remember it (don't use it after this line)
+      iter := fSocketServer.Iterator; //Calling ClientDisconnect can reset Iterator due to sending a message, so we must remember it (don't use it after this line)
       //Seems to be a bug in LNet where ClientDisconnect is not called sometimes? So call it ourself just in case
-      ClientDisconnect(Iter);
-      if Iter.ConnectionStatus in [scConnected, scConnecting, scDisconnecting] then
+      ClientDisconnect(iter);
+      if iter.ConnectionStatus in [scConnected, scConnecting, scDisconnecting] then
         //We always use forceful disconnects otherwise sockets can be left in FIN_WAIT2 state forever. See:
         //http://stackoverflow.com/questions/9819745/how-tcp-stack-distinguish-close-and-shutdown
-        Iter.Disconnect(True)
+        iter.Disconnect(True)
       else
         fOnError('Warning: Attempted to kick a client that is not connected');
       Exit; //Only one client should have this handle
@@ -302,3 +305,4 @@ end;
 
 
 end.
+

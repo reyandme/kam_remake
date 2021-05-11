@@ -199,7 +199,7 @@ procedure TKMNetUDPScan.Receive(const aAddress: String; aData: Pointer; aLength:
 var
   M: TKMemoryStream;
   S, ServerName: AnsiString;
-  ServerPort: Word;
+  serverPort: Word;
 begin
   M := TKMemoryStreamBinary.Create;
   try
@@ -215,9 +215,9 @@ begin
     if S <> 'announce' then Exit;
 
     //Read the server's game port and report it
-    M.Read(ServerPort);
+    M.Read(serverPort);
     M.ReadA(ServerName);
-    fOnServerDetected(aAddress, ServerPort, UnicodeString(ServerName));
+    fOnServerDetected(aAddress, serverPort, UnicodeString(ServerName));
   finally
     M.Free;
   end;
@@ -225,3 +225,4 @@ end;
 
 
 end.
+

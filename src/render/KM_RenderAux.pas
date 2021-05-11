@@ -31,7 +31,7 @@ type
                             aLineMode: TKMLineMode = lmStrip; aPattern: Word = $FFFF); overload;
     procedure Line(const A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Line(const A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure Line(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure Line(x1, y1, x2, y2: Single; aCol: TColor4; aPattern: Word = $FFFF; aThickness: Integer = -1); overload;
     procedure Line(const aPoints: TKMPointFArray; aColor: TKMColor4f; aThickness: Integer = -1; aLineMode: TKMLineMode = lmStrip; aPattern: Word = $FFFF); overload;
     procedure Triangle(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
     procedure TriangleOnTerrain(x1, y1, x2, y2, X3, Y3: Single; aCol: TColor4);
@@ -283,10 +283,18 @@ begin
 end;
 
 
-procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
+procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF; aThickness: Integer = -1);
+var
+  lineWidth: Integer;
 begin
   TRender.BindTexture(0); // We have to reset texture to default (0), because it could be bind to any other texture (atlas)
   glColor4ubv(@aCol);
+
+  if aThickness <> -1 then
+  begin
+    glGetIntegerv(GL_LINE_WIDTH, @lineWidth);
+    glLineWidth(aThickness);
+  end;
 
   glEnable(GL_LINE_STIPPLE);
   glLineStipple(2, aPattern);
@@ -299,6 +307,10 @@ begin
 
   RenderDot(X1, Y1);
   RenderDot(X2, Y2);
+
+  // Restore previous value for line width
+  if aThickness <> -1 then
+    glLineWidth(lineWidth);
 end;
 
 

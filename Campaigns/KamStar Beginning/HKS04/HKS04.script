@@ -1,0 +1,80 @@
+{$I difficulty.script}
+{$I Language.script}
+var Malcolm,Store:Integer;
+Procedure OnHousePlanPlaced(aPlayer: Integer; X: Integer; Y: Integer; aType: Integer);
+begin
+	if (aPlayer = 0) and (States.HouseRepair(Store)) then begin
+		Actions.PlanConnectRoad(0,X,Y+1,States.HousePositionX(States.ClosestHouse(0,X,Y,11)),States.HousePositionY(States.ClosestHouse(0,X,Y,11))+1,false);
+	end;
+end;
+  procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 1 to 1 do begin
+           UnitsToFeed := States.PlayerGetAllGroups(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end;
+procedure OnTick;
+var HType:Integer;
+begin
+	If States.GameTime mod 10=0 then begin
+		If (States.UnitPositionY(Malcolm) > 2) and(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)<>-1) then begin
+			HType:= States.HouseType(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1))
+			If (States.HouseSiteIsDigged(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddBuildingProgress(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1));		
+			If (States.HouseIsComplete(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true) and(States.HouseDamage(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) < States.HouseTypeMaxHealth(HType)-5)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddRepair(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1),5);
+		end;
+	end;
+	if States.GameTime = 1 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$4>', []);
+		Malcolm := States.UnitAt(97,12) end;
+	if States.GameTime = 150 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$5>', []); end;
+	if States.GameTime = 400 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime = 200 then
+		Actions.ShowMsg (-1, '<$3>');
+	if States.GameTime = 18000 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$6>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$7>', []); end;
+	if States.GameTime = 18500 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+	if States.UnitDead(Malcolm) then
+		Actions.PlayerDefeat(0);
+end;
+
+
+Procedure OnMissionStart;
+var Houses:array of integer;
+	LL:integer;
+begin
+	Houses:=States.PlayerGetAllHouses(0);
+	for LL:=0 to length(Houses)-1 do begin
+		If (States.HouseType(Houses[LL])=11) and (Store=0) then
+			Store:=Houses[LL];
+	end;
+end;
+procedure OnPlayerVictory(aIndex: Integer);
+begin
+	Actions.ShowMsg(-1, IntToStr(States.StatUnitTypeCount(0,15)));
+	CampaignData.HKS04.Groups0 := States.StatUnitTypeCount(0,14);
+	CampaignData.HKS04.Groups1 := States.StatUnitTypeCount(0,15);
+	CampaignData.HKS04.Groups2 := States.StatUnitTypeCount(0,19);
+end;

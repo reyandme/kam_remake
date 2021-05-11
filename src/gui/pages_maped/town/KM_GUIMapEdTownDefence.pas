@@ -40,7 +40,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_HandsCollection, KM_ResTexts, KM_GameCursor, KM_RenderUI, KM_ResFonts, KM_InterfaceGame,
+  KM_Game, KM_HandsCollection, KM_ResTexts, KM_Cursor, KM_RenderUI, KM_ResFonts, KM_InterfaceGame,
   KM_Hand, KM_Utils;
 
 
@@ -123,11 +123,11 @@ begin
 
   if Button_DefencePosAdd.Down then
   begin
-    gGameCursor.Mode := cmMarkers;
-    gGameCursor.Tag1 := MARKER_DEFENCE;
+    gCursor.Mode := cmMarkers;
+    gCursor.Tag1 := MARKER_DEFENCE;
   end
   else
-    gGameCursor.Mode := cmNone;
+    gCursor.Mode := cmNone;
 end;
 
 
@@ -156,18 +156,18 @@ end;
 
 procedure TKMMapEdTownDefence.Town_DefenceRefresh;
 var
-  OnlyAdvancedAIHand: Boolean;
+  onlyAdvancedAIHand: Boolean;
 begin
-  OnlyAdvancedAIHand := gGame.MapEditor.OnlyAdvancedAIHand(gMySpectator.HandID);
+  onlyAdvancedAIHand := gGame.MapEditor.OnlyAdvancedAIHand(gMySpectator.HandID);
 
   CheckBox_AutoDefence.Checked := gMySpectator.Hand.AI.Setup.AutoDefend;
   CheckBox_DefendAllies.Checked := gMySpectator.Hand.AI.Setup.DefendAllies;
   TrackBar_AutoAttackRange.Position := gMySpectator.Hand.AI.Setup.AutoAttackRange;
-  TrackBar_AutoAttackRange.Enabled := not OnlyAdvancedAIHand;
+  TrackBar_AutoAttackRange.Enabled := not onlyAdvancedAIHand;
   TrackBar_RecruitCount.Position := gMySpectator.Hand.AI.Setup.RecruitCount;
-  TrackBar_RecruitCount.Enabled := not OnlyAdvancedAIHand;
+  TrackBar_RecruitCount.Enabled := not onlyAdvancedAIHand;
   NumEdit_RecruitDelay.Value := Round(gMySpectator.Hand.AI.Setup.RecruitDelay / 600);
-  Button_EditFormations.Enabled := not OnlyAdvancedAIHand;
+  Button_EditFormations.Enabled := not onlyAdvancedAIHand;
 
   CheckBox_MaxSoldiers.Checked := (gMySpectator.Hand.AI.Setup.MaxSoldiers >= 0);
   NumEdit_MaxSoldiers.Enabled := CheckBox_MaxSoldiers.Checked;
@@ -179,7 +179,7 @@ begin
   if CheckBox_AutoDefence.Checked then
   begin
     Button_DefencePosAdd.Down := False;
-    gGameCursor.Mode := cmNone;
+    gCursor.Mode := cmNone;
   end;
 end;
 
@@ -206,8 +206,8 @@ end;
 
 procedure TKMMapEdTownDefence.UpdateState;
 begin
-  Button_DefencePosAdd.Down := (gGameCursor.Mode = cmMarkers)
-                                and (gGameCursor.Tag1 = MARKER_DEFENCE)
+  Button_DefencePosAdd.Down := (gCursor.Mode = cmMarkers)
+                                and (gCursor.Tag1 = MARKER_DEFENCE)
                                 and not CheckBox_AutoDefence.Checked;
 end;
 

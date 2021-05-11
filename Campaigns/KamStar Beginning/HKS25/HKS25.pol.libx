@@ -1,0 +1,22 @@
+MAXID:14
+
+0:Malcolm: Nie przebijemy siê przez mury. Bramê te¿ nie zniszczymy, prêdzej oni zniszcz¹ nas.
+1:Malcolm: Zbierzmy armiê, przynajmniej spowolnimy kregora w realizacji planu
+2:Malcolm: Nadchodz¹ wojska Valtarii, wszyscy w obronê.
+3:[$FFB1B9]Tyrio: Brama otwiera siê co jakiœ czas. Mo¿e uda nam siê przez ni¹ przejœæ.
+4:Malcolm: To nie mo¿liwe, uda³o mu siê wróciæ i ma na sobie zbrojê Truth'a.
+5:Malcolm: Trwamy ju¿ tu chwilê walcz¹c z nimi. Nie wejdziemy do œrodka.
+6:[$FFB1B9]Dyron: Ja tam wejdê
+7:Malcolm: Niby jak?
+8:[$FFB1B9]Dyron: Zapukam
+9:[$FFB1B9]Dyron: Puk, puk, to ja!
+10:[$EACD87]Baron Ratling: Niesamowite, ten topór faktycznie jest w stanie niszczyæ budowle.
+11:[$09B0F6]Liwiusz: Umo¿liwi³ nam przejœcie, do ataku!
+12:[$F609E8]Król Drein: Jeœli jest to cokolwiek warte, pomogê wam
+13:Malcolm: Drein dosta³ siê przed zamek tajnym przejœciem. To ma sens, tylko on sta³ najbli¿ej Kariona i zna³ jego wszystkie sekrety.
+14:[$FFB1B9]Dyron: Dobra, sam to zakoñczê
+15:Od tej pory s¹ dostêpne umiejêtnoœci Malcolma: "Schemat Budowania", "Budowniczy", "Pola XL", "Jezdnia"
+16:Od tej pory jest dostêpna umiejêtnoœæ Dyrona: "Uderzenie Kinetyczne"
+
+
+100:Dodatkowy tekst

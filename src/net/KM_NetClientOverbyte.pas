@@ -42,7 +42,8 @@ implementation
 
 
 constructor TKMNetClientOverbyte.Create;
-var wsaData: TWSAData;
+var
+  wsaData: TWSAData;
 begin
   Inherited Create;
   Assert(WSAStartup($101, wsaData) = 0, 'Error in Network');
@@ -143,7 +144,7 @@ end;
 
 procedure TKMNetClientOverbyte.DataAvailable(Sender: TObject; Error: Word);
 const
-  BufferSize = 10240; //10kb
+  BUFFER_SIZE = 10240; //10kb
 var
   P: Pointer;
   L: Integer; //L could be -1 when no data is available
@@ -154,8 +155,8 @@ begin
     Exit;
   end;
 
-  GetMem(P, BufferSize + 1); //+1 to avoid RangeCheckError when L = BufferSize
-  L := TWSocket(Sender).Receive(P, BufferSize);
+  GetMem(P, BUFFER_SIZE + 1); //+1 to avoid RangeCheckError when L = BufferSize
+  L := TWSocket(Sender).Receive(P, BUFFER_SIZE);
 
   if L > 0 then //if L=0 then exit;
     fOnRecieveData(P, L);

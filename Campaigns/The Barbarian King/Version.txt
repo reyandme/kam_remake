@@ -1,4 +1,4 @@
-0.9.8c
-Released on 12.04.2020
-Tested with KaMRemake r11222 (beta)
-by Strangelove
+0.9.8d
+Released on 01.09.2020
+KaMRemake r12485 (beta)
+By Strangelove

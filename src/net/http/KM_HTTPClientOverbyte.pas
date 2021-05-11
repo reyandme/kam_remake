@@ -30,6 +30,7 @@ implementation
 constructor TKMHTTPClientOverbyte.Create;
 begin
   inherited Create;
+
   fHTTPClient := THTTPCli.Create(nil);
   fHTTPClient.OnRequestDone := RequestDone;
   fHTTPClient.RcvdStream := TMemoryStream.Create;
@@ -40,6 +41,7 @@ destructor TKMHTTPClientOverbyte.Destroy;
 begin
   fHTTPClient.RcvdStream.Free; //RcvdStream is created and managed by us
   fHTTPClient.Free;
+
   inherited;
 end;
 
@@ -56,32 +58,32 @@ end;
 
 procedure TKMHTTPClientOverbyte.RequestDone(Sender: TObject; RqType: THttpRequest; ErrCode: Word);
 var
-  RcvdText: AnsiString;
-  ReturnText: UnicodeString;
+  rcvdText: AnsiString;
+  returnText: UnicodeString;
 begin
   if RqType <> httpGET then exit;
   if ErrCode <> 0 then
   begin
     if Assigned(fOnError) then
       fOnError(IntToStr(fHTTPClient.StatusCode) + ' ' + fHTTPClient.ReasonPhrase + ' (#' + IntToStr(ErrCode) + ')');
-    exit;
+    Exit;
   end;
 
-  RcvdText := '';
+  rcvdText := '';
   if fHTTPClient.RcvdStream.Size > 0 then
   begin
-    SetLength(RcvdText, fHTTPClient.RcvdStream.Size);
-    Move(TMemoryStream(fHTTPClient.RcvdStream).Memory^, RcvdText[1], fHTTPClient.RcvdStream.Size);
+    SetLength(rcvdText, fHTTPClient.RcvdStream.Size);
+    Move(TMemoryStream(fHTTPClient.RcvdStream).Memory^, rcvdText[1], fHTTPClient.RcvdStream.Size);
     TMemoryStream(fHTTPClient.RcvdStream).Clear;
   end;
 
   if fIsUTF8 then
-    ReturnText := UTF8ToUnicodeString(RcvdText)
+    returnText := UTF8ToUnicodeString(rcvdText)
   else
-    ReturnText := UnicodeString(RcvdText);
+    returnText := UnicodeString(rcvdText);
 
   if Assigned(fOnGetCompleted) then
-    fOnGetCompleted(ReturnText);
+    fOnGetCompleted(returnText);
 end;
 
 

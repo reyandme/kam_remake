@@ -5,6 +5,10 @@ uses
   KM_Defaults, KM_CommonTypes;
 
 type
+  TKMapFolder = (mfSP, mfMP, mfCM, mfDL);
+  TKMapFolderSet = set of TKMapFolder;
+  TKMapFolderEvent = procedure (aMapFolder: TKMapFolder) of object;
+
   TKMMissionDifficulty = (mdNone, mdEasy3, mdEasy2, mdEasy1, mdNormal, mdHard1, mdHard2, mdHard3);
   TKMMissionDifficultySet = set of TKMMissionDifficulty;
 

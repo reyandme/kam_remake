@@ -1,0 +1,37 @@
+
+
+{$EVENT evtTick:DifficultyOnTick}
+{$EVENT evtMissionStart:DifficultyOnMissionStart}
+var Stats:array[0..1] of array of array[0..4] of Integer;
+
+const 
+	iPlayer=1;
+procedure DifficultyOnMissionStart();
+Var LE:Integer;
+	Army:Array Of Integer;
+begin
+	Army:=States.PlayerGetAllGroups(1)
+	SetLength(Stats[0],length(Army));
+	for LE:= 0 to length(Army)-1 do begin
+		Stats[0][LE][0]:= States.UnitType(States.GroupMember(Army[LE],0));
+		Stats[0][LE][1]:= States.UnitPositionX(States.GroupMember(Army[LE],0));
+		Stats[0][LE][2]:= States.UnitPositionY(States.GroupMember(Army[LE],0));
+		Stats[0][LE][3]:= States.UnitDirection(States.GroupMember(Army[LE],0));
+		Stats[0][LE][4]:= States.GroupColumnCount(Army[LE]);
+		Actions.GroupKillAll(Army[LE],true);
+	end;
+end;
+procedure DifficultyOnTick();
+var LE1:Integer;
+	Difficulty:TKMMissionDifficulty;
+	Count:array of Integer;
+	dMod:byte;
+begin
+	Count := [5,8,10,11,12,13,14]
+	dMod:= byte(States.MissionDifficulty)-1
+	If States.GameTime = 2 then begin
+		for LE1:= 0 to length(Stats[0])-1 do begin
+			Actions.GiveGroup(1,Stats[0][LE1][0],Stats[0][LE1][1],Stats[0][LE1][2],Stats[0][LE1][3],Count[dMod],Stats[0][LE1][4]);
+		end;
+	end;
+end;

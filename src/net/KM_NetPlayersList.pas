@@ -222,17 +222,19 @@ end;
 
 
 function TKMNetPlayerInfo.GetMaxPing: Word;
-var I: Integer; Worst: Word;
+var
+  I: Integer;
+  worst: Word;
 begin
   Result := 0;
-  Worst := 0;
+  worst := 0;
   //We should ignore the worst ping so we don't delay game input due to one ping spike
   for I := 0 to PING_COUNT - 1 do
   begin
-    if fPings[I] > Worst then
+    if fPings[I] > worst then
     begin
-      Result := Math.max(Result, Worst);
-      Worst := fPings[I]
+      Result := Math.max(Result, worst);
+      worst := fPings[I]
     end
     else
       Result := Math.max(Result, fPings[I]);
@@ -312,6 +314,8 @@ end;
 
 function TKMNetPlayerInfo.GetNikname: AnsiString;
 begin
+  if Self = nil then Exit('');
+
   if IsHuman or (gHands = nil) or (HandIndex = -1) then
     Result := fNikname
   else
@@ -342,6 +346,8 @@ end;
 
 function TKMNetPlayerInfo.GetHandIndex: Integer;
 begin
+  if Self = nil then Exit(-1);
+  
   Result := -1;
   if StartLocation > 0 then
     Result := StartLocation - 1;
@@ -405,7 +411,8 @@ end;
 
 
 destructor TKMNetPlayersList.Destroy;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to MAX_LOBBY_SLOTS do
     fNetPlayers[I].Free;
@@ -436,22 +443,22 @@ end;
 procedure TKMNetPlayersList.ValidateColors(var aFixedLocsColors: TKMCardinalArray);
 
 var
-  ColorCount: Integer;
-  UsedColor: array [0..MP_COLOR_COUNT] of Boolean; //0 means Random
-  AvailableColor: array [1..MP_COLOR_COUNT] of Byte;
+  colorCount: Integer;
+  usedColor: array [0..MP_COLOR_COUNT] of Boolean; //0 means Random
+  availableColor: array [1..MP_COLOR_COUNT] of Byte;
 
   procedure CollectAvailColors(aColorDist: Single);
   var
     I: Integer;
   begin
     //Collect available colors
-    ColorCount := 0;
-    FillChar(AvailableColor, SizeOf(AvailableColor), #0);
+    colorCount := 0;
+    FillChar(availableColor, SizeOf(availableColor), #0);
     for I := 1 to MP_COLOR_COUNT do
-      if not UsedColor[I] and not IsColorCloseToColors(MP_TEAM_COLORS[I], aFixedLocsColors, aColorDist) then
+      if not usedColor[I] and not IsColorCloseToColors(MP_TEAM_COLORS[I], aFixedLocsColors, aColorDist) then
       begin
-        Inc(ColorCount);
-        AvailableColor[ColorCount] := I;
+        Inc(colorCount);
+        availableColor[colorCount] := I;
       end;
   end;
 
@@ -482,7 +489,7 @@ begin
     if (fNetPlayers[I].FlagColor shr 24) <> $FF then
       fNetPlayers[I].ResetColor;
 
-  FillChar(UsedColor, SizeOf(UsedColor), #0);
+  FillChar(usedColor, SizeOf(usedColor), #0);
 
   colorsNeeded := 0;
   //Remember all used colors and drop duplicates
@@ -497,11 +504,11 @@ begin
 
     colorID := FindMPColor(fNetPlayers[I].FlagColor);
 
-    if UsedColor[colorID] then
+    if usedColor[colorID] then
     begin
       fNetPlayers[I].ResetColor;
     end else begin
-      UsedColor[colorID] := True;
+      usedColor[colorID] := True;
     end;
   end;
 
@@ -510,11 +517,11 @@ begin
   repeat
     CollectAvailColors(colorDist);
     colorDist := colorDist * 0.7; // color distance is reduced to find more colors, if needed
-  until (ColorCount >= colorsNeeded) or (colorDist < 0.001); // Try to get at least 1 color or stop when its way to low on distance
+  until (colorCount >= colorsNeeded) or (colorDist < 0.001); // Try to get at least 1 color or stop when its way to low on distance
 
   //Randomize (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)
-  for I := 1 to ColorCount do
-    SwapInt(AvailableColor[I], AvailableColor[Random(ColorCount)+1]);
+  for I := 1 to colorCount do
+    SwapInt(availableColor[I], availableColor[Random(colorCount)+1]);
 
   //Allocate available colors
   K := 0;
@@ -527,8 +534,8 @@ begin
     if not fNetPlayers[I].IsColorSet then
     begin
       Inc(K);
-      if K <= ColorCount then
-        fNetPlayers[I].FlagColor := MP_TEAM_COLORS[AvailableColor[K]]
+      if K <= colorCount then
+        fNetPlayers[I].FlagColor := MP_TEAM_COLORS[availableColor[K]]
       else
         fNetPlayers[I].FlagColor := GetRandomColor; // That should not be happening/ But just in case - set random color then
     end;
@@ -717,7 +724,8 @@ end;
 
 //Convert known starting location to local index in players list
 function TKMNetPlayersList.StartingLocToLocal(aLoc: Integer): Integer;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := -1;
   for I := 1 to fCount do
@@ -727,7 +735,8 @@ end;
 
 
 function TKMNetPlayersList.PlayerIndexToLocal(aIndex: TKMHandID): Integer;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := -1;
   for I := 1 to Count do
@@ -832,21 +841,22 @@ end;
 
 function TKMNetPlayersList.GetMaxHighestRoundTripLatency: Word;
 var
-  I: Integer; Highest, Highest2, PlayerPing: Word;
+  I: Integer;
+  highest, highest2, playerPing: Word;
 begin
-  Highest := 0;
-  Highest2 := 0;
+  highest := 0;
+  highest2 := 0;
   for I := 1 to fCount do
     if fNetPlayers[I].Connected and fNetPlayers[I].IsHuman then
     begin
-      PlayerPing := fNetPlayers[I].GetMaxPing;
-      if PlayerPing > Highest then
-        Highest := PlayerPing
+      playerPing := fNetPlayers[I].GetMaxPing;
+      if playerPing > highest then
+        highest := playerPing
       else
-        if PlayerPing > Highest2 then
-          Highest2 := PlayerPing;
+        if playerPing > highest2 then
+          highest2 := playerPing;
     end;
-  Result := min(Highest + Highest2, High(Word));
+  Result := min(highest + highest2, High(Word));
 end;
 
 
@@ -946,28 +956,29 @@ end;
 
 function TKMNetPlayersList.FurtherVotesNeededForMajority: Integer;
 var
-  I, VotedYes, Total: Integer;
-  OnlySpecsLeft: Boolean;
+  I, votedYes, total: Integer;
+  onlySpecsLeft: Boolean;
 begin
-  Total := 0;
-  VotedYes := 0;
-  OnlySpecsLeft := HasOnlySpectators; //Store value locally
+  total := 0;
+  votedYes := 0;
+  onlySpecsLeft := HasOnlySpectators; //Store value locally
   for I := 1 to fCount do
     if (fNetPlayers[I].PlayerNetType = nptHuman)
-    and (OnlySpecsLeft or (fNetPlayers[I].StartLocation <> LOC_SPECTATE))
+    and (onlySpecsLeft or (fNetPlayers[I].StartLocation <> LOC_SPECTATE))
     and not fNetPlayers[I].Dropped then
     begin
-      Inc(Total);
+      Inc(total);
       if fNetPlayers[I].VotedYes then
-        Inc(VotedYes);
+        Inc(votedYes);
     end;
-  Result := (Total div 2) + 1 - VotedYes;
+  Result := (total div 2) + 1 - votedYes;
 end;
 
 
 //All human players who are not dropped are spectators
 function TKMNetPlayersList.HasOnlySpectators: Boolean;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to fCount do
     if (fNetPlayers[I].PlayerNetType = nptHuman) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE)
@@ -990,7 +1001,8 @@ end;
 
 
 procedure TKMNetPlayersList.ResetLocAndReady;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to fCount do
   begin
@@ -1008,7 +1020,8 @@ end;
 
 
 procedure TKMNetPlayersList.ResetReady;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to fCount do
     //AI/closed players are always ready, spectator ready status is not reset by options change
@@ -1018,7 +1031,8 @@ end;
 
 
 procedure TKMNetPlayersList.ResetReadyToPlay;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to fCount do
     fNetPlayers[I].ReadyToPlay := False;
@@ -1026,7 +1040,8 @@ end;
 
 
 procedure TKMNetPlayersList.ResetReadyToReturnToLobby;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to fCount do
     fNetPlayers[I].ReadyToReturnToLobby := False;
@@ -1034,7 +1049,8 @@ end;
 
 
 procedure TKMNetPlayersList.ResetVote;
-var I: Integer;
+var
+  I: Integer;
 begin
   VoteActive := False;
   for I := 1 to fCount do
@@ -1043,7 +1059,8 @@ end;
 
 
 procedure TKMNetPlayersList.SetAIReady;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 1 to fCount do
     if fNetPlayers[I].PlayerNetType in [nptComputerClassic, nptComputerAdvanced, nptClosed] then
@@ -1055,7 +1072,8 @@ end;
 
 
 procedure TKMNetPlayersList.RemAllAIs;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := fCount downto 1 do
     if Player[I].IsComputer then
@@ -1064,7 +1082,8 @@ end;
 
 
 procedure TKMNetPlayersList.RemDisconnectedPlayers;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := fCount downto 1 do
     if not Player[I].Connected then
@@ -1173,16 +1192,16 @@ end;
 function TLocFiller.LocToStr(aLoc: TLoc): String;
 var
   PT: TPlayerType;
-  PTypesStr: String;
+  pTypesStr: String;
 begin
-  PTypesStr := '';
+  pTypesStr := '';
   for PT in aLoc.AllowedPlayerTypes do
   begin
-    if PTypesStr <> '' then
-      PTypesStr := PTypesStr + ',';
-    PTypesStr := PTypesStr + GetEnumName(TypeInfo(TPlayerType), Integer(PT));
+    if pTypesStr <> '' then
+      pTypesStr := pTypesStr + ',';
+    pTypesStr := pTypesStr + GetEnumName(TypeInfo(TPlayerType), Integer(PT));
   end;
-  Result := Format('Loc%d [%s]', [aLoc.ID, PTypesStr]);
+  Result := Format('Loc%d [%s]', [aLoc.ID, pTypesStr]);
 end;
 
 
@@ -1195,7 +1214,7 @@ end;
 function TLocFiller.FillerToString: UnicodeString;
 var
   I: Integer;
-  PlayerStr: String;
+  playerStr: String;
 begin
   if not fFilled then
     Result := 'Loc filler is not filled!'
@@ -1204,10 +1223,10 @@ begin
     for I := 0 to High(Locs) do
     begin
       if Locs[I].PlayerID = -1 then
-        PlayerStr := '-'
+        playerStr := '-'
       else
-        PlayerStr := PlayerToStr(Players[Locs[I].PlayerI]);
-      Result := Format('%s[%s: %s]; ', [Result, LocToStr(Locs[I]), PlayerStr]);
+        playerStr := PlayerToStr(Players[Locs[I].PlayerI]);
+      Result := Format('%s[%s: %s]; ', [Result, LocToStr(Locs[I]), playerStr]);
     end;
   end;
 end;
@@ -1348,9 +1367,9 @@ function TLocFiller.TryFillLocs: Boolean;
 
 var
   I,J: Integer;
-  FillOrders: TFFillOrdersArr;
-  PlayersC: TPlayersArr;
-  LocsC: TLocsArr;
+  fillOrders: TFFillOrdersArr;
+  playersC: TPlayersArr;
+  locsC: TLocsArr;
 begin
   //No players means there is nothing to randomize
   if Length(Players) = 0 then
@@ -1378,35 +1397,35 @@ begin
   //And the last - goes C ball, whereever they can fit
 
   //Altogether there are 24 different fill orders
-  FillOrders := GenerateFillOrders;
+  fillOrders := GenerateFillOrders;
 
-  for I := 0 to Length(FillOrders) - 1 do
+  for I := 0 to Length(fillOrders) - 1 do
   begin
-    PlayersC := Copy(Players, 0, MaxInt);
-    LocsC := Copy(Locs, 0, MaxInt);
+    playersC := Copy(Players, 0, MaxInt);
+    locsC := Copy(Locs, 0, MaxInt);
 
-    for J := 0 to High(PlayersC) do
-      PlayersC[J].LocID := -1;
+    for J := 0 to High(playersC) do
+      playersC[J].LocID := -1;
 
-    for J := 0 to High(LocsC) do
-      LocsC[J].PlayerID := -1;
+    for J := 0 to High(locsC) do
+      locsC[J].PlayerID := -1;
 
     //First ABC
-    Fill(FillOrders[I].FO1, PlayersC, LocsC);
+    Fill(fillOrders[I].FO1, playersC, locsC);
     //Second BAC
-    Fill(FillOrders[I].FO2, PlayersC, LocsC);
-    for J := 0 to High(PlayersC) do
-      if (PlayersC[J].PlayerType = FillOrders[I].PT3) then
+    Fill(fillOrders[I].FO2, playersC, locsC);
+    for J := 0 to High(playersC) do
+      if (playersC[J].PlayerType = fillOrders[I].PT3) then
       begin
         //Last C
-        TryTakeLoc(J, [], PlayersC, LocsC, True);
+        TryTakeLoc(J, [], playersC, locsC, True);
         Break;
       end;
 
-    if IsFilled(PlayersC, LocsC) then
+    if IsFilled(playersC, locsC) then
     begin
-      Players := Copy(PlayersC, 0, MaxInt);
-      Locs := Copy(LocsC, 0, MaxInt);
+      Players := Copy(playersC, 0, MaxInt);
+      Locs := Copy(locsC, 0, MaxInt);
       Result := True;
       fFilled := True;
       Exit;
@@ -1417,14 +1436,14 @@ end;
 
 function TLocFiller.GetLocsToSwap(aPlayerType: TPlayerType): TIntegerArray;
 var
-  Cnt: Integer;
+  cnt: Integer;
 
   procedure AddLoc(aI: Integer);
   begin
     if not ArrayContains(aI, Result) then
     begin
-      Result[Cnt] := aI;
-      Inc(Cnt);
+      Result[cnt] := aI;
+      Inc(cnt);
     end;
   end;
 
@@ -1436,7 +1455,7 @@ begin
   if not fFilled then
     Exit;
 
-  Cnt := 0;
+  cnt := 0;
 
   SetLength(Result, Length(Locs));
   for I := Low(Result) to High(Result) do
@@ -1462,7 +1481,7 @@ begin
         AddLoc(J);
       end;
 
-  SetLength(Result, Cnt);
+  SetLength(Result, cnt);
 end;
 
 
@@ -1484,7 +1503,8 @@ end;
 function TKMNetPlayersList.ValidateSetup(var aHumanUsableLocs, aAIUsableLocs, aAdvancedAIUsableLocs: TKMHandIDArray;
                                          var aFixedLocsColors: TKMCardinalArray; out ErrorMsg: UnicodeString): Boolean;
   function IsHumanLoc(aLoc: Byte): Boolean;
-  var I: Integer;
+  var
+    I: Integer;
   begin
     Result := False;
     for I := 0 to Length(aHumanUsableLocs)-1 do
@@ -1496,7 +1516,8 @@ function TKMNetPlayersList.ValidateSetup(var aHumanUsableLocs, aAIUsableLocs, aA
   end;
 
   function IsAILoc(aLoc: Byte): Boolean;
-  var I: Integer;
+  var
+    I: Integer;
   begin
     Result := False;
     for I := 0 to Length(aAIUsableLocs)-1 do
@@ -1508,7 +1529,8 @@ function TKMNetPlayersList.ValidateSetup(var aHumanUsableLocs, aAIUsableLocs, aA
   end;
 
   function IsAdvAILoc(aLoc: Byte): Boolean;
-  var I: Integer;
+  var
+    I: Integer;
   begin
     Result := False;
     for I := 0 to Length(aAdvancedAIUsableLocs)-1 do
@@ -1521,13 +1543,13 @@ function TKMNetPlayersList.ValidateSetup(var aHumanUsableLocs, aAIUsableLocs, aA
 
 var
   I, K, J: Integer;
-  UsedLoc: array[1..MAX_HANDS] of Boolean;
+  usedLoc: array[1..MAX_HANDS] of Boolean;
   TeamLocs: array of Integer;
-  LocFiller: TLocFiller;
-  Player: TPlayer;
+  locFiller: TLocFiller;
+  player: TPlayer;
   PT: TPlayerType;
-  Loc: TLoc;
-  LocsArr: TIntegerArray;
+  loc: TLoc;
+  locsArr: TIntegerArray;
 begin
   if not AllReady then
   begin
@@ -1549,52 +1571,52 @@ begin
         fNetPlayers[I].StartLocation := LOC_RANDOM;
 
   for I := 1 to MAX_HANDS do
-    UsedLoc[I] := False;
+    usedLoc[I] := False;
 
 
-  LocFiller := TLocFiller.Create;
+  locFiller := TLocFiller.Create;
   try
     //Remember all used locations and drop duplicates (fallback since UI should block that anyway)
     for I := 1 to fCount do
       if (fNetPlayers[I].StartLocation <> LOC_RANDOM) and (fNetPlayers[I].StartLocation <> LOC_SPECTATE) then
       begin
-        if UsedLoc[fNetPlayers[I].StartLocation] then
+        if usedLoc[fNetPlayers[I].StartLocation] then
           fNetPlayers[I].StartLocation := LOC_RANDOM
         else
-          UsedLoc[fNetPlayers[I].StartLocation] := True;
+          usedLoc[fNetPlayers[I].StartLocation] := True;
       end
       else
       if (fNetPlayers[I].StartLocation = LOC_RANDOM) and not fNetPlayers[I].IsClosed then
       begin
-        Player.ID := I;
-        Player.LocID := -1;
-        Player.PlayerType := ConvertPlayerType(fNetPlayers[I].PlayerNetType);
-        LocFiller.AddPlayer(Player);
+        player.ID := I;
+        player.LocID := -1;
+        player.PlayerType := ConvertPlayerType(fNetPlayers[I].PlayerNetType);
+        locFiller.AddPlayer(player);
       end;
 
     //Collect available locations in a list
     for I := 1 to MAX_HANDS do
-      if not UsedLoc[I] then
+      if not usedLoc[I] then
       begin
-        Loc.ID := I;
-        Loc.PlayerID := -1;
-        Loc.AllowedPlayerTypes := [];
+        loc.ID := I;
+        loc.PlayerID := -1;
+        loc.AllowedPlayerTypes := [];
 
         if IsHumanLoc(I) then
-          Include(Loc.AllowedPlayerTypes, ptHuman);
+          Include(loc.AllowedPlayerTypes, ptHuman);
         if IsAILoc(I) then
-          Include(Loc.AllowedPlayerTypes, ptAI);
+          Include(loc.AllowedPlayerTypes, ptAI);
         if IsAdvAILoc(I) then
-          Include(Loc.AllowedPlayerTypes, ptAdvAI);
+          Include(loc.AllowedPlayerTypes, ptAdvAI);
 
         //Allow to fill locs if there is human
-        if (Loc.AllowedPlayerTypes <> [])
-          and ((ptHuman in Loc.AllowedPlayerTypes) or (Loc.AllowedPlayerTypes = [ptAI,ptAdvAI])) then
-          LocFiller.AddLoc(Loc);
+        if (loc.AllowedPlayerTypes <> [])
+          and ((ptHuman in loc.AllowedPlayerTypes) or (loc.AllowedPlayerTypes = [ptAI,ptAdvAI])) then
+          locFiller.AddLoc(loc);
       end;
 
     //Try to fill locs with available players
-    if not LocFiller.TryFillLocs then
+    if not locFiller.TryFillLocs then
     begin
       ErrorMsg := gResTexts[TX_LOBBY_UNABLE_RANDOM_LOCS];
       Result := False;
@@ -1603,24 +1625,24 @@ begin
 
     gLog.AddTime('Randomizing locs...');
     if gLog.IsDegubLogEnabled then
-      gLog.LogDebug(LocFiller.FillerToString);
+      gLog.LogDebug(locFiller.FillerToString);
 
     //Randomize all available lists (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)
     for PT := Low(TPlayerType) to High(TPlayerType) do
     begin
-      LocsArr := LocFiller.GetLocsToSwap(PT);
-      for I := 0 to High(LocsArr) do
-        LocFiller.SwapLocsPlayers(LocsArr[I], LocsArr[Random(Length(LocsArr))]);
+      locsArr := locFiller.GetLocsToSwap(PT);
+      for I := 0 to High(locsArr) do
+        locFiller.SwapLocsPlayers(locsArr[I], locsArr[Random(Length(locsArr))]);
     end;
 
     //Fill all locs
-    for I := 0 to High(LocFiller.Players) do
-      fNetPlayers[LocFiller.Players[I].ID].StartLocation := LocFiller.Players[I].LocID;
+    for I := 0 to High(locFiller.Players) do
+      fNetPlayers[locFiller.Players[I].ID].StartLocation := locFiller.Players[I].LocID;
 
     if gLog.IsDegubLogEnabled then
-      gLog.LogDebug('Randomized locs: ' + LocFiller.FillerToString);
+      gLog.LogDebug('Randomized locs: ' + locFiller.FillerToString);
   finally
-    LocFiller.Free;
+    locFiller.Free;
   end;
 
   RemAllClosedPlayers; //Closed players are just a marker in the lobby, delete them when the game starts
@@ -1720,3 +1742,4 @@ end;
 
 
 end.
+

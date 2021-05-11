@@ -51,7 +51,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_GameCursor,
+  KM_HandsCollection, KM_ResTexts, KM_Cursor,
   KM_InterfaceGame, KM_RenderUI, KM_Game, KM_Utils;
 
 
@@ -67,7 +67,7 @@ const
     TX_MAPED_AI_DEFENSE_OPTIONS,
     TX_MAPED_AI_ATTACK);
 var
-  I: TKMTownTab;
+  TT: TKMTownTab;
 begin
   inherited Create;
 
@@ -76,11 +76,11 @@ begin
   Panel_Town := TKMPanel.Create(aParent, 0, 45, aParent.Width, aParent.Height - 45);
   Panel_Town.Anchors := [anLeft, anTop, anBottom];
 
-  for I := Low(TKMTownTab) to High(TKMTownTab) do
+  for TT := Low(TKMTownTab) to High(TKMTownTab) do
   begin
-    Button_Town[I] := TKMButton.Create(Panel_Town, 9 + SMALL_PAD_W * Byte(I), 0, SMALL_TAB_W, SMALL_TAB_H, TabGlyph[I], TabRXX[I], bsGame);
-    Button_Town[I].Hint := GetHintWHotKey(TabHint[I], MAPED_SUBMENU_HOTKEYS[Ord(I)]);
-    Button_Town[I].OnClick := PageChange;
+    Button_Town[TT] := TKMButton.Create(Panel_Town, 9 + SMALL_PAD_W * Byte(TT), 0, SMALL_TAB_W, SMALL_TAB_H, TabGlyph[TT], TabRXX[TT], bsGame);
+    Button_Town[TT].Hint := GetHintWHotKey(TabHint[TT], MAPED_SUBMENU_HOTKEYS[Ord(TT)]);
+    Button_Town[TT].OnClick := PageChange;
   end;
 
   fGuiHouses := TKMMapEdTownHouses.Create(Panel_Town);
@@ -106,7 +106,7 @@ end;
 procedure TKMMapEdTown.PageChange(Sender: TObject);
 begin
   //Reset cursor mode
-  gGameCursor.Mode := cmNone;
+  gCursor.Mode := cmNone;
 
   //Hide existing pages
   fGuiHouses.Hide;

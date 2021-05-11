@@ -1,0 +1,9 @@
+Author
+Harry
+
+Version
+1.0
+
+BigDesc
+Playing Left vs Right is recommended.
+

@@ -13,6 +13,8 @@ const
 
   CAMPAIGN_SCRIPTS_FOLDER_NAME = 'Scripts';
 
+  CAMPAIGN_SOUNDS_FOLDER_NAME = 'Sounds';
+
 implementation
 
 end.

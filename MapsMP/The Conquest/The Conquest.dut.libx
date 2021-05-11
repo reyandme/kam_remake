@@ -1,1 +1,8 @@
-﻿0:Conquest mode: Verover gebouwen om wapens te krijgen voor je leger! Je kan een gebouw veroveren door met een soldaat voor de ingang te staan. Je hoeft niet de hele tijd voor de ingang te staan. Waarschuwing: ridders en spionnen kunnen geen gebouwen veroveren. Je hebt een kazerne en drie scholen. Produceren van rekruten gaat automatisch, goud is oneindig.||Script by sado, map by dicsoupcan.
+﻿MaxID:6
+0:Conquest mode: Verover gebouwen om wapens te krijgen voor je leger! Je kunt een gebouw veroveren door 10 seconden met een soldaat voor de ingang te staan. Je hoeft niet de hele tijd voor de ingang te staan. Waarschuwing: ridders en spionnen kunnen geen gebouwen veroveren. Je hebt een kazerne en drie scholen. Produceren van rekruten gaat automatisch, goud is oneindig.||Script by sado, map by dicsoupcan.
+1:You can't capture a building with a scout or a knight!|Read the map description next time :)
+2:You can't capture a tower owned by your ally.
+3:Capturing the building
+4:Left side
+5:Right side
+6:Number of buildings

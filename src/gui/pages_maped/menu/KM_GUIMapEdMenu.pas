@@ -11,6 +11,7 @@ uses
    KM_GUIMapEdMenuQuit,
    KM_GUIMapEdMenuSettings,
    KM_CommonTypes,
+   KM_MapTypes,
    KM_Defaults;
 
 type
@@ -42,6 +43,7 @@ type
     procedure SetLoadMode(aMapFolder: TKMapFolder);
     procedure Show;
     procedure Hide;
+    procedure Resize;
     function Visible: Boolean; override;
     procedure UpdateState;
   end;
@@ -159,6 +161,12 @@ begin
   fGuiMenuSettings.Hide;
 
   Show;
+end;
+
+
+procedure TKMMapEdMenu.Resize;
+begin
+  fGuiMenuQuickPlay.Resize;
 end;
 
 

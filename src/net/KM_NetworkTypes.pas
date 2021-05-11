@@ -281,12 +281,12 @@ end;
 
 procedure TKMPGameFilter.Load(aStream: TKMemoryStream);
 var
-  StrA: AnsiString;
+  strA: AnsiString;
 begin
   aStream.Read(fDynamicFOW);
   aStream.Read(fMapsFilterEnabled);
-  aStream.ReadA(StrA);
-  fMapsCRCList.LoadFromString(UnicodeString(StrA));
+  aStream.ReadA(strA);
+  fMapsCRCList.LoadFromString(UnicodeString(strA));
   aStream.Read(fPeacetimeRng);
   aStream.Read(fSpeedRng);
   aStream.Read(fSpeedAfterPTRng);
@@ -337,3 +337,4 @@ end;
 
 
 end.
+

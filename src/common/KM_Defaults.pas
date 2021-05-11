@@ -101,11 +101,13 @@ var
   //Not fully implemented yet
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   DYNAMIC_FOG_OF_WAR    :Boolean = False; //Whenever dynamic fog of war is enabled or not
-  SHOW_DISMISS_GROUP_BTN:Boolean = False; //The button to kill group
+  SHOW_DISMISS_GROUP_BTN:Boolean = DEBUG_CFG; //The button to kill group
   CHECK_8087CW          :Boolean = False; //Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   SCROLL_ACCEL          :Boolean = False; //Acceleration for viewport scrolling
   ALLOW_INTERPOLATED_RENDER :Boolean = True; //Interpolate positions/animations in render between game ticks
   PATHFINDER_TO_USE     :Byte = 1;        //Use TPathfindingAStarNew
+
+  ENABLE_VIDEOS_UNDER_WINE: Boolean = DEBUG_CFG; //Do we enable videos under wine
 
   //Cache / delivery / pathfinding
   CACHE_PATHFINDING                       :Boolean = True; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
@@ -148,10 +150,11 @@ var
   SKIP_RENDER_TEXT        :Boolean = False; //Skip painting labels
   ENABLE_DESIGN_CONTORLS  :Boolean = False; //Enable special mode to allow to move/edit controls
   MODE_DESIGN_CONTROLS    :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
+  DBG_UI_HINT_POS         :Boolean = False; //Show coordinates near cursor, with axis
 
   OVERLAY_RESOLUTIONS     :Boolean = False; //Render constraining frame
   LOCAL_SERVER_LIST       :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
-  SHOW_LOGS_IN_CHAT       :Boolean = False; //Show log messages in MP game chat
+  SHOW_LOG_IN_CHAT        :Boolean = False; //Show log messages in MP game chat
   LOG_GAME_TICK           :Boolean = False; //Log game tick
   SAVE_RANDOM_CHECKS      :Boolean = True; //Save random checks data to separate file
   MAPED_SHOW_CONDITION_UNIT_BTNS: Boolean = True; //Show condition Inc/Dec buttons for citizen units in MapEd
@@ -236,6 +239,8 @@ var
   DO_PERF_LOGGING         :Boolean = False; //Write each ticks time to log (DEPRECATED PERF_LOGGER)
   MP_RESULTS_IN_SP        :Boolean = False; //Display each players stats in SP
   SHOW_DEBUG_OVERLAY_BEVEL:Boolean = True;  //Show debug text overlay Bevel (for better text readability)
+  SHOW_LOG_IN_GUI         :Boolean = False; //Show log in GUI
+  UPDATE_LOG_FOR_GUI      :Boolean = False; //Update log to be shown in GUI
   DEBUG_TEXT_FONT_ID      :Integer = 7;     //Debug font ID (7 is fntMonospaced)
 
   {Gameplay}
@@ -301,8 +306,7 @@ const
   AUTOSAVE_COUNT_MAX      = 10;
   AUTOSAVE_FREQUENCY_MIN  = 600;
   AUTOSAVE_FREQUENCY_MAX  = 3000;
-  AUTOSAVE_FREQUENCY_DEFAULT      = 600; //How often to do autosave, every N ticks
-  AUTOSAVE_ATTACH_TO_CRASHREPORT_MAX = 5; //Max number of autosaves to be included into crashreport
+  AUTOSAVE_FREQUENCY_DEFAULT = 600; //How often to do autosave, every N ticks
   AUTOSAVE_SAVE_NAME = 'autosave';
   CRASHREPORT_SAVE_NAME = 'crashreport';
 
@@ -513,10 +517,6 @@ type
   TKMissionMode = (mmNormal, mmTactic);
 
   TKMAllianceType = (atEnemy, atAlly);
-
-  TKMapFolder = (mfSP, mfMP, mfCM, mfDL);
-  TKMapFolderSet = set of TKMapFolder;
-  TKMapFolderEvent = procedure (aMapFolder: TKMapFolder) of object;
 
 const
   FOG_OF_WAR_MIN  = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness

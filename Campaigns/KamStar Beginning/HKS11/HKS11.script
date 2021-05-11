@@ -1,0 +1,46 @@
+ {$I difficulty.script}
+ {$I Statek.script}
+ {$I Chodzenie.script}
+ {$I Language.script}
+ 
+procedure AutoFeed;
+var K, I: Integer;
+	UnitsToFeed: array of Integer;
+begin
+  for I := 0 to 11 do begin
+		If States.PlayerEnabled(I) then begin
+		   UnitsToFeed := States.PlayerGetAllUnits(I);
+			for K := 0 to length(UnitsToFeed) - 1 do begin
+			 Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+		   end;
+	   end;
+	 end; 
+end;
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []); end;
+	if States.GameTime = 300 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+end;
+
+procedure OnPlayerVictory(aIndex: Integer);
+begin
+	CampaignData.HKS11.HorseCount := States.StatUnitTypeCount(0,22);
+end;
+
+Procedure OnMissionStart;
+var groups:array of Integer;
+	GG:Integer;
+begin
+	groups:=States.PlayerGetAllGroups(1);
+	SetLength(AllGroups, length(groups));
+	for GG := 0 to length(groups)-1 do begin
+		AllGroups[GG][0] := groups[GG];
+		AllGroups[GG][1] := States.UnitPositionX(States.GroupMember(groups[GG],0));
+		AllGroups[GG][2] := States.UnitPositionY(States.GroupMember(groups[GG],0));
+	end;
+end;

@@ -1,0 +1,63 @@
+{$I Language.script}
+var Malcolm,Store,n1:Integer;
+ {$I difficulty.script}
+   procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 1 to 1 do begin
+           UnitsToFeed := States.PlayerGetAllGroups(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end;
+	   
+Procedure OnHousePlanPlaced(aPlayer: Integer; X: Integer; Y: Integer; aType: Integer);
+begin
+	if (aPlayer = 0) and (States.HouseRepair(Store)) then begin
+		Actions.PlanConnectRoad(0,X,Y+1,States.HousePositionX(States.ClosestHouse(0,X,Y,11)),States.HousePositionY(States.ClosestHouse(0,X,Y,11))+1,false);
+	end;
+end;
+Procedure OnBeacon(Player:Integer; X,Y:Word);
+begin
+	IF (X = States.UnitPositionX(Malcolm))and(Y = States.UnitPositionY(Malcolm)) then n1:=n1+1;
+	If n1 = 8 then Actions.PlayerWin([0],true);
+end;
+procedure OnTick;
+var HType:Integer;
+begin
+	If States.GameTime mod 10=0 then begin
+		If (States.UnitPositionY(Malcolm) > 2) and(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)<>-1) then begin
+			HType:= States.HouseType(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1))
+			If (States.HouseSiteIsDigged(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddBuildingProgress(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1));		
+			If (States.HouseIsComplete(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true) and(States.HouseDamage(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) < States.HouseTypeMaxHealth(HType)-5)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddRepair(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1),5);
+		end;
+	end;
+	If (States.GameTime mod 100=0) and (States.HouseResourceAmount(States.HouseAt(108,36),1)>1)and(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)) <> 1) and (Actions.PlanRemove(0,States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)) <> false) then begin
+		Actions.GiveRoad(0,States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm));
+		Actions.HouseTakeWaresFrom(States.HouseAt(108,36),1,1);
+	end;
+	if States.GameTime = 1 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []);
+		Malcolm := States.UnitAt(108,39)
+	end;
+	if States.GameTime = 300 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime = 72000 then	begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		Actions.GiveGroup (2, 16, 6, 138, 2, 50, 10 )
+	end;
+	if States.GameTime = 72300 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+	if States.UnitDead(Malcolm) then
+		Actions.PlayerDefeat(0);
+end;

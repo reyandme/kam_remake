@@ -84,7 +84,8 @@ end;
 
 
 procedure TKMMapEdPlayerGoals.Goals_Del(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
   I := ColumnBox_Goals.ItemIndex;
   if InRange(I, 0, gMySpectator.Hand.AI.Goals.Count - 1) then
@@ -131,12 +132,12 @@ end;
 
 procedure TKMMapEdPlayerGoals.Goals_Refresh;
 const
-  Typ: array [TKMGoalType] of string = ('-', 'V', 'S');
-  Cnd: array [TKMGoalCondition] of Integer = (
+  TYP: array [TKMGoalType] of string = ('-', 'V', 'S');
+  COND: array [TKMGoalCondition] of Integer = (
     TX_MAPED_GOALS_CONDITION_NONE, TX_MAPED_GOALS_CONDITION_TUTORIAL, TX_MAPED_GOALS_CONDITION_TIME,
     TX_MAPED_GOALS_CONDITION_BUILDS, TX_MAPED_GOALS_CONDITION_TROOPS, TX_MAPED_GOALS_CONDITION_UNKNOWN,
     TX_MAPED_GOALS_CONDITION_ASSETS, TX_MAPED_GOALS_CONDITION_SERFS, TX_MAPED_GOALS_CONDITION_ECONOMY);
-  TypeHint: array [TKMGoalType] of Integer = (
+  TYPE_HINT: array [TKMGoalType] of Integer = (
     TX_MAPED_GOALS_TYPE_NONE, TX_MAPED_GOALS_TYPE_VICTORY, TX_MAPED_GOALS_TYPE_SURVIVE);
 var
   I, Index, TopIndex: Integer;
@@ -149,11 +150,11 @@ begin
   for I := 0 to gMySpectator.Hand.AI.Goals.Count - 1 do
   begin
     G := gMySpectator.Hand.AI.Goals[I];
-    ColumnBox_Goals.AddItem(MakeListRow([Typ[G.GoalType],
-                                         gResTexts[Cnd[G.GoalCondition]],
+    ColumnBox_Goals.AddItem(MakeListRow([TYP[G.GoalType],
+                                         gResTexts[COND[G.GoalCondition]],
                                          IntToStr(G.HandIndex + 1)],
-                                        [gResTexts[TypeHint[G.GoalType]],
-                                         gResTexts[Cnd[G.GoalCondition]],
+                                        [gResTexts[TYPE_HINT[G.GoalType]],
+                                         gResTexts[COND[G.GoalCondition]],
                                          Format(gResTexts[TX_PLAYER_X], [G.HandIndex + 1])]));
   end;
 

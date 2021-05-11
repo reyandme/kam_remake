@@ -47,54 +47,54 @@ const
   PAD = 3;
   WID = TB_WIDTH - PAD * 2;
 var
-  TopPos: Integer;
+  topPos: Integer;
 begin
   inherited Create;
 
   fOnChangeSetting := aOnChangeSetting;
 
   Panel_Settings := TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 412);
-    TopPos := 15;
-    CheckBox_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE],fntMetal);
+    topPos := 15;
+    CheckBox_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,topPos,WID,20,gResTexts[TX_MENU_OPTIONS_AUTOSAVE],fntMetal);
     CheckBox_Autosave.OnClick := Menu_Settings_Change;
-    Inc(TopPos, 25);
+    Inc(topPos, 25);
 
-    CheckBox_AllyEnemy_ColorMode := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_COLOR_MODE],fntMetal);
+    CheckBox_AllyEnemy_ColorMode := TKMCheckBox.Create(Panel_Settings,PAD,topPos,WID,20,gResTexts[TX_GAME_SETTINGS_COLOR_MODE],fntMetal);
     CheckBox_AllyEnemy_ColorMode.Hint := gResTexts[TX_GAME_SETTINGS_COLOR_MODE_HINT];
     CheckBox_AllyEnemy_ColorMode.OnClick := Menu_Settings_Change;
-    Inc(TopPos, 40);
+    Inc(topPos, 40);
 
-    CheckBox_ReplayAutopauseAtPTEnd := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_REPLAY_AUTOPAUSE],fntMetal);
+    CheckBox_ReplayAutopauseAtPTEnd := TKMCheckBox.Create(Panel_Settings,PAD,topPos,WID,20,gResTexts[TX_GAME_SETTINGS_REPLAY_AUTOPAUSE],fntMetal);
     CheckBox_ReplayAutopauseAtPTEnd.Hint := gResTexts[TX_GAME_SETTINGS_REPLAY_AUTOPAUSE_HINT];
     CheckBox_ReplayAutopauseAtPTEnd.OnClick := Menu_Settings_Change;
-    Inc(TopPos, 40);
-    CheckBox_ReplaySpecShowBeacons := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_GAME_SETTINGS_SHOW_BEACONS],fntMetal);
+    Inc(topPos, 40);
+    CheckBox_ReplaySpecShowBeacons := TKMCheckBox.Create(Panel_Settings,PAD,topPos,WID,20,gResTexts[TX_GAME_SETTINGS_SHOW_BEACONS],fntMetal);
     CheckBox_ReplaySpecShowBeacons.Hint := gResTexts[TX_GAME_SETTINGS_SHOW_BEACONS_HINT];
     CheckBox_ReplaySpecShowBeacons.OnClick := Menu_Settings_Change;
-    Inc(TopPos, 25);
-    TrackBar_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,TopPos,WID,0,20);
+    Inc(topPos, 25);
+    TrackBar_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,topPos,WID,0,20);
     TrackBar_Brightness.Caption := gResTexts[TX_MENU_OPTIONS_BRIGHTNESS];
     TrackBar_Brightness.OnChange := Menu_Settings_Change;
-    Inc(TopPos, 55);
-    TrackBar_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,PAD,TopPos,WID,0,20);
+    Inc(topPos, 55);
+    TrackBar_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,PAD,topPos,WID,0,20);
     TrackBar_ScrollSpeed.Caption := gResTexts[TX_MENU_OPTIONS_SCROLL_SPEED];
     TrackBar_ScrollSpeed.OnChange := Menu_Settings_Change;
-    Inc(TopPos, 55);
-    TrackBar_SFX := TKMTrackBar.Create(Panel_Settings,PAD,TopPos,WID,0,20);
+    Inc(topPos, 55);
+    TrackBar_SFX := TKMTrackBar.Create(Panel_Settings,PAD,topPos,WID,0,20);
     TrackBar_SFX.Caption := gResTexts[TX_MENU_SFX_VOLUME];
     TrackBar_SFX.Hint := gResTexts[TX_MENU_SFX_VOLUME_HINT];
     TrackBar_SFX.OnChange := Menu_Settings_Change;
-    Inc(TopPos, 55);
-    TrackBar_Music := TKMTrackBar.Create(Panel_Settings,PAD,TopPos,WID,0,20);
+    Inc(topPos, 55);
+    TrackBar_Music := TKMTrackBar.Create(Panel_Settings,PAD,topPos,WID,0,20);
     TrackBar_Music.Caption := gResTexts[TX_MENU_MUSIC_VOLUME];
     TrackBar_Music.Hint := gResTexts[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Music.OnChange := Menu_Settings_Change;
-    Inc(TopPos, 55);
-    CheckBox_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_SHORT],fntMetal);
+    Inc(topPos, 55);
+    CheckBox_MusicOff := TKMCheckBox.Create(Panel_Settings,PAD,topPos,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_SHORT],fntMetal);
     CheckBox_MusicOff.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
     CheckBox_MusicOff.OnClick := Menu_Settings_Change;
-    Inc(TopPos, 25);
-    CheckBox_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,TopPos,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fntMetal);
+    Inc(topPos, 25);
+    CheckBox_ShuffleOn := TKMCheckBox.Create(Panel_Settings,PAD,topPos,WID,20,gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_SHORT],fntMetal);
     CheckBox_ShuffleOn.Hint := gResTexts[TX_MENU_OPTIONS_MUSIC_SHUFFLE_HINT];
     CheckBox_ShuffleOn.OnClick := Menu_Settings_Change;
 end;
@@ -109,48 +109,48 @@ end;
 
 procedure TKMGameMenuSettings.UpdateControlsPosition;
 var
-  Top: Integer;
+  top: Integer;
 begin
-  Top := 15;
+  top := 15;
 
   if gGameParams.IsReplay then
     CheckBox_Autosave.Hide
   else begin
     CheckBox_Autosave.DoSetVisible;
-    Inc(Top, 25);
+    Inc(top, 25);
   end;
 
-  CheckBox_AllyEnemy_ColorMode.Top := Top;
+  CheckBox_AllyEnemy_ColorMode.Top := top;
   CheckBox_AllyEnemy_ColorMode.DoSetVisible;
-  Inc(Top, 40);
+  Inc(top, 40);
 
   if gGameParams.Mode = gmReplayMulti then
   begin
-    CheckBox_ReplayAutopauseAtPTEnd.Top := Top;
+    CheckBox_ReplayAutopauseAtPTEnd.Top := top;
     CheckBox_ReplayAutopauseAtPTEnd.DoSetVisible;
-    Inc(Top, 40);
+    Inc(top, 40);
   end else
     CheckBox_ReplayAutopauseAtPTEnd.Hide;
 
   if gGameParams.Mode in [gmReplaySingle, gmReplayMulti, gmMultiSpectate] then
   begin
-    CheckBox_ReplaySpecShowBeacons.Top := Top;
+    CheckBox_ReplaySpecShowBeacons.Top := top;
     CheckBox_ReplaySpecShowBeacons.DoSetVisible;
-    Inc(Top, 25);
+    Inc(top, 25);
   end else
     CheckBox_ReplaySpecShowBeacons.Hide;
 
-  TrackBar_Brightness.Top := Top;
-  Inc(Top, 55);
-  TrackBar_ScrollSpeed.Top := Top;
-  Inc(Top, 55);
-  TrackBar_SFX.Top := Top;
-  Inc(Top, 55);
-  TrackBar_Music.Top := Top;
-  Inc(Top, 55);
-  CheckBox_MusicOff.Top := Top;
-  Inc(Top, 25);
-  CheckBox_ShuffleOn.Top := Top;
+  TrackBar_Brightness.Top := top;
+  Inc(top, 55);
+  TrackBar_ScrollSpeed.Top := top;
+  Inc(top, 55);
+  TrackBar_SFX.Top := top;
+  Inc(top, 55);
+  TrackBar_Music.Top := top;
+  Inc(top, 55);
+  CheckBox_MusicOff.Top := top;
+  Inc(top, 25);
+  CheckBox_ShuffleOn.Top := top;
 
   Panel_Settings.Height := CheckBox_ShuffleOn.Top + CheckBox_ShuffleOn.Height + 2;
 end;
@@ -181,11 +181,11 @@ end;
 
 procedure TKMGameMenuSettings.Menu_Settings_Change(Sender: TObject);
 var
-  MusicToggled, ShuffleToggled: Boolean;
+  musicToggled, shuffleToggled: Boolean;
 begin
   //Change these options only if they changed state since last time
-  MusicToggled   := (gGameSettings.MusicOff <> CheckBox_MusicOff.Checked);
-  ShuffleToggled := (gGameSettings.ShuffleOn <> CheckBox_ShuffleOn.Checked);
+  musicToggled   := (gGameSettings.MusicOff <> CheckBox_MusicOff.Checked);
+  shuffleToggled := (gGameSettings.ShuffleOn <> CheckBox_ShuffleOn.Checked);
 
   gGameSettings.Brightness            := TrackBar_Brightness.Position;
   gGameSettings.Autosave              := CheckBox_Autosave.Checked;
@@ -207,13 +207,13 @@ begin
 
   gSoundPlayer.UpdateSoundVolume(gGameSettings.SoundFXVolume);
   gMusic.Volume := gGameSettings.MusicVolume;
-  if MusicToggled then
+  if musicToggled then
   begin
     gMusic.ToggleEnabled(not gGameSettings.MusicOff);
     if not gGameSettings.MusicOff then
-      ShuffleToggled := True; //Re-shuffle songs if music has been enabled
+      shuffleToggled := True; //Re-shuffle songs if music has been enabled
   end;
-  if ShuffleToggled then
+  if shuffleToggled then
     gMusic.ToggleShuffle(gGameSettings.ShuffleOn);
 
   TrackBar_Music.Enabled := not CheckBox_MusicOff.Checked;

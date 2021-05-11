@@ -1,5 +1,5 @@
 unit KromShellUtils;
-{$I ..\..\KaM_Remake.inc}
+{$I KaM_Remake.inc}
 interface
 uses
   {$IFDEF MSWindows}Windows, MMSystem, {$ENDIF}
@@ -15,6 +15,7 @@ uses
   function OpenPDF(const aURL: string): Boolean;
   procedure MailTo(const aAddress, aSubject, aBody:string);
   procedure OpenMySite(const aToolName: string; const aAddress: string = 'http://krom.reveur.de');
+  function IsUnderWine: Boolean;
 
 
 implementation
@@ -71,7 +72,7 @@ begin
   {$ENDIF}
 
   {$IFDEF FPC}
-  Result := OpenDocument(URL);
+  Result := OpenDocument(aURL);
   {$ENDIF}
 end;
 
@@ -101,12 +102,12 @@ begin
 
     p:=System.Pos('%s', BrowserParams);
     System.Delete(BrowserParams,p,2);
-    System.Insert(URL,BrowserParams,p);
+    System.Insert(aURL,BrowserParams,p);
 
     // start browser
     BrowserProcess:=TProcessUTF8.Create(nil);
     try
-      BrowserProcess.CommandLine:=BrowserPath+' '+BrowserParams;
+      BrowserProcess.CommandLine := BrowserPath + ' ' + BrowserParams;
       BrowserProcess.Execute;
       Result := True;
     finally
@@ -128,6 +129,20 @@ end;
 procedure OpenMySite(const aToolName: string; const aAddress: string = 'http://krom.reveur.de');
 begin
   BrowseURL(aAddress + '/index_r.php?t=' + aToolName); // Maybe add tool version later..
+end;
+
+
+function IsUnderWine: Boolean;
+var
+  H: Cardinal;
+begin
+  Result := False;
+  H := LoadLibrary('ntdll.dll');
+  if H > HINSTANCE_ERROR then
+  begin
+    Result := Assigned(GetProcAddress(H, 'wine_get_version'));
+    FreeLibrary(H);
+  end;
 end;
 
 

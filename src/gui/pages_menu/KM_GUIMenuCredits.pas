@@ -52,8 +52,8 @@ begin
 
     TKMLabel.Create(Panel_Credits, aParent.Width div 2 - OFFSET, 70, gResTexts[TX_CREDITS],fntOutline,taCenter);
     Label_Credits_Remake := TKMLabelScroll.Create(Panel_Credits, aParent.Width div 2 - OFFSET, 110, 0, aParent.Height - 130,
-      gResTexts[TX_CREDITS_PROGRAMMING] + '|Krom|Lewin||' +
-      gResTexts[TX_CREDITS_ADDITIONAL_PROGRAMMING] + '|Alex|Rey|andreus|Danjb|ZblCoder||' +
+      gResTexts[TX_CREDITS_PROGRAMMING] + '|Krom|Lewin|Rey||' +
+      gResTexts[TX_CREDITS_ADDITIONAL_PROGRAMMING] + '|Alex|andreus|Danjb|ZblCoder||' +
       gResTexts[TX_CREDITS_ADDITIONAL_GRAPHICS] + '|StarGazer|Malin|H.A.H.||' +
       gResTexts[TX_CREDITS_ADDITIONAL_MUSIC] + '|Andre Sklenar - www.juicelab.cz||' +
       gResTexts[TX_CREDITS_ADDITIONAL_SOUNDS] + '|trb1914||' +

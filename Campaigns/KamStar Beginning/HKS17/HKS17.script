@@ -1,0 +1,105 @@
+var Malcolm,Store,n1:Integer;
+{$I Language.script}
+
+Procedure OnPlanFieldPlaced(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+if (aPlayer = 0) then begin
+	for a := 0to 1 do
+	for b := 0to 1 do
+	Actions.PlanAddField(0,X+a,Y+b);
+end;
+end;
+Procedure OnPlanWinefieldPlaced(aPlayer: Integer; X: Integer; Y: Integer);
+var a,b:Integer;
+begin
+if (aPlayer = 0) then begin
+	for a := 0to 1 do
+	for b := 0to 1 do
+	Actions.PlanAddWinefield(0,X+a,Y+b);
+end;
+end;
+
+Procedure OnHousePlanPlaced(aPlayer: Integer; X: Integer; Y: Integer; aType: Integer);
+begin
+	if (aPlayer = 0) and (States.HouseRepair(Store)) then begin
+		Actions.PlanConnectRoad(0,X,Y+1,States.HousePositionX(States.ClosestHouse(0,X,Y,11)),States.HousePositionY(States.ClosestHouse(0,X,Y,11))+1,false);
+	end;
+end;
+   procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 1 to 6 do begin
+           UnitsToFeed := States.PlayerGetAllGroups(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end;
+	  
+Procedure OnBeacon(Player:Integer; X,Y:Word);
+begin
+	IF (X = States.UnitPositionX(Malcolm))and(Y = States.UnitPositionY(Malcolm)) then n1:=n1+1;
+	If n1 = 8 then Actions.PlayerWin([0],true);
+end;
+procedure OnTick;
+var HType:Integer;
+begin
+	If States.GameTime mod 10=0 then begin
+		If (States.UnitPositionY(Malcolm) > 2) and(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)<>-1) then begin
+			HType:= States.HouseType(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1))
+			If (States.HouseSiteIsDigged(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddBuildingProgress(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1));		
+			If (States.HouseIsComplete(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = true) and(States.HouseDamage(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) < States.HouseTypeMaxHealth(HType)-5)and (States.HouseOwner(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1)) = 0) then
+				Actions.HouseAddRepair(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)-1),5);
+		end;
+	end;
+	If (States.GameTime mod 100=0)and (States.HouseResourceAmount(States.HouseAt(10,21),1)>1) and(States.HouseAt(States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)) <> 1) and (Actions.PlanRemove(0,States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm)) <> false) then begin
+		Actions.GiveRoad(0,States.UnitPositionX(Malcolm),States.UnitPositionY(Malcolm));
+		Actions.HouseTakeWaresFrom(States.HouseAt(10,21),1,1);
+	end;
+	if States.GameTime = 1 then
+		Malcolm := States.UnitAt(20,25);
+	if States.UnitDead(Malcolm) then
+		Actions.PlayerDefeat(0);
+	if States.GameTime = 100 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []); end;
+	if States.GameTime = 300 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime = 1200 then begin 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []); end;
+	if States.GameTime = 1700 then
+		Actions.ShowMSG(-1,'<$2>');
+	if States.GameTime = 1500 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+	if States.GameTime MOD 100 = 0 then begin
+		If States.HouseResourceAmount(States.HouseAt(111,33),1) <5 then  Actions.HouseAddWaresTo(States.HouseAt(111,33),1,1);
+		If States.HouseResourceAmount(States.HouseAt(104,33),1) <5 then  Actions.HouseAddWaresTo(States.HouseAt(104,33),1,1);
+		If States.HouseResourceAmount(States.HouseAt(94,33),1) <5 then  Actions.HouseAddWaresTo(States.HouseAt(94,33),1,1);
+		If States.HouseResourceAmount(States.HouseAt(87,33),1) <5 then  Actions.HouseAddWaresTo(States.HouseAt(87,33),1,1);
+		If States.HouseResourceAmount(States.HouseAt(147,44),1) <5 then  Actions.HouseAddWaresTo(States.HouseAt(147,44),1,1);
+		If States.HouseResourceAmount(States.HouseAt(154,44),1) <5 then  Actions.HouseAddWaresTo(States.HouseAt(154,44),1,1);
+	end;
+end;
+
+procedure OnMissionStart();
+var dMod:byte;
+	Count:Array of Integer;
+var Houses:array of integer;
+	LL:integer;
+begin
+	Houses:=States.PlayerGetAllHouses(0);
+	for LL:=0 to length(Houses)-1 do begin
+		If (States.HouseType(Houses[LL])=11) and (Store=0) then
+			Store:=Houses[LL];
+	end;
+	Count:= [3,4,4,5,7,10,15]
+	dMod:= byte(States.MissionDifficulty)-1
+	if (CampaignData.HKS16.Swordman=0) then begin Actions.GiveGroup(0,16,20,20,2,12,4); Actions.GiveGroup(0,16,15,29,2,12,4); end else begin Actions.GiveGroup(0,16,20,20,2,CampaignData.HKS16.Swordman/Count[dMod]+6,4); Actions.GiveGroup(0,16,15,29,2,CampaignData.HKS16.Swordman/Count[dMod]+3,4); end ;
+	if (CampaignData.HKS16.Crossbowman=0) then begin Actions.GiveGroup(0,18,8,30,2,9,3); Actions.GiveGroup(0,18,15,14,3,9,3); end else begin Actions.GiveGroup(0,18,8,30,2,CampaignData.HKS16.Crossbowman/Count[dMod]+1,4); Actions.GiveGroup(0,18,15,14,3,CampaignData.HKS16.Crossbowman/Count[dMod]+3,4); end ;
+end;

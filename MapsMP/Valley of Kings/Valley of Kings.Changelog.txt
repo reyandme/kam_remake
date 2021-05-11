@@ -1,0 +1,80 @@
+Valley of Kings
+***************
+
+Version 0.7: (16.01.2021)
+- First testgame
+
+
+Version 0.7.1: (18.01.2021)
+- Removed 2 Leftover Roads on Player Loc1
+- Added Trees to Loc2 and Loc3 forests
+- Increased amount of Southern Coalfield on Loc3 from 930 to 1065
+- Changes to the west part of the map, so AI Player9 can not be harassed by ranged units
+- Removed some wolfs from the map
+- Added German translation by HISKI
+- Temporarily removed 'Easy' and 'Easier' Difficulty setting
++ Soundeffects
+  - Heavily reduced Volume of Wolf Soundeffects
+  - Played Wolf Soundeffect Level is now Random
+  - Radius of Soundeffects is now randomized
+  - Added temporary soundcredits in "Valley of Kings.Soundcredits.txt"
+  - Added 'Angry Duck Sounds'
+  - Soundeffects can now be turned off (and on again) with the following command: 'togglesfx'
++ AI Balance changes and fixes
+  - 2nd Attacks of  Player3, 4, 8 and 9 are stronger (+1 group for each); First Attack unchanged
+  - Increased amount of Units for Player 6 and 5 attacks (+1 group for each); Player 7 attacks unchanged
+  - Moved some Attack and Defense Positions and changed priorities
+  - Added a 3rd School for Player 7 and 5
+  - Changed Recruit Delay and Recruit Rate to preserve original Intervals between attacks
+  - Increased amount of Recruits in Barracks
+
+
+Version 0.7.1b: (22.01.2021)
+- Some minor tile fixes
+- Added Message that gets shown when Market is unlocked
+- Increased the Coal Field between Loc1 and Loc2
+- Activated 'Easy' difficulty again
+
+
+Version 0.7.2: (23.01.2021)
+- Moved Storehouse of Loc1 1 Tile down and 1 Tile left to combat OCD
+- Changed Pike Defense Positon Priority of Player4 
++ Changes to Loc2:
+  - Stonemountain slightly changed for OCD reasons
+  - Moved Gold Mountain closer to Storehouse
+  - Moved Coal closer to Storehouse
+  - Increased the Coalfields at the bottom and the top left
+
+
+Version 0.7.2b:(28.01.2021)
+- Added an additional Mining spot on Loc2 and resdistributed Iron Resources
+- Increased size and amount of Resources of Coal Field between Loc1 and Loc3
+- Checked for "Can Mine" on Player Locations and made fixes accordingly
+- Added russian translation by andreus
+- Minor changes to the Map
+- Removed 1 Iron Deposit with 40 Iron in the Moutain in between Loc1 and Loc2
+- Redesigned Coal Field @Loc2 to be closer to Iron Mountain
+
+
+Version 0.7.2c:(31.01.2021)
+- Added russian translation by andreus
+- Minor changes to the Map
+- Removed 1 Iron Deposit with 40 Iron in the Moutain in between Loc1 and Loc2
+- Redesigned Coal Field @Loc2 to be closer to Iron Mountain
+
+
+Version 0.7.2d: (01.04.2021)
+- On Market built: Give Message to Human Players and add Wares to Marketplace
+
+
+Version 0.7.2e: (23.04.2021)
+- Removed all Soundfiles and soundcredits.txt from the mapfolder
+- Made changes and fixes to dynamicmap.script
+
+
+
+TODO:
+- Add more translations
+- Add obligatory ingame briefing and do script for it
+- Scale amount of defense positions according to difficulty settings (Easier missing)
+- Set AI Colors

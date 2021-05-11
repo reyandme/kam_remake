@@ -79,7 +79,7 @@ type
     procedure FillPlayersList;
   private
     fSettings: TKMServerSettings;
-    fSettingsLastModified: integer;
+//    fSettingsLastModified: Integer;
     fServerStatus: TKMServerStatus;
     fDedicatedServer: TKMDedicatedServer;
     Players: TList;
@@ -115,19 +115,21 @@ begin
   CreateDir(ExeDir + 'Logs');
   gLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_Server_' + FormatDateTime('yyyy-mm-d_hh-nn-ss-zzz', Now) + '.log');
 
+  // Create Server Settings in the local folder
+  fSettings := TKMServerSettings.Create(True);
+  fSettings.SaveSettings(True);
+//  fSettingsLastModified := FileAge(fSettings.Path);
+
   //this is shown only at application start (tip. check the strange -. in morse code translator ;)
   ServerStatusMessageNoTime('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
   ServerStatusMessage      ('== KaM Remake ' + GAME_VERSION + ' Dedicated Server ==');
   ServerStatusMessageNoTime('');
-  ServerStatusMessage      ('Settings file: ' + ExeDir + SETTINGS_FILE);
+  ServerStatusMessage      ('Settings file: ' + fSettings.Path);
   ServerStatusMessage      ('Log file: ' + gLog.LogPath);
+  ServerStatusMessageNoTime('');
 //  ServerStatusMessageNoTime('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
 //  ServerStatusMessageNoTime('');
   ServerStatusMessage('Using protocol for clients running ' + NET_PROTOCOL_REVISON);
-
-  fSettings := TKMServerSettings.Create;
-  fSettings.SaveSettings(true);
-  fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
 
   //we load settings from file to controls
   LoadSettings;

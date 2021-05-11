@@ -1,0 +1,42 @@
+{$I Language.script}
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);end;
+	if States.GameTime = 100 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []);end;
+	if States.GameTime = 200 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []);end;
+	if States.GameTime = 400 then 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime = 300 then
+		Actions.AIAutoAttackRange(1,20);
+	if States.GameTime = 3000 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$3>', []);
+		Actions.GiveGroup (3, 20, 115, 69, 6, 32, 18)
+		Actions.GiveGroup (3, 20, 123, 68, 6, 32, 8)
+	end;
+	if States.GameTime = 5000 then	begin
+		Actions.GiveGroup (3, 20, 115, 69, 6, 32, 18)
+		Actions.GiveGroup (3, 20, 123, 68, 6, 32, 18)
+	end;
+		if States.GameTime = 7500 then	begin
+		Actions.GiveGroup (3, 20, 115, 69, 6, 32, 18)
+		Actions.GiveGroup (3, 20, 123, 68, 6, 32, 18)
+	end;
+	if States.GameTime = 10000 then	begin
+		Actions.GiveGroup (3, 20, 115, 69, 6, 32, 18)
+		Actions.GiveGroup (3, 20, 123, 68, 6, 32, 18)
+	end;
+	if States.GameTime = 3300 then 
+		Actions.OverlayTextSetFormatted(-1, '', []);
+end;
+
+Procedure OnMissionStart;
+begin
+	Actions.CinematicStart(4)
+end;

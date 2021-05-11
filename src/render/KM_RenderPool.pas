@@ -155,7 +155,7 @@ var
 implementation
 uses
   KM_RenderAux, KM_HandsCollection, KM_Game, KM_GameSettings, KM_Sound, KM_Resource, KM_ResUnits,
-  KM_ResMapElements, KM_AIFields, KM_TerrainPainter, KM_GameCursor,
+  KM_ResMapElements, KM_AIFields, KM_TerrainPainter, KM_Cursor,
   KM_Hand, KM_UnitGroup, KM_CommonUtils,
   KM_GameParams, KM_Utils, KM_ResTileset, KM_DevPerfLog, KM_DevPerfLogTypes,
   KM_HandTypes,
@@ -1497,12 +1497,12 @@ var
   P: TKMPoint;
   HWFP: TKMHouseWFlagPoint;
 begin
-  P := gGameCursor.Cell;
-  case gGameCursor.Tag1 of
+  P := gCursor.Cell;
+  case gCursor.Tag1 of
     MARKER_REVEAL:        begin
                             RenderSpriteOnTile(P, 394, gMySpectator.Hand.FlagColor);
                             gRenderAux.CircleOnTerrain(P.X-0.5, P.Y-0.5,
-                             gGameCursor.MapEdSize,
+                             gCursor.MapEdSize,
                              gMySpectator.Hand.FlagColor AND $10FFFFFF,
                              gMySpectator.Hand.FlagColor);
                           end;
@@ -1525,13 +1525,13 @@ var
   rad, slope: Byte;
   F: TKMPointF;
 begin
-  F := gGameCursor.Float;
-  rad := gGameCursor.MapEdSize;
-  slope := gGameCursor.MapEdSlope;
+  F := gCursor.Float;
+  rad := gCursor.MapEdSize;
+  slope := gCursor.MapEdSlope;
   for I := Max((Round(F.Y) - rad), 1) to Min((Round(F.Y) + rad), gTerrain.MapY -1) do
     for K := Max((Round(F.X) - rad), 1) to Min((Round(F.X) + rad), gTerrain.MapX - 1) do
     begin
-      case gGameCursor.MapEdShape of
+      case gCursor.MapEdShape of
         hsCircle: tmp := 1 - GetLength(I-Round(F.Y), K-Round(F.X)) / rad;
         hsSquare: tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / rad;
         else                 tmp := 0;
@@ -1540,7 +1540,7 @@ begin
       tmp := EnsureRange(tmp * 2.5, 0, 1); // *2.5 makes dots more visible
       gRenderAux.DotOnTerrain(K, I, $FF or (Round(tmp*255) shl 24));
     end;
-    case gGameCursor.MapEdShape of
+    case gCursor.MapEdShape of
       hsCircle: gRenderAux.CircleOnTerrain(round(F.X), round(F.Y), rad, $00000000,  $FFFFFFFF);
       hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - rad, round(F.Y) - rad, round(F.X + rad), round(F.Y) + rad, $FFFFFFFF);
     end;
@@ -1554,13 +1554,13 @@ var
   rad, slope: Byte;
   F: TKMPointF;
 begin
-  F := gGameCursor.Float;
-  rad := (gGameCursor.MapEdSize div 2) +1;
-  slope := gGameCursor.MapEdSlope;
+  F := gCursor.Float;
+  rad := (gCursor.MapEdSize div 2) +1;
+  slope := gCursor.MapEdSlope;
   for I := Max((Round(F.Y) - rad), 1) to Min((Round(F.Y) + rad), gTerrain.MapY -1) do
     for K := Max((Round(F.X) - rad), 1) to Min((Round(F.X) + rad), gTerrain.MapX - 1) do
     begin
-      case gGameCursor.MapEdShape of
+      case gCursor.MapEdShape of
         hsCircle: tmp := 1 - GetLength(I-Round(F.Y), K-Round(F.X)) / rad;
         hsSquare: tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / rad;
         else                 tmp := 0;
@@ -1569,7 +1569,7 @@ begin
       tmp := EnsureRange(tmp * 2.5, 0, 1); // *2.5 makes dots more visible
       gRenderAux.DotOnTerrain(K, I, $FF or (Round(tmp*255) shl 24));
     end;
-    case gGameCursor.MapEdShape of
+    case gCursor.MapEdShape of
       hsCircle: gRenderAux.CircleOnTerrain(round(F.X), round(F.Y), rad, $00000000,  $FFFFFFFF);
       hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - rad, round(F.Y) - rad, round(F.X + rad), round(F.Y) + rad, $FFFFFFFF);
     end;
@@ -1583,11 +1583,11 @@ end;
 
 procedure TRenderPool.RenderTileInt(const X, Y: Integer);
 begin
- if gGameCursor.MapEdSize = 0 then
+ if gCursor.MapEdSize = 0 then
     // Brush size smaller than one cell
-    gRenderAux.DotOnTerrain(Round(gGameCursor.Float.X), Round(gGameCursor.Float.Y), $FF80FF80)
+    gRenderAux.DotOnTerrain(Round(gCursor.Float.X), Round(gCursor.Float.Y), $FF80FF80)
   else
-    RenderTile(Combo[TKMTerrainKind(gGameCursor.Tag1), TKMTerrainKind(gGameCursor.Tag1),1],X,Y,0);
+    RenderTile(Combo[TKMTerrainKind(gCursor.Tag1), TKMTerrainKind(gCursor.Tag1),1],X,Y,0);
 end;
 
 
@@ -1597,19 +1597,19 @@ var
   size: Integer;
   isSquare: Boolean;
 begin
-  P := gGameCursor.Cell;
-  size := gGameCursor.MapEdSize;
-  isSquare := gGameCursor.MapEdShape = hsSquare;
-  if gGameCursor.MapEdUseMagicBrush then
+  P := gCursor.Cell;
+  size := gCursor.MapEdSize;
+  isSquare := gCursor.MapEdShape = hsSquare;
+  if gCursor.MapEdUseMagicBrush then
     IterateOverArea(P, size, isSquare, RenderWireTileInt)
   else
-  if gGameCursor.Tag1 <> 0 then
+  if gCursor.Tag1 <> 0 then
   begin
     if SHOW_BRUSH_APPLY_AREA then
     begin
       RP := P;
       if size = 0 then
-        RP := KMPoint(Round(gGameCursor.Float.X+1), Round(gGameCursor.Float.Y+1));
+        RP := KMPoint(Round(gCursor.Float.X+1), Round(gCursor.Float.Y+1));
       IterateOverArea(RP, size, isSquare, RenderWireTileInt, True); // Render surrounding tiles, that will be fixed with transitions
     end;
     IterateOverArea(P, size, isSquare, RenderTileInt);
@@ -1652,23 +1652,23 @@ var
   P: TKMPoint;
   F: TKMPointF;
 begin
-  if gGameCursor.Cell.Y * gGameCursor.Cell.X = 0 then Exit; // Caused a rare crash
+  if gCursor.Cell.Y * gCursor.Cell.X = 0 then Exit; // Caused a rare crash
 
   TRender.BindTexture(0); // We have to reset texture to default (0), because it could be bind to any other texture (atlas)
 
   if gGameParams.IsMapEditor then
     gGame.MapEditor.Paint(plCursors, KMRect(0,0,0,0));
 
-  P := gGameCursor.Cell;
-  F := gGameCursor.Float;
+  P := gCursor.Cell;
+  F := gCursor.Float;
 
-  if (gGameCursor.Mode <> cmNone) and (gGameCursor.Mode <> cmHouses) and
+  if (gCursor.Mode <> cmNone) and (gCursor.Mode <> cmHouses) and
      (gMySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0) then
     RenderSpriteOnTile(P, TC_BLOCK)       // Red X
   else
 
   with gTerrain do
-  case gGameCursor.Mode of
+  case gCursor.Mode of
     cmNone:       ;
     cmErase:      if not gGameParams.IsMapEditor then
                   begin
@@ -1680,35 +1680,35 @@ begin
                     else
                       RenderSpriteOnTile(P, TC_BLOCK); // Red X
                   end;
-    cmRoad:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ftRoad)) and (gGameCursor.Tag1 <> Ord(cfmErase)) then
+    cmRoad:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ftRoad)) and (gCursor.Tag1 <> Ord(cfmErase)) then
                     RenderWireTile(P, icCyan) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
     cmField:      if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ftCorn) or (gGameParams.IsMapEditor and gTerrain.TileIsCornField(P)))
-                    and (gGameCursor.Tag1 <> Ord(cfmErase)) then
+                    and (gCursor.Tag1 <> Ord(cfmErase)) then
                     RenderWireTile(P, icCyan) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
     cmWine:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ftWine) or (gGameParams.IsMapEditor and gTerrain.TileIsWineField(P)))
-                    and (gGameCursor.Tag1 <> Ord(cfmErase)) then
+                    and (gCursor.Tag1 <> Ord(cfmErase)) then
                     RenderWireTile(P, icCyan) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
-    cmHouses:     RenderWireHousePlan(KMPointAdd(P, gGameCursor.DragOffset), TKMHouseType(gGameCursor.Tag1)); // Cyan quads and red Xs
+    cmHouses:     RenderWireHousePlan(KMPointAdd(P, gCursor.DragOffset), TKMHouseType(gCursor.Tag1)); // Cyan quads and red Xs
     cmBrush:      RenderForegroundUI_Brush;
-    cmTiles:      if gGameCursor.MapEdDir in [0..3] then
-                    RenderTile(gGameCursor.Tag1, P.X, P.Y, gGameCursor.MapEdDir)
+    cmTiles:      if gCursor.MapEdDir in [0..3] then
+                    RenderTile(gCursor.Tag1, P.X, P.Y, gCursor.MapEdDir)
                   else
-                    RenderTile(gGameCursor.Tag1, P.X, P.Y, (gTerrain.AnimStep div 5) mod 4); // Spin it slowly so player remembers it is on randomized
+                    RenderTile(gCursor.Tag1, P.X, P.Y, (gTerrain.AnimStep div 5) mod 4); // Spin it slowly so player remembers it is on randomized
     cmOverlays:   begin
                     RenderWireTile(P, icCyan);
-                    if gGameCursor.Tag1 > 0 then
-                      RenderTile(TILE_OVERLAY_IDS[TKMTileOverlay(gGameCursor.Tag1)], P.X, P.Y, 0);
+                    if gCursor.Tag1 > 0 then
+                      RenderTile(TILE_OVERLAY_IDS[TKMTileOverlay(gCursor.Tag1)], P.X, P.Y, 0);
                     end;
     cmObjects:    begin
                     // If there's object below - paint it in Red
                     RenderMapElement(gTerrain.Land^[P.Y,P.X].Obj, gTerrain.AnimStep, P.X, P.Y, True, True);
-                    RenderMapElement(gGameCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, True);
+                    RenderMapElement(gCursor.Tag1, gTerrain.AnimStep, P.X, P.Y, True);
                   end;
     cmObjectsBrush: RenderForegroundUI_ObjectsBrush;
     cmMagicWater: begin
@@ -1725,8 +1725,8 @@ begin
     cmConstHeight:   RenderForegroundUI_ElevateEqualize;
     cmUnits:      RenderForegroundUI_Units;
     cmMarkers:    RenderForegroundUI_Markers;
-    cmPaintBucket:      RenderForegroundUI_PaintBucket(ssShift in gGameCursor.SState);
-    cmUniversalEraser:  RenderForegroundUI_UniversalEraser(ssShift in gGameCursor.SState);
+    cmPaintBucket:      RenderForegroundUI_PaintBucket(ssShift in gCursor.SState);
+    cmUniversalEraser:  RenderForegroundUI_UniversalEraser(ssShift in gCursor.SState);
   end;
 
   if DISPLAY_SOUNDS then gSoundPlayer.Paint;
@@ -1770,13 +1770,13 @@ begin
       else
         groupFlagColor := aFlagColor;
 
-      if G.IsFlagRenderBeforeUnit then
+      if G.IsFlagRenderBeforeUnit(U.Direction) then
       begin
-        G.PaintHighlighted(aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
+        G.PaintHighlighted(0.0, aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
         RenderUnit(U, U.Position, aHandColor, aDoHighlight, aHighlightColor);
       end else begin
         RenderUnit(U, U.Position, aHandColor, aDoHighlight, aHighlightColor);
-        G.PaintHighlighted(aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
+        G.PaintHighlighted(0.0, aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
       end;
       Result := True;
     end;
@@ -1789,15 +1789,15 @@ var
   obj: TObject;
   P: TKMPoint;
 begin
-  if gGameCursor.Tag1 = 255 then
+  if gCursor.Tag1 = 255 then
   begin
     obj := gMySpectator.HitTestCursorWGroup(True);
     TryRenderUnitOrGroup(obj, nil, nil, True, True, DELETE_COLOR, 0, DELETE_COLOR);
   end
   else begin
-    P := gGameCursor.Cell;
-    if gTerrain.CanPlaceUnit(P, TKMUnitType(gGameCursor.Tag1)) then
-      AddUnitWithDefaultArm(TKMUnitType(gGameCursor.Tag1), 0, uaWalk, dirS, UNIT_STILL_FRAMES[dirS], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True)
+    P := gCursor.Cell;
+    if gTerrain.CanPlaceUnit(P, TKMUnitType(gCursor.Tag1)) then
+      AddUnitWithDefaultArm(TKMUnitType(gCursor.Tag1), 0, uaWalk, dirS, UNIT_STILL_FRAMES[dirS], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True)
     else
       RenderSpriteOnTile(P, TC_BLOCK); // Red X
   end;
@@ -1810,7 +1810,7 @@ var
   P: TKMPoint;
   isRendered: Boolean;
 begin
-  P := gGameCursor.Cell;
+  P := gCursor.Cell;
   obj := gMySpectator.HitTestCursorWGroup(True);
 
   isRendered := TryRenderUnitOrGroup(obj, nil, nil, True, True, DELETE_COLOR, 0, DELETE_COLOR);
@@ -1856,7 +1856,7 @@ var
   P: TKMPoint;
   isRendered: Boolean;
 begin
-  P := gGameCursor.Cell;
+  P := gCursor.Cell;
   highlightColor := MultiplyBrightnessByFactor(gMySpectator.Hand.FlagColor, 2, 0.3, 0.9);
   obj := gMySpectator.HitTestCursorWGroup;
 

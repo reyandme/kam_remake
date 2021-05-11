@@ -115,13 +115,13 @@ type
       PopUp_Rename: TKMPopUpMenu;
         Image_Rename: TKMImage;
         Label_RenameTitle, Label_RenameName: TKMLabel;
-        Edit_Rename: TKMEdit;
+        FilenameEdit_Rename: TKMFilenameEdit;
         Button_MapRenameConfirm, Button_MapRenameCancel: TKMButton;
 
       PopUp_Move: TKMPopUpMenu;
         Image_Move: TKMImage;
         Button_MapMoveConfirm, Button_MapMoveCancel: TKMButton;
-        Edit_MapMove: TKMEdit;
+        FilenameEdit_MapMove: TKMFilenameEdit;
         Label_MoveExists: TKMLabel;
         CheckBox_MoveExists: TKMCheckBox;
         Label_MapMoveConfirmTitle, Label_MapMoveName: TKMLabel;
@@ -155,7 +155,7 @@ uses
   KM_ResSpritesEdit,
   KromUtils,
   KM_RenderUI, KM_Resource, KM_ResFonts,
-  KM_Pics, KM_CommonUtils, KM_GameApp;
+  KM_Pics, KM_CommonUtils, KM_GameApp, KM_MapTypes;
 
 const
   MAPSIZES_COUNT = 8;
@@ -313,6 +313,8 @@ begin
       ColumnBox_MapEd.OnChange := SelectMap;
       ColumnBox_MapEd.OnDoubleClick := LoadClick;
       ColumnBox_MapEd.OnCellClick := ColumnBoxMaps_CellClick;
+      ColumnBox_MapEd.ShowHintWhenShort := True;
+      ColumnBox_MapEd.HintBackColor := TKMColor3f.NewB(149, 128, 69); //Dark yellow color
 
       Button_Load := TKMButton.Create(Panel_MapEdLoad, 0, ColumnBox_MapEd.Bottom + 8, Panel_MapEdLoad.Width, 30, gResTexts[TX_MENU_MAP_LOAD_EXISTING], bsMenu);
       Button_Load.Anchors := [anLeft, anBottom];
@@ -408,10 +410,9 @@ begin
         Label_RenameName := TKMLabel.Create(PopUp_Rename, 25, 100, 60, 20, gResTexts[TX_MENU_REPLAY_RENAME_NAME], fntMetal, taLeft);
         Label_RenameName.Anchors := [anLeft,anBottom];
 
-        Edit_Rename := TKMEdit.Create(PopUp_Rename, 105, 97, 275, 20, fntMetal);
-        Edit_Rename.Anchors := [anLeft,anBottom];
-        Edit_Rename.AllowedChars := acFileName;
-        Edit_Rename.OnChange := Edit_Rename_Change;
+        FilenameEdit_Rename := TKMFilenameEdit.Create(PopUp_Rename, 105, 97, 275, 20, fntMetal);
+        FilenameEdit_Rename.Anchors := [anLeft,anBottom];
+        FilenameEdit_Rename.OnChange := Edit_Rename_Change;
 
         Button_MapRenameConfirm := TKMButton.Create(PopUp_Rename, 20, 155, 170, 30, gResTexts[TX_MENU_REPLAY_RENAME_CONFIRM], bsMenu);
         Button_MapRenameConfirm.Anchors := [anLeft,anBottom];
@@ -440,9 +441,9 @@ begin
         Label_MapMoveName := TKMLabel.Create(PopUp_Move, 25, 75, 60, 20, gResTexts[TX_MENU_MAP_MOVE_NAME_TITLE], fntMetal, taLeft);
         Label_MapMoveName.Anchors := [anLeft,anBottom];
 
-        Edit_MapMove := TKMEdit.Create(PopUp_Move, 105, 72, 275, 20, fntGrey);
-        Edit_MapMove.Anchors := [anLeft, anBottom];
-        Edit_MapMove.OnChange := MoveEditChange;
+        FilenameEdit_MapMove := TKMFilenameEdit.Create(PopUp_Move, 105, 72, 275, 20, fntGrey);
+        FilenameEdit_MapMove.Anchors := [anLeft, anBottom];
+        FilenameEdit_MapMove.OnChange := MoveEditChange;
 
         Label_MoveExists := TKMLabel.Create(PopUp_Move, 25, 100, gResTexts[TX_MAPED_SAVE_EXISTS], fntOutline, taLeft);
         Label_MoveExists.Anchors := [anLeft, anBottom];
@@ -538,26 +539,27 @@ end;
 
 procedure TKMMenuMapEditor.LoadClick(Sender: TObject);
 var
-  Map: TKMapInfo;
+  map: TKMapInfo;
 begin
   //This is also called by double clicking on a map in the list
-  if ((Sender = Button_Load) or (Sender = ColumnBox_MapEd)) and Button_Load.Enabled and ColumnBox_MapEd.IsSelected and (ColumnBox_MapEd.SelectedItem.Cells[1].Pic.ID > 0) then
+  if ((Sender = Button_Load) or (Sender = ColumnBox_MapEd))
+    and Button_Load.Enabled and ColumnBox_MapEd.IsSelected and (ColumnBox_MapEd.SelectedItem.Cells[1].Pic.ID > 0) then
   begin
     fMaps.Lock;
     try
       //Make local copy of Map before Unlock
-      Map := fMaps[ColumnBox_MapEd.SelectedItemTag];
+      map := fMaps[ColumnBox_MapEd.SelectedItemTag];
       //Unlock before Terminate!
       fMaps.Unlock;
       //Terminate all
       fMaps.TerminateScan;
-      gGameApp.NewMapEditor(TKMapFolder(Radio_MapType.ItemIndex), Map.FullPath('.dat'), 0, 0, Map.CRC, Map.MapAndDatCRC);
+      gGameApp.NewMapEditor(map.FullPath('.dat'), TKMapFolder(Radio_MapType.ItemIndex), 0, 0, map.CRC, map.MapAndDatCRC);
     finally
       fMaps.Unlock; //Double unlock should not harm
     end;
 
     if Assigned(OnNewMapEditor) then
-      OnNewMapEditor(TKMapFolder(Radio_MapType.ItemIndex), Map.FullPath('.dat'), 0, 0, Map.CRC, Map.MapAndDatCRC);
+      OnNewMapEditor(map.FullPath('.dat'), TKMapFolder(Radio_MapType.ItemIndex), 0, 0, map.CRC, map.MapAndDatCRC);
   end;
 
   //Create new map (NumEdits hold actual dimensions)
@@ -686,27 +688,27 @@ end;
 
 procedure TKMMenuMapEditor.ScanComplete(Sender: TObject);
 var
-  MapsSimpleCRCArray, MapsFullCRCArray: TKMCardinalArray;
   I: Integer;
+  mapsSimpleCRCArray, mapsFullCRCArray: TKMCardinalArray;
 begin
   //Cleanup missing Favourite maps from the lists
   if (Sender = fMaps) and (fMaps.Count > 0) then
   begin
-    SetLength(MapsSimpleCRCArray, fMaps.Count);
-    SetLength(MapsFullCRCArray, fMaps.Count);
+    SetLength(mapsSimpleCRCArray, fMaps.Count);
+    SetLength(mapsFullCRCArray, fMaps.Count);
 
     for I := 0 to fMaps.Count - 1 do
     begin
-      MapsSimpleCRCArray[I] := fMaps[I].MapAndDatCRC;
-      MapsFullCRCArray[I] := fMaps[I].CRC;
+      mapsSimpleCRCArray[I] := fMaps[I].MapAndDatCRC;
+      mapsFullCRCArray[I] := fMaps[I].CRC;
 
       if gServerSettings.ServerMapsRosterEnabled
-        and gGameSettings.FavouriteMaps.Contains(MapsSimpleCRCArray[I]) then
-        gServerSettings.ServerMapsRoster.Add(MapsFullCRCArray[I]);
+        and gGameSettings.FavouriteMaps.Contains(mapsSimpleCRCArray[I]) then
+        gServerSettings.ServerMapsRoster.Add(mapsFullCRCArray[I]);
     end;
 
-    gGameSettings.FavouriteMaps.RemoveMissing(MapsSimpleCRCArray);
-    gServerSettings.ServerMapsRoster.RemoveMissing(MapsFullCRCArray);
+    gGameSettings.FavouriteMaps.RemoveMissing(mapsSimpleCRCArray);
+    gServerSettings.ServerMapsRoster.RemoveMissing(mapsFullCRCArray);
   end;
 end;
 
@@ -1001,7 +1003,7 @@ end;
 
 procedure TKMMenuMapEditor.SelectMap(Sender: TObject);
 var
-  MapId: Integer;
+  mapId: Integer;
 begin
   UpdateUI;
 
@@ -1017,8 +1019,8 @@ begin
 
     fMaps.Lock;
     try
-      SetSelectedMapInfo(MapId);
-      UpdateMapInfo(MapId);
+      SetSelectedMapInfo(mapId);
+      UpdateMapInfo(mapId);
     finally
       fMaps.Unlock;
     end;
@@ -1114,9 +1116,9 @@ begin
   // Change name of the save
   if Sender = Button_MapRenameConfirm then
   begin
-    Edit_Rename.Text := Trim(Edit_Rename.Text);
-    fMaps.RenameMap(ColumnBox_MapEd.SelectedItemTag, Edit_Rename.Text);
-    SetSelectedMapInfo(fSelectedMapInfo.CRC, Edit_Rename.Text);
+    FilenameEdit_Rename.Text := Trim(FilenameEdit_Rename.Text);
+    fMaps.RenameMap(ColumnBox_MapEd.SelectedItemTag, FilenameEdit_Rename.Text);
+    SetSelectedMapInfo(fSelectedMapInfo.CRC, FilenameEdit_Rename.Text);
     ListUpdate;
   end;
 end;
@@ -1125,7 +1127,7 @@ end;
 // Check if new name is allowed
 procedure TKMMenuMapEditor.Edit_Rename_Change(Sender: TObject);
 begin
-  Button_MapRenameConfirm.Enabled := (Trim(Edit_Rename.Text) <> '') and not fMaps.Contains(Trim(Edit_Rename.Text));
+  Button_MapRenameConfirm.Enabled := FilenameEdit_Rename.IsValid and not fMaps.Contains(Trim(FilenameEdit_Rename.Text));
 end;
 
 
@@ -1133,7 +1135,7 @@ procedure TKMMenuMapEditor.RenameConfirm(aVisible: Boolean);
 begin
   if aVisible then
   begin
-    Edit_Rename.Text := fMaps[ColumnBox_MapEd.SelectedItemTag].FileName;
+    FilenameEdit_Rename.Text := fMaps[ColumnBox_MapEd.SelectedItemTag].FileName;
     Button_MapRenameConfirm.Enabled := False;
     PopUp_Rename.Show;
   end else
@@ -1155,18 +1157,19 @@ end;
 
 
 procedure TKMMenuMapEditor.SetSelectedMapInfo(aID: Integer = -1);
-var CRC: Cardinal;
-    Name: UnicodeString;
+var
+  CRC: Cardinal;
+  name: UnicodeString;
 begin
   if (aID <> -1) then
   begin
     CRC := fMaps[aID].MapAndDatCRC;
-    Name := fMaps[aID].FileName;
+    name := fMaps[aID].FileName;
   end else begin
     CRC := 0;
-    Name := '';
+    name := '';
   end;
-  SetSelectedMapInfo(CRC, Name);
+  SetSelectedMapInfo(CRC, name);
 end;
 
 
@@ -1188,10 +1191,10 @@ end;
 
 procedure TKMMenuMapEditor.MoveEditChange(Sender: TObject);
 var
-  SaveName: string;
+  saveName: string;
 begin
-  // Do not allow empty file name
-  if Trim(Edit_MapMove.Text) = '' then
+  // Do not allow not valid file name
+  if not FilenameEdit_MapMove.IsValid then
   begin
     CheckBox_MoveExists.Visible := False;
     Label_MoveExists.Visible := False;
@@ -1199,11 +1202,11 @@ begin
     Exit;
   end;
 
-  SaveName := TKMapsCollection.FullPath(Trim(Edit_MapMove.Text), '.dat', mfMP);
+  saveName := TKMapsCollection.FullPath(Trim(FilenameEdit_MapMove.Text), '.dat', mfMP);
 
-  if (Sender = Edit_MapMove) or (Sender = Button_MapMove) then
+  if (Sender = FilenameEdit_MapMove) or (Sender = Button_MapMove) then
   begin
-    CheckBox_MoveExists.Visible := FileExists(SaveName);
+    CheckBox_MoveExists.Visible := FileExists(saveName);
     Label_MoveExists.Visible := CheckBox_MoveExists.Visible;
     CheckBox_MoveExists.Checked := False;
     Button_MapMoveConfirm.Enabled := not CheckBox_MoveExists.Visible;
@@ -1294,8 +1297,8 @@ begin
     if fMinimapLastListId = aID then Exit; //Do not reload same minimap
 
     fMinimapLastListId := aID;
-    Map := fMaps[aID];
-    fMinimap.LoadFromMission(Map.FullPath('.dat'), []);
+    map := fMaps[aID];
+    fMinimap.LoadFromMission(map.FullPath('.dat'), []);
     fMinimap.Update(True);
     MinimapView_MapEd.SetMinimap(fMinimap);
     MinimapView_MapEd.Show;
@@ -1320,13 +1323,13 @@ begin
 
     Label_MapType.Caption := '';
 
-    if Map.TxtInfo.IsCoop then
+    if map.TxtInfo.IsCoop then
       Label_MapType.Caption := AddLabelDesc(Label_MapType.Caption, gResTexts[TX_LOBBY_MAP_COOP]);
 
-    if Map.TxtInfo.IsSpecial then
+    if map.TxtInfo.IsSpecial then
       Label_MapType.Caption := AddLabelDesc(Label_MapType.Caption, gResTexts[TX_LOBBY_MAP_SPECIAL]);
 
-    if Map.TxtInfo.IsPlayableAsSP then
+    if map.TxtInfo.IsPlayableAsSP then
       Label_MapType.Caption := AddLabelDesc(Label_MapType.Caption, gResTexts[TX_MENU_MAP_PLAYABLE_AS_SP]);
 
     if Label_MapType.Caption = '' then
@@ -1337,9 +1340,9 @@ begin
       Label_MapType.Hide;
     end else
     begin
-      LabelHeight := gRes.Fonts[Label_MapType.Font].GetTextSize(Label_MapType.Caption).Y;
-      Memo_MapDesc.Top := MinimapView_MapEd.Bottom + 15 + LabelHeight;
-      Memo_MapDesc.Height := Panel_MapInfo.Height - 209 - LabelHeight - (Button_ViewReadme.Height + 5) * Byte(Button_ViewReadme.Visible);
+      labelHeight := gRes.Fonts[Label_MapType.Font].GetTextSize(Label_MapType.Caption).Y;
+      Memo_MapDesc.Top := MinimapView_MapEd.Bottom + 15 + labelHeight;
+      Memo_MapDesc.Height := Panel_MapInfo.Height - 209 - labelHeight - (Button_ViewReadme.Height + 5) * Byte(Button_ViewReadme.Visible);
       Button_ViewReadme.Top := Memo_MapDesc.Bottom + 5;
       Label_MapType.Show;
     end;
@@ -1362,7 +1365,7 @@ begin
   if Sender = Button_MapMove then
   begin
     ID := ColumnBox_MapEd.SelectedItemTag;
-    Edit_MapMove.Text := fMaps[ID].FileNameWithoutHash;
+    FilenameEdit_MapMove.Text := fMaps[ID].FileNameWithoutHash;
     MoveConfirm(True);
     MoveEditChange(Button_MapMove);
   end;
@@ -1373,8 +1376,8 @@ begin
   //Move selected map
   if Sender = Button_MapMoveConfirm then
   begin
-    fMaps.MoveMap(ColumnBox_MapEd.SelectedItemTag, Edit_MapMove.Text, mfMP);
-    SetSelectedMapInfo(fSelectedMapInfo.CRC, Edit_MapMove.Text); // Update Name of selected item in list
+    fMaps.MoveMap(ColumnBox_MapEd.SelectedItemTag, FilenameEdit_MapMove.Text, mfMP);
+    SetSelectedMapInfo(fSelectedMapInfo.CRC, FilenameEdit_MapMove.Text); // Update Name of selected item in list
     ColumnBox_MapEd.Focus;
     ListUpdate;
   end;

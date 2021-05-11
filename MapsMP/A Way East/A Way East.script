@@ -179,6 +179,17 @@ begin
         9:  Result := 60000;
         10: Result := 63000;
       end;
+
+    mdHard2:
+      case P of
+        4:  Result := 36000;
+        5:  Result := 42000;
+        6:  Result := 51000;
+        7:  Result := 54000;
+        8:  Result := 33000;
+        9:  Result := 57000;
+        10: Result := 60000;
+      end;
   end;
 end;
 
@@ -272,6 +283,34 @@ begin
                Actions.AIAttackAdd(7, True, 57000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
                Actions.AIAttackAdd(9, True, 60000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
                Actions.AIAttackAdd(10, True, 63000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+             end;
+
+    mdHard2: begin
+               Actions.AIEquipRate(4, 0, 75);
+               Actions.AIEquipRate(4, 1, 75);
+               Actions.AIEquipRate(5, 0, 75);
+               Actions.AIEquipRate(5, 1, 75);
+               Actions.AIEquipRate(6, 0, 100);
+               Actions.AIEquipRate(6, 1, 100);
+               Actions.AIEquipRate(7, 0, 100);
+               Actions.AIEquipRate(7, 1, 100);
+               Actions.AIEquipRate(8, 0, 75);
+               Actions.AIEquipRate(8, 1, 75);
+               Actions.AIEquipRate(9, 0, 100);
+               Actions.AIEquipRate(9, 1, 100);
+               Actions.AIEquipRate(10, 0, 100);
+               Actions.AIEquipRate(10, 1, 100);
+               for I := 4 to 11 do
+                 Actions.AIAttackRemoveAll(I);
+               Pos.X := 0;
+               Pos.Y := 0;
+               Actions.AIAttackAdd(8, True, 33000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(4, True, 36000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(5, True, 42000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(6, True, 51000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(7, True, 54000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(9, True, 57000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
+               Actions.AIAttackAdd(10, True, 60000, 50, 0, 0, 0, 0, True, attClosestBuildingFromStartPos, Pos);
              end;
   end;
 

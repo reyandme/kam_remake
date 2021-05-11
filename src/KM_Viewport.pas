@@ -128,15 +128,16 @@ end;
 
 
 procedure TKMViewport.SetPosition(const Value: TKMPointF);
-var PadTop, TilesX, TilesY: Single;
+var
+  padTop, tilesX, tilesY: Single;
 begin
-  PadTop := fTopHill + 0.75; //Leave place on top for highest hills + 1 unit
+  padTop := fTopHill + 0.75; //Leave place on top for highest hills + 1 unit
 
-  TilesX := fViewportClip.X/2/CELL_SIZE_PX/fZoom;
-  TilesY := fViewportClip.Y/2/CELL_SIZE_PX/fZoom;
+  tilesX := fViewportClip.X/2/CELL_SIZE_PX/fZoom;
+  tilesY := fViewportClip.Y/2/CELL_SIZE_PX/fZoom;
 
-  fPosition.X := EnsureRange(Value.X, TilesX, fMapX - TilesX - 1);
-  fPosition.Y := EnsureRange(Value.Y, TilesY - PadTop, fMapY - TilesY - 1); //Top row should be visible
+  fPosition.X := EnsureRange(Value.X, tilesX, fMapX - tilesX - 1);
+  fPosition.Y := EnsureRange(Value.Y, tilesY - padTop, fMapY - tilesY - 1); //Top row should be visible
   gSoundPlayer.UpdateListener(fPosition.X, fPosition.Y);
   if gScriptSounds <> nil then
     gScriptSounds.UpdateListener(fPosition.X, fPosition.Y);
@@ -187,14 +188,14 @@ end;
 
 procedure TKMViewport.GameSpeedChanged(aFromSpeed, aToSpeed: Single);
 var
-  Koef: Single;
+  koef: Single;
 begin
   if (aFromSpeed > 0) and (fPanDuration > 0) and not fPanImmidiately then
   begin
     //Update PanDuration and Progress due to new game speed
-    Koef := aFromSpeed / aToSpeed;
-    fPanDuration := Round((fPanDuration - fPanProgress) * Koef);
-    fPanProgress := Round(fPanProgress * Koef);
+    koef := aFromSpeed / aToSpeed;
+    fPanDuration := Round((fPanDuration - fPanProgress) * koef);
+    fPanProgress := Round(fPanProgress * koef);
     Inc(fPanDuration, fPanProgress);
   end;
 end;
@@ -233,7 +234,7 @@ procedure TKMViewport.UpdateStateIdle(aFrameTime: Cardinal; aAllowMouseScrolling
 const
   SCROLL_ACCEL_TIME = 400; // Time in ms that scrolling will be affected by acceleration
   SCROLL_FLEX = 4;         // Number of pixels either side of the edge of the screen which will count as scrolling
-  DirectionsBitfield: array [0..15] of TKMCursor = (
+  DIRECTIONS_BITFIELD: array [0..15] of TKMCursor = (
     kmcDefault, kmcScroll6, kmcScroll0, kmcScroll7,
     kmcScroll2, kmcDefault, kmcScroll1, kmcDefault,
     kmcScroll4, kmcScroll5, kmcDefault, kmcDefault,
@@ -246,12 +247,12 @@ const
   end;
 
 var
-  TimeSinceStarted: Cardinal;
-  ScrollAdv, ZoomAdv: Single;
-  CursorPoint: TKMPoint;
-  ScreenBounds: TRect;
   I: Byte;
-  MousePos: TPoint;
+  timeSinceStarted: Cardinal;
+  scrollAdv, zoomAdv: Single;
+  cursorPoint: TKMPoint;
+  screenBounds: TRect;
+  mousePos: TPoint;
 begin
   //Cinematics do not allow normal scrolling. The camera will be set and panned with script commands
   if aInCinematic then
@@ -276,16 +277,16 @@ begin
     //the OS doesn't want us controling the mouse, or possibly when the mouse is reset in some way.
     //It happens for me in Windows 7 every time I press CTRL+ALT+DEL with the game running.
     //On Windows XP I get "call to an OS function failed" instead.
-    if not Windows.GetCursorPos(MousePos) then Exit;
+    if not Windows.GetCursorPos(mousePos) then Exit;
   {$ENDIF}
   {$IFDEF Unix}
     MousePos := Mouse.CursorPos;
   {$ENDIF}
-  if not gMain.GetScreenBounds(ScreenBounds) then Exit;
+  if not gMain.GetScreenBounds(screenBounds) then Exit;
 
   //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast
-  CursorPoint.X := EnsureRange(MousePos.X, ScreenBounds.Left, ScreenBounds.Right );
-  CursorPoint.Y := EnsureRange(MousePos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
+  cursorPoint.X := EnsureRange(mousePos.X, screenBounds.Left, screenBounds.Right );
+  cursorPoint.Y := EnsureRange(mousePos.Y, screenBounds.Top , screenBounds.Bottom);
 
   //Do not do scrolling when the form is not focused (player has switched to another application)
   if not aAllowMouseScrolling or
@@ -296,10 +297,10 @@ begin
      not ScrollKeyDown  and
      not ZoomKeyIn      and
      not ZoomKeyOut     and
-     not (CursorPoint.X <= ScreenBounds.Left + SCROLL_FLEX) and
-     not (CursorPoint.Y <= ScreenBounds.Top + SCROLL_FLEX) and
-     not (CursorPoint.X >= ScreenBounds.Right -1-SCROLL_FLEX) and
-     not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLL_FLEX)) then
+     not (cursorPoint.X <= screenBounds.Left + SCROLL_FLEX) and
+     not (cursorPoint.Y <= screenBounds.Top + SCROLL_FLEX) and
+     not (cursorPoint.X >= screenBounds.Right -1-SCROLL_FLEX) and
+     not (cursorPoint.Y >= screenBounds.Bottom-1-SCROLL_FLEX)) then
   begin
     //Stop the scrolling (e.g. if the form loses focus due to other application popping up)
     ReleaseScrollKeys;
@@ -314,17 +315,17 @@ begin
 
   // Both advancements have minimal value > 0
   // ScrollAdv depends on Zoom. Value was taken empirically
-  ScrollAdv := (0.5 + gGameSettings.ScrollSpeed / 5) * aFrameTime / 100 / Math.Power(fZoom, 0.8);
+  scrollAdv := (0.5 + gGameSettings.ScrollSpeed / 5) * aFrameTime / 100 / Math.Power(fZoom, 0.8);
 
-  ZoomAdv := (0.2 + gGameSettings.ScrollSpeed / 20) * aFrameTime / 1000;
+  zoomAdv := (0.2 + gGameSettings.ScrollSpeed / 20) * aFrameTime / 1000;
 
   if SCROLL_ACCEL then
   begin
     if fScrollStarted = 0 then
       fScrollStarted := TimeGet;
-    TimeSinceStarted := TimeSince(fScrollStarted);
-    if TimeSinceStarted < SCROLL_ACCEL_TIME then
-      ScrollAdv := Mix(ScrollAdv, 0, TimeSinceStarted / SCROLL_ACCEL_TIME);
+    timeSinceStarted := TimeSince(fScrollStarted);
+    if timeSinceStarted < SCROLL_ACCEL_TIME then
+      scrollAdv := Mix(scrollAdv, 0, timeSinceStarted / SCROLL_ACCEL_TIME);
   end;
 
   I := 0; //That is our bitfield variable for directions, 0..12 range
@@ -333,22 +334,22 @@ begin
   //    9 8 12
 
   //Keys
-  if ScrollKeyLeft  then fPosition.X := fPosition.X - ScrollAdv;
-  if ScrollKeyUp    then fPosition.Y := fPosition.Y - ScrollAdv;
-  if ScrollKeyRight then fPosition.X := fPosition.X + ScrollAdv;
-  if ScrollKeyDown  then fPosition.Y := fPosition.Y + ScrollAdv;
-  if ZoomKeyIn      then fZoom := fZoom * (1 + ZoomAdv);
-  if ZoomKeyOut     then fZoom := fZoom * (1 - ZoomAdv);
+  if ScrollKeyLeft  then fPosition.X := fPosition.X - scrollAdv;
+  if ScrollKeyUp    then fPosition.Y := fPosition.Y - scrollAdv;
+  if ScrollKeyRight then fPosition.X := fPosition.X + scrollAdv;
+  if ScrollKeyDown  then fPosition.Y := fPosition.Y + scrollAdv;
+  if ZoomKeyIn      then fZoom := fZoom * (1 + zoomAdv);
+  if ZoomKeyOut     then fZoom := fZoom * (1 - zoomAdv);
   //Mouse
-  if CursorPoint.X <= ScreenBounds.Left   + SCROLL_FLEX then begin inc(I,1); fPosition.X := fPosition.X - ScrollAdv*(1+(ScreenBounds.Left   - CursorPoint.X)/SCROLL_FLEX); end;
-  if CursorPoint.Y <= ScreenBounds.Top    + SCROLL_FLEX then begin inc(I,2); fPosition.Y := fPosition.Y - ScrollAdv*(1+(ScreenBounds.Top    - CursorPoint.Y)/SCROLL_FLEX); end;
-  if CursorPoint.X >= ScreenBounds.Right -1-SCROLL_FLEX then begin inc(I,4); fPosition.X := fPosition.X + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLL_FLEX); end;
-  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLL_FLEX then begin inc(I,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLL_FLEX); end;
+  if cursorPoint.X <= screenBounds.Left   + SCROLL_FLEX then begin inc(I,1); fPosition.X := fPosition.X - scrollAdv*(1+(screenBounds.Left   - cursorPoint.X)/SCROLL_FLEX); end;
+  if cursorPoint.Y <= screenBounds.Top    + SCROLL_FLEX then begin inc(I,2); fPosition.Y := fPosition.Y - scrollAdv*(1+(screenBounds.Top    - cursorPoint.Y)/SCROLL_FLEX); end;
+  if cursorPoint.X >= screenBounds.Right -1-SCROLL_FLEX then begin inc(I,4); fPosition.X := fPosition.X + scrollAdv*(1-(screenBounds.Right -1-cursorPoint.X)/SCROLL_FLEX); end;
+  if cursorPoint.Y >= screenBounds.Bottom-1-SCROLL_FLEX then begin inc(I,8); fPosition.Y := fPosition.Y + scrollAdv*(1-(screenBounds.Bottom-1-cursorPoint.Y)/SCROLL_FLEX); end;
 
   //Now do actual the scrolling, if needed
   fScrolling := I <> 0;
   if fScrolling then
-    gRes.Cursors.Cursor := DirectionsBitfield[I] //Sample cursor type from bitfield value
+    gRes.Cursors.Cursor := DIRECTIONS_BITFIELD[I] //Sample cursor type from bitfield value
   else
     if (gRes.Cursors.Cursor in [kmcScroll0 .. kmcScroll7]) then
       gRes.Cursors.Cursor := kmcDefault;

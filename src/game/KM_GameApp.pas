@@ -6,7 +6,7 @@ uses
   {$IFDEF FPC} Controls, {$ENDIF}
   Classes, Dialogs, ExtCtrls,
   KM_CommonTypes, KM_Defaults, KM_RenderControl, KM_Video,
-  KM_Campaigns, KM_Game, KM_InterfaceMainMenu, KM_InterfaceTypes, KM_Resource,
+  KM_Campaigns, KM_Game, KM_InterfaceDefaults, KM_InterfaceMainMenu, KM_InterfaceTypes, KM_Resource,
   KM_Music, KM_Maps, KM_MapTypes, KM_CampaignTypes, KM_Networking,
   KM_GameSettings,
   KM_KeysSettings,
@@ -28,7 +28,9 @@ type
     fServerSettings: TKMServerSettings;
     fNetworking: TKMNetworking;
     fTimerUI: TTimer;
+
     fMainMenuInterface: TKMMainMenuInterface;
+
     fLastTimeRender: Cardinal;
 
     fChat: TKMChat;
@@ -51,10 +53,9 @@ type
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
     procedure LoadGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; const aGIPPath: String = '');
-    procedure LoadGameFromScript(const aMissionFile, aGameName: String; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
+    procedure LoadGameFromScript(const aMissionFullFilePath, aGameName: String; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
                                  aMap: Byte; aGameMode: TKMGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal;
-                                 aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone;
-                                 aAutoselectHumanLoc: Boolean = False);
+                                 aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
     procedure LoadGameSavePoint(aTick: Cardinal);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TKMGameMode);
     function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
@@ -67,6 +68,7 @@ type
     procedure SetOnOptionsChange(const aEvent: TEvent);
 
     procedure InitMainMenu(aScreenX, aScreenY: Word);
+    function GetActiveInterface: TKMUserInterfaceCommon;
   public
     constructor Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aOnLoadingStep: TEvent;
                        aOnLoadingText: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
@@ -91,21 +93,25 @@ type
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaignId: TKMCampaignId; aMap: Byte; aDifficulty: TKMMissionDifficulty = mdNone);
-    procedure NewSingleMap(const aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
+    procedure NewSingleMap(const aMissionFullPath, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
                            aDesiredColor: Cardinal = $00000000; aDifficulty: TKMMissionDifficulty = mdNone;
-                           aAIType: TKMAIType = aitNone; aAutoselectHumanLoc: Boolean = False);
+                           aAIType: TKMAIType = aitNone);
     procedure NewSingleSave(const aSaveName: UnicodeString);
     procedure NewMultiplayerMap(const aFileName: UnicodeString; aMapFolder: TKMapFolder; aCRC: Cardinal; aSpectating: Boolean;
                                 aDifficulty: TKMMissionDifficulty);
     procedure NewMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
-    procedure NewRestartLast(const aGameName, aMission, aSave: UnicodeString; aGameMode: TKMGameMode; aCampName: TKMCampaignId;
+    procedure NewRestartLast(const aGameName, aMissionFileRel, aSave: UnicodeString; aGameMode: TKMGameMode; aCampName: TKMCampaignId;
                              aCampMap: Byte; aLocation: Byte; aColor: Cardinal; aDifficulty: TKMMissionDifficulty = mdNone;
                              aAIType: TKMAIType = aitNone);
+
     procedure NewEmptyMap(aSizeX, aSizeY: Integer);
-    procedure NewMapEditor(aMapFolder: TKMapFolder; const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
+    procedure NewMapEd(const aFullFilePath: UnicodeString; aMapFolder: TKMapFolder);
+    procedure NewMapEditor(const aFullFilePath: UnicodeString; aMapFolder: TKMapFolder = mfSP; aSizeX: Integer = 0; aSizeY: Integer = 0;
                            aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0);
+
     procedure NewReplay(const aFilePath: UnicodeString);
     procedure NewSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
+
     function TryLoadSavePoint(aTick: Integer): Boolean;
     procedure LoadPrevSavePoint;
 
@@ -114,7 +120,10 @@ type
     property Campaigns: TKMCampaignsCollection read fCampaigns;
     function Game: TKMGame;
     property GameSettings: TKMGameSettings read GetGameSettings;
+
+    property ActiveInterface: TKMUserInterfaceCommon read GetActiveInterface;
     property MainMenuInterface: TKMMainMenuInterface read fMainMenuInterface;
+
     property Networking: TKMNetworking read fNetworking;
     property GlobalTickCount: Cardinal read fGlobalTickCount;
     property Chat: TKMChat read fChat;
@@ -160,7 +169,7 @@ uses
   KM_FormLogistics,
   KM_Main, KM_Controls, KM_Log, KM_Sound, KM_GameInputProcess, KM_GameInputProcess_Multi,
   KM_GameSavePoints,
-  KM_InterfaceDefaults, KM_GameCursor, KM_ResTexts,
+  KM_Cursor, KM_ResTexts,
   KM_Saves, KM_CommonUtils, KM_RandomChecks, KM_DevPerfLog, KM_DevPerfLogTypes;
 
 
@@ -174,7 +183,8 @@ begin
 
   fGameSettings := TKMGameSettings.Create;
 
-  fServerSettings := TKMServerSettings.Create;
+  // Create Server Settings in the shared folder
+  fServerSettings := TKMServerSettings.Create(False);
 
   fLastTimeRender := 0;
 
@@ -182,7 +192,7 @@ begin
 
   fChat := TKMChat.Create;
 
-  gGameCursor := TKMGameCursor.Create;
+  gCursor := TKMCursor.Create;
 
   if fGameSettings.DebugSaveRandomChecks and SAVE_RANDOM_CHECKS then
     gRandomCheckLogger := TKMRandomCheckLogger.Create;
@@ -272,7 +282,7 @@ begin
   FreeThenNil(gMusic);
   FreeAndNil(fNetworking);
   FreeAndNil(gRandomCheckLogger);
-  FreeAndNil(gGameCursor);
+  FreeAndNil(gCursor);
 
   FreeThenNil(gRender);
 
@@ -456,8 +466,8 @@ begin
   begin
     fOnCursorUpdate(SB_ID_CURSOR_COORD, Format('Cursor: %d:%d', [X, Y]));
     fOnCursorUpdate(SB_ID_TILE,         Format('Tile: %.1f:%.1f [%d:%d]',
-                               [gGameCursor.Float.X, gGameCursor.Float.Y,
-                               gGameCursor.Cell.X, gGameCursor.Cell.Y]));
+                               [gCursor.Float.X, gCursor.Float.Y,
+                               gCursor.Cell.X, gCursor.Cell.Y]));
     if SHOW_CONTROLS_ID then
     begin
       if gGame <> nil then
@@ -734,16 +744,15 @@ end;
 
 
 //Do not use _const_ aMissionFile, aGameName: UnicodeString, as for some unknown reason sometimes aGameName is not accessed after StopGame(grSilent) (pointing to a wrong value)
-procedure TKMGameApp.LoadGameFromScript(const aMissionFile, aGameName: String; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
+procedure TKMGameApp.LoadGameFromScript(const aMissionFullFilePath, aGameName: String; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
                                         aMap: Byte; aGameMode: TKMGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal;
-                                        aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone;
-                                        aAutoselectHumanLoc: Boolean = False);
+                                        aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
 var
-  loadError, missionFile, gameName: String;
+  loadError, missionFullFilePath, gameName: String;
 begin
   //Save const parameters locally, since it could be destroyed as some Game Object instance in StopGame
   //!!!!! DO NOT USE aMissionFile or aGameName further in this method
-  missionFile := aMissionFile;
+  missionFullFilePath := aMissionFullFilePath;
   gameName := aGameName;
   //!!!!! ------------------------------------------------------------
   StopGame(grSilent); //Stop everything silently
@@ -755,7 +764,7 @@ begin
 
   CreateGame(aGameMode);
   try
-    gGame.Start(missionFile, gameName, aFullCRC, aSimpleCRC, aCampaign, aMap, aDesiredLoc, aDesiredColor, aDifficulty, aAIType, aAutoselectHumanLoc);
+    gGame.Start(missionFullFilePath, gameName, aFullCRC, aSimpleCRC, aCampaign, aMap, aDesiredLoc, aDesiredColor, aDifficulty, aAIType);
   except
     on E : Exception do
     begin
@@ -763,7 +772,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      loadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [missionFile]) + '||' + E.ClassName + ': ' + E.Message;
+      loadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [missionFullFilePath]) + '||' + E.ClassName + ': ' + E.Message;
       StopGame(grError, loadError);
       gLog.AddTime('Game creation Exception: ' + loadError
         {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
@@ -897,12 +906,11 @@ begin
 end;
 
 
-procedure TKMGameApp.NewSingleMap(const aMissionFile, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
+procedure TKMGameApp.NewSingleMap(const aMissionFullPath, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
                                   aDesiredColor: Cardinal = $00000000; aDifficulty: TKMMissionDifficulty = mdNone;
-                                  aAIType: TKMAIType = aitNone; aAutoselectHumanLoc: Boolean = False);
+                                  aAIType: TKMAIType = aitNone);
 begin
-  LoadGameFromScript(aMissionFile, aGameName, 0, 0, nil, 0, gmSingle, aDesiredLoc, aDesiredColor, aDifficulty, aAIType,
-                     aAutoselectHumanLoc);
+  LoadGameFromScript(aMissionFullPath, aGameName, 0, 0, nil, 0, gmSingle, aDesiredLoc, aDesiredColor, aDifficulty, aAIType);
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
@@ -961,12 +969,12 @@ begin
 end;
 
 
-procedure TKMGameApp.NewRestartLast(const aGameName, aMission, aSave: UnicodeString; aGameMode: TKMGameMode;
+procedure TKMGameApp.NewRestartLast(const aGameName, aMissionFileRel, aSave: UnicodeString; aGameMode: TKMGameMode;
                                     aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal;
                                     aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
 begin
-  if FileExists(ExeDir + aMission) then
-    LoadGameFromScript(ExeDir + aMission, aGameName, 0, 0, fCampaigns.CampaignById(aCampName), aCampMap, aGameMode, aLocation, aColor, aDifficulty, aAIType)
+  if FileExists(ExeDir + aMissionFileRel) then
+    LoadGameFromScript(ExeDir + aMissionFileRel, aGameName, 0, 0, fCampaigns.CampaignById(aCampName), aCampMap, aGameMode, aLocation, aColor, aDifficulty, aAIType)
   else
   if FileExists(ChangeFileExt(ExeDir + aSave, EXT_SAVE_BASE_DOT)) then
     LoadGameFromSave(ChangeFileExt(ExeDir + aSave, EXT_SAVE_BASE_DOT), aGameMode)
@@ -990,24 +998,28 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMapEditor(aMapFolder: TKMapFolder; const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
+procedure TKMGameApp.NewMapEd(const aFullFilePath: UnicodeString; aMapFolder: TKMapFolder);
+begin
+  NewMapEditor(aFullFilePath, aMapFolder, 0, 0, 0, 0);
+end;
+
+
+procedure TKMGameApp.NewMapEditor(const aFullFilePath: UnicodeString; aMapFolder: TKMapFolder = mfSP;
+                                  aSizeX: Integer = 0; aSizeY: Integer = 0;
                                   aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0);
 begin
-  if aFileName <> '' then
+  if aFullFilePath <> '' then
+    LoadGameFromScript(aFullFilePath, TruncateExt(ExtractFileName(aFullFilePath)), aMapFullCRC, aMapSimpleCRC, nil, 0, gmMapEd, 0, 0)
+  else
   begin
-    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), aMapFullCRC, aMapSimpleCRC, nil, 0, gmMapEd, 0, 0);
-    // gGame could be nil if we failed to load map
-    if gGame <> nil then
-      gGame.MapEditorInterface.SetLoadMode(aMapFolder);
-  end
-  else begin
     aSizeX := EnsureRange(aSizeX, MIN_MAP_SIZE, MAX_MAP_SIZE);
     aSizeY := EnsureRange(aSizeY, MIN_MAP_SIZE, MAX_MAP_SIZE);
     LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
-    // gGame could be nil if we failed to load map
-    if gGame <> nil then
-      gGame.MapEditorInterface.SetLoadMode(aMapFolder);
   end;
+
+  // gGame could be nil if we failed to load map
+  if gGame <> nil then
+    gGame.MapEditorInterface.SetLoadMode(aMapFolder);
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
@@ -1075,6 +1087,15 @@ begin
 
   if Assigned(FormLogistics) then
     FormLogistics.UpdateView(gGame.GetHandsCount, True);
+end;
+
+
+function TKMGameApp.GetActiveInterface: TKMUserInterfaceCommon;
+begin
+  if gGame = nil then
+    Result := fMainMenuInterface
+  else
+    Result := gGame.ActiveInterface;
 end;
 
 
@@ -1210,7 +1231,7 @@ begin
 
   if not aForPrintScreen and (gGame <> nil) then
     if Assigned(fOnCursorUpdate) then
-      fOnCursorUpdate(SB_ID_OBJECT, 'Obj: ' + IntToStr(gGameCursor.ObjectUID));
+      fOnCursorUpdate(SB_ID_OBJECT, 'Obj: ' + IntToStr(gCursor.ObjectUID));
 end;
 
 

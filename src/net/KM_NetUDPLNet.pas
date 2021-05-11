@@ -34,6 +34,7 @@ implementation
 constructor TKMNetUDPLNet.Create;
 begin
   Inherited Create;
+
   fUDP := TLUdp.Create(nil);
   fUDP.OnError := Error;
   fUDP.Timeout := 1;
@@ -43,6 +44,7 @@ end;
 destructor TKMNetUDPLNet.Destroy;
 begin
   if fUDP<>nil then fUDP.Free;
+
   Inherited;
 end;
 
@@ -70,13 +72,13 @@ end;
 
 procedure TKMNetUDPLNet.Receive(aSocket: TLSocket);
 const
-  BufferSize = 10240; //10kb
+  BUFFER_SIZE = 10240; //10kb
 var
   P: Pointer;
   L: Integer; //L could be -1 when no data is available
 begin
-  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
-  L := fUDP.Get(P^, BufferSize, aSocket);
+  GetMem(P, BUFFER_SIZE+1); //+1 to avoid RangeCheckError when L = BufferSize
+  L := fUDP.Get(P^, BUFFER_SIZE, aSocket);
 
   if L > 0 then
     fOnRecieveData(aSocket.PeerAddress, P, L);
@@ -97,3 +99,4 @@ begin
 end;
 
 end.
+

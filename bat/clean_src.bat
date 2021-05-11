@@ -1,3 +1,5 @@
+echo called clean_src.bat
+
 call rsvars.bat
 
 @echo off

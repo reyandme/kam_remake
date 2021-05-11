@@ -1,0 +1,205 @@
+{$I Language.script}
+
+const
+PLAYER = 0;
+
+
+var
+QUEST_NUMBER,Dyron,count: integer;
+WARES: array [1..13] of integer;
+
+
+//GATHER
+function WareTypeToQuestCount(aType: integer): integer;
+begin
+Case States.MissionDifficulty() of
+	0:  case aType of
+		10: RESULT := 300; // gold
+		13: RESULT := 300; //wshild
+		8: RESULT := 300; //ir shild
+		1: RESULT := 500; // lth armor0
+		else RESULT := 0; 
+		end;
+	1..2:  case aType of
+		10: RESULT := 200; // gold
+		13: RESULT := 200; //wshild
+		8: RESULT := 200; //ir shild
+		1: RESULT := 300; // lth armor0
+		else RESULT := 0; 
+		end;
+	3..5:  case aType of
+		10: RESULT := 350; // gold
+		13: RESULT := 350; //wshild
+		8: RESULT := 350; //ir shild
+		1: RESULT := 450; // lth armor0
+		else RESULT := 0; 
+		end;
+	5..7:  case aType of
+		10: RESULT := 500; // gold
+		13: RESULT := 500; //wshild
+		8: RESULT := 500; //ir shild
+		1: RESULT := 600; // lth armor0
+		else RESULT := 0; 
+		end;
+	end;
+end;
+
+procedure Attack(mode:Integer);
+begin 
+	case mode of
+		0: begin
+			Actions.GiveGroup (1, 23, 109, 9, 6, States.KaMRandomI(8)+count,5)
+			Actions.GiveGroup (1, 23, 14, 134, 6, States.KaMRandomI(8)+count,5)
+			Actions.GiveGroup (1, 23, 7, 53, 2, States.KaMRandomI(8)+count,5)
+		end;
+		1: begin
+			Actions.GiveGroup (1, 23, 36, 79, 1, States.KaMRandomI(8)+count,5)
+			Actions.GiveGroup (1, 23, 127, 118,0, States.KaMRandomI(8)+count,5)
+			Actions.GiveGroup (1, 23, 187, 93, 0, States.KaMRandomI(8)+count,5)
+			Actions.GiveGroup (1, 23, 79, 17, 6, States.KaMRandomI(8)+count,5)
+		end;
+		2: begin
+			Actions.GiveGroup (1, 23, 187, 93, 0, States.KaMRandomI(8)+count,5)
+			Actions.GiveGroup (1, 23, 79, 17, 6, States.KaMRandomI(8)+count,5)
+			Actions.GiveGroup (1, 23, 154, 100, 0, States.KaMRandomI(8)+count,5)
+		end;
+	end;
+end;
+
+Procedure OnMarketTrade(aMarket: Integer; aFrom: Integer;  aTo: Integer);
+begin
+if (States.HouseOwner(aMarket) = 0) and (aFrom = 27) and not (aTo = 1) then
+	Actions.GiveWares(0,aFrom,1);
+end;
+Procedure OnHouseDestroyed(aHouse: Integer; aDestroyerIndex: Integer);
+begin
+if (aDestroyerIndex = 0) and (States.HouseOwner(aHouse) > 0) then
+	Actions.GiveWares(aDestroyerIndex,1,1);
+	Actions.GiveWares(aDestroyerIndex,2,1);
+end;
+  procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 0 to 7 do begin
+           UnitsToFeed := States.PlayerGetAllUnits(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.UnitHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end;
+Procedure kamien;
+var H,X,Y:Integer;
+	J : array of integer;
+begin	
+	J := States.PlayerGetAllHouses(0);
+	for H := 0 to length(J) -1 do begin
+		If (States.HouseType(J[H])= 3) or  (States.HouseType(J[H])= 4) or  (States.HouseType(J[H])= 5) then begin
+			X:=States.HousePositionX(J[H]);
+			Y:=States.HousePositionY(J[H]);
+			If (States.HouseType(J[H])= 3) and (States.MapTileType(X,Y)<>155) then //węgiel
+				Actions.MapTileSet(X,Y,155,0);
+			If (States.HouseType(J[H])= 4) and (States.MapTileType(X,Y-2)<>151) then //żelazo
+				Actions.MapTileSet(X,Y-2,151,0);
+			If (States.HouseType(J[H])= 5) and (J[H] <> States.HouseAt(31,87)) and (J[H] <> States.HouseAt(41,72)) and (States.MapTileType(X,Y-2)<>147) then //złoto
+				Actions.MapTileSet(X,Y-2,147,0);
+		end;
+	end;
+end;
+	   // 									CO ROBIC
+	   
+procedure GetWaresCount;
+var
+A: array of integer;
+j, k: integer;
+begin
+	for j:= 1 to 13 do 
+		WARES[j]:= 0;
+	A:= States.PlayerGetAllHouses(PLAYER);
+	for j:= 0 to Length(A)-1 do begin
+		for k:= 1 to 13 do begin
+			if ( States.HouseResourceAmount(A[j], k) > 0 ) and ( WareTypeToQuestCount(k) > 0 ) then
+				WARES[k]:= WARES[k] + States.HouseResourceAmount(A[j], k);
+			if ( WARES[1] >=  WareTypeToQuestCount(1)) and ( WARES[8] >=  WareTypeToQuestCount(8)) and ( WARES[13] >=  WareTypeToQuestCount(13)) and ( WARES[10] >=  WareTypeToQuestCount(10)) then Actions.PlayerWin([0], true);
+		end;
+	end;
+end;
+	   
+procedure ShowMissionObjectives(aPlayer: integer);
+var j: integer;
+begin
+	Actions.OverlayTextSetFormatted(aPlayer, '', []);
+		Actions.OverlayTextAppendFormatted(aPlayer, '<$7>', []);
+		Actions.OverlayTextAppend(aPlayer, '|');
+		for j:= 1 to 13 do begin
+			if WareTypeToQuestCount(j) > 0 then begin
+				if WARES[j] >= WareTypeToQuestCount(j) then
+					Actions.OverlayTextAppendFormatted(aPlayer, '<$9>', [States.WareTypeName(j)])
+				else
+					Actions.OverlayTextAppendFormatted(aPlayer, '<$8>', [States.WareTypeName(j), WARES[j], WareTypeToQuestCount(j)]);
+				Actions.OverlayTextAppend(aPlayer, '|');
+			end;
+		end;
+	end;
+	   // 									ON TICK
+procedure OnTick;
+begin
+	if ( States.GameTime mod 50 = 0 )and(States.GameTime > 200) and(States.GameTime < 18000) then begin
+		GetWaresCount;	 
+		ShowMissionObjectives(PLAYER);
+	end;
+	if ( States.GameTime mod 50 = 0 )and(States.GameTime > 18500) then begin
+		GetWaresCount;	 
+		ShowMissionObjectives(PLAYER);
+	end;
+	if (States.GameTime MOD 3000 = 0) then
+		Attack(States.KaMRandomI(2));
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		Dyron := States.UnitAt(108,66) 
+	end;
+	if States.GameTime = 200 then begin
+		Actions.ShowMSG(-1, '<$6>'); end;
+	if States.GameTime = 18000 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$2>', []); end;
+	if States.GameTime = 18100 then  begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$3>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$10>', []); end;
+	if States.GameTime = 18200 then  begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$4>', []);
+		Actions.OverlayTextAppend(-1, '|');
+		Actions.OverlayTextAppendFormatted(-1, '<$11>', []); end;
+	if States.GameTime = 18300 then  begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$5>', []); end;
+	if States.GameTime MOD 9000 = 0 then
+		Autofeed;
+	if States.UnitDead(Dyron)= true then
+		Actions.PlayerDefeat(0);
+	If States.GameTime mod 10 = 0 then kamien;
+	
+	if States.GameTime = 18700 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.GameTime = 300 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+end;
+	   // 									ON MISSION START
+procedure OnMissionStart;
+begin
+	GetWaresCount;
+	Case byte(States.MissionDifficulty()) of
+		0: count:=7;
+		1: count:=4;
+		2: count:=6;
+		3: count:=8;
+		4: count:=10;
+		5: count:=12;
+		6: count:=14;
+		7: count:=16;
+	end;
+end;

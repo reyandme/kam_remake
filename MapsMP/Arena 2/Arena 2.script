@@ -1,0 +1,584 @@
+{
+GLADIATOR ARENA SCRIPT
+original script and idea by Aasfresser
+rewrite by sado
+
+ScoreForUnit helper function by Lewin, from Coastal Encounter Scored
+
+To make a brand new map with this gamemode (no programming knowledge needed!):
+- make 1 serf for every player - this will be his spawn point
+- edit the constants, to give accurate coordinates for your map
+- add reveal all for all players
+- make a serf for extra AI player, and set his loc to no human (AI only) in editor
+- done :)
+
+Changes:
+v1.0
+- small fixes for new Remake version
+- extended to 12P
+v0.16
+- finish round when 2 players are alive (recommended number of players: at least 4)
+v0.15
+- fix anti-AFK kill happened each round, once it happened once
+v0.14:
+- added new traps: timebombs
+- neutral militia/serfs spawn more often
+- spikes are now 2x2
+- clean up object spawn/clean code, which was stupid
+- lots of annoying "parchment message" in-game warnings fixed
+v0.13
+- added sounds: round start, spike, spike kill, round won
+- added AFK autokill: quitters/campers will be killed after AFK_TIME ticks (does not include standing on the hills)
+- tweaked balance
+- tweaked performance of OnTick
+v0.12
+- add overlay info about the hills
+v0.11
+- fix round end bug
+v0.1
+- initial 8P release, with most functionality as original (hills, rounds, points etc.)
+- script rewritten entirely, to be faster, and to work on any map with little modification
+- points are calculated with weights (you get less points for killing militia, more for killing knight)
+- different settings compared to Arena 4P
+- known bug: sometimes the round does not end, when there is a lot of neutral units on the map
+
+TODO/ideas for the future:
+- anti camp for those that run from archers?
+- work on optimization
+- food bar low?
+- zombies?
+- different citizens walking on the map instead of serf
+- tower - add it in map editor, and make autorefill script
+- unit queue visible for players
+- unit queue visible only for the player it concerns
+- predator / barb / wolf / ?
+}
+
+const
+    NR_OF_PLAYERS = 12; // change to number of players, when moving to new map
+    //AI_PLAYER = 13;     // the ID of AI neutral player
+    NR_OF_ROUNDS = 10; // if you want to go above 10, you need to change ShuffleUnits functions to be able to generate more than 10 units!
+    // playfield: (7,7) - (41,25)
+    X_start = 7;
+    Y_start = 7;
+    X_end = 41;
+    Y_end = 25;
+    // where to spawn the ranged attackers (in line)
+    X_a_start = 5;
+    Y_a_start = 5;
+    X_a_end = 43;
+    Y_a_end = 27;
+    KILL_EXTRA = 2; // extra points added to ScoreForUnit result when you kill somebody
+                    // ie. you killed a Pikeman, then you get KILL_EXTRA + 3 points for it
+    ROUND_EXTRA = 8;  // points you get for winning a round
+    HILL_EXTRA = 1;  // points you get for standing on a hill
+    HILL_TIME = 10;  // how many seconds you need to wait until you get points for standing on a hill
+    // coordinates of 3 hills:
+    HillX1 = 15;
+    HillY1 = 16;
+    HillX2 = 24;
+    HillY2 = 16;
+    HillX3 = 33;
+    HillY3 = 16;
+
+    VOLUME = 0.8;
+    VOLUME_SPIKE = 0.3;
+    VOLUME_SPIKE_KILL = 0.6;
+
+    AFK_TIME = 300; // in ticks - time before killing a unit that didn't move
+
+var iGroupX, iGroupY, iPoints, iAfkX, iAfkY, iTime, iUnitID: array [0..NR_OF_PLAYERS-1] of Integer;
+var iUnitsList: array [0..NR_OF_PLAYERS-1] of array [0..NR_OF_ROUNDS-1] of Integer;
+var UnitsList: array [0..NR_OF_ROUNDS-1] of Integer;
+//var : array [0..2] of array [0..2] of Integer;
+var iRoundStart, iCurrentRound, ObjTime, AI_PLAYER: Integer;
+var iHillTime1, iHillTime2, iHillTime3, objType, aObjectPosX, aObjectPosY: Integer;
+var RoundStartRequest, RoundEndRequest, NeedToRemoveObj: Boolean;
+
+
+function ScoreForUnit(aUnitID: Integer): Byte; // by Lewin
+begin
+//Find out what kind of unit it was and return the score for that unit
+    case States.UnitType(aUnitID) of
+        14,24,25:  Result := 1; //Militia, rebel, rogue
+        15:  Result := 3; //Axefighter
+        16:  Result := 5; //Swordfighter
+        17,27:  Result := 2; //Bowman, vagabond
+        18:  Result := 3; //Crossbowman
+        19:  Result := 2; //Lance carrier
+        20:  Result := 3; //Pikeman
+        21:  Result := 4; //Scout
+        22:  Result := 6; //Knight
+        23, 26:  Result := 5; //Barb/Warrior
+        else Result := 0; //Don't care about any other units
+    end;
+end;
+
+procedure swap(x,y: Integer; arr: array of Integer);
+var temp: Integer;
+begin
+    temp := arr[x];
+    arr[x] := arr[y];
+    arr[y] := temp;
+end;
+function Shuffle(arr: array of Integer): array of Integer;
+var I: Integer;
+begin
+    for I := 0 to (length(arr)-1) do
+        swap(I,(States.KaMRandomI(NR_OF_ROUNDS-1)), arr);
+    result := arr;
+end;
+
+procedure ArenaEndRound;
+var I, Group, Citizen, counter, currentWinner : Integer;
+var aGroups, winners: array of Integer;
+begin
+    RoundEndRequest := false;
+    Inc(iCurrentRound);
+    for I := 0 to (NR_OF_PLAYERS - 1) do
+    begin
+        if States.PlayerEnabled(I) then
+        begin
+            aGroups := States.PlayerGetAllGroups(I);
+            if (length(aGroups)) > 0 then
+            begin
+                for Group := 0 to (length(aGroups)-1) do
+                    Actions.GroupKillAll(aGroups[Group], true);
+                iPoints[I] := iPoints[I] + ROUND_EXTRA;
+                Actions.PlayWAV(I, 'win_round', VOLUME); 
+            end;
+        end;
+        // TODO play a sound here
+    end;
+    aGroups := States.PlayerGetAllGroups(AI_PLAYER);
+    if (length(aGroups)) > 0 then
+        for Group := 0 to (length(aGroups)-1) do
+            Actions.GroupKillAll(aGroups[Group], true);
+    aGroups := States.PlayerGetAllUnits(AI_PLAYER);
+    if (length(aGroups)) > 0 then
+        for Citizen := 0 to (length(aGroups)-1) do
+            Actions.UnitKill(aGroups[Citizen], true);
+    if (iCurrentRound > NR_OF_ROUNDS-1) then
+    begin
+        //Actions.PlayWAV(-1, 'end', VOLUME);   
+        counter := -50;
+        for I := 0 to (NR_OF_PLAYERS - 1) do
+        begin
+            if counter < iPoints[I] then
+            begin
+                counter := iPoints[I];
+                currentWinner := 0;
+                SetLength(winners, 1);
+                winners[0] := I;
+            end
+            else if counter = iPoints[I] then
+            begin
+                Inc(currentWinner);
+                SetLength(winners, currentWinner + 1);
+                winners[currentWinner] := I;
+            end;
+        end;
+        for I := 0 to length(winners)-1 do
+            Actions.PlayerWin(winners, false);
+        RoundStartRequest := false;
+    end
+    else
+        RoundStartRequest := true;
+
+end;
+
+procedure ArenaStartRound;
+var I, iGroupID: Integer;
+begin
+    RoundStartRequest := false;
+    iRoundStart := States.GameTime;
+    for I := 0 to (NR_OF_PLAYERS - 1) do
+    begin
+        if States.PlayerEnabled(I) then
+        begin
+            iGroupID := Actions.GiveGroup(I, iUnitsList[I][iCurrentRound], iGroupX[I], iGroupY[I],0,1,1);
+            iUnitID[I] := States.GroupMember(iGroupID, 0);
+            iTime[I] := -1
+        end;
+    end;
+    Actions.PlayWAV(-1, 'next', VOLUME);
+end;
+
+// needed for variable NR_OF_ROUNDS
+procedure UnitListGenerator;
+var I, iTempType: Integer;
+begin
+    for I := 0 to (NR_OF_ROUNDS-1) do
+    begin
+        // 14 + (10-1) = 23 which is the biggest number our type generator wants
+        // we only want to generate melee units
+        iTempType := 14 + States.KaMRandomI(10);
+        case iTempType of
+            17: iTempType := 27;
+            18: iTempType := 24;
+            23: iTempType := 26;
+            //else ????;
+        end;
+        UnitsList[I] := iTempType;
+    end;
+end;
+
+procedure OnMissionStart;
+var I,J: Integer;
+var tempUnitList: array of Integer;
+begin
+    AI_PLAYER := NR_OF_PLAYERS;
+    UnitListGenerator;
+    for I := 0 to (NR_OF_PLAYERS - 1) do
+    begin
+        if States.PlayerEnabled(I) then
+        begin
+            iGroupX[I] := States.UnitPositionX(States.ClosestUnit(I, 1, 1, 0)); // find a serf and take his coordinates
+            iGroupY[I] := States.UnitPositionY(States.ClosestUnit(I, 1, 1, 0));
+            if States.UnitAt(iGroupX[I], iGroupY[I]) <> -1 then
+                Actions.UnitKill(States.UnitAt(iGroupX[I], iGroupY[I]), true);
+            iPoints[I] := 0;
+            tempUnitList := Shuffle(UnitsList);
+            for J := 0 to (NR_OF_ROUNDS - 1) do
+                iUnitsList[I][J] := tempUnitList[J];
+
+        end
+        else
+        begin
+            iGroupX[I] := -1;
+            iGroupY[I] := -1;
+            iPoints[I] := -1;
+            for J := 0 to (NR_OF_ROUNDS - 1) do
+                iUnitsList[I][J] := -1;
+        end;
+        //iAfkX[I] := -1;
+        //iTime[I] := -1;
+        //iAfkY[I] := -1;
+    end;
+    iRoundStart := 0;
+    iCurrentRound := 0;
+    ArenaStartRound;
+    NeedToRemoveObj := false;
+end;
+
+procedure OnUnitDied(aUnit: Integer; aKillerOwner: Integer);
+var UnitCounter, I, diedOwner: Integer;
+begin
+    if (aKillerOwner <> -1) and (aKillerOwner <> AI_PLAYER) then
+        iPoints[aKillerOwner] := iPoints[aKillerOwner] + ScoreForUnit(aUnit);
+    UnitCounter := 0;
+    diedOwner := States.UnitOwner(aUnit);
+    if (diedOwner < NR_OF_PLAYERS) and (diedOwner <> -1)  then
+        iUnitID[diedOwner] := -1;
+    for I := 0 to (NR_OF_PLAYERS - 1) do
+        if States.PlayerEnabled(I) = true then
+        begin
+            UnitCounter := UnitCounter + States.StatArmyCount(I); // ?????
+        end;
+    if UnitCounter = 2 then
+        RoundEndRequest := true;
+end;
+
+procedure SpawnUnit(aType, X, Y, Dir: Integer);
+var unitType: Integer;
+begin
+    case aType of
+        1: Actions.GiveUnit(AI_PLAYER, 0, X, Y, 0);    // 0 = serf
+        2: Actions.GiveGroup(AI_PLAYER, 14, X, Y, 0, 1, 1);
+        3: Actions.GiveUnit(-1, 30, X, Y, 0);    // 30 = wolf
+        4: Actions.GiveGroup(AI_PLAYER, 17, X, Y, 2, 1, 1);
+        5: Actions.GiveGroup(AI_PLAYER, 18, X, Y, 6, 1, 1);
+        8: Actions.GiveGroup(AI_PLAYER, 25, X, Y, 0, 1, 1);
+        9: 
+            begin
+                case States.KaMRandomI(3) of
+                    0: unitType := 17;
+                    1: unitType := 18;
+                    2: unitType := 25;
+                end;
+                // todo rotation
+                Actions.GiveGroup(AI_PLAYER, unitType, X, Y, Dir, 1, 1);
+            end;
+    end;
+end;
+
+procedure CleanObjects;
+var UnluckyGuy, arrayLength, aX, aY: Integer;
+begin
+     case objType of
+        70: begin
+                Actions.PlayWAV(-1, 'spike', VOLUME_SPIKE);
+                arrayLength := 2;
+                objType := 255;
+            end;
+        21: begin
+                Actions.PlayWAV(-1, 'boom2', VOLUME_SPIKE);
+                arrayLength := 3;
+                objType := 68;
+            end;
+        68: begin
+                arrayLength := 3;
+                objType := 255;
+            end;
+     end;
+     ObjTime := -1;
+     for aX := 0 to (arrayLength - 1) do
+        for aY := 0 to (arrayLength - 1) do
+        begin
+            Actions.MapTileObjectSet(aObjectPosX+aX, aObjectPosY+aY, objType);
+            NeedToRemoveObj := False;
+            if objType = 68 then
+            begin 
+                UnluckyGuy := States.UnitAt(aObjectPosX+aX, aObjectPosY+aY);
+                if UnluckyGuy <> -1 then
+                begin
+                    Actions.UnitKill(UnluckyGuy, true);
+                end;
+                ObjTime := States.GameTime;
+                NeedToRemoveObj := True;
+            end;
+        end;
+end;
+
+procedure SpawnObject(aType, X, Y: Integer);
+var UnluckyGuy, arrayLength, aX, aY: Integer;
+begin
+    if objType <> 255 then
+        CleanObjects;
+    case aType of
+        6: begin
+                objType := 70;
+                Actions.PlayWAV(-1, 'spike', VOLUME_SPIKE);
+                arrayLength := 2;
+            end;
+        7: begin
+                objType := 21;
+                Actions.PlayWAV(-1, 'boom1', VOLUME_SPIKE);
+                arrayLength := 3;
+            end;
+    end;
+    aObjectPosX := X_start+States.KaMRandomI(X_end-X_start);
+    aObjectPosY := Y_start+States.KaMRandomI(Y_end-Y_start);
+    for aX := 0 to (arrayLength - 1) do
+        for aY := 0 to (arrayLength - 1) do
+        begin
+            //Actions.Log('aX: ' + IntToStr(aX) + ' aY: ' + IntToStr(aY))
+            if (aType <> 7) or ((aX = 1) and (aY = 1)) then
+                Actions.MapTileObjectSet(aObjectPosX+aX, aObjectPosY+aY, objType);
+            if aType = 6 then
+            begin 
+                UnluckyGuy := States.UnitAt(aObjectPosX+aX, aObjectPosY+aY);
+                if UnluckyGuy <> -1 then
+                begin
+                    Actions.UnitKill(UnluckyGuy, false);
+                    Actions.PlayWAV(-1, 'spikekill', VOLUME_SPIKE_KILL);
+                end;
+            end;
+        end;
+    ObjTime := States.GameTime;
+    NeedToRemoveObj := True;
+end;
+
+// procedure RandomizeTile();
+// States.MapTilePassability needed
+// Will allow to make tower spawn, and spikes spawn in better places
+// (for next Remake version)
+
+//procedure SpawnTower(X, Y: Integer);
+//begin    
+    // todo - can be done in next version of the Remake
+//end;
+
+procedure SpawnEntity(iType: Integer; bKill: Boolean);
+var radius, X, Y, I, J, tmp, tmp2: Integer;
+begin
+    {
+    1 - serf
+    2 - militia
+    3 - wolf
+    6 - spike
+    7 - bomb
+    9 - random shooting unit
+    }
+    X := X_start+States.KaMRandomI(X_end-X_start);
+    Y := Y_start+States.KaMRandomI(Y_end-Y_start);
+    // X Y randomize from range, check if walkable
+    radius := 1;
+    //if iType = 7 then
+    //    radius := 2; //should be 1?
+    for I := X to (X-1+radius) do
+        for J := Y to (Y-1+radius) do
+            if States.UnitAt(I, J) <> -1 then
+                Actions.UnitKill(States.UnitAt(I, J), false);
+    case iType of
+        1,2,3: 
+            begin
+                tmp := 0;
+                for I := 0 to (NR_OF_PLAYERS - 1) do
+                    if States.PlayerEnabled(I) = true then
+                        tmp := tmp + States.StatUnitCount(I);
+                tmp := tmp + States.StatUnitCount(AI_PLAYER);
+                if tmp < (NR_OF_PLAYERS + 6) then // imagine: 2 players + 1 serf + 5 + 8
+                    SpawnUnit(iType, X, Y, 99);
+            end;
+        9:
+            begin
+                tmp := States.KaMRandomI(4);
+                tmp2 := States.StatUnitMultipleTypesCount(AI_PLAYER, [17,18,25]);
+                if tmp2 > 4 then tmp := 4; // "tmp2 > 7" happens when there are 8 shooters on the map
+                case tmp of
+                    0: SpawnUnit(iType, X, Y_a_start, 4);
+                    1: SpawnUnit(iType, X, Y_a_end, 0);
+                    2: SpawnUnit(iType, X_a_start, Y, 2);     
+                    3: SpawnUnit(iType, X_a_end, Y, 6);
+                    4: begin end;
+                end;
+            end;
+        6,7: SpawnObject(iType, X, Y);
+        // else Result := 0;
+    end;
+end;
+
+procedure MoveHelper(aGroup: array of Integer; units: Boolean);
+var X, Y, iCharacter, eachUnit: Integer;
+begin
+    for eachUnit := 0 to length(aGroup)-1 do
+    begin
+        X := X_start+States.KaMRandomI(X_end-X_start);
+        Y := Y_start+States.KaMRandomI(Y_end-Y_start);
+        iCharacter := aGroup[eachUnit];
+        if units then
+            Actions.UnitOrderWalk(iCharacter, X, Y)
+        else
+            Actions.GroupOrderWalk(iCharacter, X, Y, 0);
+    end;
+end;
+
+procedure MoveUnits;
+var aAllAIGroups, aAllAIUnits: array of Integer;
+begin
+    aAllAIUnits := States.PlayerGetAllUnits(AI_PLAYER);
+    aAllAIGroups := States.PlayerGetAllGroups(AI_PLAYER);
+    MoveHelper(aAllAIUnits, true);
+    MoveHelper(aAllAIGroups, false);
+end;
+
+function GetPlayerOnHill(X, Y: Integer) : Integer;
+var tmp: Integer;
+begin
+    tmp := States.UnitAt(X, Y);
+    if (tmp <> -1) and (States.UnitOwner(tmp) <> NR_OF_PLAYERS) then
+        Result := States.UnitOwner(tmp)
+    else Result := -1;
+    //iPoints[Player] := iPoints[Player] + HILL_EXTRA;
+end;
+
+function GetPlayerOnHillName(Player: Integer) : string;
+begin
+    //Result := States.UnitOwner(States.UnitAt(X, Y));
+    case Player of
+        -1: Result := 'none';
+        else Result := '[$' + States.PlayerColorText(Player) + ']' + States.PlayerName(Player) + '[]';
+    end;
+end;
+
+procedure OnTick;
+var I, J, iHill1, iHill2, iHill3: Integer;
+begin
+    case (States.Gametime mod 600) of
+        98, 198, 308, 414: SpawnEntity(1, False);   // serf
+        122, 244, 366, 488: SpawnEntity(2, True);   // militia
+        248, 288, 438, 478: SpawnEntity(9, True);   // shooters
+        // TODO barbarian 599
+        16, 56, 96, 136, 176, 216, 256, 296, 336, 376, 416, 456, 496, 536, 576: MoveUnits;
+        //30: SpawnEntity(3);   // wolf
+        87, 167, 247, 327, 407, 487, 567: SpawnEntity(6, True);     // spikes
+        169, 329, 489, 569: SpawnEntity(7, True);     // bomb
+        0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520, 530, 540, 550, 560, 570, 580, 590:
+        begin
+            //points for towers
+            if RoundStartRequest then
+                ArenaStartRound;
+            if RoundEndRequest then
+                ArenaEndRound;
+            // object/spikes removal
+            if NeedToRemoveObj and ( (ObjTime + 40) < States.GameTime ) then
+                CleanObjects;
+            // hill detection
+            iHill1 := GetPlayerOnHill(HillX1, HillY1);
+            if iHill1 <> -1 then
+            begin
+                iTime[iHill1] := States.GameTime;
+                if iHillTime1 = -1 then
+                    iHillTime1 := States.Gametime
+                else
+                    if (iHillTime1 + HILL_TIME*10) < States.GameTime then
+                    begin
+                        iHillTime1 := States.Gametime;
+                        iPoints[iHill1] := iPoints[iHill1] + HILL_EXTRA;
+                    end;
+            end
+            else
+                iHillTime1 := -1;
+
+
+            iHill2 := GetPlayerOnHill(HillX2, HillY2);
+            if iHill2 <> -1 then
+            begin
+                iTime[iHill2] := States.GameTime;
+                if iHillTime2 = -1 then
+                    iHillTime2 := States.Gametime
+                else
+                    if (iHillTime2 + HILL_TIME*10) < States.GameTime then
+                    begin
+                        iHillTime2 := States.Gametime;
+                        iPoints[iHill2] := iPoints[iHill2] + HILL_EXTRA;
+                    end;
+            end
+            else
+                iHillTime2 := -1;
+
+            iHill3 := GetPlayerOnHill(HillX3, HillY3);
+            if iHill3 <> -1 then
+            begin
+                iTime[iHill3] := States.GameTime;
+                if iHillTime3 = -1 then
+                    iHillTime3 := States.Gametime
+                else
+                    if (iHillTime3 + HILL_TIME*10) < States.GameTime then
+                    begin
+                        iHillTime3 := States.Gametime;
+                        iPoints[iHill3] := iPoints[iHill3] + HILL_EXTRA;
+                    end;
+            end
+            else
+                iHillTime3 := -1;        
+        end;
+    end;
+    for I := 0 to (NR_OF_PLAYERS - 1) do
+        // mod 10 works every second, but as we soon will have 12 playable players, I make sure only one player is done in first possible two ticks (for better CPU balance)
+        // I could probably completely clear these first ticks from overlays, but I am too lazy
+        if (States.Gametime + I + 2) mod 10 = 0 then
+        begin
+            if States.PlayerEnabled(I) = true then
+            begin
+                // anti-AFK / anti-quit measure - autokill when idling for more than AFK_TIME
+                if (iUnitID[I] <> -1) and (iTime[I] <> -1) then
+                    if ((iAfkX[I] <> States.UnitPositionX(iUnitID[I])) or (iAfkY[I] <> States.UnitPositionY(iUnitID[I]))) then
+                    begin
+                        iAfkX[I] := States.UnitPositionX(iUnitID[I]);
+                        iTime[I] := States.GameTime;
+                        iAfkY[I] := States.UnitPositionY(iUnitID[I]);
+                    end
+                    else
+                    begin
+                        if (iTime[I] + AFK_TIME < States.GameTime) then
+                            Actions.UnitKill(iUnitID[I], false);
+                    end;                
+                Actions.OverlayTextSet(I,'|Round: ' + inttostr(iCurrentRound+1) + '||Round Time: ' + inttostr((States.GameTime - iRoundStart)/10) + '|| Hill 1: ' + GetPlayerOnHillName(GetPlayerOnHill(HillX1, HillY1)) + '| Hill 2: ' + GetPlayerOnHillName(GetPlayerOnHill(HillX2, HillY2)) + '| Hill 3: ' + GetPlayerOnHillName(GetPlayerOnHill(HillX3, HillY3)) + '||');
+                for J := 0 to (NR_OF_PLAYERS - 1) do
+                    if States.PlayerEnabled(J) = true then
+                        Actions.OverlayTextAppend(I,'[$' + States.PlayerColorText(J) + ']' + States.PlayerName(J) + '[]' + ': ' + IntToStr(iPoints[J]) + '||');
+            end;
+        end;
+end;

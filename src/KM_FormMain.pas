@@ -83,7 +83,7 @@ type
     chkLogDelivery: TCheckBox;
     chkLogNetConnection: TCheckBox;
     RGLogNetPackets: TRadioGroup;
-    chkLogsShowInChat: TCheckBox;
+    chkLogShowInChat: TCheckBox;
     chkUIControlsID: TCheckBox;
     Debug_ShowLogistics: TMenuItem;
     chkShowTerrainIds: TCheckBox;
@@ -156,26 +156,7 @@ type
     chkShowHouses: TCheckBox;
     chkShowObjects: TCheckBox;
     chkShowFlatTerrain: TCheckBox;
-    {$ENDIF}
-    {$IFDEF FPC}
-    mainGroup: TGroupBox;
-    GroupBox2: TGroupBox;
-    GroupBox3: TGroupBox;
-    GroupBox4: TGroupBox;
-    GroupBox5: TGroupBox;
-    GroupBoxLogs: TGroupBox;
-    {$ENDIF}
-    N5: TMenuItem;
-    LoadSavThenRpl: TMenuItem;
-    N7: TMenuItem;
-    ReloadLibx: TMenuItem;
-    N8: TMenuItem;
-    N10: TMenuItem;
-    N9: TMenuItem;
-    Debug_UnlockCmpMissions: TMenuItem;
-    N11: TMenuItem;
-    mnExportRngChecks: TMenuItem;
-    chkGIP: TCheckBox;
+
     sePauseBeforeTick: TSpinEdit;
     Label8: TLabel;
     Label9: TLabel;
@@ -209,6 +190,30 @@ type
     tbWaterLight: TTrackBar;
     lblWaterLight: TLabel;
     chkSkipRenderText: TCheckBox;
+    {$ENDIF}
+    {$IFDEF FPC}
+    mainGroup: TGroupBox;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
+    GroupBox4: TGroupBox;
+    GroupBox5: TGroupBox;
+    GroupBoxLogs: TGroupBox;
+    {$ENDIF}
+    N5: TMenuItem;
+    LoadSavThenRpl: TMenuItem;
+    N7: TMenuItem;
+    ReloadLibx: TMenuItem;
+    N8: TMenuItem;
+    N10: TMenuItem;
+    N9: TMenuItem;
+    Debug_UnlockCmpMissions: TMenuItem;
+    N11: TMenuItem;
+    mnExportRngChecks: TMenuItem;
+    chkGIP: TCheckBox;
+    chkLogShowInGUI: TCheckBox;
+    chkLogUpdateForGUI: TCheckBox;
+    chkCursorCoordinates: TCheckBox;
+
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -355,6 +360,7 @@ uses
   KM_RandomChecks,
   KM_Log, KM_CommonClasses, KM_Helpers, KM_Video,
   KM_GameSettings,
+  KM_ServerSettings,
 
   KM_IoXML,
   KM_GameInputProcess,
@@ -731,6 +737,7 @@ end;
 procedure TFormMain.ReloadSettingsClick(Sender: TObject);
 begin
   gGameAppSettings.ReloadSettings;
+  gServerSettings.ReloadSettings;
 end;
 
 
@@ -1038,6 +1045,7 @@ end;
 procedure TFormMain.SaveSettingsClick(Sender: TObject);
 begin
   gGameAppSettings.SaveSettings(True);
+  gServerSettings.SaveSettings(True);
 end;
 
 
@@ -1564,6 +1572,7 @@ begin
   SHOW_FOCUSED_CONTROL := chkUIFocusedControl.Checked;
   SHOW_CONTROL_OVER := chkUIControlOver.Checked;
   SKIP_RENDER_TEXT := chkSkipRenderText.Checked;
+  DBG_UI_HINT_POS := chkCursorCoordinates.Checked;
 
   {$IFDEF WDC} //one day update .lfm for lazarus...
 //  ALLOW_SNOW_HOUSES := chkSnowHouses.Checked;
@@ -1594,7 +1603,9 @@ begin
   end;
 
   //Logs
-  SHOW_LOGS_IN_CHAT := chkLogsShowInChat.Checked;
+  SHOW_LOG_IN_CHAT := chkLogShowInChat.Checked;
+  SHOW_LOG_IN_GUI := chkLogShowInGUI.Checked;
+  UPDATE_LOG_FOR_GUI := chkLogUpdateForGUI.Checked;
   LOG_GAME_TICK := chkLogGameTick.Checked;
 
   if allowDebugChange then

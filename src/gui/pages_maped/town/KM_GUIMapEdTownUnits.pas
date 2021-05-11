@@ -30,7 +30,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_GameCursor, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts,
+  KM_HandsCollection, KM_Cursor, KM_RenderUI, KM_Resource, KM_ResFonts, KM_ResTexts,
   KM_InterfaceGame, KM_ResUnits, KM_Utils;
 
 
@@ -38,7 +38,7 @@ uses
 constructor TKMMapEdTownUnits.Create(aParent: TKMPanel);
 var
   I: Integer;
-  LineY: Word;
+  lineY: Word;
 begin
   inherited Create;
 
@@ -46,11 +46,11 @@ begin
   with TKMLabel.Create(Panel_Units, 0, PAGE_TITLE_Y, Panel_Units.Width, 0, gResTexts[TX_MAPED_UNITS], fntOutline, taCenter) do
     Anchors := [anLeft, anTop, anRight];
 
-  LineY := 30;
+  lineY := 30;
 
   for I := 0 to High(Button_Citizen) do
   begin
-    Button_Citizen[I] := TKMButtonFlat.Create(Panel_Units, 9 + (I mod 5)*37,LineY+(I div 5)*37,33,33,gRes.Units[School_Order[I]].GUIIcon); //List of tiles 5x5
+    Button_Citizen[I] := TKMButtonFlat.Create(Panel_Units, 9 + (I mod 5)*37,lineY+(I div 5)*37,33,33,gRes.Units[School_Order[I]].GUIIcon); //List of tiles 5x5
     Button_Citizen[I].Hint := gRes.Units[School_Order[I]].GUIName;
     if InRange(I, 0, High(fSubMenuActionsCtrls) - 1) then
       Button_Citizen[I].Hint := GetHintWHotkey(Button_Citizen[I].Hint, MAPED_SUBMENU_ACTIONS_HOTKEYS[I+1]);
@@ -58,26 +58,26 @@ begin
     Button_Citizen[I].Tag := Byte(School_Order[I]); //Returns unit ID
     Button_Citizen[I].OnClick := Town_UnitChange;
   end;
-  Button_UnitCancel := TKMButtonFlat.Create(Panel_Units, 9 + 4 * 37, LineY+(Length(Button_Citizen) div 5)*37, 33, 33, 340);
+  Button_UnitCancel := TKMButtonFlat.Create(Panel_Units, 9 + 4 * 37, lineY+(Length(Button_Citizen) div 5)*37, 33, 33, 340);
   Button_UnitCancel.Hint := GetHintWHotkey(TX_MAPED_UNITS_REMOVE_HINT, MAPED_SUBMENU_ACTIONS_HOTKEYS[0]);
   Button_UnitCancel.Tag := 255; //Erase
   Button_UnitCancel.OnClick := Town_UnitChange;
 
-  LineY := 146;
+  lineY := 146;
 
   for I := 0 to High(Button_Warriors) do
   begin
-    Button_Warriors[I] := TKMButtonFlat.Create(Panel_Units, 9 + (I mod 5)*37,LineY+(I div 5)*37,33,33, MapEd_Icon[I], rxGui);
+    Button_Warriors[I] := TKMButtonFlat.Create(Panel_Units, 9 + (I mod 5)*37,lineY+(I div 5)*37,33,33, MapEd_Icon[I], rxGui);
     Button_Warriors[I].Hint := gRes.Units[MapEd_Order[I]].GUIName;
     Button_Warriors[I].Tag := Byte(MapEd_Order[I]); //Returns unit ID
     Button_Warriors[I].OnClick := Town_UnitChange;
   end;
 
-  LineY := 262;
+  lineY := 262;
 
   for I := 0 to High(Button_Animals) do
   begin
-    Button_Animals[I] := TKMButtonFlat.Create(Panel_Units, 9 + (I mod 5)*37,LineY+(I div 5)*37,33,33, Animal_Icon[I], rxGui);
+    Button_Animals[I] := TKMButtonFlat.Create(Panel_Units, 9 + (I mod 5)*37,lineY+(I div 5)*37,33,33, Animal_Icon[I], rxGui);
     Button_Animals[I].Hint := gRes.Units[Animal_Order[I]].GUIName;
     Button_Animals[I].Tag := Byte(Animal_Order[I]); //Returns animal ID
     Button_Animals[I].OnClick := Town_UnitChange;
@@ -94,8 +94,8 @@ end;
 
 procedure TKMMapEdTownUnits.Town_UnitChange(Sender: TObject);
 begin
-  gGameCursor.Mode := cmUnits;
-  gGameCursor.Tag1 := Byte(TKMButtonFlat(Sender).Tag);
+  gCursor.Mode := cmUnits;
+  gCursor.Tag1 := Byte(TKMButtonFlat(Sender).Tag);
 
   Town_UnitRefresh;
 end;
@@ -110,7 +110,7 @@ begin
   if Panel_Units.Childs[I] is TKMButtonFlat then
   begin
     B := TKMButtonFlat(Panel_Units.Childs[I]);
-    B.Down := (gGameCursor.Mode = cmUnits) and (gGameCursor.Tag1 = B.Tag);
+    B.Down := (gCursor.Mode = cmUnits) and (gCursor.Tag1 = B.Tag);
   end;
 end;
 
@@ -143,14 +143,14 @@ end;
 procedure TKMMapEdTownUnits.UpdatePlayerColor;
 var
   I: Integer;
-  Col: Cardinal;
+  col: Cardinal;
 begin
-  Col := gMySpectator.Hand.FlagColor;
+  col := gMySpectator.Hand.FlagColor;
 
   for I := Low(Button_Citizen) to High(Button_Citizen) do
-    Button_Citizen[I].FlagColor := Col;
+    Button_Citizen[I].FlagColor := col;
   for I := Low(Button_Warriors) to High(Button_Warriors) do
-    Button_Warriors[I].FlagColor := Col;
+    Button_Warriors[I].FlagColor := col;
 end;
 
 

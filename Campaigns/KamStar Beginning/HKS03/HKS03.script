@@ -1,0 +1,10 @@
+{$I difficulty.script}{$I Language.script}
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+	end;
+	if States.GameTime = 200 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+end;

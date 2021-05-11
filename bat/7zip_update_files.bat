@@ -1,4 +1,4 @@
-
+echo called 7zip_update_files.bat
 call get_kam_folder.bat
 
 echo ***************

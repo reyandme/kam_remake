@@ -40,3 +40,6 @@ Version 2.2 (31.12.2019)
 - Updated Iron Mountains
 - Fixed a 'bug' that was introduced with beta r10745
 - 'Easy' now decreases Recruit Rate by 50% instead of 33%
+
+Version 2.2b (01.09.2020)
+- Increased Recruit Delay by 10 for each Enemy Player

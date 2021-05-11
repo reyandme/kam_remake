@@ -3,7 +3,7 @@ unit KM_GUIMapEdMenuLoad;
 interface
 uses
    Classes, SysUtils, Math,
-   KM_Controls, KM_Maps, KM_Defaults;
+   KM_Controls, KM_Maps, KM_Defaults, KM_MapTypes;
 
 type
   TKMMapEdMenuLoad = class
@@ -41,7 +41,7 @@ type
 implementation
 uses
   KM_ResTexts, KM_Game, KM_GameApp, KM_RenderUI, KM_ResFonts, KM_InterfaceGame,
-  KM_InterfaceMapEditor, KM_Campaigns, KM_GameSettings;
+  KM_InterfaceMapEditor, KM_Defaults, KM_MapTypes, KM_CommonTypes, KM_Campaigns, KM_GameSettings;
 
 
 { TKMMapEdMenuLoad }
@@ -88,6 +88,8 @@ begin
   ListBox_Load.Anchors := [anLeft, anTop, anRight];
   ListBox_Load.ItemHeight := 18;
   ListBox_Load.AutoHideScrollBar := True;
+  ListBox_Load.ShowHintWhenShort := True;
+  ListBox_Load.HintBackColor := TKMColor3f.NewB(87, 72, 37);
   ListBox_Load.SearchEnabled := True;
   ListBox_Load.OnDoubleClick := Menu_LoadClick;
   Button_LoadLoad     := TKMButton.Create(Panel_Load,9,335,Panel_Load.Width - 9,30,gResTexts[TX_MAPED_LOAD],bsGame);
@@ -122,31 +124,16 @@ end;
 //Mission loading dialog
 procedure TKMMapEdMenuLoad.Menu_LoadClick(Sender: TObject);
 var
-  MapFolder: TKMapFolder;
-  Maps: TKMapsCollection;
-  Map: TKMapInfo;
+  mapName: string;
+  isMulti: Boolean;
 begin
   if (Sender = Button_LoadLoad) or (Sender = ListBox_Load) then
   begin
-    if ListBox_Load.ItemIndex = -1 then
-      Exit;
+    if ListBox_Load.ItemIndex = -1 then Exit;
 
-    case Radio_Load_MapType.ItemIndex of
-      0: Maps := fMaps;
-      1: Maps := fMapsMP;
-      2: Maps := fMapsCM;
-      3: Maps := fMapsDL
-      else Exit;
-    end;
-
-    MapFolder := TKMapFolder(Radio_Load_MapType.ItemIndex);
-    Map := Maps[ListBox_Load.ItemTags[ListBox_Load.ItemIndex]];
-    gGameApp.NewMapEditor(MapFolder, Map.FullPath('.dat'), 0, 0, Map.CRC, Map.MapAndDatCRC);
-
-    //Keep MP/SP selected in the map editor interface
-    //(if mission failed to load we would have fGame = nil)
-    if (gGame <> nil) and (gGame.ActiveInterface is TKMapEdInterface) then
-      TKMapEdInterface(gGame.ActiveInterface).SetLoadMode(MapFolder);
+    mapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
+    isMulti := Radio_Load_MapType.ItemIndex <> 0;
+    gGameApp.NewMapEditor(TKMapsCollection.FullPath(mapName, '.dat', TKMapFolder(Radio_Load_MapType.ItemIndex)), isMulti);
   end
   else
   if Sender = Button_LoadCancel then
@@ -182,8 +169,8 @@ end;
 procedure TKMMapEdMenuLoad.Menu_LoadUpdateDone(Sender: TObject);
 var
   I: Integer;
-  PrevMap: string;
-  PrevTop: Integer;
+  prevMap: string;
+  prevTop: Integer;
   M: TKMapsCollection;
   Campaign: TKMCampaign;
 begin
@@ -197,10 +184,10 @@ begin
 
   //Remember previous map
   if ListBox_Load.ItemIndex <> -1 then
-    PrevMap := M.Maps[ListBox_Load.ItemIndex].FileName
+    prevMap := M.Maps[ListBox_Load.ItemIndex].FileName
   else
-    PrevMap := '';
-  PrevTop := ListBox_Load.TopIndex;
+    prevMap := '';
+  prevTop := ListBox_Load.TopIndex;
 
   Campaign := nil;
   if (Radio_Load_MapType.ItemIndex = 2) and (DropBox_Campaigns.ItemIndex >= 0) then
@@ -216,14 +203,14 @@ begin
         Continue;
 
       ListBox_Load.Add(M.Maps[I].FileName, I);
-      if M.Maps[I].FileName = PrevMap then
+      if M.Maps[I].FileName = prevMap then
         ListBox_Load.ItemIndex := ListBox_Load.Count - 1;
     end;
   finally
     M.Unlock;
   end;
 
-  ListBox_Load.TopIndex := PrevTop;
+  ListBox_Load.TopIndex := prevTop;
 end;
 
 

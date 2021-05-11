@@ -30,7 +30,7 @@ type
 
 implementation
 uses
-  KM_HandsCollection, KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI, KM_ResFonts,
+  KM_HandsCollection, KM_ResTexts, KM_Game, KM_Cursor, KM_RenderUI, KM_ResFonts,
   KM_InterfaceGame;
 
 
@@ -76,7 +76,7 @@ begin
     Button_Reveal.Down := False;
   end;
 
-  if (Sender = nil) and (gGameCursor.Mode = cmNone) then
+  if (Sender = nil) and (gCursor.Mode = cmNone) then
   begin
     Button_Reveal.Down := False;
     Button_CenterScreen.Down := False;
@@ -84,18 +84,18 @@ begin
 
   if Button_Reveal.Down then
   begin
-    gGameCursor.Mode := cmMarkers;
-    gGameCursor.Tag1 := MARKER_REVEAL;
-    gGameCursor.MapEdSize := TrackBar_RevealNewSize.Position;
+    gCursor.Mode := cmMarkers;
+    gCursor.Tag1 := MARKER_REVEAL;
+    gCursor.MapEdSize := TrackBar_RevealNewSize.Position;
   end
   else
   if Button_CenterScreen.Down then
   begin
-    gGameCursor.Mode := cmMarkers;
-    gGameCursor.Tag1 := MARKER_CENTERSCREEN;
+    gCursor.Mode := cmMarkers;
+    gCursor.Tag1 := MARKER_CENTERSCREEN;
   end
   else
-    gGameCursor.Mode := cmNone;
+    gCursor.Mode := cmNone;
 
   if Sender = CheckBox_RevealAll then
     gGame.MapEditor.RevealAll[gMySpectator.HandID] := CheckBox_RevealAll.Checked
@@ -111,8 +111,8 @@ end;
 
 procedure TKMMapEdPlayerView.UpdateState;
 begin
-  Button_CenterScreen.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_CENTERSCREEN);
-  Button_Reveal.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_REVEAL);
+  Button_CenterScreen.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_CENTERSCREEN);
+  Button_Reveal.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_REVEAL);
 end;
 
 

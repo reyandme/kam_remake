@@ -38,11 +38,15 @@ uses
 { TKMMapEdFormations }
 constructor TKMMapEdTownFormations.Create(aParent: TKMPanel);
 const
-  T: array [TKMGroupType] of Integer = (TX_MAPED_AI_ATTACK_TYPE_MELEE, TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE, TX_MAPED_AI_ATTACK_TYPE_RANGED, TX_MAPED_AI_ATTACK_TYPE_MOUNTED);  SIZE_X = 570;
+  T: array [TKMGroupType] of Integer = (TX_MAPED_AI_ATTACK_TYPE_MELEE,
+                                        TX_MAPED_AI_ATTACK_TYPE_ANTIHORSE,
+                                        TX_MAPED_AI_ATTACK_TYPE_RANGED,
+                                        TX_MAPED_AI_ATTACK_TYPE_MOUNTED);
+  SIZE_X = 570;
   SIZE_Y = 200;
 var
   GT: TKMGroupType;
-  Img: TKMImage;
+  img: TKMImage;
 begin
   inherited Create;
 
@@ -51,8 +55,8 @@ begin
   Panel_Formations.Hide;
 
   TKMBevel.Create(Panel_Formations, -2000,  -2000, 5000, 5000);
-  Img := TKMImage.Create(Panel_Formations, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
-  Img.ImageStretch;
+  img := TKMImage.Create(Panel_Formations, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
+  img.ImageStretch;
   TKMBevel.Create(Panel_Formations,   0,  0, SIZE_X, SIZE_Y);
   TKMLabel.Create(Panel_Formations, SIZE_X div 2, 10, gResTexts[TX_MAPED_AI_FORMATIONS_TITLE], fntOutline, taCenter);
 

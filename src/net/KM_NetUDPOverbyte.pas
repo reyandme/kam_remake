@@ -32,7 +32,8 @@ implementation
 
 constructor TKMNetUDPOverbyte.Create;
 begin
-  Inherited Create;
+  inherited Create;
+
   fSocketSend := TWSocket.Create(nil);
   fSocketReceive := TWSocket.Create(nil);
 end;
@@ -42,7 +43,8 @@ destructor TKMNetUDPOverbyte.Destroy;
 begin
   fSocketSend.Free;
   fSocketReceive.Free;
-  Inherited;
+
+  inherited;
 end;
 
 
@@ -85,27 +87,29 @@ end;
 
 procedure TKMNetUDPOverbyte.DataAvailable(Sender: TObject; Error: Word);
 const
-  BufferSize = 10240; //10kb
+  BUFFER_SIZE = 10240; //10kb
 var
-  P:pointer;
-  L:integer; //L could be -1 when no data is available
-  Src: TSockAddr;
-  SrcLen : Integer;
+  P: Pointer;
+  L: Integer; //L could be -1 when no data is available
+  src: TSockAddr;
+  srcLen : Integer;
 begin
-  SrcLen := SizeOf(Src);
+  srcLen := SizeOf(src);
   if Error <> 0 then
   begin
     fOnError('UDP DataAvailable. Error '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
     exit;
   end;
 
-  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
-  L := TWSocket(Sender).ReceiveFrom(P, BufferSize, Src, SrcLen);
+  GetMem(P, BUFFER_SIZE+1); //+1 to avoid RangeCheckError when L = BufferSize
+  L := TWSocket(Sender).ReceiveFrom(P, BUFFER_SIZE, src, srcLen);
 
   if L > 0 then
-    fOnRecieveData(UnicodeString(WSocket_inet_ntoa(Src.sin_addr)), P, L);
+    fOnRecieveData(UnicodeString(WSocket_inet_ntoa(src.sin_addr)), P, L);
 
   FreeMem(P);
 end;
 
+
 end.
+

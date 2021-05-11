@@ -1,6 +1,9 @@
 Author
 Strangelove
 
+Version
+Version 0.8.4c (01.04.2021)
+
 SmallDescLIBX
 10
 

@@ -189,52 +189,52 @@ function TKMUnitWorkPlan.ChooseTree(const aLoc, aAvoid: TKMPoint; aRadius: Integ
 var
   I: Integer;
   T: TKMPoint;
-  TreeList: TKMPointDirCenteredList;
-  BestToPlant, SecondBestToPlant: TKMPointCenteredList;
+  treeList: TKMPointDirCenteredList;
+  bestToPlant, secondBestToPlant: TKMPointCenteredList;
 begin
-  TreeList := TKMPointDirCenteredList.Create(aLoc);
-  BestToPlant := TKMPointCenteredList.Create(aLoc);
-  SecondBestToPlant := TKMPointCenteredList.Create(aLoc);
+  treeList := TKMPointDirCenteredList.Create(aLoc);
+  bestToPlant := TKMPointCenteredList.Create(aLoc);
+  secondBestToPlant := TKMPointCenteredList.Create(aLoc);
 
-  gTerrain.FindTree(aLoc, aRadius, aAvoid, aPlantAct, TreeList, BestToPlant, SecondBestToPlant);
+  gTerrain.FindTree(aLoc, aRadius, aAvoid, aPlantAct, treeList, bestToPlant, secondBestToPlant);
 
   //Convert taAny to either a Tree or a Spot
   if (aPlantAct in [taCut, taAny])
-  and ((TreeList.Count > 8) //Always chop the tree if there are many
-       or (BestToPlant.Count + SecondBestToPlant.Count = 0)
-       or ((TreeList.Count > 0) and (KaMRandom('TKMUnitWorkPlan.ChooseTree') < TreeList.Count / (TreeList.Count + (BestToPlant.Count + SecondBestToPlant.Count)/15)))
+  and ((treeList.Count > 8) //Always chop the tree if there are many
+       or (bestToPlant.Count + secondBestToPlant.Count = 0)
+       or ((treeList.Count > 0) and (KaMRandom('TKMUnitWorkPlan.ChooseTree') < treeList.Count / (treeList.Count + (bestToPlant.Count + secondBestToPlant.Count)/15)))
       ) then
   begin
     PlantAct := taCut;
-    Result := TreeList.GetWeightedRandom(Tree);
+    Result := treeList.GetWeightedRandom(Tree);
   end
   else
   begin
     PlantAct := taPlant;
     //First try stumps list
-    for I := BestToPlant.Count - 1 downto 0 do
-      if not TKMUnitCitizen(aUnit).CanWorkAt(BestToPlant[I], gsWoodCutterPlant) then
-        BestToPlant.Delete(I);
-    Result := BestToPlant.GetWeightedRandom(T);
+    for I := bestToPlant.Count - 1 downto 0 do
+      if not TKMUnitCitizen(aUnit).CanWorkAt(bestToPlant[I], gsWoodCutterPlant) then
+        bestToPlant.Delete(I);
+    Result := bestToPlant.GetWeightedRandom(T);
     //Trees must always be planted facing north as that is the direction the animation uses
     if Result then
       Tree := KMPointDir(T, dirN)
     else
     begin
       //Try empty places list
-      for I := SecondBestToPlant.Count - 1 downto 0 do
-        if not TKMUnitCitizen(aUnit).CanWorkAt(SecondBestToPlant[I], gsWoodCutterPlant) then
-          SecondBestToPlant.Delete(I);
-      Result := SecondBestToPlant.GetWeightedRandom(T);
+      for I := secondBestToPlant.Count - 1 downto 0 do
+        if not TKMUnitCitizen(aUnit).CanWorkAt(secondBestToPlant[I], gsWoodCutterPlant) then
+          secondBestToPlant.Delete(I);
+      Result := secondBestToPlant.GetWeightedRandom(T);
       //Trees must always be planted facing north as that is the direction the animation uses
       if Result then
         Tree := KMPointDir(T, dirN);
     end;
   end;
 
-  TreeList.Free;
-  BestToPlant.Free;
-  SecondBestToPlant.Free;
+  treeList.Free;
+  bestToPlant.Free;
+  secondBestToPlant.Free;
 end;
 
 
@@ -242,8 +242,8 @@ procedure TKMUnitWorkPlan.FindPlan(aUnit: TKMUnit; aHome: TKMHouseType; aProduct
                                  aLoc: TKMPoint; aPlantAct: TKMPlantAct);
 var
   I: Integer;
-  Tmp: TKMPointDir;
-  PlantAct: TKMPlantAct;
+  tmp: TKMPointDir;
+  plantAct: TKMPlantAct;
   HW: TKMHouseWoodcutters;
 begin
   Clear;
@@ -261,22 +261,22 @@ begin
                         if HW.IsFlagPointSet then
                           aLoc := HW.FlagPoint;
 
-                        fIssued := ChooseTree(aLoc, KMPOINT_ZERO, gRes.Units[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
+                        fIssued := ChooseTree(aLoc, KMPOINT_ZERO, gRes.Units[aUnit.UnitType].MiningRange, aPlantAct, aUnit, tmp, plantAct);
                         if fIssued then
                         begin
-                          case PlantAct of
+                          case plantAct of
                             taCut:    begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of uaWork
                                         ResourcePlan(wtNone,0,wtNone,0,wtTrunk);
-                                        WalkStyle(Tmp, uaWalkBooty,uaWork,15,20,uaWalkTool2,gsWoodCutterCut);
+                                        WalkStyle(tmp, uaWalkBooty,uaWork,15,20,uaWalkTool2,gsWoodCutterCut);
                                       end;
                             taPlant:  begin //Planting uses DirN (0) of uaWork
-                                        WalkStyle(Tmp, uaWalkTool,uaWork,12,0,uaWalk,gsWoodCutterPlant);
+                                        WalkStyle(tmp, uaWalkTool,uaWork,12,0,uaWalk,gsWoodCutterPlant);
                                       end;
                             else      fIssued := False;
                           end;
                         end
                         else
-                          case PlantAct of
+                          case plantAct of
                             taCut:    if not gTerrain.CanFindTree(aLoc, gRes.Units[aUnit.UnitType].MiningRange) then
                                         ResourceDepleted := True; //No more trees to cut
                             taPlant:  if HW.WoodcutterMode = wcmPlant then
@@ -285,10 +285,10 @@ begin
                       end;
     utMiner:         if aHome = htCoalMine then
                       begin
-                        fIssued := gTerrain.FindOre(aLoc, wtCoal, Tmp.Loc);
+                        fIssued := gTerrain.FindOre(aLoc, wtCoal, tmp.Loc);
                         if fIssued then
                         begin
-                          Loc := Tmp.Loc;
+                          Loc := tmp.Loc;
                           ResourcePlan(wtNone,0,wtNone,0,wtCoal);
                           GatheringScript := gsCoalMiner;
                           SubActAdd(haWork1,1);
@@ -299,10 +299,10 @@ begin
                       end else
                       if aHome = htIronMine then
                       begin
-                        fIssued := gTerrain.FindOre(aLoc, wtIronOre, Tmp.Loc);
+                        fIssued := gTerrain.FindOre(aLoc, wtIronOre, tmp.Loc);
                         if fIssued then
                         begin
-                          Loc := Tmp.Loc;
+                          Loc := tmp.Loc;
                           ResourcePlan(wtNone,0,wtNone,0,wtIronOre);
                           GatheringScript := gsIronMiner;
                           SubActAdd(haWork1,1);
@@ -313,10 +313,10 @@ begin
                       end else
                       if aHome = htGoldMine then
                       begin
-                        fIssued := gTerrain.FindOre(aLoc, wtGoldOre, Tmp.Loc);
+                        fIssued := gTerrain.FindOre(aLoc, wtGoldOre, tmp.Loc);
                         if fIssued then
                         begin
-                          Loc := Tmp.Loc;
+                          Loc := tmp.Loc;
                           ResourcePlan(wtNone,0,wtNone,0,wtGoldOre);
                           GatheringScript := gsGoldMiner;
                           SubActAdd(haWork1,1);
@@ -351,25 +351,25 @@ begin
                       end;
     utFarmer:        if aHome = htFarm then
                       begin
-                        fIssued := gTerrain.FindCornField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, aPlantAct, PlantAct, Tmp);
+                        fIssued := gTerrain.FindCornField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, aPlantAct, plantAct, tmp);
                         if fIssued then
-                          case PlantAct of
+                          case plantAct of
                             taCut:    begin
                                         ResourcePlan(wtNone,0,wtNone,0,wtCorn);
-                                        WalkStyle(Tmp, uaWalkTool,uaWork,6,0,uaWalkBooty,gsFarmerCorn);
+                                        WalkStyle(tmp, uaWalkTool,uaWork,6,0,uaWalkBooty,gsFarmerCorn);
                                       end;
-                            taPlant:  WalkStyle(Tmp, uaWalk,uaWork1,10,0,uaWalk,gsFarmerSow);
+                            taPlant:  WalkStyle(tmp, uaWalk,uaWork1,10,0,uaWalk,gsFarmerSow);
                             else      fIssued := False;
                           end;
                       end else
 
                       if aHome = htWineyard then
                       begin
-                        fIssued := gTerrain.FindWineField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, Tmp);
+                        fIssued := gTerrain.FindWineField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, tmp);
                         if fIssued then
                         begin
                           ResourcePlan(wtNone,0,wtNone,0,wtWine);
-                          WalkStyle(KMPointDir(Tmp.Loc,dirN), uaWalkTool2,uaWork2,5,0,uaWalkBooty2,gsFarmerWine); //The animation for picking grapes is only defined for facing north
+                          WalkStyle(KMPointDir(tmp.Loc,dirN), uaWalkTool2,uaWork2,5,0,uaWalkBooty2,gsFarmerWine); //The animation for picking grapes is only defined for facing north
                           SubActAdd(haWork1,1);
                           SubActAdd(haWork2,11);
                           SubActAdd(haWork5,1);
@@ -490,28 +490,28 @@ begin
                       end;
     utFisher:        if aHome = htFisherHut then
                       begin
-                        fIssued := gTerrain.FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, False, Tmp);
+                        fIssued := gTerrain.FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, False, tmp);
                         if fIssued then
                         begin
                           ResourcePlan(wtNone,0,wtNone,0,wtFish);
-                          WalkStyle(Tmp,uaWalk,uaWork2,12,0,uaWalkTool,gsFisherCatch);
+                          WalkStyle(tmp,uaWalk,uaWork2,12,0,uaWalkTool,gsFisherCatch);
                         end else
                           //We must check again this time ignoring working units since they don't indicate the resource is depleted
-                          ResourceDepleted := not gTerrain.FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, True, Tmp);
+                          ResourceDepleted := not gTerrain.FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, True, tmp);
                       end;
     utStoneCutter:   if aHome = htQuary then
                       begin
-                        fIssued := gTerrain.FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, False, Tmp);
+                        fIssued := gTerrain.FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, False, tmp);
                         if fIssued then
                         begin
                           ResourcePlan(wtNone,0,wtNone,0,wtStone);
-                          WalkStyle(Tmp, uaWalk,uaWork,8,0,uaWalkTool,gsStoneCutter);
+                          WalkStyle(tmp, uaWalk,uaWork,8,0,uaWalkTool,gsStoneCutter);
                           SubActAdd(haWork1,1);
                           SubActAdd(haWork2,9);
                           SubActAdd(haWork5,1);
                         end else
                           //We must check again this time ignoring working units since they don't indicate the resource is depleted
-                          ResourceDepleted := not gTerrain.FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, True, Tmp);
+                          ResourceDepleted := not gTerrain.FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, KMPOINT_ZERO, True, tmp);
                       end;
     utSmith:         if (aHome = htArmorSmithy) and (aProduct = wtMetalShield) then
                       begin
@@ -616,7 +616,8 @@ end;
 
 
 procedure TKMUnitWorkPlan.Load(LoadStream: TKMemoryStream);
-var I: Integer;
+var
+  I: Integer;
 begin
   LoadStream.CheckMarker('WorkPlan');
   LoadStream.Read(fHome, SizeOf(fHome));
@@ -651,7 +652,8 @@ end;
 
 
 procedure TKMUnitWorkPlan.Save(SaveStream: TKMemoryStream);
-var I: Integer;
+var
+  I: Integer;
 begin
   SaveStream.PlaceMarker('WorkPlan');
   SaveStream.Write(fHome, SizeOf(fHome));

@@ -85,7 +85,7 @@ const
 
 constructor TKMGUIGameUnit.Create(aParent: TKMPanel; aSetViewportEvent: TPointFEvent);
 var
-  SplitKeyStr: UnicodeString;
+  splitKeyStr: UnicodeString;
 begin
   fSetViewportEvent := aSetViewportEvent;
   fAnimStep := 0;
@@ -163,13 +163,13 @@ begin
     Button_Army_ForDown.Hint  := GetHintWHotKey(TX_ARMY_LINE_ADD_HINT, kfArmyAddLine);
     Button_Army_ForUp.Hint    := GetHintWHotKey(TX_ARMY_LINE_REM_HINT, kfArmyDelLine);
 
-    SplitKeyStr := gResKeys.GetKeyNameById(kfArmySplit);
+    splitKeyStr := gResKeys.GetKeyNameById(kfArmySplit);
 
     //Check if we have new hint with separate 1 unit action hint (Ctrl + S)
     if CountOccurrences('%s', gResTexts[TX_TROOP_SPLIT_HINT]) = 2 then
-      Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [SplitKeyStr, SplitKeyStr])
+      Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [splitKeyStr, splitKeyStr])
     else
-      Button_Army_Split.Hint     := GetHintWHotKey(TX_TROOP_SPLIT_HINT, SplitKeyStr); //Old hint
+      Button_Army_Split.Hint     := GetHintWHotKey(TX_TROOP_SPLIT_HINT, splitKeyStr); //Old hint
 
     Button_Army_Join.Hint     := GetHintWHotKey(TX_TROOP_LINK_HINT, kfArmyLink);
     Button_Army_Feed.Hint     := GetHintWHotKey(TX_ARMY_FEED_HINT, kfArmyFood);
@@ -209,7 +209,7 @@ end;
 
 procedure TKMGUIGameUnit.Show_Common(aUnit: TKMUnit);
 var
-  HLabelWidth: Integer;
+  hLabelWidth: Integer;
 begin
   Image_PlayerFlag.FlagColor := gHands[aUnit.Owner].FlagColor;
   Image_PlayerFlag.Hint      := Format(gResTexts[TX_PLAYER_FLAG_HINT], [gHands[aUnit.Owner].OwnerName]);
@@ -224,19 +224,19 @@ begin
 
   ConditionBar_Unit.Position  := aUnit.Condition / UNIT_MAX_CONDITION;
 
-  HLabelWidth := gRes.Fonts[fntOutline].GetTextSize(Label_UnitName.Caption).X;
-  if HLabelWidth <= TB_WIDTH - 2*Image_PlayerFlag.Width then
+  hLabelWidth := gRes.Fonts[fntOutline].GetTextSize(Label_UnitName.Caption).X;
+  if hLabelWidth <= TB_WIDTH - 2*Image_PlayerFlag.Width then
     Label_UnitName.Left := 0
-  else if HLabelWidth <= TB_WIDTH - Image_PlayerFlag.Width then
+  else if hLabelWidth <= TB_WIDTH - Image_PlayerFlag.Width then
     Label_UnitName.Left := Image_PlayerFlag.Width
   else
-    Label_UnitName.Left := Max(TB_WIDTH - HLabelWidth, 0);
+    Label_UnitName.Left := Max(TB_WIDTH - hLabelWidth, 0);
 end;
 
 
 procedure TKMGUIGameUnit.ShowUnitInfo(aUnit: TKMUnit; aAskDismiss: Boolean = False);
 var
-  HasSchools: Boolean;
+  hasSchools: Boolean;
 begin
   Assert(gMySpectator.Selected = aUnit);
 
@@ -261,15 +261,15 @@ begin
     Button_Unit_Dismiss.Enabled := aUnit.IsDismissCancelAvailable;
     Panel_Unit_Dismiss.Visible := False;
   end else begin
-    HasSchools := gMySpectator.Hand.Stats.GetHouseQty(htSchool) > 0;
+    hasSchools := gMySpectator.Hand.Stats.GetHouseQty(htSchool) > 0;
 
     if fAskDismiss and not aUnit.IsDismissAvailable then
       fAskDismiss := False; //Hide dismiss panel if dismiss is not available anymore
 
-    Button_Unit_Dismiss.Enabled := not fAskDismiss and HasSchools and not aUnit.IsHungry and aUnit.IsDismissAvailable;
+    Button_Unit_Dismiss.Enabled := not fAskDismiss and hasSchools and not aUnit.IsHungry and aUnit.IsDismissAvailable;
     Button_Unit_Dismiss.TexID := 667;
 
-    if not HasSchools then
+    if not hasSchools then
       Button_Unit_Dismiss.Hint := gResTexts[TX_UNIT_TASK_DISMISS_NOSCHOOLS_HINT]
     else if aUnit.IsHungry then
       Button_Unit_Dismiss.Hint := gResTexts[TX_UNIT_TASK_DISMISS_HUNGRY_HINT]   
@@ -341,19 +341,19 @@ end;
 
 procedure TKMGUIGameUnit.Unit_Dismiss(Sender: TObject);
 var
-  IsGroup: Boolean;
+  isGroup: Boolean;
 begin
   if (gMySpectator.Selected = nil)
     or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
     Exit;
 
-  IsGroup := gMySpectator.Selected is TKMUnitGroup;
+  isGroup := gMySpectator.Selected is TKMUnitGroup;
 
   if Sender = Button_Unit_DismissYes then
   begin
     // DISMISS UNIT
     fAskDismiss := False;
-    if IsGroup then
+    if isGroup then
       TKMUnitGroup(gMySpectator.Selected).SelectedUnit.Kill(PLAYER_NONE, True, False) //Debug option
     else
       SendUnitDismissCommand;
@@ -361,7 +361,7 @@ begin
   else
   begin
     fAskDismiss := False;
-    if IsGroup then
+    if isGroup then
       ShowGroupInfo(TKMUnitGroup(gMySpectator.Selected), False)  // Cancel and return to selected group
     else
       ShowUnitInfo(TKMUnit(gMySpectator.Selected), False);  // Cancel and return to selected unit
@@ -371,21 +371,14 @@ end;
 
 procedure TKMGUIGameUnit.Unit_Scroll_Click(Sender: TObject);
 var
-
   U: TKMUnit;
-
   G: TKMUnitGroup;
-
 begin
-
   if (gMySpectator.Selected = nil)
-
     or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
     Exit;
 
-
   U := nil;
-
 
   if gMySpectator.Selected is TKMUnitGroup then
   begin
@@ -418,52 +411,52 @@ end;
 
 procedure TKMGUIGameUnit.Army_Issue_Order(Sender: TObject);
 var
-  Group: TKMUnitGroup;
+  group: TKMUnitGroup;
 begin
   if (gMySpectator.Selected = nil)
     or not (gMySpectator.Selected is TKMUnitGroup) then Exit;
 
-  Group := TKMUnitGroup(gMySpectator.Selected);
+  group := TKMUnitGroup(gMySpectator.Selected);
 
   // if Sender = Button_Army_GoTo    then ; // This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_Stop    then
   begin
-    gGame.GameInputProcess.CmdArmy(gicArmyHalt, Group);
-    gSoundPlayer.PlayWarrior(Group.UnitType, spHalt);
+    gGame.GameInputProcess.CmdArmy(gicArmyHalt, group);
+    gSoundPlayer.PlayWarrior(group.UnitType, spHalt);
   end;
   // if Sender = Button_Army_Attack  then ; // This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_RotCW   then
   begin
-    gGame.GameInputProcess.CmdArmy(gicArmyFormation, Group, tdCW, 0);
-    gSoundPlayer.PlayWarrior(Group.UnitType, spRotRight);
+    gGame.GameInputProcess.CmdArmy(gicArmyFormation, group, tdCW, 0);
+    gSoundPlayer.PlayWarrior(group.UnitType, spRotRight);
   end;
   if Sender = Button_Army_Storm   then
   begin
-    gGame.GameInputProcess.CmdArmy(gicArmyStorm, Group);
-    gSoundPlayer.PlayWarrior(Group.UnitType, spStormAttack);
+    gGame.GameInputProcess.CmdArmy(gicArmyStorm, group);
+    gSoundPlayer.PlayWarrior(group.UnitType, spStormAttack);
   end;
   if Sender = Button_Army_RotCCW  then
   begin
-    gGame.GameInputProcess.CmdArmy(gicArmyFormation, Group, tdCCW, 0);
-    gSoundPlayer.PlayWarrior(Group.UnitType, spRotLeft);
+    gGame.GameInputProcess.CmdArmy(gicArmyFormation, group, tdCCW, 0);
+    gSoundPlayer.PlayWarrior(group.UnitType, spRotLeft);
   end;
   if Sender = Button_Army_ForDown then
   begin
-    gGame.GameInputProcess.CmdArmy(gicArmyFormation, Group, tdNone, 1);
-    gSoundPlayer.PlayWarrior(Group.UnitType, spFormation);
+    gGame.GameInputProcess.CmdArmy(gicArmyFormation, group, tdNone, 1);
+    gSoundPlayer.PlayWarrior(group.UnitType, spFormation);
   end;
   if Sender = Button_Army_ForUp   then
   begin
-    gGame.GameInputProcess.CmdArmy(gicArmyFormation, Group, tdNone, -1);
-    gSoundPlayer.PlayWarrior(Group.UnitType, spFormation);
+    gGame.GameInputProcess.CmdArmy(gicArmyFormation, group, tdNone, -1);
+    gSoundPlayer.PlayWarrior(group.UnitType, spFormation);
   end;
   if Sender = Button_Army_Split   then
   begin
     if GetKeyState(VK_CONTROL) < 0 then
-      gGame.GameInputProcess.CmdArmy(gicArmySplitSingle, Group)
+      gGame.GameInputProcess.CmdArmy(gicArmySplitSingle, group)
     else
-      gGame.GameInputProcess.CmdArmy(gicArmySplit, Group);
-    gSoundPlayer.PlayWarrior(Group.UnitType, spSplit);
+      gGame.GameInputProcess.CmdArmy(gicArmySplit, group);
+    gSoundPlayer.PlayWarrior(group.UnitType, spSplit);
   end;
   if (Sender = Button_Army_Join)
     and ((gMySpectator.Selected <> nil) and gMySpectator.IsSelectedMyObj) then // Do not allow to command ally's army
@@ -474,8 +467,8 @@ begin
   end;
   if Sender = Button_Army_Feed    then
   begin
-    gGame.GameInputProcess.CmdArmy(gicArmyFeed, Group);
-    gSoundPlayer.PlayWarrior(Group.UnitType, spEat);
+    gGame.GameInputProcess.CmdArmy(gicArmyFeed, group);
+    gSoundPlayer.PlayWarrior(group.UnitType, spEat);
   end;
 end;
 

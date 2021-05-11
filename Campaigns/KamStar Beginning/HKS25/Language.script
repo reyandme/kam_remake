@@ -1,0 +1,75 @@
+{$EVENT evtTick:OnTickL}
+{$EVENT evtMissionStart:OnMissionStartL}
+//{$I Language.script}
+var Language:integer;
+	Paran:AnsiString;
+
+Procedure LanguageSet;
+var Ansi:AnsiString;
+	D1:integer;
+	Klik:AnsiString;
+	Trip:Single;
+begin
+	Klik:=States.MissionSmallDesc;
+	If Klik = 'Dodatkowy tekst' then begin
+		Language:=0;
+		Paran:='pol-'
+	end;
+	If Klik = 'Additional Text' then begin
+		Language:=1;
+		Paran:='eng-'
+	end;
+end;
+
+procedure OnTickL;
+begin
+	if States.GameTime = 1 then begin
+		Actions.StopSound(0);
+		Actions.PlayOggFadeMusic(-1,'Malcolm-'+Paran+'01',1);
+	end;
+	if States.GameTime = 150 then begin
+		Actions.StopSound(0);
+		Actions.PlayOggFadeMusic(-1,'Malcolm-'+Paran+'02',1);
+	end;
+	if States.GameTime = 5950 then begin
+		Actions.StopSound(0);
+		Actions.PlayOggFadeMusic(-1,'Malcolm-'+Paran+'07',1);
+	end;
+	if States.GameTime = 6050 then begin
+		Actions.StopSound(0);
+		Actions.PlayOggFadeMusic(-1,'Tyrio-'+Paran+'01',1);
+	end;
+	if States.GameTime = Time+1 then begin
+		Actions.StopSound(0);
+		Actions.PlayOggFadeMusic(-1,'Malcolm-'+Paran+'03',1);
+	end;
+	if States.GameTime = Time+75 then begin
+		Actions.StopSound(0);
+		Actions.PlayOggFadeMusic(-1,'Malcolm-'+Paran+'04',1);
+	end;
+	if States.GameTime = Time+140 then begin
+		Actions.StopSound(1);
+		Actions.PlayOggFadeMusic(-1,'Dyron-'+Paran+'01',1);
+	end;
+	if States.GameTime = Time+160 then begin
+		Actions.StopSound(0);
+		Actions.PlayOggFadeMusic(-1,'Malcolm-'+Paran+'05',1);
+	end;
+	if States.GameTime = Time+200 then begin
+		Actions.StopSound(2);
+		Actions.PlayOggFadeMusic(-1,'Dyron-'+Paran+'02',1);
+	end;
+	if States.GameTime = Time+750 then begin
+		Actions.StopSound(3);
+		Actions.PlayOggFadeMusic(-1,'Dyron-'+Paran+'03',1);
+	end;
+	if States.GameTime = Time+6050 then begin
+		Actions.StopSound(0);
+		Actions.PlayOggFadeMusic(-1,'Malcolm-'+Paran+'06',1);
+	end;
+end;
+
+procedure OnMissionStartL;
+begin
+	LanguageSet;
+end;

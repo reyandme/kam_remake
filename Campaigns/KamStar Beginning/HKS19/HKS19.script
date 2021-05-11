@@ -1,0 +1,79 @@
+{$I difficulty.script}
+{$I Language.script}
+var bohater,n1:Integer;
+{$I Statek.script}
+Procedure OnMarketTrade(aMarket: Integer; aFrom: Integer;  aTo: Integer);
+begin
+if (States.HouseOwner(aMarket) = 1) and (aFrom = 31) then
+	Actions.GiveWares(0,aFrom,1);
+end;
+Procedure OnHouseDestroyed(aHouse: Integer; aDestroyerIndex: Integer);
+begin
+	if (aDestroyerIndex = 1) and (States.HouseOwner(aHouse) > 0) then begin
+		Actions.GiveWares(aDestroyerIndex,1,1);
+		Actions.GiveWares(aDestroyerIndex,2,1);
+	end;
+end;
+  procedure AutoFeed;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 2 to 5 do begin
+           UnitsToFeed := States.PlayerGetAllGroups(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end; 
+procedure AutoFeed12;
+    var K, I: Integer;
+      UnitsToFeed: array of Integer;
+        begin
+          for I := 0 to 0 do begin
+           UnitsToFeed := States.PlayerGetAllGroups(I);
+            for K := 0 to length(UnitsToFeed) - 1 do begin
+             Actions.GroupHungerSet(UnitsToFeed[K], States.UnitMaxHunger);
+           end;
+         end; 
+       end;
+	   
+Procedure OnBeacon(Player:Integer; X,Y:Word);
+begin
+	IF (X = States.UnitPositionX(bohater))and(Y = States.UnitPositionY(bohater)) then n1:=n1+1;
+	If n1 = 8 then Actions.PlayerWin([0],true);
+end;
+procedure OnTick;
+begin
+	if States.GameTime = 1 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$0>', []);
+		bohater := States.UnitAt(17,54) end;
+	if States.GameTime = 150 then begin
+		Actions.OverlayTextSetFormatted(-1, '', []);
+		Actions.OverlayTextAppendFormatted(-1, '<$1>', []);end;
+	if States.GameTime MOD 9000 = 0 then begin
+		 Autofeed;
+		 Autofeed12;
+	end;
+	if States.GameTime = 300 then
+		Actions.OverlayTextSetFormatted(-1, '', []);
+	if States.UnitDead(bohater) then
+		Actions.PlayerDefeat(1);
+end;
+
+procedure OnMissionStart();
+var 
+	G,X,II,Y: Integer;
+begin
+	if (Length(CampaignData.HKS18.Groups)=0) then begin Actions.GiveGroup(1,22,26 ,48,2,15,5); Actions.GiveGroup(1,22,31 ,54,1,15,5); Actions.GiveGroup(1,22,40 ,84,2,15,5);
+	end else begin
+		for G := 0 to Length(CampaignData.HKS18.Groups)-1 do begin
+			If CampaignData.HKS18.Groups[G][4] = 0 then begin end else begin
+				Actions.GiveGroup(1,CampaignData.HKS18.Groups[G][0], 6+X,72+Y, 2,CampaignData.HKS18.Groups[G][4],CampaignData.HKS18.Groups[G][5])
+				IF II = 4 then X:=X+5 else Y:=Y+6;
+				If II = 4 then II:=0;
+				II:=II+1;
+			end;
+		end;
+	end;
+end;

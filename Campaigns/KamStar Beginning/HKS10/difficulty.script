@@ -1,0 +1,18 @@
+Procedure OnMissionStart;
+var group1,group2:Integer;
+	Difficulty: TKMMissionDifficulty;
+	RecruitDelay:array of Integer;
+	dMod:byte;
+var Houses:array of integer;
+	LL:integer;
+begin
+	Houses:=States.PlayerGetAllHouses(0);
+	for LL:=0 to length(Houses)-1 do begin
+		If (States.HouseType(Houses[LL])=11) and (Store=0) then
+			Store:=Houses[LL];
+	end;
+	RecruitDelay:=[36000, 18000, 12000, 9000, 6000, 3000,0];
+	Difficulty:=States.MissionDifficulty;		
+	dMod := Byte(Difficulty)-1; 
+	Actions.AIRecruitDelay(1,RecruitDelay[dMod]);
+end;

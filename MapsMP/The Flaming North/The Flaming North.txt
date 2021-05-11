@@ -1,0 +1,20 @@
+Author
+andreus
+
+Version
+0.9.1 (13.03.2021)
+
+BigDescLIBX
+1
+
+SetCoop
+
+BlockPeacetime
+
+BlockTeamSelection
+
+BlockFullMapPreview
+
+DifficultyLevels
+mdEasy1,mdNormal,mdHard1,mdHard2,mdHard3
+

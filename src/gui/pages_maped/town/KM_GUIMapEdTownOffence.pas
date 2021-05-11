@@ -155,31 +155,31 @@ const
                                                    TX_MAPED_AI_TARGET_HOUSE_START,
                                                    TX_MAPED_AI_TARGET_CUSTOM);
 var
-  I, Index, TopIndex: Integer;
+  I, index, topIndex: Integer;
   A: TKMAIAttack;
-  CustomPosS: String;
+  customPosS: String;
 begin
-  TopIndex := ColumnBox_Attacks.TopIndex; //Save index and TopIndex to restore after refresh
-  Index := ColumnBox_Attacks.ItemIndex;
+  topIndex := ColumnBox_Attacks.TopIndex; //Save index and TopIndex to restore after refresh
+  index := ColumnBox_Attacks.ItemIndex;
   ColumnBox_Attacks.Clear;
 
   for I := 0 to gMySpectator.Hand.AI.General.Attacks.Count - 1 do
   begin
     A := gMySpectator.Hand.AI.General.Attacks[I];
-    CustomPosS := '';
+    customPosS := '';
     if A.Target = attCustomPosition then
-      CustomPosS := TypeToString(A.CustomPosition);
+      customPosS := TypeToString(A.CustomPosition);
 
     ColumnBox_Attacks.AddItem(MakeListRow([Typ[A.AttackType],
                                            IntToStr(A.Delay div 10),
                                            IntToStr(A.TotalMen),
                                            Tgt[A.Target],
-                                           CustomPosS],
+                                           customPosS],
                                           [gResTexts[TypeHint[A.AttackType]],
                                            gResTexts[TX_MAPED_AI_ATTACK_DELAY] + ': ' + IntToStr(A.Delay),
                                            gResTexts[TX_MAPED_AI_ATTACK_SOLDIERS] + ': ' + IntToStr(A.TotalMen),
                                            gResTexts[TargetHint[A.Target]],
-                                           CustomPosS]));
+                                           customPosS]));
   end;
 
   Attacks_ListClick(nil);
@@ -187,11 +187,11 @@ begin
   CheckBox_AutoAttack.Checked := gMySpectator.Hand.AI.Setup.AutoAttack;
 
   //Try to restore previous selected element
-  if Index >= ColumnBox_Attacks.RowCount then
-    Index := ColumnBox_Attacks.RowCount - 1;
+  if index >= ColumnBox_Attacks.RowCount then
+    index := ColumnBox_Attacks.RowCount - 1;
 
-  ColumnBox_Attacks.ItemIndex := Index;
-  ColumnBox_Attacks.TopIndex := TopIndex;
+  ColumnBox_Attacks.ItemIndex := index;
+  ColumnBox_Attacks.TopIndex := topIndex;
 
   ColumnBox_Attacks.JumpToSelected;
 

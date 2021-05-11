@@ -22,7 +22,7 @@ type
     //- Mission does not knows to which CampaignName/Map it belongs
     //- PathName to mission and savegame (incase mission is missing we can load .bas)
     fRepeatGameName: UnicodeString;
-    fRepeatMission: UnicodeString;
+    fRepeatMissionFileRel: UnicodeString;
     fRepeatSave: UnicodeString;
     fRepeatCampName: TKMCampaignId;
     fRepeatCampMap: Byte;
@@ -46,6 +46,7 @@ type
     Panel_Results: TKMPanel;
       Label_Results: TKMLabel;
       Panel_Stats: TKMPanel;
+        Label_MissionTime: TKMLabel;
         Label_Stat: array [1..9] of TKMLabel;
       Panel_StatsCharts: TKMPanel;
         Button_ResultsArmy,
@@ -78,6 +79,10 @@ uses
   KM_ResTypes,
   KM_InterfaceTypes;
 
+const
+  STAT_MISSION_TIME_LBL_TX_CONTINUES: array[Boolean] of Integer =
+                                          (TX_RESULTS_MISSION_COMPLETED_IN,
+                                           TX_RESULTS_MISSION_TIME);
 
 { TKMGUIMenuResultsSP }
 constructor TKMGameResultsSP.Create(aParent: TKMPanel; aOnStopGame: TUnicodeStringWDefEvent; aOnShowDetailedStats: TEvent);
@@ -92,8 +97,8 @@ end;
 
 procedure TKMGameResultsSP.Reinit;
 var
-  TempGraphCount: Integer;
-  TempGraphs: array [0..MAX_HANDS-1] of record
+  tempGraphCount: Integer;
+  tempGraphs: array [0..MAX_HANDS-1] of record
                                           OwnerName: UnicodeString;
                                           Color: Cardinal;
                                           G: TKMCardinalArray;
@@ -105,38 +110,38 @@ var
     I, ID: Integer;
   begin
     ID := -1;
-    for I := 0 to TempGraphCount - 1 do
-      if aColor = TempGraphs[I].Color then
+    for I := 0 to tempGraphCount - 1 do
+      if aColor = tempGraphs[I].Color then
       begin
         ID := I;
         Break;
       end;
     if ID = -1 then
     begin
-      ID := TempGraphCount;
-      Inc(TempGraphCount);
-      TempGraphs[ID].G := aGraph; //Overwrite existing graph
-      TempGraphs[ID].Color := aColor;
-      TempGraphs[ID].OwnerName := aOwnerName;
+      ID := tempGraphCount;
+      Inc(tempGraphCount);
+      tempGraphs[ID].G := Copy(aGraph, Low(aGraph), Length(aGraph)); // Copy array contents, not assign it!
+      tempGraphs[ID].Color := aColor;
+      tempGraphs[ID].OwnerName := aOwnerName;
     end
     else
       for I := 0 to Length(aGraph) - 1 do
-        Inc(TempGraphs[ID].G[I], aGraph[I]); //Add each element to the existing elements
+        Inc(tempGraphs[ID].G[I], aGraph[I]); //Add each element to the existing elements
   end;
 
 var
   I: Integer;
   R: TKMWareType;
   G: TKMCardinalArray;
-  HumanId: TKMHandID;
-  ShowAIResults: Boolean;
-  Cap: UnicodeString;
+  humanId: TKMHandID;
+  showAIResults: Boolean;
+  cap: UnicodeString;
 begin
   fGameMode := gGameParams.Mode;
 
   //Remember which map we played so we could restart it
   fRepeatGameName := gGameParams.Name;
-  fRepeatMission := gGameParams.MissionFile;
+  fRepeatMissionFileRel := gGameParams.MissionFileRel;
   fRepeatSave := gGame.SaveFile;
   fRepeatCampName := gGame.CampaignName;
   fRepeatCampMap := gGame.CampaignMap;
@@ -154,9 +159,11 @@ begin
 
   //If the player canceled mission, hide the AI graph lines so he doesn't see secret info about enemy (e.g. army size)
   //That info should only be visible if the mission was won or a replay
-  ShowAIResults := gGameParams.IsReplay
+  showAIResults := gGameParams.IsReplay
                    or (fGameResultMsg in [grWin, grReplayEnd])
                    or ((fGameResultMsg = grGameContinues) and (gMySpectator.Hand.AI.HasWon));
+
+  Label_MissionTime.Caption := gResTexts[STAT_MISSION_TIME_LBL_TX_CONTINUES[fGameResultMsg = grGameContinues]];
 
   //Restart button is hidden if you won or if it is a replay
   Button_Restart.Visible := not (fGameResultMsg in [grReplayEnd, grWin, grGameContinues]);
@@ -172,15 +179,15 @@ begin
 
   //Header
   case fGameResultMsg of
-    grWin:           Cap := gResTexts[TX_MENU_MISSION_VICTORY];
-    grDefeat:        Cap := gResTexts[TX_MENU_MISSION_DEFEAT];
-    grCancel:        Cap := gResTexts[TX_MENU_MISSION_CANCELED];
-    grReplayEnd:     Cap := gResTexts[TX_MENU_REPLAY_ENDED];
-    grGameContinues: Cap := ''; //Do not show game result, as game is still going
+    grWin:           cap := gResTexts[TX_MENU_MISSION_VICTORY];
+    grDefeat:        cap := gResTexts[TX_MENU_MISSION_DEFEAT];
+    grCancel:        cap := gResTexts[TX_MENU_MISSION_CANCELED];
+    grReplayEnd:     cap := gResTexts[TX_MENU_REPLAY_ENDED];
+    grGameContinues: cap := ''; //Do not show game result, as game is still going
   else
-    Cap := NO_TEXT;
+    cap := NO_TEXT;
   end;
-  Label_Results.Caption := Cap;
+  Label_Results.Caption := cap;
 
   //Append mission name and time after the result message
   if Label_Results.Caption <> '' then
@@ -193,17 +200,20 @@ begin
 
 
   //This is SP menu, we are dead sure there's only one Human player (NOT REALLY)
-  HumanId := -1;
+  humanId := -1;
   for I := 0 to gHands.Count - 1 do
     if gHands[I].IsHuman then
-      HumanId := I;
+    begin
+      humanId := I;
+      Break;
+    end;
 
   //Still possible to have no Humans, if we play some MP replay in SP replay mode
-  if HumanId = -1 then
-    HumanId := 0;
+  if humanId = -1 then
+    humanId := 0;
 
   //List values (like old KaM did)
-  with gHands[HumanId].Stats do
+  with gHands[humanId].Stats do
   begin
     Label_Stat[1].Caption := IntToStr(GetCitizensLost + GetWarriorsLost);
     Label_Stat[2].Caption := IntToStr(GetCitizensKilled + GetWarriorsKilled);
@@ -221,10 +231,10 @@ begin
   Chart_Citizens.Clear;
   Chart_Houses.Clear;
   Chart_Wares.Clear;
-  Chart_Army.MaxLength      := gHands[HumanId].Stats.ChartCount;
-  Chart_Citizens.MaxLength  := gHands[HumanId].Stats.ChartCount;
-  Chart_Houses.MaxLength    := gHands[HumanId].Stats.ChartCount;
-  Chart_Wares.MaxLength     := gHands[HumanId].Stats.ChartCount;
+  Chart_Army.MaxLength      := gHands[humanId].Stats.ChartCount;
+  Chart_Citizens.MaxLength  := gHands[humanId].Stats.ChartCount;
+  Chart_Houses.MaxLength    := gHands[humanId].Stats.ChartCount;
+  Chart_Wares.MaxLength     := gHands[humanId].Stats.ChartCount;
 
   Chart_Army.MaxTime      := gGameParams.Tick div 10;
   Chart_Citizens.MaxTime  := gGameParams.Tick div 10;
@@ -232,9 +242,12 @@ begin
   Chart_Wares.MaxTime     := gGameParams.Tick div 10;
 
   //Citizens
-  TempGraphCount := 0; //Reset
+  tempGraphCount := 0; //Reset
   for I := 0 to gHands.Count - 1 do
     with gHands[I] do
+    begin
+      if not Enabled then Continue;
+
       if IsComputer then
         AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartCitizens)
       else
@@ -243,28 +256,33 @@ begin
         //Recruits aren't that important, but if we want to include them they should be a separate graph
         //Chart_Citizens.AddAltLine(Stats.ChartRecruits);
       end;
+    end;
 
-  if ShowAIResults then
-    for I := 0 to TempGraphCount - 1 do
-      Chart_Citizens.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
+  if showAIResults then
+    for I := 0 to tempGraphCount - 1 do
+      Chart_Citizens.AddLine(tempGraphs[I].OwnerName, tempGraphs[I].Color, tempGraphs[I].G);
 
   //Houses
-  TempGraphCount := 0; //Reset
+  tempGraphCount := 0; //Reset
   for I := 0 to gHands.Count - 1 do
     with gHands[I] do
+    begin
+      if not Enabled then Continue;
+
       if IsComputer then
         AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartHouses)
       else
         Chart_Houses.AddLine(OwnerName, FlagColor, Stats.ChartHouses);
+    end;
 
-  if ShowAIResults then
-    for I := 0 to TempGraphCount - 1 do
-      Chart_Houses.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
+  if showAIResults then
+    for I := 0 to tempGraphCount - 1 do
+      Chart_Houses.AddLine(tempGraphs[I].OwnerName, tempGraphs[I].Color, tempGraphs[I].G);
 
   //Wares
   for R := WARE_MIN to WARE_MAX do
   begin
-    G := gHands[HumanId].Stats.ChartWares[R];
+    G := gHands[humanId].Stats.ChartWares[R];
     for I := 0 to High(G) do
       if G[I] <> 0 then
       begin
@@ -274,17 +292,21 @@ begin
   end;
 
   //Army
-  TempGraphCount := 0; //Reset
+  tempGraphCount := 0; //Reset
   for I := 0 to gHands.Count - 1 do
-  with gHands[I] do
-    if IsComputer then
-      AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[cakInstantaneous, utAny])
-    else
-      Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[cakInstantaneous, utAny]);
+    with gHands[I] do
+    begin
+      if not Enabled then Continue;
 
-  if ShowAIResults then
-    for I := 0 to TempGraphCount - 1 do
-      Chart_Army.AddLine(TempGraphs[I].OwnerName, TempGraphs[I].Color, TempGraphs[I].G);
+      if IsComputer then
+        AddToTempGraph(OwnerName(False), FlagColor, Stats.ChartArmy[cakInstantaneous, utAny])
+      else
+        Chart_Army.AddLine(OwnerName, FlagColor, Stats.ChartArmy[cakInstantaneous, utAny]);
+    end;
+
+  if showAIResults then
+    for I := 0 to tempGraphCount - 1 do
+      Chart_Army.AddLine(tempGraphs[I].OwnerName, tempGraphs[I].Color, tempGraphs[I].G);
 
   Button_ResultsHouses.Enabled := gGameParams.IsNormalMission;
   Button_ResultsCitizens.Enabled := gGameParams.IsNormalMission;
@@ -351,9 +373,9 @@ const
   STAT_TEXT: array [1..9] of Word = (
     TX_RESULTS_UNITS_LOST,       TX_RESULTS_UNITS_DEFEATED,   TX_RESULTS_HOUSES_LOST,
     TX_RESULTS_HOUSES_DESTROYED, TX_RESULTS_HOUSES_BUILT,     TX_RESULTS_UNITS_TRAINED,
-    TX_RESULTS_WEAPONS_MADE,     TX_RESULTS_SOLDIERS_TRAINED, TX_RESULTS_MISSION_TIME);
+    TX_RESULTS_WEAPONS_MADE,     TX_RESULTS_SOLDIERS_TRAINED, TX_RESULTS_MISSION_COMPLETED_IN);
 var
-  I, Adv: Integer;
+  I, adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(aParent,0,0,aParent.Width, aParent.Height);
   Panel_Results.AnchorsStretch;
@@ -383,14 +405,19 @@ begin
         AnchorsCenter;
       end;
 
-      Adv := 0;
+      adv := 0;
       for I := 1 to 9 do
       begin
-        Inc(Adv, 25);
-        if I in [3,6,7] then inc(Adv, 15);
-        if I = 9 then inc(Adv, 45); //Last one goes right at the bottom of the scroll
-        TKMLabel.Create(Panel_Stats, 20, Adv, 240, 20, gResTexts[STAT_TEXT[I]], fntMetal, taLeft);
-        Label_Stat[I] := TKMLabel.Create(Panel_Stats,260,Adv,80,20,'00',fntMetal,taRight);
+        Inc(adv, 25);
+        if I in [3,6,7] then inc(adv, 15);
+        if I = 9 then
+        begin
+          Inc(adv, 45); //Last one goes right at the bottom of the scroll
+          Label_MissionTime := TKMLabel.Create(Panel_Stats, 20, adv, 240, 20, gResTexts[STAT_TEXT[I]], fntMetal, taLeft);
+        end
+        else
+          TKMLabel.Create(Panel_Stats, 20, adv, 240, 20, gResTexts[STAT_TEXT[I]], fntMetal, taLeft);
+        Label_Stat[I] := TKMLabel.Create(Panel_Stats, 260, adv, 80, 20, '00', fntMetal, taRight);
       end;
 
     Panel_StatsCharts := TKMPanel.Create(Panel_Results, 410, 170, 630, 420);
@@ -495,17 +522,17 @@ end;
 
 procedure TKMGameResultsSP.ContinueClick(Sender: TObject);
 var
-  CampaignName: UnicodeString;
+  campaignName: UnicodeString;
 begin
-  CampaignName := Char(fRepeatCampName[0]) + Char(fRepeatCampName[1]) + Char(fRepeatCampName[2]);
-  fOnStopGame(CampaignName);
+  campaignName := Char(fRepeatCampName[0]) + Char(fRepeatCampName[1]) + Char(fRepeatCampName[2]);
+  fOnStopGame(campaignName);
 end;
 
 
 procedure TKMGameResultsSP.RepeatClick(Sender: TObject);
 begin
   // Means replay last map
-  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMission, fRepeatSave, fGameMode, fRepeatCampName, fRepeatCampMap,
+  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMissionFileRel, fRepeatSave, fGameMode, fRepeatCampName, fRepeatCampMap,
                           fRepeatLocation, fRepeatColor, fRepeatDifficulty, fRepeatAIType);
 end;
 

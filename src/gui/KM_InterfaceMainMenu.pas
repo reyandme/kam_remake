@@ -49,8 +49,8 @@ type
     Panel_Menu: TKMPanel;
     Panel_Background: TKMImage;
     Label_Version: TKMLabel;
-    function GetHintPositionBase: TKMPoint; override;
     function GetHintFont: TKMFont; override;
+    function GetHintKind: TKMHintKind; override;
   public
     constructor Create (X,Y: Word; aCampaigns: TKMCampaignsCollection;
                         aOnNewSingleMap: TKMNewSingleMapEvent;
@@ -80,7 +80,7 @@ type
     procedure SetOnOptionsChange(aEvent: TEvent);
     procedure RefreshCampaigns;
     procedure Resize(X,Y: Word); override;
-    procedure UpdateState(aTickCount: Cardinal); override;
+    procedure UpdateState(aGlobalTickCount: Cardinal); override;
   end;
 
 
@@ -194,15 +194,15 @@ begin
 end;
 
 
-function TKMMainMenuInterface.GetHintPositionBase: TKMPoint;
-begin
-  Result := KMPoint(Panel_Menu.Left - 5, Min(Panel_Menu.Bottom + 15, Panel_Main.Height));
-end;
-
-
 function TKMMainMenuInterface.GetHintFont: TKMFont;
 begin
   Result := fntGrey;
+end;
+
+
+function TKMMainMenuInterface.GetHintKind: TKMHintKind;
+begin
+  Result := hkControl;
 end;
 
 
@@ -423,6 +423,8 @@ end;
 //Do something related to mouse movement in menu
 procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean);
 begin
+  UpdateCursor(X, Y, Shift);
+
   aHandled := True; // assume we always handle mouse move
 
   fMyControls.MouseMove(X, Y, Shift);
@@ -439,7 +441,7 @@ end;
 
 
 //Should update anything we want to be updated, obviously
-procedure TKMMainMenuInterface.UpdateState(aTickCount: Cardinal);
+procedure TKMMainMenuInterface.UpdateState(aGlobalTickCount: Cardinal);
 begin
   inherited;
   fMenuLobby.UpdateState;
@@ -447,7 +449,7 @@ begin
   fMenuLoad.UpdateState;
   fMenuReplays.UpdateState;
   fMenuSingleMap.UpdateState;
-  fMenuCampaign.UpdateState(aTickCount);
+  fMenuCampaign.UpdateState(aGlobalTickCount);
 end;
 
 

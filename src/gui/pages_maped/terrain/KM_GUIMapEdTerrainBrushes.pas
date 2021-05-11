@@ -49,7 +49,7 @@ implementation
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  TypInfo, KM_ResFonts, KM_ResTexts, KM_Game, KM_GameCursor, KM_RenderUI,
+  TypInfo, KM_ResFonts, KM_ResTexts, KM_Game, KM_Cursor, KM_RenderUI,
   KM_TerrainPainter, KM_InterfaceGame, KM_Utils,
   KM_ResTypes;
 
@@ -201,13 +201,22 @@ begin
   Button_FixTerrainBrushes.OnClick := BrushFixTerrain_Click;
 
   PopUp_FixTerrainConfirm := TKMPopUpPanel.Create(aParent.MasterParent, 400, 200, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_TITLE], pubgitGray);
-    TKMLabel.Create(PopUp_FixTerrainConfirm, PopUp_FixTerrainConfirm.Width div 2, 10, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_CONFIRM], fntGrey, taCenter);
+    TKMLabel.Create(PopUp_FixTerrainConfirm.ItemsPanel, PopUp_FixTerrainConfirm.ActualWidth div 2, 10, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_CONFIRM], fntGrey, taCenter);
 
-    Button_FixTerrain_Yes := TKMButton.Create(PopUp_FixTerrainConfirm, 10, PopUp_FixTerrainConfirm.Height - 40,
-                                             (PopUp_FixTerrainConfirm.Width div 2) - 20, 30, gResTexts[TX_WORD_YES], bsGame);
+    Button_FixTerrain_Yes := TKMButton.Create(PopUp_FixTerrainConfirm.ItemsPanel,
+                                              10,
+                                              PopUp_FixTerrainConfirm.ActualHeight - 40,
+                                              (PopUp_FixTerrainConfirm.ActualWidth div 2) - 20,
+                                              30,
+                                              gResTexts[TX_WORD_YES], bsGame);
     Button_FixTerrain_Yes.OnClick := FixTerrainBrushes;
-    Button_FixTerrain_No := TKMButton.Create(PopUp_FixTerrainConfirm, (PopUp_FixTerrainConfirm.Width div 2) + 10, PopUp_FixTerrainConfirm.Height - 40,
-                                             (PopUp_FixTerrainConfirm.Width div 2) - 20, 30, gResTexts[TX_WORD_CANCEL], bsGame);
+
+    Button_FixTerrain_No := TKMButton.Create(PopUp_FixTerrainConfirm.ItemsPanel,
+                                             (PopUp_FixTerrainConfirm.ActualWidth div 2) + 10,
+                                             PopUp_FixTerrainConfirm.ActualHeight - 40,
+                                             (PopUp_FixTerrainConfirm.ActualWidth div 2) - 20,
+                                             30,
+                                             gResTexts[TX_WORD_CANCEL], bsGame);
     Button_FixTerrain_No.OnClick := BrushFixTerrain_Click;
 
   fSubMenuActionsEvents[0] := BrushChange;
@@ -220,41 +229,41 @@ end;
 
 procedure TKMMapEdTerrainBrushes.BrushChange(Sender: TObject);
 begin
-  gGameCursor.MapEdSize := BrushSize.Position;
-  gGameCursor.MapEdRandomizeTiling := RandomElements.Checked;
-  gGameCursor.MapEdOverrideCustomTiles := OverrideCustomTiles.Checked;
-  gGameCursor.MapEdBlendingLvl := BrushBlending.Position;
+  gCursor.MapEdSize := BrushSize.Position;
+  gCursor.MapEdRandomizeTiling := RandomElements.Checked;
+  gCursor.MapEdOverrideCustomTiles := OverrideCustomTiles.Checked;
+  gCursor.MapEdBlendingLvl := BrushBlending.Position;
 
   if Sender = UseTerrainObjects then
   begin
-    gGameCursor.MapEdUseTerrainObjects:= UseTerrainObjects.Checked;
-    if gGameCursor.MapEdObjectsDensity = 0 then
+    gCursor.MapEdUseTerrainObjects:= UseTerrainObjects.Checked;
+    if gCursor.MapEdObjectsDensity = 0 then
     begin
-      gGameCursor.MapEdObjectsType[0] := True;
-      gGameCursor.MapEdObjectsType[1] := True;
-      gGameCursor.MapEdObjectsDensity := 10;
+      gCursor.MapEdObjectsType[0] := True;
+      gCursor.MapEdObjectsType[1] := True;
+      gCursor.MapEdObjectsDensity := 10;
     end;
   end;
 
-  if gGameCursor.Mode <> cmBrush then
-    gGameCursor.Mode := cmBrush;    // This will reset Tag
+  if gCursor.Mode <> cmBrush then
+    gCursor.Mode := cmBrush;    // This will reset Tag
 
   if Sender = MagicBrush then
   begin
-    gGameCursor.MapEdUseMagicBrush := True;
+    gCursor.MapEdUseMagicBrush := True;
     fLastMagicBrush := True;
   end
   else
   begin
     if Sender = BrushCircle then
     begin
-      gGameCursor.MapEdShape := hsCircle;
+      gCursor.MapEdShape := hsCircle;
       fLastShape := hsCircle;
     end
     else
     if Sender = BrushSquare then
     begin
-      gGameCursor.MapEdShape := hsSquare;
+      gCursor.MapEdShape := hsSquare;
       fLastShape := hsSquare;
     end
     else
@@ -262,12 +271,12 @@ begin
     begin
       if TKMButtonFlat(Sender).Tag2 = Byte(bbtBrush) then
       begin
-        gGameCursor.Tag1 := TKMButtonFlat(Sender).Tag;
+        gCursor.Tag1 := TKMButtonFlat(Sender).Tag;
         fLastBrush := TKMButtonFlat(Sender).Tag;
         fLastMagicBrush := False;
-        gGameCursor.MapEdUseMagicBrush := False;
+        gCursor.MapEdUseMagicBrush := False;
       end else
-        gGameCursor.MapEdBrushMask := TKMTileMaskKind(TKMButtonFlat(Sender).Tag);
+        gCursor.MapEdBrushMask := TKMTileMaskKind(TKMButtonFlat(Sender).Tag);
     end;
   end;
 
@@ -280,22 +289,22 @@ var
   I,K: Integer;
   MK: TKMTileMaskKind;
 begin
-  BrushCircle.Down := (gGameCursor.MapEdShape = hsCircle);
-  BrushSquare.Down := (gGameCursor.MapEdShape = hsSquare);
-  MagicBrush.Down  := gGameCursor.MapEdUseMagicBrush;
+  BrushCircle.Down := (gCursor.MapEdShape = hsCircle);
+  BrushSquare.Down := (gCursor.MapEdShape = hsSquare);
+  MagicBrush.Down  := gCursor.MapEdUseMagicBrush;
 
   for I := Low(BrushTable) to High(BrushTable) do
     for K := Low(BrushTable[I]) to High(BrushTable[I]) do
-      if gGameCursor.MapEdUseMagicBrush then
+      if gCursor.MapEdUseMagicBrush then
       begin
         if BrushTable[I,K] <> nil then
           BrushTable[I,K].Down := False;
       end else
         if BrushTable[I,K] <> nil then
-          BrushTable[I,K].Down := (BrushTable[I,K].Tag = gGameCursor.Tag1);
+          BrushTable[I,K].Down := (BrushTable[I,K].Tag = gCursor.Tag1);
 
   for MK := Low(TKMTileMaskKind) to High(TKMTileMaskKind) do
-    BrushMasks[MK].Down := (BrushMasks[MK].Tag = Byte(gGameCursor.MapEdBrushMask));
+    BrushMasks[MK].Down := (BrushMasks[MK].Tag = Byte(gCursor.MapEdBrushMask));
 end;
 
 
@@ -320,13 +329,13 @@ end;
 
 procedure TKMMapEdTerrainBrushes.Show;
 begin
-  if gGameCursor.Mode <> cmBrush then
-    gGameCursor.Mode := cmBrush;    // This will reset Tag
+  if gCursor.Mode <> cmBrush then
+    gCursor.Mode := cmBrush;    // This will reset Tag
 
-  gGameCursor.MapEdShape := fLastShape;
-  gGameCursor.MapEdUseMagicBrush := fLastMagicBrush;
+  gCursor.MapEdShape := fLastShape;
+  gCursor.MapEdUseMagicBrush := fLastMagicBrush;
   if fLastBrush >= 0 then
-    gGameCursor.Tag1 := fLastBrush;
+    gCursor.Tag1 := fLastBrush;
 
   BrushChange(nil);
 
@@ -371,7 +380,7 @@ begin
   if aHandled then Exit;
 
   // Reset last object on RMB click
-  if gGameCursor.Mode = cmBrush then
+  if gCursor.Mode = cmBrush then
   begin
     fLastShape := hsCircle;
     fLastBrush := -1;

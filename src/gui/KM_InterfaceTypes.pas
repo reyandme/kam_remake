@@ -29,7 +29,6 @@ const
   //Options sliders
   OPT_SLIDER_MIN = 0;
   OPT_SLIDER_MAX = 20;
-  MAX_SAVENAME_LENGTH = 50;
 
   CHAT_MENU_ALL = -1;
   CHAT_MENU_TEAM = -2;

@@ -1,1 +1,8 @@
-﻿0:Mode conquete : conquérez des bâtiments pour avoir des armes ! Vous capturez un bâtiment avec un soldat devant son entrée. Vous n'avez pas a rester pour le garder. Attention : les unités de cavalerie ne sont pas capables de capturer les bâtiments ! Vous avez un château et trois écoles. La production de recrues est automatique, vous avez une infinité de caisses d'or.||Script by sado, map by dicsoupcan.
+﻿MaxID:6
+0:Mode conquete : conquérez des bâtiments pour avoir des armes ! Vous capturez un bâtiment avec un soldat devant son entrée pendant 10 secondes. Vous n'avez pas a rester pour le garder. Attention : les unités de cavalerie ne sont pas capables de capturer les bâtiments ! Vous avez un château et trois écoles. La production de recrues est automatique, vous avez une infinité de caisses d'or.||Script by sado, map by dicsoupcan.
+1:You can't capture a building with a scout or a knight!|Read the map description next time :)
+2:You can't capture a tower owned by your ally.
+3:Capturing the building
+4:Left side
+5:Right side
+6:Number of buildings

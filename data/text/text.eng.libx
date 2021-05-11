@@ -1,4 +1,4 @@
-0:Sawmill
+﻿0:Sawmill
 1:Iron smithy
 2:Weapon smithy
 3:Coal mine
@@ -1074,7 +1074,7 @@
 1124:Playable as SP
 1125:Choppable tree
 1126:Blocks diagonal walking
-1127:Blocks everything except bulding
+1127:Blocks everything except building
 1128:Show roads/fields/winefields
 1129:Sub-menu action 1
 1130:Sub-menu action 2
@@ -1298,7 +1298,7 @@
 1348:Number of trees in the forest
 1349:Seed
 1350:A number that is used as an identifier to generate a map with a specific configuration
-1351:New Random Seed
+1351:Randomize Seed
 1352:Generate map with new Seed
 1353:Generate map
 1354:Generate map with current Seed
@@ -1309,7 +1309,7 @@
 1359:Very easy
 1360:Harder
 1361:Very hard
-1362:Host game version doesn't match your game version
+1362:Host's game version doesn't match your game version
 1363:All
 1364:Allow '%s' for all available locs
 1365:Prohibit '%s' for all available locs
@@ -1354,7 +1354,7 @@
 1404:Mods
 1405:Snow houses
 1406:Block player color selection
-1407:Block player color selection
+1407:Blocks player color selection
 1408:History
 1409:History of changes on the map
 1410:History
@@ -1371,16 +1371,16 @@
 1421:wine field
 1422:overlay
 1423:object
-1424:You do not have enough permissions on the KaM Remake installation directory:\n'%s'\n\nPlease reinstall the game into another directory
+1424:You do not have enough permissions on the KaM Remake installation directory:\n'%s'\n\nTry to run it with administrative rights, reinstall the game into another directory or exclude KaM_Remake.exe from antivirus check
 1425:Tiles palette
 1426:Tiles palette
 1427:Version
 1428:Fix terrain brushes
 1429:Make replay savepoints
-1430:Goto previuos unit
+1430:Go to previous unit
 1431:Train or Equip unit
-1432:Goto next unit
-1433:Unit Keys
+1432:Go to next unit
+1433:Unit orders Keys
 1434:House Keys
 1435:Show defence positions
 1436:Show flat terrain
@@ -1427,7 +1427,7 @@
 1477:Desert bushes
 1478:Ruins
 1479:Terrain objects
-1480:Set terrain objects to selected brush
+1480:When painting, place objects matching the selected terrain brush
 1481:Density
 1482:Objects / forest density
 1483:Forest age
@@ -1459,3 +1459,4 @@
 1509:Stomps
 1510:All-
 1511:All ages, except stomps
+1512:Mission time:

@@ -1,7 +1,7 @@
 //-- Return to Moorbach --//
 //By Strangelove
-//v0.8.3e
-//23.12.2019
+//v0.8.4
+//28.08.2020
 //Developed for r10540
 //Last Tested in r10745
 
@@ -9,12 +9,63 @@
 {$I improvestaticai.script}
 {$I difficulty.script}
 
+{$COMMAND cmd: ShowCommands}
+{$COMMAND showmydeposits: RevealDepositsForPlayer}
+
+
+const
+	Offset_Y = 32; //Adjust for increased MapSize
 
 var
-	DifficultySetting: TKMMissionDifficulty; 
+	DifficultySetting: TKMMissionDifficulty;
+
+
+procedure ShowCommands(P: Integer);
+begin
+	Actions.ShowMsg(P, '/cmd|/showmydeposits');
+end;
+
+procedure RevealDepositsForPlayer(P: Integer);
+begin
+	if not Utils.InRangeI(P, 0, 1) then
+		exit;
+	if P = 0 then
+	begin
+		Actions.FogRevealCircle(0, 68, 102 +Offset_Y, 1); //Gold Mines Loc1
+		Actions.FogRevealCircle(0, 65, 110 +Offset_Y, 1);
+		Actions.FogRevealCircle(0, 68, 109 +Offset_Y, 1);
+		Actions.FogRevealCircle(0, 73, 113 +Offset_Y, 1);
+		Actions.FogRevealCircle(0, 76, 115 +Offset_Y, 1);
+		Actions.FogRevealCircle(0, 39, 108 +Offset_Y, 1); //Iron Mines
+		Actions.FogRevealCircle(0, 39, 120 +Offset_Y, 1);
+		Actions.FogRevealCircle(0, 35, 127 +Offset_Y, 1);
+		Actions.FogRevealCircle(0, 26, 129 +Offset_Y, 1);
+		Actions.FogRevealCircle(0, 14, 140 +Offset_Y, 1);
+		Actions.FogRevealCircle(0, 7, 148 +Offset_Y, 1);
+	end else
+	begin
+		Actions.FogRevealCircle(1, 92, 117 +Offset_Y, 1); //Gold Mines Loc2
+		Actions.FogRevealCircle(1, 93, 123 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 97, 122 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 101, 121 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 100, 114 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 103, 115 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 107, 118 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 109, 112 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 129, 126 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 132, 131 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 137, 134 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 140, 133 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 144, 135 +Offset_Y, 1);
+		Actions.FogRevealCircle(1, 146, 131 +Offset_Y, 1);
+	end;
+end;
 
 
 procedure OnMissionStart();
+var
+	p: Byte;
+	StartPosition: TKMPoint;
 begin
 	DifficultySetting := States.MissionDifficulty();
 
@@ -33,6 +84,14 @@ begin
 			GiveHouseAndConnect(6, 17, 120, 30);
 		end;
 	end;
+	
+	//Update AIStartPositions
+	for p := 0 to States.StatPlayerCount() -1 do
+		if States.PlayerIsAI(p) then
+		begin
+			StartPosition := States.AIStartPosition(p);
+			Actions.AIStartPosition(p, StartPosition.X, StartPosition.Y +Offset_Y);
+		end;
 end;
 
 procedure OnTick();
@@ -41,7 +100,7 @@ begin
 	if States.GameTime() mod 6 = 0 then
 	begin
 		ChangeWaterfallEndTiles(37, 38, 14);
-		ChangeWaterfallEndTiles(84, 85, 113);
+		ChangeWaterfallEndTiles(84, 85, 145);
 	end;
 
 	//Remove/Add Enemy Defence Positions and Groups
@@ -82,4 +141,8 @@ begin
 				RemoveDefencePositionAndGroup(4, 127, 69);
 			end;
 		end;
+	
+	//Initial Msg
+	if States.GameTime() = 60 then
+		Actions.ShowMsg(-1, '<$0>');
 end;

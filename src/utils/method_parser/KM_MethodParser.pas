@@ -1,5 +1,5 @@
 unit KM_MethodParser;
-
+{$I KaM_Remake.inc}
 interface
 uses
   Generics.Collections, Classes,

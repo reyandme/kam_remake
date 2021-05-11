@@ -1,7 +1,7 @@
 //-- TBK09 --//
 //By Strangelove
-//v2.2
-//29.12.2019
+//v2.2b
+//01.09.2020
 
 {$I functions.script}
 
@@ -35,25 +35,26 @@ begin
 		mdEasy1:
 		begin
 			Actions.GiveGroup(2, 23, 101, 4, 4, 9, 3);
-			Actions.GiveGroup(2, 23, 108, 17, 6, 12, 4);
-			Actions.GiveGroup(2, 23, 93, 27, 5, 9, 3);
-		end;
-		mdNormal:
-		begin
-			Actions.GiveGroup(2, 23, 101, 4, 4, 9, 3);
 			Actions.GiveGroup(2, 23, 108, 17, 6, 9, 3);
 			Actions.GiveGroup(2, 23, 98, 22, 5, 9, 3);
 			Actions.GiveGroup(2, 23, 88, 31, 5, 9, 3);
+		end;
+		mdNormal:
+		begin
+			Actions.GiveGroup(2, 23, 101, 4, 4, 12, 4);
+			Actions.GiveGroup(2, 23, 108, 17, 6, 9, 3);
+			Actions.GiveGroup(2, 23, 93, 27, 5, 12, 4);
+			Actions.GiveGroup(2, 23, 83, 36, 5, 9, 3);
 		end;
 		mdHard1:
 		begin
 			Actions.GiveGroup(2, 23, 101, 4, 4, 12, 4);
 			//Actions.GiveGroup(2, 23, 100, 8, 4, 9, 3);
-			Actions.GiveGroup(2, 23, 108, 17, 6, 9, 3);
+			Actions.GiveGroup(2, 23, 108, 17, 6, 12, 4);
 			//Actions.GiveGroup(2, 23, 98, 22, 5, 9, 3);
 			Actions.GiveGroup(2, 23, 93, 27, 5, 12, 4);
 			//Actions.GiveGroup(2, 23, 88, 31, 5, 9, 3);
-			Actions.GiveGroup(2, 23, 83, 36, 5, 9, 3);
+			Actions.GiveGroup(2, 23, 83, 36, 5, 12, 4);
 		end;
 	end;
 	{$IFDEF NOSTANDALONE}

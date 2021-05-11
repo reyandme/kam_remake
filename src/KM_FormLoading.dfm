@@ -4,7 +4,7 @@ object FormLoading: TFormLoading
   HelpType = htKeyword
   BorderStyle = bsDialog
   Caption = 'KaM Remake'
-  ClientHeight = 171
+  ClientHeight = 187
   ClientWidth = 329
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object FormLoading: TFormLoading
   OnHide = FormHide
   DesignSize = (
     329
-    171)
+    187)
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage
@@ -195,14 +195,14 @@ object FormLoading: TFormLoading
   end
   object Label7: TLabel
     Left = 116
-    Top = 104
+    Top = 120
     Width = 20
     Height = 13
     Caption = 'Alex'
   end
   object Label1: TLabel
     Left = 116
-    Top = 136
+    Top = 152
     Width = 50
     Height = 13
     Caption = 'Loading ...'
@@ -214,14 +214,22 @@ object FormLoading: TFormLoading
     Height = 13
     Caption = 'Lewin  (lewinjh@gmail.com)'
   end
+  object Label8: TLabel
+    Left = 116
+    Top = 104
+    Width = 161
+    Height = 13
+    Caption = 'Rey  (kamremake.rey@gmail.com)'
+  end
   object Bar1: TProgressBar
     Left = 0
-    Top = 153
+    Top = 169
     Width = 329
     Height = 18
     Anchors = [akLeft, akRight, akBottom]
     Max = 8
     Step = 1
     TabOrder = 0
+    ExplicitTop = 153
   end
 end

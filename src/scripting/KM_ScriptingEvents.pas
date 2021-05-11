@@ -312,9 +312,12 @@ begin
          GetEnumName(TypeInfo(TKMScriptEventType), Integer(aEventType)));
   for I := Low(fEventHandlers[aEventType]) to High(fEventHandlers[aEventType]) do
     if UpperCase(fEventHandlers[aEventType][I].ProcName) = UpperCase(aEventHandlerName) then
+    begin
       fOnScriptError(sePreprocessorError,
                      Format('Duplicate event handler declaration ''%s'' for event ''%s''',
                      [aEventHandlerName, GetEnumName(TypeInfo(TKMScriptEventType), Integer(aEventType))]));
+      Exit;
+    end;
 
   Len := Length(fEventHandlers[aEventType]);
   //todo: rewrite it not to enlarge array by 1 element
@@ -328,11 +331,13 @@ begin
   Assert((Trim(aCmdName) <> '') and (Trim(aProcName) <> ''),
          Format('Console command name and procedure name should be specified: [CmdName = %s] [ProcName = [', [aCmdName, aProcName]));
 
-
   if fConsoleCommands.ContainsKey(AnsiString(LowerCase(aCmdName))) then
+  begin
     fOnScriptError(sePreprocessorError,
                    Format('Duplicate command declaration: [%s] , command procedure: [%s]',
                    [aCmdName, aProcName]));
+    Exit;
+  end;
 
   fConsoleCommands.Add(AnsiString(LowerCase(aCmdName)), TKMConsoleCommand.Create(aCmdName, aProcName));
 end;

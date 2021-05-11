@@ -1,0 +1,69 @@
+{$EVENT evtTick:OnTickS}
+{$EVENT evtBeacon:OnBeaconS}
+{$EVENT evtMissionStart:OnMissionStartS}
+var I1,GCount:integer;
+	 Group,TI,Count,Dir,Column,GType,K,Hunger,Xc,Yc,Xb,Yb,Groups:array[0..20] of Integer;
+	 
+	 
+Procedure OnBeaconS(Player,X,Y:Integer);
+begin
+	If (I1=0) and (States.GroupAt(X,Y) <>-1) and ( States.GroupOwner(States.GroupAt(X,Y)) = 0) and ((States.MapTileType(X,Y-8)= 192)or(States.MapTileType(X,Y-8)= 196)or(States.MapTileType(X,Y+8)= 192)or(States.MapTileType(X,Y+8)= 196)or(States.MapTileType(X+8,Y)= 192)or(States.MapTileType(X+8,Y)= 196)or(States.MapTileType(X-8,Y)= 192)or(States.MapTileType(X-8,Y)= 196)) then begin
+		If not (U.ArrayHasElementI(States.GroupAt(X,Y),Group)) then begin
+			Group[GCount]:= States.GroupAt(X,Y)
+			Column[GCount]:=States.GroupColumnCount(Group[GCount])
+			Count[GCount]:=States.GroupMemberCount(Group[GCount])
+			Dir[GCount]:=States.UnitDirection(States.GroupMember(Group[GCount],0))
+			GType[GCount]:=States.UnitType(States.GroupMember(Group[GCount],0))
+			Hunger[GCount] :=States.UnitHunger(States.GroupMember(Group[GCount],0))
+			Xb[GCount]:= States.UnitPositionX(States.GroupMember(Group[GCount],0))
+			Yb[GCount]:= States.UnitPositionY(States.GroupMember(Group[GCount],0))
+			I1:= 2
+			Actions.ShowMSg(-1, '<$3>');
+		end;
+	end;
+	If (I1=2)and(States.MapTilePassability(X,Y,0)) and (States.GroupAt(X,Y) =-1) and ((States.MapTileType(X,Y-8)= 192)or(States.MapTileType(X,Y-8)= 196)or(States.MapTileType(X,Y+8)= 192)or(States.MapTileType(X,Y+8)= 196)or(States.MapTileType(X+8,Y)= 192)or(States.MapTileType(X+8,Y)= 196)or(States.MapTileType(X-8,Y)= 192)or(States.MapTileType(X-8,Y)= 196))then begin
+		Xc[GCount]:= X;
+		Yc[GCount]:= Y;
+		K[GCount]:= U.CeilTo(sqrt(((Xc[GCount]-Xb[GCount])*(Xc[GCount]-Xb[GCount]))+((Yc[GCount]-Yb[GCount])*(Yc[GCount]-Yb[GCount]))),1);
+		K[GCount]:=K[GCount]/12;
+		K[GCount]:=K[GCount]+K[GCount]*(Count[GCount]/40);
+		if K[GCount] >0 then K[GCount]:=K[GCount] else K[GCount]:=1;
+		Ti[GCount]:=U.CeilTo(States.GameTime,10);
+		I1:=0
+		Actions.ShowMSg(-1, '<$6>');
+		If GCount=20 then GCount:=0;
+		GCount:=GCount+1;
+	end;
+end;
+Procedure SpawnShip;
+var LEA:Integer;
+begin
+	For LEA:= 0 to 20 do begin
+		If Group[LEA]>0 then begin
+			If (States.GameTime = Ti[LEA] +100) then begin
+				Actions.GroupKillAll(Group[LEA],True);
+				Actions.ShowMSgFormatted(-1, '<$4>', [U.TimeToString(100*K[LEA])]);
+			end;
+			If (States.GameTime = Ti[LEA] +(100*K[LEA])) then begin
+				Actions.GiveGroup(0,GType[LEA],Xc[LEA],Yc[LEA],Dir[LEA],Count[LEA],Column[LEA]);
+				Actions.GroupHungerSet(States.GroupAt(Xc[LEA],Yc[LEA]),Hunger[LEA]-(States.GameTime-Ti[LEA]));
+				Actions.ShowMSg(-1, '<$5>');
+			end;
+		end;
+		If U.MaxInArrayI(Ti)=Ti[LEA]then 
+			If (States.GameTime > (Ti[LEA] +(100*K[LEA]))) then
+				If States.StatArmyCount(0)=0 then Actions.PlayerDefeat(0);
+	end;
+end;
+procedure OnTickS;
+begin
+	if States.GameTime MOD 10 = 0 then
+		SpawnShip;
+end;
+
+procedure OnMissionStartS;
+var LEA:Integer;
+begin
+	For LEA:= 0 to 20 do 
+		Ti[LEA]:=0;
+end;

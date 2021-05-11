@@ -194,15 +194,15 @@ end;
 
 procedure TKMMapEdPlayerColors.UpdatePlayer(aUpdateColorEdit: Boolean = False);
 var
-  ColorText: UnicodeString;
+  colorText: UnicodeString;
 begin
   ColorSwatch_Color.SelectByColor(gMySpectator.Hand.FlagColor);
   Shape_Color.FillColor := gMySpectator.Hand.FlagColor;
   Shape_TextColor.FillColor := FlagColorToTextColor(Shape_Color.FillColor);
 
-  ColorText := GetColorCodeText(gMySpectator.Hand.FlagColor, True);
-  if aUpdateColorEdit or not AnsiEndsText(Edit_ColorCode.Text, ColorText) then
-    Edit_ColorCode.UpdateText(ColorText);
+  colorText := GetColorCodeText(gMySpectator.Hand.FlagColor, True);
+  if aUpdateColorEdit or not AnsiEndsText(Edit_ColorCode.Text, colorText) then
+    Edit_ColorCode.UpdateText(colorText);
 
   Edit_TextColorCode.UpdateText(GetColorCodeText(Shape_TextColor.FillColor, True));
   Label_TextColor.SetColor(Shape_TextColor.FillColor);

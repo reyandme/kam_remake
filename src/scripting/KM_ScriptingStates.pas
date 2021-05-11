@@ -28,6 +28,10 @@ type
     function AIStartPosition(aPlayer: Byte): TKMPoint;
     function AIWorkerLimit(aPlayer: Byte): Integer;
 
+    function CampaignMissionID: Integer;
+    function CampaignMissionsCount: Integer;
+    function CampaignUnlockedMissionID: Integer;
+
     function ClosestGroup(aPlayer, X, Y, aGroupType: Integer): Integer;
     function ClosestGroupMultipleTypes(aPlayer, X, Y: Integer; aGroupTypes: TByteSet): Integer;
     function ClosestHouse(aPlayer, X, Y, aHouseType: Integer): Integer;
@@ -141,10 +145,6 @@ type
     function MapHeight: Integer;
 
     function MissionAuthor: UnicodeString;
-    function MissionBigDesc: UnicodeString;
-    function MissionBigDescLibx: Integer;
-    function MissionSmallDesc: UnicodeString;
-    function MissionSmallDescLibx: Integer;
 
     function MissionDifficulty: TKMMissionDifficulty;
     function MissionDifficultyLevels: TKMMissionDifficultySet;
@@ -219,7 +219,7 @@ type
 
 implementation
 uses
-  KM_AI, KM_Game, KM_GameParams, KM_UnitWarrior,
+  KM_AI, KM_Game, KM_GameApp, KM_GameParams, KM_UnitWarrior,
   KM_HouseBarracks, KM_HouseSchool, KM_ResUnits, KM_CommonUtils, KM_HouseMarket,
   KM_Resource, KM_UnitTaskSelfTrain, KM_Hand, KM_AIDefensePos,
   KM_UnitsCollection, KM_HouseWoodcutters, KM_HouseTownHall,
@@ -539,6 +539,68 @@ begin
       Result := gHands[aPlayer].AI.Setup.WorkerCount
     else
       LogParamWarning('States.AIWorkerLimit', [aPlayer]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 12600
+//* Returns current campaing mission number or -1 if this is not a campaign mission
+//* First mission got ID = 1
+function TKMScriptStates.CampaignMissionID: Integer;
+begin
+  try
+    Result := -1;
+    if not gGame.Params.IsCampaign then
+    begin
+      LogWarning('States.CampaignMissionID', 'Current mission is not part of a campaign');
+      Exit;
+    end;
+
+    Result := gGame.CampaignMap + 1; // CampaignMap starts from 0
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 12600
+//* Returns current campaign missions count or -1 if this is not a campaign mission
+function TKMScriptStates.CampaignMissionsCount: Integer;
+begin
+  try
+    Result := -1;
+    if not gGame.Params.IsCampaign or (gGameApp.Campaigns.ActiveCampaign = nil) then
+    begin
+      LogWarning('States.CampaignMissionsCount', 'Current mission is not part of a campaign');
+      Exit;
+    end;
+
+    Result := gGameApp.Campaigns.ActiveCampaign.MapCount;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 12600
+//* Returns current campaign unlocked mission number or -1 if this is not a campaign mission
+//* Mission numbers starts from 1
+function TKMScriptStates.CampaignUnlockedMissionID: Integer;
+begin
+  try
+    Result := -1;
+    if not gGame.Params.IsCampaign or (gGameApp.Campaigns.ActiveCampaign = nil) then
+    begin
+      LogWarning('States.CampaignUnlockedMissionID', 'Current mission is not part of a campaign');
+      Exit;
+    end;
+
+    Result := gGameApp.Campaigns.ActiveCampaign.UnlockedMap + 1; // UnlockedMap starts from 0
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1572,7 +1634,6 @@ begin
 end;
 
 
-//@Rey: When signature changes it is good to update the description too (with new version and sometimes reference to old name)
 //* Version: 10940
 //* Return if specified house is allowed to be selected and viewed by his allies
 function TKMScriptStates.HouseAllowAllyToSelect(aHouseID: Integer): Boolean;
@@ -2899,58 +2960,6 @@ function TKMScriptStates.MissionAuthor: UnicodeString;
 begin
   try
     Result := gGame.MapTxtInfo.Author;
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-end;
-
-
-//* Version: 7000+
-//* Returns mission big description
-function TKMScriptStates.MissionBigDesc: UnicodeString;
-begin
-  try
-    Result := gGame.MapTxtInfo.BigDesc;
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-end;
-
-
-//* Version: 7000+
-//* Returns mission big description Libx ID
-function TKMScriptStates.MissionBigDescLibx: Integer;
-begin
-  try
-    Result := gGame.MapTxtInfo.BigDescLibx;
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-end;
-
-
-//* Version: 7000+
-//* Returns mission small description
-function TKMScriptStates.MissionSmallDesc: UnicodeString;
-begin
-  try
-    Result := gGame.MapTxtInfo.SmallDesc;
-  except
-    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
-    raise;
-  end;
-end;
-
-
-//* Version: 7000+
-//* Returns mission small description Libx ID
-function TKMScriptStates.MissionSmallDescLibx: Integer;
-begin
-  try
-    Result := gGame.MapTxtInfo.SmallDescLibx;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

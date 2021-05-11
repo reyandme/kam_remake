@@ -38,6 +38,8 @@ uses
 
   procedure IterateOverArea(const aStartCell: TKMPoint; aSize: Integer; aIsSquare: Boolean; aOnCell: TPointEventSimple; aAroundArea: Boolean = False);
 
+  function GetLocalizedFilePath(aPath: string; aLocale, aFallbackLocale, aExt: AnsiString): string;
+
 
 implementation
 uses
@@ -332,6 +334,35 @@ end;
 function GetHintWHotKey(aTextId: Integer; aKeyFunc: TKMKeyFunction): String;
 begin
   Result := GetHintWHotKey(aTextId, gResKeys.GetKeyNameById(aKeyFunc));
+end;
+
+
+// Try to find path to file with local suffixes, f.e. TSK01.waterfall.eng.wav
+function GetLocalizedFilePath(aPath: string; aLocale, aFallbackLocale, aExt: AnsiString): string;
+begin
+  Result := aPath + '.' + String(aLocale) + String(aExt); // Try to file with our locale first
+  if FileExists(Result) then
+    Exit
+  else
+  begin
+    Result := aPath + '.' + String(aFallbackLocale) + String(aExt); // then with fallback locale
+    if FileExists(Result) then
+      Exit
+    else
+    begin
+      Result := aPath + '.' + String(DEFAULT_LOCALE) + String(aExt); // then with default locale (eng)
+      if FileExists(Result) then
+        Exit
+      else
+      begin
+        Result := aPath + String(aExt); // and finally without any locale
+        if FileExists(Result) then
+          Exit
+        else
+          Exit('');
+      end;
+    end;
+  end;
 end;
 
 

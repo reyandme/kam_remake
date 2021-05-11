@@ -41,7 +41,7 @@ type
 implementation
 uses
   KM_ResFonts, KM_ResTexts,
-  KM_Game, KM_GameCursor, KM_RenderUI,
+  KM_Game, KM_Cursor, KM_RenderUI,
   KM_TerrainSelection, KM_MapEditorHistory,
   KM_InterfaceGame,
   KM_ResTypes;
@@ -145,8 +145,8 @@ procedure TKMMapEdTerrainSelection.SelectionClick(Sender: TObject);
 var
   PT: TKMTerrainSelectionPasteType;
 begin
-  gGameCursor.Mode := cmSelection;
-  gGameCursor.Tag1 := 0;
+  gCursor.Mode := cmSelection;
+  gCursor.Tag1 := 0;
 
   for PT := Low(TKMTerrainSelectionPasteType) to High(TKMTerrainSelectionPasteType) do
     if Sender = Map_PasteType[PT] then
@@ -224,8 +224,8 @@ end;
 
 procedure TKMMapEdTerrainSelection.Show;
 begin
-  gGameCursor.Mode := cmSelection;
-  gGameCursor.Tag1 := 0;
+  gCursor.Mode := cmSelection;
+  gCursor.Tag1 := 0;
   gGame.MapEditor.Selection.Prepare; //Could be leftover from last time we were visible
 
   Button_SelectPasteApply.Disable;

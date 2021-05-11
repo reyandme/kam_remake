@@ -35,13 +35,13 @@
   //Project can be compiled without madExcept features (if you dont have madExcept installed)
   {$DEFINE USE_MAD_EXCEPT}
   {$DEFINE USE_VIRTUAL_TREEVIEW}
+  
+  //Delphi compiler video play
+  {$DEFINE VIDEOS}
 {$ENDIF}
 
 //Use secure authentication unit (KM_NetAuthSecure)
 {$DEFINE USESECUREAUTH}
-
-//Delphi compiler video play
-{$DEFINE VIDEOS}
 
 //Enable perflog (should be disabled for release / release candidate versions)
 {$DEFINE PERFLOG}

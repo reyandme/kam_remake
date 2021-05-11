@@ -70,7 +70,7 @@ type
 
 implementation
 uses
-  KM_GameParams, KM_GameCursor, KM_HandsCollection,
+  KM_GameParams, KM_Cursor, KM_HandsCollection,
   KM_Units, KM_UnitGroup, KM_UnitWarrior, KM_Houses,
   KM_CommonUtils,
   KM_GameTypes;
@@ -192,7 +192,7 @@ end;
 //Units and Houses, not Groups
 function TKMSpectator.HitTestCursor(aIncludeAnimals: Boolean = False): TKMHandEntity;
 begin
-  Result := gHands.GetUnitByUID(gGameCursor.ObjectUID);
+  Result := gHands.GetUnitByUID(gCursor.ObjectUID);
   if ((Result is TKMUnit) and TKMUnit(Result).IsDeadOrDying)
   or ((Result is TKMUnitAnimal) and not aIncludeAnimals) then
     Result := nil;
@@ -200,7 +200,7 @@ begin
   //If there's no unit try pick a house on the Cell below
   if Result = nil then
   begin
-    Result := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
+    Result := gHands.HousesHitTest(gCursor.Cell.X, gCursor.Cell.Y);
     if (Result is TKMHouse) and TKMHouse(Result).IsDestroyed then
       Result := nil;
   end;
@@ -271,7 +271,7 @@ begin
 
   if aCheckUnderCursor then
   begin
-    newSelected := gHands.GetUnitByUID(gGameCursor.ObjectUID);
+    newSelected := gHands.GetUnitByUID(gCursor.ObjectUID);
 
     //In-game player can select only own and ally Units
     UpdateNewSelected(newSelected);
@@ -290,12 +290,12 @@ begin
 
     //Update selected groups selected unit
     if newSelected is TKMUnitGroup then
-      TKMUnitGroup(newSelected).SelectedUnit := TKMUnitGroup(newSelected).MemberByUID(gGameCursor.ObjectUID);
+      TKMUnitGroup(newSelected).SelectedUnit := TKMUnitGroup(newSelected).MemberByUID(gCursor.ObjectUID);
 
     //If there's no unit try pick a house on the Cell below
     if newSelected = nil then
     begin
-      newSelected := gHands.HousesHitTest(gGameCursor.Cell.X, gGameCursor.Cell.Y);
+      newSelected := gHands.HousesHitTest(gCursor.Cell.X, gCursor.Cell.Y);
 
       //In-game player can select only own and ally Units
       if (newSelected is TKMHouse) then

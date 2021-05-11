@@ -1,0 +1,15 @@
+MAXID:5
+
+0:Dyron: Barbarians will not give us a break, however we have to collect supplies.
+1:Trade with merchants from the port: 300 loaves, 300 wine, 300 sausages and 500 stone.
+2:Dyron: My scout from Darin arrived. He was to meet the fortune teller, she can see the future. She has supported me with her visions more than once.
+3:Dyron: I secretly use the services of her. Karion does not tolerate anyone with supernatural powers. 
+4:Dyron: Message from the fortune teller:  "Do not look for an enemy from outside, the real enemy is inside Artidram."
+5:Dyron: This message makes us think, there is peace in Artidram.
+6:Tyrio's skills are now available: "Trade", "Loot"
+7:[$00FF7F]Acquire wares:[]
+8:[$D2FAFA]%s[] - %d/%d
+9:[$2FFFAD]%s[]
+10:         Supposedly, he once killed someone, who lived for hundreds of years.
+11:         "Stop looking for the enemy on the outside... the real enemy is within Artidram".
+100:Additional Text

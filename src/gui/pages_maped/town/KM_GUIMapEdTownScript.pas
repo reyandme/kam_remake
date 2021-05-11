@@ -43,7 +43,7 @@ implementation
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  KM_Game, KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame, KM_GameCursor,
+  KM_Game, KM_HandsCollection, KM_ResTexts, KM_RenderUI, KM_ResFonts, KM_InterfaceGame, KM_Cursor,
   KM_Defaults, KM_Pics, KM_Hand, KM_Utils,
   KM_ResTypes;
 
@@ -70,25 +70,25 @@ begin
 
   PopUp_ClassicAIParams := TKMPopUpPanel.Create(aParent.MasterParent, 300, 220, gResTexts[TX_MAPED_AI_CLASSIC_AI_PARAMS_TITLE], pubgitGray);
 
-    TrackBar_SerfsPer10Houses := TKMTrackBar.Create(PopUp_ClassicAIParams, 10, 10, 280, 1, 50);
+    TrackBar_SerfsPer10Houses := TKMTrackBar.Create(PopUp_ClassicAIParams.ItemsPanel, 10, 10, 280, 1, 50);
     TrackBar_SerfsPer10Houses.Caption := gResTexts[TX_MAPED_AI_SERFS_PER_10_HOUSES];
     TrackBar_SerfsPer10Houses.OnChange := Town_ScriptChange;
-    TrackBar_WorkerCount := TKMTrackBar.Create(PopUp_ClassicAIParams, 10, 55, 280, 0, 50);
+    TrackBar_WorkerCount := TKMTrackBar.Create(PopUp_ClassicAIParams.ItemsPanel, 10, 55, 280, 0, 50);
     TrackBar_WorkerCount.Caption := gResTexts[TX_MAPED_AI_WORKERS];
     TrackBar_WorkerCount.Hint := gResTexts[TX_MAPED_AI_WORKERS_COUNT_HINT];
     TrackBar_WorkerCount.OnChange := Town_ScriptChange;
 
-    TKMLabel.Create(PopUp_ClassicAIParams, 10, 110, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_ARMY_TYPE], fntMetal, taLeft);
-    DropBox_ArmyType := TKMDropList.Create(PopUp_ClassicAIParams, 10, 130, 280, 20, fntMetal, '', bsGame);
+    TKMLabel.Create(PopUp_ClassicAIParams.ItemsPanel, 10, 110, TB_WIDTH, 0, gResTexts[TX_MAPED_AI_ARMY_TYPE], fntMetal, taLeft);
+    DropBox_ArmyType := TKMDropList.Create(PopUp_ClassicAIParams.ItemsPanel, 10, 130, 280, 20, fntMetal, '', bsGame);
     DropBox_ArmyType.OnChange := Town_ScriptChange;
     DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_IRON_THEN_LEATHER], Byte(atIronThenLeather));
     DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_IRON],              Byte(atIron));
     DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_LEATHER],           Byte(atLeather));
     DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_MIXED],             Byte(atIronAndLeather));
 
-    Button_CloseClassicAIParams := TKMButton.Create(PopUp_ClassicAIParams,
-                                                    (PopUp_ClassicAIParams.Width div 2) - 60,
-                                                    PopUp_ClassicAIParams.Height - 40,
+    Button_CloseClassicAIParams := TKMButton.Create(PopUp_ClassicAIParams.ItemsPanel,
+                                                    (PopUp_ClassicAIParams.ActualWidth div 2) - 60,
+                                                    PopUp_ClassicAIParams.ActualHeight - 40,
                                                     120, 30, gResTexts[TX_WORD_CLOSE], bsGame);
     Button_CloseClassicAIParams.OnClick := ClassicAIParams_Click;
 
@@ -194,11 +194,11 @@ begin
 
   if Button_AIStart.Down then
   begin
-    gGameCursor.Mode := cmMarkers;
-    gGameCursor.Tag1 := MARKER_AISTART;
+    gCursor.Mode := cmMarkers;
+    gCursor.Tag1 := MARKER_AISTART;
   end
   else
-    gGameCursor.Mode := cmNone;
+    gCursor.Mode := cmNone;
 end;
 
 
@@ -216,7 +216,7 @@ end;
 
 procedure TKMMapEdTownScript.UpdateState;
 begin
-  Button_AIStart.Down := (gGameCursor.Mode = cmMarkers) and (gGameCursor.Tag1 = MARKER_AISTART);
+  Button_AIStart.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_AISTART);
 end;
 
 

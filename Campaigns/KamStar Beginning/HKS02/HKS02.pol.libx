@@ -1,0 +1,15 @@
+MAXID:5
+
+0:[$FFB1B9]Dyron: Barbarzyñcy nie dadz¹ chwili wytchnienia. A my musimy uzbieraæ zapasy.
+1:Wyhandluj z kupcami z nad przystani: 300 Chleba, 300 Wina, 300 Kie³bas i 500 Kamienia.
+2:[$FFB1B9]Dyron: Przyby³ mój zwiadowca z Darin. Mia³ spotkaæ siê z wró¿bitk¹, przewiduje przysz³oœæ.| Ju¿ nie raz wspomaga³a mnie swoimi wizjami.
+3:[$FFB1B9]Dyron: Potajemnie korzystam z us³ug wró¿bitki. Karion nie toleruje nikogo z nadprzyrodzonymi mocami.
+4:[$FFB1B9]Dyron: Wiadomoœæ od wró¿bitki: 
+5:[$FFB1B9]Dyron: Wiadomoœæ ta daje do myœlenia, przecie¿ w Artidram panuje pokój.
+6:Od tej pory s¹ dostêpne umiejêtnoœci Tyrio: "Handel", "£up",
+7:[$00FF7F]Posiadaj surowce:[]
+8:[$D2FAFA]%s[] - %d/%d
+9:[$2FFFAD]%s[]
+10:         Podobno zabi³ raz istotê, ¿yj¹c¹ ju¿ kilkaset lat.
+11:         "Nie szukajcie wroga z zewn¹trz, prawdziwy wróg jest wewn¹trz Artidram".
+100:Dodatkowy tekst
