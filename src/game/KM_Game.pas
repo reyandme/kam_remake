@@ -1,4 +1,4 @@
-unit KM_Game;
+﻿unit KM_Game;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -23,7 +23,6 @@ type
   //Class that manages single game session
   TKMGame = class
   private //Irrelevant to savegame
-    fTimerGame: TTimer;
     fOptions: TKMGameOptions;
     fGameInputProcess: TKMGameInputProcess;
     fTextMission: TKMTextLibraryMulti;
@@ -281,7 +280,7 @@ type
     procedure SaveCampaignScriptData(SaveStream: TKMemoryStream);
 
     procedure Render(aRender: TRender);
-    procedure UpdateGame(Sender: TObject);
+    procedure UpdateGame;
     procedure UpdateState(aGlobalTickCount: Cardinal);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
   end;
@@ -381,15 +380,8 @@ begin
     end;
   end;
 
-  fTimerGame := TTimer.Create(nil);
   //pseudo GIP command, since we just want to initialize speed with default values
   SetSpeedGIP(GAME_SPEED_NORMAL, True);
-
-  if not GAME_NO_UPDATE_ON_TIMER then
-  begin
-    fTimerGame.OnTimer := UpdateGame;
-    fTimerGame.Enabled := True;
-  end;
 
   fSpeedChangeTime := TimeGet;
 
@@ -437,13 +429,10 @@ begin
   //Doing so causes a 2nd exception which overrides 1st. Hence check <> nil on everything except Frees, TObject.Free does that already.
 
   if fLockedMutex then gMain.UnlockMutex;
-  if fTimerGame <> nil then fTimerGame.Enabled := False;
   fIsExiting := True;
 
   //if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
   //  fGameInputProcess.SaveToFile(SaveName('basesave', EXT_SAVE_REPLAY, fParams.IsMultiplayerOrSpec));
-
-  FreeAndNil(fTimerGame);
 
   FreeThenNil(fTerrainPainter);
 
@@ -1918,12 +1907,12 @@ begin
   if fSpeedActual > 5 then
   begin
     fSpeedMultiplier := Round(fSpeedActual / 4);
-    fTimerGame.Interval := Round(gGameSettings.SpeedPace / fSpeedActual * fSpeedMultiplier);
+    gMain.SetGameTickInterval(Round(gGameSettings.SpeedPace / fSpeedActual * fSpeedMultiplier));
   end
   else
   begin
     fSpeedMultiplier := 1;
-    fTimerGame.Interval := Round(gGameSettings.SpeedPace / fSpeedActual);
+    gMain.SetGameTickInterval(Round(gGameSettings.SpeedPace / fSpeedActual));
   end;
 
   fGamePlayInterface.UpdateClockUI;
@@ -2762,7 +2751,7 @@ begin
 end;
 
 
-procedure TKMGame.UpdateGame(Sender: TObject);
+procedure TKMGame.UpdateGame;
   procedure DoUpdateGame;
   begin
     if not PlayNextTick then
@@ -3201,6 +3190,8 @@ begin
 
   if aGlobalTickCount mod 10 = 0 then
     fMapEditor.UpdateState;
+
+  UpdateGame;
 end;
 
 

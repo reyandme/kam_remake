@@ -21,13 +21,13 @@ type
   private
     fGlobalTickCount: Cardinal;
     fIsExiting: Boolean;
+    fIsLoading: Boolean;
 
     fCampaigns: TKMCampaignsCollection;
     fGameSettings: TKMGameSettings;
     fKeysSettings: TKMKeysSettings;
     fServerSettings: TKMServerSettings;
     fNetworking: TKMNetworking;
-    fTimerUI: TTimer;
 
     fMainMenuInterface: TKMMainMenuInterface;
 
@@ -152,7 +152,7 @@ type
     property OnOptionsChange: TEvent read fOnOptionsChange write SetOnOptionsChange;
 
     procedure Render(aForPrintScreen: Boolean = False);
-    procedure UpdateState(Sender: TObject);
+    procedure UpdateState;
     procedure UpdateStateIdle(aFrameTime: Cardinal);
   end;
 
@@ -221,11 +221,6 @@ begin
   //If game was reinitialized from options menu then we should return there
   InitMainMenu(aScreenX, aScreenY);
 
-  fTimerUI := TTimer.Create(nil);
-  fTimerUI.Interval := GLOBAL_TICK_UPDATE_FREQ;
-  fTimerUI.OnTimer  := UpdateState;
-  fTimerUI.Enabled  := True;
-
   //Start the Music playback as soon as loading is complete
   if (not NoMusic) and not fGameSettings.MusicOff then
     gMusic.PlayMenuTrack;
@@ -260,7 +255,6 @@ begin
   //We might have crashed part way through .Create, so we can't assume ANYTHING exists here.
   //Doing so causes a 2nd exception which overrides 1st. Hence check <> nil on everything except Free (TObject.Free does that already)
 
-  if fTimerUI <> nil then fTimerUI.Enabled := False;
   // Stop music immediately, so it doesn't keep playing and jerk while things get destroyed
   if gMusic <> nil then gMusic.Stop;
 
@@ -272,7 +266,6 @@ begin
   FreeAndNil(fBaseSaveWorkerThread);
 
   FreeAndNil(fChat);
-  FreeAndNil(fTimerUI);
   FreeThenNil(fCampaigns);
   FreeThenNil(fGameSettings);
   FreeThenNil(fKeysSettings);
@@ -325,7 +318,7 @@ begin
   fMainMenuInterface.PageChange(gpLoading, gResTexts[TX_MENU_NEW_LOCALE]);
   Render; //Force to repaint information screen
 
-  fTimerUI.Enabled := False; //Disable it while switching, if an OpenAL error appears the timer should be disabled
+  fIsLoading := True;
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
 
   //Release resources that use Locale info
@@ -354,7 +347,7 @@ begin
   InitMainMenu(gRender.ScreenX, gRender.ScreenY);
   fMainMenuInterface.PageChange(aReturnToMenuPage);
   Resize(gRender.ScreenX, gRender.ScreenY); //Force the recreated main menu to resize to the user's screen
-  fTimerUI.Enabled := True; //Safe to enable the timer again
+  fIsLoading := False;
 end;
 
 
@@ -1200,7 +1193,7 @@ begin
   if SKIP_RENDER then Exit;
   if fIsExiting then Exit;
   if gRender.Blind then Exit;
-  if not fTimerUI.Enabled then Exit; //Don't render while toggling locale
+  if fIsLoading then Exit; //Don't render while toggling locale
 
   gRender.BeginFrame;
 
@@ -1270,8 +1263,10 @@ begin
 end;
 
 
-procedure TKMGameApp.UpdateState(Sender: TObject);
+procedure TKMGameApp.UpdateState;
 begin
+  if fIsLoading then Exit; //Don't update while toggling locale
+
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
   Set8087CW($133F);

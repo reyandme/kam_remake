@@ -17,7 +17,10 @@ type
     fFormMain: TFormMain;
     fFormLoading: TFormLoading;
 
-    fOldTimeFPS, fOldFrameTimes, fFrameCount: Cardinal;
+    fGameTickInterval: Cardinal;
+
+    fLastRenderTime, fLastTickTime: Cardinal;
+    fOldFrameTimes, fFrameCount: Cardinal;
     {$IFNDEF FPC}
     fFlashing: Boolean;
     {$ENDIF}
@@ -37,6 +40,7 @@ type
     procedure DoIdle(Sender: TObject; var Done: Boolean);
 
     procedure MapCacheUpdate;
+    procedure UpdateFPS(latestFrameTime: Cardinal);
 
     procedure GameSpeedChange(aSpeed: Single);
     function DoHaveGenericPermission: Boolean;
@@ -75,6 +79,8 @@ type
 
     procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
 
+    procedure SetGameTickInterval(aInterval: Cardinal);
+
     property Resolutions: TKMResolutions read fResolutions;
     property Settings: TKMainSettings read fMainSettings;
   end;
@@ -108,6 +114,8 @@ var
   collapsed: Boolean;
 begin
   inherited;
+
+  fGameTickInterval := 100;
 
   // Create exception handler as soon as possible in case it crashes early on
   {$IFDEF USE_MAD_EXCEPT}gExceptions := TKMExceptions.Create;{$ENDIF}
@@ -405,33 +413,13 @@ begin
 end;
 
 
-procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
+procedure TKMMain.UpdateFPS(latestFrameTime: Cardinal);
 var
-  frameTime: Cardinal;
   fpsLag: Integer;
 begin
-  frameTime := 0;
-
-  if CHECK_8087CW then
-    //$1F3F is used to mask out reserved/undefined bits
-    Assert((Get8087CW and $1F3F = $133F), '8087CW is wrong');
-
-  //if not Form1.Active then exit;
-
-  //Counting FPS
   if fMainSettings <> nil then //fMainSettings could be nil on Game Exit ?? Just check if its not nil
   begin
-    frameTime  := TimeSince(fOldTimeFPS);
-    fOldTimeFPS := TimeGet;
-
-    fpsLag := Floor(1000 / fMainSettings.FPSCap);
-    if CAP_MAX_FPS and (fpsLag <> 1) and (frameTime < fpsLag) then
-    begin
-      Sleep(fpsLag - frameTime);
-      frameTime := fpsLag;
-    end;
-
-    Inc(fOldFrameTimes, frameTime);
+    Inc(fOldFrameTimes, latestFrameTime);
     Inc(fFrameCount);
     if fOldFrameTimes >= FPS_INTERVAL then
     begin
@@ -439,21 +427,75 @@ begin
       if gGameApp <> nil then
         gGameApp.FPSMeasurement(Round(fFPS));
 
+      fpsLag := 1000 div fMainSettings.FPSCap;
       fFPSString := Format('%.1f FPS', [fFPS]) + IfThen(CAP_MAX_FPS, ' (' + IntToStr(fpsLag) + ')');
       StatusBarText(SB_ID_FPS, fFPSString);
       fOldFrameTimes := 0;
       fFrameCount := 0;
     end;
   end;
-  //FPS calculation complete
+end;
+
+
+procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
+
+  {$OVERFLOWCHECKS OFF}
+  function AddWithOverflow(A, B: Cardinal): Cardinal; inline;
+  begin
+    Result := A + B;
+  end;
+  {$OVERFLOWCHECKS ON}
+
+const
+  MAX_TIME_BETWEEN_RENDERS = 1000; //Render at least 1 FPS
+var
+  timeSinceRender, timeSinceTick, sleepTime: Cardinal;
+begin
+  if CHECK_8087CW then
+    //$1F3F is used to mask out reserved/undefined bits
+    Assert((Get8087CW and $1F3F = $133F), '8087CW is wrong');
 
   //Some PCs seem to change 8087CW randomly between events like Timers and OnMouse*,
   //so we need to set it right before we do game logic processing
   Set8087CW($133F);
-  if gGameApp <> nil then
+
+  timeSinceTick := TimeSince(fLastTickTime);
+  timeSinceRender := TimeSince(fLastRenderTime);
+
+  //Priority 1. Do we need to tick?
+  if (timeSinceTick >= fGameTickInterval) and (timeSinceRender < MAX_TIME_BETWEEN_RENDERS) then
   begin
-    gGameApp.UpdateStateIdle(frameTime);
-    gGameApp.Render;
+    if gGameApp <> nil then
+      gGameApp.UpdateState;
+
+    if timeSinceTick < 4*fGameTickInterval then
+    begin
+      //To maintain a constant tick rate simply add 100ms to the last tick time
+      fLastTickTime := AddWithOverflow(fLastTickTime, fGameTickInterval);
+    end
+    else
+    begin
+      //We have fallen too far behind so don't attempt to maintain the tick rate
+      fLastTickTime := TimeGet;
+    end;
+  end
+  else
+  begin
+    //Priority 2. Do we need to render?
+    if not CAP_MAX_FPS or (fMainSettings = nil) or (timeSinceRender > (1000 div fMainSettings.FPSCap)) then
+    begin
+      fLastRenderTime := TimeGet;
+      UpdateFPS(timeSinceRender);
+      if gGameApp <> nil then
+      begin
+        gGameApp.UpdateStateIdle(timeSinceRender);
+        gGameApp.Render;
+      end;
+    end
+    else
+    begin
+      Sleep(1);
+    end;
   end;
 
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
@@ -747,6 +789,12 @@ begin
   if fMainSettings.WindowParams = nil then Exit; //just in case...
 
   fMainSettings.WindowParams.ApplyWindowParams(aWindowParams);
+end;
+
+
+procedure TKMMain.SetGameTickInterval(aInterval: Cardinal);
+begin
+  fGameTickInterval := aInterval;
 end;
 
 
