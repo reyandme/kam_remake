@@ -3190,8 +3190,6 @@ begin
 
   if aGlobalTickCount mod 10 = 0 then
     fMapEditor.UpdateState;
-
-  UpdateGame;
 end;
 
 

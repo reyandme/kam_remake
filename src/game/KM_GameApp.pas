@@ -154,6 +154,7 @@ type
     procedure Render(aForPrintScreen: Boolean = False);
     procedure UpdateState;
     procedure UpdateStateIdle(aFrameTime: Cardinal);
+    procedure DoGameTick;
   end;
 
 
@@ -1315,6 +1316,13 @@ begin
   if gSoundPlayer <> nil then gSoundPlayer.UpdateStateIdle;
   if fNetworking <> nil then fNetworking.UpdateStateIdle;
   if gRes <> nil then gRes.UpdateStateIdle;
+end;
+
+
+procedure TKMGameApp.DoGameTick;
+begin
+  if gGame <> nil then
+    gGame.UpdateGame;
 end;
 
 

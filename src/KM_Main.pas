@@ -19,7 +19,7 @@ type
 
     fGameTickInterval: Cardinal;
 
-    fLastRenderTime, fLastTickTime: Cardinal;
+    fLastRenderTime, fLastTickTime, fLastUpdateStateTime: Cardinal;
     fOldFrameTimes, fFrameCount: Cardinal;
     {$IFNDEF FPC}
     fFlashing: Boolean;
@@ -446,10 +446,21 @@ procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
   end;
   {$OVERFLOWCHECKS ON}
 
+  function CalculateNextTime(aLastTime, aTimeSince, aInterval: Cardinal): Cardinal;
+  var
+    ticksBehind: Cardinal;
+  begin
+    ticksBehind := (aTimeSince div aInterval);
+    Result := AddWithOverflow(aLastTime, ticksBehind*aInterval);
+  end;
+
 const
   MAX_TIME_BETWEEN_RENDERS = 1000; //Render at least 1 FPS
+  UI_UPDATE_INTERVAL = 100;
 var
-  timeSinceRender, timeSinceTick, sleepTime: Cardinal;
+  timeNow, sleepTime, renderInterval: Cardinal;
+  timeSinceRender, timeSinceTick, timeSinceUpdateUI: Cardinal;
+  needRender: Boolean;
 begin
   if CHECK_8087CW then
     //$1F3F is used to mask out reserved/undefined bits
@@ -460,31 +471,47 @@ begin
   Set8087CW($133F);
 
   timeSinceTick := TimeSince(fLastTickTime);
-  timeSinceRender := TimeSince(fLastRenderTime);
 
   //Priority 1. Do we need to tick?
-  if (timeSinceTick >= fGameTickInterval) and (timeSinceRender < MAX_TIME_BETWEEN_RENDERS) then
+  if timeSinceTick >= fGameTickInterval then
   begin
     if gGameApp <> nil then
-      gGameApp.UpdateState;
+      gGameApp.DoGameTick;
 
-    if timeSinceTick < 4*fGameTickInterval then
-    begin
-      //To maintain a constant tick rate simply add 100ms to the last tick time
-      fLastTickTime := AddWithOverflow(fLastTickTime, fGameTickInterval);
-    end
-    else
-    begin
-      //We have fallen too far behind so don't attempt to maintain the tick rate
-      fLastTickTime := TimeGet;
-    end;
+    fLastTickTime := CalculateNextTime(fLastTickTime, timeSinceTick, fGameTickInterval);
   end
   else
   begin
-    //Priority 2. Do we need to render?
-    if not CAP_MAX_FPS or (fMainSettings = nil) or (timeSinceRender > (1000 div fMainSettings.FPSCap)) then
+    //Priority 2. UI update
+    timeSinceUpdateUI := TimeSince(fLastUpdateStateTime);
+    if timeSinceUpdateUI > UI_UPDATE_INTERVAL then
     begin
+      if gGameApp <> nil then
+        gGameApp.UpdateState;
+
+      fLastUpdateStateTime := CalculateNextTime(fLastUpdateStateTime, timeSinceUpdateUI, UI_UPDATE_INTERVAL);
+    end;
+
+    //Priority 3. Do we need to render?
+    timeSinceRender := TimeSince(fLastRenderTime);
+    needRender := False;
+    if CAP_MAX_FPS and (fMainSettings <> nil) then
+    begin
+      renderInterval := 1000 div fMainSettings.FPSCap;
+      if timeSinceRender > renderInterval then
+      begin
+        needRender := True;
+        fLastRenderTime := CalculateNextTime(fLastRenderTime, timeSinceRender, renderInterval);
+      end;
+    end
+    else
+    begin
+      needRender := True; //No FPS cap so always render
       fLastRenderTime := TimeGet;
+    end;
+
+    if needRender then
+    begin
       UpdateFPS(timeSinceRender);
       if gGameApp <> nil then
       begin
@@ -494,6 +521,7 @@ begin
     end
     else
     begin
+      //Nothing to do
       Sleep(1);
     end;
   end;
