@@ -31,8 +31,6 @@ type
 
     fMainMenuInterface: TKMMainMenuInterface;
 
-    fLastTimeRender: Cardinal;
-
     fChat: TKMChat;
 
     fOnCursorUpdate: TIntegerStringEvent;
@@ -187,8 +185,6 @@ begin
 
   // Create Server Settings in the shared folder
   fServerSettings := TKMServerSettings.Create(False);
-
-  fLastTimeRender := 0;
 
   gRender := TRender.Create(aRenderControl, aScreenX, aScreenY, aVSync);
 
@@ -1226,8 +1222,6 @@ begin
   gRender.EndFrame;
   gRender.Query.QueriesSwapBuffers;
 
-  fLastTimeRender := TimeGet;
-
   if not aForPrintScreen and (gGame <> nil) then
     if Assigned(fOnCursorUpdate) then
       fOnCursorUpdate(SB_ID_OBJECT, 'Obj: ' + IntToStr(gCursor.ObjectUID));
@@ -1299,12 +1293,6 @@ begin
     if (gGame <> nil) and not gGame.IsPaused and Assigned(fOnCursorUpdate) then
         fOnCursorUpdate(SB_ID_TIME, 'Time: ' + TimeToString(gGame.MissionTime));
   end;
-
-  if (gMain <> nil) //Could be nil for Runner Util
-    and (gMain.Settings <> nil)
-    and gMain.Settings.IsNoRenderMaxTimeSet
-    and (TimeSince(fLastTimeRender) > gMain.Settings.NoRenderMaxTime) then
-    Render;
 end;
 
 

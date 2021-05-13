@@ -40,6 +40,7 @@ type
     procedure DoIdle(Sender: TObject; var Done: Boolean);
 
     function GetRenderInterval: Cardinal;
+    function ForcedRenderRequired: Boolean;
 
     procedure DoRender;
     procedure SleepUntilNextSchedule;
@@ -111,6 +112,14 @@ const
   // Mutex is used to block duplicate app launch on the same PC
   // Random GUID generated in Delphi by Ctrl+G
   KAM_MUTEX = '07BB7CC6-33F2-44ED-AD04-1E255E0EDF0D';
+
+
+{$OVERFLOWCHECKS OFF}
+function AddWithOverflow(A, B: Cardinal): Cardinal; inline;
+begin
+  Result := A + B;
+end;
+{$OVERFLOWCHECKS ON}
 
 
 { TKMMain }
@@ -463,14 +472,6 @@ end;
 
 
 procedure TKMMain.SleepUntilNextSchedule;
-
-  {$OVERFLOWCHECKS OFF}
-  function AddWithOverflow(A, B: Cardinal): Cardinal; inline;
-  begin
-    Result := A + B;
-  end;
-  {$OVERFLOWCHECKS ON}
-
 var
   nextTime, nextRender, nextTick, timeNow, sleepTime, renderInterval: Cardinal;
 begin
@@ -495,14 +496,15 @@ begin
 end;
 
 
-procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
+function TKMMain.ForcedRenderRequired: Boolean;
+begin
+  Result := (fMainSettings <> nil)
+    and fMainSettings.IsNoRenderMaxTimeSet
+    and (TimeSince(fLastRenderTime) > gMain.Settings.NoRenderMaxTime);
+end;
 
-  {$OVERFLOWCHECKS OFF}
-  function AddWithOverflow(A, B: Cardinal): Cardinal; inline;
-  begin
-    Result := A + B;
-  end;
-  {$OVERFLOWCHECKS ON}
+
+procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
 
   function CalculateSchedule(aLastTime, aTimeSince, aInterval: Cardinal): Cardinal;
   var
@@ -536,7 +538,7 @@ begin
 
   //Priority 1. Do we need to tick?
   timeSinceTick := TimeSince(fTickSchedule);
-  if timeSinceTick >= fGameTickInterval then
+  if (timeSinceTick >= fGameTickInterval) and not ForcedRenderRequired then
   begin
     gGameApp.DoGameTick;
     fTickSchedule := CalculateSchedule(fTickSchedule, timeSinceTick, fGameTickInterval);
