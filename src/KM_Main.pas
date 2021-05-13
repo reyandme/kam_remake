@@ -39,6 +39,11 @@ type
     procedure DoDeactivate(Sender: TObject);
     procedure DoIdle(Sender: TObject; var Done: Boolean);
 
+    function GetRenderInterval: Cardinal;
+
+    procedure DoRender;
+    procedure SleepUntilNextSchedule;
+
     procedure MapCacheUpdate;
     procedure UpdateFPS(latestFrameTime: Cardinal);
 
@@ -437,6 +442,59 @@ begin
 end;
 
 
+function TKMMain.GetRenderInterval: Cardinal;
+begin
+  Result := 0;
+  if CAP_MAX_FPS and (fMainSettings <> nil) then
+    Result := 1000 div fMainSettings.FPSCap;
+end;
+
+
+procedure TKMMain.DoRender;
+var renderDelta: Cardinal;
+begin
+  renderDelta := TimeSince(fLastRenderTime);
+  fLastRenderTime := TimeGet;
+  UpdateFPS(renderDelta);
+
+  gGameApp.UpdateStateIdle(renderDelta);
+  gGameApp.Render;
+end;
+
+
+procedure TKMMain.SleepUntilNextSchedule;
+
+  {$OVERFLOWCHECKS OFF}
+  function AddWithOverflow(A, B: Cardinal): Cardinal; inline;
+  begin
+    Result := A + B;
+  end;
+  {$OVERFLOWCHECKS ON}
+
+var
+  nextTime, nextRender, nextTick, timeNow, sleepTime, renderInterval: Cardinal;
+begin
+  renderInterval := GetRenderInterval;
+
+  nextRender := AddWithOverflow(fRenderSchedule, renderInterval);
+  nextTick := AddWithOverflow(fTickSchedule, fGameTickInterval);
+
+  if nextRender > nextTick then
+    nextTime := nextRender
+  else
+    nextTime := nextTick;
+
+  timeNow := TimeGet;
+  if nextTime > timeNow then
+  begin
+    sleepTime := nextTime - timeNow;
+    //Check for TimeGet overflow (never sleep longer than the render interval)
+    if sleepTime < renderInterval then
+      Sleep(sleepTime);
+  end;
+end;
+
+
 procedure TKMMain.DoIdle(Sender: TObject; var Done: Boolean);
 
   {$OVERFLOWCHECKS OFF}
@@ -458,10 +516,16 @@ const
   MAX_TIME_BETWEEN_RENDERS = 1000; //Render at least 1 FPS
   UI_UPDATE_INTERVAL = 100;
 var
-  sleepTime, timeNow, nextTime, renderInterval, renderDelta: Cardinal;
-  timeSinceRender, timeSinceTick, timeSinceUpdateUI: Cardinal;
-  needRender: Boolean;
+  renderInterval, timeSinceRender, timeSinceTick, timeSinceUpdateUI: Cardinal;
 begin
+  Done := False; //Repeats OnIdle asap without performing Form-specific idle code
+
+  if gGameApp = nil then
+  begin
+    Sleep(10);
+    Exit;
+  end;
+
   if CHECK_8087CW then
     //$1F3F is used to mask out reserved/undefined bits
     Assert((Get8087CW and $1F3F = $133F), '8087CW is wrong');
@@ -470,72 +534,38 @@ begin
   //so we need to set it right before we do game logic processing
   Set8087CW($133F);
 
-  timeSinceTick := TimeSince(fTickSchedule);
-
   //Priority 1. Do we need to tick?
+  timeSinceTick := TimeSince(fTickSchedule);
   if timeSinceTick >= fGameTickInterval then
   begin
-    if gGameApp <> nil then
-      gGameApp.DoGameTick;
-
+    gGameApp.DoGameTick;
     fTickSchedule := CalculateSchedule(fTickSchedule, timeSinceTick, fGameTickInterval);
   end
   else
   begin
-    //Priority 2. UI update
+    //Priority 2. UI update and render
     timeSinceUpdateUI := TimeSince(fUpdateStateSchedule);
-    if timeSinceUpdateUI > UI_UPDATE_INTERVAL then
+    if timeSinceUpdateUI >= UI_UPDATE_INTERVAL then
     begin
-      if gGameApp <> nil then
-        gGameApp.UpdateState;
-
+      gGameApp.UpdateState;
       fUpdateStateSchedule := CalculateSchedule(fUpdateStateSchedule, timeSinceUpdateUI, UI_UPDATE_INTERVAL);
     end;
 
-    //Priority 3. Do we need to render?
-    needRender := False;
-    if CAP_MAX_FPS and (fMainSettings <> nil) then
+    renderInterval := GetRenderInterval;
+    if renderInterval > 0 then
     begin
       timeSinceRender := TimeSince(fRenderSchedule);
-      renderInterval := 1000 div fMainSettings.FPSCap;
       if timeSinceRender >= renderInterval then
       begin
-        needRender := True;
+        DoRender;
         fRenderSchedule := CalculateSchedule(fRenderSchedule, timeSinceRender, renderInterval);
       end
       else
-      begin
-        //Don't render. Sleep if there is time
-        nextTime := AddWithOverflow(fRenderSchedule, renderInterval);
-        timeNow := TimeGet;
-        if nextTime > timeNow then
-        begin
-          sleepTime := nextTime - timeNow;
-          //Check for TimeGet overflow
-          if sleepTime < renderInterval then
-            Sleep(sleepTime);
-        end;
-      end;
+        SleepUntilNextSchedule;
     end
     else
-    begin
-      needRender := True; //No FPS cap so always render
-    end;
-
-    if needRender then
-    begin
-      renderDelta := TimeSince(fLastRenderTime);
-      fLastRenderTime := TimeGet;
-      UpdateFPS(renderDelta);
-      if gGameApp <> nil then
-      begin
-        gGameApp.UpdateStateIdle(renderDelta);
-        gGameApp.Render;
-      end;
-    end;
+      DoRender; //No FPS cap so always render
   end;
-
-  Done := False; //Repeats OnIdle asap without performing Form-specific idle code
 end;
 
 
