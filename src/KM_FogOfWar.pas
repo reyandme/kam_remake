@@ -255,7 +255,7 @@ begin
   {$ENDIF}
   try
     CoverFor(True, Radius);
-    CoverFor(False, Radius - RENDER_RADIUS_ADD);
+    CoverFor(False, Max(0, Integer(Radius) - RENDER_RADIUS_ADD));
 
     fCoverHasBeenCalled := True;
   finally
