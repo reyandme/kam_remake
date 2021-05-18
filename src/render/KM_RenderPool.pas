@@ -256,7 +256,7 @@ var
   viewportPosRound: TKMPointF;
 begin
   //Need to round the viewport position so we only translate by whole pixels
-  viewportPosRound := RoundToTilePixel(fViewport.Position, 1.0);
+  viewportPosRound := RoundToTilePixel(fViewport.Position);
 
   glLoadIdentity; // Reset The View
 
@@ -1240,8 +1240,8 @@ begin
   if not aForced and (gMySpectator.FogOfWar.CheckVerticeRenderRev(X,Y) <= FOG_OF_WAR_MIN) then
     Exit;
 
-  pX := RoundToTilePixel(pX, fViewport.Zoom);
-  pY := RoundToTilePixel(pY, fViewport.Zoom);
+  pX := RoundToTilePixel(pX);
+  pY := RoundToTilePixel(pY);
 
   with gGFXData[aRX, aId] do
   begin
@@ -1290,11 +1290,11 @@ begin
   // Skip rendering if alphas are zero (occurs so non-started houses can still have child sprites)
   if (aWoodProgress = 0) and (aStoneProgress = 0) then Exit;
 
-  pX := RoundToTilePixel(pX, fViewport.Zoom);
-  pY := RoundToTilePixel(pY, fViewport.Zoom);
+  pX := RoundToTilePixel(pX);
+  pY := RoundToTilePixel(pY);
 
-  X2 := RoundToTilePixel(X2, fViewport.Zoom);
-  Y2 := RoundToTilePixel(Y2, fViewport.Zoom);
+  X2 := RoundToTilePixel(X2);
+  Y2 := RoundToTilePixel(Y2);
 
   glClear(GL_STENCIL_BUFFER_BIT);
 

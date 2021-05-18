@@ -25,8 +25,8 @@ uses
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
   function GetMultiplicator(aShift: TShiftState): Word; overload;
 
-  function RoundToTilePixel(aVal, aZoom: Single): Single; inline; overload;
-  function RoundToTilePixel(aVal: TKMPointF; aZoom: Single): TKMPointF; inline; overload;
+  function RoundToTilePixel(aVal: Single): Single; inline; overload;
+  function RoundToTilePixel(aVal: TKMPointF): TKMPointF; inline; overload;
 
   procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer); overload;
   procedure LoadMapHeader(aStream: TKMemoryStream; var aMapX: Integer; var aMapY: Integer; var aGameRev: Integer); overload;
@@ -48,18 +48,16 @@ uses
   Math, KM_ResTexts, KM_ResKeys, KM_Houses, KM_Units, KM_UnitGroup;
 
 
-function RoundToTilePixel(aVal, aZoom: Single): Single; inline;
-var CellSizeZoomed: Single;
+function RoundToTilePixel(aVal: Single): Single; inline;
 begin
-  CellSizeZoomed := aZoom * CELL_SIZE_PX;
-  Result := Round(aVal * CellSizeZoomed) / CellSizeZoomed;
+  Result := Round(aVal * CELL_SIZE_PX) / CELL_SIZE_PX;
 end;
 
 
-function RoundToTilePixel(aVal: TKMPointF; aZoom: Single): TKMPointF; inline;
+function RoundToTilePixel(aVal: TKMPointF): TKMPointF; inline;
 begin
-  Result.X := RoundToTilePixel(aVal.X, aZoom);
-  Result.Y := RoundToTilePixel(aVal.Y, aZoom);
+  Result.X := RoundToTilePixel(aVal.X);
+  Result.Y := RoundToTilePixel(aVal.Y);
 end;
 
 
