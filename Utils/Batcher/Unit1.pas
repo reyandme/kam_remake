@@ -871,8 +871,8 @@ var
   dir, newDir, filePath, fileName, newFileName, codeString: string;
 
 //  terAnimI: array [0..MAX_TILE_TO_SHOW-1] of Byte;
-  terAnim: array [0..MAX_TILE_TO_SHOW-1] of TKMTerrainAnims;
-  newTerAnim: array [0..MAX_TILE_TO_SHOW-1] of TKMTerrainAnims;
+  terAnim: array [0..MAX_TILE_TO_SHOW-1] of TKMTileAnim;
+  newTerAnim: array [0..MAX_TILE_TO_SHOW-1] of TKMTileAnim;
 begin
 
   SetUp(False);

@@ -2,7 +2,9 @@ unit KM_ResTileset;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KromUtils,
+  Classes, SysUtils,
+  KromUtils,
+  KM_IoXML,
   KM_Defaults, KM_CommonTypes, KM_ResTilesetTypes;
 
 
@@ -16,7 +18,11 @@ var
 type
   TKMResTileset = class
   private
+    fXML: TKMXmlDocument;
+
     fCRC: Cardinal;
+    fTiles: array[0..TILES_CNT - 1] of TKMTileParams;
+
     TileTable: array [1 .. 30, 1 .. 30] of packed record
       Tile1, Tile2, Tile3: Byte;
       b1, b2, b3, b4, b5, b6, b7: Boolean;
@@ -26,6 +32,8 @@ type
 
     function LoadPatternDAT(const FileName: string): Boolean;
     procedure InitRemakeTiles;
+
+    function GetTilesXMLPath: string;
   public
     PatternDAT: array [1..TILES_CNT] of packed record
       MinimapColor: Byte;
@@ -39,6 +47,7 @@ type
     TileColor: TRGBArray;
 
     constructor Create(const aPatternPath: string);
+    destructor Destroy; override;
 
     property CRC: Cardinal read fCRC;
 
@@ -66,15 +75,21 @@ type
     function TileIsCorner(aTile: Word): Boolean;
     function TileIsEdge(aTile: Word): Boolean;
 
+    procedure SaveToXML;
+    procedure LoadFromXML;
+
     class function TileIsAllowedToSet(aTile: Word): Boolean;
   end;
 
 
 implementation
 uses
+  TypInfo,
   KM_CommonUtils, KM_CommonClassesExt;
 
 const
+  TILES_XML_PATH = 'data' + PathDelim + 'defines' + PathDelim + 'tiles.xml';
+
   TILES_NOT_ALLOWED_TO_SET: array [0..13] of Word = (
     55,59,60,61,62,63,              // wine and corn
     //189,169,185,                  // duplicates of 108,109,110
@@ -82,13 +97,77 @@ const
   );
 
 
+  //TKMTileParams = record
+////    MinimapColor
+//    Walkable: Boolean;
+//    Roadable: Boolean;
+//    Water: Boolean;
+//    HasWater: Boolean;
+//    Ice: Boolean;
+//    Sand: Boolean;
+//    Stone: Boolean;
+//    Snow: Boolean;
+//    Coal: Boolean;
+//    Gold: Boolean;
+//    Soil: Boolean;
+//    Corn: Boolean;
+//    Wine: Boolean;
+//    Factorable: Boolean;
+//IronMinable: Boolean;
+//    GoldMinable: Boolean;
+//    Animation: TKMTileAnim;
+//    TerKinds: array[0..3] of TKMTerrainKind; //Corners: LeftTop - RightTop - RightBottom - LeftBottom
+////    Corner: Boolean;
+////    Edge: Boolean;
+//  end;
+
+
 { TKMResTileset }
 constructor TKMResTileset.Create(const aPatternPath: string);
+var
+  I,J,K: Integer;
 begin
   inherited Create;
 
   LoadPatternDAT(aPatternPath);
   InitRemakeTiles;
+
+
+  for I := 0 to TILES_CNT - 1 do
+  begin
+    fTiles[I].Walkable    := TileIsWalkable(I);
+    fTiles[I].Roadable    := TileIsRoadable(I);
+    fTiles[I].Water       := TileIsWater(I);
+    fTiles[I].HasWater    := TileHasWater(I);
+    fTiles[I].Ice         := TileIsIce(I);
+    fTiles[I].Sand        := TileIsSand(I);
+    fTiles[I].Stone       := TileIsStone(I);
+    fTiles[I].Snow        := TileIsSnow(I);
+    fTiles[I].Coal        := TileIsCoal(I);
+    fTiles[I].Gold        := TileIsGold(I);
+    fTiles[I].Soil        := TileIsSoil(I);
+    fTiles[I].Corn        := TileIsCornField(I);
+    fTiles[I].Wine        := TileIsWineField(I);
+    fTiles[I].Factorable  := TileIsFactorable(I);
+    fTiles[I].IronMinable := TileIsGoodForIronMine(I);
+    fTiles[I].GoldMinable := TileIsGoodForGoldMine(I);
+    fTiles[I].TerKinds[0] := TILE_CORNERS_TERRAIN_KINDS[I, 0];
+    fTiles[I].TerKinds[1] := TILE_CORNERS_TERRAIN_KINDS[I, 1];
+    fTiles[I].TerKinds[2] := TILE_CORNERS_TERRAIN_KINDS[I, 2];
+    fTiles[I].TerKinds[3] := TILE_CORNERS_TERRAIN_KINDS[I, 3];
+  end;
+
+
+  fXML := TKMXmlDocument.Create;
+  SaveToXML;
+end;
+
+
+destructor TKMResTileset.Destroy;
+begin
+  fXML.Free;
+
+  inherited;
 end;
 
 
@@ -498,6 +577,86 @@ function TKMResTileset.TileIsFactorable(aTile: Word): Boolean;
 begin
   //List of tiles that cannot be factored (coordinates outside the map return true)
   Result := not (aTile in [7,15,24,50,53,144..151,156..165,198,199,202,206]);
+end;
+
+
+function TKMResTileset.GetTilesXMLPath: string;
+begin
+  Result := ExeDir + TILES_XML_PATH;
+end;
+
+
+procedure TKMResTileset.SaveToXML;
+var
+  I, J, K: Integer;
+  nRoot, nTiles, nTile, nTerKinds, nAnims, nAnimLayer, nAnim: TKMXmlNode;
+begin
+  nRoot := fXML.Root;
+
+  nTiles := nRoot.AddOrFindChild('Tiles');
+
+  for I := 0 to TILES_CNT - 1 do
+  begin
+    nTile := nTiles.AddChild('Tile');
+    nTile.Attributes['ID']          := I;
+    nTile.Attributes['Walkable']    := fTiles[I].Walkable;
+    nTile.Attributes['Roadable']    := fTiles[I].Roadable;
+    nTile.Attributes['Water']       := fTiles[I].Water;
+    nTile.Attributes['HasWater']    := fTiles[I].HasWater;
+    nTile.Attributes['Ice']         := fTiles[I].Ice;
+    nTile.Attributes['Sand']        := fTiles[I].Sand;
+    nTile.Attributes['Stone']       := fTiles[I].Stone;
+    nTile.Attributes['Snow']        := fTiles[I].Snow;
+    nTile.Attributes['Coal']        := fTiles[I].Coal;
+    nTile.Attributes['Iron']        := fTiles[I].Iron;
+    nTile.Attributes['Gold']        := fTiles[I].Gold;
+    nTile.Attributes['IronMinable'] := fTiles[I].IronMinable;
+    nTile.Attributes['GoldMinable'] := fTiles[I].GoldMinable;
+    nTile.Attributes['Soil']        := fTiles[I].Soil;
+    nTile.Attributes['Corn']        := fTiles[I].Corn;
+    nTile.Attributes['Wine']        := fTiles[I].Wine;
+    nTile.Attributes['Factorable']  := fTiles[I].Factorable;
+
+    nTerKinds := nTile.AddOrFindChild('CornersTerKinds');
+    nTerKinds.Attributes['TopLeft']     := GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[0]));
+    nTerKinds.Attributes['TopRight']    := GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[1]));
+    nTerKinds.Attributes['BottomRight'] := GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[2]));
+    nTerKinds.Attributes['BottomLeft']  := GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[3]));
+
+    nAnims := nTile.AddOrFindChild('Animations');
+
+    if not fTiles[I].Animation.HasAnim then Continue;
+
+    for J := Low(fTiles[I].Animation.Layers) to High(fTiles[I].Animation.Layers) do
+    begin
+      nAnimLayer := nAnims.AddOrFindChild('Layer');
+
+      for K := Low(fTiles[I].Animation.Layers[J].Anims) to High(fTiles[I].Animation.Layers[J].Anims) do
+      begin
+        nAnim := nAnimLayer.AddOrFindChild('Anim');
+        nAnim.Attributes['ID'] := fTiles[I].Animation.Layers[J].Anims[K];
+//        nAnimLayer.Attributes['Anim' + IntToStr(K)] := fTiles[I].Animation.Layers[J].Anims[K];
+      end;
+    end;
+  end;
+
+  fXML.SaveToFile(GetTilesXMLPath);
+end;
+
+
+procedure TKMResTileset.LoadFromXML;
+var
+  I: Integer;
+  nTiles: TKMXmlNode;
+begin
+  fXML.LoadFromFile(GetTilesXMLPath);
+
+  nTiles := fXML.Root.AddOrFindChild('Tiles');
+
+  for I := 0 to TILES_CNT - 1 do
+  begin
+
+  end;
 end;
 
 

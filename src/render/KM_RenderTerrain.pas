@@ -271,7 +271,7 @@ end;
 
 function IsWaterAnimTerId(aTerId: Word): Boolean; inline;
 begin
-  Result := TERRAIN_ANIM[aTerId].Count > 0;
+  Result := TERRAIN_ANIM[aTerId].HasAnim;
 end;
 
 
@@ -329,30 +329,36 @@ var
 
     function SetAnimTileVertex(aTerrain: Word; aRotation: Byte): Boolean;
     var
+      I: Integer;
       texAnimC: TUVRect;
       vtxOffset, indOffset: Integer;
     begin
       if not IsWaterAnimTerId(aTerrain) then Exit(False);
 
-      texAnimC := GetTileUV(TERRAIN_ANIM[aTerrain].GetAnim(aAnimStep), aRotation mod 4);
+      for I := Low(TERRAIN_ANIM[aTerrain].Layers) to High(TERRAIN_ANIM[aTerrain].Layers) do
+      begin
+        if not TERRAIN_ANIM[aTerrain].Layers[I].HasAnim then Continue;
 
-      vtxOffset := aAnimCnt * 4;
-      indOffset := aAnimCnt * 6;
+        texAnimC := GetTileUV(TERRAIN_ANIM[aTerrain].Layers[I].GetAnim(aAnimStep), aRotation mod 4);
 
-      SetTileVertex(fAnimTilesVtx[vtxOffset],   aTX-1, aTY-1, False, texAnimC[1][1], texAnimC[1][2]);
-      SetTileVertex(fAnimTilesVtx[vtxOffset+1], aTX-1, aTY,   True,  texAnimC[2][1], texAnimC[2][2]);
-      SetTileVertex(fAnimTilesVtx[vtxOffset+2], aTX,   aTY,   True,  texAnimC[3][1], texAnimC[3][2]);
-      SetTileVertex(fAnimTilesVtx[vtxOffset+3], aTX,   aTY-1, False, texAnimC[4][1], texAnimC[4][2]);
+        vtxOffset := aAnimCnt * 4;
+        indOffset := aAnimCnt * 6;
 
-      fAnimTilesInd[indOffset+0] := vtxOffset;
-      fAnimTilesInd[indOffset+1] := vtxOffset + 1;
-      fAnimTilesInd[indOffset+2] := vtxOffset + 2;
-      fAnimTilesInd[indOffset+3] := vtxOffset;
-      fAnimTilesInd[indOffset+4] := vtxOffset + 3;
-      fAnimTilesInd[indOffset+5] := vtxOffset + 2;
+        SetTileVertex(fAnimTilesVtx[vtxOffset],   aTX-1, aTY-1, False, texAnimC[1][1], texAnimC[1][2]);
+        SetTileVertex(fAnimTilesVtx[vtxOffset+1], aTX-1, aTY,   True,  texAnimC[2][1], texAnimC[2][2]);
+        SetTileVertex(fAnimTilesVtx[vtxOffset+2], aTX,   aTY,   True,  texAnimC[3][1], texAnimC[3][2]);
+        SetTileVertex(fAnimTilesVtx[vtxOffset+3], aTX,   aTY-1, False, texAnimC[4][1], texAnimC[4][2]);
 
-      Inc(aAnimCnt);
-      Result := True;
+        fAnimTilesInd[indOffset+0] := vtxOffset;
+        fAnimTilesInd[indOffset+1] := vtxOffset + 1;
+        fAnimTilesInd[indOffset+2] := vtxOffset + 2;
+        fAnimTilesInd[indOffset+3] := vtxOffset;
+        fAnimTilesInd[indOffset+4] := vtxOffset + 3;
+        fAnimTilesInd[indOffset+5] := vtxOffset + 2;
+
+        Inc(aAnimCnt);
+        Result := True;
+        end;
     end;
 
   var
@@ -724,9 +730,9 @@ end;
 
 procedure TRenderTerrain.DoAnimations(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
 var
-  I, K: Integer;
+  I, J, K: Integer;
   texC: TUVRect;
-  terId: Word;
+  terID, animID: Word;
 begin
   if SKIP_TER_RENDER_ANIMS then Exit;
 
@@ -764,18 +770,26 @@ begin
     with gTerrain do
       for I := fClipRect.Top to fClipRect.Bottom do
         for K := fClipRect.Left to fClipRect.Right do
-          if IsWaterAnimTerId(Land^[I,K].BaseLayer.Terrain)
+        begin
+          terID := Land^[I,K].BaseLayer.Terrain;
+          if TERRAIN_ANIM[terID].HasAnim
             and (aFOW.CheckVerticeRenderRev(K,I) > FOG_OF_WAR_ACT) then //No animation in FOW
           begin
-            terId := TERRAIN_ANIM[Land^[I,K].BaseLayer.Terrain].GetAnim(aAnimStep);
-            TRender.BindTexture(gGFXData[rxTiles, terId + 1].Tex.ID);
-            texC := GetTileUV(terId, Land^[I,K].BaseLayer.Rotation);
+            for J := Low(TERRAIN_ANIM[terID].Layers) to High(TERRAIN_ANIM[terID].Layers) do
+            begin
+              if not TERRAIN_ANIM[terID].Layers[I].HasAnim then Continue;
 
-            glBegin(GL_TRIANGLE_FAN);
-              glColor4f(1,1,1,1);
-              RenderQuadTexture(texC, K, I);
-            glEnd;
+              animID := TERRAIN_ANIM[terID].Layers[I].GetAnim(aAnimStep);
+              TRender.BindTexture(gGFXData[rxTiles, animID + 1].Tex.ID);
+              texC := GetTileUV(animID, Land^[I,K].BaseLayer.Rotation);
+
+              glBegin(GL_TRIANGLE_FAN);
+                glColor4f(1,1,1,1);
+                RenderQuadTexture(texC, K, I);
+              glEnd;
+            end;
           end;
+        end;
   end;
   {$IFDEF PERFLOG}
   gPerfLogs.SectionLeave(psFrameWater);
