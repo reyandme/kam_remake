@@ -43,6 +43,8 @@ uses
 
   function IsFilePath(const aPath: UnicodeString): Boolean;
 
+  procedure WriteText(const aText: string; aFilename: string; aEncoding: TEncoding);
+
   function IsDirectoryWriteable(const aDir: string): Boolean;
 
   function CreateAndGetDocumentsSavePath: string;
@@ -257,13 +259,6 @@ begin
 end;
 
 
-function IsFilePath(const aPath: UnicodeString): Boolean;
-begin
-  // For now we assume, that folder path always ends with PathDelim
-  Result := RightStr(aPath, 1) <> PathDelim;
-end;
-
-
 procedure KMRenameFolder(const aSourcePath, aDestPath: UnicodeString);
 begin
   {$IFDEF FPC} RenameFile(aSourcePath, aDestPath); {$ENDIF}
@@ -360,6 +355,27 @@ begin
   KMRenameFilesInFolder(aDestFolder, SrcName, DestName);
 
   Result := True;
+end;
+
+
+function IsFilePath(const aPath: UnicodeString): Boolean;
+begin
+  // For now we assume, that folder path always ends with PathDelim
+  Result := RightStr(aPath, 1) <> PathDelim;
+end;
+
+
+procedure WriteText(const aText: string; aFilename: string; aEncoding: TEncoding);
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    sl.Text := aText;
+    sl.SaveToFile(aFilename, aEncoding);
+  finally
+    sl.Free;
+  end;
 end;
 
 
