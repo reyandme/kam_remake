@@ -67,7 +67,6 @@ type
     function TileIsRoadable(aTile: Word): Boolean;
     function TileIsCornField(aTile: Word): Boolean;
     function TileIsWineField(aTile: Word): Boolean;
-    function TileIsFactorable(aTile: Word): Boolean;
 
     function TileIsGoodForIronMine(aTile: Word): Boolean;
     function TileIsGoodForGoldMine(aTile: Word): Boolean;
@@ -569,14 +568,6 @@ end;
 function TKMResTileset.TileIsWineField(aTile: Word): Boolean;
 begin
   Result := aTile = 55;
-end;
-
-
-//@Deprecated. To be removed when?
-function TKMResTileset.TileIsFactorable(aTile: Word): Boolean;
-begin
-  //List of tiles that cannot be factored (coordinates outside the map return true)
-  Result := not (aTile in [7,15,24,50,53,144..151,156..165,198,199,202,206]);
 end;
 
 
