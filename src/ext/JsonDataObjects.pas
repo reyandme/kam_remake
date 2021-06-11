@@ -233,6 +233,8 @@ type
     FIndentsLen: Integer;
     FIndent: Integer;                // current indention level
 
+    FInlined: Boolean;               // will object serialized into 1 line?
+
     procedure StreamFlushPossible; inline; // checks if StreamFlush must be called
     procedure StreamFlush;                 // writes the buffer to the stream
     procedure ExpandIndents;
@@ -500,11 +502,16 @@ type
     function ARCObjAddRef: Integer; inline;
     {$ENDIF USE_FAST_AUTOREFCOUNT}
   protected
+    FInlined: Boolean;
     procedure InternToJSON(var Writer: TJsonOutputWriter); virtual; abstract;
   public
+    constructor Create;
+
     const DataTypeNames: array[TJsonDataType] of string = (
       'null', 'String', 'Integer', 'Long', 'ULong', 'Float', 'DateTime', 'UTC-DateTime', 'Bool', 'Array', 'Object'
     );
+
+    property Inlined: Boolean read FInlined write FInlined;
 
     {$IFDEF USE_FAST_NEWINSTANCE}
     class function NewInstance: TObject {$IFDEF AUTOREFCOUNT} unsafe {$ENDIF}; override;
@@ -833,6 +840,7 @@ type
   TJsonSerializationConfig = record
     LineBreak: string;
     IndentChar: string;
+    InlinedByDefault: Boolean;
     UseUtcTime: Boolean;
     NullConvertsToValueTypes: Boolean;
   end;
@@ -846,6 +854,7 @@ var
   JsonSerializationConfig: TJsonSerializationConfig = ( // not thread-safe
     LineBreak: #10;
     IndentChar: #9;
+    InlinedByDefault: False;
     UseUtcTime: True;
     NullConvertsToValueTypes: False;  // If True and an object is nil/null, a convertion to String, Int, Long, Float, DateTime, Boolean will return ''/0/False
   );
@@ -925,6 +934,7 @@ var
 const
   sNull = 'null';
   sQuoteChar = '"';
+  sSpace = ' ';
 
   {$IF not declared(varObject)}
   varObject = $0049;
@@ -1442,6 +1452,16 @@ begin
     Result := Result + 'Z';
 end;
 {$ENDIF MSWINDOWS}
+
+{ TJsonBaseObject }
+
+constructor TJsonBaseObject.Create;
+begin
+  inherited;
+
+  FInlined := JsonSerializationConfig.InlinedByDefault;
+end;
+
 
 class function TJsonBaseObject.UtcDateTimeToJSON(const UtcDateTime: TDateTime): string;
 var
@@ -4292,19 +4312,27 @@ end;
 procedure TJsonArray.InternToJSON(var Writer: TJsonOutputWriter);
 var
   I: Integer;
+  parentInlined: Boolean;
 begin
   if FCount = 0 then
     Writer.AppendValue('[]')
   else
   begin
+    parentInlined := Writer.FInlined;
+    // Indent with parent Inlined rule, since Indent could append new line before '['
     Writer.Indent('[');
+    // Use our Inlined rule for our array
+    Writer.FInlined := FInlined;
     FItems[0].InternToJSON(Writer);
     for I := 1 to FCount - 1 do
     begin
       Writer.AppendSeparator(',');
       FItems[I].InternToJSON(Writer);
     end;
+    // Unindent with our Inlined rule, since we don't want to get ']' on a new line because of parent rule
     Writer.Unindent(']');
+    // Restore parent Inlined rule
+    Writer.FInlined := parentInlined;
   end;
 end;
 
@@ -4837,12 +4865,17 @@ end;
 procedure TJsonObject.InternToJSON(var Writer: TJsonOutputWriter);
 var
   I: Integer;
+  parentInlined: Boolean;
 begin
   if Count = 0 then
     Writer.AppendValue('{}')
   else
   begin
+    parentInlined := Writer.FInlined;
+    // Indent with parent Inlined rule, since Indent could append new line before '{'
     Writer.Indent('{');
+    // Use our Inlined rule for our object
+    Writer.FInlined := FInlined;
     TJsonBaseObject.StrToJSONStr(Writer.AppendIntro, FNames[0]);
     FItems[0].InternToJSON(Writer);
     for I := 1 to FCount - 1 do
@@ -4851,7 +4884,10 @@ begin
       TJsonBaseObject.StrToJSONStr(Writer.AppendIntro, FNames[I]);
       FItems[I].InternToJSON(Writer);
     end;
+    // Unindent with our Inlined rule, since we don't want to get '}' on a new line because of parent rule
     Writer.Unindent('}');
+    // Restore parent Inlined rule
+    Writer.FInlined := parentInlined;
   end;
 end;
 
@@ -5637,6 +5673,7 @@ begin
   FCompact := ACompact;
   FStream := AStream;
   FEncoding := AEncoding;
+  FInlined := JsonSerializationConfig.InlinedByDefault;
 
   if ALines <> nil then
   begin
@@ -5779,7 +5816,7 @@ end;
 
 procedure TJsonOutputWriter.AppendLine(AppendOn: TLastType; const S: string);
 begin
-  if FLastType = AppendOn then
+  if (FLastType = AppendOn) or FInlined then
     FLastLine.Append(S)
   else
   begin
@@ -5854,9 +5891,14 @@ begin
   end
   else
   begin
-    FlushLastLine;
-    This.StreamFlushPossible; // inlined
-    This.FLastLine.Append(This.FIndents[This.FIndent]).Append2(sQuoteChar, P, Len).Append('": ', 3);
+    if FInlined then
+      This.FLastLine.Append2(sQuoteChar, P, Len).Append('": ', 3)
+    else
+    begin
+      FlushLastLine;
+      This.StreamFlushPossible; // inlined
+      This.FLastLine.Append(This.FIndents[This.FIndent]).Append2(sQuoteChar, P, Len).Append('": ', 3);
+    end;
     This.FLastType := ltIntro;
   end;
 end;
@@ -5873,7 +5915,10 @@ begin
   end
   else
   begin
-    This.AppendLine(ltIntro, P, Len); // inlined
+    if FInlined then
+      This.FLastLine.Append(P, Len)
+    else
+      This.AppendLine(ltIntro, P, Len); // inlined
     This.FLastType := ltValue;
   end;
 end;
@@ -5890,7 +5935,10 @@ begin
   end
   else
   begin
-    This.AppendLine(ltIntro, S); // inlined
+    if FInlined then
+      This.FLastLine.Append(S)
+    else
+      This.AppendLine(ltIntro, S); // inlined
     This.FLastType := ltValue;
   end;
 end;
@@ -5907,7 +5955,7 @@ begin
   end
   else
   begin
-    if This.FLastType = ltIntro then
+    if (This.FLastType = ltIntro) or FInlined then
       This.FLastLine.Append3(sQuoteChar, P, Len, sQuoteChar)
     else
     begin
@@ -5931,8 +5979,12 @@ begin
   end
   else
   begin
-    if This.FLastType in [ltValue, ltUnindent] then
-      This.FLastLine.Append(S)
+    if (This.FLastType in [ltValue, ltUnindent]) or FInlined then
+    begin
+      This.FLastLine.Append(S);
+      if FInlined then
+        This.FLastLine.Append(' ');
+    end
     else
     begin
       FlushLastLine;
