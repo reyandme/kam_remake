@@ -269,12 +269,6 @@ begin
 end;
 
 
-function IsWaterAnimTerId(aTerId: Word): Boolean; inline;
-begin
-  Result := TERRAIN_ANIM[aTerId].HasAnim;
-end;
-
-
 function TileHasToBeRendered(IsFirst: Boolean; aTX,aTY: Word; aFOW: TKMFogOfWarCommon): Boolean; inline;
 begin
   // We have to render at least 1 tile (otherwise smth wrong with gl contex and all UI and other sprites are not rendered at all
@@ -332,14 +326,16 @@ var
       I: Integer;
       texAnimC: TUVRect;
       vtxOffset, indOffset: Integer;
+      tile: TKMTileParams;
     begin
-      if not IsWaterAnimTerId(aTerrain) then Exit(False);
+      tile := gRes.Tileset[aTerrain];
+      if not tile.HasAnim then Exit(False);
 
-      for I := Low(TERRAIN_ANIM[aTerrain].Layers) to High(TERRAIN_ANIM[aTerrain].Layers) do
+      for I := Low(tile.Animation.Layers) to High(tile.Animation.Layers) do
       begin
-        if not TERRAIN_ANIM[aTerrain].Layers[I].HasAnim then Continue;
+        if not tile.Animation.Layers[I].HasAnim then Continue;
 
-        texAnimC := GetTileUV(TERRAIN_ANIM[aTerrain].Layers[I].GetAnim(aAnimStep), aRotation mod 4);
+        texAnimC := GetTileUV(tile.Animation.Layers[I].GetAnim(aAnimStep), aRotation mod 4);
 
         vtxOffset := aAnimCnt * 4;
         indOffset := aAnimCnt * 6;
@@ -732,7 +728,8 @@ procedure TRenderTerrain.DoAnimations(aAnimStep: Integer; aFOW: TKMFogOfWarCommo
 var
   I, J, K: Integer;
   texC: TUVRect;
-  terID, animID: Word;
+  animID: Word;
+  tile: TKMTileParams;
 begin
   if SKIP_TER_RENDER_ANIMS then Exit;
 
@@ -771,15 +768,15 @@ begin
       for I := fClipRect.Top to fClipRect.Bottom do
         for K := fClipRect.Left to fClipRect.Right do
         begin
-          terID := Land^[I,K].BaseLayer.Terrain;
-          if TERRAIN_ANIM[terID].HasAnim
+          tile := gRes.Tileset[Land^[I,K].BaseLayer.Terrain];
+          if tile.HasAnim
             and (aFOW.CheckVerticeRenderRev(K,I) > FOG_OF_WAR_ACT) then //No animation in FOW
           begin
-            for J := Low(TERRAIN_ANIM[terID].Layers) to High(TERRAIN_ANIM[terID].Layers) do
+            for J := Low(tile.Animation.Layers) to High(tile.Animation.Layers) do
             begin
-              if not TERRAIN_ANIM[terID].Layers[I].HasAnim then Continue;
+              if not tile.Animation.Layers[J].HasAnim then Continue;
 
-              animID := TERRAIN_ANIM[terID].Layers[I].GetAnim(aAnimStep);
+              animID := tile.Animation.Layers[J].GetAnim(aAnimStep);
               TRender.BindTexture(gGFXData[rxTiles, animID + 1].Tex.ID);
               texC := GetTileUV(animID, Land^[I,K].BaseLayer.Rotation);
 

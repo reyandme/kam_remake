@@ -1671,7 +1671,7 @@ begin
   with gTerrain.Land^[aY,aX] do
   begin
     if BaseLayer.Corner[aCorner] then
-      Result := BASE_TERRAIN[TILE_CORNERS_TERRAIN_KINDS[BaseLayer.Terrain, (aCorner + 4 - BaseLayer.Rotation) mod 4]]
+      Result := BASE_TERRAIN[gRes.Tileset[BaseLayer.Terrain].TerKinds[(aCorner + 4 - BaseLayer.Rotation) mod 4]]
     else
       for L := 0 to LayersCnt - 1 do
         if Layer[L].Corner[aCorner] then
@@ -1704,7 +1704,7 @@ begin
   with gTerrain.Land^[aY,aX] do
   begin
     if BaseLayer.Corner[aCorner] then
-      Result := TILE_CORNERS_TERRAIN_KINDS[BaseLayer.Terrain, (aCorner + 4 - BaseLayer.Rotation) mod 4]
+      Result := gRes.Tileset[BaseLayer.Terrain].TerKinds[(aCorner + 4 - BaseLayer.Rotation) mod 4]
     else
       for L := 0 to LayersCnt - 1 do
         if Layer[L].Corner[aCorner] then

@@ -103,7 +103,7 @@ begin
         begin
           if BaseLayer.Corner[K] then
             gRenderAux.TextAtCorner(J, I, K,
-                                    IntToStr(BASE_TERRAIN[TILE_CORNERS_TERRAIN_KINDS[BaseLayer.Terrain, (K + 4 - BaseLayer.Rotation) mod 4]]),
+                                    IntToStr(BASE_TERRAIN[gRes.Tileset[BaseLayer.Terrain].TerKinds[(K + 4 - BaseLayer.Rotation) mod 4]]),
                                     TILE_TERRAIN_LAYERS_COLORS[0]);
           for L := 0 to LayersCnt - 1 do
             if Layer[L].Corner[K] then

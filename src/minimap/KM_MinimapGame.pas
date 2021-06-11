@@ -60,7 +60,7 @@ var
   group: TKMUnitGroup;
   tileOwner: TKMHandID;
   landPtr: ^TKMTerrainTile;
-  RGB: TRGB;
+  col: TKMColor3b;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psMinimap);
@@ -122,10 +122,10 @@ begin
               light := 255-fow
             else
               light := Round(landPtr.RenderLight*64)-(255-fow); //it's -255..255 range now
-            RGB := gRes.Tileset.TileColor[ID];
-            fBase[I*fMapX + K] := Byte(EnsureRange(RGB.R+light,0,255)) or
-                                  Byte(EnsureRange(RGB.G+light,0,255)) shl 8 or
-                                  Byte(EnsureRange(RGB.B+light,0,255)) shl 16 or $FF000000;
+            col := gRes.Tileset[ID].MainColor;
+            fBase[I*fMapX + K] := Byte(EnsureRange(col.R+light,0,255)) or
+                                  Byte(EnsureRange(col.G+light,0,255)) shl 8 or
+                                  Byte(EnsureRange(col.B+light,0,255)) shl 16 or $FF000000;
           end;
         end;
       end;

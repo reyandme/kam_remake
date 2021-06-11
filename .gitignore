@@ -45,7 +45,6 @@ bugreport.txt
 /SpriteResource/units.rx
 /data/Sprites
 /data/defines/houses.dat
-/data/defines/pattern.dat
 /data/defines/unit.dat
 /data/gfx/video 
 /data/gfx/*.bbm

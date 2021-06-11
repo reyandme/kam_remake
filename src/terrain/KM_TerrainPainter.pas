@@ -796,7 +796,7 @@ begin
 end;
 
 
-//Get tile corners terkinds (TKinds, based on TILE_CORNERS_TERRAIN_KINDS or generated mask)
+//Get tile corners terkinds (TKinds, based on CornersTerKinds or generated mask)
 procedure TKMTerrainPainter.GetTileOwnCornersTKinds(const aCell: TKMPoint; var aCornersTerKinds: TKMTerrainKindCorners);
 begin
   GetTileCornersTKinds(aCell, aCornersTerKinds, True);
@@ -880,7 +880,7 @@ begin
     CheckTerKind(aCell.X,   aCell.Y+1, 3);
   end;
 
-  //Get tile corners terkinds (TKinds, based on TILE_CORNERS_TERRAIN_KINDS or generated mask)
+  //Get tile corners terkinds (TKinds, based on CornersTerKinds or generated mask)
   if not aGetOnlyLandNodeTK and gTerrain.TileInMapCoords(aCell) then
   begin
     if fUseTempLand then
@@ -892,7 +892,7 @@ begin
       if not terKindFound[I] then
       begin
         if tile.BaseLayer.Corner[I] then
-          aCornersTerKinds[I] := TILE_CORNERS_TERRAIN_KINDS[tile.BaseLayer.Terrain, (I + 4 - tile.BaseLayer.Rotation) mod 4]
+          aCornersTerKinds[I] := gRes.Tileset[tile.BaseLayer.Terrain].TerKinds[(I + 4 - tile.BaseLayer.Rotation) mod 4]
         else
           for L := 0 to tile.LayersCnt - 1 do
             if tile.Layer[L].Corner[I] then
@@ -1708,7 +1708,7 @@ end;
 
 procedure TKMTerrainPainter.RMG2MapEditor(X,Y: Integer; aTile: Word);
 begin
-  LandTerKind[Y,X].TerKind := TILE_CORNERS_TERRAIN_KINDS[aTile][0];
+  LandTerKind[Y,X].TerKind := gRes.Tileset[aTile].TerKinds[0];
 end;
 
 

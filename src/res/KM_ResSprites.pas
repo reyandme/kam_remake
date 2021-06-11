@@ -64,7 +64,7 @@ type
     procedure RemoveMarketWaresShadows(aResHouses: TKMResHouses);
     procedure RemoveSnowHouseShadows(aResHouses: TKMResHouses);
 
-    function GetSpriteColors(aCount: Integer): TRGBArray;
+    function GetSpriteColors(aCount: Integer): TKMColor3bArray;
 
     function IsEmpty: Boolean;
 
@@ -955,7 +955,7 @@ begin
 end;
 
 
-function TKMSpritePack.GetSpriteColors(aCount: Integer): TRGBArray;
+function TKMSpritePack.GetSpriteColors(aCount: Integer): TKMColor3bArray;
 var
   I, L, M: Integer;
   pixelCount: Word;

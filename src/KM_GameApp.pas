@@ -1318,7 +1318,7 @@ end;
 
 function TKMGameApp.CheckDATConsistency: Boolean;
 begin
-  Result := ALLOW_MP_MODS or (gRes.GetDATCRC = $4F5458E6); //That's the magic CRC of official .dat files
+  Result := ALLOW_MP_MODS or (gRes.GetDATCRC = $70C3804); //That's the magic CRC of official .dat files
 end;
 
 

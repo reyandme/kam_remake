@@ -158,6 +158,8 @@ end;
 
 
 procedure TKMResource.LoadMainResources(const aLocale: AnsiString = ''; aLoadFullFonts: Boolean = True);
+var
+  tileColors: TKMColor3bArray;
 begin
   StepCaption('Reading palettes ...');
   gResPalettes := TKMResPalettes.Create;
@@ -182,9 +184,12 @@ begin
 
   LoadLocaleAndFonts(aLocale, aLoadFullFonts);
 
-  fTileset := TKMResTileset.Create(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'pattern.dat');
+  fTileset := TKMResTileset.Create;
   if not SKIP_RENDER then
-    fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(TILES_CNT);
+  begin
+    tileColors := fSprites.Sprites[rxTiles].GetSpriteColors(TILES_CNT);
+    fTileset.SetTilesColor(tileColors);
+  end;
 
   fMapElements := TKMResMapElements.Create;
   fMapElements.LoadFromFile(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'mapelem.dat');

@@ -86,9 +86,9 @@ begin
           x0 := Max(K-1, 1);
           y2 := Min(I+1, fMapY);
           light := Round(EnsureRange((TileHeight - (fParser.MapPreview[K,y2].TileHeight + fParser.MapPreview[x0,I].TileHeight)/2)/22, -1, 1)*64);
-          fBase[N] := Byte(EnsureRange(gRes.Tileset.TileColor[TileID].R+light, 0, 255)) +
-                      Byte(EnsureRange(gRes.Tileset.TileColor[TileID].G+light, 0, 255)) shl 8 +
-                      Byte(EnsureRange(gRes.Tileset.TileColor[TileID].B+light, 0, 255)) shl 16 or $FF000000;
+          fBase[N] := Byte(EnsureRange(gRes.Tileset[TileID].MainColor.R+light, 0, 255)) +
+                      Byte(EnsureRange(gRes.Tileset[TileID].MainColor.G+light, 0, 255)) shl 8 +
+                      Byte(EnsureRange(gRes.Tileset[TileID].MainColor.B+light, 0, 255)) shl 16 or $FF000000;
         end;
     end;
 end;
