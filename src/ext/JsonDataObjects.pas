@@ -791,7 +791,7 @@ type
     procedure ToSimpleObject(AObject: TObject; ACaseSensitive: Boolean = True);
     // FromSimpleObject() clears the JSON object and adds the Delphi object's properties.
     // The object's class must be compiled with the $M+ compiler switch or derive from TPersistent.
-    procedure FromSimpleObject(AObject: TObject; ALowerCamelCase: Boolean = False);
+    procedure FromSimpleObject(AObject: TObject; ALowerCamelCase: Boolean = False; ASkipDefaultValues: Boolean = False);
 
     procedure Clear;
     procedure Remove(const Name: string);
@@ -5093,15 +5093,16 @@ begin
   end;
 end;
 
-procedure TJsonObject.FromSimpleObject(AObject: TObject; ALowerCamelCase: Boolean);
+procedure TJsonObject.FromSimpleObject(AObject: TObject; ALowerCamelCase: Boolean; ASkipDefaultValues: Boolean);
 var
-  Index, Count: Integer;
+  Index, Count, intVal: Integer;
   PropList: PPropList;
   PropType: PTypeInfo;
-  PropName: string;
+  PropName, strVal: string;
   V: Variant;
   D: Double;
   Ch: Char;
+  boolVal: Boolean;
 begin
   Clear;
   if AObject = nil then
@@ -5134,14 +5135,22 @@ begin
 
           case PropList[Index].PropType^.Kind of
             tkInteger, tkChar, tkWChar:
-              InternAdd(PropName, GetOrdProp(AObject, PropList[Index]));
+              begin
+                intVal := GetOrdProp(AObject, PropList[Index]);
+                if ASkipDefaultValues and (intVal = 0) then Continue;
+                InternAdd(PropName, intVal);
+              end;
 
             tkEnumeration:
               begin
                 PropType := PropList[Index].PropType^;
                 if (PropType = TypeInfo(Boolean)) or (PropType = TypeInfo(ByteBool)) or
                    (PropType = TypeInfo(WordBool)) or (PropType = TypeInfo(LongBool)) then
-                  InternAdd(PropName, GetOrdProp(AObject, PropList[Index]) <> 0)
+                begin
+                  boolVal := GetOrdProp(AObject, PropList[Index]) <> 0;
+                  if ASkipDefaultValues and not boolVal then Continue;
+                  InternAdd(PropName, boolVal)
+                end
                 else
                   InternAdd(PropName, GetOrdProp(AObject, PropList[Index]));
               end;
@@ -5150,6 +5159,7 @@ begin
               begin
                 PropType := PropList[Index].PropType^;
                 D := GetFloatProp(AObject, PropList[Index]);
+                if ASkipDefaultValues and (D = 0) then Continue;
                 if (PropType = TypeInfo(TDateTime)) or (PropType = TypeInfo(TDate)) or (PropType = TypeInfo(TTime)) then
                   InternAdd(PropName, TDateTime(D))
                 else
@@ -5160,7 +5170,13 @@ begin
               InternAdd(PropName, GetInt64Prop(AObject, PropList[Index]));
 
             tkString, tkLString, tkWString, tkUString:
-              InternAdd(PropName, GetStrProp(AObject, PropList[Index]));
+              begin
+                strVal := GetStrProp(AObject, PropList[Index]);
+
+                if ASkipDefaultValues and (strVal = '') then Continue;
+
+                InternAdd(PropName, strVal);
+              end;
 
             tkSet:
               InternAdd(PropName, GetSetProp(AObject, PropList[Index]));
