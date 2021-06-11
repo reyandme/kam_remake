@@ -84,8 +84,10 @@ var
 
 implementation
 uses
+  Generics.Collections,
+  JsonDataObjects,
   KM_FileIO,
-  KM_ResTilesetTypes,
+  KM_Resource, KM_ResTilesetTypes, KM_GameAppSettings,
   KM_Campaigns, KM_Game, KM_GameSettings, KM_Hand, KM_MissionScript_Standard, KM_CampaignTypes, KM_MapTypes;
 
 {$R *.dfm}
@@ -215,6 +217,7 @@ begin
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Batcher.log');
   if aNeedGame then
   begin
+    TKMGameAppSettings.Create;
     gGameApp := TKMGameApp.Create(nil, 1024, 768, False, nil, nil, nil, True);
     gGameSettings.Autosave := False;
   end;
@@ -864,29 +867,119 @@ begin
 end;
 
 
+// Reruild Tile animations from 'formula' naming, that was used on pre-r13400 versions to use via mapping, saved in the json file
+// Also some animation files were duplicated, so choose just only one of them, it will remove 80 duplicated tiles
 procedure TForm1.Button16Click(Sender: TObject);
+//type
+//  TDuplRec =
 var
-  TILE, ANIM_I: Integer;
-  animID, newAnimID, terId, animI: Integer;
+  sameImages: TList<TList<Integer>>;
+  sameImgList: TList<Integer>;
+//    Main: Word;
+//    Dupl: TList<Integer>;
+//  end;
+
+
+  function GetUniqueAnimID(aID: Word): Word;
+  var
+    I, K: Integer;
+    img: Word;
+  begin
+    Result := aID;
+    for I := 0 to sameImages.Count - 1 do
+    begin
+      sameImages[I].Sort; //Sort, just in case
+      for K := 0 to sameImages[I].Count - 1 do
+        if aID = sameImages[I][K] then
+          Exit(sameImages[I][0]); // Choose the lowest ID
+    end;
+  end;
+
+  // Animations files before ~r13400 were not unique
+  // unique files were found via CloneSpy tool
+  // and exported as a list of IDs with blank lines between blocks of duplicate IDs
+  procedure ParseSameImgIDsFile;
+  var
+    I, sameImgI, sameImgCnt, animID: Integer;
+    duplicates: TStringList;
+    path: string;
+  begin
+    path := ExeDir + 'Utils' + PathDelim + 'Batcher' + PathDelim + 'TileAnimDuplicates_r13400.txt';
+
+    Assert(FileExists(path));
+
+    duplicates := TStringList.Create;
+    duplicates.LoadFromFile(path);
+
+    sameImages := TList<TList<Integer>>.Create;
+
+    sameImgI := 0;
+    sameImgCnt := 0;
+    for I := 0 to duplicates.Count - 1 do
+    begin
+      // New block of duplicates will be after this line
+      if Trim(duplicates[I]) = '' then
+      begin
+        Inc(sameImgI);
+        sameImgCnt := 0;
+      end
+      else
+      if TryStrToInt(Trim(duplicates[I]), animID) then
+      begin
+        if sameImgCnt = 0 then
+        begin
+          // Add new Block
+          // Sort previous block (blocks are unsorted)
+          if sameImages.Count > 0 then
+            sameImages.Last.Sort;
+
+          sameImages.Add(TList<Integer>.Create);
+        end;
+        sameImages.Last.Add(animID);
+
+        Inc(sameImgCnt);
+      end;
+    end;
+
+    // Sort last block
+    if sameImages.Count > 0 then
+      sameImages.Last.Sort;
+
+    duplicates.Free;
+  end;
+
+var
+  I, sameImgI, sameImgCnt, TILE, ANIM_I, L, layersCnt, animsCnt: Integer;
+  animID, oldAnimID, newAnimID, newAnimIDlastAdded, terId, animI, layerI: Integer;
   dir, newDir, filePath, fileName, newFileName, codeString: string;
 
-//  terAnimI: array [0..MAX_TILE_TO_SHOW-1] of Byte;
   terAnim: array [0..MAX_TILE_TO_SHOW-1] of TKMTileAnim;
   newTerAnim: array [0..MAX_TILE_TO_SHOW-1] of TKMTileAnim;
+  lastAnimID: array [0..MAX_TILE_TO_SHOW-1] of Word;
+  lastLayerI: array [0..MAX_TILE_TO_SHOW-1] of Byte;
+
+  oldToNewAnims: TDictionary<Integer, Integer>;
+
+  sameOld, sameNew: Integer;
 begin
+  SetUp(True);
 
-  SetUp(False);
-  //
+  ParseSameImgIDsFile;
+
   dir := ExeDir + 'SpriteResource' + PathDelim + '7' + PathDelim;
-  newDir := dir + 'new' + PathDelim;
+  newDir := dir + 'new' + PathDelim; // dir to copy uniqie tiles with new names
 
-  KMDeleteFolder(newDir);
+  KMDeleteFolderContent(newDir);
   ForceDirectories(newDir);
 
-  FillChar(terAnim, SizeOf(terAnim), #0); //Clear up
-  FillChar(newTerAnim, SizeOf(terAnim), #0); //Clear up
-//  FillChar(terAnim, SizeOf(terAnimI), #0); //Clear up
+  FillChar(lastAnimID, SizeOf(lastAnimID), #0); //Clear up
+  FillChar(lastLayerI, SizeOf(lastLayerI), #0); //Clear up
 
+  sameOld := 0;
+  sameNew := 0;
+  layerI := -1;
+
+  // Collect animation layers
   for filePath in TDirectory.GetFiles(dir, '7_????.png') do
   begin
     fileName := ExtractFileName(filePath);
@@ -894,68 +987,120 @@ begin
     begin
       if animID < 5000 then Continue; // static tiles without animation
 
-      if InRange(animID, 5550, 5600) then Continue; // AutoTransition masks
+      if InRange(animID, 5549, 5600) then Continue; // AutoTransition masks
 
       terId := (animID - 5000) mod 300;
+
+      gLOg.AddTime(IntToStr(animID));
 
       if InRange(animID, 5300, 7700) then
       begin
         animI := (animID - 5300 - terId) div 300;
+        layerI := 0;
       end
       else
       if InRange(animID, 7700, 9200) then
       begin
         animI := (animID - 7700 - terId) div 300;
+        if InRange(lastAnimID[terId - 1], 5300, 7700) then
+          layerI := lastLayerI[terId - 1] + 1
+        else
+          layerI := lastLayerI[terId - 1];
       end
       else
       if InRange(animID, 9200, 10000) then
       begin
         animI := (animID - 9200 - terId) div 300;
+        if InRange(lastAnimID[terId - 1], 5300, 7700) then
+          layerI := lastLayerI[terId - 1] + 1
+        else
+        if InRange(lastAnimID[terId - 1], 7700, 9200) then
+          layerI := lastLayerI[terId - 1] + 1
+        else
+          layerI := lastLayerI[terId - 1];
       end
       else
         raise Exception.Create('unexpected tile with ID = ' + IntToStr(animID));
 
-      terAnim[terId - 1].Count := Max(animI + 1, terAnim[terId - 1].Count); //animID;
-      terAnim[terId - 1].Anims[animI] := animID;
+      lastAnimID[terId - 1] := animID;
+      lastLayerI[terId - 1] := layerI;
+
+      if Length(terAnim[terId - 1].Layers) < layerI + 1 then
+        SetLength(terAnim[terId - 1].Layers, layerI + 1);
+
+      if Length(terAnim[terId - 1].Layers[layerI].Anims) < animI + 1 then
+        SetLength(terAnim[terId - 1].Layers[layerI].Anims, animI + 1);
+
+      terAnim[terId - 1].Layers[layerI].Anims[animI] := GetUniqueAnimID(animID);
+
+      if animID <> terAnim[terId - 1].Layers[layerI].Anims[animI] then
+        Inc(sameOld);
     end;
   end;
 
-  newAnimID := 5000;
+  oldToNewAnims := TDictionary<Integer, Integer>.Create;
+
+  newAnimIDlastAdded := 5000;
   for TILE := Low(terAnim) to High(terAnim) do
   begin
-    if terAnim[TILE].Count = 0 then Continue;
+    if not terAnim[TILE].HasAnim then Continue;
 
-    newTerAnim[TILE].Count := terAnim[TILE].Count;
-
-    for ANIM_I := 0 to terAnim[TILE].Count - 1 do
+    SetLength(newTerAnim[TILE].Layers, terAnim[TILE].LayersCnt);
+    for L := 0 to newTerAnim[TILE].LayersCnt - 1 do
     begin
-      Inc(newAnimID);
-      newTerAnim[TILE].Anims[ANIM_I] := newAnimID;
+      if Length(newTerAnim[TILE].Layers) < newTerAnim[TILE].LayersCnt then
+        SetLength(newTerAnim[TILE].Layers, newTerAnim[TILE].LayersCnt);
 
-      KMCopyFile(dir + Format('7_%4d.png', [terAnim[TILE].Anims[ANIM_I]]), newDir + Format('7_%4d.png', [newAnimID]), True);
+      SetLength(newTerAnim[TILE].Layers[L].Anims, terAnim[TILE].Layers[L].AnimsCnt);
+      newTerAnim[TILE].Layers[L].Frames := IfThen(terAnim[TILE].Layers[L].AnimsCnt = 3, 8, 1);
+      for ANIM_I := 0 to terAnim[TILE].Layers[L].AnimsCnt - 1 do
+      begin
+        if Length(newTerAnim[TILE].Layers[L].Anims) < newTerAnim[TILE].Layers[L].AnimsCnt then
+          SetLength(newTerAnim[TILE].Layers[L].Anims, newTerAnim[TILE].Layers[L].AnimsCnt);
+
+        oldAnimID := terAnim[TILE].Layers[L].Anims[ANIM_I];
+
+        if oldToNewAnims.ContainsKey(oldAnimID) then
+        begin
+          newAnimID := oldToNewAnims[oldAnimID];
+          Inc(sameNew);
+        end
+        else
+        begin
+          Inc(newAnimIDlastAdded);
+          newAnimID := newAnimIDlastAdded;
+          oldToNewAnims.Add(oldAnimID, newAnimID);
+//          gLog.AddTime(Format('%d -> %d', [oldAnimID, newAnimID]));
+
+          KMCopyFile(dir + Format('7_%4d.png', [oldAnimID]), newDir + Format('7_%4d.png', [newAnimID]), True);
+        end;
+
+        newTerAnim[TILE].Layers[L].Anims[ANIM_I] := newAnimID;
+      end;
     end;
   end;
-
-  Memo1.Lines.Append('    ('); // 4 spaces
-//  codeString := '(' + Eolw;
 
   for TILE := Low(newTerAnim) to High(newTerAnim) do
   begin
-    codeString := Format('      (Count: %d; Anims: (', [newTerAnim[TILE].Count]); // 6 spaces
-    for ANIM_I := Low(newTerAnim[Tile].Anims) to High(newTerAnim[Tile].Anims) do
+    SetLength(gRes.Tileset.Tiles[TILE].Animation.Layers, Length(newTerAnim[TILE].Layers));
+
+    for L := Low(newTerAnim[TILE].Layers) to High(newTerAnim[TILE].Layers) do
     begin
-      if ANIM_I > 0 then
-        codeString := codeString + ', ';
-      codeString := codeString + Format('%4d', [newTerAnim[TILE].Anims[ANIM_I]]);
-//      (newTerAnim.);
-//      codeString := codeString + '';
+      gRes.Tileset.Tiles[TILE].Animation.Layers[L].Frames := newTerAnim[TILE].Layers[L].Frames;
+      gRes.Tileset.Tiles[TILE].Animation.Layers[L].Anims := Copy(newTerAnim[TILE].Layers[L].Anims, 0, MaxInt);
     end;
-    codeString := codeString + ')), // ' + IntToStr(TILE);
-    Memo1.Lines.Append(codeString);
-    if (TILE mod 10 = 9) then
-      Memo1.Lines.Append('');
   end;
 
+//  gRes.Tileset.SaveToXML;
+//  gRes.Tileset.SaveToJSON;
+//  gRes.Tileset.LoadFromJson;
+
+  gLog.AddTime(Format('sameOld: %d sameNew: %d', [sameOld, sameNew]));
+
+  for I := 0 to sameImages.Count - 1 do
+    sameImages[I].Free;
+
+  sameImages.Free;
 
   TearDown;
 end;
