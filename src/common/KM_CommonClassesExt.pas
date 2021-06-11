@@ -62,6 +62,10 @@ type
     function Add(const Value: T): Integer; reintroduce;
   end;
 
+  TKMEnumUtils = class
+    class function TryGetAs<T>(aEnumStr: String; out aEnumValue: T): Boolean;
+  end;
+
 
   function GetCardinality(const PSet: PByteArray; const SizeOfSet(*in bytes*): Integer): Integer; inline;
 
@@ -148,6 +152,27 @@ begin
     raise ERuntimeTypeError.Create('Invalid type in TSet<T>, T must be a set');
 
   Result := GetSetToString(PByteArray(@Value), SizeOf(Value));
+end;
+
+
+{ TKMEnumUtils }
+// example from https://stackoverflow.com/questions/2472487/converting-an-string-to-a-enum-type-using-tvalue
+// Get enum value from enum string
+class function TKMEnumUtils.TryGetAs<T>(aEnumStr: String; out aEnumValue: T): Boolean;
+var
+  tipInfo: PTypeInfo;
+  enumIntVal: Integer;
+  PEnumVal: Pointer;
+begin
+   tipInfo := TypeInfo(T);
+   enumIntVal := GetEnumValue(tipInfo, aEnumStr);
+
+   if enumIntVal = -1 then
+     Exit(False);
+
+   PEnumVal := @enumIntVal;
+   aEnumValue := T(PEnumVal^);
+   Result := True;
 end;
 
 
