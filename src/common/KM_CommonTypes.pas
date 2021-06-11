@@ -107,6 +107,12 @@ type
     constructor New(aR,aG,aB: Single);
     constructor NewB(aR,aG,aB: Byte);
   end;
+
+  TKMColor3b = record
+    R,G,B: Byte;
+    function ToCardinal: Cardinal;
+    constructor New(aR,aG,aB: Byte);
+  end;
 //             Result := R + G shl 8 + B shl 16 + A shl 24;
 
   TKMColor4f = record
@@ -123,6 +129,8 @@ type
     function Alpha(aAlpha: Single): TKMColor4f;
     function ToColor3f: TKMColor3f;
   end;
+
+  TKMColor3bArray = array of TKMColor3b;
 
 const
   COLOR3F_WHITE: TKMColor3f = (R: 1; G: 1; B: 1);
@@ -184,6 +192,21 @@ begin
   Result.R := KaMRandomWSeedS1(aSeed, 1);
   Result.G := KaMRandomWSeedS1(aSeed, 1);
   Result.B := KaMRandomWSeedS1(aSeed, 1);
+end;
+
+
+{ TKMColor3b }
+constructor TKMColor3b.New(aR, aG, aB: Byte);
+begin
+  R := aR;
+  G := aG;
+  B := aB;
+end;
+
+
+function TKMColor3b.ToCardinal: Cardinal;
+begin
+  Result := (R + (G shl 8) + (B shl 16)); {or $FF000000};
 end;
 
 
