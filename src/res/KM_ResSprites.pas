@@ -171,7 +171,7 @@ var
 //                                  of array[0..3] //Terrain Rotation
                                     of Word;
 
-  gGenTerrainTransitionsLegacy: array[Succ(tkCustom)..High(TKMTerrainKind)]
+  gGenTerTransitionsLegacy10745: array[Succ(tkCustom)..High(TKMTerrainKind)]
                                   of array[Succ(mkNone)..High(TKMTileMaskKind)]
                                     of array[Succ(tmtNone)..High(TKMTileMaskType)]
                                       of array[TKMTileMaskSubType] //mask components (subtypes)
@@ -1418,7 +1418,7 @@ begin
   if aLegacyGeneration then
   begin
     //static arrays could be reset via its variable
-    FillChar(gGenTerrainTransitionsLegacy, SizeOf(gGenTerrainTransitionsLegacy), #0); //Init array, it could be init on previous tileset load
+    FillChar(gGenTerTransitionsLegacy10745, SizeOf(gGenTerTransitionsLegacy10745), #0); //Init array, it could be init on previous tileset load
     texId := 4999;
     fGenTexIdStartILegacy := texId;
     genTilesCntTemp := (Integer(High(TKMTerrainKind)) - 1)*Integer(High(TKMTileMaskKind))
@@ -1473,14 +1473,14 @@ begin
             if generatedMasks.TryGetValue(maskId, maskFullType) then
             begin
               if aLegacyGeneration then
-                tmp := gGenTerrainTransitionsLegacy[TK, maskFullType.Kind, maskFullType.MType, maskFullType.SubType]
+                tmp := gGenTerTransitionsLegacy10745[TK, maskFullType.Kind, maskFullType.MType, maskFullType.SubType]
               else
                 tmp := gGenTerrainTransitions[TK, maskFullType.Kind, maskFullType.MType, maskFullType.SubType];
 
               if tmp <> 0 then
               begin
                 if aLegacyGeneration then
-                  gGenTerrainTransitionsLegacy[TK, MK, MT, MST] := tmp
+                  gGenTerTransitionsLegacy10745[TK, MK, MT, MST] := tmp
                 else
                   gGenTerrainTransitions[TK, MK, MT, MST] := tmp;
                 Continue;
@@ -1501,7 +1501,7 @@ begin
               
               if aLegacyGeneration then
               begin
-                gGenTerrainTransitionsLegacy[TK, MK, MT, MST] := texId - 1;
+                gGenTerTransitionsLegacy10745[TK, MK, MT, MST] := texId - 1;
                 fGenTerrainToTerKindLegacy[texId - fGenTexIdStartILegacy] := genTerrainInfo;
               end
               else
