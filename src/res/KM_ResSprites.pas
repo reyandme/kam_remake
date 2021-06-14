@@ -166,19 +166,19 @@ var
     PxWidth, PxHeight: Word;
   end;
 
-  gGenTerrainTransitions: array[Succ(tkCustom)..High(TKMTerrainKind)]
-                            of array[Succ(mkNone)..High(TKMTileMaskKind)]
-                              of array[Succ(tmtNone)..High(TKMTileMaskType)]
-                                of array[TKMTileMaskSubType] //mask components (subtypes)
-//                                  of array[0..3] //Terrain Rotation
-                                    of Word;
+  gGenTerTransitions: array[Succ(tkCustom)..High(TKMTerrainKind)]
+                        of array[Succ(mkNone)..High(TKMTileMaskKind)]
+                          of array[Succ(tmtNone)..High(TKMTileMaskType)]
+                            of array[TKMTileMaskSubType] //mask components (subtypes)
+//                              of array[0..3] //Terrain Rotation
+                                of Word;
 
   gGenTerTransitionsLegacy10745: array[Succ(tkCustom)..High(TKMTerrainKind)]
-                                  of array[Succ(mkNone)..High(TKMTileMaskKind)]
-                                    of array[Succ(tmtNone)..High(TKMTileMaskType)]
-                                      of array[TKMTileMaskSubType] //mask components (subtypes)
-//                                        of array[0..3] //Terrain Rotation
-                                          of Word;
+                                   of array[Succ(mkNone)..High(TKMTileMaskKind)]
+                                     of array[Succ(tmtNone)..High(TKMTileMaskType)]
+                                       of array[TKMTileMaskSubType] //mask components (subtypes)
+//                                         of array[0..3] //Terrain Rotation
+                                           of Word;
 implementation
 uses
   Types, TypInfo,
@@ -1434,7 +1434,7 @@ begin
     gttActual:
       begin
         //static arrays could be reset via its variable
-        FillChar(gGenTerrainTransitions, SizeOf(gGenTerrainTransitions), #0); //Init array, it could be init on previous tileset load
+        FillChar(gGenTerTransitions, SizeOf(gGenTerTransitions), #0); //Init array, it could be init on previous tileset load
         texId := Length(aSprites.fRXData.RGBA) + 1;
         fGenTexIdStartI := texId;
         genTilesCnt := Integer(High(TKMTerrainKind))*Integer(High(TKMTileMaskKind))
@@ -1482,14 +1482,14 @@ begin
               tmp := 0;
               case aGenerationType of
                 gttLegacy10745: tmp := gGenTerTransitionsLegacy10745[TK, maskFullType.Kind, maskFullType.MType, maskFullType.SubType];
-                gttActual:      tmp := gGenTerrainTransitions[TK, maskFullType.Kind, maskFullType.MType, maskFullType.SubType];
+                gttActual:      tmp := gGenTerTransitions[TK, maskFullType.Kind, maskFullType.MType, maskFullType.SubType];
               end;
 
               if tmp <> 0 then
               begin
                 case aGenerationType of
                   gttLegacy10745: gGenTerTransitionsLegacy10745[TK, MK, MT, MST] := tmp;
-                  gttActual:      gGenTerrainTransitions[TK, MK, MT, MST] := tmp;
+                  gttActual:      gGenTerTransitions[TK, MK, MT, MST] := tmp;
                 end;
                 Continue;
               end;
@@ -1522,7 +1522,7 @@ begin
                     aSprites.fRXData.Size[texId].Y := aSprites.fRXData.Size[terrainId].Y;
                     aSprites.fRXData.Pivot[texId] := aSprites.fRXData.Pivot[terrainId];
                     aSprites.fRXData.HasMask[texId] := False;
-                    gGenTerrainTransitions[TK, MK, MT, MST] := texId - 1; //TexId is 1-based, but textures we use - 0 based
+                    gGenTerTransitions[TK, MK, MT, MST] := texId - 1; //TexId is 1-based, but textures we use - 0 based
                     fGenTerrainToTerKind[texId - fGenTexIdStartI] := genTerrainInfo;
               
         //          gLog.AddTime(Format('TerKind: %10s Mask: %10s TexId: %d ', [GetEnumName(TypeInfo(TKMTerrainKind), Integer(I)),

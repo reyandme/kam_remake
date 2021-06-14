@@ -203,8 +203,8 @@ begin
         //Get current generated terrain id by identification info
         //We could add more masks and terKinds in future, so we can't stick with generated terrainId,
         //but need to save/load its generation parameters (terKind/mask types etc)
-        aTileBasic.Layer[I].Terrain := gGenTerrainTransitions[genInfo.TerKind, genInfo.Mask.Kind,
-                                                              genInfo.Mask.MType, genInfo.Mask.SubType];
+        aTileBasic.Layer[I].Terrain := gGenTerTransitions[genInfo.TerKind, genInfo.Mask.Kind,
+                                                          genInfo.Mask.MType, genInfo.Mask.SubType];
         aStream.Read(aTileBasic.Layer[I].Rotation);
       end;
 
