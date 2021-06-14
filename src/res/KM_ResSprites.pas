@@ -55,7 +55,7 @@ type
     //Load from atlas format, no MakeGFX bin packing needed
     procedure LoadFromRXAFile(const aFileName: string);
 
-    function GetSoftenShadowType(aID: Integer): TSoftenShadowType;
+    function GetSoftenShadowType(aID: Integer): TKMSoftenShadowType;
     procedure SoftenShadows(aIdList: TStringList); overload;
     procedure SoftenShadows(aStart: Integer = 1; aEnd: Integer = -1; aOnlyShadows: Boolean = True); overload;
     procedure SoftenShadows(aID: Integer; aOnlyShadows: Boolean = True); overload;
@@ -242,7 +242,7 @@ begin
 end;
 
 
-function TKMSpritePack.GetSoftenShadowType(aID: Integer): TSoftenShadowType;
+function TKMSpritePack.GetSoftenShadowType(aID: Integer): TKMSoftenShadowType;
 var
   step, spriteID: Integer;
   UT: TKMUnitType;
@@ -291,7 +291,7 @@ procedure TKMSpritePack.SoftenShadows(aIdList: TStringList);
 var
   I, ID: Integer;
   shadowConverter: TKMSoftShadowConverter;
-  softenShadowType: TSoftenShadowType;
+  softenShadowType: TKMSoftenShadowType;
 begin
   if aIdList.Count = 0 then Exit;
 

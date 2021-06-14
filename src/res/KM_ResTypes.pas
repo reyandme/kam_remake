@@ -258,7 +258,7 @@ type
   end;
   PRXData = ^TRXData;
 
-  TSoftenShadowType = (sstNone, sstOnlyShadow, sstBoth);
+  TKMSoftenShadowType = (sstNone, sstOnlyShadow, sstBoth);
 
 const
   {$I KM_TextIDs.inc}
