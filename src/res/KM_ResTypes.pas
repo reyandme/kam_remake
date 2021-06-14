@@ -4,9 +4,6 @@ interface
 uses
   KM_ResTilesetTypes;
 
-const
-  {$I KM_TextIDs.inc}
-
 type
   TKMChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
 
@@ -247,17 +244,6 @@ const
   FLAG_COLOR_DARK = $FF101010;   //Dark-grey (Black)
   FLAG_COLOR_LITE = $FFFFFFFF;   //White
 
-
-var
-  RXInfo: array [TRXType] of TRXInfo = (
-    (FileName: 'Trees';      TeamColors: False; Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_TREES;),
-    (FileName: 'Houses';     TeamColors: True;  Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_HOUSES;),
-    (FileName: 'Units';      TeamColors: True;  Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_UNITS;),
-    (FileName: 'GUI';        TeamColors: True;  Usage: ruMenu;   LoadingTextID: 0;),
-    (FileName: 'GUIMain';    TeamColors: False; Usage: ruMenu;   LoadingTextID: 0;),
-    (FileName: 'Custom';     TeamColors: False; Usage: ruCustom; LoadingTextID: 0;),
-    (FileName: 'Tileset';    TeamColors: False; Usage: ruMenu;   LoadingTextID: TX_MENU_LOADING_TILESET;));
-
 type
   TRXData = record
     Count: Integer;
@@ -273,6 +259,20 @@ type
   PRXData = ^TRXData;
 
   TSoftenShadowType = (sstNone, sstOnlyShadow, sstBoth);
+
+const
+  {$I KM_TextIDs.inc}
+
+var
+  RXInfo: array [TRXType] of TRXInfo = (
+    (FileName: 'Trees';      TeamColors: False; Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_TREES;),
+    (FileName: 'Houses';     TeamColors: True;  Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_HOUSES;),
+    (FileName: 'Units';      TeamColors: True;  Usage: ruGame;   LoadingTextID: TX_MENU_LOADING_UNITS;),
+    (FileName: 'GUI';        TeamColors: True;  Usage: ruMenu;   LoadingTextID: 0;),
+    (FileName: 'GUIMain';    TeamColors: False; Usage: ruMenu;   LoadingTextID: 0;),
+    (FileName: 'Custom';     TeamColors: False; Usage: ruCustom; LoadingTextID: 0;),
+    (FileName: 'Tileset';    TeamColors: False; Usage: ruMenu;   LoadingTextID: TX_MENU_LOADING_TILESET;));
+
 
 implementation
 
