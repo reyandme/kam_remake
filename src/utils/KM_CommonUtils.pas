@@ -200,7 +200,7 @@ end;
 
 procedure KMSwapInt(var A,B: Byte);
 var
-  S: byte;
+  S: Byte;
 begin
   S := A; A := B; B := S;
 end;
@@ -213,32 +213,37 @@ begin
 end;
 
 procedure KMSwapInt(var A,B: Smallint);
-var S: Smallint;
+var
+  S: Smallint;
 begin
   S:=A; A:=B; B:=S;
 end;
 
 procedure KMSwapInt(var A,B: Word);
-var S: Word;
+var
+  S: Word;
 begin
   S:=A; A:=B; B:=S;
 end;
 
 procedure KMSwapInt(var A,B: Integer);
-var S: Integer;
+var
+  S: Integer;
 begin
   S:=A; A:=B; B:=S;
 end;
 
 procedure KMSwapInt(var A,B: LongWord);
-var S: cardinal;
+var
+  S: Cardinal;
 begin
   S:=A; A:=B; B:=S;
 end;
 
 
 procedure KMSwapFloat(var A,B: Single);
-var S: Single;
+var
+  S: Single;
 begin
   S:=A; A:=B; B:=S;
 end;
@@ -270,7 +275,8 @@ end;
 
 {$IFDEF WDC}
 procedure KMSwapFloat(var A,B: Extended);
-var S: Extended;
+var
+  S: Extended;
 begin
   S:=A; A:=B; B:=S;
 end;
@@ -289,13 +295,13 @@ end;
 
 procedure KMSummAndEnlargeArr(aArr1, aArr2: PKMCardinalArray);
 var
-  I, OldLen1: Integer;
+  I, oldLen1: Integer;
 begin
-  OldLen1 := Length(aArr1^);
-  if OldLen1 < Length(aArr2^) then
+  oldLen1 := Length(aArr1^);
+  if oldLen1 < Length(aArr2^) then
   begin
     SetLength(aArr1^, Length(aArr2^));
-    for I := OldLen1 to Length(aArr2^) - 1 do
+    for I := oldLen1 to Length(aArr2^) - 1 do
       aArr1^[I] := 0;                     //Init array with 0
   end;
 
@@ -372,14 +378,14 @@ procedure ArrayReverse(var aArray: TKMPointArray);
 var
   I: Integer;
   tmp: TKMPoint;
-  IMax: Integer;
+  iMax: Integer;
 begin
-  IMax := High(aArray);
-  for I := 0 to IMax div 2 do
+  iMax := High(aArray);
+  for I := 0 to iMax div 2 do
   begin
     tmp := aArray[I];
-    aArray[I] := aArray[IMax - I];
-    aArray[IMax - I] := tmp;
+    aArray[I] := aArray[iMax - I];
+    aArray[iMax - I] := tmp;
   end;
 end;
 
@@ -413,14 +419,14 @@ end;
 
 function GetGameVersionNum(const aGameVersionStr: UnicodeString): Integer;
 var
-  Rev: Integer;
+  rev: Integer;
 begin
   Result := 0;
   if Copy(aGameVersionStr, 1, 1) <> 'r' then
     Exit;
 
-  if TryStrToInt(Copy(aGameVersionStr, 2, Length(aGameVersionStr) - 1), Rev) then
-    Result := Rev;
+  if TryStrToInt(Copy(aGameVersionStr, 2, Length(aGameVersionStr) - 1), rev) then
+    Result := rev;
 end;
 
 
@@ -472,7 +478,8 @@ end;
 
 function UTCNow: TDateTime;
 {$IFDEF MSWindows}
-var st: TSystemTime;
+var
+  st: TSystemTime;
 begin
   GetSystemTime(st);
   Result := SystemTimeToDateTime(st);
@@ -480,14 +487,14 @@ end;
 {$ENDIF}
 {$IFDEF Unix}
 var
-  TimeVal: TTimeVal;
-  TimeZone: PTimeZone;
+  timeVal: TTimeVal;
+  timeZone: PTimeZone;
   a: Double;
 begin
-  TimeZone := nil;
-  fpGetTimeOfDay(@TimeVal, TimeZone);
+  timeZone := nil;
+  fpGetTimeOfDay(@timeVal, timeZone);
   // Convert to milliseconds
-  a := (TimeVal.tv_sec * 1000.0) + (TimeVal.tv_usec / 1000.0);
+  a := (timeVal.tv_sec * 1000.0) + (timeVal.tv_usec / 1000.0);
   Result := (a / MSecsPerDay) + UnixDateDelta;
 end;
 {$ENDIF}
@@ -503,38 +510,38 @@ end;
 //From: http://lists.lazarus.freepascal.org/pipermail/lazarus/2010-September/055568.html
 {$IFDEF FPC}
 var
-  TZOffset: Integer;
+  tzOffset: Integer;
   {$IFDEF MSWINDOWS}
-  BiasType: Byte;
-  TZInfo: TTimeZoneInformation;
+  biasType: Byte;
+  tzInfo: TTimeZoneInformation;
   {$ENDIF}
 begin
   Result := Input;
   {$IFDEF MSWINDOWS}
-  BiasType := GetTimeZoneInformation(TZInfo);
-  if (BiasType=0) then
+  BiasType := GetTimeZoneInformation(tzInfo);
+  if (BiasType = 0) then
     Exit; //No timezone so return the input
 
   // Determine offset in effect for DateTime UT.
-  if (BiasType=2) then
-    TZOffset := TZInfo.Bias + TZInfo.DaylightBias
+  if (BiasType = 2) then
+    tzOffset := tzInfo.Bias + tzInfo.DaylightBias
   else
-    TZOffset := TZInfo.Bias + TZInfo.StandardBias;
+    tzOffset := tzInfo.Bias + tzInfo.StandardBias;
   {$ENDIF}
   {$IFDEF UNIX}
-    TZOffset := -Tzseconds div 60;
+    tzOffset := -Tzseconds div 60;
   {$ENDIF}
 
   // Apply offset.
-  if (TZOffset > 0) then
+  if (tzOffset > 0) then
     // Time zones west of Greenwich.
-    Result := Input - EncodeTime(TZOffset div 60, TZOffset mod 60, 0, 0)
-  else if (TZOffset = 0) then
+    Result := Input - EncodeTime(tzOffset div 60, tzOffset mod 60, 0, 0)
+  else if (tzOffset = 0) then
     // Time Zone = Greenwich.
     Result := Input
-  else if (TZOffset < 0) then
+  else if (tzOffset < 0) then
     // Time zones east of Greenwich.
-    Result := Input + EncodeTime(Abs(TZOffset) div 60, Abs(TZOffset) mod 60, 0, 0);
+    Result := Input + EncodeTime(Abs(tzOffset) div 60, Abs(tzOffset) mod 60, 0, 0);
 end;
 {$ENDIF}
 
@@ -570,44 +577,44 @@ end;
 // 6789X     789xxx
 function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
 const
-  DirAngle: array [TKMDirection] of Word   = (0, 0, 45, 90, 135, 180, 225, 270, 315);
-  DirRatio: array [TKMDirection] of Single = (0, 1, 1.41, 1, 1.41, 1, 1.41, 1, 1.41);
+  DIR_ANGLE: array [TKMDirection] of Word   = (0, 0, 45, 90, 135, 180, 225, 270, 315);
+  DIR_RATIO: array [TKMDirection] of Single = (0, 1, 1.41, 1, 1.41, 1, 1.41, 1, 1.41);
 var
-  PlaceX, PlaceY, ResultX, ResultY: integer;
+  placeX, placeY, resultX, resultY: Integer;
 begin
   Assert(aUnitPerRow > 0);
   if aIndex = 0 then
   begin
-    ResultX := OriginX;
-    ResultY := OriginY;
+    resultX := OriginX;
+    resultY := OriginY;
   end
   else
   begin
     if aIndex <= aUnitPerRow div 2 then
       Dec(aIndex);
-    PlaceX := aIndex mod aUnitPerRow - aUnitPerRow div 2;
-    PlaceY := aIndex div aUnitPerRow;
+    placeX := aIndex mod aUnitPerRow - aUnitPerRow div 2;
+    placeY := aIndex div aUnitPerRow;
 
-    ResultX := OriginX + Round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
-    ResultY := OriginY + Round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
+    resultX := OriginX + Round( placeX*DIR_RATIO[aDir]*cos(DIR_ANGLE[aDir]/180*pi) - placeY*DIR_RATIO[aDir]*sin(DIR_ANGLE[aDir]/180*pi) );
+    resultY := OriginY + Round( placeX*DIR_RATIO[aDir]*sin(DIR_ANGLE[aDir]/180*pi) + placeY*DIR_RATIO[aDir]*cos(DIR_ANGLE[aDir]/180*pi) );
   end;
 
-  aTargetCanBeReached := InRange(ResultX, 1, MapX-1) and InRange(ResultY, 1, MapY-1);
+  aTargetCanBeReached := InRange(resultX, 1, MapX-1) and InRange(resultY, 1, MapY-1);
   //Fit to bounds
-  Result.X := EnsureRange(ResultX, 1, MapX-1);
-  Result.Y := EnsureRange(ResultY, 1, MapY-1);
+  Result.X := EnsureRange(resultX, 1, MapX-1);
+  Result.Y := EnsureRange(resultY, 1, MapY-1);
 end;
 
 
 //See Docs\GetPositionFromIndex.xls for explanation
 function GetPositionFromIndex(const aOrigin: TKMPoint; aIndex: Byte): TKMPoint;
 const
-  Rings: array[1..10] of Word =
+  RINGS: array[1..10] of Word =
 //Ring#  1  2  3  4   5   6   7    8    9    10
         (0, 1, 9, 25, 49, 81, 121, 169, 225, 289);
 var
-  Ring, Span, Span2, Orig: Byte;
-  Off1,Off2,Off3,Off4,Off5: Byte;
+  ring, span, span2, orig: Byte;
+  off1, off2, off3, off4, off5: Byte;
 begin
   //Quick solution
   if aIndex = 0 then
@@ -618,27 +625,27 @@ begin
   end;
 
   //Find ring in which Index is located
-  Ring := 0;
-  repeat inc(Ring); until(Rings[Ring]>aIndex);
-  dec(Ring);
+  ring := 0;
+  repeat inc(ring); until(RINGS[ring]>aIndex);
+  dec(ring);
 
   //Remember Ring span and half-span
-  Span := Ring*2-1-1; //Span-1
-  Span2 := Ring-1;    //Half a span -1
+  span := ring*2-1-1; //Span-1
+  span2 := ring-1;    //Half a span -1
 
   //Find offset from Rings 1st item
-  Orig := aIndex - Rings[Ring];
+  orig := aIndex - RINGS[ring];
 
   //Find Offset values in each span
-  Off1 := min(Orig,Span2); dec(Orig,Off1);
-  Off2 := min(Orig,Span);  dec(Orig,Off2);
-  Off3 := min(Orig,Span);  dec(Orig,Off3);
-  Off4 := min(Orig,Span);  dec(Orig,Off4);
-  Off5 := min(Orig,Span2-1); //dec(Orig,Off5);
+  off1 := min(orig,span2); dec(orig,off1);
+  off2 := min(orig,span);  dec(orig,off2);
+  off3 := min(orig,span);  dec(orig,off3);
+  off4 := min(orig,span);  dec(orig,off4);
+  off5 := min(orig,span2-1); //dec(Orig,Off5);
 
   //Compute result
-  Result.X := aOrigin.X + Off1 - Off3 + Off5;
-  Result.Y := aOrigin.Y - Span2 + Off2 - Off4;
+  Result.X := aOrigin.X + off1 - off3 + off5;
+  Result.Y := aOrigin.Y - span2 + off2 - off4;
 end;
 
 
@@ -688,7 +695,7 @@ function GetStackTrace(aLinesCnt: Integer): UnicodeString;
 {$IFDEF WDC}
 var
   I: Integer;
-  SList: TStringList;
+  sList: TStringList;
 {$ENDIF}
 begin
   Result := '';
@@ -700,14 +707,14 @@ begin
     on E: EStackTraceInfo do
     begin
       try
-        SList := TStringList.Create;
+        sList := TStringList.Create;
         try
-          SList.Text := E.StackTrace;
+          sList.Text := E.StackTrace;
 
-          for I := 1 to Min(SList.Count - 1, aLinesCnt) do //Do not print last line (its this method line)
-            Result := Result + SList[I] + sLineBreak;
+          for I := 1 to Min(sList.Count - 1, aLinesCnt) do //Do not print last line (its this method line)
+            Result := Result + sList[I] + sLineBreak;
         finally
-          SList.Free;
+          sList.Free;
         end
       except
         // Noticed a crash on game exit once somewhere here, just ignore the exception in this case
@@ -839,8 +846,10 @@ end;
 
 
 procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
-const V = 6;
-var Hue, Sat, Bri, Rt, Gt, Bt: Single;
+const
+  V = 6;
+var
+  Hue, Sat, Bri, Rt, Gt, Bt: Single;
 begin
   Hue := EnsureRange(aHue, 0, 1);
   Sat := EnsureRange(aSat, 0, 1);
@@ -994,7 +1003,7 @@ end;
 
 function GetRandomColorWSeed(aSeed: Integer): Cardinal;
 var
-  R,G,B: Byte;
+  R, G, B: Byte;
 begin
   R := KaMRandomWSeed(aSeed, 255);
   G := KaMRandomWSeed(aSeed, 255);
@@ -1162,9 +1171,9 @@ var
   dx: Integer;
   ns: UnicodeString;
   txt: UnicodeString;
-  Delta: Integer;
+  delta: Integer;
 begin
-  Delta := Length(Delimiter);
+  delta := Length(Delimiter);
   txt := Value + Delimiter;
   SL.BeginUpdate;
   SL.Clear;
@@ -1174,7 +1183,7 @@ begin
       dx := Pos(Delimiter, txt);
       ns := Copy(txt, 0, dx-1);
       SL.Add(ns);
-      txt := Copy(txt, dx+Delta, MaxInt);
+      txt := Copy(txt, dx+delta, MaxInt);
     end;
   finally
     SL.EndUpdate;
@@ -1401,7 +1410,8 @@ end;
 
 // Returnes text ignoring color markup [$FFFFFF][]
 function GetNoColorMarkupText(const aText: UnicodeString): UnicodeString;
-var I, TmpColor: Integer;
+var
+  I, tmpColor: Integer;
 begin
   Result := '';
 
@@ -1416,7 +1426,7 @@ begin
     else
       if (aText[I]='[') and (I+8 <= Length(aText))
       and (aText[I+1] = '$') and (aText[I+8]=']')
-      and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+      and TryStrToInt(Copy(aText, I+1, 7), tmpColor) then
         Inc(I,8) //Skip past this markup
       else
         //Not markup so count width normally
@@ -1428,10 +1438,10 @@ end;
 
 procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; aIncludeSubdirs: Boolean = True);
 var
-  ValidateFn: TBooleanStringFunc;
+  validateFn: TBooleanStringFunc;
 begin
-  ValidateFn := nil;
-  GetAllPathsInDir(aDir, aSL, ValidateFn, aIncludeSubdirs);
+  validateFn := nil;
+  GetAllPathsInDir(aDir, aSL, validateFn, aIncludeSubdirs);
 end;
 
 
@@ -1481,7 +1491,8 @@ end;
 
 //Replace continious spaces with single space
 function DeleteDoubleSpaces(const aString: string): string;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := '';
   if aString = '' then Exit;
@@ -1501,14 +1512,14 @@ end;
 
 function CountOccurrences(const aSubstring, aText: String): Integer;
 var
-  Offset: integer;
+  offset: integer;
 begin
   Result := 0;
-  Offset := PosEx(aSubstring, aText, 1);
-  while Offset <> 0 do
+  offset := PosEx(aSubstring, aText, 1);
+  while offset <> 0 do
   begin
     Inc(Result);
-    Offset := PosEx(aSubstring, aText, Offset + length(aSubstring));
+    offset := PosEx(aSubstring, aText, offset + length(aSubstring));
   end;
 end;
 
@@ -1708,23 +1719,22 @@ end;
 {$IFDEF FPC}
 function StrSplitA(const aStr, aDelimiters: string): TAnsiStringArray;
 var
-  I: integer;
-  PosDel: integer;
-  CopyOfText: string;
+  I, posDel: Integer;
+  copyOfText: string;
 begin
-  CopyOfText := aStr;
-  i := 0;
+  copyOfText := aStr;
+  I := 0;
   SetLength(Result, 1);
-  PosDel := Pos(aDelimiters, aStr);
-  while PosDel > 0 do
+  posDel := Pos(aDelimiters, aStr);
+  while posDel > 0 do
     begin
-      Result[I] := Copy(CopyOfText, 1, PosDel - 1);
-      Delete(CopyOfText, 1, Length(Result[I]) + 1);
-      PosDel := Pos(aDelimiters, CopyOfText);
+      Result[I] := Copy(copyOfText, 1, posDel - 1);
+      Delete(copyOfText, 1, Length(Result[I]) + 1);
+      posDel := Pos(aDelimiters, copyOfText);
       inc(I);
       SetLength(Result, I + 1);
     end;
-  Result[I] := Copy(CopyOfText, 1, Length(CopyOfText));
+  Result[I] := Copy(copyOfText, 1, Length(copyOfText));
 end;
 {$ENDIF}
 
@@ -1732,29 +1742,29 @@ end;
 {$IF Defined(FPC) or Defined(VER230)}
 procedure DeleteFromArray(var Arr: TAnsiStringArray; const Index: Integer);
 var
-  ALength: Integer;
   I: Integer;
+  aLength: Integer;
 begin
-  ALength := Length(Arr);
-  Assert(ALength > 0);
-  Assert(Index < ALength);
-  for I := Index + 1 to ALength - 1 do
+  aLength := Length(Arr);
+  Assert(aLength > 0);
+  Assert(Index < aLength);
+  for I := Index + 1 to aLength - 1 do
     Arr[I - 1] := Arr[I];
-  SetLength(Arr, ALength - 1);
+  SetLength(Arr, aLength - 1);
 end;
 
 
 procedure DeleteFromArray(var Arr: TIntegerArray; const Index: Integer);
 var
-  ALength: Integer;
   I: Integer;
+  aLength: Integer;
 begin
-  ALength := Length(Arr);
-  Assert(ALength > 0);
-  Assert(Index < ALength);
-  for I := Index + 1 to ALength - 1 do
+  aLength := Length(Arr);
+  Assert(aLength > 0);
+  Assert(Index < aLength);
+  for I := Index + 1 to aLength - 1 do
     Arr[I - 1] := Arr[I];
-  SetLength(Arr, ALength - 1);
+  SetLength(Arr, aLength - 1);
 end;
 {$ELSE}
 
@@ -1773,93 +1783,93 @@ end;
 function TryExecuteMethod(aObjParam: TObject; const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
                           aMethod: TUnicodeStringObjEvent; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 var
-  Success: Boolean;
-  TryCnt: Byte;
+  success: Boolean;
+  tryCnt: Byte;
 begin
-  Success := False;
-  TryCnt := 0;
+  success := False;
+  tryCnt := 0;
   aErrorStr := '';
-  while not Success and (TryCnt < aAttemps) do
+  while not success and (tryCnt < aAttemps) do
     try
-      Inc(TryCnt);
+      Inc(tryCnt);
 
       aMethod(aObjParam, aStrParam);
 
-      Success := True;
+      success := True;
     except
       on E: Exception do //Ignore IO exceptions here, try to save file up to 3 times
       begin
-        aErrorStr := Format('Error at attemp #%d while executing method %s for parameter: %s', [TryCnt, aMethodName, aStrParam]);
+        aErrorStr := Format('Error at attemp #%d while executing method %s for parameter: %s', [tryCnt, aMethodName, aStrParam]);
         Sleep(10); // Wait a bit
       end;
     end;
 
-  if not Success then
+  if not success then
     aErrorStr := Format('Error executing method (%d tries) %s for parameter: %s', [aAttemps, aMethodName, aStrParam]);
 
-  Result := Success;
+  Result := success;
 end;
 
 
 function TryExecuteMethodProc(const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
                               aMethodProc: TUnicodeStringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 var
-  Success: Boolean;
-  TryCnt: Byte;
+  success: Boolean;
+  tryCnt: Byte;
 begin
-  Success := False;
-  TryCnt := 0;
+  success := False;
+  tryCnt := 0;
   aErrorStr := '';
-  while not Success and (TryCnt < aAttemps) do
+  while not success and (tryCnt < aAttemps) do
     try
-      Inc(TryCnt);
+      Inc(tryCnt);
 
       aMethodProc(aStrParam);
 
-      Success := True;
+      success := True;
     except
       on E: Exception do //Ignore IO exceptions here, try to save file up to 3 times
       begin
-        aErrorStr := Format('Error at attemp #%d while executing method %s for parameter: %s', [TryCnt, aMethodName, aStrParam]);
+        aErrorStr := Format('Error at attemp #%d while executing method %s for parameter: %s', [tryCnt, aMethodName, aStrParam]);
         Sleep(10); // Wait a bit
       end;
     end;
 
-  if not Success then
+  if not success then
     aErrorStr := Format('Error executing method (%d tries) %s for parameter: %s', [aAttemps, aMethodName, aStrParam]);
 
-  Result := Success;
+  Result := success;
 end;
 
 
 function TryExecuteMethodProc(const aStrParam1, aStrParam2, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
                               aMethodProc: TUnicode2StringEventProc; aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
 var
-  Success: Boolean;
-  TryCnt: Byte;
+  success: Boolean;
+  tryCnt: Byte;
 begin
-  Success := False;
-  TryCnt := 0;
+  success := False;
+  tryCnt := 0;
   aErrorStr := '';
-  while not Success and (TryCnt < aAttemps) do
+  while not success and (tryCnt < aAttemps) do
     try
-      Inc(TryCnt);
+      Inc(tryCnt);
 
       aMethodProc(aStrParam1, aStrParam2);
 
-      Success := True;
+      success := True;
     except
       on E: Exception do //Ignore IO exceptions here, try to save file up to 3 times
       begin
-        aErrorStr := Format('Error at attemp #%d while executing method %s for parameters: [%s, %s]', [TryCnt, aMethodName, aStrParam1, aStrParam2]);
+        aErrorStr := Format('Error at attemp #%d while executing method %s for parameters: [%s, %s]', [tryCnt, aMethodName, aStrParam1, aStrParam2]);
         Sleep(10); // Wait a bit
       end;
     end;
 
-  if not Success then
+  if not success then
     aErrorStr := Format('Error executing method (%d tries) %s for parameters: [%s, %s]', [aAttemps, aMethodName, aStrParam1, aStrParam2]);
 
-  Result := Success;
+  Result := success;
 end;
 
 
