@@ -1675,7 +1675,7 @@ begin
     else
       for L := 0 to LayersCnt - 1 do
         if Layer[L].Corner[aCorner] then
-          Result := BASE_TERRAIN[gRes.Sprites.GetGenTerrainInfo(Layer[L].Terrain).TerKind];
+          Result := gRes.Sprites.GetGenTerrainInfo(Layer[L].Terrain).BaseTile;
   end;
   Assert(Result <> TOO_BIG_VALUE, Format('[TileCornerTerrain] Can''t determine tile [%d:%d] terrain at Corner [%d]', [aX, aY, aCorner]));
 end;
@@ -1709,7 +1709,7 @@ begin
       for L := 0 to LayersCnt - 1 do
         if Layer[L].Corner[aCorner] then
         begin
-          Result := gRes.Sprites.GetGenTerrainInfo(Layer[L].Terrain).TerKind;
+          Result := gRes.Sprites.GetGenTerrainInfo(Layer[L].Terrain).BaseTerKind;
           Break;
         end;
   end;
@@ -3449,8 +3449,7 @@ var
                             Land^[Y,X].BaseLayer.Terrain := 192;
                             Land^[Y,X].BaseLayer.SetCorners([1]);
                             Land^[Y,X].LayersCnt := 1;
-                            Land^[Y,X].Layer[0].Terrain := gGenTerTransitions[TransitionsTerKinds[transition],
-                                                                              mkSoft2, tmt2Diagonal, mstMain];
+                            Land^[Y,X].Layer[0].Terrain := gGenTerTransitions2.Items[BASE_TERRAIN[TransitionsTerKinds[transition]]][mkSoft2, tmt2Diagonal, mstMain, terRot];
                             Land^[Y,X].Layer[0].Rotation := terRot;
                             Land^[Y,X].Layer[0].SetCorners([0,2,3]);
                           end;

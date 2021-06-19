@@ -82,7 +82,7 @@ type
   end;
 
 
-  TKMGenTransitionType = (gttActual, gttLegacy10745);
+  TKMGenTransitionType = (gttActual2, gttLegacy13570, gttLegacy10745);
 
   TKMResSprites = class
   private
@@ -90,10 +90,13 @@ type
     fSprites: array[TRXType] of TKMSpritePack;
     fStepProgress: TEvent;
     fStepCaption: TUnicodeStringEvent;
-    fGenTexIdStartI: Integer;
-    fGenTexIdStartILegacy: Integer;
-    fGenTerrainToTerKind: array of TKMGenTerrainInfo;
-    fGenTerrainToTerKindLegacy: array of TKMGenTerrainInfo;
+
+    fGenTexIdStartI2: Integer;
+    fGenTexIdStartILegacy13570: Integer;
+    fGenTexIdStartILegacy10745: Integer;
+    fGenTerToTerKind2: array of TKMGenTerrainInfo;
+    fGenTerToTerKindLegacy13570: array of TKMGenTerrainInfoBase;
+    fGenTerToTerKindLegacy10745: array of TKMGenTerrainInfoBase;
 
     fGameRXTypes: TStringList; //list of TRXType for game resources
     {$IFDEF LOAD_GAME_RES_ASYNC}
@@ -119,10 +122,11 @@ type
 
     class function AllTilesOnOneAtlas: Boolean;
 
-    procedure GenerateTerrainTransitions(aSprites: TKMSpritePack; aGenerationType: TKMGenTransitionType = gttActual);
+    procedure GenerateTerrainTransitions(aSprites: TKMSpritePack; aGenerationType: TKMGenTransitionType = gttActual2);
 
     function GetGenTerrainInfo(aTerrain: Integer): TKMGenTerrainInfo;
-    function GetGenTerrainInfoLegacy(aTerrain: Integer): TKMGenTerrainInfo;
+    function GetGenTerrainInfoLegacy13570(aTerrain: Integer): TKMGenTerrainInfoBase;
+    function GetGenTerrainInfoLegacy10745(aTerrain: Integer): TKMGenTerrainInfoBase;
 
     property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
 
@@ -160,18 +164,27 @@ type
                   u1,v1,u2,v2: Single; //Top-Left, Bottom-Right uv coords
                 end;
 
+  PKMGenTransitions = ^TKMGenTransitions;
+  TKMGenTransitions = array[Succ(mkNone)..High(TKMTileMaskKind)]
+                        of array[Succ(tmtNone)..High(TKMTileMaskType)]
+                          of array[TKMTileMaskSubType] //mask components (subtypes)
+                            of array[0..3] //Terrain Rotation
+                              of Word;
+
 var
   gGFXData: array [TRXType] of array of record
     Tex, Alt: TKMTexCoords; //AltID used for team colors and house building steps
     PxWidth, PxHeight: Word;
   end;
 
-  gGenTerTransitions: array[Succ(tkCustom)..High(TKMTerrainKind)]
-                        of array[Succ(mkNone)..High(TKMTileMaskKind)]
-                          of array[Succ(tmtNone)..High(TKMTileMaskType)]
-                            of array[TKMTileMaskSubType] //mask components (subtypes)
-//                              of array[0..3] //Terrain Rotation
-                                of Word;
+  gGenTerTransitions2: TDictionary<Word, TKMGenTransitions>;
+
+  gGenTerTransitionsLegacy13570: array[Succ(tkCustom)..High(TKMTerrainKind)]
+                                   of array[Succ(mkNone)..High(TKMTileMaskKind)]
+                                     of array[Succ(tmtNone)..High(TKMTileMaskType)]
+                                       of array[TKMTileMaskSubType] //mask components (subtypes)
+          //                               of array[0..3] //Terrain Rotation
+                                           of Word;
 
   gGenTerTransitionsLegacy10745: array[Succ(tkCustom)..High(TKMTerrainKind)]
                                    of array[Succ(mkNone)..High(TKMTileMaskKind)]
@@ -1159,7 +1172,7 @@ procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex:
 
       Inc(TexCount);
 
-      if aFillGFXData and EXPORT_SPRITE_ATLASES then
+      if aFillGFXData and EXPORT_SPRITE_ATLASES and (fRT = rxTiles) then
         SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' +
                          SPRITE_TYPE_EXPORT_NAME[aMode] + IntToStr(aStartingIndex+I), TD);
     end;
@@ -1307,6 +1320,8 @@ begin
   inherited Create;
   fGameRXTypes := TStringList.Create;
 
+  gGenTerTransitions2 := TDictionary<Word, TKMGenTransitions>.Create;
+
   for RT := Low(TRXType) to High(TRXType) do
   begin
     fSprites[RT] := TKMSpritePack.Create(RT);
@@ -1332,6 +1347,8 @@ begin
 
   for RT := Low(TRXType) to High(TRXType) do
     fSprites[RT].Free;
+
+  gGenTerTransitions2.Free;
 
   inherited;
 end;
@@ -1374,75 +1391,290 @@ end;
 //aLegacyGeneration - support for maps with rev <= r10745, where transitions were written as generated terrain Id
 //instead of generation parameters (TekKind + FullMaskType)
 //Also there was no mkSoft mask and tkSnowOnTerrain terrain kind
-procedure TKMResSprites.GenerateTerrainTransitions(aSprites: TKMSpritePack; aGenerationType: TKMGenTransitionType = gttActual);
-//  procedure Rotate(aAngle: Byte; aXFrom, aYFrom: Integer; var aXTo, aYTo: Integer; aBase: Integer);
-//  begin
-//    case aAngle of
-//      0:  begin
-//            aXTo := aXFrom;
-//            aYTo := aYFrom;
-//          end;
-//      1:  begin
-//            aYTo := aXFrom;
-//            aXTo := aBase - aYFrom;
-//          end;
-//      2:  begin
-//            aXTo := aBase - aXFrom;
-//            aYTo := aBase - aYFrom;
-//          end;
-//      3:  begin
-//            aXTo := aYFrom;
-//            aYTo := aBase - aXFrom;
-//          end
-//      else raise Exception.Create('Wrong Rotate angle');
-//    end;
-//
-//  end;
+procedure TKMResSprites.GenerateTerrainTransitions(aSprites: TKMSpritePack; aGenerationType: TKMGenTransitionType = gttActual2);
+
+  procedure Rotate(aAngle: Byte; aXFrom, aYFrom: Integer; var aXTo, aYTo: Integer; aBase: Integer);
+  begin
+    case aAngle of
+      0:  begin
+            aXTo := aXFrom;
+            aYTo := aYFrom;
+          end;
+      1:  begin
+            aYTo := aXFrom;
+            aXTo := aBase - aYFrom;
+          end;
+      2:  begin
+            aXTo := aBase - aXFrom;
+            aYTo := aBase - aYFrom;
+          end;
+      3:  begin
+            aXTo := aYFrom;
+            aYTo := aBase - aXFrom;
+          end
+      else raise Exception.Create('Wrong Rotate angle');
+    end;
+  end;
 
 var
   TK: TKMTerrainKind;
-  MK: TKMTileMaskKind;
-  MT: TKMTileMaskType;
-  MST: TKMTileMaskSubType;
-  terrainId, maskId: Word;
-  maskFullType: TKMMaskFullType;
-  genTerrainInfo: TKMGenTerrainInfo;
-
-  texId,{ K,} L, M, tmp, totalTex, uniqueTex: Integer;
-  genTilesCnt, genTilesCntTemp: Integer;
-  straightPx{, RotatePixel}, maskCol: Cardinal;
+  texId, totalTex, uniqueTex, baseTileI: Integer;
+  transitions: TKMGenTransitions;
+  transitionsArr: array of TKMGenTransitions;
   generatedMasks: TDictionary<Integer, TKMMaskFullType>;
+
+  procedure GenTransitions(aTerrainID: Word; aIsBaseTile: Boolean);
+  var
+    L, M, K, P, Q: Integer;
+    tmp, maskId, rxTerID: Word;
+    mask: TKMMaskFullType;
+    genTerInfoBase: TKMGenTerrainInfoBase;
+    genTerInfo: TKMGenTerrainInfo;
+    MK: TKMTileMaskKind;
+    MT: TKMTileMaskType;
+    MST: TKMTileMaskSubType;
+    straightPx, rotatePx, maskCol: Cardinal;
+  begin
+    if aGenerationType = gttActual2 then
+      transitions := transitionsArr[baseTileI];
+
+    rxTerID := aTerrainID;
+
+    if aIsBaseTile then
+    begin
+      aTerrainID := aTerrainID - 1;
+    end;
+
+    //for all Mask Kinds
+    for MK := Succ(mkNone) to High(TKMTileMaskKind) do
+//    for MK := mkStraight to mkStraight do
+    begin
+      if (aGenerationType = gttLegacy10745) and (MK = mkSoft2) then Continue;
+
+      //for all Mask Types
+      for MT := Succ(tmtNone) to High(TKMTileMaskType) do
+//      for MT := tmt2Diagonal to tmt2Diagonal do
+      begin
+        // for all Mask subtypes
+        for MST := Low(TKMTileMaskSubType) to High(TKMTileMaskSubType) do //Mask subtypes (actual masks for layers)
+        begin
+          maskId := TILE_MASKS_FOR_LAYERS[MK, MT, MST] + 1;
+          if maskId = 0 then Continue;   //Ignore non existent masks
+
+          Inc(totalTex);
+
+          for K := 0 to 3 do //Rotation
+          begin
+            // We could use same mask image for several masktypes/subtypes
+            if generatedMasks.TryGetValue(maskId, mask) then
+            begin
+  //              tmp := 0;
+              // Check if we already have any generated tile for same tile parameters
+              case aGenerationType of
+                gttLegacy10745: begin
+                                  tmp := gGenTerTransitionsLegacy10745[TK, mask.Kind, mask.MType, mask.SubType];
+                                  if tmp <> 0 then
+                                  begin
+                                    gGenTerTransitionsLegacy10745[TK, MK, MT, MST] := tmp;
+                                    Continue;
+                                  end;
+                                end;
+                gttLegacy13570: begin
+                                  tmp := gGenTerTransitionsLegacy13570[TK, mask.Kind, mask.MType, mask.SubType];
+                                  if tmp <> 0 then
+                                  begin
+                                    gGenTerTransitionsLegacy13570[TK, MK, MT, MST] := tmp;
+                                    Continue;
+                                  end;
+                                end;
+                gttActual2:     begin
+                                  tmp := transitions[mask.Kind, mask.MType, mask.SubType, K];
+                                  if tmp <> 0 then
+                                  begin
+                                    transitions[MK, MT, MST, K] := tmp;
+                                    gLog.AddTime(Format('AGAIN TEX-1 = %d MK = %s, MT = %s, MST = %s', [tmp,
+                                                                     GetEnumName(TypeInfo(TKMTileMaskKind), Byte(MK)),
+                                                                     GetEnumName(TypeInfo(TKMTileMaskType), Byte(MT)),
+                                                                     GetEnumName(TypeInfo(TKMTileMaskSubType), Byte(MST)) ]));
+                                    Continue;
+                                  end;
+                                end;
+              end;
+
+  //              if tmp <> 0 then
+  //              begin
+  //                case aGenerationType of
+  //                  gttLegacy10745: gGenTerTransitionsLegacy10745[TK, MK, MT, MST] := tmp;
+  //                  gttLegacy13570: gGenTerTransitionsLegacy13570[TK, MK, MT, MST] := tmp;
+  //                end;
+  //                Continue;
+  //              end;
+            end
+            else
+            begin
+              mask.Kind := MK;
+              mask.MType := MT;
+              mask.SubType := MST;
+              generatedMasks.Add(maskId, mask);
+            end;
+
+
+            case aGenerationType of
+              gttLegacy10745,
+              gttLegacy13570:
+                begin
+                  genTerInfoBase.TerKind := TK;
+                  genTerInfoBase.Mask.Kind := MK;
+                  genTerInfoBase.Mask.MType := MT;
+                  genTerInfoBase.Mask.SubType := MST;
+                end;
+              gttActual2:
+                begin
+                  genTerInfo.BaseTile := aTerrainID;
+                  genTerInfo.Mask.Kind := MK;
+                  genTerInfo.Mask.MType := MT;
+                  genTerInfo.Mask.SubType := MST;
+                end;
+            end;
+
+  //            gGenTerTransitions2[baseTileI].BaseTile := terrainId - 1;
+
+            case aGenerationType of
+              gttLegacy10745:
+                begin
+                  gGenTerTransitionsLegacy10745[TK, MK, MT, MST] := texId - 1;
+                  fGenTerToTerKindLegacy10745[texId - fGenTexIdStartILegacy10745] := genTerInfoBase;
+                end;
+              gttLegacy13570:
+                begin
+                  gGenTerTransitionsLegacy13570[TK, MK, MT, MST] := texId - 1;
+                  fGenTerToTerKindLegacy13570[texId - fGenTexIdStartILegacy13570] := genTerInfoBase;
+                end;
+              gttActual2:
+                begin
+                  SetLength(aSprites.fRXData.RGBA[texId], aSprites.fRXData.Size[rxTerID].X*aSprites.fRXData.Size[rxTerID].Y); //32*32 actually...
+                  SetLength(aSprites.fRXData.Mask[texId], aSprites.fRXData.Size[rxTerID].X*aSprites.fRXData.Size[rxTerID].Y);
+                  aSprites.fRXData.Flag[texId] := aSprites.fRXData.Flag[rxTerID];
+                  aSprites.fRXData.Size[texId].X := aSprites.fRXData.Size[rxTerID].X;
+                  aSprites.fRXData.Size[texId].Y := aSprites.fRXData.Size[rxTerID].Y;
+                  aSprites.fRXData.Pivot[texId] := aSprites.fRXData.Pivot[rxTerID];
+                  aSprites.fRXData.HasMask[texId] := False;
+
+                  gLog.AddTime(Format('TEX-1 = %d MK = %s, MT = %s, MST = %s', [texId - 1,
+                                                                     GetEnumName(TypeInfo(TKMTileMaskKind), Byte(MK)),
+                                                                     GetEnumName(TypeInfo(TKMTileMaskType), Byte(MT)),
+                                                                     GetEnumName(TypeInfo(TKMTileMaskSubType), Byte(MST)) ]));
+                  transitions[MK, MT, MST, K] := texId - 1; //TexId is 1-based, but textures we use - 0 based
+                  fGenTerToTerKind2[texId - fGenTexIdStartI2] := genTerInfo;
+
+
+
+      //          gLog.AddTime(Format('TerKind: %10s Mask: %10s TexId: %d ', [GetEnumName(TypeInfo(TKMTerrainKind), Integer(I)),
+      //                                                        GetEnumName(TypeInfo(TKMTileMaskType), Integer(J)), TexId]));
+
+      //          fGenTerrainToTerKind.Add(IntToStr(TexId) + '=' + IntToStr(Integer(I)));
+                  for L := 0 to aSprites.fRXData.Size[rxTerID].Y - 1 do
+                    for M := 0 to aSprites.fRXData.Size[rxTerID].X - 1 do
+                    begin
+                      Rotate(K, L, M, P, Q, aSprites.fRXData.Size[rxTerID].X - 1);
+                      straightPx := L * aSprites.fRXData.Size[rxTerID].X  + M;
+                      rotatePx := P * aSprites.fRXData.Size[rxTerID].X  + Q;
+
+                      case TILE_MASK_KIND_USAGE[MK] of
+                        mkuPixel: maskCol := ($FFFFFF or (aSprites.fRXData.RGBA[maskId, straightPx] shl 24));
+                        mkuAlpha: maskCol := aSprites.fRXData.RGBA[maskId, straightPx];
+                      else
+                        raise Exception.Create('Unexpected type');
+                      end;
+
+                      aSprites.fRXData.RGBA[texId, straightPx] := maskCol and aSprites.fRXData.RGBA[rxTerID, {straightPx}rotatePx];
+                    end;
+                end;
+            end;
+            Inc(uniqueTex);
+            Inc(texId);
+          end;
+        end;
+      end;
+    end;
+
+    if aGenerationType = gttActual2 then
+    begin
+
+      gGenTerTransitions2.Add(aTerrainID, transitions); // Add 0-based
+      Inc(baseTileI);
+    end;
+  end;
+
+  function GetAnimatedBaseTilesCnt: Integer;
+  var
+    TK: TKMTerrainKind;
+  begin
+    Result := 0;
+//    SetLength(Result, Ord(High(TKMTerrainKind)) + 1 + 5);
+    for TK := Succ(tkCustom) to High(TKMTerrainKind) do
+    begin
+//      Inc(cnt);
+      Inc(Result, 1 + gRes.Tileset[BASE_TERRAIN[TK]].AnimsCnt);
+    end;
+
+//    SetLength(Result, cnt);
+  end;
+
+var
+  animID, baseTerID: Word;
+  I { K,} : Integer;
+  genBaseTilesCnt, genTilesCnt, genTilesCnt13570, genTilesCnt10745: Integer;
 begin
-  Assert((aGenerationType = gttActual) or (aSprites = nil));
+  Assert((aGenerationType = gttActual2) or (aSprites = nil));
 
   gLog.AddTime('GenerateTerrainTransitions started. Legacy = ' +
                GetEnumName(TypeInfo(TKMGenTransitionType), Integer(aGenerationType)));
 
+  baseTileI := 0;
   case aGenerationType of
     gttLegacy10745:
       begin
         //static arrays could be reset via its variable
-        FillChar(gGenTerTransitionsLegacy10745, SizeOf(gGenTerTransitionsLegacy10745), #0); //Init array, it could be init on previous tileset load
+        //Init array, it could be init on previous tileset load
+        FillChar(gGenTerTransitionsLegacy10745, SizeOf(gGenTerTransitionsLegacy10745), #0);
         texId := 4999;
-        fGenTexIdStartILegacy := texId;
-        genTilesCntTemp := (Integer(High(TKMTerrainKind)) - 1)*Integer(High(TKMTileMaskKind))
-                       *Integer(High(TKMTileMaskType))*(Integer(High(TKMTileMaskSubType)) + 1);
-        SetLength(fGenTerrainToTerKindLegacy, genTilesCntTemp);
-        FillChar(fGenTerrainToTerKindLegacy[0], SizeOf(fGenTerrainToTerKindLegacy[0])*GenTilesCntTemp, #0);
-        gLog.AddTime(Format('Legacy: TexId = %d GenTilesCntTemp = %d', [texId, genTilesCntTemp]));
+        fGenTexIdStartILegacy10745 := texId;
+        genTilesCnt10745 := (Integer(High(TKMTerrainKind)) - 1)*Integer(High(TKMTileMaskKind))
+                            *Integer(High(TKMTileMaskType))*(Integer(High(TKMTileMaskSubType)) + 1);
+        SetLength(fGenTerToTerKindLegacy10745, genTilesCnt10745);
+        FillChar(fGenTerToTerKindLegacy10745[0], SizeOf(fGenTerToTerKindLegacy10745[0])*genTilesCnt10745, #0);
+        gLog.AddTime(Format('Legacy10745: TexId = %d GenTilesCntTemp = %d', [texId, genTilesCnt10745]));
       end;
-    gttActual:
+    gttLegacy13570:
       begin
         //static arrays could be reset via its variable
-        FillChar(gGenTerTransitions, SizeOf(gGenTerTransitions), #0); //Init array, it could be init on previous tileset load
+        //Init array, it could be init on previous tileset load
+        FillChar(gGenTerTransitionsLegacy13570, SizeOf(gGenTerTransitionsLegacy13570), #0);
+        texId := 5451;//Length(aSprites.fRXData.RGBA) + 1;
+        fGenTexIdStartILegacy13570 := texId;
+        genTilesCnt13570 := Integer(High(TKMTerrainKind))*Integer(High(TKMTileMaskKind))
+                            *Integer(High(TKMTileMaskType))*(Integer(High(TKMTileMaskSubType)) + 1);
+        SetLength(fGenTerToTerKindLegacy13570, genTilesCnt13570);
+        FillChar(fGenTerToTerKindLegacy13570[0], SizeOf(fGenTerToTerKindLegacy13570[0])*genTilesCnt13570, #0);
+        gLog.AddTime(Format('Legacy13570: TexId = %d GenTilesCnt = %d', [texId, genTilesCnt13570]));
+      end;
+    gttActual2:
+      begin
+        gGenTerTransitions2.Clear;
         texId := Length(aSprites.fRXData.RGBA) + 1;
-        fGenTexIdStartI := texId;
-        genTilesCnt := Integer(High(TKMTerrainKind))*Integer(High(TKMTileMaskKind))
-                       *Integer(High(TKMTileMaskType))*(Integer(High(TKMTileMaskSubType)) + 1);
-        SetLength(fGenTerrainToTerKind, genTilesCnt);
+        fGenTexIdStartI2 := texId;
+        genBaseTilesCnt := GetAnimatedBaseTilesCnt;
+        genTilesCnt := genBaseTilesCnt*Integer(High(TKMTileMaskKind))
+                       *Integer(High(TKMTileMaskType))*(Integer(High(TKMTileMaskSubType))*4 + 1);
+        SetLength(fGenTerToTerKind2, genTilesCnt);
+//        SetLength(gGenTerTransitions2, genBaseTilesCnt);
+        SetLength(transitionsArr, genBaseTilesCnt);
+        for I := 0 to genBaseTilesCnt - 1 do
+          FillChar(transitionsArr[I], SizeOf(transitionsArr[I]), #0);
         aSprites.Allocate(texId + genTilesCnt);
-        FillChar(fGenTerrainToTerKind[0], SizeOf(fGenTerrainToTerKind[0])*GenTilesCnt, #0);
-        gLog.AddTime(Format('TexId = %d GenTilesCnt = %d', [texId, genTilesCnt]));
+        FillChar(fGenTerToTerKind2[0], SizeOf(fGenTerToTerKind2[0])*genTilesCnt, #0);
+        gLog.AddTime(Format('Actual: TexId = %d GenTilesCnt = %d', [texId, genTilesCnt]));
       end;
     else
       texId := 0;
@@ -1454,119 +1686,50 @@ begin
 //  K := 0;
   try
     //for all Terrain Kinds
+    TK := tkWater;
     for TK := Succ(tkCustom) to High(TKMTerrainKind) do
+//    for TK := tkWater to tkWater do
     begin
       if (aGenerationType = gttLegacy10745) and (TK = tkSnowOnGrass) then Continue;
 
-      terrainId := BASE_TERRAIN[TK] + 1; // in fRXData Tiles are 1-based
+      baseTerID := BASE_TERRAIN[TK] + 1; // in fRXData Tiles are 1-based
 
-      //for all Mask Kinds
-      for MK := Succ(mkNone) to High(TKMTileMaskKind) do
+//      gLog.AddTime('Generate transitions for baseTerID: ' + IntToStr(baseTerID));
+      GenTransitions(baseTerID, True);
+//
+      if aGenerationType in [gttLegacy10745, gttLegacy13570] then Continue;
+
+      if not gRes.Tileset[baseTerID-1].HasAnim
+        or not gRes.Tileset[baseTerID-1].Animation.Layers[0].HasAnim then Continue;
+
+      for I := Low(gRes.Tileset[baseTerID-1].Animation.Layers[0].Anims) to High(gRes.Tileset[baseTerID-1].Animation.Layers[0].Anims) do
       begin
-        if (aGenerationType = gttLegacy10745) and (MK = mkSoft2) then Continue;
-
-        //for all Mask Types
-        for MT := Succ(tmtNone) to High(TKMTileMaskType) do
-        begin
-          // for all Mask subtypes
-          for MST := Low(TKMTileMaskSubType) to High(TKMTileMaskSubType) do //Mask subtypes (actual masks for layers)
-          begin
-            maskId := TILE_MASKS_FOR_LAYERS[MK, MT, MST] + 1;
-            if maskId = 0 then Continue;   //Ignore non existent masks
-
-            Inc(totalTex);
-
-            // We could use same mask image for several masktypes/subtypes
-            if generatedMasks.TryGetValue(maskId, maskFullType) then
-            begin
-              tmp := 0;
-              case aGenerationType of
-                gttLegacy10745: tmp := gGenTerTransitionsLegacy10745[TK, maskFullType.Kind, maskFullType.MType, maskFullType.SubType];
-                gttActual:      tmp := gGenTerTransitions[TK, maskFullType.Kind, maskFullType.MType, maskFullType.SubType];
-              end;
-
-              if tmp <> 0 then
-              begin
-                case aGenerationType of
-                  gttLegacy10745: gGenTerTransitionsLegacy10745[TK, MK, MT, MST] := tmp;
-                  gttActual:      gGenTerTransitions[TK, MK, MT, MST] := tmp;
-                end;
-                Continue;
-              end;
-            end else begin
-              maskFullType.Kind := MK;
-              maskFullType.MType := MT;
-              maskFullType.SubType := MST;
-              generatedMasks.Add(maskId, maskFullType);
-            end;
-
-    //        for K := 0 to 3 do //Rotation
-    //        begin
-              genTerrainInfo.TerKind := TK;
-              genTerrainInfo.Mask.Kind := MK;
-              genTerrainInfo.Mask.MType := MT;
-              genTerrainInfo.Mask.SubType := MST;
-              
-              case aGenerationType of
-                gttLegacy10745:
-                  begin
-                    gGenTerTransitionsLegacy10745[TK, MK, MT, MST] := texId - 1;
-                    fGenTerrainToTerKindLegacy[texId - fGenTexIdStartILegacy] := genTerrainInfo;
-                  end;
-                gttActual:
-                  begin
-                    SetLength(aSprites.fRXData.RGBA[texId], aSprites.fRXData.Size[terrainId].X*aSprites.fRXData.Size[terrainId].Y); //32*32 actually...
-                    SetLength(aSprites.fRXData.Mask[texId], aSprites.fRXData.Size[terrainId].X*aSprites.fRXData.Size[terrainId].Y);
-                    aSprites.fRXData.Flag[texId] := aSprites.fRXData.Flag[terrainId];
-                    aSprites.fRXData.Size[texId].X := aSprites.fRXData.Size[terrainId].X;
-                    aSprites.fRXData.Size[texId].Y := aSprites.fRXData.Size[terrainId].Y;
-                    aSprites.fRXData.Pivot[texId] := aSprites.fRXData.Pivot[terrainId];
-                    aSprites.fRXData.HasMask[texId] := False;
-                    gGenTerTransitions[TK, MK, MT, MST] := texId - 1; //TexId is 1-based, but textures we use - 0 based
-                    fGenTerrainToTerKind[texId - fGenTexIdStartI] := genTerrainInfo;
-              
-        //          gLog.AddTime(Format('TerKind: %10s Mask: %10s TexId: %d ', [GetEnumName(TypeInfo(TKMTerrainKind), Integer(I)),
-        //                                                        GetEnumName(TypeInfo(TKMTileMaskType), Integer(J)), TexId]));
-
-        //          fGenTerrainToTerKind.Add(IntToStr(TexId) + '=' + IntToStr(Integer(I)));
-                    for L := 0 to aSprites.fRXData.Size[terrainId].Y - 1 do
-                      for M := 0 to aSprites.fRXData.Size[terrainId].X - 1 do
-                      begin
-          //              Rotate(K, L, M, P, Q, aSprites.fRXData.Size[TerrainId].X - 1);
-                        straightPx := L * aSprites.fRXData.Size[terrainId].X  + M;
-          //              RotatePixel := StraightPixel; //P * aSprites.fRXData.Size[TerrainId].X  + Q;
-
-                        case TILE_MASK_KIND_USAGE[MK] of
-                          mkuPixel: maskCol := ($FFFFFF or (aSprites.fRXData.RGBA[maskId, straightPx] shl 24));
-                          mkuAlpha: maskCol := aSprites.fRXData.RGBA[maskId, straightPx];
-                        else
-                          raise Exception.Create('Unexpected type');
-                        end;
-
-                        aSprites.fRXData.RGBA[texId, straightPx] := maskCol and aSprites.fRXData.RGBA[terrainId, straightPx{RotatePixel}];
-                      end;
-                  end;
-              end;
-              Inc(uniqueTex);
-              Inc(texId);
-    //        end;
-          end;
-        end;
+        animID := gRes.Tileset[baseTerID-1].Animation.Layers[0].Anims[I];
+//        gLog.AddTime(Format('Generate transitions for animID: %d for baseTileID: %d', [animID, baseTerID-1]));
+        GenTransitions(animID, False);
       end;
     end;
 
     case aGenerationType of
       gttLegacy10745:
         begin
-          SetLength(fGenTerrainToTerKindLegacy, texId - fGenTexIdStartILegacy);
-          gLog.AddTime(Format('TexId = %d; TexId - fGenTexIdStartILegacy = %d; uniqueTex = %d; totalTex = %d', [texId, texId - fGenTexIdStartILegacy, uniqueTex, totalTex]));
+          SetLength(fGenTerToTerKindLegacy10745, texId - fGenTexIdStartILegacy10745);
+          gLog.AddTime(Format('TexId = %d; TexId - fGenTexIdStartILegacy10745 = %d; uniqueTex = %d; totalTex = %d',
+                              [texId, texId - fGenTexIdStartILegacy10745, uniqueTex, totalTex]));
         end;
-      gttActual:
-         begin
+      gttLegacy13570:
+        begin
+          SetLength(fGenTerToTerKindLegacy13570, texId - fGenTexIdStartILegacy13570);
+          gLog.AddTime(Format('TexId = %d; TexId - fGenTexIdStartILegacy13570 = %d; uniqueTex = %d; totalTex = %d',
+                              [texId, texId - fGenTexIdStartILegacy13570, uniqueTex, totalTex]));
+        end;
+      gttActual2:
+        begin
           // There could be usused place in arrays, as we could use same mask image for different purposes
           aSprites.Allocate(texId);
-          SetLength(fGenTerrainToTerKind, texId - fGenTexIdStartI);
-          gLog.AddTime(Format('TexId = %d; TexId - fGenTexIdStartI = %d; uniqueTex = %d; totalTex = %d', [texId, texId - fGenTexIdStartI, uniqueTex, totalTex]));
+          SetLength(fGenTerToTerKind2, texId - fGenTexIdStartI2);
+          gLog.AddTime(Format('TexId = %d; TexId - fGenTexIdStartI = %d; uniqueTex = %d; totalTex = %d',
+                              [texId, texId - fGenTexIdStartI2, uniqueTex, totalTex]));
         end;
     end;
   finally
@@ -1579,21 +1742,31 @@ end;
 
 function TKMResSprites.GetGenTerrainInfo(aTerrain: Integer): TKMGenTerrainInfo;
 begin
-  Assert(aTerrain + 1 - fGenTexIdStartI < Length(fGenTerrainToTerKind),
+  Assert(aTerrain + 1 - fGenTexIdStartI2 < Length(fGenTerToTerKind2),
          Format('Trying to get terrain info out of range: TileID = %d, GenStart = %d, GenTerrain arr length = %d',
-                [aTerrain, fGenTexIdStartI, Length(fGenTerrainToTerKind)]));
+                [aTerrain, fGenTexIdStartI2, Length(fGenTerToTerKind2)]));
 
-  Result := fGenTerrainToTerKind[aTerrain + 1 - fGenTexIdStartI]; //TexId is 1-based, but textures we use - 0 based
+  Result := fGenTerToTerKind2[aTerrain + 1 - fGenTexIdStartI2]; //TexId is 1-based, but textures we use - 0 based
 end;
 
 
-function TKMResSprites.GetGenTerrainInfoLegacy(aTerrain: Integer): TKMGenTerrainInfo;
+function TKMResSprites.GetGenTerrainInfoLegacy13570(aTerrain: Integer): TKMGenTerrainInfoBase;
 begin
-  Assert(aTerrain + 1 - fGenTexIdStartILegacy < Length(fGenTerrainToTerKindLegacy),
-         Format('Trying to get terrain info LEGACY out of range: TileID = %d, GenStart = %d, GenTerrain arr length = %d',
-                [aTerrain, fGenTexIdStartILegacy, Length(fGenTerrainToTerKindLegacy)]));
+  Assert(aTerrain + 1 - fGenTexIdStartILegacy13570 < Length(fGenTerToTerKindLegacy13570),
+         Format('Trying to get terrain info LEGACY 13570 out of range: TileID = %d, GenStart = %d, GenTerrain arr length = %d',
+                [aTerrain, fGenTexIdStartILegacy13570, Length(fGenTerToTerKindLegacy13570)]));
 
-  Result := fGenTerrainToTerKindLegacy[aTerrain + 1 - fGenTexIdStartILegacy]; //TexId is 1-based, but textures we use - 0 based
+  Result := fGenTerToTerKindLegacy13570[aTerrain + 1 - fGenTexIdStartILegacy13570]; //TexId is 1-based, but textures we use - 0 based
+end;
+
+
+function TKMResSprites.GetGenTerrainInfoLegacy10745(aTerrain: Integer): TKMGenTerrainInfoBase;
+begin
+  Assert(aTerrain + 1 - fGenTexIdStartILegacy10745 < Length(fGenTerToTerKindLegacy10745),
+         Format('Trying to get terrain info LEGACY 10745 out of range: TileID = %d, GenStart = %d, GenTerrain arr length = %d',
+                [aTerrain, fGenTexIdStartILegacy10745, Length(fGenTerToTerKindLegacy10745)]));
+
+  Result := fGenTerToTerKindLegacy10745[aTerrain + 1 - fGenTexIdStartILegacy10745]; //TexId is 1-based, but textures we use - 0 based
 end;
 
 
@@ -1743,6 +1916,7 @@ begin
   begin
     GenerateTerrainTransitions(fSprites[aRT]);
     GenerateTerrainTransitions(nil, gttLegacy10745); //To get support for maps rev <= 10745
+    GenerateTerrainTransitions(nil, gttLegacy13570); //To get support for maps 10745 < rev <= 13570
   end;
 end;
 

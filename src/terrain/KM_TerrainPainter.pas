@@ -896,7 +896,7 @@ begin
         else
           for L := 0 to tile.LayersCnt - 1 do
             if tile.Layer[L].Corner[I] then
-              aCornersTerKinds[I] := gRes.Sprites.GetGenTerrainInfo(tile.Layer[L].Terrain).TerKind;
+              aCornersTerKinds[I] := gRes.Sprites.GetGenTerrainInfo(tile.Layer[L].Terrain).BaseTerKind;
       end;
   end;
 end;
@@ -1334,7 +1334,7 @@ procedure TKMTerrainPainter.MagicBrush(const X,Y: Integer; aMaskKind: TKMTileMas
 
         for I := 1 to LayersCnt do // start from 1, just for convinience
         begin
-          Layer[I-1].Terrain := gGenTerTransitions[LayerOrder[I].TerKind, MaskKind, MaskType, LayerOrder[I].SubType];
+          Layer[I-1].Terrain := gGenTerTransitions2.Items[BASE_TERRAIN[LayerOrder[I].TerKind]][MaskKind, MaskType, LayerOrder[I].SubType, LayerOrder[I].Rotation];
           Layer[I-1].Rotation := LayerOrder[I].Rotation;
           Layer[I-1].SetCorners(LayerOrder[I].Corners);
         end;
@@ -1368,7 +1368,7 @@ begin
                   genInfo := gRes.Sprites.GetGenTerrainInfo(gTerrain.Land^[Y,X].Layer[L].Terrain);
                   if genInfo.Mask.Kind <> aMaskKind then
                     gTerrain.Land^[Y,X].Layer[L].Terrain :=
-                      gGenTerTransitions[genInfo.TerKind, aMaskKind, genInfo.Mask.MType, genInfo.Mask.SubType];
+                      gGenTerTransitions2.Items[genInfo.BaseTile][aMaskKind, genInfo.Mask.MType, genInfo.Mask.SubType, gTerrain.Land^[Y,X].Layer[L].Rotation];
                 end;
     end;
   end;

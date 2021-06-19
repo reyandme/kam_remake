@@ -65,7 +65,7 @@ begin
         gRenderAux.Text(J, I, IntToStr(gTerrain.Land^[I,J].BaseLayer.Terrain) + '-' + IntToStr(gTerrain.Land^[I,J].BaseLayer.Rotation) + customStr,
                         TILE_TERRAIN_LAYERS_COLORS[0], KMPointF(0,-0.3));
         for K := 0 to gTerrain.Land^[I,J].LayersCnt - 1 do
-          gRenderAux.Text(J, I, IntToStr(BASE_TERRAIN[gRes.Sprites.GetGenTerrainInfo(gTerrain.Land^[I,J].Layer[K].Terrain).TerKind])
+          gRenderAux.Text(J, I, IntToStr(gRes.Sprites.GetGenTerrainInfo(gTerrain.Land^[I,J].Layer[K].Terrain).BaseTile)
                           + '*' + IntToStr(gTerrain.Land^[I,J].Layer[K].Rotation),
                           TILE_TERRAIN_LAYERS_COLORS[K+1], KMPointF(0,-0.3 + 0.7*(K+1)/cnt));
       end;
@@ -108,7 +108,7 @@ begin
           for L := 0 to LayersCnt - 1 do
             if Layer[L].Corner[K] then
               gRenderAux.TextAtCorner(J, I, K,
-                                      IntToStr(BASE_TERRAIN[gRes.Sprites.GetGenTerrainInfo(Layer[L].Terrain).TerKind]),
+                                      IntToStr(gRes.Sprites.GetGenTerrainInfo(Layer[L].Terrain).BaseTile),
                                       TILE_TERRAIN_LAYERS_COLORS[L+1]);
         end;
     end;

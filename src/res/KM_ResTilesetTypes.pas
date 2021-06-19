@@ -108,11 +108,11 @@ type
 const
   TER_KIND_ORDER: array[tkCustom..tkLava] of Integer =
     (0,1,2,3,4,5,6,7,8,9,10,11,
-      -1,    // To make Water/FastWater-GrassyWater transition possible with layers we need GrassyWater to be above Water because of animation (water above grassy anim looks ugly)
+      12,//-1,    // To make Water/FastWater-GrassyWater transition possible with layers we need GrassyWater to be above Water because of animation (water above grassy anim looks ugly)
       13,
-      -2,
+      14,//-2,
       15,16,17,18,19,20,21,22,23,24,25,26,
-      -4,-3, // Put GrassyWater/Water/FastWater always to the base layer, because of animation
+      27,28,//-4,-3, // Put GrassyWater/Water/FastWater always to the base layer, because of animation
       29);
 
   BASE_TERRAIN: array[TKMTerrainKind] of Word = //tkCustom..tkLava] of Word =
@@ -238,11 +238,13 @@ type
     // Not Saved
     fMainColor: TKMColor3b;
     function GetHasAnim: Boolean;
+    function GetAnimsCnt: Integer;
   public
     Animation: TKMTileAnim;
     TerKinds: TKMTerrainKindCorners; //Corners: LeftTop - RightTop - RightBottom - LeftBottom
 
     property HasAnim: Boolean read GetHasAnim;
+    property AnimsCnt: Integer read GetAnimsCnt;
     property MainColor: TKMColor3b read fMainColor write fMainColor;
 //  published // for serialization / deserialization. Will automatically add {M+} to use RTTI
     property ID: Integer read fID write fID;
@@ -310,15 +312,29 @@ begin
 
   Result := Anims[(aAnimStep div Frames) mod AnimsCnt];
 
-  if Result = 0 then Exit;
+//  if Result = 0 then Exit;
 
   // -1 because of difference in 0-based and 1-based in tiles numbering
   // todo: refactor it to 0-based
-  Dec(Result);
+//  Dec(Result);
 end;
 
 
 { TKMTileParams }
+function TKMTileParams.GetAnimsCnt: Integer;
+var
+  I: Integer;
+begin
+  if not Animation.HasAnim then Exit(0);
+
+  Result := 0;
+
+  for I := 0 to Animation.LayersCnt - 1 do
+    Inc(Result, Animation.Layers[I].AnimsCnt);
+
+end;
+
+
 function TKMTileParams.GetHasAnim: Boolean;
 begin
   Result := Animation.HasAnim;

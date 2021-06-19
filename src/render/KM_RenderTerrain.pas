@@ -319,9 +319,9 @@ var
     end;
   end;
 
-  function TryAddAnimTex(var aAnimCnt: Integer; aTX, aTY: Word; aAnimStep: Integer): Boolean;
+  procedure TryAddAnimTex(var aAnimCnt: Integer; aTX, aTY: Word; aAnimStep: Integer);
 
-    function SetAnimTileVertex(aTerrain: Word; aRotation: Byte): Boolean;
+    procedure SetAnimTileVertex(aTerrain: Word; aRotation: Byte);
     var
       I: Integer;
       texAnimC: TUVRect;
@@ -329,15 +329,13 @@ var
       tile: TKMTileParams;
     begin
       tile := gRes.Tileset[aTerrain];
-      if not tile.HasAnim then Exit(False);
-
-      Result := False;
+      if not tile.HasAnim then Exit;
 
       for I := Low(tile.Animation.Layers) to High(tile.Animation.Layers) do
       begin
         if not tile.Animation.Layers[I].HasAnim then Continue;
 
-        texAnimC := GetTileUV(tile.Animation.Layers[I].GetAnim(aAnimStep), aRotation mod 4);
+        texAnimC := GetTileUV(tile.Animation.Layers[I].GetAnim(aAnimStep) - 1, aRotation mod 4);
 
         vtxOffset := aAnimCnt * 4;
         indOffset := aAnimCnt * 6;
@@ -355,20 +353,58 @@ var
         fAnimTilesInd[indOffset+5] := vtxOffset + 2;
 
         Inc(aAnimCnt);
-        Result := True;
+        end;
+    end;
+
+    procedure SetAnimTileVertex2(aGenInfo: TKMGenTerrainInfo; aRotation: Byte);
+    var
+      I: Integer;
+      animID, animTransID: Word;
+      texAnimC: TUVRect;
+      vtxOffset, indOffset: Integer;
+      tile: TKMTileParams;
+      transitions: TKMGenTransitions;
+    begin
+      tile := gRes.Tileset[aGenInfo.BaseTile];
+      if not tile.HasAnim then Exit;
+
+      aRotation := (aRotation + 1)*1 - 1;
+
+      for I := Low(tile.Animation.Layers) to High(tile.Animation.Layers) do
+      begin
+        if not tile.Animation.Layers[I].HasAnim then Continue;
+
+        animID := tile.Animation.Layers[I].GetAnim(aAnimStep);
+        animTransID := gGenTerTransitions2.Items[animID][aGenInfo.Mask.Kind, aGenInfo.Mask.MType, aGenInfo.Mask.SubType, aRotation];
+
+        texAnimC := GetTileUV(animTransID, aRotation mod 4);
+
+        vtxOffset := aAnimCnt * 4;
+        indOffset := aAnimCnt * 6;
+
+        SetTileVertex(fAnimTilesVtx[vtxOffset],   aTX-1, aTY-1, False, texAnimC[1][1], texAnimC[1][2]);
+        SetTileVertex(fAnimTilesVtx[vtxOffset+1], aTX-1, aTY,   True,  texAnimC[2][1], texAnimC[2][2]);
+        SetTileVertex(fAnimTilesVtx[vtxOffset+2], aTX,   aTY,   True,  texAnimC[3][1], texAnimC[3][2]);
+        SetTileVertex(fAnimTilesVtx[vtxOffset+3], aTX,   aTY-1, False, texAnimC[4][1], texAnimC[4][2]);
+
+        fAnimTilesInd[indOffset+0] := vtxOffset;
+        fAnimTilesInd[indOffset+1] := vtxOffset + 1;
+        fAnimTilesInd[indOffset+2] := vtxOffset + 2;
+        fAnimTilesInd[indOffset+3] := vtxOffset;
+        fAnimTilesInd[indOffset+4] := vtxOffset + 3;
+        fAnimTilesInd[indOffset+5] := vtxOffset + 2;
+
+        Inc(aAnimCnt);
         end;
     end;
 
   var
     L: Integer;
   begin
-    Result := SetAnimTileVertex(gTerrain.Land^[aTY,aTX].BaseLayer.Terrain, gTerrain.Land^[aTY,aTX].BaseLayer.Rotation);
+    SetAnimTileVertex(gTerrain.Land^[aTY,aTX].BaseLayer.Terrain, gTerrain.Land^[aTY,aTX].BaseLayer.Rotation);
     for L := 0 to gTerrain.Land^[aTY,aTX].LayersCnt - 1 do
-      if not Result then
-        Result := SetAnimTileVertex(BASE_TERRAIN[gRes.Sprites.GetGenTerrainInfo(gTerrain.Land^[aTY,aTX].Layer[L].Terrain).TerKind],
-                                    gTerrain.Land^[aTY,aTX].Layer[L].Rotation)
-      else
-        Exit;
+      SetAnimTileVertex2(gRes.Sprites.GetGenTerrainInfo(gTerrain.Land^[aTY,aTX].Layer[L].Terrain),
+                         gTerrain.Land^[aTY,aTX].Layer[L].Rotation);
   end;
 
 var
@@ -707,7 +743,7 @@ begin
                 texC := GetTileUV(Layer[L].Terrain, Layer[L].Rotation);
                 terInfo := gRes.Sprites.GetGenTerrainInfo(Layer[L].Terrain);
 
-                if terInfo.TerKind = tkCustom then
+                if terInfo.BaseTerKind = tkCustom then
                   Exit;
 
                 if BlendingLvl > 0 then
@@ -1249,12 +1285,12 @@ begin
   //It was 'unlit water goes above lit sand'
   //But there is no big difference there, that is why, to make possible transitions with water,
   //Animations was put before DoLighting
-  DoAnimations(aAnimStep, aFOW);
+//  DoAnimations(aAnimStep, aFOW);
   //TileLayers after water, as water with animation is always base layer
   DoTilesLayers(aFOW);
   DoOverlays(aFOW);
   DoLighting(aFOW);
-//  DoAnimations(aAnimStep, aFOW);
+  DoAnimations(aAnimStep, aFOW);
   DoShadows(aFOW);
 
   {$IFDEF PERFLOG}

@@ -172,6 +172,7 @@ begin
 
   fCursors := TKMResCursors.Create;
 
+  fTileset := TKMResTileset.Create;
   fUnits := TKMResUnits.Create; // Load units prior to Sprites, as we could use it on SoftenShadows override for png in Sprites folder
   fSprites.LoadMenuResources;
 
@@ -185,7 +186,6 @@ begin
 
   LoadLocaleAndFonts(aLocale, aLoadFullFonts);
 
-  fTileset := TKMResTileset.Create;
   if not SKIP_RENDER then
   begin
     tileColors := fSprites.Sprites[rxTiles].GetSpriteColors(TILES_CNT);

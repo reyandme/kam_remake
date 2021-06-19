@@ -221,9 +221,18 @@ type
     LoadingTextID: Word;
   end;
 
-  TKMGenTerrainInfo = record
+  TKMGenTerrainInfoBase = record
     TerKind: TKMTerrainKind;
     Mask: TKMMaskFullType;
+  end;
+
+  TKMGenTerrainInfo = record
+  private
+    function GetBaseTerKind: TKMTerrainKind;
+  public
+    BaseTile: Word;
+    Mask: TKMMaskFullType;
+    property BaseTerKind: TKMTerrainKind read GetBaseTerKind;
   end;
 
 // ResSprites Types
@@ -275,5 +284,21 @@ var
 
 
 implementation
+
+{ TKMGenTerrainInfo }
+
+function TKMGenTerrainInfo.GetBaseTerKind: TKMTerrainKind;
+var
+  TK: TKMTerrainKind;
+begin
+  for TK := Succ(tkCustom) to High(TKMTerrainKind) do
+  begin
+    if BASE_TERRAIN[TK] = BaseTile then
+      Exit(TK);
+  end;
+
+  Result := tkCustom;
+end;
+
 
 end.
