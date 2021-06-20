@@ -2350,7 +2350,7 @@ begin
         H.SetDeliveryModeInstantly(TKMDeliveryMode(aDeliveryMode));
     end
     else
-      LogParamWarning('Actions.HouseDeliveryState', [aHouseID, aDeliveryMode]);
+      LogParamWarning('Actions.HouseDeliveryMode', [aHouseID, aDeliveryMode]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

@@ -666,6 +666,7 @@ begin
     RegisterMethodCheck(c, 'function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
     RegisterMethodCheck(c, 'procedure HouseBarracksGiveRecruit(aHouseID: Integer)');
     RegisterMethodCheck(c, 'procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseDeliveryMode(aHouseID: Integer; aDeliveryMode: Byte)');
     RegisterMethodCheck(c, 'procedure HouseDestroy(aHouseID: Integer; aSilent: Boolean)');
     RegisterMethodCheck(c, 'procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean)');
     RegisterMethodCheck(c, 'procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
@@ -1346,6 +1347,7 @@ begin
       RegisterMethod(@TKMScriptActions.HouseBarracksEquip,                      'HouseBarracksEquip');
       RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruit,                'HouseBarracksGiveRecruit');
       RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,                      'HouseDeliveryBlock');
+      RegisterMethod(@TKMScriptActions.HouseDeliveryMode,                       'HouseDeliveryMode');
       RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage,           'HouseDisableUnoccupiedMessage');
       RegisterMethod(@TKMScriptActions.HouseDestroy,                            'HouseDestroy');
       RegisterMethod(@TKMScriptActions.HouseRepairEnable,                       'HouseRepairEnable');
