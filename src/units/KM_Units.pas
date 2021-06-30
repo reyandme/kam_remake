@@ -116,6 +116,7 @@ type
     procedure SetAction(aAction: TKMUnitAction; aStep: Integer = 0);
     procedure SetNextPosition(const aLoc: TKMPoint);
     procedure SetPositionRound(const aLoc: TKMPoint);
+    procedure SetPositionRoundByPosF;
     procedure SetCondition(aValue: Integer);
     function CanAccessHome: Boolean;
     procedure SetHome(aHome: TKMHouse);
@@ -1047,7 +1048,7 @@ function TKMUnitAnimal.UpdateState: Boolean;
 begin
   Result := True; //Required for override compatibility
 
-  SetPositionRound(KMPointRound(fPositionF));
+  SetPositionRoundByPosF;
 
   if fAction = nil then
     raise ELocError.Create(gRes.Units[UnitType].GUIName + ' has no action at start of TKMUnitAnimal.UpdateState', fPositionRound);
@@ -1064,7 +1065,7 @@ begin
   else
     FreeAndNil(fAction);
   end;
-  SetPositionRound(KMPointRound(fPositionF));
+  SetPositionRoundByPosF;
 
 
   Assert((fTask = nil) or (fTask is TKMTaskDie));
@@ -1602,8 +1603,11 @@ end;
 
 
 procedure TKMUnit.SetPositionF(const aPositionF: TKMPointF);
+const
+  POS_ROUND_TO_DIGIT = -3;
+  POS_BASE = 0.001;
 begin
-  fPositionF := aPositionF;
+  fPositionF := aPositionF; //KMPointFRoundTo(aPositionF, POS_BASE);
 end;
 
 
@@ -1621,6 +1625,19 @@ begin
     gHands.RevealForTeam(Owner, aLoc, gRes.Units[fType].Sight, FOG_OF_WAR_MAX);
 
   fPositionRound := aLoc;
+end;
+
+
+procedure TKMUnit.SetPositionRoundByPosF;
+var
+  P: TKMPoint;
+begin
+  if KMLengthSqr(fPrevPosition, fPositionF) < KMLengthSqr(fNextPosition, fPositionF) then
+    P := fPrevPosition
+  else
+    P := fNextPosition;
+
+  SetPositionRound(P);
 end;
 
 
@@ -2468,12 +2485,12 @@ begin
   if fAction = nil then
     raise ELocError.Create(gRes.Units[UnitType].GUIName + ' has no action in TKMUnit.UpdateState', fPositionRound);
 
-  SetPositionRound(KMPointRound(fPositionF)); //will update FOW
+  SetPositionRoundByPosF; //will update FOW
 
   actResult := fAction.Execute;
   case actResult of
     arActContinues:     begin
-                          SetPositionRound(KMPointRound(fPositionF)); //will update FOW
+                          SetPositionRoundByPosF; //will update FOW
                           Exit;
                         end;
     arActAborted:       begin
@@ -2487,7 +2504,7 @@ begin
                         end;
     arActDone:          FreeAndNil(fAction);
   end;
-  SetPositionRound(KMPointRound(fPositionF)); //will update FOW
+  SetPositionRoundByPosF; //will update FOW
 
   if fTask <> nil then
   begin

@@ -402,12 +402,14 @@ end;
 
 
 function TKMUnitSpec.GetEffectiveSpeed(aMovementType: TKMUnitMoveType): Single;
+const
+  ADD = 0.01;
 begin
   case aMovementType of
-    umtWalk:      Result := 1 / fUnitSpecInfo.StepsPerTile;
-    umtWalkDiag:  Result := 1 / fUnitSpecInfo.StepsPerTileDiag;
-    umtStorm:     Result := 1 / fUnitSpecInfo.StepsPerTileStorm;
-    umtStormDiag: Result := 1 / fUnitSpecInfo.StepsPerTileStormDiag;
+    umtWalk:      Result := 1 / (fUnitSpecInfo.StepsPerTile + ADD);
+    umtWalkDiag:  Result := 1 / (fUnitSpecInfo.StepsPerTileDiag + ADD);
+    umtStorm:     Result := 1 / (fUnitSpecInfo.StepsPerTileStorm + ADD);
+    umtStormDiag: Result := 1 / (fUnitSpecInfo.StepsPerTileStormDiag + ADD);
   else
     raise Exception.Create('Unexpected type');
   end;
