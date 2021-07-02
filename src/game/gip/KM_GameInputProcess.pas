@@ -134,6 +134,7 @@ type
     gicpt_Int2,
     gicpt_Int3,
     gicpt_Int1Word3,
+    gicpt_Int1SmInt3,
     gicpt_AnsiStr1,
     gicpt_Ansi1Int2,
     gicpt_Ansi1Int3,
@@ -214,7 +215,7 @@ const
     gicpt_Int2,     // gicArmyAttackHouse
     gicpt_Int1,     // gicArmyHalt
     gicpt_Int3,     // gicArmyFormation
-    gicpt_Int1Word3,// gicArmyWalk
+    gicpt_Int1SmInt3,// gicArmyWalk
     gicpt_Int1,     // gicArmyStorm
     //II.      Unit commands
     gicpt_Int1,     // gicUnitDismiss
@@ -254,7 +255,7 @@ const
     gicpt_Int3,     // gicWareDistributionChange
     gicpt_AnsiStr1, // gicWareDistributions
     //VI.      Game changes
-    gicpt_Int1Word3,// gicGameAlertBeacon
+    gicpt_Int1SmInt3,// gicGameAlertBeacon
     gicpt_NoParams, // gicGamePause
     gicpt_Float,    // gicGameSpeed
     gicpt_Date,     // gicGameAutoSave
@@ -279,14 +280,16 @@ const
     gicpt_NoParams  // gicTempDoNothing
   );
 
+const
+  GIC_PACKED_DATA_SIZE = 12; //Bytes in the stored GIC command
+
 type
-
-
   TKMGameInputCommand = record
     CommandType: TKMGameInputCommandType;
     HandIndex: TKMHandID; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
-    IntParams: array[0..MAX_PARAMS - 1] of Integer;
-    WordParams: array[0..4] of Word;
+    IntParams: array[0..GIC_PACKED_DATA_SIZE div 4] of Integer;
+    WordParams: array[0..GIC_PACKED_DATA_SIZE div 2] of Word;
+    SmallIntParams: array[0..GIC_PACKED_DATA_SIZE div 2] of SmallInt;
     FloatParam: Single;
     AnsiStrParam: AnsiString;
     UnicodeStrParams: TKMScriptCommandParamsArray;
@@ -299,8 +302,6 @@ type
   procedure SaveCommandToMemoryStream(const aCommand: TKMGameInputCommand; aMemoryStream: TKMemoryStream); inline;
   procedure LoadCommandFromMemoryStream(out aCommand: TKMGameInputCommand; aMemoryStream: TKMemoryStream); inline;
 
-const
-  GIC_PACKED_DATA_SIZE = 12; //Bytes in the stored GIC command
 
 type
   TKMGicDataPacked = packed record
@@ -309,11 +310,12 @@ type
     case Integer of
       0: (Integers:   array [0..(GIC_PACKED_DATA_SIZE div 4)-1] of Integer);
       1: (Words:      array [0..(GIC_PACKED_DATA_SIZE div 2)-1] of Word);
-      2: (Bytes:      array [0.. GIC_PACKED_DATA_SIZE-1] of Byte);
-      3: (AnsiChars:  array [0.. GIC_PACKED_DATA_SIZE-1] of AnsiChar);
-      4: (WideChars:  array [0..(GIC_PACKED_DATA_SIZE div 2)-1] of WideChar);
-      5: (Singles:    array [0..(GIC_PACKED_DATA_SIZE div 4)-1] of Single);
-      6: (DateT: TDateTime);
+      2: (SmallInts:  array [0..(GIC_PACKED_DATA_SIZE div 2)-1] of SmallInt);
+      3: (Bytes:      array [0.. GIC_PACKED_DATA_SIZE-1] of Byte);
+      4: (AnsiChars:  array [0.. GIC_PACKED_DATA_SIZE-1] of AnsiChar);
+      5: (WideChars:  array [0..(GIC_PACKED_DATA_SIZE div 2)-1] of WideChar);
+      6: (Singles:    array [0..(GIC_PACKED_DATA_SIZE div 4)-1] of Single);
+      7: (DateT: TDateTime);
   end;
 
   // Packed GIC commmand - contains Data field with any data type in it
@@ -367,7 +369,8 @@ type
     function MakeCommand(aGIC: TKMGameInputCommandType; const aParam1: Integer): TKMGameInputCommand; overload;
     function MakeCommand(aGIC: TKMGameInputCommandType; const aParam1, aParam2: Integer): TKMGameInputCommand; overload;
     function MakeCommand(aGIC: TKMGameInputCommandType; const aParam1, aParam2, aParam3: Integer): TKMGameInputCommand; overload;
-    function MakeCommand(aGIC: TKMGameInputCommandType; const aParam1: Integer; const aParam2, aParam3, aParam4: Word): TKMGameInputCommand; overload;
+    function MakeCommandW(aGIC: TKMGameInputCommandType; const aParam1: Integer; const aParam2, aParam3, aParam4: Word): TKMGameInputCommand;
+    function MakeCommandSmI(aGIC: TKMGameInputCommandType; const aParam1: Integer; const aParam2, aParam3, aParam4: SmallInt): TKMGameInputCommand; overload;
     function MakeCommand(aGIC: TKMGameInputCommandType; const aAnsiTxtParam: AnsiString; const aParam1, aParam2: Integer): TKMGameInputCommand; overload;
     function MakeCommand(aGIC: TKMGameInputCommandType; const aAnsiTxtParam: AnsiString; const aParam1, aParam2, aParam3: Integer): TKMGameInputCommand; overload;
     function MakeCommandNoHand(aGIC: TKMGameInputCommandType; const aParam1: Single): TKMGameInputCommand;
@@ -512,6 +515,12 @@ begin
                           aMemoryStream.Write(WordParams[1]);
                           aMemoryStream.Write(WordParams[2]);
                         end;
+      gicpt_Int1SmInt3: begin
+                          aMemoryStream.Write(IntParams[0]);
+                          aMemoryStream.Write(SmallIntParams[0]);
+                          aMemoryStream.Write(SmallIntParams[1]);
+                          aMemoryStream.Write(SmallIntParams[2]);
+                        end;
       gicpt_AnsiStr1:   aMemoryStream.WriteA(AnsiStrParam);
       gicpt_Ansi1Int2:  begin
                           aMemoryStream.Write(IntParams[0]);
@@ -562,6 +571,12 @@ begin
                           aMemoryStream.Read(WordParams[0]);
                           aMemoryStream.Read(WordParams[1]);
                           aMemoryStream.Read(WordParams[2]);
+                        end;
+      gicpt_Int1SmInt3: begin
+                          aMemoryStream.Read(IntParams[0]);
+                          aMemoryStream.Read(SmallIntParams[0]);
+                          aMemoryStream.Read(SmallIntParams[1]);
+                          aMemoryStream.Read(SmallIntParams[2]);
                         end;
       gicpt_AnsiStr1:   aMemoryStream.ReadA(AnsiStrParam);
       gicpt_Ansi1Int2:  begin
@@ -615,6 +630,7 @@ begin
       gicpt_Int2:       Result := Result + Format('[%10d,%10d]', [IntParams[0], IntParams[1]]);
       gicpt_Int3:       Result := Result + Format('[%10d,%10d,%10d]', [IntParams[0], IntParams[1], IntParams[2]]);
       gicpt_Int1Word3:  Result := Result + Format('[%10d,%10d,%10d,%10d]', [IntParams[0], WordParams[0], WordParams[1], WordParams[2]]);
+      gicpt_Int1SmInt3: Result := Result + Format('[%10d,%10d,%10d,%10d]', [IntParams[0], SmallIntParams[0], SmallIntParams[1], SmallIntParams[2]]);
       gicpt_AnsiStr1:   Result := Result + Format('[%s]', [AnsiStrParam]);
       gicpt_Ansi1Int2:  Result := Result + Format('[%s,%10d,%10d]', [AnsiStrParam, IntParams[0], IntParams[1]]);
       gicpt_Ansi1Int3:  Result := Result + Format('[%s,%10d,%10d,%10d]', [AnsiStrParam, IntParams[0], IntParams[1], IntParams[2]]);
@@ -713,7 +729,7 @@ begin
 end;
 
 
-function TKMGameInputProcess.MakeCommand(aGIC: TKMGameInputCommandType; const aParam1: Integer; const aParam2, aParam3, aParam4: Word): TKMGameInputCommand;
+function TKMGameInputProcess.MakeCommandW(aGIC: TKMGameInputCommandType; const aParam1: Integer; const aParam2, aParam3, aParam4: Word): TKMGameInputCommand;
 begin
   Assert(COMMAND_PACK_TYPES[aGIC] = gicpt_Int1Word3,
          Format('Wrong packing type for command %s: Expected: gicpt_Int1Word3 Actual: [%s]',
@@ -724,6 +740,20 @@ begin
   Result.WordParams[0] := aParam2;
   Result.WordParams[1] := aParam3;
   Result.WordParams[2] := aParam4;
+end;
+
+
+function TKMGameInputProcess.MakeCommandSmI(aGIC: TKMGameInputCommandType; const aParam1: Integer; const aParam2, aParam3, aParam4: SmallInt): TKMGameInputCommand;
+begin
+  Assert(COMMAND_PACK_TYPES[aGIC] = gicpt_Int1SmInt3,
+         Format('Wrong packing type for command %s: Expected: gicpt_Int1SmInt3 Actual: [%s]',
+                [GetEnumName(TypeInfo(TKMGameInputCommandType), Integer(aGIC)),
+                 GetEnumName(TypeInfo(TKMGameInputCommandPackType), Integer(COMMAND_PACK_TYPES[aGIC]))]));
+  Result := MakeEmptyCommand(aGIC);
+  Result.IntParams[0] := aParam1;
+  Result.SmallIntParams[0] := aParam2;
+  Result.SmallIntParams[1] := aParam3;
+  Result.SmallIntParams[2] := aParam4;
 end;
 
 
@@ -938,7 +968,7 @@ begin
       gicArmyAttackHouse:  srcGroup.OrderAttackHouse(tgtHouse, True);
       gicArmyHalt:         srcGroup.OrderHalt(True);
       gicArmyFormation:    srcGroup.OrderFormation(TKMTurnDirection(IntParams[1]),IntParams[2], True);
-      gicArmyWalk:         srcGroup.OrderWalk(KMPoint(WordParams[0],WordParams[1]), True, wtokPlayerOrder, TKMDirection(WordParams[2]));
+      gicArmyWalk:         srcGroup.OrderWalk(KMPoint(SmallIntParams[0], SmallIntParams[1]), True, wtokPlayerOrder, TKMDirection(SmallIntParams[2]));
 
       gicUnitDismiss:        srcUnit.Dismiss;
       gicUnitDismissCancel:  srcUnit.DismissCancel;
@@ -1064,9 +1094,9 @@ var
 var
   doAddBeacon: Boolean;
 begin
-  handId := aCommand.WordParams[2] - HAND_ID_AS_WORD_ADJ;
+  handId := aCommand.SmallIntParams[2];
   // Beacon script event must always be run by all players for consistency
-  gScriptEvents.ProcBeacon(handId, 1 + (aCommand.WordParams[0] div 10), 1 + (aCommand.WordParams[1] div 10));
+  gScriptEvents.ProcBeacon(handId, 1 + (aCommand.SmallIntParams[0] div 10), 1 + (aCommand.SmallIntParams[1] div 10));
 
   doAddBeacon := False;
 
@@ -1082,8 +1112,8 @@ begin
   end;
 
   if doAddBeacon then
-    gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(aCommand.WordParams[0]/10,
-                                                      aCommand.WordParams[1]/10),
+    gGame.GamePlayInterface.Alerts.AddBeacon(KMPointF(aCommand.SmallIntParams[0]/10,
+                                                      aCommand.SmallIntParams[1]/10),
                                                       handId,
                                                       (aCommand.IntParams[0] or $FF000000),
                                                       gGameApp.GlobalTickCount + ALERT_DURATION[atBeacon]);
@@ -1128,7 +1158,7 @@ end;
 procedure TKMGameInputProcess.CmdArmy(aCommandType: TKMGameInputCommandType; aGroup: TKMUnitGroup; const aLoc: TKMPoint; aDirection: TKMDirection);
 begin
   Assert(aCommandType = gicArmyWalk);
-  TakeCommand(MakeCommand(aCommandType, aGroup.UID, aLoc.X, aLoc.Y, Byte(aDirection)));
+  TakeCommand(MakeCommandSmI(aCommandType, aGroup.UID, aLoc.X, aLoc.Y, SmallInt(aDirection)));
 end;
 
 
@@ -1279,7 +1309,7 @@ end;
 
 procedure TKMGameInputProcess.CmdGameBeacon(const aLocF: TKMPointF; aOwner: TKMHandID; aColor: Cardinal);
 begin
-  TakeCommand(MakeCommand(gicGameAlertBeacon, Integer(aColor and $FFFFFF), Round(aLocF.X * 10), Round(aLocF.Y * 10), aOwner + HAND_ID_AS_WORD_ADJ));
+  TakeCommand(MakeCommandSmI(gicGameAlertBeacon, Integer(aColor and $FFFFFF), Round(aLocF.X * 10), Round(aLocF.Y * 10), aOwner));
 end;
 
 
@@ -1637,6 +1667,7 @@ begin
     gicpt_Int2:       Result := Result + Format('[%10d,%10d]', [Data.Integers[0], Data.Integers[1]]);
     gicpt_Int3:       Result := Result + Format('[%10d,%10d,%10d]', [Data.Integers[0], Data.Integers[1], Data.Integers[2]]);
     gicpt_Int1Word3:  Result := Result + Format('[%10d,%10d,%10d,%10d]', [Data.Integers[0], Data.Words[2], Data.Words[3], Data.Words[4]]);
+    gicpt_Int1SmInt3: Result := Result + Format('[%10d,%10d,%10d,%10d]', [Data.Integers[0], Data.SmallInts[2], Data.SmallInts[3], Data.SmallInts[4]]);
     gicpt_AnsiStr1:   Result := Result + Format('[%s]', [ReplaceStr(Data.AsAnsiString(0), #0, '#')]);
     gicpt_Ansi1Int2:  Result := Result + Format('[%s]', [ReplaceStr(Data.AsAnsiString(0), #0, '#')]);
     gicpt_Ansi1Int3:  Result := Result + Format('[%s]', [ReplaceStr(Data.AsAnsiString(0), #0, '#')]);
@@ -1813,6 +1844,11 @@ begin
                             for I := 0 to 2 do
                               WordParams[I] := Data.Words[I+2];
                           end;
+        gicpt_Int1SmInt3: begin
+                            IntParams[0] := Data.Integers[0];
+                            for I := 0 to 2 do
+                              SmallIntParams[I] := Data.SmallInts[I+2];
+                          end;
         gicpt_AnsiStr1:   Result := ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 0);
         gicpt_Ansi1Int2:  Result := ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 2);
         gicpt_Ansi1Int3:  Result := ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 3);
@@ -1939,6 +1975,13 @@ begin
 
                           AddStoredGic(storedGic, aGicCommand);
                         end;
+      gicpt_Int1SmInt3: begin
+                          storedGic.Data.Integers[0] := IntParams[0];
+                          for I := 0 to 2 do
+                            storedGic.Data.SmallInts[I+2] := SmallIntParams[I];
+
+                          AddStoredGic(storedGic, aGicCommand);
+                        end;
       gicpt_AnsiStr1:   AddAnsiString(aGicCommand.AnsiStrParam, storedGic, 0, 0);
       gicpt_Ansi1Int2:  AddStoredWithParamsAndAnsi(2, aGicCommand.AnsiStrParam, storedGic);
       gicpt_Ansi1Int3:  AddStoredWithParamsAndAnsi(3, aGicCommand.AnsiStrParam, storedGic);
@@ -1977,6 +2020,7 @@ begin
   HandIndex := 0;
   FillChar(IntParams, SizeOf(IntParams), #0);
   FillChar(WordParams, SizeOf(WordParams), #0);
+  FillChar(SmallIntParams, SizeOf(SmallIntParams), #0);
   FillChar(FloatParam, SizeOf(FloatParam), #0);
   AnsiStrParam := '';
   for I := 0 to High(UnicodeStrParams) do

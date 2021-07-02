@@ -97,6 +97,7 @@ type
   function KMNormVector(const P: TKMPoint; R: Integer): TKMPoint;
 
   function KMPointRound(const P: TKMPointF): TKMPoint;
+  function KMPointFRoundTo(const P: TKMPointF; aBase: Single): TKMPointF;
   function KMSamePoint(const P1,P2: TKMPoint): Boolean; overload;
   function KMSamePointF(const P1,P2: TKMPointF): Boolean; overload;
   function KMSamePointF(const P1,P2: TKMPointF; Epsilon: Single): Boolean; overload;
@@ -181,6 +182,7 @@ type
   function KMLengthDiag(X,Y: Integer; const B: TKMPoint): Single; overload;
   function KMLengthSqr(const A, B: TKMPoint): Integer; overload;
   function KMLengthSqr(const A, B: TKMPointF): Single; overload;
+  function KMLengthSqr(const A: TKMPoint; const B: TKMPointF): Single; overload;
 
   function KMLerp(const A,B: TKMPoint; MixValue: Single): TKMPointF; overload;
   function KMLerp(const A,B: TKMPointF; MixValue: Single): TKMPointF; overload;
@@ -223,7 +225,8 @@ const
 
 implementation
 uses
-  SysUtils, TypInfo, Math, KM_Defaults, KM_CommonUtils;
+  SysUtils, TypInfo, Math,
+  KM_Defaults, KM_CommonUtils;
 
 
 class function TKMPoint.New(aX, aY: Integer): TKMPoint;
@@ -436,6 +439,13 @@ function KMPointRound(const P: TKMPointF): TKMPoint;
 begin
   Result.X := Round(P.X);
   Result.Y := Round(P.Y);
+end;
+
+
+function KMPointFRoundTo(const P: TKMPointF; aBase: Single): TKMPointF;
+begin
+  Result.X := Round(P.X / aBase) * aBase;
+  Result.Y := Round(P.Y / aBase) * aBase;
 end;
 
 
@@ -1077,6 +1087,12 @@ end;
 
 
 function KMLengthSqr(const A, B: TKMPointF): Single;
+begin
+  Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
+end;
+
+
+function KMLengthSqr(const A: TKMPoint; const B: TKMPointF): Single;
 begin
   Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
 end;

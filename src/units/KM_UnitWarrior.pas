@@ -715,7 +715,7 @@ begin
     step := (FiringDelay + (gGameParams.Tick - TKMUnitWarrior(Self).LastShootTime)) mod cycle;
 
   if (Action is TKMUnitActionWalkTo) and not TKMUnitActionWalkTo(Action).CanAbandonExternal then
-    raise ELocError.Create('Unit fight overrides walk', fPosition);
+    raise ELocError.Create('Unit fight overrides walk', fPositionRound);
   SetAction(TKMUnitActionFight.Create(Self, aAction, aOpponent), step);
 end;
 
@@ -897,7 +897,7 @@ begin
                         loc := gTerrain.GetClosestTile(fOrderLoc, Position, GetDesiredPassability, fUseExactTarget);
 
                         // No need to walk if we reached destination already
-                        if loc <> fPosition then
+                        if loc <> fPositionRound then
                           SetActionWalkToSpot(loc, uaWalk);
 
                         fNextOrder := woNone;
@@ -1063,7 +1063,7 @@ end;
 function TKMUnitWarrior.UpdateState: Boolean;
 begin
   if fAction = nil then
-    raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at start of TKMUnitWarrior.UpdateState',fPosition);
+    raise ELocError.Create(gRes.Units[UnitType].GUIName+' has no action at start of TKMUnitWarrior.UpdateState', fPositionRound);
 
   if IsDeadOrDying then
   begin

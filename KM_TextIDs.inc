@@ -530,6 +530,7 @@ TX_MAPED_PLAYERS = 412; //Players:
 TX_MAPED_PLAYERS_DEFAULT = 413; //Default human player
 TX_MAPED_PLAYERS_TYPE = 414; //Player types
 TX_MAPED_ALLIANCE_SYMMETRIC = 415; //Symmetrical
+TX_MAPED_ALLIANCE_SYMMETRIC_LBL = 1525; //Only symmetrical alliances are allowed
 TX_MAPED_ALLIANCE = 416; //Alliances
 TX_MAPED_MISSION_TACTIC = 417; //Tactic
 TX_MAPED_MISSION_NORMAL = 418; //Normal

@@ -822,7 +822,10 @@ var
     // Compute sum of polygons
     PolySum := 1;
     for K := 0 to Length(aPLsDefAreas) - 1 do
-      Inc(PolySum, SeparatedDefLines[ aPLsDefAreas[K] ].PolyCnt);
+      if (aPLsDefAreas[K] < length(SeparatedDefLines) ) then
+        Inc(PolySum, SeparatedDefLines[ aPLsDefAreas[K] ].PolyCnt)
+      else // AI cannot walk to the defense position
+        exit;
     // Distribute requirements
     for K := 0 to Length(aPLsDefAreas) - 1 do
       Inc(  DefLinesReq[ aPLsDefAreas[K] ], Round( SeparatedDefLines[ aPLsDefAreas[K] ].PolyCnt / PolySum * aDefPosReq[aIdx] )  );

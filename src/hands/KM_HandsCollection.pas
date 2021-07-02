@@ -860,8 +860,7 @@ begin
         and ((aRequiredWalkConnect = 0) or (gTerrain.GetWalkConnectID(P) = aRequiredWalkConnect)) then
       begin
         aPlacePoint := P; // Assign if all test are passed
-        Result := True;
-        Exit;
+        Exit(True);
       end;
     end;
   end;

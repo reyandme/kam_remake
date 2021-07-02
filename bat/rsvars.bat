@@ -14,6 +14,7 @@ call rsvars_local.bat
 @SET BDS=%BDS_LOCAL%
 @SET BDSCOMMONDIR=%BDSCOMMONDIR_LOCAL%
 @SET ISC_DIR=%ISC_DIR_LOCAL%
+@SET MADEXCEPT_TOOLS=%MADEXCEPT_TOOLS_LOCAL%
 @SET LAZARUS_LINUX=%LAZARUS_LINUX_LOCAL%
 @SET FrameworkDir=%FrameworkDir_LOCAL%
 @SET FrameworkVersion=%FrameworkVersion_LOCAL%
@@ -25,7 +26,7 @@ call rsvars_local.bat
 @SET BuildFullDir=%BuildFullDir_LOCAL%
 @SET KMRVideosDir=%KMRVideosDir_LOCAL%
 @SET ScriptingEditorDir=%ScriptingEditorDir_LOCAL%
-@SET PATH=%FrameworkDir%;%FrameworkSDKDir%;%BDS%\bin;%BDS%\bin64;%PATH%
+@SET PATH=%FrameworkDir%;%FrameworkSDKDir%;%BDS%\bin;%BDS%\bin64;%MADEXCEPT_TOOLS%;%PATH%
 @SET kam_version=Beta
 
 @SET IncludeScriptingEditor=True
