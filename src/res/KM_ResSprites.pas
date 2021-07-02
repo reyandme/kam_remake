@@ -168,7 +168,7 @@ type
   TKMGenTransitions = array[Succ(mkNone)..High(TKMTileMaskKind)]
                         of array[Succ(tmtNone)..High(TKMTileMaskType)]
                           of array[TKMTileMaskSubType] //mask components (subtypes)
-                            of array[0..3] //Terrain Rotation
+//                            of array[0..3] //Terrain Rotation
                               of Word;
 
 var
@@ -1425,7 +1425,7 @@ var
 
   procedure GenTransitions(aTerrainID: Word; aIsBaseTile: Boolean);
   var
-    L, M, K, P, Q: Integer;
+    L, M, {K, }P, Q: Integer;
     tmp, maskId, rxTerID: Word;
     mask: TKMMaskFullType;
     genTerInfoBase: TKMGenTerrainInfoBase;
@@ -1463,7 +1463,7 @@ var
 
           Inc(totalTex);
 
-          for K := 0 to 3 do //Rotation
+//          for K := 0 to 3 do //Rotation
           begin
             // We could use same mask image for several masktypes/subtypes
             if generatedMasks.TryGetValue(maskId, mask) then
@@ -1488,10 +1488,10 @@ var
                                   end;
                                 end;
                 gttActual2:     begin
-                                  tmp := transitions[mask.Kind, mask.MType, mask.SubType, K];
+                                  tmp := transitions[mask.Kind, mask.MType, mask.SubType{, K}];
                                   if tmp <> 0 then
                                   begin
-                                    transitions[MK, MT, MST, K] := tmp;
+                                    transitions[MK, MT, MST{, K}] := tmp;
                                     gLog.AddTime(Format('AGAIN TEX-1 = %d MK = %s, MT = %s, MST = %s', [tmp,
                                                                      GetEnumName(TypeInfo(TKMTileMaskKind), Byte(MK)),
                                                                      GetEnumName(TypeInfo(TKMTileMaskType), Byte(MT)),
@@ -1564,7 +1564,7 @@ var
                                                                      GetEnumName(TypeInfo(TKMTileMaskKind), Byte(MK)),
                                                                      GetEnumName(TypeInfo(TKMTileMaskType), Byte(MT)),
                                                                      GetEnumName(TypeInfo(TKMTileMaskSubType), Byte(MST)) ]));
-                  transitions[MK, MT, MST, K] := texId - 1; //TexId is 1-based, but textures we use - 0 based
+                  transitions[MK, MT, MST{, K}] := texId - 1; //TexId is 1-based, but textures we use - 0 based
                   fGenTerToTerKind2[texId - fGenTexIdStartI2] := genTerInfo;
 
 
@@ -1576,9 +1576,9 @@ var
                   for L := 0 to aSprites.fRXData.Size[rxTerID].Y - 1 do
                     for M := 0 to aSprites.fRXData.Size[rxTerID].X - 1 do
                     begin
-                      Rotate(K, L, M, P, Q, aSprites.fRXData.Size[rxTerID].X - 1);
+//                      Rotate(K, L, M, P, Q, aSprites.fRXData.Size[rxTerID].X - 1);
                       straightPx := L * aSprites.fRXData.Size[rxTerID].X  + M;
-                      rotatePx := P * aSprites.fRXData.Size[rxTerID].X  + Q;
+//                      rotatePx := P * aSprites.fRXData.Size[rxTerID].X  + Q;
 
                       case TILE_MASK_KIND_USAGE[MK] of
                         mkuPixel: maskCol := ($FFFFFF or (aSprites.fRXData.RGBA[maskId, straightPx] shl 24));
@@ -1587,7 +1587,7 @@ var
                         raise Exception.Create('Unexpected type');
                       end;
 
-                      aSprites.fRXData.RGBA[texId, straightPx] := maskCol and aSprites.fRXData.RGBA[rxTerID, {straightPx}rotatePx];
+                      aSprites.fRXData.RGBA[texId, straightPx] := maskCol and aSprites.fRXData.RGBA[rxTerID, straightPx{rotatePx}];
                     end;
                 end;
             end;

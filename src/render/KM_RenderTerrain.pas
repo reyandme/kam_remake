@@ -368,14 +368,14 @@ var
       tile := gRes.Tileset[aGenInfo.BaseTile];
       if not tile.HasAnim then Exit;
 
-      aRotation := (aRotation + 1)*1 - 1;
+//      aRotation := (aRotation + 1)*1 - 1;
 
       for I := Low(tile.Animation.Layers) to High(tile.Animation.Layers) do
       begin
         if not tile.Animation.Layers[I].HasAnim then Continue;
 
         animID := tile.Animation.Layers[I].GetAnim(aAnimStep);
-        animTransID := gGenTerTransitions2.Items[animID][aGenInfo.Mask.Kind, aGenInfo.Mask.MType, aGenInfo.Mask.SubType, aRotation];
+        animTransID := gGenTerTransitions2.Items[animID][aGenInfo.Mask.Kind, aGenInfo.Mask.MType, aGenInfo.Mask.SubType{, aRotation}];
 
         texAnimC := GetTileUV(animTransID, aRotation mod 4);
 
@@ -763,8 +763,61 @@ end;
 
 
 procedure TRenderTerrain.DoAnimations(aAnimStep: Integer; aFOW: TKMFogOfWarCommon);
+
+  procedure RenderTileAnim(aI, aK: Integer; aTileParams: TKMTileParams);
+  var
+    J, animID: Integer;
+    texC: TUVRect;
+  begin
+    if not aTileParams.HasAnim then Exit;
+
+    for J := Low(aTileParams.Animation.Layers) to High(aTileParams.Animation.Layers) do
+    begin
+      if not aTileParams.Animation.Layers[J].HasAnim then Continue;
+
+//      texAnimC := GetTileUV(tile.Animation.Layers[I].GetAnim(aAnimStep) - 1, aRotation mod 4);
+      animID := aTileParams.Animation.Layers[J].GetAnim(aAnimStep);
+      TRender.BindTexture(gGFXData[rxTiles, animID].Tex.ID);
+      texC := GetTileUV(animID - 1, gTerrain.Land^[aI, aK].BaseLayer.Rotation);
+
+      glBegin(GL_TRIANGLE_FAN);
+        glColor4f(1,1,1,1);
+        RenderQuadTexture(texC, aK, aI);
+      glEnd;
+    end;
+  end;
+
+  procedure SetAnimTileVertex2(aI, aK: Integer; aGenInfo: TKMGenTerrainInfo; aRotation: Byte);
+  var
+    I: Integer;
+    animID, animTransID: Word;
+    texC: TUVRect;
+    tile: TKMTileParams;
+    transitions: TKMGenTransitions;
+  begin
+    tile := gRes.Tileset[aGenInfo.BaseTile];
+    if not tile.HasAnim then Exit;
+
+//      aRotation := (aRotation + 1)*1 - 1;
+
+    for I := Low(tile.Animation.Layers) to High(tile.Animation.Layers) do
+    begin
+      if not tile.Animation.Layers[I].HasAnim then Continue;
+
+      animID := tile.Animation.Layers[I].GetAnim(aAnimStep);
+      animTransID := gGenTerTransitions2.Items[animID][aGenInfo.Mask.Kind, aGenInfo.Mask.MType, aGenInfo.Mask.SubType{, aRotation}];
+
+      texC := GetTileUV(animTransID, aRotation mod 4);
+
+      glBegin(GL_TRIANGLE_FAN);
+        glColor4f(1,1,1,1);
+        RenderQuadTexture(texC, aK, aI);
+      glEnd;
+    end;
+  end;
+
 var
-  I, J, K: Integer;
+  I, J, K, L: Integer;
   texC: TUVRect;
   animID: Word;
   tile: TKMTileParams;
@@ -806,24 +859,34 @@ begin
       for I := fClipRect.Top to fClipRect.Bottom do
         for K := fClipRect.Left to fClipRect.Right do
         begin
+          // No animation in FOW
+          if (aFOW.CheckVerticeRenderRev(K,I) <= FOG_OF_WAR_ACT) then Continue;
+
           tile := gRes.Tileset[Land^[I,K].BaseLayer.Terrain];
-          if tile.HasAnim
-            and (aFOW.CheckVerticeRenderRev(K,I) > FOG_OF_WAR_ACT) then //No animation in FOW
+          RenderTileAnim(I, K, tile);
+          for L := 0 to Land^[I,K].LayersCnt - 1 do
           begin
-            for J := Low(tile.Animation.Layers) to High(tile.Animation.Layers) do
-            begin
-              if not tile.Animation.Layers[J].HasAnim then Continue;
-
-              animID := tile.Animation.Layers[J].GetAnim(aAnimStep);
-              TRender.BindTexture(gGFXData[rxTiles, animID + 1].Tex.ID);
-              texC := GetTileUV(animID, Land^[I,K].BaseLayer.Rotation);
-
-              glBegin(GL_TRIANGLE_FAN);
-                glColor4f(1,1,1,1);
-                RenderQuadTexture(texC, K, I);
-              glEnd;
-            end;
+//            tile := gRes.Tileset[gRes.Sprites.GetGenTerrainInfo(gTerrain.Land^[I,K].Layer[L].Terrain)];
+            SetAnimTileVertex2(I, K, gRes.Sprites.GetGenTerrainInfo(gTerrain.Land^[I,K].Layer[L].Terrain),
+                               gTerrain.Land^[I,K].Layer[L].Rotation);
           end;
+
+//          if tile.HasAnim then
+//          begin
+//            for J := Low(tile.Animation.Layers) to High(tile.Animation.Layers) do
+//            begin
+//              if not tile.Animation.Layers[J].HasAnim then Continue;
+//
+//              animID := tile.Animation.Layers[J].GetAnim(aAnimStep);
+//              TRender.BindTexture(gGFXData[rxTiles, animID + 1].Tex.ID);
+//              texC := GetTileUV(animID, Land^[I,K].BaseLayer.Rotation);
+//
+//              glBegin(GL_TRIANGLE_FAN);
+//                glColor4f(1,1,1,1);
+//                RenderQuadTexture(texC, K, I);
+//              glEnd;
+//            end;
+//          end;
         end;
   end;
   {$IFDEF PERFLOG}

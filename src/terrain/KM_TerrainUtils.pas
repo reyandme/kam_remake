@@ -217,7 +217,7 @@ begin
         //We could add more masks and terKinds in future, so we can't stick with generated terrainId,
         //but need to save/load its generation parameters (terKind/mask types etc)
         aTileBasic.Layer[I].Terrain := gGenTerTransitions2.Items[BASE_TERRAIN[genInfo.TerKind]][genInfo.Mask.Kind,
-                                                          genInfo.Mask.MType, genInfo.Mask.SubType, aTileBasic.Layer[I].Rotation];
+                                                          genInfo.Mask.MType, genInfo.Mask.SubType{, aTileBasic.Layer[I].Rotation}];
 
       end;
 
