@@ -632,9 +632,8 @@ const
 var
   I, Count: Integer;
   SAT: TSpriteAtlasType;
-  InputStream: TMemoryStream;
+  InputStream: TCompressionStream;
   OutputStream: TFileStream;
-  CompressionStream: TCompressionStream;
   baseRAM, idealRAM, colorRAM, texCount: Cardinal;
 begin
   if IsEmpty then Exit;
@@ -643,7 +642,8 @@ begin
 
   ForceDirectories(ExtractFilePath(aFileName));
 
-  InputStream := TMemoryStream.Create;
+  OutputStream := TFileStream.Create(aFileName, fmCreate);
+  InputStream := TCompressionStream.Create(clMax, OutputStream);
 
   //Sprite info
   InputStream.Write(fRXData.Count, 4);
@@ -687,13 +687,8 @@ begin
       end;
   end;
 
-  OutputStream := TFileStream.Create(aFileName, fmCreate);
-  CompressionStream := TCompressionStream.Create(clMax, OutputStream);
-  InputStream.Position := 0;
-  CompressionStream.CopyFrom(InputStream, InputStream.Size);
-  CompressionStream.Free;
-  OutputStream.Free;
   InputStream.Free;
+  OutputStream.Free;
 end;
 
 
