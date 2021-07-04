@@ -36,8 +36,8 @@ type
     procedure ClearTemp; override;
     procedure GetImageToBitmap(aIndex: Integer; aBmp, aMask: TBitmap);
 
-    function ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
-    function ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+    function ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aBaseMoveX, aBaseMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+    function ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aMoveX, aMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
   end;
 
 
@@ -170,17 +170,17 @@ begin
 end;
 
 
-function TKMSpritePackEdit.ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+function TKMSpritePackEdit.ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aBaseMoveX, aBaseMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
 var
   pngData, pngDataBackground: TKMCardinalArray;
   I: Integer;
   AlphaForeground, AlphaBackground: Byte;
   ResultBackground: Boolean;
 begin
-  Result := ExportPixelsForInterp(pngData, aIndex, aExportType, aCanvasSize);
+  Result := ExportPixelsForInterp(pngData, aIndex, 0, 0, aExportType, aCanvasSize);
   if aIndexBase >= 0 then
   begin
-    ResultBackground := ExportPixelsForInterp(pngDataBackground, aIndexBase, aExportType, aCanvasSize);
+    ResultBackground := ExportPixelsForInterp(pngDataBackground, aIndexBase, aBaseMoveX, aBaseMoveY, aExportType, aCanvasSize);
     Result := Result or ResultBackground;
 
     //Formats with alpha channel
@@ -207,7 +207,7 @@ begin
 end;
 
 
-function TKMSpritePackEdit.ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+function TKMSpritePackEdit.ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aMoveX, aMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
 var
   I, K, dstX, dstY, CentreX, CentreY: Integer;
   M, A: Byte;
@@ -252,8 +252,8 @@ begin
     if  (abs(fRXData.Pivot[aIndex].X) < CentreX)
     and (abs(fRXData.Pivot[aIndex].Y) < CentreY) then
     begin
-      dstY := I + CentreY + fRXData.Pivot[aIndex].Y;
-      dstX := K + CentreX + fRXData.Pivot[aIndex].X;
+      dstY := I + CentreY + fRXData.Pivot[aIndex].Y + aMoveY;
+      dstX := K + CentreX + fRXData.Pivot[aIndex].X + aMoveX;
     end;
 
     TreatMask := fRXData.HasMask[aIndex] and (fRXData.Mask[aIndex, I*srcWidth + K] > 0);
