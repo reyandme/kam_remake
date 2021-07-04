@@ -43,14 +43,12 @@ type
     fOutDir: string;
     fDainFolder: string;
 
-    function GetMinCanvasSize(A: TKMAnimLoop; RT: TRXType): Integer;
     function GetCanvasSize(aID: Integer; RT: TRXType): Integer;
     function GetDainParams(aDir: string; aAlpha: Boolean): string;
 
     procedure WriteEmptyAnim;
-    procedure MakeInterpImages(RT: TRXType; A: TKMAnimLoop; aBaseDir: string; aExportType: TInterpExportType);
-    procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
-    procedure DoInterp(RT: TRXType; A: TKMAnimLoop; aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
+    procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseDir: string; aExportType: TInterpExportType);
+    procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpUnitThought(aThought: TKMUnitThought; var aPicOffset: Integer; aDryRun: Boolean);
@@ -148,34 +146,6 @@ begin
 end;
 
 
-function TForm1.GetMinCanvasSize(A: TKMAnimLoop; RT: TRXType): Integer;
-var
-  Step, SpriteID, MaxSoFar, X, Y, W, H: Integer;
-begin
-  MaxSoFar := 32;
-  for Step := 1 to A.Count do
-  begin
-    SpriteID := A.Step[Step]+1; //Sprites in units.dat are 0 indexed
-    if SpriteID > 0 then
-    begin
-      W := fSprites[RT].RXData.Size[SpriteID].X;
-      H := fSprites[RT].RXData.Size[SpriteID].Y;
-      X := fSprites[RT].RXData.Pivot[SpriteID].x;
-      Y := fSprites[RT].RXData.Pivot[SpriteID].y + CANVAS_Y_OFFSET;
-      MaxSoFar := Max(MaxSoFar, -X);
-      MaxSoFar := Max(MaxSoFar, X + W);
-      MaxSoFar := Max(MaxSoFar, -Y);
-      MaxSoFar := Max(MaxSoFar, Y + H);
-    end;
-  end;
-  //Sprite is centred so we need this much padding on both sides
-  MaxSoFar := 2*MaxSoFar;
-  //Keep 1px padding on all sides
-  MaxSoFar := MaxSoFar + 2;
-  Result := ((MaxSoFar div 32) + 1)*32;
-end;
-
-
 function TForm1.GetCanvasSize(aID: Integer; RT: TRXType): Integer;
 var
   MaxSoFar, X, Y, W, H: Integer;
@@ -199,7 +169,7 @@ begin
 end;
 
 
-procedure TForm1.MakeInterpImagesPair(RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
+procedure TForm1.MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseDir: string; aExportType: TInterpExportType);
 var
   origSpritesDir, interpSpritesDir: string;
   CanvasSize: Integer;
@@ -223,10 +193,15 @@ begin
   AllBlank := True;
   CanvasSize := Max(GetCanvasSize(aID_1, RT), GetCanvasSize(aID_2, RT));
 
-  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '1.png', aID_1, aExportType, CanvasSize);
+  if aID_1_Base >= 0 then
+    CanvasSize := Max(CanvasSize, GetCanvasSize(aID_1_Base, RT));
+  if aID_2_Base >= 0 then
+    CanvasSize := Max(CanvasSize, GetCanvasSize(aID_2_Base, RT));
+
+  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '1.png', aID_1, aID_1_Base, aExportType, CanvasSize);
   AllBlank := AllBlank and not Worked;
 
-  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '2.png', aID_2, aExportType, CanvasSize);
+  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '2.png', aID_2, aID_2_Base, aExportType, CanvasSize);
   AllBlank := AllBlank and not Worked;
 
   if AllBlank then
@@ -252,61 +227,6 @@ begin
   for Step := 1 to 30 do
     for SubStep := 1 to 8 do
       fOutputStream.Write(Integer(-1));
-end;
-
-
-procedure TForm1.MakeInterpImages(RT: TRXType; A: TKMAnimLoop; aBaseDir: string; aExportType: TInterpExportType);
-var
-  origSpritesDir, interpSpritesDir: string;
-  Step, SpriteID, CanvasSize: Integer;
-  StartupInfo: TStartupInfo;
-  ProcessInfo: TProcessInformation;
-  NeedAlpha, AllBlank, Worked: Boolean;
-begin
-  if fSprites[RT] = nil then
-  begin
-    fSprites[RT] := TKMSpritePackEdit.Create(RT, fPalettes);
-    fSprites[RT].LoadFromRXXFile(ExeDir + 'data\Sprites\' + RXInfo[RT].FileName + '_a.rxx');
-  end;
-
-  origSpritesDir := aBaseDir + 'original_frames\';
-  interpSpritesDir := aBaseDir + 'interpolated_frames\';
-  ForceDirectories(origSpritesDir);
-
-  KMDeleteFolderContent(origSpritesDir);
-  KMDeleteFolderContent(interpSpritesDir);
-
-  AllBlank := True;
-  CanvasSize := GetMinCanvasSize(A, RT);
-  for Step := 1 to A.Count do
-  begin
-    SpriteID := A.Step[Step]+1; //Sprites in units.dat are 0 indexed
-    if SpriteID > 0 then
-    begin
-      Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + format('%.6d.png', [Step]), SpriteID, aExportType, CanvasSize);
-      AllBlank := AllBlank and not Worked;
-    end
-    else
-      raise Exception.Create('SpriteID = 0 for step '+IntToStr(Step));
-  end;
-  if AllBlank then
-    Exit;
-
-  //Write out the first sprite again to create a loop
-  SpriteID := A.Step[1]+1; //Sprites in units.dat are 0 indexed
-  if SpriteID > 0 then
-    fSprites[RT].ExportImageForInterp(origSpritesDir + format('%.6d.png', [A.Count+1]), SpriteID, aExportType, CanvasSize);
-
-  NeedAlpha := aExportType in [ietBase, ietNormal];
-
-  //Interpolate
-  ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
-  StartupInfo.cb := SizeOf(StartupInfo);
-  StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
-  StartupInfo.wShowWindow := SW_MINIMIZE;
-  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha)), nil, nil, false, 0, nil, PChar(fDainFolder), StartupInfo, ProcessInfo);
-  WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
-  //ShellExecute(0, nil, 'cmd.exe', PChar(DainParams), PChar(DainFolder), SW_SHOWNORMAL);
 end;
 
 
@@ -348,7 +268,7 @@ begin
 end;
 
 
-procedure TForm1.DoInterp(RT: TRXType; A: TKMAnimLoop; aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
 
   function SameAnim(A, B: TKMAnimLoop): Boolean;
   var
@@ -360,7 +280,7 @@ procedure TForm1.DoInterp(RT: TRXType; A: TKMAnimLoop; aSimpleAlpha: Boolean; aB
   end;
 
 var
-  I, Step, NextStep, SubStep, StepSprite, StepNextSprite, InterpOffset: Integer;
+  I, Step, NextStep, SubStep, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, InterpOffset: Integer;
   pngWidth, pngHeight, newWidth, newHeight: Word;
   pngBase, pngShad, pngTeam, pngCrop, pngCropMask: TKMCardinalArray;
   X, Y, MinX, MinY, MaxX, MaxY: Integer;
@@ -396,6 +316,18 @@ begin
 
     StepSprite := A.Step[Step] + 1;
     StepNextSprite := A.Step[(Step mod A.Count) + 1] + 1;
+
+    //Determine background sprite (if used)
+    if aUseBase and (Step <= ABase.Count) then
+    begin
+      StepSpriteBase := ABase.Step[Step] + 1;
+      StepNextSpriteBase := ABase.Step[(Step mod A.Count) + 1] + 1;
+    end
+    else
+    begin
+      StepSpriteBase := -1;
+      StepNextSpriteBase := -1;
+    end;
 
     //Same image is repeated next frame
     if StepSprite = StepNextSprite then
@@ -452,12 +384,15 @@ begin
     KMDeleteFolder(dirTeam);
 
     if aSimpleAlpha then
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, dirBase, ietNormal)
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, dirBase, ietNormal)
     else
     begin
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, dirBase, ietBase);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, dirShad, ietShadows);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, dirTeam, ietTeamMask);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, dirBase, ietBase);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, dirShad, ietShadows);
+      if aUseBaseForTeamMask then
+        MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, dirTeam, ietTeamMask)
+      else
+        MakeInterpImagesPair(RT, StepSprite, StepNextSprite, -1, -1, dirTeam, ietTeamMask);
     end;
 
     //Import and process interpolated steps
@@ -587,13 +522,13 @@ begin
   else
     bkgRGB := $000000;
 
-  DoInterp(rxUnits, A, False, bkgRGB, aPicOffset, aDryRun);
+  DoInterp(rxUnits, A, A, False, False, False, bkgRGB, aPicOffset, aDryRun);
 end;
 
 
 procedure TForm1.DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
 var
-  A: TKMAnimLoop;
+  A, ABase: TKMAnimLoop;
 begin
   if (aDir = dirNA) or not (aWare in [WARE_MIN..WARE_MAX]) then
   begin
@@ -602,8 +537,9 @@ begin
   end;
 
   A := fResUnits.SerfCarry[aWare, aDir];
+  ABase := fResUnits[utSerf].UnitAnim[uaWalk, aDir];
 
-  DoInterp(rxUnits, A, False, $000000, aPicOffset, aDryRun);
+  DoInterp(rxUnits, A, ABase, True, True, False, $000000, aPicOffset, aDryRun);
 end;
 
 
@@ -627,7 +563,7 @@ begin
       A.Step[I] := -1;
   end;
 
-  DoInterp(rxUnits, A, False, $FFFFFF, aPicOffset, aDryRun);
+  DoInterp(rxUnits, A, A, False, False, False, $FFFFFF, aPicOffset, aDryRun);
 end;
 
 
@@ -643,13 +579,16 @@ begin
     Exit;
   end;
 
-  DoInterp(rxTrees, A, False, $000000, aPicOffset, aDryRun);
+  DoInterp(rxTrees, A, A, False, False, False, $000000, aPicOffset, aDryRun);
 end;
 
 
 procedure TForm1.DoInterpHouseAction(aHT: TKMHouseType; aHouseAct: TKMHouseActionType; var aPicOffset: Integer; aDryRun: Boolean);
 var
-  A: TKMAnimLoop;
+  A, ABase: TKMAnimLoop;
+  UseBase: Boolean;
+  SimpleAlpha: Boolean;
+  I: Integer;
 begin
   A := fResHouses.HouseDat[aHT].Anim[aHouseAct];
 
@@ -659,7 +598,18 @@ begin
     Exit;
   end;
 
-  DoInterp(rxHouses, A, (aHouseAct in [haSmoke, haFire1..haFire8]), $000000, aPicOffset, aDryRun);
+  ABase.Count := 30;
+  ABase.MoveX := 0;
+  ABase.MoveY := 0;
+  for I := Low(ABase.Step) to High(ABase.Step) do
+    ABase.Step[I] := fResHouses.HouseDat[aHT].StonePic;
+
+  UseBase := aHouseAct in [haIdle, haFlagpole, haWork1..haWork5];
+  SimpleAlpha := aHouseAct in [haSmoke, haFire1..haFire8];
+
+  if (aHT <> htMill) or (aHouseAct <> haFlagpole) then  aDryRun := true;
+
+  DoInterp(rxHouses, A, ABase, UseBase, False, SimpleAlpha, $000000, aPicOffset, aDryRun);
 end;
 
 
@@ -683,7 +633,7 @@ begin
     Exit;
   end;
 
-  DoInterp(rxHouses, A, False, $000000, aPicOffset, aDryRun);
+  DoInterp(rxHouses, A, A, False, False, False, $000000, aPicOffset, aDryRun);
 end;
 
 

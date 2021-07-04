@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Dialogs, Graphics, Math, Types, StrUtils, SysUtils,
   KM_Defaults, KM_ResTypes, KM_ResHouses, KM_ResPalettes, KM_ResSprites,
-  KM_ResTileset
+  KM_ResTileset, KM_CommonTypes
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF};
 
@@ -36,7 +36,8 @@ type
     procedure ClearTemp; override;
     procedure GetImageToBitmap(aIndex: Integer; aBmp, aMask: TBitmap);
 
-    function ExportImageForInterp(const aFile: string; aIndex: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+    function ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+    function ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
   end;
 
 
@@ -44,7 +45,6 @@ implementation
 uses
   KM_SoftShadows,
   KM_IoPNG,
-  KM_CommonTypes,
   KM_RenderTypes,
   KM_CommonClasses;
 
@@ -170,7 +170,44 @@ begin
 end;
 
 
-function TKMSpritePackEdit.ExportImageForInterp(const aFile: string; aIndex: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+function TKMSpritePackEdit.ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+var
+  pngData, pngDataBackground: TKMCardinalArray;
+  I: Integer;
+  AlphaForeground, AlphaBackground: Byte;
+  ResultBackground: Boolean;
+begin
+  Result := ExportPixelsForInterp(pngData, aIndex, aExportType, aCanvasSize);
+  if aIndexBase >= 0 then
+  begin
+    ResultBackground := ExportPixelsForInterp(pngDataBackground, aIndexBase, aExportType, aCanvasSize);
+    Result := Result or ResultBackground;
+
+    //Formats with alpha channel
+    if aExportType in [ietBase, ietNormal] then
+    begin
+      for I := Low(pngData) to High(pngData) do
+      begin
+        AlphaForeground := pngData[I] shr 24;
+        AlphaBackground := pngDataBackground[I] shr 24;
+        if AlphaBackground > AlphaForeground then
+          pngData[I] := pngDataBackground[I];
+      end;
+    end;
+    //Greyscale formats
+    if aExportType in [ietBaseAlpha, ietShadows, ietTeamMask] then
+    begin
+      for I := Low(pngData) to High(pngData) do
+        if pngDataBackground[I] > pngData[I] then
+          pngData[I] := pngDataBackground[I];
+    end;
+  end;
+
+  SaveToPng(aCanvasSize, aCanvasSize, pngData, aFile);
+end;
+
+
+function TKMSpritePackEdit.ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
 var
   I, K, dstX, dstY, CentreX, CentreY: Integer;
   M, A: Byte;
@@ -178,7 +215,6 @@ var
   TreatMask, isShadow: Boolean;
   srcWidth, srcHeight: Word;
   dstWidth, dstHeight: Word;
-  pngData: TKMCardinalArray;
 const
   CANVAS_Y_OFFSET = 14;
 begin
@@ -189,9 +225,6 @@ begin
 
   srcWidth := fRXData.Size[aIndex].X;
   srcHeight := fRXData.Size[aIndex].Y;
-
-  if (srcWidth > aCanvasSize) or (srcHeight > aCanvasSize) then
-    Exit;
 
   dstWidth := aCanvasSize;
   dstHeight := aCanvasSize;
@@ -206,6 +239,9 @@ begin
   if aExportType in [ietShadows, ietTeamMask, ietBaseAlpha] then
     for I := Low(pngData) to High(pngData) do
       pngData[I] := $FF000000;
+
+  if (srcWidth > aCanvasSize) or (srcHeight > aCanvasSize) then
+    Exit;
 
   //Export RGB values
   for I := 0 to fRXData.Size[aIndex].Y - 1 do
@@ -308,15 +344,8 @@ begin
         pngData[dstY*dstWidth + dstX] := $FF000000;
     end;
   end;
-
-  //Mark pivot location with a dot
-//  K := pngWidth + fRXData.Pivot[aIndex].x;
-//  I := pngHeight + fRXData.Pivot[aIndex].y;
-//  if InRange(I, 0, pngHeight-1) and InRange(K, 0, pngWidth-1) then
-//    pngData[I*pngWidth + K] := $FFFF00FF;
-
-  SaveToPng(dstWidth, dstHeight, pngData, aFile);
 end;
+
 
 function TKMSpritePackEdit.GetLoaded: Boolean;
 begin
