@@ -68,6 +68,8 @@ uses
   KM_Log, KM_IoPNG, KM_ResWares, KM_ResInterpolation;
 
 const
+  USE_BASE_BEASTS = False;
+  USE_BASE_HOUSE_ACT = True;
   CANVAS_Y_OFFSET = 14;
 
   //This is different to TKMUnitSpec.SupportsAction because we include any used
@@ -630,7 +632,7 @@ begin
   UseBase := aHouseAct in [haIdle, haWork1..haWork5];
   SimpleAlpha := aHouseAct in [haSmoke, haFire1..haFire8];
 
-  DoInterp(rxHouses, A, ABase, UseBase, False, SimpleAlpha, $000000, aPicOffset, aDryRun);
+  DoInterp(rxHouses, A, ABase, UseBase and USE_BASE_HOUSE_ACT, False, SimpleAlpha, $000000, aPicOffset, aDryRun);
 end;
 
 
@@ -661,7 +663,7 @@ begin
     Exit;
   end;
 
-  DoInterp(rxHouses, A, ABase, True, False, False, $000000, aPicOffset, aDryRun);
+  DoInterp(rxHouses, A, ABase, USE_BASE_BEASTS, False, False, $000000, aPicOffset, aDryRun);
 end;
 
 
