@@ -499,8 +499,9 @@ end;
 
 procedure TForm1.DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
 var
-  A: TKMAnimLoop;
+  A, ABase: TKMAnimLoop;
   bkgRGB: Cardinal;
+  UseBase: Boolean;
 begin
   if aDir = dirNA then
   begin
@@ -522,7 +523,10 @@ begin
   else
     bkgRGB := $000000;
 
-  DoInterp(rxUnits, A, A, False, False, False, bkgRGB, aPicOffset, aDryRun);
+  UseBase := aAction in [uaWalkArm, uaWalkTool, uaWalkBooty, uaWalkTool2, uaWalkBooty2];
+  ABase := fResUnits[aUT].UnitAnim[uaWalk, aDir];
+
+  DoInterp(rxUnits, A, ABase, UseBase, False, False, bkgRGB, aPicOffset, aDryRun);
 end;
 
 
