@@ -632,7 +632,8 @@ end;
 
 procedure TForm1.DoInterpBeast(beastHouse, beast, beastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
 var
-  A: TKMAnimLoop;
+  A, ABase: TKMAnimLoop;
+  I: Integer;
 const
   HOUSE_LOOKUP: array[1..3] of TKMHouseType = (htSwine, htStables, htMarketplace);
 begin
@@ -644,13 +645,19 @@ begin
 
   A := fResHouses.BeastAnim[HOUSE_LOOKUP[beastHouse], beast, beastAge];
 
+  ABase.Count := 30;
+  ABase.MoveX := 0;
+  ABase.MoveY := 0;
+  for I := Low(ABase.Step) to High(ABase.Step) do
+    ABase.Step[I] := fResHouses.HouseDat[HOUSE_LOOKUP[beastHouse]].StonePic;
+
   if (A.Count <= 1) or (A.Step[1] = -1) then
   begin
     WriteEmptyAnim;
     Exit;
   end;
 
-  DoInterp(rxHouses, A, A, False, False, False, $000000, aPicOffset, aDryRun);
+  DoInterp(rxHouses, A, ABase, True, False, False, $000000, aPicOffset, aDryRun);
 end;
 
 
