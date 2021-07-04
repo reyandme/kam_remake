@@ -2054,8 +2054,6 @@ begin
     if aUID > 0 then
     with RenderList[fCount].SelectionRect do
     begin
-      // todo: fix SizeNoShadow calculation for interpolated animations, f.e. last frame of death anim for swordman / knight etc
-      // remove EnsureRange when fixed
       snsLeft   := fUnitsRXData.SizeNoShadow[aId].left;
       snsRight  := fUnitsRXData.SizeNoShadow[aId].right;
       snsTop    := fUnitsRXData.SizeNoShadow[aId].top;
