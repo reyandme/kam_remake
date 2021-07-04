@@ -627,7 +627,7 @@ begin
   for I := Low(ABase.Step) to High(ABase.Step) do
     ABase.Step[I] := fResHouses.HouseDat[aHT].StonePic;
 
-  UseBase := aHouseAct in [haIdle, haFlagpole, haWork1..haWork5];
+  UseBase := aHouseAct in [haIdle, haWork1..haWork5];
   SimpleAlpha := aHouseAct in [haSmoke, haFire1..haFire8];
 
   DoInterp(rxHouses, A, ABase, UseBase, False, SimpleAlpha, $000000, aPicOffset, aDryRun);
