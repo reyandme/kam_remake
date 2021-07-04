@@ -284,6 +284,7 @@ var
   pngWidth, pngHeight, newWidth, newHeight: Word;
   pngBase, pngShad, pngTeam, pngCrop, pngCropMask: TKMCardinalArray;
   X, Y, MinX, MinY, MaxX, MaxY: Integer;
+  OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer;
   NoShadMinX, NoShadMinY, NoShadMaxX, NoShadMaxY: Integer;
   StrList: TStringList;
   dirBase, dirShad, dirTeam, suffixPath, outDirLocal: string;
@@ -395,6 +396,13 @@ begin
         MakeInterpImagesPair(RT, StepSprite, StepNextSprite, -1, -1, dirTeam, ietTeamMask);
     end;
 
+    //Determine maximum bounds of the pair, to crop out the base background sprite
+    //Expand by 1px in case the interpolation goes slightly outside the original bounds
+    OverallMinX := Min(fSprites[RT].RXData.Pivot[StepSprite].X, fSprites[RT].RXData.Pivot[StepNextSprite].X) - 1;
+    OverallMinY := Min(fSprites[RT].RXData.Pivot[StepSprite].Y, fSprites[RT].RXData.Pivot[StepNextSprite].Y) - 1;
+    OverallMaxX := OverallMinX + Max(fSprites[RT].RXData.Size[StepSprite].X, fSprites[RT].RXData.Size[StepNextSprite].X) + 1;
+    OverallMaxY := OverallMinY + Max(fSprites[RT].RXData.Size[StepSprite].Y, fSprites[RT].RXData.Size[StepNextSprite].Y) + 1;
+
     //Import and process interpolated steps
     for SubStep := 0 to 6 do
     begin
@@ -450,6 +458,13 @@ begin
             needsMask := True;
         end;
       end;
+
+      //Apply overall bounds to crop out the base background sprite
+      MinX := Max(MinX, OverallMinX + (pngWidth div 2));
+      MinY := Max(MinY, OverallMinY + (pngHeight div 2) + CANVAS_Y_OFFSET);
+      MaxX := Min(MaxX, OverallMaxX + (pngWidth div 2));
+      MaxY := Min(MaxY, OverallMaxY + (pngHeight div 2) + CANVAS_Y_OFFSET);
+
       //Crop
       if (MaxX > MinX) and (MaxY > MinY) then
       begin
