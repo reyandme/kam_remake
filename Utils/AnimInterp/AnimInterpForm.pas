@@ -486,10 +486,10 @@ begin
       MinY := MaxInt;
       MaxX := -1;
       MaxY := -1;
-      NoShadMinX := MaxInt;
-      NoShadMinY := MaxInt;
-      NoShadMaxX := -1;
-      NoShadMaxY := -1;
+      NoShadMinX := pngWidth-1;
+      NoShadMinY := pngHeight-1;
+      NoShadMaxX := 0;
+      NoShadMaxY := 0;
       needsMask := False;
       for Y := 0 to pngHeight-1 do
       begin
