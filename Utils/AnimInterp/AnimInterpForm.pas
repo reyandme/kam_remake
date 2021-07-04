@@ -611,8 +611,6 @@ begin
   UseBase := aHouseAct in [haIdle, haFlagpole, haWork1..haWork5];
   SimpleAlpha := aHouseAct in [haSmoke, haFire1..haFire8];
 
-  if (aHT <> htMill) or (aHouseAct <> haFlagpole) then  aDryRun := true;
-
   DoInterp(rxHouses, A, ABase, UseBase, False, SimpleAlpha, $000000, aPicOffset, aDryRun);
 end;
 
