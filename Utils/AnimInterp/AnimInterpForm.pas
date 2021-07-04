@@ -541,7 +541,7 @@ begin
   UseBase := aAction in [uaWalkArm, uaWalkTool, uaWalkBooty, uaWalkTool2, uaWalkBooty2];
   ABase := fResUnits[aUT].UnitAnim[uaWalk, aDir];
 
-  DoInterp(rxUnits, A, ABase, UseBase, False, False, bkgRGB, aPicOffset, aDryRun);
+  DoInterp(rxUnits, A, ABase, UseBase, True, False, bkgRGB, aPicOffset, aDryRun);
 end;
 
 
