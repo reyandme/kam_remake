@@ -221,7 +221,7 @@ begin
   ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
   StartupInfo.cb := SizeOf(StartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
-  StartupInfo.wShowWindow := SW_MINIMIZE;
+  StartupInfo.wShowWindow := SW_HIDE;
   CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha)), nil, nil, false, 0, nil, PChar(fDainFolder), StartupInfo, ProcessInfo);
   WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
   //ShellExecute(0, nil, 'cmd.exe', PChar(DainParams), PChar(DainFolder), SW_SHOWNORMAL);
