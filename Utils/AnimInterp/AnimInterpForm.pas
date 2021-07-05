@@ -44,11 +44,13 @@ type
     fDainFolder: string;
 
     function GetCanvasSize(aID: Integer; RT: TRXType; aMoveX: Integer = 0; aMoveY: Integer = 0): Integer;
-    function GetDainParams(aDir: string; aAlpha: Boolean): string;
+    function GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer = 8): string;
 
     procedure WriteEmptyAnim;
     procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType);
+    procedure Make4xInterpImages(RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
     procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
+    procedure ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
     procedure DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpUnitThought(aThought: TKMUnitThought; var aPicOffset: Integer; aDryRun: Boolean);
@@ -132,12 +134,12 @@ begin
 end;
 
 
-function TForm1.GetDainParams(aDir: string; aAlpha: Boolean): string;
+function TForm1.GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer = 8): string;
 var
   DainExe: string;
 begin
   DainExe := fDainFolder+'DAINAPP.exe';
-  Result := 'cmd.exe /C "'+DainExe+'" --cli 1 -o '+aDir+' -p 0 -l 1 -in 8 -da 0 -se 0 -si 1 -sr 0 -ha 0 --fast_mode 0';
+  Result := 'cmd.exe /C "'+DainExe+'" --cli 1 -o '+aDir+' -p 0 -l 1 -in '+IntToStr(aInterpLevel)+' -da 0 -se 0 -si 1 -sr 0 -ha 0 --fast_mode 0';
   if aAlpha then
     Result := Result + ' -a 1';
 
@@ -168,6 +170,40 @@ begin
   //Keep 1px padding on all sides
   MaxSoFar := MaxSoFar + 2;
   Result := ((MaxSoFar div 32) + 1)*32;
+end;
+
+
+procedure TForm1.Make4xInterpImages(RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
+var
+  origSpritesDir, interpSpritesDir: string;
+  I: Integer;
+  NeedAlpha: Boolean;
+  StartupInfo: TStartupInfo;
+  ProcessInfo: TProcessInformation;
+begin
+  MakeInterpImagesPair(RT, aID_1, aID_2, -1, -1, 0, 0, False, aBaseDir, aExportType);
+
+  origSpritesDir := aBaseDir + 'original_frames\';
+  interpSpritesDir := aBaseDir + 'interpolated_frames\';
+
+  KMCopyFile(origSpritesDir + format('%d.png', [2]), interpSpritesDir + format('%.15d.png', [9]));
+  KMDeleteFolderContent(origSpritesDir);
+
+  for I := 1 to 9 do
+    KMCopyFile(interpSpritesDir + format('%.15d.png', [I]), origSpritesDir + format('%d.png', [I]));
+
+  KMDeleteFolderContent(interpSpritesDir);
+
+  NeedAlpha := aExportType in [ietBase, ietNormal];
+
+  //Interpolate
+  ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
+  StartupInfo.cb := SizeOf(StartupInfo);
+  StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
+  StartupInfo.wShowWindow := SW_HIDE;
+  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha, 4)), nil, nil, false, 0, nil, PChar(fDainFolder), StartupInfo, ProcessInfo);
+  WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+  //ShellExecute(0, nil, 'cmd.exe', PChar(DainParams), PChar(DainFolder), SW_SHOWNORMAL);
 end;
 
 
@@ -289,15 +325,12 @@ procedure TForm1.DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBase
 
 var
   I, Step, NextStep, SubStep, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, InterpOffset: Integer;
-  pngWidth, pngHeight, newWidth, newHeight: Word;
-  pngBase, pngShad, pngTeam, pngCrop, pngCropMask: TKMCardinalArray;
-  X, Y, MinX, MinY, MaxX, MaxY: Integer;
   OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer;
   BaseMoveX, BaseMoveY: Integer;
-  NoShadMinX, NoShadMinY, NoShadMaxX, NoShadMaxY: Integer;
   StrList: TStringList;
-  dirBase, dirShad, dirTeam, suffixPath, outDirLocal: string;
-  needsMask, Found: Boolean;
+  suffixPath, outDirLocal, outPrefix: string;
+  dirBase, dirShad, dirTeam: string;
+  Found: Boolean;
 begin
   if (A.Count <= 1) or (A.Step[1] = -1) then
   begin
@@ -305,13 +338,10 @@ begin
     Exit;
   end;
 
-  dirBase := fWorkDir + 'base\';
-  dirShad := fWorkDir + 'shad\';
-  dirTeam := fWorkDir + 'team\';
-
   StrList := TStringList.Create;
 
   outDirLocal := fOutDir+IntToStr(Byte(RT)+1)+'\';
+  outPrefix := outDirLocal+IntToStr(Byte(RT)+1)+'_';
   ForceDirectories(outDirLocal);
 
   //Import and reprocess
@@ -388,6 +418,10 @@ begin
     if aDryRun then
       Continue;
 
+    dirBase := fWorkDir + 'base\';
+    dirShad := fWorkDir + 'shad\';
+    dirTeam := fWorkDir + 'team\';
+
     //Interpolate!
     KMDeleteFolder(dirBase);
     KMDeleteFolder(dirShad);
@@ -417,108 +451,128 @@ begin
     begin
       //Filenames are 1-based, and skip the first one since it's the original
       suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1]);
-
-      //Clear all our buffers so they get rezeroed
-      SetLength(pngBase, 0);
-      SetLength(pngShad, 0);
-      SetLength(pngTeam, 0);
-      SetLength(pngCrop, 0);
-      SetLength(pngCropMask, 0);
-
-      LoadFromPng(dirBase + suffixPath, pngWidth, pngHeight, pngBase);
-
-      if FileExists(dirShad + suffixPath) then
-        LoadFromPng(dirShad + suffixPath, pngWidth, pngHeight, pngShad);
-
-      if FileExists(dirTeam + suffixPath) then
-        LoadFromPng(dirTeam + suffixPath, pngWidth, pngHeight, pngTeam);
-
-      //Determine Min/Max X/Y
-      MinX := MaxInt;
-      MinY := MaxInt;
-      MaxX := -1;
-      MaxY := -1;
-      NoShadMinX := pngWidth-1;
-      NoShadMinY := pngHeight-1;
-      NoShadMaxX := 0;
-      NoShadMaxY := 0;
-      needsMask := False;
-      for Y := 0 to pngHeight-1 do
-      begin
-        for X := 0 to pngWidth-1 do
-        begin
-          if (pngBase[Y*pngWidth + X] shr 24 > 50) or
-          ((Length(pngShad) > 0) and ((pngShad[Y*pngWidth + X] and $FF) > 10)) then
-          begin
-            MinX := Min(MinX, X);
-            MinY := Min(MinY, Y);
-            MaxX := Max(MaxX, X);
-            MaxY := Max(MaxY, Y);
-          end;
-          //Tighter "no shadow" bounds. Also ignore areas where alpha < 50%
-          if pngBase[Y*pngWidth + X] shr 24 >= $7F then
-          begin
-            NoShadMinX := Min(NoShadMinX, X);
-            NoShadMinY := Min(NoShadMinY, Y);
-            NoShadMaxX := Max(NoShadMaxX, X);
-            NoShadMaxY := Max(NoShadMaxY, Y);
-          end;
-          if (Length(pngTeam) > 0) and ((pngTeam[Y*pngWidth + X] and $FF) > 0) then
-            needsMask := True;
-        end;
-      end;
-
-      //Apply overall bounds to crop out the base background sprite
-      MinX := Max(MinX, OverallMinX + (pngWidth div 2));
-      MinY := Max(MinY, OverallMinY + (pngHeight div 2) + CANVAS_Y_OFFSET);
-      MaxX := Min(MaxX, OverallMaxX + (pngWidth div 2));
-      MaxY := Min(MaxY, OverallMaxY + (pngHeight div 2) + CANVAS_Y_OFFSET);
-
-      //Crop
-      if (MaxX > MinX) and (MaxY > MinY) then
-      begin
-        newWidth := MaxX - MinX + 1;
-        newHeight := MaxY - MinY + 1;
-        SetLength(pngCrop, newWidth*newHeight);
-        SetLength(pngCropMask, newWidth*newHeight);
-        I := 0;
-        for Y := MinY to MaxY do
-        begin
-          for X := MinX to MaxX do
-          begin
-            //Background is black with alpha from the shadow mask
-            if Length(pngShad) > 0 then
-              pngCrop[I] := (pngShad[Y*pngWidth + X] shl 24) or aBkgRGB;
-
-            //Layer base sprite on top
-            pngCrop[I] := BlendRGBA(pngCrop[I], pngBase[Y*pngWidth + X]);
-
-            if Length(pngTeam) > 0 then
-              pngCropMask[I] := pngTeam[Y*pngWidth + X];
-
-            Inc(I);
-          end;
-        end;
-
-        //Save offsets .txt file
-        StrList.Clear;
-        StrList.Append(IntToStr(MinX - pngWidth div 2));
-        StrList.Append(IntToStr(MinY - CANVAS_Y_OFFSET - pngHeight div 2));
-        StrList.Append(IntToStr(NoShadMinX - MinX));
-        StrList.Append(IntToStr(NoShadMinY - MinY));
-        StrList.Append(IntToStr(newWidth-1 - (MaxX - NoShadMaxX)));
-        StrList.Append(IntToStr(newHeight-1 - (MaxY - NoShadMaxY)));
-
-        StrList.SaveToFile(outDirLocal+format('%d_%d.txt', [Byte(RT)+1, InterpOffset+SubStep]));
-        SaveToPng(newWidth, newHeight, pngCrop, outDirLocal+format('%d_%d.png', [Byte(RT)+1, InterpOffset+SubStep]));
-        if needsMask and (Length(pngTeam) > 0) then
-          SaveToPng(newWidth, newHeight, pngCropMask, outDirLocal+format('%d_%dm.png', [Byte(RT)+1, InterpOffset+SubStep]));
-      end;
+      ProcessInterpImage(InterpOffset+SubStep, suffixPath, outPrefix, aBkgRGB, OverallMaxX, OverallMinX, OverallMaxY, OverallMinY);
     end;
   end;
 
   FreeAndNil(StrList);
 end;
+
+
+procedure TForm1.ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
+var
+  pngWidth, pngHeight, newWidth, newHeight: Word;
+  pngBase, pngShad, pngTeam, pngCrop, pngCropMask: TKMCardinalArray;
+  I, X, Y, MinX, MinY, MaxX, MaxY: Integer;
+  NoShadMinX, NoShadMinY, NoShadMaxX, NoShadMaxY: Integer;
+  needsMask: Boolean;
+  StrList: TStringList;
+  dirBase, dirShad, dirTeam: string;
+begin
+  dirBase := fWorkDir + 'base\';
+  dirShad := fWorkDir + 'shad\';
+  dirTeam := fWorkDir + 'team\';
+
+  //Clear all our buffers so they get rezeroed
+  SetLength(pngBase, 0);
+  SetLength(pngShad, 0);
+  SetLength(pngTeam, 0);
+  SetLength(pngCrop, 0);
+  SetLength(pngCropMask, 0);
+
+  LoadFromPng(dirBase + inSuffixPath, pngWidth, pngHeight, pngBase);
+
+  if FileExists(dirShad + inSuffixPath) then
+    LoadFromPng(dirShad + inSuffixPath, pngWidth, pngHeight, pngShad);
+
+  if FileExists(dirTeam + inSuffixPath) then
+    LoadFromPng(dirTeam + inSuffixPath, pngWidth, pngHeight, pngTeam);
+
+  //Determine Min/Max X/Y
+  MinX := MaxInt;
+  MinY := MaxInt;
+  MaxX := -1;
+  MaxY := -1;
+  NoShadMinX := pngWidth-1;
+  NoShadMinY := pngHeight-1;
+  NoShadMaxX := 0;
+  NoShadMaxY := 0;
+  needsMask := False;
+  for Y := 0 to pngHeight-1 do
+  begin
+    for X := 0 to pngWidth-1 do
+    begin
+      if (pngBase[Y*pngWidth + X] shr 24 > 50) or
+      ((Length(pngShad) > 0) and ((pngShad[Y*pngWidth + X] and $FF) > 10)) then
+      begin
+        MinX := Min(MinX, X);
+        MinY := Min(MinY, Y);
+        MaxX := Max(MaxX, X);
+        MaxY := Max(MaxY, Y);
+      end;
+      //Tighter "no shadow" bounds. Also ignore areas where alpha < 50%
+      if pngBase[Y*pngWidth + X] shr 24 >= $7F then
+      begin
+        NoShadMinX := Min(NoShadMinX, X);
+        NoShadMinY := Min(NoShadMinY, Y);
+        NoShadMaxX := Max(NoShadMaxX, X);
+        NoShadMaxY := Max(NoShadMaxY, Y);
+      end;
+      if (Length(pngTeam) > 0) and ((pngTeam[Y*pngWidth + X] and $FF) > 0) then
+        needsMask := True;
+    end;
+  end;
+
+  //Apply overall bounds to crop out the base background sprite
+  MinX := Max(MinX, OverallMinX + (pngWidth div 2));
+  MinY := Max(MinY, OverallMinY + (pngHeight div 2) + CANVAS_Y_OFFSET);
+  MaxX := Min(MaxX, OverallMaxX + (pngWidth div 2));
+  MaxY := Min(MaxY, OverallMaxY + (pngHeight div 2) + CANVAS_Y_OFFSET);
+
+  //Crop
+  if (MaxX > MinX) and (MaxY > MinY) then
+  begin
+    newWidth := MaxX - MinX + 1;
+    newHeight := MaxY - MinY + 1;
+    SetLength(pngCrop, newWidth*newHeight);
+    SetLength(pngCropMask, newWidth*newHeight);
+    I := 0;
+    for Y := MinY to MaxY do
+    begin
+      for X := MinX to MaxX do
+      begin
+        //Background is black with alpha from the shadow mask
+        if Length(pngShad) > 0 then
+          pngCrop[I] := (pngShad[Y*pngWidth + X] shl 24) or aBkgRGB;
+
+        //Layer base sprite on top
+        pngCrop[I] := BlendRGBA(pngCrop[I], pngBase[Y*pngWidth + X]);
+
+        if Length(pngTeam) > 0 then
+          pngCropMask[I] := pngTeam[Y*pngWidth + X];
+
+        Inc(I);
+      end;
+    end;
+
+    //Save offsets .txt file
+    StrList := TStringList.Create;
+    StrList.Append(IntToStr(MinX - pngWidth div 2));
+    StrList.Append(IntToStr(MinY - CANVAS_Y_OFFSET - pngHeight div 2));
+    StrList.Append(IntToStr(NoShadMinX - MinX));
+    StrList.Append(IntToStr(NoShadMinY - MinY));
+    StrList.Append(IntToStr(newWidth-1 - (MaxX - NoShadMaxX)));
+    StrList.Append(IntToStr(newHeight-1 - (MaxY - NoShadMaxY)));
+
+    StrList.SaveToFile(outPrefixPath+format('%d.txt', [outIndex]));
+    SaveToPng(newWidth, newHeight, pngCrop, outPrefixPath+format('%d.png', [outIndex]));
+    if needsMask and (Length(pngTeam) > 0) then
+      SaveToPng(newWidth, newHeight, pngCropMask, outPrefixPath+format('%dm.png', [outIndex]));
+
+    FreeAndNil(StrList);
+  end;
+end;
+
 
 
 procedure TForm1.DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
@@ -596,8 +650,19 @@ end;
 
 
 procedure TForm1.DoInterpTree(aTree: Integer; var aPicOffset: Integer; aDryRun: Boolean);
+
+  function Is4xAnim(A: TKMAnimLoop): Boolean;
+  begin
+    Result := A.Count >= 8;
+    if Result then
+      Result := (A.Step[1] = A.Step[2]) and (A.Step[1] = A.Step[3]) and (A.Step[1] = A.Step[4])
+            and (A.Step[5] = A.Step[6]) and (A.Step[5] = A.Step[7]) and (A.Step[5] = A.Step[8]);
+  end;
+
 var
   A: TKMAnimLoop;
+  Step, SubStep, InterpOffset,StepSprite, StepNextSprite: Integer;
+  suffixPath, outDirLocal, outPrefix: string;
 begin
   A := gMapElements[aTree].Anim;
 
@@ -607,7 +672,48 @@ begin
     Exit;
   end;
 
-  DoInterp(rxTrees, A, A, False, False, False, $000000, aPicOffset, aDryRun);
+  if Is4xAnim(A) then
+  begin
+    //Custom handler for tree animations that only update every 4 frames
+    outDirLocal := fOutDir+IntToStr(Byte(rxTrees)+1)+'\';
+    outPrefix := outDirLocal+IntToStr(Byte(rxTrees)+1)+'_';
+    ForceDirectories(outDirLocal);
+
+    for Step := 1 to 8 do
+    begin
+      if Step > (A.Count div 4) then
+      begin
+        for SubStep := 1 to 32 do
+          fOutputStream.Write(Integer(-1));
+        Continue;
+      end;
+
+      StepSprite := A.Step[Step*4] + 1;
+      StepNextSprite := A.Step[((Step*4) mod A.Count) + 1] + 1;
+
+      fOutputStream.Write(StepSprite);
+
+      InterpOffset := aPicOffset;
+      //Update return values
+      Inc(aPicOffset, 31);
+      for SubStep := 0 to 30 do
+        fOutputStream.Write(InterpOffset+SubStep);
+
+      if aDryRun then
+        Continue;
+
+      Make4xInterpImages(rxTrees, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase);
+      Make4xInterpImages(rxTrees, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows);
+      for SubStep := 0 to 30 do
+      begin
+        //Filenames are 1-based, and skip the first one since it's the original
+        suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1]);
+        ProcessInterpImage(InterpOffset+SubStep, suffixPath, outPrefix, $0, 9999, -9999, 9999, -9999);
+      end;
+    end;
+  end
+  else
+    DoInterp(rxTrees, A, A, False, False, False, $000000, aPicOffset, aDryRun);
 end;
 
 
