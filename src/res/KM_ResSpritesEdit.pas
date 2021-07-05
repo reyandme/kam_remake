@@ -172,7 +172,7 @@ end;
 
 function TKMSpritePackEdit.ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aBaseMoveX, aBaseMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
 var
-  pngData, pngDataBackground: TKMCardinalArray;
+  pngData, pngDataBackground, pngAlpha, pngAlphaBackground: TKMCardinalArray;
   I: Integer;
   AlphaForeground, AlphaBackground: Byte;
   ResultBackground: Boolean;
@@ -183,23 +183,17 @@ begin
     ResultBackground := ExportPixelsForInterp(pngDataBackground, aIndexBase, aBaseMoveX, aBaseMoveY, aExportType, aCanvasSize);
     Result := Result or ResultBackground;
 
-    //Formats with alpha channel
-    if aExportType in [ietBase, ietNormal] then
+    //Since not all export formats contain the alpha value, we need to export the alpha so we can blend properly
+    ExportPixelsForInterp(pngAlpha, aIndex, 0, 0, ietNormal, aCanvasSize);
+    ExportPixelsForInterp(pngAlphaBackground, aIndexBase, aBaseMoveX, aBaseMoveY, ietNormal, aCanvasSize);
+
+    //Place background pixels where it has higher alpha
+    for I := Low(pngData) to High(pngData) do
     begin
-      for I := Low(pngData) to High(pngData) do
-      begin
-        AlphaForeground := pngData[I] shr 24;
-        AlphaBackground := pngDataBackground[I] shr 24;
-        if AlphaBackground > AlphaForeground then
-          pngData[I] := pngDataBackground[I];
-      end;
-    end;
-    //Greyscale formats
-    if aExportType in [ietBaseAlpha, ietShadows, ietTeamMask] then
-    begin
-      for I := Low(pngData) to High(pngData) do
-        if pngDataBackground[I] > pngData[I] then
-          pngData[I] := pngDataBackground[I];
+      AlphaForeground := pngAlpha[I] shr 24;
+      AlphaBackground := pngAlphaBackground[I] shr 24;
+      if AlphaBackground > AlphaForeground then
+        pngData[I] := pngDataBackground[I];
     end;
   end;
 
