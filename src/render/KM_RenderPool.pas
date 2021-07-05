@@ -849,7 +849,7 @@ begin
     if A.Count > 0 then
     begin
       if AT in CONTINUOUS_ANIMS then
-        Id := gRes.Interpolation.House(aHouse, AT, gGameParams.Tick, gGameParams.TickFrac)
+        Id := gRes.Interpolation.House(aHouse, AT, gTerrain.AnimStep, gGameParams.TickFrac)
       else
       begin
         //If the anim step is able to be interpolated from the last frame (to avoid incorrect looping)
@@ -1122,7 +1122,7 @@ begin
   // The thought should be slightly lower than the unit so it goes OVER warrior flags
   ground := ground + THOUGHT_X_OFFSET;
 
-  id := gRes.Interpolation.UnitThought(Thought, gGameParams.Tick, gGameParams.TickFrac);
+  id := gRes.Interpolation.UnitThought(Thought, gTerrain.AnimStep, gGameParams.TickFrac);
 
   cornerX := pX + R.Pivot[id].X / CELL_SIZE_PX;
   cornerY := gTerrain.RenderFlatToHeight(pX, pY) + (R.Pivot[id].Y + R.Size[id].Y) / CELL_SIZE_PX - 1.5;
