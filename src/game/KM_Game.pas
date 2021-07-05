@@ -3158,6 +3158,7 @@ begin
         gmReplaySingle,
         gmReplayMulti:    Result := PlayReplayTick;
         gmMapEd:          begin
+                            fLastUpdateState := TimeGet;
                             {$IFDEF PERFLOG}
                             gPerfLogs.TickBegin(gGameApp.GlobalTickCount);
                             {$ENDIF}
