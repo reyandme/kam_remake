@@ -48,7 +48,7 @@ type
 
     procedure WriteEmptyAnim;
     procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType);
-    procedure Make4xInterpImages(RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
+    procedure MakeCustomInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
     procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
     procedure ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
     procedure DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
@@ -173,7 +173,7 @@ begin
 end;
 
 
-procedure TForm1.Make4xInterpImages(RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
+procedure TForm1.MakeCustomInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
 var
   origSpritesDir, interpSpritesDir: string;
   I: Integer;
@@ -201,7 +201,7 @@ begin
   StartupInfo.cb := SizeOf(StartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
   StartupInfo.wShowWindow := SW_HIDE;
-  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha, 4)), nil, nil, false, 0, nil, PChar(fDainFolder), StartupInfo, ProcessInfo);
+  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha, aInterpCount)), nil, nil, false, 0, nil, PChar(fDainFolder), StartupInfo, ProcessInfo);
   WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
   //ShellExecute(0, nil, 'cmd.exe', PChar(DainParams), PChar(DainFolder), SW_SHOWNORMAL);
 end;
@@ -651,17 +651,18 @@ end;
 
 procedure TForm1.DoInterpTree(aTree: Integer; var aPicOffset: Integer; aDryRun: Boolean);
 
-  function Is4xAnim(A: TKMAnimLoop): Boolean;
+  function GetAnimSpeed(A: TKMAnimLoop): Integer;
+  var
+    I: Integer;
   begin
-    Result := A.Count >= 8;
-    if Result then
-      Result := (A.Step[1] = A.Step[2]) and (A.Step[1] = A.Step[3]) and (A.Step[1] = A.Step[4])
-            and (A.Step[5] = A.Step[6]) and (A.Step[5] = A.Step[7]) and (A.Step[5] = A.Step[8]);
+    Result := 1;
+    while (Result < A.Count) and (A.Step[Result] = A.Step[Result+1]) do
+      Inc(Result);
   end;
 
 var
   A: TKMAnimLoop;
-  Step, SubStep, InterpOffset,StepSprite, StepNextSprite: Integer;
+  S, Step, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
   suffixPath, outDirLocal, outPrefix: string;
 begin
   A := gMapElements[aTree].Anim;
@@ -672,39 +673,40 @@ begin
     Exit;
   end;
 
-  if Is4xAnim(A) then
+  S := GetAnimSpeed(A);
+  if (S = 2) or (S = 4) then
   begin
     //Custom handler for tree animations that only update every 4 frames
     outDirLocal := fOutDir+IntToStr(Byte(rxTrees)+1)+'\';
     outPrefix := outDirLocal+IntToStr(Byte(rxTrees)+1)+'_';
     ForceDirectories(outDirLocal);
 
-    for Step := 1 to 8 do
+    for Step := 1 to (32 div S) do
     begin
-      if Step > (A.Count div 4) then
+      if Step > (A.Count div S) then
       begin
-        for SubStep := 1 to 32 do
+        for SubStep := 1 to 8*S do
           fOutputStream.Write(Integer(-1));
         Continue;
       end;
 
-      StepSprite := A.Step[Step*4] + 1;
-      StepNextSprite := A.Step[((Step*4) mod A.Count) + 1] + 1;
+      StepSprite := A.Step[Step*S] + 1;
+      StepNextSprite := A.Step[((Step*S) mod A.Count) + 1] + 1;
 
       fOutputStream.Write(StepSprite);
 
       InterpOffset := aPicOffset;
       //Update return values
-      Inc(aPicOffset, 31);
-      for SubStep := 0 to 30 do
+      Inc(aPicOffset, 8*S - 1);
+      for SubStep := 0 to (8*S - 2) do
         fOutputStream.Write(InterpOffset+SubStep);
 
       if aDryRun then
         Continue;
 
-      Make4xInterpImages(rxTrees, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase);
-      Make4xInterpImages(rxTrees, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows);
-      for SubStep := 0 to 30 do
+      MakeCustomInterpImages(S, rxTrees, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase);
+      MakeCustomInterpImages(S, rxTrees, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows);
+      for SubStep := 0 to (8*S - 2) do
       begin
         //Filenames are 1-based, and skip the first one since it's the original
         suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1]);
