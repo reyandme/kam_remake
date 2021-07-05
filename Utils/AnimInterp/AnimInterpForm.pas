@@ -47,7 +47,7 @@ type
     function GetDainParams(aDir: string; aAlpha: Boolean): string;
 
     procedure WriteEmptyAnim;
-    procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aBaseDir: string; aExportType: TInterpExportType);
+    procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType);
     procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
@@ -171,7 +171,7 @@ begin
 end;
 
 
-procedure TForm1.MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aBaseDir: string; aExportType: TInterpExportType);
+procedure TForm1.MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType);
 var
   origSpritesDir, interpSpritesDir: string;
   CanvasSize: Integer;
@@ -199,6 +199,12 @@ begin
     CanvasSize := Max(CanvasSize, GetCanvasSize(aID_1_Base, RT, aBaseMoveX, aBaseMoveY));
   if aID_2_Base >= 0 then
     CanvasSize := Max(CanvasSize, GetCanvasSize(aID_2_Base, RT, aBaseMoveX, aBaseMoveY));
+
+  if not aUseBase then
+  begin
+    aID_1_Base := -1;
+    aID_2_Base := -1;
+  end;
 
   Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '1.png', aID_1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize);
   AllBlank := AllBlank and not Worked;
@@ -391,15 +397,12 @@ begin
     BaseMoveY := ABase.MoveY - A.MoveY;
 
     if aSimpleAlpha then
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, dirBase, ietNormal)
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietNormal)
     else
     begin
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, dirBase, ietBase);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, dirShad, ietShadows);
-      if aUseBaseForTeamMask then
-        MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, dirTeam, ietTeamMask)
-      else
-        MakeInterpImagesPair(RT, StepSprite, StepNextSprite, -1, -1, BaseMoveX, BaseMoveY, dirTeam, ietTeamMask);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietBase);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirShad, ietShadows);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, dirTeam, ietTeamMask);
     end;
 
     //Determine maximum bounds of the pair, to crop out the base background sprite
