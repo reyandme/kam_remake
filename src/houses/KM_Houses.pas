@@ -2265,11 +2265,8 @@ procedure TKMHouseAction.SubActionWork(aActionSet: TKMHouseActionType);
 begin
   SubActionRem([haWork1..haWork5]); //Remove all work
   fSubAction := fSubAction + [aActionSet];
-  if fHouse.fType <> htMill then
-  begin
-    fHouse.WorkAnimStep := 0; //Exception for mill so that the windmill doesn't jump frames
-    fHouse.WorkAnimStepPrev := 0;
-  end;
+  fHouse.WorkAnimStep := 0;
+  fHouse.WorkAnimStepPrev := 0;
 end;
 
 

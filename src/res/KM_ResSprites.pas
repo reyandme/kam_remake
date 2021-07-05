@@ -182,6 +182,7 @@ uses
   Types,
   {$IFDEF WDC}
   IOUtils,
+  System.RegularExpressions,
   {$ENDIF}
   KromUtils,
   {$IFDEF LOAD_GAME_RES_ASYNC}
@@ -719,7 +720,8 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string; aSoftenShadows
     I, ID: Integer;
     fileList, IDList: TStringList;
     searchRec: TSearchRec;
-    filePath, relName: string;
+    filePath, relName, regex, s: string;
+    Predicate: TDirectory.TFilterPredicate;
   {$ENDIF}
   begin
     {$IFDEF WDC}
@@ -730,7 +732,14 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string; aSoftenShadows
       IDList := TStringList.Create;
       try
         //PNGs
-        for filePath in TDirectory.GetFiles(aProcFolder, IntToStr(Byte(fRT) + 1) + '_????.png', TSearchOption.soAllDirectories) do
+        regex := '^'+IntToStr(Byte(fRT)+1)+'_[0-9]+\.png$';
+        Predicate :=
+          function(const Path: string; const SearchRec: TSearchRec): Boolean
+          begin
+            Result := TRegEx.IsMatch(SearchRec.Name, regex);
+          end;
+
+        for filePath in TDirectory.GetFiles(aProcFolder, IntToStr(Byte(fRT)+1) + '_*.png', TSearchOption.soAllDirectories, Predicate) do
         begin
           relName := ExtractRelativePath(aProcFolder, filePath);
           // skip image, if subfolder contains 'skip' string
@@ -744,37 +753,13 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string; aSoftenShadows
         //#_####.txt - Pivot info (optional)
         for I := fileList.Count - 1 downto 0 do
         begin
-          if TryStrToInt(Copy(ExtractFileName(fileList.Strings[I]), 3, 4), ID) then
+          s := ExtractFileName(fileList.Strings[I]);
+          if TryStrToInt(Copy(s, 3, Length(s)-6), ID) then
           begin
             AddImage(aProcFolder, fileList.Strings[I], ID);
             IDList.Add(IntToStr(ID));
           end;
         end;
-
-
-        fileList.Clear;
-        //PNGs
-        for filePath in TDirectory.GetFiles(aProcFolder, IntToStr(Byte(fRT) + 1) + '_?????.png', TSearchOption.soAllDirectories) do
-        begin
-          relName := ExtractRelativePath(aProcFolder, filePath);
-          // skip image, if subfolder contains 'skip' string
-          if not relName.Contains('skip') then
-            fileList.Add(relName);
-        end;
-
-        //PNG may be accompanied by some more files
-        //#_####.png - Base texture
-        //#_####a.png - Flag color mask
-        //#_####.txt - Pivot info (optional)
-        for I := fileList.Count - 1 downto 0 do
-        begin
-          if TryStrToInt(Copy(ExtractFileName(fileList.Strings[I]), 3, 5), ID) then
-          begin
-            AddImage(aProcFolder, fileList.Strings[I], ID);
-            //IDList.Add(IntToStr(ID));
-          end;
-        end;
-
 
         if aSoftenShadows then
           SoftenShadows(IDList); // Soften shadows for overloaded sprites

@@ -829,6 +829,13 @@ var
   A: TKMAnimLoop;
   R: TRXData;
   cornerX, cornerY: Single;
+const
+  //These house actions should animate smoothly and continuously, regardless of AnimStep
+  CONTINUOUS_ANIMS: TKMHouseActionSet = [
+    haSmoke, haFlagpole,
+    haFlag1, haFlag2, haFlag3,
+    haFire1, haFire2, haFire3, haFire4, haFire5, haFire6, haFire7, haFire8
+  ];
 begin
   if aActSet = [] then Exit;
 
@@ -841,11 +848,16 @@ begin
     A := gResHouses[aHouse].Anim[AT];
     if A.Count > 0 then
     begin
-      //If the anim step is able to be interpolated from the last frame (to avoid incorrect looping)
-      if AnimStep = AnimStepPrev+1 then
-        Id := gRes.Interpolation.House(aHouse, AT, AnimStepPrev, gGameParams.TickFrac)
+      if AT in CONTINUOUS_ANIMS then
+        Id := gRes.Interpolation.House(aHouse, AT, gGameParams.Tick, gGameParams.TickFrac)
       else
-        Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
+      begin
+        //If the anim step is able to be interpolated from the last frame (to avoid incorrect looping)
+        if AnimStep = AnimStepPrev+1 then
+          Id := gRes.Interpolation.House(aHouse, AT, AnimStepPrev, gGameParams.TickFrac)
+        else
+          Id := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
+      end;
 
       cornerX := Loc.X + (R.Pivot[Id].X + A.MoveX) / CELL_SIZE_PX - 1;
       cornerY := Loc.Y + (R.Pivot[Id].Y + A.MoveY + R.Size[Id].Y) / CELL_SIZE_PX - 1
