@@ -662,7 +662,7 @@ procedure TForm1.DoInterpTree(aTree: Integer; var aPicOffset: Integer; aDryRun: 
 
 var
   A: TKMAnimLoop;
-  S, Step, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
+  S, Step, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
   suffixPath, outDirLocal, outPrefix: string;
 begin
   A := gMapElements[aTree].Anim;
@@ -681,17 +681,22 @@ begin
     outPrefix := outDirLocal+IntToStr(Byte(rxTrees)+1)+'_';
     ForceDirectories(outDirLocal);
 
-    for Step := 1 to (32 div S) do
+    for StepFull := 1 to 30 do
     begin
-      if Step > (A.Count div S) then
+      if StepFull > A.Count then
       begin
-        for SubStep := 1 to 8*S do
+        for SubStep := 1 to 8 do
           fOutputStream.Write(Integer(-1));
         Continue;
       end;
 
-      StepSprite := A.Step[Step*S] + 1;
-      StepNextSprite := A.Step[((Step*S) mod A.Count) + 1] + 1;
+      if (StepFull-1) mod S <> 0 then
+        Continue;
+
+      Step := ((StepFull-1) div S) + 1;
+
+      StepSprite := A.Step[StepFull] + 1;
+      StepNextSprite := A.Step[(StepFull mod A.Count) + 1] + 1;
 
       fOutputStream.Write(StepSprite);
 
