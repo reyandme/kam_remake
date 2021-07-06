@@ -47,10 +47,15 @@ type
     function GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer = 8): string;
 
     procedure WriteEmptyAnim;
+
     procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType);
     procedure MakeCustomInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
+
     procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
+
+    procedure CleanupInterpBackground(var pngBase, pngShad, pngTeam: TKMCardinalArray);
     procedure ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
+
     procedure DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpUnitThought(aThought: TKMUnitThought; var aPicOffset: Integer; aDryRun: Boolean);
@@ -227,6 +232,9 @@ begin
 
   KMDeleteFolderContent(origSpritesDir);
   KMDeleteFolderContent(interpSpritesDir);
+  DeleteFile(aBaseDir + 'base.png');
+  DeleteFile(aBaseDir + '1.png');
+  DeleteFile(aBaseDir + '2.png');
 
   AllBlank := True;
   CanvasSize := Max(GetCanvasSize(aID_1, RT), GetCanvasSize(aID_2, RT));
@@ -250,6 +258,14 @@ begin
 
   if AllBlank then
     Exit;
+
+  //Export extra stuff for the special cleanup for house work to remove background
+  if aUseBase and (aID_1_Base <> -1) and (aID_1_Base = aID_2_Base) then
+  begin
+    fSprites[RT].ExportImageForInterp(aBaseDir + '1.png', aID_1, -1, 0, 0, aExportType, CanvasSize);
+    fSprites[RT].ExportImageForInterp(aBaseDir + '2.png', aID_2, -1, 0, 0, aExportType, CanvasSize);
+    fSprites[RT].ExportImageForInterp(aBaseDir + 'base.png', -1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize);
+  end;
 
   NeedAlpha := aExportType in [ietBase, ietNormal];
 
@@ -441,10 +457,10 @@ begin
 
     //Determine maximum bounds of the pair, to crop out the base background sprite
     //Expand by 1px in case the interpolation goes slightly outside the original bounds
-    OverallMinX := Min(fSprites[RT].RXData.Pivot[StepSprite].X, fSprites[RT].RXData.Pivot[StepNextSprite].X) - 1;
-    OverallMinY := Min(fSprites[RT].RXData.Pivot[StepSprite].Y, fSprites[RT].RXData.Pivot[StepNextSprite].Y) - 1;
-    OverallMaxX := OverallMinX + Max(fSprites[RT].RXData.Size[StepSprite].X, fSprites[RT].RXData.Size[StepNextSprite].X) + 1;
-    OverallMaxY := OverallMinY + Max(fSprites[RT].RXData.Size[StepSprite].Y, fSprites[RT].RXData.Size[StepNextSprite].Y) + 1;
+    OverallMinX := Min(fSprites[RT].RXData.Pivot[StepSprite].X, fSprites[RT].RXData.Pivot[StepNextSprite].X);
+    OverallMinY := Min(fSprites[RT].RXData.Pivot[StepSprite].Y, fSprites[RT].RXData.Pivot[StepNextSprite].Y);
+    OverallMaxX := OverallMinX + Max(fSprites[RT].RXData.Size[StepSprite].X, fSprites[RT].RXData.Size[StepNextSprite].X);
+    OverallMaxY := OverallMinY + Max(fSprites[RT].RXData.Size[StepSprite].Y, fSprites[RT].RXData.Size[StepNextSprite].Y);
 
     //Import and process interpolated steps
     for SubStep := 0 to 6 do
@@ -456,6 +472,74 @@ begin
   end;
 
   FreeAndNil(StrList);
+end;
+
+
+procedure TForm1.CleanupInterpBackground(var pngBase, pngShad, pngTeam: TKMCardinalArray);
+
+  function RGBDiff(A, B: Cardinal): Integer;
+  begin
+    Result := Abs(Integer(A and $FF) - Integer(B and $FF));
+    Result := Max(Result, Abs(Integer((A shr 8) and $FF) - Integer((B shr 8) and $FF)));
+    Result := Max(Result, Abs(Integer((A shr 16) and $FF) - Integer((B shr 16) and $FF)));
+  end;
+
+var
+  X, Y: Integer;
+  pngWidth, pngHeight: Word;
+  pngBaseBackground, pngShadBackground, pngClean1, pngClean2, pngShad1, pngShad2: TKMCardinalArray;
+begin
+  if FileExists(fWorkDir + 'base\base.png') then
+    LoadFromPng(fWorkDir + 'base\base.png', pngWidth, pngHeight, pngBaseBackground);
+
+  if FileExists(fWorkDir + 'base\1.png') then
+    LoadFromPng(fWorkDir + 'base\1.png', pngWidth, pngHeight, pngClean1);
+
+  if FileExists(fWorkDir + 'base\2.png') then
+    LoadFromPng(fWorkDir + 'base\2.png', pngWidth, pngHeight, pngClean2);
+
+  if FileExists(fWorkDir + 'shad\base.png') then
+    LoadFromPng(fWorkDir + 'shad\base.png', pngWidth, pngHeight, pngShadBackground);
+
+  if FileExists(fWorkDir + 'shad\1.png') then
+    LoadFromPng(fWorkDir + 'shad\1.png', pngWidth, pngHeight, pngShad1);
+
+  if FileExists(fWorkDir + 'shad\2.png') then
+    LoadFromPng(fWorkDir + 'shad\2.png', pngWidth, pngHeight, pngShad2);
+
+  if (Length(pngBaseBackground) = 0) or (Length(pngShadBackground) = 0)
+  or (Length(pngClean1) = 0) or (Length(pngClean2) = 0)
+  or (Length(pngShad1) = 0) or (Length(pngShad2) = 0) then
+    Exit;
+
+  for Y := 0 to pngHeight-1 do
+  begin
+    for X := 0 to pngWidth-1 do
+    begin
+      //If the pixel exists in either of the source sprites, don't change it
+      if (pngClean1[Y*pngWidth + X] shr 24 > 0)
+      or (pngClean2[Y*pngWidth + X] shr 24 > 0)
+      or (pngShad1[Y*pngWidth + X] and $FF > 0)
+      or (pngShad2[Y*pngWidth + X] and $FF > 0) then
+        Continue;
+
+      //If this pixels is unchanged from the base sprite we can skip it
+      //For example, part of the house in the background not the work animation
+      //This prevents the interpolated sprites covering up snow roofs or piles of wares
+      if ((pngBaseBackground[Y*pngWidth + X] shr 24 > 0) and
+          (RGBDiff(pngBaseBackground[Y*pngWidth + X], pngBase[Y*pngWidth + X]) <= 16))
+      or ((pngShadBackground[Y*pngWidth + X] shr 24 > 0) and
+          (pngBaseBackground[Y*pngWidth + X] shr 24 = 0) and
+          (pngBase[Y*pngWidth + X] shr 24 <= 32) and
+          (RGBDiff(pngShadBackground[Y*pngWidth + X], pngShad[Y*pngWidth + X]) <= 32)) then
+      begin
+        pngBase[Y*pngWidth + X] := $0;
+        pngShad[Y*pngWidth + X] := $FF000000;
+        if Length(pngTeam) > 0 then
+          pngTeam[Y*pngWidth + X] := $FF000000;
+      end;
+    end;
+  end;
 end;
 
 
@@ -487,6 +571,8 @@ begin
 
   if FileExists(dirTeam + inSuffixPath) then
     LoadFromPng(dirTeam + inSuffixPath, pngWidth, pngHeight, pngTeam);
+
+  CleanupInterpBackground(pngBase, pngShad, pngTeam);
 
   //Determine Min/Max X/Y
   MinX := MaxInt;
@@ -748,6 +834,10 @@ begin
 
   UseBase := aHouseAct in [haIdle, haWork1..haWork5];
   SimpleAlpha := aHouseAct in [haSmoke, haFire1..haFire8];
+
+  //Hard coded rules
+  if (aHT = htButchers) and (aHouseAct = haIdle) then
+    UseBase := False;
 
   DoInterp(rxHouses, A, ABase, UseBase and USE_BASE_HOUSE_ACT, False, SimpleAlpha, $000000, aPicOffset, aDryRun);
 end;
