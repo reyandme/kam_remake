@@ -48,10 +48,10 @@ type
 
     procedure WriteEmptyAnim;
 
-    procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType);
+    procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean);
     procedure MakeCustomInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
 
-    procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
+    procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
 
     procedure CleanupInterpBackground(var pngBase, pngShad, pngTeam: TKMCardinalArray);
     procedure ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
@@ -186,7 +186,7 @@ var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
-  MakeInterpImagesPair(RT, aID_1, aID_2, -1, -1, 0, 0, False, aBaseDir, aExportType);
+  MakeInterpImagesPair(RT, aID_1, aID_2, -1, -1, 0, 0, False, aBaseDir, aExportType, True);
 
   origSpritesDir := aBaseDir + 'original_frames\';
   interpSpritesDir := aBaseDir + 'interpolated_frames\';
@@ -212,7 +212,7 @@ begin
 end;
 
 
-procedure TForm1.MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType);
+procedure TForm1.MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean);
 var
   origSpritesDir, interpSpritesDir: string;
   CanvasSize: Integer;
@@ -250,10 +250,10 @@ begin
     aID_2_Base := -1;
   end;
 
-  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '1.png', aID_1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize);
+  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '1.png', aID_1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize, aSimpleShadows);
   AllBlank := AllBlank and not Worked;
 
-  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '2.png', aID_2, aID_2_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize);
+  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '2.png', aID_2, aID_2_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize, aSimpleShadows);
   AllBlank := AllBlank and not Worked;
 
   if AllBlank then
@@ -262,9 +262,9 @@ begin
   //Export extra stuff for the special cleanup for house work to remove background
   if aUseBase and (aID_1_Base <> -1) and (aID_1_Base = aID_2_Base) then
   begin
-    fSprites[RT].ExportImageForInterp(aBaseDir + '1.png', aID_1, -1, 0, 0, aExportType, CanvasSize);
-    fSprites[RT].ExportImageForInterp(aBaseDir + '2.png', aID_2, -1, 0, 0, aExportType, CanvasSize);
-    fSprites[RT].ExportImageForInterp(aBaseDir + 'base.png', -1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize);
+    fSprites[RT].ExportImageForInterp(aBaseDir + '1.png', aID_1, -1, 0, 0, aExportType, CanvasSize, aSimpleShadows);
+    fSprites[RT].ExportImageForInterp(aBaseDir + '2.png', aID_2, -1, 0, 0, aExportType, CanvasSize, aSimpleShadows);
+    fSprites[RT].ExportImageForInterp(aBaseDir + 'base.png', -1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize, aSimpleShadows);
   end;
 
   NeedAlpha := aExportType in [ietBase, ietNormal];
@@ -328,7 +328,7 @@ begin
 end;
 
 
-procedure TForm1.DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
 
   function SameAnim(A, B: TKMAnimLoop): Boolean;
   var
@@ -447,12 +447,12 @@ begin
     BaseMoveY := ABase.MoveY - A.MoveY;
 
     if aSimpleAlpha then
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietNormal)
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietNormal, aSimpleShadows)
     else
     begin
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietBase);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirShad, ietShadows);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, dirTeam, ietTeamMask);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietBase, aSimpleShadows);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirShad, ietShadows, aSimpleShadows);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, dirTeam, ietTeamMask, aSimpleShadows);
     end;
 
     //Determine maximum bounds of the pair, to crop out the base background sprite
@@ -517,8 +517,8 @@ begin
     for X := 0 to pngWidth-1 do
     begin
       //If the pixel exists in either of the source sprites, don't change it
-      if (pngClean1[Y*pngWidth + X] shr 24 > 0)
-      or (pngClean2[Y*pngWidth + X] shr 24 > 0)
+      if (pngClean1[Y*pngWidth + X] shr 24 >= 128)
+      or (pngClean2[Y*pngWidth + X] shr 24 >= 128)
       or (pngShad1[Y*pngWidth + X] and $FF > 0)
       or (pngShad2[Y*pngWidth + X] and $FF > 0) then
         Continue;
@@ -665,7 +665,7 @@ procedure TForm1.DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir
 var
   A, ABase: TKMAnimLoop;
   bkgRGB: Cardinal;
-  UseBase: Boolean;
+  UseBase, SimpleShadows: Boolean;
 begin
   if aDir = dirNA then
   begin
@@ -691,7 +691,9 @@ begin
   UseBase := UseBase and (aUT in [CITIZEN_MIN..CITIZEN_MAX]); //Don't use base for warrior flags
   ABase := fResUnits[aUT].UnitAnim[uaWalk, aDir];
 
-  DoInterp(rxUnits, A, ABase, UseBase, True, False, bkgRGB, aPicOffset, aDryRun);
+  SimpleShadows := aAction <> uaDie;
+
+  DoInterp(rxUnits, A, ABase, UseBase, True, False, SimpleShadows, bkgRGB, aPicOffset, aDryRun);
 end;
 
 
@@ -708,7 +710,7 @@ begin
   A := fResUnits.SerfCarry[aWare, aDir];
   ABase := fResUnits[utSerf].UnitAnim[uaWalk, aDir];
 
-  DoInterp(rxUnits, A, ABase, True, True, False, $000000, aPicOffset, aDryRun);
+  DoInterp(rxUnits, A, ABase, True, True, False, True, $000000, aPicOffset, aDryRun);
 end;
 
 
@@ -732,7 +734,7 @@ begin
       A.Step[I] := -1;
   end;
 
-  DoInterp(rxUnits, A, A, False, False, False, $FFFFFF, aPicOffset, aDryRun);
+  DoInterp(rxUnits, A, A, False, False, False, False, $FFFFFF, aPicOffset, aDryRun);
 end;
 
 
@@ -807,7 +809,7 @@ begin
     end;
   end
   else
-    DoInterp(rxTrees, A, A, False, False, False, $000000, aPicOffset, aDryRun);
+    DoInterp(rxTrees, A, A, False, False, False, True, $000000, aPicOffset, aDryRun);
 end;
 
 
@@ -815,7 +817,7 @@ procedure TForm1.DoInterpHouseAction(aHT: TKMHouseType; aHouseAct: TKMHouseActio
 var
   A, ABase: TKMAnimLoop;
   UseBase: Boolean;
-  SimpleAlpha: Boolean;
+  SimpleAlpha, SimpleShadows: Boolean;
   I: Integer;
 begin
   A := fResHouses.HouseDat[aHT].Anim[aHouseAct];
@@ -834,12 +836,13 @@ begin
 
   UseBase := aHouseAct in [haIdle, haWork1..haWork5];
   SimpleAlpha := aHouseAct in [haSmoke, haFire1..haFire8];
+  SimpleShadows := not (aHouseAct in [haSmoke, haFire1..haFire8]);
 
   //Hard coded rules
   if (aHT = htButchers) and (aHouseAct = haIdle) then
     UseBase := False;
 
-  DoInterp(rxHouses, A, ABase, UseBase and USE_BASE_HOUSE_ACT, False, SimpleAlpha, $000000, aPicOffset, aDryRun);
+  DoInterp(rxHouses, A, ABase, UseBase and USE_BASE_HOUSE_ACT, False, SimpleAlpha, SimpleShadows, $000000, aPicOffset, aDryRun);
 end;
 
 
@@ -870,7 +873,7 @@ begin
     Exit;
   end;
 
-  DoInterp(rxHouses, A, ABase, USE_BASE_BEASTS, False, False, $000000, aPicOffset, aDryRun);
+  DoInterp(rxHouses, A, ABase, USE_BASE_BEASTS, False, False, True, $000000, aPicOffset, aDryRun);
 end;
 
 

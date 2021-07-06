@@ -36,8 +36,8 @@ type
     procedure ClearTemp; override;
     procedure GetImageToBitmap(aIndex: Integer; aBmp, aMask: TBitmap);
 
-    function ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aBaseMoveX, aBaseMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
-    function ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aMoveX, aMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+    function ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aBaseMoveX, aBaseMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer; aSimpleShadows: Boolean): Boolean;
+    function ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aMoveX, aMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer; aSimpleShadows: Boolean): Boolean;
   end;
 
 
@@ -170,7 +170,7 @@ begin
 end;
 
 
-function TKMSpritePackEdit.ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aBaseMoveX, aBaseMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+function TKMSpritePackEdit.ExportImageForInterp(const aFile: string; aIndex, aIndexBase: Integer; aBaseMoveX, aBaseMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer; aSimpleShadows: Boolean): Boolean;
 var
   pngData, pngDataBackground, pngAlpha, pngAlphaBackground: TKMCardinalArray;
   I: Integer;
@@ -178,7 +178,7 @@ var
   ResultBackground: Boolean;
 begin
   if aIndex >= 0 then
-    Result := ExportPixelsForInterp(pngData, aIndex, 0, 0, aExportType, aCanvasSize)
+    Result := ExportPixelsForInterp(pngData, aIndex, 0, 0, aExportType, aCanvasSize, aSimpleShadows)
   else
   begin
     Result := True;
@@ -187,16 +187,16 @@ begin
 
   if aIndexBase >= 0 then
   begin
-    ResultBackground := ExportPixelsForInterp(pngDataBackground, aIndexBase, aBaseMoveX, aBaseMoveY, aExportType, aCanvasSize);
+    ResultBackground := ExportPixelsForInterp(pngDataBackground, aIndexBase, aBaseMoveX, aBaseMoveY, aExportType, aCanvasSize, aSimpleShadows);
     Result := Result or ResultBackground;
 
     //Since not all export formats contain the alpha value, we need to export the alpha so we can blend properly
     if aIndex >= 0 then
-      ExportPixelsForInterp(pngAlpha, aIndex, 0, 0, ietNormal, aCanvasSize)
+      ExportPixelsForInterp(pngAlpha, aIndex, 0, 0, ietNormal, aCanvasSize, aSimpleShadows)
     else
       SetLength(pngAlpha, aCanvasSize*aCanvasSize);
 
-    ExportPixelsForInterp(pngAlphaBackground, aIndexBase, aBaseMoveX, aBaseMoveY, ietNormal, aCanvasSize);
+    ExportPixelsForInterp(pngAlphaBackground, aIndexBase, aBaseMoveX, aBaseMoveY, ietNormal, aCanvasSize, aSimpleShadows);
 
     //Place background pixels where it has higher alpha
     for I := Low(pngData) to High(pngData) do
@@ -212,7 +212,7 @@ begin
 end;
 
 
-function TKMSpritePackEdit.ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aMoveX, aMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer): Boolean;
+function TKMSpritePackEdit.ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aMoveX, aMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer; aSimpleShadows: Boolean): Boolean;
 var
   I, K, dstX, dstY, CentreX, CentreY: Integer;
   M, A: Byte;
@@ -275,7 +275,7 @@ begin
     RGB := C and $FFFFFF;
     A := (C shr 24);
 
-    isShadow := (A > 0) and (A < $FF);
+    isShadow := (A > 0) and (A < $FF) and (not aSimpleShadows or (RGB = $0));
 
     if aExportType = ietShadows then
     begin
