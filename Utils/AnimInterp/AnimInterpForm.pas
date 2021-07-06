@@ -602,6 +602,7 @@ begin
     bkgRGB := $000000;
 
   UseBase := aAction in [uaWalkArm, uaWalkTool, uaWalkBooty, uaWalkTool2, uaWalkBooty2];
+  UseBase := UseBase and (aUT in [CITIZEN_MIN..CITIZEN_MAX]); //Don't use base for warrior flags
   ABase := fResUnits[aUT].UnitAnim[uaWalk, aDir];
 
   DoInterp(rxUnits, A, ABase, UseBase, True, False, bkgRGB, aPicOffset, aDryRun);
