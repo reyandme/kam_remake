@@ -177,14 +177,25 @@ var
   AlphaForeground, AlphaBackground: Byte;
   ResultBackground: Boolean;
 begin
-  Result := ExportPixelsForInterp(pngData, aIndex, 0, 0, aExportType, aCanvasSize);
+  if aIndex >= 0 then
+    Result := ExportPixelsForInterp(pngData, aIndex, 0, 0, aExportType, aCanvasSize)
+  else
+  begin
+    Result := True;
+    SetLength(pngData, aCanvasSize*aCanvasSize);
+  end;
+
   if aIndexBase >= 0 then
   begin
     ResultBackground := ExportPixelsForInterp(pngDataBackground, aIndexBase, aBaseMoveX, aBaseMoveY, aExportType, aCanvasSize);
     Result := Result or ResultBackground;
 
     //Since not all export formats contain the alpha value, we need to export the alpha so we can blend properly
-    ExportPixelsForInterp(pngAlpha, aIndex, 0, 0, ietNormal, aCanvasSize);
+    if aIndex >= 0 then
+      ExportPixelsForInterp(pngAlpha, aIndex, 0, 0, ietNormal, aCanvasSize)
+    else
+      SetLength(pngAlpha, aCanvasSize*aCanvasSize);
+
     ExportPixelsForInterp(pngAlphaBackground, aIndexBase, aBaseMoveX, aBaseMoveY, ietNormal, aCanvasSize);
 
     //Place background pixels where it has higher alpha
