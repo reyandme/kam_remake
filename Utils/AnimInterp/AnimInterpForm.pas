@@ -833,13 +833,23 @@ var
   A, ABase: TKMAnimLoop;
   UseBase: Boolean;
   SimpleAlpha, SimpleShadows: Boolean;
-  I: Integer;
+  I, Step, SubStep: Integer;
 begin
   A := fResHouses.HouseDat[aHT].Anim[aHouseAct];
 
   if (A.Count <= 1) or (A.Step[1] = -1) then
   begin
     WriteEmptyAnim;
+    Exit;
+  end;
+
+  //School clock shouldn't be interpolated, it's supposed to tick
+  if (aHT = htSchool) and (aHouseAct in [haWork1..haWork5]) then
+  begin
+    for Step := 1 to 30 do
+      for SubStep := 1 to 8 do
+        fOutputStream.Write(Integer(A.Step[Step]));
+
     Exit;
   end;
 
