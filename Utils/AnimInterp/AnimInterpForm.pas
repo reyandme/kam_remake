@@ -11,6 +11,7 @@ uses
 type
   TInterpCacheItem = record
     A, B: Integer;
+    Speed: Integer;
     interpOffset: Integer;
   end;
 
