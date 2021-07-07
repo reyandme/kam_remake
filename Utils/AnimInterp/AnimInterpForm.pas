@@ -411,7 +411,7 @@ begin
     Found := False;
     for I := Low(fInterpCache) to High(fInterpCache) do
     begin
-      if (fInterpCache[I].A = StepSprite) and (fInterpCache[I].B = StepNextSprite) then
+      if (fInterpCache[I].A = StepSprite) and (fInterpCache[I].B = StepNextSprite) and (fInterpCache[I].Speed = 1) then
       begin
         for SubStep := 0 to 6 do
           fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
@@ -419,7 +419,7 @@ begin
         Found := True;
       end
       //Check for a reversed sequence in the cache (animations often loop backwards)
-      else if (fInterpCache[I].B = StepSprite) and (fInterpCache[I].A = StepNextSprite) then
+      else if (fInterpCache[I].B = StepSprite) and (fInterpCache[I].A = StepNextSprite) and (fInterpCache[I].Speed = 1) then
       begin
         for SubStep := 6 downto 0 do
           fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
@@ -436,6 +436,7 @@ begin
     SetLength(fInterpCache, Length(fInterpCache)+1);
     fInterpCache[Length(fInterpCache)-1].A := StepSprite;
     fInterpCache[Length(fInterpCache)-1].B := StepNextSprite;
+    fInterpCache[Length(fInterpCache)-1].Speed := 1;
     fInterpCache[Length(fInterpCache)-1].interpOffset := InterpOffset;
 
     //Update return values
@@ -489,8 +490,9 @@ end;
 
 procedure TForm1.DoInterpSlow(RT: TRXType; A: TKMAnimLoop; var aPicOffset: Integer; aDryRun: Boolean; aBkgRGB: Cardinal);
 var
-  S, SInterp, SOffset, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
+  I, S, SInterp, SOffset, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
   suffixPath, outDirLocal, outPrefix: string;
+  Found: Boolean;
 begin
   S := GetAnimSpeed(A);
 
@@ -524,7 +526,38 @@ begin
 
       fOutputStream.Write(StepSprite);
 
+      //Check the cache
+      Found := False;
+      for I := Low(fInterpCache) to High(fInterpCache) do
+      begin
+        if (fInterpCache[I].A = StepSprite) and (fInterpCache[I].B = StepNextSprite) and (fInterpCache[I].Speed = S) then
+        begin
+          for SubStep := 0 to (8*S - 2) do
+            fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
+
+          Found := True;
+        end
+        //Check for a reversed sequence in the cache (animations often loop backwards)
+        else if (fInterpCache[I].B = StepSprite) and (fInterpCache[I].A = StepNextSprite) and (fInterpCache[I].Speed = S) then
+        begin
+          for SubStep := (8*S - 2) downto 0 do
+            fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
+
+          Found := True;
+        end;
+      end;
+      if Found then
+        Continue;
+
       InterpOffset := aPicOffset;
+
+      //Cache it
+      SetLength(fInterpCache, Length(fInterpCache)+1);
+      fInterpCache[Length(fInterpCache)-1].A := StepSprite;
+      fInterpCache[Length(fInterpCache)-1].B := StepNextSprite;
+      fInterpCache[Length(fInterpCache)-1].Speed := S;
+      fInterpCache[Length(fInterpCache)-1].interpOffset := InterpOffset;
+
       //Update return values
       Inc(aPicOffset, 8*S - 1);
       for SubStep := 0 to (8*S - 2) do
