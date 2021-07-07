@@ -48,10 +48,11 @@ type
 
     procedure WriteEmptyAnim;
 
-    procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean);
-    procedure MakeCustomInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
+    procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean; aBkgRGB: Cardinal);
+    procedure MakeSlowInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType; aBkgRGB: Cardinal);
 
     procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
+    procedure DoInterpSlow(RT: TRXType; A: TKMAnimLoop; var aPicOffset: Integer; aDryRun: Boolean; aBkgRGB: Cardinal);
 
     procedure CleanupInterpBackground(var pngBase, pngShad, pngTeam: TKMCardinalArray);
     procedure ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
@@ -116,6 +117,13 @@ const
     [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk] //Animals
   );
 
+  function GetAnimSpeed(A: TKMAnimLoop): Integer;
+  begin
+    Result := 1;
+    while (Result < A.Count) and (A.Step[Result] = A.Step[Result+1]) do
+      Inc(Result);
+  end;
+
 {$R *.dfm}
 
 
@@ -178,7 +186,7 @@ begin
 end;
 
 
-procedure TForm1.MakeCustomInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType);
+procedure TForm1.MakeSlowInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType; aBkgRGB: Cardinal);
 var
   origSpritesDir, interpSpritesDir: string;
   I: Integer;
@@ -186,10 +194,14 @@ var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
-  MakeInterpImagesPair(RT, aID_1, aID_2, -1, -1, 0, 0, False, aBaseDir, aExportType, True);
+  MakeInterpImagesPair(RT, aID_1, aID_2, -1, -1, 0, 0, False, aBaseDir, aExportType, True, aBkgRGB);
 
   origSpritesDir := aBaseDir + 'original_frames\';
   interpSpritesDir := aBaseDir + 'interpolated_frames\';
+
+  if not FileExists(origSpritesDir + format('%d.png', [2]))
+  or not FileExists(interpSpritesDir + format('%.15d.png', [1])) then
+    Exit;
 
   KMCopyFile(origSpritesDir + format('%d.png', [2]), interpSpritesDir + format('%.15d.png', [9]));
   KMDeleteFolderContent(origSpritesDir);
@@ -212,7 +224,7 @@ begin
 end;
 
 
-procedure TForm1.MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean);
+procedure TForm1.MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean; aBkgRGB: Cardinal);
 var
   origSpritesDir, interpSpritesDir: string;
   CanvasSize: Integer;
@@ -250,10 +262,10 @@ begin
     aID_2_Base := -1;
   end;
 
-  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '1.png', aID_1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize, aSimpleShadows);
+  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '1.png', aID_1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize, aSimpleShadows, aBkgRGB);
   AllBlank := AllBlank and not Worked;
 
-  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '2.png', aID_2, aID_2_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize, aSimpleShadows);
+  Worked := fSprites[RT].ExportImageForInterp(origSpritesDir + '2.png', aID_2, aID_2_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize, aSimpleShadows, aBkgRGB);
   AllBlank := AllBlank and not Worked;
 
   if AllBlank then
@@ -262,9 +274,9 @@ begin
   //Export extra stuff for the special cleanup for house work to remove background
   if aUseBase and (aID_1_Base <> -1) and (aID_1_Base = aID_2_Base) then
   begin
-    fSprites[RT].ExportImageForInterp(aBaseDir + '1.png', aID_1, -1, 0, 0, aExportType, CanvasSize, aSimpleShadows);
-    fSprites[RT].ExportImageForInterp(aBaseDir + '2.png', aID_2, -1, 0, 0, aExportType, CanvasSize, aSimpleShadows);
-    fSprites[RT].ExportImageForInterp(aBaseDir + 'base.png', -1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize, aSimpleShadows);
+    fSprites[RT].ExportImageForInterp(aBaseDir + '1.png', aID_1, -1, 0, 0, aExportType, CanvasSize, aSimpleShadows, aBkgRGB);
+    fSprites[RT].ExportImageForInterp(aBaseDir + '2.png', aID_2, -1, 0, 0, aExportType, CanvasSize, aSimpleShadows, aBkgRGB);
+    fSprites[RT].ExportImageForInterp(aBaseDir + 'base.png', -1, aID_1_Base, aBaseMoveX, aBaseMoveY, aExportType, CanvasSize, aSimpleShadows, aBkgRGB);
   end;
 
   NeedAlpha := aExportType in [ietBase, ietNormal];
@@ -447,12 +459,12 @@ begin
     BaseMoveY := ABase.MoveY - A.MoveY;
 
     if aSimpleAlpha then
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietNormal, aSimpleShadows)
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietNormal, aSimpleShadows, aBkgRGB)
     else
     begin
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietBase, aSimpleShadows);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirShad, ietShadows, aSimpleShadows);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, dirTeam, ietTeamMask, aSimpleShadows);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietBase, aSimpleShadows, aBkgRGB);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirShad, ietShadows, aSimpleShadows, aBkgRGB);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, dirTeam, ietTeamMask, aSimpleShadows, aBkgRGB);
     end;
 
     //Determine maximum bounds of the pair, to crop out the base background sprite
@@ -472,6 +484,61 @@ begin
   end;
 
   FreeAndNil(StrList);
+end;
+
+
+procedure TForm1.DoInterpSlow(RT: TRXType; A: TKMAnimLoop; var aPicOffset: Integer; aDryRun: Boolean; aBkgRGB: Cardinal);
+var
+  S, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
+  suffixPath, outDirLocal, outPrefix: string;
+begin
+  S := GetAnimSpeed(A);
+  if (S = 2) or (S = 4) then
+  begin
+    //Custom handler for animations that only update every 2/3/4 frames
+    outDirLocal := fOutDir+IntToStr(Byte(RT)+1)+'\';
+    outPrefix := outDirLocal+IntToStr(Byte(RT)+1)+'_';
+    ForceDirectories(outDirLocal);
+
+    for StepFull := 1 to 30 do
+    begin
+      if StepFull > A.Count then
+      begin
+        for SubStep := 1 to 8 do
+          fOutputStream.Write(Integer(-1));
+        Continue;
+      end;
+
+      if (StepFull-1) mod S <> 0 then
+        Continue;
+
+      StepSprite := A.Step[StepFull] + 1;
+      StepNextSprite := A.Step[(StepFull mod A.Count) + S] + 1;
+
+      fOutputStream.Write(StepSprite);
+
+      InterpOffset := aPicOffset;
+      //Update return values
+      Inc(aPicOffset, 8*S - 1);
+      for SubStep := 0 to (8*S - 2) do
+        fOutputStream.Write(InterpOffset+SubStep);
+
+      if aDryRun then
+        Continue;
+
+      MakeSlowInterpImages(S, RT, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase, aBkgRGB);
+      MakeSlowInterpImages(S, RT, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows, aBkgRGB);
+      MakeSlowInterpImages(S, RT, StepSprite, StepNextSprite, fWorkDir+'team\', ietTeamMask, aBkgRGB);
+      for SubStep := 0 to (8*S - 2) do
+      begin
+        //Filenames are 1-based, and skip the first one since it's the original
+        suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1]);
+        ProcessInterpImage(InterpOffset+SubStep, suffixPath, outPrefix, $0, 9999, -9999, 9999, -9999);
+      end;
+    end;
+  end
+  else
+    memoErrors.Text := memoErrors.Text + 'Not a slow animation!' + #13#10;
 end;
 
 
@@ -739,20 +806,9 @@ end;
 
 
 procedure TForm1.DoInterpTree(aTree: Integer; var aPicOffset: Integer; aDryRun: Boolean);
-
-  function GetAnimSpeed(A: TKMAnimLoop): Integer;
-  var
-    I: Integer;
-  begin
-    Result := 1;
-    while (Result < A.Count) and (A.Step[Result] = A.Step[Result+1]) do
-      Inc(Result);
-  end;
-
 var
   A: TKMAnimLoop;
-  S, Step, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
-  suffixPath, outDirLocal, outPrefix: string;
+  S: Integer;
 begin
   A := gMapElements[aTree].Anim;
 
@@ -765,48 +821,7 @@ begin
   S := GetAnimSpeed(A);
   if (S = 2) or (S = 4) then
   begin
-    //Custom handler for tree animations that only update every 4 frames
-    outDirLocal := fOutDir+IntToStr(Byte(rxTrees)+1)+'\';
-    outPrefix := outDirLocal+IntToStr(Byte(rxTrees)+1)+'_';
-    ForceDirectories(outDirLocal);
-
-    for StepFull := 1 to 30 do
-    begin
-      if StepFull > A.Count then
-      begin
-        for SubStep := 1 to 8 do
-          fOutputStream.Write(Integer(-1));
-        Continue;
-      end;
-
-      if (StepFull-1) mod S <> 0 then
-        Continue;
-
-      Step := ((StepFull-1) div S) + 1;
-
-      StepSprite := A.Step[StepFull] + 1;
-      StepNextSprite := A.Step[(StepFull mod A.Count) + 1] + 1;
-
-      fOutputStream.Write(StepSprite);
-
-      InterpOffset := aPicOffset;
-      //Update return values
-      Inc(aPicOffset, 8*S - 1);
-      for SubStep := 0 to (8*S - 2) do
-        fOutputStream.Write(InterpOffset+SubStep);
-
-      if aDryRun then
-        Continue;
-
-      MakeCustomInterpImages(S, rxTrees, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase);
-      MakeCustomInterpImages(S, rxTrees, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows);
-      for SubStep := 0 to (8*S - 2) do
-      begin
-        //Filenames are 1-based, and skip the first one since it's the original
-        suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1]);
-        ProcessInterpImage(InterpOffset+SubStep, suffixPath, outPrefix, $0, 9999, -9999, 9999, -9999);
-      end;
-    end;
+    DoInterpSlow(rxTrees, A, aPicOffset, aDryRun, $0);
   end
   else
     DoInterp(rxTrees, A, A, False, False, False, True, $000000, aPicOffset, aDryRun);
@@ -840,7 +855,10 @@ begin
 
   //Hard coded rules
   if (aHT = htButchers) and (aHouseAct = haIdle) then
-    UseBase := False;
+  begin
+    DoInterpSlow(rxHouses, A, aPicOffset, aDryRun, $FFFFFF);
+    Exit;
+  end;
 
   DoInterp(rxHouses, A, ABase, UseBase and USE_BASE_HOUSE_ACT, False, SimpleAlpha, SimpleShadows, $000000, aPicOffset, aDryRun);
 end;
