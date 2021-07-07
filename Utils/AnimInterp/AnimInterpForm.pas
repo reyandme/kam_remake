@@ -489,11 +489,18 @@ end;
 
 procedure TForm1.DoInterpSlow(RT: TRXType; A: TKMAnimLoop; var aPicOffset: Integer; aDryRun: Boolean; aBkgRGB: Cardinal);
 var
-  S, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
+  S, SInterp, SOffset, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
   suffixPath, outDirLocal, outPrefix: string;
 begin
   S := GetAnimSpeed(A);
-  if (S = 2) or (S = 4) then
+
+  //We can't do 3x interp, so interp 4x and skip some of them using SOffset below
+  if S = 3 then
+    SInterp := 4
+  else
+    SInterp := S;
+
+  if (S = 2) or (S = 3) or (S = 4) then
   begin
     //Custom handler for animations that only update every 2/3/4 frames
     outDirLocal := fOutDir+IntToStr(Byte(RT)+1)+'\';
@@ -526,13 +533,18 @@ begin
       if aDryRun then
         Continue;
 
-      MakeSlowInterpImages(S, RT, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase, aBkgRGB);
-      MakeSlowInterpImages(S, RT, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows, aBkgRGB);
-      MakeSlowInterpImages(S, RT, StepSprite, StepNextSprite, fWorkDir+'team\', ietTeamMask, aBkgRGB);
+      MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase, aBkgRGB);
+      MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows, aBkgRGB);
+      MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'team\', ietTeamMask, aBkgRGB);
       for SubStep := 0 to (8*S - 2) do
       begin
+        if S <> SInterp then
+          SOffset := (SubStep+1+1) div SInterp
+        else
+          SOffset := 0;
+
         //Filenames are 1-based, and skip the first one since it's the original
-        suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1]);
+        suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1 + SOffset]);
         ProcessInterpImage(InterpOffset+SubStep, suffixPath, outPrefix, $0, 9999, -9999, 9999, -9999);
       end;
     end;
@@ -819,7 +831,7 @@ begin
   end;
 
   S := GetAnimSpeed(A);
-  if (S = 2) or (S = 4) then
+  if (S = 2) or (S = 3) or (S = 4) then
   begin
     DoInterpSlow(rxTrees, A, aPicOffset, aDryRun, $0);
   end
