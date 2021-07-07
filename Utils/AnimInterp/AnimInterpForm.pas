@@ -513,7 +513,7 @@ begin
         Continue;
 
       StepSprite := A.Step[StepFull] + 1;
-      StepNextSprite := A.Step[(StepFull mod A.Count) + S] + 1;
+      StepNextSprite := A.Step[(((StepFull-1 + S) mod A.Count) + 1)] + 1;
 
       fOutputStream.Write(StepSprite);
 
