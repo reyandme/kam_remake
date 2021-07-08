@@ -214,9 +214,9 @@ end;
 
 function TKMSpritePackEdit.ExportPixelsForInterp(var pngData: TKMCardinalArray; aIndex: Integer; aMoveX, aMoveY: Integer; aExportType: TInterpExportType; aCanvasSize: Integer; aSimpleShadows: Boolean; aBkgColour: Cardinal): Boolean;
 var
-  I, K, dstX, dstY, CentreX, CentreY: Integer;
+  I, K, X, Y, dstX, dstY, CentreX, CentreY: Integer;
   M, A: Byte;
-  C, RGB: Cardinal;
+  C, RGB, R, G, B: Cardinal;
   TreatMask, isShadow: Boolean;
   srcWidth, srcHeight: Word;
   dstWidth, dstHeight: Word;
@@ -347,6 +347,45 @@ begin
         pngData[dstY*dstWidth + dstX] := $FFFFFFFF
       else if aExportType = ietBaseBlack then
         pngData[dstY*dstWidth + dstX] := $FF000000;
+    end;
+  end;
+
+  //1px grow of RGB into transparent areas
+  //This helps because the interp algo handles transparency badly: It blends RGB from fully transparent pixels
+  //Without this step you get a black halo around interpolated stuff
+  if aExportType = ietBase then
+  begin
+    for Y := 0 to aCanvasSize-1 do
+    for X := 0 to aCanvasSize-1 do
+    begin
+      if pngData[Y*aCanvasSize + X] shr 24 = 0 then
+      begin
+        C := 0;
+        R := 0;
+        G := 0;
+        B := 0;
+        for I := -1 to 1 do
+        for K := -1 to 1 do
+        begin
+          dstY := EnsureRange(Y+I, 0, aCanvasSize-1);
+          dstX := EnsureRange(X+K, 0, aCanvasSize-1);
+          if pngData[dstY*aCanvasSize + dstX] shr 24 > 0 then
+          begin
+            Inc(C);
+            R := R +  pngData[dstY*aCanvasSize + dstX]         and $FF;
+            G := G + (pngData[dstY*aCanvasSize + dstX] shr 8 ) and $FF;
+            B := B + (pngData[dstY*aCanvasSize + dstX] shr 16) and $FF;
+          end;
+        end;
+        if C > 0 then
+        begin
+          R := R div C;
+          G := G div C;
+          B := B div C;
+          RGB := (R and $FF) or ((G shl 8) and $FF00) or ((B shl 16) and $FF0000);
+          pngData[Y*aCanvasSize + X] := RGB and $FFFFFF;
+        end;
+      end;
     end;
   end;
 end;
