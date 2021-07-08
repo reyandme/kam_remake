@@ -359,7 +359,7 @@ begin
               TKMHouseSwineStable(Home).TakeBeast(fBeastID);
             end;
 
-            if fDistantResAcquired and (WorkPlan.ActCount >= fPhase2) then
+            if fDistantResAcquired and (fPhase2 < WorkPlan.ActCount) then
             begin
               Home.CurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
               //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
@@ -381,7 +381,7 @@ begin
               fBeastID := TKMHouseSwineStable(Home).FeedBeasts;
 
             //Keep on working
-            if fDistantResAcquired and (fPhase2 <= WorkPlan.ActCount) then
+            if fDistantResAcquired and (fPhase2 < WorkPlan.ActCount) then
             begin
               Home.CurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
               if fPhase < WorkPlan.ActCount then
