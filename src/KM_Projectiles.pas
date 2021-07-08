@@ -214,7 +214,7 @@ end;
 function TKMProjectiles.AddItem(const aStart,aAim,aEnd: TKMPointF; aSpeed,aArc,aMaxLength: Single; aProjType: TKMProjectileType; aOwner: TKMUnit): Word;
 const //TowerRock position is a bit different for reasons said below
   OFFSET_X: array [TKMProjectileType] of Single = (0.5, 0.5, 0.5, -0.25); //Recruit stands in entrance, Tower middleline is X-0.75
-  OFFSET_Y: array [TKMProjectileType] of Single = (0.2, 0.2, 0.2, -0.5); //Add towers height
+  OFFSET_Y: array [TKMProjectileType] of Single = (0.2, 0.2, 0.2, -0.2); //Add towers height
 var
   I: Integer;
 begin
