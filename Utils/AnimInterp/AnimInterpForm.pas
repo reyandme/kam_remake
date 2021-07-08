@@ -910,9 +910,12 @@ begin
   SimpleShadows := not (aHouseAct in [haSmoke, haFire1..haFire8]);
 
   //Hard coded rules
+  if aHT in [htArmorWorkshop, htStables, htWatchTower, htFisherHut, htWoodcutters, htWatchTower, htTannery] then
+    UseBase := False;
+
   if (aHT = htButchers) and (aHouseAct = haIdle) then
   begin
-    DoInterpSlow(rxHouses, A, aPicOffset, aDryRun, $FFFFFF);
+    DoInterpSlow(rxHouses, A, aPicOffset, aDryRun, $0);
     Exit;
   end;
 
