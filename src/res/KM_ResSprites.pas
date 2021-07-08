@@ -63,6 +63,7 @@ type
     procedure DetermineImagesObjectSize(aIdList: TStringList); overload;
     procedure RemoveMarketWaresShadows(aResHouses: TKMResHouses);
     procedure RemoveSnowHouseShadows(aResHouses: TKMResHouses);
+    procedure RemoveHouseWorkBackgrounds(aResHouses: TKMResHouses);
 
     function GetSpriteColors(aCount: Integer): TKMColor3bArray;
 
@@ -390,6 +391,102 @@ begin
     end;
   finally
     shadowConverter.Free;
+  end;
+end;
+
+
+procedure TKMSpritePack.RemoveHouseWorkBackgrounds(aResHouses: TKMResHouses);
+
+  procedure RemoveBackground(SpriteF, SpriteB, OffsetX, OffsetY: Integer);
+
+    function IsSame(XF, YF, XB, YB: Integer; TreatEdgeAsSame: Boolean): Boolean;
+    var
+      Foreground, Background: Cardinal;
+    begin
+      if (XF >= 0) and (YF >= 0) and (XB >= 0) and (YB >= 0)
+      and (XB < fRXData.Size[SpriteB].X) and (YB < fRXData.Size[SpriteB].Y)
+      and (XF < fRXData.Size[SpriteF].X) and (YF < fRXData.Size[SpriteF].Y) then
+      begin
+        Foreground := fRXData.RGBA[SpriteF, YF*fRXData.Size[SpriteF].X + XF];
+        Background := fRXData.RGBA[SpriteB, YB*fRXData.Size[SpriteB].X + XB];
+        Result := (Foreground shr 24 = 0) or (Foreground = Background);
+      end
+      else
+        Result := TreatEdgeAsSame;
+    end;
+
+  var
+    X, Y, I, K, XOff, YOff, MatchingNeighbours: Integer;
+  begin
+    for X := 0 to fRXData.Size[SpriteF].X - 1 do
+      for Y := 0 to fRXData.Size[SpriteF].Y - 1 do
+      begin
+        XOff := X + OffsetX + fRXData.Pivot[SpriteF].X - fRXData.Pivot[SpriteB].X;
+        YOff := Y + OffsetY + fRXData.Pivot[SpriteF].Y - fRXData.Pivot[SpriteB].Y;
+        if IsSame(X, Y, XOff, YOff, False) then
+        begin
+          //To avoid making incorrect 1px holes, at least two direct neighbour must match too
+          MatchingNeighbours := 0;
+          for I := -1 to 1 do
+            for K := -1 to 1 do
+              if (K=0) xor (I=0) then
+                if IsSame(X+I, Y+K, XOff+I, YOff+K, True) then
+                  Inc(MatchingNeighbours);
+
+          if MatchingNeighbours >= 2 then
+            fRXData.RGBA[SpriteF, Y*fRXData.Size[SpriteF].X + X] := $0;
+        end;
+      end;
+  end;
+
+var
+  HT: TKMHouseType;
+  HA: TKMHouseActionType;
+  A: TKMAnimLoop;
+  Step, beastHouse, beast, beastAge: Integer;
+const
+  HOUSE_BEAST_LOOKUP: array[1..3] of TKMHouseType = (htSwine, htStables, htMarketplace);
+begin
+  //Actions
+  for HT := HOUSE_MIN to HOUSE_MAX do
+  begin
+    for HA := Low(TKMHouseActionType) to High(TKMHouseActionType) do
+    begin
+      if HA in [haWork1..haWork5, haIdle] then
+      begin
+        A := aResHouses[HT].Anim[HA];
+        for Step := 1 to A.Count do
+        begin
+          if A.Step[Step] > -1 then
+          begin
+            RemoveBackground(A.Step[Step]+1, aResHouses[HT].StonePic+1, A.MoveX, A.MoveY);
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  //Beasts
+  for beastHouse := 1 to 3 do
+  begin
+    for beast := 1 to 5 do
+    begin
+      for beastAge := 1 to 3 do
+      begin
+        //Market only has 2 beasts and no age
+        if (beastHouse = 3) and ((beast > 3) or (beastAge <> 1)) then
+          Continue;
+
+        A := aResHouses.BeastAnim[HOUSE_BEAST_LOOKUP[beastHouse], beast, beastAge];
+        for Step := 1 to A.Count do
+        begin
+          if A.Step[Step] > -1 then
+          begin
+            RemoveBackground(A.Step[Step]+1, aResHouses[HOUSE_BEAST_LOOKUP[beastHouse]].StonePic+1, A.MoveX, A.MoveY);
+          end;
+        end;
+      end;
+    end;
   end;
 end;
 
