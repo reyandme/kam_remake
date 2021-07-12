@@ -894,7 +894,7 @@ begin
   begin
     for Step := 1 to 30 do
       for SubStep := 1 to 8 do
-        fOutputStream.Write(Integer(A.Step[Step]));
+        fOutputStream.Write(Integer(A.Step[Step] + 1));
 
     Exit;
   end;
