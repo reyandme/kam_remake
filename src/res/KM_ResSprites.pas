@@ -1262,7 +1262,7 @@ begin
   SetLength(spriteSizes, fRXData.Count - aStartingIndex + 1);
   K := 0;
   for I := aStartingIndex to fRXData.Count do
-  if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) then
+  if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) and (Length(fRXData.RGBA[I]) > 0) then
   begin
     spriteSizes[K].ID := I;
     spriteSizes[K].X := fRXData.Size[I].X;
@@ -1297,7 +1297,7 @@ begin
   SetLength(spriteSizes, fRXData.Count - aStartingIndex + 1);
   K := 0;
   for I := aStartingIndex to fRXData.Count do
-  if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) and fRXData.HasMask[I] then
+  if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) and fRXData.HasMask[I] and (Length(fRXData.Mask[I]) > 0) then
   begin
     spriteSizes[K].ID := I;
     spriteSizes[K].X := fRXData.Size[I].X;
@@ -1735,6 +1735,14 @@ procedure TKMResSprites.LoadGameResources(aAlphaShadows: Boolean; aForceReload: 
         begin
           gLog.AddTime('Reading ' + RXInfo[RT].FileName + '.rxa');
           fSprites[RT].LoadFromRXAFile(rxaFile);
+
+          fSprites[RT].OverloadFromFolder(ExeDir + 'Sprites' + PathDelim); // Legacy support
+          // 'Sprites' folder name confused some of the players, cause there is already data/Sprites folder
+          fSprites[RT].OverloadFromFolder(ExeDir + 'Modding graphics' + PathDelim);
+
+          {$IFNDEF NO_OGL}
+          fSprites[RT].MakeGFX(True);
+          {$ENDIF}
         end
         else
         begin
