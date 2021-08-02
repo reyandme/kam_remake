@@ -110,6 +110,7 @@ type
     function GetUnitLostQty(aType: TKMUnitType): Integer;
     function GetWareBalance(aRT: TKMWareType): Integer;
     function GetArmyCount: Integer;
+    function GetArmyPower: Single;
     function GetCitizensCount: Integer;
 
     function GetCitizensTrained: Cardinal;
@@ -487,6 +488,16 @@ begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
     Inc(Result, GetUnitQty(UT));
+end;
+
+
+function TKMHandStats.GetArmyPower: Single;
+var
+  UT: TKMUnitType;
+begin
+  Result := 0;
+  for UT := WARRIOR_MIN to WARRIOR_MAX do
+    Result := Result + Single(GetUnitQty(UT)) * WARRIORS_POWER_RATES[UT];
 end;
 
 

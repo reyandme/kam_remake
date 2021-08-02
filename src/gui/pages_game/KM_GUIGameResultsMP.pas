@@ -191,15 +191,6 @@ const
   SUBMENU_RIGHT_WIDTH = 170;
   BTN_BACK_TO_GAME_LEFT = RESULTS_X_PADDING + 330;
 
-  WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Single = (
-    1, 2.4, 5.2,    // utMilitia, utAxeFighter, utSwordsman
-    2.2, 4,         // utBowman, utArbaletman
-    2, 4,           // utPikeman, utHallebardman
-    3.3, 6,         // utHorseScout, utCavalry
-    5.3, 1.5, 1.5,  // utBarbarian, utPeasant, utSlingshot
-    5.3, 2.1        // utMetalBarbarian, utHorseman
-  );
-
   GDPWares: array [0..2] of TKMWareType = (wtAll, wtWarfare, wtFood);
 
 

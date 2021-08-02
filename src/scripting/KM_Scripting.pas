@@ -544,6 +544,7 @@ begin
 
     RegisterMethodCheck(c, 'function StatAIDefencePositionsCount(aPlayer: Byte): Integer');
     RegisterMethodCheck(c, 'function StatArmyCount(aPlayer: Byte): Integer');
+    RegisterMethodCheck(c, 'function StatArmyPower(aPlayer: Byte): Single');
     RegisterMethodCheck(c, 'function StatCitizenCount(aPlayer: Byte): Integer');
     RegisterMethodCheck(c, 'function StatHouseCount(aPlayer: Byte): Integer');
     RegisterMethodCheck(c, 'function StatHouseMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer');
@@ -1225,6 +1226,7 @@ begin
 
       RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount,              'StatAIDefencePositionsCount');
       RegisterMethod(@TKMScriptStates.StatArmyCount,                            'StatArmyCount');
+      RegisterMethod(@TKMScriptStates.StatArmyPower,                            'StatArmyPower');
       RegisterMethod(@TKMScriptStates.StatCitizenCount,                         'StatCitizenCount');
       RegisterMethod(@TKMScriptStates.StatHouseCount,                           'StatHouseCount');
       RegisterMethod(@TKMScriptStates.StatHouseMultipleTypesCount,              'StatHouseMultipleTypesCount');

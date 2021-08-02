@@ -178,6 +178,7 @@ type
 
     function StatAIDefencePositionsCount(aPlayer: Byte): Integer;
     function StatArmyCount(aPlayer: Byte): Integer;
+    function StatArmyPower(aPlayer: Byte): Single;
     function StatCitizenCount(aPlayer: Byte): Integer;
     function StatHouseCount(aPlayer: Byte): Integer;
     function StatHouseMultipleTypesCount(aPlayer: Byte; aTypes: TByteSet): Integer;
@@ -949,6 +950,26 @@ begin
     begin
       Result := 0;
       LogParamWarning('States.StatArmyCount', [aPlayer]);
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: Must be filled in by Rey
+//* The power factor of a player's army
+//* Result: Army power
+function TKMScriptStates.StatArmyPower(aPlayer: Byte): Single;
+begin
+  try
+    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled) then
+      Result := gHands[aPlayer].Stats.GetArmyPower
+    else
+    begin
+      Result := 0.0;
+      LogParamWarning('States.StatArmyPower', [aPlayer]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
