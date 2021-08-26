@@ -306,7 +306,7 @@ uses
   KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
   KM_Projectiles, KM_AIFields, KM_NetworkTypes,
   KM_Main, KM_System, KM_GameApp, KM_RenderPool, KM_GameInfo, KM_GameClasses,
-  KM_Terrain, KM_HandsCollection, KM_HandSpectator, KM_MapEdTypes,
+  KM_Terrain, KM_TerrainTypes, KM_HandsCollection, KM_HandSpectator, KM_MapEdTypes,
   KM_MissionScript, KM_MissionScript_Info, KM_MissionScript_Standard,
   KM_GameInputProcess_Multi, KM_GameInputProcess_Single,
   KM_Resource, KM_ResSound, KM_ResWares, KM_ResTypes,
@@ -2090,6 +2090,9 @@ end;
 
 //Saves the game in TKMemoryStream
 procedure TKMGame.SaveGameToStream(aTimestamp: TDateTime; aHeaderStream, aBodyStream: TKMemoryStream);
+const
+  //@Rey: Please add comment explaining how the 20mb value was picked
+  EXTRA_ALLOC_FOR_SAVE = 20 * 1024 * 1024; // Empirical value
 var
   gameInfo: TKMGameInfo;
   I, netIndex: Integer;
@@ -2099,13 +2102,15 @@ var
 begin
   gameInfo := TKMGameInfo.Create;
 
-  // Allocate memory for save stream, could save up to 25% of save time
+  // Pre-allocate memory for save stream, could save up to 25% of save time
+  // Even if we make a bad guess, Stream will reallocate more by itself, if needed
   if fLastSaveStreamSize = 0 then
-    sizeToAllocate := gTerrain.MapX*gTerrain.MapY*32 + 20*1024*1024 // Allocate a lot first time
+    sizeToAllocate := gTerrain.MapX * gTerrain.MapY * SizeOf(TKMTerrainTile) + EXTRA_ALLOC_FOR_SAVE // Allocate a lot first time
   else
-    sizeToAllocate := Round(fLastSaveStreamSize*1.5); // Assume save didn't grow more then 1.5 times
-  
-  aBodyStream.SetSize(MakePOT(sizeToAllocate));
+    sizeToAllocate := Round(fLastSaveStreamSize * 1.25); // Assume save didn't grow more then 1.25 times
+
+  //@Rey: MakePOT here seems really superfluous or even harmfull, since we just eat a lot more memory for no good reason
+  aBodyStream.SetSize({MakePOT(}sizeToAllocate{)});
 
   if aHeaderStream = nil then
     aHeaderStream := aBodyStream; //Write into the body stream, since we don't use compression
@@ -2235,6 +2240,9 @@ begin
 
   // Trim stream size to current position
   aBodyStream.TrimToPosition;
+
+  // Remember how much space did we use, so next time we have a good estimate
+  fLastSaveStreamSize := aBodyStream.Size;
 
   //If we want stuff like the MessageStack and screen center to be stored in multiplayer saves,
   //we must send those "commands" through the GIP so all players know about them and they're in sync.
