@@ -429,6 +429,7 @@ begin
 
     RegisterMethodCheck(c, 'function HouseAt(aX, aY: Word): Integer');
     RegisterMethodCheck(c, 'function HouseAllowAllyToSelect(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function HouseAllowed(aPlayer, aHouseType: Word): Boolean');
     RegisterMethodCheck(c, 'function HouseBarracksRallyPointX(aBarracks: Integer): Integer');
     RegisterMethodCheck(c, 'function HouseBarracksRallyPointY(aBarracks: Integer): Integer');
     RegisterMethodCheck(c, 'function HouseBarracksRecruitsCount(aBarracks: Integer): Integer');
@@ -1116,6 +1117,7 @@ begin
       RegisterMethod(@TKMScriptStates.GroupType,                                'GroupType');
 
       RegisterMethod(@TKMScriptStates.HouseAllowAllyToSelect,                   'HouseAllowAllyToSelect');
+      RegisterMethod(@TKMScriptStates.HouseAllowed,                             'HouseAllowed');
       RegisterMethod(@TKMScriptStates.HouseAt,                                  'HouseAt');
       RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointX,                 'HouseBarracksRallyPointX');
       RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointY,                 'HouseBarracksRallyPointY');

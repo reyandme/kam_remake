@@ -64,6 +64,7 @@ type
     function GroupType(aGroupID: Integer): Integer;
 
     function HouseAllowAllyToSelect(aHouseID: Integer): Boolean;
+    function HouseAllowed(aPlayer, aHouseType: Word): Boolean;
     function HouseAt(aX, aY: Word): Integer;
     function HouseBarracksRallyPointX(aBarracks: Integer): Integer;
     function HouseBarracksRallyPointY(aBarracks: Integer): Integer;
@@ -2449,6 +2450,26 @@ begin
   end;
 end;
 
+
+//* Version: 13652+
+//* Returns true if the specified player can unlock the specified house type.
+//* Result: House can be unlocked
+function TKMScriptStates.HouseAllowed(aPlayer, aHouseType: Word): Boolean;
+begin
+  try
+    if InRange(aPlayer, 0, gHands.Count - 1) and (gHands[aPlayer].Enabled)
+    and HouseTypeValid(aHouseType) then
+      Result := not gHands[aPlayer].Locks.HouseBlocked[HOUSE_ID_TO_TYPE[aHouseType]]
+    else
+    begin
+      Result := False;
+      LogParamWarning('States.HouseAllowed', [aPlayer, aHouseType]);
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
 
 //* Version: 6220
 //* Returns true if the specified player can build the specified house type (unlocked and allowed).
