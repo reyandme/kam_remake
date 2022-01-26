@@ -179,7 +179,7 @@ end;
 procedure TKMFontXGenerator.LoadPresetsXML(aXMLPath: string);
 var
   newXML: TKMXMLDocument;
-  nRoot, nFont: TXMLNode;
+  nRoot, nFont: TKMXmlNode;
   I: Integer;
 begin
   if not FileExists(aXMLPath) then Exit;
@@ -195,7 +195,7 @@ begin
 
     for I := 0 to nRoot.ChildNodes.Count - 1 do
     begin
-      nFont := nRoot.ChildNodes[I];
+      nFont := nRoot.Childs[I];
       Fonts[I].LoadFromXml(nFont);
     end;
   finally
@@ -207,7 +207,7 @@ end;
 procedure TKMFontXGenerator.SavePresetsXML(aXMLPath: string);
 var
   newXML: TKMXMLDocument;
-  nRoot, nFont: TXMLNode;
+  nRoot, nFont: TKMXmlNode;
   I: Integer;
 begin
   newXML := TKMXMLDocument.Create;
