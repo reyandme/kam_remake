@@ -5,6 +5,16 @@ uses
   Classes, SysUtils, KM_Points, KM_CommonTypes
   {$IFDEF WDC OR FPC_FULLVERSION >= 30200}, KM_WorkerThread{$ENDIF};
 
+  // Delphi 11 Alexandria had bug with S.CopyFrom for TCompressionStream.
+  // Bug occurs only during debugging, but its quite annoying
+  // It was said this bug will be fixed in Delphi 11.1
+  //
+  // Related links:
+  // https://quality.embarcadero.com/projects/RSP/issues/RSP-35516?filter=allopenissues
+  // https://forum.fast-report.com/en/discussion/17186/tfrxpdfexport-ezcompressionerror-with-message-invalid-zstream-operation-in-delphi-11-2021-3
+  // https://stackoverflow.com/questions/70242669/error-invalid-zstream-operation-delphi-11-0
+  {$IFDEF VER350}{$IFDEF DEBUG} {$DEFINE NO_COMPRESSION} {$ENDIF}{$ENDIF}
+
 
 type
   TKMSaveStreamFormat = (ssfBinary, ssfText);
@@ -602,16 +612,23 @@ end;
 procedure TKMemoryStream.CompressAndAppendStream(aStream: TKMemoryStream; const aMarker: string);
 var
   S: TKMemoryStream;
+  {$IFNDEF NO_COMPRESSION}
   CS: TCompressionStream;
+  {$ENDIF}
 begin
   S := TKMemoryStreamBinary.Create(True);
   try
+    {$IFDEF NO_COMPRESSION}
+    S.fShouldBeCompressed := False;
+    S.CopyFrom(aStream, 0);
+    {$ELSE}
     CS := TCompressionStream.Create(GetCompressionLvl, S);
     try
       CS.CopyFrom(aStream, 0);
     finally
       CS.Free;
     end;
+    {$ENDIF}
 
     AppendNotCompressedStream(S, aMarker);
   finally
@@ -635,6 +652,9 @@ begin
     
   if isCompressed then
   begin
+    {$IFDEF NO_COMPRESSION}
+    raise Exception.Create('Using compression streams is not allowed! F.e. on Delphi 11 Alexandria under debug');
+    {$ELSE}
     S := TKMemoryStreamBinary.Create(True);
     try
       S.CopyFrom(Self, streamSize);
@@ -649,6 +669,7 @@ begin
     finally
       S.Free;
     end;
+    {$ENDIF}
   end
   else
   begin
@@ -697,18 +718,23 @@ end;
 procedure TKMemoryStream.SaveToFileCompressed(const aFileName: string; const aMarker: string);
 var
   S: TKMemoryStream;
+  {$IFNDEF NO_COMPRESSION}
   CS: TCompressionStream;
+  {$ENDIF}
 begin
   S := TKMemoryStreamBinary.Create;
   try
     S.PlaceMarker(aMarker);
-
+    {$IFDEF NO_COMPRESSION}
+    S.CopyFrom(Self, 0);
+    {$ELSE}
     CS := TCompressionStream.Create(GetCompressionLvl, S);
     try
       CS.CopyFrom(Self, 0);
     finally
       CS.Free;
     end;
+    {$ENDIF}
 
     S.SaveToFile(aFileName);
   finally
@@ -720,19 +746,25 @@ end;
 procedure TKMemoryStream.LoadFromFileCompressed(const aFileName: string; const aMarker: string);
 var
   S: TKMemoryStream;
+  {$IFNDEF NO_COMPRESSION}
   DS: TDecompressionStream;
+  {$ENDIF}
 begin
   S := TKMemoryStreamBinary.Create;
   try
     S.LoadFromFile(aFileName);
     S.CheckMarker(aMarker);
+    {$IFDEF NO_COMPRESSION}
+    CopyFrom(S, S.Size - S.Position);
+    {$ELSE}
     DS := TDecompressionStream.Create(S);
     try
       CopyFromDecompression(DS);
-      Position := 0;
     finally
       DS.Free;
     end;
+    {$ENDIF}
+    Position := 0;
   finally
     S.Free;
   end;
