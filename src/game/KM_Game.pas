@@ -2213,8 +2213,8 @@ begin
 
   gTerrain.Save(aBodyStream); //Saves the map
   fTerrainPainter.Save(aBodyStream);
-  gHands.Save(aBodyStream, fParams.IsMultiPlayerOrSpec); //Saves all players properties individually
-  if not fParams.IsMultiPlayerOrSpec then
+  gHands.Save(aBodyStream, isMulti); //Saves all players properties individually
+  if not isMulti then
     gMySpectator.Save(aBodyStream);
 
   if gHands.CanHaveAI() then
