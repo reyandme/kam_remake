@@ -2095,6 +2095,7 @@ var
   I, netIndex: Integer;
   gameRes: TKMGameResultMsg;
   sizeToAllocate: Cardinal;
+  isMulti: Boolean;
 begin
   gameInfo := TKMGameInfo.Create;
 
@@ -2165,13 +2166,14 @@ begin
 
   fOptions.Save(aHeaderStream); // Saved to header stream (uncompressed)
 
+  isMulti := fParams.IsMultiPlayerOrSpec or (ALLOW_SAVE_IN_REPLAY and (fParams.Mode = gmReplayMulti));
   //Because some stuff is only saved in singleplayer we need to know whether it is included in this save,
   //so we can load multiplayer saves in single player and vice versa.
-  aHeaderStream.Write(fParams.IsMultiPlayerOrSpec);
+  aHeaderStream.Write(isMulti);
 
   //In SinglePlayer we want to show player a preview of what the game looked like when he saved
   //Save Minimap is near the start so it can be accessed quickly
-  if not fParams.IsMultiPlayerOrSpec then
+  if not isMulti then
     fGamePlayInterface.SaveMinimap(aHeaderStream);
 
   // ----------------------------------------------------------------
@@ -2186,13 +2188,13 @@ begin
   aBodyStream.Write(fSpeedChangeAllowed);
 
   //We need to know which mission/savegame to try to restart. This is unused in MP
-  if not fParams.IsMultiPlayerOrSpec then
+  if not isMulti then
     aBodyStream.WriteW(fParams.MissionFileRelSP);
 
   fUIDTracker.Save(aBodyStream); //Units-Houses ID tracker
   aBodyStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
-  if not fParams.IsMultiPlayerOrSpec then
+  if not isMulti then
   begin
     // Game results differ for game and replay (grReplayEnd for replay),
     // Set some default value
@@ -2228,7 +2230,7 @@ begin
   //created identically on all player's computers. Eventually these things can go through the GIP
 
   //For multiplayer consistency we compare all saves CRCs, they should be created identical on all player's computers.
-  if not fParams.IsMultiPlayerOrSpec then
+  if not isMulti then
     fGamePlayInterface.Save(aBodyStream); //Saves message queue and school/barracks selected units
 
   // Trim stream size to current position
@@ -2375,7 +2377,7 @@ begin
     //Copy basesave so we have a starting point for replay
     if fParams.IsReplay then
     begin
-      loadFrom := ExeDir + fLoadFromFileRel;
+      loadFrom := ChangeFileExt(ExeDir + fLoadFromFileRel, EXT_SAVE_BASE_DOT);
       //Game was saved from replay (.bas file)
       if FileExists(loadFrom) then
         KMCopyFileAsync(loadFrom, newSaveName, True, aSaveWorkerThread);
