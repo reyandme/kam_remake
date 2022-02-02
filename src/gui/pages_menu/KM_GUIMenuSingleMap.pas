@@ -411,6 +411,7 @@ var
   lastColor: Integer;
   MD: TKMMissionDifficulty;
   aiColors: TKMCardinalArray;
+  map: TKMMapInfo;
 begin
   fMaps.Lock;
   try
@@ -444,33 +445,34 @@ begin
     end
     else
     begin
+      map := fMaps[mapId];
       //Prepare extra data we are about to display
-      fMaps[mapId].LoadExtra;
+      map.LoadExtra;
 
-      fLastMapCRC := fMaps[mapId].MapAndDatCRC;
+      fLastMapCRC := map.MapAndDatCRC;
       case Radio_MapType.ItemIndex of
-        0:  gGameSettings.MenuSPScenarioMapCRC := fLastMapCRC;
-        1:  gGameSettings.MenuSPMissionMapCRC := fLastMapCRC;
-        2:  gGameSettings.MenuSPTacticMapCRC := fLastMapCRC;
-        3:  gGameSettings.MenuSPSpecialMapCRC := fLastMapCRC;
+        0:  gGameSettings.MenuSPScenarioMapCRC  := fLastMapCRC;
+        1:  gGameSettings.MenuSPMissionMapCRC   := fLastMapCRC;
+        2:  gGameSettings.MenuSPTacticMapCRC    := fLastMapCRC;
+        3:  gGameSettings.MenuSPSpecialMapCRC   := fLastMapCRC;
       end;
 
-      Label_Title.Caption   := fMaps[mapId].Name;
-      Memo_Desc.Text        := fMaps[mapId].BigDesc;
+      Label_Title.Caption := map.Name;
+      Memo_Desc.Text      := map.BigDesc;
       MinimapView.Show;
 
       //Location
       DropBox_Loc.Clear;
-      for I := 0 to fMaps[mapId].LocCount - 1 do
-        if fMaps[mapId].CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
-          DropBox_Loc.Add(fMaps[mapId].LocationName(I), I);
+      for I := 0 to map.LocCount - 1 do
+        if map.CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
+          DropBox_Loc.Add(map.LocationName(I), I);
 
       //Difficulty levels
       DropBox_Difficulty.Clear;
-      if fMaps[mapId].TxtInfo.HasDifficultyLevels then
+      if map.TxtInfo.HasDifficultyLevels then
       begin
         I := 0;
-        for MD in fMaps[mapId].TxtInfo.DifficultyLevels do
+        for MD in map.TxtInfo.DifficultyLevels do
         begin
           DropBox_Difficulty.Add(gResTexts[DIFFICULTY_LEVELS_TX[MD]], Byte(MD));
           if MD = mdNormal then //Default difficulty is "Normal"
@@ -488,7 +490,7 @@ begin
 
       //AI type
       DropBox_AIPlayerType.Clear;
-      if fMaps[mapId].HasDifferentAITypes then
+      if map.HasDifferentAITypes then
       begin
         DropBox_AIPlayerType.Add(gResTexts[TX_AI_PLAYER_CLASSIC_SHORT], Byte(aitClassic));
         DropBox_AIPlayerType.Add(gResTexts[TX_AI_PLAYER_ADVANCED_SHORT], Byte(aitAdvanced));
@@ -503,9 +505,9 @@ begin
         DropBox_AIPlayerType.Hide;
       end;
 
-      Button_SetupReadme.Visible := fMaps[mapId].HasReadme;
+      Button_SetupReadme.Visible := map.HasReadme;
 
-      DropBox_Loc.SelectByTag(fMaps[mapId].DefaultHuman);
+      DropBox_Loc.SelectByTag(map.DefaultHuman);
 
       //Color
       //Fill in colors for each map individually
@@ -515,10 +517,10 @@ begin
         lastColor := 0; //Default
       DropBox_Color.Clear;
       //Default colour chosen by map author
-      DropBox_Color.Add(MakeListRow([''], [fMaps[mapId].FlagColors[fMaps[mapId].DefaultHuman]], [MakePic(rxGuiMain, 30)]));
+      DropBox_Color.Add(MakeListRow([''], [map.FlagColors[map.DefaultHuman]], [MakePic(rxGuiMain, 30)]));
       //Separator
       DropBox_Color.Add(MakeListRow([''], [$FF000000], [MakePic(rxGuiMain, 0)]));
-      aiColors := fMaps[mapId].AIOnlyLocsColors; // save it locally to avoid multiple calculations
+      aiColors := map.AIOnlyLocsColors; // save it locally to avoid multiple calculations
       //MP colours
       for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
       begin

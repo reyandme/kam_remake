@@ -688,8 +688,7 @@ begin
     // Set default goals for SP game on MP map with PlayableAsSP flag
     if fParams.IsSingle
       and fMapTxtInfo.IsPlayableAsSP
-      and not fMapTxtInfo.IsSpecial
-      and not fMapTxtInfo.IsCoop then
+      and fMapTxtInfo.CanAddDefaultGoals then
       gHands.AddDefaultGoalsToAll(fParams.MissionMode);
 
 
@@ -963,8 +962,7 @@ begin
 
   //Multiplayer missions don't have goals yet, so add the defaults (except for special/coop missions)
   if (gNetworking.SelectGameKind = ngkMap)
-    and not gNetworking.MapInfo.TxtInfo.IsSpecial
-    and not gNetworking.MapInfo.TxtInfo.IsCoop then
+    and gNetworking.MapInfo.TxtInfo.CanAddDefaultGoals then
     gHands.AddDefaultGoalsToAll(fParams.MissionMode);
 
   gNetworking.OnPlay           := GameMPPlay;

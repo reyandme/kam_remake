@@ -57,6 +57,8 @@ type
     function IsSmallDescLibxSet: Boolean;
     function IsBigDescLibxSet: Boolean;
 
+    function CanAddDefaultGoals: Boolean;
+
     procedure ResetInfo;
 
     procedure SaveTXTInfo(const aFilePath: String);
@@ -441,17 +443,17 @@ begin
   G.Stat := aStatus;
 
   case aType of
-    gltVictory:  begin
-                    SetLength(GoalsVictory[aPlayer], GoalsVictoryCount[aPlayer] + 1);
-                    GoalsVictory[aPlayer, GoalsVictoryCount[aPlayer]] := G;
-                    Inc(GoalsVictoryCount[aPlayer]);
-                  end;
-    gltSurvive:  begin
-                    SetLength(GoalsSurvive[aPlayer], GoalsSurviveCount[aPlayer] + 1);
-                    GoalsSurvive[aPlayer, GoalsSurviveCount[aPlayer]] := G;
-                    Inc(GoalsSurviveCount[aPlayer]);
-                  end;
-    else          ;
+    gltVictory: begin
+                  SetLength(GoalsVictory[aPlayer], GoalsVictoryCount[aPlayer] + 1);
+                  GoalsVictory[aPlayer, GoalsVictoryCount[aPlayer]] := G;
+                  Inc(GoalsVictoryCount[aPlayer]);
+                end;
+    gltSurvive: begin
+                  SetLength(GoalsSurvive[aPlayer], GoalsSurviveCount[aPlayer] + 1);
+                  GoalsSurvive[aPlayer, GoalsSurviveCount[aPlayer]] := G;
+                  Inc(GoalsSurviveCount[aPlayer]);
+                end;
+    else        ;
   end;
 end;
 
@@ -1177,6 +1179,12 @@ end;
 function TKMMapTxtInfo.IsBigDescLibxSet: Boolean;
 begin
   Result := BigDescLibx <> -1;
+end;
+
+
+function TKMMapTxtInfo.CanAddDefaultGoals: Boolean;
+begin
+  Result := not IsSpecial and not IsCoop;
 end;
 
 
