@@ -392,10 +392,10 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,RESULTS_X_PADDING,140,900,20,NO_TEXT,fntMetal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,RESULTS_X_PADDING,70,900,20,NO_TEXT,fntMetal,taCenter);
     Label_Results.Anchors := [anLeft];
 
-    Panel_Stats := TKMPanel.Create(Panel_Results, 30, 216, 360, 354);
+    Panel_Stats := TKMPanel.Create(Panel_Results, 20, 146, 360, 354);
     Panel_Stats.Anchors := [anLeft];
 
       //Backplate for column results
@@ -420,7 +420,7 @@ begin
         Label_Stat[I] := TKMLabel.Create(Panel_Stats, 260, adv, 80, 20, '00', fntMetal, taRight);
       end;
 
-    Panel_StatsCharts := TKMPanel.Create(Panel_Results, 410, 170, 630, 420);
+    Panel_StatsCharts := TKMPanel.Create(Panel_Results, 400, 100, 630, 420);
     Panel_StatsCharts.Anchors := [anLeft];
 
     Button_ResultsArmy := TKMButtonFlat.Create(Panel_StatsCharts, 40, 0, 208, 20, 53, rxGui);
@@ -455,22 +455,22 @@ begin
     Button_ResultsWares.CapOffsetY := -11;
     Button_ResultsWares.OnClick := GraphToggle;
 
-    Chart_Army := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+    Chart_Army := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 574);
     Chart_Army.LegendWidth := LEGEND_WIDTH;
     Chart_Army.Caption := gResTexts[TX_GRAPH_ARMY];
     Chart_Army.Anchors := [anLeft];
 
-    Chart_Citizens := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+    Chart_Citizens := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 574);
     Chart_Citizens.LegendWidth := LEGEND_WIDTH;
     Chart_Citizens.Caption := gResTexts[TX_GRAPH_CITIZENS];
     Chart_Citizens.Anchors := [anLeft];
 
-    Chart_Houses := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+    Chart_Houses := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 574);
     Chart_Houses.LegendWidth := LEGEND_WIDTH;
     Chart_Houses.Caption := gResTexts[TX_GRAPH_HOUSES];
     Chart_Houses.Anchors := [anLeft];
 
-    Chart_Wares := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 374);
+    Chart_Wares := TKMChart.Create(Panel_StatsCharts, 0, 46, 610, 574);
     Chart_Wares.LegendWidth := LEGEND_WIDTH;
     Chart_Wares.Caption := gResTexts[TX_GRAPH_TITLE_RESOURCES];
     Chart_Wares.Anchors := [anLeft];
@@ -484,11 +484,11 @@ begin
     Button_MoreStats.CapOffsetY := -20;
     Button_MoreStats.OnClick := MoreStatsClick;
 
-    Button_Back := TKMButton.Create(Panel_Results, 30, 610, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
+    Button_Back := TKMButton.Create(Panel_Results, 30, 660, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_Back.Anchors := [anLeft];
     Button_Back.OnClick := BackClick;
 
-    Button_Restart := TKMButton.Create(Panel_Results, 270, 610, 220, 30, gResTexts[TX_MENU_MISSION_REPEAT], bsMenu);
+    Button_Restart := TKMButton.Create(Panel_Results, 30, 610, 220, 30, gResTexts[TX_MENU_MISSION_REPEAT], bsMenu);
     Button_Restart.Anchors := [anLeft];
     Button_Restart.OnClick := RepeatClick;
 
