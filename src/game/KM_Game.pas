@@ -2960,9 +2960,35 @@ end;
 
 
 function TKMGame.PlayGameTick: Boolean;
-const
-  // Spread savepoints / autosaves / autosave at PT end (at 0 tick) among ticks to avoid async / main threads overload
-  SAVEPT_TICK_SHIFT = 1;
+
+  // Make savepoint and autosaves
+  procedure ManageSaves;
+  const
+    // Spread savepoints / autosaves / autosave at PT end (at 0 tick) among ticks to avoid async / main threads overload
+    SAVEPT_TICK_SHIFT = 1;
+  begin
+    //Save game to memory (to be able to load it later)
+    //Make savepoint only after everything is updated (UpdateState)
+    if gGameSettings.SaveCheckpoints
+      and (fSavePoints.Count <= gGameSettings.SaveCheckpointsLimit) //Do not allow to spam saves, could cause OUT_OF_MEMORY error
+      and ((fParams.Tick = MAKE_SAVEPT_BEFORE_TICK - 1) or (fParams.Tick = 0)
+        or ((fParams.Tick + SAVEPT_TICK_SHIFT) = (fOptions.Peacetime*60*10)) //At PT end. Make savepoint a bit earlier, to avoid save lag
+        or (((fParams.Tick + SAVEPT_TICK_SHIFT) mod gGameSettings.SaveCheckpointsFreq) = 0)) then // Make savepoint a bit earlier, to avoid save lag
+      MakeSavePoint;
+
+    // Avoid 2 autosaves made at the same tick (at PT end and normal autosave)
+    if CheckIfPieceTimeJustEnded then // Send warning messages about peacetime if required
+    begin
+      // gicGameSpeed will do speed change in the replay
+      TrySetSpeed(fOptions.SpeedAfterPT, False);
+      gNetworking.PostLocalMessage(gResTexts[TX_MP_PEACETIME_OVER], csNone);
+      IssueAutosaveCommand(True);
+    end
+    else
+    if (fParams.Tick = 0) or ((fParams.Tick mod gGameSettings.AutosaveFrequency) = 0) then
+      IssueAutosaveCommand(False);
+  end;
+
 begin
   Result := False;
 
@@ -2973,6 +2999,11 @@ begin
     // As soon as next command arrives we are no longer in a waiting state
     if fWaitingForNetwork then
       WaitingPlayersDisplay(False);
+
+    // Make savepoints and saves BEFORE tick increment
+    // Thus all of the previous gip commands, which were made from last tick increment,
+    // will be added to the save.
+    ManageSaves;
 
     IncTick;
 
@@ -3021,27 +3052,6 @@ begin
     and IsWareDistributionStoredBetweenGames then
       fGameInputProcess.CmdWareDistribution(gicWareDistributions, AnsiString(gGameSettings.WareDistribution.PackToStr));
 
-    //Save game to memory (to be able to load it later)
-    //Make savepoint only after everything is updated (UpdateState)
-    if gGameSettings.SaveCheckpoints
-      and (fSavePoints.Count <= gGameSettings.SaveCheckpointsLimit) //Do not allow to spam saves, could cause OUT_OF_MEMORY error
-      and ((fParams.Tick = MAKE_SAVEPT_BEFORE_TICK - 1)
-        or ((fParams.Tick + SAVEPT_TICK_SHIFT) = (fOptions.Peacetime*60*10)) //At PT end. Make savepoint a bit earlier, to avoid save lag
-        or (((fParams.Tick + SAVEPT_TICK_SHIFT) mod gGameSettings.SaveCheckpointsFreq) = 0)) then // Make savepoint a bit earlier, to avoid save lag
-      MakeSavePoint;
-
-    // Avoid 2 autosaves made at the same tick (at PT end and normal autosave)
-    if CheckIfPieceTimeJustEnded then // Send warning messages about peacetime if required
-    begin
-      // gicGameSpeed will do speed change in the replay
-      TrySetSpeed(fOptions.SpeedAfterPT, False);
-      gNetworking.PostLocalMessage(gResTexts[TX_MP_PEACETIME_OVER], csNone);
-      IssueAutosaveCommand(True);
-    end
-    else
-    if (fParams.Tick mod gGameSettings.AutosaveFrequency) = 0 then
-      IssueAutosaveCommand(False);
-
     Result := True;
 
     CheckPauseGameAtTick;
@@ -3057,16 +3067,41 @@ end;
 
 
 function TKMGame.PlayReplayTick: Boolean;
+
+  procedure ManageSaves;
+  begin
+    //Only increase LastTick, since we could load replay earlier at earlier state
+    fSavePoints.LastTick := Max(fSavePoints.LastTick, fParams.Tick);
+
+    //Save replay to memory (to be able to load it later)
+    //Make replay save only after everything is updated (UpdateState)
+    if gGameSettings.ReplaySavepoint
+      and (fSavePoints.Count <= REPLAY_SAVEPOINT_CNT_MAX) //Do not allow to spam saves, could cause OUT_OF_MEMORY error
+      and ((fParams.Tick = 1) //First tick
+        or (fParams.Tick = MAKE_SAVEPT_BEFORE_TICK - 1)
+        or (fParams.Tick = (fOptions.Peacetime*60*10)) //At PT end
+        or ((fParams.Tick mod GetReplayAutosaveEffectiveFrequency) = 0)) then
+    begin
+      MakeSavePoint;
+      fGamePlayInterface.AddReplayMark(fParams.Tick);
+    end;
+  end;
+
 begin
   Result := False;
 
-  IncTick;
   fLastUpdateState := TimeGet;
   {$IFDEF PERFLOG}
-  gPerfLogs.TickBegin(fParams.Tick);
+  gPerfLogs.TickBegin(fParams.Tick + 1);
   {$ENDIF}
 
   try
+    // Make savepoints and saves BEFORE tick increment
+    // Same way we do in the PlayGameTick
+    ManageSaves;
+
+    IncTick;
+
     fScripting.UpdateState;
     gTerrain.UpdateState;
     gAIFields.UpdateState(fParams.Tick);
@@ -3085,22 +3120,6 @@ begin
     CheckIfPieceTimeJustEnded; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
 
     if gGame = nil then Exit; //Quit if the game was stopped by a replay mismatch
-
-    //Only increase LastTick, since we could load replay earlier at earlier state
-    fSavePoints.LastTick := Max(fSavePoints.LastTick, fParams.Tick);
-
-    //Save replay to memory (to be able to load it later)
-    //Make replay save only after everything is updated (UpdateState)
-    if gGameSettings.ReplaySavepoint
-      and (fSavePoints.Count <= REPLAY_SAVEPOINT_CNT_MAX) //Do not allow to spam saves, could cause OUT_OF_MEMORY error
-      and ((fParams.Tick = 1) //First tick
-        or (fParams.Tick = MAKE_SAVEPT_BEFORE_TICK - 1)
-        or (fParams.Tick = (fOptions.Peacetime*60*10)) //At PT end
-        or ((fParams.Tick mod GetReplayAutosaveEffectiveFrequency) = 0)) then
-    begin
-      MakeSavePoint;
-      fGamePlayInterface.AddReplayMark(fParams.Tick);
-    end;
 
     if not fSkipReplayEndCheck and IsReplayEnded then
       RequestHold(grReplayEnd);
