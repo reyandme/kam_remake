@@ -301,15 +301,17 @@ begin
 
     LoadHeader(loadStream);
 
-    for I := 0 to fSavedTicksCnt - 1 do
-    begin
-      tickStream := TKMemoryStreamBinary.Create;
+    // fSavedTicksCnt is Cardinal, we have to avoid range check error
+    if fSavedTicksCnt > 0 then
+      for I := 0 to fSavedTicksCnt - 1 do
+      begin
+        tickStream := TKMemoryStreamBinary.Create;
 
-      loadStream.Read(tickStreamSize);
-      tickStream.CopyFrom(loadStream, tickStreamSize);
+        loadStream.Read(tickStreamSize);
+        tickStream.CopyFrom(loadStream, tickStreamSize);
 
-      fTickStreamQueue.Enqueue(tickStream);
-    end;
+        fTickStreamQueue.Enqueue(tickStream);
+      end;
 
 //    fSaveStream.CopyFrom(LoadStream, LoadStream.Size - LoadStream.Position);
   finally
