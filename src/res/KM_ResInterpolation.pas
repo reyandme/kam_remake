@@ -9,12 +9,17 @@ const
   INTERP_LEVEL = 8;
 
 type
+//  TTT = UNIT_MIN..utVagabond,utWolf..UNIT_MAX;
+
   TKMInterpolation = array[1..30, 0..INTERP_LEVEL-1] of Integer;
+  TKMUnitActionInterp2 = array[0..1, UNIT_ACT_MIN..UNIT_ACT_MAX, dirN..dirNW] of TKMInterpolation; // + 2 siege units
+//  TKMUnitActionInterp = array[UNIT_MIN..UNIT_MAX, UNIT_ACT_MIN..UNIT_ACT_MAX, dirN..dirNW] of TKMInterpolation;
   TKMUnitActionInterp = array[UNIT_MIN..UNIT_MAX, UNIT_ACT_MIN..UNIT_ACT_MAX, dirN..dirNW] of TKMInterpolation;
   TKMSerfCarryInterp = array[WARE_MIN..WARE_MAX, dirN..dirNW] of TKMInterpolation;
   TKMUnitThoughtInterp = array[TKMUnitThought] of TKMInterpolation;
   TKMTreeInterp = array[0..OBJECTS_CNT] of TKMInterpolation;
   TKMHouseInterp = array[HOUSE_MIN..HOUSE_MAX, TKMHouseActionType] of TKMInterpolation;
+  TKMHouseInterp2 = array[0..1, TKMHouseActionType] of TKMInterpolation; // +2 new houses for Gelwe
   TKMBeastInterp = array[1..3,1..5,1..3] of TKMInterpolation;
 
   TKMResInterpolation = class
@@ -47,16 +52,37 @@ uses
 
 procedure TKMResInterpolation.LoadFromFile(const FileName: string);
 var
-  S: TKMemoryStreamBinary;
+  u1,u2, pos, pos2, pos3: INteger;
+  S,S2: TKMemoryStreamBinary;
+  tempUA:  TKMUnitActionInterp2;
+  tempH: TKMHouseInterp2;
 begin
   if not FileExists(FileName) then Exit;
 
   S := TKMemoryStreamBinary.Create;
+  S2 := TKMemoryStreamBinary.Create;
   try
     S.LoadFromFile(FileName);
 
     S.CheckMarker('UnitAction');
-    S.Read(fUnitActions, SizeOf(fUnitActions));
+    u1 := Ord(utVagabond) - Ord(UNIT_MIN) + 1;
+    u2 := Ord(utDuck) - Ord(utWolf) + 1;
+
+    S.Read(fUnitActions, u1 * SizeOf(fUnitActions[utSerf]));
+
+    pos := S.Position;
+    S.Position := 0;
+
+    // copy units before siege
+    S2.CopyFrom(S, pos);
+
+    FillChar(tempUA, SizeOf(tempUA), #0);
+    // write stub for siege
+    S2.Write(tempUA, SizeOf(tempUA));
+
+    S.Position := pos;
+    S.Read(fUnitActions, u2 * SizeOf(fUnitActions[utSerf]));
+
 
     S.CheckMarker('SerfCarry ');
     S.Read(fSerfCarry, SizeOf(fSerfCarry));
@@ -70,11 +96,29 @@ begin
     S.CheckMarker('Houses');
     S.Read(fHouses, SizeOf(fHouses));
 
+    pos2 := S.Position;
+    S.Position := pos;
+    // copy everything before Beast
+    S2.CopyFrom(S, pos2 - pos);
+    S.Position := pos2;
+
+    FillChar(tempH, SizeOf(tempH), #0);
+    // write stub for 2 new houses
+    S2.Write(tempH, SizeOf(tempH));
+
     S.CheckMarker('Beasts');
     S.Read(fBeasts, SizeOf(fBeasts));
 
+    pos3 := S.Position;
+    S.Position := pos2;
+
+    S2.CopyFrom(S, pos3 - pos2);
+
+    S.Position := pos3;
+
+    S2.SaveToFile(FileName+'2');
   finally
-    S.Free;
+    S.Free; S2.Free;
   end;
 end;
 
