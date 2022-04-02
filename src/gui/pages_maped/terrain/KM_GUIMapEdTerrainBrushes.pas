@@ -63,13 +63,41 @@ const
   BTN_TKIND_S_SP_Y = 40;
   SURF_ROW_LEN = 5;
 
-  SURFACES: array [0..5, 0..SURF_ROW_LEN-1] of TKMTerrainKind = (
-    (tkGrass,       tkMoss,         tkPaleGrass,    tkGrassDirt,    tkDirt),
-    (tkCoastSand,   tkGrassSand1,   tkGrassSand2,   tkGrassSand3,   tkSand),
-    (tkSwamp,       tkGrassyWater,  tkWater,        tkFastWater,    tkCustom),
-    (tkSnowOnGrass, tkSnowOnDirt,   tkSnow,         tkDeepSnow,     tkIce),
-    (tkStone,       tkGoldMount,    tkIronMount,    tkCobbleStone,  tkGravel),
-    (tkCoal,        tkGold,         tkIron,         tkLava,         tkAbyss));
+  SURFACES: array [0..5, 0..SURF_ROW_LEN-1] of record
+    Terrain: TKMTerrainKind;
+    Hint: Integer;
+  end = (
+    ((Terrain: tkGrass;       Hint: TX_MAPED_TERRAIN_GRASS;),
+     (Terrain: tkMoss;        Hint: TX_MAPED_TERRAIN_MOSS;),
+     (Terrain: tkPaleGrass;   Hint: TX_MAPED_TERRAIN_PALE_GRASS;),
+     (Terrain: tkGrassDirt;   Hint: TX_MAPED_TERRAIN_GRASS_DIRT;),
+     (Terrain: tkDirt;        Hint: TX_MAPED_TERRAIN_DIRT;)),
+    ((Terrain: tkCoastSand;   Hint: TX_MAPED_TERRAIN_COAST_SAND;),
+     (Terrain: tkGrassSand1;  Hint: TX_MAPED_TERRAIN_GRASS_SAND1;),
+     (Terrain: tkGrassSand2;  Hint: TX_MAPED_TERRAIN_GRASS_SAND2;),
+     (Terrain: tkGrassSand3;  Hint: TX_MAPED_TERRAIN_GRASS_SAND3;),
+     (Terrain: tkSand;        Hint: TX_MAPED_TERRAIN_SAND;)),
+    ((Terrain: tkSwamp;       Hint: TX_MAPED_TERRAIN_SWAMP;),
+     (Terrain: tkGrassyWater; Hint: TX_MAPED_TERRAIN_GRASSY_WATER;),
+     (Terrain: tkWater;       Hint: TX_MAPED_TERRAIN_WATER;),
+     (Terrain: tkFastWater;   Hint: TX_MAPED_TERRAIN_FAST_WATER;),
+     (Terrain: tkCustom;      Hint: TX_MAPED_TERRAIN_CUSTOM;)),
+    ((Terrain: tkSnowOnGrass; Hint: TX_MAPED_TERRAIN_SNOW_ON_GRASS;),
+     (Terrain: tkSnowOnDirt;  Hint: TX_MAPED_TERRAIN_SNOW_ON_DIRT;),
+     (Terrain: tkSnow;        Hint: TX_MAPED_TERRAIN_SNOW;),
+     (Terrain: tkDeepSnow;    Hint: TX_MAPED_TERRAIN_DEEP_SNOW;),
+     (Terrain: tkIce;         Hint: TX_MAPED_TERRAIN_ICE;)),
+    ((Terrain: tkStone;       Hint: TX_MAPED_TERRAIN_STONE;),
+     (Terrain: tkGoldMount;   Hint: TX_MAPED_TERRAIN_GOLD_MOUNT;),
+     (Terrain: tkIronMount;   Hint: TX_MAPED_TERRAIN_IRON_MOUNT;),
+     (Terrain: tkCobbleStone; Hint: TX_MAPED_TERRAIN_COBBLE_STONE;),
+     (Terrain: tkGravel;      Hint: TX_MAPED_TERRAIN_GRAVEL;)),
+    ((Terrain: tkCoal;        Hint: TX_MAPED_TERRAIN_COAL;),
+     (Terrain: tkGold;        Hint: TX_MAPED_TERRAIN_GOLD;),
+     (Terrain: tkIron;        Hint: TX_MAPED_TERRAIN_IRON;),
+     (Terrain: tkLava;        Hint: TX_MAPED_TERRAIN_LAVA;),
+     (Terrain: tkAbyss;       Hint: TX_MAPED_TERRAIN_ABYSS;))
+  );
 
 type
   TMBrushButtonType = (bbtBrush = -1, bbtMask = -2);
@@ -84,14 +112,6 @@ const
                             (TX_MAPED_TERRAIN_NO_MASK_HINT, TX_MAPED_TERRAIN_MASK_1_HINT,
                              TX_MAPED_TERRAIN_MASK_2_HINT, TX_MAPED_TERRAIN_MASK_3_HINT,
                              TX_MAPED_TERRAIN_MASK_4_HINT, TX_MAPED_TERRAIN_MASK_5_HINT);
-
-  SURFACES_HINTS_TX: array [0..5, 0..SURF_ROW_LEN-1] of Integer = (
-    (TX_MAPED_TERRAIN_GRASS,          TX_MAPED_TERRAIN_MOSS,          TX_MAPED_TERRAIN_PALE_GRASS,  TX_MAPED_TERRAIN_GRASS_DIRT,    TX_MAPED_TERRAIN_DIRT),
-    (TX_MAPED_TERRAIN_COAST_SAND,     TX_MAPED_TERRAIN_GRASS_SAND1,   TX_MAPED_TERRAIN_GRASS_SAND2, TX_MAPED_TERRAIN_GRASS_SAND3,   TX_MAPED_TERRAIN_SAND),
-    (TX_MAPED_TERRAIN_SWAMP,          TX_MAPED_TERRAIN_GRASSY_WATER,  TX_MAPED_TERRAIN_WATER,       TX_MAPED_TERRAIN_FAST_WATER,    TX_MAPED_TERRAIN_CUSTOM),
-    (TX_MAPED_TERRAIN_SNOW_ON_GRASS,  TX_MAPED_TERRAIN_SNOW_ON_DIRT,  TX_MAPED_TERRAIN_SNOW,        TX_MAPED_TERRAIN_DEEP_SNOW,     TX_MAPED_TERRAIN_GRAVEL),
-    (TX_MAPED_TERRAIN_STONE,          TX_MAPED_TERRAIN_GOLD_MOUNT,    TX_MAPED_TERRAIN_IRON_MOUNT,  TX_MAPED_TERRAIN_COBBLE_STONE,  TX_MAPED_TERRAIN_GRAVEL),
-    (TX_MAPED_TERRAIN_COAL,           TX_MAPED_TERRAIN_GOLD,          TX_MAPED_TERRAIN_IRON,        TX_MAPED_TERRAIN_LAVA,          TX_MAPED_TERRAIN_ABYSS));
 
 var
   top: Integer;
@@ -158,13 +178,13 @@ begin
 
   for I := Low(SURFACES) to High(SURFACES) do
     for K := Low(SURFACES[I]) to High(SURFACES[I]) do
-    if SURFACES[I,K] <> tkCustom then
+    if SURFACES[I,K].Terrain <> tkCustom then
     begin
-      BrushTable[I,K] := TKMButtonFlat.Create(Panel_Brushes, SURFACES_TAB + K*BTN_TKIND_S_SP_X, 55 + I * 40, BTN_TKIND_S, BTN_TKIND_S, Combo[SURFACES[I,K], SURFACES[I,K], 1] + 1, rxTiles); // grass
+      BrushTable[I,K] := TKMButtonFlat.Create(Panel_Brushes, SURFACES_TAB + K*BTN_TKIND_S_SP_X, 55 + I * 40, BTN_TKIND_S, BTN_TKIND_S, Combo[SURFACES[I,K].Terrain, SURFACES[I,K].Terrain, 1] + 1, rxTiles); // grass
       BrushTable[I,K].Anchors := [anTop];
-      BrushTable[I,K].Tag := Byte(SURFACES[I,K]);
+      BrushTable[I,K].Tag := Byte(SURFACES[I,K].Terrain);
       BrushTable[I,K].Tag2 := Byte(bbtBrush);
-      BrushTable[I,K].Hint := gResTexts[SURFACES_HINTS_TX[I,K]];
+      BrushTable[I,K].Hint := gResTexts[SURFACES[I,K].Hint];
       BrushTable[I,K].OnClick := BrushChange;
     end;
 
@@ -236,7 +256,7 @@ end;
 procedure TKMMapEdTerrainBrushes.ResetLastBrushes;
 begin
   fLastShape := hsCircle;
-  fLastBrush := Byte(SURFACES[0,0]);
+  fLastBrush := Byte(SURFACES[0,0].Terrain);
   fLastMagicBrush := False;
 end;
 
