@@ -40,6 +40,11 @@ constructor TKMMapEdTerrainOverlays.Create(aParent: TKMPanel);
 const
   BTN_SIZE = 36;
   BTNS_PER_ROW = 5;
+
+  OVERLAY_HINTS_TX: array [toNone..toRoad] of Integer =
+                            (TX_MAPED_TERRAIN_OVERLAY_TO_NONE, TX_MAPED_TERRAIN_OVERLAY_TO_DIG1,
+                             TX_MAPED_TERRAIN_OVERLAY_TO_DIG2, TX_MAPED_TERRAIN_OVERLAY_TO_DIG3,
+                             TX_MAPED_TERRAIN_OVERLAY_TO_DIG4, TX_MAPED_TERRAIN_OVERLAY_TO_ROAD);
 var
   TTO: TKMTileOverlay;
 begin
@@ -61,7 +66,7 @@ begin
 //    OverlaysTable[J].CapOffsetY := -8;
 //    OverlaysTable[J].TexOffsetY := 6;
 //    OverlaysTable[J].CapColor := icYellow;
-    OverlaysTable[TTO].Hint := GetEnumName(TypeInfo(TKMTileOverlay), Byte(TTO));
+    OverlaysTable[TTO].Hint := gResTexts[OVERLAY_HINTS_TX[TTO]];
     OverlaysTable[TTO].OnClick := OverlayChange;
   end;
 end;
