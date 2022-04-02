@@ -319,12 +319,12 @@ begin
     Button_History_JumpTo.OnClick := History_JumpTo;
     Button_History_JumpTo.Hint := gResTexts[TX_MAPED_HISTORY_JUMP_TO_HINT];
 
-    Button_History_Undo := TKMButton.Create(PopUp_History.ItemsPanel, 10, PopUp_History.ItemsPanel.Height - 10, (ListBox_History.Width div 2) - 7, 20, '<< Undo', bsGame);
+    Button_History_Undo := TKMButton.Create(PopUp_History.ItemsPanel, 10, PopUp_History.ItemsPanel.Height - 10, (ListBox_History.Width div 2) - 7, 20, '<< ' + gResTexts[TX_MAPED_UNDO], bsGame);
     Button_History_Undo.OnClick := UnRedo_Click;
     Button_History_Undo.Hint := gResTexts[TX_MAPED_UNDO_HINT]+ ' (''Ctrl + Z'')';
 
     Button_History_Redo := TKMButton.Create(PopUp_History.ItemsPanel, PopUp_History.ItemsPanel.Width - 10 - Button_History_Undo.Width,
-                                                           Button_History_Undo.Top, Button_History_Undo.Width, 20, 'Redo >>', bsGame);
+                                                           Button_History_Undo.Top, Button_History_Undo.Width, 20, gResTexts[TX_MAPED_REDO] + ' >>', bsGame);
     Button_History_Redo.OnClick := UnRedo_Click;
     Button_History_Redo.Hint := gResTexts[TX_MAPED_REDO_HINT] + ' (''Ctrl + Y'' or ''Ctrl + Shift + Z'')';
 

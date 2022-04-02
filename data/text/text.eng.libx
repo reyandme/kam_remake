@@ -470,7 +470,7 @@
 482:Equip rate iron
 483:Autodefence
 484:AI creates and manages defense positions automatically. Ignores all manually set defense positions
-485:Place defence position for AI.|To change defence position parameters use:|RMB - direction, Ctrl + RMB - group type, Alt + RMB - defensive / attacking 
+485:Place defence position for AI.|To change defence position parameters use:|RMB - direction, Ctrl + RMB - group type, Alt + RMB - defensive / attacking
 486:AI defence positions
 487:Laborers
 488:Serfs per 10 houses
@@ -1489,9 +1489,41 @@
 1539:Add group
 1540:Add group after placing defence position. Group  depends on AI formations
 1541:Count
-1542:Number of units in group. At 0 it takes the AI formations 
+1542:Number of units in group. At 0 it takes the AI formations
 1543:Columns
 1544:Number of columns in group. If number of units is 0 it takes the AI formations columns count
 1545:Make coal smooth
 1546:Coal deposits in the selection will be automatically set from the tiles with lowest coal count at the edges to the highest in the center
 1547:Other player got desync error. Please send us this crashreport, it will help us to fix it.%sOther player error message is:%s
+1548:Undo
+1549:Redo
+1550:Grass
+1551:Moss
+1552:Pale grass
+1553:Grass on dirt
+1554:Dirt
+1555:Coast sand
+1556:Grass sand 1
+1557:Grass sand 2
+1558:Grass sand 3
+1559:Sand
+1560:Swamp
+1561:Grassy water
+1562:Water
+1563:Fast water
+1564:Custom
+1565:Snow on grass
+1566:Snow on dirt
+1567:Snow
+1568:Deep snow
+1569:Ice
+1570:Stone
+1571:Gold mountain
+1572:Iron mountain
+1573:Cobble stone
+1574:Gravel
+1575:Coal
+1576:Gold
+1577:Iron
+1578:Lava
+1579:Abyss
