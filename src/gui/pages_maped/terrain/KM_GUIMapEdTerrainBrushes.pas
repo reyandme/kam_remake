@@ -142,7 +142,6 @@ var
 var
   I, K: Integer;
   MK: TKMTileMaskKind;
-  hintStr: String;
 begin
   inherited Create;
 
