@@ -98,7 +98,7 @@ uses
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KromUtils, KM_FileIO,
   KM_GameApp, KM_VclHelpers,
-  KM_System, KM_ResExporter, KM_Music,
+  KM_System, KM_ResExporter, KM_ResTexts, KM_Music,
   KM_Log, KM_CommonUtils, KM_Defaults, KM_Points, KM_DevPerfLog,
   KM_CommonExceptions,
   KromShellUtils, KM_MapTypes;
@@ -331,13 +331,13 @@ begin
     {$IFDEF MSWindows}
     //MessageBox works best in Windows (gets stuck under main form less)
     aCanClose := MessageBox( fFormMain.Handle,
-                            PChar('Any unsaved changes will be lost. Exit?'),
-                            PChar('Warning'),
+                            PChar(gResTexts[TX_EXIT_WARN_MESSAGE]),
+                            PChar(gResTexts[TX_EXIT_WARN_HEADER]),
                             MB_YESNO or MB_ICONWARNING or MB_SETFOREGROUND or MB_TASKMODAL
                            ) = IDYES;
     {$ENDIF}
     {$IFDEF Unix}
-    CanClose := MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes;
+    CanClose := MessageDlg(gResTexts[TX_EXIT_WARN_MESSAGE], mtWarning, [mbYes, mbNo], 0) = mrYes;
     {$ENDIF}
 
     //Resume the game
