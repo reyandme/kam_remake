@@ -6,8 +6,9 @@ uses
   ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
   KM_RenderControl, KM_CommonTypes,
   KM_WindowParams, KM_SettingsDev,
-  {$IFDEF FPC} LResources, {$ENDIF}
-  {$IFDEF MSWindows} KM_VclMenuHint, ShellAPI, Windows, Messages, Vcl.Samples.Spin; {$ENDIF}
+  {$IFDEF FPC} LResources, Spin, {$ENDIF}
+  {$IFDEF WDC} Vcl.Samples.Spin, {$ENDIF}
+  {$IFDEF MSWindows} KM_VclMenuHint, ShellAPI, Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
 
 

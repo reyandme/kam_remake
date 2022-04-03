@@ -19,7 +19,9 @@ type
                        attCustomPosition); //Custom point defined with CustomPosition
 
   TKMFormation = record
-    NumUnits, UnitsPerRow: Integer;
+    NumUnits: Integer;
+    UnitsPerRow: Integer;
+    procedure CopyFrom(aFormation: TKMFormation);
   end;
 
   TKMAIRepairMode = (rmNone,
@@ -28,6 +30,14 @@ type
                      rmRepairManual); // repair state is set by script manually via Actions.HouseRepairEnable
 
 implementation
+
+{ TKMFormation }
+procedure TKMFormation.CopyFrom(aFormation: TKMFormation);
+begin
+  NumUnits := aFormation.NumUnits;
+  UnitsPerRow := aFormation.UnitsPerRow;
+end;
+
 
 end.
 

@@ -6,7 +6,7 @@ uses
   Controls,
   KM_RenderPool, KM_TerrainPainter, KM_TerrainDeposits, KM_TerrainSelection,
   KM_CommonTypes, KM_CommonClasses, KM_Defaults, KM_Points, KM_MapEditorHistory,
-  KM_MapEdTypes, KM_ResTexts, KM_HandEntity;
+  KM_MapEdTypes, KM_ResTexts, KM_HandEntity, KM_AITypes;
 
 
 type
@@ -94,6 +94,9 @@ type
     function CanHaveAdvancedAI: Boolean;
     function OnlyAdvancedAIHand(aHandId: TKMHandID): Boolean;
 
+    procedure DetermineGroupFormationAndDir(const aLoc: TKMPoint; aGroupType: TKMGroupType;
+                                            out aFormation: TKMFormation; out aDir: TKMDirection);
+
     procedure DetectAttachedFiles(const aMissionFile: UnicodeString);
     procedure SaveAttachements(const aMissionFile: UnicodeString);
     function HitTest(X,Y: Integer): TKMMapEdMarker;
@@ -123,7 +126,7 @@ uses
   KM_Hand, KM_HandsCollection, KM_HandEntityHelper, KM_HandTypes,
   KM_CommonUtils, KM_RenderDebug,
   KM_UnitGroupTypes,
-  KM_ResTypes, KM_AITypes;
+  KM_ResTypes;
 
 //defines default defence position radius for static AI 
 const
@@ -772,13 +775,42 @@ begin
 end;
 
 
+procedure TKMMapEditor.DetermineGroupFormationAndDir(const aLoc: TKMPoint; aGroupType: TKMGroupType;
+                                                     out aFormation: TKMFormation; out aDir: TKMDirection);
+var
+  DP: TAIDefencePosition;
+  determined: Boolean;
+begin
+  determined := False;
+  if (mlDefencesAll in gGameParams.VisibleLayers)
+    or ((gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_DEFENCE)) then
+  begin
+    DP := gMySpectator.Hand.AI.General.DefencePositions.FindPositionAtLoc(aLoc);
+    if (DP <> nil) and (DP.GroupType = aGroupType) then
+    begin
+      aDir := DP.Position.Dir;
+      aFormation.CopyFrom(gMySpectator.Hand.AI.General.DefencePositions.TroopFormations[aGroupType]);
+      determined := True;
+    end;
+  end;
+
+  if not determined then
+  begin
+    aDir := gCursor.MapEdDirection;
+    if gCursor.MapEdGroupFormation.NumUnits > 0 then
+      aFormation.CopyFrom(gCursor.MapEdGroupFormation)
+    else
+      aFormation.CopyFrom(gMySpectator.Hand.AI.General.DefencePositions.TroopFormations[aGroupType]);
+  end;
+end;
+
+
 procedure TKMMapEditor.ProceedUnitsCursorMode;
 var
   P: TKMPoint;
   obj: TObject;
   formation: TKMFormation;
   GT: TKMGroupType;
-  DP: TAIDefencePosition;
   dir: TKMDirection;
 begin
   P := gCursor.Cell;
@@ -800,22 +832,9 @@ begin
     else
     if TKMUnitType(gCursor.Tag1) in UNITS_WARRIORS then
     begin
-      dir := gCursor.MapEdDirection;
       GT := UNIT_TO_GROUP_TYPE[TKMUnitType(gCursor.Tag1)];
-      DP := gMySpectator.Hand.AI.General.DefencePositions.FindPositionAtLoc(P);
 
-      if DP <> nil then
-      begin
-        dir := DP.Position.Dir;
-        formation := gMySpectator.Hand.AI.General.DefencePositions.TroopFormations[GT];
-      end
-      else
-      begin
-        if gCursor.MapEdGroupFormation.NumUnits > 0 then
-          formation := gCursor.MapEdGroupFormation
-        else
-          formation := gMySpectator.Hand.AI.General.DefencePositions.TroopFormations[GT];
-      end;
+      DetermineGroupFormationAndDir(P, GT, formation, dir);
 
       gMySpectator.Hand.AddUnitGroup(TKMUnitType(gCursor.Tag1), P, dir, formation.UnitsPerRow, formation.NumUnits)
     end

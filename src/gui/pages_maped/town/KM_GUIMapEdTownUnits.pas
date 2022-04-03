@@ -102,7 +102,7 @@ begin
     Hint := gResTexts[TX_MAPED_UNITS_FORMATION_COLUMNS_HINT];
   end;
 
-  NumEd_WarrColumns := TKMNumericEdit.Create(Panel_Units, 105, lineY + 20, 0, 25);
+  NumEd_WarrColumns := TKMNumericEdit.Create(Panel_Units, 105, lineY + 20, 1, 25);
   NumEd_WarrColumns.Anchors := [anLeft, anTop, anRight];
   NumEd_WarrColumns.Hint := gResTexts[TX_MAPED_UNITS_FORMATION_COLUMNS_HINT];
   NumEd_WarrColumns.AutoFocusable := False;

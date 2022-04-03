@@ -148,7 +148,7 @@
 149:Huidig type eenheid bewapenen
 150:Volgend beroep
 151:Vorig beroep
-152:Aan wachtrij toevoegen. Gebruik RMK, Shift or Ctrl om de wachtrij te bewerken
+152:Aan wachtrij toevoegen. Gebruik RMK, Shift of Ctrl om de wachtrij te bewerken
 153:Wissel tussen leveringswijzen van producten: vraag / gesloten / aanbod. Gebruik LMK / RMK om vooruit/achteruit te veranderen
 154:Kosten:
 155:Huis reparatie in-/uitschakelen
@@ -457,7 +457,7 @@
 469:Eenmalig
 470:Ruiters
 471:Bogen
-472:Counter-cavalerie
+472:Anti-cavalerie
 473:Infanterie
 474:Loc.
 475:Doelwit
@@ -470,7 +470,7 @@
 482:Trainratio ijzer
 483:Autoverdediging
 484:AI creëert en beheert verdedigingsposities automatisch. Negeert alle handmatig ingestelde verdedigings posities
-485:Plaats verdedigingspositie voor AI. Om de verdedigingspositie parameters te veranderen gebruik: RMK - richting, CTRL + RMK - groepstype, ALT + RMK - verdedigend/aanvallend
+485:Plaats verdedigingspositie voor AI.|Om de verdedigingspositie parameters te veranderen gebruik:|RMK - richting, Ctrl + RMK - groepstype, Alt + RMK - verdedigend / aanvallend
 486:AI verdedigingsposities
 487:Bouwvakkers
 488:Bedienden per 10 gebouwen
@@ -522,7 +522,7 @@
 534:Ping
 535:Ping / FPS
 536:Open
-537:Computerspeler
+537:AI Speler
 538:Selecteer...
 539:Willekeurig
 540:Geen
@@ -775,7 +775,7 @@
 824:Verplaatsen
 825:Readme PDF openen
 826:PDF openen mislukt
-827:Bepaalt aantal bedienden per 10 huizen voor geselecteerde computerspeler. Geselecteerde AI heeft %d huizen.
+827:Bepaalt aantal bedienden per 10 huizen voor geselecteerde AI. Geselecteerde AI heeft %d huizen.
 828:Fout: Het pauze-bestand van de host komt niet overeen met het lokale pauze-bestand. Er is een fout opgetreden of de host probeert mogelijk vals te spelen.
 829:De opdracht is uitgevoerd.
 830:Aziatische lettertypen laden
@@ -910,7 +910,7 @@
 960:Numeriek Blok +
 961:Generieke Toetsen
 962:Spel Toetsen
-963:Map Editor Toetsen
+963:Kaartbewerker Toetsen
 964:Wachten op niet-verbonden spelers gegevens:
 965:Pipet: Selecteeer het type tegel onder de cursor
 966:Deze wapentuigsmederij is niet bezet
@@ -1438,7 +1438,7 @@
 1489:Alle leeftijden
 1490:Jonge bomen
 1491:Gemiddelde bomen
-1492:Bomen klaar om te hakken
+1492:Hakbare bomen
 1493:Terrein toepassen van gekopieerde gebied
 1494:Hoogte toepassen van gekopieerde gebied
 1495:Voorwerpen toepassen van gekopieerde gebied
@@ -1475,3 +1475,22 @@
 1526:HD animaties
 1527:HD animaties
 1528:Verhoog hoeveelheid frames gebruikt voor animaties
+1529:Gladde pieken
+1530:Maakt berg pieken gladder
+1531:Spel Instellingen
+1532:Herhaling Instellingen
+1533:Kaartbewerker Instellingen
+1534:Waarschuwing: Gevorderde AI gebruikt zijn eigen formatie parameters en zal deze instellingen negeren
+1535:Naar Campagne Kaart
+1536:Willekeurig groep types kiezen
+1537:
+1538:Lage HP eenheden, Leer gepantserde eenheden, Ijzer gepantserde eenheden
+1539:Voeg groep toe
+1540:Voeg groep toe na plaatsen verdedigingspositie. Group wordt bepaalt door AI formaties
+1541:Aantal
+1542:Aantal eenheden in de groep. Bij 0 worden de AI formaties gebruikt
+1543:Kolommen
+1544:Aantal kolommen in de groep. Als aantal eenheden 0 is worden de AI formaties gebruikt.
+1545:Kool gelijkmatig maken
+1546:Steenkool bronnen binnen het geselecteerde gebied worden automatisch omgezet naar een laag aantal steenkool bij de randen en een hoog aantal steenkool in het midden
+1547:Een andere speler kreeg een desync fout. Stuur ons alsjeblieft dit foutenrapport, het helpt ons dit op te lossen.%sAndere speler fout bericht is:%s

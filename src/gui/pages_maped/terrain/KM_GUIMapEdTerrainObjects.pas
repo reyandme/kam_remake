@@ -366,7 +366,6 @@ begin
 
   ForestAge.FixedThumbWidth := True;
   ForestAge.ThumbWidth := GetForestAgeThumbWidth(ForestAge.Font);
-//  ForestAge.AutoThumbWidth := True; // Auto calc thumb width
 
   Label_ForestAge := TKMLabel.Create(Panel_Objects, 9, NextTop(20) - 8, Panel_Objects.Width - 18, 20,
                                      gResTexts[TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL_HINT], fntGrey, taRight);

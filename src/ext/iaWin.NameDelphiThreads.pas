@@ -3,7 +3,8 @@ unit iaWin.NameDelphiThreads;
 
 interface
 uses
-  WinAPI.Windows;
+  {$IFDEF FPC} Windows; {$ENDIF}
+  {$IFDEF WDC} WinAPI.Windows; {$ENDIF}
 
   procedure NameDelphiThreads(const pMainThreadId:THandle);
 
@@ -12,9 +13,9 @@ uses
 // article: https://www.ideasawakened.com/post/name-your-threads-even-the-ones-auto-created-by-delphi
 implementation
 uses
-  System.SysUtils,
-  System.Classes,
-  WinAPI.TlHelp32;
+  {$IFDEF FPC} SysUtils, Classes, JwaTlHelp32; {$ENDIF} // jwawinbase, jwawinnt ?
+  {$IFDEF WDC} System.SysUtils, System.Classes, WinAPI.TlHelp32; {$ENDIF}
+
 
 
 // If we want to nam all thread we can do that with delay via anonymous thread, f.e.

@@ -9,9 +9,10 @@ interface
 
 implementation
 uses
-  {$IFDEF MSWindows}Windows, PsAPI,{$ENDIF}
+  {$IFDEF MSWindows}Windows, {$ENDIF}
   Forms
-  {$IFDEF WDC}, ShellApi {$ENDIF}
+  {$IFDEF WDC}, ShellApi, PsAPI {$ENDIF}
+  {$IFDEF FPC}, JwaPsApi {$ENDIF}
   ;
 
 

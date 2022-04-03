@@ -1456,8 +1456,8 @@
 1526:Wygładzone animacje
 1527:Wygładzone animacje
 1528:Będzie wygładzać animacje wygładzone renderowanie powinno być włączone
-1537:Poziom oddziału
-1538:0 - słabi żołnierze, 1 - żołnierze uzbrojeni w skórę, 2 - żołnierze uzbrojeni w żelazo
+1537:Słaba
+1538:Żołnierze bez zbroi, żołnierze uzbrojeni w skórę lub żołnierze uzbrojeni w żelazo.
 1539:Dodaj oddział
 1540:Dodaj oddział po postawieniu pozycji obronnej. Oddział zależy od formacji wojsk AI
 1541:Jednostki
@@ -1466,3 +1466,4 @@
 1544:Liczba kolumn w oddziale. Jeśli ilość jednostek jest równa 0, będą użyte formacje wojsk AI
 1545:Wygładź Węgiel
 1546:Złoża węgla w zaznaczeniu zostaną automatycznie ustawione od najmniejszej ilości węgla na brzegach, po największe w środku
+1547:Inny gracz miał błąd desynchronizacji. Prosimy o wysłanie raportu błędu, dzięki czemu będziemy w stanie naprawić ten problem.%sTreść błędu drugiego gracza:%s

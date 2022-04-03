@@ -309,7 +309,9 @@ uses
   {$IFDEF PARALLEL_RUNNER}
     KM_AIParameters, // If you want to remove this, then please make sure that the Runner can be compiled with ParallelRunner Build Configuration
   {$ENDIF}
-  System.Types, Classes, SysUtils, Math, TypInfo,
+  {$IFDEF FPC} Types, {$ENDIF}
+  {$IFDEF WDC} System.Types, {$ENDIF}
+  Classes, SysUtils, Math, TypInfo,
   Dialogs,
   {$IFDEF WDC} UITypes, {$ENDIF}
   KromUtils,

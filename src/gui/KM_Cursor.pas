@@ -54,7 +54,7 @@ type
 
     // MapEd TownDefence
     MapEdDefPosGroupType: TKMGroupType; //group type of defence position
-    MapEdDefPosGroupLevel: TKMGroupLevel; // group lvl which is added with def pos - 0: low hp units, 1: leather units, 2: iron units
+    MapEdDefPosGroupLevel: TKMGroupLevel; // group lvl which is added with def pos
     MapEdDefPosType: TKMAIDefencePosType; // defence pos type - defender/attacker
     MapEdDefPosSetGroup : Boolean; //add group with added defence pos
     MapEdGroupFormation : TKMFormation;//formations of added group

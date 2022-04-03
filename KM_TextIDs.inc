@@ -611,7 +611,7 @@ TX_MAPED_AI_FORMATIONS_AAI_INFO = 1534; //Notice: Advanced AI use its own format
 TX_MAPED_AI_MAX_SOLDIERS_ENABLE_HINT = 454; //Set a limit on how many soldiers the AI can have
 TX_MAPED_AI_MAX_SOLDIERS_HINT = 455; //How many soldiers AI can have at once
 
-TX_MAPED_AI_GROUP_LVL = 1537; //Group level
+TX_MAPED_AI_GROUP_LVL_WEAK = 1537; // Weak (units without armor)
 TX_MAPED_AI_GROUP_LVL_HINT = 1538; //0 - low HP units, 1 - Leather armored units, 2 - Iron units
 TX_MAPED_AI_ADD_GROUP = 1539; //Add group
 TX_MAPED_AI_ADD_GROUP_HINT = 1540; //Add group after placing defence position. Group  depends on AI formations

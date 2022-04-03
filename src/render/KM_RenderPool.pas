@@ -1852,7 +1852,10 @@ var
   P: TKMPoint;
   dir : TKMDirection;
   UT: TKMUnitType;
+  formation: TKMFormation;
 begin
+  Assert(gGameParams.IsMapEditor);
+
   if gCursor.Tag1 = 255 then
   begin
     entity := gMySpectator.HitTestCursorWGroup(True);
@@ -1861,19 +1864,16 @@ begin
   else
   begin
     UT := TKMUnitType(gCursor.Tag1);
-    if UT in UNITS_WARRIORS then
-      dir := gCursor.MapEdDirection
-    else
-      dir := dirS;
-
-    if not (dir in [dirN..dirNW])  then
-      dir := dirN;
+    dir := dirS;
 
     P := gCursor.Cell;
     if gTerrain.CanPlaceUnit(P, UT) then
     begin
       if UT in UNITS_WARRIORS then
-        DoRenderGroup(UT, KMPointDir(P, dir), gCursor.MapEdGroupFormation.NumUnits, gCursor.MapEdGroupFormation.UnitsPerRow, gMySpectator.Hand.FlagColor)
+      begin
+        gGame.MapEditor.DetermineGroupFormationAndDir(P, UNIT_TO_GROUP_TYPE[TKMUnitType(gCursor.Tag1)], formation, dir);
+        DoRenderGroup(UT, KMPointDir(P, dir), formation.NumUnits, formation.UnitsPerRow, gMySpectator.Hand.FlagColor)
+      end
       else
         AddUnitWithDefaultArm(UT, 0, uaWalk, dir, UNIT_STILL_FRAMES[dirS], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True);
     end

@@ -1484,8 +1484,8 @@
 1534:Notice: Advanced AI use its own formation parameters and will ignore these settings
 1535:To Campaign Map
 1536:Take any group type
-1537:Group level
-1538:0 - low HP units, 1 - Leather armored units, 2 - Iron armored units
+1537:Weak
+1538:Soldiers withour armor, leather armored units or iron armored units
 1539:Add group
 1540:Add group after placing defence position. Group  depends on AI formations
 1541:Count

@@ -888,7 +888,7 @@ const
     $FF00B5FF, // 3 Gold
     $FF07FFFF, // 4 Lauenburg yellow
     $FF0EC5A2, // 5 Lime green
-    $FF99FF99, // 6 Light green
+    $FF88FF88, // 6 Light green
     $FF07FF07, // 7 Neon green
     $FF00A100, // 8 Bright green
     $FF134B00, // 9 Dark green
