@@ -56,6 +56,9 @@ cze.NoKaM=Instalátor zjistil, že hra Knights and Merchants: The Peasants Rebel
 cze.CantUpdate=Instalátor nenalezl na vašem počítači KaM Remake. Nejprve si stáhněte kompletní KaM Remake, poté můžete aktualizovat. Instalace bude nyní ukončena.
 cze.OpenAL=Chcete nainstalovat OpenAL? (Doporučeno) OpenAL je vyžadováno pro správnou funkci zvuku v KaM Remake
 cze.ViewReadme=Otevřít Readme
+cze.SteamFirstRun=Knights and Merchants na Steamu je potřeba pustit alespoň jednou, aby mohla instalace pokračovat.
+cze.DeleteSaves=Chcete také smazat všechny uložené hry a postup v kampani?
+cze.DeleteMaps=Chcete také smazat všechny mapy a kampaně?
 
 ;Russian
 rus.CreateStartShortcut=Создать ярлык в меню Пуск
