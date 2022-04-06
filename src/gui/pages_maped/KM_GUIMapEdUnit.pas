@@ -80,7 +80,7 @@ begin
   ConditionBar_Unit       := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
   Button_ConditionDec     := TKMButton.Create(Panel_Unit,65,78,20,20,'-', bsGame);
   Button_ConditionInc     := TKMButton.Create(Panel_Unit,161,78,20,20,'+', bsGame);
-  Button_ConditionDefault := TKMButton.Create(Panel_Unit,86,78,74,20,'default', bsGame);
+  Button_ConditionDefault := TKMButton.Create(Panel_Unit,86,78,74,20,gResTexts[TX_UNIT_CONDITION_DEFAULT], bsGame);
 
   Button_ConditionDec.OnClickShift := UnitConditionsChange;
   Button_ConditionInc.OnClickShift := UnitConditionsChange;
@@ -239,9 +239,17 @@ begin
   end;
 
   if fGroup <> nil then
-    fGroup.Condition := newCondition
+  begin
+    fGroup.Condition := newCondition;
+    if newCondition = TKMUnitGroup.GetDefaultCondition then
+      U.StartWDefaultCondition := True;
+  end
   else
+  begin
     fUnit.Condition := newCondition;
+    if newCondition = TKMUnit.GetDefaultCondition then
+      U.StartWDefaultCondition := True;
+  end;
 
   if U.StartWDefaultCondition then
   begin
