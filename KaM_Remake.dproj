@@ -72,7 +72,7 @@
         <DCC_DcuOutput>dcu</DCC_DcuOutput>
         <DCC_COMPARING_SIGNED_UNSIGNED>false</DCC_COMPARING_SIGNED_UNSIGNED>
         <DCC_COMBINING_SIGNED_UNSIGNED>false</DCC_COMBINING_SIGNED_UNSIGNED>
-        <DCC_MaxStackSize>2097152</DCC_MaxStackSize>
+        <DCC_MaxStackSize>8388608</DCC_MaxStackSize>
         <Manifest_File>None</Manifest_File>
         <Icon_MainIcon>KaM_Remake_Icon.ico</Icon_MainIcon>
         <DCC_ImageBase>00400000</DCC_ImageBase>
@@ -220,6 +220,7 @@
         <DCCReference Include="src\ai\KM_AIMayor.pas"/>
         <DCCReference Include="src\ai\KM_AIMayorBalance.pas"/>
         <DCCReference Include="src\ai\KM_AISetup.pas"/>
+        <DCCReference Include="src\ai\KM_AITypes.pas"/>
         <DCCReference Include="src\ai\newAI\KM_ArmyAttackNew.pas"/>
         <DCCReference Include="src\ai\newAI\KM_ArmyDefence.pas"/>
         <DCCReference Include="src\ai\newAI\KM_ArmyManagement.pas"/>
@@ -240,7 +241,24 @@
         <DCCReference Include="src\common\KM_Points.pas"/>
         <DCCReference Include="src\common\KM_WorkerThread.pas"/>
         <DCCReference Include="src\KM_Console.pas"/>
-        <DCCReference Include="src\KM_Controls.pas"/>
+        <DCCReference Include="src\controls\KM_Controls.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsBase.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsChart.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsColor.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsDragger.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsDrop.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsEdit.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsList.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsMemo.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsMinimapView.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsPopUp.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsProgressBar.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsScroll.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsSwitch.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsTrackBar.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsTypes.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsUtils.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsWaresRow.pas"/>
         <DCCReference Include="src\perflog\KM_DevPerfLog.pas"/>
         <DCCReference Include="src\perflog\KM_DevPerfLogForm.pas"/>
         <DCCReference Include="src\perflog\KM_DevPerfLogSingle.pas"/>
@@ -283,6 +301,7 @@
         <DCCReference Include="src\gui\pages_game\KM_GUIGameResultsMP.pas"/>
         <DCCReference Include="src\gui\pages_game\KM_GUIGameResultsSP.pas"/>
         <DCCReference Include="src\gui\pages_game\KM_GUIGameSpectator.pas"/>
+        <DCCReference Include="src\gui\pages_game\KM_GUIGameSpectatorItemLines.pas"/>
         <DCCReference Include="src\gui\pages_maped\KM_GUIMapEdExtras.pas"/>
         <DCCReference Include="src\gui\pages_maped\KM_GUIMapEdHouse.pas"/>
         <DCCReference Include="src\gui\pages_maped\KM_GUIMapEdMarkerDefence.pas"/>
@@ -442,6 +461,7 @@
         <DCCReference Include="src\res\KM_ResHouses.pas"/>
         <DCCReference Include="src\res\KM_ResInterpolation.pas"/>
         <DCCReference Include="src\res\KM_ResKeys.pas"/>
+        <DCCReference Include="src\res\KM_ResKeyFuncs.pas"/>
         <DCCReference Include="src\res\KM_ResLocales.pas"/>
         <DCCReference Include="src\res\KM_ResMapElements.pas"/>
         <DCCReference Include="src\res\KM_ResPalettes.pas"/>
@@ -469,7 +489,9 @@
         <DCCReference Include="src\scripting\KM_ScriptValidatorResult.pas"/>
         <DCCReference Include="src\net\KM_ServerQuery.pas"/>
         <DCCReference Include="src\settings\KM_Settings.pas"/>
+        <DCCReference Include="src\settings\KM_SettingsXML.pas"/>
         <DCCReference Include="src\settings\KM_GameAppSettings.pas"/>
+        <DCCReference Include="src\settings\KM_GameAppSettingsPart.pas"/>
         <DCCReference Include="src\settings\KM_KeysSettings.pas"/>
         <DCCReference Include="src\settings\KM_GameSettings.pas"/>
         <DCCReference Include="src\settings\KM_MainSettings.pas"/>
