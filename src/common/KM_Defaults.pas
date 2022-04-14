@@ -31,11 +31,12 @@ const
   // However for some odd reason this kills Reys IDE ..
   {$I KM_Revision.inc};
   {$I KM_NetProtocolRevision.inc};
+
   {$IFDEF USESECUREAUTH}
     {$IFDEF DEBUG}
     GAME_VERSION_POSTFIX  = ' [ DEBUG ]';
     {$ELSE}
-    GAME_VERSION_POSTFIX  = ' [ Map x512 ]';
+    GAME_VERSION_POSTFIX  = '';
     {$ENDIF}
   {$ELSE}
     {$IFDEF DEBUG}
@@ -44,6 +45,7 @@ const
     GAME_VERSION_POSTFIX  = ' [ UNSECURE ]';
     {$ENDIF}
   {$ENDIF}
+  GAME_VERSION_CUSTOM_POSTFIX = ' [ Map x512 ]'; // Custom postfix for the test builds
   GAME_VERSION_PREFIX   = ''; //Game version string displayed in menu corner
 var
   //Game revision is set in initialisation block
@@ -1111,7 +1113,7 @@ implementation
 initialization
 begin
   GAME_REVISION := AnsiString('r' + IntToStr(GAME_REVISION_NUM));
-  GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX;
+  GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX + GAME_VERSION_CUSTOM_POSTFIX;
   //Clients of this net protocol version may connect to the dedicated server
   NET_PROTOCOL_REVISON := AnsiString('r' + IntToStr(NET_PROTOCOL_REVISION_NUM));
 end;
