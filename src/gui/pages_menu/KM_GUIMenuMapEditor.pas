@@ -135,7 +135,7 @@ uses
 
 const
   MAPSIZES_COUNT = 8;
-  MapSize: array [0..MAPSIZES_COUNT-1] of Word = (32, 64, 96, 128, 160, 192, 224, 256);
+  MapSize: array [0..MAPSIZES_COUNT-1] of Word = (32, 64, 128, 160, 192, 256, 320, 512);
 
 
 { TKMGUIMainMapEditor }
@@ -202,8 +202,8 @@ begin
 
         for MS := MAP_SIZE_ENUM_MIN to MAP_SIZE_ENUM_MAX do
         begin
-          CheckBox_Sizes[MS] := TKMCheckBox.Create(Panel_MapFilter_Size, FILTER_PAD_X + 70*((Byte(MS)-1) div 2),
-                                                   FILTER_PAD_Y + 20*((Byte(MS)-1) mod 2), 60, 20, MapSizeText(MS), fntMetal);
+          CheckBox_Sizes[MS] := TKMCheckBox.Create(Panel_MapFilter_Size, FILTER_PAD_X + 45*((Byte(MS)-1) div 2),
+                                                   FILTER_PAD_Y + 20*((Byte(MS)-1) mod 2), 70, 20, MapSizeText(MS), fntMetal);
           CheckBox_Sizes[MS].Check;
           CheckBox_Sizes[MS].OnClick := MapFilterChanged;
         end;
