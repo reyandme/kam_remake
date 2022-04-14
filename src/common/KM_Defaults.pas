@@ -7,7 +7,7 @@ uses
 //Global constants
 const
 //|===================| <- constant name length
-  MAX_MAP_SIZE          = 256;
+  MAX_MAP_SIZE          = 512;
   MIN_MAP_SIZE          = 32;
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
@@ -35,7 +35,7 @@ const
     {$IFDEF DEBUG}
     GAME_VERSION_POSTFIX  = ' [ DEBUG ]';
     {$ELSE}
-    GAME_VERSION_POSTFIX  = '';
+    GAME_VERSION_POSTFIX  = ' [ Map x512 ]';
     {$ENDIF}
   {$ELSE}
     {$IFDEF DEBUG}
@@ -843,11 +843,11 @@ const
   SB_ID_CTRL_ID      = 7;
 
 type
-  TKMMapSize = (msNone, msXS, msS, msM, msL, msXL, msXXL);
+  TKMMapSize = (msNone, msXS, msS, msM, msL, msXL, msXXL, msXXXL);
 
 const
   MAP_SIZE_ENUM_MIN = msXS;
-  MAP_SIZE_ENUM_MAX = msXXL;
+  MAP_SIZE_ENUM_MAX = msXXXL;
 
 type
   //Enum representing map visible layers
