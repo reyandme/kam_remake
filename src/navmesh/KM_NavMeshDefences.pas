@@ -650,7 +650,7 @@ end;
 // Flood fill for detection of defensive positions
 function TBackwardFF.FindDefencePos(aBaseCnt: Word): Boolean;
 const
-  INIT_WEIGHT = 10000;
+  INIT_WEIGHT = MAX_MAP_SIZE*MAX_MAP_SIZE div 6;
   SQR_MIN_DEF_POINT_DISTANCE = 3*3;
 var
   Check: Boolean;

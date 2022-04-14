@@ -33,7 +33,8 @@ type
   TKMBuildInfo = record
     Visited, VisitedHouse: Byte;
     State: TKMBuildState;
-    Next,Distance,DistanceInitPoint,Y: Word;
+    Next: Integer;
+    Distance,DistanceInitPoint,Y: Word;
   end;
   TKMBuildInfoArray = array of TKMBuildInfo;
 
@@ -66,7 +67,7 @@ type
     fOwner: TKMHandID;
     fOwnerUpdateInfo: array[0..MAX_HANDS-1] of Byte;
     fVisitIdx, fVisitIdxHouse: Byte;
-    fStartQueue, fEndQueue, fQueueCnt, fMapX, fMapY: Word;
+    fStartQueue, fEndQueue, fQueueCnt, fMapX, fMapY: Integer;
     fUpdateTick: Cardinal;
     fHouseReq: TKMHouseRequirements;
     fLocs: TKMPointList;
@@ -79,7 +80,7 @@ type
     function GetOwnersIndex(const aOwner: TKMHandID): Byte;
     function GetState(const aY,aX: Word): TKMBuildState;
     procedure SetState(const aY,aX: Word; const aState: TKMBuildState);
-    function GetStateFromIdx(const aIdx: Word): TKMBuildState;
+    function GetStateFromIdx(const aIdx: Integer): TKMBuildState;
     function GetDistance(const aPoint: TKMPoint): Word;
     function GetDistanceInitPoint(const aPoint: TKMPoint): Word;
     function GetNext(const aY,aX: Word): Word;
@@ -87,12 +88,12 @@ type
 
   protected
     procedure InitQueue(aHouseFF: Boolean);
-    function InsertInQueue(const aIdx: Word): Word;
-    function RemoveFromQueue(var aX,aY,aIdx: Word): Boolean;
+    function InsertInQueue(const aIdx: Integer): Integer;
+    function RemoveFromQueue(var aX,aY: Word; var aIdx: Integer): Boolean;
 
-    function CanBeVisited(const aX,aY,aIdx: Word; const aHouseQueue: Boolean = False): Boolean; overload;
-    procedure MarkAsVisited(const aY,aIdx,aDistance: Word; const aState: TKMBuildState); overload;
-    procedure MarkAsVisited(const aX,aY,aIdx,aDistance: Word); overload;
+    function CanBeVisited(const aX,aY: Word; const aIdx: Integer; const aHouseQueue: Boolean = False): Boolean; overload;
+    procedure MarkAsVisited(const aY: Word; const aIdx,aDistance: Integer; const aState: TKMBuildState); overload;
+    procedure MarkAsVisited(const aX,aY: Word; const aIdx,aDistance: Integer); overload;
 
     function GetTerrainState(const aX,aY: Word): TKMBuildState;
     procedure MarkPlans();
@@ -110,7 +111,7 @@ type
     property Visited[const aY,aX: Word]: Byte read GetVisited write SetVisited;
     property VisitIdxOwner[const aOwner: TKMHandID]: Byte read GetOwnersIndex;
     property State[const aY,aX: Word]: TKMBuildState read GetState write SetState;
-    property StateIdx[const aIdx: Word]: TKMBuildState read GetStateFromIdx;
+    property StateIdx[const aIdx: Integer]: TKMBuildState read GetStateFromIdx;
     property Distance[const aPoint: TKMPoint]: Word read GetDistance;
     property DistanceInitPoint[const aPoint: TKMPoint]: Word read GetDistanceInitPoint;
     property Next[const aY,aX: Word]: Word read GetNext write SetNext;
@@ -133,10 +134,10 @@ type
     fVisitArr: TBooleanArray;
     fQueue: TQueue;
   protected
-    function CanBeVisited(const aX,aY, aDistance: Word): Boolean;
-    procedure MarkAsVisited(const aIdx, aDistance: Word);
-    procedure InsertInQueue(const aX,aY, aDistance: Word);
-    function RemoveFromQueue(var aX,aY, aDistance: Word): Boolean;
+    function CanBeVisited(const aX,aY: Word; const aDistance: Integer): Boolean;
+    procedure MarkAsVisited(const aIdx, aDistance: Integer);
+    procedure InsertInQueue(const aX,aY: Word; const aDistance: Integer);
+    function RemoveFromQueue(var aX,aY: Word; var aDistance: Integer): Boolean;
   public
     constructor Create(aMapX,aMapY: Word; var aArea: TKMByteArray);
     destructor Destroy(); override;
@@ -1409,7 +1410,7 @@ begin
   fInfoArr[aY*fMapX + aX].State := aState;
 end;
 
-function TKMBuildFF.GetStateFromIdx(const aIdx: Word): TKMBuildState;
+function TKMBuildFF.GetStateFromIdx(const aIdx: Integer): TKMBuildState;
 begin
   Result := bsNoBuild;
   with fInfoArr[aIdx] do
@@ -1472,7 +1473,7 @@ begin
 end;
 
 
-function TKMBuildFF.InsertInQueue(const aIdx: Word): Word;
+function TKMBuildFF.InsertInQueue(const aIdx: Integer): Integer;
 begin
   if (fQueueCnt = 0) then
     fStartQueue := aIdx
@@ -1484,7 +1485,7 @@ begin
 end;
 
 
-function TKMBuildFF.RemoveFromQueue(var aX,aY,aIdx: Word): Boolean;
+function TKMBuildFF.RemoveFromQueue(var aX,aY: Word; var aIdx: Integer): Boolean;
 begin
   Result := (fQueueCnt > 0);
   if Result then
@@ -1498,7 +1499,7 @@ begin
 end;
 
 
-function TKMBuildFF.CanBeVisited(const aX,aY,aIdx: Word; const aHouseQueue: Boolean = False): Boolean;
+function TKMBuildFF.CanBeVisited(const aX,aY: Word; const aIdx: Integer; const aHouseQueue: Boolean = False): Boolean;
 begin
   // tpOwn - walkable tile + height evaluation
   if aHouseQueue then
@@ -1509,7 +1510,7 @@ begin
 end;
 
 
-procedure TKMBuildFF.MarkAsVisited(const aY,aIdx,aDistance: Word; const aState: TKMBuildState);
+procedure TKMBuildFF.MarkAsVisited(const aY: Word; const aIdx,aDistance: Integer; const aState: TKMBuildState);
 begin
   with fInfoArr[aIdx] do
   begin
@@ -1519,7 +1520,7 @@ begin
     Distance := aDistance;
   end;
 end;
-procedure TKMBuildFF.MarkAsVisited(const aX,aY,aIdx,aDistance: Word);
+procedure TKMBuildFF.MarkAsVisited(const aX,aY: Word; const aIdx,aDistance: Integer);
 var
   Point: TKMPoint;
 begin
@@ -1709,7 +1710,8 @@ end;
 
 procedure TKMBuildFF.TerrainFF(aMaxDistance: Word);
 var
-  X,Y,Idx,Distance: Word;
+  X,Y: Word;
+  Idx,Distance: Integer;
 begin
   while RemoveFromQueue(X,Y,Idx) do
   begin
@@ -1728,7 +1730,8 @@ procedure TKMBuildFF.HouseFF();
 const
   MAX_DIST = 40-10;
 var
-  X,Y,Idx,Distance: Word;
+  X,Y: Word;
+  Idx,Distance: Integer;
 begin
   while RemoveFromQueue(X,Y,Idx) do
   begin
@@ -1852,23 +1855,23 @@ begin
 end;
 
 
-function TKMFFInitPlace.CanBeVisited(const aX,aY, aDistance: Word): Boolean;
+function TKMFFInitPlace.CanBeVisited(const aX,aY: Word; const aDistance: Integer): Boolean;
 var
-  Idx: Word;
+  Idx: Integer;
 begin
   Idx := aY*fMapX + aX;
   Result := not fVisitArr[Idx] AND (fArea[Idx] < aDistance);
 end;
 
 
-procedure TKMFFInitPlace.MarkAsVisited(const aIdx, aDistance: Word);
+procedure TKMFFInitPlace.MarkAsVisited(const aIdx, aDistance: Integer);
 begin
   fVisitArr[aIdx] := True;
   fArea[aIdx] := aDistance;
 end;
 
 
-procedure TKMFFInitPlace.InsertInQueue(const aX,aY, aDistance: Word);
+procedure TKMFFInitPlace.InsertInQueue(const aX,aY: Word; const aDistance: Integer);
 var
   DE: PDistElement;
 begin
@@ -1881,7 +1884,7 @@ begin
 end;
 
 
-function TKMFFInitPlace.RemoveFromQueue(var aX,aY, aDistance: Word): Boolean;
+function TKMFFInitPlace.RemoveFromQueue(var aX,aY: Word; var aDistance: Integer): Boolean;
 var
   DE: PDistElement;
 begin
@@ -1902,7 +1905,8 @@ const
   INIT_VALUE = 255;
   DEC_COEF = 15;
 var
-  I,X,Y,Distance: Word;
+  I,X,Y: Word;
+  Distance: Integer;
 begin
   FillChar(fVisitArr[0], SizeOf(fVisitArr[0]) * Length(fVisitArr), #0);
   for I := 0 to aCount - 1 do

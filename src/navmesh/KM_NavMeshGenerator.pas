@@ -16,12 +16,16 @@ uses
   KromUtils;
 
 const
-  MAX_NODES = 10000; // Max nodes in NavMesh array
-  MAX_POLYGONS = 10000;
+  //MAP_SIZE_X256 = Byte((MAX_MAP_SIZE mod 256) > 0) + (MAX_MAP_SIZE div 256);
+  //MAX_NODES = 10000*MAP_SIZE_X256*MAP_SIZE_X256; // Max nodes in NavMesh array
+//  MAX_POLYGONS = 10000*MAP_SIZE_X256*MAP_SIZE_X256;
+
+  MAX_NODES = MAX_MAP_SIZE*MAX_MAP_SIZE div 6;
+  MAX_POLYGONS = MAX_MAP_SIZE*MAX_MAP_SIZE div 6;
 
 
 type
-  TKMNavMeshByteArray = array[-1..257,-1..257] of Byte;
+  TKMNavMeshByteArray = array[-1..MAX_MAP_SIZE + 1,-1..MAX_MAP_SIZE + 1] of Byte;
 
   // Borders
   TKMBord = record
@@ -58,7 +62,7 @@ type
     fMapX, fMapY: Word; // Limits of arrays
     //Keep a copy of these temp arrays for debug rendering
     fInnerPointStartIdx, fInnerPointEndIdx: Word;
-    fBordByY, fIdxArr: array[0..256] of Word;
+    fBordByY, fIdxArr: array[0..MAX_MAP_SIZE] of Word;
     fBord: TKMBordInfo;
     {$IFDEF DEBUG_NavMesh}
     fBorderNodeCount: Integer;
@@ -294,8 +298,8 @@ function TKMNavMeshGenerator.ExtractNodes(): TKMNavMeshByteArray;
     end;
 var
   ShapeCnt,BordNodeCnt: Integer;
-  ShapeIdxArr: array[0..256*64] of TStartEndIdxs;
-  NodeMap: array[0..256,0..256] of Word;
+  ShapeIdxArr: array[0..MAX_MAP_SIZE*64] of TStartEndIdxs;
+  NodeMap: array[0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Word;
   W: TKMNavMeshByteArray;
   BordNodes: TKMPointArray;
 

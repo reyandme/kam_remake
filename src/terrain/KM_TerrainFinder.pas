@@ -216,7 +216,7 @@ procedure TKMTerrainFinder.GetTilesWithinDistance(const aStart: TKMPoint; aRadiu
 const
   STRAIGHT_COST = 5;
   DIAG_COST = 7; // 5 * 1.41
-  MAX_RAD = (255 - DIAG_COST) div STRAIGHT_COST;
+  MAX_RAD = (MAX_MAP_SIZE - 1 - DIAG_COST) div STRAIGHT_COST;
 
   //Uses a floodfill style algorithm but only on a small area (with aRadius)
   procedure Visit(X,Y: Word; aWalkDistance: Byte);

@@ -45,7 +45,7 @@ type
     fLandTemp: TKMLand;
     fLandMapEdTemp: TKMMapEdLand;
     fLandTerKindTemp: TKMLandTerKind;
-    fLastTiles : array[0..255,0..255] of Integer;
+    fLastTiles : array[0..MAX_MAP_SIZE - 1,0..MAX_MAP_SIZE - 1] of Integer;
 
     function CheckTilesAround(const aX, aY, aTile: Integer): Boolean;
 

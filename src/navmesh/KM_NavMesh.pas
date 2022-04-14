@@ -281,8 +281,8 @@ end;
 
 procedure TKMNavMesh.FindClosestPolygon();
 var
-  Len,MaxIdx: Word;
-  Queue: array[0..255*255] of Integer;
+  Len, MaxIdx: Integer;
+  Queue: array[0..(MAX_MAP_SIZE-1)*(MAX_MAP_SIZE - 1)] of Integer;
   procedure AddToQueue(aIdx, aPolygon: Integer);
   begin
     Queue[MaxIdx] := aIdx;

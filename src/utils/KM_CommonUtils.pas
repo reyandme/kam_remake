@@ -193,7 +193,7 @@ uses
 
 const
   //Pretend these are understandable in any language
-  MAP_SIZES: array [TKMMapSize] of String = ('???', 'XS', 'S', 'M', 'L', 'XL', 'XXL');
+  MAP_SIZES: array [TKMMapSize] of String = ('???', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL');
 
 var
   fKaMSeed: Integer;
@@ -557,7 +557,8 @@ begin
      80* 80+1..128*128: Result := msM;
     128*128+1..176*176: Result := msL;
     176*176+1..224*224: Result := msXL;
-    224*224+1..320*320: Result := msXXL;
+    224*224+1..256*256: Result := msXXL;
+    256*256+1..512*512: Result := msXXXL;
     else                Result := msNone;
   end;
 end;
