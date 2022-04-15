@@ -547,6 +547,8 @@ begin
       DList_MapSize.Add('192x192', 2);
       DList_MapSize.Add('224x224', 3);
       DList_MapSize.Add('256x256', 4);
+      DList_MapSize.Add('320x320', 5);
+      DList_MapSize.Add('512x512', 6);
       DList_MapSize.ItemIndex := 2;
       DList_MapSize.Hint := gResTexts[TX_MAPED_RMG_SETTINGS_MAP_SIZE_HINT];
   end
@@ -730,6 +732,8 @@ begin
           2: begin mapX := 192; mapY := 192; end;
           3: begin mapX := 224; mapY := 224; end;
           4: begin mapX := 256; mapY := 256; end;
+          5: begin mapX := 320; mapY := 320; end;
+          6: begin mapX := 512; mapY := 512; end;
         end;
       // Create empty map in background
       gGame.MapEdStartEmptyMap(mapX, mapY);

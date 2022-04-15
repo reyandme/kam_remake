@@ -55,8 +55,8 @@ type
   public
     {$IFDEF DEBUG_NewAI}
       Ctr: Word;
-      Price: array[0..256,0..256] of Word;
-      Order: array[0..256,0..256] of Word;
+      Price: array[0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Word;
+      Order: array[0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Word;
     {$ENDIF}
     function Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
   end;
@@ -114,10 +114,10 @@ type
       fForestDebugText: UnicodeString;
       fFieldPrice: TFieldPrice;
 
-      DA1: array [0..256,0..256] of Integer;
-      DA2: array [0..256,0..256] of Integer;
-      DA3: array [0..256,0..256] of Integer;
-      DA4: array [0..256,0..256] of Integer;
+      DA1: array [0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Integer;
+      DA2: array [0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Integer;
+      DA3: array [0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Integer;
+      DA4: array [0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Integer;
     {$ENDIF}
 
     fOwner: TKMHandID;

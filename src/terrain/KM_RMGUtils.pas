@@ -51,7 +51,7 @@ type
     property Seed: LongInt read fSeed write fSeed;
     procedure NextSeed;
     function Random(): Single;
-    function RandomI(const Max: Integer): Integer;
+    function RandomI(const aMax: Integer): Integer;
   end;
 
   // Fast flood algorithm (Queue + for cycle instead of recursion)
@@ -213,10 +213,8 @@ type
 
   // Remove "sharp" edges of each shape = edges with 1x1 or 2x2 tiles => each tile have at least 2 surrounding tiles in row and 2 tiles in column
   TKMSharpShapeFixer = class(TKMInternalTileCounter)
-  private
   protected
     procedure MarkAsVisited(const aX,aY: SmallInt); override;
-  public
   end;
 
 // Standard flood fill algorithm with queue instead of recursion -> first element is the closest to the center point, second is automatically second closest etc.
@@ -244,17 +242,13 @@ type
 
   TKMBalancedResources = class
   private
-  protected
     fResCnt: Word;
     fResources: TBalancedResource1Array;
   public
-    constructor Create();
-    destructor Destroy(); override;
-
     property Count: Word read fResCnt;
     property Resources: TBalancedResource1Array read fResources write fResources;
 
-    procedure ClearArray();
+    procedure ClearArray;
     procedure AddResource(aOwner, aResource, aMinesCnt: Byte; aQuantity: Integer; var aPoints: TKMPointArray);
   end;
 
@@ -285,7 +279,7 @@ type
   // Get all points which are inside of specific shape (biome)
   TKMShapePointsExtractor = class(TKMInternalTileCounter)
   private
-    fPointCnt: Word;
+    fPointCnt: Cardinal;
     fPoints: TKMPointArray;
   protected
     procedure MarkAsVisited(const aX,aY: SmallInt); override;
@@ -317,9 +311,9 @@ begin
      Result := -Result;
 end;
 
-function TKMRandomNumberGenerator.RandomI(const Max: Integer): Integer;
+function TKMRandomNumberGenerator.RandomI(const aMax: Integer): Integer;
 begin
-  Result := Trunc(Random() * Max);
+  Result := Trunc(Random() * aMax);
 end;
 
 
@@ -965,21 +959,7 @@ end;
 
 
 { TKMBalancedResources }
-constructor TKMBalancedResources.Create;
-begin
-  inherited;
-
-  fResCnt := 0;
-end;
-
-
-destructor TKMBalancedResources.Destroy();
-begin
-  inherited;
-end;
-
-
-procedure TKMBalancedResources.ClearArray();
+procedure TKMBalancedResources.ClearArray;
 begin
   SetLength(fResources, 0);
   fResCnt := 0;
@@ -990,6 +970,7 @@ procedure TKMBalancedResources.AddResource(aOwner, aResource, aMinesCnt: Byte; a
 begin
   if (fResCnt >= Length(fResources)) then
     SetLength(fResources, fResCnt + 24);
+
   with Resources[fResCnt] do
   begin
     InitOwner := aOwner;
@@ -999,7 +980,8 @@ begin
     Quantity := aQuantity;
     Points := aPoints;
   end;
-  fResCnt := fResCnt + 1;
+
+  Inc(fResCnt);
 end;
 
 
@@ -1011,7 +993,7 @@ begin
 
   fVisited := 255;
   SetLength(fVisitedArr, Length(aBiomeArr), Length(aBiomeArr[0]));
-  fQueue := TQueue.Create();
+  fQueue := TQueue.Create;
 end;
 
 destructor TKMHeightFillWalkableAreas.Destroy();
@@ -1096,7 +1078,7 @@ begin
   fIgnoreTileType := aIgnoreTileTypes;
   if (aHeight < 0) then
     fDecreaseCoef := -fDecreaseCoef;
-  fMaxDistance := abs(aHeight / aDecreaseCoef);
+  fMaxDistance := Abs(aHeight / aDecreaseCoef);
 
   ClearVisitedArr();
   for I := 0 to Length(aInitPoints) - 1 do
@@ -1123,6 +1105,7 @@ begin
   fPointCnt := fPointCnt + 1;
 end;
 
+
 procedure TKMShapePointsExtractor.QuickFlood(aX,aY,aSearchBiome,aVisitedNum: SmallInt; var aPoints: TKMPointArray);
 begin
   fPointCnt := 0;
@@ -1130,5 +1113,6 @@ begin
   SetLength(fPoints, fPointCnt);
   aPoints := fPoints;
 end;
+
 
 end.

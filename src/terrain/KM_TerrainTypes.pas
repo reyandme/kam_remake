@@ -134,7 +134,7 @@ type
 
   //* Brief terrain tile info
   TKMTerrainTileBrief = packed record
-    X,Y: Byte;
+    X,Y: Word;
     Terrain: Word;
     Rotation: Byte;
     Height: Byte;
