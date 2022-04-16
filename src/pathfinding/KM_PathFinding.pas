@@ -18,21 +18,21 @@ const
 
 type
   TKMPathDestination = (
-    pdLocation, //Walk to location
-    pdPassability, //Walk to desired passability
-    pdHouse //Approach house from any side (workers and warriors)
-    );
+    pdLocation,     // Walk to location
+    pdPassability,  // Walk to desired passability
+    pdHouse         // Approach house from any side (workers and warriors)
+  );
 
   TKMPathAvoidLocked = (
-    palNoAvoid,             //Don't avoid any tiles
-    palAvoidByMovementCost, //Avoid locekd tiles by increasing their movement cost
-    palAvoidAsUnwalkable    //avoid locked tiles as mark them unwalkable (no route will be made through them)
-    );
+    palNoAvoid,             // Don't avoid any tiles
+    palAvoidByMovementCost, // Avoid locekd tiles by increasing their movement cost
+    palAvoidAsUnwalkable    // Avoid locked tiles as mark them unwalkable (no route will be made through them)
+  );
 
-  //This is a helper class for TTerrain
-  //Here should be pathfinding and all associated stuff
-  //I think we should refactor this unit and move some TTerrain methods here
-  TPathFinding = class
+  // This is a helper class for TKMTerrain
+  // Here should be pathfinding and all associated stuff
+  // I think we should refactor this unit and move some TKMTerrain methods here
+  TKMPathFinding = class
   private
     fCache: array [0 .. PATH_CACHE_MAX - 1] of record
       Weight: Word;
@@ -89,8 +89,8 @@ uses
   KM_Units, KM_DevPerfLog, KM_DevPerfLogTypes;
 
 
-{ TPathFinding }
-constructor TPathFinding.Create;
+{ TKMPathFinding }
+constructor TKMPathFinding.Create;
 var
   I: Integer;
 begin
@@ -106,7 +106,7 @@ begin
 end;
 
 
-destructor TPathFinding.Destroy;
+destructor TKMPathFinding.Destroy;
 var
   I: Integer;
 begin
@@ -120,7 +120,7 @@ end;
 
 //Find a route from A to B which meets aPass Passability
 //Results should be written as NodeCount of waypoint nodes to Nodes
-function TPathFinding.Route_Make(const aLocA, aLocB: TKMPoint; aPass: TKMTerrainPassabilitySet; aDistance: Single;
+function TKMPathFinding.Route_Make(const aLocA, aLocB: TKMPoint; aPass: TKMTerrainPassabilitySet; aDistance: Single;
                                  aTargetHouse: TKMHouse; NodeList: TKMPointList; aAvoidLocked: TKMPathAvoidLocked = palNoAvoid): Boolean;
 begin
   {$IFDEF PERFLOG}
@@ -177,7 +177,7 @@ end;
 
 
 //We are using Interaction Avoid mode (go around busy units)
-function TPathFinding.Route_MakeAvoid(const aLocA, aLocB: TKMPoint; aPass: TKMTerrainPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
+function TKMPathFinding.Route_MakeAvoid(const aLocA, aLocB: TKMPoint; aPass: TKMTerrainPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psPathfinding);
@@ -212,7 +212,7 @@ end;
 
 
 //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
-function TPathFinding.Route_ReturnToWalkable(const aLocA, aLocB: TKMPoint; aTargetWalkConnect: TKMWalkConnect;
+function TKMPathFinding.Route_ReturnToWalkable(const aLocA, aLocB: TKMPoint; aTargetWalkConnect: TKMWalkConnect;
                                              aTargetNetwork: Byte; aPass: TKMTerrainPassabilitySet; NodeList: TKMPointList): Boolean;
 begin
   {$IFDEF PERFLOG}
@@ -245,13 +245,13 @@ begin
 end;
 
 
-function TPathFinding.CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
+function TKMPathFinding.CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 begin
   Result := gTerrain.CanWalkDiagonaly(aFrom, bX, bY);
 end;
 
 
-function TPathFinding.IsWalkableTile(aX, aY: Word): Boolean;
+function TKMPathFinding.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   //If cell meets Passability then estimate it
   Result := ((fPass * gTerrain.Land^[aY,aX].Passability) <> [])
@@ -260,7 +260,7 @@ end;
 
 
 //How much it costs to move From -> To
-function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
+function TKMPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   DX, DY: Word;
   U: TKMUnit;
@@ -285,7 +285,7 @@ begin
 end;
 
 
-function TPathFinding.EstimateToFinish(aX, aY: Word): Cardinal;
+function TKMPathFinding.EstimateToFinish(aX, aY: Word): Cardinal;
 var
   DX, DY: Word;
 begin
@@ -300,7 +300,7 @@ begin
 end;
 
 
-function TPathFinding.DestinationReached(aX, aY: Word): Boolean;
+function TKMPathFinding.DestinationReached(aX, aY: Word): Boolean;
 begin
   case fDestination of
     pdLocation:    Result := KMLengthDiag(aX, aY, fLocB) <= fDistance;
@@ -312,7 +312,7 @@ end;
 
 
 //Cache the route incase it is needed soon
-procedure TPathFinding.AddToCache(NodeList: TKMPointList);
+procedure TKMPathFinding.AddToCache(NodeList: TKMPointList);
 var
   I: Integer;
   Best: Integer;
@@ -329,7 +329,7 @@ begin
 end;
 
 
-procedure TPathFinding.AddNoRouteAvoidLockedToCache;
+procedure TKMPathFinding.AddNoRouteAvoidLockedToCache;
 var
   I: Integer;
   Best: Integer;
@@ -347,7 +347,7 @@ begin
 end;
 
 
-function TPathFinding.CacheHasNoRouteAvoidLocked: Boolean;
+function TKMPathFinding.CacheHasNoRouteAvoidLocked: Boolean;
 var
   I: Integer;
   Len: Single;
@@ -373,7 +373,7 @@ begin
 end;
 
 
-function TPathFinding.TryRouteFromCache(NodeList: TKMPointList): Boolean;
+function TKMPathFinding.TryRouteFromCache(NodeList: TKMPointList): Boolean;
 const
   MIN_POINTS_TO_CHECK_START = 10;
 
@@ -472,7 +472,7 @@ begin
 end;
 
 
-procedure TPathFinding.Save(SaveStream: TKMemoryStream);
+procedure TKMPathFinding.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
@@ -498,7 +498,7 @@ begin
 end;
 
 
-procedure TPathFinding.Load(LoadStream: TKMemoryStream);
+procedure TKMPathFinding.Load(LoadStream: TKMemoryStream);
 var
   I: Integer;
 begin
@@ -524,7 +524,7 @@ begin
 end;
 
 
-procedure TPathFinding.UpdateState;
+procedure TKMPathFinding.UpdateState;
 var
   I: Integer;
 begin

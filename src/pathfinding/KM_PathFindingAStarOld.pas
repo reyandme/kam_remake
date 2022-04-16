@@ -7,10 +7,10 @@ uses
 
 
 type
-  //This is a helper class for TTerrain
-  //Here should be pathfinding and all associated stuff
-  //I think we should refactor this unit and move some TTerrain methods here
-  TPathFindingAStarOld = class(TPathFinding)
+  // This is a helper class for TKMTerrain
+  // Here should be pathfinding and all associated stuff
+  // I think we should refactor this unit and move some TKMTerrain methods here
+  TKMPathFindingAStarOld = class(TKMPathFinding)
   private
     fNewCost: Integer;
     fMinCost: record
@@ -35,8 +35,8 @@ type
 implementation
 
 
-{ TPathFindingAStarOld }
-function TPathFindingAStarOld.MakeRoute: Boolean;
+{ TKMPathFindingAStarOld }
+function TKMPathFindingAStarOld.MakeRoute: Boolean;
 const
   C_CLOSED = 65535;
 var
@@ -124,7 +124,7 @@ begin
 end;
 
 
-procedure TPathFindingAStarOld.ReturnRoute(NodeList: TKMPointList);
+procedure TKMPathFindingAStarOld.ReturnRoute(NodeList: TKMPointList);
 var
   I: Integer;
 begin

@@ -151,6 +151,7 @@ begin
   Panel_Brushes.Padding.SetBottom(10);
   Panel_Brushes.ScrollV_PadTop := 10;
   Panel_Brushes.ScrollV_PadBottom := 10;
+  Panel_Brushes.ScrollV_PadLeft := -20;
   Panel_Brushes.AnchorsStretch;
 //  TKMScrollPanel.Create(Panel_MultiPlayer, 675, 240, SERVER_DETAILS_W, 465, [saVertical], bsMenu, ssCommon);
 

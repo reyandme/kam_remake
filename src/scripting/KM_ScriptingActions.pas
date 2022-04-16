@@ -4376,7 +4376,7 @@ var
   I: Integer;
   points: TKMPointList;
   planExists: Boolean;
-  path: TPathFindingRoad;
+  path: TKMPathFindingRoad;
 begin
   try
     Result := False;
@@ -4385,7 +4385,7 @@ begin
     and gTerrain.TileInMapCoords(X1, Y1)
     and gTerrain.TileInMapCoords(X2, Y2) then
     begin
-      path := TPathFindingRoad.Create(aHand);
+      path := TKMPathFindingRoad.Create(aHand);
       points := TKMPointList.Create;
       try
         planExists := path.Route_ReturnToWalkable(KMPoint(X1, Y1), KMPoint(X2, Y2), 0, points);

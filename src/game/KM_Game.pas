@@ -26,7 +26,7 @@ type
     fOptions: TKMGameOptions;
     fGameInputProcess: TKMGameInputProcess;
     fTextMission: TKMTextLibraryMulti;
-    fPathfinding: TPathFinding;
+    fPathfinding: TKMPathFinding;
     fActiveInterface: TKMUserInterfaceGame; //Shortcut for both of UI
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMMapEdInterface;
@@ -275,7 +275,7 @@ type
 
     function GetHandsCount: Integer;
 
-    property Pathfinding: TPathFinding read fPathfinding;
+    property Pathfinding: TKMPathFinding read fPathfinding;
     property GameInputProcess: TKMGameInputProcess read fGameInputProcess write fGameInputProcess;
     property Options: TKMGameOptions read fOptions;
     property ActiveInterface: TKMUserInterfaceGame read fActiveInterface;
@@ -429,10 +429,11 @@ begin
   fIgnoreConsistencyCheckErrors := False;
 
   case PATHFINDER_TO_USE of
-    0:    fPathfinding := TPathfindingAStarOld.Create;
-    1:    fPathfinding := TPathfindingAStarNew.Create;
-    2:    fPathfinding := TPathfindingJPS.Create;
-    else  fPathfinding := TPathfindingAStarOld.Create;
+    0:    fPathfinding := TKMPathfindingAStarOld.Create;
+    1:    fPathfinding := TKMPathfindingAStarNew.Create;
+    2:    fPathfinding := TKMPathfindingJPS.Create;
+  else
+    fPathfinding := TKMPathfindingAStarOld.Create;
   end;
   gProjectiles := TKMProjectiles.Create(gRenderPool.AddProjectile);
 

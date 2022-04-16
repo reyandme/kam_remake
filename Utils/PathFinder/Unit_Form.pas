@@ -23,9 +23,9 @@ type
     procedure Button3Click(Sender: TObject);
   private
     Times: array [0..2] of Integer;
-    FinderOld: TPathFindingAStarOld;
-    FinderNew: TPathFindingAStarNew;
-    FinderJPS: TPathFindingJPS;
+    FinderOld: TKMPathFindingAStarOld;
+    FinderNew: TKMPathFindingAStarNew;
+    FinderJPS: TKMPathFindingJPS;
     procedure MakeRoutes;
     procedure DisplayMap;
   end;
@@ -52,9 +52,9 @@ begin
   gTerrain.MapX := MAX_SIZE;
   gTerrain.MapY := MAX_SIZE;
 
-  FinderOld := TPathFindingAStarOld.Create;
-  FinderNew := TPathFindingAStarNew.Create;
-  FinderJPS := TPathFindingJPS.Create;
+  FinderOld := TKMPathFindingAStarOld.Create;
+  FinderNew := TKMPathFindingAStarNew.Create;
+  FinderJPS := TKMPathFindingJPS.Create;
 
   Button1Click(Self);
 

@@ -127,6 +127,7 @@ type
     fEnabled: Boolean;
     fVisible: Boolean;
     fFocusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
+    fHitable: Boolean; //Can this control be hit with the cursor?
     fControlIndex: Integer; //Index number of this control in his Parent's (TKMPanel) collection
     fID: Integer; //Control global ID
     fHint: UnicodeString; //Text that shows up when cursor is over that control, mainly for Buttons
@@ -215,6 +216,7 @@ type
     procedure SetVisible(aValue: Boolean); virtual;
     procedure SetEnabled(aValue: Boolean); virtual;
     procedure SetAnchors(aValue: TKMAnchorsSet); virtual;
+    procedure SetHitable(const aValue: Boolean); virtual;
     function GetIsPainted: Boolean; virtual;
     function GetSelfAbsLeft: Integer; virtual;
     function GetSelfAbsTop: Integer; virtual;
@@ -243,8 +245,6 @@ type
 
     function CanFocusNext: Boolean; virtual;
   public
-    Hitable: Boolean; //Can this control be hit with the cursor?
-
     AutoFocusable: Boolean; //Can we focus on this element automatically (f.e. if set to False we will able to Focus only by manual mouse click)
     HandleMouseWheelByDefault: Boolean; //Do control handle MW by default? Usually it is
     CanChangeEnable: Boolean; //Enable state could be changed
@@ -310,6 +310,7 @@ type
     property Enabled: Boolean read fEnabled write SetEnabled;
     property Visible: Boolean read GetVisible write SetVisible;
     property Focusable: Boolean read fFocusable write SetFocusable;
+    property Hitable: Boolean read fHitable write SetHitable;
     property IsSetVisible: Boolean read fVisible;
     property IsPainted: Boolean read GetIsPainted;
     property IsFocused: Boolean read GetIsFocused;
@@ -317,7 +318,7 @@ type
     property ControlIndex: Integer read fControlIndex;
     procedure Enable;
     procedure Disable;
-    procedure Show;
+    procedure Show; virtual;
     procedure Hide;
     procedure DoSetVisible; //Differs from Show, that we do not force to show Parents
     procedure Focus;
@@ -433,7 +434,7 @@ begin
   inherited Create;
 
   Scale         := 1;
-  Hitable       := True; //All controls can be clicked by default
+  fHitable      := True; //All controls can be clicked by default
   CanChangeEnable := True; //All controls can change enable status by default
   fLeft         := aLeft;
   fTop          := aTop;
@@ -1151,6 +1152,12 @@ begin
   // Update focus if Focusable was changed
   if oldFocusable <> fFocusable then
     Parent.MasterControl.UpdateFocus(Self);
+end;
+
+
+procedure TKMControl.SetHitable(const aValue: Boolean);
+begin
+  fHitable := aValue;
 end;
 
 

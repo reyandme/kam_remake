@@ -16,10 +16,10 @@ type
     Parent: PANodeRec;
   end;
 
-  //This is a helper class for TTerrain
-  //Here should be pathfinding and all associated stuff
-  //I think we should refactor this unit and move some TTerrain methods here
-  TPathFindingAStarNew = class(TPathFinding)
+  // This is a helper class for TKMTerrain
+  // Here should be pathfinding and all associated stuff
+  // I think we should refactor this unit and move some TKMTerrain methods here
+  TKMPathFindingAStarNew = class(TKMPathFinding)
   private
     fHeap: TBinaryHeap;
     fMinN: PANodeRec;
@@ -39,8 +39,8 @@ type
 implementation
 
 
-{ TPathFindingAStarNew }
-constructor TPathFindingAStarNew.Create;
+{ TKMPathFindingAStarNew }
+constructor TKMPathFindingAStarNew.Create;
 var
   X, Y: Integer;
 begin
@@ -58,7 +58,7 @@ begin
 end;
 
 
-destructor TPathFindingAStarNew.Destroy;
+destructor TKMPathFindingAStarNew.Destroy;
 begin
   fHeap.Free;
 
@@ -66,7 +66,7 @@ begin
 end;
 
 
-function TPathFindingAStarNew.GetNodeAt(X, Y: SmallInt): PANodeRec;
+function TKMPathFindingAStarNew.GetNodeAt(X, Y: SmallInt): PANodeRec;
 begin
   Result := @fOpenRef[Y, X];
   if Result.RouteID <> fRouteID then
@@ -74,13 +74,13 @@ begin
 end;
 
 
-function TPathFindingAStarNew.HeapCmp(A, B: Pointer): Boolean;
+function TKMPathFindingAStarNew.HeapCmp(A, B: Pointer): Boolean;
 begin
   Result := (A = nil) or (B = nil) or (PANodeRec(A).Estim + PANodeRec(A).CostTo < PANodeRec(B).Estim + PANodeRec(B).CostTo);
 end;
 
 
-function TPathFindingAStarNew.MakeRoute: Boolean;
+function TKMPathFindingAStarNew.MakeRoute: Boolean;
 const
   C_CLOSED = High(Cardinal);
 var
@@ -171,7 +171,7 @@ begin
 end;
 
 
-procedure TPathFindingAStarNew.ReturnRoute(NodeList: TKMPointList);
+procedure TKMPathFindingAStarNew.ReturnRoute(NodeList: TKMPointList);
 var
   N: PANodeRec;
 begin

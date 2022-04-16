@@ -7,10 +7,10 @@ uses
 
 
 type
-  //Pathfinding that finds a route for a road to be built
+  // Pathfinding that finds a route for a road to be built
   //todo: Maybe it is worth trying to make Roadfinder a house-aware algo,
-  //to prefer connecting to supply/demand houses
-  TPathFindingRoad = class(TPathFindingAStarNew)
+  // to prefer connecting to supply/demand houses
+  TKMPathFindingRoad = class(TKMPathFindingAStarNew)
   private
     fRoadConnectID: Byte;
   protected
@@ -30,13 +30,11 @@ type
     procedure Load(LoadStream: TKMemoryStream); override;
   end;
 
-  //Minor variation on class above for creating shortcuts in AI road network
-  TPathFindingRoadShortcuts = class(TPathFindingRoad)
-  private
+  // Minor variation on class above for creating shortcuts in AI road network
+  TKMPathFindingRoadShortcuts = class(TKMPathFindingRoad)
   protected
     function DestinationReached(aX, aY: Word): Boolean; override;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; override;
-  public
   end;
 
 
@@ -45,21 +43,21 @@ uses
   KM_HandsCollection, KM_TerrainTypes, KM_Terrain, KM_Hand;
 
 
-{ TPathFindingRoad }
-constructor TPathFindingRoad.Create(aOwner: TKMHandID);
+{ TKMPathFindingRoad }
+constructor TKMPathFindingRoad.Create(aOwner: TKMHandID);
 begin
   inherited Create;
   fOwner := aOwner;
 end;
 
 
-procedure TPathFindingRoad.OwnerUpdate(aPlayer: TKMHandID);
+procedure TKMPathFindingRoad.OwnerUpdate(aPlayer: TKMHandID);
 begin
   fOwner := aPlayer;
 end;
 
 
-procedure TPathFindingRoad.Save(SaveStream: TKMemoryStream);
+procedure TKMPathFindingRoad.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.PlaceMarker('PathFindingRoad');
@@ -68,7 +66,7 @@ begin
 end;
 
 
-procedure TPathFindingRoad.Load(LoadStream: TKMemoryStream);
+procedure TKMPathFindingRoad.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.CheckMarker('PathFindingRoad');
@@ -77,14 +75,14 @@ begin
 end;
 
 
-function TPathFindingRoad.CanWalkTo(const aFrom: TKMPoint; aToX, aToY: SmallInt): Boolean;
+function TKMPathFindingRoad.CanWalkTo(const aFrom: TKMPoint; aToX, aToY: SmallInt): Boolean;
 begin
   //Roads can't go diagonally, only in 90 turns
   Result := (aToX = aFrom.X) or (aToY = aFrom.Y);
 end;
 
 
-function TPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
+function TKMPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   isRoad: Boolean;
 begin
@@ -106,7 +104,7 @@ begin
 end;
 
 
-function TPathFindingRoad.EstimateToFinish(aX, aY: Word): Cardinal;
+function TKMPathFindingRoad.EstimateToFinish(aX, aY: Word): Cardinal;
 begin
   case fDestination of
     pdLocation:    //Rough estimation
@@ -119,7 +117,7 @@ begin
 end;
 
 
-function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
+function TKMPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   Result := ( ([tpMakeRoads, tpWalkRoad] * gTerrain.Land^[aY,aX].Passability <> []) OR (gTerrain.Land^[aY, aX].TileLock = tlRoadWork) )
             and (gHands[fOwner].Constructions.FieldworksList.HasField(KMPoint(aX, aY)) in [ftNone, ftRoad])
@@ -127,7 +125,7 @@ begin
 end;
 
 
-function TPathFindingRoad.DestinationReached(aX, aY: Word): Boolean;
+function TKMPathFindingRoad.DestinationReached(aX, aY: Word): Boolean;
 begin
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)) //We reached destination point
             or ((gTerrain.Land^[aY, aX].TileOverlay = toRoad) //We reached destination road network
@@ -136,22 +134,22 @@ begin
 end;
 
 
-function TPathFindingRoad.Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
+function TKMPathFindingRoad.Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
 begin
   Result := inherited Route_Make(aLocA, aLocB, [tpMakeRoads, tpWalkRoad], 0, nil, NodeList);
 end;
 
 
 //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
-function TPathFindingRoad.Route_ReturnToWalkable(const aLocA, aLocB: TKMPoint; aRoadConnectID: Byte; NodeList: TKMPointList): Boolean;
+function TKMPathFindingRoad.Route_ReturnToWalkable(const aLocA, aLocB: TKMPoint; aRoadConnectID: Byte; NodeList: TKMPointList): Boolean;
 begin
   fRoadConnectID := aRoadConnectID;
   Result := inherited Route_ReturnToWalkable(aLocA, aLocB, wcRoad, 0, [tpMakeRoads, tpWalkRoad], NodeList);
 end;
 
 
-{ TPathFindingRoadShortcuts }
-function TPathFindingRoadShortcuts.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
+{ TKMPathFindingRoadShortcuts }
+function TKMPathFindingRoadShortcuts.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   isRoad: Boolean;
 begin
@@ -174,9 +172,10 @@ begin
 end;
 
 
-function TPathFindingRoadShortcuts.DestinationReached(aX, aY: Word): Boolean;
+function TKMPathFindingRoadShortcuts.DestinationReached(aX, aY: Word): Boolean;
 begin
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)); //We reached destination point
 end;
+
 
 end.

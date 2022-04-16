@@ -47,8 +47,7 @@ type
     end;
   end;
 
-  TPathFindingCityPlanner = class(TPathFindingRoad)
-  private
+  TKMPathFindingCityPlanner = class(TKMPathFindingRoad)
   protected
     function IsWalkableTile(aX, aY: Word): Boolean; override;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; override;
@@ -61,12 +60,10 @@ type
     function Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
   end;
 
-  TPathFindingShortcutsCityPlanner = class(TPathFindingCityPlanner)
-  private
+  TKMPathFindingShortcutsCityPlanner = class(TKMPathFindingCityPlanner)
   protected
     function DestinationReached(aX, aY: Word): Boolean; override;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; override;
-  public
   end;
 
 
@@ -129,8 +126,8 @@ type
     fForestsInfo: TKMForestsInfo;
     fFields: TFieldMemory;
 
-    fRoadPlanner: TPathFindingCityPlanner;
-    fRoadShortcutPlanner: TPathFindingShortcutsCityPlanner;
+    fRoadPlanner: TKMPathFindingCityPlanner;
+    fRoadShortcutPlanner: TKMPathFindingShortcutsCityPlanner;
     fFieldEval: TKMFieldEvaluation;
 
     procedure AddPlan(aHT: TKMHouseType; aLoc: TKMPoint); overload;
@@ -151,7 +148,6 @@ type
     function FindPlaceForWoodcutter(aCenter: TKMPoint; aChopOnly: Boolean = False): Boolean;
     function FindForestAndWoodcutter(): Boolean;
     function PlanDefenceTowers(): Boolean;
-
   public
     constructor Create(aPlayer: TKMHandID; aPredictor: TKMCityPredictor);
     destructor Destroy(); override;
@@ -238,9 +234,10 @@ uses
 { Procedural functions }
 function CompareForests(const aElem1, aElem2): Integer;
 var
-  val1 : TKMForestInfo absolute aElem1;
-  val2 : TKMForestInfo absolute aElem2;
+  val1: TKMForestInfo absolute aElem1;
+  val2: TKMForestInfo absolute aElem2;
 begin
+  //@Toxic: Possibly can replace with CompareValue()
   if      (val1.Bid = val2.Bid) then Result :=  0
   else if (val1.Bid < val2.Bid) then Result := -1
   else                               Result := +1;
@@ -281,8 +278,8 @@ begin
   fFields.Count := 0;
   fFields.UpdateIdx := 0;
   SetLength(fFields.Farms,0);
-  fRoadPlanner := TPathFindingCityPlanner.Create(fOwner);
-  fRoadShortcutPlanner := TPathFindingShortcutsCityPlanner.Create(fOwner);
+  fRoadPlanner := TKMPathFindingCityPlanner.Create(fOwner);
+  fRoadShortcutPlanner := TKMPathFindingShortcutsCityPlanner.Create(fOwner);
   fFieldEval := TKMFieldEvaluation.Create(gTerrain.MapX, gTerrain.MapY, fOwner);
 end;
 
@@ -2738,7 +2735,7 @@ begin
         //gRenderAux.Quad(X, Y, (Val shl 24) OR tcRed);
         //gRenderAux.Text(X, Y, IntToStr(Order[Y,X]), $FF000000);
       end;
-    //fRoadPlanner: TPathFindingCityPlanner;
+    //fRoadPlanner: TKMPathFindingCityPlanner;
     //fRoadShortcutPlanner:
   {$ENDIF}
 
@@ -2829,8 +2826,8 @@ begin
 end;
 
 
-{ TPathFindingCityPlanner }
-function TPathFindingCityPlanner.Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
+{ TKMPathFindingCityPlanner }
+function TKMPathFindingCityPlanner.Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
 begin
   //FillChar(Price,SizeOf(Price),#0);
   //FillChar(Order,SizeOf(Order),#0);
@@ -2855,7 +2852,7 @@ begin
 end;
 
 
-function TPathFindingCityPlanner.IsWalkableTile(aX, aY: Word): Boolean;
+function TKMPathFindingCityPlanner.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   // Just in case that worker will die while digging house plan or when you plan road near ally
   Result := ( ([tpMakeRoads, tpWalkRoad] * gTerrain.Land^[aY,aX].Passability <> []) OR (gTerrain.Land^[aY, aX].TileLock in [tlRoadWork, tlFieldWork]) ) // Existing road / road construction
@@ -2865,7 +2862,7 @@ begin
 end;
 
 
-function TPathFindingCityPlanner.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
+function TKMPathFindingCityPlanner.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   IsRoad: Boolean;
   AvoidBuilding: Byte;
@@ -2915,8 +2912,8 @@ begin
 end;
 
 
-{ TPathFindingShortcutsCityPlanner }
-function TPathFindingShortcutsCityPlanner.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
+{ TKMPathFindingShortcutsCityPlanner }
+function TKMPathFindingShortcutsCityPlanner.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   IsRoad: Boolean;
   AvoidBuilding: Byte;
@@ -2966,7 +2963,7 @@ begin
 end;
 
 
-function TPathFindingShortcutsCityPlanner.DestinationReached(aX, aY: Word): Boolean;
+function TKMPathFindingShortcutsCityPlanner.DestinationReached(aX, aY: Word): Boolean;
 begin
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)); //We reached destination point
 end;

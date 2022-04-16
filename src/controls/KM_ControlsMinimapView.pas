@@ -278,17 +278,17 @@ begin
         else
         begin
           miniLeft := AbsLeft + fLeftOffset + Round((R.Left - 1)*fPaintWidth / fMinimap.MapX) + 1;
-          miniTop := AbsTop + fTopOffset  + Round((R.Top - 1)*fPaintHeight / fMinimap.MapY);
+          miniTop := AbsTop + fTopOffset  + Round((R.Top - 1)*fPaintHeight / fMinimap.MapY) + 1;
           miniRight := AbsLeft + fLeftOffset + Round((R.Right - 1)*fPaintWidth / fMinimap.MapX);
-          miniBottom := AbsTop + fTopOffset  + Round((R.Bottom - 1)*fPaintHeight / fMinimap.MapY) - 1;
+          miniBottom := AbsTop + fTopOffset  + Round((R.Bottom - 1)*fPaintHeight / fMinimap.MapY);
 
           S := fView.GetMinimapClipLines;
           if drW in S then
-            TKMRenderUI.WriteLine(miniLeft, miniBottom+1, miniLeft, miniTop, $FFFFFFFF);
+            TKMRenderUI.WriteLine(miniLeft, miniBottom, miniLeft, miniTop, $FFFFFFFF);
           if drN in S then
             TKMRenderUI.WriteLine(miniLeft-1, miniTop, miniRight, miniTop, $FFFFFFFF);
           if drE in S then
-            TKMRenderUI.WriteLine(miniRight, miniBottom+1, miniRight, miniTop, $FFFFFFFF);
+            TKMRenderUI.WriteLine(miniRight, miniBottom, miniRight, miniTop, $FFFFFFFF);
           if drS in S then
             TKMRenderUI.WriteLine(miniLeft-1, miniBottom, miniRight, miniBottom, $FFFFFFFF);
         end;
