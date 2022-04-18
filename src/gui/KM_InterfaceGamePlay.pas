@@ -989,6 +989,9 @@ begin
   if fGuiGameStats.Visible then
     fGuiGameStats.Resize;
 
+  if fGuiGameSpectator.Visible then
+    fGuiGameSpectator.Resize;
+
   UpdateReplayBar;
 
   fViewport.Resize(X, Y);

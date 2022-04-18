@@ -53,7 +53,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   TypInfo, KM_ResFonts, KM_ResTexts, KM_Game, KM_Cursor, KM_RenderUI,
   KM_TerrainPainter, KM_InterfaceGame, KM_Utils,
-  KM_ResTypes;
+  KM_ResTypes, KM_TerrainTypes;
 
 const
   BTN_BRUSH_SIZE = 24;
@@ -151,6 +151,7 @@ begin
   Panel_Brushes.Padding.SetBottom(10);
   Panel_Brushes.ScrollV_PadTop := 10;
   Panel_Brushes.ScrollV_PadBottom := 10;
+  Panel_Brushes.ScrollV_PadLeft := -20;
   Panel_Brushes.AnchorsStretch;
 //  TKMScrollPanel.Create(Panel_MultiPlayer, 675, 240, SERVER_DETAILS_W, 465, [saVertical], bsMenu, ssCommon);
 
@@ -272,8 +273,8 @@ begin
     gCursor.MapEdUseTerrainObjects:= UseTerrainObjects.Checked;
     if gCursor.MapEdObjectsDensity = 0 then
     begin
-      gCursor.MapEdObjectsType[0] := True;
-      gCursor.MapEdObjectsType[1] := True;
+      gCursor.MapEdObjectsType[otTrees] := True;
+      gCursor.MapEdObjectsType[otAllButTrees] := True;
       gCursor.MapEdObjectsDensity := 10;
     end;
   end;

@@ -558,7 +558,7 @@ begin
       AddWare(wtGoldOre);
     // Coal
     if ( fPredictor.WareBalance[wtCoal].Exhaustion < 50 )
-      AND ( GetWareBalance(wtCoal) < MIN_GOLD_AMOUNT )
+      AND ( GetWareBalance(wtCoal) < MIN_GOLD_AMOUNT + 5 * (Builder.Planner.PlannedHouses[htWeaponSmithy].Completed + Builder.Planner.PlannedHouses[htIronSmithy].Completed + Builder.Planner.PlannedHouses[htArmorSmithy].Completed) )
       AND (Builder.Planner.PlannedHouses[htCoalMine].UnderConstruction = 0) then
       AddWare(wtCoal);
   end;

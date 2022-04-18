@@ -454,7 +454,7 @@
 465:Liczba oddziałów
 466:Informacje o ataku
 468:Powtarzany
-469:Raz
+469:Pojedynczy
 470:Jazda
 471:Strzelcy
 472:Anty-jazda
@@ -737,8 +737,8 @@
 783:Cofnij
 784:Ustawia pozycję początkową gracza SI, która jest wykorzystywana do kierowania atakami przez sztuczną inteligencję
 785:Pozycja startowa SI
-786:Rozkaz
-788:Pierwsze opóźnienie (s)
+786:Kolejność
+788:Początkowe opóźnienie ataku (s)
 790:Budynek najbliżej armii
 791:Najbliższy budynek od pozycji startowej
 792:Atakujący
@@ -752,7 +752,7 @@
 800:Głosowanie za powrotem do lobby nie powiodło się
 801:Usunięcie powtórki usuwa również powiązany zapis. Czy na pewno chcesz usunąć ten zapis?
 802:Losowo
-803:Liczba żołnierzy do ataku
+803:Minimalna ilość atakujących jednostek
 804:Usuń powtórkę
 805:Usuń mapę
 806:Czy na pewno chcesz usunąć tę mapę?
@@ -772,6 +772,7 @@
 820:Skórzana
 821:Mieszana
 822:Pobrane mapy
+823:Uwaga: pierwszy "powtarzany" atak wyśle wszystkie jednostki gracza SI. Inaczej będzie w przypadku każdego następnego ataku "powtarzanego" (jak również ataku "pojedynczego"), gdzie wysłane będzie tyle grup wojska, aby przekroczyć "Minimalną ilość atakujących jednostek".
 824:Przenieś
 825:Zobacz plik PDF
 826:Nie można uruchomić przeglądarki PDF
@@ -1453,6 +1454,7 @@
 1526:Wygładzone animacje
 1527:Wygładzone animacje
 1528:Będzie wygładzać animacje wygładzone renderowanie powinno być włączone
+1536:Użyj wszystkich rodzajów |jednostek
 1537:Słaba
 1538:Żołnierze bez zbroi, żołnierze uzbrojeni w skórę lub żołnierze uzbrojeni w żelazo.
 1539:Dodaj oddział

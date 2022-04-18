@@ -18,8 +18,8 @@ type
     fSetup: TKMHandAISetup;
     fBalance: TKMayorBalance;
     fCityPlanner: TKMCityPlanner;
-    fPathFindingRoad: TPathFindingRoad;
-    fPathFindingRoadShortcuts: TPathFindingRoadShortcuts;
+    fPathFindingRoad: TKMPathFindingRoad;
+    fPathFindingRoadShortcuts: TKMPathFindingRoadShortcuts;
 
     fRoadBelowStore: Boolean;
     fDefenceTowersPlanned: Boolean;
@@ -111,8 +111,8 @@ begin
 
   fBalance := TKMayorBalance.Create(fOwner);
   fCityPlanner := TKMCityPlanner.Create(fOwner);
-  fPathFindingRoad := TPathFindingRoad.Create(fOwner);
-  fPathFindingRoadShortcuts := TPathFindingRoadShortcuts.Create(fOwner);
+  fPathFindingRoad := TKMPathFindingRoad.Create(fOwner);
+  fPathFindingRoadShortcuts := TKMPathFindingRoadShortcuts.Create(fOwner);
   fDefenceTowers := TKMPointTagList.Create;
 end;
 

@@ -23,7 +23,7 @@ type
     function GetDefaultSettingsName: string; virtual; abstract;
 
     procedure LoadFromFile(const aPath: string); virtual; abstract;
-    procedure SaveToFile(const aPath: string); virtual; abstract;
+    procedure SaveToFile(const aPath: UnicodeString); virtual; abstract;
 
     function GetSettingsName: string; virtual; abstract;
   public
@@ -95,7 +95,7 @@ end;
 
 procedure TKMSettings.SaveToDefaultFile;
 var
-  saveFolder, path: string;
+  saveFolder, path, errorStr: UnicodeString;
 begin
   saveFolder := GetDirectory;
   ForceDirectories(saveFolder);
@@ -106,7 +106,11 @@ begin
   // (without '%s was successfully saved string in the log)
   // todo: remove from released version after bugfix
   gLog.AddNoTime(GetStackTrace(20), False);
-  SaveToFile(path);
+
+  // Try to save several times, in case file is blocked (by antivirus f.e.)
+  if not TryExecuteMethod(path, 'SaveToFile', errorStr, SaveToFile) then
+    raise Exception.Create('Can''t save settings to file ''' + path + ''': ' + errorStr);
+
   gLog.AddTime(Format('''%s'' was successfully saved to ''%s''', [GetSettingsName, path]));
 end;
 

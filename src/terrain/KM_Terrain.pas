@@ -5125,7 +5125,7 @@ end;
 //This whole thing is very CPU intesive, updating whole (256*256) tiles map
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TKMTerrain.UpdateState;
-  procedure SetLand(aTile: Word; const X, Y, aObj: Byte);
+  procedure SetLand(aTile: Word; const X, Y, aObj: Word);
   var FloodfillNeeded: Boolean;
   begin
     Land^[Y,X].BaseLayer.Terrain := aTile;

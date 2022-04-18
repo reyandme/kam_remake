@@ -617,24 +617,25 @@ end;
 
 
 function TKMCampaign.GetCampaignMissionTitle(aIndex: Byte): String;
+const
+  MISS_TEMPL_ID = 3; //We have template for mission name in 3:
 begin
-  //We have template for mission name in 3:
-  if fTextLib[3] <> '' then
+  if fTextLib.IsIndexValid(MISS_TEMPL_ID) and (fTextLib[MISS_TEMPL_ID] <> '') then
   begin
-    Assert(CountMatches(fTextLib[3], '%d') = 1, 'Custom campaign mission template must have a single "%d" in it.');
+    Assert(CountMatches(fTextLib[MISS_TEMPL_ID], '%d') = 1, 'Custom campaign mission template must have a single "%d" in it.');
 
     //We have also %s for custom mission name
-    if CountMatches(fTextLib[3], '%s') = 1 then
+    if CountMatches(fTextLib[MISS_TEMPL_ID], '%s') = 1 then
     begin
       //We can use different order for %d and %s, then choose Format 2 ways
       //First - %d %s
-      if Pos('%d', fTextLib[3]) < Pos('%s', fTextLib[3]) then
-        Result := Format(fTextLib[3], [aIndex+1, fMapsInfo[aIndex].MissionName])  
+      if Pos('%d', fTextLib[MISS_TEMPL_ID]) < Pos('%s', fTextLib[MISS_TEMPL_ID]) then
+        Result := Format(fTextLib[MISS_TEMPL_ID], [aIndex+1, fMapsInfo[aIndex].MissionName])
       else
-        Result := Format(fTextLib[3], [fMapsInfo[aIndex].MissionName, aIndex+1]); //Then order: %s %d
+        Result := Format(fTextLib[MISS_TEMPL_ID], [fMapsInfo[aIndex].MissionName, aIndex+1]); //Then order: %s %d
     end else
       //Otherwise just Append (by default MissionName is empty anyway)
-      Result := Format(fTextLib[3], [aIndex+1]) + fMapsInfo[aIndex].MissionName;
+      Result := Format(fTextLib[MISS_TEMPL_ID], [aIndex+1]) + fMapsInfo[aIndex].MissionName;
   end
   else
     Result := GetDefaultMissionTitle(aIndex);

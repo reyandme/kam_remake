@@ -33,6 +33,7 @@ type
   public
     procedure LoadLocale(const aPathTemplate: string); // Initial locale for UI strings
     property Texts[aIndex: Word]: UnicodeString read GetTexts; default;
+    function IsIndexValid(aIndex: Word): Boolean;
   end;
 
 
@@ -169,6 +170,12 @@ begin
     Result := fTexts[aIndex]
   else
     Result := '~~~String ' + IntToStr(aIndex) + ' out of range!~~~';
+end;
+
+
+function TKMTextLibrarySingle.IsIndexValid(aIndex: Word): Boolean;
+begin
+  Result := aIndex < Length(fTexts);
 end;
 
 

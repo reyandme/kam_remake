@@ -5,12 +5,19 @@ uses
 
 type
   TKMHandType = (
-        hndHuman,
-        hndComputer);
+    hndHuman,
+    hndComputer
+  );
 
   TKMHandEntityType = (etNone, etUnit, etGroup, etHouse);
 
-  TKMHandHouseLock = (hlNone, hlDefault, hlBlocked, hlGranted);
+  //* House lock state
+  TKMHandHouseLock = (
+    hlNone,
+    hlDefault,
+    hlBlocked, // Never allowed
+    hlGranted // Always allowed
+  );
 
   TKMOverlayTextSettings = record
     WordWrap: Boolean;

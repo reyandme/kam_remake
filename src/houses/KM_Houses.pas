@@ -7,10 +7,11 @@ uses
   KM_HandEntity,
   KM_GameTypes, KM_ResTypes;
 
-//Houses are ruled by units, hence they don't know about  TKMUnits
+// Houses are ruled by units, hence they don't know about  TKMUnits
 
-//Everything related to houses is here
+// Everything related to houses is here
 type
+  //* Delivery mode
   TKMDeliveryMode = (dmClosed, dmDelivery, dmTakeOut);
 
   TKMHouse = class;

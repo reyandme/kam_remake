@@ -3,7 +3,7 @@ unit KM_GUIGameSpectator;
 interface
 uses
   Classes, Math, StrUtils, SysUtils,
-  KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsProgressBar,
+  KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsScroll, KM_ControlsProgressBar,
   KM_HandsCollection, KM_Defaults,
   KM_CommonTypes, KM_Points;
 
@@ -99,6 +99,8 @@ type
   TKMGUIGameSpectator = class(TKMPanel)
   private
     FDropBox: TKMDropList;
+    fScrollPanel: TKMScrollPanel;
+    fItemsPanel: TKMPanel; // Panel for all of the ItemLines. We use it to do handle MouseWheel event
     FLastIndex: TKMHandStatType;
 
     FOnJumpToPlayer: TIntegerEvent;
@@ -119,6 +121,8 @@ type
 
     property DropBox: TKMDropList read FDropBox;
 
+    procedure Resize;
+
     procedure UpdateState(aTick: Cardinal); override;
     procedure Paint; override;
   end;
@@ -129,7 +133,6 @@ uses
   KM_GameParams, KM_RenderUI, KM_ResFonts, KM_Resource, KM_ResTexts,
   KM_ControlsTypes, KM_GUIGameSpectatorItemLines,
   KM_ResTypes;
-
 
 const
   GUI_SPEC_ITEM_WIDTH = 28;
@@ -230,7 +233,7 @@ constructor TKMGUIGameSpectatorItemLine.Create(aParent: TKMPanel; aHandIndex: In
 var
   I: Integer;
 begin
-  inherited Create(aParent, aParent.Width, 32 + aHandIndex * (GUI_SPEC_ITEM_HEIGHT + GUI_SPEC_ITEM_SPRITE_V), 0, GUI_SPEC_ITEM_HEIGHT + GUI_SPEC_HEADER_HEIGHT + GUI_SPEC_ITEM_SPRITE_V);
+  inherited Create(aParent, aParent.Width, aHandIndex * (GUI_SPEC_ITEM_HEIGHT + GUI_SPEC_ITEM_SPRITE_V), 0, GUI_SPEC_ITEM_HEIGHT + GUI_SPEC_HEADER_HEIGHT + GUI_SPEC_ITEM_SPRITE_V);
   fOnJumpToPlayer := aOnJumpToPlayer;
   fSetViewportPos := aSetViewportPos;
   fLinesAggregator := aLinesAggregator;
@@ -278,8 +281,7 @@ end;
 
 procedure TKMGUIGameSpectatorItemLine.UpdateItemsVisibility;
 var
-  I, position, count: Integer;
-  str: UnicodeString;
+  I, position, count, oldW: Integer;
 begin
   if not Visible then
     Exit;
@@ -289,9 +291,11 @@ begin
     if fLinesAggregator.FItemsVisibility[I] then
       Inc(count);
 
-  str := IfThen(gHands[FHandIndex].OwnerNicknameU <> '', gHands[FHandIndex].OwnerNicknameU, gHands[FHandIndex].OwnerName);
-  Width := Max(count * (GUI_SPEC_ITEM_WIDTH + GUI_SPEC_ITEM_SRLITE_H) + GUI_SPEC_ITEM_SRLITE_H, gRes.Fonts[fntGrey].GetTextSize(str).X + 32 + 4);
-  Left := Parent.Width - Width;
+  oldW := Width;
+  Width := Max(count * (GUI_SPEC_ITEM_WIDTH + GUI_SPEC_ITEM_SRLITE_H) + GUI_SPEC_ITEM_SRLITE_H,
+               gRes.Fonts[fntGrey].GetTextSize(gHands[FHandIndex].OwnerName(not gGameParams.IsSingleplayer)).X + 32 + 4);
+  // Update Left line position according to the new Width
+  Left := Left - (Width - oldW);
 
   position := Width - GUI_SPEC_ITEM_SRLITE_H - GUI_SPEC_ITEM_WIDTH;
   for I := 0 to GetTagCount - 1 do
@@ -395,6 +399,8 @@ end;
 constructor TKMGUIGameSpectator.Create(aParent: TKMPanel; aOnJumpToPlayer: TIntegerEvent; aSetViewportPos: TPointFEvent);
 const
   DROPBOX_W = 270;
+  DROPBOX_H = 20;
+  SCR_PANEL_PAD_H = 30;
 begin
   inherited Create(aParent, 0, 0, aParent.Width, aParent.Height);
   AnchorsStretch;
@@ -403,20 +409,30 @@ begin
   fOnJumpToPlayer := aOnJumpToPlayer;
   fSetViewportPos := aSetViewportPos;
 
-  AddLineType(Self, slNone, nil);
-  AddLineType(Self, slResources, TKMGUIGameSpectatorItemLineResources);
-  AddLineType(Self, slWarfare, TKMGUIGameSpectatorItemLineWarFare);
-  AddLineType(Self, slHouses, TKMGUIGameSpectatorItemLineHouses);
-  AddLineType(Self, slConstructions, TKMGUIGameSpectatorItemLineConstructing);
-  AddLineType(Self, slSLR, TKMGUIGameSpectatorItemLinePopulationSLR);
-  AddLineType(Self, slWorkers, TKMGUIGameSpectatorItemLinePopulationHouseWorkers);
-  AddLineType(Self, slArmy, TKMGUIGameSpectatorItemLineArmyInstantenious);
-  AddLineType(Self, slArmyTotal, TKMGUIGameSpectatorItemLineArmyTotal);
-  AddLineType(Self, slArmyKilling, TKMGUIGameSpectatorItemLineArmyKilling);
-  AddLineType(Self, slArmyLost, TKMGUIGameSpectatorItemLineArmyLost);
+  FScrollPanel := TKMScrollPanel.Create(Self, 0, SCR_PANEL_PAD_H, Self.Width - 5, Self.Height - SCR_PANEL_PAD_H, [saVertical], bsGame, ssGame);
+  FScrollPanel.Hitable := False;
+  FScrollPanel.AnchorsStretch;
+  FScrollPanel.Padding.SetBottom(5);
+  FScrollPanel.ScrollV_PadLeft := -20;
+  FScrollPanel.Hide;
+
+  fItemsPanel := TKMPanel.Create(FScrollPanel, FScrollPanel.Width - 100, 0, 100, FScrollPanel.Height);
+  fItemsPanel.Anchors := [anTop, anRight, anBottom];
+
+  AddLineType(fItemsPanel, slNone, nil);
+  AddLineType(fItemsPanel, slResources, TKMGUIGameSpectatorItemLineResources);
+  AddLineType(fItemsPanel, slWarfare, TKMGUIGameSpectatorItemLineWarFare);
+  AddLineType(fItemsPanel, slHouses, TKMGUIGameSpectatorItemLineHouses);
+  AddLineType(fItemsPanel, slConstructions, TKMGUIGameSpectatorItemLineConstructing);
+  AddLineType(fItemsPanel, slSLR, TKMGUIGameSpectatorItemLinePopulationSLR);
+  AddLineType(fItemsPanel, slWorkers, TKMGUIGameSpectatorItemLinePopulationHouseWorkers);
+  AddLineType(fItemsPanel, slArmy, TKMGUIGameSpectatorItemLineArmyInstantenious);
+  AddLineType(fItemsPanel, slArmyTotal, TKMGUIGameSpectatorItemLineArmyTotal);
+  AddLineType(fItemsPanel, slArmyKilling, TKMGUIGameSpectatorItemLineArmyKilling);
+  AddLineType(fItemsPanel, slArmyLost, TKMGUIGameSpectatorItemLineArmyLost);
 
   // Create DropBox after pages, to show it above them
-  FDropBox := TKMDropList.Create(Self, Width - DROPBOX_W - 5, 5, DROPBOX_W, 20, fntMetal, '', bsGame, True, 0.85);
+  FDropBox := TKMDropList.Create(Self, Self.Width - DROPBOX_W - 5, 5, DROPBOX_W, DROPBOX_H, fntMetal, '', bsGame, True, 0.85);
   FDropBox.Anchors := [anTop, anRight];
   FDropBox.OnChange := ChangePage;
   FDropBox.DropCount := Ord(High(TKMHandStatType)) + 1;
@@ -445,6 +461,8 @@ var
 begin
   for I := Low(TKMHandStatType) to High(TKMHandStatType) do
     FreeAndNil(FLinesAggregator[I]);
+
+  inherited;
 end;
 
 
@@ -461,12 +479,17 @@ begin
       if not (Childs[I] is TKMGUIGameSpectatorItemLine) then
         TKMGUIGameSpectatorItemLine(Childs[I]).Paint;
 
+  // Do clip manually, since we are painting in layers
+  fScrollPanel.ClipY;
+
   // Paint everything in layers
   for L := Low(TKMSpecPaintLayer) to High(TKMSpecPaintLayer) do
-  for I := 0 to ChildCount - 1 do
-    if Childs[I].IsSetVisible then
-      if Childs[I] is TKMGUIGameSpectatorItemLine then
-        TKMGUIGameSpectatorItemLine(Childs[I]).PaintLayer(L);
+  for I := 0 to fItemsPanel.ChildCount - 1 do
+    if fItemsPanel.Childs[I].IsSetVisible then
+      if fItemsPanel.Childs[I] is TKMGUIGameSpectatorItemLine then
+        TKMGUIGameSpectatorItemLine(fItemsPanel.Childs[I]).PaintLayer(L);
+
+  fScrollPanel.UnClipY;
 end;
 
 
@@ -490,16 +513,19 @@ procedure TKMGUIGameSpectator.ChangePage(Sender: TObject);
 var
   I, J: Integer;
   teams: TKMByteSetArray;
-  position, teamAddPos: Integer;
+  top, teamAddPos: Integer;
 begin
   // Hide all lines
   for I := 0 to gHands.Count - 1 do
     if Assigned(FLines[FLastIndex, I]) then
       FLines[FLastIndex, I].Visible := False;
 
+  fItemsPanel.Hide;
   FLastIndex := TKMHandStatType(FDropBox.ItemIndex);
 
-  position := 32;
+  if FLastIndex = slNone then Exit;
+
+  top := 0;
   teams := gHands.Teams;
 
   teamAddPos := GUI_SPEC_ITEM_TEAM;
@@ -512,14 +538,23 @@ begin
     begin
       if Assigned(FLines[FLastIndex, J]) then
       begin
-        FLines[FLastIndex, J].Top := position;
+        FLines[FLastIndex, J].Top := top;
         FLines[FLastIndex, J].Show;
+        fItemsPanel.Show;
       end;
-      position := position + GUI_SPEC_ITEM_HEIGHT + GUI_SPEC_ITEM_SPRITE_V * 2 + GUI_SPEC_HEADER_HEIGHT;
+      top := top + GUI_SPEC_ITEM_HEIGHT + GUI_SPEC_ITEM_SPRITE_V * 2 + GUI_SPEC_HEADER_HEIGHT;
     end;
-    position := position + teamAddPos;
+    top := top + teamAddPos;
   end;
+
   UpdateState(0); //Will update all data
+end;
+
+
+procedure TKMGUIGameSpectator.Resize;
+begin
+  // Update all data and according line positions
+  UpdateState(0);
 end;
 
 
@@ -527,11 +562,12 @@ procedure TKMGUIGameSpectator.UpdateState(aTick: Cardinal);
 var
   I: TKMHandStatType;
   K: Integer;
+  maxW, maxH: Integer;
 begin
   inherited;
 
-  //Updates could be done every 5 ticks
-  if aTick mod 5 <> 0 then Exit;
+  //Updates could be done every 10 ticks
+  if aTick mod 10 <> 0 then Exit;
 
   //Reset all aggregators first
   for I := Low(TKMHandStatType) to High(TKMHandStatType) do
@@ -544,11 +580,30 @@ begin
       if FLines[I, K] <> nil then
         FLines[I, K].Update;
 
+  maxW := 0;
+  maxH := 0;
+
   //Set visibility for items, by aggregated data
   for I := Low(TKMHandStatType) to High(TKMHandStatType) do
     for K := 0 to Length(FLines[I]) - 1 do
       if FLines[I, K] <> nil then
+      begin
         FLines[I, K].UpdateItemsVisibility;
+        if FLines[I, K].Visible then
+        begin
+          // Calc sizes for an ItemsPanels
+          maxW := Max(maxW, FLines[I, K].Width);
+          maxH := Max(maxH, FLines[I, K].Bottom);
+        end;
+      end;
+
+  // Set Items panel sizes
+  fItemsPanel.Width := maxW;
+  fItemsPanel.Height := maxH;
+
+  // Update ScrollPanel scrolls, to make sure its rendered to set Left position properly
+  fScrollPanel.UpdateScrolls;
+  fItemsPanel.Left := fScrollPanel.Width - maxW - Byte(fScrollPanel.ScrollV.Visible)*25;
 end;
 
 

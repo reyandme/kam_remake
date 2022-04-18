@@ -54,7 +54,7 @@ type
     Debug_EnableCheats: TMenuItem;
     ExportUIPages: TMenuItem;
     Resources1: TMenuItem;
-    HousesDat1: TMenuItem;
+    mnExportHousesDat: TMenuItem;
     chkShowOwnership: TCheckBox;
     chkShowNavMesh: TCheckBox;
     chkShowAvoid: TCheckBox;
@@ -242,6 +242,7 @@ type
     chkShowRoutesSteps: TCheckBox;
     btnGameSave: TButton;
     seHighlightNavMesh: TSpinEdit;
+    mnExportUnitsDat: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -297,7 +298,7 @@ type
     procedure RGPlayerClick(Sender: TObject);
     procedure Open_MissionMenuClick(Sender: TObject);
     procedure chkSuperSpeedClick(Sender: TObject);
-    procedure HousesDat1Click(Sender: TObject);
+    procedure mnExportHousesDatClick(Sender: TObject);
     procedure ExportGameStatsClick(Sender: TObject);
     procedure ResourceValues1Click(Sender: TObject);
     procedure ReloadSettingsClick(Sender: TObject);
@@ -314,6 +315,7 @@ type
 
     procedure ControlsUpdate(Sender: TObject);
     procedure btnGameSaveClick(Sender: TObject);
+    procedure mnExportUnitsDatClick(Sender: TObject);
   private
     {$IFDEF MSWindows}
     fMenuItemHint: TKMVclMenuItemHint; // Custom hint over menu item
@@ -685,6 +687,12 @@ begin
 end;
 
 
+procedure TFormMain.mnExportUnitsDatClick(Sender: TObject);
+begin
+  gRes.Units.ExportCSV(ExeDir + 'Export' + PathDelim + 'units.dat.csv')
+end;
+
+
 procedure TFormMain.SaveEditableMission1Click(Sender: TObject);
 begin
   if gGameApp.Game = nil then Exit;
@@ -818,7 +826,7 @@ begin
 end;
 
 
-procedure TFormMain.HousesDat1Click(Sender: TObject);
+procedure TFormMain.mnExportHousesDatClick(Sender: TObject);
 begin
   gResHouses.ExportCSV(ExeDir + 'Export' + PathDelim + 'houses.dat.csv')
 end;

@@ -581,14 +581,14 @@ begin
   if Key = gResKeys[kfArmyAddLine] then
     if Panel_Army.Visible and Button_Army_ForDown.Enabled and not OnSelectingTroopDirection(nil) then
     begin
-      Army_Issue_Order(Button_Army_ForDown, Shift);
+      Army_Issue_Order(Button_Army_ForDown, Shift + [ssLeft]); // + ssLeft to emulate click by LMB
       aHandled := True;
     end;
 
   if Key = gResKeys[kfArmyDelLine] then
     if Panel_Army.Visible and Button_Army_ForUp.Enabled and not OnSelectingTroopDirection(nil) then
     begin
-      Army_Issue_Order(Button_Army_ForUp, Shift);
+      Army_Issue_Order(Button_Army_ForUp, Shift + [ssLeft]); // + ssLeft to emulate click by LMB
       aHandled := True;
     end;
 

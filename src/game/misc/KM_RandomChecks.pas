@@ -574,7 +574,7 @@ begin
   for list in fRngLog.Values do
     list.Free;
 
-  fRngLog.Clear;
+//  fRngLog.Clear; // It seems no need to clear, FastMM says there is memory leak because of it
   fRngLog.TrimExcess;
   fEnabled := True;
 end;

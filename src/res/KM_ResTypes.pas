@@ -6,9 +6,9 @@ uses
 
 type
   TKMChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
-
   TKMChopableAgeSet = set of TKMChopableAge;
 
+  //* Ware type
   TKMWareType = (
     wtNone,
     wtTrunk,    wtStone,         wtTimber,     wtIronOre,      wtGoldOre,
@@ -22,6 +22,7 @@ type
     wtAll, wtWarfare, wtFood
   );
 
+  //* Ware type set
   TKMWareTypeSet = set of TKMWareType;
 
 const
@@ -43,14 +44,18 @@ const
 
 
 type
-  TKMHouseType = (htNone, htAny, //1
-    htArmorSmithy,     htArmorWorkshop,   htBakery,        htBarracks,      htButchers,   //6
-    htCoalMine,        htFarm,            htFishermans,    htGoldMine,      htInn,        //11
-    htIronMine,        htIronSmithy,      htMarket,        htMetallurgists, htMill,       //16
-    htQuarry,          htSawmill,         htSchool,        htSiegeWorkshop, htStables,    //21
-    htStore,           htSwine,           htTannery,       htTownHall,      htWatchTower, //26
-    htWeaponSmithy,    htWeaponWorkshop,  htVineyard,      htWoodcutters    ); //30
+  //* House type
+  TKMHouseType = (
+    htNone, htAny,
+    htArmorSmithy,     htArmorWorkshop,   htBakery,        htBarracks,      htButchers,
+    htCoalMine,        htFarm,            htFishermans,    htGoldMine,      htInn,
+    htIronMine,        htIronSmithy,      htMarket,        htMetallurgists, htMill,
+    htQuarry,          htSawmill,         htSchool,        htSiegeWorkshop, htStables,
+    htStore,           htSwine,           htTannery,       htTownHall,      htWatchTower,
+    htWeaponSmithy,    htWeaponWorkshop,  htVineyard,      htWoodcutters
+  );
 
+  //* House type set
   TKMHouseTypeSet = set of TKMHouseType;
   TKMHouseTypeArray = array of TKMHouseType;
 
@@ -234,8 +239,6 @@ const
     511,  512, 513, 514, 515, 516, 517, 518, 519,
     4, 7, 3, 9, 5, 8, 2, 6,
     456, 451, 999, 661, 0);
-
-
 
 type
   TRXUsage = (ruMenu, ruGame, ruCustom); //Where sprites are used

@@ -1731,8 +1731,12 @@ begin
   //Save unit selection
   if newGroup.HasMember(fSelected) then
   begin
-    gMySpectator.Selected := newGroup;
     newGroup.fSelected := fSelected;
+
+    if (gGame.ControlledHandIndex = newGroup.Owner) //Only select unit for player that issued order (group owner)
+      and (gGame.ControlledHandIndex <> -1)
+      and (gMySpectator.Selected = Self) then //Selection is still on that group (in MP game there could be a delay, when player could select other target already)
+      gMySpectator.Selected := newGroup;
   end;
 
   //Halt both groups

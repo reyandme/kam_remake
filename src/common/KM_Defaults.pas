@@ -31,6 +31,7 @@ const
   // However for some odd reason this kills Reys IDE ..
   {$I KM_Revision.inc};
   {$I KM_NetProtocolRevision.inc};
+
   {$IFDEF USESECUREAUTH}
     {$IFDEF DEBUG}
     GAME_VERSION_POSTFIX  = ' [ DEBUG ]';
@@ -44,6 +45,7 @@ const
     GAME_VERSION_POSTFIX  = ' [ UNSECURE ]';
     {$ENDIF}
   {$ENDIF}
+  GAME_VERSION_CUSTOM_POSTFIX = ''; // Custom postfix for the test builds
   GAME_VERSION_PREFIX   = ''; //Game version string displayed in menu corner
 var
   //Game revision is set in initialisation block
@@ -113,7 +115,7 @@ var
   SCROLL_ACCEL          :Boolean = False; //Acceleration for viewport scrolling
   ALLOW_INTERPOLATED_RENDER :Boolean = True; //Allow to interpolate positions/animations in render between game ticks
   ALLOW_INTERPOLATED_ANIMS    :Boolean = True; //Allow to use interpolate animations, which are loaded from .rxa sprites atlases pack
-  PATHFINDER_TO_USE     :Byte = 1;        //Use TPathfindingAStarNew
+  PATHFINDER_TO_USE     :Byte = 1;        //Use TKMPathfindingAStarNew
 
   ENABLE_VIDEOS_UNDER_WINE: Boolean = DEBUG_CFG; //Do we enable videos under wine
 
@@ -562,6 +564,7 @@ const
 
 { Terrain }
 type
+  //* terrain passability
   TKMTerrainPassability = (
     tpNone,
     tpWalk,        // General passability of tile for any walking units
@@ -618,6 +621,7 @@ const
 
 {Units}
 type
+  //* Unit type
   TKMUnitType = (utNone, utAny,
     utSerf,         utWoodcutter,   utMiner,         utAnimalBreeder,
     utFarmer,       utCarpenter,    utBaker,         utButcher,
@@ -633,7 +637,7 @@ type
 
     utWolf,         utFish,         utWatersnake,    utSeastar,
     utCrab,         utWaterflower,  utWaterleaf,     utDuck);
-
+  //* Unit type set
   TKMUnitTypeSet = set of TKMUnitType;
 
 const
@@ -666,9 +670,11 @@ const
 type
   TKMCheckAxis = (axX, axY);
 
-//Used for AI defence and linking troops
+// Used for AI defence and linking troops
 type
+  //* Group type
   TKMGroupType = (gtNone, gtAny, gtMelee, gtAntiHorse, gtRanged, gtMounted);
+  //* Group type set
   TKMGroupTypeSet = set of TKMGroupType;
 
 const
@@ -681,6 +687,7 @@ const
 
 type
   TKMGroupTypeArray = array [GROUP_TYPE_MIN..GROUP_TYPE_MAX] of Word;
+  //* AI army type
   TKMArmyType = (atIronThenLeather, atLeather, atIron, atIronAndLeather);
 
 const
@@ -793,6 +800,7 @@ const
 
 {Terrain}
 type
+  //* Field type
   TKMFieldType = (
     ftNone,
     ftRoad,
@@ -1105,7 +1113,7 @@ implementation
 initialization
 begin
   GAME_REVISION := AnsiString('r' + IntToStr(GAME_REVISION_NUM));
-  GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX;
+  GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX + GAME_VERSION_CUSTOM_POSTFIX;
   //Clients of this net protocol version may connect to the dedicated server
   NET_PROTOCOL_REVISON := AnsiString('r' + IntToStr(NET_PROTOCOL_REVISION_NUM));
 end;

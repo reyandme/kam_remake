@@ -1,13 +1,14 @@
 unit KM_CommonTypes;
 {$I KaM_Remake.inc}
 interface
-
 uses
   KM_Points;
 
 type
   TKMByteSet = set of Byte;
-  TByteSet = set of Byte; //Legasy support for old scripts
+  //* Array of bytes
+  //Legacy support for old scripts
+  TByteSet = set of Byte;
 
   TBooleanArray = array of Boolean;
   TBoolean2Array = array of array of Boolean;
@@ -21,8 +22,10 @@ type
   TKMCardinalArray = array of Cardinal;
   PKMCardinalArray = ^TKMCardinalArray;
   TSmallIntArray = array of SmallInt;
+  //* array of integer values
   TIntegerArray = array of Integer;
   TInteger2Array = array of array of Integer;
+  //* array of string values
   TAnsiStringArray = array of AnsiString;
   TSingleArray = array of Single;
   TSingle2Array = array of array of Single;

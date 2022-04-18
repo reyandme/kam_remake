@@ -167,8 +167,8 @@ type
 
     procedure OverlayTextSet(aHand: Shortint; const aText: AnsiString);
     procedure OverlayTextSetFormatted(aHand: Shortint; const aText: AnsiString; aParams: array of const);
-    procedure OverlayTextSetFont(aHand: TKMHandID; aFont: TKMFont);
-    procedure OverlayTextSetWordWrap(aHand: TKMHandID; aWordWrap: Boolean);
+    procedure OverlayTextSetFont(aHand: Shortint; aFont: TKMFont);
+    procedure OverlayTextSetWordWrap(aHand: Shortint; aWordWrap: Boolean);
     procedure OverlayTextAppend(aHand: Shortint; const aText: AnsiString);
     procedure OverlayTextAppendFormatted(aHand: Shortint; const aText: AnsiString; aParams: array of const);
 
@@ -1208,7 +1208,8 @@ end;
 
 //* Version: 14000
 //* Give player a digged house area and returns House ID or -1 if house site was not able to be added.
-//* aStoneAmount, aWoodAmount - number of resources to be added to the site
+//* aStoneAmount: number of resources to be added to the site
+//* aWoodAmount: number of resources to be added to the site
 function TKMScriptActions.GiveHouseSiteEx(aHand: Integer; aHouseType: TKMHouseType; X, Y, aWoodAmount, aStoneAmount: Integer): Integer;
 var
   H: TKMHouse;
@@ -1268,7 +1269,7 @@ end;
 
 //* Version: 7000+
 //* Sets AI army type
-//* aType = (atIronThenLeather, atLeather, atIron, atIronAndLeather)
+//* aType: (atIronThenLeather, atLeather, atIron, atIronAndLeather)
 procedure TKMScriptActions.AIArmyType(aHand: Byte; aType: TKMArmyType);
 begin
   try
@@ -1287,24 +1288,15 @@ end;
 
 //* Version: 7000+
 //* Add AI attack 
-//** <b>aHand</b> - handID
-//** <b>aRepeating</b> - is attack repeating
-//** <b>aDelay</b> - attack delay from the game start (in ticks)
-//** <b>aTotalMen</b> - total soldiers to attack
-//** <b>aMelleCount</b>, <b>aAntiHorseCount</b>, <b>aRangedCount</b>, <b>aMountedCount</b> - soldiers groups count
-//** <b>aRandomGroups</b> - use random groups for attack
-//** <b>aTarget</b> - attack target of TKMAIAttackTarget type. Possible values:
-//** <pre>TKMAIAttackTarget = (
-//**  attClosestUnit, //Closest enemy unit
-//**  attClosestBuildingFromArmy,
-//**    //Closest building from the group lauching the attack
-//**  attClosestBuildingFromStartPos,
-//**    //Closest building from the AI's start position
-//**  attCustomPosition
-//**    //Custom point defined with aCustomPosition
-//** );</pre>
-//** <b>aCustomPosition</b> - TKMPoint for custom position of attack. Used if attCustomPosition was set up as attack target
-//** <b>Result</b>: Attack UID, that could be used to remove this attack later on
+//* aHand: handID
+//* aRepeating: is attack repeating
+//* aDelay: attack delay from the game start (in ticks)
+//* aTotalMen: total soldiers to attack
+//* aMeleeGroupCount, aAntiHorseGroupCount, aRangedGroupCount, aMountedGroupCount: soldiers groups count
+//* aRandomGroups:  use random groups for attack
+//* aTarget: attack target of TKMAIAttackTarget type
+//* aCustomPosition: custom position of attack. Used if attCustomPosition was set up as attack target
+//* Result: Attack UID, that could be used to remove this attack later on
 function TKMScriptActions.AIAttackAdd(aHand: Integer; aRepeating: Boolean; aDelay: Cardinal; aTotalMen: Integer;
                                       aMeleeGroupCount, aAntiHorseGroupCount, aRangedGroupCount, aMountedGroupCount: Integer; aRandomGroups: Boolean;
                                       aTarget: TKMAIAttackTarget; aCustomPosition: TKMPoint): Integer;
@@ -1758,11 +1750,11 @@ end;
 
 //* Version: 13900
 //* Sets whether the AI should automatically repair damaged buildings
-//* aRepairMode of TKMAIRepairMode enumeration type: (rmNone, rmRepairNever, rmRepairAlways, rmRepairManual)
-//* rmNone unused
-//* rmRepairNever disable repair for all houses
-//* rmRepairAlways enable repair for all houses
-//* rmRepairManual repair is set by script manually via Actions.HouseRepairEnable
+//* aRepairMode: One of the values (rmNone, rmRepairNever, rmRepairAlways, rmRepairManual)
+//* rmNone - unused
+//* rmRepairNever - disable repair for all houses
+//* rmRepairAlways - enable repair for all houses
+//* rmRepairManual - repair is set by script manually via Actions.HouseRepairEnable
 procedure TKMScriptActions.AIRepairMode(aHand: Integer; aRepairMode: TKMAIRepairMode);
 begin
   try
@@ -1926,7 +1918,7 @@ end;
 //* Version: 7000+
 //* Sets field age if tile is corn field, or adds finished field and sets its age if tile is empty, and returns true if this was successfully done
 //* aStage: 0..6, sets the field growth stage. 0 = empty field; 6 = corn has been cut
-//* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
+//* aRandomAge: sets FieldAge to random, according to specified stage. Makes fields more realistic
 function TKMScriptActions.GiveFieldAged(aHand, X, Y: Integer; aStage: Byte; aRandomAge: Boolean): Boolean;
 begin
   try
@@ -2093,7 +2085,7 @@ begin
       end;
     end
     else
-      LogParamWarn('Actions.GiveWeapons', [aHand, GetEnumName(TypeInfo(TKMWareType), Integer(aType)), aCount]);
+      LogParamWarn('Actions.GiveWeaponsEx', [aHand, GetEnumName(TypeInfo(TKMWareType), Integer(aType)), aCount]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -2101,7 +2093,7 @@ begin
 end;
 
 
-//* Version 6311
+//* Version: 6311
 //* Adds finished winefield and returns true if winefield was successfully added
 function TKMScriptActions.GiveWineField(aHand, X, Y: Integer): Boolean;
 begin
@@ -2127,10 +2119,10 @@ begin
 end;
 
 
-//* Version 7000+
+//* Version: 7000+
 //* Sets winefield age if tile is winefield, or adds finished winefield and sets its age if tile is empty, and returns true if this was successfully done
-//* aStage = 0..3, sets the field growth stage. 0 = new fruits; 3 = grapes are ready to be harvested; according to WINE_STAGES_COUNT
-//* aRandomAge sets FieldAge to random, according to specified stage. Makes fields more realistic
+//* aStage: 0..3, sets the field growth stage. 0 = new fruits; 3 = grapes are ready to be harvested; according to WINE_STAGES_COUNT
+//* aRandomAge: sets FieldAge to random, according to specified stage. Makes fields more realistic
 function TKMScriptActions.GiveWineFieldAged(aHand, X, Y: Integer; aStage: Byte; aRandomAge: Boolean): Boolean;
 begin
   try
@@ -3592,7 +3584,8 @@ end;
 
 //* Version: 11000
 //* Apply brush from MapEd to the map
-//* X,Y: coodinates
+//* X: X coodinate
+//* Y: Y coodinate
 //* aSquare: is brush square or circle
 //* aSize: brush size
 //* aTerKind: terrain kind
@@ -3620,7 +3613,8 @@ end;
 
 //* Version: 11000
 //* Apply Elevation change brush from MapEd to the map
-//* X,Y: coodinates
+//* X: X coodinate
+//* Y: Y coodinate
 //* aSquare: is brush square or circle
 //* aRaise: raise elevation or lower it
 //* aSize: brush size
@@ -3647,7 +3641,8 @@ end;
 
 //* Version: 11000
 //* Apply Equalize brush from MapEd to the map
-//* X,Y: coodinates
+//* X: X coodinate
+//* Y: Y coodinate
 //* aSquare: is brush square or circle
 //* aSize: brush size
 //* aSlope: elevation slope
@@ -3673,7 +3668,8 @@ end;
 
 //* Version: 11000
 //* Apply Flatten brush from MapEd to the map
-//* X,Y: coodinates
+//* X: X coodinate
+//* Y: Y coodinate
 //* aSquare: is brush square or circle
 //* aSize: brush size
 //* aSlope: elevation slope
@@ -3699,7 +3695,8 @@ end;
 
 //* Version: 11000
 //* Apply magic water brush from MapEd to the map
-//* X,Y: coodinates
+//* X: X coodinate
+//* Y: Y coodinate
 procedure TKMScriptActions.MapBrushMagicWater(X, Y: Integer);
 begin
   try
@@ -3720,7 +3717,8 @@ end;
 
 //* Version: 11000
 //* Apply brush with mask specified from MapEd to the map
-//* X,Y: coodinates
+//* X: X coodinate
+//* Y: Y coodinate
 //* aSquare: is brush square or circle
 //* aSize: brush size
 //* aTerKind: terrain kind
@@ -3782,26 +3780,25 @@ end;
 //* 2. tile height (same as for MapTileHeightSet)
 //* 3. tile object (same as for MapTileObjectSet)
 //* Works much faster, then applying all changes successively for every tile, because pathfinding compute is executed only once after all changes have been done
-//* <pre>TKMTerrainTileBrief = record
-//*   X, Y: Byte;     // Tile map coordinates
-//*   Terrain: Byte;  // Terrain tile type (0..255)
+//* <pre>
+//* TKMTerrainTileBrief = record
+//*   X, Y: Word;     // Tile map coordinates
+//*   Terrain: Word;  // Terrain tile type (0..596)
 //*   Rotation: Byte; // Tile rotation (0..3)
-//*   Height: Byte;   // Heigth (0..100)
-//*   Obj: Byte;      // Object (0..255)
-//*   ChangeSet: TKMTileChangeTypeSet; // Set of changes.
+//*   Height: Byte;   // Heigth (0..150)
+//*   Obj: Word;      // Object (0..255)
+//*   UpdateTerrain, UpdateRotation, UpdateHeight, UpdateObject: Boolean; // What part of tile should be updated?
 //* end;
-//* TKMTileChangeTypeSet = set of TKMTileChangeType
-//* TKMTileChangeType =
-//*   (tctTerrain, tctRotation, tctHeight, tctObject)</pre>
-//* ChangeSet determines what should be changed on tile
-//* F.e. if we want to change terrain type and height, then ChangeSet should contain tctTerrain and tctHeight
+//* </pre>
+//* UpdateXXX fields determines what should be changed on tile
+//* F.e. if we want to change terrain type and height, then UpdateTerrain and UpdateHeight should be set to True
 //* Note: aTiles elements should start from 0, as for dynamic array. So f.e. to change map tile 1,1 we should set aTiles[0][0].
 //* Note: Errors are shown as map tiles (f.e. for error while applying aTiles[0][0] tile there will be a message with for map tile 1,1)
 //*
 //* aTiles: Check detailed info on this type in description
 //* aRevertOnFail: do we need to revert all changes on any error while applying changes. If True, then no changes will be applied on error. If False - we will continue apply changes where possible
 //* aShowDetailedErrors: show detailed errors after. Can slow down the execution, because of logging. If aRevertOnFail is set to True, then only first error will be shown
-//* Returns true, if there was no errors on any tile. False if there was at least 1 error.
+//* Result: True, if there was no errors on any tile. False if there was at least 1 error.
 function TKMScriptActions.MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
 
   function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
@@ -4048,8 +4045,8 @@ end;
 
 //* Version: 11000
 //* Sets the terrain overlay on the tile at the specified XY coordinates.
-//* aOverwrite = False means safe way to change tile overlay, disallowing to set it on top of old fields/roads
-//* aOverwrite = True allows to destroy roads and re-dig fields (like in game we can build road on top of field and when laborer dies there is a digged overlay left)
+//* aOverwrite: False means safe way to change tile overlay, disallowing to set it on top of old fields/roads
+//* aOverwrite: True allows to destroy roads and re-dig fields (like in game we can build road on top of field and when laborer dies there is a digged overlay left)
 function TKMScriptActions.MapTileOverlaySet(X, Y: Integer; aOverlay: TKMTileOverlay; aOverwrite: Boolean): Boolean;
 begin
   try
@@ -4194,7 +4191,7 @@ end;
 //* Sets text overlay font
 //* Possible values are: fntAntiqua, fntGame, fntGrey, fntMetal, fntMini, fntOutline, fntArial, fntMonospaced
 //* If the player index is -1 it will be set for all players.
-procedure TKMScriptActions.OverlayTextSetFont(aHand: TKMHandID; aFont: TKMFont);
+procedure TKMScriptActions.OverlayTextSetFont(aHand: Shortint; aFont: TKMFont);
 begin
   try
     if InRange(aHand, -1, gHands.Count - 1) then //-1 means all players
@@ -4213,7 +4210,7 @@ end;
 //* Version: 14000
 //* Sets or unsets text overlay word wrap
 //* If the player index is -1 it will be set for all players.
-procedure TKMScriptActions.OverlayTextSetWordWrap(aHand: TKMHandID; aWordWrap: Boolean);
+procedure TKMScriptActions.OverlayTextSetWordWrap(aHand: Shortint; aWordWrap: Boolean);
 begin
   try
     if InRange(aHand, -1, gHands.Count - 1) then //-1 means all players
@@ -4377,7 +4374,7 @@ var
   I: Integer;
   points: TKMPointList;
   planExists: Boolean;
-  path: TPathFindingRoad;
+  path: TKMPathFindingRoad;
 begin
   try
     Result := False;
@@ -4386,7 +4383,7 @@ begin
     and gTerrain.TileInMapCoords(X1, Y1)
     and gTerrain.TileInMapCoords(X2, Y2) then
     begin
-      path := TPathFindingRoad.Create(aHand);
+      path := TKMPathFindingRoad.Create(aHand);
       points := TKMPointList.Create;
       try
         planExists := path.Route_ReturnToWalkable(KMPoint(X1, Y1), KMPoint(X2, Y2), 0, points);

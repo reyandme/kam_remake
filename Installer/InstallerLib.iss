@@ -40,6 +40,7 @@ WizardSmallImageFile=Embedded\WizardSmallImage.bmp
 Name: "eng"; MessagesFile: "compiler:Default.isl";
 Name: "cze"; MessagesFile: "compiler:Languages\Czech.isl"; LicenseFile: "License.cze.txt"
 Name: "dut"; MessagesFile: "compiler:Languages\Dutch.isl"; LicenseFile: "License.dut.txt"
+Name: "fin"; MessagesFile: "compiler:Languages\Finnish.isl"; LicenseFile: "License.fin.txt"
 Name: "fre"; MessagesFile: "compiler:Languages\French.isl"; LicenseFile: "License.fre.txt"
 Name: "ger"; MessagesFile: "compiler:Languages\German.isl"; LicenseFile: "License.ger.txt"
 Name: "hun"; MessagesFile: "compiler:Languages\Hungarian.isl"; LicenseFile: "License.hun.txt"

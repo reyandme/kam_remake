@@ -14,6 +14,7 @@ const
   FONT_TAB_WIDTH = 30;
 
 type
+  //* Font type
   TKMFont = (
     fntAntiqua,
     fntGame,

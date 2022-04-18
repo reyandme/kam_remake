@@ -535,7 +535,7 @@ begin
   if not IsMenu then Exit;
 
   // Language section
-  Panel_Lang := TKMPanel.Create(Panel_Options, aLeftBlock, aTopBlock, 240, 30 + gResLocales.Count*20);
+  Panel_Lang := TKMPanel.Create(Panel_Options, aLeftBlock, aTopBlock, 280, 30 + gResLocales.Count*20);
   NextBlock(aTopBlock, Panel_Lang);
   Panel_Lang.Anchors := [anLeft];
     TKMLabel.Create(Panel_Lang,6,0,242,20,gResTexts[TX_MENU_OPTIONS_LANGUAGE],fntOutline,taLeft);
@@ -556,7 +556,7 @@ begin
 
     TKMBevel.Create(Panel_Lang,0,30+gResLocales.Count*20+10,280,30);
 
-    CheckBox_FullFonts := TKMCheckBox.Create(Panel_Lang, 10,30+gResLocales.Count*20+17,220,20, gResTexts[TX_MENU_OPTIONS_FONTS], fntMetal);
+    CheckBox_FullFonts := TKMCheckBox.Create(Panel_Lang, 10,30+gResLocales.Count*20+17,260,20, gResTexts[TX_MENU_OPTIONS_FONTS], fntMetal);
     CheckBox_FullFonts.OnClick := Change;
 end;
 

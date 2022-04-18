@@ -343,116 +343,104 @@ var
 begin
   if Name = 'SYSTEM' then
   begin
-    // Common
-    Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
-    Sender.AddTypeS('TAnsiStringArray', 'array of AnsiString'); //Needed for some array Utils
-    Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
-    Sender.AddTypeS('TKMPoint', 'record X,Y: Integer; end'); //Could be very useful
-
-    Sender.AddTypeS('TKMGroupType', '(gtNone, gtAny, gtMelee, gtAntiHorse, gtRanged, gtMounted)');
-    Sender.AddTypeS('TKMGroupTypeSet', 'set of TKMGroupType');
-    Sender.AddTypeS('TKMDirection', '(dirNA, dirN, dirNE, dirE, dirSE, dirS, dirSW, dirW, dirNW)');
-
-    Sender.AddTypeS('TKMDeliveryMode' ,'(dmClosed, dmDelivery, dmTakeOut)');
-    Sender.AddTypeS('TKMWoodcutterMode', '(wmChopAndPlant, wmChop, wmPlant)');
-    Sender.AddTypeS('TKMHandHouseLock', '(hlNone, hlDefault, hlBlocked, hlGranted)');
-    Sender.AddTypeS('TKMTerrainPassability', '(tpNone, tpWalk, tpWalkRoad, tpBuildNoObj, tpBuild, tpMakeRoads, tpCutTree, '
-      + 'tpFish, tpCrab, tpWolf, tpElevate, tpWorker, tpOwn, tpFactor)');
-
-    Sender.AddTypeS('TKMAIDefencePosType', '(dtFrontLine, dtBackLine)');
-    Sender.AddTypeS('TKMAIAttackType', '(aatOnce, aatRepeating)');
-    Sender.AddTypeS('TKMAIRepairMode', '(rmNone, rmRepairNever, rmRepairAlways, rmRepairManual)');
+    //*Types-Reg*//
     Sender.AddTypeS('TKMAIAttackTarget', '(attClosestUnit, attClosestBuildingFromArmy, attClosestBuildingFromStartPos, attCustomPosition)');
+    Sender.AddTypeS('TKMAIAttackType', '(aatOnce, aatRepeating)');
+    Sender.AddTypeS('TKMAIDefencePosType', '(dtFrontLine, dtBackLine)');
+    Sender.AddTypeS('TKMAIRepairMode', '(rmNone, rmRepairNever, rmRepairAlways, rmRepairManual)');
     Sender.AddTypeS('TKMArmyType', '(atIronThenLeather, atLeather, atIron, atIronAndLeather)');
-
-    Sender.AddTypeS('TKMAIAttackInfo', 'record ' +
-                      'UID: Integer;' +
-                      'AttackType: TKMAIAttackType;' +
-                      'HasOccured: Boolean;' +
-                      'Delay: Cardinal;' +
-                      'TotalMen: Integer;' +
-                      'MeleeGroupCount: Integer;' +
-                      'AntiHorseGroupCount: Integer;' +
-                      'RangedGroupCount: Integer;' +
-                      'MountedGroupCount: Integer;' +
-                      'RandomGroups: Boolean;' +
-                      'Target: TKMAIAttackTarget;' +
-                      'CustomPosition: TKMPoint;' +
-                    'end');
-
-    Sender.AddTypeS('TKMDefencePositionInfo', 'record ' +
-                      'UID: Integer; ' +
-                      'X, Y: Integer; ' +
-                      'Radius: Integer; ' +
-                      'GroupID: Integer; ' +
-                      'Dir: TKMDirection;' +
-                      'GroupType: TKMGroupType; ' +
-                      'PositionType: TKMAIDefencePosType; ' +
-                    'end');
-
-    Sender.AddTypeS('TKMFieldType', '(ftNone, ftRoad, ftCorn, ftWine)'); //No need to add InitWine for scripts
-    Sender.AddTypeS('TKMHouseType', '(htNone, htAny, '
-      + 'htArmorSmithy,     htArmorWorkshop,   htBakery,        htBarracks,      htButchers,'
-      + 'htCoalMine,        htFarm,            htFishermans,    htGoldMine,      htInn,'
-      + 'htIronMine,        htIronSmithy,      htMarket,        htMetallurgists, htMill,'
-      + 'htQuarry,          htSawmill,         htSchool,        htSiegeWorkshop, htStables,'
-      + 'htStore,           htSwine,           htTannery,       htTownHall,      htWatchTower,'
-      + 'htWeaponSmithy,    htWeaponWorkshop,  htVineyard,      htWoodcutters    )');
-
-    Sender.AddTypeS('TKMHouseTypeSet', 'set of TKMHouseType');
-
+    Sender.AddTypeS('TKMAudioFormat', '(afWav, afOgg)');
+    Sender.AddTypeS('TKMDeliveryMode', '(dmClosed, dmDelivery, dmTakeOut)');
+    Sender.AddTypeS('TKMDirection', '(dirNA, dirN, dirNE, dirE, dirSE, ' +
+      'dirS, dirSW, dirW, dirNW)');
+    Sender.AddTypeS('TKMFieldType', '(ftNone, ftRoad, ftCorn, ftWine, ftInitWine)');
+    Sender.AddTypeS('TKMFont', '(fntAntiqua, fntGame, fntGrey, fntMetal, fntMini, ' +
+      'fntOutline, fntArial, fntMonospaced)');
     Sender.AddTypeS('TKMGroupOrder', '(goNone, goWalkTo, goAttackHouse, goAttackUnit, goStorm)');
-
-    Sender.AddTypeS('TKMAudioFormat', '(afWav, afOgg)'); //Needed for PlaySound
-
-    // Types needed for MapTilesArraySet function
-    Sender.AddTypeS('TKMTerrainTileBrief', 'record X,Y: Byte; Terrain: Word; Rotation: Byte; Height: Byte; Obj: Word; UpdateTerrain, UpdateRotation, UpdateHeight, UpdateObject: Boolean; end');
-
-    Sender.AddTypeS('TKMMissionDifficulty', '(mdNone, mdEasy3, mdEasy2, mdEasy1, mdNormal, mdHard1, mdHard2, mdHard3)');
+    Sender.AddTypeS('TKMGroupType', '(gtNone, gtAny, gtMelee, gtAntiHorse, gtRanged, ' +
+      'gtMounted)');
+    Sender.AddTypeS('TKMHandHouseLock', '(hlNone, hlDefault, hlBlocked, hlGranted)');
+    Sender.AddTypeS('TKMHouseType', '(htNone, htAny, htArmorSmithy, htArmorWorkshop, htBakery, ' +
+      'htBarracks, htButchers, htCoalMine, htFarm, htFishermans, ' +
+      'htGoldMine, htInn, htIronMine, htIronSmithy, htMarket, ' +
+      'htMetallurgists, htMill, htQuarry, htSawmill, htSchool, ' +
+      'htSiegeWorkshop, htStables, htStore, htSwine, htTannery, ' +
+      'htTownHall, htWatchTower, htWeaponSmithy, htWeaponWorkshop, htVineyard, ' +
+      'htWoodcutters)');
+    Sender.AddTypeS('TKMMissionDifficulty', '(mdNone, mdEasy3, mdEasy2, mdEasy1, mdNormal, ' +
+      'mdHard1, mdHard2, mdHard3)');
+    Sender.AddTypeS('TKMTerrainKind', '(tkCustom, tkGrass, tkMoss, tkPaleGrass, tkCoastSand, ' +
+      'tkGrassSand1, tkGrassSand2, tkGrassSand3, tkSand, tkGrassDirt, ' +
+      'tkDirt, tkCobbleStone, tkGrassyWater, tkSwamp, tkIce, ' +
+      'tkSnowOnGrass, tkSnowOnDirt, tkSnow, tkDeepSnow, tkStone, ' +
+      'tkGoldMount, tkIronMount, tkAbyss, tkGravel, tkCoal, ' +
+      'tkGold, tkIron, tkWater, tkFastWater, tkLava)');
+    Sender.AddTypeS('TKMTerrainPassability', '(tpNone, tpWalk, tpWalkRoad, tpBuildNoObj, tpBuild, ' +
+      'tpMakeRoads, tpCutTree, tpFish, tpCrab, tpWolf, ' +
+      'tpElevate, tpWorker, tpOwn, tpFactor)');
+    Sender.AddTypeS('TKMTileMaskKind', '(mkNone, mkSoft1, mkSoft2, mkSoft3, mkStraight, ' +
+      'mkGradient)');
+    Sender.AddTypeS('TKMTileOverlay', '(toNone, toDig1, toDig2, toDig3, toDig4, ' +
+      'toRoad)');
+    Sender.AddTypeS('TKMUnitType', '(utNone, utAny, utSerf, utWoodcutter, utMiner, ' +
+      'utAnimalBreeder, utFarmer, utCarpenter, utBaker, utButcher, ' +
+      'utFisher, utBuilder, utStonemason, utSmith, utMetallurgist, ' +
+      'utRecruit, utMilitia, utAxeFighter, utSwordFighter, utBowman, ' +
+      'utCrossbowman, utLanceCarrier, utPikeman, utScout, utKnight, ' +
+      'utBarbarian, utRebel, utRogue, utWarrior, utVagabond, ' +
+      'utWolf, utFish, utWatersnake, utSeastar, utCrab, ' +
+      'utWaterflower, utWaterleaf, utDuck)');
+    Sender.AddTypeS('TKMWareType', '(wtNone, wtTrunk, wtStone, wtTimber, wtIronOre, ' +
+      'wtGoldOre, wtCoal, wtIron, wtGold, wtWine, ' +
+      'wtCorn, wtBread, wtFlour, wtLeather, wtSausage, ' +
+      'wtPig, wtSkin, wtWoodenShield, wtIronShield, wtLeatherArmor, ' +
+      'wtIronArmor, wtAxe, wtSword, wtLance, wtPike, ' +
+      'wtBow, wtCrossbow, wtHorse, wtFish, wtAll, ' +
+      'wtWarfare, wtFood)');
+    Sender.AddTypeS('TKMWoodcutterMode', '(wmChopAndPlant, wmChop, wmPlant)');
+    Sender.AddTypeS('TByteSet', 'set of Byte');
+    Sender.AddTypeS('TKMGroupTypeSet', 'set of TKMGroupType');
+    Sender.AddTypeS('TKMHouseTypeSet', 'set of TKMHouseType');
     Sender.AddTypeS('TKMMissionDifficultySet', 'set of TKMMissionDifficulty');
-
-    Sender.AddTypeS('TKMTileOverlay', '(toNone, toDig1, toDig2, toDig3, toDig4, toRoad)');
-
-    Sender.AddTypeS('TKMTerrainKind', '('
-      + 'tkCustom,       tkGrass,        tkMoss,         tkPaleGrass, tkCoastSand,'
-      + 'tkGrassSand1,   tkGrassSand2,   tkGrassSand3,   tkSand,      tkGrassDirt,'
-      + 'tkDirt,         tkCobbleStone,  tkGrassyWater,  tkSwamp,     tkIce,'
-      + 'tkSnowOnGrass,  tkSnowOnDirt,   tkSnow,         tkDeepSnow,  tkStone,'
-      + 'tkGoldMount,    tkIronMount,    tkAbyss,        tkGravel,    tkCoal,'
-      + 'tkGold,         tkIron,         tkWater,        tkFastWater, tkLava)');
-
-    Sender.AddTypeS('TKMTileMaskKind', '(mkNone, mkSoft1, mkSoft2, mkSoft3, mkStraight, mkGradient)');
-
-    Sender.AddTypeS('TKMUnitType', '(utNone, utAny,'
-      + 'utSerf,         utWoodcutter,   utMiner,         utAnimalBreeder,'
-      + 'utFarmer,       utCarpenter,    utBaker,         utButcher,'
-      + 'utFisher,       utBuilder,      utStonemason,    utSmith,'
-      + 'utMetallurgist, utRecruit,'
-      + 'utMilitia,      utAxeFighter,   utSwordFighter,  utBowman,'
-      + 'utCrossbowman,  utLanceCarrier, utPikeman,       utScout,'
-      + 'utKnight,       utBarbarian,'
-      + 'utRebel,        utRogue,        utWarrior,       utVagabond,'
-      //utCatapult,   utBallista,
-      + 'utWolf,         utFish,         utWatersnake,    utSeastar,'
-      + 'utCrab,         utWaterflower,  utWaterleaf,     utDuck)');
-
     Sender.AddTypeS('TKMUnitTypeSet', 'set of TKMUnitType');
-
-    Sender.AddTypeS('TKMWareType', '(wtNone,'
-      + 'wtTrunk,    wtStone,         wtTimber,     wtIronOre,      wtGoldOre,'
-      + 'wtCoal,     wtIron,          wtGold,       wtWine,         wtCorn,'
-      + 'wtBread,    wtFlour,         wtLeather,    wtSausage,      wtPig,'
-      + 'wtSkin,     wtWoodenShield,  wtIronShield, wtLeatherArmor, wtIronArmor,'
-      + 'wtAxe,      wtSword,         wtLance,      wtPike,         wtBow,'
-      + 'wtCrossbow, wtHorse,         wtFish,'
-      // Special ware types
-      + 'wtAll,     wtWarfare, wtFood)');
-
     Sender.AddTypeS('TKMWareTypeSet', 'set of TKMWareType');
-
-    Sender.AddTypeS('TReplaceFlags', '(rfReplaceAll, rfIgnoreCase)'); //Needed for string util Utils.StringReplace
-
-    Sender.AddTypeS('TKMFont', '(fntAntiqua, fntGame, fntGrey, fntMetal, fntMini, fntOutline, fntArial, fntMonospaced)');
+    Sender.AddTypeS('TAnsiStringArray', 'array of AnsiString');
+    Sender.AddTypeS('TIntegerArray', 'array of Integer');
+    Sender.AddTypeS('TKMPoint', 'record ' +
+        'X,Y: Integer; ' +
+      'end;');
+    Sender.AddTypeS('TKMAIAttackInfo', 'record ' +
+        'UID: Integer; ' +
+        'AttackType: TKMAIAttackType; ' +
+        'HasOccured: Boolean; ' +
+        'Delay: Cardinal; ' +
+        'TotalMen: Integer; ' +
+        'MeleeGroupCount: Integer; ' +
+        'AntiHorseGroupCount: Integer; ' +
+        'RangedGroupCount: Integer; ' +
+        'MountedGroupCount: Integer; ' +
+        'RandomGroups: Boolean; ' +
+        'Target: TKMAIAttackTarget; ' +
+        'CustomPosition: TKMPoint; ' +
+      'end;');
+    Sender.AddTypeS('TKMDefencePositionInfo', 'record ' +
+        'UID: Integer; ' +
+        'X, Y: Integer; ' +
+        'Radius: Integer; ' +
+        'GroupID: Integer; ' +
+        'Dir: TKMDirection; ' +
+        'GroupType: TKMGroupType; ' +
+        'PositionType: TKMAIDefencePosType; ' +
+      'end;');
+    Sender.AddTypeS('TKMTerrainTileBrief', 'record ' +
+        'X,Y: Word; ' +
+        'Terrain: Word; ' +
+        'Rotation: Byte; ' +
+        'Height: Byte; ' +
+        'Obj: Word; ' +
+        'UpdateTerrain, UpdateRotation, UpdateHeight, UpdateObject: Boolean; ' +
+      'end;');
+    //*Types-Reg*//
 
     // Add CampaignData type and variable only after addition of all other custom types,
     // so those types could be used in the TKMCampaignData declaration
@@ -461,357 +449,336 @@ begin
     // Register classes and methods to the script engine.
     // After that they can be used from within the script.
     c := Sender.AddClassN(nil, AnsiString(fStates.ClassName));
-    RegisterMethodCheck(c, 'function AIArmyType(aHand: Byte): TKMArmyType');
-    RegisterMethodCheck(c, 'function AIAutoAttack(aHand: Byte): Boolean');
-    RegisterMethodCheck(c, 'function AIAutoAttackRange(aHand: Byte): Integer');
-    RegisterMethodCheck(c, 'function AIAutoBuild(aHand: Byte): Boolean');
-    RegisterMethodCheck(c, 'function AIAutoDefence(aHand: Byte): Boolean');
-    RegisterMethodCheck(c, 'function AIAutoRepair(aHand: Byte): Boolean');
-    RegisterMethodCheck(c, 'procedure AIDefencePositionGet(aHand, aID: Byte; out aX, aY: Integer; out aGroupType: Byte; out aRadius: Integer; out aDefType: Byte)');
-    RegisterMethodCheck(c, 'function AIDefencePositionGetByIndex(aHand, aIndex: Integer): TKMDefencePositionInfo');
-    RegisterMethodCheck(c, 'function AIDefendAllies(aHand: Byte): Boolean');
-    RegisterMethodCheck(c, 'function AIEquipRate(aHand: Byte; aType: Byte): Integer');
-    RegisterMethodCheck(c, 'procedure AIGroupsFormationGet(aHand, aType: Byte; out aCount, aColumns: Integer)');
-    RegisterMethodCheck(c, 'procedure AIGroupsFormationGetEx(aHand: Integer; aGroupType: TKMGroupType; out aCount, aColumns: Integer)');
-    RegisterMethodCheck(c, 'function AIRecruitDelay(aHand: Byte): Integer');
-    RegisterMethodCheck(c, 'function AIRecruitLimit(aHand: Byte): Integer');
-    RegisterMethodCheck(c, 'function AIRepairMode(aHand: Integer): TKMAIRepairMode');
-    RegisterMethodCheck(c, 'function AISerfsPerHouse(aHand: Byte): Single');
-    RegisterMethodCheck(c, 'function AISoldiersLimit(aHand: Byte): Integer');
-    RegisterMethodCheck(c, 'function AIStartPosition(aHand: Byte): TKMPoint');
-    RegisterMethodCheck(c, 'function AIWorkerLimit(aHand: Byte): Integer');
-
-    RegisterMethodCheck(c, 'function CampaignMissionID: Integer');
-    RegisterMethodCheck(c, 'function CampaignMissionsCount: Integer');
-
-    RegisterMethodCheck(c, 'function ClosestGroup(aHand, X, Y, aGroupType: Integer): Integer');
-    RegisterMethodCheck(c, 'function ClosestGroupEx(aHand, X, Y: Integer; aGroupType: TKMGroupType): Integer');
-    RegisterMethodCheck(c, 'function ClosestGroupMultipleTypes(aHand, X, Y: Integer; aGroupTypes: TByteSet): Integer');
-    RegisterMethodCheck(c, 'function ClosestGroupMultipleTypesEx(aHand, X, Y: Integer; aGroupTypes: TKMGroupTypeSet): Integer');
-    RegisterMethodCheck(c, 'function ClosestHouse(aHand, X, Y, aHouseType: Integer): Integer');
-    RegisterMethodCheck(c, 'function ClosestHouseEx(aHand, X, Y: Integer; aHouseType: TKMHouseType): Integer');
-    RegisterMethodCheck(c, 'function ClosestHouseMultipleTypes(aHand, X, Y: Integer; aHouseTypes: TByteSet): Integer');
-    RegisterMethodCheck(c, 'function ClosestHouseMultipleTypesEx(aHand, X, Y: Integer; aHouseTypes: TKMHouseTypeSet): Integer');
-    RegisterMethodCheck(c, 'function ClosestUnit(aHand, X, Y, aUnitType: Integer): Integer');
-    RegisterMethodCheck(c, 'function ClosestUnitEx(aHand, X, Y: Integer; aUnitType: TKMUnitType): Integer');
-    RegisterMethodCheck(c, 'function ClosestUnitMultipleTypes(aHand, X, Y: Integer; aUnitTypes: TByteSet): Integer');
-    RegisterMethodCheck(c, 'function ClosestUnitMultipleTypesEx(aHand, X, Y: Integer; aUnitTypes: TKMUnitTypeSet): Integer');
-
-    RegisterMethodCheck(c, 'function ConnectedByRoad(X1, Y1, X2, Y2: Integer): Boolean');
-    RegisterMethodCheck(c, 'function ConnectedByWalking(X1, Y1, X2, Y2: Integer): Boolean');
-
-    RegisterMethodCheck(c, 'function FogRevealed(aHand: Byte; aX, aY: Integer): Boolean');
-
-    RegisterMethodCheck(c, 'function GameSpeed: Single');
-    RegisterMethodCheck(c, 'function GameSpeedChangeAllowed: Boolean');
-    RegisterMethodCheck(c, 'function GameTime: Cardinal');
-
-    RegisterMethodCheck(c, 'function GroupAllowAllyToSelect(aGroupID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function GroupAssignedToDefencePosition(aGroupID, X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function GroupAt(aX, aY: Integer): Integer');
-    RegisterMethodCheck(c, 'function GroupColumnCount(aGroupID: Integer): Integer');
-    RegisterMethodCheck(c, 'function GroupDead(aGroupID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function GroupIdle(aGroupID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function GroupInFight(aGroupID: Integer; aCountCitizens: Boolean): Boolean');
-    RegisterMethodCheck(c, 'function GroupManualFormation(aGroupID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function GroupMember(aGroupID, aMemberIndex: Integer): Integer');
-    RegisterMethodCheck(c, 'function GroupMemberCount(aGroupID: Integer): Integer');
-    RegisterMethodCheck(c, 'function GroupOrder(aGroupID: Integer): TKMGroupOrder');
-    RegisterMethodCheck(c, 'function GroupOwner(aGroupID: Integer): Integer');
-    RegisterMethodCheck(c, 'function GroupType(aGroupID: Integer): Integer');
-    RegisterMethodCheck(c, 'function GroupTypeEx(aGroupID: Integer): TKMGroupType');
-
-    RegisterMethodCheck(c, 'function HandHouseCanBuild(aHand: Integer; aHouseType: TKMHouseType): Boolean');
-    RegisterMethodCheck(c, 'function HandUnitCanTrain(aHand: Integer; aUnitType: TKMUnitType): Boolean');
-    RegisterMethodCheck(c, 'function HandHouseLock(aHand: Integer; aHouseType: TKMHouseType): TKMHandHouseLock');
-    RegisterMethodCheck(c, 'function HandWareDistribution(aHand: Integer; aWareType: TKMWareType; aHouseType: TKMHouseType): Integer');
-
-    RegisterMethodCheck(c, 'function HouseAt(aX, aY: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseAllowAllyToSelect(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseBarracksRallyPointX(aBarracks: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseBarracksRallyPointY(aBarracks: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseBarracksRecruitsCount(aBarracks: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseBarracksRecruitBlock(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseBuildingProgress(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseCanReachResources(aHouseID: Integer): Boolean)');
-    RegisterMethodCheck(c, 'function HouseDamage(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseDeliveryBlocked(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseDeliveryMode(aHouseID: Integer): TKMDeliveryMode');
-    RegisterMethodCheck(c, 'function HouseDestroyed(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseFlagPoint(aHouseID: Integer): TKMPoint');
-    RegisterMethodCheck(c, 'function HouseGetAllUnitsIn(aHouseID: Integer): TIntegerArray');
-    RegisterMethodCheck(c, 'function HouseHasOccupant(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseHasWorker(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseIsComplete(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseOwner(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function HousePosition(aHouseID: Integer): TKMPoint');
-    RegisterMethodCheck(c, 'function HousePositionX(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function HousePositionY(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseRepair(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseResourceAmount(aHouseID, aResource: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseSchoolQueue(aHouseID, QueueIndex: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseSiteIsDigged(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseTownHallMaxGold(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseType(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseTypeEx(aHouseID: Integer): TKMHouseType');
-    RegisterMethodCheck(c, 'function HouseTypeMaxHealth(aHouseType: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseTypeMaxHealthEx(aHouseType: TKMHouseType): Integer');
-    RegisterMethodCheck(c, 'function HouseTypeName(aHouseType: Byte): AnsiString');
-    RegisterMethodCheck(c, 'function HouseTypeNameEx(aHouseType: TKMHouseType): AnsiString');
-    RegisterMethodCheck(c, 'function HouseTypeToOccupantType(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseTypeToWorkerType(aHouseType: TKMHouseType): TKMUnitType');
-    RegisterMethodCheck(c, 'function HouseUnlocked(aHand, aHouseType: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseWareBlockedEx(aHouseID: Integer; aWareType: TKMWareType): Boolean');
-    RegisterMethodCheck(c, 'function HouseWareBlockedTakeOut(aHouseID: Integer; aWareType: TKMWareType): Boolean');
-    RegisterMethodCheck(c, 'function HouseWeaponsOrdered(aHouseID, aWareType: Integer): Integer');
-    RegisterMethodCheck(c, 'function HouseWeaponsOrderedEx(aHouseID: Integer; aWareType: TKMWareType): Integer');
-    RegisterMethodCheck(c, 'function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function HouseWoodcutterMode(aHouseID: Integer): TKMWoodcutterMode');
-    RegisterMethodCheck(c, 'function HouseWorker(aHouseID: Integer): Integer');
-
-    RegisterMethodCheck(c, 'function IsFieldAt(aHand: ShortInt; X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function IsRoadAt(aHand: ShortInt; X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function IsWinefieldAt(aHand: ShortInt; X, Y: Integer): Boolean');
-
-    RegisterMethodCheck(c, 'function IsPlanAt(var aHand: Integer; var aFieldType: TKMFieldType; X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function IsFieldPlanAt(var aHand: Integer; X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function IsHousePlanAt(var aHand: Integer; var aHouseType: TKMHouseType; X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function IsRoadPlanAt(var aHand: Integer; X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function IsWinefieldPlanAt(var aHand: Integer; X, Y: Integer): Boolean');
-
-    RegisterMethodCheck(c, 'function IsMissionBuildType: Boolean');
-    RegisterMethodCheck(c, 'function IsMissionFightType: Boolean');
-    RegisterMethodCheck(c, 'function IsMissionCoopType: Boolean');
-    RegisterMethodCheck(c, 'function IsMissionSpecialType: Boolean');
-    RegisterMethodCheck(c, 'function IsMissionPlayableAsSP: Boolean');
-    RegisterMethodCheck(c, 'function IsMissionBlockColorSelection: Boolean');
-    RegisterMethodCheck(c, 'function IsMissionBlockTeamSelection: Boolean');
-    RegisterMethodCheck(c, 'function IsMissionBlockPeacetime: Boolean');
-    RegisterMethodCheck(c, 'function IsMissionBlockFullMapPreview: Boolean');
-
-    RegisterMethodCheck(c, 'function KaMRandom: Single');
-    RegisterMethodCheck(c, 'function KaMRandomI(aMax:Integer): Integer');
-
-    RegisterMethodCheck(c, 'function LocationCount: Integer');
-
-    RegisterMethodCheck(c, 'function MapHeight: Integer');
-    RegisterMethodCheck(c, 'function MapTileHasOnlyTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean');
-    RegisterMethodCheck(c, 'function MapTileHasOnlyTerrainKinds(X, Y: Integer; TerKinds: array of TKMTerrainKind): Boolean');
-    RegisterMethodCheck(c, 'function MapTileHasTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean');
-    RegisterMethodCheck(c, 'function MapTileHeight(X, Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function MapTileIsCoal(X, Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function MapTileIsGold(X, Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function MapTileIsIce(X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function MapTileIsInMapCoords(X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function MapTileIsIron(X, Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function MapTileIsSand(X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function MapTileIsSnow(X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function MapTileIsSoil(X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function MapTileIsStone(X, Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function MapTileIsWater(X, Y: Integer; FullTilesOnly: Boolean): Boolean');
-    RegisterMethodCheck(c, 'function MapTileObject(X, Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function MapTileOverlay(X, Y: Integer): TKMTileOverlay');
-    RegisterMethodCheck(c, 'function MapTileOwner(X, Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function MapTilePassability(X, Y: Integer; aPassability: Byte): Boolean');
-    RegisterMethodCheck(c, 'function MapTilePassabilityEx(X, Y: Integer; aPassability: TKMTerrainPassability): Boolean');
-    RegisterMethodCheck(c, 'function MapTileRotation(X, Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function MapTileType(X, Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function MapWidth: Integer');
-
-    RegisterMethodCheck(c, 'function MissionAuthor: UnicodeString');
-
-    RegisterMethodCheck(c, 'function MissionDifficulty: TKMMissionDifficulty');
-    RegisterMethodCheck(c, 'function MissionDifficultyLevels: TKMMissionDifficultySet');
-
-    RegisterMethodCheck(c, 'function MissionVersion: UnicodeString');
-
-    RegisterMethodCheck(c, 'function MarketFromWare(aMarketID: Integer): Integer');
-    RegisterMethodCheck(c, 'function MarketFromWareEx(aMarketID: Integer): TKMWareType');
-    RegisterMethodCheck(c, 'function MarketLossFactor: Single');
-    RegisterMethodCheck(c, 'function MarketOrderAmount(aMarketID: Integer): Integer');
-    RegisterMethodCheck(c, 'function MarketToWare(aMarketID: Integer): Integer');
-    RegisterMethodCheck(c, 'function MarketToWareEx(aMarketID: Integer): TKMWareType');
-    RegisterMethodCheck(c, 'function MarketValue(aRes: Integer): Single');
-    RegisterMethodCheck(c, 'function MarketValueEx(aWareType: TKMWareType): Single');
-
-    RegisterMethodCheck(c, 'function PeaceTime: Cardinal');
-
-    RegisterMethodCheck(c, 'function PlayerAllianceCheck(aHand1, aHand2: Byte): Boolean');
-    RegisterMethodCheck(c, 'function PlayerColorFlag(aHand: Byte): AnsiString');
-    RegisterMethodCheck(c, 'function PlayerColorText(aHand: Byte): AnsiString');
-    RegisterMethodCheck(c, 'function PlayerDefeated(aHand: Byte): Boolean');
-    RegisterMethodCheck(c, 'function PlayerEnabled(aHand: Byte): Boolean');
-    RegisterMethodCheck(c, 'function PlayerGetAllGroups(aHand: Byte): TIntegerArray');
-    RegisterMethodCheck(c, 'function PlayerGetAllHouses(aHand: Byte): TIntegerArray');
-    RegisterMethodCheck(c, 'function PlayerGetAllUnits(aHand: Byte): TIntegerArray');
-    RegisterMethodCheck(c, 'function PlayerIsAI(aHand: Byte): Boolean');
-    RegisterMethodCheck(c, 'function PlayerName(aHand: Byte): AnsiString');
-    RegisterMethodCheck(c, 'function PlayerVictorious(aHand: Byte): Boolean');
-    RegisterMethodCheck(c, 'function PlayerWareDistribution(aHand, aWareType, aHouseType: Byte): Byte');
-
-    RegisterMethodCheck(c, 'function StatAIDefencePositionsCount(aHand: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatArmyCount(aHand: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatArmyPower(aHand: Byte): Single');
-    RegisterMethodCheck(c, 'function StatCitizenCount(aHand: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatHouseCount(aHand: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatHouseMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
-    RegisterMethodCheck(c, 'function StatHouseMultipleTypesCountEx(aHand: Integer; aTypes: TKMHouseTypeSet): Integer');
-    RegisterMethodCheck(c, 'function StatHouseTypeCount(aHand, aHouseType: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatHouseTypeCountEx(aHand: Integer; aHouseType: TKMHouseType): Integer');
-    RegisterMethodCheck(c, 'function StatHouseTypePlansCount(aHand, aHouseType: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatHouseTypePlansCountEx(aHand: Integer; aHouseType: TKMHouseType): Integer');
-    RegisterMethodCheck(c, 'function StatPlayerCount: Integer');
-    RegisterMethodCheck(c, 'function StatResourceProducedCount(aHand, aResType: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatResourceProducedCountEx(aHand: Integer; aWareType: TKMWareType): Integer');
-    RegisterMethodCheck(c, 'function StatResourceProducedMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
-    RegisterMethodCheck(c, 'function StatResourceProducedMultipleTypesCountEx(aHand: Integer; aTypes: TKMWareTypeSet): Integer');
-    RegisterMethodCheck(c, 'function StatUnitCount(aHand: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatUnitKilledCount(aHand, aUnitType: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatUnitKilledCountEx(aHand: Integer; aUnitType: TKMUnitType): Integer');
-    RegisterMethodCheck(c, 'function StatUnitKilledMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
-    RegisterMethodCheck(c, 'function StatUnitKilledMultipleTypesCountEx(aHand: Integer; aTypes: TKMUnitTypeSet): Integer');
-    RegisterMethodCheck(c, 'function StatUnitLostCount(aHand, aUnitType: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatUnitLostCountEx(aHand: Integer; aUnitType: TKMUnitType): Integer');
-    RegisterMethodCheck(c, 'function StatUnitLostMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
-    RegisterMethodCheck(c, 'function StatUnitLostMultipleTypesCountEx(aHand: Byte; aTypes: TKMUnitTypeSet): Integer');
-    RegisterMethodCheck(c, 'function StatUnitMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
-    RegisterMethodCheck(c, 'function StatUnitMultipleTypesCountEx(aHand: Integer; aTypes: TKMUnitTypeSet): Integer');
-    RegisterMethodCheck(c, 'function StatUnitTypeCount(aHand, aUnitType: Byte): Integer');
-    RegisterMethodCheck(c, 'function StatUnitTypeCountEx(aHand: Integer; aUnitType: TKMUnitType): Integer');
-
-    RegisterMethodCheck(c, 'function UnitAllowAllyToSelect(aUnitID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function UnitAt(aX, aY: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitCarrying(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitCarryingEx(aUnitID: Integer): TKMWareType');
-    RegisterMethodCheck(c, 'function UnitDead(aUnitID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function UnitDirection(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitDirectionEx(aUnitID: Integer): TKMDirection');
-    RegisterMethodCheck(c, 'function UnitDismissable(aUnitID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function UnitHome(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitHPCurrent(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitHPMax(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitHPInvulnerable(aUnitID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function UnitHunger(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitIdle(aUnitID: Integer): Boolean');
-    RegisterMethodCheck(c, 'function UnitInHouse(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitLowHunger: Integer');
-    RegisterMethodCheck(c, 'function UnitMaxHunger: Integer');
-    RegisterMethodCheck(c, 'function UnitOwner(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitPosition(aHouseID: Integer): TKMPoint');
-    RegisterMethodCheck(c, 'function UnitPositionX(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitPositionY(aHouseID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitsGroup(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitType(aUnitID: Integer): Integer');
-    RegisterMethodCheck(c, 'function UnitTypeEx(aUnitID: Integer): TKMUnitType');
-    RegisterMethodCheck(c, 'function UnitTypeName(aUnitType: Byte): AnsiString');
-    RegisterMethodCheck(c, 'function UnitTypeNameEx(aUnitType: TKMUnitType): AnsiString');
-
-    RegisterMethodCheck(c, 'function WareTypeName(aWareType: Byte): AnsiString');
-    RegisterMethodCheck(c, 'function WareTypeNameEx(aWareType: TKMWareType): AnsiString');
-    RegisterMethodCheck(c, 'function WarriorInFight(aUnitID: Integer; aCountCitizens: Boolean): Boolean');
+    //*States-Check*//
+    RegisterMethodCheck(c, 'function  AIArmyType(aHand: Byte): TKMArmyType');
+    RegisterMethodCheck(c, 'function  AIAutoAttack(aHand: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  AIAutoAttackRange(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  AIAutoBuild(aHand: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  AIAutoDefence(aHand: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  AIAutoRepair(aHand: Byte): Boolean');
+    RegisterMethodCheck(c, 'procedure AIDefencePositionGet(aHand: Byte; aID: Byte; out aX, aY: Integer; out aGroupType: Byte; out aRadius: Integer; ' +
+      'out aDefType: Byte)');
+    RegisterMethodCheck(c, 'function  AIDefencePositionGetByIndex(aHand: Integer; aIndex: Integer): TKMDefencePositionInfo');
+    RegisterMethodCheck(c, 'function  AIDefendAllies(aHand: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  AIEquipRate(aHand: Byte; aType: Byte): Integer');
+    RegisterMethodCheck(c, 'procedure AIGroupsFormationGet(aHand: Byte; aType: Byte; out aCount: Integer; out aColumns: Integer)');
+    RegisterMethodCheck(c, 'procedure AIGroupsFormationGetEx(aHand: Integer; aGroupType: TKMGroupType; out aCount: Integer; out aColumns: Integer)');
+    RegisterMethodCheck(c, 'function  AIRecruitDelay(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  AIRecruitLimit(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  AIRepairMode(aHand: Integer): TKMAIRepairMode');
+    RegisterMethodCheck(c, 'function  AISerfsPerHouse(aHand: Byte): Single');
+    RegisterMethodCheck(c, 'function  AISoldiersLimit(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  AIStartPosition(aHand: Byte): TKMPoint');
+    RegisterMethodCheck(c, 'function  AIWorkerLimit(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  CampaignMissionID: Integer');
+    RegisterMethodCheck(c, 'function  CampaignMissionsCount: Integer');
+    RegisterMethodCheck(c, 'function  ClosestGroup(aHand: Integer; X, Y: Integer; aGroupType: Integer): Integer');
+    RegisterMethodCheck(c, 'function  ClosestGroupEx(aHand: Integer; X, Y: Integer; aGroupType: TKMGroupType): Integer');
+    RegisterMethodCheck(c, 'function  ClosestGroupMultipleTypes(aHand: Integer; X, Y: Integer; aGroupTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function  ClosestGroupMultipleTypesEx(aHand: Integer; X, Y: Integer; aGroupTypes: TKMGroupTypeSet): Integer');
+    RegisterMethodCheck(c, 'function  ClosestHouse(aHand: Integer; X, Y: Integer; aHouseType: Integer): Integer');
+    RegisterMethodCheck(c, 'function  ClosestHouseEx(aHand: Integer; X, Y: Integer; aHouseType: TKMHouseType): Integer');
+    RegisterMethodCheck(c, 'function  ClosestHouseMultipleTypes(aHand: Integer; X, Y: Integer; aHouseTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function  ClosestHouseMultipleTypesEx(aHand: Integer; X, Y: Integer; aHouseTypes: TKMHouseTypeSet): Integer');
+    RegisterMethodCheck(c, 'function  ClosestUnit(aHand: Integer; X, Y: Integer; aUnitType: Integer): Integer');
+    RegisterMethodCheck(c, 'function  ClosestUnitEx(aHand: Integer; X, Y: Integer; aUnitType: TKMUnitType): Integer');
+    RegisterMethodCheck(c, 'function  ClosestUnitMultipleTypes(aHand: Integer; X, Y: Integer; aUnitTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function  ClosestUnitMultipleTypesEx(aHand: Integer; X, Y: Integer; aUnitTypes: TKMUnitTypeSet): Integer');
+    RegisterMethodCheck(c, 'function  ConnectedByRoad(X1: Integer; Y1: Integer; X2: Integer; Y2: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  ConnectedByWalking(X1: Integer; Y1: Integer; X2: Integer; Y2: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  FogRevealed(aHand: Byte; aX, aY: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  GameSpeed: Single');
+    RegisterMethodCheck(c, 'function  GameSpeedChangeAllowed: Boolean');
+    RegisterMethodCheck(c, 'function  GameTime: Cardinal');
+    RegisterMethodCheck(c, 'function  GroupAllowAllyToSelect(aGroupID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  GroupAssignedToDefencePosition(aGroupID: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  GroupAt(aX, aY: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GroupColumnCount(aGroupID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GroupDead(aGroupID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  GroupIdle(aGroupID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  GroupInFight(aGroupID: Integer; aCountCitizens: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  GroupManualFormation(aGroupID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  GroupMember(aGroupID: Integer; aMemberIndex: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GroupMemberCount(aGroupID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GroupOrder(aGroupID: Integer): TKMGroupOrder');
+    RegisterMethodCheck(c, 'function  GroupOwner(aGroupID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GroupType(aGroupID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GroupTypeEx(aGroupID: Integer): TKMGroupType');
+    RegisterMethodCheck(c, 'function  HandHouseCanBuild(aHand: Integer; aHouseType: TKMHouseType): Boolean');
+    RegisterMethodCheck(c, 'function  HandHouseLock(aHand: Integer; aHouseType: TKMHouseType): TKMHandHouseLock');
+    RegisterMethodCheck(c, 'function  HandUnitCanTrain(aHand: Integer; aUnitType: TKMUnitType): Boolean');
+    RegisterMethodCheck(c, 'function  HandWareDistribution(aHand: Integer; aWareType: TKMWareType; aHouseType: TKMHouseType): Integer');
+    RegisterMethodCheck(c, 'function  HouseAllowAllyToSelect(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseAt(aX, aY: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseBarracksRallyPointX(aBarracks: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseBarracksRallyPointY(aBarracks: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseBarracksRecruitBlock(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseBarracksRecruitsCount(aBarracks: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseBuildingProgress(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseCanReachResources(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseDamage(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseDeliveryBlocked(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseDeliveryMode(aHouseID: Integer): TKMDeliveryMode');
+    RegisterMethodCheck(c, 'function  HouseDestroyed(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseFlagPoint(aHouseID: Integer): TKMPoint');
+    RegisterMethodCheck(c, 'function  HouseGetAllUnitsIn(aHouseID: Integer): TIntegerArray');
+    RegisterMethodCheck(c, 'function  HouseHasOccupant(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseHasWorker(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseIsComplete(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseOwner(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HousePosition(aHouseID: Integer): TKMPoint');
+    RegisterMethodCheck(c, 'function  HousePositionX(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HousePositionY(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseRepair(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseResourceAmount(aHouseID: Integer; aResource: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseSchoolQueue(aHouseID: Integer; QueueIndex: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseSiteIsDigged(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseTownHallMaxGold(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseType(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseTypeEx(aHouseID: Integer): TKMHouseType');
+    RegisterMethodCheck(c, 'function  HouseTypeMaxHealth(aHouseType: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseTypeMaxHealthEx(aHouseType: TKMHouseType): Integer');
+    RegisterMethodCheck(c, 'function  HouseTypeName(aHouseType: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function  HouseTypeNameEx(aHouseType: TKMHouseType): AnsiString');
+    RegisterMethodCheck(c, 'function  HouseTypeToOccupantType(aHouseType: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseTypeToWorkerType(aHouseType: TKMHouseType): TKMUnitType');
+    RegisterMethodCheck(c, 'function  HouseUnlocked(aHand: Integer; aHouseType: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseWareBlocked(aHouseID: Integer; aWareType: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseWareBlockedEx(aHouseID: Integer; aWareType: TKMWareType): Boolean');
+    RegisterMethodCheck(c, 'function  HouseWareBlockedTakeOut(aHouseID: Integer; aWareType: TKMWareType): Boolean');
+    RegisterMethodCheck(c, 'function  HouseWeaponsOrdered(aHouseID: Integer; aWareType: Integer): Integer');
+    RegisterMethodCheck(c, 'function  HouseWeaponsOrderedEx(aHouseID: Integer; aWareType: TKMWareType): Integer');
+    RegisterMethodCheck(c, 'function  HouseWoodcutterChopOnly(aHouseID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  HouseWoodcutterMode(aHouseID: Integer): TKMWoodcutterMode');
+    RegisterMethodCheck(c, 'function  HouseWorker(aHouseID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  IsFieldAt(aHand: ShortInt; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  IsFieldPlanAt(var aHand: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  IsHousePlanAt(var aHand: Integer; var aHouseType: TKMHouseType; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  IsMissionBlockColorSelection: Boolean');
+    RegisterMethodCheck(c, 'function  IsMissionBlockFullMapPreview: Boolean');
+    RegisterMethodCheck(c, 'function  IsMissionBlockPeacetime: Boolean');
+    RegisterMethodCheck(c, 'function  IsMissionBlockTeamSelection: Boolean');
+    RegisterMethodCheck(c, 'function  IsMissionBuildType: Boolean');
+    RegisterMethodCheck(c, 'function  IsMissionCoopType: Boolean');
+    RegisterMethodCheck(c, 'function  IsMissionFightType: Boolean');
+    RegisterMethodCheck(c, 'function  IsMissionPlayableAsSP: Boolean');
+    RegisterMethodCheck(c, 'function  IsMissionSpecialType: Boolean');
+    RegisterMethodCheck(c, 'function  IsPlanAt(var aHand: Integer; var aFieldType: TKMFieldType; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  IsRoadAt(aHand: ShortInt; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  IsRoadPlanAt(var aHand: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  IsWinefieldAt(aHand: ShortInt; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  IsWinefieldPlanAt(var aHand: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  KaMRandom: Single');
+    RegisterMethodCheck(c, 'function  KaMRandomI(aMax: Integer): Integer');
+    RegisterMethodCheck(c, 'function  LocationCount: Integer');
+    RegisterMethodCheck(c, 'function  MapHeight: Integer');
+    RegisterMethodCheck(c, 'function  MapTileHasOnlyTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileHasOnlyTerrainKinds(X, Y: Integer; TerKinds: array of TKMTerrainKind): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileHasTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileHeight(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MapTileIsCoal(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MapTileIsGold(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MapTileIsIce(X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileIsInMapCoords(X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileIsIron(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MapTileIsSand(X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileIsSnow(X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileIsSoil(X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileIsStone(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MapTileIsWater(X, Y: Integer; FullTilesOnly: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileObject(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MapTileOverlay(X, Y: Integer): TKMTileOverlay');
+    RegisterMethodCheck(c, 'function  MapTileOwner(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MapTilePassability(X, Y: Integer; aPassability: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  MapTilePassabilityEx(X, Y: Integer; aPassability: TKMTerrainPassability): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileRotation(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MapTileType(X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MapWidth: Integer');
+    RegisterMethodCheck(c, 'function  MarketFromWare(aMarketID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MarketFromWareEx(aMarketID: Integer): TKMWareType');
+    RegisterMethodCheck(c, 'function  MarketLossFactor: Single');
+    RegisterMethodCheck(c, 'function  MarketOrderAmount(aMarketID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MarketToWare(aMarketID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MarketToWareEx(aMarketID: Integer): TKMWareType');
+    RegisterMethodCheck(c, 'function  MarketValue(aRes: Integer): Single');
+    RegisterMethodCheck(c, 'function  MarketValueEx(aWareType: TKMWareType): Single');
+    RegisterMethodCheck(c, 'function  MissionAuthor: UnicodeString');
+    RegisterMethodCheck(c, 'function  MissionDifficulty: TKMMissionDifficulty');
+    RegisterMethodCheck(c, 'function  MissionDifficultyLevels: TKMMissionDifficultySet');
+    RegisterMethodCheck(c, 'function  MissionVersion: UnicodeString');
+    RegisterMethodCheck(c, 'function  PeaceTime: Cardinal');
+    RegisterMethodCheck(c, 'function  PlayerAllianceCheck(aHand1: Byte; aHand2: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  PlayerColorFlag(aHand: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function  PlayerColorText(aHand: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function  PlayerDefeated(aHand: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  PlayerEnabled(aHand: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  PlayerGetAllGroups(aHand: Byte): TIntegerArray');
+    RegisterMethodCheck(c, 'function  PlayerGetAllHouses(aHand: Byte): TIntegerArray');
+    RegisterMethodCheck(c, 'function  PlayerGetAllUnits(aHand: Byte): TIntegerArray');
+    RegisterMethodCheck(c, 'function  PlayerIsAI(aHand: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  PlayerName(aHand: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function  PlayerVictorious(aHand: Byte): Boolean');
+    RegisterMethodCheck(c, 'function  PlayerWareDistribution(aHand: Byte; aWareType: Byte; aHouseType: Byte): Byte');
+    RegisterMethodCheck(c, 'function  StatAIDefencePositionsCount(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatArmyCount(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatArmyPower(aHand: Byte): Single');
+    RegisterMethodCheck(c, 'function  StatCitizenCount(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatHouseCount(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatHouseMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function  StatHouseMultipleTypesCountEx(aHand: Integer; aTypes: TKMHouseTypeSet): Integer');
+    RegisterMethodCheck(c, 'function  StatHouseTypeCount(aHand: Byte; aHouseType: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatHouseTypeCountEx(aHand: Integer; aHouseType: TKMHouseType): Integer');
+    RegisterMethodCheck(c, 'function  StatHouseTypePlansCount(aHand: Byte; aHouseType: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatHouseTypePlansCountEx(aHand: Integer; aHouseType: TKMHouseType): Integer');
+    RegisterMethodCheck(c, 'function  StatPlayerCount: Integer');
+    RegisterMethodCheck(c, 'function  StatResourceProducedCount(aHand: Byte; aResType: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatResourceProducedCountEx(aHand: Integer; aWareType: TKMWareType): Integer');
+    RegisterMethodCheck(c, 'function  StatResourceProducedMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function  StatResourceProducedMultipleTypesCountEx(aHand: Integer; aTypes: TKMWareTypeSet): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitCount(aHand: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitKilledCount(aHand: Byte; aUnitType: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitKilledCountEx(aHand: Integer; aUnitType: TKMUnitType): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitKilledMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitKilledMultipleTypesCountEx(aHand: Integer; aTypes: TKMUnitTypeSet): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitLostCount(aHand: Byte; aUnitType: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitLostCountEx(aHand: Integer; aUnitType: TKMUnitType): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitLostMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitLostMultipleTypesCountEx(aHand: Byte; aTypes: TKMUnitTypeSet): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitMultipleTypesCount(aHand: Byte; aTypes: TByteSet): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitMultipleTypesCountEx(aHand: Integer; aTypes: TKMUnitTypeSet): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitTypeCount(aHand: Byte; aUnitType: Byte): Integer');
+    RegisterMethodCheck(c, 'function  StatUnitTypeCountEx(aHand: Integer; aUnitType: TKMUnitType): Integer');
+    RegisterMethodCheck(c, 'function  UnitAllowAllyToSelect(aUnitID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  UnitAt(aX, aY: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitCarrying(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitCarryingEx(aUnitID: Integer): TKMWareType');
+    RegisterMethodCheck(c, 'function  UnitDead(aUnitID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  UnitDirection(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitDirectionEx(aUnitID: Integer): TKMDirection');
+    RegisterMethodCheck(c, 'function  UnitDismissable(aUnitID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  UnitHome(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitHPCurrent(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitHPInvulnerable(aUnitID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  UnitHPMax(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitHunger(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitIdle(aUnitID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  UnitInHouse(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitLowHunger: Integer');
+    RegisterMethodCheck(c, 'function  UnitMaxHunger: Integer');
+    RegisterMethodCheck(c, 'function  UnitOwner(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitPosition(aUnitID: Integer): TKMPoint');
+    RegisterMethodCheck(c, 'function  UnitPositionX(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitPositionY(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitsGroup(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitType(aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UnitTypeEx(aUnitID: Integer): TKMUnitType');
+    RegisterMethodCheck(c, 'function  UnitTypeName(aUnitType: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function  UnitTypeNameEx(aUnitType: TKMUnitType): AnsiString');
+    RegisterMethodCheck(c, 'function  WareTypeName(aWareType: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function  WareTypeNameEx(aWareType: TKMWareType): AnsiString');
+    RegisterMethodCheck(c, 'function  WarriorInFight(aUnitID: Integer; aCountCitizens: Boolean): Boolean');
+    //*States-Check*//
 
     c := Sender.AddClassN(nil, AnsiString(fActions.ClassName));
+    //*Actions-Check*//
     RegisterMethodCheck(c, 'procedure AIArmyType(aHand: Byte; aType: TKMArmyType)');
-    RegisterMethodCheck(c, 'function AIAttackAdd(aHand: Integer; aRepeating: Boolean; aDelay: Cardinal; aTotalMen: Integer;' +
-                           'aMeleeGroupCount, aAntiHorseGroupCount, aRangedGroupCount, aMountedGroupCount: Integer; ' +
-                           'aRandomGroups: Boolean; aTarget: TKMAIAttackTarget; aCustomPosition: TKMPoint): Integer');
-    RegisterMethodCheck(c, 'function AIAttackAddEx(aHand: Integer; var aAttackInfo: TKMAIAttackInfo): Integer');
-    RegisterMethodCheck(c, 'function AIAttackRemove(aHand, aAIAttackUID: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  AIAttackAdd(aHand: Integer; aRepeating: Boolean; aDelay: Cardinal; aTotalMen: Integer; ' +
+      'aMeleeGroupCount: Integer; aAntiHorseGroupCount: Integer; aRangedGroupCount: Integer; ' +
+      'aMountedGroupCount: Integer; aRandomGroups: Boolean; aTarget: TKMAIAttackTarget; ' +
+      'aCustomPosition: TKMPoint): Integer');
+    RegisterMethodCheck(c, 'function  AIAttackAddEx(aHand: Integer; var aAttackInfo: TKMAIAttackInfo): Integer');
+    RegisterMethodCheck(c, 'function  AIAttackRemove(aHand: Integer; aAIAttackUID: Integer): Boolean');
     RegisterMethodCheck(c, 'procedure AIAttackRemoveAll(aHand: Integer)');
     RegisterMethodCheck(c, 'procedure AIAutoAttack(aHand: Byte; aAutoAttack: Boolean)');
     RegisterMethodCheck(c, 'procedure AIAutoAttackRange(aHand: Byte; aRange: Integer)');
     RegisterMethodCheck(c, 'procedure AIAutoBuild(aHand: Byte; aAuto: Boolean)');
     RegisterMethodCheck(c, 'procedure AIAutoDefence(aHand: Byte; aAuto: Boolean)');
     RegisterMethodCheck(c, 'procedure AIAutoRepair(aHand: Byte; aAuto: Boolean)');
-    RegisterMethodCheck(c, 'function AIDefencePositionAdd(aHand: Byte; X, Y: Integer; aDir, aGroupType: Byte; aRadius: Integer; aDefType: Byte): Integer');
-    RegisterMethodCheck(c, 'function AIDefencePositionAddEx(aHand, aOrder: Integer; var aDefencePosition: TKMDefencePositionInfo): Integer');
+    RegisterMethodCheck(c, 'function  AIDefencePositionAdd(aHand: Byte; X, Y: Integer; aDir: Byte; aGroupType: Byte; aRadius: Integer; ' +
+      'aDefType: Byte): Integer');
+    RegisterMethodCheck(c, 'function  AIDefencePositionAddEx(aHand: Integer; aOrder: Integer; var aDefencePosition: TKMDefencePositionInfo): Integer');
     RegisterMethodCheck(c, 'procedure AIDefencePositionRemove(aHand: Byte; X, Y: Integer)');
     RegisterMethodCheck(c, 'procedure AIDefencePositionRemoveAll(aHand: Byte)');
-    RegisterMethodCheck(c, 'procedure AIDefencePositionRemoveByUID(aHand, aUID: Integer)');
+    RegisterMethodCheck(c, 'procedure AIDefencePositionRemoveByUID(aHand: Integer; aUID: Integer)');
     RegisterMethodCheck(c, 'procedure AIDefendAllies(aHand: Byte; aDefend: Boolean)');
     RegisterMethodCheck(c, 'procedure AIEquipRate(aHand: Byte; aType: Byte; aRate: Integer)');
-    RegisterMethodCheck(c, 'procedure AIGroupsFormationSet(aHand, aType: Byte; aCount, aColumns: Integer)');
-    RegisterMethodCheck(c, 'procedure AIGroupsFormationSetEx(aHand: Integer; aGroupType: TKMGroupType; aCount, aColumns: Integer)');
-    RegisterMethodCheck(c, 'procedure AIRecruitDelay(aHand, aDelay: Cardinal)');
-    RegisterMethodCheck(c, 'procedure AIRecruitLimit(aHand, aLimit: Byte)');
+    RegisterMethodCheck(c, 'procedure AIGroupsFormationSet(aHand: Byte; aType: Byte; aCount: Integer; aColumns: Integer)');
+    RegisterMethodCheck(c, 'procedure AIGroupsFormationSetEx(aHand: Integer; aGroupType: TKMGroupType; aCount: Integer; aColumns: Integer)');
+    RegisterMethodCheck(c, 'procedure AIRecruitDelay(aHand: Byte; aDelay: Cardinal)');
+    RegisterMethodCheck(c, 'procedure AIRecruitLimit(aHand: Byte; aLimit: Byte)');
     RegisterMethodCheck(c, 'procedure AIRepairMode(aHand: Integer; aRepairMode: TKMAIRepairMode)');
     RegisterMethodCheck(c, 'procedure AISerfsPerHouse(aHand: Byte; aSerfs: Single)');
     RegisterMethodCheck(c, 'procedure AISoldiersLimit(aHand: Byte; aLimit: Integer)');
     RegisterMethodCheck(c, 'procedure AIStartPosition(aHand: Byte; X, Y: Integer)');
-    RegisterMethodCheck(c, 'procedure AIWorkerLimit(aHand, aLimit: Byte)');
-
+    RegisterMethodCheck(c, 'procedure AIWorkerLimit(aHand: Byte; aLimit: Byte)');
     RegisterMethodCheck(c, 'procedure CinematicEnd(aHand: Byte)');
-    RegisterMethodCheck(c, 'procedure CinematicPanTo(aHand: Byte; X, Y, Duration: Integer)');
+    RegisterMethodCheck(c, 'procedure CinematicPanTo(aHand: Byte; X, Y: Integer; Duration: Integer)');
     RegisterMethodCheck(c, 'procedure CinematicStart(aHand: Byte)');
-
     RegisterMethodCheck(c, 'procedure FogCoverAll(aHand: Byte)');
-    RegisterMethodCheck(c, 'procedure FogCoverCircle(aHand, X, Y, aRadius: Integer)');
-    RegisterMethodCheck(c, 'procedure FogCoverRect(aHand, X1, Y1, X2, Y2: Integer)');
+    RegisterMethodCheck(c, 'procedure FogCoverCircle(aHand: Integer; X, Y: Integer; aRadius: Integer)');
+    RegisterMethodCheck(c, 'procedure FogCoverRect(aHand: Integer; X1: Integer; Y1: Integer; X2: Integer; Y2: Integer)');
     RegisterMethodCheck(c, 'procedure FogRevealAll(aHand: Byte)');
-    RegisterMethodCheck(c, 'procedure FogRevealCircle(aHand, X, Y, aRadius: Integer)');
-    RegisterMethodCheck(c, 'procedure FogRevealRect(aHand, X1, Y1, X2, Y2: Integer)');
-
+    RegisterMethodCheck(c, 'procedure FogRevealCircle(aHand: Integer; X, Y: Integer; aRadius: Integer)');
+    RegisterMethodCheck(c, 'procedure FogRevealRect(aHand: Integer; X1: Integer; Y1: Integer; X2: Integer; Y2: Integer)');
     RegisterMethodCheck(c, 'procedure GameSpeed(aSpeed: Single)');
     RegisterMethodCheck(c, 'procedure GameSpeedChangeAllowed(aAllowed: Boolean)');
-
-    RegisterMethodCheck(c, 'function  GiveAnimal(aType, X,Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function  GiveAnimalEx(aType: TKMUnitType; X,Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function  GiveField(aHand, X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function  GiveFieldAged(aHand, X, Y: Integer; aStage: Byte; aRandomAge: Boolean): Boolean');
-    RegisterMethodCheck(c, 'function  GiveGroup(aHand, aType, X, Y, aDir, aCount, aColumns: Integer): Integer');
-    RegisterMethodCheck(c, 'function  GiveGroupEx(aHand: Integer; aType: TKMUnitType; X,Y: Integer; aDir: TKMDirection; aCount, aColumns: Integer): Integer');
-    RegisterMethodCheck(c, 'function  GiveHouse(aHand, aHouseType, X,Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function  GiveHouseEx(aHand: Integer; aHouseType: TKMHouseType; X,Y: Integer): Integer');
-    RegisterMethodCheck(c, 'function  GiveHouseSite(aHand, aHouseType, X, Y: Integer; aAddMaterials: Boolean): Integer');
-    RegisterMethodCheck(c, 'function  GiveHouseSiteEx(aHand: Integer; aHouseType: TKMHouseType; X, Y, aWoodAmount, aStoneAmount: Integer): Integer');
-    RegisterMethodCheck(c, 'function  GiveRoad(aHand, X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function  GiveUnit(aHand, aType, X,Y, aDir: Integer): Integer');
-    RegisterMethodCheck(c, 'function  GiveUnitEx(aHand: Integer; aType: TKMUnitType; X,Y: Integer; aDir: TKMDirection): Integer');
-    RegisterMethodCheck(c, 'procedure GiveWares(aHand, aType, aCount: Integer)');
+    RegisterMethodCheck(c, 'function  GiveAnimal(aType: Integer; X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GiveAnimalEx(aType: TKMUnitType; X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GiveField(aHand: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  GiveFieldAged(aHand: Integer; X, Y: Integer; aStage: Byte; aRandomAge: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  GiveGroup(aHand: Integer; aType: Integer; X, Y: Integer; aDir: Integer; aCount: Integer; ' +
+      'aColumns: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GiveGroupEx(aHand: Integer; aType: TKMUnitType; X, Y: Integer; aDir: TKMDirection; ' +
+      'aCount: Integer; aColumns: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GiveHouse(aHand: Integer; aHouseType: Integer; X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GiveHouseEx(aHand: Integer; aHouseType: TKMHouseType; X, Y: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GiveHouseSite(aHand: Integer; aHouseType: Integer; X, Y: Integer; aAddMaterials: Boolean): Integer');
+    RegisterMethodCheck(c, 'function  GiveHouseSiteEx(aHand: Integer; aHouseType: TKMHouseType; X, Y: Integer; aWoodAmount: Integer; ' +
+      'aStoneAmount: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GiveRoad(aHand: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  GiveUnit(aHand: Integer; aType: Integer; X, Y: Integer; aDir: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GiveUnitEx(aHand: Integer; aType: TKMUnitType; X, Y: Integer; aDir: TKMDirection): Integer');
+    RegisterMethodCheck(c, 'procedure GiveWares(aHand: Integer; aType: Integer; aCount: Integer)');
     RegisterMethodCheck(c, 'procedure GiveWaresEx(aHand: Integer; aType: TKMWareType; aCount: Integer)');
-    RegisterMethodCheck(c, 'procedure GiveWeapons(aHand, aType, aCount: Integer)');
+    RegisterMethodCheck(c, 'procedure GiveWeapons(aHand: Integer; aType: Integer; aCount: Integer)');
     RegisterMethodCheck(c, 'procedure GiveWeaponsEx(aHand: Integer; aType: TKMWareType; aCount: Integer)');
-    RegisterMethodCheck(c, 'function  GiveWineField(aHand, X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function  GiveWineFieldAged(aHand, X, Y: Integer; aStage: Byte; aRandomAge: Boolean): Boolean');
-
+    RegisterMethodCheck(c, 'function  GiveWineField(aHand: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  GiveWineFieldAged(aHand: Integer; X, Y: Integer; aStage: Byte; aRandomAge: Boolean): Boolean');
     RegisterMethodCheck(c, 'procedure GroupAllowAllyToSelect(aGroupID: Integer; aAllow: Boolean)');
     RegisterMethodCheck(c, 'procedure GroupBlockOrders(aGroupID: Integer; aBlock: Boolean)');
     RegisterMethodCheck(c, 'procedure GroupDisableHungryMessage(aGroupID: Integer; aDisable: Boolean)');
-    RegisterMethodCheck(c, 'procedure GroupHungerSet(aGroupID, aHungerLevel: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupHungerSet(aGroupID: Integer; aHungerLevel: Integer)');
     RegisterMethodCheck(c, 'procedure GroupKillAll(aGroupID: Integer; aSilent: Boolean)');
-    RegisterMethodCheck(c, 'procedure GroupOrderAttackHouse(aGroupID, aHouseID: Integer)');
-    RegisterMethodCheck(c, 'procedure GroupOrderAttackUnit(aGroupID, aUnitID: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupOrderAttackHouse(aGroupID: Integer; aHouseID: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupOrderAttackUnit(aGroupID: Integer; aUnitID: Integer)');
     RegisterMethodCheck(c, 'procedure GroupOrderFood(aGroupID: Integer)');
     RegisterMethodCheck(c, 'procedure GroupOrderHalt(aGroupID: Integer)');
-    RegisterMethodCheck(c, 'procedure GroupOrderLink(aGroupID, aDestGroupID: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupOrderLink(aGroupID: Integer; aDestGroupID: Integer)');
     RegisterMethodCheck(c, 'function  GroupOrderSplit(aGroupID: Integer): Integer');
-    RegisterMethodCheck(c, 'function  GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer');
+    RegisterMethodCheck(c, 'function  GroupOrderSplitUnit(aGroupID: Integer; aUnitID: Integer): Integer');
     RegisterMethodCheck(c, 'procedure GroupOrderStorm(aGroupID: Integer)');
-    RegisterMethodCheck(c, 'procedure GroupOrderWalk(aGroupID: Integer; X, Y, aDirection: Integer)');
+    RegisterMethodCheck(c, 'procedure GroupOrderWalk(aGroupID: Integer; X, Y: Integer; aDirection: Integer)');
     RegisterMethodCheck(c, 'procedure GroupOrderWalkEx(aGroupID: Integer; X, Y: Integer; aDirection: TKMDirection)');
     RegisterMethodCheck(c, 'procedure GroupSetFormation(aGroupID: Integer; aNumColumns: Byte)');
-
     RegisterMethodCheck(c, 'procedure HandHouseLock(aHand: Integer; aHouseType: TKMHouseType; aLock: TKMHandHouseLock)');
     RegisterMethodCheck(c, 'procedure HandTradeAllowed(aHand: Integer; aWareType: TKMWareType; aAllowed: Boolean)');
     RegisterMethodCheck(c, 'procedure HandUnitCanTrain(aHand: Integer; aUnitType: TKMUnitType; aCanTrain: Boolean)');
     RegisterMethodCheck(c, 'procedure HandWareDistribution(aHand: Integer; aWareType: TKMWareType; aHouseType: TKMHouseType; aAmount: Integer)');
-
     RegisterMethodCheck(c, 'procedure HouseAddBuildingMaterials(aHouseID: Integer)');
-    RegisterMethodCheck(c, 'procedure HouseAddBuildingMaterialsEx(aHouseID, aWoodAmount, aStoneAmount: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseAddBuildingMaterialsEx(aHouseID: Integer; aWoodAmount: Integer; aStoneAmount: Integer)');
     RegisterMethodCheck(c, 'procedure HouseAddBuildingProgress(aHouseID: Integer)');
-    RegisterMethodCheck(c, 'procedure HouseAddBuildingProgressEx(aHouseID, aBuildSteps: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseAddBuildingProgressEx(aHouseID: Integer; aBuildSteps: Integer)');
     RegisterMethodCheck(c, 'procedure HouseAddDamage(aHouseID: Integer; aDamage: Integer)');
     RegisterMethodCheck(c, 'procedure HouseAddRepair(aHouseID: Integer; aRepair: Integer)');
-    RegisterMethodCheck(c, 'procedure HouseAddWaresTo(aHouseID: Integer; aType, aCount: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseAddWaresTo(aHouseID: Integer; aType: Integer; aCount: Integer)');
     RegisterMethodCheck(c, 'procedure HouseAddWaresToEx(aHouseID: Integer; aType: TKMWareType; aCount: Integer)');
-    RegisterMethodCheck(c, 'procedure HouseAllow(aHand, aHouseType: Integer; aAllowed: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseAllow(aHand: Integer; aHouseType: Integer; aAllowed: Boolean)');
     RegisterMethodCheck(c, 'procedure HouseAllowAllyToSelect(aHouseID: Integer; aAllow: Boolean)');
-    RegisterMethodCheck(c, 'procedure HouseAllowAllyToSelectAll(aHand: Byte; aAllow: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseAllowAllyToSelectAll(aHand: ShortInt; aAllow: Boolean)');
     RegisterMethodCheck(c, 'function  HouseBarracksEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
     RegisterMethodCheck(c, 'function  HouseBarracksEquipEx(aHouseID: Integer; aUnitType: TKMUnitType; aCount: Integer): Integer');
     RegisterMethodCheck(c, 'procedure HouseBarracksGiveRecruit(aHouseID: Integer)');
-    RegisterMethodCheck(c, 'procedure HouseBarracksGiveRecruits(aHouseID, aCount: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseBarracksGiveRecruits(aHouseID: Integer; aCount: Integer)');
     RegisterMethodCheck(c, 'procedure HouseBarracksRecruitBlock(aHouseID: Integer; aBlocked: Boolean)');
     RegisterMethodCheck(c, 'procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean)');
     RegisterMethodCheck(c, 'procedure HouseDeliveryMode(aHouseID: Integer; aDeliveryMode: TKMDeliveryMode)');
@@ -820,206 +787,174 @@ begin
     RegisterMethodCheck(c, 'procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean)');
     RegisterMethodCheck(c, 'function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
     RegisterMethodCheck(c, 'function  HouseSchoolQueueAddEx(aHouseID: Integer; aUnitType: TKMUnitType; aCount: Integer): Integer');
-    RegisterMethodCheck(c, 'procedure HouseSchoolQueueRemove(aHouseID, QueueIndex: Integer)');
-    RegisterMethodCheck(c, 'procedure HouseTakeWaresFrom(aHouseID: Integer; aType, aCount: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseSchoolQueueRemove(aHouseID: Integer; QueueIndex: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseTakeWaresFrom(aHouseID: Integer; aType: Integer; aCount: Integer)');
     RegisterMethodCheck(c, 'procedure HouseTakeWaresFromEx(aHouseID: Integer; aType: TKMWareType; aCount: Integer)');
     RegisterMethodCheck(c, 'function  HouseTownHallEquip(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer');
     RegisterMethodCheck(c, 'function  HouseTownHallEquipEx(aHouseID: Integer; aUnitType: TKMUnitType; aCount: Integer): Integer');
     RegisterMethodCheck(c, 'procedure HouseTownHallMaxGold(aHouseID: Integer; aMaxGold: Integer)');
-    RegisterMethodCheck(c, 'procedure HouseUnlock(aHand, aHouseType: Integer)');
-    RegisterMethodCheck(c, 'procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
-    RegisterMethodCheck(c, 'procedure HouseWoodcutterMode(aHouseID: Integer; aWoodcutterMode: TKMWoodcutterMode)');
-    RegisterMethodCheck(c, 'procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseUnlock(aHand: Integer; aHouseType: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseWareBlock(aHouseID: Integer; aWareType: Integer; aBlocked: Boolean)');
     RegisterMethodCheck(c, 'procedure HouseWareBlockEx(aHouseID: Integer; aWareType: TKMWareType; aBlocked: Boolean)');
     RegisterMethodCheck(c, 'procedure HouseWareBlockTakeOut(aHouseID: Integer; aWareType: TKMWareType; aBlocked: Boolean)');
-    RegisterMethodCheck(c, 'procedure HouseWeaponsOrderSet(aHouseID, aWareType, aAmount: Integer)');
+    RegisterMethodCheck(c, 'procedure HouseWeaponsOrderSet(aHouseID: Integer; aWareType: Integer; aAmount: Integer)');
     RegisterMethodCheck(c, 'procedure HouseWeaponsOrderSetEx(aHouseID: Integer; aWareType: TKMWareType; aAmount: Integer)');
-
-    RegisterMethodCheck(c, 'procedure Log(const aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean)');
+    RegisterMethodCheck(c, 'procedure HouseWoodcutterMode(aHouseID: Integer; aWoodcutterMode: TKMWoodcutterMode)');
+    RegisterMethodCheck(c, 'procedure Log(aText: AnsiString)');
     RegisterMethodCheck(c, 'procedure LogLinesMaxCnt(aMaxLogLinesCnt: Integer)');
-
-    RegisterMethodCheck(c, 'procedure MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer)');
-    RegisterMethodCheck(c, 'procedure MarketSetTradeEx(aMarketID: Integer; aFrom, aTo: TKMWareType; aAmount: Integer)');
-
-    RegisterMethodCheck(c, 'function MapTileHeightSet(X, Y, Height: Integer): Boolean');
-    RegisterMethodCheck(c, 'function MapTileObjectSet(X, Y, Obj: Integer): Boolean');
-    RegisterMethodCheck(c, 'function MapTileOverlaySet(X, Y: Integer; aOverlay: TKMTileOverlay; aOverwrite: Boolean): Boolean');
-    RegisterMethodCheck(c, 'function MapTileSet(X, Y, aType, aRotation: Integer): Boolean');
-    RegisterMethodCheck(c, 'function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean');
-    RegisterMethodCheck(c, 'function MapTilesArraySetS(aTiles: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean');
-
-    RegisterMethodCheck(c, 'procedure MapBrush(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind; aRandomTiles, aOverrideCustomTiles: Boolean)');
-    RegisterMethodCheck(c, 'procedure MapBrushElevation(X, Y: Integer; aSquare, aRaise: Boolean; aSize, aSlope, aSpeed: Integer)');
-    RegisterMethodCheck(c, 'procedure MapBrushEqualize(X, Y: Integer; aSquare: Boolean; aSize, aSlope, aSpeed: Integer)');
-    RegisterMethodCheck(c, 'procedure MapBrushFlatten(X, Y: Integer; aSquare: Boolean; aSize, aSlope, aSpeed: Integer)');
-    RegisterMethodCheck(c, 'procedure MapBrushMagicWater(X, Y: Integer)');
-    RegisterMethodCheck(c, 'procedure MapBrushWithMask(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind;'
-                                      + 'aRandomTiles, aOverrideCustomTiles: Boolean;'
-                                      + 'aBrushMask: TKMTileMaskKind; aBlendingLvl: Integer; aUseMagicBrush: Boolean)');
-
-    RegisterMethodCheck(c, 'procedure OverlayTextAppend(aHand: Shortint; const aText: AnsiString)');
-    RegisterMethodCheck(c, 'procedure OverlayTextAppendFormatted(aHand: Shortint; const aText: AnsiString; Params: array of const)');
-    RegisterMethodCheck(c, 'procedure OverlayTextSet(aHand: Shortint; const aText: AnsiString)');
-    RegisterMethodCheck(c, 'procedure OverlayTextSetFormatted(aHand: Shortint; const aText: AnsiString; Params: array of const)');
-    RegisterMethodCheck(c, 'procedure OverlayTextSetFont(aHand: Shortint; aFont: TKMFont)');
-    RegisterMethodCheck(c, 'procedure OverlayTextSetWordWrap(aHand: Shortint; aWordWrap: Boolean)');
-
+    RegisterMethodCheck(c, 'procedure MapBrush(X: Integer; Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind; ' +
+      'aRandomTiles: Boolean; aOverrideCustomTiles: Boolean)');
+    RegisterMethodCheck(c, 'procedure MapBrushElevation(X: Integer; Y: Integer; aSquare: Boolean; aRaise: Boolean; aSize: Integer; ' +
+      'aSlope: Integer; aSpeed: Integer)');
+    RegisterMethodCheck(c, 'procedure MapBrushEqualize(X: Integer; Y: Integer; aSquare: Boolean; aSize: Integer; aSlope: Integer; ' +
+      'aSpeed: Integer)');
+    RegisterMethodCheck(c, 'procedure MapBrushFlatten(X: Integer; Y: Integer; aSquare: Boolean; aSize: Integer; aSlope: Integer; ' +
+      'aSpeed: Integer)');
+    RegisterMethodCheck(c, 'procedure MapBrushMagicWater(X: Integer; Y: Integer)');
+    RegisterMethodCheck(c, 'procedure MapBrushWithMask(X: Integer; Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind; ' +
+      'aRandomTiles: Boolean; aOverrideCustomTiles: Boolean; aBrushMask: TKMTileMaskKind; ' +
+      'aBlendingLvl: Integer; aUseMagicBrush: Boolean)');
+    RegisterMethodCheck(c, 'function  MapTileHeightSet(X, Y: Integer; Height: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileObjectSet(X, Y: Integer; Obj: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileOverlaySet(X, Y: Integer; aOverlay: TKMTileOverlay; aOverwrite: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  MapTileSet(X, Y: Integer; aType: Integer; aRotation: Integer): Boolean');
+    RegisterMethodCheck(c, 'procedure MarketSetTrade(aMarketID: Integer; aFrom: Integer; aTo: Integer; aAmount: Integer)');
+    RegisterMethodCheck(c, 'procedure MarketSetTradeEx(aMarketID: Integer; aFrom: TKMWareType; aTo: TKMWareType; aAmount: Integer)');
+    RegisterMethodCheck(c, 'procedure OverlayTextAppend(aHand: ShortInt; aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure OverlayTextAppendFormatted(aHand: ShortInt; aText: AnsiString; aParams: array of const)');
+    RegisterMethodCheck(c, 'procedure OverlayTextSet(aHand: ShortInt; aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure OverlayTextSetFont(aHand: ShortInt; aFont: TKMFont)');
+    RegisterMethodCheck(c, 'procedure OverlayTextSetFormatted(aHand: ShortInt; aText: AnsiString; aParams: array of const)');
+    RegisterMethodCheck(c, 'procedure OverlayTextSetWordWrap(aHand: ShortInt; aWordWrap: Boolean)');
     RegisterMethodCheck(c, 'procedure Peacetime(aPeacetime: Cardinal)');
-
-    RegisterMethodCheck(c, 'function  PlanAddField(aHand, X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function  PlanAddHouse(aHand, aHouseType, X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  PlanAddField(aHand: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  PlanAddHouse(aHand: Integer; aHouseType: Integer; X, Y: Integer): Boolean');
     RegisterMethodCheck(c, 'function  PlanAddHouseEx(aHand: Integer; aHouseType: TKMHouseType; X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function  PlanAddRoad(aHand, X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function  PlanAddWinefield(aHand, X, Y: Integer): Boolean');
-    RegisterMethodCheck(c, 'function  PlanConnectRoad(aHand, X1, Y1, X2, Y2: Integer; aCompleted: Boolean): Boolean');
-    RegisterMethodCheck(c, 'function  PlanRemove(aHand, X, Y: Integer): Boolean');
-
+    RegisterMethodCheck(c, 'function  PlanAddRoad(aHand: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  PlanAddWinefield(aHand: Integer; X, Y: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  PlanConnectRoad(aHand: Integer; X1: Integer; Y1: Integer; X2: Integer; Y2: Integer; aCompleted: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  PlanRemove(aHand: Integer; X, Y: Integer): Boolean');
     RegisterMethodCheck(c, 'procedure PlayerAddDefaultGoals(aHand: Byte; aBuildings: Boolean)');
-    RegisterMethodCheck(c, 'procedure PlayerAllianceChange(aHand1, aHand2: Byte; aCompliment, aAllied: Boolean)');
-    RegisterMethodCheck(c, 'procedure PlayerAllianceNFogChange(aHand1, aHand2: Byte; aCompliment, aAllied, aSyncAllyFog: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerAllianceChange(aHand1: Byte; aHand2: Byte; aCompliment: Boolean; aAllied: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerAllianceNFogChange(aHand1: Byte; aHand2: Byte; aCompliment: Boolean; aAllied: Boolean; aSyncAllyFog: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerDefeat(aHand: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerGoalsRemoveAll(aHand: Integer; aForAllPlayers: Boolean)');
-    RegisterMethodCheck(c, 'procedure PlayerShareBeacons(aHand1, aHand2: Integer; aCompliment, aShare: Boolean)');
-    RegisterMethodCheck(c, 'procedure PlayerShareFog(aHand1, aHand2: Integer; aShare: Boolean)');
-    RegisterMethodCheck(c, 'procedure PlayerShareFogCompliment(aHand1, aHand2: Integer; aShare: Boolean)');
-    RegisterMethodCheck(c, 'procedure PlayerWareDistribution(aHand, aWareType, aHouseType, aAmount: Byte)');
-    RegisterMethodCheck(c, 'procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean)');
-
-    RegisterMethodCheck(c, 'function PlayWAV(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
-    RegisterMethodCheck(c, 'function PlayWAVAtLocation(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Integer): Integer');
-    RegisterMethodCheck(c, 'function PlayWAVAtLocationLooped(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Integer): Integer');
-    RegisterMethodCheck(c, 'function PlayWAVFadeMusic(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
-    RegisterMethodCheck(c, 'function PlayWAVLooped(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
-    RegisterMethodCheck(c, 'procedure StopLoopedWAV(aLoopIndex: Integer)');
-
-    RegisterMethodCheck(c, 'function PlayOGG(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
-    RegisterMethodCheck(c, 'function PlayOGGAtLocation(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Integer): Integer');
-    RegisterMethodCheck(c, 'function PlayOGGAtLocationLooped(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single; aRadius: Single; aX, aY: Integer): Integer');
-    RegisterMethodCheck(c, 'function PlayOGGFadeMusic(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
-    RegisterMethodCheck(c, 'function PlayOGGLooped(aHand: ShortInt; const aFileName: AnsiString; aVolume: Single): Integer');
-    RegisterMethodCheck(c, 'procedure StopLoopedOGG(aLoopIndex: Integer)');
-    RegisterMethodCheck(c, 'function PlaySound(aHand: ShortInt; const aFileName: AnsiString; aAudioFormat: TKMAudioFormat; ' +
-                            'aVolume: Single; aFadeMusic, aLooped: Boolean): Integer');
-    RegisterMethodCheck(c, 'function PlaySoundAtLocation(aHand: ShortInt; const aFileName: AnsiString; aAudioFormat: TKMAudioFormat; ' +
-                            'aVolume: Single; aFadeMusic, aLooped: Boolean; aRadius: Single; aX, aY: Integer): Integer');
-    RegisterMethodCheck(c, 'procedure StopSound(aSoundIndex: Integer)');
-
+    RegisterMethodCheck(c, 'procedure PlayerShareBeacons(aHand1: Integer; aHand2: Integer; aBothWays: Boolean; aShare: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerShareFog(aHand1: Integer; aHand2: Integer; aShare: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerShareFogCompliment(aHand1: Integer; aHand2: Integer; aShare: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerWareDistribution(aHand: Byte; aWareType: Byte; aHouseType: Byte; aAmount: Byte)');
+    RegisterMethodCheck(c, 'procedure PlayerWin(aVictors: array of Integer; aTeamVictory: Boolean)');
+    RegisterMethodCheck(c, 'function  PlayOGG(aHand: ShortInt; aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function  PlayOGGAtLocation(aHand: ShortInt; aFileName: AnsiString; aVolume: Single; aRadius: Single; ' +
+      'aX, aY: Integer): Integer');
+    RegisterMethodCheck(c, 'function  PlayOGGAtLocationLooped(aHand: ShortInt; aFileName: AnsiString; aVolume: Single; aRadius: Single; ' +
+      'aX, aY: Integer): Integer');
+    RegisterMethodCheck(c, 'function  PlayOGGFadeMusic(aHand: ShortInt; aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function  PlayOGGLooped(aHand: ShortInt; aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function  PlaySound(aHand: ShortInt; aFileName: AnsiString; aAudioFormat: TKMAudioFormat; ' +
+      'aVolume: Single; aFadeMusic: Boolean; aLooped: Boolean): Integer');
+    RegisterMethodCheck(c, 'function  PlaySoundAtLocation(aHand: ShortInt; aFileName: AnsiString; aAudioFormat: TKMAudioFormat; ' +
+      'aVolume: Single; aFadeMusic: Boolean; aLooped: Boolean; aRadius: Single; ' +
+      'aX, aY: Integer): Integer');
+    RegisterMethodCheck(c, 'function  PlayWAV(aHand: ShortInt; aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function  PlayWAVAtLocation(aHand: ShortInt; aFileName: AnsiString; aVolume: Single; aRadius: Single; ' +
+      'aX, aY: Integer): Integer');
+    RegisterMethodCheck(c, 'function  PlayWAVAtLocationLooped(aHand: ShortInt; aFileName: AnsiString; aVolume: Single; aRadius: Single; ' +
+      'aX, aY: Integer): Integer');
+    RegisterMethodCheck(c, 'function  PlayWAVFadeMusic(aHand: ShortInt; aFileName: AnsiString; aVolume: Single): Integer');
+    RegisterMethodCheck(c, 'function  PlayWAVLooped(aHand: ShortInt; aFileName: AnsiString; aVolume: Single): Integer');
     RegisterMethodCheck(c, 'procedure RemoveRoad(X, Y: Integer)');
-
-    RegisterMethodCheck(c, 'procedure SetTradeAllowed(aHand, aResType: Integer; aAllowed: Boolean)');
-
-    RegisterMethodCheck(c, 'procedure ShowMsg(aHand: ShortInt; const aText: AnsiString)');
-    RegisterMethodCheck(c, 'procedure ShowMsgFormatted(aHand: Shortint; const aText: AnsiString; Params: array of const)');
-    RegisterMethodCheck(c, 'procedure ShowMsgGoto(aHand: Shortint; aX, aY: Integer; const aText: AnsiString)');
-    RegisterMethodCheck(c, 'procedure ShowMsgGotoFormatted(aHand: Shortint; aX, aY: Integer; const aText: AnsiString; Params: array of const)');
-
+    RegisterMethodCheck(c, 'procedure SetTradeAllowed(aHand: Integer; aResType: Integer; aAllowed: Boolean)');
+    RegisterMethodCheck(c, 'procedure ShowMsg(aHand: ShortInt; aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure ShowMsgFormatted(aHand: ShortInt; aText: AnsiString; Params: array of const)');
+    RegisterMethodCheck(c, 'procedure ShowMsgGoto(aHand: ShortInt; aX, aY: Integer; aText: AnsiString)');
+    RegisterMethodCheck(c, 'procedure ShowMsgGotoFormatted(aHand: ShortInt; aX, aY: Integer; aText: AnsiString; Params: array of const)');
+    RegisterMethodCheck(c, 'procedure StopLoopedOGG(aSoundIndex: Integer)');
+    RegisterMethodCheck(c, 'procedure StopLoopedWAV(aSoundIndex: Integer)');
+    RegisterMethodCheck(c, 'procedure StopSound(aSoundIndex: Integer)');
     RegisterMethodCheck(c, 'procedure UnitAllowAllyToSelect(aUnitID: Integer; aAllow: Boolean)');
     RegisterMethodCheck(c, 'procedure UnitBlock(aHand: Byte; aType: Integer; aBlock: Boolean)');
-    RegisterMethodCheck(c, 'function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  UnitDirectionSet(aUnitID: Integer; aDirection: Integer): Boolean');
     RegisterMethodCheck(c, 'function  UnitDirectionSetEx(aUnitID: Integer; aDirection: TKMDirection): Boolean');
     RegisterMethodCheck(c, 'procedure UnitDismiss(aUnitID: Integer)');
     RegisterMethodCheck(c, 'procedure UnitDismissableSet(aUnitID: Integer; aDismissable: Boolean)');
     RegisterMethodCheck(c, 'procedure UnitDismissCancel(aUnitID: Integer)');
-    RegisterMethodCheck(c, 'procedure UnitHPChange(aUnitID, aHP: Integer)');
+    RegisterMethodCheck(c, 'procedure UnitHPChange(aUnitID: Integer; aHP: Integer)');
     RegisterMethodCheck(c, 'procedure UnitHPSetInvulnerable(aUnitID: Integer; aInvulnerable: Boolean)');
-    RegisterMethodCheck(c, 'procedure UnitHungerSet(aUnitID, aHungerLevel: Integer)');
+    RegisterMethodCheck(c, 'procedure UnitHungerSet(aUnitID: Integer; aHungerLevel: Integer)');
     RegisterMethodCheck(c, 'procedure UnitKill(aUnitID: Integer; aSilent: Boolean)');
     RegisterMethodCheck(c, 'function  UnitOrderWalk(aUnitID: Integer; X, Y: Integer): Boolean');
+    //*Actions-Check*//
 
     c := Sender.AddClassN(nil, AnsiString(fUtils.ClassName));
-    RegisterMethodCheck(c, 'function AbsI(aValue: Integer): Integer');
-    RegisterMethodCheck(c, 'function AbsS(aValue: Single): Single');
+    //*Utils-Check*//
+    RegisterMethodCheck(c, 'function  AbsI(aValue: Integer): Integer');
+    RegisterMethodCheck(c, 'function  AbsS(aValue: Single): Single');
+    RegisterMethodCheck(c, 'function  ArrayElementCount(aElement: AnsiString; aArray: array of String): Integer');
+    RegisterMethodCheck(c, 'function  ArrayElementCountB(aElement: Boolean; aArray: array of Boolean): Integer');
+    RegisterMethodCheck(c, 'function  ArrayElementCountI(aElement: Integer; aArray: array of Integer): Integer');
+    RegisterMethodCheck(c, 'function  ArrayElementCountS(aElement: Single; aArray: array of Single): Integer');
+    RegisterMethodCheck(c, 'function  ArrayHasElement(aElement: AnsiString; aArray: array of String): Boolean');
+    RegisterMethodCheck(c, 'function  ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean');
+    RegisterMethodCheck(c, 'function  ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean');
+    RegisterMethodCheck(c, 'function  ArrayRemoveIndexI(aIndex: Integer; aArray: TIntegerArray): TIntegerArray');
+    RegisterMethodCheck(c, 'function  ArrayRemoveIndexS(aIndex: Integer; aArray: TAnsiStringArray): TAnsiStringArray');
+    RegisterMethodCheck(c, 'function  BoolToStr(aBool: Boolean): AnsiString');
+    RegisterMethodCheck(c, 'function  CeilTo(aValue: Single; aBase: Integer): Integer');
+    RegisterMethodCheck(c, 'function  ColorBrightness(aHexColor: string): Single');
+    RegisterMethodCheck(c, 'function  CompareString(Str1: string; Str2: string): Integer');
+    RegisterMethodCheck(c, 'function  CompareText(Str1: string; Str2: string): Integer');
+    RegisterMethodCheck(c, 'function  CopyString(Str: string; Index: Integer; Count: Integer): String');
+    RegisterMethodCheck(c, 'procedure DeleteString(var Str: string; Index: Integer; Count: Integer)');
+    RegisterMethodCheck(c, 'function  EnsureRangeI(aValue: Integer; aMin, aMax: Integer): Integer');
+    RegisterMethodCheck(c, 'function  EnsureRangeS(aValue: Single; aMin, aMax: Single): Single');
+    RegisterMethodCheck(c, 'function  FloorTo(aValue: Single; aBase: Integer): Integer');
+    RegisterMethodCheck(c, 'function  Format(aFormatting: string; aData: array of const): string');
+    RegisterMethodCheck(c, 'function  FormatFloat(aFormat: string; aValue: Single): string');
+    RegisterMethodCheck(c, 'function  IfThen(aBool: Boolean; aTrue: AnsiString; aFalse: AnsiString): AnsiString');
+    RegisterMethodCheck(c, 'function  IfThenI(aBool: Boolean; aTrue: Integer; aFalse: Integer): Integer');
+    RegisterMethodCheck(c, 'function  IfThenS(aBool: Boolean; aTrue: Single; aFalse: Single): Single');
+    RegisterMethodCheck(c, 'function  InAreaI(aX, aY: Integer; aXMin: Integer; aYMin: Integer; aXMax: Integer; aYMax: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  InAreaS(aX, aY: Single; aXMin: Single; aYMin: Single; aXMax: Single; aYMax: Single): Boolean');
+    RegisterMethodCheck(c, 'function  InRangeI(aValue: Integer; aMin, aMax: Integer): Boolean');
+    RegisterMethodCheck(c, 'function  InRangeS(aValue: Single; aMin, aMax: Single): Boolean');
+    RegisterMethodCheck(c, 'procedure InsertString(Source: string; var Target: string; Index: Integer)');
+    RegisterMethodCheck(c, 'function  KMPoint(X, Y: Integer): TKMPoint');
+    RegisterMethodCheck(c, 'function  LowerCase(Str: string): String');
+    RegisterMethodCheck(c, 'function  MaxI(A, B: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MaxInArrayI(aArray: array of Integer): Integer');
+    RegisterMethodCheck(c, 'function  MaxInArrayS(aArray: array of Single): Single');
+    RegisterMethodCheck(c, 'function  MaxS(A, B: Single): Single');
+    RegisterMethodCheck(c, 'function  MinI(A, B: Integer): Integer');
+    RegisterMethodCheck(c, 'function  MinInArrayI(aArray: array of Integer): Integer');
+    RegisterMethodCheck(c, 'function  MinInArrayS(aArray: array of Single): Single');
+    RegisterMethodCheck(c, 'function  MinS(A, B: Single): Single');
+    RegisterMethodCheck(c, 'procedure MoveString(Source: string; var Destination: string; Count: Integer)');
+    RegisterMethodCheck(c, 'function  Pos(SubStr: string; Str: string): Integer');
+    RegisterMethodCheck(c, 'function  Power(aBase: Extended; aExp: Extended): Extended');
+    RegisterMethodCheck(c, 'function  RandomRangeI(aFrom: Integer; aTo: Integer): Integer');
+    RegisterMethodCheck(c, 'function  RGBDecToBGRHex(aR: Byte; aG: Byte; aB: Byte): AnsiString');
+    RegisterMethodCheck(c, 'function  RGBToBGRHex(aHexColor: string): AnsiString');
+    RegisterMethodCheck(c, 'function  RoundTo(aValue: Single; aBase: Integer): Integer');
+    RegisterMethodCheck(c, 'function  Sqr(A: Extended): Extended');
+    RegisterMethodCheck(c, 'function  StringReplace(Str: string; OldPattern: string; NewPattern: string; aReplaceAll: Boolean; ' +
+      'aIgnoreCase: Boolean): String');
+    RegisterMethodCheck(c, 'function  SumI(aArray: array of Integer): Integer');
+    RegisterMethodCheck(c, 'function  SumS(aArray: array of Single): Single');
+    RegisterMethodCheck(c, 'function  TimeToString(aTicks: Integer): AnsiString');
+    RegisterMethodCheck(c, 'function  TimeToTick(aHours: Integer; aMinutes: Integer; aSeconds: Integer): Cardinal');
+    RegisterMethodCheck(c, 'function  Trim(Str: string): String');
+    RegisterMethodCheck(c, 'function  TrimLeft(Str: string): String');
+    RegisterMethodCheck(c, 'function  TrimRight(Str: string): String');
+    RegisterMethodCheck(c, 'function  TruncTo(aValue: Single; aBase: Integer): Integer');
+    RegisterMethodCheck(c, 'function  UpperCase(Str: string): String');
+    //*Utils-Check*//
 
-    RegisterMethodCheck(c, 'function ArrayElementCount(const aElement: AnsiString; aArray: array of AnsiString): Integer');
-    RegisterMethodCheck(c, 'function ArrayElementCountB(aElement: Boolean; aArray: array of Boolean): Integer');
-    RegisterMethodCheck(c, 'function ArrayElementCountI(aElement: Integer; aArray: array of Integer): Integer');
-    RegisterMethodCheck(c, 'function ArrayElementCountS(aElement: Single; aArray: array of Single): Integer');
-
-    RegisterMethodCheck(c, 'function ArrayHasElement(const aElement: AnsiString; aArray: array of AnsiString): Boolean');
-    RegisterMethodCheck(c, 'function ArrayHasElementB(aElement: Boolean; aArray: array of Boolean): Boolean');
-    RegisterMethodCheck(c, 'function ArrayHasElementI(aElement: Integer; aArray: array of Integer): Boolean');
-    RegisterMethodCheck(c, 'function ArrayHasElementS(aElement: Single; aArray: array of Single): Boolean');
-
-    RegisterMethodCheck(c, 'function ArrayRemoveIndexI(aIndex: Integer; aArray: TIntegerArray): TIntegerArray');
-    RegisterMethodCheck(c, 'function ArrayRemoveIndexS(aIndex: Integer; aArray: TAnsiStringArray): TAnsiStringArray');
-
-    RegisterMethodCheck(c, 'function BoolToStr(aBool: Boolean): AnsiString');
-
-    RegisterMethodCheck(c, 'function ColorBrightness(const aHexColor: string): Single');
-
-    RegisterMethodCheck(c, 'function CompareString(const Str1, Str2: String): Integer');
-    RegisterMethodCheck(c, 'function CompareText(const Str1, Str2: String): Integer');
-    RegisterMethodCheck(c, 'function CopyString(Str: String; Index, Count: Integer): String');
-
-    RegisterMethodCheck(c, 'procedure DeleteString(var Str: String; Index, Count: Integer)');
-
-    RegisterMethodCheck(c, 'function EnsureRangeS(aValue, aMin, aMax: Single): Single');
-    RegisterMethodCheck(c, 'function EnsureRangeI(aValue, aMin, aMax: Integer): Integer');
-
-    RegisterMethodCheck(c, 'function Format(aFormatting: string; aData: array of const): string');
-    RegisterMethodCheck(c, 'function FormatFloat(const aFormat: string; aValue: Single): string');
-
-    RegisterMethodCheck(c, 'function IfThen(aBool: Boolean; const aTrue, aFalse: AnsiString): AnsiString');
-    RegisterMethodCheck(c, 'function IfThenI(aBool: Boolean; aTrue, aFalse: Integer): Integer');
-    RegisterMethodCheck(c, 'function IfThenS(aBool: Boolean; aTrue, aFalse: Single): Single');
-
-    RegisterMethodCheck(c, 'function InAreaI(aX, aY, aXMin, aYMin, aXMax, aYMax: Integer): Boolean');
-    RegisterMethodCheck(c, 'function InAreaS(aX, aY, aXMin, aYMin, aXMax, aYMax: Single): Boolean');
-
-    RegisterMethodCheck(c, 'function InRangeI(aValue, aMin, aMax: Integer): Boolean');
-    RegisterMethodCheck(c, 'function InRangeS(aValue, aMin, aMax: Single): Boolean');
-
-    RegisterMethodCheck(c, 'procedure InsertString(Source: String; var Target: String; Index: Integer)');
-
-    RegisterMethodCheck(c, 'function KMPoint(X,Y: Integer): TKMPoint');
-
-    RegisterMethodCheck(c, 'function LowerCase(const Str: String): String');
-
-    RegisterMethodCheck(c, 'function MaxI(A, B: Integer): Integer');
-    RegisterMethodCheck(c, 'function MaxS(A, B: Single): Single');
-
-    RegisterMethodCheck(c, 'function MaxInArrayI(aArray: array of Integer): Integer');
-    RegisterMethodCheck(c, 'function MaxInArrayS(aArray: array of Single): Single');
-
-    RegisterMethodCheck(c, 'function MinI(A, B: Integer): Integer');
-    RegisterMethodCheck(c, 'function MinS(A, B: Single): Single');
-
-    RegisterMethodCheck(c, 'function MinInArrayI(aArray: array of Integer): Integer');
-    RegisterMethodCheck(c, 'function MinInArrayS(aArray: array of Single): Single');
-
-    RegisterMethodCheck(c, 'procedure MoveString(const Source: String; var Destination: String; Count: Integer)');
-
-    RegisterMethodCheck(c, 'function Pos(SubStr, Str: String): Integer');
-
-    RegisterMethodCheck(c, 'function Power(Base, Exponent: Extended): Extended');
-
-    RegisterMethodCheck(c, 'function RandomRangeI(aFrom, aTo: Integer): Integer');
-
-    RegisterMethodCheck(c, 'function RGBDecToBGRHex(aR, aG, aB: Byte): AnsiString');
-    RegisterMethodCheck(c, 'function RGBToBGRHex(const aHexColor: string): AnsiString');
-
-    RegisterMethodCheck(c, 'function CeilTo(aValue: Single; aBase: Integer): Integer');
-    RegisterMethodCheck(c, 'function FloorTo(aValue: Single; aBase: Integer): Integer');
-    RegisterMethodCheck(c, 'function RoundTo(aValue: Single; aBase: Integer): Integer');
-    RegisterMethodCheck(c, 'function TruncTo(aValue: Single; aBase: Integer): Integer');
-
-    RegisterMethodCheck(c, 'function Sqr(A: Extended): Extended');
-
-    RegisterMethodCheck(c, 'function StringReplace(const Str, OldPattern, NewPattern: string; Flags: TReplaceFlags): String');
-
-    RegisterMethodCheck(c, 'function SumI(aArray: array of Integer): Integer');
-    RegisterMethodCheck(c, 'function SumS(aArray: array of Single): Single');
-
-    RegisterMethodCheck(c, 'function TimeToString(aTicks: Integer): AnsiString');
-    RegisterMethodCheck(c, 'function TimeToTick(aHours, aMinutes, aSeconds: Integer): Cardinal');
-
-    RegisterMethodCheck(c, 'function Trim(const Str: String): String');
-    RegisterMethodCheck(c, 'function TrimLeft(const Str: String): String');
-    RegisterMethodCheck(c, 'function TrimRight(const Str: String): String');
-
-    RegisterMethodCheck(c, 'function UpperCase(const Str: String): String');
-
-        // Register objects
+    // Register objects
     AddImportedClassVariable(Sender, 'States', AnsiString(fStates.ClassName));
     AddImportedClassVariable(Sender, 'Actions', AnsiString(fActions.ClassName));
     AddImportedClassVariable(Sender, 'Utils', AnsiString(fUtils.ClassName));
@@ -1054,67 +989,57 @@ const
     ParamCount: Byte;
     Typ: array [0..4] of Byte;
     Dir: array [0..3] of TPSParameterMode;
-  end =
-  (
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnBeacon
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnFieldBuilt
-  (ParamCount: 4; Typ: (0, btS32,   btS32,  btS32, btS32  ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseAfterDestroyed
-  (ParamCount: 4; Typ: (0, btEnum,  btS32,  btS32, btS32  ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseAfterDestroyedEx
-  (ParamCount: 1; Typ: (0, btS32,   0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseBuilt
-  (ParamCount: 1; Typ: (0, btS32,   0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanDigged
-  (ParamCount: 4; Typ: (0, btS32,   btS32,  btS32, btS32  ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanPlaced
-  (ParamCount: 4; Typ: (0, btS32,   btS32,  btS32, btEnum ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanPlacedEx
-  (ParamCount: 4; Typ: (0, btS32,   btS32,  btS32, btS32  ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanRemoved
-  (ParamCount: 4; Typ: (0, btS32,   btS32,  btS32, btEnum ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanRemovedEx
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseDamaged
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseDestroyed
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseRepaired
-  (ParamCount: 4; Typ: (0, btS32,   btEnum, btS32, btS32  ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseWareCountChanged
-
-  (ParamCount: 1; Typ: (0, btSingle,0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGameSpeedChanged
-
-  (ParamCount: 1; Typ: (0, btS32,   0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupHungry
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderAttackHouse
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderAttackUnit
-  (ParamCount: 4; Typ: (0, btS32,   btS32,  btS32, btEnum ); Dir: (pmIn, pmInOut, pmInOut, pmInOut)), // OnGroupBeforeOrderSplit
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderMove
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderLink
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderSplit
-
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnMarketTrade
-  (ParamCount: 3; Typ: (0, btS32,   btEnum, btEnum,0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnMarketTradeEx
-
-  (ParamCount: 0; Typ: (0, 0,       0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnMissionStart
-
-  (ParamCount: 0; Typ: (0, 0,       0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPeacetimeEnd
-
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadDigged
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadPlaced
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadRemoved
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanFieldPlaced
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanFieldRemoved
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldDigged
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldPlaced
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldRemoved
-
-  (ParamCount: 1; Typ: (0, btS32,   0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlayerDefeated
-  (ParamCount: 1; Typ: (0, btS32,   0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlayerVictory
-
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnRoadBuilt
-
-  (ParamCount: 0; Typ: (0, 0,       0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnTick
-
-  (ParamCount: 4; Typ: (0, btS32,   btS32,  btS32, btS32  ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitAfterDied
-  (ParamCount: 4; Typ: (0, btEnum,  btS32,  btS32, btS32  ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitAfterDiedEx
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitDied
-  (ParamCount: 1; Typ: (0, btS32,   0,      0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitTrained
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitWounded
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitAttacked
-  (ParamCount: 3; Typ: (0, btS32,   btEnum, btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnWareProduced
-
-  (ParamCount: 2; Typ: (0, btS32,   btS32,  0,     0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnWarriorEquipped
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnWarriorWalked
-  (ParamCount: 3; Typ: (0, btS32,   btS32,  btS32, 0      ); Dir: (pmIn, pmIn, pmIn, pmIn))  // OnWinefieldBuilt
+  end = (
+    //*Events-Check*//
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnBeacon
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnFieldBuilt
+    (ParamCount: 1; Typ: (0, btSingle, 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGameSpeedChanged
+    (ParamCount: 4; Typ: (0, btS32 , btEnum, btS32 , btEnum); Dir: (pmIn, pmInOut, pmInOut, pmInOut)), // OnGroupBeforeOrderSplit
+    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupHungry
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderAttackHouse
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderAttackUnit
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderLink
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderMove
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderSplit
+    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseAfterDestroyed
+    (ParamCount: 4; Typ: (0, btEnum, btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseAfterDestroyedEx
+    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseBuilt
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseDamaged
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseDestroyed
+    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanDigged
+    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanPlaced
+    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btEnum); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanPlacedEx
+    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanRemoved
+    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btEnum); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanRemovedEx
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseRepaired
+    (ParamCount: 4; Typ: (0, btS32 , btEnum, btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseWareCountChanged
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnMarketTrade
+    (ParamCount: 3; Typ: (0, btS32 , btEnum, btEnum, 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnMarketTradeEx
+    (ParamCount: 0; Typ: (0, 0     , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnMissionStart
+    (ParamCount: 0; Typ: (0, 0     , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPeacetimeEnd
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanFieldPlaced
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanFieldRemoved
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadDigged
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadPlaced
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadRemoved
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldDigged
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldPlaced
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldRemoved
+    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlayerDefeated
+    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlayerVictory
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnRoadBuilt
+    (ParamCount: 0; Typ: (0, 0     , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnTick
+    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitAfterDied
+    (ParamCount: 4; Typ: (0, btEnum, btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitAfterDiedEx
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitAttacked
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitDied
+    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitTrained
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitWounded
+    (ParamCount: 3; Typ: (0, btS32 , btEnum, btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnWareProduced
+    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnWarriorEquipped
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnWarriorWalked
+    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)) // OnWinefieldBuilt
+    //*Events-Check*//
   );
 var
   I: Integer;
@@ -1265,564 +1190,492 @@ begin
     //(uppercase is not needed, FastUpperCase does this well. See uPSRuntime.pas, line 11387)
     with classImp.Add(TKMScriptStates) do
     begin
-      RegisterMethod(@TKMScriptStates.AIArmyType,                               'AIArmyType');
-      RegisterMethod(@TKMScriptStates.AIAutoAttack,                             'AIAutoAttack');
-      RegisterMethod(@TKMScriptStates.AIAutoAttackRange,                        'AIAutoAttackRange');
-      RegisterMethod(@TKMScriptStates.AIAutoBuild,                              'AIAutoBuild');
-      RegisterMethod(@TKMScriptStates.AIAutoDefence,                            'AIAutoDefence');
-      RegisterMethod(@TKMScriptStates.AIAutoRepair,                             'AIAutoRepair');
-      RegisterMethod(@TKMScriptStates.AIDefencePositionGet,                     'AIDefencePositionGet');
-      RegisterMethod(@TKMScriptStates.AIDefencePositionGetByIndex,              'AIDefencePositionGetByIndex');
-      RegisterMethod(@TKMScriptStates.AIDefendAllies,                           'AIDefendAllies');
-      RegisterMethod(@TKMScriptStates.AIEquipRate,                              'AIEquipRate');
-      RegisterMethod(@TKMScriptStates.AIGroupsFormationGet,                     'AIGroupsFormationGet');
-      RegisterMethod(@TKMScriptStates.AIGroupsFormationGetEx,                   'AIGroupsFormationGetEx');
-      RegisterMethod(@TKMScriptStates.AIRecruitDelay,                           'AIRecruitDelay');
-      RegisterMethod(@TKMScriptStates.AIRecruitLimit,                           'AIRecruitLimit');
-      RegisterMethod(@TKMScriptStates.AIRepairMode,                             'AIRepairMode');
-      RegisterMethod(@TKMScriptStates.AISerfsPerHouse,                          'AISerfsPerHouse');
-      RegisterMethod(@TKMScriptStates.AISoldiersLimit,                          'AISoldiersLimit');
-      RegisterMethod(@TKMScriptStates.AIStartPosition,                          'AIStartPosition');
-      RegisterMethod(@TKMScriptStates.AIWorkerLimit,                            'AIWorkerLimit');
-
-      RegisterMethod(@TKMScriptStates.CampaignMissionID,                        'CampaignMissionID');
-      RegisterMethod(@TKMScriptStates.CampaignMissionsCount,                    'CampaignMissionsCount');
-
-      RegisterMethod(@TKMScriptStates.ClosestGroup,                             'ClosestGroup');
-      RegisterMethod(@TKMScriptStates.ClosestGroupEx,                           'ClosestGroupEx');
-      RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes,                'ClosestGroupMultipleTypes');
-      RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypesEx,              'ClosestGroupMultipleTypesEx');
-      RegisterMethod(@TKMScriptStates.ClosestHouse,                             'ClosestHouse');
-      RegisterMethod(@TKMScriptStates.ClosestHouseEx,                           'ClosestHouseEx');
-      RegisterMethod(@TKMScriptStates.ClosestHouseMultipleTypes,                'ClosestHouseMultipleTypes');
-      RegisterMethod(@TKMScriptStates.ClosestHouseMultipleTypesEx,              'ClosestHouseMultipleTypesEx');
-      RegisterMethod(@TKMScriptStates.ClosestUnit,                              'ClosestUnit');
-      RegisterMethod(@TKMScriptStates.ClosestUnitEx,                            'ClosestUnitEx');
-      RegisterMethod(@TKMScriptStates.ClosestUnitMultipleTypes,                 'ClosestUnitMultipleTypes');
-      RegisterMethod(@TKMScriptStates.ClosestUnitMultipleTypesEx,               'ClosestUnitMultipleTypesEx');
-
-      RegisterMethod(@TKMScriptStates.ConnectedByRoad,                          'ConnectedByRoad');
-      RegisterMethod(@TKMScriptStates.ConnectedByWalking,                       'ConnectedByWalking');
-
-      RegisterMethod(@TKMScriptStates.FogRevealed,                              'FogRevealed');
-
-      RegisterMethod(@TKMScriptStates.GameSpeed,                                'GameSpeed');
-      RegisterMethod(@TKMScriptStates.GameSpeedChangeAllowed,                   'GameSpeedChangeAllowed');
-      RegisterMethod(@TKMScriptStates.GameTime,                                 'GameTime');
-
-      RegisterMethod(@TKMScriptStates.GroupAllowAllyToSelect,                   'GroupAllowAllyToSelect');
-      RegisterMethod(@TKMScriptStates.GroupAssignedToDefencePosition,           'GroupAssignedToDefencePosition');
-      RegisterMethod(@TKMScriptStates.GroupAt,                                  'GroupAt');
-      RegisterMethod(@TKMScriptStates.GroupColumnCount,                         'GroupColumnCount');
-      RegisterMethod(@TKMScriptStates.GroupDead,                                'GroupDead');
-      RegisterMethod(@TKMScriptStates.GroupIdle,                                'GroupIdle');
-      RegisterMethod(@TKMScriptStates.GroupInFight,                             'GroupInFight');
-      RegisterMethod(@TKMScriptStates.GroupManualFormation,                     'GroupManualFormation');
-      RegisterMethod(@TKMScriptStates.GroupMember,                              'GroupMember');
-      RegisterMethod(@TKMScriptStates.GroupMemberCount,                         'GroupMemberCount');
-      RegisterMethod(@TKMScriptStates.GroupOrder,                               'GroupOrder');
-      RegisterMethod(@TKMScriptStates.GroupOwner,                               'GroupOwner');
-      RegisterMethod(@TKMScriptStates.GroupType,                                'GroupType');
-      RegisterMethod(@TKMScriptStates.GroupTypeEx,                              'GroupTypeEx');
-
-      RegisterMethod(@TKMScriptStates.HandHouseCanBuild,                        'HandHouseCanBuild');
-      RegisterMethod(@TKMScriptStates.HandHouseLock,                            'HandHouseLock');
-      RegisterMethod(@TKMScriptStates.HandUnitCanTrain,                         'HandUnitCanTrain');
-      RegisterMethod(@TKMScriptStates.HandWareDistribution,                     'HandWareDistribution');
-
-      RegisterMethod(@TKMScriptStates.HouseAllowAllyToSelect,                   'HouseAllowAllyToSelect');
-      RegisterMethod(@TKMScriptStates.HouseAt,                                  'HouseAt');
-      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointX,                 'HouseBarracksRallyPointX');
-      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointY,                 'HouseBarracksRallyPointY');
-      RegisterMethod(@TKMScriptStates.HouseBarracksRecruitsCount,               'HouseBarracksRecruitsCount');
-      RegisterMethod(@TKMScriptStates.HouseBarracksRecruitBlock,                'HouseBarracksRecruitBlock');
-      RegisterMethod(@TKMScriptStates.HouseBuildingProgress,                    'HouseBuildingProgress');
-      RegisterMethod(@TKMScriptStates.HouseCanReachResources,                   'HouseCanReachResources');
-      RegisterMethod(@TKMScriptStates.HouseDamage,                              'HouseDamage');
-      RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked,                     'HouseDeliveryBlocked');
-      RegisterMethod(@TKMScriptStates.HouseDeliveryMode,                        'HouseDeliveryMode');
-      RegisterMethod(@TKMScriptStates.HouseDestroyed,                           'HouseDestroyed');
-      RegisterMethod(@TKMScriptStates.HouseFlagPoint,                           'HouseFlagPoint');
-      RegisterMethod(@TKMScriptStates.HouseGetAllUnitsIn,                       'HouseGetAllUnitsIn');
-      RegisterMethod(@TKMScriptStates.HouseHasOccupant,                         'HouseHasOccupant');
-      RegisterMethod(@TKMScriptStates.HouseHasWorker,                           'HouseHasWorker');
-      RegisterMethod(@TKMScriptStates.HouseIsComplete,                          'HouseIsComplete');
-      RegisterMethod(@TKMScriptStates.HouseOwner,                               'HouseOwner');
-      RegisterMethod(@TKMScriptStates.HousePosition,                            'HousePosition');
-      RegisterMethod(@TKMScriptStates.HousePositionX,                           'HousePositionX');
-      RegisterMethod(@TKMScriptStates.HousePositionY,                           'HousePositionY');
-      RegisterMethod(@TKMScriptStates.HouseRepair,                              'HouseRepair');
-      RegisterMethod(@TKMScriptStates.HouseResourceAmount,                      'HouseResourceAmount');
-      RegisterMethod(@TKMScriptStates.HouseSchoolQueue,                         'HouseSchoolQueue');
-      RegisterMethod(@TKMScriptStates.HouseSiteIsDigged,                        'HouseSiteIsDigged');
-      RegisterMethod(@TKMScriptStates.HouseTownHallMaxGold,                     'HouseTownHallMaxGold');
-      RegisterMethod(@TKMScriptStates.HouseType,                                'HouseType');
-      RegisterMethod(@TKMScriptStates.HouseTypeEx,                              'HouseTypeEx');
-      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealth,                       'HouseTypeMaxHealth');
-      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealthEx,                     'HouseTypeMaxHealthEx');
-      RegisterMethod(@TKMScriptStates.HouseTypeName,                            'HouseTypeName');
-      RegisterMethod(@TKMScriptStates.HouseTypeNameEx,                          'HouseTypeNameEx');
-      RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType,                  'HouseTypeToOccupantType');
-      RegisterMethod(@TKMScriptStates.HouseTypeToWorkerType,                    'HouseTypeToWorkerType');
-      RegisterMethod(@TKMScriptStates.HouseUnlocked,                            'HouseUnlocked');
-      RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly,                  'HouseWoodcutterChopOnly');
-      RegisterMethod(@TKMScriptStates.HouseWoodcutterMode,                      'HouseWoodcutterMode');
-      RegisterMethod(@TKMScriptStates.HouseWareBlocked,                         'HouseWareBlocked');
-      RegisterMethod(@TKMScriptStates.HouseWareBlockedEx,                       'HouseWareBlockedEx');
-      RegisterMethod(@TKMScriptStates.HouseWareBlockedTakeOut,                  'HouseWareBlockedTakeOut');
-      RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered,                      'HouseWeaponsOrdered');
-      RegisterMethod(@TKMScriptStates.HouseWeaponsOrderedEx,                    'HouseWeaponsOrderedEx');
-      RegisterMethod(@TKMScriptStates.HouseWorker,                              'HouseWorker');
-
-      RegisterMethod(@TKMScriptStates.IsFieldAt,                                'IsFieldAt');
-      RegisterMethod(@TKMScriptStates.IsRoadAt,                                 'IsRoadAt');
-      RegisterMethod(@TKMScriptStates.IsWinefieldAt,                            'IsWinefieldAt');
-
-      RegisterMethod(@TKMScriptStates.IsPlanAt,                                 'IsPlanAt');
-      RegisterMethod(@TKMScriptStates.IsFieldPlanAt,                            'IsFieldPlanAt');
-      RegisterMethod(@TKMScriptStates.IsHousePlanAt,                            'IsHousePlanAt');
-      RegisterMethod(@TKMScriptStates.IsRoadPlanAt,                             'IsRoadPlanAt');
-      RegisterMethod(@TKMScriptStates.IsWinefieldPlanAt,                        'IsWinefieldPlanAt');
-
-      RegisterMethod(@TKMScriptStates.IsMissionBuildType,                       'IsMissionBuildType');
-      RegisterMethod(@TKMScriptStates.IsMissionFightType,                       'IsMissionFightType');
-      RegisterMethod(@TKMScriptStates.IsMissionCoopType,                        'IsMissionCoopType');
-      RegisterMethod(@TKMScriptStates.IsMissionSpecialType,                     'IsMissionSpecialType');
-      RegisterMethod(@TKMScriptStates.IsMissionPlayableAsSP,                    'IsMissionPlayableAsSP');
-      RegisterMethod(@TKMScriptStates.IsMissionBlockColorSelection,             'IsMissionBlockColorSelection');
-      RegisterMethod(@TKMScriptStates.IsMissionBlockTeamSelection,              'IsMissionBlockTeamSelection');
-      RegisterMethod(@TKMScriptStates.IsMissionBlockPeacetime,                  'IsMissionBlockPeacetime');
-      RegisterMethod(@TKMScriptStates.IsMissionBlockFullMapPreview,             'IsMissionBlockFullMapPreview');
-
-      RegisterMethod(@TKMScriptStates.KaMRandom,                                'KaMRandom');
-      RegisterMethod(@TKMScriptStates.KaMRandomI,                               'KaMRandomI');
-
-      RegisterMethod(@TKMScriptStates.LocationCount,                            'LocationCount');
-
-      RegisterMethod(@TKMScriptStates.MapHeight,                                'MapHeight');
-      RegisterMethod(@TKMScriptStates.MapTileHasOnlyTerrainKind,                'MapTileHasOnlyTerrainKind');
-      RegisterMethod(@TKMScriptStates.MapTileHasOnlyTerrainKinds,               'MapTileHasOnlyTerrainKinds');
-      RegisterMethod(@TKMScriptStates.MapTileHasTerrainKind,                    'MapTileHasTerrainKind');
-      RegisterMethod(@TKMScriptStates.MapTileHeight,                            'MapTileHeight');
-      RegisterMethod(@TKMScriptStates.MapTileIsCoal,                            'MapTileIsCoal');
-      RegisterMethod(@TKMScriptStates.MapTileIsGold,                            'MapTileIsGold');
-      RegisterMethod(@TKMScriptStates.MapTileIsIce,                             'MapTileIsIce');
-      RegisterMethod(@TKMScriptStates.MapTileIsInMapCoords,                     'MapTileIsInMapCoords');
-      RegisterMethod(@TKMScriptStates.MapTileIsIron,                            'MapTileIsIron');
-      RegisterMethod(@TKMScriptStates.MapTileIsSand,                            'MapTileIsSand');
-      RegisterMethod(@TKMScriptStates.MapTileIsSnow,                            'MapTileIsSnow');
-      RegisterMethod(@TKMScriptStates.MapTileIsSoil,                            'MapTileIsSoil');
-      RegisterMethod(@TKMScriptStates.MapTileIsStone,                           'MapTileIsStone');
-      RegisterMethod(@TKMScriptStates.MapTileIsWater,                           'MapTileIsWater');
-      RegisterMethod(@TKMScriptStates.MapTileObject,                            'MapTileObject');
-      RegisterMethod(@TKMScriptStates.MapTileOverlay,                           'MapTileOverlay');
-      RegisterMethod(@TKMScriptStates.MapTileOwner,                             'MapTileOwner');
-      RegisterMethod(@TKMScriptStates.MapTilePassability,                       'MapTilePassability');
-      RegisterMethod(@TKMScriptStates.MapTilePassabilityEx,                     'MapTilePassabilityEx');
-      RegisterMethod(@TKMScriptStates.MapTileRotation,                          'MapTileRotation');
-      RegisterMethod(@TKMScriptStates.MapTileType,                              'MapTileType');
-      RegisterMethod(@TKMScriptStates.MapWidth,                                 'MapWidth');
-
-      RegisterMethod(@TKMScriptStates.MissionAuthor,                            'MissionAuthor');
-
-      RegisterMethod(@TKMScriptStates.MissionDifficulty,                        'MissionDifficulty');
-      RegisterMethod(@TKMScriptStates.MissionDifficultyLevels,                  'MissionDifficultyLevels');
-
-      RegisterMethod(@TKMScriptStates.MissionVersion,                           'MissionVErsion');
-
-      RegisterMethod(@TKMScriptStates.MarketFromWare,                           'MarketFromWare');
-      RegisterMethod(@TKMScriptStates.MarketFromWareEx,                         'MarketFromWareEx');
-      RegisterMethod(@TKMScriptStates.MarketLossFactor,                         'MarketLossFactor');
-      RegisterMethod(@TKMScriptStates.MarketOrderAmount,                        'MarketOrderAmount');
-      RegisterMethod(@TKMScriptStates.MarketToWare,                             'MarketToWare');
-      RegisterMethod(@TKMScriptStates.MarketToWareEx,                           'MarketToWareEx');
-      RegisterMethod(@TKMScriptStates.MarketValue,                              'MarketValue');
-      RegisterMethod(@TKMScriptStates.MarketValueEx,                            'MarketValueEx');
-
-      RegisterMethod(@TKMScriptStates.PeaceTime,                                'PeaceTime');
-
-      RegisterMethod(@TKMScriptStates.PlayerAllianceCheck,                      'PlayerAllianceCheck');
-      RegisterMethod(@TKMScriptStates.PlayerColorFlag,                          'PlayerColorFlag');
-      RegisterMethod(@TKMScriptStates.PlayerColorText,                          'PlayerColorText');
-      RegisterMethod(@TKMScriptStates.PlayerDefeated,                           'PlayerDefeated');
-      RegisterMethod(@TKMScriptStates.PlayerEnabled,                            'PlayerEnabled');
-      RegisterMethod(@TKMScriptStates.PlayerGetAllGroups,                       'PlayerGetAllGroups');
-      RegisterMethod(@TKMScriptStates.PlayerGetAllHouses,                       'PlayerGetAllHouses');
-      RegisterMethod(@TKMScriptStates.PlayerGetAllUnits,                        'PlayerGetAllUnits');
-      RegisterMethod(@TKMScriptStates.PlayerIsAI,                               'PlayerIsAI');
-      RegisterMethod(@TKMScriptStates.PlayerName,                               'PlayerName');
-      RegisterMethod(@TKMScriptStates.PlayerVictorious,                         'PlayerVictorious');
-      RegisterMethod(@TKMScriptStates.PlayerWareDistribution,                   'PlayerWareDistribution');
-
-      RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount,              'StatAIDefencePositionsCount');
-      RegisterMethod(@TKMScriptStates.StatArmyCount,                            'StatArmyCount');
-      RegisterMethod(@TKMScriptStates.StatArmyPower,                            'StatArmyPower');
-      RegisterMethod(@TKMScriptStates.StatCitizenCount,                         'StatCitizenCount');
-      RegisterMethod(@TKMScriptStates.StatHouseCount,                           'StatHouseCount');
-      RegisterMethod(@TKMScriptStates.StatHouseMultipleTypesCount,              'StatHouseMultipleTypesCount');
-      RegisterMethod(@TKMScriptStates.StatHouseMultipleTypesCountEx,            'StatHouseMultipleTypesCountEx');
-      RegisterMethod(@TKMScriptStates.StatHouseTypeCount,                       'StatHouseTypeCount');
-      RegisterMethod(@TKMScriptStates.StatHouseTypeCountEx,                     'StatHouseTypeCountEx');
-      RegisterMethod(@TKMScriptStates.StatHouseTypePlansCount,                  'StatHouseTypePlansCount');
-      RegisterMethod(@TKMScriptStates.StatHouseTypePlansCountEx,                'StatHouseTypePlansCountEx');
-      RegisterMethod(@TKMScriptStates.StatPlayerCount,                          'StatPlayerCount');
-      RegisterMethod(@TKMScriptStates.StatResourceProducedCount,                'StatResourceProducedCount');
-      RegisterMethod(@TKMScriptStates.StatResourceProducedCountEx,              'StatResourceProducedCountEx');
-      RegisterMethod(@TKMScriptStates.StatResourceProducedMultipleTypesCount,   'StatResourceProducedMultipleTypesCount');
+      //*States-Reg*//
+      RegisterMethod(@TKMScriptStates.AIArmyType, 'AIArmyType');
+      RegisterMethod(@TKMScriptStates.AIAutoAttack, 'AIAutoAttack');
+      RegisterMethod(@TKMScriptStates.AIAutoAttackRange, 'AIAutoAttackRange');
+      RegisterMethod(@TKMScriptStates.AIAutoBuild, 'AIAutoBuild');
+      RegisterMethod(@TKMScriptStates.AIAutoDefence, 'AIAutoDefence');
+      RegisterMethod(@TKMScriptStates.AIAutoRepair, 'AIAutoRepair');
+      RegisterMethod(@TKMScriptStates.AIDefencePositionGet, 'AIDefencePositionGet');
+      RegisterMethod(@TKMScriptStates.AIDefencePositionGetByIndex, 'AIDefencePositionGetByIndex');
+      RegisterMethod(@TKMScriptStates.AIDefendAllies, 'AIDefendAllies');
+      RegisterMethod(@TKMScriptStates.AIEquipRate, 'AIEquipRate');
+      RegisterMethod(@TKMScriptStates.AIGroupsFormationGet, 'AIGroupsFormationGet');
+      RegisterMethod(@TKMScriptStates.AIGroupsFormationGetEx, 'AIGroupsFormationGetEx');
+      RegisterMethod(@TKMScriptStates.AIRecruitDelay, 'AIRecruitDelay');
+      RegisterMethod(@TKMScriptStates.AIRecruitLimit, 'AIRecruitLimit');
+      RegisterMethod(@TKMScriptStates.AIRepairMode, 'AIRepairMode');
+      RegisterMethod(@TKMScriptStates.AISerfsPerHouse, 'AISerfsPerHouse');
+      RegisterMethod(@TKMScriptStates.AISoldiersLimit, 'AISoldiersLimit');
+      RegisterMethod(@TKMScriptStates.AIStartPosition, 'AIStartPosition');
+      RegisterMethod(@TKMScriptStates.AIWorkerLimit, 'AIWorkerLimit');
+      RegisterMethod(@TKMScriptStates.CampaignMissionID, 'CampaignMissionID');
+      RegisterMethod(@TKMScriptStates.CampaignMissionsCount, 'CampaignMissionsCount');
+      RegisterMethod(@TKMScriptStates.ClosestGroup, 'ClosestGroup');
+      RegisterMethod(@TKMScriptStates.ClosestGroupEx, 'ClosestGroupEx');
+      RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypes, 'ClosestGroupMultipleTypes');
+      RegisterMethod(@TKMScriptStates.ClosestGroupMultipleTypesEx, 'ClosestGroupMultipleTypesEx');
+      RegisterMethod(@TKMScriptStates.ClosestHouse, 'ClosestHouse');
+      RegisterMethod(@TKMScriptStates.ClosestHouseEx, 'ClosestHouseEx');
+      RegisterMethod(@TKMScriptStates.ClosestHouseMultipleTypes, 'ClosestHouseMultipleTypes');
+      RegisterMethod(@TKMScriptStates.ClosestHouseMultipleTypesEx, 'ClosestHouseMultipleTypesEx');
+      RegisterMethod(@TKMScriptStates.ClosestUnit, 'ClosestUnit');
+      RegisterMethod(@TKMScriptStates.ClosestUnitEx, 'ClosestUnitEx');
+      RegisterMethod(@TKMScriptStates.ClosestUnitMultipleTypes, 'ClosestUnitMultipleTypes');
+      RegisterMethod(@TKMScriptStates.ClosestUnitMultipleTypesEx, 'ClosestUnitMultipleTypesEx');
+      RegisterMethod(@TKMScriptStates.ConnectedByRoad, 'ConnectedByRoad');
+      RegisterMethod(@TKMScriptStates.ConnectedByWalking, 'ConnectedByWalking');
+      RegisterMethod(@TKMScriptStates.FogRevealed, 'FogRevealed');
+      RegisterMethod(@TKMScriptStates.GameSpeed, 'GameSpeed');
+      RegisterMethod(@TKMScriptStates.GameSpeedChangeAllowed, 'GameSpeedChangeAllowed');
+      RegisterMethod(@TKMScriptStates.GameTime, 'GameTime');
+      RegisterMethod(@TKMScriptStates.GroupAllowAllyToSelect, 'GroupAllowAllyToSelect');
+      RegisterMethod(@TKMScriptStates.GroupAssignedToDefencePosition, 'GroupAssignedToDefencePosition');
+      RegisterMethod(@TKMScriptStates.GroupAt, 'GroupAt');
+      RegisterMethod(@TKMScriptStates.GroupColumnCount, 'GroupColumnCount');
+      RegisterMethod(@TKMScriptStates.GroupDead, 'GroupDead');
+      RegisterMethod(@TKMScriptStates.GroupIdle, 'GroupIdle');
+      RegisterMethod(@TKMScriptStates.GroupInFight, 'GroupInFight');
+      RegisterMethod(@TKMScriptStates.GroupManualFormation, 'GroupManualFormation');
+      RegisterMethod(@TKMScriptStates.GroupMember, 'GroupMember');
+      RegisterMethod(@TKMScriptStates.GroupMemberCount, 'GroupMemberCount');
+      RegisterMethod(@TKMScriptStates.GroupOrder, 'GroupOrder');
+      RegisterMethod(@TKMScriptStates.GroupOwner, 'GroupOwner');
+      RegisterMethod(@TKMScriptStates.GroupType, 'GroupType');
+      RegisterMethod(@TKMScriptStates.GroupTypeEx, 'GroupTypeEx');
+      RegisterMethod(@TKMScriptStates.HandHouseCanBuild, 'HandHouseCanBuild');
+      RegisterMethod(@TKMScriptStates.HandHouseLock, 'HandHouseLock');
+      RegisterMethod(@TKMScriptStates.HandUnitCanTrain, 'HandUnitCanTrain');
+      RegisterMethod(@TKMScriptStates.HandWareDistribution, 'HandWareDistribution');
+      RegisterMethod(@TKMScriptStates.HouseAllowAllyToSelect, 'HouseAllowAllyToSelect');
+      RegisterMethod(@TKMScriptStates.HouseAt, 'HouseAt');
+      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointX, 'HouseBarracksRallyPointX');
+      RegisterMethod(@TKMScriptStates.HouseBarracksRallyPointY, 'HouseBarracksRallyPointY');
+      RegisterMethod(@TKMScriptStates.HouseBarracksRecruitBlock, 'HouseBarracksRecruitBlock');
+      RegisterMethod(@TKMScriptStates.HouseBarracksRecruitsCount, 'HouseBarracksRecruitsCount');
+      RegisterMethod(@TKMScriptStates.HouseBuildingProgress, 'HouseBuildingProgress');
+      RegisterMethod(@TKMScriptStates.HouseCanReachResources, 'HouseCanReachResources');
+      RegisterMethod(@TKMScriptStates.HouseDamage, 'HouseDamage');
+      RegisterMethod(@TKMScriptStates.HouseDeliveryBlocked, 'HouseDeliveryBlocked');
+      RegisterMethod(@TKMScriptStates.HouseDeliveryMode, 'HouseDeliveryMode');
+      RegisterMethod(@TKMScriptStates.HouseDestroyed, 'HouseDestroyed');
+      RegisterMethod(@TKMScriptStates.HouseFlagPoint, 'HouseFlagPoint');
+      RegisterMethod(@TKMScriptStates.HouseGetAllUnitsIn, 'HouseGetAllUnitsIn');
+      RegisterMethod(@TKMScriptStates.HouseHasOccupant, 'HouseHasOccupant');
+      RegisterMethod(@TKMScriptStates.HouseHasWorker, 'HouseHasWorker');
+      RegisterMethod(@TKMScriptStates.HouseIsComplete, 'HouseIsComplete');
+      RegisterMethod(@TKMScriptStates.HouseOwner, 'HouseOwner');
+      RegisterMethod(@TKMScriptStates.HousePosition, 'HousePosition');
+      RegisterMethod(@TKMScriptStates.HousePositionX, 'HousePositionX');
+      RegisterMethod(@TKMScriptStates.HousePositionY, 'HousePositionY');
+      RegisterMethod(@TKMScriptStates.HouseRepair, 'HouseRepair');
+      RegisterMethod(@TKMScriptStates.HouseResourceAmount, 'HouseResourceAmount');
+      RegisterMethod(@TKMScriptStates.HouseSchoolQueue, 'HouseSchoolQueue');
+      RegisterMethod(@TKMScriptStates.HouseSiteIsDigged, 'HouseSiteIsDigged');
+      RegisterMethod(@TKMScriptStates.HouseTownHallMaxGold, 'HouseTownHallMaxGold');
+      RegisterMethod(@TKMScriptStates.HouseType, 'HouseType');
+      RegisterMethod(@TKMScriptStates.HouseTypeEx, 'HouseTypeEx');
+      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealth, 'HouseTypeMaxHealth');
+      RegisterMethod(@TKMScriptStates.HouseTypeMaxHealthEx, 'HouseTypeMaxHealthEx');
+      RegisterMethod(@TKMScriptStates.HouseTypeName, 'HouseTypeName');
+      RegisterMethod(@TKMScriptStates.HouseTypeNameEx, 'HouseTypeNameEx');
+      RegisterMethod(@TKMScriptStates.HouseTypeToOccupantType, 'HouseTypeToOccupantType');
+      RegisterMethod(@TKMScriptStates.HouseTypeToWorkerType, 'HouseTypeToWorkerType');
+      RegisterMethod(@TKMScriptStates.HouseUnlocked, 'HouseUnlocked');
+      RegisterMethod(@TKMScriptStates.HouseWareBlocked, 'HouseWareBlocked');
+      RegisterMethod(@TKMScriptStates.HouseWareBlockedEx, 'HouseWareBlockedEx');
+      RegisterMethod(@TKMScriptStates.HouseWareBlockedTakeOut, 'HouseWareBlockedTakeOut');
+      RegisterMethod(@TKMScriptStates.HouseWeaponsOrdered, 'HouseWeaponsOrdered');
+      RegisterMethod(@TKMScriptStates.HouseWeaponsOrderedEx, 'HouseWeaponsOrderedEx');
+      RegisterMethod(@TKMScriptStates.HouseWoodcutterChopOnly, 'HouseWoodcutterChopOnly');
+      RegisterMethod(@TKMScriptStates.HouseWoodcutterMode, 'HouseWoodcutterMode');
+      RegisterMethod(@TKMScriptStates.HouseWorker, 'HouseWorker');
+      RegisterMethod(@TKMScriptStates.IsFieldAt, 'IsFieldAt');
+      RegisterMethod(@TKMScriptStates.IsFieldPlanAt, 'IsFieldPlanAt');
+      RegisterMethod(@TKMScriptStates.IsHousePlanAt, 'IsHousePlanAt');
+      RegisterMethod(@TKMScriptStates.IsMissionBlockColorSelection, 'IsMissionBlockColorSelection');
+      RegisterMethod(@TKMScriptStates.IsMissionBlockFullMapPreview, 'IsMissionBlockFullMapPreview');
+      RegisterMethod(@TKMScriptStates.IsMissionBlockPeacetime, 'IsMissionBlockPeacetime');
+      RegisterMethod(@TKMScriptStates.IsMissionBlockTeamSelection, 'IsMissionBlockTeamSelection');
+      RegisterMethod(@TKMScriptStates.IsMissionBuildType, 'IsMissionBuildType');
+      RegisterMethod(@TKMScriptStates.IsMissionCoopType, 'IsMissionCoopType');
+      RegisterMethod(@TKMScriptStates.IsMissionFightType, 'IsMissionFightType');
+      RegisterMethod(@TKMScriptStates.IsMissionPlayableAsSP, 'IsMissionPlayableAsSP');
+      RegisterMethod(@TKMScriptStates.IsMissionSpecialType, 'IsMissionSpecialType');
+      RegisterMethod(@TKMScriptStates.IsPlanAt, 'IsPlanAt');
+      RegisterMethod(@TKMScriptStates.IsRoadAt, 'IsRoadAt');
+      RegisterMethod(@TKMScriptStates.IsRoadPlanAt, 'IsRoadPlanAt');
+      RegisterMethod(@TKMScriptStates.IsWinefieldAt, 'IsWinefieldAt');
+      RegisterMethod(@TKMScriptStates.IsWinefieldPlanAt, 'IsWinefieldPlanAt');
+      RegisterMethod(@TKMScriptStates.KaMRandom, 'KaMRandom');
+      RegisterMethod(@TKMScriptStates.KaMRandomI, 'KaMRandomI');
+      RegisterMethod(@TKMScriptStates.LocationCount, 'LocationCount');
+      RegisterMethod(@TKMScriptStates.MapHeight, 'MapHeight');
+      RegisterMethod(@TKMScriptStates.MapTileHasOnlyTerrainKind, 'MapTileHasOnlyTerrainKind');
+      RegisterMethod(@TKMScriptStates.MapTileHasOnlyTerrainKinds, 'MapTileHasOnlyTerrainKinds');
+      RegisterMethod(@TKMScriptStates.MapTileHasTerrainKind, 'MapTileHasTerrainKind');
+      RegisterMethod(@TKMScriptStates.MapTileHeight, 'MapTileHeight');
+      RegisterMethod(@TKMScriptStates.MapTileIsCoal, 'MapTileIsCoal');
+      RegisterMethod(@TKMScriptStates.MapTileIsGold, 'MapTileIsGold');
+      RegisterMethod(@TKMScriptStates.MapTileIsIce, 'MapTileIsIce');
+      RegisterMethod(@TKMScriptStates.MapTileIsInMapCoords, 'MapTileIsInMapCoords');
+      RegisterMethod(@TKMScriptStates.MapTileIsIron, 'MapTileIsIron');
+      RegisterMethod(@TKMScriptStates.MapTileIsSand, 'MapTileIsSand');
+      RegisterMethod(@TKMScriptStates.MapTileIsSnow, 'MapTileIsSnow');
+      RegisterMethod(@TKMScriptStates.MapTileIsSoil, 'MapTileIsSoil');
+      RegisterMethod(@TKMScriptStates.MapTileIsStone, 'MapTileIsStone');
+      RegisterMethod(@TKMScriptStates.MapTileIsWater, 'MapTileIsWater');
+      RegisterMethod(@TKMScriptStates.MapTileObject, 'MapTileObject');
+      RegisterMethod(@TKMScriptStates.MapTileOverlay, 'MapTileOverlay');
+      RegisterMethod(@TKMScriptStates.MapTileOwner, 'MapTileOwner');
+      RegisterMethod(@TKMScriptStates.MapTilePassability, 'MapTilePassability');
+      RegisterMethod(@TKMScriptStates.MapTilePassabilityEx, 'MapTilePassabilityEx');
+      RegisterMethod(@TKMScriptStates.MapTileRotation, 'MapTileRotation');
+      RegisterMethod(@TKMScriptStates.MapTileType, 'MapTileType');
+      RegisterMethod(@TKMScriptStates.MapWidth, 'MapWidth');
+      RegisterMethod(@TKMScriptStates.MarketFromWare, 'MarketFromWare');
+      RegisterMethod(@TKMScriptStates.MarketFromWareEx, 'MarketFromWareEx');
+      RegisterMethod(@TKMScriptStates.MarketLossFactor, 'MarketLossFactor');
+      RegisterMethod(@TKMScriptStates.MarketOrderAmount, 'MarketOrderAmount');
+      RegisterMethod(@TKMScriptStates.MarketToWare, 'MarketToWare');
+      RegisterMethod(@TKMScriptStates.MarketToWareEx, 'MarketToWareEx');
+      RegisterMethod(@TKMScriptStates.MarketValue, 'MarketValue');
+      RegisterMethod(@TKMScriptStates.MarketValueEx, 'MarketValueEx');
+      RegisterMethod(@TKMScriptStates.MissionAuthor, 'MissionAuthor');
+      RegisterMethod(@TKMScriptStates.MissionDifficulty, 'MissionDifficulty');
+      RegisterMethod(@TKMScriptStates.MissionDifficultyLevels, 'MissionDifficultyLevels');
+      RegisterMethod(@TKMScriptStates.MissionVersion, 'MissionVersion');
+      RegisterMethod(@TKMScriptStates.PeaceTime, 'PeaceTime');
+      RegisterMethod(@TKMScriptStates.PlayerAllianceCheck, 'PlayerAllianceCheck');
+      RegisterMethod(@TKMScriptStates.PlayerColorFlag, 'PlayerColorFlag');
+      RegisterMethod(@TKMScriptStates.PlayerColorText, 'PlayerColorText');
+      RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PlayerDefeated');
+      RegisterMethod(@TKMScriptStates.PlayerEnabled, 'PlayerEnabled');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllGroups, 'PlayerGetAllGroups');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllHouses, 'PlayerGetAllHouses');
+      RegisterMethod(@TKMScriptStates.PlayerGetAllUnits, 'PlayerGetAllUnits');
+      RegisterMethod(@TKMScriptStates.PlayerIsAI, 'PlayerIsAI');
+      RegisterMethod(@TKMScriptStates.PlayerName, 'PlayerName');
+      RegisterMethod(@TKMScriptStates.PlayerVictorious, 'PlayerVictorious');
+      RegisterMethod(@TKMScriptStates.PlayerWareDistribution, 'PlayerWareDistribution');
+      RegisterMethod(@TKMScriptStates.StatAIDefencePositionsCount, 'StatAIDefencePositionsCount');
+      RegisterMethod(@TKMScriptStates.StatArmyCount, 'StatArmyCount');
+      RegisterMethod(@TKMScriptStates.StatArmyPower, 'StatArmyPower');
+      RegisterMethod(@TKMScriptStates.StatCitizenCount, 'StatCitizenCount');
+      RegisterMethod(@TKMScriptStates.StatHouseCount, 'StatHouseCount');
+      RegisterMethod(@TKMScriptStates.StatHouseMultipleTypesCount, 'StatHouseMultipleTypesCount');
+      RegisterMethod(@TKMScriptStates.StatHouseMultipleTypesCountEx, 'StatHouseMultipleTypesCountEx');
+      RegisterMethod(@TKMScriptStates.StatHouseTypeCount, 'StatHouseTypeCount');
+      RegisterMethod(@TKMScriptStates.StatHouseTypeCountEx, 'StatHouseTypeCountEx');
+      RegisterMethod(@TKMScriptStates.StatHouseTypePlansCount, 'StatHouseTypePlansCount');
+      RegisterMethod(@TKMScriptStates.StatHouseTypePlansCountEx, 'StatHouseTypePlansCountEx');
+      RegisterMethod(@TKMScriptStates.StatPlayerCount, 'StatPlayerCount');
+      RegisterMethod(@TKMScriptStates.StatResourceProducedCount, 'StatResourceProducedCount');
+      RegisterMethod(@TKMScriptStates.StatResourceProducedCountEx, 'StatResourceProducedCountEx');
+      RegisterMethod(@TKMScriptStates.StatResourceProducedMultipleTypesCount, 'StatResourceProducedMultipleTypesCount');
       RegisterMethod(@TKMScriptStates.StatResourceProducedMultipleTypesCountEx, 'StatResourceProducedMultipleTypesCountEx');
-      RegisterMethod(@TKMScriptStates.StatUnitCount,                            'StatUnitCount');
-      RegisterMethod(@TKMScriptStates.StatUnitKilledCount,                      'StatUnitKilledCount');
-      RegisterMethod(@TKMScriptStates.StatUnitKilledCountEx,                    'StatUnitKilledCountEx');
-      RegisterMethod(@TKMScriptStates.StatUnitKilledMultipleTypesCount,         'StatUnitKilledMultipleTypesCount');
-      RegisterMethod(@TKMScriptStates.StatUnitKilledMultipleTypesCountEx,       'StatUnitKilledMultipleTypesCountEx');
-      RegisterMethod(@TKMScriptStates.StatUnitLostCount,                        'StatUnitLostCount');
-      RegisterMethod(@TKMScriptStates.StatUnitLostCountEx,                      'StatUnitLostCountEx');
-      RegisterMethod(@TKMScriptStates.StatUnitLostMultipleTypesCount,           'StatUnitLostMultipleTypesCount');
-      RegisterMethod(@TKMScriptStates.StatUnitLostMultipleTypesCountEx,         'StatUnitLostMultipleTypesCountEx');
-      RegisterMethod(@TKMScriptStates.StatUnitMultipleTypesCount,               'StatUnitMultipleTypesCount');
-      RegisterMethod(@TKMScriptStates.StatUnitMultipleTypesCountEx,             'StatUnitMultipleTypesCountEx');
-      RegisterMethod(@TKMScriptStates.StatUnitTypeCount,                        'StatUnitTypeCount');
-      RegisterMethod(@TKMScriptStates.StatUnitTypeCountEx,                      'StatUnitTypeCountEx');
-
-      RegisterMethod(@TKMScriptStates.UnitAllowAllyToSelect,                    'UnitAllowAllyToSelect');
-      RegisterMethod(@TKMScriptStates.UnitAt,                                   'UnitAt');
-      RegisterMethod(@TKMScriptStates.UnitCarrying,                             'UnitCarrying');
-      RegisterMethod(@TKMScriptStates.UnitCarryingEx,                           'UnitCarryingEx');
-      RegisterMethod(@TKMScriptStates.UnitDead,                                 'UnitDead');
-      RegisterMethod(@TKMScriptStates.UnitDirection,                            'UnitDirection');
-      RegisterMethod(@TKMScriptStates.UnitDirectionEx,                          'UnitDirectionEx');
-      RegisterMethod(@TKMScriptStates.UnitDismissable,                          'UnitDismissable');
-      RegisterMethod(@TKMScriptStates.UnitHome,                                 'UnitHome');
-      RegisterMethod(@TKMScriptStates.UnitHPCurrent,                            'UnitHPCurrent');
-      RegisterMethod(@TKMScriptStates.UnitHPMax,                                'UnitHPMax');
-      RegisterMethod(@TKMScriptStates.UnitHPInvulnerable,                       'UnitHPInvulnerable');
-      RegisterMethod(@TKMScriptStates.UnitHunger,                               'UnitHunger');
-      RegisterMethod(@TKMScriptStates.UnitIdle,                                 'UnitIdle');
-      RegisterMethod(@TKMScriptStates.UnitInHouse,                              'UnitInHouse');
-      RegisterMethod(@TKMScriptStates.UnitLowHunger,                            'UnitLowHunger');
-      RegisterMethod(@TKMScriptStates.UnitMaxHunger,                            'UnitMaxHunger');
-      RegisterMethod(@TKMScriptStates.UnitOwner,                                'UnitOwner');
-      RegisterMethod(@TKMScriptStates.UnitPosition,                             'UnitPosition');
-      RegisterMethod(@TKMScriptStates.UnitPositionX,                            'UnitPositionX');
-      RegisterMethod(@TKMScriptStates.UnitPositionY,                            'UnitPositionY');
-      RegisterMethod(@TKMScriptStates.UnitsGroup,                               'UnitsGroup');
-      RegisterMethod(@TKMScriptStates.UnitType,                                 'UnitType');
-      RegisterMethod(@TKMScriptStates.UnitTypeEx,                               'UnitTypeEx');
-      RegisterMethod(@TKMScriptStates.UnitTypeName,                             'UnitTypeName');
-      RegisterMethod(@TKMScriptStates.UnitTypeNameEx,                           'UnitTypeNameEx');
-
-      RegisterMethod(@TKMScriptStates.WareTypeName,                             'WareTypeName');
-      RegisterMethod(@TKMScriptStates.WareTypeNameEx,                           'WareTypeNameEx');
-      RegisterMethod(@TKMScriptStates.WarriorInFight,                           'WarriorInFight');
+      RegisterMethod(@TKMScriptStates.StatUnitCount, 'StatUnitCount');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledCount, 'StatUnitKilledCount');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledCountEx, 'StatUnitKilledCountEx');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledMultipleTypesCount, 'StatUnitKilledMultipleTypesCount');
+      RegisterMethod(@TKMScriptStates.StatUnitKilledMultipleTypesCountEx, 'StatUnitKilledMultipleTypesCountEx');
+      RegisterMethod(@TKMScriptStates.StatUnitLostCount, 'StatUnitLostCount');
+      RegisterMethod(@TKMScriptStates.StatUnitLostCountEx, 'StatUnitLostCountEx');
+      RegisterMethod(@TKMScriptStates.StatUnitLostMultipleTypesCount, 'StatUnitLostMultipleTypesCount');
+      RegisterMethod(@TKMScriptStates.StatUnitLostMultipleTypesCountEx, 'StatUnitLostMultipleTypesCountEx');
+      RegisterMethod(@TKMScriptStates.StatUnitMultipleTypesCount, 'StatUnitMultipleTypesCount');
+      RegisterMethod(@TKMScriptStates.StatUnitMultipleTypesCountEx, 'StatUnitMultipleTypesCountEx');
+      RegisterMethod(@TKMScriptStates.StatUnitTypeCount, 'StatUnitTypeCount');
+      RegisterMethod(@TKMScriptStates.StatUnitTypeCountEx, 'StatUnitTypeCountEx');
+      RegisterMethod(@TKMScriptStates.UnitAllowAllyToSelect, 'UnitAllowAllyToSelect');
+      RegisterMethod(@TKMScriptStates.UnitAt, 'UnitAt');
+      RegisterMethod(@TKMScriptStates.UnitCarrying, 'UnitCarrying');
+      RegisterMethod(@TKMScriptStates.UnitCarryingEx, 'UnitCarryingEx');
+      RegisterMethod(@TKMScriptStates.UnitDead, 'UnitDead');
+      RegisterMethod(@TKMScriptStates.UnitDirection, 'UnitDirection');
+      RegisterMethod(@TKMScriptStates.UnitDirectionEx, 'UnitDirectionEx');
+      RegisterMethod(@TKMScriptStates.UnitDismissable, 'UnitDismissable');
+      RegisterMethod(@TKMScriptStates.UnitHome, 'UnitHome');
+      RegisterMethod(@TKMScriptStates.UnitHPCurrent, 'UnitHPCurrent');
+      RegisterMethod(@TKMScriptStates.UnitHPInvulnerable, 'UnitHPInvulnerable');
+      RegisterMethod(@TKMScriptStates.UnitHPMax, 'UnitHPMax');
+      RegisterMethod(@TKMScriptStates.UnitHunger, 'UnitHunger');
+      RegisterMethod(@TKMScriptStates.UnitIdle, 'UnitIdle');
+      RegisterMethod(@TKMScriptStates.UnitInHouse, 'UnitInHouse');
+      RegisterMethod(@TKMScriptStates.UnitLowHunger, 'UnitLowHunger');
+      RegisterMethod(@TKMScriptStates.UnitMaxHunger, 'UnitMaxHunger');
+      RegisterMethod(@TKMScriptStates.UnitOwner, 'UnitOwner');
+      RegisterMethod(@TKMScriptStates.UnitPosition, 'UnitPosition');
+      RegisterMethod(@TKMScriptStates.UnitPositionX, 'UnitPositionX');
+      RegisterMethod(@TKMScriptStates.UnitPositionY, 'UnitPositionY');
+      RegisterMethod(@TKMScriptStates.UnitsGroup, 'UnitsGroup');
+      RegisterMethod(@TKMScriptStates.UnitType, 'UnitType');
+      RegisterMethod(@TKMScriptStates.UnitTypeEx, 'UnitTypeEx');
+      RegisterMethod(@TKMScriptStates.UnitTypeName, 'UnitTypeName');
+      RegisterMethod(@TKMScriptStates.UnitTypeNameEx, 'UnitTypeNameEx');
+      RegisterMethod(@TKMScriptStates.WareTypeName, 'WareTypeName');
+      RegisterMethod(@TKMScriptStates.WareTypeNameEx, 'WareTypeNameEx');
+      RegisterMethod(@TKMScriptStates.WarriorInFight, 'WarriorInFight');
+      //*States-Reg*//
     end;
 
     with classImp.Add(TKMScriptActions) do
     begin
-      RegisterMethod(@TKMScriptActions.AIArmyType,                              'AIArmyType');
-      RegisterMethod(@TKMScriptActions.AIAttackAdd,                             'AIAttackAdd');
-      RegisterMethod(@TKMScriptActions.AIAttackAddEx,                           'AIAttackAddEx');
-      RegisterMethod(@TKMScriptActions.AIAttackRemove,                          'AIAttackRemove');
-      RegisterMethod(@TKMScriptActions.AIAttackRemoveAll,                       'AIAttackRemoveAll');
-      RegisterMethod(@TKMScriptActions.AIAutoAttack,                            'AIAutoAttack');
-      RegisterMethod(@TKMScriptActions.AIAutoAttackRange,                       'AIAutoAttackRange');
-      RegisterMethod(@TKMScriptActions.AIAutoBuild,                             'AIAutoBuild');
-      RegisterMethod(@TKMScriptActions.AIAutoDefence,                           'AIAutoDefence');
-      RegisterMethod(@TKMScriptActions.AIAutoRepair,                            'AIAutoRepair');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionAdd,                    'AIDefencePositionAdd');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionAddEx,                  'AIDefencePositionAddEx');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionRemove,                 'AIDefencePositionRemove');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionRemoveAll,              'AIDefencePositionRemoveAll');
-      RegisterMethod(@TKMScriptActions.AIDefencePositionRemoveByUID,            'AIDefencePositionRemoveByUID');
-      RegisterMethod(@TKMScriptActions.AIDefendAllies,                          'AIDefendAllies');
-      RegisterMethod(@TKMScriptActions.AIEquipRate,                             'AIEquipRate');
-      RegisterMethod(@TKMScriptActions.AIGroupsFormationSet,                    'AIGroupsFormationSet');
-      RegisterMethod(@TKMScriptActions.AIGroupsFormationSetEx,                  'AIGroupsFormationSetEx');
-      RegisterMethod(@TKMScriptActions.AIRecruitDelay,                          'AIRecruitDelay');
-      RegisterMethod(@TKMScriptActions.AIRecruitLimit,                          'AIRecruitLimit');
-      RegisterMethod(@TKMScriptActions.AIRepairMode,                            'AIRepairMode');
-      RegisterMethod(@TKMScriptActions.AISerfsPerHouse,                         'AISerfsPerHouse');
-      RegisterMethod(@TKMScriptActions.AISoldiersLimit,                         'AISoldiersLimit');
-      RegisterMethod(@TKMScriptActions.AIStartPosition,                         'AIStartPosition');
-      RegisterMethod(@TKMScriptActions.AIWorkerLimit,                           'AIWorkerLimit');
-
-      RegisterMethod(@TKMScriptActions.CinematicEnd,                            'CinematicEnd');
-      RegisterMethod(@TKMScriptActions.CinematicPanTo,                          'CinematicPanTo');
-      RegisterMethod(@TKMScriptActions.CinematicStart,                          'CinematicStart');
-
-      RegisterMethod(@TKMScriptActions.FogCoverAll,                             'FogCoverAll');
-      RegisterMethod(@TKMScriptActions.FogCoverCircle,                          'FogCoverCircle');
-      RegisterMethod(@TKMScriptActions.FogCoverRect,                            'FogCoverRect');
-      RegisterMethod(@TKMScriptActions.FogRevealAll,                            'FogRevealAll');
-      RegisterMethod(@TKMScriptActions.FogRevealCircle,                         'FogRevealCircle');
-      RegisterMethod(@TKMScriptActions.FogRevealRect,                           'FogRevealRect');
-
-      RegisterMethod(@TKMScriptActions.GameSpeed,                               'GameSpeed');
-      RegisterMethod(@TKMScriptActions.GameSpeedChangeAllowed,                  'GameSpeedChangeAllowed');
-
-      RegisterMethod(@TKMScriptActions.GiveAnimal,                              'GiveAnimal');
-      RegisterMethod(@TKMScriptActions.GiveAnimalEx,                            'GiveAnimalEx');
-      RegisterMethod(@TKMScriptActions.GiveField,                               'GiveField');
-      RegisterMethod(@TKMScriptActions.GiveFieldAged,                           'GiveFieldAged');
-      RegisterMethod(@TKMScriptActions.GiveGroup,                               'GiveGroup');
-      RegisterMethod(@TKMScriptActions.GiveGroupEx,                             'GiveGroupEx');
-      RegisterMethod(@TKMScriptActions.GiveUnit,                                'GiveUnit');
-      RegisterMethod(@TKMScriptActions.GiveUnitEx,                              'GiveUnitEx');
-      RegisterMethod(@TKMScriptActions.GiveHouse,                               'GiveHouse');
-      RegisterMethod(@TKMScriptActions.GiveHouseEx,                             'GiveHouseEx');
-      RegisterMethod(@TKMScriptActions.GiveHouseSite,                           'GiveHouseSite');
-      RegisterMethod(@TKMScriptActions.GiveHouseSiteEx,                         'GiveHouseSiteEx');
-      RegisterMethod(@TKMScriptActions.GiveRoad,                                'GiveRoad');
-      RegisterMethod(@TKMScriptActions.GiveWares,                               'GiveWares');
-      RegisterMethod(@TKMScriptActions.GiveWaresEx,                             'GiveWaresEx');
-      RegisterMethod(@TKMScriptActions.GiveWeapons,                             'GiveWeapons');
-      RegisterMethod(@TKMScriptActions.GiveWeaponsEx,                           'GiveWeaponsEx');
-      RegisterMethod(@TKMScriptActions.GiveWineField,                           'GiveWineField');
-      RegisterMethod(@TKMScriptActions.GiveWineFieldAged,                       'GiveWineFieldAged');
-
-      RegisterMethod(@TKMScriptActions.GroupAllowAllyToSelect,                  'GroupAllowAllyToSelect');
-      RegisterMethod(@TKMScriptActions.GroupBlockOrders,                        'GroupBlockOrders');
-      RegisterMethod(@TKMScriptActions.GroupDisableHungryMessage,               'GroupDisableHungryMessage');
-      RegisterMethod(@TKMScriptActions.GroupHungerSet,                          'GroupHungerSet');
-      RegisterMethod(@TKMScriptActions.GroupKillAll,                            'GroupKillAll');
-      RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse,                   'GroupOrderAttackHouse');
-      RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit,                    'GroupOrderAttackUnit');
-      RegisterMethod(@TKMScriptActions.GroupOrderFood,                          'GroupOrderFood');
-      RegisterMethod(@TKMScriptActions.GroupOrderHalt,                          'GroupOrderHalt');
-      RegisterMethod(@TKMScriptActions.GroupOrderLink,                          'GroupOrderLink');
-      RegisterMethod(@TKMScriptActions.GroupOrderSplit,                         'GroupOrderSplit');
-      RegisterMethod(@TKMScriptActions.GroupOrderSplitUnit,                     'GroupOrderSplitUnit');
-      RegisterMethod(@TKMScriptActions.GroupOrderStorm,                         'GroupOrderStorm');
-      RegisterMethod(@TKMScriptActions.GroupOrderWalk,                          'GroupOrderWalk');
-      RegisterMethod(@TKMScriptActions.GroupOrderWalkEx,                        'GroupOrderWalkEx');
-      RegisterMethod(@TKMScriptActions.GroupSetFormation,                       'GroupSetFormation');
-
-      RegisterMethod(@TKMScriptActions.HandHouseLock,                           'HandHouseLock');
-      RegisterMethod(@TKMScriptActions.HandTradeAllowed,                        'HandTradeAllowed');
-      RegisterMethod(@TKMScriptActions.HandUnitCanTrain,                        'HandUnitCanTrain');
-      RegisterMethod(@TKMScriptActions.HandWareDistribution,                    'HandWareDistribution');
-
-      RegisterMethod(@TKMScriptActions.HouseAddBuildingMaterials,               'HouseAddBuildingMaterials');
-      RegisterMethod(@TKMScriptActions.HouseAddBuildingMaterialsEx,             'HouseAddBuildingMaterialsEx');
-      RegisterMethod(@TKMScriptActions.HouseAddBuildingProgress,                'HouseAddBuildingProgress');
-      RegisterMethod(@TKMScriptActions.HouseAddBuildingProgressEx,              'HouseAddBuildingProgressEx');
-      RegisterMethod(@TKMScriptActions.HouseAddDamage,                          'HouseAddDamage');
-      RegisterMethod(@TKMScriptActions.HouseAddRepair,                          'HouseAddRepair');
-      RegisterMethod(@TKMScriptActions.HouseAddWaresTo,                         'HouseAddWaresTo');
-      RegisterMethod(@TKMScriptActions.HouseAddWaresToEx,                       'HouseAddWaresToEx');
-      RegisterMethod(@TKMScriptActions.HouseAllow,                              'HouseAllow');
-      RegisterMethod(@TKMScriptActions.HouseAllowAllyToSelect,                  'HouseAllowAllyToSelect');
-      RegisterMethod(@TKMScriptActions.HouseAllowAllyToSelectAll,               'HouseAllowAllyToSelectAll');
-      RegisterMethod(@TKMScriptActions.HouseBarracksEquip,                      'HouseBarracksEquip');
-      RegisterMethod(@TKMScriptActions.HouseBarracksEquipEx,                    'HouseBarracksEquipEx');
-      RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruit,                'HouseBarracksGiveRecruit');
-      RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruits,               'HouseBarracksGiveRecruits');
-      RegisterMethod(@TKMScriptActions.HouseBarracksRecruitBlock,               'HouseBarracksRecruitBlock');
-      RegisterMethod(@TKMScriptActions.HouseDeliveryBlock,                      'HouseDeliveryBlock');
-      RegisterMethod(@TKMScriptActions.HouseDeliveryMode,                       'HouseDeliveryMode');
-      RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage,           'HouseDisableUnoccupiedMessage');
-      RegisterMethod(@TKMScriptActions.HouseDestroy,                            'HouseDestroy');
-      RegisterMethod(@TKMScriptActions.HouseRepairEnable,                       'HouseRepairEnable');
-      RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd,                     'HouseSchoolQueueAdd');
-      RegisterMethod(@TKMScriptActions.HouseSchoolQueueAddEx,                   'HouseSchoolQueueAddEx');
-      RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove,                  'HouseSchoolQueueRemove');
-      RegisterMethod(@TKMScriptActions.HouseTakeWaresFrom,                      'HouseTakeWaresFrom');
-      RegisterMethod(@TKMScriptActions.HouseTakeWaresFromEx,                    'HouseTakeWaresFromEx');
-      RegisterMethod(@TKMScriptActions.HouseTownHallEquip,                      'HouseTownHallEquip');
-      RegisterMethod(@TKMScriptActions.HouseTownHallEquipEx,                    'HouseTownHallEquipEx');
-      RegisterMethod(@TKMScriptActions.HouseTownHallMaxGold,                    'HouseTownHallMaxGold');
-      RegisterMethod(@TKMScriptActions.HouseUnlock,                             'HouseUnlock');
-      RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly,                 'HouseWoodcutterChopOnly');
-      RegisterMethod(@TKMScriptActions.HouseWoodcutterMode,                     'HouseWoodcutterMode');
-      RegisterMethod(@TKMScriptActions.HouseWareBlock,                          'HouseWareBlock');
-      RegisterMethod(@TKMScriptActions.HouseWareBlockEx,                        'HouseWareBlockEx');
-      RegisterMethod(@TKMScriptActions.HouseWareBlockTakeOut,                   'HouseWareBlockTakeOut');
-      RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet,                    'HouseWeaponsOrderSet');
-      RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSetEx,                  'HouseWeaponsOrderSetEx');
-
-      RegisterMethod(@TKMScriptActions.Log,                                     'Log');
-      RegisterMethod(@TKMScriptActions.LogLinesMaxCnt,                          'LogLinesMaxCnt');
-
-      RegisterMethod(@TKMScriptActions.MapBrush,                                'MapBrush');
-      RegisterMethod(@TKMScriptActions.MapBrushElevation,                       'MapBrushElevation');
-      RegisterMethod(@TKMScriptActions.MapBrushEqualize,                        'MapBrushEqualize');
-      RegisterMethod(@TKMScriptActions.MapBrushFlatten,                         'MapBrushFlatten');
-      RegisterMethod(@TKMScriptActions.MapBrushMagicWater,                      'MapBrushMagicWater');
-      RegisterMethod(@TKMScriptActions.MapBrushWithMask,                        'MapBrushWithMask');
-
-      RegisterMethod(@TKMScriptActions.MapTileSet,                              'MapTileSet');
-      RegisterMethod(@TKMScriptActions.MapTilesArraySet,                        'MapTilesArraySet');
-      RegisterMethod(@TKMScriptActions.MapTilesArraySetS,                       'MapTilesArraySetS');
-      RegisterMethod(@TKMScriptActions.MapTileHeightSet,                        'MapTileHeightSet');
-      RegisterMethod(@TKMScriptActions.MapTileObjectSet,                        'MapTileObjectSet');
-      RegisterMethod(@TKMScriptActions.MapTileOverlaySet,                       'MapTileOverlaySet');
-
-      RegisterMethod(@TKMScriptActions.MarketSetTrade,                          'MarketSetTrade');
-      RegisterMethod(@TKMScriptActions.MarketSetTradeEx,                        'MarketSetTradeEx');
-
-      RegisterMethod(@TKMScriptActions.OverlayTextAppend,                       'OverlayTextAppend');
-      RegisterMethod(@TKMScriptActions.OverlayTextAppendFormatted,              'OverlayTextAppendFormatted');
-      RegisterMethod(@TKMScriptActions.OverlayTextSet,                          'OverlayTextSet');
-      RegisterMethod(@TKMScriptActions.OverlayTextSetFormatted,                 'OverlayTextSetFormatted');
-      RegisterMethod(@TKMScriptActions.OverlayTextSetFont,                      'OverlayTextSetFont');
-      RegisterMethod(@TKMScriptActions.OverlayTextSetWordWrap,                  'OverlayTextSetWordWrap');
-
-      RegisterMethod(@TKMScriptActions.Peacetime,                               'Peacetime');
-
-      RegisterMethod(@TKMScriptActions.PlanAddField,                            'PlanAddField');
-      RegisterMethod(@TKMScriptActions.PlanAddHouse,                            'PlanAddHouse');
-      RegisterMethod(@TKMScriptActions.PlanAddHouseEx,                          'PlanAddHouseEx');
-      RegisterMethod(@TKMScriptActions.PlanAddRoad,                             'PlanAddRoad');
-      RegisterMethod(@TKMScriptActions.PlanAddWinefield,                        'PlanAddWinefield');
-      RegisterMethod(@TKMScriptActions.PlanConnectRoad,                         'PlanConnectRoad');
-      RegisterMethod(@TKMScriptActions.PlanRemove,                              'PlanRemove');
-
-      RegisterMethod(@TKMScriptActions.PlayerAllianceChange,                    'PlayerAllianceChange');
-      RegisterMethod(@TKMScriptActions.PlayerAllianceNFogChange,                'PlayerAllianceNFogChange');
-      RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals,                   'PlayerAddDefaultGoals');
-      RegisterMethod(@TKMScriptActions.PlayerDefeat,                            'PlayerDefeat');
-      RegisterMethod(@TKMScriptActions.PlayerGoalsRemoveAll,                    'PlayerGoalsRemoveAll');
-      RegisterMethod(@TKMScriptActions.PlayerShareBeacons,                      'PlayerShareBeacons');
-      RegisterMethod(@TKMScriptActions.PlayerShareFog,                          'PlayerShareFog');
-      RegisterMethod(@TKMScriptActions.PlayerShareFogCompliment,                'PlayerShareFogCompliment');
-      RegisterMethod(@TKMScriptActions.PlayerWareDistribution,                  'PlayerWareDistribution');
-      RegisterMethod(@TKMScriptActions.PlayerWin,                               'PlayerWin');
-
-      RegisterMethod(@TKMScriptActions.PlayWAV,                                 'PlayWAV');
-      RegisterMethod(@TKMScriptActions.PlayWAVAtLocation,                       'PlayWAVAtLocation');
-      RegisterMethod(@TKMScriptActions.PlayWAVAtLocationLooped,                 'PlayWAVAtLocationLooped');
-      RegisterMethod(@TKMScriptActions.PlayWAVFadeMusic,                        'PlayWAVFadeMusic');
-      RegisterMethod(@TKMScriptActions.PlayWAVLooped,                           'PlayWAVLooped');
-      RegisterMethod(@TKMScriptActions.StopLoopedWAV,                           'StopLoopedWAV');
-
-      RegisterMethod(@TKMScriptActions.PlayOGG,                                 'PlayOGG');
-      RegisterMethod(@TKMScriptActions.PlayOGGAtLocation,                       'PlayOGGAtLocation');
-      RegisterMethod(@TKMScriptActions.PlayOGGAtLocationLooped,                 'PlayOGGAtLocationLooped');
-      RegisterMethod(@TKMScriptActions.PlayOGGFadeMusic,                        'PlayOGGFadeMusic');
-      RegisterMethod(@TKMScriptActions.PlayOGGLooped,                           'PlayOGGLooped');
-      RegisterMethod(@TKMScriptActions.StopLoopedOGG,                           'StopLoopedOGG');
-
-      RegisterMethod(@TKMScriptActions.PlaySound,                               'PlaySound');
-      RegisterMethod(@TKMScriptActions.PlaySoundAtLocation,                     'PlaySoundAtLocation');
-      RegisterMethod(@TKMScriptActions.StopSound,                               'StopSound');
-
-      RegisterMethod(@TKMScriptActions.RemoveRoad,                              'RemoveRoad');
-
-      RegisterMethod(@TKMScriptActions.SetTradeAllowed,                         'SetTradeAllowed');
-
-      RegisterMethod(@TKMScriptActions.ShowMsg,                                 'ShowMsg');
-      RegisterMethod(@TKMScriptActions.ShowMsgFormatted,                        'ShowMsgFormatted');
-      RegisterMethod(@TKMScriptActions.ShowMsgGoto,                             'ShowMsgGoto');
-      RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted,                    'ShowMsgGotoFormatted');
-
-      RegisterMethod(@TKMScriptActions.UnitAllowAllyToSelect,                   'UnitAllowAllyToSelect');
-      RegisterMethod(@TKMScriptActions.UnitBlock,                               'UnitBlock');
-      RegisterMethod(@TKMScriptActions.UnitDirectionSet,                        'UnitDirectionSet');
-      RegisterMethod(@TKMScriptActions.UnitDirectionSetEx,                      'UnitDirectionSetEx');
-      RegisterMethod(@TKMScriptActions.UnitDismiss,                             'UnitDismiss');
-      RegisterMethod(@TKMScriptActions.UnitDismissableSet,                      'UnitDismissableSet');
-      RegisterMethod(@TKMScriptActions.UnitDismissCancel,                       'UnitDismissCancel');
-      RegisterMethod(@TKMScriptActions.UnitHPChange,                            'UnitHPChange');
-      RegisterMethod(@TKMScriptActions.UnitHPSetInvulnerable,                   'UnitHPSetInvulnerable');
-      RegisterMethod(@TKMScriptActions.UnitHungerSet,                           'UnitHungerSet');
-      RegisterMethod(@TKMScriptActions.UnitKill,                                'UnitKill');
-      RegisterMethod(@TKMScriptActions.UnitOrderWalk,                           'UnitOrderWalk');
+      //*Actions-Reg*//
+      RegisterMethod(@TKMScriptActions.AIArmyType, 'AIArmyType');
+      RegisterMethod(@TKMScriptActions.AIAttackAdd, 'AIAttackAdd');
+      RegisterMethod(@TKMScriptActions.AIAttackAddEx, 'AIAttackAddEx');
+      RegisterMethod(@TKMScriptActions.AIAttackRemove, 'AIAttackRemove');
+      RegisterMethod(@TKMScriptActions.AIAttackRemoveAll, 'AIAttackRemoveAll');
+      RegisterMethod(@TKMScriptActions.AIAutoAttack, 'AIAutoAttack');
+      RegisterMethod(@TKMScriptActions.AIAutoAttackRange, 'AIAutoAttackRange');
+      RegisterMethod(@TKMScriptActions.AIAutoBuild, 'AIAutoBuild');
+      RegisterMethod(@TKMScriptActions.AIAutoDefence, 'AIAutoDefence');
+      RegisterMethod(@TKMScriptActions.AIAutoRepair, 'AIAutoRepair');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionAdd, 'AIDefencePositionAdd');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionAddEx, 'AIDefencePositionAddEx');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionRemove, 'AIDefencePositionRemove');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionRemoveAll, 'AIDefencePositionRemoveAll');
+      RegisterMethod(@TKMScriptActions.AIDefencePositionRemoveByUID, 'AIDefencePositionRemoveByUID');
+      RegisterMethod(@TKMScriptActions.AIDefendAllies, 'AIDefendAllies');
+      RegisterMethod(@TKMScriptActions.AIEquipRate, 'AIEquipRate');
+      RegisterMethod(@TKMScriptActions.AIGroupsFormationSet, 'AIGroupsFormationSet');
+      RegisterMethod(@TKMScriptActions.AIGroupsFormationSetEx, 'AIGroupsFormationSetEx');
+      RegisterMethod(@TKMScriptActions.AIRecruitDelay, 'AIRecruitDelay');
+      RegisterMethod(@TKMScriptActions.AIRecruitLimit, 'AIRecruitLimit');
+      RegisterMethod(@TKMScriptActions.AIRepairMode, 'AIRepairMode');
+      RegisterMethod(@TKMScriptActions.AISerfsPerHouse, 'AISerfsPerHouse');
+      RegisterMethod(@TKMScriptActions.AISoldiersLimit, 'AISoldiersLimit');
+      RegisterMethod(@TKMScriptActions.AIStartPosition, 'AIStartPosition');
+      RegisterMethod(@TKMScriptActions.AIWorkerLimit, 'AIWorkerLimit');
+      RegisterMethod(@TKMScriptActions.CinematicEnd, 'CinematicEnd');
+      RegisterMethod(@TKMScriptActions.CinematicPanTo, 'CinematicPanTo');
+      RegisterMethod(@TKMScriptActions.CinematicStart, 'CinematicStart');
+      RegisterMethod(@TKMScriptActions.FogCoverAll, 'FogCoverAll');
+      RegisterMethod(@TKMScriptActions.FogCoverCircle, 'FogCoverCircle');
+      RegisterMethod(@TKMScriptActions.FogCoverRect, 'FogCoverRect');
+      RegisterMethod(@TKMScriptActions.FogRevealAll, 'FogRevealAll');
+      RegisterMethod(@TKMScriptActions.FogRevealCircle, 'FogRevealCircle');
+      RegisterMethod(@TKMScriptActions.FogRevealRect, 'FogRevealRect');
+      RegisterMethod(@TKMScriptActions.GameSpeed, 'GameSpeed');
+      RegisterMethod(@TKMScriptActions.GameSpeedChangeAllowed, 'GameSpeedChangeAllowed');
+      RegisterMethod(@TKMScriptActions.GiveAnimal, 'GiveAnimal');
+      RegisterMethod(@TKMScriptActions.GiveAnimalEx, 'GiveAnimalEx');
+      RegisterMethod(@TKMScriptActions.GiveField, 'GiveField');
+      RegisterMethod(@TKMScriptActions.GiveFieldAged, 'GiveFieldAged');
+      RegisterMethod(@TKMScriptActions.GiveGroup, 'GiveGroup');
+      RegisterMethod(@TKMScriptActions.GiveGroupEx, 'GiveGroupEx');
+      RegisterMethod(@TKMScriptActions.GiveHouse, 'GiveHouse');
+      RegisterMethod(@TKMScriptActions.GiveHouseEx, 'GiveHouseEx');
+      RegisterMethod(@TKMScriptActions.GiveHouseSite, 'GiveHouseSite');
+      RegisterMethod(@TKMScriptActions.GiveHouseSiteEx, 'GiveHouseSiteEx');
+      RegisterMethod(@TKMScriptActions.GiveRoad, 'GiveRoad');
+      RegisterMethod(@TKMScriptActions.GiveUnit, 'GiveUnit');
+      RegisterMethod(@TKMScriptActions.GiveUnitEx, 'GiveUnitEx');
+      RegisterMethod(@TKMScriptActions.GiveWares, 'GiveWares');
+      RegisterMethod(@TKMScriptActions.GiveWaresEx, 'GiveWaresEx');
+      RegisterMethod(@TKMScriptActions.GiveWeapons, 'GiveWeapons');
+      RegisterMethod(@TKMScriptActions.GiveWeaponsEx, 'GiveWeaponsEx');
+      RegisterMethod(@TKMScriptActions.GiveWineField, 'GiveWineField');
+      RegisterMethod(@TKMScriptActions.GiveWineFieldAged, 'GiveWineFieldAged');
+      RegisterMethod(@TKMScriptActions.GroupAllowAllyToSelect, 'GroupAllowAllyToSelect');
+      RegisterMethod(@TKMScriptActions.GroupBlockOrders, 'GroupBlockOrders');
+      RegisterMethod(@TKMScriptActions.GroupDisableHungryMessage, 'GroupDisableHungryMessage');
+      RegisterMethod(@TKMScriptActions.GroupHungerSet, 'GroupHungerSet');
+      RegisterMethod(@TKMScriptActions.GroupKillAll, 'GroupKillAll');
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackHouse, 'GroupOrderAttackHouse');
+      RegisterMethod(@TKMScriptActions.GroupOrderAttackUnit, 'GroupOrderAttackUnit');
+      RegisterMethod(@TKMScriptActions.GroupOrderFood, 'GroupOrderFood');
+      RegisterMethod(@TKMScriptActions.GroupOrderHalt, 'GroupOrderHalt');
+      RegisterMethod(@TKMScriptActions.GroupOrderLink, 'GroupOrderLink');
+      RegisterMethod(@TKMScriptActions.GroupOrderSplit, 'GroupOrderSplit');
+      RegisterMethod(@TKMScriptActions.GroupOrderSplitUnit, 'GroupOrderSplitUnit');
+      RegisterMethod(@TKMScriptActions.GroupOrderStorm, 'GroupOrderStorm');
+      RegisterMethod(@TKMScriptActions.GroupOrderWalk, 'GroupOrderWalk');
+      RegisterMethod(@TKMScriptActions.GroupOrderWalkEx, 'GroupOrderWalkEx');
+      RegisterMethod(@TKMScriptActions.GroupSetFormation, 'GroupSetFormation');
+      RegisterMethod(@TKMScriptActions.HandHouseLock, 'HandHouseLock');
+      RegisterMethod(@TKMScriptActions.HandTradeAllowed, 'HandTradeAllowed');
+      RegisterMethod(@TKMScriptActions.HandUnitCanTrain, 'HandUnitCanTrain');
+      RegisterMethod(@TKMScriptActions.HandWareDistribution, 'HandWareDistribution');
+      RegisterMethod(@TKMScriptActions.HouseAddBuildingMaterials, 'HouseAddBuildingMaterials');
+      RegisterMethod(@TKMScriptActions.HouseAddBuildingMaterialsEx, 'HouseAddBuildingMaterialsEx');
+      RegisterMethod(@TKMScriptActions.HouseAddBuildingProgress, 'HouseAddBuildingProgress');
+      RegisterMethod(@TKMScriptActions.HouseAddBuildingProgressEx, 'HouseAddBuildingProgressEx');
+      RegisterMethod(@TKMScriptActions.HouseAddDamage, 'HouseAddDamage');
+      RegisterMethod(@TKMScriptActions.HouseAddRepair, 'HouseAddRepair');
+      RegisterMethod(@TKMScriptActions.HouseAddWaresTo, 'HouseAddWaresTo');
+      RegisterMethod(@TKMScriptActions.HouseAddWaresToEx, 'HouseAddWaresToEx');
+      RegisterMethod(@TKMScriptActions.HouseAllow, 'HouseAllow');
+      RegisterMethod(@TKMScriptActions.HouseAllowAllyToSelect, 'HouseAllowAllyToSelect');
+      RegisterMethod(@TKMScriptActions.HouseAllowAllyToSelectAll, 'HouseAllowAllyToSelectAll');
+      RegisterMethod(@TKMScriptActions.HouseBarracksEquip, 'HouseBarracksEquip');
+      RegisterMethod(@TKMScriptActions.HouseBarracksEquipEx, 'HouseBarracksEquipEx');
+      RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruit, 'HouseBarracksGiveRecruit');
+      RegisterMethod(@TKMScriptActions.HouseBarracksGiveRecruits, 'HouseBarracksGiveRecruits');
+      RegisterMethod(@TKMScriptActions.HouseBarracksRecruitBlock, 'HouseBarracksRecruitBlock');
+      RegisterMethod(@TKMScriptActions.HouseDeliveryBlock, 'HouseDeliveryBlock');
+      RegisterMethod(@TKMScriptActions.HouseDeliveryMode, 'HouseDeliveryMode');
+      RegisterMethod(@TKMScriptActions.HouseDestroy, 'HouseDestroy');
+      RegisterMethod(@TKMScriptActions.HouseDisableUnoccupiedMessage, 'HouseDisableUnoccupiedMessage');
+      RegisterMethod(@TKMScriptActions.HouseRepairEnable, 'HouseRepairEnable');
+      RegisterMethod(@TKMScriptActions.HouseSchoolQueueAdd, 'HouseSchoolQueueAdd');
+      RegisterMethod(@TKMScriptActions.HouseSchoolQueueAddEx, 'HouseSchoolQueueAddEx');
+      RegisterMethod(@TKMScriptActions.HouseSchoolQueueRemove, 'HouseSchoolQueueRemove');
+      RegisterMethod(@TKMScriptActions.HouseTakeWaresFrom, 'HouseTakeWaresFrom');
+      RegisterMethod(@TKMScriptActions.HouseTakeWaresFromEx, 'HouseTakeWaresFromEx');
+      RegisterMethod(@TKMScriptActions.HouseTownHallEquip, 'HouseTownHallEquip');
+      RegisterMethod(@TKMScriptActions.HouseTownHallEquipEx, 'HouseTownHallEquipEx');
+      RegisterMethod(@TKMScriptActions.HouseTownHallMaxGold, 'HouseTownHallMaxGold');
+      RegisterMethod(@TKMScriptActions.HouseUnlock, 'HouseUnlock');
+      RegisterMethod(@TKMScriptActions.HouseWareBlock, 'HouseWareBlock');
+      RegisterMethod(@TKMScriptActions.HouseWareBlockEx, 'HouseWareBlockEx');
+      RegisterMethod(@TKMScriptActions.HouseWareBlockTakeOut, 'HouseWareBlockTakeOut');
+      RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSet, 'HouseWeaponsOrderSet');
+      RegisterMethod(@TKMScriptActions.HouseWeaponsOrderSetEx, 'HouseWeaponsOrderSetEx');
+      RegisterMethod(@TKMScriptActions.HouseWoodcutterChopOnly, 'HouseWoodcutterChopOnly');
+      RegisterMethod(@TKMScriptActions.HouseWoodcutterMode, 'HouseWoodcutterMode');
+      RegisterMethod(@TKMScriptActions.Log, 'Log');
+      RegisterMethod(@TKMScriptActions.LogLinesMaxCnt, 'LogLinesMaxCnt');
+      RegisterMethod(@TKMScriptActions.MapBrush, 'MapBrush');
+      RegisterMethod(@TKMScriptActions.MapBrushElevation, 'MapBrushElevation');
+      RegisterMethod(@TKMScriptActions.MapBrushEqualize, 'MapBrushEqualize');
+      RegisterMethod(@TKMScriptActions.MapBrushFlatten, 'MapBrushFlatten');
+      RegisterMethod(@TKMScriptActions.MapBrushMagicWater, 'MapBrushMagicWater');
+      RegisterMethod(@TKMScriptActions.MapBrushWithMask, 'MapBrushWithMask');
+      RegisterMethod(@TKMScriptActions.MapTileHeightSet, 'MapTileHeightSet');
+      RegisterMethod(@TKMScriptActions.MapTileObjectSet, 'MapTileObjectSet');
+      RegisterMethod(@TKMScriptActions.MapTileOverlaySet, 'MapTileOverlaySet');
+      RegisterMethod(@TKMScriptActions.MapTilesArraySet, 'MapTilesArraySet');
+      RegisterMethod(@TKMScriptActions.MapTilesArraySetS, 'MapTilesArraySetS');
+      RegisterMethod(@TKMScriptActions.MapTileSet, 'MapTileSet');
+      RegisterMethod(@TKMScriptActions.MarketSetTrade, 'MarketSetTrade');
+      RegisterMethod(@TKMScriptActions.MarketSetTradeEx, 'MarketSetTradeEx');
+      RegisterMethod(@TKMScriptActions.OverlayTextAppend, 'OverlayTextAppend');
+      RegisterMethod(@TKMScriptActions.OverlayTextAppendFormatted, 'OverlayTextAppendFormatted');
+      RegisterMethod(@TKMScriptActions.OverlayTextSet, 'OverlayTextSet');
+      RegisterMethod(@TKMScriptActions.OverlayTextSetFont, 'OverlayTextSetFont');
+      RegisterMethod(@TKMScriptActions.OverlayTextSetFormatted, 'OverlayTextSetFormatted');
+      RegisterMethod(@TKMScriptActions.OverlayTextSetWordWrap, 'OverlayTextSetWordWrap');
+      RegisterMethod(@TKMScriptActions.Peacetime, 'Peacetime');
+      RegisterMethod(@TKMScriptActions.PlanAddField, 'PlanAddField');
+      RegisterMethod(@TKMScriptActions.PlanAddHouse, 'PlanAddHouse');
+      RegisterMethod(@TKMScriptActions.PlanAddHouseEx, 'PlanAddHouseEx');
+      RegisterMethod(@TKMScriptActions.PlanAddRoad, 'PlanAddRoad');
+      RegisterMethod(@TKMScriptActions.PlanAddWinefield, 'PlanAddWinefield');
+      RegisterMethod(@TKMScriptActions.PlanConnectRoad, 'PlanConnectRoad');
+      RegisterMethod(@TKMScriptActions.PlanRemove, 'PlanRemove');
+      RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PlayerAddDefaultGoals');
+      RegisterMethod(@TKMScriptActions.PlayerAllianceChange, 'PlayerAllianceChange');
+      RegisterMethod(@TKMScriptActions.PlayerAllianceNFogChange, 'PlayerAllianceNFogChange');
+      RegisterMethod(@TKMScriptActions.PlayerDefeat, 'PlayerDefeat');
+      RegisterMethod(@TKMScriptActions.PlayerGoalsRemoveAll, 'PlayerGoalsRemoveAll');
+      RegisterMethod(@TKMScriptActions.PlayerShareBeacons, 'PlayerShareBeacons');
+      RegisterMethod(@TKMScriptActions.PlayerShareFog, 'PlayerShareFog');
+      RegisterMethod(@TKMScriptActions.PlayerShareFogCompliment, 'PlayerShareFogCompliment');
+      RegisterMethod(@TKMScriptActions.PlayerWareDistribution, 'PlayerWareDistribution');
+      RegisterMethod(@TKMScriptActions.PlayerWin, 'PlayerWin');
+      RegisterMethod(@TKMScriptActions.PlayOGG, 'PlayOGG');
+      RegisterMethod(@TKMScriptActions.PlayOGGAtLocation, 'PlayOGGAtLocation');
+      RegisterMethod(@TKMScriptActions.PlayOGGAtLocationLooped, 'PlayOGGAtLocationLooped');
+      RegisterMethod(@TKMScriptActions.PlayOGGFadeMusic, 'PlayOGGFadeMusic');
+      RegisterMethod(@TKMScriptActions.PlayOGGLooped, 'PlayOGGLooped');
+      RegisterMethod(@TKMScriptActions.PlaySound, 'PlaySound');
+      RegisterMethod(@TKMScriptActions.PlaySoundAtLocation, 'PlaySoundAtLocation');
+      RegisterMethod(@TKMScriptActions.PlayWAV, 'PlayWAV');
+      RegisterMethod(@TKMScriptActions.PlayWAVAtLocation, 'PlayWAVAtLocation');
+      RegisterMethod(@TKMScriptActions.PlayWAVAtLocationLooped, 'PlayWAVAtLocationLooped');
+      RegisterMethod(@TKMScriptActions.PlayWAVFadeMusic, 'PlayWAVFadeMusic');
+      RegisterMethod(@TKMScriptActions.PlayWAVLooped, 'PlayWAVLooped');
+      RegisterMethod(@TKMScriptActions.RemoveRoad, 'RemoveRoad');
+      RegisterMethod(@TKMScriptActions.SetTradeAllowed, 'SetTradeAllowed');
+      RegisterMethod(@TKMScriptActions.ShowMsg, 'ShowMsg');
+      RegisterMethod(@TKMScriptActions.ShowMsgFormatted, 'ShowMsgFormatted');
+      RegisterMethod(@TKMScriptActions.ShowMsgGoto, 'ShowMsgGoto');
+      RegisterMethod(@TKMScriptActions.ShowMsgGotoFormatted, 'ShowMsgGotoFormatted');
+      RegisterMethod(@TKMScriptActions.StopLoopedOGG, 'StopLoopedOGG');
+      RegisterMethod(@TKMScriptActions.StopLoopedWAV, 'StopLoopedWAV');
+      RegisterMethod(@TKMScriptActions.StopSound, 'StopSound');
+      RegisterMethod(@TKMScriptActions.UnitAllowAllyToSelect, 'UnitAllowAllyToSelect');
+      RegisterMethod(@TKMScriptActions.UnitBlock, 'UnitBlock');
+      RegisterMethod(@TKMScriptActions.UnitDirectionSet, 'UnitDirectionSet');
+      RegisterMethod(@TKMScriptActions.UnitDirectionSetEx, 'UnitDirectionSetEx');
+      RegisterMethod(@TKMScriptActions.UnitDismiss, 'UnitDismiss');
+      RegisterMethod(@TKMScriptActions.UnitDismissableSet, 'UnitDismissableSet');
+      RegisterMethod(@TKMScriptActions.UnitDismissCancel, 'UnitDismissCancel');
+      RegisterMethod(@TKMScriptActions.UnitHPChange, 'UnitHPChange');
+      RegisterMethod(@TKMScriptActions.UnitHPSetInvulnerable, 'UnitHPSetInvulnerable');
+      RegisterMethod(@TKMScriptActions.UnitHungerSet, 'UnitHungerSet');
+      RegisterMethod(@TKMScriptActions.UnitKill, 'UnitKill');
+      RegisterMethod(@TKMScriptActions.UnitOrderWalk, 'UnitOrderWalk');
+      //*Actions-Reg*//
     end;
 
     with classImp.Add(TKMScriptUtils) do
     begin
-      RegisterMethod(@TKMScriptUtils.AbsI,                                      'AbsI');
-      RegisterMethod(@TKMScriptUtils.AbsS,                                      'AbsS');
-
-      RegisterMethod(@TKMScriptUtils.ArrayElementCount,                         'ArrayElementCount');
-      RegisterMethod(@TKMScriptUtils.ArrayElementCountB,                        'ArrayElementCountB');
-      RegisterMethod(@TKMScriptUtils.ArrayElementCountI,                        'ArrayElementCountI');
-      RegisterMethod(@TKMScriptUtils.ArrayElementCountS,                        'ArrayElementCountS');
-
-      RegisterMethod(@TKMScriptUtils.ArrayHasElement,                           'ArrayHasElement');
-      RegisterMethod(@TKMScriptUtils.ArrayHasElementB,                          'ArrayHasElementB');
-      RegisterMethod(@TKMScriptUtils.ArrayHasElementI,                          'ArrayHasElementI');
-      RegisterMethod(@TKMScriptUtils.ArrayHasElementS,                          'ArrayHasElementS');
-
-      RegisterMethod(@TKMScriptUtils.ArrayRemoveIndexI,                         'ArrayRemoveIndexI');
-      RegisterMethod(@TKMScriptUtils.ArrayRemoveIndexS,                         'ArrayRemoveIndexS');
-
-      RegisterMethod(@TKMScriptUtils.BoolToStr,                                 'BoolToStr');
-
-      RegisterMethod(@TKMScriptUtils.ColorBrightness,                           'ColorBrightness');
-
-      RegisterMethod(@TKMScriptUtils.CompareString,                             'CompareString');
-      RegisterMethod(@TKMScriptUtils.CompareText,                               'CompareText');
-      RegisterMethod(@TKMScriptUtils.CopyString,                                'CopyString');
-
-      RegisterMethod(@TKMScriptUtils.DeleteString,                              'DeleteString');
-
-      RegisterMethod(@TKMScriptUtils.EnsureRangeI,                              'EnsureRangeI');
-      RegisterMethod(@TKMScriptUtils.EnsureRangeS,                              'EnsureRangeS');
-
-      RegisterMethod(@TKMScriptUtils.Format,                                    'Format');
-      RegisterMethod(@TKMScriptUtils.FormatFloat,                               'FormatFloat');
-
-      RegisterMethod(@TKMScriptUtils.IfThen,                                    'IfThen');
-      RegisterMethod(@TKMScriptUtils.IfThenI,                                   'IfThenI');
-      RegisterMethod(@TKMScriptUtils.IfThenS,                                   'IfThenS');
-
-      RegisterMethod(@TKMScriptUtils.InAreaI,                                   'InAreaI');
-      RegisterMethod(@TKMScriptUtils.InAreaS,                                   'InAreaS');
-
-      RegisterMethod(@TKMScriptUtils.InRangeI,                                  'InRangeI');
-      RegisterMethod(@TKMScriptUtils.InRangeS,                                  'InRangeS');
-
-      RegisterMethod(@TKMScriptUtils.InsertString,                              'InsertString');
-
-      RegisterMethod(@TKMScriptUtils.KMPoint,                                   'KMPoint');
-
-      RegisterMethod(@TKMScriptUtils.LowerCase,                                 'LowerCase');
-
-      RegisterMethod(@TKMScriptUtils.MaxI,                                      'MaxI');
-      RegisterMethod(@TKMScriptUtils.MaxS,                                      'MaxS');
-
-      RegisterMethod(@TKMScriptUtils.MaxInArrayI,                               'MaxInArrayI');
-      RegisterMethod(@TKMScriptUtils.MaxInArrayS,                               'MaxInArrayS');
-
-      RegisterMethod(@TKMScriptUtils.MinI,                                      'MinI');
-      RegisterMethod(@TKMScriptUtils.MinS,                                      'MinS');
-
-      RegisterMethod(@TKMScriptUtils.MinInArrayI,                               'MinInArrayI');
-      RegisterMethod(@TKMScriptUtils.MinInArrayS,                               'MinInArrayS');
-
-      RegisterMethod(@TKMScriptUtils.MoveString,                                'MoveString');
-
-      RegisterMethod(@TKMScriptUtils.Pos,                                       'Pos');
-
-      RegisterMethod(@TKMScriptUtils.Power,                                     'Power');
-
-      RegisterMethod(@TKMScriptUtils.RandomRangeI,                              'RandomRangeI');
-
-      RegisterMethod(@TKMScriptUtils.RGBDecToBGRHex,                            'RGBDecToBGRHex');
-      RegisterMethod(@TKMScriptUtils.RGBToBGRHex,                               'RGBToBGRHex');
-
-
-      RegisterMethod(@TKMScriptUtils.CeilTo,                                    'CeilTo');
-      RegisterMethod(@TKMScriptUtils.FloorTo,                                   'FloorTo');
-      RegisterMethod(@TKMScriptUtils.RoundTo,                                   'RoundTo');
-      RegisterMethod(@TKMScriptUtils.TruncTo,                                   'TruncTo');
-
-      RegisterMethod(@TKMScriptUtils.SumI,                                      'SumI');
-      RegisterMethod(@TKMScriptUtils.SumS,                                      'SumS');
-
-      RegisterMethod(@TKMScriptUtils.Sqr,                                       'Sqr');
-
-      RegisterMethod(@TKMScriptUtils.StringReplace,                             'StringReplace');
-
-      RegisterMethod(@TKMScriptUtils.TimeToString,                              'TimeToString');
-      RegisterMethod(@TKMScriptUtils.TimeToTick,                                'TimeToTick');
-
-      RegisterMethod(@TKMScriptUtils.Trim,                                      'Trim');
-      RegisterMethod(@TKMScriptUtils.TrimLeft,                                  'TrimLeft');
-      RegisterMethod(@TKMScriptUtils.TrimRight,                                 'TrimRight');
-
-      RegisterMethod(@TKMScriptUtils.UpperCase,                                 'UpperCase');
-
+      //*Utils-Reg*//
+      RegisterMethod(@TKMScriptUtils.AbsI, 'AbsI');
+      RegisterMethod(@TKMScriptUtils.AbsS, 'AbsS');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCount, 'ArrayElementCount');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCountB, 'ArrayElementCountB');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCountI, 'ArrayElementCountI');
+      RegisterMethod(@TKMScriptUtils.ArrayElementCountS, 'ArrayElementCountS');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElement, 'ArrayHasElement');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElementB, 'ArrayHasElementB');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElementI, 'ArrayHasElementI');
+      RegisterMethod(@TKMScriptUtils.ArrayHasElementS, 'ArrayHasElementS');
+      RegisterMethod(@TKMScriptUtils.ArrayRemoveIndexI, 'ArrayRemoveIndexI');
+      RegisterMethod(@TKMScriptUtils.ArrayRemoveIndexS, 'ArrayRemoveIndexS');
+      RegisterMethod(@TKMScriptUtils.BoolToStr, 'BoolToStr');
+      RegisterMethod(@TKMScriptUtils.CeilTo, 'CeilTo');
+      RegisterMethod(@TKMScriptUtils.ColorBrightness, 'ColorBrightness');
+      RegisterMethod(@TKMScriptUtils.CompareString, 'CompareString');
+      RegisterMethod(@TKMScriptUtils.CompareText, 'CompareText');
+      RegisterMethod(@TKMScriptUtils.CopyString, 'CopyString');
+      RegisterMethod(@TKMScriptUtils.DeleteString, 'DeleteString');
+      RegisterMethod(@TKMScriptUtils.EnsureRangeI, 'EnsureRangeI');
+      RegisterMethod(@TKMScriptUtils.EnsureRangeS, 'EnsureRangeS');
+      RegisterMethod(@TKMScriptUtils.FloorTo, 'FloorTo');
+      RegisterMethod(@TKMScriptUtils.Format, 'Format');
+      RegisterMethod(@TKMScriptUtils.FormatFloat, 'FormatFloat');
+      RegisterMethod(@TKMScriptUtils.IfThen, 'IfThen');
+      RegisterMethod(@TKMScriptUtils.IfThenI, 'IfThenI');
+      RegisterMethod(@TKMScriptUtils.IfThenS, 'IfThenS');
+      RegisterMethod(@TKMScriptUtils.InAreaI, 'InAreaI');
+      RegisterMethod(@TKMScriptUtils.InAreaS, 'InAreaS');
+      RegisterMethod(@TKMScriptUtils.InRangeI, 'InRangeI');
+      RegisterMethod(@TKMScriptUtils.InRangeS, 'InRangeS');
+      RegisterMethod(@TKMScriptUtils.InsertString, 'InsertString');
+      RegisterMethod(@TKMScriptUtils.KMPoint, 'KMPoint');
+      RegisterMethod(@TKMScriptUtils.LowerCase, 'LowerCase');
+      RegisterMethod(@TKMScriptUtils.MaxI, 'MaxI');
+      RegisterMethod(@TKMScriptUtils.MaxInArrayI, 'MaxInArrayI');
+      RegisterMethod(@TKMScriptUtils.MaxInArrayS, 'MaxInArrayS');
+      RegisterMethod(@TKMScriptUtils.MaxS, 'MaxS');
+      RegisterMethod(@TKMScriptUtils.MinI, 'MinI');
+      RegisterMethod(@TKMScriptUtils.MinInArrayI, 'MinInArrayI');
+      RegisterMethod(@TKMScriptUtils.MinInArrayS, 'MinInArrayS');
+      RegisterMethod(@TKMScriptUtils.MinS, 'MinS');
+      RegisterMethod(@TKMScriptUtils.MoveString, 'MoveString');
+      RegisterMethod(@TKMScriptUtils.Pos, 'Pos');
+      RegisterMethod(@TKMScriptUtils.Power, 'Power');
+      RegisterMethod(@TKMScriptUtils.RandomRangeI, 'RandomRangeI');
+      RegisterMethod(@TKMScriptUtils.RGBDecToBGRHex, 'RGBDecToBGRHex');
+      RegisterMethod(@TKMScriptUtils.RGBToBGRHex, 'RGBToBGRHex');
+      RegisterMethod(@TKMScriptUtils.RoundTo, 'RoundTo');
+      RegisterMethod(@TKMScriptUtils.Sqr, 'Sqr');
+      RegisterMethod(@TKMScriptUtils.StringReplace, 'StringReplace');
+      RegisterMethod(@TKMScriptUtils.SumI, 'SumI');
+      RegisterMethod(@TKMScriptUtils.SumS, 'SumS');
+      RegisterMethod(@TKMScriptUtils.TimeToString, 'TimeToString');
+      RegisterMethod(@TKMScriptUtils.TimeToTick, 'TimeToTick');
+      RegisterMethod(@TKMScriptUtils.Trim, 'Trim');
+      RegisterMethod(@TKMScriptUtils.TrimLeft, 'TrimLeft');
+      RegisterMethod(@TKMScriptUtils.TrimRight, 'TrimRight');
+      RegisterMethod(@TKMScriptUtils.TruncTo, 'TruncTo');
+      RegisterMethod(@TKMScriptUtils.UpperCase, 'UpperCase');
+      //*Utils-Reg*//
     end;
 
     //Append classes info to Exec

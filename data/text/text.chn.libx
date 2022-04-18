@@ -148,8 +148,8 @@
 149:装备士兵
 150:下一个职业
 151:上一个职业
-152:添加到队列
-153:打开/关闭运输物资
+152:添加到队列，按鼠标右键 + Shift或Ctrl键以修改队列
+153:切换物资交付模式：需求/关闭/提供。单击鼠标左键或鼠标右键来切换 前进 / 后退
 154:消耗:
 155:打开/关闭房屋修理
 156:建筑物当前不可用
@@ -266,13 +266,13 @@
 267:单位
 268:建筑
 269:资源
-270:资源生产
+270:资源生产数量
 271:没有数据
 272:你
 273:玩家 %d
 274:返回游戏
 275:返回录像
-276:所有
+276:所有物资
 277:战争
 278:食物
 279:Joymania娱乐||编程：|| Peter Ohlmann ||游戏图形：|| Adam Sprys ||级设计：|| Adam Sprys ||AndréQua？||声音编辑和混合：|| Tonstudio Mannheim ||音乐：||音乐：|| Gerd Hofmann || Joachim Sch？fer ||jürgenRebann||jürgenRebann|| Klaus Staendike || SteffenSchüngel||插画：|| Boleslaw Kasza || Christoph Werner ||译文：| |罗妮希克兰|| Patricia Bellantuono || Andrea rumbelt || || ZUXXEZ ENTERTAINMENT AG ||监制：||乌韦SCH FER ||手册：||彼得Ohlmann ||乌韦SCH FER || Beta测试：||彼得Ohlmann ||亚当Sprys ||亚历山德拉Constandache ||德克·P 。Hassinger || Achim Heidelauf || Uwe Sch？fer || Ingrid Sch？fer || Dirk U. Jantz || Ion Ion Constandache || Yaman Egeli ||罗马Eich || Iris Mocsnek || Anke Jantz || Paul Jantz || Paul Jantz || Liza Hassinger ||游戏导演：|| Achim Heidelauf ||发布于：| | | | | | | | | | | Topware Interactive || CutScenes：| Direction：| Slawomir Jedrzejewski || kajetan czarnecki || kajetan czarnecki || kajciech drazek ||丹尼尔duplaga || rafaljanuszkiewicz || Andrzej Rams || Piotr Rulka || Krzysztof Rybczynski || Grzegorz wisniewski ||声音：||克劳斯·博森（Storyt Eller）||蒂姆蒂姆伯纳州|| Peter Houska ||德克·米尔巴赫|| Ralf Ditze || Gerhard Piske || Gerhard Piske || Gerrot Wassmann || Artwork：|| Boleslaw Kasza || Adam Sprys ||打开动画：|| UWE SCH？FER | | Christian Bigalk ||额外的3D型号：|| Niels Horstmann ||特别感谢：|| Tadeusz Zuber || Dieter Ohlmann || Alexandra Constandache || Ingrid Sch？FER
@@ -405,7 +405,7 @@
 410:覆盖
 411:地图已经存在
 412:玩家:
-413:默认
+413:默认人类玩家
 414:玩家类型
 415:对称
 416:联盟
@@ -447,7 +447,7 @@
 454:设定限制电脑总兵力
 455:电脑每一次出兵有多少士兵
 456:设定士兵的最大数
-457:电脑有多少新兵在兵营
+457:经典AI有多少新兵在兵营|高级AI不适用该参数
 458:每个兵营的新兵
 460:自定义进攻位置
 463:最近的单位
@@ -470,7 +470,7 @@
 482:装备铁制士兵时间间隔
 483:自动防御
 484:AI自动创建和管理防御阵地
-485:放置AI防御位置。防守位置参数说明: 鼠标右键 - 顺时针切换方向，CTRL + 鼠标右键 - 逆时针切换方向，SHIFT + 鼠标右键 - 切换部队类型，ALT + 鼠标右键 - 切换防守/进攻
+485:放置AI防御位置。防守位置参数说明：|鼠标右键 - 顺时针切换方向，鼠标右键 + CTRL - 逆时针切换方向|鼠标右键 + SHIFT - 切换部队类型|鼠标右键 + ALT - 切换防守/进攻
 486:AI防御
 487:劳工
 488:每10栋房屋的农奴数
@@ -663,7 +663,7 @@
 676:粘贴取消
 677:垂直翻转
 678:水平翻转
-679:拖动选择地图||上的一个地区
+679:拖动选择地图上的一个地区
 680:AI的防御方案
 681:关闭
 682:半径
@@ -785,13 +785,10 @@
 834:删除此回放
 835:名称：
 836:确认
-837:自定义快捷键
 838:快捷键绑定
 839:确认
 840:功能
 841:键
-842:特殊的不可编辑快捷键绑定
-843:特殊快捷键绑定
 844:重置所有快捷键
 845:向左滚动
 846:向右滚动
@@ -1481,7 +1478,8 @@
 1534:注意: 高级AI会使用它自己的编队参数，并将忽略这里的设置
 1535:返回战役界面
 1536:全员进攻
-1538:代表无甲单位，代表皮甲单位，代表铁甲单位
+1537:部队级别
+1538:无甲单位，皮甲单位，铁甲单位
 1539:添加部队
 1540:放置防守位置后自动添加部队。该部队类型取决于AI队形
 1541:部队人数
@@ -1491,3 +1489,43 @@
 1545:使煤矿边缘更平滑
 1546:先设置煤矿瓷砖，然后框选范围，再点击该按钮，则会使该区域内的煤矿从中心向外慢慢递减
 1547:其他玩家出现同步错误。请发送这份崩溃报告给我们，它将帮助我们修复该错误。%s 其他玩家错误信息是: %s
+1548:撤销
+1549:重做
+1550:草地
+1551:苔藓
+1552:浅的草地
+1553:草泥地
+1554:泥土
+1555:海岸沙滩
+1556:草地沙地1
+1557:草地沙地2
+1558:草地沙地3
+1559:沙地
+1560:沼泽地
+1561:长满水草的水域
+1562:水域
+1563:快速水域
+1564:自定义
+1565:覆盖积雪的草地
+1566:覆盖积雪的泥土
+1567:积雪
+1568:厚积雪
+1569:冰原
+1570:石矿山
+1571:金矿山
+1572:铁矿山
+1573:中砾石
+1574:砂砾
+1575:煤矿
+1576:金矿
+1577:铁矿
+1578:熔岩
+1579:深渊
+1580:任何未保存的更改都将丢失。确认退出吗？
+1581:警告
+1582:没有覆盖物
+1583:覆盖物阶段1
+1584:覆盖物阶段2
+1585:覆盖物阶段3
+1586:覆盖物阶段4
+1587:道路覆盖

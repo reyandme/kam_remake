@@ -600,7 +600,8 @@ end;
 
 //* Version: 6216
 //* Occurs when a trade happens in a market (at the moment when resources are exchanged by serfs).
-//* aFrom, aTo as Integer from Lookup table
+//* aFrom: as Integer from Lookup table
+//* aTo: as Integer from Lookup table
 procedure TKMScriptEvents.ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: Integer);
 begin
   if MethodAssigned(evtMarketTrade) then
@@ -613,7 +614,8 @@ end;
 
 //* Version: 14000
 //* Occurs when a trade happens in a market (at the moment when resources are exchanged by serfs).
-//* aFrom, aTo as TKMWareType
+//* aFrom: as TKMWareType
+//* aTo: as TKMWareType
 procedure TKMScriptEvents.ProcMarketTradeEx(aMarket: TKMHouse; aFrom, aTo: TKMWareType);
 begin
   if MethodAssigned(evtMarketTradeEx) then
@@ -762,7 +764,7 @@ end;
 //* Occurs after a house is destroyed and has been completely removed from the game,
 //* meaning the area it previously occupied can be used.
 //* If you need more information about the house use the OnHouseDestroyed event.
-//* aHouseType as TKMHouseType
+//* aHouseType: as TKMHouseType
 procedure TKMScriptEvents.ProcHouseAfterDestroyedEx(aHouseType: TKMHouseType; aOwner: TKMHandID; aX, aY: Integer);
 begin
   if MethodAssigned(evtHouseAfterDestroyedEx) then
@@ -791,7 +793,7 @@ end;
 
 //* Version: 5871
 //* Occurs when player has placed a house plan.
-//* aHouseType as Integer from Lookup table
+//* aHouseType: as Integer from Lookup table
 procedure TKMScriptEvents.ProcHousePlanPlaced(aPlayer: TKMHandID; aX, aY, aHouseType: Integer);
 begin
   if MethodAssigned(evtHousePlanPlaced) then
@@ -801,7 +803,7 @@ end;
 
 //* Version: 14000
 //* Occurs when player has placed a house plan.
-//* aHouseType as TKMHouseType
+//* aHouseType: as TKMHouseType
 procedure TKMScriptEvents.ProcHousePlanPlacedEx(aPlayer: TKMHandID; aX, aY: Integer; aHouseType: TKMHouseType);
 begin
   if MethodAssigned(evtHousePlanPlacedEx) then
@@ -818,7 +820,7 @@ end;
 
 //* Version: 6298
 //* Occurs when player has removed a house plan.
-//* aHouseType as Integer from Lookup table
+//* aHouseType: as Integer from Lookup table
 procedure TKMScriptEvents.ProcHousePlanRemoved(aPlayer: TKMHandID; aX, aY, aHouseType: Integer);
 begin
   if MethodAssigned(evtHousePlanRemoved) then
@@ -828,7 +830,7 @@ end;
 
 //* Version: 14000
 //* Occurs when player has removed a house plan.
-//* aHouseType as TKMHouseType
+//* aHouseType: as TKMHouseType
 procedure TKMScriptEvents.ProcHousePlanRemovedEx(aPlayer: TKMHandID; aX, aY: Integer; aHouseType: TKMHouseType);
 begin
   if MethodAssigned(evtHousePlanRemovedEx) then
@@ -988,7 +990,7 @@ end;
 //* Occurs after a unit has died and has been completely removed from the game, meaning the tile it previously occupied can be used.
 //* If you need more information about the unit use the OnUnitDied event.
 //* Note: Because units have a death animation there is a delay of several ticks between OnUnitDied and OnUnitAfterDied.
-//* aUnitType as Integer from Lookup table
+//* aUnitType: as Integer from Lookup table
 procedure TKMScriptEvents.ProcUnitAfterDied(aUnitType: Integer; aOwner: TKMHandID; aX, aY: Integer);
 begin
   if MethodAssigned(evtUnitAfterDied) then
@@ -1000,7 +1002,7 @@ end;
 //* Occurs after a unit has died and has been completely removed from the game, meaning the tile it previously occupied can be used.
 //* If you need more information about the unit use the OnUnitDied event.
 //* Note: Because units have a death animation there is a delay of several ticks between OnUnitDied and OnUnitAfterDied.
-//* aUnitType as TKMHouseType
+//* aUnitType: as TKMUnitType
 procedure TKMScriptEvents.ProcUnitAfterDiedEx(aUnitType: TKMUnitType; aOwner: TKMHandID; aX, aY: Integer);
 begin
   if MethodAssigned(evtUnitAfterDiedEx) then

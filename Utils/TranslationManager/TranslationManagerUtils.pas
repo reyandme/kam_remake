@@ -15,29 +15,29 @@ function GetWorkDir(aShowWarningMess: Boolean = False): UnicodeString;
 const
   TGT_FILE_NAME = 'data\locales.txt';
 var
-  ExeDir, ProjectDir, WorkDir: UnicodeString;
+  exeDir, projectDir, workDir: UnicodeString;
 begin
   Result := '';
 
-  WorkDir := ExeDir + '..\'; // Starting from kam_remake/Utils
-	ExeDir := ExtractFilePath(ParamStr(0)); // Starting from kam_remake folder
-  ProjectDir := ExeDir + '..\..\'; // Starting from kam_remake/Utils/TranslationManager folder
+  workDir := exeDir + '..\'; // Starting from kam_remake/Utils
+	exeDir := ExtractFilePath(ParamStr(0)); // Starting from kam_remake folder
+  projectDir := exeDir + '..\..\'; // Starting from kam_remake/Utils/TranslationManager folder
 
-  if FileExists(WorkDir + TGT_FILE_NAME) then
-    Exit(WorkDir);
+  if FileExists(workDir + TGT_FILE_NAME) then
+    Exit(workDir);
 
-  if FileExists(ExeDir + TGT_FILE_NAME) then
-    Exit(ExeDir);
+  if FileExists(exeDir + TGT_FILE_NAME) then
+    Exit(exeDir);
 
-  if FileExists(ProjectDir + TGT_FILE_NAME) then
-    Exit(ProjectDir);
+  if FileExists(projectDir + TGT_FILE_NAME) then
+    Exit(projectDir);
 
    if aShowWarningMess then
      ShowMessage(
       'Can''t find locales.txt file at destinations:' + sLineBreak +
-       ExpandFileName(WorkDir) + TGT_FILE_NAME + sLineBreak +
-       ExpandFileName(ExeDir) + TGT_FILE_NAME + sLineBreak +
-       ExpandFileName(ProjectDir) + TGT_FILE_NAME);
+       ExpandFileName(workDir) + TGT_FILE_NAME + sLineBreak +
+       ExpandFileName(exeDir) + TGT_FILE_NAME + sLineBreak +
+       ExpandFileName(projectDir) + TGT_FILE_NAME);
 end;
 
 

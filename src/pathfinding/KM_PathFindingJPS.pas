@@ -16,9 +16,9 @@ type
 
   TPointArray = array of TPoint;
 
-  //Jump-Point-Search pathfinder
-  //based on JavaScript implementation by aniero / https://github.com/aniero
-  TPathFindingJPS = class(TPathFinding)
+  // Jump-Point-Search pathfinder
+  // based on JavaScript implementation by aniero / https://github.com/aniero
+  TKMPathFindingJPS = class(TKMPathFinding)
   private
     Nodes: array of array of TJPSPoint;
     startNode, endNode: TJPSPoint;
@@ -43,8 +43,8 @@ type
 implementation
 
 
-{ TPathFindingJPS }
-constructor TPathFindingJPS.Create;
+{ TKMPathFindingJPS }
+constructor TKMPathFindingJPS.Create;
 begin
   inherited;
 
@@ -53,7 +53,7 @@ begin
 end;
 
 
-destructor TPathFindingJPS.Destroy;
+destructor TKMPathFindingJPS.Destroy;
 begin
   openList.Free;
 
@@ -61,7 +61,7 @@ begin
 end;
 
 
-function TPathFindingJPS.HeapCmp(A, B: Pointer): Boolean;
+function TKMPathFindingJPS.HeapCmp(A, B: Pointer): Boolean;
 begin
   if A = nil then
     Result := True
@@ -70,7 +70,7 @@ begin
 end;
 
 
-procedure TPathFindingJPS.Reset;
+procedure TKMPathFindingJPS.Reset;
 var
   I, K: Integer;
 begin
@@ -82,7 +82,7 @@ begin
 end;
 
 
-function TPathFindingJPS.getNodeAt(x, y: SmallInt): TJPSPoint;
+function TKMPathFindingJPS.getNodeAt(x, y: SmallInt): TJPSPoint;
 begin
   if Nodes[y,x] = nil then
   begin
@@ -96,7 +96,7 @@ end;
 
 
 //Find and return the the path.
-function TPathFindingJPS.MakeRoute: Boolean;
+function TKMPathFindingJPS.MakeRoute: Boolean;
 var
   node: TJPSPoint;
 begin
@@ -133,7 +133,7 @@ begin
 end;
 
 
-procedure TPathFindingJPS.ReturnRoute(NodeList: TKMPointList);
+procedure TKMPathFindingJPS.ReturnRoute(NodeList: TKMPointList);
 var
   node: TJPSPoint;
 begin
@@ -161,7 +161,7 @@ end;
  * list.
  * @protected
  *}
-procedure TPathFindingJPS.identifySuccessors(node: TJPSPoint);
+procedure TKMPathFindingJPS.identifySuccessors(node: TJPSPoint);
 var
   I: Integer;
   endX, endY: SmallInt;
@@ -218,7 +218,7 @@ begin
 end;
 
 
-function TPathFindingJPS.IsWalkableTile(aX, aY: SmallInt): Boolean;
+function TKMPathFindingJPS.IsWalkableTile(aX, aY: SmallInt): Boolean;
 begin
   Result := gTerrain.TileInMapCoords(aX, aY) and (inherited IsWalkableTile(aX, aY));
 end;
@@ -231,7 +231,7 @@ end;
  * @return Array.<[number, number]> The x, y coordinate of the jump point
  *     found, or null if not found
  *}
-function TPathFindingJPS.jump(x, y, px, py: SmallInt): TPoint;
+function TKMPathFindingJPS.jump(x, y, px, py: SmallInt): TPoint;
 var
   dx, dy: SmallInt;
   jx, jy: TPoint;
@@ -310,7 +310,7 @@ end;
 //prune the neighbors based on the jump point search algorithm, otherwise
 //return all available neighbors.
 //@return {Array.<[number, number]>} The neighbors found.
-function TPathFindingJPS.findNeighbors(const node: TJPSPoint): TPointArray;
+function TKMPathFindingJPS.findNeighbors(const node: TJPSPoint): TPointArray;
 var
   count: SmallInt;
 

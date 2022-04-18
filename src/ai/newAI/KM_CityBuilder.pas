@@ -126,7 +126,7 @@ begin
 
   fOwner := aPlayer;
   fPredictor := aPredictor;
-  fPlanner := TKMCityPlanner.Create(aPlayer);
+  fPlanner := TKMCityPlanner.Create(aPlayer, aPredictor);
 
   {$IFDEF DEBUG_NewAI}
     fTimePlanRoads := 0;

@@ -354,7 +354,7 @@ begin
   inherited Create;
 
   fSortMethod := aSortMethod;
-  fScanFInished := True;
+  fScanFinished := True;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
   //We mostly don't need it, as UI should access Maps only when map events are signaled
@@ -394,7 +394,7 @@ var
 begin
   Assert(not fScanning, 'Guarding from access to inconsistent data');
   for I := 0 to fCount - 1 do
-    fSaves[i].Free;
+    fSaves[I].Free;
   fCount := 0;
   SetLength(fSaves, 0); //We could use Low and High. Need to reset array to 0 length
 end;

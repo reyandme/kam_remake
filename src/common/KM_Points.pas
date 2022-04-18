@@ -4,6 +4,7 @@ interface
 
 
 type
+  //* Facing direction
   TKMDirection = (dirNA, dirN, dirNE, dirE, dirSE, dirS, dirSW, dirW, dirNW);
   TKMDirection4 = (drNA, drN, drE, drS, drW);
   TKMDirection4Set = set of TKMDirection4;
@@ -23,6 +24,8 @@ type
     constructor New(aX, aY: Single);
   end;
 
+  //* Point with integer coordinates X and Y
+  //* Priority: 1
   TKMPoint = record
     X,Y: Integer;
 

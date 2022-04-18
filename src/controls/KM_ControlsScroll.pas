@@ -58,8 +58,9 @@ type
 
   TKMScrollPanel = class(TKMPanel)
   private
-    fClipRect: TKMRect;
     fChildsPanel: TKMPanel;
+
+    fClipRect: TKMRect;
     fScrollBarH: TKMScrollBar;
     fScrollBarV: TKMScrollBar;
     fScrollAxisSet: TKMScrollAxisSet;
@@ -67,6 +68,7 @@ type
     fPadding: TKMRect;
     fScrollV_PadTop: Integer;
     fScrollV_PadBottom: Integer;
+    fScrollV_PadLeft: Integer;
 
     procedure UpdateScrolls(Sender: TObject; aValue: Boolean); overload;
     procedure UpdateScrolls(Sender: TObject); overload;
@@ -83,8 +85,11 @@ type
     function AllowScrollH: Boolean;
     procedure SetScrollVPadTop(const Value: Integer);
     procedure SetScrollVPadBottom(const Value: Integer);
+
+    procedure SetScrollVPadLeft(const Value: Integer);
   protected
     procedure SetVisible(aValue: Boolean); override;
+    procedure SetHitable(const aValue: Boolean); override;
 
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -110,9 +115,17 @@ type
     property ClipRect: TKMRect read fClipRect;
     property Padding: TKMRect read fPadding write fPadding;
     property ScrollV_PadTop: Integer read fScrollV_PadTop write SetScrollVPadTop;
+    property ScrollV_PadLeft: Integer read fScrollV_PadLeft write SetScrollVPadLeft;
     property ScrollV_PadBottom: Integer read fScrollV_PadBottom write SetScrollVPadBottom;
 
+    procedure Show; override;
+
     procedure MouseWheel(Sender: TObject; WheelSteps: Integer; var aHandled: Boolean); override;
+
+    procedure ClipY;
+    procedure UnClipY;
+
+    procedure UpdateScrolls; overload;
 
     procedure Paint; override;
   end;
@@ -597,6 +610,12 @@ begin
 end;
 
 
+procedure TKMScrollPanel.UpdateScrolls;
+begin
+  UpdateScrolls(nil);
+end;
+
+
 procedure TKMScrollPanel.UpdateScrolls(Sender: TObject);
 var
   childsRect: TKMRect;
@@ -626,6 +645,12 @@ procedure TKMScrollPanel.SetScrollVPadBottom(const Value: Integer);
 begin
   fScrollV_PadBottom := Value;
   fScrollBarV.Height := fScrollBarV.Height - Value;
+end;
+
+
+procedure TKMScrollPanel.SetScrollVPadLeft(const Value: Integer);
+begin
+  fScrollV_PadLeft := Value;
 end;
 
 
@@ -673,9 +698,18 @@ begin
 
   Inc(fClipRect.Right, Width - oldValue);
 
-  fScrollBarV.Left := fClipRect.Left + Width;
+  fScrollBarV.Left := fClipRect.Left + Width + fScrollV_PadLeft;
 
   UpdateScrolls(nil);
+end;
+
+
+procedure TKMScrollPanel.Show;
+begin
+  inherited;
+
+  // We can use Visible here, since Self is he parent of ChildsPanel
+  fChildsPanel.Visible := True;
 end;
 
 
@@ -691,6 +725,14 @@ begin
   fScrollBarH.Top := fClipRect.Top + Height;
 
   UpdateScrolls(nil);
+end;
+
+
+procedure TKMScrollPanel.SetHitable(const aValue: Boolean);
+begin
+  inherited;
+
+  fChildsPanel.Hitable := aValue;
 end;
 
 
@@ -771,6 +813,18 @@ begin
 
   TKMRenderUI.ReleaseClipY;
   TKMRenderUI.ReleaseClipX;
+end;
+
+
+procedure TKMScrollPanel.ClipY;
+begin
+   TKMRenderUI.SetupClipY(AbsDrawTop, AbsDrawBottom);
+end;
+
+
+procedure TKMScrollPanel.UnClipY;
+begin
+  TKMRenderUI.ReleaseClipY;
 end;
 
 

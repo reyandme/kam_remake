@@ -89,7 +89,6 @@ object FormMain: TFormMain
       Caption = 'Misc'
       Collapsed = True
       TabOrder = 0
-      ExplicitTop = 561
       ExpandedHeight = 144
       object chkBevel: TCheckBox
         Left = 168
@@ -132,7 +131,6 @@ object FormMain: TFormMain
       Caption = 'Logs'
       Collapsed = True
       TabOrder = 1
-      ExplicitTop = 537
       ExpandedHeight = 198
       object chkLogCommands: TCheckBox
         Left = 120
@@ -244,7 +242,6 @@ object FormMain: TFormMain
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 2
-      ExplicitTop = 513
       ExpandedHeight = 168
       object Label1: TLabel
         Left = 101
@@ -385,7 +382,6 @@ object FormMain: TFormMain
       Caption = 'User Interface'
       Collapsed = True
       TabOrder = 3
-      ExplicitTop = 489
       ExpandedHeight = 114
       object chkUIControlsBounds: TCheckBox
         Left = 8
@@ -457,7 +453,6 @@ object FormMain: TFormMain
       Caption = 'Perf Logs'
       Collapsed = True
       TabOrder = 4
-      ExplicitTop = 465
       ExpandedHeight = 660
     end
     object cpAI: TCategoryPanel
@@ -1736,9 +1731,13 @@ object FormMain: TFormMain
         Caption = 'Deliver lists'
         OnClick = Export_Deliverlists1Click
       end
-      object HousesDat1: TMenuItem
-        Caption = 'Houses Dat'
-        OnClick = HousesDat1Click
+      object mnExportHousesDat: TMenuItem
+        Caption = 'Houses.dat to csv'
+        OnClick = mnExportHousesDatClick
+      end
+      object mnExportUnitsDat: TMenuItem
+        Caption = 'Units.dat to csv'
+        OnClick = mnExportUnitsDatClick
       end
       object ScriptData1: TMenuItem
         Caption = 'Script Data'

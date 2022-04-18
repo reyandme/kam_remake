@@ -6,37 +6,38 @@ uses
 
 type
   TKMScriptEventType = (
+    //*Events-Reg*//
     evtBeacon,
     evtFieldBuilt,
+    evtGameSpeedChanged,
+    evtGroupBeforeOrderSplit,
+    evtGroupHungry,
+    evtGroupOrderAttackHouse,
+    evtGroupOrderAttackUnit,
+    evtGroupOrderLink,
+    evtGroupOrderMove,
+    evtGroupOrderSplit,
     evtHouseAfterDestroyed,
     evtHouseAfterDestroyedEx,
     evtHouseBuilt,
+    evtHouseDamaged,
+    evtHouseDestroyed,
     evtHousePlanDigged,
     evtHousePlanPlaced,
     evtHousePlanPlacedEx,
     evtHousePlanRemoved,
     evtHousePlanRemovedEx,
-    evtHouseDamaged,
-    evtHouseDestroyed,
     evtHouseRepaired,
     evtHouseWareCountChanged,
-    evtGameSpeedChanged,
-    evtGroupHungry,
-    evtGroupOrderAttackHouse,
-    evtGroupOrderAttackUnit,
-    evtGroupBeforeOrderSplit,
-    evtGroupOrderMove,
-    evtGroupOrderLink,
-    evtGroupOrderSplit,
     evtMarketTrade,
     evtMarketTradeEx,
     evtMissionStart,
     evtPeacetimeEnd,
+    evtPlanFieldPlaced,
+    evtPlanFieldRemoved,
     evtPlanRoadDigged,
     evtPlanRoadPlaced,
     evtPlanRoadRemoved,
-    evtPlanFieldPlaced,
-    evtPlanFieldRemoved,
     evtPlanWinefieldDigged,
     evtPlanWinefieldPlaced,
     evtPlanWinefieldRemoved,
@@ -46,14 +47,15 @@ type
     evtTick,
     evtUnitAfterDied,
     evtUnitAfterDiedEx,
+    evtUnitAttacked,
     evtUnitDied,
     evtUnitTrained,
     evtUnitWounded,
-    evtUnitAttacked,
     evtWareProduced,
     evtWarriorEquipped,
     evtWarriorWalked,
     evtWinefieldBuilt
+    //*Events-Reg*//
   );
 
 
@@ -76,6 +78,7 @@ type
   // Set exported to PascalScript record type as packed.
   // PascalScript use packed records alignment by default,
   // thus without it in Delphi we could get garbage in the fields if they are not aligned same way as in PS
+  //* AI defence position setup
   TKMDefencePositionInfo = packed record
     UID: Integer;
     X, Y: Integer;
@@ -87,6 +90,7 @@ type
     function ToStr: string;
   end;
 
+  //* AI attack setup
   TKMAIAttackInfo = packed record
     UID: Integer;
     AttackType: TKMAIAttackType;

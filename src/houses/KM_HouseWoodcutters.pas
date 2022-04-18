@@ -7,6 +7,7 @@ uses
   KM_ResTypes;
   
 type
+  //* Woodcutting mode
   TKMWoodcutterMode = (wmChopAndPlant, wmChop, wmPlant);
 
   TKMHouseWoodcutters = class(TKMHouseWFlagPoint)
@@ -27,7 +28,7 @@ type
     function ObjToString(const aSeparator: String = '|'): String; override;
   end;
 
-  
+
 implementation
 uses
   SysUtils, TypInfo;

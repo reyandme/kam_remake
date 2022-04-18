@@ -7,6 +7,7 @@ uses
   Classes, Math, SysUtils,
   KM_InterfaceDefaults,
   KM_Controls, KM_ControlsBase, KM_ControlsPopUp, KM_ControlsScroll, KM_ControlsSwitch, KM_ControlsTrackBar,
+  KM_TerrainTypes,
   KM_Defaults, KM_Pics, KM_Cursor, KM_Points, KM_CommonTypes;
 
 type
@@ -65,7 +66,7 @@ type
 
       //Objects brush
       BrushSize, ForestDensity, ForestAge: TKMTrackBar;
-      ObjectTypeSet: array [0..9] of  TKMButtonFlat;
+      ObjectTypeSet: array [TKMTerrainObjectType] of TKMButtonFlat;
       BrushCircle, BrushSquare: TKMButtonFlat;
       CleanBrush: TKMButtonFlat;
       Label_ForestAge: TKMLabel;
@@ -93,7 +94,7 @@ implementation
 uses
   KM_Main, KM_Resource, KM_ResFonts, KM_ResMapElements, KM_ResTexts, KM_ResKeys, KM_Terrain,
   KM_HandsCollection, KM_RenderUI, KM_InterfaceGame, KM_Utils,
-  KM_ResTypes, KM_TerrainTypes;
+  KM_ResTypes;
 
 type
   TKMObjBrushForestAge = (faAll, faAllButStomps, faYoung, faMedium, faBig, faChop, faStomp);
@@ -131,6 +132,22 @@ const
                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_RDY_2CHOP_HINT,
                                                                 TX_MAPED_OBJECTS_BRUSH_TREES_AGE_STOMP_HINT);
 
+  OBJECT_TYPE_BTN: array [TKMTerrainObjectType] of record
+    TexID: Integer;
+    HintTX: Integer;
+  end = (
+    (TexID: 226;  HintTX: TX_MAPED_OBJECTS_BRUSH_TREES;),
+    (TexID: 34;   HintTX: TX_MAPED_OBJECTS_BRUSH_ALL;),
+    (TexID: 14;   HintTX: TX_MAPED_OBJECTS_BRUSH_FLOWERS;),
+    (TexID: 4;    HintTX: TX_MAPED_OBJECTS_BRUSH_MUSHROOMS;),
+    (TexID: 26;   HintTX: TX_MAPED_OBJECTS_BRUSH_TRUNKS;),
+    (TexID: 39;   HintTX: TX_MAPED_OBJECTS_BRUSH_DEAD;),
+    (TexID: 21;   HintTX: TX_MAPED_OBJECTS_BRUSH_STONES;),
+    (TexID: 143;  HintTX: TX_MAPED_OBJECTS_BRUSH_BUSH;),
+    (TexID: 173;  HintTX: TX_MAPED_OBJECTS_BRUSH_CACTUS;),
+    (TexID: 245;  HintTX: TX_MAPED_OBJECTS_BRUSH_RUINS;)
+  );
+
 
 { TKMMapEdTerrainObjects }
 constructor TKMMapEdTerrainObjects.Create(aParent: TKMPanel; aHideAllPages: TEvent);
@@ -159,8 +176,8 @@ var
   I, J: Integer;
 //  TOA: TKMTerrainObjectAttribute;
   //For brushes
-  rxIndex, K: Integer;
-  objectsHint: String;
+   K: Integer;
+  OT: TKMTerrainObjectType;
 
 begin
   inherited Create;
@@ -173,7 +190,7 @@ begin
   Panel_Objects := TKMScrollPanel.Create(aParent, 0, 28, aParent.Width, aParent.Height - 28, [saVertical], bsMenu, ssCommon);
   Panel_Objects.Padding.SetBottom(10);
   Panel_Objects.ScrollV_PadTop := 10;
-  Panel_Objects.ScrollV_PadBottom := 10;
+  Panel_Objects.ScrollV_PadLeft := -20;
   Panel_Objects.AnchorsStretch;
 
   with TKMLabel.Create(Panel_Objects, 0, TERRAIN_PAGE_TITLE_Y, Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter) do
@@ -317,33 +334,15 @@ begin
   OverrideObjects.OnClick := ObjectsBrushChange;
   OverrideObjects.Hint := gResTexts[TX_MAPED_OBJECTS_BRUSH_OVERRIDE_OBJECTS_HINT];
 
-
-  rxIndex := 226;
-
-  // todo: refactor, add ObjectBrush type and use it instead of magic numbers 0-9
-  for I := 0 to 9 do
+  for OT := Low(TKMTerrainObjectType) to High(TKMTerrainObjectType) do
   begin
-    case I of
-       0: begin rxIndex := 226; objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_TREES];     end;
-       1: begin rxIndex := 34;  objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_ALL];       end;
-       2: begin rxIndex := 14;  objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_FLOWERS];   end;
-       3: begin rxIndex := 4;   objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_MUSHROOMS]; end;
-       4: begin rxIndex := 26;  objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_TRUNKS];    end;
+    J := Ord(OT) mod 5;
+    K := Ord(OT) div 5;
 
-       5: begin rxIndex := 39;  objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_DEAD];      end;
-       6: begin rxIndex := 21;  objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_STONES];    end;
-       7: begin rxIndex := 143; objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_BUSH];      end;
-       8: begin rxIndex := 173; objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_CACTUS];    end;
-       9: begin rxIndex := 245; objectsHint := gResTexts[TX_MAPED_OBJECTS_BRUSH_RUINS];     end;
-    end;
+    ObjectTypeSet[OT] := TKMButtonFlat.Create(Panel_Objects, 9+BTN_BRUSH_SIZE*J, top + BTN_BRUSH_SIZE*K, 34, 34, OBJECT_TYPE_BTN[OT].TexID, rxTrees);
 
-    J := I mod 5;
-    K := I div 5;
-
-    ObjectTypeSet[I] := TKMButtonFlat.Create(Panel_Objects, 9+BTN_BRUSH_SIZE*J, top + BTN_BRUSH_SIZE*K, 34, 34, rxIndex, rxTrees);
-
-    ObjectTypeSet[I].OnClick := ObjectsBrushChange;
-    ObjectTypeSet[I].Hint := objectsHint;
+    ObjectTypeSet[OT].OnClick := ObjectsBrushChange;
+    ObjectTypeSet[OT].Hint := gResTexts[OBJECT_TYPE_BTN[OT].HintTX];
   end;
 
   NextTop(80);
@@ -371,8 +370,8 @@ begin
                                      gResTexts[TX_MAPED_OBJECTS_BRUSH_TREES_AGE_ALL_HINT], fntGrey, taRight);
   Label_ForestAge.Anchors := [anLeft, anTop, anRight];
 
-  gCursor.MapEdObjectsType[0] := True;
-  gCursor.MapEdObjectsType[1] := True;
+  gCursor.MapEdObjectsType[otTrees] := True;
+  gCursor.MapEdObjectsType[otAllButTrees] := True;
 
   gCursor.MapEdForestAge := 1;
   gCursor.MapEdCleanBrush := False;
@@ -391,8 +390,8 @@ begin
   fSubMenuActionsCtrls[2,0] := BrushCircle;
   fSubMenuActionsCtrls[3,0] := BrushSquare;
   fSubMenuActionsCtrls[4,0] := CleanBrush;
-  fSubMenuActionsCtrls[5,0] := ObjectTypeSet[0];
-  fSubMenuActionsCtrls[6,0] := ObjectTypeSet[1];
+  fSubMenuActionsCtrls[5,0] := ObjectTypeSet[otTrees];
+  fSubMenuActionsCtrls[6,0] := ObjectTypeSet[otAllButTrees];
 end;
 
 
@@ -653,7 +652,8 @@ end;
 
 procedure TKMMapEdTerrainObjects.ObjectsBrushChange(Sender: TObject);
 var
-  I, treeAgeHintTX: Integer;
+  treeAgeHintTX: Integer;
+  OT: TKMTerrainObjectType;
 begin
   gCursor.Mode := cmObjectsBrush;
 
@@ -664,9 +664,9 @@ begin
 
   ForestAge.Hint := GetHintWHotkey(treeAgeHintTX, gResTexts[TX_KEY_SHIFT_MOUSEWHEEL]);
 
-  for I := 0 to 9 do
-    if Sender = ObjectTypeSet[I] then
-      gCursor.MapEdObjectsType[I] := not gCursor.MapEdObjectsType[I];
+  for OT := Low(TKMTerrainObjectType) to High(TKMTerrainObjectType) do
+    if Sender = ObjectTypeSet[OT] then
+      gCursor.MapEdObjectsType[OT] := not gCursor.MapEdObjectsType[OT];
 
   if Sender = CleanBrush then
   begin
@@ -764,6 +764,7 @@ procedure TKMMapEdTerrainObjects.ObjectsRefresh(Sender: TObject);
 var
   I: Integer;
   objIndex: Integer;
+  OT: TKMTerrainObjectType;
 begin
   for I := 0 to 8 do
   begin
@@ -790,8 +791,8 @@ begin
                              and (objIndex = fMapElemToCompact[gCursor.Tag1]);
   end;
 
-  for I := 0 to 9 do
-    ObjectTypeSet[I].Down := gCursor.MapEdObjectsType[I];
+  for OT := Low(TKMTerrainObjectType) to High(TKMTerrainObjectType) do
+    ObjectTypeSet[OT].Down := gCursor.MapEdObjectsType[OT];
 
   ObjectErase.Down := (gCursor.Mode = cmObjects) and (gCursor.Tag1 = OBJ_NONE);  //or delete button
   ObjectBlock.Down := (gCursor.Mode = cmObjects) and (gCursor.Tag1 = OBJ_BLOCK); //or block button

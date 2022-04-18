@@ -12,7 +12,7 @@ uses
   KM_Defaults, KM_Points, KM_CommonClasses, KM_CommonTypes, KM_CommonUtils,
   KM_Houses, KM_ResHouses, KM_Sort,
   KM_PathFindingRoad, KM_PathFindingAStarNew, KM_Eye, KM_AIParameters,
-  KM_AIInfluences, KM_NavMeshDefences,
+  KM_AIInfluences, KM_NavMeshDefences, KM_CityPredictor,
   KM_ResTypes;
 
 const
@@ -47,26 +47,23 @@ type
     end;
   end;
 
-  TPathFindingCityPlanner = class(TPathFindingRoad)
-  private
+  TKMPathFindingCityPlanner = class(TKMPathFindingRoad)
   protected
     function IsWalkableTile(aX, aY: Word): Boolean; override;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; override;
   public
     {$IFDEF DEBUG_NewAI}
       Ctr: Word;
-      Price: array[0..256,0..256] of Word;
-      Order: array[0..256,0..256] of Word;
+      Price: array[0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Word;
+      Order: array[0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Word;
     {$ENDIF}
     function Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;
   end;
 
-  TPathFindingShortcutsCityPlanner = class(TPathFindingCityPlanner)
-  private
+  TKMPathFindingShortcutsCityPlanner = class(TKMPathFindingCityPlanner)
   protected
     function DestinationReached(aX, aY: Word): Boolean; override;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal; override;
-  public
   end;
 
 
@@ -114,13 +111,14 @@ type
       fForestDebugText: UnicodeString;
       fFieldPrice: TFieldPrice;
 
-      DA1: array [0..256,0..256] of Integer;
-      DA2: array [0..256,0..256] of Integer;
-      DA3: array [0..256,0..256] of Integer;
-      DA4: array [0..256,0..256] of Integer;
+      DA1: array [0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Integer;
+      DA2: array [0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Integer;
+      DA3: array [0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Integer;
+      DA4: array [0..MAX_MAP_SIZE,0..MAX_MAP_SIZE] of Integer;
     {$ENDIF}
 
     fOwner: TKMHandID;
+    fPredictor: TKMCityPredictor;
     fConstructedHouses: Word;
     fDefenceTowersPlanned: Boolean;
     fStonesDepleted: Boolean;
@@ -128,8 +126,8 @@ type
     fForestsInfo: TKMForestsInfo;
     fFields: TFieldMemory;
 
-    fRoadPlanner: TPathFindingCityPlanner;
-    fRoadShortcutPlanner: TPathFindingShortcutsCityPlanner;
+    fRoadPlanner: TKMPathFindingCityPlanner;
+    fRoadShortcutPlanner: TKMPathFindingShortcutsCityPlanner;
     fFieldEval: TKMFieldEvaluation;
 
     procedure AddPlan(aHT: TKMHouseType; aLoc: TKMPoint); overload;
@@ -150,9 +148,8 @@ type
     function FindPlaceForWoodcutter(aCenter: TKMPoint; aChopOnly: Boolean = False): Boolean;
     function FindForestAndWoodcutter(): Boolean;
     function PlanDefenceTowers(): Boolean;
-
   public
-    constructor Create(aPlayer: TKMHandID);
+    constructor Create(aPlayer: TKMHandID; aPredictor: TKMCityPredictor);
     destructor Destroy(); override;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -237,9 +234,10 @@ uses
 { Procedural functions }
 function CompareForests(const aElem1, aElem2): Integer;
 var
-  val1 : TKMForestInfo absolute aElem1;
-  val2 : TKMForestInfo absolute aElem2;
+  val1: TKMForestInfo absolute aElem1;
+  val2: TKMForestInfo absolute aElem2;
 begin
+  //@Toxic: Possibly can replace with CompareValue()
   if      (val1.Bid = val2.Bid) then Result :=  0
   else if (val1.Bid < val2.Bid) then Result := -1
   else                               Result := +1;
@@ -247,10 +245,11 @@ end;
 
 
 { TKMCityPlanner }
-constructor TKMCityPlanner.Create(aPlayer: TKMHandID);
+constructor TKMCityPlanner.Create(aPlayer: TKMHandID; aPredictor: TKMCityPredictor);
 var
   HT: TKMHouseType;
 begin
+  fPredictor := aPredictor;
   for HT := HOUSE_MIN to HOUSE_MAX do
     with fPlannedHouses[HT] do
     begin
@@ -279,8 +278,8 @@ begin
   fFields.Count := 0;
   fFields.UpdateIdx := 0;
   SetLength(fFields.Farms,0);
-  fRoadPlanner := TPathFindingCityPlanner.Create(fOwner);
-  fRoadShortcutPlanner := TPathFindingShortcutsCityPlanner.Create(fOwner);
+  fRoadPlanner := TKMPathFindingCityPlanner.Create(fOwner);
+  fRoadShortcutPlanner := TKMPathFindingShortcutsCityPlanner.Create(fOwner);
   fFieldEval := TKMFieldEvaluation.Create(gTerrain.MapX, gTerrain.MapY, fOwner);
 end;
 
@@ -313,7 +312,7 @@ begin
   SaveStream.Write(fOwner);
   SaveStream.Write(fConstructedHouses);
   SaveStream.Write(fDefenceTowersPlanned);
-  //SaveStream.Write(fStonesDepleted);
+  SaveStream.Write(fStonesDepleted);
   SaveStream.Write(fForestsInfo.Count);
   if (fForestsInfo.Count > 0) then
     SaveStream.Write(fForestsInfo.Forests[0], SizeOf(TKMForestInfo) * fForestsInfo.Count);
@@ -358,7 +357,7 @@ begin
   LoadStream.Read(fOwner);
   LoadStream.Read(fConstructedHouses);
   LoadStream.Read(fDefenceTowersPlanned);
-  //LoadStream.Read(fStonesDepleted);
+  LoadStream.Read(fStonesDepleted);
   LoadStream.Read(fForestsInfo.Count);
   SetLength(fForestsInfo.Forests,fForestsInfo.Count);
   if (fForestsInfo.Count > 0) then
@@ -983,16 +982,25 @@ begin
   //  Output := true;
   //  ExistLoc := H.PointBelowEntrance;
   //end;
-  if Output AND fRoadPlanner.Route_Make(KMPointBelow(NewLoc), KMPointBelow(ExistLoc), aField)
-    AND ((aField.Count < MAX_ROAD_DISTANCE) OR (aHT = htWatchtower)) then
+  if Output AND fRoadPlanner.Route_Make(KMPointBelow(NewLoc), KMPointBelow(ExistLoc), aField) then
   begin
-    Output := True;
-    ReplaceOverlappingRoad( fPlannedHouses[aHT].Plans[aIdx].Loc );
-
-    if (aHT = htWatchtower) AND not CheckRoadToTowers() then
+    if not ((aField.Count < MAX_ROAD_DISTANCE) OR (aHT = htWatchtower)) then
     begin
       Output := False;
       RemovePlan(aHT,aIdx);
+      if (aHT in [htGoldMine, htIronMine, htCoalMine]) then
+        fPredictor.MarkExhaustedMine(aHT);
+    end
+    else
+    begin
+      Output := True;
+      ReplaceOverlappingRoad( fPlannedHouses[aHT].Plans[aIdx].Loc );
+
+      if (aHT = htWatchtower) AND not CheckRoadToTowers() then
+      begin
+        Output := False;
+        RemovePlan(aHT,aIdx);
+      end;
     end;
   end
   else
@@ -1000,6 +1008,9 @@ begin
     Output := False;
     RemovePlan(aHT,aIdx);
   end;
+  // Make sure list is empty
+  if not Output then
+    aField.Count := 0;
   Result := Output;
 end;
 
@@ -2042,7 +2053,7 @@ procedure TKMCityPlanner.CheckStoneReserves(aForceToPlaceQuarry: Boolean; aReqQu
 const
   HT = htQuarry;
   MIN_CNT = 60; // possible to mine X layers of stone tile = X * 3 stones
-  MIN_CNT_USED = 40;
+  MIN_CNT_USED = 25;
 var
   CanBeReplaced: Boolean;
   I,K, LowestIdx: Integer;
@@ -2104,8 +2115,12 @@ begin
             // Try to place new quarry
             //if (aReqQuarryCnt >= 0) AND FindPlaceForQuary(CopySL) then
             if (aReqQuarryCnt >= 0) AND FindPlaceForQuary(StoneLocs) then
+            begin
               with fPlannedHouses[HT] do
                 Plans[ Count-1 ].HouseReservation := True; // Reserve houses so builder will init road
+            end
+            else
+              fStonesDepleted := true;
             // Demolish old quarry (in case that alternative is completed)
             if not aForceToPlaceQuarry AND (aReqQuarryCnt < 0) then
               with fPlannedHouses[HT] do
@@ -2720,7 +2735,7 @@ begin
         //gRenderAux.Quad(X, Y, (Val shl 24) OR tcRed);
         //gRenderAux.Text(X, Y, IntToStr(Order[Y,X]), $FF000000);
       end;
-    //fRoadPlanner: TPathFindingCityPlanner;
+    //fRoadPlanner: TKMPathFindingCityPlanner;
     //fRoadShortcutPlanner:
   {$ENDIF}
 
@@ -2811,8 +2826,8 @@ begin
 end;
 
 
-{ TPathFindingCityPlanner }
-function TPathFindingCityPlanner.Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
+{ TKMPathFindingCityPlanner }
+function TKMPathFindingCityPlanner.Route_Make(const aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
 begin
   //FillChar(Price,SizeOf(Price),#0);
   //FillChar(Order,SizeOf(Order),#0);
@@ -2837,7 +2852,7 @@ begin
 end;
 
 
-function TPathFindingCityPlanner.IsWalkableTile(aX, aY: Word): Boolean;
+function TKMPathFindingCityPlanner.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   // Just in case that worker will die while digging house plan or when you plan road near ally
   Result := ( ([tpMakeRoads, tpWalkRoad] * gTerrain.Land^[aY,aX].Passability <> []) OR (gTerrain.Land^[aY, aX].TileLock in [tlRoadWork, tlFieldWork]) ) // Existing road / road construction
@@ -2847,7 +2862,7 @@ begin
 end;
 
 
-function TPathFindingCityPlanner.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
+function TKMPathFindingCityPlanner.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   IsRoad: Boolean;
   AvoidBuilding: Byte;
@@ -2897,8 +2912,8 @@ begin
 end;
 
 
-{ TPathFindingShortcutsCityPlanner }
-function TPathFindingShortcutsCityPlanner.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
+{ TKMPathFindingShortcutsCityPlanner }
+function TKMPathFindingShortcutsCityPlanner.MovementCost(aFromX, aFromY, aToX, aToY: Word): Cardinal;
 var
   IsRoad: Boolean;
   AvoidBuilding: Byte;
@@ -2948,7 +2963,7 @@ begin
 end;
 
 
-function TPathFindingShortcutsCityPlanner.DestinationReached(aX, aY: Word): Boolean;
+function TKMPathFindingShortcutsCityPlanner.DestinationReached(aX, aY: Word): Boolean;
 begin
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)); //We reached destination point
 end;

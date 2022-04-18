@@ -36,6 +36,7 @@ type
 
   TKMTileMaskSubType = (mstMain, mstExtra);
 
+  //* Terrain mask kind
   TKMTileMaskKind = (mkNone, mkSoft1, mkSoft2, mkSoft3, mkStraight, mkGradient);
 
   // Mask usage: as a pixel mask, or as a gradient mask
@@ -49,6 +50,7 @@ type
 
   PKMMaskFullType = ^TKMMaskFullType;
 
+  //* Terrain kind
   TKMTerrainKind = (
 //    tkNone,
     tkCustom,     //0

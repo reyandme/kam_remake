@@ -72,7 +72,11 @@ begin
 
   nHotkeys := Root.AddOrFindChild('Hotkeys');
 
-  if gResKeys = nil then Exit;
+  // Those are already nil on game exit (gGameApp is destroyed already)
+  if (gResKeys = nil)
+  or (gResKeyFuncs = nil)
+  or (gResTexts = nil) then
+    Exit;
 
   // Clear old data before filling in
   nHotkeys.Clear;

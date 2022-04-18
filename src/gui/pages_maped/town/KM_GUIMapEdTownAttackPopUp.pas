@@ -62,8 +62,8 @@ const
 { TKMMapEdAttack }
 constructor TKMMapEdTownAttack.Create(aParent: TKMPanel);
 const
-  SIZE_X = 570;
-  SIZE_Y = 360;
+  SIZE_X = 750;
+  SIZE_Y = 420;
 var
   GT: TKMGroupType;
 begin
@@ -89,44 +89,52 @@ begin
     Radio_AttackType.Add(gResTexts[TX_MAPED_AI_ATTACK_TYPE_REP]);
     Radio_AttackType.OnChange := Attack_Change;
 
-    TKMLabel.Create(Panel_Attack, 180, 40, 150, 40, gResTexts[TX_MAPED_AI_ATTACK_DELAY], fntMetal, taLeft).WordWrap := True;
+    TKMLabel.Create(Panel_Attack, 180, 40, 210, 40, gResTexts[TX_MAPED_AI_ATTACK_DELAY], fntMetal, taLeft).WordWrap := True;
     NumEdit_AttackDelay := TKMNumericEdit.Create(Panel_Attack, 180, 80, 0, High(SmallInt));
     NumEdit_AttackDelay.OnChange := Attack_Change;
 
-    TKMLabel.Create(Panel_Attack, 340, 40, 200, 40, gResTexts[TX_MAPED_AI_ATTACK_SOLDIERS], fntMetal, taLeft).WordWrap := True;
-    NumEdit_AttackMen := TKMNumericEdit.Create(Panel_Attack, 340, 80, 0, 1000);
+    TKMLabel.Create(Panel_Attack, SIZE_X-20-320-10, 40, 320, 40, gResTexts[TX_MAPED_AI_ATTACK_SOLDIERS], fntMetal, taLeft).WordWrap := True;
+    NumEdit_AttackMen := TKMNumericEdit.Create(Panel_Attack, 400, 80, 0, 1000);
     NumEdit_AttackMen.OnChange := Attack_Change;
 
-    TKMLabel.Create(Panel_Attack, 340, 160, gResTexts[TX_MAPED_AI_ATTACK_COUNT], fntMetal, taLeft);
+    TKMLabel.Create(Panel_Attack, 400, 210, gResTexts[TX_MAPED_AI_ATTACK_COUNT], fntMetal, taLeft);
     for GT := GROUP_TYPE_MIN to GROUP_TYPE_MAX do
     begin
-      TKMLabel.Create(Panel_Attack, 425, 180 + (Ord(GT) - GROUP_TYPE_MIN_OFF) * 20, 0, 0, gResTexts[GROUP_TEXT[GT]], fntGrey, taLeft);
-      NumEdit_AttackAmount[GT] := TKMNumericEdit.Create(Panel_Attack, 340, 180 + (Ord(GT) - GROUP_TYPE_MIN_OFF) * 20, 0, 255);
+      TKMLabel.Create(Panel_Attack, 485, 230 + (Ord(GT) - GROUP_TYPE_MIN_OFF) * 20, 0, 0, gResTexts[GROUP_TEXT[GT]], fntGrey, taLeft);
+      NumEdit_AttackAmount[GT] := TKMNumericEdit.Create(Panel_Attack, 400, 230 + (Ord(GT) - GROUP_TYPE_MIN_OFF) * 20, 0, 255);
       NumEdit_AttackAmount[GT].OnChange := Attack_Change;
     end;
 
-    CheckBox_AttackRandomGroups := TKMCheckBox.Create(Panel_Attack, 340, 265, 210, 20, gResTexts[TX_MAPED_AI_ATTACK_TAKE_ANY], fntMetal);
+    CheckBox_AttackRandomGroups := TKMCheckBox.Create(Panel_Attack, SIZE_X-20-320-10, 315, 320, 40, gResTexts[TX_MAPED_AI_ATTACK_TAKE_ANY], fntMetal);
     CheckBox_AttackRandomGroups.Hint := gResTexts[TX_MAPED_AI_ATTACK_TAKE_ANY_HINT];
     CheckBox_AttackRandomGroups.OnClick := Attack_Change;
 
     //Second row
 
-    TKMLabel.Create(Panel_Attack, 20, 160, gResTexts[TX_MAPED_AI_ATTACK_COL_TARGET], fntMetal, taLeft);
-    Radio_AttackTarget := TKMRadioGroup.Create(Panel_Attack, 20, 180, 310, 80, fntGrey);
+    with TKMLabel.Create(Panel_Attack, 20, 120, SIZE_X - 40, 80, gResTexts[TX_MAPED_AI_ATTACK_HELP], fntMetal, taLeft) do
+    begin
+      FontColor := icGoldenYellow;
+      WordWrap := True;
+    end;
+
+    //Third row
+
+    TKMLabel.Create(Panel_Attack, 20, 210, gResTexts[TX_MAPED_AI_ATTACK_COL_TARGET], fntMetal, taLeft);
+    Radio_AttackTarget := TKMRadioGroup.Create(Panel_Attack, 20, 230, 310, 80, fntGrey);
     Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_CLOSEST]);
     Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_HOUSE_ARMY]);
     Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_HOUSE_START]);
     Radio_AttackTarget.Add(gResTexts[TX_MAPED_AI_TARGET_CUSTOM]);
     Radio_AttackTarget.OnChange := Attack_Change;
 
-    NumEdit_AttackLocX := TKMNumericEdit.Create(Panel_Attack, 20, 260, 0, MAX_MAP_SIZE);
+    NumEdit_AttackLocX := TKMNumericEdit.Create(Panel_Attack, 40, 310, 0, MAX_MAP_SIZE);
     NumEdit_AttackLocX.OnChange := Attack_Change;
-    NumEdit_AttackLocY := TKMNumericEdit.Create(Panel_Attack, 20, 280, 0, MAX_MAP_SIZE);
+    NumEdit_AttackLocY := TKMNumericEdit.Create(Panel_Attack, 40, 330, 0, MAX_MAP_SIZE);
     NumEdit_AttackLocY.OnChange := Attack_Change;
 
     //Range is not implemented yet (unused feature in KaM?)
-    with TKMLabel.Create(Panel_Attack, 200, 240, 'Range (untested)', fntMetal, taLeft) do Hide;
-    TrackBar_AttackRange := TKMTrackBar.Create(Panel_Attack, 200, 260, 100, 0, 255);
+    with TKMLabel.Create(Panel_Attack, 200, 250, 'Range (untested)', fntMetal, taLeft) do Hide;
+    TrackBar_AttackRange := TKMTrackBar.Create(Panel_Attack, 200, 310, 100, 0, 255);
     TrackBar_AttackRange.Disable;
     TrackBar_AttackRange.Hide;
     TrackBar_AttackRange.OnChange := Attack_Change;

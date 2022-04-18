@@ -43,6 +43,7 @@ type
     function GetWorkerThread: TKMWorkerThread;
   public
     constructor Create(const aThreadName: String);
+    destructor Destroy; override;
 
     property Worker: TKMWorkerThread read GetWorkerThread write fWorkerThread;
   end;
@@ -232,6 +233,14 @@ begin
   inherited Create;
 
   fWorkerThreadName := aThreadName;
+end;
+
+
+destructor TKMWorkerThreadHolder.Destroy;
+begin
+  FreeAndNil(fWorkerThread);
+
+  inherited;
 end;
 
 

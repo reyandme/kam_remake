@@ -26,7 +26,7 @@ type
     fOptions: TKMGameOptions;
     fGameInputProcess: TKMGameInputProcess;
     fTextMission: TKMTextLibraryMulti;
-    fPathfinding: TPathFinding;
+    fPathfinding: TKMPathFinding;
     fActiveInterface: TKMUserInterfaceGame; //Shortcut for both of UI
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMMapEdInterface;
@@ -71,6 +71,7 @@ type
     fSpeedChangeTick: Single;
     fSpeedChangeTime: Cardinal; //time of last game speed change
     fPausedTicksCnt: Cardinal;
+    fIsJustStarted: Boolean; // True when game is just started (loaded save / savepoint / started) and no ticks were played yet
 
     fLastTimeUserAction: Cardinal;
     fLastAfkMessageSent: Cardinal;
@@ -274,7 +275,7 @@ type
 
     function GetHandsCount: Integer;
 
-    property Pathfinding: TPathFinding read fPathfinding;
+    property Pathfinding: TKMPathFinding read fPathfinding;
     property GameInputProcess: TKMGameInputProcess read fGameInputProcess write fGameInputProcess;
     property Options: TKMGameOptions read fOptions;
     property ActiveInterface: TKMUserInterfaceGame read fActiveInterface;
@@ -374,6 +375,7 @@ begin
   fIsStarted := False;
   fIsPaused := False;
   fIsExiting := False;
+  fIsJustStarted := False;
 
   fTerrainPainter := TKMTerrainPainter.Create;
 
@@ -427,10 +429,11 @@ begin
   fIgnoreConsistencyCheckErrors := False;
 
   case PATHFINDER_TO_USE of
-    0:    fPathfinding := TPathfindingAStarOld.Create;
-    1:    fPathfinding := TPathfindingAStarNew.Create;
-    2:    fPathfinding := TPathfindingJPS.Create;
-    else  fPathfinding := TPathfindingAStarOld.Create;
+    0:    fPathfinding := TKMPathfindingAStarOld.Create;
+    1:    fPathfinding := TKMPathfindingAStarNew.Create;
+    2:    fPathfinding := TKMPathfindingJPS.Create;
+  else
+    fPathfinding := TKMPathfindingAStarOld.Create;
   end;
   gProjectiles := TKMProjectiles.Create(gRenderPool.AddProjectile);
 
@@ -798,8 +801,9 @@ begin
   gRenderPool.ReInit;
 
   fIsStarted := True;
+  fIsJustStarted := True; // Mark game as just started
 
-  gLog.AddTime('After game ends', True);
+  gLog.AddTime('After game start', True);
 end;
 
 
@@ -2196,7 +2200,7 @@ begin
     gameInfo.MapSizeX := gTerrain.MapX;
     gameInfo.MapSizeY := gTerrain.MapY;
     gameInfo.TxtInfo := fMapTxtInfo;
-
+    gameInfo.MapTxtInfoNasToBeFreed := False; // Don't Free MapTxtInfo object in gameInfo, its used by our game
     gameInfo.PlayerCount := gHands.Count;
     for I := 0 to gHands.Count - 1 do
     begin
@@ -2681,6 +2685,8 @@ begin
       bodyStream.Free;
     end;
   end;
+
+  fIsJustStarted := True; // Mark game as just started
 end;
 
 
@@ -3050,6 +3056,9 @@ function TKMGame.PlayGameTick: Boolean;
     // Spread savepoints / autosaves / autosave at PT end (at 0 tick) among ticks to avoid async / main threads overload
     SAVEPT_TICK_SHIFT = 1;
   begin
+    // Do not add autosave or savepoint for a just started / loaded game
+    if fIsJustStarted then Exit;
+
     //Save game to memory (to be able to load it later)
     //Make savepoint only after everything is updated (UpdateState)
     if gGameSettings.SaveCheckpoints
@@ -3090,6 +3099,9 @@ begin
       ManageSaves;
 
       IncTick;
+
+      // Game is no longer 'just started'
+      fIsJustStarted := False;
 
       fGameInputProcess.TakePlannedCommands;
 
@@ -3156,6 +3168,9 @@ function TKMGame.PlayReplayTick: Boolean;
 
   procedure ManageSaves;
   begin
+    // Do not add savepoint for a just loaded game
+    if fIsJustStarted then Exit;
+
     //Only increase LastTick, since we could load replay earlier at earlier state
     fSavePoints.LastTick := Max(fSavePoints.LastTick, fParams.Tick);
 
@@ -3187,6 +3202,9 @@ begin
     ManageSaves;
 
     IncTick;
+
+    // Game is no longer 'just started'
+    fIsJustStarted := False;
 
     fScripting.UpdateState;
     gTerrain.UpdateState;

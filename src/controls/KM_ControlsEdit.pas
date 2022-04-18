@@ -150,7 +150,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Clipbrd,
-  SysUtils, Math,
+  SysUtils, StrUtils, Math,
   KromUtils, KromOGLUtils,
   KM_ControlsUtils,
   KM_Resource, KM_ResTypes,
@@ -724,7 +724,7 @@ var
   S, txt: string;
 begin
   txt := Trim(fText);
-  Result := txt <> '';
+  Result := (txt <> '') and (RightStr(txt, 1) <> '.');
   if not Result then Exit;
 
   for S in WIN_RESERVED_FILENAMES do

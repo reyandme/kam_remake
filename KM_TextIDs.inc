@@ -157,15 +157,13 @@ TX_HOUSE_DEMOLISH = 143; //Do you really want to|demolish this building?
 TX_HOUSE_DEMOLISH_YES_HINT = 144; //Destroy selected building
 TX_HOUSE_ORDER_DEC_HINT = 145; //Decrease order amount
 TX_HOUSE_ORDER_INC_HINT = 146; //Increase order amount
-TX_HOUSE_BARRACKS_PREV_HINT = 147; //Previous soldier type
-TX_HOUSE_BARRACKS_NEXT_HINT = 148; //Next soldier type
+TX_HOUSE_BARRACKS_PREV_HINT = 147; //Previous soldier type. Use Shift to get to the first soldier type
+TX_HOUSE_BARRACKS_NEXT_HINT = 148; //Next soldier type. Use Shift to get to the last soldier type
 TX_HOUSE_BARRACKS_TRAIN_HINT = 149; //Equip current soldier type
-TX_HOUSE_BARRACKS_TRAIN_DISABLED_HINT = 706; //This soldier type is not available
-TX_HOUSE_SCHOOL_NEXT_HINT = 150; //Next profession
-TX_HOUSE_SCHOOL_PREV_HINT = 151; //Previous profession
-TX_HOUSE_SCHOOL_TRAIN_HINT = 152; //Add to queue. Use RMB, Shift or Ctrl to modify the queue
-TX_HOUSE_SCHOOL_TRAIN_DISABLED_HINT = 707; //This unit type is not available
-TX_HOUSE_TOGGLE_DELIVERS_HINT = 153; //Switch between delivery modes of wares: demand / closed / offer. Use LMB / RMB to switch forward/backward
+TX_HOUSE_SCHOOL_NEXT_HINT = 150; //Next profession. Use Shift to get to the last profession
+TX_HOUSE_SCHOOL_PREV_HINT = 151; //Previous profession. Use Shift to get to the first profession
+TX_HOUSE_SCHOOL_TRAIN_HINT = 152; //Add to queue.|Use RMB, Ctrl or Alt to modify the queue and Shift to fill it
+TX_HOUSE_TOGGLE_DELIVERS_HINT = 153; //Switch between delivery modes of wares: demand / closed / offer|Use LMB / RMB to switch forward / backward
 
 TX_HOUSE_WARE_COSTS = 154; //Cost:
 TX_HOUSE_TOGGLE_REPAIR_HINT = 155; //Switch on/off house repair
@@ -348,13 +346,13 @@ TX_MENU_OPTIONS_FULLSCREEN = 308; //Fullscreen
 TX_MENU_OPTIONS_APPLY = 309; //Apply
 TX_MENU_OPTIONS_LANGUAGE = 310; //Language:
 TX_MENU_OPTIONS_SHADOW_QUALITY = 311; //High shadow quality
-TX_MENU_OPTIONS_EDIT_KEYS = 837; //Edit Key-bindings
+TX_MENU_OPTIONS_EDIT_KEYS = 837; //
 TX_MENU_OPTIONS_KEYBIND = 838; //Key-bindings
 TX_MENU_OPTIONS_OK = 839; //OK
 TX_MENU_OPTIONS_FUNCTION = 840; //Function
 TX_MENU_OPTIONS_KEY = 841; //Key
-TX_MENU_OPTIONS_SPECIAL_KEYBIND = 842; //Special non-editable Key-bindings
-TX_MENU_OPTIONS_SPECIAL_KEYS = 843; //Special Key-bindings
+TX_MENU_OPTIONS_SPECIAL_KEYBIND = 842; //
+TX_MENU_OPTIONS_SPECIAL_KEYS = 843; //
 TX_MENU_OPTIONS_RESET = 844; //Reset key-bindings
 TX_MENU_OPTIONS_CANCEL = 991; //Cancel
 TX_MENU_OPTIONS_CLEAR = 992; //Clear key
@@ -663,6 +661,7 @@ TX_MAPED_AI_ATTACK_COL_DELAY = 477; //Delay
 TX_MAPED_AI_ATTACK_COL_TYPE = 478; //Type
 TX_MAPED_AI_ATTACK_AUTO = 479; //Autoattack
 TX_MAPED_AI_ATTACK_AUTO_HINT = 810; //AI creates and manages attacks automatically. Ignores manually set attacks
+TX_MAPED_AI_ATTACK_HELP = 823; //Help section for AI attacks
 TX_MAPED_AI_ATTACK = 480; //AI attacks
 TX_MAPED_AI_ATTACK_ADD = 1137; //Add AI attack
 TX_MAPED_AI_ATTACK_DEL = 1138; //Remove AI attack
@@ -1551,8 +1550,8 @@ TX_MAPED_RMG_SETTINGS_NEW_RANDOM_SEED_HINT = 1352; //Generate map with new Seed
 TX_MAPED_RMG_SETTINGS_GENERATE_MAP = 1353; //Generate map
 TX_MAPED_RMG_SETTINGS_GENERATE_MAP_HINT = 1354; //Generate map with current Seed
 TX_MAPED_RMG_SETTINGS_CLOSE_RMG_HINT = 1355; //Close Random Map Generator
-TX_MAPED_RMG_SETTINGS_HEIGHT_STEP_HINT = 1366; //Step of the height algorithm (1 = small, 10 = big)
-TX_MAPED_RMG_SETTINGS_HEIGHT_SLOPE_HINT = 1367; //Slope of the height evaluation (0 = plateau, 15 = peak)
+TX_MAPED_RMG_SETTINGS_HEIGHT_STEP_HINT = 1366; //Step of the height algorithm
+TX_MAPED_RMG_SETTINGS_HEIGHT_SLOPE_HINT = 1367; //Slope of the height evaluation (0 = plateau, 100 = peak)
 TX_MAPED_RMG_SETTINGS_HEIGHT_HEIGHTS_HINT = 1368; //Maximum height of walkable tiles
 TX_MAPED_RMG_SETTINGS_HEIGHT_SMOOTH_PEAKS = 1529; //Smooth peaks
 TX_MAPED_RMG_SETTINGS_HEIGHT_SMOOTH_PEAKS_HINT = 1530; //Make mountains peaks smoother
@@ -1652,3 +1651,6 @@ TX_ERROR_ASK_TO_SEND_RNGCHECK_REPORT = 1547; //Other player got desync error. Pl
 
 TX_EXIT_WARN_MESSAGE = 1580; //Any unsaved changes will be lost. Exit?
 TX_EXIT_WARN_HEADER = 1581; //Warning
+
+TX_HOUSE_BARRACKS_TRAIN_DISABLED_HINT = 706; //This soldier type is not available
+TX_HOUSE_SCHOOL_TRAIN_DISABLED_HINT = 707; //This unit type is not available

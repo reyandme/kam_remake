@@ -106,7 +106,8 @@ type
 implementation
 uses
   TranslationManagerUtils,
-  KM_CommonTypes, KM_CommonUtils;
+  KM_CommonTypes, KM_CommonUtils,
+  KM_Log;
 
 {$R *.dfm}
 
@@ -116,12 +117,19 @@ const
 
 { TForm1 }
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  logsPath: string;
 begin
   Caption := 'KaM Remake Translation Manager (' + GAME_REVISION + ')';
 
-  fWorkDir := GetWorkDir;
+  ExeDir := ExtractFilePath(ParamStr(0));
+  logsPath := ExeDir + 'Logs' + PathDelim;
+  CreateDir(logsPath);
 
-  gResLocales := TKMResLocales.Create(fWorkDir + 'data\locales.txt', DEFAULT_LOCALE);
+  gLog := TKMLog.Create(logsPath + 'TranslationManager.log');
+
+  fWorkDir := GetWorkDir;
+  gResLocales := TKMResLocales.Create(fWorkDir + 'data' + PathDelim + 'locales.txt', DEFAULT_LOCALE);
 
   InitLocalesList;
 
@@ -169,24 +177,31 @@ var
   I,K: Integer;
   SelCount, SecHeight: Word;
 begin
-  SelCount := 0;
-  for I := 0 to gResLocales.Count - 1 do
-  if (I+1 < clbShowLang.Count) then
-  if clbShowLang.Checked[I+1] then
-    Inc(SelCount);
+  try
+    SelCount := 0;
+    for I := 0 to gResLocales.Count - 1 do
+    if (I+1 < clbShowLang.Count) then
+    if clbShowLang.Checked[I+1] then
+      Inc(SelCount);
 
-  if SelCount = 0 then
-    Exit;
+    if SelCount = 0 then
+      Exit;
 
-  SecHeight := ScrollBox1.ClientHeight div SelCount;
+    SecHeight := ScrollBox1.ClientHeight div SelCount;
 
-  K := 0;
-  for I := 0 to gResLocales.Count - 1 do
-  if clbShowLang.Checked[I+1] then
-  begin
-    TransLabels[I].SetBounds(8, 4 + K * SecHeight, 100, 20);
-    TransMemos[I].SetBounds(8, 22 + K * SecHeight, ScrollBox1.Width - 20, SecHeight - 20);
-    Inc(K);
+    K := 0;
+    for I := 0 to gResLocales.Count - 1 do
+    if clbShowLang.Checked[I+1] then
+    begin
+      TransLabels[I].SetBounds(8, 4 + K * SecHeight, 100, 20);
+      TransMemos[I].SetBounds(8, 22 + K * SecHeight, ScrollBox1.Width - 20, SecHeight - 20);
+      Inc(K);
+    end;
+  except
+    on E: Exception do
+    begin
+      gLog.AddTime('Error on FormResize: ' + E.Message + sLineBreak + GetStackTrace(10));
+    end;
   end;
 end;
 
@@ -256,8 +271,15 @@ end;
 
 procedure TForm1.btnSaveClick(Sender: TObject);
 begin
-  fTextManager.Save;
-  mnuSave.Enabled := False;
+  try
+    fTextManager.Save;
+    mnuSave.Enabled := False;
+  except
+    on E: Exception do
+    begin
+      gLog.AddTime('Error on btnSaveClick: ' + E.Message + sLineBreak + GetStackTrace(10));
+    end;
+  end;
 end;
 
 
@@ -520,19 +542,26 @@ var
 begin
   if (ListBox1.ItemIndex = -1) then exit;
 
-  IgnoreChanges := true;
-  idx := ListboxLookup[ListBox1.ItemIndex];
+  try
+    IgnoreChanges := true;
+    idx := ListboxLookup[ListBox1.ItemIndex];
 
-  btnRename.Enabled := fTextManager.Consts[idx].TextID <> -1;
+    btnRename.Enabled := fTextManager.Consts[idx].TextID <> -1;
 
-  lblConstName.Caption := fTextManager.Consts[idx].ConstName;
+    lblConstName.Caption := fTextManager.Consts[idx].ConstName;
 
-  for I := 0 to gResLocales.Count - 1 do
-    if fTextManager.Consts[idx].TextID <> -1 then
-      TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(fTextManager.Texts[fTextManager.Consts[idx].TextID][i])
-    else
-      TransMemos[i].Text := '';
-  IgnoreChanges := false;
+    for I := 0 to gResLocales.Count - 1 do
+      if fTextManager.Consts[idx].TextID <> -1 then
+        TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(fTextManager.Texts[fTextManager.Consts[idx].TextID][i])
+      else
+        TransMemos[i].Text := '';
+    IgnoreChanges := false;
+  except
+    on E: Exception do
+    begin
+      gLog.AddTime('Error on ListBox1Click: ' + E.Message + sLineBreak + GetStackTrace(10));
+    end;
+  end;
 end;
 
 
@@ -546,34 +575,61 @@ end;
 //Sort the items by TextID
 procedure TForm1.btnSortByIndexClick(Sender: TObject);
 begin
-  fTextManager.SortByIndex;
-  RefreshList;
-  mnuSave.Enabled := True;
+  try
+    fTextManager.SortByIndex;
+    RefreshList;
+    mnuSave.Enabled := True;
+  except
+    on E: Exception do
+    begin
+      gLog.AddTime('Error on btnSortByIndexClick: ' + E.Message + sLineBreak + GetStackTrace(10));
+    end;
+  end;
 end;
 
 
 //Sort TextIDs by Index
 procedure TForm1.btnSortByNameClick(Sender: TObject);
 begin
-  fTextManager.SortByName;
-  //Compact Indexes
-  RefreshList;
-  mnuSave.Enabled := True;
+  try
+    fTextManager.SortByName;
+    //Compact Indexes
+    RefreshList;
+    mnuSave.Enabled := True;
+  except
+    on E: Exception do
+    begin
+      gLog.AddTime('Error on btnSortByNameClick: ' + E.Message + sLineBreak + GetStackTrace(10));
+    end;
+  end;
 end;
 
 
 procedure TForm1.btnCompactIndexesClick(Sender: TObject);
 begin
-  fTextManager.CompactIndexes;
-  RefreshList;
-  mnuSave.Enabled := True;
+  try
+    fTextManager.CompactIndexes;
+    RefreshList;
+    mnuSave.Enabled := True;
+  except
+    on E: Exception do
+      gLog.AddTime('Error on btnCompactIndexesClick ' + E.Message + sLineBreak + GetStackTrace(10));
+
+  end;
 end;
 
 
 procedure TForm1.FilterChanged(Sender: TObject);
 begin
-  RefreshFilter;
-  RefreshList;
+  try
+    RefreshFilter;
+    RefreshList;
+  except
+    on E: Exception do
+    begin
+      gLog.AddTime('Error on FilterChanged: ' + E.Message + sLineBreak + GetStackTrace(10));
+    end;
+  end;
 end;
 
 

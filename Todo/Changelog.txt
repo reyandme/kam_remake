@@ -1,7 +1,8 @@
 ﻿Since r6720:
 <===================================================================================>
 Todo:
-  Update translation for labels: 152, 153, 270, 276, 413, 457, 485, 537, 548, 549, 624, 642, 775, 802, 964, 1537
+  Update translation for labels: 
+  147, 148, 149, 150, 151, 152, 153, 270, 276, 387, 413, 457, 469, 485, 537, 548, 549, 624, 642, 775, 802, 803, 964, 1366, 1367, 1537
 Bugs:
  +  Lobby map list should show 8 locations at most, since only 8 locations can be used by humans at once
  +  Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)

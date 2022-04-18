@@ -4064,7 +4064,7 @@ end;
 //* Version: 6216
 //* Returns a random integer such that: 0 <= Number
 //* Result: Number 0 to aMax
-function TKMScriptStates.KaMRandomI(aMax:Integer): Integer;
+function TKMScriptStates.KaMRandomI(aMax: Integer): Integer;
 begin
   try
     //No parameters to check, any integer is fine (even negative)
@@ -4577,8 +4577,7 @@ end;
 
 //* Version: 11000
 //* Check if tile at the specified XY coordinates has water.
-//* FullTilesOnly = True means we check only water tiles not containing transition with grass/sand/stone etc tiles.
-//* FullTilesOnly = False checks any water containing tiles including transitions.
+//* FullTilesOnly: True means we check only water tiles not containing transition with grass/sand/stone etc tiles. False checks any water containing tiles including transitions.
 //* Result: Tile has water
 function TKMScriptStates.MapTileIsWater(X, Y: Integer; FullTilesOnly: Boolean): Boolean;
 begin
@@ -5220,7 +5219,7 @@ end;
 
 //* Version: 7000+
 //* Returns true if specified warrior is in fight
-//* aCountCitizens - including fights with citizens
+//* aCountCitizens: including fights with citizens
 //* Result: InFight
 function TKMScriptStates.WarriorInFight(aUnitID: Integer; aCountCitizens: Boolean): Boolean;
 var
@@ -5662,7 +5661,7 @@ end;
 
 //* Version: 7000+
 //* Returns true if specified group is in fight
-//* aCountCitizens - including fights with citizens
+//* aCountCitizens: including fights with citizens
 //* Result: InFight
 function TKMScriptStates.GroupInFight(aGroupID: Integer; aCountCitizens: Boolean): Boolean;
 var

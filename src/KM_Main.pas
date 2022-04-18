@@ -98,7 +98,10 @@ uses
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KromUtils, KM_FileIO,
   KM_GameApp, KM_VclHelpers,
-  KM_System, KM_ResExporter, KM_ResTexts, KM_Music,
+  KM_System,
+  KM_ResExporter, KM_ResTexts,
+  KM_KeysSettings,
+  KM_Music,
   KM_Log, KM_CommonUtils, KM_Defaults, KM_Points, KM_DevPerfLog,
   KM_CommonExceptions,
   KromShellUtils, KM_MapTypes;
@@ -357,8 +360,12 @@ begin
     if fMapCacheUpdater <> nil then
       fMapCacheUpdater.Stop;
 
-    FreeThenNil(gGameAppSettings); // Before GameApp is destroyed
+    // Save Keys settings before destruction of gGameApp, since gResKeys, gResTexts, gResKeyFuncs are used when save to xml
+    gKeySettings.SaveToXML;
+
     FreeThenNil(gGameApp);
+    // Destroy gGameAppSettings after GameApp is destroyed, since gGameSettings could be used during destruction
+    FreeThenNil(gGameAppSettings);
 
     FreeThenNil(gLog);
 
