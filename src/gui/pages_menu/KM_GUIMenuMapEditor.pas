@@ -235,8 +235,8 @@ begin
 
       Radio_NewMapSizeX.OnChange := SizeChangeByRadio;
       Radio_NewMapSizeY.OnChange := SizeChangeByRadio;
-      NumEdit_MapSizeX := TKMNumericEdit.Create(Panel_NewMap, 8, Radio_NewMapSizeX.Bottom + NEW_MAP_PAD_Y, MIN_MAP_SIZE, MAX_MAP_SIZE);
-      NumEdit_MapSizeY := TKMNumericEdit.Create(Panel_NewMap, 118, Radio_NewMapSizeY.Bottom + NEW_MAP_PAD_Y, MIN_MAP_SIZE, MAX_MAP_SIZE);
+      NumEdit_MapSizeX := TKMNumericEdit.Create(Panel_NewMap, 8, Radio_NewMapSizeX.Bottom + NEW_MAP_PAD_Y, 0, MAX_MAP_SIZE);
+      NumEdit_MapSizeY := TKMNumericEdit.Create(Panel_NewMap, 118, Radio_NewMapSizeY.Bottom + NEW_MAP_PAD_Y, 0, MAX_MAP_SIZE);
       NumEdit_MapSizeX.Anchors := [anLeft, anBottom];
       NumEdit_MapSizeY.Anchors := [anLeft, anBottom];
       NumEdit_MapSizeX.Value := 64;
