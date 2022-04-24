@@ -513,6 +513,9 @@ begin
 
   SetMainLands;
 
+  // Update terrain kind info
+  gGame.TerrainPainter.FixTerrainKindInfo(fSelectionRect);
+
   gTerrain.UpdateAll(fSelectionRect);
 
   fSelectionMode := smSelecting;

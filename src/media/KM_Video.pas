@@ -621,7 +621,7 @@ var
 begin
   if Self = nil then Exit(False);
   if not fPlayerEnabled then Exit(False);
-  if gResLocales = nil then Exit(False);
+  Assert(gResLocales <> nil, 'gResLocales should be already loaded!');
 
   Result := False;
   aFileName := '';

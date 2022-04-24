@@ -176,7 +176,7 @@ begin
   for I := 0 to Count - 1 do
     if not KMInRect(Houses[I].Position, newMapRect)
       or not gTerrain.CheckHouseBounds(Houses[I].HouseType, Houses[I].Position, aInsetRect) then
-      Houses[I].DemolishHouse(Houses[I].Owner, True);
+      Houses[I].Demolish(Houses[I].Owner, True);
 end;
 
 
@@ -187,7 +187,7 @@ begin
   if Count <= 0 then Exit;
 
   for I := 0 to Count - 1 do
-    Houses[I].DemolishHouse(Houses[I].Owner, True);
+    Houses[I].Demolish(Houses[I].Owner, True);
 
   fHouses.Clear;
 end;

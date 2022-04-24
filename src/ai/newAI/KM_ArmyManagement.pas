@@ -10,8 +10,11 @@ uses
   Classes, KromUtils, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Units,
-  KM_UnitGroup, KM_AISetup,
+  KM_UnitGroup, KM_AISetup, KM_ResTypes,
   KM_HandStats, KM_ArmyDefence, KM_AIAttacks, KM_ArmyAttackNew;
+
+const
+  ARMY_VECTOR_SCAN_HOUSES_DEF: TKMHouseTypeSet = [htBarracks, htStore, htSchool, htTownhall]; // htWatchTower
 
 type
   // Agent interface (for Supervisor)
@@ -29,6 +32,7 @@ type
     fFoodProblems: Boolean;
     fLastEquippedTimeIron, fLastEquippedTimeLeather: Cardinal;
     fAttackRequest: TKMAttackRequest;
+    fArmyVectorFieldScanHouses: TKMHouseTypeSet;
 
     fAttackNew: TKMArmyAttackNew;
     fDefence: TKMArmyDefence;
@@ -53,6 +57,8 @@ type
     property AttackRequest: TKMAttackRequest read fAttackRequest write SetAttackRequest;
     property BalanceText: UnicodeString read CombineBalanceStrings;
 
+    property ArmyVectorFieldScanHouses: TKMHouseTypeSet read fArmyVectorFieldScanHouses write fArmyVectorFieldScanHouses;
+
     procedure AfterMissionInit();
     procedure UpdateState(aTick: Cardinal);
     procedure OwnerUpdate(aPlayer: TKMHandID);
@@ -69,8 +75,7 @@ uses
   KM_CommonUtils,
   KM_DevPerfLog, KM_DevPerfLogTypes,
   KM_AITypes, KM_AIFields,
-  KM_MapTypes,
-  KM_ResTypes;
+  KM_MapTypes;
 
 
 { TKMArmyManagement }
@@ -83,6 +88,7 @@ begin
   fFoodProblems := False;
   fLastEquippedTimeIron := 0;
   fLastEquippedTimeLeather := 0;
+  fArmyVectorFieldScanHouses := ARMY_VECTOR_SCAN_HOUSES_DEF;
   fAttackRequest.Active := False;
 
   fAttackNew := TKMArmyAttackNew.Create(aPlayer);
@@ -106,6 +112,7 @@ begin
   SaveStream.Write(fFoodProblems);
   SaveStream.Write(fLastEquippedTimeIron);
   SaveStream.Write(fLastEquippedTimeLeather);
+  SaveStream.Write(fArmyVectorFieldScanHouses, SizeOf(fArmyVectorFieldScanHouses));
 
   with fAttackRequest do
   begin
@@ -134,6 +141,7 @@ begin
   LoadStream.Read(fFoodProblems);
   LoadStream.Read(fLastEquippedTimeIron);
   LoadStream.Read(fLastEquippedTimeLeather);
+  LoadStream.Read(fArmyVectorFieldScanHouses, SizeOf(fArmyVectorFieldScanHouses));
 
   with fAttackRequest do
   begin

@@ -192,8 +192,8 @@ type
 
     property OnShowGameMessage: TKMGameShowMessageEvent read fOnShowGameMessage write fOnShowGameMessage;
 
-    procedure RemoveHouse;
-    procedure DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False); virtual;
+    procedure Remove;
+    procedure Demolish(aFrom: TKMHandID; IsSilent: Boolean = False); virtual;
     property BuildingProgress: Word read fBuildingProgress;
 
     procedure SetPosition(const aPos: TKMPoint); //Used only by map editor
@@ -274,10 +274,12 @@ type
     procedure ResAddToOut(aWare: TKMWareType; const aCount: Integer = 1);
     procedure ResAddToEitherFromScript(aWare: TKMWareType; aCount: Integer);
     procedure ResAddToBuild(aWare: TKMWareType; aCount: Integer = 1);
+    procedure ResTake(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); virtual;
     procedure ResTakeFromIn(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); virtual;
     procedure ResTakeFromOut(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); virtual;
     function ResCanAddToIn(aWare: TKMWareType): Boolean; virtual;
     function ResCanAddToOut(aWare: TKMWareType): Boolean;
+    function CanHaveWareType(aWare: TKMWareType): Boolean; virtual;
     function ResOutputAvailable(aWare: TKMWareType; const aCount: Word): Boolean; virtual;
     property ResOrder[aId: Byte]: Integer read GetResOrder write SetResOrder;
     property ResIn[aId: Byte]: Word read GetResIn write SetResIn;
@@ -678,17 +680,17 @@ begin
 end;
 
 
-procedure TKMHouse.RemoveHouse;
+procedure TKMHouse.Remove;
 begin
   Assert(gGameParams.IsMapEditor, 'Operation allowed only in the MapEd');
 
-  DemolishHouse(Owner, True);
+  Demolish(Owner, True);
   gHands[Owner].Houses.DeleteHouseFromList(Self);
 end;
 
 
 //IsSilent parameter is used by Editor and scripts
-procedure TKMHouse.DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False);
+procedure TKMHouse.Demolish(aFrom: TKMHandID; IsSilent: Boolean = False);
 var
   I: Integer;
   W: TKMWareType;
@@ -1258,7 +1260,7 @@ begin
     //Properly release house assets
     //Do not remove house in Editor just yet, mapmaker might increase the hp again
     if (GetHealth = 0) and not aIsEditor then
-      DemolishHouse(attackerHand);
+      Demolish(attackerHand);
   end;
 end;
 
@@ -1709,6 +1711,12 @@ begin
 end;
 
 
+function TKMHouse.CanHaveWareType(aWare: TKMWareType): Boolean;
+begin
+  Result := ResCanAddToIn(aWare) or ResCanAddToOut(aWare);
+end;
+
+
 function TKMHouse.GetResIn(aI: Byte): Word;
 begin
   Result := fResourceIn[aI];
@@ -1787,6 +1795,15 @@ begin
     for I := 1 to 4 do
       if aWare = gResHouses[fType].ResInput[I] then
         Result := ResIn[I] - ResInLocked[I] >= aCount;
+end;
+
+
+procedure TKMHouse.ResTake(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False);
+begin
+  //Range checking is done within ResTakeFromIn and ResTakeFromOut when aFromScript=True
+  //Only one will succeed, we don't care which one it is
+  ResTakeFromIn(aWare, aCount, aFromScript);
+  ResTakeFromOut(aWare, aCount, aFromScript);
 end;
 
 

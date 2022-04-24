@@ -494,7 +494,7 @@ begin
 
       //AI type
       DropBox_AIPlayerType.Clear;
-      if map.HasDifferentAITypes then
+      if map.HasDifferentAITypes(map.DefaultHuman) then
       begin
         DropBox_AIPlayerType.Add(gResTexts[TX_AI_PLAYER_CLASSIC_SHORT], Byte(aitClassic));
         DropBox_AIPlayerType.Add(gResTexts[TX_AI_PLAYER_ADVANCED_SHORT], Byte(aitAdvanced));
@@ -526,13 +526,13 @@ begin
       DropBox_Color.Add(MakeListRow([''], [$FF000000], [MakePic(rxGuiMain, 0)]));
       aiColors := map.AIOnlyLocsColors; // save it locally to avoid multiple calculations
       //MP colours
-      for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
+      for I := Low(MP_PLAYER_COLORS) to High(MP_PLAYER_COLORS) do
       begin
         // Do not add used AI colors to the list
-        if IsColorCloseToColors(MP_TEAM_COLORS[I], aiColors, MIN_PLAYER_COLOR_DIST) then
+        if IsColorCloseToColors(MP_PLAYER_COLORS[I], aiColors, MIN_PLAYER_COLOR_DIST) then
           Continue;
 
-        DropBox_Color.Add(MakeListRow([''], [MP_TEAM_COLORS[I]], [MakePic(rxGuiMain, 30)]));
+        DropBox_Color.Add(MakeListRow([''], [MP_PLAYER_COLORS[I]], [MakePic(rxGuiMain, 30)]));
       end;
       DropBox_Color.ItemIndex := lastColor; //Keep previous selection
     end;
@@ -713,6 +713,7 @@ begin
     for I := 0 to Min(MAX_UI_GOALS, M.GoalsVictoryCount[fSingleLoc]) - 1 do
     begin
       G := M.GoalsVictory[fSingleLoc,I];
+      if G.Play < 0 then Continue; // Could be on some old maps
       Image_VictGoal[I].TexID := GOAL_CONDITION_PIC[G.Cond];
       Image_VictGoal[I].FlagColor := fSingleColor;
       Image_VictGoalSt[I].Show;

@@ -177,7 +177,7 @@ type
     property CanBeAICount: Byte read GetCanBeAICount;
     property CanBeOnlyAICount: Byte read GetCanBeOnlyAICount;
     property CanBeHumanAndAICount: Byte read GetCanBeHumanAndAICount;
-    function HasDifferentAITypes: Boolean;
+    function HasDifferentAITypes(aExceptLoc: TKMHandID = -1): Boolean;
   end;
 
 
@@ -650,7 +650,7 @@ begin
   fTxtInfo.ResetInfo;
   for I:=0 to MAX_HANDS-1 do
   begin
-    FlagColors[I] := DEFAULT_TEAM_COLORS[I];
+    FlagColors[I] := DEFAULT_PLAYERS_COLORS[I];
     CanBeHuman[I] := False;
     CanBeClassicAI[I] := False;
     CanBeAdvancedAI[I] := False;
@@ -956,14 +956,19 @@ begin
 end;
 
 
-function TKMMapInfo.HasDifferentAITypes: Boolean;
+function TKMMapInfo.HasDifferentAITypes(aExceptLoc: TKMHandID = -1): Boolean;
 var
   I: Integer;
 begin
   Result := False;
-  for I := Low(CanBeHuman) to High(CanBeHuman) do
+  for I := 0 to MAX_HANDS - 1 do
+  begin
+    if I = aExceptLoc then
+      Continue;
+
     if CanBeClassicAI[I] and CanBeAdvancedAI[I] then
       Result := True;
+  end;
 end;
 
 
@@ -1489,8 +1494,10 @@ var
       smByFavouriteDesc:      Result := not A.IsFavourite and B.IsFavourite;
       smByNameAsc:            Result := CompareTextLogical(A.Name, B.Name) < 0;
       smByNameDesc:           Result := CompareTextLogical(A.Name, B.Name) > 0;
-      smBySizeAsc:            Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) < MapSizeIndex(B.MapSizeX, B.MapSizeY);
-      smBySizeDesc:           Result := MapSizeIndex(A.MapSizeX, A.MapSizeY) > MapSizeIndex(B.MapSizeX, B.MapSizeY);
+      smBySizeAsc:            // Compare by actual map area, size indexes will be sorted automatically
+                              Result := A.MapSizeX*A.MapSizeY < B.MapSizeX*B.MapSizeY;
+      smBySizeDesc:           // Compare by actual map area, size indexes will be sorted automatically
+                              Result := A.MapSizeX*A.MapSizeY > B.MapSizeX*B.MapSizeY;
       smByPlayersAsc:         Result := A.LocCount < B.LocCount;
       smByPlayersDesc:        Result := A.LocCount > B.LocCount;
       smByHumanPlayersAsc:    Result := A.HumanPlayerCount < B.HumanPlayerCount;

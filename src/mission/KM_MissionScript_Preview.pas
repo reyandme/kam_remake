@@ -250,7 +250,7 @@ begin
 
   FillChar(fHandPreview, SizeOf(fHandPreview), #0);
   for I := 0 to MAX_HANDS-1 do
-    fHandPreview[I].Color := DEFAULT_TEAM_COLORS[I];
+    fHandPreview[I].Color := DEFAULT_PLAYERS_COLORS[I];
 
   fileText := ReadMissionFile(aFileName);
   if fileText = '' then

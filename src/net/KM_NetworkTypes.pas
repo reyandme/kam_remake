@@ -88,8 +88,6 @@ type
     mkReconnectionAccepted, //Host tells dropped player they are accepted back into the game
     mkClientReconnected, //Host tells other players the index of a reconnected client
 
-    mkAskToSendCrashreport,
-
     mkCommands,        //Clients exchange commands for next ticks
     mkTextTranslated,  //Clients exchange translated text (system messages)
     mkTextChat,        //Clients exchange chat messages
@@ -105,7 +103,8 @@ type
     mkFileEnd,         //Host informs joiner that the whole file has been sent
     mkFileProgress,    //Joiner informs other players about his map/save downloading progress
 
-    mkVote             //Joiner tells host his vote
+    mkVote,            //Joiner tells host his vote
+    mkAskToSendCrashreport // Ask other player to send crashreport, because we got desync error with him
   );
 
 
@@ -165,7 +164,6 @@ const
     pfNumber,   //mkResyncFromTick
     pfNoData,   //mkReconnectionAccepted
     pfNumber,   //mkClientReconnected
-    pfStringW,  //mkAskToSendCrashreport
     pfBinary,   //mkCommands
     pfBinary,   //mkTextTranslated
     pfBinary,   //mkTextChat
@@ -178,7 +176,8 @@ const
     pfNoData,   //mkFileAck
     pfNoData,   //mkFileEnd
     pfBinary,   //mkFileProgress
-    pfNoData    //mkVote
+    pfNoData,   //mkVote
+    pfStringW   //mkAskToSendCrashreport
   );
 
 

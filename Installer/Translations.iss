@@ -28,23 +28,33 @@ swe.ViewReadme=Visa Readme-filen
 ;German
 ger.CreateStartShortcut=Verknüpfung im Startmenü erstellen
 ger.NoKaM=Setup hat ermittelt, dass Knights and Merchants: The Peasants Rebellion nicht installiert ist.
+ger.SteamFirstRun=Das von Steam installierte Original-KaM muss mindestens einmal auf dem System gestartet werden, damit das KMR-Installationsprogramm es erkennen und überprüfen kann.
 ger.CantUpdate=Setup war nicht in der Lage eine installierte Version von KaM Remake zu aktualisieren. Bitte lade die Vollversion von KaM Remake herunter und führe das Setup erneut aus.
 ger.OpenAL=Soll Setup auch OpenAl installieren (empfohlen)? Es wird für die Soundwiedergabe von KaM Remake benötigt.
 ger.ViewReadme=Readme anzeigen
+ger.DeleteSaves=Möchten Sie auch alle Ihre gespeicherten Spiele und den Fortschritt aller Kampagnen löschen?
+ger.DeleteMaps=Möchten Sie auch alle Karten und Kampagnen löschen?
 
 ;Polish
 pol.CreateStartShortcut=Stwórz skrót w Menu Start
 pol.NoKaM=Kreator instalacji wykrył że nie masz zainstalowanego Knights and Merchants: The Peasants Rebellion.%n%nInstalacja zostanie przerwana.
+pol.SteamFirstRun=Gra Knights and Merchants, zakupiona w sklepie Steam, musi zostać uruchomiona przynajmniej raz, aby program instalacyjny Remake był w stanie ją wykryć i zweryfikować.
 pol.CantUpdate=Kreator instalacji nie był w stanie znaleźć istniejącej wersji KaM Remake do zaktualizowania. Proszę pobrać i zainstalować kompletny instalator.%n%nInstalacja zostanie przerwana.
 pol.OpenAL=Czy chcesz aby kreator instalacji zainstalował OpenAL? (Zalecane) Jest on wymagany by działały dźwięki w KaM Remake.
 pol.ViewReadme=Zobacz plik Readme
+pol.DeleteSaves=Czy chcesz usunąć wszystkie twoje zapisane gry, jak również postęp wszystkich kampanii?
+pol.DeleteMaps=Czy chcesz usunąć również wszystkie mapy oraz kampanie?
+
 
 ;Hungarian
 hun.CreateStartShortcut=Start Menü ikon létrehozása
 hun.NoKaM=A telepítő nem észlelte a Knights and Merchants: A Parasztfelkelést telepítve.%n%nA telepítés megszakításra kerül.
+hun.SteamFirstRun=Steamről telepített KaM esetében az eredeti játékot legalább egyszer futtatni kell, hogy a KaM Remake telepítője felismerje azt.
 hun.CantUpdate=A telepítő nem talált KaM Remake verziót a számítógépen, hogy frissítse. Kérem töltse le és használja a teljes telepítőt.%n%nA telepítés megszakításra kerül.
 hun.OpenAL=Szeretnéd, hogy a telepítő telepítse az OpenAL-t? (Erősen ajánlott) A hangok működéséhez szükséges a KaM Remake-ben
 hun.ViewReadme=Olvass el fájl megtekintése
+hun.DeleteSaves=Töröli az összes Mentett játékot és minden Kampány állását is?
+hun.DeleteMaps=Töröli az összes Térképet és Kampányt?
 
 ;French
 fre.CreateStartShortcut=Créer un raccourci dans le menu Démarrer
@@ -66,7 +76,7 @@ cze.DeleteMaps=Chcete také smazat všechny mapy a kampaně?
 ;Russian
 rus.CreateStartShortcut=Создать ярлык в меню Пуск
 rus.NoKaM=Мастер установки не обнаружил установленной игры Knights and Merchants: The Peasants Rebellion. Оригинальная игра необходима для установки КаМ Ремейк.%n%nУстановка будет отменена.
-rus.SteamFirstRun=Оригинальная игра, установленная из Steam должна быть запущена хотя бы 1 раз, чтобы данный установщик КаМ Ремейк смог ее обнаружить и проверить.
+rus.SteamFirstRun=Оригинальная игра, установленная из Steam должна быть запущена хотя бы 1 раз, чтобы данный установщик КаМ Ремейк смог обнаружить и проверить её.
 rus.CantUpdate=Мастер установки не смог обнаружить версию КаМ Ремейк для обновления. Пожалуйста скачайте и запустите полную версию установщика.%n%nУстановка будет отменена.
 rus.OpenAL=Установить OpenAL? (рекоммендуется) Необходимо для работы звука в КаМ Ремейк
 rus.ViewReadme=Показать Readme
@@ -166,8 +176,8 @@ kor.ViewReadme=읽어보기
 
 ;Serbian
 srb.CreateStartShortcut=Направите Старт Мену Пречицу
-srb.NoKaM=Инсталациони чаробњак је приметио да немате Knights and Merchants: The Peasants Rebellion инсталирано.Морате имати оригиналну игру инсталирану да бисте играли KaM Remake.%n%nИнсталације ће престати са радом.
-srb.CantUpdate=Инсталациони чаробњак није могао да нађе постојећу верзију KaM Remake да се усавремени.Молимо вас скините и инсталирајте комплетан инсталер уместо тога.%n%nИнсталација ће престати са радом.
+srb.NoKaM=Инсталациони чаробњак је приметио да немате Knights and Merchants: The Peasants Rebellion инсталирано. Морате имати оригиналну игру инсталирану да бисте играли KaM Remake.%n%nИнсталације ће престати са радом.
+srb.CantUpdate=Инсталациони чаробњак није могао да нађе постојећу верзију KaM Remake да се усавремени. Молимо вас скините и инсталирајте комплетан инсталер уместо тога.%n%nИнсталација ће престати са радом.
 srb.OpenAL=Да ли желите да вам инсталациони чаробњакисталира OpenAL? (Врло препоручљиво) Потребно је да бих ѕвукови радили у KaM Remake.
 srb.ViewReadme=Прочитајте Реадме
 

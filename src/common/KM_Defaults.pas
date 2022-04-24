@@ -147,6 +147,7 @@ var
   SKIP_RNG_CHECKS_FOR_SOME_GIC: Boolean = True; //Skip rng checks for Autosave and few other commands to have same AI city with predefined seed + mapconfig
   ALLOW_SELECT_ALLIES     :Boolean = True;  //Do we allow to select ally units or groups
   ALLOW_SELECT_ALL        :Boolean = DEBUG_CFG; //Do we allow to select all entities (allies and enemies)
+  SHOW_RES_CNT_K_FOR_10000:Boolean = not DEBUG_CFG; //Do we show resource amount with K postfix (10123 -> 10k)
   GAME_NO_UPDATE_ON_TIMER :Boolean = False; //Block game update by timer (only allow to update it manually)
   GAME_SAVE_STRIP_FOR_CRC :Boolean = False; //Strip unsynced data from Game saves, to compare saves CRC
   ALLOW_LOAD_UNSUP_VERSION_SAVE:
@@ -890,7 +891,7 @@ const
 const
   //Colors available for selection in multiplayer
   MP_COLOR_COUNT = 26;
-  MP_TEAM_COLORS: array [1..MP_COLOR_COUNT] of Cardinal = (
+  MP_PLAYER_COLORS: array [1..MP_COLOR_COUNT] of Cardinal = (
     $FF0000EB, // 1 Red
     $FF076CF8, // 2 Orange
     $FF00B5FF, // 3 Gold
@@ -931,7 +932,7 @@ const
   3,   //Black
   3,   //Black
   255  //White}
-  DEFAULT_TEAM_COLORS: array [0..MAX_HANDS-1] of Cardinal = (
+  DEFAULT_PLAYERS_COLORS: array [0..MAX_HANDS-1] of Cardinal = (
     $FF0707FF, //Red
     $FFE3BB5B, //Cyan
     $FF27A700, //Green
@@ -950,6 +951,16 @@ const
     $FF4F1AB2, //Purpleish
     $FFFFFFFF, //White
     $FF000000  //Black
+  );
+
+  // Colors which are used for an MP teams
+  MP_TEAM_COLORS: array[0..MAX_TEAMS - 1] of Cardinal = (
+    $FF0000EB, // 1 Red
+    $FF076CF8, // 2 Orange
+    $FF07FFFF, // 3 Lauenburg yellow
+    $FF07FF07, // 4 Neon green
+    $FFFACE64, // 5 Sky blue
+    $FFDE8FFB  // 6 Pink
   );
 
   // DEBUG colors (transparent color - opacity will be added by debug tools)
@@ -987,7 +998,7 @@ const
   icTransparent = $00;
   icDarkGray = $FF606060;
   icDarkGrayTrans = $60606060;
-  icDarkestGrayTrans = $80303030;
+  icDarkestGrayTrans = $20303030;
   icGray = $FF808080;
   icGray2 = $FF888888;
   icLightGray = $FFA0A0A0;

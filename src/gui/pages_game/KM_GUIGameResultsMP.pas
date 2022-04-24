@@ -1273,7 +1273,7 @@ procedure TKMGameResultsMP.ReinitTeamsToShow;
     fListToShow[stByTeams].AddObject(IntToStr(aFirstHandId), playersList);
     cnt := fListToShow[stByTeams].Count - 1;
     fNamesToShow[stByTeams, cnt] := gResTexts[TX_LOBBY_HEADER_TEAM] + ' ' + IntToStr(fListToShow[stByTeams].Count);
-    fColorsToShow[stByTeams, cnt] := gHands[aFirstHandId].FlagColor;
+    fColorsToShow[stByTeams, cnt] := gHands[aFirstHandId].TeamColor;
 
     fTeamMembersNames[cnt][0] := GetOwnerName(aFirstHandId);
     fTeamMembersColors[cnt][0] := gHands[aFirstHandId].FlagColor;

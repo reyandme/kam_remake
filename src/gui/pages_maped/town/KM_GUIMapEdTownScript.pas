@@ -248,6 +248,7 @@ procedure TKMMapEdTownScript.Show;
 begin
   Button_AIStart.Down := False;
   Town_ScriptRefresh;
+  Town_ScriptChange(nil);
   Panel_Script.Show;
 end;
 

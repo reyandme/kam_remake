@@ -249,12 +249,12 @@ begin
   ExplanationLog.Add(Format(
     '%d' + #9 + '%d:%d > %d:%d > %d:%d' + #9 + Explanation + '',
     [gGameParams.Tick,
-    fUnit.PrevPosition.X,
-    fUnit.PrevPosition.Y,
+    fUnit.PositionPrev.X,
+    fUnit.PositionPrev.Y,
     fUnit.Position.X,
     fUnit.Position.Y,
-    fUnit.NextPosition.X,
-    fUnit.NextPosition.Y]
+    fUnit.PositionNext.X,
+    fUnit.PositionNext.Y]
     ));
 end;
 
@@ -668,8 +668,8 @@ begin
   if not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
     raise ELocError.Create('IncVertex', fVertexOccupied);
 
-  gTerrain.UnitVertexAdd(fUnit.PrevPosition, fUnit.NextPosition);
-  fVertexOccupied := KMGetDiagVertex(fUnit.PrevPosition, fUnit.NextPosition);
+  gTerrain.UnitVertexAdd(fUnit.PositionPrev, fUnit.PositionNext);
+  fVertexOccupied := KMGetDiagVertex(fUnit.PositionPrev, fUnit.PositionNext);
 end;
 
 
@@ -877,8 +877,8 @@ begin
           if (altOpponent <> nil) and (altOpponent.Action is TKMUnitActionWalkTo) and
             (not TKMUnitActionWalkTo(altOpponent.Action).fDoExchange)
             and (not TKMUnitActionWalkTo(altOpponent.Action).fDoesWalking)
-            and ((not KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])) //Isn't diagonal
-            or ((KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])       //...or is diagonal and...
+            and ((not KMStepIsDiag(fUnit.PositionNext,NodeList[NodePos+1])) //Isn't diagonal
+            or ((KMStepIsDiag(fUnit.PositionNext,NodeList[NodePos+1])       //...or is diagonal and...
             and not gTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.Position, tempPos))))) then //...vertex is free
             if TKMUnitActionWalkTo(altOpponent.Action).GetNextNextPosition(opponentNextNextPos) then
               if KMSamePoint(opponentNextNextPos, fUnit.Position) //Now see if they want to exchange with us
@@ -1160,7 +1160,7 @@ begin
   // Walk complete - NodePos cannot be greater than NodeCount (this should not happen, cause is unknown but for now this check stops crashes)
   if NodePos > NodeList.Count - 1 then
   begin
-    if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then
+    if KMStepIsDiag(fUnit.PositionPrev, fUnit.PositionNext) then
       DecVertex; // Unoccupy vertex
     fUnit.IsExchanging := False; // Disable sliding (in case it was set in previous step)
     Exit(arActDone);
@@ -1268,17 +1268,17 @@ begin
 
       Inc(NodePos);
 
-      fUnit.NextPosition := NodeList[NodePos];
+      fUnit.PositionNext := NodeList[NodePos];
 
       //Check if we are the first or second unit (has the swap already been performed?)
-      if fUnit = gTerrain.Land^[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit then
-        gTerrain.UnitSwap(fUnit.PrevPosition,fUnit.NextPosition,fUnit);
+      if fUnit = gTerrain.Land^[fUnit.PositionPrev.Y,fUnit.PositionPrev.X].IsUnit then
+        gTerrain.UnitSwap(fUnit.PositionPrev,fUnit.PositionNext,fUnit);
 
       fInteractionStatus := kisNone;
       fDoExchange := false;
       fUnit.IsExchanging := true; //So unit knows that it must slide
       fInteractionCount := 0;
-      if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then IncVertex; //Occupy the vertex
+      if KMStepIsDiag(fUnit.PositionPrev, fUnit.PositionNext) then IncVertex; //Occupy the vertex
     end else
     begin
       if not DoUnitInteraction then
@@ -1287,16 +1287,16 @@ begin
         fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
 
       Inc(NodePos);
-      fUnit.NextPosition := NodeList[NodePos];
+      fUnit.PositionNext := NodeList[NodePos];
 
-      if KMLength(fUnit.PrevPosition, fUnit.NextPosition) > 1.5 then
-        raise ELocError.Create('Unit walk length > 1.5', fUnit.PrevPosition);
+      if KMLength(fUnit.PositionPrev, fUnit.PositionNext) > 1.5 then
+        raise ELocError.Create('Unit walk length > 1.5', fUnit.PositionPrev);
 
-      if gTerrain.Land^[fUnit.PrevPosition.Y, fUnit.PrevPosition.X].IsUnit = nil then
-        raise ELocError.Create('Unit walk Prev position IsUnit = nil', fUnit.PrevPosition);
+      if gTerrain.Land^[fUnit.PositionPrev.Y, fUnit.PositionPrev.X].IsUnit = nil then
+        raise ELocError.Create('Unit walk Prev position IsUnit = nil', fUnit.PositionPrev);
 
-      fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile
-      if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then IncVertex; //Occupy the vertex
+      fUnit.Walk(fUnit.PositionPrev, fUnit.PositionNext); //Pre-occupy next tile
+      if KMStepIsDiag(fUnit.PositionPrev, fUnit.PositionNext) then IncVertex; //Occupy the vertex
     end;
 
   end;

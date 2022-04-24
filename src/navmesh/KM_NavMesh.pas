@@ -282,7 +282,7 @@ end;
 procedure TKMNavMesh.FindClosestPolygon();
 var
   Len, MaxIdx: Integer;
-  Queue: array[0..(MAX_MAP_SIZE-1)*(MAX_MAP_SIZE - 1)] of Integer;
+  Queue: array[0..(MAX_MAP_SIZE-1)*(MAX_MAP_SIZE-1)] of Integer;
   procedure AddToQueue(aIdx, aPolygon: Integer);
   begin
     Queue[MaxIdx] := aIdx;

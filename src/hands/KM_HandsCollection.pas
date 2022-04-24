@@ -994,21 +994,32 @@ end;
 procedure TKMHandsCollection.SetHandsTeamColors;
 var
   I, J: Integer;
-  TeamColorInit: Boolean;
-  TeamColor: Cardinal;
+  useMPTeamColors: Boolean;
+  teamColorInit: Boolean;
+  teamColor: Cardinal;
 begin
-  TeamColor := icBlack;
+  // For FFA games we can't use predefined team colors
+  useMPTeamColors := Length(fTeams) <= MAX_TEAMS;
+
+  teamColor := icBlack;
   for I := 0 to Length(fTeams) - 1 do
   begin
-    TeamColorInit := False;
+    teamColorInit := False;
     for J in fTeams[I] do
     begin
-      if not TeamColorInit then
+      // Use predefined team colors, if possible
+      if useMPTeamColors then
+        fHandsList[J].TeamColor := MP_TEAM_COLORS[I]
+      else
       begin
-        TeamColorInit := True;
-        TeamColor := fHandsList[J].FlagColor;
+        // Otherwise use color of the first team member as a 'team color'
+        if not teamColorInit then
+        begin
+          teamColorInit := True;
+          teamColor := fHandsList[J].FlagColor;
+        end;
+        fHandsList[J].TeamColor := teamColor;
       end;
-      fHandsList[J].TeamColor := TeamColor;
     end;
   end;
 end;
@@ -1057,7 +1068,7 @@ begin
   Result := H <> nil;
   if Result then
   begin
-    H.RemoveHouse;
+    H.Remove;
 
     gGame.MapEditor.History.MakeCheckpoint(caHouses, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_REMOVE_SMTH],
                                                             [gRes.Houses[H.HouseType].HouseName, H.Entrance.ToString]));

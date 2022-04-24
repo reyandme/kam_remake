@@ -97,6 +97,8 @@ type
     procedure DetermineGroupFormationAndDir(const aLoc: TKMPoint; aGroupType: TKMGroupType;
                                             out aFormation: TKMFormation; out aDir: TKMDirection);
 
+    procedure ApplyAIMultiplayerSetup(aHandID: TKMHandID);
+
     procedure DetectAttachedFiles(const aMissionFile: UnicodeString);
     procedure SaveAttachements(const aMissionFile: UnicodeString);
     function HitTest(X,Y: Integer): TKMMapEdMarker;
@@ -191,6 +193,17 @@ end;
 function TKMMapEditor.GetRevealer(aIndex: Byte): TKMPointTagList;
 begin
   Result := fRevealers[aIndex];
+end;
+
+
+procedure TKMMapEditor.ApplyAIMultiplayerSetup(aHandID: TKMHandID);
+begin
+  PlayerClassicAI[aHandID] := True;
+  PlayerAdvancedAI[aHandID] := True;
+  gHands[aHandID].AI.General.DefencePositions.Clear;
+  gHands[aHandID].AI.General.Attacks.Clear;
+  //Setup Multiplayer setup, for ClassicAI. Anyway we will consider Old/New AI on the game start
+  gHands[aHandID].AI.Setup.ApplyMultiplayerSetup(False);
 end;
 
 

@@ -50,11 +50,13 @@ type
 
     procedure PostLoadMission; override;
 
+    procedure ResTake(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure ResAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromIn(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TKMWareType): Word; override;
     function ResCanAddToIn(aRes: TKMWareType): Boolean; override;
+    function CanHaveWareType(aWare: TKMWareType): Boolean; override;
   end;
 
 
@@ -307,12 +309,25 @@ begin
 end;
 
 
+procedure TKMHouseTownHall.ResTake(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False);
+begin
+  if DeliveryMode = dmTakeOut then
+    ResTakeFromOut(aWare, aCount, aFromScript)
+  else
+    ResTakeFromIn(aWare, aCount, aFromScript);
+
+end;
+
+
 procedure TKMHouseTownHall.ResTakeFromIn(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False);
 begin
   Assert(aWare = wtGold, 'Invalid resource taken from TownHall');
   aCount := EnsureRange(aCount, 0, fGoldCnt);
   if aFromScript then
+  begin
+    aCount := EnsureRange(aCount, 0, fGoldCnt);
     gHands[Owner].Stats.WareConsumed(aWare, aCount);
+  end;
 
   SetGoldCnt(fGoldCnt - aCount, False);
   UpdateDemands;
@@ -352,6 +367,12 @@ end;
 function TKMHouseTownHall.ResCanAddToIn(aRes: TKMWareType): Boolean;
 begin
   Result := (aRes = wtGold) and (fGoldCnt < fGoldMaxCnt);
+end;
+
+
+function TKMHouseTownHall.CanHaveWareType(aWare: TKMWareType): Boolean;
+begin
+  Result := (aWare = wtGold);
 end;
 
 

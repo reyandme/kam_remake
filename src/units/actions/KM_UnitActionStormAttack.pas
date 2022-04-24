@@ -152,7 +152,7 @@ begin
     fUnit.PositionF := KMPointF(fNextPos);
 
     //No longer using previous vertex
-    if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) and (fTileSteps > 0) then
+    if KMStepIsDiag(fUnit.PositionPrev, fUnit.PositionNext) and (fTileSteps > 0) then
       DecVertex;
 
     //Check for units nearby to fight
@@ -174,10 +174,10 @@ begin
       Exit(arActDone); //Finished run; Must exit right away as we might have changed this action to fight
 
     //Do some house keeping because we have now stepped on a new tile
-    fUnit.NextPosition := fNextPos;
-    fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile
-    if KMStepIsDiag(fUnit.PrevPosition,fUnit.NextPosition) then
-      IncVertex(fUnit.PrevPosition,fUnit.NextPosition);
+    fUnit.PositionNext := fNextPos;
+    fUnit.Walk(fUnit.PositionPrev, fUnit.PositionNext); //Pre-occupy next tile
+    if KMStepIsDiag(fUnit.PositionPrev,fUnit.PositionNext) then
+      IncVertex(fUnit.PositionPrev,fUnit.PositionNext);
   end;
 
   walkX := fNextPos.X - fUnit.PositionF.X;

@@ -18,7 +18,7 @@ type
     NotAcceptFlag: array [WARE_MIN .. WARE_MAX] of Boolean;
     NotAllowTakeOutFlag: array [WARE_MIN .. WARE_MAX] of Boolean;
     constructor Load(LoadStream: TKMemoryStream); override;
-    procedure DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False); override;
+    procedure Demolish(aFrom: TKMHandID; IsSilent: Boolean = False); override;
     function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; override;
     function ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean; override;
     procedure ToggleNotAcceptFlag(aWare: TKMWareType);
@@ -128,7 +128,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False);
+procedure TKMHouseStore.Demolish(aFrom: TKMHandID; IsSilent: Boolean = False);
 var
   W: TKMWareType;
 begin

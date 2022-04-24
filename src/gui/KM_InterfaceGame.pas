@@ -16,7 +16,7 @@ uses
 
 type
   // Common class for ingame interfaces (Gameplay, MapEd)
-  TKMUserInterfaceGame = class(TKMUserInterfaceCommon)
+  TKMUserInterfaceGame = class abstract(TKMUserInterfaceCommon)
   private
     fDragScrollingCursorPos: TPoint;
     fDragScrollingViewportPos: TKMPointF;
@@ -51,6 +51,10 @@ type
     procedure InitDebugControls;
 
     procedure ViewportPositionChanged(const aPos: TKMPointF);
+    procedure OptionsChanged; virtual; abstract;
+
+    procedure HandleScrollKeysDown(Key: Word; var aHandled: Boolean);
+    procedure HandleScrollKeysUp(Key: Word; var aHandled: Boolean);
   public
     constructor Create(aRender: TRender); reintroduce;
     destructor Destroy; override;
@@ -63,7 +67,7 @@ type
 
     procedure DebugControlsUpdated(aSenderTag: Integer); override;
 
-    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean); override;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure KeyPress(Key: Char); override;
     procedure MouseWheel(Shift: TShiftState; WheelSteps: Integer; X,Y: Integer; var aHandled: Boolean); override;
@@ -349,23 +353,19 @@ end;
 
 procedure TKMUserInterfaceGame.KeyPress(Key: Char);
 begin
-  inherited;
   if Assigned(fOnUserAction) then
     fOnUserAction(uatKeyPress);
+
+  inherited;
 end;
 
 
-procedure TKMUserInterfaceGame.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
-  {$IFDEF MSWindows}
+procedure TKMUserInterfaceGame.HandleScrollKeysDown(Key: Word; var aHandled: Boolean);
+{$IFDEF MSWindows}
 var
   windowRect: TRect;
-  {$ENDIF}
+{$ENDIF}
 begin
-  inherited;
-
-  if Assigned(fOnUserAction) then
-    fOnUserAction(uatKeyDown);
-
   aHandled := True;
   //Scrolling
   if Key = gResKeys[kfScrollLeft]       then
@@ -403,15 +403,29 @@ begin
 end;
 
 
-procedure TKMUserInterfaceGame.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+// This event happens every ~33ms if the Key is Down and holded
+procedure TKMUserInterfaceGame.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
 begin
   if Assigned(fOnUserAction) then
-    fOnUserAction(uatKeyUp);
-
-  inherited;
+    fOnUserAction(uatKeyDown);
 
   if aHandled then Exit;
 
+  inherited;
+
+  // Update game options in case we used sounds hotkeys
+  if aHandled then
+  begin
+    OptionsChanged;
+    Exit;
+  end;
+
+  HandleScrollKeysDown(Key, aHandled);
+end;
+
+
+procedure TKMUserInterfaceGame.HandleScrollKeysUp(Key: Word; var aHandled: Boolean);
+begin
   aHandled := True;
   //Scrolling
   if Key = gResKeys[kfScrollLeft]       then
@@ -433,7 +447,28 @@ begin
     if fDragScrolling then
       ResetDragScrolling;
   end
-  else aHandled := False;
+  else
+    aHandled := False;
+end;
+
+
+procedure TKMUserInterfaceGame.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+begin
+  if Assigned(fOnUserAction) then
+    fOnUserAction(uatKeyUp);
+
+  if aHandled then Exit;
+
+  inherited;
+
+  // Update game options in case we used sounds hotkeys
+  if aHandled then
+  begin
+    OptionsChanged;
+    Exit;
+  end;
+
+  HandleScrollKeysUp(Key, aHandled);
 end;
 
 

@@ -268,7 +268,7 @@ begin
         SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo);
 
     2: //Check if we are at the location. WalkTo could have failed or resource could have been exhausted
-       if not KMSamePoint(NextPosition, WorkPlan.Loc) or not ResourceExists or
+       if not KMSamePoint(PositionNext, WorkPlan.Loc) or not ResourceExists or
           not TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, WorkPlan.GatheringScript) then
          FindAnotherWorkPlan
        else

@@ -296,14 +296,7 @@ begin
 
   if Sender = Button_AIBuilderOK then
     for I := 0 to gHands.Count-1 do
-    begin
-      gGame.MapEditor.PlayerClassicAI[I] := True;
-      gGame.MapEditor.PlayerAdvancedAI[I] := True;
-      gHands[I].AI.General.DefencePositions.Clear;
-      gHands[I].AI.General.Attacks.Clear;
-      //Setup Multiplayer setup, for ClassicAI. Anyway we will consider Old/New AI on the game start
-      gHands[I].AI.Setup.ApplyMultiplayerSetup(False);
-    end;
+      gGame.MapEditor.ApplyAIMultiplayerSetup(I);
 
   if (Sender = Button_AIBuilderOK) or (Sender = Button_AIBuilderCancel) then
   begin

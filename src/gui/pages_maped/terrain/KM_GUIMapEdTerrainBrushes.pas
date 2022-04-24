@@ -40,7 +40,7 @@ type
     procedure Hide;
     function Visible: Boolean; override;
     procedure MouseWheel(Shift: TShiftState; WheelSteps: Integer; X,Y: Integer; var aHandled: Boolean);
-    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+    procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
     procedure Cancel_Clicked(var aHandled: Boolean);
     procedure UpdateHotkeys;
     procedure UpdateState;
@@ -394,9 +394,9 @@ begin
 end;
 
 
-procedure TKMMapEdTerrainBrushes.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+procedure TKMMapEdTerrainBrushes.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
 begin
-  if aHandled then Exit;
+  if aHandled or not aIsFirst then Exit;
 
   if (Key = VK_ESCAPE) then
   begin

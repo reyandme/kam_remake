@@ -166,7 +166,7 @@ type
     fResSprites: TKMResSprites;
     fAlphaShadows: Boolean;
     function IsTerminated: Boolean;
-    procedure Log(aString: string);
+    procedure Log(const aString: string);
   public
     RXType: TRXType;
     LoadStepDone: LongBool;  // flag to show, when another RXX / RXA load is completed
@@ -830,7 +830,7 @@ begin
         //Now that we know texture IDs we can fill GFXData structure
         SetGFXData(Tx, SpriteInfo, SAT);
 
-        if EXPORT_SPRITE_ATLASES then
+        if EXPORT_SPRITE_ATLASES_RXA then
           SaveTextureToPNG(SpriteInfo.Width, SpriteInfo.Height, RXInfo[fRT].FileName + '_rxa_' +
                            SPRITE_TYPE_EXPORT_NAME[SAT] + IntToStr(I), Data);
       end;
@@ -1982,7 +1982,7 @@ begin
 end;
 
 
-procedure TTGameResourceLoader.Log(aString: string);
+procedure TTGameResourceLoader.Log(const aString: string);
 begin
   gLog.AddTime('[AsyncGameResLoader Thread] ' + aString);
 end;

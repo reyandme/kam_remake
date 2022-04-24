@@ -64,6 +64,7 @@ uses
   KM_Resource, KM_ResFonts, KM_ResTexts, KM_ResUnits, KM_ResTypes,
   KM_UtilsExt, KM_Terrain,
   KM_UnitGroupTypes,
+  KM_InterfaceTypes,
   KM_MapEdTypes;
 
 
@@ -80,7 +81,7 @@ begin
   ConditionBar_Unit       := TKMPercentBar.Create(Panel_Unit,65,55,116,15);
   Button_ConditionDec     := TKMButton.Create(Panel_Unit,65,78,20,20,'-', bsGame);
   Button_ConditionInc     := TKMButton.Create(Panel_Unit,161,78,20,20,'+', bsGame);
-  Button_ConditionDefault := TKMButton.Create(Panel_Unit,86,78,74,20,'default', bsGame);
+  Button_ConditionDefault := TKMButton.Create(Panel_Unit,86,78,74,20,gResTexts[TX_UNIT_CONDITION_DEFAULT], bsGame);
 
   Button_ConditionDec.OnClickShift := UnitConditionsChange;
   Button_ConditionInc.OnClickShift := UnitConditionsChange;
@@ -239,9 +240,17 @@ begin
   end;
 
   if fGroup <> nil then
-    fGroup.Condition := newCondition
+  begin
+    fGroup.Condition := newCondition;
+    if newCondition = TKMUnitGroup.GetDefaultCondition then
+      U.StartWDefaultCondition := True;
+  end
   else
+  begin
     fUnit.Condition := newCondition;
+    if newCondition = TKMUnit.GetDefaultCondition then
+      U.StartWDefaultCondition := True;
+  end;
 
   if U.StartWDefaultCondition then
   begin
@@ -288,19 +297,32 @@ var
   rotCnt: Integer;
 begin
   if Sender = Button_Army_ForUp then
-    SetUnitsPerRaw(fGroup.UnitsPerRow - GetMultiplicator(Shift));
+  begin
+    // Consider LMB click + Shift as a RMB click
+    if ((ssLeft in Shift) and (ssShift in Shift)) then
+      Shift := [ssRight];
+
+    SetUnitsPerRaw(fGroup.UnitsPerRow - GetMultiplicator(Shift, RMB_ADD_ROWS_CNT));
+  end;
+
   if Sender = Button_Army_ForDown then
-    SetUnitsPerRaw(fGroup.UnitsPerRow + GetMultiplicator(Shift));
+  begin
+    // Consider LMB click + Shift as a RMB click
+    if ((ssLeft in Shift) and (ssShift in Shift)) then
+      Shift := [ssRight];
+
+    SetUnitsPerRaw(fGroup.UnitsPerRow + GetMultiplicator(Shift, RMB_ADD_ROWS_CNT));
+  end;
 
   ImageStack_Army.SetCount(fGroup.MapEdCount, fGroup.UnitsPerRow, fGroup.UnitsPerRow div 2);
   Label_ArmyCount.Caption := IntToStr(fGroup.MapEdCount);
 
   if (Sender = Button_Army_RotCW) or (Sender = Button_Army_RotCCW) then
   begin
-    if ssShift in Shift then
+    if ssCtrl in Shift then
       rotCnt := 4
     else
-    if ssRight in Shift then
+    if RMB_SHIFT_STATES * Shift <> [] then
       rotCnt := 2
     else
       rotCnt := 1;
@@ -363,9 +385,11 @@ procedure TKMMapEdUnit.Unit_ArmyChange2(Sender: TObject; Shift: TShiftState);
 var
   newCount: Integer;
 begin
-  if Sender = Button_ArmyDec then //Decrease
+  if Sender = Button_ArmyDec then
+    //Decrease
     newCount := fGroup.MapEdCount - GetMultiplicator(Shift)
-  else //Increase
+  else
+    //Increase
     newCount := fGroup.MapEdCount + GetMultiplicator(Shift);
 
   fGroup.MapEdCount := EnsureRange(newCount, 1, MAPED_GROUP_MAX_CNT); //Limit max members

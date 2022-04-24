@@ -456,7 +456,7 @@ var
     colorCount := 0;
     FillChar(availableColor, SizeOf(availableColor), #0);
     for I := 1 to MP_COLOR_COUNT do
-      if not usedColor[I] and not IsColorCloseToColors(MP_TEAM_COLORS[I], aFixedLocsColors, aColorDist) then
+      if not usedColor[I] and not IsColorCloseToColors(MP_PLAYER_COLORS[I], aFixedLocsColors, aColorDist) then
       begin
         Inc(colorCount);
         availableColor[colorCount] := I;
@@ -536,7 +536,7 @@ begin
     begin
       Inc(K);
       if K <= colorCount then
-        fNetPlayers[I].FlagColor := MP_TEAM_COLORS[availableColor[K]]
+        fNetPlayers[I].FlagColor := MP_PLAYER_COLORS[availableColor[K]]
       else
         fNetPlayers[I].FlagColor := GetRandomColor; // That should not be happening/ But just in case - set random color then
     end;

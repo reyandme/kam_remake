@@ -1300,8 +1300,8 @@ var
   I: Integer;
 begin
   Result := 0;
-  for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
-    if MP_TEAM_COLORS[I] = aColor then
+  for I := Low(MP_PLAYER_COLORS) to High(MP_PLAYER_COLORS) do
+    if MP_PLAYER_COLORS[I] = aColor then
       Result := I;
 end;
 

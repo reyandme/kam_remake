@@ -23,7 +23,7 @@ type
     function GetDefaultSettingsName: string; virtual; abstract;
 
     procedure LoadFromFile(const aPath: string); virtual; abstract;
-    procedure SaveToFile(const aPath: string); virtual; abstract;
+    procedure SaveToFile(const aPath: UnicodeString); virtual; abstract;
 
     function GetSettingsName: string; virtual; abstract;
   public
@@ -95,7 +95,7 @@ end;
 
 procedure TKMSettings.SaveToDefaultFile;
 var
-  saveFolder, path, errorStr: string;
+  saveFolder, path, errorStr: UnicodeString;
 begin
   saveFolder := GetDirectory;
   ForceDirectories(saveFolder);

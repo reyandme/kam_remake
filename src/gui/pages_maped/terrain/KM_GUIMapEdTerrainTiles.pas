@@ -44,7 +44,7 @@ type
   public
     constructor Create(aParent: TKMPanel);
 
-    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+    procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
 
     procedure TilesTableSetTileTexId(aTexId: Integer);
 
@@ -53,6 +53,8 @@ type
 
     function Visible: Boolean; override;
     function IsFocused: Boolean; override;
+    function IsPaletteVisible: Boolean;
+    procedure PaletteHide;
 
     procedure UpdateHotkeys;
     procedure UpdateState;
@@ -347,9 +349,9 @@ begin
 end;
 
 
-procedure TKMMapEdTerrainTiles.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+procedure TKMMapEdTerrainTiles.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
 begin
-  if aHandled then Exit;
+  if aHandled or not aIsFirst then Exit;
 
   if (Key = VK_ESCAPE) and Panel_TilesPalettePopup.Visible then
   begin
@@ -487,6 +489,18 @@ end;
 function TKMMapEdTerrainTiles.IsFocused: Boolean;
 begin
   Result := Visible or Panel_TilesPalettePopup.Visible;
+end;
+
+
+function TKMMapEdTerrainTiles.IsPaletteVisible: Boolean;
+begin
+  Result := Panel_TilesPalettePopup.Visible;
+end;
+
+
+procedure TKMMapEdTerrainTiles.PaletteHide;
+begin
+  Panel_TilesPalettePopup.Hide;
 end;
 
 

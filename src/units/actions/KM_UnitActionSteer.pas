@@ -153,7 +153,7 @@ begin
     fUnit.PositionF := KMPointF(fNextPos);
 
     //No longer using previous vertex
-    if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) and not firstStep and (fStuckFor = 0) then
+    if KMStepIsDiag(fUnit.PositionPrev, fUnit.PositionNext) and not firstStep and (fStuckFor = 0) then
       DecVertex;
 
     //Decide on next step
@@ -169,12 +169,12 @@ begin
     fStuckFor := 0;
     
     //Do some house keeping because we have now stepped on a new tile
-    fUnit.NextPosition := fNextPos;
-    fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile
-    if KMStepIsDiag(fUnit.PrevPosition,fUnit.NextPosition) then
-      IncVertex(fUnit.PrevPosition,fUnit.NextPosition);
+    fUnit.PositionNext := fNextPos;
+    fUnit.Walk(fUnit.PositionPrev, fUnit.PositionNext); //Pre-occupy next tile
+    if KMStepIsDiag(fUnit.PositionPrev,fUnit.PositionNext) then
+      IncVertex(fUnit.PositionPrev,fUnit.PositionNext);
     //Update unit direction so we are facing the way we are going
-    fUnit.Direction := KMGetDirection(fUnit.PrevPosition, fUnit.NextPosition);
+    fUnit.Direction := KMGetDirection(fUnit.PositionPrev, fUnit.PositionNext);
   end;
 
   walkX := fNextPos.X - fUnit.PositionF.X;

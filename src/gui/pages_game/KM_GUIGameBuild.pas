@@ -210,7 +210,7 @@ begin
     Button_Build[I].Enable;
     Button_Build[I].TexID := gResHouses[GUIHouseOrder[I]].GUIIcon;
     Button_Build[I].OnClick := Build_ButtonClick;
-    Button_Build[I].Hint := gResHouses[GUIHouseOrder[I]].HouseName;
+    Button_Build[I].Hint := gResHouses[GUIHouseOrder[I]].HouseName + gResTexts[TX_BUILD_HOUSE_POSTFIX];
   end
   else
   begin

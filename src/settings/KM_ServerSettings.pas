@@ -54,7 +54,7 @@ type
     procedure SetServerMapsRosterStr(const aValue: UnicodeString);
   protected
     procedure LoadFromFile(const aPath: string); override;
-    procedure SaveToFile(const aFilename: string); override;
+    procedure SaveToFile(const aFilename: UnicodeString); override;
 
     function GetDefaultSettingsName: string; override;
     function GetSettingsName: string; override;
@@ -190,7 +190,7 @@ end;
 
 
 // Don't rewrite the file for each individual change, do it in one batch for simplicity
-procedure TKMServerSettings.SaveToFile(const aFilename: string);
+procedure TKMServerSettings.SaveToFile(const aFilename: UnicodeString);
 var
   ini: TMemIniFile;
 begin

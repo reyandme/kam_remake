@@ -111,18 +111,18 @@ begin
 
   if (fUnit <> nil)
     and fInitiated
-    and (gTerrain.Land^[fUnit.NextPosition.Y, fUnit.NextPosition.X].IsUnit = fUnit) then
+    and (gTerrain.Land^[fUnit.PositionNext.Y, fUnit.PositionNext.X].IsUnit = fUnit) then
   begin
     case fDirection of
       //Clear terrain lock for house entrance that made while unit was entering the house
-      gdGoInside:   gTerrain.UnitRem(fUnit.NextPosition);
+      gdGoInside:   gTerrain.UnitRem(fUnit.PositionNext);
 
       //A bug can occur because this action is destroyed early when a unit is told to die.
       //If we are still invisible then TTaskDie assumes we are inside and creates a new
       //GoOut action. Therefore if we are invisible we do not occupy a tile.
       gdGoOutside:  if not fUnit.Visible then
                     begin
-                      gTerrain.UnitRem(fUnit.NextPosition);
+                      gTerrain.UnitRem(fUnit.PositionNext);
                       if not KMSamePoint(fDoor, KMPOINT_ZERO) then
                         fUnit.PositionF := KMPointF(fDoor); //Put us back inside the house
                     end;
@@ -282,14 +282,14 @@ end;
 procedure TKMUnitActionGoInOut.WalkIn;
 begin
   fUnit.Direction := dirN;  //one cell up
-  fUnit.NextPosition := KMPointAbove(fUnit.Position);
+  fUnit.PositionNext := KMPointAbove(fUnit.Position);
   gTerrain.UnitRem(fUnit.Position); // Release tile at point below house entrance
   // Unit occupy a tile on a terrain while he is walking inside house
   // House could be destroyed while while unit was walking in it, so we need to have a tile occupied on terrain for that case
   // After house was destroyed other unit could go there / smth could be placed with as script,
   // but this unit is still walking into house so we have keep it consistent:
   // unit occupied tile if he is standing on that tile or he is going to get onto that tile
-  gTerrain.UnitAdd(fUnit.NextPosition, fUnit);
+  gTerrain.UnitAdd(fUnit.PositionNext, fUnit);
 
   //We are walking straight
   if fStreet.X = fDoor.X then
@@ -301,8 +301,8 @@ end;
 procedure TKMUnitActionGoInOut.WalkOut;
 begin
   fUnit.Direction := KMGetDirection(fDoor, fStreet);
-  fUnit.NextPosition := fStreet;
-  gTerrain.UnitAdd(fUnit.NextPosition, fUnit); //Unit was not occupying tile while inside
+  fUnit.PositionNext := fStreet;
+  gTerrain.UnitAdd(fUnit.PositionNext, fUnit); //Unit was not occupying tile while inside
 
   //Use InHouse instead of Home, since Home could be cleared via ProceedHouseClosedForWorker (f.e. when wGoingForEating = True)
   if (fUnit.UnitType = utRecruit) //Recruit

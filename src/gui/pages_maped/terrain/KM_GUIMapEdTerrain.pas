@@ -39,8 +39,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aOnPageChange: TNotifyEvent; aHideAllPages: TEvent);
     destructor Destroy; override;
-    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
-    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+    procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
     procedure MouseWheel(Shift: TShiftState; WheelSteps: Integer; X,Y: Integer; var aHandled: Boolean);
 
     property GuiTiles: TKMMapEdTerrainTiles read GetGuiTiles;
@@ -108,20 +107,24 @@ begin
 end;
 
 
-procedure TKMMapEdTerrain.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+procedure TKMMapEdTerrain.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
 begin
-  if aHandled then Exit;
+  if aHandled or not aIsFirst then Exit;
 
-  fGuiBrushes.KeyDown(Key, Shift, aHandled);
-  fGuiTiles.KeyDown(Key, Shift, aHandled);
-  fGuiObjects.KeyDown(Key, Shift, aHandled);
-  fGuiSelection.KeyDown(Key, Shift, aHandled);
-end;
+  fGuiBrushes.KeyDown(Key, Shift, aIsFirst, aHandled);
 
 
-procedure TKMMapEdTerrain.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
-begin
-  fGuiObjects.KeyUp(Key, Shift, aHandled);
+  fGuiTiles.KeyDown(Key, Shift, aIsFirst, aHandled);
+  // Hide Objects palette if Tiles palette visible now
+  if fGuiTiles.IsPaletteVisible then
+    fGuiObjects.PaletteHide;
+
+  fGuiObjects.KeyDown(Key, Shift, aIsFirst, aHandled);
+  // Hide Tiles palette if Objects palette visible now
+  if fGuiObjects.IsPaletteVisible then
+    fGuiTiles.PaletteHide;
+
+  fGuiSelection.KeyDown(Key, Shift, aIsFirst, aHandled);
 end;
 
 

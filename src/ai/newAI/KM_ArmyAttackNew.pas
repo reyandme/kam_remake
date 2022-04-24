@@ -373,9 +373,9 @@ procedure TKMCombatGroup.UpdateState(aTick: Cardinal);
       Exit;
     NodeList := TKMPointList.Create;
     try
-      if gGame.Pathfinding.Route_Make(Group.GetAliveMember.Position, TargetUnit.NextPosition, [tpWalk], Group.GetAliveMember.GetFightMaxRange, nil, NodeList) then
+      if gGame.Pathfinding.Route_Make(Group.GetAliveMember.Position, TargetUnit.PositionNext, [tpWalk], Group.GetAliveMember.GetFightMaxRange, nil, NodeList) then
       begin
-        fTargetPosition := KMPointDir(NodeList[NodeList.Count-1],KMGetDirection(NodeList[NodeList.Count-1], TargetUnit.NextPosition));
+        fTargetPosition := KMPointDir(NodeList[NodeList.Count-1],KMGetDirection(NodeList[NodeList.Count-1], TargetUnit.PositionNext));
         if KMSamePoint(fTargetPosition.Loc, Position) then
           fTargetPosition.Loc := KMGetPointInDir(fTargetPosition.Loc, fTargetPosition.Dir, 1);
         Group.OrderWalk(fTargetPosition.Loc, True, wtokAISquad, fTargetPosition.Dir);

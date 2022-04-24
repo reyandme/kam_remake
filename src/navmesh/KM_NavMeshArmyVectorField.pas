@@ -434,8 +434,6 @@ end;
 
 
 function TKMArmyVectorField.GetInitPolygonsHouses(aAllianceType: TKMAllianceType; var aAlliance: TKMAllianceAsset; aOnlyCompleted: Boolean = True): Boolean;
-const
-  SCAN_HOUSES: TKMHouseTypeSet = [htBarracks, htStore, htSchool, htTownhall]; // htWatchTower
 var
   PL: TKMHandID;
   K: Integer;
@@ -452,7 +450,7 @@ begin
         for K := 0 to gHands[PL].Houses.Count - 1 do
         begin
           H := gHands[PL].Houses[K];
-          if (H <> nil) AND not H.IsDestroyed AND (H.HouseType in SCAN_HOUSES) AND (not aOnlyCompleted OR H.IsComplete) then
+          if (H <> nil) AND not H.IsDestroyed AND (H.HouseType in gHands[fOwner].AI.ArmyManagement.ArmyVectorFieldScanHouses) AND (not aOnlyCompleted OR H.IsComplete) then
           begin
             if (Length(Houses) <= HousesCount) then
             begin

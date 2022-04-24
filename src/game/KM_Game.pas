@@ -1211,6 +1211,17 @@ begin
     end;
   end;
 
+  // Try to add libx files
+  FindFirst(path + '*.libx', faAnyFile - faDirectory, searchRec);
+  try
+    repeat
+      if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+        AttachFile(path + searchRec.Name);
+    until (FindNext(searchRec) <> 0);
+  finally
+    FindClose(searchRec);
+  end;
+
   if fParams.IsReplay
     or ((fGamePlayInterface <> nil) and (fGamePlayInterface.UIMode = umReplay)) then //In case game mode was altered or loaded with logical error
     // For replays attach only replay save files

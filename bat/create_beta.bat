@@ -1,6 +1,10 @@
 @echo off
 echo called create_beta.bat
 
+@SET RS_INIT=False
+@SET KAM_FOLDER_INIT=False
+@SET UPDATE_REV=False
+
 @REM Prepare Build
 echo ######                       Prepare build                           ######
 call prepare_build.bat > prepare_build.log 2>&1

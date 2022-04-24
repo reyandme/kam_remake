@@ -9,6 +9,7 @@
 @SET FrameworkSDKDir_LOCAL=
 @SET KMRMapsRepoDir_LOCAL=F:\Development_Win7\Repos\kam_remake_maps
 @SET KMRPrivateRepoDir_LOCAL=F:\Development_Win7\Repos\kam_remake_private
+@SET KMRResourcesRepoDir_LOCAL=F:\Development_Win7\Repos\kam_remake_resources
 @SET KaMOrigDir_LOCAL=F:\Games\KaM The Peasants Rebellion
 @SET KMRPrevVersionDir_LOCAL=F:\games\KaM Remake
 @SET SpritesRXADir_LOCAL=C:\Games\KaM Remake Beta r13651\data\Sprites

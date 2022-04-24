@@ -4,7 +4,7 @@ interface
 uses
    Classes, Math, StrUtils, SysUtils,
    KM_InterfaceDefaults,
-   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsSwitch, KM_ControlsTrackBar,
+   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsScroll, KM_ControlsSwitch, KM_ControlsTrackBar,
    KM_Defaults, KM_GUIMapEdTownFormationsPopUp;
 
 
@@ -16,7 +16,7 @@ type
     procedure Town_DefenceRefresh;
     procedure Town_DefenceChange(Sender: TObject);
   protected
-    Panel_Defence: TKMPanel;
+    Panel_Defence: TKMScrollPanel;
       Button_DefencePosAdd: TKMButtonFlat;
       CheckBox_AutoDefence: TKMCheckBox;
       CheckBox_DefendAllies: TKMCheckBox;
@@ -73,7 +73,12 @@ const
 begin
   inherited Create;
 
-  Panel_Defence := TKMPanel.Create(aParent, 0, 28, aParent.Width, 400);
+  Panel_Defence := TKMScrollPanel.Create(aParent, 0, 28, aParent.Width, aParent.Height - 28, [saVertical], bsMenu, ssCommon);
+  Panel_Defence.Padding.SetBottom(10);
+  Panel_Defence.ScrollV_PadTop := 10;
+  Panel_Defence.ScrollV_PadBottom := 10;
+  Panel_Defence.AnchorsStretch;
+
   with TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, Panel_Defence.Width, 0, gResTexts[TX_MAPED_AI_DEFENSE], fntOutline, taCenter) do
     Anchors := [anLeft, anTop, anRight];
   Button_DefencePosAdd := TKMButtonFlat.Create(Panel_Defence, TB_PAD, 30, 33, 33, 338);

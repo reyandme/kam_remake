@@ -616,7 +616,12 @@ begin
     fResolutions.Restore;
 
   fFormLoading.Position := poScreenCenter;
-  fFormMain.ToggleFullscreen(gMainSettings.FullScreen, gMainSettings.WindowParams.NeedResetToDefaults);
+
+  // Will show windowed form and play videos
+  // Should be made before GameApp creation, otherwise window position will not be set correctly
+  // (its prbably because it will be overwritten, on gGameApp creation)
+  if not gMainSettings.FullScreen then
+    fFormMain.ShowInWindow;
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(gGameApp); //Saves all settings into ini file in midst
@@ -627,6 +632,11 @@ begin
                                 fFormLoading.LoadingStep,
                                 fFormLoading.LoadingText,
                                 StatusBarText);
+
+  // Will show fullscreen form and play videos
+  // We need to start it after GameApp creation, since we need gResLocales to load proper video file by loaded locale
+  if gMainSettings.FullScreen then
+    fFormMain.ShowFullscreen;
 
   // Check if player has all permissions on game folder. Close the app if not
   // Check is done after gGameApp creating because we want to load texts first to shw traslated error message
@@ -739,50 +749,56 @@ var
   I: Integer;
 begin
   Result := False;
-  aBounds := Classes.Rect(-1,-1,-1,-1);
-  fFormMain.Monitor; //This forces Delphi to reload Screen.Monitors (only if necessary) and so fixes crashes when using multiple monitors
-  //Maximized is a special case, it can only be on one monitor. This is required because when maximized form.left = -9 (on Windows 7 anyway)
-  if fFormMain.WindowState = wsMaximized then
-  begin
-    for I := 0 to Screen.MonitorCount-1 do
-      //Find the monitor with the left closest to the left of the form
-      if (I = 0)
-      or ((Abs(fFormMain.Left - Screen.Monitors[I].Left) <= Abs(fFormMain.Left - aBounds.Left)) and
-          (Abs(fFormMain.Top  - Screen.Monitors[I].Top ) <= Abs(fFormMain.Top  - aBounds.Top))) then
-      begin
-        Result := True;
-        aBounds.Left  := Screen.Monitors[I].Left;
-        aBounds.Right := Screen.Monitors[I].Width+Screen.Monitors[I].Left;
-        aBounds.Top   := Screen.Monitors[I].Top;
-        aBounds.Bottom:= Screen.Monitors[I].Height+Screen.Monitors[I].Top;
-      end;
-  end
-  else
-    for I:=0 to Screen.MonitorCount-1 do
-      //See if our form is within the boundaries of this monitor (I.e. when it is not outside the boundaries)
-      if not ((fFormMain.Left                   >= Screen.Monitors[I].Width + Screen.Monitors[I].Left) or
-              (fFormMain.Width + fFormMain.Left <= Screen.Monitors[I].Left) or
-              (fFormMain.Top                    >= Screen.Monitors[I].Height + Screen.Monitors[I].Top) or
-              (fFormMain.Height + fFormMain.Top <= Screen.Monitors[I].Top)) then
-      begin
-        if not Result then
+  try
+    aBounds := Classes.Rect(-1,-1,-1,-1);
+    fFormMain.Monitor; //This forces Delphi to reload Screen.Monitors (only if necessary) and so fixes crashes when using multiple monitors
+    //Maximized is a special case, it can only be on one monitor. This is required because when maximized form.left = -9 (on Windows 7 anyway)
+    if fFormMain.WindowState = wsMaximized then
+    begin
+      for I := 0 to Screen.MonitorCount-1 do
+        //Find the monitor with the left closest to the left of the form
+        if (I = 0)
+        or ((Abs(fFormMain.Left - Screen.Monitors[I].Left) <= Abs(fFormMain.Left - aBounds.Left)) and
+            (Abs(fFormMain.Top  - Screen.Monitors[I].Top ) <= Abs(fFormMain.Top  - aBounds.Top))) then
         begin
-          //First time we have to initialise the result
           Result := True;
           aBounds.Left  := Screen.Monitors[I].Left;
           aBounds.Right := Screen.Monitors[I].Width+Screen.Monitors[I].Left;
           aBounds.Top   := Screen.Monitors[I].Top;
           aBounds.Bottom:= Screen.Monitors[I].Height+Screen.Monitors[I].Top;
-        end
-        else
-        begin
-          //After the first time we compare it with the previous result and take the largest possible area
-          aBounds.Left  := Math.Min(aBounds.Left,  Screen.Monitors[I].Left);
-          aBounds.Right := Math.Max(aBounds.Right, Screen.Monitors[I].Width+Screen.Monitors[I].Left);
-          aBounds.Top   := Math.Min(aBounds.Top,   Screen.Monitors[I].Top);
-          aBounds.Bottom:= Math.Max(aBounds.Bottom,Screen.Monitors[I].Height+Screen.Monitors[I].Top);
         end;
-      end;
+    end
+    else
+      for I:=0 to Screen.MonitorCount-1 do
+        //See if our form is within the boundaries of this monitor (I.e. when it is not outside the boundaries)
+        if not ((fFormMain.Left                   >= Screen.Monitors[I].Width + Screen.Monitors[I].Left) or
+                (fFormMain.Width + fFormMain.Left <= Screen.Monitors[I].Left) or
+                (fFormMain.Top                    >= Screen.Monitors[I].Height + Screen.Monitors[I].Top) or
+                (fFormMain.Height + fFormMain.Top <= Screen.Monitors[I].Top)) then
+        begin
+          if not Result then
+          begin
+            //First time we have to initialise the result
+            Result := True;
+            aBounds.Left  := Screen.Monitors[I].Left;
+            aBounds.Right := Screen.Monitors[I].Width+Screen.Monitors[I].Left;
+            aBounds.Top   := Screen.Monitors[I].Top;
+            aBounds.Bottom:= Screen.Monitors[I].Height+Screen.Monitors[I].Top;
+          end
+          else
+          begin
+            //After the first time we compare it with the previous result and take the largest possible area
+            aBounds.Left  := Math.Min(aBounds.Left,  Screen.Monitors[I].Left);
+            aBounds.Right := Math.Max(aBounds.Right, Screen.Monitors[I].Width+Screen.Monitors[I].Left);
+            aBounds.Top   := Math.Min(aBounds.Top,   Screen.Monitors[I].Top);
+            aBounds.Bottom:= Math.Max(aBounds.Bottom,Screen.Monitors[I].Height+Screen.Monitors[I].Top);
+          end;
+        end;
+  except
+    on E: Exception do
+      gLog.AddTime('Exception in TKMMain.GetScreenBounds: ' + E.Message
+                   {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF});
+  end;
 end;
 
 

@@ -35,6 +35,8 @@ type
     fRngLog: TDictionary<Cardinal, TKMRLRecordList>;
     fTickStreamQueue: TObjectQueue<TKMemoryStream>;
 
+    function DoEnabled: Boolean;
+
     function GetCallerID(const aCaller: AnsiString; aValue: Extended; aValueType: TKMLogRngType): Byte;
     procedure AddRecordToList(aTick: Cardinal; const aRec: TKMRngLogRecord);
     procedure AddRecordToDict(aTick: Cardinal; const aRec: TKMRngLogRecord);
@@ -78,11 +80,12 @@ var
 
 implementation
 uses
-  Math,
-  KM_Log, Classes, SysUtils;
+  Classes, SysUtils, Math,
+  KM_GameSettings,
+  KM_Log;
 
 var
-  MAX_TICKS_CNT: Integer = 10*60*10; // 10 minutes
+  MAX_TICKS_CNT: Integer = 5*60*10; // 5 minutes
 
 
 { TKMRandomLogger }
@@ -116,6 +119,12 @@ begin
 end;
 
 
+function TKMRandomCheckLogger.DoEnabled: Boolean;
+begin
+  Result := (Self <> nil) and fEnabled and gGameSettings.DebugSaveRandomChecks;
+end;
+
+
 function TKMRandomCheckLogger.GetCallerID(const aCaller: AnsiString; aValue: Extended; aValueType: TKMLogRngType): Byte;
 var
   callerPair: TPair<Byte, AnsiString>;
@@ -143,7 +152,7 @@ procedure TKMRandomCheckLogger.AddToLog(const aCaller: AnsiString; aValue: Integ
 var
   rec: TKMRngLogRecord;
 begin
-  if (Self = nil) or not fEnabled then Exit;
+  if not DoEnabled then Exit;
 
   rec.Seed := aSeed;
   rec.ValueType := lrtInt;
@@ -158,7 +167,7 @@ procedure TKMRandomCheckLogger.AddToLog(const aCaller: AnsiString; aValue: Singl
 var
   rec: TKMRngLogRecord;
 begin
-  if (Self = nil) or not fEnabled then Exit;
+  if not DoEnabled then Exit;
 
   rec.Seed := aSeed;
   rec.ValueType := lrtSingle;
@@ -173,7 +182,7 @@ procedure TKMRandomCheckLogger.AddToLog(const aCaller: AnsiString; aValue: Exten
 var
   rec: TKMRngLogRecord;
 begin
-  if (Self = nil) or not fEnabled then Exit;
+  if not DoEnabled then Exit;
 
   rec.Seed := aSeed;
   rec.ValueType := lrtExt;
@@ -188,7 +197,7 @@ procedure TKMRandomCheckLogger.AddRecordToDict(aTick: Cardinal; const aRec: TKMR
 var
   list: TList<TKMRngLogRecord>;
 begin
-  if (Self = nil) or not fEnabled then Exit;
+  if not DoEnabled then Exit;
 
   if not fRngLog.TryGetValue(aTick, list) then
   begin
@@ -202,7 +211,7 @@ end;
 
 procedure TKMRandomCheckLogger.AddRecordToList(aTick: Cardinal; const aRec: TKMRngLogRecord);
 begin
-  if (Self = nil) or not fEnabled then Exit;
+  if not DoEnabled then Exit;
 
   fRngChecksInTick.Add(aRec);
 end;
@@ -213,7 +222,7 @@ var
   I: Integer;
   rngValueType: TKMLogRngType;
 begin
-  if (Self = nil) or not fEnabled then Exit;
+  if not DoEnabled then Exit;
 
   aStream.Write(fGameTick); //Tick
   aStream.Write(Integer(aRngChecksInTick.Count)); //Number of log records in tick
@@ -237,7 +246,7 @@ procedure TKMRandomCheckLogger.UpdateState(aGameTick: Cardinal);
 var
   tickStream: TKMemoryStream;
 begin
-  if (Self = nil) or not fEnabled then Exit;
+  if not DoEnabled then Exit;
 
   fGameTick := aGameTick;
 

@@ -97,15 +97,12 @@ end;
 
 function TKMTaskGoEat.Execute: TKMTaskResult;
 const
-  MAX_FEED_CNT = 2; //Max number of times unit can eat different food at Inn during one visit
+  MAX_FEED_CNT = 2; // Max number of times unit can eat different food at Inn during one visit
 begin
   Result := trTaskContinues;
 
   if fInn.IsDestroyed then
-  begin
-    Result := trTaskDone;
-    Exit;
-  end;
+    Exit(trTaskDone);
 
   with fUnit do
   case fPhase of
@@ -189,8 +186,8 @@ begin
         fInn.EatersGoesOut(fPlace);
         fPlace := -1;
       end;
-   else
-      Result := trTaskDone;
+  else
+    Result := trTaskDone;
   end;
 
   Inc(fPhase);

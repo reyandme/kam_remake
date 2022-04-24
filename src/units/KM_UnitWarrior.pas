@@ -435,7 +435,7 @@ end;
 
 function TKMUnitWarrior.WithinFightRange(const aValue: TKMPoint): Boolean;
 begin
-  Result := InRange(KMLength(NextPosition, aValue), GetFightMinRange, GetFightMaxRange);
+  Result := InRange(KMLength(PositionNext, aValue), GetFightMinRange, GetFightMaxRange);
 end;
 
 

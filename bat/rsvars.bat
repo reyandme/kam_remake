@@ -21,6 +21,7 @@ call rsvars_local.bat
 @SET FrameworkSDKDir=%FrameworkSDKDir_LOCAL%
 @SET KMRMapsRepoDir=%KMRMapsRepoDir_LOCAL%
 @SET KMRPrivateRepoDir=%KMRPrivateRepoDir_LOCAL%
+@SET KMRResourcesRepoDir=%KMRResourcesRepoDir_LOCAL%
 @SET KaMOrigDir=%KaMOrigDir_LOCAL%
 @SET KMRPrevVersionDir=%KMRPrevVersionDir_LOCAL%
 @SET SpritesRXADir=%SpritesRXADir_LOCAL%

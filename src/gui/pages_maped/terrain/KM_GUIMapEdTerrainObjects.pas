@@ -76,12 +76,14 @@ type
   public
     constructor Create(aParent: TKMPanel; aHideAllPages: TEvent);
 
-    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
-    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+    procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
     procedure MouseWheel(Shift: TShiftState; WheelSteps: Integer; X,Y: Integer; var aHandled: Boolean);
 
     procedure Show;
     function Visible: Boolean; override;
+    function IsPaletteVisible: Boolean;
+    procedure PaletteHide;
+
     procedure Hide;
     procedure Resize;
     procedure Cancel_Clicked(var aHandled: Boolean);
@@ -190,6 +192,7 @@ begin
   Panel_Objects := TKMScrollPanel.Create(aParent, 0, 28, aParent.Width, aParent.Height - 28, [saVertical], bsMenu, ssCommon);
   Panel_Objects.Padding.SetBottom(10);
   Panel_Objects.ScrollV_PadTop := 10;
+  Panel_Objects.ScrollV_PadBottom := 10;
   Panel_Objects.ScrollV_PadLeft := -20;
   Panel_Objects.AnchorsStretch;
 
@@ -822,6 +825,18 @@ begin
 end;
 
 
+function TKMMapEdTerrainObjects.IsPaletteVisible: Boolean;
+begin
+  Result := PopUp_ObjectsPalette.Visible;
+end;
+
+
+procedure TKMMapEdTerrainObjects.PaletteHide;
+begin
+  PopUp_ObjectsPalette.Hide;
+end;
+
+
 procedure TKMMapEdTerrainObjects.Hide;
 begin
   Panel_Objects.Hide;
@@ -859,23 +874,22 @@ begin
 end;
 
 
-procedure TKMMapEdTerrainObjects.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+procedure TKMMapEdTerrainObjects.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
 begin
-  if aHandled then Exit;
+  if aHandled or not aIsFirst then Exit;
 
   aHandled := Key = gResKeys[kfMapedObjPalette];
-  if (Key = VK_ESCAPE) and PopUp_ObjectsPalette.Visible then
+
+  if Key = VK_ESCAPE then
   begin
-    PopUp_ObjectsPalette.Hide;
-    aHandled := True;
-  end;
-end;
-
-
-procedure TKMMapEdTerrainObjects.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
-begin
-  aHandled := Key = gResKeys[kfMapedObjPalette];
-  if aHandled then
+    if PopUp_ObjectsPalette.Visible then
+     begin
+       PopUp_ObjectsPalette.Hide;
+        aHandled := True;
+     end;
+  end
+  else
+  if Key = gResKeys[kfMapedObjPalette] then
   begin
     //Reset selected and hide all pages
     if Assigned(fHideAllPages) and (gMySpectator.Selected <> nil) then
