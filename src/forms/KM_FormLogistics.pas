@@ -114,9 +114,9 @@ implementation
 uses
   Math, TypInfo,
   KM_GameApp,
-  KM_HandEntity,
-  KM_HandLogistics, KM_Resource, KM_ResWares, KM_HandsCollection,
-  KM_Defaults, KM_ResHouses, KM_ResUnits, KM_ResTypes, KM_Hand; // Make compiler happy, regarding inline methods
+  KM_HandEntity, KM_Hand, KM_HandLogistics, KM_HandsCollection, KM_HandTypes,
+  KM_Resource, KM_ResWares, KM_ResUnits, KM_ResHouses, KM_ResTypes,
+  KM_Defaults; // Make compiler happy, regarding inline methods
 
 {$IFDEF USE_VIRTUAL_TREEVIEW}
 const
@@ -475,8 +475,15 @@ begin
     vstkDelivery: begin
                     gMySpectator.ResetHighlightDebug;
 
-                    offerEntity := del.Offer[del.Delivery[data.ID].OfferID].Loc_House;
-                    demandEntity := del.Demand[del.Delivery[data.ID].DemandID].GetDemandEntity;
+                    offerEntity := nil;
+                    demandEntity := nil;
+
+                    if del.Delivery[data.ID].OfferID <> DELIVERY_NO_ID then
+                      offerEntity := del.Offer[del.Delivery[data.ID].OfferID].Loc_House;
+
+                    if del.Delivery[data.ID].DemandID <> DELIVERY_NO_ID then
+                      demandEntity := del.Demand[del.Delivery[data.ID].DemandID].GetDemandEntity;
+
                     serfEntity := del.Delivery[data.ID].Serf;
 
                     // Check if click was on a specified column
@@ -490,7 +497,7 @@ begin
                       selectEntity := serfEntity
                     else
                     // otherwise circle through entities
-                    if (gMySpectator.Selected = nil) then
+                    if gMySpectator.Selected = nil then
                       selectEntity := serfEntity
                     else
                     if offerEntity = gMySpectator.Selected then
@@ -620,7 +627,7 @@ begin
   del := gHands[handID].Deliveries.Queue;
 
   iQ := data.ID;
-  if (iQ = 0) or (iQ > del.DeliveryCount) then
+  if (iQ = DELIVERY_NO_ID) or (iQ > del.DeliveryCount) then
   begin
     CellText := '0';
     Exit;
@@ -631,28 +638,34 @@ begin
     1:  CellText := IntToStr(handID);
     2:  CellText := IntToStr(iQ);
     3:  CellText := gResWares[del.DeliveryWare[iQ]].Title;
-    4:  if del.Offer[del.Delivery[iQ].OfferID].Loc_House = nil then
+    4:  if (del.Delivery[iQ].OfferID = DELIVERY_NO_ID) or (del.Offer[del.Delivery[iQ].OfferID].Loc_House = nil) then
           CellText := 'nil'
         else
           CellText := gResHouses[del.Offer[del.Delivery[iQ].OfferID].Loc_House.HouseType].HouseName;
 
-    5:  if del.Offer[del.Delivery[iQ].OfferID].Loc_House = nil then
+    5:  if (del.Delivery[iQ].OfferID = DELIVERY_NO_ID) or (del.Offer[del.Delivery[iQ].OfferID].Loc_House = nil) then
           CellText := '0'
         else
           CellText := IntToStr(del.Offer[del.Delivery[iQ].OfferID].Loc_House.UID);
 
-    6:  if del.Demand[del.Delivery[iQ].DemandID].Loc_House <> nil then
-          CellText := 'H: ' + gResHouses[del.Demand[del.Delivery[iQ].DemandID].Loc_House.HouseType].HouseName
-        else
-        if del.Demand[del.Delivery[iQ].DemandID].Loc_Unit <> nil then
-          CellText := 'U: ' + gRes.Units[del.Demand[del.Delivery[iQ].DemandID].Loc_Unit.UnitType].GUIName
+    6:  if del.Delivery[iQ].DemandID <> DELIVERY_NO_ID then
+        begin
+          if del.Demand[del.Delivery[iQ].DemandID].Loc_House <> nil then
+            CellText := 'H: ' + gResHouses[del.Demand[del.Delivery[iQ].DemandID].Loc_House.HouseType].HouseName
+          else
+          if del.Demand[del.Delivery[iQ].DemandID].Loc_Unit <> nil then
+            CellText := 'U: ' + gRes.Units[del.Demand[del.Delivery[iQ].DemandID].Loc_Unit.UnitType].GUIName;
+        end
         else
           CellText := 'nil';
-    7:  if del.Demand[del.Delivery[iQ].DemandID].Loc_House <> nil then
-          CellText := IntToStr(del.Demand[del.Delivery[iQ].DemandID].Loc_House.UID)
-        else
-        if del.Demand[del.Delivery[iQ].DemandID].Loc_Unit <> nil then
-          CellText := IntToStr(del.Demand[del.Delivery[iQ].DemandID].Loc_Unit.UID)
+    7:  if del.Delivery[iQ].DemandID <> DELIVERY_NO_ID then
+        begin
+          if del.Demand[del.Delivery[iQ].DemandID].Loc_House <> nil then
+            CellText := IntToStr(del.Demand[del.Delivery[iQ].DemandID].Loc_House.UID)
+          else
+          if del.Demand[del.Delivery[iQ].DemandID].Loc_Unit <> nil then
+            CellText := IntToStr(del.Demand[del.Delivery[iQ].DemandID].Loc_Unit.UID);
+        end
         else
           CellText := 'nil';
     8:  CellText := IntToStr(del.Delivery[iQ].Serf.UID);
@@ -672,7 +685,7 @@ begin
   handID := data.HandID;
   iO := data.ID;
 
-  if (iO = 0) or (iO > gHands[handID].Deliveries.Queue.OfferCount) then
+  if (iO = DELIVERY_NO_ID) or (iO > gHands[handID].Deliveries.Queue.OfferCount) then
   begin
     CellText := '0';
     Exit;
@@ -713,7 +726,7 @@ begin
   handID := data.HandID;
   iD := data.ID;
 
-  if (iD = 0) or (iD > gHands[handID].Deliveries.Queue.DemandCount) then
+  if (iD = DELIVERY_NO_ID) or (iD > gHands[handID].Deliveries.Queue.DemandCount) then
   begin
     CellText := '0';
     Exit;

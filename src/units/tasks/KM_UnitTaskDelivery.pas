@@ -58,7 +58,7 @@ type
 implementation
 uses
   Math, TypInfo,
-  KM_HandsCollection, KM_Hand,
+  KM_HandsCollection, KM_Hand, KM_HandTypes,
   KM_UnitWarrior, KM_HouseInn,
   KM_UnitTaskBuild, KM_Log, KM_RenderAux;
 
@@ -150,7 +150,7 @@ begin
 
   if fUnit <> nil then
   begin
-    if fDeliverID <> 0 then
+    if fDeliverID <> DELIVERY_NO_ID then
       gHands[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
 
     if TKMUnitSerf(fUnit).Carry <> wtNone then
@@ -423,7 +423,7 @@ begin
 
           gHands[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
           gHands[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
-          fDeliverID := 0; //So that it can't be abandoned if unit dies while trying to GoOut
+          fDeliverID := DELIVERY_NO_ID; //So that it can't be abandoned if unit dies while trying to GoOut
 
           //If serf bring smth into the Inn and he is hungry - let him eat immidiately
           if fUnit.IsHungry
@@ -474,7 +474,7 @@ begin
           CarryTake;
           gHands[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
           gHands[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
-          fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
+          fDeliverID := DELIVERY_NO_ID; //So that it can't be abandoned if unit dies while staying
           SetActionStay(1, uaWalk);
         end;
     else Result := trTaskDone;
@@ -519,7 +519,7 @@ begin
           CarryTake;
           gHands[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
           gHands[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
-          fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
+          fDeliverID := DELIVERY_NO_ID; //So that it can't be abandoned if unit dies while staying
           SetActionLockedStay(5, uaWalk); //Pause breifly (like we are handing over the ware/food)
         end;
     7:  begin

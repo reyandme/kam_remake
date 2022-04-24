@@ -28,6 +28,9 @@ const
   HAND_NONE = -1; //No player
   HAND_ANIMAL = -2; //animals
 
+const
+  DELIVERY_NO_ID = -1;
+
 implementation
 
 end.
