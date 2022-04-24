@@ -1072,11 +1072,14 @@ end;
 
 
 //IgnoreOffer means we don't check whether offer was already taken or deleted (used after offer was already claimed)
-function TKMDeliveries.ValidDelivery(iO,iD: Integer; aIgnoreOffer: Boolean = False): Boolean;
+function TKMDeliveries.ValidDelivery(iO, iD: Integer; aIgnoreOffer: Boolean = False): Boolean;
 var
   I: Integer;
   B: TKMHouseBarracks;
 begin
+  // Conditions are called in the frequency of a negative Result: most negative first
+
+  // 95% of the calls returns False after next condition
   //If Offer Resource matches Demand
   Result := (fDemand[iD].Ware = fOffer[iO].Ware) or
             (fDemand[iD].Ware = wtAll) or
@@ -1084,22 +1087,29 @@ begin
             ((fDemand[iD].Ware = wtFood) and (fOffer[iO].Ware in [wtBread, wtSausage, wtWine, wtFish]));
 
   //If Demand and Offer aren't reserved already
-  Result := Result and (((fDemand[iD].DemandType = dtAlways) or (fDemand[iD].BeingPerformed = 0))
-                   and (aIgnoreOffer or (fOffer[iO].BeingPerformed < fOffer[iO].Count)));
+  Result := Result and (aIgnoreOffer or (fOffer[iO].BeingPerformed < fOffer[iO].Count))
+                   and ((fDemand[iD].DemandType = dtAlways) or (fDemand[iD].BeingPerformed = 0));
 
-  //If Demand and Offer aren't deleted
-  Result := Result and not fDemand[iD].IsDeleted and (aIgnoreOffer or not fOffer[iO].IsDeleted);
-
-  //If Offer should not be abandoned
-  Result := Result and not fOffer[iO].Loc_House.ShouldAbandonDeliveryFrom(fOffer[iO].Ware)
-                   //Check store to store evacuation
-                   and not fOffer[iO].Loc_House.ShouldAbandonDeliveryFromTo(fDemand[iD].Loc_House, fOffer[iO].Ware, False);
-
+  Result := Result and (
+            ( //House-House delivery should be performed only if there's a connecting road
+            (fDemand[iD].Loc_House <> nil) and
+            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_House.PointBelowEntrance, tpWalkRoad, 0))
+            )
+            or
+            ( //House-Unit delivery can be performed without connecting road
+            (fDemand[iD].Loc_Unit <> nil) and
+            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_Unit.Position, tpWalk, 1))
+            ));
 
   //If Demand house should abandon delivery
   Result := Result and ((fDemand[iD].Loc_House = nil)
                          or not fDemand[iD].Loc_House.IsComplete
                          or not fDemand[iD].Loc_House.ShouldAbandonDeliveryTo(fOffer[iO].Ware));
+
+  //If Offer should not be abandoned
+  Result := Result and not fOffer[iO].Loc_House.ShouldAbandonDeliveryFrom(fOffer[iO].Ware)
+                   //Check store to store evacuation
+                   and not fOffer[iO].Loc_House.ShouldAbandonDeliveryFromTo(fDemand[iD].Loc_House, fOffer[iO].Ware, False);
 
   //Warfare has a preference to be delivered to Barracks
   if Result
@@ -1124,6 +1134,9 @@ begin
     end;
   end;
 
+  //If Demand and Offer aren't deleted
+  Result := Result and not fDemand[iD].IsDeleted and (aIgnoreOffer or not fOffer[iO].IsDeleted);
+
   //Do not allow delivery from 1 house to same house (f.e. store)
   Result := Result and ((fDemand[iD].Loc_House = nil)
                        or (fDemand[iD].Loc_House.UID <> fOffer[iO].Loc_House.UID));
@@ -1147,17 +1160,6 @@ begin
                         or (fDemand[iD].Loc_House.HouseType <> htStore)
                         or (fOffer[iO].Loc_House.HouseType <> htBarracks)
                         or (fOffer[iO].Loc_House.DeliveryMode = dmTakeOut));
-
-  Result := Result and (
-            ( //House-House delivery should be performed only if there's a connecting road
-            (fDemand[iD].Loc_House <> nil) and
-            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_House.PointBelowEntrance, tpWalkRoad, 0))
-            )
-            or
-            ( //House-Unit delivery can be performed without connecting road
-            (fDemand[iD].Loc_Unit <> nil) and
-            (gTerrain.Route_CanBeMade(fOffer[iO].Loc_House.PointBelowEntrance, fDemand[iD].Loc_Unit.Position, tpWalk, 1))
-            ));
 end;
 
 
