@@ -163,7 +163,8 @@ end;
 
 
 procedure TRXXForm1.btnLoadRXXClick(Sender: TObject);
-var RT: TRXType;
+var
+  RT: TRXType;
 begin
   //WinXP needs InitialDir to be set before Execute
   OpenDialog1.Filter := 'RX, RXX packages (*.rx;*.rxx)|*.rxx;*.rx;';
@@ -215,7 +216,8 @@ end;
 
 
 procedure TRXXForm1.btnAddClick(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
 begin
   //WinXP needs InitialDir to be set before Execute
   OpenDialog1.InitialDir := ExeDir;
@@ -268,7 +270,7 @@ end;
 
 procedure TRXXForm1.btnExportClick(Sender: TObject);
 var
-  FilePath: string;
+  filePath: string;
   I: Integer;
 begin
   if lbSpritesList.SelCount = 1 then
@@ -294,14 +296,14 @@ end;
 
 procedure TRXXForm1.imgExport(ID: Integer; FileName: string);
 var
-  FileNameA: string;
+  fileNameA: string;
 begin
   if fSprites.RXData.Flag[ID] = 0 then Exit;
 
-  FileNameA := StringReplace(FileName, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
+  fileNameA := StringReplace(FileName, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
 
   fSprites.ExportImage(FileName, ID);
-  fSprites.ExportMask(FileNameA, ID);
+  fSprites.ExportMask(fileNameA, ID);
 end;
 
 

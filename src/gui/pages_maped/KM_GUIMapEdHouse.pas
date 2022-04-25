@@ -187,14 +187,14 @@ begin
       Button_Store[I].OnClick := StoreSelectWare;
     end;
 
-    Button_StoreDec100     := TKMButton.Create(Panel_HouseStore,108,218,20,20,'<', bsGame);
+    Button_StoreDec100     := TKMButton.Create(Panel_HouseStore, 108, 218, 20, 20, '<', bsGame);
     Button_StoreDec100.Tag := 100;
-    Button_StoreDec        := TKMButton.Create(Panel_HouseStore,108,238,20,20,'-', bsGame);
+    Button_StoreDec        := TKMButton.Create(Panel_HouseStore, 108, 238, 20, 20, '-', bsGame);
     Button_StoreDec.Tag    := 1;
-    Label_Store_WareCount  := TKMLabel.Create (Panel_HouseStore,128,230,40,20,'',fntMetal,taCenter);
-    Button_StoreInc100     := TKMButton.Create(Panel_HouseStore,168,218,20,20,'>', bsGame);
+    Label_Store_WareCount  := TKMLabel.Create (Panel_HouseStore, 128, 230, 50, 20, '',  fntMetal, taCenter);
+    Button_StoreInc100     := TKMButton.Create(Panel_HouseStore, 178, 218, 20, 20, '>', bsGame);
     Button_StoreInc100.Tag := 100;
-    Button_StoreInc        := TKMButton.Create(Panel_HouseStore,168,238,20,20,'+', bsGame);
+    Button_StoreInc        := TKMButton.Create(Panel_HouseStore, 178, 238, 20, 20, '+', bsGame);
     Button_StoreInc.Tag    := 1;
     Button_StoreDec100.OnClickShift := StoreChange;
     Button_StoreDec.OnClickShift    := StoreChange;
@@ -217,7 +217,7 @@ end;
 {Barracks page}
 procedure TKMMapEdHouse.Create_Barracks;
 var
-  I: Integer;
+  I, top, left: Integer;
 begin
   Panel_HouseBarracks := TKMPanel.Create(Panel_House,0,76,Panel_House.Width,400);
 
@@ -247,14 +247,17 @@ begin
     Button_Barracks_Recruit.Hint := gRes.Units[utRecruit].GUIName;
     Button_Barracks_Recruit.OnClick := BarracksSelectWare;
 
-    Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,108,218,20,20,'<', bsGame);
+    top := Button_Barracks_Recruit.Bottom + 20;
+    left := 93;
+
+    Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,left,      top,      20, 20, '<', bsGame);
     Button_BarracksDec100.Tag := 100;
-    Button_BarracksDec        := TKMButton.Create(Panel_HouseBarracks,108,238,20,20,'-', bsGame);
+    Button_BarracksDec        := TKMButton.Create(Panel_HouseBarracks,left,      top + 20, 20, 20, '-', bsGame);
     Button_BarracksDec.Tag    := 1;
-    Label_Barracks_WareCount  := TKMLabel.Create (Panel_HouseBarracks,128,230,40,20,'',fntMetal,taCenter);
-    Button_BarracksInc100     := TKMButton.Create(Panel_HouseBarracks,168,218,20,20,'>', bsGame);
+    Label_Barracks_WareCount  := TKMLabel.Create (Panel_HouseBarracks,left + 20, top + 12, 50, 20, '', fntMetal, taCenter);
+    Button_BarracksInc100     := TKMButton.Create(Panel_HouseBarracks,left + 70, top,      20, 20, '>', bsGame);
     Button_BarracksInc100.Tag := 100;
-    Button_BarracksInc        := TKMButton.Create(Panel_HouseBarracks,168,238,20,20,'+', bsGame);
+    Button_BarracksInc        := TKMButton.Create(Panel_HouseBarracks,left + 70, top + 20, 20, 20, '+', bsGame);
     Button_BarracksInc.Tag    := 1;
     Button_BarracksDec100.OnClickShift := BarracksChange;
     Button_BarracksDec.OnClickShift    := BarracksChange;
@@ -444,7 +447,7 @@ begin
   for I := 1 to STORE_RES_COUNT do
   begin
     tmp := TKMHouseStore(fHouse).CheckResIn(StoreResType[I]);
-    Button_Store[I].Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
+    Button_Store[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
   end;
 end;
 
@@ -487,10 +490,10 @@ begin
   for I := 1 to BARRACKS_RES_COUNT do
   begin
     tmp := TKMHouseBarracks(fHouse).CheckResIn(BarracksResType[I]);
-    Button_Barracks[I].Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
+    Button_Barracks[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
   end;
   tmp := TKMHouseBarracks(fHouse).MapEdRecruitCount;
-  Button_Barracks_Recruit.Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
+  Button_Barracks_Recruit.Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
   Button_Barracks_RallyPoint.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_RALLY_POINT);
 end;
 

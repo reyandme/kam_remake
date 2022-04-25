@@ -254,12 +254,14 @@ type
     function GetColumn(aIndex: Integer): TKMListColumn;
     procedure ClearColumns;
     procedure SetSearchColumn(aValue: ShortInt);
+    procedure ResetMouseOver;
     procedure UpdateMouseOverPosition(X,Y: Integer);
     procedure UpdateItemIndex(Shift: TShiftState; var aOnChangeInvoked: Boolean);
     function GetItem(aIndex: Integer): TKMListRow;
     function GetSelectedItem: TKMListRow;
     function GetSelectedItemTag: Integer;
     procedure ScrollBarChangeVisibility;
+    procedure ScrollBarChanged(Sender: TObject);
   protected
     procedure SetLeft(aValue: Integer); override;
     procedure SetTop(aValue: Integer); override;
@@ -1271,6 +1273,7 @@ begin
   fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, saVertical, aStyle);
+  fScrollBar.OnChange := ScrollBarChanged;
   UpdateScrollBar; //Initialise the scrollbar
 
   SetEdgeAlpha(1);
@@ -1526,6 +1529,13 @@ begin
 end;
 
 
+procedure TKMColumnBox.ScrollBarChanged(Sender: TObject);
+begin
+  // Reset mouse over field, since we don't want hints to be shown while changing scrollbar f.e.
+  ResetMouseOver;
+end;
+
+
 function TKMColumnBox.GetOnColumnClick: TIntegerEvent;
 begin
   Result := fHeader.OnColumnClick;
@@ -1689,14 +1699,20 @@ begin
 end;
 
 
+procedure TKMColumnBox.ResetMouseOver;
+begin
+  fMouseOverColumn := -1;
+  fMouseOverRow := -1;
+  fMouseOverCell := KMPOINT_INVALID_TILE;
+end;
+
+
 //Update mouse over row/cell positions (fMouseOver* variables)
 procedure TKMColumnBox.UpdateMouseOverPosition(X,Y: Integer);
 var
   I, cellLeftOffset, cellRightOffset: Integer;
 begin
-  fMouseOverColumn := -1;
-  fMouseOverRow := -1;
-  fMouseOverCell := KMPOINT_INVALID_TILE;
+  ResetMouseOver;
 
   if InRange(X, AbsLeft, AbsLeft + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
     and InRange(Y, AbsTop + fHeader.Height*Byte(fHeader.Visible), AbsTop + fHeader.Height*Byte(fHeader.Visible) + Floor(GetVisibleRowsExact * fItemHeight) - 1) then

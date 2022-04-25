@@ -63,7 +63,7 @@ end;
 procedure TRXXForm1.UpdateList;
 var
   RT: TRXType;
-  PackData: TRXXPackData;
+  packData: TRXXPackData;
 begin
   ExeDir := edSpritesBaseDir.Text;
   ListBox1.Items.Clear;
@@ -73,8 +73,8 @@ begin
     if (RT = rxTiles) //Tiles are always in the list
     or FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
     begin
-      PackData := AddPackData(GetEnumName(TypeInfo(TRXType), Integer(RT)), Integer(RT));
-      ListBox1.Items.Add(PackData.Name);
+      packData := AddPackData(GetEnumName(TypeInfo(TRXType), Integer(RT)), Integer(RT));
+      ListBox1.Items.Add(packData.Name);
     end;
 
   if ListBox1.Items.Count = 0 then
@@ -134,10 +134,10 @@ procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
 var
   RT: TRXType;
   I: Integer;
-  Tick: Cardinal;
+  tick: Cardinal;
 begin
   btnPackRXX.Enabled := False;
-  Tick := GetTickCount;
+  tick := GetTickCount;
 
   fRXXPacker.SpritesBaseDir := edSpritesBaseDir.Text;
   fRxxPacker.PackToRXA := chkPackToRXA.Checked;
@@ -157,7 +157,7 @@ begin
       ListBox1.Refresh;
     end;
 
-  Label1.Caption := 'Elapsed: ' + IntToStr(GetTickCount - Tick) + ' ms';
+  Label1.Caption := 'Elapsed: ' + IntToStr(GetTickCount - tick) + ' ms';
   btnPackRXX.Enabled := True;
 end;
 

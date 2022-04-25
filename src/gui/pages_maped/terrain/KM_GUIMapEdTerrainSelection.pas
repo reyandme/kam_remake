@@ -33,7 +33,7 @@ type
     property GuiRMGPopUp: TKMMapEdRMG read fRMGPopUp write fRMGPopUp;
     procedure Show;
     function Visible: Boolean; override;
-    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+    procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
     procedure Hide;
     procedure UpdateHotkeys;
     procedure UpdateState;
@@ -277,9 +277,9 @@ begin
 end;
 
 
-procedure TKMMapEdTerrainSelection.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+procedure TKMMapEdTerrainSelection.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
 begin
-  if aHandled then Exit;
+  if aHandled or not aIsFirst then Exit;
 
   if (Key = VK_ESCAPE) and fRMGPopUp.Visible then
   begin

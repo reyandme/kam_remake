@@ -192,7 +192,7 @@ begin
                                                  Panel_MapFilter.Width - 2*FILTER_PAD_X, 20, gResTexts[TX_MENU_MAP_FILTER_BY_PLAYERS_NUMBER], fntGrey);
       CheckBox_ByPlayerCnt.OnClick := MapFilterChanged;
       TrackBar_PlayersCnt := TKMTrackBar.Create(Panel_MapFilter, FILTER_PAD_X, CheckBox_ByPlayerCnt.Bottom + FILTER_PAD_Y,
-                                                Panel_MapFilter.Width - 2*FILTER_PAD_X, 1, MAX_HANDS);
+                                                Panel_MapFilter.Width - 2*FILTER_PAD_X, 1, MAX_LOBBY_PLAYERS);
       TrackBar_PlayersCnt.Anchors := [anLeft,anTop];
       TrackBar_PlayersCnt.Disable;
       TrackBar_PlayersCnt.OnChange := MapFilterChanged;
@@ -258,7 +258,9 @@ begin
 
       ColumnBox_MapEd := TKMColumnBox.Create(Panel_MapEdLoad, 0, 20, 440, 576, fntMetal,  bsMenu);
       ColumnBox_MapEd.Anchors := [anLeft, anTop, anBottom];
-      ColumnBox_MapEd.SetColumns(fntOutline, ['', '', gResTexts[TX_MENU_MAP_TITLE], '#', gResTexts[TX_MENU_MAP_SIZE]], [0, 22, 44, 310, 340]);
+      ColumnBox_MapEd.SetColumns(fntOutline, ['', '', gResTexts[TX_MENU_MAP_TITLE], gResTexts[TX_MENU_MAP_HUMAN_TITLE], '#',
+                                              gResTexts[TX_MENU_MAP_SIZE]],
+                                             [0, 22, 44, 310, 335, 360]);
       ColumnBox_MapEd.SearchColumn := 2;
       ColumnBox_MapEd.OnColumnClick := ColumnClick;
       ColumnBox_MapEd.OnChange := SelectMap;
@@ -345,7 +347,7 @@ begin
         Image_Rename := TKMImage.Create(PopUp_Rename, 0, 0, PopUp_Rename.Width, PopUp_Rename.Height, 15, rxGuiMain);
         Image_Rename.ImageStretch;
 
-        Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, 'Rename Map', fntOutline, taCenter);
+        Label_RenameTitle := TKMLabel.Create(PopUp_Rename, 20, 50, 360, 30, gResTexts[TX_MENU_MAP_RENAME], fntOutline, taCenter);
         Label_RenameTitle.Anchors := [anLeft,anBottom];
 
         Label_RenameName := TKMLabel.Create(PopUp_Rename, 25, 100, 60, 20, gResTexts[TX_MENU_REPLAY_RENAME_NAME], fntMetal, taLeft);
@@ -730,7 +732,7 @@ begin
         or ((Radio_BuildFight.ItemIndex = 1) and (fMaps[I].MissionMode <> mmFighting)) //Fight map filter
         or ((Radio_CoopSpecial.ItemIndex = 0) and not fMaps[I].TxtInfo.IsSpecial)     //Special map filter
         or ((Radio_CoopSpecial.ItemIndex = 1) and not fMaps[I].TxtInfo.IsCoop)        //Coop map filter
-        or (TrackBar_PlayersCnt.Enabled and (fMaps[I].LocCount <> TrackBar_PlayersCnt.Position)) //Players number map filter
+        or (TrackBar_PlayersCnt.Enabled and (fMaps[I].HumanPlayerCount <> TrackBar_PlayersCnt.Position)) //Players number map filter
          then
         skipMap := True;
       for MS := MAP_SIZE_ENUM_MIN to MAP_SIZE_ENUM_MAX do
@@ -744,9 +746,9 @@ begin
         Continue;
 
       color := fMaps[I].GetLobbyColor;
-      R := MakeListRow(['', '', fMaps[I].Name, IntToStr(fMaps[I].LocCount), fMaps[I].SizeText],  //Texts
-                       ['', '', '', '', fMaps[I].Dimensions.ToString],  //Hints
-                       [color, color, color, color, color], //Colors
+      R := MakeListRow(['', '', fMaps[I].Name, IntToStr(fMaps[I].HumanPlayerCount), IntToStr(fMaps[I].LocCount), fMaps[I].SizeText],  //Texts
+                       ['', '', '', '', '', fMaps[I].Dimensions.ToString],  //Hints
+                       [color, color, color, color, color, color], //Colors
                        I);
       R.Cells[0].Pic := fMaps[I].FavouriteMapPic;
       R.Cells[0].HighlightOnMouseOver := True;
@@ -803,10 +805,14 @@ begin
           else
             SM := smByNameAsc;
       3:  if SortDirection = sdDown then
+            SM := smByHumanPlayersDesc
+          else
+            SM := smByHumanPlayersAsc;
+      4:  if SortDirection = sdDown then
             SM := smByPlayersDesc
           else
             SM := smByPlayersAsc;
-      4:  if SortDirection = sdDown then
+      5:  if SortDirection = sdDown then
             SM := smBySizeDesc
           else
             SM := smBySizeAsc;

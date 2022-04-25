@@ -60,7 +60,7 @@ type
 
     function Visible: Boolean;
     procedure Hide;
-    procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 
     procedure ShowUnitInfo(aUnit: TKMUnit; aAskDismiss: Boolean = False);
     procedure ShowGroupInfo(Sender: TKMUnitGroup; aAskDismiss: Boolean = False);
@@ -77,7 +77,8 @@ uses
   KM_System, 
   KM_Game, KM_GameInputProcess,
   KM_HandsCollection, KM_Hand, KM_HandSpectator, KM_HandTypes,
-  KM_InterfaceGame, KM_RenderUI,
+  KM_InterfaceGame, KM_InterfaceTypes,
+  KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_ResTexts, KM_ResKeys, KM_ResSound, KM_ResUnits, KM_Pics,
   KM_UnitWarrior, KM_Utils, KM_UtilsExt, KM_Defaults, KM_Sound, KM_CommonUtils,
   KM_UnitGroupTypes,
@@ -291,7 +292,7 @@ begin
 
   // We show what this individual is doing, not the whole group.
   // However this can be useful for debugging: Sender.GetOrderText
-  Label_UnitTask.Caption      := W.GetWarriorActivityText(Sender.IsAttackingUnit);
+  Label_UnitTask.Caption := W.GetWarriorActivityText(Sender.IsAttackingUnit);
 
   // While selecting target to join we could get attacked
   // Then we must cancel the dialog
@@ -442,10 +443,10 @@ begin
 
   if (Sender = Button_Army_RotCW) or (Sender = Button_Army_RotCCW) then
   begin
-    if ssShift in Shift then
+    if ssCtrl in Shift then
       rotCnt := 4
     else
-    if ssRight in Shift then
+    if RMB_SHIFT_STATES * Shift <> [] then
       rotCnt := 2
     else
       rotCnt := 1;
@@ -468,13 +469,21 @@ begin
 
   if Sender = Button_Army_ForDown then
   begin
-    gGame.GameInputProcess.CmdArmy(gicArmyFormation, group, 0, GetMultiplicator(Shift, 5));
+    // Consider LMB click + Shift as a RMB click
+    if ((ssLeft in Shift) and (ssShift in Shift)) then
+      Shift := [ssRight];
+      
+    gGame.GameInputProcess.CmdArmy(gicArmyFormation, group, 0, GetMultiplicator(Shift, RMB_ADD_ROWS_CNT));
     gSoundPlayer.PlayWarrior(group.UnitType, spFormation);
   end;
 
   if Sender = Button_Army_ForUp   then
   begin
-    gGame.GameInputProcess.CmdArmy(gicArmyFormation, group, 0, -GetMultiplicator(Shift, 5));
+    // Consider LMB click + Shift as a RMB click
+    if ((ssLeft in Shift) and (ssShift in Shift)) then
+      Shift := [ssRight];
+      
+    gGame.GameInputProcess.CmdArmy(gicArmyFormation, group, 0, -GetMultiplicator(Shift, RMB_ADD_ROWS_CNT));
     gSoundPlayer.PlayWarrior(group.UnitType, spFormation);
   end;
 
@@ -537,7 +546,7 @@ begin
 end;
 
 
-procedure TKMGUIGameUnit.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+procedure TKMGUIGameUnit.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
   if aHandled then Exit;
 

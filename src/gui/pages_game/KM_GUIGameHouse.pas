@@ -63,6 +63,7 @@ type
     procedure ShowTownHall(aHouse: TKMHouse);
     procedure ShowArmorWorkshop(aHouse: TKMHouse);
 
+    function GetEquipAmount(Shift: TShiftState): Integer;
   protected
     Panel_House: TKMPanel;
       Label_House: TKMLabel;
@@ -137,7 +138,7 @@ type
     procedure Hide;
     function Visible: Boolean;
 
-    procedure KeyUp(Key: Word; aShift: TShiftState; var aHandled: Boolean);
+    procedure KeyDown(Key: Word; aShift: TShiftState; var aHandled: Boolean);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -151,6 +152,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   KM_Game, KM_GameInputProcess, KM_Hand,
+  KM_InterfaceTypes,
   KM_HouseBarracks, KM_HouseSchool, KM_HouseTownHall, KM_HouseWoodcutters, KM_HouseStore, KM_HouseArmorWorkshop,
   KM_HandsCollection, KM_RenderUI, KM_ResKeys,
   KM_Resource, KM_ResFonts, KM_ResHouses, KM_ResTexts, KM_ResUnits, KM_Utils, KM_UtilsExt, KM_Points,
@@ -161,6 +163,9 @@ const
   HOUSE_FLAG_TEX_ID = 1159;
   HOUSE_FLAG_TEX_ID_FRAME = 5;
   HOUSE_ORDER_ROW_MOUSEWHEEL_STEP = 5;
+
+  SCHOOL_CH_ORDER_TO_0_SHIFT = ssCtrl; // Shift state to change Unit order in queue to 0 in School
+  SCHOOL_CH_ORDER_TO_1_SHIFT = ssAlt;  // Shift state to change Unit order in queue to 1 in School
 
 
 constructor TKMGUIGameHouse.Create(aParent: TKMPanel; aSetViewportEvent: TPointFEvent);
@@ -254,7 +259,7 @@ begin
 end;
 
 
-{Market page}
+// Market page
 procedure TKMGUIGameHouse.Create_HouseMarket;
 var
   I: Integer;
@@ -325,7 +330,7 @@ begin
 end;
 
 
-{Store page}
+// Store page
 procedure TKMGUIGameHouse.Create_HouseStore;
 var
   I: Integer;
@@ -353,7 +358,7 @@ begin
 end;
 
 
-{School page}
+// School page
 procedure TKMGUIGameHouse.Create_HouseSchool;
 var
   I: Integer;
@@ -396,7 +401,7 @@ begin
 end;
 
 
-{Barracks page}
+// Barracks page
 procedure TKMGUIGameHouse.Create_HouseTownhall;
 var
   dy: Integer;
@@ -827,7 +832,7 @@ end;
 procedure TKMGUIGameHouse.ShowCommonOrders(aHouse: TKMHouse; Base: Integer; var Line, RowRes: Integer);
 var
   I: Integer;
-  res: TKMWareType;
+  W: TKMWareType;
 begin
   //Show Orders
   if gResHouses[aHouse.HouseType].DoesOrders then
@@ -838,13 +843,13 @@ begin
     Inc(Line);
     for I := 1 to 4 do //Orders
     begin
-      res := gResHouses[aHouse.HouseType].ResOutput[I];
-      if gResWares[res].IsValid then
+      W := gResHouses[aHouse.HouseType].ResOutput[I];
+      if gResWares[W].IsValid then
       begin
-        WareOrderRow_Order[I].WareRow.TexID := gResWares[res].GUIIcon;
-        WareOrderRow_Order[I].WareRow.Caption := gResWares[res].Title;
-        WareOrderRow_Order[I].Hint := gResWares[res].Title;
-        WareOrderRow_Order[I].WareRow.WareCount := aHouse.CheckResOut(res);
+        WareOrderRow_Order[I].WareRow.TexID := gResWares[W].GUIIcon;
+        WareOrderRow_Order[I].WareRow.Caption := gResWares[W].Title;
+        WareOrderRow_Order[I].Hint := gResWares[W].Title;
+        WareOrderRow_Order[I].WareRow.WareCount := aHouse.CheckResOut(W);
         WareOrderRow_Order[I].OrderCount := aHouse.ResOrder[I];
         WareOrderRow_Order[I].Show;
         WareOrderRow_Order[I].Top := Base + Line * LINE_HEIGHT;
@@ -856,21 +861,21 @@ begin
     Inc(Line);
     for I := 1 to 4 do //Costs
     begin
-      res := gResHouses[aHouse.HouseType].ResOutput[I];
-      if gResWares[res].IsValid then
+      W := gResHouses[aHouse.HouseType].ResOutput[I];
+      if gResWares[W].IsValid then
       begin
-        CostsRow_Costs[I].Caption := gResWares[res].Title;
+        CostsRow_Costs[I].Caption := gResWares[W].Title;
         CostsRow_Costs[I].RX := rxGui;
         //Hide the icons when they are not used
-        if WARFARE_COSTS[res, 1] = wtNone then
+        if WARFARE_COSTS[W, 1] = wtNone then
           CostsRow_Costs[I].TexID1 := 0
         else
-          CostsRow_Costs[I].TexID1 := gResWares[WARFARE_COSTS[res, 1]].GUIIcon;
+          CostsRow_Costs[I].TexID1 := gResWares[WARFARE_COSTS[W, 1]].GUIIcon;
 
-        if WARFARE_COSTS[res, 2] = wtNone then
+        if WARFARE_COSTS[W, 2] = wtNone then
           CostsRow_Costs[I].TexID2 := 0
         else
-          CostsRow_Costs[I].TexID2 := gResWares[WARFARE_COSTS[res, 2]].GUIIcon;
+          CostsRow_Costs[I].TexID2 := gResWares[WARFARE_COSTS[W, 2]].GUIIcon;
 
         CostsRow_Costs[I].Show;
         CostsRow_Costs[I].Top := Base + Line * LINE_HEIGHT - 2*I - 6; //Pack them closer so they fit on 1024x576
@@ -971,6 +976,18 @@ begin
 
   //Show Orders
   ShowCommonOrders(aHouse, base, line, rowRes);
+end;
+
+
+function TKMGUIGameHouse.GetEquipAmount(Shift: TShiftState): Integer;
+begin
+  // We use Left Click + Shift ro order 10
+  // since its like we use it for an equip hotkey (Shift + S)
+  // and to order 100 we can use Shift + Right Click
+  if Shift = [ssLeft, ssShift] then
+    Shift := [ssRight];
+
+  Result := Min(GetMultiplicator(Shift), MAX_UNITS_TO_EQUIP);
 end;
 
 
@@ -1139,7 +1156,7 @@ begin
 end;
 
 
-procedure TKMGUIGameHouse.KeyUp(Key: Word; aShift: TShiftState; var aHandled: Boolean);
+procedure TKMGUIGameHouse.KeyDown(Key: Word; aShift: TShiftState; var aHandled: Boolean);
 begin
   if aHandled then Exit;
 
@@ -1244,7 +1261,7 @@ begin
   for I := 1 to BARRACKS_RES_COUNT do
   begin
     tmp := barracks.CheckResIn(BarracksResType[I]);
-    Button_Barracks[I].Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
+    Button_Barracks[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
     //Set highlights
     Button_Barracks[I].Down := False;
     for K := 1 to 4 do
@@ -1256,14 +1273,14 @@ begin
   end;
 
   tmp := barracks.RecruitsCount;
-  Button_BarracksRecruit.Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
+  Button_BarracksRecruit.Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
   Button_BarracksRecruit.Down := True; //Recruit is always enabled, all troops require one
   Image_Barracks_NotAcceptRecruit.Visible := barracks.NotAcceptRecruitFlag;
 
 
-  if (Sender = Button_Barracks_Left) and (ssRight in Shift) then
+  if (Sender = Button_Barracks_Left) and (RMB_SHIFT_STATES * Shift <> []) then
     fLastBarracksUnit := 0;
-  if (Sender = Button_Barracks_Right) and (ssRight in Shift) then
+  if (Sender = Button_Barracks_Right) and (RMB_SHIFT_STATES * Shift <> []) then
     fLastBarracksUnit := High(Barracks_Order);
 
   if (Sender = Button_Barracks_Left)and(fLastBarracksUnit > 0) then
@@ -1272,7 +1289,7 @@ begin
     Inc(fLastBarracksUnit);
 
   if Sender = Button_Barracks_Train then //Equip unit
-    gGame.GameInputProcess.CmdHouse(gicHouseBarracksEquip, barracks, Barracks_Order[fLastBarracksUnit], Min(GetMultiplicator(Shift), MAX_UNITS_TO_EQUIP));
+    gGame.GameInputProcess.CmdHouse(gicHouseBarracksEquip, barracks, Barracks_Order[fLastBarracksUnit], GetEquipAmount(Shift));
 
   Button_Barracks_Train.Enabled := not gGame.IsPeaceTime and barracks.CanEquip(Barracks_Order[fLastBarracksUnit]);
   Button_Barracks_Left.Enabled := fLastBarracksUnit > 0;
@@ -1320,9 +1337,9 @@ begin
   Image_TH_Right.FlagColor := gHands[townHall.Owner].FlagColor;
   Image_TH_Train.FlagColor := gHands[townHall.Owner].FlagColor;
 
-  if (Sender = Button_TH_Left) and (ssRight in Shift) then
+  if (Sender = Button_TH_Left) and (RMB_SHIFT_STATES * Shift <> []) then
     fLastTHUnit := 0;
-  if (Sender = Button_TH_Right) and (ssRight in Shift) then
+  if (Sender = Button_TH_Right) and (RMB_SHIFT_STATES * Shift <> []) then
     fLastTHUnit := High(TownHall_Order);
 
   if (Sender = Button_TH_Left) and (fLastTHUnit > 0) then
@@ -1331,8 +1348,7 @@ begin
     Inc(fLastTHUnit);
 
   if Sender = Button_TH_Train then //Equip unit
-    gGame.GameInputProcess.CmdHouse(gicHouseTownHallEquip, townHall, TownHall_Order[fLastTHUnit],
-                                    Min(GetMultiplicator(Shift), MAX_UNITS_TO_EQUIP));
+    gGame.GameInputProcess.CmdHouse(gicHouseTownHallEquip, townHall, TownHall_Order[fLastTHUnit], GetEquipAmount(Shift));
 
   Button_TH_Train.Enabled := not gGame.IsPeaceTime and townHall.CanEquip(TownHall_Order[fLastTHUnit]);
   Button_TH_Left.Enabled := fLastTHUnit > 0;
@@ -1360,10 +1376,10 @@ begin
 end;
 
 
-{Process click on Left-Train-Right buttons of School}
+// Process click on Left-Train-Right buttons of School
 procedure TKMGUIGameHouse.House_SchoolUnitChange(Sender: TObject; Shift: TShiftState);
 var
-  I: Byte;
+  I: Integer;
   school: TKMHouseSchool;
 begin
   if gMySpectator.Selected = nil then
@@ -1372,9 +1388,9 @@ begin
     Exit;
   school := TKMHouseSchool(gMySpectator.Selected);
 
-  if (ssRight in Shift) and (Sender = Button_School_Left) then
+  if (RMB_SHIFT_STATES * Shift <> []) and (Sender = Button_School_Left) then
     fLastSchoolUnit := 0;
-  if (ssRight in Shift) and (Sender = Button_School_Right) then
+  if (RMB_SHIFT_STATES * Shift <> []) and (Sender = Button_School_Right) then
     fLastSchoolUnit := High(School_Order);
 
   if (Sender = Button_School_Left) and (fLastSchoolUnit > 0) then
@@ -1385,17 +1401,17 @@ begin
   if Sender = Button_School_Train then
   begin
     // Right click - fill queue with same units
-    if (ssRight in Shift) then
+    if RMB_SHIFT_STATES * Shift <> [] then
       gGame.GameInputProcess.CmdHouse(gicHouseSchoolTrain, school, School_Order[fLastSchoolUnit], 10)
     else if (ssLeft in Shift) then
     begin
       // Left click - add Unit to queue
       gGame.GameInputProcess.CmdHouse(gicHouseSchoolTrain, school, School_Order[fLastSchoolUnit], 1);
       // If Ctrl is also pressed, then change last unit order to 0
-      if (ssCtrl in Shift) then
+      if SCHOOL_CH_ORDER_TO_0_SHIFT in Shift then
         gGame.GameInputProcess.CmdHouse(gicHouseSchoolTrainChLastUOrder, school, 0)
       // else If Alt is also pressed, then change last unit order to 1
-      else if ssAlt in Shift then
+      else if SCHOOL_CH_ORDER_TO_1_SHIFT in Shift then
         gGame.GameInputProcess.CmdHouse(gicHouseSchoolTrainChLastUOrder, school, 1);
     end;
   end;
@@ -1439,7 +1455,35 @@ begin
 end;
 
 
-{Toggle ware delivery for separate resources (wood, leather) in Armor workshop}
+// Process click on Units queue buttons of School
+procedure TKMGUIGameHouse.House_SchoolUnitQueueClick(Sender: TObject; Shift: TShiftState);
+var
+  I, id: Integer;
+  school: TKMHouseSchool;
+begin
+  school := TKMHouseSchool(gMySpectator.Selected);
+  id := TKMControl(Sender).Tag; //Item number that was clicked from the school queue
+
+  //Right click clears entire queue after this item.
+  //In that case we remove the same id repeatedly because they're automatically move along
+  if RMB_SHIFT_STATES * Shift <> [] then
+    for I := school.QueueLength - 1 downto id do
+      gGame.GameInputProcess.CmdHouse(gicHouseRemoveTrain, school, I)
+  else if SCHOOL_CH_ORDER_TO_0_SHIFT in Shift then
+    // Left click + Shift - change Unit order in queue to 0
+    gGame.GameInputProcess.CmdHouse(gicHouseSchoolTrainChOrder, school, id, 0)
+  else if SCHOOL_CH_ORDER_TO_1_SHIFT in Shift then
+    // Left click + Ctrl - change Unit order in queue to 1
+    gGame.GameInputProcess.CmdHouse(gicHouseSchoolTrainChOrder, school, id, Min(id, 1))
+  else
+    //Left click removes 1 unit from queue
+    gGame.GameInputProcess.CmdHouse(gicHouseRemoveTrain, school, id);
+
+  House_SchoolUnitChange(nil, []);
+end;
+
+
+// Toggle ware delivery for separate resources (wood, leather) in Armor workshop
 procedure TKMGUIGameHouse.House_ArmorWSDeliveryToggle(Sender: TObject);
 var
   I: Integer;
@@ -1456,36 +1500,8 @@ begin
 end;
 
 
-{Process click on Units queue buttons of School}
-procedure TKMGUIGameHouse.House_SchoolUnitQueueClick(Sender: TObject; Shift: TShiftState);
-var
-  I, id: Integer;
-  school: TKMHouseSchool;
-begin
-  school := TKMHouseSchool(gMySpectator.Selected);
-  id := TKMControl(Sender).Tag; //Item number that was clicked from the school queue
-
-  //Right click clears entire queue after this item.
-  //In that case we remove the same id repeatedly because they're automatically move along
-  if ssRight in Shift then
-    for I := school.QueueLength - 1 downto id do
-      gGame.GameInputProcess.CmdHouse(gicHouseRemoveTrain, school, I)
-  else if (ssShift in Shift) then
-    // Left click + Shift - change Unit order in queue to 0
-    gGame.GameInputProcess.CmdHouse(gicHouseSchoolTrainChOrder, school, id, 0)
-  else if ssCtrl in Shift then
-    // Left click + Ctrl - change Unit order in queue to 1
-    gGame.GameInputProcess.CmdHouse(gicHouseSchoolTrainChOrder, school, id, min(id,1))
-  else
-    //Left click removes 1 unit from queue
-    gGame.GameInputProcess.CmdHouse(gicHouseRemoveTrain, school, id);
-
-  House_SchoolUnitChange(nil, []);
-end;
-
-
-{That small red triangle blocking delivery of wares to Barracks}
-{Ware determined by Button.Tag property}
+// That small red triangle blocking delivery of wares to Barracks
+// Ware determined by Button.Tag property
 procedure TKMGUIGameHouse.House_BarracksItemClickShift(Sender: TObject; Shift: TShiftState);
 begin
   if gMySpectator.Selected = nil then
@@ -1510,8 +1526,8 @@ begin
 end;
 
 
-{That small red triangle blocking delivery of wares to Storehouse}
-{Ware determined by Button.Tag property}
+// That small red triangle blocking delivery of wares to Storehouse
+// Ware determined by Button.Tag property
 procedure TKMGUIGameHouse.House_StoreItemClickShift(Sender: TObject; Shift: TShiftState);
 begin
   if gMySpectator.Selected = nil then
@@ -1531,17 +1547,17 @@ end;
 procedure TKMGUIGameHouse.House_MarketFill(aMarket: TKMHouseMarket);
 var
   I, tmp: Integer;
-  R: TKMWareType;
+  W: TKMWareType;
 begin
   for I := 0 to STORE_RES_COUNT - 1 do
   begin
-    R := TKMWareType(Button_Market[I].Tag);
-    if aMarket.AllowedToTrade(R) then
+    W := TKMWareType(Button_Market[I].Tag);
+    if aMarket.AllowedToTrade(W) then
     begin
-      Button_Market[I].TexID := gResWares[R].GUIIcon;
-      Button_Market[I].Hint := gResWares[R].Title;
-      tmp := aMarket.GetResTotal(R);
-      Button_Market[I].Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
+      Button_Market[I].TexID := gResWares[W].GUIIcon;
+      Button_Market[I].Hint := gResWares[W].Title;
+      tmp := aMarket.GetResTotal(W);
+      Button_Market[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp, 1000)); // Convert 1234 -> '1k'
     end
     else
     begin
@@ -1551,7 +1567,7 @@ begin
     end;
 
     //Disabling buttons will let player know that he cant select new trade without canceling current one
-    Button_Market[I].Enabled := (R in [aMarket.ResFrom, aMarket.ResTo]) or not aMarket.TradeInProgress;
+    Button_Market[I].Enabled := (W in [aMarket.ResFrom, aMarket.ResTo]) or not aMarket.TradeInProgress;
   end;
 
   //Position the shape that marks the FROM ware
@@ -1633,7 +1649,7 @@ begin
   for I := 1 to STORE_RES_COUNT do
   begin
     tmp := TKMHouseStore(gMySpectator.Selected).CheckResIn(StoreResType[I]);
-    Button_Store[I].Caption := IfThen(tmp = 0, '-', IntToStr(tmp));
+    Button_Store[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
     Image_Store_NotAccept[I].Visible := TKMHouseStore(gMySpectator.Selected).NotAcceptFlag[StoreResType[I]];
     Image_Store_NotAllowTakeOut[I].Visible := TKMHouseStore(gMySpectator.Selected).NotAllowTakeOutFlag[StoreResType[I]];
   end;

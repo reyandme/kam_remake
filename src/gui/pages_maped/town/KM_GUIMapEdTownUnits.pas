@@ -131,7 +131,6 @@ end;
 
 procedure TKMMapEdTownUnits.Town_UnitChange(Sender: TObject);
 begin
-
   gCursor.Mode := cmUnits;
   gCursor.Tag1 := Byte(TKMButtonFlat(Sender).Tag);
 
@@ -152,13 +151,20 @@ procedure TKMMapEdTownUnits.Town_UnitRefresh;
 var
   I: Integer;
   B: TKMButtonFlat;
+  UT: TKMUnitType;
 begin
+  UT := utNone;
   for I := 0 to Panel_Units.ChildCount - 1 do
   if Panel_Units.Childs[I] is TKMButtonFlat then
   begin
     B := TKMButtonFlat(Panel_Units.Childs[I]);
     B.Down := (gCursor.Mode = cmUnits) and (gCursor.Tag1 = B.Tag);
+    if B.Down then
+      UT := TKMUnitType(B.Tag);
   end;
+
+  NumEd_WarrCount.Enabled := UT in UNITS_WARRIORS;
+  NumEd_WarrColumns.Enabled := NumEd_WarrCount.Enabled and (NumEd_WarrCount.Value > 0);
 end;
 
 

@@ -30,7 +30,7 @@ type
     destructor Destroy; override;
 
     procedure Activate(aWasBuilt: Boolean); override;
-    procedure DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False); override;
+    procedure Demolish(aFrom: TKMHandID; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     procedure ResTakeFromOut(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aWare: TKMWareType): Word; override;
@@ -137,7 +137,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False);
+procedure TKMHouseBarracks.Demolish(aFrom: TKMHandID; IsSilent: Boolean = False);
 var
   W: TKMWareType;
 begin

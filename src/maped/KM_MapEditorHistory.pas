@@ -552,7 +552,7 @@ begin
   for I := 0 to gHands.Count - 1 do
   begin
     for K := gHands[I].Houses.Count - 1 downto 0 do
-      gHands[I].Houses[K].DemolishHouse(I, True);
+      gHands[I].Houses[K].Demolish(I, True);
     gHands[I].Houses.Clear;
   end;
 

@@ -341,8 +341,8 @@ end;
 
 procedure TKMChart.Paint;
 const
-  IntervalCount: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
-  IntervalTime: array [0..10] of Word = (30, 1*60, 5*60, 10*60, 15*60, 30*60, 1*60*60, 2*60*60, 3*60*60, 4*60*60, 5*60*60);
+  INTERVAL_CNT: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
+  INTERVAL_TIME: array [0..10] of Word = (30, 1*60, 5*60, 10*60, 15*60, 30*60, 1*60*60, 2*60*60, 3*60*60, 4*60*60, 5*60*60);
 
 var
   G: TKMRect;
@@ -350,43 +350,43 @@ var
 
   procedure PaintAxisLabel(aTime: Integer; aIsPT: Boolean = False);
   var
-    XPos: Integer;
+    xPos: Integer;
   begin
-    XPos := G.Left + Round((aTime - fMinTime) / (fMaxTime-fMinTime) * (G.Right - G.Left));
-    TKMRenderUI.WriteShape(XPos, G.Bottom - 2, 2, 5, IfThen(aIsPT, clChartPeacetimeLn, icWhite));
-    TKMRenderUI.WriteText (XPos, G.Bottom + 4, 0, TimeToString(aTime / 24 / 60 / 60), fntGame, taLeft, IfThen(aIsPT, clChartPeacetimeLbl, icWhite));
-    TKMRenderUI.WriteLine(XPos, G.Top, XPos, G.Bottom, IfThen(aIsPT, clChartPeacetimeLn, clChartDashedVLn), $CCCC);
+    xPos := G.Left + Round((aTime - fMinTime) / (fMaxTime-fMinTime) * (G.Right - G.Left));
+    TKMRenderUI.WriteShape(xPos, G.Bottom - 2, 2, 5, IfThen(aIsPT, clChartPeacetimeLn, icWhite));
+    TKMRenderUI.WriteText (xPos, G.Bottom + 4, 0, TimeToString(aTime / 24 / 60 / 60), fntGame, taLeft, IfThen(aIsPT, clChartPeacetimeLbl, icWhite));
+    TKMRenderUI.WriteLine(xPos, G.Top, xPos, G.Bottom, IfThen(aIsPT, clChartPeacetimeLn, clChartDashedVLn), $CCCC);
     if aIsPT then
-      TKMRenderUI.WriteText(XPos - 3, G.Bottom + 4, 0, gResTexts[TX_CHART_PT_END], fntGame, taRight, clChartPeacetimeLbl);
+      TKMRenderUI.WriteText(xPos - 3, G.Bottom + 4, 0, gResTexts[TX_CHART_PT_END], fntGame, taRight, clChartPeacetimeLbl);
   end;
 
   procedure RenderHorizontalAxisTicks;
   var
-    I, Best: Integer;
+    I, best: Integer;
   begin
     //Find first time interval that will have less than 10 ticks
-    Best := 0;
-    for I := Low(IntervalTime) to High(IntervalTime) do
-      if (fMaxTime-fMinTime) div IntervalTime[I] < 7 then
+    best := 0;
+    for I := Low(INTERVAL_TIME) to High(INTERVAL_TIME) do
+      if (fMaxTime-fMinTime) div INTERVAL_TIME[I] < 7 then
       begin
-        Best := IntervalTime[I];
+        best := INTERVAL_TIME[I];
         Break;
       end;
 
     //Paint time axis labels
-    if (Best <> 0) and (fMaxTime <> fMinTime) then
+    if (best <> 0) and (fMaxTime <> fMinTime) then
       if (fPeaceTime <> 0) and InRange(fPeaceTime, fMinTime, fMaxTime) then
       begin
         //Labels before PT and PT himself
-        for I := 0 to ((fPeaceTime - fMinTime) div Best) do
-          PaintAxisLabel(fPeaceTime - I * Best, I = 0);
+        for I := 0 to ((fPeaceTime - fMinTime) div best) do
+          PaintAxisLabel(fPeaceTime - I * best, I = 0);
 
         //Labels after PT
-        for I := 1 to ((fMaxTime - fPeaceTime) div Best) do
-          PaintAxisLabel(fPeaceTime + I * Best);
+        for I := 1 to ((fMaxTime - fPeaceTime) div best) do
+          PaintAxisLabel(fPeaceTime + I * best);
       end else
-        for I := Ceil(fMinTime / Best) to (fMaxTime div Best) do
-          PaintAxisLabel(I * Best);
+        for I := Ceil(fMinTime / best) to (fMaxTime div best) do
+          PaintAxisLabel(I * best);
   end;
 
   function GetLineColor(aColor: Cardinal): Cardinal;
@@ -403,61 +403,61 @@ var
   const
     MARKS_FONT: TKMFont = fntGrey;
   var
-    I, J, S, CheckSize, XPos, YPos, Height: Integer;
-    TitleDetailedH: Integer;
-    NewColor: TColor4;
+    I, J, S, checkSize, xPos, yPos, height: Integer;
+    titleDetailedH: Integer;
+    newColor: TColor4;
   begin
-    CheckSize := gRes.Fonts[MARKS_FONT].GetTextSize('v').Y + 1;
+    checkSize := gRes.Fonts[MARKS_FONT].GetTextSize('v').Y + 1;
     S := 0;
-    XPos := G.Right + 10;
-    YPos := G.Top + 8 + 20*Byte(fLegendCaption <> '');
+    xPos := G.Right + 10;
+    yPos := G.Top + 8 + 20*Byte(fLegendCaption <> '');
 
-    TitleDetailedH := 0;
+    titleDetailedH := 0;
     //Charts and legend
     for I := 0 to fCount - 1 do
     begin
-      NewColor := GetLineColor(fLines[I].Color);
+      newColor := GetLineColor(fLines[I].Color);
 
       if (csOver in State) and (I = fLineOver) then
-        NewColor := clChartHighlight;
+        newColor := clChartHighlight;
 
       //Charts
       if fLines[I].Visible then
       begin
-        TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, topValue, NewColor, 2);
+        TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, topValue, newColor, 2);
         if Length(fLines[I].ValuesAlt) > 0 then
-          TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].ValuesAlt, topValue, NewColor, 1);
+          TKMRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].ValuesAlt, topValue, newColor, 1);
       end;
 
       if SeparatorPos[S] = I then
       begin
-        Inc(YPos, fSeparatorHeight);
+        Inc(yPos, fSeparatorHeight);
         Inc(S);
       end;
 
       //Checkboxes
-      TKMRenderUI.WriteBevel(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, 0.3);
-      TKMRenderUI.WriteOutline(XPos, YPos, CheckSize - 4, CheckSize - 4, 1, clChkboxOutline);
+      TKMRenderUI.WriteBevel(xPos, yPos, checkSize - 4, checkSize - 4, 1, 0.3);
+      TKMRenderUI.WriteOutline(xPos, yPos, checkSize - 4, checkSize - 4, 1, clChkboxOutline);
       if fLines[I].Visible then
-        TKMRenderUI.WriteText(XPos + (CheckSize-4) div 2, YPos - 1, 0, 'v', MARKS_FONT, taCenter, NewColor);
+        TKMRenderUI.WriteText(xPos + (checkSize-4) div 2, yPos - 1, 0, 'v', MARKS_FONT, taCenter, newColor);
 
       //Legend
-      TKMRenderUI.WriteText(XPos + CheckSize, YPos, 0, fLines[I].Title, fntGame, taLeft, NewColor);
-      Inc(YPos, fItemHeight);
+      TKMRenderUI.WriteText(xPos + checkSize, yPos, 0, fLines[I].Title, fntGame, taLeft, newColor);
+      Inc(yPos, fItemHeight);
 
       //Detailed legend
       for J := Low(fLines[I].TitleDetailed) to High(fLines[I].TitleDetailed) do
       begin
-        TKMRenderUI.WriteText(XPos + CheckSize + 5, YPos, 0, fLines[I].TitleDetailed[J], fntGrey, taLeft, GetLineColor(fLines[I].TitleDetailedColor[J]));
-        Inc(YPos, fItemHeight);
-        Inc(TitleDetailedH, fItemHeight);
+        TKMRenderUI.WriteText(xPos + checkSize + 5, yPos, 0, fLines[I].TitleDetailed[J], fntGrey, taLeft, GetLineColor(fLines[I].TitleDetailedColor[J]));
+        Inc(yPos, fItemHeight);
+        Inc(titleDetailedH, fItemHeight);
       end;
     end;
 
     //Legend title and outline
-    Height := fItemHeight*fCount + TitleDetailedH + 6 + 20*Byte(fLegendCaption <> '') + fSeparatorPositions.Count*fSeparatorHeight;
-    TKMRenderUI.WriteShape(G.Right + 5, G.Top, fLegendWidth, Height, icDarkestGrayTrans);
-    TKMRenderUI.WriteOutline(G.Right + 5, G.Top, fLegendWidth, Height, 1, icGray);
+    height := fItemHeight*fCount + titleDetailedH + 6 + 20*Byte(fLegendCaption <> '') + fSeparatorPositions.Count*fSeparatorHeight;
+    TKMRenderUI.WriteShape(G.Right + 5, G.Top, fLegendWidth, height, icDarkestGrayTrans);
+    TKMRenderUI.WriteOutline(G.Right + 5, G.Top, fLegendWidth, height, 1, icGray);
     if fLegendCaption <> '' then
       TKMRenderUI.WriteText(G.Right + 5, G.Top + 4, fLegendWidth, fLegendCaption, fntMetal, taCenter, icWhite);
   end;
@@ -475,10 +475,10 @@ begin
 
   //Find first interval that will have less than 10 ticks
   best := 0;
-  for I := Low(IntervalCount) to High(IntervalCount) do
-    if topValue div IntervalCount[I] < 10 then
+  for I := Low(INTERVAL_CNT) to High(INTERVAL_CNT) do
+    if topValue div INTERVAL_CNT[I] < 10 then
     begin
-      best := IntervalCount[I];
+      best := INTERVAL_CNT[I];
       Break;
     end;
 

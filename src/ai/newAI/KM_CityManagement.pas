@@ -656,7 +656,7 @@ begin
           gAIFields.Influences.RemAvoidBuilding(KMRect(Loc.X-3, Loc.Y-3, Loc.X+4, Loc.Y+2));
         // Mark house plan as exhausted
         Builder.Planner.MarkAsExhausted(H.HouseType, Loc);
-        H.DemolishHouse(fOwner);
+        H.Demolish(fOwner);
       end;
     end;
   end;

@@ -1592,6 +1592,10 @@ object FormMain: TFormMain
         Caption = 'Save settings'
         OnClick = SaveSettingsClick
       end
+      object mnOpenSettingsDir: TMenuItem
+        Caption = 'Open settings folder'
+        OnClick = mnOpenSettingsDirClick
+      end
       object N7: TMenuItem
         Caption = '-'
       end

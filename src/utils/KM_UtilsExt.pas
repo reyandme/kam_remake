@@ -12,16 +12,22 @@ uses
   {$ENDIF}
   ;
 
+const
+  DEF_K_LIMIT = 10000;
+
+
   function GetShiftState(aButton: TMouseButton): TShiftState;
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
   function GetMultiplicator(aShift: TShiftState; const aMultiplier: Integer = 10): Word; overload;
+  function IntToKStr(const aValue: Integer; aLimit: Integer = DEF_K_LIMIT): String;
 
 
 implementation
-//uses
+uses
+  SysUtils,
+  KM_Defaults;
 //  {$IFDEF FPC} FileUtil, {$ENDIF}
-//  {$IFDEF WDC} IOUtils {$ENDIF};
-
+//  {$IFDEF WDC} IOUtils {$ENDIF};   const
 
 function GetShiftState(aButton: TMouseButton): TShiftState;
 begin
@@ -49,6 +55,16 @@ begin
           + Byte(aShift = [ssRight]) * aMultiplier
           + Byte(aShift = [ssShift,ssLeft]) * aMultiplier * aMultiplier
           + Byte(aShift = [ssShift,ssRight]) * aMultiplier * aMultiplier * aMultiplier;
+end;
+
+
+// 10123 -> '10k'
+function IntToKStr(const aValue: Integer; aLimit: Integer = DEF_K_LIMIT): String;
+begin
+  if SHOW_RES_CNT_K_FOR_10000 and (aValue >= aLimit) then
+    Result := IntToStr(aValue div 1000) + 'k'
+  else
+    Result := IntToStr(aValue);
 end;
 
 

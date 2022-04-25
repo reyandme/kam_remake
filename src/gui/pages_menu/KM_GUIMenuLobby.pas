@@ -530,8 +530,8 @@ begin
         DropBox_Colors[I].DropCount := 13;
         DropBox_Colors[I].FadeImageWhenDisabled := False;
         DropBox_Colors[I].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
-        for K := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
-          DropBox_Colors[I].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxGuiMain, 30)]));
+        for K := Low(MP_PLAYER_COLORS) to High(MP_PLAYER_COLORS) do
+          DropBox_Colors[I].Add(MakeListRow([''], [MP_PLAYER_COLORS[K]], [MakePic(rxGuiMain, 30)]));
         DropBox_Colors[I].OnChange := PlayersSetupChange;
 
         Image_Ready[I] := TKMImage.Create(Panel_Players, C5-8, offY, 16, 16, 32, rxGuiMain);
@@ -728,6 +728,7 @@ begin
     Edit_Password := TKMEdit.Create(Panel_Settings, 20, 120, SET_W - 40, 20, fntGrey);
     Edit_Password.AllowedChars := acANSI7; //Passwords are basic ANSI so everyone can type them
     Checkbox_RememberPassword := TKMCheckbox.Create(Panel_Settings, 20, 153, SET_W - 20, 30, gResTexts[TX_LOBBY_REMEMBER_PASSWORD], fntGrey);
+    Checkbox_RememberPassword.Hint := gResTexts[TX_LOBBY_SETTINGS_SAVE_PWD];
 
     Button_SettingsResetBans := TKMButton.Create(Panel_Settings, 20, 180, SET_W - 40, 30, gResTexts[TX_LOBBY_RESET_BANS], bsMenu);
     Button_SettingsUseLastPassword := TKMButton.Create(Panel_Settings, 20, 220, SET_W - 40, 30, gResTexts[TX_LOBBY_USE_LAST_PASSWORD], bsMenu);
@@ -1829,7 +1830,7 @@ begin
 
       colorID := FindMPColor(curPlayer.FlagColor);
       // Reset color to random, in case our color was too close to AI only locs colors
-      if (colorID <> 0) and IsColorCloseToColors(MP_TEAM_COLORS[colorID], aiOnlyColors, MIN_PLAYER_COLOR_DIST) then
+      if (colorID <> 0) and IsColorCloseToColors(MP_PLAYER_COLORS[colorID], aiOnlyColors, MIN_PLAYER_COLOR_DIST) then
         colorID := 0;
       
       if (gNetworking.SelectGameKind <> ngkMap)
@@ -1844,9 +1845,9 @@ begin
         freeColorsCnt := 0;
         for K := 0 to DropBox_Colors[I].List.RowCount - 1 do
           if (K <> colorID) and (K <> 0)
-          and (not gNetworking.NetPlayers.ColorAvailable(MP_TEAM_COLORS[K])
+          and (not gNetworking.NetPlayers.ColorAvailable(MP_PLAYER_COLORS[K])
                or ((gNetworking.SelectGameKind = ngkSave) and gNetworking.SaveInfo.GameInfo.ColorUsed(K))
-               or IsColorCloseToColors(MP_TEAM_COLORS[K], aiOnlyColors, MIN_PLAYER_COLOR_DIST)) then // Disable for AIOnly locs color (close to them)
+               or IsColorCloseToColors(MP_PLAYER_COLORS[K], aiOnlyColors, MIN_PLAYER_COLOR_DIST)) then // Disable for AIOnly locs color (close to them)
             DropBox_Colors[I].List.Rows[K].Cells[0].Enabled := False
           else
           begin
@@ -2944,6 +2945,7 @@ begin
   begin
     Edit_Description.Text := gNetworking.Description;
     Edit_Password.Text := UnicodeString(gNetworking.Password);
+    Button_SettingsUseLastPassword.Enabled := Trim(gGameSettings.LastPassword) <> '';
     Panel_Settings.Show;
   end;
 
@@ -2961,9 +2963,7 @@ begin
     Edit_Password.Text := gGameSettings.LastPassword;
 
   if Sender = Button_SettingsCancel then
-  begin
     Panel_Settings.Hide;
-  end;
 
   if Sender = Button_SettingsSave then
   begin

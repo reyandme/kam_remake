@@ -772,7 +772,7 @@
 820:Skórzana
 821:Mieszana
 822:Pobrane mapy
-823:Uwaga: pierwszy "powtarzany" atak wyśle wszystkie jednostki gracza SI. Inaczej będzie w przypadku każdego następnego ataku "powtarzanego" (jak również ataku "pojedynczego"), gdzie wysłane będzie tyle grup wojska, aby przekroczyć "Minimalną ilość atakujących jednostek".
+823:Uwaga: pierwszy "powtarzany" atak wyśle wszystkie jednostki, które gracz SI trzyma na ofensywnych posterunkach. Inaczej będzie w przypadku każdego następnego ataku "powtarzanego" (jak również ataku "pojedynczego"), gdzie wysłane będzie tyle grup wojska, aby przekroczyć "Minimalną ilość atakujących jednostek"
 824:Przenieś
 825:Zobacz plik PDF
 826:Nie można uruchomić przeglądarki PDF

@@ -5519,6 +5519,7 @@ end;
 
 //* Version: 7000+
 //* Returns true if target Group is assigned to the Defence Position at coordinates X, Y
+//* if X = -1, or Y = -1, then those coordinates does not used to filter defence position
 //* Result: Group assigned to Defence position
 function TKMScriptStates.GroupAssignedToDefencePosition(aGroupID, X, Y: Integer): Boolean;
 var
@@ -5537,13 +5538,13 @@ begin
         begin
           DPNewAI := gHands[G.Owner].AI.ArmyManagement.Defence.FindPositionOf(G);
           if DPNewAI <> nil then
-            Result := (DPNewAI.Position.Loc.X = X) and (DPNewAI.Position.Loc.Y = Y);
+            Result := ((DPNewAI.Position.Loc.X = X) or (X = -1)) and ((DPNewAI.Position.Loc.Y = Y) or (Y = -1));
         end
         else
         begin
           DP := gHands[G.Owner].AI.General.DefencePositions.FindPositionOf(G);
           if DP <> nil then
-              Result := (DP.Position.Loc.X = X) and (DP.Position.Loc.Y = Y)
+            Result := ((DP.Position.Loc.X = X) or (X = -1)) and ((DP.Position.Loc.Y = Y) or (Y = -1));
         end;
       end;
     end

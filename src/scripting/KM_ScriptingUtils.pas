@@ -87,7 +87,7 @@ type
 
     function Sqr(A: Extended): Extended;
 
-    function StringReplace(const Str, OldPattern, NewPattern: string; Flags: TReplaceFlags): String;
+    function StringReplace(const Str, OldPattern, NewPattern: string; aReplaceAll, aIgnoreCase: Boolean): String;
 
     function SumI(aArray: array of Integer): Integer;
     function SumS(aArray: array of Single): Single;
@@ -961,20 +961,24 @@ end;
 
 
 //* Version: 11750
-//* Replaces the first or all occurences of a substring OldPattern in Str string with NewPattern according to Flags settings
+//* Replaces the first or all occurences of a substring OldPattern in Str string with NewPattern according to additional settings
 //* The changed string is returned as Result
-//* The Flags may be none, one, or both of these set values:
-//* rfReplaceAll: Change all occurrences
-//* rfIgnoreCase: Ignore case when searching
-function TKMScriptUtils.StringReplace(const Str, OldPattern, NewPattern: String; Flags: TReplaceFlags): String;
+//* The settings may be none, one, or both of these values:
+//* aReplaceAll: Change all occurrences
+//* aIgnoreCase: Ignore case when searching
+function TKMScriptUtils.StringReplace(const Str, OldPattern, NewPattern: String; aReplaceAll, aIgnoreCase: Boolean): String;
+var
+  flags: TReplaceFlags;
 begin
-  { Stub for Scripting Parser to parse:
-  //* Flags for string replacement operations
-  TReplaceFlags = set of (rfReplaceAll, rfIgnoreCase);
-  }
-
   try
-    Result := SysUtils.StringReplace(Str, OldPattern, NewPattern, Flags);
+    flags := [];
+    if aReplaceAll then
+      flags := flags + [rfReplaceAll];
+
+    if aIgnoreCase then
+      flags := flags + [rfIgnoreCase];
+
+    Result := SysUtils.StringReplace(Str, OldPattern, NewPattern, flags);
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;

@@ -882,7 +882,7 @@ begin
         if offender = nil then
           offender := fOffenders[KaMRandom(fOffenders.Count, 'TKMUnitGroup.CheckForFight')];
 
-        fMembers[I].OrderWalk(offender.NextPosition, False);
+        fMembers[I].OrderWalk(offender.PositionNext, False);
         // Set warrior attacking some offender, to avoid switching to another offender
         fMembers[I].SetAttackingUnit(offender);
       end;
@@ -986,7 +986,7 @@ begin
                         if (OrderTargetUnit <> nil) and not IsAllyTo(OrderTargetUnit) then //Target could become ally from script
                         begin
                           //See if target is escaping
-                          if not KMSamePoint(OrderTargetUnit.NextPosition, fOrderLoc.Loc) then
+                          if not KMSamePoint(OrderTargetUnit.PositionNext, fOrderLoc.Loc) then
                           begin
                             Inc(fTargetFollowTicker);
                             //It's wasteful to run pathfinding to correct route every step of the way, so if the target unit
@@ -1285,10 +1285,10 @@ begin
     begin
       nodeList := TKMPointList.Create;
       try
-        if gGame.Pathfinding.Route_Make(fMembers[0].Position, OrderTargetUnit.NextPosition, [tpWalk], fMembers[0].GetFightMaxRange, nil, nodeList) then
+        if gGame.Pathfinding.Route_Make(fMembers[0].Position, OrderTargetUnit.PositionNext, [tpWalk], fMembers[0].GetFightMaxRange, nil, nodeList) then
         begin
           fOrderLoc.Loc := nodeList[nodeList.Count-1];
-          fOrderLoc.Dir := KMGetDirection(nodeList[nodeList.Count-1], OrderTargetUnit.NextPosition);
+          fOrderLoc.Dir := KMGetDirection(nodeList[nodeList.Count-1], OrderTargetUnit.PositionNext);
           HungarianReorderMembers; //We are about to get them to walk to fOrderLoc
         end
         else
@@ -1305,7 +1305,7 @@ begin
     else
     begin
       fOrderLoc.Loc := fMembers[0].Position; //Leader is already within range
-      fOrderLoc.Dir := KMGetDirection(fMembers[0].Position, OrderTargetUnit.NextPosition);
+      fOrderLoc.Dir := KMGetDirection(fMembers[0].Position, OrderTargetUnit.PositionNext);
     end;
 
     //Next assign positions for each member (including leader)
@@ -1314,8 +1314,8 @@ begin
       //Check target in range, and if not - chase it / back up from it
       P := GetMemberLocExact(I);
       if not KMSamePoint(fMembers[I].Position, P.Loc)
-        and((KMLength(fMembers[I].NextPosition, OrderTargetUnit.Position) > fMembers[I].GetFightMaxRange)
-        or (KMLength(fMembers[I].NextPosition, OrderTargetUnit.Position) < fMembers[I].GetFightMinRange)) then
+        and((KMLength(fMembers[I].PositionNext, OrderTargetUnit.Position) > fMembers[I].GetFightMaxRange)
+        or (KMLength(fMembers[I].PositionNext, OrderTargetUnit.Position) < fMembers[I].GetFightMinRange)) then
       begin
         //Too far/close. Walk to the enemy in formation
         fMembers[I].OrderWalk(P.Loc, P.Exact, aForced);
@@ -1324,7 +1324,7 @@ begin
       else
         if not fMembers[I].IsIdle then
         begin
-          fMembers[I].OrderWalk(fMembers[I].NextPosition, True, aForced); //We are at the right spot already, just need to abandon what we are doing
+          fMembers[I].OrderWalk(fMembers[I].PositionNext, True, aForced); //We are at the right spot already, just need to abandon what we are doing
           fMembers[I].FaceDir := fOrderLoc.Dir;
         end
         else
@@ -1343,7 +1343,7 @@ begin
   begin
     //Walk in formation towards enemy,
     //Members will take care of attack when we approach
-    OrderWalk(aUnit.NextPosition, False, wtokNone, dirNA, aForced);
+    OrderWalk(aUnit.PositionNext, False, wtokNone, dirNA, aForced);
 
     // Set members to as 'attacking enemy unit', since we are going to attack it
     for I := 0 to Count - 1 do
@@ -1351,7 +1351,7 @@ begin
 
     //Revert Order to proper one (we disguise Walk)
     SetGroupOrder(goAttackUnit);
-    fOrderLoc := KMPointDir(aUnit.NextPosition, dirNA); //Remember where unit stand
+    fOrderLoc := KMPointDir(aUnit.PositionNext, dirNA); //Remember where unit stand
     OrderTargetUnit := aUnit;
   end;
 
@@ -1407,11 +1407,11 @@ begin
     goNone:         if not KMSamePoint(fOrderLoc.Loc, KMPOINT_ZERO) then
                       OrderWalk(fOrderLoc.Loc, False, wtokHaltOrder, dirNA, aForced)
                     else
-                      OrderWalk(fMembers[0].NextPosition, False, wtokHaltOrder, dirNA, aForced);
-    goWalkTo:       OrderWalk(fMembers[0].NextPosition, False, wtokHaltOrder, dirNA, aForced);
-    goAttackHouse:  OrderWalk(fMembers[0].NextPosition, False, wtokHaltOrder, dirNA, aForced);
-    goAttackUnit:   OrderWalk(fMembers[0].NextPosition, False, wtokHaltOrder, dirNA, aForced);
-    goStorm:        OrderWalk(fMembers[0].NextPosition, False, wtokHaltOrder, dirNA, aForced);
+                      OrderWalk(fMembers[0].PositionNext, False, wtokHaltOrder, dirNA, aForced);
+    goWalkTo:       OrderWalk(fMembers[0].PositionNext, False, wtokHaltOrder, dirNA, aForced);
+    goAttackHouse:  OrderWalk(fMembers[0].PositionNext, False, wtokHaltOrder, dirNA, aForced);
+    goAttackUnit:   OrderWalk(fMembers[0].PositionNext, False, wtokHaltOrder, dirNA, aForced);
+    goStorm:        OrderWalk(fMembers[0].PositionNext, False, wtokHaltOrder, dirNA, aForced);
   end;
 end;
 

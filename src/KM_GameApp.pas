@@ -129,7 +129,7 @@ type
     property GlobalTickCount: Cardinal read fGlobalTickCount;
     property Chat: TKMChat read fChat;
 
-    procedure KeyDown(Key: Word; Shift: TShiftState);
+    procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean);
     procedure KeyPress(Key: Char);
     procedure KeyUp(Key: Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
@@ -166,6 +166,7 @@ uses
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KM_FormLogistics,
   KM_Main, KM_Controls, KM_Log, KM_Sound, KM_GameInputProcess, KM_GameInputProcess_Multi,
+  KM_HandsCollection,
   KM_GameSavePoints,
   KM_Cursor, KM_ResTexts, KM_ResKeys,
   KM_IoGraphicUtils, KM_Settings,
@@ -378,7 +379,8 @@ begin
 end;
 
 
-procedure TKMGameApp.KeyDown(Key: Word; Shift: TShiftState);
+// This event happens every ~33ms if the Key is Down and holded
+procedure TKMGameApp.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean);
 var
   keyHandled: Boolean;
 begin
@@ -389,9 +391,9 @@ begin
   end;
 
   if gGame <> nil then
-    gGame.ActiveInterface.KeyDown(Key, Shift, keyHandled)
+    gGame.ActiveInterface.KeyDown(Key, Shift, aIsFirst, keyHandled)
   else
-    fMainMenuInterface.KeyDown(Key, Shift, keyHandled);
+    fMainMenuInterface.KeyDown(Key, Shift, aIsFirst, keyHandled);
 end;
 
 
@@ -555,6 +557,10 @@ end;
 
 procedure TKMGameApp.CreateGame(aGameMode: TKMGameMode);
 begin
+  //Reset controls if MainForm exists (KMR could be run without main form)
+  if gMain <> nil then
+    gMain.FormMain.ControlsReset;
+
   gGame := TKMGame.Create(aGameMode, gRender, GameDestroyed,
                           fSaveWorkerThreadHolder,
                           fBaseSaveWorkerThreadHolder,
@@ -710,10 +716,6 @@ begin
   StopGame(grSilent); //Stop everything silently
   LoadGameAssets;
 
-  //Reset controls if MainForm exists (KMR could be run without main form)
-  if gMain <> nil then
-    gMain.FormMain.ControlsReset;
-
   CreateGame(aGameMode);
   try
     gGame.LoadFromFile(filePath, aGIPPath);
@@ -754,10 +756,6 @@ begin
   //!!!!! ------------------------------------------------------------
   StopGame(grSilent); //Stop everything silently
   LoadGameAssets;
-
-  //Reset controls if MainForm exists (KMR could be run without main form)
-  if gMain <> nil then
-    gMain.FormMain.ControlsReset;
 
   CreateGame(aGameMode);
   try
@@ -812,10 +810,6 @@ begin
   StopGame(grSilent); //Stop everything silently
   LoadGameAssets;
 
-  //Reset controls if MainForm exists (KMR could be run without main form)
-  if gMain <> nil then
-    gMain.FormMain.ControlsReset;
-
   CreateGame(gameMode);
   try
     // SavedReplays have been just created, and we will reassign them in the next line.
@@ -859,10 +853,6 @@ var
 begin
   StopGame(grSilent); //Stop everything silently
   LoadGameAssets;
-
-  //Reset controls if MainForm exists (KMR could be run without main form)
-  if gMain <> nil then
-    gMain.FormMain.ControlsReset;
 
   CreateGame(aGameMode);
   gGame.SetSeed(4); //Every time the game will be the same as previous. Good for debug.
@@ -1077,11 +1067,14 @@ end;
 
 procedure TKMGameApp.GameStarted(aGameMode: TKMGameMode);
 begin
+  Assert(gGame <> nil);
+
   if gMain <> nil then
   begin
     gMain.FormMain.SetExportGameStats(aGameMode in [gmMultiSpectate, gmReplaySingle, gmReplayMulti]);
     gMain.FormMain.SetSaveEditableMission(aGameMode = gmMapEd);
     gMain.FormMain.SetSaveGameWholeMapImage(True);
+    gMain.FormMain.SetMySpecHandIndex(gMySpectator.HandID);
   end;
 
   if Assigned(FormLogistics) then

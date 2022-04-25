@@ -28,7 +28,7 @@ type
     constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
-    procedure DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False); override;
+    procedure Demolish(aFrom: TKMHandID; IsSilent: Boolean = False); override;
     procedure ResAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     function AddUnitToQueue(aUnit: TKMUnitType; aCount: Integer): Byte; //Should add unit to queue if there's a place
     procedure ChangeUnitTrainOrder(aNewPosition: Integer); overload; //Change last unit in queue training order
@@ -85,7 +85,7 @@ end;
 
 
 //Remove all queued units first, to avoid unnecessary shifts in queue
-procedure TKMHouseSchool.DemolishHouse(aFrom: TKMHandID; IsSilent: Boolean = False);
+procedure TKMHouseSchool.Demolish(aFrom: TKMHandID; IsSilent: Boolean = False);
 var
   I: Integer;
 begin

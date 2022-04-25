@@ -140,7 +140,7 @@ TX_MUSIC_PLAYER = 124; //Music Player
 TX_MUSIC_PREV_HINT = 125; //Previous track
 TX_MUSIC_NEXT_HINT = 126; //Next track
 TX_BUILD_DEMOLISH = 127; //Demolish
-TX_BUILD_CANCEL_HINT = 128; //Remove buildings/plans
+TX_BUILD_CANCEL_HINT = 128; //Remove buildings/plans|Hold Shift and Ctrl to delete buildings without confirmation
 TX_BUILD_ROAD = 129; //Construct road
 TX_BUILD_ROAD_HINT = 130; //Construct roads
 TX_BUILD_FIELD = 131; //Plough field
@@ -157,28 +157,26 @@ TX_HOUSE_DEMOLISH = 143; //Do you really want to|demolish this building?
 TX_HOUSE_DEMOLISH_YES_HINT = 144; //Destroy selected building
 TX_HOUSE_ORDER_DEC_HINT = 145; //Decrease order amount
 TX_HOUSE_ORDER_INC_HINT = 146; //Increase order amount
-TX_HOUSE_BARRACKS_PREV_HINT = 147; //Previous soldier type
-TX_HOUSE_BARRACKS_NEXT_HINT = 148; //Next soldier type
+TX_HOUSE_BARRACKS_PREV_HINT = 147; //Previous soldier type. Use Shift to get to the first soldier type
+TX_HOUSE_BARRACKS_NEXT_HINT = 148; //Next soldier type. Use Shift to get to the last soldier type
 TX_HOUSE_BARRACKS_TRAIN_HINT = 149; //Equip current soldier type
-TX_HOUSE_BARRACKS_TRAIN_DISABLED_HINT = 706; //This soldier type is not available
-TX_HOUSE_SCHOOL_NEXT_HINT = 150; //Next profession
-TX_HOUSE_SCHOOL_PREV_HINT = 151; //Previous profession
-TX_HOUSE_SCHOOL_TRAIN_HINT = 152; //Add to queue. Use RMB, Shift or Ctrl to modify the queue
-TX_HOUSE_SCHOOL_TRAIN_DISABLED_HINT = 707; //This unit type is not available
-TX_HOUSE_TOGGLE_DELIVERS_HINT = 153; //Switch between delivery modes of wares: demand / closed / offer. Use LMB / RMB to switch forward/backward
+TX_HOUSE_SCHOOL_NEXT_HINT = 150; //Next profession. Use Shift to get to the last profession
+TX_HOUSE_SCHOOL_PREV_HINT = 151; //Previous profession. Use Shift to get to the first profession
+TX_HOUSE_SCHOOL_TRAIN_HINT = 152; //Add to queue.|Use RMB, Ctrl or Alt to modify the queue and Shift to fill it
+TX_HOUSE_TOGGLE_DELIVERS_HINT = 153; //Switch between delivery modes of wares: demand / closed / offer|Use LMB / RMB to switch forward / backward
 
 TX_HOUSE_WARE_COSTS = 154; //Cost:
 TX_HOUSE_TOGGLE_REPAIR_HINT = 155; //Switch on/off house repair
 TX_HOUSE_NOT_AVAILABLE = 156; //Building not available at this time
 TX_UNIT_CONDITION = 157; //Condition
-TX_ARMY_ROTATE_CCW_HINT = 158; //Turn troop left
-TX_ARMY_ROTATE_CW_HINT = 159; //Turn troop right
+TX_ARMY_ROTATE_CCW_HINT = 158; //Turn troop left|Click RMB or press Shift to turn 90 degrees, press Ctrl to turn 180 degrees
+TX_ARMY_ROTATE_CW_HINT = 159; //Turn troop right|Click RMB or press Shift to turn 90 degrees, press Ctrl to turn 180 degrees
 TX_ARMY_ATTACK_HINT = 160; //Attack
 TX_ARMY_GOTO_HINT = 161; //Dispatch troop
 TX_ARMY_FEED_HINT = 162; //Supply troop with food
 TX_ARMY_STORM_HINT = 163; //Start storm attack
-TX_ARMY_LINE_ADD_HINT = 164; //Add line
-TX_ARMY_LINE_REM_HINT = 165; //Withdraw line
+TX_ARMY_LINE_ADD_HINT = 164; //Add line|Click RMB or press Shift to add 5 lines
+TX_ARMY_LINE_REM_HINT = 165; //Withdraw line|Click RMB or press Shift to withdraw 5 lines
 TX_ARMY_JOIN_SELECT = 166; //Select|group
 TX_ARMY_JOIN_CANCEL = 167; //Cancel
 TX_MSG_DELETE = 168; //Delete
@@ -192,7 +190,6 @@ TX_MSG_COAL_DEPLETED = 175; //Your coal mine seams are exhausted.
 TX_MSG_IRON_DEPLETED = 176; //Your iron mine veins are exhausted.
 TX_MSG_GOLD_DEPLETED = 177; //Your gold mine veins are exhausted.
 TX_MSG_WOODCUTTER_DEPLETED = 178; //Your woodcutter cannot find any further trees to fell
-TX_MSG_WOODCUTTER_PLANT_DEPLETED = 1022; //Your woodcutter cannot find any free place to plant a tree
 TX_MSG_HOUSE_UNOCCUPIED = 179; //This house is not occupied.
 TX_MSG_ORDER_COMPLETED = 829; //The order has been completed
 TX_MSG_TROOP_HUNGRY = 180; //This troop is really hungry, they better get something to eat soon!
@@ -221,12 +218,6 @@ TX_UNIT_TASK_GRAPES = 201; //Harvesting grapes
 TX_UNIT_TASK_FISHING = 202; //Fishing
 TX_UNIT_TASK_CUT_TREE = 203; //Cutting tree
 TX_UNIT_TASK_PLANT_TREE = 204; //Planting tree
-TX_UNIT_TASK_DISMISS = 1139; //Retiring
-TX_UNIT_TASK_DISMISS_BTN = 1140; //Dismiss
-TX_UNIT_TASK_DISMISS_CONFIRMATION = 1141; //Do you really want to dismiss this unit?|He will go to school and leave your town forever
-TX_UNIT_TASK_DISMISS_HINT = 1142; //Dismiss unit
-TX_UNIT_TASK_DISMISS_CANCEL_HINT = 1143; //Cancel unit dismiss
-TX_UNIT_TASK_DISMISS_NOSCHOOLS_HINT = 1144; //Dismiss is not available because of lack of schools in your town
 
 TX_MUSIC__29 = 205; //Spirit
 TX_MUSIC_BUSY = 206; //Busy
@@ -254,7 +245,6 @@ TX_MUSIC_JOURNEY = 226; //Journey
 TX_MENU_CAMPAIGNS = 227; //Campaigns
 TX_MENU_CAMP_HEADER = 228; //Campaigns
 TX_MENU_CAMP_START = 229; //Start Campaign!
-TX_MENU_CAMP_HINT = 795; //To play a previously unlocked campaign mission, select the mission flag on the campaign briefing map
 TX_MENU_SINGLE_MAP = 230; //Play Single Map
 TX_MENU_SINGLE_START_MAP = 231; //Start Map
 TX_MENU_BACK = 232; //Back to Menu
@@ -624,6 +614,12 @@ TX_MAPED_UNITS_FORMATION_COLUMNS_HINT = 1544; //Number of columns in group. If n
 TX_MAPED_SELECTION_SMOOTH_COAL = 1545; //Make coal smooth
 TX_MAPED_SELECTION_SMOOTH_COAL_HINT = 1546; //Coal deposits in the selection will be automatically set from the tiles with lowest coal count at the edges to the highest in the center
 
+TX_UNIT_TASK_DISMISS = 1139; //Retiring
+TX_UNIT_TASK_DISMISS_BTN = 1140; //Dismiss
+TX_UNIT_TASK_DISMISS_CONFIRMATION = 1141; //Do you really want to dismiss this unit?|He will go to school and leave your town forever
+TX_UNIT_TASK_DISMISS_HINT = 1142; //Dismiss unit
+TX_UNIT_TASK_DISMISS_CANCEL_HINT = 1143; //Cancel unit dismiss
+TX_UNIT_TASK_DISMISS_NOSCHOOLS_HINT = 1144; //Dismiss is not available because of lack of schools in your town
 
 TX_MAPED_AI_MAX_SOLDIERS = 456; //Set max. soldiers
 TX_MAPED_AI_RECRUITS_HINT = 457; //Classic AI: How many recruits AI should have in barracks|Advanced AI: Parameter not used
@@ -735,6 +731,9 @@ TX_MAPED_AI_DEFAULTS_HEADING = 813; //Apply AI defaults
 TX_MAPED_AI_DEFAULTS_MP_BUILDER = 814; //Multiplayer builder
 TX_MAPED_AI_DEFAULTS_MP_BUILDER_HINT = 815; //Applies aggressive AI builder settings to all players (for multiplayer building maps)
 TX_MAPED_AI_DEFAULTS_CONFIRM = 816; //Warning: This will override all existing AI settings for all players. Continue?
+TX_MAPED_PLAYER_AI_MP_SETUP_HINT = 1589; //Apply multiplayer AI builder settings to player %d
+TX_MAPED_PLAYER_AI_MP_SETUP_CONFIRM_TITLE = 1590; //Multiplayer setup for AI player %d
+TX_MAPED_PLAYER_AI_MP_SETUP_CONFIRM = 1591; //Warning: This will override all existing AI settings for player %d. Continue?
 
 TX_MP_MENU_PLAYERNAME = 500; //Player name
 TX_MP_MENU_STATUS = 501; //Status:
@@ -826,6 +825,9 @@ TX_LOBBY_DOWNLOAD_OVERWRITE = 738; //Overwrite existing files
 TX_LOBBY_RESET_BANS = 768; //Reset all bans
 TX_LOBBY_VIEW_README = 825; //View Readme PDF
 TX_LOBBY_PDF_ERROR = 826; //Failed to launch PDF viewer
+TX_LOBBY_SETTINGS_SAVE_PWD = 1592; //Stores the current password for future use
+
+TX_MENU_CAMP_HINT = 795; //To play a previously unlocked campaign mission, select the mission flag on the campaign briefing map
 
 TX_MULTIPLAYER_WAITING = 577; //Waiting for players:
 TX_CHAT_ALL = 578; //All
@@ -918,7 +920,7 @@ TX_MP_PEACETIME_REMAINING = 619; //Peacetime remaining: %s
 TX_MP_PEACETIME_OVER = 620; //Peacetime is over. To thy weapons!
 TX_GAME_TIME = 621; //Game time:|%s
 TX_TROOP_HALT_HINT = 622; //Halt troop
-TX_TROOP_LINK_HINT = 623; //Link up troop
+TX_TROOP_LINK_HINT = 623; //Link up troop|Hold Shift to link several groups
 TX_TROOP_SPLIT_HINT = 624; //Separate troop (%s). Separate one unit from troop (Ctrl + %s)
 TX_MENU_REPLAYS = 625; //Replay Viewer
 TX_MENU_VIEW_REPLAY = 626; //View Replay
@@ -1167,6 +1169,7 @@ TX_KEY_LAUNCH_MEDIA_SELECT = 1454; //Launch media select
 TX_KEY_LAUNCH_APP1 = 1455; //Launch application 1
 TX_KEY_LAUNCH_APP2 = 1456; //Launch application 2
 
+TX_MSG_WOODCUTTER_PLANT_DEPLETED = 1022; //Your woodcutter cannot find any free place to plant a tree
 
 TX_MSG_HOUSE_UNOCCUPIED__22 = 966; //This armor smithy is not occupied
 TX_MSG_HOUSE_UNOCCUPIED_ARMORYWORKSHOP = 967; //This armory workshop is not occupied
@@ -1278,6 +1281,7 @@ TX_MAPED_TERRAIN_OBJECTS_PALETTE = 1087; //Objects palette
 TX_MAPED_TERRAIN_CLOSE_PALETTE = 1088; //Close palette
 TX_MAPED_UNITS_REMOVE_HINT = 1089; //Remove units/groups
 TX_MAPED_TERRAIN_TILE_ID_EDIT_HINT = 1262; //Search tile by ID
+TX_UNIT_CONDITION_DEFAULT = 1588; //Default
 
 TX_GAME_SETTINGS_REPLAY_AUTOPAUSE = 1090; //Replay autopause
 TX_GAME_SETTINGS_REPLAY_AUTOPAUSE_HINT = 1091; //Automatically pause replay when peacetime ends
@@ -1290,6 +1294,7 @@ TX_LOBBY_REMEMBER_PASSWORD = 1096; //Remember this password
 TX_LOBBY_USE_LAST_PASSWORD = 1097; //Use last known password
 TX_GO_PREV_MENU = 1098; //Go previous menu
 
+TX_WORD_OK = 312; //Ok
 TX_WORD_YES = 1099; //Yes
 TX_WORD_NO = 1100; //No
 TX_WORD_CANCEL = 1101; //Cancel
@@ -1300,12 +1305,12 @@ TX_WORD_TEAMS = 1105; //Teams
 TX_WORD_CLOSE = 1117; //Close
 TX_WORD_TEXT = 1159; //Text
 
-TX_MAPED_PLAYER_DELETE = 1114; //Delete Player %d
+TX_MAPED_PLAYER_DELETE_HINT = 1114; //Delete Player %d
 TX_MAPED_PLAYER_TYPE_ALLOW_ALL = 1363; //All
 TX_MAPED_PLAYER_TYPE_ALLOW_ALL_HINT = 1364; //Allow '%s' for all available locs
 TX_MAPED_PLAYER_TYPE_DISALLOW_ALL_HINT = 1365; //Prohibit '%s' for all available locs
 
-TX_MAPED_PLAYER_DELETE_TITLE = 1115; //Deleting Player %d
+TX_MAPED_PLAYER_DELETE_TITLE = 1115; //Delete Player %d
 TX_MAPED_PLAYER_DELETE_CONFIRM = 1116; //Are you sure you want to clear the player?|All his data will be erased!
 
 TX_MENU_MAP_TYPE = 1122; //Map type
@@ -1611,9 +1616,8 @@ TX_MAPED_TERRAIN_TILES_PALETTE = 1426; //Tiles palette
 
 TX_MENU_OPTIONS_MAKE_SAVEPOINTS = 1429; //Make replay savepoints
 
-TX_UNUSED_312_ = 312; //
-TX_UNUSED_313_ = 313; //
-TX_UNUSED_1356_MAPSIZE = 1356; //Map size:
+TX_BUILD_HOUSE_POSTFIX = 313; //|Hold Shift to place several houses
+TX_MENU_MAP_HUMAN_TITLE = 1356; //H
 
 TX_MAPED_VIEW_DEFENCES = 1435; //Show defence positions
 TX_MAPED_VIEW_FLAT_TERRAIN = 1436; //Show flat terrain
@@ -1652,3 +1656,6 @@ TX_ERROR_ASK_TO_SEND_RNGCHECK_REPORT = 1547; //Other player got desync error. Pl
 
 TX_EXIT_WARN_MESSAGE = 1580; //Any unsaved changes will be lost. Exit?
 TX_EXIT_WARN_HEADER = 1581; //Warning
+
+TX_HOUSE_BARRACKS_TRAIN_DISABLED_HINT = 706; //This soldier type is not available
+TX_HOUSE_SCHOOL_TRAIN_DISABLED_HINT = 707; //This unit type is not available

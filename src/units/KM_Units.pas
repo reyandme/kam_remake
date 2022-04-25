@@ -99,8 +99,8 @@ type
     fKillASAPShowAnimation: Boolean;
     fInHouse: TKMHouse; //House we are currently in
     fPositionRound: TKMPoint; //Where we are now
-    fPrevPosition: TKMPoint; //Where we were
-    fNextPosition: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
+    fPositionPrev: TKMPoint; //Where we were
+    fPositionNext: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
     fDirection: TKMDirection; //Direction
     fKilledBy: TKMHandID; //Who killed us?
     fLastTimeTrySetActionWalk: Cardinal; //LastTime we tried to set action walk
@@ -114,7 +114,7 @@ type
     function GetHitPointsMax: Byte;
     procedure SetDirection(aValue: TKMDirection);
     procedure SetAction(aAction: TKMUnitAction; aStep: Integer = 0);
-    procedure SetNextPosition(const aLoc: TKMPoint);
+    procedure SetPositionNext(const aLoc: TKMPoint);
     procedure SetPositionRound(const aLoc: TKMPoint);
     procedure SetPositionRoundByPosF;
     procedure SetCondition(aValue: Integer);
@@ -167,8 +167,8 @@ type
 
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); virtual;
 
-    property PrevPosition: TKMPoint read fPrevPosition;
-    property NextPosition: TKMPoint read fNextPosition write SetNextPosition;
+    property PositionPrev: TKMPoint read fPositionPrev;
+    property PositionNext: TKMPoint read fPositionNext write SetPositionNext;
     procedure SetUnitPosition(aPos: TKMPoint);
 
     property Direction: TKMDirection read fDirection write SetDirection;
@@ -1145,8 +1145,8 @@ begin
   fInHouse      := nil;
   fPositionF    := KMPointF(aLoc.Loc);
   fPositionRound := aLoc.Loc;
-  fPrevPosition := aLoc.Loc; //Init values
-  fNextPosition := aLoc.Loc; //Init values
+  fPositionPrev := aLoc.Loc; //Init values
+  fPositionNext := aLoc.Loc; //Init values
   fType         := aUnitType;
   fDirection    := aLoc.Dir;
   fVisible      := True;
@@ -1179,7 +1179,7 @@ begin
   SetInHouse(aInHouse);
   // Do not add units which are trained inside house
   if fInHouse = nil then
-    gTerrain.UnitAdd(NextPosition, Self);
+    gTerrain.UnitAdd(PositionNext, Self);
 
   // Create UnitVisual after InHouse is set
   fVisual := TKMUnitVisual.Create(Self);
@@ -1192,7 +1192,7 @@ end;
 
 destructor TKMUnit.Destroy;
 begin
-  if not IsDead then gTerrain.UnitRem(NextPosition); //Happens only when removing player from map on GameStart (network)
+  if not IsDead then gTerrain.UnitRem(PositionNext); //Happens only when removing player from map on GameStart (network)
 
   fHome.SetWorker(nil);
 
@@ -1280,8 +1280,8 @@ begin
   LoadStream.Read(AnimStep);
   LoadStream.Read(fDirection);
   LoadStream.Read(fPositionRound);
-  LoadStream.Read(fPrevPosition);
-  LoadStream.Read(fNextPosition);
+  LoadStream.Read(fPositionPrev);
+  LoadStream.Read(fPositionNext);
   LoadStream.Read(fDismissASAP);
   LoadStream.Read(Dismissable);
   LoadStream.Read(fKilledBy, SizeOf(fKilledBy));
@@ -1318,15 +1318,15 @@ begin
   gHands.CleanUpHousePointer(fHome);
 
   if aRemoveTileUsage
-    and (gTerrain.Land^[NextPosition.Y, NextPosition.X].IsUnit = Self) then //remove lock only if it was made by this unit
-    gTerrain.UnitRem(fNextPosition); //Must happen before we nil NextPosition
+    and (gTerrain.Land^[PositionNext.Y, PositionNext.X].IsUnit = Self) then //remove lock only if it was made by this unit
+    gTerrain.UnitRem(fPositionNext); //Must happen before we nil NextPosition
 
   fIsDead       := True;
   fThought      := thNone;
   fPositionF    := KMPOINTF_ZERO;
   fPositionRound := KMPOINT_ZERO;
-  fPrevPosition := fPositionRound;
-  fNextPosition := fPositionRound;
+  fPositionPrev := fPositionRound;
+  fPositionNext := fPositionRound;
   Owner        := HAND_NONE;
   //Do not reset the unit type when they die as we still need to know during Load
   //fUnitType     := utNone;
@@ -1502,8 +1502,8 @@ begin
 
   gTerrain.UnitRem(fPositionRound);
   fPositionRound := aPos;
-  fNextPosition := aPos;
-  fPrevPosition := aPos;
+  fPositionNext := aPos;
+  fPositionPrev := aPos;
   fPositionF := KMPointF(aPos);
   gTerrain.UnitAdd(fPositionRound, Self);
 
@@ -1614,10 +1614,10 @@ end;
 //there can be no problems (as were occurring in GetSlide)
 //This procedure ensures that these values always get updated correctly so we don't get a problem
 //where GetLength(PrevPosition,NextPosition) > sqrt(2)
-procedure TKMUnit.SetNextPosition(const aLoc: TKMPoint);
+procedure TKMUnit.SetPositionNext(const aLoc: TKMPoint);
 begin
-  fPrevPosition := NextPosition;
-  fNextPosition := aLoc;
+  fPositionPrev := PositionNext;
+  fPositionNext := aLoc;
 end;
 
 
@@ -1656,10 +1656,10 @@ var
 begin
   // Choose between prev and next position
   // Do not do simple Round of fPositionF, since it could be rounded to a wrong tile, not prevPos and not nextPos
-  if KMLengthSqr(fPrevPosition, fPositionF) < KMLengthSqr(fNextPosition, fPositionF) then
-    P := fPrevPosition
+  if KMLengthSqr(fPositionPrev, fPositionF) < KMLengthSqr(fPositionNext, fPositionF) then
+    P := fPositionPrev
   else
-    P := fNextPosition;
+    P := fPositionNext;
 
   SetPositionRound(P);
 end;
@@ -1910,7 +1910,7 @@ end;
 procedure TKMUnit.AbandonWalk;
 begin
   if Action is TKMUnitActionWalkTo then
-    SetActionAbandonWalk(NextPosition, uaWalk)
+    SetActionAbandonWalk(PositionNext, uaWalk)
   else
     SetActionLockedStay(0, uaWalk); //Error
 end;
@@ -2112,8 +2112,8 @@ begin
       Assert(not gTerrain.HasUnit(fPositionRound) or placedOnOccupiedTile);
       IsExchanging := False;
       fPositionF := KMPointF(fPositionRound);
-      fPrevPosition := fPositionRound;
-      fNextPosition := fPositionRound;
+      fPositionPrev := fPositionRound;
+      fPositionNext := fPositionRound;
 
       // Do not add unit to terrain, if he is already occupying house entrance tile
       if not placedOnOccupiedTile then
@@ -2235,8 +2235,8 @@ begin
   if (not IsExchanging) or not (Action.ActName in [uanWalkTo, uanGoInOut]) then exit;
 
   //Uses Y because a walk in the Y means a slide in the X
-  dX := sign(NextPosition.X - fPositionF.X);
-  dY := sign(NextPosition.Y - fPositionF.Y);
+  dX := sign(PositionNext.X - fPositionF.X);
+  dY := sign(PositionNext.Y - fPositionF.Y);
   if (aCheck = axX) and (dY = 0) then exit; //Unit is not shifted
   if (aCheck = axY) and (dX = 0) then exit;
 
@@ -2244,12 +2244,12 @@ begin
 
   if aCheck = axX then
   begin
-    pixelPos := Round(abs(fPositionF.Y-PrevPosition.Y)*CELL_SIZE_PX*sqrt(lookupDiagonal)); //Diagonal movement *sqrt(2)
+    pixelPos := Round(abs(fPositionF.Y-PositionPrev.Y)*CELL_SIZE_PX*sqrt(lookupDiagonal)); //Diagonal movement *sqrt(2)
     Result := Result+(dY*SlideLookup[lookupDiagonal,pixelPos])/CELL_SIZE_PX;
   end;
   if aCheck = axY then
   begin
-    pixelPos := Round(abs(fPositionF.X-PrevPosition.X)*CELL_SIZE_PX*sqrt(lookupDiagonal)); //Diagonal movement *sqrt(2)
+    pixelPos := Round(abs(fPositionF.X-PositionPrev.X)*CELL_SIZE_PX*sqrt(lookupDiagonal)); //Diagonal movement *sqrt(2)
     Result := Result-(dX*SlideLookup[lookupDiagonal,pixelPos])/CELL_SIZE_PX;
   end;
 end;
@@ -2351,8 +2351,8 @@ begin
                    'Home = %s%sInHouse = %s%sVisible = %s%sAnimStep = %d',
                    [aSeparator,
                     actStr, aSeparator,
-                    TypeToString(fPrevPosition), aSeparator,
-                    TypeToString(fNextPosition), aSeparator,
+                    TypeToString(fPositionPrev), aSeparator,
+                    TypeToString(fPositionNext), aSeparator,
                     GetEnumName(TypeInfo(TKMUnitThought), Integer(fThought)), aSeparator,
                     fHitPoints, aSeparator,
                     fHitPointCounter, aSeparator,
@@ -2414,8 +2414,8 @@ begin
   SaveStream.Write(AnimStep);
   SaveStream.Write(fDirection);
   SaveStream.Write(fPositionRound);
-  SaveStream.Write(fPrevPosition);
-  SaveStream.Write(fNextPosition);
+  SaveStream.Write(fPositionPrev);
+  SaveStream.Write(fPositionNext);
   SaveStream.Write(fDismissASAP);
   SaveStream.Write(Dismissable);
   SaveStream.Write(fKilledBy, SizeOf(fKilledBy));
@@ -2487,7 +2487,7 @@ begin
   if fAction is TKMUnitActionWalkTo then
     if DesiredPassability = tpWalkRoad then
     begin
-      if not gTerrain.CheckPassability(fNextPosition, tpWalk) then
+      if not gTerrain.CheckPassability(fPositionNext, tpWalk) then
         {$IFNDEF RUNNER}
         Self.Kill(HAND_NONE, False, True);
         //Grayter 18.01.2018
@@ -2500,7 +2500,7 @@ begin
         raise ELocError.Create(Format('%s on unwalkable tile at %s pass CanWalk', [gRes.Units[UnitType].GUIName, fNextPosition.ToString]), fNextPosition);
         {$ENDIF}
     end else
-    if not gTerrain.CheckPassability(fNextPosition, DesiredPassability) then
+    if not gTerrain.CheckPassability(fPositionNext, DesiredPassability) then
       {$IFNDEF RUNNER}
       Self.Kill(HAND_NONE, False, True);
       //Explanation above

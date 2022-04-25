@@ -71,7 +71,7 @@ type
     procedure ExportPages(const aPath: string); override;
     procedure ReturnToLobby(const aSaveName: UnicodeString);
 
-    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean); override;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
@@ -381,13 +381,23 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+// This event happens every ~33ms if the Key is Down and holded
+procedure TKMMainMenuInterface.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
 begin
+  // First check if controls can handle the key (f.e. set KeyBindings)
+  if fMyControls.KeyDown(Key, Shift) then
+  begin
+    aHandled := True;
+    Exit; //Handled by Controls
+  end;
+
   inherited;
 
-  aHandled := True; // assume we handle all keys here
+  // Update game options in case we used sounds hotkeys
+  if aHandled then
+    fMenuOptions.Refresh;
 
-  if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
+  aHandled := True; // assume we handle all keys here
 
   if (fMenuPage <> nil) then
     fMenuPage.MenuKeyDown(Key, Shift);
@@ -396,6 +406,7 @@ end;
 
 procedure TKMMainMenuInterface.KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean);
 begin
+  // First check if controls can handle the key (f.e. set KeyBindings)
   if fMyControls.KeyUp(Key, Shift) then
   begin
     aHandled := True;
@@ -404,6 +415,7 @@ begin
 
   inherited;
 
+  // Update game options in case we used sounds hotkeys
   if aHandled then
     fMenuOptions.Refresh;
 

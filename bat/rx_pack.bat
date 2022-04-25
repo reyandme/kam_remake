@@ -11,7 +11,7 @@ if errorlevel 1 goto exit3
 
 REM Pack rx textures to rxx 
 @REM call ..\Utils\RXXPacker\RXXPacker.exe gui guimain houses trees units
-call ..\Utils\RXXPacker\RXXPacker.exe spritesBaseDir "%KMRPrivateRepoDir%" all
+call ..\Utils\RXXPacker\RXXPacker.exe spritesBaseDir "%KMRResourcesRepoDir%" all
 if errorlevel 1 goto exit3
 
 goto exit0

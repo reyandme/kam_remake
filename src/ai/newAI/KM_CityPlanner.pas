@@ -431,7 +431,7 @@ procedure TKMCityPlanner.UpdateState(aTick: Cardinal);
     if not gTerrain.CanFindTree(aW.FlagPoint, gRes.Units[utWoodcutter].MiningRange, True) then
     begin
       RemovePlan(htWoodcutters, aW.Entrance);
-      aW.DemolishHouse(fOwner);
+      aW.Demolish(fOwner);
     end;
   end;
 
@@ -779,7 +779,7 @@ begin
         if (House = nil) then
           gHands[fOwner].RemHousePlan(Loc)
         else
-          House.DemolishHouse(fOwner);
+          House.Demolish(fOwner);
       end;
       RemovePlan(aHT, BestIdx);
     end;
@@ -2126,7 +2126,7 @@ begin
               with fPlannedHouses[HT] do
               begin
                 if (Plans[LowestIdx].House <> nil) then
-                  Plans[LowestIdx].House.DemolishHouse(fOwner);
+                  Plans[LowestIdx].House.Demolish(fOwner);
                 RemovePlan(HT, LowestIdx);
               end;
           end

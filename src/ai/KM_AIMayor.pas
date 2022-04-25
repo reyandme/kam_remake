@@ -693,7 +693,7 @@ begin
       Loc := Houses[I].Entrance;
       gAIFields.Influences.RemAvoidBuilding(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+1));
     end;
-    Houses[I].DemolishHouse(fOwner);
+    Houses[I].Demolish(fOwner);
   end;
 end;
 

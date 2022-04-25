@@ -343,124 +343,105 @@ var
 begin
   if Name = 'SYSTEM' then
   begin
-    // Common
-    Sender.AddTypeS('TIntegerArray', 'array of Integer'); //Needed for PlayerGetAllUnits
-    Sender.AddTypeS('TAnsiStringArray', 'array of AnsiString'); //Needed for some array Utils
-    Sender.AddTypeS('TByteSet', 'set of Byte'); //Needed for Closest*MultipleTypes
-    Sender.AddTypeS('TKMPoint', 'record X,Y: Integer; end'); //Could be very useful
-
-    Sender.AddTypeS('TKMGroupType', '(gtNone, gtAny, gtMelee, gtAntiHorse, gtRanged, gtMounted)');
-    Sender.AddTypeS('TKMGroupTypeSet', 'set of TKMGroupType');
-    Sender.AddTypeS('TKMDirection', '(dirNA, dirN, dirNE, dirE, dirSE, dirS, dirSW, dirW, dirNW)');
-
-    Sender.AddTypeS('TKMDeliveryMode' ,'(dmClosed, dmDelivery, dmTakeOut)');
-    Sender.AddTypeS('TKMWoodcutterMode', '(wmChopAndPlant, wmChop, wmPlant)');
-    Sender.AddTypeS('TKMHandHouseLock', '(hlNone, hlDefault, hlBlocked, hlGranted)');
-    Sender.AddTypeS('TKMTerrainPassability', '(tpNone, tpWalk, tpWalkRoad, tpBuildNoObj, tpBuild, tpMakeRoads, tpCutTree, '
-      + 'tpFish, tpCrab, tpWolf, tpElevate, tpWorker, tpOwn, tpFactor)');
-
-    Sender.AddTypeS('TKMAIDefencePosType', '(dtFrontLine, dtBackLine)');
-    Sender.AddTypeS('TKMAIAttackType', '(aatOnce, aatRepeating)');
-    Sender.AddTypeS('TKMAIRepairMode', '(rmNone, rmRepairNever, rmRepairAlways, rmRepairManual)');
+    //*Types-Reg*//
+    Sender.AddTypeS('TAnsiStringArray', 'array of AnsiString');
+    Sender.AddTypeS('TByteSet', 'set of Byte');
+    Sender.AddTypeS('TIntegerArray', 'array of Integer');
     Sender.AddTypeS('TKMAIAttackTarget', '(attClosestUnit, attClosestBuildingFromArmy, attClosestBuildingFromStartPos, attCustomPosition)');
+    Sender.AddTypeS('TKMAIAttackType', '(aatOnce, aatRepeating)');
+    Sender.AddTypeS('TKMAIDefencePosType', '(dtFrontLine, dtBackLine)');
+    Sender.AddTypeS('TKMAIRepairMode', '(rmNone, rmRepairNever, rmRepairAlways, rmRepairManual)');
     Sender.AddTypeS('TKMArmyType', '(atIronThenLeather, atLeather, atIron, atIronAndLeather)');
-
-    Sender.AddTypeS('TKMAIAttackInfo', 'record ' +
-                      'UID: Integer;' +
-                      'AttackType: TKMAIAttackType;' +
-                      'HasOccured: Boolean;' +
-                      'Delay: Cardinal;' +
-                      'TotalMen: Integer;' +
-                      'MeleeGroupCount: Integer;' +
-                      'AntiHorseGroupCount: Integer;' +
-                      'RangedGroupCount: Integer;' +
-                      'MountedGroupCount: Integer;' +
-                      'RandomGroups: Boolean;' +
-                      'Target: TKMAIAttackTarget;' +
-                      'CustomPosition: TKMPoint;' +
-                    'end');
-
-    Sender.AddTypeS('TKMDefencePositionInfo', 'record ' +
-                      'UID: Integer; ' +
-                      'X, Y: Integer; ' +
-                      'Radius: Integer; ' +
-                      'GroupID: Integer; ' +
-                      'Dir: TKMDirection;' +
-                      'GroupType: TKMGroupType; ' +
-                      'PositionType: TKMAIDefencePosType; ' +
-                    'end');
-
-    Sender.AddTypeS('TKMFieldType', '(ftNone, ftRoad, ftCorn, ftWine)'); //No need to add InitWine for scripts
-    Sender.AddTypeS('TKMHouseType', '(htNone, htAny, '
-      + 'htArmorSmithy,     htArmorWorkshop,   htBakery,        htBarracks,      htButchers,'
-      + 'htCoalMine,        htFarm,            htFishermans,    htGoldMine,      htInn,'
-      + 'htIronMine,        htIronSmithy,      htMarket,        htMetallurgists, htMill,'
-      + 'htQuarry,          htSawmill,         htSchool,        htSiegeWorkshop, htStables,'
-      + 'htStore,           htSwine,           htTannery,       htTownHall,      htWatchTower,'
-      + 'htWeaponSmithy,    htWeaponWorkshop,  htVineyard,      htWoodcutters    )');
-
-    Sender.AddTypeS('TKMHouseTypeSet', 'set of TKMHouseType');
-
+    Sender.AddTypeS('TKMAudioFormat', '(afWav, afOgg)');
+    Sender.AddTypeS('TKMDeliveryMode', '(dmClosed, dmDelivery, dmTakeOut)');
+    Sender.AddTypeS('TKMDirection', '(dirNA, dirN, dirNE, dirE, dirSE, ' +
+      'dirS, dirSW, dirW, dirNW)');
+    Sender.AddTypeS('TKMFieldType', '(ftNone, ftRoad, ftCorn, ftWine, ftInitWine)');
+    Sender.AddTypeS('TKMFont', '(fntAntiqua, fntGame, fntGrey, fntMetal, fntMini, ' +
+      'fntOutline, fntArial, fntMonospaced)');
     Sender.AddTypeS('TKMGroupOrder', '(goNone, goWalkTo, goAttackHouse, goAttackUnit, goStorm)');
-
-    Sender.AddTypeS('TKMAudioFormat', '(afWav, afOgg)'); //Needed for PlaySound
-
-    // Types needed for MapTilesArraySet function
+    Sender.AddTypeS('TKMGroupType', '(gtNone, gtAny, gtMelee, gtAntiHorse, gtRanged, ' +
+      'gtMounted)');
+    Sender.AddTypeS('TKMHandHouseLock', '(hlNone, hlDefault, hlBlocked, hlGranted)');
+    Sender.AddTypeS('TKMHouseType', '(htNone, htAny, htArmorSmithy, htArmorWorkshop, htBakery, ' +
+      'htBarracks, htButchers, htCoalMine, htFarm, htFishermans, ' +
+      'htGoldMine, htInn, htIronMine, htIronSmithy, htMarket, ' +
+      'htMetallurgists, htMill, htQuarry, htSawmill, htSchool, ' +
+      'htSiegeWorkshop, htStables, htStore, htSwine, htTannery, ' +
+      'htTownHall, htWatchTower, htWeaponSmithy, htWeaponWorkshop, htVineyard, ' +
+      'htWoodcutters)');
+    Sender.AddTypeS('TKMMissionDifficulty', '(mdNone, mdEasy3, mdEasy2, mdEasy1, mdNormal, ' +
+      'mdHard1, mdHard2, mdHard3)');
+    Sender.AddTypeS('TKMPoint', 'record ' +
+        'X,Y: Integer; ' +
+      'end;');
+    Sender.AddTypeS('TKMTerrainKind', '(tkCustom, tkGrass, tkMoss, tkPaleGrass, tkCoastSand, ' +
+      'tkGrassSand1, tkGrassSand2, tkGrassSand3, tkSand, tkGrassDirt, ' +
+      'tkDirt, tkCobbleStone, tkGrassyWater, tkSwamp, tkIce, ' +
+      'tkSnowOnGrass, tkSnowOnDirt, tkSnow, tkDeepSnow, tkStone, ' +
+      'tkGoldMount, tkIronMount, tkAbyss, tkGravel, tkCoal, ' +
+      'tkGold, tkIron, tkWater, tkFastWater, tkLava)');
+    Sender.AddTypeS('TKMTerrainPassability', '(tpNone, tpWalk, tpWalkRoad, tpBuildNoObj, tpBuild, ' +
+      'tpMakeRoads, tpCutTree, tpFish, tpCrab, tpWolf, ' +
+      'tpElevate, tpWorker, tpOwn, tpFactor)');
     Sender.AddTypeS('TKMTerrainTileBrief', 'record ' +
-      'X,Y: Byte; ' +
-      'Terrain: Word; ' +
-      'Rotation: Byte; ' +
-      'Height: Byte; ' +
-      'Obj: Word; ' +
-      'UpdateTerrain, UpdateRotation, UpdateHeight, UpdateObject: Boolean; ' +
-    'end');
-
-    Sender.AddTypeS('TKMMissionDifficulty', '(mdNone, mdEasy3, mdEasy2, mdEasy1, mdNormal, mdHard1, mdHard2, mdHard3)');
+        'X,Y: Word; ' +
+        'Terrain: Word; ' +
+        'Rotation: Byte; ' +
+        'Height: Byte; ' +
+        'Obj: Word; ' +
+        'UpdateTerrain, UpdateRotation, UpdateHeight, UpdateObject: Boolean; ' +
+      'end;');
+    Sender.AddTypeS('TKMTileMaskKind', '(mkNone, mkSoft1, mkSoft2, mkSoft3, mkStraight, ' +
+      'mkGradient)');
+    Sender.AddTypeS('TKMTileOverlay', '(toNone, toDig1, toDig2, toDig3, toDig4, ' +
+      'toRoad)');
+    Sender.AddTypeS('TKMUnitType', '(utNone, utAny, utSerf, utWoodcutter, utMiner, ' +
+      'utAnimalBreeder, utFarmer, utCarpenter, utBaker, utButcher, ' +
+      'utFisher, utBuilder, utStonemason, utSmith, utMetallurgist, ' +
+      'utRecruit, utMilitia, utAxeFighter, utSwordFighter, utBowman, ' +
+      'utCrossbowman, utLanceCarrier, utPikeman, utScout, utKnight, ' +
+      'utBarbarian, utRebel, utRogue, utWarrior, utVagabond, ' +
+      'utWolf, utFish, utWatersnake, utSeastar, utCrab, ' +
+      'utWaterflower, utWaterleaf, utDuck)');
+    Sender.AddTypeS('TKMWareType', '(wtNone, wtTrunk, wtStone, wtTimber, wtIronOre, ' +
+      'wtGoldOre, wtCoal, wtIron, wtGold, wtWine, ' +
+      'wtCorn, wtBread, wtFlour, wtLeather, wtSausage, ' +
+      'wtPig, wtSkin, wtWoodenShield, wtIronShield, wtLeatherArmor, ' +
+      'wtIronArmor, wtAxe, wtSword, wtLance, wtPike, ' +
+      'wtBow, wtCrossbow, wtHorse, wtFish, wtAll, ' +
+      'wtWarfare, wtFood)');
+    Sender.AddTypeS('TKMWoodcutterMode', '(wmChopAndPlant, wmChop, wmPlant)');
+    // Dependent types of level 1
+    Sender.AddTypeS('TKMAIAttackInfo', 'record ' +
+        'UID: Integer; ' +
+        'AttackType: TKMAIAttackType; ' +
+        'HasOccured: Boolean; ' +
+        'Delay: Cardinal; ' +
+        'TotalMen: Integer; ' +
+        'MeleeGroupCount: Integer; ' +
+        'AntiHorseGroupCount: Integer; ' +
+        'RangedGroupCount: Integer; ' +
+        'MountedGroupCount: Integer; ' +
+        'RandomGroups: Boolean; ' +
+        'Target: TKMAIAttackTarget; ' +
+        'CustomPosition: TKMPoint; ' +
+      'end;');
+    Sender.AddTypeS('TKMDefencePositionInfo', 'record ' +
+        'UID: Integer; ' +
+        'X, Y: Integer; ' +
+        'Radius: Integer; ' +
+        'GroupID: Integer; ' +
+        'Dir: TKMDirection; ' +
+        'GroupType: TKMGroupType; ' +
+        'PositionType: TKMAIDefencePosType; ' +
+      'end;');
+    Sender.AddTypeS('TKMGroupTypeSet', 'set of TKMGroupType');
+    Sender.AddTypeS('TKMHouseTypeSet', 'set of TKMHouseType');
     Sender.AddTypeS('TKMMissionDifficultySet', 'set of TKMMissionDifficulty');
-
-    Sender.AddTypeS('TKMTileOverlay', '(toNone, toDig1, toDig2, toDig3, toDig4, toRoad)');
-
-    Sender.AddTypeS('TKMTerrainKind', '('
-      + 'tkCustom,       tkGrass,        tkMoss,         tkPaleGrass, tkCoastSand,'
-      + 'tkGrassSand1,   tkGrassSand2,   tkGrassSand3,   tkSand,      tkGrassDirt,'
-      + 'tkDirt,         tkCobbleStone,  tkGrassyWater,  tkSwamp,     tkIce,'
-      + 'tkSnowOnGrass,  tkSnowOnDirt,   tkSnow,         tkDeepSnow,  tkStone,'
-      + 'tkGoldMount,    tkIronMount,    tkAbyss,        tkGravel,    tkCoal,'
-      + 'tkGold,         tkIron,         tkWater,        tkFastWater, tkLava)');
-
-    Sender.AddTypeS('TKMTileMaskKind', '(mkNone, mkSoft1, mkSoft2, mkSoft3, mkStraight, mkGradient)');
-
-    Sender.AddTypeS('TKMUnitType', '(utNone, utAny,'
-      + 'utSerf,         utWoodcutter,   utMiner,         utAnimalBreeder,'
-      + 'utFarmer,       utCarpenter,    utBaker,         utButcher,'
-      + 'utFisher,       utBuilder,      utStonemason,    utSmith,'
-      + 'utMetallurgist, utRecruit,'
-      + 'utMilitia,      utAxeFighter,   utSwordFighter,  utBowman,'
-      + 'utCrossbowman,  utLanceCarrier, utPikeman,       utScout,'
-      + 'utKnight,       utBarbarian,'
-      + 'utRebel,        utRogue,        utWarrior,       utVagabond,'
-      //utCatapult,   utBallista,
-      + 'utWolf,         utFish,         utWatersnake,    utSeastar,'
-      + 'utCrab,         utWaterflower,  utWaterleaf,     utDuck)');
-
     Sender.AddTypeS('TKMUnitTypeSet', 'set of TKMUnitType');
-
-    Sender.AddTypeS('TKMWareType', '(wtNone,'
-      + 'wtTrunk,    wtStone,         wtTimber,     wtIronOre,      wtGoldOre,'
-      + 'wtCoal,     wtIron,          wtGold,       wtWine,         wtCorn,'
-      + 'wtBread,    wtFlour,         wtLeather,    wtSausage,      wtPig,'
-      + 'wtSkin,     wtWoodenShield,  wtIronShield, wtLeatherArmor, wtIronArmor,'
-      + 'wtAxe,      wtSword,         wtLance,      wtPike,         wtBow,'
-      + 'wtCrossbow, wtHorse,         wtFish,'
-      // Special ware types
-      + 'wtAll,     wtWarfare, wtFood)');
-
     Sender.AddTypeS('TKMWareTypeSet', 'set of TKMWareType');
-
-    //@Rey can not make SP parse this unless we include it into the KMR code
-    Sender.AddTypeS('TReplaceFlags', '(rfReplaceAll, rfIgnoreCase)'); //Needed for string util Utils.StringReplace
-
-    Sender.AddTypeS('TKMFont', '(fntAntiqua, fntGame, fntGrey, fntMetal, fntMini, fntOutline, fntArial, fntMonospaced)');
+    //*Types-Reg*//
 
     // Add CampaignData type and variable only after addition of all other custom types,
     // so those types could be used in the TKMCampaignData declaration
@@ -961,7 +942,8 @@ begin
     RegisterMethodCheck(c, 'function  RGBToBGRHex(aHexColor: string): AnsiString');
     RegisterMethodCheck(c, 'function  RoundTo(aValue: Single; aBase: Integer): Integer');
     RegisterMethodCheck(c, 'function  Sqr(A: Extended): Extended');
-    RegisterMethodCheck(c, 'function  StringReplace(Str: string; OldPattern: string; NewPattern: string; Flags: TReplaceFlags): String');
+    RegisterMethodCheck(c, 'function  StringReplace(Str: string; OldPattern: string; NewPattern: string; aReplaceAll: Boolean; ' +
+      'aIgnoreCase: Boolean): String');
     RegisterMethodCheck(c, 'function  SumI(aArray: array of Integer): Integer');
     RegisterMethodCheck(c, 'function  SumS(aArray: array of Single): Single');
     RegisterMethodCheck(c, 'function  TimeToString(aTicks: Integer): AnsiString');

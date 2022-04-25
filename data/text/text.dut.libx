@@ -143,11 +143,11 @@
 144:Vernietig gekozen gebouw
 145:Bestellingen verlagen
 146:Bestellingen verhogen
-147:Vorig type eenheid
-148:Volgend type eenheid
-149:Huidig type eenheid bewapenen
-150:Volgend beroep
-151:Vorig beroep
+147:Vorig type eenheid. Gebruik Shift om de eerste eenheid type te krijgen
+148:Volgend type eenheid. Gebruik Shift om de laatste eenheid type te krijgen
+149:Huidig type eenheid bewapenen. Gebruik Shift om 10 eenheden te bewapenen
+150:Volgend beroep. Gebruik Shift om het laatste beroep te krijgen
+151:Vorig beroep. Gebruik Shift om het eerste beroep te krijgen
 152:Aan wachtrij toevoegen. Gebruik RMK, Shift of Ctrl om de wachtrij te bewerken
 153:Wissel tussen leveringswijzen van producten: vraag / gesloten / aanbod. Gebruik LMK / RMK om vooruit/achteruit te veranderen
 154:Kosten:
@@ -266,7 +266,7 @@
 267:Burgers
 268:Gebouwen
 269:Producten
-270:Producten geproduceerd
+270:Geproduceerde hoeveelheid
 271:Geen gegevens
 272:Jij
 273:Speler %d
@@ -405,7 +405,7 @@
 410:Overschrijven
 411:Kaart bestaat al
 412:Spelers:
-413:Standaard
+413:Standaard menselijke speler
 414:Spelertypes
 415:Symmetrisch
 416:Bondgenootschappen
@@ -454,7 +454,7 @@
 465:Aantal groepen
 466:Aanvalsinfo
 468:Herhaling
-469:Eenmalig
+469:Eenmalige aanval
 470:Ruiters
 471:Bogen
 472:Anti-cavalerie
@@ -533,8 +533,8 @@
 545:Gereed
 546:Niet gereed
 547:Start!
-548:Spelsnelheid (vredestijd)
-549:Spelsnelheid
+548:Spelsnelheid (VT) [echt]
+549:Spelsnelheid [echt]
 550:OK
 551:Annuleren
 552:Omschrijving
@@ -850,7 +850,7 @@
 899:Sub-menu 4
 900:Sub-menu 5
 901:Sub-menu 6
-902:F10 en F11 zijn onbindbaar
+902:Ctrl en Shift zijn onbindbaar
 903:~~~ Onbekende waarde
 904:Linken Muisknop
 905:Middelste Muisknop
@@ -1309,8 +1309,8 @@
 1363:Alle
 1364:Sta '%s' toe voor alle beschikbare locaties
 1365:Verbied '%s' voor alle beschikbare locaties
-1366:Stap grootte van het hoogte algoritme (1 = klein, 10 = groot)
-1367:Helling van de hoogte evaluatie (1 = plateau, 15 = piek)
+1366:Stap grootte van het hoogte algoritme
+1367:Helling van de hoogte evaluatie (1 = plateau, 100 = piek)
 1368:Maximum hoogte van loopbare tegels
 1369:Random kaart
 1370:Kaart is automatisch gegenereerd met random kaart generator
@@ -1480,7 +1480,8 @@
 1534:Waarschuwing: Gevorderde AI gebruikt zijn eigen formatie parameters en zal deze instellingen negeren
 1535:Naar Campagne Kaart
 1536:Willekeurig groep types kiezen
-1538:Lage HP eenheden, Leer gepantserde eenheden, Ijzer gepantserde eenheden
+1537:Zwak
+1538:Eenheden zonder harnas, Leer gepantserde eenheden of Ijzer gepantserde eenheden
 1539:Voeg groep toe
 1540:Voeg groep toe na plaatsen verdedigingspositie. Group wordt bepaalt door AI formaties
 1541:Aantal
@@ -1490,3 +1491,44 @@
 1545:Kool gelijkmatig maken
 1546:Steenkool bronnen binnen het geselecteerde gebied worden automatisch omgezet naar een laag aantal steenkool bij de randen en een hoog aantal steenkool in het midden
 1547:Een andere speler kreeg een desync fout. Stuur ons alsjeblieft dit foutenrapport, het helpt ons dit op te lossen.%sAndere speler fout bericht is:%s
+1548:Ongedaan
+1549:Opnieuw
+1550:Gras
+1551:Mos
+1552:Bleek gras
+1553:Gras op aarde
+1554:Aarde
+1555:Kustzand
+1556:Gras op zand 1
+1557:Gras op zand 2
+1558:Gras op zand 3
+1559:Zand
+1560:Moeras
+1561:Grasachtig water
+1562:Water
+1563:Snel water
+1564:Aangepast
+1565:Sneeuw op gras
+1566:Sneeuw op aarde
+1567:Sneeuw
+1568:Diepe sneeuw
+1569:Ijs
+1570:Steen
+1571:Goudberg
+1572:Ijzerberg
+1573:Straatsteen
+1574:Grind
+1575:Steenkool
+1576:Goud
+1577:Ijzer
+1578:Lava
+1579:Afgrond
+1580:Niet opgeslagen wijzigingen zullen verloren gaan. Afsluiten?
+1581:Waarschuwing
+1582:Geen overlay
+1583:Graaf overlay fase 1
+1584:Graaf overlay fase 2
+1585:Graaf overlay fase 3
+1586:Graaf overlay fase 4
+1587:Weg overlay
+1588:Stand.

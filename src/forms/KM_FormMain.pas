@@ -6,8 +6,9 @@ uses
   ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
   KM_RenderControl, KM_CommonTypes,
   KM_WindowParams, KM_SettingsDev,
+  KM_Defaults,
   {$IFDEF FPC} LResources, Spin, {$ENDIF}
-  {$IFDEF WDC} Vcl.Samples.Spin, {$ENDIF}
+  {$IFNDEF FPC} Vcl.Samples.Spin, {$ENDIF}  // For some unnown reason Delphi auto add Vcl.Samples.Spin when use {$IFDEF WDC}
   {$IFDEF MSWindows} KM_VclMenuHint, ShellAPI, Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
 
@@ -243,6 +244,7 @@ type
     btnGameSave: TButton;
     seHighlightNavMesh: TSpinEdit;
     mnExportUnitsDat: TMenuItem;
+    mnOpenSettingsDir: TMenuItem;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -316,6 +318,7 @@ type
     procedure ControlsUpdate(Sender: TObject);
     procedure btnGameSaveClick(Sender: TObject);
     procedure mnExportUnitsDatClick(Sender: TObject);
+    procedure mnOpenSettingsDirClick(Sender: TObject);
   private
     {$IFDEF MSWindows}
     fMenuItemHint: TKMVclMenuItemHint; // Custom hint over menu item
@@ -324,7 +327,7 @@ type
     fUpdating: Boolean;
     fMissionDefOpenPath: UnicodeString;
     fOnControlsUpdated: TObjectIntegerEvent;
-    procedure FormKeyDownProc(aKey: Word; aShift: TShiftState);
+    procedure FormKeyDownProc(aKey: Word; aShift: TShiftState; aIsFirst: Boolean);
     procedure FormKeyUpProc(aKey: Word; aShift: TShiftState);
 //    function ConfirmExport: Boolean;
     function GetMouseWheelStepsCnt(aWheelData: Integer): Integer;
@@ -345,10 +348,14 @@ type
     procedure WMAppCommand(var Msg: TMessage); message WM_APPCOMMAND;
     procedure WMMouseWheel(var Msg: TMessage); message WM_MOUSEWHEEL;
     procedure WMMenuSelect(var Msg: TWMMenuSelect); message WM_MENUSELECT;
+    procedure DoMessage(var Msg: TMsg; var Handled: Boolean);
+
+    procedure ShowInCustomWindow;
+    procedure ShowInDefaultWindow;
   private
     fDevSettings: TKMDevSettings;
   protected
-    procedure WndProc(var Message: TMessage); override;
+    procedure WndProc(var Message: TMessage); override; //
     {$ENDIF}
   public
     RenderArea: TKMRenderControl;
@@ -357,10 +364,14 @@ type
     procedure ControlsSetVisibile(aShowCtrls: Boolean); overload;
     procedure ControlsReset;
     procedure ControlsRefill;
-    procedure ToggleFullscreen(aFullscreen, aWindowDefaultParams: Boolean);
+
+    procedure ShowFullScreen;
+    procedure ShowInWindow;
+
     procedure SetSaveEditableMission(aEnabled: Boolean);
     procedure SetSaveGameWholeMapImage(aEnabled: Boolean);
     procedure SetExportGameStats(aEnabled: Boolean);
+    procedure SetMySpecHandIndex(aHandID: TKMHandID);
     procedure ShowFolderPermissionError;
     procedure SetEntitySelected(aEntityUID: Integer; aEntity2UID: Integer = 0);
     property OnControlsUpdated: TObjectIntegerEvent read fOnControlsUpdated write fOnControlsUpdated;
@@ -381,7 +392,6 @@ uses
   {$IFDEF FASTMM} FastMM4, {$ENDIF}
   KromUtils,
   KromShellUtils,
-  KM_Defaults,
   KM_Main,
   //Use these units directly to avoid pass-through methods in fMain
   KM_Resource, KM_ResHouses, KM_ResWares,
@@ -397,7 +407,7 @@ uses
   KM_FormLogistics, KM_Game,
   KM_RandomChecks,
   KM_Log, KM_CommonClasses, KM_VclHelpers, KM_Video,
-  KM_MainSettings, KM_GameSettings,
+  KM_Settings, KM_MainSettings, KM_GameSettings,
   KM_ServerSettings,
 
   KM_IoXML,
@@ -415,6 +425,8 @@ end;
 //Remove VCL panel and use flicker-free TMyPanel instead
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
+  Application.OnMessage := DoMessage;
+
   fStartVideoPlayed := False;
   RenderArea := TKMRenderControl.Create(Self);
   RenderArea.Parent := Self;
@@ -518,7 +530,16 @@ begin
 end;
 
 
-procedure TFormMain.FormKeyDownProc(aKey: Word; aShift: TShiftState);
+procedure TFormMain.SetMySpecHandIndex(aHandID: TKMHandID);
+begin
+  if not InRange(aHandID, 0, MAX_HANDS - 1) then Exit;
+
+  RGPlayer.ItemIndex := aHandID;
+end;
+
+
+// This event happens every ~33ms if the Key is Down and holded
+procedure TFormMain.FormKeyDownProc(aKey: Word; aShift: TShiftState; aIsFirst: Boolean);
 begin
   if aKey = gResKeys[kfDebugWindow] then
   begin
@@ -526,7 +547,8 @@ begin
     ControlsSetVisibile(SHOW_DEBUG_CONTROLS, not (ssCtrl in aShift)); //Hide groupbox when Ctrl is pressed
   end;
 
-  if gGameApp <> nil then gGameApp.KeyDown(aKey, aShift);
+  if gGameApp <> nil then
+    gGameApp.KeyDown(aKey, aShift, aIsFirst);
 end;
 
 
@@ -538,8 +560,8 @@ end;
 
 procedure TFormMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
-  FormKeyDownProc(Key, Shift);
+//  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
+//  FormKeyDownProc(Key, Shift, True);
 end;
 
 
@@ -578,7 +600,7 @@ procedure TFormMain.RenderAreaMouseDown(Sender: TObject; Button: TMouseButton; S
 begin
   // Handle middle mouse button as Key
   if Button = mbMiddle then
-    FormKeyDownProc(VK_MBUTTON, Shift)
+    FormKeyDownProc(VK_MBUTTON, Shift, True)
   else if gGameApp <> nil then
     gGameApp.MouseDown(Button, Shift, X, Y);
 end;
@@ -690,6 +712,15 @@ end;
 procedure TFormMain.mnExportUnitsDatClick(Sender: TObject);
 begin
   gRes.Units.ExportCSV(ExeDir + 'Export' + PathDelim + 'units.dat.csv')
+end;
+
+
+procedure TFormMain.mnOpenSettingsDirClick(Sender: TObject);
+var
+  s: string;
+begin
+  s := ExpandFileName(TKMSettings.GetDir);
+  ShellExecute(Application.Handle, 'open', 'explorer.exe', PChar('"' + s + '"'), nil, SW_NORMAL);
 end;
 
 
@@ -1606,37 +1637,59 @@ begin
 end;
 
 
-procedure TFormMain.ToggleFullscreen(aFullscreen, aWindowDefaultParams: Boolean);
+procedure TFormMain.ShowFullScreen;
 begin
-  if aFullScreen then begin
-    Show; //Make sure the form is shown (e.g. on game creation), otherwise it won't wsMaximize
-    BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't maximize
-    WindowState  := wsNormal;
-    WindowState  := wsMaximized;
-    BorderStyle  := bsNone;     //and now we can make it borderless again
-  end else begin
-    BorderStyle  := bsSizeable;
-    WindowState  := wsNormal;
-    if (aWindowDefaultParams) then
-    begin
-      Position := poScreenCenter;
-      ClientWidth  := MENU_DESIGN_X;
-      ClientHeight := MENU_DESIGN_Y;
-      // We've set default window params, so update them
-      gMain.UpdateWindowParams(GetWindowParams);
-      // Unset NeedResetToDefaults flag
-      gMainSettings.WindowParams.NeedResetToDefaults := False;
-    end else begin
-      // Here we set window Width/Height and State
-      // Left and Top will set on FormShow, so omit setting them here
-      Position := poDesigned;
-      ClientWidth  := gMainSettings.WindowParams.Width;
-      ClientHeight := gMainSettings.WindowParams.Height;
-      Left := gMainSettings.WindowParams.Left;
-      Top := gMainSettings.WindowParams.Top;
-      WindowState  := gMainSettings.WindowParams.State;
-    end;
-  end;
+  Show; //Make sure the form is shown (e.g. on game creation), otherwise it won't wsMaximize
+  BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't maximize
+  WindowState  := wsNormal;
+  WindowState  := wsMaximized;
+  BorderStyle  := bsNone;     //and now we can make it borderless again
+
+  //Make sure Panel is properly aligned
+  RenderArea.Align := alClient;
+end;
+
+
+procedure TFormMain.ShowInWindow;
+begin
+  if gMainSettings.WindowParams.NeedResetToDefaults then
+    ShowInDefaultWindow
+  else
+    ShowInCustomWindow;
+end;
+
+
+procedure TFormMain.ShowInCustomWindow;
+begin
+  BorderStyle  := bsSizeable;
+  WindowState  := wsNormal;
+
+  // Here we set window Width/Height and State
+  // Left and Top will set on FormShow, so omit setting them here
+  Position := poDesigned;
+  ClientWidth  := gMainSettings.WindowParams.Width;
+  ClientHeight := gMainSettings.WindowParams.Height;
+  Left := gMainSettings.WindowParams.Left;
+  Top := gMainSettings.WindowParams.Top;
+  WindowState  := gMainSettings.WindowParams.State;
+
+  //Make sure Panel is properly aligned
+  RenderArea.Align := alClient;
+end;
+
+
+procedure TFormMain.ShowInDefaultWindow;
+begin
+  BorderStyle  := bsSizeable;
+  WindowState  := wsNormal;
+
+  Position := poScreenCenter;
+  ClientWidth  := MENU_DESIGN_X;
+  ClientHeight := MENU_DESIGN_Y;
+  // We've set default window params, so update them
+  gMain.UpdateWindowParams(GetWindowParams);
+  // Unset NeedResetToDefaults flag
+  gMainSettings.WindowParams.NeedResetToDefaults := False;
 
   //Make sure Panel is properly aligned
   RenderArea.Align := alClient;
@@ -1889,6 +1942,35 @@ begin
   end;
 
   fMenuItemHint.DoActivateHint(menuItem);
+end;
+
+
+procedure TFormMain.DoMessage(var Msg: TMsg; var Handled: Boolean);
+var
+  //repCount: Integer;
+  prevState: Integer;
+  shiftState: TShiftState;
+  key: Word;
+begin
+  // Application.OnMessage allows us to catch ALL messages (even those handled by F11 panel controls when they are active)
+  if Msg.message = WM_KEYDOWN then
+  begin
+    // Msg.lParam format:
+    // [0..15 repCount] - always returns 1 ?
+    // [16..23 scan code]
+    // [24 extended bit]
+    // [25..28 reserved]
+    // [29 context]
+    // [30 previous state]
+    // [31 transition state]
+
+    //repCount := Msg.lParam and $FF;
+    prevState := Msg.lParam shr 30 and $1;
+    shiftState := KeyDataToShiftState(Msg.lParam);
+    key := Msg.wParam;
+
+    FormKeyDownProc(Key, shiftState, prevState = 0);
+  end;
 end;
 {$ENDIF}
 

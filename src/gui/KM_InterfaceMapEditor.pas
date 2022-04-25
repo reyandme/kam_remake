@@ -126,7 +126,8 @@ type
     function GetToolbarWidth: Integer; override;
 
     procedure HistoryUpdateUI;
-    procedure GameOptionsChanged;
+    procedure MapEdOptionsWereChanged;
+    procedure OptionsChanged; override;
   public
     constructor Create(aRender: TRender);
     destructor Destroy; override;
@@ -138,7 +139,7 @@ type
     property GuiMission: TKMMapEdMission read fGuiMission;
     property GuiMenu: TKMMapEdMenu read fGuiMenu;
 
-    procedure KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
+    procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean); override;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer; var aHandled: Boolean); override;
@@ -275,7 +276,7 @@ begin
   fGuiPlayer := TKMMapEdPlayer.Create(Panel_Common, PageChanged);
   fGuiMission := TKMMapEdMission.Create(Panel_Common, PageChanged);
   fGuiMenu := TKMMapEdMenu.Create(Panel_Common, PageChanged, MapTypeChanged, UpdateHotkeys);
-  fGuiMenu.GuiMenuSettings.GUICommonOptions.OnOptionsChange := GameOptionsChanged;
+  fGuiMenu.GuiMenuSettings.GUICommonOptions.OnOptionsChange := MapEdOptionsWereChanged;
 
   //Objects pages
   fGuiUnit := TKMMapEdUnit.Create(Panel_Common);
@@ -673,7 +674,6 @@ var
   I: Integer;
 begin
   gMySpectator.HandID := aIndex;
-  fGuiMission.GuiMissionPlayers.UpdatePlayer(aIndex);
   fGuiTown.GuiDefence.UpdatePlayer(aIndex);
 
   for I := 0 to MAX_HANDS - 1 do
@@ -875,7 +875,8 @@ begin
 end;
 
 
-procedure TKMMapEdInterface.KeyDown(Key: Word; Shift: TShiftState; var aHandled: Boolean);
+// This event happens every ~33ms if the Key is Down and holded
+procedure TKMMapEdInterface.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean);
 var
   keyHandled, keyPassedToModal: Boolean;
 begin
@@ -890,7 +891,7 @@ begin
   keyHandled := False;
 
   //For MapEd windows / pages
-  fGuiTerrain.KeyDown(Key, Shift, keyHandled); // Terrain first (because of Objects and Tiles popup windows)
+  fGuiTerrain.KeyDown(Key, Shift, aIsFirst, keyHandled); // Terrain first (because of Objects and Tiles popup windows)
   fGuiHouse.KeyDown(Key, Shift, keyHandled);
   fGuiUnit.KeyDown(Key, Shift, keyHandled);
   fGuiTown.KeyDown(Key, Shift, keyHandled);
@@ -898,7 +899,7 @@ begin
 
   if keyHandled then Exit;
 
-  inherited KeyDown(Key, Shift, keyHandled);
+  inherited KeyDown(Key, Shift, aIsFirst, keyHandled);
   if keyHandled then Exit;
 
   gCursor.SState := Shift; // Update Shift state on KeyDown
@@ -978,8 +979,7 @@ begin
   aHandled := True; // assume we handle all keys here
 
   keyHandled := False;
-  //For undo/redo shortcuts, palettes and other
-  fGuiTerrain.KeyUp(Key, Shift, keyHandled);
+
   if keyHandled then Exit;
 
   //F1-F5 menu shortcuts
@@ -1011,7 +1011,7 @@ begin
   if Key = gResKeys[kfMapedUnivErasor] then
     UniversalEraser_Click(Button_UniversalEraser);
 
-  //Universal erasor
+  //Change owner
   if Key = gResKeys[kfMapedPaintBucket] then
     ChangeOwner_Click(Button_ChangeOwner);
 
@@ -1157,9 +1157,15 @@ begin
 end;
 
 
-procedure TKMMapEdInterface.GameOptionsChanged;
+procedure TKMMapEdInterface.MapEdOptionsWereChanged;
 begin
   fMinimap.Update;
+end;
+
+
+procedure TKMMapEdInterface.OptionsChanged;
+begin
+  fGuiMenu.GuiMenuSettings.GUICommonOptions.Refresh;
 end;
 
 

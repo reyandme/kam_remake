@@ -126,7 +126,7 @@
 125:Previous track
 126:Next track
 127:Demolish
-128:Remove buildings/plans
+128:Remove buildings/plans|Hold Shift and Ctrl to delete buildings without confirmation
 129:Construct road
 130:Construct roads
 131:Plough field
@@ -143,25 +143,25 @@
 144:Destroy selected building
 145:Decrease order amount
 146:Increase order amount
-147:Previous soldier type
-148:Next soldier type
-149:Equip current soldier type
-150:Next profession
-151:Previous profession
-152:Add to queue. Use RMB, Shift or Ctrl to modify the queue
-153:Switch between delivery modes of wares: demand / closed / offer. Use LMB / RMB to switch forward/backward
+147:Previous soldier type. Use Shift to get to the first soldier type
+148:Next soldier type. Use Shift to get to the last soldier type
+149:Equip current soldier type. Use Shift to equip 10 soldiers
+150:Next profession. Use Shift to get to the last profession
+151:Previous profession. Use Shift to get to the first profession
+152:Add to queue.|Use RMB, Ctrl or Alt to modify the queue and Shift to fill it
+153:Switch between delivery modes of wares: demand / closed / offer|Use LMB / RMB to switch forward / backward
 154:Cost:
 155:Switch on/off house repair
 156:Building not available at this time
 157:Condition
-158:Turn troop left
-159:Turn troop right
+158:Turn troop left|Click RMB or press Shift to turn 90 degrees, press Ctrl to turn 180 degrees
+159:Turn troop right|Click RMB or press Shift to turn 90 degrees, press Ctrl to turn 180 degrees
 160:Attack
 161:Dispatch troop
 162:Supply troop with food
 163:Start storm attack
-164:Add line
-165:Withdraw line
+164:Add line|Click RMB or press Shift to add 5 lines
+165:Withdraw line|Click RMB or press Shift to withdraw 5 lines
 166:Select|group
 167:Cancel
 168:Delete
@@ -308,6 +308,8 @@
 309:Apply
 310:Language:
 311:High shadow quality
+312:Ok
+313:|Hold Shift to place several houses
 314:Loading... Please wait
 315:An Error Has Occurred!
 316:Loading new locale
@@ -607,7 +609,7 @@
 620:Peacetime is over. To thy weapons!
 621:Game time:|%s
 622:Halt troop
-623:Link up troop
+623:Link up troop|Hold Shift to link several groups
 624:Separate troop (%s). Separate one unit from troop (Ctrl + %s)
 625:Replay Viewer
 626:View Replay
@@ -772,7 +774,7 @@
 820:Leather
 821:Mixed
 822:Downloaded maps
-823:Notice: the first "Repeating" attack will send all the troops that AI player has. However, for every next "Repeating" attack (as well as for "Single Attack"), it sends enough groups to exceed the "Minimum number of units to attack".
+823:Notice: the first "Repeating" attack will send all the troops that AI player has at the attacking outposts. However, for every next "Repeating" attack (as well as for "Single Attack"), it sends enough groups to exceed the "Minimum number of units to attack"
 824:Move
 825:View Readme PDF
 826:Failed to launch PDF viewer
@@ -1060,7 +1062,7 @@
 1112:Resize Map
 1113:Owner: %s
 1114:Delete Player %d
-1115:Deleting Player %d
+1115:Delete Player %d
 1116:Are you sure you want to clear the player?|All his data will be erased!
 1117:Close
 1118:Multiplayer maps
@@ -1298,7 +1300,7 @@
 1353:Generate map
 1354:Generate map with current Seed
 1355:Close Random Map Generator
-1356:Map size:
+1356:H
 1357:Play next tick in replay
 1358:Easier
 1359:Very easy
@@ -1530,3 +1532,8 @@
 1585:Dig overlay stage 3
 1586:Dig overlay stage 4
 1587:Road overlay
+1588:Default
+1589:Apply multiplayer AI builder settings to player %d
+1590:Multiplayer setup for AI player %d
+1591:Warning: This will override all existing AI settings for player %d. Continue?
+1592:Stores the current password for future use
