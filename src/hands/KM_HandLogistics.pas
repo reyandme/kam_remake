@@ -2712,7 +2712,7 @@ end;
 { TKMDeliveryBid }
 constructor TKMDeliveryBid.Create(aSerf: TKMUnitSerf);
 begin
-  Create(Low(TKMDemandImportance), aSerf, 0, 0);
+  Create(Low(TKMDemandImportance), aSerf, DELIVERY_NO_ID, DELIVERY_NO_ID);
 end;
 
 
