@@ -28,6 +28,7 @@ type
 const
   WARE_MIN = wtTrunk;
   WARE_MAX = wtFish;
+  WARE_MAX_ALL = wtFood;
   WARFARE_MIN = wtWoodenShield;
   WEAPON_MIN = wtWoodenShield;
   WEAPON_MAX = wtCrossbow;

@@ -465,69 +465,69 @@ var
 begin
   Assert(Sender is TKMHandLogisticsVST);
 
-  data := Sender.GetNodeData(HitInfo.HitNode);
-  if not Assigned(data) then Exit;
-
-  del := gHands[data.handID].Deliveries.Queue;
-
-
-  case TKMHandLogisticsVST(Sender).Kind of
-    vstkDelivery: begin
-                    gMySpectator.ResetHighlightDebug;
-
-                    offerEntity := nil;
-                    demandEntity := nil;
-
-                    if del.Delivery[data.ID].OfferID <> DELIVERY_NO_ID then
-                      offerEntity := del.Offer[del.Delivery[data.ID].OfferID].Loc_House;
-
-                    if del.Delivery[data.ID].DemandID <> DELIVERY_NO_ID then
-                      demandEntity := del.Demand[del.Delivery[data.ID].DemandID].GetDemandEntity;
-
-                    serfEntity := del.Delivery[data.ID].Serf;
-
-                    // Check if click was on a specified column
-                    if HitInfo.HitColumn in DEL_FROM_COLUMNS then
-                      selectEntity := offerEntity
-                    else
-                    if HitInfo.HitColumn in DEL_TO_COLUMNS then
-                      selectEntity := demandEntity
-                    else
-                    if HitInfo.HitColumn = DEL_SERF_COLUMN then
-                      selectEntity := serfEntity
-                    else
-                    // otherwise circle through entities
-                    if gMySpectator.Selected = nil then
-                      selectEntity := serfEntity
-                    else
-                    if offerEntity = gMySpectator.Selected then
-                      selectEntity := demandEntity
-                    else
-                    if demandEntity = gMySpectator.Selected then
-                      selectEntity := serfEntity
-                    else
-                      selectEntity := offerEntity;
-
-                    gGameApp.Game.GamePlayInterface.SelectEntity(selectEntity);
-
-                    gMySpectator.HighlightDebug  := TKMHighlightEntity.New(offerEntity, OFF_COLOR);
-                    gMySpectator.HighlightDebug2 := TKMHighlightEntity.New(demandEntity, DEM_COLOR);
-                    gMySpectator.HighlightDebug3.SetEntity(serfEntity);
-                    gMySpectator.HighlightRoute.SetEntity(serfEntity);
-                  end;
-    vstkOffer:    begin
-                    gMySpectator.ResetHighlightDebug;
-                    offerEntity := del.Offer[data.ID].Loc_House;
-                    gGameApp.Game.GamePlayInterface.SelectEntity(offerEntity);
-                    gMySpectator.HighlightDebug := TKMHighlightEntity.New(offerEntity, OFF_COLOR);
-                  end;
-    vstkDemand:   begin
-                    gMySpectator.ResetHighlightDebug;
-                    demandEntity := del.Demand[data.ID].GetDemandEntity;
-                    gGameApp.Game.GamePlayInterface.SelectEntity(demandEntity);
-                    gMySpectator.HighlightDebug := TKMHighlightEntity.New(demandEntity, DEM_COLOR);
-                  end;
-  end;
+//  data := Sender.GetNodeData(HitInfo.HitNode);
+//  if not Assigned(data) then Exit;
+//
+//  del := gHands[data.handID].Deliveries.Queue;
+//
+//
+//  case TKMHandLogisticsVST(Sender).Kind of
+//    vstkDelivery: begin
+//                    gMySpectator.ResetHighlightDebug;
+//
+//                    offerEntity := nil;
+//                    demandEntity := nil;
+//
+//                    if del.Delivery[data.ID].OfferID <> DELIVERY_NO_ID then
+//                      offerEntity := del.Offer[del.Delivery[data.ID].OfferID].Loc_House;
+//
+//                    if del.Delivery[data.ID].DemandID <> DELIVERY_NO_ID then
+//                      demandEntity := del.Demand[del.Delivery[data.ID].DemandID].GetDemandEntity;
+//
+//                    serfEntity := del.Delivery[data.ID].Serf;
+//
+//                    // Check if click was on a specified column
+//                    if HitInfo.HitColumn in DEL_FROM_COLUMNS then
+//                      selectEntity := offerEntity
+//                    else
+//                    if HitInfo.HitColumn in DEL_TO_COLUMNS then
+//                      selectEntity := demandEntity
+//                    else
+//                    if HitInfo.HitColumn = DEL_SERF_COLUMN then
+//                      selectEntity := serfEntity
+//                    else
+//                    // otherwise circle through entities
+//                    if gMySpectator.Selected = nil then
+//                      selectEntity := serfEntity
+//                    else
+//                    if offerEntity = gMySpectator.Selected then
+//                      selectEntity := demandEntity
+//                    else
+//                    if demandEntity = gMySpectator.Selected then
+//                      selectEntity := serfEntity
+//                    else
+//                      selectEntity := offerEntity;
+//
+//                    gGameApp.Game.GamePlayInterface.SelectEntity(selectEntity);
+//
+//                    gMySpectator.HighlightDebug  := TKMHighlightEntity.New(offerEntity, OFF_COLOR);
+//                    gMySpectator.HighlightDebug2 := TKMHighlightEntity.New(demandEntity, DEM_COLOR);
+//                    gMySpectator.HighlightDebug3.SetEntity(serfEntity);
+//                    gMySpectator.HighlightRoute.SetEntity(serfEntity);
+//                  end;
+//    vstkOffer:    begin
+//                    gMySpectator.ResetHighlightDebug;
+//                    offerEntity := del.Offer[data.ID].Loc_House;
+//                    gGameApp.Game.GamePlayInterface.SelectEntity(offerEntity);
+//                    gMySpectator.HighlightDebug := TKMHighlightEntity.New(offerEntity, OFF_COLOR);
+//                  end;
+//    vstkDemand:   begin
+//                    gMySpectator.ResetHighlightDebug;
+//                    demandEntity := del.Demand[data.ID].GetDemandEntity;
+//                    gGameApp.Game.GamePlayInterface.SelectEntity(demandEntity);
+//                    gMySpectator.HighlightDebug := TKMHighlightEntity.New(demandEntity, DEM_COLOR);
+//                  end;
+//  end;
 end;
 
 
@@ -621,56 +621,56 @@ var
   data: PKMLogisticsIDs;
   del: TKMDeliveries;
 begin
-  data := Sender.GetNodeData(Node);
-  handID := data.HandID;
-
-  del := gHands[handID].Deliveries.Queue;
-
-  iQ := data.ID;
-  if (iQ = DELIVERY_NO_ID) or (iQ > del.DeliveryCount) then
-  begin
-    CellText := '0';
-    Exit;
-  end;
-
-  case VSTDeliveries.Header.Columns[Column].Tag of
-    0:  CellText := IntToStr(Node.Index);
-    1:  CellText := IntToStr(handID);
-    2:  CellText := IntToStr(iQ);
-    3:  CellText := gResWares[del.DeliveryWare[iQ]].Title;
-    4:  if (del.Delivery[iQ].OfferID = DELIVERY_NO_ID) or (del.Offer[del.Delivery[iQ].OfferID].Loc_House = nil) then
-          CellText := 'nil'
-        else
-          CellText := gResHouses[del.Offer[del.Delivery[iQ].OfferID].Loc_House.HouseType].HouseName;
-
-    5:  if (del.Delivery[iQ].OfferID = DELIVERY_NO_ID) or (del.Offer[del.Delivery[iQ].OfferID].Loc_House = nil) then
-          CellText := '0'
-        else
-          CellText := IntToStr(del.Offer[del.Delivery[iQ].OfferID].Loc_House.UID);
-
-    6:  if del.Delivery[iQ].DemandID <> DELIVERY_NO_ID then
-        begin
-          if del.Demand[del.Delivery[iQ].DemandID].Loc_House <> nil then
-            CellText := 'H: ' + gResHouses[del.Demand[del.Delivery[iQ].DemandID].Loc_House.HouseType].HouseName
-          else
-          if del.Demand[del.Delivery[iQ].DemandID].Loc_Unit <> nil then
-            CellText := 'U: ' + gRes.Units[del.Demand[del.Delivery[iQ].DemandID].Loc_Unit.UnitType].GUIName;
-        end
-        else
-          CellText := 'nil';
-    7:  if del.Delivery[iQ].DemandID <> DELIVERY_NO_ID then
-        begin
-          if del.Demand[del.Delivery[iQ].DemandID].Loc_House <> nil then
-            CellText := IntToStr(del.Demand[del.Delivery[iQ].DemandID].Loc_House.UID)
-          else
-          if del.Demand[del.Delivery[iQ].DemandID].Loc_Unit <> nil then
-            CellText := IntToStr(del.Demand[del.Delivery[iQ].DemandID].Loc_Unit.UID);
-        end
-        else
-          CellText := 'nil';
-    8:  CellText := IntToStr(del.Delivery[iQ].Serf.UID);
-    9:  CellText := IntToStr(del.Delivery[iQ].Serf.Task.Phase);
-  end;
+//  data := Sender.GetNodeData(Node);
+//  handID := data.HandID;
+//
+//  del := gHands[handID].Deliveries.Queue;
+//
+//  iQ := data.ID;
+//  if (iQ = DELIVERY_NO_ID) or (iQ > del.DeliveryCount) then
+//  begin
+//    CellText := '0';
+//    Exit;
+//  end;
+//
+//  case VSTDeliveries.Header.Columns[Column].Tag of
+//    0:  CellText := IntToStr(Node.Index);
+//    1:  CellText := IntToStr(handID);
+//    2:  CellText := IntToStr(iQ);
+//    3:  CellText := gResWares[del.DeliveryWare[iQ]].Title;
+//    4:  if (del.Delivery[iQ].OfferID = DELIVERY_NO_ID) or (del.Offer[del.Delivery[iQ].OfferID].Loc_House = nil) then
+//          CellText := 'nil'
+//        else
+//          CellText := gResHouses[del.Offer[del.Delivery[iQ].OfferID].Loc_House.HouseType].HouseName;
+//
+//    5:  if (del.Delivery[iQ].OfferID = DELIVERY_NO_ID) or (del.Offer[del.Delivery[iQ].OfferID].Loc_House = nil) then
+//          CellText := '0'
+//        else
+//          CellText := IntToStr(del.Offer[del.Delivery[iQ].OfferID].Loc_House.UID);
+//
+//    6:  if del.Delivery[iQ].DemandID <> DELIVERY_NO_ID then
+//        begin
+//          if del.Demand[del.Delivery[iQ].DemandID].Loc_House <> nil then
+//            CellText := 'H: ' + gResHouses[del.Demand[del.Delivery[iQ].DemandID].Loc_House.HouseType].HouseName
+//          else
+//          if del.Demand[del.Delivery[iQ].DemandID].Loc_Unit <> nil then
+//            CellText := 'U: ' + gRes.Units[del.Demand[del.Delivery[iQ].DemandID].Loc_Unit.UnitType].GUIName;
+//        end
+//        else
+//          CellText := 'nil';
+//    7:  if del.Delivery[iQ].DemandID <> DELIVERY_NO_ID then
+//        begin
+//          if del.Demand[del.Delivery[iQ].DemandID].Loc_House <> nil then
+//            CellText := IntToStr(del.Demand[del.Delivery[iQ].DemandID].Loc_House.UID)
+//          else
+//          if del.Demand[del.Delivery[iQ].DemandID].Loc_Unit <> nil then
+//            CellText := IntToStr(del.Demand[del.Delivery[iQ].DemandID].Loc_Unit.UID);
+//        end
+//        else
+//          CellText := 'nil';
+//    8:  CellText := IntToStr(del.Delivery[iQ].Serf.UID);
+//    9:  CellText := IntToStr(del.Delivery[iQ].Serf.Task.Phase);
+//  end;
 end;
 
 
@@ -681,37 +681,37 @@ var
   data: PKMLogisticsIDs;
   off: TKMDeliveryOffer;
 begin
-  data := Sender.GetNodeData(Node);
-  handID := data.HandID;
-  iO := data.ID;
-
-  if (iO = DELIVERY_NO_ID) or (iO > gHands[handID].Deliveries.Queue.OfferCount) then
-  begin
-    CellText := '0';
-    Exit;
-  end;
-
-  off := gHands[handID].Deliveries.Queue.Offer[iO];
-
-  case VSTOffers.Header.Columns[Column].Tag of
-    0:  CellText := IntToStr(Node.Index);
-    1:  CellText := IntToStr(handID);
-    2:  CellText := IntToStr(iO);
-    3:  CellText := gResWares[off.Ware].Title;
-    4:  if off.Loc_House = nil then
-          CellText := 'nil'
-        else
-          CellText := gResHouses[off.Loc_House.HouseType].HouseName;
-
-    5:  if off.Loc_House = nil then
-          CellText := '0'
-        else
-          CellText := IntToStr(off.Loc_House.UID);
-
-    6:  CellText := IntToStr(off.Count);
-    7:  CellText := IntToStr(off.BeingPerformed);
-    8:  CellText := BoolToStr(off.IsDeleted, True);
-  end;
+//  data := Sender.GetNodeData(Node);
+//  handID := data.HandID;
+//  iO := data.ID;
+//
+//  if (iO = DELIVERY_NO_ID) or (iO > gHands[handID].Deliveries.Queue.OfferCount) then
+//  begin
+//    CellText := '0';
+//    Exit;
+//  end;
+//
+//  off := gHands[handID].Deliveries.Queue.Offer[iO];
+//
+//  case VSTOffers.Header.Columns[Column].Tag of
+//    0:  CellText := IntToStr(Node.Index);
+//    1:  CellText := IntToStr(handID);
+//    2:  CellText := IntToStr(iO);
+//    3:  CellText := gResWares[off.Ware].Title;
+//    4:  if off.Loc_House = nil then
+//          CellText := 'nil'
+//        else
+//          CellText := gResHouses[off.Loc_House.HouseType].HouseName;
+//
+//    5:  if off.Loc_House = nil then
+//          CellText := '0'
+//        else
+//          CellText := IntToStr(off.Loc_House.UID);
+//
+//    6:  CellText := IntToStr(off.Count);
+//    7:  CellText := IntToStr(off.BeingPerformed);
+//    8:  CellText := BoolToStr(off.IsDeleted, True);
+//  end;
 end;
 
 
@@ -722,44 +722,44 @@ var
   data: PKMLogisticsIDs;
   dem: TKMDeliveryDemand;
 begin
-  data := Sender.GetNodeData(Node);
-  handID := data.HandID;
-  iD := data.ID;
-
-  if (iD = DELIVERY_NO_ID) or (iD > gHands[handID].Deliveries.Queue.DemandCount) then
-  begin
-    CellText := '0';
-    Exit;
-  end;
-
-  dem := gHands[handID].Deliveries.Queue.Demand[iD];
-
-  case VSTDemands.Header.Columns[Column].Tag of
-    0:  CellText := IntToStr(Node.Index);
-    1:  CellText := IntToStr(handID);
-    2:  CellText := IntToStr(iD);
-    3:  CellText := gResWares[dem.Ware].Title;
-    4:  if dem.Loc_House <> nil then
-          CellText := 'H: ' + gResHouses[dem.Loc_House.HouseType].HouseName
-        else
-        if dem.Loc_Unit <> nil then
-          CellText := 'U: ' + gRes.Units[dem.Loc_Unit.UnitType].GUIName
-        else
-          CellText := 'nil';
-
-    5:  if dem.Loc_House <> nil then
-          CellText := IntToStr(dem.Loc_House.UID)
-        else
-        if dem.Loc_Unit <> nil then
-          CellText := IntToStr(dem.Loc_Unit.UID)
-        else
-          CellText := '0';
-
-    6:  CellText := GetEnumName(TypeInfo(TKMDemandType), Integer(dem.demandType));
-    7:  CellText := GetEnumName(TypeInfo(TKMDemandImportance), Integer(dem.Importance));
-    8:  CellText := IntToStr(dem.BeingPerformed);
-    9:  CellText := BoolToStr(dem.IsDeleted, True);
-  end;
+//  data := Sender.GetNodeData(Node);
+//  handID := data.HandID;
+//  iD := data.ID;
+//
+//  if (iD = DELIVERY_NO_ID) or (iD > gHands[handID].Deliveries.Queue.DemandCount) then
+//  begin
+//    CellText := '0';
+//    Exit;
+//  end;
+//
+//  dem := gHands[handID].Deliveries.Queue.Demand[iD];
+//
+//  case VSTDemands.Header.Columns[Column].Tag of
+//    0:  CellText := IntToStr(Node.Index);
+//    1:  CellText := IntToStr(handID);
+//    2:  CellText := IntToStr(iD);
+//    3:  CellText := gResWares[dem.Ware].Title;
+//    4:  if dem.Loc_House <> nil then
+//          CellText := 'H: ' + gResHouses[dem.Loc_House.HouseType].HouseName
+//        else
+//        if dem.Loc_Unit <> nil then
+//          CellText := 'U: ' + gRes.Units[dem.Loc_Unit.UnitType].GUIName
+//        else
+//          CellText := 'nil';
+//
+//    5:  if dem.Loc_House <> nil then
+//          CellText := IntToStr(dem.Loc_House.UID)
+//        else
+//        if dem.Loc_Unit <> nil then
+//          CellText := IntToStr(dem.Loc_Unit.UID)
+//        else
+//          CellText := '0';
+//
+//    6:  CellText := GetEnumName(TypeInfo(TKMDemandType), Integer(dem.demandType));
+//    7:  CellText := GetEnumName(TypeInfo(TKMDemandImportance), Integer(dem.Importance));
+//    8:  CellText := IntToStr(dem.BeingPerformed);
+//    9:  CellText := BoolToStr(dem.IsDeleted, True);
+//  end;
 end;
 {$ENDIF}
 
