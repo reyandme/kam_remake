@@ -240,6 +240,7 @@ type
     procedure CloseDelivery(aID: Integer);
     procedure CloseDemand(aWare: TKMWareType; aID: Integer);
     procedure CloseOffer(aWare: TKMWareType; aID: Integer);
+    function ValidWareTypePair(oWT, dWT: TKMWareType): Boolean;
     function ValidDelivery(oWT, dWT: TKMWareType; iO, iD: Integer; aIgnoreOffer: Boolean = False): Boolean;
     function SerfCanDoDelivery(oWT: TKMWareType; iO: Integer; aSerf: TKMUnitSerf): Boolean;
     function PermitDelivery(oWT, dWT: TKMWareType; iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
@@ -493,7 +494,6 @@ procedure TKMHandLogistics.UpdateState(aTick: Cardinal);
 var
   I, K, iD, iO: Integer;
   dWT, oWT: TKMWareType;
-  oWTset: TKMWareTypeSet;
   offerPos: TKMPoint;
   bid, serfBid: TKMDeliveryBid;
   bestImportance: TKMDemandImportance;
@@ -531,34 +531,25 @@ begin
       fQueue.fBestBidCandidates.EnlargeTo(1024);
 
       for dWT := Low(fQueue.fDemandCount) to High(fQueue.fDemandCount) do
-      begin
-        case dWT of
-          wtNone:     oWTset := [];
-          wtAll:      oWTset := WARES_VALID;
-          wtWarfare:  oWTset := WARES_WARFARE;
-          wtFood:     oWTset := WARES_FOOD;
-          else        oWTset := [dWT];
-        end;
-
-        for oWT in oWTset do
-          for iD := 0 to fQueue.fDemandCount[dWT] - 1 do
-            if fQueue.fDemand[dWT, iD].IsActive
-              and (fQueue.fDemand[dWT, iD].Importance >= bestImportance) then //Skip any less important than the best we found
-              for iO := 0 to fQueue.fOfferCount[oWT] - 1 do
-                if fQueue.fOffer[oWT, iO].IsActive
-                  and fQueue.ValidDelivery(oWT, dWT, iO, iD)
-                  and AnySerfCanDoDelivery(oWT, iO) then //Only choose this delivery if at least one of the serfs can do it
-                begin
-                  bid := TKMDeliveryBid.Create(fQueue.fDemand[dWT,iD].Importance, nil, oWT, dWT, iO, iD);
-                  if fQueue.TryCalculateBid(dckFast, bid) then
+        for oWT := WARE_MIN to WARE_MAX do
+          if fQueue.ValidWareTypePair(oWT, dWT) then
+            for iD := 0 to fQueue.fDemandCount[dWT] - 1 do
+              if fQueue.fDemand[dWT, iD].IsActive
+                and (fQueue.fDemand[dWT, iD].Importance >= bestImportance) then //Skip any less important than the best we found
+                for iO := 0 to fQueue.fOfferCount[oWT] - 1 do
+                  if fQueue.fOffer[oWT, iO].IsActive
+                    and fQueue.ValidDelivery(oWT, dWT, iO, iD)
+                    and AnySerfCanDoDelivery(oWT, iO) then //Only choose this delivery if at least one of the serfs can do it
                   begin
-                    fQueue.fBestBidCandidates.Push(bid);
-                    bestImportance := bid.Importance;
-                  end
-                  else
-                    bid.Free;
-                end;
-      end;
+                    bid := TKMDeliveryBid.Create(fQueue.fDemand[dWT,iD].Importance, nil, oWT, dWT, iO, iD);
+                    if fQueue.TryCalculateBid(dckFast, bid) then
+                    begin
+                      fQueue.fBestBidCandidates.Push(bid);
+                      bestImportance := bid.Importance;
+                    end
+                    else
+                      bid.Free;
+                  end;
 
       bid := fQueue.ChooseBestBid(bestImportance);
 
@@ -1160,6 +1151,15 @@ begin
 end;
 
 
+function TKMDeliveries.ValidWareTypePair(oWT, dWT: TKMWareType): Boolean;
+begin
+  Result := (dWT = oWT)
+            or (dWT = wtAll)
+            or ((dWT = wtWarfare) and (oWT in WARES_WARFARE))
+            or ((dWT = wtFood) and (oWT in WARES_FOOD));
+end;
+
+
 //IgnoreOffer means we don't check whether offer was already taken or deleted (used after offer was already claimed)
 function TKMDeliveries.ValidDelivery(oWT, dWT: TKMWareType; iO, iD: Integer; aIgnoreOffer: Boolean = False): Boolean;
 var
@@ -1173,16 +1173,9 @@ begin
 
   // Conditions are called in the frequency of a negative Result: most negative first
 
-  // 95% of the calls returns False after next condition
-  //If Offer Resource matches Demand
-  Result := (dWT = oWT) or
-            (dWT = wtAll) or
-            ((dWT = wtWarfare) and (oWT in WARES_WARFARE)) or
-            ((dWT = wtFood) and (oWT in WARES_FOOD));
-
   //If Demand and Offer aren't reserved already
-  Result := Result and (aIgnoreOffer or (offer.BeingPerformed < offer.Count))
-                   and ((demand.DemandType = dtAlways) or (demand.BeingPerformed = 0));
+  Result := (aIgnoreOffer or (offer.BeingPerformed < offer.Count))
+             and ((demand.DemandType = dtAlways) or (demand.BeingPerformed = 0));
 
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
@@ -1306,7 +1299,6 @@ var
   offersTaken: Cardinal;
   demandTaken: array[WARE_MIN..WARE_MAX_ALL] of array of Boolean; //Each demand can only be taken once in our measurements
   dWT, oWT: TKMWareType;
-  oWTset: TKMWareTypeSet;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
@@ -1322,40 +1314,31 @@ begin
     Result := 0;
 
     for dWT := Low(fDemandCount) to High(fDemandCount) do
-    begin
-      case dWT of
-        wtNone:     oWTset := [];
-        wtAll:      oWTset := WARES_VALID;
-        wtWarfare:  oWTset := WARES_WARFARE;
-        wtFood:     oWTset := WARES_FOOD;
-        else        oWTset := [dWT];
-      end;
-
-      for oWT in oWTset do
-        for iO := 0 to fOfferCount[oWT] - 1 do
-          if fOffer[oWT,iO].IsActive then
-          begin
-            offersTaken := 0;
-            for iD := 0 to fDemandCount[dWT] - 1 do
-              if fDemand[dWT,iD].IsActive and not demandTaken[dWT,iD] and ValidDelivery(oWT,dWT,iO,iD) then
-              begin
-                if fDemand[dWT,iD].DemandType = dtOnce then
+      for oWT := WARE_MIN to WARE_MAX do
+        if ValidWareTypePair(oWT, dWT) then
+          for iO := 0 to fOfferCount[oWT] - 1 do
+            if fOffer[oWT,iO].IsActive then
+            begin
+              offersTaken := 0;
+              for iD := 0 to fDemandCount[dWT] - 1 do
+                if fDemand[dWT,iD].IsActive and not demandTaken[dWT,iD] and ValidDelivery(oWT,dWT,iO,iD) then
                 begin
-                  demandTaken[dWT,iD] := True;
-                  Inc(Result);
-                  Inc(offersTaken);
-                  if fOffer[oWT,iO].Count - offersTaken = 0 then
-                    Break; //Finished with this offer
-                end
-                else
-                begin
-                  //This demand will take all the offers, so increase result by that many
-                  Inc(Result, fOffer[oWT,iO].Count - offersTaken);
-                  Break; //This offer is finished (because this demand took it all)
+                  if fDemand[dWT,iD].DemandType = dtOnce then
+                  begin
+                    demandTaken[dWT,iD] := True;
+                    Inc(Result);
+                    Inc(offersTaken);
+                    if fOffer[oWT,iO].Count - offersTaken = 0 then
+                      Break; //Finished with this offer
+                  end
+                  else
+                  begin
+                    //This demand will take all the offers, so increase result by that many
+                    Inc(Result, fOffer[oWT,iO].Count - offersTaken);
+                    Break; //This offer is finished (because this demand took it all)
+                  end;
                 end;
-              end;
-          end;
-    end;
+            end;
   finally
     {$IFDEF PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
@@ -1667,21 +1650,22 @@ begin
     end;
 
     for dWT := Low(fDemandCount) to High(fDemandCount) do
-      for iD := 0 to fDemandCount[dWT] - 1 do
-        if fDemand[dWT,iD].IsActive
-        and not ((oldD = iD) and (oldDWT = dWT))
-        and (fDemand[dWT,iD].Importance >= bestImportance) //Skip any less important than the best we found
-        and ValidDelivery(oWT, dWT, iO, iD, True) then
-        begin
-          bid := TKMDeliveryBid.Create(fDemand[dWT,iD].Importance, aSerf, oWT, dWT, iO, iD);
-          if TryCalculateBid(dckFast, bid) then
+      if ValidWareTypePair(oWT, dWT) then
+        for iD := 0 to fDemandCount[dWT] - 1 do
+          if fDemand[dWT,iD].IsActive
+          and not ((oldD = iD) and (oldDWT = dWT))
+          and (fDemand[dWT,iD].Importance >= bestImportance) //Skip any less important than the best we found
+          and ValidDelivery(oWT, dWT, iO, iD, True) then
           begin
-            fBestBidCandidates.Push(bid);
-            bestImportance := bid.Importance;
-          end
-          else
-            bid.Free;
-        end;
+            bid := TKMDeliveryBid.Create(fDemand[dWT,iD].Importance, aSerf, oWT, dWT, iO, iD);
+            if TryCalculateBid(dckFast, bid) then
+            begin
+              fBestBidCandidates.Push(bid);
+              bestImportance := bid.Importance;
+            end
+            else
+              bid.Free;
+          end;
 
     bid := ChooseBestBid(bestImportance, aSerf);
 
@@ -1738,13 +1722,9 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
     demand := @fDemand[dWT, iD];
     oldDemand := @fDemand[oldDWT,iOldID];
 
-    Result := (dWT = aWare) or
-              ((dWT = wtWarfare) and (aWare in [WARFARE_MIN..WARFARE_MAX])) or
-              ((dWT = wtFood) and (aWare in [wtBread, wtSausage, wtWine, wtFish]));
-
     //Check if unit is alive
-    Result := Result and ((demand.Loc_Unit = nil)
-                          or (not demand.Loc_Unit.IsDeadOrDying and (demand.Loc_Unit <> oldDemand^.Loc_Unit)));
+    Result := ((demand.Loc_Unit = nil)
+               or (not demand.Loc_Unit.IsDeadOrDying and (demand.Loc_Unit <> oldDemand^.Loc_Unit)));
 
     //If Demand house should abandon delivery
     Result := Result and ((demand.Loc_House = nil)
@@ -1797,22 +1777,23 @@ procedure TKMDeliveries.DeliveryFindBestDemand(aSerf: TKMUnitSerf; aDeliveryId: 
 
     //Try to find house or unit demand first (not storage)
     for dWT := Low(fDemandCount) to High(fDemandCount) do
-      for iD := 0 to fDemandCount[dWT] - 1 do
-        if fDemand[dWT,iD].IsActive
-          and not ((iD = oldDemandId) and (dWT = oldDWT))
-          and not fDemand[dWT,iD].IsDeleted
-          and (fDemand[dWT,iD].Importance >= bestImportance)
-          and ValidBestDemand(dWT, oldDWT, iD, oldDemandId) then
-        begin
-          bid := TKMDeliveryBid.Create(fDemand[dWT,iD].Importance, aSerf, wtNone, dWT, 0, iD);
-          if TryCalculateBidBasic(dckFast, aSerf.Position, 1, htNone, aSerf.Owner, bid, nil, allowOffroad) then
+      if ValidWareTypePair(aWare, dWT) then
+        for iD := 0 to fDemandCount[dWT] - 1 do
+          if fDemand[dWT,iD].IsActive
+            and not ((iD = oldDemandId) and (dWT = oldDWT))
+            and not fDemand[dWT,iD].IsDeleted
+            and (fDemand[dWT,iD].Importance >= bestImportance)
+            and ValidBestDemand(dWT, oldDWT, iD, oldDemandId) then
           begin
-            fBestBidCandidates.Push(bid);
-            bestImportance := bid.Importance;
-          end
-          else
-            bid.Free;
-        end;
+            bid := TKMDeliveryBid.Create(fDemand[dWT,iD].Importance, aSerf, wtNone, dWT, 0, iD);
+            if TryCalculateBidBasic(dckFast, aSerf.Position, 1, htNone, aSerf.Owner, bid, nil, allowOffroad) then
+            begin
+              fBestBidCandidates.Push(bid);
+              bestImportance := bid.Importance;
+            end
+            else
+              bid.Free;
+          end;
 
     bid := ChooseBestBidBasic(bestImportance, allowOffroad);
 
@@ -2002,7 +1983,6 @@ function TKMDeliveries.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = nil
 var
   iQ, iD, iO: Integer;
   dWT, oWT: TKMWareType;
-  oWTset: TKMWareTypeSet;
   bid: TKMDeliveryBid;
   bestImportance: TKMDemandImportance;
 begin
@@ -2019,34 +1999,25 @@ begin
     fBestBidCandidates.EnlargeTo(128); // Do we need this?
 
     for dWT := Low(fDemandCount) to High(fDemandCount) do
-    begin
-      case dWT of
-        wtNone:     oWTset := [];
-        wtAll:      oWTset := WARES_VALID;
-        wtWarfare:  oWTset := WARES_WARFARE;
-        wtFood:     oWTset := WARES_FOOD;
-        else        oWTset := [dWT];
-      end;
-
-      for oWT in oWTset do
-        for iD := 0 to fDemandCount[dWT] - 1 do
-          if fDemand[dWT,iD].IsActive
-            and (fDemand[dWT,iD].Importance >= bestImportance) then //Skip any less important than the best we found
-            for iO := 0 to fOfferCount[oWT] - 1 do
-              if ((aHouse = nil) or (fOffer[oWT,iO].Loc_House = aHouse))  //Make sure from house is the one requested
-                and fOffer[oWT,iO].IsActive
-                and PermitDelivery(oWT, dWT, iO, iD, aSerf) then
-              begin
-                bid := TKMDeliveryBid.Create(fDemand[dWT,iD].Importance, aSerf, oWT, dWT, iO, iD);
-                if TryCalculateBid(dckFast, bid, aSerf) then
+      for oWT := WARE_MIN to WARE_MAX do
+        if ValidWareTypePair(oWT, dWT) then
+          for iD := 0 to fDemandCount[dWT] - 1 do
+            if fDemand[dWT,iD].IsActive
+              and (fDemand[dWT,iD].Importance >= bestImportance) then //Skip any less important than the best we found
+              for iO := 0 to fOfferCount[oWT] - 1 do
+                if ((aHouse = nil) or (fOffer[oWT,iO].Loc_House = aHouse))  //Make sure from house is the one requested
+                  and fOffer[oWT,iO].IsActive
+                  and PermitDelivery(oWT, dWT, iO, iD, aSerf) then
                 begin
-                  fBestBidCandidates.Push(bid);
-                  bestImportance := bid.Importance;
-                end
-                else
-                  bid.Free;
-              end;
-    end;
+                  bid := TKMDeliveryBid.Create(fDemand[dWT,iD].Importance, aSerf, oWT, dWT, iO, iD);
+                  if TryCalculateBid(dckFast, bid, aSerf) then
+                  begin
+                    fBestBidCandidates.Push(bid);
+                    bestImportance := bid.Importance;
+                  end
+                  else
+                    bid.Free;
+                end;
 
     bid := ChooseBestBid(bestImportance, aSerf);
 
