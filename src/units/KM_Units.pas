@@ -2497,7 +2497,7 @@ begin
         //of rising error. This problem does not occur in 99.9% gameplays and is fired
         //randomly so it is practically impossible to debug.
         {$ELSE}
-        raise ELocError.Create(Format('%s on unwalkable tile at %s pass CanWalk', [gRes.Units[UnitType].GUIName, fNextPosition.ToString]), fNextPosition);
+        raise ELocError.Create(Format('%s on unwalkable tile at %s pass CanWalk', [gRes.Units[UnitType].GUIName, fPositionNext.ToString]), fPositionNext);
         {$ENDIF}
     end else
     if not gTerrain.CheckPassability(fPositionNext, DesiredPassability) then
@@ -2505,7 +2505,7 @@ begin
       Self.Kill(HAND_NONE, False, True);
       //Explanation above
       {$ELSE}
-      raise ELocError.Create(Format('%s on unwalkable tile at %s pass: ''%s''', [gRes.Units[UnitType].GUIName, fNextPosition.ToString, PASSABILITY_GUI_TEXT[DesiredPassability]]), fNextPosition);
+      raise ELocError.Create(Format('%s on unwalkable tile at %s pass: ''%s''', [gRes.Units[UnitType].GUIName, fPositionNext.ToString, PASSABILITY_GUI_TEXT[DesiredPassability]]), fPositionNext);
       {$ENDIF}
 
   //
