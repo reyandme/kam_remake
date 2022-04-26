@@ -1827,6 +1827,7 @@ end;
 function TKMRunnerAAIPerformance.TickPlayed(aTick: Cardinal): Boolean;
 begin
   // good for debug
+  Result := True;
 end;
 
 
