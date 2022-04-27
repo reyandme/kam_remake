@@ -355,7 +355,7 @@ uses
 
 const
   //Max distance to use pathfinding on calc delivery bids. No need to calc on very long distance
-  BID_CALC_MAX_DIST_FOR_PATHF = 100;
+  BID_CALC_MAX_DIST_FOR_PATHF = 40;
   //Approx compensation to compare Bid cost calc with pathfinding and without it. Pathfinding is usually longer
   BID_CALC_PATHF_COMPENSATION = 0.9;
   LENGTH_INC = 32; //Increment array lengths by this value
@@ -364,7 +364,7 @@ const
   OFFER_DEMAND_CACHED_BID_TTL = 50; //In ticks. DeliveryUpdate is not made every tick
   SERF_OFFER_CACHED_BID_TTL = 30;   //In ticks. DeliveryUpdate is not made every tick
 
-  BIDS_TO_COMPARE = 10; // Maximum number of bids to compare among candidates (how many routes to calc)
+  BIDS_TO_COMPARE = 5; // Maximum number of bids to compare among candidates (how many routes to calc)
 
 
 { TKMHandLogistics }
