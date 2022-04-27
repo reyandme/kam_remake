@@ -506,9 +506,11 @@ begin
     fQueue.UpdateState;
     RemoveExtraSerfs;
 
-    availableDeliveries := fQueue.GetAvailableDeliveriesCount;
     availableSerfs := GetIdleSerfCount;
-    if availableSerfs * availableDeliveries = 0 then Exit;
+    if availableSerfs = 0 then Exit;
+
+    availableDeliveries := fQueue.GetAvailableDeliveriesCount;
+    if availableDeliveries = 0 then Exit;
 
     if availableDeliveries > availableSerfs then
     begin
