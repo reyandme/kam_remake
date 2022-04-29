@@ -1919,6 +1919,7 @@ begin
       CUSTOM_SEED_VALUE := L + Seed;
 
       OnProgress3('Seed: ' + IntToStr(CUSTOM_SEED_VALUE));
+      OnProgress2(fMap + ' Run ' + IntToStr(L));
 
       OnProgress_Left('');
       OnProgress_Left2('');
@@ -1942,8 +1943,6 @@ begin
 //      Exclude(gLog.MessageTypes, lmtCommands);
 
       simulLastTick := min(SIMUL_TIME_MAX, fResults.TimesCount - 1);
-
-      OnProgress2(fMap + ' Run ' + IntToStr(L));
 
       if Assigned(fOnStop)
         and fOnStop then
