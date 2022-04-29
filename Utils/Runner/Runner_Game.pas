@@ -1835,7 +1835,7 @@ end;
 procedure TKMRunnerAAIPerformance.Execute(aRun: Integer);
 const
   // Maps for simulation (I dont use for loop in this array)
-  MAPS: array [1..17] of String = ('Across the Desert','Mountainous Region','Battle Sun','Neighborhood Clash','Valley of the Equilibrium','Wilderness',
+  MAPS: array [1..18] of String = ('Stress_Test_200','Across the Desert','Mountainous Region','Battle Sun','Neighborhood Clash','Valley of the Equilibrium','Wilderness',
                                    'Border Rivers','Blood and Ice','A Midwinter''s Day','Coastal Expedition','Defending the Homeland','Eruption',
                                    'Forgotten Lands','Golden Cliffs','Rebound','Riverlands', 'Shadow Realm');
   MAPS_8P: array [1..29] of String = ('A War of Justice','Babylon','Back in the Desert','Center Castle Looting','Cold Water 8P',
@@ -1867,7 +1867,7 @@ const
   LOAD_SAVEPT_AT_TICK = 0;
   SKIP_FIRST_SAVEPT_CNT = 15; //Skip first savepoints to save some time
 
-  MAPS_TO_TEST = 3;
+  MAPS_TO_TEST = 1;
   cnt_MAP_SIMULATIONS = 1;
 
   procedure StartGame;
@@ -1886,7 +1886,7 @@ var
 
   mapT1, mapT2, score: Cardinal;
 begin
-  DEFAULT_PEACE_TIME := 60;
+  DEFAULT_PEACE_TIME := 20;
   PAUSE_GAME_BEFORE_TICK := -1;    //Pause at specified game tick
 //  MAKE_SAVEPT_BEFORE_TICK := 40800;
 
