@@ -97,3 +97,7 @@ Modding graphics/*.txt
 /_Campaigns/
 /_Tutorials/
 /TM_unused.txt
+
+/Profiling/
+/KaM_Remake_exe_Results/
+KaM_Remake_exe.aqt
