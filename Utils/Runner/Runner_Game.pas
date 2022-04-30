@@ -1867,7 +1867,7 @@ const
   LOAD_SAVEPT_AT_TICK = 0;
   SKIP_FIRST_SAVEPT_CNT = 15; //Skip first savepoints to save some time
 
-  MAPS_TO_TEST = 1;
+  MAPS_TO_TEST = 3;
   cnt_MAP_SIMULATIONS = 1;
 
   procedure StartGame;
@@ -1882,11 +1882,11 @@ const
 var
   K,L: Integer;
 //  mapsCnt: Integer;
-  simulLastTick, totalRuns: Integer;
+  startMapI, simulLastTick, totalRuns: Integer;
 
   mapT1, mapT2, score: Cardinal;
 begin
-  DEFAULT_PEACE_TIME := 20;
+  DEFAULT_PEACE_TIME := 60;
   PAUSE_GAME_BEFORE_TICK := -1;    //Pause at specified game tick
 //  MAKE_SAVEPT_BEFORE_TICK := 40800;
 
@@ -1895,8 +1895,9 @@ begin
 
 //  mapsCnt := 0;
   score := 0;
+  startMapI := 2;
 
-  for K := 1 to MAPS_TO_TEST do
+  for K := startMapI to MAPS_TO_TEST + startMapI - 1 do
 //  for K := 5 to High(MAPS) do
 //  while M < mapsCnt do
   begin
