@@ -1362,7 +1362,7 @@ end;
 function TKMGameApp.CheckDATConsistency: Boolean;
 const
   // That's the magic CRC of official .dat files and our .json specifications
-  DEFINES_CRC: Cardinal = $2E3E8670;
+  DEFINES_CRC: Cardinal = $28810991;
 begin
   Result := ALLOW_MP_MODS or (gRes.GetDATCRC = DEFINES_CRC);
 end;
