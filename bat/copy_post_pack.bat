@@ -30,7 +30,7 @@ xcopy ..\"Modding graphics" "%kam_folder%"\"Modding graphics"\ /y /r /s
 REM ============================================================
 REM Copy *.rxa resource files 
 REM ============================================================
-xcopy "%SpritesRXADir%"\*.rxa "%kam_folder%"\data\Sprites\ /y /r /s
+REM xcopy "%SpritesRXADir%"\*.rxa "%kam_folder%"\data\Sprites\ /y /r /s
 
 
 call pull_maps.bat
