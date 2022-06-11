@@ -22,7 +22,7 @@ type
     function GetBaseThreadName: string;
   public
     //Special mode for exception handling. Runs work synchronously inside QueueWork
-    fSynchronousExceptionMode: Boolean;
+    SynchronousExceptionMode: Boolean;
 
     constructor Create(const aThreadName: string = '');
     destructor Destroy; override;
@@ -70,7 +70,7 @@ begin
   {$ENDIF}
 
   fWorkCompleted := False;
-  fSynchronousExceptionMode := False;
+  SynchronousExceptionMode := False;
   fTaskQueue := TQueue<TKMWorkerThreadTask>.Create;
 end;
 
@@ -176,8 +176,20 @@ end;
 
 
 procedure TKMWorkerThread.QueueWorkAndLog(aProc: TProc; aWorkName: string = '');
+var
+  workName: string;
 begin
-  QueueWork(aProc, procedure(aJobName: String)
+  workName := aWorkName;
+  QueueWork(procedure
+    begin
+      gLog.MultithreadLogging := True;
+      try
+        gLog.AddTime(Format('Job ''%s'' is started', [workName]));
+        aProc;
+      finally
+        gLog.MultithreadLogging := False;
+      end;
+    end, procedure(aJobName: String)
     begin
       gLog.MultithreadLogging := True;
       try
@@ -199,7 +211,7 @@ procedure TKMWorkerThread.QueueWork(aProc: TProc; aCallback: TProc<String> = nil
 var
   job: TKMWorkerThreadTask;
 begin
-  if fSynchronousExceptionMode then
+  if SynchronousExceptionMode then
   begin
     aProc();
   end
@@ -228,18 +240,22 @@ end;
 
 procedure TKMWorkerThread.WaitForAllWorkToComplete;
 begin
-  if fSynchronousExceptionMode then
+  if SynchronousExceptionMode then
     Exit;
 
   TMonitor.Enter(fTaskQueue);
+  gLog.MultithreadLogging := True;
   try
+    gLog.AddTime('[' + fWorkerThreadName + '] WaitForAllWorkToComplete');
     if not fWorkCompleted and not Finished then
     begin
       //Wait infinite until worker thread finish his job
       while not TMonitor.Wait(fTaskQueue, 1000) do ;
     end;
+    gLog.AddTime('[' + fWorkerThreadName + '] Completed! WaitForAllWorkToComplete');
   finally
     TMonitor.Exit(fTaskQueue);
+    gLog.MultithreadLogging := False;
   end;
 end;
 

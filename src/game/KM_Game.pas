@@ -8,7 +8,7 @@ uses
   KM_Networking,
   KM_PathFinding,
   KM_GameParams, KM_GameInputProcess,
-  KM_GameSavePoints,
+  KM_GameSavePoints, KM_GameSaveWorkerThreadHolder,
   KM_GameOptions, KM_GameTypes,
   KM_MapEditor, KM_Campaigns, KM_Maps, KM_MapTypes, KM_CampaignTypes, KM_TerrainPainter,
   KM_Render, KM_Scripting,
@@ -93,10 +93,12 @@ type
     fLastSaveStreamSize: Cardinal;
 
     // Worker threads
-    fSaveWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for normal saves and save at the end of PT
-    fBaseSaveWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for base save only
-    fAutoSaveWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for autosaves only
-    fSavePointWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for savepoints only
+    fSaveWorkerThreadHolder: TKMGameSaveWorkerThreadHolder;       // Worker thread for normal saves and save at the end of PT
+    fBaseSaveWorkerThreadHolder: TKMGameSaveWorkerThreadHolder;   // Worker thread for base save only
+    fAutoSaveWorkerThreadHolder: TKMGameSaveWorkerThreadHolder;   // Worker thread for autosaves only
+//    fSavePointWorkerThreadHolder: TKMWorkerThreadHolder;  // Worker thread for savepoints only
+//    fSaveGIPWorkerThreadHolder: TKMWorkerThreadHolder;    // Worker thread for GIP save only
+//    fSaveRandomChecksThreadHolder: TKMWorkerThreadHolder; // Worker thread for random checks only
 
     fMapEdMapSaveStarted: TEvent;
     fMapEdMapSaveEnded: TEvent;
@@ -144,7 +146,8 @@ type
     procedure PrepareSaveFolder(const aPathName: String; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread);
     procedure SaveGameToStream(aTimestamp: TDateTime; aSaveStream: TKMemoryStream); overload;
     procedure SaveGameToStream(aTimestamp: TDateTime; aHeaderStream, aBodyStream: TKMemoryStream); overload;
-    procedure SaveGameToFile(const aPathName: String; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread; aTimestamp: TDateTime; const aMPLocalDataPathName: String = '');
+    procedure SaveGameToFile(const aPathName: String; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread; aTimestamp: TDateTime;
+                             const aMPLocalDataPathName: String = ''; aPrepareFolder: Boolean = False);
 
     function PlayGameTick: Boolean;
     function PlayReplayTick: Boolean;
@@ -158,11 +161,14 @@ type
     StartedFromMapEditor: Boolean;    // True if we start game from map editor ('Quick Play')
     StartedFromMapEdAsMPMap: Boolean; // True if we start game from map editor ('Quick Play') with MP map
 
+    constructor Create(aGameMode: TKMGameMode); overload;
     constructor Create(aGameMode: TKMGameMode; aRender: TKMRender; aOnDestroy: TEvent;
                        aSaveWorkerThreadHolder,
                        aBaseSaveWorkerThreadHolder,
-                       aAutoSaveWorkerThreadHolder,
-                       aSavePointWorkerThreadHolder: TKMWorkerThreadHolder);
+                       aAutoSaveWorkerThreadHolder{,
+                       aSavePointWorkerThreadHolder,
+                       aSaveGIPWorkerThreadHolder,
+                       aSaveRandomChecksThreadHolder}: TKMGameSaveWorkerThreadHolder); overload;
     destructor Destroy; override;
 
     procedure Start(const aMissionFullFilePath, aName: UnicodeString; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
@@ -178,7 +184,7 @@ type
 
     procedure Save(const aSaveName: UnicodeString); overload;
     procedure Save(const aSaveName: UnicodeString; aTimestamp: TDateTime); overload;
-    procedure Save(const aSaveName: UnicodeString; aTimestamp: TDateTime; aSaveWorkerThread: TKMWorkerThread); overload;
+    procedure Save(const aSaveName: UnicodeString; aTimestamp: TDateTime; aSaveWorkerThread: TKMGameSaveWorkerThreadHolder); overload;
     procedure SaveAndWait(const aSaveName: UnicodeString);
     procedure WaitForSaveToBeDone;
     procedure WaitForAllSavesToBeDone;
@@ -345,11 +351,19 @@ const
 //Create template for the Game
 //aRender - who will be rendering the Game session
 //aNetworking - access to MP stuff
+constructor TKMGame.Create(aGameMode: TKMGameMode);
+begin
+  Create(aGameMode, nil, nil, nil, nil, nil);
+end;
+
+
 constructor TKMGame.Create(aGameMode: TKMGameMode; aRender: TKMRender; aOnDestroy: TEvent;
                            aSaveWorkerThreadHolder,
                            aBaseSaveWorkerThreadHolder,
-                           aAutoSaveWorkerThreadHolder,
-                           aSavePointWorkerThreadHolder: TKMWorkerThreadHolder);
+                           aAutoSaveWorkerThreadHolder{,
+                           aSavePointWorkerThreadHolder,
+                           aSaveGIPWorkerThreadHolder,
+                           aSaveRandomChecksThreadHolder}: TKMGameSaveWorkerThreadHolder);
 const
   UIMode: array[TKMGameMode] of TUIMode = (umSP, umSP, umMP, umSpectate, umSP, umReplay, umReplay);
 begin
@@ -365,7 +379,9 @@ begin
   fSaveWorkerThreadHolder := aSaveWorkerThreadHolder;
   fBaseSaveWorkerThreadHolder := aBaseSaveWorkerThreadHolder;
   fAutoSaveWorkerThreadHolder := aAutoSaveWorkerThreadHolder;
-  fSavePointWorkerThreadHolder := aSavePointWorkerThreadHolder;
+//  fSavePointWorkerThreadHolder := aSavePointWorkerThreadHolder;
+//  fSaveGIPWorkerThreadHolder := aSaveGIPWorkerThreadHolder;
+//  fSaveRandomChecksThreadHolder := aSaveRandomChecksThreadHolder;
 
   fOnDestroy := aOnDestroy;
 
@@ -775,7 +791,7 @@ begin
     {$IFDEF PARALLEL_RUNNER}
       SaveGameToFile(SaveName('basesave_thread_' + IntToStr(THREAD_NUMBER), EXT_SAVE_BASE, fParams.IsMultiplayerOrSpec), False, fBaseSaveWorkerThreadHolder.Worker, UTCNow);
     {$ELSE}
-      SaveGameToFile(SaveName(BASESAVE_NAME, EXT_SAVE_BASE, fParams.IsMultiplayerOrSpec), False, fBaseSaveWorkerThreadHolder.Worker, UTCNow);
+      SaveGameToFile(SaveName(BASESAVE_NAME, EXT_SAVE_BASE, fParams.IsMultiplayerOrSpec), False, fBaseSaveWorkerThreadHolder.Worker[wtMain], UTCNow, '', True);
     {$ENDIF}
 
   if fParams.IsMapEditor then
@@ -1183,14 +1199,14 @@ begin
   attachedFilesStr := '';
 
   // Attempt to save the game, but if the state is too messed up it might fail
-  fSaveWorkerThreadHolder.Worker.fSynchronousExceptionMode := True; //Do saving synchronously in main thread
+  fSaveWorkerThreadHolder.SetSynchronousExceptionMode(True); //Do saving synchronously in main thread
   try
     try
       if (fParams.Mode in [gmSingle, gmCampaign, gmMulti, gmMultiSpectate])
         and not (fGamePlayInterface.UIMode = umReplay) then //In case game mode was altered or loaded with logical error
       begin
-        Save(CRASHREPORT_SAVE_NAME, UTCNow, fSaveWorkerThreadHolder.Worker);
-        fSaveWorkerThreadHolder.Worker.WaitForAllWorkToComplete; //Wait till save is made
+        Save(CRASHREPORT_SAVE_NAME, UTCNow, fSaveWorkerThreadHolder);
+        fSaveWorkerThreadHolder.WaitForAllWorkToComplete; //Wait till save is made
         AttachSaveFiles(SaveName(CRASHREPORT_SAVE_NAME, EXT_SAVE_MAIN, fParams.IsMultiPlayerOrSpec));
       end;
     except
@@ -1199,7 +1215,7 @@ begin
                      {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF});
     end;
   finally
-    fSaveWorkerThreadHolder.Worker.fSynchronousExceptionMode := False;
+    fSaveWorkerThreadHolder.SetSynchronousExceptionMode(False);
   end;
 
   missionFile := fParams.MissionFileRel;
@@ -1548,16 +1564,16 @@ var
   localIsMultiPlayerOrSpec: Boolean;
 {$ENDIF}
 begin
-  Save(AUTOSAVE_SAVE_NAME, aTimestamp, fAutoSaveWorkerThreadHolder.Worker); //Save to temp file
+  Save(AUTOSAVE_SAVE_NAME, aTimestamp, fAutoSaveWorkerThreadHolder); //Save to temp file
 
   //If possible perform file deletion/renaming in a different thread so we don't delay game
   {$IFDEF WDC}
     //Avoid accessing Self from async thread, copy required states to local variables
     localIsMultiPlayerOrSpec := fParams.IsMultiPlayerOrSpec;
-    fAutoSaveWorkerThreadHolder.Worker.QueueWork(procedure
-    begin
-      DoAutoSaveRename(localIsMultiPlayerOrSpec);
-    end, 'AutoSaveRename');
+    fAutoSaveWorkerThreadHolder.QueueToAll(wtMain, procedure
+      begin
+        DoAutoSaveRename(localIsMultiPlayerOrSpec);
+      end, 'AutoSaveRename');
   {$ELSE}
     DoAutoSaveRename(fParams.IsMultiPlayerOrSpec);
   {$ENDIF}
@@ -2363,10 +2379,9 @@ begin
   path := aPathName;
   //Makes the folders in case they were deleted.
   //Should do before save Minimap file for MP game
-  if (aPathName <> '') then
-  begin
-    // We can make directories in async too, since all save parts are made in async now
-    aSaveWorkerThread.QueueWork(procedure
+  if aPathName = '' then Exit;
+
+  aSaveWorkerThread.QueueWork(procedure
     begin
       path := ExtractFilePath(path);
       if DirectoryExists(path) then
@@ -2385,14 +2400,13 @@ begin
       end
       else
         ForceDirectories(path);
-    end, 'Prepare save dir');
-  end;
+    end, 'PrepareSaveFolder');
 end;
 
 
 //Saves the game in all its glory
 procedure TKMGame.SaveGameToFile(const aPathName: String; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread;
-                                 aTimestamp: TDateTime; const aMPLocalDataPathName: String = '');
+                                 aTimestamp: TDateTime; const aMPLocalDataPathName: String = ''; aPrepareFolder: Boolean = False);
 var
   mainStream, headerStream, bodyStream, saveStreamTxt: TKMemoryStream;
   gameMPLocalData: TKMGameMPLocalData;
@@ -2400,13 +2414,14 @@ begin
   if BLOCK_SAVE then Exit; // This must be here because of paraller Runner
 
   // We have to wait until basesave is made before first game save
-  fBaseSaveWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+  fBaseSaveWorkerThreadHolder.WaitForAllWorkToComplete;
 
   gLog.AddTime(Format('Saving game at tick %d to ''%s''', [fParams.Tick, aPathName]));
 
   Assert(not fParams.IsMapEditor and (ALLOW_SAVE_IN_REPLAY or not fParams.IsReplay), 'Saving from wrong state');
 
-  PrepareSaveFolder(aPathName, aSaveByPlayer, aSaveWorkerThread);
+  if aPrepareFolder then
+    PrepareSaveFolder(aPathName, aSaveByPlayer, aSaveWorkerThread);
 
   mainStream    := TKMemoryStreamBinary.Create(False); // Not compressed
   headerStream  := TKMemoryStreamBinary.Create(False); // Not compressed
@@ -2449,16 +2464,23 @@ end;
 
 procedure TKMGame.WaitForSaveToBeDone;
 begin
-  fSaveWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+  // Wait for all save thread workers to complete
+  fSaveWorkerThreadHolder.WaitForAllWorkToComplete;
+//  fSavePointWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+//  fSaveGIPWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+//  fSaveRandomChecksThreadHolder.Worker.WaitForAllWorkToComplete;
 end;
 
 
 procedure TKMGame.WaitForAllSavesToBeDone;
 begin
-  fSaveWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
-  fBaseSaveWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
-  fAutoSaveWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
-  fSavePointWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+  // Wait for all thread workers to complete
+  fSaveWorkerThreadHolder.WaitForAllWorkToComplete;
+  fBaseSaveWorkerThreadHolder.WaitForAllWorkToComplete;
+  fAutoSaveWorkerThreadHolder.WaitForAllWorkToComplete;
+//  fSavePointWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+//  fSaveGIPWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+//  fSaveRandomChecksThreadHolder.Worker.WaitForAllWorkToComplete;
 end;
 
 
@@ -2468,7 +2490,7 @@ begin
   Save(aSaveName);
 
   //Wait for previous save async tasks to complete before proceeding
-  fSaveWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+  fSaveWorkerThreadHolder.WaitForAllWorkToComplete;
 end;
 
 
@@ -2480,12 +2502,12 @@ end;
 
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime);
 begin
-  Save(aSaveName, aTimestamp, fSaveWorkerThreadHolder.Worker); // Use default save worker thread
+  Save(aSaveName, aTimestamp, fSaveWorkerThreadHolder); // Use default save worker thread
 end;
 
 
 // Saves game by provided name
-procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime; aSaveWorkerThread: TKMWorkerThread);
+procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime; aSaveWorkerThread: TKMGameSaveWorkerThreadHolder);
 var
   I, index: Integer;
   fullPath, rngPath, mpLocalDataPath, newSaveName, loadFrom: UnicodeString;
@@ -2501,6 +2523,9 @@ begin
     // then waiting here will force worker to finish all of his previous jobs in his queue,
     // which is better than waiting a lot of time at the 'final save'
     aSaveWorkerThread.WaitForAllWorkToComplete;
+//    fSavePointWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+//    fSaveGIPWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
+//    fSaveRandomChecksThreadHolder.Worker.WaitForAllWorkToComplete;
   finally
     {$IFDEF PERFLOG}
     gPerfLogs.SectionLeave(psGameSaveWait);
@@ -2513,19 +2538,24 @@ begin
   try
     // Emulate slow save in the async save thread
     if SLOW_GAME_SAVE_ASYNC then
-      aSaveWorkerThread.QueueWork(procedure
+      aSaveWorkerThread.Worker[wtMain].QueueWork(procedure
         begin
           Sleep(10000);
         end,
         'Slow Game Save'
       );
 
-    //Convert name to full path+name
+    // Convert name to full path+name
     fullPath := SaveName(aSaveName, EXT_SAVE_MAIN, fParams.IsMultiplayer);
     mpLocalDataPath := SaveName(aSaveName, EXT_SAVE_MP_LOCAL, fParams.IsMultiplayer);
 
     saveByPlayer := (aSaveName <> AUTOSAVE_SAVE_NAME) and (aSaveName <> AUTOSAVE_AFTER_PT_END_SAVE_NAME);
-    SaveGameToFile(fullPath, saveByPlayer, aSaveWorkerThread, aTimestamp, mpLocalDataPath);
+
+    PrepareSaveFolder(fullPath, saveByPlayer, aSaveWorkerThread.Worker[wtMain]);
+
+    aSaveWorkerThread.WaitForWorker(wtMain);
+
+    SaveGameToFile(fullPath, saveByPlayer, aSaveWorkerThread.Worker[wtMain], aTimestamp, mpLocalDataPath);
 
     if not fParams.IsMultiPlayerOrSpec then
       // Update GameSettings for saved positions in lists of saves and replays
@@ -2541,31 +2571,27 @@ begin
       loadFrom := ChangeFileExt(ExeDir + fLoadFromFileRel, EXT_SAVE_BASE_DOT);
       //Game was saved from replay (.bas file)
       if FileExists(loadFrom) then
-        KMCopyFileAsync(loadFrom, newSaveName, True, aSaveWorkerThread);
+        KMCopyFileAsync(loadFrom, newSaveName, True, aSaveWorkerThread.Worker[wtMain]);
     end else
       //Normally saved game
       {$IFDEF PARALLEL_RUNNER}
-        KMCopyFileAsync(SaveName('basesave_thread_' + IntToStr(THREAD_NUMBER), EXT_SAVE_BASE, fParams.IsMultiplayer), NewSaveName, True, aSaveWorkerThread);
+        KMCopyFileAsync(SaveName('basesave_thread_' + IntToStr(THREAD_NUMBER), EXT_SAVE_BASE, fParams.IsMultiplayer), NewSaveName, True, aSaveWorkerThread.Worker[wtMain]);
       {$ELSE}
-        KMCopyFileAsync(SaveName('basesave', EXT_SAVE_BASE, fParams.IsMultiplayer), newSaveName, True, aSaveWorkerThread);
+        KMCopyFileAsync(SaveName('basesave', EXT_SAVE_BASE, fParams.IsMultiplayer), newSaveName, True, aSaveWorkerThread.Worker[wtMain]);
       {$ENDIF}
 
     // Save replay info
-    fGameInputProcess.SaveToFileAsync(ChangeFileExt(fullPath, EXT_SAVE_REPLAY_DOT), aSaveWorkerThread);
+    fGameInputProcess.SaveToFileAsync(ChangeFileExt(fullPath, EXT_SAVE_REPLAY_DOT), aSaveWorkerThread.Worker[wtGIP]);
 
     // Save checkpoints
     if gGameSettings.SaveCheckpoints and not SKIP_SAVE_SAVPTS_TO_FILE then
-    begin
-      // Prepare
-      PrepareSaveFolder(fullPath, saveByPlayer, fSavePointWorkerThreadHolder.Worker);
       // We can save savepoints by our savepoints worker, since we save to the different file anyway
-      fSavePoints.SaveToFileAsync(ChangeFileExt(fullPath, EXT_SAVE_GAME_SAVEPTS_DOT), fSavePointWorkerThreadHolder.Worker);
-    end;
+      fSavePoints.SaveToFileAsync(ChangeFileExt(fullPath, EXT_SAVE_GAME_SAVEPTS_DOT), aSaveWorkerThread.Worker[wtSavePoints]);
 
     if DoSaveRandomChecks then
       try
         rngPath := ChangeFileExt(fullPath, EXT_SAVE_RNG_LOG_DOT);
-        gRandomCheckLogger.SaveToPathAsync(rngPath, aSaveWorkerThread);
+        gRandomCheckLogger.SaveToPathAsync(rngPath, aSaveWorkerThread.Worker[wtRandomChecks]);
       except
         on E: Exception do
           gLog.AddTime('Error saving random checks to ' + rngPath); //Silently log error, don't propagate error further
@@ -2893,7 +2919,7 @@ begin
     saveStream := TKMemoryStreamBinary.Create;
     SaveGameToStream(0, saveStream); // Date is not important
 
-    fSavePoints.NewSavePointAsyncAndFree(saveStream, fParams.Tick, fSavePointWorkerThreadHolder.Worker);
+    fSavePoints.NewSavePointAsyncAndFree(saveStream, fParams.Tick, fSaveWorkerThreadHolder.Worker[wtSavePoints]);
   finally
     {$IFDEF PERFLOG}
     gPerfLogs.SectionLeave(psGameSavePoint);

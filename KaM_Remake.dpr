@@ -105,6 +105,7 @@ uses
   KM_GameOptions in 'src\game\KM_GameOptions.pas',
   KM_GameParams in 'src\game\KM_GameParams.pas',
   KM_GameSavePoints in 'src\game\KM_GameSavePoints.pas',
+  KM_GameSaveWorkerThreadHolder in 'src\game\KM_GameSaveWorkerThreadHolder.pas',
   KM_FogOfWar in 'src\game\KM_FogOfWar.pas',
   
   KM_GameInputProcess in 'src\game\gip\KM_GameInputProcess.pas',

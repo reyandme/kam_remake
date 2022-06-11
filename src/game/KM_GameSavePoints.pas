@@ -352,7 +352,7 @@ begin
    // Increase save threads counter in main thread
   AtomicIncrement(fAsyncThreadsCnt);
 
-  aWorkerThread.QueueWork(
+  aWorkerThread.QueueWorkAndLog(
     procedure
     var
       localStream: TKMemoryStream;

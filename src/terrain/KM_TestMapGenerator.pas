@@ -220,7 +220,7 @@ end;
 procedure TKMTestMapGenerator.CreateMap(aMapName: String);
 begin
   // Create fake game
-  gGame := TKMGame.Create(gmMapEd, nil, nil, nil, nil, nil, nil);
+  gGame := TKMGame.Create(gmMapEd);
   try
     fMapX := Settings.Map.MaxX;
     fMapY := Settings.Map.MaxY;

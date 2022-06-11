@@ -41,7 +41,7 @@ type
 
     procedure RecruitSoldiers;
     procedure CheckGroupsState;
-    procedure CheckAttack;
+    procedure CheckAttack;  //
     procedure SetAttackRequest(aAttackRequest: TKMAttackRequest);
 
     function CombineBalanceStrings: UnicodeString;
@@ -584,3 +584,4 @@ end;
 
 
 end.
+

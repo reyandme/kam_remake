@@ -516,14 +516,14 @@ begin
   aStream := nil; //So caller doesn't use it by mistake
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
+    aWorkerThread.QueueWorkAndLog(procedure
     begin
       try
         localStream.SaveToFile(aFileName);
       finally
         localStream.Free;
       end;
-    end, 'SaveToFile');
+    end, 'AsyncSaveToFileAndFree to ' + aFileName);
   {$ELSE}
     try
       LocalStream.SaveToFile(aFileName);
@@ -543,7 +543,7 @@ begin
   aStream := nil; //So caller doesn't use it by mistake
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
+    aWorkerThread.QueueWorkAndLog(procedure
     begin
       try
         localStream.SaveToFileCompressed(aFileName, aMarker);
@@ -574,7 +574,7 @@ begin
   aSubStream2 := nil; //So caller doesn't use it by mistake
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
+    aWorkerThread.QueueWorkAndLog(procedure
     begin
       try
         localMainStream.AppendStream(localSubStream1, aMarker1);

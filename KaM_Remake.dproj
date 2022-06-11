@@ -197,6 +197,7 @@
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <BT_BuildType>Debug</BT_BuildType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_4_Win32)'!=''">
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
@@ -239,6 +240,12 @@
         <DCCReference Include="src\forms\KM_VclMenuHint.pas"/>
         <DCCReference Include="src\forms\KM_VclHelpers.pas"/>
         <DCCReference Include="src\ext\iaWin.NameDelphiThreads.pas"/>
+        <DCCReference Include="src\ext\pascalscript\uPSCompiler.pas"/>
+        <DCCReference Include="src\ext\pascalscript\uPSDebugger.pas"/>
+        <DCCReference Include="src\ext\pascalscript\uPSDisassembly.pas"/>
+        <DCCReference Include="src\ext\pascalscript\uPSPreProcessor.pas"/>
+        <DCCReference Include="src\ext\pascalscript\uPSRuntime.pas"/>
+        <DCCReference Include="src\ext\pascalscript\uPSUtils.pas"/>
         <DCCReference Include="src\ai\KM_AI.pas"/>
         <DCCReference Include="src\ai\KM_AIArmyEvaluation.pas"/>
         <DCCReference Include="src\ai\KM_AIAttacks.pas"/>
@@ -303,6 +310,7 @@
         <DCCReference Include="src\game\KM_GameOptions.pas"/>
         <DCCReference Include="src\game\KM_GameParams.pas"/>
         <DCCReference Include="src\game\KM_GameSavePoints.pas"/>
+        <DCCReference Include="src\game\KM_GameSaveWorkerThreadHolder.pas"/>
         <DCCReference Include="src\game\KM_FogOfWar.pas"/>
         <DCCReference Include="src\game\gip\KM_GameInputProcess.pas"/>
         <DCCReference Include="src\game\gip\KM_GameInputProcess_Multi.pas"/>

@@ -14,7 +14,7 @@ uses
   KM_ServerSettings,
   KM_Render,
   KM_GameTypes, KM_Points, KM_Console,
-  KM_WorkerThread;
+  KM_GameSaveWorkerThreadHolder, KM_WorkerThread;
 
 type
   //Methods relevant to gameplay
@@ -40,10 +40,12 @@ type
     fOnOptionsChange: TEvent;
 
     // Worker threads
-    fSaveWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for normal saves and save at the end of PT
-    fBaseSaveWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for base save only
-    fAutoSaveWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for autosaves only
-    fSavePointWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for savepoints only
+    fSaveWorkerThreadHolder: TKMGameSaveWorkerThreadHolder;       // Worker thread for normal saves and save at the end of PT
+    fBaseSaveWorkerThreadHolder: TKMGameSaveWorkerThreadHolder;   // Worker thread for base save only
+    fAutoSaveWorkerThreadHolder: TKMGameSaveWorkerThreadHolder;   // Worker thread for autosaves only
+//    fSavePointWorkerThreadHolder: TKMWorkerThreadHolder;  // Worker thread for savepoints only
+//    fSaveGIPWorkerThreadHolder: TKMWorkerThreadHolder;    // Worker thread for GIP save only
+//    fSaveRandomChecksThreadHolder: TKMWorkerThreadHolder; // Worker thread for random checks only
 
     procedure CreateGame(aGameMode: TKMGameMode);
 
@@ -231,10 +233,12 @@ begin
 
   gMusic.ToggleShuffle(gGameSettings.SFX.ShuffleOn); //Determine track order
 
-  fSaveWorkerThreadHolder := TKMWorkerThreadHolder.Create('SaveWorker');
-  fAutoSaveWorkerThreadHolder := TKMWorkerThreadHolder.Create('AutoSaveWorker');
-  fBaseSaveWorkerThreadHolder := TKMWorkerThreadHolder.Create('BaseSaveWorker');
-  fSavePointWorkerThreadHolder := TKMWorkerThreadHolder.Create('SavePointsWorker');
+  fSaveWorkerThreadHolder       := TKMGameSaveWorkerThreadHolder.Create('SaveWorker');
+  fAutoSaveWorkerThreadHolder   := TKMGameSaveWorkerThreadHolder.Create('AutoSaveWorker');
+  fBaseSaveWorkerThreadHolder   := TKMGameSaveWorkerThreadHolder.Create('BaseSaveWorker');
+//  fSavePointWorkerThreadHolder  := TKMWorkerThreadHolder.Create('SavePointsWorker');
+//  fSaveGIPWorkerThreadHolder    := TKMWorkerThreadHolder.Create('SaveGIPWorker');
+//  fSaveRandomChecksThreadHolder := TKMWorkerThreadHolder.Create('SaveRNGChecksWorker');
 
   fOnGameStart := GameStarted;
   fOnGameEnd := GameEnded;
@@ -269,7 +273,9 @@ begin
   FreeAndNil(fSaveWorkerThreadHolder);
   FreeAndNil(fAutoSaveWorkerThreadHolder);
   FreeAndNil(fBaseSaveWorkerThreadHolder);
-  FreeAndNil(fSavePointWorkerThreadHolder);
+//  FreeAndNil(fSavePointWorkerThreadHolder);
+//  FreeAndNil(fSaveGIPWorkerThreadHolder);
+//  FreeAndNil(fSaveRandomChecksThreadHolder);
 
   FreeAndNil(fChat);
   FreeThenNil(fCampaigns);
@@ -570,8 +576,10 @@ begin
   gGame := TKMGame.Create(aGameMode, gRender, GameDestroyed,
                           fSaveWorkerThreadHolder,
                           fBaseSaveWorkerThreadHolder,
-                          fAutoSaveWorkerThreadHolder,
-                          fSavePointWorkerThreadHolder);
+                          fAutoSaveWorkerThreadHolder{,
+                          fSavePointWorkerThreadHolder,
+                          fSaveGIPWorkerThreadHolder,
+                          fSaveRandomChecksThreadHolder});
 end;
 
 

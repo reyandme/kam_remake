@@ -719,7 +719,7 @@ begin
   if fMPLobby AND (gGame = nil) then
   begin
     // Create fake game
-    gGame := TKMGame.Create(gmMapEd, nil, nil, nil, nil, nil, nil);
+    gGame := TKMGame.Create(gmMapEd);
     try
       mapX := 192;
       mapY := 192;
