@@ -134,6 +134,7 @@ type
     procedure SetShowGameTime(aValue: Boolean);
     procedure SetShowGameSpeed(aValue: Boolean);
 
+    procedure SetSaveWareDistribution(const aValue: Boolean);
     procedure SetSaveCheckpoints(const aValue: Boolean);
     procedure SetSaveCheckpointsFreq(const aValue: Integer);
     procedure SetSaveCheckpointsLimit(const aValue: Integer);
@@ -248,7 +249,7 @@ type
     property SpeedFast: Single read fSpeedFast;
     property SpeedVeryFast: Single read fSpeedVeryFast;
     property WareDistribution: TKMWareDistribution read fWareDistribution;
-    property SaveWareDistribution: Boolean read fSaveWareDistribution;
+    property SaveWareDistribution: Boolean read fSaveWareDistribution write SetSaveWareDistribution;
 
     property DayGamesCount: Integer read fDayGamesCount write SetDayGamesCount;
     property LastDayGamePlayed: TDateTime read fLastDayGamePlayed write SetLastDayGamePlayed;
@@ -954,6 +955,13 @@ begin
   {$ELSE}
   fSpeedPace := SPEED_PACE_DEFAULT;
   {$ENDIF}
+end;
+
+
+procedure TKMGameSettings.SetSaveWareDistribution(const aValue: Boolean);
+begin
+  fSaveWareDistribution := aValue;
+  Changed;
 end;
 
 

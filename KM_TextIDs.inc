@@ -1583,3 +1583,5 @@ TX_GOAL_CONDITION_COND_DESC_BUILDINGS = 1524; //main buildings ( %s )
 TX_MENU_OPTIONS_LERP_ANIMS = 1526; //Interpolated animations
 TX_GAME_SETTINGS_LERP_ANIMS = 1527; //Interpolated|animations
 TX_SETTINGS_LERP_ANIMS_HINT = 1528; //Interpolated animations hint
+
+TX_MENU_OPTIONS_SAVE_RESOURCE_DISTRIBUTION = 1529; // Save ware distribution between games

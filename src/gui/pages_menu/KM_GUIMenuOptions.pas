@@ -61,6 +61,7 @@ type
         CheckBox_Options_Autosave: TKMCheckBox;
         CheckBox_Options_AutosaveAtGameEnd: TKMCheckBox;
         CheckBox_MakeSavePoints: TKMCheckBox;
+        CheckBox_SaveWareDistribution: TKMCheckBox;
       Panel_Options_Replays: TKMPanel;
         CheckBox_Options_ReplayAutopause: TKMCheckBox;
       Panel_Options_Mods: TKMPanel;
@@ -254,8 +255,8 @@ begin
     str := gResTexts[TX_MENU_OPTIONS_MAKE_SAVEPOINTS];
     gRes.Fonts[fntMetal].GetTextSize(str, lineCnt);
 
-    Inc(top, 20);
-    Panel_Options_Game := TKMPanel.Create(Panel_Options, 300, top, 280, 70 + 20*lineCnt);
+    Dec(top, 20);
+    Panel_Options_Game := TKMPanel.Create(Panel_Options, 300, top, 280, 110 + 20*lineCnt);
     NextBlock(top, Panel_Options_Game, 4);
     Panel_Options_Game.Anchors := [anLeft];
 
@@ -270,6 +271,9 @@ begin
 
       CheckBox_MakeSavePoints := TKMCheckBox.Create(Panel_Options_Game,10,67,256,40,str, fntMetal);
       CheckBox_MakeSavePoints.OnClick := Change;
+
+      CheckBox_SaveWareDistribution := TKMCheckBox.Create(Panel_Options_Game,10,87,256,40,gResTexts[TX_MENU_OPTIONS_SAVE_RESOURCE_DISTRIBUTION], fntMetal);
+      CheckBox_SaveWareDistribution.OnClick := Change;
 
 
     //Replays section
@@ -370,6 +374,7 @@ begin
   Button_Options_VideoTest.Enabled         := gGameSettings.VideoOn;
   CheckBox_Options_SnowHouses.Checked      := gGameSettings.AllowSnowHouses;
   CheckBox_MakeSavePoints.Checked          := gGameSettings.SaveCheckpoints;
+  CheckBox_SaveWareDistribution.Checked    := gGameSettings.SaveWareDistribution;
 
   Radio_Options_Lang.ItemIndex := gResLocales.IndexByCode(gGameSettings.Locale);
 
@@ -406,6 +411,7 @@ begin
   gGameSettings.VideoVolume        := TrackBar_Options_VideoVolume.Position / TrackBar_Options_VideoVolume.MaxValue;
   gGameSettings.AllowSnowHouses    := CheckBox_Options_SnowHouses.Checked;
   gGameSettings.SaveCheckpoints    := CheckBox_MakeSavePoints.Checked;
+  gGameSettings.SaveWareDistribution := CheckBox_SaveWareDistribution.Checked;
 
   TrackBar_Options_Music.Enabled      := not CheckBox_Options_MusicOff.Checked;
   CheckBox_Options_ShuffleOn.Enabled  := not CheckBox_Options_MusicOff.Checked;
