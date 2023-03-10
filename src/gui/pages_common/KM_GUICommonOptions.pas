@@ -83,6 +83,7 @@ type
         CheckBox_Autosave: TKMCheckBox;
         CheckBoxs_AutosaveAtGameEnd: TKMCheckBox;
         CheckBox_MakeSavePoints: TKMCheckBox;
+        CheckBox_SaveWareDistribution: TKMCheckBox;
         CheckBox_SpecShowBeacons: TKMCheckBox;
         Label_PlayersColorMode: TKMLabel;
         Radio_PlayersColorMode: TKMRadioGroup;
@@ -403,8 +404,8 @@ end;
 
 procedure TKMGUICommonOptions.CreateGameplay(var aTopBlock: Integer; var aLeftBlock: Integer);
 var
-  strSavePT, strAutosavePTEnd: String;
-  linesSavePT, linesAutosavePTEnd, top: Integer;
+  strSavePT, strAutosavePTEnd, strSaveWareDistribution: String;
+  linesSavePT, linesAutosavePTEnd, linesSaveWareDistribution, top: Integer;
 begin
   // Gameplay section
 
@@ -414,8 +415,11 @@ begin
   strAutosavePTEnd := gResTexts[TX_MENU_OPTIONS_AUTOSAVE_AT_GAME_END];
   gRes.Fonts[fntMetal].GetTextSize(strAutosavePTEnd, linesAutosavePTEnd);
 
+  strSaveWareDistribution := gResTexts[TX_MENU_OPTIONS_SAVE_WARE_DISTRIBUTION];
+  gRes.Fonts[fntMetal].GetTextSize(strSaveWareDistribution, linesSaveWareDistribution);
+
   if IsMenu then
-    Inc(aTopBlock, 40 - 20*(linesSavePT + linesAutosavePTEnd - 2));
+    Inc(aTopBlock, 40 - 20*(linesSavePT + linesAutosavePTEnd + linesSaveWareDistribution - 2));
 
   Panel_Game := TKMPanel.Create(Panel_Options, aLeftBlock, aTopBlock, 280, 50 + 20*(linesSavePT + linesAutosavePTEnd));
 
@@ -438,6 +442,10 @@ begin
       CheckBox_MakeSavePoints := TKMCheckBox.Create(Panel_Game, 10, NextTop(top),256,20,strSavePT, fntMetal);
       CheckBox_MakeSavePoints.OnClick := Change;
       NextTop(top, 20*(linesSavePT - 1));
+
+      CheckBox_SaveWareDistribution := TKMCheckBox.Create(Panel_Game, 10, NextTop(top),256,20,strSaveWareDistribution, fntMetal);
+      CheckBox_SaveWareDistribution.OnClick := Change;
+      NextTop(top, 20*(linesSaveWareDistribution - 1));
     end;
 
     // Spectator
@@ -625,6 +633,7 @@ begin
     CheckBox_Autosave.Checked           := gGameSettings.Autosave;
     CheckBoxs_AutosaveAtGameEnd.Checked := gGameSettings.AutosaveAtGameEnd;
     CheckBox_MakeSavePoints.Checked     := gGameSettings.SaveCheckpoints;
+    CheckBox_SaveWareDistribution.Checked := gGameSettings.SaveWareDistribution;
   end;
 
   // In Menu or Replay
@@ -733,6 +742,7 @@ begin
     gGameSettings.Autosave          := CheckBox_Autosave.Checked;
     gGameSettings.AutosaveAtGameEnd := CheckBoxs_AutosaveAtGameEnd.Checked;
     gGameSettings.SaveCheckpoints    := CheckBox_MakeSavePoints.Checked;
+    gGameSettings.SaveWareDistribution := CheckBox_SaveWareDistribution.Checked;
   end;
 
   // In Menu or Replay

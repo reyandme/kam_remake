@@ -198,7 +198,7 @@ type
     property SpeedFast: Single read fSpeedFast;
     property SpeedVeryFast: Single read fSpeedVeryFast;
     property WareDistribution: TKMWareDistribution read fWareDistribution;
-    property SaveWareDistribution: Boolean read fSaveWareDistribution;
+    property SaveWareDistribution: Boolean read fSaveWareDistribution write fSaveWareDistribution;
 
     property DayGamesCount: Integer read fDayGamesCount write fDayGamesCount;
     property LastDayGamePlayed: TDateTime read fLastDayGamePlayed write fLastDayGamePlayed;

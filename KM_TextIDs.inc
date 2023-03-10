@@ -1619,6 +1619,7 @@ TX_GAME_FOLDER_PERMISSIONS_ERROR = 1424; //You do not have enough permissions on
 TX_MAPED_TERRAIN_TILES_PALETTE = 1426; //Tiles palette
 
 TX_MENU_OPTIONS_MAKE_SAVEPOINTS = 1429; //Make replay savepoints
+TX_MENU_OPTIONS_SAVE_WARE_DISTRIBUTION = 1600; // Save ware distribution between games
 
 TX_BUILD_HOUSE_POSTFIX = 313; //|Hold Shift to place several houses
 TX_MENU_MAP_HUMAN_TITLE = 1356; //H
@@ -1668,4 +1669,3 @@ TX_MAPED_FISH_COUNT = 1593; //Fish count
 
 TX_MAPED_MAP_SAVED = 1595; //Map saved
 TX_MAPED_MAP_SAVING = 1596; //Saving map...
-
