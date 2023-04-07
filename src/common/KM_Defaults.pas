@@ -7,7 +7,7 @@ uses
 //Global constants
 const
 //|===================| <- constant name length
-  MAX_MAP_SIZE          = 256;
+  MAX_MAP_SIZE          = 320;
   MIN_MAP_SIZE          = 32;
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
@@ -35,7 +35,7 @@ const
 var
   GAME_VERSION_POSTFIX: AnsiString = '';
 const
-  GAME_VERSION_CUSTOM_POSTFIX = ''; // Custom postfix for the test builds
+  GAME_VERSION_CUSTOM_POSTFIX = ': Max map size = 320'; // Custom postfix for the test builds
   GAME_VERSION_PREFIX   = ''; //Game version string displayed in menu corner
 var
   //Game revision is set in initialisation block
