@@ -232,8 +232,8 @@
 233:Laad opgeslagen spel
 234:Multiplayer
 235:Opties
-236:Credits bekijken
-237:Verlaat programma
+236:Credits
+237:Verlaat spel
 238:Ga verder
 239:Missie herhalen
 240:Resolutie:
@@ -337,7 +337,7 @@
 338:Druk op %s om verder te spelen
 339:Spelersinformatie
 340:Chat
-341:Opgeslagen spel bestaat al
+341:Bestand bestaat al
 342:Overschrijven
 343:Opslaan
 344:Laden
@@ -740,7 +740,7 @@
 784:Bepaalt de AI startpositie welke gebruikt wordt voor AI aanvallen
 785:AI startpositie
 786:Volgorde
-788:Initiele vertraging
+788:Initiele vertraging (seconde)
 790:Dichtstbijzijnde huis bij leger
 791:Dichtstbijzijnde huis bij startpositie
 792:Aanvallers
@@ -1358,7 +1358,7 @@
 1411:Ga naar
 1412:Ga naar geselecteerde punt in de geschiedenis
 1413:Initieel
-1414:Voeg %s toe %s
+1414:Toevoegen %s %s
 1415:Verwijder %s %s
 1416:Bijwerken %s %s
 1417:Verplaats %s %s
@@ -1463,7 +1463,7 @@
 1516:HD bewegingen
 1517:HD bewegingen
 1518:Verhoog eenheid en projectielen bewegings resolutie
-1519:Voor speler %0:s om te %1:s spelers %2:s %3:s moeten zijn %4:s
+1519:Voor speler %0:s om te %1:s, moeten de %3:s van speler %2:s zijn %4:s
 1520:winnen
 1521:overleven
 1522:vernietigd
@@ -1544,3 +1544,4 @@
 1597:Plat terrein
 1598:Tegels grid
 1599:Opgeslagen bestand bestaat niet
+1600:Opslaan product verdeling|tussen spellen
