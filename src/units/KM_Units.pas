@@ -2348,7 +2348,9 @@ begin
   else
     Result := KMPointF(0, 0);
 
-  if not IsExchanging or not (Action.ActName in [uanWalkTo, uanGoInOut]) then Exit;
+  if not IsExchanging
+    or (Action = nil) // could be nil
+    or not (Action.ActName in [uanWalkTo, uanGoInOut]) then Exit;
 
   // Uses Y because a walk in the Y means a slide in the X
   dX := Sign(PositionNext.X - fPositionF.X);
