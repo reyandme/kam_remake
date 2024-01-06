@@ -4,33 +4,49 @@ interface
 uses
   Classes, SysUtils, Generics.Collections;
 
+  // procedure TKMWorkLoggerCallback(aJobName: String);
+
 type
-  TKMWorkerThreadTask = class
+  ITKMWorkerThreadTask = class abstract(TInterfacedObject)
+    procedure exec; virtual; abstract;
+  end;
+
+  TKMWorkerThreadTaskBase = class abstract(ITKMWorkerThreadTask)
+  protected
     WorkName: string;
+  public
+    constructor Create(const aWorkName: String);
+  end;
+
+  TKMWorkerThreadTask = class(TKMWorkerThreadTaskBase)
+  private
     Proc: TProc;
     Callback: TProc<String>;
+  public
+    constructor Create(aProc: TProc; aCallback: TProc<String> = nil; aWorkName: string = ''); overload;
+    constructor Create(aProc: TProc; aCallback: aWorkName: string = ''); overload;
+
+    procedure exec; override;
   end;
 
   TKMWorkerThread = class(TThread)
   private
     fWorkerThreadName: string;
     fWorkCompleted: Boolean;
-    fTaskQueue: TQueue<TKMWorkerThreadTask>;
+    fTaskQueue: TQueue<ITKMWorkerThreadTask>;
 
     procedure NameThread; overload;
     procedure NameThread(aThreadName: string); overload;
     function GetBaseThreadName: string;
   public
-    //Special mode for exception handling. Runs work synchronously inside QueueWork
+    //Special mode for exception handling. Runs work synchronously inside Enqueue
     fSynchronousExceptionMode: Boolean;
 
     constructor Create(const aThreadName: string = '');
     destructor Destroy; override;
     procedure Execute; override;
 
-    procedure QueueWorkAndLog(aProc: TProc; aWorkName: string = '');
-    procedure QueueWork(aProc: TProc; aWorkName: string = ''); overload;
-    procedure QueueWork(aProc: TProc; aCallback: TProc<String> = nil; aWorkName: string = ''); overload;
+    procedure Enqueue(aTask: ITKMWorkerThreadTask);
     procedure WaitForAllWorkToComplete;
   end;
 
@@ -55,6 +71,30 @@ uses
   KM_Log;
 
 
+constructor TKMWorkerThreadTaskBase.Create(const aWorkName: String);
+begin
+  WorkName := aWorkName;
+end;
+
+constructor TKMWorkerThreadTask.Create(aProc: TProc; aCallback: TProc<String> = nil; aWorkName: string = '');
+begin
+  inherited Create(aWorkName);
+  Proc := aProc;
+  Callback := aCallback;
+end;
+
+constructor TKMWorkerThreadTask.Create(aProc: TProc; aWorkName: string = '');
+begin
+  Create(aProc, nil, aWorkName);
+end;
+
+procedure TKMWorkerThreadTask.exec;
+begin
+  Proc();
+  if Assigned(Callback) then
+    Callback(WorkName);
+end;
+
 { TKMWorkerThread }
 constructor TKMWorkerThread.Create(const aThreadName: string = '');
 begin
@@ -71,7 +111,7 @@ begin
 
   fWorkCompleted := False;
   fSynchronousExceptionMode := False;
-  fTaskQueue := TQueue<TKMWorkerThreadTask>.Create;
+  fTaskQueue := TQueue<ITKMWorkerThreadTask>.Create;
 end;
 
 destructor TKMWorkerThread.Destroy;
@@ -120,7 +160,7 @@ end;
 
 procedure TKMWorkerThread.Execute;
 var
-  job: TKMWorkerThreadTask;
+  job: ITKMWorkerThreadTask;
   loopRunning: Boolean;
   threadName: string;
 begin
@@ -162,11 +202,7 @@ begin
     if job <> nil then
     begin
       NameThread(threadName);
-      job.Proc();
-
-      if Assigned(job.Callback) then
-        job.Callback(job.WorkName);
-
+      job.exec;
       FreeAndNil(job);
     end;
 
@@ -174,49 +210,31 @@ begin
   end;
 end;
 
+// procedure TKMWorkLoggerCallback(aJobName: String);
+// begin
+//   gLog.MultithreadLogging := True;
+//   try
+//     gLog.AddTime(Format('Job ''%s'' is completed', [aJobName]));
+//   finally
+//     gLog.MultithreadLogging := False;
+//   end;
+// end;
 
-procedure TKMWorkerThread.QueueWorkAndLog(aProc: TProc; aWorkName: string = '');
-begin
-  QueueWork(aProc, procedure(aJobName: String)
-    begin
-      gLog.MultithreadLogging := True;
-      try
-        gLog.AddTime(Format('Job ''%s'' is completed', [aJobName]));
-      finally
-        gLog.MultithreadLogging := False;
-      end;
-    end, aWorkName);
-end;
-
-
-procedure TKMWorkerThread.QueueWork(aProc: TProc; aWorkName: string = '');
-begin
-  QueueWork(aProc, nil, aWorkName);
-end;
-
-
-procedure TKMWorkerThread.QueueWork(aProc: TProc; aCallback: TProc<String> = nil; aWorkName: string = '');
-var
-  job: TKMWorkerThreadTask;
+procedure TKMWorkerThread.Enqueue(aTask: ITKMWorkerThreadTask);
 begin
   if fSynchronousExceptionMode then
   begin
-    aProc();
+    aTask.exec;
   end
   else
   begin
     if Finished then
-      raise Exception.Create('Worker thread not running in TKMWorkerThread.QueueWork');
-
-    job := TKMWorkerThreadTask.Create;
-    job.Proc := aProc;
-    job.Callback := aCallback;
-    job.WorkName := aWorkName;
+      raise Exception.Create('Worker thread not running in TKMWorkerThread.Enqueue');
 
     TMonitor.Enter(fTaskQueue);
     try
       fWorkCompleted := False;
-      fTaskQueue.Enqueue(job);
+      fTaskQueue.Enqueue(aTask);
 
       TMonitor.Pulse(fTaskQueue);
     finally

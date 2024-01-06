@@ -180,12 +180,17 @@ end;
 
 {$IFDEF WDC OR FPC_FULLVERSION >= 30200}
 procedure KMCopyFileAsync(const aSrc, aDest: UnicodeString; aOverwrite: Boolean; aWorkerThread: TKMWorkerThread);
+{$IFDEF WDC}
+var
+  task: TKMWorkerThreadTask;
+{$ENDIF}
 begin
   {$IFDEF WDC}
-  aWorkerThread.QueueWork(procedure
+  task := TKMWorkerThreadTask.Create(procedure
   begin
     KMCopyFile(aSrc, aDest, aOverwrite);
   end, 'KMCopyFile');
+  aWorkerThread.Enqueue(task);
   {$ELSE}
   KMCopyFile(aSrc, aDest, aOverwrite);
   {$ENDIF}
