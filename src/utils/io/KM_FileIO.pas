@@ -9,7 +9,7 @@ uses
   {$IFDEF MSWindows} Windows, ShellAPI, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, SysUtils
-  {$IFDEF WDC OR FPC_FULLVERSION >= 30200}, KM_WorkerThread{$ENDIF}
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}, KM_WorkerThread{$ENDIF}
   , KM_CommonTypes;
 
   //Read text file into ANSI string (scripts, locale texts)
@@ -24,7 +24,7 @@ uses
   procedure KMCopyFile(const aSrc, aDest: UnicodeString); overload;
   procedure KMCopyFile(const aSrc, aDest: UnicodeString; aOverwrite: Boolean); overload;
 
-  {$IFDEF WDC OR FPC_FULLVERSION >= 30200}
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
   procedure KMCopyFileAsync(const aSrc, aDest: UnicodeString; aOverwrite: Boolean; aWorkerThread: TKMWorkerThread);
   {$ENDIF}
 

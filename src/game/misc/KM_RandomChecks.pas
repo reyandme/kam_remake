@@ -6,7 +6,7 @@ uses
   {$IFDEF WDC}ZLib, {$ENDIF}
   Generics.Collections,
   KM_CommonClasses
-  {$IFDEF WDC OR FPC_FULLVERSION >= 30200}, KM_WorkerThread{$ENDIF};
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}, KM_WorkerThread{$ENDIF};
 
 type
   TKMLogRngType = (lrtNone, lrtInt, lrtSingle, lrtExt);
@@ -61,7 +61,7 @@ type
 
     property Enabled: Boolean read GetEnabled write fEnabled;
 
-    {$IFDEF WDC OR FPC_FULLVERSION >= 30200}
+    {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
     procedure SaveToPathAsync(const aPath: String; aWorkerThread: TKMWorkerThread);
     {$ENDIF}
 //    procedure ParseSaveStreamAndSaveAsText(aPath: String);
@@ -423,7 +423,7 @@ end;
 //end;
 
 
-{$IFDEF WDC OR FPC_FULLVERSION >= 30200}
+{$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
 procedure TKMRandomCheckLogger.SaveToPathAsync(const aPath: String; aWorkerThread: TKMWorkerThread);
 var
   saveStream, tickStream: TKMemoryStream;
