@@ -94,7 +94,11 @@ implementation
 uses
   Classes, SysUtils, SysConst, StrUtils, Math,
   Forms,
-  {$IFDEF MSWindows} MMSystem, {$ENDIF}
+  {$IF DEFINED(MSWindows)}
+  MMSystem,
+  {$ELSEIF DEFINED(Unix)}
+  Dialogs, LCLType, Controls,
+  {$ENDIF}
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KromUtils, KM_FileIO,
   KM_GameApp, KM_VclHelpers,
@@ -339,16 +343,17 @@ begin
       gGameApp.Game.IsPaused := True;
 
     //Ask the Player
-    {$IFDEF MSWindows}
+    {$IF DEFINED(MSWindows)}
     //MessageBox works best in Windows (gets stuck under main form less)
     aCanClose := MessageBox( fFormMain.Handle,
                             PChar(gResTexts[TX_EXIT_WARN_MESSAGE]),
                             PChar(gResTexts[TX_EXIT_WARN_HEADER]),
                             MB_YESNO or MB_ICONWARNING or MB_SETFOREGROUND or MB_TASKMODAL
                            ) = IDYES;
-    {$ENDIF}
-    {$IFDEF Unix}
-    CanClose := MessageDlg(gResTexts[TX_EXIT_WARN_MESSAGE], mtWarning, [mbYes, mbNo], 0) = mrYes;
+    {$ELSEIF DEFINED(Unix)}
+    aCanClose := MessageDlg(gResTexts[TX_EXIT_WARN_MESSAGE], mtWarning, [mbYes, mbNo], 0) = mrYes;
+    {$ELSE}
+    {$ERROR Unsupported case. Please, implement the function}
     {$ENDIF}
 
     //Resume the game
