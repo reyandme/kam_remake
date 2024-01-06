@@ -6,7 +6,11 @@ uses
   KM_FormMain, KM_FormLoading, KM_Maps,
   KM_MainSettings, KM_Resolutions, KM_Video,
   KM_WindowParams,
-  KM_GameAppSettings;
+  KM_GameAppSettings
+  {$IFDEF FPC}
+  , Types
+  {$ENDIF}
+  ;
 
 
 type
