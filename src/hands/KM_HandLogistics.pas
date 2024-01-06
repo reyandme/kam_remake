@@ -2645,7 +2645,9 @@ procedure TKMDeliveryRouteCache.Add(const aKey: TKMDeliveryRouteBidKey; const aV
 var
   bid: TKMDeliveryRouteBid;
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   bid.Value := aValue;
   bid.RouteStep := aRouteStep;
@@ -2659,7 +2661,9 @@ var
   key: TKMDeliveryRouteBidKey;
   bid: TKMDeliveryRouteBid;
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   key.FromP := FromP;
   key.ToP := ToP;
@@ -2874,9 +2878,12 @@ var
   bid: TKMDeliveryRouteBid;
 {$ENDIF}
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   {$IFDEF USE_HASH}
+
   CleanCache; // Don't save expired cache records
   SaveStream.PlaceMarker('DeliveryRouteEvaluator');
   SaveStream.Write(fUpdatesCnt);
@@ -2918,9 +2925,12 @@ var
   bid: TKMDeliveryRouteBid;
 {$ENDIF}
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   {$IFDEF USE_HASH}
+
   LoadStream.CheckMarker('DeliveryRouteEvaluator');
   LoadStream.Read(fUpdatesCnt);
   fBidsRoutesCache.Clear;

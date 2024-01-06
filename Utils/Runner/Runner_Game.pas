@@ -2515,7 +2515,9 @@ var
   key: TKMRDeliveryBidKey;
   bid: TKMRDeliveryBid;
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   key.FromP := FromP;
   key.ToP := ToP;
@@ -2529,7 +2531,9 @@ procedure TKMRunnerCachePerformance.TKMRDeliveryCache.Add(const aKey: TKMRDelive
 var
   value: TKMRDeliveryBid;
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   value.Value := aValue;
   value.TimeToLive := aTimeToLive;
@@ -2539,7 +2543,9 @@ end;
 
 procedure TKMRunnerCachePerformance.TKMRDeliveryCache.Add(const aKey: TKMRDeliveryBidKey; const aBid: TKMRDeliveryBid);
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   inherited Add(aKey, aBid);
 end;
