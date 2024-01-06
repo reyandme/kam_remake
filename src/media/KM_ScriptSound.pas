@@ -67,7 +67,11 @@ uses
   SysUtils,
   KM_Game,
   KM_HandsCollection, KM_HandTypes,
-  KM_Sound;
+  KM_Sound
+  {$IFDEF FPC}
+  , KM_Sort
+  {$ENDIF}
+  ;
 
 
 { TKMScriptSound }
@@ -298,6 +302,15 @@ begin
   fListener := KMPointF(X, Y);
 end;
 
+function CompareKeys(const aKey1, aKey2): Integer;
+var
+  k1: Integer absolute aKey1;
+  k2: Integer absolute aKey2;
+begin
+  if      k1 < k2 then Result := -1
+  else if k1 > k2 then Result := +1
+  else                 Result :=  0;
+end;
 
 procedure TKMScriptSoundsManager.Save(SaveStream: TKMemoryStream);
 var
@@ -328,7 +341,11 @@ begin
   SaveStream.Write(fSoundRemoveRequests.Count);
 
   keyArray := fSoundRemoveRequests.Keys.ToArray;
+  {$IFNDEF FPC}
   TArray.Sort<Integer>(keyArray);
+  {$ELSE}
+  SortCustom(keyArray, Low(keyArray), High(keyArray), SizeOf(keyArray[0]), CompareKeys);
+  {$ENDIF}
   for key in keyArray do
   begin
     SaveStream.Write(key);
