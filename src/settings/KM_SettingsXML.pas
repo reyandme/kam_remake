@@ -13,7 +13,7 @@ type
   protected
     fRoot: TKMXmlNode;
     procedure LoadFromFile(const aPath: string); override;
-    procedure SaveToFile(const aPath: string); override;
+    procedure SaveToFile(const aPath: UnicodeString); override;
   public
     constructor Create;
     destructor Destroy; override;
@@ -56,7 +56,7 @@ begin
 end;
 
 
-procedure TKMSettingsXML.SaveToFile(const aPath: string);
+procedure TKMSettingsXML.SaveToFile(const aPath: UnicodeString);
 begin
   inherited;
 
