@@ -25,7 +25,9 @@ type
 
     fRenderSchedule, fTickSchedule, fUpdateStateSchedule: Cardinal;
     fLastRenderTime, fOldFrameTimes, fFrameCount: Cardinal;
+    {$IFDEF MSWindows}
     fMutex: THandle;
+    {$ENDIF}
 
 //    fMainSettings: TKMainSettings;
     fResolutions: TKMResolutions;
