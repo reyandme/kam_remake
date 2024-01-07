@@ -34,7 +34,7 @@ uses
   KM_AIMayorBalance in 'src\ai\KM_AIMayorBalance.pas',
   KM_AISetup in 'src\ai\KM_AISetup.pas',
 
-  KM_ArmyAttack in 'src\ai\newAI\KM_ArmyAttack.pas',
+  KM_ArmyAttackNew in 'src\ai\newAI\KM_ArmyAttackNew.pas',
   KM_ArmyDefence in 'src\ai\newAI\KM_ArmyDefence.pas',
   KM_ArmyManagement in 'src\ai\newAI\KM_ArmyManagement.pas',
   KM_Eye in 'src\ai\newAI\KM_Eye.pas',
