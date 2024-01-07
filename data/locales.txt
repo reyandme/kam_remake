@@ -9,7 +9,7 @@ dut,    Dutch,                1252,     0,         55,           ,              
 eng,    English,              1252,     0,         45,           ,
 est,    Estonian,             1252,     0,         59,           ,                Ingvar & Eva
 fin,    Finnish,              1252,     0,         90,           ,                LeafhillYoshi
-fre,    French,               1252,     0,         51,           ,                Sylvain Domange & Shadaoe
+fre,    French,               1252,     0,         51,           ,                Sylvain Domange, Shadaoe & Toto
 ger,    German,               1252,     0,         46,           ,                The Knight, CoderBaron 
 hun,    Hungarian,            1250,     0,         57,           ,                Osi Attila (Jecy), Máté
 ita,    Italian,              1252,     0,         50,           ,                Esthlos

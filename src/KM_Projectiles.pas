@@ -65,14 +65,14 @@ uses
 
 
 const
-  ProjectileLaunchSounds: array[TKMProjectileType] of TSoundFX = (sfxBowShoot, sfxCrossbowShoot, sfxNone, sfxRockThrow);
-  ProjectileHitSounds:   array[TKMProjectileType] of TSoundFX = (sfxArrowHit, sfxArrowHit, sfxArrowHit, sfxNone);
-  ProjectileSpeeds: array[TKMProjectileType] of Single = (0.75, 0.75, 0.6, 0.8);
-  ProjectileArcs: array[TKMProjectileType,1..2] of Single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
-  ProjectileJitter: array[TKMProjectileType] of Single = (0.26, 0.29, 0.26, 0.2); //Fixed Jitter added every time
-  ProjectileJitterHouse: array[TKMProjectileType] of Single = (0.6, 0.6, 0.6, 0); //Fixed Jitter added every time
+  PROJECTILE_LAUNCH_SOUND: array[TKMProjectileType] of TSoundFX = (sfxBowShoot, sfxCrossbowShoot, sfxNone, sfxRockThrow);
+  PROJECTILE_HIT_SOUND:   array[TKMProjectileType] of TSoundFX = (sfxArrowHit, sfxArrowHit, sfxArrowHit, sfxNone);
+  PROJECTILE_SPEED: array[TKMProjectileType] of Single = (0.75, 0.75, 0.6, 0.8);
+  PROJECTILE_ARC: array[TKMProjectileType,1..2] of Single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
+  PROJECTILE_JITTER: array[TKMProjectileType] of Single = (0.26, 0.29, 0.26, 0.2); //Fixed Jitter added every time
+  PROJECTILE_JITTER_HOUSE: array[TKMProjectileType] of Single = (0.6, 0.6, 0.6, 0); //Fixed Jitter added every time
   // Jitter added according to target's speed (moving target harder to hit) Note: Walking = 0.1, so the added jitter is 0.1*X
-  ProjectilePredictJitter: array[TKMProjectileType] of Single = (2, 2, 2, 3);
+  PROJECTILE_PREDICT_JITTER: array[TKMProjectileType] of Single = (2, 2, 2, 3);
 
 
 { TKMProjectiles }
@@ -130,7 +130,7 @@ begin
     B = 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y)
     C = sqr(TargetPosition.X) + sqr(TargetPosition.Y) }
 
-  speed := ProjectileSpeeds[aProjType] + KaMRandomS2(0.05, 'TKMProjectiles.AimTarget');
+  speed := PROJECTILE_SPEED[aProjType] + KaMRandomS2(0.05, 'TKMProjectiles.AimTarget');
 
   A := sqr(targetVector.X) + sqr(targetVector.Y) - sqr(speed);
   B := 2 * (targetPosition.X * targetVector.X + targetPosition.Y * targetVector.Y);
@@ -157,8 +157,8 @@ begin
 
   if timeToHit <> 0 then
   begin
-    jitter := ProjectileJitter[aProjType]
-            + KMLength(KMPOINTF_ZERO, targetVector) * ProjectilePredictJitter[aProjType];
+    jitter := PROJECTILE_JITTER[aProjType]
+            + KMLength(KMPOINTF_ZERO, targetVector) * PROJECTILE_PREDICT_JITTER[aProjType];
 
     //Calculate the target position relative to start position (the 0;0)
     target.X := targetPosition.X + targetVector.X*timeToHit + KaMRandomS2(jitter, 'TKMProjectiles.AimTarget 2');
@@ -172,7 +172,7 @@ begin
     target.Y := aStart.Y + target.Y / distanceToHit * distanceInRange;
 
     //Calculate the arc, less for shorter flights
-    arc := ((distanceInRange-aMinRange)/(aMaxRange-aMinRange))*(ProjectileArcs[aProjType, 1] + KaMRandomS2(ProjectileArcs[aProjType, 2], 'TKMProjectiles.AimTarget 4'));
+    arc := ((distanceInRange-aMinRange)/(aMaxRange-aMinRange))*(PROJECTILE_ARC[aProjType, 1] + KaMRandomS2(PROJECTILE_ARC[aProjType, 2], 'TKMProjectiles.AimTarget 4'));
 
     //Check whether this predicted target will hit a friendly unit
     if gTerrain.TileInMapCoords(Round(target.X), Round(target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
@@ -197,16 +197,23 @@ var
   distanceToHit, distanceInRange: Single;
   aim, target: TKMPointF;
 begin
-  speed := ProjectileSpeeds[aProjType] + KaMRandomS2(0.05, 'TKMProjectiles.AimTarget 5');
+  speed := PROJECTILE_SPEED[aProjType] + KaMRandomS2(0.05, 'TKMProjectiles.AimTarget 5');
 
   aim := KMPointF(aTarget.GetRandomCellWithin);
-  target.X := aim.X + KaMRandomS2(ProjectileJitterHouse[aProjType], 'TKMProjectiles.AimTarget 6'); //So that arrows were within house area, without attitude to tile corners
-  target.Y := aim.Y + KaMRandomS2(ProjectileJitterHouse[aProjType], 'TKMProjectiles.AimTarget 7');
+  target.X := aim.X + KaMRandomS2(PROJECTILE_JITTER_HOUSE[aProjType], 'TKMProjectiles.AimTarget 6'); //So that arrows were within house area, without attitude to tile corners
+  target.Y := aim.Y + KaMRandomS2(PROJECTILE_JITTER_HOUSE[aProjType], 'TKMProjectiles.AimTarget 7');
 
   //Calculate the arc, less for shorter flights
+  //@Rey: As revealed in chat, this is an erroneous code
+  // It should be something alike
+  // distanceToHit := GetLength(aStart.X - target.X, aStart.Y - target.Y);
   distanceToHit := GetLength(target.X, target.Y);
   distanceInRange := EnsureRange(distanceToHit, aMinRange, aMaxRange);
-  arc := (distanceInRange/distanceToHit)*(ProjectileArcs[aProjType, 1] + KaMRandomS2(ProjectileArcs[aProjType, 2], 'TKMProjectiles.AimTarget 8'));
+
+  //@Rey: As revealed in chat, this is an erroneous code
+  // It should be something alike
+  // arc = Max((distanceInRange - aMinRange) / aMaxRange * ProjectileArcs[aProjType, 1] + KaMRandomS2(ProjectileArcs[aProjType, 2], 'TKMProjectiles.AimTarget 8')), 0);
+  arc := (distanceInRange/distanceToHit)*(PROJECTILE_ARC[aProjType, 1] + KaMRandomS2(PROJECTILE_ARC[aProjType, 2], 'TKMProjectiles.AimTarget 8'));
 
   Result := AddItem(aStart, aim, target, speed, arc, aMaxRange, aProjType, aOwner);
 end;
@@ -248,7 +255,7 @@ begin
   fItems[I].fMaxLength:= aMaxLength;
 
   if (gMySpectator.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255) then
-    gSoundPlayer.Play(ProjectileLaunchSounds[aProjType], aStart);
+    gSoundPlayer.Play(PROJECTILE_LAUNCH_SOUND[aProjType], aStart);
 
   Result := Round(fItems[I].fLength / fItems[I].fSpeed);
 end;
@@ -274,7 +281,7 @@ begin
         //Can't use InRange cos it might get called twice due to <= X <= comparison
         if gMySpectator.FogOfWar.CheckRevelation(fTarget) >= 255 then
           if (fLength - H_TICKS*fSpeed <= fPosition) and (fPosition < fLength - (H_TICKS - 1) * fSpeed) then
-            gSoundPlayer.Play(ProjectileHitSounds[fType], fTarget);
+            gSoundPlayer.Play(PROJECTILE_HIT_SOUND[fType], fTarget);
 
         if fPosition >= fLength then
         begin

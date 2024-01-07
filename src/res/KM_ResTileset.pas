@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils,
   KromUtils,
-//  KM_IoXML,
+  KM_IoJSON,
   KM_Defaults, KM_CommonTypes, KM_CommonClasses, KM_ResTilesetTypes;
 
 
@@ -20,6 +20,8 @@ type
 
   TKMResTileset = class
   private
+    fJsonDoc: TKMJsonDocument;
+
     fTiles: TKMTilesParamsArray;
 
 //    fXML: TKMXmlDocument;
@@ -97,7 +99,12 @@ type
 implementation
 uses
   TypInfo, Math,
+  {$IFDEF WDC}
   JsonDataObjects,
+  {$ENDIF}
+  {$IFDEF FPC}
+  fpjson, jsonparser,
+  {$ENDIF}
   KM_FileIO,
   KM_CommonUtils, KM_CommonClassesExt;
 
@@ -120,6 +127,9 @@ var
 begin
   inherited;
 
+  fJsonDoc := TKMJsonDocument.Create;
+
+  fJsonDoc.LoadFromFile(GetTilesJsonPath);
   LoadFromJson;
 
   crcStream := TKMemoryStreamBinary.Create;
@@ -171,6 +181,7 @@ var
   I: Integer;
 begin
 //  fXML.Free;
+  fJsonDoc.Free;
 
   for I := TILES_CNT - 1 downto 0 do
     fTiles[I].Free;
@@ -651,6 +662,7 @@ end;
 
 
 procedure TKMResTileset.SaveToJson(aCompact: Boolean = False; aSaveStream: TKMemoryStream = nil);
+{$IFDEF WDC}
 var
   nTile: TJsonObject;
 
@@ -670,73 +682,74 @@ var
   I, J, K: Integer;
   nRoot, nAnimLayer: TJsonObject;
   nTiles, nTerKinds, nAnimLayers, nAnims: TJsonArray;
+{$ENDIF}
 begin
+  {$IFDEF WDC}
   JsonSerializationConfig.InlinedByDefault := True;
   JsonSerializationConfig.IndentChar := '  '; // 2 spaces
   JsonSerializationConfig.LineBreak := #13#10; // CRLF
 
-  nRoot := TJsonObject.Create;
+  nRoot := fJsonDoc.Root.JsonObject;
+  nRoot.Clear;
   nRoot.Inlined := False;
-  try
-    nTiles := nRoot.A['Tiles'];
-    nTiles.Inlined := False;
-    for I := 0 to TILES_CNT - 1 do
+
+  nTiles := nRoot.A['Tiles'];
+  nTiles.Inlined := False;
+  for I := 0 to TILES_CNT - 1 do
+  begin
+    nTile := nTiles.AddObject;
+
+//    nTile.FromSimpleObject(fTiles[I], False, True); // Do not use serialization for now, RTTI is heavy and slow
+
+    nTile.I['ID'] := I;
+    nTile.B['Walkable'] := fTiles[I].Walkable;
+    nTile.B['Roadable'] := fTiles[I].Roadable;
+
+    AddTileIAttr('Stone', fTiles[I].Stone);
+    AddTileIAttr('Coal',  fTiles[I].Coal);
+    AddTileIAttr('Iron',  fTiles[I].Iron);
+    AddTileIAttr('Gold',  fTiles[I].Gold);
+
+    AddTileBAttr('IronMinable', fTiles[I].IronMinable);
+    AddTileBAttr('GoldMinable', fTiles[I].GoldMinable);
+
+    AddTileBAttr('Water',    fTiles[I].Water);
+    AddTileBAttr('HasWater', fTiles[I].HasWater);
+    AddTileBAttr('Ice',      fTiles[I].Ice);
+    AddTileBAttr('Snow',     fTiles[I].Snow);
+    AddTileBAttr('Sand',     fTiles[I].Sand);
+    AddTileBAttr('Soil',     fTiles[I].Soil);
+    AddTileBAttr('Corn',     fTiles[I].Corn);
+    AddTileBAttr('Wine',     fTiles[I].Wine);
+
+    nTerKinds := nTile.A['CornersTerKinds'];
+    nTerKinds.Add(GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[0])));
+    nTerKinds.Add(GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[1])));
+    nTerKinds.Add(GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[2])));
+    nTerKinds.Add(GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[3])));
+
+    if not fTiles[I].Animation.HasAnim then Continue;
+
+    for J := Low(fTiles[I].Animation.Layers) to High(fTiles[I].Animation.Layers) do
     begin
-      nTile := nTiles.AddObject;
+      nAnimLayers := nTile.A['AnimLayers'];
+      nAnimLayer := nAnimLayers.AddObject;
+      nAnimLayer.I['Frames'] := fTiles[I].Animation.Layers[J].Frames;
 
-//      nTile.FromSimpleObject(fTiles[I], False, True); // Do not use serialization for now, RTTI is heavy and slow
-
-      nTile.I['ID'] := I;
-      nTile.B['Walkable'] := fTiles[I].Walkable;
-      nTile.B['Roadable'] := fTiles[I].Roadable;
-
-      AddTileIAttr('Stone', fTiles[I].Stone);
-      AddTileIAttr('Coal',  fTiles[I].Coal);
-      AddTileIAttr('Iron',  fTiles[I].Iron);
-      AddTileIAttr('Gold',  fTiles[I].Gold);
-
-      AddTileBAttr('IronMinable', fTiles[I].IronMinable);
-      AddTileBAttr('GoldMinable', fTiles[I].GoldMinable);
-
-      AddTileBAttr('Water',    fTiles[I].Water);
-      AddTileBAttr('HasWater', fTiles[I].HasWater);
-      AddTileBAttr('Ice',      fTiles[I].Ice);
-      AddTileBAttr('Snow',     fTiles[I].Snow);
-      AddTileBAttr('Sand',     fTiles[I].Sand);
-      AddTileBAttr('Soil',     fTiles[I].Soil);
-      AddTileBAttr('Corn',     fTiles[I].Corn);
-      AddTileBAttr('Wine',     fTiles[I].Wine);
-
-      nTerKinds := nTile.A['CornersTerKinds'];
-      nTerKinds.Add(GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[0])));
-      nTerKinds.Add(GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[1])));
-      nTerKinds.Add(GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[2])));
-      nTerKinds.Add(GetEnumName(TypeInfo(TKMTerrainKind), Integer(fTiles[I].TerKinds[3])));
-
-      if not fTiles[I].Animation.HasAnim then Continue;
-
-      for J := Low(fTiles[I].Animation.Layers) to High(fTiles[I].Animation.Layers) do
+      for K := Low(fTiles[I].Animation.Layers[J].Anims) to High(fTiles[I].Animation.Layers[J].Anims) do
       begin
-        nAnimLayers := nTile.A['AnimLayers'];
-        nAnimLayer := nAnimLayers.AddObject;
-        nAnimLayer.I['Frames'] := fTiles[I].Animation.Layers[J].Frames;
-
-        for K := Low(fTiles[I].Animation.Layers[J].Anims) to High(fTiles[I].Animation.Layers[J].Anims) do
-        begin
-          nAnims := nAnimLayer.A['Anims'];
-          nAnims.Add(fTiles[I].Animation.Layers[J].Anims[K]);
-        end;
+        nAnims := nAnimLayer.A['Anims'];
+        nAnims.Add(fTiles[I].Animation.Layers[J].Anims[K]);
       end;
     end;
-
-    // Save to stream if specified (used for CRC calculations)
-    if aSaveStream = nil then
-      nRoot.SaveToFile(GetTilesJsonPath, aCompact, TEncoding.UTF8)
-    else
-      nRoot.SaveToStream(aSaveStream, aCompact, TEncoding.UTF8);
-  finally
-    nRoot.Free;
   end;
+
+  // Save to stream if specified (used for CRC calculations)
+  if aSaveStream = nil then
+    nRoot.SaveToFile(GetTilesJsonPath, aCompact, TEncoding.UTF8)
+  else
+    nRoot.SaveToStream(aSaveStream, aCompact, TEncoding.UTF8);
+  {$ENDIF}
 end;
 
 
@@ -744,76 +757,90 @@ procedure TKMResTileset.LoadFromJson;
 var
   I, J, K: Integer;
   jsonPath: string;
-  nTile, nRoot, nAnimLayer: TJsonObject;
-  nTiles, nTerKinds, nAnimLayers, nAnims: TJsonArray;
+  nTile, nAnimLayer: TKMJsonObject;
+  nTiles, nTerKinds, nAnimLayers, nAnims: TKMJsonArray;
   terKind: TKMTerrainKind;
 begin
-  jsonPath := GetTilesJsonPath;
-  nRoot := TJsonObject.ParseFromFile(jsonPath) as TJsonObject;
+
+  nTiles := fJsonDoc.Root.A['Tiles'];
   try
-    nTiles := nRoot.A['Tiles'];
     Assert(nTiles.Count = TILES_CNT);
 
     for I := 0 to nTiles.Count - 1 do
     begin
       nTile := nTiles.O[I];
+      try
 
-      FreeAndNil(fTiles[I]);
-      fTiles[I] := TKMTileParams.Create;
+        FreeAndNil(fTiles[I]);
+        fTiles[I] := TKMTileParams.Create;
 
-  //    nTile.ToSimpleObject(tile, False); // Do not use serialization for now, RTTI is heavy and slow
+    //    nTile.ToSimpleObject(tile, False); // Do not use serialization for now, RTTI is heavy and slow
 
-      fTiles[I].ID := nTile.I['ID'];
-      fTiles[I].Walkable := nTile.B['Walkable'];
-      fTiles[I].Roadable := nTile.B['Roadable'];
+        fTiles[I].ID := nTile.I['ID'];
+        fTiles[I].Walkable := nTile.B['Walkable'];
+        fTiles[I].Roadable := nTile.B['Roadable'];
 
-      fTiles[I].Stone := nTile.I['Stone'];
-      fTiles[I].Coal  := nTile.I['Coal'];
-      fTiles[I].Iron  := nTile.I['Iron'];
-      fTiles[I].Gold  := nTile.I['Gold'];
+        fTiles[I].Stone := nTile.I['Stone'];
+        fTiles[I].Coal  := nTile.I['Coal'];
+        fTiles[I].Iron  := nTile.I['Iron'];
+        fTiles[I].Gold  := nTile.I['Gold'];
 
-      fTiles[I].IronMinable := nTile.B['IronMinable'];
-      fTiles[I].GoldMinable := nTile.B['GoldMinable'];
+        fTiles[I].IronMinable := nTile.B['IronMinable'];
+        fTiles[I].GoldMinable := nTile.B['GoldMinable'];
 
-      fTiles[I].Water    := nTile.B['Water'];
-      fTiles[I].HasWater := nTile.B['HasWater'];
-      fTiles[I].Ice      := nTile.B['Ice'];
-      fTiles[I].Snow     := nTile.B['Snow'];
-      fTiles[I].Sand     := nTile.B['Sand'];
-      fTiles[I].Soil     := nTile.B['Soil'];
-      fTiles[I].Corn     := nTile.B['Corn'];
-      fTiles[I].Wine     := nTile.B['Wine'];
+        fTiles[I].Water    := nTile.B['Water'];
+        fTiles[I].HasWater := nTile.B['HasWater'];
+        fTiles[I].Ice      := nTile.B['Ice'];
+        fTiles[I].Snow     := nTile.B['Snow'];
+        fTiles[I].Sand     := nTile.B['Sand'];
+        fTiles[I].Soil     := nTile.B['Soil'];
+        fTiles[I].Corn     := nTile.B['Corn'];
+        fTiles[I].Wine     := nTile.B['Wine'];
 
-      nTerKinds := nTile.A['CornersTerKinds'];
-      Assert(nTerKinds.Count = 4);
-      for K := 0 to 3 do
-        if TKMEnumUtils.TryGetAs<TKMTerrainKind>(nTerKinds.S[K], terKind) then
-          fTiles[I].TerKinds[K] := terKind
-        else
-          raise Exception.Create('Error loading ' + jsonPath + ': wrong CornersTerKind: ' + nTerKinds.S[K]);
-
-      if not nTile.Contains('AnimLayers') then Continue;
-
-      nAnimLayers := nTile.A['AnimLayers'];
-
-      SetLength(fTiles[I].Animation.Layers, nAnimLayers.Count);
-
-      for J := 0 to nAnimLayers.Count - 1 do
-      begin
-        nAnimLayer := nAnimLayers.O[J];
-
-        fTiles[I].Animation.Layers[J].Frames := nAnimLayer.I['Frames'];
-
-        nAnims := nAnimLayer.A['Anims'];
-        SetLength(fTiles[I].Animation.Layers[J].Anims, nAnims.Count);
-        for K := 0 to nAnims.Count - 1 do
-        begin
-          fTiles[I].Animation.Layers[J].Anims[K] := nAnims[K];
+        nTerKinds := nTile.A['CornersTerKinds'];
+        try
+          Assert(nTerKinds.Count = 4);
+          for K := 0 to 3 do
+            if TKMEnumUtils.TryGetAs<TKMTerrainKind>(nTerKinds.S[K], terKind) then
+              fTiles[I].TerKinds[K] := terKind
+            else
+              raise Exception.Create('Error loading ' + jsonPath + ': wrong CornersTerKind: ' + nTerKinds.S[K]);
+        finally
+          nTerKinds.Free;
         end;
+
+        if not nTile.Contains('AnimLayers') then Continue;
+
+        nAnimLayers := nTile.A['AnimLayers'];
+
+        try
+          SetLength(fTiles[I].Animation.Layers, nAnimLayers.Count);
+
+          for J := 0 to nAnimLayers.Count - 1 do
+          begin
+            nAnimLayer := nAnimLayers.O[J];
+            try
+              fTiles[I].Animation.Layers[J].Frames := nAnimLayer.I['Frames'];
+
+              nAnims := nAnimLayer.A['Anims'];
+              SetLength(fTiles[I].Animation.Layers[J].Anims, nAnims.Count);
+              for K := 0 to nAnims.Count - 1 do
+              begin
+                fTiles[I].Animation.Layers[J].Anims[K] := nAnims.I[K];
+              end;
+            finally
+              nAnimLayer.Free;
+            end;
+          end;
+        finally
+          nAnimLayers.Free;
+        end;
+      finally
+        nTile.Free;
       end;
     end;
   finally
-    nRoot.Free;
+    nTiles.Free;
   end;
 end;
 

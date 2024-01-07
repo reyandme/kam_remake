@@ -45,6 +45,8 @@ type
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
+
+    function ObjToString(const aSeparator: String = ' '): String;
   end;
 
 
@@ -101,6 +103,7 @@ type
     fBuildSupplyStone: Byte; //How much Stone was delivered to house building site
     fBuildReserve: Byte; //Take one build supply resource into reserve and "build from it"
     fBuildingProgress: Word; //That is how many efforts were put into building (Wooding+Stoning)
+    fIsReadyToBeBuilt: Boolean;
     fDamage: Word; //Damaged inflicted to house
 
     fTick: Cardinal;
@@ -156,6 +159,8 @@ type
     function GetWareInArray: TKMByteArray;
     function GetWareOutArray: TKMByteArray;
     function GetWareOutPoolArray: TKMByteArray;
+
+    procedure SetIsReadyToBeBuilt(aIsReadyToBeBuilt: Boolean);
 
     function GetWareDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
     procedure SetIsClosedForWorker(aIsClosed: Boolean);
@@ -283,6 +288,7 @@ type
     function IsComplete: Boolean; inline;
     function IsDamaged: Boolean;
     property IsDestroyed: Boolean read fIsDestroyed;
+    property IsReadyToBeBuilt: Boolean read fIsReadyToBeBuilt;
     property GetDamage: Word read fDamage;
 
     procedure SetState(aState: TKMHouseState);
@@ -452,6 +458,7 @@ end;
 
 procedure TKMHouseSketchEdit.CopyTo(aHouseSketch: TKMHouseSketchEdit);
 begin
+  aHouseSketch.Owner := Owner;
   aHouseSketch.SetUID(UID);
   aHouseSketch.SetHouseType(HouseType);
   aHouseSketch.SetPosition(Position);
@@ -509,6 +516,7 @@ begin
   inherited Create(aUID, aHouseType, PosX, PosY, aOwner);
 
   fBuildState := aBuildState;
+  fIsReadyToBeBuilt := False;
 
   fBuildSupplyWood  := 0;
   fBuildSupplyStone := 0;
@@ -577,6 +585,7 @@ begin
   LoadStream.Read(fPosition);
   UpdateEntrancePos;
   LoadStream.Read(fBuildState, SizeOf(fBuildState));
+  LoadStream.Read(fIsReadyToBeBuilt);
   LoadStream.Read(fBuildSupplyWood);
   LoadStream.Read(fBuildSupplyStone);
   LoadStream.Read(fBuildReserve);
@@ -1215,6 +1224,8 @@ procedure TKMHouse.IncBuildingProgress;
 begin
   if IsComplete then Exit;
 
+  SetIsReadyToBeBuilt(True);
+
   if (fBuildState = hbsWood) and (fBuildReserve = 0) then
   begin
     Dec(fBuildSupplyWood);
@@ -1238,6 +1249,7 @@ begin
   begin
     fBuildState := hbsDone;
     gHands[Owner].Stats.HouseEnded(fType);
+    SetIsReadyToBeBuilt(False);
     Activate(True);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
@@ -1363,6 +1375,24 @@ begin
 
   if not gGameParams.IsMapEditor then
     gHands[Owner].Stats.HouseClosed(aIsClosed, fType);
+end;
+
+
+// Set if house is ready to build
+// possible values during house lifecycle:
+// False -> True (rdy to be built) -> False (building complete or house was destroyed)
+procedure TKMHouse.SetIsReadyToBeBuilt(aIsReadyToBeBuilt: Boolean);
+begin
+  if fIsReadyToBeBuilt = aIsReadyToBeBuilt then Exit; // Nothing to update
+
+  fIsReadyToBeBuilt := aIsReadyToBeBuilt;
+
+  if fIsReadyToBeBuilt then
+    // Construction started
+    gHands[Owner].Stats.HouseRdyToBeBuilt(fType)
+  else
+    // Construction completed
+    gHands[Owner].Stats.HouseBuildEnded(fType);
 end;
 
 
@@ -1743,13 +1773,18 @@ end;
 
 
 // Add resources to building process
+// aCount - number of materials to add or remove if negative value is specified
 procedure TKMHouse.WareAddToBuild(aWare: TKMWareType; aCount: Integer = 1);
 begin
+  // If there are some wares or build progress update rdy to be built flag of the house
+  if (fBuildingProgress > 0) or (fBuildSupplyWood > 0) or (fBuildSupplyStone > 0) then
+    SetIsReadyToBeBuilt(True);
+
   case aWare of
     wtTimber:  fBuildSupplyWood := EnsureRange(fBuildSupplyWood + aCount, 0, gRes.Houses[fType].WoodCost);
     wtStone:   fBuildSupplyStone := EnsureRange(fBuildSupplyStone + aCount, 0, gRes.Houses[fType].StoneCost);
   else
-    raise ELocError.Create('WIP house is not supposed to recieve ' + gRes.Wares[aWare].Title + ', right?', fPosition);
+    raise ELocError.Create('WIP house is not supposed to receive ' + gRes.Wares[aWare].Title + ', right?', fPosition);
   end;
 end;
 
@@ -2062,6 +2097,7 @@ begin
   SaveStream.Write(fType, SizeOf(fType));
   SaveStream.Write(fPosition);
   SaveStream.Write(fBuildState, SizeOf(fBuildState));
+  SaveStream.Write(fIsReadyToBeBuilt);
   SaveStream.Write(fBuildSupplyWood);
   SaveStream.Write(fBuildSupplyStone);
   SaveStream.Write(fBuildReserve);
@@ -2197,7 +2233,7 @@ begin
 
   actStr := 'nil';
   if CurrentAction <> nil then
-    actStr := CurrentAction.ClassName;
+    actStr := CurrentAction.ObjToString();
 
   resOutPoolStr := '';
   for I := Low(fWareOutPool) to High(fWareOutPool) do
@@ -2241,6 +2277,7 @@ end;
 procedure TKMHouse.UpdateState(aTick: Cardinal);
 const
   HOUSE_PLAN_SIGHT = 2;
+  UPDATE_RDY_TO_BE_BUILT_FREQ = 20; // every 2 sec
 var
   I, K: Integer;
   houseUnoccupiedMsgId: Integer;
@@ -2248,6 +2285,13 @@ var
 begin
   if not IsComplete then
   begin
+    // Update RdyToBeBuilt flag on the house
+    // no need to do it often, since its used only for specs (through hand stats)
+    if (aTick mod UPDATE_RDY_TO_BE_BUILT_FREQ = 0)
+      and not fIsReadyToBeBuilt
+      and gHands[Owner].Deliveries.Queue.HasDeliveryTo(Self) then
+      SetIsReadyToBeBuilt(True);
+
     if gGameParams.DynamicFOW and ((aTick + Owner) mod FOW_PACE = 0) then
     begin
       HA := gRes.Houses[fType].BuildArea;
@@ -2402,6 +2446,28 @@ begin
 end;
 
 
+function TKMHouseAction.ObjToString(const aSeparator: String = ' '): String;
+var
+  AT: TKMHouseActionType;
+  subActStr: string;
+begin
+  subActStr := '';
+  for AT in fSubAction do
+  begin
+    if subActStr <> '' then
+      subActStr := subActStr + ' ';
+
+    subActStr := subActStr + GetEnumName(TypeInfo(TKMHouseActionType), Integer(AT));
+  end;
+
+  Result := Format('%sState = %s%sSubAction = [%s]',
+                   [aSeparator,
+                    GetEnumName(TypeInfo(TKMHouseState), Integer(fHouseState)), aSeparator,
+                    subActStr]);
+end;
+
+
+{ TKMHouseTower }
 procedure TKMHouseTower.Paint;
 var
   fillColor, lineColor: Cardinal;

@@ -431,6 +431,7 @@ uses
   
   KM_FileIO in 'src\utils\io\KM_FileIO.pas',
   KM_IoGraphicUtils in 'src\utils\io\KM_IoGraphicUtils.pas',
+  KM_IoJSON in 'src\utils\io\KM_IoJSON.pas',
   KM_IoPNG in 'src\utils\io\KM_IoPNG.pas',
   KM_IoXML in 'src\utils\io\KM_IoXML.pas',
   

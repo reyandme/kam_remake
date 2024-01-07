@@ -267,6 +267,8 @@ var
   MAKE_SAVEPT_BEFORE_TICK :Integer = -1;    //Make savepoint after a certain tick (for both game and replay)
   ALLOW_SAVE_IN_REPLAY    :Boolean = DEBUG_CFG; //Allow to save game from replay, good for debug
   SAVE_GAME_AS_TEXT       :Boolean = True; {Save game serialized} //todo: DEBUG. set to False before releases
+  SAVE_NO_COMPRESSION     :Boolean = False; // do not use compression for game save body
+  SAVE_GAME_AFTER_LOAD    :Boolean = False; // Save game immidiately after load, could be useful for debugging
 
   DEBUG_TEXT              :String = '';    //Debug text
   DEBUG_VALUE             :Integer = 0;    //Debug value
@@ -773,6 +775,7 @@ type
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   TKMHouseState = (hstEmpty, hstIdle, hstWork);
   //These are house building states
+  // Todo: add other possible build states like hbsDigged, hbsRoadConnected, hbsBuildStart
   TKMHouseBuildState = (hbsNoGlyph, hbsWood, hbsStone, hbsDone);
 
   TKMHouseActionType = (

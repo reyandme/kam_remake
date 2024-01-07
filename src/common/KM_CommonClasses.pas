@@ -3,7 +3,7 @@ unit KM_CommonClasses;
 interface
 uses
   Classes, SysUtils, KM_Points, KM_CommonTypes
-  {$IFDEF WDC OR FPC_FULLVERSION >= 30200}, KM_WorkerThread{$ENDIF};
+  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}, KM_WorkerThread{$ENDIF};
 
   // Delphi 11 Alexandria had bug with S.CopyFrom for TCompressionStream.
   // Bug occurs only during debugging, but its quite annoying
@@ -116,7 +116,7 @@ type
     procedure LoadToStream(aStream: TKMemoryStream; const aMarker: string);
     procedure LoadToStreams(aStream1, aStream2: TKMemoryStream; const aMarker1, aMarker2: string);
 
-    {$IFDEF WDC OR FPC_FULLVERSION >= 30200}
+    {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
     class procedure AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
     class procedure AsyncSaveToFileCompressedAndFree(var aStream: TKMemoryStream; const aFileName: string; const aMarker: string; aWorkerThread: TKMWorkerThread); 
     class procedure AsyncSaveStreamsToFileAndFree(var aMainStream, aSubStream1, aSubStream2: TKMemoryStream; const aFileName: string;
@@ -507,7 +507,7 @@ begin
 end;
 
 
-{$IFDEF WDC OR FPC_FULLVERSION >= 30200}
+{$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
 class procedure TKMemoryStream.AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
 var
   localStream: TKMemoryStream;

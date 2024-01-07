@@ -79,7 +79,10 @@ begin
     Exit;
 
   // Clear old data before filling in
+  {$IFDEF WDC}
+  // Todo: do proper check on FPC
   nHotkeys.Clear;
+  {$ENDIF}
 
   for KF := KEY_FUNC_LOW to High(TKMKeyFunction) do
   begin

@@ -2296,7 +2296,7 @@ end;
 
 
 //* Version: 5097
-//* Reveals a circle in fog of war for player
+//* Covers a circle in fog of war for player
 procedure TKMScriptActions.FogCoverCircle(aHand, X, Y, aRadius: Integer);
 begin
   try

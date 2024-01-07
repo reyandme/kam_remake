@@ -723,6 +723,8 @@ end;
 
 
 procedure TKMGameApp.LoadGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; const aGIPPath: String = '');
+const
+  SAVE_SUFFIX_DEBUG = '_dbg';
 var
   loadError, filePath: String;
 begin
@@ -753,6 +755,9 @@ begin
   end;
 
   gGame.AfterLoad; //Call after load separately, so errors in it could be sended in crashreport
+
+  if SAVE_GAME_AFTER_LOAD then
+    gGame.Save(gGame.Params.Name + SAVE_SUFFIX_DEBUG);
 
   if Assigned(fOnCursorUpdate) then
     fOnCursorUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);

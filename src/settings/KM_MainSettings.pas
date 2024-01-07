@@ -48,7 +48,7 @@ var
 
 implementation
 uses
-  SysUtils, INIfiles, Math;
+  SysUtils, INIfiles, Math, Forms;
 
 const
   NO_RENDER_MAX_TIME_MIN = 10; //in ms
@@ -108,11 +108,13 @@ begin
   nWindow := nMainSettings.AddOrFindChild('Window');
   if nWindow.HasAttribute('Left') and nWindow.HasAttribute('Top') then
   begin
-    fWindowParams.Left   := nWindow.Attributes['Left'].AsInteger(-1);
-    fWindowParams.Top    := nWindow.Attributes['Top'].AsInteger(-1);
-    fWindowParams.Width  := nWindow.Attributes['Width'].AsInteger(Max(MENU_DESIGN_X, fScreenWidth));
-    fWindowParams.Height := nWindow.Attributes['Height'].AsInteger(Max(MENU_DESIGN_Y, fScreenHeight));
-    fWindowParams.State  := TWindowState(EnsureRange(nWindow.Attributes['State'].AsInteger(0), 0, 2));
+    fWindowParams.Left      := nWindow.Attributes['Left'].AsInteger(-1);
+    fWindowParams.Top       := nWindow.Attributes['Top'].AsInteger(-1);
+    fWindowParams.Width     := nWindow.Attributes['Width'].AsInteger(Max(MENU_DESIGN_X, fScreenWidth));
+    fWindowParams.Height    := nWindow.Attributes['Height'].AsInteger(Max(MENU_DESIGN_Y, fScreenHeight));
+    fWindowParams.State     := TWindowState(EnsureRange(nWindow.Attributes['State'].AsInteger(Integer(wsNormal)), 0, 2));
+    fWindowParams.Position  := TPosition(EnsureRange(nWindow.Attributes['Position'].AsInteger(Integer(poScreenCenter)), 0, 7));
+    fWindowParams.FixedPosition  := nWindow.Attributes['FixedPosition'].AsBoolean(False);
   end else
     fWindowParams.NeedResetToDefaults := True;
 
@@ -153,11 +155,13 @@ begin
 
   // Window
   nWindow := nMainSettings.AddOrFindChild('Window');
-    nWindow.Attributes['Left']    := fWindowParams.Left;
-    nWindow.Attributes['Top']     := fWindowParams.Top;
-    nWindow.Attributes['Width']   := fWindowParams.Width;
-    nWindow.Attributes['Height']  := fWindowParams.Height;
-    nWindow.Attributes['State']   := Ord(fWindowParams.State);
+    nWindow.Attributes['Left']          := fWindowParams.Left;
+    nWindow.Attributes['Top']           := fWindowParams.Top;
+    nWindow.Attributes['Width']         := fWindowParams.Width;
+    nWindow.Attributes['Height']        := fWindowParams.Height;
+    nWindow.Attributes['State']         := Ord(fWindowParams.State);
+    nWindow.Attributes['Position']      := Ord(fWindowParams.Position);
+    nWindow.Attributes['FixedPosition'] := fWindowParams.FixedPosition;
 
   // Misc
   nMisc := nMainSettings.AddOrFindChild('Misc');

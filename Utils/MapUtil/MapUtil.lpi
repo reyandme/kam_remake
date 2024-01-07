@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="11"/>
+    <Version Value="12"/>
     <PathDelim Value="\"/>
     <General>
       <Flags>
         <MainUnitHasCreateFormStatements Value="False"/>
         <MainUnitHasTitleStatement Value="False"/>
         <MainUnitHasScaledStatement Value="False"/>
+        <CompatibilityMode Value="True"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <MainUnit Value="0"/>
       <Title Value="MapUtil"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
@@ -25,8 +25,8 @@
             <Filename Value="MapUtil"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\LNet;..\..\src\ext\pascalscript;..\..\src\ext\pascalscript\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\helpers;..\..\src\utils\io;..\..\src\utils\method_parser;$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\LNet;..\..\src\ext\pascalscript;..\..\src\ext\pascalscript\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\helpers;..\..\src\utils\io;..\..\src\utils\method_parser"/>
+            <IncludeFiles Value="..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\LNet;..\..\src\ext\pascalscript_submodule;..\..\src\ext\pascalscript_submodule\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\helpers;..\..\src\utils\io;..\..\src\utils\method_parser;$(ProjOutDir)"/>
+            <OtherUnitFiles Value="..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\LNet;..\..\src\ext\pascalscript_submodule;..\..\src\ext\pascalscript_submodule\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\helpers;..\..\src\utils\io;..\..\src\utils\method_parser"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -39,6 +39,7 @@
           <Linking>
             <Debugging>
               <GenerateDebugInfo Value="False"/>
+              <DebugInfoType Value="dsDwarf2Set"/>
             </Debugging>
             <Options>
               <PassLinkerOptions Value="True"/>
@@ -46,7 +47,8 @@
             </Options>
           </Linking>
           <Other>
-            <CustomOptions Value="-dNO_OGL"/>
+            <CustomOptions Value="-dNO_OGL
+-dNO_ASYNC_LOAD"/>
             <OtherDefines Count="1">
               <Define0 Value="NO_OGL"/>
             </OtherDefines>
@@ -60,7 +62,6 @@
     </PublishOptions>
     <RunParams>
       <FormatVersion Value="2"/>
-      <Modes Count="0"/>
     </RunParams>
     <RequiredPackages Count="1">
       <Item1>
@@ -89,10 +90,14 @@
       <Filename Value="MapUtil"/>
     </Target>
     <SearchPaths>
-      <IncludeFiles Value="..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\LNet;..\..\src\ext\pascalscript;..\..\src\ext\pascalscript\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\helpers;..\..\src\utils\io;..\..\src\utils\method_parser;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\LNet;..\..\src\ext\pascalscript;..\..\src\ext\pascalscript\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\helpers;..\..\src\utils\io;..\..\src\utils\method_parser"/>
+      <IncludeFiles Value="..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\LNet;..\..\src\ext\pascalscript_submodule;..\..\src\ext\pascalscript_submodule\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\helpers;..\..\src\utils\io;..\..\src\utils\method_parser;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\LNet;..\..\src\ext\pascalscript_submodule;..\..\src\ext\pascalscript_submodule\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\helpers;..\..\src\utils\io;..\..\src\utils\method_parser"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Other>
+      <CustomOptions Value="-dNO_OGL
+-dNO_ASYNC_LOAD"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

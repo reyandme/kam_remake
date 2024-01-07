@@ -332,6 +332,7 @@ type
     procedure MessageIssue(aKind: TKMMessageKind; const aText: UnicodeString; const aLoc: TKMPoint); overload;
     procedure UpdateUI;
     procedure UpdateClock(aSpeedActual, aDefaultSpeed, aSpeedRecorded: Single);
+    procedure UpdateReplayView;
     procedure ShowPlayMore(aDoShow: Boolean; aMsg: TKMGameResultMsg);
     procedure ShowMPPlayMore(aMsg: TKMGameResultMsg);
     procedure ShowNetworkLag(aShow: Boolean; aPlayers: TKMByteArray; aIsHost: Boolean);
@@ -1985,6 +1986,21 @@ begin
   finally
     FreeAndNil(ticksList);
   end;
+end;
+
+
+// In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
+procedure TKMGamePlayInterface.UpdateReplayView;
+begin
+  if not (fUIMode in [umReplay, umSpectate]) then Exit;
+
+  Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandID);
+  if Checkbox_ReplayFOW.Checked then
+    gMySpectator.FOWIndex := gMySpectator.HandID
+  else
+    gMySpectator.FOWIndex := -1;
+
+  fMinimap.Update; // Force update right now so FOW doesn't appear to lag
 end;
 
 
@@ -4147,7 +4163,7 @@ var
   pbj: TObject;
   H: TKMHouse;
   group, group2: TKMUnitGroup;
-  oldSelected: TObject;
+  oldSelected: TKMHandEntity;
   oldSelectedUnit: TKMUnitWarrior;
 begin
   // Check if mouse was clicked insede MP chat panel
@@ -4235,22 +4251,10 @@ begin
 
                 // Don't allow selecting during a cinematic
                 if not gMySpectator.Hand.InCinematic then
-                begin
                   gMySpectator.UpdateSelect;
-                  if gMain <> nil then
-                    gMain.FormMain.SetEntitySelected(gMySpectator.Selected.UID, gMySpectator.Selected.AsGroup.SelectedUnit.UID);
-                end;
 
                 // In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
-                if fUIMode in [umReplay, umSpectate] then
-                begin
-                  Dropbox_ReplayFOW.SelectByTag(gMySpectator.HandID);
-                  if Checkbox_ReplayFOW.Checked then
-                    gMySpectator.FOWIndex := gMySpectator.HandID
-                  else
-                    gMySpectator.FOWIndex := -1;
-                  fMinimap.Update; // Force update right now so FOW doesn't appear to lag
-                end;
+                UpdateReplayView;
 
                 if (gMySpectator.Selected is TKMHouse) then
                 begin

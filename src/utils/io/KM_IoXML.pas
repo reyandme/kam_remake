@@ -206,7 +206,7 @@ begin
   Result := fDocument.Xml;
   {$ENDIF}
   {$IFDEF FPC}
-  Not implemented
+  // Not implemented
   {$ENDIF}
 end;
 
@@ -217,7 +217,7 @@ begin
   fDocument.Xml := aText;
   {$ENDIF}
   {$IFDEF FPC}
-  Not implemented
+  // Not implemented
   {$ENDIF}
 end;
 

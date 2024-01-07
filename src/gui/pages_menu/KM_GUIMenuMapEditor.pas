@@ -39,6 +39,8 @@ type
     procedure SetSelectedMapInfo(aID: Integer = -1); overload;
     procedure SetSelectedMapInfo(aCRC: Cardinal; const aName: UnicodeString); overload;
 
+    procedure RefreshAll;
+
     procedure ScanUpdate(Sender: TObject);
     procedure ScanTerminate(Sender: TObject);
     procedure SortUpdate(Sender: TObject);
@@ -130,6 +132,7 @@ uses
   KM_RenderUI, KM_Pics,
   KM_Resource, KM_ResFonts, KM_ResTypes,
   KM_CommonUtils, KM_MapUtilsExt,
+  KM_GameAppSettings,
   KM_MapTypes;
 
 const
@@ -467,6 +470,9 @@ begin
 
       //Update pic
       ColumnBox_MapEd.Item[Y].Cells[0].Pic := fMaps[I].FavouriteMapPic;
+
+      // Save settings immediately, thus updated favourite maps could be seen in the other game instances
+      gGameAppSettings.SaveSettings;
     finally
       fMaps.Unlock;
     end;
@@ -861,6 +867,7 @@ begin
                 else if Button_MapMoveConfirm.IsClickable then
                   MoveClick(Button_MapMoveConfirm);
     VK_F2:      RenameClick(Button_MapRename);
+    VK_F5:      RefreshAll;
     VK_DELETE:  DeleteClick(Button_MapDelete);
   end;
 end;
@@ -882,6 +889,9 @@ end;
 procedure TKMMenuMapEditor.BackClick(Sender: TObject);
 begin
   fMaps.TerminateScan;
+
+  // Save settings because we could have updated favourite maps, selected map etc
+  gGameAppSettings.SaveSettings;
 
   fOnPageChange(gpMainMenu);
 end;
@@ -1132,8 +1142,11 @@ begin
 end;
 
 
-procedure TKMMenuMapEditor.Show;
+procedure TKMMenuMapEditor.RefreshAll;
 begin
+  // Reload settings because we could have updated favourite maps, f.e.
+  gGameAppSettings.ReloadSettings;
+
   // we can get access to gGameApp only here, because in Create it could still be nil
   Radio_MapType.ItemIndex := gGameSettings.MenuMapEdMapType;
   NumEdit_MapSizeX.Value := gGameSettings.MenuMapEdNewMapX;
@@ -1143,6 +1156,12 @@ begin
 
   ListUpdate;
   UpdateUI;
+end;
+
+
+procedure TKMMenuMapEditor.Show;
+begin
+  RefreshAll;
 
   Panel_MapEd.Show;
   ColumnBox_MapEd.Focus;

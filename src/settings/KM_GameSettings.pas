@@ -567,7 +567,10 @@ begin
 
   nGameSettings := Root.AddOrFindChild('Game');
   // Clear old data before filling in
+  {$IFDEF WDC}
+  // Todo: do proper check on FPC
   nGameSettings.Clear;
+  {$ENDIF}
 
   // Game GFX
   nGFX := nGameSettings.AddOrFindChild('GFX');

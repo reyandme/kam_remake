@@ -30,8 +30,8 @@ type
     procedure AfterPreProcess;
     procedure BeforePreProcess(const aMainFileName: UnicodeString; const aMainFileText: AnsiString);
 
-    function ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: UnicodeString;
-                              var aFileName: UnicodeString; var aOutput: AnsiString): Boolean;
+    function ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: tbtunicodestring;
+                              var aFileName: tbtunicodestring; var aOutput: tbtstring): Boolean;
     procedure ScriptOnProcessDirective(Sender: TPSPreProcessor; Parser: TPSPascalPreProcessorParser; const Active: Boolean;
                                         const DirectiveName, DirectiveParam: tbtString; var aContinue: Boolean);
   protected
@@ -335,11 +335,12 @@ const
 
           hasError := False;
           if TryStrToFloat(directiveParamSL[0], goldOrePriceX, gFormatSettingsDotSeparator)
-            and TryStrToFloat(directiveParamSL[1], goldPriceX, gFormatSettingsDotSeparator) then
+          and TryStrToFloat(directiveParamSL[1], goldPriceX, gFormatSettingsDotSeparator) then
           begin
             goldOrePriceX := EnsureRange(goldOrePriceX, 0.1, 10);
             goldPriceX := EnsureRange(goldPriceX, 0.1, 10);
-          end else begin
+          end else
+          begin
             hasError := True;
             fErrorHandler.AppendErrorStr(Format('Directive ''%s'' has not a number parameter: [%s]. At [%d:%d]' + sLineBreak,
                                                 [CUSTOM_MARKET_GOLD_PRICE_DIRECTIVE, DirectiveParam, Parser.Row, Parser.Col]));
@@ -362,7 +363,7 @@ const
           //gGame could be nil here, but that does not change final CRC, so we can Exit
           if not AllowGameUpdate then Exit;
 
-          //Update actual market prices
+          // Update actual market prices
           gRes.Wares[wtGoldOre].MarketPriceMultiplier := goldOrePriceX;
           gRes.Wares[wtGold].MarketPriceMultiplier := goldPriceX;
 
@@ -405,8 +406,8 @@ begin
 end;
 
 
-function TKMScriptPreProcessor.ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: UnicodeString;
-                                                var aFileName: UnicodeString; var aOutput: AnsiString): Boolean;
+function TKMScriptPreProcessor.ScriptOnNeedFile(Sender: TPSPreProcessor; const aCallingFileName: tbtunicodestring;
+                                                var aFileName: tbtunicodestring; var aOutput: tbtstring): Boolean;
 var
   path, fileName, fileExt, errorStr: string;
   inclFile: string;

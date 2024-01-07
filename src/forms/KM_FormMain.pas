@@ -420,6 +420,7 @@ implementation
 uses
   {$IFDEF WDC} UITypes, {$ENDIF}
   {$IFDEF FASTMM} FastMM4, {$ENDIF}
+  TypInfo,
   KromUtils,
   KromShellUtils,
   KM_Main,
@@ -539,6 +540,7 @@ begin
   begin
     Left := gMainSettings.WindowParams.Left;
     Top := gMainSettings.WindowParams.Top;
+    gLog.AddTime(Format('Set window Left = %d, Top = %d', [Left, Top]));
   end;
 
   fMissionDefOpenPath := ExeDir;
@@ -1828,12 +1830,15 @@ begin
 
   // Here we set window Width/Height and State
   // Left and Top will set on FormShow, so omit setting them here
-  Position := poDesigned;
+  Position     := gMainSettings.WindowParams.Position;
   ClientWidth  := gMainSettings.WindowParams.Width;
   ClientHeight := gMainSettings.WindowParams.Height;
   Left := gMainSettings.WindowParams.Left;
   Top := gMainSettings.WindowParams.Top;
   WindowState  := gMainSettings.WindowParams.State;
+
+  gLog.AddTime('Set window params to: '
+              + gMainSettings.WindowParams.ObjToString);
 
   //Make sure Panel is properly aligned
   RenderArea.Align := alClient;
@@ -1852,6 +1857,9 @@ begin
   gMain.UpdateWindowParams(GetWindowParams);
   // Unset NeedResetToDefaults flag
   gMainSettings.WindowParams.NeedResetToDefaults := False;
+
+  gLog.AddTime(Format('Set window params to: Position = poScreenCenter Width = %d, Height = %d',
+                      [gMainSettings.WindowParams.Width, gMainSettings.WindowParams.Height]));
 
   //Make sure Panel is properly aligned
   RenderArea.Align := alClient;
@@ -1944,6 +1952,7 @@ var
   rect: TRect;
 begin
   Result.State := WindowState;
+  Result.Position := Position;
   case WindowState of
     wsMinimized:  ;
     wsNormal:     begin

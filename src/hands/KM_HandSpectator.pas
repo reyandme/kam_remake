@@ -70,12 +70,13 @@ type
 
 implementation
 uses
-  KM_Entity,
+  KM_Entity, KM_HandEntityHelper,
   KM_GameParams, KM_Cursor,
   KM_HandsCollection, KM_HandTypes,
   KM_Units, KM_UnitGroup, KM_UnitWarrior, KM_Houses,
   KM_CommonUtils,
-  KM_GameTypes;
+  KM_GameTypes,
+  KM_Main;
 
 
 { TKMSpectator }
@@ -341,6 +342,10 @@ begin
     if (Selected <> nil) and (UID <> UID_NONE) then
       fLastSpecSelectedObjUID[fHandIndex] := UID;
   end;
+
+  // Update F11 Debug panel  UIDs
+  if gMain <> nil then
+    gMain.FormMain.SetEntitySelected(Selected.UID, Selected.AsGroup.SelectedUnit.UID);
 end;
 
 

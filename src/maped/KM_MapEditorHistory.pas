@@ -26,7 +26,7 @@ type
 
   TKMCheckpointTerrain = class(TKMCheckpoint)
   private
-    // Each Undo step stores whole terrain for simplicity
+    // Each Undo step stores whole terrain for simplicity (and ease of jumping to random checkpoint in the list)
     fData: array of array of TKMUndoTile;
     function MakeUndoTile(const aTile: TKMTerrainTile;
                           const aPaintedTile: TKMPainterTile;
@@ -62,7 +62,7 @@ type
 
   TKMCheckpointUnits = class(TKMCheckpoint)
   private
-    // Each Undo step stores all units for simplicity
+    // Each Undo step stores all units for simplicity (and ease of jumping to random checkpoint in the list)
     fUnits: array of record
       UnitType: TKMUnitType;
       Position: TKMPoint;
@@ -80,7 +80,7 @@ type
 
   TKMCheckpointHouses = class(TKMCheckpoint)
   private
-    // Each Undo step stores all houses for simplicity
+    // Each Undo step stores all houses for simplicity (and ease of jumping to random checkpoint in the list)
     fHouses: array of record
       HouseType: TKMHouseType;
       Position: TKMPoint;
@@ -125,7 +125,7 @@ type
 
     procedure IncCounter;
     procedure UpdateAll;
-    procedure JumpTo(aIndex: Integer; aAreas: TKMCheckpointAreaSet); overload;
+    procedure JumpToAreas(aIndex: Integer; aAreas: TKMCheckpointAreaSet);
   public
     constructor Create;
     destructor Destroy; override;
@@ -141,9 +141,9 @@ type
     procedure Clear;
 
     procedure MakeCheckpoint(aArea: TKMCheckpointArea; const aCaption: string);
-    procedure JumpTo(aIndex: Integer); overload;
-    procedure Undo(aUpdateImmidiately: Boolean = True);
-    procedure Redo(aUpdateImmidiately: Boolean = True);
+    procedure JumpTo(aIndex: Integer);
+    procedure Undo;
+    procedure Redo;
   end;
 
 
@@ -759,7 +759,7 @@ begin
 end;
 
 
-procedure TKMMapEditorHistory.JumpTo(aIndex: Integer; aAreas: TKMCheckpointAreaSet);
+procedure TKMMapEditorHistory.JumpToAreas(aIndex: Integer; aAreas: TKMCheckpointAreaSet);
 var
   A: TKMCheckpointArea;
   prev: Integer;
@@ -791,16 +791,18 @@ begin
 
   areas := [];
   if aIndex < fCheckpointPos then
-    for I := aIndex + 1 to fCheckpointPos do //Collect areas of checkpoints that should be Undone
+    // Collect areas of checkpoints that should be Undone
+    for I := aIndex + 1 to fCheckpointPos do
       areas := areas + [fCheckpoints[I].Area]
   else
-  for I := fCheckpointPos + 1 to aIndex do // Collect areas from +1 pos upto index
-    areas := areas + [fCheckpoints[I].Area];
+    // Collect areas from +1 pos upto index
+    for I := fCheckpointPos + 1 to aIndex do
+      areas := areas + [fCheckpoints[I].Area];
 
-  JumpTo(aIndex, areas);
+  JumpToAreas(aIndex, areas);
 
   if (areas * [caTerrain, caAll]) <> [] then
-      UpdateAll;
+    UpdateAll;
 
   if undoRedoNeeded and Assigned(fOnUndoRedo) then
     fOnUndoRedo;
@@ -813,7 +815,7 @@ begin
 end;
 
 
-procedure TKMMapEditorHistory.Undo(aUpdateImmidiately: Boolean = True);
+procedure TKMMapEditorHistory.Undo;
 var
   prev: Integer;
 begin
@@ -824,18 +826,18 @@ begin
   Assert(prev >= 0);
 
   // Apply only requested area (e.g. if we are undoing single change made to Houses at step 87 since editing start)
-  fCheckpoints[prev].Apply(fCheckpoints[fCheckpointPos].Area, aUpdateImmidiately);
+  fCheckpoints[prev].Apply(fCheckpoints[fCheckpointPos].Area, True);
 
   Dec(fCheckpointPos);
 
   IncCounter;
 
-  if aUpdateImmidiately and Assigned(fOnUndoRedo) then
+  if Assigned(fOnUndoRedo) then
     fOnUndoRedo;
 end;
 
 
-procedure TKMMapEditorHistory.Redo(aUpdateImmidiately: Boolean = True);
+procedure TKMMapEditorHistory.Redo;
 var
   next: Integer;
 begin
@@ -845,13 +847,13 @@ begin
 
   Assert(next <= fCheckpoints.Count - 1);
 
-  fCheckpoints[next].Apply(caAll, aUpdateImmidiately);
+  fCheckpoints[next].Apply(caAll, True);
 
   fCheckpointPos := next;
 
   IncCounter;
 
-  if aUpdateImmidiately and Assigned(fOnUndoRedo) then
+  if Assigned(fOnUndoRedo) then
     fOnUndoRedo;
 end;
 

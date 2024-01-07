@@ -35,7 +35,7 @@
 34:Minerai d'or
 35:Charbon
 36:Fer
-37:Caisse d'or
+37:Or
 38:Barrique de vin
 39:Blé
 40:Miche de pain
@@ -109,13 +109,13 @@
 108:Répartition|Matières|Premières
 109:Statistiques
 110:Options
-111:Charger Partie
-112:Enregistrer Partie
+111:Charger partie
+112:Enregistrer partie
 113:Êtes-vous sûr(e)|de vouloir quitter|cette mission ?
-114:Quitter la Mission
+114:Quitter la mission
 115:Annuler
 116:Paramètres
-117:Quitter l'Éditeur
+117:Quitter l'éditeur
 118:Effets sonores
 119:Régler le volume
 120:Régler le volume
@@ -126,7 +126,7 @@
 125:Morceau précédent
 126:Morceau suivant
 127:Démolir
-128:Démolition / annulation
+128:Démolir / Annuler
 129:Construire une route
 130:Construire des routes
 131:Labourer un champ
@@ -154,14 +154,14 @@
 155:Réparation du bâtiment oui/non
 156:Bâtiment indisponible actuellement
 157:Santé
-158:Pivoter à gauche
-159:Pivoter à droite
+158:Pivoter à gauche|Bouton droit de la souris ou ALT pour tourner de 90 degrés, Shift pour tourner de 180 degrés
+159:Pivoter à droite|Bouton droit de la souris ou ALT pour tourner de 90 degrés, Shift pour tourner de 180 degrés
 160:Attaquer
 161:Envoyer les troupes
 162:Ravitailler les troupes
 163:Charger !
-164:Changer de formation : ajouter un rang
-165:Changer de formation : enlever un rang
+164:Ajouter un rang|Bouton droit de la souris ou Shift pour ajouter 5 rangs
+165:Enlever un rang|Bouton droit de la souris ou Shift pour retirer 5 rangs
 166:Sélectionner|l'autre unité
 167:Annuler
 168:Supprimer
@@ -226,17 +226,17 @@
 227:Campagnes
 228:Campagnes
 229:Débuter !
-230:Sélectionner une Mission
+230:Sélectionner une mission
 231:Débuter !
-232:Retour au Menu
-233:Charger une Partie Enregistrée
+232:Retour au menu
+233:Charger une partie enregistrée
 234:Multijoueur
 235:Options
 236:Crédits
 237:Quitter
 238:Continuer
-239:Recommencer la Mission
-240:Résolution :
+239:Recommencer la mission
+240:Résolution:
 241:Non supportée
 242:Non supporté
 243:VICTOIRE !
@@ -271,45 +271,45 @@
 272:Vous
 273:Joueur %d
 274:Retour au Multijoueur
-275:Retour aux Replays
+275:Retour aux replays
 276:Toutes
 277:Militaire
 278:Nourriture
 279:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|André Quaß||MONTAGE SON :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||TRADUCTION :|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||MANUEL :|Peter Ohlmann|Uwe Schäfer||BÊTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRECTEUR DU DÉVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINÉMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION D'OUVERTURE :|Uwe Schäfer|Christian Bigalk|Modélisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS À :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
 280:Mission annulée
 281:Replay terminé
-282:Tutoriel de Construction
-283:Tutoriel de Bataille
-284:Joueur Unique
-285:Éditeur de Cartes
+282:Tutoriel de construction
+283:Tutoriel de bataille
+284:Joueur unique
+285:Éditeur de cartes
 286:Débuter !
 287:Titre
 288:Taille
-289:Condition de victoire :
-290:Condition de défaite :
-291:Alliés :
-292:Ennemis :
+289:Condition de victoire:
+290:Condition de défaite:
+291:Alliés:
+292:Ennemis:
 293:Temps
 294:Taille de la carte
 295:Largeur
 296:Hauteur
-297:Créer une Carte
+297:Créer une carte
 298:Cartes disponibles
-299:Charger la Carte
+299:Charger la carte
 300:Position
-301:Contrôles :
-302:Jouabilité :
-303:Son :
+301:Contrôles:
+302:Jouabilité:
+303:Son:
 304:Désactiver la musique
-305:Graphismes :
+305:Graphismes:
 306:Luminosité
 307:Synchronisation verticale
 308:Plein écran
 309:Appliquer
 310:Langage :
-311:Qualité de l'ombre :
-312:Basse
-313:Haute
+311:Ombres de haute qualité
+312:Ok
+313:|Maintenez la touche Maj enfoncée pour placer plusieurs bâtiments
 314:Chargement... Veuillez patienter
 315:Une erreur s'est produite !
 316:Chargement du langage
@@ -357,7 +357,7 @@
 358:Suspendre le replay
 359:Avancer d'une frame
 360:Reprendre le replay
-361:Stopper le replay
+361:Quitter le replay
 362:Basculer vers la perspective du joueur
 364:Sélectionnez une marchandise à échanger à l'aide du bouton gauche de la souris
 365:Sélectionnez une marchandise à échanger à l'aide du bouton droit de la souris
@@ -401,7 +401,7 @@
 404:Tout changement|non sauvegardé|sera perdu
 405:Annuler
 406:Charger
-407:Charger Carte
+407:Charger carte
 408:Annuler
 409:Enregistrer
 410:Écraser
@@ -421,18 +421,18 @@
 424:Révèle une portion de la carte
 425:Révéler le brouillard
 426:Bloquer le commerce
-427:Bloquer/déverouiller des maisons
+427:Bloquer/déverouiller des bâtiments
 428:Couleurs
 429:Buts
 432:Joueur
-433:Batiments économiques
-434:Serfs et écoles
-435:Possessions militaires
+433:les bâtiment économiques
+434:les serfs et écoles
+435:les possessions militaires
 436:Inconnu
-437:Troupes
+437:les troupes
 438:Batiments
 439:Temps
-440:Tutoriel de Construction
+440:Tutoriel de construction
 441:Aucun
 442:Condition
 443:Survivre
@@ -489,14 +489,14 @@
 499:Nouvelle mission
 500:Nom du joueur
 501:Statut :
-502:Créer un Serveur
+502:Créer un serveur
 503:CRÉER UN SERVEUR
 504:Nom
 505:Port
-506:Créer un Serveur Local
-507:Créer un Serveur Internet
+506:Créer un serveur Local
+507:Créer un serveur Internet
 508:Annuler
-509:Trouver un Serveur par IP
+509:Trouver un serveur par IP
 510:TROUVER UN SERVEUR
 511:Adresse
 512:Port
@@ -509,16 +509,16 @@
 519:État
 520:Joueurs
 521:Ping
-522:Rafraîchir la Liste des Serveurs
+522:Rafraîchir la liste des serveurs
 523:DÉTAILS DU SERVEUR
 524:Liste de joueur :
 525:Joindre
 526:Connexion, veuillez patienter...
 527:Chargement des annonces...
 528:Rafraîchissement...
-529:Liste des joueurs
+529:Joueurs
 530:Position de départ
-531:Alliance
+531:Équipe
 532:Couleur
 533:Prêt
 534:Ping
@@ -531,17 +531,17 @@
 541:Partie enregistrée
 542:Sélect. une mission...
 543:Sélect. un fichier...
-544:Quitter la préparation
+544:Quitter le serveur
 545:Prêt
 546:Non prêt
 547:Débuter !
-548:Vitesse de jeu (temps de paix)
+548:Vitesse (en temps de paix)
 549:Vitesse de jeu
 550:OK
 551:Annuler
 552:Description
 553:Mot de passe
-554:Paramètres de la session
+554:Paramètres de session
 556:Bannir de la session
 557:Exclure
 558:Positions aléatoires dans l'équipe
@@ -557,15 +557,15 @@
 568:La partie a débuté !
 569:Développement
 570:Bataille
-571:Carte coopérative
-572:Carte spéciale
+571:Coopérative
+572:Spéciale
 573:Options de jeu :
 574:Temps de paix (minutes)
 575:Fermé
 576:L'hôte paramètre les joueurs
 577:En attente de joueurs :
 578:Tous
-579:Alliance
+579:Équipe
 580:Crédits de KaM Remake
 581:Crédits originaux de Knights & Merchants
 582:PROGRAMMATION :
@@ -584,7 +584,7 @@
 595:-
 596:Préparation
 597:Chargement
-598:Partie
+598:En jeu
 599:Développement
 600:Bataille
 601:Prêt
@@ -603,16 +603,16 @@
 614:Annuler
 615:L'échange de cette ressource est indisponible dans cette mission
 616:Planter et abattre
-617:Abattre seulement
+617:Abattre
 618:Vous n'êtes pas autorisé à faire cela pendant le temps de paix
 619:Temps de paix restant : %s
 620:Le temps de paix est terminé. À vos armes !
 621:Temps de jeu :|%s
 622:Halte
-623:Regrouper les unités
-624:Scinder les unités
-625:Lecteur de Replay
-626:Regarder le Replay
+623:Regrouper les unités|Maintenir la touche Shift pour lier plusieurs groupes
+624:Scinder les unités ('%s'). Séparer une unité du groupe ('Ctrl + %s')
+625:Lecteur de replay
+626:Regarder le replay
 627:Format non supporté %s
 628:Version non supportée %s
 629:Modifications non supportées
@@ -654,7 +654,7 @@
 665:L'envoi du rapport de crash a échoué ! Notre serveur peut être occupé, veuillez retenter l'envoi à nouveau.
 666:Information
 667:Veuillez patienter un moment...
-668:Enregistrer Carte
+668:Enregistrer carte
 669:Délai en minutes avant que l'IA ne commence à entraîner des recrues
 670:Delai recrues (mins)
 671:Définit une orientation commune à tous les tiles d'eau connectés ensemble
@@ -724,10 +724,10 @@
 768:Réinitialiser les bans
 769:L'hôte a réinitialisé les bans de la session
 770:Date
-771:Afficher le brouillard
+771:Brouillard
 772:Visionner
 773:Spectateur
-774:Portée d'attaque auto.
+774:Portée d'attaque auto
 775:Les groupes d'IA vont automatiquement attaquer si vous êtes aussi proche que ce nombre de tiles
 776:Défendre les alliés
 777:L'IA défendra les unités et les bâtiments des l'alliés comme s'ils étaient les siens.
@@ -755,8 +755,8 @@
 801:La suppression d'un replay entraîne celle de la sauvegarde associée. Êtes-vous sûr(e) de vouloir supprimer ce fichier ?
 802:Prendre aléatoirement
 803:Nombre de soldats à attaquer
-804:Supprimer le Replay
-805:Supprimer la Carte
+804:Supprimer le replay
+805:Supprimer la carte
 806:Êtes-vous sûr(e) de vouloir supprimer cette carte ?
 807:Masquer l'overlay scripté
 808:Afficher l'overlay scripté
@@ -774,14 +774,774 @@
 820:Cuir
 821:Mixe
 822:Cartes téléchargées
+823:Remarque: La première attaque "Répétée" enverra toutes les troupes que le joueur de l'IA a aux avant-postes d'attaque. Cependant, pour chaque attaque "Répétée" suivante (ainsi que pour l'attaque "Unique"), il envoie suffisamment de groupes pour dépasser le "Nombre minimum d'unités pour attaquer"
 824:Retirer
 825:Voir le PDF lisez-moi
 826:Le lancement du lecteur PDF a échoué
 827:Définir le nombre de serfs par 10 bâtiments pour l'IA spécifiée. L'IA sélectionnée a %d bâtiments
 828:Erreur : Le fichier de pause de l'hôte ne correspond pas au fichier local. Une erreur s'est produite ou l'hôte pourrait tenter de tricher.
 829:Votre commande a été traitée.
-830:Charger les fontes asiatiques
+830:Charger fontes asiatiques
 831:Retirer des téléchargements
+832:Renommer le replay
+833:Renommer le replay
+834:Supprimer le replay
+835:Nom:
+836:Confirmer
+838:Raccourcis clavier
+839:OK
+840:Fonction
+841:Touche
+844:Réinitialiser
+845:Défiler vers la gauche
+846:Défiler vers la droite
+847:Défiler vers le haut
+848:Défiler vers le bas
+849:Construction
+850:Répartition des matières premières
+851:Statistiques
+852:Options
+853:Halte
+854:Scinder les unités
+855:Regrouper les unités
+856:Ravitailler les troupes
+857:Charger
+858:Ajouter un rang
+859:Enlever un rang
+860:Pivoter à droite
+861:Pivoter à gauche
+862:Vitesse de jeu normale (x1)
+863:Vitesse de jeu x%s
+864:Vitesse de jeu x%s
+865:Vitesse de jeu x%s
+866:Ping
+867:Pause
+868:Afficher les équipes (MP)
+869:Zoom avant
+870:Zoom arrière
+871:Réinitialiser le zoom
+872:Sélectionner le groupe 1
+873:Sélectionner le groupe 2
+874:Sélectionner le groupe 3
+875:Sélectionner le groupe 4
+876:Sélectionner le groupe 5
+877:Sélectionner le groupe 6
+878:Sélectionner le groupe 7
+879:Sélectionner le groupe 8
+880:Sélectionner le groupe 9
+881:Sélectionner le groupe 10
+882:Centrer sur le ping
+883:Supprimer le message
+884:Afficher le chat (MP)
+885:Fermer les menus
+886:Afficher la carte (Debug)
+887:Victoire (Debug)
+888:Défaite (Debug)
+889:Ajouter un scout (Debug)
+890:Menu des extras
+891:Éditeur de terrain
+892:Planification du village
+893:Scripting visuel
+894:Scripting général
+895:Menu principal
+896:Sous-menu 1
+897:Sous-menu 2
+898:Sous-menu 3
+899:Sous-menu 4
+900:Sous-menu 5
+901:Sous-menu 6
+902:Ctrl et Shift ne peuvent pas être attribués
+903:~~~ Valeur inconnue
+904:Bouton gauche de la souris
+905:Bouton du milieu de la souris
+906:Bouton droit de la souris
+907:Pause
+908:Retour
+909:TAB
+910:Ver. Num
+911:Entrer
+912:Shift
+913:CTRL
+914:ALT
+915:Pause
+916:Ver. Maj
+917:Échap
+918:Espace
+919:Page (Haut)
+920:Page (Bas)
+921:Fin
+922:Début
+923:Flèche gauche
+924:Flèche du haut
+925:Flèche droite
+926:Flèche du bas
+927:Select
+928:Imprimer
+929:Executer
+930:Impr. Écran
+931:Insert
+932:Supprimer
+933:Aide
+934:Pav. Num 0
+935:Pav. Num 1
+936:Pav. Num 2
+937:Pav. Num 3
+938:Pav. Num 4
+939:Pav. Num 5
+940:Pav. Num 6
+941:Pav. Num 7
+942:Pav. Num 8
+943:Pav. Num 9
+944:Pav. Num *
+945:Séparateur
+946:Pav. Num -
+947:Pav. Num .
+948:Pav. Num /
+949:Ver. Num
+950:Arrêt défilement
+951:Shift Gauche
+952:Shift Droit
+953:CTRL Gauche
+954:CTRL Droit
+955:ALT Gauche
+956:ALT Droit
+957:Jouer
+958:Zoomer
+960:Pav. Num +
+961:Touches communes
+962:Touches de jeu
+963:Touches d'éditeur de carte
+964:Attente des données des joueurs déconnectés:
+965:Pipette: Sélectionner le type de tile sous le curseur
+966:Cette forge d'armures est inoccupée
+967:Cet atelier d'armures est inoccupé
+968:Ce fournil est inoccupé
+969:Cette charcuterie est inoccupée
+970:Cette mine de charbon est inoccupée
+971:Cette ferme est inoccupée
+972:Cette hutte du pêcheur est inoccupée
+973:Cette mine d'or est inoccupée
+974:Cette mine de fer est inoccupée
+975:Cette fonderie est inoccupée
+976:Cet atelier monétaire est inoccupé
+977:Ce moulin est inoccupé
+978:Cette carrière est inoccupée
+979:Cette scierie est inoccupée
+980:Cet atelier de siège est inoccupé
+981:Ces écuries sont inoccupées
+982:Cette porcherie est inoccupée
+983:Cette tannerie est inoccupée
+984:Cette tour de guet est inoccupée
+985:Cette forge d'armes est inoccupée
+986:Cet atelier d'armes est inoccupé
+987:Ce vignoble est inoccupé
+988:Cette cabane du bûcheron est inoccupée
+989:%s a abandonné et a été vaincu
+990:L'hôte (%s) a abandonné et a été vaincu
+991:Annuler
+992:Effacer la touche
+993:Sélectionner le groupe 11
+994:Sélectionner le groupe 12
+995:Sélectionner le groupe 13
+996:Sélectionner le groupe 14
+997:Sélectionner le groupe 15
+998:Sélectionner le groupe 16
+999:Sélectionner le groupe 17
+1000:Sélectionner le groupe 18
+1001:Sélectionner le groupe 19
+1002:Sélectionner le groupe 20
+1003:Construire des routes
+1004:Labourer des champs
+1005:Planter des vignes
+1006:Démolir / Annuler
+1007:Sélectionner le bâtiment / l'unité suivante du même type
+1008:Fenêtre de debug
+1009:Regarder le joueur 1
+1010:Regarder le joueur 2
+1011:Regarder le joueur 3
+1012:Regarder le joueur 4
+1013:Regarder le joueur 5
+1014:Regarder le joueur 6
+1015:Regarder le joueur 7
+1016:Regarder le joueur 8
+1017:Défilement de la carte
+1018:Touches de spectateur/replay
+1019:%s vous a muté. Vous ne pouvez plus lui envoyer de messages ou de pings
+1020:Palette d'objets
+1021:Gomme
+1022:Votre bûcheron ne peut trouver aucun emplacement libre pour planter un arbre
+1023:TP-
+1024:%s a gagné!
+1025:%s n'est plus connecté au jeu
+1026:Or maximum
+1027:Montant maximal d'or à livrer à l'hôtel de ville
+1028:Planter
+1029:Ouvrir/Fermer le bâtiment pour %s.
+1030:Tous
+1031:Tous
+1032:Tous
+1033:Renommer la carte
+1034:Pause auto en fin de TP
+1035:Temps de jeu
+1036:Nom
+1037:Puissance militaire
+1038:Tous les soldats
+1039:Type de graphique
+1040:Quantité
+1041:PIB
+1042:En direct
+1043:Total équipé
+1044:Vaincue
+1045:Perdue
+1046:Retour aux résultats du jeu
+1047:Par joueurs
+1048:Par équipes
+1049:Plus|de statistiques
+1050:Retour à l'éditeur
+1051:Retour à l'éditeur de carte
+1052:Êtes-vous sûr(e)|de vouloir quitter|le replay?
+1053:La carte est invalide
+1054:La carte sélectionnée est invalide. Veuillez sélectionner une autre carte
+1055:Les fichiers de la carte téléchargée ont été modifiés
+1056:Vous avez sélectionné une carte téléchargée, mais les fichiers ont été modifiés. Veuillez la déplacer hors du dossier de téléchargements en premier lieu
+1057:Les fichiers de la carte ont été modifiés. Veuillez sélectionner à nouveau la carte
+1058:Bouton de souris avant
+1059:Bouton de souris arrière
+1060:Tous
+1061:Gomme
+1062:Afficher les propriétaires des tiles
+1063:Afficher la grille des tiles
+1064:Point de coupe
+1065:Définir le point de coupe des bûcherons. Vous pouvez également le définir via la touche Shift + le bouton droit de la souris
+1066:Point de rassemblement
+1067:Définir le point de ralliement de %s. Vous pouvez également le définir via la touche Shift + le bouton droit de la souris
+1068:Redimensionner la carte
+1069:Déplacer les bordures:
+1070:Redimensionner et sauv.
+1071:Redimensionner la carte puis la sauvegarder
+1072:Redimensionnement de la carte
+1073:Êtes-vous sûr de vouloir redimensionner la carte ?||Cela écrasera automatiquement la carte actuelle.\n\n\n\n\n
+1074:La redimension n'est pas disponible||Vous devez d'abord enregistrer la nouvelle carte
+1075:Changer le propriétaire de l'objet
+1076:Jeu rapide
+1077:Lance une partie solo sur la carte actuelle
+1078:Sélectionner le joueur:
+1079:Sélectionner le joueur avec lequel commencer la carte
+1080:Démarrer sans enregistrer
+1081:Ignorer les changements et commencer la partie en tant que joueur sélectionné
+1082:Sauvegarder et démarrer
+1083:Sauvegarder la carte et commencer le jeu en tant que joueur sélectionné
+1084:Dans le château:
+1085:Dans l'hôtel de ville:
+1086:Faire pivoter la tile sur la carte
+1087:Palette d'objets
+1088:Fermer la palette
+1089:Supprimer les unités/groupes
+1090:Pause automatique du replay
+1091:Mettre en pause automatiquement le replay lorsque la période de paix prend fin
+1092:Afficher les pings
+1093:Afficher les pings des joueurs
+1094:Muter le joueur
+1095:Démuter le joueur
+1096:Se souvenir de ce mot de passe
+1097:Utiliser le dernier mot de passe connu
+1098:Revenir au menu précédent
+1099:Oui
+1100:Non
+1101:Annuler
+1102:Carte
+1103:Replay
+1104:Joueurs
+1105:Équipes
+1106:Regarder le joueur 9
+1107:Regarder le joueur 10
+1108:Regarder le joueur 11
+1109:Regarder le joueur 12
+1110:Taille de la carte actuelle:|[ %d : %d ]\n\n\n\n\n
+1111:Nouvelle taille de la carte:|[ %d : %d ]\n\n\n\n\n
+1112:Redimensionner la carte
+1113:Propriétaire: %s
+1114:Supprimer le joueur %d
+1115:Supprimer le joueur %d
+1116:Êtes-vous sûr de vouloir effacer le joueur ?|Toutes ses données seront effacées !
+1117:Fermer
 1118:Cartes multijoueur
 1119:Désactiver la musique
 1120:Lecture aléatoire
+1121:Activer/Désactiver le mélange de pistes
+1122:Type de carte
+1123:Scénario
+1124:Jouable en solo
+1125:Arbre coupable
+1126:Bloquer la marche en diagonale
+1127:Bloquer tout sauf la construction
+1128:Afficher les routes/les champs/les vignes
+1129:Sous-menu action 1
+1130:Sous-menu action 2
+1131:Sous-menu action 3
+1132:Sous-menu action 4
+1133:Sous-menu action 5
+1134:Sous-menu action 6
+1135:Sous-menu action 7
+1136:Seau de peinture (changer de propriétaire)
+1137:Ajouter une attaque IA
+1138:Supprimer une attaque IA
+1139:En train d'être renvoyé
+1140:Renvoyer
+1141:Voulez-vous vraiment renvoyer cette unité ?|Il ira à l'école et quittera votre ville pour toujours
+1142:Renvoyer l'unité
+1143:Annuler le renvoi de l'unité
+1144:Le renvoi n'est pas disponible en raison du manque d'écoles dans votre ville
+1145:Mission|paramètres
+1146:Modifier les paramètres de mission
+1147:Paramètres de mission
+1148:Auteur
+1149:Description courte
+1150:Description longue
+1151:ID de texte Libx
+1152:Cette carte sera toujours visible dans la liste des cartes solo
+1153:Bloquer la sélection d'équipe
+1154:Bloquer la sélection d'équipe dans le lobby
+1155:Bloquer temps de paix
+1156:Bloquer le changement de temps de paix dans le lobby
+1157:Bloquer aperçu complet carte
+1158:Bloquer l'aperçu complet de la carte dans le lobby
+1159:Texte
+1160:Afficher le rayon de minage
+1161:Afficher le rayon d'attaque des tours
+1162:Afficher le rayon d'attaque des unités
+1163:Code couleur:
+1164:Bleu / Vert / Rouge
+1165:Rouge / Vert / Bleu
+1166:Couleur du texte:
+1167:Couleur désaturée, pouvant être utilisée pour les textes (par exemple, dans la superposition de scripts) [lecture uniquement]
+1168:Filtre de cartes
+1169:Réinitialiser le filtre
+1170:Nombre de joueurs
+1171:Retour au jeu
+1172:Afficher les statistiques détaillées de la partie
+1173:Niveau de difficulté
+1174:Facile
+1175:Normal
+1176:Difficile
+1177:Niveaux de difficulté
+1178:Configurer différents niveaux de difficulté qui peuvent être utilisés dans le script pour modifier la logique et la difficulté de la mission
+1179:IA Avancée
+1180:IA Avancée
+1181:IA Classique
+1182:Vainqueur
+1183:Vaincu
+1184:Hôte
+1185:Aller au bâtiment sélectionné
+1186:Aller à l'unitée sélectionnée
+1187:Mode couleur allié/ennemi
+1188:Couleurs de soi/allié/ennemi pour les joueurs au lieu des couleurs de joueur initiales
+1189:[$404040]L'hôte est prêt à commencer. Veuillez appuyer sur '[][$0707FF]%s[][$404040]'[]
+1190:Demander aux joueurs de se mettre prêt
+1191:Une alerte pour être prêt a été envoyée aux %s joueurs
+1192:Changer le mode de couleur des joueurs
+1193:Le renvoi n'est pas disponible pendant l'action actuelle de l'unité
+1194:Ctrl + molette de la souris
+1195:Alt + molette de la souris
+1196:Shift + molette de la souris
+1197:Remplacer manuellement|définir des tiles
+1198:Forcer la substitution des tiles définies manuellement depuis la table de tiles lors de la peinture avec les pinceaux (si possible)
+1199:Pinceau magique : À l'aide du masque sélectionné, corrige les transitions de tiles pour les tiles qui n'ont pas de graphismes de transition d'un type de terrain à l'autre
+1200:Pas de masque - utiliser les tiles existantes pour les transitions
+1201:Masque Soft1 - utiliser des transitions créées automatiquement
+1202:Masque Soft2 - utiliser des transitions créées automatiquement
+1203:Masque Soft3 - utiliser des transitions créées automatiquement
+1204:Coût personnalisé des unités de l'hôtel de ville
+1205:Prix personnalisés pour le marché de l'or.
+1209:Réparer les pinceaux de terrain
+1210:Essayer de réparer les informations internes du terrain pour que les pinceaux fonctionnent
+1211:Réparer les pinceaux de terrain
+1212:Êtes-vous sûr de vouloir réparer|toutes les informations internes des pinceaux de terrain ?||Cela permettra d'utiliser les pinceaux|dans les emplacements où des tiles manuelles ont été utilisées
+1213:Déf.
+1214:Humain
+1215:IA Classique %d
+1216:IA Avancée %d
+1217:IA Classique %d
+1218:IA Avancée %d
+1219:IA Classique
+1220:Type d'IA
+1221:Autosave en fin de partie
+1222:Aucun
+1223:Ressources
+1224:Bâtiments
+1225:En construction
+1226:Citoyens
+1227:Armée
+1228:Le renvoi n'est pas disponible pour les unités affamées
+1229:IA Classique|Paramètres
+1230:Configurer les paramètres de l'IA utilisés uniquement par l'IA classique
+1231:Paramètres de l'IA classique
+1232:Prendre n'importe quel type de groupe
+1233:Difficulté
+1234:%s est AFK depuis les %s [$00B0FF]dernières minutes[]
+1235:L'exportation de données peut prendre plusieurs minutes.\nLes données exportées seront stockées dans le dossier '%s'.\nSouhaitez-vous continuer ?
+1236:La procédure [ %s ] déclarée pour la commande de console de script /%s n'a pas été trouvée
+1237:Type de paramètre incorrect pour la commande de console de script /%s: [%s]
+1238:Type de premier paramètre incorrect pour la commande de script /%s. Attendu : [ %s ], actuel : [ %s ]\n\n\n\n\n
+1239:Trop de paramètres pour la commande de script /%s: [ %s ]. Le nombre maximum de paramètres est de [ %s ] (y compris le paramètre obligatoire HandID)
+1240:Paramètres incorrects pour la commande de script /%s. Les types de paramètres attendus sont les suivants : [ %s ]
+1241:Trop de paramètres passés à la commande de script /%s: Nombre de paramètres attendus [ %s ], actuel : [ %s ]
+1242:Commande appelée : /%s(%s)
+1243:Erreur lors de l'appel de la commande de script /%s(%s)|
+1244:Commande de console de script /%s introuvable
+1245:Activer/désactiver l'historique du chat et la copie à partir de la fenêtre de chat
+1246:Enregistrer l'état du replay pour pouvoir le charger pendant la lecture de ce replay
+1247:Charger le replay à %s.
+1248:Couleurs des joueurs:
+1249:Par défaut
+1250:Allié / Ennemi
+1251:Équipes
+1252:Afficher les couleurs des joueurs selon leur choix dans le lobby
+1253:Afficher 3 couleurs différentes (Vous, alliés, ennemis) pour les citoyens et les bâtiments\n
+1254:Afficher les couleurs selon l'appartenance à l'équipe
+1255:Erreur: Le nom de joueur '%s' est réservé
+1256:Ctioyens (S/M/R)
+1257:Citoyens (autres)
+1258:Ouvrir / Fermer le panneau de statistiques des spectateurs
+1259:La livraison de %s est interdite
+1260:L'approvisionnement de %s est interdit
+1261:La recrue n'est pas autorisée à entrer dans le château
+1262:Rechercher une tile par ID
+1263:Générateur de carte aléatoire - Paramètres
+1264:Paramètres du générateur de carte aléatoire
+1265:Paramètres GCA
+1266:Taille:
+1267:Emplacements
+1268:Activer les emplacements avec des ressources
+1269:Nombr. Emplacements
+1270:Définir le nombre d'emplacements
+1271:Rayon de protection
+1272:Spécifier la taille de la zone protégée. Permet de sécuriser la zone constructible autour de chaque emplacement.
+1273:Relier les emplacements
+1274:Créer des routes entre les emplacements
+1275:Disposition
+1276:La disposition des emplacements
+1277:Rectangulaire
+1278:Vertical
+1279:Horizontal
+1280:Aléatoire
+1281:Centrer l'écran
+1282:Ressources
+1283:Activer les ressources à chaque emplacement (le charbon est calculé automatiquement)\n\n\n\n\n
+1284:Fixer les mines
+1285:S'assure que les ressources sont exploitables (mine d'or et mine de fer)\n\n\n\n\n
+1286:Quantité de ressources: pierres
+1287:Quantité de ressources: or
+1288:Quantité de ressources: fer
+1289:Obstacles
+1290:Activer les obstacles (montagnes, rivières, marais, etc.)
+1291:Taille
+1292:La taille moyenne des obstacles générés
+1293:Densité
+1294:La densité des obstacles générés
+1295:Variance
+1296:La variance dans la taille des obstacles générés
+1297:Taux
+1298:Type et taux des obstacles générés
+1299:Or vide
+1300:Taux d'or vide
+1301:Fer vide
+1302:Taux de fer vide
+1303:Marais
+1304:Taux de marais
+1305:Zone humide
+1306:Taux de zone humide
+1307:Eau
+1308:Taux d'eau
+1309:Biomes
+1310:Activer les biomes
+1311:Type de biome
+1312:Sélectionner les biomes requis
+1313:Herbe
+1314:L'herbe est le biome par défaut et ne peut pas être supprimé
+1315:Terre
+1316:Activer la terre
+1317:Neige
+1318:Activer la neige
+1319:Sable
+1320:Activer le sable
+1321:Première couche
+1322:La première couche de biome (propriétés de la texture primaire)
+1323:Deuxième couche
+1324:La deuxième couche de biome (propriétés des textures secondaires)
+1325:Pas
+1326:Pas de la texture primaire (une valeur plus élevée = un biome plus grand)
+1327:Pas des textures secondaires (une valeur plus élevée = un biome plus grand)
+1328:Limite
+1329:Limitation des frontières de biome (une valeur plus élevée = un biome plus grand)
+1330:Hauteur
+1331:Activer la hauteur
+1332:Cacher les bords dentelés
+1333:Ajuster la hauteur du terrain pour que les transitions de texture rugueuses soient cachées
+1334:Lieux inaccessibles
+1335:Traitement des lieux inaccessibles
+1336:Bloquer les déplacements
+1337:Bloquer les déplacements (améliore le pathfinding du jeu et la génération des mesh de navigation)
+1338:Changer la texture
+1339:Remplacer le terrain par des biomes spéciaux
+1340:Objets
+1341:Activer les objets
+1342:Animaux
+1343:Activer les animaux
+1344:Densité d'objet
+1345:Densité de forêts
+1346:Densité de forêts
+1347:Arbres
+1348:Nombre d'arbres dans la forêt
+1349:Seed:
+1350:Un numéro qui sert d'identifiant pour générer une carte avec une configuration spécifique
+1351:Seed aléatoire
+1352:Générer une carte avec une nouvelle seed\n\n\n\n\n
+1353:Générer la carte
+1354:Générer la carte avec la seed actuelle
+1355:Fermer le générateur de carte aléatoire
+1356:H
+1357:Jouer le tick suivant
+1358:Plus facile
+1359:Très facile
+1360:Plus difficile
+1361:Très difficile
+1362:La version du jeu de l'hôte ne correspond pas à la version de votre jeu
+1363:Tous
+1364:Autoriser '%s' pour tous les emplacements disponibles
+1365:Interdire '%s' pour tous les emplacements disponibles
+1366:Pas de l'algorithme de hauteur
+1367:Pente de l'évaluation de la hauteur (0 = plateau, 100 = pic)
+1368:Hauteur maximale des tiles praticables\n\n\n\n\n
+1369:Aléatoire
+1370:La carte a été générée automatiquement avec un générateur de carte aléatoire
+1371:Ressources départ
+1372:Quantité de ressources de départ dans l'entrepôt
+1373:Faible
+1374:Moyen
+1375:Élevé
+1376:Sélectionner la taille de la carte
+1377:Essayer de démarrer
+1378:Essayer de charger la sauvegarde
+1379:Essayer de visionner le replay
+1380:Erreur de chargement de la version non prise en charge %s de la sauvegarde depuis %s.
+1381:Erreur de chargement de la version non prise en charge %s du replay depuis %s
+1382:Nom de la carte
+1383:Temps
+1384:Version
+1385:Charger une version non prise en charge pourrait empêcher le jeu de charger correctement ou même causer un crash.
+1386:Version non supportée
+1387:Êtes-vous sûr de vouloir débloquer toutes les campagnes ?\nCette action est irréversible.\n\nSi vous voulez conserver votre progression dans les campagnes, assurez-vous d'avoir sauvegardé votre fichier 'Campaigns.dat' situé à\n'%s'\n\nConfirmez-vous cette opération ?
+1388:Masque dur - utiliser des transitions créées automatiquement
+1389:Délai en ticks de jeu avant que l'IA équipe des troupes en cuir
+1390:Délai en ticks de jeu avant que l'IA équipe des troupes en fer
+1391:Définit le nombre de travailleurs contrôlés par l'IA
+1392:Niveau de fusion
+1393:Niveau de fusion des transitions de terrain via des masques
+1394:Bloquer la construction
+1395:Bloquer la marche et la construction
+1396:Superpositions des tiles
+1397:Définir les superpositions des tiles.|Utilisez le bouton gauche de la souris pour le safe mode et Bouton Gauche+Shift pour écraser les routes
+1398:Clips vidéo:
+1399:Activer
+1400:Étirer
+1401:Afficher au démarrage
+1402:Volume
+1403:Test vidéo
+1404:Mods
+1405:Maisons enneigées
+1406:Bloquer sélection des couleurs
+1407:Bloquer la sélection de couleur du joueur
+1408:Historique
+1409:Historique des changements sur la carte
+1410:Historique
+1411:Sauter à
+1412:Aller au point sélectionné dans l'historique
+1413:Initial
+1414:Ajouter %s %s
+1415:Supprimer %s %s
+1416:Mettre à jour %s %s
+1417:Déplacer %s %s
+1418:Changer de propriétaire: %s %s
+1419:route
+1420:champ de maïs
+1421:champ de vignes
+1422:superposition
+1423:objet
+1424:Vous n'avez pas les permissions nécessaires dans le répertoire d'installation de KaM Remake:\n'%s'\n\nEssayez de l'exécuter en tant qu'administrateur, réinstallez le jeu dans un autre répertoire ou excluez KaM_Remake.exe de l'analyse antivirus.
+1425:Palette des tiles
+1426:Palette de tiles
+1427:Version
+1428:Réparer les pinceaux de terrain
+1429:Créer des points de|sauvegarde de replay
+1430:Unité précédente
+1431:Équiper l'unité sélectionnée
+1432:Unité suivante
+1433:Touches d'ordres d'unité
+1434:Touches de bâtiment
+1435:Afficher les positions défensives
+1436:Afficher le terrain plat
+1437:La vitesse du jeu ne peut être modifiée que par l'hôte s'il n'y a aucun joueur actif sur la carte
+1438:Exportation de ressources terminée : [ %s ]
+1439:Reculer dans le navigateur
+1440:Avancer dans le navigateur
+1441:Actualiser le navigateur
+1442:Arrêter le navigateur
+1443:Recherche dans le navigateur
+1444:Favoris du navigateur
+1445:Page d'accueil du navigateur
+1446:Mute le volume
+1447:Baisser le volume
+1448:Augmenter le volume
+1449:Piste suivante des médias
+1450:Piste précédente des médias
+1451:Arrêter les médias
+1452:Lecture / Pause des médias
+1453:Lancer le courrier électronique
+1454:Lancer la sélection de médias
+1455:Lancer l'application 1
+1456:Lancer l'application 2
+1457:Musique précédente
+1458:Musique suivante
+1459:Désactiver la musique
+1460:Musique aléatoire
+1461:Augmenter le volume de la musique
+1462:Baisser le volume de la musique
+1463:Muter la musique
+1464:Augmenter le volume des effets sonores
+1465:Baisser le volume des effets sonores
+1466:Muter les effets sonores
+1467:Tout muter (musique et effets sonores)
+1468:Brosses d'objets
+1469:Arbres
+1470:Tous les objets sauf les arbres
+1471:Pierres
+1472:Fleurs
+1473:Champignons
+1474:Souches
+1475:Arbres morts
+1476:Cactus
+1477:Buissons de désert
+1478:Ruines
+1479:Objets de terrain
+1480:Lors de la peinture, placer des objets correspondant à la brosse de terrain sélectionnée
+1481:Densité
+1482:Densité d'objets / de forêt
+1483:Âge de la forêt
+1484:Brosse de nettoyage, supprime tous les objets
+1485:Tous
+1486:Jeune
+1487:Moyen
+1488:Coupé
+1489:Tous les âges
+1490:Jeunes arbres
+1491:Arbres moyens
+1492:Arbres prêts à être coupés
+1493:Appliquer le terrain de la zone copiée
+1494:Appliquer les hauteurs de la zone copiée
+1495:Appliquer les objets de la zone copiée
+1496:Appliquer les superpositions de terrain de la zone copiée
+1497:Hauteur constante
+1498:Niveau de hauteur constant du pinceau
+1499:Niveau de hauteur
+1500:Le niveau de hauteur est utilisé dans 'Hauteur constante
+1501:Tout élever
+1502:Élever (clic gauche) / Abaisser (clic droit) tous les tiles sur la carte avec le type de terrain sous le curseur de jeu.
+1503:Écraser les objets
+1504:Les objets seront remplacés par d'autres objets ou supprimés
+1505:Masque de gradient - utiliser des transitions créées automatiquement
+1506:Grand
+1507:Gros arbres
+1508:Souches
+1509:Souches
+1510:Tous-
+1511:Tous les âges, sauf les souches
+1512:Temps de mission:
+1513:Vitesse actuelle de la partie
+1514:Vitesse actuelle du replay
+1515:Vitesse de la partie enregistrée
+1516:Mouvements HD
+1517:Mouvements HD
+1518:Augmente la résolution du mouvement des unités et des projectiles
+1519:Pour que le joueur %0:s %1:s, %3:s du joueur %2:s doivent être %4:s
+1520:gagne
+1521:survive
+1522:détruits
+1523:préservés
+1524:les bâtiments principaux ( %s )
+1525:Seules les alliances symétriques sont autorisées
+1526:Animations HD
+1527:Animations HD
+1528:Augmente le nombre d'images utilisées dans les animations
+1529:Adoucir les pics
+1530:Rendre les sommets des montagnes plus lisses
+1531:Paramètres de jeu
+1532:Paramètres de replay
+1533:Paramètres de l'éditeur de carte
+1534:Remarque: L'IA avancée utilise ses propres paramètres de formation et ignorera ces paramètres
+1535:Vers la carte de campagne
+1536:Prendre n'importe quel type de groupe
+1537:Faible
+1538:Soldats sans armure, unités en cuir ou en fer
+1539:Ajouter un groupe
+1540:Ajouter un groupe après avoir placé une position de défense. Le groupe dépend des formations de l'IA
+1541:Nombre
+1542:Nombre d'unités dans le groupe. À 0, cela prend les formations de l'IA
+1543:Colonnes
+1544:Nombre de colonnes dans le groupe. Si le nombre d'unités est de 0, cela prend le nombre de colonnes des formations de l'IA
+1545:Lisser le charbon
+1546:Les dépôts de charbon dans la sélection seront automatiquement placés à partir des tiles ayant la plus faible quantité de charbon sur les bords jusqu'à la plus élevée au centre
+1547:L'autre joueur a rencontré une erreur de désynchronisation. Veuillez nous envoyer ce rapport de plantage, cela nous aidera à le résoudre.%sLe message d'erreur de l'autre joueur est:%s
+1548:Annuler
+1549:Rétablir
+1550:Herbe
+1551:Mousse
+1552:Herbe pâle
+1553:Herbe sur terre
+1554:Terre
+1555:Sable côtier
+1556:Herbe sable 1
+1557:Herbe sable 2
+1558:Herbe sable 3
+1559:Sable
+1560:Marais
+1561:Eau herbeuse
+1562:Eau
+1563:Eau rapide
+1564:Personnalisé
+1565:Neige sur herbe
+1566:Neige sur terre
+1567:Neige
+1568:Neige profonde
+1569:Glace
+1570:Pierre
+1571:Montagne d'or
+1572:Montagne de fer
+1573:Pierre pavée
+1574:Gravier
+1575:Charbon
+1576:Or
+1577:Fer
+1578:Lave
+1579:Abîme
+1580:Toutes les modifications non enregistrées seront perdues. Voulez-vous quitter ?
+1581:Avertissement
+1582:Aucune superposition
+1583:Superposition d'excavation (1)
+1584:Superposition d'excavation (2)
+1585:Superposition d'excavation (3)
+1586:Superposition d'excavation (4)
+1587:Superposition de route
+1588:Par défaut
+1589:Appliquer les paramètres de construction d'IA multijoueur au joueur %d
+1590:Configuration multijoueur pour le joueur IA %d
+1591:Attention: cela va remplacer toutes les configurations d'IA existantes pour le joueur %d. Continuer ?
+1592:Enregistrer le mot de passe actuel pour une utilisation future
+1593:Nombre de poissons
+1594:Sauvegarder la carte
+1595:Carte sauvegardée
+1596:Sauvegarde de la carte...
+1597:Terrain plat
+1598:Grille des tiles
+1599:Le fichier de sauvegarde n'existe pas
+1600:Répar. matières premières| conservée

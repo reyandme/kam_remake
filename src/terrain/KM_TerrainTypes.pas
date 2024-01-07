@@ -110,12 +110,6 @@ type
     IsUnit: Pointer; //Whenever there's a unit on that tile mark the tile as occupied and count the number
     IsVertexUnit: TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
 
-    // Used from Land in runtime for better performance (not proved yet, but anyway),
-    // since its loaded to CPU cache at the same time as Height and other terrain properties
-    // But no actually need to save it.
-    // But we will save it to the stream anyway, since its much faster to save all Land by rows, instead of by separate fields
-    Light: Byte; //KaM stores node lighting in 0..32 range (-16..16), but we can use 0..255
-
     Passability: TKMTerrainPassabilitySet; //Meant to be set of allowed actions on the tile
     WalkConnect: array [TKMWalkConnect] of Byte; //Whole map is painted into interconnected areas
 
@@ -126,7 +120,6 @@ type
     function GetRenderHeight: Byte; inline;
     procedure SetHeightExact(aValue: Byte);
     procedure IncJamMeter(aValue: Integer);
-    function GetRenderLight: Single;
     function GetBasic: TKMTerrainTileBasic;
   end;
 
@@ -145,6 +138,7 @@ type
   TKMTerrainTileBriefArray = array of TKMTerrainTileBrief;
 
   TKMTerrainTileExt = record
+    Light: Single; // in values of [-1..1]
     RenderLight: Single;
     RenderHeight: Byte;
   end;
@@ -328,13 +322,6 @@ end;
 procedure TKMTerrainTile.SetHeightExact(aValue: Byte);
 begin
   fHeight := aValue;
-end;
-
-
-// Returns Light in -1..1 range
-function TKMTerrainTile.GetRenderLight: Single;
-begin
-  Result := Light / 127.5 - 1;
 end;
 
 

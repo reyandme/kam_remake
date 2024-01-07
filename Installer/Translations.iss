@@ -189,10 +189,13 @@ srb.ViewReadme=Прочитајте Реадме
 
 ;Chinese
 chn.CreateStartShortcut=创建开始菜单快捷方式
-chn.NoKaM=安装向导检测到没有《骑士与商人之农民起义》的安装。为了能玩重制版游戏，必须先安装原版游戏。本安装程序将被终止。
-chn.CantUpdate=安装向导无法找到一个存在的重制版能够被升级。请重新下载并安装完整的安装包。本安装程序将被终止。
-chn.OpenAL=你想用安装向导来安装OpenAL吗？（强烈推荐）这是音效文件运行的必需程序。
+chn.NoKaM=安装向导没有检测到《骑士与商人之农民起义》的安装。为了能够玩重制版游戏，必须先安装原版游戏。%n%n本安装程序将被终止。
+Chn.SteamFirstRun=为了《骑士与商人》重制版能够检测识别在Steam上安装的原版《骑士与商人》，原版游戏程序需要至少启动一次。
+chn.CantUpdate=安装向导无法找到一个可升级的重制版。请重新下载并安装完整的安装包。%n%n本安装程序将被终止。
+chn.OpenAL=你想通过安装向导来安装OpenAL吗？（强烈推荐）这是音效文件运行的必需程序。
 chn.ViewReadme=查看自述文件
+chn.DeleteSaves=你想要删除全部的游戏存档和所有战役的进度吗？
+Chn.DeleteMaps=你想要删除全部的地图和战役吗？
 
 ;Slovenian
 slv.CreateStartShortcut=Ustvari bljižnico na meniju

@@ -737,6 +737,7 @@ var
       and (aHouse.HouseType = aHouseType)
       {and (not aConsiderHousePlan or aHouse.IsComplete)} then
     begin
+      aHouseSketchTmp.Owner := fID;
       aHouseSketchTmp.SetHouseUID(aHouse.UID);
       aHouseSketchTmp.SetHouseType(aHouse.HouseType);
       aHouseSketchTmp.SetPosition(aHouse.Position);
@@ -748,6 +749,7 @@ var
     if not aHousePlan.IsEmpty
       and (aHousePlan.HouseType = aHouseType) then
     begin
+      aHouseSketchTmp.Owner := fID;
       aHouseSketchTmp.SetHouseUID(aHousePlan.UID);
       aHouseSketchTmp.SetHouseType(aHousePlan.HouseType);
       aHouseSketchTmp.SetPosition(aHousePlan.Loc);
@@ -1584,7 +1586,12 @@ begin
 
   //Only Done houses are treated as Self-Destruct, Lost, Destroyed
   if aHouse.BuildingState in [hbsNoGlyph .. hbsStone] then
-    fStats.HouseEnded(aHouse.HouseType)
+  begin
+    fStats.HouseEnded(aHouse.HouseType);
+    // Mark houses BuildEnded only for houses where ready to build
+    if aHouse.IsReadyToBeBuilt then
+      fStats.HouseBuildEnded(aHouse.HouseType);
+  end
   else
   begin
     //We have to consider destroyed closed house as actually opened, otherwise closed houses stats will be corrupted

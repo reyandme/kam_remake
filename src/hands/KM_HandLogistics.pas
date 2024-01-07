@@ -297,6 +297,7 @@ type
 
     function GetDeliveriesToHouseCnt(aHouse: TKMHouse; aWare: TKMWareType): Integer;
 
+    function HasDeliveryTo(aHouse: TKMHouse): Boolean;
     function GetAvailableDeliveriesCount: Integer;
     procedure ReAssignDelivery(iQ: Integer; aSerf: TKMUnitSerf);
     procedure AssignDelivery(oWT, dWT: TKMWareType; iO, iD: Integer; aSerf: TKMUnitSerf);
@@ -1307,6 +1308,23 @@ begin
 end;
 
 
+// Returns if there is active delivery to a specified house
+function TKMDeliveries.HasDeliveryTo(aHouse: TKMHouse): Boolean;
+var
+  iQ: Integer;
+begin
+  Result := False;
+  for iQ := 0 to fQueueCount - 1 do
+    if (fQueue[iQ].JobStatus = jsTaken)
+      and (fQueue[iQ].OfferID <> DELIVERY_NO_ID)
+      and (fQueue[iQ].DemandID <> DELIVERY_NO_ID)
+      and (fQueue[iQ].OfferWare <> wtNone)
+      and (fQueue[iQ].DemandWare <> wtNone)
+      and (fDemand[fQueue[iQ].DemandWare, fQueue[iQ].DemandID].Loc_House = aHouse) then
+      Exit(True);
+end;
+
+
 //Get the total number of possible deliveries with current Offers and Demands
 function TKMDeliveries.GetAvailableDeliveriesCount: Integer;
 var
@@ -1336,7 +1354,9 @@ begin
             begin
               offersTaken := 0;
               for iD := 0 to fDemandCount[dWT] - 1 do
-                if ValidDemand(dWT, iD) and not demandTaken[dWT,iD] and ValidDelivery(oWT,dWT,iO,iD) then
+                if ValidDemand(dWT, iD)
+                  and not demandTaken[dWT,iD]
+                  and ValidDelivery(oWT,dWT,iO,iD) then
                 begin
                   if fDemand[dWT,iD].DemandType = dtOnce then
                   begin
@@ -2625,7 +2645,9 @@ procedure TKMDeliveryRouteCache.Add(const aKey: TKMDeliveryRouteBidKey; const aV
 var
   bid: TKMDeliveryRouteBid;
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   bid.Value := aValue;
   bid.RouteStep := aRouteStep;
@@ -2639,7 +2661,9 @@ var
   key: TKMDeliveryRouteBidKey;
   bid: TKMDeliveryRouteBid;
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   key.FromP := FromP;
   key.ToP := ToP;
@@ -2854,9 +2878,12 @@ var
   bid: TKMDeliveryRouteBid;
 {$ENDIF}
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   {$IFDEF USE_HASH}
+
   CleanCache; // Don't save expired cache records
   SaveStream.PlaceMarker('DeliveryRouteEvaluator');
   SaveStream.Write(fUpdatesCnt);
@@ -2898,9 +2925,12 @@ var
   bid: TKMDeliveryRouteBid;
 {$ENDIF}
 begin
+  {$IFDEF WDC}
   if not CACHE_DELIVERY_BIDS then Exit;
+  {$ENDIF}
 
   {$IFDEF USE_HASH}
+
   LoadStream.CheckMarker('DeliveryRouteEvaluator');
   LoadStream.Read(fUpdatesCnt);
   fBidsRoutesCache.Clear;

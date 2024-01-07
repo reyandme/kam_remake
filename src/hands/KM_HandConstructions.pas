@@ -221,6 +221,7 @@ const
   LENGTH_INC = 32; // Increment array lengths by this value
   BID_MODIF = 5; // Modificator for every next assigned worker
 
+  //todo: Move into gRes.Houses
   //Limit number of workers building each house, so they all fit in around
   MAX_WORKERS: array [TKMHouseType] of Byte = (
     0,0, //htNone, htAny

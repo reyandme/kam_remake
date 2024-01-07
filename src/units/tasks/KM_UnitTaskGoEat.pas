@@ -109,7 +109,8 @@ begin
   case fPhase of
    0: begin
         Thought := thEat;
-        if (Home <> nil) and not Home.IsDestroyed then Home.SetState(hstEmpty);
+        if (Home <> nil) and not Home.IsDestroyed then
+          Home.SetState(hstEmpty);
         if not Visible and (InHouse <> nil) and not InHouse.IsDestroyed then
           SetActionGoIn(uaWalk, gdGoOutside, InHouse) //Walk outside the house
         else

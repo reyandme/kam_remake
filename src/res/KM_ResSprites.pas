@@ -29,7 +29,9 @@ const
   RXX_HEADER: array [TKMRXXFormat] of AnsiString = ('', '', 'RXX1', 'RXX2');
 
 type
+  {$IFDEF LOAD_GAME_RES_ASYNC}
   TTGameResourceLoader = class;
+  {$ENDIF}
 
   // Atlas data, needed for Texture Atlas Generation
   TKMSpriteAtlasData = record
@@ -46,9 +48,11 @@ type
     fTemp: Boolean;
     fPad: Byte; // Padding between sprites to avoid neighbour edge visibility
 
+    {$IFNDEF NO_OGL}
     procedure SetGFXData(aTexID: Cardinal; aSpriteInfo: TKMBinItem; aAtlasType: TKMSpriteAtlasType);
     procedure PrepareAtlases(aSpriteInfo: TBinArray; aMode: TKMSpriteAtlasType; aTexType: TKMTexFormat; var aBaseRAM, aColorRAM, aTexCount: Cardinal;
                              aFillGFXData: Boolean = True; aOnCheckTerminated: TBooleanFuncSimple = nil);
+    {$ENDIF}
   protected
     fRT: TRXType;
     fRXData: TRXData;
@@ -200,6 +204,7 @@ type
 
   TKMAsyncLoadStage = (lsLoad, lsGenMain, lsOverload, lsGenOverload);
 
+  {$IFDEF LOAD_GAME_RES_ASYNC}
   // Game resource loader thread
   TTGameResourceLoader = class(TThread)
   private
@@ -217,6 +222,7 @@ type
 
     procedure Execute; override;
   end;
+  {$ENDIF}
 
   TKMTexCoords = record
     TexID: Cardinal;
@@ -833,6 +839,7 @@ end;
 
 
 procedure TKMSpritePack.LoadFromRXAFile(const aFileName: string);
+{$IFNDEF NO_OGL}
 var
   I: Integer;
   SAT: TKMSpriteAtlasType;
@@ -840,6 +847,7 @@ var
   inputStream: TFileStream;
   decompressionStream: TDecompressionStream;
   rxxFormat: TKMRXXFormat;
+{$ENDIF}
 begin
   if not FileExists(aFileName) then Exit;
 
@@ -920,15 +928,20 @@ end;
 procedure TKMSpritePack.LoadFromRXAAndGenTextures(const aFileName: string);
 begin
   LoadFromRXAFile(aFileName);
+  {$IFDEF LOAD_GAME_RES_ASYNC}
   GenerateTexturesFromLoadedRXZ(True);
+  {$ENDIF}
 end;
 
 
 procedure TKMSpritePack.CollectSpriteFilesToOverloadInFolder(const aFolder: string; aFileList: TStringList);
+{$IFDEF WDC}
 var
   filePath: string;
   filterPredicate: TDirectory.TFilterPredicate;
+{$ENDIF}
 begin
+  {$IFDEF WDC}
   filterPredicate :=
     function(const aPath: string; const aSearchRec: TSearchRec): Boolean
     var
@@ -943,6 +956,7 @@ begin
 
   for filePath in TDirectory.GetFiles(aFolder, IntToStr(Ord(fRT) + 1) + '_*.png', TSearchOption.soAllDirectories, filterPredicate) do
     aFileList.Add(ExtractRelativePath(aFolder, filePath));
+  {$ENDIF}
 end;
 
 
@@ -1301,7 +1315,7 @@ begin
     gLog.AddNoTime(IntToStr(colorRAM div 1024) + ' KBytes for team colors');
   end;
 end;
-{$ENDIF}
+
 
 
 //Set GFXData from SpriteInfo
@@ -1333,7 +1347,6 @@ begin
 end;
 
 
-{$IFNDEF NO_OGL}
 procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TKMTexFormat; aStartingIndex: Integer; var aBaseRAM, aColorRAM, aTexCount: Cardinal;
                                            aFillGFXData: Boolean = True; aOnCheckTerminated: TBooleanFuncSimple = nil);
 var
@@ -1554,11 +1567,13 @@ end;
 // Texture generating task can be done only by main thread, as OpenGL does not work with multiple threads
 // Note: this could be from the loader thread by using `Synchronise` procedure
 procedure TKMSpritePack.GenerateTexturesFromLoadedRXZ(aIsRXA: Boolean);
+{$IFNDEF NO_OGL}
 var
   I: Integer;
   SAT: TKMSpriteAtlasType;
   texID: Cardinal;
   texFilter: TKMFilterType;
+{$ENDIF}
 begin
   {$IFNDEF NO_OGL}
   for SAT := Low(fAtlases) to High(fAtlases) do
@@ -2042,8 +2057,10 @@ function TKMResSprites.LoadRXASpritesAndGenTextures(aRT: TRXType): Boolean;
 begin
   Result := LoadRXASprites(aRT);
 
+  {$IFDEF LOAD_GAME_RES_ASYNC}
   if Result then
     fSprites[aRT].GenerateTexturesFromLoadedRXZ(True);
+  {$ENDIF}
 end;
 
 
@@ -2149,6 +2166,7 @@ begin
 end;
 
 
+{$IFDEF LOAD_GAME_RES_ASYNC}
 { TTGameResourceLoader }
 constructor TTGameResourceLoader.Create(aResSprites: TKMResSprites; aAlphaShadows: Boolean; aRxType: TRXType);
 begin
@@ -2249,6 +2267,7 @@ function TTGameResourceLoader.IsTerminated: Boolean;
 begin
   Result := Terminated;
 end;
+{$ENDIF}
 
 
 end.

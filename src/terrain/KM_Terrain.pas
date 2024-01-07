@@ -4518,19 +4518,13 @@ end;
 
 
 procedure TKMTerrain.UpdateLighting(X, Y: Integer);
-
-  function ConvertLightToByte(aSLight: Single): Byte;
-  begin
-    Result := Round((aSLight + 1) * 127.5);
-  end;
-
 var
   x0, y2: Integer;
   sLight, sLightWater: Single;
 begin
   //Map borders always fade to black
   if (Y = 1) or (Y = fMapY) or (X = 1) or (X = fMapX) then
-    Land^[Y,X].Light := 0
+    LandExt^[Y,X].Light := -1
   else
   begin
     x0 := Max(X - 1, 1);
@@ -4541,13 +4535,13 @@ begin
     if fTileset[Land^[Y, X].BaseLayer.Terrain].Water then
     begin
       sLightWater := EnsureRange(sLight*WATER_LIGHT_MULTIPLIER + 0.1, -1, 1);
-      Land^[Y,X].Light := ConvertLightToByte(sLightWater);
+      LandExt^[Y,X].Light := sLightWater;
     end
     else
-      Land^[Y,X].Light := ConvertLightToByte(sLight); //  1.33*16 ~=22.
+      LandExt^[Y,X].Light := sLight; //  1.33*16 ~=22.
   end;
 
-  LandExt[Y,X].RenderLight := Land^[Y,X].GetRenderLight;
+  LandExt[Y,X].RenderLight := LandExt^[Y,X].Light;
 end;
 
 
@@ -5213,7 +5207,6 @@ begin
 
           SaveStream.Write(Passability, SizeOf(Passability));
           SaveStream.Write(WalkConnect, SizeOf(WalkConnect));
-          SaveStream.Write(Light);
         end;
       end
   else
@@ -5256,7 +5249,7 @@ begin
     for J := 1 to fMapX do
     begin
       UpdateFences(KMPoint(J,I), False);
-      LandExt[I,J].RenderLight := Land^[I,J].GetRenderLight;
+      LandExt[I,J].RenderLight := LandExt^[I,J].Light;
       LandExt[I,J].RenderHeight := Land[I,J].GetRenderHeight;
     end;
 
@@ -5280,7 +5273,10 @@ end;
 
 procedure TKMTerrain.Init;
 begin
+  // Recalc TopHill according to current RenderHeight
   UpdateTopHill;
+  // Recalc Light, since we do not store it anymore
+  UpdateLighting;
 end;
 
 

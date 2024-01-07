@@ -1601,11 +1601,10 @@ end;
 function TKMGame.GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
 const
   AUDIO_EXT: array[TKMAudioFormat] of AnsiString = (WAV_FILE_EXT, OGG_FILE_EXT);
-
 var
   camp: TKMCampaign;
 begin
-  // check for MissionPath/MissionName.Sound.Locale.ext
+  // check for MissionPath\MissionName.SoundName.locale.ext
   Result := GetLocalizedFilePath(ExeDir + ChangeFileExt(fParams.MissionFileRel, '.' + string(aSound)),
                                  gResLocales.UserLocale, gResLocales.FallbackLocale, AUDIO_EXT[aAudioFormat]);
 
@@ -1613,7 +1612,7 @@ begin
   if fParams.IsCampaign and (gGameApp.Campaigns.ActiveCampaign <> nil) and not FileExists(Result) then
   begin
     camp := gGameApp.Campaigns.ActiveCampaign;
-    // check for Campaigns/Camp_name/Sounds/CMP.Sound.Locale.ext
+    // check for Campaigns\CampaignName\Sounds\CMP.SoundName.locale.ext
     Result := GetLocalizedFilePath(camp.Path + CAMPAIGN_SOUNDS_FOLDER_NAME + PathDelim + camp.ShortName + '.' + UnicodeString(aSound),
                                    gResLocales.UserLocale, gResLocales.FallbackLocale, AUDIO_EXT[aAudioFormat]);
   end;
@@ -2275,7 +2274,7 @@ begin
 
   mainStream    := TKMemoryStreamBinary.Create(False); // Not compressed
   headerStream  := TKMemoryStreamBinary.Create(False); // Not compressed
-  bodyStream    := TKMemoryStreamBinary.Create(True);  // Compressed
+  bodyStream    := TKMemoryStreamBinary.Create(not SAVE_NO_COMPRESSION);  // Compressed by default
 
   SaveGameToStream(aTimestamp, headerStream, bodyStream);
 

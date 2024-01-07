@@ -225,6 +225,7 @@ uses
   KM_Resource, KM_ResFonts, KM_ResLocales, KM_ResSound, KM_ResTypes,
   KM_Networking, KM_NetPlayersList,
   KM_MapTypes, KM_MapUtilsExt,
+  KM_GameAppSettings,
   KM_ServerSettings;
 
 const
@@ -2190,7 +2191,8 @@ begin
 end;
 
 
-procedure TKMMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
+procedure TKMMenuLobby.RefreshMapList(aJumpToSelected: Boolean);
+
   procedure SelectByName(const aName: UnicodeString);
   var
     I: Integer;
@@ -2202,6 +2204,7 @@ procedure TKMMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
         Break;
       end;
   end;
+
 var
   I, prevTop: Integer;
   prevMap: string;
@@ -2209,6 +2212,9 @@ var
   row: TKMListRow;
   lobbyCl: Cardinal;
 begin
+  // Reload settings because we could have updated favourite maps, f.e.
+  gGameAppSettings.ReloadSettings;
+
   //Remember previous map selected
   if DropCol_Maps.ItemIndex <> -1 then
     prevMap := DropCol_Maps.Item[DropCol_Maps.ItemIndex].Cells[1].Caption
@@ -2470,6 +2476,9 @@ begin
       //Update pic
       DropCol_Maps.Item[Y].Cells[0].Pic := fMapsMP[I].FavouriteMapPic;
       fMapsSortUpdateNeeded := True; //Ask for resort on next list show
+
+      // Save settings immediately, thus updated favourite maps could be seen in the other game instances
+      gGameAppSettings.SaveSettings;
     finally
       fMapsMP.Unlock;
     end;
