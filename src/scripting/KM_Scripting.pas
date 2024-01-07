@@ -120,7 +120,13 @@ const
 implementation
 uses
   TypInfo, Math,
-  {$IFDEF FPC} Hash, {$ENDIF}
+  {$IFDEF FPC}
+  {$IFNDEF Unix}
+  Hash,
+  {$ELSE}
+  Generics.Defaults,
+  {$ENDIF}
+  {$ENDIF}
   {$IFDEF WDC} System.Hash, {$ENDIF}
   KromUtils, KM_GameParams, KM_Resource, KM_ResUnits, KM_Log, KM_CommonUtils,
   KM_ScriptingConsoleCommands, KM_ScriptPreProcessorGame,
@@ -2056,7 +2062,11 @@ begin
 
   s := GetHashStr(aType);
 
+  {$IFNDEF FPC}
   Result := THashBobJenkins.GetHashValue(s);
+  {$ELSE}
+  Result := BobJenkinsHash(s, Length(s), 0);
+  {$ENDIF}
 end;
 
 
