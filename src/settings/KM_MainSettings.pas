@@ -3,7 +3,6 @@ unit KM_MainSettings;
 interface
 uses
   Classes,
-  {$IFDEF FPC}Forms,{$ENDIF}   //Lazarus do not know UITypes
   {$IFDEF WDC}UITypes,{$ENDIF} //We use settings in console modules
   KM_Resolutions,
   KM_Defaults,
