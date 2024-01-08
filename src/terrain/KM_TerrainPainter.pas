@@ -1630,7 +1630,7 @@ begin
     // Now we need to check whether point is inside brush type area(circle etc.)
     // Every MapEdShape case has it's own check routine
     case fShape of
-      hsCircle: tmp := Max((1 - GetLength(Integer(I - fMapYn), Integer(K - fMapXn)) / fSize), 0);   // Negative number means that point is outside circle
+      hsCircle: tmp := Max((1 - GetLengthI(I - fMapYn, K - fMapXn) / fSize), 0);   // Negative number means that point is outside circle
       hsSquare: tmp := 1 - Max(Abs(I - fMapYn), Abs(K - fMapXn)) / fSize;
       else      tmp := 0;
     end;
