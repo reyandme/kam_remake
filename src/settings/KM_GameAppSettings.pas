@@ -17,7 +17,7 @@ type
     function GetMainSettings: TKMainSettings;
   protected
     procedure LoadFromFile(const aPath: string); override;
-    procedure SaveToFile(const aPath: string); override;
+    procedure SaveToFile(const aPath: UnicodeString); override;
     function GetDefaultSettingsName: string; override;
     function GetSettingsName: string; override;
   public
@@ -76,7 +76,7 @@ begin
 end;
 
 
-procedure TKMGameAppSettings.SaveToFile(const aPath: string);
+procedure TKMGameAppSettings.SaveToFile(const aPath: UnicodeString);
 begin
   if SKIP_SETTINGS_SAVE then Exit;
 
