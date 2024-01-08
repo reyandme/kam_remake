@@ -45,7 +45,7 @@ type
 implementation
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLType, {$ENDIF}
+  {$IFDEF Unix} LCLType, LCLIntF, {$ENDIF}
   KM_Main, KM_ResFonts, KM_ResTexts, KM_Cursor, KM_RenderUI,
   KM_GameSettings,
   KM_InterfaceGame, KM_Utils,

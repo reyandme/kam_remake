@@ -50,7 +50,7 @@ type
 implementation
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLType, {$ENDIF}
+  {$IFDEF Unix} LCLType, LCLIntF, {$ENDIF}
   TypInfo, KM_ResFonts, KM_ResTexts, KM_Game, KM_Cursor, KM_RenderUI,
   KM_TerrainPainter, KM_InterfaceGame, KM_Utils,
   KM_ResTypes, KM_TerrainTypes;
