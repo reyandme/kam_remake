@@ -101,7 +101,7 @@ begin
         if InRange(aDistanceFunc(K, I), aMinRadius, aMaxRadius) and gTerrain.TileInMapCoords(aLoc.X+K, aLoc.Y+I) then
         begin
           fAreaTilesLand[aLoc.Y+I - 1, aLoc.X+K - 1] := True; // fDefLand is 0-based
-          gRenderAux.Quad(aLoc.X+K, aLoc.Y+I, aFillColor);
+          gRenderAux.QuadI(aLoc.X+K, aLoc.Y+I, aFillColor);
         end;
 
     if not fMarchingSquares.IdentifyPerimeters(fBorderPoints) then
@@ -198,7 +198,7 @@ begin
     for J := 0 to gTerrain.MapY - 1 do
       for K := 0 to gTerrain.MapX - 1 do
         if fAreaTilesLand[J, K] then
-          gRenderAux.Quad(K + 1, J + 1); //gTerrain is 1-based...
+          gRenderAux.QuadI(K + 1, J + 1); //gTerrain is 1-based...
 
     if not fMarchingSquares.IdentifyPerimeters(fBorderPoints) then
       Continue;
