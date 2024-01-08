@@ -172,6 +172,12 @@ uses
   procedure DeleteFromArray(var Arr: TAnsiStringArray; const Index: Integer); overload;
   procedure DeleteFromArray(var Arr: TIntegerArray; const Index: Integer); overload;
 
+  {$IFDEF FPC}
+  {$IFDEF Unix}
+  function AtomicExchange (var Target: longint;Source : longint) : longint; external name 'FPC_INTERLOCKEDEXCHANGE';
+  {$ENDIF}
+  {$ENDIF}
+
 const
   DEFAULT_ATTEMPS_CNT_TO_TRY = 3;
 
