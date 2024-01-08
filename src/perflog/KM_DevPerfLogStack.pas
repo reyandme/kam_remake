@@ -210,12 +210,12 @@ begin
     // Times are cumulative. Convert them back into separate
     secTime := secTime - totalTime;
     totalTime := totalTime + secTime;
-    {$IFNDEF WDC64} // Just ignore it on WDC x64 for now...
+    {$IF NOT (DEFINED(WDC64) OR DEFINED(Unix))} // Just ignore it on WDC x64 and Unix for now...
     aList.AddObject(fSectionNames[I], TObject(secTime));
     {$ENDIF}
   end;
 
-  {$IFNDEF WDC64} // Just ignore it on WDC x64 for now...
+  {$IF NOT (DEFINED(WDC64) OR DEFINED(Unix))} // Just ignore it on WDC x64 and Unix for now...
   aList.AddObject('[Total]', TObject(totalTime));
   {$ENDIF}
 end;
