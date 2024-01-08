@@ -19,6 +19,7 @@ uses
 
   function FixDelim(const aString: UnicodeString): UnicodeString;
 
+  function Max3I(const A,B,C: Integer): Integer;
   function Max3(const A,B,C: Integer): Integer; overload;
   function Min3(const A,B,C: Integer): Integer; overload;
   function Max4(const A,B,C,D: Integer): Integer;
@@ -689,6 +690,11 @@ end;
 function Max3(const A,B,C: Integer): Integer;
 begin
   Result := Max(A, Max(B, C));
+end;
+
+function Max3I(const A,B,C: Integer): Integer;
+begin
+  Result := Max3(A, B, C);
 end;
 
 function Min3(const A,B,C: Integer): Integer;
