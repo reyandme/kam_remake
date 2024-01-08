@@ -602,7 +602,7 @@ begin
     strOut := IntToStr(fMarketWareOut[WT]);
     strDel := IntToStr(fMarketDeliveryCount[WT]);
     strDemClose := IntToStr(fMarketDemandsClosing[WT]);
-    len := Max3(Length(strIn), Length(strOut), Length(strDel));
+    len := Max3I(Length(strIn), Length(strOut), Length(strDel));
     resInStr        := resInStr        + ' ' + StringOfChar(' ', len - Length(strIn))       + strIn;
     resOutStr       := resOutStr       + ' ' + StringOfChar(' ', len - Length(strOut))      + strOut;
     deliveryCntStr  := deliveryCntStr  + ' ' + StringOfChar(' ', len - Length(strDel))      + strDel;
