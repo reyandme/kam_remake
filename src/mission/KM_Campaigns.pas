@@ -171,7 +171,14 @@ uses
   SysUtils, Math, KromUtils,
   KM_GameParams,
   KM_Resource, KM_ResLocales, KM_ResSprites, KM_ResTypes,
-  KM_Log, KM_Defaults, KM_CommonUtils, KM_FileIO;
+  KM_Log, KM_Defaults, KM_CommonUtils, KM_FileIO
+  {$IFDEF FPC}
+  , Generics.Defaults
+  {$ENDIF}
+  ;
+
+type
+  TKMCampaignCompType = Function(constref A, B: TKMCampaign) : Boolean;
 
 
 const
@@ -208,28 +215,69 @@ begin
 end;
 
 
+// Return True if A is considered less (<) than B, False otherwise
+function TKMCampaignComparator(constref A, B: TKMCampaign): Boolean;
+var
+  aPrio, bPrio: Integer;
+begin
+  // TSK goes first
+  if      A.ShortName = 'TSK' then aPrio := 0
+  // TPR goes second
+  else if A.ShortName = 'TPR' then aPrio := 1
+  // Others go lexicographically sorted
+  else                             aPrio := 2;
+
+  if      B.ShortName = 'TSK' then bPrio := 0
+  else if B.ShortName = 'TPR' then bPrio := 1
+  else                             bPrio := 2;
+
+  Result := (aPrio < bPrio)
+             or ((2 = aPrio) and (aPrio = bPrio) and (A.ShortName < B.ShortName));
+end;
+
+
+{$IFDEF FPC}
+// Return Negative if A < B, Positive if B < A, 0 otherwise
+function TKMCampaignComparatorThreeWay(constref A, B: TKMCampaign): LongInt;
+begin
+  if      (TKMCampaignComparator(A, B)) then Result := -1
+  else if (TKMCampaignComparator(B, A)) then Result := +1
+  else                                       Result :=  0;
+end;
+{$ENDIF}
+
+
 procedure TKMCampaignsCollection.SortCampaigns;
 
-  //Return True if items should be exchanged
-  function Compare(A, B: TKMCampaign): Boolean;
+  {$IFNDEF FPC}
+  procedure SelectionSort(var aList: TList<TKMCampaign>; idxFirst, idxLast: Integer; Comp: TKMCampaignCompType);
+  var
+    I, K, L, J: Integer;
   begin
-    //TSK is first
-    if      A.ShortName = 'TSK' then Result := False
-    else if B.ShortName = 'TSK' then Result := True
-    //TPR is second
-    else if A.ShortName = 'TPR' then Result := False
-    else if B.ShortName = 'TPR' then Result := True
-    //Others are left in existing order (alphabetical)
-    else                            Result := False;
-  end;
+    if not (idxFirst < idxLast) then Exit;
 
-var
-  I, K: Integer;
+    I := idxFirst;
+    L := idxLast;
+
+    while I < L do
+    begin
+         J := I;
+         for K := J + 1 to L do
+             if Comp(aList.List[K], aList.List[J]) then
+                J := K;
+         if (I <> J) then
+            SwapInt(NativeUInt(aList.List[I]), NativeUInt(aList.List[J]));
+         Inc(I);
+    end;
+  end;
+  {$ENDIF}
+
 begin
-  for I := 0 to Count - 1 do
-    for K := I to Count - 1 do
-      if Compare(Campaigns[I], Campaigns[K]) then
-        SwapInt(NativeUInt(fList.List[I]), NativeUInt(fList.List[K]));
+  {$IFNDEF FPC}
+  SelectionSort(fList, 0, Count - 1, @TKMCampaignComparator);
+  {$ELSE}
+  fList.Sort(@TKMCampaignComparatorThreeWay);
+  {$ENDIF}
 end;
 
 
