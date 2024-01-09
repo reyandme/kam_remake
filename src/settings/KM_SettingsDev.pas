@@ -4,8 +4,9 @@ interface
 uses
   SysUtils, StrUtils, Classes, Math,
   ComCtrls, Controls, ExtCtrls, StdCtrls,
-  {$IFDEF MSWindows} Forms, Spin; {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
+  Forms, Spin
+  {$IFDEF Unix} , LCLIntf, LCLType {$ENDIF}
+  ;
 
 
 type
