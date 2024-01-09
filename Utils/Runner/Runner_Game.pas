@@ -2484,7 +2484,11 @@ begin
   Int64Rec(total).Words[1] := Abs(FromP.X - ToP.X);
   Int64Rec(total).Words[2] := FromP.Y + ToP.Y;
   Int64Rec(total).Words[3] := Abs(FromP.Y - ToP.Y);
+  {$IFNDEF Unix}
   Result := THashBobJenkins.GetHashValue(total, SizeOf(Int64), 0);
+  {$ELSE}
+  Result := BobJenkinsHash(total, SizeOf(Int64), 0);
+  {$ENDIF}
 //  Result := THashBobJenkins.GetHashValue(totalCard, SizeOf(Cardinal), 0);
 //  Result := CombinedHash([THashBobJenkins.GetHashValue(xTotal, SizeOf(Integer), 0),
 //                          THashBobJenkins.GetHashValue(yTotal, SizeOf(Integer), 0)]);
