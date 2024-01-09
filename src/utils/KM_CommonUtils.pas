@@ -175,7 +175,9 @@ uses
 
   {$IFDEF FPC}
   {$IFDEF Unix}
-  function AtomicExchange (var Target: longint;Source : longint) : longint; external name 'FPC_INTERLOCKEDEXCHANGE';
+  function AtomicExchange(var Target: longint; Source: longint): longint; external name 'FPC_INTERLOCKEDEXCHANGE';
+  function AtomicIncrement(var Target: longint): longint;
+  function AtomicDecrement(var Target: longint): longint;
   {$ENDIF}
   {$ENDIF}
 
@@ -2070,6 +2072,24 @@ begin
   if not Result then
     aErrorStr := Format('Error executing method (%d tries) %s for parameters: [%s, %s]', [aAttemps, aMethodName, aStrParam1, aStrParam2]);
 end;
+
+
+{$IFDEF FPC}
+{$IFDEF Unix}
+
+function AtomicIncrement(var Target: longint) : longint;
+begin
+  Result := InterlockedIncrement(Target);
+end;
+
+
+function AtomicDecrement(var Target: longint) : longint;
+begin
+  Result := InterlockedDecrement(Target);
+end;
+
+{$ENDIF}
+{$ENDIF}
 
 
 initialization
