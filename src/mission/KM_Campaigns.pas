@@ -171,15 +171,11 @@ uses
   SysUtils, Math, KromUtils,
   KM_GameParams,
   KM_Resource, KM_ResLocales, KM_ResSprites, KM_ResTypes,
-  KM_Log, KM_Defaults, KM_CommonUtils, KM_FileIO
+  KM_Log, KM_Defaults, KM_CommonUtils, KM_FileIO, KM_Sort
   {$IFDEF FPC}
   , Generics.Defaults
   {$ENDIF}
   ;
-
-type
-  TKMCampaignCompType = Function(constref A, B: TKMCampaign) : Boolean;
-
 
 const
   CAMP_HEADER_V1 = $FEED; //Just some header to separate right progress files from wrong
@@ -236,7 +232,7 @@ begin
 end;
 
 
-{$IFDEF FPC}
+{$IFDEF Unix}
 // Return Negative if A < B, Positive if B < A, 0 otherwise
 function TKMCampaignComparatorThreeWay(constref A, B: TKMCampaign): LongInt;
 begin
@@ -248,33 +244,9 @@ end;
 
 
 procedure TKMCampaignsCollection.SortCampaigns;
-
-  {$IFNDEF FPC}
-  procedure SelectionSort(var aList: TList<TKMCampaign>; idxFirst, idxLast: Integer; Comp: TKMCampaignCompType);
-  var
-    I, K, L, J: Integer;
-  begin
-    if not (idxFirst < idxLast) then Exit;
-
-    I := idxFirst;
-    L := idxLast;
-
-    while I < L do
-    begin
-         J := I;
-         for K := J + 1 to L do
-             if Comp(aList.List[K], aList.List[J]) then
-                J := K;
-         if (I <> J) then
-            SwapInt(NativeUInt(aList.List[I]), NativeUInt(aList.List[J]));
-         Inc(I);
-    end;
-  end;
-  {$ENDIF}
-
 begin
-  {$IFNDEF FPC}
-  SelectionSort(fList, 0, Count - 1, @TKMCampaignComparator);
+  {$IFNDEF Unix}
+  SelectionSort<TKMCampaign>(fList, 0, Count - 1, @TKMCampaignComparator);
   {$ELSE}
   fList.Sort(@TKMCampaignComparatorThreeWay);
   {$ENDIF}
