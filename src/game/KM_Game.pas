@@ -1416,6 +1416,7 @@ procedure TKMGame.AutoSave(aTimestamp: TDateTime);
 {$IFDEF WDC}
 var
   localIsMultiPlayerOrSpec: Boolean;
+  task: TKMWorkerThreadTask;
 {$ENDIF}
 begin
   Save(AUTOSAVE_SAVE_NAME, aTimestamp, fAutoSaveWorkerThreadHolder.Worker); //Save to temp file
@@ -1424,10 +1425,11 @@ begin
   {$IFDEF WDC}
     //Avoid accessing Self from async thread, copy required states to local variables
     localIsMultiPlayerOrSpec := fParams.IsMultiPlayerOrSpec;
-    fAutoSaveWorkerThreadHolder.Worker.QueueWork(procedure
+    task := TKMWorkerThreadTask.Create(procedure
     begin
       DoAutoSaveRename(localIsMultiPlayerOrSpec);
     end, 'AutoSaveRename');
+    fAutoSaveWorkerThreadHolder.Worker.Enqueue(task);
   {$ELSE}
     DoAutoSaveRename(fParams.IsMultiPlayerOrSpec);
   {$ENDIF}
@@ -2228,6 +2230,7 @@ end;
 procedure TKMGame.PrepareSaveFolder(const aPathName: String; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread);
 var
   path: string;
+  task: TKMWorkerThreadTask;
 begin
   path := aPathName;
   //Makes the folders in case they were deleted.
@@ -2235,7 +2238,7 @@ begin
   if (aPathName <> '') then
   begin
     // We can make directories in async too, since all save parts are made in async now
-    aSaveWorkerThread.QueueWork(procedure
+    task := TKMWorkerThreadTask.Create(procedure
     begin
       path := ExtractFilePath(path);
       if DirectoryExists(path) then
@@ -2255,6 +2258,7 @@ begin
       else
         ForceDirectories(path);
     end, 'Prepare save dir');
+    aSaveWorkerThread.Enqueue(task);
   end;
 end;
 
@@ -2359,6 +2363,7 @@ var
   I, index: Integer;
   fullPath, rngPath, mpLocalDataPath, newSaveName, loadFrom: UnicodeString;
   saveByPlayer: Boolean;
+  task: TKMWorkerThreadTask;
 begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psGameSaveWait);
@@ -2382,12 +2387,15 @@ begin
   try
     // Emulate slow save in the async save thread
     if SLOW_GAME_SAVE_ASYNC then
-      aSaveWorkerThread.QueueWork(procedure
+    begin
+      task := TKMWorkerThreadTask.Create(procedure
         begin
           Sleep(10000);
         end,
         'Slow Game Save'
       );
+      aSaveWorkerThread.Enqueue(task);
+    end;
 
     //Convert name to full path+name
     fullPath := SaveName(aSaveName, EXT_SAVE_MAIN, fParams.IsMultiplayer);
