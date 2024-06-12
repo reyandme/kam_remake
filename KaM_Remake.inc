@@ -19,10 +19,11 @@
 {$IFDEF VER360} {$DEFINE WDC} {$DEFINE WDC12PLUS} {$ENDIF} //Define Windows Delphi 12 Yukon
 {.$DEFINE FPC} //Define Free Pascal compiler (defined automatically by Lazarus)
 
-//Lazarus compiler specific settings
+// Lazarus compiler specific settings
 {$IFDEF FPC}
   //Set FPC to work in Delphi mode
   {$MODE Delphi}
+
   //allow advanced records in Lazarus
   {$modeSwitch advancedRecords}
 
@@ -32,7 +33,7 @@
   {$IFDEF FPC_UNICODESTRINGS}
     {$DEFINE UNICODE}
   {$ENDIF}
-{$ENDIF} 
+{$ENDIF}
 
 //Delphi compiler specific settings
 {$IFDEF WDC}
@@ -48,8 +49,12 @@
   {$DEFINE USE_VIRTUAL_TREEVIEW}
 {$ENDIF}
 
+{$IFNDEF Unix}
 //Use secure authentication unit (KM_NetAuthSecure)
 {$DEFINE USESECUREAUTH}
+{$ELSE}
+{$DEFINE NO_MUSIC}
+{$ENDIF}
 
 //Enable perflog (should be disabled for release / release candidate versions)
 {$DEFINE PERFLOG}
