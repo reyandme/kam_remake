@@ -1321,7 +1321,8 @@ begin
         if not fMembers[I].IsIdle then
         begin
 
-          // There is no need to move if dirrection didn't change. Targets are choosen randomly anyway.
+          // We are at the right spot already. Restart what we are doing (with stub Walk order) only if the direction has changed
+          // (important for archers who got order to attack different enemy)
           if (fMembers[I].FaceDir <> fOrderLoc.Dir) then
           begin
             fMembers[I].OrderWalk(fMembers[I].PositionNext, True, aForced); //We are at the right spot already, just need to abandon what we are doing
