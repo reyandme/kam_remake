@@ -351,11 +351,6 @@ begin
             gHands[fUnit.Owner].Stats.WareConsumed(WorkPlan.Resource2, WorkPlan.Count2);
 
             Home.CurrentAction.SubActionAdd([haSmoke]);
-            if WorkPlan.GatheringScript = gsSwineBreeder then
-            begin //Swines get feed and taken immediately
-              fBeastID := TKMHouseSwineStable(Home).FeedBeasts;
-              TKMHouseSwineStable(Home).TakeBeast(fBeastID);
-            end;
 
             if fDistantResAcquired and (fPhase2 < WorkPlan.ActCount) then
             begin
@@ -373,10 +368,6 @@ begin
     10..10 + MAX_WORKPLAN:
           begin
             Inc(fPhase2);
-
-            //Feed a horse/pig
-            if (WorkPlan.GatheringScript = gsHorseBreeder) and (fPhase2 = 1) then
-              fBeastID := TKMHouseSwineStable(Home).FeedBeasts;
 
             //Keep on working
             if fDistantResAcquired and (fPhase2 < WorkPlan.ActCount) then
@@ -396,8 +387,16 @@ begin
           end;
     11 + MAX_WORKPLAN:
           begin
-            if WorkPlan.GatheringScript = gsHorseBreeder then
-              TKMHouseSwineStable(Home).TakeBeast(fBeastID); //Take the horse after feeding
+
+
+            //Feed and take horses/swines after animal breeder will finish working to prevent abusing.
+            //If swine/horse will appear at start player can make animal breeder go out from house and let him in again and speed up house production.
+            if (WorkPlan.GatheringScript = gsSwineBreeder) or (WorkPlan.GatheringScript = gsHorseBreeder) then
+            begin
+              fBeastID := TKMHouseSwineStable(Home).FeedBeasts;
+              TKMHouseSwineStable(Home).TakeBeast(fBeastID);
+            end;
+
 
             case WorkPlan.GatheringScript of
               gsWoodCutterCut,
