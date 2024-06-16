@@ -1320,8 +1320,13 @@ begin
       else
         if not fMembers[I].IsIdle then
         begin
-          fMembers[I].OrderWalk(fMembers[I].PositionNext, True, aForced); //We are at the right spot already, just need to abandon what we are doing
-          fMembers[I].FaceDir := fOrderLoc.Dir;
+
+          // There is no need to move if dirrection didn't change. Targets are choosen randomly anyway.
+          if (fMembers[I].FaceDir <> fOrderLoc.Dir) then
+          begin
+            fMembers[I].OrderWalk(fMembers[I].PositionNext, True, aForced); //We are at the right spot already, just need to abandon what we are doing
+            fMembers[I].FaceDir := fOrderLoc.Dir;
+          end;
         end
         else
         begin

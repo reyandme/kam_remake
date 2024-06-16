@@ -899,8 +899,8 @@ begin
 
                         loc := gTerrain.GetClosestTile(fOrderLoc, Position, GetDesiredPassability, fUseExactTarget);
 
-                        // No need to walk if we reached destination already
-                        if loc <> fPositionRound then
+                        // No need to walk if we reached destination already. Ranged should move in case there was an attack order.
+                        if IsRanged or (loc <> fPositionRound) then
                           SetActionWalkToSpot(loc, uaWalk);
 
                         fNextOrder := woNone;
