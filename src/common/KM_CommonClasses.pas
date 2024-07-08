@@ -511,12 +511,15 @@ end;
 class procedure TKMemoryStream.AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
 var
   localStream: TKMemoryStream;
+{$IFDEF WDC}
+  task: TKMWorkerThreadTask;
+{$ENDIF}
 begin
   localStream := aStream;
   aStream := nil; //So caller doesn't use it by mistake
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
+    task := TKMWorkerThreadTask.Create(procedure
     begin
       try
         localStream.SaveToFile(aFileName);
@@ -524,6 +527,8 @@ begin
         localStream.Free;
       end;
     end, 'SaveToFile');
+
+    aWorkerThread.Enqueue(task);
   {$ELSE}
     try
       LocalStream.SaveToFile(aFileName);
@@ -538,12 +543,13 @@ class procedure TKMemoryStream.AsyncSaveToFileCompressedAndFree(var aStream: TKM
                                                                 aWorkerThread: TKMWorkerThread);
 var
   localStream: TKMemoryStream;
+  task: TKMWorkerThreadTask;
 begin
   localStream := aStream;
   aStream := nil; //So caller doesn't use it by mistake
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
+    task := TKMWorkerThreadTask.Create(procedure
     begin
       try
         localStream.SaveToFileCompressed(aFileName, aMarker);
@@ -551,6 +557,8 @@ begin
         localStream.Free;
       end;
     end, 'SaveToFileCompressed ' + aMarker);
+
+    aWorkerThread.Enqueue(task);
   {$ELSE}
     try
       LocalStream.SaveToFileCompressed(aFileName, aMarker);
@@ -565,6 +573,9 @@ class procedure TKMemoryStream.AsyncSaveStreamsToFileAndFree(var aMainStream, aS
                                                              const aMarker1, aMarker2: string; aWorkerThread: TKMWorkerThread);
 var
   localSubStream1, localSubStream2, localMainStream: TKMemoryStream;
+{$IFDEF WDC}
+  task: TKMWorkerThreadTask;
+{$ENDIF}
 begin
   localMainStream := aMainStream;
   localSubStream1 := aSubStream1;
@@ -574,7 +585,7 @@ begin
   aSubStream2 := nil; //So caller doesn't use it by mistake
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
+    task := TKMWorkerThreadTask.Create(procedure
     begin
       try
         localMainStream.AppendStream(localSubStream1, aMarker1);
@@ -586,6 +597,8 @@ begin
         localMainStream.Free;
       end;
     end, 'SaveStreamsToFile ' + aMarker1 + ' ' + aMarker2);
+
+    aWorkerThread.Enqueue(task);
   {$ELSE}
     try
       mainStream.AppendStream(localStream1, aMarker1);

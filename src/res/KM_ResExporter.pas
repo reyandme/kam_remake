@@ -111,11 +111,13 @@ end;
 
 
 procedure TKMResExporter.ExportSpritesFromRXXToPNG(aRT: TRXType; aOnDone: TProc<String>);
+var
+  task: TKMWorkerThreadTask;
 begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  GetOrCreateExportWorker.QueueWork(procedure
+  task := TKMWorkerThreadTask.Create(procedure
     var
       sprites: TKMResSprites;
     begin
@@ -127,15 +129,19 @@ begin
         sprites.Free;
       end;
     end, aOnDone, 'Export from ' + RX_INFO[aRT].FileName + '.rxx');
+
+  GetOrCreateExportWorker.Enqueue(task);
 end;
 
 
 procedure TKMResExporter.ExportSpritesFromRXAToPNG(aRT: TRXType; aOnDone: TProc<String>);
+var
+  task: TKMWorkerThreadTask;
 begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  GetOrCreateExportWorker.QueueWork(procedure
+  task := TKMWorkerThreadTask.Create(procedure
     var
       I: Integer;
       folderPath: string;
@@ -159,16 +165,19 @@ begin
         sprites.Free;
       end;
     end, aOnDone, 'Export from ' + RX_INFO[aRT].FileName + '.rxa');
+
+  GetOrCreateExportWorker.Enqueue(task);
 end;
 
 
 procedure TKMResExporter.ExportUnitAnimHD(aUnitFrom, aUnitTo: TKMUnitType; aExportThoughts, aExportUnused: Boolean; aOnDone: TProc<String>);
+var
+  task: TKMWorkerThreadTask;
 begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  task := TKMWorkerThreadTask.Create(procedure
     var
       fullFolderPath, folderPath: string;
       UT: TKMUnitType;
@@ -318,17 +327,21 @@ begin
         resTexts.Free;
       end;
     end, aOnDone, 'Export HD units anim');
+
+  // Asynchroniously export data
+  GetOrCreateExportWorker.Enqueue(task);
 end;
 
 
 //Export Units graphics categorized by Unit and Action
 procedure TKMResExporter.ExportUnitAnim(aUnitFrom, aUnitTo: TKMUnitType; aExportUnused: Boolean; aOnDone: TProc<String>);
+var
+  task: TKMWorkerThreadTask;
 begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  task := TKMWorkerThreadTask.Create(procedure
     var
       fullFolderPath, folderPath: string;
       UT: TKMUnitType;
@@ -457,16 +470,20 @@ begin
         resTexts.Free;
       end;
     end, aOnDone, 'Export units anim');
+
+  // Asynchroniously export data
+  GetOrCreateExportWorker.Enqueue(task);
 end;
 
 
 procedure TKMResExporter.ExportHouseAnimHD(aOnDone: TProc<String>);
+var
+  task: TKMWorkerThreadTask;
 begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  task := TKMWorkerThreadTask.Create(procedure
     var
       fullFolderPath, folderPath: string;
       I, LVL, STEP, Q, spriteID: Integer;
@@ -555,17 +572,21 @@ begin
         sprites.Free;
       end;
     end, aOnDone, 'Export HD House animation');
+
+  // Asynchroniously export data
+  GetOrCreateExportWorker.Enqueue(task);
 end;
 
 
 //Export Houses graphics categorized by House and Action
 procedure TKMResExporter.ExportHouseAnim(aOnDone: TProc<String>);
+var
+  task: TKMWorkerThreadTask;
 begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  task := TKMWorkerThreadTask.Create(procedure
   var
     fullFolderPath, folderPath: string;
     houses: TKMResHouses;
@@ -637,6 +658,9 @@ begin
       sprites.Free;
     end;
   end, aOnDone, 'Export house anim');
+
+  // Asynchroniously export data
+  GetOrCreateExportWorker.Enqueue(task);
 end;
 
 
@@ -716,12 +740,13 @@ end;
 
 
 procedure TKMResExporter.ExportTreeAnimHD(aOnDone: TProc<String>);
+var
+  task: TKMWorkerThreadTask;
 begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  task := TKMWorkerThreadTask.Create(procedure
     var
       fullFolderPath, folderPath: string;
       I, J, K, spriteID: Integer;
@@ -763,17 +788,21 @@ begin
         sprites.Free;
       end;
     end, aOnDone, 'Export HD Tree animation');
+
+  // Asynchroniously export data
+  GetOrCreateExportWorker.Enqueue(task);
 end;
 
 
 //Export Trees graphics categorized by ID
 procedure TKMResExporter.ExportTreeAnim(aOnDone: TProc<String>);
+var
+  task: TKMWorkerThreadTask;
 begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  task := TKMWorkerThreadTask.Create(procedure
     var
       fullFolderPath, folderPath: string;
       I, K, spriteID: Integer;
@@ -813,6 +842,9 @@ begin
         sprites.Free;
       end;
     end, aOnDone, 'Export tree anim');
+
+  // Asynchroniously export data
+  GetOrCreateExportWorker.Enqueue(task);
 end;
 
 
