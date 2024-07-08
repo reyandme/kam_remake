@@ -2357,7 +2357,10 @@ end;
 procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime; aSaveWorkerThread: TKMWorkerThread);
 var
   I, index: Integer;
-  fullPath, rngPath, mpLocalDataPath, newSaveName, loadFrom: UnicodeString;
+  {$IFDEF Unix}
+  K: Integer;
+  {$ENDIF}
+  fullPath, rngPath, mpLocalDataPath, newSaveName, loadFrom, tmp: UnicodeString;
   saveByPlayer: Boolean;
 begin
   {$IFDEF PERFLOG}
@@ -2450,7 +2453,20 @@ begin
       // Increase numbers for autosave names in the list
       for I := fAutosavesCnt - 1 downto 1 do
       begin
-        index := fLastSaves.IndexOfItem(AUTOSAVE_SAVE_NAME + Int2Fix(I, 2), TDirection.FromEnd);
+        tmp := AUTOSAVE_SAVE_NAME + Int2Fix(I, 2);
+        {$IFNDEF Unix}
+        index := fLastSaves.IndexOfItem(tmp, TDirection.FromEnd);
+        {$ELSE}
+        index := -1;
+        for K := fLastSaves.Count - 1 downto 0 do
+        begin
+          if fLastSaves.Items[K] = tmp then
+          begin
+            index := K;
+            break;
+          end;
+        end;
+        {$ENDIF}
         // we use limited list, so some autosave names will be deleted if other save names were added earlier
         if index <> -1 then
           fLastSaves[index] := AUTOSAVE_SAVE_NAME + Int2Fix(I + 1, 2);
