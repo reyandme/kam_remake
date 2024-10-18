@@ -1320,8 +1320,14 @@ begin
       else
         if not fMembers[I].IsIdle then
         begin
-          fMembers[I].OrderWalk(fMembers[I].PositionNext, True, aForced); //We are at the right spot already, just need to abandon what we are doing
-          fMembers[I].FaceDir := fOrderLoc.Dir;
+
+          // We are at the right spot already. Restart what we are doing (with stub Walk order) only if the direction has changed
+          // (important for archers who got order to attack different enemy)
+          if (fMembers[I].FaceDir <> fOrderLoc.Dir) then
+          begin
+            fMembers[I].OrderWalk(fMembers[I].PositionNext, True, aForced); //We are at the right spot already, just need to abandon what we are doing
+            fMembers[I].FaceDir := fOrderLoc.Dir;
+          end;
         end
         else
         begin
