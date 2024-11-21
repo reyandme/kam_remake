@@ -193,7 +193,7 @@ begin
 
       units := TKMResUnits.Create;
       resTexts := TKMTextLibraryMulti.Create;
-      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
       resTexts.ForceDefaultLocale := True;
 
       folderPath := ExeDir + 'Export' + PathDelim + 'UnitAnimHD' + PathDelim;
@@ -353,7 +353,7 @@ begin
 
       units := TKMResUnits.Create;
       resTexts := TKMTextLibraryMulti.Create;
-      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
       resTexts.ForceDefaultLocale := True;
 
       folderPath := ExeDir + 'Export' + PathDelim + 'UnitAnim' + PathDelim;
@@ -488,7 +488,7 @@ begin
       houses := TKMResHouses.Create;
 
       resTexts := TKMTextLibraryMulti.Create;
-      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
       resTexts.ForceDefaultLocale := True;
 
       PrepareAtlasMap(spritePack);
@@ -586,7 +586,7 @@ begin
     houses := TKMResHouses.Create;
 
     resTexts := TKMTextLibraryMulti.Create;
-    resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+    resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
     resTexts.ForceDefaultLocale := True;
     try
       for HT := HOUSE_MIN to HOUSE_MAX do
