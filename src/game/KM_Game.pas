@@ -2778,7 +2778,17 @@ begin
   gHands.SyncLoad;
 
   for I := 0 to gHands.Count - 1 do
-    gHands[I].OverlayText := TextMission.ParseTextMarkup(UnicodeString(gHands[I].OverlayMarkup), gHands[I].OverlayParams.ToVarRecArray);
+    try
+      gHands[I].OverlayText := TextMission.ParseTextMarkup(UnicodeString(gHands[I].OverlayMarkup), gHands[I].OverlayParams.ToVarRecArray);
+    except
+      //Format may throw an exception
+      on E: EConvertError do
+        gLog.AddTime(Format('EConvert Error while loading overlay for hand %d, '
+                        + 'OverlayMarkup = ''%s'', OverlayParams.Count = %d; ErrorMsg: %s',
+                      [I, gHands[I].OverlayMarkup, gHands[I].OverlayParams.Count, E.Message]));
+    end;
+
+
 
   gTerrain.SyncLoad;
   gProjectiles.SyncLoad;
