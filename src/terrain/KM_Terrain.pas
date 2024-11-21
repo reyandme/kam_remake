@@ -1947,6 +1947,42 @@ type
     Result := KMClipRect(Result, 1, 1, fMapX, fMapY); //Clip to map bounds
   end;
 
+  function CheckVertex(const P0, P: TKMPoint): Boolean;
+  begin
+    Result := CanWalkDiagonally(aLoc, P.X, P.Y)
+          and ((Abs(aLoc.X - P.X) <> 1)
+            or (Abs(aLoc.Y - P.Y) <> 1)
+            or VertexUsageCompatible(aLoc, P));
+    // Check special case
+    //
+    // Position 1    Then   Position 2
+    // B   S2               B1   S2
+    //   S                  B  S
+    // S1   W               B2    W
+    //
+    // Key:
+    // S - serf;
+    // S1, S2 - starting and ending positions of the Serf,
+    //    He is moving diagonally from bottom-left to top-right, occuping vertex;
+    // B - Baker
+    // B1, B2 - starting and ending positions of the Baker,
+    //    He is moving vertically from top to bottom
+    // W - enemy warrior, looking for a new target
+    //
+    // Warrior checks his new target - Baker. B.Position (position round) is diagonal,
+    // but B.PositionNext is to the left of the Warrior
+    // It means no need to check if the vertex is occupied.
+    // Then when we start clashing the Baker we got crash, because we try to use already  occupied vertex
+    //
+    // We have to prevent this situation and not only check PositionNext vertex, but PositionRound Vertex as well
+    Result := Result
+              and ((P0 = P)
+                or not KMStepIsDiagAdjust(aLoc, P0)
+                or not KMStepIsBeside(aLoc, P)
+                or (CanWalkDiagonally(aLoc, P0.X, P0.Y))
+                    and VertexUsageCompatible(aLoc, P0));
+  end;
+
 var
   I,K: Integer; //Counters
   boundsRect: TKMRect;
@@ -2020,13 +2056,9 @@ begin
     if (aMaxRad = 1) and KMStepIsDiag(aLoc, P) then
       requiredMaxRad := 1.42; //Use diagonal radius sqrt(2) instead
 
+    var P0 := U.Position;
     if (not aTestDiagWalkable
-        or CanWalkDiagonally(aLoc, P.X, P.Y)
-          and ((Abs(aLoc.X - P.X) <> 1)
-            or (Abs(aLoc.Y - P.Y) <> 1)
-            or VertexUsageCompatible(aLoc, P)
-          )
-      )
+        or CheckVertex(P0, P))
       and InRange(KMLength(KMPointF(aLoc), U.PositionF), aMinRad, requiredMaxRad) //Unit's exact position must be close enough
     then
       if aClosest then
