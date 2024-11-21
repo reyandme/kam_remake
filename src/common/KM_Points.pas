@@ -166,6 +166,8 @@ type
 
   function KMGetDiagVertex(const P1,P2:TKMPoint): TKMPoint;
   function KMStepIsDiag(const P1,P2:TKMPoint): Boolean;
+  function KMStepIsDiagAdjust(const P1,P2: TKMPoint): Boolean;
+  function KMStepIsBeside(const P1,P2: TKMPoint): Boolean;
 
   function KMPointAverage(const A, B: TKMPoint): TKMPoint;
   function KMPointSubtract(const A, B: TKMPoint): TKMPoint;
@@ -930,6 +932,22 @@ function KMStepIsDiag(const P1,P2: TKMPoint): Boolean;
 begin
   Result := (P2.X - P1.X <> 0) and (P2.Y - P1.Y <> 0);
 end;
+
+
+// Points are adjustment by diag
+function KMStepIsDiagAdjust(const P1,P2: TKMPoint): Boolean;
+begin
+  Result := (Abs(P2.X - P1.X) = 1) and (Abs(P2.Y - P1.Y) = 1);
+end;
+
+
+// Point is adjustment by X or Y
+function KMStepIsBeside(const P1,P2: TKMPoint): Boolean;
+begin
+  Result :=     ((Abs(P2.X - P1.X) = 1) and (Abs(P2.Y - P1.Y) = 0))
+            or  ((Abs(P2.X - P1.X) = 0) and (Abs(P2.Y - P1.Y) = 1));
+end;
+
 
 
 function KMPointAverage(const A, B: TKMPoint): TKMPoint;
