@@ -207,12 +207,12 @@ procedure TKMTextLibrarySingle.LoadLocale(const aPathTemplate: string);
 begin
   // We load the English LIBX by default, then overwrite it with the selected language
   // (this way missing strings are in English)
-  LoadLIBXFile(Format(aPathTemplate, [gResLocales.DefaultLocale]), fTexts);
+  LoadLIBXFile(Format(aPathTemplate, [gResLocales.DefaultLocale]), fTexts, True);
 
   if gResLocales.FallbackLocale <> '' then
-    LoadLIBXFile(Format(aPathTemplate, [gResLocales.FallbackLocale]), fTexts);
+    LoadLIBXFile(Format(aPathTemplate, [gResLocales.FallbackLocale]), fTexts, True);
 
-  LoadLIBXFile(Format(aPathTemplate, [gResLocales.UserLocale]), fTexts);
+  LoadLIBXFile(Format(aPathTemplate, [gResLocales.UserLocale]), fTexts, True);
 end;
 
 
