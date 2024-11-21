@@ -188,7 +188,6 @@ begin
                                                   aParent.Height - PAD_VERT*2 - Radio_MapType.Height - 15,
                                                   fntMetal, bsMenu);
     ColumnBox_Maps.Anchors := [anTop, anBottom];
-    ColumnBox_Maps.ShowHintWhenShort := True;
     ColumnBox_Maps.HintBackColor := TKMColor4f.New(75, 60, 35);
     ColumnBox_Maps.SetColumns(fntOutline, ['', '', gResTexts[TX_MENU_MAP_TITLE], gResTexts[TX_MENU_MAP_SIZE]], [0, 50, 100, 380]);
     ColumnBox_Maps.Columns[2].Font := fntMetal;
