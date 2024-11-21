@@ -655,7 +655,7 @@ begin
 
       textMission.Clear; // Better clear object, than rectreate it for every map
       // Make a full scan for Libx top ID, to allow unordered Libx ID's by not carefull campaign makers
-      textMission.LoadLocale(GetMissionFile(I, '.%s.libx'));//, True);
+      textMission.LoadLocale(GetMissionFile(I, '.%s.libx'), True);
 
       if textMission.HasText(MISSION_NAME_LIBX_ID) then
         fMapsInfo[I].MissionName := StringReplace(textMission[MISSION_NAME_LIBX_ID], '|', ' ', [rfReplaceAll]); //Replace | with space
