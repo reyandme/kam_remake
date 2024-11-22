@@ -33,6 +33,8 @@ type
     property GetOpponent: TKMUnit read fOpponent;
     function Execute: TKMActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
+    function ObjToStringShort(const aSeparator: String = '|'): String; override;
+    function ObjToString(const aSeparator: String = ' '): String; override;
   end;
 
 
@@ -384,6 +386,26 @@ end;
 function TKMUnitActionFight.CanBeInterrupted(aForced: Boolean = True): Boolean;
 begin
   Result := (TKMUnitWarrior(fUnit).IsRanged and aForced) or not Locked; //Only allowed to interupt ranged fights
+end;
+
+
+function TKMUnitActionFight.ObjToStringShort(const aSeparator: String = '|'): String;
+begin
+  Result := inherited ObjToStringShort(aSeparator) +
+            Format('%sopponent = [%s]%svertexOccupied = %s',
+                   [aSeparator,
+                    fOpponent.ObjToStringShort(aSeparator), aSeparator,
+                    fVertexOccupied.ToString]);
+end;
+
+
+function TKMUnitActionFight.ObjToString(const aSeparator: String = ' '): String;
+begin
+  Result := inherited ObjToString(aSeparator) +
+            Format('%sopponent = [%s]%svertexOccupied = %s',
+                   [aSeparator,
+                    fOpponent.ObjToStringShort(aSeparator), aSeparator,
+                    fVertexOccupied.ToString]);
 end;
 
 

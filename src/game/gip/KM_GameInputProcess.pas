@@ -1093,7 +1093,7 @@ var
   begin
     Result := (gHands.CheckAlliance(handId, gMySpectator.HandID) = atAlly)
       and (gHands[handId].ShareBeacons[gMySpectator.HandID])
-      and not IsPlayerMuted(handId); // do not show beacons sended by muted players
+      and not IsPlayerMuted(handId); // Do not show beacons sent by muted players
   end;
 
 var

@@ -147,9 +147,9 @@ type
         Button_SettingsSave: TKMButton;
         Button_SettingsCancel: TKMButton;
 
-      Menu_Chat: TKMPopUpMenu;
-      Menu_Host: TKMPopUpMenu;
-      Menu_Joiner: TKMPopUpMenu;
+      PopUpMenu_Chat: TKMPopUpMenu;
+      PopUpMenu_Host: TKMPopUpMenu;
+      PopUpMenu_Joiner: TKMPopUpMenu;
 
       Panel_ServerName: TKMPanel;
         Label_ServerName: TKMLabel;
@@ -676,36 +676,36 @@ end;
 
 procedure TKMMenuLobby.CreateChatMenu(aParent: TKMPanel);
 begin
-  Menu_Chat := TKMPopUpMenu.Create(aParent, 140);
-  Menu_Chat.Anchors := [anLeft, anBottom];
+  PopUpMenu_Chat := TKMPopUpMenu.Create(aParent, 140);
+  PopUpMenu_Chat.Anchors := [anLeft, anBottom];
   //Menu gets populated right before show
-  Menu_Chat.AddItem(NO_TEXT);
-  Menu_Chat.OnClick := ChatMenuClick;
+  PopUpMenu_Chat.AddItem(NO_TEXT);
+  PopUpMenu_Chat.OnClick := ChatMenuClick;
 end;
 
 
 procedure TKMMenuLobby.CreatePlayerMenus(aParent: TKMPanel);
 begin
-  Menu_Host := TKMPopUpMenu.Create(aParent, gRes.Fonts[fntGrey].GetMaxPrintWidthOfStrings( // Calc max width for popup which depends of texts translation
+  PopUpMenu_Host := TKMPopUpMenu.Create(aParent, gRes.Fonts[fntGrey].GetMaxPrintWidthOfStrings( // Calc max width for popup which depends of texts translation
     [gResTexts[TX_LOBBY_PLAYER_KICK], 
     gResTexts[TX_LOBBY_PLAYER_BAN], 
     gResTexts[TX_LOBBY_PLAYER_SET_HOST], 
     gResTexts[TX_MUTE_PLAYER],
     gResTexts[TX_UNMUTE_PLAYER]])
     + 10);
-  Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_KICK]);
-  Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_BAN]);
-  Menu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_SET_HOST]);
-  Menu_Host.AddItem('');
-  Menu_Host.OnClick := HostMenuClick;
+  PopUpMenu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_KICK]);
+  PopUpMenu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_BAN]);
+  PopUpMenu_Host.AddItem(gResTexts[TX_LOBBY_PLAYER_SET_HOST]);
+  PopUpMenu_Host.AddItem('');
+  PopUpMenu_Host.OnClick := HostMenuClick;
 
   // Calc max width for popup which depends of texts translation
-  Menu_Joiner := TKMPopUpMenu.Create(aParent, gRes.Fonts[fntGrey].GetMaxPrintWidthOfStrings(
+  PopUpMenu_Joiner := TKMPopUpMenu.Create(aParent, gRes.Fonts[fntGrey].GetMaxPrintWidthOfStrings(
     [gResTexts[TX_MUTE_PLAYER],
      gResTexts[TX_UNMUTE_PLAYER]])
     + 10);
-  Menu_Joiner.AddItem('');
-  Menu_Joiner.OnClick := JoinerMenuClick;
+  PopUpMenu_Joiner.AddItem('');
+  PopUpMenu_Joiner.OnClick := JoinerMenuClick;
 end;
 
 
@@ -807,8 +807,8 @@ end;
 
 procedure TKMMenuLobby.ChatMenuClick(Sender: TObject);
 begin
-  if Menu_Chat.ItemIndex <> -1 then
-    ChatMenuSelect(Menu_Chat.ItemTags[Menu_Chat.ItemIndex]);
+  if PopUpMenu_Chat.ItemIndex <> -1 then
+    ChatMenuSelect(PopUpMenu_Chat.ItemTags[PopUpMenu_Chat.ItemIndex]);
 end;
 
 
@@ -818,31 +818,31 @@ var
   I: Integer;
   n: TKMNetPlayerInfo;
 begin
-  //Populate menu with right options
-  Menu_Chat.Clear;
+  // Populate menu with right options
+  PopUpMenu_Chat.Clear;
 
-  Menu_Chat.AddItem(gResTexts[TX_CHAT_ALL], CHAT_MENU_ALL);
+  PopUpMenu_Chat.AddItem(gResTexts[TX_CHAT_ALL], CHAT_MENU_ALL);
 
-  //Only show "Team" if the player is on a team
+  // Only show "Team" if the player is on a team
   if gNetworking.MyNetPlayer.Team <> 0 then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], CHAT_MENU_TEAM);
+    PopUpMenu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_TEAM], CHAT_MENU_TEAM);
 
-  //Only show "Spectators" if the player is a spectator
+  // Only show "Spectators" if the player is a spectator
   if gNetworking.MyNetPlayer.IsSpectator then
-    Menu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], CHAT_MENU_SPECTATORS);
+    PopUpMenu_Chat.AddItem('[$66FF66]' + gResTexts[TX_CHAT_SPECTATORS], CHAT_MENU_SPECTATORS);
 
   for I := 1 to gNetworking.NetPlayers.Count do
-  if I <> gNetworking.MyIndex then //Can't whisper to yourself
+  if I <> gNetworking.MyIndex then // Can't whisper to yourself
   begin
     n := gNetworking.NetPlayers[I];
 
     if n.IsHuman and n.Connected and not n.Dropped then
-      Menu_Chat.AddItem(n.NicknameColoredU, n.IndexOnServer);
+      PopUpMenu_Chat.AddItem(n.NicknameColoredU, n.IndexOnServer);
   end;
 
   C := TKMControl(Sender);
-  //Position the menu next to the icon, but do not overlap players name
-  Menu_Chat.ShowAt(C.AbsLeft, C.AbsTop - Menu_Chat.Height);
+  // Position the menu next to the icon, but do not overlap players name
+  PopUpMenu_Chat.ShowAt(C.AbsLeft, C.AbsTop - PopUpMenu_Chat.Height);
 end;
 
 
@@ -1223,31 +1223,22 @@ procedure TKMMenuLobby.HostMenuClick(Sender: TObject);
 var
   id: Integer;
 begin
-  //We can't really do global bans because player's IP addresses change all the time (and we have no other way to identify someone).
-  //My idea was for bans to be managed completely by the server, since player's don't actually know each other's IPs.
-  //So the host says "please ban client 3257" and the server adds his IP to the ban list for this room. The ban list
-  //is then reset when the room becomes empty. Maybe we need to call the button "ban from this lobby" instead.
-  //In any way banlist should be editable from within the lobby, so we will need methods to get the list
-  //from the server and allow to remove items from it.
+  // We can't really do global bans because player's IP addresses change all the time (and we have no other way to identify someone).
+  // My idea was for bans to be managed completely by the server, since player's don't actually know each other's IPs.
+  // So the host says "please ban client 3257" and the server adds his IP to the ban list for this room. The ban list
+  // is then reset when the room becomes empty. Maybe we need to call the button "ban from this lobby" instead.
+  // In any way banlist should be editable from within the lobby, so we will need methods to get the list
+  // from the server and allow to remove items from it.
 
   id := gNetworking.NetPlayers.ServerToLocal(TKMControl(Sender).Tag);
-  if id = -1 then Exit; //Player has quit the lobby
+  if id = -1 then Exit; // Player has quit the lobby
 
-  //Kick
-  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 0) then
-    gNetworking.KickPlayer(id);
-
-  //Ban
-  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 1) then
-    gNetworking.BanPlayer(id);
-
-  //Set to host
-  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 2) then
-    gNetworking.SetToHost(id);
-
-  // Mute/Unmute
-  if (Sender = Menu_Host) and (Menu_Host.ItemIndex = 3) then
-    ToggleMutePlayer(id);
+  case PopUpMenu_Host.ItemIndex of
+    0: gNetworking.KickPlayer(id);
+    1: gNetworking.BanPlayer(id);
+    2: gNetworking.SetToHost(id);
+    3: ToggleMutePlayer(id);
+  end;
 end;
 
 
@@ -1256,9 +1247,10 @@ var
   id: Integer;
 begin
   id := gNetworking.NetPlayers.ServerToLocal(TKMControl(Sender).Tag);
-  if id = -1 then Exit; //Player has quit the lobby
+  if id = -1 then Exit; // Player has quit the lobby
+
   // Mute/Unmute
-  if (Sender = Menu_Joiner) and (Menu_Joiner.ItemIndex = 0) then
+  if PopUpMenu_Joiner.ItemIndex = 0 then
     ToggleMutePlayer(id);
 end;
 
@@ -1314,21 +1306,21 @@ begin
   begin
     //Remember which player it is by his server index
     //since order of players can change. If someone above leaves we still have the proper Id
-    Menu_Host.Tag := gNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
+    PopUpMenu_Host.Tag := gNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
-    UpdateMuteMenuItem(Menu_Host, 3, gNetworking.IsMuted(fLocalToNetPlayers[ctrl.Tag]));
+    UpdateMuteMenuItem(PopUpMenu_Host, 3, gNetworking.IsMuted(fLocalToNetPlayers[ctrl.Tag]));
 
     //Position the menu next to the icon, but do not overlap players name
-    Menu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
+    PopUpMenu_Host.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
   end else begin
     //Remember which player it is by his server index
     //since order of players can change. If someone above leaves we still have the proper Id
-    Menu_Joiner.Tag := gNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
+    PopUpMenu_Joiner.Tag := gNetworking.NetPlayers[fLocalToNetPlayers[ctrl.Tag]].IndexOnServer;
 
-    UpdateMuteMenuItem(Menu_Joiner, 0, gNetworking.IsMuted(fLocalToNetPlayers[ctrl.Tag]));
+    UpdateMuteMenuItem(PopUpMenu_Joiner, 0, gNetworking.IsMuted(fLocalToNetPlayers[ctrl.Tag]));
     
     //Position the menu next to the icon, but do not overlap players name
-    Menu_Joiner.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
+    PopUpMenu_Joiner.ShowAt(ctrl.AbsLeft, ctrl.AbsTop + ctrl.Height);
   end;
 end;
 
@@ -1910,12 +1902,12 @@ begin
   for I := 1 to MAX_LOBBY_SLOTS do
     UpdateImageLobbyFlag(I);
 
-  //If PopUp menu was opened, check if player still connected, otherwise - close PopUp menu
-  if Menu_Host.Visible and (gNetworking.NetPlayers.ServerToLocal(Menu_Host.Tag) = -1) then
-    Menu_Host.Hide;
+  // If PopUp menu was opened, check if player still connected, otherwise - close PopUp menu
+  if PopUpMenu_Host.Visible and (gNetworking.NetPlayers.ServerToLocal(PopUpMenu_Host.Tag) = -1) then
+    PopUpMenu_Host.Hide;
 
-  if Menu_Joiner.Visible and (gNetworking.NetPlayers.ServerToLocal(Menu_Joiner.Tag) = -1) then
-    Menu_Joiner.Hide;
+  if PopUpMenu_Joiner.Visible and (gNetworking.NetPlayers.ServerToLocal(PopUpMenu_Joiner.Tag) = -1) then
+    PopUpMenu_Joiner.Hide;
 
   //Update the minimap preview with player colors
   for I := 0 to MAX_HANDS - 1 do

@@ -181,6 +181,9 @@ begin
   fTileset := TKMResTileset.Create;
   if not SKIP_RENDER then
   begin
+    if fSprites.Sprites[rxTiles].RXData.Count <> TILES_CNT then
+      gLog.AddTime('fSprites.Sprites[rxTiles].RXData.Count = ' + IntToStr(fSprites.Sprites[rxTiles].RXData.Count));
+
     tileColors := fSprites.Sprites[rxTiles].GetAverageSpriteColors(TILES_CNT);
     fTileset.SetTileColors(tileColors);
   end;

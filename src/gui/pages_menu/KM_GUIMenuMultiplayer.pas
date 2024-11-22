@@ -420,6 +420,10 @@ begin
   if Sender = Button_MP_PasswordOk then
   begin
     Panel_MPPassword.Hide;
+
+    // Try to enter even with an empty the password
+    // Empty passwords do not exist, but the player may be trying to join a room that has just removed the password requirement
+    // In such case player expects that he can enter with empty password
     gNetworking.SendPassword(AnsiString(Edit_MP_Password.Text));
   end;
   if Sender = Button_MP_PasswordCancel then

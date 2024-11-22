@@ -1019,10 +1019,10 @@ end;
 
 
 //* Version: 6587
-//* Happens when a unit is attacked (shot at by archers or hit in melee).
-//* Attacker is always a warrior (could be archer or melee).
+//* Happens when a unit is attacked (shot at by archers, hit in melee, or shot by a tower).
+//* Attacker can be a warrior, recruit in tower or unknown (-1).
 //* This event will occur very frequently during battles.
-//* aAttacker: Warrior who attacked the unit
+//* aAttacker: Unit who attacked the unit
 procedure TKMScriptEvents.ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
 begin
   if MethodAssigned(evtUnitAttacked) then
