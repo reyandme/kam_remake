@@ -166,7 +166,11 @@ end;
 
 function TKMHouseMarket.GetWareRequired: Integer;
 begin
-  Result := fTradeAmount * RatioFrom - (fMarketDeliveryCount[fResFrom] - fMarketDemandsClosing[fResFrom] + WareToTrade[fResFrom]);
+  // How many wares needed
+  Result := fTradeAmount * RatioFrom          // According to trade ratio
+            - WareToTrade[fResFrom]           // Except what we have already
+            - fMarketDeliveryCount[fResFrom]  // Except already delivering
+            + Max(0, fMarketDemandsClosing[fResFrom] - 1); // But except closing demands (-1 for the possible cancelled one, because of the entering serf)
 end;
 
 
@@ -184,8 +188,18 @@ begin
   begin
     SetWareInCnt(aWare, fMarketWareIn[aWare] + aCount); //Place the new resource in the IN list
 
-    //As we only order 10 resources at one time, we might need to order another now to fill the gap made by the one delivered
-    ordersAllowed := MAX_RES_ORDERED - (fMarketDeliveryCount[fResFrom] - fMarketDemandsClosing[fResFrom]);
+    // As we only order 10 resources at one time, we might need to order another now to fill the gap made by the one delivered
+    //
+    // How many can we order
+    // Consider number of deliveries
+    // Except the deliveries, which are closing
+    // But except 1 closing delivery which possibly could not be cancelled,
+    // since serf is entering the house
+    // There is only serf entering the house at any moment, so 1 is enough for this last exception
+    ordersAllowed := MAX_RES_ORDERED
+                     - fMarketDeliveryCount[fResFrom]               // Consider number of deliveries
+                     + Max(0, fMarketDemandsClosing[fResFrom] - 1); // Except the deliveries, which are closing - possibly not closed one
+                                                                    // But except 1 closing delivery which possibly could not be cancelled, since
 
     Assert(ordersAllowed >= 0); //We must never have ordered more than we are allowed
 
@@ -462,7 +476,16 @@ begin
     end;
   end;
 
-  ordersAllowed := MAX_RES_ORDERED - (fMarketDeliveryCount[fResFrom] - fMarketDemandsClosing[fResFrom]);
+  // How many can we order
+  // Consider number of deliveries
+  // Except the deliveries, which are closing
+  // But except 1 closing delivery which possibly could not be cancelled,
+  // since serf is entering the house
+  // There is only serf entering the house at any moment, so 1 is enough for this last exception
+  ordersAllowed :=  MAX_RES_ORDERED
+                    - fMarketDeliveryCount[fResFrom]                // Consider number of deliveries
+                    + Max(fMarketDemandsClosing[fResFrom] - 1, 0);  // Except the deliveries, which are closing - possibly not closed one
+                                                                    // But except 1 closing delivery which possibly could not be cancelled, since
 
   Assert(ordersAllowed >= 0); //We must never have ordered more than we are allowed
 
