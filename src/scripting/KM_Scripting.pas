@@ -1012,58 +1012,58 @@ function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSIn
 const
   PROCS: array [TKMScriptEventType] of record
     ParamCount: Byte;
-    Typ: array [0..4] of Byte;
-    Dir: array [0..3] of TPSParameterMode;
+    Typ: array [0..5] of Byte;
+    Dir: array [0..4] of TPSParameterMode;
   end = (
     //*Events-Check*//
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnBeacon
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnFieldBuilt
-    (ParamCount: 1; Typ: (0, btSingle, 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGameSpeedChanged
-    (ParamCount: 4; Typ: (0, btS32 , btEnum, btS32 , btEnum); Dir: (pmIn, pmInOut, pmInOut, pmInOut)), // OnGroupBeforeOrderSplit
-    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupHungry
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderAttackHouse
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderAttackUnit
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderLink
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderMove
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderSplit
-    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseAfterDestroyed
-    (ParamCount: 4; Typ: (0, btEnum, btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseAfterDestroyedEx
-    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseBuilt
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseDamaged
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseDestroyed
-    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanDigged
-    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanPlaced
-    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btEnum); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanPlacedEx
-    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanRemoved
-    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btEnum); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHousePlanRemovedEx
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseRepaired
-    (ParamCount: 4; Typ: (0, btS32 , btEnum, btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnHouseWareCountChanged
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnMarketTrade
-    (ParamCount: 3; Typ: (0, btS32 , btEnum, btEnum, 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnMarketTradeEx
-    (ParamCount: 0; Typ: (0, 0     , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnMissionStart
-    (ParamCount: 0; Typ: (0, 0     , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPeacetimeEnd
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanFieldPlaced
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanFieldRemoved
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadDigged
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadPlaced
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadRemoved
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldDigged
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldPlaced
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldRemoved
-    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlayerDefeated
-    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnPlayerVictory
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnRoadBuilt
-    (ParamCount: 0; Typ: (0, 0     , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnTick
-    (ParamCount: 4; Typ: (0, btS32 , btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitAfterDied
-    (ParamCount: 4; Typ: (0, btEnum, btS32 , btS32 , btS32 ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitAfterDiedEx
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitAttacked
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitDied
-    (ParamCount: 1; Typ: (0, btS32 , 0     , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitTrained
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnUnitWounded
-    (ParamCount: 3; Typ: (0, btS32 , btEnum, btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnWareProduced
-    (ParamCount: 2; Typ: (0, btS32 , btS32 , 0     , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnWarriorEquipped
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)), // OnWarriorWalked
-    (ParamCount: 3; Typ: (0, btS32 , btS32 , btS32 , 0     ); Dir: (pmIn, pmIn, pmIn, pmIn)) // OnWinefieldBuilt
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnBeacon
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnFieldBuilt
+    (ParamCount: 1; Typ: (0, btSingle, 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnGameSpeedChanged
+    (ParamCount: 4; Typ: (0, btS32   , btEnum  , btS32   , btEnum  , 0       ); Dir: (pmIn, pmInOut, pmInOut, pmInOut, pmIn)), // OnGroupBeforeOrderSplit
+    (ParamCount: 1; Typ: (0, btS32   , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnGroupHungry
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderAttackHouse
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderAttackUnit
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderLink
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderMove
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnGroupOrderSplit
+    (ParamCount: 4; Typ: (0, btS32   , btS32   , btS32   , btS32   , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHouseAfterDestroyed
+    (ParamCount: 4; Typ: (0, btEnum  , btS32   , btS32   , btS32   , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHouseAfterDestroyedEx
+    (ParamCount: 1; Typ: (0, btS32   , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHouseBuilt
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHouseDamaged
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHouseDestroyed
+    (ParamCount: 1; Typ: (0, btS32   , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHousePlanDigged
+    (ParamCount: 4; Typ: (0, btS32   , btS32   , btS32   , btS32   , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHousePlanPlaced
+    (ParamCount: 4; Typ: (0, btS32   , btS32   , btS32   , btEnum  , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHousePlanPlacedEx
+    (ParamCount: 4; Typ: (0, btS32   , btS32   , btS32   , btS32   , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHousePlanRemoved
+    (ParamCount: 4; Typ: (0, btS32   , btS32   , btS32   , btEnum  , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHousePlanRemovedEx
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHouseRepaired
+    (ParamCount: 4; Typ: (0, btS32   , btEnum  , btS32   , btS32   , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnHouseWareCountChanged
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnMarketTrade
+    (ParamCount: 3; Typ: (0, btS32   , btEnum  , btEnum  , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnMarketTradeEx
+    (ParamCount: 0; Typ: (0, 0       , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnMissionStart
+    (ParamCount: 0; Typ: (0, 0       , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPeacetimeEnd
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlanFieldPlaced
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlanFieldRemoved
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadDigged
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadPlaced
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlanRoadRemoved
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldDigged
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldPlaced
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlanWinefieldRemoved
+    (ParamCount: 1; Typ: (0, btS32   , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlayerDefeated
+    (ParamCount: 1; Typ: (0, btS32   , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnPlayerVictory
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnRoadBuilt
+    (ParamCount: 0; Typ: (0, 0       , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnTick
+    (ParamCount: 4; Typ: (0, btS32   , btS32   , btS32   , btS32   , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitAfterDied
+    (ParamCount: 4; Typ: (0, btEnum  , btS32   , btS32   , btS32   , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitAfterDiedEx
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitAttacked
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitDied
+    (ParamCount: 1; Typ: (0, btS32   , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitTrained
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitWounded
+    (ParamCount: 3; Typ: (0, btS32   , btEnum  , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnWareProduced
+    (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnWarriorEquipped
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnWarriorWalked
+    (ParamCount: 3; Typ: (0, btS32   , btS32   , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)) // OnWinefieldBuilt
     //*Events-Check*//
   );
 var

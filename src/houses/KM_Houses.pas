@@ -187,14 +187,14 @@ type
     procedure CheckTakeOutDeliveryMode; virtual;
     function GetDeliveryModeForCheck(aImmidiate: Boolean): TKMDeliveryMode;
 
-    procedure SetWareDeliveryCount(aIndex: Integer; aCount: Word);
-    function GetWareDeliveryCount(aIndex: Integer): Word;
+    procedure SetWareDeliveryCount(aIndex: Integer; aCount: Integer);
+    function GetWareDeliveryCount(aIndex: Integer): Integer;
 
-    procedure SetWareDemandsClosing(aIndex: Integer; aCount: Word);
-    function GetWareDemandsClosing(aIndex: Integer): Word;
+    procedure SetWareDemandsClosing(aIndex: Integer; aCount: Integer);
+    function GetWareDemandsClosing(aIndex: Integer): Integer;
 
-    property WareDeliveryCnt[aIndex: Integer]: Word read GetWareDeliveryCount write SetWareDeliveryCount;
-    property WareDemandsClosing[aIndex: Integer]: Word read GetWareDemandsClosing write SetWareDemandsClosing;
+    property WareDeliveryCnt[aIndex: Integer]: Integer read GetWareDeliveryCount write SetWareDeliveryCount;
+    property WareDemandsClosing[aIndex: Integer]: Integer read GetWareDemandsClosing write SetWareDemandsClosing;
 
     function GetInstance: TKMHouse; override;
     function GetPositionForDisplayF: TKMPointF; override;
@@ -864,25 +864,29 @@ begin
 end;
 
 
-procedure TKMHouse.SetWareDeliveryCount(aIndex: Integer; aCount: Word);
+// Use aCount: Integer, instead of Word, since we don't want to get Range check error exception
+procedure TKMHouse.SetWareDeliveryCount(aIndex: Integer; aCount: Integer);
 begin
   fWareDeliveryCount[aIndex] := EnsureRange(aCount, 0, High(Word));
 end;
 
 
-function TKMHouse.GetWareDeliveryCount(aIndex: Integer): Word;
+// Use Result Integer, instead of Word, since we don't want to get Range check error exception in the setter
+function TKMHouse.GetWareDeliveryCount(aIndex: Integer): Integer;
 begin
   Result := fWareDeliveryCount[aIndex];
 end;
 
 
-procedure TKMHouse.SetWareDemandsClosing(aIndex: Integer; aCount: Word);
+// Use aCount: Integer, instead of Word, since we don't want to get Range check error exception
+procedure TKMHouse.SetWareDemandsClosing(aIndex: Integer; aCount: Integer);
 begin
   fWareDemandsClosing[aIndex] := EnsureRange(aCount, 0, High(Word));
 end;
 
 
-function TKMHouse.GetWareDemandsClosing(aIndex: Integer): Word;
+// Use Result Integer, instead of Word, since we don't want to get Range check error exception in the setter
+function TKMHouse.GetWareDemandsClosing(aIndex: Integer): Integer;
 begin
   Result := fWareDemandsClosing[aIndex];
 end;

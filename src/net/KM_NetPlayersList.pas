@@ -831,7 +831,7 @@ var
   I: Integer;
 begin
   Result := True;
-  for I:=1 to fCount do
+  for I := 1 to fCount do
     if fNetPlayers[I].Connected and fNetPlayers[I].IsHuman then
       Result := Result and fNetPlayers[I].ReadyToReturnToLobby;
 end;
@@ -840,21 +840,22 @@ end;
 function TKMNetPlayersList.GetMaxHighestRoundTripLatency: Word;
 var
   I: Integer;
-  highest, highest2, playerPing: Word;
+  worstPing1, worstPing2, newPing: Word;
 begin
-  highest := 0;
-  highest2 := 0;
+  worstPing1 := 0;
+  worstPing2 := 0;
   for I := 1 to fCount do
     if fNetPlayers[I].Connected and fNetPlayers[I].IsHuman then
     begin
-      playerPing := fNetPlayers[I].GetMaxPing;
-      if playerPing > highest then
-        highest := playerPing
+      newPing := fNetPlayers[I].GetMaxPing;
+
+      if newPing > worstPing1 then
+        worstPing1 := newPing
       else
-        if playerPing > highest2 then
-          highest2 := playerPing;
+        if newPing > worstPing2 then
+          worstPing2 := newPing;
     end;
-  Result := min(highest + highest2, High(Word));
+  Result := Min(worstPing1 + worstPing2, High(Word));
 end;
 
 

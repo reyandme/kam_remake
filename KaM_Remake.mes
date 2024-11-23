@@ -115,7 +115,7 @@ FormatDisassembly=0
 LimitDisassembly=20
 EnabledPlugins=modules|hardware
 [Filters]
-Filter1ExceptionClasses=
+Filter1ExceptionClasses=EGameInitError
 Filter1DontCreateBugReport=0
 Filter1DontCreateScreenshot=0
 Filter1DontSuspendThreads=0

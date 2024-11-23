@@ -710,11 +710,17 @@ begin
 
   with fQueue[aI] do
   begin
-    if (DemandID = DELIVERY_NO_ID) or (DemandWare = wtNone) then Exit;
-    if (OfferID = DELIVERY_NO_ID) or (OfferWare = wtNone) then Exit;
+    if (DemandID = DELIVERY_NO_ID) and ((OfferID = DELIVERY_NO_ID)) then Exit;
+    if (DemandWare = wtNone) and (OfferWare = wtNone) then Exit;
 
-    if not fDemand[DemandWare, DemandID].IsActive
-      or not fOffer[OfferWare, OfferID].IsActive then Exit;
+    if (DemandID <> DELIVERY_NO_ID)
+      and (DemandWare <> wtNone)
+      and not fDemand[DemandWare, DemandID].IsActive then
+      Exit;
+
+    if (OfferID <> DELIVERY_NO_ID)
+      and (OfferWare <> wtNone)
+      and not fOffer[OfferWare, OfferID].IsActive then Exit;
 
     if Node = nil then
       Node := FormLogistics.VSTDeliveries.AddChild(nil); //Add to root
