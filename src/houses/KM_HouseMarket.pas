@@ -427,6 +427,7 @@ begin
   // (but it will be decreased anyway in the WareAddToIn for market)
   if not aDeleteCanceled then
     fMarketDeliveryCount[aWare] := Max(0, fMarketDeliveryCount[aWare] - 1);
+
   fMarketDemandsClosing[aWare] := Max(0, fMarketDemandsClosing[aWare] - 1);
 
   Result := True;
@@ -595,6 +596,7 @@ begin
   resInStr := '';
   resOutStr := '';
   deliveryCntStr := '';
+  demandsCloseStr := '';
 
   for WT := WARE_MIN to WARE_MAX do
   begin
