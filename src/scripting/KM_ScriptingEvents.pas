@@ -167,6 +167,7 @@ type
   TKMScriptEventProc2I = procedure (aIndex, aParam: Integer) of object;
   TKMScriptEventProc3I = procedure (aIndex, aParam1, aParam2: Integer) of object;
   TKMScriptEventProc4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
+  TKMScriptEventProc5I = procedure (aIndex, aParam1, aParam2, aParam3, aParam4: Integer) of object;
   TKMScriptEventProc1S = procedure (aParam: Single) of object;
 
   TKMScriptBeforeOrderSplitEvent = procedure (aIndex: Integer; var aParam1: TKMUnitType; var aParam2: Integer; var aParam3: Boolean) of object;
@@ -546,6 +547,7 @@ begin
       2: TKMScriptEventProc2I(aProc.Handler)(aIntParams[0], aIntParams[1]);
       3: TKMScriptEventProc3I(aProc.Handler)(aIntParams[0], aIntParams[1], aIntParams[2]);
       4: TKMScriptEventProc4I(aProc.Handler)(aIntParams[0], aIntParams[1], aIntParams[2], aIntParams[3]);
+      5: TKMScriptEventProc5I(aProc.Handler)(aIntParams[0], aIntParams[1], aIntParams[2], aIntParams[3], aIntParams[4]);
       else raise Exception.Create('Unexpected Length(aParams)');
     end;
   except
