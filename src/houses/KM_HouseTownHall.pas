@@ -312,7 +312,7 @@ const
 var
   goldToOrder, ordersRemoved, plannedToRemove, deliveringGold: Integer;
 begin
-  deliveringGold := GoldDeliveryCnt - GoldDemandsClosing;
+  deliveringGold := GoldDeliveryCnt - GoldDemandsClosing; // We might consider here, same as in Market: GoldDeliveryCnt - Max(0, GoldDemandsClosing - 1);
   goldToOrder := Min(MAX_GOLD_DEMANDS - (deliveringGold - fGoldCnt), fGoldMaxCnt - deliveringGold);
   if goldToOrder > 0 then
   begin
