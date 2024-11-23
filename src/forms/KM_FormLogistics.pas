@@ -395,16 +395,6 @@ begin
   badFromID := False;
 
   try
-    for I := 0 to clbHandsFilter.Items.Count - 1 do
-      if (clbHandsFilter.State[I] = cbChecked) and (I = data.HandID) then
-      begin
-        badHand := False;
-        Break;
-      end;
-
-    // Continue AFAP
-    if badHand then Exit;
-
     if cbFromID.Enabled and cbFromID.Checked then
     begin
       VSTGetText(aVST, aNode, GetFromColumn(aVST.Kind), ttNormal, cellText);
@@ -425,6 +415,16 @@ begin
       else
         badToID := True;
     end;
+
+    // Continue AFAP
+    if badToID then Exit;
+
+    for I := 0 to clbHandsFilter.Items.Count - 1 do
+      if (clbHandsFilter.State[I] = cbChecked) and (I = data.HandID) then
+      begin
+        badHand := False;
+        Break;
+      end;
   finally
     aVST.IsFiltered[aNode] := badHand or badToID or badFromID;
   end;
