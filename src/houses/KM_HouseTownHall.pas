@@ -132,8 +132,9 @@ function TKMHouseTownHall.TryDecWareDelivery(aWare: TKMWareType; aDeleteCanceled
 begin
   Assert(GoldDemandsClosing > 0);
 
+  // If there was no delivery (it was cancelled)
   if not aDeleteCanceled then
-    GoldDeliveryCnt := GoldDeliveryCnt - 1;
+    GoldDeliveryCnt := GoldDeliveryCnt - 1; // No delivery => reduce DeliveryCnt
   GoldDemandsClosing := GoldDemandsClosing - 1;
 
   Result := True;
