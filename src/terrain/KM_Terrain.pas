@@ -258,7 +258,7 @@ type
     function TileHasRoad(const aLoc: TKMPoint): Boolean; overload; inline;
     function TileHasRoad(X,Y: Integer): Boolean; overload; inline;
 
-    function UnitsHitTest(X, Y: Word): Pointer;
+    function UnitsHitTest(X, Y: Integer): Pointer;
     function UnitsHitTestF(const aLoc: TKMPointF): Pointer;
     function UnitsHitTestWithinRad(const aLoc: TKMPoint; aMinRad, aMaxRad: Single; aPlayer: TKMHandID; aAlliance: TKMAllianceType;
                                    aDir: TKMDirection; const aClosest: Boolean; aTestDiagWalkable: Boolean = True): Pointer;
@@ -1870,7 +1870,7 @@ end;
 // Check if there's unit on the tile
 // Note that IsUnit refers to where unit started walking to, not the actual unit position
 // (which is what we used in unit interaction), so check all 9 tiles to get accurate result
-function TKMTerrain.UnitsHitTest(X,Y: Word): Pointer;
+function TKMTerrain.UnitsHitTest(X,Y: Integer): Pointer;
 var
   I, K: Integer;
   U: TKMUnit;

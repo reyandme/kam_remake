@@ -14,7 +14,7 @@ uses
 
   function IfThenS(aCondition: Boolean; const aIfTrue, aIfFalse: String): String;
 
-  function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
+  function GetPositionInGroup2(OriginX, OriginY: Integer; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Integer; out aTargetCanBeReached: Boolean): TKMPoint;
   function GetPositionFromIndex(const aOrigin: TKMPoint; aIndex: Byte): TKMPoint;
 
   function FixDelim(const aString: UnicodeString): UnicodeString;
@@ -606,7 +606,7 @@ end;
 {Returns point where unit should be placed regarding direction & offset from Commanders position}
 // 23145     231456
 // 6789X     789xxx
-function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
+function GetPositionInGroup2(OriginX, OriginY: Integer; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Integer; out aTargetCanBeReached: Boolean): TKMPoint;
 const
   DirAngle: array [TKMDirection] of Word   = (0, 0, 45, 90, 135, 180, 225, 270, 315);
   DirRatio: array [TKMDirection] of Single = (0, 1, 1.41, 1, 1.41, 1, 1.41, 1, 1.41);
