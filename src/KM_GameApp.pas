@@ -744,10 +744,11 @@ begin
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
       loadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [filePath]) + '||' + E.ClassName + ': ' + E.Message;
-      StopGame(grError, loadError);
+      // Log the error first, because we can crash while stopping the game
       gLog.AddTime('Game creation Exception: ' + loadError
         {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
         );
+      StopGame(grError, loadError);
       Exit;
     end;
   end;
