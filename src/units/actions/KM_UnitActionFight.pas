@@ -385,7 +385,7 @@ begin
   Result := inherited ObjToStringShort(aSeparator) +
             Format('%sopponent = [%s]%svertexOccupied = %s',
                    [aSeparator,
-                    fOpponent.ObjToStringShort(aSeparator), aSeparator,
+                    fOpponent.ObjToStringBasic(aSeparator), aSeparator,
                     fVertexOccupied.ToString]);
 end;
 
@@ -395,7 +395,7 @@ begin
   Result := inherited ObjToString(aSeparator) +
             Format('%sopponent = [%s]%svertexOccupied = %s',
                    [aSeparator,
-                    fOpponent.ObjToStringShort(aSeparator), aSeparator,
+                    fOpponent.ObjToStringBasic(aSeparator), aSeparator,
                     fVertexOccupied.ToString]);
 end;
 
