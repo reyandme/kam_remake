@@ -914,7 +914,7 @@ begin
             fOnLoadProgress(Self);
             fOnAddDone(Self);
           end;
-        until (FindNext(searchRec) <> 0);
+        until (FindNext(searchRec) <> 0) or Terminated;
       finally
         FindClose(searchRec);
       end;
