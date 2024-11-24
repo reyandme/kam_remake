@@ -1745,7 +1745,7 @@ end;
 
 procedure TKMemoryStreamBinary.ReadW(out Value: UnicodeString);
 var
-  I: Word;
+  I: Integer;
 begin
   Read(I, SizeOf(I));
   SetLength(Value, I);
@@ -1756,7 +1756,7 @@ end;
 
 procedure TKMemoryStreamBinary.WriteW(const Value: UnicodeString);
 var
-  I: Word;
+  I: Cardinal;
 begin
   I := Length(Value);
   inherited Write(I, SizeOf(I));
