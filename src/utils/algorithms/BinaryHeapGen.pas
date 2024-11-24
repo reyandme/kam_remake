@@ -15,8 +15,8 @@ type
     fCount: Integer;
     fItems: array of T;
     fCmp: TComparator<T>;
-    procedure _siftdown(startpos, pos: SmallInt);
-    procedure _siftup(pos: SmallInt);
+    procedure _siftdown(startpos, pos: Integer);
+    procedure _siftup(pos: Integer);
   public
     constructor Create(aSize: Cardinal; aCmp: TComparator<T>);
     destructor Destroy; override;
@@ -137,9 +137,10 @@ begin
 end;
 
 
-procedure TObjectBinaryHeap<T>._siftdown(startpos, pos: SmallInt);
-var newitem, parent: T;
-  parentpos: SmallInt;
+procedure TObjectBinaryHeap<T>._siftdown(startpos, pos: Integer);
+var
+  newitem, parent: T;
+  parentpos: Integer;
 begin
     newitem := fItems[pos];
     while (pos > startpos) do
@@ -158,8 +159,9 @@ begin
 end;
 
 
-procedure TObjectBinaryHeap<T>._siftup(pos: SmallInt);
-var childpos, endpos, rightpos, startpos: SmallInt;
+procedure TObjectBinaryHeap<T>._siftup(pos: Integer);
+var
+  childpos, endpos, rightpos, startpos: Integer;
   newitem: T;
 begin
     endpos := fCount;
