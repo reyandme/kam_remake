@@ -1497,7 +1497,7 @@ function TKMapsCollection.GetMap(aIndex: Integer): TKMMapInfo;
 begin
   //No point locking/unlocking here since we return a TObject that could be modified/freed
   //by another thread before the caller uses it.
-  Assert(InRange(aIndex, 0, fCount - 1));
+  Assert(InRange(aIndex, 0, fCount - 1), 'aIndex = ' + IntToStr(aIndex) + ' fCount = ' + IntToStr(fCount));
   Result := fMaps[aIndex];
 end;
 
