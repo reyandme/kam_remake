@@ -391,7 +391,10 @@ begin
     else
       fileName := GetFullDestFileName(fType, fName, postfix, ext);
 
-    Assert(not FileExists(fileName), 'Transfer file already exists');
+    // Sometimes the file is not deleted yet. Probably OS glitches
+    if FileExists(fileName) then
+      KMDeleteFile(fileName);
+
     fileStream.SaveToFile(fileName);
     fileStream.Free;
   end;
