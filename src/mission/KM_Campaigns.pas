@@ -290,6 +290,7 @@ begin
           if hasScriptData then
           begin
             M.Read(scriptDataSize);
+            gLog.AddTime('scriptDataSize = ' + IntToStr(scriptDataSize));
             camp.ScriptDataStream.Write(Pointer(NativeUInt(M.Memory) + M.Position)^, scriptDataSize);
             M.Seek(scriptDataSize, soCurrent); //Seek past script data
           end;
