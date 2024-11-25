@@ -98,6 +98,7 @@ type
     procedure EventHousePlanPlaced(aPlayer: TKMHandID; aX, aY: Integer; aType: TKMHouseType);
     procedure EventHousePlanRemoved(aPlayer: TKMHandID; aX, aY: Integer; aType: TKMHouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
+    procedure ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aNewMode: Integer);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TKMHandID);
     procedure ProcHouseFlagPointChanged(aHouse: TKMHouse; aOldX, aOldY, aNewX, aNewY: Integer);
     procedure ProcHouseRepaired(aHouse: TKMHouse; aRepairAmount, aDamage: Integer);
@@ -134,6 +135,7 @@ type
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
     procedure ProcWarriorWalked(aUnit: TKMUnit; aToX, aToY: Integer);
     procedure ProcWinefieldBuilt(aPlayer: TKMHandID; aX, aY: Integer);
+    procedure ProcWoodcuttersModeChanged(aHouse: TKMHouse; aNewMode: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -695,6 +697,16 @@ begin
   end;
 end;
 
+//* Version: X
+//* Occurs when a house delivery mode changed.
+procedure TKMScriptEvents.ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aNewMode: Integer);
+begin
+  if MethodAssigned(evtHouseDeliveryModeChanged) then
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    CallEventHandlers(evtHouseDeliveryModeChanged, [aHouse.UID, aNewMode]);
+  end;
+end;
 
 //* Version: 5407
 //* Occurs when a house is destroyed.
@@ -1234,6 +1246,16 @@ begin
   end;
 end;
 
+//* Version: X
+//* Occurs when woodcutters mode changed.
+procedure TKMScriptEvents.ProcWoodcuttersModeChanged(aHouse: TKMHouse; aNewMode: Integer);
+begin
+  if MethodAssigned(evtWoodcuttersModeChanged) then
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    CallEventHandlers(evtWoodcuttersModeChanged, [aHouse.UID, aNewMode]);
+  end;
+end;
 
 { TKMScriptEntity }
 constructor TKMScriptEntity.Create(aIDCache: TKMScriptingIdCache);

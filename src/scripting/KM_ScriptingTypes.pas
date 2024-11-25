@@ -21,6 +21,7 @@ type
     evtHouseAfterDestroyedEx,
     evtHouseBuilt,
     evtHouseDamaged,
+    evtHouseDeliveryModeChanged,
     evtHouseDestroyed,
     evtHouseFlagPointChanged,
     evtHousePlanDigged,
@@ -55,7 +56,8 @@ type
     evtWareProduced,
     evtWarriorEquipped,
     evtWarriorWalked,
-    evtWinefieldBuilt
+    evtWinefieldBuilt,
+    evtWoodcuttersModeChanged
     //*Events-Reg*//
   );
 

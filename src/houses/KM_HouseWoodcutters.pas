@@ -31,7 +31,7 @@ type
 
 implementation
 uses
-  SysUtils, TypInfo;
+  SysUtils, TypInfo, KM_ScriptingEvents;
 
 
 { TKMHouseWoodcutters }
@@ -88,6 +88,7 @@ begin
     ResourceDepleted := False;
 
   fWoodcutterMode := aWoodcutterMode;
+  gScriptEvents.ProcWoodcuttersModeChanged(Self, ord(fWoodcutterMode));
 end;
 
 

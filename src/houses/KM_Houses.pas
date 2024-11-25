@@ -912,6 +912,7 @@ begin
 
   fUpdateDeliveryModeOnTick := 0;
   fDeliveryMode := fNewDeliveryMode;
+  gScriptEvents.ProcHouseDeliveryModeChanged(Self, ord(fDeliveryMode));
   gLog.LogDelivery('DeliveryMode updated to ' + IntToStr(Ord(fDeliveryMode)));
 end;
 
