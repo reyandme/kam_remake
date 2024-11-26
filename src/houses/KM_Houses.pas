@@ -904,6 +904,8 @@ end;
 
 
 procedure TKMHouse.UpdateDeliveryMode;
+var
+  oldDeliveryMode: TKMDeliveryMode;
 begin
   if fNewDeliveryMode = fDeliveryMode then
     Exit;
@@ -911,8 +913,9 @@ begin
   CheckTakeOutDeliveryMode;
 
   fUpdateDeliveryModeOnTick := 0;
+  oldDeliveryMode := fDeliveryMode;
   fDeliveryMode := fNewDeliveryMode;
-  gScriptEvents.ProcHouseDeliveryModeChanged(Self, ord(fDeliveryMode));
+  gScriptEvents.ProcHouseDeliveryModeChanged(Self, oldDeliveryMode, fDeliveryMode);
   gLog.LogDelivery('DeliveryMode updated to ' + IntToStr(Ord(fDeliveryMode)));
 end;
 

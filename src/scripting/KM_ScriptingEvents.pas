@@ -7,7 +7,7 @@ uses
   Classes, Math, SysUtils, StrUtils, uPSRuntime, uPSDebugger, uPSPreProcessor,
   KM_Defaults, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_ScriptingConsoleCommands,
   KM_UnitGroup, KM_ResHouses, KM_ResWares, KM_ScriptingTypes, KM_CommonClasses,
-  KM_ResTypes;
+  KM_ResTypes, KM_HouseWoodcutters;
 
 
 const
@@ -98,7 +98,7 @@ type
     procedure EventHousePlanPlaced(aPlayer: TKMHandID; aX, aY: Integer; aType: TKMHouseType);
     procedure EventHousePlanRemoved(aPlayer: TKMHandID; aX, aY: Integer; aType: TKMHouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
-    procedure ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aNewMode: Integer);
+    procedure ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aOldMode: TKMDeliveryMode; aNewMode: TKMDeliveryMode);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TKMHandID);
     procedure ProcHouseFlagPointChanged(aHouse: TKMHouse; aOldX, aOldY, aNewX, aNewY: Integer);
     procedure ProcHouseRepaired(aHouse: TKMHouse; aRepairAmount, aDamage: Integer);
@@ -135,7 +135,7 @@ type
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
     procedure ProcWarriorWalked(aUnit: TKMUnit; aToX, aToY: Integer);
     procedure ProcWinefieldBuilt(aPlayer: TKMHandID; aX, aY: Integer);
-    procedure ProcWoodcuttersModeChanged(aHouse: TKMHouse; aNewMode: Integer);
+    procedure ProcWoodcuttersModeChanged(aHouse: TKMHouse; aOldMode: TKMWoodcutterMode; aNewMode: TKMWoodcutterMode);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -699,12 +699,12 @@ end;
 
 //* Version: X
 //* Occurs when a house delivery mode changed.
-procedure TKMScriptEvents.ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aNewMode: Integer);
+procedure TKMScriptEvents.ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aOldMode: TKMDeliveryMode; aNewMode: TKMDeliveryMode);
 begin
   if MethodAssigned(evtHouseDeliveryModeChanged) then
   begin
     fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
-    CallEventHandlers(evtHouseDeliveryModeChanged, [aHouse.UID, aNewMode]);
+    CallEventHandlers(evtHouseDeliveryModeChanged, [aHouse.UID, ord(aOldMode), ord(aNewMode)]);
   end;
 end;
 
@@ -1248,12 +1248,12 @@ end;
 
 //* Version: X
 //* Occurs when woodcutters mode changed.
-procedure TKMScriptEvents.ProcWoodcuttersModeChanged(aHouse: TKMHouse; aNewMode: Integer);
+procedure TKMScriptEvents.ProcWoodcuttersModeChanged(aHouse: TKMHouse; aOldMode: TKMWoodcutterMode; aNewMode: TKMWoodcutterMode);
 begin
   if MethodAssigned(evtWoodcuttersModeChanged) then
   begin
     fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
-    CallEventHandlers(evtWoodcuttersModeChanged, [aHouse.UID, aNewMode]);
+    CallEventHandlers(evtWoodcuttersModeChanged, [aHouse.UID, ord(aOldMode), ord(aNewMode)]);
   end;
 end;
 
