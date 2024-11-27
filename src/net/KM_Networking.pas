@@ -253,7 +253,7 @@ uses
   Math, StrUtils,
   KM_NetworkConsts, KM_Sound, KM_Log, KM_CommonUtils, KM_HandsCollection, KM_Hand,
   KM_System, KM_GameApp, KM_GameSettings,
-  KM_Resource, KM_ResSound, KM_ResTexts;
+  KM_Resource, KM_ResSound, KM_ResTexts, KM_NetworkUtils;
 
 
 { TKMNetworking }
@@ -1697,7 +1697,7 @@ begin
       mkServerName:
               begin
                 M.ReadA(tmpStringA);
-                fServerName := tmpStringA;
+                fServerName := TKMNetworkUtils.GetEscapedNewLineServerName(tmpStringA);
               end;
 
       mkIndexOnServer:

@@ -142,7 +142,7 @@ type
 implementation
 uses
   SysUtils,
-  KM_Defaults, KM_CommonUtils;
+  KM_Defaults, KM_CommonUtils, KM_NetworkUtils;
 
 
 { TKMRoomList }
@@ -220,7 +220,7 @@ end;
 procedure TKMServerList.AddServer(const aIP, aName: string; aPort: Word; aType: TKMServerType; aPing: Word);
 begin
   if Length(fServers) <= fCount then SetLength(fServers, fCount+16);
-  fServers[fCount].Name := aName;
+  fServers[fCount].Name := TKMNetworkUtils.GetEscapedNewLineServerName(aName + '|');
   fServers[fCount].IP := aIP;
   fServers[fCount].Port := aPort;
   fServers[fCount].ServerType := aType;
