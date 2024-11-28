@@ -1061,6 +1061,7 @@ const
     (ParamCount: 4; Typ: (0, btEnum  , btS32   , btS32   , btS32   , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitAfterDiedEx
     (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitAttacked
     (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitDied
+    (ParamCount: 1; Typ: (0, btS32   , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitDismissed
     (ParamCount: 1; Typ: (0, btS32   , 0       , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitTrained
     (ParamCount: 2; Typ: (0, btS32   , btS32   , 0       , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnUnitWounded
     (ParamCount: 3; Typ: (0, btS32   , btEnum  , btS32   , 0       , 0       ); Dir: (pmIn, pmIn, pmIn, pmIn, pmIn)), // OnWareProduced

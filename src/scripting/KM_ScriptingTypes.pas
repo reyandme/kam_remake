@@ -51,6 +51,7 @@ type
     evtUnitAfterDiedEx,
     evtUnitAttacked,
     evtUnitDied,
+    evtUnitDismissed,
     evtUnitTrained,
     evtUnitWounded,
     evtWareProduced,

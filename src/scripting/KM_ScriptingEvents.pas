@@ -129,6 +129,7 @@ type
     procedure EventUnitAfterDied(aUnitType: TKMUnitType; aOwner: TKMHandID; aX, aY: Integer);
     procedure ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
     procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TKMHandID);
+    procedure ProcUnitDismissed(aUnit: TKMUnit);
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
     procedure ProcWareProduced(aHouse: TKMHouse; aWareType: TKMWareType; aCount: Integer);
@@ -697,7 +698,7 @@ begin
   end;
 end;
 
-//* Version: X
+//* Version: 15250
 //* Occurs when a house delivery mode changed.
 procedure TKMScriptEvents.ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aOldMode: TKMDeliveryMode; aNewMode: TKMDeliveryMode);
 begin
@@ -1015,6 +1016,19 @@ begin
   end;
 end;
 
+//* Version: 15250
+//* Occurs when a unit is dissmised.
+//* Called just before the unit is dissmised so UnitID is usable only during this event,
+//* and the tile occupied by the unit is still taken.
+procedure TKMScriptEvents.ProcUnitDismissed(aUnit: TKMUnit);
+begin
+  if MethodAssigned(evtUnitDismissed) then
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    CallEventHandlers(evtUnitDismissed, [aUnit.UID]);
+  end;
+end;
+
 
 //* Version: 6114
 //* Occurs after a unit has died and has been completely removed from the game, meaning the tile it previously occupied can be used.
@@ -1246,7 +1260,7 @@ begin
   end;
 end;
 
-//* Version: X
+//* Version: 15250
 //* Occurs when woodcutters mode changed.
 procedure TKMScriptEvents.ProcWoodcuttersModeChanged(aHouse: TKMHouse; aOldMode: TKMWoodcutterMode; aNewMode: TKMWoodcutterMode);
 begin
