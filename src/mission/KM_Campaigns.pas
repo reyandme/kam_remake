@@ -171,8 +171,11 @@ uses
   SysUtils, Math, KromUtils,
   KM_GameParams,
   KM_Resource, KM_ResLocales, KM_ResSprites, KM_ResTypes,
-  KM_Log, KM_Defaults, KM_CommonUtils, KM_FileIO;
-
+  KM_Log, KM_Defaults, KM_CommonUtils, KM_FileIO, KM_Sort
+  {$IFDEF FPC}
+  , Generics.Defaults
+  {$ENDIF}
+  ;
 
 const
   CAMP_HEADER_V1 = $FEED; //Just some header to separate right progress files from wrong
@@ -208,28 +211,45 @@ begin
 end;
 
 
-procedure TKMCampaignsCollection.SortCampaigns;
-
-  //Return True if items should be exchanged
-  function Compare(A, B: TKMCampaign): Boolean;
-  begin
-    //TSK is first
-    if      A.ShortName = 'TSK' then Result := False
-    else if B.ShortName = 'TSK' then Result := True
-    //TPR is second
-    else if A.ShortName = 'TPR' then Result := False
-    else if B.ShortName = 'TPR' then Result := True
-    //Others are left in existing order (alphabetical)
-    else                            Result := False;
-  end;
-
+// Return True if A is considered less (<) than B, False otherwise
+function TKMCampaignComparator(constref A, B: TKMCampaign): Boolean;
 var
-  I, K: Integer;
+  aPrio, bPrio: Integer;
 begin
-  for I := 0 to Count - 1 do
-    for K := I to Count - 1 do
-      if Compare(Campaigns[I], Campaigns[K]) then
-        SwapInt(NativeUInt(fList.List[I]), NativeUInt(fList.List[K]));
+  // TSK goes first
+  if      A.ShortName = 'TSK' then aPrio := 0
+  // TPR goes second
+  else if A.ShortName = 'TPR' then aPrio := 1
+  // Others go lexicographically sorted
+  else                             aPrio := 2;
+
+  if      B.ShortName = 'TSK' then bPrio := 0
+  else if B.ShortName = 'TPR' then bPrio := 1
+  else                             bPrio := 2;
+
+  Result := (aPrio < bPrio)
+             or ((2 = aPrio) and (aPrio = bPrio) and (A.ShortName < B.ShortName));
+end;
+
+
+{$IFDEF Unix}
+// Return Negative if A < B, Positive if B < A, 0 otherwise
+function TKMCampaignComparatorThreeWay(constref A, B: TKMCampaign): LongInt;
+begin
+  if      (TKMCampaignComparator(A, B)) then Result := -1
+  else if (TKMCampaignComparator(B, A)) then Result := +1
+  else                                       Result :=  0;
+end;
+{$ENDIF}
+
+
+procedure TKMCampaignsCollection.SortCampaigns;
+begin
+  {$IFNDEF Unix}
+  SelectionSort<TKMCampaign>(fList, 0, Count - 1, @TKMCampaignComparator);
+  {$ELSE}
+  fList.Sort(@TKMCampaignComparatorThreeWay);
+  {$ENDIF}
 end;
 
 
