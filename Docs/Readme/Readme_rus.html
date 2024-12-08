@@ -1,230 +1,356 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>Readme for KaM Remake</title>
-	</head>
-
-	<body>
-		<div align="center">
-<table border="0" width="80%" cellspacing="0" cellpadding="0">
-	<tr>
-		<td>
-<p align="center"><font face="Calibri"><font size="+3">Knights and Merchants Remake</font><br>
-Brought to you by Krom, Lewin and Rey</font></p>
-<hr>
-<p align="center"><font face="Calibri">Содержание документа: <br>
-<a href="#Description">Описание</a> ·
-<a href="#System_Requirements">Системные требования</a> ·
-<a href="#Installing">Установка</a> ·
-<a href="#Gameplay">Игра</a> ·
-<a href="#F_A_Q_">F.A.Q.</a> ·
-<a href="#Known_bugs">Известные ошибки и неточности</a> ·
-<a href="#Server">Выделенный сервер</a> ·
-<a href="#Feedback">Отзывы</a> ·
-<a href="#Source">Исходные коды</a> ·
-<a href="#Credits">Создатели</a> ·
-<a href="#Legal">Правовые обязательства</a></font></p><hr>
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0318.gif"></td>
-			<td><b><font size="+2" face="Calibri">&nbsp;<a name="Description">Описание</a></font></b></td>
-		</tr>
-	</table>
-</blockquote>
-<p><font face="Calibri">KaM Remake (мы еще не придумали красивое название)&nbsp;— это попытка оживить оригинальную стратегическую игру &quot;Knights and Merchants: The Shattered Kingdom&quot; (далее&nbsp;— просто &quot;КаМ&quot;). Наши цели&nbsp;— сделать игру работоспособной на современных компьютерах, а также исправить множество ошибок в движке игры. Для того, чтобы это сделать, мы начали «с нуля»; писать свой движок, полагаясь на оригинальные файлы ресурсов игры. Это наша публичная технологическая демо-версия, показывающая экономическую и военную стороны игры, далее называемая «игра» или &quot;KaM Remake&quot;. Наша цель&nbsp;—
-продемонстрировать потенциал и получить отклик по функциональности игры. Все использованные ресурсы взяты из КаМ (графика, музыка, звуки, и т.&nbsp;п.) и используются только для разработки и отладки. Финальная версия не будет включать в себя никаких защищенных авторских ресурсов.<br>
-Мы полагаем, что вы обладаете лицензионной версией КаМ, иначе вам следует ее приобрести&nbsp;— ее можно купить в ряде онлайн-магазинов.<br>
-Исполняемый файл KaM Remake доступен для свободного распространения и сделан энтузиастами. Использованные приложения: Delphi 10.3 Rio, FastMM4, Lazarus, LNet, OpenGL, OpenAL, Overbyte ICS, PNGImage, zLib, madExcept, libZPlay.</font><BR>&nbsp;</p>
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0310.gif"></td>
-			<td><b><font size="+2" face="Calibri">&nbsp;<a name="System_Requirements">Системные требования</a></font></b></td>
-		</tr>
-	</table>
-</blockquote>
-<p><font face="Calibri">KaM Remake требуется:<br>
-&nbsp;&nbsp;&nbsp; — Операционная система: Microsoft Windows 98/XP/Vista/7/8 или 10;<br>
-&nbsp;&nbsp;&nbsp; — Процессор 500MHz или выше;<br>
-&nbsp;&nbsp;&nbsp; — 256 MB оперативной памяти;<br>
-&nbsp;&nbsp;&nbsp; — 3D ускоритель с поддержкой OpenGL версии 1.4 или выше;<br>
-&nbsp;&nbsp;&nbsp; — Звуковая карта.<br>
-&nbsp;</font></p>
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0303.gif"></td>
-			<td><b><font size="+2" face="Calibri">&nbsp;<a name="Installing">Установка</a></font></b></td>
-		</tr>
-	</table>
-</blockquote>
-<p><font face="Calibri">
-<b>1.</b> Запустите мастер установки игры и следуйте его инструкциям.<br>
-<b>2.</b> Мастер установки также включает в себя аудиодрайвера OpenAL (<b>oalinst.exe</b>), которые вам также следует установить, для игры в KaM Remake. Свежую версию драйверов вы можете скачать с официального сайта OpenAL: <a href="http://connect.creativelabs.com/openal/default.aspx">http://connect.creativelabs.com/openal/default.aspx</a>.<br>
-<b>3.</b> KaM Remake использует OpenGL для вывода графики, так что вам также может потребоваться установить последние графические драйвера от производителя вашей видеокарты.<br>
-<b>4.</b> Запустите мод&nbsp;— KaM_Remake.exe.<br>&nbsp;</font></p>
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0312.gif"></td>
-			<td><b><font size="+2" face="Calibri">&nbsp;<a name="Gameplay">Игра</a></font></b></td>
-		</tr>
-	</table>
-</blockquote>
-<p>
-<font face="Calibri">
-<b>В игре доступны следующие клавиатурные сокращения:</b><br>
-<b>Esc</b>&nbsp;— закрыть открытое сообщение, или открытый раздел игрового меню<br>
-<b>F1-F4</b>&nbsp;— открыть соответствующий раздел игрового меню<br>
-<b>F5-F8</b>&nbsp;— увеличить скорость игры в 10 раз<br>
-<b>F11</b>&nbsp;— показать меню и отладочную панель<br>
-<b>1-9</b>&nbsp;— выбрать здание или воина, назначенного с помощью соответствующей комбинации Ctrl+1–Ctrl+9<br>
-<b>B</b>&nbsp;— установить метку на карте. Метку видите только вы и ваши союзники<br>
-<b>P</b>&nbsp;— пауза<br>
-<b>T</b>&nbsp;— показать ники игроков над юнитами в мультиплеере<br>
-<b>Del</b>&nbsp;— удалить открытое сообщение<br>
-<b>Пробел</b>&nbsp;— перейти к месту события открытого сообщения<br>
-<b>&#8592;&#8593;&#8594;&#8595;</b>&nbsp;— курсорные кнопки используются для перемещения по карте<br>
-<b>Колесико мыши</b> увеличивает и уменьшает масштаб<br>
-<b>&#8592; Backspace</b> установит масштаб обратно на 100%<br><br>
-Для более подробной информации о клавиатурных сокращениях посетите соответствующую страницу Wiki игры: <a href="https://github.com/reyandme/kam_remake/wiki/Controls">https://github.com/reyandme/kam_remake/wiki/Controls</a>.<br>
-</font></p>
-<p><font face="Calibri"><b>Установка дополнительных карт:</b><br>
-<b>1.</b> Cоздайте новый каталог в каталоге &quot;KaM Remake\Maps&quot; и назовите по имени вашей карты (например, &quot;Моя Карта&quot;).<br>
-<b>2.</b> Поместите в созданный каталог файлы карты (назвав их соответственно &quot;Моя Карта.dat&quot; и &quot;Моя Карта.map&quot;).
-Имена файлов должны совпадать с именем каталога!<br>
-<b>3.</b> Вы также можете создать дополнительный файл &quot;Моя Карта.txt&quot;, содержащий описание миссии и другую информацию. Для шаблона используйте подобные файлы из миссий
-<span lang="en-us">KaM Remake</span>. Официальная информация о формате пока недоступна, так как в будущем формат может быть изменен.</font></p>
-<p><font face="Calibri"><b>Добавление собственной музыки:</b><br>
-Вы можете скопировать ваши MP3/OGG файлы в каталог &quot;KaM Remake\Music&quot;, и они будут автоматически добавлены в список воспроизведения.<br>
-&nbsp;</font></p>
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-			<img border="0" src="Readme/GUI_0311.gif"></td>
-			<td><b><font size="+2" face="Calibri">&nbsp;<a name="F_A_Q_">F.A.Q.</a></font></b></td>
-		</tr>
-	</table>
-</blockquote>
-<p>
-<font face="Calibri"><b>Падение игры без сообщения:</b><br>
-KaM Remake вылетает без каких-либо сообщений загрузки или при смене саундтрека, если есть проблема со звуковой подсистемой Windows. Удаление каталога &quot;Music&quot; из KaM Remake исправляет эту ошибку.<br></p>
-<p><b>Низкая частота смены кадров:</b><br>
-Если у вас в игре низкая частота смены кадров, это может быть вызвано старыми или отсутствующими драйверами OpenGL. Проверьте вашу версию драйверов OpenGL, посмотрев в главном меню в верхний левый угол, версия должна быть как минимум 1.4.x. Если она ниже, то необходимо обновить драйвера вашей
-видеокарты (драйвера можно скачать на сайте производителя).<br></p>
-<p><b>Ошибки:</b><br>
-Иногда, когда происходит нечто непредвиденное, вы получаете сообщение <i>«Произошла
-ошибка в приложении»</i>. Пожалуйста, нажмите кнопку <i>«Отправить отчет об
-ошибке»</i>, чтобы отправить нам информацию, которая поможет диагностировать проблему.
-Введите свое имя и адрес электронной почты в форме, если вы хотите, чтобы мы могли связаться с вами по
-поводу ошибки.<br><br></p>
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0304.gif"></td>
-			<td><b><font size="+2" face="Calibri">&nbsp;<a name="Known_bugs">Известные ошибки и неточности</a></font></b></td>
-		</tr>
-	</table>
-</blockquote>
-<p><font face="Calibri">
-Тренировка юнитов в Ратуше и Осадной мастерской не работает.<br>
-Поведение ИИ сильно ограничено.<br>
-&nbsp;</font></p>
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0324.gif"></td>
-			<td><b><font size="+2" face="Calibri">&nbsp;<a name="Server">Выделенный сервер</a></font></b></td>
-		</tr>
-	</table>
-</blockquote>
-<font face="Calibri">Включает исполняемые программы для мультиплеера выделенного сервера, которые работают на Windows, а также Linux x86 и x86_64. Для соединения сервер использует TCP-порт 56789 и работает как концентратор, обеспечивая передачу данных между клиентами. Выделенный сервер не «понимает» геймплей, он просто передает пакеты данных между клиентами. Первому игроку, который соединится с сервером, будут даны права хоста и он сможет менять настройки игры. Если первый игрок отключается, то права хоста автоматически передаются следующему игроку по порядку в списке.<br>
-Чтобы использовать игру в LAN, запустите выделенный сервер и убедитесь, что он запущен правильно (должно быть написано &quot;Listening on port 56789&quot;). Убедитесь, что ваш файрволл не блокирует работу программы и TCP-порт 56789 открыт. Тогда вы можете присоединиться с того же самого компьютера и/или других компьютеров. (Для того же самого компьютера соединитесь с адресом 127.0.0.1 или localhost.)<br>
-Чтобы использовать сервер для игры в интернете, вы должны перенаправить порт 56789 от вашего маршрутизатора до вашего PC, на котором запущен выделенный сервер. (Для получения дополнительной информации о перенаправлении портов, посетите <a href="http://portforward.com/">http://portforward.com/</a>.) Скажите свой внешний IP-адрес друзьям, которые к вам присоединятся. IP-адрес отображается на странице <a href="http://portforward.com/">http://portforward.com/</a>. Если вы играете на том же самом компьютере, на котором запущен выделенный сервер, или в той же самой LAN, то подключайтесь к этому IP-адресу, как вы бы сделали для игры по LAN.<br>
-<br>
-Примечание: Выделенный сервер не является обязательным для игры в мультиплеер. Нажатие кнопки «Создать сервер» в меню сетевой игры имеет такой же эффект, за исключением того, что вы и сами должны будете принять участие в игре. Выделенный сервер нужен в том случае, если вы хотите создать сервер, но не будете принимать участие в игре. Основным назначением выделенного сервера является возможность его круглосуточной работы, семь дней в неделю, во время которой игроки могут присоединиться и участвовать в игре в любой момент, когда им хочется. Если вы в состоянии поддерживать работу выделенного сервера, то расскажите об этом пользователями игры, указав свой IP-адрес. Будущие версии будут включать «мастер-сервер», который будет отображать список всех запущенных публичных серверов и позволит вам присоединиться к ним без необходимости вводить IP-адреса.<br>
-<br>
-Linux-версия была проверена на Fedora и Ubuntu. Любые вопросы или комментарии относительно версии под Linux следует направлять по адресу Левина. (<a href="mailto:lewinjh@gmail.com"> lewinjh@gmail.com</a>)</font>
-<br>&nbsp;
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0323.gif"></td>
-			<td><b><font size="+2" face="Calibri">&nbsp;<a name="Feedback">Отзывы</a></font></b></td>
-		</tr>
-	</table>
-</blockquote>
-<font face="Calibri">Пожалуйста, используйте <A href="http://www.knightsandmerchants.net/forum/viewforum.php?f=21">форум</A> или
-электронную почту (см. ниже), чтобы сообщить нам о найденных ошибках. Большинство ошибок нам мы уже, вероятно, знакомы, но мы бы хотели видеть
-ваши комментарии, предложения, комплименты и т.&nbsp;п.<br>
-Если вы можете помочь чем-нибудь в написании кода в Delphi, дизайне меню, идеями для улучшения&nbsp;— пожалуйста, напишите нам на почту или оставьте свое сообщение на форуме.</font>
-<br>&nbsp;
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0308.gif"></td>
-			<td><b><font size="+2" face="Calibri">&nbsp;<a name="Source">Исходные коды</a></font></b></td>
-		</tr>
-	</table>
-</blockquote>
-<p><font face="Calibri">Исходные коды KaM Remake доступны по адресу:<br>
-<a href="https://github.com/reyandme/kam_remake">https://github.com/reyandme/kam_remake</a><br>
-По этому адресу доступно Wiki с информацией об игре:<br>
-<a href="https://github.com/reyandme/kam_remake/wiki">https://github.com/reyandme/kam_remake/wiki</a><br>
-Мы призываем вас сообщать нам о найденных ошибках используя встроенный интерфейс:<br>
-<a href="https://github.com/reyandme/kam_remake/issues">https://github.com/reyandme/kam_remake/issues</a><br>
-</font><br>&nbsp;</p>
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0314.gif"></td>
-			<td><span style="vertical-align: middle"><b>
-			<font size="+2" face="Calibri">&nbsp;<a name="Credits">Создатели</a></font></b></span></td>
-		</tr>
-	</table>
-</blockquote>
-<font face="Calibri">Ведущий программист&nbsp;— Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>).<br>
-Программист&nbsp;— Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>).<br>
-Программист&nbsp;— Rey (<a href="mailto:kamremake.rey@gmail.com">kamremake.rey@gmail.com</a>)<br>
-Особая благодарность Александру, который написал ядро структуры кода в 2008 г.<br>
-Спасибо StarGazer, который нарисовал Рынок, новые курсоры и иконки для интерфейса, а также Malin за нарисованные товары для рынка.<br>
-Огромное спасибо сообществу КаМ и его активным членам (Free_sms_kam, Harold, Humbelum, JBSnorro, The Knight, Litude (Real Hotdog), Merchator, Nick, Thunderwolf, Vas, andreus, ZblCoder и многим другим), кто помогал нам с декодированием, советами, идеями и поддержкой.<br>
-В игре использованы иконки от <span lang="en-us">famfamfam </span>и
-<span lang="en-us">FatCow</span>.<br>&nbsp;</font>
-<blockquote>
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td>
-	<img border="0" src="Readme/GUI_0322.gif"></td>
-			<td><span style="vertical-align: middle"><b>
-			<font size="+2" face="Calibri">&nbsp;<a name="Legal">Правовые обязательства</a></font></b></span></td>
-		</tr>
-	</table>
-</blockquote>
-
-<font face="Calibri">1. Коммерческое использование продукта запрещено.<br>
-2. Все использованные имена, символы или другие защищенные авторскими правами материалы, являются собственностью их владельцев.<br>
-3. Мы не несем ответственности, если данный мод (<span lang="en-us">KaM Remake</span>) нанесет ущерб программному или аппаратному обеспечению вашего компьютера.<br>
-4. По очевидным причинам, издание и/или распространение <span lang="en-us">KaM
-Remake</span>, в любой форме, недопустимо без данного Readme файла.<br>
-5. Вы можете загрузить данный мод на ваш сайт/сервер/домашнюю страницу, но, пожалуйста, предварительно сообщите нам об этом.<br>
-6. Мы предполагаем, что вы (пользователь/игрок) располагайте собственной лицензионной копией игры "Knights and Merchants: The Peasants Rebellion", в противном случае вам следует купить игру, прежде чем вы начнете играть в
-<span lang="en-us">KaM Remake</span>. Невыполнение этого требования будет нарушением лицензионного соглашения.</font>
-		</td>
-	</tr>
-</table>
-<p>&nbsp; Перевод выполнен при участии: DIV, War_Its_Life</p></div>
-  </body>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Начало работы с Knights and Merchants: Remake</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Начало работы с Knights and Merchants: Remake</h1>
+</header>
+<p><strong>Brought to you by Krom, Lewin and Rey</strong></p>
+<hr />
+<p><a href="#системные-требования">Системные требования</a> · <a
+href="#установка">Установка</a> · <a href="#игра">Игра</a> · <a
+href="#часто-задаваемые-вопросы">F.A.Q.</a> · <a
+href="#community-and-feedback">Community and feedback</a> · <a
+href="#известные-ошибки-и-неточности">Известные ошибки</a> · <a
+href="#исходные-коды">Исходные коды</a> · <a
+href="#создатели">Создатели</a> · <a
+href="#правовые-обязательства">Правовые обязательства</a></p>
+<hr />
+<h3 id="системные-требования"><img src="Readme/GUI_0310.gif" />
+Системные требования</h3>
+<ul>
+<li>операционная система: Microsoft Windows или Linux с Wine;</li>
+<li>любой двухъядерный процессор;</li>
+<li>256MB оперативной памяти;</li>
+<li>3D ускоритель с поддержкой OpenGL версии 1.5 или выше</li>
+</ul>
+<h3 id="установка"><img src="Readme/GUI_0303.gif" /> Установка</h3>
+<ol type="1">
+<li>Obtain the original game (Knights and Merchants: The Peasants
+Rebellion):
+<ul>
+<li>Installers from original CD and GOG.com should just work.</li>
+<li>If you bought TPR from Steam, you need to run TPR at least once,
+otherwise Remake’s installer will be unable to detect it.</li>
+<li>If you use Linux, see <a
+href="https://github.com/reyandme/kam_remake/wiki/Game-installation-on-Linux"
+class="uri">https://github.com/reyandme/kam_remake/wiki/Game-installation-on-Linux</a></li>
+</ul></li>
+<li>Run the Remake installer and follow the installation
+instructions.</li>
+<li>The KaM Remake uses OpenGL for graphics. In case of visual issues or
+inability to launch the game, visit your graphics card manufacturer site
+to get the latest drivers available.</li>
+<li>Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if
+you chose to create shortcuts.</li>
+</ol>
+<h3 id="игра"><img src="Readme/GUI_0312.gif" /> Игра</h3>
+<h4 id="multiplayer">Multiplayer</h4>
+<p>To start a game, go to Multiplayer. You can pick any unused server,
+if you want to start a new lobby, or you can join an existing lobby.</p>
+<p>You can also create a local (LAN) server, using “Create server”
+button.</p>
+<p>If you want to create a new dedicated server for our community, see
+details here: <a
+href="https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md"
+class="uri">https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md</a></p>
+<h4 id="keyboard-shortcuts">Keyboard shortcuts</h4>
+<p><strong>The following shortcuts are available in the
+game:</strong></p>
+<ul>
+<li><strong>Esc</strong> закрыть открытое сообщение, или открытый раздел
+игрового меню</li>
+<li><strong>F1-F4</strong> открыть соответствующий раздел игрового
+меню</li>
+<li><strong>F5-F8</strong> увеличить скорость игры в x1 / x3 / x6 / x10
+раз (speedup multiplier can be changed in game’s XML settings file)</li>
+<li><strong>F11</strong> показать меню и отладочную панель</li>
+<li><strong>0-9</strong> выбрать здание или воина, назначенного с
+помощью соответствующей комбинации Ctrl + 0-9</li>
+<li><strong>B</strong> установить метку на карте. Метку видите только вы
+и ваши союзники</li>
+<li><strong>Spacebar</strong> перейти к месту события открытого
+сообщения</li>
+<li><strong>P</strong> пауза</li>
+<li>Holding the <strong>T</strong> button in multiplayer mode, will show
+player nicknames over their units</li>
+<li><strong>Delete</strong> удалить открытое сообщение</li>
+<li><strong>←↑→↓</strong> курсорные кнопки используются для перемещения
+по карте</li>
+<li><strong>Колесико мыши</strong> увеличивает и уменьшает масштаб</li>
+<li><strong>Backspace ←</strong> установит масштаб обратно на 100%</li>
+</ul>
+<p>Для более подробной информации о клавиатурных сокращениях посетите
+соответствующую страницу Wiki игры:<br />
+<a href="https://github.com/reyandme/kam_remake/wiki/Controls"
+class="uri">https://github.com/reyandme/kam_remake/wiki/Controls</a></p>
+<h4 id="installing-add-on-maps">Installing add-on maps:</h4>
+<p>Maps should be added (in Remake’s directory) to Maps (for
+singleplayer), MapsMP (for multiplayer); there is also a directory for
+Campaigns.</p>
+<p>You can find additional community-made maps at <a
+href="https://knights-tavern.com"
+class="uri">https://knights-tavern.com</a>.</p>
+<h4 id="добавление-собственной-музыки">Добавление собственной
+музыки:</h4>
+<p>Вы можете скопировать ваши MP3/OGG файлы в каталог “KaM Remake”, и
+они будут автоматически добавлены в список воспроизведения.</p>
+<h1 id="часто-задаваемые-вопросы"><img src="Readme/GUI_0311.gif" />
+Часто задаваемые вопросы</h1>
+<p><strong>Падение игры без сообщения:</strong><br />
+Если у вас в игре низкая частота смены кадров, это может быть вызвано
+старыми или отсутствующими драйверами OpenGL. Проверьте вашу версию
+драйверов OpenGL, посмотрев в главном меню в верхний левый угол, версия
+должна быть как минимум 1.5.x. Если она ниже, то необходимо обновить
+драйвера вашей видеокарты (драйвера можно скачать на сайте
+производителя).</p>
+<p><strong>Низкая частота смены кадров:</strong><br />
+If you have ridiculously low framerate in game it might be because your
+OpenGL drivers are out of date. See the OpenGL version information in
+the top-left corner of the main menu, it should be at least 1.5.x. If it
+is less you need to update your graphics card drivers (check your card
+manufacturers website).</p>
+<p><strong>Ошибки:</strong><br />
+Иногда, когда происходит нечто непредвиденное, вы получаете сообщение
+«Произошла ошибка в приложении». Пожалуйста, нажмите кнопку «Отправить
+отчет об ошибке», чтобы отправить нам информацию, которая поможет
+диагностировать проблему. Введите свое имя и адрес электронной почты в
+форме, если вы хотите, чтобы мы могли связаться с вами по поводу
+ошибки.</p>
+<p><strong>Anything else:</strong><br />
+See <a href="https://www.kamremake.com/faq/"
+class="uri">https://www.kamremake.com/faq/</a></p>
+<h2 id="community-and-feedback"><img src="Readme/GUI_0323.gif" />
+Community and Feedback</h2>
+<p>Join our community at <a href="https://discord.gg/UkkYceR"
+class="uri">https://discord.gg/UkkYceR</a>. We would love your comments,
+suggestions, thanks, etc.<br />
+If you can offer some help in Delphi coding, documentation, game
+artwork, sounds, translation or ideas for improvement - please drop us
+an email or write on Discord.</p>
+<h1 id="известные-ошибки-и-неточности"><img src="Readme/GUI_0304.gif" />
+Известные ошибки и неточности</h1>
+<p>Осадной мастерской не функционирует.</p>
+<h1 id="исходные-коды"><img src="Readme/GUI_0308.gif" /> Исходные
+коды</h1>
+<p>Исходные коды KaM Remake доступны по адресу:<br />
+<a href="https://github.com/reyandme/kam_remake"
+class="uri">https://github.com/reyandme/kam_remake</a><br />
+По этому адресу доступно Wiki с информацией об игре:<br />
+<a href="https://github.com/reyandme/kam_remake/wiki"
+class="uri">https://github.com/reyandme/kam_remake/wiki</a><br />
+Мы призываем вас сообщать нам о найденных ошибках используя встроенный
+интерфейс:<br />
+<a href="https://github.com/reyandme/kam_remake/issues"
+class="uri">https://github.com/reyandme/kam_remake/issues</a><br />
+или на нашем канале Discord.</p>
+<h1 id="создатели"><img src="Readme/GUI_0314.gif" /> Создатели</h1>
+<p>Ведущий программист - Krom (<a href="mailto:kromster80@gmail.com"
+class="uri">mailto:kromster80@gmail.com</a>)<br />
+Программист - Rey (<a href="mailto:kamremake.rey@gmail.com"
+class="uri">mailto:kamremake.rey@gmail.com</a>) Программист - Lewin (<a
+href="mailto:lewinjh@gmail.com"
+class="uri">mailto:lewinjh@gmail.com</a>)<br />
+Программист - Toxic (Advanced AI and random map generator) и многое
+другое…</p>
+<p>Особая благодарность Александру, который написал ядро структуры кода
+в 2008 г.<br />
+Спасибо StarGazer, который нарисовал Рынок, новые курсоры и иконки для
+интерфейса, а также Malin за нарисованные товары для рынка.<br />
+Огромное спасибо сообществу КаМ и его активным членам (Free_sms_kam,
+Harold, Humbelum, JBSnorro, The Knight, Litude (Real Hotdog), Merchator,
+Nick, Thunderwolf, Vas, andreus, ZblCoder и многим другим), кто помогал
+нам с декодированием, советами, идеями и поддержкой.<br />
+В игре использованы иконки от famfamfam и FatCow.</p>
+<h1 id="правовые-обязательства"><img src="Readme/GUI_0322.gif" />
+Правовые обязательства</h1>
+<ol type="1">
+<li>Коммерческое использование продукта запрещено.<br />
+</li>
+<li>Все использованные имена, символы или другие защищенные авторскими
+правами материалы, являются собственностью их владельцев.<br />
+</li>
+<li>Мы не несем ответственности, если данный мод (KaM Remake) нанесет
+ущерб программному или аппаратному обеспечению вашего компьютера.<br />
+</li>
+<li>По очевидным причинам, издание и/или распространение KaM Remake, в
+любой форме, недопустимо без данного Readme файла.<br />
+</li>
+<li>Вы можете загрузить данный мод на ваш сайт/сервер/домашнюю страницу,
+но, пожалуйста, предварительно сообщите нам об этом.<br />
+</li>
+<li>Мы предполагаем, что вы (пользователь/игрок) располагайте
+собственной лицензионной копией игры “Knights and Merchants: The
+Peasants Rebellion”, в противном случае вам следует купить игру, прежде
+чем вы начнете играть в KaM Remake. Невыполнение этого требования будет
+нарушением лицензионного соглашения.</li>
+</ol>
+</body>
 </html>
