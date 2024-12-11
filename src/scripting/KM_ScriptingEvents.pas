@@ -7,7 +7,7 @@ uses
   Classes, Math, SysUtils, StrUtils, uPSRuntime, uPSDebugger, uPSPreProcessor,
   KM_Defaults, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_ScriptingConsoleCommands,
   KM_UnitGroup, KM_ResHouses, KM_ResWares, KM_ScriptingTypes, KM_CommonClasses,
-  KM_ResTypes, KM_HouseWoodcutters;
+  KM_ResTypes, KM_HouseWoodcutters, KM_Points;
 
 
 const
@@ -108,7 +108,7 @@ type
     procedure ProcGroupOrderAttackHouse(aGroup: TKMUnitGroup; aHouse: TKMHouse);
     procedure ProcGroupOrderAttackUnit(aGroup: TKMUnitGroup; aUnit: TKMUnit);
     procedure ProcGroupBeforeOrderSplit(aGroup: TKMUnitGroup; var aNewType: TKMUnitType; var aNewCnt: Integer; var aMixed: Boolean);
-    procedure ProcGroupOrderMove(aGroup: TKMUnitGroup; aX, aY: Integer);
+    procedure ProcGroupOrderMove(aGroup: TKMUnitGroup; aX, aY: Integer; aDir: TKMDirection);
     procedure ProcGroupOrderLink(aGroup1, aGroup2: TKMUnitGroup);
     procedure ProcGroupOrderSplit(aGroup, aNewGroup: TKMUnitGroup);
     procedure EventMarketTrade(aMarket: TKMHouse; aFrom, aTo: TKMWareType);
@@ -962,12 +962,12 @@ end;
 //* Occurs when the group gets order to move to some point
 //* aGroup: group ID
 //* aX, aY: Point coordinates
-procedure TKMScriptEvents.ProcGroupOrderMove(aGroup: TKMUnitGroup; aX, aY: Integer);
+procedure TKMScriptEvents.ProcGroupOrderMove(aGroup: TKMUnitGroup; aX, aY: Integer; aDir: TKMDirection);
 begin
   if MethodAssigned(evtGroupOrderMove) then
   begin
     fIDCache.CacheGroup(aGroup, aGroup.UID); //Improves cache efficiency since aGroup will probably be accessed soon
-    CallEventHandlers(evtGroupOrderMove, [aGroup.UID, aX, aY]);
+    CallEventHandlers(evtGroupOrderMove, [aGroup.UID, aX, aY, Ord(aDir)]);
   end;
 end;
 

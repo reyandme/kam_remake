@@ -1840,7 +1840,7 @@ begin
   end;
 
   //Script may have additional event processors
-  gScriptEvents.ProcGroupOrderMove(Self, aLoc.X, aLoc.Y);
+  gScriptEvents.ProcGroupOrderMove(Self, aLoc.X, aLoc.Y, newDir);
 end;
 
 
