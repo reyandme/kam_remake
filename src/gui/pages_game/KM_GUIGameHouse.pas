@@ -1488,21 +1488,45 @@ begin
     Exit;
   if not (gMySpectator.Selected is TKMHouseBarracks) then
     Exit;
-  //Red triangle - block delivery to barracks
-  if ssLeft in Shift then
+
+  if ssShift in Shift then
   begin
-    if Sender <> Button_BarracksRecruit then
-      gGame.GameInputProcess.CmdHouse(gicHouseBarracksAcceptFlag, TKMHouse(gMySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag])
+    //Red triangle - block delivery to barracks (for all wares)
+    if ssLeft in Shift then
+    begin
+      if Sender <> Button_BarracksRecruit then
+        gGame.GameInputProcess.CmdHouse(gicHouseBarracksAcceptAllFlag, TKMHouse(gMySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag])
+      else
+        gGame.GameInputProcess.CmdHouse(gicHBarracksAcceptRecruitsTgl, TKMHouse(gMySpectator.Selected));
+    end
     else
-      gGame.GameInputProcess.CmdHouse(gicHBarracksAcceptRecruitsTgl, TKMHouse(gMySpectator.Selected));
+    //Orange triange - block take resources from (for all wares)
+    if ssRight in Shift then
+    begin
+      if Sender <> Button_BarracksRecruit then
+        gGame.GameInputProcess.CmdHouse(gicHBarracksNotAllowTakeOutAllFlag, TKMHouse(gMySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag]);
+    end;
   end
   else
-  //Orange triange - block take resources from
-  if ssRight in Shift then
   begin
-    if Sender <> Button_BarracksRecruit then
-      gGame.GameInputProcess.CmdHouse(gicHBarracksNotAllowTakeOutFlag, TKMHouse(gMySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag]);
+
+    //Red triangle - block delivery to barracks
+    if ssLeft in Shift then
+    begin
+      if Sender <> Button_BarracksRecruit then
+        gGame.GameInputProcess.CmdHouse(gicHouseBarracksAcceptFlag, TKMHouse(gMySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag])
+      else
+        gGame.GameInputProcess.CmdHouse(gicHBarracksAcceptRecruitsTgl, TKMHouse(gMySpectator.Selected));
+    end
+    else
+    //Orange triange - block take resources from
+    if ssRight in Shift then
+    begin
+      if Sender <> Button_BarracksRecruit then
+        gGame.GameInputProcess.CmdHouse(gicHBarracksNotAllowTakeOutFlag, TKMHouse(gMySpectator.Selected), BarracksResType[(Sender as TKMControl).Tag]);
+    end;
   end;
+
 end;
 
 
@@ -1514,13 +1538,28 @@ begin
     Exit;
   if not (gMySpectator.Selected is TKMHouseStore) then
     Exit;
-  //Red triangle - block delivery to barracks
-  if ssLeft in Shift then
-    gGame.GameInputProcess.CmdHouse(gicHouseStoreNotAcceptFlag, TKMHouse(gMySpectator.Selected), StoreResType[(Sender as TKMControl).Tag])
+
+  if ssShift in Shift then
+  begin
+    //Red triangle - block delivery to storehouse (for all resources)
+    if ssLeft in Shift then
+      gGame.GameInputProcess.CmdHouse(gicHouseStoreNotAcceptAllFlag, TKMHouse(gMySpectator.Selected), StoreResType[(Sender as TKMControl).Tag])
+    else
+    //Orange triange - block take resources from (for all resources)
+    if ssRight in Shift then
+      gGame.GameInputProcess.CmdHouse(gicHStoreNotAllowTakeOutAllFlag, TKMHouse(gMySpectator.Selected), StoreResType[(Sender as TKMControl).Tag]);
+  end
   else
-  //Orange triange - block take resources from
-  if ssRight in Shift then
-    gGame.GameInputProcess.CmdHouse(gicHStoreNotAllowTakeOutFlag, TKMHouse(gMySpectator.Selected), StoreResType[(Sender as TKMControl).Tag])
+  begin
+    //Red triangle - block delivery to storehouse
+    if ssLeft in Shift then
+      gGame.GameInputProcess.CmdHouse(gicHouseStoreNotAcceptFlag, TKMHouse(gMySpectator.Selected), StoreResType[(Sender as TKMControl).Tag])
+    else
+    //Orange triange - block take resources from
+    if ssRight in Shift then
+      gGame.GameInputProcess.CmdHouse(gicHStoreNotAllowTakeOutFlag, TKMHouse(gMySpectator.Selected), StoreResType[(Sender as TKMControl).Tag]);
+  end;
+
 end;
 
 

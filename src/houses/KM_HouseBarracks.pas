@@ -45,7 +45,9 @@ type
     procedure RecruitsAdd(aUnit: Pointer);
     procedure RecruitsRemove(aUnit: Pointer);
     procedure ToggleNotAcceptFlag(aWare: TKMWareType);
+    procedure ToggleNotAcceptAllFlag(aWare: TKMWareType);
     procedure ToggleNotAllowTakeOutFlag(aWare: TKMWareType);
+    procedure ToggleNotAllowTakeOutAllFlag(aWare: TKMWareType);
     procedure ToggleAcceptRecruits;
     function EquipWarrior(aUnitType: TKMUnitType): Pointer;
     function Equip(aUnitType: TKMUnitType; aCount: Integer): Integer;
@@ -254,11 +256,41 @@ begin
 end;
 
 
+procedure TKMHouseBarracks.ToggleNotAcceptAllFlag(aWare: TKMWareType);
+var
+  ware: TKMWareType;
+  accepted: Boolean;
+
+begin
+  Assert(aWare in [WARFARE_MIN .. WARFARE_MAX]);
+
+  accepted := not NotAcceptFlag[aWare];
+
+  for ware := Low(fResourceCount) to High(fResourceCount) do
+    NotAcceptFlag[ware] := accepted;
+end;
+
+
 procedure TKMHouseBarracks.ToggleNotAllowTakeOutFlag(aWare: TKMWareType);
 begin
   Assert(aWare in [WARFARE_MIN .. WARFARE_MAX]);
 
   NotAllowTakeOutFlag[aWare] := not NotAllowTakeOutFlag[aWare];
+end;
+
+
+procedure TKMHouseBarracks.ToggleNotAllowTakeOutAllFlag(aWare: TKMWareType);
+var
+  ware: TKMWareType;
+  accepted: Boolean;
+
+begin
+  Assert(aWare in [WARFARE_MIN .. WARFARE_MAX]);
+
+  accepted := not NotAllowTakeOutFlag[aWare];
+
+  for ware := Low(fResourceCount) to High(fResourceCount) do
+    NotAllowTakeOutFlag[ware] := accepted;
 end;
 
 

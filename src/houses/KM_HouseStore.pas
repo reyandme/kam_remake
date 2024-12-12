@@ -24,7 +24,9 @@ type
     function ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean; override;
 
     procedure ToggleNotAcceptFlag(aWare: TKMWareType);
+    procedure ToggleNotAcceptAllFlag(aWare: TKMWareType);
     procedure ToggleNotAcceptTakeOutFlag(aWare: TKMWareType);
+    procedure ToggleNotAcceptTakeOutAllFlag(aWare: TKMWareType);
     procedure WareAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     function CheckWareIn(aWare: TKMWareType): Word; override;
     procedure WareTakeFromOut(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
@@ -212,12 +214,38 @@ begin
   NotAcceptFlag[aWare] := not NotAcceptFlag[aWare];
 end;
 
+procedure TKMHouseStore.ToggleNotAcceptAllFlag(aWare: TKMWareType);
+var
+  ware: TKMWareType;
+  accepted: Boolean;
+begin
+
+  Assert(aWare in [WARE_MIN .. WARE_MAX]);
+
+  accepted := not NotAcceptFlag[aWare];
+
+  for ware := Low(fWaresCount) to High(fWaresCount) do
+    NotAcceptFlag[ware] := accepted;
+
+end;
+
 
 procedure TKMHouseStore.ToggleNotAcceptTakeOutFlag(aWare: TKMWareType);
 begin
   NotAllowTakeOutFlag[aWare] := not NotAllowTakeOutFlag[aWare];
 end;
 
+procedure TKMHouseStore.ToggleNotAcceptTakeOutAllFlag(aWare: TKMWareType);
+var
+  ware: TKMWareType;
+  accepted: Boolean;
+
+begin
+  accepted := not NotAllowTakeOutFlag[aWare];
+
+  for ware := Low(fWaresCount) to High(fWaresCount) do
+    NotAllowTakeOutFlag[ware] := accepted;
+end;
 
 procedure TKMHouseStore.Save(SaveStream: TKMemoryStream);
 begin
