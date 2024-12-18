@@ -739,7 +739,11 @@ begin
     //Try to load map cache up to 3 times (in case its updating by other thread
     //its much easier and working well, then synchronize threads
     if not TryExecuteMethod(TObject(S), aPath, 'LoadFromStreamObj', errorStr, LoadFromStreamObj) then
+    begin
       gLog.AddTime(errorStr);
+      gLog.AddTime('Error loading map cache: ''' + aPath + '''. The file will be deleted.');
+      KMDeleteFile(aPath);
+    end;
   finally
     //Other properties are not saved, they are fast to reload
     S.Free;
@@ -1056,15 +1060,15 @@ end;
 procedure TKMMapTxtInfo.SaveTXTInfo(const aFilePath: String);
 var
   St: String;
-  ft: TextFile;
   MD: TKMMissionDifficulty;
+  SL: TStringList;
 
   procedure WriteLine(const aLineHeader: String; const aLineValue: String = '');
   begin
-    Writeln(ft, aLineHeader);
+    SL.Add(aLineHeader);
     if aLineValue <> '' then
-      Writeln(ft, aLineValue);
-    Writeln(ft);
+      SL.Add(aLineValue);
+    SL.Add('');
   end;
 
 begin
@@ -1077,65 +1081,69 @@ begin
 
   ForceDirectories(ExtractFilePath(aFilePath));
 
-  AssignFile(ft, aFilePath);
-  Rewrite(ft);
+  SL := TStringList.Create;
 
-  if Author <> '' then
-    WriteLine('Author', Author);
+  try
+    if Author <> '' then
+      WriteLine('Author', Author);
 
-  if Version <> '' then
-    WriteLine('Version', Version);
+    if Version <> '' then
+      WriteLine('Version', Version);
 
-  if fSmallDescLibx <> LIBX_NO_ID then
-    WriteLine('SmallDescLIBX', IntToStr(fSmallDescLibx))
-  else
-  if fSmallDesc <> '' then
-    WriteLine('SmallDesc', fSmallDesc);
+    if fSmallDescLibx <> LIBX_NO_ID then
+      WriteLine('SmallDescLIBX', IntToStr(fSmallDescLibx))
+    else
+    if fSmallDesc <> '' then
+      WriteLine('SmallDesc', fSmallDesc);
 
-  if fBigDescLibx <> LIBX_NO_ID then
-    WriteLine('BigDescLIBX', IntToStr(fBigDescLibx))
-  else
-  if fBigDesc <> '' then
-    WriteLine('BigDesc', fBigDesc);
+    if fBigDescLibx <> LIBX_NO_ID then
+      WriteLine('BigDescLIBX', IntToStr(fBigDescLibx))
+    else
+    if fBigDesc <> '' then
+      WriteLine('BigDesc', fBigDesc);
 
-  if IsCoop then
-    WriteLine('SetCoop');
+    if IsCoop then
+      WriteLine('SetCoop');
 
-  if IsSpecial then
-    WriteLine('SetSpecial');
+    if IsSpecial then
+      WriteLine('SetSpecial');
 
-  if IsRMG then
-    WriteLine('RMG');
+    if IsRMG then
+      WriteLine('RMG');
 
-  if IsPlayableAsSP then
-    WriteLine('PlayableAsSP');
+    if IsPlayableAsSP then
+      WriteLine('PlayableAsSP');
 
-  if BlockPeacetime then
-    WriteLine('BlockPeacetime');
+    if BlockPeacetime then
+      WriteLine('BlockPeacetime');
 
-  if BlockTeamSelection then
-    WriteLine('BlockTeamSelection');
+    if BlockTeamSelection then
+      WriteLine('BlockTeamSelection');
 
-  if BlockColorSelection then
-    WriteLine('BlockColorSelection');
+    if BlockColorSelection then
+      WriteLine('BlockColorSelection');
 
-  if BlockFullMapPreview then
-    WriteLine('BlockFullMapPreview');
+    if BlockFullMapPreview then
+      WriteLine('BlockFullMapPreview');
 
-  if HasDifficultyLevels then
-  begin
-    St := '';
-    for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
-      if MD in DifficultyLevels then
-      begin
-        if St <> '' then
-          St := St + ',';
-        St := St + GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD));
-      end;
-    WriteLine('DifficultyLevels', St);
+    if HasDifficultyLevels then
+    begin
+      St := '';
+      for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
+        if MD in DifficultyLevels then
+        begin
+          if St <> '' then
+            St := St + ',';
+          St := St + GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD));
+        end;
+      WriteLine('DifficultyLevels', St);
+    end;
+
+    // Use UTF8 to save Chinese properly f.e.
+    SL.SaveToFile(aFilePath, TEncoding.UTF8);
+  finally
+    SL.Free;
   end;
-
-  CloseFile(ft);
 end;
 
 
@@ -1154,93 +1162,107 @@ procedure TKMMapTxtInfo.LoadTXTInfo(const aFilePath: String);
   end;
 
 var
-  I, tmpInt: Integer;
-  St, S: String;
-  ft: TextFile;
-  stList: TStringList;
+  I, K, tmpInt: Integer;
+  line: String;
+  stList, fileSList: TStringList;
   MD: TKMMissionDifficulty;
 begin
   //Load additional text info
-  if FileExists(aFilePath) then
-  begin
-    AssignFile(ft, aFilePath);
-    FileMode := fmOpenRead;
-    Reset(ft);
-    repeat
-      ReadLn(ft, St);
-      if SameText(St, 'Author') then
-        Readln(ft, Author);
+  if not FileExists(aFilePath) then Exit;
 
-      if SameText(St, 'Version') then
-        Readln(ft, Version);
-
-      if SameText(St, 'BigDesc') then
-      begin
-        Readln(ft, S);
-        BigDesc := S; // Will reset BigDescLIBX if needed
+  try
+    fileSList := TStringList.Create;
+    try
+      try
+         // Try to load as a UTF8 file to get Chinese properly f.e.
+        fileSList.LoadFromFile(aFilePath, TEncoding.UTF8);
+      except
+        on E: Exception do
+        begin
+          // Even if the file is not in UTF8 we have to load it.
+          // We would not load proper strings (BigDesc / SmallDesc f.e.)
+          // but at least we will get map settings like Coop / Special etc
+          fileSList.LoadFromFile(aFilePath);
+        end;
       end;
 
-      if SameText(St, 'BigDescLIBX') then
+      for K := 0 to fileSList.Count - 1 do
       begin
-        Readln(ft, S);
-        tmpInt := StrToIntDef(S, LIBX_NO_ID);
-        if tmpInt <> LIBX_NO_ID then
-          SetBigDescLibxAndTranslation(tmpInt, LoadDescriptionFromLIBX(tmpInt));
-      end;
+        line := fileSList.Strings[K];
+        if SameText(line, 'Author') then
+          Author := fileSList.Strings[K + 1];
 
-      if SameText(St, 'SmallDesc') then
-      begin
-        ReadLn(ft, S);
-        SmallDesc := S; // Will reset SmallDescLIBX if needed
-      end;
+        if SameText(line, 'Version') then
+          Version := fileSList.Strings[K + 1];
 
-      if SameText(St, 'SmallDescLIBX') then
-      begin
-        Readln(ft, S);
-        tmpInt := StrToIntDef(S, LIBX_NO_ID);
-        if tmpInt <> LIBX_NO_ID then
-          SetSmallDescLibxAndTranslation(tmpInt, LoadDescriptionFromLIBX(tmpInt));
-      end;
+        if SameText(line, 'BigDesc') then
+          BigDesc := fileSList.Strings[K + 1]; // Will reset BigDescLIBX if needed
 
-      if SameText(St, 'SetCoop') then
-      begin
-        IsCoop := True;
-        BlockTeamSelection := True;
-        BlockPeacetime := True;
-        BlockFullMapPreview := True;
-      end;
+        if SameText(line, 'BigDescLIBX') then
+        begin
+          tmpInt := StrToIntDef(fileSList.Strings[K + 1], LIBX_NO_ID);
+          if tmpInt <> LIBX_NO_ID then
+            SetBigDescLibxAndTranslation(tmpInt, LoadDescriptionFromLIBX(tmpInt));
+        end;
 
-      if SameText(St, 'SetSpecial') then
-        IsSpecial := True;
-      if SameText(St, 'RMG') then
-        IsRMG := True;
-      if SameText(St, 'PlayableAsSP') then
-        IsPlayableAsSP := True;
-      if SameText(St, 'BlockTeamSelection') then
-        BlockTeamSelection := True;
-      if SameText(St, 'BlockColorSelection') then
-        BlockColorSelection := True;
-      if SameText(St, 'BlockPeacetime') then
-        BlockPeacetime := True;
-      if SameText(St, 'BlockFullMapPreview') then
-        BlockFullMapPreview := True;
+        if SameText(line, 'SmallDesc') then
+        begin
+          SmallDesc := fileSList.Strings[K + 1]; // Will reset SmallDescLIBX if needed
+        end;
 
-      if SameText(St, 'DifficultyLevels') then
-      begin
-        Readln(ft, S);
-        stList := TStringList.Create;
-        StringSplit(S, ',', stList);
-        for I := 0 to stList.Count - 1 do
-          for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
-            if SameText(stList[I], GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD))) then
-              Include(DifficultyLevels, MD);
-        stList.Free;
+        if SameText(line, 'SmallDescLIBX') then
+        begin
+          tmpInt := StrToIntDef(fileSList.Strings[K + 1], LIBX_NO_ID);
+          if tmpInt <> LIBX_NO_ID then
+            SetSmallDescLibxAndTranslation(tmpInt, LoadDescriptionFromLIBX(tmpInt));
+        end;
+
+        if SameText(line, 'SetCoop') then
+        begin
+          IsCoop := True;
+          BlockTeamSelection := True;
+          BlockPeacetime := True;
+          BlockFullMapPreview := True;
+        end;
+
+        if SameText(line, 'SetSpecial') then
+          IsSpecial := True;
+        if SameText(line, 'RMG') then
+          IsRMG := True;
+        if SameText(line, 'PlayableAsSP') then
+          IsPlayableAsSP := True;
+        if SameText(line, 'BlockTeamSelection') then
+          BlockTeamSelection := True;
+        if SameText(line, 'BlockColorSelection') then
+          BlockColorSelection := True;
+        if SameText(line, 'BlockPeacetime') then
+          BlockPeacetime := True;
+        if SameText(line, 'BlockFullMapPreview') then
+          BlockFullMapPreview := True;
+
+        if SameText(line, 'DifficultyLevels') then
+        begin
+          stList := TStringList.Create;
+          try
+            StringSplit(fileSList.Strings[K + 1], ',', stList);
+            for I := 0 to stList.Count - 1 do
+              for MD := MISSION_DIFFICULTY_MIN to MISSION_DIFFICULTY_MAX do
+                if SameText(stList[I], GetEnumName(TypeInfo(TKMMissionDifficulty), Integer(MD))) then
+                  Include(DifficultyLevels, MD);
+          finally
+            stList.Free;
+          end;
+        end;
       end;
-    until(eof(ft));
-    CloseFile(ft);
+    finally
+      fileSList.Free;
+    end;
 
     // Normalize descriptions
     NormalizeDesc;
+  except
+    on E: Exception do
+      gLog.AddTime('Error loading map TXT file: ''' + aFilePath + ''' ' + E.Message);
   end;
 end;
 
@@ -1497,7 +1519,7 @@ function TKMapsCollection.GetMap(aIndex: Integer): TKMMapInfo;
 begin
   //No point locking/unlocking here since we return a TObject that could be modified/freed
   //by another thread before the caller uses it.
-  Assert(InRange(aIndex, 0, fCount - 1));
+  Assert(InRange(aIndex, 0, fCount - 1), 'aIndex = ' + IntToStr(aIndex) + ' fCount = ' + IntToStr(fCount));
   Result := fMaps[aIndex];
 end;
 
@@ -1894,40 +1916,35 @@ var
   pathToMaps: string;
   MK: TKMMapKind;
 begin
-  gLog.MultithreadLogging := True; // We could log smth while create map cache or scan maps
   try
-    try
-      for MK in fMapKinds do
-      begin
-        pathToMaps := ExeDir + MAP_FOLDER_NAME[MK] + PathDelim;
+    for MK in fMapKinds do
+    begin
+      pathToMaps := ExeDir + MAP_FOLDER_NAME[MK] + PathDelim;
 
-        if not DirectoryExists(pathToMaps) then Continue;
+      if not DirectoryExists(pathToMaps) then Continue;
 
-        FindFirst(pathToMaps + '*', faDirectory, searchRec);
-        try
-          repeat
-            if (searchRec.Name <> '.') and (searchRec.Name <> '..')
-              and FileExists(TKMapsCollection.FullPath(searchRec.Name, '.dat', MK))
-              and FileExists(TKMapsCollection.FullPath(searchRec.Name, '.map', MK)) then
-            begin
-              try
-                ProcessMap(searchRec.Name, MK);
-              except
-                on E: Exception do
-                  gLog.AddTime('Error loading map ''' + searchRec.Name + ''''); //Just silently log an exception
-              end;
+      FindFirst(pathToMaps + '*', faDirectory, searchRec);
+      try
+        repeat
+          if (searchRec.Name <> '.') and (searchRec.Name <> '..')
+            and FileExists(TKMapsCollection.FullPath(searchRec.Name, '.dat', MK))
+            and FileExists(TKMapsCollection.FullPath(searchRec.Name, '.map', MK)) then
+          begin
+            try
+              ProcessMap(searchRec.Name, MK);
+            except
+              on E: Exception do
+                gLog.AddTime('Error loading map ''' + searchRec.Name + ''''); //Just silently log an exception
             end;
-          until (FindNext(searchRec) <> 0) or Terminated;
-        finally
-          FindClose(searchRec);
-        end;
+          end;
+        until (FindNext(searchRec) <> 0) or Terminated;
+      finally
+        FindClose(searchRec);
       end;
-    finally
-      if not Terminated and Assigned(fOnComplete) then
-        fOnComplete(Self);
     end;
   finally
-    gLog.MultithreadLogging := False;
+    if not Terminated and Assigned(fOnComplete) then
+      fOnComplete(Self);
   end;
 end;
 

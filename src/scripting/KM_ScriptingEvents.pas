@@ -7,7 +7,7 @@ uses
   Classes, Math, SysUtils, StrUtils, uPSRuntime, uPSDebugger, uPSPreProcessor,
   KM_Defaults, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_ScriptingConsoleCommands,
   KM_UnitGroup, KM_ResHouses, KM_ResWares, KM_ScriptingTypes, KM_CommonClasses,
-  KM_ResTypes;
+  KM_ResTypes, KM_HouseWoodcutters, KM_Points;
 
 
 const
@@ -69,6 +69,7 @@ type
     procedure ProcUnitAfterDied(aUnitType: Integer; aOwner: TKMHandID; aX, aY: Integer);
     procedure ProcUnitAfterDiedEx(aUnitType: TKMUnitType; aOwner: TKMHandID; aX, aY: Integer);
   public
+    //todo: This could be replaced with ENonScriptException = class(Exception)
     ExceptionOutsideScript: Boolean; //Flag that the exception occured in a State or Action call not script
 
     constructor Create(aExec: TPSExec; aPreProcessor: TPSPreProcessor; aIDCache: TKMScriptingIdCache);
@@ -97,7 +98,9 @@ type
     procedure EventHousePlanPlaced(aPlayer: TKMHandID; aX, aY: Integer; aType: TKMHouseType);
     procedure EventHousePlanRemoved(aPlayer: TKMHandID; aX, aY: Integer; aType: TKMHouseType);
     procedure ProcHouseDamaged(aHouse: TKMHouse; aAttacker: TKMUnit);
+    procedure ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aOldMode: TKMDeliveryMode; aNewMode: TKMDeliveryMode);
     procedure ProcHouseDestroyed(aHouse: TKMHouse; aDestroyerIndex: TKMHandID);
+    procedure ProcHouseFlagPointChanged(aHouse: TKMHouse; aOldX, aOldY, aNewX, aNewY: Integer);
     procedure ProcHouseRepaired(aHouse: TKMHouse; aRepairAmount, aDamage: Integer);
     procedure ProcHouseWareCountChanged(aHouse: TKMHouse; aWare: TKMWareType; aCnt, aChangeCnt: Integer);
     procedure ProcGameSpeedChanged(aSpeed: Single);
@@ -105,7 +108,7 @@ type
     procedure ProcGroupOrderAttackHouse(aGroup: TKMUnitGroup; aHouse: TKMHouse);
     procedure ProcGroupOrderAttackUnit(aGroup: TKMUnitGroup; aUnit: TKMUnit);
     procedure ProcGroupBeforeOrderSplit(aGroup: TKMUnitGroup; var aNewType: TKMUnitType; var aNewCnt: Integer; var aMixed: Boolean);
-    procedure ProcGroupOrderMove(aGroup: TKMUnitGroup; aX, aY: Integer);
+    procedure ProcGroupOrderMove(aGroup: TKMUnitGroup; aX, aY: Integer; aDir: TKMDirection);
     procedure ProcGroupOrderLink(aGroup1, aGroup2: TKMUnitGroup);
     procedure ProcGroupOrderSplit(aGroup, aNewGroup: TKMUnitGroup);
     procedure EventMarketTrade(aMarket: TKMHouse; aFrom, aTo: TKMWareType);
@@ -126,12 +129,14 @@ type
     procedure EventUnitAfterDied(aUnitType: TKMUnitType; aOwner: TKMHandID; aX, aY: Integer);
     procedure ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
     procedure ProcUnitDied(aUnit: TKMUnit; aKillerOwner: TKMHandID);
+    procedure ProcUnitDismissed(aUnit: TKMUnit);
     procedure ProcUnitTrained(aUnit: TKMUnit);
     procedure ProcUnitWounded(aUnit, aAttacker: TKMUnit);
     procedure ProcWareProduced(aHouse: TKMHouse; aWareType: TKMWareType; aCount: Integer);
     procedure ProcWarriorEquipped(aUnit: TKMUnit; aGroup: TKMUnitGroup);
     procedure ProcWarriorWalked(aUnit: TKMUnit; aToX, aToY: Integer);
     procedure ProcWinefieldBuilt(aPlayer: TKMHandID; aX, aY: Integer);
+    procedure ProcWoodcuttersModeChanged(aHouse: TKMHouse; aOldMode: TKMWoodcutterMode; aNewMode: TKMWoodcutterMode);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -167,6 +172,7 @@ type
   TKMScriptEventProc2I = procedure (aIndex, aParam: Integer) of object;
   TKMScriptEventProc3I = procedure (aIndex, aParam1, aParam2: Integer) of object;
   TKMScriptEventProc4I = procedure (aIndex, aParam1, aParam2, aParam3: Integer) of object;
+  TKMScriptEventProc5I = procedure (aIndex, aParam1, aParam2, aParam3, aParam4: Integer) of object;
   TKMScriptEventProc1S = procedure (aParam: Single) of object;
 
   TKMScriptBeforeOrderSplitEvent = procedure (aIndex: Integer; var aParam1: TKMUnitType; var aParam2: Integer; var aParam3: Boolean) of object;
@@ -478,7 +484,7 @@ end;
 
 
 //This procedure allows us to keep the exception handling code in one place
-procedure TKMScriptEvents.HandleScriptProcCallError(const aMethod: String);//aEx: Exception);
+procedure TKMScriptEvents.HandleScriptProcCallError(const aMethod: String);
 var
   exceptionProc: TPSProcRec;
   internalProc: TPSInternalProcRec;
@@ -490,7 +496,7 @@ var
   e: Exception;
 begin
   e := Exception(AcquireExceptionObject);
-  e.Message := e.Message + ' raised in ' + aMethod;
+  e.Message := e.Message + ''', raised by ' + aMethod;
   if ExceptionOutsideScript then
   begin
     ExceptionOutsideScript := False; //Reset
@@ -546,10 +552,11 @@ begin
       2: TKMScriptEventProc2I(aProc.Handler)(aIntParams[0], aIntParams[1]);
       3: TKMScriptEventProc3I(aProc.Handler)(aIntParams[0], aIntParams[1], aIntParams[2]);
       4: TKMScriptEventProc4I(aProc.Handler)(aIntParams[0], aIntParams[1], aIntParams[2], aIntParams[3]);
+      5: TKMScriptEventProc5I(aProc.Handler)(aIntParams[0], aIntParams[1], aIntParams[2], aIntParams[3], aIntParams[4]);
       else raise Exception.Create('Unexpected Length(aParams)');
     end;
   except
-    HandleScriptProcCallError('game code called by script event handler ''' + aProc.ProcName + '''');
+    HandleScriptProcCallError('script event handler ''' + aProc.ProcName + '''');
   end;
 end;
 
@@ -575,7 +582,7 @@ begin
       fConsoleCommands[AnsiString(LowerCase(aCmdName))].TryCallProcedure(aHandID, aParams);
       Result := True;
     except
-      HandleScriptProcCallError('game code called by console command handler ''' + aCmdName + '''');
+      HandleScriptProcCallError('console command handler ''' + aCmdName + '''');
     end;
 end;
 
@@ -691,6 +698,16 @@ begin
   end;
 end;
 
+//* Version: 15250
+//* Occurs when a house delivery mode changed.
+procedure TKMScriptEvents.ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aOldMode: TKMDeliveryMode; aNewMode: TKMDeliveryMode);
+begin
+  if MethodAssigned(evtHouseDeliveryModeChanged) then
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    CallEventHandlers(evtHouseDeliveryModeChanged, [aHouse.UID, ord(aOldMode), ord(aNewMode)]);
+  end;
+end;
 
 //* Version: 5407
 //* Occurs when a house is destroyed.
@@ -705,6 +722,20 @@ begin
   begin
     fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
     CallEventHandlers(evtHouseDestroyed, [aHouse.UID, aDestroyerIndex]);
+  end;
+end;
+
+
+//* Version: 15250
+//* aOldX, aOldY - Coordinates of the previous FlagPoint position
+//* aNewX, aNewY - Coordinates of the new FlagPoint position
+//* Occurs when a house flag point position is changed
+procedure TKMScriptEvents.ProcHouseFlagPointChanged(aHouse: TKMHouse; aOldX, aOldY, aNewX, aNewY: Integer);
+begin
+  if MethodAssigned(evtHouseFlagPointChanged) then
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    CallEventHandlers(evtHouseFlagPointChanged, [aHouse.UID, aOldX, aOldY, aNewX, aNewY]);
   end;
 end;
 
@@ -915,7 +946,7 @@ begin
           try
             TKMScriptBeforeOrderSplitEvent(handler)(aGroup.UID, aNewType, aNewCnt, aMixed);
           except
-            HandleScriptProcCallError('game code called by script event handler ''' + fEventHandlers[evtGroupBeforeOrderSplit][I].ProcName + '''');
+            HandleScriptProcCallError('script event handler ''' + fEventHandlers[evtGroupBeforeOrderSplit][I].ProcName + '''');
           end;
       end;
     end;
@@ -931,12 +962,12 @@ end;
 //* Occurs when the group gets order to move to some point
 //* aGroup: group ID
 //* aX, aY: Point coordinates
-procedure TKMScriptEvents.ProcGroupOrderMove(aGroup: TKMUnitGroup; aX, aY: Integer);
+procedure TKMScriptEvents.ProcGroupOrderMove(aGroup: TKMUnitGroup; aX, aY: Integer; aDir: TKMDirection);
 begin
   if MethodAssigned(evtGroupOrderMove) then
   begin
     fIDCache.CacheGroup(aGroup, aGroup.UID); //Improves cache efficiency since aGroup will probably be accessed soon
-    CallEventHandlers(evtGroupOrderMove, [aGroup.UID, aX, aY]);
+    CallEventHandlers(evtGroupOrderMove, [aGroup.UID, aX, aY, Ord(aDir)]);
   end;
 end;
 
@@ -985,6 +1016,19 @@ begin
   end;
 end;
 
+//* Version: 15250
+//* Occurs when a unit is dissmised.
+//* Called just before the unit is dissmised so UnitID is usable only during this event,
+//* and the tile occupied by the unit is still taken.
+procedure TKMScriptEvents.ProcUnitDismissed(aUnit: TKMUnit);
+begin
+  if MethodAssigned(evtUnitDismissed) then
+  begin
+    fIDCache.CacheUnit(aUnit, aUnit.UID); //Improves cache efficiency since aUnit will probably be accessed soon
+    CallEventHandlers(evtUnitDismissed, [aUnit.UID]);
+  end;
+end;
+
 
 //* Version: 6114
 //* Occurs after a unit has died and has been completely removed from the game, meaning the tile it previously occupied can be used.
@@ -1018,10 +1062,10 @@ end;
 
 
 //* Version: 6587
-//* Happens when a unit is attacked (shot at by archers or hit in melee).
-//* Attacker is always a warrior (could be archer or melee).
+//* Happens when a unit is attacked (shot at by archers, hit in melee, or shot by a tower).
+//* Attacker can be a warrior, recruit in tower or unknown (-1).
 //* This event will occur very frequently during battles.
-//* aAttacker: Warrior who attacked the unit
+//* aAttacker: Unit who attacked the unit
 procedure TKMScriptEvents.ProcUnitAttacked(aUnit, aAttacker: TKMUnit);
 begin
   if MethodAssigned(evtUnitAttacked) then
@@ -1216,6 +1260,16 @@ begin
   end;
 end;
 
+//* Version: 15250
+//* Occurs when woodcutters mode changed.
+procedure TKMScriptEvents.ProcWoodcuttersModeChanged(aHouse: TKMHouse; aOldMode: TKMWoodcutterMode; aNewMode: TKMWoodcutterMode);
+begin
+  if MethodAssigned(evtWoodcuttersModeChanged) then
+  begin
+    fIDCache.CacheHouse(aHouse, aHouse.UID); //Improves cache efficiency since aHouse will probably be accessed soon
+    CallEventHandlers(evtWoodcuttersModeChanged, [aHouse.UID, ord(aOldMode), ord(aNewMode)]);
+  end;
+end;
 
 { TKMScriptEntity }
 constructor TKMScriptEntity.Create(aIDCache: TKMScriptingIdCache);

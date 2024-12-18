@@ -30,15 +30,15 @@ type
 
     fOnAddProjectileToRenderPool: TKMRenderPoolAddProjectileEvent;
 
-    function AddItem(const aStart,aAim,aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TKMProjectileType; aOwner: TKMUnit):word;
+    function AddItem(const aStart,aAim,aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TKMProjectileType; aOwner: TKMUnit): Word;
     procedure RemItem(aIndex: Integer);
     function ProjectileVisible(aIndex: Integer): Boolean;
     procedure AddProjectileToRenderPool(aProj: TKMProjectileType; const aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single); inline;
   public
     constructor Create(aOnAddProjectileToRenderPool: TKMRenderPoolAddProjectileEvent);
 
-    function AimTarget(const aStart: TKMPointF; aTarget: TKMUnit; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single):word; overload;
-    function AimTarget(const aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single):word; overload;
+    function AimTarget(const aStart: TKMPointF; aTarget: TKMUnit; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word; overload;
+    function AimTarget(const aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word; overload;
 
     procedure UpdateState;
     procedure Paint(aTickLag: Single);
@@ -130,7 +130,7 @@ begin
     B = 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y)
     C = sqr(TargetPosition.X) + sqr(TargetPosition.Y) }
 
-  speed := PROJECTILE_SPEED[aProjType] + KaMRandomS2(0.05, 'TKMProjectiles.AimTarget');
+  speed := PROJECTILE_SPEED[aProjType] + KaMRandomS2(0.05{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget'{$ENDIF});
 
   A := sqr(targetVector.X) + sqr(targetVector.Y) - sqr(speed);
   B := 2 * (targetPosition.X * targetVector.X + targetPosition.Y * targetVector.Y);
@@ -161,8 +161,8 @@ begin
             + KMLength(KMPOINTF_ZERO, targetVector) * PROJECTILE_PREDICT_JITTER[aProjType];
 
     //Calculate the target position relative to start position (the 0;0)
-    target.X := targetPosition.X + targetVector.X*timeToHit + KaMRandomS2(jitter, 'TKMProjectiles.AimTarget 2');
-    target.Y := targetPosition.Y + targetVector.Y*timeToHit + KaMRandomS2(jitter, 'TKMProjectiles.AimTarget 3');
+    target.X := targetPosition.X + targetVector.X*timeToHit + KaMRandomS2(jitter{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget 2'{$ENDIF});
+    target.Y := targetPosition.Y + targetVector.Y*timeToHit + KaMRandomS2(jitter{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget 3'{$ENDIF});
 
     //We can try and shoot at a target that is moving away,
     //but the arrows can't flight any further than their max_range
@@ -172,7 +172,7 @@ begin
     target.Y := aStart.Y + target.Y / distanceToHit * distanceInRange;
 
     //Calculate the arc, less for shorter flights
-    arc := ((distanceInRange-aMinRange)/(aMaxRange-aMinRange))*(PROJECTILE_ARC[aProjType, 1] + KaMRandomS2(PROJECTILE_ARC[aProjType, 2], 'TKMProjectiles.AimTarget 4'));
+    arc := ((distanceInRange-aMinRange)/(aMaxRange-aMinRange))*(PROJECTILE_ARC[aProjType, 1] + KaMRandomS2(PROJECTILE_ARC[aProjType, 2]{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget 4'{$ENDIF}));
 
     //Check whether this predicted target will hit a friendly unit
     if gTerrain.TileInMapCoords(Round(target.X), Round(target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
@@ -191,39 +191,54 @@ begin
 end;
 
 
-function TKMProjectiles.AimTarget(const aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word;
+function TKMProjectiles.AimTarget(const aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange, aMinRange: Single): Word;
 var
   speed, arc: Single;
   distanceToHit, distanceInRange: Single;
   aim, target: TKMPointF;
 begin
-  speed := PROJECTILE_SPEED[aProjType] + KaMRandomS2(0.05, 'TKMProjectiles.AimTarget 5');
+  speed := PROJECTILE_SPEED[aProjType] + KaMRandomS2(0.05{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget 5'{$ENDIF});
 
   aim := KMPointF(aTarget.GetRandomCellWithin);
-  target.X := aim.X + KaMRandomS2(PROJECTILE_JITTER_HOUSE[aProjType], 'TKMProjectiles.AimTarget 6'); //So that arrows were within house area, without attitude to tile corners
-  target.Y := aim.Y + KaMRandomS2(PROJECTILE_JITTER_HOUSE[aProjType], 'TKMProjectiles.AimTarget 7');
+  target.X := aim.X + KaMRandomS2(PROJECTILE_JITTER_HOUSE[aProjType]{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget 6'{$ENDIF}); //So that arrows were within house area, without attitude to tile corners
+  target.Y := aim.Y + KaMRandomS2(PROJECTILE_JITTER_HOUSE[aProjType]{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget 7'{$ENDIF});
 
   //Calculate the arc, less for shorter flights
-  //@Rey: As revealed in chat, this is an erroneous code
-  // It should be something alike
-  // distanceToHit := GetLength(aStart.X - target.X, aStart.Y - target.Y);
-  distanceToHit := GetLength(target.X, target.Y);
+  distanceToHit := GetLength(aStart.X - target.X, aStart.Y - target.Y);
   distanceInRange := EnsureRange(distanceToHit, aMinRange, aMaxRange);
 
-  //@Rey: As revealed in chat, this is an erroneous code
-  // It should be something alike
-  // arc = Max((distanceInRange - aMinRange) / aMaxRange * ProjectileArcs[aProjType, 1] + KaMRandomS2(ProjectileArcs[aProjType, 2], 'TKMProjectiles.AimTarget 8')), 0);
-  arc := (distanceInRange/distanceToHit)*(PROJECTILE_ARC[aProjType, 1] + KaMRandomS2(PROJECTILE_ARC[aProjType, 2], 'TKMProjectiles.AimTarget 8'));
+  arc := Math.Max((distanceInRange - aMinRange) / (aMaxRange - aMinRange) * PROJECTILE_ARC[aProjType, 1] + KaMRandomS2(PROJECTILE_ARC[aProjType, 2], 'TKMProjectiles.AimTarget 8'), 0);
 
   Result := AddItem(aStart, aim, target, speed, arc, aMaxRange, aProjType, aOwner);
 end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(const aStart,aAim,aEnd: TKMPointF; aSpeed,aArc,aMaxLength: Single; aProjType: TKMProjectileType; aOwner: TKMUnit): Word;
-const //TowerRock position is a bit different for reasons said below
-  OFFSET_X: array [TKMProjectileType] of Single = (0.5, 0.5, 0.5, -0.25); //Recruit stands in entrance, Tower middleline is X-0.75
-  OFFSET_Y: array [TKMProjectileType] of Single = (0.2, 0.2, 0.2, -0.2); //Add towers height
+function TKMProjectiles.AddItem(const aStart, aAim, aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TKMProjectileType; aOwner: TKMUnit): Word;
+const
+  // TowerRock position is a bit different for reasons said below
+  // Recruit stands in entrance, Tower middleline is X-0.75
+  OFFSET_X: array [TKMDirection] of array [TKMProjectileType] of Single =
+    ((0.5, 0.5, 0.5, -0.25),  // dirNA
+     (0.5, 0.5, 0.7, -0.25),  // dirN
+     (1.0, 0.5, 0.7, -0.25),  // dirNE
+     (0.7, 0.5, 0.7, -0.25),  // dirE
+     (0.7, 0.5, 0.7, -0.25),  // dirSE
+     (0.4, 0.4, 0.3, -0.25),  // dirS
+     (0.4, 0.4, 0.5, -0.25),  // dirSW
+     (0.4, 0.4, 0.5, -0.25),  // dirW
+     (0.3, 0.5, 0.5, -0.25)); // dirNW
+  // Add towers height
+  OFFSET_Y: array [TKMDirection] of array [TKMProjectileType] of Single =
+    ((0.2, 0.2, 0.2, -0.2),  // dirNA
+     (0.2, 0.2, 0.2, -0.2),  // dirN
+     (0.0, 0.6, 0.5, -0.2),  // dirNE
+     (0.3, 0.35,0.3, -0.2),  // dirE
+     (0.5, 0.4, 0.5, -0.2),  // dirSE
+     (0.3, 0.2, 0.4, -0.2),  // dirS
+     (0.4, 0.4, 0.2, -0.2),  // dirSW
+     (0.2, 0.3, 0.3, -0.2),  // dirW
+     (0.1, 0.3, 0.3, -0.2)); // dirNW
 var
   I: Integer;
 begin
@@ -245,8 +260,8 @@ begin
   fItems[I].fTarget.Y := EnsureRange(aEnd.Y, 0, gTerrain.MapY-0.01);
   fItems[I].fShotFrom := aStart;
 
-  fItems[I].fScreenStart.X := aStart.X + OFFSET_X[aProjType];
-  fItems[I].fScreenStart.Y := gTerrain.FlatToHeight(aStart).Y + OFFSET_Y[aProjType];
+  fItems[I].fScreenStart.X := aStart.X + OFFSET_X[aOwner.Direction, aProjType];
+  fItems[I].fScreenStart.Y := gTerrain.FlatToHeight(aStart).Y + OFFSET_Y[aOwner.Direction, aProjType];
   fItems[I].fScreenEnd.X := fItems[I].fTarget.X + 0.5; //projectile hits on Unit's chest height
   fItems[I].fScreenEnd.Y := gTerrain.FlatToHeight(fItems[I].fTarget).Y + 0.5;
 
@@ -287,7 +302,7 @@ begin
         begin
           U := gTerrain.UnitsHitTestF(fTarget);
           //Projectile can miss depending on the distance to the unit
-          if (U = nil) or ((1 - Math.Min(KMLength(U.PositionF, fTarget), 1)) > KaMRandom('TKMProjectiles.UpdateState')) then
+          if (U = nil) or ((1 - Math.Min(KMLength(U.PositionF, fTarget), 1)) > KaMRandom({$IFDEF RNG_SPY}'TKMProjectiles.UpdateState'{$ENDIF})) then
           begin
             case fType of
               ptArrow,
@@ -302,7 +317,7 @@ begin
                               if fType = ptSlingRock then Damage := gRes.Units[utRogue].Attack;
                               Damage := Round(Damage / Math.max(gRes.Units[U.UnitType].GetDefenceVsProjectiles(fType = ptBolt), 1)); //Max is not needed, but animals have 0 defence
                               if (FRIENDLY_FIRE or (gHands.CheckAlliance(fOwner.Owner, U.Owner)= atEnemy))
-                              and (Damage >= KaMRandom(101, 'TKMProjectiles.UpdateState')) then
+                              and (Damage >= KaMRandom(101{$IFDEF RNG_SPY}, 'TKMProjectiles.UpdateState'{$ENDIF})) then
                                 U.HitPointsDecrease(1, fOwner);
                             end
                             else

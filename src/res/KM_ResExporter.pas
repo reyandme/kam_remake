@@ -146,6 +146,8 @@ begin
       try
         if sprites.LoadRXASprites(aRT) then
         begin
+          if TThread.CheckTerminated then Exit;
+
           spritePack := sprites[aRT];
 
           PrepareAtlasMap(spritePack);
@@ -153,7 +155,10 @@ begin
           folderPath := ExeDir + 'Export' + PathDelim + RX_INFO[aRT].FileName + '.rxa' + PathDelim;
           ForceDirectories(folderPath);
           for I := 1 to spritePack.RXData.Count do
+          begin
             ExportFullImageDataFromAtlas(spritePack, I, folderPath);
+            if TThread.CheckTerminated then Exit;
+          end;
         end;
       finally
         sprites.Free;
@@ -189,11 +194,13 @@ begin
       sprites.LoadRXASprites(rxUnits);
       spritePack := sprites[rxUnits];
 
+      if TThread.CheckTerminated then Exit;
+
       PrepareAtlasMap(spritePack);
 
       units := TKMResUnits.Create;
       resTexts := TKMTextLibraryMulti.Create;
-      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
       resTexts.ForceDefaultLocale := True;
 
       folderPath := ExeDir + 'Export' + PathDelim + 'UnitAnimHD' + PathDelim;
@@ -351,9 +358,11 @@ begin
       spritePack := sprites[rxUnits];
       rxData := spritePack.RXData;
 
+      if TThread.CheckTerminated then Exit;
+
       units := TKMResUnits.Create;
       resTexts := TKMTextLibraryMulti.Create;
-      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
       resTexts.ForceDefaultLocale := True;
 
       folderPath := ExeDir + 'Export' + PathDelim + 'UnitAnim' + PathDelim;
@@ -482,13 +491,15 @@ begin
       sprites.LoadRXASprites(rxHouses);
       spritePack := sprites[rxHouses];
 
+      if TThread.CheckTerminated then Exit;
+
       folderPath := ExeDir + 'Export' + PathDelim + 'HouseAnimHD' + PathDelim;
       ForceDirectories(folderPath);
 
       houses := TKMResHouses.Create;
 
       resTexts := TKMTextLibraryMulti.Create;
-      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
       resTexts.ForceDefaultLocale := True;
 
       PrepareAtlasMap(spritePack);
@@ -580,13 +591,15 @@ begin
     sprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows anyways
     spritePack := sprites[rxHouses];
 
+    if TThread.CheckTerminated then Exit;
+
     folderPath := ExeDir + 'Export' + PathDelim + 'HouseAnim' + PathDelim;
     ForceDirectories(folderPath);
 
     houses := TKMResHouses.Create;
 
     resTexts := TKMTextLibraryMulti.Create;
-    resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx');
+    resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
     resTexts.ForceDefaultLocale := True;
     try
       for HT := HOUSE_MIN to HOUSE_MAX do
@@ -733,6 +746,8 @@ begin
         sprites.LoadRXASprites(rxTrees);
         spritePack := sprites[rxTrees];
 
+        if TThread.CheckTerminated then Exit;
+
         folderPath := ExeDir + 'Export' + PathDelim + 'TreeAnimHD' + PathDelim;
         ForceDirectories(folderPath);
 
@@ -783,6 +798,8 @@ begin
       sprites := TKMResSprites.Create(nil, nil, True);
       sprites.LoadSprites(rxTrees, False);
       spritePack := sprites[rxTrees];
+
+      if TThread.CheckTerminated then Exit;
 
       folderPath := ExeDir + 'Export' + PathDelim + 'TreeAnim' + PathDelim;
       ForceDirectories(folderPath);

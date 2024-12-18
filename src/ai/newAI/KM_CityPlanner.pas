@@ -1854,7 +1854,7 @@ begin
           if not (HT in [htWatchTower, htWoodcutters, htCoalMine, htIronMine, htGoldMine])
             AND not (HT in HOUSE_DEPENDENCE[aHT]) then
             for L := fPlannedHouses[HT].Count - 1 downto 0 do
-              if (InitPointList.Count = 0) OR (HT = htStore) OR (KaMRandom('TKMCityPlanner.FindPlaceForHouse') < PROBABILITY) then
+              if (InitPointList.Count = 0) OR (HT = htStore) OR (KaMRandom({$IFDEF RNG_SPY}'TKMCityPlanner.FindPlaceForHouse'{$ENDIF}) < PROBABILITY) then
               begin
                 if (InitPointList.Count >= MAX_RND_HOUSES) then
                   break;

@@ -11,7 +11,8 @@ type
     constructor Create(const aMsg: UnicodeString; const aLoc: TKMPoint);
   end;
 
-  //Error while game initialization
+  // Error while game initialization
+  // madExcept ignores it, since we just want to show simple message instead
   EGameInitError = class(Exception);
 
 implementation

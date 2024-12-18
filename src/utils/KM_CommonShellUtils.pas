@@ -5,15 +5,21 @@ interface
   function ShellOpenFile(const aURL: string): Boolean;
   function ShellOpenFolder(const aURL: string; aSelectFile: Boolean): Boolean;
 
+  {$IFNDEF Unix}
   function GetMemUsed: NativeUInt;
   function GetCommittedStackSize: NativeUInt;
+  {$ENDIF}
 
 implementation
 uses
   {$IFDEF MSWindows}Windows, {$ENDIF}
   Forms
   {$IFDEF WDC}, ShellApi, PsAPI {$ENDIF}
+  {$IFDEF Unix}
+  {$IFDEF FPC}, LCLIntF {$ENDIF}
+  {$ELSE}
   {$IFDEF FPC}, JwaPsApi {$ENDIF}
+  {$ENDIF}
   ;
 
 
@@ -32,8 +38,10 @@ end;
 
 
 function ShellOpenFolder(const aURL: string; aSelectFile: Boolean): Boolean;
-var
+{$IFDEF WDC}
+  var
   url: string;
+{$ENDIF}
 begin
   if aURL = '' then Exit(False);
 
@@ -51,6 +59,7 @@ begin
 end;
 
 
+{$IFNDEF Unix}
 function GetMemUsed: NativeUInt;
 var
   pmc: PPROCESS_MEMORY_COUNTERS;
@@ -82,6 +91,7 @@ asm
   sub rax, rdx          // compute difference in RAX (=Result)
  {$ENDIF}
 end;
+{$ENDIF}
 
 
 end.

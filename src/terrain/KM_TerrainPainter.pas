@@ -427,7 +427,7 @@ begin
   LandTerKind[Y+1, X].TerKind   := aTerKind;
 
   gTerrain.Land^[Y, X].BaseLayer.Terrain := PickRandomTile(aTerKind);
-  gTerrain.Land^[Y, X].BaseLayer.Rotation := KaMRandom(4, 'TKMTerrainPainter.BrushTerrainTile'); //Random direction for all plain tiles
+  gTerrain.Land^[Y, X].BaseLayer.Rotation := KaMRandom(4{$IFDEF RNG_SPY}, 'TKMTerrainPainter.BrushTerrainTile'{$ENDIF}); //Random direction for all plain tiles
   gTerrain.Land^[Y, X].IsCustom := False;
 
   AddBrushAreaTerKind(X,  Y);
@@ -482,8 +482,8 @@ begin
     case aObjType of
       otTrees:        begin
                         case gCursor.MapEdForestAge of
-                          0:  treeAge := TREE_AGE[KaMRandom(Length(TREE_AGE), 'TKMTerrainPainter.PickRandomObject')];
-                          1:  treeAge := TREE_AGE[KaMRandom(Length(TREE_AGE) - 1, 'TKMTerrainPainter.PickRandomObject')];
+                          0:  treeAge := TREE_AGE[KaMRandom(Length(TREE_AGE){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF})];
+                          1:  treeAge := TREE_AGE[KaMRandom(Length(TREE_AGE) - 1{$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF})];
                           else
                             treeAge := TREE_AGE[gCursor.MapEdForestAge - 2];
                         end;
@@ -491,50 +491,50 @@ begin
                         Result := gTerrain.ChooseTreeToPlace(KMPoint(aX, aY), treeAge, False);
                       end;
       otAllButTrees:  begin
-                        objRandom := KaMRandom(High(RandomObjects[aTerrainKind]), 'TKMTerrainPainter.PickRandomObject');
+                        objRandom := KaMRandom(High(RandomObjects[aTerrainKind]){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF});
                         Result := RandomObjects[aTerrainKind, objRandom];
                       end;
       otFlowers:      if (tpWolf in gTerrain.Land^[aY, aX].Passability) then begin
-                        objRandom := KaMRandom(High(RandomFlowers), 'TKMTerrainPainter.PickRandomObject');
+                        objRandom := KaMRandom(High(RandomFlowers){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF});
                         Result := RandomFlowers[objRandom];
                       end;
       otMushrooms:    if   (aTerrainKind in [tkGrass..tkPaleGrass])
                         or (aTerrainKind in [tkGrassSand1..tkGrassSand2])
                         or (aTerrainKind in [tkGrassDirt..tkDirt]) then
                       begin
-                        objRandom := KaMRandom(High(RandomMushrooms), 'TKMTerrainPainter.PickRandomObject');
+                        objRandom := KaMRandom(High(RandomMushrooms){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF});
                         Result := RandomMushrooms[objRandom];
                       end;
       otStumps:       if   (aTerrainKind in [tkGrass..tkGrassSand3])
                         or (aTerrainKind in [tkGrassDirt..tkDirt]) then
                       begin
-                        objRandom := KaMRandom(High(RandomStumps), 'TKMTerrainPainter.PickRandomObject');
+                        objRandom := KaMRandom(High(RandomStumps){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF});
                         Result := RandomStumps[objRandom];
                       end;
       otDeadTrees:    if   (aTerrainKind in [tkGrass..tkGrassSand3])
                         or (aTerrainKind in [tkGrassDirt..tkDirt]) then
                       begin
-                        objRandom := KaMRandom(High(RandomDeadTrees), 'TKMTerrainPainter.PickRandomObject');
+                        objRandom := KaMRandom(High(RandomDeadTrees){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF});
                         Result := RandomDeadTrees[objRandom];
                       end;
       otStones:       if (tpMakeRoads in gTerrain.Land^[aY, aX].Passability) then
                       begin
-                        objRandom := KaMRandom(High(RandomStones), 'TKMTerrainPainter.PickRandomObject');
+                        objRandom := KaMRandom(High(RandomStones){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF});
                         Result := RandomStones[objRandom];
                       end;
       otBushes:       if aTerrainKind in [tkGrassSand3..tkSand] then
                       begin
-                        objRandom := KaMRandom(High(RandomBush), 'TKMTerrainPainter.PickRandomObject');
+                        objRandom := KaMRandom(High(RandomBush){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF});
                         Result := RandomBush[objRandom];
                       end;
       otCactus:       if aTerrainKind in [tkGrassSand3..tkSand] then
                       begin
-                        objRandom := KaMRandom(High(RandomCactus), 'TKMTerrainPainter.PickRandomObject');
+                        objRandom := KaMRandom(High(RandomCactus){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF});
                         Result := RandomCactus[objRandom];
                       end;
       otRuins:        if (tpMakeRoads in gTerrain.Land^[aY, aX].Passability) then
                       begin
-                        objRandom := KaMRandom(High(RandomRuins), 'TKMTerrainPainter.PickRandomObject');
+                        objRandom := KaMRandom(High(RandomRuins){$IFDEF RNG_SPY}, 'TKMTerrainPainter.PickRandomObject'{$ENDIF});
                         Result := RandomRuins[objRandom];
                       end;
     end;
@@ -600,7 +600,7 @@ begin
       Inc(I);
     end;
 
-  mostTKI := mostTKIs[KaMRandom(I, 'TKMTerrainPainter.TryGetVertexEffectiveTerKind')];
+  mostTKI := mostTKIs[KaMRandom(I{$IFDEF RNG_SPY}, 'TKMTerrainPainter.TryGetVertexEffectiveTerKind'{$ENDIF})];
 
   noCustomTK := vertexTKinds[0] <> tkCustom;
   for K := 1 to vrxCnt - 1 do
@@ -662,11 +662,11 @@ begin
 
   if aTerrainKind in [tkStone..tkIronMount, tkCoal..tkIron] then
     //Equal chance
-    Result := RandomTiling[aTerrainKind, KaMRandom(RandomTiling[aTerrainKind, 0], 'TKMTerrainPainter.GetRandomTile') + 1]
+    Result := RandomTiling[aTerrainKind, KaMRandom(RandomTiling[aTerrainKind, 0]{$IFDEF RNG_SPY}, 'TKMTerrainPainter.GetRandomTile'{$ENDIF}) + 1]
   else
-  if KaMRandom(6, 'TKMTerrainPainter.GetRandomTile 2') = 1 then
+  if KaMRandom(6{$IFDEF RNG_SPY}, 'TKMTerrainPainter.GetRandomTile 2'{$ENDIF}) = 1 then
     //Chance reduced to 1/6
-    Result := RandomTiling[aTerrainKind, KaMRandom(RandomTiling[aTerrainKind, 0], 'TKMTerrainPainter.GetRandomTile 3') + 1];
+    Result := RandomTiling[aTerrainKind, KaMRandom(RandomTiling[aTerrainKind, 0]{$IFDEF RNG_SPY}, 'TKMTerrainPainter.GetRandomTile 3'{$ENDIF}) + 1];
 end;
 
 
@@ -755,7 +755,7 @@ begin
   if ter1 = ter2 then
   begin
     T := PickRandomTile(ter1, aRandomTiles);
-    rot := KaMRandom(4, 'TKMTerrainPainter.RebuildTile'); //random direction for all plain tiles
+    rot := KaMRandom(4{$IFDEF RNG_SPY}, 'TKMTerrainPainter.RebuildTile'{$ENDIF}); //random direction for all plain tiles
   end;
 
   //Need to check if this tile was already smart-painted, "4-Nodes" hence default value is 0
@@ -1547,7 +1547,7 @@ begin
     for OT := Low(TKMTerrainObjectType) to High(TKMTerrainObjectType) do
       if gCursor.MapEdObjectsType[OT] then
       begin
-        key := KaMRandom(400 div gCursor.MapEdObjectsDensity, 'TKMTerrainPainter.BrushObjects');
+        key := KaMRandom(400 div gCursor.MapEdObjectsDensity{$IFDEF RNG_SPY}, 'TKMTerrainPainter.BrushObjects'{$ENDIF});
         if key < 2 then
         begin
           if aUseLandTKind then
@@ -1630,7 +1630,7 @@ begin
     // Now we need to check whether point is inside brush type area(circle etc.)
     // Every MapEdShape case has it's own check routine
     case fShape of
-      hsCircle: tmp := Max((1 - GetLength(I - fMapYn, K - fMapXn) / fSize), 0);   // Negative number means that point is outside circle
+      hsCircle: tmp := Max((1 - GetLengthI(I - fMapYn, K - fMapXn) / fSize), 0);   // Negative number means that point is outside circle
       hsSquare: tmp := 1 - Max(Abs(I - fMapYn), Abs(K - fMapXn)) / fSize;
       else      tmp := 0;
     end;
@@ -1651,7 +1651,7 @@ begin
           else
           if tmp <> 0 then // Tmp = 0 outside of hsCircle area
             //Add random value (-1/0/1) so absolutely flat surface will be unequlized too
-            tmp := KaMRandom(2, 'TKMTerrainPainter.ApplyHeight')*3 - 2;
+            tmp := KaMRandom(2{$IFDEF RNG_SPY}, 'TKMTerrainPainter.ApplyHeight'{$ENDIF})*3 - 2;
         end
         else
           tmp := 0;
@@ -2275,7 +2275,7 @@ begin
                       if gCursor.MapEdDir in [0..3] then //Defined direction
                         EditTile(gCursor.Cell, gCursor.Tag1, gCursor.MapEdDir)
                       else //Random direction
-                        EditTile(gCursor.Cell, gCursor.Tag1, KaMRandom(4, 'TKMTerrainPainter.UpdateStateIdle'));
+                        EditTile(gCursor.Cell, gCursor.Tag1, KaMRandom(4{$IFDEF RNG_SPY}, 'TKMTerrainPainter.UpdateStateIdle'{$ENDIF}));
                     end;
     cmObjects:      if ssLeft in gCursor.SState then
                       gTerrain.SetObject(gCursor.Cell, gCursor.Tag1);

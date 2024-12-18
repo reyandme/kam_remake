@@ -291,7 +291,7 @@ begin
   fOrderLoc := KMPointDir(PosX, PosY, aDir);
 
   //Whole group should have the same condition
-  newCondition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS2(UNIT_CONDITION_RANDOM, 'TKMUnitGroup.Create')));
+  newCondition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS2(UNIT_CONDITION_RANDOM{$IFDEF RNG_SPY}, 'TKMUnitGroup.Create'{$ENDIF})));
 
   if gGameParams.IsMapEditor then
   begin
@@ -888,7 +888,7 @@ begin
           end;
 
         if offender = nil then
-          offender := fOffenders[KaMRandom(fOffenders.Count, 'TKMUnitGroup.CheckForFight')];
+          offender := fOffenders[KaMRandom(fOffenders.Count{$IFDEF RNG_SPY}, 'TKMUnitGroup.CheckForFight'{$ENDIF})];
 
         fMembers[I].OrderWalk(offender.PositionNext, False);
         // Set warrior attacking some offender, to avoid switching to another offender
@@ -1320,8 +1320,14 @@ begin
       else
         if not fMembers[I].IsIdle then
         begin
-          fMembers[I].OrderWalk(fMembers[I].PositionNext, True, aForced); //We are at the right spot already, just need to abandon what we are doing
-          fMembers[I].FaceDir := fOrderLoc.Dir;
+
+          // We are at the right spot already. Restart what we are doing (with stub Walk order) only if the direction has changed
+          // (important for archers who got order to attack different enemy)
+          if (fMembers[I].FaceDir <> fOrderLoc.Dir) then
+          begin
+            fMembers[I].OrderWalk(fMembers[I].PositionNext, True, aForced); //We are at the right spot already, just need to abandon what we are doing
+            fMembers[I].FaceDir := fOrderLoc.Dir;
+          end;
         end
         else
         begin
@@ -1445,7 +1451,7 @@ begin
     if not fSelected.IsDeadOrDying then
     begin
       if not aTargetGroup.HasMember(fSelected) then
-        gLog.AddNoTimeNoFlush(
+        gLog.AddNoTime(
           Format('Make sure we joined selected unit. Group UID: %d; TargetGroup UID: %d Selected member UID: %d',
                  [UID, aTargetGroup.UID, fSelected.UID]));
       aTargetGroup.fSelected := fSelected;
@@ -1834,7 +1840,7 @@ begin
   end;
 
   //Script may have additional event processors
-  gScriptEvents.ProcGroupOrderMove(Self, aLoc.X, aLoc.Y);
+  gScriptEvents.ProcGroupOrderMove(Self, aLoc.X, aLoc.Y, newDir);
 end;
 
 

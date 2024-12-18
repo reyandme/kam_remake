@@ -46,7 +46,7 @@ begin
     3: SetActionWalkToSpot(fUnit.Home.PointBelowEntrance);
     4: SetActionGoIn(uaWalk, gdGoInside, fUnit.Home);
     5: begin
-         SetActionStay(20 + KaMRandom(10, 'TKMTaskGoOutShowHungry.Execute'), uaWalk);
+         SetActionStay(20 + KaMRandom(10{$IFDEF RNG_SPY}, 'TKMTaskGoOutShowHungry.Execute'{$ENDIF}), uaWalk);
          Home.SetState(hstIdle);
        end;
     else begin

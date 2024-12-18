@@ -42,6 +42,7 @@ function Max(const A,B,C: Single): Single; overload;
   function GetLength(ix,iy,iz: single): single; overload;
   function GetLength(ix,iy: single): single; overload;
   function GetLength(ix,iy: integer): single; overload;
+  function GetLengthI(ix,iy: integer): single; overload;
 
   function Mix(x1,x2,MixValue:single):single; overload;
   function Mix(x1,x2:integer; MixValue:single):integer; overload;
@@ -60,7 +61,9 @@ function Max(const A,B,C: Single): Single; overload;
   procedure SwapInt(var A, B: Integer); overload;
   procedure SwapInt(var A, B: Cardinal); overload;
   {$IFDEF WDC} //Cardinal == NativeUInt == LongWord for 32bit FPC
+  {$IFNDEF WDC12PLUS}
   procedure SwapInt(var A, B: NativeUInt); overload;
+  {$ENDIF}
   {$ENDIF}
   procedure SwapFloat(var A, B: Single);
   function Equals(A, B: single; const Epsilon: Single = 0.001): Boolean;
@@ -345,6 +348,12 @@ begin
 end;
 
 
+function GetLengthI(ix, iy: integer): single; overload;
+begin
+  Result := GetLength(ix, iy);
+end;
+
+
 function Mix(x1, x2, MixValue: single): single; overload;
 begin
   Result := x1 * MixValue + x2 * (1 - MixValue);
@@ -477,12 +486,14 @@ begin
 end;
 
 {$IFDEF WDC}
+{$IFNDEF WDC12PLUS}
 procedure SwapInt(var A,B: NativeUInt);
 var
   s: NativeUInt;
 begin
   s:=A; A:=B; B:=s;
 end;
+{$ENDIF}
 {$ENDIF}
 
 procedure SwapFloat(var A,B:single);

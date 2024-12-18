@@ -174,7 +174,8 @@ uses
   KM_GameSavePoints,
   KM_Cursor, KM_ResTexts, KM_ResKeys, KM_ResTypes,
   KM_IoGraphicUtils, KM_Settings,
-  KM_Saves, KM_CommonUtils, KM_CommonShellUtils, KM_RandomChecks,
+  KM_Saves, KM_CommonUtils, KM_CommonShellUtils,
+  {$IFDEF RNG_SPY}KM_RandomChecks,{$ENDIF}
   KM_DevPerfLog, KM_DevPerfLogTypes;
 
 
@@ -202,8 +203,10 @@ begin
 
   gCursor := TKMCursor.Create;
 
+  {$IFDEF RNG_SPY}
   if gGameSettings.DebugSaveRandomChecks and SAVE_RANDOM_CHECKS then
     gRandomCheckLogger := TKMRandomCheckLogger.Create;
+  {$ENDIF}
 
   gRes := TKMResource.Create(aOnLoadingStep, aOnLoadingText);
   gRes.LoadMainResources(gGameSettings.Locale, gGameSettings.GFX.LoadFullFonts);
@@ -278,7 +281,7 @@ begin
   FreeThenNil(gSoundPlayer);
   FreeThenNil(gMusic);
   FreeAndNil(fNetworking);
-  FreeAndNil(gRandomCheckLogger);
+  {$IFDEF RNG_SPY} FreeAndNil(gRandomCheckLogger); {$ENDIF}
   FreeAndNil(gCursor);
 
   FreeThenNil(gRender);
@@ -746,10 +749,11 @@ begin
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
       loadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [filePath]) + '||' + E.ClassName + ': ' + E.Message;
-      StopGame(grError, loadError);
+      // Log the error first, because we can crash while stopping the game
       gLog.AddTime('Game creation Exception: ' + loadError
         {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
         );
+      StopGame(grError, loadError);
       Exit;
     end;
   end;
@@ -1383,17 +1387,21 @@ end;
 
 
 procedure TKMGameApp.UpdatePerflog;
+{$IFNDEF Unix}
 {$IFDEF PERFLOG}
 var
   memUsed, stackUsed: NativeUInt;
 {$ENDIF}
+{$ENDIF}
 begin
+  {$IFNDEF Unix}
   {$IFDEF PERFLOG}
   memUsed := GetMemUsed;
   stackUsed := GetCommittedStackSize;
 
   gPerfLogs.SectionAddValue(psMemUsed, memUsed div (10*1024), fGlobalTickCount, IntToStr(memUsed div (1024*1024)) + 'Mb');
   gPerfLogs.SectionAddValue(psStackUsed, stackUsed div 128, fGlobalTickCount, IntToStr(stackUsed div 1024) + 'Kb');
+  {$ENDIF}
   {$ENDIF}
 end;
 

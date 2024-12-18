@@ -48,6 +48,7 @@ type
     FTime: Int64;
 
     FCallback: TKMVideoPlayerCallback;
+    FBrightness: Integer;
 
     FInstance: PVLCInstance;
     FMediaPlayer: PVLCMediaPlayer;
@@ -487,6 +488,15 @@ begin
   FWidth := 0;
   FHeight := 0;
 
+  FBrightness := gGameSettings.GFX.Brightness;
+
+  // Minimum brightness for video is 1, otherwise we would see white screen
+  // Todo: Check if render parameters are set correctly,
+  // because we probably help to draw it with our Brightness 1,
+  // while it should be fine with Brightness 0 regardless
+  if FBrightness = 0 then
+    gGameSettings.GFX.Brightness := 1;
+
   path := FVideoList[FIndex].Path;
 
   FInstance := libvlc_new(0, nil);
@@ -595,6 +605,9 @@ begin
       else
         gMusic.Unfade(UNFADE_MUSIC_TIME);
     end;
+
+    // Restore brightness
+    gGameSettings.GFX.Brightness := FBrightness;
 
     if Assigned(FCallback) then
     begin

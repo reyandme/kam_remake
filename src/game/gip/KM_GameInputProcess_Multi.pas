@@ -440,7 +440,7 @@ begin
 
   fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
-  fRandomCheck[tick].OurCheck := Cardinal(KaMRandom(MaxInt, 'TKMGameInputProcess_Multi.RunningTimer')); //thats our CRC (must go before commands for replay compatibility)
+  fRandomCheck[tick].OurCheck := Cardinal(KaMRandom(MaxInt{$IFDEF RNG_SPY}, 'TKMGameInputProcess_Multi.RunningTimer'{$ENDIF})); //thats our CRC (must go before commands for replay compatibility)
 
   //Execute commands, in order players go (1,2,3..)
   for I := 1 to gNetworking.NetPlayers.Count do

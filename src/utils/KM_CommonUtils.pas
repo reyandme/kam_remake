@@ -14,11 +14,12 @@ uses
 
   function IfThenS(aCondition: Boolean; const aIfTrue, aIfFalse: String): String;
 
-  function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
+  function GetPositionInGroup2(OriginX, OriginY: Integer; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Integer; out aTargetCanBeReached: Boolean): TKMPoint;
   function GetPositionFromIndex(const aOrigin: TKMPoint; aIndex: Byte): TKMPoint;
 
   function FixDelim(const aString: UnicodeString): UnicodeString;
 
+  function Max3I(const A,B,C: Integer): Integer;
   function Max3(const A,B,C: Integer): Integer; overload;
   function Min3(const A,B,C: Integer): Integer; overload;
   function Max4(const A,B,C,D: Integer): Integer;
@@ -77,13 +78,13 @@ uses
   function KaMRandomWSeed(var aSeed: Integer; aMax: Integer): Integer; overload;
   function KaMRandomWSeedS1(var aSeed: Integer; aMax: Integer): Single;
   function KaMRandomWSeedI2(var aSeed: Integer; Range_Both_Directions: Integer): Integer;
-  function KaMRandom(const aCaller: AnsiString; aLogRng: Boolean = True): Extended; overload;
-  function KaMRandom(aMax: Integer; const aCaller: AnsiString; aLogRng: Boolean = True): Integer; overload;
-  function KaMRandom(aMax: Cardinal; const aCaller: AnsiString; aLogRng: Boolean = True): Cardinal; overload;
-  function KaMRandom(aMax: Int64; const aCaller: AnsiString; aLogRng: Boolean = True): Int64; overload;
-  function KaMRandomS1(aMax: Single; const aCaller: AnsiString): Single;
-  function KaMRandomI2(Range_Both_Directions: Integer; const aCaller: AnsiString): Integer; overload;
-  function KaMRandomS2(Range_Both_Directions: Single; const aCaller: AnsiString): Single; overload;
+  function KaMRandom({$IFDEF RNG_SPY}const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Extended; overload;
+  function KaMRandom(aMax: Integer{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Integer; overload;
+  function KaMRandom(aMax: Cardinal{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Cardinal; overload;
+  function KaMRandom(aMax: Int64{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Int64; overload;
+  function KaMRandomS1(aMax: Single{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single;
+  function KaMRandomI2(Range_Both_Directions: Integer{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Integer; overload;
+  function KaMRandomS2(Range_Both_Directions: Single{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single; overload;
 
   function IsGameStartAllowed(aGameStartMode: TKMGameStartMode): Boolean;
   function GetGameVersionNum(const aGameVersionStr: AnsiString): Integer; overload;
@@ -172,6 +173,14 @@ uses
   procedure DeleteFromArray(var Arr: TAnsiStringArray; const Index: Integer); overload;
   procedure DeleteFromArray(var Arr: TIntegerArray; const Index: Integer); overload;
 
+  {$IFDEF FPC}
+  {$IFDEF Unix}
+  function AtomicExchange(var Target: longint; Source: longint): longint; external name 'FPC_INTERLOCKEDEXCHANGE';
+  function AtomicIncrement(var Target: longint): longint;
+  function AtomicDecrement(var Target: longint): longint;
+  {$ENDIF}
+  {$ENDIF}
+
 const
   DEFAULT_ATTEMPS_CNT_TO_TRY = 3;
 
@@ -196,7 +205,7 @@ implementation
 uses
   StrUtils, Types,
   {$IFDEF USE_MAD_EXCEPT} madStackTrace, {$ENDIF}
-  {$IFDEF WDC} KM_RandomChecks, {$ENDIF}
+  {$IFDEF WDC} {$IFDEF RNG_SPY}KM_RandomChecks, {$ENDIF}{$ENDIF}
   KM_Log;
 
 const
@@ -606,7 +615,7 @@ end;
 {Returns point where unit should be placed regarding direction & offset from Commanders position}
 // 23145     231456
 // 6789X     789xxx
-function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
+function GetPositionInGroup2(OriginX, OriginY: Integer; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Integer; out aTargetCanBeReached: Boolean): TKMPoint;
 const
   DirAngle: array [TKMDirection] of Word   = (0, 0, 45, 90, 135, 180, 225, 270, 315);
   DirRatio: array [TKMDirection] of Single = (0, 1, 1.41, 1, 1.41, 1, 1.41, 1, 1.41);
@@ -689,6 +698,11 @@ end;
 function Max3(const A,B,C: Integer): Integer;
 begin
   Result := Max(A, Max(B, C));
+end;
+
+function Max3I(const A,B,C: Integer): Integer;
+begin
+  Result := Max3(A, B, C);
 end;
 
 function Min3(const A,B,C: Integer): Integer;
@@ -1403,8 +1417,10 @@ begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
   {$IFDEF WDC}
+  {$IFDEF RNG_SPY}
   if SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
+  {$ENDIF}
   {$ENDIF}
 end;
 
@@ -1414,8 +1430,10 @@ begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
   {$IFDEF WDC}
+  {$IFDEF RNG_SPY}
   if SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
+  {$ENDIF}
   {$ENDIF}
 end;
 
@@ -1425,8 +1443,10 @@ begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
   {$IFDEF WDC}
+  {$IFDEF RNG_SPY}
   if SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
+  {$ENDIF}
   {$ENDIF}
 end;
 
@@ -1483,75 +1503,89 @@ begin
 end;
 
 
-function KaMRandom(const aCaller: AnsiString; aLogRng: Boolean = True): Extended;
+function KaMRandom({$IFDEF RNG_SPY}const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Extended;
 begin
   Result := KaMRandomWSeed(fKamSeed);
 
+  {$IFDEF RNG_SPY}
   if aLogRng then
     LogKamRandom(Result, aCaller, 'KMRand');
+  {$ENDIF}
 end;
 
 
-function KaMRandom(aMax: Integer; const aCaller: AnsiString; aLogRng: Boolean = True): Integer;
+function KaMRandom(aMax: Integer{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Integer;
 begin
   if CUSTOM_RANDOM then
-    Result := Trunc(KaMRandom(aCaller, False)*aMax)
+    Result := Trunc(KaMRandom({$IFDEF RNG_SPY}aCaller, False{$ENDIF})*aMax)
   else
     Result := Random(aMax);
 
+  {$IFDEF RNG_SPY}
   if aLogRng then
     LogKamRandom(Result, aCaller, 'I*');
+  {$ENDIF}
 end;
 
 
-function KaMRandom(aMax: Cardinal; const aCaller: AnsiString; aLogRng: Boolean = True): Cardinal;
+function KaMRandom(aMax: Cardinal{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Cardinal;
 begin
   if CUSTOM_RANDOM then
-    Result := Trunc(KaMRandom(aCaller, False)*aMax)
+    Result := Trunc(KaMRandom({$IFDEF RNG_SPY}aCaller, False{$ENDIF})*aMax)
   else
     Result := Random(aMax);
 
+  {$IFDEF RNG_SPY}
   if aLogRng then
     LogKamRandom(Integer(Result), aCaller, 'C*');
+  {$ENDIF}
 end;
 
 
-function KaMRandom(aMax: Int64; const aCaller: AnsiString; aLogRng: Boolean = True): Int64;
+function KaMRandom(aMax: Int64{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Int64;
 begin
   if CUSTOM_RANDOM then
-    Result := Trunc(KaMRandom(aCaller, False)*aMax)
+    Result := Trunc(KaMRandom({$IFDEF RNG_SPY}aCaller, False{$ENDIF})*aMax)
   else
     Result := Random(aMax);
 
+  {$IFDEF RNG_SPY}
   if aLogRng then
     LogKamRandom(Integer(Result), aCaller, 'I64*');
+  {$ENDIF}
 end;
 
 
 //Returns random number from -Range_Both_Directions to +Range_Both_Directions
-function KaMRandomI2(Range_Both_Directions: Integer; const aCaller: AnsiString): Integer;
+function KaMRandomI2(Range_Both_Directions: Integer{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Integer;
 begin
-  Result := KaMRandom(Range_Both_Directions*2+1, aCaller, False) - Range_Both_Directions;
+  Result := KaMRandom(Range_Both_Directions*2 + 1{$IFDEF RNG_SPY}, aCaller, False{$ENDIF}) - Range_Both_Directions;
 
+  {$IFDEF RNG_SPY}
   LogKamRandom(Result, aCaller, 'S2I*');
+  {$ENDIF}
 end;
 
 
 //Returns random number from -Range_Both_Directions to +Range_Both_Directions
-function KaMRandomS2(Range_Both_Directions: Single; const aCaller: AnsiString): Single;
+function KaMRandomS2(Range_Both_Directions: Single{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single;
 begin
-  Result := KaMRandom(Round(Range_Both_Directions*20000)+1, aCaller, False)/10000-Range_Both_Directions;
+  Result := KaMRandom(Round(Range_Both_Directions*20000) + 1{$IFDEF RNG_SPY}, aCaller, False{$ENDIF})/10000-Range_Both_Directions;
 
+  {$IFDEF RNG_SPY}
   LogKamRandom(Result, aCaller, 'S2S*');
+  {$ENDIF}
 end;
 
 
 //Returns random number from 0 to +aMax
-function KaMRandomS1(aMax: Single; const aCaller: AnsiString): Single;
+function KaMRandomS1(aMax: Single{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single;
 begin
-  Result := KaMRandom(Round(aMax*10000), aCaller, False)/10000;
+  Result := KaMRandom(Round(aMax*10000){$IFDEF RNG_SPY}, aCaller, False{$ENDIF})/10000;
 
+  {$IFDEF RNG_SPY}
   LogKamRandom(Result, aCaller, 'S1S*');
+  {$ENDIF}
 end;
 
 
@@ -2058,6 +2092,24 @@ begin
   if not Result then
     aErrorStr := Format('Error executing method (%d tries) %s for parameters: [%s, %s]', [aAttemps, aMethodName, aStrParam1, aStrParam2]);
 end;
+
+
+{$IFDEF FPC}
+{$IFDEF Unix}
+
+function AtomicIncrement(var Target: longint) : longint;
+begin
+  Result := InterlockedIncrement(Target);
+end;
+
+
+function AtomicDecrement(var Target: longint) : longint;
+begin
+  Result := InterlockedDecrement(Target);
+end;
+
+{$ENDIF}
+{$ENDIF}
 
 
 initialization

@@ -710,11 +710,17 @@ begin
 
   with fQueue[aI] do
   begin
-    if (DemandID = DELIVERY_NO_ID) or (DemandWare = wtNone) then Exit;
-    if (OfferID = DELIVERY_NO_ID) or (OfferWare = wtNone) then Exit;
+    if (DemandID = DELIVERY_NO_ID) and ((OfferID = DELIVERY_NO_ID)) then Exit;
+    if (DemandWare = wtNone) and (OfferWare = wtNone) then Exit;
 
-    if not fDemand[DemandWare, DemandID].IsActive
-      or not fOffer[OfferWare, OfferID].IsActive then Exit;
+    if (DemandID <> DELIVERY_NO_ID)
+      and (DemandWare <> wtNone)
+      and not fDemand[DemandWare, DemandID].IsActive then
+      Exit;
+
+    if (OfferID <> DELIVERY_NO_ID)
+      and (OfferWare <> wtNone)
+      and not fOffer[OfferWare, OfferID].IsActive then Exit;
 
     if Node = nil then
       Node := FormLogistics.VSTDeliveries.AddChild(nil); //Add to root
@@ -1514,7 +1520,7 @@ begin
       aBidBasicCost.OfferToDemand.Pass := tpWalkRoad;
 
       //Resource ratios are also considered
-      aBidBasicCost.OfferToDemand.Value := 5 + (5 - distr)*4 + KaMRandom(16 - 3*distr, 'TKMDeliveries.TryCalculateBidBasic');
+      aBidBasicCost.OfferToDemand.Value := 5 + (5 - distr)*4 + KaMRandom(16 - 3*distr{$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic'{$ENDIF});
     end
     else
     begin
@@ -1540,7 +1546,7 @@ begin
         Exit;
 
       //Resource ratios are also considered
-      aBidBasicCost.IncAddition(KaMRandom(16 - 3*distr, 'TKMDeliveries.TryCalculateBidBasic 2'));
+      aBidBasicCost.IncAddition(KaMRandom(16 - 3*distr{$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 2'{$ENDIF}));
     end;
   end
   else
@@ -1571,7 +1577,7 @@ begin
     //For all other deliveries, add some random element so in the case of identical
     //bids the same resource will not always be chosen (e.g. weapons storehouse->barracks
     //should take random weapon types not sequentially)
-    aBidBasicCost.IncAddition(KaMRandom(10, 'TKMDeliveries.TryCalculateBidBasic 3'));
+    aBidBasicCost.IncAddition(KaMRandom(10{$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 3'{$ENDIF}));
 
   if (dWT = wtAll)        // Always prefer deliveries House>House instead of House>Store
     or ((aOfferHouseType = htStore)    // Prefer taking wares from House rather than Store...
@@ -1630,9 +1636,9 @@ begin
     begin
       //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
       if fOffer[oWT,iO].Count = 0 then
-        aBidCost.IncAddition(KaMRandom(5 + 150, 'TKMDeliveries.TryCalculateBidBasic 4'))
+        aBidCost.IncAddition(KaMRandom(5 + 150{$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 4'{$ENDIF}))
       else
-        aBidCost.IncAddition(KaMRandom(5 + (100 div fOffer[oWT,iO].Count), 'TKMDeliveries.TryCalculateBidBasic 5'));
+        aBidCost.IncAddition(KaMRandom(5 + (100 div fOffer[oWT,iO].Count){$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 5'{$ENDIF}));
     end;
   finally
     {$IFDEF PERFLOG}
@@ -2308,6 +2314,8 @@ end;
 
 procedure TKMDeliveries.CloseDemand(aWare: TKMWareType; aID: Integer);
 begin
+  if gGame.IsExiting then Exit; // No need to perform anything in case the game is stopping at the moment
+
   Assert(fDemand[aWare,aID].BeingPerformed = 0);
 
   // Notify Demand house if Delete demand was requested

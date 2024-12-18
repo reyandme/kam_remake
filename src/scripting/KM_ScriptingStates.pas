@@ -463,6 +463,7 @@ procedure TKMScriptStates.AIDefencePositionGet(aHand, aID: Byte; out aX, aY: Int
 var
   DP: TAIDefencePosition;
 begin
+  //todo: Should return all zeroes in case of bad arguments
   try
     if InRange(aHand, 0, gHands.Count - 1) and (gHands[aHand].Enabled)
     and InRange(aID, 0, gHands[aHand].AI.General.DefencePositions.Count - 1) then
@@ -494,6 +495,7 @@ function TKMScriptStates.AIDefencePositionGetByIndex(aHand, aIndex: Integer): TK
 var
   DP: TAIDefencePosition;
 begin
+  //todo: Should return default(TKMDefencePositionInfo) in case of bad arguments
   try
     if InRange(aHand, 0, gHands.Count - 1) and (gHands[aHand].Enabled)
     and InRange(aIndex, 0, gHands[aHand].AI.General.DefencePositions.Count - 1) then
@@ -577,6 +579,7 @@ var
   gt: TKMGroupType;
   succeed: Boolean;
 begin
+  //todo: LogIntParamWarn is good, but the func should return all zeroes in case of bad arguments anyway
   try
     gt := gtNone;
 
@@ -600,6 +603,7 @@ procedure TKMScriptStates.AIGroupsFormationGetEx(aHand: Integer; aGroupType: TKM
 var
   succeed: Boolean;
 begin
+  //todo: LogIntParamWarn is good, but the func should return all zeroes in case of bad arguments anyway
   try
     _AIGroupsFormationGet(aHand, aGroupType, aCount, aColumns, succeed);
     if not succeed then
@@ -4180,7 +4184,7 @@ end;
 function TKMScriptStates.KaMRandom: Single;
 begin
   try
-    Result := KM_CommonUtils.KaMRandom('TKMScriptStates.KaMRandom');
+    Result := KM_CommonUtils.KaMRandom({$IFDEF RNG_SPY}'TKMScriptStates.KaMRandom'{$ENDIF});
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -4195,7 +4199,7 @@ function TKMScriptStates.KaMRandomI(aMax: Integer): Integer;
 begin
   try
     //No parameters to check, any integer is fine (even negative)
-    Result := KM_CommonUtils.KaMRandom(aMax, 'TKMScriptStates.KaMRandomI');
+    Result := KM_CommonUtils.KaMRandom(aMax{$IFDEF RNG_SPY}, 'TKMScriptStates.KaMRandomI'{$ENDIF});
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -5861,7 +5865,7 @@ end;
 
 //* Version: 5932
 //* Returns the type of the specified group or -1 if Group ID invalid
-//* Result: Group type
+//* Result: Group type, values are 0 - melee, 1 - antiHorse, 2 - ranged, 3 - mounted
 function TKMScriptStates.GroupType(aGroupID: Integer): Integer;
 var
   G: TKMUnitGroup;
@@ -5872,7 +5876,7 @@ begin
     begin
       G := fIDCache.GetGroup(aGroupID);
       if G <> nil then
-        Result := Byte(G.GroupType);
+        Result := Byte(G.GroupType) - GROUP_TYPE_MIN_OFF;
     end
     else
       LogIntParamWarn('States.GroupType', [aGroupID]);

@@ -187,14 +187,14 @@ type
     procedure CheckTakeOutDeliveryMode; virtual;
     function GetDeliveryModeForCheck(aImmidiate: Boolean): TKMDeliveryMode;
 
-    procedure SetWareDeliveryCount(aIndex: Integer; aCount: Word);
-    function GetWareDeliveryCount(aIndex: Integer): Word;
+    procedure SetWareDeliveryCount(aIndex: Integer; aCount: Integer);
+    function GetWareDeliveryCount(aIndex: Integer): Integer;
 
-    procedure SetWareDemandsClosing(aIndex: Integer; aCount: Word);
-    function GetWareDemandsClosing(aIndex: Integer): Word;
+    procedure SetWareDemandsClosing(aIndex: Integer; aCount: Integer);
+    function GetWareDemandsClosing(aIndex: Integer): Integer;
 
-    property WareDeliveryCnt[aIndex: Integer]: Word read GetWareDeliveryCount write SetWareDeliveryCount;
-    property WareDemandsClosing[aIndex: Integer]: Word read GetWareDemandsClosing write SetWareDemandsClosing;
+    property WareDeliveryCnt[aIndex: Integer]: Integer read GetWareDeliveryCount write SetWareDeliveryCount;
+    property WareDemandsClosing[aIndex: Integer]: Integer read GetWareDemandsClosing write SetWareDemandsClosing;
 
     function GetInstance: TKMHouse; override;
     function GetPositionForDisplayF: TKMPointF; override;
@@ -864,25 +864,29 @@ begin
 end;
 
 
-procedure TKMHouse.SetWareDeliveryCount(aIndex: Integer; aCount: Word);
+// Use aCount: Integer, instead of Word, since we don't want to get Range check error exception
+procedure TKMHouse.SetWareDeliveryCount(aIndex: Integer; aCount: Integer);
 begin
   fWareDeliveryCount[aIndex] := EnsureRange(aCount, 0, High(Word));
 end;
 
 
-function TKMHouse.GetWareDeliveryCount(aIndex: Integer): Word;
+// Use Result Integer, instead of Word, since we don't want to get Range check error exception in the setter
+function TKMHouse.GetWareDeliveryCount(aIndex: Integer): Integer;
 begin
   Result := fWareDeliveryCount[aIndex];
 end;
 
 
-procedure TKMHouse.SetWareDemandsClosing(aIndex: Integer; aCount: Word);
+// Use aCount: Integer, instead of Word, since we don't want to get Range check error exception
+procedure TKMHouse.SetWareDemandsClosing(aIndex: Integer; aCount: Integer);
 begin
   fWareDemandsClosing[aIndex] := EnsureRange(aCount, 0, High(Word));
 end;
 
 
-function TKMHouse.GetWareDemandsClosing(aIndex: Integer): Word;
+// Use Result Integer, instead of Word, since we don't want to get Range check error exception in the setter
+function TKMHouse.GetWareDemandsClosing(aIndex: Integer): Integer;
 begin
   Result := fWareDemandsClosing[aIndex];
 end;
@@ -900,6 +904,8 @@ end;
 
 
 procedure TKMHouse.UpdateDeliveryMode;
+var
+  oldDeliveryMode: TKMDeliveryMode;
 begin
   if fNewDeliveryMode = fDeliveryMode then
     Exit;
@@ -907,7 +913,9 @@ begin
   CheckTakeOutDeliveryMode;
 
   fUpdateDeliveryModeOnTick := 0;
+  oldDeliveryMode := fDeliveryMode;
   fDeliveryMode := fNewDeliveryMode;
+  gScriptEvents.ProcHouseDeliveryModeChanged(Self, oldDeliveryMode, fDeliveryMode);
   gLog.LogDelivery('DeliveryMode updated to ' + IntToStr(Ord(fDeliveryMode)));
 end;
 
@@ -2523,8 +2531,16 @@ end;
 
 
 procedure TKMHouseWFlagPoint.SetFlagPoint(aFlagPoint: TKMPoint);
+var
+  oldFlagPoint: TKMPoint;
 begin
+  oldFlagPoint := fFlagPoint;
   fFlagPoint := GetValidPoint(aFlagPoint);
+
+  if not KMSamePoint(oldFlagPoint, fFlagPoint) then
+  begin
+    gScriptEvents.ProcHouseFlagPointChanged(Self, oldFlagPoint.X, oldFlagPoint.Y, fFlagPoint.X, fFlagPoint.Y);
+  end;
 end;
 
 
@@ -2553,7 +2569,7 @@ begin
     R := gTerrain.CheckPassability(KMPointRight(P), tpWalk);
     //Choose random between Left and Right
     if L and R then
-      P := KMPoint(P.X + 2*KaMRandom(2, 'TKMHouseWFlagPoint.GetValidPoint') - 1, P.Y) // Offset = +1 or -1
+      P := KMPoint(P.X + 2*KaMRandom(2{$IFDEF RNG_SPY}, 'TKMHouseWFlagPoint.GetValidPoint'{$ENDIF}) - 1, P.Y) // Offset = +1 or -1
     else
     if L then
       P := KMPointLeft(P)

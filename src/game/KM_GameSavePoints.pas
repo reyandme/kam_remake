@@ -3,7 +3,11 @@ unit KM_GameSavePoints;
 interface
 uses
   SyncObjs, Generics.Collections,
-  KM_CommonClasses, KM_WorkerThread;
+  KM_CommonClasses, KM_WorkerThread
+  {$IFDEF FPC}
+  , KM_Sort
+  {$ENDIF}
+  ;
 
 type
   TKMSavePoint = class
@@ -307,6 +311,17 @@ begin
   end;
 end;
 
+{$IFDEF FPC}
+function CompareKeys(const aKey1, aKey2): Integer;
+var
+  k1: Cardinal absolute aKey1;
+  k2: Cardinal absolute aKey2;
+begin
+  if      k1 < k2 then Result := -1
+  else if k1 > k2 then Result := +1
+  else                 Result :=  0;
+end;
+{$ENDIF}
 
 procedure TKMSavePointCollection.Save(aSaveStream: TKMemoryStream);
 var
@@ -323,7 +338,11 @@ begin
     aSaveStream.Write(fSavePoints.Count);
 
     keyArray := fSavePoints.Keys.ToArray;
+    {$IFNDEF FPC}
     TArray.Sort<Cardinal>(keyArray);
+    {$ELSE}
+    SortCustom(keyArray, Low(keyArray), High(keyArray), SizeOf(keyArray[0]), CompareKeys);
+    {$ENDIF}
 
     // todo: potential OutOfMemory error in this cycle
     for key in keyArray do

@@ -179,12 +179,7 @@ procedure TKMWorkerThread.QueueWorkAndLog(aProc: TProc; aWorkName: string = '');
 begin
   QueueWork(aProc, procedure(aJobName: String)
     begin
-      gLog.MultithreadLogging := True;
-      try
-        gLog.AddTime(Format('Job ''%s'' is completed', [aJobName]));
-      finally
-        gLog.MultithreadLogging := False;
-      end;
+      gLog.AddTime(Format('Job ''%s'' is completed', [aJobName]));
     end, aWorkName);
 end;
 

@@ -1,4 +1,4 @@
-﻿unit KM_ControlsPopUp;
+unit KM_ControlsPopUp;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -17,7 +17,7 @@ type
     fShapeBG: TKMShape;
     fList: TKMColumnBox;
     procedure MenuHide(Sender: TObject);
-    procedure MenuClick(Sender: TObject);
+    procedure MenuChange(Sender: TObject);
     procedure SetItemIndex(aValue: Integer);
     function GetItemIndex: Integer;
     function GetItemTag(aIndex: Integer): Integer;
@@ -30,6 +30,9 @@ type
     property ItemTags[aIndex: Integer]: Integer read GetItemTag;
     procedure ShowAt(X,Y: Integer);
     procedure HideMenu;
+
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
   end;
 
 
@@ -150,8 +153,11 @@ begin
   fList.Focusable := False;
   fList.SetColumns(fntGrey, [''], [0]);
   fList.ShowHeader := False;
-  fList.OnClick := MenuClick;
+  fList.OnChange := MenuChange;
   fList.Hide;
+
+  // Subscribe to get other controls mouse up events
+  fMasterControl.AddMouseUpCtrlSub(ControlMouseUp);
 
   Hide;
 end;
@@ -194,12 +200,10 @@ begin
 end;
 
 
-procedure TKMPopUpMenu.MenuClick(Sender: TObject);
+procedure TKMPopUpMenu.MenuChange(Sender: TObject);
 begin
   if Assigned(OnClick) then
     OnClick(Self);
-
-  MenuHide(Self);
 end;
 
 
@@ -228,6 +232,21 @@ begin
   Show;
   fShapeBG.Show;
   fList.Show;
+end;
+
+
+procedure TKMPopUpMenu.ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  MouseUp(X, Y, Shift, Button);
+end;
+
+
+procedure TKMPopUpMenu.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  inherited;
+
+  // Hide menu on MouseUp
+  MenuHide(nil);
 end;
 
 
@@ -309,7 +328,7 @@ begin
   // Subscribe to get other controls mouse down events
   fMasterControl.AddMouseDownCtrlSub(ControlMouseDown);
 
-    // Subscribe to get other controls mouse up events
+  // Subscribe to get other controls mouse up events
   fMasterControl.AddMouseUpCtrlSub(ControlMouseUp);
 end;
 

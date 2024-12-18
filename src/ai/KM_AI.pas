@@ -339,7 +339,13 @@ begin
   case gHands[fOwner].HandType of
     hndHuman:
       begin
-        //No fight alerts in replays/spectating, and only show alerts for ourselves
+        // Our allies might like to help us too
+        for I := 0 to gHands.Count-1 do
+          if gHands[I].Enabled and gHands[I].IsComputer
+          and (gHands.CheckAlliance(I, fOwner) = atAlly) and gHands[I].AI.Setup.DefendAllies then
+            gHands[I].AI.General.RetaliateAgainstThreat(aAttacker);
+
+        // No fight alerts in replays/spectating, and only show alerts for ourselves
         if not gGame.Params.IsReplayOrSpectate
           and (fOwner = gMySpectator.HandID)
           and (aAttacker <> nil) then //Don't show alerts for annonymous attacks (e.g. script)
@@ -357,7 +363,7 @@ begin
           else
           begin
             fGeneral.RetaliateAgainstThreat(aAttacker);
-            //Our allies might like to help us too
+            // Our allies might like to help us too
             for I := 0 to gHands.Count-1 do
               if gHands[I].Enabled and gHands[I].IsComputer
               and (gHands.CheckAlliance(I, fOwner) = atAlly) and gHands[I].AI.Setup.DefendAllies then
@@ -397,11 +403,23 @@ var
 begin
   case gHands[fOwner].HandType of
     hndHuman:
-      //No fight alerts in replays, and only show alerts for ourselves
-      if not gGame.Params.IsReplayOrSpectate
-        and (fOwner = gMySpectator.HandID) then
-        gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NOTIFY_KIND[aUnit is TKMUnitWarrior],
-                                                gGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
+      begin
+        // If we are attacked, then our allies might like to help us too
+        if aAttacker is TKMUnitWarrior then
+        begin
+          // Our allies might like to help us too
+          for I := 0 to gHands.Count-1 do
+            if gHands[I].Enabled and gHands[I].IsComputer
+            and (gHands.CheckAlliance(I, fOwner) = atAlly) and gHands[I].AI.Setup.DefendAllies then
+              gHands[I].AI.General.RetaliateAgainstThreat(aAttacker);
+        end;
+
+        // No fight alerts in replays, and only show alerts for ourselves
+        if not gGame.Params.IsReplayOrSpectate
+          and (fOwner = gMySpectator.HandID) then
+          gGame.GamePlayInterface.Alerts.AddFight(aUnit.PositionF, fOwner, NOTIFY_KIND[aUnit is TKMUnitWarrior],
+                                                  gGameApp.GlobalTickCount + ALERT_DURATION[atFight]);
+      end;
     hndComputer:
       begin
         if not (WonOrLost <> wolNone) then

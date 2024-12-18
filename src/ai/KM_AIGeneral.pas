@@ -58,7 +58,11 @@ uses
   KM_Houses, KM_HouseBarracks,
   KM_ResHouses, KM_CommonUtils, KM_DevPerfLog, KM_DevPerfLogTypes,
   KM_UnitGroupTypes,
-  KM_ResTypes;
+  KM_ResTypes
+  {$IFDEF FPC}
+  , KM_Sort
+  {$ENDIF}
+  ;
 
 
 const
@@ -119,11 +123,20 @@ begin
   fOwner := aPlayer;
 end;
 
+function CompareKeys(const aKey1, aKey2): Integer;
+var
+  k1: Integer absolute aKey1;
+  k2: Integer absolute aKey2;
+begin
+  if      k1 < k2 then Result := -1
+  else if k1 > k2 then Result := +1
+  else                 Result :=  0;
+end;
 
 procedure TKMGeneral.Save(SaveStream: TKMemoryStream);
 var
   uid: Integer;
-  keyArray : TArray<Integer>;
+  keyArray: TArray<Integer>;
 begin
   SaveStream.PlaceMarker('AIGeneral');
   SaveStream.Write(fOwner);
@@ -135,7 +148,11 @@ begin
   SaveStream.PlaceMarker('AIGeneral_unitsEquipOrdered');
   SaveStream.Write(fUnitsEquipOrdered.Count);
   keyArray := fUnitsEquipOrdered.Keys.ToArray;
+  {$IFNDEF FPC}
   TArray.Sort<Integer>(keyArray);
+  {$ELSE}
+  SortCustom(keyArray, Low(keyArray), High(keyArray), SizeOf(keyArray[0]), CompareKeys);
+  {$ENDIF}
 
   for uid in keyArray do
     SaveStream.Write(uid);
@@ -246,7 +263,7 @@ begin
     //Chose a random group type that we are going to attempt to train (so we don't always train certain group types first)
     K := 0;
     repeat
-      GT := TKMGroupType(GROUP_TYPE_MIN_OFF + KaMRandom(4, 'TKMGeneral.CheckArmyCount')); //Pick random from overall count
+      GT := TKMGroupType(GROUP_TYPE_MIN_OFF + KaMRandom(4{$IFDEF RNG_SPY}, 'TKMGeneral.CheckArmyCount'{$ENDIF})); //Pick random from overall count
       Inc(K);
     until (GroupReq[GT] > 0) or (K > 9); //Limit number of attempts to guarantee it doesn't loop forever
 

@@ -125,7 +125,7 @@ begin
 
   fMenuMain          := TKMMenuMain.Create(Panel_Menu, PageChange);
   fMenuSinglePlayer  := TKMMenuSinglePlayer.Create(Panel_Menu, PageChange);
-  fMenuCampaigns     := TKMMenuCampaigns.Create(Panel_Menu, aCampaigns, PageChange);
+  fMenuCampaigns     := TKMMenuCampaigns.Create(Panel_Menu, aCampaigns, PageChange, fMenuSinglePlayer.CampaignsListLoaded);
   fMenuCampaign      := TKMMenuCampaign.Create(Panel_Menu, aCampaigns, PageChange);
   fMenuSingleMap     := TKMMenuSingleMap.Create(Panel_Menu, PageChange);
   fMenuLoad          := TKMMenuLoad.Create(Panel_Menu, PageChange);

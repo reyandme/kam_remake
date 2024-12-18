@@ -123,6 +123,7 @@ type
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
     procedure HouseDeliveryMode(aHouseID: Integer; aDeliveryMode: TKMDeliveryMode);
     procedure HouseDisableUnoccupiedMessage(aHouseID: Integer; aDisabled: Boolean);
+    procedure HouseFlagPointSet(aHouseID: Integer; aPosition: TKMPoint);
     procedure HouseSetClosedForWorker(aHouseID: Integer; aClosedForWorker: Boolean);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     function  HouseSchoolQueueAdd(aHouseID: Integer; aUnitType: Integer; aCount: Integer): Integer;
@@ -1397,7 +1398,7 @@ begin
       Result := gHands[aHand].AI.General.Attacks.AddAttack(attackType, aDelay, aTotalMen, aMeleeGroupCount, aAntiHorseGroupCount,
                                                              aRangedGroupCount, aMountedGroupCount, aRandomGroups, aTarget, 0, aCustomPosition);
     end else
-      LogIntParamWarn('Actions.AIAttackAdd', [aHand, aDelay, aTotalMen, aMeleeGroupCount, aAntiHorseGroupCount, aRangedGroupCount, aMountedGroupCount]);
+      LogParamWarn('Actions.AIAttackAdd', [aHand, aDelay, aTotalMen, aMeleeGroupCount, aAntiHorseGroupCount, aRangedGroupCount, aMountedGroupCount,aCustomPosition.ToString]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -3074,7 +3075,7 @@ var
   H: TKMHouse;
 begin
   try
-    if (aHouseID > 0) and InRange(aMaxGold, 0, High(Word)) then
+    if (aHouseID > 0) then
     begin
       H := fIDCache.GetHouse(aHouseID);
       if (H <> nil) and (H is TKMHouseTownHall) and not H.IsDestroyed and H.IsComplete then
@@ -3179,6 +3180,32 @@ begin
     end
     else
       LogIntParamWarn('Actions.HouseDisableUnoccupiedMessage', [aHouseID, Byte(aDisabled)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 15250
+//* Sets flag point for the specified house
+procedure TKMScriptActions.HouseFlagPointSet(aHouseID: Integer; aPosition: TKMPoint);
+var
+  H: TKMHouse;
+  HWFP: TKMHouseWFlagPoint;
+begin
+  try
+    if aHouseID > 0 then
+    begin
+      H := fIDCache.GetHouse(aHouseID);
+      if (H <> nil) and not H.IsDestroyed and (H is TKMHouseWFlagPoint)  then
+      begin
+        HWFP := TKMHouseWFlagPoint(H);
+        HWFP.FlagPoint := aPosition;
+      end;
+    end
+    else
+      LogParamWarn('Actions.HouseFlagPointSet', [aHouseID, aPosition.ToString]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -4548,8 +4575,8 @@ end;
 
 
 //* Version: 5057
-//* Adds a road plan.
-//* Returns True if the plan was successfully added or False if it failed (e.g. tile blocked)
+//* Adds a house plan.
+//* Returns True if the plan was successfully added or False if it failed (e.g. tile is blocked)
 function TKMScriptActions.PlanAddHouse(aHand, aHouseType, X, Y: Integer): Boolean;
 begin
   Result := False;
@@ -4575,8 +4602,8 @@ end;
 
 
 //* Version: 14000
-//* Adds a road plan.
-//* Returns True if the plan was successfully added or False if it failed (e.g. tile blocked)
+//* Adds a house plan.
+//* Returns True if the plan was successfully added or False if it failed (e.g. tile is blocked)
 function TKMScriptActions.PlanAddHouseEx(aHand: Integer; aHouseType: TKMHouseType; X, Y: Integer): Boolean;
 begin
   Result := False;

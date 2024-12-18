@@ -19,7 +19,11 @@ uses
 
 implementation
 uses
-  KromUtils;
+  KromUtils
+  {$IFDEF Unix}
+  , dynlibs
+  {$ENDIF}
+  ;
 
 
 function RunOpenDialog(Sender: TOpenDialog; const aName, aPath, aFilter: string): Boolean;
@@ -124,7 +128,13 @@ begin
   {$ELSE}
   Result := False;
   H := LoadLibrary('ntdll.dll');
-  if H > HINSTANCE_ERROR then
+  if
+  {$IFNDEF Unix}
+  H > HINSTANCE_ERROR
+  {$ELSE}
+  H <> NilHandle
+  {$ENDIF}
+  then
   begin
     Result := Assigned(GetProcAddress(H, 'wine_get_version'));
     FreeLibrary(H);

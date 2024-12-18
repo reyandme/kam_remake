@@ -384,7 +384,7 @@ const
   end;
 
 var
-  I: Integer;
+  I, value: Integer;
   data: PKMLogisticsIDs;
   badHand, badToID, badFromID: Boolean;
   cellText: string;
@@ -395,20 +395,13 @@ begin
   badFromID := False;
 
   try
-    for I := 0 to clbHandsFilter.Items.Count - 1 do
-      if (clbHandsFilter.State[I] = cbChecked) and (I = data.HandID) then
-      begin
-        badHand := False;
-        Break;
-      end;
-
-    // Continue AFAP
-    if badHand then Exit;
-
     if cbFromID.Enabled and cbFromID.Checked then
     begin
       VSTGetText(aVST, aNode, GetFromColumn(aVST.Kind), ttNormal, cellText);
-      badFromID := StrToInt(cellText) <> seFromID.Value;
+      if TryStrToInt(cellText, value) then
+        badFromID := StrToInt(cellText) <> seFromID.Value
+      else
+        badFromID := True;
     end;
 
     // Continue AFAP
@@ -417,8 +410,21 @@ begin
     if cbToID.Enabled and cbToID.Checked then
     begin
       VSTGetText(aVST, aNode, GetToColumn(aVST.Kind), ttNormal, cellText);
-      badToID := StrToInt(cellText) <> seToID.Value;
+      if TryStrToInt(cellText, value) then
+        badToID := StrToInt(cellText) <> seToID.Value
+      else
+        badToID := True;
     end;
+
+    // Continue AFAP
+    if badToID then Exit;
+
+    for I := 0 to clbHandsFilter.Items.Count - 1 do
+      if (clbHandsFilter.State[I] = cbChecked) and (I = data.HandID) then
+      begin
+        badHand := False;
+        Break;
+      end;
   finally
     aVST.IsFiltered[aNode] := badHand or badToID or badFromID;
   end;
@@ -551,6 +557,7 @@ end;
 
 procedure TFormLogistics.VSTCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
 var
+  value1 ,value2: Integer;
   cellText1, cellText2 : string;
   columnType: TKMColumnContentType;
 begin
@@ -568,7 +575,15 @@ begin
 
   case columnType of
     cctText:    Result := CompareText(cellText1, cellText2);
-    cctNumber:  Result := CompareValue(StrToInt(cellText1), StrToInt(cellText2));
+    cctNumber:  begin
+                  if not TryStrToInt(cellText1, value1) then
+                    value1 := MaxInt;
+
+                  if not TryStrToInt(cellText2, value2) then
+                    value2 := -MaxInt;
+
+                  Result := CompareValue(value1, value2);
+                end;
   end;
 
 end;

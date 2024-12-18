@@ -25,7 +25,9 @@ type
 
     fRenderSchedule, fTickSchedule, fUpdateStateSchedule: Cardinal;
     fLastRenderTime, fOldFrameTimes, fFrameCount: Cardinal;
+    {$IFDEF MSWindows}
     fMutex: THandle;
+    {$ENDIF}
 
 //    fMainSettings: TKMainSettings;
     fResolutions: TKMResolutions;
@@ -50,6 +52,8 @@ type
 
     procedure GameSpeedChange(aSpeed: Single);
     function DoHaveGenericPermission: Boolean;
+
+    procedure tryWriteIntoGameFolder();
   public
     constructor Create;
     destructor Destroy; override;
@@ -138,6 +142,10 @@ var
 begin
   inherited;
 
+
+  // Try to write a file into the game folder and raise an error in case we can not
+  tryWriteIntoGameFolder();
+
   fGameTickInterval := 100;
 
   // Create exception handler as soon as possible in case it crashes early on
@@ -169,6 +177,33 @@ begin
   {$IFDEF USE_MAD_EXCEPT}FreeAndNil(gExceptions);{$ENDIF}
 
   inherited;
+end;
+
+
+
+// Try to write a file into the game folder and raise an error in case we can not
+procedure TKMMain.tryWriteIntoGameFolder();
+var
+  filename: String;
+  sList: TStringList;
+begin
+  try
+    sList := TStringList.Create;
+    try
+      filename := ExtractFilePath(ParamStr(0)) + PathDelim  + 'test.txt';
+      sList.SaveToFile(filename);
+      KMDeleteFile(filename);
+    finally
+      sList.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      raise EGameInitError.Create('Can''t write into the game folder ''' + ExtractFilePath(ParamStr(0)) + '''' + sLineBreak + sLineBreak
+                 + 'Error:' + sLineBreak + E.Message + sLineBreak + sLineBreak
+                 + 'Please move the game folder to a writable location or change the game folder permissions');
+    end;
+  end;
 end;
 
 

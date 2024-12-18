@@ -60,7 +60,11 @@ type
     function GetText: String;
     procedure SetText(const aText: string);
     procedure ApplyDefaultSettings;
+
+    class constructor Create;
   public
+    class var FDateFormat: TFormatSettings;
+
     constructor Create(const aRoot: string = 'Root');
     destructor Destroy; override;
 
@@ -103,7 +107,16 @@ uses
   Variants, DateUtils, StrUtils;
 
 
+
+
 { TKMXMLDocument }
+class constructor TKMXmlDocument.Create();
+begin
+  inherited;
+
+  FDateFormat := TFormatSettings.Create('dd/mm/yyyy');
+end;
+
 constructor TKMXmlDocument.Create(const aRoot: string = 'Root');
 begin
   inherited Create;
@@ -336,21 +349,8 @@ var
 begin
   // This is very slow in Analyzer
   // VarToDateTime seems to be much faster and provide same accuracy
-  {try
-    Result := StrToDateTime(fValue);
-  except}
-    try
-      v := fValue;
-      {$IFDEF WDC}
-      Result := VarToDateTime(v);
-      {$ENDIF}
-      {$IFDEF FPC}
-      Result := StrToDateTime(fValue);
-      {$ENDIF}
-    except
-      Result := 0;
-    end;
-  //end;
+  // But we want to use our custom DateFormat and thus we will use StrToDateTime
+  Result := StrToDateTimeDef(fValue, 0, TKMXmlDocument.FDateFormat);
 end;
 
 function TKMSimpleVariant.AsFloat: Single;
@@ -437,8 +437,8 @@ begin
   //Result.fValue := FormatDateTime('yyyy.mm.dd hh:nn:ss', A);
 
   // Custom code ensures we ALWAYS get the same format
-  Result.fValue := IntToStr(YearOf(A)) + '.' + IntToStr(MonthOf(A)) + '.' + IntToStr(DayOf(A)) + ' ' +
-                   IntToStr(HourOf(A)) + ':' + IntToStr(MinuteOf(A)) + ':' + IntToStr(SecondOf(A));
+  // This format could be system specific, so we better specify date format
+  Result.fValue := DateTimeToStr(A, TKMXmlDocument.FDateFormat);
 end;
 
 

@@ -32,7 +32,8 @@ type
 implementation
 uses
   SysUtils,
-  KM_Defaults;
+  KM_Defaults,
+  KM_WorkerThreadUtils;
 
 
 constructor TKMGameMPLocalData.Create;
@@ -103,7 +104,7 @@ var
 begin
   saveStream := TKMemoryStreamBinary.Create;
   Save(saveStream);
-  TKMemoryStream.AsyncSaveToFileAndFree(saveStream, aFilePath, aWorkerThread);
+  AsyncSaveToFileAndFree(saveStream, aFilePath, aWorkerThread);
 end;
 
 

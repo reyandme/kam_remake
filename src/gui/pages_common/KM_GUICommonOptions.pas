@@ -385,8 +385,8 @@ end;
 procedure TKMGUICommonOptions.CreateControls(var aTopBlock: Integer; var aLeftBlock: Integer);
 begin
   // Controls section
-  Panel_Ctrl := TKMPanel.Create(Panel_Options, aLeftBlock, aTopBlock, 280, 125);
-  NextBlock(aTopBlock, Panel_Ctrl);
+  Panel_Ctrl := TKMPanel.Create(Panel_Options, aLeftBlock, aTopBlock, 280, 120);
+  NextBlock(aTopBlock, Panel_Ctrl, 5);
   Panel_Ctrl.Anchors := [anLeft];
     TKMLabel.Create(Panel_Ctrl,6,0,270,20,gResTexts[TX_MENU_OPTIONS_CONTROLS],fntOutline,taLeft);
     TKMBevel.Create(Panel_Ctrl,0,20,280,Panel_Ctrl.Height - 20);
@@ -476,7 +476,7 @@ begin
 
   Panel_Game.Height := top + 20 + 3;
   Bevel_Game.Height := Panel_Game.Height - 20;
-  NextBlock(aTopBlock, Panel_Game);
+  NextBlock(aTopBlock, Panel_Game, -10);
 end;
 
 
@@ -605,9 +605,7 @@ begin
 
     Button_VideoTest.Enabled       := gGameSettings.Video.Enabled;
     TrackBar_VideoVolume.Position  := Round(gGameSettings.Video.VideoVolume * TrackBar_VideoVolume.MaxValue);
-    //Disable Video volume util we will fix it
-    //Video volume is set via windows mixer now, and it affect all other game sounds/music after the end of video playback
-    TrackBar_VideoVolume.Enabled     := False; //gGameSettings.VideoOn;
+    TrackBar_VideoVolume.Enabled   := gGameSettings.Video.Enabled;
 
     Radio_Lang.ItemIndex := gResLocales.IndexByCode(gGameSettings.Locale);
 
@@ -679,7 +677,7 @@ begin
   gGameSettings.Video.PlayOnStartup   := CheckBox_VideoStartup.Checked;
 
   if IsMenu then
-    gGameSettings.Video.VideoVolume      := TrackBar_VideoVolume.Position / TrackBar_VideoVolume.MaxValue;
+    gGameSettings.Video.VideoVolume := TrackBar_VideoVolume.Position / TrackBar_VideoVolume.MaxValue;
 
   if Sender = CheckBox_VideoEnable then
   begin
@@ -688,9 +686,7 @@ begin
 
     if IsMenu then
     begin
-      //Disable Video volume util we will fix it
-      //Video volume is set via windows mixer now, and it affect all other game sounds/music after the end of video playback
-      TrackBar_VideoVolume.Enabled  := False; //CheckBox_Options_VideoEnable.Checked;
+      TrackBar_VideoVolume.Enabled  := CheckBox_VideoEnable.Checked;
       Button_VideoTest.Enabled := CheckBox_VideoEnable.Checked;
     end;
   end;

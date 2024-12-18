@@ -39,6 +39,8 @@ type
     
     procedure Projectile(x1, y1, x2, y2: Single);
     procedure SetColor(aCol: Cardinal);
+    procedure QuadI(pX, pY: Integer); overload;
+    procedure QuadI(pX, pY: Integer; aCol: TColor4); overload;
     procedure Quad(pX, pY: Integer); overload;
     procedure Quad(pX, pY: Integer; aCol: TColor4); overload;
     procedure Quad(pX, pY: Single); overload;
@@ -506,10 +508,22 @@ begin
 end;
 
 
+procedure TKMRenderAux.QuadI(pX, pY: Integer);
+begin
+  Quad(pX, pY);
+end;
+
+
 procedure TKMRenderAux.Quad(pX, pY: Integer; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
   RenderQuad(pX, pY);
+end;
+
+
+procedure TKMRenderAux.QuadI(pX, pY: Integer; aCol: TColor4);
+begin
+  Quad(pX, pY, aCol);
 end;
 
 

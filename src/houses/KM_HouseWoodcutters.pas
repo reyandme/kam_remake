@@ -31,7 +31,7 @@ type
 
 implementation
 uses
-  SysUtils, TypInfo;
+  SysUtils, TypInfo, KM_ScriptingEvents;
 
 
 { TKMHouseWoodcutters }
@@ -80,6 +80,8 @@ end;
 
 
 procedure TKMHouseWoodcutters.SetWoodcutterMode(aWoodcutterMode: TKMWoodcutterMode);
+var
+  oldWoodcutterMode: TKMWoodcutterMode;
 begin
   //If we're allowed to plant only again or chop only
   //we should reshow the depleted message if we are changed to cut and run out of trees
@@ -87,7 +89,10 @@ begin
     and (aWoodcutterMode in [wmChop, wmPlant]) then
     ResourceDepleted := False;
 
+  oldWoodcutterMode := fWoodcutterMode;
+
   fWoodcutterMode := aWoodcutterMode;
+  gScriptEvents.ProcWoodcuttersModeChanged(Self, oldWoodcutterMode, fWoodcutterMode);
 end;
 
 

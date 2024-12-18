@@ -805,7 +805,7 @@ var
 begin
   oldIndex := Radio_PlayersColorMode.ItemIndex;
   //Update player color mode radio
-  Radio_PlayersColorMode.ItemIndex := Byte(gGameSettings.PlayersColorMode) - 1;
+  Radio_PlayersColorMode.ItemIndex := Byte(gGameSettings.PlayersColorMode) - 1; // -1 for the pcmNone
 
   if oldIndex <> Radio_PlayersColorMode.ItemIndex then
     fMinimap.Update;
@@ -2599,7 +2599,6 @@ begin
 
   Button_Main[tbBuild].Enabled := not isTactic and not HasLostMPGame and not gMySpectator.Hand.InCinematic; //Allow to 'test build' if we are in replay / spectate mode
   Button_Main[tbRatio].Enabled := not isTactic and ((fUIMode in [umReplay, umSpectate]) or (not HasLostMPGame and not gMySpectator.Hand.InCinematic));
-  Button_Main[tbStats].Enabled := not isTactic;
 
   Button_Menu_Load.Enabled := fUIMode = umSP; // No loading during multiplayer games
   Button_Menu_Save.Enabled := (fUIMode in [umSP, umMP, umSpectate]) or (ALLOW_SAVE_IN_REPLAY and (fUIMode = umReplay));
@@ -3714,16 +3713,9 @@ begin
 
   if (Key = gResKeys[kfPlayerColorMode]) then
   begin
-    if fUIMode in [umReplay, umSpectate] then
-      gGameSettings.PlayersColorMode := TKMPlayerColorMode((Byte(gGameSettings.PlayersColorMode) mod 3) + 1)
-    else
-    begin
-      if gGameSettings.PlayersColorMode = pcmDefault then
-        gGameSettings.PlayersColorMode := pcmAllyEnemy
-      else
-        gGameSettings.PlayersColorMode := pcmDefault;
-    end;
+    gGameSettings.PlayersColorMode := TKMPlayerColorMode((Byte(gGameSettings.PlayersColorMode) mod 3) + 1);
     GameOptionsChanged;
+    OptionsChanged;
   end;
 end;
 

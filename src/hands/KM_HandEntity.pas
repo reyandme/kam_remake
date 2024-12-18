@@ -40,6 +40,7 @@ type
     function IsGroup: Boolean;
     function IsHouse: Boolean;
 
+    function ObjToStringBasic(const aSeparator: String = '|'): String;
     function ObjToString(const aSeparator: String = '|'): String; override;
     function ObjToStringShort(const aSeparator: String = '|'): String; override;
   end;
@@ -170,6 +171,12 @@ end;
 procedure TKMHandEntity.SetOwner(const aOwner: TKMHandID);
 begin
   fOwner := aOwner;
+end;
+
+
+function TKMHandEntity.ObjToStringBasic(const aSeparator: String = '|'): String;
+begin
+  Result := Format('UID = %d%sPos = %s', [UID, aSeparator, PositionForDisplayF.ToString]);
 end;
 
 

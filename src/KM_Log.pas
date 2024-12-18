@@ -2,7 +2,7 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  SyncObjs, KM_CommonTypes, KM_CommonClasses
+  SyncObjs, KM_CommonTypes
   {$IFDEF KMR_GAME} // Not needed for server and other tools
   , Generics.Collections
   {$ENDIF}
@@ -31,6 +31,7 @@ type
     CS: TCriticalSection;
     fLogFile: TextFile;
     fLogPath: UnicodeString;
+    fWriteErrCnt: Integer;
     fFirstTick: cardinal;
     fPreviousTick: cardinal;
     fPreviousDate: TDateTime;
@@ -48,15 +49,15 @@ type
 
     procedure InitLog;
 
+    procedure AppendText(aTxt: String);
+    function IsFileAssignedAndAppend: Boolean;
+
     procedure NotifyLogSubs(aText: UnicodeString);
 
-    procedure AddLineTime(const aText: UnicodeString; aLogType: TKMLogMessageType; aDoCloseFile: Boolean = True); overload;
-    procedure AddLineTime(const aText: UnicodeString; aFlushImmidiately: Boolean = True); overload;
-    procedure AddLineNoTime(const aText: UnicodeString; aWithPrefix: Boolean = True; aDoCloseFile: Boolean = True); overload;
-    procedure AddLineNoTime(const aText: UnicodeString; aLogType: TKMLogMessageType; aWithPrefix: Boolean = True; aDoCloseFile: Boolean = True); overload;
-
-    function GetMultithreadLogging: Boolean;
-    procedure SetMultithreadLogging(const aValue: Boolean);
+    procedure AddLineTime(const aText: UnicodeString; aLogType: TKMLogMessageType); overload;
+    procedure AddLineTime(const aText: UnicodeString); overload;
+    procedure AddLineNoTime(const aText: UnicodeString; aWithPrefix: Boolean = True); overload;
+    procedure AddLineNoTime(const aText: UnicodeString; aLogType: TKMLogMessageType; aWithPrefix: Boolean = True); overload;
   public
 
     MessageTypes: TKMLogMessageTypeSet;
@@ -65,7 +66,6 @@ type
 
     // AppendLog adds the line to Log along with time passed since previous line added
     procedure AddTime(const aText: UnicodeString); overload;
-    procedure AddTimeNoFlush(const aText: UnicodeString); overload;
     procedure AddTime(const aText: UnicodeString; num: Integer); overload;
     procedure AddTime(const aText: UnicodeString; num: Single); overload;
     procedure AddTime(num: Integer; const aText: UnicodeString); overload;
@@ -90,13 +90,10 @@ type
 
     procedure SetDefaultMessageTypes;
 
-    property MultithreadLogging: Boolean read GetMultithreadLogging write SetMultithreadLogging;
-
     // Add line if TestValue=False
     procedure AddAssert(const aMessageText: UnicodeString);
     // AddToLog simply adds the text
     procedure AddNoTime(const aText: UnicodeString; aWithPrefix: Boolean = True);
-    procedure AddNoTimeNoFlush(const aText: UnicodeString);
     procedure DeleteOldLogs;
     property LogPath: UnicodeString read fLogPath; //Used by dedicated server
 //    property OnLogMessage: TUnicodeStringEvent read fOnLogMessage write fOnLogMessage;
@@ -110,6 +107,7 @@ var
 
 implementation
 uses
+  {$IFDEF WDC}IOUtils,{$ENDIF}
   Classes, SysUtils,
   KM_FileIO,
   KM_Defaults, KM_CommonUtils;
@@ -205,38 +203,6 @@ begin
 end;
 
 
-function TKMLog.GetMultithreadLogging: Boolean;
-begin
-  if Self = nil then Exit(False);
-
-  Result := fMultithreadLogCounter > 0;
-end;
-
-
-procedure TKMLog.SetMultithreadLogging(const aValue: Boolean);
-begin
-  if Self = nil then Exit;
-
-  {$IFDEF WDC}
-  // Doing it faster way in Delphi
-  if aValue then
-    AtomicIncrement(fMultithreadLogCounter)
-  else
-    AtomicDecrement(fMultithreadLogCounter);
-  {$ELSE}
-  Lock;
-  try
-    if aValue then
-      Inc(fMultithreadLogCounter)
-    else
-      Dec(fMultithreadLogCounter);
-  finally
-    Unlock;
-  end;
-  {$ENDIF}
-end;
-
-
 procedure TKMLog.Lock;
 begin
   CS.Enter;
@@ -249,18 +215,98 @@ begin
 end;
 
 
+// Check if the log file is assigned
+// File will be appended in case the file is assigned to the file variable
+function TKMLog.IsFileAssignedAndAppend: Boolean;
+begin
+  Result := True;
+  try
+    Append(fLogFile);
+  except
+    Result := False;
+  end;
+end;
+
+
+procedure TKMLog.AppendText(aTxt: String);
+const
+  MAX_LOG_ERROR_CNT = 5;
+
+  procedure doAppend(aE: Exception = nil);
+  begin
+    if not IsFileAssignedAndAppend then
+    begin
+      AssignFile(fLogFile, fLogPath);
+      Append(fLogFile);
+    end;
+
+    // Only show few log errors, don't overspam it
+    if fWriteErrCnt <= MAX_LOG_ERROR_CNT then
+    begin
+      if aE <> nil then
+        WriteLn(fLogFile, 'Error appending to the log file using TFile.AppendAllText: ' + aE.Message);
+    end
+    else
+      Inc(fWriteErrCnt);
+
+    WriteLn(fLogFile, aTxt);
+    CloseFile(fLogFile);
+  end;
+
+
+begin
+  {$IFDEF WDC}
+  try
+    // Try to use TFile.AppendAllText for few times
+    // Then use oldschool Writeln instead
+    if fWriteErrCnt < MAX_LOG_ERROR_CNT then
+      TFile.AppendAllText(fLogPath, aTxt + sLineBreak, TEncoding.UTF8)
+    else
+      doAppend();
+  except
+    on E: Exception do
+      doAppend(E);
+  end;
+  {$ENDIF}
+end;
+
+
 procedure TKMLog.InitLog;
+const
+  INIT_STR = '   Timestamp    Elapsed     Delta  Thread    Description';
 begin
   if BLOCK_FILE_WRITE then Exit;
 
   try
     ForceDirectories(ExtractFilePath(fLogPath));
 
+    //           hh:nn:ss.zzz 12345.678s 1234567ms     text-text-text
+    {$IFDEF WDC}
+    try
+      TFile.WriteAllText(fLogPath, INIT_STR + sLineBreak, TEncoding.UTF8);
+    except
+      on E: Exception do
+      begin
+        // Write to log anyway, even if we can't do it using TFile.WriteAllText
+        if not IsFileAssignedAndAppend then
+        begin
+          AssignFile(fLogFile, fLogPath);
+          Rewrite(fLogFile);
+        end;
+        WriteLn(fLogFile, INIT_STR);
+        WriteLn(fLogFile, 'Error creating file using TFile.WriteAllText: ' + E.Message);
+        CloseFile(fLogFile);
+      end;
+    end;
+
+    {$ENDIF}
+    {$IFDEF FPC}
     AssignFile(fLogFile, fLogPath);
     Rewrite(fLogFile);
     //           hh:nn:ss.zzz 12345.678s 1234567ms     text-text-text
     WriteLn(fLogFile, '   Timestamp    Elapsed     Delta  Thread    Description');
     CloseFile(fLogFile);
+    {$ENDIF}
   except
     on E: Exception do
     begin
@@ -313,11 +359,11 @@ begin
 end;
 
 
-//Lines are timestamped, each line invokes file open/close for writing,
-//meaning that no lines will be lost if Remake crashes
-procedure TKMLog.AddLineTime(const aText: UnicodeString; aLogType: TKMLogMessageType; aDoCloseFile: Boolean = True);
+// Lines are timestamped, each line invokes file open/close for writing,
+// meaning that no lines will be lost if Remake crashes
+procedure TKMLog.AddLineTime(const aText: UnicodeString; aLogType: TKMLogMessageType);
 var
-  lockedHere: Boolean;
+  txt, txt2: String;
 begin
   if Self = nil then Exit;
 
@@ -326,59 +372,64 @@ begin
   if not (aLogType in MessageTypes) then // write into log only for allowed types
     Exit;
 
-  lockedHere := False;
-  // Lock/Unlock only when in multithread logging mode. Its quite rare, so we do not need all the time
-  if MultithreadLogging then
-  begin
-    Lock;
-    lockedHere := True;
-  end;
+  // Do not allow multiple threads write into the same file
+  Lock;
   try
     if not FileExists(fLogPath) then
       InitLog;  // Recreate log file, if it was deleted
 
-    Append(fLogFile);
+    txt := '';
+
+    {$IFDEF FPC} Append(fLogFile); {$ENDIF}
+
     //Write a line when the day changed since last time (useful for dedicated server logs that could be over months)
     if Abs(Trunc(fPreviousDate) - Trunc(Now)) >= 1 then
     begin
+      {$IFDEF WDC}
+      txt := txt + '========================' + sLineBreak
+                 + '    Date: ' + FormatDateTime('yyyy/mm/dd', Now) + sLineBreak
+                 + '========================' + sLineBreak;
+      {$ENDIF}
+      {$IFDEF FPC}
       WriteLn(fLogFile, '========================');
       WriteLn(fLogFile, '    Date: ' + FormatDateTime('yyyy/mm/dd', Now));
       WriteLn(fLogFile, '========================');
+      {$ENDIF}
     end;
-    WriteLn(fLogFile, Format('%12s %9.3fs %7dms %6d    %s', [
-                  FormatDateTime('hh:nn:ss.zzz', Now),
-                  TimeSince(fFirstTick) / 1000,
-                  TimeSince(fPreviousTick),
-                  TThread.CurrentThread.ThreadID,
-                  aText]));
 
-    if aDoCloseFile then
-      CloseFile(fLogFile);
+    txt2 := Format('%12s %9.3fs %7dms %6d    %s', [
+                    FormatDateTime('hh:nn:ss.zzz', Now),
+                    TimeSince(fFirstTick) / 1000,
+                    TimeSince(fPreviousTick),
+                    TThread.CurrentThread.ThreadID,
+                    aText]);
+    {$IFDEF WDC}
+    AppendText(txt + txt2);
+    {$ENDIF}
+    {$IFDEF FPC}
+    WriteLn(fLogFile, txt2);
+    CloseFile(fLogFile);
+    {$ENDIF}
 
     fPreviousTick := TimeGet;
     fPreviousDate := Now;
   finally
-    // We could be locked by other thread, thus unlock here only if this thread made a lock
-    if lockedHere and MultithreadLogging then
-      UnLock;
+    UnLock;
   end;
 
   NotifyLogSubs(aText);
 end;
 
 
-//Add line with timestamp
-procedure TKMLog.AddLineTime(const aText: UnicodeString; aFlushImmidiately: Boolean = True);
+// Add line with timestamp
+procedure TKMLog.AddLineTime(const aText: UnicodeString);
 begin
-  AddLineTime(aText, lmtDefault, aFlushImmidiately);
+  AddLineTime(aText, lmtDefault);
 end;
 
 
-//Add line but without timestamp
-procedure TKMLog.AddLineNoTime(const aText: UnicodeString; aLogType: TKMLogMessageType; aWithPrefix: Boolean = True;
-                               aDoCloseFile: Boolean = True);
-var
-  lockedHere: Boolean;
+// Add line but without timestamp
+procedure TKMLog.AddLineNoTime(const aText: UnicodeString; aLogType: TKMLogMessageType; aWithPrefix: Boolean = True);
 begin
   if Self = nil then Exit;
 
@@ -387,29 +438,32 @@ begin
   if not (aLogType in MessageTypes) then // write into log only for allowed types
     Exit;
 
-  lockedHere := False;
-  // Lock/Unlock only when in multithread logging mode. Its quite rare, so we do not need all the time
-  if MultithreadLogging then
-  begin
-    Lock;
-    lockedHere := True;
-  end;
+  // Do not allow multiple threads write into the same file
+  Lock;
   try
     if not FileExists(fLogPath) then
       InitLog;  // Recreate log file, if it was deleted
 
-    Append(fLogFile);
-    if aWithPrefix then
-      WriteLn(fLogFile, '                                      ' + aText)
-    else
-      WriteLn(fLogFile, aText);
+    {$IFDEF FPC} Append(fLogFile); {$ENDIF}
 
-    if aDoCloseFile then
-      CloseFile(fLogFile);
+    if aWithPrefix then
+    begin
+      {$IFDEF WDC}
+      AppendText('                                            ' + aText);
+      {$ENDIF}
+      {$IFDEF FPC}
+      WriteLn(fLogFile, '                                      ' + aText);
+      {$ENDIF}
+    end
+    else
+    begin
+      {$IFDEF WDC} AppendText(aText); {$ENDIF}
+      {$IFDEF FPC} WriteLn(fLogFile, aText); {$ENDIF}
+    end;
+    {$IFDEF FPC} CloseFile(fLogFile); {$ENDIF}
   finally
-    // We could be locked by other thread, thus unlock here only if this thread made a lock
-    if lockedHere and MultithreadLogging then
-      UnLock;
+    // Do not allow multiple threads write into the same file
+    UnLock;
   end;
 
   NotifyLogSubs(aText);
@@ -417,22 +471,15 @@ end;
 
 
 //Add line without timestamp
-procedure TKMLog.AddLineNoTime(const aText: UnicodeString; aWithPrefix: Boolean = True; aDoCloseFile: Boolean = True);
+procedure TKMLog.AddLineNoTime(const aText: UnicodeString; aWithPrefix: Boolean = True);
 begin
-  AddLineNoTime(aText, lmtDefault, aWithPrefix, aDoCloseFile);
+  AddLineNoTime(aText, lmtDefault, aWithPrefix);
 end;
 
 
 procedure TKMLog.AddTime(const aText: UnicodeString);
 begin
   AddLineTime(aText);
-end;
-
-
-procedure TKMLog.AddTimeNoFlush(const aText: UnicodeString);
-begin
-  if Self = nil then Exit;
-  AddLineTime(aText, False);
 end;
 
 
@@ -607,14 +654,6 @@ begin
   if Self = nil then Exit;
 
   AddLineNoTime(aText, aWithPrefix);
-end;
-
-
-procedure TKMLog.AddNoTimeNoFlush(const aText: UnicodeString);
-begin
-  if Self = nil then Exit;
-
-  AddLineNoTime(aText, True, False);
 end;
 
 

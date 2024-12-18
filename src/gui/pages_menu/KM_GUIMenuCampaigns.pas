@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, SysUtils, Math,
   KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsMemo,
-  KM_Pics,
+  KM_Pics, KM_CommonTypes,
   KM_Campaigns, KM_InterfaceDefaults, KM_InterfaceTypes;
 
 
@@ -14,6 +14,7 @@ type
   TKMMenuCampaigns = class(TKMMenuPageCommon)
   private
     fOnPageChange: TKMMenuChangeEventText; //will be in ancestor class
+    fOnCampaignsScanComplete: TEvent;
 
     fCampaigns: TKMCampaignsCollection;
     fScanCompleted: Boolean;
@@ -32,7 +33,7 @@ type
         Memo_CampDesc: TKMMemo;
         Button_Camp_Start, Button_Camp_Back: TKMButton;
   public
-    constructor Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText);
+    constructor Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText; aOnCampaignsScanComplete: TEvent);
 
     procedure RefreshList;
     procedure InitCampaignsScan;
@@ -51,7 +52,7 @@ uses
 
 
 { TKMMainMenuInterface }
-constructor TKMMenuCampaigns.Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText);
+constructor TKMMenuCampaigns.Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText; aOnCampaignsScanComplete: TEvent);
 const
   PAD_W = 80;
   PAN_W = 1024 - PAD_W * 2;
@@ -73,6 +74,8 @@ begin
   inherited Create(gpCampSelect);
 
   fCampaigns := aCampaigns;
+
+  fOnCampaignsScanComplete := aOnCampaignsScanComplete;
 
   // Rescan campaigns on campaigns menu creation (f.e. on game start or game locale change)
   InitCampaignsScan;
@@ -182,6 +185,8 @@ procedure TKMMenuCampaigns.StartClick(Sender: TObject);
 var
   cmp: UnicodeString;
 begin
+  if ColumnBox_Camps.ItemIndex < 0 then Exit;
+
   //Get the caption and pass it to Campaign selection menu (it will be casted to TKMCampaignName there)
   //so that we avoid cast/uncast/cast along the event chain
   cmp := fCampaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].ShortName;
@@ -206,6 +211,8 @@ procedure TKMMenuCampaigns.ScanTerminate(Sender: TObject);
 begin
   fScanCompleted := True;
   RefreshList; //After scan complete jump to selected item
+  if Assigned(fOnCampaignsScanComplete) then
+    fOnCampaignsScanComplete();
 end;
 
 
@@ -217,7 +224,7 @@ begin
   //Reset scan variables
   fScanCompleted := False;
 
-  fCampaigns.Refresh(ScanUpdate, ScanTerminate);
+  fCampaigns.Refresh(ScanUpdate, ScanTerminate, ScanTerminate);
 end;
 
 

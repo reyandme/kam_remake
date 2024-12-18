@@ -14,13 +14,17 @@ REM ============================================================
 @REM Copy all data files, except sfx, which should be copied from KMRPrevVersionDir
 xcopy ..\data\defines "%kam_folder%"\data\defines\ /y /r /s
 xcopy ..\data\cursors "%kam_folder%"\data\cursors\ /y /r /s
-xcopy ..\data\gfx "%kam_folder%"\data\gfx\ /y /r /s
+REM xcopy ..\data\gfx "%kam_folder%"\data\gfx\ /y /r /s
 @REM Copy *.rxx files only from the /data/Sprites folder, since we will copy *.rxa from the KMR private repo
-xcopy ..\data\Sprites\*.rxx "%kam_folder%"\data\Sprites\ /y /r /s 
+REM xcopy ..\data\Sprites\*.rxx "%kam_folder%"\data\Sprites\ /y /r /s 
 REM xcopy ..\data\Sprites\*.rxa "%kam_folder%"\data\Sprites\ /y /r /s 
 xcopy ..\data\text "%kam_folder%"\data\text\ /y /r /s
 xcopy ..\data\locales.txt "%kam_folder%"\data\locales.txt* /y /r /i
-xcopy ..\Docs\Readme "%kam_folder%"\ /y /r /s
+xcopy "..\Docs\Readme\Readme" "%kam_folder%"\Readme\ /y /r /s
+xcopy "..\Docs\Readme\Readme_eng.html" "%kam_folder%"\Readme_eng.html* /y /r /i
+xcopy "..\Docs\Readme\Readme_ger.html" "%kam_folder%"\Readme_ger.html* /y /r /i
+xcopy "..\Docs\Readme\Readme_pol.html" "%kam_folder%"\Readme_pol.html* /y /r /i
+xcopy "..\Docs\Readme\Readme_rus.html" "%kam_folder%"\Readme_rus.html* /y /r /i
 xcopy ..\Sounds "%kam_folder%"\Sounds\ /y /r /s
 xcopy ..\Music "%kam_folder%"\Music\ /y /r /s
 xcopy ..\lib "%kam_folder%"\lib\ /y /r /s
@@ -49,6 +53,8 @@ REM ============================================================
 REM Copy video files
 REM ============================================================
 xcopy "%KMRPrivateRepoDir%"\Video "%kam_folder%" /y /r /s
+REM copy fonts
+xcopy "%KMRPrivateRepoDir%"\data "%kam_folder%"\data\ /y /r /s
 
 REM ============================================================
 REM Copy files from KMRPrevVersionDir
@@ -75,6 +81,7 @@ xcopy ..\bass.dll "%kam_folder%"\bass.dll* /y /r /i
 xcopy ..\ogg.dll "%kam_folder%"\ogg.dll* /y /r /i
 xcopy ..\vorbis.dll "%kam_folder%"\vorbis.dll* /y /r /i
 xcopy ..\vorbisfile.dll "%kam_folder%"\vorbisfile.dll* /y /r /i
+xcopy ..\OpenAL32.dll "%kam_folder%"\OpenAL32.dll* /y /r /i
 xcopy ..\Installer\uninst_clean.bat "%kam_folder%"\uninst_clean.bat* /y /r /i
 xcopy ..\Installer\oalinst.exe "%kam_folder%"\oalinst.exe* /y /r /i
 

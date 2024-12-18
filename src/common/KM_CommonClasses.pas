@@ -2,8 +2,7 @@ unit KM_CommonClasses;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KM_Points, KM_CommonTypes
-  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}, KM_WorkerThread{$ENDIF};
+  Classes, SysUtils, KM_Points, KM_CommonTypes;
 
   // Delphi 11 Alexandria had bug with S.CopyFrom for TCompressionStream.
   // Bug occurs only during debugging, but its quite annoying
@@ -39,6 +38,9 @@ type
     //Ansistrings saved by PascalScript into savegame
     procedure ReadHugeString(out Value: AnsiString); overload;
     procedure WriteHugeString(const Value: AnsiString); overload;
+
+    procedure ReadHugeStringW(out Value: UnicodeString); overload;
+    procedure WriteHugeStringW(const Value: UnicodeString); overload;
 
 //    {$IFDEF DESKTOP}
     //Legacy format for campaigns info, maxlength 65k ansichars
@@ -115,13 +117,6 @@ type
 
     procedure LoadToStream(aStream: TKMemoryStream; const aMarker: string);
     procedure LoadToStreams(aStream1, aStream2: TKMemoryStream; const aMarker1, aMarker2: string);
-
-    {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
-    class procedure AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
-    class procedure AsyncSaveToFileCompressedAndFree(var aStream: TKMemoryStream; const aFileName: string; const aMarker: string; aWorkerThread: TKMWorkerThread); 
-    class procedure AsyncSaveStreamsToFileAndFree(var aMainStream, aSubStream1, aSubStream2: TKMemoryStream; const aFileName: string;
-                                                  const aMarker1, aMarker2: string; aWorkerThread: TKMWorkerThread);
-    {$ENDIF}
   end;
 
   // Extended with custom Read/Write commands which accept various types without asking for their length
@@ -394,34 +389,6 @@ type
   end;
 
 
-  TKMMapsCRCList = class
-  private
-    fEnabled: Boolean;
-    fMapsList: TStringList;
-    fOnMapsUpdate: TUnicodeStringEvent;
-
-    procedure MapsUpdated;
-    function GetCount: Integer;
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    procedure LoadFromString(const aString: UnicodeString);
-    function PackToString: UnicodeString;
-
-    property OnMapsUpdate: TUnicodeStringEvent read fOnMapsUpdate write fOnMapsUpdate;
-    property Count: Integer read GetCount;
-    property Enabled: Boolean read fEnabled write fEnabled;
-
-    procedure Clear;
-    procedure RemoveMissing(aMapsCRCArray: TKMCardinalArray);
-    function Contains(aMapCRC: Cardinal): Boolean;
-    procedure Add(aMapCRC: Cardinal);
-    procedure Remove(aMapCRC: Cardinal);
-    procedure Replace(aOldCRC, aNewCRC: Cardinal);
-  end;
-
-
 implementation
 uses
   Math,
@@ -430,8 +397,6 @@ uses
   KM_CommonUtils, KM_Defaults;
 
 const
-  MAPS_CRC_DELIMITER = ':';
-
   // Compression level
   //------------------------------------
   // Test results:
@@ -505,100 +470,6 @@ begin
   if I = 0 then Exit;
   inherited Write(Pointer(Value)^, I);
 end;
-
-
-{$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
-class procedure TKMemoryStream.AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
-var
-  localStream: TKMemoryStream;
-begin
-  localStream := aStream;
-  aStream := nil; //So caller doesn't use it by mistake
-
-  {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
-    begin
-      try
-        localStream.SaveToFile(aFileName);
-      finally
-        localStream.Free;
-      end;
-    end, 'SaveToFile');
-  {$ELSE}
-    try
-      LocalStream.SaveToFile(aFileName);
-    finally
-      LocalStream.Free;
-    end;
-  {$ENDIF}
-end;
-
-
-class procedure TKMemoryStream.AsyncSaveToFileCompressedAndFree(var aStream: TKMemoryStream; const aFileName: string; const aMarker: string;
-                                                                aWorkerThread: TKMWorkerThread);
-var
-  localStream: TKMemoryStream;
-begin
-  localStream := aStream;
-  aStream := nil; //So caller doesn't use it by mistake
-
-  {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
-    begin
-      try
-        localStream.SaveToFileCompressed(aFileName, aMarker);
-      finally
-        localStream.Free;
-      end;
-    end, 'SaveToFileCompressed ' + aMarker);
-  {$ELSE}
-    try
-      LocalStream.SaveToFileCompressed(aFileName, aMarker);
-    finally
-      LocalStream.Free;
-    end;
-  {$ENDIF}
-end;
-
-
-class procedure TKMemoryStream.AsyncSaveStreamsToFileAndFree(var aMainStream, aSubStream1, aSubStream2: TKMemoryStream; const aFileName: string;
-                                                             const aMarker1, aMarker2: string; aWorkerThread: TKMWorkerThread);
-var
-  localSubStream1, localSubStream2, localMainStream: TKMemoryStream;
-begin
-  localMainStream := aMainStream;
-  localSubStream1 := aSubStream1;
-  localSubStream2 := aSubStream2;
-  aMainStream := nil; //So caller doesn't use it by mistake
-  aSubStream1 := nil; //So caller doesn't use it by mistake
-  aSubStream2 := nil; //So caller doesn't use it by mistake
-
-  {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
-    begin
-      try
-        localMainStream.AppendStream(localSubStream1, aMarker1);
-        localMainStream.AppendStream(localSubStream2, aMarker2);
-        localMainStream.SaveToFile(aFileName);
-      finally
-        localSubStream1.Free;
-        localSubStream2.Free;
-        localMainStream.Free;
-      end;
-    end, 'SaveStreamsToFile ' + aMarker1 + ' ' + aMarker2);
-  {$ELSE}
-    try
-      mainStream.AppendStream(localStream1, aMarker1);
-      mainStream.AppendStream(localStream2, aMarker2);
-      mainStream.SaveToFile(aFileName);
-    finally
-      localStream1.Free;
-      localStream2.Free;
-      mainStream.Free;
-    end;
-  {$ENDIF}
-end;
-{$ENDIF}
 
 
 procedure TKMemoryStream.AppendStream(aStream: TKMemoryStream; const aMarker: string);
@@ -901,7 +772,7 @@ function TKMPointList.GetRandom(out Point: TKMPoint): Boolean;
 begin
   Result := fCount <> 0;
   if Result then
-    Point := fItems[KaMRandom(fCount, 'TKMPointList.GetRandom')];
+    Point := fItems[KaMRandom(fCount{$IFDEF RNG_SPY}, 'TKMPointList.GetRandom'{$ENDIF})];
 end;
 
 
@@ -1099,7 +970,7 @@ begin
   for I := 0 to fCount - 1 do
     weightsSum := weightsSum + fWeight[I];
 
-  rnd := KaMRandomS1(weightsSum, 'TKMPointCenteredList.GetWeightedRandom');
+  rnd := KaMRandomS1(weightsSum{$IFDEF RNG_SPY}, 'TKMPointCenteredList.GetWeightedRandom'{$ENDIF});
 
   for I := 0 to fCount - 1 do
   begin
@@ -1292,7 +1163,7 @@ begin
   Result := False;
   if fCount > 0 then
   begin
-    Point := fItems[KaMRandom(fCount, 'TKMPointDirList.GetRandom')];
+    Point := fItems[KaMRandom(fCount{$IFDEF RNG_SPY}, 'TKMPointDirList.GetRandom'{$ENDIF})];
     Result := True;
   end;
 end;
@@ -1369,7 +1240,7 @@ begin
   for I := 0 to fCount - 1 do
     weightsSum := weightsSum + fWeight[I];
 
-  rnd := KaMRandomS1(weightsSum, 'TKMPointDirCenteredList.GetWeightedRandom');
+  rnd := KaMRandomS1(weightsSum{$IFDEF RNG_SPY}, 'TKMPointDirCenteredList.GetWeightedRandom'{$ENDIF});
 
   for I := 0 to fCount - 1 do
   begin
@@ -1466,163 +1337,6 @@ begin
 end;
 
 
-{ TKMMapsCRCList }
-constructor TKMMapsCRCList.Create;
-begin
-  inherited Create;
-
-  fEnabled := True;
-  fMapsList := TStringList.Create;
-  fMapsList.Delimiter       := MAPS_CRC_DELIMITER;
-  fMapsList.StrictDelimiter := True; // Requires D2006 or newer.
-end;
-
-
-destructor TKMMapsCRCList.Destroy;
-begin
-  FreeAndNil(fMapsList);
-  inherited;
-end;
-
-
-function TKMMapsCRCList.GetCount: Integer;
-begin
-  if not fEnabled then Exit(0);
-
-  Result := fMapsList.Count;
-end;
-
-
-procedure TKMMapsCRCList.MapsUpdated;
-begin
-  if Assigned(fOnMapsUpdate) then
-    fOnMapsUpdate(PackToString);
-end;
-
-
-procedure TKMMapsCRCList.LoadFromString(const aString: UnicodeString);
-var
-  I: Integer;
-  mapCRC : Int64;
-  stringList: TStringList;
-begin
-  if not fEnabled then Exit;
-
-  fMapsList.Clear;
-  stringList := TStringList.Create;
-  stringList.Delimiter := MAPS_CRC_DELIMITER;
-  stringList.DelimitedText   := Trim(aString);
-
-  for I := 0 to stringList.Count - 1 do
-  begin
-    if TryStrToInt64(Trim(stringList[I]), mapCRC)
-      and (mapCRC > 0)
-      and not Contains(Cardinal(mapCRC)) then
-      fMapsList.Add(Trim(stringList[I]));
-  end;
-
-  stringList.Free;
-end;
-
-
-function TKMMapsCRCList.PackToString: UnicodeString;
-begin
-  if not fEnabled then Exit('');
-
-  Result := fMapsList.DelimitedText;
-end;
-
-
-procedure TKMMapsCRCList.Clear;
-begin
-  if not fEnabled then Exit;
-
-  fMapsList.Clear;
-end;
-
-
-//Remove missing Favourites Maps from list, check if are of them are presented in the given maps CRC array.
-procedure TKMMapsCRCList.RemoveMissing(aMapsCRCArray: TKMCardinalArray);
-
-  function ArrayContains(aValue: Cardinal): Boolean;
-  var
-    I: Integer;
-  begin
-    Result := False;
-    for I := Low(aMapsCRCArray) to High(aMapsCRCArray) do
-      if aMapsCRCArray[I] = aValue then
-      begin
-        Result := True;
-        Break;
-      end;
-  end;
-
-var
-  I: Integer;
-begin
-  if not fEnabled then Exit;
-
-  I := fMapsList.Count - 1;
-  //We must check, that all values from favorites are presented in maps CRC array. If not - then remove it from favourites
-  while (fMapsList.Count > 0) and (I >= 0) do
-  begin
-    if not ArrayContains(StrToInt64(fMapsList[I])) then
-    begin
-      fMapsList.Delete(I);
-      MapsUpdated;
-    end;
-
-    Dec(I);
-  end;
-end;
-
-
-function TKMMapsCRCList.Contains(aMapCRC: Cardinal): Boolean;
-begin
-  if (Self = nil) or not fEnabled then Exit(False);
-
-  Result := fMapsList.IndexOf(IntToStr(aMapCRC)) <> -1;
-end;
-
-
-procedure TKMMapsCRCList.Add(aMapCRC: Cardinal);
-begin
-  if not fEnabled then Exit;
-
-  if not Contains(aMapCRC) then
-  begin
-    fMapsList.Add(IntToStr(aMapCRC));
-    MapsUpdated;
-  end;
-end;
-
-
-procedure TKMMapsCRCList.Remove(aMapCRC: Cardinal);
-var
-  I: Integer;
-begin
-  if not fEnabled then Exit;
-
-  I := fMapsList.IndexOf(IntToStr(aMapCRC));
-  if I <> -1 then
-    fMapsList.Delete(I);
-
-  MapsUpdated;
-end;
-
-
-procedure TKMMapsCRCList.Replace(aOldCRC, aNewCRC: Cardinal);
-begin
-  if not fEnabled then Exit;
-
-  if Contains(aOldCRC) then
-  begin
-    Remove(aOldCRC);
-    Add(aNewCRC);
-  end;
-end;
-
-
 { TKMemoryStream }
 procedure TKMemoryStream.ReadHugeString(out Value: AnsiString);
 var
@@ -1643,6 +1357,28 @@ begin
   inherited Write(I, SizeOf(I));
   if I = 0 then Exit;
   inherited Write(Pointer(Value)^, I);
+end;
+
+
+procedure TKMemoryStream.ReadHugeStringW(out Value: UnicodeString);
+var
+  I: Cardinal;
+begin
+  Read(I, SizeOf(I));
+  SetLength(Value, I);
+  if I > 0 then
+    Read(Pointer(Value)^, I * SizeOf(WideChar));
+end;
+
+
+procedure TKMemoryStream.WriteHugeStringW(const Value: UnicodeString);
+var
+  I: Cardinal;
+begin
+  I := Length(Value);
+  inherited Write(I, SizeOf(I));
+  if I = 0 then Exit;
+  inherited Write(Pointer(Value)^, I * SizeOf(WideChar));
 end;
 
 

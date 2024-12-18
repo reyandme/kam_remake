@@ -406,7 +406,7 @@ begin
     end;
   end;
 
-  if Assigned(fOnFormChanged) then
+  if not fAllClicked and Assigned(fOnFormChanged) then
     fOnFormChanged;
 end;
 

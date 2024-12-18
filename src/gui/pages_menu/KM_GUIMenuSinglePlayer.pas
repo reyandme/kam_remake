@@ -27,6 +27,8 @@ type
   public
     OnNewSingleMap: TKMNewSingleMapEvent;
 
+    procedure CampaignsListLoaded;
+
     constructor Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEventText);
     procedure Show;
   end;
@@ -57,7 +59,8 @@ begin
     Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,340,350,400);
       Button_SP_Tutor  := TKMButton.Create(Panel_SPButtons,0,  0,350,30,gResTexts[TX_MENU_TUTORIAL_TOWN],bsMenu);
       Button_SP_Fight  := TKMButton.Create(Panel_SPButtons,0, 40,350,30,gResTexts[TX_MENU_TUTORIAL_BATTLE],bsMenu);
-      Button_SP_Camp   := TKMButton.Create(Panel_SPButtons,0,100,350,30,gResTexts[TX_MENU_CAMPAIGNS],bsMenu);
+      Button_SP_Camp   := TKMButton.Create(Panel_SPButtons,0,100,350,30,gResTexts[TX_MENU_CAMPAIGNS_LOADING],bsMenu);
+      Button_SP_Camp.Disable; // Disable on creation, will be enabled when all of the campaigns are loaded
       Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,160,350,30,gResTexts[TX_MENU_SINGLE_MAP],bsMenu);
       Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,200,350,30,gResTexts[TX_MENU_LOAD_SAVEGAME],bsMenu);
       Button_SP_Back   := TKMButton.Create(Panel_SPButtons,0,290,350,30,gResTexts[TX_MENU_BACK],bsMenu);
@@ -68,6 +71,13 @@ begin
       Button_SP_Single.OnClick := ButtonClick;
       Button_SP_Load.OnClick   := ButtonClick;
       Button_SP_Back.OnClick   := BackClick;
+end;
+
+
+procedure TKMMenuSinglePlayer.CampaignsListLoaded;
+begin
+  Button_SP_Camp.Enable;
+  Button_SP_Camp.Caption := gResTexts[TX_MENU_CAMPAIGNS];
 end;
 
 

@@ -313,6 +313,7 @@ type
 
 implementation
 uses
+  KM_Exceptions,
   TypInfo, StrUtils, KM_CampaignTypes,
   KM_HandSpectator, KM_ResHouses, KM_Hand, KM_HandTypes, KM_UnitsCollection, KM_UnitGroup,
   KM_GameSettings,
@@ -1079,6 +1080,8 @@ begin
 
   inherited;
 
+  gExceptions := TKMExceptions.Create;
+
   fDesyncsDir := Format('%s..\Desyncs\', [ExeDir]);
   ForceDirectories(fDesyncsDir);
 
@@ -1089,11 +1092,13 @@ begin
 
   // Deactivate KaM log
   if (gLog = nil) then
-    gLog := TKMLog.Create(Format('%sUtils\Runner\Runner_Log.log',[ExeDir]));
+  begin
+    ForceDirectories(Format('%sUtils\Runner\Logs', [ExeDir]));
+    gLog := TKMLog.Create(Format('%sUtils\Runner\Logs\Runner_%s.log', [ExeDir, FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now)]));
+  end;
   gLog.MessageTypes := [];
 
   gLog.SetDefaultMessageTypes;
-  gLog.MultithreadLogging := true;
 
 //  Include(gLog.MessageTypes, lmtRandomChecks);
 //  Include(gLog.MessageTypes, lmtCommands);
@@ -1113,7 +1118,6 @@ begin
   GAME_SAVE_CHECKPOINT_FREQ_MIN := 10;
   GAME_SAVE_CHECKPOINT_CNT_LIMIT_MAX := 1000;
 
-  gLog.MultithreadLogging := False;
 //  Include(gLog.MessageTypes, lmtRandomChecks)
 end;
 
@@ -2484,7 +2488,11 @@ begin
   Int64Rec(total).Words[1] := Abs(FromP.X - ToP.X);
   Int64Rec(total).Words[2] := FromP.Y + ToP.Y;
   Int64Rec(total).Words[3] := Abs(FromP.Y - ToP.Y);
+  {$IFNDEF Unix}
   Result := THashBobJenkins.GetHashValue(total, SizeOf(Int64), 0);
+  {$ELSE}
+  Result := BobJenkinsHash(total, SizeOf(Int64), 0);
+  {$ENDIF}
 //  Result := THashBobJenkins.GetHashValue(totalCard, SizeOf(Cardinal), 0);
 //  Result := CombinedHash([THashBobJenkins.GetHashValue(xTotal, SizeOf(Integer), 0),
 //                          THashBobJenkins.GetHashValue(yTotal, SizeOf(Integer), 0)]);
@@ -2498,13 +2506,13 @@ end;
 { TKMRunnerCachePerformanceTest.TKMRDeliveryBidKeyEqualityComparer }
 function TKMRunnerCachePerformance.TKMRDeliveryBidKeyEqualityComparer.Equals(const Left, Right: TKMRDeliveryBidKey): Boolean;
 begin
-
+  Result := False;
 end;
 
 
 function TKMRunnerCachePerformance.TKMRDeliveryBidKeyEqualityComparer.GetHashCode(const Value: TKMRDeliveryBidKey): Integer;
 begin
-
+  Result := 0;
 end;
 
 

@@ -264,20 +264,15 @@ begin
   repeat
     if aText[I] = '!' then
     begin
-      //Default uninitialized values
-      textParam := '';
+      // Extract command until a space
       commandText := '';
-      for K := 0 to aMaxCmd - 1 do
-        paramList[K] := -1;
-
-      //Extract command until a space
       repeat
         commandText := commandText + aText[I];
         Inc(I);
       until((aText[I] = #32) or (I >= Length(aText)));
 
-      //We can skip certain commands to speed up the scan
-      //for implementations that need only Preview/Info
+      // We can skip certain commands to speed up the scan
+      // for implementations that need only Preview/Info
       doProcess := Length(aCommands) = 0;
       for J := Low(aCommands) to High(aCommands) do
       if (commandText = aCommands[J]) then
@@ -285,10 +280,15 @@ begin
 
       if doProcess then
       begin
-        //Now convert command into type
+        // Default uninitialized values
+        textParam := '';
+        for K := 0 to aMaxCmd - 1 do
+          paramList[K] := -1;
+
+        // Now convert command into type
         commandType := TextToCommandType(commandText);
         Inc(I);
-        //Extract parameters
+        // Extract parameters
         for K := 0 to aMaxCmd - 1 do
           if (I < Length(aText)) and (aText[I] <> '!') then
           begin
@@ -296,14 +296,14 @@ begin
             repeat
               strParam := strParam + aText[I];
               Inc(I);
-            until((I >= Length(aText)) or (aText[I] = '!') or (aText[I] = #32)); //Until we find another ! OR we run out of data
+            until((I >= Length(aText)) or (aText[I] = '!') or (aText[I] = #32)); // Until we find another ! OR we run out of data
 
-            //Convert to an integer, if possible
+            // Convert to an integer, if possible
             if TryStrToInt(string(strParam), intParam) then
               paramList[K] := intParam
             else
               if K = 0 then
-                textParam := strParam; //Accept text for first parameter
+                textParam := strParam; // Accept text for first parameter
 
             if (I <= Length(aText)) and (aText[I] = #32) then
               Inc(I);

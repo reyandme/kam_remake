@@ -435,7 +435,7 @@ uses
   KM_Hand,
   KM_ResKeys,
   KM_FormLogistics, KM_Game,
-  KM_RandomChecks,
+  {$IFDEF RNG_SPY} KM_RandomChecks, {$ENDIF}
   KM_Log, KM_CommonClasses, KM_VclHelpers, KM_Video,
   KM_Settings, KM_MainSettings, KM_GameSettings,
   KM_ServerSettings,
@@ -759,9 +759,12 @@ end;
 
 
 procedure TFormMain.mnExportRngChecksClick(Sender: TObject);
+{$IFDEF RNG_SPY}
 var
   rngLogger: TKMRandomCheckLogger;
+{$ENDIF}
 begin
+  {$IFDEF RNG_SPY}
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'KaM Remake Random checks log (*.rng)|*.rng') then
   begin
     rngLogger := TKMRandomCheckLogger.Create;
@@ -771,6 +774,7 @@ begin
 
     rngLogger.Free;
   end;
+  {$ENDIF}
 end;
 
 

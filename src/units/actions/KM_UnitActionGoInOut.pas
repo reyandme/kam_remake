@@ -185,7 +185,7 @@ function TKMUnitActionGoInOut.FindBestExit(const aLoc: TKMPoint): TKMBestExit;
     //Choose randomly between left and right
     if (aL and aR) then
     begin
-      if KaMRandom(2, 'TKMUnitActionGoInOut.FindBestExit.ChooseBestExit') = 0 then
+      if KaMRandom(2{$IFDEF RNG_SPY}, 'TKMUnitActionGoInOut.FindBestExit.ChooseBestExit'{$ENDIF}) = 0 then
         Result := beLeft
       else
         Result := beRight;

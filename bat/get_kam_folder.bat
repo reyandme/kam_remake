@@ -37,7 +37,9 @@ REM echo datestamp: "%datestamp%"
 REM echo timestamp: "%timestamp%"
 
 REM Read last line from the file
-REM for /F "delims=" %%i in (KM_Revision.inc) do set "verinfo=%%i"
+for /F "UseBackQ delims=NET_PROTOCOL_REVISION_NUM=" %%i in ("..\KM_NetProtocolRevision.inc") do set "kmr_net_protocol=%%i"
+
+echo KMR Net Protocol = "%kmr_net_protocol%"
 
 REM Replace ' with nothing to get the version info
 REM @SET kam_revision=%verinfo:'=%

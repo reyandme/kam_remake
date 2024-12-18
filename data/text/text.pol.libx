@@ -427,7 +427,7 @@
 434:Pomocnicy i szkoły
 435:Cele wojskowe
 436:Nieznany
-437:Wojsko
+437:Oddziały
 438:Budynki
 439:Czas
 440:Samouczek Budowania
@@ -448,7 +448,7 @@
 455:Ilu żołnierzy jednocześnie może mieć SI
 456:Maks. żołnierzy
 457:Ile rekrutów klasyczny gracz komputerowy powinien mieć w Warowni
-458:Rekruci na Zamek
+458:Rekruci na zamek
 460:Niestandardowa pozycja
 463:Najbliższa jednostka
 465:Liczba oddziałów
@@ -839,7 +839,7 @@
 887:Wygraj (cheat)
 888:Porażka (cheat)
 889:Dodaj l. jazdę (cheat)
-890:Extra Menu
+890:Dodatkowe menu
 891:Edytor terenu
 892:Planowanie wsi
 893:Skrypty wizualne
@@ -1187,7 +1187,7 @@
 1259:Dostarczanie %s jest zablokowane
 1260:Wynoszenie %s jest zablokowane w trybie dostawy „oferowany”
 1261:Rekrut nie może wejść do Warowni
-1262:Szukaj płytki przez ID
+1262:Szukaj płytki po ID
 1263:Generator map losowych - ustawienia
 1264:Ustawienia generatora map losowych
 1265:Ustawienia GML
@@ -1321,8 +1321,8 @@
 1393:Poziom nakładania dla automatycznych masek
 1394:Blokuje budowanie
 1395:Blokuje chodzenie i budowanie
-1396:Płytki dekoracyjne
-1397:Dodaj płytki dekoracyjne.|Użyj LPM dla trybu bezpiecznego i LPM+Shift by zastąpić drogi
+1396:Nakładki dekoracyjne
+1397:Dodaj nakładki dekoracyjne.|Użyj LPM dla trybu bezpiecznego i LPM+Shift by zastąpić drogi
 1398:Filmy:
 1399:Włącz
 1400:Rozciągnij
@@ -1347,7 +1347,7 @@
 1419:droga
 1420:pole pszenicy
 1421:pole winogron
-1422:płytka dekoracyjna
+1422:nakładka dekoracyjna
 1423:obiekt
 1424:Nie posiadasz wystarczających uprawnień do katalogu instalacji KaM Remake:\n'%s'\n\nSpróbuj uruchomić grę z uprawnieniami administratora, przeinstaluj grę do innego katalogu, lub dodaj wyjątek dla KaM_Remake.exe w programie antywirusowym.
 1425:Paleta płytek
@@ -1421,7 +1421,7 @@
 1493:Zatwierdź wklejenie terenu ze skopiowanego miejsca
 1494:Zatwierdź wklejenie wysokości ze skopiowanego miejsca
 1495:Zatwierdź wklejenie obiektów ze skopiowanego miejsca
-1496:Zatwierdź wklejenie płytek dekoracyjnych ze skopiowanego miejsca
+1496:Zatwierdź wklejenie nakładek dekoracyjnych ze skopiowanego miejsca
 1497:Stała wysokość
 1498:Pędzel zmieniający wysokość na stałą
 1499:Poziom wysokości
@@ -1443,8 +1443,8 @@
 1515:Nagrana prędkość gry
 1516:Wygładzone renderowanie
 1517:Wygładzone renderowanie
-1518:Będzie wygładzać róch jednostek
-1519:Dla gracza %0:s do %1:s player's %2:s %3:s musi być %4:s
+1518:Będzie wygładzać ruch jednostek
+1519:Dla %1:s gracza %0:s, %3:s gracza %2:s muszą być %4:s
 1520:wygranej
 1521:przetrwania
 1522:zniszczone
@@ -1454,6 +1454,7 @@
 1526:Wygładzone animacje
 1527:Wygładzone animacje
 1528:Będzie wygładzać animacje wygładzone renderowanie powinno być włączone
+1534:Uwaga: Lepsza SI używa swoich własnych parametrów formacji, i zignoruje te ustawienia
 1536:Użyj wszystkich rodzajów |jednostek
 1537:Słaba
 1538:Żołnierze bez zbroi, żołnierze uzbrojeni w skórę lub żołnierze uzbrojeni w żelazo.
@@ -1466,3 +1467,56 @@
 1545:Wygładź Węgiel
 1546:Złoża węgla w zaznaczeniu zostaną automatycznie ustawione od najmniejszej ilości węgla na brzegach, po największe w środku
 1547:Inny gracz miał błąd desynchronizacji. Prosimy o wysłanie raportu błędu, dzięki czemu będziemy w stanie naprawić ten problem.%sTreść błędu drugiego gracza:%s
+1548:Cofnij
+1549:Powtórz
+1550:Trawa
+1551:Torf
+1552:Jasna trawa
+1553:Trawa na ziemi
+1554:Ziemia
+1555:Piasek nabrzeżny
+1556:Trawa z piaskiem 1
+1557:Trawa z piaskiem 2
+1558:Trawa z piaskiem 3
+1559:Piasek
+1560:Bagno
+1561:Podmokła trawa
+1562:Woda
+1563:Szybka woda
+1564:Niestandardowy
+1565:Śnieg na trawie
+1566:Śnieg na ziemi
+1567:Śnieg
+1568:Głęboki śnieg
+1569:Lód
+1570:Kamień
+1571:Góra bez złota
+1572:Góra bez żelaza
+1573:Kostka brukowa
+1574:Żwir
+1575:Węgiel
+1576:Góra ze złotem
+1577:Góra z żelazem
+1578:Lawa
+1579:Przepaść
+1580:Wszystkie niezapisane zmiany przepadną. Czy na pewno chcesz wyjść?
+1581:Uwaga
+1582:Bez nakładki
+1583:Nakładka kopania - 1. etap
+1584:Nakładka kopania - 2. etap
+1585:Nakładka kopania - 3. etap
+1586:Nakładka kopania - 4. etap
+1587:Nakładka z drogą
+1588:Domyślnie
+1589:Zastosuj domyślne ustawienia budowania dla gracza komputerowego nr %d w grze wieloosobowej
+1590:Ustawienia gry wieloosobowej dla gracza SI %d
+1591:Uwaga: To nadpisze wszelkie istniejące ustawienia gracza komputerowego nr %d. Kontynuować?
+1592:Zapamiętuje aktualnie używane hasło na przyszłość
+1593:Ilość ryb
+1594:Zapisz mapę
+1595:Mapa zapisana
+1596:Zapisywanie mapy...
+1597:Płaski teren
+1598:Siatka płytek
+1599:Plik zapisu nie istnieje
+1600:Zapisuj podział towarów|pomiędzy grami

@@ -5,7 +5,8 @@ uses
   Classes,
   {$IFDEF FPC}Forms,{$ENDIF}   // Lazarus does not know about UITypes
   {$IFDEF WDC}UITypes,{$ENDIF} // We use settings in console modules
-  KM_Defaults, KM_CommonClasses,
+  KM_Defaults,
+  KM_Lists,
   KM_Settings;
 
 type

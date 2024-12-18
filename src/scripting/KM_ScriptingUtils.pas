@@ -907,7 +907,7 @@ end;
 function TKMScriptUtils.RandomRangeI(aFrom, aTo: Integer): Integer;
 begin
   try
-    Result := KaMRandom(aTo - aFrom + 1, 'TKMScriptUtils.RandomRangeI') + aFrom;
+    Result := KaMRandom(aTo - aFrom + 1{$IFDEF RNG_SPY}, 'TKMScriptUtils.RandomRangeI'{$ENDIF}) + aFrom;
   except
     gScriptEvents.ExceptionOutsideScript := True;
     raise;

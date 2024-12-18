@@ -48,7 +48,7 @@ var
   I: Integer;
 begin
   Result := 0;
-  Inc(BeastAge[KaMRandom(5, 'TKMHouseSwineStable.FeedBeasts') + 1]); //Let's hope it never overflows MAX
+  Inc(BeastAge[KaMRandom(5{$IFDEF RNG_SPY}, 'TKMHouseSwineStable.FeedBeasts'{$ENDIF}) + 1]); //Let's hope it never overflows MAX
   for I := 1 to Length(BeastAge) do
     if BeastAge[I] > 3 then
       Result := I;

@@ -2180,7 +2180,6 @@ begin
   fAlphaShadows := aAlphaShadows;
   RXType := aRxType;
   FreeOnTerminate := False; //object can be automatically removed after its termination
-  gLog.MultithreadLogging := True;
   LoadStage := lsLoad;
 
   Log('Started');
@@ -2190,8 +2189,6 @@ end;
 destructor TTGameResourceLoader.Destroy;
 begin
   Log('Stopped');
-
-  gLog.MultithreadLogging := False;
 
   inherited;
 end;

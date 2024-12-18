@@ -66,8 +66,10 @@ uses
   KM_CommonTypes in 'src\common\KM_CommonTypes.pas',
   KM_Defaults in 'src\common\KM_Defaults.pas',
   KM_Entity in 'src\common\KM_Entity.pas',
+  KM_Lists in 'src\common\KM_Lists.pas',
   KM_Points in 'src\common\KM_Points.pas',
   KM_WorkerThread in 'src\common\KM_WorkerThread.pas',
+  KM_WorkerThreadUtils in 'src\common\KM_WorkerThreadUtils.pas',
 
   KM_Console in 'src\KM_Console.pas',
   
@@ -114,7 +116,9 @@ uses
   KM_GameInputProcess_Single in 'src\game\gip\KM_GameInputProcess_Single.pas',
   
   KM_GameUIDTracker in 'src\game\misc\KM_GameUIDTracker.pas',
+  {$IFDEF RNG_SPY}
   KM_RandomChecks in 'src\game\misc\KM_RandomChecks.pas',
+  {$ENDIF}
   
   KM_Alerts in 'src\game\notifications\KM_Alerts.pas',
   KM_MessageLog in 'src\game\notifications\KM_MessageLog.pas',
@@ -295,6 +299,7 @@ uses
   KM_NetworkConsts in 'src\net\KM_NetworkConsts.pas',
   KM_Networking in 'src\net\KM_Networking.pas',
   KM_NetworkTypes in 'src\net\KM_NetworkTypes.pas',
+  KM_NetworkUtils in 'src\net\KM_NetworkUtils.pas',
 
   KM_HTTPClient in 'src\net\http\KM_HTTPClient.pas',
   {$IFDEF WDC} KM_HTTPClientOverbyte in 'src\net\http\KM_HTTPClientOverbyte.pas', {$ENDIF}

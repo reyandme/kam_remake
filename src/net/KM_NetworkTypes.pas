@@ -2,7 +2,7 @@ unit KM_NetworkTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math, KM_Points, KM_CommonClasses;
+  Math, KM_Points, KM_Lists, KM_CommonClasses;
 
 
 type

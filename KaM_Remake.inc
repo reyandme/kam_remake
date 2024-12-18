@@ -16,6 +16,7 @@
 {$IFDEF VER330} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10.3 Rio compiler
 {$IFDEF VER340} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 10.4 Sydney compiler
 {$IFDEF VER350} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 11 Alexandria
+{$IFDEF VER360} {$DEFINE WDC} {$DEFINE WDC12PLUS} {$ENDIF} //Define Windows Delphi 12 Yukon
 {.$DEFINE FPC} //Define Free Pascal compiler (defined automatically by Lazarus)
 
 //Lazarus compiler specific settings
@@ -56,6 +57,10 @@
 //Enable asynchronius game resource loading
 {$IFNDEF NO_ASYNC_LOAD}
   {$DEFINE LOAD_GAME_RES_ASYNC}
+{$ENDIF}
+
+{$IFNDEF RELEASE_MAJOR} 
+  {$DEFINE RNG_SPY} 
 {$ENDIF}
 
 //Enable some debug features

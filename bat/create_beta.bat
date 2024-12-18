@@ -20,6 +20,7 @@ if errorlevel 2 (goto exit2)
 @SET kam_folder=%build_full_kmr_dir%
 
 echo KMR Beta Folder: %kam_folder%
+echo KMR Net Protocol: %kmr_net_protocol%
 
 call create.bat
 if errorlevel 3 (goto exit3)

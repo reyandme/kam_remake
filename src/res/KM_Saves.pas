@@ -750,42 +750,37 @@ var
   searchRec: TSearchRec;
   save: TKMSaveInfo;
 begin
-  gLog.MultithreadLogging := True; // We could log smth while doing saves scan
   try
+    pathToSaves := ExeDir + TKMSavesCollection.GetSaveFolder(fMultiplayerPath) + PathDelim;
+
+    if not DirectoryExists(pathToSaves) then Exit;
+
+    FindFirst(pathToSaves + '*', faDirectory, searchRec);
     try
-      pathToSaves := ExeDir + TKMSavesCollection.GetSaveFolder(fMultiplayerPath) + PathDelim;
-
-      if not DirectoryExists(pathToSaves) then Exit;
-
-      FindFirst(pathToSaves + '*', faDirectory, searchRec);
-      try
-        repeat
-          if (searchRec.Name <> '.') and (searchRec.Name <> '..')
-            and FileExists(TKMSavesCollection.FullPath(searchRec.Name, EXT_SAVE_MAIN, fMultiplayerPath))
-            and FileExists(TKMSavesCollection.FullPath(searchRec.Name, EXT_SAVE_REPLAY, fMultiplayerPath))
-            and FileExists(TKMSavesCollection.FullPath(searchRec.Name, EXT_SAVE_BASE, fMultiplayerPath)) then
-          begin
-            try
-              save := TKMSaveInfo.Create(searchRec.Name, fMultiplayerPath);
-              if SLOW_SAVE_SCAN then
-                Sleep(50);
-              fOnSaveAdd(save);
-              fOnSaveAddDone(Self);
-            except
-              on E: Exception do
-                gLog.AddTime('Error loading save ''' + searchRec.Name + ''''); //Just silently log an exception
-            end;
+      repeat
+        if (searchRec.Name <> '.') and (searchRec.Name <> '..')
+          and FileExists(TKMSavesCollection.FullPath(searchRec.Name, EXT_SAVE_MAIN, fMultiplayerPath))
+          and FileExists(TKMSavesCollection.FullPath(searchRec.Name, EXT_SAVE_REPLAY, fMultiplayerPath))
+          and FileExists(TKMSavesCollection.FullPath(searchRec.Name, EXT_SAVE_BASE, fMultiplayerPath)) then
+        begin
+          try
+            save := TKMSaveInfo.Create(searchRec.Name, fMultiplayerPath);
+            if SLOW_SAVE_SCAN then
+              Sleep(50);
+            fOnSaveAdd(save);
+            fOnSaveAddDone(Self);
+          except
+            on E: Exception do
+              gLog.AddTime('Error loading save ''' + searchRec.Name + ''''); //Just silently log an exception
           end;
-        until (FindNext(searchRec) <> 0) or Terminated;
-      finally
-        FindClose(searchRec);
-      end;
+        end;
+      until (FindNext(searchRec) <> 0) or Terminated;
     finally
-      if not Terminated and Assigned(fOnComplete) then
-        fOnComplete(Self);
+      FindClose(searchRec);
     end;
   finally
-    gLog.MultithreadLogging := False;
+    if not Terminated and Assigned(fOnComplete) then
+      fOnComplete(Self);
   end;
 end;
 

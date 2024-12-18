@@ -1566,7 +1566,7 @@ begin
     for K := Max((Round(F.X) - rad), 1) to Min((Round(F.X) + rad), gTerrain.MapX - 1) do
     begin
       case gCursor.MapEdShape of
-        hsCircle: tmp := 1 - GetLength(I-Round(F.Y), K-Round(F.X)) / rad;
+        hsCircle: tmp := 1 - GetLengthI(I - Round(F.Y), K - Round(F.X)) / rad;
         hsSquare: tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / rad;
         else                 tmp := 0;
       end;
@@ -1595,7 +1595,7 @@ begin
     for K := Max((Round(F.X) - rad), 1) to Min((Round(F.X) + rad), gTerrain.MapX - 1) do
     begin
       case gCursor.MapEdShape of
-        hsCircle: tmp := 1 - GetLength(I-Round(F.Y), K-Round(F.X)) / rad;
+        hsCircle: tmp := 1 - GetLengthI(I - Round(F.Y), K - Round(F.X)) / rad;
         hsSquare: tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / rad;
         else                 tmp := 0;
       end;

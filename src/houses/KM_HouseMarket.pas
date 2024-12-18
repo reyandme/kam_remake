@@ -16,9 +16,6 @@ type
     // For some reason fMarketDeliveryCount is not the same as house / townhall delivery count
     // In the market we don't count actual wares on the market in the delivery count, but for other houses we do
     fMarketDeliveryCount: array [WARE_MIN..WARE_MAX] of Word;
-    // Number of demands that were reqeusted to close. We don't klnow if they will succeed in closing or not
-    // Closing could be cancelled, if serf is already entering the house of the demand
-    fMarketDemandsClosing: array [WARE_MIN..WARE_MAX] of Word;
     fTradeAmount: Word;
     procedure AttemptExchange;
     procedure SetWareFrom(aWare: TKMWareType);
@@ -166,7 +163,10 @@ end;
 
 function TKMHouseMarket.GetWareRequired: Integer;
 begin
-  Result := fTradeAmount * RatioFrom - (fMarketDeliveryCount[fResFrom] - fMarketDemandsClosing[fResFrom] + WareToTrade[fResFrom]);
+  // How many wares needed
+  Result := fTradeAmount * RatioFrom          // According to trade ratio
+            - WareToTrade[fResFrom]           // Except what we have already
+            - fMarketDeliveryCount[fResFrom];  // Except already delivering
 end;
 
 
@@ -184,8 +184,16 @@ begin
   begin
     SetWareInCnt(aWare, fMarketWareIn[aWare] + aCount); //Place the new resource in the IN list
 
-    //As we only order 10 resources at one time, we might need to order another now to fill the gap made by the one delivered
-    ordersAllowed := MAX_RES_ORDERED - (fMarketDeliveryCount[fResFrom] - fMarketDemandsClosing[fResFrom]);
+    // As we only order 10 resources at one time, we might need to order another now to fill the gap made by the one delivered
+    //
+    // How many can we order
+    // Consider number of deliveries
+    // Except the deliveries, which are closing
+    // But except 1 closing delivery which possibly could not be cancelled,
+    // since serf is entering the house
+    // There is only serf entering the house at any moment, so 1 is enough for this last exception
+    ordersAllowed := MAX_RES_ORDERED
+                     - fMarketDeliveryCount[fResFrom]; // Consider number of deliveries
 
     Assert(ordersAllowed >= 0); //We must never have ordered more than we are allowed
 
@@ -203,6 +211,12 @@ begin
     SetWareOutCnt(aWare, fMarketWareOut[aWare] + aCount); //Place the new resource in the OUT list
     gHands[Owner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
   end;
+
+  // If we received smth and have TakeOut delivery mode
+  // it means delivery mdoe was changed when serf was already entering the house
+  // In that case we have to add ware he brought to the offer
+  if DeliveryMode = dmTakeOut then
+    gHands[Owner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
 end;
 
 
@@ -420,14 +434,11 @@ end;
 
 function TKMHouseMarket.TryDecWareDelivery(aWare: TKMWareType; aDeleteCanceled: Boolean): Boolean;
 begin
-  Assert(fMarketDemandsClosing[aWare] > 0);
-
   // Do not decrease DeliveryCount, if demand delete was cancelled (demand closing was not possible, f.e. when serf enters the house)
   // thus serf brought ware to the house and we should not decrease delivery count in that case here
   // (but it will be decreased anyway in the WareAddToIn for market)
   if not aDeleteCanceled then
     fMarketDeliveryCount[aWare] := Max(0, fMarketDeliveryCount[aWare] - 1);
-  fMarketDemandsClosing[aWare] := Max(0, fMarketDemandsClosing[aWare] - 1);
 
   Result := True;
 end;
@@ -457,11 +468,17 @@ begin
       //Remove demands, we took some of the wares from OUT queue
       ordersRemoved := gHands[Owner].Deliveries.Queue.TryRemoveDemand(Self, fResFrom, movedOut2In, plannedToRemove);
       Dec(fMarketDeliveryCount[fResFrom], ordersRemoved);
-      Inc(fMarketDemandsClosing[fResFrom], plannedToRemove);
     end;
   end;
 
-  ordersAllowed := MAX_RES_ORDERED - (fMarketDeliveryCount[fResFrom] - fMarketDemandsClosing[fResFrom]);
+  // How many can we order
+  // Consider number of deliveries
+  // Except the deliveries, which are closing
+  // But except 1 closing delivery which possibly could not be cancelled,
+  // since serf is entering the house
+  // There is only serf entering the house at any moment, so 1 is enough for this last exception
+  ordersAllowed :=  MAX_RES_ORDERED
+                    - fMarketDeliveryCount[fResFrom]; // Consider number of deliveries
 
   Assert(ordersAllowed >= 0); //We must never have ordered more than we are allowed
 
@@ -481,7 +498,6 @@ begin
   begin
     ordersRemoved := gHands[Owner].Deliveries.Queue.TryRemoveDemand(Self, fResFrom, -resRequired, plannedToRemove);
     Dec(fMarketDeliveryCount[fResFrom], ordersRemoved);
-    Inc(fMarketDemandsClosing[fResFrom], plannedToRemove);
   end;
 end;
 
@@ -509,6 +525,8 @@ procedure TKMHouseMarket.CheckTakeOutDeliveryMode;
 var
   WT: TKMWareType;
 begin
+  // House had dmTakeOut delivery mode
+  // Remove offers from this house then
   if DeliveryMode = dmTakeOut then
     for WT := WARE_MIN to WARE_MAX do
     begin
@@ -516,6 +534,8 @@ begin
         gHands[Owner].Deliveries.Queue.RemOffer(Self, WT, fMarketWareIn[WT]);
     end;
 
+  // House will get dmTakeOut delivery mode
+  // Add offers to this house then
   if NewDeliveryMode = dmTakeOut then
   begin
     for WT := WARE_MIN to WARE_MAX do
@@ -538,7 +558,6 @@ begin
   LoadStream.Read(fMarketWareIn, SizeOf(fMarketWareIn));
   LoadStream.Read(fMarketWareOut, SizeOf(fMarketWareOut));
   LoadStream.Read(fMarketDeliveryCount, SizeOf(fMarketDeliveryCount));
-  LoadStream.Read(fMarketDemandsClosing, SizeOf(fMarketDemandsClosing));
 end;
 
 
@@ -553,7 +572,6 @@ begin
   SaveStream.Write(fMarketWareIn, SizeOf(fMarketWareIn));
   SaveStream.Write(fMarketWareOut, SizeOf(fMarketWareOut));
   SaveStream.Write(fMarketDeliveryCount, SizeOf(fMarketDeliveryCount));
-  SaveStream.Write(fMarketDemandsClosing, SizeOf(fMarketDemandsClosing));
 end;
 
 
@@ -586,7 +604,7 @@ end;
 
 function TKMHouseMarket.ObjToString(const aSeparator: String = '|'): String;
 var
-  resInStr, resOutStr, deliveryCntStr, demandsCloseStr, strIn, strOut, strDel, strDemClose: string;
+  resInStr, resOutStr, deliveryCntStr, demandsCloseStr, strIn, strOut, strDel: string;
   WT: TKMWareType;
   len: Integer;
 begin
@@ -595,31 +613,29 @@ begin
   resInStr := '';
   resOutStr := '';
   deliveryCntStr := '';
+  demandsCloseStr := '';
 
   for WT := WARE_MIN to WARE_MAX do
   begin
     strIn  := IntToStr(fMarketWareIn[WT]);
     strOut := IntToStr(fMarketWareOut[WT]);
     strDel := IntToStr(fMarketDeliveryCount[WT]);
-    strDemClose := IntToStr(fMarketDemandsClosing[WT]);
-    len := Max3(Length(strIn), Length(strOut), Length(strDel));
+    len := Max3I(Length(strIn), Length(strOut), Length(strDel));
     resInStr        := resInStr        + ' ' + StringOfChar(' ', len - Length(strIn))       + strIn;
     resOutStr       := resOutStr       + ' ' + StringOfChar(' ', len - Length(strOut))      + strOut;
     deliveryCntStr  := deliveryCntStr  + ' ' + StringOfChar(' ', len - Length(strDel))      + strDel;
-    demandsCloseStr := demandsCloseStr + ' ' + StringOfChar(' ', len - Length(strDemClose)) + strDemClose;
   end;
 
   Result := inherited +
             Format('%sMarketResFrom = %s%sMarketResTo = %s%sTradeAmount = %d%sMarketResIn       = %s%sMarketResOut      = %s' +
-                   '%sMarketDeliveryCnt = %s%sMarketDemandClose = %s',
+                   '%sMarketDeliveryCnt = %s',
                    [aSeparator,
                     GetEnumName(TypeInfo(TKMWareType), Integer(fResFrom)), aSeparator,
                     GetEnumName(TypeInfo(TKMWareType), Integer(fResTo)), aSeparator,
                     fTradeAmount, aSeparator,
                     resInStr, aSeparator,
                     resOutStr, aSeparator,
-                    deliveryCntStr, aSeparator,
-                    demandsCloseStr]);
+                    deliveryCntStr]);
 end;
 
 

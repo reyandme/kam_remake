@@ -2,7 +2,8 @@ echo called copy_pre_pack.bat
 
 REM Copy rx resorces from original game
 xcopy "%KMRPrivateRepoDir%\SpriteResource\*.rx" "%KMRResourcesRepoDir%\SpriteResource\" /y /r /s
-xcopy "%KMRPrivateRepoDir%\data\gfx\*" ..\data\gfx /y /r 
+REM copy palette files
+xcopy "%KMRPrivateRepoDir%\data\gfx\*" "..\data\gfx\" /y /r /s
 
 mkdir ..\data\defines
 

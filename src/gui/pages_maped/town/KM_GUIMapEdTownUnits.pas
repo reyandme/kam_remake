@@ -127,12 +127,12 @@ begin
   with TKMLabel.Create(Panel_Units, 9, lineY, Panel_Units.Width - 100, 20, gResTexts[TX_MAPED_FISH_COUNT], fntMetal, taLeft) do
   begin
     Anchors := [anLeft, anTop, anRight];
-    Hint := gResTexts[TX_MAPED_UNITS_FORMATION_COLUMNS_HINT];
+    Hint := gResTexts[TX_MAPED_FISH_COUNT];
   end;
 
   NumEd_FishCount := TKMNumericEdit.Create(Panel_Units, 9, lineY + 20, 1, FISH_CNT_MAX);
   NumEd_FishCount.Anchors := [anLeft, anTop, anRight];
-//  NumEd_FishCount.Hint := gResTexts[TX_MAPED_UNITS_FORMATION_COLUMNS_HINT];
+  NumEd_FishCount.Hint := gResTexts[TX_MAPED_FISH_COUNT];
   NumEd_FishCount.AutoFocusable := False;
   NumEd_FishCount.OnChange := Town_NumericChange;
   NumEd_FishCount.Value := MAPED_FISH_CNT_DEFAULT;

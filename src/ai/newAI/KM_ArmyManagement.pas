@@ -253,7 +253,7 @@ begin
       // Chose a random group type that we are going to attempt to train (so we don't always train certain group types first)
       L := 0;
       repeat
-        GT := TKMGroupType(GROUP_TYPE_MIN_OFF + KaMRandom(4, 'TKMArmyManagement.RecruitSoldiers')); //Pick random from overall count
+        GT := TKMGroupType(GROUP_TYPE_MIN_OFF + KaMRandom(4{$IFDEF RNG_SPY}, 'TKMArmyManagement.RecruitSoldiers'{$ENDIF})); //Pick random from overall count
         Inc(L);
       until (GroupReq[GT] > 0) or (L > 9); // Limit number of attempts to guarantee it doesn't loop forever
 
@@ -370,7 +370,7 @@ type
       else
       begin
         // Take group in defence position if it is required by mobilization
-        DP := fDefence.FindPositionOf(Group, KaMRandom('TKMArmyManagement.RecruitSoldiers') < aMobilizationCoef ); // True = First line will not be considered
+        DP := fDefence.FindPositionOf(Group, KaMRandom({$IFDEF RNG_SPY}'TKMArmyManagement.RecruitSoldiers'{$ENDIF}) < aMobilizationCoef ); // True = First line will not be considered
         if (DP <> nil) then
           Inc(AG.Count,1); // Confirm that the group should be in array GroupArr
       end;

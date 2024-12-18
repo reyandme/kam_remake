@@ -104,7 +104,7 @@ begin
   //Render in reverse order so the rightmost resource is on top (otherwise lighting looks wrong)
   if WareCntAsNumber then
   begin
-    TKMRenderUI.WriteText(AbsLeft + Width - 18 - 70 + 24, AbsTop + 3, 22, IntToStr(WareCount), fntGame, taRight, $FFE0E0E0);
+    TKMRenderUI.WriteText(AbsLeft + Width - 18 - 70 + 24, AbsTop + 3, 40, IntToStr(WareCount), fntGame, taRight, $FFE0E0E0);
     TKMRenderUI.WritePicture(AbsLeft + Width - 18, AbsTop + 3, 14, 14, [], RX, TexID);
   end else
     for I := WareCount - 1 downto 0 do
@@ -269,7 +269,7 @@ begin
   fOrderLab.Top := Top + 4;
   fOrderAdd.Top := Top + 1;
 
-  fOrderLab.Caption := IntToStr(OrderCount);
+  fOrderLab.Caption := IntToKStr(OrderCount, 1000);
 end;
 
 

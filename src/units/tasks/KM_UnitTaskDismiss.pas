@@ -32,7 +32,7 @@ implementation
 uses
   KM_Entity,
   KM_HandsCollection, KM_Hand, KM_HandTypes, KM_HandEntity,
-  KM_ResTypes;
+  KM_ResTypes, KM_ScriptingEvents;
 
 
 { TTaskDismiss }
@@ -138,6 +138,8 @@ begin
               gMySpectator.Selected := nil; //Reset view, in case we were watching dismissed unit
 
             gHands[fUnit.Owner].Stats.UnitLost(fUnit.UnitType);
+            gScriptEvents.ProcUnitDismissed(fUnit);
+
             TKMCivilUnit(fUnit).KillInHouse; //Kill unit silently inside house
             Exit; //Exit immidiately, since we destroyed current task!
                   //Changing any task fields here (f.e. Phase) will try to change freed memory!

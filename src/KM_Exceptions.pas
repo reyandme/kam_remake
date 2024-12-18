@@ -108,7 +108,7 @@ var
   end;
 
 var
-  logMessage: string;
+  logMessage, viewportStr: string;
   sharedSettingsPath: string;
 begin
   if gLog = nil then Exit; //Could crash very early before even the log file is created
@@ -140,17 +140,23 @@ begin
   MESettings.ScreenShotZip := crashFile; //Screenshot also goes in the zip
 
   if gGame <> nil then
+  begin
     TKMCrashReport.Generate(ExceptIntf, crashFile);
+    viewportStr := gGame.ActiveInterface.Viewport.ToStr();
+  end
+  else
+    viewportStr := 'nil';
 
   // Do the log after gGame because gGame adds stuff to the log
   if gLog <> nil then
   begin
     if gGameApp <> nil then
-      gLog.AddTime(Format('UI at crash time: MainPanel sizes: %s, cursor pos: %s, ' + sLineBreak +
+      gLog.AddTime(Format('UI at crash time: MainPanel sizes: %s, cursor pos: %s, viewport: %s,' + sLineBreak +
                           'CtrlDown = %s' + sLineBreak +
                           'CtrlOver = %s' + sLineBreak +
                           'CtrlUp = %s' + sLineBreak + 'CtrlFocus = %s',
                           [gGameApp.ActiveInterface.GetMainPanelSize.ToString,
+                           viewportStr,
                            gCursor.Pixel.ToString,
                            gGameApp.ActiveInterface.MyControls.CtrlDown.ToStr,
                            gGameApp.ActiveInterface.MyControls.CtrlOver.ToStr,

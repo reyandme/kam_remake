@@ -783,9 +783,9 @@ begin
   Result := 0;
   if IsRanged then
     case UnitType of
-      utBowman:     Result := BOWMEN_AIMING_DELAY_MIN + KaMRandom(BOWMEN_AIMING_DELAY_ADD, 'TKMUnitWarrior.GetAimingDelay');
-      utCrossbowman: Result := CROSSBOWMEN_AIMING_DELAY_MIN + KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD, 'TKMUnitWarrior.GetAimingDelay 2');
-      utRogue:  Result := SLINGSHOT_AIMING_DELAY_MIN + KaMRandom(SLINGSHOT_AIMING_DELAY_ADD, 'TKMUnitWarrior.GetAimingDelay 3');
+      utBowman:       Result := BOWMEN_AIMING_DELAY_MIN + KaMRandom(BOWMEN_AIMING_DELAY_ADD{$IFDEF RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay'{$ENDIF});
+      utCrossbowman:  Result := CROSSBOWMEN_AIMING_DELAY_MIN + KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD{$IFDEF RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 2'{$ENDIF});
+      utRogue:        Result := SLINGSHOT_AIMING_DELAY_MIN + KaMRandom(SLINGSHOT_AIMING_DELAY_ADD{$IFDEF RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 3'{$ENDIF});
       else raise Exception.Create('Unknown shooter');
     end;
 end;
@@ -899,8 +899,9 @@ begin
 
                         loc := gTerrain.GetClosestTile(fOrderLoc, Position, GetDesiredPassability, fUseExactTarget);
 
-                        // No need to walk if we reached destination already
-                        if loc <> fPositionRound then
+                        //Ranged units instead of attack get walk order to change direction, so they should move in case there was an attack order.
+                        //For others there is no need to walk if we reached destination already.
+                        if IsRanged or (loc <> fPositionRound) then
                           SetActionWalkToSpot(loc, uaWalk);
 
                         fNextOrder := woNone;

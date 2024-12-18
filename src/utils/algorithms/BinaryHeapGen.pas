@@ -5,7 +5,6 @@ unit BinaryHeapGen;
 interface
 uses Generics.Collections;
 
-
 type
   TComparator<T: class> = function(A, B: T) : Boolean of object;
 
@@ -15,8 +14,8 @@ type
     fCount: Integer;
     fItems: array of T;
     fCmp: TComparator<T>;
-    procedure _siftdown(startpos, pos: SmallInt);
-    procedure _siftup(pos: SmallInt);
+    procedure _siftdown(startpos, pos: Integer);
+    procedure _siftup(pos: Integer);
   public
     constructor Create(aSize: Cardinal; aCmp: TComparator<T>);
     destructor Destroy; override;
@@ -31,13 +30,13 @@ type
     procedure UpdateItem(x: T);
   end;
 
+const
+  BINARY_HEAP_GEN_GROW_FACTOR = 1.618; // golden ratio
+
 
 implementation
 uses
   SysUtils;
-
-const
-  GROW_FACTOR = 1.618; // golden ratio
 
 
 { TBinaryHeap }
@@ -88,7 +87,7 @@ end;
 procedure TObjectBinaryHeap<T>.Push(aItem: T);
 begin
   if Length(fItems) <= fCount then
-    SetLength(fItems, Round(fCount * GROW_FACTOR));
+    SetLength(fItems, Round(fCount * BINARY_HEAP_GEN_GROW_FACTOR));
 
   fItems[fCount] := aItem;
   Inc(fCount);
@@ -137,9 +136,10 @@ begin
 end;
 
 
-procedure TObjectBinaryHeap<T>._siftdown(startpos, pos: SmallInt);
-var newitem, parent: T;
-  parentpos: SmallInt;
+procedure TObjectBinaryHeap<T>._siftdown(startpos, pos: Integer);
+var
+  newitem, parent: T;
+  parentpos: Integer;
 begin
     newitem := fItems[pos];
     while (pos > startpos) do
@@ -158,8 +158,9 @@ begin
 end;
 
 
-procedure TObjectBinaryHeap<T>._siftup(pos: SmallInt);
-var childpos, endpos, rightpos, startpos: SmallInt;
+procedure TObjectBinaryHeap<T>._siftup(pos: Integer);
+var
+  childpos, endpos, rightpos, startpos: Integer;
   newitem: T;
 begin
     endpos := fCount;

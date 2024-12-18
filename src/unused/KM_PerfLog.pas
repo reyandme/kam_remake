@@ -2,7 +2,11 @@ unit KM_PerfLog;
 {$I KaM_Remake.inc}
 interface
 uses
-  Generics.Collections;
+  Generics.Collections
+  {$IFDEF FPC}
+  , KM_Sort
+  {$ENDIF}
+  ;
 
 
 type
@@ -216,6 +220,27 @@ begin
   fTimeEnter[aSection] := 0;
 end;
 
+{$IFDEF FPC}
+function CompareTicks(const aKey1, aKey2): Integer;
+var
+  k1: Cardinal absolute aKey1;
+  k2: Cardinal absolute aKey2;
+begin
+  if      k1 < k2 then Result := -1
+  else if k1 > k2 then Result := +1
+  else                 Result :=  0;
+end;
+
+function CompareSects(const aKey1, aKey2): Integer;
+var
+  k1: TKMPerfSection absolute aKey1;
+  k2: TKMPerfSection absolute aKey2;
+begin
+  if      k1 < k2 then Result := -1
+  else if k1 > k2 then Result := +1
+  else                 Result :=  0;
+end;
+{$ENDIF}
 
 procedure TKMPerfLog.SaveToFile(const aFilename: UnicodeString);
 var
@@ -239,7 +264,11 @@ begin
   S := TStringList.Create;
 
   TicksArray := fTickTimes.Keys.ToArray;
+  {$IFNDEF FPC}
   TArray.Sort<Cardinal>(TicksArray);
+  {$ELSE}
+  SortCustom(TicksArray, Low(TicksArray), High(TicksArray), SizeOf(TicksArray[0]), CompareTicks);
+  {$ENDIF}
 
 //  Str := 'Tick   '; //7
   Str := '       ';
@@ -261,7 +290,11 @@ begin
     SectDict := fTickTimes.Items[TickKey];
 
     SectsArray := SectDict.Keys.ToArray;
+    {$IFNDEF FPC}
     TArray.Sort<TKMPerfSection>(SectsArray);
+    {$ELSE}
+    SortCustom(SectsArray, Low(SectsArray), High(SectsArray), SizeOf(SectsArray[0]), CompareSects);
+    {$ENDIF}
 
     FastTick := False;
     Str := Format('%6d:', [TickKey]);

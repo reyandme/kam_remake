@@ -33,6 +33,8 @@ type
     property GetOpponent: TKMUnit read fOpponent;
     function Execute: TKMActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
+    function ObjToStringShort(const aSeparator: String = '|'): String; override;
+    function ObjToString(const aSeparator: String = ' '): String; override;
   end;
 
 
@@ -161,7 +163,7 @@ var
   makeBattleCry: Boolean;
 begin
   //Randomly make a battle cry. KaMRandom must always happen regardless of tile revelation
-  makeBattleCry := KaMRandom(20, 'TKMUnitActionFight.MakeSound') = 0;
+  makeBattleCry := KaMRandom(20{$IFDEF RNG_SPY}, 'TKMUnitActionFight.MakeSound'{$ENDIF}) = 0;
 
   //Do not play sounds if unit is invisible to gMySpectator
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
@@ -192,6 +194,8 @@ begin
   or not fOpponent.Visible //Don't continue to fight units that have went into a house
   or (gHands[fUnit.Owner].Alliances[fOpponent.Owner] = atAlly) //Unit could become ally from script
   or not TKMUnitWarrior(fUnit).WithinFightRange(fOpponent.Position)
+  or (TKMUnitWarrior(fUnit).IsRanged // For ranged - ignore opponents who are under FOW
+    and (gHands[fUnit.Owner].FogOfWar.CheckTileRevelation(fOpponent.Position.X, fOpponent.Position.Y) <> 255))
   or not fUnit.CanWalkDiagonally(fUnit.Position, fOpponent.Position) then //Might be a tree between us now
   begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
@@ -292,7 +296,7 @@ begin
     //Defence modifier
     damage := damage div Math.max(gRes.Units[fOpponent.UnitType].Defence, 1); //Not needed, but animals have 0 defence
 
-    isHit := (damage >= KaMRandom(101, 'TKMUnitActionFight.ExecuteProcessMelee')); //Damage is a % chance to hit
+    isHit := (damage >= KaMRandom(101{$IFDEF RNG_SPY}, 'TKMUnitActionFight.ExecuteProcessMelee'{$ENDIF})); //Damage is a % chance to hit
     if isHit then
       fOpponent.HitPointsDecrease(1, fUnit);
 
@@ -304,7 +308,7 @@ begin
   if Step in [0,3,6] then
   begin
     if fFightDelay = -1 then //Initialize
-      fFightDelay := KaMRandom(2, 'TKMUnitActionFight.ExecuteProcessMelee 2');
+      fFightDelay := KaMRandom(2{$IFDEF RNG_SPY}, 'TKMUnitActionFight.ExecuteProcessMelee 2'{$ENDIF});
 
     if fFightDelay > 0 then
     begin
@@ -384,6 +388,26 @@ end;
 function TKMUnitActionFight.CanBeInterrupted(aForced: Boolean = True): Boolean;
 begin
   Result := (TKMUnitWarrior(fUnit).IsRanged and aForced) or not Locked; //Only allowed to interupt ranged fights
+end;
+
+
+function TKMUnitActionFight.ObjToStringShort(const aSeparator: String = '|'): String;
+begin
+  Result := inherited ObjToStringShort(aSeparator) +
+            Format('%sopponent = [%s]%svertexOccupied = %s',
+                   [aSeparator,
+                    fOpponent.ObjToStringBasic(aSeparator), aSeparator,
+                    fVertexOccupied.ToString]);
+end;
+
+
+function TKMUnitActionFight.ObjToString(const aSeparator: String = ' '): String;
+begin
+  Result := inherited ObjToString(aSeparator) +
+            Format('%sopponent = [%s]%svertexOccupied = %s',
+                   [aSeparator,
+                    fOpponent.ObjToStringBasic(aSeparator), aSeparator,
+                    fVertexOccupied.ToString]);
 end;
 
 

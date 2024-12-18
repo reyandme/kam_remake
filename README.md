@@ -1,12 +1,42 @@
-### About
+# KaM Remake readme
 
-The KaM Remake mod is an attempt to reinvigorate the original “Knights and Merchants: The Shattered Kingdom” strategy game. Our goals are to make it work on today's computers and operating systems, implement a fully featured online multiplayer system, as well as to fix the many bugs in the game engine. To do this we have started from scratch, writing our own code for the game engine but still relying on many original resource files. We assume that you own the original KaM game, (the installer checks for it) otherwise you should buy it – it's available in a number of online gaming stores.
 
-The KaM Remake executable is freeware and is built by enthusiasts. Applications used: Delphi XE2 - Rio 10.3.3, FastMM4, Lazarus, OpenGL, OpenAL, Overbyte ICS, zLib, Ogg Vorbis, PNGImage, MadExcept, libZPlay.
+# ![](Docs/Readme/Readme/GUI_0318.gif) About
 
-#### KaM Remake Maps and Campaigns repository
-All Maps and Campaigns are in the [kam_remake_maps repo](https://github.com/reyandme/kam_remake_maps "KaM Remake Maps and Campaigns repository") maps and campaigns
+The KaM Remake mod reinvigorates the original “Knights and Merchants: The Shattered Kingdom” strategy game, adding extra features and modernizing the game.
 
-#### Projects website
+See also our website: <http://www.kamremake.com/about/>
 
-<http://www.kamremake.com/about/>
+## ![](Docs/Readme/Readme/GUI_0311.gif) Key features
+
+- multiplayer with support for up to 12 players, spectators, map/save transfers in lobby, randomly generated maps - and much more...
+- modern screen resolution and zoom in/out
+- tons of community maps for singleplayer and multiplayer - including custom co-op maps and campaigns
+- AI for scenarios and skirmish maps reworked from scratch
+- scripting for deep customisation of "special maps"
+
+## ![](Docs/Readme/Readme/GUI_0322.gif) Downloads
+
+The latest stable version of the game is always available at <https://www.kamremake.com/download/>
+
+## ![](Docs/Readme/Readme/GUI_0303.gif) Getting started
+
+See [here](Docs/Readme/getting-started_eng.md)
+
+## ![](Docs/Readme/Readme/GUI_0323.gif) Community and Feedback
+
+Join our community at <https://discord.gg/UkkYceR>. We would love your comments, suggestions, compliments, etc.
+If you can offer some help in Delphi coding, menu design, documentation, graphics, sounds, translation or ideas for improvement - please drop us an email or write on Discord. 
+
+# ![](Docs/Readme/Readme/GUI_0304.gif) Technical details and contributing code to Remake
+
+See [here](Docs/Readme/technical.md)
+
+
+
+
+
+
+
+ 
+

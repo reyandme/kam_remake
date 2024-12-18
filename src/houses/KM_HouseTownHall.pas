@@ -7,20 +7,19 @@ uses
   KM_ResTypes;
 
 const
-  TH_MAX_GOLDMAX_VALUE = 999; //Max value for TownHall MaxGold parameter
+  TH_MAX_GOLDMAX_VALUE = High(Word); //Max value for TownHall MaxGold parameter
 
 
 type
   TKMHouseTownHall = class(TKMHouseWFlagPoint)
   private
-    fGoldCnt: Word;
-    fGoldMaxCnt: Word;
+    fGoldCnt: Integer;
+    fGoldMaxCnt: Integer;
     function GetTHUnitOrderIndex(aUnitType: TKMUnitType): Integer;
-    procedure SetGoldCnt(aValue: Word); overload;
-    procedure SetGoldCnt(aValue: Word; aLimitMaxGoldCnt: Boolean); overload;
+    procedure SetGoldCnt(aValue: Integer); overload;
+    procedure SetGoldCnt(aValue: Integer; aLimitMaxGoldCnt: Boolean); overload;
 
-
-    procedure SetGoldMaxCnt(aValue: Word);
+    procedure SetGoldMaxCnt(aValue: Integer);
 
     function GetGoldDeliveryCnt: Word;
     procedure SetGoldDeliveryCnt(aCount: Word);
@@ -41,8 +40,8 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
-    property GoldCnt: Word read fGoldCnt write SetGoldCnt;
-    property GoldMaxCnt: Word read fGoldMaxCnt write SetGoldMaxCnt;
+    property GoldCnt: Integer read fGoldCnt write SetGoldCnt;
+    property GoldMaxCnt: Integer read fGoldMaxCnt write SetGoldMaxCnt;
 
     function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; override;
 
@@ -107,13 +106,13 @@ begin
 end;
 
 
-procedure TKMHouseTownHall.SetGoldCnt(aValue: Word);
+procedure TKMHouseTownHall.SetGoldCnt(aValue: Integer);
 begin
   SetGoldCnt(aValue, True);
 end;
 
 
-procedure TKMHouseTownHall.SetGoldCnt(aValue: Word; aLimitMaxGoldCnt: Boolean);
+procedure TKMHouseTownHall.SetGoldCnt(aValue: Integer; aLimitMaxGoldCnt: Boolean);
 var
   oldValue: Integer;
 begin
@@ -132,15 +131,16 @@ function TKMHouseTownHall.TryDecWareDelivery(aWare: TKMWareType; aDeleteCanceled
 begin
   Assert(GoldDemandsClosing > 0);
 
+  // If there was no delivery (it was cancelled)
   if not aDeleteCanceled then
-    GoldDeliveryCnt := GoldDeliveryCnt - 1;
+    GoldDeliveryCnt := GoldDeliveryCnt - 1; // No delivery => reduce DeliveryCnt
   GoldDemandsClosing := GoldDemandsClosing - 1;
 
   Result := True;
 end;
 
 
-procedure TKMHouseTownHall.SetGoldMaxCnt(aValue: Word);
+procedure TKMHouseTownHall.SetGoldMaxCnt(aValue: Integer);
 begin
   fGoldMaxCnt := EnsureRange(aValue, 0, TH_MAX_GOLDMAX_VALUE);
   UpdateDemands;
@@ -311,7 +311,7 @@ const
 var
   goldToOrder, ordersRemoved, plannedToRemove, deliveringGold: Integer;
 begin
-  deliveringGold := GoldDeliveryCnt - GoldDemandsClosing;
+  deliveringGold := GoldDeliveryCnt - GoldDemandsClosing; // We might consider here, same as in Market: GoldDeliveryCnt - Max(0, GoldDemandsClosing - 1);
   goldToOrder := Min(MAX_GOLD_DEMANDS - (deliveringGold - fGoldCnt), fGoldMaxCnt - deliveringGold);
   if goldToOrder > 0 then
   begin
@@ -347,6 +347,9 @@ begin
     aCount := EnsureRange(aCount, 0, fGoldCnt);
     gHands[Owner].Stats.WareConsumed(aWare, aCount);
   end;
+
+  //Keep track of how many are ordered
+  GoldDeliveryCnt := EnsureRange(GoldDeliveryCnt - aCount, 0, High(Word));
 
   SetGoldCnt(fGoldCnt - aCount, False);
   UpdateDemands;

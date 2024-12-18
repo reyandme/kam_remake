@@ -82,7 +82,7 @@ implementation
 uses
   Classes, SysUtils, Math,
   KM_GameSettings,
-  KM_Log;
+  KM_Log, KM_WorkerThreadUtils;
 
 var
   MAX_TICKS_CNT: Integer = 5*60*10; // 5 minutes
@@ -480,7 +480,7 @@ begin
   //SaveStream now contains the compressed data from SourceStream
 //  CompressionStream.Free;
 
-  TKMemoryStream.AsyncSaveToFileCompressedAndFree(saveStream, aPath, 'RNGCompressed', aWorkerThread);
+  AsyncSaveToFileCompressedAndFree(saveStream, aPath, 'RNGCompressed', aWorkerThread);
 end;
 {$ENDIF}
 

@@ -48,6 +48,11 @@ REM Copy post pack
 echo ######                       Copy Post Pack                          ######
 call copy_post_pack.bat > copy_post_pack.log 2>&1
 
+echo ######                       7zip Utils                              ######
+call 7zip_utils.bat > 7zip_utils.log 2>&1
+call 7zip_linux_servers.bat > 7zip_linux_servers.log 2>&1
+if errorlevel 1 goto exit3
+
 @REM Restore local rxx
 @REM call rxx_restore.bat
 
