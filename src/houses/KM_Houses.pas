@@ -1972,7 +1972,7 @@ begin
     if gRes.Houses[fType].IsWorkshop and (aCount > 0) then
     begin
       count := aCount;
-      for p := 0 to 19 do
+      for p := 19 downto 0 do
         if fWareOutPool[p] = I then
           begin
             fWareOutPool[p] := 0;
