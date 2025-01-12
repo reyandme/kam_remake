@@ -337,7 +337,7 @@ uses
   KM_MissionScript, KM_MissionScript_Info, KM_MissionScript_Standard,
   KM_GameInputProcess_Multi, KM_GameInputProcess_Single,
   KM_Resource, KM_ResSound,
-  KM_InterfaceDefaults, KM_InterfaceTypes, KM_GameSettings,
+  KM_InterfaceDefaults, KM_InterfaceTypes, KM_GameSettings, KM_GameAppSettings,
   KM_Log, KM_ScriptingEvents, KM_Saves, KM_FileIO, KM_CommonUtils,
   {$IFDEF RNG_SPY} KM_RandomChecks, {$ENDIF}
   KM_DevPerfLog, KM_DevPerfLogTypes,
@@ -1538,6 +1538,7 @@ begin
       begin
         gGameSettings.FavouriteMaps.Replace(oldSimpleCRC, mapInfo.MapAndDatCRC);
         gServerSettings.ServerMapsRoster.Replace(oldFullCRC, mapInfo.CRC);
+		gGameAppSettings.SaveSettings;
       end;
 
       // Update CRC's after map save
