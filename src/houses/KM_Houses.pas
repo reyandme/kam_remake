@@ -261,6 +261,7 @@ type
     procedure SetWorker(aWorker: Pointer); //Explicitly use SetWorker, to make it clear its not only pointer assignment
     property HasWorker: Boolean read GetHasWorker; //There's a citizen who runs this house
     function CanHasWorker: Boolean;
+    function IsWorkerHungry: Boolean;
     property IsClosedForWorker: Boolean read fIsClosedForWorker write SetIsClosedForWorker;
     property DisableUnoccupiedMessage: Boolean read fDisableUnoccupiedMessage write fDisableUnoccupiedMessage;
 
@@ -1448,6 +1449,10 @@ begin
     fWorker := TKMUnit(aWorker).GetPointer();
 end;
 
+function TKMHouse.IsWorkerHungry: Boolean;
+begin
+  Result := TKMUnit(fWorker).IsHungry;
+end;
 
 function TKMHouse.GetState: TKMHouseState;
 begin
