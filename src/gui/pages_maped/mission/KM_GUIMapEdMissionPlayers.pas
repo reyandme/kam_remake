@@ -37,7 +37,7 @@ type
       Label_PlayerId: array [0..MAX_HANDS-1] of TKMLabel;
       Button_Close: TKMButton;
 
-    PopUp_Confirm_Player: TKMPopUpMenu;
+    PopUp_Confirm_Player: TKMPopUpPanel;
       Players_ScrollPanel: TKMScrollPanel;
       Image_Confirm_Player: TKMImage;
       Button_PlayerConfirm, Button_PlayerConfirmCancel: TKMButton;
@@ -163,8 +163,7 @@ begin
   Button_Close.Anchors := [anLeft, anRight, anBottom];
   Button_Close.OnClick := ClosePlayerTypes_Click;
 
-  PopUp_Confirm_Player := TKMPopUpMenu.Create(aParent.MasterParent, CONF_W);
-  PopUp_Confirm_Player.Height := CONF_H;
+  PopUp_Confirm_Player := TKMPopUpPanel.Create(aParent.MasterParent, CONF_W - 70, CONF_H - 130);
   PopUp_Confirm_Player.AnchorsCenter;
   PopUp_Confirm_Player.Left := (aParent.MasterParent.Width div 2) - (PopUp_Confirm_Player.Width div 2);
   PopUp_Confirm_Player.Top := (aParent.MasterParent.Height div 2) - 90;

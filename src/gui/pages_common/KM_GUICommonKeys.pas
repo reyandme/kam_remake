@@ -20,7 +20,7 @@ type
     function KeysUpdate(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     function GetVisible: Boolean;
   protected
-    PopUp_OptionsKeys: TKMPopUpMenu;
+    PopUp_OptionsKeys: TKMPopUpPanel;
       Panel_OptionsKeys: TKMPanel;
         ColumnBox_OptionsKeys: TKMColumnBox;
         Panel_OptionKeys_Btns: TKMPanel;
@@ -57,8 +57,7 @@ begin
 
   fTempKeys := TKMResKeys.Create;
 
-  PopUp_OptionsKeys := TKMPopUpMenu.Create(aParent, 740);
-    PopUp_OptionsKeys.Height := 640;
+  PopUp_OptionsKeys := TKMPopUpPanel.Create(aParent, 670, 510);
     PopUp_OptionsKeys.AnchorsCenter; // Keep centered, don't stretch already poor BG image
     PopUp_OptionsKeys.Left := (aParent.Width - PopUp_OptionsKeys.Width) div 2;
     PopUp_OptionsKeys.Top := (aParent.Height - PopUp_OptionsKeys.Height) div 2;

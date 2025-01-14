@@ -54,7 +54,7 @@ type
       ObjectsPalette_Button: TKMButtonFlat;
       ObjectsTable: array [0..8] of TKMButtonFlat;
       ObjectsScroll: TKMScrollBar;
-    PopUp_ObjectsPalette: TKMPopUpMenu;
+    PopUp_ObjectsPalette: TKMPopUpPanel;
       Bevel_ObjectsPalette: TKMBevel;
       Image_ObjectsPalette: TKMImage;
       Label_ObjectsPalette: TKMLabel;
@@ -231,8 +231,7 @@ begin
   ObjectsPalette_Button.CapOffsetY := -11;
   ObjectsPalette_Button.OnClick := ObjectsPaletteButton_Click;
 
-  PopUp_ObjectsPalette := TKMPopUpMenu.Create(aParent.MasterParent, aParent.MasterParent.Width - 50);
-  PopUp_ObjectsPalette.Height := aParent.MasterParent.Height - 50;
+  PopUp_ObjectsPalette := TKMPopUpPanel.Create(aParent.MasterParent, aParent.MasterParent.Width - 50, aParent.MasterParent.Height - 50);
   PopUp_ObjectsPalette.OnChangeVisibility := ObjectsPalette_OnShow;
   // Keep the pop-up centered
   PopUp_ObjectsPalette.AnchorsCenter;
