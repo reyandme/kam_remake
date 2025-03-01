@@ -168,7 +168,7 @@ type
     procedure SyncUI(aMoveViewport: Boolean = True); override;
     procedure UpdateHotkeys; override;
     procedure UpdateState(aGlobalTickCount: Cardinal); override;
-    procedure UpdateStateImmidiately;
+    procedure UpdateStateImmediately;
     procedure UpdateStateIdle(aFrameTime: Cardinal); override;
     procedure Paint; override;
   end;
@@ -533,7 +533,7 @@ begin
 end;
 
   
-procedure TKMMapEdInterface.UpdateStateImmidiately;
+procedure TKMMapEdInterface.UpdateStateImmediately;
 begin
   fMinimap.Update;
   UpdatePlayerSelectButtons;

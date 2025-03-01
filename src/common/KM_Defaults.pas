@@ -269,7 +269,7 @@ var
   ALLOW_SAVE_IN_REPLAY    :Boolean = DEBUG_CFG; //Allow to save game from replay, good for debug
   SAVE_GAME_AS_TEXT       :Boolean = True; {Save game serialized} //todo: DEBUG. set to False before releases
   SAVE_NO_COMPRESSION     :Boolean = False; // do not use compression for game save body
-  SAVE_GAME_AFTER_LOAD    :Boolean = False; // Save game immidiately after load, could be useful for debugging
+  SAVE_GAME_AFTER_LOAD    :Boolean = False; // Save game immediately after load, could be useful for debugging
 
   DEBUG_TEXT              :String = '';    //Debug text
   DEBUG_VALUE             :Integer = 0;    //Debug value

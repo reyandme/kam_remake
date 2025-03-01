@@ -23,6 +23,7 @@ type
     procedure StartClick(Sender: TObject);
     procedure BackClick(Sender: TObject);
 
+    procedure ScanInit;
     procedure ScanUpdate(Sender: TObject);
     procedure ScanTerminate(Sender: TObject);
   protected
@@ -36,7 +37,6 @@ type
     constructor Create(aParent: TKMPanel; aCampaigns: TKMCampaignsCollection; aOnPageChange: TKMMenuChangeEventText; aOnCampaignsScanComplete: TEvent);
 
     procedure RefreshList;
-    procedure InitCampaignsScan;
     procedure Show;
 
     procedure UpdateState;
@@ -78,7 +78,7 @@ begin
   fOnCampaignsScanComplete := aOnCampaignsScanComplete;
 
   // Rescan campaigns on campaigns menu creation (f.e. on game start or game locale change)
-  InitCampaignsScan;
+  ScanInit;
 
   fOnPageChange := aOnPageChange;
   OnEscKeyDown := BackClick;
@@ -216,12 +216,9 @@ begin
 end;
 
 
-procedure TKMMenuCampaigns.InitCampaignsScan;
+procedure TKMMenuCampaigns.ScanInit;
 begin
-  //Terminate all
-  fCampaigns.TerminateScan;
-
-  //Reset scan variables
+  // Reset scan variables
   fScanCompleted := False;
 
   fCampaigns.Refresh(ScanUpdate, ScanTerminate, ScanTerminate);

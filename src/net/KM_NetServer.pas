@@ -129,13 +129,13 @@ type
     procedure ClientConnect(aHandle: TKMNetHandleIndex);
     procedure ClientDisconnect(aHandle: TKMNetHandleIndex);
     procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind); overload;
-    procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aParam: Integer; aImmidiate: Boolean = False); overload;
-    procedure SendMessageInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex; aImmidiate: Boolean = False);
+    procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aParam: Integer; aImmediate: Boolean = False); overload;
+    procedure SendMessageInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex; aImmediate: Boolean = False);
     procedure SendMessageA(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aText: AnsiString);
     procedure SendMessageW(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; const aText: UnicodeString);
     procedure SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aStream: TKMemoryStream); overload;
     procedure SendMessageToRoom(aKind: TKMessageKind; aRoom: Integer; aStream: TKMemoryStream); overload;
-    procedure SendMessageAct(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aStream: TKMemoryStream; aImmidiate: Boolean = False);
+    procedure SendMessageAct(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aStream: TKMemoryStream; aImmediate: Boolean = False);
     procedure ScheduleSendData(aRecipient: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal; aFlushQueue: Boolean = False);
     procedure SendScheduledData(aServerClient: TKMServerClient);
     procedure DoSendData(aRecipient: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal);
@@ -640,24 +640,24 @@ begin
 end;
 
 
-procedure TKMNetServer.SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aParam: Integer; aImmidiate: Boolean = False);
+procedure TKMNetServer.SendMessage(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aParam: Integer; aImmediate: Boolean = False);
 var
   M: TKMemoryStream;
 begin
   M := TKMemoryStreamBinary.Create;
   M.Write(aParam);
-  SendMessageAct(aRecipient, aKind, M, aImmidiate);
+  SendMessageAct(aRecipient, aKind, M, aImmediate);
   M.Free;
 end;
 
 
-procedure TKMNetServer.SendMessageInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex; aImmidiate: Boolean = False);
+procedure TKMNetServer.SendMessageInd(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aIndexOnServer: TKMNetHandleIndex; aImmediate: Boolean = False);
 var
   M: TKMemoryStream;
 begin
   M := TKMemoryStreamBinary.Create;
   M.Write(aIndexOnServer);
-  SendMessageAct(aRecipient, aKind, M, aImmidiate);
+  SendMessageAct(aRecipient, aKind, M, aImmediate);
   M.Free;
 end;
 
@@ -707,7 +707,7 @@ end;
 
 
 //Assemble the packet as [Sender.Recepient.Length.Data]
-procedure TKMNetServer.SendMessageAct(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aStream: TKMemoryStream; aImmidiate: Boolean = False);
+procedure TKMNetServer.SendMessageAct(aRecipient: TKMNetHandleIndex; aKind: TKMessageKind; aStream: TKMemoryStream; aImmediate: Boolean = False);
 var
   I: Integer;
   M: TKMemoryStream;
@@ -734,9 +734,9 @@ begin
   if aRecipient = NET_ADDRESS_ALL then
     //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
     for I := fClientList.Count - 1 downto 0 do
-      ScheduleSendData(fClientList[i].Handle, M.Memory, M.Size, aImmidiate)
+      ScheduleSendData(fClientList[i].Handle, M.Memory, M.Size, aImmediate)
   else
-    ScheduleSendData(aRecipient, M.Memory, M.Size, aImmidiate);
+    ScheduleSendData(aRecipient, M.Memory, M.Size, aImmediate);
 
   M.Free;
 end;

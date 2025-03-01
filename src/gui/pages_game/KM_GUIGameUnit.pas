@@ -416,7 +416,7 @@ begin
     if TKMUnit(gMySpectator.Selected).IsDismissCancelAvailable then
       gGame.GameInputProcess.CmdUnit(gicUnitDismissCancel, TKMUnit(gMySpectator.Selected))
     else
-      Unit_Dismiss( Button_Unit_DismissYes ); // Call for Dismiss task immidiately
+      Unit_Dismiss( Button_Unit_DismissYes ); // Call for Dismiss task immediately
   end;
 end;
 

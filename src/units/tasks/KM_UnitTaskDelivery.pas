@@ -185,7 +185,7 @@ begin
     Result := Result
                 or fFrom.IsDestroyed
                 or fFrom.ShouldAbandonDeliveryFrom(fWareType)
-                or fFrom.ShouldAbandonDeliveryFromTo(fToHouse, fWareType, fPhase = 2); //Make immidiate check only on Phase 2 (inside house)
+                or fFrom.ShouldAbandonDeliveryFromTo(fToHouse, fWareType, fPhase = 2); //Make immediate check only on Phase 2 (inside house)
 
   Result := Result or CanRestartAction(fLastActionResult);
   
@@ -391,7 +391,7 @@ begin
             SetActionLockedStay(0, uaWalk)
           else
             SetActionGoIn(uaWalk, gdGoOutside, fFrom);
-          Inc(fPhase); // jump to phase 5 immidiately
+          Inc(fPhase); // jump to phase 5 immediately
         end;
     4:  begin
           SetActionStay(5, uaWalk); //used only from FindBestDestination
@@ -427,13 +427,13 @@ begin
           gHands[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
           fDeliverID := DELIVERY_NO_ID; //So that it can't be abandoned if unit dies while trying to GoOut
 
-          //If serf bring smth into the Inn and he is hungry - let him eat immidiately
+          //If serf bring smth into the Inn and he is hungry - let him eat immediately
           if fUnit.IsHungry
             and (fToHouse.HouseType = htInn)
             and TKMHouseInn(fToHouse).HasFood
             and TKMHouseInn(fToHouse).HasSpace
             and TKMUnitSerf(fUnit).GoEat(TKMHouseInn(fToHouse), True) then
-            Exit //Exit immidiately, since we created new task here and old task is destroyed!
+            Exit //Exit immediately, since we created new task here and old task is destroyed!
                  //Changing any task fields here (f.e. Phase) could affect new task!
           else
           //Now look for another delivery from inside this house
@@ -441,7 +441,7 @@ begin
           //Otherwise there is a possiblity when he will go between houses until death
           if not fUnit.IsHungry
             and TKMUnitSerf(fUnit).TryDeliverFrom(fToHouse) then
-            Exit //Exit immidiately, since we created new task here and old task is destroyed!
+            Exit //Exit immediately, since we created new task here and old task is destroyed!
                  //Changing any task fields here (f.e. Phase) could affect new task!
           else
             //No delivery found then just step outside
@@ -529,7 +529,7 @@ begin
           if (fToUnit is TKMUnitWarrior) then
           begin
             if TKMUnitSerf(fUnit).TryDeliverFrom(nil) then
-              Exit //Exit immidiately, since we created new task here and old task is destroyed!
+              Exit //Exit immediately, since we created new task here and old task is destroyed!
                    //Changing any task fields (f.e. Phase) here could affect new task!
             else
               //No delivery found then just walk back to our From house

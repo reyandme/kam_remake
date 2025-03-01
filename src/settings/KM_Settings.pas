@@ -54,7 +54,7 @@ begin
   fSettingsLoc := aSettingsLoc;
 
   LoadFromDefaultFile;
-  // Save settings to default directory immidiately
+  // Save settings to default directory immediately
   // If there were any problems with settings then we want to be able to customise them
   SaveToDefaultFile;
 end;

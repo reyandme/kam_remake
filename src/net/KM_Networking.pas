@@ -522,7 +522,7 @@ begin
     if localHandle <> -1 then
     begin
       fNetPlayers[localHandle].AddPing(pingValue);
-      if localHandle <> fMyIndex then // our own FPS was set immidiately after measurement, without delay.
+      if localHandle <> fMyIndex then // our own FPS was set immediately after measurement, without delay.
         fNetPlayers[localHandle].FPS := fpsValue;
     end;
   end;

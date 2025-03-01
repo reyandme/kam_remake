@@ -603,7 +603,7 @@ begin
       fUnit.SetActionWalk(fWalkTo, fType, fDistance, fTargetUnit, fTargetHouse);
       //Now Self = nil since the walk action was replaced! Don't access members and exit ASAP
       //Restore direction, cause it usually looks unpleasant,
-      //when warrior turns to locked Loc and then immidiately (in 1 tick) turns away when on new route
+      //when warrior turns to locked Loc and then immediately (in 1 tick) turns away when on new route
       U.Direction := aDir;
       U.AnimStep := animStep; //Restore anim step as well, it looks smoother (otherwise unit will stay still for a 1 tick)
       //Now Self = nil since the walk action was replaced! Don't access members and exit ASAP
@@ -635,7 +635,7 @@ begin
         begin
           //Now Self = nil since the walk action was replaced! Don't access members and exit ASAP
           //Restore direction, cause it usually looks unpleasant,
-          //when warrior turns to locked Loc and then immidiately (in 1 tick) turns away when on new route
+          //when warrior turns to locked Loc and then immediately (in 1 tick) turns away when on new route
           U.Direction := aDir;
           U.AnimStep := animStep; //Restore anim step as well, it looks smoother (otherwise unit will stay still for a 1 tick)
           Exit(ocReRouteMade);

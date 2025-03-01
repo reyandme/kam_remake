@@ -315,7 +315,7 @@ begin
     and not (Sender = TilesEyedropper) then
     TilesSet(TKMButtonFlat(Sender).TexID);
 
-  // Refresh immidiately
+  // Refresh immediately
   TilesRefresh(nil);
 end;
 

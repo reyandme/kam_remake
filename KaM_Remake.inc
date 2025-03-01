@@ -48,6 +48,23 @@
   {$DEFINE USE_VIRTUAL_TREEVIEW}
 {$ENDIF}
 
+// Promote some warnings to errors for safety (for all our tools)
+//----------------------------------------------------------------------------------------------------
+{$WARN HIDING_MEMBER ERROR}         // W1009 Redeclaration of '%s' hides a member in the base class
+{$WARN HIDDEN_VIRTUAL ERROR}        // W1010 Method '%s' hides virtual method of base type '%s'
+{$WARN GARBAGE ERROR}               // W1011 Text after final 'END.' - ignored by compiler
+{$WARN BOUNDS_ERROR ERROR}          // W1012 Constant expression violates subrange bounds (Delphi)
+{$WARN FOR_VARIABLE ERROR}          // W1019 For loop control variable must be simple local variable (Delphi)
+{$WARN CONSTRUCTING_ABSTRACT ERROR} // W1020 Constructing instance of '%s' containing abstract method '%s.%s' (Delphi)
+{$WARN COMPARISON_FALSE ERROR}      // W1021 Comparison always evaluates to False
+{$WARN COMPARISON_TRUE ERROR}       // W1022 Comparison always evaluates to True
+{$WARN DUPLICATE_CTOR_DTOR ERROR}   // W1029 Duplicate %s '%s' with identical parameters will be inacessible from C++ (Delphi)
+{$WARN NO_RETVAL ERROR}             // W1035 Return value of function '%s' might be undefined
+{$WARN USE_BEFORE_DEF ERROR}        // W1036 Variable '%s' might not have been initialized
+{$WARN FOR_LOOP_VAR_UNDEF ERROR}    // W1037 FOR-Loop variable '%s' may be undefined after loop
+{$WARN UNIT_NAME_MISMATCH ERROR}    // W1038 Unit identifier '%s' does not match file name (Delphi)
+{$WARN DUPLICATES_IGNORED ERROR}    // W1051 Duplicate symbol names in namespace. Using '%s.%s' found in %s. Ignoring duplicate in %s
+
 //Use secure authentication unit (KM_NetAuthSecure)
 {$DEFINE USESECUREAUTH}
 

@@ -610,7 +610,6 @@ begin
   Image_House_Worker.Hint    := gRes.Units[gRes.Houses[aHouse.HouseType].WorkerType].GUIName;
   Image_House_Worker.FlagColor := gHands[aHouse.Owner].FlagColor;
 
-  Button_House_Worker.TexID  := gRes.Units[gRes.Houses[aHouse.HouseType].WorkerType].GUIIcon;
   HandleHouseClosedForWorker(aHouse);
   Button_House_Worker.Hint := Format(gResTexts[TX_HOUSES_CLOSED_FOR_WORKER_HINT], [gRes.Units[gRes.Houses[aHouse.HouseType].WorkerType].GUIName]);
   Button_House_Worker.FlagColor := gHands[aHouse.Owner].FlagColor;
@@ -658,6 +657,15 @@ begin
 
   Image_House_Worker.Hide;
   Button_House_Worker.Visible := gRes.Houses[aHouse.HouseType].CanHasWorker;
+  if aHouse.HasWorker and aHouse.IsWorkerHungry then
+  begin
+    Button_House_Worker.Enabled := False;
+    Button_House_Worker.TexID := gRes.Houses[htInn].GUIIcon
+  end
+  else
+  begin
+	  Button_House_Worker.TexID := gRes.Units[gRes.Houses[aHouse.HouseType].WorkerType].GUIIcon;
+  end;
 
   Button_HouseDeliveryMode.Enabled := aHouse.AllowDeliveryModeChange;
   Button_HouseDeliveryMode.Show;

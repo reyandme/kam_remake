@@ -3242,7 +3242,7 @@ begin
       if gMySpectator.FogOfWar.CheckTileRevelation(aLoc.X, aLoc.Y) >= 255 then
         gSoundPlayer.Play(sfxTreeDown, aLoc, True);
 
-      //Update passability immidiately
+      //Update passability immediately
       UpdatePassability(KMRectGrow(KMRect(aLoc), 1));
       Exit(True);
     end;

@@ -35,8 +35,8 @@ type
     function WareCanAddToIn(aWare: TKMWareType): Boolean; override;
 
     function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; override;
-    function ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean; override;
-    function ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean; override;
+    function ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmediateCheck: Boolean = False): Boolean; override;
+    function ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmediateCheck: Boolean): Boolean; override;
 
     function GetTotalWaresCnt: Integer;
     function WareOutputAvailable(aWare: TKMWareType; const aCount: Word): Boolean; override;
@@ -302,13 +302,13 @@ begin
 end;
 
 
-function TKMHouseBarracks.ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean;
+function TKMHouseBarracks.ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmediateCheck: Boolean = False): Boolean;
 begin
   Result := inherited or not (aWareType in [WARFARE_MIN .. WARFARE_MAX]);
 end;
 
 
-function TKMHouseBarracks.ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean;
+function TKMHouseBarracks.ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmediateCheck: Boolean): Boolean;
 begin
   Result := inherited
               or (aToHouse = nil)
@@ -316,7 +316,7 @@ begin
               or not (aToHouse.HouseType in [htMarket, htStore, htBarracks])
               or ((aToHouse.HouseType <> htMarket) //allow delivery to Market with any mode
                 //For other houses allow only when dmTakeOut and no flag NotAllowTakeOutFlag
-                and ((GetDeliveryModeForCheck(aImmidiateCheck) <> dmTakeOut)
+                and ((GetDeliveryModeForCheck(aImmediateCheck) <> dmTakeOut)
                       or NotAllowTakeOutFlag[aWareType])); //Use NewDelivery here, since
 
 end;

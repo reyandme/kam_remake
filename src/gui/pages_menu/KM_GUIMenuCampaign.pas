@@ -411,9 +411,9 @@ begin
   //Refresh;
   Panel_Campaign.Show;
 
-  if not fCampaign.Viewed then
+  if not fCampaign.IntroVideoViewed then
   begin
-    fCampaign.Viewed := True;
+    fCampaign.IntroVideoViewed := True;
     fCampaigns.SaveProgress;
 
     gVideoPlayer.AddCampaignVideo(fCampaign.Path, 'Logo');
@@ -422,7 +422,7 @@ begin
     gVideoPlayer.Play;
   end;
 
-  // Start briefing audio immidiately, if video was not started (disabled / no video file etc)
+  // Start briefing audio immediately, if video was not started (disabled / no video file etc)
   if not gVideoPlayer.IsActive then
     PlayBriefingAudioTrack;
 end;

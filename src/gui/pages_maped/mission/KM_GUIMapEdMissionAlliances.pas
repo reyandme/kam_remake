@@ -16,7 +16,7 @@ type
     procedure Mission_AlliancesChange(Sender: TObject);
     procedure Mission_AlliancesUpdate;
   protected
-    PopUp_Alliances: TKMPopUpMenu;
+    PopUp_Alliances: TKMPopUpPanel;
     Panel_Alliances: TKMPanel;
       Bevel_Alliances: TKMBevel;
       Image_Alliances: TKMImage;
@@ -52,13 +52,12 @@ const
 { TKMMapEdMissionAlliances }
 constructor TKMMapEdMissionAlliances.Create(aParent: TKMPanel);
 var
-  I, K: Integer;
+  I, K, AlliancesWidth, AlliancesHeight: Integer;
 begin
   inherited Create;
-
-  PopUp_Alliances := TKMPopUpMenu.Create(aParent.MasterParent, 0);
-  PopUp_Alliances.Width := (TB_PANEL_A_L * 2) + (TB_CHB_A_L * 2) + (TB_CHB_A_W * MAX_HANDS);
-  PopUp_Alliances.Height := (TB_PANEL_A_T * 2) + (TB_CHB_A_T * 2) + (TB_CHB_A_H * MAX_HANDS) + TB_CHB_A_H + 10;
+  AlliancesWidth := (TB_PANEL_A_L * 2) + (TB_CHB_A_L * 2) + (TB_CHB_A_W * MAX_HANDS) - 70;
+  AlliancesHeight := (TB_PANEL_A_T * 2) + (TB_CHB_A_T * 2) + (TB_CHB_A_H * MAX_HANDS) + TB_CHB_A_H - 120;
+  PopUp_Alliances := TKMPopUpPanel.Create(aParent.MasterParent, AlliancesWidth, AlliancesHeight);
   PopUp_Alliances.AnchorsCenter;
   PopUp_Alliances.Left := (aParent.MasterParent.Width div 2) - (PopUp_Alliances.Width div 2);
   PopUp_Alliances.Top := (aParent.MasterParent.Height div 2) - (PopUp_Alliances.Height div 2);

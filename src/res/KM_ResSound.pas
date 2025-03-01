@@ -215,8 +215,9 @@ begin
   if DirectoryExists(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(aLocale) + PathDelim) then
     fLocaleString := aLocale
   else
-    if DirectoryExists(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(aFallback) + PathDelim) then
-      fLocaleString := aFallback//Use fallback local when primary doesn't exist
+    // Note that starting from some Windows version, paths `\data\sfx\speech\` and `\data\sfx\speech.\` are treated identical by OS
+    if (aFallback <> '') and DirectoryExists(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(aFallback) + PathDelim) then
+      fLocaleString := aFallback // Use fallback voices when primary doesn't exist
     else
       fLocaleString := aDefault; //Use English voices when no language specific voices exist
 

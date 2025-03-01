@@ -69,7 +69,7 @@ begin
         begin
           Inc(fCursor); // Must be done before exiting in case user decides to continue the replay
           gGame.ReplayInconsistency(fQueue[fCursor-1], myRand);
-          Exit; // ReplayInconsistency sometimes calls GIP.Free, so exit immidiately
+          Exit; // ReplayInconsistency sometimes calls GIP.Free, so exit immediately
         end;
 
         Exit;

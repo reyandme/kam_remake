@@ -2,7 +2,7 @@ unit KM_Campaigns;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Generics.Collections, SyncObjs,
+  Classes, Generics.Collections, Generics.Defaults, SyncObjs,
   KM_ResTexts, KM_Pics, KM_Maps, KM_MapTypes, KM_CampaignTypes,
   KM_CommonTypes, KM_CommonClasses, KM_Points;
 
@@ -42,7 +42,7 @@ type
     fBackGroundPic: TKMPic;
     fMapCount: Byte;
     fShortName: UnicodeString;
-    fViewed: Boolean;
+    fIntroVideoViewed: Boolean;
 
     fMapsInfo: TKMCampaignMapDataArray;
 
@@ -81,7 +81,7 @@ type
     property ScriptDataStream: TKMemoryStream read fScriptDataStream;
     property MapsInfo: TKMCampaignMapDataArray read fMapsInfo;
     property MapsProgressData: TKMCampaignMapProgressDataArray read fMapsProgressData;
-    property Viewed: Boolean read fViewed write fViewed;
+    property IntroVideoViewed: Boolean read fIntroVideoViewed write fIntroVideoViewed;
 
     function GetCampaignTitle: UnicodeString;
     function GetCampaignDescription: UnicodeString;
@@ -135,7 +135,6 @@ type
     procedure ScanComplete(Sender: TObject);
 
     procedure Clear;
-    procedure SortCampaigns;
     procedure LoadProgressFromFile(const aFileName: UnicodeString; const aCampName: UnicodeString = '');
   public
     constructor Create;
@@ -147,7 +146,7 @@ type
     procedure Lock;
     procedure Unlock;
     procedure TerminateScan;
-    procedure Refresh(aOnRefresh: TNotifyEvent;  aOnTerminate: TNotifyEvent = nil;aOnComplete: TNotifyEvent = nil);
+    procedure Refresh(aOnRefresh, aOnTerminate, aOnComplete: TNotifyEvent);
 
     //Usage
     property ActiveCampaign: TKMCampaign read fActiveCampaign;// write fActiveCampaign;
@@ -180,12 +179,12 @@ const
   CAMP_HEADER_V3 = $CEED;
 
 
-{ TCampaignsCollection }
+{ TKMCampaignsCollection }
 constructor TKMCampaignsCollection.Create;
 begin
-  inherited Create;
+  inherited;
 
-  fList := TObjectList<TKMCampaign>.Create(True);
+  fList := TObjectList<TKMCampaign>.Create;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
   //We mostly don't need it, as UI should access Maps only when map events are signaled
@@ -205,31 +204,6 @@ begin
   fCriticalSection.Free;
 
   inherited;
-end;
-
-
-procedure TKMCampaignsCollection.SortCampaigns;
-
-  //Return True if items should be exchanged
-  function Compare(A, B: TKMCampaign): Boolean;
-  begin
-    //TSK is first
-    if      A.ShortName = 'TSK' then Result := False
-    else if B.ShortName = 'TSK' then Result := True
-    //TPR is second
-    else if A.ShortName = 'TPR' then Result := False
-    else if B.ShortName = 'TPR' then Result := True
-    //Others are left in existing order (alphabetical)
-    else                            Result := False;
-  end;
-
-var
-  I, K: Integer;
-begin
-  for I := 0 to Count - 1 do
-    for K := I to Count - 1 do
-      if Compare(Campaigns[I], Campaigns[K]) then
-        SwapInt(NativeUInt(fList.List[I]), NativeUInt(fList.List[K]));
 end;
 
 
@@ -291,7 +265,7 @@ begin
 
           if doUpdate then
           begin
-            camp.Viewed := True;
+            camp.IntroVideoViewed := True;
             camp.UnlockedMap := unlocked;
           end;
           for J := 0 to camp.MapCount - 1 do
@@ -340,8 +314,8 @@ begin
     M.Write(Count);
     for I := 0 to Count - 1 do
     begin
-      M.Write(Campaigns[I].Viewed);
-      if Campaigns[I].Viewed then
+      M.Write(Campaigns[I].IntroVideoViewed);
+      if Campaigns[I].IntroVideoViewed then
       begin
         M.Write(Campaigns[I].CampaignId, SizeOf(TKMCampaignId));
         M.Write(Campaigns[I].UnlockedMap);
@@ -427,14 +401,25 @@ begin
   try
     fList.Add(aCampaign);
 
-    //Set the scanning to False so we could Sort
-    fScanning := False;
+    // Keep the campaigns properly sorted
+    fList.Sort(TComparer<TKMCampaign>.Construct(
+      function (const aLeft, aRight: TKMCampaign): Integer
+      var
+        sLeft, sRight: string;
+      begin
+        sLeft := aLeft.ShortName;
+        sRight := aRight.ShortName;
 
-    //Keep the maps sorted
-    //We signal from Locked section, so everything caused by event can safely access our Maps
-    SortCampaigns;
+        // Add extra sorting key to get TSK and TPR on top
+        if sLeft = 'TSK' then sLeft := '1' + sLeft else
+        if sLeft = 'TPR' then sLeft := '2' + sLeft else
+          sLeft := '3' + sLeft;
+        if sRight = 'TSK' then sRight := '1' + sRight else
+        if sRight = 'TPR' then sRight := '2' + sRight else
+          sRight := '3' + sRight;
 
-    fScanning := True;
+        Result := CompareStr(sLeft, sRight);
+      end));
   finally
     Unlock;
   end;
@@ -527,10 +512,10 @@ begin
 end;
 
 
-//Start the refresh of maplist
-procedure TKMCampaignsCollection.Refresh(aOnRefresh: TNotifyEvent; aOnTerminate: TNotifyEvent = nil; aOnComplete: TNotifyEvent = nil);
+// Refresh campaigns list
+procedure TKMCampaignsCollection.Refresh(aOnRefresh, aOnTerminate, aOnComplete: TNotifyEvent);
 begin
-  //Terminate previous Scanner if two scans were launched consequentialy
+  // Terminate previous Scanner (e.g. on language change)
   TerminateScan;
   Clear;
 
@@ -538,7 +523,7 @@ begin
   fOnComplete := aOnComplete;
   fOnTerminate := aOnTerminate;
 
-  //Scan will launch upon create automatically
+  // Scanner will launch upon create automatically
   fScanning := True;
   fScanner := TKMCampaignsScanner.Create(CampaignAdd, LoadProgressAndUpdateCampaignByName, CampaignAddDone, ScanTerminate, ScanComplete);
 end;
@@ -562,8 +547,8 @@ constructor TKMCampaign.Create;
 begin
   inherited;
 
-  //1st map is always unlocked to allow to start campaign
-  fViewed := False;
+  // 1st map is always unlocked to allow to start campaign
+  fIntroVideoViewed := False;
   fUnlockedMap := 0;
   fScriptDataStream := TKMemoryStreamBinary.Create;
 end;
@@ -574,7 +559,7 @@ var
   I: Integer;
 begin
   FreeAndNil(fTextLib);
-  fScriptDataStream.Free;
+  FreeAndNil(fScriptDataStream);
 
   for I := 0 to High(fMapsInfo) do
     FreeAndNil(fMapsInfo[I].TxtInfo);
@@ -952,6 +937,16 @@ begin
           // this is because we call 'SaveProgress' on some events, f.e. when show campaign map
           // and if all of the campaigns are not loaded yet (including their progress)
           // then on that save some of the campaign data will be lost
+
+          //@Rey: This can be greatly improved:
+          // 1 - campaign scan needs to be much-MUCH faster. There's no real need to load all the campaign data (including sprites and etc) on scan.
+          //     What is needed for the main menu is just the localized name and optionally missions counts. Everything else (that takes literal seconds on first
+          //     scan) needs to be loaded async by demand. This will cut the scan time by x50 or more, from several seconds down to 100ms
+          // 2 - Campaign data saving does not have to loose any data when invoked in the middle of ther scan. There's no real benefit in loading chunks of data
+          //     from campaigns.dat, only drawbacks. We can read it fully once, store its entries in memory, write it out with old or updated entries any time.
+          // 3 - As discussed, it would be good to have the campaign data saved per campaign, so that players could access it more easily (e.g. to delete(reset)
+          //     or to share between each other.
+          // 4 - I'm not quite sure if "Viewed" flag is needed. Seems to add unnecessary complexity
           fOnLoadProgress(camp.ShortName);
           fOnAddDone(Self);
         end;

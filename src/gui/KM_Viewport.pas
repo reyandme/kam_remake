@@ -27,7 +27,7 @@ type
     fViewRect: TKMRect;
     fZoom: Single;
     fPanTo, fPanFrom: TKMPointF;
-    fPanImmidiately : Boolean;
+    fPanImmediately : Boolean;
     fPanDuration, fPanProgress: Cardinal;
     fToolbarWidth: Integer;
 
@@ -316,7 +316,7 @@ procedure TKMViewport.GameSpeedChanged(aFromSpeed, aToSpeed: Single);
 var
   koef: Single;
 begin
-  if (aFromSpeed > 0) and (fPanDuration > 0) and not fPanImmidiately then
+  if (aFromSpeed > 0) and (fPanDuration > 0) and not fPanImmediately then
   begin
     //Update PanDuration and Progress due to new game speed
     koef := aFromSpeed / aToSpeed;
@@ -338,11 +338,11 @@ procedure TKMViewport.PanTo(const aLoc: TKMPointF; aTicksCnt: Cardinal);
 begin
   fPanTo := aLoc;
   fPanFrom := fPosition;
-  fPanImmidiately := aTicksCnt = 0;
+  fPanImmediately := aTicksCnt = 0;
   fPanProgress := 0;
   fPanDuration := Round(aTicksCnt * gGameApp.Game.TickDuration);
   //Panning will be skipped when duration is zero
-  if fPanImmidiately then
+  if fPanImmediately then
     SetPosition(aLoc);
 end;
 
@@ -383,13 +383,13 @@ begin
   //Cinematics do not allow normal scrolling. The camera will be set and panned with script commands
   if aInCinematic then
   begin
-    if not fPanImmidiately and PanPointsAreValid then //Do not move viewport if pan points are not valid
+    if not fPanImmediately and PanPointsAreValid then //Do not move viewport if pan points are not valid
     begin
       Inc(fPanProgress, aFrameTime);
       if fPanProgress >= fPanDuration then
       begin
         SetPosition(fPanTo); //Pan ended
-        fPanImmidiately := True; //Not panning
+        fPanImmediately := True; //Not panning
         fPanDuration := 0;
       end
       else

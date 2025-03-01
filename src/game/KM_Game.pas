@@ -337,7 +337,7 @@ uses
   KM_MissionScript, KM_MissionScript_Info, KM_MissionScript_Standard,
   KM_GameInputProcess_Multi, KM_GameInputProcess_Single,
   KM_Resource, KM_ResSound,
-  KM_InterfaceDefaults, KM_InterfaceTypes, KM_GameSettings,
+  KM_InterfaceDefaults, KM_InterfaceTypes, KM_GameSettings, KM_GameAppSettings,
   KM_Log, KM_ScriptingEvents, KM_Saves, KM_FileIO, KM_CommonUtils,
   {$IFDEF RNG_SPY} KM_RandomChecks, {$ENDIF}
   KM_DevPerfLog, KM_DevPerfLogTypes,
@@ -1538,6 +1538,7 @@ begin
       begin
         gGameSettings.FavouriteMaps.Replace(oldSimpleCRC, mapInfo.MapAndDatCRC);
         gServerSettings.ServerMapsRoster.Replace(oldFullCRC, mapInfo.CRC);
+		gGameAppSettings.SaveSettings;
       end;
 
       // Update CRC's after map save
@@ -2937,7 +2938,7 @@ begin
   begin
     ticksBehindCnt := GetTicksBehindCnt;
 
-    // When our game is more then 0.5 tick behind - play another tick immidiately
+    // When our game is more then 0.5 tick behind - play another tick immediately
     // This will prevent situation, when lags on local PC (on zoon out, f.e.) leads to lags for all other MP players
     // Also game speed become absolutely presize
     if ticksBehindCnt > 0.5 then

@@ -126,7 +126,7 @@ type
     // We have to keep track of how many deliveries are going on now
     // But when demand is deleted it should be considered as well.
     // It could be deleted or not (if serf is entering demanded house)
-    // F.e. when serf is walkin he can't close demand immidiately, he will close demand when he reach the next tile
+    // F.e. when serf is walkin he can't close demand immediately, he will close demand when he reach the next tile
     // Demand is marked as Deleted and fWareDemandsClosing is increased by 1
     // Then we will need to reduce fWareDeliveryCount and fWareDemandsClosing when demand will notify this house on its close
     // If serf is entering the house then we will not need to reduce fWareDeliveryCount, since ware is already delivered
@@ -185,7 +185,7 @@ type
     procedure SetWareOrder(aId: Byte; aValue: Integer); virtual;
     procedure SetNewDeliveryMode(aValue: TKMDeliveryMode); virtual;
     procedure CheckTakeOutDeliveryMode; virtual;
-    function GetDeliveryModeForCheck(aImmidiate: Boolean): TKMDeliveryMode;
+    function GetDeliveryModeForCheck(aImmediate: Boolean): TKMDeliveryMode;
 
     procedure SetWareDeliveryCount(aIndex: Integer; aCount: Integer);
     function GetWareDeliveryCount(aIndex: Integer): Integer;
@@ -254,13 +254,14 @@ type
     property OrderCompletedMsgIssued: Boolean read fOrderCompletedMsgIssued;
 
     function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; virtual;
-    function ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean; virtual;
-    function ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean; virtual;
+    function ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmediateCheck: Boolean = False): Boolean; virtual;
+    function ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmediateCheck: Boolean): Boolean; virtual;
 
     property Worker: Pointer read fWorker;
     procedure SetWorker(aWorker: Pointer); //Explicitly use SetWorker, to make it clear its not only pointer assignment
     property HasWorker: Boolean read GetHasWorker; //There's a citizen who runs this house
     function CanHasWorker: Boolean;
+    function IsWorkerHungry: Boolean;
     property IsClosedForWorker: Boolean read fIsClosedForWorker write SetIsClosedForWorker;
     property DisableUnoccupiedMessage: Boolean read fDisableUnoccupiedMessage write fDisableUnoccupiedMessage;
 
@@ -893,10 +894,10 @@ end;
 
 
 //Get delivery mode, used for some checks in 'ShouldAbandonDeliveryXX'
-//aImmidiate - do we want to have immidiate check (then will get "fake" NewDeliveryMode) or no (real DeliveryMode will be returned)
-function TKMHouse.GetDeliveryModeForCheck(aImmidiate: Boolean): TKMDeliveryMode;
+//aImmediate - do we want to have immediate check (then will get "fake" NewDeliveryMode) or no (real DeliveryMode will be returned)
+function TKMHouse.GetDeliveryModeForCheck(aImmediate: Boolean): TKMDeliveryMode;
 begin
-  if aImmidiate then
+  if aImmediate then
     Result := NewDeliveryMode
   else
     Result := DeliveryMode;
@@ -942,7 +943,7 @@ begin
 end;
 
 
-// Set delivery mdoe immidiately
+// Set delivery mdoe immediately
 procedure TKMHouse.SetDeliveryModeInstantly(aValue: TKMDeliveryMode);
 begin
   fNewDeliveryMode := aValue;
@@ -1009,14 +1010,14 @@ end;
 
 
 //Check if we should abandon delivery from this house
-function TKMHouse.ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean;
+function TKMHouse.ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmediateCheck: Boolean = False): Boolean;
 begin
   Result := not WareOutputAvailable(aWareType, 1);
 end;
 
 
 //Check if we should abandon delivery from this house to aToHouse (used in Store only for now)
-function TKMHouse.ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean;
+function TKMHouse.ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmediateCheck: Boolean): Boolean;
 begin
   Result := False;
 end;
@@ -1448,6 +1449,10 @@ begin
     fWorker := TKMUnit(aWorker).GetPointer();
 end;
 
+function TKMHouse.IsWorkerHungry: Boolean;
+begin
+  Result := TKMUnit(fWorker).IsHungry;
+end;
 
 function TKMHouse.GetState: TKMHouseState;
 begin

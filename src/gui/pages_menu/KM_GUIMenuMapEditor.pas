@@ -94,18 +94,18 @@ type
         Button_ViewReadme: TKMButton;
 
       //PopUp Menus
-      PopUp_Delete: TKMPopUpMenu;
+      PopUp_Delete: TKMPopUpPanel;
         Image_Delete: TKMImage;
         Button_MapDeleteConfirm, Button_MapDeleteCancel: TKMButton;
         Label_MapDeleteConfirmTitle, Label_MapDeleteConfirm: TKMLabel;
 
-      PopUp_Rename: TKMPopUpMenu;
+      PopUp_Rename: TKMPopUpPanel;
         Image_Rename: TKMImage;
         Label_RenameTitle, Label_RenameName: TKMLabel;
         FilenameEdit_Rename: TKMFilenameEdit;
         Button_MapRenameConfirm, Button_MapRenameCancel: TKMButton;
 
-      PopUp_Move: TKMPopUpMenu;
+      PopUp_Move: TKMPopUpPanel;
         Image_Move: TKMImage;
         Button_MapMoveConfirm, Button_MapMoveCancel: TKMButton;
         FilenameEdit_MapMove: TKMFilenameEdit;
@@ -311,8 +311,7 @@ begin
     Button_MapEdBack.OnClick := BackClick;
 
       //Delete PopUp
-      PopUp_Delete := TKMPopUpMenu.Create(Panel_MapEd, 450);
-      PopUp_Delete.Height := 200;
+      PopUp_Delete := TKMPopUpPanel.Create(Panel_MapEd, 380, 70);
       // Keep the pop-up centered
       PopUp_Delete.AnchorsCenter;
       PopUp_Delete.Left := (Panel_MapEd.Width div 2) - (PopUp_Delete.Width div 2);
@@ -337,8 +336,7 @@ begin
         Button_MapDeleteCancel.Anchors := [anLeft, anBottom];
         Button_MapDeleteCancel.OnClick := DeleteClick;
 
-      PopUp_Rename := TKMPopUpMenu.Create(Panel_MapEd, 400);
-      PopUp_Rename.Height := 200;
+      PopUp_Rename := TKMPopUpPanel.Create(Panel_MapEd, 330, 70);
       // Keep the pop-up centered
       PopUp_Rename.AnchorsCenter;
       PopUp_Rename.Left := (Panel_MapEd.Width div 2) - (PopUp_Rename.Width div 2);
@@ -368,8 +366,7 @@ begin
         Button_MapRenameCancel.OnClick := RenameClick;
 
       //Move PopUp
-      PopUp_Move := TKMPopUpMenu.Create(Panel_MapEd, 400);
-      PopUp_Move.Height := 200;
+      PopUp_Move := TKMPopUpPanel.Create(Panel_MapEd, 330, 70);
       // Keep the pop-up centered
       PopUp_Move.AnchorsCenter;
       PopUp_Move.Left := (Panel_MapEd.Width div 2) - (PopUp_Move.Width div 2);

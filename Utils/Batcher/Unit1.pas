@@ -130,7 +130,7 @@ type
 
   TKMMissionParserPatcher = class(TKMMissionParserCommon)
   protected
-    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
+    procedure ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = ''); override;
   public
     function ReadMissionFileWOChanges(const aFileName: string): AnsiString;
     procedure SaveToFile(aTxt: AnsiString; const aFileName: string; aDoXor: Boolean = True);
@@ -146,10 +146,9 @@ type
 
 
 { TKMMissionParserPatcher }
-function TKMMissionParserPatcher.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString = ''): Boolean;
+procedure TKMMissionParserPatcher.ProcessCommand(CommandType: TKMCommandType; P: array of Integer; const TextParam: AnsiString = '');
 begin
   // Do nothing here and make compiler happy
-  Result := True;
 end;
 
 // Read mission file as it is, without any changes

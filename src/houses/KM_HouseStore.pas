@@ -21,7 +21,7 @@ type
     procedure Demolish(aFrom: TKMHandID; IsSilent: Boolean = False); override;
 
     function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; override;
-    function ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean; override;
+    function ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmediateCheck: Boolean): Boolean; override;
 
     procedure ToggleNotAcceptFlag(aWare: TKMWareType);
     procedure ToggleNotAcceptAllFlag(aWare: TKMWareType);
@@ -264,14 +264,14 @@ end;
 
 
 //Check if we should abandon TakeOut delivery (evacuate) from this house to aToHouse
-function TKMHouseStore.ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmidiateCheck: Boolean): Boolean;
+function TKMHouseStore.ShouldAbandonDeliveryFromTo(aToHouse: TKMHouse; aWareType: TKMWareType; aImmediateCheck: Boolean): Boolean;
 begin
   Result := inherited or ((aToHouse <> nil)
                            and (aToHouse is TKMHouseStore)
                            and aToHouse.IsComplete
-                           and ((GetDeliveryModeForCheck(aImmidiateCheck) <> dmTakeOut)
-                                //Cancel delivery depends if we want to made immidiate check or not
-                                //When Player sees "serf enters Store" then f.e. Player wants immidiately cancel this serf delivery
+                           and ((GetDeliveryModeForCheck(aImmediateCheck) <> dmTakeOut)
+                                //Cancel delivery depends if we want to made immediate check or not
+                                //When Player sees "serf enters Store" then f.e. Player wants immediately cancel this serf delivery
                                 //In that case Delivery state will be set too late, and cancellation will be not applied
                                 or NotAllowTakeOutFlag[aWareType]));
 end;

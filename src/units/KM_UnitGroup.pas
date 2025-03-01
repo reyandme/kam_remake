@@ -20,7 +20,6 @@ type
     fTargetFollowTicker: Cardinal;
     fMembers: TList<TKMUnitWarrior>;
     fOffenders: TList<TKMUnitWarrior>; // enemy troops, which melee units are going to help with and which will be attacked first by ranged units
-    fSelected: TKMUnitWarrior; //Unit selected by player in GUI. Should not be saved or affect game logic for MP consistency.
     fUnitsPerRow: Word;
     fTimeSinceHungryReminder: Integer;
     fGroupType: TKMGroupType;
@@ -40,6 +39,7 @@ type
 
     //don't saved:
     fMapEdCount: Word;
+    fSelectedInUI: TKMUnitWarrior; // Unit selected by the player in GUI. Should not be saved or affect game logic for MP consistency.
 
     function GetCount: Integer;
     function GetMember(aIndex: Integer): TKMUnitWarrior;
@@ -83,8 +83,8 @@ type
 
     function GetCondition: Integer;
     function GetDirection: TKMDirection;
-    procedure SetSelected(aValue: TKMUnitWarrior);
-    function GetSelected: TKMUnitWarrior;
+    procedure SetSelectedInUI(aUnit: TKMUnitWarrior);
+    function GetSelectedInUI: TKMUnitWarrior;
   protected
     function GetPosition: TKMPoint; inline;
     function GetInstance: TKMUnitGroup; override;
@@ -142,7 +142,7 @@ type
     procedure SetGroupPosition(const aValue: TKMPoint);
     property Direction: TKMDirection read GetDirection write SetDirection;
     property UnitsPerRow: Word read fUnitsPerRow write SetUnitsPerRow;
-    property SelectedUnit: TKMUnitWarrior read GetSelected write SetSelected;
+    property SelectedUnit: TKMUnitWarrior read GetSelectedInUI write SetSelectedInUI;
     property Condition: Integer read GetCondition write SetCondition;
     property Order: TKMGroupOrder read fOrder;
     property DisableHungerMessage: Boolean read fDisableHungerMessage write fDisableHungerMessage;
@@ -595,20 +595,20 @@ begin
 end;
 
 
-procedure TKMUnitGroup.SetSelected(aValue: TKMUnitWarrior);
+procedure TKMUnitGroup.SetSelectedInUI(aUnit: TKMUnitWarrior);
 begin
-  Assert(HasMember(aValue), 'Cant''t select unit that is not a groups member');
-  fSelected := aValue;
+  Assert(HasMember(aUnit), 'Cant''t select unit that is not a groups member');
+  fSelectedInUI := aUnit;
 end;
 
 
-function TKMUnitGroup.GetSelected: TKMUnitWarrior;
+function TKMUnitGroup.GetSelectedInUI: TKMUnitWarrior;
 begin
   if Self = nil then Exit(nil);
 
-  if (fSelected = nil) and (Count > 0) then
-    fSelected := FlagBearer;
-  Result := fSelected;
+  if (fSelectedInUI = nil) and (Count > 0) then
+    fSelectedInUI := FlagBearer;
+  Result := fSelectedInUI;
 end;
 
 
@@ -755,16 +755,16 @@ begin
 end;
 
 
-//Select nearest member for group. Or set it to nil it no other members were found
+// Select nearest member for group. Or set it to nil it no other members were found
 procedure TKMUnitGroup.SelectNearestMember;
 var
-  NewSel: Integer;
+  newSel: Integer;
 begin
-  //Transfer selection to nearest member
-  NewSel := GetNearestMember(fSelected);
-  fSelected := nil;
-  if NewSel <> -1 then
-    fSelected := fMembers[NewSel];
+  // Transfer selection to nearest member
+  newSel := GetNearestMember(fSelectedInUI);
+  fSelectedInUI := nil;
+  if newSel <> -1 then
+    fSelectedInUI := fMembers[newSel];
 end;
 
 
@@ -783,7 +783,7 @@ begin
   I := fMembers.IndexOf(aMember);
   Assert(I <> -1, 'No such member');
 
-  if (aMember = fSelected) then
+  if (aMember = fSelectedInUI) then
     SelectNearestMember;
 
   fMembers.Delete(I);
@@ -1193,7 +1193,7 @@ end;
 
 procedure TKMUnitGroup.SelectFlagBearer;
 begin
-  fSelected := fMembers[0];
+  fSelectedInUI := fMembers[0];
 end;
 
 
@@ -1447,14 +1447,14 @@ begin
   if gMySpectator.Selected = Self then
   begin
     gMySpectator.Selected := aTargetGroup;
-    //What if fSelected died by now
-    if not fSelected.IsDeadOrDying then
+    // What if fSelectedInUI died by now
+    if not fSelectedInUI.IsDeadOrDying then
     begin
-      if not aTargetGroup.HasMember(fSelected) then
+      if not aTargetGroup.HasMember(fSelectedInUI) then
         gLog.AddNoTime(
           Format('Make sure we joined selected unit. Group UID: %d; TargetGroup UID: %d Selected member UID: %d',
-                 [UID, aTargetGroup.UID, fSelected.UID]));
-      aTargetGroup.fSelected := fSelected;
+                 [UID, aTargetGroup.UID, fSelectedInUI.UID]));
+      aTargetGroup.fSelectedInUI := fSelectedInUI;
     end;
   end;
 
@@ -1595,8 +1595,8 @@ begin
   //Keep the selected unit Selected
   if not SelectedUnit.IsDeadOrDying and newGroup.HasMember(SelectedUnit) then
   begin
-    newGroup.fSelected := fSelected;
-    SelectNearestMember; // For current group set fSelected to nearest member to its old selected
+    newGroup.fSelectedInUI := fSelectedInUI;
+    SelectNearestMember; // For current group set fSelectedInUI to nearest member to its old selected
   end;
 
   //Make sure units per row is still valid for both groups
@@ -1722,7 +1722,7 @@ begin
   //Give new group
   newGroup := gHands[Owner].UnitGroups.AddGroup(newLeader);
   newGroup.OnGroupDied := OnGroupDied;
-  newGroup.fSelected := newLeader;
+  newGroup.fSelectedInUI := newLeader;
   newGroup.fTimeSinceHungryReminder := fTimeSinceHungryReminder;
   newGroup.fOrderLoc := KMPointDir(newLeader.Position, fOrderLoc.Dir);
 
@@ -1731,9 +1731,9 @@ begin
   newGroup.UnitsPerRow := 1;
 
   //Save unit selection
-  if newGroup.HasMember(fSelected) then
+  if newGroup.HasMember(fSelectedInUI) then
   begin
-    newGroup.fSelected := fSelected;
+    newGroup.fSelectedInUI := fSelectedInUI;
 
     if (gGame.ControlledHandIndex = newGroup.Owner) //Only select unit for player that issued order (group owner)
       and (gGame.ControlledHandIndex <> -1)

@@ -1538,7 +1538,7 @@ begin
       //Calc cost between offer and demand houses
       Result := TryCalcRouteCost(aCalcKind, aOfferPos, fDemand[dWT,iD].Loc_House.PointBelowEntrance, drsOfferToDemand, aBidBasicCost.OfferToDemand, secondPass);
 
-      // There is no route, Exit immidiately
+      // There is no route, Exit immediately
       if not Result then
         Exit;
 
@@ -1555,7 +1555,7 @@ begin
     //Calc bid cost between offer house and demand Unit (digged worker or hungry warrior)
     Result := TryCalcRouteCost(aCalcKind, aOfferPos, fDemand[dWT,iD].Loc_Unit.Position, drsOfferToDemand, aBidBasicCost.OfferToDemand);
 
-    // There is no route, Exit immidiately
+    // There is no route, Exit immediately
     if not Result then
       Exit;
   end;

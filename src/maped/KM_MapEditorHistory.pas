@@ -17,7 +17,7 @@ type
   public
     constructor Create(const aCaption: string); overload;
     class function FactoryCreate(aArea: TKMCheckpointArea; const aCaption: string): TKMCheckpoint;
-    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True); virtual; abstract;
+    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True); virtual; abstract;
     property Caption: string read fCaption;
     property Area: TKMCheckpointArea read fArea;
     function CanAdjoin(aArea: TKMCheckpointArea): Boolean; virtual;
@@ -39,7 +39,7 @@ type
                                   aUnderHouse: Boolean);
   public
     constructor Create(const aCaption: string);
-    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True); override;
+    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True); override;
   end;
 
 
@@ -56,7 +56,7 @@ type
 //    fData: array of array of TKMTerrainFieldRec;
 //  public
 //    constructor Create(const aCaption: string);
-//    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True); override;
+//    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True); override;
 //  end;
 
 
@@ -75,7 +75,7 @@ type
     end;
   public
     constructor Create(const aCaption: string);
-    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True); override;
+    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True); override;
   end;
 
   TKMCheckpointHouses = class(TKMCheckpoint)
@@ -96,7 +96,7 @@ type
     end;
   public
     constructor Create(const aCaption: string);
-    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True); override;
+    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True); override;
   end;
 
   // Checkpoint for everything (used for initial state)
@@ -106,7 +106,7 @@ type
   public
     constructor Create(const aCaption: string);
     destructor Destroy; override;
-    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True); override;
+    procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True); override;
   end;
 
   // Terrain helper that is used to undo/redo terrain changes in Map Editor
@@ -280,7 +280,7 @@ begin
 end;
 
 
-procedure TKMCheckpointTerrain.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True);
+procedure TKMCheckpointTerrain.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True);
 var
   I, K: Integer;
 begin
@@ -292,7 +292,7 @@ begin
                         gGame.MapEditor.MainLandMapEd^[I+1,K+1],
                         fData[I,K], gHands.HousesHitTest(K+1,I+1) <> nil);
 
-  if not aUpdateImmidiately then Exit;
+  if not aUpdateImmediately then Exit;
 
 //  gTerrain.UpdatePassability(gTerrain.MapRect);
 //  gTerrain.UpdateLighting(gTerrain.MapRect);
@@ -325,7 +325,7 @@ end;
 //end;
 //
 //
-//procedure TKMCheckpointFields.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True);
+//procedure TKMCheckpointFields.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True);
 //var
 //  I, K: Integer;
 //  P: TKMPoint;
@@ -349,7 +349,7 @@ end;
 //    end;
 //  end;
 //
-//  if not aUpdateImmidiately then Exit;
+//  if not aUpdateImmediately then Exit;
 //
 //  gTerrain.UpdatePassability(gTerrain.MapRect);
 //  gTerrain.UpdateFences(gTerrain.MapRect);
@@ -435,7 +435,7 @@ begin
 end;
 
 
-procedure TKMCheckpointUnits.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True);
+procedure TKMCheckpointUnits.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True);
 var
   I: Integer;
   U: TKMUnit;
@@ -546,7 +546,7 @@ begin
 end;
 
 
-procedure TKMCheckpointHouses.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True);
+procedure TKMCheckpointHouses.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True);
 var
   I, K: Integer;
   H: TKMHouse;
@@ -630,7 +630,7 @@ begin
 end;
 
 
-procedure TKMCheckpointAll.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmidiately: Boolean = True);
+procedure TKMCheckpointAll.Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True);
 var
   I: TKMCheckpointArea;
 begin

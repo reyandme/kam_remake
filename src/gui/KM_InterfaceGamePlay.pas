@@ -2620,9 +2620,9 @@ begin
 
   if gGame.StartedFromMapEditor then
   begin
-    Button_ReturnToMapEd.Visible := True; //Do not use Show here, as we will show this tab in UI immidiately in that case
+    Button_ReturnToMapEd.Visible := True; //Do not use Show here, as we will show this tab in UI immediately in that case
     Button_Quit_No.Top := Button_ReturnToMapEd.Bottom + 20;
-    Button_PlayMore_ReturnToMapEd.Visible := True; //Do not use Show here, as we will show this tab in UI immidiately in that case
+    Button_PlayMore_ReturnToMapEd.Visible := True; //Do not use Show here, as we will show this tab in UI immediately in that case
     Button_PlayQuit.Top := Button_PlayMore_ReturnToMapEd.Bottom + 20;
   end else begin
     Button_ReturnToMapEd.Hide;
@@ -4298,7 +4298,7 @@ begin
                 // Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
                 if H <> nil then
                 begin
-                  // Ctrl + Shift will delete house immidiately, without confirmation
+                  // Ctrl + Shift will delete house immediately, without confirmation
                   if (ssShift in Shift) and (ssCtrl in Shift) then
                     gGame.GameInputProcess.CmdBuild(gicBuildRemoveHouse, P)
                   else

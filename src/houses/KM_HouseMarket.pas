@@ -48,7 +48,7 @@ type
     function RatioFrom: Byte;
     function RatioTo: Byte;
 
-    function ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean; override;
+    function ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmediateCheck: Boolean = False): Boolean; override;
     function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; override;
 
     function AllowedToTrade(aWare: TKMWareType): Boolean;
@@ -294,9 +294,9 @@ end;
 //Probably this method will be never invoked,
 //since when we cancel trade all resources from IN are moved into OUT
 //so it looks likewe have no chance to find anything to get in the IN wares, only when trade is going on
-function TKMHouseMarket.ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmidiateCheck: Boolean = False): Boolean;
+function TKMHouseMarket.ShouldAbandonDeliveryFrom(aWareType: TKMWareType; aImmediateCheck: Boolean = False): Boolean;
 begin
-  Result := inherited and not ((GetDeliveryModeForCheck(aImmidiateCheck) = dmTakeOut)
+  Result := inherited and not ((GetDeliveryModeForCheck(aImmediateCheck) = dmTakeOut)
                                 and (fMarketWareIn[aWareType] >= 1));
 end;
 

@@ -124,7 +124,7 @@ begin
 
   lineY := 390;
 
-  with TKMLabel.Create(Panel_Units, 9, lineY, Panel_Units.Width - 100, 20, gResTexts[TX_MAPED_FISH_COUNT], fntMetal, taLeft) do
+  with TKMLabel.Create(Panel_Units, 9, lineY, Panel_Units.Width - TB_PAD, 20, gResTexts[TX_MAPED_FISH_COUNT], fntMetal, taLeft) do
   begin
     Anchors := [anLeft, anTop, anRight];
     Hint := gResTexts[TX_MAPED_FISH_COUNT];
