@@ -7,57 +7,58 @@ uses
   KM_ResTypes;
 
 const
-  TH_MAX_GOLDMAX_VALUE = High(Word); //Max value for TownHall MaxGold parameter
+  TH_MAX_GOLDMAX_VALUE = {High(Word)} 999; //Max value for TownHall MaxGold parameter
 
 
 type
   TKMHouseTownHall = class(TKMHouseWFlagPoint)
   private
-    fGoldCnt: Integer;
+    //fGoldCnt: Integer;
     fGoldMaxCnt: Integer;
     function GetTHUnitOrderIndex(aUnitType: TKMUnitType): Integer;
     procedure SetGoldCnt(aValue: Integer); overload;
-    procedure SetGoldCnt(aValue: Integer; aLimitMaxGoldCnt: Boolean); overload;
+    //procedure SetGoldCnt(aValue: Integer; aLimitMaxGoldCnt: Boolean); overload;
 
     procedure SetGoldMaxCnt(aValue: Integer);
-
-    function GetGoldDeliveryCnt: Word;
+    function GetGoldCount : Integer;
+    {function GetGoldDeliveryCnt: Word;
     procedure SetGoldDeliveryCnt(aCount: Word);
 
     function GetGoldDemandsClosing: Word;
     procedure SetGoldDemandsClosing(aCount: Word);
 
     property GoldDeliveryCnt: Word read GetGoldDeliveryCnt write SetGoldDeliveryCnt;
-    property GoldDemandsClosing: Word read GetGoldDemandsClosing write SetGoldDemandsClosing;
+    property GoldDemandsClosing: Word read GetGoldDemandsClosing write SetGoldDemandsClosing;}
   protected
     procedure AddDemandsOnActivate(aWasBuilt: Boolean); override;
-    function GetWareIn(aI: Byte): Word; override;
-    procedure SetWareIn(aI: Byte; aValue: Word); override;
+    //function GetWareIn(aI: Byte): Word; override;
+    //procedure SetWareIn(aI: Byte; aValue: Word); override;
 
-    function TryDecWareDelivery(aWare: TKMWareType; aDeleteCanceled: Boolean): Boolean; override;
+    //function TryDecWareDelivery(aWare: TKMWareType; aDeleteCanceled: Boolean): Boolean; override;
+    function GetWareDistribution(aID: Byte): Word; override; //Will use GetRatio from mission settings to find distribution amount
   public
     constructor Create(aUID: Integer; aHouseType: TKMHouseType; PosX, PosY: Integer; aOwner: TKMHandID; aBuildState: TKMHouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
-    property GoldCnt: Integer read fGoldCnt write SetGoldCnt;
+    property GoldCnt: Integer read GetGoldCount write SetGoldCnt;
     property GoldMaxCnt: Integer read fGoldMaxCnt write SetGoldMaxCnt;
 
-    function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; override;
+    //function ShouldAbandonDeliveryTo(aWareType: TKMWareType): Boolean; override;
 
     function Equip(aUnitType: TKMUnitType; aCount: Integer): Integer;
     function CanEquip(aUnitType: TKMUnitType): Boolean;
 
     procedure PostLoadMission; override;
-    procedure UpdateDemands; override;
+    //procedure UpdateDemands; override;
 
-    procedure WareTake(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
+    {procedure WareTake(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure WareAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromScript: Boolean = False); override;
     procedure WareTakeFromIn(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure WareTakeFromOut(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckWareIn(aWare: TKMWareType): Word; override;
     function WareCanAddToIn(aWare: TKMWareType): Boolean; override;
-    function CanHaveWareType(aWare: TKMWareType): Boolean; override;
+    function CanHaveWareType(aWare: TKMWareType): Boolean; override;}
   end;
 
 
@@ -79,7 +80,7 @@ begin
   for I := Low(TH_TROOP_COST) to High(TH_TROOP_COST) do
     if TH_TROOP_COST[I] > M then
       M := TH_TROOP_COST[I];
-  fGoldCnt := 0;
+  //fGoldCnt := 0;
   fGoldMaxCnt := M;
 
   inherited;
@@ -91,7 +92,7 @@ begin
   inherited;
 
   LoadStream.CheckMarker('HouseTownHall');
-  LoadStream.Read(fGoldCnt);
+  //LoadStream.Read(fGoldCnt);
   LoadStream.Read(fGoldMaxCnt);
 end;
 
@@ -101,24 +102,31 @@ begin
   inherited;
 
   SaveStream.PlaceMarker('HouseTownHall');
-  SaveStream.Write(fGoldCnt);
+  //SaveStream.Write(fGoldCnt);
   SaveStream.Write(fGoldMaxCnt);
+end;
+
+function TKMHouseTownHall.GetWareDistribution(aID: Byte): Word;
+begin
+  Result := IfThen(aID = 1, fGoldMaxCnt, 0);
 end;
 
 
 procedure TKMHouseTownHall.SetGoldCnt(aValue: Integer);
+var C : Integer;
 begin
-  SetGoldCnt(aValue, True);
+  C := aValue - CheckWareIn(wtGold);
+  WareAddToIn(wtGold, C, true);
 end;
 
-
+{
 procedure TKMHouseTownHall.SetGoldCnt(aValue: Integer; aLimitMaxGoldCnt: Boolean);
 var
-  oldValue: Integer;
+  oldValue, newValue: Integer;
 begin
-  oldValue := fGoldCnt;
+  oldValue := CheckWareIn(wtGold);
 
-  fGoldCnt := EnsureRange(aValue, 0, IfThen(aLimitMaxGoldCnt, fGoldMaxCnt, High(Word)));
+  newValue := EnsureRange(aValue, 0, IfThen(aLimitMaxGoldCnt, fGoldMaxCnt, High(Word)));
 
   SetWareInManageTakeOutDeliveryMode(wtGold, fGoldCnt - oldValue);
 
@@ -138,12 +146,17 @@ begin
 
   Result := True;
 end;
-
+}
 
 procedure TKMHouseTownHall.SetGoldMaxCnt(aValue: Integer);
 begin
   fGoldMaxCnt := EnsureRange(aValue, 0, TH_MAX_GOLDMAX_VALUE);
   UpdateDemands;
+end;
+
+function TKMHouseTownHall.GetGoldCount: Integer;
+begin
+  Result := CheckWareIn(wtGold);
 end;
 
 
@@ -156,7 +169,7 @@ begin
   thUnitIndex := GetTHUnitOrderIndex(aUnitType);
 
   if thUnitIndex <> -1 then
-    Result := Result and (fGoldCnt >= TH_TROOP_COST[thUnitIndex]);  //Can't equip if we don't have a required resource
+    Result := Result and (GoldCnt >= TH_TROOP_COST[thUnitIndex]);  //Can't equip if we don't have a required resource
 end;
 
 
@@ -187,7 +200,7 @@ begin
     if not CanEquip(aUnitType) then Exit;
 
     //Take resources
-    GoldDeliveryCnt := GoldDeliveryCnt - TH_TROOP_COST[thUnitIndex]; //Compensation for GoldDeliveryCnt
+    //GoldDeliveryCnt := GoldDeliveryCnt - TH_TROOP_COST[thUnitIndex]; //Compensation for GoldDeliveryCnt
     WareTakeFromIn(wtGold, TH_TROOP_COST[thUnitIndex]); //Do the goldtaking
 
     gHands[Owner].Stats.WareConsumed(wtGold, TH_TROOP_COST[thUnitIndex]);
@@ -233,7 +246,7 @@ begin
   UpdateDemands;
 end;
 
-
+{
 function TKMHouseTownHall.GetWareIn(aI: Byte): Word;
 begin
   Result := 0;
@@ -279,6 +292,8 @@ begin
 
   UpdateDemands;
 end;
+
+
 
 
 function TKMHouseTownHall.GetGoldDeliveryCnt: Word;
@@ -338,6 +353,7 @@ end;
 
 
 procedure TKMHouseTownHall.WareTakeFromIn(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False);
+var K : integer;
 begin
   Assert(aWare = wtGold, 'Invalid ware taken from TownHall');
 
@@ -352,6 +368,7 @@ begin
   GoldDeliveryCnt := EnsureRange(GoldDeliveryCnt - aCount, 0, High(Word));
 
   SetGoldCnt(fGoldCnt - aCount, False);
+
   UpdateDemands;
 end;
 
@@ -397,6 +414,6 @@ function TKMHouseTownHall.CanHaveWareType(aWare: TKMWareType): Boolean;
 begin
   Result := (aWare = wtGold);
 end;
-
+}
 
 end.

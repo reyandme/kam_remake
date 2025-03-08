@@ -118,7 +118,7 @@ type
     // Delivery mode set with small delay (couple of ticks), to avoid occasional clicks on delivery mode button
     fUpdateDeliveryModeOnTick: Cardinal; // Tick, on which we have to update real delivery mode with its NEW value
 
-    fWareIn: array [1..4] of Byte; // Ware count in input
+    fWareIn: array [1..4] of Word; // Ware count in input
 
 
     // Count of the resources we have ordered for the input (used for ware distribution)
@@ -133,7 +133,7 @@ type
     fWareDeliveryCount: array[1..4] of Word; // = fWareIn + Demands count (including closing demands)
     fWareDemandsClosing: array[1..4] of Word; // Number of closing demands at the moment
 
-    fWareOut: array [1..4] of Byte; //Resource count in output
+    fWareOut: array [1..4] of Word; //Resource count in output
     fWareOrder: array [1..4] of Word; //If HousePlaceOrders=True then here are production orders
     fWareOutPool: array[0..19] of Byte;
     fLastOrderProduced: Byte;
@@ -156,13 +156,12 @@ type
 
     procedure CheckOnSnow;
 
-    function GetWareInArray: TKMByteArray;
-    function GetWareOutArray: TKMByteArray;
+    function GetWareInArray: TKMWordArray;
+    function GetWareOutArray: TKMWordArray;
     function GetWareOutPoolArray: TKMByteArray;
 
     procedure SetIsReadyToBeBuilt(aIsReadyToBeBuilt: Boolean);
 
-    function GetWareDistribution(aID: Byte): Byte; //Will use GetRatio from mission settings to find distribution amount
     procedure SetIsClosedForWorker(aIsClosed: Boolean);
     procedure UpdateDeliveryMode;
     function GetHasWorker: Boolean;
@@ -205,6 +204,7 @@ type
     function TryDecWareDelivery(aWare: TKMWareType; aDeleteCanceled: Boolean): Boolean; virtual;
 
     procedure MakeSound; virtual; //Swine/stables make extra sounds
+    function GetWareDistribution(aID: Byte): Word; virtual; //Will use GetRatio from mission settings to find distribution amount
   public
     CurrentAction: TKMHouseAction; //Current action, withing HouseTask or idle
     WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
@@ -271,8 +271,8 @@ type
     function GetBuildResourceDelivered: Byte;
     function GetBuildResDeliveredPercent: Single;
 
-    property WareInArray: TKMByteArray read GetWareInArray;
-    property WareOutArray: TKMByteArray read GetWareOutArray;
+    property WareInArray: TKMWordArray read GetWareInArray;
+    property WareOutArray: TKMWordArray read GetWareOutArray;
     property WareOutPoolArray: TKMByteArray read GetWareOutPoolArray;
 
     property BuildingState: TKMHouseBuildState read fBuildState write fBuildState;
@@ -661,9 +661,12 @@ begin
       wtWarfare: AddDemand(Self, nil, W, 1, dtAlways, diNorm);
       wtAll:     AddDemand(Self, nil, W, 1, dtAlways, diNorm);
       else        begin
+                    UpdateDemands;
+                    {
                     demandsCnt := GetWareDistribution(I);
                     AddDemand(Self, nil, W, demandsCnt, dtOnce, diNorm); //Every new house needs 5 resource units
                     WareDeliveryCnt[I] := WareDeliveryCnt[I] + demandsCnt; //Keep track of how many resources we have on order (for distribution of wares)
+                    }
                   end;
     end;
   end;
@@ -1465,7 +1468,7 @@ begin
 end;
 
 
-function TKMHouse.GetWareInArray: TKMByteArray;
+function TKMHouse.GetWareInArray: TKMWordArray;
 var
   I, iOffset: Integer;
 begin
@@ -1476,7 +1479,7 @@ begin
 end;
 
 
-function TKMHouse.GetWareOutArray: TKMByteArray;
+function TKMHouse.GetWareOutArray: TKMWordArray;
 var
   I, iOffset: Integer;
 begin
@@ -1669,7 +1672,7 @@ end;
 function TKMHouse.GetMaxInWare: Word;
 begin
   //todo: This belongs to gRes.Houses[]
-  if fType in [htStore, htBarracks, htMarket] then
+  if fType in [htStore, htBarracks, htMarket, htTownhall] then
     Result := High(Word)
   else
     Result := MAX_WARES_IN_HOUSE; //All other houses can only stock 5 for now
@@ -1685,7 +1688,6 @@ begin
     // Maybe we need more wares to order
     UpdateDemands;
 end;
-
 
 function TKMHouse.TryDecWareDelivery(aWare: TKMWareType; aDeleteCanceled: Boolean): Boolean;
 var
@@ -1714,9 +1716,10 @@ end;
 procedure TKMHouse.WareAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromStaticScript: Boolean = False);
 var
   I, ordersRemoved: Integer;
+  doUpdate : Boolean;
 begin
   Assert(aWare <> wtNone);
-
+  doUpdate := false;
   for I := 1 to 4 do
     if aWare = gRes.Houses[fType].WareInput[I] then
     begin
@@ -1731,17 +1734,22 @@ begin
         ordersRemoved := gHands[Owner].Deliveries.Queue.TryRemoveDemand(Self, aWare, aCount);
         WareDeliveryCnt[I] := WareDeliveryCnt[I] - ordersRemoved;
       end;
+      doUpdate := true;
     end;
+  If doUpdate then
+    UpdateDemands;
 end;
 
 
 procedure TKMHouse.WareAddToOut(aWare: TKMWareType; const aCount:integer=1);
 var
   I, p, count: Integer;
+  doUpdate : Boolean;
 begin
   if aWare = wtNone then
     exit;
 
+  doUpdate := false;
   for I := 1 to 4 do
     if aWare = gRes.Houses[fType].WareOutput[I] then
     begin
@@ -1761,7 +1769,10 @@ begin
       end;
 
       gHands[Owner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
+      doUpdate := true;
     end;
+  If doUpdate then
+    UpdateDemands;
 end;
 
 
@@ -1787,6 +1798,7 @@ begin
       Exit;
     end;
   end;
+  UpdateDemands;
 end;
 
 
@@ -1954,6 +1966,7 @@ begin
         gHands[Owner].Deliveries.Queue.AddDemand(Self, nil, aWare, 1, dtOnce, diNorm);
         WareDeliveryCnt[I] := WareDeliveryCnt[I] + 1;
       end;
+    UpdateDemands;
     Exit;
   end;
 end;
@@ -1964,7 +1977,7 @@ var
   I, K, p, count: integer;
 begin
   Assert(aWare <> wtNone);
-  Assert(not(fType in [htStore,htBarracks,htTownHall]));
+  Assert(not(fType in [htStore,htBarracks]));
   for I := 1 to 4 do
   if aWare = gRes.Houses[fType].WareOutput[I] then
   begin
@@ -1994,6 +2007,7 @@ begin
     end;
 
     ResOut[I] := ResOut[I] - aCount;
+    UpdateDemands;
     Exit;
   end;
 
@@ -2024,12 +2038,13 @@ begin
         gHands[Owner].Deliveries.Queue.AddDemand(Self, nil, aWare, 1, dtOnce, diNorm);
         WareDeliveryCnt[I] := WareDeliveryCnt[I] + 1;
       end;
+    UpdateDemands;
     Exit;
   end;
 end;
 
 
-function TKMHouse.GetWareDistribution(aID: Byte): Byte;
+function TKMHouse.GetWareDistribution(aID: Byte): Word;
 begin
   Result := gHands[Owner].Stats.WareDistribution[gRes.Houses[fType].WareInput[aID],fType];
 end;
@@ -2206,18 +2221,30 @@ end;
 //      taken to the weapons workshop because the request doesn't get canceled.
 //      Maybe it's possible to cancel the current requests if no serf has taken them yet?
 procedure TKMHouse.UpdateDemands;
+const
+  MAX_TH_GOLD_DEMANDS_CNT = 30; //Limit max number of demands by townhall to not to overfill demands list
+  MAX_DEMANDS_CNT = 5;
+
+  function waresMaxDemands : byte;
+  begin
+    If fType = htTownhall then
+      Result := MAX_TH_GOLD_DEMANDS_CNT
+    else
+      Result := MAX_DEMANDS_CNT;
+  end;
 var
   I: Integer;
   demandsRemoved, plannedToRemove, demandsToChange: Integer;
-  resDistribution: Byte;
+  waresMaxCnt: Word;
+  resDelivering : Integer;
 begin
   for I := 1 to 4 do
   begin
-    if (fType = htTownHall) or (gRes.Houses[fType].WareInput[I] in [wtAll, wtWarfare, wtNone]) then Continue;
+    if {(fType = htTownHall) or }(gRes.Houses[fType].WareInput[I] in [wtAll, wtWarfare, wtNone]) then Continue;
+    resDelivering := WareDeliveryCnt[I] - WareDemandsClosing[I];
+    waresMaxCnt := GetWareDistribution(I);
 
-    resDistribution := GetWareDistribution(I);
-
-    demandsToChange := resDistribution - (WareDeliveryCnt[I] - WareDemandsClosing[I]);
+    demandsToChange := Min(waresMaxDemands - (resDelivering - fWareIn[I]), waresMaxCnt - resDelivering);
 
     //Not enough resources ordered, add new demand
     if demandsToChange > 0 then
@@ -2326,7 +2353,7 @@ begin
   fTick := aTick;
 
   //Update delivery mode, if time has come
-  if (fUpdateDeliveryModeOnTick = fTick) then
+  if (fUpdateDeliveryModeOnTick <> NO_UPDATE_DELIVERY_MODE_TICK) and (fUpdateDeliveryModeOnTick <= fTick) then
     UpdateDeliveryMode;
 
   //Show unoccupied message if needed and house belongs to human player and can have worker at all
