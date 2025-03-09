@@ -2225,7 +2225,7 @@ const
   MAX_TH_GOLD_DEMANDS_CNT = 30; //Limit max number of demands by townhall to not to overfill demands list
   MAX_DEMANDS_CNT = 5;
 
-  function waresMaxDemands : byte;
+  function WaresMaxDemands : Byte;
   begin
     If fType = htTownhall then
       Result := MAX_TH_GOLD_DEMANDS_CNT
@@ -2241,10 +2241,23 @@ begin
   for I := 1 to 4 do
   begin
     if {(fType = htTownHall) or }(gRes.Houses[fType].WareInput[I] in [wtAll, wtWarfare, wtNone]) then Continue;
+
+    // Currently delivering + waresCnt in the house, except 'closing' demands
     resDelivering := WareDeliveryCnt[I] - WareDemandsClosing[I];
+
+    // Maximum wares count in the house
     waresMaxCnt := GetWareDistribution(I);
 
-    demandsToChange := Min(waresMaxDemands - (resDelivering - fWareIn[I]), waresMaxCnt - resDelivering);
+    // Demands Cnt to have maximum allowed wares in house
+    var demandsCntToMaxWaresInHouse := waresMaxCnt - resDelivering;
+
+    // Actual demands needed (resDelivering - what is in the house)
+    var actualDemandsNeeded := (resDelivering - fWareIn[I]);
+
+    // Number of new demands, but no more than the limit
+    var demandsCntToMaxLimit := WaresMaxDemands - actualDemandsNeeded;
+
+    demandsToChange := Min(demandsCntToMaxLimit, demandsCntToMaxWaresInHouse);
 
     //Not enough resources ordered, add new demand
     if demandsToChange > 0 then
