@@ -1715,7 +1715,7 @@ end;
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
 procedure TKMHouse.WareAddToIn(aWare: TKMWareType; aCount: Integer = 1; aFromStaticScript: Boolean = False);
 var
-  I, ordersRemoved: Integer;
+  I, ordersRemoved, plannedToRemove: Integer;
   doUpdate : Boolean;
 begin
   Assert(aWare <> wtNone);
@@ -1731,8 +1731,12 @@ begin
       if aFromStaticScript then
       begin
         WareDeliveryCnt[I] := WareDeliveryCnt[I] + aCount;
-        ordersRemoved := gHands[Owner].Deliveries.Queue.TryRemoveDemand(Self, aWare, aCount);
+        ordersRemoved := gHands[Owner].Deliveries.Queue.TryRemoveDemand(Self, aWare, aCount, plannedToRemove);
         WareDeliveryCnt[I] := WareDeliveryCnt[I] - ordersRemoved;
+        // It seems we don't really need next line of code.
+        // Critical tests: reduce max gold or wareDistribution while serf is entering the house and then enlarge it back
+        // Those test are working with next line and without it)
+//        WareDemandsClosing[I] := WareDemandsClosing[I] + plannedToRemove;
       end;
       doUpdate := True;
     end;
