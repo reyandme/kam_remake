@@ -2,8 +2,15 @@ unit KM_Sort;
 {$I KaM_Remake.inc}
 interface
 
+uses
+    KromUtils,
+    Generics.Collections, Generics.Defaults;
+
 type
   TKMCompFunc = function (const aElem1, aElem2): Integer;
+  TKMSelectionSortCompType<T> = Function(constref A, B: T) : Boolean;
+
+procedure SelectionSort<T>(var aList: TList<T>; idxFirst, idxLast: Integer; Comp: TKMSelectionSortCompType<T>);
 
 procedure SortCustom(var aArr; aMinIdx, aMaxIdx, aSize: Integer; aCompFunc: TKMCompFunc);
 
@@ -61,6 +68,39 @@ begin
 
   SetLength(Buf, aSize);
   QuickSort(aMinIdx * aSize, aMaxIdx * aSize, Buf[0]);
+end;
+
+procedure SelectionSort<T>(var aList: TList<T>; idxFirst, idxLast: Integer; Comp: TKMSelectionSortCompType<T>);
+var
+  I, K, L, J: Integer;
+begin
+  if not (idxFirst < idxLast) then Exit;
+
+  I := idxFirst;
+  L := idxLast;
+
+  while I < L do
+  begin
+       J := I;
+       for K := J + 1 to L do
+           if
+           {$IFDEF Unix}
+           Comp(aList.Items[I], aList.Items[J])
+           {$ELSE}
+           Comp(aList.List[I], aList.List[J])
+           {$ENDIF}
+           then
+              J := K;
+       if (I <> J) then
+       begin
+         {$IFDEF Unix}
+         aList.Exchange(I, J);
+         {$ELSE}
+         SwapInt(NativeUInt(aList.List[I]), NativeUInt(aList.List[J]));
+         {$ENDIF}
+       end;
+       Inc(I);
+  end;
 end;
 
 end.
