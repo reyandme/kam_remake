@@ -1719,7 +1719,7 @@ var
   doUpdate : Boolean;
 begin
   Assert(aWare <> wtNone);
-  doUpdate := false;
+  doUpdate := False;
   for I := 1 to 4 do
     if aWare = gRes.Houses[fType].WareInput[I] then
     begin
@@ -1734,7 +1734,7 @@ begin
         ordersRemoved := gHands[Owner].Deliveries.Queue.TryRemoveDemand(Self, aWare, aCount);
         WareDeliveryCnt[I] := WareDeliveryCnt[I] - ordersRemoved;
       end;
-      doUpdate := true;
+      doUpdate := True;
     end;
   If doUpdate then
     UpdateDemands;
@@ -2251,7 +2251,7 @@ begin
     // Demands Cnt to have maximum allowed wares in house
     var demandsCntToMaxWaresInHouse := waresMaxCnt - resDelivering;
 
-    // Actual demands needed (resDelivering - what is in the house)
+    // Actual demands needed (resDelivering except what is in the house)
     var actualDemandsNeeded := (resDelivering - fWareIn[I]);
 
     // Number of new demands, but no more than the limit
