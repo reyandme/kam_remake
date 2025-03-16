@@ -452,6 +452,7 @@ begin
   begin
     tmp := TKMHouseStore(fHouse).CheckWareIn(StoreResType[I]);
     Button_Store[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
+    Button_Store[I].Hint := IfThen(tmp = 0, '', IntToStr(tmp) + ' ' + gRes.Wares[StoreResType[I]].Title);
   end;
 end;
 
@@ -495,9 +496,11 @@ begin
   begin
     tmp := TKMHouseBarracks(fHouse).CheckWareIn(BarracksResType[I]);
     Button_Barracks[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
+    Button_Barracks[I].Hint := IfThen(tmp = 0, '', IntToStr(tmp) + ' ' + gRes.Wares[BarracksResType[I]].Title);
   end;
   tmp := TKMHouseBarracks(fHouse).MapEdRecruitCount;
   Button_Barracks_Recruit.Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
+  Button_Barracks_Recruit.Hint := IfThen(tmp = 0, '', IntToStr(tmp) + ' ' + gRes.Units[utRecruit].GUIName);
   Button_Barracks_RallyPoint.Down := (gCursor.Mode = cmMarkers) and (gCursor.Tag1 = MARKER_RALLY_POINT);
 end;
 

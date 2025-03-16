@@ -173,6 +173,9 @@ type
     procedure LoadFromXML; override;
     procedure SaveToXML; override;
 
+    procedure LoadFavouriteMapsFromXML;
+    procedure SaveFavouriteMapsToXML;
+
     // Game
     property Autosave: Boolean read fAutosave write fAutosave;
     property AutosaveAtGameEnd: Boolean read fAutosaveAtGameEnd write fAutosaveAtGameEnd;
@@ -333,6 +336,34 @@ begin
   if Self = nil then Exit(nil);
 
   Result := fFavouriteMaps;
+end;
+
+
+procedure TKMGameSettings.LoadFavouriteMapsFromXML;
+var
+  nGameSettings, nMenu: TKMXmlNode;
+begin
+  if Self = nil then Exit;
+
+  nGameSettings := Root.AddOrFindChild('Game');
+
+  nMenu := nGameSettings.AddOrFindChild('Menu');
+    fMenu_FavouriteMapsStr   := nMenu.Attributes['FavouriteMaps'].AsString('');
+    fFavouriteMaps.LoadFromString(fMenu_FavouriteMapsStr);
+end;
+
+
+procedure TKMGameSettings.SaveFavouriteMapsToXML;
+var
+  nGameSettings, nMenu: TKMXmlNode;
+begin
+  if Self = nil then Exit;
+  if BLOCK_FILE_WRITE then Exit;
+
+  nGameSettings := Root.AddOrFindChild('Game');
+
+  nMenu := nGameSettings.AddOrFindChild('Menu');
+    nMenu.Attributes['FavouriteMaps'] := fMenu_FavouriteMapsStr;
 end;
 
 
@@ -684,8 +715,8 @@ begin
   // Menu
   nMenu := nGameSettings.AddOrFindChild('Menu');
     nMenu.Attributes['FavouriteMaps'] := fMenu_FavouriteMapsStr;
-    nMenu.Attributes['CampaignName']      := fMenu_CampaignName;
-    nMenu.Attributes['LobbyMapType']      := fMenu_LobbyMapType;
+    nMenu.Attributes['CampaignName']  := fMenu_CampaignName;
+    nMenu.Attributes['LobbyMapType']  := fMenu_LobbyMapType;
 
     nMenuSP := nMenu.AddOrFindChild('Singleplayer');
       nMenuSP.Attributes['Type'] := fMenu_MapSPType;

@@ -12,17 +12,27 @@ uses
 
 
 type
+  TKMPopUpMenuMode = (
+    pmmActionOnMouseDownNMove, // Action triggered by mouse down and mouse move (drag)
+    pmmActionOnMouseUp         // Action triggered only by mouse up
+  );
+
+const
+  DEFAULT_POPUP_MENU_MODE = pmmActionOnMouseUp;
+
+type
   TKMPopUpMenu = class(TKMPanel)
   private
+    fMenuMode: TKMPopUpMenuMode;
     fShapeBG: TKMShape;
     fList: TKMColumnBox;
     procedure MenuHide(Sender: TObject);
-    procedure MenuChange(Sender: TObject);
+    procedure MenuActionTriggered(Sender: TObject);
     procedure SetItemIndex(aValue: Integer);
     function GetItemIndex: Integer;
     function GetItemTag(aIndex: Integer): Integer;
   public
-    constructor Create(aParent: TKMPanel; aWidth: Integer);
+    constructor Create(aParent: TKMPanel; aWidth: Integer; aMenuMode: TKMPopUpMenuMode = DEFAULT_POPUP_MENU_MODE);
     procedure AddItem(const aCaption: UnicodeString; aTag: Integer = 0);
     procedure UpdateItem(aIndex: Integer; const aCaption: UnicodeString);
     procedure Clear;
@@ -30,6 +40,8 @@ type
     property ItemTags[aIndex: Integer]: Integer read GetItemTag;
     procedure ShowAt(X,Y: Integer);
     procedure HideMenu;
+
+    property MenuMode: TKMPopUpMenuMode read fMenuMode;
 
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure ControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
@@ -138,9 +150,11 @@ uses
 
 
 { TKMPopUpMenu }
-constructor TKMPopUpMenu.Create(aParent: TKMPanel; aWidth: Integer);
+constructor TKMPopUpMenu.Create(aParent: TKMPanel; aWidth: Integer; aMenuMode: TKMPopUpMenuMode = DEFAULT_POPUP_MENU_MODE);
 begin
   inherited Create(aParent, 0, 0, aWidth, 0);
+
+  fMenuMode := aMenuMode;
 
   fShapeBG := TKMShape.Create(Self, 0, 0, aParent.Width, aParent.Height);
   fShapeBG.AnchorsStretch;
@@ -153,7 +167,13 @@ begin
   fList.Focusable := False;
   fList.SetColumns(fntGrey, [''], [0]);
   fList.ShowHeader := False;
-  fList.OnChange := MenuChange;
+
+  case fMenuMode of
+    pmmActionOnMouseDownNMove: fList.OnChange := MenuActionTriggered;
+    pmmActionOnMouseUp:        fList.OnClick  := MenuActionTriggered;
+  end;
+
+
   fList.Hide;
 
   // Subscribe to get other controls mouse up events
@@ -200,10 +220,13 @@ begin
 end;
 
 
-procedure TKMPopUpMenu.MenuChange(Sender: TObject);
+procedure TKMPopUpMenu.MenuActionTriggered(Sender: TObject);
 begin
   if Assigned(OnClick) then
     OnClick(Self);
+
+  if fMenuMode = pmmActionOnMouseUp then
+    HideMenu;
 end;
 
 
@@ -245,9 +268,12 @@ procedure TKMPopUpMenu.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouse
 begin
   inherited;
 
-  // Hide menu on MouseUp
-  MenuHide(nil);
+  // Hide list and shape on MouseUp
+  fList.Hide;
+  fShapeBG.Hide;
 end;
+
+
 
 
 { TKMPopUpPanel }

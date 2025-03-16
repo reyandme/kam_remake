@@ -126,7 +126,7 @@ type
     procedure AddHouseTablet(aHouse: TKMHouseType; const aLoc: TKMPoint);
     procedure AddHouseBuildSupply(aHouse: TKMHouseType; const Loc: TKMPoint; Wood,Stone: Byte);
     procedure AddHouseWork(aHouse: TKMHouseType; const aLoc: TKMPoint; aActSet: TKMHouseActionSet; aAnimStep, aAnimStepPrev: Cardinal; aFlagColor: TColor4; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: TColor4 = 0);
-    procedure AddHouseSupply(aHouse: TKMHouseType; const aLoc: TKMPoint; const R1, R2, R3: array of Byte; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: TColor4 = 0);
+    procedure AddHouseSupply(aHouse: TKMHouseType; const aLoc: TKMPoint; const R1, R2: array of Word; const R3: array of Byte; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: TColor4 = 0);
     procedure AddHouseMarketSupply(const aLoc: TKMPoint; aResType: TKMWareType; aResCount: Word; aAnimStep: Integer);
     procedure AddHouseStableBeasts(aHouse: TKMHouseType; const aLoc: TKMPoint; aBeastId,aBeastAge,aAnimStep: Integer; aRX: TRXType = rxHouses);
     procedure AddHouseEater(const Loc: TKMPoint; aUnit: TKMUnitType; aAct: TKMUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
@@ -882,7 +882,7 @@ begin
 end;
 
 
-procedure TKMRenderPool.AddHouseSupply(aHouse: TKMHouseType; const aLoc: TKMPoint; const R1, R2, R3: array of Byte;
+procedure TKMRenderPool.AddHouseSupply(aHouse: TKMHouseType; const aLoc: TKMPoint; const R1, R2: array of Word; const R3: array of Byte;
                                      aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: TColor4 = 0);
 var
   id, I, K, I2, count: Integer;

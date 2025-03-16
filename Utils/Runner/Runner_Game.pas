@@ -319,7 +319,7 @@ uses
   KM_GameSettings,
   KM_CommonTypes, KM_MapTypes, KM_FileIO, KM_Game, KM_GameInputProcess, KM_GameTypes, KM_InterfaceGame,
   KM_UnitGroupTypes,
-  KM_ResTypes;
+  KM_ResTypes, KM_CampaignClasses;
 
 
 { TKMRunnerGA_Common }
@@ -2290,15 +2290,13 @@ begin
 end;
 
 procedure TKMVas01.Execute(aRun: Integer);
-const
-  cmp: TKMCampaignId = (Byte('V'), Byte('A'), Byte('S'));
 var
   C: TKMCampaign;
   T: Cardinal;
 begin
   inherited;
 
-  gGameApp.NewCampaignMap(cmp, 1);
+  gGameApp.NewCampaignMap('VAS', 1);
 
   gMySpectator.FOWIndex := -1;
   gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(162, 26), 0);

@@ -344,8 +344,6 @@ begin
 end;
 
 function TKMSimpleVariant.AsDateTime: TDateTime;
-var
-  v: Variant;
 begin
   // This is very slow in Analyzer
   // VarToDateTime seems to be much faster and provide same accuracy

@@ -15,6 +15,8 @@ type
     function GetGameSettings: TKMGameSettings;
     function GetKeySettings: TKMKeysSettings;
     function GetMainSettings: TKMainSettings;
+
+    procedure BindRoot;
   protected
     procedure LoadFromFile(const aPath: string); override;
     procedure SaveToFile(const aPath: UnicodeString); override;
@@ -27,6 +29,9 @@ type
     property MainSettings: TKMainSettings read GetMainSettings;
     property GameSettings: TKMGameSettings read GetGameSettings;
     property KeySettings: TKMKeysSettings read GetKeySettings;
+
+    procedure ReloadFavouriteMaps;
+    procedure SaveFavouriteMaps;
 
     property Root: TKMXmlNode read fRoot;
   end;
@@ -62,13 +67,19 @@ begin
 end;
 
 
+procedure TKMGameAppSettings.BindRoot;
+begin
+  gMainSettings.Root := Root;
+  gGameSettings.Root := Root;
+  gKeySettings.Root := Root;
+end;
+
+
 procedure TKMGameAppSettings.LoadFromFile(const aPath: string);
 begin
   inherited;
 
-  gMainSettings.Root := Root;
-  gGameSettings.Root := Root;
-  gKeySettings.Root := Root;
+  BindRoot;
 
   gMainSettings.LoadFromXML;
   gGameSettings.LoadFromXML;
@@ -76,9 +87,36 @@ begin
 end;
 
 
+procedure TKMGameAppSettings.ReloadFavouriteMaps;
+begin
+  inherited LoadFromFile(GetPath);
+
+  BindRoot;
+
+  gGameSettings.LoadFavouriteMapsFromXML;
+end;
+
+
+procedure TKMGameAppSettings.SaveFavouriteMaps;
+var
+  path: string;
+begin
+  path := GetPath;
+  inherited LoadFromFile(path);
+
+  BindRoot;
+
+  gGameSettings.SaveFavouriteMapsToXML;
+
+  inherited SaveToFile(path);
+end;
+
+
 procedure TKMGameAppSettings.SaveToFile(const aPath: UnicodeString);
 begin
   if SKIP_SETTINGS_SAVE then Exit;
+
+  BindRoot;
 
   gMainSettings.SaveToXML;
   gGameSettings.SaveToXML;

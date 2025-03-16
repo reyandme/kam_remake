@@ -2,7 +2,7 @@ unit KM_GameTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_Defaults, KM_MapTypes, KM_CampaignTypes, KM_Points;
+  KM_Defaults, KM_MapTypes, KM_CampaignTypes, KM_CampaignClasses, KM_Points;
 
 const
   SAVE_HEADER_MARKER = 'Header';
@@ -36,7 +36,7 @@ type
                                     aDesiredColor: Cardinal = $00000000; aDifficulty: TKMMissionDifficulty = mdNone;
                                     aAIType: TKMAIType = aitNone) of object;
 
-  TKMNewCampaignMapEvent = procedure (aCampaign: TKMCampaignId; aMap: Byte; aDifficulty: TKMMissionDifficulty = mdNone) of object;
+  TKMNewCampaignMapEvent = procedure (aCampaign: UnicodeString; aMap: Word; aDifficulty: TKMMissionDifficulty = mdNone) of object;
 
   TKMNewMapEditorEvent = procedure (const aFileName: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0; aMapFullCRC: Cardinal = 0;
                                     aMapSimpleCRC: Cardinal = 0; aMultiplayerLoadMode: Boolean = False) of object;

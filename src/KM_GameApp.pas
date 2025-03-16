@@ -8,7 +8,7 @@ uses
   Dialogs,
   KM_CommonTypes, KM_Defaults, KM_RenderControl, KM_Video,
   KM_Campaigns, KM_Game, KM_InterfaceDefaults, KM_InterfaceMainMenu, KM_InterfaceTypes, KM_Resource,
-  KM_Music, KM_Maps, KM_MapTypes, KM_CampaignTypes, KM_Networking,
+  KM_Music, KM_Maps, KM_MapTypes, KM_CampaignClasses, KM_Networking,
   KM_GameSettings,
   KM_KeysSettings,
   KM_ServerSettings,
@@ -47,7 +47,6 @@ type
 
     procedure CreateGame(aGameMode: TKMGameMode);
 
-    procedure SaveCampaignsProgress;
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
     procedure LoadGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; const aGIPPath: String = '');
@@ -94,7 +93,7 @@ type
     procedure PreloadGameResources;
 
     //These are all different game kinds we can start
-    procedure NewCampaignMap(aCampaignId: TKMCampaignId; aMap: Byte; aDifficulty: TKMMissionDifficulty = mdNone);
+    procedure NewCampaignMap(aCampaignIdStr: UnicodeString; aMap: Word; aDifficulty: TKMMissionDifficulty = mdNone);
     procedure NewSingleMap(const aMissionFullPath, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
                            aDesiredColor: Cardinal = NO_OVERWRITE_COLOR; aDifficulty: TKMMissionDifficulty = mdNone;
                            aAIType: TKMAIType = aitNone);
@@ -543,13 +542,6 @@ begin
 end;
 
 
-procedure TKMGameApp.SaveCampaignsProgress;
-begin
-  if fCampaigns <> nil then
-    fCampaigns.SaveProgress;
-end;
-
-
 procedure TKMGameApp.UnlockAllCampaigns;
 begin
   if fCampaigns <> nil then
@@ -589,22 +581,22 @@ begin
   begin
     //If the game was a part of a campaign, select that campaign,
     //so we know which menu to show next and unlock next map
-    fCampaigns.SetActive(fCampaigns.CampaignById(gGame.CampaignName), gGame.CampaignMap);
+    fCampaigns.SetActive(fCampaigns.CampaignById(gGame.CampaignName));
 
     if fCampaigns.ActiveCampaign <> nil then
     begin
       //Always save campaign data, even if the player lost (scripter can choose when to modify it)
-      fCampaigns.ActiveCampaign.ScriptDataStream.Clear;
-      gGame.SaveCampaignScriptData(fCampaigns.ActiveCampaign.ScriptDataStream);
+      fCampaigns.ActiveCampaign.SavedData.ScriptDataStream.Clear;
+      gGame.SaveCampaignScriptData(fCampaigns.ActiveCampaign.SavedData.ScriptDataStream);
 
       if aMsg = grWin then
-        fCampaigns.UnlockNextMap; //Unlock next map before save campaign progress
+        fCampaigns.ActiveCampaign.UnlockNextMission(gGame.CampaignMap); //Unlock next map before save campaign progress
 
       //Always save Campaigns progress after mission
       //We always save script data with SaveCampaignScriptData
       //then campaign progress should be saved always as well on any outcome (win or lose)
       //otherwise we will get inconsistency
-      SaveCampaignsProgress;
+      fCampaigns.ActiveCampaign.SavedData.SaveProgress;
     end;
   end;
 
@@ -905,14 +897,14 @@ begin
 end;
 
 
-procedure TKMGameApp.NewCampaignMap(aCampaignId: TKMCampaignId; aMap: Byte; aDifficulty: TKMMissionDifficulty = mdNone);
+procedure TKMGameApp.NewCampaignMap(aCampaignIdStr: UnicodeString; aMap: Word; aDifficulty: TKMMissionDifficulty = mdNone);
 var
   camp: TKMCampaign;
 begin
-  camp := fCampaigns.CampaignById(aCampaignId);
+  camp := fCampaigns.CampaignByIdU(aCampaignIdStr);
   LoadGameFromScript(camp.GetMissionFile(aMap), camp.GetMissionTitle(aMap), 0, 0, camp, aMap, gmCampaign, -1, NO_OVERWRITE_COLOR, aDifficulty);
 
-  fCampaigns.SetActive(camp, aMap);
+  fCampaigns.SetActive(camp);
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
@@ -1380,9 +1372,9 @@ end;
 function TKMGameApp.CheckDATConsistency: Boolean;
 const
   // That's the magic CRC of official .dat files and our .json specifications
-  DEFINES_CRC: Cardinal = $28810991;
+  DEFINES_CRC: Cardinal = 901406735;
 begin
-  Result := ALLOW_MP_MODS or (gRes.GetDATCRC = DEFINES_CRC);
+  Result := ALLOW_MP_MODS or (gRes.GetDATCRC() = DEFINES_CRC);
 end;
 
 

@@ -263,6 +263,8 @@ type
     Unitsrxa1: TMenuItem;
     N15: TMenuItem;
     Openscriptfile1: TMenuItem;
+    chkIgnoreMouseScroll: TCheckBox;
+    chkShowUnitsInHouse: TCheckBox;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -394,6 +396,9 @@ type
   public
     RenderArea: TKMRenderControl;
     SuppressAltForMenu: Boolean; //Suppress Alt key 'activate window menu' function
+
+    property DevSettings: TKMDevSettings read fDevSettings;
+
     procedure UpdateFormState;
     procedure ControlsReset;
     procedure ControlsRefill;
@@ -1650,6 +1655,8 @@ begin
 
     SKIP_RENDER := chkSkipRender.Checked;
     SKIP_SOUND := chkSkipSound.Checked;
+    IGNORE_MOUSE_SCROLLING := chkIgnoreMouseScroll.Checked;
+    SHOW_UNITS_IN_HOUSE := chkShowUnitsInHouse.Checked;
     DISPLAY_SOUNDS := chkPaintSounds.Checked;
     SHOW_VIEWPORT_POS := chkViewportPos.Checked;
 

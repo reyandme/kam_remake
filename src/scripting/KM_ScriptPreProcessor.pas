@@ -441,10 +441,10 @@ begin
   end;
 
   // Do not allow to include campaigndata.script, since we can include scripts from the root folder now
-  if inclFile = CAMPAIGN_DATA_FILENAME + EXT_FILE_SCRIPT_DOT then
+  if inclFile = CAMPAIGN_DATA_SCRIPT_FILENAME + EXT_FILE_SCRIPT_DOT then
   begin
     errorStr := Format('Error including ''%s'' from ''%s'':|filename ''%s'' is reserved for campaign data',
-                       [inclFile, ExtractFileName(aCallingFileName), CAMPAIGN_DATA_FILENAME + EXT_FILE_SCRIPT_DOT]);
+                       [inclFile, ExtractFileName(aCallingFileName), CAMPAIGN_DATA_SCRIPT_FILENAME + EXT_FILE_SCRIPT_DOT]);
     fErrorHandler.AppendErrorStr(errorStr, errorStr);
     raise Exception.Create(errorStr); // We should raise Exception here, to stop Including process by PascalScript
   end;

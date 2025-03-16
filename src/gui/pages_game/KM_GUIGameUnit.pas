@@ -16,6 +16,7 @@ type
     fJoiningGroups: Boolean;
     fSetViewportEvent: TPointFEvent;
 
+    procedure Unit_Kill_Click(Sender: TObject);
     procedure Unit_Dismiss(Sender: TObject);
     procedure Dismiss_Click(Sender: TObject);
     procedure Army_ActivateControls(aGroup: TKMUnitGroup);
@@ -34,6 +35,7 @@ type
       ConditionBar_Unit: TKMPercentBar;
       Image_UnitPic: TKMImage;
       Button_Unit_Dismiss: TKMButton;
+      Button_Unit_Kill: TKMButton;
 
       Panel_Unit_Dismiss: TKMPanel;
          Label_Unit_Dismiss: TKMLabel;
@@ -54,6 +56,7 @@ type
     OnUnitDismiss: TEvent;
     OnSelectingTroopDirection: TBooleanFunc;
     OnArmyCanTakeOrder: TBooleanFunc;
+
     constructor Create(aParent: TKMPanel; aSetViewportEvent: TPointFEvent);
     property AskDismiss: Boolean read fAskDismiss write fAskDismiss;
     property JoiningGroups: Boolean read fJoiningGroups write fJoiningGroups;
@@ -116,6 +119,12 @@ begin
     Label_UnitTask.WordWrap := True;
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,TB_WIDTH,200,'',fntGrey,taLeft); // Taken from LIB resource
     Label_UnitDescription.WordWrap := True;
+
+    Button_Unit_Kill   := TKMButton.Create(Panel_Unit,65,100,60,30,'Kill', bsGame);
+    Button_Unit_Kill.OnClick := Unit_Kill_Click;
+
+    if not SHOW_UNIT_KILL_BTN then
+      Button_Unit_Kill.Hide;
 
     Panel_Unit_Dismiss := TKMPanel.Create(Panel_Unit, 0, 132, TB_WIDTH, 182);
     Label_Unit_Dismiss             := TKMLabel.Create(Panel_Unit_Dismiss,0,2,TB_WIDTH,20,gResTexts[TX_UNIT_TASK_DISMISS_CONFIRMATION],fntGrey,taCenter);
@@ -611,6 +620,21 @@ begin
       Army_Issue_Order(Button_Army_RotCCW, Shift);
       aHandled := True;
     end;
+end;
+
+
+// Debug btn to kill unit instantly
+procedure TKMGUIGameUnit.Unit_Kill_Click(Sender: TObject);
+begin
+  if (gMySpectator.Selected = nil)
+    or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
+    Exit;
+
+  if (gMySpectator.Selected is TKMUnitGroup) then
+    TKMUnitGroup(gMySpectator.Selected).SelectedUnit.Kill(HAND_NONE, True, False) //Debug option
+  else
+  if (gMySpectator.Selected is TKMUnit) then
+    TKMUnit(gMySpectator.Selected).Kill(HAND_NONE, True, False) //Debug option
 end;
 
 

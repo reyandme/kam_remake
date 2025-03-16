@@ -154,8 +154,7 @@ begin
 end;
 
 
-procedure TKMRoomList.AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom: Boolean; aGameRev: TKMGameRevision;
-                              aGameInfoStream: TKMemoryStream);
+procedure TKMRoomList.AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom: Boolean; aGameRev: TKMGameRevision; aGameInfoStream: TKMemoryStream);
 begin
   if Length(fRooms) <= fCount then SetLength(fRooms, fCount+16);
   fRooms[fCount].ServerIndex := aServerIndex;
@@ -548,7 +547,8 @@ end;
 
 
 procedure TKMServerQuery.Sort;
-var tempRooms: array of TKMRoomInfo;
+var
+  tempRooms: array of TKMRoomInfo;
 
   function Compare(const A, B: TKMRoomInfo): Boolean;
   const

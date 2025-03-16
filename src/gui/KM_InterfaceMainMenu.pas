@@ -46,6 +46,8 @@ type
     fMenuSinglePlayer: TKMMenuSinglePlayer;
 
     fMenuPage: TKMMenuPageCommon;
+
+    procedure AfterCampaignsScanComplete;
   protected
     Panel_Menu: TKMPanel;
     Panel_Background: TKMImage;
@@ -93,7 +95,6 @@ uses
   KM_ResTexts, KM_ResTypes,
   KM_RenderUI,
   KM_NetworkTypes,
-  KM_CampaignTypes,
   KM_Log;
 
 
@@ -125,7 +126,7 @@ begin
 
   fMenuMain          := TKMMenuMain.Create(Panel_Menu, PageChange);
   fMenuSinglePlayer  := TKMMenuSinglePlayer.Create(Panel_Menu, PageChange);
-  fMenuCampaigns     := TKMMenuCampaigns.Create(Panel_Menu, aCampaigns, PageChange, fMenuSinglePlayer.CampaignsListLoaded);
+  fMenuCampaigns     := TKMMenuCampaigns.Create(Panel_Menu, aCampaigns, PageChange, AfterCampaignsScanComplete);
   fMenuCampaign      := TKMMenuCampaign.Create(Panel_Menu, aCampaigns, PageChange);
   fMenuSingleMap     := TKMMenuSingleMap.Create(Panel_Menu, PageChange);
   fMenuLoad          := TKMMenuLoad.Create(Panel_Menu, PageChange);
@@ -169,6 +170,13 @@ begin
 
   AfterCreateComplete;
   gLog.AddTime('Main menu init done');
+end;
+
+
+procedure TKMMainMenuInterface.AfterCampaignsScanComplete;
+begin
+  // Put the call to refresh into a separate method, to make sure fMenuCampaign is already created
+  fMenuCampaign.RefreshCampaign;
 end;
 
 
@@ -252,7 +260,6 @@ end;
 procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; const aText: UnicodeString = '');
 var
   I: Integer;
-  cmp: TKMCampaignId;
   version: UnicodeString;
 begin
   version := UnicodeString(GAME_VERSION) + ' / ' + gGameApp.RenderVersion;
@@ -300,10 +307,7 @@ begin
                       fMenuPage := fMenuLobby;
                     end;
     gpCampaign:     begin
-                      cmp[0] := Ord(aText[1]);
-                      cmp[1] := Ord(aText[2]);
-                      cmp[2] := Ord(aText[3]);
-                      fMenuCampaign.Show(cmp);
+                      fMenuCampaign.Show(aText);
                       fMenuPage := fMenuCampaign;
                     end;
     gpCampSelect:   begin

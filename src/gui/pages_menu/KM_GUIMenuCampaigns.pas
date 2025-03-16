@@ -48,7 +48,7 @@ uses
   KM_ResTexts, KM_ResFonts, KM_ResTypes,
   KM_RenderUI,
   KM_GameSettings,
-  KM_CampaignTypes;
+  KM_CampaignClasses;
 
 
 { TKMMainMenuInterface }
@@ -137,9 +137,10 @@ begin
   for I := 0 to fCampaigns.Count - 1 do
   begin
     ColumnBox_Camps.AddItem(MakeListRow(
-                        [fCampaigns[I].GetCampaignTitle, IntToStr(fCampaigns[I].MapCount), IntToStr(fCampaigns[I].UnlockedMap + 1)],
+                        [fCampaigns[I].Spec.GetCampaignTitle, IntToStr(fCampaigns[I].Spec.MissionsCount),
+                         IntToStr(fCampaigns[I].SavedData.UnlockedMission + 1)],
                         [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF], I));
-    if fCampaigns[I].ShortName = gGameSettings.MenuCampaignName then
+    if fCampaigns[I].Spec.IdStr = gGameSettings.MenuCampaignName then
     begin
       ColumnBox_Camps.ItemIndex := I;
       ListChange(nil);
@@ -156,7 +157,7 @@ end;
 
 procedure TKMMenuCampaigns.ListChange(Sender: TObject);
 var
-  cmp: TKMCampaignId;
+  cmpID: TKMCampaignId;
   camp: TKMCampaign;
 begin
   //Key press can cause ItemIndex = -1
@@ -169,14 +170,14 @@ begin
   else
   begin
     Button_Camp_Start.Enable;
-    cmp := fCampaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].CampaignId;
-    camp := fCampaigns.CampaignById(cmp);
+    cmpID := fCampaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].Spec.CampaignId;
+    camp := fCampaigns.CampaignById(cmpID);
 
     Image_CampsPreview.RX := camp.BackGroundPic.RX;
     Image_CampsPreview.TexID := camp.BackGroundPic.ID;
 
-    Memo_CampDesc.Text := camp.GetCampaignDescription;
-    gGameSettings.MenuCampaignName := camp.ShortName;
+    Memo_CampDesc.Text := camp.Spec.GetCampaignDescription;
+    gGameSettings.MenuCampaignName := camp.Spec.IdStr;
   end;
 end;
 
@@ -189,7 +190,7 @@ begin
 
   //Get the caption and pass it to Campaign selection menu (it will be casted to TKMCampaignName there)
   //so that we avoid cast/uncast/cast along the event chain
-  cmp := fCampaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].ShortName;
+  cmp := fCampaigns[ColumnBox_Camps.Rows[ColumnBox_Camps.ItemIndex].Tag].Spec.IdStr;
   fOnPageChange(gpCampaign, cmp);
 end;
 

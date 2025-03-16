@@ -16,7 +16,6 @@ type
     procedure SaveToDefaultFile;
 
     function GetDirectory: string;
-    function GetPath: string;
   protected
     function GetDefaultSettingsName: string; virtual; abstract;
 
@@ -24,6 +23,8 @@ type
     procedure SaveToFile(const aPath: UnicodeString); virtual; abstract;
 
     function GetSettingsName: string; virtual; abstract;
+
+    function GetPath: string;
   public
     constructor Create(aSettingsLoc: TKMSettingsLocation);
     destructor Destroy; override;

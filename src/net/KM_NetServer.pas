@@ -277,10 +277,7 @@ begin
   Result := nil;
   for I := 0 to fCount-1 do
     if fItems[I].Handle = aHandle then
-    begin
-      Result := fItems[I];
-      Exit;
-    end;
+      Exit(fItems[I]);
 end;
 
 
@@ -338,9 +335,7 @@ begin
   fClientList.Free;
   fEmptyGameInfo.Free;
   FreeAndNil(fTimer);
-
-  if fGameFilter <> nil then
-    FreeAndNil(fGameFilter);
+  FreeAndNil(fGameFilter);
 
   inherited;
 end;
@@ -435,7 +430,6 @@ begin
         SendMessage(fClientList[I].fHandle, mkKicked, TX_NET_KICK_TIMEOUT, True);
         fServer.Kick(fClientList[I].fHandle);
       end;
-
 end;
 
 
@@ -452,7 +446,7 @@ begin
   Result := 0;
   for I := 0 to fClientList.fCount - 1 do
     if fClientList.Item[I].fRoom <> -1 then
-      inc(Result);
+      Inc(Result);
 end;
 
 
@@ -588,7 +582,7 @@ begin
   if client = nil then
   begin
     Status('Warning: Client ' + inttostr(aHandle) + ' was already disconnected');
-    exit;
+    Exit;
   end;
   room := client.Room;
   if room <> -1 then
@@ -772,8 +766,7 @@ end;
 
 procedure TKMNetServer.SetGameFilter(aGameFilter: TKMPGameFilter);
 begin
-  if fGameFIlter <> nil then
-    FreeAndNil(fGameFilter);
+  FreeAndNil(fGameFilter);
   fGameFilter := aGameFilter;
 end;
 
@@ -824,7 +817,7 @@ end;
 
 procedure TKMNetServer.RecieveMessage(aSenderHandle: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal);
 var
-  kind: TKMessageKind;
+  messageKind: TKMessageKind;
   M, M2: TKMemoryStream;
   tmpInt: Integer;
   gameRev: TKMGameRevision;
@@ -839,7 +832,7 @@ begin
   M := TKMemoryStreamBinary.Create;
   M.WriteBuffer(aData^, aLength);
   M.Position := 0;
-  M.Read(kind, SizeOf(TKMessageKind));
+  M.Read(messageKind, SizeOf(messageKind));
 
   //Sometimes client disconnects then we recieve a late packet (e.g. mkPong), in which case ignore it
   if fClientList.GetByHandle(aSenderHandle) = nil then
@@ -852,7 +845,7 @@ begin
   senderIsHost := (senderRoom <> -1) and
                   (fRoomInfo[senderRoom].HostHandle = aSenderHandle);
 
-  case kind of
+  case messageKind of
     mkJoinRoom:
             begin
               M.Read(tmpInt); //Room to join
@@ -939,7 +932,7 @@ begin
               SendMessage(aSenderHandle, mkServerInfo, M2);
               M2.Free;
             end;
-    mkFPS: begin
+    mkFPS:  begin
               client := fClientList.GetByHandle(aSenderHandle);
               M.Read(tmpInt);
               client.FPS := tmpInt;
@@ -947,8 +940,6 @@ begin
     mkPong:
             begin
               client := fClientList.GetByHandle(aSenderHandle);
-//              M.Read(tmpInteger);
-//              Client.FPS := tmpInteger;
               if (client.fPingStarted <> 0) then
               begin
                 client.Ping := Math.Min(TimeSince(client.fPingStarted), High(Word));
@@ -1115,10 +1106,8 @@ end;
 function TKMNetServer.AddNewRoom: Boolean;
 begin
   if fRoomCount = fMaxRooms then
-  begin
-    Result := False;
-    Exit;
-  end;
+    Exit(False);
+
   Result := True;
   Inc(fRoomCount);
   SetLength(fRoomInfo,fRoomCount);
@@ -1136,10 +1125,8 @@ var
 begin
   for I := 0 to fRoomCount-1 do
     if GetRoomClientsCount(I) = 0 then
-    begin
-      Result := I;
-      exit;
-    end;
+      Exit(I);
+
   if AddNewRoom then //Otherwise we must create a room
     Result := fRoomCount-1
   else
@@ -1154,7 +1141,7 @@ begin
   Result := 0;
   for I := 0 to fClientList.Count - 1 do
     if fClientList[I].Room = aRoom then
-      inc(Result);
+      Inc(Result);
 end;
 
 
@@ -1164,11 +1151,9 @@ var
 begin
   for I := 0 to fClientList.Count - 1 do
     if fClientList[I].Room = aRoom then
-    begin
-      Result := fClientList[I].fHandle;
-      exit;
-    end;
-  raise Exception.Create('');
+      Exit(fClientList[I].fHandle);
+
+  raise Exception.Create('Error in GetFirstRoomClient');
 end;
 
 

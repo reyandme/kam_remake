@@ -9,7 +9,7 @@ uses
   KM_GameParams, KM_GameInputProcess,
   KM_GameSavePoints,
   KM_GameOptions, KM_GameTypes,
-  KM_MapEditor, KM_Campaigns, KM_Maps, KM_MapTypes, KM_CampaignTypes, KM_TerrainPainter,
+  KM_MapEditor, KM_Campaigns, KM_Maps, KM_MapTypes, KM_CampaignClasses, KM_TerrainPainter,
   KM_Render, KM_Scripting,
   KM_MediaTypes,
   KM_InterfaceGame, KM_InterfaceGamePlay, KM_InterfaceMapEditor,
@@ -55,7 +55,7 @@ type
     fMapTxtInfo: TKMMapTxtInfo;
 
     // Should be saved
-    fCampaignMap: Byte;         // Which campaign map it is, so we can unlock next one on victory
+    fCampaignMission: Byte;         // Which campaign map it is, so we can unlock next one on victory
     fCampaignName: TKMCampaignId;  // Is this a game part of some campaign
     fSpeedGIP: Single; // GameSpeed, recorded to GIP, could be requested by scripts
     fSpeedChangeAllowed: Boolean; // Is game speed change allowed?
@@ -166,7 +166,7 @@ type
     destructor Destroy; override;
 
     procedure Start(const aMissionFullFilePath, aName: UnicodeString; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
-                    aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal; aMapDifficulty: TKMMissionDifficulty = mdNone;
+                    aCampMission: Byte; aLocation: ShortInt; aColor: Cardinal; aMapDifficulty: TKMMissionDifficulty = mdNone;
                     aAIType: TKMAIType = aitNone);
 
     procedure AfterStart;
@@ -236,7 +236,7 @@ type
     procedure OverlaySetFont(aHand: TKMHandID; aFont: TKMFont);
 
     property CampaignName: TKMCampaignId read fCampaignName;
-    property CampaignMap: Byte read fCampaignMap;
+    property CampaignMap: Byte read fCampaignMission;
     property SpeedActual: Single read fSpeedActual;
     property SpeedGIP: Single read fSpeedGIP;
     property SpeedChangeAllowed: Boolean read fSpeedChangeAllowed write fSpeedChangeAllowed;
@@ -344,6 +344,7 @@ uses
   KM_NetPlayersList,
   KM_HandTypes, KM_ResLocales,
   KM_ServerSettings,
+  KM_CampaignTypes,
   KM_MapUtils, KM_Utils, KM_WorkerThreadUtils;
 
 const
@@ -543,7 +544,7 @@ end;
 
 // New mission
 procedure TKMGame.Start(const aMissionFullFilePath, aName: UnicodeString; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
-                            aCampMap: Byte; aLocation: ShortInt; aColor: Cardinal;
+                            aCampMission: Byte; aLocation: ShortInt; aColor: Cardinal;
                             aMapDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
 const
   GAME_PARSE: array [TKMGameMode] of TKMMissionParsingMode = (
@@ -571,11 +572,12 @@ begin
   fParams.MapSimpleCRC := aSimpleCRC;
   fParams.MapFullCRC := aFullCRC;
 
+  fCampaignName := nil;
+
   if aCampaign <> nil then
-    fCampaignName := aCampaign.CampaignId
-  else
-    fCampaignName := NO_CAMPAIGN;
-  fCampaignMap := aCampMap;
+    fCampaignName := aCampaign.Spec.CampaignId;
+
+  fCampaignMission := aCampMission;
   fParams.MissionDifficulty := aMapDifficulty;
   fAIType := aAIType;
 
@@ -706,7 +708,7 @@ begin
     begin
       if aCampaign <> nil then
       begin
-        campDataStream := aCampaign.ScriptDataStream;
+        campDataStream := aCampaign.SavedData.ScriptDataStream;
         campDataStream.Seek(0, soBeginning); //Seek to the beginning before we read it
         campaignDataFilePath := aCampaign.GetCampaignDataScriptFilePath;
       end
@@ -1631,7 +1633,7 @@ begin
   begin
     camp := gGameApp.Campaigns.ActiveCampaign;
     // check for Campaigns\CampaignName\Sounds\CMP.SoundName.locale.ext
-    Result := GetLocalizedFilePath(camp.Path + CAMPAIGN_SOUNDS_FOLDER_NAME + PathDelim + camp.ShortName + '.' + UnicodeString(aSound),
+    Result := GetLocalizedFilePath(camp.Path + CAMPAIGN_SOUNDS_FOLDER_NAME + PathDelim + camp.Spec.IdStr + '.' + UnicodeString(aSound),
                                    gResLocales.UserLocale, gResLocales.FallbackLocale, AUDIO_EXT[aAudioFormat]);
   end;
 end;
@@ -2169,8 +2171,12 @@ begin
   // Save to BodyStream from that point
   // ----------------------------------------------------------------
   // We need to know which campaign to display after victory
-  aBodyStream.Write(fCampaignName, SizeOf(TKMCampaignId));
-  aBodyStream.Write(fCampaignMap);
+  aBodyStream.Write(fCampaignName <> nil);
+  if fCampaignName <> nil then
+  begin
+    fCampaignName.Save(aBodyStream);
+    aBodyStream.Write(fCampaignMission);
+  end;
 
   aBodyStream.Write(fParams.DynamicFOW);
   aBodyStream.Write(fSpeedGIP);
@@ -2508,7 +2514,6 @@ var
   gameInfo: TKMGameInfo;
   loadedSeed: LongInt;
   compressedSaveBody, saveIsMultiplayer, isCampaign, dynamicFOW: Boolean;
-  I: Integer;
   missionFileSP: UnicodeString;
   headerStream, bodyStream: TKMemoryStream;
 begin
@@ -2572,8 +2577,12 @@ begin
     // Load from BodyStream from that point
     // ----------------------------------------------------------------
     // We need to know which campaign to display after victory
-    bodyStream.Read(fCampaignName, SizeOf(TKMCampaignId));
-    bodyStream.Read(fCampaignMap);
+    bodyStream.Read(isCampaign);
+    if isCampaign then
+    begin
+      fCampaignName := TKMCampaignId.Load(bodyStream);
+      bodyStream.Read(fCampaignMission);
+    end;
 
     bodyStream.Read(dynamicFOW);
     fParams.DynamicFOW := dynamicFOW;
@@ -2586,12 +2595,6 @@ begin
       fGamePlayInterface.UpdateClockUI; // To show actual game speed in the replay
 
     bodyStream.Read(fSpeedChangeAllowed);
-
-    // Check if this save is Campaign game save
-    isCampaign := False;
-    for I := Low(TKMCampaignId) to High(TKMCampaignId) do
-      if fCampaignName[I] <> NO_CAMPAIGN[I] then
-        isCampaign := True;
 
     // If there is Campaign Name in save then change GameMode to gmCampaign, because GameMode is not stored in Save
     if isCampaign

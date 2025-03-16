@@ -454,6 +454,10 @@ begin
     I := ColumnBox_MapEd.Item[Y].Tag;
     fMaps.Lock;
     try
+      // We could have updated favourite maps made by other game instances
+      // Do not reload all other settings, cause we could have some settings in the memory only (selected maps f.e.)
+      gGameAppSettings.ReloadFavouriteMaps;
+
       fMaps[I].IsFavourite := not fMaps[I].IsFavourite;
       if fMaps[I].IsFavourite then
       begin
@@ -465,11 +469,11 @@ begin
         gServerSettings.ServerMapsRoster.Remove(fMaps[I].CRC);
       end;
 
-      //Update pic
+      // Update pic
       ColumnBox_MapEd.Item[Y].Cells[0].Pic := fMaps[I].FavouriteMapPic;
 
-      // Save settings immediately, thus updated favourite maps could be seen in the other game instances
-      gGameAppSettings.SaveSettings;
+      // Save favourite maps immediately, thus updated favourite maps could be seen in the other game instances
+      gGameAppSettings.SaveFavouriteMaps;
     finally
       fMaps.Unlock;
     end;
@@ -1142,7 +1146,7 @@ end;
 procedure TKMMenuMapEditor.RefreshAll;
 begin
   // Reload settings because we could have updated favourite maps, f.e.
-  gGameAppSettings.ReloadSettings;
+  gGameAppSettings.ReloadFavouriteMaps;
 
   // we can get access to gGameApp only here, because in Create it could still be nil
   Radio_MapType.ItemIndex := gGameSettings.MenuMapEdMapType;

@@ -9,6 +9,8 @@ uses
   KM_InterfaceDefaults, KM_HandStats,
   KM_ResTypes;
 
+const
+  STAT_CATEGORY_CNT = 10;
 
 type
   TKMStatType = (stByPlayers, stByTeams);
@@ -53,7 +55,7 @@ type
     property ChartType: TKMChartWarrior read fType;
   end;
 
-  TKMStatsValues = array[0..MAX_HANDS-1] of array [0..9] of Cardinal;
+  TKMStatsValues = array[0..MAX_HANDS-1] of array [0..STAT_CATEGORY_CNT] of Cardinal;
 
   TKMGameResultsMP = class
   private
@@ -135,8 +137,8 @@ type
       Panel_Bars: TKMPanel;
         Panel_BarsUpper, Panel_BarsLower: TKMPanel;
           Label_ResultsPlayerName1, Label_ResultsPlayerName2: array [0 .. MAX_HANDS - 1] of TKMLabel;
-          Bar_Results: array [0 .. MAX_HANDS - 1, 0 .. 9] of TKMPercentBar;
-          Image_ResultsRosette: array [0 .. MAX_HANDS - 1, 0 .. 9] of TKMImage;
+          Bar_Results: array [0 .. MAX_HANDS - 1, 0 .. STAT_CATEGORY_CNT] of TKMPercentBar;
+          Image_ResultsRosette: array [0 .. MAX_HANDS - 1, 0 .. STAT_CATEGORY_CNT] of TKMImage;
       Panel_ChartsEconomy: TKMPanel;
         Chart_Players_Citizens: TKMChart;
         Chart_Players_Houses: TKMChart;
@@ -367,10 +369,10 @@ end;
 
 procedure TKMGameResultsMP.CreateBars(aParent: TKMPanel);
 const
-  BarStep = 150;
+  BarStep = 150 - 15;
   BarWidth = BarStep - 10;
   BarHalf = BarWidth div 2;
-  Columns1: array[0..4] of Integer = (TX_RESULTS_MP_CITIZENS_TRAINED, TX_RESULTS_MP_CITIZENS_LOST,
+  Columns1: array[0..5] of Integer = (TX_RESULTS_MP_CITIZENS_TRAINED, TX_RESULTS_MP_CITIZENS_DISMISSED, TX_RESULTS_MP_CITIZENS_LOST,
                                      TX_RESULTS_MP_SOLDIERS_EQUIPPED, TX_RESULTS_MP_SOLDIERS_LOST,
                                      TX_RESULTS_MP_SOLDIERS_DEFEATED);
   Columns2: array[0..4] of Integer = (TX_RESULTS_MP_BUILDINGS_CONSTRUCTED, TX_RESULTS_MP_BUILDINGS_LOST,
@@ -391,7 +393,7 @@ begin
       for I := 0 to MAX_HANDS - 1 do
         Label_ResultsPlayerName1[I] := TKMLabel.Create(Panel_BarsUpper, 0, 38+I*BAR_ROW_HEIGHT, 150, 20, '', fntMetal, taLeft);
 
-      for K := 0 to 4 do
+      for K := 0 to 5 do
       begin
         TKMLabel.Create(Panel_BarsUpper, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns1[K]], fntMetal, taCenter).WordWrap := True;
         for I := 0 to MAX_HANDS - 1 do
@@ -413,9 +415,9 @@ begin
         TKMLabel.Create(Panel_BarsLower, 160 + BarStep*K, 0, BarWidth+6, 40, gResTexts[Columns2[K]], fntMetal, taCenter).WordWrap := True;
         for I := 0 to MAX_HANDS - 1 do
         begin
-          Bar_Results[I,K+5] := TKMPercentBar.Create(Panel_BarsLower, 160 + K*BarStep, 35+I*BAR_ROW_HEIGHT, BarWidth, 20, fntGrey);
-          Bar_Results[I,K+5].TextYOffset := -3;
-          Image_ResultsRosette[I,K+5] := TKMImage.Create(Panel_BarsLower, 164 + K*BarStep, 38+I*BAR_ROW_HEIGHT, 16, 16, 8, rxGuiMain);
+          Bar_Results[I,K+6] := TKMPercentBar.Create(Panel_BarsLower, 160 + K*BarStep, 35+I*BAR_ROW_HEIGHT, BarWidth, 20, fntGrey);
+          Bar_Results[I,K+6].TextYOffset := -3;
+          Image_ResultsRosette[I,K+6] := TKMImage.Create(Panel_BarsLower, 164 + K*BarStep, 38+I*BAR_ROW_HEIGHT, 16, 16, 8, rxGuiMain);
         end;
       end;
 
@@ -780,7 +782,8 @@ end;
 
 procedure TKMGameResultsMP.BarsUpdate(aStatType: TKMStatType);
 const
-  STATS_LOWER_IS_BETTER: set of Byte = [1,3,6];
+  STATS_LOWER_IS_BETTER: set of Byte = [1,2,4,7];
+  STATS_SKIP_BEST: set of Byte = [1];
 
   procedure SetPlayerControls(aPlayer: Integer; aEnabled: Boolean);
   var
@@ -789,7 +792,7 @@ const
     Label_ResultsPlayerName1[aPlayer].Visible := aEnabled;
     Label_ResultsPlayerName2[aPlayer].Visible := aEnabled;
 
-    for I := 0 to 9 do
+    for I := 0 to STAT_CATEGORY_CNT do
     begin
       Bar_Results[aPlayer,I].Visible := aEnabled;
       Image_ResultsRosette[aPlayer,I].Visible := aEnabled;
@@ -799,8 +802,8 @@ const
 var
   I,J,K: Integer;
   unitsMax, housesMax, waresMax, weaponsMax, maxValue: Integer;
-  bests: array [0..9] of Cardinal;
-  totals: array [0..9] of Cardinal;
+  bests: array [0..STAT_CATEGORY_CNT] of Cardinal;
+  totals: array [0..STAT_CATEGORY_CNT] of Cardinal;
   statValue: Cardinal;
   listToShow: TStringList;
   statsValues: TKMStatsValues;
@@ -828,15 +831,16 @@ begin
   FillChar(bests, SizeOf(bests), #0);
   //These are a special case: Less is better so we initialize them high
   bests[1] := High(Cardinal);
-  bests[3] := High(Cardinal);
-  bests[6] := High(Cardinal);
+  bests[2] := High(Cardinal);
+  bests[4] := High(Cardinal);
+  bests[7] := High(Cardinal);
   FillChar(totals, SizeOf(totals), #0);
 
   //Calculate bests for each "section"
   for I := 0 to listToShow.Count - 1 do
   begin
     K := StrToInt(TStringList(listToShow.Objects[I])[0]);
-    for J := 0 to 9 do
+    for J := 0 to STAT_CATEGORY_CNT do
     begin
       statValue := statsValues[K,J];
       if J in STATS_LOWER_IS_BETTER then
@@ -853,42 +857,42 @@ begin
   for I := 0 to listToShow.Count - 1 do
   begin
     K := StrToInt(TStringList(listToShow.Objects[I])[0]);
-    for J := 0 to 9 do
+    for J := 0 to STAT_CATEGORY_CNT do
     begin
       statValue := statsValues[K,J];
       Bar_Results[I,J].Tag := statValue;
       if J in STATS_LOWER_IS_BETTER then
       begin
-        Image_ResultsRosette[I,J].Visible := (listToShow.Count > 1) and (statValue <= bests[J]) and (totals[J] > 0);
+        Image_ResultsRosette[I,J].Visible := not (J in STATS_SKIP_BEST) and (listToShow.Count > 1) and (statValue <= bests[J]) and (totals[J] > 0);
       end else
-        Image_ResultsRosette[I,J].Visible := (listToShow.Count > 1) and (statValue >= bests[J]) and (totals[J] > 0);
+        Image_ResultsRosette[I,J].Visible := not (J in STATS_SKIP_BEST) and (listToShow.Count > 1) and (statValue >= bests[J]) and (totals[J] > 0);
     end;
   end;
 
   //Update percent bars for each category
   unitsMax := 0;
-  for K := 0 to 4 do for I := 0 to listToShow.Count - 1 do
+  for K := 0 to 5 do for I := 0 to listToShow.Count - 1 do
     unitsMax := Max(Bar_Results[I,K].Tag, unitsMax);
 
   housesMax := 0;
-  for K := 5 to 7 do for I := 0 to listToShow.Count - 1 do
+  for K := 6 to 8 do for I := 0 to listToShow.Count - 1 do
     housesMax := Max(Bar_Results[I,K].Tag, housesMax);
 
   waresMax := 0;
   for I := 0 to listToShow.Count - 1 do
-    waresMax := Max(Bar_Results[I,8].Tag, waresMax);
+    waresMax := Max(Bar_Results[I,9].Tag, waresMax);
 
   weaponsMax := 0;
   for I := 0 to listToShow.Count - 1 do
-    weaponsMax := Max(Bar_Results[I,9].Tag, weaponsMax);
+    weaponsMax := Max(Bar_Results[I,10].Tag, weaponsMax);
 
   //Knowing Max in each category we may fill bars properly
-  for K := 0 to 9 do
+  for K := 0 to STAT_CATEGORY_CNT do
   begin
     case K of
-      0..4: maxValue := unitsMax;
-      5..7: maxValue := housesMax;
-      8:    maxValue := waresMax;
+      0..5: maxValue := unitsMax;
+      6..8: maxValue := housesMax;
+      9:    maxValue := waresMax;
       else  maxValue := weaponsMax;
     end;
     for I := 0 to listToShow.Count - 1 do
@@ -1444,15 +1448,16 @@ procedure TKMGameResultsMP.ReinitBars;
     with gHands[aHandId].Stats do
       case aStatId of
         0: Result := GetCitizensTrained;
-        1: Result := GetCitizensLost;
-        2: Result := GetWarriorsTrained;
-        3: Result := GetWarriorsLost;
-        4: Result := GetWarriorsKilled;
-        5: Result := GetHousesBuilt;
-        6: Result := GetHousesLost;
-        7: Result := GetHousesDestroyed;
-        8: Result := GetCivilProduced;
-        9: Result := GetWarfareProduced;
+        1: Result := GetCitizensRetired;
+        2: Result := GetCitizensLost - GetCitizensRetired;
+        3: Result := GetWarriorsTrained;
+        4: Result := GetWarriorsLost;
+        5: Result := GetWarriorsKilled;
+        6: Result := GetHousesBuilt;
+        7: Result := GetHousesLost;
+        8: Result := GetHousesDestroyed;
+        9: Result := GetCivilProduced;
+        10: Result := GetWarfareProduced;
         else raise Exception.Create('Unknown stat id = ' + IntToStr(aStatId));
       end;
   end;
@@ -1474,7 +1479,7 @@ procedure TKMGameResultsMP.ReinitBars;
       for K := 0 to handsInOne.Count - 1 do
       begin
         handId := StrToInt(handsInOne[K]);
-        for J := 0 to 9 do
+        for J := 0 to STAT_CATEGORY_CNT do
           Inc(fStatsValues[aStatType,StrToInt(handsInOne[0]),J], GetStatValue(handId,J)); // Adjoin data to 1st Hand in SameColorHands list
       end;
     end;

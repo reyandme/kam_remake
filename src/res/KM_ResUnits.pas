@@ -235,15 +235,18 @@ end;
 
 
 function TKMUnitSpec.GetDefenceVsProjectiles(aIsBolt: Boolean): Single;
+const
+  SHEILD_DEFENCE_BONUS_AGAINST_XBOW = 0.5;
+  SHEILD_DEFENCE_BONUS_AGAINST_BOW_N_SLING = 1;
 begin
   Result := Defence;
   //Shielded units get a small bonus
   if fUnitType in [utAxeFighter, utSwordFighter, utScout, utKnight] then
   begin
     if aIsBolt then
-      Result := Result + 0.25
+      Result := Result + SHEILD_DEFENCE_BONUS_AGAINST_XBOW
     else
-      Result := Result + 1;
+      Result := Result + SHEILD_DEFENCE_BONUS_AGAINST_BOW_N_SLING;
   end;
 end;
 

@@ -138,6 +138,8 @@ begin
               gMySpectator.Selected := nil; //Reset view, in case we were watching dismissed unit
 
             gHands[fUnit.Owner].Stats.UnitLost(fUnit.UnitType);
+            gHands[fUnit.Owner].Stats.CitizenRetired(fUnit.UnitType);
+
             gScriptEvents.ProcUnitDismissed(fUnit);
 
             TKMCivilUnit(fUnit).KillInHouse; //Kill unit silently inside house

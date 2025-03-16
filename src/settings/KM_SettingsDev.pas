@@ -19,6 +19,8 @@ type
   private
     fSettingsPath: UnicodeString;
 
+    fSkipSave: Boolean;
+
     fDebugFormState: TKMDebugFormState; // State of the Debug form
 
     fMainGroup: TCategoryPanelGroup;
@@ -31,6 +33,7 @@ type
     constructor Create(const aExeDir: string; aMainGroup: TCategoryPanelGroup; aDontCollapse: TCategoryPanel);
 
     property DebugFormState: TKMDebugFormState read fDebugFormState write fDebugFormState;
+    property SkipSave: Boolean read fSkipSave write fSkipSave;
 
     procedure Load;
     procedure Save;
@@ -118,43 +121,49 @@ begin
 
   gLog.AddTime('Loading dev settings from file ''' + fSettingsPath + '''');
 
-  // Apply default settings
-  if not FileExists(fSettingsPath) then
-  begin
-    for I := 0 to fMainGroup.Panels.Count - 1 do
-      TCategoryPanel(fMainGroup.Panels[I]).Collapsed := True;
+  fSkipSave := True;
 
-    fDontCollapse.Collapsed := False; //The only not collapsed section
-    Exit;
-  end;
-
-  //Load dev data from XML
-  newXML := TKMXMLDocument.Create;
-  newXML.LoadFromFile(fSettingsPath);
-  nRoot := newXML.Root;
-
-  nDebugForm := nRoot.AddOrFindChild('DebugForm');
-  fDebugFormState := TKMDebugFormState(nDebugForm.Attributes['State'].AsInteger(0));
-
-  for I := 0 to fMainGroup.Panels.Count - 1 do
-  begin
-    cp := TCategoryPanel(fMainGroup.Panels[I]);
-    cpName := GetXmlSectionName(cp);
-
-    if nDebugForm.HasChild(cpName) then
+  try
+    // Apply default settings
+    if not FileExists(fSettingsPath) then
     begin
-      nSection := nDebugForm.FindNode(cpName);
-      cp.Collapsed := nSection.Attributes['Collapsed'].AsBoolean(True);
+      for I := 0 to fMainGroup.Panels.Count - 1 do
+        TCategoryPanel(fMainGroup.Panels[I]).Collapsed := True;
 
-      if (cp.ControlCount > 0) and (cp.Controls[0] is TCategoryPanelSurface) then
+      fDontCollapse.Collapsed := False; //The only not collapsed section
+      Exit;
+    end;
+
+    //Load dev data from XML
+    newXML := TKMXMLDocument.Create;
+    newXML.LoadFromFile(fSettingsPath);
+    nRoot := newXML.Root;
+
+    nDebugForm := nRoot.AddOrFindChild('DebugForm');
+    fDebugFormState := TKMDebugFormState(nDebugForm.Attributes['State'].AsInteger(0));
+
+    for I := 0 to fMainGroup.Panels.Count - 1 do
+    begin
+      cp := TCategoryPanel(fMainGroup.Panels[I]);
+      cpName := GetXmlSectionName(cp);
+
+      if nDebugForm.HasChild(cpName) then
       begin
-        cpSurface := TCategoryPanelSurface(cp.Controls[0]);
-        LoadSubPanel(cpSurface, nSection);
+        nSection := nDebugForm.FindNode(cpName);
+        cp.Collapsed := nSection.Attributes['Collapsed'].AsBoolean(True);
+
+        if (cp.ControlCount > 0) and (cp.Controls[0] is TCategoryPanelSurface) then
+        begin
+          cpSurface := TCategoryPanelSurface(cp.Controls[0]);
+          LoadSubPanel(cpSurface, nSection);
+        end;
       end;
     end;
-  end;
 
-  newXML.Free;
+    newXML.Free;
+  finally
+    fSkipSave := False;
+  end;
 end;
 
 
@@ -210,6 +219,8 @@ var
   nRoot, nDebugForm, nSection: TKMXmlNode;
 begin
   if Self = nil then Exit;
+
+  if fSkipSave then Exit; // We can invoke Save on Load, if f.e. changed Collapsed state of the subpanel
 
   gLog.AddTime('Saving dev settings to file ''' + fSettingsPath + '''');
 

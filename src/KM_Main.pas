@@ -161,9 +161,11 @@ begin
   gPerfLogs.OnFormChanged := fFormMain.OtherFormChanged;
 
   collapsed := fFormMain.cpPerfLogs.Collapsed; //Save collapsed flag
+  fFormMain.DevSettings.SkipSave := True; // SKip save
   fFormMain.cpPerfLogs.Collapsed := False; //We can set TCategoryPanel height only when collapsed set to False
   fFormMain.cpPerfLogs.Height := gPerfLogs.FormHeight;
   fFormMain.cpPerfLogs.Collapsed := collapsed; //Restore collapsed flag
+  fFormMain.DevSettings.SkipSave := False;
   {$ELSE}
   fFormMain.cpPerfLogs.Hide;
   {$ENDIF}

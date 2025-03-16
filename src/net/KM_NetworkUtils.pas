@@ -15,6 +15,7 @@ implementation
 uses
   StrUtils, SysUtils;
 
+
 class function TKMNetworkUtils.GetEscapedNewLineServerName(str: String): String;
 begin
   Result := StringReplace(str, '|', ' ', [rfReplaceAll]);
@@ -29,6 +30,3 @@ end;
 
 
 end.
-
-
-

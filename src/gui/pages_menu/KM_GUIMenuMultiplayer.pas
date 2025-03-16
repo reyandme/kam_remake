@@ -37,8 +37,8 @@ type
     procedure MP_ServersSort(aIndex: Integer);
     procedure MP_ServersClick(Sender: TObject);
     procedure MP_ServersDoubleClick(Sender: TObject);
-    procedure MP_GetInClick(Sender: TObject);
-    function MP_GetInEnabled: Boolean;
+    procedure MP_JoinClick(Sender: TObject);
+    function MP_JoinEnabled: Boolean;
     procedure MP_Join(const aServerAddress: string; aPort: Word; aRoom: Integer);
     procedure MP_JoinPassword;
     procedure MP_JoinSuccess;
@@ -64,7 +64,7 @@ type
       Label_Servers_Status: TKMLabel;
       Button_MP_Back: TKMButton;
       Button_MP_Refresh: TKMButton;
-      Button_MP_GetIn: TKMButton;
+      Button_MP_Join: TKMButton;
 
       Panel_MPPlayerName: TKMPanel;
         Edit_MP_PlayerName: TKMEdit;
@@ -297,13 +297,13 @@ begin
 
     Button_MP_Back    := TKMButton.Create(Panel_MultiPlayer,  45, 720, 220, 30, gResTexts[TX_MENU_BACK], bsMenu);
     Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer, 275, 720, 390, 30,gResTexts[TX_MP_MENU_REFRESH_SERVER_LIST], bsMenu);
-    Button_MP_GetIn   := TKMButton.Create(Panel_MultiPlayer, 675, 720, 320, 30,gResTexts[TX_MP_MENU_SERVER_JOIN],  bsMenu);
+    Button_MP_Join   := TKMButton.Create(Panel_MultiPlayer, 675, 720, 320, 30,gResTexts[TX_MP_MENU_SERVER_JOIN],  bsMenu);
     Button_MP_Back.Anchors    := [anLeft, anBottom];
     Button_MP_Refresh.Anchors := [anLeft, anBottom];
-    Button_MP_GetIn.Anchors   := [anLeft, anBottom];
+    Button_MP_Join.Anchors   := [anLeft, anBottom];
     Button_MP_Back.OnClick    := BackClick;
     Button_MP_Refresh.OnClick := MP_ServersRefresh;
-    Button_MP_GetIn.OnClick   := MP_GetInClick;
+    Button_MP_Join.OnClick   := MP_JoinClick;
 
   CreateServerPopUp;
   FindServerPopUp;
@@ -370,7 +370,7 @@ begin
   Edit_MP_FindPort.Text := gGameSettings.LastPort;
   Edit_MP_FindRoom.Text := gGameSettings.LastRoom;
 
-  Button_MP_GetIn.Disable;
+  Button_MP_Join.Disable;
 
   //Fetch the announcements display
   gNetworking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
@@ -467,7 +467,7 @@ begin
   Button_MP_FindServer.Enabled := not aBusy;
   Button_MP_FindServerIP.Enabled := not aBusy;
   Button_MP_FindCancel.Enabled := not aBusy;
-  Button_MP_GetIn.Enabled := MP_GetInEnabled;
+  Button_MP_Join.Enabled := MP_JoinEnabled;
 
   Label_MP_Status.Caption := aStatus;
   Label_MP_Status.FontColor := aColor;
@@ -514,7 +514,7 @@ begin
   //which could be already hidden if player switched pages
   Label_Servers_Status.Caption := gResTexts[TX_MP_MENU_REFRESHING];
   Label_Servers_Status.Visible := True;
-  Button_MP_GetIn.Disable;
+  Button_MP_Join.Disable;
 end;
 
 
@@ -555,10 +555,10 @@ begin
       //Only show # if Server has more than 1 Room
       displayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
       ColumnBox_Servers.AddItem(
-      MakeListRow(['', '', displayName, gResTexts[GAME_STATE_TEXT_IDS[R.GameInfo.GameState]], IntToStr(R.GameInfo.ConnectedPlayerCount), IntToStr(S.Ping)],
-                  [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)],
-                  [MakePic(rxGuiMain, ServerTypePic[S.ServerType]), MakePic(rxGuiMain, IfThen(R.GameInfo.PasswordLocked, 73, 0)), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0)],
-                  I));
+        MakeListRow(['', '', displayName, gResTexts[GAME_STATE_TEXT_IDS[R.GameInfo.GameState]], IntToStr(R.GameInfo.ConnectedPlayerCount), IntToStr(S.Ping)],
+                    [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)],
+                    [MakePic(rxGuiMain, ServerTypePic[S.ServerType]), MakePic(rxGuiMain, IfThen(R.GameInfo.PasswordLocked, 73, 0)), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0), MakePic(rxGuiMain,0)],
+                    I));
 
       //if server was selected, we need to select it again, because TKMColumnListBox was cleared
       if fServerSelected
@@ -680,13 +680,13 @@ begin
   if (ID = -1) or (ColumnBox_Servers.Rows[ID].Tag = -1) then
   begin
     fServerSelected := False;
-    Button_MP_GetIn.Disable;
+    Button_MP_Join.Disable;
     MP_ClearServerDetailsPanel;
     Exit;
   end;
 
   fServerSelected := True;
-  Button_MP_GetIn.Enabled := MP_GetInEnabled;
+  Button_MP_Join.Enabled := MP_JoinEnabled;
 
   fSelectedRoomInfo := gNetworking.ServerQuery.Rooms[ColumnBox_Servers.Rows[ID].Tag];
   fSelectedServerInfo := gNetworking.ServerQuery.Servers[fSelectedRoomInfo.ServerIndex];
@@ -797,9 +797,9 @@ end;
 procedure TKMMenuMultiplayer.MP_ServersDoubleClick(Sender: TObject);
 begin
   //MP_SelectServer gets called by first Click
-  if Button_MP_GetIn.Enabled and (ColumnBox_Servers.ItemIndex <> -1)
+  if Button_MP_Join.Enabled and (ColumnBox_Servers.ItemIndex <> -1)
   and InRange(ColumnBox_Servers.Rows[ColumnBox_Servers.ItemIndex].Tag, 0, gNetworking.ServerQuery.Rooms.Count-1) then
-    MP_GetInClick(Sender);
+    MP_JoinClick(Sender);
 end;
 
 
@@ -838,7 +838,7 @@ begin
 end;
 
 
-procedure TKMMenuMultiplayer.MP_GetInClick(Sender: TObject);
+procedure TKMMenuMultiplayer.MP_JoinClick(Sender: TObject);
 begin
   MP_Join(fSelectedServerInfo.IP, fSelectedServerInfo.Port, fSelectedRoomInfo.RoomID);
 end;
@@ -904,8 +904,8 @@ begin
 end;
 
 
-//Join button is enabled if valid server is selected and the lobby is not busy
-function TKMMenuMultiplayer.MP_GetInEnabled: Boolean;
+// Join button is enabled if valid server is selected and the lobby is not busy
+function TKMMenuMultiplayer.MP_JoinEnabled: Boolean;
 var
   ID: Integer;
 begin
@@ -981,9 +981,8 @@ begin
     MP_FindServerCancelClick(nil)
   else if Button_MP_PasswordCancel.IsClickable then
     MP_PasswordClick(Button_MP_PasswordCancel)
-  else begin
+  else
     BackClick(nil);
-  end;
 end;
 
 

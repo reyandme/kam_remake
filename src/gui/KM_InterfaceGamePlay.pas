@@ -4469,7 +4469,7 @@ procedure TKMGamePlayInterface.UpdateSelectedObject;
   begin
     if fGuiGameHouse.Visible then
       fGuiGameHouse.Hide;
-    if fGuiGameUnit.Visible then
+    if fGuiGameUnit.Visible and not SHOW_UNITS_IN_HOUSE then
       fGuiGameUnit.Hide;
   end;
   

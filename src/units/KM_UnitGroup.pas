@@ -1322,8 +1322,10 @@ begin
         begin
 
           // We are at the right spot already. Restart what we are doing (with stub Walk order) only if the direction has changed
-          // (important for archers who got order to attack different enemy)
-          if (fMembers[I].FaceDir <> fOrderLoc.Dir) then
+          // (important for archers who got order to attack different enemy).
+          // However also make stub walk order in case we are not fighting
+          // This is to prevent attack restart (bow twitching f.e.) on every new attack enemy command
+          if (fMembers[I].FaceDir <> fOrderLoc.Dir) or not fMembers[I].InFight(True) then
           begin
             fMembers[I].OrderWalk(fMembers[I].PositionNext, True, aForced); //We are at the right spot already, just need to abandon what we are doing
             fMembers[I].FaceDir := fOrderLoc.Dir;

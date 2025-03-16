@@ -89,48 +89,29 @@ begin
   CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, TB_PAD, 90, Panel_Defence.Width - TB_PAD, 20, gResTexts[TX_MAPED_AI_DEFENSE_AUTO], fntMetal);
   CheckBox_AutoDefence.OnClick := Town_DefenceChange;
 
-  CheckBox_DefendAllies := TKMCheckBox.Create(Panel_Defence, TB_PAD, 110, Panel_Defence.Width - TB_PAD, 20, gResTexts[TX_MAPED_AI_DEFEND_ALLIES], fntMetal);
-  CheckBox_DefendAllies.OnClick := Town_DefenceChange;
-
-  TrackBar_AutoAttackRange := TKMTrackBar.Create(Panel_Defence, TB_PAD, 136, Panel_Defence.Width - TB_PAD, 1, 20);
-  TrackBar_AutoAttackRange.Anchors := [anLeft, anTop, anRight];
-  TrackBar_AutoAttackRange.Caption := gResTexts[TX_MAPED_AI_AUTO_ATTACK];
-  TrackBar_AutoAttackRange.Hint := gResTexts[TX_MAPED_AI_AUTO_ATTACK_HINT];
-  TrackBar_AutoAttackRange.OnChange := Town_DefenceChange;
-
-  TrackBar_RecruitCount := TKMTrackBar.Create(Panel_Defence, TB_PAD, 186, Panel_Defence.Width - TB_PAD, 1, 20);
-  TrackBar_RecruitCount.Anchors := [anLeft, anTop, anRight];
-  TrackBar_RecruitCount.Caption := gResTexts[TX_MAPED_AI_RECRUITS];
-  TrackBar_RecruitCount.Hint := gResTexts[TX_MAPED_AI_RECRUITS_HINT];
-  TrackBar_RecruitCount.OnChange := Town_DefenceChange;
-
-  with TKMLabel.Create(Panel_Defence, TB_PAD, 230, Panel_Defence.Width - TB_PAD, 20, gResTexts[TX_MAPED_AI_RECRUIT_DELAY], fntMetal, taLeft) do
+  with TKMLabel.Create(Panel_Defence, TB_PAD, 110, Panel_Defence.Width - TB_PAD, 20, gResTexts[TX_MAPED_AI_RECRUIT_DELAY], fntMetal, taLeft) do
     Hint := gResTexts[TX_MAPED_AI_RECRUIT_DELAY_HINT];
 
-  NumEdit_RecruitDelay := TKMNumericEdit.Create(Panel_Defence, TB_PAD, 230 + 20, 0, 500);
+  NumEdit_RecruitDelay := TKMNumericEdit.Create(Panel_Defence, TB_PAD, 110 + 20, 0, 500);
   NumEdit_RecruitDelay.Hint := gResTexts[TX_MAPED_AI_RECRUIT_DELAY_HINT];
   NumEdit_RecruitDelay.MouseWheelStep := 20;
   NumEdit_RecruitDelay.AutoFocusable := False;
   NumEdit_RecruitDelay.OnChange := Town_DefenceChange;
 
-  CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, TB_PAD, 274, Panel_Defence.Width - TB_PAD, 20, gResTexts[TX_MAPED_AI_MAX_SOLDIERS], fntMetal);
+  CheckBox_MaxSoldiers := TKMCheckBox.Create(Panel_Defence, TB_PAD, 154, Panel_Defence.Width - TB_PAD, 20, gResTexts[TX_MAPED_AI_MAX_SOLDIERS], fntMetal);
   CheckBox_MaxSoldiers.OnClick := Town_DefenceChange;
 
-  NumEdit_MaxSoldiers := TKMNumericEdit.Create(Panel_Defence, TB_PAD + 20, 297, 0, 500);
+  NumEdit_MaxSoldiers := TKMNumericEdit.Create(Panel_Defence, TB_PAD + 20, 177, 0, 500);
   NumEdit_MaxSoldiers.Hint := gResTexts[TX_MAPED_AI_MAX_SOLDIERS_HINT];
   NumEdit_MaxSoldiers.MouseWheelStep := 20;
   NumEdit_MaxSoldiers.AutoFocusable := False;
   NumEdit_MaxSoldiers.OnChange := Town_DefenceChange;
 
-  Button_EditFormations := TKMButton.Create(Panel_Defence, TB_PAD, 327, Panel_Defence.Width - TB_PAD, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
-  Button_EditFormations.Anchors := [anLeft, anTop, anRight];
-  Button_EditFormations.OnClick := Town_DefenceFormations;
-
-  CheckBox_DefencePositionGiveGroup := TKMCheckBox.Create(Panel_Defence, TB_PAD, 365, Panel_Defence.Width - TB_PAD, 20, gResTexts[TX_MAPED_AI_ADD_GROUP], fntMetal);
+  CheckBox_DefencePositionGiveGroup := TKMCheckBox.Create(Panel_Defence, TB_PAD, 207, Panel_Defence.Width - TB_PAD, 20, gResTexts[TX_MAPED_AI_ADD_GROUP], fntMetal);
   CheckBox_DefencePositionGiveGroup.OnClick := Town_DefenceChange;
   CheckBox_DefencePositionGiveGroup.Hint := gResTexts[TX_MAPED_AI_ADD_GROUP_HINT];
 
-  TrackBar_DefencePositionUType := TKMTrackBar.Create(Panel_Defence, TB_PAD + 20, 386, Panel_Defence.Width - TB_PAD - 20,
+  TrackBar_DefencePositionUType := TKMTrackBar.Create(Panel_Defence, TB_PAD + 20, 227, Panel_Defence.Width - TB_PAD - 20,
                                                       Ord(Low(TKMGroupLevel)), Ord(High(TKMGroupLevel)));
   TrackBar_DefencePositionUType.Caption := gResTexts[TX_MAPED_AI_ARMY_TYPE];
   TrackBar_DefencePositionUType.Anchors := [anLeft, anTop, anRight];
@@ -140,6 +121,28 @@ begin
   TrackBar_DefencePositionUType.ThumbText := gResTexts[DEF_POS_ARMY_THUMB_TX[DEF_GROUP_LVL]];
   TrackBar_DefencePositionUType.FixedThumbWidth := True;
   TrackBar_DefencePositionUType.ThumbWidth := GetDefPosArmyThumbWidth(TrackBar_DefencePositionUType.Font);
+
+  with TKMLabel.Create(Panel_Defence, 0, 270, Panel_Defence.Width, 0, gResTexts[TX_MAPED_AI_CLASSIC_AI_PARAMS], fntOutline, taCenter) do
+    Anchors := [anLeft, anTop, anRight];
+
+  CheckBox_DefendAllies := TKMCheckBox.Create(Panel_Defence, TB_PAD, 310, Panel_Defence.Width - TB_PAD, 20, gResTexts[TX_MAPED_AI_DEFEND_ALLIES], fntMetal);
+  CheckBox_DefendAllies.OnClick := Town_DefenceChange;
+
+  TrackBar_AutoAttackRange := TKMTrackBar.Create(Panel_Defence, TB_PAD, 336, Panel_Defence.Width - TB_PAD, 1, 20);
+  TrackBar_AutoAttackRange.Anchors := [anLeft, anTop, anRight];
+  TrackBar_AutoAttackRange.Caption := gResTexts[TX_MAPED_AI_AUTO_ATTACK];
+  TrackBar_AutoAttackRange.Hint := gResTexts[TX_MAPED_AI_AUTO_ATTACK_HINT];
+  TrackBar_AutoAttackRange.OnChange := Town_DefenceChange;
+
+  TrackBar_RecruitCount := TKMTrackBar.Create(Panel_Defence, TB_PAD, 386, Panel_Defence.Width - TB_PAD, 1, 20);
+  TrackBar_RecruitCount.Anchors := [anLeft, anTop, anRight];
+  TrackBar_RecruitCount.Caption := gResTexts[TX_MAPED_AI_RECRUITS];
+  TrackBar_RecruitCount.Hint := gResTexts[TX_MAPED_AI_RECRUITS_HINT];
+  TrackBar_RecruitCount.OnChange := Town_DefenceChange;
+
+  Button_EditFormations := TKMButton.Create(Panel_Defence, TB_PAD, 406, Panel_Defence.Width - TB_PAD, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
+  Button_EditFormations.Anchors := [anLeft, anTop, anRight];
+  Button_EditFormations.OnClick := Town_DefenceFormations;
 
   fSubMenuActionsEvents[0] := Town_DefenceAddClick;
   fSubMenuActionsEvents[1] := Town_DefenceChange;

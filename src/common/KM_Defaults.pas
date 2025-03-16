@@ -114,6 +114,7 @@ var
   {$IFDEF WDC} //Work only in Delphi
   CACHE_DELIVERY_BIDS: Boolean = True; //Cache delivery bids cost. Must be turned ON if we want to use pathfinding for bid calc, huge impact on performance in that case
   {$ENDIF}
+  UPDATE_DELIVERY_MODE_IMMEDIATELY: Boolean = DEBUG_CFG; // Do we update house delivery mode immediately ?
 
   WARFARE_ORDER_SEQUENTIAL    :Boolean = True; //Pick weapon orders like KaM did
   WARFARE_ORDER_PROPORTIONAL  :Boolean = False; //New proportional way (looks like a bad idea)
@@ -140,6 +141,7 @@ var
   GAME_SAVE_STRIP_FOR_CRC :Boolean = False; //Strip unsynced data from Game saves, to compare saves CRC
   ALLOW_LOAD_UNSUP_VERSION_SAVE:
                            Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
+  SHOW_UNIT_KILL_BTN      :Boolean = DEBUG_CFG; // Show unit 'Kill' button
   SHOW_ENEMIES_STATS      :Boolean = False; //Do we allow to show enemies stats during the game
   SHOW_CONTROLS_OVERLAY   :Boolean = False; //Draw colored overlays ontop of controls! always Off here
   SHOW_CONTROLS_ID        :Boolean = False; //Draw controls ID
@@ -158,6 +160,8 @@ var
   SAVE_RANDOM_CHECKS      :Boolean = True; //Save random checks data to separate file
   MAPED_SHOW_CONDITION_UNIT_BTNS: Boolean = True; //Show condition Inc/Dec buttons for citizen units in MapEd
   {Gameplay display}
+  SHOW_UNITS_IN_HOUSE     :Boolean = False; //Should we hide units when they are in house ?
+  IGNORE_MOUSE_SCROLLING  :Boolean = False; //Ignore mouse scrolling
   SKIP_RENDER             :Boolean = False; //Skip all the rendering in favor of faster logic
   DO_NOT_SKIP_LOAD_TILESET:Boolean = False; //Do not skip load tileset even if SKIP_RENDER is set
   SKIP_SOUND              :Boolean = False; //Skip all the sounds in favor of faster logic
@@ -245,6 +249,8 @@ var
   SHOW_GIP                :Boolean = False; //Show GIP commands
   SHOW_GIP_AS_BYTES       :Boolean = False; //Show GIP commands as bytes (or as 'parsed type' if False)
   INI_HITPOINT_RESTORE    :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
+  ALLOW_CAMP_SCRIPT_DATA_UNCOMPRESSED
+                          :Boolean = False; //Allow to save script data uncompressed
   SLOW_MAP_SCAN           :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_CAMPAIGN_SCAN      :Boolean = False; //Scan campaigns with a pause to emulate uncached file access
   SLOW_CAMP_PROGRESS_SAVE_LOAD:Boolean = False; //Scan campaigns with a pause to emulate uncached file access
@@ -554,6 +560,7 @@ const
   CAMPAIGNS_FOLDER_NAME = 'Campaigns';
   SAVES_FOLDER_NAME = 'Saves';
   SAVES_MP_FOLDER_NAME = 'SavesMP';
+  SAVES_CMP_FOLDER_NAME = 'SavesCMP';
 
 
 { Terrain }

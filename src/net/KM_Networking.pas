@@ -1833,8 +1833,8 @@ begin
                 end;
               end;
 
-      mkFileRequest: FileRequestReceived(aSenderIndex, M);
-              
+      mkFileRequest:
+              FileRequestReceived(aSenderIndex, M);
 
       mkFileChunk:
               if not IsHost and (fFileReceiver <> nil) then
@@ -1991,14 +1991,16 @@ begin
                   end;
               end;
 
-      mkDisconnect:   begin
-                        M.Read(tmpInteger);
-                        PlayerDisconnected(aSenderIndex, tmpInteger);
-                      end;
+      mkDisconnect:
+              begin
+                M.Read(tmpInteger);
+                PlayerDisconnected(aSenderIndex, tmpInteger);
+              end;
 
-      mkReassignHost: ReassignHost(aSenderIndex, M);
+      mkReassignHost:
+              ReassignHost(aSenderIndex, M);
 
-      mkPing:  PacketSend(aSenderIndex, mkPong);//, Integer(fMyPlayerCurrentFPS)); //Server will intercept this message
+      mkPing:  PacketSend(aSenderIndex, mkPong);
 
       mkPingInfo:
               begin
@@ -2015,7 +2017,8 @@ begin
 //                if Assigned(OnPingInfo) then OnPingInfo;
 //              end;
 
-      mkPlayersList: PlayersListReceived(M);
+      mkPlayersList:
+              PlayersListReceived(M);
 
       mkGameOptions:
               if fNetPlayerKind = lpkJoiner then
@@ -2217,7 +2220,8 @@ begin
               end;
 
       mkPlay:
-              if fNetPlayerKind = lpkJoiner then PlayGame;
+              if fNetPlayerKind = lpkJoiner then
+                PlayGame;
 
       mkCommands:
               begin
@@ -2358,7 +2362,6 @@ begin
                 end;
               end;
     end;
-
   finally
     M.Free;
   end;

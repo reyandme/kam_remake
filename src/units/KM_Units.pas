@@ -855,7 +855,7 @@ var
   xPaintPos, yPaintPos: Single;
 begin
   inherited;
-  if not fVisible then exit;
+  if not fVisible and not SHOW_UNITS_IN_HOUSE then exit;
   if fAction = nil then exit;
 
   V := fVisual.GetLerp(aTickLag);
@@ -1453,24 +1453,28 @@ end;
 
 procedure TKMUnit.DismissCancel;
 begin
-  fDismissInProgress := False; //remove fDismissInProgress mark, which is used only in UI
-
   if not IsDismissing then Exit;
-
-  fThought := thNone; //Reset thought
-  fDismissASAP := False;
 
   if (fAction is TKMUnitActionWalkTo)
     and not TKMUnitActionWalkTo(fAction).DoingExchange then
   begin
     AbandonWalk;
-  end else
+  end
+  else
   if fAction.CanBeInterrupted then
   begin
     SetActionLockedStay(0, uaWalk);
     if fTask = nil then
       SetActionStay(5, uaWalk);
-  end;
+  end
+  else
+    // Can not cancel the dismiss, it's too late,
+    // f.e. unit is already entering a school (Uniterruptable action), we are not going to turn him back
+    Exit;
+
+  fDismissInProgress := False; //remove fDismissInProgress mark, which is used only in UI
+  fDismissASAP := False;
+  fThought := thNone; //Reset thought
 
   if fTask <> nil then
     FreeAndNil(fTask);

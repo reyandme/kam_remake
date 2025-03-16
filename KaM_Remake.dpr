@@ -241,6 +241,8 @@ uses
   KM_System in 'src\KM_System.pas',
   
   KM_Campaigns in 'src\mission\KM_Campaigns.pas',
+  KM_CampaignClasses in 'src\mission\KM_CampaignClasses.pas',
+  KM_CampaignUtils in 'src\mission\KM_CampaignUtils.pas',
   KM_CampaignTypes in 'src\mission\KM_CampaignTypes.pas',
   KM_Maps in 'src\mission\KM_Maps.pas',
   KM_MapTypes in 'src\mission\KM_MapTypes.pas',

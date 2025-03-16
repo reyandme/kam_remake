@@ -13,6 +13,7 @@ uses
   ;
 
   function IfThenS(aCondition: Boolean; const aIfTrue, aIfFalse: String): String;
+  function IfThenB(A, B, C: Boolean): Boolean;
 
   function GetPositionInGroup2(OriginX, OriginY: Integer; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Integer; out aTargetCanBeReached: Boolean): TKMPoint;
   function GetPositionFromIndex(const aOrigin: TKMPoint; aIndex: Byte): TKMPoint;
@@ -225,6 +226,15 @@ begin
 end;
 
 
+function IfThenB(A, B, C: Boolean): Boolean;
+begin
+  if A then
+    Result := B
+  else
+    Result := C;
+end;
+
+
 procedure KMSwapInt(var A,B: Byte);
 var
   S: byte;
@@ -325,7 +335,7 @@ begin
   Result := '';
 
   for I := Low(aVarRecArr) to High(aVarRecArr) do
-    Result := Result + VarRecToStr(aVarRecArr[I]) + IfThen(I <> High(aVarRecArr), aSep);
+    Result := Result + VarRecToStr(aVarRecArr[I]) + StrUtils.IfThen(I <> High(aVarRecArr), aSep);
 end;
 
 

@@ -4,7 +4,7 @@ interface
 uses
   SysUtils,
   KM_Controls, KM_ControlsBase, KM_ControlsChart, KM_Defaults, KM_Pics,
-  KM_InterfaceDefaults, KM_MapTypes, KM_CampaignTypes,
+  KM_InterfaceDefaults, KM_MapTypes, KM_CampaignClasses,
   KM_GameTypes, KM_CommonTypes;
 
 
@@ -47,7 +47,7 @@ type
       Label_Results: TKMLabel;
       Panel_Stats: TKMPanel;
         Label_MissionTime: TKMLabel;
-        Label_Stat: array [1..9] of TKMLabel;
+        Label_Stat: array [1..10] of TKMLabel;
       Panel_StatsCharts: TKMPanel;
         Button_ResultsArmy,
         Button_ResultsCitizens,
@@ -226,15 +226,16 @@ begin
   //List values (like old KaM did)
   with gHands[humanId].Stats do
   begin
-    Label_Stat[1].Caption := IntToStr(GetCitizensLost + GetWarriorsLost);
-    Label_Stat[2].Caption := IntToStr(GetCitizensKilled + GetWarriorsKilled);
-    Label_Stat[3].Caption := IntToStr(GetHousesLost);
-    Label_Stat[4].Caption := IntToStr(GetHousesDestroyed);
-    Label_Stat[5].Caption := IntToStr(GetHousesBuilt);
-    Label_Stat[6].Caption := IntToStr(GetCitizensTrained);
-    Label_Stat[7].Caption := IntToStr(GetWarfareProduced);
-    Label_Stat[8].Caption := IntToStr(GetWarriorsTrained);
-    Label_Stat[9].Caption := TimeToString(gGame.MissionTime);
+    Label_Stat[1].Caption := IntToStr(GetCitizensLost + GetWarriorsLost - GetCitizensRetired);
+    Label_Stat[2].Caption := IntToStr(GetCitizensRetired);
+    Label_Stat[3].Caption := IntToStr(GetCitizensKilled + GetWarriorsKilled);
+    Label_Stat[4].Caption := IntToStr(GetHousesLost);
+    Label_Stat[5].Caption := IntToStr(GetHousesDestroyed);
+    Label_Stat[6].Caption := IntToStr(GetHousesBuilt);
+    Label_Stat[7].Caption := IntToStr(GetCitizensTrained);
+    Label_Stat[8].Caption := IntToStr(GetWarfareProduced);
+    Label_Stat[9].Caption := IntToStr(GetWarriorsTrained);
+    Label_Stat[10].Caption := TimeToString(gGame.MissionTime);
   end;
 
   //Chart values
@@ -381,8 +382,8 @@ end;
 procedure TKMGameResultsSP.Create_Results(aParent: TKMPanel);
 const
   LEGEND_WIDTH = 150;
-  STAT_TEXT: array [1..9] of Word = (
-    TX_RESULTS_UNITS_LOST,       TX_RESULTS_UNITS_DEFEATED,   TX_RESULTS_HOUSES_LOST,
+  STAT_TEXT: array [1..10] of Word = (
+    TX_RESULTS_UNITS_LOST,       TX_RESULTS_CITIZENS_DISMISSED, TX_RESULTS_UNITS_DEFEATED,   TX_RESULTS_HOUSES_LOST,
     TX_RESULTS_HOUSES_DESTROYED, TX_RESULTS_HOUSES_BUILT,     TX_RESULTS_UNITS_TRAINED,
     TX_RESULTS_WEAPONS_MADE,     TX_RESULTS_SOLDIERS_TRAINED, TX_RESULTS_MISSION_COMPLETED_IN);
 var
@@ -410,20 +411,20 @@ begin
     Panel_Stats.Anchors := [anLeft];
 
       //Backplate for column results
-      with TKMImage.Create(Panel_Stats, -10, -10, 385, 374, 18, rxGuiMain) do
+      with TKMImage.Create(Panel_Stats, -10, -10, 385, 374 + 25, 18, rxGuiMain) do
       begin
         ImageStretch;
         AnchorsCenter;
       end;
 
       adv := 0;
-      for I := 1 to 9 do
+      for I := 1 to 10 do
       begin
         Inc(adv, 25);
-        if I in [3,6,7] then inc(adv, 15);
-        if I = 9 then
+        if I in [4,7,8] then inc(adv, 15);
+        if I = 10 then
         begin
-          Inc(adv, 45); //Last one goes right at the bottom of the scroll
+          Inc(adv, 45);
           Label_MissionTime := TKMLabel.Create(Panel_Stats, 20, adv, 240, 20, gResTexts[STAT_TEXT[I]], fntMetal, taLeft);
         end
         else
@@ -532,11 +533,8 @@ end;
 
 
 procedure TKMGameResultsSP.ContinueClick(Sender: TObject);
-var
-  campaignName: UnicodeString;
 begin
-  campaignName := Char(fRepeatCampName[0]) + Char(fRepeatCampName[1]) + Char(fRepeatCampName[2]);
-  fOnStopGame(campaignName);
+  fOnStopGame(string(fRepeatCampName.ID));
 end;
 
 

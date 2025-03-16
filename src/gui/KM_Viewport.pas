@@ -424,10 +424,11 @@ begin
      not ScrollKeyDown  and
      not ZoomKeyIn      and
      not ZoomKeyOut     and
-     not (cursorPoint.X <= screenBounds.Left + SCROLL_FLEX) and
-     not (cursorPoint.Y <= screenBounds.Top + SCROLL_FLEX) and
-     not (cursorPoint.X >= screenBounds.Right -1-SCROLL_FLEX) and
-     not (cursorPoint.Y >= screenBounds.Bottom-1-SCROLL_FLEX)) then
+     (IGNORE_MOUSE_SCROLLING or
+       (not (cursorPoint.X <= screenBounds.Left + SCROLL_FLEX) and
+        not (cursorPoint.Y <= screenBounds.Top + SCROLL_FLEX) and
+        not (cursorPoint.X >= screenBounds.Right -1-SCROLL_FLEX) and
+        not (cursorPoint.Y >= screenBounds.Bottom-1-SCROLL_FLEX)))) then
   begin
     //Stop the scrolling (e.g. if the form loses focus due to other application popping up)
     ReleaseScrollKeys;
@@ -468,10 +469,13 @@ begin
   if ZoomKeyIn      then fZoom := fZoom * (1 + zoomAdv);
   if ZoomKeyOut     then fZoom := fZoom * (1 - zoomAdv);
   //Mouse
-  if cursorPoint.X <= screenBounds.Left   + SCROLL_FLEX then begin inc(I,1); fPosition.X := fPosition.X - scrollAdv*(1+(screenBounds.Left   - cursorPoint.X)/SCROLL_FLEX); end;
-  if cursorPoint.Y <= screenBounds.Top    + SCROLL_FLEX then begin inc(I,2); fPosition.Y := fPosition.Y - scrollAdv*(1+(screenBounds.Top    - cursorPoint.Y)/SCROLL_FLEX); end;
-  if cursorPoint.X >= screenBounds.Right -1-SCROLL_FLEX then begin inc(I,4); fPosition.X := fPosition.X + scrollAdv*(1-(screenBounds.Right -1-cursorPoint.X)/SCROLL_FLEX); end;
-  if cursorPoint.Y >= screenBounds.Bottom-1-SCROLL_FLEX then begin inc(I,8); fPosition.Y := fPosition.Y + scrollAdv*(1-(screenBounds.Bottom-1-cursorPoint.Y)/SCROLL_FLEX); end;
+  if not IGNORE_MOUSE_SCROLLING then
+  begin
+    if cursorPoint.X <= screenBounds.Left   + SCROLL_FLEX then begin inc(I,1); fPosition.X := fPosition.X - scrollAdv*(1+(screenBounds.Left   - cursorPoint.X)/SCROLL_FLEX); end;
+    if cursorPoint.Y <= screenBounds.Top    + SCROLL_FLEX then begin inc(I,2); fPosition.Y := fPosition.Y - scrollAdv*(1+(screenBounds.Top    - cursorPoint.Y)/SCROLL_FLEX); end;
+    if cursorPoint.X >= screenBounds.Right -1-SCROLL_FLEX then begin inc(I,4); fPosition.X := fPosition.X + scrollAdv*(1-(screenBounds.Right -1-cursorPoint.X)/SCROLL_FLEX); end;
+    if cursorPoint.Y >= screenBounds.Bottom-1-SCROLL_FLEX then begin inc(I,8); fPosition.Y := fPosition.Y + scrollAdv*(1-(screenBounds.Bottom-1-cursorPoint.Y)/SCROLL_FLEX); end;
+  end;
 
   //Now do actual the scrolling, if needed
   fScrolling := I <> 0;

@@ -5,7 +5,7 @@ uses
   Windows, Classes, ComCtrls, Controls, Dialogs, ExtDlgs, ExtCtrls, Forms,
   Graphics, Mask, Math, Spin, StdCtrls, SysUtils,
   KM_Defaults, KM_Campaigns, KM_ResSpritesEdit, KromUtils, inifiles,
-  KM_CampaignTypes;
+  KM_CampaignClasses;
 
 type
   TForm1 = class(TForm)
@@ -174,7 +174,7 @@ procedure TForm1.LoadCmp(aFileName : String);
 var
   I: Integer;
 begin
-  C.LoadFromFile(aFileName);
+  C.Spec.LoadCMP(aFileName);
 
   fSprites.Free;
   fSprites := TKMSpritePackEdit.Create(rxCustom, nil);
@@ -186,8 +186,8 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
-  edtShortName.Text := C.ShortName;
-  seMapCount.Value := C.MapCount;
+  edtShortName.Text := C.Spec.IdStr;
+  seMapCount.Value := C.Spec.MissionsCount;
 
   UpdateList;
   UpdateFlagCount;
@@ -224,13 +224,13 @@ begin
   if (fSelectedNode <> -1) then
   begin
     //Position node centers, so that if someone changes the nodes they still look correct
-    C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left - Image1.Left + Img.Width div 2;
-    C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  - Image1.Top + Img.Height div 2;
+    C.Spec.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left - Image1.Left + Img.Width div 2;
+    C.Spec.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  - Image1.Top + Img.Height div 2;
   end
   else
   begin
-    C.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
-    C.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
+    C.Spec.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
+    C.Spec.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
   end;
 
   StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
@@ -247,22 +247,22 @@ begin
   begin
     curItem          := seMapCount.Value;
     seMapCount.Value := curItem + 1;
-    C.MapCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
+    C.Spec.MissionsCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
-    C.Maps[C.MapCount - 1].Flag.X := EnsureRange(X - Image1.Left - ScrollBox1.HorzScrollBar.ScrollPos, 0, 1024 - imgNewFlag.Width);
-    C.Maps[C.MapCount - 1].Flag.Y := EnsureRange(Y - Image1.Top - ScrollBox1.VertScrollBar.ScrollPos, 0, 768 - imgNewFlag.Height);
+    C.Spec.Maps[C.Spec.MissionsCount - 1].Flag.X := EnsureRange(X - Image1.Left - ScrollBox1.HorzScrollBar.ScrollPos, 0, 1024 - imgNewFlag.Width);
+    C.Spec.Maps[C.Spec.MissionsCount - 1].Flag.Y := EnsureRange(Y - Image1.Top - ScrollBox1.VertScrollBar.ScrollPos, 0, 768 - imgNewFlag.Height);
 
-    fSelectedMap := C.MapCount - 1; //Always select last, just added MapFlag
+    fSelectedMap := C.Spec.MissionsCount - 1; //Always select last, just added MapFlag
   end else if (fSelectedMap <> -1) and (Source = imgNewNode) then
   begin
     curItem                        := seNodeCount.Value;
     seNodeCount.Value              := curItem + 1;
-    C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
+    C.Spec.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
 
-    C.Maps[fSelectedMap].Nodes[curItem].X := (X - Image1.Left - ScrollBox1.HorzScrollBar.ScrollPos);
-    C.Maps[fSelectedMap].Nodes[curItem].Y := (Y - Image1.Top - ScrollBox1.VertScrollBar.ScrollPos);
+    C.Spec.Maps[fSelectedMap].Nodes[curItem].X := (X - Image1.Left - ScrollBox1.HorzScrollBar.ScrollPos);
+    C.Spec.Maps[fSelectedMap].Nodes[curItem].Y := (Y - Image1.Top - ScrollBox1.VertScrollBar.ScrollPos);
 
-    fSelectedNode := C.Maps[fSelectedMap].NodeCount - 1; //Always select last, just added Node
+    fSelectedNode := C.Spec.Maps[fSelectedMap].NodeCount - 1; //Always select last, just added Node
   end;
 
   UpdateList;
@@ -302,16 +302,16 @@ begin
   if Sender = imgNewFlag then
   begin
     seMapCount.Value := seMapCount.Value + 1;
-    C.MapCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
+    C.Spec.MissionsCount       := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
-    if fSelectedMap > C.MapCount - 1 then
+    if fSelectedMap > C.Spec.MissionsCount - 1 then
       fSelectedMap := -1;
   end else if (fSelectedMap <> -1) and (Sender = imgNewNode) then
   begin
     seNodeCount.Value              := seNodeCount.Value + 1;
-    C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
+    C.Spec.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
 
-    if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
+    if fSelectedNode > C.Spec.Maps[fSelectedMap].NodeCount - 1 then
       fSelectedNode := -1;
   end;
 
@@ -354,8 +354,8 @@ begin
     Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
     Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
-    C.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
-    C.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
+    C.Spec.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
+    C.Spec.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
 
     StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
   end;
@@ -399,8 +399,8 @@ begin
     Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024-Img.Width);
     Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768-Img.Height);
 
-    C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left + Img.Width div 2  - Image1.Left;
-    C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  + Img.Height div 2 - Image1.Top;
+    C.Spec.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left + Img.Width div 2  - Image1.Left;
+    C.Spec.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  + Img.Height div 2 - Image1.Top;
 
     StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
   end;
@@ -478,11 +478,11 @@ begin
     ReWrite(LibxFile);
 
     Writeln(LibxFile, '');
-    Writeln(LibxFile, 'MaxID:' + IntToStr(C.MapCount + 9) + EolW);
+    Writeln(LibxFile, 'MaxID:' + IntToStr(C.Spec.MissionsCount + 9) + EolW);
     Writeln(LibxFile, '0:' + edtName.Text);
     Writeln(LibxFile, '1:Mission %d');
     Writeln(LibxFile, '2:Campaign description');
-    for I := 0 to C.MapCount-1 do
+    for I := 0 to C.Spec.MissionsCount-1 do
       Writeln(LibxFile, IntToStr(10 + I) + ':Mission description ' + IntToStr(I + 1));
   finally
     CloseFile(LibxFile);
@@ -528,13 +528,13 @@ end;
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
-  if C.MapCount < 2 then
+  if C.Spec.MissionsCount < 2 then
   begin
     ShowMessage('Campaign must have at least 2 missions');
     Exit;
   end;
 
-  if Length(Trim(C.ShortName)) <> 3 then
+  if Length(Trim(C.Spec.IdStr)) <> 3 then
   begin
     ShowMessage('Campaign short title must be 3 characters');
     Exit;
@@ -546,7 +546,7 @@ begin
 
   if not dlgSaveCampaign.Execute then Exit;
 
-  C.SaveToFile(dlgSaveCampaign.FileName);
+  C.Spec.SaveToFile(dlgSaveCampaign.FileName);
 
   // Campaign might have no images yet
   //@Rey: If campaign images can be cleared by the mapmaker, we should delete the rxx then
@@ -666,16 +666,19 @@ end;
 
 procedure TForm1.edtShortNameChange(Sender: TObject);
 var
-  cmp: TKMCampaignId;
+  campIDStr: AnsiString;
 begin
-  if Length(Trim(edtShortName.Text)) = 3 then
+  edtShortName.Text := Trim(edtShortName.Text);
+  if Length(edtShortName.Text) = 3 then
   begin
     if fUpdating then Exit;
 
-    cmp[0] := Ord(edtShortName.Text[1]);
-    cmp[1] := Ord(edtShortName.Text[2]);
-    cmp[2] := Ord(edtShortName.Text[3]);
-    C.CampaignId := cmp;
+    campIDStr := edtShortName.Text;
+
+    if C.Spec.CampaignId = nil then
+      C.Spec.CampaignId := TKMCampaignId.Create(campIDStr)
+    else
+      C.Spec.CampaignId.ID := campIDStr;
 
     //Shortname may be used as mapname in List
     UpdateList;
@@ -698,9 +701,9 @@ procedure TForm1.seMapCountChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  C.MapCount := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
+  C.Spec.MissionsCount := EnsureRange(seMapCount.Value, 1, MAX_CAMP_MAPS);
 
-  if fSelectedMap > C.MapCount - 1 then
+  if fSelectedMap > C.Spec.MissionsCount - 1 then
     fSelectedMap := -1;
 
   UpdateList;
@@ -713,9 +716,9 @@ procedure TForm1.seNodeCountChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
+  C.Spec.Maps[fSelectedMap].NodeCount := EnsureRange(seNodeCount.Value, 0, MAX_CAMP_NODES);
 
-  fSelectedNode := Min(fSelectedNode, C.Maps[fSelectedMap].NodeCount - 1);
+  fSelectedNode := Min(fSelectedNode, C.Spec.Maps[fSelectedMap].NodeCount - 1);
 
   UpdateList;
   UpdateNodeCount;
@@ -727,7 +730,7 @@ procedure TForm1.rgBriefingPosClick(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].TextPos := TKMBriefingCorner(rgBriefingPos.ItemIndex);
+  C.Spec.Maps[fSelectedMap].TextPos := TKMBriefingCorner(rgBriefingPos.ItemIndex);
 
   RefreshFlags;
 end;
@@ -751,10 +754,10 @@ procedure TForm1.RefreshFlags;
 var
   I: Integer;
 begin
-  for I := 0 to C.MapCount - 1 do
+  for I := 0 to C.Spec.MissionsCount - 1 do
   begin
-    imgFlags[I].Left := C.Maps[I].Flag.X + Image1.Left;
-    imgFlags[I].Top := C.Maps[I].Flag.Y + Image1.Top;
+    imgFlags[I].Left := C.Spec.Maps[I].Flag.X + Image1.Left;
+    imgFlags[I].Top := C.Spec.Maps[I].Flag.Y + Image1.Top;
     if I > fSelectedMap then
     begin
       imgFlags[I].Picture.Bitmap := imgBlackFlag.Picture.Bitmap;
@@ -781,7 +784,7 @@ begin
 
   RefreshNodes;
 
-  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0) + Image1.Left;
+  shpBriefing.Left := IfThen(C.Spec.Maps[fSelectedMap].TextPos = bcBottomRight, Image1.Width - shpBriefing.Width, 0) + Image1.Left;
 end;
 
 
@@ -789,15 +792,15 @@ procedure TForm1.RefreshNodes;
 var
   I: Integer;
 begin
-  for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
+  for I := 0 to C.Spec.Maps[fSelectedMap].NodeCount - 1 do
   begin
     // Refresh canvas in case we have spoiled it with node number
     imgNodes[I].Picture.Bitmap := imgNode.Picture.Bitmap;
     imgNodes[I].Canvas.Font := imgNode.Canvas.Font;
 
     // Position node centers, so that if someone changes the nodes they still look correct
-    imgNodes[I].Left := Image1.Left + C.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
-    imgNodes[I].Top := Image1.Top + C.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
+    imgNodes[I].Left := Image1.Left + C.Spec.Maps[fSelectedMap].Nodes[I].X - imgNodes[I].Width div 2;
+    imgNodes[I].Top := Image1.Top + C.Spec.Maps[fSelectedMap].Nodes[I].Y - imgNodes[I].Height div 2;
     imgNodes[I].Left := EnsureRange(imgNodes[I].Left, Image1.Left, Image1.Left + 1024-imgNodes[I].Width);
     imgNodes[I].Top  := EnsureRange(imgNodes[I].Top, Image1.Top, Image1.Top + 768-imgNodes[I].Height);
     DrawNodeNumber(I);
@@ -813,13 +816,13 @@ begin
 
   tvList.Items.Clear;
 
-  for I := 0 to C.MapCount - 1 do
+  for I := 0 to C.Spec.MissionsCount - 1 do
   begin
-    N := tvList.Items.AddChild(nil, C.ShortName + ' mission ' + IntToStr(I + 1));
+    N := tvList.Items.AddChild(nil, C.Spec.IdStr + ' mission ' + IntToStr(I + 1));
     if fSelectedMap = I then
       N.Selected := True;
 
-    for K := 0 to C.Maps[I].NodeCount - 1 do
+    for K := 0 to C.Spec.Maps[I].NodeCount - 1 do
     begin
       SN := tvList.Items.AddChild(N, 'node ' + IntToStr(K + 1));
       if (fSelectedMap = I) and (fSelectedNode = K) then
@@ -855,11 +858,11 @@ var
   I: Integer;
 begin
   //Create more flags if needed
-  if C.MapCount > Length(imgFlags) then
+  if C.Spec.MissionsCount > Length(imgFlags) then
   begin
-    SetLength(imgFlags, C.MapCount);
+    SetLength(imgFlags, C.Spec.MissionsCount);
 
-    for I := 0 to C.MapCount - 1 do
+    for I := 0 to C.Spec.MissionsCount - 1 do
     if imgFlags[I] = nil then
     begin
       imgFlags[I] := TImage.Create(Image1);
@@ -876,7 +879,7 @@ begin
 
   // Hide unused flags
   for I := 0 to Length(imgFlags) - 1 do
-    imgFlags[I].Visible := (I <= C.MapCount - 1);
+    imgFlags[I].Visible := (I <= C.Spec.MissionsCount - 1);
 end;
 
 
@@ -887,11 +890,11 @@ begin
   if fSelectedMap = -1 then Exit;
 
   //Create nodes
-  if C.Maps[fSelectedMap].NodeCount > Length(imgNodes) then
+  if C.Spec.Maps[fSelectedMap].NodeCount > Length(imgNodes) then
   begin
-    SetLength(imgNodes, C.Maps[fSelectedMap].NodeCount);
+    SetLength(imgNodes, C.Spec.Maps[fSelectedMap].NodeCount);
 
-    for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
+    for I := 0 to C.Spec.Maps[fSelectedMap].NodeCount - 1 do
     if imgNodes[I] = nil then
     begin
       imgNodes[I] := TImage.Create(Image1);
@@ -910,7 +913,7 @@ begin
 
   // Hide unused nodes
   for I := 0 to Length(imgNodes) - 1 do
-    imgNodes[I].Visible := (I <= C.Maps[fSelectedMap].NodeCount - 1);
+    imgNodes[I].Visible := (I <= C.Spec.Maps[fSelectedMap].NodeCount - 1);
 end;
 
 
@@ -941,8 +944,8 @@ begin
 
   rgBriefingPos.Enabled := True;
 
-  seNodeCount.Value := C.Maps[fSelectedMap].NodeCount;
-  rgBriefingPos.ItemIndex := Byte(C.Maps[fSelectedMap].TextPos);
+  seNodeCount.Value := C.Spec.Maps[fSelectedMap].NodeCount;
+  rgBriefingPos.ItemIndex := Byte(C.Spec.Maps[fSelectedMap].TextPos);
 
   //Update map info
   StatusBar1.Panels[0].Text := 'Selected map: ' + IntToStr(fSelectedMap +1) + '/' + IntToStr(fSelectedNode +1);

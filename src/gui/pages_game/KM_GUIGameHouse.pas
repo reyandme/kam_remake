@@ -1248,7 +1248,8 @@ begin
   for I := 1 to BARRACKS_RES_COUNT do
   begin
     tmp := barracks.CheckWareIn(BarracksResType[I]);
-    Button_Barracks[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
+    Button_Barracks[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp, 1000));
+    Button_Barracks[I].Hint := IfThen(tmp = 0, '', IntToStr(tmp) + ' ' + gRes.Wares[BarracksResType[I]].Title);
     //Set highlights
     Button_Barracks[I].Down := False;
     for K := 1 to 4 do
@@ -1260,7 +1261,8 @@ begin
   end;
 
   tmp := barracks.RecruitsCount;
-  Button_BarracksRecruit.Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
+  Button_BarracksRecruit.Caption := IfThen(tmp = 0, '-', IntToKStr(tmp, 1000));
+  Button_BarracksRecruit.Hint := IfThen(tmp = 0, '', IntToStr(tmp) + ' ' + gRes.Units[utRecruit].GUIName);
   Button_BarracksRecruit.Down := True; //Recruit is always enabled, all troops require one
   Image_Barracks_NotAcceptRecruit.Visible := barracks.NotAcceptRecruitFlag;
 
@@ -1582,9 +1584,9 @@ begin
     if aMarket.AllowedToTrade(W) then
     begin
       Button_Market[I].TexID := gRes.Wares[W].GUIIcon;
-      Button_Market[I].Hint := gRes.Wares[W].Title;
       tmp := aMarket.GetResTotal(W);
       Button_Market[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp, 1000)); // Convert 1234 -> '1k'
+      Button_Market[I].Hint := IfThen(tmp = 0, '', IntToStr(tmp) + ' ' + gRes.Wares[W].Title);
     end else
     begin
       Button_Market[I].TexID := 41;
@@ -1678,6 +1680,7 @@ begin
   begin
     tmp := TKMHouseStore(gMySpectator.Selected).CheckWareIn(StoreResType[I]);
     Button_Store[I].Caption := IfThen(tmp = 0, '-', IntToKStr(tmp));
+    Button_Store[I].Hint := IfThen(tmp = 0, '', IntToStr(tmp) + ' ' + gRes.Wares[StoreResType[I]].Title);
     Image_Store_NotAccept[I].Visible := TKMHouseStore(gMySpectator.Selected).NotAcceptFlag[StoreResType[I]];
     Image_Store_NotAllowTakeOut[I].Visible := TKMHouseStore(gMySpectator.Selected).NotAllowTakeOutFlag[StoreResType[I]];
   end;

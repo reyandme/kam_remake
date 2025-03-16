@@ -217,11 +217,12 @@ begin
         end;
         
         // Ask confirmation to delete all Saves
-        if (DirExists(ExpandConstant('{app}\Saves')) or DirExists(ExpandConstant('{app}\SavesMP'))) 
+        if (DirExists(ExpandConstant('{app}\Saves')) or DirExists(ExpandConstant('{app}\SavesMP')) or DirExists(ExpandConstant('{app}\SavesCMP'))) 
           and (MsgBox(ExpandConstant('{cm:DeleteSaves}'), mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = idYes) then
         begin
           DelTree(ExpandConstant('{app}\Saves'), True, True, True);
           DelTree(ExpandConstant('{app}\SavesMP'), True, True, True);
+          DelTree(ExpandConstant('{app}\SavesCMP'), True, True, True);
         end;
         
         // Delete app folder if its empty
