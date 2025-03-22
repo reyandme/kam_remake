@@ -140,7 +140,7 @@ begin
   TrackBar_RecruitCount.Hint := gResTexts[TX_MAPED_AI_RECRUITS_HINT];
   TrackBar_RecruitCount.OnChange := Town_DefenceChange;
 
-  Button_EditFormations := TKMButton.Create(Panel_Defence, TB_PAD, 406, Panel_Defence.Width - TB_PAD, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
+  Button_EditFormations := TKMButton.Create(Panel_Defence, TB_PAD, 436, Panel_Defence.Width - TB_PAD, 25, gResTexts[TX_MAPED_AI_FORMATIONS], bsGame);
   Button_EditFormations.Anchors := [anLeft, anTop, anRight];
   Button_EditFormations.OnClick := Town_DefenceFormations;
 
