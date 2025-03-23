@@ -48,3 +48,6 @@
 
 @REM Path to the folder, where new build will be made
 @SET BuildFullDir_LOCAL=F:\KaM_Remake Beta
+
+@REM Path to Pandoc folder, for documentation generation
+@SET PandocDir_LOCAL=F:\Development_Win7\pandoc-3.6.4

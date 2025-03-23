@@ -20,6 +20,10 @@ rmdir /S /Q "%kam_folder%" > clean.log 2>&1
 REM Clean before build to avoid any side-effects from old DCUs
 @call clean_src.bat >> clean.log 2>&1
 
+REM Generate docs
+echo ######                       Generate docs                           ######
+call generate_docs.bat > generate_docs.log 2>&1
+
 REM Copy pre pack
 echo ######                       Copy Pre Pack                           ######
 call copy_pre_pack.bat > copy_pre_pack.log 2>&1
