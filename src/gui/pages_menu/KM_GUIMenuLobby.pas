@@ -211,10 +211,6 @@ type
     procedure UpdateState;
   end;
 
-var
-  LOBBY_PLAYER_NAMES_TEXT_ID_RESERVED: array[0..3] of Word =
-    (TX_LOBBY_SLOT_CLOSED, TX_LOBBY_SLOT_OPEN, TX_AI_PLAYER_CLASSIC, TX_AI_PLAYER_ADVANCED);
-
 
 implementation
 uses

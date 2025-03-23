@@ -115,7 +115,7 @@ type
 
 implementation
 uses
-  KM_Main, 
+  KM_Main,
   KM_GameSettings,
   KM_ControlsTypes,
   KM_ServerSettings,
@@ -848,14 +848,17 @@ end;
 function TKMMenuMultiplayer.ValidatePlayerName(const aName: UnicodeString): Boolean;
 
   function IsReserved(const aName: String): Boolean; inline;
+  const
+    MP_PLAYER_NAME_TX_RESERVED: array [0..3] of Word =
+      (TX_LOBBY_SLOT_CLOSED, TX_LOBBY_SLOT_OPEN, TX_AI_PLAYER_CLASSIC, TX_AI_PLAYER_ADVANCED);
   var
     I: Integer;
     Str: String;
   begin
     Result := False;
     Str := Trim(aName);
-    for I := Low(LOBBY_PLAYER_NAMES_TEXT_ID_RESERVED) to High(LOBBY_PLAYER_NAMES_TEXT_ID_RESERVED) do
-      if Str = gResTexts[LOBBY_PLAYER_NAMES_TEXT_ID_RESERVED[I]] then
+    for I := Low(MP_PLAYER_NAME_TX_RESERVED) to High(MP_PLAYER_NAME_TX_RESERVED) do
+      if Str = gResTexts[MP_PLAYER_NAME_TX_RESERVED[I]] then
         Exit(True);
   end;
 
@@ -893,7 +896,7 @@ end;
 
 procedure TKMMenuMultiplayer.UpdateGameTimeLabel;
 begin
-  Label_MP_GameTime.Width := S_DETAILS_W_INT - 20*Byte(Panel_MPServerDetails.ScrollV.Visible);
+  Label_MP_GameTime.Width := S_DETAILS_W_INT - 20 * Ord(Panel_MPServerDetails.ScrollV.Visible);
 end;
 
 
@@ -1015,7 +1018,7 @@ begin
 
   if aText = '' then
     //Entering MP anew
-    MP_UpdateStatus(gResTexts[TX_MP_MENU_STATUS_READY],icGreen,False)
+    MP_UpdateStatus(gResTexts[TX_MP_MENU_STATUS_READY], icGreen, False)
   else
     //We are in event handler of Lobby.BackClick (show status warning)
     MP_UpdateStatus(aText, icYellow, False);

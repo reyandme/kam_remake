@@ -5,8 +5,9 @@ uses
   {$IFDEF MSWindows} ,Windows {$ENDIF}
   ;
 
-//We need a dummy event handler because Events can't be assigned to regular procedures (e.g. in a console application)
 type
+  // Wrapper for gLog
+  // We need event handler because Events can't be assigned to regular procedures (e.g. in a console application)
   TKMServerEventHandler = class
     constructor Create;
     destructor Destroy; override;
@@ -30,6 +31,7 @@ end;
 destructor TKMServerEventHandler.Destroy;
 begin
   FreeAndNil(gLog);
+  inherited;
 end;
 
 

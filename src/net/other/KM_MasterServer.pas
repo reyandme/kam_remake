@@ -3,48 +3,52 @@ unit KM_MasterServer;
 {$WARN IMPLICIT_STRING_CAST OFF}
 interface
 uses
-  Classes, SysUtils,
-  URLUtils, //This is a common URLUtils file used by both Delphi and Lazarus for two reasons:
-            //1. Library specific stuff should all be done in wrappers (e.g. KM_NetServer_Overbyte) so we can easily switch systems.
-            //2. Lazarus' LNet library has broken/incorrectly implemented URLUtils at the moment, so we can't rely on them.
-  KM_Defaults, KM_HTTPClient;
-
+  Classes, KM_HTTPClient;
 
 type
-  //Interaction with MasterServer
+  // Class responsible for interaction with MasterServer
   TKMMasterServer = class
   private
+    fMasterServerAddress: string;
     fIsDedicated: Boolean;
 
     fHTTPClient: TKMHTTPClient; //To update server status and fetch server list
     fHTTPAnnouncementsClient: TKMHTTPClient; //To fetch the annoucenemnts at the same time as the server list
     fHTTPMapsClient: TKMHTTPClient; //To tell master server about the map we played
-    fMasterServerAddress: string;
+
     fOnError: TGetStrProc;
     fOnServerList: TGetStrProc;
     fOnAnnouncements: TGetStrProc;
 
-    procedure ReceiveServerList(const S: string);
-    procedure ReceiveAnnouncements(const S: string);
-    procedure Error(const S: string);
+    procedure ReceiveServerList(const aText: string);
+    procedure ReceiveAnnouncements(const aText: string);
+    procedure Error(const aText: string);
   public
     constructor Create(const aMasterServerAddress: string; aDedicated:Boolean);
     destructor Destroy; override;
 
+    property MasterServerAddress: string write fMasterServerAddress;
     property OnError: TGetStrProc write fOnError;
     property OnServerList: TGetStrProc write fOnServerList;
     property OnAnnouncements: TGetStrProc write fOnAnnouncements;
-    procedure AnnounceServer(const aName: string; aPort: Word; aPlayerCount, aTTL: Integer);
-    procedure QueryServerList;
-    procedure FetchAnnouncements(const aLang: AnsiString);
-    procedure SendMapInfo(const aMapName: string; aCRC: Cardinal; aPlayerCount: Integer);
-    procedure UpdateStateIdle;
 
-    property MasterServerAddress: string write fMasterServerAddress;
+    procedure AnnounceServer(const aName: string; aPort: Word; aPlayerCount, aTTL: Integer);
+    procedure AnnounceGame(const aMapName: string; aCRC: Cardinal; aPlayerCount: Integer);
+    procedure FetchAnnouncements(const aLang: AnsiString);
+    procedure FetchServerList;
+
+    procedure UpdateStateIdle;
   end;
 
 
 implementation
+uses
+  SysUtils,
+  URLUtils, //This is a common URLUtils file used by both Delphi and Lazarus for two reasons:
+            //1. Library specific stuff should all be done in wrappers (e.g. KM_NetServer_Overbyte) so we can easily switch systems.
+            //2. Lazarus' LNet library has broken/incorrectly implemented URLUtils at the moment, so we can't rely on them.
+  KM_Defaults;
+
 
 const
   {$IFDEF MSWindows} OS = 'Windows'; {$ENDIF}
@@ -77,21 +81,21 @@ begin
 end;
 
 
-procedure TKMMasterServer.Error(const S: string);
+procedure TKMMasterServer.Error(const aText: string);
 begin
-  if Assigned(fOnError) then fOnError(S);
+  if Assigned(fOnError) then fOnError(aText);
 end;
 
 
-procedure TKMMasterServer.ReceiveServerList(const S: string);
+procedure TKMMasterServer.ReceiveServerList(const aText: string);
 begin
-  if Assigned(fOnServerList) then fOnServerList(S);
+  if Assigned(fOnServerList) then fOnServerList(aText);
 end;
 
 
-procedure TKMMasterServer.ReceiveAnnouncements(const S: string);
+procedure TKMMasterServer.ReceiveAnnouncements(const aText: string);
 begin
-  if Assigned(fOnAnnouncements) then fOnAnnouncements(S);
+  if Assigned(fOnAnnouncements) then fOnAnnouncements(aText);
 end;
 
 
@@ -106,7 +110,7 @@ begin
 end;
 
 
-procedure TKMMasterServer.QueryServerList;
+procedure TKMMasterServer.FetchServerList;
 begin
   fHTTPClient.OnReceive := ReceiveServerList;
   fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php?rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION)
@@ -124,7 +128,7 @@ begin
 end;
 
 
-procedure TKMMasterServer.SendMapInfo(const aMapName: string; aCRC: Cardinal; aPlayerCount: Integer);
+procedure TKMMasterServer.AnnounceGame(const aMapName: string; aCRC: Cardinal; aPlayerCount: Integer);
 begin
   fHTTPMapsClient.OnReceive := nil; //We don't care about the response
   fHTTPMapsClient.GetURL(fMasterServerAddress+'maps.php?map='+UrlEncode(aMapName)

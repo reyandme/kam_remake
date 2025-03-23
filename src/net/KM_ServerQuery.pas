@@ -134,7 +134,7 @@ type
 
     procedure RefreshList;
     procedure FetchAnnouncements(const aLocale: AnsiString);
-    procedure SendMapInfo(const aMapName: UnicodeString; aCRC: Cardinal; aPlayerCount: Integer);
+    procedure AnnounceGame(const aMapName: UnicodeString; aCRC: Cardinal; aPlayerCount: Integer);
     procedure UpdateStateIdle;
   end;
 
@@ -456,7 +456,7 @@ begin
     ReceiveServerList('Localhost,127.0.0.1,56789,0,Windows') //For debugging
     //+#13+'Localhost,127.0.0.1,56788,1,Windows'+#13+'Localhost,127.0.0.1,56787,1,Unix'
   else
-    fMasterServer.QueryServerList; //Start the query
+    fMasterServer.FetchServerList; //Start the query
 end;
 
 
@@ -519,9 +519,9 @@ begin
 end;
 
 
-procedure TKMServerQuery.SendMapInfo(const aMapName: UnicodeString; aCRC: Cardinal; aPlayerCount: Integer);
+procedure TKMServerQuery.AnnounceGame(const aMapName: UnicodeString; aCRC: Cardinal; aPlayerCount: Integer);
 begin
-  fMasterServer.SendMapInfo(aMapName, aCRC, aPlayerCount);
+  fMasterServer.AnnounceGame(aMapName, aCRC, aPlayerCount);
 end;
 
 
