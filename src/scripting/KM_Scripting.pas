@@ -860,6 +860,7 @@ begin
     RegisterMethodCheck(c, 'procedure PlayerDefeat(aHand: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerGoalsRemoveAll(aHand: Integer; aForAllPlayers: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerHouseTypeLock(aHand: Integer; aHouseType: TKMHouseType; aLock: TKMHandHouseLock)');
+    RegisterMethodCheck(c, 'procedure PlayerSetCenterScreen(aHand1: Integer; aX: Integer; aY: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerShareBeacons(aHand1: Integer; aHand2: Integer; aBothWays: Boolean; aShare: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerShareFog(aHand1: Integer; aHand2: Integer; aShare: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerShareFogCompliment(aHand1: Integer; aHand2: Integer; aShare: Boolean)');
@@ -1610,6 +1611,7 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerDefeat, 'PlayerDefeat');
       RegisterMethod(@TKMScriptActions.PlayerGoalsRemoveAll, 'PlayerGoalsRemoveAll');
       RegisterMethod(@TKMScriptActions.PlayerHouseTypeLock, 'PlayerHouseTypeLock');
+      RegisterMethod(@TKMScriptActions.PlayerSetCenterScreen, 'PlayerSetCenterScreen');
       RegisterMethod(@TKMScriptActions.PlayerShareBeacons, 'PlayerShareBeacons');
       RegisterMethod(@TKMScriptActions.PlayerShareFog, 'PlayerShareFog');
       RegisterMethod(@TKMScriptActions.PlayerShareFogCompliment, 'PlayerShareFogCompliment');
