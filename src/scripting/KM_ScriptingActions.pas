@@ -6,7 +6,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_TerrainTypes,
   KM_ScriptSound, KM_MediaTypes, KM_ResTypes, KM_ResFonts, KM_HandTypes, KM_HouseWoodcutters,
   KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_ScriptingTypes,
-  KM_AITypes;
+  KM_AITypes, IOUtils;
 
 
 type
@@ -158,6 +158,7 @@ type
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
     function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+    function MapTilesArraySetF(aFileName: string; aRevertOnFail, aShowDetailedErrors: Boolean; xOffset, yOffset: integer): Boolean;
     function MapTileHeightSet(X, Y, Height: Integer): Boolean;
     function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
     function MapTileOverlaySet(X, Y: Integer; aOverlay: TKMTileOverlay; aOverwrite: Boolean): Boolean;
@@ -3958,6 +3959,179 @@ begin
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
   end;
+end;
+
+
+function TKMScriptActions.MapTilesArraySetF(aFileName: string; aRevertOnFail, aShowDetailedErrors: Boolean; xOffset, yOffset: integer): Boolean;
+
+  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
+  var
+    tileChangeType: TKMTileChangeType;
+  begin
+    Result := '';
+    for tileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
+      if tileChangeType in aErrorsIn then
+      begin
+        if Result <> '' then
+          Result := Result + ', ';
+        Result := Result + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
+      end;
+  end;
+
+  function Split(const str: string; const delimeter: Char): TAnsiStringArray;
+  var
+    SepPos: array of integer;
+    i: Integer;
+  begin
+    SetLength(SepPos, 1);
+    SepPos[0] := 0;
+    for i := 1 to length(str) do
+      if str[i] = delimeter then
+      begin
+        SetLength(SepPos, length(SepPos) + 1);
+        SepPos[high(SepPos)] := i;
+      end;
+    SetLength(SepPos, length(SepPos) + 1);
+    SepPos[high(SepPos)] := length(str) + 1;
+    SetLength(result, high(SepPos));
+    for i := 0 to high(SepPos) -  1 do
+      result[i] := Trim(Copy(str, SepPos[i] + 1, SepPos[i+1] - SepPos[i] - 1));
+  end;
+
+  function GetTilesArray(aFileName: string): TAnsiStringArray;
+  var
+    filePath: string;
+    mapTilesString: string;
+  begin
+    filePath := gGame.GetMissionFilePath(aFileName, '.tiles');
+    mapTilesString := TFile.ReadAllText(filePath);
+    result := Split(mapTilesString, ';');
+  end;
+
+var
+  tilesArray: TAnsiStringArray;
+  I: Integer;
+  errors: TKMTerrainTileChangeErrorArray;
+  tiles: array of TKMTerrainTileBrief;
+  arrElem: TAnsiStringArray;
+  parsedValue: Integer;
+  parserError: Boolean;
+
+begin
+
+  {$WARN SUSPICIOUS_TYPECAST OFF}
+  try
+    Result := True;
+    SetLength(errors, 16);
+
+    tilesArray := GetTilesArray(aFileName);
+
+    //***********PARSING ARRAY OF STRING TO ARRAY OF TKMTerrainTileBrief**********
+    SetLength(tiles, Length(tilesArray));
+    for I := Low(tilesArray) to High(tilesArray) do
+    begin
+      arrElem := StrSplitA(ReplaceStr(String(tilesArray[I]), ' ', ''), ',');
+      parserError := False;
+
+      //checking params count, if count is invalid we cannot proceed
+      if (Length(arrElem) <> 6) then
+        LogStr(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [tilesArray[I]]))
+      else
+      begin
+        //checking X, if X <= 0 we cannot proceed
+        if ((TryStrToInt(string(PChar(arrElem[0])), parsedValue)) and (parsedValue > 0)) then
+          tiles[I].X := parsedValue + xOffset
+        else
+        begin
+          LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], tilesArray[I]]));
+          parserError := True;
+        end;
+        //checking Y, if Y <= 0 we cannot proceed
+        if ((TryStrToInt(string(PChar(arrElem[1])), parsedValue)) and (parsedValue > 0)) then
+          tiles[I].Y := parsedValue + yOffset
+        else
+        begin
+          LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], tilesArray[I]]));
+          parserError := True;
+        end;
+
+        //if X and Y are correctly defined we can proceed with terrain changes
+        if (not parserError) then
+        begin
+          if (TryStrToInt(string(PChar(arrElem[2])), parsedValue)) then
+          begin
+            if (parsedValue >= 0) then
+            begin
+              //if value is not skipped we proceed with terrain
+              tiles[I].Terrain := parsedValue;
+              tiles[I].UpdateTerrain := True;
+            end;
+          end
+          else
+            LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], tilesArray[I]]));
+
+          if (TryStrToInt(string(PChar(arrElem[3])), parsedValue)) then
+          begin
+            if (parsedValue >= 0) then
+            begin
+              //if value is not skipped we proceed with rotation
+              tiles[I].Rotation := parsedValue;
+              tiles[I].UpdateRotation := True;
+            end;
+          end
+          else
+            LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], tilesArray[I]]));
+
+          if (TryStrToInt(string(PChar(arrElem[4])), parsedValue)) then
+          begin
+            if (parsedValue >= 0) then
+            begin
+              //if value is not skipped we proceed with height
+              tiles[I].Height := parsedValue;
+              tiles[I].UpdateHeight := True;
+            end;
+          end
+          else
+            LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], tilesArray[I]]));
+
+          if (TryStrToInt(string(PChar(arrElem[5])), parsedValue)) then
+          begin
+            if (parsedValue >= 0) then
+            begin
+              //if value is not skipped we proceed with obj
+              tiles[I].Obj := parsedValue;
+              tiles[I].UpdateObject := True;
+            end;
+          end
+          else
+            LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], tilesArray[I]]));
+        end;
+      end;
+    end;
+    //***********END OF PARSING**********
+
+    if not gTerrain.ScriptTrySetTilesArray(tiles, aRevertOnFail, errors) then
+    begin
+      Result := False;
+
+      // Log errors
+      if Length(errors) > 0 then
+      begin
+        if not aShowDetailedErrors then
+          Log(AnsiString(Format('Actions.MapTilesArraySetF: there were %d errors while setting tiles' , [Length(errors)])))
+        else
+          Log('Actions.MapTilesArraySetF list of tiles errors:');
+      end;
+      if aShowDetailedErrors then
+        for I := Low(errors) to High(errors) do
+          Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+{$WARN SUSPICIOUS_TYPECAST ON}
+
 end;
 
 

@@ -837,6 +837,7 @@ begin
     RegisterMethodCheck(c, 'function  MapTileOverlaySet(X, Y: Integer; aOverlay: TKMTileOverlay; aOverwrite: Boolean): Boolean');
     RegisterMethodCheck(c, 'function  MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
     RegisterMethodCheck(c, 'function  MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  MapTilesArraySetF(aFileName: string; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean; xOffset, yOffset: integer): Boolean');
     RegisterMethodCheck(c, 'function  MapTileSet(X, Y: Integer; aType: Integer; aRotation: Integer): Boolean');
     RegisterMethodCheck(c, 'procedure MarketSetTrade(aMarketID: Integer; aFrom: Integer; aTo: Integer; aAmount: Integer)');
     RegisterMethodCheck(c, 'procedure MarketSetTradeEx(aMarketID: Integer; aFrom: TKMWareType; aTo: TKMWareType; aAmount: Integer)');
@@ -1587,6 +1588,7 @@ begin
       RegisterMethod(@TKMScriptActions.MapTileOverlaySet, 'MapTileOverlaySet');
       RegisterMethod(@TKMScriptActions.MapTilesArraySet, 'MapTilesArraySet');
       RegisterMethod(@TKMScriptActions.MapTilesArraySetS, 'MapTilesArraySetS');
+      RegisterMethod(@TKMScriptActions.MapTilesArraySetF, 'MapTilesArraySetF');
       RegisterMethod(@TKMScriptActions.MapTileSet, 'MapTileSet');
       RegisterMethod(@TKMScriptActions.MarketSetTrade, 'MarketSetTrade');
       RegisterMethod(@TKMScriptActions.MarketSetTradeEx, 'MarketSetTradeEx');
