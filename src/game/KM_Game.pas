@@ -1618,7 +1618,6 @@ end;
 
 function TKMGame.GetMissionFilePath(const aFileName: UnicodeString; const aExt: UnicodeString): UnicodeString;
 begin
-  //TODO. Locale.
   // check for MissionPath\aFileName.aExt
   Result := GetLocalizedFilePath(ExeDir + ChangeFileExt(fParams.MissionFileRel, '.' + string(aFileName)),
                                  gResLocales.UserLocale, gResLocales.FallbackLocale, aExt);

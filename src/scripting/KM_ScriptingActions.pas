@@ -3961,7 +3961,19 @@ begin
   end;
 end;
 
-
+//* Version: 15000+
+//* Sets array of tiles info, like MapTilesArraySetS, but tile string array are
+//* stored in file.
+//* This function is useful if you need to create dynamic map from scratch.
+//* File Array must be in following format: X,Y,Terrain,Rotation,Height,Obj;X,Y,Terrain,Rotation,Height,Obj;...
+//* f.e. 1,1,20,2,87,12;1,2,20,2,12;...
+//* In case of invalid structure detection / failed variable parsing you can find
+//* detailed errors in LOG file.
+//* If you need to skip terrain or rotation/height/obj use -1 as parameter
+//* f.e.
+//* Skipping rotation for tile [7,2]: 7,2,20,-1,87,12
+//* Skipping obj for tile [7,2]: 7,2,20,2,87,-1
+//* Skipping height for tile [7,2]: 7,2,20,2,-1,5 etc.
 function TKMScriptActions.MapTilesArraySetF(aFileName: string; aRevertOnFail, aShowDetailedErrors: Boolean; xOffset, yOffset: integer): Boolean;
 
   function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
