@@ -254,6 +254,7 @@ type
 
     procedure AddScriptSoundRemoveRequest(aScriptSoundUID: Integer; aHandID: TKMHandID);
     function GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
+    function GetMissionFilePath(const aFileName: UnicodeString; const aExt: UnicodeString): UnicodeString;
 
     property LastReplayTickLocal: Cardinal read fLastReplayTickLocal write fLastReplayTickLocal;
     property SkipReplayEndCheck: Boolean read fSkipReplayEndCheck write fSkipReplayEndCheck;
@@ -1614,6 +1615,11 @@ begin
   Result := fMapEditor;
 end;
 
+
+function TKMGame.GetMissionFilePath(const aFileName: UnicodeString; const aExt: UnicodeString): UnicodeString;
+begin
+  Result := ExeDir + ChangeFileExt(fParams.MissionFileRel, '.' + string(aFileName)) + aExt;
+end;
 
 function TKMGame.GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
 const
