@@ -1618,9 +1618,7 @@ end;
 
 function TKMGame.GetMissionFilePath(const aFileName: UnicodeString; const aExt: UnicodeString): UnicodeString;
 begin
-  // check for MissionPath\aFileName.aExt
-  Result := GetLocalizedFilePath(ExeDir + ChangeFileExt(fParams.MissionFileRel, '.' + string(aFileName)),
-                                 gResLocales.UserLocale, gResLocales.FallbackLocale, aExt);
+  Result := ExeDir + ChangeFileExt(fParams.MissionFileRel, '.' + string(aFileName)) + aExt;
 end;
 
 function TKMGame.GetScriptSoundFilePath(const aSound: AnsiString; aAudioFormat: TKMAudioFormat): UnicodeString;
