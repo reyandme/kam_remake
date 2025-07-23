@@ -955,10 +955,10 @@ end;
 //This is used for scripting actions.
 procedure TKMSelection.ChangeSelectionRectangle(aLeft, aTop, aRight, aBottom: Integer);
 begin
-  fSelectionRect.Left   := Max(0, aLeft);
-  fSelectionRect.Top    := Max(0, aTop);
-  fSelectionRect.Right  := Max(0, aRight);
-  fSelectionRect.Bottom := Max(0, aBottom);
+  fSelectionRect.Left   := aLeft;
+  fSelectionRect.Top    := aTop;
+  fSelectionRect.Right  := aRight;
+  fSelectionRect.Bottom := aBottom;
 end;
 
 procedure TKMSelection.SyncTempLand;
