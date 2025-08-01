@@ -416,8 +416,8 @@ procedure TKMMenuLobby.CreateControls(aParent: TKMPanel);
   end;
 
 const
-  CW = 690; C1 = 35; C2 = 200; C3 = 360; C4 = 445; C5 = 570; C6 = 650;
-  C1W = 155; C2W = 150; C3W = 75; C4W = 80;
+  CW = 690; C1 = 10; C2 = 220; C3 = 375; C4 = 460; C5 = 570; C6 = 650;
+  C1W = 170; C2W = 145; C3W = 75; C4W = 80; FL = 15;
   TC2_ADD = 50;
   ALL_TXT_W_MIN = 35;
 var
@@ -429,28 +429,28 @@ begin
     //Server Name
     Panel_ServerName := TKMPanel.Create(Panel_Lobby, 30, 30, CW, 26);
       TKMBevel.Create(Panel_ServerName,   0,  0, CW, 26);
-      Label_ServerName := TKMLabel.Create(Panel_ServerName, 10, 7, CW-20, 20, '', fntMetal, taLeft);
+      Label_ServerName := TKMLabel.Create(Panel_ServerName, C1+FL+5, 7, CW-20, 20, '', fntMetal, taLeft);
+
+      Image_PasswordLock := TKMImage.Create(Panel_ServerName, C1, 5, 12, 16, 73, rxGuiMain);
+      Image_PasswordLock.Hide;
 
     //Players
     Panel_Players := TKMPanel.Create(Panel_Lobby, 30, 61, CW, 340);
       Bevel_Players := TKMBevel.Create(Panel_Players,  0,  0, CW, 340);
 
-      CheckBox_HostControl := TKMCheckBox.Create(Panel_Players, 10, 10, (CW div 2) + TC2_ADD - 10, 20, gResTexts[TX_LOBBY_HOST_DOES_SETUP], fntMetal);
+      CheckBox_HostControl := TKMCheckBox.Create(Panel_Players, C1, 10, (CW div 2) + TC2_ADD - 10, 20, gResTexts[TX_LOBBY_HOST_DOES_SETUP], fntMetal);
       CheckBox_HostControl.OnClick := SetupChange;
 
       CheckBox_Spectators := TKMCheckbox.Create(Panel_Players, (CW div 2) + TC2_ADD, 10, (CW div 2) - TC2_ADD - 10, 20, gResTexts[TX_LOBBY_ALLOW_SPECTATORS], fntMetal);
       CheckBox_Spectators.OnClick := SetupChange;
 
-      CheckBox_RandomizeTeamLocations := TKMCheckBox.Create(Panel_Players, 10, 28, CW-20, 20, gResTexts[TX_LOBBY_RANDOMIZE_LOCATIONS], fntMetal);
+      CheckBox_RandomizeTeamLocations := TKMCheckBox.Create(Panel_Players, C1, 28, CW-20, 20, gResTexts[TX_LOBBY_RANDOMIZE_LOCATIONS], fntMetal);
       CheckBox_RandomizeTeamLocations.OnClick := SetupChange;
 
     offY := 49;
 
-      Image_PasswordLock := TKMImage.Create(Panel_Players, 13, offY, 12, 16, 73, rxGuiMain);
-      Image_PasswordLock.Hide;
-
       //Column titles
-      TKMLabel.Create(Panel_Players, C1, offY, C1W,  20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fntOutline, taLeft);
+      TKMLabel.Create(Panel_Players, C1+FL, offY, C1W,  20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fntOutline, taLeft);
       TKMLabel.Create(Panel_Players, C2, offY, C2W,  20, gResTexts[TX_LOBBY_HEADER_STARTLOCATION], fntOutline, taLeft);
       TKMLabel.Create(Panel_Players, C3, offY, C3W,  20, gResTexts[TX_LOBBY_HEADER_TEAM], fntOutline, taLeft);
       TKMLabel.Create(Panel_Players, C4, offY, C4W,  20, gResTexts[TX_LOBBY_HEADER_FLAGCOLOR], fntOutline, taLeft);
@@ -459,7 +459,7 @@ begin
 
       Bevel_SpecsDivide := TKMBevel.Create(Panel_Players, 10, 50, CW-20, 3);
 
-      Image_HostStar := TKMImage.Create(Panel_Players, C2-25, 50, 20, 20, 77, rxGuiMain);
+      Image_HostStar := TKMImage.Create(Panel_Players, C2-20, 50, 20, 20, 77, rxGuiMain);
       Image_HostStar.Hide;
 
       slotTxtWidth := Max(C1W - 45,
@@ -475,16 +475,16 @@ begin
       for I := 1 to MAX_LOBBY_SLOTS do
       begin
         offY := 70 + (I-1) * 23;
-        Image_Flag[I] := TKMImage.Create(Panel_Players, 10, offY, 20, 20, 0, rxGuiMain);
+        Image_Flag[I] := TKMImage.Create(Panel_Players, 3, offY, 20, 20, 0, rxGuiMain);
         Image_Flag[I].ImageCenter;
         Image_Flag[I].Tag := I; //Required for PlayerMenuShow
         Image_Flag[I].OnClick := PlayerMenuShow;
         Image_Flag[I].HighlightOnMouseOver := True;
 
-        Label_Player[I] := TKMLabel.Create(Panel_Players, C1, offY+2, C1W, 20, '', fntGrey, taLeft);
+        Label_Player[I] := TKMLabel.Create(Panel_Players, C1+FL, offY+2, C1W, 20, '', fntGrey, taLeft);
         Label_Player[I].Hide;
 
-        DropBox_PlayerSlot[I] := TKMDropColumns.Create(Panel_Players, C1, offY, C1W, 20, fntGrey, '', bsMenu, False);
+        DropBox_PlayerSlot[I] := TKMDropColumns.Create(Panel_Players, C1+FL, offY, C1W, 20, fntGrey, '', bsMenu, False);
         DropBox_PlayerSlot[I].DropWidth := slotTxtWidth + 5 + allTxtWidth + 7*Byte(allTxtWidth > ALL_TXT_W_MIN); //Add some extra space for 'All' word
         DropBox_PlayerSlot[I].SetColumns(fntOutline, ['', gResTexts[TX_MENU_MAP_TITLE]], [0, slotTxtWidth + 5], [True, False]);
         //1st column is used to set 'All' (All Open/All AI/All Closed),

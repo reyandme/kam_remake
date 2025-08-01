@@ -593,7 +593,7 @@ const
     'Unused',
     'Can walk',
     'Can walk road',
-    'Can build without|object or house',
+    'Can build or make|road without object',
     'Can build',
     'Can make roads',
     'Can cut tree',
