@@ -3,7 +3,7 @@ unit KM_Units;
 interface
 uses
   Classes, KromUtils, Types,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_UnitVisual,
+  KM_CommonClasses, KM_CommonTypes, KM_Cursor, KM_Defaults, KM_Points, KM_UnitVisual,
   KM_Houses, KM_HouseSchool, KM_HouseInn,
   KM_HandEntity,
   KM_ResTypes;
@@ -1153,6 +1153,10 @@ begin
 
   // Always start with 10 fish in the group
   fFishCount := FISH_CNT_DEFAULT;
+  
+  // allows undo to work for the latest fish group created
+  if gGameParams.IsMapEditor then
+	  fFishCount := gCursor.MapEdFishCount;
 end;
 
 
