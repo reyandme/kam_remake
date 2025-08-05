@@ -1156,7 +1156,7 @@ begin
   
   // allows undo to work for the latest fish group created
   if gGameParams.IsMapEditor then
-	  fFishCount := gCursor.MapEdFishCount;
+      fFishCount := gCursor.MapEdFishCount;
 end;
 
 

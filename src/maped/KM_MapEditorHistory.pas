@@ -66,7 +66,7 @@ type
       GroupMemberCount: Integer;
       GroupColumns: Integer;
       GroupOrder: TKMMapEdOrder;
-	  FishCount: Byte;
+      FishCount: Byte;
     end;
   public
     constructor Create(const aCaption: string);
@@ -383,7 +383,7 @@ begin
 
       fUnits[L].Condition := U.Condition;
       if (U.UnitType = utFish) then
-		    fUnits[L].FishCount := TKMUNitFish(U).FishCount;
+        fUnits[L].FishCount := TKMUnitFish(U).FishCount;
       Inc(L);
     end;
   end;
@@ -458,7 +458,7 @@ begin
       G.MapEdOrder := fUnits[I].GroupOrder;
     end
     else
-	begin
+    begin
       U := gHands.PlayerAnimals.AddUnit(fUnits[I].UnitType, fUnits[I].Position, False);
       if (U is TKMUNitFish) then
 	    TKMUNitFish(U).FishCount := fUnits[I].FishCount;
