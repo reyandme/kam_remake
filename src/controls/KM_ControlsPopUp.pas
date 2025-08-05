@@ -268,6 +268,12 @@ procedure TKMPopUpMenu.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouse
 begin
   inherited;
 
+  // An invisible rectangle somehow appears on screen for TKMPopUpMenu objects.
+  // (TODO - get rid of it one day)
+  // In case we use mouse-down mode, we should hide it, when we pick an item
+  // just like we do it, when we click outside of the popup menu area
+  if fMenuMode = pmmActionOnMouseDownNMove then
+     Hide;
   // Hide list and shape on MouseUp
   fList.Hide;
   fShapeBG.Hide;
