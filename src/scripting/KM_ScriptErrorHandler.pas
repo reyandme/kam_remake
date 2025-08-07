@@ -185,7 +185,7 @@ procedure TKMScriptErrorHandler.HandleScriptErrorString(aType: TKMScriptErrorTyp
     begin
       if DEBUG_SCRIPTING_EXEC or (fLogLinesCnt < fLogLinesCntMax) then
       begin
-        gLog.AddTime('Script: [gametime ' + TickToTimeStr(gGameParams.Tick) + '] ' + aLogErrorMsg); //log the error to global game log
+        gLog.AddTime('Script: [gametime ' + TickToTimeStr(gGameParams.Tick) + '.' + IntToStr(gGameParams.Tick mod 10)  + '] ' + aLogErrorMsg); //log the error to global game log
         AssignFile(fl, fScriptLogFile);
         if not FileExists(fScriptLogFile) then
           Rewrite(fl)
