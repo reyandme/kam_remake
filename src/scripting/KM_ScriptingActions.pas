@@ -6,7 +6,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_TerrainTypes,
   KM_ScriptSound, KM_MediaTypes, KM_ResTypes, KM_ResFonts, KM_HandTypes, KM_HouseWoodcutters,
   KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_ScriptingTypes,
-  KM_AITypes;
+  KM_AITypes, KM_TerrainSelection;
 
 
 type
@@ -238,6 +238,7 @@ type
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
     procedure UnitKill(aUnitID: Integer; aSilent: Boolean);
     function  UnitOrderWalk(aUnitID: Integer; X, Y: Integer): Boolean;
+    procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
   end;
 
 
@@ -270,7 +271,6 @@ begin
   Result := (aHouseType in [Low(HOUSE_ID_TO_TYPE)..High(HOUSE_ID_TO_TYPE)])
             and (HOUSE_ID_TO_TYPE[aHouseType] <> htNone); //KaM index 26 is unused (htNone)
 end;
-
 
 { TKMScriptActions }
 //* Version: 5938
@@ -5375,5 +5375,28 @@ begin
   end;
 end;
 
+//* Version 15000+
+//* Makes vertical/horizontal flip of the map.
+procedure TKMScriptActions.MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
+var
+  fSelection: TKMSelection;
+begin
+  try
+
+  if ((gTerrain.TileInMapCoords(aLeft, aTop) or ((aLeft = 0) and (aTop = 0))) and gTerrain.TileInMapCoords(aRight, aBottom))then
+  begin
+    fSelection := TKMSelection.Create(gGame.TerrainPainter);
+    fSelection.ChangeSelectionRectangle(aLeft, aTop, aRight, aBottom);
+
+    fSelection.Flip(aAxis);
+  end
+  else
+    LogIntParamWarn('Actions.MapFlip', [aLeft, aTop, aRight, aBottom, Ord(aAxis)]);
+
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
 
 end.

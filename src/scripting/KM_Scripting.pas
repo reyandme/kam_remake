@@ -365,6 +365,7 @@ begin
     Sender.AddTypeS('TKMDirection', '(dirNA, dirN, dirNE, dirE, dirSE, ' +
       'dirS, dirSW, dirW, dirNW)');
     Sender.AddTypeS('TKMFieldType', '(ftNone, ftRoad, ftCorn, ftWine, ftInitWine)');
+    Sender.AddTypeS('TKMFlipAxis', '(faHorizontal, faVertical)');
     Sender.AddTypeS('TKMFont', '(fntAntiqua, fntGame, fntGrey, fntMetal, fntMini, ' +
       'fntOutline, fntArial, fntMonospaced)');
     Sender.AddTypeS('TKMGroupOrder', '(goNone, goWalkTo, goAttackHouse, goAttackUnit, goStorm)');
@@ -832,6 +833,7 @@ begin
     RegisterMethodCheck(c, 'procedure MapBrushWithMask(X: Integer; Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind; ' +
       'aRandomTiles: Boolean; aOverrideCustomTiles: Boolean; aBrushMask: TKMTileMaskKind; ' +
       'aBlendingLvl: Integer; aUseMagicBrush: Boolean)');
+    RegisterMethodCheck(c, 'procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis)');
     RegisterMethodCheck(c, 'function  MapTileHeightSet(X, Y: Integer; Height: Integer): Boolean');
     RegisterMethodCheck(c, 'function  MapTileObjectSet(X, Y: Integer; Obj: Integer): Boolean');
     RegisterMethodCheck(c, 'function  MapTileOverlaySet(X, Y: Integer; aOverlay: TKMTileOverlay; aOverwrite: Boolean): Boolean');
@@ -1652,6 +1654,7 @@ begin
       RegisterMethod(@TKMScriptActions.UnitHungerSet, 'UnitHungerSet');
       RegisterMethod(@TKMScriptActions.UnitKill, 'UnitKill');
       RegisterMethod(@TKMScriptActions.UnitOrderWalk, 'UnitOrderWalk');
+      RegisterMethod(@TKMScriptActions.MapFlip, 'MapFlip');
       //*Actions-Reg*//
     end;
 
