@@ -18,6 +18,8 @@ const
   DEFAULT_POPUP_MENU_MODE = pmmActionOnMouseUp;
 
 type
+  // Popup with a short list (context menu)
+  // For bigger taks - use TKMPopUpPanel!
   TKMPopUpMenu = class(TKMPanel)
   private
     fMenuMode: TKMPopUpMenuMode;
