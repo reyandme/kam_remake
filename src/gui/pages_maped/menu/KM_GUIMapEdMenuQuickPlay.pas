@@ -64,7 +64,7 @@ const
   CTRLS_WIDTH = 220;
   MIN_WIDTH = 240;
 var
-  left, top, desiredWidth: Integer;
+  dx, dy, desiredWidth: Integer;
   panelCaption: string;
 begin
   inherited Create;
@@ -74,37 +74,37 @@ begin
 
   PopUp_QuickPlay := TKMPopUpPanel.Create(aParent, desiredWidth, PANEL_QUICKPLAY_HEIGHT, panelCaption, pbGray);
 
-  left := (PopUp_QuickPlay.ItemsPanel.Width - CTRLS_WIDTH) div 2;
-    top := 15;
-    TKMLabel.Create(PopUp_QuickPlay.ItemsPanel, PopUp_QuickPlay.ItemsPanel.Width div 2, top, gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER], fntMetal, taCenter);
-    Inc(top, 25);
+  dx := (PopUp_QuickPlay.ItemsPanel.Width - CTRLS_WIDTH) div 2;
+    dy := 15;
+    TKMLabel.Create(PopUp_QuickPlay.ItemsPanel, PopUp_QuickPlay.ItemsPanel.Width div 2, dy, gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER], fntMetal, taCenter);
+    Inc(dy, 25);
 
-    DropList_SelectHand := TKMDropList.Create(PopUp_QuickPlay.ItemsPanel, left, top, CTRLS_WIDTH, 20, fntGame, '', bsGame);
+    DropList_SelectHand := TKMDropList.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 20, fntGame, '', bsGame);
     DropList_SelectHand.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER_TO_START];
     DropList_SelectHand.OnChange := SelectedHandChanged;
-    Inc(top, 30);
+    Inc(dy, 30);
 
-    TKMBevel.Create(PopUp_QuickPlay.ItemsPanel, left, top - 5, CTRLS_WIDTH, 70);
-    TKMLabel.Create(PopUp_QuickPlay.ItemsPanel, PopUp_QuickPlay.ItemsPanel.Width div 2, top, gResTexts[TX_AI_PLAYER_TYPE], fntOutline, taCenter);
-    Inc(top, 20);
-    Radio_AIOpponents := TKMRadioGroup.Create(PopUp_QuickPlay.ItemsPanel, left + 5, top, CTRLS_WIDTH - 10, 40, fntMetal);
+    TKMBevel.Create(PopUp_QuickPlay.ItemsPanel, dx, dy - 5, CTRLS_WIDTH, 70);
+    TKMLabel.Create(PopUp_QuickPlay.ItemsPanel, PopUp_QuickPlay.ItemsPanel.Width div 2, dy, gResTexts[TX_AI_PLAYER_TYPE], fntOutline, taCenter);
+    Inc(dy, 20);
+    Radio_AIOpponents := TKMRadioGroup.Create(PopUp_QuickPlay.ItemsPanel, dx + 5, dy, CTRLS_WIDTH - 10, 40, fntMetal);
     Radio_AIOpponents.Add(gResTexts[TX_AI_PLAYER_CLASSIC]);
     Radio_AIOpponents.Add(gResTexts[TX_AI_PLAYER_ADVANCED]);
     Radio_AIOpponents.ItemIndex := 0; // Classic AI
 
-    Inc(top, Radio_AIOpponents.Height);
-    Panel_Save := TKMPanel.Create(PopUp_QuickPlay.ItemsPanel, left, top, CTRLS_WIDTH, 230);
+    Inc(dy, Radio_AIOpponents.Height);
+    Panel_Save := TKMPanel.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 230);
 
-    Inc(top, 215);
-    Button_QuickPlay := TKMButton.Create(PopUp_QuickPlay.ItemsPanel, left, top, CTRLS_WIDTH, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE], bsGame);
+    Inc(dy, 215);
+    Button_QuickPlay := TKMButton.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE], bsGame);
     Button_QuickPlay.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE_HINT];
     Button_QuickPlay.OnClick := QuickPlay_Click;
 
-    Inc(top, 45);
-    Label_Difficulty := TKMLabel.Create(PopUp_QuickPlay.ItemsPanel, left, top, gResTexts[TX_MISSION_DIFFICULTY], fntMetal, taLeft);
+    Inc(dy, 45);
+    Label_Difficulty := TKMLabel.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, gResTexts[TX_MISSION_DIFFICULTY], fntMetal, taLeft);
     Label_Difficulty.Anchors := [anLeft, anBottom];
-    Inc(top, 20);
-    DropBox_Difficulty := TKMDropList.Create(PopUp_QuickPlay.ItemsPanel, left, top, CTRLS_WIDTH, 20, fntMetal, gResTexts[TX_MISSION_DIFFICULTY], bsMenu);
+    Inc(dy, 20);
+    DropBox_Difficulty := TKMDropList.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 20, fntMetal, gResTexts[TX_MISSION_DIFFICULTY], bsMenu);
     DropBox_Difficulty.Anchors := [anLeft, anBottom];
 
     Button_Cancel := TKMButton.Create(PopUp_QuickPlay.ItemsPanel, (PopUp_QuickPlay.ItemsPanel.Width - CTRLS_WIDTH) div 2, PopUp_QuickPlay.ItemsPanel.Height - 40,
