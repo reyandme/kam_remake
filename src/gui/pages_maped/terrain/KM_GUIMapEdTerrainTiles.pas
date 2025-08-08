@@ -35,7 +35,7 @@ type
       TilesMagicWater, TilesEyedropper, TilesRotate: TKMButtonFlat;
       NumEdit_SetTileNumber: TKMNumericEdit;
     TilesPalette_Button:  TKMButtonFlat;
-    Panel_TilesPalettePopup: TKMPopUpPanel;
+    Form_TilesPalettePopup: TKMForm;
       Panel_TilesPalette: TKMScrollPanel;
         TilesPaletteTbl: array [0..TABLE_ELEMS - 1] of TKMButtonFlat;
         TilesPaletteRandom: TKMCheckBox;
@@ -161,16 +161,16 @@ begin
   palW := MAX_ROW_SIZE * PAL_S + 50;
   palH := (Length(PAL_ROWS) - 1)*MAPED_TILES_Y*PAL_S + Length(PAL_ROWS) * PAL_Y_GAP + 40;
 
-  Panel_TilesPalettePopup := TKMPopUpPanel.Create(aParent.MasterControl.MasterPanel,
+  Form_TilesPalettePopup := TKMForm.Create(aParent.MasterControl.MasterPanel,
                                                   palW,
                                                   palH,
                                                   gResTexts[TX_MAPED_TERRAIN_TILES_PALETTE],
                                                   pbYellow, True);
-  Panel_TilesPalettePopup.DragEnabled := True;
-  Panel_TilesPalettePopup.CapOffsetY := -5;
-    Panel_TilesPalette := TKMScrollPanel.Create(Panel_TilesPalettePopup.ItemsPanel, 10, 5,
-                                                Panel_TilesPalettePopup.ActualWidth - 40,
-                                                Panel_TilesPalettePopup.ActualHeight - 40,
+  Form_TilesPalettePopup.DragEnabled := True;
+  Form_TilesPalettePopup.CapOffsetY := -5;
+    Panel_TilesPalette := TKMScrollPanel.Create(Form_TilesPalettePopup.ItemsPanel, 10, 5,
+                                                Form_TilesPalettePopup.ActualWidth - 40,
+                                                Form_TilesPalettePopup.ActualHeight - 40,
                                                 [saHorizontal, saVertical], bsGame, ssCommon);
 //    Panel_TilesPalette.ScrollV.Left := Panel_TilesPalette.ScrollV.Left + 20;
     Panel_TilesPalette.Padding.SetRight(10);
@@ -223,8 +223,8 @@ begin
       TilesPaletteRandom.OnClick := TilesChange;
 
   // Set actual width afterwards, so we will set proper BaseWidth on creation and other controls will fit in as they should
-  Panel_TilesPalettePopup.ActualWidth  := Min(Panel_Tiles.Parent.MasterControl.MasterPanel.Width, palW);
-  Panel_TilesPalettePopup.ActualHeight := Min(Panel_Tiles.Parent.MasterControl.MasterPanel.Height,palH);
+  Form_TilesPalettePopup.ActualWidth  := Min(Panel_Tiles.Parent.MasterControl.MasterPanel.Width, palW);
+  Form_TilesPalettePopup.ActualHeight := Min(Panel_Tiles.Parent.MasterControl.MasterPanel.Height,palH);
 
 
   fSubMenuActionsEvents[0] := TilesChange;
@@ -257,7 +257,7 @@ begin
 
   // Do not hide palette on random check
   if not isRandom and not isTileNum then
-    Panel_TilesPalettePopup.Hide;
+    Form_TilesPalettePopup.Hide;
 
   TilesMagicWater.Down := isMagicWater and not TilesMagicWater.Down;
   TilesPaletteMagicWater.Down := TilesMagicWater.Down;
@@ -322,7 +322,7 @@ end;
 
 procedure TKMMapEdTerrainTiles.TilesPalette_ToggleVisibility(Sender: TObject);
 begin
-  Panel_TilesPalettePopup.ToggleVisibility;
+  Form_TilesPalettePopup.ToggleVisibility;
 end;
 
 
@@ -349,15 +349,15 @@ procedure TKMMapEdTerrainTiles.KeyDown(Key: Word; Shift: TShiftState; aIsFirst: 
 begin
   if aHandled or not aIsFirst then Exit;
 
-  if (Key = VK_ESCAPE) and Panel_TilesPalettePopup.Visible then
+  if (Key = VK_ESCAPE) and Form_TilesPalettePopup.Visible then
   begin
-    Panel_TilesPalettePopup.Hide;
+    Form_TilesPalettePopup.Hide;
     aHandled := True;
   end
   else
   if Key = gResKeys[kfMapedTilesPalette] then
   begin
-    Panel_TilesPalettePopup.ToggleVisibility;
+    Form_TilesPalettePopup.ToggleVisibility;
     aHandled := True;
   end;
 end;
@@ -487,19 +487,19 @@ end;
 
 function TKMMapEdTerrainTiles.IsFocused: Boolean;
 begin
-  Result := Visible or Panel_TilesPalettePopup.Visible;
+  Result := Visible or Form_TilesPalettePopup.Visible;
 end;
 
 
 function TKMMapEdTerrainTiles.IsPaletteVisible: Boolean;
 begin
-  Result := Panel_TilesPalettePopup.Visible;
+  Result := Form_TilesPalettePopup.Visible;
 end;
 
 
 procedure TKMMapEdTerrainTiles.PaletteHide;
 begin
-  Panel_TilesPalettePopup.Hide;
+  Form_TilesPalettePopup.Hide;
 end;
 
 

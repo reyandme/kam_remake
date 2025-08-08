@@ -19,7 +19,7 @@ const
 
 type
   // Popup with a short list (context menu)
-  // For bigger taks - use TKMPopUpPanel!
+  // For bigger taks - use TKMForm!
   TKMPopUpMenu = class(TKMPanel)
   private
     fMenuMode: TKMPopUpMenuMode;
@@ -53,7 +53,7 @@ type
     pbScroll  // Yellow scroll with small header roll
   );
 
-  TKMPopUpPanel = class(TKMPanel)
+  TKMForm = class(TKMPanel)
   const
     DEFAULT_CAPTION_FONT = fntOutline;
   private
@@ -274,10 +274,10 @@ begin
 end;
 
 
-{ TKMPopUpPanel }
-// aWidth / aHeight represents not TKMPopUpPanel sizes, but its internal panel: ItemsPanel
+{ TKMForm }
+// aWidth / aHeight represents not TKMForm sizes, but its internal panel: ItemsPanel
 // PopUpPanel draw bigger image behind it
-constructor TKMPopUpPanel.Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '';
+constructor TKMForm.Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '';
                                  aImageType: TKMPopUpBGImageType = pbYellow; aCloseIcon: Boolean = False;
                                  aBevelForContents: Boolean = True; aModalBackground: Boolean = True);
 begin
@@ -347,7 +347,7 @@ begin
 end;
 
 
-function TKMPopUpPanel.MarginMainLeftRight: Integer;
+function TKMForm.MarginMainLeftRight: Integer;
 const
   MARGIN_SIDE: array [TKMPopUpBGImageType] of Byte = (20, 35, 20);
 begin
@@ -355,7 +355,7 @@ begin
 end;
 
 
-function TKMPopUpPanel.MarginMainTop: Integer;
+function TKMForm.MarginMainTop: Integer;
 const
   MARGIN_TOP: array [TKMPopUpBGImageType] of Byte = (40, 80, 50);
 begin
@@ -363,7 +363,7 @@ begin
 end;
 
 
-function TKMPopUpPanel.MarginMainBottom: Integer;
+function TKMForm.MarginMainBottom: Integer;
 const
   MARGIN_BOTTOM: array [TKMPopUpBGImageType] of Byte = (20, 50, 20);
 begin
@@ -371,7 +371,7 @@ begin
 end;
 
 
-function TKMPopUpPanel.MarginCrossTop: Integer;
+function TKMForm.MarginCrossTop: Integer;
 const
   CROSS_TOP: array [TKMPopUpBGImageType] of Byte = (24, 40, 24);
 begin
@@ -379,7 +379,7 @@ begin
 end;
 
 
-function TKMPopUpPanel.MarginCrossRight: Integer;
+function TKMForm.MarginCrossRight: Integer;
 const
   // Margin from right side, depends on bg graphics
   CROSS_RIGHT: array [TKMPopUpBGImageType] of Byte = (50, 130, 55);
@@ -388,13 +388,13 @@ begin
 end;
 
 
-function TKMPopUpPanel.GetCaption: string;
+function TKMForm.GetCaption: string;
 begin
   Result := Label_Caption.Caption;
 end;
 
 
-procedure TKMPopUpPanel.Close(Sender: TObject);
+procedure TKMForm.Close(Sender: TObject);
 begin
   Hide;
 
@@ -403,14 +403,14 @@ begin
 end;
 
 
-procedure TKMPopUpPanel.HandleOtherControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMForm.HandleOtherControlMouseDown(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if Sender = Image_Background then
     MouseDown(X, Y, Shift, Button);
 end;
 
 
-procedure TKMPopUpPanel.HandleOtherControlMouseMove(Sender: TObject; X, Y: Integer; Shift: TShiftState);
+procedure TKMForm.HandleOtherControlMouseMove(Sender: TObject; X, Y: Integer; Shift: TShiftState);
 begin
   inherited;
 
@@ -418,13 +418,13 @@ begin
 end;
 
 
-procedure TKMPopUpPanel.HandleOtherControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMForm.HandleOtherControlMouseUp(Sender: TObject; X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   MouseUp(X, Y, Shift, Button);
 end;
 
 
-procedure TKMPopUpPanel.MouseDown(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMForm.MouseDown(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
 
@@ -434,7 +434,7 @@ begin
   fDragStartPos := TKMPoint.New(X,Y);
 end;
 
-procedure TKMPopUpPanel.MouseMove(X, Y: Integer; Shift: TShiftState);
+procedure TKMForm.MouseMove(X, Y: Integer; Shift: TShiftState);
 begin
   inherited;
 
@@ -446,7 +446,7 @@ begin
   fDragStartPos := TKMPoint.New(X,Y);
 end;
 
-procedure TKMPopUpPanel.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMForm.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
 
@@ -456,7 +456,7 @@ begin
 end;
 
 
-function TKMPopUpPanel.KeyUp(Key: Word; Shift: TShiftState): Boolean;
+function TKMForm.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := inherited;
   if Result then Exit; // Key already handled
@@ -471,7 +471,7 @@ begin
 end;
 
 
-procedure TKMPopUpPanel.SetHeight(aValue: Integer);
+procedure TKMForm.SetHeight(aValue: Integer);
 begin
   inherited;
 
@@ -479,7 +479,7 @@ begin
 end;
 
 
-procedure TKMPopUpPanel.SetWidth(aValue: Integer);
+procedure TKMForm.SetWidth(aValue: Integer);
 begin
   inherited;
 
@@ -487,20 +487,20 @@ begin
 end;
 
 
-procedure TKMPopUpPanel.UpdateSizes;
+procedure TKMForm.UpdateSizes;
 begin
   Image_Background.Width := Width;
   Image_Background.Height := Height;
 end;
 
 
-function TKMPopUpPanel.GetActualWidth: Integer;
+function TKMForm.GetActualWidth: Integer;
 begin
   Result := ItemsPanel.Width;
 end;
 
 
-procedure TKMPopUpPanel.SetActualWidth(aValue: Integer);
+procedure TKMForm.SetActualWidth(aValue: Integer);
 var
   baseW: Integer;
 begin
@@ -509,13 +509,13 @@ begin
 end;
 
 
-function TKMPopUpPanel.GetActualHeight: Integer;
+function TKMForm.GetActualHeight: Integer;
 begin
   Result := ItemsPanel.Height;
 end;
 
 
-procedure TKMPopUpPanel.SetActualHeight(aValue: Integer);
+procedure TKMForm.SetActualHeight(aValue: Integer);
 var
   baseH, h: Integer;
 begin
@@ -525,14 +525,14 @@ begin
 end;
 
 
-procedure TKMPopUpPanel.SetHandleCloseKey(aValue: Boolean);
+procedure TKMForm.SetHandleCloseKey(aValue: Boolean);
 begin
   fHandleCloseKey := aValue;
   Focusable := aValue;
 end;
 
 
-procedure TKMPopUpPanel.SetCapOffsetY(aValue: Integer);
+procedure TKMForm.SetCapOffsetY(aValue: Integer);
 begin
   Label_Caption.Top := Label_Caption.Top + aValue - fCapOffsetY;
 
@@ -540,100 +540,10 @@ begin
 end;
 
 
-procedure TKMPopUpPanel.SetCaption(const aValue: string);
+procedure TKMForm.SetCaption(const aValue: string);
 begin
   Label_Caption.Caption := aValue;
 end;
-
-
-{ TKMForm }
-//constructor TKMForm.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
-//begin
-//  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-//
-//  fHeaderHeight := 24;
-//
-//  fButtonClose := TKMButtonFlat.Create(Self, aWidth - fHeaderHeight + 2, 2, fHeaderHeight-4, fHeaderHeight-4, 340, rxGui);
-//  fButtonClose.OnClick := FormCloseClick;
-//  fLabelCaption := TKMLabel.Create(Self, 0, 5, aWidth, fHeaderHeight, 'Form1', fntOutline, taCenter);
-//  fLabelCaption.Hitable := False;
-//end;
-//
-//
-//procedure TKMForm.FormCloseClick(Sender: TObject);
-//begin
-//  Hide;
-//
-//  if Assigned(OnClose) then
-//    OnClose(Self);
-//end;
-//
-//
-//function TKMForm.GetCaption: UnicodeString;
-//begin
-//  Result := fLabelCaption.Caption;
-//end;
-//
-//
-//procedure TKMForm.SetCaption(const aValue: UnicodeString);
-//begin
-//  fLabelCaption.Caption := aValue;
-//end;
-//
-//
-//function TKMForm.HitHeader(X, Y: Integer): Boolean;
-//begin
-//  Result := InRange(X - AbsLeft, 0, Width) and InRange(Y - AbsTop, 0, fHeaderHeight);
-//end;
-//
-//
-//procedure TKMForm.MouseDown(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
-//begin
-//  inherited;
-//
-//  if HitHeader(X,Y) then
-//  begin
-//    fDragging := True;
-//    fOffsetX := X - AbsLeft;
-//    fOffsetY := Y - AbsTop;
-//  end;
-//
-//  MouseMove(X, Y, Shift);
-//end;
-//
-//
-//procedure TKMForm.MouseMove(X,Y: Integer; Shift: TShiftState);
-//begin
-//  inherited;
-//
-//  if fDragging and (csDown in State) then
-//  begin
-//    AbsLeft := EnsureRange(X - fOffsetX, 0, MasterParent.Width - Width);
-//    AbsTop := EnsureRange(Y - fOffsetY, 0, MasterParent.Height - Height);
-//
-//    if Assigned(OnMove) then
-//      OnMove(Self);
-//  end;
-//end;
-//
-//
-//procedure TKMForm.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-//begin
-//  inherited;
-//  MouseMove(X,Y,Shift);
-//
-//end;
-//
-//
-//procedure TKMForm.PaintPanel(aPaintLayer: TKMPaintLayer);
-//begin
-//  TKMRenderUI.WriteShadow(AbsLeft, AbsTop, Width, Height, 15, $40000000);
-//
-//  TKMRenderUI.WriteOutline(AbsLeft, AbsTop, Width, Height, 3, $FF000000);
-//  TKMRenderUI.WriteOutline(AbsLeft+1, AbsTop+1, Width-2, Height-2, 1, $FF80FFFF);
-//
-//  inherited;
-//end;
 
 
 end.

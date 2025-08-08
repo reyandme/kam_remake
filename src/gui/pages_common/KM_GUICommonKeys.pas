@@ -24,7 +24,7 @@ type
     function ListKeyUp(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     function GetVisible: Boolean;
   protected
-    PopUp_OptionsKeys: TKMPopUpPanel; // Todo: rework to use with TKMPopUpPanel. Check in-game render
+    Form_OptionsKeys: TKMForm;
     Panel_Content: TKMPanel;
     ColumnBox_OptionsKeys: TKMColumnBox;
     Button_OptionsKeysClear: TKMButton;
@@ -64,13 +64,13 @@ begin
 
   fTempKeys := TKMResKeys.Create;
 
-  PopUp_OptionsKeys := TKMPopUpPanel.Create(aParent, FULL_WIDTH, FULL_HEIGHT, gResTexts[TX_MENU_OPTIONS_KEYBIND], pbGray, False, False);
-  PopUp_OptionsKeys.AnchorsCenter;
-  PopUp_OptionsKeys.Left := (aParent.Width - PopUp_OptionsKeys.Width) div 2;
-  PopUp_OptionsKeys.Top := (aParent.Height - PopUp_OptionsKeys.Height) div 2;
-  PopUp_OptionsKeys.CapOffsetY := 20;
+  Form_OptionsKeys := TKMForm.Create(aParent, FULL_WIDTH, FULL_HEIGHT, gResTexts[TX_MENU_OPTIONS_KEYBIND], pbGray, False, False);
+  Form_OptionsKeys.AnchorsCenter;
+  Form_OptionsKeys.Left := (aParent.Width - Form_OptionsKeys.Width) div 2;
+  Form_OptionsKeys.Top := (aParent.Height - Form_OptionsKeys.Height) div 2;
+  Form_OptionsKeys.CapOffsetY := 20;
 
-  Panel_Content := TKMPanel.Create(PopUp_OptionsKeys.ItemsPanel, PAD, 90, FULL_WIDTH - PAD * 2, FULL_HEIGHT - 70 - PAD);
+  Panel_Content := TKMPanel.Create(Form_OptionsKeys.ItemsPanel, PAD, 90, FULL_WIDTH - PAD * 2, FULL_HEIGHT - 70 - PAD);
     ColumnBox_OptionsKeys := TKMColumnBox.Create(Panel_Content, 0, 0, Panel_Content.Width, Panel_Content.Height - 80, fntMetal, bsMenu);
     ColumnBox_OptionsKeys.SetColumns(fntOutline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
     ColumnBox_OptionsKeys.Anchors := [anLeft,anTop,anBottom];
@@ -107,13 +107,13 @@ end;
 
 function TKMGUICommonKeys.GetVisible: Boolean;
 begin
-  Result := PopUp_OptionsKeys.Visible;
+  Result := Form_OptionsKeys.Visible;
 end;
 
 
 procedure TKMGUICommonKeys.Hide;
 begin
-  PopUp_OptionsKeys.Hide;
+  Form_OptionsKeys.Hide;
 
   if Assigned(fOnClose) then
     fOnClose();
@@ -248,7 +248,7 @@ begin
     fTempKeys[KF] := gResKeys[KF];
 
   KeysRefreshList;
-  PopUp_OptionsKeys.Show;
+  Form_OptionsKeys.Show;
 end;
 
 

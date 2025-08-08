@@ -129,7 +129,7 @@ type
       Image_Extra: TKMImage;
       Image_Message: TKMImage;
 
-    PopUp_History: TKMPopUpPanel;
+    Form_History: TKMForm;
       ListBox_History: TKMListBox;
       Button_History_Undo,
       Button_History_Redo,
@@ -340,33 +340,33 @@ begin
   fGuiMenu.GuiMenuQuickPlay := fGuiMenuQuickPlay;
   fGuiTerrain.GuiSelection.GuiRMGPopUp := fGuiRMG;
 
-  // PopUp window will be reated last
-  PopUp_History := TKMPopUpPanel.Create(Panel_Main, 270, 300, gResTexts[TX_MAPED_HISTORY_TITLE], pbScroll, True, False, False);
-  PopUp_History.Left := Panel_Main.Width - PopUp_History.Width;
-  PopUp_History.Top  := 0;
-  PopUp_History.DragEnabled := True;
-  PopUp_History.Hide; // History is hidden by default
-  PopUp_History.OnMouseWheel := History_MouseWheel;
-  PopUp_History.OnClose := History_Close;
-  PopUp_History.Anchors := [anTop, anRight];
+  // Form will be created last
+  Form_History := TKMForm.Create(Panel_Main, 270, 300, gResTexts[TX_MAPED_HISTORY_TITLE], pbScroll, True, False, False);
+  Form_History.Left := Panel_Main.Width - Form_History.Width;
+  Form_History.Top  := 0;
+  Form_History.DragEnabled := True;
+  Form_History.Hide; // History is hidden by default
+  Form_History.OnMouseWheel := History_MouseWheel;
+  Form_History.OnClose := History_Close;
+  Form_History.Anchors := [anTop, anRight];
 
-    ListBox_History := TKMListBox.Create(PopUp_History.ItemsPanel, 10, 10, PopUp_History.ItemsPanel.Width - 20, PopUp_History.ItemsPanel.Height - 50, fntMetal, bsGame);
+    ListBox_History := TKMListBox.Create(Form_History.ItemsPanel, 10, 10, Form_History.ItemsPanel.Width - 20, Form_History.ItemsPanel.Height - 50, fntMetal, bsGame);
     ListBox_History.AutoHideScrollBar := True;
     ListBox_History.ShowHintWhenShort := True;
     ListBox_History.HintBackColor := TKMColor4f.New(87, 72, 37);
     ListBox_History.OnChange := History_ListChange;
     ListBox_History.OnDoubleClick := History_JumpTo;
 
-    Button_History_JumpTo := TKMButton.Create(PopUp_History.ItemsPanel, 10, ListBox_History.Bottom + 5,
+    Button_History_JumpTo := TKMButton.Create(Form_History.ItemsPanel, 10, ListBox_History.Bottom + 5,
                                                              ListBox_History.Width, 20, gResTexts[TX_MAPED_HISTORY_JUMP_TO], bsGame);
     Button_History_JumpTo.OnClick := History_JumpTo;
     Button_History_JumpTo.Hint := gResTexts[TX_MAPED_HISTORY_JUMP_TO_HINT];
 
-    Button_History_Undo := TKMButton.Create(PopUp_History.ItemsPanel, 10, PopUp_History.ItemsPanel.Height - 10, (ListBox_History.Width div 2) - 7, 20, '<< ' + gResTexts[TX_MAPED_UNDO], bsGame);
+    Button_History_Undo := TKMButton.Create(Form_History.ItemsPanel, 10, Form_History.ItemsPanel.Height - 10, (ListBox_History.Width div 2) - 7, 20, '<< ' + gResTexts[TX_MAPED_UNDO], bsGame);
     Button_History_Undo.OnClick := UnRedo_Click;
     Button_History_Undo.Hint := gResTexts[TX_MAPED_UNDO_HINT]+ ' (''Ctrl + Z'')';
 
-    Button_History_Redo := TKMButton.Create(PopUp_History.ItemsPanel, PopUp_History.ItemsPanel.Width - 10 - Button_History_Undo.Width,
+    Button_History_Redo := TKMButton.Create(Form_History.ItemsPanel, Form_History.ItemsPanel.Width - 10 - Button_History_Undo.Width,
                                                            Button_History_Undo.Top, Button_History_Undo.Width, 20, gResTexts[TX_MAPED_REDO] + ' >>', bsGame);
     Button_History_Redo.OnClick := UnRedo_Click;
     Button_History_Redo.Hint := gResTexts[TX_MAPED_REDO_HINT] + ' (''Ctrl + Y'' or ''Ctrl + Shift + Z'')';
@@ -474,15 +474,15 @@ end;
 
 procedure TKMMapEdInterface.History_Click(Sender: TObject);
 begin
-  PopUp_History.Visible := not PopUp_History.Visible;
+  Form_History.Visible := not Form_History.Visible;
 
-  Button_History.Down := PopUp_History.Visible;
+  Button_History.Down := Form_History.Visible;
 end;
 
 
 procedure TKMMapEdInterface.History_Close;
 begin
-  Button_History.Down := PopUp_History.Visible;
+  Button_History.Down := Form_History.Visible;
 end;
 
 
@@ -1332,8 +1332,8 @@ end;
 
 procedure TKMMapEdInterface.History_UpdatePos;
 begin
-  PopUp_History.Left := EnsureRange(PopUp_History.Left, 0, Panel_Main.Width - PopUp_History.Width);
-  PopUp_History.Top  := EnsureRange(PopUp_History.Top, 0, Panel_Main.Height - PopUp_History.Height);
+  Form_History.Left := EnsureRange(Form_History.Left, 0, Panel_Main.Width - Form_History.Width);
+  Form_History.Top  := EnsureRange(Form_History.Top, 0, Panel_Main.Height - Form_History.Height);
 end;
 
 
@@ -1677,7 +1677,7 @@ begin
   fGuiTerrain.Resize;
   fGuiMenu.Resize;
 
-  // Put PopUp_History back into window, if it goes out of it
+  // Put Form_History back into window, if it goes out of it
   History_UpdatePos;
 end;
 

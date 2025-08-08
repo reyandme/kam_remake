@@ -28,7 +28,7 @@ type
 
     procedure DoConfirm(aVisible: Boolean);
   protected
-    Panel_PlayerTypes: TKMPopUpPanel;
+    Form_PlayerTypes: TKMForm;
       ChkBox_PlayerTypes: array [0..MAX_HANDS-1, TKMMapEdPlayerType] of TKMCheckBox;
       Button_PlayerMPSetup: array [0..MAX_HANDS-1] of TKMButtonFlat;
       Button_PlayerDelete: array [0..MAX_HANDS-1] of TKMButtonFlat;
@@ -37,9 +37,9 @@ type
       Label_PlayerId: array [0..MAX_HANDS-1] of TKMLabel;
       Button_Close: TKMButton;
 
-    PopUp_Confirm_Player: TKMPopUpPanel;
+    Form_ConfirmPlayer: TKMForm;
       Players_ScrollPanel: TKMScrollPanel;
-      Image_Confirm_Player: TKMImage;
+      Image_ConfirmPlayer: TKMImage;
       Button_PlayerConfirm, Button_PlayerConfirmCancel: TKMButton;
       Label_PlayerConfirmTitle, Label_PlayerConfirmWarn: TKMLabel;
   public
@@ -88,25 +88,25 @@ begin
 
   panelH := LINE_H * MAX_HANDS + 80;
 
-  Panel_PlayerTypes := TKMPopUpPanel.Create(aParent.MasterParent, PANEL_W, panelH + 20, gResTexts[TX_MAPED_PLAYERS_TYPE],
+  Form_PlayerTypes := TKMForm.Create(aParent.MasterParent, PANEL_W, panelH + 20, gResTexts[TX_MAPED_PLAYERS_TYPE],
                                             pbYellow, False, False);
 
   top := 0;
   TKMLabel.Create(Players_ScrollPanel,  13, top, 20, 20, '#', fntGrey, taLeft);
 
-  with TKMLabel.Create(Panel_PlayerTypes.ItemsPanel, 33, top, 30, 20, gResTexts[TX_MAPED_PLAYERS_DEFAULT_SHORT], fntGrey, taLeft) do
+  with TKMLabel.Create(Form_PlayerTypes.ItemsPanel, 33, top, 30, 20, gResTexts[TX_MAPED_PLAYERS_DEFAULT_SHORT], fntGrey, taLeft) do
     Hint := gResTexts[TX_MAPED_PLAYERS_DEFAULT];
-  with TKMImage.Create(Panel_PlayerTypes.ItemsPanel,84, top, 60, 20, 588, rxGui) do
+  with TKMImage.Create(Form_PlayerTypes.ItemsPanel,84, top, 60, 20, 588, rxGui) do
     Hint := gResTexts[TX_PLAYER_HUMAN];
-  with TKMImage.Create(Panel_PlayerTypes.ItemsPanel,127, top, 20, 20,  62, rxGuiMain) do
+  with TKMImage.Create(Form_PlayerTypes.ItemsPanel,127, top, 20, 20,  62, rxGuiMain) do
     Hint := gResTexts[TX_AI_PLAYER_CLASSIC];
-  with TKMImage.Create(Panel_PlayerTypes.ItemsPanel,169, top, 20, 20,  74, rxGuiMain) do
+  with TKMImage.Create(Form_PlayerTypes.ItemsPanel,169, top, 20, 20,  74, rxGuiMain) do
     Hint := gResTexts[TX_AI_PLAYER_ADVANCED];
 
   Inc(top, 25);
 
-  Players_ScrollPanel := TKMScrollPanel.Create(Panel_PlayerTypes.ItemsPanel, 0, top, Panel_PlayerTypes.ItemsPanel.Width + 10,
-                                               Panel_PlayerTypes.ItemsPanel.Height - top - 75,
+  Players_ScrollPanel := TKMScrollPanel.Create(Form_PlayerTypes.ItemsPanel, 0, top, Form_PlayerTypes.ItemsPanel.Width + 10,
+                                               Form_PlayerTypes.ItemsPanel.Height - top - 75,
                                                [saVertical], bsGame, ssGame);
   Players_ScrollPanel.Anchors := [anTop, anBottom];
 
@@ -142,14 +142,14 @@ begin
     Inc(top, LINE_H);
   end;
 
-  Label_PlayerTypesAll := TKMLabel.Create(Panel_PlayerTypes.ItemsPanel,  13, Panel_PlayerTypes.ItemsPanel.Height - 72, 75, 20,
+  Label_PlayerTypesAll := TKMLabel.Create(Form_PlayerTypes.ItemsPanel,  13, Form_PlayerTypes.ItemsPanel.Height - 72, 75, 20,
                                           gResTexts[TX_MAPED_PLAYER_TYPE_ALLOW_ALL], fntOutline, taLeft);
   Label_PlayerTypesAll.Anchors := [anLeft, anRight, anBottom];
 
   for MPT := Low(ChkBox_PlayerTypesAll) to High(ChkBox_PlayerTypesAll) do
   begin
-    ChkBox_PlayerTypesAll[MPT] := TKMCheckBox.Create(Panel_PlayerTypes.ItemsPanel, 43 + Ord(MPT)*42,
-                                                     Panel_PlayerTypes.ItemsPanel.Height - 72, 20, 20, '', fntMetal, True);
+    ChkBox_PlayerTypesAll[MPT] := TKMCheckBox.Create(Form_PlayerTypes.ItemsPanel, 43 + Ord(MPT)*42,
+                                                     Form_PlayerTypes.ItemsPanel.Height - 72, 20, 20, '', fntMetal, True);
     ChkBox_PlayerTypesAll[MPT].Tag     := Ord(MPT);
     ChkBox_PlayerTypesAll[MPT].Anchors := [anLeft, anRight, anBottom];
     ChkBox_PlayerTypesAll[MPT].Hint    := Format(gResTexts[TX_MAPED_PLAYER_TYPE_ALLOW_ALL_HINT],
@@ -157,37 +157,37 @@ begin
     ChkBox_PlayerTypesAll[MPT].OnClick := Mission_PlayerTypesAllClick;
   end;
 
-  Button_Close := TKMButton.Create(Panel_PlayerTypes.ItemsPanel, 15,
-                                   Panel_PlayerTypes.ItemsPanel.Height - 40,
+  Button_Close := TKMButton.Create(Form_PlayerTypes.ItemsPanel, 15,
+                                   Form_PlayerTypes.ItemsPanel.Height - 40,
                                    PANEL_W - 30, 30, gResTexts[TX_WORD_CLOSE], bsGame);
   Button_Close.Anchors := [anLeft, anRight, anBottom];
   Button_Close.OnClick := ClosePlayerTypes_Click;
 
-  PopUp_Confirm_Player := TKMPopUpPanel.Create(aParent.MasterParent, CONF_W - 70, CONF_H - 130);
-  PopUp_Confirm_Player.AnchorsCenter;
-  PopUp_Confirm_Player.Left := (aParent.MasterParent.Width div 2) - (PopUp_Confirm_Player.Width div 2);
-  PopUp_Confirm_Player.Top := (aParent.MasterParent.Height div 2) - 90;
+  Form_ConfirmPlayer := TKMForm.Create(aParent.MasterParent, CONF_W - 70, CONF_H - 130);
+  Form_ConfirmPlayer.AnchorsCenter;
+  Form_ConfirmPlayer.Left := (aParent.MasterParent.Width div 2) - (Form_ConfirmPlayer.Width div 2);
+  Form_ConfirmPlayer.Top := (aParent.MasterParent.Height div 2) - 90;
 
-    TKMBevel.Create(PopUp_Confirm_Player, -2000,  -2000, 5000, 5000);
+    TKMBevel.Create(Form_ConfirmPlayer, -2000,  -2000, 5000, 5000);
 
-    Image_Confirm_Player := TKMImage.Create(PopUp_Confirm_Player, 0, 0, PopUp_Confirm_Player.Width, PopUp_Confirm_Player.Height, 15, rxGuiMain);
-    Image_Confirm_Player.ImageStretch;
+    Image_ConfirmPlayer := TKMImage.Create(Form_ConfirmPlayer, 0, 0, Form_ConfirmPlayer.Width, Form_ConfirmPlayer.Height, 15, rxGuiMain);
+    Image_ConfirmPlayer.ImageStretch;
 
-    Label_PlayerConfirmTitle := TKMLabel.Create(PopUp_Confirm_Player, PopUp_Confirm_Player.Width div 2, 40,
+    Label_PlayerConfirmTitle := TKMLabel.Create(Form_ConfirmPlayer, Form_ConfirmPlayer.Width div 2, 40,
                                                 Format(gResTexts[TX_MAPED_PLAYER_DELETE_TITLE], [0]), fntOutline, taCenter);
     Label_PlayerConfirmTitle.Anchors := [anLeft, anBottom];
 
-    Label_PlayerConfirmWarn := TKMLabel.Create(PopUp_Confirm_Player, 20, 85, PopUp_Confirm_Player.Width - 40, 0,
+    Label_PlayerConfirmWarn := TKMLabel.Create(Form_ConfirmPlayer, 20, 85, Form_ConfirmPlayer.Width - 40, 0,
                                                gResTexts[TX_MAPED_PLAYER_DELETE_CONFIRM], fntMetal, taCenter);
     Label_PlayerConfirmWarn.WordWrap := True;
     Label_PlayerConfirmWarn.Anchors := [anLeft, anBottom];
 
-    Button_PlayerConfirm := TKMButton.Create(PopUp_Confirm_Player, ((CONF_W - CONF_BTN_PAD) div 2) - CONF_BTN_W, CONF_H - 50, CONF_BTN_W, 30,
+    Button_PlayerConfirm := TKMButton.Create(Form_ConfirmPlayer, ((CONF_W - CONF_BTN_PAD) div 2) - CONF_BTN_W, CONF_H - 50, CONF_BTN_W, 30,
                                              gResTexts[TX_WORD_OK], bsMenu);
     Button_PlayerConfirm.Anchors := [anLeft, anBottom];
     Button_PlayerConfirm.OnClick := PlayerDeleteConfirm_Click;
 
-    Button_PlayerConfirmCancel  := TKMButton.Create(PopUp_Confirm_Player, (CONF_W + CONF_BTN_PAD) div 2, CONF_H - 50, CONF_BTN_W, 30,
+    Button_PlayerConfirmCancel  := TKMButton.Create(Form_ConfirmPlayer, (CONF_W + CONF_BTN_PAD) div 2, CONF_H - 50, CONF_BTN_W, 30,
                                                     gResTexts[TX_WORD_CANCEL], bsMenu);
     Button_PlayerConfirmCancel.Anchors := [anLeft, anBottom];
     Button_PlayerConfirmCancel.OnClick := PlayerDeleteConfirm_Click;
@@ -282,9 +282,9 @@ begin
                        end;
     end;
 
-    PopUp_Confirm_Player.Show;
+    Form_ConfirmPlayer.Show;
   end else
-    PopUp_Confirm_Player.Hide;
+    Form_ConfirmPlayer.Hide;
 end;
 
 
@@ -355,8 +355,8 @@ begin
 
   aHandled := True;
 
-  if PopUp_Confirm_Player.Visible then
-    PopUp_Confirm_Player.Hide //Hide 'delete player' confirmation dialog
+  if Form_ConfirmPlayer.Visible then
+    Form_ConfirmPlayer.Hide //Hide 'delete player' confirmation dialog
   else
     Hide;
 end;
@@ -454,7 +454,7 @@ end;
 
 procedure TKMMapEdMissionPlayers.Hide;
 begin
-  Panel_PlayerTypes.Hide;
+  Form_PlayerTypes.Hide;
 end;
 
 
@@ -462,13 +462,13 @@ procedure TKMMapEdMissionPlayers.Show;
 begin
   UpdatePlayerTypes;
   Mission_PlayerIdUpdate;
-  Panel_PlayerTypes.Show;
+  Form_PlayerTypes.Show;
 end;
 
 
 function TKMMapEdMissionPlayers.Visible: Boolean;
 begin
-  Result := Panel_PlayerTypes.Visible;
+  Result := Form_PlayerTypes.Visible;
 end;
 
 

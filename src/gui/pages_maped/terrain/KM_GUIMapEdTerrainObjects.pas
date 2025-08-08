@@ -54,7 +54,7 @@ type
       ObjectsPalette_Button: TKMButtonFlat;
       ObjectsTable: array [0..8] of TKMButtonFlat;
       ObjectsScroll: TKMScrollBar;
-    PopUp_ObjectsPalette: TKMPopUpPanel;
+    Form_ObjectsPalette: TKMForm;
       Bevel_ObjectsPalette: TKMBevel;
       Image_ObjectsPalette: TKMImage;
       Label_ObjectsPalette: TKMLabel;
@@ -230,23 +230,23 @@ begin
   ObjectsPalette_Button.CapOffsetY := -11;
   ObjectsPalette_Button.OnClick := ObjectsPaletteButton_Click;
 
-  PopUp_ObjectsPalette := TKMPopUpPanel.Create(aParent.MasterParent, aParent.MasterParent.Width - 50, aParent.MasterParent.Height - 50);
-  PopUp_ObjectsPalette.OnChangeVisibility := ObjectsPalette_OnShow;
+  Form_ObjectsPalette := TKMForm.Create(aParent.MasterParent, aParent.MasterParent.Width - 50, aParent.MasterParent.Height - 50);
+  Form_ObjectsPalette.OnChangeVisibility := ObjectsPalette_OnShow;
   // Keep the pop-up centered
-  PopUp_ObjectsPalette.AnchorsCenter;
-  PopUp_ObjectsPalette.Left := 25;
-  PopUp_ObjectsPalette.Top := 25;
+  Form_ObjectsPalette.AnchorsCenter;
+  Form_ObjectsPalette.Left := 25;
+  Form_ObjectsPalette.Top := 25;
 
-    Bevel_ObjectsPalette := TKMBevel.Create(PopUp_ObjectsPalette, -2000,  -2000, 5000, 5000);
+    Bevel_ObjectsPalette := TKMBevel.Create(Form_ObjectsPalette, -2000,  -2000, 5000, 5000);
     Bevel_ObjectsPalette.BackAlpha := 0.7;
     Bevel_ObjectsPalette.EdgeAlpha := 0.9;
     Bevel_ObjectsPalette.OnClickShift := ObjPalette_ClickShift;
 
-    Image_ObjectsPalette := TKMImage.Create(PopUp_ObjectsPalette, 0, 0, PopUp_ObjectsPalette.Width, PopUp_ObjectsPalette.Height, 18, rxGuiMain);
+    Image_ObjectsPalette := TKMImage.Create(Form_ObjectsPalette, 0, 0, Form_ObjectsPalette.Width, Form_ObjectsPalette.Height, 18, rxGuiMain);
     Image_ObjectsPalette.ImageStretch;
     Image_ObjectsPalette.OnClickShift := ObjPalette_ClickShift;
 
-    Scroll_ObjectsPalette := TKMScrollBar.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Width - 20, 25, 20, PopUp_ObjectsPalette.Height - 75, saVertical, bsGame);
+    Scroll_ObjectsPalette := TKMScrollBar.Create(Form_ObjectsPalette, Form_ObjectsPalette.Width - 20, 25, 20, Form_ObjectsPalette.Height - 75, saVertical, bsGame);
     Scroll_ObjectsPalette.MinValue := 0;
     Scroll_ObjectsPalette.Position := 0;
     Scroll_ObjectsPalette.OnChange := ObjectsPalette_Refresh;
@@ -258,7 +258,7 @@ begin
     SetLength(ObjectsPaletteTable, fCountCompact);
     for I := 0 to fCountCompact - 1 do
     begin
-      ObjectsPaletteTable[I] := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, OBJ_CELL_PALETTE_W, OBJ_CELL_PALETTE_H, 1, rxTrees); // Left and Top will update later
+      ObjectsPaletteTable[I] := TKMButtonFlat.Create(Form_ObjectsPalette, 0, 0, OBJ_CELL_PALETTE_W, OBJ_CELL_PALETTE_H, 1, rxTrees); // Left and Top will update later
       ObjectsPaletteTable[I].Tag := I; //Store ID
       ObjectsPaletteTable[I].CapOffsetY := 15;
 //      ObjectsPaletteTable[I].TexOffsetY := 0;
@@ -275,25 +275,25 @@ begin
       SetLength(Image_ObjectAttributes[J], fCountCompact);
       for I := 0 to fCountCompact - 1 do
       begin
-        Image_ObjectAttributes[J, I] := TKMImage.Create(PopUp_ObjectsPalette, 0, 0, 0, 0, 0);
+        Image_ObjectAttributes[J, I] := TKMImage.Create(Form_ObjectsPalette, 0, 0, 0, 0, 0);
         Image_ObjectAttributes[J, I].Hide;
         Image_ObjectAttributes[J, I].Hitable := False;
       end;
     end;
 
-    Label_ObjectsPalette := TKMLabel.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X, 0, gResTexts[TX_MAPED_TERRAIN_OBJECTS_PALETTE], fntOutline, taCenter);
+    Label_ObjectsPalette := TKMLabel.Create(Form_ObjectsPalette, Form_ObjectsPalette.Center.X, 0, gResTexts[TX_MAPED_TERRAIN_OBJECTS_PALETTE], fntOutline, taCenter);
 
-    Button_ObjPaletteErase := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, OBJ_PAL_CELL_W, 32, 340);
+    Button_ObjPaletteErase := TKMButtonFlat.Create(Form_ObjectsPalette, 0, 0, OBJ_PAL_CELL_W, 32, 340);
     Button_ObjPaletteErase.Hint := gResTexts[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
     Button_ObjPaletteErase.Tag := OBJ_NONE_TAG; //no object
     Button_ObjPaletteErase.OnClickShift := ObjPalette_ClickShift;
 
-    Button_ObjPaletteBlock := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, OBJ_PAL_CELL_W, 32, 254, rxTrees);
+    Button_ObjPaletteBlock := TKMButtonFlat.Create(Form_ObjectsPalette, 0, 0, OBJ_PAL_CELL_W, 32, 254, rxTrees);
     Button_ObjPaletteBlock.Hint := gResTexts[TX_MAPED_TERRAIN_OBJECTS_BLOCK];
     Button_ObjPaletteBlock.Tag := OBJ_BLOCK_TAG; //block object
     Button_ObjPaletteBlock.OnClickShift := ObjPalette_ClickShift;
 
-    Button_ClosePalette  := TKMButton.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X - 100, PopUp_ObjectsPalette.Bottom - 50,
+    Button_ClosePalette  := TKMButton.Create(Form_ObjectsPalette, Form_ObjectsPalette.Center.X - 100, Form_ObjectsPalette.Bottom - 50,
                                              200, 30, gResTexts[TX_MAPED_TERRAIN_CLOSE_PALETTE], bsGame);
     Button_ClosePalette.Anchors := [anLeft,anBottom];
     Button_ClosePalette.OnClick := ObjectsPaletteClose_Click;
@@ -514,7 +514,7 @@ procedure TKMMapEdTerrainObjects.ObjectsPalette_Refresh(Sender: TObject);
 var
   I, J, K, leftAdj, topAdj: Integer;
 begin
-  leftAdj := (PopUp_ObjectsPalette.Width - fObjPaletteTableSize.X*(OBJ_PAL_CELL_W + 1) - 25*Byte(Scroll_ObjectsPalette.Visible)) div 2;
+  leftAdj := (Form_ObjectsPalette.Width - fObjPaletteTableSize.X*(OBJ_PAL_CELL_W + 1) - 25*Byte(Scroll_ObjectsPalette.Visible)) div 2;
   topAdj := Image_ObjectsPalette.Top + 60;
 
   K := 0;
@@ -569,29 +569,29 @@ procedure TKMMapEdTerrainObjects.ObjPalette_UpdateControlsPosition;
 var
   RowsCnt, ColsCnt: Integer;
 begin
-  PopUp_ObjectsPalette.Top := 25;
-  PopUp_ObjectsPalette.Left := 25;
-  PopUp_ObjectsPalette.Width := PopUp_ObjectsPalette.MasterParent.Width - 50;
-  PopUp_ObjectsPalette.Height := PopUp_ObjectsPalette.MasterParent.Height - 50;
+  Form_ObjectsPalette.Top := 25;
+  Form_ObjectsPalette.Left := 25;
+  Form_ObjectsPalette.Width := Form_ObjectsPalette.MasterParent.Width - 50;
+  Form_ObjectsPalette.Height := Form_ObjectsPalette.MasterParent.Height - 50;
 
-  RowsCnt := Max(1, (PopUp_ObjectsPalette.Height - 80) div (OBJ_CELL_PALETTE_H + 1));
+  RowsCnt := Max(1, (Form_ObjectsPalette.Height - 80) div (OBJ_CELL_PALETTE_H + 1));
   //Calc cols count without Scroll first
-  ColsCnt := EnsureRange(PopUp_ObjectsPalette.Width div (OBJ_CELL_PALETTE_W + 1), 1, OBJECTS_PALETTE_MAX_COLS_CNT);
+  ColsCnt := EnsureRange(Form_ObjectsPalette.Width div (OBJ_CELL_PALETTE_W + 1), 1, OBJECTS_PALETTE_MAX_COLS_CNT);
   Scroll_ObjectsPalette.Visible := RowsCnt*ColsCnt < fCountCompact;
   //Recalc ColsCount considering possible scroll width
-  ColsCnt := EnsureRange((PopUp_ObjectsPalette.Width - 25*Byte(Scroll_ObjectsPalette.Visible)) div (OBJ_PAL_CELL_W + 1), 1, OBJECTS_PALETTE_MAX_COLS_CNT);
+  ColsCnt := EnsureRange((Form_ObjectsPalette.Width - 25*Byte(Scroll_ObjectsPalette.Visible)) div (OBJ_PAL_CELL_W + 1), 1, OBJECTS_PALETTE_MAX_COLS_CNT);
 
   fObjPaletteTableSize := KMPoint(ColsCnt, RowsCnt);
 
   Image_ObjectsPalette.Width := GetObjPaletteTableWidth + 150;
   Image_ObjectsPalette.Height := GetObjPaletteTableHeight + 220;
-  Image_ObjectsPalette.Left := (PopUp_ObjectsPalette.Width - Image_ObjectsPalette.Width) div 2;
-  Image_ObjectsPalette.Top := ((PopUp_ObjectsPalette.Height - Image_ObjectsPalette.Height) div 2) - 25;
+  Image_ObjectsPalette.Left := (Form_ObjectsPalette.Width - Image_ObjectsPalette.Width) div 2;
+  Image_ObjectsPalette.Top := ((Form_ObjectsPalette.Height - Image_ObjectsPalette.Height) div 2) - 25;
 
-  Label_ObjectsPalette.Left := PopUp_ObjectsPalette.Center.X - 30;
+  Label_ObjectsPalette.Left := Form_ObjectsPalette.Center.X - 30;
   Label_ObjectsPalette.Top := Image_ObjectsPalette.Top + 60;
 
-  Button_ClosePalette.Left := PopUp_ObjectsPalette.Center.X - 125;
+  Button_ClosePalette.Left := Form_ObjectsPalette.Center.X - 125;
   Button_ClosePalette.Top := Image_ObjectsPalette.Bottom - 110;
 
   Button_ObjPaletteErase.Top := Image_ObjectsPalette.Bottom - 110;
@@ -638,10 +638,10 @@ var
   objIndex: Integer;
 begin
   if ssRight in Shift then
-    PopUp_ObjectsPalette.Hide
+    Form_ObjectsPalette.Hide
   else if (ssLeft in Shift) and (Sender is TKMButtonFlat) then
   begin
-    PopUp_ObjectsPalette.Hide;
+    Form_ObjectsPalette.Hide;
     objIndex := TKMButtonFlat(Sender).Tag;
     ObjectsUpdate(objIndex);
 
@@ -752,13 +752,13 @@ end;
 
 procedure TKMMapEdTerrainObjects.ObjectsPaletteButton_Click(Sender: TObject);
 begin
-  PopUp_ObjectsPalette.Show;
+  Form_ObjectsPalette.Show;
 end;
 
 
 procedure TKMMapEdTerrainObjects.ObjectsPaletteClose_Click(Sender: TObject);
 begin
-  PopUp_ObjectsPalette.Hide;
+  Form_ObjectsPalette.Hide;
 end;
 
 
@@ -826,20 +826,20 @@ end;
 
 function TKMMapEdTerrainObjects.IsPaletteVisible: Boolean;
 begin
-  Result := PopUp_ObjectsPalette.Visible;
+  Result := Form_ObjectsPalette.Visible;
 end;
 
 
 procedure TKMMapEdTerrainObjects.PaletteHide;
 begin
-  PopUp_ObjectsPalette.Hide;
+  Form_ObjectsPalette.Hide;
 end;
 
 
 procedure TKMMapEdTerrainObjects.Hide;
 begin
   Panel_Objects.Hide;
-  PopUp_ObjectsPalette.Hide;
+  Form_ObjectsPalette.Hide;
   gMain.FormMain.SuppressAltForMenu := False;
 end;
 
@@ -881,9 +881,9 @@ begin
 
   if Key = VK_ESCAPE then
   begin
-    if PopUp_ObjectsPalette.Visible then
+    if Form_ObjectsPalette.Visible then
      begin
-       PopUp_ObjectsPalette.Hide;
+       Form_ObjectsPalette.Hide;
         aHandled := True;
      end;
   end
@@ -897,7 +897,7 @@ begin
       fHideAllPages;
     end;
 
-    PopUp_ObjectsPalette.ToggleVisibility;
+    Form_ObjectsPalette.ToggleVisibility;
   end;
 end;
 

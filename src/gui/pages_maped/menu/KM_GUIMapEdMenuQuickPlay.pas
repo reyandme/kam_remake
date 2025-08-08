@@ -26,7 +26,7 @@ type
     procedure SaveBtn_EnableStatusChanged(Sender: TObject; aValue: Boolean);
     procedure UpdateSaveBtnStatus;
   protected
-    PopUp_QuickPlay: TKMPopUpPanel;
+    Form_QuickPlay: TKMForm;
       DropList_SelectHand: TKMDropList;
       Radio_AIOpponents: TKMRadioGroup;
       Panel_Save: TKMPanel;
@@ -44,7 +44,7 @@ type
 
     procedure Hide;
     function Visible: Boolean;
-    //todo: refactoring - do not use KeyDown in TKMMapEdMenuQuickPlay, but use PopUp_QuickPlay.OnKeyDown instead
+    //todo: refactoring - do not use KeyDown in TKMMapEdMenuQuickPlay, but use Form_QuickPlay.OnKeyDown instead
     function KeyDown(Key: Word; Shift: TShiftState): Boolean;
   end;
 
@@ -70,44 +70,44 @@ begin
   inherited Create;
 
   panelCaption := gResTexts[TX_MAPED_MAP_QUICK_PLAY];
-  desiredWidth := Max(MIN_WIDTH, gRes.Fonts[TKMPopUpPanel.DEFAULT_CAPTION_FONT].GetTextSize(panelCaption).X + 40);
+  desiredWidth := Max(MIN_WIDTH, gRes.Fonts[TKMForm.DEFAULT_CAPTION_FONT].GetTextSize(panelCaption).X + 40);
 
-  PopUp_QuickPlay := TKMPopUpPanel.Create(aParent, desiredWidth, PANEL_QUICKPLAY_HEIGHT, panelCaption, pbGray);
+  Form_QuickPlay := TKMForm.Create(aParent, desiredWidth, PANEL_QUICKPLAY_HEIGHT, panelCaption, pbGray);
 
-  dx := (PopUp_QuickPlay.ItemsPanel.Width - CTRLS_WIDTH) div 2;
+  dx := (Form_QuickPlay.ItemsPanel.Width - CTRLS_WIDTH) div 2;
     dy := 15;
-    TKMLabel.Create(PopUp_QuickPlay.ItemsPanel, PopUp_QuickPlay.ItemsPanel.Width div 2, dy, gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER], fntMetal, taCenter);
+    TKMLabel.Create(Form_QuickPlay.ItemsPanel, Form_QuickPlay.ItemsPanel.Width div 2, dy, gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER], fntMetal, taCenter);
     Inc(dy, 25);
 
-    DropList_SelectHand := TKMDropList.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 20, fntGame, '', bsGame);
+    DropList_SelectHand := TKMDropList.Create(Form_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 20, fntGame, '', bsGame);
     DropList_SelectHand.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_SEL_PLAYER_TO_START];
     DropList_SelectHand.OnChange := SelectedHandChanged;
     Inc(dy, 30);
 
-    TKMBevel.Create(PopUp_QuickPlay.ItemsPanel, dx, dy - 5, CTRLS_WIDTH, 70);
-    TKMLabel.Create(PopUp_QuickPlay.ItemsPanel, PopUp_QuickPlay.ItemsPanel.Width div 2, dy, gResTexts[TX_AI_PLAYER_TYPE], fntOutline, taCenter);
+    TKMBevel.Create(Form_QuickPlay.ItemsPanel, dx, dy - 5, CTRLS_WIDTH, 70);
+    TKMLabel.Create(Form_QuickPlay.ItemsPanel, Form_QuickPlay.ItemsPanel.Width div 2, dy, gResTexts[TX_AI_PLAYER_TYPE], fntOutline, taCenter);
     Inc(dy, 20);
-    Radio_AIOpponents := TKMRadioGroup.Create(PopUp_QuickPlay.ItemsPanel, dx + 5, dy, CTRLS_WIDTH - 10, 40, fntMetal);
+    Radio_AIOpponents := TKMRadioGroup.Create(Form_QuickPlay.ItemsPanel, dx + 5, dy, CTRLS_WIDTH - 10, 40, fntMetal);
     Radio_AIOpponents.Add(gResTexts[TX_AI_PLAYER_CLASSIC]);
     Radio_AIOpponents.Add(gResTexts[TX_AI_PLAYER_ADVANCED]);
     Radio_AIOpponents.ItemIndex := 0; // Classic AI
 
     Inc(dy, Radio_AIOpponents.Height);
-    Panel_Save := TKMPanel.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 230);
+    Panel_Save := TKMPanel.Create(Form_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 230);
 
     Inc(dy, 215);
-    Button_QuickPlay := TKMButton.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE], bsGame);
+    Button_QuickPlay := TKMButton.Create(Form_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 30, gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE], bsGame);
     Button_QuickPlay.Hint := gResTexts[TX_MAPED_MAP_QUICK_PLAY_START_NO_SAVE_HINT];
     Button_QuickPlay.OnClick := QuickPlay_Click;
 
     Inc(dy, 45);
-    Label_Difficulty := TKMLabel.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, gResTexts[TX_MISSION_DIFFICULTY], fntMetal, taLeft);
+    Label_Difficulty := TKMLabel.Create(Form_QuickPlay.ItemsPanel, dx, dy, gResTexts[TX_MISSION_DIFFICULTY], fntMetal, taLeft);
     Label_Difficulty.Anchors := [anLeft, anBottom];
     Inc(dy, 20);
-    DropBox_Difficulty := TKMDropList.Create(PopUp_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 20, fntMetal, gResTexts[TX_MISSION_DIFFICULTY], bsMenu);
+    DropBox_Difficulty := TKMDropList.Create(Form_QuickPlay.ItemsPanel, dx, dy, CTRLS_WIDTH, 20, fntMetal, gResTexts[TX_MISSION_DIFFICULTY], bsMenu);
     DropBox_Difficulty.Anchors := [anLeft, anBottom];
 
-    Button_Cancel := TKMButton.Create(PopUp_QuickPlay.ItemsPanel, (PopUp_QuickPlay.ItemsPanel.Width - CTRLS_WIDTH) div 2, PopUp_QuickPlay.ItemsPanel.Height - 40,
+    Button_Cancel := TKMButton.Create(Form_QuickPlay.ItemsPanel, (Form_QuickPlay.ItemsPanel.Width - CTRLS_WIDTH) div 2, Form_QuickPlay.ItemsPanel.Height - 40,
                                       CTRLS_WIDTH, 30, gResTexts[TX_WORD_CANCEL], bsGame);
     Button_Cancel.Anchors := [anBottom];
     Button_Cancel.Hint := gResTexts[TX_WORD_CANCEL];
@@ -190,7 +190,7 @@ begin
 end;
 
 
-//todo: refactoring - do not use KeyDown in TKMMapEdMenuQuickPlay, but use PopUp_QuickPlay.OnKeyDown instead
+//todo: refactoring - do not use KeyDown in TKMMapEdMenuQuickPlay, but use Form_QuickPlay.OnKeyDown instead
 function TKMMapEdMenuQuickPlay.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := True; //We want to handle all keys here
@@ -239,7 +239,7 @@ begin
     DropBox_Difficulty.Hide;
   end;
 
-  PopUp_QuickPlay.ActualHeight := PANEL_QUICKPLAY_HEIGHT - 50*(Byte(not DropBox_Difficulty.IsSetVisible));
+  Form_QuickPlay.ActualHeight := PANEL_QUICKPLAY_HEIGHT - 50*(Byte(not DropBox_Difficulty.IsSetVisible));
 end;
 
 
@@ -334,21 +334,21 @@ end;
 
 procedure TKMMapEdMenuQuickPlay.Hide;
 begin
-  PopUp_QuickPlay.Hide;
+  Form_QuickPlay.Hide;
 end;
 
 
 procedure TKMMapEdMenuQuickPlay.Show;
 begin
   UpdatePanel;
-  PopUp_QuickPlay.Show;
+  Form_QuickPlay.Show;
   fMenuSave.Show;
 end;
 
 
 function TKMMapEdMenuQuickPlay.Visible: Boolean;
 begin
-  Result := PopUp_QuickPlay.Visible;
+  Result := Form_QuickPlay.Visible;
 end;
 
 
