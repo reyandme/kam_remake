@@ -21,17 +21,16 @@ type
     procedure ButtonResetClick(Sender: TObject);
     procedure ListClick(Sender: TObject);
     procedure KeysRefreshList;
-    function KeysUpdate(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
+    function ListKeyUp(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     function GetVisible: Boolean;
   protected
-    PopUp_OptionsKeys: TKMPopUpMenu; // Todo: rework to use with TKMPopUpPanel. Check in-game render
-      Panel_OptionsKeys: TKMPanel;
-        ColumnBox_OptionsKeys: TKMColumnBox;
-        Panel_OptionKeys_Btns: TKMPanel;
-          Button_OptionsKeysClear: TKMButton;
-          Button_OptionsKeysReset: TKMButton;
-          Button_OptionsKeysOK: TKMButton;
-          Button_OptionsKeysCancel: TKMButton;
+    PopUp_OptionsKeys: TKMPopUpPanel; // Todo: rework to use with TKMPopUpPanel. Check in-game render
+    Panel_Content: TKMPanel;
+    ColumnBox_OptionsKeys: TKMColumnBox;
+    Button_OptionsKeysClear: TKMButton;
+    Button_OptionsKeysReset: TKMButton;
+    Button_OptionsKeysOK: TKMButton;
+    Button_OptionsKeysCancel: TKMButton;
   public
     constructor Create(aParent: TKMPanel; aOnKeysUpdated: TKMEvent; aDrawBGBevel: Boolean = True);
     destructor Destroy; override;
@@ -52,8 +51,12 @@ uses
 
 
 { TKMGUICommonKeys }
-
 constructor TKMGUICommonKeys.Create(aParent: TKMPanel; aOnKeysUpdated: TKMEvent; aDrawBGBevel: Boolean = True);
+const
+  FULL_WIDTH = 660;
+  FULL_HEIGHT = 620;
+  PAD = 20;
+  BTN_WIDTH = ((FULL_WIDTH - PAD * 2) - 10 * 2) div 3;
 begin
   inherited Create;
 
@@ -61,46 +64,36 @@ begin
 
   fTempKeys := TKMResKeys.Create;
 
-  PopUp_OptionsKeys := TKMPopUpMenu.Create(aParent, 740);
-    PopUp_OptionsKeys.Height := 640;
-    PopUp_OptionsKeys.AnchorsCenter; // Keep centered, don't stretch already poor BG image
-    PopUp_OptionsKeys.Left := (aParent.Width - PopUp_OptionsKeys.Width) div 2;
-    PopUp_OptionsKeys.Top := (aParent.Height - PopUp_OptionsKeys.Height) div 2;
+  PopUp_OptionsKeys := TKMPopUpPanel.Create(aParent, FULL_WIDTH, FULL_HEIGHT, gResTexts[TX_MENU_OPTIONS_KEYBIND], pbGray, False, False);
+  PopUp_OptionsKeys.AnchorsCenter;
+  PopUp_OptionsKeys.Left := (aParent.Width - PopUp_OptionsKeys.Width) div 2;
+  PopUp_OptionsKeys.Top := (aParent.Height - PopUp_OptionsKeys.Height) div 2;
+  PopUp_OptionsKeys.CapOffsetY := 20;
 
-      if aDrawBGBevel then
-        TKMBevel.Create(PopUp_OptionsKeys, -2000, -2000, 5000, 5000);
+  Panel_Content := TKMPanel.Create(PopUp_OptionsKeys.ItemsPanel, PAD, 90, FULL_WIDTH - PAD * 2, FULL_HEIGHT - 70 - PAD);
+    ColumnBox_OptionsKeys := TKMColumnBox.Create(Panel_Content, 0, 0, Panel_Content.Width, Panel_Content.Height - 80, fntMetal, bsMenu);
+    ColumnBox_OptionsKeys.SetColumns(fntOutline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
+    ColumnBox_OptionsKeys.Anchors := [anLeft,anTop,anBottom];
+    ColumnBox_OptionsKeys.ShowLines := True;
+    ColumnBox_OptionsKeys.ShowHintWhenShort := True;
+    ColumnBox_OptionsKeys.HintBackColor := TKMColor4f.New(57, 48, 50); // Dark grey
+    ColumnBox_OptionsKeys.PassAllKeys := True;
+    ColumnBox_OptionsKeys.OnChange := ListClick;
+    ColumnBox_OptionsKeys.OnKeyUp := ListKeyUp;
 
-      TKMImage.Create(PopUp_OptionsKeys, 0, 0, PopUp_OptionsKeys.Width, PopUp_OptionsKeys.Height, 15, rxGuiMain).ImageStretch;
+    TKMLabel.Create(Panel_Content, 0, Panel_Content.Height - 30 * 2 - 10, Panel_Content.Width, 20, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fntMetal, taLeft);
 
-      Panel_OptionsKeys := TKMPanel.Create(PopUp_OptionsKeys, 20, 10, 700, 600);
+    Button_OptionsKeysClear := TKMButton.Create(Panel_Content, BTN_WIDTH * 2 + 10 * 2, Panel_Content.Height - 30 * 2 - 10, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
+    Button_OptionsKeysClear.OnClick := ButtonClearClick;
 
-        TKMLabel.Create(Panel_OptionsKeys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fntOutline, taCenter).Anchors := [anLeft,anBottom];
+    Button_OptionsKeysReset := TKMButton.Create(Panel_Content, 0, Panel_Content.Height - 30, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
+    Button_OptionsKeysReset.OnClick := ButtonResetClick;
 
-        ColumnBox_OptionsKeys := TKMColumnBox.Create(Panel_OptionsKeys, 20, 110, 660, 400, fntMetal, bsMenu);
-        ColumnBox_OptionsKeys.SetColumns(fntOutline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
-        ColumnBox_OptionsKeys.Anchors := [anLeft,anTop,anBottom];
-        ColumnBox_OptionsKeys.ShowLines := True;
-        ColumnBox_OptionsKeys.ShowHintWhenShort := True;
-        ColumnBox_OptionsKeys.HintBackColor := TKMColor4f.New(57, 48, 50); // Dark grey
-        ColumnBox_OptionsKeys.PassAllKeys := True;
-        ColumnBox_OptionsKeys.OnChange := ListClick;
-        ColumnBox_OptionsKeys.OnKeyUp := KeysUpdate;
+    Button_OptionsKeysOK := TKMButton.Create(Panel_Content, BTN_WIDTH + 10, Panel_Content.Height - 30, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+    Button_OptionsKeysOK.OnClick := ButtonOkClick;
 
-        TKMLabel.Create(Panel_OptionsKeys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fntMetal, taLeft);
-
-        Panel_OptionKeys_Btns := TKMPanel.Create(Panel_OptionsKeys, 0, 530, Panel_OptionsKeys.Width, Panel_OptionsKeys.Height - 530);
-
-          Button_OptionsKeysClear := TKMButton.Create(Panel_OptionKeys_Btns, 470, 0, 200, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
-          Button_OptionsKeysClear.OnClick := ButtonClearClick;
-
-          Button_OptionsKeysReset := TKMButton.Create(Panel_OptionKeys_Btns, 30, 40, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
-          Button_OptionsKeysReset.OnClick := ButtonResetClick;
-
-          Button_OptionsKeysOK := TKMButton.Create(Panel_OptionKeys_Btns, 250, 40, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
-          Button_OptionsKeysOK.OnClick := ButtonOkClick;
-
-          Button_OptionsKeysCancel := TKMButton.Create(Panel_OptionKeys_Btns, 470, 40, 200, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
-          Button_OptionsKeysCancel.OnClick := ButtonCancelClick;
+    Button_OptionsKeysCancel := TKMButton.Create(Panel_Content, (BTN_WIDTH + 10) * 2, Panel_Content.Height - 30, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
+    Button_OptionsKeysCancel.OnClick := ButtonCancelClick;
 end;
 
 
@@ -152,7 +145,7 @@ end;
 
 procedure TKMGUICommonKeys.ButtonClearClick(Sender: TObject);
 begin
-  KeysUpdate(Button_OptionsKeysClear, 0, []);
+  ListKeyUp(Button_OptionsKeysClear, 0, []);
 end;
 
 
@@ -217,7 +210,7 @@ begin
 end;
 
 
-function TKMGUICommonKeys.KeysUpdate(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
+function TKMGUICommonKeys.ListKeyUp(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
 var
   KF: TKMKeyFunction;
 begin
