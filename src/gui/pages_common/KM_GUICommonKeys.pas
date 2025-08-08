@@ -15,7 +15,11 @@ type
     fOnClose: TKMEvent;
 
     procedure Hide;
-    procedure KeysClick(Sender: TObject);
+    procedure ButtonOkClick(Sender: TObject);
+    procedure ButtonCancelClick(Sender: TObject);
+    procedure ButtonClearClick(Sender: TObject);
+    procedure ButtonResetClick(Sender: TObject);
+    procedure ListClick(Sender: TObject);
     procedure KeysRefreshList;
     function KeysUpdate(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     function GetVisible: Boolean;
@@ -79,7 +83,7 @@ begin
         ColumnBox_OptionsKeys.ShowHintWhenShort := True;
         ColumnBox_OptionsKeys.HintBackColor := TKMColor4f.New(57, 48, 50); // Dark grey
         ColumnBox_OptionsKeys.PassAllKeys := True;
-        ColumnBox_OptionsKeys.OnChange := KeysClick;
+        ColumnBox_OptionsKeys.OnChange := ListClick;
         ColumnBox_OptionsKeys.OnKeyUp := KeysUpdate;
 
         TKMLabel.Create(Panel_OptionsKeys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fntMetal, taLeft);
@@ -87,16 +91,16 @@ begin
         Panel_OptionKeys_Btns := TKMPanel.Create(Panel_OptionsKeys, 0, 530, Panel_OptionsKeys.Width, Panel_OptionsKeys.Height - 530);
 
           Button_OptionsKeysClear := TKMButton.Create(Panel_OptionKeys_Btns, 470, 0, 200, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
-          Button_OptionsKeysClear.OnClick := KeysClick;
+          Button_OptionsKeysClear.OnClick := ButtonClearClick;
 
           Button_OptionsKeysReset := TKMButton.Create(Panel_OptionKeys_Btns, 30, 40, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
-          Button_OptionsKeysReset.OnClick := KeysClick;
+          Button_OptionsKeysReset.OnClick := ButtonResetClick;
 
           Button_OptionsKeysOK := TKMButton.Create(Panel_OptionKeys_Btns, 250, 40, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
-          Button_OptionsKeysOK.OnClick := KeysClick;
+          Button_OptionsKeysOK.OnClick := ButtonOkClick;
 
           Button_OptionsKeysCancel := TKMButton.Create(Panel_OptionKeys_Btns, 470, 40, 200, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
-          Button_OptionsKeysCancel.OnClick := KeysClick;
+          Button_OptionsKeysCancel.OnClick := ButtonCancelClick;
 end;
 
 
@@ -123,38 +127,45 @@ begin
 end;
 
 
-procedure TKMGUICommonKeys.KeysClick(Sender: TObject);
+procedure TKMGUICommonKeys.ButtonOkClick(Sender: TObject);
 var
   KF: TKMKeyFunction;
 begin
-  if Sender = Button_OptionsKeysOK then
-  begin
-    // Save TempKeys to gResKeys
-    for KF := Low(TKMKeyFunction) to High(TKMKeyFunction) do
-      gResKeys[KF] := fTempKeys[KF];
+  // Save TempKeys to gResKeys
+  for KF := Low(TKMKeyFunction) to High(TKMKeyFunction) do
+    gResKeys[KF] := fTempKeys[KF];
 
-    if Assigned(fOnKeysUpdated) then
-      fOnKeysUpdated;
+  if Assigned(fOnKeysUpdated) then
+    fOnKeysUpdated;
 
-    gResKeys.Save;
+  gResKeys.Save;
 
-    Hide;
-  end;
+  Hide;
+end;
 
-  if Sender = Button_OptionsKeysCancel then
-    Hide;
 
-  if (Sender = Button_OptionsKeysClear) then
-    KeysUpdate(Button_OptionsKeysClear, 0, []);
+procedure TKMGUICommonKeys.ButtonCancelClick(Sender: TObject);
+begin
+  Hide;
+end;
 
-  if Sender = Button_OptionsKeysReset then
-  begin
-    fTempKeys.ResetKeymap;
-    KeysRefreshList;
-  end;
 
-  if Sender = ColumnBox_OptionsKeys then
-    ColumnBox_OptionsKeys.HighlightError := False;
+procedure TKMGUICommonKeys.ButtonClearClick(Sender: TObject);
+begin
+  KeysUpdate(Button_OptionsKeysClear, 0, []);
+end;
+
+
+procedure TKMGUICommonKeys.ButtonResetClick(Sender: TObject);
+begin
+  fTempKeys.ResetKeymap;
+  KeysRefreshList;
+end;
+
+
+procedure TKMGUICommonKeys.ListClick(Sender: TObject);
+begin
+  ColumnBox_OptionsKeys.HighlightError := False;
 end;
 
 
