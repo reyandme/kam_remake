@@ -179,9 +179,8 @@ var
   I, J: Integer;
 //  TOA: TKMTerrainObjectAttribute;
   //For brushes
-   K: Integer;
+  K: Integer;
   OT: TKMTerrainObjectType;
-
 begin
   inherited Create;
 
@@ -197,8 +196,8 @@ begin
   Panel_Objects.ScrollV_PadLeft := -20;
   Panel_Objects.AnchorsStretch;
 
-  with TKMLabel.Create(Panel_Objects, 0, TERRAIN_PAGE_TITLE_Y, Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter) do
-    Anchors := [anLeft, anTop, anRight];
+  var lblObjects := TKMLabel.Create(Panel_Objects, 0, TERRAIN_PAGE_TITLE_Y, Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter);
+  lblObjects.Anchors := [anLeft, anTop, anRight];
 
   ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 9, 295, Panel_Objects.Width - 9, 20, saHorizontal, bsGame);
   ObjectsScroll.Anchors := [anLeft, anTop, anRight];
@@ -305,8 +304,8 @@ begin
   // Objects brushes
   top := 355;
 
-  with TKMLabel.Create(Panel_Objects, 9, NextTop(25), Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS_BRUSH], fntOutline, taCenter) do
-    Anchors := [anLeft, anTop, anRight];
+  var lblBrush := TKMLabel.Create(Panel_Objects, 9, NextTop(25), Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS_BRUSH], fntOutline, taCenter);
+  lblBrush.Anchors := [anLeft, anTop, anRight];
 
   BrushSize := TKMTrackBar.Create(Panel_Objects, 9, top + 3, (Panel_Objects.Width - (BTN_BRUSH_TYPE_S * 2) - 18) - 18, 4, MAPED_BRUSH_MAX_SIZE);
   BrushSize.Anchors := [anLeft, anTop, anRight];
@@ -350,14 +349,14 @@ begin
 
   NextTop(80);
 
-  ForestDensity   := TKMTrackBar.Create(Panel_Objects, 9, NextTop(50), (Panel_Objects.Width) - 18, 1, OBJECT_MAX_DENSITY);
+  ForestDensity   := TKMTrackBar.Create(Panel_Objects, 9, NextTop(50), Panel_Objects.Width - 18, 1, OBJECT_MAX_DENSITY);
   ForestDensity.Anchors := [anLeft, anTop, anRight];
   ForestDensity.Caption := gResTexts[TX_MAPED_OBJECTS_BRUSH_DENSITY];
   ForestDensity.Position := 10;
   ForestDensity.OnChange := ObjectsBrushChange;
   ForestDensity.Hint := GetHintWHotkey(TX_MAPED_OBJECTS_BRUSH_DENSITY_HINT, gResTexts[TX_KEY_ALT_MOUSEWHEEL]);
 
-  ForestAge := TKMTrackBar.Create(Panel_Objects, 9, NextTop(50), (Panel_Objects.Width) - 18,
+  ForestAge := TKMTrackBar.Create(Panel_Objects, 9, NextTop(50), Panel_Objects.Width - 18,
                                   Ord(Low(TKMObjBrushForestAge)), Ord(High(TKMObjBrushForestAge)));
   ForestAge.Anchors := [anLeft, anTop, anRight];
   ForestAge.Caption := gResTexts[TX_MAPED_OBJECTS_BRUSH_AGE];
