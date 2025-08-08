@@ -167,12 +167,12 @@ constructor TKMMapEdTerrainObjects.Create(aParent: TKMPanel; aHideAllPages: TKME
   end;
 
 var
-  top: Integer;
+  dy: Integer;
 
   function NextTop(aInc: Integer): Integer;
   begin
-    Result := top;
-    top := top + aInc;
+    Result := dy;
+    Inc(dy, aInc);
   end;
 
 var
@@ -302,25 +302,25 @@ begin
 
 
   // Objects brushes
-  top := 355;
+  dy := 355;
 
   var lblBrush := TKMLabel.Create(Panel_Objects, 9, NextTop(25), Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS_BRUSH], fntOutline, taCenter);
   lblBrush.Anchors := [anLeft, anTop, anRight];
 
-  BrushSize := TKMTrackBar.Create(Panel_Objects, 9, top + 3, (Panel_Objects.Width - (BTN_BRUSH_TYPE_S * 2) - 18) - 18, 4, MAPED_BRUSH_MAX_SIZE);
+  BrushSize := TKMTrackBar.Create(Panel_Objects, 9, dy + 3, (Panel_Objects.Width - (BTN_BRUSH_TYPE_S * 2) - 18) - 18, 4, MAPED_BRUSH_MAX_SIZE);
   BrushSize.Anchors := [anLeft, anTop, anRight];
   BrushSize.Position := 1;
   BrushSize.OnChange := ObjectsBrushChange;
   BrushSize.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT, gResTexts[TX_KEY_CTRL_MOUSEWHEEL]);
 
-  BrushCircle := TKMButtonFlat.Create(Panel_Objects, Panel_Objects.Width - (BTN_BRUSH_TYPE_S * 2) - 18, top, BTN_BRUSH_TYPE_S, BTN_BRUSH_TYPE_S, 592);
+  BrushCircle := TKMButtonFlat.Create(Panel_Objects, Panel_Objects.Width - (BTN_BRUSH_TYPE_S * 2) - 18, dy, BTN_BRUSH_TYPE_S, BTN_BRUSH_TYPE_S, 592);
   BrushCircle.Anchors := [anTop, anRight];
   BrushCircle.OnClick := ObjectsBrushChange;
   BrushCircle.TexOffsetX := 1;
   BrushCircle.TexOffsetY := 1;
   BrushCircle.Down := True;
 
-  BrushSquare := TKMButtonFlat.Create(Panel_Objects, Panel_Objects.Width - BTN_BRUSH_TYPE_S - 9, top, BTN_BRUSH_TYPE_S, BTN_BRUSH_TYPE_S, 593);
+  BrushSquare := TKMButtonFlat.Create(Panel_Objects, Panel_Objects.Width - BTN_BRUSH_TYPE_S - 9, dy, BTN_BRUSH_TYPE_S, BTN_BRUSH_TYPE_S, 593);
   BrushSquare.Anchors := [anTop, anRight];
   BrushSquare.OnClick := ObjectsBrushChange;
   BrushSquare.TexOffsetX := 1;
@@ -341,7 +341,7 @@ begin
     J := Ord(OT) mod 5;
     K := Ord(OT) div 5;
 
-    ObjectTypeSet[OT] := TKMButtonFlat.Create(Panel_Objects, 9+BTN_BRUSH_SIZE*J, top + BTN_BRUSH_SIZE*K, 34, 34, OBJECT_TYPE_BTN[OT].TexID, rxTrees);
+    ObjectTypeSet[OT] := TKMButtonFlat.Create(Panel_Objects, 9+BTN_BRUSH_SIZE*J, dy + BTN_BRUSH_SIZE*K, 34, 34, OBJECT_TYPE_BTN[OT].TexID, rxTrees);
 
     ObjectTypeSet[OT].OnClick := ObjectsBrushChange;
     ObjectTypeSet[OT].Hint := gResTexts[OBJECT_TYPE_BTN[OT].HintTX];
