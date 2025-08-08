@@ -177,8 +177,8 @@ procedure TKMGUICommonKeys.KeysRefreshList;
       TX_KEY_FUNC_GAME_SPEED_2: Result := Format(gResTexts[aTX_ID], [FormatFloat('##0.##', gGameSettings.SpeedMedium)]);
       TX_KEY_FUNC_GAME_SPEED_3: Result := Format(gResTexts[aTX_ID], [FormatFloat('##0.##', gGameSettings.SpeedFast)]);
       TX_KEY_FUNC_GAME_SPEED_4: Result := Format(gResTexts[aTX_ID], [FormatFloat('##0.##', gGameSettings.SpeedVeryFast)]);
-      else                      Result := gResTexts[aTX_ID];
-
+    else
+      Result := gResTexts[aTX_ID];
     end;
   end;
 
@@ -208,8 +208,8 @@ begin
           keyName := keyName + ' / Ctrl + ' + keyName; //Also show Ctrl + F11, for debug window hotkey
         if (KF = kfMapedSaveMap) and (keyName <> '') then
           keyName := 'Ctrl + ' + keyName;
-        ColumnBox_OptionsKeys.AddItem(MakeListRow([GetFunctionName(gResKeyFuncs[KF].TextId), keyName],
-                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], Integer(KF)));
+        ColumnBox_OptionsKeys.AddItem(MakeListRow(
+          [GetFunctionName(gResKeyFuncs[KF].TextId), keyName], [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], Integer(KF)));
       end;
   end;
 
