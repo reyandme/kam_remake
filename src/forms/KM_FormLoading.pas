@@ -45,9 +45,14 @@ end;
 
 procedure TFormLoading.LoadingStep;
 begin
-  if not Visible then Exit;
-  Bar1.StepIt;
-  Refresh;
+  try
+	  if not Visible then Exit;
+	  Bar1.StepIt;
+	  Refresh;
+  except
+      FormStyle := fsNormal;
+      raise;
+  end;
 end;
 
 
