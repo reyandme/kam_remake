@@ -4,7 +4,7 @@ interface
 uses
    Classes, Math, StrUtils, SysUtils,
    KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsTrackBar,
-   KM_Defaults, KM_Pics, KM_Points, KM_InterfaceGame;
+   KM_Defaults, KM_Pics;
 
 
 type
@@ -41,12 +41,12 @@ type
 
 implementation
 uses
-  KM_Game,
-  KM_AIDefensePos,
+  KM_Points,
+  KM_InterfaceGame, KM_Game,
+  KM_AIDefensePos, KM_AITypes,
   KM_HandsCollection, KM_Hand,
   KM_ResTexts, KM_ResFonts, KM_ResTypes,
-  KM_RenderUI,
-  KM_AITypes;
+  KM_RenderUI;
 
 
 { TKMMapEdMarkerDefence }

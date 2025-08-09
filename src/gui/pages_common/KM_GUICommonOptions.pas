@@ -135,12 +135,14 @@ const
   BLOCK_SPAN = 18;
 
 
-{ TKMGUIMainOptions }
+{ TKMGUICommonOptions }
 constructor TKMGUICommonOptions.Create(aParent: TKMPanel; aOptionsKind: TKMGUIOptionsKind; aOnClose, aOnKeysUpdated: TKMEvent);
 var
   topBlock, leftBlock, bottomLine, panelTop, wid: Integer;
   backStr: String;
 begin
+  inherited Create;
+
   // We cant pass pointers to Settings in here cos on GUI creation fMain/gGameApp are not initialized yet
   fOptionsKind := aOptionsKind;
   fOnClose := aOnClose;
@@ -885,8 +887,8 @@ begin
   CheckBox_FullScreen.Checked := gMainSettings.FullScreen;
   // Controls should be disabled, when there is no resolution to choose
   CheckBox_FullScreen.Enabled := fResolutions.Count > 0;
-  DropBox_Resolution.Enabled  := (gMainSettings.FullScreen) and (fResolutions.Count > 0);
-  DropBox_RefreshRate.Enabled := (gMainSettings.FullScreen) and (fResolutions.Count > 0);
+  DropBox_Resolution.Enabled  := gMainSettings.FullScreen and (fResolutions.Count > 0);
+  DropBox_RefreshRate.Enabled := gMainSettings.FullScreen and (fResolutions.Count > 0);
 
   fPrevResolutionId := R;
   Button_ResApply.Disable;

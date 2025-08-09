@@ -4,8 +4,7 @@ interface
 uses
   StrUtils, SysUtils,
   KM_Controls, KM_ControlsBase,
-  KM_Defaults,
-  KM_InterfaceGame, KM_ResHouses;
+  KM_InterfaceGame;
 
 
 type
@@ -41,9 +40,9 @@ type
 
 implementation
 uses
-  KM_RenderUI, KM_Cursor, KM_HandsCollection, KM_ResTexts, KM_Resource, KM_ResFonts,
-  KM_Utils,
-  KM_ResTypes;
+  KM_Defaults, KM_Utils,
+  KM_RenderUI, KM_Cursor, KM_HandsCollection,
+  KM_Resource, KM_ResFonts, KM_ResHouses, KM_ResTexts, KM_ResTypes;
 
 
 { TKMGUIGameBuild }

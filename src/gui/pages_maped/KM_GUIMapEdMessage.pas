@@ -3,7 +3,7 @@ unit KM_GUIMapEdMessage;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_ControlsBase, KM_Defaults;
+   KM_Controls, KM_ControlsBase;
 
 type
   TKMMapEdMessage = class
@@ -25,7 +25,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_RenderUI, KM_Sound, KM_ResSound, KM_ResFonts;
+  KM_Defaults, KM_ResTexts, KM_RenderUI, KM_Sound, KM_ResSound, KM_ResFonts;
 
 
 { TKMMapEdMessage }

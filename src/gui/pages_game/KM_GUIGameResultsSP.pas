@@ -167,7 +167,7 @@ begin
   //That info should only be visible if the mission was won or a replay
   showAIResults := gGameParams.IsReplay
                    or (fGameResultMsg in [grWin, grReplayEnd])
-                   or ((fGameResultMsg = grGameContinues) and (gMySpectator.Hand.AI.HasWon));
+                   or ((fGameResultMsg = grGameContinues) and gMySpectator.Hand.AI.HasWon);
 
   Label_MissionTime.Caption := gResTexts[STAT_MISSION_TIME_LBL_TX_CONTINUES[fGameResultMsg = grGameContinues]];
 
@@ -421,7 +421,7 @@ begin
       for I := 1 to 10 do
       begin
         Inc(adv, 25);
-        if I in [4,7,8] then inc(adv, 15);
+        if I in [4,7,8] then Inc(adv, 15);
         if I = 10 then
         begin
           Inc(adv, 45);

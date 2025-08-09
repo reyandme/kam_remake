@@ -8,7 +8,7 @@ uses
   KM_InterfaceDefaults,
   KM_Controls, KM_ControlsBase, KM_ControlsForm, KM_ControlsScroll, KM_ControlsSwitch, KM_ControlsTrackBar,
   KM_TerrainTypes,
-  KM_Defaults, KM_Pics, KM_Cursor, KM_Points, KM_CommonTypes;
+  KM_Pics, KM_Points, KM_CommonTypes;
 
 type
   TKMTerrainObjectAttribute = (toaBlockDiagonal, toaBlockAllExceptBuild, toaBlockBuild, toaChoppableTree);
@@ -94,9 +94,9 @@ type
 
 implementation
 uses
+  KM_Defaults, KM_Cursor,
   KM_Main, KM_Resource, KM_ResFonts, KM_ResMapElements, KM_ResTexts, KM_ResKeys, KM_Terrain,
-  KM_HandsCollection, KM_RenderUI, KM_InterfaceGame, KM_Utils,
-  KM_ResTypes;
+  KM_HandsCollection, KM_RenderUI, KM_InterfaceGame, KM_Utils, KM_ResTypes;
 
 type
   TKMObjBrushForestAge = (faAll, faAllButStomps, faYoung, faMedium, faBig, faChop, faStomp);
@@ -672,7 +672,7 @@ begin
 
   if Sender = CleanBrush then
   begin
-    if CleanBrush.Down = False then
+    if not CleanBrush.Down then
     begin
       gCursor.MapEdCleanBrush := True;
       CleanBrush.Down := True;
@@ -683,6 +683,7 @@ begin
       CleanBrush.Down := False;
     end;
   end;
+
   if Sender = BrushCircle then
   begin
     gCursor.MapEdShape := hsCircle;
@@ -691,9 +692,8 @@ begin
   end
   else
   if Sender = BrushSquare then
-  begin
     gCursor.MapEdShape := hsSquare;
-  end;
+
   if gCursor.MapEdShape = hsSquare then
   begin
     BrushCircle.Down := False;

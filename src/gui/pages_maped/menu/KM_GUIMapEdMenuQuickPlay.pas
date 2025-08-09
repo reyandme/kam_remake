@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes,
   KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsForm, KM_ControlsSwitch,
-  KM_Defaults, KM_GUIMapEdMenuSave, KM_CommonTypes;
+  KM_GUIMapEdMenuSave, KM_CommonTypes;
 
 type
   TKMMapEdMenuQuickPlay = class
@@ -51,7 +51,9 @@ type
 
 implementation
 uses
-  SysUtils, KromUtils, KM_GameApp, KM_Game, KM_GameParams, KM_GameTypes, KM_HandsCollection, KM_Maps, KM_MapTypes,
+  SysUtils,
+  KromUtils,
+  KM_Defaults, KM_GameApp, KM_Game, KM_GameParams, KM_GameTypes, KM_HandsCollection, KM_Maps, KM_MapTypes,
   KM_Hand, KM_InterfaceGamePlay,
   KM_RenderUI, KM_ResFonts, KM_ResTexts, KM_Resource, Math;
 
@@ -59,6 +61,7 @@ const
   PANEL_QUICKPLAY_HEIGHT = 505;
 
 
+{ TKMMapEdMenuQuickPlay }
 constructor TKMMapEdMenuQuickPlay.Create(aParent: TKMPanel; aOnMapTypChanged: TBooleanEvent);
 const
   CTRLS_WIDTH = 220;
@@ -204,9 +207,9 @@ end;
 procedure TKMMapEdMenuQuickPlay.UpdateControls;
 var
   I: Integer;
-  MD: TKMMissionDIfficulty;
+  MD: TKMMissionDifficulty;
 begin
-  Button_QuickPlay.Enabled :=     not gGame.MapEditor.IsNewMap
+  Button_QuickPlay.Enabled := not gGame.MapEditor.IsNewMap
                               and gGame.MapEditor.SavedMapIsPlayable
                               and DropList_SelectHand.List.Selected;
 
@@ -239,7 +242,7 @@ begin
     DropBox_Difficulty.Hide;
   end;
 
-  Form_QuickPlay.ActualHeight := PANEL_QUICKPLAY_HEIGHT - 50*(Byte(not DropBox_Difficulty.IsSetVisible));
+  Form_QuickPlay.ActualHeight := PANEL_QUICKPLAY_HEIGHT - 50 * Ord(not DropBox_Difficulty.IsSetVisible);
 end;
 
 
@@ -254,12 +257,10 @@ var
   I: Integer;
 begin
   for I := 0 to MAX_HANDS - 1 do
+  if HandCanBePlayedAsHuman(I) then
   begin
-    if HandCanBePlayedAsHuman(I) then
-    begin
-      DropList_SelectHand.SelectByTag(I);
-      Exit;
-    end;
+    DropList_SelectHand.SelectByTag(I);
+    Exit;
   end;
 end;
 
@@ -280,7 +281,7 @@ end;
 procedure TKMMapEdMenuQuickPlay.UpdateSaveBtnStatus;
 begin
   if not DropList_SelectHand.List.Selected then
-    fMenuSave.Button_SaveSave.Disable
+    fMenuSave.Button_SaveSave.Disable;
 end;
 
 

@@ -2,11 +2,9 @@ unit KM_Cursor;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KM_Defaults, KM_Points,
-  KM_ResTilesetTypes,
-  KM_AITypes,
-  KM_MapEdTypes,
-  KM_TerrainTypes;
+  Classes,
+  KM_Defaults, KM_Points,
+  KM_ResTilesetTypes, KM_AITypes, KM_MapEdTypes, KM_TerrainTypes;
 
 
 type

@@ -8,7 +8,7 @@ uses
   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsList, KM_ControlsMemo, KM_ControlsMinimapView,
   KM_ControlsForm, KM_ControlsSwitch, KM_ControlsTrackBar,
   KM_Maps, KM_MinimapMission,
-  KM_InterfaceDefaults, KM_InterfaceTypes, KM_Defaults, KM_CommonTypes, KM_GameTypes;
+  KM_InterfaceDefaults, KM_InterfaceTypes, KM_Defaults, KM_GameTypes;
 
 
 type
@@ -132,9 +132,8 @@ type
 
 implementation
 uses
-  KM_ResTexts, 
-  KM_GameSettings, 
-  KM_ServerSettings,
+  KM_CommonTypes, KM_ResTexts,
+  KM_GameSettings, KM_ServerSettings,
   KM_RenderUI, KM_Pics,
   KM_Resource, KM_ResFonts, KM_ResTypes,
   KM_CommonUtils, KM_MapUtilsExt,
@@ -191,7 +190,7 @@ begin
       TKMBevel.Create(Panel_MapFilter, 0, Radio_BuildFight.Bottom + FILTER_PAD_Y, Panel_MapFilter.Width, 40 + FILTER_PAD_Y);
       Radio_CoopSpecial := TKMRadioGroup.Create(Panel_MapFilter, FILTER_PAD_X, Radio_BuildFight.Bottom + 2*FILTER_PAD_Y, Panel_MapFilter.Width - 2*FILTER_PAD_X, 40, fntGrey);
       Radio_CoopSpecial.Add(gResTexts[TX_LOBBY_MAP_SPECIAL]);
-      Radio_CoopSpecial.Add(gResTexts[TX_LOBBY_MAP_Coop]);
+      Radio_CoopSpecial.Add(gResTexts[TX_LOBBY_MAP_COOP]);
       Radio_CoopSpecial.AllowUncheck := True; //Allow uncheck filter radio
       Radio_CoopSpecial.OnChange := MapFilterChanged;
 
@@ -223,8 +222,7 @@ begin
     Panel_NewMap := TKMPanel.Create(Panel_MapEd, 60, 394, 225, 308);
     Panel_NewMap.Anchors := [anLeft, anTop, anBottom];
       TKMLabel.Create(Panel_NewMap, 6, 0, 188, 20, gResTexts[TX_MENU_NEW_MAP_SIZE], fntOutline, taLeft);
-      with TKMBevel.Create(Panel_NewMap, 0, 20, 220, 250) do
-        Anchors := [anLeft, anTop, anBottom];
+      TKMBevel.Create(Panel_NewMap, 0, 20, 220, 250).Anchors := [anLeft, anTop, anBottom];
       TKMLabel.Create(Panel_NewMap, 8, 28, 88, 20, gResTexts[TX_MENU_MAP_WIDTH], fntOutline, taLeft);
       TKMLabel.Create(Panel_NewMap, 118, 28, 88, 20, gResTexts[TX_MENU_MAP_HEIGHT], fntOutline, taLeft);
 

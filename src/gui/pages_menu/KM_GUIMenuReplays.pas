@@ -5,10 +5,10 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, SysUtils, Math,
-  KM_CommonUtils, KM_CommonTypes,
+  KM_CommonTypes,
   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsList, KM_ControlsMinimapView, KM_ControlsForm, KM_ControlsSwitch,
   KM_Saves,
-  KM_InterfaceDefaults, KM_InterfaceTypes, KM_MinimapGame, KM_Pics, KM_Defaults;
+  KM_InterfaceDefaults, KM_InterfaceTypes, KM_MinimapGame;
 
 
 type
@@ -80,7 +80,7 @@ type
 
 implementation
 uses
-  KM_Log,
+  KM_CommonUtils, KM_Pics, KM_Defaults, KM_Log,
   KM_RenderUI,
   KM_ResTexts, KM_ResFonts, KM_ResTypes,
   KM_GameSettings,
@@ -90,7 +90,7 @@ const
   MINIMAP_NOT_LOADED = -100; // smth, but not -1, as -1 is used for ColumnBox.ItemIndex, when no item is selected
 
 
-{ TKMGUIMenuReplays }
+{ TKMMenuReplays }
 constructor TKMMenuReplays.Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEventText);
 const
   PAD = 30;

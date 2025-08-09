@@ -5,10 +5,10 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Math, SysUtils,
-  KM_CommonUtils, KM_CommonTypes,
+  KM_CommonTypes,
   KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsMinimapView, KM_ControlsForm,
   KM_Saves,
-  KM_InterfaceDefaults, KM_InterfaceTypes, KM_MinimapMission, KM_Defaults;
+  KM_InterfaceDefaults, KM_InterfaceTypes, KM_MinimapMission;
 
 
 type
@@ -35,7 +35,7 @@ type
     procedure Load_SortUpdate(Sender: TObject);
     procedure Load_RefreshList(aJumpToSelected:Boolean);
     procedure Load_Sort(Sender: TObject; const aColumn: Integer);
-    procedure Load_DeleteConfirmation(aVisible:boolean);
+    procedure Load_DeleteConfirmation(aVisible: Boolean);
     procedure BackClick(Sender: TObject);
     procedure EscKeyDown(Sender: TObject);
     procedure KeyDown(Sender: TObject; Key: Word; Shift: TShiftState);
@@ -64,7 +64,7 @@ type
 
 implementation
 uses
-  KM_Log,
+  KM_CommonUtils, KM_Defaults, KM_Log,
   KM_Resource, KM_ResTexts, KM_ResFonts, KM_ResTypes,
   KM_GameSettings,
   KM_RenderUI, KM_Pics,
@@ -157,7 +157,7 @@ function TKMMenuLoad.CanLoadSave(aStrict: Boolean = True): Boolean;
 begin
   Result := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count - 1)
             and (fSaves[ColumnBox_Load.ItemIndex].IsValidStrictly
-                or (not aStrict and fSaves[ColumnBox_Load.ItemIndex].IsValid))
+                or (not aStrict and fSaves[ColumnBox_Load.ItemIndex].IsValid));
 end;
 
 
@@ -325,7 +325,7 @@ begin
 end;
 
 
-procedure TKMMenuLoad.Load_RefreshList(aJumpToSelected:Boolean);
+procedure TKMMenuLoad.Load_RefreshList(aJumpToSelected: Boolean);
 var
   I, prevTop: Integer;
   row: TKMListRow;
@@ -464,7 +464,7 @@ begin
   //Scan should be terminated, it is no longer needed
   fSaves.TerminateScan;
 
-  fOnPageChange(gpSingleplayer);
+  fOnPageChange(gpSinglePlayer);
 end;
 
 

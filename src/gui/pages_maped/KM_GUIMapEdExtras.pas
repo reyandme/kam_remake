@@ -3,7 +3,6 @@ unit KM_GUIMapEdExtras;
 interface
 uses
    Classes, SysUtils,
-   KM_Defaults,
    KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsSwitch, KM_ControlsTrackBar;
 
 type
@@ -43,6 +42,7 @@ type
 
 implementation
 uses
+  KM_Defaults,
   KM_GameApp, KM_GameParams,
   KM_HandsCollection, KM_Sound, KM_ResSound,
   KM_RenderUI, KM_ResFonts, KM_ResTexts;

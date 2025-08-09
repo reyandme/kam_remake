@@ -4,23 +4,20 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  StrUtils, SysUtils, Math, Classes, TypInfo, Generics.Collections,
-  Controls,
-  KromUtils,
+  Controls, StrUtils, SysUtils, Math, Classes, TypInfo, Generics.Collections,
   KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsEdit, KM_ControlsList,  KM_ControlsMinimapView,
   KM_ControlsProgressBar, KM_ControlsSwitch,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Pics, KM_Points, KM_CommonClassesExt,
-  KM_InterfaceTypes, KM_InterfaceGame, KM_Terrain, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
-  KM_UnitGroup, KM_UnitWarrior, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_CommonClassesExt,
+  KM_InterfaceTypes, KM_InterfaceGame, KM_Houses, KM_Units, KM_Minimap, KM_Viewport, KM_Render,
+  KM_UnitGroup, KM_Saves, KM_MessageStack, KM_ResHouses, KM_Alerts, KM_Networking,
   KM_HandEntity, KM_HandTypes,
   KM_GameTypes,
-  KM_ResFonts, KM_ResTypes,
+  KM_ResTypes,
   KM_GUICommonGameOptions,
   KM_GUIGameResultsSP,
   KM_GUIGameResultsMP,
   KM_GUIGameBuild, KM_GUIGameChat, KM_GUIGameHouse, KM_GUIGameUnit, KM_GUIGameRatios, KM_GUIGameStats,
   KM_GUIGameSpectator;
-
 
 const
   MAX_VISIBLE_MSGS = 32;
@@ -389,6 +386,8 @@ type
 
 implementation
 uses
+  KromUtils,
+  KM_Pics, KM_Terrain, KM_UnitWarrior, KM_ResFonts,
   KM_Main, KM_System,
   KM_Entity,
   KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_Cursor, KM_Maps,
@@ -485,7 +484,7 @@ begin
     fSaves.Lock;
     try
       for I := 0 to fSaves.Count - 1 do
-        ListBox_Save.Add(fSaves[i].FileName);
+        ListBox_Save.Add(fSaves[I].FileName);
     finally
       fSaves.Unlock;
     end;
@@ -723,7 +722,7 @@ begin
   inherited;
 
   path := aPath + 'Gameplay' + PathDelim;
-  ForceDirectories(aPath);
+  ForceDirectories(aPath); //todo: Should be `path`?
 
   for I := 0 to Panel_Main.ChildCount - 1 do
     if (Panel_Main.Childs[I] is TKMPanel)
@@ -1240,7 +1239,7 @@ begin
 
     Button_ReplayStep.Disable; // Initial state
     Button_ReplayResume.Disable; // Initial state
- end;
+end;
 
 
 procedure TKMGamePlayInterface.Create_ScriptingOverlay;
@@ -1760,7 +1759,7 @@ begin
     Image_Message[I].Enabled := (I <= fMessageStack.CountStack - 1);
     Image_Message[I].Visible := (I <= fMessageStack.CountStack - 1);
     if I <= fMessageStack.CountStack - 1 then
-      Image_Message[i].TexID := fMessageStack.MessagesStack[I].Icon;
+      Image_Message[I].TexID := fMessageStack.MessagesStack[I].Icon;
   end;
 end;
 
@@ -2264,7 +2263,7 @@ begin
                     gMySpectator.Highlight := H;
                     gMySpectator.Selected := H;
                     UpdateSelectedObject;
-                  end
+                  end;
                 end;
       mkGroup:  begin
                   // Find among groups for a spectator hand
@@ -2814,7 +2813,7 @@ begin
       grWin:       StopPlay(grWin);
       grDefeat:    StopPlay(grDefeat);
       grReplayEnd: StopPlay(grReplayEnd);
-    end
+    end;
   // If they click continue no other action is necessary, the game is still running
 end;
 
@@ -3331,7 +3330,7 @@ begin
 
     if slotIndex = -1 then Continue; //In case we have AI players at hand, without slotIndex
 
-    if (I < gNetworking.Room.Count) and (gNetworking.Room[slotIndex].IsHuman) then
+    if (I < gNetworking.Room.Count) and gNetworking.Room[slotIndex].IsHuman then
     begin
       ping := gNetworking.Room[slotIndex].GetInstantPing;
       fps := gNetworking.Room[slotIndex].FPS;
@@ -3896,7 +3895,7 @@ procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftStat
       fLastDragPoint := gCursor.Cell;
       // Set cursor into "Erase" mode, so dragging it will erase next tiles with the same field type
       gCursor.Tag1 := Byte(cfmErase);
-    end
+    end;
   end;
 
 var
@@ -3990,11 +3989,12 @@ procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer; var a
   procedure HandleFieldLMBDrag(const P: TKMPoint; aFieldType: TKMFieldType);
   begin
     if not KMSamePoint(fLastDragPoint, P) then
-      if (gMySpectator.Hand.CanAddFakeFieldPlan(P, aFieldType)) and (gCursor.Tag1 = Byte(cfmPlan)) then
+      if gMySpectator.Hand.CanAddFakeFieldPlan(P, aFieldType) and (gCursor.Tag1 = Byte(cfmPlan)) then
       begin
         gGame.GameInputProcess.CmdBuild(gicBuildToggleFieldPlan, P, aFieldType);
         fLastDragPoint := gCursor.Cell;
-      end else if (gMySpectator.Hand.CanRemFakeFieldPlan(P, aFieldType)) and (gCursor.Tag1 = Byte(cfmErase)) then
+      end else
+      if gMySpectator.Hand.CanRemFakeFieldPlan(P, aFieldType) and (gCursor.Tag1 = Byte(cfmErase)) then
       begin
         gGame.GameInputProcess.CmdBuild(gicBuildToggleFieldPlan, P, aFieldType);
         fLastDragPoint := gCursor.Cell;
@@ -4324,7 +4324,7 @@ begin
                       gSoundPlayer.Play(sfxCantPlace, P, False, 4); // Otherwise there is nothing to erase
                 end;
               end;
-          end
+          end;
       end;
     mbRight:
       begin
@@ -4706,7 +4706,7 @@ begin
         Result := Result + gHands[gMySpectator.Selected.Owner].AI.CityManagement.BalanceText + '|';
       end
       else
-        Result := Result + gHands[gMySpectator.Selected.Owner].AI.Mayor.BalanceText + '|'
+        Result := Result + gHands[gMySpectator.Selected.Owner].AI.Mayor.BalanceText + '|';
     end
     else
     begin
@@ -4716,7 +4716,7 @@ begin
         Result := Result + gMySpectator.Hand.AI.CityManagement.BalanceText + '|';
       end
       else
-        Result := Result + gMySpectator.Hand.AI.Mayor.BalanceText + '|'
+        Result := Result + gMySpectator.Hand.AI.Mayor.BalanceText + '|';
     end;
   end;
 

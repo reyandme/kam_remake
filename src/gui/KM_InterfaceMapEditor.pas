@@ -4,12 +4,11 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Classes, Math, StrUtils, SysUtils,
-  Controls,
+  Classes, Math, StrUtils, SysUtils, Controls,
   KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsMinimapView, KM_ControlsForm,
   KM_Defaults, KM_Pics, KM_Points,
-  KM_Houses, KM_Units, KM_UnitGroup, KM_MapEditor,
-  KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Minimap, KM_Viewport, KM_Render,
+  KM_Houses, KM_MapEditor,
+  KM_InterfaceGame, KM_Minimap, KM_Viewport, KM_Render,
   KM_GUIMapEdHouse,
   KM_GUIMapEdPlayerGoalPopUp,
   KM_GUIMapEdTerrain,
@@ -181,7 +180,7 @@ uses
   KM_ResTexts, KM_Game, KM_GameParams, KM_Cursor,
   KM_Resource, KM_ResHouses, KM_TerrainDeposits, KM_ResKeys, KM_GameApp,
   KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_UnitWarrior,
-  KM_Maps,
+  KM_InterfaceDefaults, KM_Units, KM_UnitGroup, KM_Terrain, KM_Maps,
   KM_Utils, KM_CommonUtils,
   KM_UnitGroupTypes,
   KM_ResTypes;
@@ -1024,7 +1023,7 @@ end;
 
 procedure TKMMapEdInterface.ManageExtrasKeys(Key: Word; Shift: TShiftState);
 begin
-  if not Key in [gResKeys[kfMapedFlatTerrain], gResKeys[kfMapedTilesGrid]] then Exit;
+  if not (Key in [gResKeys[kfMapedFlatTerrain], gResKeys[kfMapedTilesGrid]]) then Exit;
 
   // Flat terrain
   if Key = gResKeys[kfMapedFlatTerrain] then
@@ -1075,13 +1074,13 @@ begin
     gGame.SaveMapEditor(TKMapsCollection.FullPath(Trim(gGameParams.Name), '.dat', fMapIsMultiplayer));
 
   //F1-F5 menu shortcuts
-  if Key = gResKeys[kfMapedTerrain]   then
+  if Key = gResKeys[kfMapedTerrain]  then
     Button_Main[1].Click;
-  if Key = gResKeys[kfMapedVillage]   then
+  if Key = gResKeys[kfMapedVillage]  then
     Button_Main[2].Click;
-  if Key = gResKeys[kfMapedVisual]    then
+  if Key = gResKeys[kfMapedVisual]   then
     Button_Main[3].Click;
-  if Key = gResKeys[kfMapedGlobal]    then
+  if Key = gResKeys[kfMapedGlobal]   then
     Button_Main[4].Click;
   if Key = gResKeys[kfMapedMainMenu] then
     Button_Main[5].Click;

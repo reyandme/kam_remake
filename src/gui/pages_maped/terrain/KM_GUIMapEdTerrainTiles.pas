@@ -7,7 +7,7 @@ uses
   Classes, Math, SysUtils,
   KM_InterfaceDefaults,
   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsForm, KM_ControlsScroll, KM_ControlsSwitch,
-  KM_Defaults, KM_Pics, KM_Points;
+  KM_Pics, KM_Points;
 
 
 const
@@ -63,6 +63,7 @@ type
 
 implementation
 uses
+  KM_Defaults,
   KM_Resource, KM_ResFonts, KM_ResTexts, KM_ResTilesetTypes, KM_ResKeys,
   KM_Cursor, KM_RenderUI, KM_InterfaceGame,
   KM_Utils, KM_CommonUtils,
@@ -306,9 +307,8 @@ begin
     begin
       TilesSet(value + 1);
       TilesTableSetTileTexId(value);
-    end
+    end;
   end else
-
   if (Sender is TKMButtonFlat)
     and not (Sender = TilesMagicWater)
     and not (Sender = TilesRotate)
@@ -467,7 +467,7 @@ begin
   row := TABLE_ELEMS div MAPED_TILES_Y;
   for I := 0 to MAPED_TILES_Y - 1 do
     for K := 0 to row - 1 do
-      TilesPaletteTbl[I * row + K].Down := (gCursor.Mode in [cmTiles, cmEyedropper]) and (gCursor.Tag1 = MapEdTileRemap[I * row + K] - 1)
+      TilesPaletteTbl[I * row + K].Down := (gCursor.Mode in [cmTiles, cmEyedropper]) and (gCursor.Tag1 = MapEdTileRemap[I * row + K] - 1);
 end;
 
 

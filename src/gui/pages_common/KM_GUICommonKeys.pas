@@ -2,7 +2,8 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KM_ResKeys,
+  Classes,
+  KM_ResKeys,
   KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsForm,
   KM_CommonTypes;
 
@@ -12,7 +13,6 @@ type
     fTempKeys: TKMResKeys;
 
     fOnKeysUpdated: TKMEvent;
-    fOnClose: TKMEvent;
 
     procedure Hide;
     procedure ButtonOkClick(Sender: TObject);
@@ -32,14 +32,12 @@ type
     Button_OptionsKeysOK: TKMButton;
     Button_OptionsKeysCancel: TKMButton;
   public
+    OnClose: TKMEvent;
     constructor Create(aParent: TKMPanel; aOnKeysUpdated: TKMEvent; aDrawBGBevel: Boolean = True);
     destructor Destroy; override;
 
-    property Visible: Boolean read GetVisible;
-
     procedure Show;
-
-    property OnClose: TKMEvent read fOnClose write fOnClose;
+    property Visible: Boolean read GetVisible;
   end;
 
 implementation
@@ -115,8 +113,8 @@ procedure TKMGUICommonKeys.Hide;
 begin
   Form_OptionsKeys.Hide;
 
-  if Assigned(fOnClose) then
-    fOnClose();
+  if Assigned(OnClose) then
+    OnClose();
 end;
 
 

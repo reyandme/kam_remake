@@ -43,7 +43,7 @@ type
     property ToolbarWidth: Integer read GetToolbarWidth;
     property ZoomedCellSizePX: Single read GetZoomedCellSizePx; // Cell size in pixels in current zoom
   public
-    ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown, ZoomKeyIn, ZoomKeyOut: boolean;
+    ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown, ZoomKeyIn, ZoomKeyOut: Boolean;
     constructor Create(aToolBarWidth: Integer; aWidth, aHeight: Integer; aOnPositionSet: TPointFEvent);
 
     property Position: TKMPointF read GetPosition write SetPosition;
@@ -121,7 +121,7 @@ begin
 
   sizeY := fMapY + TopPad;
 
-  case (gGameSettings.ZoomBehaviour) of
+  case gGameSettings.ZoomBehaviour of
     // Limit the zoom to within the map boundaries
     zbRestricted:
       begin
@@ -203,7 +203,7 @@ var
   tilesX, tilesY: Single;
 begin
 
-  case (gGameSettings.ZoomBehaviour) of
+  case gGameSettings.ZoomBehaviour of
     zbRestricted :
       begin
         tilesX := fViewportClip.X/2/ZoomedCellSizePX;
@@ -220,8 +220,8 @@ begin
       end;
     zbFull :
       begin
-        tilesX := min(fViewportClip.X/2/ZoomedCellSizePX, (fMapX - 1) / 2);
-        tilesY := min(fViewportClip.Y/2/ZoomedCellSizePX, (fMapY - 1 + TopPad) / 2);
+        tilesX := Min(fViewportClip.X/2/ZoomedCellSizePX, (fMapX - 1) / 2);
+        tilesY := Min(fViewportClip.Y/2/ZoomedCellSizePX, (fMapY - 1 + TopPad) / 2);
 
         // Set position as a pointF in the map coordinates, but also with possible TopPad at the top
         fPosition.X := EnsureRange(Value.X,
@@ -471,10 +471,10 @@ begin
   //Mouse
   if not IGNORE_MOUSE_SCROLLING then
   begin
-    if cursorPoint.X <= screenBounds.Left   + SCROLL_FLEX then begin inc(I,1); fPosition.X := fPosition.X - scrollAdv*(1+(screenBounds.Left   - cursorPoint.X)/SCROLL_FLEX); end;
-    if cursorPoint.Y <= screenBounds.Top    + SCROLL_FLEX then begin inc(I,2); fPosition.Y := fPosition.Y - scrollAdv*(1+(screenBounds.Top    - cursorPoint.Y)/SCROLL_FLEX); end;
-    if cursorPoint.X >= screenBounds.Right -1-SCROLL_FLEX then begin inc(I,4); fPosition.X := fPosition.X + scrollAdv*(1-(screenBounds.Right -1-cursorPoint.X)/SCROLL_FLEX); end;
-    if cursorPoint.Y >= screenBounds.Bottom-1-SCROLL_FLEX then begin inc(I,8); fPosition.Y := fPosition.Y + scrollAdv*(1-(screenBounds.Bottom-1-cursorPoint.Y)/SCROLL_FLEX); end;
+    if cursorPoint.X <= screenBounds.Left   + SCROLL_FLEX then begin Inc(I, 1); fPosition.X := fPosition.X - scrollAdv*(1+(screenBounds.Left   - cursorPoint.X)/SCROLL_FLEX); end;
+    if cursorPoint.Y <= screenBounds.Top    + SCROLL_FLEX then begin Inc(I, 2); fPosition.Y := fPosition.Y - scrollAdv*(1+(screenBounds.Top    - cursorPoint.Y)/SCROLL_FLEX); end;
+    if cursorPoint.X >= screenBounds.Right -1-SCROLL_FLEX then begin Inc(I, 4); fPosition.X := fPosition.X + scrollAdv*(1-(screenBounds.Right -1-cursorPoint.X)/SCROLL_FLEX); end;
+    if cursorPoint.Y >= screenBounds.Bottom-1-SCROLL_FLEX then begin Inc(I, 8); fPosition.Y := fPosition.Y + scrollAdv*(1-(screenBounds.Bottom-1-cursorPoint.Y)/SCROLL_FLEX); end;
   end;
 
   //Now do actual the scrolling, if needed

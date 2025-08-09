@@ -171,7 +171,7 @@ begin
   if fUIMode in [umMP, umSpectate] then
     gNetworking.PostLocalMessage(aMsg, csChat)
   else if Assigned(fOnChatMessage) then
-    fOnChatMessage(aMsg)
+    fOnChatMessage(aMsg);
 end;
 
 
@@ -220,7 +220,7 @@ begin
                                      csSystem);
         Chat_MenuSelect(CHAT_MENU_ALL);
       end else
-        gGameApp.Chat.Post
+        gGameApp.Chat.Post;
     end else
       gGameApp.Chat.Post;
   end;

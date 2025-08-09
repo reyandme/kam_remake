@@ -6,13 +6,11 @@ uses
   {$IFDEF FPC}
   {$IFDEF Unix} LCLIntF, {$ENDIF}
   {$ENDIF}
-  SysUtils, Classes, Math,
-  Controls,
+  SysUtils, Classes, Math, Controls,
   KM_Defaults,
   KM_Controls, KM_ControlsBase,
   KM_Points,
-  KM_InterfaceDefaults, KM_CommonTypes, KM_AIDefensePos,
-  KM_Cursor, KM_Render, KM_MinimapGame, KM_Viewport, KM_ResFonts,
+  KM_InterfaceDefaults, KM_CommonTypes, KM_Render, KM_MinimapGame, KM_Viewport, KM_ResFonts,
   KM_ResTypes, KM_CommonClassesExt, KM_AITypes;
 
 
@@ -154,9 +152,9 @@ const
     HouseType: array [0..3] of TKMHouseType;
     UnitType: array [0..1] of TKMUnitType;
   end = (
-    (HouseType: (htQuarry, htNone, htNone, htNone);                      UnitType: (utStonemason, utNone)),
+    (HouseType: (htQuarry, htNone, htNone, htNone);                     UnitType: (utStonemason, utNone)),
     (HouseType: (htWoodcutters, htNone, htNone, htNone);                UnitType: (utWoodcutter, utNone)),
-    (HouseType: (htFishermans, htNone, htNone, htNone);                  UnitType: (utFisher, utNone)),
+    (HouseType: (htFishermans, htNone, htNone, htNone);                 UnitType: (utFisher, utNone)),
     (HouseType: (htFarm, htVineyard, htNone, htNone);                   UnitType: (utFarmer, utNone)),
     (HouseType: (htMill, htBakery, htNone, htNone);                     UnitType: (utBaker, utNone)),
     (HouseType: (htSwine, htStables, htNone, htNone);                   UnitType: (utAnimalBreeder, utNone)),
@@ -183,7 +181,7 @@ const
     utWolf, utFish,        utWatersnake, utSeastar,
     utCrab, utWaterflower, utWaterleaf,  utDuck);
 
-  Animal_Icon: array [0..7] of word = (
+  Animal_Icon: array [0..7] of Word = (
     71, 72, 73, 74,
     75, 76, 77, 78);
 
@@ -205,7 +203,8 @@ const
 implementation
 uses
   StrUtils, KromUtils,
-  KM_Main, KM_System, 
+  KM_AIDefensePos,
+  KM_Cursor, KM_Main, KM_System,
   KM_GameParams, KM_GameSettings,
   KM_HandsCollection, 
   KM_Terrain, 
@@ -245,7 +244,7 @@ begin
   FreeAndNil(fMinimap);
   FreeAndNil(fViewport);
   FreeAndNil(gRenderPool);
-  Inherited;
+  inherited;
 end;
 
 

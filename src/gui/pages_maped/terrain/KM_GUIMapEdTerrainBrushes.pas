@@ -410,7 +410,7 @@ begin
     begin
       Form_FixTerrainConfirm.Hide;
       aHandled := True;
-    end
+    end;
   end;
 end;
 
