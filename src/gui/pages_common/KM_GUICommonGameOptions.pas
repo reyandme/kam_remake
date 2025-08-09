@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils,
   KM_GUICommonOptions,
-  KM_Controls, KM_ControlsPopUp,
+  KM_Controls, KM_ControlsForm,
   KM_CommonTypes, KM_GUICommonKeys;
 
 type

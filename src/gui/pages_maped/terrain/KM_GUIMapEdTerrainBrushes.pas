@@ -3,7 +3,7 @@ unit KM_GUIMapEdTerrainBrushes;
 interface
 uses
    Classes, Math, SysUtils,
-   KM_Controls, KM_ControlsBase, KM_ControlsPopUp, KM_ControlsScroll, KM_ControlsSwitch, KM_ControlsTrackBar,
+   KM_Controls, KM_ControlsBase, KM_ControlsForm, KM_ControlsScroll, KM_ControlsSwitch, KM_ControlsTrackBar,
    KM_InterfaceDefaults,
    KM_Defaults, KM_Pics, KM_ResTilesetTypes;
 
@@ -32,7 +32,8 @@ type
       RandomElements, OverrideCustomTiles, UseTerrainObjects: TKMCheckBox;
       Button_FixTerrainBrushes: TKMButton;
       Form_FixTerrainConfirm: TKMForm;
-        Button_FixTerrain_Yes, Button_FixTerrain_No: TKMButton;
+        Button_FixTerrain_Yes: TKMButton;
+        Button_FixTerrain_No: TKMButton;
   public
     constructor Create(aParent: TKMPanel);
 

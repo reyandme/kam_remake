@@ -4,7 +4,7 @@ interface
 uses
    Classes, Math, StrUtils, SysUtils,
    KM_InterfaceDefaults,
-   KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsEdit, KM_ControlsPopUp, KM_ControlsSwitch, KM_ControlsTrackBar;
+   KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsEdit, KM_ControlsForm, KM_ControlsSwitch, KM_ControlsTrackBar;
 
 type
   TKMMapEdTownScript = class(TKMMapEdSubMenuPage)

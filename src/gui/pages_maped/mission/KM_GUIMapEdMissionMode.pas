@@ -4,7 +4,7 @@ interface
 uses
    Classes,
    KM_MapTypes,
-   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsMemo, KM_ControlsPopUp, KM_ControlsSwitch,
+   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsMemo, KM_ControlsForm, KM_ControlsSwitch,
    KM_Defaults;
 
 type

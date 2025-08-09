@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes,
-  KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsPopUp, KM_ControlsSwitch,
+  KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsForm, KM_ControlsSwitch,
   KM_Defaults, KM_GUIMapEdMenuSave, KM_CommonTypes;
 
 type

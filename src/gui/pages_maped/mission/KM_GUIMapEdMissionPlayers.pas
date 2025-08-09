@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, SysUtils,
-  KM_Controls, KM_ControlsBase, KM_ControlsPopUp, KM_ControlsSwitch, KM_ControlsScroll,
+  KM_Controls, KM_ControlsBase, KM_ControlsForm, KM_ControlsSwitch, KM_ControlsScroll,
   KM_Defaults, KM_Pics;
 
 type
