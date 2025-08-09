@@ -10,12 +10,9 @@ uses
 
 type
   TKMPopUpMenuMode = (
-    pmmActionOnMouseDownNMove, // Action triggered by mouse down and mouse move (drag)
-    pmmActionOnMouseUp         // Action triggered only by mouse up
+    pmActOnMouseUp,       // Action triggered only by mouse up (default)
+    pmActOnMouseDownNMove // Action triggered by mouse down and mouse move (drag)
   );
-
-const
-  DEFAULT_POPUP_MENU_MODE = pmmActionOnMouseUp;
 
 type
   // Popup with a short list (context menu)
@@ -33,7 +30,7 @@ type
     Shape_Background: TKMShape;
     ColumnBox_List: TKMColumnBox;
   public
-    constructor Create(aParent: TKMPanel; aWidth: Integer; aMenuMode: TKMPopUpMenuMode = DEFAULT_POPUP_MENU_MODE);
+    constructor Create(aParent: TKMPanel; aWidth: Integer; aMenuMode: TKMPopUpMenuMode = pmActOnMouseUp);
     procedure AddItem(const aCaption: UnicodeString; aTag: Integer = 0);
     procedure UpdateItem(aIndex: Integer; const aCaption: UnicodeString);
     procedure Clear;
@@ -154,7 +151,7 @@ uses
 
 
 { TKMPopUpMenu }
-constructor TKMPopUpMenu.Create(aParent: TKMPanel; aWidth: Integer; aMenuMode: TKMPopUpMenuMode = DEFAULT_POPUP_MENU_MODE);
+constructor TKMPopUpMenu.Create(aParent: TKMPanel; aWidth: Integer; aMenuMode: TKMPopUpMenuMode = pmActOnMouseUp);
 begin
   inherited Create(aParent, 0, 0, aWidth, 0);
 
@@ -172,8 +169,8 @@ begin
   ColumnBox_List.ShowHeader := False;
 
   case fMenuMode of
-    pmmActionOnMouseDownNMove: ColumnBox_List.OnChange := MenuActionTriggered;
-    pmmActionOnMouseUp:        ColumnBox_List.OnClick  := MenuActionTriggered;
+    pmActOnMouseUp:        ColumnBox_List.OnClick  := MenuActionTriggered;
+    pmActOnMouseDownNMove: ColumnBox_List.OnChange := MenuActionTriggered;
   end;
 
   fMasterControl.SubscribeOnOtherMouseUp(HandleOtherControlMouseUp);
@@ -226,7 +223,7 @@ begin
   if Assigned(OnClick) then
     OnClick(Self);
 
-  if fMenuMode = pmmActionOnMouseUp then
+  if fMenuMode = pmActOnMouseUp then
     HideMenu;
 end;
 
