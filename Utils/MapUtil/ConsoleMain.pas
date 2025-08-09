@@ -21,8 +21,10 @@ type
 const
   MAPUTIL_VERSION_MAJOR = '2';
   MAPUTIL_VERSION_MINOR = '03';
+
 var
   MAPUTIL_VERSION: String;
+
 const
   MAPUTIL_START_TEXT    = '' + sLineBreak +
     '++=====================================================================================++' + sLineBreak +
@@ -33,9 +35,7 @@ const
   MAPUTIL_HELP_TEXT     = '' +
     '++=====================================================================================++' + sLineBreak +
     '||                                                                                     ||' + sLineBreak +
-    '||  Map Utility has a few options.                                                     ||' + sLineBreak +
-    '||  Main function of this tool is to generate a minimap from map files                 ||' + sLineBreak +
-    '||  Below we will show these options and give a brief explanation what they do.        ||' + sLineBreak +
+    '||  Map Utility is the tool to generate a minimap PNG image from map files             ||' + sLineBreak +
     '||                                                                                     ||' + sLineBreak +
     '||=====================================================================================||' + sLineBreak +
     '||                                                                                     ||' + sLineBreak +
@@ -44,8 +44,8 @@ const
     '||                                                                                     ||' + sLineBreak +
     '||  Options:                                                                           ||' + sLineBreak +
     '||    -h / -help               - Will show this menu                                   ||' + sLineBreak +
-    '||    -a / -revealAll          - Reveal all map on the generated png (default option)  ||' + sLineBreak +
-    '||    -p / -revealPlayers      - Reveal what will players view on the generated png    ||' + sLineBreak +
+    '||    -a / -revealAll          - Reveal whole map (default option)                     ||' + sLineBreak +
+    '||    -p / -revealPlayers      - Reveal what players will see                          ||' + sLineBreak +
     '||    -m / -revealByMapSetting - Reveal according to the map setting `BlockMapPreview` ||' + sLineBreak +
     '||    -o / -outputFile         - Sets path to the output file                          ||' + sLineBreak +
     '||                                                                                     ||' + sLineBreak +
