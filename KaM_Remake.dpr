@@ -80,6 +80,7 @@ uses
   KM_ControlsDragger in 'src\controls\KM_ControlsDragger.pas',
   KM_ControlsDrop in 'src\controls\KM_ControlsDrop.pas',
   KM_ControlsEdit in 'src\controls\KM_ControlsEdit.pas',
+  KM_ControlsForm in 'src\controls\KM_ControlsForm.pas',
   KM_ControlsList in 'src\controls\KM_ControlsList.pas',
   KM_ControlsMemo in 'src\controls\KM_ControlsMemo.pas',
   KM_ControlsMinimapView in 'src\controls\KM_ControlsMinimapView.pas',

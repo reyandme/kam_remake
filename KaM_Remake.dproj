@@ -297,6 +297,7 @@
         <DCCReference Include="src\controls\KM_ControlsDragger.pas"/>
         <DCCReference Include="src\controls\KM_ControlsDrop.pas"/>
         <DCCReference Include="src\controls\KM_ControlsEdit.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsForm.pas"/>
         <DCCReference Include="src\controls\KM_ControlsList.pas"/>
         <DCCReference Include="src\controls\KM_ControlsMemo.pas"/>
         <DCCReference Include="src\controls\KM_ControlsMinimapView.pas"/>
