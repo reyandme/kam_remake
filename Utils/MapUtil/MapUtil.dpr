@@ -104,6 +104,8 @@ begin
 
     fConsoleMain := TConsoleMain.Create;
 
+    fConsoleMain.ShowHeader;
+
     // Always exit after showing help.
     if fParamRecord.Help then
     begin

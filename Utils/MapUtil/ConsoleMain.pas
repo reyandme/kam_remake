@@ -15,25 +15,17 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Start(const aParameterRecord: TCLIParamRecord);
+    procedure ShowHeader;
     procedure ShowHelp;
   end;
 
 const
-  MAPUTIL_VERSION_MAJOR = '2';
-  MAPUTIL_VERSION_MINOR = '03';
+  MAPUTIL_START_TEXT  =
+    '++=====================================================================================++' + sLineBreak +
+    '||                             KaM Remake Map Utility v2.04                            ||' + sLineBreak +
+    '++=====================================================================================++';
 
-var
-  MAPUTIL_VERSION: String;
-
-const
-  MAPUTIL_START_TEXT    = '' + sLineBreak +
-    '++=====================================================================================++' + sLineBreak +
-    '++=====================================================================================++' + sLineBreak +
-    '||                             KaM Remake Map Utility                                  ||' + sLineBreak +
-    '++=====================================================================================++' + sLineBreak +
-    '++=====================================================================================++' + sLineBreak;
-  MAPUTIL_HELP_TEXT     = '' +
-    '++=====================================================================================++' + sLineBreak +
+  MAPUTIL_HELP_TEXT   =
     '||                                                                                     ||' + sLineBreak +
     '||  Map Utility is the tool to generate a minimap PNG image from map files             ||' + sLineBreak +
     '||                                                                                     ||' + sLineBreak +
@@ -88,7 +80,6 @@ begin
   FreeAndNil(fMinimap);
   //@Rey: We might need to free what we have created
   //todo: FreeAndNil(gRes);
-  //todo: FreeAndNil(gLog);
 
   inherited;
 end;
@@ -151,6 +142,12 @@ end;
 procedure TConsoleMain.Start(const aParameterRecord: TCLIParamRecord);
 begin
   GenerateAndSaveMapMinimapImage(aParameterRecord.MapDatPath, aParameterRecord.FOWType, aParameterRecord.OutputFile);
+end;
+
+
+procedure TConsoleMain.ShowHeader;
+begin
+  Writeln(MAPUTIL_START_TEXT);
 end;
 
 
