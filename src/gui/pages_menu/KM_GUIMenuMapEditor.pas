@@ -12,6 +12,11 @@ uses
 
 
 type
+  TKMSelectedMapInfo = record
+    CRC: Cardinal;
+    Name: UnicodeString;
+  end;
+
   TKMMenuMapEditor = class(TKMMenuPageCommon)
   private
     fOnPageChange: TKMMenuChangeEventText; //will be in ancestor class
@@ -21,7 +26,7 @@ type
     fMinimapLastListId: Integer;  // column id, on which last time minimap was loaded. Avoid multiple loads of same minimap, which could happen on every RefreshList
     fScanCompleted: Boolean;      // True, after scan was completed
 
-    fSelectedMapInfo: TKMFileIdentInfo; // Identification info about last selected map
+    fSelectedMapInfo: TKMSelectedMapInfo; // Identification info about last selected map
 
     procedure CreateNewClick(Sender: TObject);
     procedure LoadExistingClick(Sender: TObject);

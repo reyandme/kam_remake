@@ -25,11 +25,6 @@ type
     procedure MenuKeyDown(Key: Word; Shift: TShiftState);
   end;
 
-  TKMFileIdentInfo = record // File identification info (for maps/saves)
-    CRC: Cardinal;
-    Name: UnicodeString;
-  end;
-
   TKMHintStage = (hsFadeIn, hsShown, hsReset);
 
 
