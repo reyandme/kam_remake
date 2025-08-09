@@ -49,6 +49,11 @@ const
     '||    -m / -revealByMapSetting - Reveal according to the map setting `BlockMapPreview` ||' + sLineBreak +
     '||    -o / -outputFile         - Sets path to the output file                          ||' + sLineBreak +
     '||                                                                                     ||' + sLineBreak +
+    '||  Examples:                                                                          ||' + sLineBreak +
+    '||    MapUtil /NewMission/NewMission.dat                                               ||' + sLineBreak +
+    '||    MapUtil -o image.png /NewMission/NewMission.dat                                  ||' + sLineBreak +
+    '||    MapUtil -p /NewMission/NewMission.dat -o image.png                               ||' + sLineBreak +
+    '||                                                                                     ||' + sLineBreak +
     '||=====================================================================================||' + sLineBreak;
 
 
@@ -71,7 +76,6 @@ constructor TConsoleMain.Create;
 begin
   inherited;
 
-  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'MapUtil.log');
   fMinimap := TKMMinimapMission.Create(True);
 
   gRes := TKMResource.Create(nil, nil);
