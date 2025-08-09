@@ -72,7 +72,7 @@ begin
   panelCaption := gResTexts[TX_MAPED_MAP_QUICK_PLAY];
   desiredWidth := Max(MIN_WIDTH, gRes.Fonts[TKMForm.DEFAULT_CAPTION_FONT].GetTextSize(panelCaption).X + 40);
 
-  Form_QuickPlay := TKMForm.Create(aParent, desiredWidth, PANEL_QUICKPLAY_HEIGHT, panelCaption, pbGray);
+  Form_QuickPlay := TKMForm.Create(aParent, desiredWidth, PANEL_QUICKPLAY_HEIGHT, panelCaption, fbGray);
 
   dx := (Form_QuickPlay.ItemsPanel.Width - CTRLS_WIDTH) div 2;
     dy := 15;

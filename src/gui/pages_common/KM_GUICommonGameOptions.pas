@@ -47,7 +47,7 @@ const
 begin
   inherited Create;
 
-  Form_Settings := TKMForm.Create(aParent.MasterParent, W_PNL, H_PNL, aCaption, pbYellow, False, False);
+  Form_Settings := TKMForm.Create(aParent.MasterParent, W_PNL, H_PNL, aCaption, fbYellow, False, False);
   Form_Settings.HandleCloseKey := True;
   Form_Settings.CapOffsetY := -5;
 

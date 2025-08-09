@@ -165,7 +165,7 @@ begin
                                                   palW,
                                                   palH,
                                                   gResTexts[TX_MAPED_TERRAIN_TILES_PALETTE],
-                                                  pbYellow, True);
+                                                  fbYellow, True);
   Form_TilesPalettePopup.DragEnabled := True;
   Form_TilesPalettePopup.CapOffsetY := -5;
     Panel_TilesPalette := TKMScrollPanel.Create(Form_TilesPalettePopup.ItemsPanel, 10, 5,

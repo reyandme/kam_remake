@@ -93,7 +93,7 @@ begin
   Button_MissionParams.Hint := gResTexts[TX_MAPED_MISSION_PARAMETERS_BTN_HINT];
   Button_MissionParams.OnClick := MissionParams_Click;
 
-  Form_MissionParams := TKMForm.Create(aParent.MasterParent, 700, POPUP_H, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE], pbYellow, False, False);
+  Form_MissionParams := TKMForm.Create(aParent.MasterParent, 700, POPUP_H, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE], fbYellow, False, False);
   Form_MissionParams.CapOffsetY := -5;
   Form_MissionParams.OnKeyDown := MissionParams_OnKeyDown;
 

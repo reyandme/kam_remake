@@ -232,7 +232,7 @@ begin
   Button_FixTerrainBrushes.Hint := gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_HINT];
   Button_FixTerrainBrushes.OnClick := BrushFixTerrain_Click;
 
-  Form_FixTerrainConfirm := TKMForm.Create(aParent.MasterParent, 400, 200, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_TITLE], pbGray);
+  Form_FixTerrainConfirm := TKMForm.Create(aParent.MasterParent, 400, 200, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_TITLE], fbGray);
     TKMLabel.Create(Form_FixTerrainConfirm.ItemsPanel, Form_FixTerrainConfirm.ActualWidth div 2, 10, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_CONFIRM], fntGrey, taCenter);
 
     Button_FixTerrain_Yes := TKMButton.Create(Form_FixTerrainConfirm.ItemsPanel,

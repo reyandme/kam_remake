@@ -125,7 +125,7 @@ begin
     // Delete popup
     var deleteConfirmStr := gResTexts[TX_MENU_LOAD_DELETE_CONFIRM];
     var deleteConfirmWidth := Max(450, gRes.Fonts[DELETE_CONFIRM_FONT].GetTextSize(deleteConfirmStr).X + PAD*2);
-    Form_Delete := TKMForm.Create(Panel_Load, deleteConfirmWidth, 200, gResTexts[TX_MENU_LOAD_DELETE], pbGray, False, False);
+    Form_Delete := TKMForm.Create(Panel_Load, deleteConfirmWidth, 200, gResTexts[TX_MENU_LOAD_DELETE], fbGray, False, False);
     Form_Delete.Left := (Panel_Load.Width div 2) - (Form_Delete.Width div 2);
     Form_Delete.Top := (Panel_Load.Height div 2) - 90;
 

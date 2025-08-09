@@ -89,7 +89,7 @@ begin
   panelH := LINE_H * MAX_HANDS + 80;
 
   Form_PlayerTypes := TKMForm.Create(aParent.MasterParent, PANEL_W, panelH + 20, gResTexts[TX_MAPED_PLAYERS_TYPE],
-                                            pbYellow, False, False);
+                                            fbYellow, False, False);
 
   top := 0;
   TKMLabel.Create(Players_ScrollPanel,  13, top, 20, 20, '#', fntGrey, taLeft);

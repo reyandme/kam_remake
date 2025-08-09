@@ -340,8 +340,8 @@ begin
   fGuiMenu.GuiMenuQuickPlay := fGuiMenuQuickPlay;
   fGuiTerrain.GuiSelection.GuiRMGPopUp := fGuiRMG;
 
-  // Form will be created last
-  Form_History := TKMForm.Create(Panel_Main, 270, 300, gResTexts[TX_MAPED_HISTORY_TITLE], pbScroll, True, False, False);
+  // Form will be created last to be on top
+  Form_History := TKMForm.Create(Panel_Main, 270, 300, gResTexts[TX_MAPED_HISTORY_TITLE], fbScroll, True, False, False);
   Form_History.Left := Panel_Main.Width - Form_History.Width;
   Form_History.Top  := 0;
   Form_History.DragEnabled := True;

@@ -8,10 +8,10 @@ uses
 
 
 type
-  TKMPopUpBGImageType = (
-    pbGray,   // Dark grey scroll with big header roll
-    pbYellow, // Yellow scroll without header roll
-    pbScroll  // Yellow scroll with small header roll
+  TKMFormBackgroundType = (
+    fbGray,   // Dark grey scroll with big header roll
+    fbYellow, // Yellow scroll without header roll
+    fbScroll  // Yellow scroll with small header roll
   );
 
   TKMForm = class(TKMPanel)
@@ -20,7 +20,7 @@ type
   private
     fDragging: Boolean;
     fDragStartPos: TKMPoint;
-    fBGImageType: TKMPopUpBGImageType;
+    fBackground: TKMFormBackgroundType;
     fHandleCloseKey: Boolean;
     fCapOffsetY: Integer;
 
@@ -59,7 +59,7 @@ type
     DragEnabled: Boolean;
 
     constructor Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '';
-                       aImageType: TKMPopUpBGImageType = pbYellow; aCloseIcon: Boolean = False;
+                       aBackground: TKMFormBackgroundType = fbYellow; aCloseIcon: Boolean = False;
                        aBevelForContents: Boolean = True; aModalBackground: Boolean = True);
 
     procedure MouseDown (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -90,10 +90,10 @@ uses
 // aWidth / aHeight represents not TKMForm sizes, but its internal panel: ItemsPanel
 // PopUpPanel draw bigger image behind it
 constructor TKMForm.Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '';
-                                 aImageType: TKMPopUpBGImageType = pbYellow; aCloseIcon: Boolean = False;
+                                 aBackground: TKMFormBackgroundType = fbYellow; aCloseIcon: Boolean = False;
                                  aBevelForContents: Boolean = True; aModalBackground: Boolean = True);
 begin
-  fBGImageType := aImageType;
+  fBackground := aBackground;
 
   var desiredWidth := aWidth + 2 * MarginMainLeftRight;
   var desiredHeight := aHeight + MarginMainBottom + MarginMainTop;
@@ -121,10 +121,10 @@ begin
 
   ItemsPanel := TKMPanel.Create(Self, MarginMainLeftRight, MarginMainTop, Width - 2*MarginMainLeftRight, Height - MarginMainTop - MarginMainBottom);
 
-  case fBGImageType of
-    pbGray:   Image_Background.TexId := 15;
-    pbYellow: Image_Background.TexId := 18;
-    pbScroll: begin
+  case fBackground of
+    fbGray:   Image_Background.TexId := 15;
+    fbYellow: Image_Background.TexId := 18;
+    fbScroll: begin
                 Image_Background.Rx := rxGui;
                 Image_Background.TexId := 409;
               end;
@@ -161,42 +161,42 @@ end;
 
 function TKMForm.MarginMainLeftRight: Integer;
 const
-  MARGIN_SIDE: array [TKMPopUpBGImageType] of Byte = (20, 35, 20);
+  MARGIN_SIDE: array [TKMFormBackgroundType] of Byte = (20, 35, 20);
 begin
-  Result := MARGIN_SIDE[fBGImageType];
+  Result := MARGIN_SIDE[fBackground];
 end;
 
 
 function TKMForm.MarginMainTop: Integer;
 const
-  MARGIN_TOP: array [TKMPopUpBGImageType] of Byte = (40, 80, 50);
+  MARGIN_TOP: array [TKMFormBackgroundType] of Byte = (40, 80, 50);
 begin
-  Result := MARGIN_TOP[fBGImageType];
+  Result := MARGIN_TOP[fBackground];
 end;
 
 
 function TKMForm.MarginMainBottom: Integer;
 const
-  MARGIN_BOTTOM: array [TKMPopUpBGImageType] of Byte = (20, 50, 20);
+  MARGIN_BOTTOM: array [TKMFormBackgroundType] of Byte = (20, 50, 20);
 begin
-  Result := MARGIN_BOTTOM[fBGImageType];
+  Result := MARGIN_BOTTOM[fBackground];
 end;
 
 
 function TKMForm.MarginCrossTop: Integer;
 const
-  CROSS_TOP: array [TKMPopUpBGImageType] of Byte = (24, 40, 24);
+  CROSS_TOP: array [TKMFormBackgroundType] of Byte = (24, 40, 24);
 begin
-  Result := CROSS_TOP[fBGImageType];
+  Result := CROSS_TOP[fBackground];
 end;
 
 
 function TKMForm.MarginCrossRight: Integer;
 const
   // Margin from right side, depends on bg graphics
-  CROSS_RIGHT: array [TKMPopUpBGImageType] of Byte = (50, 130, 55);
+  CROSS_RIGHT: array [TKMFormBackgroundType] of Byte = (50, 130, 55);
 begin
-  Result := CROSS_RIGHT[fBGImageType];
+  Result := CROSS_RIGHT[fBackground];
 end;
 
 

@@ -150,7 +150,7 @@ begin
   Button_ReplaysBack.Anchors := [anLeft,anBottom];
   Button_ReplaysBack.OnClick := BackClick;
 
-  Form_Delete := TKMForm.Create(Panel_Replays, 400, 200, gResTexts[TX_MENU_REPLAY_DELETE_TITLE], pbGray, False, False);
+  Form_Delete := TKMForm.Create(Panel_Replays, 400, 200, gResTexts[TX_MENU_REPLAY_DELETE_TITLE], fbGray, False, False);
   // Keep the pop-up centered
   Form_Delete.Left := (Panel_Replays.Width div 2) - (Form_Delete.Width div 2);
   Form_Delete.Top := (Panel_Replays.Height div 2) - 90;
@@ -164,7 +164,7 @@ begin
   Button_DeleteCancel  := TKMButton.Create(Form_Delete.ItemsPanel, 210, 155, 170, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
   Button_DeleteCancel.OnClick := DeleteClick;
 
-  Form_Rename := TKMForm.Create(Panel_Replays, 400, 200, gResTexts[TX_MENU_REPLAY_RENAME_TITLE], pbGray, False, False);
+  Form_Rename := TKMForm.Create(Panel_Replays, 400, 200, gResTexts[TX_MENU_REPLAY_RENAME_TITLE], fbGray, False, False);
   // Keep the pop-up centered
   Form_Rename.Left := (Panel_Replays.Width div 2) - (Form_Rename.Width div 2);
   Form_Rename.Top := (Panel_Replays.Height div 2) - 90;

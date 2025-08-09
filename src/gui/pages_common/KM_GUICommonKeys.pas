@@ -64,7 +64,7 @@ begin
 
   fTempKeys := TKMResKeys.Create;
 
-  Form_OptionsKeys := TKMForm.Create(aParent, FULL_WIDTH, FULL_HEIGHT, gResTexts[TX_MENU_OPTIONS_KEYBIND], pbGray, False, False);
+  Form_OptionsKeys := TKMForm.Create(aParent, FULL_WIDTH, FULL_HEIGHT, gResTexts[TX_MENU_OPTIONS_KEYBIND], fbGray, False, False);
   Form_OptionsKeys.AnchorsCenter;
   Form_OptionsKeys.Left := (aParent.Width - Form_OptionsKeys.Width) div 2;
   Form_OptionsKeys.Top := (aParent.Height - Form_OptionsKeys.Height) div 2;
