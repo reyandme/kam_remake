@@ -1,4 +1,20 @@
-﻿KaM Remake Beta r_____ []
+﻿Major features in r15000+:
+ + Townhall with rebalanced prices of units
+ + More players in Multiplayer, up to 12 players (plus 2 spectators) and new 12 player maps
+ + New Advanced AI (by Toxic), able to make ~40-50 troops in 60 minutes peacetime
+ + Random Map Generator and new Random Map gamemode (by Toxic)
+ + Spectator/replay improvements: access to statistics during the game, statistics HUD, replay checkpoints
+ + Smooth animations (framerate upscaled by AI)
+ + Many new minor gameplay features, including dismissing citizens and taking out wares from buildings
+ + Optional snowy textures
+ + Performance improvements (terrain rendering, network code, and anti-lag fixes, savegames)
+ + Videos
+ + New maps and campaigns
+ + Reassignable key bindings
+ + Map Editor improvements and new scripting options
+
+
+KaM Remake Beta r_____ []
 ------------------------------
 Game:
  + Fixed SampleRate for original KaM sound effects
