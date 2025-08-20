@@ -367,6 +367,11 @@ begin
     memoryStream.Free;
   end;
 
+  // Special fix for Quarry:
+  // Not sure what exactly says that its SampleRate override should be ignored ..
+  // 22050 is much too fast for it, it sounds like 11025 in the original game
+  fWaveProps[Ord(sfxQuarryClink)].SampleRate := 11025;
+
   if DBG_EXPORT_SOUNDS_DAT then
   begin
     var sl := TStringList.Create;
