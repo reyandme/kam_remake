@@ -90,6 +90,9 @@ uses
 constructor TKMForm.Create(aParent: TKMPanel; aContentWidth, aContentHeight: Integer; const aCaption: UnicodeString = '';
                                  aBackground: TKMFormBackgroundType = fbYellow; aCloseIcon: Boolean = False;
                                  aBevelForContents: Boolean = True; aModalBackground: Boolean = True);
+const
+  BG_RX: array [TKMFormBackgroundType] of TRXType = (rxGuiMain, rxGuiMain, rxGui);
+  BG_ID: array [TKMFormBackgroundType] of Word = (15, 18, 409);
 begin
   fBackground := aBackground;
 
@@ -115,17 +118,8 @@ begin
   if aModalBackground then
     Bevel_ModalBackground := TKMBevel.Create(Self, -5000, -5000, 10000, 10000);
 
-  Image_Background := TKMImage.Create(Self, 0, 0, allowedWidth, allowedHeight, 15, rxGuiMain);
-  case fBackground of
-    fbGray:   Image_Background.TexId := 15;
-    fbYellow: Image_Background.TexId := 18;
-    fbScroll: begin
-                Image_Background.Rx := rxGui;
-                Image_Background.TexId := 409;
-              end;
-  end;
+  Image_Background := TKMImage.Create(Self, 0, 0, allowedWidth, allowedHeight, BG_ID[fBackground], BG_RX[fBackground]);
   Image_Background.ImageStretch;
-
 
   if aCloseIcon then
   begin
