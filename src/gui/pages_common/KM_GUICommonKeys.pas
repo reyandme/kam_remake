@@ -69,9 +69,10 @@ begin
   Form_OptionsKeys.CapOffsetY := 20;
 
   Panel_Content := TKMPanel.Create(Form_OptionsKeys.ItemsPanel, PAD, 90, FULL_WIDTH - PAD * 2, FULL_HEIGHT - 70 - PAD);
+  Panel_Content.AnchorsStretch;
     ColumnBox_OptionsKeys := TKMColumnBox.Create(Panel_Content, 0, 0, Panel_Content.Width, Panel_Content.Height - 80, fntMetal, bsMenu);
     ColumnBox_OptionsKeys.SetColumns(fntOutline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
-    ColumnBox_OptionsKeys.Anchors := [anLeft,anTop,anBottom];
+    ColumnBox_OptionsKeys.AnchorsStretch;
     ColumnBox_OptionsKeys.ShowLines := True;
     ColumnBox_OptionsKeys.ShowHintWhenShort := True;
     ColumnBox_OptionsKeys.HintBackColor := TKMColor4f.New(57, 48, 50); // Dark grey
@@ -79,18 +80,23 @@ begin
     ColumnBox_OptionsKeys.OnChange := ListClick;
     ColumnBox_OptionsKeys.OnKeyUp := ListKeyUp;
 
-    TKMLabel.Create(Panel_Content, 0, Panel_Content.Height - 30 * 2 - 10, Panel_Content.Width, 20, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fntMetal, taLeft);
+    var lbl := TKMLabel.Create(Panel_Content, 0, Panel_Content.Height - 30 * 2 - 10, Panel_Content.Width, 20, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fntMetal, taLeft);
+    lbl.Anchors := [anLeft, anRight, anBottom];
 
     Button_OptionsKeysClear := TKMButton.Create(Panel_Content, BTN_WIDTH * 2 + 10 * 2, Panel_Content.Height - 30 * 2 - 10, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
+    Button_OptionsKeysClear.Anchors := [anBottom];
     Button_OptionsKeysClear.OnClick := ButtonClearClick;
 
     Button_OptionsKeysReset := TKMButton.Create(Panel_Content, 0, Panel_Content.Height - 30, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
+    Button_OptionsKeysReset.Anchors := [anBottom];
     Button_OptionsKeysReset.OnClick := ButtonResetClick;
 
     Button_OptionsKeysOK := TKMButton.Create(Panel_Content, BTN_WIDTH + 10, Panel_Content.Height - 30, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+    Button_OptionsKeysOK.Anchors := [anBottom];
     Button_OptionsKeysOK.OnClick := ButtonOkClick;
 
     Button_OptionsKeysCancel := TKMButton.Create(Panel_Content, (BTN_WIDTH + 10) * 2, Panel_Content.Height - 30, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
+    Button_OptionsKeysCancel.Anchors := [anBottom];
     Button_OptionsKeysCancel.OnClick := ButtonCancelClick;
 end;
 

@@ -98,19 +98,17 @@ begin
 
   var desiredWidth := aContentWidth + 2 * MarginMainLeftRight;
   var desiredHeight := aContentHeight + MarginMainBottom + MarginMainTop;
-  var allowedWidth := Min(aParent.Width, desiredWidth);
-  var allowedHeight := Min(aParent.Height, desiredHeight);
-  var desiredLeft := Max(0, (aParent.Width - allowedWidth) div 2);
-  var desiredTop := Max(0, (aParent.Height - allowedHeight) div 2);
+  var desiredLeft := Max(0, (aParent.Width - desiredWidth) div 2);
+  var desiredTop := Max(0, (aParent.Height - desiredHeight) div 2);
 
   // Create panel with calculated sizes
-  inherited Create(aParent, desiredLeft, desiredTop, allowedWidth, allowedHeight);
+  inherited Create(aParent, desiredLeft, desiredTop, desiredWidth, desiredHeight);
 
   // Fix its base sizes as a desired one
   BaseWidth := desiredWidth;
   BaseHeight := desiredHeight;
 
-  FitInParent := True;
+//  FitInParent := True; not sure if this is ever needed
   DragEnabled := False;
   fHandleCloseKey := False;
   fCapOffsetY := 0;
@@ -118,7 +116,8 @@ begin
   if aModalBackground then
     Bevel_ModalBackground := TKMBevel.Create(Self, -5000, -5000, 10000, 10000);
 
-  Image_Background := TKMImage.Create(Self, 0, 0, allowedWidth, allowedHeight, BG_ID[fBackground], BG_RX[fBackground]);
+  Image_Background := TKMImage.Create(Self, 0, 0, desiredWidth, desiredHeight, BG_ID[fBackground], BG_RX[fBackground]);
+  Image_Background.AnchorsStretch;
   Image_Background.ImageStretch;
 
   if aCloseIcon then
@@ -291,8 +290,7 @@ end;
 
 procedure TKMForm.UpdateSizes;
 begin
-  Image_Background.Width := Width;
-  Image_Background.Height := Height;
+  // Reposition buttons?
 end;
 
 
