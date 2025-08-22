@@ -58,7 +58,7 @@ type
     ItemsPanel: TKMPanel;
     DragEnabled: Boolean;
 
-    constructor Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '';
+    constructor Create(aParent: TKMPanel; aContentWidth, aContentHeight: Integer; const aCaption: UnicodeString = '';
                        aBackground: TKMFormBackgroundType = fbYellow; aCloseIcon: Boolean = False;
                        aBevelForContents: Boolean = True; aModalBackground: Boolean = True);
 
@@ -87,16 +87,14 @@ uses
 
 
 { TKMForm }
-// aWidth / aHeight represents not TKMForm sizes, but its internal panel: ItemsPanel
-// PopUpPanel draw bigger image behind it
-constructor TKMForm.Create(aParent: TKMPanel; aWidth, aHeight: Integer; const aCaption: UnicodeString = '';
+constructor TKMForm.Create(aParent: TKMPanel; aContentWidth, aContentHeight: Integer; const aCaption: UnicodeString = '';
                                  aBackground: TKMFormBackgroundType = fbYellow; aCloseIcon: Boolean = False;
                                  aBevelForContents: Boolean = True; aModalBackground: Boolean = True);
 begin
   fBackground := aBackground;
 
-  var desiredWidth := aWidth + 2 * MarginMainLeftRight;
-  var desiredHeight := aHeight + MarginMainBottom + MarginMainTop;
+  var desiredWidth := aContentWidth + 2 * MarginMainLeftRight;
+  var desiredHeight := aContentHeight + MarginMainBottom + MarginMainTop;
   var allowedWidth := Min(aParent.Width, desiredWidth);
   var allowedHeight := Min(aParent.Height, desiredHeight);
   var desiredLeft := Max(0, (aParent.Width - allowedWidth) div 2);
