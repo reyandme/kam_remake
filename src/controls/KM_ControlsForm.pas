@@ -116,9 +116,6 @@ begin
     Bevel_ModalBackground := TKMBevel.Create(Self, -5000, -5000, 10000, 10000);
 
   Image_Background := TKMImage.Create(Self, 0, 0, allowedWidth, allowedHeight, 15, rxGuiMain);
-
-  ItemsPanel := TKMPanel.Create(Self, MarginMainLeftRight, MarginMainTop, Width - 2*MarginMainLeftRight, Height - MarginMainTop - MarginMainBottom);
-
   case fBackground of
     fbGray:   Image_Background.TexId := 15;
     fbYellow: Image_Background.TexId := 18;
@@ -127,6 +124,8 @@ begin
                 Image_Background.TexId := 409;
               end;
   end;
+  Image_Background.ImageStretch;
+
 
   if aCloseIcon then
   begin
@@ -137,14 +136,13 @@ begin
     Image_Close.HighlightOnMouseOver := True;
   end;
 
+  ItemsPanel := TKMPanel.Create(Self, MarginMainLeftRight, MarginMainTop, Width - 2*MarginMainLeftRight, Height - MarginMainTop - MarginMainBottom);
   ItemsPanel.AnchorsStretch;
   if aBevelForContents then
   begin
     Bevel_Contents := TKMBevel.Create(ItemsPanel, 0, 0, ItemsPanel.Width, ItemsPanel.Height);
     Bevel_Contents.AnchorsStretch;
   end;
-
-  Image_Background.ImageStretch;
 
   Label_Caption := TKMLabel.Create(ItemsPanel, 0, -25, ItemsPanel.Width, 20, aCaption, DEFAULT_CAPTION_FONT, taCenter);
 
