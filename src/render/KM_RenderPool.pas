@@ -591,7 +591,6 @@ end;
 procedure TKMRenderPool.RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aLoopAnim: Boolean; aDoImmediateRender: Boolean = False;
   aDeleting: Boolean = False);
 var
-  R: TRXData;
   pX, pY: Integer;
   cornerX, cornerY: Single;
   gX, gY: Single;
@@ -623,13 +622,13 @@ begin
     Id0 := gMapElements[aIndex].Anim.Step[1] + 1;
     if Id <= 0 then exit;
 
-    R := fRXData[rxTrees];
+    var rxData: PRXData := @fRXData[rxTrees];
     pX := aLocX - 1;
     pY := aLocY - 1;
-    gX := pX + (R.Pivot[Id0].X + R.Size[Id0].X/2) / CELL_SIZE_PX;
-    gY := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
-    cornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
-    cornerY := pY - gTerrain.RenderHeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX;
+    gX := pX + (rxData.Pivot[Id0].X + rxData.Size[Id0].X/2) / CELL_SIZE_PX;
+    gY := pY + (rxData.Pivot[Id0].Y + rxData.Size[Id0].Y) / CELL_SIZE_PX;
+    cornerX := pX + rxData.Pivot[Id].X / CELL_SIZE_PX;
+    cornerY := pY - gTerrain.RenderHeightAt(gX, gY) + (rxData.Pivot[Id].Y + rxData.Size[Id].Y) / CELL_SIZE_PX;
     if aDoImmediateRender then
       RenderSprite(rxTrees, Id, cornerX, cornerY, $FFFFFFFF, aDeleting, DELETE_COLOR)
     else
