@@ -7,7 +7,7 @@ uses
   {$IFDEF FPC} BGRABitmap, BGRABitmapTypes; {$ENDIF}
 
 
-  procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; const aFile: UnicodeString);
+  procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; const aFilename: UnicodeString);
   procedure LoadFromPng(const aFile: UnicodeString; var aWidth, aHeight: Word; var aPixelData: TKMCardinalArray);
 
 
@@ -16,14 +16,14 @@ uses
   SysUtils;
 
 
-procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; const aFile: UnicodeString);
+procedure SaveToPng(aWidth, aHeight: Word; const aPixelData: TKMCardinalArray; const aFilename: UnicodeString);
 var
   {$IFDEF WDC} Png: PNGImage.TPngImage; {$ENDIF}
   {$IFDEF FPC} Png: TBGRABitmap; {$ENDIF}
   I, K: Integer;
   T: Cardinal;
 begin
-  ForceDirectories(ExtractFilePath(aFile));
+  ForceDirectories(ExtractFilePath(aFilename));
 
   {$IFDEF WDC}
     Png := TPngImage.CreateBlank(COLOR_RGBALPHA, 8, aWidth, aHeight);
@@ -36,7 +36,7 @@ begin
         Png.AlphaScanline[I]^[K] := T shr 24; //Alpha
       end;
 
-      Png.SaveToFile(aFile);
+      Png.SaveToFile(aFilename);
     finally
       Png.Free;
     end;
@@ -53,7 +53,7 @@ begin
         Png.AlphaPixel(K, I, 255);
       end;
 
-      Png.SaveToFile(aFile);
+      Png.SaveToFile(aFilename);
     finally
       Png.Free;
     end;
