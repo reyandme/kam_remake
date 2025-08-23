@@ -104,9 +104,11 @@ begin
   // Map spriteID to loaded from RXA Atlases
   for SAT := Low(aSpritePack.Atlases) to High(aSpritePack.Atlases) do
     for I := Low(aSpritePack.Atlases[SAT]) to High(aSpritePack.Atlases[SAT]) do
-      with aSpritePack.Atlases[SAT, I] do
-        for K := 0 to High(Container.Sprites) do
-          fAtlasMap[SAT].Add(Container.Sprites[K].SpriteID, TKMAtlasAddress.New(I, K));
+    begin
+      var atlas := aSpritePack.Atlases[SAT, I];
+      for K := 0 to High(atlas.Container.Sprites) do
+        fAtlasMap[SAT].Add(atlas.Container.Sprites[K].SpriteID, TKMAtlasAddress.New(I, K));
+    end;
 end;
 
 
