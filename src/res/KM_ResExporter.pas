@@ -28,7 +28,7 @@ type
     function GetOrCreateExportWorker: TKMWorkerThread;
 
     procedure ExportImageFromAtlas(aSpritePack: TKMSpritePack; aSpriteID: Integer; const aFilePath: string; const aFileMaskPath: string = '');
-    procedure ExportFullImageDataFromAtlas(aSpritePack: TKMSpritePack; aSpriteID: Integer; const aFolder: string);
+    procedure ExportImageAndDataFromAtlas(aSpritePack: TKMSpritePack; aSpriteID: Integer; const aPath: string);
   public
     constructor Create;
     destructor Destroy; override;
@@ -156,7 +156,7 @@ begin
           ForceDirectories(folderPath);
           for I := 1 to spritePack.RXData.Count do
           begin
-            ExportFullImageDataFromAtlas(spritePack, I, folderPath);
+            ExportImageAndDataFromAtlas(spritePack, I, folderPath);
             if TThread.CheckTerminated then Exit;
           end;
         end;
@@ -229,7 +229,7 @@ begin
                   for LVL := 0 to INTERP_LEVEL - 1 do
                   begin
                     spriteID := gRes.Interpolation.UnitAction(UT, ACT, DIR, STEP, LVL / INTERP_LEVEL);
-                    ExportFullImageDataFromAtlas(spritePack, spriteID, fullFolderPath);
+                    ExportImageAndDataFromAtlas(spritePack, spriteID, fullFolderPath);
 
                     // Stop export if async thread is terminated by application
                     if TThread.CheckTerminated then Exit;
@@ -278,7 +278,7 @@ begin
                   for LVL := 0 to INTERP_LEVEL - 1 do
                   begin
                     spriteID := gRes.Interpolation.SerfCarry(WT, DIR, STEP, LVL / INTERP_LEVEL);
-                    ExportFullImageDataFromAtlas(spritePack, spriteID, fullFolderPath);
+                    ExportImageAndDataFromAtlas(spritePack, spriteID, fullFolderPath);
 
                     used[spriteID] := True;
 
@@ -301,7 +301,7 @@ begin
               for LVL := 0 to INTERP_LEVEL - 1 do
               begin
                 spriteID := gRes.Interpolation.UnitThought(TH, STEP, LVL / INTERP_LEVEL);
-                ExportFullImageDataFromAtlas(spritePack, spriteID, fullFolderPath);
+                ExportImageAndDataFromAtlas(spritePack, spriteID, fullFolderPath);
                 used[spriteID] := True;
               end;
           end;
@@ -315,7 +315,7 @@ begin
         for spriteID := 1 to Length(used)-1 do
           if not used[spriteID] then
           begin
-            ExportFullImageDataFromAtlas(spritePack, spriteID, fullFolderPath);
+            ExportImageAndDataFromAtlas(spritePack, spriteID, fullFolderPath);
             // Stop export if async thread is terminated by application
             if TThread.CheckTerminated then Exit;
           end;
@@ -521,7 +521,7 @@ begin
               for LVL := 0 to INTERP_LEVEL - 1 do
               begin
                 spriteID := gRes.Interpolation.House(HT, ACT, STEP, LVL / INTERP_LEVEL);
-                ExportFullImageDataFromAtlas(spritePack, spriteID, fullFolderPath);
+                ExportImageAndDataFromAtlas(spritePack, spriteID, fullFolderPath);
 
                 // Stop export if async thread is terminated by application
                 if TThread.CheckTerminated then Exit;
@@ -552,7 +552,7 @@ begin
                 for LVL := 0 to INTERP_LEVEL - 1 do
                 begin
                   spriteID := gRes.Interpolation.Beast(HT, beast, I, STEP, LVL / INTERP_LEVEL);
-                  ExportFullImageDataFromAtlas(spritePack, spriteID, fullFolderPath);
+                  ExportImageAndDataFromAtlas(spritePack, spriteID, fullFolderPath);
 
                   // Stop export if async thread is terminated by application
                   if TThread.CheckTerminated then Exit;
@@ -702,17 +702,17 @@ begin
 end;
 
 
-procedure TKMResExporter.ExportFullImageDataFromAtlas(aSpritePack: TKMSpritePack; aSpriteID: Integer; const aFolder: string);
+procedure TKMResExporter.ExportImageAndDataFromAtlas(aSpritePack: TKMSpritePack; aSpriteID: Integer; const aPath: string);
 var
   s: string;
 begin
   if aSpritePack.RXData.Flag[aSpriteID] <> 1 then Exit;
 
-  ExportImageFromAtlas(aSpritePack, aSpriteID, aFolder + Format('%d_%.4d.png', [Byte(aSpritePack.RT)+1, aSpriteID]),
-                                               aFolder + Format('%d_%.4da.png', [Byte(aSpritePack.RT)+1, aSpriteID]));
+  ExportImageFromAtlas(aSpritePack, aSpriteID, aPath + Format('%d_%.4d.png', [Byte(aSpritePack.RT)+1, aSpriteID]),
+                                               aPath + Format('%d_%.4da.png', [Byte(aSpritePack.RT)+1, aSpriteID]));
 
 //    if aSpritePack.RXData.HasMask[aIndex] then
-//      ExportMask(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, aIndex]), aIndex);
+//      ExportMask(aPath + Format('%d_%.4da.png', [Byte(fRT)+1, aIndex]), aIndex);
 
   // Pivot
   s := IntToStr(aSpritePack.RXData.Pivot[aSpriteID].x) + sLineBreak + IntToStr(aSpritePack.RXData.Pivot[aSpriteID].y) + sLineBreak;
@@ -724,7 +724,7 @@ begin
       IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Right) + sLineBreak +
       IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Bottom) + sLineBreak;
 
-  WriteTextUtf8(s, aFolder + Format('%d_%.4d.txt', [Ord(aSpritePack.RT)+1, aSpriteID]));
+  WriteTextUtf8(s, aPath + Format('%d_%.4d.txt', [Ord(aSpritePack.RT)+1, aSpriteID]));
 end;
 
 
@@ -768,7 +768,7 @@ begin
                   end else
                     fullFolderPath := folderPath;
 
-                  ExportFullImageDataFromAtlas(spritePack, spriteID, fullFolderPath);
+                  ExportImageAndDataFromAtlas(spritePack, spriteID, fullFolderPath);
                 end;
 
                 // Stop export if async thread is terminated by application
