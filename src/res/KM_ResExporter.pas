@@ -755,14 +755,17 @@ begin
         PrepareAtlasMap(spritePack);
 
         for I := 0 to gRes.MapElements.Count - 1 do
-          if (gMapElements[I].Anim.Count > 0) and (gMapElements[I].Anim.Step[1] > 0) then
-            for J := 0 to gMapElements[I].Anim.Count - 1 do
+        begin
+          var objAnim: PKMAnimLoop := @gMapElements[I].Anim;
+
+          if (objAnim.Count > 0) and (objAnim.Step[1] > 0) then
+            for J := 0 to objAnim.Count - 1 do
               for K := 0 to INTERP_LEVEL - 1 do
               begin
                 spriteID := gRes.Interpolation.Tree(I, J, K / INTERP_LEVEL, True);
                 if spriteID <> 0 then
                 begin
-                  if gMapElements[I].Anim.Count > 1 then
+                  if objAnim.Count > 1 then
                   begin
                     fullFolderPath := folderPath + IntToStr(I) + PathDelim + IntToStr(J) + PathDelim;
                     ForceDirectories(fullFolderPath);
@@ -775,6 +778,7 @@ begin
                 // Stop export if async thread is terminated by application
                 if TThread.CheckTerminated then Exit;
               end;
+        end;
       finally
         sprites.Free;
       end;
