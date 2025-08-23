@@ -708,8 +708,8 @@ var
 begin
   if aSpritePack.RXData.Flag[aSpriteID] <> 1 then Exit;
 
-  var strFilenameBase := aPath + Format('%d_%.4d.png', [Byte(aSpritePack.RT)+1, aSpriteID]);
-  var strFilenameMask := aPath + Format('%d_%.4da.png', [Byte(aSpritePack.RT)+1, aSpriteID]);
+  var strFilenameBase := aPath + Format('%d_%.4d.png', [Ord(aSpritePack.RT)+1, aSpriteID]);
+  var strFilenameMask := aPath + Format('%d_%.4da.png', [Ord(aSpritePack.RT)+1, aSpriteID]);
   var strFilenameText := aPath + Format('%d_%.4d.txt', [Ord(aSpritePack.RT)+1, aSpriteID]);
 
   ExportImageFromAtlas(aSpritePack, aSpriteID, strFilenameBase, strFilenameMask);
