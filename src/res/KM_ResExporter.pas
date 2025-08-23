@@ -704,27 +704,28 @@ end;
 
 procedure TKMResExporter.ExportImageAndDataFromAtlas(aSpritePack: TKMSpritePack; aSpriteID: Integer; const aPath: string);
 var
-  s: string;
+  textData: string;
 begin
   if aSpritePack.RXData.Flag[aSpriteID] <> 1 then Exit;
 
-  ExportImageFromAtlas(aSpritePack, aSpriteID, aPath + Format('%d_%.4d.png', [Byte(aSpritePack.RT)+1, aSpriteID]),
-                                               aPath + Format('%d_%.4da.png', [Byte(aSpritePack.RT)+1, aSpriteID]));
+  var strFilenameBase := aPath + Format('%d_%.4d.png', [Byte(aSpritePack.RT)+1, aSpriteID]);
+  var strFilenameMask := aPath + Format('%d_%.4da.png', [Byte(aSpritePack.RT)+1, aSpriteID]);
+  var strFilenameText := aPath + Format('%d_%.4d.txt', [Ord(aSpritePack.RT)+1, aSpriteID]);
 
-//    if aSpritePack.RXData.HasMask[aIndex] then
-//      ExportMask(aPath + Format('%d_%.4da.png', [Byte(fRT)+1, aIndex]), aIndex);
+  ExportImageFromAtlas(aSpritePack, aSpriteID, strFilenameBase, strFilenameMask);
 
   // Pivot
-  s := IntToStr(aSpritePack.RXData.Pivot[aSpriteID].x) + sLineBreak + IntToStr(aSpritePack.RXData.Pivot[aSpriteID].y) + sLineBreak;
+  textData := IntToStr(aSpritePack.RXData.Pivot[aSpriteID].x) + sLineBreak +
+              IntToStr(aSpritePack.RXData.Pivot[aSpriteID].y) + sLineBreak;
 
-  //SizeNoShadow is used only for Units
+  // SizeNoShadow is used only for Units
   if aSpritePack.RT = rxUnits then
-    s := s + IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Left) + sLineBreak +
-      IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Top) + sLineBreak +
-      IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Right) + sLineBreak +
-      IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Bottom) + sLineBreak;
+    textData := textData + IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Left) + sLineBreak +
+                           IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Top) + sLineBreak +
+                           IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Right) + sLineBreak +
+                           IntToStr(aSpritePack.RXData.SizeNoShadow[aSpriteID].Bottom) + sLineBreak;
 
-  WriteTextUtf8(s, aPath + Format('%d_%.4d.txt', [Ord(aSpritePack.RT)+1, aSpriteID]));
+  WriteTextUtf8(textData, strFilenameText);
 end;
 
 
