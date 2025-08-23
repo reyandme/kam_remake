@@ -757,8 +757,9 @@ begin
         for I := 0 to gRes.MapElements.Count - 1 do
         begin
           var objAnim: PKMAnimLoop := @gMapElements[I].Anim;
+          var animExists := (objAnim.Count > 0) and (objAnim.Step[1] > 0);
 
-          if (objAnim.Count > 0) and (objAnim.Step[1] > 0) then
+          if animExists then
             for J := 0 to objAnim.Count - 1 do
               for K := 0 to INTERP_LEVEL - 1 do
               begin
@@ -811,25 +812,28 @@ begin
 
       try
         for I := 0 to gRes.MapElements.Count - 1 do
-        if (gMapElements[I].Anim.Count > 0) and (gMapElements[I].Anim.Step[1] > 0) then
         begin
-          for K := 1 to gMapElements[I].Anim.Count do
-          begin
-            spriteID := gMapElements[I].Anim.Step[K] + 1;
-            if spriteID <> 0 then
-            begin
-              if gMapElements[I].Anim.Count > 1 then
-              begin
-                fullFolderPath := folderPath + IntToStr(I) + PathDelim;
-                ForceDirectories(fullFolderPath);
-              end else
-                fullFolderPath := folderPath;
+          var objAnim: PKMAnimLoop := @gMapElements[I].Anim;
+          var animExists := (objAnim.Count > 0) and (objAnim.Step[1] > 0);
 
-              spritePack.ExportFullImageData(fullFolderPath, spriteID);
-              // Stop export if async thread is terminated by application
-              if TThread.CheckTerminated then Exit;
+          if animExists then
+            for K := 1 to objAnim.Count do
+            begin
+              spriteID := objAnim.Step[K] + 1;
+              if spriteID <> 0 then
+              begin
+                if objAnim.Count > 1 then
+                begin
+                  fullFolderPath := folderPath + IntToStr(I) + PathDelim;
+                  ForceDirectories(fullFolderPath);
+                end else
+                  fullFolderPath := folderPath;
+
+                spritePack.ExportFullImageData(fullFolderPath, spriteID);
+                // Stop export if async thread is terminated by application
+                if TThread.CheckTerminated then Exit;
+              end;
             end;
-          end;
         end;
       finally
         sprites.Free;
