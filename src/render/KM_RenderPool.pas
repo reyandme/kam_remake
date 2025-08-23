@@ -94,8 +94,8 @@ type
     procedure RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; Col: TColor4; DoHighlight: Boolean = False;
                            HighlightColor: TColor4 = 0; aForced: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Integer; aWoodProgress: Single; aX, aY: Single; aId2: Integer = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
-    procedure RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; LocX,LocY: Integer; aLoopAnim: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
-    procedure RenderMapElement4(aIndex: Word; aAnimStep: Cardinal; pX,pY: Integer; aIsDouble: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
+    procedure RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aLoopAnim: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
+    procedure RenderMapElement4(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aIsDouble: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
     procedure RenderHouseOutline(aHouseSketch: TKMHouseSketch; aCol: Cardinal = icCyan);
 
     // Terrain rendering sub-class
@@ -588,8 +588,8 @@ begin
 end;
 
 
-procedure TKMRenderPool.RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; LocX,LocY: Integer; aLoopAnim: Boolean;
-                                        aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
+procedure TKMRenderPool.RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aLoopAnim: Boolean; aDoImmediateRender: Boolean = False;
+  aDeleting: Boolean = False);
 var
   R: TRXData;
   pX, pY: Integer;
@@ -598,7 +598,7 @@ var
   Id, Id0: Integer;
   FOW: Byte;
 begin
-  if (gMySpectator.FogOfWar.CheckVerticeRenderRev(LocX,LocY) <= FOG_OF_WAR_MIN) then Exit;
+  if (gMySpectator.FogOfWar.CheckVerticeRenderRev(aLocX, aLocY) <= FOG_OF_WAR_MIN) then Exit;
 
   if aIndex = OBJ_BLOCK then
   begin
@@ -606,8 +606,8 @@ begin
     // Render as a red outline in map editor mode
     if gGameParams.IsMapEditor then
     begin
-      gRenderAux.Quad(LocX, LocY, $600000FF);
-      RenderWireTile(KMPoint(LocX, LocY), $800000FF);
+      gRenderAux.Quad(aLocX, aLocY, $600000FF);
+      RenderWireTile(KMPoint(aLocX, aLocY), $800000FF);
     end;
   end
   else
@@ -616,7 +616,7 @@ begin
 
     if gGameParams.DynamicFOW then
     begin
-      FOW := gMySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
+      FOW := gMySpectator.FogOfWar.CheckTileRevelation(aLocX, aLocY);
       if FOW <= 128 then aAnimStep := 0; // Stop animation
     end;
     Id := gRes.Interpolation.Tree(aIndex, aAnimStep, gGameParams.TickFrac, aLoopAnim);
@@ -624,8 +624,8 @@ begin
     if Id <= 0 then exit;
 
     R := fRXData[rxTrees];
-    pX := LocX - 1;
-    pY := LocY - 1;
+    pX := aLocX - 1;
+    pY := aLocY - 1;
     gX := pX + (R.Pivot[Id0].X + R.Size[Id0].X/2) / CELL_SIZE_PX;
     gY := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
     cornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
@@ -639,12 +639,12 @@ end;
 
 
 // 4 objects packed on 1 tile for Corn and Grapes
-procedure TKMRenderPool.RenderMapElement4(aIndex: Word; aAnimStep: Cardinal; pX,pY: Integer; aIsDouble: Boolean;
-                                        aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
+procedure TKMRenderPool.RenderMapElement4(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aIsDouble: Boolean; aDoImmediateRender: Boolean = False;
+  aDeleting: Boolean = False);
 var
   R: TRXData;
 
-  procedure AddSpriteBy(aAnimStep: Integer; pX,pY: Single);
+  procedure AddSpriteBy(aAnimStep: Integer; aLocSubX, aLocSubY: Single);
   var
     Id, Id0: Integer;
     CornerX, CornerY, gX, gY: Single;
@@ -652,10 +652,10 @@ var
     Id := gRes.Interpolation.Tree(aIndex, aAnimStep, gGameParams.TickFrac, True);
     Id0 := gMapElements[aIndex].Anim.Step[1] + 1;
 
-    gX := pX + (R.Pivot[Id0].X + R.Size[Id0].X/2) / CELL_SIZE_PX;
-    gY := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
-    CornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
-    CornerY := pY - gTerrain.RenderHeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX;
+    gX := aLocSubX + (R.Pivot[Id0].X + R.Size[Id0].X/2) / CELL_SIZE_PX;
+    gY := aLocSubY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
+    CornerX := aLocSubX + R.Pivot[Id].X / CELL_SIZE_PX;
+    CornerY := aLocSubY - gTerrain.RenderHeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX;
 
     if aDoImmediateRender then
       RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, aDeleting, DELETE_COLOR)
@@ -668,22 +668,24 @@ var
 begin
   if gGameParams.DynamicFOW then
   begin
-    FOW := gMySpectator.FogOfWar.CheckTileRevelation(pX, pY);
-    if FOW <= 128 then aAnimStep := 0; // Stop animation
+    FOW := gMySpectator.FogOfWar.CheckTileRevelation(aLocX, aLocY);
+    // Stop animation under FOW
+    if FOW <= 128 then
+      aAnimStep := 0;
   end;
 
   R := fRXData[rxTrees];
   if aIsDouble then
   begin
-    AddSpriteBy(aAnimStep  , pX - 0.75, pY - 0.6);
-    AddSpriteBy(aAnimStep+1, pX - 0.25, pY - 0.6);
+    AddSpriteBy(aAnimStep  , aLocX - 0.75, aLocY - 0.6);
+    AddSpriteBy(aAnimStep+1, aLocX - 0.25, aLocY - 0.6);
   end
   else
   begin
-    AddSpriteBy(aAnimStep  , pX - 0.75, pY - 0.75);
-    AddSpriteBy(aAnimStep+1, pX - 0.25, pY - 0.75);
-    AddSpriteBy(aAnimStep+1, pX - 0.75, pY - 0.25);
-    AddSpriteBy(aAnimStep  , pX - 0.25, pY - 0.25);
+    AddSpriteBy(aAnimStep  , aLocX - 0.75, aLocY - 0.75);
+    AddSpriteBy(aAnimStep+1, aLocX - 0.25, aLocY - 0.75);
+    AddSpriteBy(aAnimStep+1, aLocX - 0.75, aLocY - 0.25);
+    AddSpriteBy(aAnimStep  , aLocX - 0.25, aLocY - 0.25);
   end;
 end;
 
