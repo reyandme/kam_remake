@@ -91,8 +91,8 @@ type
     function PaintBucket_UnitToRender(aUnit: TObject): Boolean;
     function PaintBucket_GroupToRender(aGroup: TObject): Boolean;
 
-    procedure RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; Col: TColor4; DoHighlight: Boolean = False;
-                           HighlightColor: TColor4 = 0; aForced: Boolean = False);
+    procedure RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; aColor: TColor4; aDoHighlight: Boolean = False; aHighlightColor: TColor4 = 0;
+      aForced: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Integer; aWoodProgress: Single; aX, aY: Single; aId2: Integer = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aLoopAnim: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
     procedure RenderMapElement4(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aIsDouble: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
@@ -1234,8 +1234,8 @@ begin
   glPopMatrix;
 end;}
 
-procedure TKMRenderPool.RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; Col: TColor4; DoHighlight: Boolean = False;
-                                   HighlightColor: TColor4 = 0; aForced: Boolean = False);
+procedure TKMRenderPool.RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; aColor: TColor4; aDoHighlight: Boolean = False;
+  aHighlightColor: TColor4 = 0; aForced: Boolean = False);
 var
   tX, tY: Integer;
   rX, rY: Single;
@@ -1255,8 +1255,8 @@ begin
     glColor4ub(255, 255, 255, 255);
 
     TKMRender.BindTexture(Tex.TexID);
-    if DoHighlight then
-      glColor3ub(HighlightColor and $FF, HighlightColor shr 8 and $FF, HighlightColor shr 16 and $FF);
+    if aDoHighlight then
+      glColor3ub(aHighlightColor and $FF, aHighlightColor shr 8 and $FF, aHighlightColor shr 16 and $FF);
     glBegin(GL_QUADS);
       glTexCoord2f(Tex.u1, Tex.v2); glVertex2f(rX                     , rY                      );
       glTexCoord2f(Tex.u2, Tex.v2); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY                      );
@@ -1268,7 +1268,7 @@ begin
   if gGFXData[aRX, aId].Alt.TexID <> 0 then
     with gGFXData[aRX, aId] do
     begin
-      glColor4ubv(@Col);
+      glColor4ubv(@aColor);
       TKMRender.BindTexture(Alt.TexID);
       glBegin(GL_QUADS);
         glTexCoord2f(Alt.u1, Alt.v2); glVertex2f(rX                     , rY                      );
