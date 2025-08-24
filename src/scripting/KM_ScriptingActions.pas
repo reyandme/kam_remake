@@ -4021,15 +4021,6 @@ end;
 //* Skipping obj for tile [7,2]: '7,2,20,2,87,-1'
 //* Skipping height for tile [7,2]: '7,2,20,2,-1,5' etc.
 function TKMScriptActions.MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
-
-  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
-  begin
-    Result := '';
-    for var I := Low(TKMTileChangeType) to High(TKMTileChangeType) do
-      if I in aErrorsIn then
-        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(I));
-  end;
-
 var
   I: Integer;
   tiles: array of TKMTerrainTileBrief;
