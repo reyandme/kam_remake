@@ -5383,7 +5383,7 @@ var
 begin
   try
 
-  if ((gTerrain.TileInMapCoords(aLeft, aTop) or ((aLeft = 0) and (aTop = 0))) and gTerrain.TileInMapCoords(aRight, aBottom))then
+  if ((gTerrain.TileInMapCoords(aLeft, aTop) or ((aLeft = 0) and (aTop = 0))) and gTerrain.TileInMapCoords(aRight, aBottom) and (aLeft < aRight) and (aTop < aBottom)) then
   begin
     fSelection := TKMSelection.Create(gGame.TerrainPainter);
     fSelection.ChangeSelectionRectangle(aLeft, aTop, aRight, aBottom);
