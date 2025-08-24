@@ -1122,12 +1122,12 @@ var
 
 const
   WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Single = (
-    1, 2.4, 5.2,    // utMilitia, utAxeFighter, utSwordsman
-    2.2, 4,         // utBowman, utArbaletman
-    2, 4,           // utPikeman, utHallebardman
-    3.3, 6.2,       // utHorseScout, utCavalry
-    5.3, 1.2, 1.5,  // utBarbarian, utPeasant, utSlingshot
-    5.3, 2.1        // utMetalBarbarian, utHorseman
+    1, 2.4, 5.2,    // utMilitia, utAxeFighter, utSwordFighter
+    2.4, 4,         // utBowman, utCrossbowman
+    2, 4,           // utLanceCarrier, utPikeman
+    3.3, 6.3,       // utScout, utKnight
+    5.3, 0.8, 1.2,  // utBarbarian, utRebel, utRogue
+    5.3, 1.9        // utWarrior, utVagabond
   );
 
 implementation
