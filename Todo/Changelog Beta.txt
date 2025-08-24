@@ -22,6 +22,7 @@ Game:
  + Fixed persistence of fish count on Undo/Redo in MapEd
  + Fixed non-clickable MP lobby controls on low screen resolutions
  + New dynamic script actions added
+ + Fixed crashreport dialogs hiding behind loading form
 
 Maps:
  + Added The Fall of House Fennford by Strangelove
