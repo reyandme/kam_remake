@@ -18,6 +18,7 @@ type
     function _AIDefencePositionAdd(aHand: Integer; aOrder: Integer; const aDefencePosition: TKMDefencePositionInfo): Integer;
     function _AIGroupsFormationSet(aHand: Integer; aGroupType: TKMGroupType; aCount, aColumns: Integer): Boolean;
     function _MapTilesArraySet(aFuncName: string; aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+    function _MapTileStringToType(aTilesS: TAnsiStringArray; var aTiles: TKMTerrainTileBriefArray): Boolean;
   public
     property OnSetLogLinesMaxCnt: TIntegerEvent read fOnSetLogLinesMaxCnt write fOnSetLogLinesMaxCnt;
 
@@ -4007,6 +4008,115 @@ begin
 end;
 
 
+function TKMScriptActions._MapTileStringToType(aTilesS: TAnsiStringArray; var aTiles: TKMTerrainTileBriefArray): Boolean;
+var
+  I: Integer;
+  arrElem: TAnsiStringArray;
+  parsedValue: Integer;
+  parserError: Boolean;
+begin
+  {$WARN SUSPICIOUS_TYPECAST OFF}
+  parserError := False;
+  SetLength(aTiles, Length(aTilesS));
+  for I := Low(aTilesS) to High(aTilesS) do
+  begin
+    arrElem := StrSplitA(ReplaceStr(String(aTilesS[I]), ' ', ''), ',');
+
+    //checking params count, if count is invalid we cannot proceed
+    if (Length(arrElem) <> 6) then
+    begin
+      parserError := True;
+      LogStr(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [aTilesS[I]]))
+    end else
+    begin
+      //checking X, if X <= 0 we cannot proceed
+      if ((TryStrToInt(string(PChar(arrElem[0])), parsedValue)) and (parsedValue > 0)) then
+        aTiles[I].X := parsedValue
+      else
+      begin
+        parserError := True;
+        LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
+      end;
+      //checking Y, if Y <= 0 we cannot proceed
+      if ((TryStrToInt(string(PChar(arrElem[1])), parsedValue)) and (parsedValue > 0)) then
+        aTiles[I].Y := parsedValue
+      else
+      begin
+        parserError := True;
+        LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
+      end;
+
+      //if X and Y are correctly defined we can proceed with terrain changes
+      if (not parserError) then
+      begin
+        if (TryStrToInt(string(PChar(arrElem[2])), parsedValue)) then
+        begin
+          if (parsedValue >= 0) then
+          begin
+            //if value is not skipped we proceed with terrain
+            aTiles[I].Terrain := parsedValue;
+            aTiles[I].UpdateTerrain := True;
+          end;
+        end
+        else
+        begin
+          parserError := True;
+          LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], aTilesS[I]]));
+        end;
+
+        if (TryStrToInt(string(PChar(arrElem[3])), parsedValue)) then
+        begin
+          if (parsedValue >= 0) then
+          begin
+            //if value is not skipped we proceed with rotation
+            aTiles[I].Rotation := parsedValue;
+            aTiles[I].UpdateRotation := True;
+          end;
+        end
+        else
+        begin
+          parserError := True;
+          LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], aTilesS[I]]));
+        end;
+
+        if (TryStrToInt(string(PChar(arrElem[4])), parsedValue)) then
+        begin
+          if (parsedValue >= 0) then
+          begin
+            //if value is not skipped we proceed with height
+            aTiles[I].Height := parsedValue;
+            aTiles[I].UpdateHeight := True;
+          end;
+        end
+        else
+        begin
+          parserError := True;
+          LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], aTilesS[I]]));
+        end;
+
+        if (TryStrToInt(string(PChar(arrElem[5])), parsedValue)) then
+        begin
+          if (parsedValue >= 0) then
+          begin
+            //if value is not skipped we proceed with obj
+            aTiles[I].Obj := parsedValue;
+            aTiles[I].UpdateObject := True;
+          end;
+        end
+        else
+        begin
+          parserError := True;
+          LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
+        end;
+      end;
+    end;
+  end;
+
+  Result := parserError;
+  {$WARN SUSPICIOUS_TYPECAST ON}
+end;
+
+
 //* Version: 7000+
 //* Sets array of tiles info, like MapTilesArraySet, but parameters are
 //* passed as an TAnsiStringArray instead of array of TKMTerrainTileBrief.
@@ -4022,111 +4132,11 @@ end;
 //* Skipping height for tile [7,2]: '7,2,20,2,-1,5' etc.
 function TKMScriptActions.MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
 var
-  I: Integer;
-  tiles: array of TKMTerrainTileBrief;
-  arrElem: TAnsiStringArray;
-  parsedValue: Integer;
+  tiles: TKMTerrainTileBriefArray;
   parserError: Boolean;
 begin
-{$WARN SUSPICIOUS_TYPECAST OFF}
   try
-    //***********PARSING ARRAY OF STRING TO ARRAY OF TKMTerrainTileBrief**********
-    parserError := False;
-    SetLength(tiles, Length(aTilesS));
-    for I := Low(aTilesS) to High(aTilesS) do
-    begin
-      arrElem := StrSplitA(ReplaceStr(String(aTilesS[I]), ' ', ''), ',');
-
-      //checking params count, if count is invalid we cannot proceed
-      if (Length(arrElem) <> 6) then
-      begin
-        parserError := True;
-        LogStr(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [aTilesS[I]]))
-      end else
-      begin
-        //checking X, if X <= 0 we cannot proceed
-        if ((TryStrToInt(string(PChar(arrElem[0])), parsedValue)) and (parsedValue > 0)) then
-          tiles[I].X := parsedValue
-        else
-        begin
-          parserError := True;
-          LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
-        end;
-        //checking Y, if Y <= 0 we cannot proceed
-        if ((TryStrToInt(string(PChar(arrElem[1])), parsedValue)) and (parsedValue > 0)) then
-          tiles[I].Y := parsedValue
-        else
-        begin
-          parserError := True;
-          LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
-        end;
-
-        //if X and Y are correctly defined we can proceed with terrain changes
-        if (not parserError) then
-        begin
-          if (TryStrToInt(string(PChar(arrElem[2])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with terrain
-              tiles[I].Terrain := parsedValue;
-              tiles[I].UpdateTerrain := True;
-            end;
-          end
-          else
-          begin
-            parserError := True;
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], aTilesS[I]]));
-          end;
-
-          if (TryStrToInt(string(PChar(arrElem[3])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with rotation
-              tiles[I].Rotation := parsedValue;
-              tiles[I].UpdateRotation := True;
-            end;
-          end
-          else
-          begin
-            parserError := True;
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], aTilesS[I]]));
-          end;
-
-          if (TryStrToInt(string(PChar(arrElem[4])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with height
-              tiles[I].Height := parsedValue;
-              tiles[I].UpdateHeight := True;
-            end;
-          end
-          else
-          begin
-            parserError := True;
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], aTilesS[I]]));
-          end;
-
-          if (TryStrToInt(string(PChar(arrElem[5])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with obj
-              tiles[I].Obj := parsedValue;
-              tiles[I].UpdateObject := True;
-            end;
-          end
-          else
-          begin
-            parserError := True;
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
-          end;
-        end;
-      end;
-    end;
-    //***********END OF PARSING**********
+    parserError := _MapTileStringToType(aTilesS, tiles);
 
     if not parserError then
       Result := _MapTilesArraySet('Actions.MapTilesArraySetS', tiles, aRevertOnFail, aShowDetailedErrors)
