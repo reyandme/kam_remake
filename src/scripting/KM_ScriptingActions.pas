@@ -3937,13 +3937,11 @@ end;
 function TKMScriptActions.MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
 
   function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
-  var
-    tileChangeType: TKMTileChangeType;
   begin
     Result := '';
-    for tileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
-      if tileChangeType in aErrorsIn then
-        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
+    for var I := Low(TKMTileChangeType) to High(TKMTileChangeType) do
+      if I in aErrorsIn then
+        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(I));
   end;
 
 var
@@ -3959,15 +3957,14 @@ begin
 
       // Log errors
       if Length(errors) > 0 then
-      begin
-        if not aShowDetailedErrors then
-          Log(AnsiString(Format('Actions.MapTilesArraySet: there were %d errors while setting tiles' , [Length(errors)])))
-        else
+        if aShowDetailedErrors then
+        begin
           Log('Actions.MapTilesArraySet list of tiles errors:');
-      end;
-      if aShowDetailedErrors then
-        for I := Low(errors) to High(errors) do
-          Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
+          for I := Low(errors) to High(errors) do
+            Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
+        end
+        else
+          Log(AnsiString(Format('Actions.MapTilesArraySet: there were %d errors while setting tiles' , [Length(errors)])))
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -3992,13 +3989,11 @@ end;
 function TKMScriptActions.MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
 
   function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
-  var
-    tileChangeType: TKMTileChangeType;
   begin
     Result := '';
-    for tileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
-      if tileChangeType in aErrorsIn then
-        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
+    for var I := Low(TKMTileChangeType) to High(TKMTileChangeType) do
+      if I in aErrorsIn then
+        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(I));
   end;
 
 var
@@ -4104,15 +4099,13 @@ begin
 
       // Log errors
       if Length(errors) > 0 then
-      begin
-        if not aShowDetailedErrors then
-          Log(AnsiString(Format('Actions.MapTilesArraySetS: there were %d errors while setting tiles' , [Length(errors)])))
-        else
+        if aShowDetailedErrors then
+        begin
           Log('Actions.MapTilesArraySetS list of tiles errors:');
-      end;
-      if aShowDetailedErrors then
-        for I := Low(errors) to High(errors) do
-          Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
+          for I := Low(errors) to High(errors) do
+            Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
+        end else
+          Log(AnsiString(Format('Actions.MapTilesArraySetS: there were %d errors while setting tiles' , [Length(errors)])))
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
