@@ -158,6 +158,7 @@ type
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
     function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+    function MapTilesArraySetF(aFileName: string; aOffsetX, aOffsetY: Integer; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTileHeightSet(X, Y, Height: Integer): Boolean;
     function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
@@ -3971,6 +3972,34 @@ function TKMScriptActions.MapTilesArraySet(aTiles: array of TKMTerrainTileBrief;
 begin
   try
     Result := _MapTilesArraySet('Actions.MapTilesArraySet', aTiles, aRevertOnFail, aShowDetailedErrors);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+//* Version: 15000+
+//* Sets array of tiles info, like MapTilesArraySetS, but tile string array is
+//* stored in file.
+//* This function is useful if you need to create dynamic map from scratch.
+//* File Array must be in following format: X,Y,Terrain,Rotation,Height,Obj;X,Y,Terrain,Rotation,Height,Obj;...
+//* f.e. 1,1,20,2,87,12;1,2,20,2,12;...
+//* In case of invalid structure detection / failed variable parsing you can find
+//* detailed errors in LOG file.
+//* If you need to skip terrain or rotation/height/obj use -1 as parameter
+//* f.e.
+//* Skipping rotation for tile [7,2]: 7,2,20,-1,87,12
+//* Skipping obj for tile [7,2]: 7,2,20,2,87,-1
+//* Skipping height for tile [7,2]: 7,2,20,2,-1,5 etc.
+//* xOffset - offset that would be added to tiles X coordinates.
+//* yOffset - offset that would be added to tiles Y coordinates.
+function TKMScriptActions.MapTilesArraySetF(aFileName: string; aOffsetX, aOffsetY: Integer; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+begin
+  try
+
+    Log('Action is not implemented');
+    result := false;
+
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
