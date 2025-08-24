@@ -857,6 +857,7 @@ begin
     RegisterMethodCheck(c, 'procedure PlayerAddDefaultGoals(aHand: Byte; aBuildings: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerAllianceChange(aHand1: Byte; aHand2: Byte; aCompliment: Boolean; aAllied: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerAllianceNFogChange(aHand1: Byte; aHand2: Byte; aCompliment: Boolean; aAllied: Boolean; aSyncAllyFog: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerCenterScreenSet(aHand: Integer; aX: Integer; aY: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerDefeat(aHand: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerGoalsRemoveAll(aHand: Integer; aForAllPlayers: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerHouseTypeLock(aHand: Integer; aHouseType: TKMHouseType; aLock: TKMHandHouseLock)');
@@ -1607,6 +1608,7 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PlayerAddDefaultGoals');
       RegisterMethod(@TKMScriptActions.PlayerAllianceChange, 'PlayerAllianceChange');
       RegisterMethod(@TKMScriptActions.PlayerAllianceNFogChange, 'PlayerAllianceNFogChange');
+      RegisterMethod(@TKMScriptActions.PlayerCenterScreenSet, 'PlayerCenterScreenSet');
       RegisterMethod(@TKMScriptActions.PlayerDefeat, 'PlayerDefeat');
       RegisterMethod(@TKMScriptActions.PlayerGoalsRemoveAll, 'PlayerGoalsRemoveAll');
       RegisterMethod(@TKMScriptActions.PlayerHouseTypeLock, 'PlayerHouseTypeLock');

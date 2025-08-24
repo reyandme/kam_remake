@@ -185,6 +185,7 @@ type
     procedure PlayerAllianceChange(aHand1, aHand2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAllianceNFogChange(aHand1, aHand2: Byte; aCompliment, aAllied, aSyncAllyFog: Boolean);
     procedure PlayerAddDefaultGoals(aHand: Byte; aBuildings: Boolean);
+    procedure PlayerCenterScreenSet(aHand: Integer; aX: integer; aY: integer);
     procedure PlayerDefeat(aHand: Integer);
     procedure PlayerGoalsRemoveAll(aHand: Integer; aForAllPlayers: Boolean);
     procedure PlayerHouseTypeLock(aHand: Integer; aHouseType: TKMHouseType; aLock: TKMHandHouseLock);
@@ -395,6 +396,25 @@ begin
     end
     else
       LogParamWarn('Actions.PlayerHouseTypeLock', [aHand, GetEnumName(TypeInfo(TKMHouseType), Integer(aHouseType))]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+//* Version: 15500
+//* Sets player center screen at new coordinates.
+procedure TKMScriptActions.PlayerCenterScreenSet(aHand: Integer; aX: Integer; aY: Integer);
+begin
+  try
+    if InRange(aHand, 0, gHands.Count - 1)
+      and gHands[aHand].Enabled
+      and gTerrain.TileInMapCoords(aX,aY) then
+    begin
+      gHands[aHand].CenterScreen := TKMPoint.New(aX, aY);
+    end
+    else
+      LogIntParamWarn('Actions.PlayerCenterScreenSet', [aHand, aX, aY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
