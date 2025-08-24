@@ -402,17 +402,16 @@ begin
   end;
 end;
 
-//* Version: 15500
+
+//* Version: 15783
 //* Sets player center screen at new coordinates.
 procedure TKMScriptActions.PlayerCenterScreenSet(aHand: Integer; aX: Integer; aY: Integer);
 begin
   try
     if InRange(aHand, 0, gHands.Count - 1)
-      and gHands[aHand].Enabled
-      and gTerrain.TileInMapCoords(aX,aY) then
-    begin
-      gHands[aHand].CenterScreen := TKMPoint.New(aX, aY);
-    end
+    and gHands[aHand].Enabled
+    and gTerrain.TileInMapCoords(aX, aY) then
+      gHands[aHand].CenterScreen := TKMPoint.New(aX, aY)
     else
       LogIntParamWarn('Actions.PlayerCenterScreenSet', [aHand, aX, aY]);
   except

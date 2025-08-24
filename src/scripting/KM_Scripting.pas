@@ -857,7 +857,7 @@ begin
     RegisterMethodCheck(c, 'procedure PlayerAddDefaultGoals(aHand: Byte; aBuildings: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerAllianceChange(aHand1: Byte; aHand2: Byte; aCompliment: Boolean; aAllied: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerAllianceNFogChange(aHand1: Byte; aHand2: Byte; aCompliment: Boolean; aAllied: Boolean; aSyncAllyFog: Boolean)');
-    RegisterMethodCheck(c, 'procedure PlayerCenterScreenSet(aHand: Integer; aX: Integer; aY: Integer)');
+    RegisterMethodCheck(c, 'procedure PlayerCenterScreenSet(aHand: Integer; aX, aY: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerDefeat(aHand: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerGoalsRemoveAll(aHand: Integer; aForAllPlayers: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerHouseTypeLock(aHand: Integer; aHouseType: TKMHouseType; aLock: TKMHandHouseLock)');
