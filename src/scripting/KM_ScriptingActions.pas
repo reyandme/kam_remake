@@ -5376,7 +5376,7 @@ begin
 end;
 
 //* Version 15000+
-//* Makes vertical/horizontal flip of the map.
+//* Flips map horizontally or vertically within selected rectangle.
 //* aLeft, aTop - tile coordinates of top left corner of rectangle that should be fliped
 //* aRight, aBottom - tile coordinates of bottom right corner of rectangle that should be fliped.
 //* Minimum valid size of flip rectangle is 1x1.
