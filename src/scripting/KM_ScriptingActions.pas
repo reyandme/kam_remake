@@ -5377,6 +5377,9 @@ end;
 
 //* Version 15000+
 //* Makes vertical/horizontal flip of the map.
+//* aLeft, aTop - tile coordinates of top left corner of rectangle that should be fliped
+//* aRight, aBottom - tile coordinates of bottom right corner of rectangle that should be fliped.
+//* Minimum valid size of flip rectangle is 1x1.
 procedure TKMScriptActions.MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
 var
   fSelection: TKMSelection;
