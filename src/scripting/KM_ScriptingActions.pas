@@ -6,7 +6,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_TerrainTypes,
   KM_ScriptSound, KM_MediaTypes, KM_ResTypes, KM_ResFonts, KM_HandTypes, KM_HouseWoodcutters,
   KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_ScriptingTypes,
-  KM_AITypes;
+  KM_AITypes, IOUtils;
 
 
 type
@@ -17,6 +17,7 @@ type
 
     function _AIDefencePositionAdd(aHand: Integer; aOrder: Integer; const aDefencePosition: TKMDefencePositionInfo): Integer;
     function _AIGroupsFormationSet(aHand: Integer; aGroupType: TKMGroupType; aCount, aColumns: Integer): Boolean;
+    function _ParseMapTilesArrayString(tilesArray: TAnsiStringArray; actionName: string; xOffset: Integer; yOffset: Integer): TKMTerrainTileBriefArray;
   public
     property OnSetLogLinesMaxCnt: TIntegerEvent read fOnSetLogLinesMaxCnt write fOnSetLogLinesMaxCnt;
 
@@ -158,6 +159,7 @@ type
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
     function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+    function MapTilesArraySetF(aFileName: string; aRevertOnFail, aShowDetailedErrors: Boolean; xOffset, yOffset: integer): Boolean;
     function MapTileHeightSet(X, Y, Height: Integer): Boolean;
     function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
     function MapTileOverlaySet(X, Y: Integer; aOverlay: TKMTileOverlay; aOverwrite: Boolean): Boolean;
@@ -272,6 +274,79 @@ begin
             and (HOUSE_ID_TO_TYPE[aHouseType] <> htNone); //KaM index 26 is unused (htNone)
 end;
 
+function TKMScriptActions._ParseMapTilesArrayString(tilesArray: TAnsiStringArray; actionName: string; xOffset: Integer; yOffset: Integer): TKMTerrainTileBriefArray;
+
+  function TryToSetParsedValue(value: PChar; setPlace: PByte; parsingParameterName: string; parsingLine: string; actionName: string): boolean; overload;
+  var
+    parsedValue: Integer;
+  begin
+    if ((TryStrToInt(string(value), parsedValue)) and (parsedValue >= 0)) then
+    begin
+      result := true;
+      setPlace^ := parsedValue;
+    end else
+    begin
+      result := false;
+      LogStr(Format('Actions.[%s]: Parameter [%s] = [%s] in line [%s] is not a valid integer.', [actionName, parsingParameterName, value, parsingLine]));
+    end;
+  end;
+
+  function TryToSetParsedValue(value: PChar; setPlace: PWord; parsingParameterName: string; parsingLine: string; actionName: string): boolean; overload;
+  var
+    parsedValue: Integer;
+  begin
+    if ((TryStrToInt(string(value), parsedValue)) and (parsedValue >= 0)) then
+    begin
+      result := true;
+      setPlace^ := parsedValue;
+    end else
+    begin
+      result := false;
+      LogStr(Format('Actions.[%s]: Parameter [%s] = [%s] in line [%s] is not a valid integer.', [actionName, parsingParameterName, value, parsingLine]));
+    end;
+  end;
+
+var
+  I: integer;
+  arrElem: TAnsiStringArray;
+
+begin
+  SetLength(result, Length(tilesArray));
+
+  for I := Low(tilesArray) to High(tilesArray) do
+  begin
+    arrElem := StrSplitA(ReplaceStr(String(tilesArray[I]), ' ', ''), ',');
+
+    //checking params count, if count is invalid we cannot proceed
+    if (Length(arrElem) <> 6) then
+      LogStr(Format('Actions.MapTilesArraySetF: Invalid number of parameters in string [%s]', [tilesArray[I]]))
+    else
+    begin
+
+      //if X and Y are correctly defined we can proceed with terrain changes.
+      if (TryToSetParsedValue(PChar(arrElem[0]), PWord(@result[I].X), 'X', tilesArray[I], 'MapTilesArraySetF') and
+          TryToSetParsedValue(PChar(arrElem[1]), PWord(@result[I].Y), 'Y', tilesArray[I], 'MapTilesArraySetF') and
+          (result[I].X > 0) and
+          (result[I].Y > 0)) then
+      begin
+        result[I].X := result[I].X + xOffset;
+        result[I].Y := result[I].Y + yOffset;
+
+        if (TryToSetParsedValue(PChar(arrElem[2]), PWord(@result[I].Terrain), 'Terrain', tilesArray[I], 'MapTilesArraySetF')) then
+          result[I].UpdateTerrain := true;
+
+        if (TryToSetParsedValue(PChar(arrElem[3]), PByte(@result[I].Rotation), 'Rotation', tilesArray[I], 'MapTilesArraySetF')) then
+          result[I].UpdateRotation := true;
+
+        if (TryToSetParsedValue(PChar(arrElem[4]), PByte(@result[I].Height), 'Height', tilesArray[I], 'MapTilesArraySetF')) then
+          result[I].UpdateHeight := true;
+
+        if (TryToSetParsedValue(PChar(arrElem[5]), PWord(@result[I].Obj), 'Obj', tilesArray[I], 'MapTilesArraySetF')) then
+          result[I].UpdateObject := true;
+      end;
+    end;
+  end;
+end;
 
 { TKMScriptActions }
 //* Version: 5938
@@ -3975,6 +4050,106 @@ begin
   end;
 end;
 
+//* Version: 15000+
+//* Sets array of tiles info, like MapTilesArraySetS, but tile string array are
+//* stored in file.
+//* This function is useful if you need to create dynamic map from scratch.
+//* File Array must be in following format: X,Y,Terrain,Rotation,Height,Obj;X,Y,Terrain,Rotation,Height,Obj;...
+//* f.e. 1,1,20,2,87,12;1,2,20,2,12;...
+//* In case of invalid structure detection / failed variable parsing you can find
+//* detailed errors in LOG file.
+//* If you need to skip terrain or rotation/height/obj use -1 as parameter
+//* f.e.
+//* Skipping rotation for tile [7,2]: 7,2,20,-1,87,12
+//* Skipping obj for tile [7,2]: 7,2,20,2,87,-1
+//* Skipping height for tile [7,2]: 7,2,20,2,-1,5 etc.
+function TKMScriptActions.MapTilesArraySetF(aFileName: string; aRevertOnFail, aShowDetailedErrors: Boolean; xOffset, yOffset: integer): Boolean;
+
+  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
+  var
+    tileChangeType: TKMTileChangeType;
+  begin
+    Result := '';
+    for tileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
+      if tileChangeType in aErrorsIn then
+      begin
+        if Result <> '' then
+          Result := Result + ', ';
+        Result := Result + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
+      end;
+  end;
+
+  function Split(const str: string; const delimeter: Char): TAnsiStringArray;
+  var
+    SepPos: array of integer;
+    i: Integer;
+  begin
+    SetLength(SepPos, 1);
+    SepPos[0] := 0;
+    for i := 1 to length(str) do
+      if str[i] = delimeter then
+      begin
+        SetLength(SepPos, length(SepPos) + 1);
+        SepPos[high(SepPos)] := i;
+      end;
+    SetLength(SepPos, length(SepPos) + 1);
+    SepPos[high(SepPos)] := length(str) + 1;
+    SetLength(result, high(SepPos));
+    for i := 0 to high(SepPos) -  1 do
+      result[i] := Trim(Copy(str, SepPos[i] + 1, SepPos[i+1] - SepPos[i] - 1));
+  end;
+
+  function GetTilesArray(aFileName: string): TAnsiStringArray;
+  var
+    filePath: string;
+    mapTilesString: string;
+  begin
+    filePath := gGame.GetMissionFilePath(aFileName, '.tiles');
+    mapTilesString := TFile.ReadAllText(filePath);
+    result := Split(mapTilesString, ';');
+  end;
+
+var
+  tilesArray: TAnsiStringArray;
+  I: Integer;
+  errors: TKMTerrainTileChangeErrorArray;
+  tiles: TKMTerrainTileBriefArray;
+
+begin
+
+  {$WARN SUSPICIOUS_TYPECAST OFF}
+  try
+    Result := True;
+    SetLength(errors, 16);
+
+    tilesArray := GetTilesArray(aFileName);
+
+    tiles := _ParseMapTilesArrayString(tilesArray, 'MapTilesArraySetF', xOffset, yOffset);
+
+    if not gTerrain.ScriptTrySetTilesArray(tiles, aRevertOnFail, errors) then
+    begin
+      Result := False;
+
+      // Log errors
+      if Length(errors) > 0 then
+      begin
+        if not aShowDetailedErrors then
+          Log(AnsiString(Format('Actions.MapTilesArraySetF: there were %d errors while setting tiles' , [Length(errors)])))
+        else
+          Log('Actions.MapTilesArraySetF list of tiles errors:');
+      end;
+      if aShowDetailedErrors then
+        for I := Low(errors) to High(errors) do
+          Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
+    end;
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+{$WARN SUSPICIOUS_TYPECAST ON}
+
+end;
+
 
 //* Version: 7000+
 //* Sets array of tiles info, like MapTilesArraySet, but parameters are
@@ -4004,99 +4179,15 @@ function TKMScriptActions.MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOn
 var
   I: Integer;
   errors: TKMTerrainTileChangeErrorArray;
-  tiles: array of TKMTerrainTileBrief;
-  arrElem: TAnsiStringArray;
-  parsedValue: Integer;
-  parserError: Boolean;
+  tiles: TKMTerrainTileBriefArray;
+
 begin
 {$WARN SUSPICIOUS_TYPECAST OFF}
   try
     Result := True;
     SetLength(errors, 16);
 
-    //***********PARSING ARRAY OF STRING TO ARRAY OF TKMTerrainTileBrief**********
-    SetLength(tiles, Length(aTilesS));
-    for I := Low(aTilesS) to High(aTilesS) do
-    begin
-      arrElem := StrSplitA(ReplaceStr(String(aTilesS[I]), ' ', ''), ',');
-      parserError := False;
-
-      //checking params count, if count is invalid we cannot proceed
-      if (Length(arrElem) <> 6) then
-        LogStr(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [aTilesS[I]]))
-      else
-      begin
-        //checking X, if X <= 0 we cannot proceed
-        if ((TryStrToInt(string(PChar(arrElem[0])), parsedValue)) and (parsedValue > 0)) then
-          tiles[I].X := parsedValue
-        else
-        begin
-          LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
-          parserError := True;
-        end;
-        //checking Y, if Y <= 0 we cannot proceed
-        if ((TryStrToInt(string(PChar(arrElem[1])), parsedValue)) and (parsedValue > 0)) then
-          tiles[I].Y := parsedValue
-        else
-        begin
-          LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
-          parserError := True;
-        end;
-
-        //if X and Y are correctly defined we can proceed with terrain changes
-        if (not parserError) then
-        begin
-          if (TryStrToInt(string(PChar(arrElem[2])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with terrain
-              tiles[I].Terrain := parsedValue;
-              tiles[I].UpdateTerrain := True;
-            end;
-          end
-          else
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], aTilesS[I]]));
-
-          if (TryStrToInt(string(PChar(arrElem[3])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with rotation
-              tiles[I].Rotation := parsedValue;
-              tiles[I].UpdateRotation := True;
-            end;
-          end
-          else
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], aTilesS[I]]));
-
-          if (TryStrToInt(string(PChar(arrElem[4])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with height
-              tiles[I].Height := parsedValue;
-              tiles[I].UpdateHeight := True;
-            end;
-          end
-          else
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], aTilesS[I]]));
-
-          if (TryStrToInt(string(PChar(arrElem[5])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with obj
-              tiles[I].Obj := parsedValue;
-              tiles[I].UpdateObject := True;
-            end;
-          end
-          else
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
-        end;
-      end;
-    end;
-    //***********END OF PARSING**********
+    tiles := _ParseMapTilesArrayString(aTilesS, 'MapTilesArraySetS', 0, 0);
 
     if not gTerrain.ScriptTrySetTilesArray(tiles, aRevertOnFail, errors) then
     begin
