@@ -3943,11 +3943,7 @@ function TKMScriptActions.MapTilesArraySet(aTiles: array of TKMTerrainTileBrief;
     Result := '';
     for tileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
       if tileChangeType in aErrorsIn then
-      begin
-        if Result <> '' then
-          Result := Result + ', ';
-        Result := Result + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
-      end;
+        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
   end;
 
 var
@@ -4002,11 +3998,7 @@ function TKMScriptActions.MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOn
     Result := '';
     for tileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
       if tileChangeType in aErrorsIn then
-      begin
-        if Result <> '' then
-          Result := Result + ', ';
-        Result := Result + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
-      end;
+        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
   end;
 
 var
