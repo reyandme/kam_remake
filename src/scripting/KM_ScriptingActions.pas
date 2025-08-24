@@ -157,7 +157,7 @@ type
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
     function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
-    function MapTilesArraySetF(aFileName: string; aRevertOnFail, aShowDetailedErrors: Boolean; xOffset, yOffset: integer): Boolean;
+    function MapTilesArraySetF(aFileName: string; xOffset, yOffset: integer; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTileHeightSet(X, Y, Height: Integer): Boolean;
     function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
@@ -3995,11 +3995,12 @@ end;
 //* Skipping height for tile [7,2]: 7,2,20,2,-1,5 etc.
 //* xOffset - offset that would be added to tiles X coordinates.
 //* yOffset - offset that would be added to tiles Y coordinates.
-function TKMScriptActions.MapTilesArraySetF(aFileName: string; aRevertOnFail, aShowDetailedErrors: Boolean; xOffset, yOffset: integer): Boolean;
+function TKMScriptActions.MapTilesArraySetF(aFileName: string; xOffset, yOffset: integer; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
 begin
   try
 
-    raise Exception.Create('Action is not implemented');
+    Log('Action is not implemented');
+    result := false;
 
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception

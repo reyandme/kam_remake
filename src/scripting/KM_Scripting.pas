@@ -836,7 +836,7 @@ begin
     RegisterMethodCheck(c, 'function  MapTileObjectSet(X, Y: Integer; Obj: Integer): Boolean');
     RegisterMethodCheck(c, 'function  MapTileOverlaySet(X, Y: Integer; aOverlay: TKMTileOverlay; aOverwrite: Boolean): Boolean');
     RegisterMethodCheck(c, 'function  MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
-    RegisterMethodCheck(c, 'function  MapTilesArraySetF(aFileName: string; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean; xOffset, yOffset: integer): Boolean');
+    RegisterMethodCheck(c, 'function  MapTilesArraySetF(aFileName: string; xOffset, yOffset: integer; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
     RegisterMethodCheck(c, 'function  MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
     RegisterMethodCheck(c, 'function  MapTileSet(X, Y: Integer; aType: Integer; aRotation: Integer): Boolean');
     RegisterMethodCheck(c, 'procedure MarketSetTrade(aMarketID: Integer; aFrom: Integer; aTo: Integer; aAmount: Integer)');
