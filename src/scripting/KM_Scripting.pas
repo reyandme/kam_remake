@@ -857,10 +857,10 @@ begin
     RegisterMethodCheck(c, 'procedure PlayerAddDefaultGoals(aHand: Byte; aBuildings: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerAllianceChange(aHand1: Byte; aHand2: Byte; aCompliment: Boolean; aAllied: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerAllianceNFogChange(aHand1: Byte; aHand2: Byte; aCompliment: Boolean; aAllied: Boolean; aSyncAllyFog: Boolean)');
+    RegisterMethodCheck(c, 'procedure PlayerCenterScreenSet(aHand: Integer; aX: Integer; aY: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerDefeat(aHand: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerGoalsRemoveAll(aHand: Integer; aForAllPlayers: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerHouseTypeLock(aHand: Integer; aHouseType: TKMHouseType; aLock: TKMHandHouseLock)');
-    RegisterMethodCheck(c, 'procedure PlayerCenterScreenSet(aHand: Integer; aX: Integer; aY: Integer)');
     RegisterMethodCheck(c, 'procedure PlayerShareBeacons(aHand1: Integer; aHand2: Integer; aBothWays: Boolean; aShare: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerShareFog(aHand1: Integer; aHand2: Integer; aShare: Boolean)');
     RegisterMethodCheck(c, 'procedure PlayerShareFogCompliment(aHand1: Integer; aHand2: Integer; aShare: Boolean)');
@@ -1608,10 +1608,10 @@ begin
       RegisterMethod(@TKMScriptActions.PlayerAddDefaultGoals, 'PlayerAddDefaultGoals');
       RegisterMethod(@TKMScriptActions.PlayerAllianceChange, 'PlayerAllianceChange');
       RegisterMethod(@TKMScriptActions.PlayerAllianceNFogChange, 'PlayerAllianceNFogChange');
+      RegisterMethod(@TKMScriptActions.PlayerCenterScreenSet, 'PlayerCenterScreenSet');
       RegisterMethod(@TKMScriptActions.PlayerDefeat, 'PlayerDefeat');
       RegisterMethod(@TKMScriptActions.PlayerGoalsRemoveAll, 'PlayerGoalsRemoveAll');
       RegisterMethod(@TKMScriptActions.PlayerHouseTypeLock, 'PlayerHouseTypeLock');
-      RegisterMethod(@TKMScriptActions.PlayerCenterScreenSet, 'PlayerCenterScreenSet');
       RegisterMethod(@TKMScriptActions.PlayerShareBeacons, 'PlayerShareBeacons');
       RegisterMethod(@TKMScriptActions.PlayerShareFog, 'PlayerShareFog');
       RegisterMethod(@TKMScriptActions.PlayerShareFogCompliment, 'PlayerShareFogCompliment');

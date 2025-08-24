@@ -185,10 +185,10 @@ type
     procedure PlayerAllianceChange(aHand1, aHand2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAllianceNFogChange(aHand1, aHand2: Byte; aCompliment, aAllied, aSyncAllyFog: Boolean);
     procedure PlayerAddDefaultGoals(aHand: Byte; aBuildings: Boolean);
+    procedure PlayerCenterScreenSet(aHand: Integer; aX: integer; aY: integer);
     procedure PlayerDefeat(aHand: Integer);
     procedure PlayerGoalsRemoveAll(aHand: Integer; aForAllPlayers: Boolean);
     procedure PlayerHouseTypeLock(aHand: Integer; aHouseType: TKMHouseType; aLock: TKMHandHouseLock);
-    procedure PlayerCenterScreenSet(aHand: Integer; aX: integer; aY: integer);
     procedure PlayerShareBeacons(aHand1, aHand2: Integer; aBothWays, aShare: Boolean);
     procedure PlayerShareFog(aHand1, aHand2: Integer; aShare: Boolean);
     procedure PlayerShareFogCompliment(aHand1, aHand2: Integer; aShare: Boolean);
