@@ -17,6 +17,7 @@ type
 
     function _AIDefencePositionAdd(aHand: Integer; aOrder: Integer; const aDefencePosition: TKMDefencePositionInfo): Integer;
     function _AIGroupsFormationSet(aHand: Integer; aGroupType: TKMGroupType; aCount, aColumns: Integer): Boolean;
+    function _MapTilesArraySet(aFuncName: string; aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
   public
     property OnSetLogLinesMaxCnt: TIntegerEvent read fOnSetLogLinesMaxCnt write fOnSetLogLinesMaxCnt;
 
@@ -3909,6 +3910,38 @@ begin
 end;
 
 
+function TKMScriptActions._MapTilesArraySet(aFuncName: string; aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
+  begin
+    Result := '';
+    for var I := Low(TKMTileChangeType) to High(TKMTileChangeType) do
+      if I in aErrorsIn then
+        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(I));
+  end;
+var
+  I: Integer;
+  errors: TKMTerrainTileChangeErrorArray;
+begin
+    Result := True;
+    SetLength(errors, 16);
+    if not gTerrain.ScriptTrySetTilesArray(aTiles, aRevertOnFail, errors) then
+    begin
+      Result := False;
+
+      // Log errors
+      if Length(errors) > 0 then
+        if aShowDetailedErrors then
+        begin
+          Log(aFuncName + ' list of tiles errors:');
+          for I := Low(errors) to High(errors) do
+            Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
+        end
+        else
+          Log(AnsiString(aFuncName + Format(': there were %d errors while setting tiles' , [Length(errors)])))
+    end;
+end;
+
+
 //* Version: 7000+
 //* Sets array of tiles info, with possible change of
 //* 1. terrain (tile type) and/or rotation (same as for MapTileSet),
@@ -3935,37 +3968,9 @@ end;
 //* aShowDetailedErrors: show detailed errors after. Can slow down the execution, because of logging. If aRevertOnFail is set to True, then only first error will be shown
 //* Result: True, if there was no errors on any tile. False if there was at least 1 error.
 function TKMScriptActions.MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
-
-  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
-  begin
-    Result := '';
-    for var I := Low(TKMTileChangeType) to High(TKMTileChangeType) do
-      if I in aErrorsIn then
-        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(I));
-  end;
-
-var
-  I: Integer;
-  errors: TKMTerrainTileChangeErrorArray;
 begin
   try
-    Result := True;
-    SetLength(errors, 16);
-    if not gTerrain.ScriptTrySetTilesArray(aTiles, aRevertOnFail, errors) then
-    begin
-      Result := False;
-
-      // Log errors
-      if Length(errors) > 0 then
-        if aShowDetailedErrors then
-        begin
-          Log('Actions.MapTilesArraySet list of tiles errors:');
-          for I := Low(errors) to High(errors) do
-            Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
-        end
-        else
-          Log(AnsiString(Format('Actions.MapTilesArraySet: there were %d errors while setting tiles' , [Length(errors)])))
-    end;
+    Result := _MapTilesArraySet('Actions.MapTilesArraySet', aTiles, aRevertOnFail, aShowDetailedErrors);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -3998,7 +4003,6 @@ function TKMScriptActions.MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOn
 
 var
   I: Integer;
-  errors: TKMTerrainTileChangeErrorArray;
   tiles: array of TKMTerrainTileBrief;
   arrElem: TAnsiStringArray;
   parsedValue: Integer;
@@ -4006,36 +4010,35 @@ var
 begin
 {$WARN SUSPICIOUS_TYPECAST OFF}
   try
-    Result := True;
-    SetLength(errors, 16);
-
     //***********PARSING ARRAY OF STRING TO ARRAY OF TKMTerrainTileBrief**********
+    parserError := False;
     SetLength(tiles, Length(aTilesS));
     for I := Low(aTilesS) to High(aTilesS) do
     begin
       arrElem := StrSplitA(ReplaceStr(String(aTilesS[I]), ' ', ''), ',');
-      parserError := False;
 
       //checking params count, if count is invalid we cannot proceed
       if (Length(arrElem) <> 6) then
+      begin
+        parserError := True;
         LogStr(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [aTilesS[I]]))
-      else
+      end else
       begin
         //checking X, if X <= 0 we cannot proceed
         if ((TryStrToInt(string(PChar(arrElem[0])), parsedValue)) and (parsedValue > 0)) then
           tiles[I].X := parsedValue
         else
         begin
-          LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
           parserError := True;
+          LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
         end;
         //checking Y, if Y <= 0 we cannot proceed
         if ((TryStrToInt(string(PChar(arrElem[1])), parsedValue)) and (parsedValue > 0)) then
           tiles[I].Y := parsedValue
         else
         begin
-          LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
           parserError := True;
+          LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
         end;
 
         //if X and Y are correctly defined we can proceed with terrain changes
@@ -4051,7 +4054,10 @@ begin
             end;
           end
           else
+          begin
+            parserError := True;
             LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], aTilesS[I]]));
+          end;
 
           if (TryStrToInt(string(PChar(arrElem[3])), parsedValue)) then
           begin
@@ -4063,7 +4069,10 @@ begin
             end;
           end
           else
+          begin
+            parserError := True;
             LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], aTilesS[I]]));
+          end;
 
           if (TryStrToInt(string(PChar(arrElem[4])), parsedValue)) then
           begin
@@ -4075,7 +4084,10 @@ begin
             end;
           end
           else
+          begin
+            parserError := True;
             LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], aTilesS[I]]));
+          end;
 
           if (TryStrToInt(string(PChar(arrElem[5])), parsedValue)) then
           begin
@@ -4087,26 +4099,19 @@ begin
             end;
           end
           else
+          begin
+            parserError := True;
             LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
+          end;
         end;
       end;
     end;
     //***********END OF PARSING**********
 
-    if not gTerrain.ScriptTrySetTilesArray(tiles, aRevertOnFail, errors) then
-    begin
+    if not parserError then
+      Result := _MapTilesArraySet('Actions.MapTilesArraySetS', tiles, aRevertOnFail, aShowDetailedErrors)
+    else
       Result := False;
-
-      // Log errors
-      if Length(errors) > 0 then
-        if aShowDetailedErrors then
-        begin
-          Log('Actions.MapTilesArraySetS list of tiles errors:');
-          for I := Low(errors) to High(errors) do
-            Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
-        end else
-          Log(AnsiString(Format('Actions.MapTilesArraySetS: there were %d errors while setting tiles' , [Length(errors)])))
-    end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
