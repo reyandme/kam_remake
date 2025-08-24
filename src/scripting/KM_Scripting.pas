@@ -1584,6 +1584,7 @@ begin
       RegisterMethod(@TKMScriptActions.MapBrushFlatten, 'MapBrushFlatten');
       RegisterMethod(@TKMScriptActions.MapBrushMagicWater, 'MapBrushMagicWater');
       RegisterMethod(@TKMScriptActions.MapBrushWithMask, 'MapBrushWithMask');
+      RegisterMethod(@TKMScriptActions.MapFlip, 'MapFlip');
       RegisterMethod(@TKMScriptActions.MapTileHeightSet, 'MapTileHeightSet');
       RegisterMethod(@TKMScriptActions.MapTileObjectSet, 'MapTileObjectSet');
       RegisterMethod(@TKMScriptActions.MapTileOverlaySet, 'MapTileOverlaySet');
@@ -1654,7 +1655,6 @@ begin
       RegisterMethod(@TKMScriptActions.UnitHungerSet, 'UnitHungerSet');
       RegisterMethod(@TKMScriptActions.UnitKill, 'UnitKill');
       RegisterMethod(@TKMScriptActions.UnitOrderWalk, 'UnitOrderWalk');
-      RegisterMethod(@TKMScriptActions.MapFlip, 'MapFlip');
       //*Actions-Reg*//
     end;
 
