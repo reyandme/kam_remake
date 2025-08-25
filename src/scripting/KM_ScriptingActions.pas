@@ -6,7 +6,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_TerrainTypes,
   KM_ScriptSound, KM_MediaTypes, KM_ResTypes, KM_ResFonts, KM_HandTypes, KM_HouseWoodcutters,
   KM_ScriptingEvents, KM_ScriptingTypes,
-  KM_AITypes;
+  KM_AITypes, IOUtils;
 
 
 type
@@ -18,7 +18,8 @@ type
     function _AIDefencePositionAdd(aHand: Integer; aOrder: Integer; const aDefencePosition: TKMDefencePositionInfo): Integer;
     function _AIGroupsFormationSet(aHand: Integer; aGroupType: TKMGroupType; aCount, aColumns: Integer): Boolean;
     function _MapTilesArraySet(aFuncName: string; aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
-    function _MapTileStringToType(aTilesS: TAnsiStringArray; var aTiles: TKMTerrainTileBriefArray): Boolean;
+    function _MapTileStringToType(aTilesS: TAnsiStringArray; var aTiles: TKMTerrainTileBriefArray; aOffsetX, aOffsetY: integer): Boolean;
+    function _Split(const aStr: string; const aDelimeter: Char): TAnsiStringArray;
   public
     property OnSetLogLinesMaxCnt: TIntegerEvent read fOnSetLogLinesMaxCnt write fOnSetLogLinesMaxCnt;
 
@@ -3979,6 +3980,26 @@ begin
   end;
 end;
 
+function TKMScriptActions._Split(const aStr: string; const aDelimeter: Char): TAnsiStringArray;
+  var
+    SepPos: array of integer;
+    i: Integer;
+  begin
+    SetLength(SepPos, 1);
+    SepPos[0] := 0;
+    for i := 1 to length(aStr) do
+      if aStr[i] = aDelimeter then
+      begin
+        SetLength(SepPos, length(SepPos) + 1);
+        SepPos[high(SepPos)] := i;
+      end;
+    SetLength(SepPos, length(SepPos) + 1);
+    SepPos[high(SepPos)] := length(aStr) + 1;
+    SetLength(result, high(SepPos));
+    for i := 0 to high(SepPos) -  1 do
+      result[i] := Trim(Copy(aStr, SepPos[i] + 1, SepPos[i+1] - SepPos[i] - 1));
+  end;
+
 //* Version: 15000+
 //* Sets array of tiles info, like MapTilesArraySetS, but tile string array is
 //* stored in file.
@@ -3995,11 +4016,25 @@ end;
 //* xOffset - offset that would be added to tiles X coordinates.
 //* yOffset - offset that would be added to tiles Y coordinates.
 function TKMScriptActions.MapTilesArraySetF(aFileName: string; aOffsetX, aOffsetY: Integer; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+var
+  filePath: string;
+  fileContent: string;
+  tilesStringArray: TAnsiStringArray;
+  tiles: TKMTerrainTileBriefArray;
+  parserSuccess: Boolean;
 begin
   try
 
-    Log('Action is not implemented');
-    result := false;
+    filePath := gGame.GetMapFilePath(aFileName, '.tiles');
+    fileContent := TFile.ReadAllText(filePath);
+    tilesStringArray := _Split(fileContent, ';');
+
+    parserSuccess := _MapTileStringToType(tilesStringArray, tiles, aOffsetX, aOffsetY);
+
+    if parserSuccess then
+      Result := _MapTilesArraySet('Actions.MapTilesArraySetF', tiles, aRevertOnFail, aShowDetailedErrors)
+    else
+      Result := False;
 
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -4008,7 +4043,7 @@ begin
 end;
 
 
-function TKMScriptActions._MapTileStringToType(aTilesS: TAnsiStringArray; var aTiles: TKMTerrainTileBriefArray): Boolean;
+function TKMScriptActions._MapTileStringToType(aTilesS: TAnsiStringArray; var aTiles: TKMTerrainTileBriefArray; aOffsetX, aOffsetY: integer): Boolean;
 var
   I: Integer;
   arrElem: TAnsiStringArray;
@@ -4033,7 +4068,7 @@ begin
     // Check X, if X <= 0 we cannot proceed
     parsedValue := StrToIntDef(string(PChar(arrElem[0])), -1);
     if parsedValue > 0 then
-      aTiles[I].X := parsedValue
+      aTiles[I].X := parsedValue + aOffsetX
     else
     begin
       // Log error, but keep on parsing, so we can report all parsing errors at once
@@ -4044,7 +4079,7 @@ begin
     // Check Y, if Y <= 0 we cannot proceed
     parsedValue := StrToIntDef(string(PChar(arrElem[1])), -1);
     if parsedValue > 0 then
-      aTiles[I].Y := parsedValue
+      aTiles[I].Y := parsedValue + aOffsetY
     else
     begin
       // Log error, but keep on parsing, so we can report all parsing errors at once
@@ -4136,7 +4171,7 @@ var
   parserSuccess: Boolean;
 begin
   try
-    parserSuccess := _MapTileStringToType(aTilesS, tiles);
+    parserSuccess := _MapTileStringToType(aTilesS, tiles, 0, 0);
 
     if parserSuccess then
       Result := _MapTilesArraySet('Actions.MapTilesArraySetS', tiles, aRevertOnFail, aShowDetailedErrors)
