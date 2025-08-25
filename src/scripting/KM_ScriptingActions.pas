@@ -4013,10 +4013,9 @@ var
   I: Integer;
   arrElem: TAnsiStringArray;
   parsedValue: Integer;
-  parserError: Boolean;
 begin
   {$WARN SUSPICIOUS_TYPECAST OFF}
-  parserError := False;
+  Result := False;
   SetLength(aTiles, Length(aTilesS));
   for I := Low(aTilesS) to High(aTilesS) do
   begin
@@ -4025,7 +4024,7 @@ begin
     //checking params count, if count is invalid we cannot proceed
     if (Length(arrElem) <> 6) then
     begin
-      parserError := True;
+      Result := True;
       LogStr(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [aTilesS[I]]))
     end else
     begin
@@ -4034,7 +4033,7 @@ begin
         aTiles[I].X := parsedValue
       else
       begin
-        parserError := True;
+        Result := True;
         LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
       end;
       //checking Y, if Y <= 0 we cannot proceed
@@ -4042,12 +4041,12 @@ begin
         aTiles[I].Y := parsedValue
       else
       begin
-        parserError := True;
+        Result := True;
         LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
       end;
 
       //if X and Y are correctly defined we can proceed with terrain changes
-      if (not parserError) then
+      if (not Result) then
       begin
         if (TryStrToInt(string(PChar(arrElem[2])), parsedValue)) then
         begin
@@ -4060,7 +4059,7 @@ begin
         end
         else
         begin
-          parserError := True;
+          Result := True;
           LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], aTilesS[I]]));
         end;
 
@@ -4075,7 +4074,7 @@ begin
         end
         else
         begin
-          parserError := True;
+          Result := True;
           LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], aTilesS[I]]));
         end;
 
@@ -4090,7 +4089,7 @@ begin
         end
         else
         begin
-          parserError := True;
+          Result := True;
           LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], aTilesS[I]]));
         end;
 
@@ -4105,14 +4104,12 @@ begin
         end
         else
         begin
-          parserError := True;
+          Result := True;
           LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
         end;
       end;
     end;
   end;
-
-  Result := parserError;
   {$WARN SUSPICIOUS_TYPECAST ON}
 end;
 
