@@ -4015,7 +4015,7 @@ var
   parsedValue: Integer;
 begin
   {$WARN SUSPICIOUS_TYPECAST OFF}
-  Result := False;
+  Result := True;
   SetLength(aTiles, Length(aTilesS));
   for I := Low(aTilesS) to High(aTilesS) do
   begin
@@ -4024,7 +4024,7 @@ begin
     //checking params count, if count is invalid we cannot proceed
     if (Length(arrElem) <> 6) then
     begin
-      Result := True;
+      Result := False;
       LogStr(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [aTilesS[I]]));
     end else
     begin
@@ -4033,7 +4033,7 @@ begin
         aTiles[I].X := parsedValue
       else
       begin
-        Result := True;
+        Result := False;
         LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
       end;
       //checking Y, if Y <= 0 we cannot proceed
@@ -4041,12 +4041,12 @@ begin
         aTiles[I].Y := parsedValue
       else
       begin
-        Result := True;
+        Result := False;
         LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
       end;
 
       //if X and Y are correctly defined we can proceed with terrain changes
-      if (not Result) then
+      if Result then
       begin
         if (TryStrToInt(string(PChar(arrElem[2])), parsedValue)) then
         begin
@@ -4059,7 +4059,7 @@ begin
         end
         else
         begin
-          Result := True;
+          Result := False;
           LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], aTilesS[I]]));
         end;
 
@@ -4074,7 +4074,7 @@ begin
         end
         else
         begin
-          Result := True;
+          Result := False;
           LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], aTilesS[I]]));
         end;
 
@@ -4089,7 +4089,7 @@ begin
         end
         else
         begin
-          Result := True;
+          Result := False;
           LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], aTilesS[I]]));
         end;
 
@@ -4104,7 +4104,7 @@ begin
         end
         else
         begin
-          Result := True;
+          Result := False;
           LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
         end;
       end;
@@ -4130,12 +4130,12 @@ end;
 function TKMScriptActions.MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
 var
   tiles: TKMTerrainTileBriefArray;
-  parserError: Boolean;
+  parserSuccess: Boolean;
 begin
   try
-    parserError := _MapTileStringToType(aTilesS, tiles);
+    parserSuccess := _MapTileStringToType(aTilesS, tiles);
 
-    if not parserError then
+    if parserSuccess then
       Result := _MapTilesArraySet('Actions.MapTilesArraySetS', tiles, aRevertOnFail, aShowDetailedErrors)
     else
       Result := False;
