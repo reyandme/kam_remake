@@ -2,8 +2,8 @@ unit KM_RenderAux;
 {$I KaM_Remake.inc}
 interface
 uses
-  dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points;
+ KromOGLUtils,
+ KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 type
   TKMLineMode = (lmStrip, lmPairs);
@@ -63,6 +63,10 @@ var
 
 implementation
 uses
+  SysUtils, Math,
+  dglOpenGL,
+  KromUtils,
+  KM_Defaults,
   // Do not add KM_Game dependancy, use KM_RenderGameAux instead
   KM_GameParams,
   KM_Render, KM_Terrain, KM_TerrainTypes, KM_ResTileset, KM_CommonUtils;

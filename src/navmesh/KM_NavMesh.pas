@@ -2,10 +2,9 @@ unit KM_NavMesh;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, Contnrs,
-  KM_NavMeshDefences,
-  KromUtils, KM_CommonUtils,
-  KM_NavMeshGenerator, KM_NavMeshFloodPositioning, KM_NavMeshPathFinding;// TimeGet
+  KromUtils,
+  KM_CommonClasses, KM_CommonTypes, KM_Points,
+  KM_NavMeshDefences, KM_NavMeshGenerator, KM_NavMeshFloodPositioning, KM_NavMeshPathFinding;
 
 
 type
@@ -40,10 +39,9 @@ type
 
     function GetPolygonFromPoint(const aY,aX: Integer): Word;
     function GetPolygonFromKMPoint(const aPoint: TKMPoint): Word;
-
   public
-    constructor Create();
-    destructor Destroy(); override;
+    constructor Create;
+    destructor Destroy; override;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
@@ -72,11 +70,11 @@ const
 implementation
 uses
   SysUtils, Math,
-  KM_Terrain, KM_RenderAux, KM_AIFields;
+  KM_Defaults, KM_CommonUtils, KM_Terrain, KM_RenderAux, KM_AIFields;
 
 
 { TKMNavMesh }
-constructor TKMNavMesh.Create();
+constructor TKMNavMesh.Create;
 begin
   inherited Create;
 
@@ -99,12 +97,13 @@ begin
 end;
 
 
-destructor TKMNavMesh.Destroy();
+destructor TKMNavMesh.Destroy;
 begin
   fDefences.Free;
   fPathfinding.Free;
   fPositioning.Free;
   fNavMeshGenerator.Free;
+
   inherited;
 end;
 

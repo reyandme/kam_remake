@@ -617,6 +617,7 @@ OnWareProduced to use with TKMWareType instead of Integer
  +    added new network command to ask other player to send crashreport as well, so in case he will send it I will get 2 reports from both of the players
  +    When manually delete maps or replays they will be deleted to the windows recycle bin
  +    add 'open settings file / folder' in the F11 menu
+ +    Fixed SampleRate for original KaM sound effects
  +    Game settings changes: 
         split them into server settings (in the .ini file) and game settings (in the .xml file)
         move settings into %MYDOCUMENTS%/MyGames/Knights and Merchants Remake/ folder, so they will be reused between game versions 

@@ -39,7 +39,7 @@ begin
   while I < ParamCount do
   begin
     Inc(I);
-    fArgs := fArgs + ' ' + ParamStr(I) + sLineBreak;
+    fArgs := fArgs + ' "' + ParamStr(I) + '"';
 
     if (ParamStr(I) = '-h') or (ParamStr(I) = '-help') then
     begin
@@ -70,6 +70,7 @@ begin
       if I < ParamCount then
       begin
         Inc(I);
+        fArgs := fArgs + ' "' + ParamStr(I) + '"';
         fParamRecord.OutputFile := ParamStr(I);
       end;
 
@@ -83,19 +84,27 @@ begin
 end;
 
 
-// This utility console tool generates minimap png file for a certain map.
+// This utility console tool generates minimap png file of a map.
 // Could be compiled under Windows or Linux (added x64 config for Lazarus (tested on fpcdeluxe FPC 3.2.2 Lazarus 2.0.12))
 begin
   try
-    ProcessParams;
     ExeDir := ExtractFilePath(ParamStr(0));
+
+    ProcessParams;
+
+    gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'MapUtil.log');
+    gLog.AddNoTime('Arguments: ' + fArgs);
 
     path := 'data' + PathDelim + 'defines' + PathDelim + 'unit.dat';
     if not FileExists(ExeDir + path) 
     and FileExists(ExeDir + '..\..\' + path) then
       ExeDir := ExeDir + '..\..\';  
 
+    gLog.AddNoTime('ExeDir: ' + ExeDir);
+
     fConsoleMain := TConsoleMain.Create;
+
+    fConsoleMain.ShowHeader;
 
     // Always exit after showing help.
     if fParamRecord.Help then

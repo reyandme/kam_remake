@@ -6,8 +6,7 @@ uses
   {$IFDEF FPC}
   {$IFDEF Unix} LCLIntF, LCLType, {$ENDIF}
   {$ENDIF}
-  Classes,
-  Controls,
+  Classes, Controls,
   KM_Controls, KM_ControlsBase,
   KM_Points, KM_ResFonts,
   KM_ResTypes, KM_InterfaceTypes;
@@ -23,11 +22,6 @@ type
     constructor Create(aMenuType: TKMMenuPageType);
     property MenuType: TKMMenuPageType read fMenuType;
     procedure MenuKeyDown(Key: Word; Shift: TShiftState);
-  end;
-
-  TKMFileIdentInfo = record // File identification info (for maps/saves)
-    CRC: Cardinal;
-    Name: UnicodeString;
   end;
 
   TKMHintStage = (hsFadeIn, hsShown, hsReset);

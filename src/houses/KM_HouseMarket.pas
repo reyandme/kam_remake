@@ -498,7 +498,7 @@ begin
   begin
     orderToDo := Min(resRequired, ordersAllowed);
     Inc(fMarketDeliveryCount[fResFrom], orderToDo);
-    gHands[Owner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, orderToDo, dtOnce, diNorm)
+    gHands[Owner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, orderToDo, dtOnce, diNorm);
   end
   else
   //There are too many resources ordered, so remove as many as we can from the delivery list (some will be being performed)
@@ -537,21 +537,15 @@ begin
   // Remove offers from this house then
   if DeliveryMode = dmTakeOut then
     for WT := WARE_MIN to WARE_MAX do
-    begin
       if fMarketWareIn[WT] > 0 then
         gHands[Owner].Deliveries.Queue.RemOffer(Self, WT, fMarketWareIn[WT]);
-    end;
 
   // House will get dmTakeOut delivery mode
   // Add offers to this house then
   if NewDeliveryMode = dmTakeOut then
-  begin
     for WT := WARE_MIN to WARE_MAX do
-    begin
       if fMarketWareIn[WT] > 0 then
         gHands[Owner].Deliveries.Queue.AddOffer(Self, WT, fMarketWareIn[WT]);
-    end;
-  end;
 end;
 
 
@@ -612,7 +606,7 @@ end;
 
 function TKMHouseMarket.ObjToString(const aSeparator: String = '|'): String;
 var
-  resInStr, resOutStr, deliveryCntStr, demandsCloseStr, strIn, strOut, strDel: string;
+  resInStr, resOutStr, deliveryCntStr, strIn, strOut, strDel: string;
   WT: TKMWareType;
   len: Integer;
 begin
@@ -621,7 +615,6 @@ begin
   resInStr := '';
   resOutStr := '';
   deliveryCntStr := '';
-  demandsCloseStr := '';
 
   for WT := WARE_MIN to WARE_MAX do
   begin

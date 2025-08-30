@@ -4,7 +4,7 @@ interface
 uses
   Classes, Math, StrUtils, SysUtils,
   KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsScroll, KM_ControlsProgressBar,
-  KM_HandsCollection, KM_Defaults,
+  KM_Defaults,
   KM_CommonTypes, KM_Points;
 
 
@@ -30,8 +30,8 @@ type
     fAdditionalValue: String;
     fProgress: Single;
     fItemTag: Integer;
-    FOnItemClick: TIntBoolEvent;
-    FDoHighlight: TBoolIntFuncSimple;
+    fOnItemClick: TIntBoolEvent;
+    fDoHighlight: TBoolIntFuncSimple;
     procedure ItemClicked(Sender: TObject; Shift: TShiftState);
   protected
     Bevel: TKMBevel;
@@ -42,10 +42,10 @@ type
   public
     constructor Create(aParent: TKMPanel; ATag: Integer; AImageID: Word; const AHint: String; AHandID: Integer;
                        aProgressColor: Cardinal; aDoHighlight: TBoolIntFuncSimple; aOnItemClick: TIntBoolEvent);
-    property ItemTag: Integer read FItemTag;
-    property Value: String read FValue write FValue;
-    property AdditionalValue: String read FAdditionalValue write FAdditionalValue;
-    property Progress: Single read FProgress write FProgress;
+    property ItemTag: Integer read fItemTag;
+    property Value: String read fValue write fValue;
+    property AdditionalValue: String read fAdditionalValue write fAdditionalValue;
+    property Progress: Single read fProgress write fProgress;
     procedure CreateChilds;
     procedure Paint; override;
     procedure PaintLayer(aPaintLayer: TKMSpecPaintLayer);
@@ -131,7 +131,7 @@ type
 implementation
 uses
   KM_GameParams, KM_RenderUI, KM_ResFonts, KM_Resource, KM_ResTexts,
-  KM_ControlsTypes, KM_GUIGameSpectatorItemLines,
+  KM_ControlsTypes, KM_GUIGameSpectatorItemLines, KM_HandsCollection,
   KM_ResTypes;
 
 const
@@ -151,15 +151,15 @@ constructor TKMGUIGameSpectatorItem.Create(aParent: TKMPanel; ATag: Integer; AIm
 begin
   inherited Create(aParent, 0, 0, GUI_SPEC_ITEM_WIDTH, GUI_SPEC_ITEM_HEIGHT);
 
-  FItemTag := ATag;
+  fItemTag := ATag;
   Hint := AHint;
   fHandID := AHandID;
-  FImageID := AImageID;
-  FValue := '';
-  FAdditionalValue := '';
-  FProgress := -1;
-  FDoHighlight := aDoHighlight;
-  FOnItemClick := aOnItemClick;
+  fImageID := AImageID;
+  fValue := '';
+  fAdditionalValue := '';
+  fProgress := -1;
+  fDoHighlight := aDoHighlight;
+  fOnItemClick := aOnItemClick;
   CreateChilds;
   PercentBar.MainColor := aProgressColor;
 end;
@@ -167,8 +167,8 @@ end;
 
 procedure TKMGUIGameSpectatorItem.ItemClicked(Sender: TObject; Shift: TShiftState);
 begin
-  if Assigned(FOnItemClick) then
-    FOnItemClick(FItemTag, ssLeft in Shift);
+  if Assigned(fOnItemClick) then
+    fOnItemClick(fItemTag, ssLeft in Shift);
 end;
 
 
@@ -177,7 +177,7 @@ begin
   Bevel := TKMBevel.Create(Self, 0, 0, Width, Height);
   Bevel.AnchorsStretch;
   Bevel.OnClickShift := ItemClicked;
-  Image := TKMImage.Create(Self, 2, 0, Width - 4, Height - 4, FImageID, rxGui);
+  Image := TKMImage.Create(Self, 2, 0, Width - 4, Height - 4, fImageID, rxGui);
   if fHandID < gHands.Count then
     Image.FlagColor := gHands[fHandID].FlagColor;
   Image.ImageCenter;
@@ -185,9 +185,9 @@ begin
   Image.OnClickShift := ItemClicked;
   PercentBar := TKMPercentBar.Create(Self, 0, Height - 6, Width, 6, fntMini);
   PercentBar.AnchorsStretch;
-  Label_Text := TKMLabel.Create(Self, Width div 2, Height - 16, FValue, fntGrey, taCenter);
+  Label_Text := TKMLabel.Create(Self, Width div 2, Height - 16, fValue, fntGrey, taCenter);
   Label_Text.Anchors := [anRight, anTop];
-  Label_AddText := TKMLabel.Create(Self, Width - 2, -2, FValue, fntGrey, taRight);
+  Label_AddText := TKMLabel.Create(Self, Width - 2, -2, fValue, fntGrey, taRight);
   Label_AddText.Anchors := [anRight, anTop];
 end;
 
@@ -202,7 +202,7 @@ procedure TKMGUIGameSpectatorItem.PaintLayer(aPaintLayer: TKMSpecPaintLayer);
 begin
   if aPaintLayer = plNone then
   begin
-    Image.Lightness := CTRL_HIGHLIGHT_COEF_DEF * Byte(((csOver in Image.State) or (csOver in Bevel.State)) and FDoHighlight(FItemTag));
+    Image.Lightness := CTRL_HIGHLIGHT_COEF_DEF * Byte(((csOver in Image.State) or (csOver in Bevel.State)) and fDoHighlight(fItemTag));
 
     PercentBar.Visible := (fProgress >= 0);
     PercentBar.Position := fProgress;

@@ -21,7 +21,6 @@ type
   end;
 
   TForm1 = class(TForm)
-    Button3: TButton;
     Button1: TButton;
     Button2: TButton;
     Memo1: TMemo;
@@ -44,7 +43,6 @@ type
     Button14: TButton;
     Button15: TButton;
     Button16: TButton;
-    procedure Button3Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -264,28 +262,6 @@ begin
     Assert(B);
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
-end;
-
-
-// Export message goals into EVT files to allow to rig them easily
-procedure TForm1.Button3Click(Sender: TObject);
-const
-  TPR_CAMPAIGN: TKMCampaignId = (Byte('T'), Byte('P'), Byte('R'));
-var
-  I: Integer;
-begin
-  SetUp(True);
-
-  for I := 0 to gGameApp.Campaigns.CampaignById(TPR_CAMPAIGN).MapCount - 1 do
-  begin
-    gGameApp.NewCampaignMap(TPR_CAMPAIGN, I);
-
-    gHands[0].AI.Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
-
-    gGameApp.StopGame(grSilent);
-  end;
-
-  TearDown;
 end;
 
 

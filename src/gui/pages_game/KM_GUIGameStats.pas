@@ -70,8 +70,7 @@ begin
     begin
       //Houses block
       Panel_StatBlock[I] := TKMPanel.Create(Panel_Stats, 0, 0, 30, 30);
-      with TKMBevel.Create(Panel_StatBlock[I], 0, 0, 30, 30) do
-        AnchorsStretch;
+      TKMBevel.Create(Panel_StatBlock[I], 0, 0, 30, 30).AnchorsStretch;
 
       offX := 0;
       for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do
@@ -114,7 +113,7 @@ destructor TKMGUIGameStats.Destroy;
 begin
   FreeAndNil(fHouseSketch);
 
-  inherited
+  inherited;
 end;
 
 
@@ -132,7 +131,7 @@ var
 begin
   lineHeight := Panel_StatBlock[0].Height + PAD_Y;
   //How many rows could fit
-  rows := Panel_Stats.Height div (lineHeight);
+  rows := Panel_Stats.Height div lineHeight;
 
   //Reposition ShowStats button
   if rows >= 12 then

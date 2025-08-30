@@ -29,7 +29,7 @@ type
     constructor Create(aParent: TKMPanel; aOnDone: TNotifyEvent);
     destructor Destroy; override;
 
-    procedure SetLoadMode(aMultiplayer:boolean);
+    procedure SetLoadMode(aMultiplayer: Boolean);
     procedure Show;
     procedure Hide;
     procedure UpdateState;
@@ -56,10 +56,8 @@ begin
   Panel_Load := TKMPanel.Create(aParent,0,45,aParent.Width,aParent.Height - 45);
   Panel_Load.Anchors := [anLeft, anTop, anBottom];
 
-  with TKMLabel.Create(Panel_Load, 9, PAGE_TITLE_Y, Panel_Load.Width - 9, 30, gResTexts[TX_MAPED_LOAD_TITLE], fntOutline, taLeft) do
-    Anchors := [anLeft, anTop, anRight];
-  with TKMBevel.Create(Panel_Load, 9, 30, TB_MAP_ED_WIDTH - 9, 57) do
-    Anchors := [anLeft, anTop, anRight];
+  TKMLabel.Create(Panel_Load, 9, PAGE_TITLE_Y, Panel_Load.Width - 9, 30, gResTexts[TX_MAPED_LOAD_TITLE], fntOutline, taLeft).Anchors := [anLeft, anTop, anRight];
+  TKMBevel.Create(Panel_Load, 9, 30, TB_MAP_ED_WIDTH - 9, 57).Anchors := [anLeft, anTop, anRight];
   Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,9,32,Panel_Load.Width - 9,54,fntGrey);
   Radio_Load_MapType.Anchors := [anLeft, anTop, anRight];
   Radio_Load_MapType.ItemIndex := 0;
@@ -132,8 +130,9 @@ begin
   case Radio_Load_MapType.ItemIndex of
     0: fMaps.Refresh(Menu_LoadUpdateDone);
     1: fMapsMP.Refresh(Menu_LoadUpdateDone);
-    2: fMapsDL.Refresh(Menu_LoadUpdateDone)
-    else Exit;
+    2: fMapsDL.Refresh(Menu_LoadUpdateDone);
+  else
+    Exit;
   end;
 end;
 
@@ -148,8 +147,9 @@ begin
   case Radio_Load_MapType.ItemIndex of
     0: M := fMaps;
     1: M := fMapsMP;
-    2: M := fMapsDL
-    else Exit;
+    2: M := fMapsDL;
+  else
+    Exit;
   end;
 
   //Remember previous map

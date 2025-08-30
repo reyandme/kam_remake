@@ -2,18 +2,16 @@ unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
 uses
-  dglOpenGL,
   {$IFDEF WDC}
   System.Generics.Collections,
   {$ENDIF}
   {$IFDEF FPC}
   Generics.Collections,
   {$ENDIF}
-  Math, StrUtils, SysUtils,
   KromOGLUtils,
   KM_Defaults, KM_CommonTypes, KM_Points, KM_ResTypes,
   KM_RenderTypes,
-  KM_ResFonts, KM_ResSprites;
+  KM_ResFonts;
 
 type
   TKMAnchors = (anLeft, anTop, anRight, anBottom);
@@ -25,7 +23,7 @@ type
 
   TKMPointDesc = record
     P: TKMPoint;
-    Desc: String;
+    Desc: string;
   end;
 
   TKMRenderUI = class
@@ -74,7 +72,9 @@ type
 
 implementation
 uses
-  KM_Render, KM_Resource;
+  Math, StrUtils, SysUtils,
+  dglOpenGL,
+  KM_Render, KM_Resource, KM_ResSprites;
 
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
@@ -374,7 +374,7 @@ begin
     WriteBevel(0, 0, aWidth, aHeight);
 
     //At least 2px wide to show up from under the shadow
-    barWidth := Round((aWidth - 2) * (aPos)) + 2;
+    barWidth := Round((aWidth - 2) * aPos) + 2;
     glColor4ubv(@aMainColor);
     glBegin(GL_QUADS);
       glkRect(1, 1, barWidth-1, aHeight-1);
@@ -752,7 +752,7 @@ var
 var
   setupClipXApplied: Boolean;
 begin
-  if (aText = '') or (aColor = $00000000) or (SKIP_RENDER_TEXT) then Exit;
+  if (aText = '') or (aColor = $00000000) or SKIP_RENDER_TEXT then Exit;
 
   SetLength(colors, 0);
 

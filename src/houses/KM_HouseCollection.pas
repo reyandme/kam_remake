@@ -2,9 +2,8 @@ unit KM_HouseCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Generics.Collections,
+  Generics.Collections,
   KM_Houses,
-  KM_ResHouses,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ResTypes;
 
@@ -52,13 +51,13 @@ type
 
 implementation
 uses
-  SysUtils, Types, Math,
+  Classes, SysUtils, Types, Math,
   KM_Entity,
   KM_Game, KM_GameParams, KM_GameUIDTracker, KM_Terrain,
   KM_HandTypes, KM_HandEntity,
   KM_HouseInn, KM_HouseMarket, KM_HouseBarracks, KM_HouseSchool, KM_HouseStore, KM_HouseArmorWorkshop, KM_HouseSwineStable,
   KM_HouseTownHall, KM_HouseWoodcutters,
-  KM_Resource,
+  KM_Resource, KM_ResHouses,
   KM_GameTypes;
 
 
@@ -252,16 +251,19 @@ begin
   bestBid := MaxSingle;
 
   for I := 0 to Count - 1 do
-    if (gRes.Houses[Houses[I].HouseType].WorkerType = aUnitType) and // If Unit can work in here
-       not Houses[I].HasWorker and                                  // if there's yet no owner
-       not Houses[I].IsDestroyed and                                // if house is not destroyed
-       Houses[I].IsComplete and                                     // if house is built
-       not Houses[I].IsClosedForWorker then                         // if house is not closed for worker
+    if (gRes.Houses[Houses[I].HouseType].WorkerType = aUnitType)  // If Unit can work in here
+    and not Houses[I].HasWorker                                   // if there's yet no owner
+    and not Houses[I].IsDestroyed                                 // if house is not destroyed
+    and Houses[I].IsComplete                                      // if house is built
+    and not Houses[I].IsClosedForWorker then                      // if house is not closed for worker
     begin
       //Recruits should not go to a barracks with ware delivery switched off or with not accept flag for recruits
       if (Houses[I].HouseType = htBarracks)
-        and ((Houses[I].DeliveryMode <> dmDelivery) or (TKMHouseBarracks(Houses[I]).NotAcceptRecruitFlag)) then Continue;
-      if not gTerrain.RouteCanBeMade(aLoc, Houses[I].PointBelowEntrance, tpWalk) then Continue;
+      and ((Houses[I].DeliveryMode <> dmDelivery) or TKMHouseBarracks(Houses[I]).NotAcceptRecruitFlag) then
+        Continue;
+
+      if not gTerrain.RouteCanBeMade(aLoc, Houses[I].PointBelowEntrance, tpWalk) then
+        Continue;
 
       dist := KMLengthSqr(aLoc, Houses[I].Position);
 
@@ -341,8 +343,8 @@ begin
   idx := 0;
   for I := 0 to Count - 1 do
     if (Houses[I].HouseType in aTypes)
-      AND (not aOnlyCompleted OR Houses[I].IsComplete)
-      AND not Houses[I].IsDestroyed then
+    and (not aOnlyCompleted or Houses[I].IsComplete)
+    and not Houses[I].IsDestroyed then
     begin
       if (KMLengthSqr(Houses[I].Position, aLoc) <= aSqrRadius) then
       begin

@@ -8,24 +8,26 @@ type
   TUIMode = (umSP, umMP, umReplay, umSpectate);
   TUIModeSet = set of TUIMode;
 
-  TKMMenuPageType =  (gpMainMenu,
-                        gpSinglePlayer,
-                          gpCampaign,
-                          gpCampSelect,
-                          gpSingleMap,
-                          gpLoad,
-                        gpMultiplayer,
-                          gpLobby,
-                        gpReplays,
-                        gpMapEditor,
-                        gpOptions,
-                        gpCredits,
-                      gpLoading,
-                      gpError);
+  TKMMenuPageType =  (
+    gpMainMenu,
+      gpSinglePlayer,
+        gpCampaign,
+        gpCampSelect,
+        gpSingleMap,
+        gpLoad,
+      gpMultiplayer,
+        gpLobby,
+      gpReplays,
+      gpMapEditor,
+      gpOptions,
+      gpCredits,
+    gpLoading,
+    gpError
+  );
+
   TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPageType) of object;
   TKMMenuChangeEventText = procedure (Dest: TKMMenuPageType; const aText: UnicodeString = '') of object;
   TKMToggleLocaleEvent = procedure (const aLocale: AnsiString; aBackToMenuPage: TKMMenuPageType) of object;
-
 
   TKMZoomBehaviour = (
     zbRestricted, // Limit the zoom to within the map boundaries (classic zoom behaviour)

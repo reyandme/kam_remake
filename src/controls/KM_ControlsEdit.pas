@@ -171,9 +171,8 @@ begin
   BlockInput := False;
   fSelectable := aSelectable;
 
-  // Subscribe to get other controls mouse down events
   // Descendants of TKMSelectableEdit could add more event handlers
-  aParent.MasterControl.AddMouseDownCtrlSub(SelEditCtrlMouseDown);
+  aParent.MasterControl.SubscribeOnOtherMouseDown(SelEditCtrlMouseDown);
 end;
 
 
@@ -759,8 +758,7 @@ begin
   fButtonDec.OnClickHold := ClickHold;
   fButtonInc.OnClickHold := ClickHold;
 
-  // Subscribe to get other controls mouse down events
-  aParent.MasterControl.AddMouseDownCtrlSub(NumEdCtrlMouseDown);
+  aParent.MasterControl.SubscribeOnOtherMouseDown(NumEdCtrlMouseDown);
 end;
 
 

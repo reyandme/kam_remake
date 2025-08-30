@@ -547,8 +547,12 @@ begin
   try
     case entity.EntityType of
       etUnit: begin
+                var U := TKMUnit(entity);
+
                 // Delete unit by using precise HitTest result from gCursor (rather than Position)
-                gHands.RemAnyUnit(TKMUnit(entity).Position);
+                if gHands.RemAnyUnit(U.Position) then
+                  fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_REMOVE_SMTH], [gRes.Units[U.UnitType].GUIName, U.Position.ToString]));
+
                 if not aEraseAll then Exit;
               end;
       etHouse:begin
@@ -830,33 +834,39 @@ begin
   if gCursor.Tag1 = UNIT_REMOVE_TAG then
   begin
     entity := gMySpectator.HitTestCursor(True);
-    // Delete unit by using precise HitTest result from gCursor (rather than Position)
     if entity.IsUnit then
-      gHands.RemAnyUnit(TKMUnit(entity).Position);
+    begin
+      // Delete unit by using precise HitTest result from gCursor (rather than Position)
+      U := TKMUnit(entity);
+      if gHands.RemAnyUnit(U.Position) then
+        fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_REMOVE_SMTH], [gRes.Units[U.UnitType].GUIName, U.Position.ToString]));
+    end;
   end
   else
   if gTerrain.CanPlaceUnit(P, TKMUnitType(gCursor.Tag1)) then
   begin
+    var unitType := TKMUnitType(gCursor.Tag1);
     formation.NumUnits := 1;
     formation.UnitsPerRow := 1;
 
     //Check if we can really add a unit
-    if TKMUnitType(gCursor.Tag1) in UNITS_CITIZEN then
-      gMySpectator.Hand.AddUnit(TKMUnitType(gCursor.Tag1), P, False)
-    else
-    if TKMUnitType(gCursor.Tag1) in UNITS_WARRIORS then
+    if unitType in UNITS_CITIZEN then
     begin
-      GT := UNIT_TO_GROUP_TYPE[TKMUnitType(gCursor.Tag1)];
-
+      gMySpectator.Hand.AddUnit(unitType, P, False);
+      fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_ADD_SMTH], [gRes.Units[unitType].GUIName, P.ToString]));
+    end else
+    if unitType in UNITS_WARRIORS then
+    begin
+      GT := UNIT_TO_GROUP_TYPE[unitType];
       DetermineGroupFormationAndDir(P, GT, formation, dir);
-
-      gMySpectator.Hand.AddUnitGroup(TKMUnitType(gCursor.Tag1), P, dir, formation.UnitsPerRow, formation.NumUnits)
-    end
-    else
+      gMySpectator.Hand.AddUnitGroup(unitType, P, dir, formation.UnitsPerRow, formation.NumUnits);
+      fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_ADD_SMTH], [gRes.Units[unitType].GUIName, P.ToString]));
+    end else
     begin
-      U := gHands.PlayerAnimals.AddUnit(TKMUnitType(gCursor.Tag1), P);
-      if U is TKMUNitFish then
-        TKMUNitFish(U).FishCount := gCursor.MapEdFishCount;
+      U := gHands.PlayerAnimals.AddUnit(unitType, P);
+      if U is TKMUnitFish then
+        TKMUnitFish(U).FishCount := gCursor.MapEdFishCount;
+      fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_ADD_SMTH], [gRes.Units[unitType].GUIName, P.ToString]));
     end;
   end;
 end;
@@ -865,7 +875,7 @@ end;
 procedure TKMMapEditor.Reset;
 begin
   if Self = nil then Exit;
-  
+
   ActiveMarker.MarkerType := mmtNone;
 end;
 
@@ -925,16 +935,18 @@ begin
     formation := gMySpectator.Hand.AI.General.DefencePositions.TroopFormations[groupType];
     // Do not add group if loc is already occupied by unit
     if (G = nil)
-      and (gTerrain.UnitsHitTest(aLoc.X, aLoc.Y) = nil) then
-      gMySpectator.Hand.AddUnitGroup(UNIT_TYPES_BY_GT_LVL[groupType, gCursor.MapEdDefPosGroupLevel],
-                                     aLoc, dir, formation.UnitsPerRow, formation.NumUnits);
+    and (gTerrain.UnitsHitTest(aLoc.X, aLoc.Y) = nil) then
+    begin
+      var unitType := UNIT_TYPES_BY_GT_LVL[groupType, gCursor.MapEdDefPosGroupLevel];
+      gMySpectator.Hand.AddUnitGroup(unitType, aLoc, dir, formation.UnitsPerRow, formation.NumUnits);
+      fHistory.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_ADD_SMTH], [gRes.Units[unitType].GUIName, aLoc.ToString]));
+    end;
   end;
 
   gMySpectator.Hand.AI.General.DefencePositions.Add(KMPointDir(aLoc, dir),
                                                     groupType,
                                                     DEFAULT_DEFENCE_POSITION_RADIUS,
                                                     gCursor.MapEdDefPosType);
-
 end;
 
 

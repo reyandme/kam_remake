@@ -14,7 +14,6 @@ type
   TSetOfAnsiChar = set of AnsiChar;
 
 
-function KU_TimeGet: Cardinal;
 function ExtractOpenedFileName(const in_s: string):string;
 function GetFileExt (const FileName: string): string;
 function AssureFileExt(const FileName,Ext:string): string;
@@ -74,7 +73,6 @@ function Adler32CRC(const aPath: string): Cardinal; overload;
 function Adler32CRC(S: TMemoryStream): Cardinal; overload;
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
-function PseudoRandom(aMax:cardinal):cardinal;
 
 function CheckDuplicateApplication(const aGUID: string): Boolean;
 
@@ -173,18 +171,6 @@ if (length(in_s)>k) then begin
 end else out_s:='';
 
 Result:=out_s;
-end;
-
-
-//Linux wants this instead of timegettime, it should work on Windows too
-function KU_TimeGet: Cardinal;
-begin
-  {$IFDEF MSWindows}
-  Result := TimeGetTime; //Returns milliseconds with ~1ms precision
-  {$ENDIF}
-  {$IFDEF Unix}
-  Result := Cardinal(Trunc(Now * 24 * 60 * 60 * 1000));
-  {$ENDIF}
 end;
 
 
@@ -565,19 +551,6 @@ end;
 function RandomS(Range_Both_Directions: single): single; overload;
 begin
   Result := Random(round(Range_Both_Directions * 20000) + 1) / 10000 - Range_Both_Directions;
-end;
-
-
-//Return Random number without disturbing RandomNumberGenerator
-//we need to use it in case where Random should return repeating series of numbers
-//from time to time with the same RandSeed, e.g. when AI logic depends on Randoms
-//and some of player input needs Random too, but it should not affect AI
-function PseudoRandom(aMax: Cardinal): Cardinal;
-begin
-  if aMax = 0 then
-    Result := 0
-  else
-    Result := KU_TimeGet mod aMax;
 end;
 
 

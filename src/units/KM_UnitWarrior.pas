@@ -2,9 +2,9 @@ unit KM_UnitWarrior;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KromUtils, Math,
+  Classes,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Houses, KM_Terrain, KM_Units, KM_CommonGameTypes;
+  KM_Houses, KM_Units, KM_CommonGameTypes;
 
 
 type
@@ -140,10 +140,10 @@ type
 
 implementation
 uses
-  TypInfo, Generics.Collections,
+  SysUtils, KromUtils, Math, TypInfo, Generics.Collections,
   KM_Entity,
   KM_ResTexts, KM_HandsCollection, KM_RenderPool, KM_UnitTaskAttackHouse,
-  KM_Hand, KM_HandLogistics, KM_HandTypes, KM_HandEntity,
+  KM_Hand, KM_HandLogistics, KM_HandTypes, KM_HandEntity, KM_Terrain,
   KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResUnits, KM_UnitGroup,
   KM_GameParams, KM_CommonUtils, KM_RenderDebug, KM_UnitVisual,
@@ -190,7 +190,7 @@ procedure TKMUnitWarrior.SyncLoad;
 begin
   inherited;
 
-  fGroup := TKMUnitGroup(gHands.GetGroupByUID(Integer(fGroup)));
+  fGroup := gHands.GetGroupByUID(Integer(fGroup));
   fOrderTargetUnit := TKMUnitWarrior(gHands.GetUnitByUID(Integer(fOrderTargetUnit)));
   fAttackingUnit := TKMUnitWarrior(gHands.GetUnitByUID(Integer(fAttackingUnit)));
   fOrderTargetHouse := gHands.GetHouseByUID(Integer(fOrderTargetHouse));
@@ -390,7 +390,7 @@ begin
   //If the target house has been destroyed then return nil
   //Don't clear fOrderTargetHouse here, since we could get called from UI
   //depending on player actions (getters should be side effect free)
-  if (fOrderTargetHouse <> nil) and (fOrderTargetHouse.IsDestroyed) then
+  if (fOrderTargetHouse <> nil) and fOrderTargetHouse.IsDestroyed then
     Result := nil
   else
     Result := fOrderTargetHouse;
@@ -637,7 +637,7 @@ end;
 
 function TKMUnitWarrior.PathfindingShouldAvoid: Boolean;
 begin
-  Result := Inherited PathfindingShouldAvoid;
+  Result := inherited PathfindingShouldAvoid;
   Result := Result and (fNextOrder = woNone); //If we have been given an order we're about to move somewhere 
 end;
 
@@ -713,12 +713,13 @@ begin
   //Archers should start in the reloading if they shot recently phase to avoid rate of fire exploit
   step := 0; //Default
   cycle := Max(gRes.Units[UnitType].UnitAnim[aAction, Direction].Count, 1);
-  if (TKMUnitWarrior(Self).IsRanged) and TKMUnitWarrior(Self).NeedsToReload(cycle) then
+  if IsRanged and NeedsToReload(cycle) then
     //Skip the unit's animation forward to 1 step AFTER firing
-    step := (FiringDelay + (gGameParams.Tick - TKMUnitWarrior(Self).LastShootTime)) mod cycle;
+    step := (FiringDelay + (gGameParams.Tick - LastShootTime)) mod cycle;
 
   if (Action is TKMUnitActionWalkTo) and not TKMUnitActionWalkTo(Action).CanAbandonExternal then
     raise ELocError.Create('Unit fight overrides walk', fPositionRound);
+
   SetAction(TKMUnitActionFight.Create(Self, aAction, aOpponent), step);
 end;
 

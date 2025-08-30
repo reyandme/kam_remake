@@ -2,7 +2,7 @@ unit KM_DevPerfLogForm;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, Classes, Graphics, Forms, StdCtrls, Controls, ExtCtrls, Types,
+  Classes, Graphics, Forms, StdCtrls, Controls, ExtCtrls, Types,
   KM_CommonTypes,
   KM_DevPerfLog, KM_DevPerfLogTypes, Spin, KM_VclHelpers;
 
@@ -41,12 +41,13 @@ type
 
 
 implementation
-{$R *.dfm}
 uses
-  TypInfo,
+  System.SysUtils, System.TypInfo, System.Math,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Math, KM_Defaults, KM_CommonUtils;
+  KM_Defaults, KM_CommonUtils;
+
+{$R *.dfm}
 
 const
   PS_IS_GFX_KIND: array[Boolean] of TKMPerfLogKind = (plkCPU, plkGFX);

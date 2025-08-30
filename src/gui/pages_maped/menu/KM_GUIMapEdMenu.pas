@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils,
   KM_Controls, KM_ControlsBase,
-  KM_InterfaceGame, KM_InterfaceDefaults,
+  KM_InterfaceDefaults,
   KM_GUIMapEdMenuResize,
   KM_GUIMapEdMenuQuickPlay,
   KM_GUIMapEdMenuLoad,
@@ -52,7 +52,7 @@ type
 
 implementation
 uses
-  KM_ResTexts, KM_RenderUI, KM_Utils;
+  KM_InterfaceGame, KM_ResTexts, KM_RenderUI, KM_Utils;
 
 
 { TKMMapEdMenu }

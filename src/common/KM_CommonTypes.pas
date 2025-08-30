@@ -74,6 +74,7 @@ type
     Count: SmallInt;
     MoveX, MoveY: Integer;
   end;
+  PKMAnimLoop = ^TKMAnimLoop;
 
   TKMCursorDir = (cdNone = 0, cdForward = 1, cdBack = -1);
 

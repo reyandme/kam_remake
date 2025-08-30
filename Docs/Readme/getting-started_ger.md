@@ -1,8 +1,8 @@
-**Brought to you by Krom, Lewin and Rey**
+**Präsentiert von Krom, Lewin and Rey**
 
 ---
 
-[Systemanforderungen](#systemanforderungen) · [Installation](#installation) · [Gameplay](#gameplay) · [F.A.Q.](#häufig-gestellte-fragen) · [Community und feedback](#community-und-feedback) · [Bekannte Fehler](#bekannte-fehler) · [Quelltext](#quelltext) · [Credits](#credits) · [Impressum](#impressum)
+[Systemanforderungen](#systemanforderungen) · [Installation](#installation) · [Gameplay](#gameplay) · [Häufig gestellte Fragen](#häufig-gestellte-fragen) · [Community und feedback](#community-und-feedback) · [Bekannte Fehler](#bekannte-fehler-und-einschränkungen) · [Quelltext](#quelltext) · [Credits](#credits) · [Impressum](#impressum)
 
 ---
 
@@ -15,24 +15,24 @@
 
 ### ![](Readme/GUI_0303.gif) Installation
 
-1. Obtain the original game (Knights and Merchants: The Peasants Rebellion):
-	- Installers from original CD and GOG.com should just work.
-	- If you bought TPR from Steam, you need to run TPR at least once, otherwise Remake's installer will be unable to detect it.
-	- If you use Linux, see <https://github.com/reyandme/kam_remake/wiki/Game-installation-on-Linux>
-1. Run the Remake installer and follow the installation instructions.
-1. The KaM Remake uses OpenGL for graphics. In case of visual issues or inability to launch the game, visit your graphics card manufacturer site to get the latest drivers available.
+1. Besitze das originale Spiel (Knights and Merchants: The Peasants Rebellion):
+	- Installer von der originalen CD und GOG.com sollten einfach funktionieren.
+	- Falls du TPR von Steam erworben hast, musst du TPR mindestens ein mal ausgeführt haben, ansonsten kann es der Installer des Remakes nicht finden.
+	- Falls du Linux verwendest, siehe <https://github.com/reyandme/kam_remake/wiki/Game-installation-on-Linux>
+1. Führe den Remake Installer aus und folge den Anweisungen.
+1. Das KaM Remake verwendet OpenGL für die Grafiken. Falls es visuelle Probleme gibt oder das Spiel nicht gestartet werden kann, besuche die Webseite deiner Grafikkarte und hole dir den aktuellsten Treiber.
 1. Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if you chose to create shortcuts.
 
 ### ![](Readme/GUI_0312.gif) Gameplay
 
-#### Multiplayer
-To start a game, go to Multiplayer. You can pick any unused server, if you want to start a new lobby, or you can join an existing lobby.
+#### Mehrspieler
+Um ein Spiel zu starten, klicke auf Multiplayerspielt. Dort kannst du einen beliebigen unbenutzten Server auswählen, falls du eine neue Lobby erstellen willst, oder du kannst einer bestehenden Lobby beitreten.
 
-You can also create a local (LAN) server, using "Create server" button.
+Du kannst auch einen lokalen (LAN) server erstellen, über den "Erstelle Server" Knopf.
 
-If you want to create a new dedicated server for our community, see details here: <https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md>
+Falls du einen dedizierten Server für die Community erstellen möchtest, siehe hier für Details: <https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md>
 
-#### Keyboard shortcuts
+#### Tastenkürzel
 **Folgende Tastenkürzel sind verfügbar:**
 
 - **Esc** schließt eine offene Nachricht oder Auswahl
@@ -49,18 +49,18 @@ If you want to create a new dedicated server for our community, see details here
 - Drehen des **Mausrads** zoomt heran und heraus
 - **Backspace ←** setzt den Zoom auf 100% zurück
 
-For more detailed information about game shortcuts please visit our Wiki page:  
+Für mehr detailiertere Informationen über Tastenkürzel, bitte besuche unsere Wiki-Seite:
 <https://github.com/reyandme/kam_remake/wiki/Controls>
 
-#### Installing add-on maps:
-Maps should be added (in Remake's directory) to Maps (for singleplayer), MapsMP (for multiplayer); there is also a directory for Campaigns.
+#### Installieren von Zusatzkarten:
+Karten sollten (im Remake-Verzeichnis) zu Maps/ (für Einzelspieler), MapsMP/ (für Mehrspieler); ebenso gibt es einen Ordner für Kampagnen.
 
-You can find additional community-made maps at <https://knights-tavern.com>.
+Man kann weitere von der Community erstellen Karten unter <https://knights-tavern.com> finden.
 
-#### Adding custom music:
-You can put your MP3/OGG files into the Music folder of the KaM Remake, and they will be included into the playlist automatically.
+#### Hinzufügen benutzerdefinierter Musik:
+Du kannst deine MP3/OGG-Dateien in den Musikordner des des KaM Remake-Verzeichnisses legen und sie werden automatisch in die Wiedergabe aufgenommen.
 
-# ![](Readme/GUI_0311.gif) Frequently Asked Questions
+# ![](Readme/GUI_0311.gif) Häufig gestellte Fragen
 **Abstürze ohne Benachrichtigung:**  
 Wenn das KaM Remake ohne Meldung während des Startens abstürzt, sendet uns bitte die Log-Datei auf unserem Discord-Kanal, sowie alle anderen Informationen, die ihr finden könnt und uns nützlich sein könnten.
 
@@ -68,14 +68,14 @@ Wenn das KaM Remake ohne Meldung während des Startens abstürzt, sendet uns bit
 Falls das Programm eine niedrige Framerate hat, könnte es sein, dass die OpenGL-Treiber nicht mehr aktuell sind. Ihr könnt die OpenGL-Version in der Ecke links oben im Hauptmenü sehen. Es sollte mindestens Version 1.5.x sein.  
 
 **Fehler im Spiel:**  
-Sometimes when something unexpected happens, you will get an "An error has occurred in the application" message. Please click the "Send Bug Report" button, to send the crash report to us, which will let us acknowledge and fix the issue. Enter your name and email address in the form, if you would like us to be able to contact you about the crash.
+Manchmal, wenn etwas unerwartetes passiert, bekommt man eine "Ein Fehler ist in der Applikation passiert" Nachricht. Bitte klick den "Send Bug Report" Knopf, damit der Please click the "Send Bug Report" button, um uns den Absturzbericht zu senden, was uns darauf aufmerksam macht und ermöglicht den Fehler zu beheben. Gib gerne deinen Namen und E-Mail an, falls du möchtest, dass wir dich kontaktieren können bezüglich des Absturzes.
 
 **Irgendetwas anderes:**  
 Siehe diesen Link: <https://www.kamremake.com/faq/>
 
 ## ![](Readme/GUI_0323.gif) Community und Feedback
 
-Join our community at <https://discord.gg/UkkYceR>. We would love your comments, suggestions, thanks, etc.  
+Trete unserer Community bei <https://discord.gg/UkkYceR>. Wir freuen uns über Kommentare, Anregungen, Danksagungen, etc.
 Wenn ihr etwas Hilfe in Sachen Delphi, Dokumentation, Spielgrafik, Geräusche, Übersetzung oder Ideen für Verbesserungen habt - sende uns bitte eine E-Mail oder schreibe im Discord. 
 
 # ![](Readme/GUI_0304.gif) Bekannte Fehler und Einschränkungen
@@ -86,7 +86,7 @@ Kriegswerkstatt ist nicht funktionsfähig.
 
 Der KaM Remake-Quelltext ist auf unserer Projektseite verfügbar:  
 <https://github.com/reyandme/kam_remake>  
-Here you can find our game Wiki:  
+Hier kann man unsere Spiel-Wiki finden:
 <https://github.com/reyandme/kam_remake/wiki>  
 Hier könnt ihr uns Fehler berichten:  
 <https://github.com/reyandme/kam_remake/issues>  
@@ -97,13 +97,13 @@ oder auf unserem Discord-Kanal.
 Leitender Programmierer  - Krom (<mailto:kromster80@gmail.com>)  
 Programmierer - Rey (<mailto:kamremake.rey@gmail.com>)  
 Programmierer - Lewin (<mailto:lewinjh@gmail.com>)  
-Programmierer - Toxic (Advanced AI and random map generator)  
+Programmierer - Toxic (Fortgeschrittene KI und Zufallskarten-Generator)
 und viele mehr...  
  
 Danke an Alex, der uns 2008 in das Core Design eingewiesen hat.  
-Danke an StarGazer, der neue Grafiken erstellt hat, also to Malin who drew marketplace wares.  
+Danke an StarGazer, der neue Grafiken erstellt hat, auch an Malin welcher Marktplatz-Waren malte.
 Großen Dank an die KaM Community und an ihre aktiven Mitglieder (Free_sms_kam, Harold, Humbelum, JBSnorro, The Knight, Litude (Real Hotdog), Merchator, Nick, Thunderwolf, Vas, andreus, ZblCoder und viele mehr) dafür dass sie uns beim Decodieren halfen, uns Ratschläge gaben und für ihr Engagement.  
-Icons from famfamfam and FatCow are used in the KaM Remake.  
+Icons von famfamfam und FatCow wurden im KaM Remake benutzt.
 
 # ![](Readme/GUI_0322.gif) Impressum
 

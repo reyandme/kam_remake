@@ -72,9 +72,9 @@ type
     property CtrlOver: TKMControl read fCtrlOver write SetCtrlOver;
     property CtrlUp: TKMControl read fCtrlUp write SetCtrlUp;
 
-    procedure AddMouseMoveCtrlSub(const aMouseMoveEvent: TKMNotifyEventMouseMove);
-    procedure AddMouseDownCtrlSub(const aMouseDownEvent: TKMNotifyEventMouseButton);
-    procedure AddMouseUpCtrlSub(const aMouseUpEvent: TKMNotifyEventMouseButton);
+    procedure SubscribeOnOtherMouseMove(const aMouseMoveEvent: TKMNotifyEventMouseMove);
+    procedure SubscribeOnOtherMouseDown(const aMouseDownEvent: TKMNotifyEventMouseButton);
+    procedure SubscribeOnOtherMouseUp(const aMouseUpEvent: TKMNotifyEventMouseButton);
 
     function HitControl(X,Y: Integer; aIncludeDisabled: Boolean = False; aIncludeNotHitable: Boolean = False): TKMControl;
 
@@ -1689,7 +1689,7 @@ begin
 end;
 
 
-procedure TKMMasterControl.AddMouseMoveCtrlSub(const aMouseMoveEvent: TKMNotifyEventMouseMove);
+procedure TKMMasterControl.SubscribeOnOtherMouseMove(const aMouseMoveEvent: TKMNotifyEventMouseMove);
 begin
   if Self = nil then Exit;
 
@@ -1697,7 +1697,7 @@ begin
 end;
 
 
-procedure TKMMasterControl.AddMouseDownCtrlSub(const aMouseDownEvent: TKMNotifyEventMouseButton);
+procedure TKMMasterControl.SubscribeOnOtherMouseDown(const aMouseDownEvent: TKMNotifyEventMouseButton);
 begin
   if Self = nil then Exit;
 
@@ -1705,7 +1705,7 @@ begin
 end;
 
 
-procedure TKMMasterControl.AddMouseUpCtrlSub(const aMouseUpEvent: TKMNotifyEventMouseButton);
+procedure TKMMasterControl.SubscribeOnOtherMouseUp(const aMouseUpEvent: TKMNotifyEventMouseButton);
 begin
   if Self = nil then Exit;
 

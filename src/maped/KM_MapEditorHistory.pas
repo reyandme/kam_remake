@@ -28,15 +28,9 @@ type
   private
     // Each Undo step stores whole terrain for simplicity (and ease of jumping to random checkpoint in the list)
     fData: array of array of TKMUndoTile;
-    function MakeUndoTile(const aTile: TKMTerrainTile;
-                          const aPaintedTile: TKMPainterTile;
-                          const aMapEdTile: TKMMapEdTerrainTile): TKMUndoTile;
-    procedure RestoreTileFromUndo(var aTile: TKMTerrainTile;
-                                  var aTileExt: TKMTerrainTileExt;
-                                  var aPaintedTile: TKMPainterTile;
-                                  var aMapEdTile: TKMMapEdTerrainTile;
-                                  aUndoTile: TKMUndoTile;
-                                  aUnderHouse: Boolean);
+    function MakeUndoTile(const aTile: TKMTerrainTile; const aPaintedTile: TKMPainterTile; const aMapEdTile: TKMMapEdTerrainTile): TKMUndoTile;
+    procedure RestoreTileFromUndo(var aTile: TKMTerrainTile; var aTileExt: TKMTerrainTileExt; var aPaintedTile: TKMPainterTile;
+      var aMapEdTile: TKMMapEdTerrainTile; aUndoTile: TKMUndoTile; aUnderHouse: Boolean);
   public
     constructor Create(const aCaption: string);
     procedure Apply(aArea: TKMCheckpointArea = caAll; aUpdateImmediately: Boolean = True); override;
@@ -72,6 +66,7 @@ type
       GroupMemberCount: Integer;
       GroupColumns: Integer;
       GroupOrder: TKMMapEdOrder;
+      FishCount: Byte;
     end;
   public
     constructor Create(const aCaption: string);
@@ -388,6 +383,8 @@ begin
 
       fUnits[L].Condition := U.Condition;
 
+      if U is TKMUnitFish then
+        fUnits[L].FishCount := TKMUnitFish(U).FishCount;
       Inc(L);
     end;
   end;
@@ -451,18 +448,22 @@ begin
   for I := 0 to High(fUnits) do
   begin
     if fUnits[I].UnitType in [CITIZEN_MIN..CITIZEN_MAX] then
-      U := gHands[fUnits[I].Owner].AddUnit(fUnits[I].UnitType, fUnits[I].Position, False, 0, False, False)
+      U := gHands[fUnits[I].Owner].AddUnit(fUnits[I].UnitType, fUnits[I].Position, False)
     else
     if fUnits[I].UnitType in [WARRIOR_MIN..WARRIOR_MAX] then
     begin
-      G := gHands[fUnits[I].Owner].AddUnitGroup(fUnits[I].UnitType, fUnits[I].Position, fUnits[I].Dir, 1, 1, False);
+      G := gHands[fUnits[I].Owner].AddUnitGroup(fUnits[I].UnitType, fUnits[I].Position, fUnits[I].Dir, 1, 1);
       U := G.FlagBearer;
       G.MapEdCount := fUnits[I].GroupMemberCount;
       G.UnitsPerRow := fUnits[I].GroupColumns;
       G.MapEdOrder := fUnits[I].GroupOrder;
     end
     else
-      U := gHands.PlayerAnimals.AddUnit(fUnits[I].UnitType, fUnits[I].Position, False);
+    begin
+      U := gHands.PlayerAnimals.AddUnit(fUnits[I].UnitType, fUnits[I].Position);
+      if (U is TKMUnitFish) then
+        TKMUnitFish(U).FishCount := fUnits[I].FishCount;
+    end;
 
     U.Condition := fUnits[I].Condition;
   end;

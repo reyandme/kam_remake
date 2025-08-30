@@ -80,6 +80,7 @@ uses
   KM_ControlsDragger in 'src\controls\KM_ControlsDragger.pas',
   KM_ControlsDrop in 'src\controls\KM_ControlsDrop.pas',
   KM_ControlsEdit in 'src\controls\KM_ControlsEdit.pas',
+  KM_ControlsForm in 'src\controls\KM_ControlsForm.pas',
   KM_ControlsList in 'src\controls\KM_ControlsList.pas',
   KM_ControlsMemo in 'src\controls\KM_ControlsMemo.pas',
   KM_ControlsMinimapView in 'src\controls\KM_ControlsMinimapView.pas',
@@ -481,7 +482,11 @@ begin
       if gMain.Start then
         Application.Run;
     finally
-      gMain.Free; //Prevents memory leak of TKMMain showing up in FastMM
+      // If there is an exception we get into this "finally" block first,
+      // Control goes to KM_Exceptions only afterwards
+      // Maybe we will rethink this and arrange gMain.Free to happen after exception is handled?
+      gMain.Free; // Prevents memory leak of TKMMain showing up in FastMM
+      gMain := nil;
     end;
   except
     // We know and control EGameInitError instances and can show them without generating a crashreport

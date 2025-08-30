@@ -2,14 +2,9 @@ unit KM_UnitsCollection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, Types, Generics.Collections,
+  Generics.Collections,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Terrain, KM_Units, KM_Houses;
-
-//Memo on directives:
-//Dynamic - declared and used (overriden) occasionally
-//Virtual - declared and used (overriden) always
-//Abstract - declared but must be overriden in child classes
+  KM_Units, KM_Houses;
 
 type
   TKMUnitsCollection = class
@@ -47,8 +42,8 @@ type
 
 implementation
 uses
-  SysUtils,
-  KM_Entity,
+  Classes, Math, Types, SysUtils,
+  KM_Entity, KM_Terrain,
   KM_Game, KM_GameParams, KM_HandsCollection, KM_Log, KM_Resource, KM_ResUnits, KM_UnitWarrior,
   KM_UnitActionWalkTo, KM_GameUIDTracker,
   KM_DevPerfLog, KM_DevPerfLogTypes,
@@ -114,8 +109,7 @@ begin
   if not gTerrain.TileInMapCoords(placeTo.X, placeTo.Y) then
   begin
     gLog.AddTime('Unable to add unit to ' + KM_Points.TypeToString(placeTo));
-    Result := nil;
-    Exit;
+    Exit(nil);
   end;
 
   if (aInHouse = nil) and gTerrain.HasUnit(placeTo) then

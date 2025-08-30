@@ -5,10 +5,10 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Math, SysUtils,
-  KM_CommonUtils, KM_CommonTypes,
-  KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsMinimapView, KM_ControlsPopUp,
+  KM_CommonTypes,
+  KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsMinimapView, KM_ControlsForm,
   KM_Saves,
-  KM_InterfaceDefaults, KM_InterfaceTypes, KM_MinimapMission, KM_Defaults;
+  KM_InterfaceDefaults, KM_InterfaceTypes, KM_MinimapMission;
 
 
 type
@@ -35,7 +35,7 @@ type
     procedure Load_SortUpdate(Sender: TObject);
     procedure Load_RefreshList(aJumpToSelected:Boolean);
     procedure Load_Sort(Sender: TObject; const aColumn: Integer);
-    procedure Load_DeleteConfirmation(aVisible:boolean);
+    procedure Load_DeleteConfirmation(aVisible: Boolean);
     procedure BackClick(Sender: TObject);
     procedure EscKeyDown(Sender: TObject);
     procedure KeyDown(Sender: TObject; Key: Word; Shift: TShiftState);
@@ -47,12 +47,10 @@ type
     Button_LoadBack:TKMButton;
     MinimapView_Load: TKMMinimapView;
 
-    //PopUp Menus
-    PopUp_Delete: TKMPopUpMenu;
-      Image_Delete: TKMImage;
-      Label_DeleteConfirmTitle, Label_DeleteConfirm: TKMLabel;
-      Button_DeleteYes, Button_DeleteNo: TKMButton;
-
+    Form_Delete: TKMForm;
+    Label_DeleteConfirm: TKMLabel;
+    Button_DeleteYes: TKMButton;
+    Button_DeleteNo: TKMButton;
   public
     OnNewSingleSave: TUnicodeStringEvent;
 
@@ -66,7 +64,7 @@ type
 
 implementation
 uses
-  KM_Log,
+  KM_CommonUtils, KM_Defaults, KM_Log,
   KM_Resource, KM_ResTexts, KM_ResFonts, KM_ResTypes,
   KM_GameSettings,
   KM_RenderUI, KM_Pics,
@@ -78,9 +76,6 @@ constructor TKMMenuLoad.Create(aParent: TKMPanel; aOnPageChange: TKMMenuChangeEv
 const
   DELETE_CONFIRM_FONT: TKMFont = fntMetal;
   PAD = 20;
-var
-  deleteConfirmWidth, btnWid: Integer;
-  deleteConfirmStr: String;
 begin
   inherited Create(gpLoad);
 
@@ -127,37 +122,25 @@ begin
     MinimapView_Load := TKMMinimapView.Create(fMinimap, Panel_Load, 630, 555, 191, 191, True);
     MinimapView_Load.Anchors := [anLeft, anBottom];
 
-    //Delete PopUp
-    deleteConfirmStr := gResTexts[TX_MENU_LOAD_DELETE_CONFIRM];
-    deleteConfirmWidth := Max(450, gRes.Fonts[DELETE_CONFIRM_FONT].GetTextSize(deleteConfirmStr).X + PAD*2);
-    PopUp_Delete := TKMPopUpMenu.Create(Panel_Load, deleteConfirmWidth);
-    PopUp_Delete.Height := 200;
-    // Keep the pop-up centered
-    PopUp_Delete.AnchorsCenter;
-    PopUp_Delete.Left := (Panel_Load.Width div 2) - (PopUp_Delete.Width div 2);
-    PopUp_Delete.Top := (Panel_Load.Height div 2) - 90;
+    // Delete popup
+    var deleteConfirmStr := gResTexts[TX_MENU_LOAD_DELETE_CONFIRM];
+    var deleteConfirmWidth := Max(450, gRes.Fonts[DELETE_CONFIRM_FONT].GetTextSize(deleteConfirmStr).X + PAD*2);
+    Form_Delete := TKMForm.Create(Panel_Load, deleteConfirmWidth, 200, gResTexts[TX_MENU_LOAD_DELETE], fbGray, False, False);
+    Form_Delete.Left := (Panel_Load.Width div 2) - (Form_Delete.Width div 2);
+    Form_Delete.Top := (Panel_Load.Height div 2) - 90;
 
-      TKMBevel.Create(PopUp_Delete, -2000,  -2000, 5000, 5000);
-
-      Image_Delete := TKMImage.Create(PopUp_Delete, 0, 0, PopUp_Delete.Width, PopUp_Delete.Height, 15, rxGuiMain);
-      Image_Delete.ImageStretch;
-
-      Label_DeleteConfirmTitle := TKMLabel.Create(PopUp_Delete, PopUp_Delete.Width div 2, 40, gResTexts[TX_MENU_LOAD_DELETE], fntOutline, taCenter);
-      Label_DeleteConfirmTitle.Anchors := [anLeft,anBottom];
-
-      Label_DeleteConfirm := TKMLabel.Create(PopUp_Delete, PopUp_Delete.Width div 2, 85, deleteConfirmStr, DELETE_CONFIRM_FONT, taCenter);
+      Label_DeleteConfirm := TKMLabel.Create(Form_Delete.ItemsPanel, Form_Delete.ItemsPanel.Width div 2, 85, deleteConfirmStr, DELETE_CONFIRM_FONT, taCenter);
       Label_DeleteConfirm.Anchors := [anLeft,anBottom];
 
-      btnWid := (PopUp_Delete.Width - PAD*3) div 2;
+      var btnWidth := (Form_Delete.ItemsPanel.Width - PAD*3) div 2;
 
-      Button_DeleteYes := TKMButton.Create(PopUp_Delete, PAD, 155, btnWid, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
+      Button_DeleteYes := TKMButton.Create(Form_Delete.ItemsPanel, PAD, 155, btnWidth, 30, gResTexts[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
       Button_DeleteYes.Anchors := [anLeft,anBottom];
       Button_DeleteYes.OnClick := Load_Delete_Click;
 
-      Button_DeleteNo  := TKMButton.Create(PopUp_Delete, (PopUp_Delete.Width + PAD) div 2, 155, btnWid, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
+      Button_DeleteNo  := TKMButton.Create(Form_Delete.ItemsPanel, (Form_Delete.ItemsPanel.Width + PAD) div 2, 155, btnWidth, 30, gResTexts[TX_MENU_LOAD_DELETE_CANCEL], bsMenu);
       Button_DeleteNo.Anchors := [anLeft,anBottom];
       Button_DeleteNo.OnClick := Load_Delete_Click;
-
 end;
 
 
@@ -174,7 +157,7 @@ function TKMMenuLoad.CanLoadSave(aStrict: Boolean = True): Boolean;
 begin
   Result := InRange(ColumnBox_Load.ItemIndex, 0, fSaves.Count - 1)
             and (fSaves[ColumnBox_Load.ItemIndex].IsValidStrictly
-                or (not aStrict and fSaves[ColumnBox_Load.ItemIndex].IsValid))
+                or (not aStrict and fSaves[ColumnBox_Load.ItemIndex].IsValid));
 end;
 
 
@@ -342,7 +325,7 @@ begin
 end;
 
 
-procedure TKMMenuLoad.Load_RefreshList(aJumpToSelected:Boolean);
+procedure TKMMenuLoad.Load_RefreshList(aJumpToSelected: Boolean);
 var
   I, prevTop: Integer;
   row: TKMListRow;
@@ -448,10 +431,11 @@ begin
 
   if aVisible then
   begin
-    PopUp_Delete.Show;
+    Form_Delete.Show;
     ColumnBox_Load.Focusable := False; // Will update focus automatically
-  end else begin
-    PopUp_Delete.Hide;
+  end else
+  begin
+    Form_Delete.Hide;
     ColumnBox_Load.Focusable := True; // Will update focus automatically
   end;
 end;
@@ -480,7 +464,7 @@ begin
   //Scan should be terminated, it is no longer needed
   fSaves.TerminateScan;
 
-  fOnPageChange(gpSingleplayer);
+  fOnPageChange(gpSinglePlayer);
 end;
 
 

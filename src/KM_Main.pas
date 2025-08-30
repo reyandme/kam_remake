@@ -174,6 +174,11 @@ end;
 
 destructor TKMMain.Destroy;
 begin
+  // FormLoading is owned by the Application
+  // If exception occurs and gMain is freed, make sure to remove fsStayOnTop from FormLoading,
+  // so that madExcept dialogs (main and its child SendBugReport) are not overlapped by it
+  fFormLoading.FormStyle := fsNormal;
+
   {$IFDEF PERFLOG}gPerfLogs.Free;{$ENDIF}
 
   {$IFDEF USE_MAD_EXCEPT}FreeAndNil(gExceptions);{$ENDIF}
@@ -928,6 +933,7 @@ begin
   fFormLoading.Position := poScreenCenter;
   fFormLoading.Bar1.Position := 0;
   fFormLoading.Label1.Caption := '';
+  fFormLoading.FormStyle := fsStayOnTop;
   fFormLoading.Show;
 end;
 

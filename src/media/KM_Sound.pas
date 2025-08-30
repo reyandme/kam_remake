@@ -470,11 +470,9 @@ function TKMSoundPlayer.PlaySound(aSoundID: TSoundFX; const aFile: UnicodeString
 var
   dif: array[1..3]of Single;
   freeBuf{,FreeSrc}: Integer;
-  I, ID: Integer;
   {$IFNDEF NO_OGG_SOUND}
   oggOpenResult: Integer;
   {$ENDIF}
-  W: TKMSoundData;
   distance: Single;
   alState: TALint;
   wavFormat: TALenum;
@@ -496,8 +494,8 @@ begin
   if not fIsSoundInitialized then Exit;
   if (aSoundID = sfxNone) and (aFile = '') then Exit;
 
-  //Do not play game sounds, if game is ready to stop
-  if (aSoundType = stGame) and (gGame <> nil) and (gGame.ReadyToStop) then
+  // Do not play game sounds, if game is ready to stop
+  if (aSoundType = stGame) and (gGame <> nil) and gGame.ReadyToStop then
     Exit;
 
   if aAttenuated then
@@ -523,10 +521,10 @@ begin
 
   //Find free buffer and use it
   freeBuf := -1;
-  for I := Low(fALSounds) to High(fALSounds) do
+  for var I := Low(fALSounds) to High(fALSounds) do
   begin
     alGetSourcei(fALSounds[i].ALSource, AL_SOURCE_STATE, @alState);
-    if alState<>AL_PLAYING then
+    if alState <> AL_PLAYING then
     begin
       freeBuf := I;
       Break;
@@ -622,18 +620,34 @@ begin
   end
   else
   begin
-    ID := word(aSoundID);
-    // Can not find sound with ID, silently Exit...
-    if ID > gRes.Sounds.fWavesCount then
+    var soundId := word(aSoundID);
+    // Can not find sound with this Id, silently Exit...
+    if soundId > gRes.Sounds.WavesCount then
       Exit;
 
-    W := gRes.Sounds.fWaves[ID];
+    var W := gRes.Sounds.fWaves[soundId];
 
-    Assert(W.IsLoaded and (ID <= gRes.Sounds.fWavesCount), 'Sounds.dat seems to be short');
-    AlBufferData(fALSounds[freeBuf].ALBuffer, AL_FORMAT_MONO8, @W.Data[0], W.Head.DataSize, W.Head.SampleRate);
-    wavSize := W.Head.FileSize;
-    wavFreq := W.Head.BytesPerSecond;
-    wavDuration := round(wavSize / wavFreq * 1000);
+    Assert(W.IsLoaded, 'Sounds.dat seems to be short');
+
+    if FEAT_SFX_ADJUSTED_SAMPLE_RATE then
+    begin
+      case W.Head.BitsPerSample of
+        8:  wavFormat := AL_FORMAT_MONO8;
+        16: wavFormat := AL_FORMAT_MONO16;
+      else
+        raise Exception.Create('Unexpected wave bit depth');
+      end;
+
+      var wavSampleRate := gRes.Sounds.fWaveProps[soundId].SampleRate;
+      AlBufferData(fALSounds[freeBuf].ALBuffer, wavFormat, @W.Data[0], W.Head.DataSize, wavSampleRate);
+      wavDuration := Round(W.Head.DataSize / wavSampleRate / W.Head.BytesPerSample * 1000);
+    end else
+    begin
+      AlBufferData(fALSounds[freeBuf].ALBuffer, AL_FORMAT_MONO8, @W.Data[0], W.Head.DataSize, W.Head.SampleRate);
+      wavSize := W.Head.FileSize;
+      wavFreq := W.Head.BytesPerSecond;
+      wavDuration := round(wavSize / wavFreq * 1000);
+    end;
   end;
 
   //Set source properties
@@ -819,7 +833,7 @@ begin
   if aIndex < 0 then Exit(False);
 
   Result := (fALSounds[aIndex].PlaySince <> 0)
-      and ((TimeSince(fALSounds[aIndex].PlaySince) < fALSounds[aIndex].Duration) or fALSounds[aIndex].Looped)
+      and ((TimeSince(fALSounds[aIndex].PlaySince) < fALSounds[aIndex].Duration) or fALSounds[aIndex].Looped);
 end;
 
 

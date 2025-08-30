@@ -94,6 +94,8 @@ const
 { TKMGUIGameUnit }
 constructor TKMGUIGameUnit.Create(aParent: TKMPanel; aSetViewportEvent: TPointFEvent);
 begin
+  inherited Create;
+
   fSetViewportEvent := aSetViewportEvent;
   fAnimStep := 0;
 
@@ -118,11 +120,9 @@ begin
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,0,152,TB_WIDTH,200,'',fntGrey,taLeft); // Taken from LIB resource
     Label_UnitDescription.WordWrap := True;
 
-    Button_Unit_Kill   := TKMButton.Create(Panel_Unit,65,100,60,30,'Kill', bsGame);
+    Button_Unit_Kill   := TKMButton.Create(Panel_Unit, 65, 100, 80, 30, 'DbgKill', bsGame);
     Button_Unit_Kill.OnClick := Unit_Kill_Click;
-
-    if not SHOW_UNIT_KILL_BTN then
-      Button_Unit_Kill.Hide;
+    Button_Unit_Kill.Visible := SHOW_UNIT_KILL_BTN;
 
     Panel_Unit_Dismiss := TKMPanel.Create(Panel_Unit, 0, 132, TB_WIDTH, 182);
     Label_Unit_Dismiss             := TKMLabel.Create(Panel_Unit_Dismiss,0,2,TB_WIDTH,20,gResTexts[TX_UNIT_TASK_DISMISS_CONFIRMATION],fntGrey,taCenter);
@@ -632,7 +632,7 @@ begin
     TKMUnitGroup(gMySpectator.Selected).SelectedUnit.Kill(HAND_NONE, True, False) //Debug option
   else
   if (gMySpectator.Selected is TKMUnit) then
-    TKMUnit(gMySpectator.Selected).Kill(HAND_NONE, True, False) //Debug option
+    TKMUnit(gMySpectator.Selected).Kill(HAND_NONE, True, False); //Debug option
 end;
 
 

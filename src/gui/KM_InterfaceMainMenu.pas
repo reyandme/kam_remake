@@ -6,9 +6,9 @@ uses
   {$IFDEF Unix} LCLType, {$ENDIF}
   Classes, Math, SysUtils,
   Controls,
-  KromUtils, KM_Campaigns,
+  KM_Campaigns,
   KM_Controls, KM_ControlsBase,
-  KM_Points, KM_Defaults, KM_Pics, KM_Networking, KM_ResFonts, KM_CommonTypes, KM_GameTypes,
+  KM_Points, KM_Pics, KM_ResFonts, KM_CommonTypes, KM_GameTypes,
   KM_InterfaceDefaults,
   KM_InterfaceTypes,
   KM_GUIMenuCampaign,
@@ -90,12 +90,11 @@ type
 
 implementation
 uses
-  KM_Main,
-  KM_GameApp,
+  KromUtils,
+  KM_Defaults, KM_Log,
+  KM_Main, KM_Networking, KM_GameApp,
   KM_ResTexts, KM_ResTypes,
-  KM_RenderUI,
-  KM_NetTypes,
-  KM_Log;
+  KM_RenderUI, KM_NetTypes;
 
 
 { TKMMainMenuInterface }
@@ -280,7 +279,7 @@ begin
                       fMenuMain.Show;
                       fMenuPage := fMenuMain;
                     end;
-    gpSingleplayer: begin
+    gpSinglePlayer: begin
                       fMenuSinglePlayer.Show;
                       fMenuPage := fMenuSinglePlayer;
                     end;

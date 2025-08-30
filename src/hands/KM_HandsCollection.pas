@@ -1093,10 +1093,6 @@ begin
     Result := fHandsList[I].RemUnit(Position, UT) or Result; //Should remove Unit as well after remove group
 
   Result := fPlayerAnimals.RemUnit(Position, UT) or Result;
-
-  if Result then
-    gGame.MapEditor.History.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_REMOVE_SMTH],
-                                                           [gRes.Units[UT].GUIName, Position.ToString]));
 end;
 
 

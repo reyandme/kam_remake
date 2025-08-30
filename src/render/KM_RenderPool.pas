@@ -3,11 +3,10 @@ unit KM_RenderPool;
 interface
 uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Classes,
-  dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
+  KromOGLUtils, KromUtils,
   KM_Defaults, KM_CommonTypes, KM_CommonClasses, KM_Pics, KM_Points, KM_Render, KM_Viewport,
-  KM_RenderTerrain, KM_ResHouses, KM_ResSprites, KM_Units, KM_HandEntity,
-  KM_Houses, KM_Terrain, KM_CommonGameTypes, KM_RenderDebug,
+  KM_RenderTerrain, KM_Units, KM_HandEntity,
+  KM_Houses, KM_CommonGameTypes, KM_RenderDebug,
   KM_ResTypes;
 
 type
@@ -92,11 +91,11 @@ type
     function PaintBucket_UnitToRender(aUnit: TObject): Boolean;
     function PaintBucket_GroupToRender(aGroup: TObject): Boolean;
 
-    procedure RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; Col: TColor4; DoHighlight: Boolean = False;
-                           HighlightColor: TColor4 = 0; aForced: Boolean = False);
+    procedure RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; aColor: TColor4; aDoHighlight: Boolean = False; aHighlightColor: TColor4 = 0;
+      aForced: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aId: Integer; aWoodProgress: Single; aX, aY: Single; aId2: Integer = 0; aStoneProgress: Single = 0; X2: Single = 0; Y2: Single = 0);
-    procedure RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; LocX,LocY: Integer; aLoopAnim: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
-    procedure RenderMapElement4(aIndex: Word; aAnimStep: Cardinal; pX,pY: Integer; aIsDouble: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
+    procedure RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aLoopAnim: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
+    procedure RenderMapElement4(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aIsDouble: Boolean; aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
     procedure RenderHouseOutline(aHouseSketch: TKMHouseSketch; aCol: Cardinal = icCyan);
 
     // Terrain rendering sub-class
@@ -158,15 +157,17 @@ var
 
 implementation
 uses
+  Classes, SysUtils, Math,
+  dglOpenGL,
   KM_Entity,
-  KM_RenderAux, KM_RenderGameAux, KM_HandsCollection, KM_Game, KM_GameSettings, KM_Sound, KM_Resource, KM_ResUnits,
-  KM_ResMapElements, KM_AIFields, KM_TerrainPainter, KM_Cursor,
+  KM_RenderAux, KM_RenderGameAux, KM_HandsCollection, KM_Game, KM_GameSettings, KM_Sound,
+  KM_AIFields, KM_TerrainPainter, KM_Cursor,
   KM_Hand, KM_UnitGroup, KM_CommonUtils,
   KM_GameParams, KM_Utils, KM_ResTilesetTypes, KM_DevPerfLog, KM_DevPerfLogTypes,
   KM_HandTypes,
   KM_Projectiles,
-  KM_TerrainTypes,
-  KM_ResInterpolation,
+  KM_Terrain, KM_TerrainTypes,
+  KM_Resource, KM_ResHouses, KM_ResInterpolation, KM_ResMapElements, KM_ResSprites, KM_ResUnits,
   KM_AITypes;
 
 
@@ -587,17 +588,16 @@ begin
 end;
 
 
-procedure TKMRenderPool.RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; LocX,LocY: Integer; aLoopAnim: Boolean;
-                                        aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
+procedure TKMRenderPool.RenderMapElement1(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aLoopAnim: Boolean; aDoImmediateRender: Boolean = False;
+  aDeleting: Boolean = False);
 var
-  R: TRXData;
   pX, pY: Integer;
   cornerX, cornerY: Single;
   gX, gY: Single;
   Id, Id0: Integer;
   FOW: Byte;
 begin
-  if (gMySpectator.FogOfWar.CheckVerticeRenderRev(LocX,LocY) <= FOG_OF_WAR_MIN) then Exit;
+  if (gMySpectator.FogOfWar.CheckVerticeRenderRev(aLocX, aLocY) <= FOG_OF_WAR_MIN) then Exit;
 
   if aIndex = OBJ_BLOCK then
   begin
@@ -605,8 +605,8 @@ begin
     // Render as a red outline in map editor mode
     if gGameParams.IsMapEditor then
     begin
-      gRenderAux.Quad(LocX, LocY, $600000FF);
-      RenderWireTile(KMPoint(LocX, LocY), $800000FF);
+      gRenderAux.Quad(aLocX, aLocY, $600000FF);
+      RenderWireTile(KMPoint(aLocX, aLocY), $800000FF);
     end;
   end
   else
@@ -615,20 +615,20 @@ begin
 
     if gGameParams.DynamicFOW then
     begin
-      FOW := gMySpectator.FogOfWar.CheckTileRevelation(LocX,LocY);
+      FOW := gMySpectator.FogOfWar.CheckTileRevelation(aLocX, aLocY);
       if FOW <= 128 then aAnimStep := 0; // Stop animation
     end;
     Id := gRes.Interpolation.Tree(aIndex, aAnimStep, gGameParams.TickFrac, aLoopAnim);
     Id0 := gMapElements[aIndex].Anim.Step[1] + 1;
     if Id <= 0 then exit;
 
-    R := fRXData[rxTrees];
-    pX := LocX - 1;
-    pY := LocY - 1;
-    gX := pX + (R.Pivot[Id0].X + R.Size[Id0].X/2) / CELL_SIZE_PX;
-    gY := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
-    cornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
-    cornerY := pY - gTerrain.RenderHeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX;
+    var rxData: PRXData := @fRXData[rxTrees];
+    pX := aLocX - 1;
+    pY := aLocY - 1;
+    gX := pX + (rxData.Pivot[Id0].X + rxData.Size[Id0].X/2) / CELL_SIZE_PX;
+    gY := pY + (rxData.Pivot[Id0].Y + rxData.Size[Id0].Y) / CELL_SIZE_PX;
+    cornerX := pX + rxData.Pivot[Id].X / CELL_SIZE_PX;
+    cornerY := pY - gTerrain.RenderHeightAt(gX, gY) + (rxData.Pivot[Id].Y + rxData.Size[Id].Y) / CELL_SIZE_PX;
     if aDoImmediateRender then
       RenderSprite(rxTrees, Id, cornerX, cornerY, $FFFFFFFF, aDeleting, DELETE_COLOR)
     else
@@ -638,12 +638,12 @@ end;
 
 
 // 4 objects packed on 1 tile for Corn and Grapes
-procedure TKMRenderPool.RenderMapElement4(aIndex: Word; aAnimStep: Cardinal; pX,pY: Integer; aIsDouble: Boolean;
-                                        aDoImmediateRender: Boolean = False; aDeleting: Boolean = False);
+procedure TKMRenderPool.RenderMapElement4(aIndex: Word; aAnimStep: Cardinal; aLocX, aLocY: Integer; aIsDouble: Boolean; aDoImmediateRender: Boolean = False;
+  aDeleting: Boolean = False);
 var
   R: TRXData;
 
-  procedure AddSpriteBy(aAnimStep: Integer; pX,pY: Single);
+  procedure AddSpriteBy(aAnimStep: Integer; aLocSubX, aLocSubY: Single);
   var
     Id, Id0: Integer;
     CornerX, CornerY, gX, gY: Single;
@@ -651,10 +651,10 @@ var
     Id := gRes.Interpolation.Tree(aIndex, aAnimStep, gGameParams.TickFrac, True);
     Id0 := gMapElements[aIndex].Anim.Step[1] + 1;
 
-    gX := pX + (R.Pivot[Id0].X + R.Size[Id0].X/2) / CELL_SIZE_PX;
-    gY := pY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
-    CornerX := pX + R.Pivot[Id].X / CELL_SIZE_PX;
-    CornerY := pY - gTerrain.RenderHeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX;
+    gX := aLocSubX + (R.Pivot[Id0].X + R.Size[Id0].X/2) / CELL_SIZE_PX;
+    gY := aLocSubY + (R.Pivot[Id0].Y + R.Size[Id0].Y) / CELL_SIZE_PX;
+    CornerX := aLocSubX + R.Pivot[Id].X / CELL_SIZE_PX;
+    CornerY := aLocSubY - gTerrain.RenderHeightAt(gX, gY) + (R.Pivot[Id].Y + R.Size[Id].Y) / CELL_SIZE_PX;
 
     if aDoImmediateRender then
       RenderSprite(rxTrees, Id, CornerX, CornerY, $FFFFFFFF, aDeleting, DELETE_COLOR)
@@ -667,22 +667,24 @@ var
 begin
   if gGameParams.DynamicFOW then
   begin
-    FOW := gMySpectator.FogOfWar.CheckTileRevelation(pX, pY);
-    if FOW <= 128 then aAnimStep := 0; // Stop animation
+    FOW := gMySpectator.FogOfWar.CheckTileRevelation(aLocX, aLocY);
+    // Stop animation under FOW
+    if FOW <= 128 then
+      aAnimStep := 0;
   end;
 
   R := fRXData[rxTrees];
   if aIsDouble then
   begin
-    AddSpriteBy(aAnimStep  , pX - 0.75, pY - 0.6);
-    AddSpriteBy(aAnimStep+1, pX - 0.25, pY - 0.6);
+    AddSpriteBy(aAnimStep  , aLocX - 0.75, aLocY - 0.6);
+    AddSpriteBy(aAnimStep+1, aLocX - 0.25, aLocY - 0.6);
   end
   else
   begin
-    AddSpriteBy(aAnimStep  , pX - 0.75, pY - 0.75);
-    AddSpriteBy(aAnimStep+1, pX - 0.25, pY - 0.75);
-    AddSpriteBy(aAnimStep+1, pX - 0.75, pY - 0.25);
-    AddSpriteBy(aAnimStep  , pX - 0.25, pY - 0.25);
+    AddSpriteBy(aAnimStep  , aLocX - 0.75, aLocY - 0.75);
+    AddSpriteBy(aAnimStep+1, aLocX - 0.25, aLocY - 0.75);
+    AddSpriteBy(aAnimStep+1, aLocX - 0.75, aLocY - 0.25);
+    AddSpriteBy(aAnimStep  , aLocX - 0.25, aLocY - 0.25);
   end;
 end;
 
@@ -900,7 +902,7 @@ var
                      - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
     if aDoImmediateRender then
     begin
-      RenderSprite(rxHouses, aId, CornerX, CornerY, $0, aDoHighlight, aHighlightColor)
+      RenderSprite(rxHouses, aId, CornerX, CornerY, $0, aDoHighlight, aHighlightColor);
     end else
       fRenderList.AddSprite(rxHouses, aId, CornerX, CornerY);
   end;
@@ -909,7 +911,7 @@ begin
   rxData := fRXData[rxHouses];
 
   for I := 1 to 4 do
-  if (R1[I - 1]) > 0 then
+  if R1[I - 1] > 0 then
   begin
     count := Min(R1[I - 1], MAX_WARES_IN_HOUSE);
     I2 := I;
@@ -1231,8 +1233,8 @@ begin
   glPopMatrix;
 end;}
 
-procedure TKMRenderPool.RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; Col: TColor4; DoHighlight: Boolean = False;
-                                   HighlightColor: TColor4 = 0; aForced: Boolean = False);
+procedure TKMRenderPool.RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; aColor: TColor4; aDoHighlight: Boolean = False;
+  aHighlightColor: TColor4 = 0; aForced: Boolean = False);
 var
   tX, tY: Integer;
   rX, rY: Single;
@@ -1252,8 +1254,8 @@ begin
     glColor4ub(255, 255, 255, 255);
 
     TKMRender.BindTexture(Tex.TexID);
-    if DoHighlight then
-      glColor3ub(HighlightColor AND $FF, HighlightColor SHR 8 AND $FF, HighlightColor SHR 16 AND $FF);
+    if aDoHighlight then
+      glColor3ub(aHighlightColor and $FF, aHighlightColor shr 8 and $FF, aHighlightColor shr 16 and $FF);
     glBegin(GL_QUADS);
       glTexCoord2f(Tex.u1, Tex.v2); glVertex2f(rX                     , rY                      );
       glTexCoord2f(Tex.u2, Tex.v2); glVertex2f(rX+pxWidth/CELL_SIZE_PX, rY                      );
@@ -1265,7 +1267,7 @@ begin
   if gGFXData[aRX, aId].Alt.TexID <> 0 then
     with gGFXData[aRX, aId] do
     begin
-      glColor4ubv(@Col);
+      glColor4ubv(@aColor);
       TKMRender.BindTexture(Alt.TexID);
       glBegin(GL_QUADS);
         glTexCoord2f(Alt.u1, Alt.v2); glVertex2f(rX                     , rY                      );
@@ -1396,7 +1398,7 @@ begin
         // Don't use Hand.GetFieldPlans as it will give us plans multiple times for allies
         gHands[I].Constructions.FieldworksList.GetFields(fFieldsList, aRect, False)
     else
-      gHands[gMySpectator.FOWIndex].GetFieldPlans(fFieldsList, aRect, False)
+      gHands[gMySpectator.FOWIndex].GetFieldPlans(fFieldsList, aRect, False);
   end
   else
   begin
@@ -1413,7 +1415,7 @@ begin
         // Don't use Hand.GetHousePlans as it will give us plans multiple times for allies
         gHands[I].Constructions.HousePlanList.GetOutlines(fHousePlansList, aRect)
     else
-      gHands[gMySpectator.FOWIndex].GetHousePlans(fHousePlansList, aRect)
+      gHands[gMySpectator.FOWIndex].GetHousePlans(fHousePlansList, aRect);
   end
   else
     gMySpectator.Hand.GetHousePlans(fHousePlansList, aRect);
@@ -1528,7 +1530,7 @@ begin
                             RenderSpriteOnTile(P, 394, gMySpectator.Hand.FlagColor);
                             gRenderAux.CircleOnTerrain(P.X-0.5, P.Y-0.5,
                              gCursor.MapEdSize,
-                             gMySpectator.Hand.FlagColor AND $10FFFFFF,
+                             gMySpectator.Hand.FlagColor and $10FFFFFF,
                              gMySpectator.Hand.FlagColor);
                           end;
     MARKER_DEFENCE:       begin
@@ -1685,7 +1687,6 @@ end;
 procedure TKMRenderPool.RenderForegroundUI;
 var
   P: TKMPoint;
-  F: TKMPointF;
 begin
   if gCursor.Cell.Y * gCursor.Cell.X = 0 then Exit; // Caused a rare crash
 
@@ -1695,7 +1696,6 @@ begin
     gGame.MapEditor.Paint(plCursors, KMRect(0,0,0,0));
 
   P := gCursor.Cell;
-  F := gCursor.Float;
 
   if (gCursor.Mode <> cmNone) and (gCursor.Mode <> cmHouses) and
      (gMySpectator.FogOfWar.CheckTileRevelation(P.X, P.Y) = 0) then
@@ -1715,7 +1715,7 @@ begin
                     else
                       RenderSpriteOnTile(P, TC_BLOCK); // Red X
                   end;
-    cmRoad:       if (gMySpectator.Hand.CanAddFakeFieldPlan(P, ftRoad)) and (gCursor.Tag1 <> Ord(cfmErase)) then
+    cmRoad:       if gMySpectator.Hand.CanAddFakeFieldPlan(P, ftRoad) and (gCursor.Tag1 <> Ord(cfmErase)) then
                     RenderWireTile(P, icCyan) // Cyan quad
                   else
                     RenderSpriteOnTile(P, TC_BLOCK);       // Red X
@@ -1747,7 +1747,7 @@ begin
                   end;
     cmObjectsBrush: RenderForegroundUI_ObjectsBrush;
     cmMagicWater: begin
-                    If gTerrain.Land[P.Y, P.X].BaseLayer.Rotation+1 <=3 then
+                    if gTerrain.Land[P.Y, P.X].BaseLayer.Rotation+1 <=3 then
                       RenderTile(192, P.X, P.Y, gTerrain.Land[P.Y, P.X].BaseLayer.Rotation+1)
                     else
                       RenderTile(192, P.X, P.Y, 0);
@@ -1884,7 +1884,7 @@ begin
       if UT in UNITS_WARRIORS then
       begin
         gGame.MapEditor.DetermineGroupFormationAndDir(P, UNIT_TO_GROUP_TYPE[TKMUnitType(gCursor.Tag1)], formation, dir);
-        DoRenderGroup(UT, KMPointDir(P, dir), formation.NumUnits, formation.UnitsPerRow, gMySpectator.Hand.FlagColor)
+        DoRenderGroup(UT, KMPointDir(P, dir), formation.NumUnits, formation.UnitsPerRow, gMySpectator.Hand.FlagColor);
       end
       else
         AddUnitWithDefaultArm(UT, 0, uaWalk, dir, UNIT_STILL_FRAMES[dirS], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, gMySpectator.Hand.FlagColor, True);

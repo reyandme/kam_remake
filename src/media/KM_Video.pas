@@ -31,30 +31,30 @@ type
   private
     fPlayerEnabled: Boolean;
   {$IFDEF VIDEOS}
-    FCriticalSection: TCriticalSection;
+    fCriticalSection: TCriticalSection;
 
-    FBuffer: array of Byte;
+    fBuffer: array of Byte;
 
-    FWidth: LongWord;
-    FHeight: LongWord;
+    fWidth: LongWord;
+    fHeight: LongWord;
 
-    FScreenWidth: Integer;
-    FScreenHeight: Integer;
+    fScreenWidth: Integer;
+    fScreenHeight: Integer;
 
-    FTexture: TTexture;
+    fTexture: TTexture;
 
-    FIndex: Integer;
-    FLenght: Int64;
-    FTime: Int64;
+    fIndex: Integer;
+    fLength: Int64;
+    fTime: Int64;
 
-    FCallback: TKMVideoPlayerCallback;
-    FBrightness: Integer;
+    fCallback: TKMVideoPlayerCallback;
+    fBrightness: Integer;
 
-    FInstance: PVLCInstance;
-    FMediaPlayer: PVLCMediaPlayer;
+    fInstance: PVLCInstance;
+    fMediaPlayer: PVLCMediaPlayer;
 
-    FTrackList: TStringList;
-    FVideoList: TList<TKMVideoFile>;
+    fTrackList: TStringList;
+    fVideoList: TList<TKMVideoFile>;
 
     function TryGetPathFile(const aPathRelative: string; var aFileName: string): Boolean;
     procedure SetTrackByLocale;
@@ -97,7 +97,9 @@ var
 
 implementation
 uses
-  KM_Render, KM_RenderTypes, KM_RenderUI, dglOpenGL, KM_ResLocales,
+  System.Math,
+  dglOpenGL,
+  KM_Render, KM_RenderTypes, KM_RenderUI, KM_ResLocales,
   KM_GameApp, KM_GameSettings,
   KM_Music, KM_Sound,
   KM_Defaults;
@@ -110,19 +112,20 @@ const
 {$IFDEF VIDEOS}
 function VLCLock(aOpaque: Pointer; var aPlanes: Pointer): Pointer; cdecl;
 begin
-  gVideoPlayer.FCriticalSection.Enter;
-  if Length(gVideoPlayer.FBuffer) > 0 then
-    aPlanes := @(gVideoPlayer.FBuffer[0]);
+  gVideoPlayer.fCriticalSection.Enter;
+  if Length(gVideoPlayer.fBuffer) > 0 then
+    aPlanes := @(gVideoPlayer.fBuffer[0]);
   Result := nil;
 end;
 
 
 function VLCUnlock(aOpaque: Pointer; aPicture: Pointer; aPlanes: Pointer): Pointer; cdecl;
 begin
-  gVideoPlayer.FCriticalSection.Leave;
+  gVideoPlayer.fCriticalSection.Leave;
   Result := nil;
 end;
 {$ENDIF}
+
 
 { TKMVideoPlayer }
 constructor TKMVideoPlayer.Create(aPlayerEnabled: Boolean);
@@ -134,13 +137,13 @@ begin
   if not fPlayerEnabled then Exit;
 
 {$IFDEF VIDEOS}
-  FIndex := 0;
-  FTexture.U := 1;
-  FTexture.V := 1;
-  FCallback := nil;
-  FCriticalSection := TCriticalSection.Create;
-  FVideoList := TList<TKMVideoFile>.Create;
-  FTrackList :=  TStringList.Create;
+  fIndex := 0;
+  fTexture.U := 1;
+  fTexture.V := 1;
+  fCallback := nil;
+  fCriticalSection := TCriticalSection.Create;
+  fVideoList := TList<TKMVideoFile>.Create;
+  fTrackList :=  TStringList.Create;
 
   VLCLoadLibrary;
 {$ENDIF}
@@ -152,13 +155,13 @@ begin
   if fPlayerEnabled then
   begin
     {$IFDEF VIDEOS}
-    if Assigned(FMediaPlayer) then
-      libvlc_media_player_stop(FMediaPlayer); //Stop VLC
+    if Assigned(fMediaPlayer) then
+      libvlc_media_player_stop(fMediaPlayer); //Stop VLC
 
     VLCUnloadLibrary;
-    FVideoList.Free;
-    FTrackList.Free;
-    FCriticalSection.Free;
+    fVideoList.Free;
+    fTrackList.Free;
+    fCriticalSection.Free;
     {$ENDIF}
   end;
 
@@ -184,7 +187,7 @@ begin
 
   videoFileData.Path := aPath;
   videoFileData.Kind := aKind;
-  FVideoList.Add(videoFileData);
+  fVideoList.Add(videoFileData);
 end;
 {$ENDIF}
 
@@ -253,8 +256,8 @@ begin
   if Self = nil then Exit;
   if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
-  if FMediaPlayer <> nil then
-    libvlc_media_player_pause(FMediaPlayer);
+  if fMediaPlayer <> nil then
+    libvlc_media_player_pause(fMediaPlayer);
 {$ENDIF}
 end;
 
@@ -264,8 +267,8 @@ begin
   if Self = nil then Exit;
   if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
-  if FMediaPlayer <> nil then
-    libvlc_media_player_play(FMediaPlayer);
+  if fMediaPlayer <> nil then
+    libvlc_media_player_play(fMediaPlayer);
 {$ENDIF}
 end;
 
@@ -275,7 +278,7 @@ begin
   if Self = nil then Exit;
   if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
-  FCallback := aCallback;
+  fCallback := aCallback;
 {$ENDIF}
 end;
 
@@ -285,8 +288,8 @@ begin
   if Self = nil then Exit;
   if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
-  FScreenWidth := aWidth;
-  FScreenHeight := aHeight;
+  fScreenWidth := aWidth;
+  fScreenHeight := aHeight;
 {$ENDIF}
 end;
 
@@ -301,8 +304,8 @@ begin
 
   case GetState of
     vlcpsPlaying: begin
-                    FTime := libvlc_media_player_get_time(FMediaPlayer);
-                    FLenght := libvlc_media_player_get_length(FMediaPlayer);
+                    fTime := libvlc_media_player_get_time(fMediaPlayer);
+                    fLength := libvlc_media_player_get_length(fMediaPlayer);
                   end;
     vlcpsEnded:   Stop;
   end;
@@ -317,16 +320,16 @@ procedure TKMVideoPlayer.Paint;
   var
     aspectRatio: Single;
   begin
-    aspectRatio := FWidth / FHeight;
-    if aspectRatio > FScreenWidth / FScreenHeight then
+    aspectRatio := fWidth / fHeight;
+    if aspectRatio > fScreenWidth / fScreenHeight then
     begin
-      aWidth := FScreenWidth;
-      aHeight := Round(FScreenWidth / aspectRatio);
+      aWidth := fScreenWidth;
+      aHeight := Round(fScreenWidth / aspectRatio);
     end
     else
     begin
-      aWidth := Round(FScreenHeight * aspectRatio);
-      aHeight := FScreenHeight;
+      aWidth := Round(fScreenHeight * aspectRatio);
+      aHeight := fScreenHeight;
     end;
   end;
 
@@ -337,28 +340,28 @@ begin
   if Self = nil then Exit;
   if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
-  if IsPlay and (Length(FBuffer) > 0) and (FTexture.Tex > 0)  then
+  if IsPlay and (Length(fBuffer) > 0) and (fTexture.Tex > 0)  then
   begin
-    glBindTexture(GL_TEXTURE_2D, FTexture.Tex);
-    FCriticalSection.Enter;
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, FWidth, FHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, FBuffer);
-    FCriticalSection.Leave;
+    glBindTexture(GL_TEXTURE_2D, fTexture.Tex);
+    fCriticalSection.Enter;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fWidth, fHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, fBuffer);
+    fCriticalSection.Leave;
     glBindTexture(GL_TEXTURE_2D, 0);
 
     if gGameSettings.Video.VideoStretch then
       FitToScreen(width, height)
     else
     begin
-      if (FWidth < FScreenWidth) and (FHeight < FScreenHeight) then
+      if (fWidth < fScreenWidth) and (fHeight < fScreenHeight) then
       begin
-        width := FWidth;
-        height := FHeight;
+        width := fWidth;
+        height := fHeight;
       end
       else
         FitToScreen(width, height);
     end;
 
-    TKMRenderUI.WriteTexture((FScreenWidth - width) div 2, (FScreenHeight - height) div 2, width, height, FTexture, $FFFFFFFF);
+    TKMRenderUI.WriteTexture((fScreenWidth - width) div 2, (fScreenHeight - height) div 2, width, height, fTexture, $FFFFFFFF);
   end;
   {
   if IsActive and not IsPlay then
@@ -369,19 +372,19 @@ begin
   else
     TKMRenderUI.WriteText(100, 50, 1000, 'Pause', fntArial, taLeft);
 
-  TKMRenderUI.WriteText(200, 50, 1000, 'Index = ' + IntToStr(FIndex), fntArial, taLeft);
-  TKMRenderUI.WriteText(350, 50, 1000, 'Size = ' + IntToStr(FWidth) + 'x' + IntToStr(FHeight), fntArial, taLeft);
+  TKMRenderUI.WriteText(200, 50, 1000, 'Index = ' + IntToStr(fIndex), fntArial, taLeft);
+  TKMRenderUI.WriteText(350, 50, 1000, 'Size = ' + IntToStr(fWidth) + 'x' + IntToStr(fHeight), fntArial, taLeft);
 
-  TKMRenderUI.WriteText(100, 100, 1000, IntToStr(FTime) + ' / ' + IntToStr(FLenght), fntArial, taLeft)
+  TKMRenderUI.WriteText(100, 100, 1000, IntToStr(fTime) + ' / ' + IntToStr(fLength), fntArial, taLeft)
 
-  for i := 0 to FVideoList.Count - 1 do
+  for i := 0 to fVideoList.Count - 1 do
   begin
-    if i < FIndex then
-      TKMRenderUI.WriteText(100, 100 + i * 20 + 20, 1000, FVideoList[i] + ' - Ok', fntArial, taLeft)
-    else if i = FIndex then
-      TKMRenderUI.WriteText(100, 100 + i * 20 + 20, 1000, FVideoList[i] + ' - ' + IntToStr(FTime) + ' / ' + IntToStr(FLenght), fntArial, taLeft)
+    if i < fIndex then
+      TKMRenderUI.WriteText(100, 100 + i * 20 + 20, 1000, fVideoList[i] + ' - Ok', fntArial, taLeft)
+    else if i = fIndex then
+      TKMRenderUI.WriteText(100, 100 + i * 20 + 20, 1000, fVideoList[i] + ' - ' + IntToStr(fTime) + ' / ' + IntToStr(fLength), fntArial, taLeft)
     else
-      TKMRenderUI.WriteText(100, 100 + i * 20 + 20, 1000, FVideoList[i], fntArial, taLeft)
+      TKMRenderUI.WriteText(100, 100 + i * 20 + 20, 1000, fVideoList[i], fntArial, taLeft)
   end;
   }
 {$ENDIF}
@@ -396,11 +399,11 @@ begin
   if not IsActive then
     Exit;
 
-  //  Esc           Space         Enter
-  if (Key = 27) or (Key = 32) or (Key = 13) then
+  if Key in [vkEscape, vkSpace, vkReturn] then
     Stop;
 
-  if Key = 80 then // P
+  // Pause or Resume
+  if Key = vkP then
   begin
     if IsPlay then
       Pause
@@ -408,20 +411,18 @@ begin
       Resume;
   end;
 
-  if Key = 37 then
+  // Back by 1 second
+  if Key = vkLeft then
   begin
-    FTime := FTime - 1000;
-    if FTime <= 0 then
-      FTime := 0;
-    libvlc_media_player_set_time(FMediaPlayer, FTime);
+    fTime := Max(fTime - 1000, 0);
+    libvlc_media_player_set_time(fMediaPlayer, fTime);
   end;
 
-  if Key = 39 then
+  // Forward by 1 second
+  if Key = vkRight then
   begin
-    FTime := FTime + 1000;
-    if FTime >= FLenght then
-      FTime := FLenght;
-    libvlc_media_player_set_time(FMediaPlayer, FTime);
+    fTime := Min(fTime + 1000, fLength);
+    libvlc_media_player_set_time(fMediaPlayer, fTime);
   end;
 {$ENDIF}
 end;
@@ -432,7 +433,7 @@ begin
   if Self = nil then Exit(False);
   if not fPlayerEnabled then Exit(False);
 {$IFDEF VIDEOS}
-  Result := Assigned(FMediaPlayer) or (FVideoList.Count > 0);
+  Result := Assigned(fMediaPlayer) or (fVideoList.Count > 0);
 {$else}
   Result := False;
 {$ENDIF}
@@ -465,7 +466,7 @@ begin
   if Self = nil then Exit;
   if not fPlayerEnabled then Exit;
 {$IFDEF VIDEOS}
-  if FIndex >= FVideoList.Count then Exit;
+  if fIndex >= fVideoList.Count then Exit;
 
   if Assigned(gGameApp) then
   begin
@@ -475,7 +476,7 @@ begin
     gMusic.StopPlayingOtherFile;
 
     // Fade music immediately for starting video
-    if ( FVideoList[FIndex].Kind = vfkStarting ) then
+    if ( fVideoList[fIndex].Kind = vfkStarting ) then
       gMusic.Fade(0)
     else
       gMusic.Fade(FADE_MUSIC_TIME);
@@ -484,23 +485,23 @@ begin
     gMusic.SetPlayerVolume(0);
   end;
 
-  FTrackList.Clear;
-  FWidth := 0;
-  FHeight := 0;
+  fTrackList.Clear;
+  fWidth := 0;
+  fHeight := 0;
 
-  FBrightness := gGameSettings.GFX.Brightness;
+  fBrightness := gGameSettings.GFX.Brightness;
 
   // Minimum brightness for video is 1, otherwise we would see white screen
   // Todo: Check if render parameters are set correctly,
   // because we probably help to draw it with our Brightness 1,
   // while it should be fine with Brightness 0 regardless
-  if FBrightness = 0 then
+  if fBrightness = 0 then
     gGameSettings.GFX.Brightness := 1;
 
-  path := FVideoList[FIndex].Path;
+  path := fVideoList[fIndex].Path;
 
-  FInstance := libvlc_new(0, nil);
-  media := libvlc_media_new_path(FInstance, PAnsiChar(UTF8Encode((path))));
+  fInstance := libvlc_new(0, nil);
+  media := libvlc_media_new_path(fInstance, PAnsiChar(UTF8Encode((path))));
   try
     libvlc_media_parse(media);
     trackCount := libvlc_media_tracks_get(media, Pointer(tracks));
@@ -513,30 +514,30 @@ begin
         case track.TrackType of
           vlcttVideo:
             begin
-              FWidth := track.Union.Video.Width;
-              FHeight := track.Union.Video.Height;
+              fWidth := track.Union.Video.Width;
+              fHeight := track.Union.Video.Height;
             end;
           vlcttAudio:
             begin
               if track.Language <> nil then
-                FTrackList.AddObject(UpperCase(string(track.Language)), TObject(track.Id));
+                fTrackList.AddObject(UpperCase(string(track.Language)), TObject(track.Id));
             end;
         end;
       end;
     end;
 
-    if(FWidth > 0) and (FHeight > 0) then
+    if(fWidth > 0) and (fHeight > 0) then
     begin
-      SetLength(FBuffer, FWidth * FHeight * 3);
-      FTexture.Tex := TKMRender.GenerateTextureCommon(ftLinear, ftLinear);
+      SetLength(fBuffer, fWidth * fHeight * 3);
+      fTexture.Tex := TKMRender.GenerateTextureCommon(ftLinear, ftLinear);
 
-      FMediaPlayer := libvlc_media_player_new_from_media(media);
-      libvlc_video_set_format(FMediaPlayer, 'RV24', FWidth, FHeight, FWidth * 3);
-      libvlc_video_set_callbacks(FMediaPlayer, @VLCLock, @VLCUnlock, nil, nil);
-      //libvlc_media_player_set_hwnd(FMediaPlayer, Pointer(FPanel.Handle));
-      libvlc_media_player_play(FMediaPlayer);
+      fMediaPlayer := libvlc_media_player_new_from_media(media);
+      libvlc_video_set_format(fMediaPlayer, 'RV24', fWidth, fHeight, fWidth * 3);
+      libvlc_video_set_callbacks(fMediaPlayer, @VLCLock, @VLCUnlock, nil, nil);
+      //libvlc_media_player_set_hwnd(fMediaPlayer, Pointer(FPanel.Handle));
+      libvlc_media_player_play(fMediaPlayer);
       SetTrackByLocale;
-      libvlc_audio_set_volume(FMediaPlayer, Round(gGameSettings.Video.VideoVolume * 100));
+      libvlc_audio_set_volume(fMediaPlayer, Round(gGameSettings.Video.VideoVolume * 100));
     end
     else
       Stop;
@@ -554,28 +555,28 @@ begin
   if Self = nil then Exit;
   if not fPlayerEnabled then Exit;
 
-  if Assigned(FMediaPlayer) then
+  if Assigned(fMediaPlayer) then
   begin
-    libvlc_media_player_stop(FMediaPlayer);
-    while libvlc_media_player_is_playing(FMediaPlayer) = 1 do
+    libvlc_media_player_stop(fMediaPlayer);
+    while libvlc_media_player_is_playing(fMediaPlayer) = 1 do
       Sleep(100);
 
-    libvlc_media_player_release(FMediaPlayer);
-    FMediaPlayer := nil;
+    libvlc_media_player_release(fMediaPlayer);
+    fMediaPlayer := nil;
   end;
 
-  if Assigned(FInstance) then
+  if Assigned(fInstance) then
   begin
-    libvlc_release(FInstance);
-    FInstance := nil;
+    libvlc_release(fInstance);
+    fInstance := nil;
   end;
 
-  if FTexture.Tex > 0 then
+  if fTexture.Tex > 0 then
   begin
-    TKMRender.DeleteTexture(FTexture.Tex);
-    FTexture.Tex := 0;
+    TKMRender.DeleteTexture(fTexture.Tex);
+    fTexture.Tex := 0;
   end;
-  SetLength(FBuffer, 0);
+  SetLength(fBuffer, 0);
 end;
 {$ENDIF}
 
@@ -592,12 +593,12 @@ begin
 
   StopVideo;
 
-  startingVideo := ( FVideoList[FIndex].Kind = vfkStarting );
-  Inc(FIndex);
-  if FIndex >= FVideoList.Count then
+  startingVideo := ( fVideoList[fIndex].Kind = vfkStarting );
+  Inc(fIndex);
+  if fIndex >= fVideoList.Count then
   begin
-    FIndex := 0;
-    FVideoList.Clear;
+    fIndex := 0;
+    fVideoList.Clear;
     if Assigned(gGameApp) then
     begin
       if startingVideo then
@@ -607,12 +608,12 @@ begin
     end;
 
     // Restore brightness
-    gGameSettings.GFX.Brightness := FBrightness;
+    gGameSettings.GFX.Brightness := fBrightness;
 
-    if Assigned(FCallback) then
+    if Assigned(fCallback) then
     begin
-      FCallback;
-      FCallback := nil;
+      fCallback;
+      fCallback := nil;
     end;
   end
   else
@@ -698,16 +699,16 @@ begin
   if Self = nil then Exit;
   if not fPlayerEnabled then Exit;
 
-  if FTrackList.Count = 0 then Exit;
+  if fTrackList.Count = 0 then Exit;
 
-  if not FTrackList.Find(UpperCase(string(gResLocales.UserLocale)), trackIndex) and
-    not FTrackList.Find(UpperCase(string(gResLocales.FallbackLocale)), trackIndex) and
-    not FTrackList.Find(UpperCase(string(gResLocales.DefaultLocale)), trackIndex) then
+  if not fTrackList.Find(UpperCase(string(gResLocales.UserLocale)), trackIndex) and
+    not fTrackList.Find(UpperCase(string(gResLocales.FallbackLocale)), trackIndex) and
+    not fTrackList.Find(UpperCase(string(gResLocales.DefaultLocale)), trackIndex) then
     Exit;
 
-  trackId := Integer(FTrackList.Objects[trackIndex]);
+  trackId := Integer(fTrackList.Objects[trackIndex]);
 
-  while Assigned(FMediaPlayer) and (libvlc_audio_set_track(FMediaPlayer, trackId) < 0) do
+  while Assigned(fMediaPlayer) and (libvlc_audio_set_track(fMediaPlayer, trackId) < 0) do
     Sleep(TIME_STEP);
 end;
 
@@ -716,9 +717,10 @@ function TKMVideoPlayer.GetState: TVLCPlayerState;
 begin
   Result := vlcpsNothingSpecial;
   if IsActive then
-    Result := libvlc_media_player_get_state(FMediaPlayer);
+    Result := libvlc_media_player_get_state(fMediaPlayer);
 end;
 {$ENDIF}
+
 
 end.
 

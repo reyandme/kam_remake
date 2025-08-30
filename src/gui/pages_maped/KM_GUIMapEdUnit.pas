@@ -2,11 +2,10 @@ unit KM_GUIMapEdUnit;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, KromUtils, Math, StrUtils, SysUtils,
-   Controls,
+   Classes, Math, StrUtils, SysUtils, Controls,
+   KromUtils,
    KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsEdit, KM_ControlsProgressBar,
-   KM_Defaults, KM_Pics, KM_Units, KM_UnitGroup,
-   KM_Points, KM_InterfaceGame;
+   KM_Pics, KM_Units, KM_UnitGroup;
 
 type
   TKMMapEdUnit = class
@@ -20,9 +19,9 @@ type
     procedure Unit_ArmyChange1(Sender: TObject);
     procedure Unit_ArmyChangeShift(Sender: TObject; Shift: TShiftState);
     procedure Unit_ArmyChange2(Sender: TObject; Shift: TShiftState);
-    procedure Unit_ArmyClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+    procedure Unit_ArmyClickHold(Sender: TObject; aButton: TMouseButton; var aHandled: Boolean);
     procedure UnitConditionsChange(Sender: TObject; Shift: TShiftState);
-    procedure UnitConditionsClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+    procedure UnitConditionsClickHold(Sender: TObject; aButton: TMouseButton; var aHandled: Boolean);
     procedure UnitFishCntChange(Sender: TObject);
   protected
     Panel_Unit: TKMPanel;
@@ -60,13 +59,13 @@ implementation
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
+  KM_Defaults, KM_Points,
+  KM_InterfaceGame, KM_InterfaceTypes,
   KM_HandsCollection, KM_HandTypes, KM_HandEntity,
   KM_RenderUI,
   KM_Resource, KM_ResFonts, KM_ResTexts, KM_ResUnits, KM_ResTypes,
-  KM_Game,
-  KM_UtilsExt, KM_Terrain,
+  KM_Game, KM_UtilsExt, KM_Terrain,
   KM_UnitGroupTypes,
-  KM_InterfaceTypes,
   KM_MapEdTypes;
 
 
@@ -299,7 +298,7 @@ begin
 end;
 
 
-procedure TKMMapEdUnit.UnitConditionsClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+procedure TKMMapEdUnit.UnitConditionsClickHold(Sender: TObject; aButton: TMouseButton; var aHandled: Boolean);
 begin
   if (Sender = Button_ConditionDec)
     or (Sender = Button_ConditionInc) then
@@ -399,7 +398,7 @@ begin
 end;
 
 
-procedure TKMMapEdUnit.Unit_ArmyClickHold(Sender: TObject; AButton: TMouseButton; var aHandled: Boolean);
+procedure TKMMapEdUnit.Unit_ArmyClickHold(Sender: TObject; aButton: TMouseButton; var aHandled: Boolean);
 begin
   if (Sender = Button_ArmyDec)
     or (Sender = Button_ArmyInc) then

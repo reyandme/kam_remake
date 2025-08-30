@@ -122,7 +122,7 @@ begin
     Image_ChatClose.HighlightOnMouseOver := True;
 
     // Use special mode for PopUpMenu, when action is triggered by dragging (down and move) through the list
-    Menu_Chat := TKMPopUpMenu.Create(aParent, 120, pmmActionOnMouseDownNMove);
+    Menu_Chat := TKMPopUpMenu.Create(aParent, 120, pmActOnMouseDownNMove);
     Menu_Chat.Anchors := [anLeft, anBottom];
     //Menu gets populated right before show
     Menu_Chat.AddItem(NO_TEXT);
@@ -171,7 +171,7 @@ begin
   if fUIMode in [umMP, umSpectate] then
     gNetworking.PostLocalMessage(aMsg, csChat)
   else if Assigned(fOnChatMessage) then
-    fOnChatMessage(aMsg)
+    fOnChatMessage(aMsg);
 end;
 
 
@@ -220,7 +220,7 @@ begin
                                      csSystem);
         Chat_MenuSelect(CHAT_MENU_ALL);
       end else
-        gGameApp.Chat.Post
+        gGameApp.Chat.Post;
     end else
       gGameApp.Chat.Post;
   end;

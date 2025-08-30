@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils,
   KM_GUICommonOptions,
-  KM_Controls, KM_ControlsPopUp,
+  KM_Controls, KM_ControlsForm,
   KM_CommonTypes, KM_GUICommonKeys;
 
 type
@@ -16,7 +16,7 @@ type
     function GetCaption: string;
     procedure SetCaption(const aValue: string);
   protected
-    PopUpPanel_Settings: TKMPopUpPanel;
+    Form_Settings: TKMForm;
     Panel_Settings: TKMPanel;
   public
     constructor Create(aParent: TKMPanel; aCaption: string; aOnKeysUpdated: TKMEvent);
@@ -47,15 +47,15 @@ const
 begin
   inherited Create;
 
-  PopUpPanel_Settings := TKMPopUpPanel.Create(aParent.MasterParent, W_PNL, H_PNL, aCaption, pbYellow, False, False);
-  PopUpPanel_Settings.HandleCloseKey := True;
-  PopUpPanel_Settings.CapOffsetY := -5;
+  Form_Settings := TKMForm.Create(aParent.MasterParent, W_PNL, H_PNL, aCaption, fbYellow, False, False);
+  Form_Settings.HandleCloseKey := True;
+  Form_Settings.CapOffsetY := -5;
 
-  Panel_Settings := TKMPanel.Create(PopUpPanel_Settings.ItemsPanel, 0, 0, W_PNL, H_PNL);
+  Panel_Settings := TKMPanel.Create(Form_Settings.ItemsPanel, 0, 0, W_PNL, H_PNL);
 
   fGUICommonOptions := TKMGUICommonOptions.Create(Panel_Settings, guiOptGame, CloseClick, aOnKeysUpdated);
 
-  PopUpPanel_Settings.Hide;
+  Form_Settings.Hide;
 end;
 
 
@@ -69,19 +69,19 @@ end;
 
 function TKMGUICommonGameOptions.GetCaption: string;
 begin
-  Result := PopUpPanel_Settings.CaptionLabel.Caption;
+  Result := Form_Settings.Caption;
 end;
 
 
 procedure TKMGUICommonGameOptions.SetCaption(const aValue: string);
 begin
-  PopUpPanel_Settings.CaptionLabel.Caption := aValue;
+  Form_Settings.Caption := aValue;
 end;
 
 
 procedure TKMGUICommonGameOptions.CloseClick;
 begin
-  PopUpPanel_Settings.Hide;
+  Form_Settings.Hide;
 end;
 
 
@@ -93,21 +93,21 @@ end;
 
 procedure TKMGUICommonGameOptions.Hide;
 begin
-  PopUpPanel_Settings.Hide;
+  Form_Settings.Hide;
 end;
 
 
 procedure TKMGUICommonGameOptions.Show;
 begin
   Refresh;
-  PopUpPanel_Settings.Show;
-  PopUpPanel_Settings.Focus; // To be able to handle KeyUp
+  Form_Settings.Show;
+  Form_Settings.Focus; // To be able to handle KeyUp
 end;
 
 
 function TKMGUICommonGameOptions.Visible: Boolean;
 begin
-  Result := PopUpPanel_Settings.Visible;
+  Result := Form_Settings.Visible;
 end;
 
 

@@ -2,7 +2,7 @@ unit KM_FormMain;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, StrUtils, Classes, Math,
+  Classes,
   ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Menus, StdCtrls,
   KM_RenderControl, KM_CommonTypes,
   KM_WindowParams, KM_SettingsDev, KM_GameTypes,
@@ -423,6 +423,7 @@ type
 
 implementation
 uses
+  SysUtils, StrUtils, Math,
   {$IFDEF WDC} UITypes, {$ENDIF}
   {$IFDEF FASTMM} FastMM4, {$ENDIF}
   TypInfo,
@@ -798,7 +799,7 @@ end;
 
 procedure TFormMain.mnExportUnitsDatClick(Sender: TObject);
 begin
-  gRes.Units.ExportCSV(ExeDir + 'Export' + PathDelim + 'units.dat.csv')
+  gRes.Units.ExportCSV(ExeDir + 'Export' + PathDelim + 'units.dat.csv');
 end;
 
 
@@ -1004,7 +1005,7 @@ end;
 
 procedure TFormMain.mnExportHousesDatClick(Sender: TObject);
 begin
-  gRes.Houses.ExportCSV(ExeDir + 'Export' + PathDelim + 'houses.dat.csv')
+  gRes.Houses.ExportCSV(ExeDir + 'Export' + PathDelim + 'houses.dat.csv');
 end;
 
 
@@ -1295,7 +1296,7 @@ begin
     if aCtrl = tbWaterLight then
       TTrackBar(aCtrl).Position := Round(DEFAULT_WATER_LIGHT_MULTIPLIER * 100)
     else
-      TTrackBar(aCtrl).Position := 0
+      TTrackBar(aCtrl).Position := 0;
   end
   else
   if (aCtrl is TRadioGroup)
@@ -1430,7 +1431,7 @@ begin
     if aEntity2UID = UID_NONE then
       aEntity2UID := aEntityUID;
     seFindObjByUID.Value := aEntity2UID; // will trigger OnChange
-  end
+  end;
 end;
 
 
@@ -1994,11 +1995,10 @@ begin
                       ABE_TOP:  begin
                                   Result.Left := wp.rcNormalPosition.Left;
                                   Result.Top := wp.rcNormalPosition.Top + rect.Bottom;
-                                end
-                      else      begin
-                                  Result.Left := wp.rcNormalPosition.Left;
-                                  Result.Top := wp.rcNormalPosition.Top;
                                 end;
+                    else
+                      Result.Left := wp.rcNormalPosition.Left;
+                      Result.Top := wp.rcNormalPosition.Top;
                     end;
                   end;
   end;

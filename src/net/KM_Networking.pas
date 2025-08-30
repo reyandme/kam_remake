@@ -1410,7 +1410,8 @@ procedure TKMNetworking.HandleMessagePlayerDisconnected(aSenderIndex: TKMNetHand
 
   //Post local message about player disconnection
   procedure PostPlayerDisconnectedMsg(aSlotIndex: Integer);
-  var quitMsgId: Integer;
+  var
+    quitMsgId: Integer;
   begin
     if IsPlayerHandStillInGame(aSlotIndex) then
       quitMsgId := IfThen(fHostSlotIndex = aSlotIndex, TX_MULTIPLAYER_HOST_DISCONNECTED_DEFEATED, TX_NET_HAS_QUIT_AND_DEFEATED)
@@ -1532,7 +1533,8 @@ end;
 function TKMNetworking.GetNetAddressPrintDescr(aNetworkAddress: Integer): String;
 
   function GetNetPlayerDescr: String;
-  var slotIndex: Integer;
+  var
+    slotIndex: Integer;
   begin
     slotIndex := fNetRoom.ServerToLocal(aNetworkAddress);
     if slotIndex = -1 then

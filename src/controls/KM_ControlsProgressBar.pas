@@ -211,14 +211,15 @@ begin
 
   fMarks := TList<Integer>.Create;
 
-  // Subscribe to get other controls mouse move events
-  aParent.MasterControl.AddMouseMoveCtrlSub(ControlMouseMove);
+  aParent.MasterControl.SubscribeOnOtherMouseMove(ControlMouseMove);
 end;
 
 
 destructor TKMReplayBar.Destroy;
 begin
   FreeAndNil(fMarks);
+
+  inherited;
 end;
 
 

@@ -2,9 +2,9 @@ unit KM_GUIMapEdMenuSave;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, SysUtils,
-   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsSwitch,
-   KM_Maps, KM_InterfaceGame, KM_CommonTypes, KM_ResFonts;
+  Classes, SysUtils,
+  KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsSwitch,
+  KM_InterfaceGame, KM_CommonTypes, KM_ResFonts;
 
 
 type
@@ -35,7 +35,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_GameParams, KM_RenderUI, KM_ResTexts, KM_InterfaceDefaults, KM_InterfaceTypes;
+  KM_Maps, KM_Game, KM_GameParams, KM_RenderUI, KM_ResTexts, KM_InterfaceDefaults, KM_InterfaceTypes;
 
 
 { TKMMapEdMenuSave }

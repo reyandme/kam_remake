@@ -15,27 +15,19 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Start(const aParameterRecord: TCLIParamRecord);
+    procedure ShowHeader;
     procedure ShowHelp;
   end;
 
 const
-  MAPUTIL_VERSION_MAJOR = '2';
-  MAPUTIL_VERSION_MINOR = '03';
-var
-  MAPUTIL_VERSION: String;
-const
-  MAPUTIL_START_TEXT    = '' + sLineBreak +
+  MAPUTIL_START_TEXT  =
     '++=====================================================================================++' + sLineBreak +
-    '++=====================================================================================++' + sLineBreak +
-    '||                             KaM Remake Map Utility                                  ||' + sLineBreak +
-    '++=====================================================================================++' + sLineBreak +
-    '++=====================================================================================++' + sLineBreak;
-  MAPUTIL_HELP_TEXT     = '' +
-    '++=====================================================================================++' + sLineBreak +
+    '||                             KaM Remake Map Utility v2.04                            ||' + sLineBreak +
+    '++=====================================================================================++';
+
+  MAPUTIL_HELP_TEXT   =
     '||                                                                                     ||' + sLineBreak +
-    '||  Map Utility has a few options.                                                     ||' + sLineBreak +
-    '||  Main function of this tool is to generate a minimap from map files                 ||' + sLineBreak +
-    '||  Below we will show these options and give a brief explanation what they do.        ||' + sLineBreak +
+    '||  Map Utility is the tool to generate a minimap PNG image from map files             ||' + sLineBreak +
     '||                                                                                     ||' + sLineBreak +
     '||=====================================================================================||' + sLineBreak +
     '||                                                                                     ||' + sLineBreak +
@@ -44,10 +36,15 @@ const
     '||                                                                                     ||' + sLineBreak +
     '||  Options:                                                                           ||' + sLineBreak +
     '||    -h / -help               - Will show this menu                                   ||' + sLineBreak +
-    '||    -a / -revealAll          - Reveal all map on the generated png (default option)  ||' + sLineBreak +
-    '||    -p / -revealPlayers      - Reveal what will players view on the generated png    ||' + sLineBreak +
+    '||    -a / -revealAll          - Reveal whole map (default option)                     ||' + sLineBreak +
+    '||    -p / -revealPlayers      - Reveal what players will see                          ||' + sLineBreak +
     '||    -m / -revealByMapSetting - Reveal according to the map setting `BlockMapPreview` ||' + sLineBreak +
     '||    -o / -outputFile         - Sets path to the output file                          ||' + sLineBreak +
+    '||                                                                                     ||' + sLineBreak +
+    '||  Examples:                                                                          ||' + sLineBreak +
+    '||    MapUtil /NewMission/NewMission.dat                                               ||' + sLineBreak +
+    '||    MapUtil -o image.png /NewMission/NewMission.dat                                  ||' + sLineBreak +
+    '||    MapUtil -p /NewMission/NewMission.dat -o image.png                               ||' + sLineBreak +
     '||                                                                                     ||' + sLineBreak +
     '||=====================================================================================||' + sLineBreak;
 
@@ -71,7 +68,6 @@ constructor TConsoleMain.Create;
 begin
   inherited;
 
-  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'MapUtil.log');
   fMinimap := TKMMinimapMission.Create(True);
 
   gRes := TKMResource.Create(nil, nil);
@@ -84,7 +80,6 @@ begin
   FreeAndNil(fMinimap);
   //@Rey: We might need to free what we have created
   //todo: FreeAndNil(gRes);
-  //todo: FreeAndNil(gLog);
 
   inherited;
 end;
@@ -147,6 +142,12 @@ end;
 procedure TConsoleMain.Start(const aParameterRecord: TCLIParamRecord);
 begin
   GenerateAndSaveMapMinimapImage(aParameterRecord.MapDatPath, aParameterRecord.FOWType, aParameterRecord.OutputFile);
+end;
+
+
+procedure TConsoleMain.ShowHeader;
+begin
+  Writeln(MAPUTIL_START_TEXT);
 end;
 
 

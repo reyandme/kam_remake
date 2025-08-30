@@ -2,7 +2,6 @@ unit KM_HouseSchool;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math,
   KM_CommonClasses, KM_Defaults,
   KM_Houses,
   KM_ResTypes;
@@ -49,8 +48,8 @@ type
 
 implementation
 uses
-  KM_Entity,
-  KM_Units,
+  Math,
+  KM_Entity, KM_Units,
   KM_HandsCollection, KM_Hand, KM_HandTypes, KM_HandEntity;
 
 
@@ -93,7 +92,9 @@ var
 begin
   for I := 1 to High(fQueue) do
     PrivateQueue[I] := utNone;
-  RemUnitFromQueue(0); //Remove WIP unit
+
+  // Remove WIP unit
+  RemUnitFromQueue(0);
 
   inherited;
 end;
@@ -249,9 +250,9 @@ procedure TKMHouseSchool.StartTrainingUnit;
 var
   I: Integer;
 begin
-  if fQueue[0] <> utNone then exit; //If there's currently no unit in training
-  if fQueue[1] = utNone then exit; //If there is a unit waiting to be trained
-  if CheckWareIn(wtGold) = 0 then exit; //There must be enough gold to perform training
+  if fQueue[0] <> utNone then Exit; //If there's currently no unit in training
+  if fQueue[1] = utNone then Exit; //If there is a unit waiting to be trained
+  if CheckWareIn(wtGold) = 0 then Exit; //There must be enough gold to perform training
 
   for I := 0 to High(fQueue) - 1 do
     PrivateQueue[I] := fQueue[I+1]; //Shift by one
@@ -295,11 +296,11 @@ begin
     Result := 0
   else
     Result := (
-              Byte(haWork2 in CurrentAction.SubAction) * 30 +
-              Byte(haWork3 in CurrentAction.SubAction) * 60 +
-              Byte(haWork4 in CurrentAction.SubAction) * 90 +
-              Byte(haWork5 in CurrentAction.SubAction) * 120 +
-              Byte(CurrentAction.State = hstWork) * WorkAnimStep
+              Ord(haWork2 in CurrentAction.SubAction) * 30 +
+              Ord(haWork3 in CurrentAction.SubAction) * 60 +
+              Ord(haWork4 in CurrentAction.SubAction) * 90 +
+              Ord(haWork5 in CurrentAction.SubAction) * 120 +
+              Ord(CurrentAction.State = hstWork) * WorkAnimStep
               ) / 150;
 end;
 
@@ -334,7 +335,7 @@ begin
   Result := -1;
   for I := 0 to High(fQueue) do
     if fQueue[I] <> utNone then
-      Result := I
+      Result := I;
 end;
 
 

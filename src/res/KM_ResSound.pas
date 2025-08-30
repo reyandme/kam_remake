@@ -2,13 +2,13 @@ unit KM_ResSound;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, TypInfo,
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  KromUtils, KM_Defaults;
+  KM_Defaults;
 
 type
   TAttackNotification = (anCitizens, anTown, anTroops);
 
+  // Original sound effects list from KaM
   TSoundFX = (
     sfxNone=0,
     sfxCornCut,
@@ -67,6 +67,7 @@ type
     sfxCatapultReload,
     sfxSiegeBuildingSmash);
 
+  // New sound effects added by KMR
   TSoundFXNew = (
     sfxnButtonClick,
     sfxnTrade,
@@ -81,7 +82,7 @@ type
     sfxnError,
     sfxnPeacetime);
 
-  //Sounds to play on different warrior orders
+  // Sounds to play on different warrior orders
   TWarriorSpeech = (
     spSelect, spEat, spRotLeft, spRotRight, spSplit,
     spJoin, spHalt, spMove, spAttack, spFormation,
@@ -103,17 +104,29 @@ type
     DataSize: Integer; //Extension
   end;
 
+  // Actually this is WAV structure
   TKMSoundData = record
     Head: TWAVHeaderEx;
-    Data: array of byte;
-    Foot: array of byte;
-    IsLoaded: boolean;
+    Data: array of Byte;
+    Foot: array of Byte; // Contains optional WAV chunks
+
+    // Our custom field, should be probably moved out
+    IsLoaded: Boolean;
+  end;
+
+  TKMSoundProp = packed record
+    SampleRate: Integer;
+    Volume: Integer; // Untested, but I'm quite sure it is volume (see KM_SoundFX.pas from 14.07.2009)
+    E, F, G, H, I, J, K, L: Word; // Unknown, but have some values
+    Id: Word;
   end;
 
   TKMSoundType = (stGame, stMenu);
 
   TKMResSounds = class
   private
+    fWavesCount: Integer;
+
     fLocaleString: AnsiString; //Locale used to access warrior sounds
 
     fWarriorUseBackup: array[WARRIOR_MIN..WARRIOR_MAX] of boolean;
@@ -123,8 +136,8 @@ type
     function LoadWarriorSoundsFromFile(const aFile: string): Boolean;
     procedure SaveWarriorSoundsToFile(const aFile: string);
   public
-    fWavesCount: integer;
     fWaves: array of TKMSoundData;
+    fWaveProps: array of TKMSoundProp;
 
     NotificationSoundCount: array[TAttackNotification] of byte;
     WarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
@@ -141,12 +154,16 @@ type
     function GetSoundType(aSFX: TWarriorSpeech): TKMSoundType; overload;
     function GetSoundType(aSFX: TAttackNotification): TKMSoundType; overload;
 
+    property WavesCount: Integer read fWavesCount;
+
     procedure ExportSounds;
   end;
 
 
 implementation
 uses
+  System.Classes, System.SysUtils, System.TypInfo, System.Math, System.StrUtils,
+  KromUtils,
   KM_CommonClasses;
 
 
@@ -205,6 +222,67 @@ const
     'Misc' + PathDelim + 'PeaceTime.wav');
 
 
+  // Const because RTTI is so clunky and slow
+  SFX_NAME: array [TSoundFX] of string = (
+    'sfxNone',
+    'sfxCornCut',
+    'sfxDig',
+    'sfxPave',
+    'sfxMineStone',
+    'sfxCornSow',
+    'sfxChopTree',
+    'sfxhousebuild',
+    'sfxplacemarker',
+    'sfxClick',
+    'sfxmill',
+    'sfxsaw',
+    'sfxwineStep',
+    'sfxwineDrain',
+    'sfxmetallurgists',
+    'sfxcoalDown',
+    'sfxPig1', 'sfxPig2', 'sfxPig3', 'sfxPig4',
+    'sfxMine',
+    'sfxunknown21', //Pig?
+    'sfxLeather',
+    'sfxBakerSlap',
+    'sfxCoalMineThud',
+    'sfxButcherCut',
+    'sfxSausageString',
+    'sfxQuarryClink',
+    'sfxTreeDown',
+    'sfxWoodcutterDig',
+    'sfxCantPlace',
+    'sfxMessageOpen',
+    'sfxMessageClose',
+    'sfxMessageNotice',
+    //Usage of melee sounds can be found in Docs\Melee sounds in KaM.csv
+    'sfxMelee34', 'sfxMelee35', 'sfxMelee36', 'sfxMelee37', 'sfxMelee38',
+    'sfxMelee39', 'sfxMelee40', 'sfxMelee41', 'sfxMelee42', 'sfxMelee43',
+    'sfxMelee44', 'sfxMelee45', 'sfxMelee46', 'sfxMelee47', 'sfxMelee48',
+    'sfxMelee49', 'sfxMelee50', 'sfxMelee51', 'sfxMelee52', 'sfxMelee53',
+    'sfxMelee54', 'sfxMelee55', 'sfxMelee56', 'sfxMelee57',
+    'sfxBowDraw',
+    'sfxArrowHit',
+    'sfxCrossbowShoot',  //60
+    'sfxCrossbowDraw',
+    'sfxBowShoot',       //62
+    'sfxBlacksmithBang',
+    'sfxBlacksmithFire',
+    'sfxCarpenterHammer', //65
+    'sfxHorse1', 'sfxHorse2', 'sfxHorse3', 'sfxHorse4',
+    'sfxRockThrow',
+    'sfxHouseDestroy',
+    'sfxSchoolDing',
+    //Below are TPR sounds ...
+    'sfxSlingerShoot',
+    'sfxBalistaShoot',
+    'sfxCatapultShoot',
+    'sfxunknown76',
+    'sfxCatapultReload',
+    'sfxSiegeBuildingSmash'
+  );
+
+
 { TKMResSounds }
 constructor TKMResSounds.Create(const aLocale, aFallback, aDefault: AnsiString);
 begin
@@ -228,43 +306,92 @@ end;
 
 procedure TKMResSounds.LoadSoundsDAT;
 var
-  S: TMemoryStream;
   Head: record Size, Count: Word; end;
-  Tab1: array[1..200] of Integer;
-  Tab2: array[1..200] of SmallInt;
-  I, Tmp: Integer;
+  WAVSize: array [1..200] of Integer;
+  Tab2: array [1..200] of SmallInt;
+  soundFlag: array [1..200] of Integer;
+  footerSize: array [1..200] of Integer;
 begin
   if not FileExists(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'sounds.dat') then Exit;
 
-  S := TMemoryStream.Create;
-  S.LoadFromFile(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'sounds.dat');
-  S.Read(Head, 4);
-  S.Read(Tab1, Head.Count*4); //Read Count*4bytes into Tab1(WaveSizes)
-  S.Read(Tab2, Head.Count*2); //Read Count*2bytes into Tab2(No idea what is it)
+  var memoryStream := TMemoryStream.Create;
+  try
+    memoryStream.LoadFromFile(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'sounds.dat');
+    memoryStream.Read(Head, 4);
+    memoryStream.Read(WAVSize, Head.Count*4); //Read Count*4bytes into WAVSize(WaveSizes)
+    memoryStream.Read(Tab2, Head.Count*2); //Read Count*2bytes into Tab2(No idea what is it)
 
-  fWavesCount := Head.Count;
-  SetLength(fWaves, fWavesCount+1);
+    fWavesCount := Head.Count;
+    SetLength(fWaves, fWavesCount+1);
 
-  for I := 1 to Head.Count do
-  begin
-    S.Read(Tmp, 4); //Always '1' for existing waves
-    if Tab1[I] <> 0 then begin
-      S.Read(fWaves[I].Head, SizeOf(fWaves[I].Head));
-      SetLength(fWaves[I].Data, fWaves[I].Head.DataSize);
-      S.Read(fWaves[I].Data[0], fWaves[I].Head.DataSize);
-      SetLength(fWaves[I].Foot, Tab1[I]-SizeOf(fWaves[I].Head)-fWaves[I].Head.DataSize);
-      S.Read(fWaves[I].Foot[0], Tab1[I]-SizeOf(fWaves[I].Head)-fWaves[I].Head.DataSize);
+    for var I := 1 to Head.Count do
+    begin
+      footerSize[I] := 0;
+
+      memoryStream.Read(soundFlag[I], 4); // Always '1' for existing waves
+
+      if WAVSize[I] <> 0 then
+      begin
+        // Wave header
+        memoryStream.Read(fWaves[I].Head, SizeOf(fWaves[I].Head));
+
+        // Wave data
+        SetLength(fWaves[I].Data, fWaves[I].Head.DataSize);
+        memoryStream.Read(fWaves[I].Data[0], fWaves[I].Head.DataSize);
+
+        // Footer contains optional LIST INFO chunks (start is aligned to 2-byte boundaries):
+        //  - ICOP - Copyright information about the file (e.g., "Copyright © Microsoft Corp. 1995")
+        //  - ICRD - The date the subject of the file was created (e.g., "1995-10-24.A")
+        //  - ISFT - Name of the software package used to create the file (e.g. "GoldWave v2.10 (C) Chris Craig")
+        // Since these chunks do not bear any functional load, we just ignore them
+        footerSize[I] := WAVSize[I] - SizeOf(fWaves[I].Head) - fWaves[I].Head.DataSize;
+        SetLength(fWaves[I].Foot, footerSize[I]);
+        memoryStream.Read(fWaves[I].Foot[0], footerSize[I]);
+      end;
+      fWaves[I].IsLoaded := True;
     end;
-    fWaves[I].IsLoaded := True;
+
+    var numberOfEntries: Integer;
+    memoryStream.Read(numberOfEntries, 4); // 400
+    SetLength(fWaveProps, numberOfEntries+1);
+    var t: Integer;
+    memoryStream.Read(t, 4); // 78
+    memoryStream.Read(t, 4); // 78
+    memoryStream.Read(t, 4); // 77
+    var entrySize: Integer;
+    memoryStream.Read(entrySize, 4); // 26
+
+    for var K := 1 to numberOfEntries do
+      memoryStream.Read(fWaveProps[K], entrySize);
+  finally
+    memoryStream.Free;
   end;
 
-  {BlockRead(f,c,20);
-  //Packed record
-  //SampleRate,Volume,a,b:integer;
-  //i,j,k,l,Index:word;
-  BlockRead(f,Props[1],26*Head.Count);}
+  // Special fix for Quarry:
+  // Not sure what exactly says that its SampleRate override should be ignored ..
+  // 22050 is much too fast for it, it sounds like 11025 in the original game
+  fWaveProps[Ord(sfxQuarryClink)].SampleRate := 11025;
 
-  S.Free;
+  if DBG_EXPORT_SOUNDS_DAT then
+  begin
+    var sl := TStringList.Create;
+    begin
+      sl.Append('Id  Name              WAVSize  Tab2   Rate   BPS  Length |   Rate  Volume   E    F    G    H    I    J    K    L   Id');
+      for var K := 1 to fWavesCount do
+      if Length(fWaves[K].Data) > 0 then
+      begin
+        var dur := Round(fWaves[K].Head.DataSize / Max(fWaves[K].Head.BytesPerSecond, 1) * 1000);
+
+        sl.Append(Format('%-3d %-18s %6d %5d %6d %2dbit %5dms | %6d %6d %4d %4d %4d %4d %4d %4d %4d %4d %4d',
+          [K, LeftStr(SFX_NAME[TSoundFX(K)], 18), WAVSize[K], Tab2[K], fWaves[K].Head.SampleRate, fWaves[K].Head.BitsPerSample, dur,
+          fWaveProps[K].SampleRate, fWaveProps[K].Volume, fWaveProps[K].E, fWaveProps[K].F, fWaveProps[K].G, fWaveProps[K].H, fWaveProps[K].I, fWaveProps[K].J, fWaveProps[K].K, fWaveProps[K].L, fWaveProps[K].Id
+          ]));
+      end;
+      sl.SaveToFile(ExeDir + 'export_sounds.txt');
+    end;
+    sl.Free;
+    Halt;
+  end;
 end;
 
 
@@ -425,41 +552,41 @@ end;
 function TKMResSounds.LoadWarriorSoundsFromFile(const aFile: string): Boolean;
 var
   S: AnsiString;
-  MS: TKMemoryStream;
+  memoryStream: TKMemoryStream;
 begin
   Result := False;
   if not FileExists(aFile) then Exit;
 
-  MS := TKMemoryStreamBinary.Create;
+  memoryStream := TKMemoryStreamBinary.Create;
   try
-    MS.LoadFromFile(aFile);
-    MS.ReadA(S);
+    memoryStream.LoadFromFile(aFile);
+    memoryStream.ReadA(S);
     if S = AnsiString(GAME_REVISION) then
     begin
-      MS.Read(WarriorSoundCount, SizeOf(WarriorSoundCount));
-      MS.Read(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
-      MS.Read(NotificationSoundCount, SizeOf(NotificationSoundCount));
+      memoryStream.Read(WarriorSoundCount, SizeOf(WarriorSoundCount));
+      memoryStream.Read(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
+      memoryStream.Read(NotificationSoundCount, SizeOf(NotificationSoundCount));
       Result := True;
     end;
   finally
-    MS.Free;
+    memoryStream.Free;
   end;
 end;
 
 
 procedure TKMResSounds.SaveWarriorSoundsToFile(const aFile: string);
 var
-  MS: TKMemoryStream;
+  memoryStream: TKMemoryStream;
 begin
-  MS := TKMemoryStreamBinary.Create;
+  memoryStream := TKMemoryStreamBinary.Create;
   try
-    MS.WriteA(GAME_REVISION);
-    MS.Write(WarriorSoundCount, SizeOf(WarriorSoundCount));
-    MS.Write(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
-    MS.Write(NotificationSoundCount, SizeOf(NotificationSoundCount));
-    MS.SaveToFile(aFile);
+    memoryStream.WriteA(GAME_REVISION);
+    memoryStream.Write(WarriorSoundCount, SizeOf(WarriorSoundCount));
+    memoryStream.Write(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
+    memoryStream.Write(NotificationSoundCount, SizeOf(NotificationSoundCount));
+    memoryStream.SaveToFile(aFile);
   finally
-    MS.Free;
+    memoryStream.Free;
   end;
 end;
 

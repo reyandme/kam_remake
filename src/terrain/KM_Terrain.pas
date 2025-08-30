@@ -1926,23 +1926,24 @@ type
   end;
 
   function Get90DegreeSectorRect: TKMRect;
-  var IntegerRadius: Integer;
+  var
+    intRadius: Integer;
   begin
     //Scan one tile further than the maximum radius due to rounding
-    IntegerRadius := Round(aMaxRad + 1);  //1.42 gets rounded to 1
+    intRadius := Round(aMaxRad + 1);  //1.42 gets rounded to 1
 
     //If direction is east we can skip left half
-    if aDir in [dirNE, dirE, dirSE] then Result.Left := aLoc.X+1
-                                      else Result.Left := aLoc.X-IntegerRadius;
+    if aDir in [dirNE, dirE, dirSE] then Result.Left := aLoc.X + 1
+                                    else Result.Left := aLoc.X - intRadius;
     //If direction is west we can skip right half
-    if aDir in [dirNW, dirW, dirSW] then Result.Right := aLoc.X-1
-                                      else Result.Right := aLoc.X+IntegerRadius;
+    if aDir in [dirNW, dirW, dirSW] then Result.Right := aLoc.X - 1
+                                    else Result.Right := aLoc.X + intRadius;
     //If direction is south we can skip top half
-    if aDir in [dirSE, dirS, dirSW] then Result.Top := aLoc.Y+1
-                                      else Result.Top := aLoc.Y-IntegerRadius;
+    if aDir in [dirSE, dirS, dirSW] then Result.Top := aLoc.Y + 1
+                                    else Result.Top := aLoc.Y - intRadius;
     //If direction is north we can skip bottom half
-    if aDir in [dirNE, dirN, dirNW] then Result.Bottom := aLoc.Y-1
-                                      else Result.Bottom := aLoc.Y+IntegerRadius;
+    if aDir in [dirNE, dirN, dirNW] then Result.Bottom := aLoc.Y - 1
+                                    else Result.Bottom := aLoc.Y + intRadius;
 
     Result := KMClipRect(Result, 1, 1, fMapX, fMapY); //Clip to map bounds
   end;
@@ -5385,14 +5386,15 @@ end;
 //This whole thing is very CPU intesive, updating whole (256*256) tiles map
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TKMTerrain.UpdateState;
-  procedure SetLand(aTile: Word; const X, Y, aObj: Word);
-  var FloodfillNeeded: Boolean;
+  procedure SetLand(aTile: Word; const aX, aY, aObj: Word);
+  var
+    floodfillNeeded: Boolean;
   begin
-    Land^[Y,X].BaseLayer.Terrain := aTile;
-    FloodfillNeeded   := gMapElements[Land^[Y,X].Obj].DiagonalBlocked <> gMapElements[aObj].DiagonalBlocked;
-    Land^[Y,X].Obj     := aObj;
-    if FloodfillNeeded then //When trees are removed by corn growing we need to update floodfill
-      UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(X,Y,X,Y)), True);
+    Land^[aY, aX].BaseLayer.Terrain := aTile;
+    floodfillNeeded := gMapElements[Land^[aY,aX].Obj].DiagonalBlocked <> gMapElements[aObj].DiagonalBlocked;
+    Land^[aY, aX].Obj := aObj;
+    if floodfillNeeded then //When trees are removed by corn growing we need to update floodfill
+      UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(aX, aY, aX, aY)), True);
   end;
 var
   H, I, K, A: Integer;

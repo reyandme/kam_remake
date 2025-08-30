@@ -159,7 +159,7 @@ type
     destructor Destroy; override;
 
     procedure AddHouse(aHouse: TKMHouse);
-    function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
+    function FindBestJob(aWorker: TKMUnitWorker): Integer;
     function GetAvailableJobsCount:Integer;
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
     procedure RemWorker(aIndex: Integer);
@@ -990,13 +990,9 @@ var
   I: Integer;
 begin
   Result := False;
-
   for I := 0 to fHousesCount - 1 do
     if fHouses[I].House = aHouse then
-    begin
-      Result := True;
-      Exit;
-    end;
+      Exit(True);
 end;
 
 
@@ -1022,16 +1018,16 @@ begin
 end;
 
 
-function TKMRepairList.BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
+function TKMRepairList.FindBestJob(aWorker: TKMUnitWorker): Integer;
 var
   I: Integer;
-  newBid: Single;
+  bestBid, newBid: Single;
 begin
   //We can weight the repairs by distance, severity, etc..
   //For now, each worker will go for the house closest to him
 
   Result := -1;
-  aBid := MaxSingle;
+  bestBid := MaxSingle;
   for I := 0 to fHousesCount - 1 do
   if (fHouses[I].House <> nil)
   and (fHouses[I].Assigned < MAX_WORKERS[fHouses[i].House.HouseType]) then
@@ -1039,9 +1035,9 @@ begin
     newBid := KMLengthDiag(aWorker.Position, fHouses[I].House.Position);
     newBid := newBid + fHouses[I].Assigned * BID_MODIF;
 
-    if newBid < aBid then
+    if newBid < bestBid then
     begin
-      aBid := newBid;
+      bestBid := newBid;
       Result := I;
     end;
   end;
@@ -1369,7 +1365,6 @@ end;
 procedure TKMHandConstructions.AssignRepairs;
 var
   I, availableWorkers, availableJobs, jobID: Integer;
-  myBid: Single;
   bestWorker: TKMUnitWorker;
 begin
   availableWorkers := GetIdleWorkerCount;
@@ -1381,8 +1376,9 @@ begin
     for I := 0 to fWorkersCount - 1 do
       if fWorkers[I].Worker.IsIdle then
       begin
-        jobID := fRepairList.BestBid(fWorkers[I].Worker, myBid);
-        if jobID <> -1 then fRepairList.GiveTask(jobID, fWorkers[I].Worker);
+        jobID := fRepairList.FindBestJob(fWorkers[I].Worker);
+        if jobID <> -1 then
+          fRepairList.GiveTask(jobID, fWorkers[I].Worker);
       end;
   end
   else
@@ -1391,7 +1387,8 @@ begin
       and(fRepairList.fHouses[I].Assigned < MAX_WORKERS[fRepairList.fHouses[i].House.HouseType]) then
       begin
         bestWorker := GetBestWorker(fRepairList.fHouses[I].House.PointBelowEntrance);
-        if bestWorker <> nil then fRepairList.GiveTask(I, bestWorker);
+        if bestWorker <> nil then
+          fRepairList.GiveTask(I, bestWorker);
       end;
 end;
 

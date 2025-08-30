@@ -120,8 +120,7 @@ begin
   UpdateScrollBar; //Initialise the scrollbar
   fSelectable := aSelectable;
 
-  // Subscribe to get other controls mouse move events
-  aParent.MasterControl.AddMouseDownCtrlSub(ControlMouseDown);
+  aParent.MasterControl.SubscribeOnOtherMouseDown(ControlMouseDown);
 end;
 
 

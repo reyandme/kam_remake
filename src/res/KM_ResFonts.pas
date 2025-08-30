@@ -2,12 +2,9 @@ unit KM_ResFonts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, StrUtils, SysUtils,
-  Graphics,
-  KM_IoPNG, KM_RenderTypes,
-  KM_CommonTypes, KM_Defaults, KM_Points, KM_ResPalettes
-  {$IFDEF FPC}, zstream {$ENDIF}
-  {$IFDEF WDC}, ZLib {$ENDIF};
+  SysUtils, Graphics,
+  KM_CommonTypes, KM_RenderTypes,
+  KM_Points, KM_ResPalettes;
 
 
 const
@@ -175,6 +172,10 @@ function NameToFont(const aName: string): TKMFont;
 
 implementation
 uses
+  Classes, Math, StrUtils,
+  {$IFDEF FPC} zstream, {$ENDIF}
+  {$IFDEF WDC} ZLib, {$ENDIF}
+  KM_Defaults, KM_IoPNG,
   {$IFNDEF NO_OGL}
   KM_Render,
   {$ENDIF}
@@ -495,7 +496,7 @@ begin
 
   for I := 0 to fTexSizeY - 1 do
   for K := 0 to fTexSizeX - 1 do
-    pngData[I * fTexSizeX + K] := (PCardinal(Cardinal(@fAtlases[aIndex].TexData[0]) + (I * fTexSizeX + K) * 4))^;
+    pngData[I * fTexSizeX + K] := PCardinal(Cardinal(@fAtlases[aIndex].TexData[0]) + (I * fTexSizeX + K) * 4)^;
 
   SaveToPng(pngWidth,pngHeight, pngData, aFilename);
 end;

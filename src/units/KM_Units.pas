@@ -2,9 +2,9 @@ unit KM_Units;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KromUtils, Types,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_CommonUtils, KM_UnitVisual,
-  KM_Terrain, KM_ResHouses, KM_Houses, KM_HouseSchool, KM_HouseBarracks, KM_HouseInn,
+  Classes, KromUtils, Types,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_UnitVisual,
+  KM_Houses, KM_HouseSchool, KM_HouseInn,
   KM_HandEntity,
   KM_ResTypes;
 
@@ -170,7 +170,7 @@ type
     property Position: TKMPoint read fPositionRound;
     property PositionPrev: TKMPoint read fPositionPrev;
     property PositionNext: TKMPoint read fPositionNext write SetPositionNext;
-    procedure SetUnitPosition(const aPos: TKMPoint);
+    function SetUnitPosition(const aPos: TKMPoint): Boolean;
 
     property Direction: TKMDirection read fDirection write SetDirection;
     property CurrentHitPoints: Byte read fHitPoints;
@@ -233,7 +233,7 @@ type
     function  IsIdle: Boolean;
     procedure TrainInHouse(aSchool: TKMHouseSchool);
 
-    function CanStepTo(X,Y: Integer; aPass: TKMTerrainPassability): Boolean;
+    function CanStepTo(aX, aY: Integer; aPass: TKMTerrainPassability): Boolean;
     function CanWalkTo(const aTo: TKMPoint; aDistance: Single): Boolean; overload;
     function CanWalkTo(const aTo: TKMPoint; aPass: TKMTerrainPassability; aDistance: Single): Boolean; overload;
     function CanWalkTo(const aFrom, aTo: TKMPoint; aDistance: Single): Boolean; overload;
@@ -376,10 +376,11 @@ const
 
 implementation
 uses
-  TypInfo,
+  Math, SysUtils, TypInfo,
   KM_Entity,
-  KM_Game, KM_GameParams, KM_RenderPool, KM_RenderAux, KM_ResTexts,
-  KM_HandsCollection, KM_UnitWarrior, KM_Resource, KM_ResUnits,
+  KM_CommonUtils, KM_Terrain, KM_HouseBarracks,
+  KM_Game, KM_GameParams, KM_RenderPool, KM_RenderAux, KM_ResHouses, KM_ResTexts, KM_ResUnits,
+  KM_HandsCollection, KM_UnitWarrior, KM_Resource,
   KM_Hand, KM_MapEdTypes,
 
   KM_UnitActionAbandonWalk,
@@ -540,11 +541,11 @@ var
 begin
   if (fHome <> nil)
     and not fHome.IsDestroyed
-    and (fHome.IsClosedForWorker or ((fHome.HouseType = htBarracks) and (TKMHouseBarracks(fHome).NotAcceptRecruitFlag)))
+    and (fHome.IsClosedForWorker or ((fHome.HouseType = htBarracks) and TKMHouseBarracks(fHome).NotAcceptRecruitFlag))
     and not (fTask is TKMTaskDie)
     and not (fTask is TKMTaskDismiss) then
     begin
-      wGoingInsideHouse := (fAction is TKMUnitActionGoInOut) and ((TKMUnitActionGoInOut(fAction)).Direction = gdGoInside);
+      wGoingInsideHouse := (fAction is TKMUnitActionGoInOut) and (TKMUnitActionGoInOut(fAction).Direction = gdGoInside);
       // let recruits finish throwing animation
       wThrowingRock := (fTask is TKMTaskThrowRock) and (fHome.GetState in [hstWork]);
       // do not cancel eating task
@@ -572,7 +573,8 @@ begin
         end
         else
         begin
-          if (wWalkingOutside) then begin
+          if wWalkingOutside then
+          begin
             AbandonWalk;                // Stop walking
             CleanHousePointer(True);    // Clean house pointer and free task
           end else
@@ -590,7 +592,7 @@ begin
             // If working inside - first we need to set house state to Idle, then to Empty
             fHome.SetState(hstIdle);
             fHome.SetState(hstEmpty);
-            CleanHousePointer(True)     // Clean house pointer and free task
+            CleanHousePointer(True);     // Clean house pointer and free task
           end;
         end;
     end;
@@ -631,8 +633,7 @@ begin
     and (fHome <> nil)
     and not fVisible then
   begin
-    if fTask <> nil then
-      FreeAndNil(fTask);
+    FreeAndNil(fTask);
     fTask := TKMTaskGoOutShowHungry.Create(Self);
   end;
 
@@ -647,7 +648,7 @@ begin
         else
           Thought := thQuest; //Always show quest when idle, unlike serfs who randomly show it
 
-        SetActionStay(20, uaWalk) //There's no home, but there will hopefully be one soon so don't sleep too long
+        SetActionStay(20, uaWalk); //There's no home, but there will hopefully be one soon so don't sleep too long
       end
     else
       if fVisible then //Unit is not at home, but it has one
@@ -655,7 +656,7 @@ begin
         if CanAccessHome then
           fTask := TKMTaskGoHome.Create(Self)
         else
-          SetActionStay(60, uaWalk) //Home can't be reached
+          SetActionStay(60, uaWalk); //Home can't be reached
       end else
       begin
         if not gRes.Houses[fHome.HouseType].IsWorkshop
@@ -694,7 +695,7 @@ end;
 
 function TKMUnitCitizen.GetActivityText: UnicodeString;
 begin
-  Result := Inherited GetActivityText; //Default
+  Result := inherited GetActivityText; //Default
   if fTask is TKMTaskMining then
     Result := TKMTaskMining(fTask).GetActivityText;
 end;
@@ -1476,8 +1477,7 @@ begin
   fDismissASAP := False;
   fThought := thNone; //Reset thought
 
-  if fTask <> nil then
-    FreeAndNil(fTask);
+  FreeAndNil(fTask);
 end;
 
 
@@ -1579,16 +1579,15 @@ begin
 end;
 
 
-procedure TKMUnit.SetUnitPosition(const aPos: TKMPoint);
-var
-  newPos: Boolean;
+function TKMUnit.SetUnitPosition(const aPos: TKMPoint): Boolean;
 begin
   //This is only used by the map editor, set all positions to aPos
   Assert(gGameParams.IsMapEditor);
 
-  if not gTerrain.CanPlaceUnit(aPos, UnitType) then Exit;
+  if not gTerrain.CanPlaceUnit(aPos, UnitType) then
+    Exit(False);
 
-  newPos := fPositionRound <> aPos;
+  Result := fPositionRound <> aPos;
 
   gTerrain.UnitRem(fPositionRound);
   fPositionRound := aPos;
@@ -1596,10 +1595,6 @@ begin
   fPositionPrev := aPos;
   fPositionF := KMPointF(aPos);
   gTerrain.UnitAdd(fPositionRound, Self);
-
-  if newPos then
-    gGame.MapEditor.History.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_MOVE_SMTH],
-                                                           [gRes.Units[UnitType].GUIName, aPos.ToString]));
 end;
 
 
@@ -1632,7 +1627,7 @@ begin
     if aAttacker <> nil then
       Kill(aAttacker.Owner, True, False)
     else
-      Kill(HAND_NONE, True, False)
+      Kill(HAND_NONE, True, False);
 end;
 
 
@@ -2139,14 +2134,14 @@ begin
 end;
 
 
-function TKMUnit.CanStepTo(X,Y: Integer; aPass: TKMTerrainPassability): Boolean;
+function TKMUnit.CanStepTo(aX, aY: Integer; aPass: TKMTerrainPassability): Boolean;
 begin
-  Result := gTerrain.TileInMapCoords(X,Y)
-        and (gTerrain.Land^[Y,X].IsUnit = nil)
-        and (gTerrain.CheckPassability(KMPoint(X,Y), aPass))
-        and (not KMStepIsDiag(Position, KMPoint(X,Y)) //Only check vertex usage if the step is diagonal
-             or (not gTerrain.HasVertexUnit(KMGetDiagVertex(Position, KMPoint(X,Y)))))
-        and (gTerrain.CanWalkDiagonally(Position, X, Y));
+  Result := gTerrain.TileInMapCoords(aX,aY)
+        and (gTerrain.Land^[aY,aX].IsUnit = nil)
+        and gTerrain.CheckPassability(KMPoint(aX,aY), aPass)
+        and (not KMStepIsDiag(Position, KMPoint(aX,aY)) // Only check vertex usage if the step is diagonal
+             or (not gTerrain.HasVertexUnit(KMGetDiagVertex(Position, KMPoint(aX,aY)))))
+        and gTerrain.CanWalkDiagonally(Position, aX, aY);
 end;
 
 
@@ -2226,7 +2221,7 @@ begin
       if Action is TKMUnitActionGoInOut then
         SetActionLockedStay(0, uaWalk); //Abandon the walk out in this case
 
-      if (Task is TKMTaskGoEat) and (TKMTaskGoEat(Task).Eating) then
+      if (Task is TKMTaskGoEat) and TKMTaskGoEat(Task).Eating then
       begin
         FreeAndNil(fTask); //Stop the eating animation and makes the unit appear
         SetActionStay(0, uaWalk); //Free the current action and give the unit a temporary one
@@ -2269,7 +2264,7 @@ end;
 
 procedure TKMUnit.Walk(const aFrom, aTo: TKMPoint);
 begin
-  gTerrain.UnitWalk(aFrom, aTo, Self)
+  gTerrain.UnitWalk(aFrom, aTo, Self);
 end;
 
 

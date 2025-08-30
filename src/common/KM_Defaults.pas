@@ -1,12 +1,9 @@
 unit KM_Defaults;
 {$I KaM_Remake.inc}
 interface
-uses
-  SysUtils;
 
-//Global constants
+// Global constants
 const
-//|===================| <- constant name length
   MAX_MAP_SIZE          = 256;
   MIN_MAP_SIZE          = 32;
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
@@ -104,6 +101,8 @@ var
   CHECK_8087CW            :Boolean = False; // Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   FEAT_SCROLL_ACCEL       :Boolean = False; // Acceleration for viewport scrolling
   PATHFINDER_TO_USE       :Byte = 1;       // Use TKMPathfindingAStarNew
+
+  FEAT_SFX_ADJUSTED_SAMPLE_RATE :Boolean = True; // Adjust SFX sample rate
 
   ENABLE_VIDEOS_UNDER_WINE: Boolean = DEBUG_CFG; //Do we enable videos under wine
 
@@ -296,8 +295,8 @@ var
   WriteResourceInfoToTXT  :Boolean = False; //Whenever to write txt files with defines data properties on loading
   EXPORT_SPRITE_ATLASES   :Boolean = False; //Whenever to write all generated textures to PNG on loading (extremely time consuming)
   EXPORT_SPRITE_ATLASES_RXA:Boolean = False; //Whenever to write all loaded from .RXA files textures to PNG on loading (super extremely time consuming)
-  EXPORT_INFLUENCE        :Boolean = False;
   LOG_FONTS_RAM_USAGE     :Boolean = False;
+  DBG_EXPORT_SOUNDS_DAT   :Boolean = False;
 
 
 const
@@ -591,7 +590,7 @@ const
     'Unused',
     'Can walk',
     'Can walk road',
-    'Can build without|object or house',
+    'Can build without|object',
     'Can build',
     'Can make roads',
     'Can cut tree',
@@ -1123,15 +1122,17 @@ var
 
 const
   WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Single = (
-    1, 2.4, 5.2,    // utMilitia, utAxeFighter, utSwordsman
-    2.2, 4,         // utBowman, utArbaletman
-    2, 4,           // utPikeman, utHallebardman
-    3.3, 6.2,       // utHorseScout, utCavalry
-    5.3, 1.2, 1.5,  // utBarbarian, utPeasant, utSlingshot
-    5.3, 2.1        // utMetalBarbarian, utHorseman
+    1, 2.4, 5.2,    // utMilitia, utAxeFighter, utSwordFighter
+    2.4, 4,         // utBowman, utCrossbowman
+    2, 4,           // utLanceCarrier, utPikeman
+    3.3, 6.3,       // utScout, utKnight
+    5.3, 0.8, 1.2,  // utBarbarian, utRebel, utRogue
+    5.3, 1.9        // utWarrior, utVagabond
   );
 
 implementation
+uses
+  SysUtils;
 
 initialization
 begin

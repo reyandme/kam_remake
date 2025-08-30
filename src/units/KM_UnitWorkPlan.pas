@@ -3,7 +3,6 @@ unit KM_UnitWorkPlan;
 interface
 uses
   KM_Defaults, KM_CommonClasses, KM_Points, KM_TerrainTypes, KM_Units,
-  KM_ResHouses,
   KM_ResTypes;
 
 
@@ -58,6 +57,7 @@ implementation
 uses
   SysUtils,
   KM_ResUnits, KM_Houses, KM_HouseWoodcutters,
+  KM_ResHouses,
   KM_Terrain,
   KM_Resource, KM_CommonUtils;
 
@@ -139,7 +139,7 @@ var
   Found: boolean;
   HW: TKMHouseWoodcutters;
 begin
-  if (GatheringScript = gsWoodCutterCut) OR (GatheringScript = gsWoodCutterPlant) then
+  if (GatheringScript = gsWoodCutterCut) or (GatheringScript = gsWoodCutterPlant) then
   begin
     HW := TKMHouseWoodcutters(aUnit.Home);
     HW.ValidateFlagPoint; //Validate Cutting point. It will be set to a valid one if needed.
@@ -171,7 +171,8 @@ begin
     gsFisherCatch:     Found := FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
     gsWoodCutterCut:   Found := ChooseTree(aLoc, KMGetVertexTile(aAvoidLoc, WorkDir), gRes.Units[aUnit.UnitType].MiningRange, taCut, aUnit, NewLoc, PlantAct);
     gsWoodCutterPlant: Found := ChooseTree(aLoc, aAvoidLoc, gRes.Units[aUnit.UnitType].MiningRange, taPlant, aUnit, NewLoc, PlantAct);
-    else                Found := False; //Can find a new resource for an unknown gathering script, so return with False
+  else
+    Found := False; //Can find a new resource for an unknown gathering script, so return with False
   end;
 
   if Found then

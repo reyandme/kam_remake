@@ -14,3 +14,7 @@ pandoc.exe -s -f markdown getting-started_ger.md -o Readme_ger.html --metadata t
 pandoc.exe -s -f markdown getting-started_pol.md -o Readme_pol.html --metadata title="Pierwsze kroki z Knights and Merchants: Remake"
 pandoc.exe -s -f markdown getting-started_rus.md -o Readme_rus.html --metadata title="Начало работы с Knights and Merchants: Remake"
 ```
+
+# how to fix broken links in top bar
+Link must be lowercase and with spaces replaced with hyphens (-)
+Example: if your section is called "First Section", then the link will be `#first-section`

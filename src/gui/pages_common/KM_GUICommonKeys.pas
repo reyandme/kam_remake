@@ -2,8 +2,9 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KM_ResKeys,
-  KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsPopUp,
+  Classes,
+  KM_ResKeys,
+  KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsForm,
   KM_CommonTypes;
 
 type
@@ -12,31 +13,31 @@ type
     fTempKeys: TKMResKeys;
 
     fOnKeysUpdated: TKMEvent;
-    fOnClose: TKMEvent;
 
     procedure Hide;
-    procedure KeysClick(Sender: TObject);
+    procedure ButtonOkClick(Sender: TObject);
+    procedure ButtonCancelClick(Sender: TObject);
+    procedure ButtonClearClick(Sender: TObject);
+    procedure ButtonResetClick(Sender: TObject);
+    procedure ListClick(Sender: TObject);
     procedure KeysRefreshList;
-    function KeysUpdate(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
+    function ListKeyUp(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
     function GetVisible: Boolean;
   protected
-    PopUp_OptionsKeys: TKMPopUpMenu; // Todo: rework to use with TKMPopUpPanel. Check in-game render
-      Panel_OptionsKeys: TKMPanel;
-        ColumnBox_OptionsKeys: TKMColumnBox;
-        Panel_OptionKeys_Btns: TKMPanel;
-          Button_OptionsKeysClear: TKMButton;
-          Button_OptionsKeysReset: TKMButton;
-          Button_OptionsKeysOK: TKMButton;
-          Button_OptionsKeysCancel: TKMButton;
+    Form_OptionsKeys: TKMForm;
+    Panel_Content: TKMPanel;
+    ColumnBox_OptionsKeys: TKMColumnBox;
+    Button_OptionsKeysClear: TKMButton;
+    Button_OptionsKeysReset: TKMButton;
+    Button_OptionsKeysOK: TKMButton;
+    Button_OptionsKeysCancel: TKMButton;
   public
+    OnClose: TKMEvent;
     constructor Create(aParent: TKMPanel; aOnKeysUpdated: TKMEvent; aDrawBGBevel: Boolean = True);
     destructor Destroy; override;
 
-    property Visible: Boolean read GetVisible;
-
     procedure Show;
-
-    property OnClose: TKMEvent read fOnClose write fOnClose;
+    property Visible: Boolean read GetVisible;
   end;
 
 implementation
@@ -48,8 +49,12 @@ uses
 
 
 { TKMGUICommonKeys }
-
 constructor TKMGUICommonKeys.Create(aParent: TKMPanel; aOnKeysUpdated: TKMEvent; aDrawBGBevel: Boolean = True);
+const
+  FULL_WIDTH = 660;
+  FULL_HEIGHT = 620;
+  PAD = 20;
+  BTN_WIDTH = ((FULL_WIDTH - PAD * 2) - 10 * 2) div 3;
 begin
   inherited Create;
 
@@ -57,46 +62,42 @@ begin
 
   fTempKeys := TKMResKeys.Create;
 
-  PopUp_OptionsKeys := TKMPopUpMenu.Create(aParent, 740);
-    PopUp_OptionsKeys.Height := 640;
-    PopUp_OptionsKeys.AnchorsCenter; // Keep centered, don't stretch already poor BG image
-    PopUp_OptionsKeys.Left := (aParent.Width - PopUp_OptionsKeys.Width) div 2;
-    PopUp_OptionsKeys.Top := (aParent.Height - PopUp_OptionsKeys.Height) div 2;
+  Form_OptionsKeys := TKMForm.Create(aParent, FULL_WIDTH, FULL_HEIGHT, gResTexts[TX_MENU_OPTIONS_KEYBIND], fbGray, False, False);
+  Form_OptionsKeys.AnchorsCenter;
+  Form_OptionsKeys.Left := (aParent.Width - Form_OptionsKeys.Width) div 2;
+  Form_OptionsKeys.Top := (aParent.Height - Form_OptionsKeys.Height) div 2;
+  Form_OptionsKeys.CapOffsetY := 20;
 
-      if aDrawBGBevel then
-        TKMBevel.Create(PopUp_OptionsKeys, -2000, -2000, 5000, 5000);
+  Panel_Content := TKMPanel.Create(Form_OptionsKeys.ItemsPanel, PAD, 90, FULL_WIDTH - PAD * 2, FULL_HEIGHT - 70 - PAD);
+  Panel_Content.AnchorsStretch;
+    ColumnBox_OptionsKeys := TKMColumnBox.Create(Panel_Content, 0, 0, Panel_Content.Width, Panel_Content.Height - 80, fntMetal, bsMenu);
+    ColumnBox_OptionsKeys.SetColumns(fntOutline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
+    ColumnBox_OptionsKeys.AnchorsStretch;
+    ColumnBox_OptionsKeys.ShowLines := True;
+    ColumnBox_OptionsKeys.ShowHintWhenShort := True;
+    ColumnBox_OptionsKeys.HintBackColor := TKMColor4f.New(57, 48, 50); // Dark grey
+    ColumnBox_OptionsKeys.PassAllKeys := True;
+    ColumnBox_OptionsKeys.OnChange := ListClick;
+    ColumnBox_OptionsKeys.OnKeyUp := ListKeyUp;
 
-      TKMImage.Create(PopUp_OptionsKeys, 0, 0, PopUp_OptionsKeys.Width, PopUp_OptionsKeys.Height, 15, rxGuiMain).ImageStretch;
+    var lbl := TKMLabel.Create(Panel_Content, 0, Panel_Content.Height - 30 * 2 - 10, Panel_Content.Width, 20, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fntMetal, taLeft);
+    lbl.Anchors := [anLeft, anRight, anBottom];
 
-      Panel_OptionsKeys := TKMPanel.Create(PopUp_OptionsKeys, 20, 10, 700, 600);
+    Button_OptionsKeysClear := TKMButton.Create(Panel_Content, BTN_WIDTH * 2 + 10 * 2, Panel_Content.Height - 30 * 2 - 10, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
+    Button_OptionsKeysClear.Anchors := [anBottom];
+    Button_OptionsKeysClear.OnClick := ButtonClearClick;
 
-        TKMLabel.Create(Panel_OptionsKeys, 20, 35, 660, 30, gResTexts[TX_MENU_OPTIONS_KEYBIND], fntOutline, taCenter).Anchors := [anLeft,anBottom];
+    Button_OptionsKeysReset := TKMButton.Create(Panel_Content, 0, Panel_Content.Height - 30, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
+    Button_OptionsKeysReset.Anchors := [anBottom];
+    Button_OptionsKeysReset.OnClick := ButtonResetClick;
 
-        ColumnBox_OptionsKeys := TKMColumnBox.Create(Panel_OptionsKeys, 20, 110, 660, 400, fntMetal, bsMenu);
-        ColumnBox_OptionsKeys.SetColumns(fntOutline, [gResTexts[TX_MENU_OPTIONS_FUNCTION], gResTexts[TX_MENU_OPTIONS_KEY]], [0, 350]);
-        ColumnBox_OptionsKeys.Anchors := [anLeft,anTop,anBottom];
-        ColumnBox_OptionsKeys.ShowLines := True;
-        ColumnBox_OptionsKeys.ShowHintWhenShort := True;
-        ColumnBox_OptionsKeys.HintBackColor := TKMColor4f.New(57, 48, 50); // Dark grey
-        ColumnBox_OptionsKeys.PassAllKeys := True;
-        ColumnBox_OptionsKeys.OnChange := KeysClick;
-        ColumnBox_OptionsKeys.OnKeyUp := KeysUpdate;
+    Button_OptionsKeysOK := TKMButton.Create(Panel_Content, BTN_WIDTH + 10, Panel_Content.Height - 30, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
+    Button_OptionsKeysOK.Anchors := [anBottom];
+    Button_OptionsKeysOK.OnClick := ButtonOkClick;
 
-        TKMLabel.Create(Panel_OptionsKeys, 20, 520, 660, 30, '* ' + gResTexts[TX_KEY_UNASSIGNABLE], fntMetal, taLeft);
-
-        Panel_OptionKeys_Btns := TKMPanel.Create(Panel_OptionsKeys, 0, 530, Panel_OptionsKeys.Width, Panel_OptionsKeys.Height - 530);
-
-          Button_OptionsKeysClear := TKMButton.Create(Panel_OptionKeys_Btns, 470, 0, 200, 30, gResTexts[TX_MENU_OPTIONS_CLEAR], bsMenu);
-          Button_OptionsKeysClear.OnClick := KeysClick;
-
-          Button_OptionsKeysReset := TKMButton.Create(Panel_OptionKeys_Btns, 30, 40, 200, 30, gResTexts[TX_MENU_OPTIONS_RESET], bsMenu);
-          Button_OptionsKeysReset.OnClick := KeysClick;
-
-          Button_OptionsKeysOK := TKMButton.Create(Panel_OptionKeys_Btns, 250, 40, 200, 30, gResTexts[TX_MENU_OPTIONS_OK], bsMenu);
-          Button_OptionsKeysOK.OnClick := KeysClick;
-
-          Button_OptionsKeysCancel := TKMButton.Create(Panel_OptionKeys_Btns, 470, 40, 200, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
-          Button_OptionsKeysCancel.OnClick := KeysClick;
+    Button_OptionsKeysCancel := TKMButton.Create(Panel_Content, (BTN_WIDTH + 10) * 2, Panel_Content.Height - 30, BTN_WIDTH, 30, gResTexts[TX_MENU_OPTIONS_CANCEL], bsMenu);
+    Button_OptionsKeysCancel.Anchors := [anBottom];
+    Button_OptionsKeysCancel.OnClick := ButtonCancelClick;
 end;
 
 
@@ -110,51 +111,58 @@ end;
 
 function TKMGUICommonKeys.GetVisible: Boolean;
 begin
-  Result := PopUp_OptionsKeys.Visible;
+  Result := Form_OptionsKeys.Visible;
 end;
 
 
 procedure TKMGUICommonKeys.Hide;
 begin
-  PopUp_OptionsKeys.Hide;
+  Form_OptionsKeys.Hide;
 
-  if Assigned(fOnClose) then
-    fOnClose();
+  if Assigned(OnClose) then
+    OnClose();
 end;
 
 
-procedure TKMGUICommonKeys.KeysClick(Sender: TObject);
+procedure TKMGUICommonKeys.ButtonOkClick(Sender: TObject);
 var
   KF: TKMKeyFunction;
 begin
-  if Sender = Button_OptionsKeysOK then
-  begin
-    // Save TempKeys to gResKeys
-    for KF := Low(TKMKeyFunction) to High(TKMKeyFunction) do
-      gResKeys[KF] := fTempKeys[KF];
+  // Save TempKeys to gResKeys
+  for KF := Low(TKMKeyFunction) to High(TKMKeyFunction) do
+    gResKeys[KF] := fTempKeys[KF];
 
-    if Assigned(fOnKeysUpdated) then
-      fOnKeysUpdated;
+  if Assigned(fOnKeysUpdated) then
+    fOnKeysUpdated;
 
-    gResKeys.Save;
+  gResKeys.Save;
 
-    Hide;
-  end;
+  Hide;
+end;
 
-  if Sender = Button_OptionsKeysCancel then
-    Hide;
 
-  if (Sender = Button_OptionsKeysClear) then
-    KeysUpdate(Button_OptionsKeysClear, 0, []);
+procedure TKMGUICommonKeys.ButtonCancelClick(Sender: TObject);
+begin
+  Hide;
+end;
 
-  if Sender = Button_OptionsKeysReset then
-  begin
-    fTempKeys.ResetKeymap;
-    KeysRefreshList;
-  end;
 
-  if Sender = ColumnBox_OptionsKeys then
-    ColumnBox_OptionsKeys.HighlightError := False;
+procedure TKMGUICommonKeys.ButtonClearClick(Sender: TObject);
+begin
+  ListKeyUp(Button_OptionsKeysClear, 0, []);
+end;
+
+
+procedure TKMGUICommonKeys.ButtonResetClick(Sender: TObject);
+begin
+  fTempKeys.ResetKeymap;
+  KeysRefreshList;
+end;
+
+
+procedure TKMGUICommonKeys.ListClick(Sender: TObject);
+begin
+  ColumnBox_OptionsKeys.HighlightError := False;
 end;
 
 
@@ -166,8 +174,8 @@ procedure TKMGUICommonKeys.KeysRefreshList;
       TX_KEY_FUNC_GAME_SPEED_2: Result := Format(gResTexts[aTX_ID], [FormatFloat('##0.##', gGameSettings.SpeedMedium)]);
       TX_KEY_FUNC_GAME_SPEED_3: Result := Format(gResTexts[aTX_ID], [FormatFloat('##0.##', gGameSettings.SpeedFast)]);
       TX_KEY_FUNC_GAME_SPEED_4: Result := Format(gResTexts[aTX_ID], [FormatFloat('##0.##', gGameSettings.SpeedVeryFast)]);
-      else                      Result := gResTexts[aTX_ID];
-
+    else
+      Result := gResTexts[aTX_ID];
     end;
   end;
 
@@ -197,8 +205,8 @@ begin
           keyName := keyName + ' / Ctrl + ' + keyName; //Also show Ctrl + F11, for debug window hotkey
         if (KF = kfMapedSaveMap) and (keyName <> '') then
           keyName := 'Ctrl + ' + keyName;
-        ColumnBox_OptionsKeys.AddItem(MakeListRow([GetFunctionName(gResKeyFuncs[KF].TextId), keyName],
-                                                  [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], Integer(KF)));
+        ColumnBox_OptionsKeys.AddItem(MakeListRow(
+          [GetFunctionName(gResKeyFuncs[KF].TextId), keyName], [$FFFFFFFF, $FFFFFFFF], [$FF0000FF, $FF0000FF], Integer(KF)));
       end;
   end;
 
@@ -206,7 +214,7 @@ begin
 end;
 
 
-function TKMGUICommonKeys.KeysUpdate(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
+function TKMGUICommonKeys.ListKeyUp(Sender: TObject; Key: Word; Shift: TShiftState): Boolean;
 var
   KF: TKMKeyFunction;
 begin
@@ -244,7 +252,7 @@ begin
     fTempKeys[KF] := gResKeys[KF];
 
   KeysRefreshList;
-  PopUp_OptionsKeys.Show;
+  Form_OptionsKeys.Show;
 end;
 
 

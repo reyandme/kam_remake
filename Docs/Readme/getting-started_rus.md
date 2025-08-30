@@ -1,8 +1,8 @@
-**Brought to you by Krom, Lewin and Rey**
+**Авторы: Krom, Lewin and Rey**
 
 ---
 
-[Системные требования](#системные-требования) · [Установка](#установка) · [Игра](#игра) · [F.A.Q.](#часто-задаваемые-вопросы) · [Community and feedback](#community-and-feedback) · [Известные ошибки](#известные-ошибки-и-неточности) · [Исходные коды](#исходные-коды) · [Создатели](#создатели) · [Правовые обязательства](#правовые-обязательства)
+[Системные требования](#системные-требования) · [Установка](#установка) · [Игра](#игра) · [Часто задаваемые вопросы](#часто-задаваемые-вопросы) · [Сообщество и обратная связь](#сообщество-и-обратная-связь) · [Известные ошибки](#известные-ошибки-и-неточности) · [Исходные коды](#исходный-код) · [Создатели](#создатели) · [Правовые обязательства](#правовые-обязательства)
 
 ---
 
@@ -15,35 +15,35 @@
 
 ### ![](Readme/GUI_0303.gif) Установка
 
-1. Obtain the original game (Knights and Merchants: The Peasants Rebellion):
-	- Installers from original CD and GOG.com should just work.
-	- If you bought TPR from Steam, you need to run TPR at least once, otherwise Remake's installer will be unable to detect it.
-	- If you use Linux, see <https://github.com/reyandme/kam_remake/wiki/Game-installation-on-Linux>
-1. Run the Remake installer and follow the installation instructions.
-1. The KaM Remake uses OpenGL for graphics. In case of visual issues or inability to launch the game, visit your graphics card manufacturer site to get the latest drivers available.
-1. Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if you chose to create shortcuts.
+1. Приобретите оригинальную игру "Knights and Merchants: The Peasants Rebellion" (В РФ была локализована как: "Война и мир") :
+	- Установка с оригинального CD диска или с сайта GOG.com также подойдёт.
+	- Если вы купили игру в Steam, то после покупки её нужно запустить хотя бы раз, чтобы при установке KaM Remake игра была обнаружена на устройстве.
+	- Если вы пользователь ОС Linux, по этой ссылке можно найти инструкцию для установки игры на эту операционную систему. <https://github.com/reyandme/kam_remake/wiki/Game-installation-on-Linux>
+1. Запустите установку KaM Ramake и следуйте инструкциям.
+1. KaM Remake использует OpenGL для отрисовки графики. Если при игре появляются какие-либо визуальные проблемы, посетите сайт изготовителя вашей графической карты и убедитесь что вы используете последние драйверы.
+1. Запуск игры происходит с помощью исполнительного файла - KaM_Remake.exe или из панели "Пуск" если была проставлена галочка "Создать ярлыки".
 
 ### ![](Readme/GUI_0312.gif) Игра
 
 #### Multiplayer
-To start a game, go to Multiplayer. You can pick any unused server, if you want to start a new lobby, or you can join an existing lobby.
+Чтобы начать играть нажмите кнопку "Сетевая игра". Вы можете выбрать любой пустой сервер если вы хотите создать новое лобби или присоединиться к существующему лобби.
 
-You can also create a local (LAN) server, using "Create server" button.
+Также можно создать локальный сервер используя кнопку "Создать сервер"
 
-If you want to create a new dedicated server for our community, see details here: <https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md>
+Если вы хотите создать новый сервер для сообщества, то инструкцию можео найти по этой ссылке: <https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md>
 
-#### Keyboard shortcuts
-**The following shortcuts are available in the game:**
+#### Горячие клавиши
+**В игре доступны следующие горячие клавиши.:**
 
-- **Esc** закрыть открытое сообщение, или открытый раздел игрового меню
-- **F1-F4** открыть соответствующий раздел игрового меню
-- **F5-F8** увеличить скорость игры в x1 / x3 / x6 / x10 раз (speedup multiplier can be changed in game's XML settings file)
+- **Esc** закрыть открытое сообщение или открытый раздел игрового меню
+- **F1-F4** открыть соответствующий раздел игрового меню (F1 - раздел постройки, F2 - раздел распределения товаров, F3 - раздел статистики, F4 - Настройки)
+- **F5-F8** увеличить скорость игры в x1 / x3 / x6 / x10 раз (Значения на которые меняется ускорение времени при нажатии кнопок могут быть откорректированы в файле settings.xml)
 - **F11** показать меню и отладочную панель
 - **0-9** выбрать здание или воина, назначенного с помощью соответствующей комбинации Ctrl + 0-9
 - **B** установить метку на карте. Метку видите только вы и ваши союзники
 - **Spacebar** перейти к месту события открытого сообщения
 - **P** пауза
-- Holding the **T** button in multiplayer mode, will show player nicknames over their units
+- Зажав клавишу **T** в сетевой игре вы увидите имя игрока над его войсками и жителями.
 - **Delete** удалить открытое сообщение
 - **←↑→↓** курсорные кнопки используются для перемещения по карте
 - **Колесико мыши** увеличивает и уменьшает масштаб
@@ -52,10 +52,10 @@ If you want to create a new dedicated server for our community, see details here
 Для более подробной информации о клавиатурных сокращениях посетите соответствующую страницу Wiki игры:  
 <https://github.com/reyandme/kam_remake/wiki/Controls>
 
-#### Installing add-on maps:
-Maps should be added (in Remake's directory) to Maps (for singleplayer), MapsMP (for multiplayer); there is also a directory for Campaigns.
+#### Установка карт/кампаний созданных сообществом:
+Карты должны быть добавлены в папку Maps(для одиночной игры) или в папку MapsMP(для сетевой игры). Кампании нужно копировать в папку Campaigns. Папки Maps, MapsMP, Campaigns находятся в каталоге куда была установлена игра.
 
-You can find additional community-made maps at <https://knights-tavern.com>.
+Карты сделанные сообществом можно найти по ссылке <https://knights-tavern.com>.
 
 #### Добавление собственной музыки:
 Вы можете скопировать ваши MP3/OGG файлы в каталог "KaM Remake\Music", и они будут автоматически добавлены в список воспроизведения.
@@ -65,30 +65,30 @@ You can find additional community-made maps at <https://knights-tavern.com>.
 Если у вас в игре низкая частота смены кадров, это может быть вызвано старыми или отсутствующими драйверами OpenGL. Проверьте вашу версию драйверов OpenGL, посмотрев в главном меню в верхний левый угол, версия должна быть как минимум 1.5.x. Если она ниже, то необходимо обновить драйвера вашей видеокарты (драйвера можно скачать на сайте производителя).
 
 **Низкая частота смены кадров:**  
-If you have ridiculously low framerate in game it might be because your OpenGL drivers are out of date. See the OpenGL version information in the top-left corner of the main menu, it should be at least 1.5.x. If it is less you need to update your graphics card drivers (check your card manufacturers website).
+Если у вас наблюдается очень низкая частота смены кадров в игре, это может быть из-за того, что версия драйверов OpenGL на вашем ПК устарела. Версию OpenGL можно увидеть в верхнем левом углу экрана в главном меню игры. Она должна быть как минимум 1.5.x. Если версия OpenGL ниже, вам следует обновить драйвера для вашей видеокарты (драйвера можно скачать на сайте производителя). 
 
 **Ошибки:**  
 Иногда, когда происходит нечто непредвиденное, вы получаете сообщение «Произошла ошибка в приложении». Пожалуйста, нажмите кнопку «Отправить отчет об ошибке», чтобы отправить нам информацию, которая поможет диагностировать проблему. Введите свое имя и адрес электронной почты в форме, если вы хотите, чтобы мы могли связаться с вами по поводу ошибки.
 
-**Anything else:**  
-See <https://www.kamremake.com/faq/>
+**Остались вопросы:**  
+Смотри FAQ по ссылке <https://www.kamremake.com/faq/>
 
-## ![](Readme/GUI_0323.gif) Community and Feedback
+## ![](Readme/GUI_0323.gif) Сообщество и обратная связь
 
-Join our community at <https://discord.gg/UkkYceR>. We would love your comments, suggestions, thanks, etc.  
-If you can offer some help in Delphi coding, documentation, game artwork, sounds, translation or ideas for improvement - please drop us an email or write on Discord. 
+Присоединяйтесь к нашему сообществу в Discord <https://discord.gg/UkkYceR>. Мы будем рады вашим комментариям, предложениям и вашей поддержке.  
+Если вы увлекаетесь программированием на Delphi, документацией, графическим дизайном, музыкой, переводами, идеями для улучшения игры - пожалуйста пишите нам на почту или в Discord.
 
 # ![](Readme/GUI_0304.gif) Известные ошибки и неточности
 
-Осадной мастерской не функционирует.  
+Осадная мастерская в данный момент отсутствует в игре.
 
-# ![](Readme/GUI_0308.gif) Исходные коды
+# ![](Readme/GUI_0308.gif) Исходный код
 
-Исходные коды KaM Remake доступны по адресу:  
+Ссылка на исходный код KaM Remake:  
 <https://github.com/reyandme/kam_remake>  
-По этому адресу доступно Wiki с информацией об игре:  
+Ссылка на Wiki с информацией об игре:  
 <https://github.com/reyandme/kam_remake/wiki>  
-Мы призываем вас сообщать нам о найденных ошибках используя встроенный интерфейс:  
+В случае возникновения ошибкок, пожалуйста сообщайте о них нам, используя встроенный интерфейс по отправке отчётов об ошибке или по ссылке:
 <https://github.com/reyandme/kam_remake/issues>  
 или на нашем канале Discord.
 
@@ -98,9 +98,9 @@ If you can offer some help in Delphi coding, documentation, game artwork, sounds
 Программист - Rey (<mailto:kamremake.rey@gmail.com>) 
 Программист - Lewin (<mailto:lewinjh@gmail.com>)  
 Программист - Toxic (Advanced AI and random map generator)
-и многое другое...
+и многие другие...
  
-Особая благодарность Александру, который написал ядро структуры кода в 2008 г.  
+Особая благодарность Alex, который написал ядро структуры кода в 2008 г.  
 Спасибо StarGazer, который нарисовал Рынок, новые курсоры и иконки для интерфейса, а также Malin за нарисованные товары для рынка.  
 Огромное спасибо сообществу КаМ и его активным членам (Free_sms_kam, Harold, Humbelum, JBSnorro, The Knight, Litude (Real Hotdog), Merchator, Nick, Thunderwolf, Vas, andreus, ZblCoder и многим другим), кто помогал нам с декодированием, советами, идеями и поддержкой.  
 В игре использованы иконки от famfamfam и FatCow.  

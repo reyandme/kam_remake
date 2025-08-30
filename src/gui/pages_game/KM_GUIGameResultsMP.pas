@@ -5,7 +5,7 @@ uses
   Classes, Math, StrUtils, SysUtils,
   KM_CommonTypes,
   KM_Controls, KM_ControlsBase, KM_ControlsChart, KM_ControlsList, KM_ControlsProgressBar, KM_ControlsSwitch,
-  KM_Defaults, KM_Pics,
+  KM_Defaults,
   KM_InterfaceDefaults, KM_HandStats,
   KM_ResTypes;
 
@@ -180,7 +180,7 @@ type
 implementation
 uses
   KM_Main, KM_ResTexts, KM_Game, KM_HandsCollection, KM_CommonUtils, KM_Resource, KM_ResFonts,
-  KM_RenderUI, KM_Hand, KM_ResUnits, KM_MapTypes,
+  KM_RenderUI, KM_Hand, KM_ResUnits, KM_MapTypes, KM_Pics,
   KM_GameParams, KM_GameTypes, KM_InterfaceTypes;
 
 
@@ -203,10 +203,7 @@ begin
   Result := -1;
   for I := 0 to 2 do
     if aWare = GDPWares[I] then
-    begin
-      Result := I;
-      Exit;
-    end;
+      Exit(I);
 end;
 
 
@@ -273,6 +270,8 @@ end;
 {TKMChartArmy}
 constructor TKMChartArmyMP.Create(aType: TKMChartWarriorType; aKind: TKMChartArmyKind; aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
+  inherited Create;
+
   fType := TKMChartWarrior.Create(aType);
   fKind := aKind;
   fChart := TKMChart.Create(aParent, aLeft, aTop, aWidth, aHeight);
@@ -289,7 +288,7 @@ end;
 
 function TKMChartArmyMP.GetChartData(aPlayer: TKMHandID): TKMCardinalArray;
 begin
-  if (fType.HasUnitType) then
+  if fType.HasUnitType then
     Result := gHands[aPlayer].Stats.ChartArmy[fKind,fType.UnitType]
   else
     Result := GetArmyPowerChartData(aPlayer);
@@ -320,7 +319,7 @@ end;
 
 function TKMChartArmyMP.IsEmpty(aPlayer: TKMHandID): Boolean;
 begin
-  if (fType.HasUnitType) then
+  if fType.HasUnitType then
     Result := gHands[aPlayer].Stats.ChartArmyEmpty(fKind, fType.UnitType)
   else
     Result := gHands[aPlayer].Stats.ChartArmyEmpty(fKind, utAny);
@@ -364,6 +363,8 @@ begin
     FreeListToShow(ST);
     FreeAndNil(fChartSeparatorsPos[ST]);
   end;
+
+  inherited;
 end;
 
 
@@ -1021,7 +1022,7 @@ begin
                   Columnbox_Wares.ItemIndex := Columnbox_WaresGDP.ItemIndex;
               end
               else
-                Columnbox_Wares.ItemIndex := Columnbox_WaresGDP.ItemIndex
+                Columnbox_Wares.ItemIndex := Columnbox_WaresGDP.ItemIndex;
             end;
           end;
 
@@ -1425,15 +1426,10 @@ begin
     case gGameParams.Mode of
       gmSingle,
       gmCampaign,
-      gmReplaySingle: begin
-                        Button_Back.Caption := gResTexts[TX_RESULTS_BACK_TO_RESULTS];
-                      end;
-      gmReplayMulti:  begin
-                        Button_Back.Caption := gResTexts[TX_RESULTS_BACK_REPLAYS];
-                      end
-      else            begin
-                        Button_Back.Caption := gResTexts[TX_RESULTS_BACK_MP];
-                      end;
+      gmReplaySingle: Button_Back.Caption := gResTexts[TX_RESULTS_BACK_TO_RESULTS];
+      gmReplayMulti:  Button_Back.Caption := gResTexts[TX_RESULTS_BACK_REPLAYS];
+    else
+      Button_Back.Caption := gResTexts[TX_RESULTS_BACK_MP];
     end;
   end;
 

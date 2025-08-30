@@ -477,7 +477,8 @@ end;
 
 function TKMArmyVectorField.DetectEnemyPresence(var aOwners: TKMHandIDArray): Boolean;
 {$IFDEF DEBUG_ArmyVectorField}
-  var Time: Int64;
+var
+  Time: Int64;
 {$ENDIF}
 begin
   {$IFDEF DEBUG_ArmyVectorField}

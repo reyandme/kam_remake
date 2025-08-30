@@ -6,12 +6,14 @@ uses
 type
   // Unit Group types
   TKMGroupInitialOrder = (gioNoOrder, gioSendGroup, gioAttackPosition);
-  TKMOrderWalkKind = (wtokNone,
-                      wtokPlayerOrder,  //player order
-                      wtokHaltOrder,    //could be player order, or AI order (as part of OrderRepeat)
-                      wtokFlagPoint,    //after warrior get out of barracks/townhall
-                      wtokAISquad, wtokAIGotoDefencePos, wtokAIAttackCustomPos, //initiated by AI
-                      wtokMissionScript, wtokScript); //initiated by mission script or script
+
+  TKMOrderWalkKind = (
+    wtokNone,
+    wtokPlayerOrder,  //player order
+    wtokHaltOrder,    //could be player order, or AI order (as part of OrderRepeat)
+    wtokFlagPoint,    //after warrior get out of barracks/townhall
+    wtokAISquad, wtokAIGotoDefencePos, wtokAIAttackCustomPos, //initiated by AI
+    wtokMissionScript, wtokScript); //initiated by mission script or script
   TKMOrderWalkKindSet = set of TKMOrderWalkKind;
 
   //* Group order
@@ -30,7 +32,6 @@ type
   end;
 
 implementation
-
 
 end.
 

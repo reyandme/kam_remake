@@ -3,8 +3,7 @@ unit KM_GUIMapEdMenuQuit;
 interface
 uses
    Classes, SysUtils,
-   KM_Controls, KM_ControlsBase,
-   KM_Defaults;
+   KM_Controls, KM_ControlsBase;
 
 type
   TKMMapEdMenuQuit = class
@@ -25,6 +24,7 @@ type
 
 implementation
 uses
+  KM_Defaults,
   KM_GameApp, KM_ResTexts, KM_RenderUI, KM_ResFonts;
 
 

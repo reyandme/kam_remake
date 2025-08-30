@@ -3,8 +3,7 @@
 interface
 uses
   KM_Controls, KM_ControlsBase, KM_ControlsTrackBar,
-  KM_Pics,
-  KM_InterfaceGame, KM_ResHouses;
+  KM_Pics;
 
 
 type
@@ -37,9 +36,9 @@ type
 
 implementation
 uses
+  KM_InterfaceGame,
   KM_GameInputProcess, KM_GameSettings, KM_RenderUI, KM_HandsCollection, KM_ResTexts, KM_Game,
-  KM_Resource, KM_ResFonts,
-  KM_ResTypes;
+  KM_Resource, KM_ResFonts, KM_ResHouses, KM_ResTypes;
 
 
 const

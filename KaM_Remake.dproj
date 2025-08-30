@@ -297,6 +297,7 @@
         <DCCReference Include="src\controls\KM_ControlsDragger.pas"/>
         <DCCReference Include="src\controls\KM_ControlsDrop.pas"/>
         <DCCReference Include="src\controls\KM_ControlsEdit.pas"/>
+        <DCCReference Include="src\controls\KM_ControlsForm.pas"/>
         <DCCReference Include="src\controls\KM_ControlsList.pas"/>
         <DCCReference Include="src\controls\KM_ControlsMemo.pas"/>
         <DCCReference Include="src\controls\KM_ControlsMinimapView.pas"/>
@@ -481,7 +482,7 @@
         <DCCReference Include="src\net\KM_NetServer.pas"/>
         <DCCReference Include="src\net\KM_NetServerOverbyte.pas"/>
         <DCCReference Include="src\net\KM_NetServerLNet.pas"/>
-        <DCCReference Include="src\net\KM_NetServerQuery.pas"/>
+        <DCCReference Include="src\net\KM_NetServerPoller.pas"/>
         <DCCReference Include="src\net\KM_NetTypes.pas"/>
         <DCCReference Include="src\net\KM_NetUDP.pas"/>
         <DCCReference Include="src\net\KM_NetUDPOverbyte.pas"/>

@@ -3,10 +3,9 @@ unit KM_ScriptingActions;
 interface
 uses
   Classes, Math, SysUtils, StrUtils, KM_AIAttacks, KM_ResTilesetTypes,
-  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_TerrainTypes,
+  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_TerrainTypes,
   KM_ScriptSound, KM_MediaTypes, KM_ResTypes, KM_ResFonts, KM_HandTypes, KM_HouseWoodcutters,
-  KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares, KM_ScriptingEvents, KM_ScriptingTypes,
-  KM_AITypes, KM_TerrainSelection;
+  KM_ScriptingEvents, KM_ScriptingTypes, KM_AITypes, KM_TerrainSelection;
 
 
 type
@@ -17,6 +16,8 @@ type
 
     function _AIDefencePositionAdd(aHand: Integer; aOrder: Integer; const aDefencePosition: TKMDefencePositionInfo): Integer;
     function _AIGroupsFormationSet(aHand: Integer; aGroupType: TKMGroupType; aCount, aColumns: Integer): Boolean;
+    function _MapTilesArraySet(aFuncName: string; aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+    function _MapTileStringToType(aTilesS: TAnsiStringArray; var aTiles: TKMTerrainTileBriefArray): Boolean;
   public
     property OnSetLogLinesMaxCnt: TIntegerEvent read fOnSetLogLinesMaxCnt write fOnSetLogLinesMaxCnt;
 
@@ -157,6 +158,7 @@ type
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
     function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+    function MapTilesArraySetF(aFileName: string; aOffsetX, aOffsetY: Integer; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function MapTileHeightSet(X, Y, Height: Integer): Boolean;
     function MapTileObjectSet(X, Y, Obj: Integer): Boolean;
@@ -165,12 +167,12 @@ type
     procedure MarketSetTrade(aMarketID, aFrom, aTo, aAmount: Integer);
     procedure MarketSetTradeEx(aMarketID: Integer; aFrom, aTo: TKMWareType; aAmount: Integer);
 
-    procedure OverlayTextSet(aHand: Shortint; const aText: AnsiString);
-    procedure OverlayTextSetFormatted(aHand: Shortint; const aText: AnsiString; aParams: array of const);
-    procedure OverlayTextSetFont(aHand: Shortint; aFont: TKMFont);
-    procedure OverlayTextSetWordWrap(aHand: Shortint; aWordWrap: Boolean);
-    procedure OverlayTextAppend(aHand: Shortint; const aText: AnsiString);
-    procedure OverlayTextAppendFormatted(aHand: Shortint; const aText: AnsiString; aParams: array of const);
+    procedure OverlayTextSet(aHand: ShortInt; const aText: AnsiString);
+    procedure OverlayTextSetFormatted(aHand: ShortInt; const aText: AnsiString; aParams: array of const);
+    procedure OverlayTextSetFont(aHand: ShortInt; aFont: TKMFont);
+    procedure OverlayTextSetWordWrap(aHand: ShortInt; aWordWrap: Boolean);
+    procedure OverlayTextAppend(aHand: ShortInt; const aText: AnsiString);
+    procedure OverlayTextAppendFormatted(aHand: ShortInt; const aText: AnsiString; aParams: array of const);
 
     procedure Peacetime(aPeacetime: Cardinal);
 
@@ -185,6 +187,7 @@ type
     procedure PlayerAllianceChange(aHand1, aHand2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAllianceNFogChange(aHand1, aHand2: Byte; aCompliment, aAllied, aSyncAllyFog: Boolean);
     procedure PlayerAddDefaultGoals(aHand: Byte; aBuildings: Boolean);
+    procedure PlayerCenterScreenSet(aHand: Integer; aX: integer; aY: integer);
     procedure PlayerDefeat(aHand: Integer);
     procedure PlayerGoalsRemoveAll(aHand: Integer; aForAllPlayers: Boolean);
     procedure PlayerHouseTypeLock(aHand: Integer; aHouseType: TKMHouseType; aLock: TKMHandHouseLock);
@@ -220,10 +223,10 @@ type
     procedure RemoveRoad(X, Y: Integer);
 
     procedure SetTradeAllowed(aHand, aResType: Integer; aAllowed: Boolean);
-    procedure ShowMsg(aHand: Shortint; const aText: AnsiString);
-    procedure ShowMsgFormatted(aHand: Shortint; const aText: AnsiString; Params: array of const);
-    procedure ShowMsgGoto(aHand: Shortint; aX, aY: Integer; const aText: AnsiString);
-    procedure ShowMsgGotoFormatted(aHand: Shortint; aX, aY: Integer; const aText: AnsiString; Params: array of const);
+    procedure ShowMsg(aHand: ShortInt; const aText: AnsiString);
+    procedure ShowMsgFormatted(aHand: ShortInt; const aText: AnsiString; Params: array of const);
+    procedure ShowMsgGoto(aHand: ShortInt; aX, aY: Integer; const aText: AnsiString);
+    procedure ShowMsgGotoFormatted(aHand: ShortInt; aX, aY: Integer; const aText: AnsiString; Params: array of const);
 
     procedure UnitAllowAllyToSelect(aUnitID: Integer; aAllow: Boolean);
     procedure UnitBlock(aHand: Byte; aType: Integer; aBlock: Boolean);
@@ -254,7 +257,7 @@ uses
   KM_UnitGroupTypes,
   KM_Resource, KM_ResUnits, KM_Hand, KM_ResMapElements,
   KM_PathFindingRoad,
-  KM_Terrain,
+  KM_Terrain, KM_Units, KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_ResWares,
   KM_CommonUtils, KM_CommonClasses, KM_CommonClassesExt;
 
 const
@@ -395,6 +398,24 @@ begin
     end
     else
       LogParamWarn('Actions.PlayerHouseTypeLock', [aHand, GetEnumName(TypeInfo(TKMHouseType), Integer(aHouseType))]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 15783
+//* Sets player center screen at new coordinates.
+procedure TKMScriptActions.PlayerCenterScreenSet(aHand: Integer; aX: Integer; aY: Integer);
+begin
+  try
+    if InRange(aHand, 0, gHands.Count - 1)
+    and gHands[aHand].Enabled
+    and gTerrain.TileInMapCoords(aX, aY) then
+      gHands[aHand].CenterScreen := TKMPoint.New(aX, aY)
+    else
+      LogIntParamWarn('Actions.PlayerCenterScreenSet', [aHand, aX, aY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -2258,11 +2279,11 @@ begin
     Result := False;
     if InRange(aHand, 0, gHands.Count - 1)
       and gHands[aHand].Enabled
-      and (InRange(aStage, 0, WINE_STAGES_COUNT - 1))
+      and InRange(aStage, 0, WINE_STAGES_COUNT - 1)
       and gTerrain.TileInMapCoords(X, Y) then
     begin
       if gHands[aHand].CanAddFieldPlan(KMPoint(X, Y), ftWine)
-        or (gTerrain.TileIsWineField(KMPoint(X, Y))) then
+      or gTerrain.TileIsWineField(KMPoint(X, Y)) then
       begin
         Result := True;
         gTerrain.SetField(KMPoint(X, Y), aHand, ftWine, aStage, aRandomAge);
@@ -2398,7 +2419,7 @@ end;
 //* Displays a message to a player.
 //* If the player index is -1 the message will be shown to all players.
 //Input text is ANSI with libx codes to substitute
-procedure TKMScriptActions.ShowMsg(aHand: Shortint; const aText: AnsiString);
+procedure TKMScriptActions.ShowMsg(aHand: ShortInt; const aText: AnsiString);
 begin
   try
     if (aHand = gMySpectator.HandID) or (aHand = HAND_NONE) then
@@ -2415,7 +2436,7 @@ end;
 //* If the player index is -1 the message will be shown to all players.
 //* Params: Array of arguments
 //Input text is ANSI with libx codes to substitute
-procedure TKMScriptActions.ShowMsgFormatted(aHand: Shortint; const aText: AnsiString; Params: array of const);
+procedure TKMScriptActions.ShowMsgFormatted(aHand: ShortInt; const aText: AnsiString; Params: array of const);
 begin
   try
     try
@@ -2436,7 +2457,7 @@ end;
 //* Displays a message to a player with a goto button that takes the player to the specified location.
 //* If the player index is -1 the message will be shown to all players.
 //Input text is ANSI with libx codes to substitute
-procedure TKMScriptActions.ShowMsgGoto(aHand: Shortint; aX, aY: Integer; const aText: AnsiString);
+procedure TKMScriptActions.ShowMsgGoto(aHand: ShortInt; aX, aY: Integer; const aText: AnsiString);
 begin
   try
     if gTerrain.TileInMapCoords(aX, aY) then
@@ -2459,7 +2480,7 @@ end;
 //* If the player index is -1 the message will be shown to all players.
 //* Params: Array of arguments
 //Input text is ANSI with libx codes to substitute
-procedure TKMScriptActions.ShowMsgGotoFormatted(aHand: Shortint; aX, aY: Integer; const aText: AnsiString; Params: array of const);
+procedure TKMScriptActions.ShowMsgGotoFormatted(aHand: ShortInt; aX, aY: Integer; const aText: AnsiString; Params: array of const);
 begin
   try
     try
@@ -2565,7 +2586,7 @@ procedure TKMScriptActions.HouseAllowAllyToSelectAll(aHand: ShortInt; aAllow: Bo
   begin
     if gHands[aHandID].Enabled then
       for I := 0 to gHands[aHandID].Houses.Count - 1 do
-        gHands[aHandID].Houses[I].AllowAllyToSelect := aAllow
+        gHands[aHandID].Houses[I].AllowAllyToSelect := aAllow;
   end;
 
 var
@@ -3890,6 +3911,38 @@ begin
 end;
 
 
+function TKMScriptActions._MapTilesArraySet(aFuncName: string; aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
+  begin
+    Result := '';
+    for var I := Low(TKMTileChangeType) to High(TKMTileChangeType) do
+      if I in aErrorsIn then
+        Result := Result + IfThen(Result <> '', ', ') + GetEnumName(TypeInfo(TKMTileChangeType), Integer(I));
+  end;
+var
+  I: Integer;
+  errors: TKMTerrainTileChangeErrorArray;
+begin
+    Result := True;
+    SetLength(errors, 16);
+    if not gTerrain.ScriptTrySetTilesArray(aTiles, aRevertOnFail, errors) then
+    begin
+      Result := False;
+
+      // Log errors
+      if Length(errors) > 0 then
+        if aShowDetailedErrors then
+        begin
+          Log(aFuncName + ' list of tiles errors:');
+          for I := Low(errors) to High(errors) do
+            Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
+        end
+        else
+          Log(AnsiString(aFuncName + Format(': there were %d errors while setting tiles' , [Length(errors)])));
+    end;
+end;
+
+
 //* Version: 7000+
 //* Sets array of tiles info, with possible change of
 //* 1. terrain (tile type) and/or rotation (same as for MapTileSet),
@@ -3916,48 +3969,150 @@ end;
 //* aShowDetailedErrors: show detailed errors after. Can slow down the execution, because of logging. If aRevertOnFail is set to True, then only first error will be shown
 //* Result: True, if there was no errors on any tile. False if there was at least 1 error.
 function TKMScriptActions.MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
-
-  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
-  var
-    tileChangeType: TKMTileChangeType;
-  begin
-    Result := '';
-    for tileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
-      if tileChangeType in aErrorsIn then
-      begin
-        if Result <> '' then
-          Result := Result + ', ';
-        Result := Result + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
-      end;
-  end;
-
-var
-  I: Integer;
-  errors: TKMTerrainTileChangeErrorArray;
 begin
   try
-    Result := True;
-    SetLength(errors, 16);
-    if not gTerrain.ScriptTrySetTilesArray(aTiles, aRevertOnFail, errors) then
-    begin
-      Result := False;
-
-      // Log errors
-      if Length(errors) > 0 then
-      begin
-        if not aShowDetailedErrors then
-          Log(AnsiString(Format('Actions.MapTilesArraySet: there were %d errors while setting tiles' , [Length(errors)])))
-        else
-          Log('Actions.MapTilesArraySet list of tiles errors:');
-      end;
-      if aShowDetailedErrors then
-        for I := Low(errors) to High(errors) do
-          Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
-    end;
+    Result := _MapTilesArraySet('Actions.MapTilesArraySet', aTiles, aRevertOnFail, aShowDetailedErrors);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
   end;
+end;
+
+//* Version: 15000+
+//* Sets array of tiles info, like MapTilesArraySetS, but tile string array is
+//* stored in file.
+//* This function is useful if you need to create dynamic map from scratch.
+//* File Array must be in following format: X,Y,Terrain,Rotation,Height,Obj;X,Y,Terrain,Rotation,Height,Obj;...
+//* f.e. 1,1,20,2,87,12;1,2,20,2,12;...
+//* In case of invalid structure detection / failed variable parsing you can find
+//* detailed errors in LOG file.
+//* If you need to skip terrain or rotation/height/obj use -1 as parameter
+//* f.e.
+//* Skipping rotation for tile [7,2]: 7,2,20,-1,87,12
+//* Skipping obj for tile [7,2]: 7,2,20,2,87,-1
+//* Skipping height for tile [7,2]: 7,2,20,2,-1,5 etc.
+//* xOffset - offset that would be added to tiles X coordinates.
+//* yOffset - offset that would be added to tiles Y coordinates.
+function TKMScriptActions.MapTilesArraySetF(aFileName: string; aOffsetX, aOffsetY: Integer; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
+begin
+  try
+
+    Log('Action is not implemented');
+    result := false;
+
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+function TKMScriptActions._MapTileStringToType(aTilesS: TAnsiStringArray; var aTiles: TKMTerrainTileBriefArray): Boolean;
+var
+  I: Integer;
+  arrElem: TAnsiStringArray;
+  parsedValue: Integer;
+begin
+  {$WARN SUSPICIOUS_TYPECAST OFF}
+  Result := True;
+  SetLength(aTiles, Length(aTilesS));
+  for I := Low(aTilesS) to High(aTilesS) do
+  begin
+    arrElem := StrSplitA(ReplaceStr(String(aTilesS[I]), ' ', ''), ',');
+
+    // Check param count, if count is invalid we cannot process this entry
+    if Length(arrElem) <> 6 then
+    begin
+      // Log error, but keep on parsing, so we can report all parsing errors at once
+      LogStr(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [aTilesS[I]]));
+      Result := False;
+      Continue;
+    end;
+
+    // Check X, if X <= 0 we cannot proceed
+    parsedValue := StrToIntDef(string(PChar(arrElem[0])), -1);
+    if parsedValue > 0 then
+      aTiles[I].X := parsedValue
+    else
+    begin
+      // Log error, but keep on parsing, so we can report all parsing errors at once
+      LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
+      Result := False;
+    end;
+
+    // Check Y, if Y <= 0 we cannot proceed
+    parsedValue := StrToIntDef(string(PChar(arrElem[1])), -1);
+    if parsedValue > 0 then
+      aTiles[I].Y := parsedValue
+    else
+    begin
+      // Log error, but keep on parsing, so we can report all parsing errors at once
+      LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
+      Result := False;
+    end;
+
+    // If X or Y are invalid - we can not proceed with terrain changes
+    if not Result then
+      Continue;
+
+    if TryStrToInt(string(PChar(arrElem[2])), parsedValue) then
+    begin
+      if parsedValue >= 0 then
+      begin
+        //if value is not skipped we proceed with terrain
+        aTiles[I].Terrain := parsedValue;
+        aTiles[I].UpdateTerrain := True;
+      end;
+    end else
+    begin
+      LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], aTilesS[I]]));
+      Result := False;
+    end;
+
+    if TryStrToInt(string(PChar(arrElem[3])), parsedValue) then
+    begin
+      if parsedValue >= 0 then
+      begin
+        //if value is not skipped we proceed with rotation
+        aTiles[I].Rotation := parsedValue;
+        aTiles[I].UpdateRotation := True;
+      end;
+    end else
+    begin
+      LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], aTilesS[I]]));
+      Result := False;
+    end;
+
+    if TryStrToInt(string(PChar(arrElem[4])), parsedValue) then
+    begin
+      if parsedValue >= 0 then
+      begin
+        //if value is not skipped we proceed with height
+        aTiles[I].Height := parsedValue;
+        aTiles[I].UpdateHeight := True;
+      end;
+    end else
+    begin
+      LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], aTilesS[I]]));
+      Result := False;
+    end;
+
+    if TryStrToInt(string(PChar(arrElem[5])), parsedValue) then
+    begin
+      if parsedValue >= 0 then
+      begin
+        //if value is not skipped we proceed with obj
+        aTiles[I].Obj := parsedValue;
+        aTiles[I].UpdateObject := True;
+      end;
+    end
+    else
+    begin
+      Result := False;
+      LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
+    end;
+  end;
+  {$WARN SUSPICIOUS_TYPECAST ON}
 end;
 
 
@@ -3975,139 +4130,21 @@ end;
 //* Skipping obj for tile [7,2]: '7,2,20,2,87,-1'
 //* Skipping height for tile [7,2]: '7,2,20,2,-1,5' etc.
 function TKMScriptActions.MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
-
-  function GetTileErrorsStr(aErrorsIn: TKMTileChangeTypeSet): string;
-  var
-    tileChangeType: TKMTileChangeType;
-  begin
-    Result := '';
-    for tileChangeType := Low(TKMTileChangeType) to High(TKMTileChangeType) do
-      if tileChangeType in aErrorsIn then
-      begin
-        if Result <> '' then
-          Result := Result + ', ';
-        Result := Result + GetEnumName(TypeInfo(TKMTileChangeType), Integer(tileChangeType));
-      end;
-  end;
-
 var
-  I: Integer;
-  errors: TKMTerrainTileChangeErrorArray;
-  tiles: array of TKMTerrainTileBrief;
-  arrElem: TAnsiStringArray;
-  parsedValue: Integer;
-  parserError: Boolean;
+  tiles: TKMTerrainTileBriefArray;
+  parserSuccess: Boolean;
 begin
-{$WARN SUSPICIOUS_TYPECAST OFF}
   try
-    Result := True;
-    SetLength(errors, 16);
+    parserSuccess := _MapTileStringToType(aTilesS, tiles);
 
-    //***********PARSING ARRAY OF STRING TO ARRAY OF TKMTerrainTileBrief**********
-    SetLength(tiles, Length(aTilesS));
-    for I := Low(aTilesS) to High(aTilesS) do
-    begin
-      arrElem := StrSplitA(ReplaceStr(String(aTilesS[I]), ' ', ''), ',');
-      parserError := False;
-
-      //checking params count, if count is invalid we cannot proceed
-      if (Length(arrElem) <> 6) then
-        LogStr(Format('Actions.MapTilesArraySetS: Invalid number of parameters in string [%s]', [aTilesS[I]]))
-      else
-      begin
-        //checking X, if X <= 0 we cannot proceed
-        if ((TryStrToInt(string(PChar(arrElem[0])), parsedValue)) and (parsedValue > 0)) then
-          tiles[I].X := parsedValue
-        else
-        begin
-          LogStr(Format('Actions.MapTilesArraySetS: Parameter X = [%s] in line [%s] is not a valid integer.', [arrElem[0], aTilesS[I]]));
-          parserError := True;
-        end;
-        //checking Y, if Y <= 0 we cannot proceed
-        if ((TryStrToInt(string(PChar(arrElem[1])), parsedValue)) and (parsedValue > 0)) then
-          tiles[I].Y := parsedValue
-        else
-        begin
-          LogStr(Format('Actions.MapTilesArraySetS: Parameter Y = [%s] in line [%s] is not a valid integer.', [arrElem[1], aTilesS[I]]));
-          parserError := True;
-        end;
-
-        //if X and Y are correctly defined we can proceed with terrain changes
-        if (not parserError) then
-        begin
-          if (TryStrToInt(string(PChar(arrElem[2])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with terrain
-              tiles[I].Terrain := parsedValue;
-              tiles[I].UpdateTerrain := True;
-            end;
-          end
-          else
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Terrain = [%s] in line [%s] is not a valid integer.', [arrElem[2], aTilesS[I]]));
-
-          if (TryStrToInt(string(PChar(arrElem[3])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with rotation
-              tiles[I].Rotation := parsedValue;
-              tiles[I].UpdateRotation := True;
-            end;
-          end
-          else
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Rotation = [%s] in line [%s] is not a valid integer.', [arrElem[3], aTilesS[I]]));
-
-          if (TryStrToInt(string(PChar(arrElem[4])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with height
-              tiles[I].Height := parsedValue;
-              tiles[I].UpdateHeight := True;
-            end;
-          end
-          else
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Height = [%s] in line [%s] is not a valid integer.', [arrElem[4], aTilesS[I]]));
-
-          if (TryStrToInt(string(PChar(arrElem[5])), parsedValue)) then
-          begin
-            if (parsedValue >= 0) then
-            begin
-              //if value is not skipped we proceed with obj
-              tiles[I].Obj := parsedValue;
-              tiles[I].UpdateObject := True;
-            end;
-          end
-          else
-            LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
-        end;
-      end;
-    end;
-    //***********END OF PARSING**********
-
-    if not gTerrain.ScriptTrySetTilesArray(tiles, aRevertOnFail, errors) then
-    begin
+    if parserSuccess then
+      Result := _MapTilesArraySet('Actions.MapTilesArraySetS', tiles, aRevertOnFail, aShowDetailedErrors)
+    else
       Result := False;
-
-      // Log errors
-      if Length(errors) > 0 then
-      begin
-        if not aShowDetailedErrors then
-          Log(AnsiString(Format('Actions.MapTilesArraySetS: there were %d errors while setting tiles' , [Length(errors)])))
-        else
-          Log('Actions.MapTilesArraySetS list of tiles errors:');
-      end;
-      if aShowDetailedErrors then
-        for I := Low(errors) to High(errors) do
-          Log(AnsiString(Format('Tile: %d,%d errors while applying [%s]', [errors[I].X, errors[I].Y, GetTileErrorsStr(errors[I].ErrorsIn)])));
-    end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
   end;
-{$WARN SUSPICIOUS_TYPECAST ON}
 end;
 
 
@@ -4262,7 +4299,7 @@ end;
 //* Version: 5333
 //* Sets text overlaid on top left of screen.
 //* If the player index is -1 it will be set for all players.
-procedure TKMScriptActions.OverlayTextSet(aHand: Shortint; const aText: AnsiString);
+procedure TKMScriptActions.OverlayTextSet(aHand: ShortInt; const aText: AnsiString);
 begin
   try
     //Text from script should be only ANSI Latin, but UI is Unicode, so we switch it
@@ -4281,7 +4318,7 @@ end;
 //* Sets text overlaid on top left of screen with formatted arguments (same as Format function).
 //* If the player index is -1 it will be set for all players.
 //* Params: Array of arguments
-procedure TKMScriptActions.OverlayTextSetFormatted(aHand: Shortint; const aText: AnsiString; aParams: array of const);
+procedure TKMScriptActions.OverlayTextSetFormatted(aHand: ShortInt; const aText: AnsiString; aParams: array of const);
 begin
   try
     if InRange(aHand, -1, gHands.Count - 1) then //-1 means all players
@@ -4307,7 +4344,7 @@ end;
 //* Sets text overlay font
 //* Possible values are: fntAntiqua, fntGame, fntGrey, fntMetal, fntMini, fntOutline, fntArial, fntMonospaced
 //* If the player index is -1 it will be set for all players.
-procedure TKMScriptActions.OverlayTextSetFont(aHand: Shortint; aFont: TKMFont);
+procedure TKMScriptActions.OverlayTextSetFont(aHand: ShortInt; aFont: TKMFont);
 begin
   try
     if InRange(aHand, -1, gHands.Count - 1) then //-1 means all players
@@ -4326,7 +4363,7 @@ end;
 //* Version: 14000
 //* Sets or unsets text overlay word wrap
 //* If the player index is -1 it will be set for all players.
-procedure TKMScriptActions.OverlayTextSetWordWrap(aHand: Shortint; aWordWrap: Boolean);
+procedure TKMScriptActions.OverlayTextSetWordWrap(aHand: ShortInt; aWordWrap: Boolean);
 begin
   try
     if InRange(aHand, -1, gHands.Count - 1) then //-1 means all players
@@ -4345,13 +4382,13 @@ end;
 //* Version: 5333
 //* Appends to text overlaid on top left of screen.
 //* If the player index is -1 it will be appended for all players.
-procedure TKMScriptActions.OverlayTextAppend(aHand: Shortint; const aText: AnsiString);
+procedure TKMScriptActions.OverlayTextAppend(aHand: ShortInt; const aText: AnsiString);
 begin
   try
     if InRange(aHand, -1, gHands.Count - 1) then //-1 means all players
     begin
       try
-        gGame.OverlayAppend(aHand, aText, [])
+        gGame.OverlayAppend(aHand, aText, []);
       except
         // We could set or append formatted overlay markup and parameters earlier, so Format will be called for them and
         // Format may throw an exception
@@ -4372,7 +4409,7 @@ end;
 //* Appends to text overlaid on top left of screen with formatted arguments (same as Format function).
 //* If the player index is -1 it will be appended for all players.
 //* Params: Array of arguments
-procedure TKMScriptActions.OverlayTextAppendFormatted(aHand: Shortint; const aText: AnsiString; aParams: array of const);
+procedure TKMScriptActions.OverlayTextAppendFormatted(aHand: ShortInt; const aText: AnsiString; aParams: array of const);
 begin
   try
     if InRange(aHand, -1, gHands.Count - 1) then //-1 means all players
@@ -5268,7 +5305,7 @@ begin
       and G.CanTakeOrdersByScript
       and (U <> nil)
       and (U is TKMUnitWarrior)
-      and (G.HasMember(TKMUnitWarrior(U))) then
+      and G.HasMember(TKMUnitWarrior(U)) then
       begin
         G2 := G.OrderSplitUnit(TKMUnitWarrior(U), True);
         if G2 <> nil then

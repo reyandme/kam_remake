@@ -911,7 +911,7 @@ var
   B: Byte;
   GTS: TKMGroupTypeSet;
   succeed: Boolean;
-  str: string;
+  strSet: string;
 begin
   try
     GTS := [];
@@ -924,16 +924,12 @@ begin
     if not succeed then
     begin
       // Collect group types to string
-      str := '[';
+      strSet := '';
       for B in aGroupTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + IntToStr(B);
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + IntToStr(B);
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.ClosestGroupMultipleTypes', [aHand, X, Y, str]);
+      LogParamWarn('States.ClosestGroupMultipleTypes', [aHand, X, Y, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -951,7 +947,7 @@ end;
 function TKMScriptStates.ClosestGroupMultipleTypesEx(aHand, X, Y: Integer; aGroupTypes: TKMGroupTypeSet): Integer;
 var
   succeed: Boolean;
-  str: string;
+  strSet: string;
   GT: TKMGroupType;
 begin
   try
@@ -960,16 +956,12 @@ begin
     if not succeed then
     begin
       // Collect group types to string
-      str := '[';
+      strSet := '';
       for GT in aGroupTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + GetEnumName(TypeInfo(TKMGroupType), Integer(GT));
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + GetEnumName(TypeInfo(TKMGroupType), Integer(GT));
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.ClosestGroupMultipleTypesEx', [aHand, X, Y, str]);
+      LogParamWarn('States.ClosestGroupMultipleTypesEx', [aHand, X, Y, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -1085,7 +1077,7 @@ function TKMScriptStates.ClosestHouseMultipleTypes(aHand, X, Y: Integer; aHouseT
 var
   B: Byte;
   HTS: TKMHouseTypeSet;
-  str: string;
+  strSet: string;
   succeed: Boolean;
 begin
   try
@@ -1098,16 +1090,12 @@ begin
     if not succeed then
     begin
       // Collect house types to string
-      str := '[';
+      strSet := '';
       for B in aHouseTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + IntToStr(B);
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + IntToStr(B);
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.ClosestHouseMultipleTypes', [aHand, X, Y, str]);
+      LogParamWarn('States.ClosestHouseMultipleTypes', [aHand, X, Y, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -1126,23 +1114,19 @@ function TKMScriptStates.ClosestHouseMultipleTypesEx(aHand, X, Y: Integer; aHous
 var
   succeed: Boolean;
   HT: TKMHouseType;
-  str: string;
+  strSet: string;
 begin
   try
     Result := _ClosestHouseMultipleTypes(aHand, X, Y, aHouseTypes, succeed);
     if not succeed then
     begin
       // Collect house types to string
-      str := '[';
+      strSet := '';
       for HT in aHouseTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + GetEnumName(TypeInfo(TKMHouseType), Integer(HT));
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + GetEnumName(TypeInfo(TKMHouseType), Integer(HT));
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.ClosestHouseMultipleTypesEx', [aHand, X, Y, str]);
+      LogParamWarn('States.ClosestHouseMultipleTypesEx', [aHand, X, Y, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -1260,7 +1244,7 @@ var
   B: Byte;
   UTS: TKMUnitTypeSet;
   succeed: Boolean;
-  str: string;
+  strSet: string;
 begin
   try
     UTS := [];
@@ -1272,16 +1256,12 @@ begin
     if not succeed then
     begin
       // Collect unit types to string
-      str := '[';
+      strSet := '';
       for B in aUnitTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + IntToStr(B);
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + IntToStr(B);
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.ClosestUnitMultipleTypes', [aHand, X, Y, str]);
+      LogParamWarn('States.ClosestUnitMultipleTypes', [aHand, X, Y, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -1299,7 +1279,7 @@ end;
 function TKMScriptStates.ClosestUnitMultipleTypesEx(aHand, X, Y: Integer; aUnitTypes: TKMUnitTypeSet): Integer;
 var
   succeed: Boolean;
-  str: string;
+  strSet: string;
   UT: TKMUnitType;
 begin
   try
@@ -1307,16 +1287,12 @@ begin
     if not succeed then
     begin
       // Collect unit types to string
-      str := '[';
+      strSet := '';
       for UT in aUnitTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + GetEnumName(TypeInfo(TKMUnitType), Integer(UT));
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + GetEnumName(TypeInfo(TKMUnitType), Integer(UT));
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.ClosestUnitMultipleTypesEx', [aHand, X, Y, str]);
+      LogParamWarn('States.ClosestUnitMultipleTypesEx', [aHand, X, Y, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -1594,7 +1570,7 @@ end;
 function TKMScriptStates.StatHouseMultipleTypesCountEx(aHand: Integer; aTypes: TKMHouseTypeSet): Integer;
 var
   HT: TKMHouseType;
-  str: string;
+  strSet: string;
 begin
   try
     Result := 0;
@@ -1606,16 +1582,12 @@ begin
     end
     else
     begin
-      str := '[';
+      strSet := '';
       for HT in aTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + GetEnumName(TypeInfo(TKMHouseType), Integer(HT));
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + GetEnumName(TypeInfo(TKMHouseType), Integer(HT));
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.StatHouseMultipleTypesCountEx', [aHand, str]);
+      LogParamWarn('States.StatHouseMultipleTypesCountEx', [aHand, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -2045,7 +2017,7 @@ end;
 function TKMScriptStates.StatUnitMultipleTypesCountEx(aHand: Integer; aTypes: TKMUnitTypeSet): Integer;
 var
   UT: TKMUnitType;
-  str: string;
+  strSet: string;
 begin
   try
     Result := 0;
@@ -2059,16 +2031,12 @@ begin
     else
     begin
       // Collect unit types to string
-      str := '[';
+      strSet := '';
       for UT in aTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + GetEnumName(TypeInfo(TKMUnitType), Integer(UT));
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + GetEnumName(TypeInfo(TKMUnitType), Integer(UT));
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.StatUnitMultipleTypesCountEx', [aHand, str]);
+      LogParamWarn('States.StatUnitMultipleTypesCountEx', [aHand, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -2194,7 +2162,7 @@ end;
 function TKMScriptStates.StatUnitKilledMultipleTypesCountEx(aHand: Integer; aTypes: TKMUnitTypeSet): Integer;
 var
   UT: TKMUnitType;
-  str: string;
+  strSet: string;
 begin
   try
     Result := 0;
@@ -2208,16 +2176,12 @@ begin
     else
     begin
       // Collect unit types to string
-      str := '[';
+      strSet := '';
       for UT in aTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + GetEnumName(TypeInfo(TKMUnitType), Integer(UT));
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + GetEnumName(TypeInfo(TKMUnitType), Integer(UT));
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.StatUnitKilledMultipleTypesCountEx', [aHand, str]);
+      LogParamWarn('States.StatUnitKilledMultipleTypesCountEx', [aHand, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -2304,7 +2268,7 @@ end;
 function TKMScriptStates.StatUnitLostMultipleTypesCountEx(aHand: Byte; aTypes: TKMUnitTypeSet): Integer;
 var
   UT: TKMUnitType;
-  str: string;
+  strSet: string;
 begin
   try
     Result := 0;
@@ -2318,16 +2282,12 @@ begin
     else
     begin
       // Collect unit types to string
-      str := '[';
+      strSet := '';
       for UT in aTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + GetEnumName(TypeInfo(TKMUnitType), Integer(UT));
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + GetEnumName(TypeInfo(TKMUnitType), Integer(UT));
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.StatUnitLostMultipleTypesCountEx', [aHand, str]);
+      LogParamWarn('States.StatUnitLostMultipleTypesCountEx', [aHand, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -2427,7 +2387,7 @@ end;
 function TKMScriptStates.StatResourceProducedMultipleTypesCountEx(aHand: Integer; aTypes: TKMWareTypeSet): Integer;
 var
   WT: TKMWareType;
-  str: string;
+  strSet: string;
 begin
   try
     Result := 0;
@@ -2439,16 +2399,12 @@ begin
     end
     else
     begin
-      str := '[';
+      strSet := '';
       for WT in aTypes do
-      begin
-        if str <> '' then
-          str := str + ', ';
-        str := str + GetEnumName(TypeInfo(TKMWareType), Integer(WT));
-      end;
-      str := str + ']';
+        strSet := strSet + IfThen(strSet <> '', ', ') + GetEnumName(TypeInfo(TKMWareType), Integer(WT));
+      strSet := '[' + strSet + ']';
 
-      LogParamWarn('States.StatResourceProducedMultipleTypesCountEx', [aHand, str]);
+      LogParamWarn('States.StatResourceProducedMultipleTypesCountEx', [aHand, strSet]);
     end;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
@@ -4322,7 +4278,7 @@ end;
 function TKMScriptStates.MapWidth: Integer;
 begin
   try
-    Result := gTerrain.MapX
+    Result := gTerrain.MapX;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -4336,7 +4292,7 @@ end;
 function TKMScriptStates.MapHeight: Integer;
 begin
   try
-    Result := gTerrain.MapY
+    Result := gTerrain.MapY;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

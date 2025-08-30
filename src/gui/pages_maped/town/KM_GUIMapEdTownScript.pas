@@ -4,7 +4,7 @@ interface
 uses
    Classes, Math, StrUtils, SysUtils,
    KM_InterfaceDefaults,
-   KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsEdit, KM_ControlsPopUp, KM_ControlsSwitch, KM_ControlsTrackBar;
+   KM_Controls, KM_ControlsBase, KM_ControlsDrop, KM_ControlsEdit, KM_ControlsForm, KM_ControlsSwitch, KM_ControlsTrackBar;
 
 type
   TKMMapEdTownScript = class(TKMMapEdSubMenuPage)
@@ -18,7 +18,7 @@ type
       CheckBox_AutoRepair: TKMCheckBox;
       Button_ClassicAIParams: TKMButton;
 
-      PopUp_ClassicAIParams: TKMPopUpPanel;
+      Form_ClassicAIParams: TKMForm;
         TrackBar_SerfsPer10Houses: TKMTrackBar;
         TrackBar_WorkerCount: TKMTrackBar;
         DropBox_ArmyType: TKMDropList;
@@ -64,16 +64,16 @@ begin
   Button_ClassicAIParams.Anchors := [anLeft, anTop, anRight];
   Button_ClassicAIParams.OnClick := ClassicAIParams_Click;
 
-  PopUp_ClassicAIParams := TKMPopUpPanel.Create(aParent.MasterParent, 300, 220, gResTexts[TX_MAPED_AI_CLASSIC_AI_PARAMS_TITLE], pbGray);
+  Form_ClassicAIParams := TKMForm.Create(aParent.MasterParent, 300, 220, gResTexts[TX_MAPED_AI_CLASSIC_AI_PARAMS_TITLE], fbGray);
 
-    TrackBar_SerfsPer10Houses := TKMTrackBar.Create(PopUp_ClassicAIParams.ItemsPanel, 10, 10, 280, 1, 50);
+    TrackBar_SerfsPer10Houses := TKMTrackBar.Create(Form_ClassicAIParams.ItemsPanel, 10, 10, 280, 1, 50);
     TrackBar_SerfsPer10Houses.Caption := gResTexts[TX_MAPED_AI_SERFS_PER_10_HOUSES];
     TrackBar_SerfsPer10Houses.OnChange := Town_ScriptChange;
-    TrackBar_WorkerCount := TKMTrackBar.Create(PopUp_ClassicAIParams.ItemsPanel, 10, 55, 280, 0, 50);
+    TrackBar_WorkerCount := TKMTrackBar.Create(Form_ClassicAIParams.ItemsPanel, 10, 55, 280, 0, 50);
     TrackBar_WorkerCount.Caption := gResTexts[TX_MAPED_AI_WORKERS];
     TrackBar_WorkerCount.Hint := gResTexts[TX_MAPED_AI_WORKERS_COUNT_HINT];
     TrackBar_WorkerCount.OnChange := Town_ScriptChange;
-    CheckBox_AutoRepair := TKMCheckBox.Create(PopUp_ClassicAIParams.ItemsPanel, 9, 110, PopUp_ClassicAIParams.Width - 9, 20, gResTexts[TX_MAPED_AI_AUTOREPAIR], fntMetal);
+    CheckBox_AutoRepair := TKMCheckBox.Create(Form_ClassicAIParams.ItemsPanel, 9, 110, Form_ClassicAIParams.Width - 9, 20, gResTexts[TX_MAPED_AI_AUTOREPAIR], fntMetal);
     CheckBox_AutoRepair.OnClick := Town_ScriptChange;
 
     TKMLabel.Create(Panel_Script, 10, 130, TB_MAP_ED_WIDTH, 0, gResTexts[TX_MAPED_AI_ARMY_TYPE], fntMetal, taLeft);
@@ -84,9 +84,9 @@ begin
     DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_LEATHER],           Byte(atLeather));
     DropBox_ArmyType.Add(gResTexts[TX_MAPED_AI_ARMY_TYPE_MIXED],             Byte(atIronAndLeather));
 
-    Button_CloseClassicAIParams := TKMButton.Create(PopUp_ClassicAIParams.ItemsPanel,
-                                                    (PopUp_ClassicAIParams.ActualWidth div 2) - 60,
-                                                    PopUp_ClassicAIParams.ActualHeight - 40,
+    Button_CloseClassicAIParams := TKMButton.Create(Form_ClassicAIParams.ItemsPanel,
+                                                    (Form_ClassicAIParams.ActualWidth div 2) - 60,
+                                                    Form_ClassicAIParams.ActualHeight - 40,
                                                     120, 30, gResTexts[TX_WORD_CLOSE], bsGame);
     Button_CloseClassicAIParams.OnClick := ClassicAIParams_Click;
 
@@ -163,7 +163,7 @@ end;
 
 procedure TKMMapEdTownScript.ClassicAIParams_Click(Sender: TObject);
 begin
-  PopUp_ClassicAIParams.Visible := not PopUp_ClassicAIParams.Visible;
+  Form_ClassicAIParams.Visible := not Form_ClassicAIParams.Visible;
 end;
 
 
@@ -213,9 +213,9 @@ procedure TKMMapEdTownScript.KeyDown(Key: Word; Shift: TShiftState; var aHandled
 begin
   if aHandled then Exit;
 
-  if (Key = VK_ESCAPE) and PopUp_ClassicAIParams.Visible then
+  if (Key = VK_ESCAPE) and Form_ClassicAIParams.Visible then
   begin
-    PopUp_ClassicAIParams.Hide;
+    Form_ClassicAIParams.Hide;
     aHandled := True;
   end;
 end;

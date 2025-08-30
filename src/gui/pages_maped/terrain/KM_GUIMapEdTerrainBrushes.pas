@@ -3,7 +3,7 @@ unit KM_GUIMapEdTerrainBrushes;
 interface
 uses
    Classes, Math, SysUtils,
-   KM_Controls, KM_ControlsBase, KM_ControlsPopUp, KM_ControlsScroll, KM_ControlsSwitch, KM_ControlsTrackBar,
+   KM_Controls, KM_ControlsBase, KM_ControlsForm, KM_ControlsScroll, KM_ControlsSwitch, KM_ControlsTrackBar,
    KM_InterfaceDefaults,
    KM_Defaults, KM_Pics, KM_ResTilesetTypes;
 
@@ -31,8 +31,9 @@ type
       BrushBlending: TKMTrackBar;
       RandomElements, OverrideCustomTiles, UseTerrainObjects: TKMCheckBox;
       Button_FixTerrainBrushes: TKMButton;
-      PopUp_FixTerrainConfirm: TKMPopUpPanel;
-        Button_FixTerrain_Yes, Button_FixTerrain_No: TKMButton;
+      Form_FixTerrainConfirm: TKMForm;
+        Button_FixTerrain_Yes: TKMButton;
+        Button_FixTerrain_No: TKMButton;
   public
     constructor Create(aParent: TKMPanel);
 
@@ -231,21 +232,21 @@ begin
   Button_FixTerrainBrushes.Hint := gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_HINT];
   Button_FixTerrainBrushes.OnClick := BrushFixTerrain_Click;
 
-  PopUp_FixTerrainConfirm := TKMPopUpPanel.Create(aParent.MasterParent, 400, 200, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_TITLE], pbGray);
-    TKMLabel.Create(PopUp_FixTerrainConfirm.ItemsPanel, PopUp_FixTerrainConfirm.ActualWidth div 2, 10, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_CONFIRM], fntGrey, taCenter);
+  Form_FixTerrainConfirm := TKMForm.Create(aParent.MasterParent, 400, 200, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_TITLE], fbGray);
+    TKMLabel.Create(Form_FixTerrainConfirm.ItemsPanel, Form_FixTerrainConfirm.ActualWidth div 2, 10, gResTexts[TX_MAPED_TERRAIN_BRUSH_FIX_TERRAIN_CONFIRM], fntGrey, taCenter);
 
-    Button_FixTerrain_Yes := TKMButton.Create(PopUp_FixTerrainConfirm.ItemsPanel,
+    Button_FixTerrain_Yes := TKMButton.Create(Form_FixTerrainConfirm.ItemsPanel,
                                               10,
-                                              PopUp_FixTerrainConfirm.ActualHeight - 40,
-                                              (PopUp_FixTerrainConfirm.ActualWidth div 2) - 20,
+                                              Form_FixTerrainConfirm.ActualHeight - 40,
+                                              (Form_FixTerrainConfirm.ActualWidth div 2) - 20,
                                               30,
                                               gResTexts[TX_WORD_YES], bsGame);
     Button_FixTerrain_Yes.OnClick := FixTerrainBrushes;
 
-    Button_FixTerrain_No := TKMButton.Create(PopUp_FixTerrainConfirm.ItemsPanel,
-                                             (PopUp_FixTerrainConfirm.ActualWidth div 2) + 10,
-                                             PopUp_FixTerrainConfirm.ActualHeight - 40,
-                                             (PopUp_FixTerrainConfirm.ActualWidth div 2) - 20,
+    Button_FixTerrain_No := TKMButton.Create(Form_FixTerrainConfirm.ItemsPanel,
+                                             (Form_FixTerrainConfirm.ActualWidth div 2) + 10,
+                                             Form_FixTerrainConfirm.ActualHeight - 40,
+                                             (Form_FixTerrainConfirm.ActualWidth div 2) - 20,
                                              30,
                                              gResTexts[TX_WORD_CANCEL], bsGame);
     Button_FixTerrain_No.OnClick := BrushFixTerrain_Click;
@@ -349,14 +350,14 @@ end;
 
 procedure TKMMapEdTerrainBrushes.BrushFixTerrain_Click(Sender: TObject);
 begin
-  PopUp_FixTerrainConfirm.Visible := not PopUp_FixTerrainConfirm.Visible;
+  Form_FixTerrainConfirm.Visible := not Form_FixTerrainConfirm.Visible;
 end;
 
 
 procedure TKMMapEdTerrainBrushes.FixTerrainBrushes(Sender: TObject);
 begin
   gGame.TerrainPainter.FixTerrainKindInfo;
-  PopUp_FixTerrainConfirm.Hide;
+  Form_FixTerrainConfirm.Hide;
 end;
 
 
@@ -403,13 +404,13 @@ procedure TKMMapEdTerrainBrushes.KeyDown(Key: Word; Shift: TShiftState; aIsFirst
 begin
   if aHandled or not aIsFirst then Exit;
 
-  if (Key = VK_ESCAPE) then
+  if Key = VK_ESCAPE then
   begin
-    if PopUp_FixTerrainConfirm.Visible then
+    if Form_FixTerrainConfirm.Visible then
     begin
-      PopUp_FixTerrainConfirm.Hide;
+      Form_FixTerrainConfirm.Hide;
       aHandled := True;
-    end
+    end;
   end;
 end;
 

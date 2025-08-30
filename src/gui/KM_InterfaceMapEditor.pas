@@ -4,12 +4,11 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Classes, Math, StrUtils, SysUtils,
-  Controls,
-  KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsMinimapView, KM_ControlsPopUp,
+  Classes, Math, StrUtils, SysUtils, Controls,
+  KM_Controls, KM_ControlsBase, KM_ControlsList, KM_ControlsMinimapView, KM_ControlsForm,
   KM_Defaults, KM_Pics, KM_Points,
-  KM_Houses, KM_Units, KM_UnitGroup, KM_MapEditor,
-  KM_InterfaceDefaults, KM_InterfaceGame, KM_Terrain, KM_Minimap, KM_Viewport, KM_Render,
+  KM_Houses, KM_MapEditor,
+  KM_InterfaceGame, KM_Minimap, KM_Viewport, KM_Render,
   KM_GUIMapEdHouse,
   KM_GUIMapEdPlayerGoalPopUp,
   KM_GUIMapEdTerrain,
@@ -129,7 +128,7 @@ type
       Image_Extra: TKMImage;
       Image_Message: TKMImage;
 
-    PopUp_History: TKMPopUpPanel;
+    Form_History: TKMForm;
       ListBox_History: TKMListBox;
       Button_History_Undo,
       Button_History_Redo,
@@ -181,7 +180,7 @@ uses
   KM_ResTexts, KM_Game, KM_GameParams, KM_Cursor,
   KM_Resource, KM_ResHouses, KM_TerrainDeposits, KM_ResKeys, KM_GameApp,
   KM_AIDefensePos, KM_RenderUI, KM_ResFonts, KM_CommonClasses, KM_UnitWarrior,
-  KM_Maps,
+  KM_InterfaceDefaults, KM_Units, KM_UnitGroup, KM_Terrain, KM_Maps,
   KM_Utils, KM_CommonUtils,
   KM_UnitGroupTypes,
   KM_ResTypes;
@@ -340,33 +339,33 @@ begin
   fGuiMenu.GuiMenuQuickPlay := fGuiMenuQuickPlay;
   fGuiTerrain.GuiSelection.GuiRMGPopUp := fGuiRMG;
 
-  // PopUp window will be reated last
-  PopUp_History := TKMPopUpPanel.Create(Panel_Main, 270, 300, gResTexts[TX_MAPED_HISTORY_TITLE], pbScroll, True, False, False);
-  PopUp_History.Left := Panel_Main.Width - PopUp_History.Width;
-  PopUp_History.Top  := 0;
-  PopUp_History.DragEnabled := True;
-  PopUp_History.Hide; // History is hidden by default
-  PopUp_History.OnMouseWheel := History_MouseWheel;
-  PopUp_History.OnClose := History_Close;
-  PopUp_History.Anchors := [anTop, anRight];
+  // Form will be created last to be on top
+  Form_History := TKMForm.Create(Panel_Main, 270, 300, gResTexts[TX_MAPED_HISTORY_TITLE], fbScroll, True, False, False);
+  Form_History.Left := Panel_Main.Width - Form_History.Width;
+  Form_History.Top  := 0;
+  Form_History.DragEnabled := True;
+  Form_History.Hide; // History is hidden by default
+  Form_History.OnMouseWheel := History_MouseWheel;
+  Form_History.OnClose := History_Close;
+  Form_History.Anchors := [anTop, anRight];
 
-    ListBox_History := TKMListBox.Create(PopUp_History.ItemsPanel, 10, 10, PopUp_History.ItemsPanel.Width - 20, PopUp_History.ItemsPanel.Height - 50, fntMetal, bsGame);
+    ListBox_History := TKMListBox.Create(Form_History.ItemsPanel, 10, 10, Form_History.ItemsPanel.Width - 20, Form_History.ItemsPanel.Height - 50, fntMetal, bsGame);
     ListBox_History.AutoHideScrollBar := True;
     ListBox_History.ShowHintWhenShort := True;
     ListBox_History.HintBackColor := TKMColor4f.New(87, 72, 37);
     ListBox_History.OnChange := History_ListChange;
     ListBox_History.OnDoubleClick := History_JumpTo;
 
-    Button_History_JumpTo := TKMButton.Create(PopUp_History.ItemsPanel, 10, ListBox_History.Bottom + 5,
+    Button_History_JumpTo := TKMButton.Create(Form_History.ItemsPanel, 10, ListBox_History.Bottom + 5,
                                                              ListBox_History.Width, 20, gResTexts[TX_MAPED_HISTORY_JUMP_TO], bsGame);
     Button_History_JumpTo.OnClick := History_JumpTo;
     Button_History_JumpTo.Hint := gResTexts[TX_MAPED_HISTORY_JUMP_TO_HINT];
 
-    Button_History_Undo := TKMButton.Create(PopUp_History.ItemsPanel, 10, PopUp_History.ItemsPanel.Height - 10, (ListBox_History.Width div 2) - 7, 20, '<< ' + gResTexts[TX_MAPED_UNDO], bsGame);
+    Button_History_Undo := TKMButton.Create(Form_History.ItemsPanel, 10, Form_History.ItemsPanel.Height - 10, (ListBox_History.Width div 2) - 7, 20, '<< ' + gResTexts[TX_MAPED_UNDO], bsGame);
     Button_History_Undo.OnClick := UnRedo_Click;
     Button_History_Undo.Hint := gResTexts[TX_MAPED_UNDO_HINT]+ ' (''Ctrl + Z'')';
 
-    Button_History_Redo := TKMButton.Create(PopUp_History.ItemsPanel, PopUp_History.ItemsPanel.Width - 10 - Button_History_Undo.Width,
+    Button_History_Redo := TKMButton.Create(Form_History.ItemsPanel, Form_History.ItemsPanel.Width - 10 - Button_History_Undo.Width,
                                                            Button_History_Undo.Top, Button_History_Undo.Width, 20, gResTexts[TX_MAPED_REDO] + ' >>', bsGame);
     Button_History_Redo.OnClick := UnRedo_Click;
     Button_History_Redo.Hint := gResTexts[TX_MAPED_REDO_HINT] + ' (''Ctrl + Y'' or ''Ctrl + Shift + Z'')';
@@ -474,15 +473,15 @@ end;
 
 procedure TKMMapEdInterface.History_Click(Sender: TObject);
 begin
-  PopUp_History.Visible := not PopUp_History.Visible;
+  Form_History.Visible := not Form_History.Visible;
 
-  Button_History.Down := PopUp_History.Visible;
+  Button_History.Down := Form_History.Visible;
 end;
 
 
 procedure TKMMapEdInterface.History_Close;
 begin
-  Button_History.Down := PopUp_History.Visible;
+  Button_History.Down := Form_History.Visible;
 end;
 
 
@@ -1024,7 +1023,7 @@ end;
 
 procedure TKMMapEdInterface.ManageExtrasKeys(Key: Word; Shift: TShiftState);
 begin
-  if not Key in [gResKeys[kfMapedFlatTerrain], gResKeys[kfMapedTilesGrid]] then Exit;
+  if not (Key in [gResKeys[kfMapedFlatTerrain], gResKeys[kfMapedTilesGrid]]) then Exit;
 
   // Flat terrain
   if Key = gResKeys[kfMapedFlatTerrain] then
@@ -1075,13 +1074,13 @@ begin
     gGame.SaveMapEditor(TKMapsCollection.FullPath(Trim(gGameParams.Name), '.dat', fMapIsMultiplayer));
 
   //F1-F5 menu shortcuts
-  if Key = gResKeys[kfMapedTerrain]   then
+  if Key = gResKeys[kfMapedTerrain]  then
     Button_Main[1].Click;
-  if Key = gResKeys[kfMapedVillage]   then
+  if Key = gResKeys[kfMapedVillage]  then
     Button_Main[2].Click;
-  if Key = gResKeys[kfMapedVisual]    then
+  if Key = gResKeys[kfMapedVisual]   then
     Button_Main[3].Click;
-  if Key = gResKeys[kfMapedGlobal]    then
+  if Key = gResKeys[kfMapedGlobal]   then
     Button_Main[4].Click;
   if Key = gResKeys[kfMapedMainMenu] then
     Button_Main[5].Click;
@@ -1332,8 +1331,8 @@ end;
 
 procedure TKMMapEdInterface.History_UpdatePos;
 begin
-  PopUp_History.Left := EnsureRange(PopUp_History.Left, 0, Panel_Main.Width - PopUp_History.Width);
-  PopUp_History.Top  := EnsureRange(PopUp_History.Top, 0, Panel_Main.Height - PopUp_History.Height);
+  Form_History.Left := EnsureRange(Form_History.Left, 0, Panel_Main.Width - Form_History.Width);
+  Form_History.Top  := EnsureRange(Form_History.Top, 0, Panel_Main.Height - Form_History.Height);
 end;
 
 
@@ -1440,41 +1439,44 @@ end;
 
 
 procedure TKMMapEdInterface.MoveObjectToCursorCell(aObjectToMove: TObject);
-var
-  H: TKMHouse;
-  houseNewPos, houseOldPos: TKMPoint;
 begin
   if aObjectToMove = nil then Exit;
 
-  //House move
+  // House
   if aObjectToMove is TKMHouse then
   begin
-    H := TKMHouse(aObjectToMove);
+    var H := TKMHouse(aObjectToMove);
 
-    houseOldPos := H.Position;
-
-    houseNewPos := KMPointAdd(gCursor.Cell, fDragHouseOffset);
+    var houseOldPos := H.Position;
+    var houseNewPos := KMPointAdd(gCursor.Cell, fDragHouseOffset);
 
     if not fDragingObject then
       SetHousePosition(H, houseNewPos) //handles Right click, when house is selected
     else
       if not IsDragHouseModeOn then
         DragHouseModeStart(houseNewPos, houseOldPos);
-  end;
-
-  //Unit move
+  end else
+  // Group (as expected, right-clicking repositions the group)
+  if aObjectToMove is TKMUnitGroup then
+  begin
+    var G := TKMUnitGroup(aObjectToMove);
+    if G.SetGroupPosition(gCursor.Cell) then
+      gGame.MapEditor.History.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_MOVE_SMTH], [gRes.Units[G.UnitType].GUIName, G.Position.ToString]));
+  end else
+  // Warrior (a bit unexpectedly, dragging group leader around drags warriror)
+  if aObjectToMove is TKMUnitWarrior then
+  begin
+    var G := gHands.GetGroupByMember(TKMUnitWarrior(aObjectToMove));
+    if G.SetGroupPosition(gCursor.Cell) then
+      gGame.MapEditor.History.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_MOVE_SMTH], [gRes.Units[G.UnitType].GUIName, G.Position.ToString]));
+  end else
+  // Unit
   if aObjectToMove is TKMUnit then
   begin
-    if aObjectToMove is TKMUnitWarrior then
-      aObjectToMove := gHands.GetGroupByMember(TKMUnitWarrior(aObjectToMove))
-    else
-      TKMUnit(aObjectToMove).SetUnitPosition(gCursor.Cell);
+    var U := TKMUnit(aObjectToMove);
+    if U.SetUnitPosition(gCursor.Cell) then
+      gGame.MapEditor.History.MakeCheckpoint(caUnits, Format(gResTexts[TX_MAPED_HISTORY_CHPOINT_MOVE_SMTH], [gRes.Units[U.UnitType].GUIName, U.Position.ToString]));
   end;
-
-  //Unit group move
-  if aObjectToMove is TKMUnitGroup then
-    //Just move group to specified location
-    TKMUnitGroup(aObjectToMove).SetGroupPosition(gCursor.Cell);
 end;
 
 
@@ -1674,7 +1676,7 @@ begin
   fGuiTerrain.Resize;
   fGuiMenu.Resize;
 
-  // Put PopUp_History back into window, if it goes out of it
+  // Put Form_History back into window, if it goes out of it
   History_UpdatePos;
 end;
 

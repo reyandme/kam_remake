@@ -4,7 +4,7 @@ interface
 uses
    Classes,
    KM_MapTypes,
-   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsMemo, KM_ControlsPopUp, KM_ControlsSwitch,
+   KM_Controls, KM_ControlsBase, KM_ControlsEdit, KM_ControlsMemo, KM_ControlsForm, KM_ControlsSwitch,
    KM_Defaults;
 
 type
@@ -12,7 +12,7 @@ type
   private
     fUpdating: Boolean;
 
-    procedure CreateMissionParams(aParent: TKMPopUpPanel);
+    procedure CreateMissionParams(aParent: TKMForm);
 
     procedure Mission_ModeChange(Sender: TObject);
     procedure Mission_ModeUpdate;
@@ -29,7 +29,7 @@ type
       Radio_MissionMode: TKMRadioGroup;
 
       Button_MissionParams: TKMButton;
-      PopUp_MissionParams: TKMPopUpPanel;
+      Form_MissionParams: TKMForm;
         Panel_MissionParams: TKMPanel;
           Edit_Author: TKMEdit;
           Edit_Version: TKMEdit;
@@ -93,11 +93,11 @@ begin
   Button_MissionParams.Hint := gResTexts[TX_MAPED_MISSION_PARAMETERS_BTN_HINT];
   Button_MissionParams.OnClick := MissionParams_Click;
 
-  PopUp_MissionParams := TKMPopUpPanel.Create(aParent.MasterParent, 700, POPUP_H, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE], pbYellow, False, False);
-  PopUp_MissionParams.CapOffsetY := -5;
-  PopUp_MissionParams.OnKeyDown := MissionParams_OnKeyDown;
+  Form_MissionParams := TKMForm.Create(aParent.MasterParent, 700, POPUP_H, gResTexts[TX_MAPED_MISSION_PARAMETERS_TITLE], fbYellow, False, False);
+  Form_MissionParams.CapOffsetY := -5;
+  Form_MissionParams.OnKeyDown := MissionParams_OnKeyDown;
 
-  CreateMissionParams(PopUp_MissionParams);
+  CreateMissionParams(Form_MissionParams);
 
   TKMLabel.Create(Panel_Mode, 0, 140, Panel_Mode.Width, 0, gResTexts[TX_MAPED_AI_DEFAULTS_HEADING], fntOutline, taCenter).Anchors := [anLeft, anTop, anRight];
 
@@ -120,7 +120,7 @@ begin
 end;
 
 
-procedure TKMMapEdMissionMode.CreateMissionParams(aParent: TKMPopUpPanel);
+procedure TKMMapEdMissionMode.CreateMissionParams(aParent: TKMForm);
 const
   CHK_W = 300;
   RADIO_W = 250;
@@ -270,13 +270,13 @@ end;
 
 procedure TKMMapEdMissionMode.MissionParams_Click(Sender: TObject);
 begin
-  PopUp_MissionParams.Show;
+  Form_MissionParams.Show;
 end;
 
 
 procedure TKMMapEdMissionMode.MissionParams_CloseClick(Sender: TObject);
 begin
-  PopUp_MissionParams.Hide;
+  Form_MissionParams.Hide;
 end;
 
 

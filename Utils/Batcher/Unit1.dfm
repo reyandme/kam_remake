@@ -15,19 +15,6 @@ object Form1: TForm1
     883
     454)
   TextHeight = 13
-  object Button3: TButton
-    Left = 24
-    Top = 24
-    Width = 185
-    Height = 25
-    Margins.Left = 2
-    Margins.Top = 2
-    Margins.Right = 2
-    Margins.Bottom = 2
-    Caption = 'Export campaign texts to EVT'
-    TabOrder = 0
-    OnClick = Button3Click
-  end
   object Button1: TButton
     Left = 24
     Top = 64
@@ -38,7 +25,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Mass rename sprites'
-    TabOrder = 1
+    TabOrder = 0
     OnClick = Button1Click
   end
   object Button2: TButton
@@ -51,7 +38,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Check goals count'
-    TabOrder = 2
+    TabOrder = 1
     OnClick = Button2Click
   end
   object Memo1: TMemo
@@ -71,8 +58,7 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
     ScrollBars = ssVertical
-    TabOrder = 3
-    ExplicitWidth = 776
+    TabOrder = 2
   end
   object Button4: TButton
     Left = 24
@@ -84,7 +70,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Rip time goals'
-    TabOrder = 4
+    TabOrder = 3
     OnClick = Button4Click
   end
   object btnUnXorAll: TButton
@@ -97,7 +83,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'unXOR all maps'
-    TabOrder = 5
+    TabOrder = 4
     OnClick = btnXorAllClick
   end
   object btnXorAll: TButton
@@ -110,7 +96,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'XOR all maps'
-    TabOrder = 6
+    TabOrder = 5
     OnClick = btnXorAllClick
   end
   object Button7: TButton
@@ -123,7 +109,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Show message goals'
-    TabOrder = 7
+    TabOrder = 6
     OnClick = Button7Click
   end
   object Button8: TButton
@@ -136,7 +122,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Append user players to MP maps'
-    TabOrder = 8
+    TabOrder = 7
     OnClick = Button8Click
   end
   object Button5: TButton
@@ -149,7 +135,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Add AI players to MP maps'
-    TabOrder = 9
+    TabOrder = 8
     OnClick = Button5Click
   end
   object Button6: TButton
@@ -162,7 +148,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Add AI auto config to MP maps'
-    TabOrder = 10
+    TabOrder = 9
     OnClick = Button6Click
   end
   object Button9: TButton
@@ -175,7 +161,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Fix script text'
-    TabOrder = 11
+    TabOrder = 10
     OnClick = Button9Click
   end
   object btnCheckColor: TButton
@@ -191,7 +177,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Check all maps set color explicitly'
-    TabOrder = 12
+    TabOrder = 11
     OnClick = btnCheckColorClick
   end
   object btnSetDefColor: TButton
@@ -207,7 +193,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Set all maps missing colors explicitly with defaults'
-    TabOrder = 13
+    TabOrder = 12
     OnClick = btnCheckColorClick
   end
   object btnRemoveNewRemap: TButton
@@ -220,7 +206,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Remove SET_NEW_REMAP from all maps'
-    TabOrder = 14
+    TabOrder = 13
     OnClick = btnRemoveNewRemapClick
   end
   object btnDeleteUnusedSetMapColor: TButton
@@ -238,7 +224,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Delete unused SET_MAP_COLOR for all maps'
-    TabOrder = 15
+    TabOrder = 14
     OnClick = btnDeleteUnusedSetMapColorClick
   end
   object Button10: TButton
@@ -252,7 +238,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Add AdvancedAI to MP maps, where Human+AI players'
-    TabOrder = 16
+    TabOrder = 15
     OnClick = Button10Click
   end
   object Button11: TButton
@@ -265,7 +251,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'LF -> CRLF all maps'
-    TabOrder = 17
+    TabOrder = 16
     OnClick = Button11Click
   end
   object Button12: TButton
@@ -278,7 +264,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'LF -> CRLF all Units *.pas'
-    TabOrder = 18
+    TabOrder = 17
     OnClick = Button12Click
   end
   object Button13: TButton
@@ -291,7 +277,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Resave all maps'
-    TabOrder = 19
+    TabOrder = 18
     OnClick = Button13Click
   end
   object Button14: TButton
@@ -304,7 +290,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Add missing AI players'
-    TabOrder = 20
+    TabOrder = 19
     OnClick = Button14Click
   end
   object Button15: TButton
@@ -317,7 +303,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Generate Utils DCC_UnitSearchPath for .dproj'
-    TabOrder = 21
+    TabOrder = 20
     OnClick = Button15Click
   end
   object Button16: TButton
@@ -330,7 +316,7 @@ object Form1: TForm1
     Margins.Right = 2
     Margins.Bottom = 2
     Caption = 'Rebuild anim tiles into plain form'
-    TabOrder = 22
+    TabOrder = 21
     OnClick = Button16Click
   end
 end

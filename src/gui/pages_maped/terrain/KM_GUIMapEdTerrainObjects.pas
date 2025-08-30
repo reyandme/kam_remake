@@ -6,9 +6,9 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Math, SysUtils,
   KM_InterfaceDefaults,
-  KM_Controls, KM_ControlsBase, KM_ControlsPopUp, KM_ControlsScroll, KM_ControlsSwitch, KM_ControlsTrackBar,
+  KM_Controls, KM_ControlsBase, KM_ControlsForm, KM_ControlsScroll, KM_ControlsSwitch, KM_ControlsTrackBar,
   KM_TerrainTypes,
-  KM_Defaults, KM_Pics, KM_Cursor, KM_Points, KM_CommonTypes;
+  KM_Pics, KM_Points, KM_CommonTypes;
 
 type
   TKMTerrainObjectAttribute = (toaBlockDiagonal, toaBlockAllExceptBuild, toaBlockBuild, toaChoppableTree);
@@ -54,7 +54,7 @@ type
       ObjectsPalette_Button: TKMButtonFlat;
       ObjectsTable: array [0..8] of TKMButtonFlat;
       ObjectsScroll: TKMScrollBar;
-    PopUp_ObjectsPalette: TKMPopUpPanel;
+    Form_ObjectsPalette: TKMForm;
       Bevel_ObjectsPalette: TKMBevel;
       Image_ObjectsPalette: TKMImage;
       Label_ObjectsPalette: TKMLabel;
@@ -94,9 +94,9 @@ type
 
 implementation
 uses
+  KM_Defaults, KM_Cursor,
   KM_Main, KM_Resource, KM_ResFonts, KM_ResMapElements, KM_ResTexts, KM_ResKeys, KM_Terrain,
-  KM_HandsCollection, KM_RenderUI, KM_InterfaceGame, KM_Utils,
-  KM_ResTypes;
+  KM_HandsCollection, KM_RenderUI, KM_InterfaceGame, KM_Utils, KM_ResTypes;
 
 type
   TKMObjBrushForestAge = (faAll, faAllButStomps, faYoung, faMedium, faBig, faChop, faStomp);
@@ -167,21 +167,20 @@ constructor TKMMapEdTerrainObjects.Create(aParent: TKMPanel; aHideAllPages: TKME
   end;
 
 var
-  top: Integer;
+  dy: Integer;
 
   function NextTop(aInc: Integer): Integer;
   begin
-    Result := top;
-    top := top + aInc;
+    Result := dy;
+    Inc(dy, aInc);
   end;
 
 var
   I, J: Integer;
 //  TOA: TKMTerrainObjectAttribute;
   //For brushes
-   K: Integer;
+  K: Integer;
   OT: TKMTerrainObjectType;
-
 begin
   inherited Create;
 
@@ -197,8 +196,8 @@ begin
   Panel_Objects.ScrollV_PadLeft := -20;
   Panel_Objects.AnchorsStretch;
 
-  with TKMLabel.Create(Panel_Objects, 0, TERRAIN_PAGE_TITLE_Y, Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter) do
-    Anchors := [anLeft, anTop, anRight];
+  var lblObjects := TKMLabel.Create(Panel_Objects, 0, TERRAIN_PAGE_TITLE_Y, Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS], fntOutline, taCenter);
+  lblObjects.Anchors := [anLeft, anTop, anRight];
 
   ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 9, 295, Panel_Objects.Width - 9, 20, saHorizontal, bsGame);
   ObjectsScroll.Anchors := [anLeft, anTop, anRight];
@@ -231,23 +230,23 @@ begin
   ObjectsPalette_Button.CapOffsetY := -11;
   ObjectsPalette_Button.OnClick := ObjectsPaletteButton_Click;
 
-  PopUp_ObjectsPalette := TKMPopUpPanel.Create(aParent.MasterParent, aParent.MasterParent.Width - 50, aParent.MasterParent.Height - 50);
-  PopUp_ObjectsPalette.OnChangeVisibility := ObjectsPalette_OnShow;
+  Form_ObjectsPalette := TKMForm.Create(aParent.MasterParent, aParent.MasterParent.Width - 50, aParent.MasterParent.Height - 50);
+  Form_ObjectsPalette.OnChangeVisibility := ObjectsPalette_OnShow;
   // Keep the pop-up centered
-  PopUp_ObjectsPalette.AnchorsCenter;
-  PopUp_ObjectsPalette.Left := 25;
-  PopUp_ObjectsPalette.Top := 25;
+  Form_ObjectsPalette.AnchorsCenter;
+  Form_ObjectsPalette.Left := 25;
+  Form_ObjectsPalette.Top := 25;
 
-    Bevel_ObjectsPalette := TKMBevel.Create(PopUp_ObjectsPalette, -2000,  -2000, 5000, 5000);
+    Bevel_ObjectsPalette := TKMBevel.Create(Form_ObjectsPalette, -2000,  -2000, 5000, 5000);
     Bevel_ObjectsPalette.BackAlpha := 0.7;
     Bevel_ObjectsPalette.EdgeAlpha := 0.9;
     Bevel_ObjectsPalette.OnClickShift := ObjPalette_ClickShift;
 
-    Image_ObjectsPalette := TKMImage.Create(PopUp_ObjectsPalette, 0, 0, PopUp_ObjectsPalette.Width, PopUp_ObjectsPalette.Height, 18, rxGuiMain);
+    Image_ObjectsPalette := TKMImage.Create(Form_ObjectsPalette, 0, 0, Form_ObjectsPalette.Width, Form_ObjectsPalette.Height, 18, rxGuiMain);
     Image_ObjectsPalette.ImageStretch;
     Image_ObjectsPalette.OnClickShift := ObjPalette_ClickShift;
 
-    Scroll_ObjectsPalette := TKMScrollBar.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Width - 20, 25, 20, PopUp_ObjectsPalette.Height - 75, saVertical, bsGame);
+    Scroll_ObjectsPalette := TKMScrollBar.Create(Form_ObjectsPalette, Form_ObjectsPalette.Width - 20, 25, 20, Form_ObjectsPalette.Height - 75, saVertical, bsGame);
     Scroll_ObjectsPalette.MinValue := 0;
     Scroll_ObjectsPalette.Position := 0;
     Scroll_ObjectsPalette.OnChange := ObjectsPalette_Refresh;
@@ -259,7 +258,7 @@ begin
     SetLength(ObjectsPaletteTable, fCountCompact);
     for I := 0 to fCountCompact - 1 do
     begin
-      ObjectsPaletteTable[I] := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, OBJ_CELL_PALETTE_W, OBJ_CELL_PALETTE_H, 1, rxTrees); // Left and Top will update later
+      ObjectsPaletteTable[I] := TKMButtonFlat.Create(Form_ObjectsPalette, 0, 0, OBJ_CELL_PALETTE_W, OBJ_CELL_PALETTE_H, 1, rxTrees); // Left and Top will update later
       ObjectsPaletteTable[I].Tag := I; //Store ID
       ObjectsPaletteTable[I].CapOffsetY := 15;
 //      ObjectsPaletteTable[I].TexOffsetY := 0;
@@ -276,25 +275,25 @@ begin
       SetLength(Image_ObjectAttributes[J], fCountCompact);
       for I := 0 to fCountCompact - 1 do
       begin
-        Image_ObjectAttributes[J, I] := TKMImage.Create(PopUp_ObjectsPalette, 0, 0, 0, 0, 0);
+        Image_ObjectAttributes[J, I] := TKMImage.Create(Form_ObjectsPalette, 0, 0, 0, 0, 0);
         Image_ObjectAttributes[J, I].Hide;
         Image_ObjectAttributes[J, I].Hitable := False;
       end;
     end;
 
-    Label_ObjectsPalette := TKMLabel.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X, 0, gResTexts[TX_MAPED_TERRAIN_OBJECTS_PALETTE], fntOutline, taCenter);
+    Label_ObjectsPalette := TKMLabel.Create(Form_ObjectsPalette, Form_ObjectsPalette.Center.X, 0, gResTexts[TX_MAPED_TERRAIN_OBJECTS_PALETTE], fntOutline, taCenter);
 
-    Button_ObjPaletteErase := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, OBJ_PAL_CELL_W, 32, 340);
+    Button_ObjPaletteErase := TKMButtonFlat.Create(Form_ObjectsPalette, 0, 0, OBJ_PAL_CELL_W, 32, 340);
     Button_ObjPaletteErase.Hint := gResTexts[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
     Button_ObjPaletteErase.Tag := OBJ_NONE_TAG; //no object
     Button_ObjPaletteErase.OnClickShift := ObjPalette_ClickShift;
 
-    Button_ObjPaletteBlock := TKMButtonFlat.Create(PopUp_ObjectsPalette, 0, 0, OBJ_PAL_CELL_W, 32, 254, rxTrees);
+    Button_ObjPaletteBlock := TKMButtonFlat.Create(Form_ObjectsPalette, 0, 0, OBJ_PAL_CELL_W, 32, 254, rxTrees);
     Button_ObjPaletteBlock.Hint := gResTexts[TX_MAPED_TERRAIN_OBJECTS_BLOCK];
     Button_ObjPaletteBlock.Tag := OBJ_BLOCK_TAG; //block object
     Button_ObjPaletteBlock.OnClickShift := ObjPalette_ClickShift;
 
-    Button_ClosePalette  := TKMButton.Create(PopUp_ObjectsPalette, PopUp_ObjectsPalette.Center.X - 100, PopUp_ObjectsPalette.Bottom - 50,
+    Button_ClosePalette  := TKMButton.Create(Form_ObjectsPalette, Form_ObjectsPalette.Center.X - 100, Form_ObjectsPalette.Bottom - 50,
                                              200, 30, gResTexts[TX_MAPED_TERRAIN_CLOSE_PALETTE], bsGame);
     Button_ClosePalette.Anchors := [anLeft,anBottom];
     Button_ClosePalette.OnClick := ObjectsPaletteClose_Click;
@@ -303,25 +302,25 @@ begin
 
 
   // Objects brushes
-  top := 355;
+  dy := 355;
 
-  with TKMLabel.Create(Panel_Objects, 9, NextTop(25), Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS_BRUSH], fntOutline, taCenter) do
-    Anchors := [anLeft, anTop, anRight];
+  var lblBrush := TKMLabel.Create(Panel_Objects, 9, NextTop(25), Panel_Objects.Width, 0, gResTexts[TX_MAPED_OBJECTS_BRUSH], fntOutline, taCenter);
+  lblBrush.Anchors := [anLeft, anTop, anRight];
 
-  BrushSize := TKMTrackBar.Create(Panel_Objects, 9, top + 3, (Panel_Objects.Width - (BTN_BRUSH_TYPE_S * 2) - 18) - 18, 4, MAPED_BRUSH_MAX_SIZE);
+  BrushSize := TKMTrackBar.Create(Panel_Objects, 9, dy + 3, (Panel_Objects.Width - (BTN_BRUSH_TYPE_S * 2) - 18) - 18, 4, MAPED_BRUSH_MAX_SIZE);
   BrushSize.Anchors := [anLeft, anTop, anRight];
   BrushSize.Position := 1;
   BrushSize.OnChange := ObjectsBrushChange;
   BrushSize.Hint := GetHintWHotkey(TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT, gResTexts[TX_KEY_CTRL_MOUSEWHEEL]);
 
-  BrushCircle := TKMButtonFlat.Create(Panel_Objects, Panel_Objects.Width - (BTN_BRUSH_TYPE_S * 2) - 18, top, BTN_BRUSH_TYPE_S, BTN_BRUSH_TYPE_S, 592);
+  BrushCircle := TKMButtonFlat.Create(Panel_Objects, Panel_Objects.Width - (BTN_BRUSH_TYPE_S * 2) - 18, dy, BTN_BRUSH_TYPE_S, BTN_BRUSH_TYPE_S, 592);
   BrushCircle.Anchors := [anTop, anRight];
   BrushCircle.OnClick := ObjectsBrushChange;
   BrushCircle.TexOffsetX := 1;
   BrushCircle.TexOffsetY := 1;
   BrushCircle.Down := True;
 
-  BrushSquare := TKMButtonFlat.Create(Panel_Objects, Panel_Objects.Width - BTN_BRUSH_TYPE_S - 9, top, BTN_BRUSH_TYPE_S, BTN_BRUSH_TYPE_S, 593);
+  BrushSquare := TKMButtonFlat.Create(Panel_Objects, Panel_Objects.Width - BTN_BRUSH_TYPE_S - 9, dy, BTN_BRUSH_TYPE_S, BTN_BRUSH_TYPE_S, 593);
   BrushSquare.Anchors := [anTop, anRight];
   BrushSquare.OnClick := ObjectsBrushChange;
   BrushSquare.TexOffsetX := 1;
@@ -342,7 +341,7 @@ begin
     J := Ord(OT) mod 5;
     K := Ord(OT) div 5;
 
-    ObjectTypeSet[OT] := TKMButtonFlat.Create(Panel_Objects, 9+BTN_BRUSH_SIZE*J, top + BTN_BRUSH_SIZE*K, 34, 34, OBJECT_TYPE_BTN[OT].TexID, rxTrees);
+    ObjectTypeSet[OT] := TKMButtonFlat.Create(Panel_Objects, 9+BTN_BRUSH_SIZE*J, dy + BTN_BRUSH_SIZE*K, 34, 34, OBJECT_TYPE_BTN[OT].TexID, rxTrees);
 
     ObjectTypeSet[OT].OnClick := ObjectsBrushChange;
     ObjectTypeSet[OT].Hint := gResTexts[OBJECT_TYPE_BTN[OT].HintTX];
@@ -350,14 +349,14 @@ begin
 
   NextTop(80);
 
-  ForestDensity   := TKMTrackBar.Create(Panel_Objects, 9, NextTop(50), (Panel_Objects.Width) - 18, 1, OBJECT_MAX_DENSITY);
+  ForestDensity   := TKMTrackBar.Create(Panel_Objects, 9, NextTop(50), Panel_Objects.Width - 18, 1, OBJECT_MAX_DENSITY);
   ForestDensity.Anchors := [anLeft, anTop, anRight];
   ForestDensity.Caption := gResTexts[TX_MAPED_OBJECTS_BRUSH_DENSITY];
   ForestDensity.Position := 10;
   ForestDensity.OnChange := ObjectsBrushChange;
   ForestDensity.Hint := GetHintWHotkey(TX_MAPED_OBJECTS_BRUSH_DENSITY_HINT, gResTexts[TX_KEY_ALT_MOUSEWHEEL]);
 
-  ForestAge := TKMTrackBar.Create(Panel_Objects, 9, NextTop(50), (Panel_Objects.Width) - 18,
+  ForestAge := TKMTrackBar.Create(Panel_Objects, 9, NextTop(50), Panel_Objects.Width - 18,
                                   Ord(Low(TKMObjBrushForestAge)), Ord(High(TKMObjBrushForestAge)));
   ForestAge.Anchors := [anLeft, anTop, anRight];
   ForestAge.Caption := gResTexts[TX_MAPED_OBJECTS_BRUSH_AGE];
@@ -515,7 +514,7 @@ procedure TKMMapEdTerrainObjects.ObjectsPalette_Refresh(Sender: TObject);
 var
   I, J, K, leftAdj, topAdj: Integer;
 begin
-  leftAdj := (PopUp_ObjectsPalette.Width - fObjPaletteTableSize.X*(OBJ_PAL_CELL_W + 1) - 25*Byte(Scroll_ObjectsPalette.Visible)) div 2;
+  leftAdj := (Form_ObjectsPalette.Width - fObjPaletteTableSize.X*(OBJ_PAL_CELL_W + 1) - 25*Byte(Scroll_ObjectsPalette.Visible)) div 2;
   topAdj := Image_ObjectsPalette.Top + 60;
 
   K := 0;
@@ -570,29 +569,29 @@ procedure TKMMapEdTerrainObjects.ObjPalette_UpdateControlsPosition;
 var
   RowsCnt, ColsCnt: Integer;
 begin
-  PopUp_ObjectsPalette.Top := 25;
-  PopUp_ObjectsPalette.Left := 25;
-  PopUp_ObjectsPalette.Width := PopUp_ObjectsPalette.MasterParent.Width - 50;
-  PopUp_ObjectsPalette.Height := PopUp_ObjectsPalette.MasterParent.Height - 50;
+  Form_ObjectsPalette.Top := 25;
+  Form_ObjectsPalette.Left := 25;
+  Form_ObjectsPalette.Width := Form_ObjectsPalette.MasterParent.Width - 50;
+  Form_ObjectsPalette.Height := Form_ObjectsPalette.MasterParent.Height - 50;
 
-  RowsCnt := Max(1, (PopUp_ObjectsPalette.Height - 80) div (OBJ_CELL_PALETTE_H + 1));
+  RowsCnt := Max(1, (Form_ObjectsPalette.Height - 80) div (OBJ_CELL_PALETTE_H + 1));
   //Calc cols count without Scroll first
-  ColsCnt := EnsureRange(PopUp_ObjectsPalette.Width div (OBJ_CELL_PALETTE_W + 1), 1, OBJECTS_PALETTE_MAX_COLS_CNT);
+  ColsCnt := EnsureRange(Form_ObjectsPalette.Width div (OBJ_CELL_PALETTE_W + 1), 1, OBJECTS_PALETTE_MAX_COLS_CNT);
   Scroll_ObjectsPalette.Visible := RowsCnt*ColsCnt < fCountCompact;
   //Recalc ColsCount considering possible scroll width
-  ColsCnt := EnsureRange((PopUp_ObjectsPalette.Width - 25*Byte(Scroll_ObjectsPalette.Visible)) div (OBJ_PAL_CELL_W + 1), 1, OBJECTS_PALETTE_MAX_COLS_CNT);
+  ColsCnt := EnsureRange((Form_ObjectsPalette.Width - 25*Byte(Scroll_ObjectsPalette.Visible)) div (OBJ_PAL_CELL_W + 1), 1, OBJECTS_PALETTE_MAX_COLS_CNT);
 
   fObjPaletteTableSize := KMPoint(ColsCnt, RowsCnt);
 
   Image_ObjectsPalette.Width := GetObjPaletteTableWidth + 150;
   Image_ObjectsPalette.Height := GetObjPaletteTableHeight + 220;
-  Image_ObjectsPalette.Left := (PopUp_ObjectsPalette.Width - Image_ObjectsPalette.Width) div 2;
-  Image_ObjectsPalette.Top := ((PopUp_ObjectsPalette.Height - Image_ObjectsPalette.Height) div 2) - 25;
+  Image_ObjectsPalette.Left := (Form_ObjectsPalette.Width - Image_ObjectsPalette.Width) div 2;
+  Image_ObjectsPalette.Top := ((Form_ObjectsPalette.Height - Image_ObjectsPalette.Height) div 2) - 25;
 
-  Label_ObjectsPalette.Left := PopUp_ObjectsPalette.Center.X - 30;
+  Label_ObjectsPalette.Left := Form_ObjectsPalette.Center.X - 30;
   Label_ObjectsPalette.Top := Image_ObjectsPalette.Top + 60;
 
-  Button_ClosePalette.Left := PopUp_ObjectsPalette.Center.X - 125;
+  Button_ClosePalette.Left := Form_ObjectsPalette.Center.X - 125;
   Button_ClosePalette.Top := Image_ObjectsPalette.Bottom - 110;
 
   Button_ObjPaletteErase.Top := Image_ObjectsPalette.Bottom - 110;
@@ -639,10 +638,10 @@ var
   objIndex: Integer;
 begin
   if ssRight in Shift then
-    PopUp_ObjectsPalette.Hide
+    Form_ObjectsPalette.Hide
   else if (ssLeft in Shift) and (Sender is TKMButtonFlat) then
   begin
-    PopUp_ObjectsPalette.Hide;
+    Form_ObjectsPalette.Hide;
     objIndex := TKMButtonFlat(Sender).Tag;
     ObjectsUpdate(objIndex);
 
@@ -673,7 +672,7 @@ begin
 
   if Sender = CleanBrush then
   begin
-    if CleanBrush.Down = False then
+    if not CleanBrush.Down then
     begin
       gCursor.MapEdCleanBrush := True;
       CleanBrush.Down := True;
@@ -684,6 +683,7 @@ begin
       CleanBrush.Down := False;
     end;
   end;
+
   if Sender = BrushCircle then
   begin
     gCursor.MapEdShape := hsCircle;
@@ -692,9 +692,8 @@ begin
   end
   else
   if Sender = BrushSquare then
-  begin
     gCursor.MapEdShape := hsSquare;
-  end;
+
   if gCursor.MapEdShape = hsSquare then
   begin
     BrushCircle.Down := False;
@@ -753,13 +752,13 @@ end;
 
 procedure TKMMapEdTerrainObjects.ObjectsPaletteButton_Click(Sender: TObject);
 begin
-  PopUp_ObjectsPalette.Show;
+  Form_ObjectsPalette.Show;
 end;
 
 
 procedure TKMMapEdTerrainObjects.ObjectsPaletteClose_Click(Sender: TObject);
 begin
-  PopUp_ObjectsPalette.Hide;
+  Form_ObjectsPalette.Hide;
 end;
 
 
@@ -827,20 +826,20 @@ end;
 
 function TKMMapEdTerrainObjects.IsPaletteVisible: Boolean;
 begin
-  Result := PopUp_ObjectsPalette.Visible;
+  Result := Form_ObjectsPalette.Visible;
 end;
 
 
 procedure TKMMapEdTerrainObjects.PaletteHide;
 begin
-  PopUp_ObjectsPalette.Hide;
+  Form_ObjectsPalette.Hide;
 end;
 
 
 procedure TKMMapEdTerrainObjects.Hide;
 begin
   Panel_Objects.Hide;
-  PopUp_ObjectsPalette.Hide;
+  Form_ObjectsPalette.Hide;
   gMain.FormMain.SuppressAltForMenu := False;
 end;
 
@@ -882,9 +881,9 @@ begin
 
   if Key = VK_ESCAPE then
   begin
-    if PopUp_ObjectsPalette.Visible then
+    if Form_ObjectsPalette.Visible then
      begin
-       PopUp_ObjectsPalette.Hide;
+       Form_ObjectsPalette.Hide;
         aHandled := True;
      end;
   end
@@ -898,7 +897,7 @@ begin
       fHideAllPages;
     end;
 
-    PopUp_ObjectsPalette.ToggleVisibility;
+    Form_ObjectsPalette.ToggleVisibility;
   end;
 end;
 

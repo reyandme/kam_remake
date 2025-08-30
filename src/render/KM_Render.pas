@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF WDC} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, OpenGLContext, {$ENDIF}
-  Math, dglOpenGL, KromOGLUtils, KromUtils,
+  dglOpenGL,
   KM_RenderControl, KM_RenderQuery, KM_RenderTypes, KM_CommonTypes;
 
 
@@ -79,7 +79,9 @@ var
 
 implementation
 uses
-  SysUtils, KM_Log, KM_Defaults, KM_IoPNG, KM_CommonClasses;
+  SysUtils, Math,
+  KromOGLUtils, KromUtils,
+  KM_Log, KM_Defaults, KM_IoPNG, KM_CommonClasses;
 
 const
   // We want to use off-screen FBO buffer to render full map to the file,
@@ -87,7 +89,7 @@ const
   // could check https://github.com/graphics32 package to solve this issue with saving ultra large images
   MAX_FBO_BUFFER_SIZE = CELL_SIZE_PX * (MAX_MAP_SIZE - 1); // (10200 = CELL_SIZE=40px)*255
 
-{ TRender }
+{ TKMRender }
 constructor TKMRender.Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Integer; aVSync: Boolean);
 begin
   inherited Create;

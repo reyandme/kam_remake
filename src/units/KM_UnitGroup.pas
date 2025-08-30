@@ -2,8 +2,8 @@ unit KM_UnitGroup;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, Types, Generics.Collections,
-  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Houses, KM_Units,
+  Generics.Collections,
+  KM_Defaults, KM_CommonClasses, KM_Points, KM_Houses, KM_Units,
   KM_UnitWarrior,
   KM_UnitGroupTypes,
   KM_HandEntity;
@@ -140,7 +140,7 @@ type
     property Members[aIndex: Integer]: TKMUnitWarrior read GetMember;
     function GetAliveMember: TKMUnitWarrior;
     property FlagBearer: TKMUnitWarrior read GetFlagBearer;
-    procedure SetGroupPosition(const aValue: TKMPoint);
+    function SetGroupPosition(const aValue: TKMPoint): Boolean;
     property Direction: TKMDirection read GetDirection write SetDirection;
     property UnitsPerRow: Word read fUnitsPerRow write SetUnitsPerRow;
     property SelectedUnit: TKMUnitWarrior read GetSelectedInUI write SetSelectedInUI;
@@ -234,8 +234,8 @@ type
 
 implementation
 uses
-  TypInfo,
-  KM_Entity,
+  Classes, Math, SysUtils, Types, TypInfo,
+  KM_CommonTypes, KM_Entity,
   KM_Game, KM_GameParams, KM_GameUIDTracker,
   KM_Hand, KM_HandsCollection,
   KM_Terrain, KM_CommonUtils,
@@ -297,7 +297,7 @@ begin
   if gGameParams.IsMapEditor then
   begin
     //In MapEd we create only flagholder, other members are virtual
-    warrior := TKMUnitWarrior(gHands[aOwner].AddUnit(aUnitType, KMPointDir(PosX, PosY, aDir), False, 0, False, False));
+    warrior := TKMUnitWarrior(gHands[aOwner].AddUnit(aUnitType, KMPointDir(PosX, PosY, aDir), False));
     if warrior <> nil then
     begin
       warrior.AnimStep  := UNIT_STILL_FRAMES[aDir];
@@ -389,7 +389,7 @@ begin
   end;
 
   for I := 0 to fOffenders.Count - 1 do
-    fOffenders[I] := TKMUnitWarrior(gHands.GetUnitByUID(Integer(TKMUnitWarrior(fOffenders[I]))));
+    fOffenders[I] := TKMUnitWarrior(gHands.GetUnitByUID(Integer(fOffenders[I])));
 
   fOrderTargetGroup := gHands.GetGroupByUID(Integer(fOrderTargetGroup));
   fOrderTargetHouse := gHands.GetHouseByUID(Integer(fOrderTargetHouse));
@@ -587,11 +587,11 @@ begin
 end;
 
 
-procedure TKMUnitGroup.SetGroupPosition(const aValue: TKMPoint);
+function TKMUnitGroup.SetGroupPosition(const aValue: TKMPoint): Boolean;
 begin
   Assert(gGameParams.IsMapEditor);
 
-  fMembers[0].SetUnitPosition(aValue);
+  Result := fMembers[0].SetUnitPosition(aValue);
   fOrderLoc.Loc := fMembers[0].Position; //Don't assume we can move to aValue
 end;
 
@@ -1725,7 +1725,7 @@ begin
     ClearOffenders;
 
   //Delete from group
-  newLeader := TKMUnitWarrior(aUnit);
+  newLeader := aUnit;
   fMembers.Remove(newLeader);
   newLeader.ReleasePointer;
 
@@ -2072,7 +2072,7 @@ var
 begin
   //Remove previous value
   ClearOrderTarget;
-  if (aUnit <> nil) and not (aUnit.IsDeadOrDying) then
+  if (aUnit <> nil) and not aUnit.IsDeadOrDying then
   begin
     fOrderTargetUnit := aUnit.GetPointer; //Else it will be nil from ClearOrderTarget
     if (aUnit is TKMUnitWarrior) and not IsRanged then
@@ -2303,7 +2303,7 @@ end;
 function TKMUnitGroups.AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup;
 begin
   Result := TKMUnitGroup.Create(gUIDTracker.GetNewUID, aWarrior);
-  fGroups.Add(Result)
+  fGroups.Add(Result);
 end;
 
 

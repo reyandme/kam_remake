@@ -2,10 +2,9 @@ unit KM_GUIMapEdHouse;
 {$I KaM_Remake.inc}
 interface
 uses
-   Classes, Math, StrUtils, SysUtils,
-   Controls,
+   Classes, Math, StrUtils, SysUtils, Controls,
    KM_Controls, KM_ControlsBase, KM_ControlsProgressBar, KM_ControlsWaresRow,
-   KM_Defaults, KM_Pics, KM_Houses, KM_InterfaceGame, KM_ResHouses;
+   KM_Defaults, KM_Pics, KM_Houses, KM_InterfaceGame;
 
 type
   TKMMapEdHouse = class
@@ -105,7 +104,7 @@ uses
   KM_HandsCollection, KM_HandTypes, KM_HandEntity,
   KM_ResTexts, KM_Resource, KM_RenderUI, KM_ResUnits,
   KM_HouseBarracks, KM_HouseTownHall, KM_HouseStore,
-  KM_ResFonts, KM_ResTypes,
+  KM_ResFonts, KM_ResHouses, KM_ResTypes,
   KM_Cursor, KM_UtilsExt;
 
 
@@ -228,7 +227,7 @@ begin
     Button_Barracks_RallyPoint := TKMButtonFlat.Create(Panel_HouseBarracks, 0, 8, Panel_House.Width, 22, 0);
     Button_Barracks_RallyPoint.CapOffsetY := -11;
     Button_Barracks_RallyPoint.Caption := gResTexts[TX_HOUSES_RALLY_POINT];
-    Button_Barracks_RallyPoint.Hint := Format(gResTexts[TX_MAPED_RALLY_POINT_HINT], [gRes.Houses[htBarracks].HouseName]);;
+    Button_Barracks_RallyPoint.Hint := Format(gResTexts[TX_MAPED_RALLY_POINT_HINT], [gRes.Houses[htBarracks].HouseName]);
     Button_Barracks_RallyPoint.OnClick := SetRallyPointClick;
 
     for I := 1 to BARRACKS_RES_COUNT do
@@ -277,7 +276,7 @@ begin
     Button_TownHall_RallyPoint := TKMButtonFlat.Create(Panel_HouseTownHall, 0, 8, Panel_House.Width, 22, 0);
     Button_TownHall_RallyPoint.CapOffsetY := -11;
     Button_TownHall_RallyPoint.Caption := gResTexts[TX_HOUSES_RALLY_POINT];
-    Button_TownHall_RallyPoint.Hint := Format(gResTexts[TX_MAPED_RALLY_POINT_HINT], [gRes.Houses[htTownhall].HouseName]);
+    Button_TownHall_RallyPoint.Hint := Format(gResTexts[TX_MAPED_RALLY_POINT_HINT], [gRes.Houses[htTownHall].HouseName]);
     Button_TownHall_RallyPoint.OnClick := SetRallyPointClick;
 
     WaresRow_TH_Gold_Input := TKMWareOrderRow.Create(Panel_HouseTownHall, 0, 34, Panel_House.Width, TH_MAX_GOLDMAX_VALUE);
@@ -787,7 +786,7 @@ begin
   if (Sender = Button_StoreInc100) or (Sender = Button_StoreInc) then
     store.WareAddToIn(ware, GetMultiplicator(Shift) * TKMButton(Sender).Tag);
 
-  Label_Store_WareCount.Caption := inttostr(store.CheckWareIn(ware));
+  Label_Store_WareCount.Caption := IntToStr(store.CheckWareIn(ware));
   StoreRefresh;
 end;
 

@@ -5,7 +5,7 @@ uses
    {$IFDEF MSWindows} Windows, {$ENDIF}
    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
    Classes, SysUtils,
-   KM_Controls, KM_ControlsBase, KM_ControlsPopUp, KM_ControlsSwitch,
+   KM_Controls, KM_ControlsBase, KM_ControlsForm, KM_ControlsSwitch,
    KM_Defaults;
 
 type
@@ -16,7 +16,7 @@ type
     procedure Mission_AlliancesChange(Sender: TObject);
     procedure Mission_AlliancesUpdate;
   protected
-    PopUp_Alliances: TKMPopUpPanel;
+    Form_Alliances: TKMForm;
     Panel_Alliances: TKMPanel;
       Bevel_Alliances: TKMBevel;
       Image_Alliances: TKMImage;
@@ -57,19 +57,19 @@ begin
   inherited Create;
   AlliancesWidth := (TB_PANEL_A_L * 2) + (TB_CHB_A_L * 2) + (TB_CHB_A_W * MAX_HANDS) - 70;
   AlliancesHeight := (TB_PANEL_A_T * 2) + (TB_CHB_A_T * 2) + (TB_CHB_A_H * MAX_HANDS) + TB_CHB_A_H - 120;
-  PopUp_Alliances := TKMPopUpPanel.Create(aParent.MasterParent, AlliancesWidth, AlliancesHeight);
-  PopUp_Alliances.AnchorsCenter;
-  PopUp_Alliances.Left := (aParent.MasterParent.Width div 2) - (PopUp_Alliances.Width div 2);
-  PopUp_Alliances.Top := (aParent.MasterParent.Height div 2) - (PopUp_Alliances.Height div 2);
+  Form_Alliances := TKMForm.Create(aParent.MasterParent, AlliancesWidth, AlliancesHeight);
+  Form_Alliances.AnchorsCenter;
+  Form_Alliances.Left := (aParent.MasterParent.Width div 2) - (Form_Alliances.Width div 2);
+  Form_Alliances.Top := (aParent.MasterParent.Height div 2) - (Form_Alliances.Height div 2);
 
-    Bevel_Alliances := TKMBevel.Create(PopUp_Alliances, -2000,  -2000, 5000, 5000);
+    Bevel_Alliances := TKMBevel.Create(Form_Alliances, -2000,  -2000, 5000, 5000);
     Bevel_Alliances.BackAlpha := 0.7;
     Bevel_Alliances.EdgeAlpha := 0.9;
 
-    Image_Alliances := TKMImage.Create(PopUp_Alliances, -25, -25, PopUp_Alliances.Width+50, PopUp_Alliances.Height+50, 18, rxGuiMain);
+    Image_Alliances := TKMImage.Create(Form_Alliances, -25, -25, Form_Alliances.Width+50, Form_Alliances.Height+50, 18, rxGuiMain);
     Image_Alliances.ImageStretch;
 
-  Panel_Alliances := TKMPanel.Create(PopUp_Alliances, TB_PANEL_A_L, TB_PANEL_A_T, PopUp_Alliances.Width - (TB_PANEL_A_L * 2), PopUp_Alliances.Height - (TB_PANEL_A_T * 2));
+  Panel_Alliances := TKMPanel.Create(Form_Alliances, TB_PANEL_A_L, TB_PANEL_A_T, Form_Alliances.Width - (TB_PANEL_A_L * 2), Form_Alliances.Height - (TB_PANEL_A_T * 2));
 
   TKMLabel.Create(Panel_Alliances, 0, 0, Panel_Alliances.Width, 0, gResTexts[TX_MAPED_ALLIANCE], fntOutline, taCenter);
   for I := 0 to MAX_HANDS - 1 do
@@ -140,7 +140,7 @@ procedure TKMMapEdMissionAlliances.KeyDown(Key: Word; Shift: TShiftState; var aH
 begin
   if aHandled then Exit;
 
-  if (Key = VK_ESCAPE) and PopUp_Alliances.Visible then
+  if (Key = VK_ESCAPE) and Form_Alliances.Visible then
   begin
     Hide;
     aHandled := True;
@@ -150,14 +150,14 @@ end;
 
 procedure TKMMapEdMissionAlliances.Hide;
 begin
-  PopUp_Alliances.Hide;
+  Form_Alliances.Hide;
 end;
 
 
 procedure TKMMapEdMissionAlliances.Show;
 begin
   Mission_AlliancesUpdate;
-  PopUp_Alliances.Show;
+  Form_Alliances.Show;
 end;
 
 

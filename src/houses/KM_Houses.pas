@@ -2,7 +2,6 @@ unit KM_Houses;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_ResHouses, KM_ResWares,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
   KM_HandEntity,
   KM_GameTypes, KM_ResTypes;
@@ -364,7 +363,7 @@ uses
   KM_GameParams, KM_Terrain, KM_RenderPool, KM_RenderAux, KM_Sound,
   KM_Hand, KM_HandsCollection, KM_HandLogistics, KM_HandTypes,
   KM_Units, KM_UnitWarrior, KM_HouseWoodcutters,
-  KM_Resource, KM_ResSound, KM_ResTexts, KM_ResUnits, KM_ResMapElements,
+  KM_Resource, KM_ResHouses, KM_ResSound, KM_ResTexts, KM_ResUnits, KM_ResMapElements, KM_ResWares,
   KM_Log, KM_ScriptingEvents, KM_CommonUtils, KM_MapEdTypes,
   KM_RenderDebug,
   KM_TerrainTypes,
@@ -633,7 +632,7 @@ end;
 
 procedure TKMHouse.SyncLoad;
 begin
-  fWorker := TKMUnit(gHands.GetUnitByUID(Integer(fWorker)));
+  fWorker := gHands.GetUnitByUID(Integer(fWorker));
   CurrentAction.SyncLoad;
 end;
 
@@ -1734,7 +1733,7 @@ begin
       end;
       doUpdate := True;
     end;
-  If doUpdate then
+  if doUpdate then
     UpdateDemands;
 end;
 
@@ -1769,7 +1768,7 @@ begin
       gHands[Owner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
       doUpdate := true;
     end;
-  If doUpdate then
+  if doUpdate then
     UpdateDemands;
 end;
 
@@ -2223,9 +2222,9 @@ const
   MAX_TH_GOLD_DEMANDS_CNT = 30; //Limit max number of demands by townhall to not to overfill demands list
   MAX_DEMANDS_CNT = 5;
 
-  function WaresMaxDemands : Byte;
+  function WaresMaxDemands: Byte;
   begin
-    If fType = htTownhall then
+    if fType = htTownhall then
       Result := MAX_TH_GOLD_DEMANDS_CNT
     else
       Result := MAX_DEMANDS_CNT;

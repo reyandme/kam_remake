@@ -3,14 +3,13 @@ unit KM_HouseSwineStable;
 interface
 uses
   KM_Houses,
-  KM_ResTypes,
   KM_CommonClasses;
 
 type
   // SwineStable has unique property - it needs to accumulate some resource before production begins, also special animation
   TKMHouseSwineStable = class(TKMHouse)
   private
-    BeastAge: array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
+    BeastAge: array[1..5]of Byte; // Each beasts "age". Once Best reaches age 3+1 it's ready
   protected
     procedure MakeSound; override;
   public
@@ -27,12 +26,13 @@ uses
   Math,
   KM_Sound,
   KM_ResSound,
+  KM_ResTypes,
   KM_Hand, KM_HandsCollection, KM_HandTypes, KM_HandEntity,
   KM_RenderPool,
   KM_Defaults, KM_CommonUtils;
 
 
-{TKMHouseSwineStable}
+{ TKMHouseSwineStable }
 constructor TKMHouseSwineStable.Load(LoadStream: TKMemoryStream);
 begin
   inherited;

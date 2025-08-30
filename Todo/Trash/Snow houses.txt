@@ -23,4 +23,5 @@ Other things to fix:
  - Pigs in swine farm cover some bits of snow. Makes Z order look wrong since snow now extends beyond original fence boundaries. Fix by clipping snow on fences to original fence pixels, so pig animations fit around it.
  - Pigs in swines yard probably should not have snow below (add some dirt like in Stables)
  - Shadow of mill blades on roof look odd (convert shadows to pixel chessboard like other shadows)
+ -
 
