@@ -28,7 +28,7 @@ type
     fOrderLab: TKMLabel;
     fOrderRem: TKMButton;
     fOrderCount: Integer;
-    fImmediateOrder: Boolean; //Order count should be changed immediately in control. Should be False usually
+    fImmediateOrder: Boolean; // Order count can be changed immediately in control. Always set False because of MP delay
     procedure ButtonClick(Sender: TObject; Shift: TShiftState);
     procedure ClickHold(Sender: TObject; Button: TMouseButton; var aHandled: Boolean);
     procedure SetOrderRemHint(const aValue: UnicodeString);
@@ -40,11 +40,9 @@ type
     procedure SetVisible(aValue: Boolean); override;
     function DoHandleMouseWheelByDefault: Boolean; override;
   public
-    OrderCntMin: Integer;
     OrderCntMax: Integer;
     OnChange: TKMNotifyEventInteger;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE;
-                       aOrderCntMin: Integer = 0; aImmediateOrder: Boolean = False);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE);
     property WareRow: TKMWaresRow read fWaresRow;
     property OrderCount: Integer read fOrderCount write SetOrderCount;
     property OrderRemHint: UnicodeString write SetOrderRemHint;
@@ -113,16 +111,14 @@ end;
 
 
 { TKMWareOrderRow }
-constructor TKMWareOrderRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE;
-                                   aOrderCntMin: Integer = 0; aImmediateOrder: Boolean = False);
+constructor TKMWareOrderRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aOrderCntMax: Integer = MAX_WARES_IN_HOUSE);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, WARE_ROW_HEIGHT);
 
   fWaresRow := TKMWaresRow.Create(aParent, aLeft + 68, aTop, aWidth - 68);
 
-  fImmediateOrder := aImmediateOrder;
+  fImmediateOrder := False;
 
-  OrderCntMin := aOrderCntMin;
   OrderCntMax := aOrderCntMax;
 
   fOrderRem := TKMButton.Create(aParent, aLeft,   0, 20, Height - 2, '-', bsGame);
@@ -216,7 +212,7 @@ end;
 
 procedure TKMWareOrderRow.SetOrderCount(aValue: Integer);
 begin
-  fOrderCount := EnsureRange(aValue, OrderCntMin, OrderCntMax);
+  fOrderCount := EnsureRange(aValue, 0, OrderCntMax);
 end;
 
 
