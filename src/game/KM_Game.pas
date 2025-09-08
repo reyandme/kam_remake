@@ -1313,7 +1313,7 @@ begin
 end;
 
 
-// Get list of players we are waiting for. We do it here because gNetworking does not knows about GIP
+// Get list of players we are waiting for. We do it here because gNetworking does not know about GIP
 function TKMGame.GetWaitingPlayersList: TKMByteArray;
 var
   errorMsg: UnicodeString;
@@ -1325,13 +1325,12 @@ begin
     lgsLoading:
         // We are waiting during inital loading
         Result := gNetworking.Room.GetNotReadyToPlayPlayers;
-    else  begin
-            SetLength(Result, 0);
-            errorMsg := 'GetWaitingPlayersList from wrong state: '
-                       + GetEnumName(TypeInfo(TKMNetGameState), Integer(gNetworking.NetGameState));
-            gLog.AddTime(errorMsg);
-            // raise Exception.Create(ErrorMsg); // This error sometimes occur when host quits, but that's not critical, so we can just log it
-          end;
+  else
+    SetLength(Result, 0);
+    errorMsg := 'GetWaitingPlayersList from wrong state: '
+               + GetEnumName(TypeInfo(TKMNetGameState), Integer(gNetworking.NetGameState));
+    gLog.AddTime(errorMsg);
+    // raise Exception.Create(ErrorMsg); // This error sometimes occur when host quits, but that's not critical, so we can just log it
   end;
 end;
 
