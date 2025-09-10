@@ -995,28 +995,28 @@ end;
 function TKMHandsCollection.GetHandToSpectate: TKMHandID;
 var
   I: Integer;
-  handIndex, humanPlayerHandIndex: TKMHandID;
+  humanHandIndex: TKMHandID;
 begin
   // Find the 1st enabled human hand to be spectating initially.
   // If there is no enabled human hands, then find the 1st enabled hand
-  handIndex := -1;
-  humanPlayerHandIndex := -1;
-  for I := 0 to gHands.Count - 1 do
-    if gHands[I].Enabled then
+  Result := -1;
+  humanHandIndex := -1;
+  for I := 0 to Count - 1 do
+    if fHandsList[I].Enabled then
     begin
-      if handIndex = -1 then  // save only first index
-        handIndex := I;
-      if gHands[I].IsHuman then
+      if Result = -1 then  // save only first index
+        Result := I;
+      if fHandsList[I].IsHuman then
       begin
-        humanPlayerHandIndex := I;
+        humanHandIndex := I;
         Break;
       end;
     end;
-  if humanPlayerHandIndex <> -1 then
-    handIndex := humanPlayerHandIndex
-  else if handIndex = -1 then // Should never happen, cause there should be at least 1 enabled hand.
-    handIndex := 0;
-  Result := handIndex;
+
+  if humanHandIndex <> -1 then
+    Result := humanHandIndex
+  else if Result = -1 then // Should never happen, cause there should be at least 1 enabled hand.
+    Result := 0;
 end;
 
 
