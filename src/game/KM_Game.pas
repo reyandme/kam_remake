@@ -101,7 +101,6 @@ type
     fMapEdMapSaveEnded: TKMEvent;
 
     procedure IssueAutosaveCommand(aAfterPT: Boolean);
-    function FindHandToSpec: Integer;
     function CheckIfPieceTimeJustEnded: Boolean;
     function GetWaitingPlayersList: TKMByteArray;
     function GetControlledHandIndex: TKMHandID;
@@ -834,34 +833,6 @@ begin
 end;
 
 
-function TKMGame.FindHandToSpec: Integer;
-var
-  I: Integer;
-  handIndex, humanPlayerHandIndex: TKMHandID;
-begin
-  // Find the 1st enabled human hand to be spectating initially.
-  // If there is no enabled human hands, then find the 1st enabled hand
-  handIndex := -1;
-  humanPlayerHandIndex := -1;
-  for I := 0 to gHands.Count - 1 do
-    if gHands[I].Enabled then
-    begin
-      if handIndex = -1 then  // save only first index
-        handIndex := I;
-      if gHands[I].IsHuman then
-      begin
-        humanPlayerHandIndex := I;
-        Break;
-      end;
-    end;
-  if humanPlayerHandIndex <> -1 then
-    handIndex := humanPlayerHandIndex
-  else if handIndex = -1 then // Should never happen, cause there should be at least 1 enabled hand.
-    handIndex := 0;
-  Result := handIndex;
-end;
-
-
 // All setup data gets taken from gNetworking class
 procedure TKMGame.MultiplayerRig(aNewGame: Boolean);
 const
@@ -873,7 +844,7 @@ const
     FreeAndNil(gMySpectator); // May have been created earlier
     if gNetworking.MyRoomSlot.IsSpectator then
     begin
-      gMySpectator := TKMSpectator.Create(FindHandToSpec);
+      gMySpectator := TKMSpectator.Create(gHands.GetHandToSpectate);
       gMySpectator.FOWIndex := HAND_NONE; // Show all by default while spectating
     end
     else
@@ -2637,7 +2608,7 @@ begin
     begin
       gMySpectator.FOWIndex := HAND_NONE; // Show all by default in replays
       // HandIndex is the first enabled player
-      gMySpectator.HandID := FindHandToSpec;
+      gMySpectator.HandID := gHands.GetHandToSpectate;
     end;
 
     // Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
