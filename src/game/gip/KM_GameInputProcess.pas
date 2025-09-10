@@ -655,7 +655,6 @@ begin
       gicpt_Float:      Result := Result + Format('[%f]', [FloatParam]);
       gicpt_Ansi1Uni4:  Result := Result + Format('[%s,%s,%s,%s,%s]', [AnsiStrParam, UnicodeStrParams[0], UnicodeStrParams[0],UnicodeStrParams[1],UnicodeStrParams[2]]);
       gicpt_Date:       Result := Result + Format('[%s]', [FormatDateTime('dd.mm.yy hh:nn:ss.zzz', DateTimeParam)]);
-      else              ;
     end;
   end;
 end;
@@ -1096,7 +1095,8 @@ begin
       gicGamePlayerAddDefGoals:   gHands[IntParams[0]].AI.AddDefaultGoals(IntToBool(IntParams[1]));
       gicScriptConsoleCommand:    gScriptEvents.CallConsoleCommand(HandIndex, AnsiStrParam, UnicodeStrParams);
       gicScriptSoundRemoveRq:     gGame.AddScriptSoundRemoveRequest(IntParams[0], HandIndex);
-      else                        raise Exception.Create('Unexpected gic command');
+    else
+      raise Exception.Create('Unexpected gic command');
     end;
   end;
 end;
@@ -1662,7 +1662,6 @@ begin
   else
     str := Format('%s%s', [str, aCommand.Command.DataToString]);
 
-
   Result := Format('Tick %6d Rand %10d Cmd: %s', [aCommand.Tick, aCommand.Rand, str]);
 end;
 
@@ -1706,7 +1705,6 @@ begin
     gicpt_Float:      Result := Result + Format('[%f]', [Data.Singles[0]]);
     gicpt_Ansi1Uni4:  Result := Result + Format('[%s]', [ReplaceStr(Data.AsAnsiString(0), #0, '#')]);
     gicpt_Date:       Result := Result + Format('[%s]', [FormatDateTime('dd.mm.yy hh:nn:ss.zzz', Data.DateT)]);
-    else              ;
   end;
   {$WARN IMPLICIT_STRING_CAST ON}
 end;
@@ -1894,10 +1892,8 @@ begin
                             Result := ( fStrParamsParsed = 5 ); // We parsed all 5 parameters
                           end;
         gicpt_Date:       DateTimeParam := Data.DateT;
-        else
-        begin
-          raise Exception.Create('Unknown gic command type');
-        end;
+      else
+        raise Exception.Create('Unknown gic command type');
       end;
     end;
 
@@ -1938,7 +1934,6 @@ procedure TKMGic2StoredConverter.GicToStoredCommands(const aGicCommand: TKMGameI
     AddStoredGic(aStoredGic, aGicCommand);
   end;
 
-
   procedure AddUnicodeString(const aUnicodeStr: UnicodeString; var aStoredGic: TKMGameInputCommandPacked; aStrIndex, aCmdByteIndex: Integer);
   var
     unicodeStr: UnicodeString;
@@ -1972,7 +1967,6 @@ procedure TKMGic2StoredConverter.GicToStoredCommands(const aGicCommand: TKMGameI
     AddStoredGic(aStoredGic, aGicCommand);
   end;
 
-
   procedure AddStoredWithParamsAndAnsi(aParamsCnt: Integer; const aAnsiStr: AnsiString; var aStoredGic: TKMGameInputCommandPacked);
   var
     I: Integer;
@@ -1984,7 +1978,6 @@ procedure TKMGic2StoredConverter.GicToStoredCommands(const aGicCommand: TKMGameI
 
     AddAnsiString(aAnsiStr, aStoredGic, 0, aParamsCnt*SizeOf(aGicCommand.IntParams[0]));
   end;
-
 
 var
   I: Integer;
@@ -2033,10 +2026,8 @@ begin
                           storedGic.Data.DateT := aGicCommand.DateTimeParam;
                           AddStoredGic(storedGic, aGicCommand);
                         end;
-      else
-      begin
-        raise Exception.Create('Unknown gic command type');
-      end;
+    else
+      raise Exception.Create('Unknown gic command type');
     end;
   end;
 end;
