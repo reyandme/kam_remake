@@ -18,7 +18,6 @@ type
     function _AIGroupsFormationSet(aHand: Integer; aGroupType: TKMGroupType; aCount, aColumns: Integer): Boolean;
     function _MapTilesArraySet(aFuncName: string; aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
     function _MapTileStringToType(aTilesS: TAnsiStringArray; var aTiles: TKMTerrainTileBriefArray; aOffsetX, aOffsetY: Integer): Boolean;
-    function _Split(const aStr: string; const aDelimeter: Char): TAnsiStringArray;
   public
     property OnSetLogLinesMaxCnt: TIntegerEvent read fOnSetLogLinesMaxCnt write fOnSetLogLinesMaxCnt;
 
@@ -3982,27 +3981,6 @@ begin
 end;
 
 
-function TKMScriptActions._Split(const aStr: string; const aDelimeter: Char): TAnsiStringArray;
-var
-  SepPos: array of Integer;
-  i: Integer;
-begin
-  SetLength(SepPos, 1);
-  SepPos[0] := 0;
-  for i := 1 to Length(aStr) do
-    if aStr[i] = aDelimeter then
-    begin
-      SetLength(SepPos, Length(SepPos) + 1);
-      SepPos[High(SepPos)] := i;
-    end;
-  SetLength(SepPos, Length(SepPos) + 1);
-  SepPos[High(SepPos)] := Length(aStr) + 1;
-  SetLength(Result, High(SepPos));
-  for i := 0 to High(SepPos) -  1 do
-    Result[i] := Trim(Copy(aStr, SepPos[i] + 1, SepPos[i+1] - SepPos[i] - 1));
-end;
-
-
 //* Version: 15000+
 //* Sets array of tiles info, like MapTilesArraySetS, but tile string array is
 //* stored in file.
@@ -4029,7 +4007,7 @@ begin
   try
     filePath := gGame.GetMapFilePath(aFileName, '.tiles');
     fileContent := TFile.ReadAllText(filePath);
-    tilesStringArray := _Split(fileContent, ';');
+    tilesStringArray := StrSplitA(fileContent, ';');
 
     parserSuccess := _MapTileStringToType(tilesStringArray, tiles, aOffsetX, aOffsetY);
 
