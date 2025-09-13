@@ -449,9 +449,9 @@ begin
   fIgnoreConsistencyCheckErrors := False;
 
   case PATHFINDER_TO_USE of
-    0:    fPathfinding := TKMPathfindingAStarOld.Create;
-    1:    fPathfinding := TKMPathfindingAStarNew.Create;
-    2:    fPathfinding := TKMPathfindingJPS.Create;
+    0:  fPathfinding := TKMPathfindingAStarOld.Create;
+    1:  fPathfinding := TKMPathfindingAStarNew.Create;
+    2:  fPathfinding := TKMPathfindingJPS.Create;
   else
     fPathfinding := TKMPathfindingAStarOld.Create;
   end;
@@ -497,16 +497,12 @@ begin
   FreeAndNil(fMapTxtInfo);
   FreeAndNil(fLastSaves);
 
-  // Could be nil, if want to reuse fGIP for other gGame instance (gGame could be recreated when jump between checkpoints in replay)
-  if fSavePoints <> nil then
-    FreeAndNil(fSavePoints);
+  FreeAndNil(fSavePoints);
 
   FreeThenNil(fGamePlayInterface);
   FreeThenNil(fMapEditorInterface);
 
-  // Could be nil, if want to reuse fGIP for other gGame instance (gGame could be recreated when jump between checkpoints in replay)
-  if fGameInputProcess <> nil then
-    FreeAndNil(fGameInputProcess);
+  FreeAndNil(fGameInputProcess);
 
   FreeAndNil(fOptions);
   FreeAndNil(gUIDTracker);
@@ -1112,7 +1108,7 @@ begin
   else
   begin
     gNetworking.Disconnect;
-    gGameApp.StopGame(grDisconnect, gResTexts[TX_GAME_ERROR_NETWORK] + ' ' + aReason)
+    gGameApp.StopGame(grDisconnect, gResTexts[TX_GAME_ERROR_NETWORK] + ' ' + aReason);
   end;
 end;
 
@@ -1159,8 +1155,9 @@ begin
       mrYesToAll: begin
                     fIgnoreConsistencyCheckErrors := True;  // Ignore these errors in future while watching this replay
                     fIsPaused := False;
-                  end
-      else        gGameApp.StopGame(grError);
+                  end;
+    else
+      gGameApp.StopGame(grError);
     end;
   end;
 end;
@@ -1588,7 +1585,7 @@ end;
 
 function TKMGame.GetMapFilePath(const aFileName: UnicodeString; const aExt: UnicodeString): UnicodeString;
 begin
-  Result := ExeDir + ChangeFileExt(fParams.MissionFileRel, '.' + string(aFileName)) + aExt;
+  Result := ExeDir + ChangeFileExt(fParams.MissionFileRel, '.' + aFileName) + aExt;
 end;
 
 
@@ -2292,7 +2289,7 @@ begin
         gLog.AddTime('Error while saving save minimap to ' + aMPLocalDataPathName + ': ' + E.Message
           {$IFDEF WDC}+ sLineBreak + E.StackTrace{$ENDIF}
           );
-    end
+    end;
   end;
 
   mainStream.Write(True); // Save is compressed

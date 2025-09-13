@@ -719,9 +719,10 @@ type
 type
   TKMUnitThought = (thNone, thEat, thHome, thBuild, thStone, thWood, thDeath, thQuest, thDismiss);
 
-const //Corresponding indices in units.rx
+const
+  //Corresponding indices in units.rx
   THOUGHT_BOUNDS: array [TKMUnitThought, 1..2] of Word = (
-  (0,0), (6250,6257), (6258,6265), (6266,6273), (6274,6281), (6282,6289), (6290,6297), (6298,6305), (6314,6321)
+    (0,0), (6250,6257), (6258,6265), (6266,6273), (6274,6281), (6282,6289), (6290,6297), (6298,6305), (6314,6321)
   );
 
   UNIT_OFF_X = -0.5;

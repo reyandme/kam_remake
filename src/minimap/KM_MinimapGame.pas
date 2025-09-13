@@ -20,6 +20,7 @@ type
     property PaintVirtualGroups: Boolean read fPaintVirtualGroups write fPaintVirtualGroups;
   end;
 
+
 implementation
 uses
   Math,
@@ -30,6 +31,7 @@ uses
   KM_Resource, KM_ResUnits,
   KM_Defaults, KM_Points, KM_CommonTypes, KM_CommonUtils,
   KM_DevPerfLog, KM_DevPerfLogTypes;
+
 
 { TKMMinimapGame }
 procedure TKMMinimapGame.LoadFromTerrain;
@@ -55,7 +57,7 @@ var
   U: TKMUnit;
   P: TKMPoint;
   doesFit, isBorder, isBorderY: Boolean;
-  light: Smallint;
+  light: SmallInt;
   group: TKMUnitGroup;
   tileOwner: TKMHandID;
   landPtr: ^TKMTerrainTile;
@@ -170,5 +172,6 @@ begin
   gPerfLogs.SectionLeave(psMinimap);
   {$ENDIF}
 end;
+
 
 end.

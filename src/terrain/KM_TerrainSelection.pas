@@ -554,7 +554,7 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
   begin
     P := KMPoint(aX, aY);
     Result := (gTerrain.TileIsCornField(P) and (gTerrain.Land^[aY,aX].Obj in [CORN_STAGE5_OBJ_ID, CORN_STAGE6_OBJ_ID]))
-            or gTerrain.TileIsWineField(P)
+            or gTerrain.TileIsWineField(P);
   end;
 
   procedure SwapTiles(X1, Y1, X2, Y2: Word);
@@ -740,7 +740,7 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
       if gRes.Tileset.TileIsEdge(ter) then
       begin
         if (rot in [1,3]) xor (aAxis = faVertical) then
-          gTerrain.Land^[Y,X].BaseLayer.Rotation := (rot + 2) mod 4
+          gTerrain.Land^[Y,X].BaseLayer.Rotation := (rot + 2) mod 4;
       end else
       //Corners
       if gRes.Tileset.TileIsCorner(ter) then
@@ -999,5 +999,4 @@ end;
 
 
 end.
-
 

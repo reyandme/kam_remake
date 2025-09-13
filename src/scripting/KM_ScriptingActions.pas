@@ -189,7 +189,7 @@ type
     procedure PlayerAllianceChange(aHand1, aHand2: Byte; aCompliment, aAllied: Boolean);
     procedure PlayerAllianceNFogChange(aHand1, aHand2: Byte; aCompliment, aAllied, aSyncAllyFog: Boolean);
     procedure PlayerAddDefaultGoals(aHand: Byte; aBuildings: Boolean);
-    procedure PlayerCenterScreenSet(aHand: Integer; aX: integer; aY: integer);
+    procedure PlayerCenterScreenSet(aHand: Integer; aX: Integer; aY: Integer);
     procedure PlayerDefeat(aHand: Integer);
     procedure PlayerGoalsRemoveAll(aHand: Integer; aForAllPlayers: Boolean);
     procedure PlayerHouseTypeLock(aHand: Integer; aHouseType: TKMHouseType; aLock: TKMHandHouseLock);
@@ -482,7 +482,7 @@ begin
       and gHands[aHand2].Enabled then
     begin
       gHands[aHand1].ShareFOW[aHand2] := aShare;
-      gHands[aHand2].ShareFOW[aHand1] := aShare
+      gHands[aHand2].ShareFOW[aHand1] := aShare;
     end
     else
       LogIntParamWarn('Actions.PlayerShareFogCompliment', [aHand1, aHand2, Byte(aShare)]);
@@ -1254,7 +1254,7 @@ begin
       if gTerrain.CanPlaceHouseFromScript(HOUSE_ID_TO_TYPE[aHouseType], KMPoint(nonEntranceX, Y)) then
       begin
         H := gHands[aHand].AddHouseWIP(HOUSE_ID_TO_TYPE[aHouseType], KMPoint(nonEntranceX, Y));
-        if (H = nil) or (H.IsDestroyed) then
+        if (H = nil) or H.IsDestroyed then
           Exit;
 
         Result := H.UID;
@@ -1284,7 +1284,7 @@ begin
       end;
     end
     else
-      LogIntParamWarn('Actions.GiveHouseSite', [aHand, aHouseType, X, Y, byte(aAddMaterials)]);
+      LogIntParamWarn('Actions.GiveHouseSite', [aHand, aHouseType, X, Y, Byte(aAddMaterials)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -1314,7 +1314,7 @@ begin
       if gTerrain.CanPlaceHouseFromScript(aHouseType, KMPoint(nonEntranceX, Y)) then
       begin
         H := gHands[aHand].AddHouseWIP(aHouseType, KMPoint(nonEntranceX, Y));
-        if (H = nil) or (H.IsDestroyed) then
+        if (H = nil) or H.IsDestroyed then
           Exit;
 
         Result := H.UID;
@@ -1593,7 +1593,7 @@ begin
     and (aDefencePosition.PositionType in [dtFrontLine..dtBackLine])
     and (aDefencePosition.Dir in [dirN..dirNW])
     and (aDefencePosition.GroupType in GROUP_TYPES_VALID)
-    and (gTerrain.TileInMapCoords(aDefencePosition.X, aDefencePosition.Y)) then
+    and gTerrain.TileInMapCoords(aDefencePosition.X, aDefencePosition.Y) then
   begin
     cnt := gHands[aHand].AI.General.DefencePositions.Count;
 
@@ -1620,8 +1620,9 @@ begin
       and InRange(aDir, 0, Ord(High(TKMDirection)) - 1)
       and InRange(aDefType, 0, 1)
       and (TKMDirection(aDir + 1) in [dirN..dirNW])
-      and (gTerrain.TileInMapCoords(X, Y)) then
+      and gTerrain.TileInMapCoords(X, Y) then
     begin
+      defPos := default(TKMDefencePositionInfo);
       defPos.X := X;
       defPos.Y := Y;
       defPos.Dir := TKMDirection(aDir + 1);
@@ -2046,11 +2047,11 @@ begin
     Result := False;
     if InRange(aHand, 0, gHands.Count - 1)
       and gHands[aHand].Enabled
-      and (InRange(aStage, 0, CORN_STAGES_COUNT - 1))
+      and InRange(aStage, 0, CORN_STAGES_COUNT - 1)
       and gTerrain.TileInMapCoords(X, Y) then
     begin
       if gHands[aHand].CanAddFieldPlan(KMPoint(X, Y), ftCorn)
-        or (gTerrain.TileIsCornField(KMPoint(X, Y))) then
+      or gTerrain.TileIsCornField(KMPoint(X, Y)) then
       begin
         Result := True;
         gTerrain.SetField(KMPoint(X, Y), aHand, ftCorn, aStage, aRandomAge);
@@ -5459,7 +5460,6 @@ var
   newSelection: TKMSelection;
 begin
   try
-
     if (gTerrain.TileInMapCoords(aLeft, aTop) and gTerrain.TileInMapCoords(aRight, aBottom) and (aLeft <= aRight) and (aTop <= aBottom)) then
     begin
       newSelection := TKMSelection.Create(gGame.TerrainPainter);
