@@ -4029,7 +4029,6 @@ var
   arrElem: TAnsiStringArray;
   parsedValue: Integer;
 begin
-  {$WARN SUSPICIOUS_TYPECAST OFF}
   Result := True;
   SetLength(aTiles, Length(aTilesS));
   for I := Low(aTilesS) to High(aTilesS) do
@@ -4046,7 +4045,7 @@ begin
     end;
 
     // Check X, if X <= 0 we cannot proceed
-    parsedValue := StrToIntDef(string(PChar(arrElem[0])), -1);
+    parsedValue := StrToIntDef(arrElem[0], -1);
     if parsedValue > 0 then
       aTiles[I].X := parsedValue + aOffsetX
     else
@@ -4057,7 +4056,7 @@ begin
     end;
 
     // Check Y, if Y <= 0 we cannot proceed
-    parsedValue := StrToIntDef(string(PChar(arrElem[1])), -1);
+    parsedValue := StrToIntDef(arrElem[1], -1);
     if parsedValue > 0 then
       aTiles[I].Y := parsedValue + aOffsetY
     else
@@ -4071,7 +4070,7 @@ begin
     if not Result then
       Continue;
 
-    if TryStrToInt(string(PChar(arrElem[2])), parsedValue) then
+    if TryStrToInt(arrElem[2], parsedValue) then
     begin
       if parsedValue >= 0 then
       begin
@@ -4085,7 +4084,7 @@ begin
       Result := False;
     end;
 
-    if TryStrToInt(string(PChar(arrElem[3])), parsedValue) then
+    if TryStrToInt(arrElem[3], parsedValue) then
     begin
       if parsedValue >= 0 then
       begin
@@ -4099,7 +4098,7 @@ begin
       Result := False;
     end;
 
-    if TryStrToInt(string(PChar(arrElem[4])), parsedValue) then
+    if TryStrToInt(arrElem[4], parsedValue) then
     begin
       if parsedValue >= 0 then
       begin
@@ -4113,7 +4112,7 @@ begin
       Result := False;
     end;
 
-    if TryStrToInt(string(PChar(arrElem[5])), parsedValue) then
+    if TryStrToInt(arrElem[5], parsedValue) then
     begin
       if parsedValue >= 0 then
       begin
@@ -4128,7 +4127,6 @@ begin
       LogStr(Format('Actions.MapTilesArraySetS: Parameter Obj = [%s] in line [%s] is not a valid integer.', [arrElem[5], aTilesS[I]]));
     end;
   end;
-  {$WARN SUSPICIOUS_TYPECAST ON}
 end;
 
 
