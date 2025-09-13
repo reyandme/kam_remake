@@ -90,6 +90,7 @@ type
     function CheckAlliance(aPlay1, aPlay2: TKMHandID): TKMAllianceType;
     function GetTeamsOfAllies: TKMByteSetArray;
     property Teams: TKMByteSetArray read GetTeamsLazy;
+    function GetHandToSpectate: TKMHandID;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit);
     procedure CleanUpGroupPointer(var aGroup: TKMUnitGroup);
     procedure CleanUpHousePointer(var aHouse: TKMHouse);
@@ -988,6 +989,29 @@ begin
 
   fTeamsDirty := False;
   Result := fTeams;
+end;
+
+
+function TKMHandsCollection.GetHandToSpectate: TKMHandID;
+var
+  I: Integer;
+begin
+  // Find the 1st enabled human hand to be spectating initially.
+  // Otherwise find the 1st enabled hand
+  // Otherwise return 1st hand
+  Result := -1;
+  for I := 0 to Count - 1 do
+    if fHandsList[I].Enabled then
+    begin
+      if fHandsList[I].IsHuman then
+        Exit(I);
+
+      if Result = -1 then  // save only first index
+        Result := I;
+    end;
+
+  if Result = -1 then // Should never happen, cause there should be at least 1 enabled hand.
+    Result := 0;
 end;
 
 

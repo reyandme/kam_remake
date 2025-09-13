@@ -365,6 +365,7 @@ begin
     Sender.AddTypeS('TKMDirection', '(dirNA, dirN, dirNE, dirE, dirSE, ' +
       'dirS, dirSW, dirW, dirNW)');
     Sender.AddTypeS('TKMFieldType', '(ftNone, ftRoad, ftCorn, ftWine, ftInitWine)');
+    Sender.AddTypeS('TKMFlipAxis', '(faHorizontal, faVertical)');
     Sender.AddTypeS('TKMFont', '(fntAntiqua, fntGame, fntGrey, fntMetal, fntMini, ' +
       'fntOutline, fntArial, fntMonospaced)');
     Sender.AddTypeS('TKMGroupOrder', '(goNone, goWalkTo, goAttackHouse, goAttackUnit, goStorm)');
@@ -832,11 +833,13 @@ begin
     RegisterMethodCheck(c, 'procedure MapBrushWithMask(X: Integer; Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind; ' +
       'aRandomTiles: Boolean; aOverrideCustomTiles: Boolean; aBrushMask: TKMTileMaskKind; ' +
       'aBlendingLvl: Integer; aUseMagicBrush: Boolean)');
+    RegisterMethodCheck(c, 'procedure MapFlip(aLeft: Integer; aTop: Integer; aRight: Integer; aBottom: Integer; aAxis: TKMFlipAxis)');
     RegisterMethodCheck(c, 'function  MapTileHeightSet(X, Y: Integer; Height: Integer): Boolean');
     RegisterMethodCheck(c, 'function  MapTileObjectSet(X, Y: Integer; Obj: Integer): Boolean');
     RegisterMethodCheck(c, 'function  MapTileOverlaySet(X, Y: Integer; aOverlay: TKMTileOverlay; aOverwrite: Boolean): Boolean');
     RegisterMethodCheck(c, 'function  MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
-    RegisterMethodCheck(c, 'function  MapTilesArraySetF(aFileName: string; aOffsetX, aOffsetY: Integer; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
+    RegisterMethodCheck(c, 'function  MapTilesArraySetF(aFileName: string; aOffsetX: Integer; aOffsetY: Integer; aRevertOnFail: Boolean; ' +
+      'aShowDetailedErrors: Boolean): Boolean');
     RegisterMethodCheck(c, 'function  MapTilesArraySetS(aTilesS: TAnsiStringArray; aRevertOnFail: Boolean; aShowDetailedErrors: Boolean): Boolean');
     RegisterMethodCheck(c, 'function  MapTileSet(X, Y: Integer; aType: Integer; aRotation: Integer): Boolean');
     RegisterMethodCheck(c, 'procedure MarketSetTrade(aMarketID: Integer; aFrom: Integer; aTo: Integer; aAmount: Integer)');
@@ -1584,6 +1587,7 @@ begin
       RegisterMethod(@TKMScriptActions.MapBrushFlatten, 'MapBrushFlatten');
       RegisterMethod(@TKMScriptActions.MapBrushMagicWater, 'MapBrushMagicWater');
       RegisterMethod(@TKMScriptActions.MapBrushWithMask, 'MapBrushWithMask');
+      RegisterMethod(@TKMScriptActions.MapFlip, 'MapFlip');
       RegisterMethod(@TKMScriptActions.MapTileHeightSet, 'MapTileHeightSet');
       RegisterMethod(@TKMScriptActions.MapTileObjectSet, 'MapTileObjectSet');
       RegisterMethod(@TKMScriptActions.MapTileOverlaySet, 'MapTileOverlaySet');

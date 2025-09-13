@@ -442,7 +442,7 @@ begin
   tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
   fRandomCheck[tick].OurCheck := Cardinal(KaMRandom(MaxInt{$IFDEF RNG_SPY}, 'TKMGameInputProcess_Multi.RunningTimer'{$ENDIF})); //thats our CRC (must go before commands for replay compatibility)
 
-  //Execute commands, in order players go (1,2,3..)
+  // Execute commands
   for I := 1 to gNetworking.Room.Count do
     for K := 1 to fSchedule[tick, I].Count do
     begin
@@ -469,12 +469,12 @@ begin
       end;
     end;
 
-  //If we miss a few random checks during reconnections no one cares, inconsistencies will be detected as soon as it is over
-  //To reduce network load, send random checks once every 10 ticks
+  // If we miss a few random checks during reconnections no one cares, inconsistencies will be detected as soon as it is over
+  // To reduce network load, send random checks once every 10 ticks
   if gNetworking.Connected {and (aTick mod 10 = 1)} then //todo: remove debug brackets: {} no need to check on every tick in release version
     SendRandomCheck(aTick);
 
-  //It is possible that we have already recieved other player's random checks, if so check them now
+  // It is possible that we have already recieved other player's random checks, if so check them now
   for I := 1 to gNetworking.Room.Count do
   begin
     if not gNetworking.Room[I].Dropped and fRandomCheck[tick].PlayerCheckPending[I] then

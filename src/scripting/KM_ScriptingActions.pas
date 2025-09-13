@@ -5,8 +5,7 @@ uses
   Classes, Math, SysUtils, StrUtils, KM_AIAttacks, KM_ResTilesetTypes,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_TerrainTypes,
   KM_ScriptSound, KM_MediaTypes, KM_ResTypes, KM_ResFonts, KM_HandTypes, KM_HouseWoodcutters,
-  KM_ScriptingEvents, KM_ScriptingTypes,
-  KM_AITypes, IOUtils;
+  KM_ScriptingEvents, KM_ScriptingTypes, KM_AITypes, KM_TerrainSelection; IOUtils;
 
 
 type
@@ -157,6 +156,7 @@ type
     procedure MapBrushWithMask(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind;
                                aRandomTiles, aOverrideCustomTiles: Boolean;
                                aBrushMask: TKMTileMaskKind; aBlendingLvl: Integer; aUseMagicBrush: Boolean);
+    procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
     function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
@@ -5442,6 +5442,33 @@ begin
     end
     else
       LogIntParamWarn('Actions.GroupSetFormation', [aGroupID, aNumColumns]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version 15806
+//* Flips map horizontally or vertically within selected rectangle.
+//* aLeft, aTop - coordinates of the top left tile of rectangle that should be flipped
+//* aRight, aBottom - coordinates of the bottom right tile of rectangle that should be flipped
+//* Minimum valid size of flip rectangle is 1x1.
+procedure TKMScriptActions.MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
+var
+  newSelection: TKMSelection;
+begin
+  try
+
+    if (gTerrain.TileInMapCoords(aLeft, aTop) and gTerrain.TileInMapCoords(aRight, aBottom) and (aLeft <= aRight) and (aTop <= aBottom)) then
+    begin
+      newSelection := TKMSelection.Create(gGame.TerrainPainter);
+      newSelection.ChangeSelectionRectangle(aLeft - 1, aTop - 1, aRight, aBottom);
+      newSelection.Flip(aAxis);
+      newSelection.Free;
+    end
+    else
+      LogIntParamWarn('Actions.MapFlip', [aLeft, aTop, aRight, aBottom, Ord(aAxis)]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
