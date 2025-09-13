@@ -13,8 +13,8 @@ uses
   KM_ResTypes;
 
 
-//Hands are identified by their starting location
 type
+  // Hands are identified by their starting location
   TKMHandsCollection = class
   private
     fCount: Byte;
@@ -352,19 +352,12 @@ begin
   if not InRange(aIndex, 0, fCount - 1) then Exit;
 
   fHandsList[aIndex].Units.RemoveAllUnits;
-
   fHandsList[aIndex].UnitGroups.RemAllGroups;
-
   fHandsList[aIndex].Houses.RemoveAllHouses;
-
   gTerrain.ClearPlayerLand(aIndex);
-
   fHandsList[aIndex].AI.Goals.Clear;
-
   fHandsList[aIndex].AI.General.Attacks.Clear;
-
   fHandsList[aIndex].AI.General.DefencePositions.Clear;
-
   fHandsList[aIndex].ResetChooseLocation;
 end;
 
@@ -1393,7 +1386,6 @@ begin
   Result := '|Hands: ';
   for I := 0 to fCount - 1 do
     Result := Format('%s|%d:' + #9 + '%s', [Result, I, fHandsList[I].ObjToString(#9)]);
-
 end;
 
 
