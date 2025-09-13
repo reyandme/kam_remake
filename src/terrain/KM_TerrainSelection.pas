@@ -13,6 +13,8 @@ uses
 type
   TKMSelectionEdit = (seNone, seNewRect, seResizeX1, seResizeY1, seResizeX2, seResizeY2, seMove);
   TKMSelectionMode = (smSelecting, smPasting);
+
+  //*
   TKMFlipAxis = (faHorizontal, faVertical);
 
   TKMBufferData = record
@@ -78,6 +80,7 @@ type
     procedure Flip(aAxis: TKMFlipAxis);
     procedure IncludePasteType(aPasteType: TKMTerrainSelectionPasteType);
     procedure ExcludePasteType(aPasteType: TKMTerrainSelectionPasteType);
+    procedure ChangeSelectionRectangle(aLeft, aTop, aRight, aBottom: Integer);
 
     procedure SetNiceCoal; //Do the actual paste from buffer to terrain
 
@@ -609,8 +612,11 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
       if cornOrWineWObj then
         swapObj := True; // swap object of corn / wine field
 
-      SwapInt(gGame.MapEditor.LandMapEd^[Y1,X1].CornOrWine, gGame.MapEditor.LandMapEd^[Y2,X2].CornOrWine);
-      SwapInt(gGame.MapEditor.LandMapEd^[Y1,X1].CornOrWineTerrain, gGame.MapEditor.LandMapEd^[Y2,X2].CornOrWineTerrain);
+      if (gGame.MapEditor <> nil) then
+      begin
+        SwapInt(gGame.MapEditor.LandMapEd^[Y1,X1].CornOrWine, gGame.MapEditor.LandMapEd^[Y2,X2].CornOrWine);
+        SwapInt(gGame.MapEditor.LandMapEd^[Y1,X1].CornOrWineTerrain, gGame.MapEditor.LandMapEd^[Y2,X2].CornOrWineTerrain);
+      end;
     end
     else
       // Do not swap object of corn / wine field
@@ -946,6 +952,16 @@ begin
     updateRect := KMRectGrow(fSelectionRect, 2); // 2 - just in case
     gTerrain.UpdateAll(updateRect);
   end;
+end
+;
+
+// This is used for scripting actions.
+procedure TKMSelection.ChangeSelectionRectangle(aLeft, aTop, aRight, aBottom: Integer);
+begin
+  fSelectionRect.Left   := aLeft;
+  fSelectionRect.Top    := aTop;
+  fSelectionRect.Right  := aRight;
+  fSelectionRect.Bottom := aBottom;
 end;
 
 
