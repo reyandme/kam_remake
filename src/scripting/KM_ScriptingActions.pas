@@ -5,7 +5,7 @@ uses
   Classes, Math, SysUtils, StrUtils, KM_AIAttacks, KM_ResTilesetTypes,
   KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_TerrainTypes,
   KM_ScriptSound, KM_MediaTypes, KM_ResTypes, KM_ResFonts, KM_HandTypes, KM_HouseWoodcutters,
-  KM_ScriptingEvents, KM_ScriptingTypes, KM_AITypes, KM_TerrainSelection; IOUtils;
+  KM_ScriptingEvents, KM_ScriptingTypes, KM_AITypes, KM_TerrainSelection, IOUtils;
 
 
 type
