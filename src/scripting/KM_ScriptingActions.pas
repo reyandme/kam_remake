@@ -155,6 +155,7 @@ type
     procedure MapBrushWithMask(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind;
                                aRandomTiles, aOverrideCustomTiles: Boolean;
                                aBrushMask: TKMTileMaskKind; aBlendingLvl: Integer; aUseMagicBrush: Boolean);
+    procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
     function MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
@@ -241,7 +242,6 @@ type
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
     procedure UnitKill(aUnitID: Integer; aSilent: Boolean);
     function  UnitOrderWalk(aUnitID: Integer; X, Y: Integer): Boolean;
-    procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
   end;
 
 
@@ -5414,8 +5414,8 @@ end;
 
 //* Version 15000+
 //* Flips map horizontally or vertically within selected rectangle.
-//* aLeft, aTop - tile coordinates of top left corner of rectangle that should be fliped
-//* aRight, aBottom - tile coordinates of bottom right corner of rectangle that should be fliped.
+//* aLeft, aTop - coordinates of the top left tile of rectangle that should be flipped
+//* aRight, aBottom - coordinates of the bottom right tile of rectangle that should be flipped
 //* Minimum valid size of flip rectangle is 1x1.
 procedure TKMScriptActions.MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
 var
@@ -5423,15 +5423,15 @@ var
 begin
   try
 
-  if (gTerrain.TileInMapCoords(aLeft, aTop) and gTerrain.TileInMapCoords(aRight, aBottom) and (aLeft <= aRight) and (aTop <= aBottom)) then
-  begin
-    fSelection := TKMSelection.Create(gGame.TerrainPainter);
-    fSelection.ChangeSelectionRectangle(aLeft - 1, aTop - 1, aRight, aBottom);
+    if (gTerrain.TileInMapCoords(aLeft, aTop) and gTerrain.TileInMapCoords(aRight, aBottom) and (aLeft <= aRight) and (aTop <= aBottom)) then
+    begin
+      fSelection := TKMSelection.Create(gGame.TerrainPainter);
+      fSelection.ChangeSelectionRectangle(aLeft - 1, aTop - 1, aRight, aBottom);
 
-    fSelection.Flip(aAxis);
-  end
-  else
-    LogIntParamWarn('Actions.MapFlip', [aLeft, aTop, aRight, aBottom, Ord(aAxis)]);
+      fSelection.Flip(aAxis);
+    end
+    else
+      LogIntParamWarn('Actions.MapFlip', [aLeft, aTop, aRight, aBottom, Ord(aAxis)]);
 
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
