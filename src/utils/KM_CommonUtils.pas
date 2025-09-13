@@ -1920,8 +1920,17 @@ begin
 end;
 
 function StrSplitA(const aStr, aDelimiters: String): TAnsiStringArray;
+var
+  strArray: TStringDynArray;
+  I: Integer;
 begin
-  Result := TAnsiStringArray(SplitString(aStr, aDelimiters));
+  strArray := SplitString(aStr, aDelimiters);
+
+  // We can not cast the entire array into TAnsiStringArray,
+  // otherwise resulting AnisStrings will contain #0 chars in them
+  SetLength(Result, Length(strArray));
+  for I := Low(strArray) to High(strArray) do
+    Result[I] := strArray[I];
 end;
 {$ENDIF}
 
