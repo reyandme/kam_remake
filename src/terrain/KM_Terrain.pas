@@ -42,8 +42,6 @@ type
     function ChooseCuttingDirection(const aLoc, aTree: TKMPoint; out aCuttingPoint: TKMPointDir): Boolean;
     procedure DoFlattenTerrain(const aLoc: TKMPoint; var aDepth: Byte; aUpdateWalkConnects: Boolean; aIgnoreCanElevate: Boolean);
 
-    procedure UpdateWalkConnect(const aSet: TKMWalkConnectSet; aRect: TKMRect; aDiagObjectsEffected: Boolean);
-
     procedure SetField_Init(const aLoc: TKMPoint; aOwner: TKMHandID; aRemoveOverlay: Boolean = True);
     procedure SetField_Complete(const aLoc: TKMPoint; aFieldType: TKMFieldType);
 
@@ -315,6 +313,8 @@ type
 
     procedure UpdateAll; overload;
     procedure UpdateAll(const aRect: TKMRect); overload;
+
+    procedure UpdateWalkConnect(const aSet: TKMWalkConnectSet; aRect: TKMRect; aDiagObjectsEffected: Boolean);
 
     procedure CallOnMainLand(aProc: TKMEvent);
 
