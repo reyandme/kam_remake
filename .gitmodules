@@ -10,3 +10,6 @@
 	path = src/ext/pascalscript_submodule
 	url = https://github.com/reyandme/pascalscript
 	branch = master
+[submodule "src/ext/expandpanels"]
+	path = src/ext/expandpanels
+	url = git@github.com:roth-a/expandpanels.git
