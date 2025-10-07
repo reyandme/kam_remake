@@ -27,7 +27,7 @@ type
     procedure btnProcessClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
-    fPalettes: TKMResPalettes;
+    fResPalettes: TKMResPalettes;
     fResUnits: TKMResUnits;
     fResHouses: TKMResHouses;
     fResMapElem: TKMResMapElements;
@@ -131,8 +131,8 @@ begin
 
   Caption := 'Animation Interpolator (' + GAME_REVISION + ')';
 
-  fPalettes := TKMResPalettes.Create;
-  fPalettes.LoadPalettes(ExeDir + 'data\gfx\');
+  fResPalettes := TKMResPalettes.Create;
+  fResPalettes.LoadPalettes(ExeDir + 'data\gfx\');
 
   fResUnits := TKMResUnits.Create;
   fResHouses := TKMResHouses.Create;
@@ -236,7 +236,7 @@ var
 begin
   if fSprites[RT] = nil then
   begin
-    fSprites[RT] := TKMSpritePackEdit.Create(RT, fPalettes);
+    fSprites[RT] := TKMSpritePackEdit.Create(RT, fResPalettes);
     fSprites[RT].LoadFromRXXFile(ExeDir + 'data\Sprites\' + RX_INFO[RT].FileName + '_a.rxx');
   end;
 
