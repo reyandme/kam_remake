@@ -965,7 +965,7 @@ const
 begin
   if not DirectoryExists(fDainFolder) then
   begin
-    memoErrors.Lines.Append('DAIN folder not found');
+    memoErrors.Lines.Append(Format('DAIN folder "%s" not found', [fDainFolder]));
     Exit;
   end;
 
