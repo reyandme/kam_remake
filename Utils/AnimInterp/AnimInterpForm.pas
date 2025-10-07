@@ -38,6 +38,9 @@ type
     fInterpCache: array of TInterpCacheItem;
 
     fWorkDir: string;
+    fFolderBase: string;
+    fFolderShad: string;
+    fFolderTeam: string;
     fOutDir: string;
     fDainFolder: string;
 
@@ -138,6 +141,10 @@ begin
   fWorkDir := ExeDir + 'SpriteInterp\';
   fOutDir := fWorkDir + 'Output\';
   fDainFolder := 'C:\Dev\kam_sprites\DAIN_APP Alpha 1.0\';
+
+  fFolderBase := fWorkDir + 'base\';
+  fFolderShad := fWorkDir + 'shad\';
+  fFolderTeam := fWorkDir + 'team\';
 end;
 
 
@@ -351,7 +358,6 @@ var
   BaseMoveX, BaseMoveY: Integer;
   StrList: TStringList;
   suffixPath, outDirLocal, outPrefix: string;
-  dirBase, dirShad, dirTeam: string;
   Found: Boolean;
 begin
   if (A.Count <= 1) or (A.Step[1] = -1) then
@@ -441,25 +447,21 @@ begin
     if aDryRun then
       Continue;
 
-    dirBase := fWorkDir + 'base\';
-    dirShad := fWorkDir + 'shad\';
-    dirTeam := fWorkDir + 'team\';
-
     //Interpolate!
-    KMDeleteFolder(dirBase);
-    KMDeleteFolder(dirShad);
-    KMDeleteFolder(dirTeam);
+    KMDeleteFolder(fFolderBase);
+    KMDeleteFolder(fFolderShad);
+    KMDeleteFolder(fFolderTeam);
 
     BaseMoveX := ABase.MoveX - A.MoveX;
     BaseMoveY := ABase.MoveY - A.MoveY;
 
     if aSimpleAlpha then
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietNormal, aSimpleShadows, aBkgRGB)
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietNormal, aSimpleShadows, aBkgRGB)
     else
     begin
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirBase, ietBase, aSimpleShadows, aBkgRGB);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, dirShad, ietShadows, aSimpleShadows, aBkgRGB);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, dirTeam, ietTeamMask, aSimpleShadows, aBkgRGB);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietBase, aSimpleShadows, aBkgRGB);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderShad, ietShadows, aSimpleShadows, aBkgRGB);
+      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, fFolderTeam, ietTeamMask, aSimpleShadows, aBkgRGB);
     end;
 
     //Determine maximum bounds of the pair, to crop out the base background sprite
@@ -658,12 +660,7 @@ var
   NoShadMinX, NoShadMinY, NoShadMaxX, NoShadMaxY: Integer;
   needsMask: Boolean;
   StrList: TStringList;
-  dirBase, dirShad, dirTeam: string;
 begin
-  dirBase := fWorkDir + 'base\';
-  dirShad := fWorkDir + 'shad\';
-  dirTeam := fWorkDir + 'team\';
-
   //Clear all our buffers so they get rezeroed
   SetLength(pngBase, 0);
   SetLength(pngShad, 0);
@@ -671,13 +668,13 @@ begin
   SetLength(pngCrop, 0);
   SetLength(pngCropMask, 0);
 
-  LoadFromPng(dirBase + inSuffixPath, pngWidth, pngHeight, pngBase);
+  LoadFromPng(fFolderBase + inSuffixPath, pngWidth, pngHeight, pngBase);
 
-  if FileExists(dirShad + inSuffixPath) then
-    LoadFromPng(dirShad + inSuffixPath, pngWidth, pngHeight, pngShad);
+  if FileExists(fFolderShad + inSuffixPath) then
+    LoadFromPng(fFolderShad + inSuffixPath, pngWidth, pngHeight, pngShad);
 
-  if FileExists(dirTeam + inSuffixPath) then
-    LoadFromPng(dirTeam + inSuffixPath, pngWidth, pngHeight, pngTeam);
+  if FileExists(fFolderTeam + inSuffixPath) then
+    LoadFromPng(fFolderTeam + inSuffixPath, pngWidth, pngHeight, pngTeam);
 
   CleanupInterpBackground(pngBase, pngShad, pngTeam);
 
