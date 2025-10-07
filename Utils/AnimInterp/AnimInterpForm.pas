@@ -79,7 +79,7 @@ const
   CANVAS_Y_OFFSET = 14;
 
   //This is different to TKMUnitSpec.SupportsAction because we include any used
-  //animations like uaWalkArm for soliders (flag) which isn't an action.
+  //animations like uaWalkArm for soldiers (flag) which isn't an action.
   UNIT_SUPPORTED_ANIMS: array [TKMUnitType] of TKMUnitActionTypeSet = (
     [], [], //None, Any
     [uaWalk, uaDie, uaEat, uaWalkArm], //Serf
