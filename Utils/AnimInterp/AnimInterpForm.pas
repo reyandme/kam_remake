@@ -579,7 +579,7 @@ begin
     end;
   end
   else
-    memoErrors.Text := memoErrors.Text + 'Not a slow animation!' + #13#10;
+    memoErrors.Lines.Add('Not a slow animation!');
 end;
 
 
@@ -984,22 +984,14 @@ begin
 
   startPos := fOutputStream.Position;
   for u := UNIT_MIN to UNIT_MAX do
-  begin
     for act := UNIT_ACT_MIN to UNIT_ACT_MAX do
-    begin
       for dir := dirN to dirNW do
-      begin
         try
           DoInterpUnit(u, act, dir, picOffset, not chkUnitActions.Checked);
         except
           on E: Exception do
-          begin
-            memoErrors.Text := memoErrors.Text + TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message + #13#10;
-          end;
+            memoErrors.Lines.Add(TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
         end;
-      end;
-    end;
-  end;
   Assert(SizeOf(TKMUnitActionInterp) = fOutputStream.Position - startPos);
 
   animData := animData + '//fOutputStream.Position = '+IntToStr(fOutputStream.Position)+#13#10;
@@ -1011,19 +1003,13 @@ begin
 
   startPos := fOutputStream.Position;
   for ware := WARE_MIN to WARE_MAX do
-  begin
     for dir := dirN to dirNW do
-    begin
       try
         DoInterpSerfCarry(ware, dir, picOffset, not chkSerfCarry.Checked);
       except
         on E: Exception do
-        begin
-          memoErrors.Text := memoErrors.Text + TRttiEnumerationType.GetName(ware) + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message + #13#10;
-        end;
+          memoErrors.Lines.Add(TRttiEnumerationType.GetName(ware) + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
       end;
-    end;
-  end;
   Assert(SizeOf(TKMSerfCarryInterp) = fOutputStream.Position - startPos);
 
   fOutputStream.WriteA('UnitThoughts  ');
@@ -1033,16 +1019,12 @@ begin
 
   startPos := fOutputStream.Position;
   for th := Low(TKMUnitThought) to High(TKMUnitThought) do
-  begin
     try
       DoInterpUnitThought(th, picOffset, not chkUnitThoughts.Checked);
     except
       on E: Exception do
-      begin
-        memoErrors.Text := memoErrors.Text + TRttiEnumerationType.GetName(th) + ' - ' + E.Message + #13#10;
-      end;
+        memoErrors.Lines.Add(TRttiEnumerationType.GetName(th) + ' - ' + E.Message);
     end;
-  end;
   Assert(SizeOf(TKMUnitThoughtInterp) = fOutputStream.Position - startPos);
 
   fOutputStream.WriteA('Trees ');
@@ -1058,16 +1040,12 @@ begin
 
   startPos := fOutputStream.Position;
   for I := 0 to OBJECTS_CNT do
-  begin
     try
       DoInterpTree(I, picOffset, not chkTrees.Checked);
     except
       on E: Exception do
-      begin
-        memoErrors.Text := memoErrors.Text + ' Tree ' + IntToStr(I) + ' - ' + E.Message + #13#10+'  ';
-      end;
+        memoErrors.Lines.Add('Tree ' + IntToStr(I) + ' - ' + E.Message);
     end;
-  end;
   Assert(SizeOf(TKMTreeInterp) = fOutputStream.Position - startPos);
 
 
@@ -1083,19 +1061,13 @@ begin
 
   startPos := fOutputStream.Position;
   for h := HOUSE_MIN to HOUSE_MAX do
-  begin
     for hAct := Low(TKMHouseActionType) to High(TKMHouseActionType) do
-    begin
       try
         DoInterpHouseAction(h, hAct, picOffset, not chkHouseActions.Checked);
       except
         on E: Exception do
-        begin
-          memoErrors.Text := memoErrors.Text + TRttiEnumerationType.GetName(h) + ' - ' + TRttiEnumerationType.GetName(hAct) + ' - ' + E.Message + #13#10;
-        end;
+          memoErrors.Lines.Add(TRttiEnumerationType.GetName(h) + ' - ' + TRttiEnumerationType.GetName(hAct) + ' - ' + E.Message);
       end;
-    end;
-  end;
   Assert(SizeOf(TKMHouseInterp) = fOutputStream.Position - startPos);
 
   fOutputStream.WriteA('Beasts');
@@ -1106,22 +1078,14 @@ begin
 
   startPos := fOutputStream.Position;
   for beastHouse := 1 to 3 do
-  begin
     for beast := 1 to 5 do
-    begin
       for beastAge := 1 to 3 do
-      begin
         try
           DoInterpBeast(beastHouse, beast, beastAge, picOffset, not chkBeasts.Checked);
         except
           on E: Exception do
-          begin
-            memoErrors.Text := memoErrors.Text + ' beast ' + IntToStr(beastHouse) + ' - ' + IntToStr(beast) + ' - ' + IntToStr(beastAge) + ' - ' + E.Message + #13#10;
-          end;
+            memoErrors.Lines.Add(' beast ' + IntToStr(beastHouse) + ' - ' + IntToStr(beast) + ' - ' + IntToStr(beastAge) + ' - ' + E.Message);
         end;
-      end;
-    end;
-  end;
   Assert(SizeOf(TKMBeastInterp) = fOutputStream.Position - startPos);
 
   fOutputStream.SaveToFile(ExeDir+'data/defines/interp.dat');
