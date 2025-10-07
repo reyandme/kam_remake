@@ -37,7 +37,6 @@ type
 
     fInterpCache: array of TInterpCacheItem;
 
-    fWorkDir: string;
     fFolderBase: string;
     fFolderShad: string;
     fFolderTeam: string;
@@ -125,6 +124,8 @@ const
 
 
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  folderWork: string;
 begin
   ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
 
@@ -138,13 +139,13 @@ begin
   fResMapElem := TKMResMapElements.Create;
   fResMapElem.LoadFromFile(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'mapelem.dat');
 
-  fWorkDir := ExeDir + 'SpriteInterp\';
-  fOutDir := fWorkDir + 'Output\';
+  folderWork := ExeDir + 'SpriteInterp\';
+  fOutDir := folderWork + 'Output\';
   fDainFolder := 'C:\Dev\kam_sprites\DAIN_APP Alpha 1.0\';
 
-  fFolderBase := fWorkDir + 'base\';
-  fFolderShad := fWorkDir + 'shad\';
-  fFolderTeam := fWorkDir + 'team\';
+  fFolderBase := folderWork + 'base\';
+  fFolderShad := folderWork + 'shad\';
+  fFolderTeam := folderWork + 'team\';
 end;
 
 
@@ -566,9 +567,9 @@ begin
     if aDryRun then
       Continue;
 
-    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase, aBkgRGB);
-    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows, aBkgRGB);
-    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'team\', ietTeamMask, aBkgRGB);
+    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fFolderBase, ietBase, aBkgRGB);
+    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fFolderShad, ietShadows, aBkgRGB);
+    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fFolderTeam, ietTeamMask, aBkgRGB);
     for SubStep := 0 to (8*S - 2) do
     begin
       if S <> SInterp then
@@ -598,23 +599,23 @@ var
   pngWidth, pngHeight: Word;
   pngBaseBackground, pngShadBackground, pngClean1, pngClean2, pngShad1, pngShad2: TKMCardinalArray;
 begin
-  if FileExists(fWorkDir + 'base\base.png') then
-    LoadFromPng(fWorkDir + 'base\base.png', pngWidth, pngHeight, pngBaseBackground);
+  if FileExists(fFolderBase + 'base.png') then
+    LoadFromPng(fFolderBase + 'base.png', pngWidth, pngHeight, pngBaseBackground);
 
-  if FileExists(fWorkDir + 'base\1.png') then
-    LoadFromPng(fWorkDir + 'base\1.png', pngWidth, pngHeight, pngClean1);
+  if FileExists(fFolderBase + '1.png') then
+    LoadFromPng(fFolderBase + '1.png', pngWidth, pngHeight, pngClean1);
 
-  if FileExists(fWorkDir + 'base\2.png') then
-    LoadFromPng(fWorkDir + 'base\2.png', pngWidth, pngHeight, pngClean2);
+  if FileExists(fFolderBase + '2.png') then
+    LoadFromPng(fFolderBase + '2.png', pngWidth, pngHeight, pngClean2);
 
-  if FileExists(fWorkDir + 'shad\base.png') then
-    LoadFromPng(fWorkDir + 'shad\base.png', pngWidth, pngHeight, pngShadBackground);
+  if FileExists(fFolderShad + 'base.png') then
+    LoadFromPng(fFolderShad + 'base.png', pngWidth, pngHeight, pngShadBackground);
 
-  if FileExists(fWorkDir + 'shad\1.png') then
-    LoadFromPng(fWorkDir + 'shad\1.png', pngWidth, pngHeight, pngShad1);
+  if FileExists(fFolderShad + '1.png') then
+    LoadFromPng(fFolderShad + '1.png', pngWidth, pngHeight, pngShad1);
 
-  if FileExists(fWorkDir + 'shad\2.png') then
-    LoadFromPng(fWorkDir + 'shad\2.png', pngWidth, pngHeight, pngShad2);
+  if FileExists(fFolderShad + '2.png') then
+    LoadFromPng(fFolderShad + '2.png', pngWidth, pngHeight, pngShad2);
 
   if (Length(pngBaseBackground) = 0) or (Length(pngShadBackground) = 0)
   or (Length(pngClean1) = 0) or (Length(pngClean2) = 0)
@@ -965,12 +966,6 @@ begin
   if not DirectoryExists(fDainFolder) then
   begin
     memoErrors.Lines.Append('DAIN folder not found');
-    Exit;
-  end;
-
-  if not DirectoryExists(fWorkDir) then
-  begin
-    memoErrors.Lines.Append('Work folder not found');
     Exit;
   end;
 
