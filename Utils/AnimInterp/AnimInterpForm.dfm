@@ -5,13 +5,17 @@ object Form1: TForm1
   ClientHeight = 625
   ClientWidth = 753
   Color = clBtnFace
+  Constraints.MinHeight = 512
+  Constraints.MinWidth = 512
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  PixelsPerInch = 96
+  DesignSize = (
+    753
+    625)
   TextHeight = 13
   object Label1: TLabel
     Left = 8
