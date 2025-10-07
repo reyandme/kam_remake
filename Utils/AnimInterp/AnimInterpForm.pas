@@ -60,7 +60,7 @@ type
     procedure DoInterpUnitThought(aThought: TKMUnitThought; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpTree(aTree: Integer; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpHouseAction(aHT: TKMHouseType; aHouseAct: TKMHouseActionType; var aPicOffset: Integer; aDryRun: Boolean);
-    procedure DoInterpBeast(beastHouse, beast, beastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
+    procedure DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
   end;
 
 var
@@ -917,26 +917,26 @@ begin
 end;
 
 
-procedure TForm1.DoInterpBeast(beastHouse, beast, beastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
 var
   A, ABase: TKMAnimLoop;
   I: Integer;
 const
   HOUSE_LOOKUP: array[1..3] of TKMHouseType = (htSwine, htStables, htMarket);
 begin
-  if (beastHouse = 3) and ((beast > 3) or (beastAge <> 1)) then
+  if (aBeastHouse = 3) and ((aBeast > 3) or (aBeastAge <> 1)) then
   begin
     WriteEmptyAnim;
     Exit;
   end;
 
-  A := fResHouses.BeastAnim[HOUSE_LOOKUP[beastHouse], beast, beastAge];
+  A := fResHouses.BeastAnim[HOUSE_LOOKUP[aBeastHouse], aBeast, aBeastAge];
 
   ABase.Count := 30;
   ABase.MoveX := 0;
   ABase.MoveY := 0;
   for I := Low(ABase.Step) to High(ABase.Step) do
-    ABase.Step[I] := fResHouses[HOUSE_LOOKUP[beastHouse]].StonePic;
+    ABase.Step[I] := fResHouses[HOUSE_LOOKUP[aBeastHouse]].StonePic;
 
   if (A.Count <= 1) or (A.Step[1] = -1) then
   begin
