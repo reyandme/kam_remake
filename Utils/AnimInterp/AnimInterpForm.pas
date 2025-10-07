@@ -37,11 +37,11 @@ type
 
     fInterpCache: array of TInterpCacheItem;
 
+    fFolderDain: string;
     fFolderBase: string;
     fFolderShad: string;
     fFolderTeam: string;
-    fOutDir: string;
-    fDainFolder: string;
+    fFolderOutput: string;
 
     function GetCanvasSize(aID: Integer; RT: TRXType; aMoveX: Integer = 0; aMoveY: Integer = 0): Integer;
     function GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer = 8): string;
@@ -140,8 +140,8 @@ begin
   fResMapElem.LoadFromFile(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'mapelem.dat');
 
   folderWork := ExeDir + 'SpriteInterp\';
-  fOutDir := folderWork + 'Output\';
-  fDainFolder := 'C:\Dev\kam_sprites\DAIN_APP Alpha 1.0\';
+  fFolderOutput := folderWork + 'Output\';
+  fFolderDain := 'C:\Dev\kam_sprites\DAIN_APP Alpha 1.0\';
 
   fFolderBase := folderWork + 'base\';
   fFolderShad := folderWork + 'shad\';
@@ -153,7 +153,7 @@ function TForm1.GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integ
 var
   DainExe: string;
 begin
-  DainExe := fDainFolder + 'DAINAPP.exe';
+  DainExe := fFolderDain + 'DAINAPP.exe';
   Result := 'cmd.exe /C "'+DainExe+'" --cli 1 -o '+aDir+' -p 0 -l 1 -in '+IntToStr(aInterpLevel)+' -da 0 -se 0 -si 1 -sr 0 -ha 0 --fast_mode 0';
   if aAlpha then
     Result := Result + ' -a 1';
@@ -220,7 +220,7 @@ begin
   StartupInfo.cb := SizeOf(StartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
   StartupInfo.wShowWindow := SW_HIDE;
-  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha, aInterpCount)), nil, nil, false, 0, nil, PChar(fDainFolder), StartupInfo, ProcessInfo);
+  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha, aInterpCount)), nil, nil, false, 0, nil, PChar(fFolderDain), StartupInfo, ProcessInfo);
   WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
   //ShellExecute(0, nil, 'cmd.exe', PChar(DainParams), PChar(DainFolder), SW_SHOWNORMAL);
 end;
@@ -288,7 +288,7 @@ begin
   StartupInfo.cb := SizeOf(StartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
   StartupInfo.wShowWindow := SW_HIDE;
-  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha)), nil, nil, false, 0, nil, PChar(fDainFolder), StartupInfo, ProcessInfo);
+  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha)), nil, nil, false, 0, nil, PChar(fFolderDain), StartupInfo, ProcessInfo);
   WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
   //ShellExecute(0, nil, 'cmd.exe', PChar(DainParams), PChar(DainFolder), SW_SHOWNORMAL);
 end;
@@ -369,7 +369,7 @@ begin
 
   StrList := TStringList.Create;
 
-  outDirLocal := fOutDir+IntToStr(Ord(RT)+1)+'\';
+  outDirLocal := fFolderOutput+IntToStr(Ord(RT)+1)+'\';
   outPrefix := outDirLocal+IntToStr(Ord(RT)+1)+'_';
   ForceDirectories(outDirLocal);
 
@@ -506,7 +506,7 @@ begin
   end;
 
   //Custom handler for animations that only update every 2/3/4 frames
-  outDirLocal := fOutDir+IntToStr(Ord(RT)+1)+'\';
+  outDirLocal := fFolderOutput+IntToStr(Ord(RT)+1)+'\';
   outPrefix := outDirLocal+IntToStr(Ord(RT)+1)+'_';
   ForceDirectories(outDirLocal);
 
@@ -963,9 +963,9 @@ const
   TREES_RX_OFFSET = 260;
   HOUSES_RX_OFFSET = 2100;
 begin
-  if not DirectoryExists(fDainFolder) then
+  if not DirectoryExists(fFolderDain) then
   begin
-    memoErrors.Lines.Append(Format('DAIN folder "%s" not found', [fDainFolder]));
+    memoErrors.Lines.Append(Format('DAIN folder "%s" not found', [fFolderDain]));
     Exit;
   end;
 
