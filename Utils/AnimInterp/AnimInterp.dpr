@@ -6,6 +6,9 @@ uses
 
 {$R *.res}
 
+var
+  Form1: TForm1;
+
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;

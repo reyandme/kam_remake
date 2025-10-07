@@ -63,8 +63,6 @@ type
     procedure DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
   end;
 
-var
-  Form1: TForm1;
 
 implementation
 uses
