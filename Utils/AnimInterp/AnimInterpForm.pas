@@ -496,88 +496,89 @@ begin
   else
     SInterp := S;
 
-  if (S = 2) or (S = 3) or (S = 4) then
+  if not (S in [2, 3, 4]) then
   begin
-    //Custom handler for animations that only update every 2/3/4 frames
-    outDirLocal := fOutDir+IntToStr(Ord(RT)+1)+'\';
-    outPrefix := outDirLocal+IntToStr(Ord(RT)+1)+'_';
-    ForceDirectories(outDirLocal);
+    memoErrors.Lines.Add('Not a slow animation!');
+    Exit;
+  end;
 
-    for StepFull := 1 to 30 do
+  //Custom handler for animations that only update every 2/3/4 frames
+  outDirLocal := fOutDir+IntToStr(Ord(RT)+1)+'\';
+  outPrefix := outDirLocal+IntToStr(Ord(RT)+1)+'_';
+  ForceDirectories(outDirLocal);
+
+  for StepFull := 1 to 30 do
+  begin
+    if StepFull > A.Count then
     begin
-      if StepFull > A.Count then
+      for SubStep := 1 to 8 do
+        fOutputStream.Write(Integer(-1));
+      Continue;
+    end;
+
+    if (StepFull-1) mod S <> 0 then
+      Continue;
+
+    StepSprite := A.Step[StepFull] + 1;
+    StepNextSprite := A.Step[(((StepFull-1 + S) mod A.Count) + 1)] + 1;
+
+    fOutputStream.Write(StepSprite);
+
+    //Check the cache
+    Found := False;
+    for I := Low(fInterpCache) to High(fInterpCache) do
+    begin
+      if (fInterpCache[I].A = StepSprite) and (fInterpCache[I].B = StepNextSprite) and (fInterpCache[I].Speed = S) then
       begin
-        for SubStep := 1 to 8 do
-          fOutputStream.Write(Integer(-1));
-        Continue;
-      end;
+        for SubStep := 0 to (8*S - 2) do
+          fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
 
-      if (StepFull-1) mod S <> 0 then
-        Continue;
-
-      StepSprite := A.Step[StepFull] + 1;
-      StepNextSprite := A.Step[(((StepFull-1 + S) mod A.Count) + 1)] + 1;
-
-      fOutputStream.Write(StepSprite);
-
-      //Check the cache
-      Found := False;
-      for I := Low(fInterpCache) to High(fInterpCache) do
+        Found := True;
+      end
+      //Check for a reversed sequence in the cache (animations often loop backwards)
+      else if (fInterpCache[I].B = StepSprite) and (fInterpCache[I].A = StepNextSprite) and (fInterpCache[I].Speed = S) then
       begin
-        if (fInterpCache[I].A = StepSprite) and (fInterpCache[I].B = StepNextSprite) and (fInterpCache[I].Speed = S) then
-        begin
-          for SubStep := 0 to (8*S - 2) do
-            fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
+        for SubStep := (8*S - 2) downto 0 do
+          fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
 
-          Found := True;
-        end
-        //Check for a reversed sequence in the cache (animations often loop backwards)
-        else if (fInterpCache[I].B = StepSprite) and (fInterpCache[I].A = StepNextSprite) and (fInterpCache[I].Speed = S) then
-        begin
-          for SubStep := (8*S - 2) downto 0 do
-            fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
-
-          Found := True;
-        end;
-      end;
-      if Found then
-        Continue;
-
-      InterpOffset := aPicOffset;
-
-      //Cache it
-      SetLength(fInterpCache, Length(fInterpCache)+1);
-      fInterpCache[Length(fInterpCache)-1].A := StepSprite;
-      fInterpCache[Length(fInterpCache)-1].B := StepNextSprite;
-      fInterpCache[Length(fInterpCache)-1].Speed := S;
-      fInterpCache[Length(fInterpCache)-1].interpOffset := InterpOffset;
-
-      //Update return values
-      Inc(aPicOffset, 8*S - 1);
-      for SubStep := 0 to (8*S - 2) do
-        fOutputStream.Write(InterpOffset+SubStep);
-
-      if aDryRun then
-        Continue;
-
-      MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase, aBkgRGB);
-      MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows, aBkgRGB);
-      MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'team\', ietTeamMask, aBkgRGB);
-      for SubStep := 0 to (8*S - 2) do
-      begin
-        if S <> SInterp then
-          SOffset := (SubStep+1+1) div SInterp
-        else
-          SOffset := 0;
-
-        //Filenames are 1-based, and skip the first one since it's the original
-        suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1 + SOffset]);
-        ProcessInterpImage(InterpOffset+SubStep, suffixPath, outPrefix, $0, 9999, -9999, 9999, -9999);
+        Found := True;
       end;
     end;
-  end
-  else
-    memoErrors.Lines.Add('Not a slow animation!');
+    if Found then
+      Continue;
+
+    InterpOffset := aPicOffset;
+
+    //Cache it
+    SetLength(fInterpCache, Length(fInterpCache)+1);
+    fInterpCache[Length(fInterpCache)-1].A := StepSprite;
+    fInterpCache[Length(fInterpCache)-1].B := StepNextSprite;
+    fInterpCache[Length(fInterpCache)-1].Speed := S;
+    fInterpCache[Length(fInterpCache)-1].interpOffset := InterpOffset;
+
+    //Update return values
+    Inc(aPicOffset, 8*S - 1);
+    for SubStep := 0 to (8*S - 2) do
+      fOutputStream.Write(InterpOffset+SubStep);
+
+    if aDryRun then
+      Continue;
+
+    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'base\', ietBase, aBkgRGB);
+    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'shad\', ietShadows, aBkgRGB);
+    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fWorkDir+'team\', ietTeamMask, aBkgRGB);
+    for SubStep := 0 to (8*S - 2) do
+    begin
+      if S <> SInterp then
+        SOffset := (SubStep+1+1) div SInterp
+      else
+        SOffset := 0;
+
+      //Filenames are 1-based, and skip the first one since it's the original
+      suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1 + SOffset]);
+      ProcessInterpImage(InterpOffset+SubStep, suffixPath, outPrefix, $0, 9999, -9999, 9999, -9999);
+    end;
+  end;
 end;
 
 
