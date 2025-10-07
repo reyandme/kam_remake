@@ -1,4 +1,4 @@
-unit RXXPackerProc;
+unit KM_RXXPacker;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses

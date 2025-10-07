@@ -6,7 +6,7 @@ uses
   ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF FPC} LResources, LCLIntf, {$ENDIF}
-  RXXPackerProc, KM_Defaults, KM_Log, KM_Pics, KM_ResPalettes, KM_ResSprites;
+  KM_Defaults, KM_Log, KM_Pics, KM_ResPalettes, KM_ResSprites;
 
 
 type
@@ -54,6 +54,7 @@ type
 implementation
 uses
   INIFiles,
+  KM_RXXPacker,
   KM_ResHouses, KM_ResUnits, KM_ResTypes,
   KM_Points;
 

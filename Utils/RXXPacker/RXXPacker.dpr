@@ -7,9 +7,11 @@ uses
   {$IFDEF FPC}Interfaces,{$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF FPC} LResources, LCLIntf, {$ENDIF}
+  
   RXXPackerConsole in 'RXXPackerConsole.pas',
   RXXPackerForm in 'RXXPackerForm.pas' {RXXForm1},
-  RXXPackerProc in 'RXXPackerProc.pas',
+  KM_RXXPacker in 'KM_RXXPacker.pas',
+
   KM_IoPNG in '..\..\src\utils\io\KM_IoPNG.pas',
   KM_Pics in '..\..\src\res\KM_Pics.pas',
   KM_ResSprites in '..\..\src\res\KM_ResSprites.pas',

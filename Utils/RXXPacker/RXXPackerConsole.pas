@@ -26,7 +26,7 @@ type
 
 implementation
 uses
-  KM_Defaults, RXXPackerProc;
+  KM_Defaults, KM_RXXPacker;
 
 const
   // Everything except rxCustom
