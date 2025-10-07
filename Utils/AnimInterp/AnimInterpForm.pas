@@ -962,6 +962,18 @@ const
   TREES_RX_OFFSET = 260;
   HOUSES_RX_OFFSET = 2100;
 begin
+  if not DirectoryExists(fDainFolder) then
+  begin
+    memoErrors.Lines.Append('DAIN folder not found');
+    Exit;
+  end;
+
+  if not DirectoryExists(fWorkDir) then
+  begin
+    memoErrors.Lines.Append('Work folder not found');
+    Exit;
+  end;
+
   SetLength(fInterpCache, 0);
 
   FreeAndNil(fOutputStream);
