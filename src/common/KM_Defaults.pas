@@ -464,7 +464,6 @@ var
 const
   LAST_SENT_COMMANDS_TICK_NONE = 0;
 
-{Cursors}
 type
   TKMCursorMode = (
     cmNone,
@@ -491,9 +490,9 @@ type
     cmPaintBucket, //PaintBucket - change color(team) for map objects
     cmUniversalEraser, //Universal eraser for units/groups/houses/terrain objects/roads and fields (corn/wine)
     cmRotateTile,  //Rotate terrain tile
-    cmOverlays);  //Tile overlays
-
-type
+    cmOverlays  //Tile overlays
+  );
+  
   // How cursor field placing will act (depends on which tile LMB was pressed)
   TKMCursorFieldMode = (
     cfmNone, // Disabled
@@ -512,9 +511,7 @@ const
   MARKER_AISTART = 4;
   MARKER_RALLY_POINT = 5;
 
-const
   DATE_TIME_ZERO: TDateTime = 0; // DateTime as 0, for simplicity. Some compilers (Delphi Berlin, f.e.) can't handle TDateTime(0)
-
 
 const
   DIR_CURSOR_CIRCLE_RAD  = 32; //Radius of the direction selector cursor restriction area
@@ -522,17 +519,18 @@ const
 
 
 type
-  TKMGameResultMsg = (//Game result
-        grWin,           //Player has won the game
-        grDefeat,        //Player was defeated
-        grCancel,        //Game was cancelled (unfinished)
-        grError,         //Some known error occured
-        grDisconnect,    //Disconnected from multiplayer game
-        grSilent,        //Used when loading savegame from running game (show no screens)
-        grReplayEnd,     //Replay was cancelled - return to menu without screens
-        grMapEdEnd,      //Map Editor was closed - return to menu without screens
-        grGameContinues);//Game is not finished yet, it is continious
-
+  // Game result
+  TKMGameResultMsg = (
+    grWin,           // Player has won the game
+    grDefeat,        // Player was defeated
+    grCancel,        // Game was cancelled (unfinished)
+    grError,         // Some known error occured
+    grDisconnect,    // Disconnected from multiplayer game
+    grSilent,        // Used when loading savegame from running game (show no screens)
+    grReplayEnd,     // Replay was cancelled - return to menu without screens
+    grMapEdEnd,      // Map Editor was closed - return to menu without screens
+    grGameContinues  // Game is not finished yet, it is continious
+  );
 
 type
   TKMAllianceType = (atEnemy, atAlly);
@@ -564,7 +562,7 @@ const
 
 { Terrain }
 type
-  //* terrain passability
+  //* Terrain passability
   TKMTerrainPassability = (
     tpNone,
     tpWalk,        // General passability of tile for any walking units
@@ -691,7 +689,6 @@ type
   TKMArmyType = (atIronThenLeather, atLeather, atIron, atIronAndLeather);
 
 const
-
   UNIT_TO_GROUP_TYPE: array [WARRIOR_MIN..WARRIOR_MAX] of TKMGroupType = (
     gtMelee,gtMelee,gtMelee, //utMilitia, utAxeFighter, utSwordsman
     gtRanged,gtRanged,        //utBowman, utArbaletman
@@ -716,7 +713,6 @@ const
 type
   TKMGoInDirection = (gdGoOutside=-1, gdGoInside=1); //Switch to set if unit goes into house or out of it
 
-type
   TKMUnitThought = (thNone, thEat, thHome, thBuild, thStone, thWood, thDeath, thQuest, thDismiss);
 
 const
@@ -741,25 +737,29 @@ const
   TC_BLOCK_ENTRANCE = 482;
 
 type
-  TKMUnitTaskType = ( uttUnknown, //Uninitialized task to detect bugs
-        uttSelfTrain, uttDeliver,         uttBuildRoad,  uttBuildWine,        uttBuildField,
-        uttBuildHouseArea, uttBuildHouse, uttBuildHouseRepair, uttGoHome,    uttDismiss,
-        uttGoEat,     uttMining,          uttDie,        uttGoOutShowHungry,  uttAttackHouse,
-        uttThrowRock);
+  TKMUnitTaskType = (
+    uttUnknown, // Uninitialized task to detect bugs
+    uttSelfTrain,       uttDeliver,    uttBuildRoad,        uttBuildWine,       uttBuildField,
+    uttBuildHouseArea,  uttBuildHouse, uttBuildHouseRepair, uttGoHome,          uttDismiss,
+    uttGoEat,           uttMining,     uttDie,              uttGoOutShowHungry, uttAttackHouse,
+    uttThrowRock
+  );
 
   TKMUnitActionName = (uanStay, uanWalkTo, uanGoInOut, uanAbandonWalk, uanFight, uanStormAttack, uanSteer);
 
-  TKMUnitActionType = (uaWalk=120, uaWork, uaSpec, uaDie, uaWork1,
-                       uaWork2, uaWorkEnd, uaEat, uaWalkArm, uaWalkTool,
-                       uaWalkBooty, uaWalkTool2, uaWalkBooty2, uaUnknown);
+  TKMUnitActionType = (
+    uaWalk = 120, uaWork, uaSpec, uaDie, uaWork1,
+    uaWork2, uaWorkEnd, uaEat, uaWalkArm, uaWalkTool,
+    uaWalkBooty, uaWalkTool2, uaWalkBooty2, uaUnknown);
   TKMUnitActionTypeSet = set of TKMUnitActionType;
 
 const
   UNIT_ACT_MIN = uaWalk;
   UNIT_ACT_MAX = uaWalkBooty2;
-  UNIT_ACT_STR: array [TKMUnitActionType] of string = ('uaWalk', 'uaWork', 'uaSpec', 'uaDie', 'uaWork1',
-             'uaWork2', 'uaWorkEnd', 'uaEat', 'uaWalkArm', 'uaWalkTool',
-             'uaWalkBooty', 'uaWalkTool2', 'uaWalkBooty2', 'uaUnknown');
+  UNIT_ACT_STR: array [TKMUnitActionType] of string = (
+    'uaWalk', 'uaWork', 'uaSpec', 'uaDie', 'uaWork1',
+    'uaWork2', 'uaWorkEnd', 'uaEat', 'uaWalkArm', 'uaWalkTool',
+    'uaWalkBooty', 'uaWalkTool2', 'uaWalkBooty2', 'uaUnknown');
 
 
 const
