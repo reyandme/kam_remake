@@ -958,7 +958,6 @@ var
   th: TKMUnitThought;
   h: TKMHouseType;
   hAct: TKMHouseActionType;
-  animData: string;
   beastHouse, beast, beastAge: Integer;
 const
   UNITS_RX_OFFSET = 9300;
@@ -970,15 +969,15 @@ begin
   FreeAndNil(fOutputStream);
   fOutputStream := TKMemoryStreamBinary.Create;
 
-  animData := 'type'+#13#10;
-  animData := animData + '  TKMInterpolation = array[1..30, 0..7] of Integer;'+#13#10;
+  Memo1.Lines.Append('type');
+  Memo1.Lines.Append('  TKMInterpolation = array[1..30, 0..7] of Integer;');
 
   //UNITS
   picOffset := UNITS_RX_OFFSET;
   fOutputStream.WriteA('UnitAction');
 
-  animData := animData + '  TKMUnitActionInterp = array[TKMUnitType, UNIT_ACT_MIN..UNIT_ACT_MAX, dirN..dirNW] of TKMInterpolation;'+#13#10;
-  animData := animData + '//SizeOf(TKMUnitActionInterp) = '+IntToStr(SizeOf(TKMUnitActionInterp))+#13#10;
+  Memo1.Lines.Append('  TKMUnitActionInterp = array[TKMUnitType, UNIT_ACT_MIN..UNIT_ACT_MAX, dirN..dirNW] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMUnitActionInterp) = '+IntToStr(SizeOf(TKMUnitActionInterp)));
 
   startPos := fOutputStream.Position;
   for u := UNIT_MIN to UNIT_MAX do
@@ -992,12 +991,12 @@ begin
         end;
   Assert(SizeOf(TKMUnitActionInterp) = fOutputStream.Position - startPos);
 
-  animData := animData + '//fOutputStream.Position = '+IntToStr(fOutputStream.Position)+#13#10;
+  Memo1.Lines.Append('//fOutputStream.Position = '+IntToStr(fOutputStream.Position));
 
   fOutputStream.WriteA('SerfCarry ');
 
-  animData := animData + 'TKMSerfCarryInterp = array[WARE_MIN..WARE_MAX, dirN..dirNW] of TKMInterpolation;'+#13#10;
-  animData := animData + '//SizeOf(TKMSerfCarryInterp) = '+IntToStr(SizeOf(TKMSerfCarryInterp))+#13#10;
+  Memo1.Lines.Append('TKMSerfCarryInterp = array[WARE_MIN..WARE_MAX, dirN..dirNW] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMSerfCarryInterp) = '+IntToStr(SizeOf(TKMSerfCarryInterp)));
 
   startPos := fOutputStream.Position;
   for ware := WARE_MIN to WARE_MAX do
@@ -1012,8 +1011,8 @@ begin
 
   fOutputStream.WriteA('UnitThoughts  ');
 
-  animData := animData + '  TKMUnitThoughtInterp = array[TKMUnitThought] of TKMInterpolation;'+#13#10;
-  animData := animData + '//SizeOf(TKMUnitThoughtInterp) = '+IntToStr(SizeOf(TKMUnitThoughtInterp))+#13#10;
+  Memo1.Lines.Append('  TKMUnitThoughtInterp = array[TKMUnitThought] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMUnitThoughtInterp) = '+IntToStr(SizeOf(TKMUnitThoughtInterp)));
 
   startPos := fOutputStream.Position;
   for th := Low(TKMUnitThought) to High(TKMUnitThought) do
@@ -1027,9 +1026,10 @@ begin
 
   fOutputStream.WriteA('Trees ');
 
-  animData := animData + #13#10 + #13#10;
-  animData := animData + 'TKMTreeInterp = array[0..OBJECTS_CNT] of TKMInterpolation;'+#13#10;
-  animData := animData + '//SizeOf(TKMTreeInterp) = '+IntToStr(SizeOf(TKMTreeInterp))+#13#10;
+  Memo1.Lines.Append('');
+  Memo1.Lines.Append('');
+  Memo1.Lines.Append('TKMTreeInterp = array[0..OBJECTS_CNT] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMTreeInterp) = '+IntToStr(SizeOf(TKMTreeInterp)));
 
 
   //TREES
@@ -1053,9 +1053,10 @@ begin
 
   fOutputStream.WriteA('Houses');
 
-  animData := animData + #13#10 + #13#10;
-  animData := animData + 'TKMHouseInterp = array[HOUSE_MIN..HOUSE_MAX, TKMHouseActionType] of TKMInterpolation;'+#13#10;
-  animData := animData + '//SizeOf(TKMHouseInterp) = '+IntToStr(SizeOf(TKMHouseInterp))+#13#10;
+  Memo1.Lines.Append('');
+  Memo1.Lines.Append('');
+  Memo1.Lines.Append('TKMHouseInterp = array[HOUSE_MIN..HOUSE_MAX, TKMHouseActionType] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMHouseInterp) = '+IntToStr(SizeOf(TKMHouseInterp)));
 
   startPos := fOutputStream.Position;
   for h := HOUSE_MIN to HOUSE_MAX do
@@ -1070,9 +1071,10 @@ begin
 
   fOutputStream.WriteA('Beasts');
 
-  animData := animData + #13#10 + #13#10;
-  animData := animData + 'TKMBeastInterp = array[1..3,1..5,1..3] of TKMInterpolation;'+#13#10;
-  animData := animData + '//SizeOf(TKMBeastInterp) = '+IntToStr(SizeOf(TKMBeastInterp))+#13#10;
+  Memo1.Lines.Append('');
+  Memo1.Lines.Append('');
+  Memo1.Lines.Append('TKMBeastInterp = array[1..3,1..5,1..3] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMBeastInterp) = '+IntToStr(SizeOf(TKMBeastInterp)));
 
   startPos := fOutputStream.Position;
   for beastHouse := 1 to 3 do
@@ -1087,7 +1089,6 @@ begin
   Assert(SizeOf(TKMBeastInterp) = fOutputStream.Position - startPos);
 
   fOutputStream.SaveToFile(ExeDir+'data/defines/interp.dat');
-  Memo1.Text := animData;
 end;
 
 
