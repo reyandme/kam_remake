@@ -984,22 +984,14 @@ begin
 
   startPos := fOutputStream.Position;
   for u := UNIT_MIN to UNIT_MAX do
-  begin
     for act := UNIT_ACT_MIN to UNIT_ACT_MAX do
-    begin
       for dir := dirN to dirNW do
-      begin
         try
           DoInterpUnit(u, act, dir, picOffset, not chkUnitActions.Checked);
         except
           on E: Exception do
-          begin
-            memoErrors.Text := memoErrors.Text + TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message + #13#10;
-          end;
+            memoErrors.Lines.Add(TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
         end;
-      end;
-    end;
-  end;
   Assert(SizeOf(TKMUnitActionInterp) = fOutputStream.Position - startPos);
 
   animData := animData + '//fOutputStream.Position = '+IntToStr(fOutputStream.Position)+#13#10;
