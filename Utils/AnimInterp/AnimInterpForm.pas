@@ -145,7 +145,7 @@ begin
 
   folderWork := ExeDir + 'SpriteInterp\';
   fFolderOutput := folderWork + 'Output\';
-  fFolderDain := 'C:\Dev\kam_sprites\DAIN_APP Alpha 1.0\';
+  fFolderDain := ExeDir + 'DAIN_APP Alpha 1.0\';
 
   fFolderBase := folderWork + 'base\';
   fFolderShad := folderWork + 'shad\';
@@ -155,10 +155,22 @@ end;
 
 function TForm1.GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer = 8): string;
 var
-  DainExe: string;
+  dainExe: string;
 begin
-  DainExe := fFolderDain + 'DAINAPP.exe';
-  Result := 'cmd.exe /C "'+DainExe+'" --cli 1 -o '+aDir+' -p 0 -l 1 -in '+IntToStr(aInterpLevel)+' -da 0 -se 0 -si 1 -sr 0 -ha 0 --fast_mode 0';
+  dainExe := '"' + fFolderDain + 'DAINAPP.exe"';
+  Result := 'cmd.exe /C ' + DainExe;
+  Result := Result + ' --cli 1';    // Execute application in CLI mode.
+  Result := Result + ' -o ' + aDir; // Output Path to generate the folder with all the files.
+  Result := Result + ' -p 0';       // Generate a version of the file limiting the pallete.
+  Result := Result + ' -l 1';       // Turn on if the animation do a perfect loop.
+  Result := Result + ' -in ' + IntToStr(aInterpLevel); // How much new frames will be created.
+  Result := Result + ' -da 0';         // Should depth be calculated in interpolations?
+  Result := Result + ' -se 0';         // Do the step of extracting all frames from the original video into the folder.
+  Result := Result + ' -si 1';         // Do the step of interpolating all the original frames.
+  Result := Result + ' -sr 0';         // Do the step of creating the video from all the interpolated frames.
+  Result := Result + ' -ha 0';         // Use half precision float points.
+  Result := Result + ' --fast_mode 0'; // Use fast interpolation mode.
+
   if aAlpha then
     Result := Result + ' -a 1';
 
