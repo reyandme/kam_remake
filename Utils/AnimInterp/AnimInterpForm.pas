@@ -1013,6 +1013,7 @@ begin
       for act := UNIT_ACT_MIN to UNIT_ACT_MAX do
         for dir := dirN to dirNW do
           try
+            ChangeStatus(Format('UnitAction %d/%d %d/%d %d/%d', [Ord(u), Ord(UNIT_MAX), Ord(act), Ord(UNIT_ACT_MAX), Ord(dir), Ord(dirNW)]));
             DoInterpUnit(u, act, dir, picOffset, not chkUnitActions.Checked);
           except
             on E: Exception do
@@ -1034,6 +1035,7 @@ begin
     for ware := WARE_MIN to WARE_MAX do
       for dir := dirN to dirNW do
         try
+          ChangeStatus(Format('SerfCarry %d/%d %d/%d', [Ord(ware), Ord(WARE_MAX), Ord(dir), Ord(dirNW)]));
           DoInterpSerfCarry(ware, dir, picOffset, not chkSerfCarry.Checked);
         except
           on E: Exception do
@@ -1052,6 +1054,7 @@ begin
     startPos := fOutputStream.Position;
     for th := Low(TKMUnitThought) to High(TKMUnitThought) do
       try
+        ChangeStatus(Format('UnitThoughts %d/%d', [Ord(th), Ord(High(TKMUnitThought))]));
         DoInterpUnitThought(th, picOffset, not chkUnitThoughts.Checked);
       except
         on E: Exception do
@@ -1103,6 +1106,7 @@ begin
     for h := HOUSE_MIN to HOUSE_MAX do
       for hAct := Low(TKMHouseActionType) to High(TKMHouseActionType) do
         try
+          ChangeStatus(Format('Houses %d/%d %d/%d', [Ord(h), Ord(HOUSE_MAX), Ord(hAct), Ord(High(TKMHouseActionType))]));
           DoInterpHouseAction(h, hAct, picOffset, not chkHouseActions.Checked);
         except
           on E: Exception do
@@ -1126,6 +1130,7 @@ begin
       for beast := 1 to 5 do
         for beastAge := 1 to 3 do
           try
+            ChangeStatus(Format('Beasts %d/%d %d/%d %d/%d', [beastHouse, 3, beast, 5, beastAge, 3]));
             DoInterpBeast(beastHouse, beast, beastAge, picOffset, not chkBeasts.Checked);
           except
             on E: Exception do
