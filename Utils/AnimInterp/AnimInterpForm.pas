@@ -4,7 +4,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   KM_ResPalettes, KM_Defaults, KM_CommonTypes, KM_Points, KM_ResSprites, KM_ResSpritesEdit, KM_Pics, KM_ResUnits,
-  KM_ResTypes, KM_ResMapElements, KM_ResHouses, KM_CommonClasses;
+  KM_ResTypes, KM_ResMapElements, KM_ResHouses, KM_CommonClasses, Vcl.ComCtrls;
 
 type
   TInterpCacheItem = record
@@ -24,6 +24,8 @@ type
     chkTrees: TCheckBox;
     chkHouseActions: TCheckBox;
     chkBeasts: TCheckBox;
+    pbProgress: TProgressBar;
+    Label2: TLabel;
     procedure btnProcessClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
@@ -63,6 +65,8 @@ type
     procedure DoInterpTree(aTree: Integer; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpHouseAction(aHT: TKMHouseType; aHouseAct: TKMHouseActionType; var aPicOffset: Integer; aDryRun: Boolean);
     procedure DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
+
+    procedure ChangeStatus(const aText: string);
   end;
 
 
@@ -585,6 +589,13 @@ begin
 end;
 
 
+procedure TForm1.ChangeStatus(const aText: string);
+begin
+  Label2.Caption := 'Status: ' + aText;
+  Label2.Repaint;
+end;
+
+
 procedure TForm1.CleanupInterpBackground(var pngBase, pngShad, pngTeam: TKMCardinalArray);
 
   function RGBDiff(A, B: Cardinal): Integer;
@@ -1042,6 +1053,7 @@ begin
 
   // TREES
   begin
+    ChangeStatus('Trees');
     fOutputStream.WriteA('Trees ');
 
     Memo1.Lines.Append('TKMTreeInterp = array[0..OBJECTS_CNT] of TKMInterpolation;');
@@ -1053,6 +1065,7 @@ begin
     startPos := fOutputStream.Position;
     for I := 0 to OBJECTS_CNT do
       try
+        ChangeStatus(Format('Trees %d/%d', [I, OBJECTS_CNT]));
         DoInterpTree(I, picOffset, not chkTrees.Checked);
       except
         on E: Exception do

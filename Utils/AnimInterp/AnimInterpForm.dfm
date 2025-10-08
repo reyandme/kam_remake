@@ -25,9 +25,16 @@ object Form1: TForm1
     Anchors = [akLeft, akBottom]
     Caption = 'Errors:'
   end
+  object Label2: TLabel
+    Left = 224
+    Top = 48
+    Width = 35
+    Height = 13
+    Caption = 'Status:'
+  end
   object btnProcess: TButton
     Left = 8
-    Top = 80
+    Top = 64
     Width = 209
     Height = 25
     Caption = 'Process'
@@ -36,9 +43,9 @@ object Form1: TForm1
   end
   object Memo1: TMemo
     Left = 8
-    Top = 112
+    Top = 96
     Width = 737
-    Height = 337
+    Height = 353
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
   end
@@ -52,7 +59,7 @@ object Form1: TForm1
   end
   object chkSerfCarry: TCheckBox
     Left = 8
-    Top = 32
+    Top = 24
     Width = 97
     Height = 16
     Caption = 'Serf carry'
@@ -68,7 +75,7 @@ object Form1: TForm1
   end
   object chkUnitThoughts: TCheckBox
     Left = 8
-    Top = 56
+    Top = 40
     Width = 97
     Height = 16
     Caption = 'Unit thoughts'
@@ -84,7 +91,7 @@ object Form1: TForm1
   end
   object chkHouseActions: TCheckBox
     Left = 112
-    Top = 32
+    Top = 24
     Width = 97
     Height = 16
     Caption = 'House actions'
@@ -92,10 +99,18 @@ object Form1: TForm1
   end
   object chkBeasts: TCheckBox
     Left = 112
-    Top = 56
+    Top = 40
     Width = 97
     Height = 16
     Caption = 'House beasts'
     TabOrder = 8
+  end
+  object pbProgress: TProgressBar
+    Left = 224
+    Top = 64
+    Width = 521
+    Height = 25
+    Step = 1
+    TabOrder = 9
   end
 end
