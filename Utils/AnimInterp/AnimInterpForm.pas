@@ -46,6 +46,8 @@ type
     fFolderTeam: string;
     fFolderOutput: string;
 
+    fPicOffset: Integer;
+
     function GetCanvasSize(aID: Integer; RT: TRXType; aMoveX: Integer = 0; aMoveY: Integer = 0): Integer;
     function GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer = 8): string;
 
@@ -54,18 +56,18 @@ type
     procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean; aBkgRGB: Cardinal);
     procedure MakeSlowInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType; aBkgRGB: Cardinal);
 
-    procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
-    procedure DoInterpSlow(RT: TRXType; A: TKMAnimLoop; var aPicOffset: Integer; aDryRun: Boolean; aBkgRGB: Cardinal);
+    procedure DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; aDryRun: Boolean);
+    procedure DoInterpSlow(RT: TRXType; A: TKMAnimLoop; aDryRun: Boolean; aBkgRGB: Cardinal);
 
     procedure CleanupInterpBackground(var pngBase, pngShad, pngTeam: TKMCardinalArray);
     procedure ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
 
-    procedure DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
-    procedure DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
-    procedure DoInterpUnitThought(aThought: TKMUnitThought; var aPicOffset: Integer; aDryRun: Boolean);
-    procedure DoInterpTree(aTree: Integer; var aPicOffset: Integer; aDryRun: Boolean);
-    procedure DoInterpHouseAction(aHT: TKMHouseType; aHouseAct: TKMHouseActionType; var aPicOffset: Integer; aDryRun: Boolean);
-    procedure DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
+    procedure DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; aDryRun: Boolean);
+    procedure DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; aDryRun: Boolean);
+    procedure DoInterpUnitThought(aThought: TKMUnitThought; aDryRun: Boolean);
+    procedure DoInterpTree(aTree: Integer; aDryRun: Boolean);
+    procedure DoInterpHouseAction(aHT: TKMHouseType; aHouseAct: TKMHouseActionType; aDryRun: Boolean);
+    procedure DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; aDryRun: Boolean);
 
     procedure ChangeStatus(const aText: string);
     procedure LogError(const aText: string);
@@ -361,7 +363,7 @@ begin
 end;
 
 
-procedure TForm1.DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterp(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; aDryRun: Boolean);
 
   function SameAnim(A, B: TKMAnimLoop): Boolean;
   var
@@ -450,7 +452,7 @@ begin
     if Found then
       Continue;
 
-    InterpOffset := aPicOffset;
+    InterpOffset := fPicOffset;
 
     //Cache it
     SetLength(fInterpCache, Length(fInterpCache)+1);
@@ -460,7 +462,7 @@ begin
     fInterpCache[Length(fInterpCache)-1].interpOffset := InterpOffset;
 
     //Update return values
-    Inc(aPicOffset, 7);
+    Inc(fPicOffset, 7);
     for SubStep := 0 to 6 do
       fOutputStream.Write(InterpOffset+SubStep);
 
@@ -504,7 +506,7 @@ begin
 end;
 
 
-procedure TForm1.DoInterpSlow(RT: TRXType; A: TKMAnimLoop; var aPicOffset: Integer; aDryRun: Boolean; aBkgRGB: Cardinal);
+procedure TForm1.DoInterpSlow(RT: TRXType; A: TKMAnimLoop; aDryRun: Boolean; aBkgRGB: Cardinal);
 var
   I, S, SInterp, SOffset, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
   suffixPath, outDirLocal, outPrefix: string;
@@ -569,7 +571,7 @@ begin
     if Found then
       Continue;
 
-    InterpOffset := aPicOffset;
+    InterpOffset := fPicOffset;
 
     //Cache it
     SetLength(fInterpCache, Length(fInterpCache)+1);
@@ -579,7 +581,7 @@ begin
     fInterpCache[Length(fInterpCache)-1].interpOffset := InterpOffset;
 
     //Update return values
-    Inc(aPicOffset, 8*S - 1);
+    Inc(fPicOffset, 8*S - 1);
     for SubStep := 0 to (8*S - 2) do
       fOutputStream.Write(InterpOffset+SubStep);
 
@@ -791,7 +793,7 @@ begin
 end;
 
 
-procedure TForm1.DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterpUnit(aUT: TKMUnitType; aAction: TKMUnitActionType; aDir: TKMDirection; aDryRun: Boolean);
 var
   A, ABase: TKMAnimLoop;
   bkgRGB: Cardinal;
@@ -823,11 +825,11 @@ begin
 
   SimpleShadows := aAction <> uaDie;
 
-  DoInterp(rxUnits, A, ABase, UseBase, True, False, SimpleShadows, bkgRGB, aPicOffset, aDryRun);
+  DoInterp(rxUnits, A, ABase, UseBase, True, False, SimpleShadows, bkgRGB, aDryRun);
 end;
 
 
-procedure TForm1.DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; aDryRun: Boolean);
 var
   A, ABase: TKMAnimLoop;
 begin
@@ -840,11 +842,11 @@ begin
   A := fResUnits.SerfCarry[aWare, aDir];
   ABase := fResUnits[utSerf].UnitAnim[uaWalk, aDir];
 
-  DoInterp(rxUnits, A, ABase, True, True, False, True, $000000, aPicOffset, aDryRun);
+  DoInterp(rxUnits, A, ABase, True, True, False, True, $000000, aDryRun);
 end;
 
 
-procedure TForm1.DoInterpUnitThought(aThought: TKMUnitThought; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterpUnitThought(aThought: TKMUnitThought; aDryRun: Boolean);
 var
   A: TKMAnimLoop;
   I: Integer;
@@ -864,11 +866,11 @@ begin
       A.Step[I] := -1;
   end;
 
-  DoInterp(rxUnits, A, A, False, False, False, False, $FFFFFF, aPicOffset, aDryRun);
+  DoInterp(rxUnits, A, A, False, False, False, False, $FFFFFF, aDryRun);
 end;
 
 
-procedure TForm1.DoInterpTree(aTree: Integer; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterpTree(aTree: Integer; aDryRun: Boolean);
 var
   A: TKMAnimLoop;
   S: Integer;
@@ -884,14 +886,14 @@ begin
   S := GetAnimSpeed(A);
   if (S = 2) or (S = 3) or (S = 4) then
   begin
-    DoInterpSlow(rxTrees, A, aPicOffset, aDryRun, $0);
+    DoInterpSlow(rxTrees, A, aDryRun, $0);
   end
   else
-    DoInterp(rxTrees, A, A, False, False, False, True, $000000, aPicOffset, aDryRun);
+    DoInterp(rxTrees, A, A, False, False, False, True, $000000, aDryRun);
 end;
 
 
-procedure TForm1.DoInterpHouseAction(aHT: TKMHouseType; aHouseAct: TKMHouseActionType; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterpHouseAction(aHT: TKMHouseType; aHouseAct: TKMHouseActionType; aDryRun: Boolean);
 var
   A, ABase: TKMAnimLoop;
   UseBase: Boolean;
@@ -932,15 +934,15 @@ begin
 
   if (aHT = htButchers) and (aHouseAct = haIdle) then
   begin
-    DoInterpSlow(rxHouses, A, aPicOffset, aDryRun, $0);
+    DoInterpSlow(rxHouses, A, aDryRun, $0);
     Exit;
   end;
 
-  DoInterp(rxHouses, A, ABase, UseBase and USE_BASE_HOUSE_ACT, False, SimpleAlpha, SimpleShadows, $000000, aPicOffset, aDryRun);
+  DoInterp(rxHouses, A, ABase, UseBase and USE_BASE_HOUSE_ACT, False, SimpleAlpha, SimpleShadows, $000000, aDryRun);
 end;
 
 
-procedure TForm1.DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
+procedure TForm1.DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; aDryRun: Boolean);
 var
   A, ABase: TKMAnimLoop;
   I: Integer;
@@ -967,7 +969,7 @@ begin
     Exit;
   end;
 
-  DoInterp(rxHouses, A, ABase, USE_BASE_BEASTS, False, False, True, $000000, aPicOffset, aDryRun);
+  DoInterp(rxHouses, A, ABase, USE_BASE_BEASTS, False, False, True, $000000, aDryRun);
 end;
 
 
@@ -988,7 +990,7 @@ procedure TForm1.btnProcessClick(Sender: TObject);
 type
   TKMInterpolation = array[1..30, 0..7] of Integer;
 var
-  I, picOffset, startPos: Integer;
+  I, startPos: Integer;
   dir: TKMDirection;
   act: TKMUnitActionType;
   u: TKMUnitType;
@@ -1018,7 +1020,7 @@ begin
 
   // UNIT ACTIONS
   begin
-    picOffset := UNITS_RX_OFFSET;
+    fPicOffset := UNITS_RX_OFFSET;
     fOutputStream.WriteA('UnitAction');
 
     Memo1.Lines.Append('  TKMUnitActionInterp = array[TKMUnitType, UNIT_ACT_MIN..UNIT_ACT_MAX, dirN..dirNW] of TKMInterpolation;');
@@ -1030,7 +1032,7 @@ begin
         for dir := dirN to dirNW do
           try
             ChangeStatus(Format('UnitAction %d/%d %d/%d %d/%d', [Ord(u), Ord(UNIT_MAX), Ord(act), Ord(UNIT_ACT_MAX), Ord(dir), Ord(dirNW)]));
-            DoInterpUnit(u, act, dir, picOffset, not chkUnitActions.Checked);
+            DoInterpUnit(u, act, dir, not chkUnitActions.Checked);
           except
             on E: Exception do
               LogError(TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
@@ -1052,7 +1054,7 @@ begin
       for dir := dirN to dirNW do
         try
           ChangeStatus(Format('SerfCarry %d/%d %d/%d', [Ord(ware), Ord(WARE_MAX), Ord(dir), Ord(dirNW)]));
-          DoInterpSerfCarry(ware, dir, picOffset, not chkSerfCarry.Checked);
+          DoInterpSerfCarry(ware, dir, not chkSerfCarry.Checked);
         except
           on E: Exception do
             LogError(TRttiEnumerationType.GetName(ware) + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
@@ -1071,7 +1073,7 @@ begin
     for th := Low(TKMUnitThought) to High(TKMUnitThought) do
       try
         ChangeStatus(Format('UnitThoughts %d/%d', [Ord(th), Ord(High(TKMUnitThought))]));
-        DoInterpUnitThought(th, picOffset, not chkUnitThoughts.Checked);
+        DoInterpUnitThought(th, not chkUnitThoughts.Checked);
       except
         on E: Exception do
           LogError(TRttiEnumerationType.GetName(th) + ' - ' + E.Message);
@@ -1090,14 +1092,14 @@ begin
     Memo1.Lines.Append('TKMTreeInterp = array[0..OBJECTS_CNT] of TKMInterpolation;');
     Memo1.Lines.Append('//SizeOf(TKMTreeInterp) = '+IntToStr(SizeOf(TKMTreeInterp)));
 
-    picOffset := TREES_RX_OFFSET;
+    fPicOffset := TREES_RX_OFFSET;
     SetLength(fInterpCache, 0);
 
     startPos := fOutputStream.Position;
     for I := 0 to OBJECTS_CNT do
       try
         ChangeStatus(Format('Trees %d/%d', [I, OBJECTS_CNT]));
-        DoInterpTree(I, picOffset, not chkTrees.Checked);
+        DoInterpTree(I, not chkTrees.Checked);
       except
         on E: Exception do
           LogError('Tree ' + IntToStr(I) + ' - ' + E.Message);
@@ -1110,7 +1112,7 @@ begin
 
   // HOUSES
   begin
-    picOffset := HOUSES_RX_OFFSET;
+    fPicOffset := HOUSES_RX_OFFSET;
     SetLength(fInterpCache, 0);
 
     fOutputStream.WriteA('Houses');
@@ -1123,7 +1125,7 @@ begin
       for hAct := Low(TKMHouseActionType) to High(TKMHouseActionType) do
         try
           ChangeStatus(Format('Houses %d/%d %d/%d', [Ord(h), Ord(HOUSE_MAX), Ord(hAct), Ord(High(TKMHouseActionType))]));
-          DoInterpHouseAction(h, hAct, picOffset, not chkHouseActions.Checked);
+          DoInterpHouseAction(h, hAct, not chkHouseActions.Checked);
         except
           on E: Exception do
             LogError(TRttiEnumerationType.GetName(h) + ' - ' + TRttiEnumerationType.GetName(hAct) + ' - ' + E.Message);
@@ -1147,7 +1149,7 @@ begin
         for beastAge := 1 to 3 do
           try
             ChangeStatus(Format('Beasts %d/%d %d/%d %d/%d', [beastHouse, 3, beast, 5, beastAge, 3]));
-            DoInterpBeast(beastHouse, beast, beastAge, picOffset, not chkBeasts.Checked);
+            DoInterpBeast(beastHouse, beast, beastAge, not chkBeasts.Checked);
           except
             on E: Exception do
               LogError(' beast ' + IntToStr(beastHouse) + ' - ' + IntToStr(beast) + ' - ' + IntToStr(beastAge) + ' - ' + E.Message);
