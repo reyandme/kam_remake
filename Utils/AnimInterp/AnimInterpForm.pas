@@ -16,7 +16,7 @@ type
   TForm1 = class(TForm)
     btnProcess: TButton;
     Memo1: TMemo;
-    memoErrors: TMemo;
+    memoLog: TMemo;
     Label1: TLabel;
     chkSerfCarry: TCheckBox;
     chkUnitActions: TCheckBox;
@@ -26,6 +26,7 @@ type
     chkBeasts: TCheckBox;
     pbProgress: TProgressBar;
     Label2: TLabel;
+    cbLogVerbose: TCheckBox;
     procedure btnProcessClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
@@ -67,6 +68,8 @@ type
     procedure DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; var aPicOffset: Integer; aDryRun: Boolean);
 
     procedure ChangeStatus(const aText: string);
+    procedure LogError(const aText: string);
+    procedure LogInfo(const aText: string);
   end;
 
 
@@ -517,7 +520,7 @@ begin
 
   if not (S in [2, 3, 4]) then
   begin
-    memoErrors.Lines.Add('Not a slow animation!');
+    LogError('Not a slow animation!');
     Exit;
   end;
 
@@ -968,6 +971,19 @@ begin
 end;
 
 
+procedure TForm1.LogError(const aText: string);
+begin
+  memoLog.Lines.Append('ERROR: ' + aText);
+end;
+
+
+procedure TForm1.LogInfo(const aText: string);
+begin
+  if cbLogVerbose.Checked then
+    memoLog.Lines.Append(aText);
+end;
+
+
 procedure TForm1.btnProcessClick(Sender: TObject);
 type
   TKMInterpolation = array[1..30, 0..7] of Integer;
@@ -988,7 +1004,7 @@ const
 begin
   if not DirectoryExists(fFolderDain) then
   begin
-    memoErrors.Lines.Append(Format('DAIN folder "%s" not found', [fFolderDain]));
+    LogError(Format('DAIN folder "%s" not found', [fFolderDain]));
     Exit;
   end;
 
@@ -1017,7 +1033,7 @@ begin
             DoInterpUnit(u, act, dir, picOffset, not chkUnitActions.Checked);
           except
             on E: Exception do
-              memoErrors.Lines.Add(TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
+              LogError(TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
           end;
     Assert(SizeOf(TKMUnitActionInterp) = fOutputStream.Position - startPos);
 
@@ -1039,7 +1055,7 @@ begin
           DoInterpSerfCarry(ware, dir, picOffset, not chkSerfCarry.Checked);
         except
           on E: Exception do
-            memoErrors.Lines.Add(TRttiEnumerationType.GetName(ware) + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
+            LogError(TRttiEnumerationType.GetName(ware) + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
         end;
     Assert(SizeOf(TKMSerfCarryInterp) = fOutputStream.Position - startPos);
   end;
@@ -1058,7 +1074,7 @@ begin
         DoInterpUnitThought(th, picOffset, not chkUnitThoughts.Checked);
       except
         on E: Exception do
-          memoErrors.Lines.Add(TRttiEnumerationType.GetName(th) + ' - ' + E.Message);
+          LogError(TRttiEnumerationType.GetName(th) + ' - ' + E.Message);
       end;
     Assert(SizeOf(TKMUnitThoughtInterp) = fOutputStream.Position - startPos);
   end;
@@ -1084,7 +1100,7 @@ begin
         DoInterpTree(I, picOffset, not chkTrees.Checked);
       except
         on E: Exception do
-          memoErrors.Lines.Add('Tree ' + IntToStr(I) + ' - ' + E.Message);
+          LogError('Tree ' + IntToStr(I) + ' - ' + E.Message);
       end;
     Assert(SizeOf(TKMTreeInterp) = fOutputStream.Position - startPos);
   end;
@@ -1110,7 +1126,7 @@ begin
           DoInterpHouseAction(h, hAct, picOffset, not chkHouseActions.Checked);
         except
           on E: Exception do
-            memoErrors.Lines.Add(TRttiEnumerationType.GetName(h) + ' - ' + TRttiEnumerationType.GetName(hAct) + ' - ' + E.Message);
+            LogError(TRttiEnumerationType.GetName(h) + ' - ' + TRttiEnumerationType.GetName(hAct) + ' - ' + E.Message);
         end;
     Assert(SizeOf(TKMHouseInterp) = fOutputStream.Position - startPos);
   end;
@@ -1134,7 +1150,7 @@ begin
             DoInterpBeast(beastHouse, beast, beastAge, picOffset, not chkBeasts.Checked);
           except
             on E: Exception do
-              memoErrors.Lines.Add(' beast ' + IntToStr(beastHouse) + ' - ' + IntToStr(beast) + ' - ' + IntToStr(beastAge) + ' - ' + E.Message);
+              LogError(' beast ' + IntToStr(beastHouse) + ' - ' + IntToStr(beast) + ' - ' + IntToStr(beastAge) + ' - ' + E.Message);
           end;
     Assert(SizeOf(TKMBeastInterp) = fOutputStream.Position - startPos);
   end;

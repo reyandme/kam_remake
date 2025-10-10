@@ -20,10 +20,10 @@ object Form1: TForm1
   object Label1: TLabel
     Left = 8
     Top = 453
-    Width = 33
+    Width = 21
     Height = 13
     Anchors = [akLeft, akBottom]
-    Caption = 'Errors:'
+    Caption = 'Log:'
   end
   object Label2: TLabel
     Left = 224
@@ -49,7 +49,7 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
   end
-  object memoErrors: TMemo
+  object memoLog: TMemo
     Left = 8
     Top = 472
     Width = 737
@@ -112,5 +112,14 @@ object Form1: TForm1
     Height = 25
     Step = 1
     TabOrder = 9
+  end
+  object cbLogVerbose: TCheckBox
+    Left = 32
+    Top = 453
+    Width = 97
+    Height = 16
+    Anchors = [akLeft, akBottom]
+    Caption = 'Log verbose'
+    TabOrder = 10
   end
 end
