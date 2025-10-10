@@ -67,11 +67,11 @@ type
 
     procedure WriteEmptyAnim;
 
-    procedure MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean; aBkgRGB: Cardinal);
-    procedure MakeSlowInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType; aBkgRGB: Cardinal);
+    procedure InterpolateImagesNormal(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean; aBkgRGB: Cardinal);
+    procedure InterpolateImagesSlow(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType; aBkgRGB: Cardinal);
 
-    procedure InterpolateNormal(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; aDryRun: Boolean);
-    procedure InterpolateSlow(RT: TRXType; A: TKMAnimLoop; aDryRun: Boolean; aBkgRGB: Cardinal);
+    procedure InterpolateAnimNormal(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; aDryRun: Boolean);
+    procedure InterpolateAnimSlow(RT: TRXType; A: TKMAnimLoop; aDryRun: Boolean; aBkgRGB: Cardinal);
 
     procedure CleanupInterpBackground(var pngBase, pngShad, pngTeam: TKMCardinalArray);
     procedure ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
@@ -216,7 +216,7 @@ begin
 end;
 
 
-procedure TForm1.MakeSlowInterpImages(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType; aBkgRGB: Cardinal);
+procedure TForm1.InterpolateImagesSlow(aInterpCount: Integer; RT: TRXType; aID_1, aID_2: Integer; aBaseDir: string; aExportType: TInterpExportType; aBkgRGB: Cardinal);
 var
   origSpritesDir, interpSpritesDir: string;
   I: Integer;
@@ -224,7 +224,7 @@ var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
-  MakeInterpImagesPair(RT, aID_1, aID_2, -1, -1, 0, 0, False, aBaseDir, aExportType, True, aBkgRGB);
+  InterpolateImagesNormal(RT, aID_1, aID_2, -1, -1, 0, 0, False, aBaseDir, aExportType, True, aBkgRGB);
 
   origSpritesDir := aBaseDir + 'original_frames\';
   interpSpritesDir := aBaseDir + 'interpolated_frames\';
@@ -244,6 +244,7 @@ begin
   NeedAlpha := aExportType in [ietBase, ietNormal];
 
   //Interpolate
+  LogInfo('InterpolateImagesSlow: ' + aBaseDir);
   ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
   StartupInfo.cb := SizeOf(StartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
@@ -254,7 +255,7 @@ begin
 end;
 
 
-procedure TForm1.MakeInterpImagesPair(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean; aBkgRGB: Cardinal);
+procedure TForm1.InterpolateImagesNormal(RT: TRXType; aID_1, aID_2, aID_1_Base, aID_2_Base: Integer; aBaseMoveX, aBaseMoveY: Integer; aUseBase: Boolean; aBaseDir: string; aExportType: TInterpExportType; aSimpleShadows: Boolean; aBkgRGB: Cardinal);
 var
   origSpritesDir, interpSpritesDir: string;
   CanvasSize: Integer;
@@ -312,6 +313,7 @@ begin
   NeedAlpha := aExportType in [ietBase, ietNormal];
 
   //Interpolate
+  LogInfo('InterpolateImagesNormal: ' + aBaseDir);
   ZeroMemory(@StartupInfo, SizeOf(StartupInfo));
   StartupInfo.cb := SizeOf(StartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
@@ -370,7 +372,7 @@ begin
 end;
 
 
-procedure TForm1.InterpolateNormal(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; aDryRun: Boolean);
+procedure TForm1.InterpolateAnimNormal(RT: TRXType; A, ABase: TKMAnimLoop; aUseBase, aUseBaseForTeamMask, aSimpleAlpha: Boolean; aSimpleShadows: Boolean; aBkgRGB: Cardinal; aDryRun: Boolean);
 
   function SameAnim(A, B: TKMAnimLoop): Boolean;
   var
@@ -482,12 +484,12 @@ begin
     BaseMoveY := ABase.MoveY - A.MoveY;
 
     if aSimpleAlpha then
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietNormal, aSimpleShadows, aBkgRGB)
+      InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietNormal, aSimpleShadows, aBkgRGB)
     else
     begin
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietBase, aSimpleShadows, aBkgRGB);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderShad, ietShadows, aSimpleShadows, aBkgRGB);
-      MakeInterpImagesPair(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, fFolderTeam, ietTeamMask, aSimpleShadows, aBkgRGB);
+      InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietBase, aSimpleShadows, aBkgRGB);
+      InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderShad, ietShadows, aSimpleShadows, aBkgRGB);
+      InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, fFolderTeam, ietTeamMask, aSimpleShadows, aBkgRGB);
     end;
 
     //Determine maximum bounds of the pair, to crop out the base background sprite
@@ -508,7 +510,7 @@ begin
 end;
 
 
-procedure TForm1.InterpolateSlow(RT: TRXType; A: TKMAnimLoop; aDryRun: Boolean; aBkgRGB: Cardinal);
+procedure TForm1.InterpolateAnimSlow(RT: TRXType; A: TKMAnimLoop; aDryRun: Boolean; aBkgRGB: Cardinal);
 var
   I, animPace: Integer;
   SInterp, SOffset, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
@@ -591,9 +593,9 @@ begin
     if aDryRun then
       Continue;
 
-    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fFolderBase, ietBase, aBkgRGB);
-    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fFolderShad, ietShadows, aBkgRGB);
-    MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fFolderTeam, ietTeamMask, aBkgRGB);
+    InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderBase, ietBase, aBkgRGB);
+    InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderShad, ietShadows, aBkgRGB);
+    InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderTeam, ietTeamMask, aBkgRGB);
     for SubStep := 0 to (8*animPace - 2) do
     begin
       if animPace <> SInterp then
@@ -828,7 +830,7 @@ begin
 
   SimpleShadows := aAction <> uaDie;
 
-  InterpolateNormal(rxUnits, A, ABase, UseBase, True, False, SimpleShadows, bkgRGB, aDryRun);
+  InterpolateAnimNormal(rxUnits, A, ABase, UseBase, True, False, SimpleShadows, bkgRGB, aDryRun);
 end;
 
 
@@ -845,7 +847,7 @@ begin
   animLoop := fResUnits.SerfCarry[aWare, aDir];
   animLoopBase := fResUnits[utSerf].UnitAnim[uaWalk, aDir];
 
-  InterpolateNormal(rxUnits, animLoop, animLoopBase, True, True, False, True, $000000, aDryRun);
+  InterpolateAnimNormal(rxUnits, animLoop, animLoopBase, True, True, False, True, $000000, aDryRun);
 end;
 
 
@@ -869,7 +871,7 @@ begin
       animLoop.Step[I] := -1;
   end;
 
-  InterpolateNormal(rxUnits, animLoop, animLoop, False, False, False, False, $FFFFFF, aDryRun);
+  InterpolateAnimNormal(rxUnits, animLoop, animLoop, False, False, False, False, $FFFFFF, aDryRun);
 end;
 
 
@@ -889,10 +891,10 @@ begin
   animPace := GetAnimPace(animLoop);
   if (animPace = 2) or (animPace = 3) or (animPace = 4) then
   begin
-    InterpolateSlow(rxTrees, animLoop, aDryRun, $0);
+    InterpolateAnimSlow(rxTrees, animLoop, aDryRun, $0);
   end
   else
-    InterpolateNormal(rxTrees, animLoop, animLoop, False, False, False, True, $000000, aDryRun);
+    InterpolateAnimNormal(rxTrees, animLoop, animLoop, False, False, False, True, $000000, aDryRun);
 end;
 
 
@@ -937,11 +939,11 @@ begin
 
   if (aHT = htButchers) and (aHouseAct = haIdle) then
   begin
-    InterpolateSlow(rxHouses, animLoop, aDryRun, $0);
+    InterpolateAnimSlow(rxHouses, animLoop, aDryRun, $0);
     Exit;
   end;
 
-  InterpolateNormal(rxHouses, animLoop, animLoopBase, useBase and USE_BASE_HOUSE_ACT, False, simpleAlpha, simpleShadows, $000000, aDryRun);
+  InterpolateAnimNormal(rxHouses, animLoop, animLoopBase, useBase and USE_BASE_HOUSE_ACT, False, simpleAlpha, simpleShadows, $000000, aDryRun);
 end;
 
 
@@ -972,7 +974,7 @@ begin
     Exit;
   end;
 
-  InterpolateNormal(rxHouses, animLoop, animLoopBase, USE_BASE_BEASTS, False, False, True, $000000, aDryRun);
+  InterpolateAnimNormal(rxHouses, animLoop, animLoopBase, USE_BASE_BEASTS, False, False, True, $000000, aDryRun);
 end;
 
 
