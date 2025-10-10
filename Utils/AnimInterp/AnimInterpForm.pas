@@ -131,10 +131,10 @@ const
     [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk] //Animals
   );
 
-  function GetAnimSpeed(A: TKMAnimLoop): Integer;
+  function GetAnimPace(aAnimLoop: TKMAnimLoop): Integer;
   begin
     Result := 1;
-    while (Result < A.Count) and (A.Step[Result] = A.Step[Result+1]) do
+    while (Result < aAnimLoop.Count) and (aAnimLoop.Step[Result] = aAnimLoop.Step[Result+1]) do
       Inc(Result);
   end;
 
@@ -515,19 +515,20 @@ end;
 
 procedure TForm1.DoInterpSlow(RT: TRXType; A: TKMAnimLoop; aDryRun: Boolean; aBkgRGB: Cardinal);
 var
-  I, S, SInterp, SOffset, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
+  I, animPace: Integer;
+  SInterp, SOffset, StepFull, SubStep, InterpOffset, StepSprite, StepNextSprite: Integer;
   suffixPath, outDirLocal, outPrefix: string;
   Found: Boolean;
 begin
-  S := GetAnimSpeed(A);
+  animPace := GetAnimPace(A);
 
   //We can't do 3x interp, so interp 4x and skip some of them using SOffset below
-  if S = 3 then
+  if animPace = 3 then
     SInterp := 4
   else
-    SInterp := S;
+    SInterp := animPace;
 
-  if not (S in [2, 3, 4]) then
+  if not (animPace in [2, 3, 4]) then
   begin
     LogError('Not a slow animation!');
     Exit;
@@ -547,11 +548,11 @@ begin
       Continue;
     end;
 
-    if (StepFull-1) mod S <> 0 then
+    if (StepFull-1) mod animPace <> 0 then
       Continue;
 
     StepSprite := A.Step[StepFull] + 1;
-    StepNextSprite := A.Step[(((StepFull-1 + S) mod A.Count) + 1)] + 1;
+    StepNextSprite := A.Step[(((StepFull-1 + animPace) mod A.Count) + 1)] + 1;
 
     fOutputStream.Write(StepSprite);
 
@@ -559,17 +560,17 @@ begin
     Found := False;
     for I := Low(fInterpCache) to High(fInterpCache) do
     begin
-      if (fInterpCache[I].A = StepSprite) and (fInterpCache[I].B = StepNextSprite) and (fInterpCache[I].Speed = S) then
+      if (fInterpCache[I].A = StepSprite) and (fInterpCache[I].B = StepNextSprite) and (fInterpCache[I].Speed = animPace) then
       begin
-        for SubStep := 0 to (8*S - 2) do
+        for SubStep := 0 to (8*animPace - 2) do
           fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
 
         Found := True;
       end
       //Check for a reversed sequence in the cache (animations often loop backwards)
-      else if (fInterpCache[I].B = StepSprite) and (fInterpCache[I].A = StepNextSprite) and (fInterpCache[I].Speed = S) then
+      else if (fInterpCache[I].B = StepSprite) and (fInterpCache[I].A = StepNextSprite) and (fInterpCache[I].Speed = animPace) then
       begin
-        for SubStep := (8*S - 2) downto 0 do
+        for SubStep := (8*animPace - 2) downto 0 do
           fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
 
         Found := True;
@@ -584,12 +585,12 @@ begin
     SetLength(fInterpCache, Length(fInterpCache)+1);
     fInterpCache[Length(fInterpCache)-1].A := StepSprite;
     fInterpCache[Length(fInterpCache)-1].B := StepNextSprite;
-    fInterpCache[Length(fInterpCache)-1].Speed := S;
+    fInterpCache[Length(fInterpCache)-1].Speed := animPace;
     fInterpCache[Length(fInterpCache)-1].interpOffset := InterpOffset;
 
     //Update return values
-    Inc(fPicOffset, 8*S - 1);
-    for SubStep := 0 to (8*S - 2) do
+    Inc(fPicOffset, 8*animPace - 1);
+    for SubStep := 0 to (8*animPace - 2) do
       fOutputStream.Write(InterpOffset+SubStep);
 
     if aDryRun then
@@ -598,9 +599,9 @@ begin
     MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fFolderBase, ietBase, aBkgRGB);
     MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fFolderShad, ietShadows, aBkgRGB);
     MakeSlowInterpImages(SInterp, RT, StepSprite, StepNextSprite, fFolderTeam, ietTeamMask, aBkgRGB);
-    for SubStep := 0 to (8*S - 2) do
+    for SubStep := 0 to (8*animPace - 2) do
     begin
-      if S <> SInterp then
+      if animPace <> SInterp then
         SOffset := (SubStep+1+1) div SInterp
       else
         SOffset := 0;
@@ -838,7 +839,7 @@ end;
 
 procedure TForm1.DoInterpSerfCarry(aWare: TKMWareType; aDir: TKMDirection; aDryRun: Boolean);
 var
-  A, ABase: TKMAnimLoop;
+  animLoop, animLoopBase: TKMAnimLoop;
 begin
   if (aDir = dirNA) or not (aWare in [WARE_MIN..WARE_MAX]) then
   begin
@@ -846,16 +847,16 @@ begin
     Exit;
   end;
 
-  A := fResUnits.SerfCarry[aWare, aDir];
-  ABase := fResUnits[utSerf].UnitAnim[uaWalk, aDir];
+  animLoop := fResUnits.SerfCarry[aWare, aDir];
+  animLoopBase := fResUnits[utSerf].UnitAnim[uaWalk, aDir];
 
-  DoInterp(rxUnits, A, ABase, True, True, False, True, $000000, aDryRun);
+  DoInterp(rxUnits, animLoop, animLoopBase, True, True, False, True, $000000, aDryRun);
 end;
 
 
 procedure TForm1.DoInterpUnitThought(aThought: TKMUnitThought; aDryRun: Boolean);
 var
-  A: TKMAnimLoop;
+  animLoop: TKMAnimLoop;
   I: Integer;
 begin
   if aThought = thNone then
@@ -864,52 +865,52 @@ begin
     Exit;
   end;
 
-  A.Count := 1 + THOUGHT_BOUNDS[aThought, 2] - THOUGHT_BOUNDS[aThought, 1];
+  animLoop.Count := 1 + THOUGHT_BOUNDS[aThought, 2] - THOUGHT_BOUNDS[aThought, 1];
   for I := 1 to 30 do
   begin
-    if I <= A.Count then
-      A.Step[I] := THOUGHT_BOUNDS[aThought, 2] - (I-1) // Thought bubbles are animated in reverse
+    if I <= animLoop.Count then
+      animLoop.Step[I] := THOUGHT_BOUNDS[aThought, 2] - (I-1) // Thought bubbles are animated in reverse
     else
-      A.Step[I] := -1;
+      animLoop.Step[I] := -1;
   end;
 
-  DoInterp(rxUnits, A, A, False, False, False, False, $FFFFFF, aDryRun);
+  DoInterp(rxUnits, animLoop, animLoop, False, False, False, False, $FFFFFF, aDryRun);
 end;
 
 
 procedure TForm1.DoInterpTree(aTree: Integer; aDryRun: Boolean);
 var
-  A: TKMAnimLoop;
-  S: Integer;
+  animLoop: TKMAnimLoop;
+  animPace: Integer;
 begin
-  A := gMapElements[aTree].Anim;
+  animLoop := gMapElements[aTree].Anim;
 
-  if (A.Count <= 1) or (A.Step[1] = -1) then
+  if (animLoop.Count <= 1) or (animLoop.Step[1] = -1) then
   begin
     WriteEmptyAnim;
     Exit;
   end;
 
-  S := GetAnimSpeed(A);
-  if (S = 2) or (S = 3) or (S = 4) then
+  animPace := GetAnimPace(animLoop);
+  if (animPace = 2) or (animPace = 3) or (animPace = 4) then
   begin
-    DoInterpSlow(rxTrees, A, aDryRun, $0);
+    DoInterpSlow(rxTrees, animLoop, aDryRun, $0);
   end
   else
-    DoInterp(rxTrees, A, A, False, False, False, True, $000000, aDryRun);
+    DoInterp(rxTrees, animLoop, animLoop, False, False, False, True, $000000, aDryRun);
 end;
 
 
 procedure TForm1.DoInterpHouseAction(aHT: TKMHouseType; aHouseAct: TKMHouseActionType; aDryRun: Boolean);
 var
-  A, ABase: TKMAnimLoop;
-  UseBase: Boolean;
-  SimpleAlpha, SimpleShadows: Boolean;
+  animLoop, animLoopBase: TKMAnimLoop;
+  useBase: Boolean;
+  simpleAlpha, simpleShadows: Boolean;
   I, Step, SubStep: Integer;
 begin
-  A := fResHouses[aHT].Anim[aHouseAct];
+  animLoop := fResHouses[aHT].Anim[aHouseAct];
 
-  if (A.Count <= 1) or (A.Step[1] = -1) then
+  if (animLoop.Count <= 1) or (animLoop.Step[1] = -1) then
   begin
     WriteEmptyAnim;
     Exit;
@@ -920,38 +921,38 @@ begin
   begin
     for Step := 1 to 30 do
       for SubStep := 1 to 8 do
-        fOutputStream.Write(Integer(A.Step[Step] + 1));
+        fOutputStream.Write(Integer(animLoop.Step[Step] + 1));
 
     Exit;
   end;
 
-  ABase.Count := 30;
-  ABase.MoveX := 0;
-  ABase.MoveY := 0;
-  for I := Low(ABase.Step) to High(ABase.Step) do
-    ABase.Step[I] := fResHouses[aHT].StonePic;
+  animLoopBase.Count := 30;
+  animLoopBase.MoveX := 0;
+  animLoopBase.MoveY := 0;
+  for I := Low(animLoopBase.Step) to High(animLoopBase.Step) do
+    animLoopBase.Step[I] := fResHouses[aHT].StonePic;
 
-  UseBase := aHouseAct in [haIdle, haWork1..haWork5];
-  SimpleAlpha := aHouseAct in [haSmoke, haFire1..haFire8];
-  SimpleShadows := not (aHouseAct in [haSmoke, haFire1..haFire8]);
+  useBase := aHouseAct in [haIdle, haWork1..haWork5];
+  simpleAlpha := aHouseAct in [haSmoke, haFire1..haFire8];
+  simpleShadows := not (aHouseAct in [haSmoke, haFire1..haFire8]);
 
   //Hard coded rules
   if aHT in [htArmorWorkshop, htStables, htWatchTower, htFishermans, htWoodcutters, htWatchTower, htTannery] then
-    UseBase := False;
+    useBase := False;
 
   if (aHT = htButchers) and (aHouseAct = haIdle) then
   begin
-    DoInterpSlow(rxHouses, A, aDryRun, $0);
+    DoInterpSlow(rxHouses, animLoop, aDryRun, $0);
     Exit;
   end;
 
-  DoInterp(rxHouses, A, ABase, UseBase and USE_BASE_HOUSE_ACT, False, SimpleAlpha, SimpleShadows, $000000, aDryRun);
+  DoInterp(rxHouses, animLoop, animLoopBase, useBase and USE_BASE_HOUSE_ACT, False, simpleAlpha, simpleShadows, $000000, aDryRun);
 end;
 
 
 procedure TForm1.DoInterpBeast(aBeastHouse, aBeast, aBeastAge: Integer; aDryRun: Boolean);
 var
-  A, ABase: TKMAnimLoop;
+  animLoop, animLoopBase: TKMAnimLoop;
   I: Integer;
 const
   HOUSE_LOOKUP: array[1..3] of TKMHouseType = (htSwine, htStables, htMarket);
@@ -962,21 +963,21 @@ begin
     Exit;
   end;
 
-  A := fResHouses.BeastAnim[HOUSE_LOOKUP[aBeastHouse], aBeast, aBeastAge];
+  animLoop := fResHouses.BeastAnim[HOUSE_LOOKUP[aBeastHouse], aBeast, aBeastAge];
 
-  ABase.Count := 30;
-  ABase.MoveX := 0;
-  ABase.MoveY := 0;
-  for I := Low(ABase.Step) to High(ABase.Step) do
-    ABase.Step[I] := fResHouses[HOUSE_LOOKUP[aBeastHouse]].StonePic;
+  animLoopBase.Count := 30;
+  animLoopBase.MoveX := 0;
+  animLoopBase.MoveY := 0;
+  for I := Low(animLoopBase.Step) to High(animLoopBase.Step) do
+    animLoopBase.Step[I] := fResHouses[HOUSE_LOOKUP[aBeastHouse]].StonePic;
 
-  if (A.Count <= 1) or (A.Step[1] = -1) then
+  if (animLoop.Count <= 1) or (animLoop.Step[1] = -1) then
   begin
     WriteEmptyAnim;
     Exit;
   end;
 
-  DoInterp(rxHouses, A, ABase, USE_BASE_BEASTS, False, False, True, $000000, aDryRun);
+  DoInterp(rxHouses, animLoop, animLoopBase, USE_BASE_BEASTS, False, False, True, $000000, aDryRun);
 end;
 
 
