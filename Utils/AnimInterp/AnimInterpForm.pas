@@ -48,6 +48,13 @@ type
 
     fPicOffset: Integer;
 
+    procedure ProcessHouseBeasts;
+    procedure ProcessHouses;
+    procedure ProcessSerfCarry;
+    procedure ProcessTrees;
+    procedure ProcessUnitActions;
+    procedure ProcessUnitThoughts;
+
     function GetCanvasSize(aID: Integer; RT: TRXType; aMoveX: Integer = 0; aMoveY: Integer = 0): Integer;
     function GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer = 8): string;
 
@@ -987,18 +994,6 @@ end;
 
 
 procedure TForm1.btnProcessClick(Sender: TObject);
-type
-  TKMInterpolation = array[1..30, 0..7] of Integer;
-var
-  I, startPos: Integer;
-  dir: TKMDirection;
-  act: TKMUnitActionType;
-  u: TKMUnitType;
-  ware: TKMWareType;
-  th: TKMUnitThought;
-  h: TKMHouseType;
-  hAct: TKMHouseActionType;
-  beastHouse, beast, beastAge: Integer;
 const
   UNITS_RX_OFFSET = 9300;
   TREES_RX_OFFSET = 260;
@@ -1018,146 +1013,183 @@ begin
   Memo1.Lines.Append('type');
   Memo1.Lines.Append('  TKMInterpolation = array[1..30, 0..7] of Integer;');
 
-  // UNIT ACTIONS
-  begin
-    fPicOffset := UNITS_RX_OFFSET;
-    fOutputStream.WriteA('UnitAction');
+  fPicOffset := UNITS_RX_OFFSET;
+  ProcessUnitActions;
+  ProcessSerfCarry;
+  ProcessUnitThoughts;
 
-    Memo1.Lines.Append('  TKMUnitActionInterp = array[TKMUnitType, UNIT_ACT_MIN..UNIT_ACT_MAX, dirN..dirNW] of TKMInterpolation;');
-    Memo1.Lines.Append('//SizeOf(TKMUnitActionInterp) = '+IntToStr(SizeOf(TKMUnitActionInterp)));
-
-    startPos := fOutputStream.Position;
-    for u := UNIT_MIN to UNIT_MAX do
-      for act := UNIT_ACT_MIN to UNIT_ACT_MAX do
-        for dir := dirN to dirNW do
-          try
-            ChangeStatus(Format('UnitAction %d/%d %d/%d %d/%d', [Ord(u), Ord(UNIT_MAX), Ord(act), Ord(UNIT_ACT_MAX), Ord(dir), Ord(dirNW)]));
-            DoInterpUnit(u, act, dir, not chkUnitActions.Checked);
-          except
-            on E: Exception do
-              LogError(TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
-          end;
-    Assert(SizeOf(TKMUnitActionInterp) = fOutputStream.Position - startPos);
-
-    Memo1.Lines.Append('//fOutputStream.Position = '+IntToStr(fOutputStream.Position));
-  end;
-
-  // SERF CARRY
-  begin
-    fOutputStream.WriteA('SerfCarry ');
-
-    Memo1.Lines.Append('TKMSerfCarryInterp = array[WARE_MIN..WARE_MAX, dirN..dirNW] of TKMInterpolation;');
-    Memo1.Lines.Append('//SizeOf(TKMSerfCarryInterp) = '+IntToStr(SizeOf(TKMSerfCarryInterp)));
-
-    startPos := fOutputStream.Position;
-    for ware := WARE_MIN to WARE_MAX do
-      for dir := dirN to dirNW do
-        try
-          ChangeStatus(Format('SerfCarry %d/%d %d/%d', [Ord(ware), Ord(WARE_MAX), Ord(dir), Ord(dirNW)]));
-          DoInterpSerfCarry(ware, dir, not chkSerfCarry.Checked);
-        except
-          on E: Exception do
-            LogError(TRttiEnumerationType.GetName(ware) + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
-        end;
-    Assert(SizeOf(TKMSerfCarryInterp) = fOutputStream.Position - startPos);
-  end;
-
-  // UNIT THOUGHTS
-  begin
-    fOutputStream.WriteA('UnitThoughts  ');
-
-    Memo1.Lines.Append('  TKMUnitThoughtInterp = array[TKMUnitThought] of TKMInterpolation;');
-    Memo1.Lines.Append('//SizeOf(TKMUnitThoughtInterp) = '+IntToStr(SizeOf(TKMUnitThoughtInterp)));
-
-    startPos := fOutputStream.Position;
-    for th := Low(TKMUnitThought) to High(TKMUnitThought) do
-      try
-        ChangeStatus(Format('UnitThoughts %d/%d', [Ord(th), Ord(High(TKMUnitThought))]));
-        DoInterpUnitThought(th, not chkUnitThoughts.Checked);
-      except
-        on E: Exception do
-          LogError(TRttiEnumerationType.GetName(th) + ' - ' + E.Message);
-      end;
-    Assert(SizeOf(TKMUnitThoughtInterp) = fOutputStream.Position - startPos);
-  end;
 
   Memo1.Lines.Append('');
   Memo1.Lines.Append('');
 
-  // TREES
-  begin
-    ChangeStatus('Trees');
-    fOutputStream.WriteA('Trees ');
+  fPicOffset := TREES_RX_OFFSET;
 
-    Memo1.Lines.Append('TKMTreeInterp = array[0..OBJECTS_CNT] of TKMInterpolation;');
-    Memo1.Lines.Append('//SizeOf(TKMTreeInterp) = '+IntToStr(SizeOf(TKMTreeInterp)));
-
-    fPicOffset := TREES_RX_OFFSET;
-    SetLength(fInterpCache, 0);
-
-    startPos := fOutputStream.Position;
-    for I := 0 to OBJECTS_CNT do
-      try
-        ChangeStatus(Format('Trees %d/%d', [I, OBJECTS_CNT]));
-        DoInterpTree(I, not chkTrees.Checked);
-      except
-        on E: Exception do
-          LogError('Tree ' + IntToStr(I) + ' - ' + E.Message);
-      end;
-    Assert(SizeOf(TKMTreeInterp) = fOutputStream.Position - startPos);
-  end;
+  ProcessTrees;
 
   Memo1.Lines.Append('');
   Memo1.Lines.Append('');
 
-  // HOUSES
-  begin
-    fPicOffset := HOUSES_RX_OFFSET;
-    SetLength(fInterpCache, 0);
+  fPicOffset := HOUSES_RX_OFFSET;
 
-    fOutputStream.WriteA('Houses');
+  ProcessHouses;
 
-    Memo1.Lines.Append('TKMHouseInterp = array[HOUSE_MIN..HOUSE_MAX, TKMHouseActionType] of TKMInterpolation;');
-    Memo1.Lines.Append('//SizeOf(TKMHouseInterp) = '+IntToStr(SizeOf(TKMHouseInterp)));
-
-    startPos := fOutputStream.Position;
-    for h := HOUSE_MIN to HOUSE_MAX do
-      for hAct := Low(TKMHouseActionType) to High(TKMHouseActionType) do
-        try
-          ChangeStatus(Format('Houses %d/%d %d/%d', [Ord(h), Ord(HOUSE_MAX), Ord(hAct), Ord(High(TKMHouseActionType))]));
-          DoInterpHouseAction(h, hAct, not chkHouseActions.Checked);
-        except
-          on E: Exception do
-            LogError(TRttiEnumerationType.GetName(h) + ' - ' + TRttiEnumerationType.GetName(hAct) + ' - ' + E.Message);
-        end;
-    Assert(SizeOf(TKMHouseInterp) = fOutputStream.Position - startPos);
-  end;
-
-  Memo1.Lines.Append('');
-  Memo1.Lines.Append('');
-
-  // HOUSE BEASTS
-  begin
-    fOutputStream.WriteA('Beasts');
-
-    Memo1.Lines.Append('TKMBeastInterp = array[1..3,1..5,1..3] of TKMInterpolation;');
-    Memo1.Lines.Append('//SizeOf(TKMBeastInterp) = '+IntToStr(SizeOf(TKMBeastInterp)));
-
-    startPos := fOutputStream.Position;
-    for beastHouse := 1 to 3 do
-      for beast := 1 to 5 do
-        for beastAge := 1 to 3 do
-          try
-            ChangeStatus(Format('Beasts %d/%d %d/%d %d/%d', [beastHouse, 3, beast, 5, beastAge, 3]));
-            DoInterpBeast(beastHouse, beast, beastAge, not chkBeasts.Checked);
-          except
-            on E: Exception do
-              LogError(' beast ' + IntToStr(beastHouse) + ' - ' + IntToStr(beast) + ' - ' + IntToStr(beastAge) + ' - ' + E.Message);
-          end;
-    Assert(SizeOf(TKMBeastInterp) = fOutputStream.Position - startPos);
-  end;
+  ProcessHouseBeasts;
 
   fOutputStream.SaveToFile(ExeDir+'data/defines/interp.dat');
+end;
+
+
+procedure TForm1.ProcessUnitActions;
+var
+  startPos: Integer;
+  dir: TKMDirection;
+  act: TKMUnitActionType;
+  u: TKMUnitType;
+begin
+  fOutputStream.WriteA('UnitAction');
+
+  Memo1.Lines.Append('  TKMUnitActionInterp = array[TKMUnitType, UNIT_ACT_MIN..UNIT_ACT_MAX, dirN..dirNW] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMUnitActionInterp) = '+IntToStr(SizeOf(TKMUnitActionInterp)));
+
+  startPos := fOutputStream.Position;
+  for u := UNIT_MIN to UNIT_MAX do
+    for act := UNIT_ACT_MIN to UNIT_ACT_MAX do
+      for dir := dirN to dirNW do
+        try
+          ChangeStatus(Format('UnitAction %d/%d %d/%d %d/%d', [Ord(u), Ord(UNIT_MAX), Ord(act), Ord(UNIT_ACT_MAX), Ord(dir), Ord(dirNW)]));
+          DoInterpUnit(u, act, dir, not chkUnitActions.Checked);
+        except
+          on E: Exception do
+            LogError(TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
+        end;
+  Assert(SizeOf(TKMUnitActionInterp) = fOutputStream.Position - startPos);
+
+  Memo1.Lines.Append('//fOutputStream.Position = '+IntToStr(fOutputStream.Position));
+end;
+
+
+procedure TForm1.ProcessSerfCarry;
+var
+  startPos: Integer;
+  ware: TKMWareType;
+  dir: TKMDirection;
+begin
+  fOutputStream.WriteA('SerfCarry ');
+
+  Memo1.Lines.Append('TKMSerfCarryInterp = array[WARE_MIN..WARE_MAX, dirN..dirNW] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMSerfCarryInterp) = '+IntToStr(SizeOf(TKMSerfCarryInterp)));
+
+  startPos := fOutputStream.Position;
+  for ware := WARE_MIN to WARE_MAX do
+    for dir := dirN to dirNW do
+      try
+        ChangeStatus(Format('SerfCarry %d/%d %d/%d', [Ord(ware), Ord(WARE_MAX), Ord(dir), Ord(dirNW)]));
+        DoInterpSerfCarry(ware, dir, not chkSerfCarry.Checked);
+      except
+        on E: Exception do
+          LogError(TRttiEnumerationType.GetName(ware) + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
+      end;
+  Assert(SizeOf(TKMSerfCarryInterp) = fOutputStream.Position - startPos);
+end;
+
+
+procedure TForm1.ProcessUnitThoughts;
+var
+  startPos: Integer;
+  th: TKMUnitThought;
+begin
+  fOutputStream.WriteA('UnitThoughts  ');
+
+  Memo1.Lines.Append('  TKMUnitThoughtInterp = array[TKMUnitThought] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMUnitThoughtInterp) = '+IntToStr(SizeOf(TKMUnitThoughtInterp)));
+
+  startPos := fOutputStream.Position;
+  for th := Low(TKMUnitThought) to High(TKMUnitThought) do
+    try
+      ChangeStatus(Format('UnitThoughts %d/%d', [Ord(th), Ord(High(TKMUnitThought))]));
+      DoInterpUnitThought(th, not chkUnitThoughts.Checked);
+    except
+      on E: Exception do
+        LogError(TRttiEnumerationType.GetName(th) + ' - ' + E.Message);
+    end;
+  Assert(SizeOf(TKMUnitThoughtInterp) = fOutputStream.Position - startPos);
+end;
+
+
+procedure TForm1.ProcessTrees;
+var
+  I, startPos: Integer;
+begin
+  ChangeStatus('Trees');
+  fOutputStream.WriteA('Trees ');
+
+  Memo1.Lines.Append('TKMTreeInterp = array[0..OBJECTS_CNT] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMTreeInterp) = '+IntToStr(SizeOf(TKMTreeInterp)));
+
+  SetLength(fInterpCache, 0);
+
+  startPos := fOutputStream.Position;
+  for I := 0 to OBJECTS_CNT do
+    try
+      ChangeStatus(Format('Trees %d/%d', [I, OBJECTS_CNT]));
+      DoInterpTree(I, not chkTrees.Checked);
+    except
+      on E: Exception do
+        LogError('Tree ' + IntToStr(I) + ' - ' + E.Message);
+    end;
+  Assert(SizeOf(TKMTreeInterp) = fOutputStream.Position - startPos);
+end;
+
+
+procedure TForm1.ProcessHouses;
+var
+  startPos: Integer;
+  h: TKMHouseType;
+  hAct: TKMHouseActionType;
+begin
+  SetLength(fInterpCache, 0);
+
+  fOutputStream.WriteA('Houses');
+
+  Memo1.Lines.Append('TKMHouseInterp = array[HOUSE_MIN..HOUSE_MAX, TKMHouseActionType] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMHouseInterp) = '+IntToStr(SizeOf(TKMHouseInterp)));
+
+  startPos := fOutputStream.Position;
+  for h := HOUSE_MIN to HOUSE_MAX do
+    for hAct := Low(TKMHouseActionType) to High(TKMHouseActionType) do
+      try
+        ChangeStatus(Format('Houses %d/%d %d/%d', [Ord(h), Ord(HOUSE_MAX), Ord(hAct), Ord(High(TKMHouseActionType))]));
+        DoInterpHouseAction(h, hAct, not chkHouseActions.Checked);
+      except
+        on E: Exception do
+          LogError(TRttiEnumerationType.GetName(h) + ' - ' + TRttiEnumerationType.GetName(hAct) + ' - ' + E.Message);
+      end;
+  Assert(SizeOf(TKMHouseInterp) = fOutputStream.Position - startPos);
+end;
+
+
+procedure TForm1.ProcessHouseBeasts;
+var
+  startPos: Integer;
+  beastHouse, beast, beastAge: Integer;
+begin
+  fOutputStream.WriteA('Beasts');
+
+  Memo1.Lines.Append('TKMBeastInterp = array[1..3,1..5,1..3] of TKMInterpolation;');
+  Memo1.Lines.Append('//SizeOf(TKMBeastInterp) = '+IntToStr(SizeOf(TKMBeastInterp)));
+
+  startPos := fOutputStream.Position;
+  for beastHouse := 1 to 3 do
+    for beast := 1 to 5 do
+      for beastAge := 1 to 3 do
+        try
+          ChangeStatus(Format('Beasts %d/%d %d/%d %d/%d', [beastHouse, 3, beast, 5, beastAge, 3]));
+          DoInterpBeast(beastHouse, beast, beastAge, not chkBeasts.Checked);
+        except
+          on E: Exception do
+            LogError(' beast ' + IntToStr(beastHouse) + ' - ' + IntToStr(beast) + ' - ' + IntToStr(beastAge) + ' - ' + E.Message);
+        end;
+  Assert(SizeOf(TKMBeastInterp) = fOutputStream.Position - startPos);
 end;
 
 
