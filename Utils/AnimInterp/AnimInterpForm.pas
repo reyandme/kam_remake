@@ -385,7 +385,6 @@ var
   I, Step, NextStep, SubStep, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, InterpOffset: Integer;
   OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer;
   BaseMoveX, BaseMoveY: Integer;
-  StrList: TStringList;
   suffixPath, outDirLocal, outPrefix: string;
   Found: Boolean;
 begin
@@ -394,8 +393,6 @@ begin
     WriteEmptyAnim;
     Exit;
   end;
-
-  StrList := TStringList.Create;
 
   outDirLocal := fFolderOutput+IntToStr(Ord(RT)+1)+'\';
   outPrefix := outDirLocal+IntToStr(Ord(RT)+1)+'_';
@@ -508,8 +505,6 @@ begin
       ProcessInterpImage(InterpOffset+SubStep, suffixPath, outPrefix, aBkgRGB, OverallMaxX, OverallMinX, OverallMaxY, OverallMinY);
     end;
   end;
-
-  FreeAndNil(StrList);
 end;
 
 
