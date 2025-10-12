@@ -804,12 +804,6 @@ var
   bkgRGB: Cardinal;
   UseBase, SimpleShadows: Boolean;
 begin
-  if aDir = dirNA then
-  begin
-    WriteEmptyAnim;
-    Exit;
-  end;
-
   A := fResUnits[aUT].UnitAnim[aAction,aDir];
 
   if (A.Count <= 1) or (A.Step[1] = -1) or not (aAction in UNIT_SUPPORTED_ANIMS[aUT]) then
