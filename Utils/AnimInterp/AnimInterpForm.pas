@@ -36,13 +36,15 @@ type
     fResMapElem: TKMResMapElements;
     fSprites: array[TRXType] of TKMSpritePackEdit;
 
+    fLabelProgress: TLabel;
+
     fOutputStream: TKMemoryStreamBinary;
 
     fInterpCache: array of TInterpCacheItem;
 
     fFolderDain: string;
     fFolderBase: string;
-    fFolderShad: string;
+    fFolderShadow: string;
     fFolderTeam: string;
     fFolderOutput: string;
 
@@ -77,6 +79,7 @@ type
     procedure ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
 
     procedure ChangeStatus(const aText: string);
+    procedure ChangeProgress(aFrom, aTo: Integer; const aSuffix: string);
     procedure LogError(const aText: string);
     procedure LogInfo(const aText: string);
   end;
@@ -159,9 +162,23 @@ begin
   fFolderOutput := folderWork + 'Output\';
   fFolderDain := ExeDir + 'DAIN_APP Alpha 1.0\';
 
-  fFolderBase := folderWork + 'base\';
-  fFolderShad := folderWork + 'shad\';
-  fFolderTeam := folderWork + 'team\';
+  // Name all folders wip_ to denote what they are and have them visually grouped
+  fFolderBase := folderWork + 'wip_base\';
+  fFolderShadow := folderWork + 'wip_shadow\';
+  fFolderTeam := folderWork + 'wip_team\';
+
+  // We need to create the label and parent it to the ProgressBar to have it on top
+  fLabelProgress := TLabel.Create(Self);
+  fLabelProgress.Parent := pbProgress;
+  fLabelProgress.AutoSize := False;
+  fLabelProgress.Transparent := True;
+  fLabelProgress.Top :=  0;
+  fLabelProgress.Left :=  0;
+  fLabelProgress.Width := pbProgress.ClientWidth;
+  fLabelProgress.Height := pbProgress.ClientHeight;
+  fLabelProgress.Alignment := taCenter;
+  fLabelProgress.Layout := tlCenter;
+  fLabelProgress.Caption := 'Test';
 end;
 
 
@@ -477,21 +494,27 @@ begin
 
     //Interpolate!
     KMDeleteFolder(fFolderBase);
-    KMDeleteFolder(fFolderShad);
+    KMDeleteFolder(fFolderShadow);
     KMDeleteFolder(fFolderTeam);
 
     BaseMoveX := ABase.MoveX - A.MoveX;
     BaseMoveY := ABase.MoveY - A.MoveY;
 
     if aSimpleAlpha then
-      InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietNormal, aSimpleShadows, aBkgRGB)
-    else
     begin
+      ChangeProgress(InterpOffset, fPicOffset-1, 'base');
+      InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietNormal, aSimpleShadows, aBkgRGB);
+    end else
+    begin
+      ChangeProgress(InterpOffset, fPicOffset-1, 'base');
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietBase, aSimpleShadows, aBkgRGB);
-      InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderShad, ietShadows, aSimpleShadows, aBkgRGB);
+      ChangeProgress(InterpOffset, fPicOffset-1, 'shadow');
+      InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderShadow, ietShadows, aSimpleShadows, aBkgRGB);
+      ChangeProgress(InterpOffset, fPicOffset-1, 'team');
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, fFolderTeam, ietTeamMask, aSimpleShadows, aBkgRGB);
     end;
 
+    ChangeProgress(InterpOffset, fPicOffset-1, 'processing');
     //Determine maximum bounds of the pair, to crop out the base background sprite
     //Expand by 1px in case the interpolation goes slightly outside the original bounds
     OverallMinX := Min(fSprites[RT].RXData.Pivot[StepSprite].X, fSprites[RT].RXData.Pivot[StepNextSprite].X);
@@ -593,9 +616,14 @@ begin
     if aDryRun then
       Continue;
 
+    ChangeProgress(InterpOffset, fPicOffset-1, 'base');
     InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderBase, ietBase, aBkgRGB);
-    InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderShad, ietShadows, aBkgRGB);
+    ChangeProgress(InterpOffset, fPicOffset-1, 'shadow');
+    InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderShadow, ietShadows, aBkgRGB);
+    ChangeProgress(InterpOffset, fPicOffset-1, 'team');
     InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderTeam, ietTeamMask, aBkgRGB);
+
+    ChangeProgress(InterpOffset, fPicOffset-1, 'processing');
     for SubStep := 0 to (8*animPace - 2) do
     begin
       if animPace <> SInterp then
@@ -615,6 +643,13 @@ procedure TForm1.ChangeStatus(const aText: string);
 begin
   Label2.Caption := 'Status: ' + aText;
   Label2.Repaint;
+end;
+
+
+procedure TForm1.ChangeProgress(aFrom, aTo: Integer; const aSuffix: string);
+begin
+  fLabelProgress.Caption := Format('%d - %d.%s', [aFrom, aTo, aSuffix]);
+  fLabelProgress.Repaint;
 end;
 
 
@@ -641,14 +676,14 @@ begin
   if FileExists(fFolderBase + '2.png') then
     LoadFromPng(fFolderBase + '2.png', pngWidth, pngHeight, pngClean2);
 
-  if FileExists(fFolderShad + 'base.png') then
-    LoadFromPng(fFolderShad + 'base.png', pngWidth, pngHeight, pngShadBackground);
+  if FileExists(fFolderShadow + 'base.png') then
+    LoadFromPng(fFolderShadow + 'base.png', pngWidth, pngHeight, pngShadBackground);
 
-  if FileExists(fFolderShad + '1.png') then
-    LoadFromPng(fFolderShad + '1.png', pngWidth, pngHeight, pngShad1);
+  if FileExists(fFolderShadow + '1.png') then
+    LoadFromPng(fFolderShadow + '1.png', pngWidth, pngHeight, pngShad1);
 
-  if FileExists(fFolderShad + '2.png') then
-    LoadFromPng(fFolderShad + '2.png', pngWidth, pngHeight, pngShad2);
+  if FileExists(fFolderShadow + '2.png') then
+    LoadFromPng(fFolderShadow + '2.png', pngWidth, pngHeight, pngShad2);
 
   if (Length(pngBaseBackground) = 0) or (Length(pngShadBackground) = 0)
   or (Length(pngClean1) = 0) or (Length(pngClean2) = 0)
@@ -704,8 +739,8 @@ begin
 
   LoadFromPng(fFolderBase + inSuffixPath, pngWidth, pngHeight, pngBase);
 
-  if FileExists(fFolderShad + inSuffixPath) then
-    LoadFromPng(fFolderShad + inSuffixPath, pngWidth, pngHeight, pngShad);
+  if FileExists(fFolderShadow + inSuffixPath) then
+    LoadFromPng(fFolderShadow + inSuffixPath, pngWidth, pngHeight, pngShad);
 
   if FileExists(fFolderTeam + inSuffixPath) then
     LoadFromPng(fFolderTeam + inSuffixPath, pngWidth, pngHeight, pngTeam);
@@ -997,37 +1032,44 @@ begin
     Exit;
   end;
 
-  SetLength(fInterpCache, 0);
+  // Run everything in thread to have responsive UI
+  btnProcess.Enabled := False;
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      SetLength(fInterpCache, 0);
 
-  FreeAndNil(fOutputStream);
-  fOutputStream := TKMemoryStreamBinary.Create;
+      FreeAndNil(fOutputStream);
+      fOutputStream := TKMemoryStreamBinary.Create;
 
-  Memo1.Lines.Append('type');
-  Memo1.Lines.Append('  TKMInterpolation = array[1..30, 0..7] of Integer;');
+      Memo1.Lines.Append('type');
+      Memo1.Lines.Append('  TKMInterpolation = array[1..30, 0..7] of Integer;');
 
-  fPicOffset := UNITS_RX_OFFSET;
-  ProcessAllUnitActions;
-  ProcessAllSerfCarry;
-  ProcessAllUnitThoughts;
+      fPicOffset := UNITS_RX_OFFSET;
+      ProcessAllUnitActions;
+      ProcessAllSerfCarry;
+      ProcessAllUnitThoughts;
 
+      Memo1.Lines.Append('');
+      Memo1.Lines.Append('');
 
-  Memo1.Lines.Append('');
-  Memo1.Lines.Append('');
+      fPicOffset := TREES_RX_OFFSET;
 
-  fPicOffset := TREES_RX_OFFSET;
+      ProcessAllTrees;
 
-  ProcessAllTrees;
+      Memo1.Lines.Append('');
+      Memo1.Lines.Append('');
 
-  Memo1.Lines.Append('');
-  Memo1.Lines.Append('');
+      fPicOffset := HOUSES_RX_OFFSET;
 
-  fPicOffset := HOUSES_RX_OFFSET;
+      ProcessAllHouses;
 
-  ProcessAllHouses;
+      ProcessAllHouseBeasts;
 
-  ProcessAllHouseBeasts;
+      fOutputStream.SaveToFile(ExeDir+'data/defines/interp.dat');
 
-  fOutputStream.SaveToFile(ExeDir+'data/defines/interp.dat');
+      btnProcess.Enabled := True;
+    end).Start;
 end;
 
 

@@ -120,6 +120,8 @@ object Form1: TForm1
     Height = 16
     Anchors = [akLeft, akBottom]
     Caption = 'Log verbose'
+    Checked = True
+    State = cbChecked
     TabOrder = 10
   end
 end
