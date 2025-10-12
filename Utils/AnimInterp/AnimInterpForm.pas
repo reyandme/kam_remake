@@ -65,7 +65,7 @@ type
 
 
     function GetCanvasSize(aID: Integer; RT: TRXType; aMoveX: Integer = 0; aMoveY: Integer = 0): Integer;
-    function GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer = 8): string;
+    function GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer): string;
 
     procedure WriteEmptyAnim;
 
@@ -93,6 +93,7 @@ uses
 {$R *.dfm}
 
 const
+  INTERPOLATION_MULTIPLIER = 8;
   USE_BASE_BEASTS = False;
   USE_BASE_HOUSE_ACT = True;
   CANVAS_Y_OFFSET = 14;
@@ -182,7 +183,7 @@ begin
 end;
 
 
-function TForm1.GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer = 8): string;
+function TForm1.GetDainParams(aDir: string; aAlpha: Boolean; aInterpLevel: Integer): string;
 var
   dainExe: string;
 begin
@@ -335,7 +336,7 @@ begin
   StartupInfo.cb := SizeOf(StartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
   StartupInfo.wShowWindow := SW_HIDE;
-  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha)), nil, nil, false, 0, nil, PChar(fFolderDain), StartupInfo, ProcessInfo);
+  CreateProcess(nil, PChar(GetDainParams(aBaseDir, NeedAlpha, INTERPOLATION_MULTIPLIER)), nil, nil, false, 0, nil, PChar(fFolderDain), StartupInfo, ProcessInfo);
   WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
   //ShellExecute(0, nil, 'cmd.exe', PChar(DainParams), PChar(DainFolder), SW_SHOWNORMAL);
 end;
@@ -346,7 +347,7 @@ var
   Step, SubStep: Integer;
 begin
   for Step := 1 to 30 do
-    for SubStep := 1 to 8 do
+    for SubStep := 1 to INTERPOLATION_MULTIPLIER do
       fOutputStream.Write(Integer(-1));
 end;
 
@@ -422,7 +423,7 @@ begin
   begin
     if Step > A.Count then
     begin
-      for SubStep := 1 to 8 do
+      for SubStep := 1 to INTERPOLATION_MULTIPLIER do
         fOutputStream.Write(Integer(-1));
       Continue;
     end;
@@ -445,7 +446,7 @@ begin
     //Same image is repeated next frame
     if StepSprite = StepNextSprite then
     begin
-      for SubStep := 1 to 8 do
+      for SubStep := 1 to INTERPOLATION_MULTIPLIER do
         fOutputStream.Write(StepSprite);
       Continue;
     end;
@@ -458,7 +459,7 @@ begin
     begin
       if (fInterpCache[I].A = StepSprite) and (fInterpCache[I].B = StepNextSprite) and (fInterpCache[I].Speed = 1) then
       begin
-        for SubStep := 0 to 6 do
+        for SubStep := 0 to INTERPOLATION_MULTIPLIER-2 do
           fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
 
         Found := True;
@@ -466,7 +467,7 @@ begin
       //Check for a reversed sequence in the cache (animations often loop backwards)
       else if (fInterpCache[I].B = StepSprite) and (fInterpCache[I].A = StepNextSprite) and (fInterpCache[I].Speed = 1) then
       begin
-        for SubStep := 6 downto 0 do
+        for SubStep := INTERPOLATION_MULTIPLIER-2 downto 0 do
           fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
 
         Found := True;
@@ -485,8 +486,8 @@ begin
     fInterpCache[Length(fInterpCache)-1].interpOffset := InterpOffset;
 
     //Update return values
-    Inc(fPicOffset, 7);
-    for SubStep := 0 to 6 do
+    Inc(fPicOffset, INTERPOLATION_MULTIPLIER-1);
+    for SubStep := 0 to INTERPOLATION_MULTIPLIER-2 do
       fOutputStream.Write(InterpOffset+SubStep);
 
     if aDryRun then
@@ -502,19 +503,19 @@ begin
 
     if aSimpleAlpha then
     begin
-      ChangeProgress('base', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
+      ChangeProgress('base', INTERPOLATION_MULTIPLIER, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietNormal, aSimpleShadows, aBkgRGB);
     end else
     begin
-      ChangeProgress('base', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
+      ChangeProgress('base', INTERPOLATION_MULTIPLIER, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietBase, aSimpleShadows, aBkgRGB);
-      ChangeProgress('shadow', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
+      ChangeProgress('shadow', INTERPOLATION_MULTIPLIER, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderShadow, ietShadows, aSimpleShadows, aBkgRGB);
-      ChangeProgress('team', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
+      ChangeProgress('team', INTERPOLATION_MULTIPLIER, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, fFolderTeam, ietTeamMask, aSimpleShadows, aBkgRGB);
     end;
 
-    ChangeProgress('processing', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
+    ChangeProgress('processing', INTERPOLATION_MULTIPLIER, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
     //Determine maximum bounds of the pair, to crop out the base background sprite
     //Expand by 1px in case the interpolation goes slightly outside the original bounds
     OverallMinX := Min(fSprites[RT].RXData.Pivot[StepSprite].X, fSprites[RT].RXData.Pivot[StepNextSprite].X);
@@ -523,7 +524,7 @@ begin
     OverallMaxY := OverallMinY + Max(fSprites[RT].RXData.Size[StepSprite].Y, fSprites[RT].RXData.Size[StepNextSprite].Y);
 
     //Import and process interpolated steps
-    for SubStep := 0 to 6 do
+    for SubStep := 0 to INTERPOLATION_MULTIPLIER-2 do
     begin
       //Filenames are 1-based, and skip the first one since it's the original
       suffixPath := 'interpolated_frames\' + format('%.15d.png', [SubStep+1+1]);
@@ -563,7 +564,7 @@ begin
   begin
     if StepFull > A.Count then
     begin
-      for SubStep := 1 to 8 do
+      for SubStep := 1 to INTERPOLATION_MULTIPLIER do
         fOutputStream.Write(Integer(-1));
       Continue;
     end;
@@ -582,7 +583,7 @@ begin
     begin
       if (fInterpCache[I].A = StepSprite) and (fInterpCache[I].B = StepNextSprite) and (fInterpCache[I].Speed = animPace) then
       begin
-        for SubStep := 0 to (8*animPace - 2) do
+        for SubStep := 0 to (INTERPOLATION_MULTIPLIER * animPace - 2) do
           fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
 
         Found := True;
@@ -590,7 +591,7 @@ begin
       //Check for a reversed sequence in the cache (animations often loop backwards)
       else if (fInterpCache[I].B = StepSprite) and (fInterpCache[I].A = StepNextSprite) and (fInterpCache[I].Speed = animPace) then
       begin
-        for SubStep := (8*animPace - 2) downto 0 do
+        for SubStep := (INTERPOLATION_MULTIPLIER * animPace - 2) downto 0 do
           fOutputStream.Write(fInterpCache[I].interpOffset+SubStep);
 
         Found := True;
@@ -609,22 +610,22 @@ begin
     fInterpCache[Length(fInterpCache)-1].interpOffset := InterpOffset;
 
     //Update return values
-    Inc(fPicOffset, 8*animPace - 1);
-    for SubStep := 0 to (8*animPace - 2) do
+    Inc(fPicOffset, INTERPOLATION_MULTIPLIER * animPace - 1);
+    for SubStep := 0 to (INTERPOLATION_MULTIPLIER * animPace - 2) do
       fOutputStream.Write(InterpOffset+SubStep);
 
     if aDryRun then
       Continue;
 
-    ChangeProgress('base', 8 * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
+    ChangeProgress('base', INTERPOLATION_MULTIPLIER * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
     InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderBase, ietBase, aBkgRGB);
-    ChangeProgress('shadow', 8 * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
+    ChangeProgress('shadow', INTERPOLATION_MULTIPLIER * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
     InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderShadow, ietShadows, aBkgRGB);
-    ChangeProgress('team', 8 * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
+    ChangeProgress('team', INTERPOLATION_MULTIPLIER * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
     InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderTeam, ietTeamMask, aBkgRGB);
 
-    ChangeProgress('processing', 8 * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
-    for SubStep := 0 to (8*animPace - 2) do
+    ChangeProgress('processing', INTERPOLATION_MULTIPLIER * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
+    for SubStep := 0 to (INTERPOLATION_MULTIPLIER * animPace - 2) do
     begin
       if animPace <> SInterp then
         SOffset := (SubStep+1+1) div SInterp
@@ -946,7 +947,7 @@ begin
   if (aHT = htSchool) and (aHouseAct in [haWork1..haWork5]) then
   begin
     for Step := 1 to 30 do
-      for SubStep := 1 to 8 do
+      for SubStep := 1 to INTERPOLATION_MULTIPLIER do
         fOutputStream.Write(Integer(animLoop.Step[Step] + 1));
 
     Exit;
