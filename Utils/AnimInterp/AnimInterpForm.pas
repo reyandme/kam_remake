@@ -79,7 +79,7 @@ type
     procedure ProcessInterpImage(outIndex: Integer; inSuffixPath, outPrefixPath: string; aBkgRGB: Cardinal; OverallMaxX, OverallMinX, OverallMaxY, OverallMinY: Integer);
 
     procedure ChangeStatus(const aText: string);
-    procedure ChangeProgress(aFrom, aTo: Integer; const aSuffix: string);
+    procedure ChangeProgress(const aPart: string; aMultiplier, aSourceFrom, aSourceTo, aOutputFrom, aOutputTo: Integer);
     procedure LogError(const aText: string);
     procedure LogInfo(const aText: string);
   end;
@@ -502,19 +502,19 @@ begin
 
     if aSimpleAlpha then
     begin
-      ChangeProgress(InterpOffset, fPicOffset-1, 'base');
+      ChangeProgress('base', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietNormal, aSimpleShadows, aBkgRGB);
     end else
     begin
-      ChangeProgress(InterpOffset, fPicOffset-1, 'base');
+      ChangeProgress('base', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderBase, ietBase, aSimpleShadows, aBkgRGB);
-      ChangeProgress(InterpOffset, fPicOffset-1, 'shadow');
+      ChangeProgress('shadow', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, True, fFolderShadow, ietShadows, aSimpleShadows, aBkgRGB);
-      ChangeProgress(InterpOffset, fPicOffset-1, 'team');
+      ChangeProgress('team', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
       InterpolateImagesNormal(RT, StepSprite, StepNextSprite, StepSpriteBase, StepNextSpriteBase, BaseMoveX, BaseMoveY, aUseBaseForTeamMask, fFolderTeam, ietTeamMask, aSimpleShadows, aBkgRGB);
     end;
 
-    ChangeProgress(InterpOffset, fPicOffset-1, 'processing');
+    ChangeProgress('processing', 8, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
     //Determine maximum bounds of the pair, to crop out the base background sprite
     //Expand by 1px in case the interpolation goes slightly outside the original bounds
     OverallMinX := Min(fSprites[RT].RXData.Pivot[StepSprite].X, fSprites[RT].RXData.Pivot[StepNextSprite].X);
@@ -616,14 +616,14 @@ begin
     if aDryRun then
       Continue;
 
-    ChangeProgress(InterpOffset, fPicOffset-1, 'base');
+    ChangeProgress('base', 8 * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
     InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderBase, ietBase, aBkgRGB);
-    ChangeProgress(InterpOffset, fPicOffset-1, 'shadow');
+    ChangeProgress('shadow', 8 * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
     InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderShadow, ietShadows, aBkgRGB);
-    ChangeProgress(InterpOffset, fPicOffset-1, 'team');
+    ChangeProgress('team', 8 * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
     InterpolateImagesSlow(SInterp, RT, StepSprite, StepNextSprite, fFolderTeam, ietTeamMask, aBkgRGB);
 
-    ChangeProgress(InterpOffset, fPicOffset-1, 'processing');
+    ChangeProgress('processing', 8 * SInterp, StepSprite, StepNextSprite, InterpOffset, fPicOffset-1);
     for SubStep := 0 to (8*animPace - 2) do
     begin
       if animPace <> SInterp then
@@ -646,9 +646,9 @@ begin
 end;
 
 
-procedure TForm1.ChangeProgress(aFrom, aTo: Integer; const aSuffix: string);
+procedure TForm1.ChangeProgress(const aPart: string; aMultiplier, aSourceFrom, aSourceTo, aOutputFrom, aOutputTo: Integer);
 begin
-  fLabelProgress.Caption := Format('%d - %d.%s', [aFrom, aTo, aSuffix]);
+  fLabelProgress.Caption := Format('%s:  x%d  [%d - %d]  -->  [%d - %d]', [aPart, aMultiplier, aSourceFrom, aSourceTo, aOutputFrom, aOutputTo]);
   fLabelProgress.Repaint;
 end;
 
