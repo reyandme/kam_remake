@@ -2,9 +2,9 @@ unit AnimInterpForm;
 interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Samples.Spin,
   KM_ResPalettes, KM_Defaults, KM_CommonTypes, KM_Points, KM_ResSprites, KM_ResSpritesEdit, KM_Pics, KM_ResUnits,
-  KM_ResTypes, KM_ResMapElements, KM_ResHouses, KM_CommonClasses, Vcl.ComCtrls;
+  KM_ResTypes, KM_ResMapElements, KM_ResHouses, KM_CommonClasses;
 
 type
   TInterpCacheItem = record
@@ -27,6 +27,12 @@ type
     pbProgress: TProgressBar;
     Label2: TLabel;
     cbLogVerbose: TCheckBox;
+    seUnitsResumeFrom: TSpinEdit;
+    Label3: TLabel;
+    seTreesResumeFrom: TSpinEdit;
+    Label4: TLabel;
+    seHousesResumeFrom: TSpinEdit;
+    Label5: TLabel;
     procedure btnProcessClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
@@ -649,7 +655,7 @@ end;
 
 procedure TForm1.ChangeProgress(const aPart: string; aMultiplier, aSourceFrom, aSourceTo, aOutputFrom, aOutputTo: Integer);
 begin
-  fLabelProgress.Caption := Format('%s:  x%d  [%d - %d]  -->  [%d - %d]', [aPart, aMultiplier, aSourceFrom, aSourceTo, aOutputFrom, aOutputTo]);
+  fLabelProgress.Caption := Format('%s:  [%d - %d]  ---(x%d)--->  [%d - %d]', [aPart, aSourceFrom, aSourceTo, aMultiplier, aOutputFrom, aOutputTo]);
   fLabelProgress.Repaint;
 end;
 
@@ -840,6 +846,9 @@ var
   bkgRGB: Cardinal;
   UseBase, SimpleShadows: Boolean;
 begin
+  if fPicOffset < seUnitsResumeFrom.Value then
+    aDryRun := True;
+
   A := fResUnits[aUT].UnitAnim[aAction,aDir];
 
   if (A.Count <= 1) or (A.Step[1] = -1) or not (aAction in UNIT_SUPPORTED_ANIMS[aUT]) then
@@ -868,6 +877,9 @@ procedure TForm1.ProcessSerfCarry(aWare: TKMWareType; aDir: TKMDirection; aDryRu
 var
   animLoop, animLoopBase: TKMAnimLoop;
 begin
+  if fPicOffset < seUnitsResumeFrom.Value then
+    aDryRun := True;
+
   if (aDir = dirNA) or not (aWare in [WARE_MIN..WARE_MAX]) then
   begin
     WriteEmptyAnim;
@@ -886,6 +898,9 @@ var
   animLoop: TKMAnimLoop;
   I: Integer;
 begin
+  if fPicOffset < seUnitsResumeFrom.Value then
+    aDryRun := True;
+
   if aThought = thNone then
   begin
     WriteEmptyAnim;
@@ -910,6 +925,9 @@ var
   animLoop: TKMAnimLoop;
   animPace: Integer;
 begin
+  if fPicOffset < seTreesResumeFrom.Value then
+    aDryRun := True;
+
   animLoop := gMapElements[aTree].Anim;
 
   if (animLoop.Count <= 1) or (animLoop.Step[1] = -1) then
@@ -935,6 +953,9 @@ var
   simpleAlpha, simpleShadows: Boolean;
   I, Step, SubStep: Integer;
 begin
+  if fPicOffset < seHousesResumeFrom.Value then
+    aDryRun := True;
+
   animLoop := fResHouses[aHT].Anim[aHouseAct];
 
   if (animLoop.Count <= 1) or (animLoop.Step[1] = -1) then
@@ -984,6 +1005,9 @@ var
 const
   HOUSE_LOOKUP: array[1..3] of TKMHouseType = (htSwine, htStables, htMarket);
 begin
+  if fPicOffset < seHousesResumeFrom.Value then
+    aDryRun := True;
+
   if (aBeastHouse = 3) and ((aBeast > 3) or (aBeastAge <> 1)) then
   begin
     WriteEmptyAnim;

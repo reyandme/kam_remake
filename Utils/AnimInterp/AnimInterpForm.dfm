@@ -27,14 +27,35 @@ object Form1: TForm1
   end
   object Label2: TLabel
     Left = 224
-    Top = 48
+    Top = 112
     Width = 35
     Height = 13
     Caption = 'Status:'
   end
-  object btnProcess: TButton
+  object Label3: TLabel
     Left = 8
     Top = 64
+    Width = 67
+    Height = 13
+    Caption = 'Resume from:'
+  end
+  object Label4: TLabel
+    Left = 112
+    Top = 64
+    Width = 67
+    Height = 13
+    Caption = 'Resume from:'
+  end
+  object Label5: TLabel
+    Left = 216
+    Top = 64
+    Width = 67
+    Height = 13
+    Caption = 'Resume from:'
+  end
+  object btnProcess: TButton
+    Left = 8
+    Top = 128
     Width = 209
     Height = 25
     Caption = 'Process'
@@ -43,9 +64,9 @@ object Form1: TForm1
   end
   object Memo1: TMemo
     Left = 8
-    Top = 96
+    Top = 160
     Width = 737
-    Height = 353
+    Height = 289
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 1
   end
@@ -90,16 +111,16 @@ object Form1: TForm1
     TabOrder = 6
   end
   object chkHouseActions: TCheckBox
-    Left = 112
-    Top = 24
+    Left = 216
+    Top = 8
     Width = 97
     Height = 16
     Caption = 'House actions'
     TabOrder = 7
   end
   object chkBeasts: TCheckBox
-    Left = 112
-    Top = 40
+    Left = 216
+    Top = 24
     Width = 97
     Height = 16
     Caption = 'House beasts'
@@ -107,7 +128,7 @@ object Form1: TForm1
   end
   object pbProgress: TProgressBar
     Left = 224
-    Top = 64
+    Top = 128
     Width = 521
     Height = 25
     Step = 1
@@ -123,5 +144,35 @@ object Form1: TForm1
     Checked = True
     State = cbChecked
     TabOrder = 10
+  end
+  object seUnitsResumeFrom: TSpinEdit
+    Left = 8
+    Top = 80
+    Width = 97
+    Height = 22
+    MaxValue = 99999
+    MinValue = 9300
+    TabOrder = 11
+    Value = 9300
+  end
+  object seTreesResumeFrom: TSpinEdit
+    Left = 112
+    Top = 80
+    Width = 97
+    Height = 22
+    MaxValue = 99999
+    MinValue = 260
+    TabOrder = 12
+    Value = 260
+  end
+  object seHousesResumeFrom: TSpinEdit
+    Left = 216
+    Top = 80
+    Width = 97
+    Height = 22
+    MaxValue = 99999
+    MinValue = 2100
+    TabOrder = 13
+    Value = 2100
   end
 end
