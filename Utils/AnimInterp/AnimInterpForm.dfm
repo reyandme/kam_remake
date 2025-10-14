@@ -26,38 +26,38 @@ object Form1: TForm1
     Caption = 'Log:'
   end
   object Label2: TLabel
-    Left = 224
+    Left = 8
     Top = 112
     Width = 35
     Height = 13
     Caption = 'Status:'
   end
   object Label3: TLabel
-    Left = 8
+    Left = 232
     Top = 64
     Width = 67
     Height = 13
     Caption = 'Resume from:'
   end
   object Label4: TLabel
-    Left = 112
+    Left = 8
     Top = 64
     Width = 67
     Height = 13
     Caption = 'Resume from:'
   end
   object Label5: TLabel
-    Left = 216
+    Left = 120
     Top = 64
     Width = 67
     Height = 13
     Caption = 'Resume from:'
   end
   object btnProcess: TButton
-    Left = 8
-    Top = 128
-    Width = 209
-    Height = 25
+    Left = 344
+    Top = 8
+    Width = 105
+    Height = 97
     Caption = 'Process'
     TabOrder = 0
     OnClick = btnProcessClick
@@ -79,57 +79,57 @@ object Form1: TForm1
     TabOrder = 2
   end
   object chkSerfCarry: TCheckBox
-    Left = 8
+    Left = 232
     Top = 24
     Width = 97
     Height = 16
-    Caption = 'Serf carry'
+    Caption = 'Serf carry \3'
     TabOrder = 3
   end
   object chkUnitActions: TCheckBox
-    Left = 8
+    Left = 232
     Top = 8
     Width = 97
     Height = 16
-    Caption = 'Unit actions'
+    Caption = 'Unit actions \3'
     TabOrder = 4
   end
   object chkUnitThoughts: TCheckBox
-    Left = 8
+    Left = 232
     Top = 40
-    Width = 97
+    Width = 105
     Height = 16
-    Caption = 'Unit thoughts'
+    Caption = 'Unit thoughts \3'
     TabOrder = 5
   end
   object chkTrees: TCheckBox
-    Left = 112
+    Left = 8
     Top = 8
     Width = 97
     Height = 16
-    Caption = 'Trees'
+    Caption = 'Trees \1'
     TabOrder = 6
   end
   object chkHouseActions: TCheckBox
-    Left = 216
+    Left = 120
     Top = 8
-    Width = 97
+    Width = 105
     Height = 16
-    Caption = 'House actions'
+    Caption = 'House actions \2'
     TabOrder = 7
   end
   object chkBeasts: TCheckBox
-    Left = 216
+    Left = 120
     Top = 24
-    Width = 97
+    Width = 105
     Height = 16
-    Caption = 'House beasts'
+    Caption = 'House beasts \2'
     TabOrder = 8
   end
   object pbProgress: TProgressBar
-    Left = 224
+    Left = 8
     Top = 128
-    Width = 521
+    Width = 737
     Height = 25
     Step = 1
     TabOrder = 9
@@ -146,9 +146,9 @@ object Form1: TForm1
     TabOrder = 10
   end
   object seUnitsResumeFrom: TSpinEdit
-    Left = 8
+    Left = 232
     Top = 80
-    Width = 97
+    Width = 105
     Height = 22
     MaxValue = 99999
     MinValue = 9300
@@ -156,9 +156,9 @@ object Form1: TForm1
     Value = 9300
   end
   object seTreesResumeFrom: TSpinEdit
-    Left = 112
+    Left = 8
     Top = 80
-    Width = 97
+    Width = 105
     Height = 22
     MaxValue = 99999
     MinValue = 260
@@ -166,9 +166,9 @@ object Form1: TForm1
     Value = 260
   end
   object seHousesResumeFrom: TSpinEdit
-    Left = 216
+    Left = 120
     Top = 80
-    Width = 97
+    Width = 105
     Height = 22
     MaxValue = 99999
     MinValue = 2100
