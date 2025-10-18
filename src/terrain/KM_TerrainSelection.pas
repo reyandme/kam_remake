@@ -34,6 +34,8 @@ type
                   end;
 
   TKMSelection = class
+  private class var
+    CF_MAPDATA: Word; // Our own custom clipboard format
   private
     fTerrainPainter: TKMTerrainPainter;
     fSelectionEdit: TKMSelectionEdit;
@@ -89,10 +91,6 @@ type
   end;
 
 
-var
-  CF_MAPDATA: Word; //Our own custom clipboard format
-
-
 implementation
 uses
   SysUtils,
@@ -106,6 +104,13 @@ uses
 constructor TKMSelection.Create(aTerrainPainter: TKMTerrainPainter);
 begin
   inherited Create;
+
+  if CF_MAPDATA = 0 then
+  begin
+    {$IFDEF WDC}
+    CF_MAPDATA := RegisterClipboardFormat(PWideChar('KaM Remake ' + string(GAME_REVISION) + ' Map Data'));
+    {$ENDIF}
+  end;
 
   fTerrainPainter := aTerrainPainter;
   fPasteTypes := [ptTerrain, ptHeight, ptObject, ptOverlay]; // All assets by default
@@ -790,7 +795,6 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
 
       for L := 0 to gTerrain.Land^[Y,X].LayersCnt - 1 do
         FixLayer(gTerrain.Land^[Y,X].Layer[L], True);
-
     end;
 
     if ptObject in fPasteTypes then
@@ -952,8 +956,8 @@ begin
     updateRect := KMRectGrow(fSelectionRect, 2); // 2 - just in case
     gTerrain.UpdateAll(updateRect);
   end;
-end
-;
+end;
+
 
 // This is used for scripting actions.
 procedure TKMSelection.ChangeSelectionRectangle(aLeft, aTop, aRight, aBottom: Integer);
@@ -987,14 +991,6 @@ begin
     end;
     gRenderAux.SquareOnTerrain(fSelectionRect.Left, fSelectionRect.Top, fSelectionRect.Right, fSelectionRect.Bottom, color);
   end;
-end;
-
-
-initialization
-begin
-  {$IFDEF WDC}
-  CF_MAPDATA := RegisterClipboardFormat(PWideChar('KaM Remake ' + string(GAME_REVISION) + ' Map Data'));
-  {$ENDIF}
 end;
 
 
