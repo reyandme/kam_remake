@@ -1109,6 +1109,7 @@ begin
 
   Memo1.Lines.Append('  TKMUnitActionInterp = array[TKMUnitType, UNIT_ACT_MIN..UNIT_ACT_MAX, dirN..dirNW] of TKMInterpolation;');
   Memo1.Lines.Append('//SizeOf(TKMUnitActionInterp) = '+IntToStr(SizeOf(TKMUnitActionInterp)));
+  Memo1.Lines.Append('//PicOffset from ' + IntToStr(fPicOffset));
 
   startPos := fOutputStream.Position;
   for u := UNIT_MIN to UNIT_MAX do
@@ -1121,6 +1122,7 @@ begin
           on E: Exception do
             LogError(TRttiEnumerationType.GetName(u) + ' - ' + UNIT_ACT_STR[act] + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
         end;
+  Memo1.Lines.Append('//PicOffset to ' + IntToStr(fPicOffset));
   Assert(SizeOf(TKMUnitActionInterp) = fOutputStream.Position - startPos);
 
   Memo1.Lines.Append('//fOutputStream.Position = '+IntToStr(fOutputStream.Position));
@@ -1137,6 +1139,7 @@ begin
 
   Memo1.Lines.Append('TKMSerfCarryInterp = array[WARE_MIN..WARE_MAX, dirN..dirNW] of TKMInterpolation;');
   Memo1.Lines.Append('//SizeOf(TKMSerfCarryInterp) = '+IntToStr(SizeOf(TKMSerfCarryInterp)));
+  Memo1.Lines.Append('//PicOffset from ' + IntToStr(fPicOffset));
 
   startPos := fOutputStream.Position;
   for ware := WARE_MIN to WARE_MAX do
@@ -1148,6 +1151,7 @@ begin
         on E: Exception do
           LogError(TRttiEnumerationType.GetName(ware) + ' - ' + TRttiEnumerationType.GetName(dir) + ' - ' + E.Message);
       end;
+  Memo1.Lines.Append('//PicOffset to ' + IntToStr(fPicOffset));
   Assert(SizeOf(TKMSerfCarryInterp) = fOutputStream.Position - startPos);
 end;
 
@@ -1161,6 +1165,7 @@ begin
 
   Memo1.Lines.Append('  TKMUnitThoughtInterp = array[TKMUnitThought] of TKMInterpolation;');
   Memo1.Lines.Append('//SizeOf(TKMUnitThoughtInterp) = '+IntToStr(SizeOf(TKMUnitThoughtInterp)));
+  Memo1.Lines.Append('//PicOffset from ' + IntToStr(fPicOffset));
 
   startPos := fOutputStream.Position;
   for th := Low(TKMUnitThought) to High(TKMUnitThought) do
@@ -1171,6 +1176,7 @@ begin
       on E: Exception do
         LogError(TRttiEnumerationType.GetName(th) + ' - ' + E.Message);
     end;
+  Memo1.Lines.Append('//PicOffset to ' + IntToStr(fPicOffset));
   Assert(SizeOf(TKMUnitThoughtInterp) = fOutputStream.Position - startPos);
 end;
 
@@ -1184,6 +1190,7 @@ begin
 
   Memo1.Lines.Append('TKMTreeInterp = array[0..OBJECTS_CNT] of TKMInterpolation;');
   Memo1.Lines.Append('//SizeOf(TKMTreeInterp) = '+IntToStr(SizeOf(TKMTreeInterp)));
+  Memo1.Lines.Append('//PicOffset from ' + IntToStr(fPicOffset));
 
   SetLength(fInterpCache, 0);
 
@@ -1196,6 +1203,7 @@ begin
       on E: Exception do
         LogError('Tree ' + IntToStr(I) + ' - ' + E.Message);
     end;
+  Memo1.Lines.Append('//PicOffset to ' + IntToStr(fPicOffset));
   Assert(SizeOf(TKMTreeInterp) = fOutputStream.Position - startPos);
 end;
 
@@ -1212,6 +1220,7 @@ begin
 
   Memo1.Lines.Append('TKMHouseInterp = array[HOUSE_MIN..HOUSE_MAX, TKMHouseActionType] of TKMInterpolation;');
   Memo1.Lines.Append('//SizeOf(TKMHouseInterp) = '+IntToStr(SizeOf(TKMHouseInterp)));
+  Memo1.Lines.Append('//PicOffset from ' + IntToStr(fPicOffset));
 
   startPos := fOutputStream.Position;
   for h := HOUSE_MIN to HOUSE_MAX do
@@ -1223,6 +1232,7 @@ begin
         on E: Exception do
           LogError(TRttiEnumerationType.GetName(h) + ' - ' + TRttiEnumerationType.GetName(hAct) + ' - ' + E.Message);
       end;
+  Memo1.Lines.Append('//PicOffset to ' + IntToStr(fPicOffset));
   Assert(SizeOf(TKMHouseInterp) = fOutputStream.Position - startPos);
 end;
 
@@ -1236,6 +1246,7 @@ begin
 
   Memo1.Lines.Append('TKMBeastInterp = array[1..3,1..5,1..3] of TKMInterpolation;');
   Memo1.Lines.Append('//SizeOf(TKMBeastInterp) = '+IntToStr(SizeOf(TKMBeastInterp)));
+  Memo1.Lines.Append('//PicOffset from ' + IntToStr(fPicOffset));
 
   startPos := fOutputStream.Position;
   for beastHouse := 1 to 3 do
@@ -1248,6 +1259,7 @@ begin
           on E: Exception do
             LogError(' beast ' + IntToStr(beastHouse) + ' - ' + IntToStr(beast) + ' - ' + IntToStr(beastAge) + ' - ' + E.Message);
         end;
+  Memo1.Lines.Append('//PicOffset to ' + IntToStr(fPicOffset));
   Assert(SizeOf(TKMBeastInterp) = fOutputStream.Position - startPos);
 end;
 
