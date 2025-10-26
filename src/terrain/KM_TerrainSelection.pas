@@ -14,7 +14,7 @@ type
   TKMSelectionEdit = (seNone, seNewRect, seResizeX1, seResizeY1, seResizeX2, seResizeY2, seMove);
   TKMSelectionMode = (smSelecting, smPasting);
 
-  //*
+  //* Flip axis
   TKMFlipAxis = (faHorizontal, faVertical);
 
   TKMBufferData = record
