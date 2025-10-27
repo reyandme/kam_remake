@@ -5427,7 +5427,7 @@ begin
 end;
 
 
-//* Version 15806
+//* Version: 15806
 //* Flips map horizontally or vertically within selected rectangle.
 //* aLeft, aTop - coordinates of the top left tile of rectangle that should be flipped
 //* aRight, aBottom - coordinates of the bottom right tile of rectangle that should be flipped
