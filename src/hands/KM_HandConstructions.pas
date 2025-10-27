@@ -29,7 +29,7 @@ type
     procedure AddHouse(aHouse: TKMHouse); //New house to build
     procedure RemWorker(aIndex: Integer);
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
-    function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
+    function BestBid(aWorker: TKMUnitWorker): Integer;
     function GetAvailableJobsCount: Integer;
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -73,7 +73,7 @@ type
     function GetPlansWoodDemands(): Integer;
 
     //Game events
-    function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
+    function BestBid(aWorker: TKMUnitWorker): Integer; //Calculate best bid for a given worker
     function GetAvailableJobsCount: Integer;
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker); //Assign worker to a field
     procedure ReOpenPlan(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
@@ -128,7 +128,7 @@ type
     property Fields: TKMFieldPlanArray read fFields;
 
     //Game events
-    function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
+    function BestBid(aWorker: TKMUnitWorker): Integer; //Calculate best bid for a given worker
     function GetAvailableJobsCount:Integer;
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker); //Assign worker to a field
     procedure ReOpenField(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
@@ -274,16 +274,16 @@ begin
 end;
 
 
-function TKMHouseList.BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
+function TKMHouseList.BestBid(aWorker: TKMUnitWorker): Integer;
 var
   I: Integer;
-  newBid: Single;
+  bestBid, newBid: Single;
 begin
-  //We can weight the repairs by distance, severity, etc..
-  //For now, each worker will go for the house closest to him
+  // We can weight the repairs by distance, severity, etc..
+  // For now, each worker will go for the house closest to him
 
   Result := -1;
-  aBid := MaxSingle;
+  bestBid := MaxSingle;
   for I := fHousesCount - 1 downto 0 do
   if (fHouses[i].House <> nil) and fHouses[i].House.CheckResToBuild
   and (fHouses[I].Assigned < MAX_WORKERS[fHouses[i].House.HouseType])
@@ -293,9 +293,9 @@ begin
     newBid := KMLengthDiag(aWorker.Position, fHouses[I].House.Position);
     newBid := newBid + fHouses[I].Assigned * BID_MODIF;
 
-    if newBid < aBid then
+    if newBid < bestBid then
     begin
-      aBid := newBid;
+      bestBid := newBid;
       Result := I;
     end;
   end;
@@ -386,23 +386,22 @@ end;
 
 
 { TKMFieldworksList }
-function TKMFieldworksList.BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
+function TKMFieldworksList.BestBid(aWorker: TKMUnitWorker): Integer;
 var
   I: Integer;
-  newBid: Single;
+  bestBid, newBid: Single;
 begin
   Result := -1;
-  aBid := MaxSingle;
-
+  bestBid := MaxSingle;
   for I := 0 to fFieldsCount - 1 do
   if (fFields[I].JobStatus = jsOpen)
   and aWorker.CanWalkTo(fFields[I].Loc, 0) then
   begin
     newBid := KMLengthDiag(aWorker.Position, fFields[I].Loc);
-    if newBid < aBid then
+    if newBid < bestBid then
     begin
+      bestBid := newBid;
       Result := I;
-      aBid := newBid;
     end;
   end;
 end;
@@ -706,24 +705,23 @@ begin
 end;
 
 
-function TKMHousePlanList.BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
+function TKMHousePlanList.BestBid(aWorker: TKMUnitWorker): Integer;
 var
   I: Integer;
-  newBid: Single;
+  bestBid, newBid: Single;
 begin
   Result := -1;
-  aBid := MaxSingle;
-
+  bestBid := MaxSingle;
   for I := 0 to fPlansCount - 1 do
     if (fPlans[I].JobStatus = jsOpen)
     and aWorker.CanWalkTo(fPlans[I].Loc, 0)
     then
     begin
       newBid := KMLengthDiag(aWorker.Position, fPlans[I].Loc);
-      if newBid < aBid then
+      if newBid < bestBid then
       begin
+        bestBid := newBid;
         Result := I;
-        aBid := newBid;
       end;
     end;
 end;
@@ -1277,7 +1275,6 @@ end;
 procedure TKMHandConstructions.AssignFieldworks;
 var
   I, availableWorkers, availableJobs, jobID: Integer;
-  myBid: Single;
   bestWorker: TKMUnitWorker;
 begin
   availableWorkers := GetIdleWorkerCount;
@@ -1289,7 +1286,7 @@ begin
     for I := 0 to fWorkersCount - 1 do
       if fWorkers[I].Worker.IsIdle then
       begin
-        jobID := fFieldworksList.BestBid(fWorkers[I].Worker, myBid);
+        jobID := fFieldworksList.BestBid(fWorkers[I].Worker);
         if jobID <> -1 then fFieldworksList.GiveTask(jobID, fWorkers[I].Worker);
       end;
   end
@@ -1306,7 +1303,6 @@ end;
 procedure TKMHandConstructions.AssignHousePlans;
 var
   I, availableWorkers, availableJobs, jobID: Integer;
-  myBid: Single;
   bestWorker: TKMUnitWorker;
 begin
   availableWorkers := GetIdleWorkerCount;
@@ -1318,7 +1314,7 @@ begin
     for I := 0 to fWorkersCount - 1 do
       if fWorkers[I].Worker.IsIdle then
       begin
-        jobID := fHousePlanList.BestBid(fWorkers[I].Worker, myBid);
+        jobID := fHousePlanList.BestBid(fWorkers[I].Worker);
         if jobID <> -1 then fHousePlanList.GiveTask(jobID, fWorkers[I].Worker);
       end;
   end
@@ -1335,7 +1331,6 @@ end;
 procedure TKMHandConstructions.AssignHouses;
 var
   I, availableWorkers, availableJobs, jobID: Integer;
-  myBid: Single;
   bestWorker: TKMUnitWorker;
 begin
   availableWorkers := GetIdleWorkerCount;
@@ -1347,7 +1342,7 @@ begin
     for I := 0 to fWorkersCount - 1 do
       if fWorkers[I].Worker.IsIdle then
       begin
-        jobID := fHouseList.BestBid(fWorkers[I].Worker, myBid);
+        jobID := fHouseList.BestBid(fWorkers[I].Worker);
         if jobID <> -1 then fHouseList.GiveTask(jobID, fWorkers[I].Worker);
       end;
   end
