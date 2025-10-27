@@ -45,7 +45,7 @@
         <Projects Include="Utils\Server Poller\ServerPoller.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Utils\ScriptParser (from kp-wiki)\ScriptingParser.common\ScriptingParser.dproj">
+        <Projects Include="Utils\ScriptParser (from kp-wiki)\ScriptingParser.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="Utils\TranslationManager (from kp-wiki)\TranslationManager.dproj">
@@ -204,13 +204,13 @@
         <MSBuild Projects="Utils\Server Poller\ServerPoller.dproj" Targets="Make"/>
     </Target>
     <Target Name="ScriptingParser">
-        <MSBuild Projects="Utils\ScriptParser (from kp-wiki)\ScriptingParser.common\ScriptingParser.dproj"/>
+        <MSBuild Projects="Utils\ScriptParser (from kp-wiki)\ScriptingParser.dproj"/>
     </Target>
     <Target Name="ScriptingParser:Clean">
-        <MSBuild Projects="Utils\ScriptParser (from kp-wiki)\ScriptingParser.common\ScriptingParser.dproj" Targets="Clean"/>
+        <MSBuild Projects="Utils\ScriptParser (from kp-wiki)\ScriptingParser.dproj" Targets="Clean"/>
     </Target>
     <Target Name="ScriptingParser:Make">
-        <MSBuild Projects="Utils\ScriptParser (from kp-wiki)\ScriptingParser.common\ScriptingParser.dproj" Targets="Make"/>
+        <MSBuild Projects="Utils\ScriptParser (from kp-wiki)\ScriptingParser.dproj" Targets="Make"/>
     </Target>
     <Target Name="TranslationManager">
         <MSBuild Projects="Utils\TranslationManager (from kp-wiki)\TranslationManager.dproj"/>
