@@ -1717,9 +1717,11 @@ var
   newLeader: TKMUnitWarrior;
 begin
   Result := nil;
-  if not HasMember(aUnit) then Exit;
   if IsDead then Exit;
   if Count < 2 then Exit;
+
+  // We could have received several repeating commands due to Network lag and this unit is already out of this group
+  if not HasMember(aUnit) then Exit;
 
   if aClearOffenders and CanTakePlayerOrders then
     ClearOffenders;
