@@ -23,6 +23,7 @@ Game:
  + Fixed non-clickable MP lobby controls on low screen resolutions
  + New dynamic script actions added
  + Fixed crashreport dialogs hiding behind loading form
+ + Added missing argument to game folder permission checker log message
 
 Maps:
  + Added The Fall of House Fennford by Strangelove
