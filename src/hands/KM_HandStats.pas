@@ -358,7 +358,8 @@ begin
     htNone:    ;
     htAny:     for HT := HOUSE_MIN to HOUSE_MAX do
                   Inc(Result, Houses[HT].Initial + Houses[HT].Built - Houses[HT].SelfDestruct - Houses[HT].Lost);
-    else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
+  else
+    Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
   end;
 end;
 
@@ -373,7 +374,8 @@ begin
     htNone:    ;
     htAny:     for HT := HOUSE_MIN to HOUSE_MAX do
                   Inc(Result, Houses[HT].Initial + Houses[HT].Built - Houses[HT].SelfDestruct - Houses[HT].Lost - Houses[HT].Closed);
-    else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost - Houses[aType].Closed;
+  else
+    Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost - Houses[aType].Closed;
   end;
 end;
 
@@ -394,11 +396,11 @@ begin
       Inc(Result, Houses[HT].Initial + Houses[HT].Built - Houses[HT].SelfDestruct - Houses[HT].Lost);
   end
   else
-  for I := Low(aType) to High(aType) do
-  if aType[I] in HOUSES_VALID then
-    Inc(Result, Houses[aType[I]].Initial + Houses[aType[I]].Built - Houses[aType[I]].SelfDestruct - Houses[aType[I]].Lost)
-  else
-    raise Exception.Create('Quering wrong house type');
+    for I := Low(aType) to High(aType) do
+    if aType[I] in HOUSES_VALID then
+      Inc(Result, Houses[aType[I]].Initial + Houses[aType[I]].Built - Houses[aType[I]].SelfDestruct - Houses[aType[I]].Lost)
+    else
+      raise Exception.Create('Quering wrong house type');
 end;
 
 
@@ -412,7 +414,8 @@ begin
     htNone:    ;
     htAny:     for HT := HOUSE_MIN to HOUSE_MAX do
                   Inc(Result, Houses[HT].Started + Houses[HT].Planned - Houses[HT].Ended - Houses[HT].PlanRemoved);
-    else        Result := Houses[aType].Started + Houses[aType].Planned - Houses[aType].Ended - Houses[aType].PlanRemoved;
+  else
+    Result := Houses[aType].Started + Houses[aType].Planned - Houses[aType].Ended - Houses[aType].PlanRemoved;
   end;
 end;
 
@@ -426,8 +429,10 @@ begin
     htNone:    ;
     htAny:     for HT := HOUSE_MIN to HOUSE_MAX do
                   Inc(Result, Houses[HT].RdyToBuild - Houses[HT].BuildEnded);
-    else        Result := Houses[aType].RdyToBuild - Houses[aType].BuildEnded;
-  end;end;
+  else
+    Result := Houses[aType].RdyToBuild - Houses[aType].BuildEnded;
+  end;
+end;
 
 
 //How many house plans player has at certain moment...
@@ -451,7 +456,7 @@ var
   HT: TKMHouseType;
 begin
   Result := 0;
-  if (Length(aType) = 0) then
+  if Length(aType) = 0 then
     raise Exception.Create('Quering wrong house type')
   else
   if (Length(aType) = 1) and (aType[0] = htAny) then
@@ -460,11 +465,11 @@ begin
       Inc(Result, Houses[HT].Started + Houses[HT].Planned - Houses[HT].Ended - Houses[HT].PlanRemoved);
   end
   else
-  for I := Low(aType) to High(aType) do
-  if aType[I] in HOUSES_VALID then
-    Inc(Result, Houses[aType[I]].Started + Houses[aType[I]].Planned - Houses[aType[I]].Ended - Houses[aType[I]].PlanRemoved)
-  else
-    raise Exception.Create('Quering wrong house type');
+    for I := Low(aType) to High(aType) do
+    if aType[I] in HOUSES_VALID then
+      Inc(Result, Houses[aType[I]].Started + Houses[aType[I]].Planned - Houses[aType[I]].Ended - Houses[aType[I]].PlanRemoved)
+    else
+      raise Exception.Create('Quering wrong house type');
 end;
 
 
@@ -477,12 +482,11 @@ begin
     utNone: ;
     utAny:     for UT := HUMANS_MIN to HUMANS_MAX do
                   Inc(Result, Units[UT].Initial + Units[UT].Trained - Units[UT].Lost);
-    else        begin
-                  Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
-                  if aType = utRecruit then
-                    for UT := WARRIOR_EQUIPABLE_BARRACKS_MIN to WARRIOR_EQUIPABLE_BARRACKS_MAX do
-                      Dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
-                end;
+  else
+    Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
+    if aType = utRecruit then
+      for UT := WARRIOR_EQUIPABLE_BARRACKS_MIN to WARRIOR_EQUIPABLE_BARRACKS_MAX do
+        Dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
   end;
 end;
 
@@ -496,7 +500,8 @@ begin
     utNone: ;
     utAny:     for UT := HUMANS_MIN to HUMANS_MAX do
                   Inc(Result, Units[UT].Training);
-    else        Result := Units[aType].Training;
+  else
+    Result := Units[aType].Training;
   end;
 end;
 
@@ -510,7 +515,8 @@ begin
     utNone: ;
     utAny:      for UT := HUMANS_MIN to HUMANS_MAX do
                   Result := Result + Units[UT].Dismissing;
-    else        Result := Units[aType].Dismissing;
+  else
+    Result := Units[aType].Dismissing;
   end;
 end;
 
@@ -524,7 +530,8 @@ begin
     utNone: ;
     utAny:  for UT := HUMANS_MIN to HUMANS_MAX do
               Inc(Result, Units[UT].Killed);
-    else    Result := Units[aType].Killed;
+  else
+    Result := Units[aType].Killed;
   end;
 end;
 
@@ -538,7 +545,8 @@ begin
     utNone: ;
     utAny:  for UT := HUMANS_MIN to HUMANS_MAX do
               Inc(Result, Units[UT].Lost);
-    else    Result := Units[aType].Lost;
+  else
+    Result := Units[aType].Lost;
   end;
 end;
 
@@ -555,7 +563,8 @@ begin
                   Inc(Result, Wares[RT].Initial + Wares[RT].Produced - Wares[RT].Consumed);
     wtWarfare: for RT := WARFARE_MIN to WARFARE_MAX do
                   Inc(Result, Wares[RT].Initial + Wares[RT].Produced - Wares[RT].Consumed);
-    else        Result := Wares[aRT].Initial + Wares[aRT].Produced - Wares[aRT].Consumed;
+  else
+    Result := Wares[aRT].Initial + Wares[aRT].Produced - Wares[aRT].Consumed;
   end;
 end;
 
@@ -709,7 +718,8 @@ begin
                   Inc(Result, Wares[WT].Produced);
     wtWarfare: for WT := WARFARE_MIN to WARFARE_MAX do
                   Inc(Result, Wares[WT].Produced);
-    else        Result := Wares[aRT].Produced;
+  else
+    Result := Wares[aRT].Produced;
   end;
 end;
 
@@ -753,37 +763,37 @@ var
   WT: TKMWareType;
 begin
   case aWare of
-    WARE_MIN..WARE_MAX: Result := fChartWares[aWare];
-    wtAll:             begin
-                          //Create new array and fill it (otherwise we assign pointers and corrupt data)
-                          SetLength(Result, fChartCount);
-                          for I := 0 to fChartCount - 1 do
-                            Result[I] := 0;
-                          for WT := WARE_MIN to WARE_MAX do
-                          for I := 0 to fChartCount - 1 do
-                            Result[I] := Result[I] + fChartWares[WT][I];
-                        end;
-    wtWarfare:         begin
-                          //Create new array and fill it (otherwise we assign pointers and corrupt data)
-                          SetLength(Result, fChartCount);
-                          for I := 0 to fChartCount - 1 do
-                            Result[I] := 0;
-                          for WT := WARFARE_MIN to WARFARE_MAX do
-                          for I := 0 to fChartCount - 1 do
-                            Result[I] := Result[I] + fChartWares[WT][I];
-                        end;
-    wtFood:            begin
-                          //Create new array and fill it (otherwise we assign pointers and corrupt data)
-                          SetLength(Result, fChartCount);
-                          for I := 0 to fChartCount - 1 do
-                            Result[I] := fChartWares[wtBread][I] + fChartWares[wtSausage][I] + fChartWares[wtWine][I] + fChartWares[wtFish][I];
-                        end;
-    else                begin
-                          //Return empty array
-                          SetLength(Result, fChartCount);
-                          for I := 0 to fChartCount - 1 do
-                            Result[I] := 0;
-                        end;
+    WARE_MIN..
+    WARE_MAX:   Result := fChartWares[aWare];
+    wtAll:      begin
+                  //Create new array and fill it (otherwise we assign pointers and corrupt data)
+                  SetLength(Result, fChartCount);
+                  for I := 0 to fChartCount - 1 do
+                    Result[I] := 0;
+                  for WT := WARE_MIN to WARE_MAX do
+                  for I := 0 to fChartCount - 1 do
+                    Result[I] := Result[I] + fChartWares[WT][I];
+                end;
+    wtWarfare:  begin
+                  //Create new array and fill it (otherwise we assign pointers and corrupt data)
+                  SetLength(Result, fChartCount);
+                  for I := 0 to fChartCount - 1 do
+                    Result[I] := 0;
+                  for WT := WARFARE_MIN to WARFARE_MAX do
+                  for I := 0 to fChartCount - 1 do
+                    Result[I] := Result[I] + fChartWares[WT][I];
+                end;
+    wtFood:     begin
+                  //Create new array and fill it (otherwise we assign pointers and corrupt data)
+                  SetLength(Result, fChartCount);
+                  for I := 0 to fChartCount - 1 do
+                    Result[I] := fChartWares[wtBread][I] + fChartWares[wtSausage][I] + fChartWares[wtWine][I] + fChartWares[wtFish][I];
+                end;
+  else
+    //Return empty array
+    SetLength(Result, fChartCount);
+    for I := 0 to fChartCount - 1 do
+      Result[I] := 0;
   end;
 end;
 
@@ -794,22 +804,22 @@ var
   I: Integer;
 begin
   case aWarrior of
-    WARRIOR_MIN..WARRIOR_MAX: Result := fChartArmy[aChartKind,aWarrior];
-    utAny:                   begin
-                                //Create new array and fill it (otherwise we assign pointers and corrupt data)
-                                SetLength(Result, fChartCount);
-                                for I := 0 to fChartCount - 1 do
-                                  Result[I] := 0;
-                                for WT := WARRIOR_MIN to WARRIOR_MAX do
-                                  for I := 0 to fChartCount - 1 do
-                                    Result[I] := Result[I] + fChartArmy[aChartKind,WT,I];
-                              end;
-    else                      begin
-                                //Return empty array
-                                SetLength(Result, fChartCount);
-                                for I := 0 to fChartCount - 1 do
-                                  Result[I] := 0;
-                              end;
+    WARRIOR_MIN..
+    WARRIOR_MAX:  Result := fChartArmy[aChartKind,aWarrior];
+    utAny:        begin
+                    //Create new array and fill it (otherwise we assign pointers and corrupt data)
+                    SetLength(Result, fChartCount);
+                    for I := 0 to fChartCount - 1 do
+                      Result[I] := 0;
+                    for WT := WARRIOR_MIN to WARRIOR_MAX do
+                      for I := 0 to fChartCount - 1 do
+                        Result[I] := Result[I] + fChartArmy[aChartKind,WT,I];
+                  end;
+  else
+    //Return empty array
+    SetLength(Result, fChartCount);
+    for I := 0 to fChartCount - 1 do
+      Result[I] := 0;
   end;
 end;
 
@@ -819,27 +829,29 @@ var
   WT: TKMWareType;
 begin
   case aWare of
-    WARE_MIN..WARE_MAX: Result := (fChartCount = 0) or (ChartWares[aWare][fChartCount-1] = 0);
-    wtAll:             begin
-                          Result := True;
-                          if fChartCount > 0 then
-                            for WT := WARE_MIN to WARE_MAX do
-                              if ChartWares[WT][fChartCount-1] <> 0 then
-                                Result := False;
-                        end;
-    wtWarfare:         begin
-                          Result := True;
-                          if fChartCount > 0 then
-                            for WT := WARFARE_MIN to WARFARE_MAX do
-                              if ChartWares[WT][fChartCount-1] <> 0 then
-                                Result := False;
-                        end;
-    wtFood:            Result := (fChartCount = 0) or
-                                  (ChartWares[wtWine][fChartCount-1] +
-                                   ChartWares[wtBread][fChartCount-1] +
-                                   ChartWares[wtSausage][fChartCount-1] +
-                                   ChartWares[wtFish][fChartCount-1] = 0);
-    else                Result := True;
+    WARE_MIN..
+    WARE_MAX:   Result := (fChartCount = 0) or (ChartWares[aWare][fChartCount-1] = 0);
+    wtAll:      begin
+                  Result := True;
+                  if fChartCount > 0 then
+                    for WT := WARE_MIN to WARE_MAX do
+                      if ChartWares[WT][fChartCount-1] <> 0 then
+                        Exit(False);
+                end;
+    wtWarfare:  begin
+                  Result := True;
+                  if fChartCount > 0 then
+                    for WT := WARFARE_MIN to WARFARE_MAX do
+                      if ChartWares[WT][fChartCount-1] <> 0 then
+                        Exit(False);
+                end;
+    wtFood:     Result := (fChartCount = 0) or
+                            (ChartWares[wtWine][fChartCount-1] +
+                            ChartWares[wtBread][fChartCount-1] +
+                            ChartWares[wtSausage][fChartCount-1] +
+                            ChartWares[wtFish][fChartCount-1] = 0);
+  else
+    Result := True;
   end;
 end;
 
@@ -863,19 +875,17 @@ var
 begin
   CKind := GetArmyEmptyCKind(aChartKind);
   case aWarrior of
-    WARRIOR_MIN..WARRIOR_MAX:
-                        Result := (fChartCount = 0) or (fArmyEmpty[CKind,aWarrior]);
-    utAny:             begin
-                          Result := True;
-                          if fChartCount > 0 then
-                            for WT := WARRIOR_MIN to WARRIOR_MAX do
-                              if not fArmyEmpty[CKind,WT] then
-                              begin
-                                Result := False;
-                                Break;
-                              end;
-                        end;
-    else                Result := True;
+    WARRIOR_MIN..
+    WARRIOR_MAX:  Result := (fChartCount = 0) or (fArmyEmpty[CKind,aWarrior]);
+    utAny:        begin
+                    Result := True;
+                    if fChartCount > 0 then
+                      for WT := WARRIOR_MIN to WARRIOR_MAX do
+                        if not fArmyEmpty[CKind,WT] then
+                          Exit(False);
+                  end;
+  else
+    Result := True;
   end;
 end;
 
@@ -952,7 +962,6 @@ end;
 
 procedure TKMHandStats.ToCSV(aStrings: TStringList);
 begin
-
   HousesToCSV(aStrings);
   aStrings.Append('');
   UnitsToCSV(aStrings);
@@ -964,8 +973,7 @@ end;
 procedure TKMHandStats.HousesToCSV(aStrings: TStringList);
 var
   S: string;
-  HT: TKMHouseType;
-  
+
   procedure AddField(const aField: string); overload;
   begin
     S := S + aField + ';';
@@ -976,6 +984,8 @@ var
     S := S + IntToStr(aField) + ';';
   end;
 
+var
+  HT: TKMHouseType;
 begin
   aStrings.Append('Houses stats');
   aStrings.Append('Name;Planned;PlanRemoved;Started;Ended;Initial;Built;SelfDestruct;Lost;ClosedATM;Destroyed');
@@ -1004,13 +1014,14 @@ end;
 procedure TKMHandStats.UnitsToCSV(aStrings: TStringList);
 var
   S: string;
-  UT: TKMUnitType;
-  
+
   procedure AddField(const aField: string); overload;
   begin S := S + aField + ';'; end;
   procedure AddField(aField: Cardinal); overload;
   begin S := S + IntToStr(aField) + ';'; end;
 
+var
+  UT: TKMUnitType;
 begin
   aStrings.Append('Units stats');
   aStrings.Append('Name;Initial;TrainingATM;Dismissing;Trained;Lost;Killed');
@@ -1034,13 +1045,14 @@ end;
 procedure TKMHandStats.WaresToCSV(aStrings: TStringList);
 var
   S: string;
-  WT: TKMWareType;
-  
+
   procedure AddField(const aField: string); overload;
   begin S := S + aField + ';'; end;
   procedure AddField(aField: Cardinal); overload;
   begin S := S + IntToStr(aField) + ';'; end;
 
+var
+  WT: TKMWareType;
 begin
   aStrings.Append('Wares stats');
   aStrings.Append('Name;Initial;Produced;Consumed');
@@ -1065,7 +1077,8 @@ begin
     cakTotal:          Result := GetWarriorsTotal(aUnitType);
     cakDefeated:       Result := GetUnitKilledQty(aUnitType);
     cakLost:           Result := GetUnitLostQty(aUnitType);
-    else                raise Exception.Create('Unknown chart army kind');
+  else
+    raise Exception.Create('Unknown chart army kind');
   end;
 end;
 
