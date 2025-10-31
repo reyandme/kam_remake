@@ -804,7 +804,7 @@ begin
     try
       decompressionStream.Read(rxxCount, 4);
           
-      gLog.AddTime(RX_INFO[fRT].FileName + ' -', rxxCount);
+      gLog.AddTime(RX_INFO[fRT].FileName + ' - %d', [rxxCount]);
 
       if rxxCount = 0 then
         Exit;
@@ -869,7 +869,7 @@ begin
     try
       decompressionStream.Read(rxxCount, 4);
 
-      gLog.AddTime(RX_INFO[fRT].FileName + ' -', rxxCount);
+      gLog.AddTime(RX_INFO[fRT].FileName + ' - %d', [rxxCount]);
 
       if rxxCount = 0 then
         Exit;

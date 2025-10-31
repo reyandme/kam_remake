@@ -249,8 +249,8 @@ begin
       alcGetIntegerv(fALDevice, ALC_MONO_SOURCES, 4, @numMono);
       alcGetIntegerv(fALDevice, ALC_STEREO_SOURCES, 4, @numStereo);
 
-      gLog.AddTime('ALC_MONO_SOURCES',numMono);
-      gLog.AddTime('ALC_STEREO_SOURCES',numStereo);
+      gLog.AddTime('ALC_MONO_SOURCES %d', [numMono]);
+      gLog.AddTime('ALC_STEREO_SOURCES %d', [numStereo]);
 
       for I := Low(fALSounds) to High(fALSounds) do
       begin
