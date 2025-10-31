@@ -65,7 +65,7 @@ uses
   KM_UnitTaskBuild, KM_Log, KM_RenderAux;
 
 
-{ TTaskDeliver }
+{ TKMTaskDeliver }
 constructor TKMTaskDeliver.Create(aSerf: TKMUnitSerf; aFrom: TKMHouse; aToHouse: TKMHouse; aWare: TKMWareType; aID: Integer);
 begin
   inherited Create(aSerf);
