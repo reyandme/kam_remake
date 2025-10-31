@@ -66,6 +66,7 @@ type
 
     // AppendLog adds the line to Log along with time passed since previous line added
     procedure AddTime(const aText: UnicodeString); overload;
+    procedure AddTime(const aText: UnicodeString; aArgs: array of const); overload;
     procedure AddTime(const aText: UnicodeString; num: Integer); overload;
     procedure AddTime(const aText: UnicodeString; num: Single); overload;
     procedure AddTime(num: Integer; const aText: UnicodeString); overload;
@@ -480,6 +481,12 @@ end;
 procedure TKMLog.AddTime(const aText: UnicodeString);
 begin
   AddLineTime(aText);
+end;
+
+
+procedure TKMLog.AddTime(const aText: UnicodeString; aArgs: array of const);
+begin
+  AddLineTime(Format(aText, aArgs));
 end;
 
 
