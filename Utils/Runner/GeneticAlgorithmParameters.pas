@@ -163,10 +163,10 @@ begin
     if Idx = High(AI_Par) then
       comma := ' ';
     enumName := GetEnumName(TypeInfo(TAIPar), Integer(Idx));
-    fLogPar.AddTime(Format('%13.7f%s // %s',[AI_Par[Idx], comma, enumName ], TFormatSettings.Invariant));
+    fLogPar.AddTime(Format('%13.7f%s // %s', [AI_Par[Idx], comma, enumName], TFormatSettings.Invariant));
     if ContainsText(enumName, '_END') then
       fLogPar.AddTime(' ');
-    //fLogPar.AddTime(Format('%13.7f%s, // %s',[AI_Par[Idx], StringOfChar(' ', Max(1,50 - Length(enumName))), enumName ]));
+    //fLogPar.AddTime('%13.7f%s, // %s', [AI_Par[Idx], StringOfChar(' ', Max(1,50 - Length(enumName))), enumName]);
   end;
   fLogPar.AddTime('  );');
   // Log only tested parameters
@@ -176,7 +176,7 @@ begin
   begin
     enumName := GetEnumName(TypeInfo(TAIPar), Integer(Idx));
     if not ContainsText(enumName, '_END') AND not ContainsText(enumName, '_START') then
-      fLogPar.AddTime(Format('%3d. %1.3f: %7.3f, // %s',[K, aIdv.Gene[K], AI_Par[Idx], enumName ], TFormatSettings.Invariant));
+      fLogPar.AddTime(Format('%3d. %1.3f: %7.3f, // %s', [K, aIdv.Gene[K], AI_Par[Idx], enumName], TFormatSettings.Invariant));
     Inc(K);
   end;
 

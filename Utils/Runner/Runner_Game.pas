@@ -604,7 +604,7 @@ begin
     // Save best score + parameters of best individual
     Idv := fOldPopulation.GetFittest();
     fResults.Value[aRun, 0] := Round(Idv.FitnessSum);
-    fLog.AddTime(Format('GA: %4d. run. Best score: %15.5f',[aRun,Idv.FitnessSum]));
+    fLog.AddTime('GA: %4d. run. Best score: %15.5f', [aRun,Idv.FitnessSum]);
 
     // Check history and find the most fitness individual
     BestScore := MIN_SCORE;
@@ -2122,7 +2122,7 @@ begin
   GAver := GTotal / (Runs*HandsCnt);
 
   gLog.AddTime('==================================================================');
-  gLog.AddTime(Format('HAver: %3.2f  WAver: %3.2f  WFAver: %3.2f  GAver: %5.2f', [HAver, WAver, WFAver, GAver]));
+  gLog.AddTime('HAver: %3.2f  WAver: %3.2f  WFAver: %3.2f  GAver: %5.2f', [HAver, WAver, WFAver, GAver]);
   gLog.AddTime('TimeAver: ' + IntToStr(Round(TimeSince(Time)/Runs)));
   gLog.AddTime('Time: ' + IntToStr(TimeSince(Time)));
   inherited;
@@ -2193,14 +2193,12 @@ begin
     Str := Str + Format('Hand%d: H: %d  W: %d  WF: %d  G: %d', [I, HRun, WRun, WFRun, GRun]);
     gLog.AddTime(Str);
   end;
-  gLog.AddTime(Format('HRunAver: %3.2f  WRunAver: %3.2f  WFRunAver: %3.2f  GRunAver: %5.2f',
-               [HRunT/HandsCnt, WRunT/HandsCnt, WFRunT/HandsCnt,  GRunT/HandsCnt]));
+  gLog.AddTime('HRunAver: %3.2f  WRunAver: %3.2f  WFRunAver: %3.2f  GRunAver: %5.2f',
+               [HRunT/HandsCnt, WRunT/HandsCnt, WFRunT/HandsCnt, GRunT/HandsCnt]);
   gLog.AddTime('Time: ' + IntToStr(TimeSince(StartT)));
 
   gGameApp.StopGame(grSilent);
 end;
-
-
 
 
 { TKMVortamicPF }
@@ -2239,8 +2237,6 @@ begin
 end;
 
 
-
-
 { TKMReplay }
 procedure TKMReplay.SetUp;
 begin
@@ -2271,8 +2267,6 @@ begin
 
   gGameApp.StopGame(grSilent);
 end;
-
-
 
 
 { TKMVas01 }

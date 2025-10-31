@@ -1085,7 +1085,7 @@ begin
 //  gRes.Tileset.SaveToJSON;
 //  gRes.Tileset.LoadFromJson;
 
-  gLog.AddTime(Format('sameOld: %d sameNew: %d', [sameOld, sameNew]));
+  gLog.AddTime('sameOld: %d sameNew: %d', [sameOld, sameNew]);
 
   for I := 0 to sameImages.Count - 1 do
     sameImages[I].Free;
