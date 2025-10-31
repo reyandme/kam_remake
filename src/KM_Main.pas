@@ -697,7 +697,7 @@ begin
     fFormMain.ShowFullscreen;
 
   // Check if player has all permissions on game folder. Close the app if not
-  // Check is done after gGameApp creating because we want to load texts first to shw traslated error message
+  // Check is done after gGameApp creating because we want to load texts first to show traslated error message
   //todo: refactor. Separate folder permissions check and render initialization
   // Locale and texts could be loaded separetely to show proper translated error message
   try
@@ -723,8 +723,8 @@ begin
   fFormMain.OnControlsUpdated := gGameApp.DebugControlsUpdated;
 
   gLog.AddTime('ToggleFullscreen');
-  gLog.AddTime('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
-  gLog.AddTime('Panel Width/Height: '+inttostr(fFormMain.RenderArea.Width)+':'+inttostr(fFormMain.RenderArea.Height));
+  gLog.AddTime('Form Width/Height: %dx%d', [fFormMain.Width, fFormMain.Height]);
+  gLog.AddTime('Panel Width/Height: %dx%d', [fFormMain.RenderArea.Width, fFormMain.RenderArea.Height]);
 
   //Hide'n'show will make form go ontop of taskbar
   fFormMain.Hide;

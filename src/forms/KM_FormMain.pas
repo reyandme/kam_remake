@@ -546,7 +546,7 @@ begin
   begin
     Left := gMainSettings.WindowParams.Left;
     Top := gMainSettings.WindowParams.Top;
-    gLog.AddTime(Format('Set window Left = %d, Top = %d', [Left, Top]));
+    gLog.AddTime('Set window Left = %d, Top = %d', [Left, Top]);
   end;
 
   fMissionDefOpenPath := ExeDir;
@@ -1870,8 +1870,8 @@ begin
   // Unset NeedResetToDefaults flag
   gMainSettings.WindowParams.NeedResetToDefaults := False;
 
-  gLog.AddTime(Format('Set window params to: Position = poScreenCenter Width = %d, Height = %d',
-                      [gMainSettings.WindowParams.Width, gMainSettings.WindowParams.Height]));
+  gLog.AddTime('Set window params to: Position = poScreenCenter Width = %d, Height = %d',
+                      [gMainSettings.WindowParams.Width, gMainSettings.WindowParams.Height]);
 
   //Make sure Panel is properly aligned
   RenderArea.Align := alClient;
