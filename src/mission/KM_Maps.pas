@@ -737,12 +737,12 @@ begin
 
   S := TKMemoryStreamBinary.Create;
   try
-    //Try to load map cache up to 3 times (in case its updating by other thread
-    //its much easier and working well, then synchronize threads
+    // Try to load map cache up to 3 times (in case its updating by other thread
+    // its much easier and working well, then synchronize threads
     if not TryExecuteMethod(LoadFromStreamObj, TObject(S), aPath, 'LoadFromStreamObj', errorStr) then
     begin
       gLog.AddTime(errorStr);
-      gLog.AddTime('Error loading map cache: ''' + aPath + '''. The file will be deleted.');
+      gLog.AddTime('Error loading map cache: "%s". The file will be deleted.', [aPath]);
       KMDeleteFile(aPath);
     end;
   finally
@@ -1264,7 +1264,7 @@ begin
     NormalizeDesc;
   except
     on E: Exception do
-      gLog.AddTime('Error loading map TXT file: ''' + aFilePath + ''' ' + E.Message);
+      gLog.AddTime('Error loading map TXT file: "%s": %s', [aFilePath, E.Message]);
   end;
 end;
 
@@ -1936,7 +1936,7 @@ begin
               ProcessMap(searchRec.Name, MK);
             except
               on E: Exception do
-                gLog.AddTime('Error loading map ''' + searchRec.Name + ''''); //Just silently log an exception
+                gLog.AddTime('Error loading map "%s"', [searchRec.Name]); //Just silently log an exception
             end;
           end;
         until (FindNext(searchRec) <> 0) or Terminated;

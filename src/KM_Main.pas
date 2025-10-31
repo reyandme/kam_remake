@@ -53,7 +53,7 @@ type
     procedure GameSpeedChange(aSpeed: Single);
     function DoHaveGenericPermission: Boolean;
 
-    procedure tryWriteIntoGameFolder();
+    procedure TryWriteIntoGameFolder();
   public
     constructor Create;
     destructor Destroy; override;
@@ -187,9 +187,8 @@ begin
 end;
 
 
-
 // Try to write a file into the game folder and raise an error in case we can not
-procedure TKMMain.tryWriteIntoGameFolder();
+procedure TKMMain.TryWriteIntoGameFolder();
 var
   filename: String;
   sList: TStringList;
@@ -229,7 +228,6 @@ begin
     raise EAssertionFailed.CreateFmt(SAssertError,
       [SAssertionFailed, fileNameOnly, LineNumber]) at ErrorAddr;
 end;
-
 
 
 // Return False in case we had difficulties on the start

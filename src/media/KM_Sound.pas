@@ -565,7 +565,7 @@ begin
           oggOpenResult := ov_open_callbacks(oggFileStream, oggVorbisFile, nil, 0, ops_callbacks);
           if oggOpenResult <> 0 then
           begin
-            gLog.AddTime('Error loading OGG sound file ''' + aFile + ''': ' + GetVorbisErrorName(oggOpenResult));
+            gLog.AddTime('Error loading OGG sound file "%s": %s', [aFile, GetVorbisErrorName(oggOpenResult)]);
             Exit; // Ignore all errors
           end;
 
