@@ -2830,7 +2830,7 @@ begin
           H.IncBuildingProgress;
         end;
 
-        if H.IsStone and (gTerrain.Land^[H.Position.Y, H.Position.X].TileLock <> tlHouse) then
+        if (H.IsStone or H.IsComplete) and (gTerrain.Land^[H.Position.Y, H.Position.X].TileLock <> tlHouse) then
           gTerrain.SetHouse(H.Position, H.HouseType, hsBuilt, H.Owner);
       end;
     end
