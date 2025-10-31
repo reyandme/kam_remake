@@ -244,7 +244,7 @@ begin
 
       // Set attenuation model
       alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
-      gLog.AddTime('Pre-LoadSFX init', True);
+      gLog.AddTime('Pre-LoadSFX init done');
 
       alcGetIntegerv(fALDevice, ALC_MONO_SOURCES, 4, @numMono);
       alcGetIntegerv(fALDevice, ALC_STEREO_SOURCES, 4, @numStereo);

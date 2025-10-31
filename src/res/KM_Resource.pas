@@ -159,7 +159,7 @@ begin
   fPalettes := TKMResPalettes.Create;
   //We are using only default palette in the game for now, so no need to load all palettes
   fPalettes.LoadDefaultPalette(ExeDir + 'data' + PathDelim + 'gfx' + PathDelim);
-  gLog.AddTime('Reading palettes', True);
+  gLog.AddTime('Reading palettes done');
 
   fSprites := TKMResSprites.Create(StepRefresh, StepCaption);
 

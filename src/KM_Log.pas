@@ -67,9 +67,6 @@ type
     // AppendLog adds the line to Log along with time passed since previous line added
     procedure AddTime(const aText: UnicodeString); overload;
     procedure AddTime(const aText: UnicodeString; aArgs: array of const); overload;
-    procedure AddTime(num: Integer; const aText: UnicodeString); overload;
-    procedure AddTime(const aText: UnicodeString; Res: boolean); overload;
-    procedure AddTime(a, b: integer); overload;
     function IsDegubLogEnabled: Boolean;
     procedure LogDebug(const aText: UnicodeString);
     procedure LogDelivery(const aText: UnicodeString);
@@ -596,36 +593,6 @@ function TKMLog.CanLogNetPacketPingFps: Boolean;
 begin
   if Self = nil then Exit(False);
   Result := lmtNetPacketPingFps in MessageTypes;
-end;
-
-
-procedure TKMLog.AddTime(num: integer; const aText: UnicodeString);
-begin
-  if Self = nil then Exit;
-
-  AddLineTime(inttostr(num) + ' ' + aText);
-end;
-
-
-procedure TKMLog.AddTime(const aText: UnicodeString; Res: boolean);
-var
-  s: UnicodeString;
-begin
-  if Self = nil then Exit;
-
-  if Res then
-    s := 'done'
-  else
-    s := 'fail';
-  AddLineTime(aText + ' ... ' + s);
-end;
-
-
-procedure TKMLog.AddTime(A, B: integer);
-begin
-  if Self = nil then Exit;
-
-  AddLineTime(inttostr(A) + ' : ' + inttostr(B));
 end;
 
 

@@ -748,7 +748,7 @@ begin
       gmMapEd:  ;
     end;
 
-    gLog.AddTime('Gameplay recording initialized', True);
+    gLog.AddTime('Gameplay recording initialized');
 
     if fParams.IsMultiPlayerOrSpec then
       MultiplayerRig(True);
@@ -760,7 +760,7 @@ begin
   end;
 
   gLog.AddTime('Game options: ' + fOptions.ToString);
-  gLog.AddTime('Gameplay initialized', True);
+  gLog.AddTime('Gameplay initialized');
 end;
 
 
@@ -826,7 +826,7 @@ begin
   fIsStarted := True;
   fIsJustStarted := True; // Mark game as just started
 
-  gLog.AddTime('After game start', True);
+  gLog.AddTime('After game start done');
 end;
 
 
@@ -1363,7 +1363,7 @@ begin
 
   fIsStarted := True;
 
-  gLog.AddTime('Gameplay initialized', True);
+  gLog.AddTime('Gameplay initialized');
 end;
 
 
@@ -2710,7 +2710,7 @@ begin
       end;
     {$ENDIF}
 
-    gLog.AddTime('Loading game', True);
+    gLog.AddTime('Loading game done');
   finally
     FreeAndNil(loadStream);
   end;
@@ -2745,7 +2745,7 @@ begin
     // Restore game (replay) parameters, that are shared among all game savepoints
     gGame.LastReplayTickLocal := lastReplayTick;
     gGame.SkipReplayEndCheck := skipReplayEndCheck;
-    gLog.AddTime('Loading replay from save done', True);
+    gLog.AddTime('Loading replay from save done');
   end;
 end;
 
@@ -2847,7 +2847,7 @@ begin
   fIsStarted := True;
 
   gLog.AddTime('Game options: ' + fOptions.ToString);
-  gLog.AddTime('After game loading', True);
+  gLog.AddTime('After game loading done');
 end;
 
 
