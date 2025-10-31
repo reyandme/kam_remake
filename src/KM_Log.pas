@@ -35,10 +35,6 @@ type
     fFirstTick: cardinal;
     fPreviousTick: cardinal;
     fPreviousDate: TDateTime;
-    // Enable thread safe mode (resource protection) when logging from multiple threads
-    // Numeric value is used, instead of Boolean (or better LongBool), because we can set MutithreadLoggind from different threads / tasks / methods
-    // Integer is used to be able to use AtomicIncrement method, which required 32bit values
-    fMultithreadLogCounter: Integer;
 
     {$IFDEF KMR_GAME}
     fOnLogMessageList: TList<TUnicodeStringEvent>;
@@ -59,7 +55,6 @@ type
     procedure AddLineNoTime(const aText: UnicodeString; aWithPrefix: Boolean = True); overload;
     procedure AddLineNoTime(const aText: UnicodeString; aLogType: TKMLogMessageType; aWithPrefix: Boolean = True); overload;
   public
-
     MessageTypes: TKMLogMessageTypeSet;
     constructor Create(const aPath: UnicodeString);
     destructor Destroy; override;
@@ -164,7 +159,7 @@ end;
 constructor TKMLog.Create(const aPath: UnicodeString);
 begin
   inherited Create;
-  fMultithreadLogCounter := 0;
+
   fLogPath := aPath;
   fFirstTick := TimeGet;
   fPreviousTick := TimeGet;
@@ -182,12 +177,6 @@ begin
 end;
 
 
-procedure TKMLog.SetDefaultMessageTypes;
-begin
-  MessageTypes := DEFAULT_LOG_TYPES_TO_WRITE;
-end;
-
-
 destructor TKMLog.Destroy;
 begin
   CS.Free;
@@ -196,6 +185,12 @@ begin
   {$ENDIF}
 
   inherited;
+end;
+
+
+procedure TKMLog.SetDefaultMessageTypes;
+begin
+  MessageTypes := DEFAULT_LOG_TYPES_TO_WRITE;
 end;
 
 
