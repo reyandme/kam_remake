@@ -100,12 +100,18 @@ begin
     placeTo := KMPOINT_ZERO; // Will have 0:0 if no place found
     if aRequiredWalkConnect = 0 then
       aRequiredWalkConnect := gTerrain.GetWalkConnectID(aLoc.Loc);
-    gHands.FindPlaceForUnit(aLoc.Loc.X, aLoc.Loc.Y, aUnitType, placeTo, aRequiredWalkConnect);
+
+    var placeFound := gHands.FindPlaceForUnit(aLoc.Loc.X, aLoc.Loc.Y, aUnitType, placeTo, aRequiredWalkConnect);
+    if not placeFound then
+    begin
+      gLog.AddTime('Unable to find a place for a unit around ' + KM_Points.TypeToString(aLoc.Loc));
+      Exit(nil);
+    end;
   end
   else
     placeTo := aLoc.Loc;
 
-  //Check if Pos is within map coords first, as other checks rely on this
+  // Check if Pos is within map coords first, as other checks rely on this
   if not gTerrain.TileInMapCoords(placeTo.X, placeTo.Y) then
   begin
     gLog.AddTime('Unable to add unit to ' + KM_Points.TypeToString(placeTo));
