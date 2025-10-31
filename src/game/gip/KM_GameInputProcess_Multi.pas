@@ -150,7 +150,7 @@ begin
   SaveStream.Write(fCount);
   for I := 1 to fCount do
   begin
-    //gLog.AddTime(Format('%s', [GetEnumName(TypeInfo(TGameInputCommandType), Integer(fItems[I].CommandType))]));
+    //gLog.AddTime('Saving "%s"', [GetEnumName(TypeInfo(TGameInputCommandType), Integer(fItems[I].CommandType))]);
     SaveCommandToMemoryStream(fItems[I], SaveStream);
   end;
 end;
@@ -247,8 +247,7 @@ begin
     fCommandIssued[tick] := True;
   end;
   fSchedule[tick, gNetworking.MySlotIndex].Add(aCommand);
-//  gLog.AddTime(Format('Scheduled cmd Tick: %d, CMD_TYPE = %s',
-//                      [Tick, GetEnumName(TypeInfo(TKMGameInputCommandType), Integer(aCommand.CommandType))]));
+//  gLog.AddTime('Scheduled cmd Tick: %d, CMD_TYPE = %s', [Tick, GetEnumName(TypeInfo(TKMGameInputCommandType), Integer(aCommand.CommandType))]);
 end;
 
 
@@ -361,7 +360,7 @@ begin
   aStream.Read(dataType, 1); //Decode header
   aStream.Read(tick); //Target tick
 
-//  gLog.AddTime(Format('Received commands for Tick %d', [Tick]));
+//  gLog.AddTime('Received commands for Tick %d', [Tick]);
 
   case dataType of
     kdpCommands:
@@ -507,7 +506,7 @@ begin
 
       fLastSentCmdsTick := I;
       SendCommands(I);
-//      gLog.AddTime(Format('fDelay = %d; Send Commands for Tick = %d', [fDelay, I]));
+//      gLog.AddTime('fDelay = %d; Send Commands for Tick = %d', [fDelay, I]);
       fSent[I mod MAX_SCHEDULE] := True;
       fRecievedData[I mod MAX_SCHEDULE, gNetworking.MySlotIndex] := True; //Recieved commands from self
     end;

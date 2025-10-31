@@ -1126,7 +1126,7 @@ var
   {$ENDIF}
 begin
   gLog.AddTime('Replay failed a consistency check at tick ' + IntToStr(fParams.Tick));
-  gLog.AddTime(Format('MyRand = %d, seed: %d; but command: %s', [aMyRand, GetKaMSeed, fGameInputProcess.StoredGIPCommandToString(aCommand)]));
+  gLog.AddTime('MyRand = %d, seed: %d; but command: %s', [aMyRand, GetKaMSeed, fGameInputProcess.StoredGIPCommandToString(aCommand)]);
 
   {$IFDEF RNG_SPY}
   if gLog.CanLogRandomChecks() then
@@ -2260,7 +2260,7 @@ begin
   // We have to wait until basesave is made before first game save
   fBaseSaveWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
 
-  gLog.AddTime(Format('Saving game at tick %d to ''%s''', [fParams.Tick, aPathName]));
+  gLog.AddTime('Saving game at tick %d to "%s"', [fParams.Tick, aPathName]);
 
   Assert(not fParams.IsMapEditor and (ALLOW_SAVE_IN_REPLAY or not fParams.IsReplay), 'Saving from wrong state');
 
@@ -2785,17 +2785,14 @@ begin
   gHands.SyncLoad;
 
   for I := 0 to gHands.Count - 1 do
-    try
-      gHands[I].OverlayText := TextMission.ParseTextMarkup(UnicodeString(gHands[I].OverlayMarkup), gHands[I].OverlayParams.ToVarRecArray);
-    except
-      // Format may throw an exception
-      on E: EConvertError do
-        gLog.AddTime(Format('EConvert Error while loading overlay for hand %d, '
-                        + 'OverlayMarkup = ''%s'', OverlayParams.Count = %d; ErrorMsg: %s',
-                      [I, gHands[I].OverlayMarkup, gHands[I].OverlayParams.Count, E.Message]));
-    end;
-
-
+  try
+    gHands[I].OverlayText := TextMission.ParseTextMarkup(UnicodeString(gHands[I].OverlayMarkup), gHands[I].OverlayParams.ToVarRecArray);
+  except
+    // Format may throw an exception
+    on E: EConvertError do
+      gLog.AddTime('EConvert Error while loading overlay for hand %d, OverlayMarkup = "%s", OverlayParams.Count = %d; ErrorMsg: "%s"',
+        [I, gHands[I].OverlayMarkup, gHands[I].OverlayParams.Count, E.Message]);
+  end;
 
   gTerrain.SyncLoad;
   gProjectiles.SyncLoad;
@@ -2937,8 +2934,7 @@ begin
   else
     gicType := gicGameAutoSave;
 
-  gLog.AddTime(Format('Issue %s command at tick %d', [GetEnumName(TypeInfo(TKMGameInputCommandType), Integer(gicType)),
-                                                      fParams.Tick]));
+  gLog.AddTime('Issue %s command at tick %d', [GetEnumName(TypeInfo(TKMGameInputCommandType), Integer(gicType)), fParams.Tick]);
 
   if fParams.IsMultiPlayerOrSpec then
   begin

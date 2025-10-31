@@ -151,17 +151,16 @@ begin
   if gLog <> nil then
   begin
     if gGameApp <> nil then
-      gLog.AddTime(Format('UI at crash time: MainPanel sizes: %s, cursor pos: %s, viewport: %s,' + sLineBreak +
-                          'CtrlDown = %s' + sLineBreak +
-                          'CtrlOver = %s' + sLineBreak +
-                          'CtrlUp = %s' + sLineBreak + 'CtrlFocus = %s',
-                          [gGameApp.ActiveInterface.GetMainPanelSize.ToString,
-                           viewportStr,
-                           gCursor.Pixel.ToString,
-                           gGameApp.ActiveInterface.MyControls.CtrlDown.ToStr,
-                           gGameApp.ActiveInterface.MyControls.CtrlOver.ToStr,
-                           gGameApp.ActiveInterface.MyControls.CtrlUp.ToStr,
-                           gGameApp.ActiveInterface.MyControls.CtrlFocus.ToStr]));
+      gLog.AddTime('UI at crash time: MainPanel sizes: %s, cursor pos: %s, viewport: %s,' + sLineBreak +
+                   'CtrlDown = %s' + sLineBreak +
+                   'CtrlOver = %s' + sLineBreak +
+                   'CtrlUp = %s' + sLineBreak +
+                   'CtrlFocus = %s',
+                   [gGameApp.ActiveInterface.GetMainPanelSize.ToString, viewportStr, gCursor.Pixel.ToString,
+                    gGameApp.ActiveInterface.MyControls.CtrlDown.ToStr,
+                    gGameApp.ActiveInterface.MyControls.CtrlOver.ToStr,
+                    gGameApp.ActiveInterface.MyControls.CtrlUp.ToStr,
+                    gGameApp.ActiveInterface.MyControls.CtrlFocus.ToStr]);
 
     AttachFile(gLog.LogPath);
   end;

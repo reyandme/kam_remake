@@ -172,7 +172,7 @@ begin
       LoadGameInfoData;
     except
       on E: Exception do
-        gLog.AddTime(Format('Error while loading game info from save of unsupported version %s', [Version])); //silently log error
+        gLog.AddTime('Error while loading game info from save of unsupported version "%s"', [Version]); //silently log error
     end;
   end
   else
