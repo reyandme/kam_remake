@@ -213,7 +213,7 @@ begin
   // Append data packet to the end of cumulative packet
   Move(aData^, fQueuedPackets[fQueuedPacketsSize], aLength);
   Inc(fQueuedPacketsSize, aLength);
-  //gLog.AddTime(Format('*** add queued packet: length = %d Cnt = %d totalSize = %d', [aLength, fQueuedPacketsCnt, fQueuedPacketsSize]));
+  //gLog.AddTime('*** add queued packet: length = %d Cnt = %d totalSize = %d', [aLength, fQueuedPacketsCnt, fQueuedPacketsSize]);
 end;
 
 
@@ -411,7 +411,7 @@ begin
     M.Write(fClientList[I].Handle);
     M.Write(fClientList[I].Ping);
     M.Write(fClientList[I].FPS);
-    //gLog.AddTime(Format('Client %d measured ping = %d FPS = %d', [fClientList[I].Handle, fClientList[I].Ping, fClientList[I].FPS]));
+    //gLog.AddTime('Client %d measured ping = %d FPS = %d', [fClientList[I].Handle, fClientList[I].Ping, fClientList[I].FPS]);
   end;
   PacketSend(NET_ADDRESS_ALL, mkPingFpsInfo, M);
   M.Free;
@@ -802,7 +802,7 @@ begin
   if (senderClient.fQueuedPacketsSize + aLength > MAX_CUMULATIVE_PACKET_SIZE)
     or (senderClient.fQueuedPacketsCnt = 255) then //Max number of packets = 255 (we use 1 byte for that)
   begin
-    //gLog.AddTime(Format('@@@ FLUSH fQueuedPacketsSize + aLength = %d > %d', [SenderClient.fQueuedPacketsSize + aLength, MAX_CUMULATIVE_PACKET_SIZE]));
+    //gLog.AddTime('@@@ FLUSH fQueuedPacketsSize + aLength = %d > %d', [SenderClient.fQueuedPacketsSize + aLength, MAX_CUMULATIVE_PACKET_SIZE]);
     SendDataPerform(senderClient);
   end;
 
@@ -1025,8 +1025,7 @@ begin
     if packetSender = aHandle then
     begin
 //      Kind := GetMessKind(PacketSender, @SenderClient.fBuffer[6], PacketLength);
-//      gLog.AddTime(Format('Got msg %s from %d to %d',
-//                          [GetEnumName(TypeInfo(TKMNetMessageKind), Integer(Kind)), PacketSender, PacketRecipient]));
+//      gLog.AddTime('Got msg %s from %d to %d', [GetEnumName(TypeInfo(TKMNetMessageKind), Integer(Kind)), PacketSender, PacketRecipient]);
       case packetRecipient of
         NET_ADDRESS_OTHERS: //Transmit to all except sender
                 //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)

@@ -1058,7 +1058,7 @@ begin
           Inc(newAnimIDlastAdded);
           newAnimID := newAnimIDlastAdded;
           oldToNewAnims.Add(oldAnimID, newAnimID);
-//          gLog.AddTime(Format('%d -> %d', [oldAnimID, newAnimID]));
+//          gLog.AddTime('%d -> %d', [oldAnimID, newAnimID]);
 
           KMCopyFile(dir + Format('7_%4d.png', [oldAnimID]), newDir + Format('7_%4d.png', [newAnimID]), True);
         end;

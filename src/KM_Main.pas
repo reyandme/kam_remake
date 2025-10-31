@@ -641,8 +641,8 @@ begin
 
   dirWritable := IsDirectoryWriteable(ExeDir);
 
-  gLog.AddTime(Format('Checking game folder "%s" generic permissions: READ: %s; WRITE: %s; EXECUTE: %s; folder is writable: %s',
-                      [ExeDir, GRANTED[readAcc], GRANTED[writeAcc], GRANTED[execAcc], BoolToStr(dirWritable, True)]));
+  gLog.AddTime('Checking game folder "%s" generic permissions: READ: %s; WRITE: %s; EXECUTE: %s; folder is writable: %s',
+               [ExeDir, GRANTED[readAcc], GRANTED[writeAcc], GRANTED[execAcc], BoolToStr(dirWritable, True)]);
 
   Result := dirWritable and readAcc and writeAcc and execAcc;
 end;

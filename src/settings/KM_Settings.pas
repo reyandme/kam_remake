@@ -86,9 +86,9 @@ var
   path: string;
 begin
   path := GetPath;
-  gLog.AddTime(Format('Start loading ''%s'' from ''%s''', [GetSettingsName, path]));
+  gLog.AddTime('Start loading "%s" from "%s"', [GetSettingsName, path]);
   LoadFromFile(path);
-  gLog.AddTime(Format('''%s'' was successfully loaded from ''%s''', [GetSettingsName, path]));
+  gLog.AddTime('"%s" was successfully loaded from "%s"', [GetSettingsName, path]);
 end;
 
 
@@ -99,7 +99,7 @@ begin
   saveFolder := GetDirectory;
   ForceDirectories(saveFolder);
   path := saveFolder + GetDefaultSettingsName;
-  gLog.AddTime(Format('Start saving ''%s'' to ''%s''', [GetSettingsName, path]));
+  gLog.AddTime('Start saving "%s" to "%s"', [GetSettingsName, path]);
   {$IFNDEF RELEASE_MAJOR}
   // Debug output of the current stacktrace.
   // We want to catch odd bug, when 'Start saving server settings' is called twice one after another
@@ -112,7 +112,7 @@ begin
   if not TryExecuteMethod(SaveToFile, path, 'SaveToFile', errorStr) then
     raise Exception.Create('Can''t save settings to file ''' + path + ''': ' + errorStr);
 
-  gLog.AddTime(Format('''%s'' was successfully saved to ''%s''', [GetSettingsName, path]));
+  gLog.AddTime('"%s" was successfully saved to "%s"', [GetSettingsName, path]);
 end;
 
 

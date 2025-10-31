@@ -240,8 +240,7 @@ begin
       //We skip PacketRecipient because thats us
       packetLength := PWord(@fBuffer[5])^;
 
-      //gLog.AddTime(Format('pack %d: sender = %s length = %d' , [PacksCnt - PNativeUInt(@fBuffer[0])^ + 1,
-//                                                    GetNetAddressStr(PacketSender), PacketLength]));
+      //gLog.AddTime('pack %d: sender = %s length = %d' , [PacksCnt - PNativeUInt(@fBuffer[0])^ + 1, GetNetAddressStr(PacketSender), PacketLength]);
       //Buffer is lengthy enough to contain full packet, process it
       if packetLength <= fBufferSize - 7 then
       begin
@@ -262,7 +261,7 @@ begin
         PByte(@fBuffer[0])^ := PByte(@fBuffer[0])^ - 1;
       end else
       begin
-        //gLog.AddTime(Format('---xxx break: PacketLength = %d < %d = BufferSize-16', [PacketLength, fBufferSize-16]));
+        //gLog.AddTime('---xxx break: PacketLength = %d < %d = BufferSize-16', [PacketLength, fBufferSize-16]);
         Break;
       end;
     end;

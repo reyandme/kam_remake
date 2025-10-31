@@ -394,7 +394,7 @@ end;
 //Send message that we have deliberately disconnected
 procedure TKMNetworking.AnnounceDisconnect(aLastSentCmdsTick: Cardinal = LAST_SENT_COMMANDS_TICK_NONE);
 begin
-//  gLog.AddTime(Format('AnnounceDisconnect. LastSentCmdsTick = %d', [aLastSentCmdsTick]));
+//  gLog.AddTime('AnnounceDisconnect. LastSentCmdsTick = %d', [aLastSentCmdsTick]);
   // Tell everyone when we quit
   //@Rey: It should not make a big difference, but in here we send Cardinal, yet when we handle it we treat it as Integer
   PacketSendC(NET_ADDRESS_OTHERS, mkDisconnect, aLastSentCmdsTick); //Send our last sent commands tick
@@ -1424,11 +1424,8 @@ var
   slotIndex: Integer;
 begin
   slotIndex := fNetRoom.ServerToLocal(aSenderIndex);
-  gLog.AddTime(Format('PlayerDisconnected [netPlayer %d [%s] HandID %d]. LastSentCommandsTick = %d',
-                      [slotIndex,
-                       fNetRoom[slotIndex].Nickname,
-                       fNetRoom[slotIndex].HandIndex,
-                       aLastSentCommandsTick]));
+  gLog.AddTime('PlayerDisconnected [netPlayer %d [%s] HandID %d]. LastSentCommandsTick = %d',
+               [slotIndex, fNetRoom[slotIndex].Nickname, fNetRoom[slotIndex].HandIndex, aLastSentCommandsTick]);
   case fNetPlayerKind of
     lpkHost:   begin
                   fFileSenderManager.ClientDisconnected(aSenderIndex);
@@ -2039,19 +2036,19 @@ begin
               FreeAndNil(fSaveInfo);
               fSaveInfo := TKMSaveInfo.Create(tmpStringW, True);
 
-              gLog.AddTime(Format('mk_SaveSelect: fSaveInfo.CRC = %d, tmpCRC = %d', [fSaveInfo.CRC, tmpCardinal]));
+              gLog.AddTime('mk_SaveSelect: fSaveInfo.CRC = %d, tmpCRC = %d', [fSaveInfo.CRC, tmpCardinal]);
               if not fSaveInfo.IsValid or (fSaveInfo.CRC <> tmpCardinal) then
               begin
                 if fReturnedToLobby and (tmpStringW = RETURN_TO_LOBBY_SAVE) then
                 begin
                   //Host paused file doesn't match ours, host may be cheating!
                   PostLocalMessage(gResTexts[TX_PAUSED_FILE_MISMATCH], csSystem);
-                  gLog.AddTime(Format('Save error: %s. Check params: fSaveInfo.IsValid = %s; (fSaveInfo.CRC <> tmpCRC) = ;' +
-                                      ' Save FileExists %s: %s; fSaveError = %s; fInfo.IsValid(True) = %s',
-                                      [gResTexts[TX_PAUSED_FILE_MISMATCH], BoolToStr(fSaveInfo.IsValid),
-                                       BoolToStr(fSaveInfo.CRC <> tmpCardinal), fSaveInfo.Path + fSaveInfo.FileName + EXT_SAVE_MAIN_DOT,
-                                       BoolToStr(FileExists(fSaveInfo.Path + fSaveInfo.FileName + EXT_SAVE_MAIN_DOT)),
-                                       fSaveInfo.SaveError.ErrorString, fSaveInfo.GameInfo.IsValid(True)]));
+                  gLog.AddTime('Save error: %s. Check params: fSaveInfo.IsValid = %s; (fSaveInfo.CRC <> tmpCRC) = ;' +
+                               ' Save FileExists %s: %s; fSaveError = %s; fInfo.IsValid(True) = %s',
+                               [gResTexts[TX_PAUSED_FILE_MISMATCH], BoolToStr(fSaveInfo.IsValid),
+                                BoolToStr(fSaveInfo.CRC <> tmpCardinal), fSaveInfo.Path + fSaveInfo.FileName + EXT_SAVE_MAIN_DOT,
+                                BoolToStr(FileExists(fSaveInfo.Path + fSaveInfo.FileName + EXT_SAVE_MAIN_DOT)),
+                                fSaveInfo.SaveError.ErrorString, fSaveInfo.GameInfo.IsValid(True)]);
                   fSelectGameKind := ngkNone;
                   FreeAndNil(fSaveInfo);
                   if Assigned(OnMapName) then OnMapName('');
@@ -2546,8 +2543,8 @@ end;
 
 procedure TKMNetworking.SetGameState(aState: TKMNetGameState; aOnMPInfoChanged: Boolean = True);
 begin
-  gLog.AddTime(Format('SetGameState from %s to %s', [GetEnumName(TypeInfo(TKMNetGameState), Integer(fNetGameState)),
-                                                     GetEnumName(TypeInfo(TKMNetGameState), Integer(aState))]));
+  gLog.AddTime('SetGameState from %s to %s', [GetEnumName(TypeInfo(TKMNetGameState), Integer(fNetGameState)),
+                                              GetEnumName(TypeInfo(TKMNetGameState), Integer(aState))]);
   fNetGameState := aState;
   if aOnMPInfoChanged and (fNetGameState in [lgsLobby,lgsLoading,lgsGame]) and IsHost and (fMyIndexOnServer <> -1) then
     OnMPGameInfoChanged;

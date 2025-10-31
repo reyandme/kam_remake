@@ -1728,7 +1728,7 @@ begin
                    *Integer(High(TKMTileMaskType))*(Integer(High(TKMTileMaskSubType)) + 1);
     SetLength(fGenTerrainToTerKindLegacy, genTilesCntTemp);
     FillChar(fGenTerrainToTerKindLegacy[0], SizeOf(fGenTerrainToTerKindLegacy[0])*GenTilesCntTemp, #0);
-    gLog.AddTime(Format('Legacy: TexId = %d GenTilesCntTemp = %d', [texId, genTilesCntTemp]));
+    gLog.AddTime('Legacy: TexId = %d GenTilesCntTemp = %d', [texId, genTilesCntTemp]);
   end
   else
   begin
@@ -1741,7 +1741,7 @@ begin
     SetLength(fGenTerrainToTerKind, genTilesCnt);
     aSprites.Allocate(texId + genTilesCnt);
     FillChar(fGenTerrainToTerKind[0], SizeOf(fGenTerrainToTerKind[0])*GenTilesCnt, #0);
-    gLog.AddTime(Format('TexId = %d GenTilesCnt = %d', [texId, genTilesCnt]));
+    gLog.AddTime('TexId = %d GenTilesCnt = %d', [texId, genTilesCnt]);
   end;
 
   generatedMasks := TDictionary<Integer, TKMMaskFullType>.Create;
@@ -1819,8 +1819,9 @@ begin
                 fGenTerrainTransitions[TK, MK, MT, MST] := texId - 1; //TexId is 1-based, but textures we use - 0 based
                 fGenTerrainToTerKind[texId - fGenTexIdStartI] := genTerrainInfo;
               
-    //          gLog.AddTime(Format('TerKind: %10s Mask: %10s TexId: %d ', [GetEnumName(TypeInfo(TKMTerrainKind), Integer(I)),
-    //                                                        GetEnumName(TypeInfo(TKMTileMaskType), Integer(J)), TexId]));
+    //          gLog.AddTime('TerKind: %10s Mask: %10s TexId: %d ', [
+    //            GetEnumName(TypeInfo(TKMTerrainKind), Integer(I)),
+    //            GetEnumName(TypeInfo(TKMTileMaskType), Integer(J)), TexId]);
 
     //          fGenTerrainToTerKind.Add(IntToStr(TexId) + '=' + IntToStr(Integer(I)));
                 for L := 0 to aSprites.fRXData.Size[terrainId].Y - 1 do
@@ -1851,14 +1852,14 @@ begin
     if aLegacyGeneration then
     begin
       SetLength(fGenTerrainToTerKindLegacy, texId - fGenTexIdStartILegacy);
-      gLog.AddTime(Format('TexId = %d; TexId - fGenTexIdStartILegacy = %d; uniqueTex = %d; totalTex = %d', [texId, texId - fGenTexIdStartILegacy, uniqueTex, totalTex]));
+      gLog.AddTime('TexId = %d; TexId - fGenTexIdStartILegacy = %d; uniqueTex = %d; totalTex = %d', [texId, texId - fGenTexIdStartILegacy, uniqueTex, totalTex]);
     end
     else
     begin
       // There could be usused place in arrays, as we could use same mask image for different purposes
       aSprites.Allocate(texId);
       SetLength(fGenTerrainToTerKind, texId - fGenTexIdStartI);
-      gLog.AddTime(Format('TexId = %d; TexId - fGenTexIdStartI = %d; uniqueTex = %d; totalTex = %d', [texId, texId - fGenTexIdStartI, uniqueTex, totalTex]));
+      gLog.AddTime('TexId = %d; TexId - fGenTexIdStartI = %d; uniqueTex = %d; totalTex = %d', [texId, texId - fGenTexIdStartI, uniqueTex, totalTex]);
     end;
 
   finally
@@ -2095,10 +2096,10 @@ begin
     and (fGameResLoader <> nil)
     and fGameResLoader.LoadStepDone then
   begin
-    gLog.AddTime(Format('[AsyncGameResLoader MainTh] [%s] GenTextures RT = %s Stage = %s',
+    gLog.AddTime('[AsyncGameResLoader MainTh] [%s] GenTextures RT = %s Stage = %s',
                  [aCallerName,
                   GetEnumName(TypeInfo(TRXType), Integer(fGameResLoader.RXType)),
-                  GetEnumName(TypeInfo(TKMAsyncLoadStage), Integer(fGameResLoader.LoadStage))]));
+                  GetEnumName(TypeInfo(TKMAsyncLoadStage), Integer(fGameResLoader.LoadStage))]);
 
     case fGameResLoader.LoadStage of
       lsLoad:         ;
