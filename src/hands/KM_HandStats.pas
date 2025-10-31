@@ -972,19 +972,6 @@ end;
 
 procedure TKMHandStats.HousesToCSV(aStrings: TStringList);
 var
-  S: string;
-
-  procedure AddField(const aField: string); overload;
-  begin
-    S := S + aField + ';';
-  end;
-
-  procedure AddField(aField: Cardinal); overload;
-  begin
-    S := S + IntToStr(aField) + ';';
-  end;
-
-var
   HT: TKMHouseType;
 begin
   aStrings.Append('Houses stats');
@@ -993,33 +980,12 @@ begin
   for HT := HOUSE_MIN to HOUSE_MAX do
     if HT <> htSiegeWorkshop then
       with Houses[HT] do
-      begin
-        S := '';
-        AddField(gRes.Houses[HT].HouseName);
-        AddField(Planned);
-        AddField(PlanRemoved);
-        AddField(Started);
-        AddField(Ended);
-        AddField(Initial);
-        AddField(Built);
-        AddField(SelfDestruct);
-        AddField(Lost);
-        AddField(Closed);
-        AddField(Destroyed);
-        aStrings.Append(S);
-      end;
+        aStrings.Append(Format('%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;', [gRes.Houses[HT].HouseName,
+          Planned, PlanRemoved, Started, Ended, Initial, Built, SelfDestruct, Lost, Closed, Destroyed]));
 end;
 
 
 procedure TKMHandStats.UnitsToCSV(aStrings: TStringList);
-var
-  S: string;
-
-  procedure AddField(const aField: string); overload;
-  begin S := S + aField + ';'; end;
-  procedure AddField(aField: Cardinal); overload;
-  begin S := S + IntToStr(aField) + ';'; end;
-
 var
   UT: TKMUnitType;
 begin
@@ -1028,29 +994,11 @@ begin
 
   for UT := HUMANS_MIN to HUMANS_MAX do
     with Units[UT] do
-    begin
-      S := '';
-      AddField(gRes.Units[UT].GUIName);
-      AddField(Initial);
-      AddField(Training);
-      AddField(Dismissing);
-      AddField(Trained);
-      AddField(Lost);
-      AddField(Killed);
-      aStrings.Append(S);
-    end;
+      aStrings.Append(Format('%s;%d;%d;%d;%d;%d;%d;', [gRes.Units[UT].GUIName, Initial, Training, Dismissing, Trained, Lost, Killed]));
 end;
 
 
 procedure TKMHandStats.WaresToCSV(aStrings: TStringList);
-var
-  S: string;
-
-  procedure AddField(const aField: string); overload;
-  begin S := S + aField + ';'; end;
-  procedure AddField(aField: Cardinal); overload;
-  begin S := S + IntToStr(aField) + ';'; end;
-
 var
   WT: TKMWareType;
 begin
@@ -1059,14 +1007,7 @@ begin
 
   for WT := WARE_MIN to WARE_MAX do
     with Wares[WT] do
-    begin
-      S := '';
-      AddField(gRes.Wares[WT].Title);
-      AddField(Initial);
-      AddField(Produced);
-      AddField(Consumed);
-      aStrings.Append(S);
-    end;
+      aStrings.Append(Format('%s;%d;%d;%d;', [gRes.Wares[WT].Title, Initial, Produced, Consumed]));
 end;
 
 
