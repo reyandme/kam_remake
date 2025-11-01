@@ -15,7 +15,8 @@ const
   );
 
 type
-  TKMMethod = class(TObject)
+  // Borrowed from Scripting Editor?
+  TKMMethod = class
   public
     MethodType:     TSEMethodType;
     Params:         TKMParamList;
@@ -30,25 +31,26 @@ type
     procedure FromXML(const aNode: TXmlNode);
   end;
 
-  TKMMethodList = class(TObjectList<TKMMethod>)
-  public
-    IsEventList: Boolean;
-    constructor Create(aOwnsObjects: Boolean = True); overload;
-    function NewItem: TKMMethod;
-    function IndexByName(const aMethodName: string): Integer; virtual;
-    procedure SaveToFile(const aFileName: string);
-    procedure LoadFromFile(const aFileName: string);
-    function GenerateMethodInsertNames: TStringList;
-    function GenerateMethodItemList: TStringList;
-    function GenerateParameterInsertList: TStringList;
-    function GenerateParameterLookupList: TStringList;
-  end;
+//  TKMMethodList = class(TObjectList<TKMMethod>)
+//  public
+//    IsEventList: Boolean;
+//    constructor Create(aOwnsObjects: Boolean = True); overload;
+//    function NewItem: TKMMethod;
+//    function IndexByName(const aMethodName: string): Integer; virtual;
+//    procedure SaveToFile(const aFileName: string);
+//    procedure LoadFromFile(const aFileName: string);
+//    function GenerateMethodInsertNames: TStringList;
+//    function GenerateMethodItemList: TStringList;
+//    function GenerateParameterInsertList: TStringList;
+//    function GenerateParameterLookupList: TStringList;
+//  end;
 
 implementation
 uses
   SysUtils;
 
-{ TSEMethod }
+
+{ TKMMethod }
 class function TKMMethod.MethodTypeToStr(aType: TSEMethodType): string;
 begin
   case aType of
@@ -57,6 +59,7 @@ begin
     else         raise Exception.Create('Unknown value for TFuncType');
   end;
 end;
+
 
 class function TKMMethod.StrToMethodType(const aValue: string): TSEMethodType;
 var
@@ -68,6 +71,7 @@ begin
     if MethodTypeName[I] = aValue then
       Exit(I);
 end;
+
 
 class function TKMMethod.ParseMethodStr(const aValue: string): TKMMethod;
 var
@@ -215,17 +219,20 @@ begin
   FreeAndNil(parseList);
 end;
 
+
 constructor TKMMethod.Create;
 begin
   inherited;
   Params := TKMParamList.Create;
 end;
 
+
 destructor TKMMethod.Destroy;
 begin
   FreeAndNil(Params);
   inherited;
 end;
+
 
 procedure TKMMethod.AppendToXML(const aParent: TXmlNode);
 var
@@ -254,6 +261,7 @@ begin
   end;
 end;
 
+
 procedure TKMMethod.FromXML(const aNode: TXmlNode);
 var
   paramParent,
@@ -277,199 +285,209 @@ begin
   end;
 end;
 
-{ TSEMethodList }
-constructor TKMMethodList.Create(aOwnsObjects: Boolean = True);
-begin
-  Inherited Create(aOwnsObjects);
-  IsEventList := False;
-end;
 
-function TKMMethodList.NewItem: TKMMethod;
-begin
-  Result := TKMMethod.Create;
-  Add(Result);
-end;
+//{ TKMMethodList }
+//constructor TKMMethodList.Create(aOwnsObjects: Boolean = True);
+//begin
+//  Inherited Create(aOwnsObjects);
+//  IsEventList := False;
+//end;
+//
+//
+//function TKMMethodList.NewItem: TKMMethod;
+//begin
+//  Result := TKMMethod.Create;
+//  Add(Result);
+//end;
+//
+//
+//function TKMMethodList.IndexByName(const aMethodName: string): Integer;
+//var
+//  I: Integer;
+//begin
+//  Result := -1;
+//
+//  for I := 0 to Count - 1 do
+//    if Items[I].MethodName = aMethodName then
+//      Exit(I);
+//end;
+//
+//
+//procedure TKMMethodList.SaveToFile(const aFileName: string);
+//var
+//  xml: TXmlVerySimple;
+//  I:   integer;
+//begin
+//  xml := TXmlVerySimple.Create;
+//  xml.Root.NodeName := 'SEMethodDict';
+//
+//  for I := 0 to Count - 1 do
+//    Items[I].AppendToXML(xml.Root);
+//
+//  xml.SaveToFile(aFileName);
+//end;
+//
+//
+//procedure TKMMethodList.LoadFromFile(const aFileName: string);
+//var
+//  xml:  TXmlVerySimple;
+//  item: TKMMethod;
+//  I:    Integer;
+//begin
+//  if not FileExists(aFileName) then
+//    Exit;
+//
+//  xml := TXmlVerySimple.Create;
+//  xml.LoadFromFile(aFileName);
+//
+//  for I := 0 to xml.Root.ChildNodes.Count - 1 do
+//  begin
+//    item := NewItem;
+//    item.FromXML(xml.Root.ChildNodes[I]);
+//  end;
+//end;
+//
+//
+//function TKMMethodList.GenerateMethodInsertNames: TStringList;
+//const
+//  EOL              = #13#10;
+//  DEOL             = #13#10#13#10;
+//  BEGIN_END_CLAUSE = EOL + 'begin' + DEOL + 'end;'  + EOL;
+//var
+//  I, J: Integer;
+//  s, p: string;
+//begin
+//  Result := TStringList.Create;
+//
+//  for I := 0 to Count - 1 do
+//  begin
+//    if IsEventList then
+//    begin
+//      s := TKMMethod.MethodTypeToStr(Items[I].MethodType) + ' ' + Items[I].MethodName;
+//
+//      if Items[I].Params.Count > 0 then
+//      begin
+//        p := '';
+//        s := s + '(';
+//
+//        for J := 0 to Items[I].Params.Count - 1 do
+//        begin
+//          case Items[I].Params.Items[J].Flag of
+//            pfVar, pfConst: p := p    + TKMParam.ParamFlagToStr(Items[I].Params.Items[J].Flag) +
+//                                 ' '  + Items[I].Params.Items[J].ParamName +
+//                                 ': ' + Items[I].Params.Items[J].ParamType;
+//            pfOptional:     p := p     + TKMParam.ParamFlagToStr(Items[I].Params.Items[J].Flag) +
+//                                 ' '   + Items[I].Params.Items[J].ParamName +
+//                                 ': '  + Items[I].Params.Items[J].ParamType +
+//                                 ' = ' + Items[I].Params.Items[J].DefaultValue;
+//            pfNone:         p := p     + Items[I].Params.Items[J].ParamName +
+//                                 ': '  + Items[I].Params.Items[J].ParamType;
+//          end;
+//
+//          if J < Items[I].Params.Count - 1 then
+//            p := p + '; ';
+//        end;
+//
+//        s := s + p + ')';
+//      end;
+//
+//      Result.Add(s + ';' + BEGIN_END_CLAUSE);
+//    end else
+//    begin
+//      if Items[I].Params.Count > 0 then
+//        Result.Add(Items[I].MethodName + '(')
+//      else
+//        Result.Add(Items[I].MethodName + ';');
+//    end;
+//  end;
+//
+//  Result.Add('');
+//end;
+//
+//
+//function TKMMethodList.GenerateMethodItemList: TStringList;
+//var
+//  I, J: Integer;
+//  s, p: string;
+//begin
+//  Result := TStringList.Create;
+//
+//  for I := 0 to Count - 1 do
+//  begin
+//    p := '';
+//    s := TKMMethod.MethodTypeToStr(Items[I].MethodType) + ' \column{}' +
+//         Items[I].MethodName;
+//
+//    if Items[I].Params.Count > 0 then
+//    begin
+//      s := s + '(';
+//
+//      for J := 0 to Items[I].Params.Count - 1 do
+//      begin
+//        case Items[I].Params.Items[J].Flag of
+//          pfVar, pfConst: p := p    + TKMParam.ParamFlagToStr(Items[I].Params.Items[J].Flag) +
+//                               ' '  + Items[I].Params.Items[J].ParamName +
+//                               ': ' + Items[I].Params.Items[J].ParamType;
+//          pfOptional:     p := p     + TKMParam.ParamFlagToStr(Items[I].Params.Items[J].Flag) +
+//                               ' '   + Items[I].Params.Items[J].ParamName +
+//                               ': '  + Items[I].Params.Items[J].ParamType +
+//                               ' = ' + Items[I].Params.Items[J].DefaultValue;
+//          pfNone:         p := p     + Items[I].Params.Items[J].ParamName +
+//                               ': '  + Items[I].Params.Items[J].ParamType;
+//        end;
+//
+//        if J < Items[I].Params.Count - 1 then
+//          p := p + '; ';
+//      end;
+//
+//      s := s + p + ')';
+//    end;
+//
+//    case Items[I].MethodType of
+//      ftFunction:  s := s + ': ' + Items[I].ResultType + ';';
+//      ftProcedure: s := s + ';';
+//    end;
+//
+//    Result.Add(S);
+//  end;
+//
+//  Result.Add('');
+//end;
+//
+//
+//function TKMMethodList.GenerateParameterInsertList: TStringList;
+//var
+//  I, J: Integer;
+//  s:    string;
+//begin
+//  Result := TStringList.Create;
+//
+//  for I := 0 to Count - 1 do
+//  begin
+//    s := '';
+//
+//    for J := 0 to Items[I].Params.Count - 1 do
+//    begin
+//      s := s + '"' + Items[I].Params[J].ParamName + ': ' + Items[I].Params[J].ParamType + '"';
+//
+//      if J <> Items[I].Params.Count - 1 then
+//        s := s + ', ';
+//    end;
+//
+//    Result.Add(S);
+//  end;
+//end;
+//
+//
+//function TKMMethodList.GenerateParameterLookupList: TStringList;
+//var
+//  I: Integer;
+//begin
+//  Result := TStringList.Create;
+//
+//  for I := 0 to Count - 1 do
+//    Result.Add(UpperCase(Items[i].MethodName));
+//end;
 
-function TKMMethodList.IndexByName(const aMethodName: string): Integer;
-var
-  I: Integer;
-begin
-  Result := -1;
-
-  for I := 0 to Count - 1 do
-    if Items[I].MethodName = aMethodName then
-      Exit(I);
-end;
-
-procedure TKMMethodList.SaveToFile(const aFileName: string);
-var
-  xml: TXmlVerySimple;
-  I:   integer;
-begin
-  xml := TXmlVerySimple.Create;
-  xml.Root.NodeName := 'SEMethodDict';
-
-  for I := 0 to Count - 1 do
-    Items[I].AppendToXML(xml.Root);
-
-  xml.SaveToFile(aFileName);
-end;
-
-procedure TKMMethodList.LoadFromFile(const aFileName: string);
-var
-  xml:  TXmlVerySimple;
-  item: TKMMethod;
-  I:    Integer;
-begin
-  if not FileExists(aFileName) then
-    Exit;
-
-  xml := TXmlVerySimple.Create;
-  xml.LoadFromFile(aFileName);
-
-  for I := 0 to xml.Root.ChildNodes.Count - 1 do
-  begin
-    item := NewItem;
-    item.FromXML(xml.Root.ChildNodes[I]);
-  end;
-end;
-
-function TKMMethodList.GenerateMethodInsertNames: TStringList;
-const
-  EOL              = #13#10;
-  DEOL             = #13#10#13#10;
-  BEGIN_END_CLAUSE = EOL + 'begin' + DEOL + 'end;'  + EOL;
-var
-  I, J: Integer;
-  s, p: string;
-begin
-  Result := TStringList.Create;
-
-  for I := 0 to Count - 1 do
-  begin
-    if IsEventList then
-    begin
-      s := TKMMethod.MethodTypeToStr(Items[I].MethodType) + ' ' + Items[I].MethodName;
-
-      if Items[I].Params.Count > 0 then
-      begin
-        p := '';
-        s := s + '(';
-
-        for J := 0 to Items[I].Params.Count - 1 do
-        begin
-          case Items[I].Params.Items[J].Flag of
-            pfVar, pfConst: p := p    + TKMParam.ParamFlagToStr(Items[I].Params.Items[J].Flag) +
-                                 ' '  + Items[I].Params.Items[J].ParamName +
-                                 ': ' + Items[I].Params.Items[J].ParamType;
-            pfOptional:     p := p     + TKMParam.ParamFlagToStr(Items[I].Params.Items[J].Flag) +
-                                 ' '   + Items[I].Params.Items[J].ParamName +
-                                 ': '  + Items[I].Params.Items[J].ParamType +
-                                 ' = ' + Items[I].Params.Items[J].DefaultValue;
-            pfNone:         p := p     + Items[I].Params.Items[J].ParamName +
-                                 ': '  + Items[I].Params.Items[J].ParamType;
-          end;
-
-          if J < Items[I].Params.Count - 1 then
-            p := p + '; ';
-        end;
-
-        s := s + p + ')';
-      end;
-
-      Result.Add(s + ';' + BEGIN_END_CLAUSE);
-    end else
-    begin
-      if Items[I].Params.Count > 0 then
-        Result.Add(Items[I].MethodName + '(')
-      else
-        Result.Add(Items[I].MethodName + ';');
-    end;
-  end;
-
-  Result.Add('');
-end;
-
-function TKMMethodList.GenerateMethodItemList: TStringList;
-var
-  I, J: Integer;
-  s, p: string;
-begin
-  Result := TStringList.Create;
-
-  for I := 0 to Count - 1 do
-  begin
-    p := '';
-    s := TKMMethod.MethodTypeToStr(Items[I].MethodType) + ' \column{}' +
-         Items[I].MethodName;
-
-    if Items[I].Params.Count > 0 then
-    begin
-      s := s + '(';
-
-      for J := 0 to Items[I].Params.Count - 1 do
-      begin
-        case Items[I].Params.Items[J].Flag of
-          pfVar, pfConst: p := p    + TKMParam.ParamFlagToStr(Items[I].Params.Items[J].Flag) +
-                               ' '  + Items[I].Params.Items[J].ParamName +
-                               ': ' + Items[I].Params.Items[J].ParamType;
-          pfOptional:     p := p     + TKMParam.ParamFlagToStr(Items[I].Params.Items[J].Flag) +
-                               ' '   + Items[I].Params.Items[J].ParamName +
-                               ': '  + Items[I].Params.Items[J].ParamType +
-                               ' = ' + Items[I].Params.Items[J].DefaultValue;
-          pfNone:         p := p     + Items[I].Params.Items[J].ParamName +
-                               ': '  + Items[I].Params.Items[J].ParamType;
-        end;
-
-        if J < Items[I].Params.Count - 1 then
-          p := p + '; ';
-      end;
-
-      s := s + p + ')';
-    end;
-
-    case Items[I].MethodType of
-      ftFunction:  s := s + ': ' + Items[I].ResultType + ';';
-      ftProcedure: s := s + ';';
-    end;
-
-    Result.Add(S);
-  end;
-
-  Result.Add('');
-end;
-
-function TKMMethodList.GenerateParameterInsertList: TStringList;
-var
-  I, J: Integer;
-  s:    string;
-begin
-  Result := TStringList.Create;
-
-  for I := 0 to Count - 1 do
-  begin
-    s := '';
-
-    for J := 0 to Items[I].Params.Count - 1 do
-    begin
-      s := s + '"' + Items[I].Params[J].ParamName + ': ' + Items[I].Params[J].ParamType + '"';
-
-      if J <> Items[I].Params.Count - 1 then
-        s := s + ', ';
-    end;
-
-    Result.Add(S);
-  end;
-end;
-
-function TKMMethodList.GenerateParameterLookupList: TStringList;
-var
-  I: Integer;
-begin
-  Result := TStringList.Create;
-
-  for I := 0 to Count - 1 do
-    Result.Add(UpperCase(Items[i].MethodName));
-end;
 
 end.
