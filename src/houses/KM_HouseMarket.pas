@@ -137,10 +137,10 @@ var
 begin
   if (fResFrom <> wtNone) and (fResTo <> wtNone) then
   begin
-    // Trunk and Timber -> GoldOre have hardcoded ratio = 3
+    // Trunk -> GoldOre has hardcoded ratio = 3
     // Comment by @vovets, justifying the change:
     // Extremely profitable trade of a primary resource which allows building too effective economies with too short production chains
-    if (fResFrom in [wtTrunk, wtTimber]) and (fResTo = wtGoldOre) then
+    if (fResFrom in [wtTrunk]) and (fResTo = wtGoldOre) then
       Result := 3
     else
     begin
