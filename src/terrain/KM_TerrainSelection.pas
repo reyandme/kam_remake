@@ -729,15 +729,13 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
     end;
 
   const
-    CORNERS_REVERSED = [15,21,142,234,235,238];
+    CORNERS_REVERSED: TArray<integer> = [15,21,142,234,235,238,300];
 
   var
     L: Integer;
     ter: Word;
     rot: Byte;
-    cornersReversed: TArray<integer>;
   begin
-    cornersReversed := [15,21,142,234,235,238,300];
     if ptTerrain in fPasteTypes then
     begin
       ter := gTerrain.Land^[Y,X].BaseLayer.Terrain;
@@ -752,7 +750,7 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
       //Corners
       if gRes.Tileset.TileIsCorner(ter) then
       begin
-        if (rot in [1,3]) xor  TArray.Contains<Integer>(cornersReversed, ter) xor (aAxis = faVertical) then
+        if (rot in [1,3]) xor  TArray.Contains<Integer>(CORNERS_REVERSED, ter) xor (aAxis = faVertical) then
           gTerrain.Land^[Y,X].BaseLayer.Rotation := (rot+1) mod 4
         else
           gTerrain.Land^[Y,X].BaseLayer.Rotation := (rot+3) mod 4;
