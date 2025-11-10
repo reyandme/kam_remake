@@ -24,6 +24,7 @@ Game:
  + New dynamic script actions added
  + Fixed crashreport dialogs hiding behind loading form
  + Added missing argument to game folder permission checker log message
+ + Fixed map flip for lava tiles in map editor.
 
 Maps:
  + Added The Fall of House Fennford by Strangelove
