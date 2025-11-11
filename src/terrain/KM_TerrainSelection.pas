@@ -2,12 +2,12 @@ unit KM_TerrainSelection;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math,
-  Clipbrd,
+  System.Classes, System.Math,
+  Vcl.Clipbrd,
+  {$IFDEF MSWindows} Winapi.Windows, {$ENDIF}
   KromUtils,
-  {$IFDEF MSWindows} Windows, {$ENDIF}
   KM_CommonClasses, KM_Points, KM_Terrain, KM_TerrainTypes, KM_TerrainPainter, KM_RenderPool, KM_ResTilesetTypes,
-  KM_MapEdTypes, KM_Defaults, System.Generics.Collections;
+  KM_MapEdTypes, KM_Defaults;
 
 
 type
@@ -132,8 +132,8 @@ end;
 procedure TKMSelection.Selection_SyncCellRect;
 begin
   //Convert RawRect values that can be inverted to tilespace Rect
-  fSelectionRect.Left   := Trunc(Max(0, Math.Min(fSelectionRectF.Left, fSelectionRectF.Right)));
-  fSelectionRect.Top    := Trunc(Max(0, Math.Min(fSelectionRectF.Top, fSelectionRectF.Bottom)));
+  fSelectionRect.Left   := Trunc(Max(0, Min(fSelectionRectF.Left, fSelectionRectF.Right)));
+  fSelectionRect.Top    := Trunc(Max(0, Min(fSelectionRectF.Top, fSelectionRectF.Bottom)));
   fSelectionRect.Right  := Ceil(Max3(0, fSelectionRectF.Left, fSelectionRectF.Right));
   fSelectionRect.Bottom := Ceil(Max3(0, fSelectionRectF.Top, fSelectionRectF.Bottom));
   //Selection must be at least one tile
@@ -729,7 +729,7 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
     end;
 
   const
-    CORNERS_REVERSED: TArray<integer> = [15,21,142,234,235,238,300];
+    CORNERS_REVERSED: TArray<integer> = [15, 21, 142, 234, 235, 238, 300];
 
   var
     L: Integer;
@@ -750,7 +750,7 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
       //Corners
       if gRes.Tileset.TileIsCorner(ter) then
       begin
-        if (rot in [1,3]) xor  TArray.Contains<Integer>(CORNERS_REVERSED, ter) xor (aAxis = faVertical) then
+        if (rot in [1,3]) xor ArrayContains(ter, CORNERS_REVERSED) xor (aAxis = faVertical) then
           gTerrain.Land^[Y,X].BaseLayer.Rotation := (rot+1) mod 4
         else
           gTerrain.Land^[Y,X].BaseLayer.Rotation := (rot+3) mod 4;
