@@ -21,12 +21,6 @@ type
 
 
 implementation
-uses
-  SysUtils,
-  KM_Defaults,
-  KM_FileIO,
-  KM_CommonUtils,
-  KM_Log;
 
 
 { TKMSettingsXML }
