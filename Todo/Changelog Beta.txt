@@ -24,6 +24,7 @@ Game:
  + New dynamic script actions added
  + Fixed crashreport dialogs hiding behind loading form
  + Added missing argument to game folder permission checker log message
+ + Market ratio changes for trades to gold ore: stone 7 -> 8, pig/skin 1/2 -> 1, wooden shield 1 -> 2
 
 Maps:
  + Added The Fall of House Fennford by Strangelove
