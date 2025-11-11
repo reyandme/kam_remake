@@ -499,7 +499,7 @@ begin
         gGameApp.SendFPSMeasurement(Round(fFPS));
 
       fpsLag := 1000 div gMainSettings.FPSCap;
-      fFPSString := Format('%.1f FPS', [fFPS]) + IfThen(CAP_MAX_FPS, ' (' + IntToStr(fpsLag) + ')');
+      fFPSString := Format('%.1f FPS', [fFPS]) + IfThen(CAP_MAX_FPS, ' (cap ' + IntToStr(fpsLag) + 'ms)');
       StatusBarText(SB_ID_FPS, fFPSString);
       fOldFrameTimes := 0;
       fFrameCount := 0;
