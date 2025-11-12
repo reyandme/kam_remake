@@ -280,14 +280,15 @@ const
   NON_RENEW = 1.25; // Non-renewable resources are more valuable than renewable ones
   TREE_ADDN = 0.15; // Trees require a large area (e.g. compared to corn)
   WINE_ADDN = 0.1;  // Wine takes extra wood to build
-  ORE_ADDN = 0.2;   // You can only build a few iron/gold mines on most maps (compared to coal)
+  IRON_ORE_ADDN = 0.2;   // You can only build a few iron/gold mines on most maps (compared to coal)
+  GOLD_ORE_ADDN = 0.3;   // gold ore needs higher price, to balance popular Town Hall trades
 begin
   // We have both classes in the same unit and can assign to private field directly
   Wares[wtTrunk       ].fMarketPrice := 1/PRODUCTION_RATE[wtTrunk       ] + TREE_ADDN;
   Wares[wtStone       ].fMarketPrice := 1/PRODUCTION_RATE[wtStone       ] * NON_RENEW;
   Wares[wtTimber      ].fMarketPrice := 1/PRODUCTION_RATE[wtTimber      ] + (1/2)*Wares[wtTrunk].MarketPrice;
-  Wares[wtIronOre     ].fMarketPrice := 1/PRODUCTION_RATE[wtIronOre     ] * NON_RENEW + ORE_ADDN;
-  Wares[wtGoldOre     ].fMarketPrice := 1/PRODUCTION_RATE[wtGoldOre     ] * NON_RENEW + ORE_ADDN;
+  Wares[wtIronOre     ].fMarketPrice := 1/PRODUCTION_RATE[wtIronOre     ] * NON_RENEW + IRON_ORE_ADDN;
+  Wares[wtGoldOre     ].fMarketPrice := 1/PRODUCTION_RATE[wtGoldOre     ] * NON_RENEW + GOLD_ORE_ADDN;
   Wares[wtCoal        ].fMarketPrice := 1/PRODUCTION_RATE[wtCoal        ] * NON_RENEW;
   Wares[wtIron        ].fMarketPrice := 1/PRODUCTION_RATE[wtIron        ] + Wares[wtIronOre].MarketPrice + Wares[wtCoal].MarketPrice;
   Wares[wtGold        ].fMarketPrice := 1/PRODUCTION_RATE[wtGold        ] + (1/2)*(Wares[wtGoldOre].MarketPrice + Wares[wtCoal].MarketPrice);
