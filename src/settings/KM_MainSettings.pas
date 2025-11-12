@@ -14,7 +14,8 @@ type
   // Settings that are irrelevant to the game (game does not care about them)
   TKMainSettings = class(TKMGameAppSettingsPart)
   private
-    //Not a setting, used to properly set default Resolution value
+    // Not a setting
+    // This is current screen resolution used used to set default Resolution and Form size
     fScreenWidth: Integer;
     fScreenHeight: Integer;
 

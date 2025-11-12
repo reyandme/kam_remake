@@ -52,8 +52,8 @@ object FormMain: TFormMain
         Width = 90
       end
       item
-        Text = '999.9 FPS (999)'
-        Width = 85
+        Text = '999.9 FPS (cap 999ms)'
+        Width = 120
       end
       item
         Text = 'Obj: 99999999'

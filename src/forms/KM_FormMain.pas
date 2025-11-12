@@ -1880,10 +1880,7 @@ end;
 
 //function TFormMain.ConfirmExport: Boolean;
 //begin
-//  case MessageDlg(Format(gResTexts[TX_FORM_EXPORT_CONFIRM_MSG], [ExeDir + 'Export']), mtWarning, [mbYes, mbNo], 0) of
-//    mrYes:  Result := True;
-//    else    Result := False;
-//  end;
+//  Result := MessageDlg(Format(gResTexts[TX_FORM_EXPORT_CONFIRM_MSG], [ExeDir + 'Export']), mtWarning, [mbYes, mbNo], 0) = mrYes;
 //end;
 
 
