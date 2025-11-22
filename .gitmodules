@@ -10,3 +10,6 @@
 	path = src/ext/pascalscript_submodule
 	url = https://github.com/reyandme/pascalscript
 	branch = master
+[submodule "Utils/GameBuilder (from kp-wiki)"]
+	path = Utils/GameBuilder (from kp-wiki)
+	url = https://github.com/KP-Wiki/GameBuilder.git

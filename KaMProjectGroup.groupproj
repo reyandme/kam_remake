@@ -9,6 +9,9 @@
         <Projects Include="KaM_Remake_no_ext.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Utils\GameBuilder (from kp-wiki)\Builder.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="Utils\Batcher\Batcher.dproj">
             <Dependencies/>
         </Projects>
@@ -94,6 +97,15 @@
     </Target>
     <Target Name="KaM_Remake_no_ext:Make">
         <MSBuild Projects="KaM_Remake_no_ext.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Builder">
+        <MSBuild Projects="Utils\GameBuilder (from kp-wiki)\Builder.dproj"/>
+    </Target>
+    <Target Name="Builder:Clean">
+        <MSBuild Projects="Utils\GameBuilder (from kp-wiki)\Builder.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Builder:Make">
+        <MSBuild Projects="Utils\GameBuilder (from kp-wiki)\Builder.dproj" Targets="Make"/>
     </Target>
     <Target Name="Batcher">
         <MSBuild Projects="Utils\Batcher\Batcher.dproj"/>
@@ -276,13 +288,13 @@
         <MSBuild Projects="Utils\MapUtil\MapUtil.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="KaM_Remake;KaM_Remake_no_ext;Batcher;CampaignBuilder;FontXCollator;FontXEditor;FontXGenerator;KaM_DedicatedServer;KaM_DedicatedServerGUI;Runner;RXXEditor;RXXPacker;ScriptValidator;ServerPoller;ScriptingParser;TranslationManager;TileEditor;TilesetResampler;ParallelRunner;UnitTests;AnimInterp;MapUtil"/>
+        <CallTarget Targets="KaM_Remake;KaM_Remake_no_ext;Builder;Batcher;CampaignBuilder;FontXCollator;FontXEditor;FontXGenerator;KaM_DedicatedServer;KaM_DedicatedServerGUI;Runner;RXXEditor;RXXPacker;ScriptValidator;ServerPoller;ScriptingParser;TranslationManager;TileEditor;TilesetResampler;ParallelRunner;UnitTests;AnimInterp;MapUtil"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="KaM_Remake:Clean;KaM_Remake_no_ext:Clean;Batcher:Clean;CampaignBuilder:Clean;FontXCollator:Clean;FontXEditor:Clean;FontXGenerator:Clean;KaM_DedicatedServer:Clean;KaM_DedicatedServerGUI:Clean;Runner:Clean;RXXEditor:Clean;RXXPacker:Clean;ScriptValidator:Clean;ServerPoller:Clean;ScriptingParser:Clean;TranslationManager:Clean;TileEditor:Clean;TilesetResampler:Clean;ParallelRunner:Clean;UnitTests:Clean;AnimInterp:Clean;MapUtil:Clean"/>
+        <CallTarget Targets="KaM_Remake:Clean;KaM_Remake_no_ext:Clean;Builder:Clean;Batcher:Clean;CampaignBuilder:Clean;FontXCollator:Clean;FontXEditor:Clean;FontXGenerator:Clean;KaM_DedicatedServer:Clean;KaM_DedicatedServerGUI:Clean;Runner:Clean;RXXEditor:Clean;RXXPacker:Clean;ScriptValidator:Clean;ServerPoller:Clean;ScriptingParser:Clean;TranslationManager:Clean;TileEditor:Clean;TilesetResampler:Clean;ParallelRunner:Clean;UnitTests:Clean;AnimInterp:Clean;MapUtil:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="KaM_Remake:Make;KaM_Remake_no_ext:Make;Batcher:Make;CampaignBuilder:Make;FontXCollator:Make;FontXEditor:Make;FontXGenerator:Make;KaM_DedicatedServer:Make;KaM_DedicatedServerGUI:Make;Runner:Make;RXXEditor:Make;RXXPacker:Make;ScriptValidator:Make;ServerPoller:Make;ScriptingParser:Make;TranslationManager:Make;TileEditor:Make;TilesetResampler:Make;ParallelRunner:Make;UnitTests:Make;AnimInterp:Make;MapUtil:Make"/>
+        <CallTarget Targets="KaM_Remake:Make;KaM_Remake_no_ext:Make;Builder:Make;Batcher:Make;CampaignBuilder:Make;FontXCollator:Make;FontXEditor:Make;FontXGenerator:Make;KaM_DedicatedServer:Make;KaM_DedicatedServerGUI:Make;Runner:Make;RXXEditor:Make;RXXPacker:Make;ScriptValidator:Make;ServerPoller:Make;ScriptingParser:Make;TranslationManager:Make;TileEditor:Make;TilesetResampler:Make;ParallelRunner:Make;UnitTests:Make;AnimInterp:Make;MapUtil:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
