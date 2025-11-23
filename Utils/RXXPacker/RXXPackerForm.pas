@@ -209,7 +209,6 @@ end;
 
 procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
 var
-  rxxPacker: TKMRXXPacker;
   rxSet: TRXTypeSet;
   I: Integer;
 begin
@@ -220,46 +219,58 @@ begin
   rbRXXFormat1.Enabled := False;
   rbRXXFormat2.Enabled := False;
 
-  rxxPacker := TKMRXXPacker.Create;
-  try
-    rxxPacker.SourcePathRX      := edSourceRxPath.Text;
-    rxxPacker.SourcePathInterp  := edSourceInterpPath.Text;
-    rxxPacker.DestinationPath   := edDestinationPath.Text;
-    rxxPacker.PackToRXX     := chkPackToRXX.Checked;
-    rxxPacker.PackToRXA     := chkPackToRXA.Checked;
-    if rbRXXFormat0.Checked then rxxPacker.RXXFormat := rxxZero;
-    if rbRXXFormat1.Checked then rxxPacker.RXXFormat := rxxOne;
-    if rbRXXFormat2.Checked then rxxPacker.RXXFormat := rxxTwo;
+  rxSet := [];
+  for I := 0 to ListBox1.Items.Count - 1 do
+    if ListBox1.Selected[I] then
+      rxSet := rxSet + [TRXType(ListBox1.Items.Objects[I])];
 
-    rxSet := [];
-    for I := 0 to ListBox1.Items.Count - 1 do
-      if ListBox1.Selected[I] then
-        rxSet := rxSet + [TRXType(ListBox1.Items.Objects[I])];
+  TThread.CreateAnonymousThread(
+    procedure
+    var
+      rxxPacker: TKMRXXPacker;
+    begin
+      rxxPacker := TKMRXXPacker.Create;
+      try
+        rxxPacker.SourcePathRX      := edSourceRxPath.Text;
+        rxxPacker.SourcePathInterp  := edSourceInterpPath.Text;
+        rxxPacker.DestinationPath   := edDestinationPath.Text;
+        rxxPacker.PackToRXX     := chkPackToRXX.Checked;
+        rxxPacker.PackToRXA     := chkPackToRXA.Checked;
+        if rbRXXFormat0.Checked then rxxPacker.RXXFormat := rxxZero;
+        if rbRXXFormat1.Checked then rxxPacker.RXXFormat := rxxOne;
+        if rbRXXFormat2.Checked then rxxPacker.RXXFormat := rxxTwo;
 
-    try
-      rxxPacker.PackSet(rxSet, fPalettes,
-        procedure (aMsg: string)
-        begin
-          meLog.Lines.Append(aMsg);
-          Application.ProcessMessages;
-        end
-      );
-    except
-      on E: Exception do
-        MessageBox(Handle, PWideChar(E.Message), 'Error', MB_ICONEXCLAMATION or MB_OK);
-    end;
+        try
+          rxxPacker.PackSet(rxSet, fPalettes,
+            procedure (aMsg: string)
+            begin
+              TThread.Queue(nil,
+                procedure
+                begin
+                  meLog.Lines.Append(aMsg);
+                end);
+            end);
+        except
+          on E: Exception do
+            MessageBox(Handle, PWideChar(E.Message), 'Error', MB_ICONEXCLAMATION or MB_OK);
+        end;
+      finally
+        FreeAndNil(rxxPacker);
 
-    ListBox1.ClearSelection;
-  finally
-    FreeAndNil(rxxPacker);
+        TThread.Queue(nil,
+          procedure
+          begin
+            ListBox1.ClearSelection;
 
-    btnPackRXX.Enabled := True;
-    chkPackToRXX.Enabled := True;
-    chkPackToRXA.Enabled := True;
-    rbRXXFormat0.Enabled := True;
-    rbRXXFormat1.Enabled := True;
-    rbRXXFormat2.Enabled := True;
-  end;
+            btnPackRXX.Enabled := True;
+            chkPackToRXX.Enabled := True;
+            chkPackToRXA.Enabled := True;
+            rbRXXFormat0.Enabled := True;
+            rbRXXFormat1.Enabled := True;
+            rbRXXFormat2.Enabled := True;
+          end);
+      end;
+    end).Start;
 end;
 
 
