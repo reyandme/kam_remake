@@ -91,7 +91,7 @@ type
                                           aOnCheckTerminated: TBooleanFuncSimple = nil);
 
     procedure LoadFromRXXFile(const aFileName: string; aStartingIndex: Integer = 1);
-    procedure OverloadRXDataFromFolder(const aFolder: string; aSoftenShadows: Boolean = True);
+    procedure OverloadRXDataFromFolder(const aFolder: string; aOnProgress: TProc<string>; aSoftenShadows: Boolean = True);
 
     function GetSoftenShadowType(aID: Integer): TKMSpriteSoftening;
 
@@ -1020,7 +1020,7 @@ end;
 // Parse all valid files in Sprites folder:
 // - append or replace original sprites with new ones
 // - exclude original sprites if necessary as well
-procedure TKMSpritePack.OverloadRXDataFromFolder(const aFolder: string; aSoftenShadows: Boolean = True);
+procedure TKMSpritePack.OverloadRXDataFromFolder(const aFolder: string; aOnProgress: TProc<string>; aSoftenShadows: Boolean = True);
   {$IFDEF WDC}
   // Append all PNGs including the subfolders
   // Pattern is X_nnnn.png, where nnnn is dynamic (1..n chars) for modders convenience
@@ -1044,6 +1044,11 @@ procedure TKMSpritePack.OverloadRXDataFromFolder(const aFolder: string; aSoftenS
           AddImage(aFolder, fileList.Strings[I], id);
           idList.Add(id);
         end;
+
+        // When packing RXX with HD anims the sheer count is so large we need a progress updates
+        if (fileList.Count - I) mod 2500 = 0 then
+          if Assigned(aOnProgress) then
+            aOnProgress(Format('Appending from folder %d/%d', [fileList.Count - I, fileList.Count]));
       end;
 
       // Soften shadows for overloaded sprites
@@ -2039,9 +2044,9 @@ begin
   else
     Exit;
 
-  fSprites[aRT].OverloadRXDataFromFolder(ExeDir + 'Sprites' + PathDelim); // Legacy support
+  fSprites[aRT].OverloadRXDataFromFolder(ExeDir + 'Sprites' + PathDelim, nil); // Legacy support
   // 'Sprites' folder name confused some of the players, cause there is already data/Sprites folder
-  fSprites[aRT].OverloadRXDataFromFolder(ExeDir + 'Modding graphics' + PathDelim);
+  fSprites[aRT].OverloadRXDataFromFolder(ExeDir + 'Modding graphics' + PathDelim, nil);
 
   gLog.AddTime('Load Sprites Done');
 

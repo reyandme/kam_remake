@@ -100,7 +100,7 @@ begin
       WrapMsg('RX contains ' + IntToStr(spritePack.RXData.Count) + ' entries');
 
       // Overload (something we dont need in RXXPacker, cos all the custom sprites are in other folders)
-      spritePack.OverloadRXDataFromFolder(SourcePathRX, False); // Do not soften shadows, it will be done later on
+      spritePack.OverloadRXDataFromFolder(SourcePathRX, procedure (aMsg: string) begin aOnMessage(aMsg) end, False); // Do not soften shadows, it will be done later on
       WrapMsg('With overload contains ' + IntToStr(spritePack.RXData.Count) + ' entries');
 
       trimmedAmount := spritePack.TrimSprites;
@@ -109,7 +109,7 @@ begin
     else
       if DirectoryExists(SourcePathRX) then
       begin
-        spritePack.OverloadRXDataFromFolder(SourcePathRX);
+        spritePack.OverloadRXDataFromFolder(SourcePathRX, procedure (aMsg: string) begin aOnMessage(aMsg) end);
         WrapMsg('Overload contains ' + IntToStr(spritePack.RXData.Count) + ' entries');
         if spritePack.RXData.Count = 0 then
           WrapMsg('WARNING: no RX sprites were found!');
@@ -210,7 +210,7 @@ begin
           if DirectoryExists(path) then
           begin
             rxCount := spritePack.RXData.Count;
-            spritePack.OverloadRXDataFromFolder(SourcePathInterp + IntToStr(Ord(aRT)+1) + '\', False); // Shadows are already softened for interps
+            spritePack.OverloadRXDataFromFolder(SourcePathInterp + IntToStr(Ord(aRT)+1) + '\', procedure (aMsg: string) begin aOnMessage(aMsg) end, False); // Shadows are already softened for interps
             WrapMsg(Format('Overload with interpolated sprites contains %d entries. Unique entries found in .rxa file: %d',
                               [spritePack.RXData.Count, spritePack.RXData.Count - rxCount]));
             if spritePack.RXData.Count = rxCount then
