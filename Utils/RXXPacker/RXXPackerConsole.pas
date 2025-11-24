@@ -110,17 +110,17 @@ var
 begin
   ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
 
-  rxxPacker := TKMRXXPacker.Create;
+  resPalettes := TKMResPalettes.Create;
+  resPalettes.LoadPalettes(ExeDir + 'data\gfx\');
+
+  rxxPacker := TKMRXXPacker.Create(resPalettes, procedure (aMsg: string) begin Writeln(aMsg); end);
   rxxPacker.SourcePathRX := fSourcePathRX;
   rxxPacker.SourcePathInterp := fSourcePathInterp;
   rxxPacker.DestinationPath := fDestinationPath;
   rxxPacker.PackToRXA := fPackToRXA;
   rxxPacker.RXXFormat := rxxTwo;
-
-  resPalettes := TKMResPalettes.Create;
-  resPalettes.LoadPalettes(ExeDir + 'data\gfx\');
   try
-    rxxPacker.PackSet(fRxSet, resPalettes, procedure (aMsg: string) begin Writeln(aMsg); end);
+    rxxPacker.PackSet(fRxSet);
   finally
     rxxPacker.Free;
     resPalettes.Free;

@@ -229,7 +229,16 @@ begin
     var
       rxxPacker: TKMRXXPacker;
     begin
-      rxxPacker := TKMRXXPacker.Create;
+      rxxPacker := TKMRXXPacker.Create(fPalettes,
+        procedure (aMsg: string)
+        begin
+          TThread.Queue(nil,
+            procedure
+            begin
+              meLog.Lines.Append(aMsg);
+            end);
+        end);
+
       try
         rxxPacker.SourcePathRX      := edSourceRxPath.Text;
         rxxPacker.SourcePathInterp  := edSourceInterpPath.Text;
@@ -241,15 +250,7 @@ begin
         if rbRXXFormat2.Checked then rxxPacker.RXXFormat := rxxTwo;
 
         try
-          rxxPacker.PackSet(rxSet, fPalettes,
-            procedure (aMsg: string)
-            begin
-              TThread.Queue(nil,
-                procedure
-                begin
-                  meLog.Lines.Append(aMsg);
-                end);
-            end);
+          rxxPacker.PackSet(rxSet);
         except
           on E: Exception do
             MessageBox(Handle, PWideChar(E.Message), 'Error', MB_ICONEXCLAMATION or MB_OK);
