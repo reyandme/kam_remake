@@ -42,6 +42,7 @@ type
     fSettingsPath: string;
     fUpdating: Boolean;
 
+    procedure DoLog(aMsg: string);
     procedure UpdateUI;
     procedure UpdateSettings;
     procedure UpdateList;
@@ -121,6 +122,16 @@ procedure TRXXForm1.chkPackToRXXClick(Sender: TObject);
 begin
   UpdateUI;
   UpdateSettings;
+end;
+
+
+procedure TRXXForm1.DoLog(aMsg: string);
+begin
+  TThread.Queue(nil,
+    procedure
+    begin
+      meLog.Lines.Append(aMsg);
+    end);
 end;
 
 
@@ -224,20 +235,14 @@ begin
     if ListBox1.Selected[I] then
       rxSet := rxSet + [TRXType(ListBox1.Items.Objects[I])];
 
+  DoLog('Starting thread');
+
   TThread.CreateAnonymousThread(
     procedure
     var
       rxxPacker: TKMRXXPacker;
     begin
-      rxxPacker := TKMRXXPacker.Create(fPalettes,
-        procedure (aMsg: string)
-        begin
-          TThread.Queue(nil,
-            procedure
-            begin
-              meLog.Lines.Append(aMsg);
-            end);
-        end);
+      rxxPacker := TKMRXXPacker.Create(fPalettes, DoLog);
 
       try
         rxxPacker.SourcePathRX      := edSourceRxPath.Text;

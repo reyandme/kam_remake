@@ -16,9 +16,10 @@ type
     fPalettes: TKMResPalettes;
     fOnMessage: TProc<string>;
 
+    fTimeBegin: TDateTime;
     fCurrentRT: TRXType;
 
-    procedure DoLog(const aMsg: string);
+    procedure DoLog(aMsg: string);
 
     procedure Pack(aRT: TRXType);
     procedure SetDestinationPath(const aValue: string);
@@ -73,14 +74,16 @@ begin
 end;
 
 
-procedure TKMRXXPacker.DoLog(const aMsg: string);
+procedure TKMRXXPacker.DoLog(aMsg: string);
 begin
-  fOnMessage(Format('[%s] %s', [RX_INFO[fCurrentRT].FileName, aMsg]));
+  // Packing is so lengthy, we show timestamp with minutes
+  fOnMessage(Format('%s [%s] %s', [TimeToStr(Now - fTimeBegin), RX_INFO[fCurrentRT].FileName, aMsg]));
 end;
 
 
 procedure TKMRXXPacker.Pack(aRT: TRXType);
 var
+  tick: Cardinal;
   rxPath: string;
   deathAnimProcessed: TList<Integer>;
   spritePack: TKMSpritePackEdit;
@@ -93,6 +96,9 @@ var
   path: string;
 begin
   fCurrentRT := aRT;
+
+  tick := GetTickCount;
+  DoLog('Packing ...');
 
   //ruCustom sprite packs do not have a main RXX file so don't need packing
   if RX_INFO[aRT].Usage = ruCustom then Exit;
@@ -112,7 +118,7 @@ begin
       DoLog('RX contains ' + IntToStr(spritePack.RXData.Count) + ' entries');
 
       // Overload (something we dont need in RXXPacker, cos all the custom sprites are in other folders)
-      spritePack.OverloadRXDataFromFolder(SourcePathRX, procedure (aMsg: string) begin fOnMessage(aMsg) end, False); // Do not soften shadows, it will be done later on
+      spritePack.OverloadRXDataFromFolder(SourcePathRX, DoLog, False); // Do not soften shadows, it will be done later on
       DoLog('With overload contains ' + IntToStr(spritePack.RXData.Count) + ' entries');
 
       trimmedAmount := spritePack.TrimSprites;
@@ -121,7 +127,7 @@ begin
     else
       if DirectoryExists(SourcePathRX) then
       begin
-        spritePack.OverloadRXDataFromFolder(SourcePathRX, procedure (aMsg: string) begin fOnMessage(aMsg) end);
+        spritePack.OverloadRXDataFromFolder(SourcePathRX, DoLog);
         DoLog('Overload contains ' + IntToStr(spritePack.RXData.Count) + ' entries');
         if spritePack.RXData.Count = 0 then
           DoLog('WARNING: no RX sprites were found!');
@@ -222,7 +228,7 @@ begin
           if DirectoryExists(path) then
           begin
             rxCount := spritePack.RXData.Count;
-            spritePack.OverloadRXDataFromFolder(SourcePathInterp + IntToStr(Ord(aRT)+1) + '\', procedure (aMsg: string) begin fOnMessage(aMsg) end, False); // Shadows are already softened for interps
+            spritePack.OverloadRXDataFromFolder(SourcePathInterp + IntToStr(Ord(aRT)+1) + '\', DoLog, False); // Shadows are already softened for interps
             DoLog(Format('Overload with interpolated sprites contains %d entries. Unique entries found in .rxa file: %d',
                               [spritePack.RXData.Count, spritePack.RXData.Count - rxCount]));
             if spritePack.RXData.Count = rxCount then
@@ -239,13 +245,14 @@ begin
   finally
     spritePack.Free;
   end;
+
+  DoLog(Format('... packed in %dms', [GetTickCount - tick]));
 end;
 
 
 procedure TKMRXXPacker.PackSet(aRxSet: TRXTypeSet);
 var
   I: TRXType;
-  tick, tickTotal: Cardinal;
 begin
   if not DirectoryExists(SourcePathRX) then
   begin
@@ -259,18 +266,13 @@ begin
     Exit;
   end;
 
-  tickTotal := GetTickCount;
+  fTimeBegin := Now;
 
   for I := Low(TRXType) to High(TRXType) do
   if I in aRxSet then
-  begin
-    DoLog('Packing ...');
-    tick := GetTickCount;
     Pack(I);
-    DoLog(Format('... packed in %dms', [GetTickCount - tick]));
-  end;
 
-  fOnMessage('Everything packed in ' + IntToStr(GetTickCount - tickTotal) + ' ms');
+  fOnMessage(Format('Everything packed in %dsec', [Round((Now - fTimeBegin) * SecsPerDay)]));
 end;
 
 
