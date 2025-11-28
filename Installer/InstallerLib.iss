@@ -62,7 +62,7 @@ Name: "bel"; MessagesFile: "ExtraLanguages\Belarusian.isl"; LicenseFile: "Licens
 Name: "jpn"; MessagesFile: "compiler:Languages\Japanese.isl"; LicenseFile: "License.jpn.txt"
 Name: "tur"; MessagesFile: "ExtraLanguages\Turkish.isl"; LicenseFile: "License.tur.txt"
 Name: "kor"; MessagesFile: "ExtraLanguages\Korean.isl"; LicenseFile: "License.kor.txt"
-Name: "srb"; MessagesFile: "compiler:Languages\SerbianCyrillic.isl"; LicenseFile: "License.srb.txt"
+Name: "srb"; MessagesFile: "ExtraLanguages\SerbianCyrillic.isl"; LicenseFile: "License.srb.txt"
 Name: "slv"; MessagesFile: "compiler:Languages\Slovenian.isl"; LicenseFile: "License.slv.txt"
 
 [CustomMessages]  
