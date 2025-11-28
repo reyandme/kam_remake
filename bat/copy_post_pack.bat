@@ -91,7 +91,7 @@ xcopy ..\bass.dll "%kam_folder%"\bass.dll* /y /r /i
 xcopy ..\ogg.dll "%kam_folder%"\ogg.dll* /y /r /i
 xcopy ..\vorbis.dll "%kam_folder%"\vorbis.dll* /y /r /i
 xcopy ..\vorbisfile.dll "%kam_folder%"\vorbisfile.dll* /y /r /i
-xcopy ..\OpenAL32.dll "%kam_folder%"\OpenAL32.dll* /y /r /i
+xcopy ..\Utils\AVIPlayer\OpenAL32.dll "%kam_folder%"\OpenAL32.dll* /y /r /i
 xcopy ..\Installer\uninst_clean.bat "%kam_folder%"\uninst_clean.bat* /y /r /i
 xcopy ..\Installer\oalinst.exe "%kam_folder%"\oalinst.exe* /y /r /i
 
@@ -112,7 +112,7 @@ if %IncludeScriptingEditor%==True (
 
 @REM copy utility applications exe files
 xcopy ..\KM_TextIDs.inc "%kam_folder%"\Utils\KM_TextIDs.inc* /y /r /i
-xcopy "..\Utils\Campaign builder\KaM_Remake_Settings_ini_readme.txt" "%kam_folder%"\Utils\KaM_Remake_Settings_ini_readme.txt* /y /r /i
+xcopy "..\Utils\KaM_Remake_Settings_ini_readme.txt" "%kam_folder%"\Utils\KaM_Remake_Settings_ini_readme.txt* /y /r /i
 xcopy "..\Utils\Campaign builder\CampaignBuilder.exe" "%kam_folder%"\Utils\CampaignBuilder.exe* /y /r /i
 xcopy "..\Utils\DedicatedServer\KaM_DedicatedServer.exe" "%kam_folder%"\Utils\KaM_Remake_Server_win32.exe* /y /r /i
 xcopy "..\Utils\DedicatedServerGUI\KaM_DedicatedServerGUI.exe" "%kam_folder%"\Utils\KaM_Remake_ServerGUI_win32.exe* /y /r /i
