@@ -2846,42 +2846,41 @@ const
   end;
 
 var
-   Rotation: Byte;
-   Terrain: Word;
-   X1,X2,Y1,Y2,sum,I,K,L, MaxLen: Integer;
-   S,S2: TInteger2Array;
-   BalanceResArr: TInteger2Array;
-   TileFloodSearch: TKMTileFloodSearch;
-   PointArr: TKMPointArray;
-   LevelArr: TKMByteArray;
-   Resources: TBalancedResource1Array;
+  Rotation: Byte;
+  Terrain: Word;
+  X1,X2,Y1,Y2,sum,I,K,L, MaxLen: Integer;
+  S,S2: TInteger2Array;
+  BalanceResArr: TInteger2Array;
+  TileFloodSearch: TKMTileFloodSearch;
+  PointArr: TKMPointArray;
+  LevelArr: TKMByteArray;
+  Resources: TBalancedResource1Array;
 begin
-
   // Initialization
-    SetLength(S, Length(A), Length(A[Low(A)]));
-    SetLength(S2, Length(A), Length(A[Low(A)]));
-    for Y1 := Low(S) to High(S) do
-      for X1 := Low(S[Y1]) to High(S[Y1]) do
-      begin
-        S[Y1,X1] := 1;
-        S2[Y1,X1] := 0;
-      end;
+  SetLength(S, Length(A), Length(A[Low(A)]));
+  SetLength(S2, Length(A), Length(A[Low(A)]));
+  for Y1 := Low(S) to High(S) do
+  for X1 := Low(S[Y1]) to High(S[Y1]) do
+  begin
+    S[Y1,X1] := 1;
+    S2[Y1,X1] := 0;
+  end;
 
-// Shortcuts:
-//    _______                 ___________________
-//   | 1   2 |  is equal to  | [Y1,X1]   [Y1,X2] |
-//   | 3   4 |               | [Y2,X1]   [Y2,X2] |
-//    ———————                 ———————————————————
-// Transitions:
-//    ______________     ____________     _______________
-//   | 1 › Top  ‹ 2 |   | 1 › $2 ‹ 2 |   | 1 › %0010 ‹ 2 |
-//   | ˇ          ˇ |   | ˇ        ˇ |   | ˇ           ˇ |
-//   | Left   Right |   | $1      $4 |   | %0001   %0100 |
-//   | ^          ^ |   | ^        ^ |   | ^           ^ |
-//   | 3 › Down ‹ 4 |   | 3 › $8 ‹ 4 |   | 3 › %1000 ‹ 4 |
-//    ——————————————     ————————————     ———————————————
+  // Shortcuts:
+  //    _______                 ___________________
+  //   | 1   2 |  is equal to  | [Y1,X1]   [Y1,X2] |
+  //   | 3   4 |               | [Y2,X1]   [Y2,X2] |
+  //    ———————                 ———————————————————
+  // Transitions:
+  //    ______________     ____________     _______________
+  //   | 1 › Top  ‹ 2 |   | 1 › $2 ‹ 2 |   | 1 › %0010 ‹ 2 |
+  //   | ˇ          ˇ |   | ˇ        ˇ |   | ˇ           ˇ |
+  //   | Left   Right |   | $1      $4 |   | %0001   %0100 |
+  //   | ^          ^ |   | ^        ^ |   | ^           ^ |
+  //   | 3 › Down ‹ 4 |   | 3 › $8 ‹ 4 |   | 3 › %1000 ‹ 4 |
+  //    ——————————————     ————————————     ———————————————
 
-// Generate tiles of basic textures (everything except resources)
+  // Generate tiles of basic textures (everything except resources)
   Y1 := 2;
   while Y1 < (fMapY shl 1) do
   begin
@@ -2918,9 +2917,7 @@ begin
         $C: TransitionTexture(B[Y1,X1], B[Y2,X2], Rotation, Terrain, 1, 3, 0, 2, 3, 5);
         $9: TransitionTexture(B[Y1,X1], B[Y2,X1], Rotation, Terrain, 2, 0, 0, 2, 3, 5);
         else
-        begin
           // 3-4 biom transitions will never happen (TileTemplate will fix it)
-        end;
       end;
       TilesPartsArr.Terrain[Y1 shr 1,X1 shr 1] := Terrain;
       TilesPartsArr.Rotation[Y1 shr 1,X1 shr 1] := Rotation;
@@ -2929,7 +2926,7 @@ begin
     Y1 := Y1 + 2;
   end;
 
-// Generate balanced resources
+  // Generate balanced resources
   Resources := fRes.Resources;
   TileFloodSearch := TKMTileFloodSearch.Create(KMPoint(1,1), KMPoint(fMapX-1,fMapY-1), S, S2);
   try
