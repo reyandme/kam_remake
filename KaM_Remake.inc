@@ -19,34 +19,37 @@
 {$IFDEF VER360} {$DEFINE WDC} {$DEFINE WDC12PLUS} {$ENDIF} //Define Windows Delphi 12 Yukon
 {.$DEFINE FPC} //Define Free Pascal compiler (defined automatically by Lazarus)
 
-//Lazarus compiler specific settings
+
+// Lazarus compiler specific settings
 {$IFDEF FPC}
-  //Set FPC to work in Delphi mode
+  // Set FPC to work in Delphi mode
   {$MODE Delphi}
-  //allow advanced records in Lazarus
+  // Allow advanced records in Lazarus
   {$modeSwitch advancedRecords}
 
-  //Currently FPC does not define UNICODE define because in Delphi it means more than just a
-  //default string type but a full RTL implementation : using Windows 'W' functions instead of 'A',
-  //another class declarations(TStringStream for example).
+  // Currently FPC does not define UNICODE define because in Delphi it means more than just a
+  // default string type but a full RTL implementation : using Windows 'W' functions instead of 'A',
+  // another class declarations(TStringStream for example).
   {$IFDEF FPC_UNICODESTRINGS}
     {$DEFINE UNICODE}
   {$ENDIF}
 {$ENDIF} 
 
-//Delphi compiler specific settings
+
+// Delphi compiler specific settings
 {$IFDEF WDC}
   {$IFNDEF WDC64} // Not available on Win64
-    //Project can be compiled without madExcept features (if you dont have madExcept installed)
+    // Project can be compiled without madExcept features (if you dont have madExcept installed)
     {$DEFINE USE_MAD_EXCEPT}
-    //Delphi compiler video play
+    // Delphi compiler video play
     {$DEFINE VIDEOS}
     
     {.$DEFINE FASTMM}
   {$ENDIF}
-  
+
   {$DEFINE USE_VIRTUAL_TREEVIEW}
 {$ENDIF}
+
 
 // Promote some warnings to errors for safety (for all our tools)
 //----------------------------------------------------------------------------------------------------
@@ -67,13 +70,13 @@
   {$WARN DUPLICATES_IGNORED ERROR}    // W1051 Duplicate symbol names in namespace. Using '%s.%s' found in %s. Ignoring duplicate in %s
 {$ENDIF}
 
-//Use secure authentication unit (KM_NetAuthSecure)
+// Use secure authentication unit (KM_NetAuthSecure)
 {$DEFINE USESECUREAUTH}
 
-//Enable perflog (should be disabled for release / release candidate versions)
+// Enable perflog (should be disabled for release / release candidate versions)
 {$DEFINE PERFLOG}
 
-//Enable asynchronius game resource loading
+// Enable asynchronous game resource loading
 {$IFNDEF NO_ASYNC_LOAD}
   {$DEFINE LOAD_GAME_RES_ASYNC}
 {$ENDIF}
@@ -82,5 +85,5 @@
   {$DEFINE RNG_SPY} 
 {$ENDIF}
 
-//Enable some debug features
+// Enable some debug features
 {.$DEFINE DEBUG}
