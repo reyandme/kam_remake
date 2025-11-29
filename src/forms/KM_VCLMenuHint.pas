@@ -1,7 +1,5 @@
 ﻿unit KM_VclMenuHint;
-
 interface
-
 uses
   Classes,
   {$IFDEF MSWindows} Windows, {$ENDIF}
@@ -25,7 +23,8 @@ type
 
 implementation
 
-{ TKMMenuItemHint }
+
+{ TKMVclMenuItemHint }
 constructor TKMVclMenuItemHint.Create(AOwner: TComponent);
 begin
   inherited;
@@ -54,7 +53,7 @@ end;
 procedure TKMVclMenuItemHint.DoActivateHint(menuItem: TMenuItem);
 begin
   // Speedup removing of an old hint window
-  hideTime(Self);
+  HideTime(Self);
 
   if (menuItem = nil) or (menuItem.Hint = '') then
   begin
@@ -72,7 +71,7 @@ end;
 procedure TKMVclMenuItemHint.HideTime(Sender: TObject);
 begin
   // Hide hint window
-  Self.ReleaseHandle;
+  ReleaseHandle;
   hideTimer.OnTimer := nil;
 end;
 
@@ -98,5 +97,6 @@ begin
   end;
   showTimer.OnTimer:= nil;  
 end;
+
 
 end.

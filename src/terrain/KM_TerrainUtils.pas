@@ -6,9 +6,11 @@ uses
   KM_TerrainTypes,
   KM_CommonClasses;
 
+
   procedure WriteTileToStream(S: TKMemoryStream; const aTileBasic: TKMTerrainTileBasic; aTileOwner: TKMHandID; aGameSave: Boolean); overload;
   procedure WriteTileToStream(S: TKMemoryStream; const aTileBasic: TKMTerrainTileBasic; aTileOwner: TKMHandID; aGameSave: Boolean; var aMapDataSize: Cardinal); overload;
   procedure ReadTileFromStream(aStream: TKMemoryStream; var aTileBasic: TKMTerrainTileBasic; aGameRev: Integer = 0);
+
 
 implementation
 uses
@@ -26,7 +28,7 @@ end;
 
 
 procedure WriteTileToStream(S: TKMemoryStream; const aTileBasic: TKMTerrainTileBasic; aTileOwner: TKMHandID;
-                                             aGameSave: Boolean; var aMapDataSize: Cardinal);
+  aGameSave: Boolean; var aMapDataSize: Cardinal);
 
   function PackLayersCorners(const aTileBasic: TKMTerrainTileBasic): Byte;
   var
@@ -132,7 +134,7 @@ var
   terIdentInfo: Word;
   genInfo: TKMGenTerrainInfo;
 begin
-  useKaMFormat := ( aGameRev = 0 );
+  useKaMFormat := (aGameRev = 0);
 
   if useKaMFormat then
   begin
@@ -213,17 +215,17 @@ begin
         aTileBasic.Layer[I].ClearCorners;
 
       for I := 0 to 3 do
-      begin
         case layersCorners[I] of
           0:    aTileBasic.BaseLayer.Corner[I] := True;
-          else  aTileBasic.Layer[layersCorners[I]-1].Corner[I] := True;
+        else
+          aTileBasic.Layer[layersCorners[I]-1].Corner[I] := True;
         end;
-      end;
     end;
   end;
 
   if useKaMFormat then
     aStream.Seek(17, soFromCurrent);
 end;
+
 
 end.
