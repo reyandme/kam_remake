@@ -14,7 +14,7 @@ object Form1: TForm1
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poDefault
   Scaled = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -166,7 +166,7 @@ object Form1: TForm1
   object ScrollBox1: TScrollBox
     Left = 216
     Top = 8
-    Width = 1056
+    Width = 1052
     Height = 684
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
