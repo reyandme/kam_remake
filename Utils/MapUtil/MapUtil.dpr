@@ -7,19 +7,22 @@ uses
     cthreads, //We use a thread for deleting old log files
     BaseUnix,
   {$ENDIF}
-  SysUtils,
-  KM_Defaults,
+  System.SysUtils,
+
+  KM_Defaults in '..\..\src\common\KM_Defaults.pas',
+  KM_Log in '..\..\src\KM_Log.pas',
+
   MapUtilTypes in 'MapUtilTypes.pas',
-  ConsoleMain in 'ConsoleMain.pas',
-  KM_Log in '..\..\src\KM_Log.pas';
+  ConsoleMain in 'ConsoleMain.pas';
+
 
 {$R *.res}
 
+
 var
-  fConsoleMain: TConsoleMain;
   fParamRecord: TCLIParamRecord;
-  fArgs:        string;
-  path:         string;
+  fArgs: string;
+
 
 procedure ProcessParams;
 var
@@ -27,7 +30,7 @@ var
 begin
   if ParamCount = 0 then
   begin
-    fParamRecord.Help := True;
+    fParamRecord.ShowHelp := True;
     Exit;
   end;
 
@@ -43,7 +46,7 @@ begin
 
     if (ParamStr(I) = '-h') or (ParamStr(I) = '-help') then
     begin
-      fParamRecord.Help := True;
+      fParamRecord.ShowHelp := True;
       Continue;
     end;
 
@@ -86,6 +89,9 @@ end;
 
 // This utility console tool generates minimap png file of a map.
 // Could be compiled under Windows or Linux (added x64 config for Lazarus (tested on fpcdeluxe FPC 3.2.2 Lazarus 2.0.12))
+var
+  fConsoleMain: TConsoleMain;
+  path: string;
 begin
   try
     ExeDir := ExtractFilePath(ParamStr(0));
@@ -95,10 +101,11 @@ begin
     gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'MapUtil.log');
     gLog.AddNoTime('Arguments: ' + fArgs);
 
+    // Detect our location automatically based off of KaM data
     path := 'data' + PathDelim + 'defines' + PathDelim + 'unit.dat';
     if not FileExists(ExeDir + path) 
     and FileExists(ExeDir + '..\..\' + path) then
-      ExeDir := ExeDir + '..\..\';  
+      ExeDir := ExeDir + '..\..\';
 
     gLog.AddNoTime('ExeDir: ' + ExeDir);
 
@@ -107,7 +114,7 @@ begin
     fConsoleMain.ShowHeader;
 
     // Always exit after showing help.
-    if fParamRecord.Help then
+    if fParamRecord.ShowHelp then
     begin
       fConsoleMain.ShowHelp;
       Exit;

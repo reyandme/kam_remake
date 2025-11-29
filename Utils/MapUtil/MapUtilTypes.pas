@@ -6,7 +6,7 @@ type
 
   TCLIParamRecord = record
     MapDatPath: string;
-    Help: Boolean;
+    ShowHelp: Boolean;
     FOWType: TFOWType;
     OutputFile: string;
   end;
