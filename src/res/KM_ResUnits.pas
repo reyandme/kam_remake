@@ -28,11 +28,7 @@ type
     x11: SmallInt;
   end;
 
-  TKMUnitSprite = packed record
-    Act: array [TKMUnitActionType] of packed record
-      Dir: array [dirN..dirNW] of TKMAnimLoop;
-    end;
-  end;
+  TKMUnitSprite = array [TKMUnitActionType, dirN..dirNW] of TKMAnimLoop;
 
   TKMUnitSpecInfo = record
     StepsPerTile: Byte;
@@ -447,7 +443,7 @@ function TKMUnitSpec.GetUnitAnim(aAction: TKMUnitActionType; aDir: TKMDirection)
 begin
   Assert(aDir <> dirNA);
   Assert(aAction in [Low(TKMUnitActionType)..High(TKMUnitActionType)]);
-  Result := fUnitSprite.Act[aAction].Dir[aDir];
+  Result := fUnitSprite[aAction, aDir];
 end;
 
 

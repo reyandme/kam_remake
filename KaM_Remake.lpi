@@ -27,16 +27,10 @@
         <Mode0 Name="default"/>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="3">
+    <RequiredPackages Count="1">
       <Item1>
-        <PackageName Value="BGLControls"/>
-      </Item1>
-      <Item2>
-        <PackageName Value="BGRABitmapPack"/>
-      </Item2>
-      <Item3>
         <PackageName Value="LCL"/>
-      </Item3>
+      </Item1>
     </RequiredPackages>
     <Units Count="299">
       <Unit0>
@@ -46,7 +40,6 @@
         <CursorPos X="40" Y="20"/>
         <UsageCount Value="43"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
         <Filename Value="KaM_Remake.inc"/>
@@ -181,7 +174,7 @@
       <Unit18>
         <Filename Value="src\utils\KM_Utils.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="36"/>
+        <EditorIndex Value="33"/>
         <CursorPos X="68" Y="13"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
@@ -197,7 +190,6 @@
         <ComponentState Value="1"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit19>
       <Unit20>
         <Filename Value="src\media\KM_Sound.pas"/>
@@ -211,7 +203,7 @@
       <Unit21>
         <Filename Value="src\houses\KM_HouseCollection.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="38"/>
+        <EditorIndex Value="35"/>
         <TopLine Value="31"/>
         <CursorPos X="38" Y="44"/>
         <UsageCount Value="34"/>
@@ -228,7 +220,7 @@
       <Unit23>
         <Filename Value="src\net\KM_NetServer.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="39"/>
+        <EditorIndex Value="36"/>
         <TopLine Value="308"/>
         <CursorPos X="47" Y="321"/>
         <UsageCount Value="34"/>
@@ -237,7 +229,7 @@
       <Unit24>
         <Filename Value="src\net\KM_NetServerLNet.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="40"/>
+        <EditorIndex Value="37"/>
         <TopLine Value="18"/>
         <CursorPos X="49" Y="26"/>
         <UsageCount Value="34"/>
@@ -246,7 +238,7 @@
       <Unit25>
         <Filename Value="src\net\KM_NetUDP.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="41"/>
+        <EditorIndex Value="38"/>
         <TopLine Value="77"/>
         <CursorPos X="50" Y="86"/>
         <UsageCount Value="34"/>
@@ -255,7 +247,7 @@
       <Unit26>
         <Filename Value="src\gui\pages_menu\KM_GUIMenuMultiplayer.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="42"/>
+        <EditorIndex Value="39"/>
         <TopLine Value="726"/>
         <CursorPos X="57" Y="737"/>
         <UsageCount Value="34"/>
@@ -264,7 +256,7 @@
       <Unit27>
         <Filename Value="src\KM_GameApp.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="44"/>
+        <EditorIndex Value="41"/>
         <TopLine Value="408"/>
         <CursorPos X="58" Y="431"/>
         <UsageCount Value="34"/>
@@ -273,7 +265,7 @@
       <Unit28>
         <Filename Value="src\game\KM_Game.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="43"/>
+        <EditorIndex Value="40"/>
         <TopLine Value="1316"/>
         <CursorPos X="53" Y="1330"/>
         <UsageCount Value="34"/>
@@ -304,12 +296,11 @@
       <Unit31>
         <Filename Value="src\utils\KromOGLUtils.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="19"/>
+        <EditorIndex Value="18"/>
         <TopLine Value="24"/>
         <CursorPos X="3" Y="41"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit31>
       <Unit32>
         <Filename Value="src\utils\KromUtils.pas"/>
@@ -323,7 +314,7 @@
       <Unit33>
         <Filename Value="src\utils\KromShellUtils.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="37"/>
+        <EditorIndex Value="34"/>
         <CursorPos X="32" Y="15"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
@@ -589,14 +580,14 @@
       <Unit60>
         <Filename Value="src\common\KM_CommonClasses.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="34"/>
+        <EditorIndex Value="31"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
       </Unit60>
       <Unit61>
         <Filename Value="src\common\KM_CommonClassesExt.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="26"/>
+        <EditorIndex Value="23"/>
         <TopLine Value="41"/>
         <CursorPos X="40" Y="55"/>
         <UsageCount Value="34"/>
@@ -634,9 +625,9 @@
       <Unit65>
         <Filename Value="src\controls\KM_Controls.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="31"/>
-        <TopLine Value="2155"/>
-        <CursorPos X="20" Y="2154"/>
+        <EditorIndex Value="28"/>
+        <TopLine Value="2139"/>
+        <CursorPos X="20" Y="2138"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
       </Unit65>
@@ -713,7 +704,7 @@
       <Unit73>
         <Filename Value="src\game\gip\KM_GameInputProcess.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="29"/>
+        <EditorIndex Value="26"/>
         <TopLine Value="246"/>
         <CursorPos X="39" Y="260"/>
         <UsageCount Value="34"/>
@@ -821,7 +812,7 @@
       <Unit84>
         <Filename Value="src\gui\pages_game\KM_GUIGameResultsMP.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="32"/>
+        <EditorIndex Value="29"/>
         <TopLine Value="668"/>
         <CursorPos X="101" Y="692"/>
         <UsageCount Value="34"/>
@@ -840,7 +831,7 @@
       <Unit86>
         <Filename Value="src\gui\pages_game\KM_GUIGameSpectator.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="45"/>
+        <EditorIndex Value="42"/>
         <TopLine Value="649"/>
         <CursorPos X="19" Y="648"/>
         <UsageCount Value="34"/>
@@ -1555,12 +1546,11 @@
       <Unit158>
         <Filename Value="src\KM_Log.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="18"/>
+        <EditorIndex Value="17"/>
         <TopLine Value="100"/>
         <CursorPos X="14" Y="115"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit158>
       <Unit159>
         <Filename Value="src\mission\KM_Maps.pas"/>
@@ -1693,7 +1683,7 @@
       <Unit172>
         <Filename Value="src\navmesh\KM_NavMeshGenerator.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="21"/>
+        <EditorIndex Value="19"/>
         <CursorPos X="6" Y="9"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
@@ -2040,7 +2030,7 @@
       <Unit207>
         <Filename Value="src\render\KM_RenderUI.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="30"/>
+        <EditorIndex Value="27"/>
         <CursorPos X="24" Y="9"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
@@ -2058,7 +2048,7 @@
       <Unit209>
         <Filename Value="src\res\KM_Resource.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="46"/>
+        <EditorIndex Value="43"/>
         <TopLine Value="31"/>
         <CursorPos X="5" Y="44"/>
         <UsageCount Value="34"/>
@@ -2207,7 +2197,7 @@
       <Unit224>
         <Filename Value="src\scripting\KM_Scripting.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="33"/>
+        <EditorIndex Value="30"/>
         <TopLine Value="1424"/>
         <CursorPos X="39" Y="1437"/>
         <UsageCount Value="34"/>
@@ -2226,7 +2216,7 @@
       <Unit226>
         <Filename Value="src\scripting\KM_ScriptingConsoleCommands.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="25"/>
+        <EditorIndex Value="22"/>
         <CursorPos X="90" Y="12"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
@@ -2234,7 +2224,7 @@
       <Unit227>
         <Filename Value="src\scripting\KM_ScriptingEvents.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="28"/>
+        <EditorIndex Value="25"/>
         <TopLine Value="395"/>
         <CursorPos X="29" Y="408"/>
         <UsageCount Value="34"/>
@@ -2443,7 +2433,7 @@
       <Unit248>
         <Filename Value="src\units\actions\KM_UnitActionWalkTo.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="27"/>
+        <EditorIndex Value="24"/>
         <TopLine Value="98"/>
         <CursorPos X="36" Y="111"/>
         <UsageCount Value="34"/>
@@ -2785,7 +2775,7 @@
       </Unit283>
       <Unit284>
         <Filename Value="src\ext\OggVorbis\Ogg.pas"/>
-        <EditorIndex Value="23"/>
+        <EditorIndex Value="20"/>
         <TopLine Value="37"/>
         <CursorPos X="14" Y="49"/>
         <UsageCount Value="15"/>
@@ -2793,7 +2783,7 @@
       </Unit284>
       <Unit285>
         <Filename Value="src\ext\OggVorbis\Codec.pas"/>
-        <EditorIndex Value="24"/>
+        <EditorIndex Value="21"/>
         <TopLine Value="34"/>
         <CursorPos X="14" Y="46"/>
         <UsageCount Value="15"/>
@@ -2801,7 +2791,7 @@
       </Unit285>
       <Unit286>
         <Filename Value="src\ext\OggVorbis\VorbisFile.pas"/>
-        <EditorIndex Value="35"/>
+        <EditorIndex Value="32"/>
         <TopLine Value="36"/>
         <CursorPos X="14" Y="48"/>
         <UsageCount Value="15"/>
@@ -2869,50 +2859,45 @@
       <Unit294>
         <Filename Value="..\..\..\.lazarus\onlinepackagemanager\packages\BGRABitmap\bgrabitmap\bgragraphics.pas"/>
         <UnitName Value="BGRAGraphics"/>
-        <EditorIndex Value="16"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="34" Y="21"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit294>
       <Unit295>
-        <Filename Value="..\..\..\..\..\usr\share\lazarus\3.0.0\lcl\interfaces\gtk2\gtk2disableliboverlay.pas"/>
+        <Filename Value="C:\usr\share\lazarus\3.0.0\lcl\interfaces\gtk2\gtk2disableliboverlay.pas"/>
         <UnitName Value="gtk2DisableLibOverlay"/>
-        <EditorIndex Value="20"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="63" Y="15"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit295>
       <Unit296>
-        <Filename Value="..\..\..\..\..\usr\share\lazarus\3.0.0\lcl\interfaces\gtk2\gtk2cellrenderer.pas"/>
+        <Filename Value="C:\usr\share\lazarus\3.0.0\lcl\interfaces\gtk2\gtk2cellrenderer.pas"/>
         <UnitName Value="Gtk2CellRenderer"/>
-        <EditorIndex Value="22"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="15"/>
         <CursorPos X="30" Y="26"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit296>
       <Unit297>
         <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
         <UnitName Value="OpenGLContext"/>
-        <EditorIndex Value="17"/>
+        <EditorIndex Value="16"/>
         <TopLine Value="128"/>
         <CursorPos X="41" Y="139"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit297>
       <Unit298>
         <Filename Value="src\settings\KM_SettingsDev.pas"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="14"/>
         <TopLine Value="7"/>
-        <CursorPos X="28" Y="21"/>
+        <CursorPos X="111" Y="39"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit298>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="23" HistoryIndex="22">
       <Position1>
         <Filename Value="src\KM_Console.pas"/>
         <Caret Line="317" Column="53" TopLine="296"/>
@@ -2950,89 +2935,61 @@
         <Caret Line="315" Column="32"/>
       </Position9>
       <Position10>
-        <Filename Value="..\..\..\.lazarus\onlinepackagemanager\packages\BGRABitmap\bgrabitmap\bgragraphics.pas"/>
-        <Caret Line="10" Column="6"/>
-      </Position10>
-      <Position11>
-        <Filename Value="..\..\..\.lazarus\onlinepackagemanager\packages\BGRABitmap\bgrabitmap\bgragraphics.pas"/>
-        <Caret Line="12" Column="17"/>
-      </Position11>
-      <Position12>
-        <Filename Value="..\..\..\..\..\usr\share\lazarus\3.0.0\lcl\interfaces\gtk2\gtk2disableliboverlay.pas"/>
-        <Caret Line="15" Column="63"/>
-      </Position12>
-      <Position13>
-        <Filename Value="..\..\..\.lazarus\onlinepackagemanager\packages\BGRABitmap\bgrabitmap\bgragraphics.pas"/>
-        <Caret Line="10" Column="6"/>
-      </Position13>
-      <Position14>
-        <Filename Value="..\..\..\..\..\usr\share\lazarus\3.0.0\lcl\interfaces\gtk2\gtk2disableliboverlay.pas"/>
-        <Caret Line="15" Column="63"/>
-      </Position14>
-      <Position15>
         <Filename Value="src\navmesh\KM_NavMeshGenerator.pas"/>
         <Caret Line="9" Column="6"/>
-      </Position15>
-      <Position16>
-        <Filename Value="..\..\..\..\..\usr\share\lazarus\3.0.0\lcl\interfaces\gtk2\gtk2cellrenderer.pas"/>
-        <Caret Line="26" Column="30" TopLine="15"/>
-      </Position16>
-      <Position17>
+      </Position10>
+      <Position11>
         <Filename Value="KaM_Remake.lpr"/>
         <Caret Line="20" Column="40"/>
+      </Position11>
+      <Position12>
+        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
+        <Caret Line="98" Column="82" TopLine="88"/>
+      </Position12>
+      <Position13>
+        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
+        <Caret Line="105" Column="5" TopLine="88"/>
+      </Position13>
+      <Position14>
+        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
+        <Caret Line="106" Column="34" TopLine="88"/>
+      </Position14>
+      <Position15>
+        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
+        <Caret Line="105" Column="5" TopLine="88"/>
+      </Position15>
+      <Position16>
+        <Filename Value="src\utils\KromOGLUtils.pas"/>
+        <Caret Line="41" Column="3" TopLine="24"/>
+      </Position16>
+      <Position17>
+        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
+        <Caret Line="105" Column="5" TopLine="93"/>
       </Position17>
       <Position18>
-        <Filename Value="..\..\..\.lazarus\onlinepackagemanager\packages\BGRABitmap\bgrabitmap\bgragraphics.pas"/>
-        <Caret Line="21" Column="34"/>
+        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
+        <Caret Line="108" Column="32" TopLine="93"/>
       </Position18>
       <Position19>
         <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
-        <Caret Line="98" Column="82" TopLine="88"/>
+        <Caret Line="134" Column="63" TopLine="122"/>
       </Position19>
       <Position20>
         <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
-        <Caret Line="105" Column="5" TopLine="88"/>
+        <Caret Line="136" Column="62" TopLine="125"/>
       </Position20>
       <Position21>
         <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
-        <Caret Line="106" Column="34" TopLine="88"/>
+        <Caret Line="139" Column="41" TopLine="128"/>
       </Position21>
       <Position22>
-        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
-        <Caret Line="105" Column="5" TopLine="88"/>
-      </Position22>
-      <Position23>
-        <Filename Value="src\utils\KromOGLUtils.pas"/>
-        <Caret Line="41" Column="3" TopLine="24"/>
-      </Position23>
-      <Position24>
-        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
-        <Caret Line="105" Column="5" TopLine="93"/>
-      </Position24>
-      <Position25>
-        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
-        <Caret Line="108" Column="32" TopLine="93"/>
-      </Position25>
-      <Position26>
-        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
-        <Caret Line="134" Column="63" TopLine="122"/>
-      </Position26>
-      <Position27>
-        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
-        <Caret Line="136" Column="62" TopLine="125"/>
-      </Position27>
-      <Position28>
-        <Filename Value="src\ext\LazarusOpenGL\openglcontext.pas"/>
-        <Caret Line="139" Column="41" TopLine="128"/>
-      </Position28>
-      <Position29>
         <Filename Value="src\KM_Log.pas"/>
         <Caret Line="114" Column="12" TopLine="102"/>
-      </Position29>
-      <Position30>
+      </Position22>
+      <Position23>
         <Filename Value="KaM_Remake.lpr"/>
         <Caret Line="20" Column="40"/>
-      </Position30>
+      </Position23>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
