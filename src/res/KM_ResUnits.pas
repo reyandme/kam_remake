@@ -13,7 +13,7 @@ type
 
   TKMUnitMoveType = (umtWalk, umtWalkDiag, umtStorm, umtStormDiag);
 
-  TKMUnitDat = packed record
+  TKMUnitSpecLegacy = packed record
     HitPoints: SmallInt;
     Attack: SmallInt;
     AttackHorse: SmallInt;
@@ -42,7 +42,7 @@ type
   TKMUnitSpec = class
   private
     fUnitType: TKMUnitType;
-    fUnitDat: TKMUnitDat;
+    fUnitDat: TKMUnitSpecLegacy;
     fUnitSpecInfo: TKMUnitSpecInfo;
     fUnitSprite: TKMUnitSprite;
     fUnitSprite2: TKMUnitSprite2;
@@ -258,7 +258,7 @@ end;
 
 procedure TKMUnitSpec.LoadFromStream(Stream: TMemoryStream);
 begin
-  Stream.Read(fUnitDat, SizeOf(TKMUnitDat));
+  Stream.Read(fUnitDat, SizeOf(TKMUnitSpecLegacy));
   Stream.Read(fUnitSprite, SizeOf(TKMUnitSprite));
   Stream.Read(fUnitSprite2, SizeOf(TKMUnitSprite2));
 end;
@@ -684,7 +684,7 @@ begin
     if UNIT_ID_TO_TYPE[I] <> utNone then
       fItems[UNIT_ID_TO_TYPE[I]].LoadFromStream(S)
     else //Skip
-      S.Seek(SizeOf(TKMUnitDat) + SizeOf(TKMUnitSprite) + SizeOf(TKMUnitSprite2), soFromCurrent);
+      S.Seek(SizeOf(TKMUnitSpecLegacy) + SizeOf(TKMUnitSprite) + SizeOf(TKMUnitSprite2), soFromCurrent);
 
     Result := Adler32CRC(S);
   finally
