@@ -106,6 +106,7 @@ type
     fItems: array [TKMUnitType] of TKMUnitSpec;
     fSerfCarry: array [WARE_MIN..WARE_MAX, dirN..dirNW] of TKMAnimLoop;
     procedure LoadUnitsDat(const aPath: UnicodeString);
+    procedure PatchUnitSpec;
     function GetItem(aType: TKMUnitType): TKMUnitSpec; inline;
     function GetSerfCarry(aType: TKMWareType; aDir: TKMDirection): TKMAnimLoop;
   public
@@ -190,6 +191,7 @@ var
 
 implementation
 uses
+  TypInfo,
   KromUtils, KM_ResTexts;
 
 const
@@ -513,12 +515,6 @@ end;
 
 { TKMUnitsDatCollection }
 constructor TKMResUnits.Create;
-const
-  DEF_SCOUT_SIGHT = 9;
-  DEF_HORSEMAN_ATTACK = 40;
-  DEF_PEASANT_ATTACK_HORSE = 60;
-  DEF_PIKEMAN_ATTACK_HORSE = 55;
-  DEF_MOUNTED_SPEED = 39;
 var
   UT: TKMUnitType;
 begin
@@ -529,6 +525,49 @@ begin
 
   LoadUnitsDat(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
 
+  //ExportCSV(ExeDir + 'units.original.csv');
+  PatchUnitSpec;
+
+  //ExportCSV(ExeDir + 'units.remake.csv');
+  //Halt;
+end;
+
+
+destructor TKMResUnits.Destroy;
+var
+  UT: TKMUnitType;
+begin
+  for UT := Low(TKMUnitType) to High(TKMUnitType) do
+    fItems[UT].Free;
+
+  inherited;
+end;
+
+
+procedure TKMResUnits.SaveCustomData(aSaveStream: TKMemoryStream);
+begin
+  aSaveStream.PlaceMarker('UnitsCustomData');
+  aSaveStream.Write(TH_TROOP_COST, SizeOF(TH_TROOP_COST));
+end;
+
+
+procedure TKMResUnits.LoadCustomData(aLoadStream: TKMemoryStream);
+begin
+  aLoadStream.CheckMarker('UnitsCustomData');
+  aLoadStream.Read(TH_TROOP_COST, SizeOF(TH_TROOP_COST));
+end;
+
+
+procedure TKMResUnits.PatchUnitSpec;
+const
+  DEF_SCOUT_SIGHT = 9;
+  DEF_HORSEMAN_ATTACK = 40;
+  DEF_PEASANT_ATTACK_HORSE = 60;
+  DEF_PIKEMAN_ATTACK_HORSE = 55;
+  DEF_MOUNTED_SPEED = 39;
+var
+  UT: TKMUnitType;
+begin
   // Overwrite units stats only if they are set for default values from original game
   // We don't want to update them, in case player manually edited unit.dat file
   if fItems[utScout].fUnitDat.Sight = DEF_SCOUT_SIGHT then
@@ -560,64 +599,37 @@ begin
     fItems[UT].fUnitSpecInfo.StepsPerTileStorm     := Round(1    / (fItems[UT].Speed * STORM_SPEEDUP));
     fItems[UT].fUnitSpecInfo.StepsPerTileStormDiag := Round(1.41 / (fItems[UT].Speed * STORM_SPEEDUP));
   end;
-
-  //ExportCSV(ExeDir+'units.csv');
-end;
-
-
-destructor TKMResUnits.Destroy;
-var
-  U: TKMUnitType;
-begin
-  for U := Low(TKMUnitType) to High(TKMUnitType) do
-    fItems[U].Free;
-
-  inherited;
-end;
-
-
-procedure TKMResUnits.SaveCustomData(aSaveStream: TKMemoryStream);
-begin
-  aSaveStream.PlaceMarker('UnitsCustomData');
-  aSaveStream.Write(TH_TROOP_COST, SizeOF(TH_TROOP_COST));
-end;
-
-
-procedure TKMResUnits.LoadCustomData(aLoadStream: TKMemoryStream);
-begin
-  aLoadStream.CheckMarker('UnitsCustomData');
-  aLoadStream.Read(TH_TROOP_COST, SizeOF(TH_TROOP_COST));
 end;
 
 
 procedure TKMResUnits.ExportCSV(const aPath: UnicodeString);
 var
-  ft: textfile;
-  ii: TKMUnitType;
+  sw: TStreamWriter;
+  UT: TKMUnitType;
 begin
-  AssignFile(ft,aPath); rewrite(ft);
-  writeln(ft,'Name;HitPoints;Attack;AttackHorse;Defence;Speed;Sight;');
-  for ii := Low(TKMUnitType) to High(TKMUnitType) do
-  if Items[ii].IsValid then
+  sw := TStreamWriter.Create(aPath);
+  sw.WriteLine('Name,HitPoints,Attack,AttackHorse,x4,Defence,Speed,x7,Sight,x9,x10,CanWalkOut,x11');
+  for UT := Low(TKMUnitType) to High(TKMUnitType) do
+  if Items[UT].IsValid then
   begin
-    write(ft,Items[ii].GUIName+';');
-    write(ft,inttostr(Items[ii].HitPoints)+';');
-    write(ft,inttostr(Items[ii].Attack)+';');
-    write(ft,inttostr(Items[ii].AttackHorse)+';');
-    //write(ft,inttostr(Items[ii].x4)+';');
-    write(ft,inttostr(Items[ii].Defence)+';');
-    write(ft,floattostr(Items[ii].Speed)+';');
-    //write(ft,inttostr(Items[ii].x7)+';');
-    write(ft,inttostr(Items[ii].Sight)+';');
-    //write(ft,inttostr(Items[ii].x9)+';');
-    //write(ft,inttostr(Items[ii].x10)+';');
-    //write(ft,inttostr(Items[ii].CanWalkOut)+';');
-    //write(ft,inttostr(Items[ii].x11)+';');
-    //for kk:=1 to 18 do
-    //  write(ft,inttostr(UnitSprite2[ii,kk])+';');
-    writeln(ft);
+    sw.Write(GetEnumName(TypeInfo(TKMUnitType), Ord(UT)) + ',');
+    sw.Write(IntToStr(Items[UT].HitPoints) + ',');
+    sw.Write(IntToStr(Items[UT].Attack) + ',');
+    sw.Write(IntToStr(Items[UT].AttackHorse) + ',');
+    sw.Write(IntToStr(Items[UT].fUnitDat.x4) + ',');
+    sw.Write(IntToStr(Items[UT].Defence) + ',');
+    sw.Write(IntToStr(Items[UT].fUnitDat.Speed) + ',');
+    sw.Write(IntToStr(Items[UT].fUnitDat.x7) + ',');
+    sw.Write(IntToStr(Items[UT].Sight) + ',');
+    sw.Write(IntToStr(Items[UT].fUnitDat.x9) + ',');
+    sw.Write(IntToStr(Items[UT].fUnitDat.x10) + ',');
+    sw.Write(IntToStr(Items[UT].fUnitDat.CanWalkOut) + ',');
+    sw.Write(IntToStr(Items[UT].fUnitDat.x11) + ',');
+    // for kk:=1 to 18 do
+    // sw.Write(IntToStr(UnitSprite2[UT,kk])+',');
+    sw.WriteLine;
   end;
-  closefile(ft);
+  sw.Free;
 
   {AssignFile(ft,ExeDir+'Units.txt'); rewrite(ft);
   for ii:=Low(TKMUnitType) to High(TKMUnitType) do
