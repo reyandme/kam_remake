@@ -39,6 +39,7 @@ type
 
   TKMUnitSprite2 = array [1..18] of SmallInt; //Sound indices vs sprite ID
 
+  // Common facade for unit specs that hides the legacy and modern complexities
   TKMUnitSpec = class
   private
     fUnitType: TKMUnitType;
@@ -158,33 +159,32 @@ const
     );
 
   UNIT_TYPE_TO_ID: array[TKMUnitType] of ShortInt = (
-    -1, -1, //utNone, utAny
-    0,1,2,3,4,5,6,7,8,9,10,11,12,13, //Citizens
-    14,15,16,17,18,19,20,21,22,23, //Warriors
-    24,25,26,27, {28,29,} //TPR warriors
-    30,31,32,33,34,35,36,37); //Animals
-
-
-  //Number means ResourceType as it is stored in Barracks, hence it's not rtSomething
-  TROOP_COST: array [utMilitia..utKnight, 1..4] of TKMWareType = (
-    (wtAxe,          wtNone,        wtNone,  wtNone ), //Militia
-    (wtWoodenShield,       wtLeatherArmor,       wtAxe,   wtNone ), //Axefighter
-    (wtIronShield,  wtIronArmor,  wtSword, wtNone ), //Swordfighter
-    (wtLeatherArmor,        wtBow,         wtNone,  wtNone ), //Bowman
-    (wtIronArmor,   wtCrossbow,     wtNone,  wtNone ), //Crossbowman
-    (wtLeatherArmor,        wtLance,        wtNone,  wtNone ), //Lance Carrier
-    (wtIronArmor,   wtPike,   wtNone,  wtNone ), //Pikeman
-    (wtWoodenShield,       wtLeatherArmor,       wtAxe,   wtHorse), //Scout
-    (wtIronShield,  wtIronArmor,  wtSword, wtHorse)  //Knight
+    -1, -1,                           // utNone, utAny
+    0,1,2,3,4,5,6,7,8,9,10,11,12,13,  // Citizens
+    14,15,16,17,18,19,20,21,22,23,    // Warriors
+    24,25,26,27, {28,29,}             // TPR warriors
+    30,31,32,33,34,35,36,37           // Animals
   );
 
+  // Number means WareType as it is stored in Barracks, hence it's not wtSomething
+  TROOP_COST: array [utMilitia..utKnight, 1..4] of TKMWareType = (
+    (wtAxe,          wtNone,         wtNone,  wtNone ), // Militia
+    (wtWoodenShield, wtLeatherArmor, wtAxe,   wtNone ), // Axefighter
+    (wtIronShield,   wtIronArmor,    wtSword, wtNone ), // Swordfighter
+    (wtLeatherArmor, wtBow,          wtNone,  wtNone ), // Bowman
+    (wtIronArmor,    wtCrossbow,     wtNone,  wtNone ), // Crossbowman
+    (wtLeatherArmor, wtLance,        wtNone,  wtNone ), // Lance Carrier
+    (wtIronArmor,    wtPike,         wtNone,  wtNone ), // Pikeman
+    (wtWoodenShield, wtLeatherArmor, wtAxe,   wtHorse), // Scout
+    (wtIronShield,   wtIronArmor,    wtSword, wtHorse)  // Knight
+  );
 
-  //The frame shown when a unit is standing still in uaWalk. Same for all units!
+  // The frame shown when a unit is standing still in uaWalk. Same for all units!
   UNIT_STILL_FRAMES: array [TKMDirection] of Byte = (0,3,2,2,1,6,7,6,6);
 
 var
-  //TownHall default units troops cost (number of gold chests needed)
-  //Could be modified by script functions
+  // TownHall default units troops cost (number of gold chests needed)
+  // Could be modified by script functions
   TH_TROOP_COST: array[0..4] of Byte;
 
 
