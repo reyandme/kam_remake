@@ -105,7 +105,7 @@ type
     fCRC: Cardinal;
     fItems: array [TKMUnitType] of TKMUnitSpec;
     fSerfCarry: array [WARE_MIN..WARE_MAX, dirN..dirNW] of TKMAnimLoop;
-    function LoadUnitsDat(const aPath: UnicodeString): Cardinal;
+    procedure LoadUnitsDat(const aPath: UnicodeString);
     function GetItem(aType: TKMUnitType): TKMUnitSpec; inline;
     function GetSerfCarry(aType: TKMWareType; aDir: TKMDirection): TKMAnimLoop;
   public
@@ -378,17 +378,17 @@ end;
 //Animals don't have team and thus are rendered in their own prefered clors
 function TKMUnitSpec.GetMinimapColor: Cardinal;
 const
-  MM_COLOR: array[TKMUnitType] of Cardinal = (
+  MINIMAP_COLOR: array [TKMUnitType] of Cardinal = (
     0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,
-    $B0B0B0,$B08000,$B08000,$80B0B0,$00B0B0,$B080B0,$00B000,$80B0B0); //Exact colors can be tweaked
+    $B0B0B0,$B08000,$B08000,$80B0B0,$00B0B0,$B080B0,$00B000,$80B0B0); // Exact colors can be tweaked
 begin
-  Result := MM_COLOR[fUnitType] or $FF000000;
+  Result := MINIMAP_COLOR[fUnitType] or $FF000000;
 end;
 
 
-//Unit mining ranges. (measured from KaM)
+// Unit mining ranges. (measured from KaM)
 function TKMUnitSpec.GetMiningRange: Byte;
 begin
   case fUnitType of
@@ -402,8 +402,9 @@ begin
 end;
 
 
-function TKMUnitSpec.GetSpeed: single;
+function TKMUnitSpec.GetSpeed: Single;
 begin
+  // Return speed in tiles per tick (usually 0.1)
   Result := fUnitDat.Speed / 240;
 end;
 
@@ -526,7 +527,7 @@ begin
   for UT := Low(TKMUnitType) to High(TKMUnitType) do
     fItems[UT] := TKMUnitSpec.Create(UT);
 
-  fCRC := LoadUnitsDat(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
+  LoadUnitsDat(ExeDir + 'data' + PathDelim + 'defines' + PathDelim + 'unit.dat');
 
   // Overwrite units stats only if they are set for default values from original game
   // We don't want to update them, in case player manually edited unit.dat file
@@ -665,7 +666,7 @@ begin
 end;
 
 
-function TKMResUnits.LoadUnitsDat(const aPath: UnicodeString): Cardinal;
+procedure TKMResUnits.LoadUnitsDat(const aPath: UnicodeString);
 const
   UNIT_DAT_COUNT = 41;
 var
@@ -686,7 +687,7 @@ begin
     else //Skip
       S.Seek(SizeOf(TKMUnitSpecLegacy) + SizeOf(TKMUnitSprite) + SizeOf(TKMUnitSprite2), soFromCurrent);
 
-    Result := Adler32CRC(S);
+    fCRC := Adler32CRC(S);
   finally
     S.Free;
   end;
