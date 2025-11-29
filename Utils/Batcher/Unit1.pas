@@ -149,6 +149,7 @@ begin
   // Do nothing here and make compiler happy
 end;
 
+
 // Read mission file as it is, without any changes
 // We don't use TMissionParserCommon.ReadMissionFile, becasue it cuts spaces and does other things
 function TKMMissionParserPatcher.ReadMissionFileWOChanges(const aFileName: string): AnsiString;
@@ -750,25 +751,23 @@ procedure TForm1.Button12Click(Sender: TObject);
 var
   I, cnt: Integer;
   SL, pathToUnits: TStringList;
-  pathToExt, pathToUtils: UnicodeString;
+  srcExt, srcUtils: UnicodeString;
 begin
   SetUp(True);
 
   SL := TStringList.Create;
   pathToUnits := TStringList.Create;
   try
-    GetAllPathsInDir(IncludeTrailingBackslash(ExeDir) + PathDelim + 'src', pathToUnits, ValidateKMUnitName);
+    GetAllPathsInDir(IncludeTrailingBackslash(ExeDir) + 'src', pathToUnits, ValidateKMUnitName);
 
-    GetAllPathsInDir(IncludeTrailingBackslash(ExeDir) + PathDelim + 'Utils', pathToUnits, ValidateUtilsUnitName);
+    GetAllPathsInDir(IncludeTrailingBackslash(ExeDir) + 'Utils', pathToUnits, ValidateUtilsUnitName);
 
-    pathToExt := IncludeTrailingBackslash(ExeDir) + PathDelim + 'src' + PathDelim + 'ext' + PathDelim;
-    pathToUtils := IncludeTrailingBackslash(ExeDir) + PathDelim + 'src' + PathDelim + 'utils' + PathDelim;
-    pathToUnits.Add(pathToExt + 'KromIOUtils.pas');
-    pathToUnits.Add(pathToUtils + 'KromUtils.pas');
-    pathToUnits.Add(pathToUtils + 'KromOGLUtils.pas');
-    pathToUnits.Add(pathToUtils + 'KromShellUtils.pas');
-    pathToUnits.Add(pathToUtils + 'BinaryHeap.pas');
-    pathToUnits.Add(pathToUtils + 'BinaryHeapGen.pas');
+    srcExt := IncludeTrailingBackslash(ExeDir) + 'src\ext\';
+    srcUtils := IncludeTrailingBackslash(ExeDir) + 'src\utils\';
+    pathToUnits.Add(srcExt + 'KromIOUtils.pas');
+    pathToUnits.Add(srcUtils + 'KromOGLUtils.pas');
+    pathToUnits.Add(srcUtils + 'KromShellUtils.pas');
+    pathToUnits.Add(srcUtils + 'KromUtils.pas');
 
     cnt := pathToUnits.Count;
     for I := 0 to pathToUnits.Count - 1 do
@@ -788,6 +787,7 @@ begin
 
   TearDown;
 end;
+
 
 procedure TForm1.Button13Click(Sender: TObject);
 var
