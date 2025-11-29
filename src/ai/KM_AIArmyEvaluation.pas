@@ -89,21 +89,18 @@ end;
 
 function TKMArmyEvaluation.UnitEvaluation(aUT: TKMUnitType; aConsiderHitChance: Boolean = False): TKMGroupEval;
 var
-  US: TKMUnitSpec;
+  unitSpec: TKMUnitSpec;
 begin
   // Fill array with reference values
-  US := gRes.Units[aUT];
-  with Result do
-  begin
-    Count              := 1;
-    HitPoints          := US.HitPoints;
-    Attack             := US.Attack;
-    AttackHorse        := US.AttackHorse;
-    Defence            := US.Defence;
-    DefenceProjectiles := US.GetDefenceVsProjectiles(False);
-    if aConsiderHitChance AND (UNIT_TO_GROUP_TYPE[aUT] = gtRanged) then
-      Attack := Attack * HIT_CHANCE_MODIFIER;
-  end;
+  unitSpec := gRes.Units[aUT];
+  Result.Count              := 1;
+  Result.HitPoints          := unitSpec.HitPoints;
+  Result.Attack             := unitSpec.Attack;
+  Result.AttackHorse        := unitSpec.AttackHorse;
+  Result.Defence            := unitSpec.Defence;
+  Result.DefenceProjectiles := unitSpec.GetDefenceVsProjectiles(False);
+  if aConsiderHitChance and (UNIT_TO_GROUP_TYPE[aUT] = gtRanged) then
+    Result.Attack := Result.Attack * HIT_CHANCE_MODIFIER;
 end;
 
 
@@ -116,7 +113,7 @@ begin
   Result.Count := aGroup.Count;
   for K := 0 to aGroup.Count-1 do
   begin
-    GE := UnitEvaluation(TKMUnit(aGroup.Members[K]).UnitType,aConsiderHitChance);
+    GE := UnitEvaluation(TKMUnit(aGroup.Members[K]).UnitType, aConsiderHitChance);
     with Result do
     begin
       HitPoints          := HitPoints          + GE.HitPoints;
