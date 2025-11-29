@@ -17,6 +17,7 @@
 KaM Remake Beta r_____ []
 ------------------------------
 Game:
+ + Fixed HD animations flickering
  + Fixed SampleRate for original KaM sound effects
  + Added tick part to GameTime string in logs
  + Fixed persistence of fish count on Undo/Redo in MapEd
