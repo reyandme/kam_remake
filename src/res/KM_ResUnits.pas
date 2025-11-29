@@ -14,9 +14,18 @@ type
   TKMUnitMoveType = (umtWalk, umtWalkDiag, umtStorm, umtStormDiag);
 
   TKMUnitDat = packed record
-    HitPoints, Attack, AttackHorse, x4, Defence, Speed, x7, Sight: SmallInt;
-    x9, x10: ShortInt;
-    CanWalkOut, x11: SmallInt;
+    HitPoints: SmallInt;
+    Attack: SmallInt;
+    AttackHorse: SmallInt;
+    x4: SmallInt;
+    Defence: SmallInt;
+    Speed: SmallInt;
+    x7: SmallInt;
+    Sight: SmallInt;
+    x9: ShortInt;
+    x10: ShortInt;
+    CanWalkOut: SmallInt;
+    x11: SmallInt;
   end;
 
   TKMUnitSprite = packed record
@@ -196,7 +205,7 @@ const
   );
 
 
-{ TKMUnitsDatClass }
+{ TKMUnitSpec }
 constructor TKMUnitSpec.Create(aType: TKMUnitType);
 begin
   inherited Create;

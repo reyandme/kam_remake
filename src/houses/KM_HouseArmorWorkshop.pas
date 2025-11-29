@@ -78,4 +78,5 @@ begin
   Result := inherited or not AcceptWareForDelivery(aWareType);
 end;
 
+
 end.
