@@ -16,14 +16,14 @@ const
 type
   THouseAnim = array [TKMHouseActionType] of TKMAnimLoop;
 
-  THouseBuildSupply = array [1..2,1..6] of packed record MoveX, MoveY: Integer; end;
-  THouseSupply = array [1..4, 1..5] of SmallInt;
+  TKMHouseBuildSupply = array [1..2,1..6] of packed record MoveX, MoveY: Integer; end;
+  TKMHouseSupply = array [1..4, 1..5] of SmallInt;
 
   //House fields as they are in a DAT file
-  TKMHouseDat = packed record
+  TKMHouseSpecLegacy = packed record
     StonePic, WoodPic, WoodPal, StonePal: SmallInt;
-    SupplyIn: THouseSupply;
-    SupplyOut: THouseSupply;
+    SupplyIn: TKMHouseSupply;
+    SupplyOut: TKMHouseSupply;
     Anim: THouseAnim;
     WoodPicSteps, StonePicSteps: Word;
     a1: SmallInt;
@@ -31,7 +31,7 @@ type
     EntranceOffsetXpx, EntranceOffsetYpx: ShortInt; //When entering house units go for the door, which is offset by these values
     BuildArea: array [1..10,1..10] of ShortInt;
     WoodCost,StoneCost: Byte;
-    BuildSupply: THouseBuildSupply;
+    BuildSupply: TKMHouseBuildSupply;
     a5,SizeArea: SmallInt;
     SizeX,SizeY,sx2,sy2: ShortInt;
     WorkerWork,WorkerRest: SmallInt;
@@ -52,7 +52,7 @@ type
   private
     fHouseType: TKMHouseType; //Our class
     fNameTextID: Integer;
-    fHouseDat: TKMHouseDat;
+    fHouseDat: TKMHouseSpecLegacy;
     function GetArea: TKMHouseArea;
     function GetDoesOrders: Boolean;
     function GetGUIIcon: Word;
@@ -75,8 +75,8 @@ type
     property WoodPic: Smallint read fHouseDat.WoodPic;
     property WoodPal: Smallint read fHouseDat.WoodPal;
     property StonePal: Smallint read fHouseDat.StonePal;
-    property SupplyIn: THouseSupply read fHouseDat.SupplyIn;
-    property SupplyOut: THouseSupply read fHouseDat.SupplyOut;
+    property SupplyIn: TKMHouseSupply read fHouseDat.SupplyIn;
+    property SupplyOut: TKMHouseSupply read fHouseDat.SupplyOut;
     property Anim: THouseAnim read fHouseDat.Anim;
     property WoodPicSteps: Word read fHouseDat.WoodPicSteps;
     property StonePicSteps: Word read fHouseDat.StonePicSteps;
@@ -85,7 +85,7 @@ type
     property EntranceOffsetYpx: ShortInt read fHouseDat.EntranceOffsetYpx;
     property WoodCost: Byte read fHouseDat.WoodCost;
     property StoneCost: Byte read fHouseDat.StoneCost;
-    property BuildSupply: THouseBuildSupply read fHouseDat.BuildSupply;
+    property BuildSupply: TKMHouseBuildSupply read fHouseDat.BuildSupply;
     property WorkerRest: Smallint read fHouseDat.WorkerRest;
     property ResProductionX: ShortInt read fHouseDat.ResProductionX;
     property Sight: Smallint read fHouseDat.Sight;
@@ -557,7 +557,7 @@ const
 
   //For some reason in KaM the piles of building supply are not aligned, each one has a different offset.
   //These values were taking from the barracks offsets and are for use with new houses.
-  BUILD_SUPPLY_OFFSETS: THouseBuildSupply = ( ((MoveX:  0; MoveY: 0), (MoveX: -7; MoveY: 0), (MoveX:-26; MoveY: 0),  //Wood 1-3
+  BUILD_SUPPLY_OFFSETS: TKMHouseBuildSupply = ( ((MoveX:  0; MoveY: 0), (MoveX: -7; MoveY: 0), (MoveX:-26; MoveY: 0),  //Wood 1-3
                                                (MoveX:-26; MoveY: 0), (MoveX:-26; MoveY:-1), (MoveX:-26; MoveY:-4)), //Wood 4-6
                                               ((MoveX:  0; MoveY: 0), (MoveX:  0; MoveY: 0), (MoveX: -7; MoveY: 0),  //Stone 1-3
                                                (MoveX: -7; MoveY:-4), (MoveX:-16; MoveY:-4), (MoveX:-16; MoveY:-4)));//Stone 4-6
@@ -746,7 +746,7 @@ end;
 
 procedure TKMHouseSpec.LoadFromStream(Stream: TMemoryStream);
 begin
-  Stream.Read(fHouseDat, SizeOf(TKMHouseDat));
+  Stream.Read(fHouseDat, SizeOf(TKMHouseSpecLegacy));
 end;
 
 
@@ -918,7 +918,7 @@ begin
     if HOUSE_ID_TO_TYPE[i] <> htNone then
       fItems[HOUSE_ID_TO_TYPE[i]].LoadFromStream(S)
     else
-      S.Seek(SizeOf(TKMHouseDat), soFromCurrent);
+      S.Seek(SizeOf(TKMHouseSpecLegacy), soFromCurrent);
 
     Result := Adler32CRC(S);
   finally

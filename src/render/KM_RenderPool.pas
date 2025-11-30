@@ -727,17 +727,17 @@ procedure TKMRenderPool.AddHouseBuildSupply(aHouse: TKMHouseType; const Loc: TKM
 var
   rx: TRXData;
   id: Integer;
-  supply: THouseBuildSupply;
+  houseBuildSupply: TKMHouseBuildSupply;
   cornerX, cornerY: Single;
 begin
   rx := fRXData[rxHouses];
-  supply := gRes.Houses[aHouse].BuildSupply;
+  houseBuildSupply := gRes.Houses[aHouse].BuildSupply;
 
   if Wood <> 0 then
   begin
     id := 260 + Wood - 1;
-    cornerX := Loc.X + supply[1, Wood].MoveX / CELL_SIZE_PX - 1;
-    cornerY := Loc.Y + (supply[1, Wood].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
+    cornerX := Loc.X + houseBuildSupply[1, Wood].MoveX / CELL_SIZE_PX - 1;
+    cornerY := Loc.Y + (houseBuildSupply[1, Wood].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
                      - gTerrain.LandExt^[Loc.Y + 1, Loc.X].RenderHeight / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, id, cornerX, cornerY);
   end;
@@ -745,8 +745,8 @@ begin
   if Stone <> 0 then
   begin
     id := 267 + Stone - 1;
-    cornerX := Loc.X + supply[2, Stone].MoveX / CELL_SIZE_PX - 1;
-    cornerY := Loc.Y + (supply[2, Stone].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
+    cornerX := Loc.X + houseBuildSupply[2, Stone].MoveX / CELL_SIZE_PX - 1;
+    cornerY := Loc.Y + (houseBuildSupply[2, Stone].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
                      - gTerrain.LandExt^[Loc.Y + 1, Loc.X].RenderHeight / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, id, cornerX, cornerY);
   end;
