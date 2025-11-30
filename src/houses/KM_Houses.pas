@@ -2075,16 +2075,16 @@ begin
   case fType of //Various buildings and HouseActions producing sounds
     htSchool:        if (work = haWork5)and(step = 28) then gSoundPlayer.Play(sfxSchoolDing, fPosition); //Ding as the clock strikes 12
     htMill:          if (work = haWork2)and(step = 0) then gSoundPlayer.Play(sfxMill, fPosition);
-    htCoalMine:      if (work = haWork1)and(step = 5) then gSoundPlayer.Play(sfxcoalDown, fPosition)
+    htCoalMine:      if (work = haWork1)and(step = 5) then gSoundPlayer.Play(sfxCoalDown, fPosition)
                       else if (work = haWork1)and(step = 24) then gSoundPlayer.Play(sfxCoalMineThud, fPosition,True,0.8)
                       else if (work = haWork2)and(step = 7) then gSoundPlayer.Play(sfxmine, fPosition)
-                      else if (work = haWork5)and(step = 1) then gSoundPlayer.Play(sfxcoalDown, fPosition);
+                      else if (work = haWork5)and(step = 1) then gSoundPlayer.Play(sfxCoalDown, fPosition);
     htIronMine:      if (work = haWork2)and(step = 7) then gSoundPlayer.Play(sfxmine, fPosition);
     htGoldMine:      if (work = haWork2)and(step = 5) then gSoundPlayer.Play(sfxmine, fPosition);
-    htSawmill:       if (work = haWork2)and(step = 1) then gSoundPlayer.Play(sfxsaw, fPosition);
-    htVineyard:      if (work = haWork2)and(step in [1,7,13,19]) then gSoundPlayer.Play(sfxwineStep, fPosition)
-                      else if (work = haWork5)and(step = 14) then gSoundPlayer.Play(sfxwineDrain, fPosition,True,1.5)
-                      else if (work = haWork1)and(step = 10) then gSoundPlayer.Play(sfxwineDrain, fPosition,True,1.5);
+    htSawmill:       if (work = haWork2)and(step = 1) then gSoundPlayer.Play(sfxSaw, fPosition);
+    htVineyard:      if (work = haWork2)and(step in [1,7,13,19]) then gSoundPlayer.Play(sfxWineStep, fPosition)
+                      else if (work = haWork5)and(step = 14) then gSoundPlayer.Play(sfxWineDrain, fPosition,True,1.5)
+                      else if (work = haWork1)and(step = 10) then gSoundPlayer.Play(sfxWineDrain, fPosition,True,1.5);
     htBakery:        if (work = haWork3)and(step in [6,25]) then gSoundPlayer.Play(sfxBakerSlap, fPosition);
     htQuarry:         if (work = haWork2)and(step in [4,13]) then gSoundPlayer.Play(sfxQuarryClink, fPosition)
                       else if (work = haWork5)and(step in [4,13,22]) then gSoundPlayer.Play(sfxQuarryClink, fPosition);
@@ -2097,15 +2097,15 @@ begin
                       else if (work = haWork3)and(step in [13,28]) then gSoundPlayer.Play(sfxBlacksmithBang, fPosition)
                       else if (work = haWork4)and(step in [8,22]) then gSoundPlayer.Play(sfxBlacksmithFire, fPosition)
                       else if (work = haWork5)and(step in [8,22]) then gSoundPlayer.Play(sfxBlacksmithFire, fPosition);
-    htMetallurgists: if (work = haWork3)and(step = 6) then gSoundPlayer.Play(sfxmetallurgists, fPosition)
-                      else if (work = haWork4)and(step in [16,20]) then gSoundPlayer.Play(sfxwineDrain, fPosition);
-    htIronSmithy:    if (work = haWork2)and(step in [1,16]) then gSoundPlayer.Play(sfxmetallurgists, fPosition)
-                      else if (work = haWork3)and(step = 1) then gSoundPlayer.Play(sfxmetallurgists, fPosition)
-                      else if (work = haWork3)and(step = 13) then gSoundPlayer.Play(sfxwineDrain, fPosition);
-    htWeaponWorkshop:if (work = haWork2)and(step in [1,10,19]) then gSoundPlayer.Play(sfxsaw, fPosition)
+    htMetallurgists: if (work = haWork3)and(step = 6) then gSoundPlayer.Play(sfxMetallurgists, fPosition)
+                      else if (work = haWork4)and(step in [16,20]) then gSoundPlayer.Play(sfxWineDrain, fPosition);
+    htIronSmithy:    if (work = haWork2)and(step in [1,16]) then gSoundPlayer.Play(sfxMetallurgists, fPosition)
+                      else if (work = haWork3)and(step = 1) then gSoundPlayer.Play(sfxMetallurgists, fPosition)
+                      else if (work = haWork3)and(step = 13) then gSoundPlayer.Play(sfxWineDrain, fPosition);
+    htWeaponWorkshop:if (work = haWork2)and(step in [1,10,19]) then gSoundPlayer.Play(sfxSaw, fPosition)
                       else if (work = haWork3)and(step in [10,21]) then gSoundPlayer.Play(sfxCarpenterHammer, fPosition)
                       else if (work = haWork4)and(step in [2,13]) then gSoundPlayer.Play(sfxCarpenterHammer, fPosition);
-    htArmorWorkshop: if (work = haWork2)and(step in [3,13,23]) then gSoundPlayer.Play(sfxsaw, fPosition)
+    htArmorWorkshop: if (work = haWork2)and(step in [3,13,23]) then gSoundPlayer.Play(sfxSaw, fPosition)
                       else if (work = haWork3)and(step in [17,28]) then gSoundPlayer.Play(sfxCarpenterHammer, fPosition)
                       else if (work = haWork4)and(step in [10,20]) then gSoundPlayer.Play(sfxCarpenterHammer, fPosition);
     htTannery:       if (work = haWork2)and(step = 5) then gSoundPlayer.Play(sfxLeather, fPosition,True,0.8);

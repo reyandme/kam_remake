@@ -76,16 +76,16 @@ begin
   //Various UnitTypes and ActionTypes produce all the sounds
   case fUnit.UnitType of
     utBuilder:      case ActionType of
-                      uaWork:  if Step = 3 then gSoundPlayer.Play(sfxHousebuild,fUnit.PositionF);
-                      uaWork1: if Step = 0 then gSoundPlayer.Play(sfxDig,fUnit.PositionF);
-                      uaWork2: if Step = 8 then gSoundPlayer.Play(sfxPave,fUnit.PositionF);
+                      uaWork:  if Step = 3 then gSoundPlayer.Play(sfxHouseBuild, fUnit.PositionF);
+                      uaWork1: if Step = 0 then gSoundPlayer.Play(sfxDig, fUnit.PositionF);
+                      uaWork2: if Step = 8 then gSoundPlayer.Play(sfxPave, fUnit.PositionF);
                     end;
     utFarmer:      case ActionType of
-                      uaWork:  if Step = 8 then gSoundPlayer.Play(sfxCornCut,fUnit.PositionF);
-                      uaWork1: if Step = 0 then gSoundPlayer.Play(sfxCornSow,fUnit.PositionF,True,0.6);
+                      uaWork:  if Step = 8 then gSoundPlayer.Play(sfxCornCut, fUnit.PositionF);
+                      uaWork1: if Step = 0 then gSoundPlayer.Play(sfxCornSow, fUnit.PositionF,True,0.6);
                     end;
     utStonemason: if ActionType = uaWork then
-                      if Step = 3 then gSoundPlayer.Play(sfxMinestone,fUnit.PositionF,True,1.4);
+                      if Step = 3 then gSoundPlayer.Play(sfxMinestone, fUnit.PositionF,True,1.4);
     utWoodCutter:  case ActionType of
                       uaWork: if (fUnit.AnimStep mod Cycle = 3) and (fUnit.Direction <> dirN) then gSoundPlayer.Play(sfxChopTree, fUnit.PositionF,True)
                       else     if (fUnit.AnimStep mod Cycle = 0) and (fUnit.Direction =  dirN) then gSoundPlayer.Play(sfxWoodcutterDig, fUnit.PositionF,True);
