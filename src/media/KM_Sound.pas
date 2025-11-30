@@ -638,7 +638,7 @@ begin
         raise Exception.Create('Unexpected wave bit depth');
       end;
 
-      var wavSampleRate := gRes.Sounds.fWaveProps[soundId].SampleRate;
+      var wavSampleRate := gRes.Sounds.GetSoundSampleRate(aSoundID);
       AlBufferData(fALSounds[freeBuf].ALBuffer, wavFormat, @W.Data[0], W.Head.DataSize, wavSampleRate);
       wavDuration := Round(W.Head.DataSize / wavSampleRate / W.Head.BytesPerSample * 1000);
     end else

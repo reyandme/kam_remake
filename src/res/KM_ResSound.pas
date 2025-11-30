@@ -129,6 +129,7 @@ type
 
     fWAVSize: array [1..200] of Integer;
     fTab2: array [1..200] of SmallInt;
+    fWaveProps: array of TKMSoundProp;
 
     fLocaleString: AnsiString; //Locale used to access warrior sounds
 
@@ -141,7 +142,6 @@ type
     procedure ExportCSV(const aFilename: string);
   public
     fWaves: array of TKMSoundData;
-    fWaveProps: array of TKMSoundProp;
 
     NotificationSoundCount: array[TAttackNotification] of byte;
     WarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
@@ -157,6 +157,7 @@ type
     function GetSoundType(aSFX: TSoundFX): TKMSoundType; overload;
     function GetSoundType(aSFX: TWarriorSpeech): TKMSoundType; overload;
     function GetSoundType(aSFX: TAttackNotification): TKMSoundType; overload;
+    function GetSoundSampleRate(aSFX: TSoundFX): Integer;
 
     property WavesCount: Integer read fWavesCount;
 
@@ -372,14 +373,6 @@ begin
   if DBG_EXPORT_SOUNDS_DAT then
     ExportCSV(ExeDir + 'export_sounds.original.csv');
 
-  // Special fix for Quarry:
-  // Not sure what exactly says that its SampleRate override should be ignored ..
-  // 22050 is much too fast for sfxQuarryClink, it sounds like 11025 in the original game (using GOG for comparison)
-  fWaveProps[Ord(sfxQuarryClink)].SampleRate := 11025;
-
-  // 11025 is much too slow for sfxTreeDown, it sounds like 22050 in the original game (using GOG for comparison)
-  fWaveProps[Ord(sfxTreeDown)].SampleRate := 22050;
-
   if DBG_EXPORT_SOUNDS_DAT then
   begin
     ExportCSV(ExeDir + 'export_sounds.remake.csv');
@@ -515,6 +508,19 @@ end;
 function TKMResSounds.GetSoundType(aSFX: TWarriorSpeech): TKMSoundType;
 begin
   Result := stGame; //All TSoundFX sounds considered as game sounds
+end;
+
+
+function TKMResSounds.GetSoundSampleRate(aSFX: TSoundFX): Integer;
+begin
+  // Unfortunately WaveProps are stored slightly unordered
+  // It would be better to reorder them to be in sync with Waves later on
+  var soundIndex := Ord(aSFX) - 1;
+
+  Result := 0;
+  for var I := 1 to High(fWaveProps) do
+  if fWaveProps[I].Id = soundIndex then
+    Exit(fWaveProps[I].SampleRate);
 end;
 
 
