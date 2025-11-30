@@ -83,7 +83,7 @@ type
     sfxnPeacetime);
 
   // Sounds to play on different warrior orders
-  TWarriorSpeech = (
+  TKMWarriorSpeech = (
     spSelect, spEat, spRotLeft, spRotRight, spSplit,
     spJoin, spHalt, spMove, spAttack, spFormation,
     spDeath, spBattleCry, spStormAttack);
@@ -144,18 +144,18 @@ type
     fWaves: array of TKMSoundData;
 
     NotificationSoundCount: array[TKMAttackNotification] of byte;
-    WarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
+    WarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TKMWarriorSpeech] of byte;
 
     constructor Create(const aLocale, aFallback, aDefault: AnsiString);
 
-    function FileOfCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech): UnicodeString;
+    function FileOfCitizen(aUnitType: TKMUnitType; aSound: TKMWarriorSpeech): UnicodeString;
     function FileOfNewSFX(aSFX: TSoundFXNew): UnicodeString;
     function FileOfNotification(aSound: TKMAttackNotification; aNumber: Byte): UnicodeString;
-    function FileOfWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
+    function FileOfWarrior(aUnitType: TKMUnitType; aSound: TKMWarriorSpeech; aNumber: Byte): UnicodeString;
 
     function GetSoundType(aNewSFX: TSoundFXNew): TKMSoundType; overload;
     function GetSoundType(aSFX: TKMSoundEffectOriginal): TKMSoundType; overload;
-    function GetSoundType(aSFX: TWarriorSpeech): TKMSoundType; overload;
+    function GetSoundType(aSFX: TKMWarriorSpeech): TKMSoundType; overload;
     function GetSoundType(aSFX: TKMAttackNotification): TKMSoundType; overload;
     function GetSoundSampleRate(aSFX: TKMSoundEffectOriginal): Integer;
 
@@ -184,7 +184,7 @@ const
     '', '', '', '', '',
     'bowman', 'lanceman', 'barbarian', 'cavalry');
 
-  WARRIOR_SFX: array[TWarriorSpeech] of string = (
+  WARRIOR_SFX: array[TKMWarriorSpeech] of string = (
     'select', 'eat', 'left', 'right', 'halve',
     'join', 'halt', 'send', 'attack', 'format',
     'death', 'battle', 'storm');
@@ -436,7 +436,7 @@ begin
 end;
 
 
-function TKMResSounds.FileOfCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech): UnicodeString;
+function TKMResSounds.FileOfCitizen(aUnitType: TKMUnitType; aSound: TKMWarriorSpeech): UnicodeString;
 var
   soundID: Byte;
 begin
@@ -451,7 +451,7 @@ begin
 end;
 
 
-function TKMResSounds.FileOfWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
+function TKMResSounds.FileOfWarrior(aUnitType: TKMUnitType; aSound: TKMWarriorSpeech; aNumber: Byte): UnicodeString;
 var
   S: UnicodeString;
 begin
@@ -505,7 +505,7 @@ begin
 end;
 
 
-function TKMResSounds.GetSoundType(aSFX: TWarriorSpeech): TKMSoundType;
+function TKMResSounds.GetSoundType(aSFX: TKMWarriorSpeech): TKMSoundType;
 begin
   Result := stGame; //All TKMSoundEffectOriginal sounds considered as game sounds
 end;
@@ -535,7 +535,7 @@ procedure TKMResSounds.ScanWarriorSounds;
 var
   I: Integer;
   U: TKMUnitType;
-  WS: TWarriorSpeech;
+  WS: TKMWarriorSpeech;
   AN: TKMAttackNotification;
   speechPath: string;
 begin
@@ -560,7 +560,7 @@ begin
 
   //If the folder exists it is likely all the sounds are there
   for U := WARRIOR_MIN to WARRIOR_MAX do
-    for WS := Low(TWarriorSpeech) to High(TWarriorSpeech) do
+    for WS := Low(TKMWarriorSpeech) to High(TKMWarriorSpeech) do
       for I := 0 to 255 do
         if not FileExists(FileOfWarrior(U, WS, I)) then
         begin
