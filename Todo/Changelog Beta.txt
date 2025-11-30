@@ -36,14 +36,20 @@ Maps:
  + Added The Day of Reckoning by DontTalk
  + Added The Plow that Broke the Plains by DontTalk
  + Added Iron and Gold 8p by Thunder
+ + Added Monotonous Purgatory by DontTalk
+ + Added An Age-Old Rivalry by Smirc
+ + Added Iron and Gold 12p by Thunder
+ + Added W12 by Thunder
  + Added PlanktonS 8p by Thunder
  + Added Brynhildr's Faith by Thunder
- + Return to Moorbach patched to 0.9.0
- + City of the Scorching Sun patched to 1.6
- + TSK and TPR coop missions updated
- + TPR fighting missions difficulty settings readded (by Strangelove)
- + TPR 14 cheese fixed
- + TSK 20 bugfix - players can again build towers in that mission
+ + Updated Return to Moorbach - patched to 0.9.0
+ + Updated AED 9 - fixed compile error bug by dominik1945
+ + Updated City of the Scorching Sun - patched to 1.6
+ + Updated TSK and TPR coop missions
+ + Updated TPR fighting missions - difficulty settings readded (by Strangelove)
+ + Updated TPR 14 - fixed cheese
+ + Updated TSK 20 - players can build towers again
+ + Removed Iron and Gold 10p 
 
 KaM Remake Beta r15472 [2025.03.17]
 ------------------------------
