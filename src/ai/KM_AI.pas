@@ -396,7 +396,7 @@ end;
 // aUnit is our unit that was attacked
 procedure TKMHandAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnit; aNotifyScript: Boolean = True);
 const
-  NOTIFY_KIND: array [Boolean] of TAttackNotification = (anCitizens, anTroops);
+  NOTIFY_KIND: array [Boolean] of TKMAttackNotification = (anCitizens, anTroops);
 var
   I: Integer;
   group: TKMUnitGroup;

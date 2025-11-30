@@ -6,7 +6,7 @@ uses
   KM_Defaults;
 
 type
-  TAttackNotification = (anCitizens, anTown, anTroops);
+  TKMAttackNotification = (anCitizens, anTown, anTroops);
 
   // Original sound effects list from KaM
   TKMSoundEffectOriginal = (
@@ -143,20 +143,20 @@ type
   public
     fWaves: array of TKMSoundData;
 
-    NotificationSoundCount: array[TAttackNotification] of byte;
+    NotificationSoundCount: array[TKMAttackNotification] of byte;
     WarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
 
     constructor Create(const aLocale, aFallback, aDefault: AnsiString);
 
     function FileOfCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech): UnicodeString;
     function FileOfNewSFX(aSFX: TSoundFXNew): UnicodeString;
-    function FileOfNotification(aSound: TAttackNotification; aNumber: Byte): UnicodeString;
+    function FileOfNotification(aSound: TKMAttackNotification; aNumber: Byte): UnicodeString;
     function FileOfWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
 
     function GetSoundType(aNewSFX: TSoundFXNew): TKMSoundType; overload;
     function GetSoundType(aSFX: TKMSoundEffectOriginal): TKMSoundType; overload;
     function GetSoundType(aSFX: TWarriorSpeech): TKMSoundType; overload;
-    function GetSoundType(aSFX: TAttackNotification): TKMSoundType; overload;
+    function GetSoundType(aSFX: TKMAttackNotification): TKMSoundType; overload;
     function GetSoundSampleRate(aSFX: TKMSoundEffectOriginal): Integer;
 
     property WavesCount: Integer read fWavesCount;
@@ -189,7 +189,7 @@ const
     'join', 'halt', 'send', 'attack', 'format',
     'death', 'battle', 'storm');
 
-  ATTACK_NOTIFICATION: array[TAttackNotification] of string = ('citiz', 'town', 'units');
+  ATTACK_NOTIFICATION: array[TKMAttackNotification] of string = ('citiz', 'town', 'units');
 
   CITIZEN_SFX: array[CITIZEN_MIN..CITIZEN_MAX] of record
     WarriorVoice: TKMUnitType;
@@ -473,7 +473,7 @@ begin
 end;
 
 
-function TKMResSounds.FileOfNotification(aSound: TAttackNotification; aNumber: Byte): UnicodeString;
+function TKMResSounds.FileOfNotification(aSound: TKMAttackNotification; aNumber: Byte): UnicodeString;
 var
   S: UnicodeString;
 begin
@@ -524,7 +524,7 @@ begin
 end;
 
 
-function TKMResSounds.GetSoundType(aSFX: TAttackNotification): TKMSoundType;
+function TKMResSounds.GetSoundType(aSFX: TKMAttackNotification): TKMSoundType;
 begin
   Result := stGame;
 end;
@@ -536,7 +536,7 @@ var
   I: Integer;
   U: TKMUnitType;
   WS: TWarriorSpeech;
-  AN: TAttackNotification;
+  AN: TKMAttackNotification;
   speechPath: string;
 begin
   speechPath := ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'speech.' + UnicodeString(fLocaleString) + PathDelim;
@@ -569,7 +569,7 @@ begin
         end;
 
   //Scan warning messages (e.g. under attack)
-  for AN := Low(TAttackNotification) to High(TAttackNotification) do
+  for AN := Low(TKMAttackNotification) to High(TKMAttackNotification) do
     for I := 0 to 255 do
       if not FileExists(FileOfNotification(AN, I)) then
       begin

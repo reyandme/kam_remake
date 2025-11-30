@@ -91,7 +91,7 @@ type
 
     function IsScriptSoundPlaying(aScriptIndex: Integer): Boolean;
 
-    procedure PlayNotification(aSound: TAttackNotification);
+    procedure PlayNotification(aSound: TKMAttackNotification);
 
     procedure PlayCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech); overload;
     procedure PlayCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech; const aLoc: TKMPointF); overload;
@@ -720,7 +720,7 @@ begin
 end;
 
 
-procedure TKMSoundPlayer.PlayNotification(aSound: TAttackNotification);
+procedure TKMSoundPlayer.PlayNotification(aSound: TKMAttackNotification);
 var
   wave: UnicodeString;
   count: Byte;

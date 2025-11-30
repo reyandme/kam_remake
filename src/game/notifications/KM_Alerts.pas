@@ -58,7 +58,7 @@ type
     destructor Destroy; override;
     procedure ClearBeaconsExcept(aOwner: TKMHandID);
     procedure AddBeacon(const aLoc: TKMPointF; aOwner: TKMHandID; aColor: Cardinal; aShowUntil: Cardinal);
-    procedure AddFight(const aLoc: TKMPointF; aPlayer: TKMHandID; aAsset: TAttackNotification; aShowUntil: Cardinal);
+    procedure AddFight(const aLoc: TKMPointF; aPlayer: TKMHandID; aAsset: TKMAttackNotification; aShowUntil: Cardinal);
     function GetLatestAlert: TKMAlert;
     property Count: Integer read GetCount;
     property Items[aIndex: Integer]: TKMAlert read GetAlert; default;
@@ -92,7 +92,7 @@ type
 
   TKMAlertAttacked = class(TKMAlert)
   private
-    fAsset: TAttackNotification; // What was attacked
+    fAsset: TKMAttackNotification; // What was attacked
     fLastLookedAt: Byte;
   protected
     function GetTexMinimap: TKMPic; override;
@@ -101,8 +101,8 @@ type
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
-    constructor Create(const aLoc: TKMPointF; aOwner: TKMHandID; aAsset: TAttackNotification; aExpiry: Cardinal);
-    property Asset: TAttackNotification read fAsset;
+    constructor Create(const aLoc: TKMPointF; aOwner: TKMHandID; aAsset: TKMAttackNotification; aExpiry: Cardinal);
+    property Asset: TKMAttackNotification read fAsset;
     procedure Refresh(aExpiry: Cardinal);
     procedure Update(const aView: TKMRect); override;
   end;
@@ -183,7 +183,7 @@ end;
 
 
 { TKMAlertFight }
-constructor TKMAlertAttacked.Create(const aLoc: TKMPointF; aOwner: TKMHandID; aAsset: TAttackNotification; aExpiry: Cardinal);
+constructor TKMAlertAttacked.Create(const aLoc: TKMPointF; aOwner: TKMHandID; aAsset: TKMAttackNotification; aExpiry: Cardinal);
 begin
   inherited Create(atFight, aLoc, aOwner, aExpiry);
 
@@ -344,7 +344,7 @@ end;
 
 
 //Player belongings signal that they are under attack
-procedure TKMAlerts.AddFight(const aLoc: TKMPointF; aPlayer: TKMHandID; aAsset: TAttackNotification; aShowUntil: Cardinal);
+procedure TKMAlerts.AddFight(const aLoc: TKMPointF; aPlayer: TKMHandID; aAsset: TKMAttackNotification; aShowUntil: Cardinal);
 var
   I: Integer;
 begin
