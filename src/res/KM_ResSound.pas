@@ -127,6 +127,9 @@ type
   private
     fWavesCount: Integer;
 
+    fWAVSize: array [1..200] of Integer;
+    fTab2: array [1..200] of SmallInt;
+
     fLocaleString: AnsiString; //Locale used to access warrior sounds
 
     fWarriorUseBackup: array[WARRIOR_MIN..WARRIOR_MAX] of boolean;
@@ -135,6 +138,7 @@ type
     procedure ScanWarriorSounds;
     function LoadWarriorSoundsFromFile(const aFile: string): Boolean;
     procedure SaveWarriorSoundsToFile(const aFile: string);
+    procedure ExportCSV(const aFilename: string);
   public
     fWaves: array of TKMSoundData;
     fWaveProps: array of TKMSoundProp;
@@ -307,8 +311,6 @@ end;
 procedure TKMResSounds.LoadSoundsDAT;
 var
   Head: record Size, Count: Word; end;
-  WAVSize: array [1..200] of Integer;
-  Tab2: array [1..200] of SmallInt;
   soundFlag: array [1..200] of Integer;
   footerSize: array [1..200] of Integer;
 begin
@@ -318,8 +320,8 @@ begin
   try
     memoryStream.LoadFromFile(ExeDir + 'data' + PathDelim + 'sfx' + PathDelim + 'sounds.dat');
     memoryStream.Read(Head, 4);
-    memoryStream.Read(WAVSize, Head.Count*4); //Read Count*4bytes into WAVSize(WaveSizes)
-    memoryStream.Read(Tab2, Head.Count*2); //Read Count*2bytes into Tab2(No idea what is it)
+    memoryStream.Read(fWAVSize, Head.Count*4); //Read Count*4bytes into WAVSize(WaveSizes)
+    memoryStream.Read(fTab2, Head.Count*2); //Read Count*2bytes into Tab2(No idea what is it)
 
     fWavesCount := Head.Count;
     SetLength(fWaves, fWavesCount+1);
@@ -330,7 +332,7 @@ begin
 
       memoryStream.Read(soundFlag[I], 4); // Always '1' for existing waves
 
-      if WAVSize[I] <> 0 then
+      if fWAVSize[I] <> 0 then
       begin
         // Wave header
         memoryStream.Read(fWaves[I].Head, SizeOf(fWaves[I].Head));
@@ -344,7 +346,7 @@ begin
         //  - ICRD - The date the subject of the file was created (e.g., "1995-10-24.A")
         //  - ISFT - Name of the software package used to create the file (e.g. "GoldWave v2.10 (C) Chris Craig")
         // Since these chunks do not bear any functional load, we just ignore them
-        footerSize[I] := WAVSize[I] - SizeOf(fWaves[I].Head) - fWaves[I].Head.DataSize;
+        footerSize[I] := fWAVSize[I] - SizeOf(fWaves[I].Head) - fWaves[I].Head.DataSize;
         SetLength(fWaves[I].Foot, footerSize[I]);
         memoryStream.Read(fWaves[I].Foot[0], footerSize[I]);
       end;
@@ -367,6 +369,9 @@ begin
     memoryStream.Free;
   end;
 
+  if DBG_EXPORT_SOUNDS_DAT then
+    ExportCSV(ExeDir + 'export_sounds.original.csv');
+
   // Special fix for Quarry:
   // Not sure what exactly says that its SampleRate override should be ignored ..
   // 22050 is much too fast for sfxQuarryClink, it sounds like 11025 in the original game (using GOG for comparison)
@@ -377,24 +382,43 @@ begin
 
   if DBG_EXPORT_SOUNDS_DAT then
   begin
-    var sl := TStringList.Create;
-    begin
-      sl.Append('Id  Name              WAVSize  Tab2   Rate   BPS  Length |   Rate  Volume   E    F    G    H    I    J    K    L   Id');
-      for var K := 1 to fWavesCount do
-      if Length(fWaves[K].Data) > 0 then
-      begin
-        var dur := Round(fWaves[K].Head.DataSize / Max(fWaves[K].Head.BytesPerSecond, 1) * 1000);
-
-        sl.Append(Format('%-3d %-18s %6d %5d %6d %2dbit %5dms | %6d %6d %4d %4d %4d %4d %4d %4d %4d %4d %4d',
-          [K, LeftStr(SFX_NAME[TSoundFX(K)], 18), WAVSize[K], Tab2[K], fWaves[K].Head.SampleRate, fWaves[K].Head.BitsPerSample, dur,
-          fWaveProps[K].SampleRate, fWaveProps[K].Volume, fWaveProps[K].E, fWaveProps[K].F, fWaveProps[K].G, fWaveProps[K].H, fWaveProps[K].I, fWaveProps[K].J, fWaveProps[K].K, fWaveProps[K].L, fWaveProps[K].Id
-          ]));
-      end;
-      sl.SaveToFile(ExeDir + 'export_sounds.txt');
-    end;
-    sl.Free;
+    ExportCSV(ExeDir + 'export_sounds.remake.csv');
     Halt;
   end;
+end;
+
+
+procedure TKMResSounds.ExportCSV(const aFilename: string);
+begin
+  var sw := TStreamWriter.Create(aFilename);
+  sw.WriteLine('Id,Name,WAVSize,Tab2,Rate,BPS,Length,|,Rate,Volume,E,F,G,H,I,J,K,L,Id');
+  for var K := 1 to fWavesCount do
+  if Length(fWaves[K].Data) > 0 then
+  begin
+    var dur := Round(fWaves[K].Head.DataSize / Max(fWaves[K].Head.BytesPerSecond, 1) * 1000);
+
+    sw.Write(IntToStr(K) + ',');
+    sw.Write(SFX_NAME[TSoundFX(K)] + ',');
+    sw.Write(IntToStr(fWAVSize[K]) + ',');
+    sw.Write(IntToStr(fTab2[K]) + ',');
+    sw.Write(IntToStr(fWaves[K].Head.SampleRate) + ',');
+    sw.Write(IntToStr(fWaves[K].Head.BitsPerSample) + 'bit,');
+    sw.Write(IntToStr(dur) + 'ms,');
+    sw.Write('|,');
+    sw.Write(IntToStr(fWaveProps[K].SampleRate) + ',');
+    sw.Write(IntToStr(fWaveProps[K].Volume) + ',');
+    sw.Write(IntToStr(fWaveProps[K].E) + ',');
+    sw.Write(IntToStr(fWaveProps[K].F) + ',');
+    sw.Write(IntToStr(fWaveProps[K].G) + ',');
+    sw.Write(IntToStr(fWaveProps[K].H) + ',');
+    sw.Write(IntToStr(fWaveProps[K].I) + ',');
+    sw.Write(IntToStr(fWaveProps[K].J) + ',');
+    sw.Write(IntToStr(fWaveProps[K].K) + ',');
+    sw.Write(IntToStr(fWaveProps[K].L) + ',');
+    sw.Write(IntToStr(fWaveProps[K].Id) + ',');
+    sw.WriteLine;
+  end;
+  sw.Free;
 end;
 
 
