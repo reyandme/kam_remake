@@ -123,14 +123,14 @@ type
     procedure AddWholeHouse(H: TKMHouse; aFlagColor: Cardinal; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: TColor4 = 0);
 
     procedure AddHouseTablet(aHouse: TKMHouseType; const aLoc: TKMPoint);
-    procedure AddHouseBuildSupply(aHouse: TKMHouseType; const Loc: TKMPoint; Wood,Stone: Byte);
+    procedure AddHouseBuildSupply(aHouse: TKMHouseType; const aLoc: TKMPoint; aWood, aStone: Byte);
     procedure AddHouseWork(aHouse: TKMHouseType; const aLoc: TKMPoint; aActSet: TKMHouseActionSet; aAnimStep, aAnimStepPrev: Cardinal; aFlagColor: TColor4; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: TColor4 = 0);
     procedure AddHouseSupply(aHouse: TKMHouseType; const aLoc: TKMPoint; const R1, R2: array of Word; const R3: array of Byte; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: TColor4 = 0);
     procedure AddHouseMarketSupply(const aLoc: TKMPoint; aResType: TKMWareType; aResCount: Word; aAnimStep: Integer);
     procedure AddHouseStableBeasts(aHouse: TKMHouseType; const aLoc: TKMPoint; aBeastId,aBeastAge,aAnimStep: Integer; aRX: TRXType = rxHouses);
-    procedure AddHouseEater(const Loc: TKMPoint; aUnit: TKMUnitType; aAct: TKMUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
+    procedure AddHouseEater(const aLoc: TKMPoint; aUnit: TKMUnitType; aAct: TKMUnitActionType; aDir: TKMDirection; aStepId: Integer; aOffX, aOffY: Single; aFlagColor: TColor4);
     procedure AddUnit(aUnit: TKMUnitType; aUID: Integer; aAct: TKMUnitActionType; aDir: TKMDirection; StepId: Integer; StepFrac: Single; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; DoHighlight: Boolean = False; HighlightColor: TColor4 = 0);
-    procedure AddUnitCarry(aCarry: TKMWareType; aUID: Integer; aDir: TKMDirection; StepId: Integer; StepFrac: Single; pX,pY: Single; FlagColor: TColor4);
+    procedure AddUnitCarry(aCarry: TKMWareType; aUID: Integer; aDir: TKMDirection; aStepId: Integer; aStepFrac: Single; pX,pY: Single; aFlagColor: TColor4);
     procedure AddUnitThought(aUnit: TKMUnitType; aAct: TKMUnitActionType; aDir: TKMDirection; Thought: TKMUnitThought; pX,pY: Single);
     procedure AddUnitFlag(aUnit: TKMUnitType; aAct: TKMUnitActionType; aDir: TKMDirection; FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False);
     procedure AddUnitWithDefaultArm(aUnit: TKMUnitType; aUID: Integer; aAct: TKMUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHignlight: Boolean = False; HighlightColor: TColor4 = 0);
@@ -723,7 +723,7 @@ end;
 
 
 // Render house build supply
-procedure TKMRenderPool.AddHouseBuildSupply(aHouse: TKMHouseType; const Loc: TKMPoint; Wood, Stone: Byte);
+procedure TKMRenderPool.AddHouseBuildSupply(aHouse: TKMHouseType; const aLoc: TKMPoint; aWood, aStone: Byte);
 var
   rx: TRXData;
   id: Integer;
@@ -733,21 +733,21 @@ begin
   rx := fRXData[rxHouses];
   houseBuildSupply := gRes.Houses[aHouse].BuildSupply;
 
-  if Wood <> 0 then
+  if aWood <> 0 then
   begin
-    id := 260 + Wood - 1;
-    cornerX := Loc.X + houseBuildSupply[1, Wood].MoveX / CELL_SIZE_PX - 1;
-    cornerY := Loc.Y + (houseBuildSupply[1, Wood].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
-                     - gTerrain.LandExt^[Loc.Y + 1, Loc.X].RenderHeight / CELL_HEIGHT_DIV;
+    id := 260 + aWood - 1;
+    cornerX := aLoc.X + houseBuildSupply[1, aWood].MoveX / CELL_SIZE_PX - 1;
+    cornerY := aLoc.Y + (houseBuildSupply[1, aWood].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
+                     - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, id, cornerX, cornerY);
   end;
 
-  if Stone <> 0 then
+  if aStone <> 0 then
   begin
-    id := 267 + Stone - 1;
-    cornerX := Loc.X + houseBuildSupply[2, Stone].MoveX / CELL_SIZE_PX - 1;
-    cornerY := Loc.Y + (houseBuildSupply[2, Stone].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
-                     - gTerrain.LandExt^[Loc.Y + 1, Loc.X].RenderHeight / CELL_HEIGHT_DIV;
+    id := 267 + aStone - 1;
+    cornerX := aLoc.X + houseBuildSupply[2, aStone].MoveX / CELL_SIZE_PX - 1;
+    cornerY := aLoc.Y + (houseBuildSupply[2, aStone].MoveY + rx.Size[id].Y) / CELL_SIZE_PX - 1
+                     - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, id, cornerX, cornerY);
   end;
 end;
@@ -1078,26 +1078,26 @@ begin
 end;
 
 
-procedure TKMRenderPool.AddHouseEater(const Loc: TKMPoint; aUnit: TKMUnitType; aAct: TKMUnitActionType; aDir: TKMDirection; StepId: Integer; OffX,OffY: Single; FlagColor: TColor4);
+procedure TKMRenderPool.AddHouseEater(const aLoc: TKMPoint; aUnit: TKMUnitType; aAct: TKMUnitActionType; aDir: TKMDirection; aStepId: Integer; aOffX, aOffY: Single; aFlagColor: TColor4);
 var
   cornerX, cornerY: Single;
   id: Integer;
   R: TRXData;
 begin
-  id := gRes.Interpolation.UnitAction(aUnit, aAct, aDir, StepId, gGameParams.TickFrac);
+  id := gRes.Interpolation.UnitAction(aUnit, aAct, aDir, aStepId, gGameParams.TickFrac);
   if id <= 0 then exit;
   R := fRXData[rxUnits];
 
   // Eaters need to interpolate land height the same as the inn otherwise they are rendered at the wrong place
-  cornerX := Loc.X + OffX + R.Pivot[id].X / CELL_SIZE_PX - 1;
-  cornerY := Loc.Y + OffY + (R.Pivot[id].Y + R.Size[id].Y) / CELL_SIZE_PX - 1
-                   - gTerrain.LandExt^[Loc.Y + 1, Loc.X].RenderHeight / CELL_HEIGHT_DIV;
+  cornerX := aLoc.X + aOffX + R.Pivot[id].X / CELL_SIZE_PX - 1;
+  cornerY := aLoc.Y + aOffY + (R.Pivot[id].Y + R.Size[id].Y) / CELL_SIZE_PX - 1
+                   - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
 
-  fRenderList.AddSprite(rxUnits, id, cornerX, cornerY, FlagColor);
+  fRenderList.AddSprite(rxUnits, id, cornerX, cornerY, aFlagColor);
 end;
 
 
-procedure TKMRenderPool.AddUnitCarry(aCarry: TKMWareType; aUID: Integer; aDir: TKMDirection; StepId: Integer; StepFrac: Single; pX,pY: Single; FlagColor: TColor4);
+procedure TKMRenderPool.AddUnitCarry(aCarry: TKMWareType; aUID: Integer; aDir: TKMDirection; aStepId: Integer; aStepFrac: Single; pX,pY: Single; aFlagColor: TColor4);
 var
   cornerX, cornerY: Single;
   id: Integer;
@@ -1105,14 +1105,14 @@ var
   R: TRXData;
 begin
   A := gRes.Units.SerfCarry[aCarry, aDir];
-  id := gRes.Interpolation.SerfCarry(aCarry, aDir, StepId, StepFrac);
+  id := gRes.Interpolation.SerfCarry(aCarry, aDir, aStepId, aStepFrac);
 
   if id <= 0 then Exit;
   R := fRXData[rxUnits];
 
   cornerX := pX + (R.Pivot[id].X + A.MoveX) / CELL_SIZE_PX;
   cornerY := gTerrain.RenderFlatToHeight(pX, pY) + (R.Pivot[id].Y + R.Size[id].Y + A.MoveY) / CELL_SIZE_PX;
-  fRenderList.AddSprite(rxUnits, id, cornerX, cornerY, FlagColor);
+  fRenderList.AddSprite(rxUnits, id, cornerX, cornerY, aFlagColor);
 end;
 
 
