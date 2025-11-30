@@ -369,8 +369,11 @@ begin
 
   // Special fix for Quarry:
   // Not sure what exactly says that its SampleRate override should be ignored ..
-  // 22050 is much too fast for it, it sounds like 11025 in the original game
+  // 22050 is much too fast for sfxQuarryClink, it sounds like 11025 in the original game (using GOG for comparison)
   fWaveProps[Ord(sfxQuarryClink)].SampleRate := 11025;
+
+  // 11025 is much too slow for sfxTreeDown, it sounds like 22050 in the original game (using GOG for comparison)
+  fWaveProps[Ord(sfxTreeDown)].SampleRate := 22050;
 
   if DBG_EXPORT_SOUNDS_DAT then
   begin
