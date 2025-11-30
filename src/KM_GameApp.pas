@@ -1373,9 +1373,13 @@ end;
 function TKMGameApp.CheckDATConsistency: Boolean;
 const
   // That's the magic CRC of official .dat files and our .json specifications
-  DEFINES_CRC: Cardinal = 901406735;
+  // Please write down a reason for when you change it:
+  // <r15472 - $28810991 - value since 2022
+  // r15472  - 901406735 - wrong defines\unit.dat was used by mistake (Scout sight = 18)
+  // r15900> - $28810991 - restored
+  DEFINES_CRC: Cardinal = $28810991;
 begin
-  Result := ALLOW_MP_MODS or (gRes.GetDATCRC() = DEFINES_CRC);
+  Result := ALLOW_MP_MODS or (gRes.GetDATCRC = DEFINES_CRC);
 end;
 
 
