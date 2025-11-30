@@ -43,7 +43,7 @@ REM ============================================================
 REM Copy Maps, Campaigns and Tutorials
 REM ============================================================
 xcopy "%KMRMapsRepoDir%"\Campaigns "%kam_folder%"\Campaigns\ /y /r /s
-xcopy "%KMRMapsRepoDir%"\Maps "%kam_folder%"\Maps\ /y /r /s /exclude:excluded_test_maps.txt
+xcopy "%KMRMapsRepoDir%"\Maps "%kam_folder%"\Maps\ /y /r /s
 xcopy "%KMRMapsRepoDir%"\MapsMP "%kam_folder%"\MapsMP\ /y /r /s
 xcopy "%KMRMapsRepoDir%"\Tutorials "%kam_folder%"\Tutorials\ /y /r /s
 
