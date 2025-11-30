@@ -1509,7 +1509,7 @@ begin
     //evenly between places rather than caring about route length.
     //This means weapon and armour smiths should get same amount of iron, even if one is closer to the smelter.
     if fDemand[dWT,iD].Loc_House.IsComplete
-      and (gRes.Houses[fDemand[dWT,iD].Loc_House.HouseType].DoesOrders or (fDemand[dWT,iD].Loc_House.HouseType = htIronSmithy))
+      and (gRes.Houses[fDemand[dWT,iD].Loc_House.HouseType].DoesOrders or (fDemand[dWT,iD].Loc_House.HouseType = htIronSmithy) or (fDemand[dWT,iD].Loc_House.HouseType = htMetallurgists))
       and (aOfferCnt <= 2) //Little resources to share around
       and (fDemand[dWT,iD].Loc_House.CheckWareIn(dWT) <= 1) then //Few resources already delivered
     begin

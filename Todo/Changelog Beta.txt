@@ -29,6 +29,7 @@ Game:
  + Fixed map flip for lava tiles in map editor
  + Slightly improved description of FPS cap in UI
  + Market ratio changes for trades to gold ore: stone 7 -> 8, pig/skin 1/2 -> 1, wooden shield 1 -> 2
+ + Fixed when there were not enough coal mines in city, no coal was brought to Metallurgists
 
 Maps:
  + Added The Fall of House Fennford by Strangelove
