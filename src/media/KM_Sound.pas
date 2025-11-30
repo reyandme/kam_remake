@@ -620,7 +620,7 @@ begin
   end
   else
   begin
-    var soundId := word(aSoundID);
+    var soundId := Ord(aSoundID);
     // Can not find sound with this Id, silently Exit...
     if soundId > gRes.Sounds.WavesCount then
       Exit;
