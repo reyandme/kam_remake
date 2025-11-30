@@ -34,14 +34,14 @@ uses
 
 
 const
-  MeleeSoundsHouse: array [0..12] of TSoundFX = (
+  MeleeSoundsHouse: array [0..12] of TKMSoundEffectOriginal = (
     sfxMelee37, sfxMelee38, sfxMelee39, sfxMelee40, sfxMelee41,
     sfxMelee42, sfxMelee43, sfxMelee47, sfxMelee51, sfxMelee52,
     sfxMelee53, sfxMelee54, sfxMelee57
   );
 
 
-{ TTaskAttackHouse }
+{ TKMTaskAttackHouse }
 constructor TKMTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
 begin
   inherited Create(aWarrior);

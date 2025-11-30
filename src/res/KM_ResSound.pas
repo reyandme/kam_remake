@@ -9,8 +9,8 @@ type
   TAttackNotification = (anCitizens, anTown, anTroops);
 
   // Original sound effects list from KaM
-  TSoundFX = (
-    sfxNone=0,
+  TKMSoundEffectOriginal = (
+    sfxNone = 0,
     sfxCornCut,
     sfxDig,
     sfxPave,
@@ -154,10 +154,10 @@ type
     function FileOfWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech; aNumber: Byte): UnicodeString;
 
     function GetSoundType(aNewSFX: TSoundFXNew): TKMSoundType; overload;
-    function GetSoundType(aSFX: TSoundFX): TKMSoundType; overload;
+    function GetSoundType(aSFX: TKMSoundEffectOriginal): TKMSoundType; overload;
     function GetSoundType(aSFX: TWarriorSpeech): TKMSoundType; overload;
     function GetSoundType(aSFX: TAttackNotification): TKMSoundType; overload;
-    function GetSoundSampleRate(aSFX: TSoundFX): Integer;
+    function GetSoundSampleRate(aSFX: TKMSoundEffectOriginal): Integer;
 
     property WavesCount: Integer read fWavesCount;
 
@@ -228,7 +228,7 @@ const
 
 
   // Const because RTTI is so clunky and slow
-  SFX_NAME: array [TSoundFX] of string = (
+  SFX_NAME: array [TKMSoundEffectOriginal] of string = (
     'sfxNone',
     'sfxCornCut',
     'sfxDig',
@@ -391,7 +391,7 @@ begin
     var dur := Round(fWaves[K].Head.DataSize / Max(fWaves[K].Head.BytesPerSecond, 1) * 1000);
 
     sw.Write(IntToStr(K) + ',');
-    sw.Write(SFX_NAME[TSoundFX(K)] + ',');
+    sw.Write(SFX_NAME[TKMSoundEffectOriginal(K)] + ',');
     sw.Write(IntToStr(fWAVSize[K]) + ',');
     sw.Write(IntToStr(fTab2[K]) + ',');
     sw.Write(IntToStr(fWaves[K].Head.SampleRate) + ',');
@@ -430,7 +430,7 @@ begin
     S.Write(fWaves[I].Data[0], Length(fWaves[I].Data));
     S.Write(fWaves[I].Foot[0], Length(fWaves[I].Foot));
     S.SaveToFile(ExeDir + 'Export'+PathDelim+'SoundsDat'+PathDelim+'sound_' + int2fix(I, 3) + '_' +
-                 GetEnumName(TypeInfo(TSoundFX), I) + '.wav');
+                 GetEnumName(TypeInfo(TKMSoundEffectOriginal), I) + '.wav');
     S.Free;
   end;
 end;
@@ -482,9 +482,9 @@ begin
 end;
 
 
-function TKMResSounds.GetSoundType(aSFX: TSoundFX): TKMSoundType;
+function TKMResSounds.GetSoundType(aSFX: TKMSoundEffectOriginal): TKMSoundType;
 begin
-  Result := stGame; //All TSoundFX sounds considered as game sounds
+  Result := stGame; //All TKMSoundEffectOriginal sounds considered as game sounds
 end;
 
 
@@ -507,11 +507,11 @@ end;
 
 function TKMResSounds.GetSoundType(aSFX: TWarriorSpeech): TKMSoundType;
 begin
-  Result := stGame; //All TSoundFX sounds considered as game sounds
+  Result := stGame; //All TKMSoundEffectOriginal sounds considered as game sounds
 end;
 
 
-function TKMResSounds.GetSoundSampleRate(aSFX: TSoundFX): Integer;
+function TKMResSounds.GetSoundSampleRate(aSFX: TKMSoundEffectOriginal): Integer;
 begin
   // Unfortunately WaveProps are stored slightly unordered
   // It would be better to reorder them to be in sync with Waves later on
@@ -526,7 +526,7 @@ end;
 
 function TKMResSounds.GetSoundType(aSFX: TAttackNotification): TKMSoundType;
 begin
-  Result := stGame; //All TSoundFX sounds considered as game sounds
+  Result := stGame;
 end;
 
 

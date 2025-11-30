@@ -49,12 +49,12 @@ uses
 const
   STRIKE_STEP = 5; //Melee units place hit on step 5
 
-  MeleeSoundsHit: array [0..14] of TSoundFX = (
+  MeleeSoundsHit: array [0..14] of TKMSoundEffectOriginal = (
     sfxMelee34, sfxMelee35, sfxMelee36, sfxMelee41, sfxMelee42,
     sfxMelee44, sfxMelee45, sfxMelee46, sfxMelee47, sfxMelee48,
     sfxMelee49, sfxMelee50, sfxMelee55, sfxMelee56, sfxMelee57);
 
-  MeleeSoundsMiss: array [0..8] of TSoundFX = (
+  MeleeSoundsMiss: array [0..8] of TKMSoundEffectOriginal = (
     sfxMelee37, sfxMelee38, sfxMelee39,
     sfxMelee40, sfxMelee43, sfxMelee51,
     sfxMelee52, sfxMelee53, sfxMelee54);

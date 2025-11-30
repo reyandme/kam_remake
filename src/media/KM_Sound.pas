@@ -57,7 +57,7 @@ type
 
     function PlayWave(const aFile: UnicodeString; const aLoc: TKMPointF; aSoundType: TKMSoundType; aAttenuated: Boolean = True;
                       aVolume: Single = 1; aFadeMusic: Boolean = False; aLoop: Boolean = False): Integer;
-    function PlaySound(aSoundID: TSoundFX; const aFile: UnicodeString; const Loc: TKMPointF; aSoundType: TKMSoundType;
+    function PlaySound(aSoundID: TKMSoundEffectOriginal; const aFile: UnicodeString; const Loc: TKMPointF; aSoundType: TKMSoundType;
                        aAttenuated: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean; aFromScript: Boolean = False): Integer;
     function CanAddLoopSound: Boolean;
 
@@ -97,9 +97,9 @@ type
     procedure PlayCitizen(aUnitType: TKMUnitType; aSound: TWarriorSpeech; const aLoc: TKMPointF); overload;
     procedure PlayWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech); overload;
     procedure PlayWarrior(aUnitType: TKMUnitType; aSound: TWarriorSpeech; const aLoc: TKMPointF); overload;
-    procedure Play(aSoundID: TSoundFX; aVolume: Single = 1); overload;
-    procedure Play(aSoundID: TSoundFX; aLoc: TKMPoint; aAttenuated: Boolean = True; aVolume: Single = 1); overload;
-    procedure Play(aSoundID: TSoundFX; aLoc: TKMPointF; aAttenuated: Boolean = True; aVolume: Single = 1); overload;
+    procedure Play(aSoundID: TKMSoundEffectOriginal; aVolume: Single = 1); overload;
+    procedure Play(aSoundID: TKMSoundEffectOriginal; aLoc: TKMPoint; aAttenuated: Boolean = True; aVolume: Single = 1); overload;
+    procedure Play(aSoundID: TKMSoundEffectOriginal; aLoc: TKMPointF; aAttenuated: Boolean = True; aVolume: Single = 1); overload;
 
     procedure Play(aSoundID: TSoundFXNew; aVolume: Single = 1; aFadeMusic: Boolean = False); overload;
     procedure Play(aSoundID: TSoundFXNew; aLoc: TKMPoint; aAttenuated: Boolean = True; aVolume: Single = 1; aFadeMusic: Boolean = False); overload;
@@ -401,7 +401,7 @@ end;
 
 
 // Wrapper with fewer options for non-attenuated sounds
-procedure TKMSoundPlayer.Play(aSoundID: TSoundFX; aVolume: Single = 1);
+procedure TKMSoundPlayer.Play(aSoundID: TKMSoundEffectOriginal; aVolume: Single = 1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
 
@@ -435,15 +435,15 @@ begin
 end;
 
 
-{Wrapper for TSoundFX}
-procedure TKMSoundPlayer.Play(aSoundID: TSoundFX; aLoc: TKMPoint; aAttenuated: Boolean = True; aVolume: Single = 1);
+{Wrapper for TKMSoundEffectOriginal}
+procedure TKMSoundPlayer.Play(aSoundID: TKMSoundEffectOriginal; aLoc: TKMPoint; aAttenuated: Boolean = True; aVolume: Single = 1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   PlaySound(aSoundID, '', KMPointF(aLoc), gRes.Sounds.GetSoundType(aSoundID), aAttenuated, aVolume, MAX_DISTANCE, False, False); //Redirect
 end;
 
 
-procedure TKMSoundPlayer.Play(aSoundID: TSoundFX; aLoc: TKMPointF; aAttenuated: Boolean = True; aVolume: Single = 1);
+procedure TKMSoundPlayer.Play(aSoundID: TKMSoundEffectOriginal; aLoc: TKMPointF; aAttenuated: Boolean = True; aVolume: Single = 1);
 begin
   if SKIP_SOUND or not fIsSoundInitialized then Exit;
   PlaySound(aSoundID, '', aLoc, gRes.Sounds.GetSoundType(aSoundID), aAttenuated, aVolume, MAX_DISTANCE, False, False); //Redirect
@@ -464,7 +464,7 @@ end;
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
 //Returns index in fALSound array
-function TKMSoundPlayer.PlaySound(aSoundID: TSoundFX; const aFile: UnicodeString; const Loc: TKMPointF; aSoundType: TKMSoundType;
+function TKMSoundPlayer.PlaySound(aSoundID: TKMSoundEffectOriginal; const aFile: UnicodeString; const Loc: TKMPointF; aSoundType: TKMSoundType;
                                   aAttenuated: Boolean; aVolume: Single; aRadius: Single; aFadeMusic, aLooped: Boolean;
                                   aFromScript: Boolean = False): Integer;
 var
@@ -679,7 +679,7 @@ begin
   //Start playing
   AlSourcePlay(fALSounds[freeBuf].ALSource);
   if aSoundID <> sfxNone then
-    fALSounds[freeBuf].Name := GetEnumName(TypeInfo(TSoundFX), Integer(aSoundID))
+    fALSounds[freeBuf].Name := GetEnumName(TypeInfo(TKMSoundEffectOriginal), Integer(aSoundID))
   else
     fALSounds[freeBuf].Name := ExtractFileName(aFile);
   fALSounds[freeBuf].Position := Loc;

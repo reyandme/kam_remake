@@ -76,9 +76,9 @@ begin
   if (FlagAnimStep + 20*I) mod 100 = 0 then
   begin
     if HouseType = htStables then
-      gSoundPlayer.Play(TSoundFX(byte(sfxHorse1) + Random(4)), fPosition); //sfxHorse1..sfxHorse4
+      gSoundPlayer.Play(TKMSoundEffectOriginal(Ord(sfxHorse1) + Random(4)), fPosition); // sfxHorse1..sfxHorse4
     if HouseType = htSwine   then
-      gSoundPlayer.Play(TSoundFX(byte(sfxPig1)   + Random(4)), fPosition); //sfxPig1..sfxPig4
+      gSoundPlayer.Play(TKMSoundEffectOriginal(Ord(sfxPig1)   + Random(4)), fPosition); // sfxPig1..sfxPig4
   end;
 end;
 

@@ -65,8 +65,8 @@ uses
 
 
 const
-  PROJECTILE_LAUNCH_SOUND: array[TKMProjectileType] of TSoundFX = (sfxBowShoot, sfxCrossbowShoot, sfxNone, sfxRockThrow);
-  PROJECTILE_HIT_SOUND:   array[TKMProjectileType] of TSoundFX = (sfxArrowHit, sfxArrowHit, sfxArrowHit, sfxNone);
+  PROJECTILE_LAUNCH_SOUND: array[TKMProjectileType] of TKMSoundEffectOriginal = (sfxBowShoot, sfxCrossbowShoot, sfxNone, sfxRockThrow);
+  PROJECTILE_HIT_SOUND:   array[TKMProjectileType] of TKMSoundEffectOriginal = (sfxArrowHit, sfxArrowHit, sfxArrowHit, sfxNone);
   PROJECTILE_SPEED: array[TKMProjectileType] of Single = (0.75, 0.75, 0.6, 0.8);
   PROJECTILE_ARC: array[TKMProjectileType,1..2] of Single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
   PROJECTILE_JITTER: array[TKMProjectileType] of Single = (0.26, 0.29, 0.26, 0.2); //Fixed Jitter added every time
