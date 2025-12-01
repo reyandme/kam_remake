@@ -613,6 +613,7 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
 
       SwapInt(gTerrain.Land^[Y1,X1].TileOwner, gTerrain.Land^[Y2,X2].TileOwner);
       SwapInt(gTerrain.Land^[Y1,X1].FieldAge, gTerrain.Land^[Y2,X2].FieldAge);
+      SwapInt(gTerrain.Land^[Y1,X1].TreeAge, gTerrain.Land^[Y2,X2].TreeAge);
 
       if cornOrWineWObj then
         swapObj := True; // swap object of corn / wine field
@@ -716,7 +717,9 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
       and (gTerrain.Land^[Y,X+1].Obj = OBJ_NONE) and not (gTerrain.Land^[Y,X].Obj in OBJ_MIDDLE_X) then
       begin
         gTerrain.Land^[Y,X+1].Obj := gTerrain.Land^[Y,X].Obj;
+        gTerrain.Land^[Y,X+1].TreeAge := gTerrain.Land^[Y,X].TreeAge;
         gTerrain.Land^[Y,X].Obj := OBJ_NONE;
+        gTerrain.Land^[Y,X].TreeAge := 0;
       end;
 
       //Vertical flip: Vertex (not middle) objects must be moved down by 1
@@ -724,7 +727,9 @@ procedure TKMSelection.Flip(aAxis: TKMFlipAxis);
       and (gTerrain.Land^[Y+1,X].Obj = OBJ_NONE) and not (gTerrain.Land^[Y,X].Obj in OBJ_MIDDLE_Y) then
       begin
         gTerrain.Land^[Y+1,X].Obj := gTerrain.Land^[Y,X].Obj;
+        gTerrain.Land^[Y+1,X].TreeAge := gTerrain.Land^[Y,X].TreeAge;
         gTerrain.Land^[Y,X].Obj := OBJ_NONE;
+        gTerrain.Land^[Y,X].TreeAge := 0;
       end;
     end;
 
