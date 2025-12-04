@@ -839,12 +839,28 @@ var
   I, K: Integer;
   U: TKMUnit;
   fightWasOrdered: Boolean;
+  hasMeleeOffenders: Boolean;
   offender: TKMUnitWarrior;
 begin
+
+  hasMeleeOffenders := false;
+
+  if fGroupType in [gtMelee, gtMounted, gtAntihorse] then
+    //Verify we still have foes
+    for I := fOffenders.Count - 1 downto 0 do
+      if (TKMUnitGroup(fOffenders[I].Group).GroupType in [gtMelee, gtMounted, gtAntihorse]) then
+      begin
+        hasMeleeOffenders := true;
+        break;
+      end;
+
+
   //Verify we still have foes
   for I := fOffenders.Count - 1 downto 0 do
+  begin
     if fOffenders[I].IsDeadOrDying
-      or IsAllyTo(fOffenders[I]) then //Offender could become an ally from script
+      or IsAllyTo(fOffenders[I]) or //Offender could become an ally from script
+      ((fGroupType = gtMelee) and hasMeleeOffenders and (TKMUnitGroup(fOffenders[I].Group).GroupType = gtRanged)) then //Remove ranged offenders if we are in fight with melee units for melee units groups.
     begin
       U := fOffenders[I]; //Need to pass var
       gHands.CleanUpUnitPointer(U);
@@ -852,7 +868,7 @@ begin
       if fOffenders.Count = 0 then
         OrderRepeat;
     end;
-
+  end;
   //Fight is over
   if fOffenders.Count = 0 then Exit;
 
