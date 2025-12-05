@@ -117,7 +117,7 @@ type
     function NeedsToReload(aFightAnimLength: Byte): Boolean;
     procedure SetLastShootTime;
     function FindLinkUnit(const aLoc: TKMPoint): TKMUnitWarrior;
-    function CheckForEnemy: Boolean;
+    function CheckForEnemy(aOrderToAttackEnemy: Boolean = false): Boolean;
     function FindEnemy: TKMUnit;
     function PathfindingShouldAvoid: Boolean; override;
 
@@ -654,7 +654,11 @@ begin
   newEnemy := FindEnemy;
   if newEnemy <> nil then
   begin
-    OnPickedFight(Self, newEnemy);
+    if aOrderToAttackEnemy and not IsRanged then
+      TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, false)
+    else
+      OnPickedFight(Self, newEnemy);
+
     //If the target is close enough attack it now, otherwise OnPickedFight will handle it through Group.OffendersList
     //Remember that AI's AutoAttackRange feature means a melee warrior can pick a fight with someone out of range
     if WithinFightRange(newEnemy.Position) then
@@ -1091,7 +1095,7 @@ begin
     TakeNextOrder;
 
   if (fTicker mod 6 = 0) and not InFight then
-    CheckForEnemy; //Split into separate procedure so it can be called from other places
+    CheckForEnemy(True); //Split into separate procedure so it can be called from other places
 
   Result := True; //Required for override compatibility
   if inherited UpdateState then Exit;
