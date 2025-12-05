@@ -118,6 +118,7 @@ type
     procedure SetLastShootTime;
     function FindLinkUnit(const aLoc: TKMPoint): TKMUnitWarrior;
     function CheckForEnemy: Boolean;
+    function CheckForEnemyWhenNotInFight: Boolean;
     function FindEnemy: TKMUnit;
     function PathfindingShouldAvoid: Boolean; override;
 
@@ -642,6 +643,27 @@ begin
 end;
 
 
+function TKMUnitWarrior.CheckForEnemyWhenNotInFight: Boolean;
+var
+  newEnemy: TKMUnit;
+begin
+  Result := False; //Didn't find anyone to fight
+
+  //Ranged units should not check for enemy while walking or when facing the wrong way
+  if IsRanged and ((not IsIdle) or ((FaceDir <> Direction) and (FaceDir <> dirNA))) then Exit;
+
+  newEnemy := FindEnemy;
+  if newEnemy <> nil then
+  begin
+    TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, false);
+    //If the target is close enough attack it now, otherwise OnPickedFight will handle it through Group.OffendersList
+    //Remember that AI's AutoAttackRange feature means a melee warrior can pick a fight with someone out of range
+    if WithinFightRange(newEnemy.Position) then
+      FightEnemy(newEnemy);
+    Result := True; //Found someone
+  end;
+end;
+
 function TKMUnitWarrior.CheckForEnemy: Boolean;
 var
   newEnemy: TKMUnit;
@@ -1091,7 +1113,7 @@ begin
     TakeNextOrder;
 
   if (fTicker mod 6 = 0) and not InFight then
-    CheckForEnemy; //Split into separate procedure so it can be called from other places
+    CheckForEnemyWhenNotInFight;
 
   Result := True; //Required for override compatibility
   if inherited UpdateState then Exit;
