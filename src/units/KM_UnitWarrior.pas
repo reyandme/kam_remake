@@ -655,7 +655,11 @@ begin
   newEnemy := FindEnemy;
   if newEnemy <> nil then
   begin
-    TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, false);
+
+    if IsRanged then
+      OnPickedFight(Self, newEnemy)
+    else
+      TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, false);
     //If the target is close enough attack it now, otherwise OnPickedFight will handle it through Group.OffendersList
     //Remember that AI's AutoAttackRange feature means a melee warrior can pick a fight with someone out of range
     if WithinFightRange(newEnemy.Position) then
@@ -663,6 +667,7 @@ begin
     Result := True; //Found someone
   end;
 end;
+
 
 function TKMUnitWarrior.CheckForEnemy: Boolean;
 var
