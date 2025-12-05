@@ -839,28 +839,27 @@ var
   I, K: Integer;
   U: TKMUnit;
   fightWasOrdered: Boolean;
-  hasMeleeOffenders: Boolean;
+  hasNotRangedOffenders: Boolean;
   offender: TKMUnitWarrior;
 begin
 
-  hasMeleeOffenders := false;
+  hasNotRangedOffenders := false;
 
-  if fGroupType in [gtMelee, gtMounted, gtAntihorse] then
+  if fGroupType <> gtRanged then
     //Verify we still have foes
     for I := fOffenders.Count - 1 downto 0 do
-      if (TKMUnitGroup(fOffenders[I].Group).GroupType in [gtMelee, gtMounted, gtAntihorse]) then
+      if (not TKMUnitSpec.IsRanged(fOffenders[I].UnitType)) then
       begin
-        hasMeleeOffenders := true;
+        hasNotRangedOffenders := true;
         break;
       end;
-
 
   //Verify we still have foes
   for I := fOffenders.Count - 1 downto 0 do
   begin
     if fOffenders[I].IsDeadOrDying
       or IsAllyTo(fOffenders[I]) or //Offender could become an ally from script
-      ((fGroupType = gtMelee) and hasMeleeOffenders and (TKMUnitGroup(fOffenders[I].Group).GroupType = gtRanged)) then //Remove ranged offenders if we are in fight with melee units for melee units groups.
+      ((fGroupType = gtMelee) and hasNotRangedOffenders and TKMUnitSpec.IsRanged(fOffenders[I].UnitType)) then //Remove ranged offenders if we are in fight with melee units for melee units groups.
     begin
       U := fOffenders[I]; //Need to pass var
       gHands.CleanUpUnitPointer(U);
