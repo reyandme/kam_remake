@@ -840,13 +840,24 @@ var
   U: TKMUnit;
   fightWasOrdered: Boolean;
   offender: TKMUnitWarrior;
+  skipRangedOffenders: Boolean;
 begin
-  //Verify we still have foes
+  skipRangedOffenders := False;
+  if not IsRanged then
+    for I := 0 to fOffenders.Count - 1 do
+      if not TKMUnitSpec.IsRanged(fOffenders[I].UnitType) then
+      begin
+        skipRangedOffenders := True;
+        Break;
+      end;
+
+  // Verify we still have foes
   for I := fOffenders.Count - 1 downto 0 do
     if fOffenders[I].IsDeadOrDying
-      or IsAllyTo(fOffenders[I]) then //Offender could become an ally from script
+      or IsAllyTo(fOffenders[I]) // Offender could become an ally from script
+      or (skipRangedOffenders  and TKMUnitSpec.IsRanged(fOffenders[I].UnitType)) then // Remove ranged offenders if we are in fight with melee units for melee units groups
     begin
-      U := fOffenders[I]; //Need to pass var
+      U := fOffenders[I]; // Need to pass var
       gHands.CleanUpUnitPointer(U);
       fOffenders.Delete(I);
       if fOffenders.Count = 0 then
