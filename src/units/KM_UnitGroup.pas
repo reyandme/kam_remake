@@ -846,7 +846,6 @@ begin
   hasNotRangedOffenders := false;
 
   if not IsRanged then
-    //Verify we still have foes
     for I := fOffenders.Count - 1 downto 0 do
       if (not TKMUnitSpec.IsRanged(fOffenders[I].UnitType)) then
       begin
