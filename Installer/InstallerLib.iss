@@ -19,7 +19,7 @@ AppUpdatesURL={#Website}
 VersionInfoCompany={#MyAppName}
 VersionInfoVersion=1.0
 VersionInfoProductName={#MyAppName}
-DefaultDirName={autopf}\{code:GetAppFullName} 
+DefaultDirName={autopf}\{code:GetAppFullName}
 LicenseFile=License.eng.txt
 DisableProgramGroupPage=yes
 UsePreviousAppDir=no
@@ -28,15 +28,15 @@ OutputBaseFilename={#OutputEXE} {#Revision}
 Compression=lzma2/ultra64
 SolidCompression=yes
 LZMANumBlockThreads=4
-LZMAUseSeparateProcess=yes 
+LZMAUseSeparateProcess=yes
 ShowLanguageDialog=yes
 Uninstallable=yes
 SetupIconFile=Embedded\KaM_Remake.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 WizardImageFile=Embedded\WizardImage.bmp
 WizardSmallImageFile=Embedded\WizardSmallImage.bmp
-  
-[Languages]  
+
+[Languages]
 Name: "eng"; MessagesFile: "compiler:Default.isl";
 Name: "cze"; MessagesFile: "compiler:Languages\Czech.isl"; LicenseFile: "License.cze.txt"
 Name: "dut"; MessagesFile: "compiler:Languages\Dutch.isl"; LicenseFile: "License.dut.txt"
@@ -65,7 +65,7 @@ Name: "kor"; MessagesFile: "ExtraLanguages\Korean.isl"; LicenseFile: "License.ko
 Name: "srb"; MessagesFile: "ExtraLanguages\SerbianCyrillic.isl"; LicenseFile: "License.srb.txt"
 Name: "slv"; MessagesFile: "compiler:Languages\Slovenian.isl"; LicenseFile: "License.slv.txt"
 
-[CustomMessages]  
+[CustomMessages]
 #include "Translations.iss"
 
 
@@ -90,7 +90,7 @@ Filename: "{app}\uninst_clean.bat"; Flags: runhidden
 procedure InitializeWizard;
 var Diff: Integer;
 begin
-	//Change width of WizardSmallBitmapImage up to 125 
+	//Change width of WizardSmallBitmapImage up to 125
   Diff := ScaleX(125) - WizardForm.WizardSmallBitmapImage.Width;
   WizardForm.WizardSmallBitmapImage.Width := WizardForm.WizardSmallBitmapImage.Width + Diff
 	WizardForm.WizardSmallBitmapImage.Left := WizardForm.WizardSmallBitmapImage.Left - Diff - 5; // 5px margin to right border
@@ -109,14 +109,14 @@ begin
   if not CheckKaM() then
     Warnings := ExpandConstant('{cm:NoKaM}') + #13#10#13#10 + ExpandConstant('{cm:SteamFirstRun}');
   #endif
-  
+
   if not CanInstall() then
   begin
     if Warnings <> '' then
       Warnings := Warnings + '' + #13#10#13#10; //Two EOLs between messages
     Warnings := Warnings + ExpandConstant('{cm:CantUpdate}')
   end;
-  
+
   if Warnings = '' then
     Result := True
   else
@@ -144,7 +144,7 @@ begin
   end;
 
   //Now install OpenAL, if needed
-  if not FileExists(ExpandConstant('{sys}') + '\OpenAL32.dll') then 
+  if not FileExists(ExpandConstant('{sys}') + '\OpenAL32.dll') then
     if MsgBox(ExpandConstant('{cm:OpenAL}'), mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = idYes then
       Exec(ExpandConstant('{app}\oalinst.exe'), '/S', '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
 end;
@@ -204,7 +204,7 @@ end;
 
 procedure CurUninstallStepChanged (CurUninstallStep: TUninstallStep);
 begin
-  case CurUninstallStep of                   
+  case CurUninstallStep of
     usPostUninstall:
       begin
         // Ask confirmation to delete all Maps and Campaigns
@@ -215,22 +215,22 @@ begin
           DelTree(ExpandConstant('{app}\MapsMP'), True, True, True);
           DelTree(ExpandConstant('{app}\MapsDL'), True, True, True);
         end;
-        
+
         // Ask confirmation to delete all Saves
-        if (DirExists(ExpandConstant('{app}\Saves')) or DirExists(ExpandConstant('{app}\SavesMP')) or DirExists(ExpandConstant('{app}\SavesCMP'))) 
+        if (DirExists(ExpandConstant('{app}\Saves')) or DirExists(ExpandConstant('{app}\SavesMP')) or DirExists(ExpandConstant('{app}\SavesCMP')))
           and (MsgBox(ExpandConstant('{cm:DeleteSaves}'), mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = idYes) then
         begin
           DelTree(ExpandConstant('{app}\Saves'), True, True, True);
           DelTree(ExpandConstant('{app}\SavesMP'), True, True, True);
           DelTree(ExpandConstant('{app}\SavesCMP'), True, True, True);
         end;
-        
+
         // Delete app folder if its empty
         if DirExists(ExpandConstant('{app}')) and IsEmptyDir(ExpandConstant('{app}')) then
           DelTree(ExpandConstant('{app}'), True, True, True);
       end;
   end;
-end;  
+end;
 
 
 [Dirs]
