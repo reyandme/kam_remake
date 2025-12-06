@@ -118,7 +118,7 @@ type
     procedure SetLastShootTime;
     function FindLinkUnit(const aLoc: TKMPoint): TKMUnitWarrior;
     function CheckForEnemy: Boolean;
-    procedure CheckForEnemyForMeleeAIUnits;
+    procedure CheckForEnemyPassingBy;
     function FindEnemy: TKMUnit;
     function PathfindingShouldAvoid: Boolean; override;
 
@@ -642,15 +642,13 @@ begin
   Result := Result and (fNextOrder = woNone); //If we have been given an order we're about to move somewhere 
 end;
 
-procedure TKMUnitWarrior.CheckForEnemyForMeleeAIUnits;
+procedure TKMUnitWarrior.CheckForEnemyPassingBy;
 var
   newEnemy: TKMUnit;
   range: Single;
 begin
   if not CanInterruptAction
-    or IsRanged
-    or not IsIdle
-    or not gHands[Owner].IsComputer then
+    or not IsIdle then
       exit;
 
    //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
@@ -1114,7 +1112,8 @@ begin
   if (fTicker mod 6 = 0) and not InFight then
   begin
     CheckForEnemy(); //Split into separate procedure so it can be called from other places
-    CheckForEnemyForMeleeAIUnits();
+    if not IsRanged and gHands[Owner].IsComputer then
+      CheckForEnemyPassingBy();
   end;
 
   Result := True; //Required for override compatibility
