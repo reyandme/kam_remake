@@ -473,7 +473,7 @@ begin
     // Ware distribution
     nGameWareDistribution := nGameCommon.AddOrFindChild('WareDistribution');
       fWareDistribution.LoadFromStr(nGameWareDistribution.Attributes['Value'].AsString(''));
-      fSaveWareDistribution := nGameWareDistribution.Attributes['SavedBetweenGames'].AsBoolean(True); //Enabled by default
+      fSaveWareDistribution := nGameWareDistribution.Attributes['SavedBetweenGames'].AsBoolean(False); // Disabled by default
 
     // Misc
     nGameMisc := nGameCommon.AddOrFindChild('Misc');
