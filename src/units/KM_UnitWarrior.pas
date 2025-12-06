@@ -117,7 +117,8 @@ type
     function NeedsToReload(aFightAnimLength: Byte): Boolean;
     procedure SetLastShootTime;
     function FindLinkUnit(const aLoc: TKMPoint): TKMUnitWarrior;
-    function CheckForEnemy(aOrderToAttackEnemy: Boolean = false): Boolean;
+    function CheckForEnemy: Boolean;
+    procedure CheckForEnemyForMeleeAIUnits;
     function FindEnemy: TKMUnit;
     function PathfindingShouldAvoid: Boolean; override;
 
@@ -641,6 +642,25 @@ begin
   Result := Result and (fNextOrder = woNone); //If we have been given an order we're about to move somewhere 
 end;
 
+procedure TKMUnitWarrior.CheckForEnemyForMeleeAIUnits;
+var
+  newEnemy: TKMUnit;
+  range: Single;
+begin
+  if not CanInterruptAction
+    or IsRanged
+    or not IsIdle
+    or not gHands[Owner].IsComputer then
+      exit;
+
+   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
+   newEnemy := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, gHands[Owner].AI.Setup.AutoAttackRange, Owner, atEnemy, dirNA, not RANDOM_TARGETS);
+
+   if newEnemy = nil then
+     exit;
+
+   TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, false)
+end;
 
 function TKMUnitWarrior.CheckForEnemy: Boolean;
 var
@@ -654,10 +674,7 @@ begin
   newEnemy := FindEnemy;
   if newEnemy <> nil then
   begin
-    if aOrderToAttackEnemy and not IsRanged then
-      TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, false)
-    else
-      OnPickedFight(Self, newEnemy);
+    OnPickedFight(Self, newEnemy);
 
     //If the target is close enough attack it now, otherwise OnPickedFight will handle it through Group.OffendersList
     //Remember that AI's AutoAttackRange feature means a melee warrior can pick a fight with someone out of range
@@ -1095,7 +1112,10 @@ begin
     TakeNextOrder;
 
   if (fTicker mod 6 = 0) and not InFight then
-    CheckForEnemy(True); //Split into separate procedure so it can be called from other places
+  begin
+    CheckForEnemy(); //Split into separate procedure so it can be called from other places
+    CheckForEnemyForMeleeAIUnits();
+  end;
 
   Result := True; //Required for override compatibility
   if inherited UpdateState then Exit;
