@@ -118,6 +118,7 @@ type
     procedure SetLastShootTime;
     function FindLinkUnit(const aLoc: TKMPoint): TKMUnitWarrior;
     function CheckForEnemy: Boolean;
+    procedure CheckForEnemyPassingBy;
     function FindEnemy: TKMUnit;
     function PathfindingShouldAvoid: Boolean; override;
 
@@ -641,6 +642,21 @@ begin
   Result := Result and (fNextOrder = woNone); //If we have been given an order we're about to move somewhere 
 end;
 
+procedure TKMUnitWarrior.CheckForEnemyPassingBy;
+var
+  newEnemy: TKMUnit;
+  range: Single;
+begin
+  if not CanInterruptAction
+    or not IsIdle then
+      exit;
+
+   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
+   newEnemy := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, gHands[Owner].AI.Setup.AutoAttackRange, Owner, atEnemy, dirNA, not RANDOM_TARGETS);
+
+   if newEnemy <> nil then
+     TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, false);
+end;
 
 function TKMUnitWarrior.CheckForEnemy: Boolean;
 var
@@ -655,6 +671,7 @@ begin
   if newEnemy <> nil then
   begin
     OnPickedFight(Self, newEnemy);
+
     //If the target is close enough attack it now, otherwise OnPickedFight will handle it through Group.OffendersList
     //Remember that AI's AutoAttackRange feature means a melee warrior can pick a fight with someone out of range
     if WithinFightRange(newEnemy.Position) then
@@ -1091,7 +1108,14 @@ begin
     TakeNextOrder;
 
   if (fTicker mod 6 = 0) and not InFight then
-    CheckForEnemy; //Split into separate procedure so it can be called from other places
+  begin
+    //Call to give archers new target.
+    CheckForEnemy();
+
+    //Call for not ranged AI units to give order to attack units that try to sneak past them.
+    if not IsRanged and gHands[Owner].IsComputer then
+      CheckForEnemyPassingBy();
+  end;
 
   Result := True; //Required for override compatibility
   if inherited UpdateState then Exit;
