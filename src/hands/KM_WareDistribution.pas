@@ -11,8 +11,8 @@ const
   //The number means how many items should be in houses input max, and also affects delivery priority.
   DISTRIBUTION_DEFAULTS: array [1..4, 1..4] of Byte = (
     (5, 5, 0, 0),
-    (5, 3, 4, 4),
-    (3, 4, 0, 0),
+    (3, 5, 3, 3),
+    (2, 5, 0, 0),
     (4, 5, 3, 0)
   );
 
