@@ -654,10 +654,8 @@ begin
    //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
    newEnemy := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, gHands[Owner].AI.Setup.AutoAttackRange, Owner, atEnemy, dirNA, not RANDOM_TARGETS);
 
-   if newEnemy = nil then
-     exit;
-
-   TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, false)
+   if newEnemy <> nil then
+     TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, false);
 end;
 
 function TKMUnitWarrior.CheckForEnemy: Boolean;
