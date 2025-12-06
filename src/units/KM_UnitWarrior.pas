@@ -1109,7 +1109,10 @@ begin
 
   if (fTicker mod 6 = 0) and not InFight then
   begin
-    CheckForEnemy(); //Split into separate procedure so it can be called from other places
+    //Call to give archers new target.
+    CheckForEnemy();
+
+    //Call for not ranged AI units to give order to attack units that try to sneak past them.
     if not IsRanged and gHands[Owner].IsComputer then
       CheckForEnemyPassingBy();
   end;
