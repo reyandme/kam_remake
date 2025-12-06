@@ -1060,15 +1060,27 @@ begin
       gicGamePause:               ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[0]));
       gicGameSpeed:               gGame.SetSpeedGIP(FloatParam, fReplayState = gipRecording);
       gicGameAutoSave:            if (fReplayState = gipRecording) and gGameSettings.Autosave then
-                                    gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
+                                    try // this action is game-state neutral - ignore an error, so we don't desynchronize a MP game
+                                      gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
+                                    except
+                                      gLog.AddTime('Failed to execute GIP command: ' + GetEnumName(TypeInfo(TKMGameInputCommandType),integer(CommandType)));
+                                    end;
       gicGameAutoSaveAfterPT:     if (fReplayState = gipRecording) and gGameSettings.Autosave then
-                                    gGame.AutoSaveAfterPT(DateTimeParam); //Timestamp is synchronised
+                                    try // this action is game-state neutral - ignore an error, so we don't desynchronize a MP game
+                                      gGame.AutoSaveAfterPT(DateTimeParam); //Timestamp is synchronised
+                                    except
+                                      gLog.AddTime('Failed to execute GIP command: ' + GetEnumName(TypeInfo(TKMGameInputCommandType),integer(CommandType)));
+                                    end;
       gicGameSaveReturnLobby:     if fReplayState = gipRecording then
                                   begin
                                     gGameApp.PrepareReturnToLobby(DateTimeParam); //Timestamp is synchronised
                                     Exit;
                                   end;
-      gicGameLoadSave:            ; //Just a marker to know when game was loaded
+      gicGameLoadSave:            try // this action is game-state neutral - ignore an error, so we don't desynchronize a MP game
+                                    ; //Just a marker to know when game was loaded
+                                  except
+                                    gLog.AddTime('Failed to execute GIP command: ' + GetEnumName(TypeInfo(TKMGameInputCommandType),integer(CommandType)));
+                                  end;
       gicGameTeamChange:          begin
                                     //Currently unused, disabled to prevent potential exploitation
                                     {fGame.Networking.Room[Params[0]].Team := Params[1];
@@ -1078,8 +1090,16 @@ begin
                                       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;}
                                   end;
       gicGameAlertBeacon:         ExecGameAlertBeaconCmd(aCommand);
-      gicGameHotkeySet:           P.SelectionHotkeys[IntParams[0]] := IntParams[1];
-      gicGameMessageLogRead:      P.MessageLog[IntParams[0]].IsReadGIP := True;
+      gicGameHotkeySet:           try // this action is game-state neutral - ignore an error, so we don't desynchronize a MP game
+                                    P.SelectionHotkeys[IntParams[0]] := IntParams[1];
+                                  except
+                                    gLog.AddTime('Failed to execute GIP command: ' + GetEnumName(TypeInfo(TKMGameInputCommandType),integer(CommandType)));
+                                  end;
+      gicGameMessageLogRead:      try // this action is game-state neutral - ignore an error, so we don't desynchronize a MP game
+                                    P.MessageLog[IntParams[0]].IsReadGIP := True;
+                                  except
+                                    gLog.AddTime('Failed to execute GIP command: ' + GetEnumName(TypeInfo(TKMGameInputCommandType),integer(CommandType)));
+                                  end;
       gicGameMessageListRead:     P.MessageLog.ReadAtCountGIP := IntParams[0];
       gicGamePlayerChange:        begin
                                     Assert(not gGameParams.IsMapEditor);
