@@ -4707,9 +4707,18 @@ var
   J: Integer;
 begin
 
-  for I := 0 to aWidth do
-    for J := 0 to aHeight do
-      Land[aPasteY + J,aPasteX + I] := Land[aCopyY + J, aCopyX + I];
+  for I := 0 to aWidth - 1 do
+    for J := 0 to aHeight - 1 do
+    begin
+      Land[aPasteY + J,aPasteX + I].BaseLayer := Land[aCopyY + J, aCopyX + I].BaseLayer;
+      Land[aPasteY + J,aPasteX + I].Obj := Land[aCopyY + J, aCopyX + I].Obj;
+      Land[aPasteY + J,aPasteX + I].Height := Land[aCopyY + J, aCopyX + I].Height;
+
+      Land[aPasteY + J,aPasteX + I].TileOverlay := Land[aCopyY + J, aCopyX + I].TileOverlay;
+      Land[aPasteY + J,aPasteX + I].TreeAge := Land[aCopyY + J, aCopyX + I].TreeAge;
+      Land[aPasteY + J,aPasteX + I].IsCustom := Land[aCopyY + J, aCopyX + I].IsCustom;
+      Land[aPasteY + J,aPasteX + I].BlendingLvl := Land[aCopyY + J, aCopyX + I].BlendingLvl;
+    end;
 
   UpdateAll(KMRect(aPasteX, aPasteY, aPasteX + aWidth, aPasteY + aHeight));
 end;
