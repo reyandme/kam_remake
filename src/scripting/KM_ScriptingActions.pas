@@ -156,6 +156,7 @@ type
     procedure MapBrushWithMask(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind;
                                aRandomTiles, aOverrideCustomTiles: Boolean;
                                aBrushMask: TKMTileMaskKind; aBlendingLvl: Integer; aUseMagicBrush: Boolean);
+    procedure MapCopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
     procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
@@ -5446,6 +5447,30 @@ begin
     end
     else
       LogIntParamWarn('Actions.MapFlip', [aLeft, aTop, aRight, aBottom, Ord(aAxis)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+//* Version: 15913
+//* Copies map area.
+//* aCopyX, aCopyY - top left coordinate of rectangle that should be copied
+//* aWidth, aHeight - size of rectangle that should be copied
+//* aPasteX, aPasteY - coordinates of point where copied rectangle should be pasted.
+//* Minimum valid size of copy rectangle is 1x1.
+procedure TKMScriptActions.MapCopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
+begin
+  try
+    if (gTerrain.TileInMapCoords(aCopyX, aCopyY)
+    and gTerrain.TileInMapCoords(aPasteX, aPasteY)
+    and gTerrain.TileInMapCoords(aCopyX + aWidth, aCopyY + aHeight)
+    and gTerrain.TileInMapCoords(aPasteX + aWidth, aPasteY + aHeight)) then
+    begin
+      gTerrain.CopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY);
+    end
+    else
+      LogIntParamWarn('Actions.MapCopyArea', [aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

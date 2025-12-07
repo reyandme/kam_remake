@@ -110,6 +110,8 @@ type
     procedure IncDigState(const aLoc: TKMPoint);
     procedure ResetDigState(const aLoc: TKMPoint);
 
+    procedure CopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
+
     function CanPlaceUnit(const aLoc: TKMPoint; aUnitType: TKMUnitType): Boolean;
     function CanPlaceGoldMine(X, Y: Word): Boolean;
     function CanPlaceIronMine(X, Y: Word): Boolean;
@@ -4696,6 +4698,20 @@ begin
                       if TileInMapCoords(aLoc.X + K - 3, aLoc.Y + I - 4) then
                         Land^[aLoc.Y + I - 4, aLoc.X + K - 3].TileOwner := aOwner;
   end;
+end;
+
+
+procedure TKMTerrain.CopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
+var
+  I: Integer;
+  J: Integer;
+begin
+
+  for I := 0 to aWidth do
+    for J := 0 to aHeight do
+      Land[aPasteY + J,aPasteX + I] := Land[aCopyY + J, aCopyX + I];
+
+  UpdateAll(KMRect(aPasteX, aPasteY, aPasteX + aWidth, aPasteY + aHeight));
 end;
 
 
