@@ -156,6 +156,7 @@ type
     procedure MapBrushWithMask(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind;
                                aRandomTiles, aOverrideCustomTiles: Boolean;
                                aBrushMask: TKMTileMaskKind; aBlendingLvl: Integer; aUseMagicBrush: Boolean);
+    procedure MapCopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
     procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
@@ -5446,6 +5447,36 @@ begin
     end
     else
       LogIntParamWarn('Actions.MapFlip', [aLeft, aTop, aRight, aBottom, Ord(aAxis)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+//* Version: 15913
+//* Copies map tiles area. This function can be called only in OnMissionStart procedure.
+//* aCopyX, aCopyY - top left tile coordinate of rectangle that should be copied
+//* aWidth, aHeight - size of rectangle that should be copied
+//* aPasteX, aPasteY - coordinates of tile where copied rectangle should be pasted.
+//* Minimum valid size of copy rectangle is 1x1.
+procedure TKMScriptActions.MapCopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
+begin
+  try
+    if gGameParams.Tick > 0 then
+    begin
+      LogWarning('Actions.MapCopyArea', 'This procedure can be called only at OnMissionStart event.');
+      exit;
+    end;
+
+    if (gTerrain.TileInMapCoords(aCopyX, aCopyY)
+    and gTerrain.TileInMapCoords(aPasteX, aPasteY)
+    and gTerrain.TileInMapCoords(aCopyX + aWidth - 1, aCopyY + aHeight - 1)
+    and gTerrain.TileInMapCoords(aPasteX + aWidth - 1, aPasteY + aHeight - 1)) then
+    begin
+      gTerrain.CopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY);
+    end
+    else
+      LogIntParamWarn('Actions.MapCopyArea', [aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
