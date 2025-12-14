@@ -110,7 +110,7 @@ type
     procedure IncDigState(const aLoc: TKMPoint);
     procedure ResetDigState(const aLoc: TKMPoint);
 
-    procedure CopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
+    procedure CopyArea(aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY: Integer);
 
     function CanPlaceUnit(const aLoc: TKMPoint; aUnitType: TKMUnitType): Boolean;
     function CanPlaceGoldMine(X, Y: Word): Boolean;
@@ -4701,25 +4701,25 @@ begin
 end;
 
 
-procedure TKMTerrain.CopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
+procedure TKMTerrain.CopyArea(aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY: Integer);
 var
   I, K: Integer;
 begin
 
-  for I := 0 to aWidth - 1 do
-    for K := 0 to aHeight - 1 do
+  for I := 0 to aCopyRectangleWidth - 1 do
+    for K := 0 to aCopyRectangleHeight - 1 do
     begin
-      Land[aPasteY + K,aPasteX + I].BaseLayer := Land[aCopyY + K, aCopyX + I].BaseLayer;
-      Land[aPasteY + K,aPasteX + I].Obj := Land[aCopyY + K, aCopyX + I].Obj;
-      Land[aPasteY + K,aPasteX + I].Height := Land[aCopyY + K, aCopyX + I].Height;
+      Land[aPasteToX + I, aPasteToY + K].BaseLayer := Land[aCopyFromX + I, aCopyFromY + K].BaseLayer;
+      Land[aPasteToX + I, aPasteToY + K].Obj := Land[aCopyFromX + I, aCopyFromY + K].Obj;
+      Land[aPasteToX + I, aPasteToY + K].Height := Land[aCopyFromX + I, aCopyFromY + K].Height;
 
-      Land[aPasteY + K,aPasteX + I].TileOverlay := Land[aCopyY + K, aCopyX + I].TileOverlay;
-      Land[aPasteY + K,aPasteX + I].TreeAge := Land[aCopyY + K, aCopyX + I].TreeAge;
-      Land[aPasteY + K,aPasteX + I].IsCustom := Land[aCopyY + K, aCopyX + I].IsCustom;
-      Land[aPasteY + K,aPasteX + I].BlendingLvl := Land[aCopyY + K, aCopyX + I].BlendingLvl;
+      Land[aPasteToX + I, aPasteToY + K].TileOverlay := Land[aCopyFromX + I, aCopyFromY + K].TileOverlay;
+      Land[aPasteToX + I, aPasteToY + K].TreeAge := Land[aCopyFromX + I, aCopyFromY + K].TreeAge;
+      Land[aPasteToX + I, aPasteToY + K].IsCustom := Land[aCopyFromX + I, aCopyFromY + K].IsCustom;
+      Land[aPasteToX + I, aPasteToY + K].BlendingLvl := Land[aCopyFromX + I, aCopyFromY + K].BlendingLvl;
     end;
 
-  UpdateAll(KMRect(aPasteX, aPasteY, aPasteX + aWidth, aPasteY + aHeight));
+  UpdateAll(KMRect(aPasteToX, aPasteToY, aPasteToX + aCopyRectangleWidth, aPasteToY + aCopyRectangleHeight));
 end;
 
 
