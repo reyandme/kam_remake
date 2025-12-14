@@ -156,7 +156,7 @@ type
     procedure MapBrushWithMask(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind;
                                aRandomTiles, aOverrideCustomTiles: Boolean;
                                aBrushMask: TKMTileMaskKind; aBlendingLvl: Integer; aUseMagicBrush: Boolean);
-    procedure MapCopyArea(aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY: Integer);
+    procedure MapCopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY: Integer);
     procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
@@ -5459,27 +5459,27 @@ end;
 //* aCopyRectangleWidth, aCopyRectangleHeight - size of rectangle that should be copied
 //* aPasteToX, aPasteToY - coordinates of tile where copied rectangle should be pasted.
 //* Minimum valid size of copy rectangle is 1x1.
-procedure TKMScriptActions.MapCopyArea(aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY: Integer);
+procedure TKMScriptActions.MapCopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY: Integer);
 begin
   try
 
     if gGameParams.Tick > 0 then
     begin
-      LogWarning('Actions.MapCopyArea', 'This procedure can be called only at OnMissionStart event.');
+      LogWarning('Actions.MapCopyRect', 'This procedure can be called only at OnMissionStart event.');
       exit;
     end;
 
-    if (gTerrain.TileInMapCoords(aCopyFromX, aCopyFromY)
-    and gTerrain.TileInMapCoords(aPasteToX, aPasteToY)
-    and gTerrain.TileInMapCoords(aCopyFromX + aCopyRectangleWidth - 1, aCopyFromY + aCopyRectangleHeight - 1)
-    and gTerrain.TileInMapCoords(aPasteToX + aCopyRectangleWidth - 1, aPasteToY + aCopyRectangleHeight - 1)
-    and (aCopyRectangleWidth > 0)
-    and (aCopyRectangleHeight > 0)) then
+    if (gTerrain.TileInMapCoords(aFromTileX, aFromTileY)
+    and gTerrain.TileInMapCoords(aToTileX, aToTileY)
+    and gTerrain.TileInMapCoords(aFromTileX + aWidth - 1, aFromTileY + aHeight - 1)
+    and gTerrain.TileInMapCoords(aToTileX + aWidth - 1, aToTileY + aHeight - 1)
+    and (aWidth > 0)
+    and (aHeight > 0)) then
     begin
-      gTerrain.CopyArea(aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY);
+      gTerrain.CopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY);
     end
     else
-      LogIntParamWarn('Actions.MapCopyArea', [aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY]);
+      LogIntParamWarn('Actions.MapCopyRect', [aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
