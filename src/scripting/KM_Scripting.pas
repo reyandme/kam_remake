@@ -833,8 +833,8 @@ begin
     RegisterMethodCheck(c, 'procedure MapBrushWithMask(X: Integer; Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind; ' +
       'aRandomTiles: Boolean; aOverrideCustomTiles: Boolean; aBrushMask: TKMTileMaskKind; ' +
       'aBlendingLvl: Integer; aUseMagicBrush: Boolean)');
-    RegisterMethodCheck(c, 'procedure MapCopyArea(aCopyX: Integer; aCopyY: Integer; aWidth: Integer; aHeight: Integer; aPasteX: Integer; ' +
-      'aPasteY: Integer)');
+    RegisterMethodCheck(c, 'procedure MapCopyArea(aCopyFromX: Integer; aCopyFromY: Integer; aCopyRectangleWidth: Integer; aCopyRectangleHeight: Integer;' +
+    ' aPasteToX: Integer; aPasteToY: Integer)');
     RegisterMethodCheck(c, 'procedure MapFlip(aLeft: Integer; aTop: Integer; aRight: Integer; aBottom: Integer; aAxis: TKMFlipAxis)');
     RegisterMethodCheck(c, 'function  MapTileHeightSet(X, Y: Integer; Height: Integer): Boolean');
     RegisterMethodCheck(c, 'function  MapTileObjectSet(X, Y: Integer; Obj: Integer): Boolean');

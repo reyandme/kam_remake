@@ -156,7 +156,7 @@ type
     procedure MapBrushWithMask(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind;
                                aRandomTiles, aOverrideCustomTiles: Boolean;
                                aBrushMask: TKMTileMaskKind; aBlendingLvl: Integer; aUseMagicBrush: Boolean);
-    procedure MapCopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
+    procedure MapCopyArea(aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY: Integer);
     procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
@@ -5455,28 +5455,33 @@ end;
 
 //* Version: 15913
 //* Copies map tiles area. This function can be called only in OnMissionStart procedure.
-//* aCopyX, aCopyY - top left tile coordinate of rectangle that should be copied
-//* aWidth, aHeight - size of rectangle that should be copied
-//* aPasteX, aPasteY - coordinates of tile where copied rectangle should be pasted.
+//* aCopyFromX, aCopyFromY - top left tile coordinate of rectangle that should be copied
+//* aCopyRectangleWidth, aCopyRectangleHeight - size of rectangle that should be copied
+//* aPasteToX, aPasteToY - coordinates of tile where copied rectangle should be pasted.
 //* Minimum valid size of copy rectangle is 1x1.
-procedure TKMScriptActions.MapCopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
+procedure TKMScriptActions.MapCopyArea(aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY: Integer);
 begin
   try
+
     if gGameParams.Tick > 0 then
     begin
       LogWarning('Actions.MapCopyArea', 'This procedure can be called only at OnMissionStart event.');
       exit;
     end;
 
-    if (gTerrain.TileInMapCoords(aCopyX, aCopyY)
-    and gTerrain.TileInMapCoords(aPasteX, aPasteY)
-    and gTerrain.TileInMapCoords(aCopyX + aWidth - 1, aCopyY + aHeight - 1)
-    and gTerrain.TileInMapCoords(aPasteX + aWidth - 1, aPasteY + aHeight - 1)) then
+    Assert(gGameParams.Tick = 0, 'Actions.MapCopyArea procedure can be called only at OnMissionStart event.');
+
+    if (gTerrain.TileInMapCoords(aCopyFromX, aCopyFromY)
+    and gTerrain.TileInMapCoords(aPasteToX, aPasteToY)
+    and gTerrain.TileInMapCoords(aCopyFromX + aCopyRectangleWidth - 1, aCopyFromY + aCopyRectangleHeight - 1)
+    and gTerrain.TileInMapCoords(aPasteToX + aCopyRectangleWidth - 1, aPasteToY + aCopyRectangleHeight - 1)
+    and (aCopyRectangleWidth > 0)
+    and (aCopyRectangleHeight > 0)) then
     begin
-      gTerrain.CopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY);
+      gTerrain.CopyArea(aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY);
     end
     else
-      LogIntParamWarn('Actions.MapCopyArea', [aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY]);
+      LogIntParamWarn('Actions.MapCopyArea', [aCopyFromX, aCopyFromY, aCopyRectangleWidth, aCopyRectangleHeight, aPasteToX, aPasteToY]);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
