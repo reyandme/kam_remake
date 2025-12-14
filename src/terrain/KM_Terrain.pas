@@ -4981,7 +4981,7 @@ begin
 end;
 
 
-{Check 4 surrounding tiles, and if they are different place a fence}
+// Check 4 surrounding tiles, and if they are different place a fence
 procedure TKMTerrain.UpdateFences(const aLoc: TKMPoint; aCheckSurrounding: Boolean = True);
 
   function GetFenceType: TKMFenceKind;
@@ -5004,10 +5004,10 @@ procedure TKMTerrain.UpdateFences(const aLoc: TKMPoint; aCheckSurrounding: Boole
 
     if not TileInMapCoords(X,Y) then exit;
 
-    if (TileIsCornField(aLoc) and TileIsCornField(KMPoint(X,Y))) or //Both are Corn
-       (TileIsWineField(aLoc) and TileIsWineField(KMPoint(X,Y))) or //Both are Wine
-       ((Land^[aLoc.Y, aLoc.X].TileLock in [tlFenced, tlDigged]) and
-        (Land^[Y, X].TileLock in [tlFenced, tlDigged])) then //Both are either house fence
+    if (TileIsCornField(aLoc) and TileIsCornField(KMPoint(X,Y)))  // Both are Corn
+    or (TileIsWineField(aLoc) and TileIsWineField(KMPoint(X,Y)))  // Both are Wine
+    or ((Land^[aLoc.Y, aLoc.X].TileLock in [tlFenced, tlDigged])
+      and (Land^[Y, X].TileLock in [tlFenced, tlDigged])) then    // Both are either house fence
       Result := False;
   end;
 begin
@@ -5019,10 +5019,10 @@ begin
     Fences[aLoc.Y, aLoc.X].Side := 0
   else
   begin
-    Fences[aLoc.Y, aLoc.X].Side := Byte(GetFenceEnabled(aLoc.X,     aLoc.Y - 1))      + //N
-                                 Byte(GetFenceEnabled(aLoc.X - 1, aLoc.Y))      * 2 + //E
-                                 Byte(GetFenceEnabled(aLoc.X + 1, aLoc.Y))      * 4 + //W
-                                 Byte(GetFenceEnabled(aLoc.X,     aLoc.Y + 1))  * 8;  //S
+    Fences[aLoc.Y, aLoc.X].Side := Byte(GetFenceEnabled(aLoc.X,     aLoc.Y - 1))      + // N
+                                   Byte(GetFenceEnabled(aLoc.X - 1, aLoc.Y))      * 2 + // E
+                                   Byte(GetFenceEnabled(aLoc.X + 1, aLoc.Y))      * 4 + // W
+                                   Byte(GetFenceEnabled(aLoc.X,     aLoc.Y + 1))  * 8;  // S
   end;
 
   if aCheckSurrounding then
@@ -5035,7 +5035,7 @@ begin
 end;
 
 
-{Cursor position should be converted to tile-coords respecting tile heights}
+// Cursor position should be converted to tile-coords respecting tile heights
 function TKMTerrain.ConvertCursorToMapCoord(inX,inY: Single): Single;
 var
   I, ii: Integer;
