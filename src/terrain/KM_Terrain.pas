@@ -4703,21 +4703,20 @@ end;
 
 procedure TKMTerrain.CopyArea(aCopyX, aCopyY, aWidth, aHeight, aPasteX, aPasteY: Integer);
 var
-  I: Integer;
-  J: Integer;
+  I, K: Integer;
 begin
 
   for I := 0 to aWidth - 1 do
-    for J := 0 to aHeight - 1 do
+    for K := 0 to aHeight - 1 do
     begin
-      Land[aPasteY + J,aPasteX + I].BaseLayer := Land[aCopyY + J, aCopyX + I].BaseLayer;
-      Land[aPasteY + J,aPasteX + I].Obj := Land[aCopyY + J, aCopyX + I].Obj;
-      Land[aPasteY + J,aPasteX + I].Height := Land[aCopyY + J, aCopyX + I].Height;
+      Land[aPasteY + K,aPasteX + I].BaseLayer := Land[aCopyY + K, aCopyX + I].BaseLayer;
+      Land[aPasteY + K,aPasteX + I].Obj := Land[aCopyY + K, aCopyX + I].Obj;
+      Land[aPasteY + K,aPasteX + I].Height := Land[aCopyY + K, aCopyX + I].Height;
 
-      Land[aPasteY + J,aPasteX + I].TileOverlay := Land[aCopyY + J, aCopyX + I].TileOverlay;
-      Land[aPasteY + J,aPasteX + I].TreeAge := Land[aCopyY + J, aCopyX + I].TreeAge;
-      Land[aPasteY + J,aPasteX + I].IsCustom := Land[aCopyY + J, aCopyX + I].IsCustom;
-      Land[aPasteY + J,aPasteX + I].BlendingLvl := Land[aCopyY + J, aCopyX + I].BlendingLvl;
+      Land[aPasteY + K,aPasteX + I].TileOverlay := Land[aCopyY + K, aCopyX + I].TileOverlay;
+      Land[aPasteY + K,aPasteX + I].TreeAge := Land[aCopyY + K, aCopyX + I].TreeAge;
+      Land[aPasteY + K,aPasteX + I].IsCustom := Land[aCopyY + K, aCopyX + I].IsCustom;
+      Land[aPasteY + K,aPasteX + I].BlendingLvl := Land[aCopyY + K, aCopyX + I].BlendingLvl;
     end;
 
   UpdateAll(KMRect(aPasteX, aPasteY, aPasteX + aWidth, aPasteY + aHeight));
