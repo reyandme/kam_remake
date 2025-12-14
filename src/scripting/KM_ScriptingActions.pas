@@ -5469,8 +5469,6 @@ begin
       exit;
     end;
 
-    Assert(gGameParams.Tick = 0, 'Actions.MapCopyArea procedure can be called only at OnMissionStart event.');
-
     if (gTerrain.TileInMapCoords(aCopyFromX, aCopyFromY)
     and gTerrain.TileInMapCoords(aPasteToX, aPasteToY)
     and gTerrain.TileInMapCoords(aCopyFromX + aCopyRectangleWidth - 1, aCopyFromY + aCopyRectangleHeight - 1)

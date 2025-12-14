@@ -4706,6 +4706,8 @@ var
   I, K: Integer;
 begin
 
+  Assert(gGameParams.Tick = 0);
+
   for I := 0 to aCopyRectangleWidth - 1 do
     for K := 0 to aCopyRectangleHeight - 1 do
     begin
