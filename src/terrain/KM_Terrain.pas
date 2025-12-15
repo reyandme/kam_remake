@@ -110,6 +110,8 @@ type
     procedure IncDigState(const aLoc: TKMPoint);
     procedure ResetDigState(const aLoc: TKMPoint);
 
+    procedure CopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY: Integer);
+
     function CanPlaceUnit(const aLoc: TKMPoint; aUnitType: TKMUnitType): Boolean;
     function CanPlaceGoldMine(X, Y: Word): Boolean;
     function CanPlaceIronMine(X, Y: Word): Boolean;
@@ -4696,6 +4698,28 @@ begin
                       if TileInMapCoords(aLoc.X + K - 3, aLoc.Y + I - 4) then
                         Land^[aLoc.Y + I - 4, aLoc.X + K - 3].TileOwner := aOwner;
   end;
+end;
+
+
+procedure TKMTerrain.CopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY: Integer);
+var
+  I, K: Integer;
+begin
+  Assert(gGameParams.Tick = 0, 'We cut a lot of corners with such copy, hence only allowed on tick 0');
+
+  for I := 0 to aHeight - 1 do
+    for K := 0 to aWidth - 1 do
+    begin
+      Land[aToTileY + I, aToTileX + K].BaseLayer   := Land[aFromTileY + I, aFromTileX + K].BaseLayer;
+      Land[aToTileY + I, aToTileX + K].Obj         := Land[aFromTileY + I, aFromTileX + K].Obj;
+      Land[aToTileY + I, aToTileX + K].Height      := Land[aFromTileY + I, aFromTileX + K].Height;
+      Land[aToTileY + I, aToTileX + K].TileOverlay := Land[aFromTileY + I, aFromTileX + K].TileOverlay;
+      Land[aToTileY + I, aToTileX + K].TreeAge     := Land[aFromTileY + I, aFromTileX + K].TreeAge;
+      Land[aToTileY + I, aToTileX + K].IsCustom    := Land[aFromTileY + I, aFromTileX + K].IsCustom;
+      Land[aToTileY + I, aToTileX + K].BlendingLvl := Land[aFromTileY + I, aFromTileX + K].BlendingLvl;
+    end;
+
+  UpdateAll(KMRect(aToTileX, aToTileY, aToTileX + aWidth, aToTileY + aHeight));
 end;
 
 

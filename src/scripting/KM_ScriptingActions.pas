@@ -156,6 +156,7 @@ type
     procedure MapBrushWithMask(X, Y: Integer; aSquare: Boolean; aSize: Integer; aTerKind: TKMTerrainKind;
                                aRandomTiles, aOverrideCustomTiles: Boolean;
                                aBrushMask: TKMTileMaskKind; aBlendingLvl: Integer; aUseMagicBrush: Boolean);
+    procedure MapCopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY: Integer);
     procedure MapFlip(aLeft, aTop, aRight, aBottom: Integer; aAxis: TKMFlipAxis);
 
     function MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
@@ -5446,6 +5447,33 @@ begin
     end
     else
       LogIntParamWarn('Actions.MapFlip', [aLeft, aTop, aRight, aBottom, Ord(aAxis)]);
+  except
+    gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
+    raise;
+  end;
+end;
+
+
+//* Version: 15925
+//* Copies map tiles area. This function can be called only in OnMissionStart procedure.
+//* aFromTileX, aFromTileY - top left tile coordinate of rectangle that should be copied
+//* aWidth, aHeight - size of rectangle that should be copied
+//* aToTileX, aToTileY - coordinates of tile where copied rectangle should be pasted.
+//* Minimum valid size of copy rectangle is 1x1.
+procedure TKMScriptActions.MapCopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY: Integer);
+begin
+  try
+    if gGameParams.Tick > 0 then
+      LogWarning('Actions.MapCopyRect', 'This procedure can be called only at OnMissionStart event.')
+    else
+    if not gTerrain.TileInMapCoords(aFromTileX, aFromTileY)
+    or not gTerrain.TileInMapCoords(aToTileX, aToTileY)
+    or not gTerrain.TileInMapCoords(aFromTileX + aWidth - 1, aFromTileY + aHeight - 1)
+    or not gTerrain.TileInMapCoords(aToTileX + aWidth - 1, aToTileY + aHeight - 1)
+    or (aWidth = 0) or (aHeight = 0) then
+      LogIntParamWarn('Actions.MapCopyRect', [aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY])
+    else
+      gTerrain.CopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY);
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
