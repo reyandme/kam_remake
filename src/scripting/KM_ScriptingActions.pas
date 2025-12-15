@@ -5455,29 +5455,26 @@ end;
 
 //* Version: 15913
 //* Copies map tiles area. This function can be called only in OnMissionStart procedure.
-//* aCopyFromX, aCopyFromY - top left tile coordinate of rectangle that should be copied
-//* aCopyRectangleWidth, aCopyRectangleHeight - size of rectangle that should be copied
-//* aPasteToX, aPasteToY - coordinates of tile where copied rectangle should be pasted.
+//* aFromTileX, aFromTileY - top left tile coordinate of rectangle that should be copied
+//* aWidth, aHeight - size of rectangle that should be copied
+//* aToTileX, aToTileY - coordinates of tile where copied rectangle should be pasted.
 //* Minimum valid size of copy rectangle is 1x1.
 procedure TKMScriptActions.MapCopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY: Integer);
 begin
   try
-
     if gGameParams.Tick > 0 then
     begin
       LogWarning('Actions.MapCopyRect', 'This procedure can be called only at OnMissionStart event.');
       exit;
     end;
 
-    if (gTerrain.TileInMapCoords(aFromTileX, aFromTileY)
+    if gTerrain.TileInMapCoords(aFromTileX, aFromTileY)
     and gTerrain.TileInMapCoords(aToTileX, aToTileY)
     and gTerrain.TileInMapCoords(aFromTileX + aWidth - 1, aFromTileY + aHeight - 1)
     and gTerrain.TileInMapCoords(aToTileX + aWidth - 1, aToTileY + aHeight - 1)
     and (aWidth > 0)
-    and (aHeight > 0)) then
-    begin
-      gTerrain.CopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY);
-    end
+    and (aHeight > 0) then
+      gTerrain.CopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY)
     else
       LogIntParamWarn('Actions.MapCopyRect', [aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY]);
   except

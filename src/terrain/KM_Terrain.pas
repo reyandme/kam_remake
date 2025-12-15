@@ -4708,17 +4708,17 @@ begin
 
   Assert(gGameParams.Tick = 0);
 
-  for I := 0 to aWidth - 1 do
-    for K := 0 to aHeight - 1 do
+  for I := 0 to aHeight - 1 do
+    for K := 0 to aWidth - 1 do
     begin
-      Land[aToTileX + I, aToTileY + K].BaseLayer := Land[aFromTileX + I, aFromTileY + K].BaseLayer;
-      Land[aToTileX + I, aToTileY + K].Obj := Land[aFromTileX + I, aFromTileY + K].Obj;
-      Land[aToTileX + I, aToTileY + K].Height := Land[aFromTileX + I, aFromTileY + K].Height;
+      Land[aToTileY + I, aToTileX + K].BaseLayer := Land[aFromTileY + I, aFromTileX + K].BaseLayer;
+      Land[aToTileY + I, aToTileX + K].Obj := Land[aFromTileY + I, aFromTileX + K].Obj;
+      Land[aToTileY + I, aToTileX + K].Height := Land[aFromTileY + I, aFromTileX + K].Height;
 
-      Land[aToTileX + I, aToTileY + K].TileOverlay := Land[aFromTileX + I, aFromTileY + K].TileOverlay;
-      Land[aToTileX + I, aToTileY + K].TreeAge := Land[aFromTileX + I, aFromTileY + K].TreeAge;
-      Land[aToTileX + I, aToTileY + K].IsCustom := Land[aFromTileX + I, aFromTileY + K].IsCustom;
-      Land[aToTileX + I, aToTileY + K].BlendingLvl := Land[aFromTileX + I, aFromTileY + K].BlendingLvl;
+      Land[aToTileY + I, aToTileX + K].TileOverlay := Land[aFromTileY + I, aFromTileX + K].TileOverlay;
+      Land[aToTileY + I, aToTileX + K].TreeAge := Land[aFromTileY + I, aFromTileX + K].TreeAge;
+      Land[aToTileY + I, aToTileX + K].IsCustom := Land[aFromTileY + I, aFromTileX + K].IsCustom;
+      Land[aToTileY + I, aToTileX + K].BlendingLvl := Land[aFromTileY + I, aFromTileX + K].BlendingLvl;
     end;
 
   UpdateAll(KMRect(aToTileX, aToTileY, aToTileX + aWidth, aToTileY + aHeight));
