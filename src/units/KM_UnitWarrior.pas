@@ -710,9 +710,6 @@ begin
     testDir := dirNA;
 
   range := GetFightMaxRange(True);
-  //AI has an "auto attack range" for melee like in TSK/TPR so you can't sneak past them (when idle)
-  if not IsRanged and IsIdle and gHands[Owner].IsComputer then
-    range := Max(range, gHands[Owner].AI.Setup.AutoAttackRange);
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
   Result := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, range, Owner, atEnemy, testDir, not RANDOM_TARGETS);
