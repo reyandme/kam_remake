@@ -3,7 +3,7 @@ unit KM_Main;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  KM_FormMain, KM_FormLoading, KM_Maps,
+  KM_Defaults, KM_FormMain, KM_FormLoading, KM_Maps,
   KM_MainSettings, KM_Resolutions, KM_Video,
   KM_WindowParams,
   KM_GameAppSettings
@@ -85,7 +85,7 @@ type
     function LockMutex: Boolean;
     procedure UnlockMutex;
 
-    procedure StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
+    procedure HandleStatusBarText(aPanelIndex: TKMStatusBarPanelIndex; aText: string);
 
     procedure SetGameTickInterval(aInterval: Cardinal);
     property GameTickInterval: Cardinal read fGameTickInterval;
@@ -114,7 +114,7 @@ uses
   KM_ResTexts,
   KM_KeysSettings,
   KM_Music,
-  KM_Log, KM_CommonUtils, KM_Defaults, KM_Points, KM_DevPerfLog,
+  KM_Log, KM_CommonUtils, KM_Points, KM_DevPerfLog,
   KM_CommonExceptions,
   KromShellUtils, KM_MapTypes;
 
@@ -352,9 +352,9 @@ begin
 end;
 
 
-procedure TKMMain.StatusBarText(aPanelIndex: Integer; const aText: UnicodeString);
+procedure TKMMain.HandleStatusBarText(aPanelIndex: TKMStatusBarPanelIndex; aText: string);
 begin
-  fFormMain.StatusBar1.Panels[aPanelIndex].Text := aText;
+  fFormMain.StatusBar1.Panels[Ord(aPanelIndex)].Text := aText;
 end;
 
 
@@ -500,7 +500,7 @@ begin
 
       fpsLag := 1000 div gMainSettings.FPSCap;
       fFPSString := Format('%.1f FPS', [fFPS]) + IfThen(CAP_MAX_FPS, ' (cap ' + IntToStr(fpsLag) + 'ms)');
-      StatusBarText(SB_ID_FPS, fFPSString);
+      HandleStatusBarText(SB_ID_FPS, fFPSString);
       fOldFrameTimes := 0;
       fFrameCount := 0;
     end;
@@ -687,7 +687,7 @@ begin
                                 gMainSettings.VSync,
                                 fFormLoading.LoadingStep,
                                 fFormLoading.LoadingText,
-                                StatusBarText);
+                                HandleStatusBarText);
 
   // Will show fullscreen form and play videos
   // We need to start it after GameApp creation, since we need gResLocales to load proper video file by loaded locale

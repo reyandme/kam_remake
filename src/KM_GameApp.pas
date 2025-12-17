@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} UITypes, {$ENDIF}
   {$IFDEF FPC} Controls, {$ENDIF}
   Classes,
-  Dialogs,
+  Dialogs, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_RenderControl, KM_Video,
   KM_Campaigns, KM_Game, KM_InterfaceDefaults, KM_InterfaceMainMenu, KM_InterfaceTypes, KM_Resource,
   KM_Music, KM_Maps, KM_MapTypes, KM_CampaignClasses, KM_Networking,
@@ -32,7 +32,7 @@ type
 
     fChat: TKMChat;
 
-    fOnCursorUpdate: TIntegerStringEvent;
+    fOnStatusBarUpdate: TProc<TKMStatusBarPanelIndex, string>;
     fOnGameSpeedChange: TSingleEvent;
     fOnGameStart: TKMGameModeChangeEvent;
     fOnGameEnd: TKMGameModeChangeEvent;
@@ -70,7 +70,7 @@ type
     procedure UpdatePerflog;
   public
     constructor Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aOnLoadingStep: TKMEvent;
-                       aOnLoadingText: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
+                       aOnLoadingText: TUnicodeStringEvent; aOnStatusBarUpdate: TProc<TKMStatusBarPanelIndex, string>; NoMusic: Boolean = False);
     destructor Destroy; override;
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
 
@@ -164,7 +164,7 @@ implementation
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLType, {$ENDIF}
-  SysUtils, DateUtils, Math, TypInfo, KromUtils,
+  DateUtils, Math, TypInfo, KromUtils,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KM_System,
   KM_FormLogistics,
@@ -181,13 +181,13 @@ uses
 { TKMGameApp }
 // Creating everything needed for MainMenu, game stuff is created on StartGame
 constructor TKMGameApp.Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aOnLoadingStep: TKMEvent;
-                              aOnLoadingText: TUnicodeStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
+                              aOnLoadingText: TUnicodeStringEvent; aOnStatusBarUpdate: TProc<TKMStatusBarPanelIndex, string>; NoMusic: Boolean = False);
 begin
   inherited Create;
 
   fCampaigns := TKMCampaignsCollection.Create;
 
-  fOnCursorUpdate := aOnCursorUpdate;
+  fOnStatusBarUpdate := aOnStatusBarUpdate;
 
   gResKeys := TKMResKeys.Create;
 
@@ -464,10 +464,10 @@ begin
     if fMainMenuInterface <> nil then
       fMainMenuInterface.MouseMove(Shift, X,Y);
 
-  if Assigned(fOnCursorUpdate) then
+  if Assigned(fOnStatusBarUpdate) then
   begin
-    fOnCursorUpdate(SB_ID_CURSOR_COORD, Format('Cursor: %d:%d', [X, Y]));
-    fOnCursorUpdate(SB_ID_TILE,         Format('Tile: %.1f:%.1f [%d:%d]',
+    fOnStatusBarUpdate(SB_ID_CURSOR_COORD, Format('Cursor: %d:%d', [X, Y]));
+    fOnStatusBarUpdate(SB_ID_TILE,         Format('Tile: %.1f:%.1f [%d:%d]',
                                [gCursor.Float.X, gCursor.Float.Y,
                                gCursor.Cell.X, gCursor.Cell.Y]));
     if SHOW_CONTROLS_ID then
@@ -479,7 +479,7 @@ begin
       ctrlID := -1;
       if ctrl <> nil then
         ctrlID := ctrl.ID;
-      fOnCursorUpdate(SB_ID_CTRL_ID, Format('Control ID: %d', [ctrlID]));
+      fOnStatusBarUpdate(SB_ID_CTRL_ID, Format('Control ID: %d', [ctrlID]));
     end;
   end;
 end;
@@ -756,8 +756,8 @@ begin
   if SAVE_GAME_AFTER_LOAD then
     gGame.Save(gGame.Params.Name + SAVE_SUFFIX_DEBUG);
 
-  if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
+  if Assigned(fOnStatusBarUpdate) then
+    fOnStatusBarUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
 end;
 
 
@@ -801,8 +801,8 @@ begin
 
   gGame.AfterStart; //Call after start separately, so errors in it could be sended in crashreport
 
-  if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
+  if Assigned(fOnStatusBarUpdate) then
+    fOnStatusBarUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
 end;
 
 
@@ -861,8 +861,8 @@ begin
 
   gGame.AfterLoad; //Call after load separately, so errors in it could be sended in crashreport
 
-  if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
+  if Assigned(fOnStatusBarUpdate) then
+    fOnStatusBarUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
 end;
 
 
@@ -893,8 +893,8 @@ begin
     end;
   end;
 
-  if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
+  if Assigned(fOnStatusBarUpdate) then
+    fOnStatusBarUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
 end;
 
 
@@ -1274,9 +1274,9 @@ begin
   gRender.Query.QueriesSwapBuffers;
 
   if not aForPrintScreen
-    and (gGame <> nil)
-    and Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(SB_ID_OBJECT, 'Obj: ' + IntToStr(gCursor.ObjectUID));
+  and (gGame <> nil)
+  and Assigned(fOnStatusBarUpdate) then
+    fOnStatusBarUpdate(SB_ID_OBJECT, 'Obj: ' + IntToStr(gCursor.ObjectUID));
 end;
 
 
@@ -1435,8 +1435,8 @@ begin
       gMusic.PlayNextTrack; //Feed new music track
 
     //StatusBar
-    if (gGame <> nil) and not (gGame.IsPaused and BLOCK_GAME_ON_PAUSE) and Assigned(fOnCursorUpdate) then
-        fOnCursorUpdate(SB_ID_TIME, 'Time: ' + TimeToString(gGame.MissionTime));
+    if (gGame <> nil) and not (gGame.IsPaused and BLOCK_GAME_ON_PAUSE) and Assigned(fOnStatusBarUpdate) then
+      fOnStatusBarUpdate(SB_ID_TIME, 'Time: ' + TimeToString(gGame.MissionTime));
   end;
 
   UpdatePerflog;

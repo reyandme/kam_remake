@@ -815,16 +815,16 @@ type
         tlRoadWork  // -        X         X       X          -     X      -
         );
 
-//Indexes KM_FormMain.StatusBar
-const
-  SB_ID_KMR_VER      = 0;
-  SB_ID_MAP_SIZE     = 1;
-  SB_ID_CURSOR_COORD = 2;
-  SB_ID_TILE         = 3;
-  SB_ID_TIME         = 4;
-  SB_ID_FPS          = 5;
-  SB_ID_OBJECT       = 6;
-  SB_ID_CTRL_ID      = 7;
+  // Indexes KM_FormMain.StatusBar
+  TKMStatusBarPanelIndex = (
+    SB_ID_KMR_VER,
+    SB_ID_MAP_SIZE,
+    SB_ID_CURSOR_COORD,
+    SB_ID_TILE,
+    SB_ID_TIME,
+    SB_ID_FPS,
+    SB_ID_OBJECT,
+    SB_ID_CTRL_ID);
 
 type
   TKMMapSize = (msNone, msXS, msS, msM, msL, msXL, msXXL);
