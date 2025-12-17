@@ -412,7 +412,7 @@ begin
                           if UT in [ANIMAL_MIN..ANIMAL_MAX] then
                           begin
                             U := gHands.PlayerAnimals.AddUnit(UT, KMPoint(P[1]+1, P[2]+1));
-                            if (U is TKMUnitFish) and InRange(P[3], 1, FISH_CNT_MAX) then
+                            if (U is TKMUnitFish) and InRange(P[3], 1, UNIT_FISH_CONUT_MAX) then
                               TKMUnitFish(U).FishCount := P[3];
                           end
                           else

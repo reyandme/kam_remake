@@ -403,7 +403,6 @@ procedure TKMRenderPool.RenderBackgroundUI(const aRect: TKMRect);
     end;
   end;
 
-
 var
   I, K: Integer;
 begin
@@ -1192,7 +1191,7 @@ end;
 procedure TKMRenderPool.AddUnitWithDefaultArm(aUnit: TKMUnitType; aUID: Integer; aAct: TKMUnitActionType; aDir: TKMDirection; StepId: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; DoHignlight: Boolean = False; HighlightColor: TColor4 = 0);
 begin
   if aUnit = utFish then
-    aAct := TKMUnitFish.GetFishActionType(FISH_CNT_DEFAULT); // In map editor always render default fish
+    aAct := TKMUnitFish.GetFishActionType(UNIT_FISH_CONUT_DEFAULT); // In map editor always render default fish
 
   AddUnit(aUnit, aUID, aAct, aDir, StepId, 0.0, pX, pY, FlagColor, True, DoImmediateRender, DoHignlight, HighlightColor);
   if gRes.Units[aUnit].SupportsAction(uaWalkArm) then
@@ -1232,6 +1231,7 @@ begin
   glPopAttrib;
   glPopMatrix;
 end;}
+
 
 procedure TKMRenderPool.RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; aColor: TColor4; aDoHighlight: Boolean = False;
   aHighlightColor: TColor4 = 0; aForced: Boolean = False);
@@ -1612,6 +1612,7 @@ begin
     end;
 end;
 
+
 procedure TKMRenderPool.RenderWireTileInt(const X,Y: Integer);
 begin
   RenderWireTile(KMPoint(X, Y), icLightCyan, 0, 0.3);
@@ -1816,8 +1817,7 @@ end;
 //Try to render Unit or Unit group.
 //Return True, if succeeded
 function TKMRenderPool.TryRenderUnitOrGroup(aEntity: TKMHandEntity; aUnitFilterFunc, aGroupFilterFunc: TBooleanFunc;
-                                          aUseGroupFlagColor, aDoHighlight: Boolean;
-                                          aHandColor, aFlagColor: Cardinal; aHighlightColor: Cardinal = 0): Boolean;
+  aUseGroupFlagColor, aDoHighlight: Boolean; aHandColor, aFlagColor: Cardinal; aHighlightColor: Cardinal = 0): Boolean;
 var
   U: TKMUnit;
   G: TKMUnitGroup;

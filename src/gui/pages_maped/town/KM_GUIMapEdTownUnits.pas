@@ -21,7 +21,6 @@ type
       Button_Animals: array [0..7] of TKMButtonFlat;
       NumEd_WarrCount, NumEd_WarrColumns: TKMNumericEdit;  //number of units in group + number of rows
       NumEd_FishCount: TKMNumericEdit;
-
   public
     constructor Create(aParent: TKMPanel);
 
@@ -46,7 +45,7 @@ uses
 { TKMMapEdTownUnits }
 constructor TKMMapEdTownUnits.Create(aParent: TKMPanel);
 const
-  MAPED_FISH_CNT_DEFAULT = 50;
+  MAPED_FISH_CONUT_DEFAULT = 50;
 var
   I: Integer;
   lineY: Word;
@@ -130,12 +129,12 @@ begin
     Hint := gResTexts[TX_MAPED_FISH_COUNT];
   end;
 
-  NumEd_FishCount := TKMNumericEdit.Create(Panel_Units, 9, lineY + 20, 1, FISH_CNT_MAX);
+  NumEd_FishCount := TKMNumericEdit.Create(Panel_Units, 9, lineY + 20, 1, UNIT_FISH_CONUT_MAX);
   NumEd_FishCount.Anchors := [anLeft, anTop, anRight];
   NumEd_FishCount.Hint := gResTexts[TX_MAPED_FISH_COUNT];
   NumEd_FishCount.AutoFocusable := False;
   NumEd_FishCount.OnChange := Town_NumericChange;
-  NumEd_FishCount.Value := MAPED_FISH_CNT_DEFAULT;
+  NumEd_FishCount.Value := MAPED_FISH_CONUT_DEFAULT;
 
   for I := 0 to High(fSubMenuActionsEvents) do
     fSubMenuActionsEvents[I] := Town_UnitChange;

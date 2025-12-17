@@ -2082,7 +2082,7 @@ begin
     // Verify all input parameters
     if gTerrain.TileInMapCoords(X, Y) then
     begin
-      aCount := EnsureRange(aCount, 1, FISH_CNT_MAX);
+      aCount := EnsureRange(aCount, 1, UNIT_FISH_CONUT_MAX);
       U := gHands.PlayerAnimals.AddUnit(utFish, KMPoint(X,Y));
       if U <> nil then
       begin
@@ -4925,7 +4925,7 @@ begin
   try
     if aUnitID > 0 then
     begin
-      aCount := EnsureRange(aCount, 0, FISH_CNT_MAX);
+      aCount := EnsureRange(aCount, 0, UNIT_FISH_CONUT_MAX);
 
       U := fIDCache.GetUnit(aUnitID);
       if (U <> nil ) and (U is TKMUnitFish) then

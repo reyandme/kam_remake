@@ -746,12 +746,6 @@ const
     'uaWalkBooty', 'uaWalkTool2', 'uaWalkBooty2', 'uaUnknown');
 
 
-const
-  // Fish counts
-  FISH_CNT_DEFAULT = 10;
-  FISH_CNT_MAX = 255;
-
-
 type
   TKMGatheringScript = (
     gsNone,

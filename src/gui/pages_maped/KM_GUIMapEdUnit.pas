@@ -94,10 +94,10 @@ begin
   Label_UnitDescription.WordWrap := True;
 
   TKMLabel.Create(Panel_Army, 0, 185, 'X:', fntGrey, taLeft);
-  Edit_FishCount := TKMNumericEdit.Create(Panel_Unit, 20, 172, 1, FISH_CNT_MAX);
+  Edit_FishCount := TKMNumericEdit.Create(Panel_Unit, 20, 172, 1, UNIT_FISH_CONUT_MAX);
   Edit_FishCount.AutoFocusable := False;
   Edit_FishCount.OnChange := UnitFishCntChange;
-  Edit_FishCount.Value := FISH_CNT_DEFAULT;
+  Edit_FishCount.Value := UNIT_FISH_CONUT_DEFAULT;
 
   Panel_Army := TKMPanel.Create(Panel_Unit, 0, 160, Panel_Unit.Width, 400);
   Button_Army_RotCCW  := TKMButton.Create(Panel_Army,       0,  0, 56, 40, 23, rxGui, bsGame);

@@ -1152,7 +1152,7 @@ begin
   inherited Create(aID, utFish, aLoc, aOwner);
 
   // Always start with 10 fish in the group
-  fFishCount := FISH_CNT_DEFAULT;
+  fFishCount := UNIT_FISH_CONUT_DEFAULT;
 end;
 
 
