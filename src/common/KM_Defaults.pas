@@ -89,18 +89,18 @@ var
 
   // Gameplay features (aka "feature flags")
   // Implemented. Once the feature is implemented and adopted by the players the flag is safe to remove
-  FEAT_ALLOW_TO_DISMISS_UNITS :Boolean = True; // Show button to order citizens to go back to school
-  FEAT_SETTINGS_IN_MYDOC      :Boolean = True; // Save settings in the "C:\Users\Username\My Documents\My Games\GAME_TITLE\" folder as many other games do
-  FEAT_UNIT_INTERACTION       :Boolean = True; // Unit interaction
-  FEAT_AVOID_UNITS_IN_PATH    :Boolean = True; // Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
-  FEAT_CUSTOM_RANDOM          :Boolean = True; // Use our custom random number generator instead of the "Random()"
-  FEAT_USE_WALKING_DISTANCE   :Boolean = True; // Use the walking distance for deciding place to mine rather than direct distance
-  FEAT_ARCHER_RANDOM_TARGETS  :Boolean = True; // Archers use random targets instead of closest
-  FEAT_HUNGARIAN_GROUP_ORDER  :Boolean = True; // Use Hungarian algorithm to reorder warrior groups when walking
-  FEAT_AI_GENERATE_NAVMESH    :Boolean = True; // Generate navmesh for AI to plan attacks/defenses
-  FEAT_AI_GENERATE_INFLUENCE  :Boolean = True; // Generate influence maps for AI to plan attacks/defenses
-  FEAT_SAVE_COMPRESSION       :Boolean = True; // Apply compression to savegame files, (disable to make them more readable)
-  FEAT_SFX_ADJUST_SAMPLE_RATE :Boolean = True; // Adjust SFX sample rate
+  FEAT_ALLOW_TO_DISMISS_UNITS     :Boolean = True; // Show button to order citizens to go back to school
+  FEAT_SETTINGS_IN_MYDOC          :Boolean = True; // Save settings in the "C:\Users\Username\My Documents\My Games\GAME_TITLE\" folder as many other games do
+  FEAT_UNIT_INTERACTION           :Boolean = True; // Unit interaction
+  FEAT_AVOID_UNITS_IN_PATH        :Boolean = True; // Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
+  FEAT_CUSTOM_RANDOM              :Boolean = True; // Use our custom random number generator instead of the "Random()"
+  FEAT_USE_WALKING_DISTANCE       :Boolean = True; // Use the walking distance for deciding place to mine rather than direct distance
+  FEAT_ARCHER_RANDOM_TARGETS      :Boolean = True; // Archers use random targets instead of closest
+  FEAT_HUNGARIAN_GROUP_ORDER      :Boolean = True; // Use Hungarian algorithm to reorder warrior groups when walking
+  FEAT_AI_GENERATE_NAVMESH        :Boolean = True; // Generate navmesh for AI to plan attacks/defenses
+  FEAT_AI_GENERATE_INFLUENCE      :Boolean = True; // Generate influence maps for AI to plan attacks/defenses
+  FEAT_SAVE_COMPRESSION           :Boolean = True; // Apply compression to savegame files, (disable to make them more readable)
+  FEAT_SFX_ADJUST_SAMPLE_RATE     :Boolean = True; // Adjust SFX sample rate
 
   // Not fully implemented yet
   FEAT_CCL_WALKCONNECT        :Boolean = False;     // Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
@@ -140,7 +140,8 @@ var
   ALLOW_SELECT_ALLIES     :Boolean = True;  //Do we allow to select ally units or groups
   ALLOW_SELECT_ALL        :Boolean = DEBUG_CFG; //Do we allow to select all entities (allies and enemies)
   SHOW_RES_CNT_K_FOR_10000:Boolean = not DEBUG_CFG; //Do we show resource amount with K postfix (10123 -> 10k)
-  GAME_SAVE_STRIP_FOR_CRC :Boolean = False; //Strip unsynced data from Game saves, to compare saves CRC
+  DBG_SKIP_SAVE_POINTS_TO_FILE  :Boolean = False; // Skip save game savepoints (into .spt file)
+  DBG_GAME_SAVE_STRIP_FOR_CRC   :Boolean = False; // Strip unsynced data from Game saves, to compare saves CRC
   ALLOW_LOAD_UNSUP_VERSION_SAVE:
                            Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
 
@@ -172,7 +173,6 @@ var
   SKIP_LOADING_CURSOR     :Boolean = False; //Skip loading and setting cursor
   SKIP_SETTINGS_SAVE      :Boolean = False; //Skip save main/game settings into the ini file
 //  SKIP_POINTER_REF_CHECK  :Boolean = False; //Skip Pointer reference check (gGame.AllowGetPointer)
-  SKIP_SAVE_SAVPTS_TO_FILE:Boolean = False; //Skip save game savepoints (into .spt file)
   AGGRESSIVE_REPLAYS      :Boolean = True; //Write a command gicTempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_GAME_TICK          :Boolean = DEBUG_CFG; //Show game tick next to game time
   SHOW_FPS                :Boolean = False; //Show FPS

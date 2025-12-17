@@ -195,7 +195,7 @@ begin
 
   // Game times differ for game and replay
   // Set default value there in that case
-  if GAME_SAVE_STRIP_FOR_CRC then
+  if DBG_GAME_SAVE_STRIP_FOR_CRC then
     SaveStream.Write(DATE_TIME_ZERO)
   else
     SaveStream.Write(SaveTimestamp);
