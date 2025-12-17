@@ -1184,7 +1184,7 @@ var
 {$ENDIF}
 begin
   Result := False;
-  if not AI_GEN_NAVMESH OR not OVERLAY_NAVMESH OR (fNodeCount <= 0) then // fNodeCount for replay
+  if not FEAT_AI_GENERATE_NAVMESH OR not OVERLAY_NAVMESH OR (fNodeCount <= 0) then // fNodeCount for replay
     Exit;
 
   {$IFDEF DEBUG_NavMesh}

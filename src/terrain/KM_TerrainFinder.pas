@@ -211,7 +211,7 @@ end;
 
 
 //Fills aList with all of the tiles within aRadius of aStart with aPass using either a
-//simple radius or a floodfill walking distance calculation depending on USE_WALKING_DISTANCE
+//simple radius or a floodfill walking distance calculation depending on FEAT_USE_WALKING_DISTANCE
 procedure TKMTerrainFinder.GetTilesWithinDistance(const aStart: TKMPoint; aRadius: Byte; aPass: TKMTerrainPassability; aList: TKMPointList);
 const
   STRAIGHT_COST = 5;
@@ -274,7 +274,7 @@ begin
   {$IFDEF PERFLOG}
   gPerfLogs.SectionEnter(psTerrainFinder);
   {$ENDIF}
-  if USE_WALKING_DISTANCE then
+  if FEAT_USE_WALKING_DISTANCE then
   begin
     //Because we use 10 for straight and 14 for diagonal in byte storage 24 is the maximum allowed
     Assert(aRadius <= MAX_RAD, 'GetTilesWithinDistance can''t handle radii > ' + IntToStr(MAX_RAD));

@@ -517,15 +517,15 @@ begin
   //{ DEFENCE SYSTEM
   // Show this defences only in case that show combat AI is not enabled;
   // when it is we need existing results not the actual (defences are updated each 1 min so it may be different)
-  if AI_GEN_NAVMESH AND not OVERLAY_NAVMESH AND OVERLAY_DEFENCES AND not OVERLAY_AI_COMBAT then
+  if FEAT_AI_GENERATE_NAVMESH AND not OVERLAY_NAVMESH AND OVERLAY_DEFENCES AND not OVERLAY_AI_COMBAT then
     fDefences.Paint();
   //}
 
-  if AI_GEN_NAVMESH AND (OVERLAY_HIGHLIGHT_POLY > 0) AND (OVERLAY_HIGHLIGHT_POLY < PolygonsCnt) then
+  if FEAT_AI_GENERATE_NAVMESH AND (OVERLAY_HIGHLIGHT_POLY > 0) AND (OVERLAY_HIGHLIGHT_POLY < PolygonsCnt) then
     DrawPolygon(OVERLAY_HIGHLIGHT_POLY, $CC, tcRed, 1, IntToStr(OVERLAY_HIGHLIGHT_POLY));
 
   //AfterMissionInit();
-  if not AI_GEN_NAVMESH OR not OVERLAY_NAVMESH then
+  if not FEAT_AI_GENERATE_NAVMESH OR not OVERLAY_NAVMESH then
     Exit;
   //{
   if fNavMeshGenerator.Paint(aRect) then

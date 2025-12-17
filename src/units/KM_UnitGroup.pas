@@ -2007,7 +2007,7 @@ begin
   gPerfLogs.SectionEnter(psHungarian);
   {$ENDIF}
   try
-    if not HUNGARIAN_GROUP_ORDER then Exit;
+    if not FEAT_HUNGARIAN_GROUP_ORDER then Exit;
     if fMembers.Count <= 1 then Exit; //If it's just the leader we can't rearrange
     agents := TKMPointList.Create;
     tasks := TKMPointList.Create;

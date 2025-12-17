@@ -1975,8 +1975,8 @@ begin
   fResults.ValueCount := 1;
 //  fResults.TimesCount := 0;
 
-  AI_GEN_INFLUENCE_MAPS := False;
-  AI_GEN_NAVMESH := False;
+  FEAT_AI_GENERATE_INFLUENCE := False;
+  FEAT_AI_GENERATE_NAVMESH := False;
   DYNAMIC_TERRAIN := False;
 end;
 
@@ -1984,8 +1984,8 @@ end;
 procedure TKMRunnerStone.TearDown;
 begin
   inherited;
-  AI_GEN_INFLUENCE_MAPS := True;
-  AI_GEN_NAVMESH := True;
+  FEAT_AI_GENERATE_INFLUENCE := True;
+  FEAT_AI_GENERATE_NAVMESH := True;
   DYNAMIC_TERRAIN := True;
 end;
 

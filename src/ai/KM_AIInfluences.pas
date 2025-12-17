@@ -505,7 +505,7 @@ var
   Best: Integer;
 begin
   Result := HAND_NONE;
-  if not AI_GEN_INFLUENCE_MAPS OR (aIdx = High(Word)) then
+  if not FEAT_AI_GENERATE_INFLUENCE OR (aIdx = High(Word)) then
     Exit;
 
   Best := 0;
@@ -526,7 +526,7 @@ var
 begin
   Result := HAND_NONE;
   Idx := fNavMesh.Point2Polygon[aPoint.Y,aPoint.X];
-  if not AI_GEN_INFLUENCE_MAPS OR (Idx = High(Word)) then
+  if not FEAT_AI_GENERATE_INFLUENCE OR (Idx = High(Word)) then
     Exit;
 
   Best := 0;
@@ -546,7 +546,7 @@ end;
 //  Output: TKMHandIndexArray;
 //begin
 //  SetLength(Result,0);
-//  if not AI_GEN_INFLUENCE_MAPS OR (aIdx = High(Word)) then
+//  if not FEAT_AI_GENERATE_INFLUENCE OR (aIdx = High(Word)) then
 //    Exit;
 //
 //  SetLength(Output, MAX_HANDS);
@@ -583,7 +583,7 @@ var
   PL: TKMHandID;
 begin
   Result := 0;
-  if not AI_GEN_INFLUENCE_MAPS OR (aIdx = High(Word)) then
+  if not FEAT_AI_GENERATE_INFLUENCE OR (aIdx = High(Word)) then
     Exit;
 
   for PL := 0 to gHands.Count - 1 do
@@ -606,7 +606,7 @@ var
   Ownership: Byte;
 begin
   Result := 0;
-  if not AI_GEN_INFLUENCE_MAPS OR (aIdx = High(Word)) then
+  if not FEAT_AI_GENERATE_INFLUENCE OR (aIdx = High(Word)) then
     Exit;
 
   Result := 0;
@@ -781,7 +781,7 @@ var
   Col: Cardinal;
 begin
 
-  if not AI_GEN_NAVMESH OR not AI_GEN_INFLUENCE_MAPS then
+  if not FEAT_AI_GENERATE_NAVMESH OR not FEAT_AI_GENERATE_INFLUENCE then
     Exit;
 
   if OVERLAY_AVOID then

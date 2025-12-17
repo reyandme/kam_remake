@@ -1389,7 +1389,7 @@ end;
 procedure SetKaMSeed(aSeed: Integer);
 begin
   Assert(InRange(aSeed, 1, 2147483646), 'KaMSeed initialised incorrectly: ' + IntToStr(aSeed));
-  if CUSTOM_RANDOM then
+  if FEAT_CUSTOM_RANDOM then
     fKaMSeed := aSeed
   else
     RandSeed := aSeed;
@@ -1398,7 +1398,7 @@ end;
 
 function GetKaMSeed: Integer;
 begin
-  if CUSTOM_RANDOM then
+  if FEAT_CUSTOM_RANDOM then
     Result := fKaMSeed
   else
     Result := RandSeed;
@@ -1462,7 +1462,7 @@ const
 var
   C1, C2, NextSeed: integer;
 begin
-  if not CUSTOM_RANDOM then
+  if not FEAT_CUSTOM_RANDOM then
   begin
     Result := Random;
     Exit;
@@ -1484,7 +1484,7 @@ end;
 
 function KaMRandomWSeed(var aSeed: Integer; aMax: Integer): Integer;
 begin
-  if CUSTOM_RANDOM then
+  if FEAT_CUSTOM_RANDOM then
     Result := Trunc(KaMRandomWSeed(aSeed)*aMax)
   else
     Result := Random(aMax);
@@ -1516,7 +1516,7 @@ end;
 
 function KaMRandom(aMax: Integer{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Integer;
 begin
-  if CUSTOM_RANDOM then
+  if FEAT_CUSTOM_RANDOM then
     Result := Trunc(KaMRandom({$IFDEF RNG_SPY}aCaller, False{$ENDIF})*aMax)
   else
     Result := Random(aMax);
@@ -1530,7 +1530,7 @@ end;
 
 function KaMRandom(aMax: Cardinal{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Cardinal;
 begin
-  if CUSTOM_RANDOM then
+  if FEAT_CUSTOM_RANDOM then
     Result := Trunc(KaMRandom({$IFDEF RNG_SPY}aCaller, False{$ENDIF})*aMax)
   else
     Result := Random(aMax);
@@ -1544,7 +1544,7 @@ end;
 
 function KaMRandom(aMax: Int64{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Int64;
 begin
-  if CUSTOM_RANDOM then
+  if FEAT_CUSTOM_RANDOM then
     Result := Trunc(KaMRandom({$IFDEF RNG_SPY}aCaller, False{$ENDIF})*aMax)
   else
     Result := Random(aMax);

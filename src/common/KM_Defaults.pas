@@ -88,17 +88,17 @@ var
   DELETE_OLD_LOGS       :Boolean = not DEBUG_CFG; // Should we delete old logs?
 
   // Gameplay features (aka "feature flags")
-  // Implemented
+  // Implemented. Once the feature is implemented and adopted by the players the flag is safe to remove
   FEAT_ALLOW_TO_DISMISS_UNITS :Boolean = True; // Show button to order citizens to go back to school
   FEAT_SETTINGS_IN_MYDOC      :Boolean = True; // Save settings in the "C:\Users\Username\My Documents\My Games\GAME_TITLE\" folder as many other games do
   FEAT_UNIT_INTERACTION       :Boolean = True; // Unit interaction
   FEAT_AVOID_UNITS_IN_PATH    :Boolean = True; // Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
-  CUSTOM_RANDOM           :Boolean = True; // Use our custom random number generator or the built in "Random()"
-  USE_WALKING_DISTANCE    :Boolean = True; // Use the walking distance for deciding place to mine rather than direct distance
-  RANDOM_TARGETS          :Boolean = True; // Archers use random targets instead of closest
-  HUNGARIAN_GROUP_ORDER   :Boolean = True; // Use Hungarian algorithm to reorder warrior groups when walking
-  AI_GEN_NAVMESH          :Boolean = True; // Generate navmesh for AI to plan attacks/defenses
-  AI_GEN_INFLUENCE_MAPS   :Boolean = True; // Generate influence maps for AI to plan attacks/defenses
+  FEAT_CUSTOM_RANDOM          :Boolean = True; // Use our custom random number generator instead of the "Random()"
+  FEAT_USE_WALKING_DISTANCE   :Boolean = True; // Use the walking distance for deciding place to mine rather than direct distance
+  FEAT_ARCHER_RANDOM_TARGETS  :Boolean = True; // Archers use random targets instead of closest
+  FEAT_HUNGARIAN_GROUP_ORDER  :Boolean = True; // Use Hungarian algorithm to reorder warrior groups when walking
+  FEAT_AI_GENERATE_NAVMESH    :Boolean = True; // Generate navmesh for AI to plan attacks/defenses
+  FEAT_AI_GENERATE_INFLUENCE  :Boolean = True; // Generate influence maps for AI to plan attacks/defenses
   // Not fully implemented yet
   FEAT_CCL_WALKCONNECT    :Boolean = False; // Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   FEAT_DYNAMIC_FOG_OF_WAR :Boolean = False; // Whenever dynamic fog of war is enabled or not

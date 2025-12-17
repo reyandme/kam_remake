@@ -1144,7 +1144,7 @@ begin
       Exit;
 
     //Check with influence maps
-    if aCheckInfluence and AI_GEN_INFLUENCE_MAPS then
+    if aCheckInfluence and FEAT_AI_GENERATE_INFLUENCE then
     begin
       //Check if tile's blocked
       if (gAIFields.Influences.AvoidBuilding[Ty, Tx] > 0) then

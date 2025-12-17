@@ -75,7 +75,7 @@ procedure TKMAIFields.AfterMissionInit(aCanHaveAAI: Boolean);
 begin
   fCanHaveAAI := aCanHaveAAI;
 
-  if not AI_GEN_NAVMESH then
+  if not FEAT_AI_GENERATE_NAVMESH then
     Exit;
 
   fNavMesh.AfterMissionInit();
@@ -145,10 +145,10 @@ end;
 //Render debug symbols
 procedure TKMAIFields.Paint(const aRect: TKMRect);
 begin
-  if AI_GEN_INFLUENCE_MAPS then
+  if FEAT_AI_GENERATE_INFLUENCE then
     fInfluences.Paint(aRect);
 
-  if AI_GEN_NAVMESH then
+  if FEAT_AI_GENERATE_NAVMESH then
     fNavMesh.Paint(aRect);
 
   if fCanHaveAAI then
