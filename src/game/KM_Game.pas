@@ -2163,7 +2163,7 @@ begin
   begin
     // Game results differ for game and replay (grReplayEnd for replay),
     // Set some default value
-    if GAME_SAVE_STRIP_FOR_CRC then
+    if DBG_GAME_SAVE_STRIP_FOR_CRC then
       gameRes := grCancel
     else
       gameRes := GameResult;
@@ -2427,7 +2427,7 @@ begin
     fGameInputProcess.SaveToFileAsync(ChangeFileExt(fullPath, EXT_SAVE_REPLAY_DOT), aSaveWorkerThread);
 
     // Save checkpoints
-    if gGameSettings.SaveCheckpoints and not SKIP_SAVE_SAVPTS_TO_FILE then
+    if gGameSettings.SaveCheckpoints and not DBG_SKIP_SAVE_POINTS_TO_FILE then
     begin
       // Wait till all of the savepoints will be created
       fSavePointWorkerThreadHolder.Worker.WaitForAllWorkToComplete;
