@@ -3971,7 +3971,7 @@ var
     distNext: Single;
   begin
     distNext := gHands.DistanceToEnemyTowers(KMPoint(X,Y), U.Owner);
-    Result := (distNext > RANGE_WATCHTOWER_MAX)
+    Result := (distNext > WATCHTOWER_RANGE_MAX)
       or (distNext >= gHands.DistanceToEnemyTowers(loc, U.Owner));
   end;
 var

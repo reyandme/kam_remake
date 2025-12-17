@@ -575,7 +575,7 @@ begin
   if (fUnit is TKMUnitWorker) then
   begin
     distNext := gHands.DistanceToEnemyTowers(nextPos, fUnit.Owner);
-    if (distNext <= RANGE_WATCHTOWER_MAX)
+    if (distNext <= WATCHTOWER_RANGE_MAX)
     and (distNext < gHands.DistanceToEnemyTowers(fUnit.Position, fUnit.Owner)) then
     begin
       // Cancel the plan if we cant approach it

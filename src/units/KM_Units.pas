@@ -764,7 +764,7 @@ begin
   if not (fHome is TKMHouseTower) or (fHome.CheckWareIn(wtStone) <= 0) then
     Exit;
 
-  enemy := gTerrain.UnitsHitTestWithinRad(fPositionRound, RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX, Owner, atEnemy, dirNA, not RANDOM_TARGETS, False);
+  enemy := gTerrain.UnitsHitTestWithinRad(fPositionRound, WATCHTOWER_RANGE_MIN, WATCHTOWER_RANGE_MAX, Owner, atEnemy, dirNA, not RANDOM_TARGETS, False);
 
   // Note: In actual game there might be two Towers nearby,
   // both throwing a stone into the same enemy. We should not

@@ -385,8 +385,8 @@ const
   DEFAULT_HITPOINT_RESTORE  = 100;        //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
   TIME_BETWEEN_MESSAGES     = 4*600;      //Time between messages saying house is unoccupied or unit is hungry. In KaM it's 4 minutes
 
-  RANGE_WATCHTOWER_MAX  = 6.99; //Measured in KaM. Distance from the doorway of tower
-  RANGE_WATCHTOWER_MIN  = 0; //In KaM towers have no minimum range, they will shoot any unit less than the range
+  WATCHTOWER_RANGE_MAX  = 6.99; //Measured in KaM. Distance from the doorway of tower
+  WATCHTOWER_RANGE_MIN  = 0; //In KaM towers have no minimum range, they will shoot any unit less than the range
 
   LINK_RADIUS = 5; //Radius to search for groups to link to after being trained at the barracks (measured from KaM)
 
