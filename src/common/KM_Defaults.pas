@@ -66,10 +66,7 @@ var
   // These should be True (we can occasionally turn them Off to speed up the debug)
   // We keep them as `var` to keep compiler happy (otherwise it sees a lot of "unused var usage" around)
   CALC_EXPECTED_TICK    :Boolean = not DEBUG_CFG;  //Do we calculate expected tick and try to be in-time (send as many tick as needed to get to expected tick)
-  MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
-  MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
-  KAM_WATER_DRAW        :Boolean = True;  //Render underwater sand
   CHEATS_SP_ENABLED     :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
@@ -90,7 +87,6 @@ var
   CUSTOM_RANDOM           :Boolean = True; // Use our custom random number generator or the built in "Random()"
   USE_WALKING_DISTANCE    :Boolean = True; // Use the walking distance for deciding place to mine rather than direct distance
   RANDOM_TARGETS          :Boolean = True; // Archers use random targets instead of closest
-  DISPLAY_CHARTS_RESULT   :Boolean = True; // Show charts in game results screen
   HUNGARIAN_GROUP_ORDER   :Boolean = True; // Use Hungarian algorithm to reorder warrior groups when walking
   AI_GEN_NAVMESH          :Boolean = True; // Generate navmesh for AI to plan attacks/defenses
   AI_GEN_INFLUENCE_MAPS   :Boolean = True; // Generate influence maps for AI to plan attacks/defenses
@@ -136,7 +132,6 @@ var
   ALLOW_SELECT_ALLIES     :Boolean = True;  //Do we allow to select ally units or groups
   ALLOW_SELECT_ALL        :Boolean = DEBUG_CFG; //Do we allow to select all entities (allies and enemies)
   SHOW_RES_CNT_K_FOR_10000:Boolean = not DEBUG_CFG; //Do we show resource amount with K postfix (10123 -> 10k)
-  GAME_NO_UPDATE_ON_TIMER :Boolean = False; //Block game update by timer (only allow to update it manually)
   GAME_SAVE_STRIP_FOR_CRC :Boolean = False; //Strip unsynced data from Game saves, to compare saves CRC
   ALLOW_LOAD_UNSUP_VERSION_SAVE:
                            Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
