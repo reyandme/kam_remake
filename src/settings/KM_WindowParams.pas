@@ -107,11 +107,12 @@ begin
     ScreenMaxWidth := ScreenMaxWidth + aMonitorsInfo[I].X;
     ScreenMaxHeight := Max(ScreenMaxHeight, aMonitorsInfo[I].Y);
   end;
+
   // Do not let put window too much left or right. 100px is enough to get it back in that case
-  Result := (fWidth >= MIN_RESOLUTION_WIDTH)
+  Result := (fWidth >= RESOLUTION_WIDTH_MIN)
         and (fWidth <= ScreenMaxWidth)
         and (fLeft  <= ScreenMaxWidth - WINDOW_AT_EDGE_GAP)
-        and (fHeight >= MIN_RESOLUTION_HEIGHT)
+        and (fHeight >= RESOLUTION_HEIGHT_MIN)
         and (fHeight <= ScreenMaxHeight)
         and (fTop    <= ScreenMaxHeight - WINDOW_AT_EDGE_GAP)
         and (fState in [TWindowState.wsNormal, TWindowState.wsMaximized]);
@@ -131,19 +132,13 @@ end;
 
 procedure TKMWindowParams.SetHeight(const aValue: SmallInt);
 begin
-  if aValue < MIN_RESOLUTION_HEIGHT then
-    fHeight := MIN_RESOLUTION_HEIGHT
-  else
-    fHeight := aValue;
+  fHeight := Max(aValue, RESOLUTION_HEIGHT_MIN);
 end;
 
 
 procedure TKMWindowParams.SetWidth(const aValue: SmallInt);
 begin
-  if aValue < MIN_RESOLUTION_WIDTH then
-    fWidth := MIN_RESOLUTION_WIDTH
-  else
-    fWidth := aValue;
+  fWidth := Max(aValue, RESOLUTION_WIDTH_MIN);
 end;
 
 

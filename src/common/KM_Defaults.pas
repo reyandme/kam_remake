@@ -6,21 +6,21 @@ interface
 const
   MAX_MAP_SIZE          = 256;
   MIN_MAP_SIZE          = 32;
-  CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
-  CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
-  TOOLBAR_WIDTH         = 224;          //Toolbar width in game
-  MAPED_TOOLBAR_WIDTH   = 284;          //Toolbar width in map editor
-  TERRAIN_PACE          = 200;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
-  FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
+  CELL_SIZE_PX          = 40;           // Single cell size in pixels (width)
+  CELL_HEIGHT_DIV       = 33.333;       // Height divider, controlls terrains pseudo-3d look
+  TOOLBAR_WIDTH         = 224;          // Toolbar width in game
+  MAPED_TOOLBAR_WIDTH   = 284;          // Toolbar width in map editor
+  TERRAIN_PACE          = 200;          // Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
+  FOW_PACE              = 10;           // Each tile gets updated once per ** ticks (10 by default)
 
-  MIN_FPS_CAP           = 10;           //Minimum FPS Cap - limit fps
-  DEF_FPS_CAP           = 60;           //Default FPS Cap
-  MAX_FPS_CAP           = 1000;         //Maximum FPS Cap (means no CAP at all)
-  FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
-  MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
-  MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
-  MIN_RESOLUTION_WIDTH  = 1024;         //Lowest supported resolution X
-  MIN_RESOLUTION_HEIGHT = 720;          //Lowest supported resolution Y
+  MIN_FPS_CAP           = 10;           // Minimum FPS Cap - limit fps
+  DEF_FPS_CAP           = 60;           // Default FPS Cap
+  MAX_FPS_CAP           = 1000;         // Maximum FPS Cap (means no CAP at all)
+  FPS_INTERVAL          = 1000;         // Time in ms between FPS measurements, bigger value = more accurate result
+  MENU_DESIGN_X         = 1024;         // Thats the size menu was designed for. All elements are placed in this size
+  MENU_DESIGN_Y         = 768;          // Thats the size menu was designed for. All elements are placed in this size
+  RESOLUTION_WIDTH_MIN  = 1024;         // Lowest supported resolution X
+  RESOLUTION_HEIGHT_MIN = 720;          // Lowest supported resolution Y
 
   // It would be nice to have the declaration as:
   // GAME_REVISION_NUM = {$I KM_Revision.inc}

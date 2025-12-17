@@ -72,8 +72,8 @@ end;
 function TKMResolutions.SupportedRes(aWidth, aHeight, aRate, aBPP: Word): Boolean;
 begin
   Result := (aBPP = 32) and (aWidth > aHeight)
-    and (aWidth >= MIN_RESOLUTION_WIDTH)
-    and (aHeight >= MIN_RESOLUTION_HEIGHT)
+    and (aWidth >= RESOLUTION_WIDTH_MIN)
+    and (aHeight >= RESOLUTION_HEIGHT_MIN)
     and (aRate > 0);
 end;
 

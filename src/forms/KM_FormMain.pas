@@ -538,8 +538,8 @@ begin
   bordersWidth := Width - ClientWidth;
   bordersHeight := Height - ClientHeight;
   //Constraints includes window borders, so we add them on as Margin
-  Constraints.MinWidth := MIN_RESOLUTION_WIDTH + bordersWidth;
-  Constraints.MinHeight := MIN_RESOLUTION_HEIGHT + bordersHeight;
+  Constraints.MinWidth := RESOLUTION_WIDTH_MIN + bordersWidth;
+  Constraints.MinHeight := RESOLUTION_HEIGHT_MIN + bordersHeight;
 
   // We have to put it here, to proper window positioning for multimonitor systems
   if not gMainSettings.FullScreen then
