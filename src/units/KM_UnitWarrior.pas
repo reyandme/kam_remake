@@ -59,6 +59,7 @@ type
     function GetRangeMax: Single;
     function GetProjectileType: TKMProjectileType;
     function GetAimSoundDelay: Byte;
+    procedure CheckForEnemyPassingBy;
   protected
     function GetAllowAllyToSelect: Boolean; override;
     procedure SetAllowAllyToSelect(aAllow: Boolean); override;
@@ -118,7 +119,7 @@ type
     procedure SetLastShootTime;
     function FindLinkUnit(const aLoc: TKMPoint): TKMUnitWarrior;
     function CheckForEnemy: Boolean;
-    procedure CheckForEnemyPassingBy;
+
     function FindEnemy: TKMUnit;
     function PathfindingShouldAvoid: Boolean; override;
 
@@ -645,7 +646,7 @@ end;
 procedure TKMUnitWarrior.CheckForEnemyPassingBy;
 var
   newEnemy: TKMUnit;
-  range: Single;
+
 begin
   if not CanInterruptAction
     or not IsIdle then
@@ -1109,7 +1110,7 @@ begin
     //Call to give archers new target.
     CheckForEnemy();
 
-    //Call for not ranged AI units to give order to attack units that try to sneak past them.
+    //Call for melee AI units to give order to attack units that try to sneak past them.
     if not IsRanged and gHands[Owner].IsComputer then
       CheckForEnemyPassingBy();
   end;
