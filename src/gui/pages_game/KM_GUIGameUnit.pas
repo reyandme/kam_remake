@@ -241,7 +241,7 @@ begin
 
   Label_UnitTask.Caption      := aUnit.GetActivityText;
 
-  Button_Unit_Dismiss.Visible := SHOW_DISMISS_UNITS_BTN
+  Button_Unit_Dismiss.Visible := FEAT_ALLOW_TO_DISMISS_UNITS
                                  and aUnit.Dismissable   // Its possible to block dismiss from scripts
                                  and gMySpectator.IsSelectedMyObj; // Allow to dismiss only our units
 

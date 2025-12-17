@@ -82,16 +82,17 @@ var
   BLOCK_DUPLICATE_APP   :Boolean = not DEBUG_CFG; //Do not allow to run multiple games at once (to prevent MP cheating)
   DO_NETWORK_AUTH       :Boolean = not DEBUG_CFG; //Do network auth. If no its equivalent to use KM_NetAuthUnsecure
   QUERY_ON_FORM_CLOSE   :Boolean = not DEBUG_CFG; //Do we ask player about lost changes on game exit ?
-  SHOW_DISMISS_UNITS_BTN:Boolean = True; //The button to order citizens go back to school
   RESET_DEBUG_CONTROLS  :Boolean = not DEBUG_CFG; //Reset Debug controls (F11) on game start
   SKIP_LOG_TEMP_COMMANDS:Boolean = True;
   BLOCK_GAME_ON_PAUSE   :Boolean = not DEBUG_CFG; // Should we block game input, viewport scrolling etc on game pause?
   DELETE_OLD_LOGS       :Boolean = not DEBUG_CFG; // Should we delete old logs?
 
+  // Gameplay features (aka "feature flags")
   // Implemented
-  FEAT_SETTINGS_IN_MYDOC  :Boolean = True; // Save settings in the C:\Users\Username\My Documents\My Games\GAME_TITLE\ folder
-  DO_UNIT_INTERACTION     :Boolean = True; // Debug for unit interaction
-  DO_WEIGHT_ROUTES        :Boolean = True; // Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
+  FEAT_ALLOW_TO_DISMISS_UNITS :Boolean = True; //The button to order citizens go back to school
+  FEAT_SETTINGS_IN_MYDOC      :Boolean = True; // Save settings in the C:\Users\Username\My Documents\My Games\GAME_TITLE\ folder
+  DO_UNIT_INTERACTION         :Boolean = True; // Debug for unit interaction
+  DO_WEIGHT_ROUTES            :Boolean = True; // Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CUSTOM_RANDOM           :Boolean = True; // Use our custom random number generator or the built in "Random()"
   USE_WALKING_DISTANCE    :Boolean = True; // Use the walking distance for deciding place to mine rather than direct distance
   RANDOM_TARGETS          :Boolean = True; // Archers use random targets instead of closest
