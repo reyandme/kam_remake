@@ -131,7 +131,7 @@ begin
    4: //Typically when unit comes to Inn he is at 13%
       //Order is Bread-Sausages-Wine-Fish
       //We allow unit to eat foods until he is over 90% condition
-      if (Condition < UNIT_MAX_CONDITION * UNIT_STUFFED_CONDITION_LVL)
+      if (Condition < UNIT_MAX_CONDITION * UNIT_CONDITION_FULL_THRESHOLD)
         and (fInn.CheckWareIn(wtBread) > 0) then
       begin
         fInn.WareTakeFromIn(wtBread);
@@ -142,7 +142,7 @@ begin
         Inc(fFeedCnt);
       end else
         SetActionLockedStay(0, uaWalk);
-   5: if (Condition < UNIT_MAX_CONDITION * UNIT_STUFFED_CONDITION_LVL)
+   5: if (Condition < UNIT_MAX_CONDITION * UNIT_CONDITION_FULL_THRESHOLD)
         and (fInn.CheckWareIn(wtSausage) > 0) then
       begin
         fInn.WareTakeFromIn(wtSausage);
@@ -154,7 +154,7 @@ begin
       end else
         SetActionLockedStay(0, uaWalk);
    6: if (fFeedCnt < MAX_FEED_CNT) //Limit max number of times to eat in the Inn
-        and (Condition < UNIT_MAX_CONDITION * UNIT_STUFFED_CONDITION_LVL)
+        and (Condition < UNIT_MAX_CONDITION * UNIT_CONDITION_FULL_THRESHOLD)
         and (fInn.CheckWareIn(wtWine) > 0) then
       begin
         fInn.WareTakeFromIn(wtWine);
@@ -166,7 +166,7 @@ begin
       end else
         SetActionLockedStay(0, uaWalk);
    7: if (fFeedCnt < MAX_FEED_CNT) //Limit max number of times to eat in the Inn
-        and (Condition < UNIT_MAX_CONDITION * UNIT_STUFFED_CONDITION_LVL)
+        and (Condition < UNIT_MAX_CONDITION * UNIT_CONDITION_FULL_THRESHOLD)
         and (fInn.CheckWareIn(wtFish) > 0) then
       begin
         fInn.WareTakeFromIn(wtFish);
