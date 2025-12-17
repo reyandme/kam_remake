@@ -1597,7 +1597,7 @@ begin
         if ((not aIsRXA and EXPORT_SPRITE_ATLASES) or (aIsRXA and EXPORT_SPRITE_ATLASES_RXA))
         and (fRT in EXPORT_SPRITE_ATLASES_LIST) then
           SaveToPng(Container.Width, Container.Height, Data,
-            ExeDir + 'Export\GenTextures\' + RX_INFO[fRT].FileName + IfThenS(aIsRXA, '_rxa_', '_') + SPRITE_TYPE_EXPORT_NAME[SAT] + IntToStr(texID) + '.png');
+            ExeDir + 'Export\GenTextures\' + RX_INFO[fRT].FileName + IfThen(aIsRXA, '_rxa_', '_') + SPRITE_TYPE_EXPORT_NAME[SAT] + IntToStr(texID) + '.png');
       end;
     end;
   {$ENDIF}

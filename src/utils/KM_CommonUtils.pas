@@ -12,7 +12,6 @@ uses
   {$ENDIF}
   ;
 
-  function IfThenS(aCondition: Boolean; const aIfTrue, aIfFalse: String): String;
   function IfThenB(A, B, C: Boolean): Boolean;
 
   function GetPositionInGroup2(OriginX, OriginY: Integer; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Integer; out aTargetCanBeReached: Boolean): TKMPoint;
@@ -215,15 +214,6 @@ const
 
 var
   fKaMSeed: Integer;
-
-
-function IfThenS(aCondition: Boolean; const aIfTrue, aIfFalse: String): String;
-begin
-  if aCondition then
-    Result := aIfTrue
-  else
-    Result := aIfFalse;
-end;
 
 
 function IfThenB(A, B, C: Boolean): Boolean;
