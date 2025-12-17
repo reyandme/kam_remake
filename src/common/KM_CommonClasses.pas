@@ -416,9 +416,10 @@ const
   // clDefault is optimal by time / compression ratio factor
   STREAM_COMPRESSION_LEVEL: TCompressionLevel = clDefault;
 
+
 function GetCompressionLvl: TCompressionLevel;
 begin
-  if not NO_SAVE_COMPRESSION then
+  if FEAT_SAVE_COMPRESSION then
     Result := STREAM_COMPRESSION_LEVEL
   else
     Result := clNone;

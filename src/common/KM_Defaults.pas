@@ -99,6 +99,7 @@ var
   FEAT_HUNGARIAN_GROUP_ORDER  :Boolean = True; // Use Hungarian algorithm to reorder warrior groups when walking
   FEAT_AI_GENERATE_NAVMESH    :Boolean = True; // Generate navmesh for AI to plan attacks/defenses
   FEAT_AI_GENERATE_INFLUENCE  :Boolean = True; // Generate influence maps for AI to plan attacks/defenses
+  FEAT_SAVE_COMPRESSION       :Boolean = True; // Apply compression to savegame files, (disable to make them more readable)
   FEAT_SFX_ADJUST_SAMPLE_RATE :Boolean = True; // Adjust SFX sample rate
 
   // Not fully implemented yet
@@ -271,7 +272,6 @@ var
   {Gameplay}
   LOBBY_SET_SPECS_DEFAULT :Boolean = DEBUG_CFG; //Set 'Allow spectators' flag in the lobby by default
   LOBBY_HOST_AS_SPECTATOR :Boolean = DEBUG_CFG; //Host lobby as spectator by default
-  NO_SAVE_COMPRESSION     :Boolean = False; //Do not apply compression on save files, to make them more readable
   CUSTOM_SEED_VALUE       :Integer = 0;     //Custom seed value. Not applied if set to 0
   PAUSE_GAME_BEFORE_TICK  :Integer = -1;    //Pause after specified game tick
   MAKE_SAVEPT_BEFORE_TICK :Integer = -1;    //Make savepoint after a certain tick (for both game and replay)
