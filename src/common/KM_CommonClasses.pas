@@ -505,9 +505,6 @@ end;
 procedure TKMemoryStream.CompressAndAppendStream(aStream: TKMemoryStream; const aMarker: string);
 var
   S: TKMemoryStream;
-  {$IFNDEF NO_COMPRESSION}
-  CS: TCompressionStream;
-  {$ENDIF}
 begin
   S := TKMemoryStreamBinary.Create(True);
   try
@@ -515,11 +512,11 @@ begin
     S.fShouldBeCompressed := False;
     S.CopyFrom(aStream, 0);
     {$ELSE}
-    CS := TCompressionStream.Create(GetCompressionLvl, S);
+    var compressionStream := TCompressionStream.Create(GetCompressionLvl, S);
     try
-      CS.CopyFrom(aStream, 0);
+      compressionStream.CopyFrom(aStream, 0);
     finally
-      CS.Free;
+      compressionStream.Free;
     end;
     {$ENDIF}
 
@@ -534,35 +531,31 @@ procedure TKMemoryStream.LoadToStream(aStream: TKMemoryStream; const aMarker: st
 var
   isCompressed: Boolean;
   streamSize: Cardinal;
-  {$IFNDEF NO_COMPRESSION}
-  S: TKMemoryStream;
-  DS: TDecompressionStream;
-  {$ENDIF}
 begin
   if Position >= Size then Exit;
 
   CheckMarker(aMarker);
   Read(isCompressed);
   Read(streamSize);
-    
+
   if isCompressed then
   begin
     {$IFDEF NO_COMPRESSION}
-    raise Exception.Create('Using compression streams is not allowed! F.e. on Delphi 11 Alexandria under debug');
+    raise Exception.Create('Using compression streams is not possible with Delphi 11 Alexandria under debug');
     {$ELSE}
-    S := TKMemoryStreamBinary.Create(True);
+    var stream := TKMemoryStreamBinary.Create(True);
     try
-      S.CopyFrom(Self, streamSize);
-      S.Position := 0;
-      DS := TDecompressionStream.Create(S);
+      stream.CopyFrom(Self, streamSize);
+      stream.Position := 0;
+      var decompressionStream := TDecompressionStream.Create(stream);
       try
-        aStream.CopyFromDecompression(DS);
+        aStream.CopyFromDecompression(decompressionStream);
         aStream.Position := 0;
       finally
-        DS.Free;
+        decompressionStream.Free;
       end;
     finally
-      S.Free;
+      stream.Free;
     end;
     {$ENDIF}
   end
@@ -710,42 +703,34 @@ end;
 
 
 procedure TKMemoryStream.SaveToStreamCompressed(aStream: TKMemoryStream; const aMarker: string = '');
-{$IFNDEF NO_COMPRESSION}
-var
-  CS: TCompressionStream;
-{$ENDIF}
 begin
   if aMarker <> '' then
     aStream.PlaceMarker(aMarker);
   {$IFDEF NO_COMPRESSION}
   aStream.CopyFrom(Self, 0);
   {$ELSE}
-  CS := TCompressionStream.Create(GetCompressionLvl, aStream);
+  var compressionStream := TCompressionStream.Create(GetCompressionLvl, aStream);
   try
-    CS.CopyFrom(Self, 0);
+    compressionStream.CopyFrom(Self, 0);
   finally
-    CS.Free;
+    compressionStream.Free;
   end;
   {$ENDIF}
 end;
 
 
 procedure TKMemoryStream.LoadFromStreamCompressed(aStream: TKMemoryStream; const aMarker: string = '');
-{$IFNDEF NO_COMPRESSION}
-var
-  DS: TDecompressionStream;
-{$ENDIF}
 begin
   if aMarker <> '' then
     aStream.CheckMarker(aMarker);
   {$IFDEF NO_COMPRESSION}
   CopyFrom(aStream, aStream.Size - aStream.Position);
   {$ELSE}
-  DS := TDecompressionStream.Create(aStream);
+  var decompressionStream := TDecompressionStream.Create(aStream);
   try
-    CopyFromDecompression(DS);
+    CopyFromDecompression(decompressionStream);
   finally
-    DS.Free;
+    decompressionStream.Free;
   end;
   {$ENDIF}
   Position := 0;
