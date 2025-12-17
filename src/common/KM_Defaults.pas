@@ -102,14 +102,12 @@ var
   FEAT_SFX_ADJUST_SAMPLE_RATE :Boolean = True; // Adjust SFX sample rate
 
   // Not fully implemented yet
-  FEAT_CCL_WALKCONNECT    :Boolean = False; // Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
-  FEAT_DYNAMIC_FOG_OF_WAR :Boolean = False; // Whenever dynamic fog of war is enabled or not
-  FEAT_DISMISS_GROUP_BTN  :Boolean = DEBUG_CFG; // The button to kill group
-  CHECK_8087CW            :Boolean = False; // Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
-  FEAT_SCROLL_ACCEL       :Boolean = False; // Acceleration for viewport scrolling
-  PATHFINDER_TO_USE       :Byte = 1;       // Use TKMPathfindingAStarNew
-  FEAT_VIDEOS_UNDER_WINE  :Boolean = False; // Enable videos under Wine
-
+  FEAT_CCL_WALKCONNECT        :Boolean = False;     // Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
+  FEAT_DYNAMIC_FOG_OF_WAR     :Boolean = False;     // Whenever dynamic fog of war is enabled or not
+  CHECK_8087CW                :Boolean = False;     // Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
+  FEAT_SCROLL_ACCEL           :Boolean = False;     // Acceleration for viewport scrolling
+  PATHFINDER_TO_USE           :Byte = 1;            // Use TKMPathfindingAStarNew
+  FEAT_VIDEOS_UNDER_WINE      :Boolean = False; // Enable videos under Wine
 
   //Cache / delivery / pathfinding
   CACHE_PATHFINDING                       :Boolean = True; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
@@ -144,7 +142,10 @@ var
   GAME_SAVE_STRIP_FOR_CRC :Boolean = False; //Strip unsynced data from Game saves, to compare saves CRC
   ALLOW_LOAD_UNSUP_VERSION_SAVE:
                            Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
-  SHOW_UNIT_KILL_BTN      :Boolean = DEBUG_CFG; // Show unit 'Kill' button
+
+  DBG_KILL_GROUP_BUTTON       :Boolean = DEBUG_CFG; // The button to kill group
+  DBG_KILL_UNIT_BUTTON        :Boolean = DEBUG_CFG; // Show unit 'Kill' button
+
   SHOW_ENEMIES_STATS      :Boolean = False; //Do we allow to show enemies stats during the game
   SHOW_CONTROLS_OVERLAY   :Boolean = False; //Draw colored overlays ontop of controls! always Off here
   SHOW_CONTROLS_ID        :Boolean = False; //Draw controls ID
