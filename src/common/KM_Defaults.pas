@@ -29,8 +29,13 @@ const
   {$I KM_Revision.inc};
   {$I KM_NetProtocolRevision.inc};
 
-var
-  GAME_VERSION_POSTFIX: AnsiString = '';
+const
+  GAME_VERSION_POSTFIX = ''
+    {$IFNDEF USESECUREAUTH} + ' [ UNSECURE ]' {$ENDIF}
+    {$IFDEF DEBUG} + ' [ DEBUG ]' {$ENDIF}
+    {$IFDEF WDC64} + ' [x64]' {$ENDIF}
+    ;
+
 const
   GAME_VERSION_CUSTOM_POSTFIX = ''; // Custom postfix for the test builds
   GAME_VERSION_PREFIX   = ''; //Game version string displayed in menu corner
@@ -1129,18 +1134,6 @@ uses
 
 initialization
 begin
-  {$IFNDEF USESECUREAUTH}
-  GAME_VERSION_POSTFIX := GAME_VERSION_POSTFIX + ' [ UNSECURE ]';
-  {$ENDIF}
-
-  {$IFDEF DEBUG}
-  GAME_VERSION_POSTFIX := GAME_VERSION_POSTFIX + ' [ DEBUG ]';
-  {$ENDIF}
-
-  {$IFDEF WDC64}
-  GAME_VERSION_POSTFIX := GAME_VERSION_POSTFIX + ' [x64]';
-  {$ENDIF}
-
   GAME_REVISION := AnsiString('r' + IntToStr(GAME_REVISION_NUM));
   GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX + GAME_VERSION_CUSTOM_POSTFIX;
   //Clients of this net protocol version may connect to the dedicated server
