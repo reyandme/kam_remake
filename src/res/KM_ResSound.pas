@@ -370,14 +370,8 @@ begin
     memoryStream.Free;
   end;
 
-  if DBG_EXPORT_SOUNDS_DAT then
-    ExportCSV(ExeDir + 'export_sounds.original.csv');
-
-  if DBG_EXPORT_SOUNDS_DAT then
-  begin
-    ExportCSV(ExeDir + 'export_sounds.remake.csv');
-    Halt;
-  end;
+  //ExportCSV(ExeDir + 'export_sounds.csv');
+  //Halt;
 end;
 
 
