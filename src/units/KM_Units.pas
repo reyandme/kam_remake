@@ -2589,8 +2589,8 @@ begin
 
   Inc(fTicker);
 
-  //Update hunger
-  if (fTicker mod CONDITION_PACE = 0)
+  // Update hunger
+  if (fTicker mod UNIT_CONDITION_PACE = 0)
     and (fCondition > 0)
     and not ((fTask is TKMTaskGoEat) and TKMTaskGoEat(fTask).Eating) then
     //Make unit hungry as long as they are not currently eating in the inn

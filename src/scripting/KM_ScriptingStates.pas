@@ -5437,7 +5437,7 @@ begin
     begin
       U := fIDCache.GetUnit(aUnitID);
       if U <> nil then
-        Result := Max(U.Condition, 0)*CONDITION_PACE;
+        Result := Max(U.Condition, 0) * UNIT_CONDITION_PACE;
     end
     else
       LogIntParamWarn('States.UnitHunger', [aUnitID]);
@@ -5582,7 +5582,7 @@ end;
 function TKMScriptStates.UnitMaxHunger: Integer;
 begin
   try
-    Result := UNIT_MAX_CONDITION*CONDITION_PACE;
+    Result := UNIT_MAX_CONDITION * UNIT_CONDITION_PACE;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;
@@ -5596,7 +5596,7 @@ end;
 function TKMScriptStates.UnitLowHunger: Integer;
 begin
   try
-    Result := UNIT_MIN_CONDITION*CONDITION_PACE;
+    Result := UNIT_MIN_CONDITION * UNIT_CONDITION_PACE;
   except
     gScriptEvents.ExceptionOutsideScript := True; //Don't blame script for this exception
     raise;

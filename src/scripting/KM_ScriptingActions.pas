@@ -4775,7 +4775,7 @@ var
   U: TKMUnit;
 begin
   try
-    aHungerLevel := Round(aHungerLevel / CONDITION_PACE);
+    aHungerLevel := Round(aHungerLevel / UNIT_CONDITION_PACE);
     if (aUnitID > 0) and InRange(aHungerLevel, 0, UNIT_MAX_CONDITION) then
     begin
       U := fIDCache.GetUnit(aUnitID);
@@ -5111,7 +5111,7 @@ var
   G: TKMUnitGroup;
 begin
   try
-    aHungerLevel := Round(aHungerLevel / CONDITION_PACE);
+    aHungerLevel := Round(aHungerLevel / UNIT_CONDITION_PACE);
     if (aGroupID > 0) and InRange(aHungerLevel, 0, UNIT_MAX_CONDITION) then
     begin
       G := fIDCache.GetGroup(aGroupID);
