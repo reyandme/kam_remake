@@ -158,9 +158,9 @@ begin
 
   ConditionBar_Unit.Visible := not fUnit.IsAnimal;
   Label_UnitCondition.Visible := not fUnit.IsAnimal;
-  Button_ConditionInc.Visible := MAPED_SHOW_CONDITION_UNIT_BTNS and not fUnit.IsAnimal;
-  Button_ConditionDec.Visible := MAPED_SHOW_CONDITION_UNIT_BTNS and not fUnit.IsAnimal;
-  Button_ConditionDefault.Visible := MAPED_SHOW_CONDITION_UNIT_BTNS and not fUnit.IsAnimal;
+  Button_ConditionInc.Visible := not fUnit.IsAnimal;
+  Button_ConditionDec.Visible := not fUnit.IsAnimal;
+  Button_ConditionDefault.Visible := not fUnit.IsAnimal;
   Button_ConditionDefault.Enabled := not fUnit.StartWDefaultCondition;
   Panel_Army.Hide;
 
@@ -188,9 +188,6 @@ begin
     SetPositionUnitConditions(fUnit.Condition);
     Label_UnitDescription.Caption := gRes.Units[fUnit.UnitType].Description;
   end;
-
-
-
 end;
 
 

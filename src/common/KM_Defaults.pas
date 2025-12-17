@@ -162,7 +162,6 @@ var
   SHOW_LOG_IN_CHAT        :Boolean = False; //Show log messages in MP game chat
   LOG_GAME_TICK           :Boolean = False; //Log game tick
   SAVE_RANDOM_CHECKS      :Boolean = True; //Save random checks data to separate file
-  MAPED_SHOW_CONDITION_UNIT_BTNS: Boolean = True; //Show condition Inc/Dec buttons for citizen units in MapEd
   {Gameplay display}
   SHOW_UNITS_IN_HOUSE     :Boolean = False; //Should we hide units when they are in house ?
   IGNORE_MOUSE_SCROLLING  :Boolean = False; //Ignore mouse scrolling
