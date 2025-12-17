@@ -1269,11 +1269,9 @@ var
   end;
 
 var
-  Check: Boolean;
   K, X,Y, X2,Y2, canBuild,fieldNearby,distance, BestPrice,BestX,BestY: Integer;
   BelowLoc, P: TKMPoint;
   Price: TFieldPrice;
-  TagList: TKMPointTagList;
   BuildFF: TKMBuildFF;
   {$IFDEF DEBUG_NewAI}
   Time: Cardinal;
