@@ -4,17 +4,21 @@ interface
 uses
   Classes, SysUtils, KM_Points, KM_CommonTypes;
 
-  // Delphi 11 Alexandria had bug with S.CopyFrom for TCompressionStream.
+  // Delphi 11.0 Alexandria had a bug with Stream.CopyFrom for TCompressionStream
   // Bug occurs only during debugging, but its quite annoying
-  // It was fixed in Delphi 11.1
-  // RTLVersion111 Define is used to determine Delphi 11.1 over Delphi 11
+  // It was fixed in Delphi 11.1 and up
+  // RTLVersion111 define is used to determine Delphi 11.1. Delphi 11.1, 11.2, 11.3 all include this define, only Delphi 11.0 does not
   //
-  // Related links:
   // https://quality.embarcadero.com/projects/RSP/issues/RSP-35516?filter=allopenissues
   // https://forum.fast-report.com/en/discussion/17186/tfrxpdfexport-ezcompressionerror-with-message-invalid-zstream-operation-in-delphi-11-2021-3
   // https://stackoverflow.com/questions/70242669/error-invalid-zstream-operation-delphi-11-0
-  {$IFDEF VER350}{$IF NOT RTLVersion111}{$IFDEF DEBUG} {$DEFINE NO_COMPRESSION} {$ENDIF}{$ENDIF}{$ENDIF}
-
+  {$IFDEF VER350}
+    {$IF NOT RTLVersion111}
+      {$IFDEF DEBUG}
+        {$DEFINE NO_COMPRESSION}
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
 
 type
   TKMSaveStreamFormat = (ssfBinary, ssfText);
