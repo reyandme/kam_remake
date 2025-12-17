@@ -397,7 +397,7 @@ const
   WATCHTOWER_RANGE_MAX  = 6.99; //Measured in KaM. Distance from the doorway of tower
   WATCHTOWER_RANGE_MIN  = 0; //In KaM towers have no minimum range, they will shoot any unit less than the range
 
-  LINK_RADIUS = 5; //Radius to search for groups to link to after being trained at the barracks (measured from KaM)
+  GROUP_LINK_RADIUS = 5; //Radius to search for groups to link to after being trained at the barracks (measured from KaM)
 
   FRIENDLY_FIRE = True; //Whenever archers could kill fellow men with their arrows
 

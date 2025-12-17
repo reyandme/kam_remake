@@ -515,10 +515,10 @@ begin
   best := MaxSingle;
 
   foundUnits := TList<TKMUnit>.Create;
-  gHands[Owner].Units.GetUnitsInRect(KMRect(aLoc.X - LINK_RADIUS,
-                                            aLoc.Y - LINK_RADIUS,
-                                            aLoc.X + LINK_RADIUS,
-                                            aLoc.Y + LINK_RADIUS),
+  gHands[Owner].Units.GetUnitsInRect(KMRect(aLoc.X - GROUP_LINK_RADIUS,
+                                            aLoc.Y - GROUP_LINK_RADIUS,
+                                            aLoc.X + GROUP_LINK_RADIUS,
+                                            aLoc.Y + GROUP_LINK_RADIUS),
                                      foundUnits);
 
   for I := 0 to foundUnits.Count - 1 do
