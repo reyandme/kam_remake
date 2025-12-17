@@ -183,6 +183,19 @@ const
   // The frame shown when a unit is standing still in uaWalk. Same for all units!
   UNIT_STILL_FRAMES: array [TKMDirection] of Byte = (0,3,2,2,1,6,7,6,6);
 
+  //Corresponding indices in units.rx
+  UNIT_THOUGHT_BOUNDS: array [TKMUnitThought, 1..2] of Word = (
+    (0,0), (6250,6257), (6258,6265), (6266,6273), (6274,6281), (6282,6289), (6290,6297), (6298,6305), (6314,6321)
+  );
+
+  UNIT_OFF_X = -0.5;
+  UNIT_OFF_Y = -0.4;
+
+  //Offsetting layers of units we control what goes above or below
+  //using smaller values to minimize impact on other objects and keeping withing map bounds
+  FLAG_X_OFFSET = 0.01; //Flag is offset to be rendered above/below the flag carrier
+  THOUGHT_X_OFFSET = 0.02; //Thought is offset to be rendered always above the flag
+
 var
   // TownHall default units troops cost (number of gold chests needed)
   // Could be modified by script functions

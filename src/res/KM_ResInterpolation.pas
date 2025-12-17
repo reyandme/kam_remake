@@ -113,7 +113,7 @@ function TKMResInterpolation.UnitThought(aTh: TKMUnitThought; aStep: Integer; aS
 var
   animCount, step, subStep: Integer;
 begin
-  animCount := THOUGHT_BOUNDS[aTh, 2] - THOUGHT_BOUNDS[aTh, 1];
+  animCount := UNIT_THOUGHT_BOUNDS[aTh, 2] - UNIT_THOUGHT_BOUNDS[aTh, 1];
   step := aStep mod Byte(animCount) + 1;
   subStep := EnsureRange(Floor(INTERP_LEVEL*aStepFrac), 0, INTERP_LEVEL-1);
 
@@ -125,7 +125,7 @@ begin
   or (gRes.Sprites[rxUnits].RXData.Size[Result].X = 0) then
   begin
     // Non-interpolated thought bubbles are animated in reverse
-    Result := THOUGHT_BOUNDS[aTh, 2] + 1 - step;
+    Result := UNIT_THOUGHT_BOUNDS[aTh, 2] + 1 - step;
   end;
 end;
 

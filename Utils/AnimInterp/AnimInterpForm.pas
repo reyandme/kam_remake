@@ -907,11 +907,11 @@ begin
     Exit;
   end;
 
-  animLoop.Count := 1 + THOUGHT_BOUNDS[aThought, 2] - THOUGHT_BOUNDS[aThought, 1];
+  animLoop.Count := 1 + UNIT_THOUGHT_BOUNDS[aThought, 2] - UNIT_THOUGHT_BOUNDS[aThought, 1];
   for I := 1 to 30 do
   begin
     if I <= animLoop.Count then
-      animLoop.Step[I] := THOUGHT_BOUNDS[aThought, 2] - (I-1) // Thought bubbles are animated in reverse
+      animLoop.Step[I] := UNIT_THOUGHT_BOUNDS[aThought, 2] - (I-1) // Thought bubbles are animated in reverse
     else
       animLoop.Step[I] := -1;
   end;

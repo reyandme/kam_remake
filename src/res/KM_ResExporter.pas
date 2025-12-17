@@ -299,7 +299,7 @@ begin
             fullFolderPath := folderPath + 'Thoughts' + PathDelim + GetEnumName(TypeInfo(TKMUnitThought), Integer(TH)) + PathDelim;
             ForceDirectories(fullFolderPath);
 
-            for STEP := THOUGHT_BOUNDS[TH,1] to  THOUGHT_BOUNDS[TH,2] do
+            for STEP := UNIT_THOUGHT_BOUNDS[TH,1] to  UNIT_THOUGHT_BOUNDS[TH,2] do
               for LVL := 0 to INTERP_LEVEL - 1 do
               begin
                 spriteID := gRes.Interpolation.UnitThought(TH, STEP, LVL / INTERP_LEVEL);
@@ -444,7 +444,7 @@ begin
         fullFolderPath := folderPath + 'Thoughts' + PathDelim;
         ForceDirectories(fullFolderPath);
         for T := thEat to High(TKMUnitThought) do
-          for STEP := THOUGHT_BOUNDS[T,1] to  THOUGHT_BOUNDS[T,2] do
+          for STEP := UNIT_THOUGHT_BOUNDS[T,1] to  UNIT_THOUGHT_BOUNDS[T,2] do
           begin
             spritePack.ExportFullImageData(fullFolderPath, STEP+1);
             used[STEP+1] := True;
