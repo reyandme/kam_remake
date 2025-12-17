@@ -330,7 +330,7 @@ type
   private
     fCenter: TKMPoint;
   public
-    constructor Create(aCenter: TKMPoint);
+    constructor Create(const aCenter: TKMPoint);
     procedure Add(const aLoc: TKMPoint); reintroduce;
   end;
 
@@ -1069,7 +1069,7 @@ end;
 
 
 { TKMPointCenteredList }
-constructor TKMPointCenteredList.Create(aCenter: TKMPoint);
+constructor TKMPointCenteredList.Create(const aCenter: TKMPoint);
 begin
   inherited Create;
   fCenter := aCenter;
@@ -1080,16 +1080,16 @@ procedure TKMPointCenteredList.Add(const aLoc: TKMPoint);
 const
   BASE_VAL = 100;
 var
-  Len, Weight: Single;
+  dist, weight: Single;
 begin
-  Len := KMLength(fCenter, aLoc);
-  //Special case when we aLoc is in the center
-  if Len = 0 then
-    Weight := BASE_VAL * 2
-  else
-    Weight := BASE_VAL / Len; //smaller weight for distant locs
+  dist := KMLength(fCenter, aLoc);
 
-  inherited Add(aLoc, Weight);
+  if dist = 0 then
+    weight := BASE_VAL * 2 // High weight when aLoc is in the center
+  else
+    weight := BASE_VAL / dist; // Smaller weight for distant locs
+
+  inherited Add(aLoc, weight);
 end;
 
 
