@@ -258,7 +258,6 @@ begin
 end;
 
 
-
 { TKMLimitedUniqueList }
 constructor TKMLimitedUniqueList<T>.Create(aMaxLength: Integer);
 begin
