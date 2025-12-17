@@ -58,7 +58,6 @@ type
     property MaxLength: Integer read fMaxLength write fMaxLength;
 
     function Add(const Value: T): Integer; reintroduce;
-    procedure Swap(const ValueFrom, ValueTo: T);
   end;
 
   TKMLimitedUniqueList<T> = class(TKMLimitedList<T>)
@@ -290,21 +289,6 @@ begin
     Delete(0); // Delete the oldest item
 end;
 
-
-
-procedure TKMLimitedList<T>.Swap(const ValueFrom, ValueTo: T);
-var
-  fromI, toI: Integer;
-begin
-  fromI := IndexOf(ValueFrom);
-  toI := IndexOf(ValueTo);
-
-  // Do not swap items, if not found any
-  if (fromI = -1) or (toI = -1) then Exit;
-
-  Items[toI] := ValueFrom;
-  Items[fromI] := ValueTo;
-end;
 
 
 { TKMLimitedUniqueList }
