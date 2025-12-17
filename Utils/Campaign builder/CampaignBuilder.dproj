@@ -1,25 +1,20 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{9290CA3B-723D-48E7-99E4-AA2180F78403}</ProjectGuid>
-        <MainSource>CampaignBuilder.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
-        <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <FrameworkType>VCL</FrameworkType>
-        <ProjectVersion>19.2</ProjectVersion>
+        <MainSource>CampaignBuilder.dpr</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <ProjectGuid>{9290CA3B-723D-48E7-99E4-AA2180F78403}</ProjectGuid>
+        <ProjectVersion>19.5</ProjectVersion>
+        <TargetedPlatforms>1</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
         <Base_Win32>true</Base_Win32>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
-        <Base_Win64>true</Base_Win64>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
@@ -46,66 +41,57 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
-        <Manifest_File>None</Manifest_File>
-        <DCC_UsePackage>vcl;rtl;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;vclx;dbrtl;soaprtl;dsnap;VclSmp;dbexpress;vcldb;dbxcds;adortl;ibxpress;vclactnband;bdertl;vclshlctrls;dclOfficeXP;$(DCC_UsePackage)</DCC_UsePackage>
-        <DCC_ImageBase>00400000</DCC_ImageBase>
-        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0</VerInfo_Keys>
-        <DCC_RangeChecking>true</DCC_RangeChecking>
-        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
-        <DCC_UnitSearchPath>..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\controls;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\Overbyte ICS 8;..\..\src\ext\Overbyte ICS 8\Source;..\..\src\ext\Overbyte ICS 8\Source\Extras;..\..\src\ext\Overbyte ICS 8\Source\Include;..\..\src\ext\Overbyte ICS 8\Source\zobj125;..\..\src\ext\Overbyte ICS 8\Source\zobj125\win64;..\..\src\ext\pascalscript_submodule\Source;..\..\src\ext\Virtual-TreeView;..\..\src\ext\Virtual-TreeView\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\io;..\..\src\utils\method_parser;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_K>false</DCC_K>
-        <DCC_F>false</DCC_F>
-        <DCC_S>false</DCC_S>
-        <DCC_N>true</DCC_N>
-        <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
-        <DebugSourcePath>..\..\;..\..\src\ext;..\..\src\ext\zlib;..\..\src\ext\pngimage;..\..\src\ext\Overbyte ICS;$(DebugSourcePath)</DebugSourcePath>
-        <DCC_E>false</DCC_E>
-        <VerInfo_Locale>3081</VerInfo_Locale>
         <SanitizedProjectName>CampaignBuilder</SanitizedProjectName>
+        <DCC_DcuOutput>..\..\dcu\</DCC_DcuOutput>
         <DCC_Define>NO_OGG_SOUND;NO_MUSIC;$(DCC_Define)</DCC_Define>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_ImageBase>00400000</DCC_ImageBase>
+        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_RangeChecking>true</DCC_RangeChecking>
+        <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
+        <DCC_UnitSearchPath>..\..;..\..\src;..\..\src\ai;..\..\src\ai\newAI;..\..\src\common;..\..\src\controls;..\..\src\ext;..\..\src\ext\BGRABitmap;..\..\src\ext\LazarusOpenGL;..\..\src\ext\OggVorbis;..\..\src\ext\Overbyte ICS 8;..\..\src\ext\Overbyte ICS 8\Source;..\..\src\ext\Overbyte ICS 8\Source\Extras;..\..\src\ext\Overbyte ICS 8\Source\Include;..\..\src\ext\Overbyte ICS 8\Source\zobj125;..\..\src\ext\Overbyte ICS 8\Source\zobj125\win64;..\..\src\ext\pascalscript_submodule\Source;..\..\src\ext\Virtual-TreeView;..\..\src\ext\Virtual-TreeView\Source;..\..\src\forms;..\..\src\game;..\..\src\game\gip;..\..\src\game\misc;..\..\src\game\notifications;..\..\src\gui;..\..\src\gui\pages_common;..\..\src\gui\pages_game;..\..\src\gui\pages_maped;..\..\src\gui\pages_maped\menu;..\..\src\gui\pages_maped\mission;..\..\src\gui\pages_maped\player;..\..\src\gui\pages_maped\terrain;..\..\src\gui\pages_maped\town;..\..\src\gui\pages_menu;..\..\src\hands;..\..\src\houses;..\..\src\maped;..\..\src\media;..\..\src\minimap;..\..\src\mission;..\..\src\navmesh;..\..\src\net;..\..\src\net\http;..\..\src\net\other;..\..\src\pathfinding;..\..\src\perflog;..\..\src\render;..\..\src\res;..\..\src\scripting;..\..\src\settings;..\..\src\terrain;..\..\src\units;..\..\src\units\actions;..\..\src\units\tasks;..\..\src\unused;..\..\src\utils;..\..\src\utils\algorithms;..\..\src\utils\io;..\..\src\utils\method_parser;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UsePackage>vcl;rtl;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;vclx;dbrtl;soaprtl;dsnap;VclSmp;dbexpress;vcldb;dbxcds;adortl;ibxpress;vclactnband;bdertl;vclshlctrls;dclOfficeXP;$(DCC_UsePackage)</DCC_UsePackage>
+        <DebugSourcePath>..\..\;..\..\src\ext;..\..\src\ext\zlib;..\..\src\ext\pngimage;..\..\src\ext\Overbyte ICS;$(DebugSourcePath)</DebugSourcePath>
+        <Manifest_File>None</Manifest_File>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0</VerInfo_Keys>
+        <VerInfo_Locale>3081</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
+        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
-        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
         <DCC_DebugInformation>0</DCC_DebugInformation>
-        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <BT_BuildType>Debug</BT_BuildType>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <BT_BuildType>Debug</BT_BuildType>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <BT_BuildType>Debug</BT_BuildType>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -117,15 +103,15 @@
         <DCCReference Include="..\..\src\KM_Campaigns.pas"/>
         <DCCReference Include="..\..\src\res\KM_ResSprites.pas"/>
         <DCCReference Include="..\..\src\res\KM_ResSpritesEdit.pas"/>
-        <BuildConfiguration Include="Debug">
-            <Key>Cfg_2</Key>
-            <CfgParent>Base</CfgParent>
-        </BuildConfiguration>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
         <BuildConfiguration Include="Release">
             <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
         </BuildConfiguration>
     </ItemGroup>
@@ -137,6 +123,7 @@
                 <Source>
                     <Source Name="MainSource">CampaignBuilder.dpr</Source>
                 </Source>
+                <Excluded_Packages/>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
                     <VersionInfo Name="AutoIncBuild">False</VersionInfo>
@@ -163,10 +150,6 @@
                     <VersionInfoKeys Name="ProductName"/>
                     <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
                 </VersionInfoKeys>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k270.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp270.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
                 <Platform value="Win32">True</Platform>
