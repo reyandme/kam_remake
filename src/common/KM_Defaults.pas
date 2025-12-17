@@ -89,10 +89,10 @@ var
 
   // Gameplay features (aka "feature flags")
   // Implemented
-  FEAT_ALLOW_TO_DISMISS_UNITS :Boolean = True; //The button to order citizens go back to school
-  FEAT_SETTINGS_IN_MYDOC      :Boolean = True; // Save settings in the C:\Users\Username\My Documents\My Games\GAME_TITLE\ folder
-  DO_UNIT_INTERACTION         :Boolean = True; // Debug for unit interaction
-  DO_WEIGHT_ROUTES            :Boolean = True; // Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
+  FEAT_ALLOW_TO_DISMISS_UNITS :Boolean = True; // Show button to order citizens to go back to school
+  FEAT_SETTINGS_IN_MYDOC      :Boolean = True; // Save settings in the "C:\Users\Username\My Documents\My Games\GAME_TITLE\" folder as many other games do
+  FEAT_UNIT_INTERACTION       :Boolean = True; // Unit interaction
+  FEAT_AVOID_UNITS_IN_PATH    :Boolean = True; // Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CUSTOM_RANDOM           :Boolean = True; // Use our custom random number generator or the built in "Random()"
   USE_WALKING_DISTANCE    :Boolean = True; // Use the walking distance for deciding place to mine rather than direct distance
   RANDOM_TARGETS          :Boolean = True; // Archers use random targets instead of closest

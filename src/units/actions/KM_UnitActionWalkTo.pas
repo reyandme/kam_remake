@@ -1019,7 +1019,7 @@ var
   highestInteractionCount: integer;
 begin
   Result := True; //False = interaction yet unsolved, stay and wait.
-  if not DO_UNIT_INTERACTION then Exit;
+  if not FEAT_UNIT_INTERACTION then Exit;
 
   //If there's a unit using this vertex to walk diagonally then we must wait, they will be finished after this step
   if KMStepIsDiag(fUnit.Position,fNodeList[fNodePos+1]) and

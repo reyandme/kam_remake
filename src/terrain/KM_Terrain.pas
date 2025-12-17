@@ -4245,7 +4245,7 @@ end;
 // Mark tile as occupied
 procedure TKMTerrain.UnitAdd(const aLocTo: TKMPoint; aUnit: Pointer);
 begin
-  if not DO_UNIT_INTERACTION then Exit;
+  if not FEAT_UNIT_INTERACTION then Exit;
 
   Assert(Land^[aLocTo.Y,aLocTo.X].IsUnit = nil, 'Tile already occupied at '+TypeToString(aLocTo));
   Land^[aLocTo.Y,aLocTo.X].IsUnit := aUnit
@@ -4257,7 +4257,7 @@ end;
 // when exiting the game and destroying all units this will cause asserts.
 procedure TKMTerrain.UnitRem(const aLocFrom: TKMPoint);
 begin
-  if not DO_UNIT_INTERACTION then Exit;
+  if not FEAT_UNIT_INTERACTION then Exit;
 
   Land^[aLocFrom.Y,aLocFrom.X].IsUnit := nil;
 end;
@@ -4269,7 +4269,7 @@ procedure TKMTerrain.UnitWalk(const aLocFrom, aLocTo: TKMPoint; aUnit: Pointer);
 var
   U: TKMUnit;
 begin
-  if not DO_UNIT_INTERACTION then Exit;
+  if not FEAT_UNIT_INTERACTION then Exit;
   Assert(Land^[aLocFrom.Y, aLocFrom.X].IsUnit = aUnit, 'Trying to remove wrong unit at '+TypeToString(aLocFrom));
   Land^[aLocFrom.Y, aLocFrom.X].IsUnit := nil;
   Assert(Land^[aLocTo.Y, aLocTo.X].IsUnit = nil, 'Tile already occupied at '+TypeToString(aLocTo));
@@ -4292,7 +4292,7 @@ end;
 // Mark vertex as occupied
 procedure TKMTerrain.UnitVertexAdd(const aLocTo: TKMPoint; Usage: TKMVertexUsage);
 begin
-  if not DO_UNIT_INTERACTION then exit;
+  if not FEAT_UNIT_INTERACTION then exit;
   Assert(Usage <> vuNone, 'Invalid add vuNone at '+TypeToString(aLocTo));
   Assert((Land[aLocTo.Y,aLocTo.X].IsVertexUnit = vuNone) or (Land^[aLocTo.Y,aLocTo.X].IsVertexUnit = Usage),'Opposite vertex in use at '+TypeToString(aLocTo));
 
@@ -4310,7 +4310,7 @@ end;
 // Mark vertex as empty
 procedure TKMTerrain.UnitVertexRem(const aLocFrom: TKMPoint);
 begin
-  if not DO_UNIT_INTERACTION then exit;
+  if not FEAT_UNIT_INTERACTION then exit;
   Land^[aLocFrom.Y,aLocFrom.X].IsVertexUnit := vuNone;
 end;
 

@@ -296,8 +296,8 @@ begin
     if (fRouteKind = rkAvoid) and not gTerrain.CheckPassability(aToX, aToY, fPassBest) then
       Inc(Result, AVOID_ROAD_PENALTY);
 
-    //Always avoid congested areas on roads
-    if DO_WEIGHT_ROUTES and (U <> nil) and ((tpWalkRoad in fPass) or U.PathfindingShouldAvoid) then
+    // Avoid congested areas on roads
+    if FEAT_AVOID_UNITS_IN_PATH and (U <> nil) and ((tpWalkRoad in fPass) or U.PathfindingShouldAvoid) then
       Inc(Result, AVOID_UNIT_PENALTY); //Unit = 1.5 extra tiles
 
     if (fAvoidLocked = palAvoidByMovementCost) and gTerrain.TileIsLocked(KMPoint(aToX,aToY)) then
