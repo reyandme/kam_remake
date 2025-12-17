@@ -108,8 +108,8 @@ var
   CHECK_8087CW            :Boolean = False; // Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   FEAT_SCROLL_ACCEL       :Boolean = False; // Acceleration for viewport scrolling
   PATHFINDER_TO_USE       :Byte = 1;       // Use TKMPathfindingAStarNew
+  FEAT_VIDEOS_UNDER_WINE  :Boolean = False; // Enable videos under Wine
 
-  ENABLE_VIDEOS_UNDER_WINE: Boolean = DEBUG_CFG; //Do we enable videos under wine
 
   //Cache / delivery / pathfinding
   CACHE_PATHFINDING                       :Boolean = True; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)

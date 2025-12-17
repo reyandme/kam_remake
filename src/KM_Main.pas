@@ -312,7 +312,7 @@ begin
       gMainSettings.FullScreen := False;
   end;
 
-  gVideoPlayer := TKMVideoPlayer.Create(ENABLE_VIDEOS_UNDER_WINE or not IsUnderWine);
+  gVideoPlayer := TKMVideoPlayer.Create(FEAT_VIDEOS_UNDER_WINE or not IsUnderWine);
 
   fFormMain.Caption := 'KaM Remake - ' + UnicodeString(GAME_VERSION);
   //Will make the form slightly higher, so do it before ReinitRender so it is reset
