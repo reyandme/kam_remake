@@ -85,7 +85,7 @@ type
     function LockMutex: Boolean;
     procedure UnlockMutex;
 
-    procedure HandleStatusBarText(aPanelIndex: TKMStatusBarPanelIndex; aText: string);
+    procedure HandleStatusBarText(aPanelIndex: TKMStatusBarPanel; aText: string);
 
     procedure SetGameTickInterval(aInterval: Cardinal);
     property GameTickInterval: Cardinal read fGameTickInterval;
@@ -352,7 +352,7 @@ begin
 end;
 
 
-procedure TKMMain.HandleStatusBarText(aPanelIndex: TKMStatusBarPanelIndex; aText: string);
+procedure TKMMain.HandleStatusBarText(aPanelIndex: TKMStatusBarPanel; aText: string);
 begin
   fFormMain.StatusBar1.Panels[Ord(aPanelIndex)].Text := aText;
 end;
@@ -500,7 +500,7 @@ begin
 
       fpsLag := 1000 div gMainSettings.FPSCap;
       fFPSString := Format('%.1f FPS', [fFPS]) + IfThen(CAP_MAX_FPS, ' (cap ' + IntToStr(fpsLag) + 'ms)');
-      HandleStatusBarText(SB_ID_FPS, fFPSString);
+      HandleStatusBarText(spFPS, fFPSString);
       fOldFrameTimes := 0;
       fFrameCount := 0;
     end;

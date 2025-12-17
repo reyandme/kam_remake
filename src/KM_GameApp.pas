@@ -32,7 +32,7 @@ type
 
     fChat: TKMChat;
 
-    fOnStatusBarUpdate: TProc<TKMStatusBarPanelIndex, string>;
+    fOnStatusBarUpdate: TProc<TKMStatusBarPanel, string>;
     fOnGameSpeedChange: TSingleEvent;
     fOnGameStart: TKMGameModeChangeEvent;
     fOnGameEnd: TKMGameModeChangeEvent;
@@ -70,7 +70,7 @@ type
     procedure UpdatePerflog;
   public
     constructor Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aOnLoadingStep: TKMEvent;
-                       aOnLoadingText: TUnicodeStringEvent; aOnStatusBarUpdate: TProc<TKMStatusBarPanelIndex, string>; NoMusic: Boolean = False);
+                       aOnLoadingText: TUnicodeStringEvent; aOnStatusBarUpdate: TProc<TKMStatusBarPanel, string>; NoMusic: Boolean = False);
     destructor Destroy; override;
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
 
@@ -181,7 +181,7 @@ uses
 { TKMGameApp }
 // Creating everything needed for MainMenu, game stuff is created on StartGame
 constructor TKMGameApp.Create(aRenderControl: TKMRenderControl; aScreenX, aScreenY: Word; aVSync: Boolean; aOnLoadingStep: TKMEvent;
-                              aOnLoadingText: TUnicodeStringEvent; aOnStatusBarUpdate: TProc<TKMStatusBarPanelIndex, string>; NoMusic: Boolean = False);
+                              aOnLoadingText: TUnicodeStringEvent; aOnStatusBarUpdate: TProc<TKMStatusBarPanel, string>; NoMusic: Boolean = False);
 begin
   inherited Create;
 
@@ -466,10 +466,8 @@ begin
 
   if Assigned(fOnStatusBarUpdate) then
   begin
-    fOnStatusBarUpdate(SB_ID_CURSOR_COORD, Format('Cursor: %d:%d', [X, Y]));
-    fOnStatusBarUpdate(SB_ID_TILE,         Format('Tile: %.1f:%.1f [%d:%d]',
-                               [gCursor.Float.X, gCursor.Float.Y,
-                               gCursor.Cell.X, gCursor.Cell.Y]));
+    fOnStatusBarUpdate(spCursorCoord, Format('Cursor: %d:%d', [X, Y]));
+    fOnStatusBarUpdate(spTile, Format('Tile: %.1f:%.1f [%d:%d]', [gCursor.Float.X, gCursor.Float.Y, gCursor.Cell.X, gCursor.Cell.Y]));
     if SHOW_CONTROLS_ID then
     begin
       if gGame <> nil then
@@ -479,7 +477,7 @@ begin
       ctrlID := -1;
       if ctrl <> nil then
         ctrlID := ctrl.ID;
-      fOnStatusBarUpdate(SB_ID_CTRL_ID, Format('Control ID: %d', [ctrlID]));
+      fOnStatusBarUpdate(spControlId, Format('Control ID: %d', [ctrlID]));
     end;
   end;
 end;
@@ -757,7 +755,7 @@ begin
     gGame.Save(gGame.Params.Name + SAVE_SUFFIX_DEBUG);
 
   if Assigned(fOnStatusBarUpdate) then
-    fOnStatusBarUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
+    fOnStatusBarUpdate(spMapSize, gGame.MapSizeInfo);
 end;
 
 
@@ -802,7 +800,7 @@ begin
   gGame.AfterStart; //Call after start separately, so errors in it could be sended in crashreport
 
   if Assigned(fOnStatusBarUpdate) then
-    fOnStatusBarUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
+    fOnStatusBarUpdate(spMapSize, gGame.MapSizeInfo);
 end;
 
 
@@ -862,7 +860,7 @@ begin
   gGame.AfterLoad; //Call after load separately, so errors in it could be sended in crashreport
 
   if Assigned(fOnStatusBarUpdate) then
-    fOnStatusBarUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
+    fOnStatusBarUpdate(spMapSize, gGame.MapSizeInfo);
 end;
 
 
@@ -894,7 +892,7 @@ begin
   end;
 
   if Assigned(fOnStatusBarUpdate) then
-    fOnStatusBarUpdate(SB_ID_MAP_SIZE, gGame.MapSizeInfo);
+    fOnStatusBarUpdate(spMapSize, gGame.MapSizeInfo);
 end;
 
 
@@ -1276,7 +1274,7 @@ begin
   if not aForPrintScreen
   and (gGame <> nil)
   and Assigned(fOnStatusBarUpdate) then
-    fOnStatusBarUpdate(SB_ID_OBJECT, 'Obj: ' + IntToStr(gCursor.ObjectUID));
+    fOnStatusBarUpdate(spObjectUID, 'Obj: ' + IntToStr(gCursor.ObjectUID));
 end;
 
 
@@ -1436,7 +1434,7 @@ begin
 
     //StatusBar
     if (gGame <> nil) and not (gGame.IsPaused and BLOCK_GAME_ON_PAUSE) and Assigned(fOnStatusBarUpdate) then
-      fOnStatusBarUpdate(SB_ID_TIME, 'Time: ' + TimeToString(gGame.MissionTime));
+      fOnStatusBarUpdate(spTime, 'Time: ' + TimeToString(gGame.MissionTime));
   end;
 
   UpdatePerflog;
