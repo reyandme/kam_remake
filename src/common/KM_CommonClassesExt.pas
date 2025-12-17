@@ -38,17 +38,6 @@ type
     function GetWeightedRandom(out aValue: T): Boolean;
   end;
 
-  TKMLimitedQueue<T> = class(TQueue<T>)
-  private
-    fMaxLength: Integer;
-  public
-    constructor Create(aMaxLength: Integer);
-
-    property MaxLength: Integer read fMaxLength write fMaxLength;
-
-    procedure EnqueueItem(const Value: T);
-  end;
-
   TKMLimitedList<T> = class(TList<T>)
   private
     fMaxLength: Integer;
@@ -248,24 +237,6 @@ begin
     Rnd := Rnd - fWeight[I];
   end;
   Assert(False, 'Error getting weighted random');
-end;
-
-
-{ TKMLimitedQueue<T> }
-constructor TKMLimitedQueue<T>.Create(aMaxLength: Integer);
-begin
-  inherited Create;
-
-  fMaxLength := aMaxLength;
-end;
-
-
-procedure TKMLimitedQueue<T>.EnqueueItem(const Value: T);
-begin
-  inherited Enqueue(Value);
-
-  if Count > fMaxLength then
-    Dequeue;
 end;
 
 
