@@ -54,9 +54,6 @@ type
     fMaxLength: Integer;
   public
     constructor Create(aMaxLength: Integer);
-
-    property MaxLength: Integer read fMaxLength write fMaxLength;
-
     function Add(const Value: T): Integer; reintroduce;
   end;
 
