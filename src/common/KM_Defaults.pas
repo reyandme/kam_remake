@@ -99,6 +99,8 @@ var
   FEAT_HUNGARIAN_GROUP_ORDER  :Boolean = True; // Use Hungarian algorithm to reorder warrior groups when walking
   FEAT_AI_GENERATE_NAVMESH    :Boolean = True; // Generate navmesh for AI to plan attacks/defenses
   FEAT_AI_GENERATE_INFLUENCE  :Boolean = True; // Generate influence maps for AI to plan attacks/defenses
+  FEAT_SFX_ADJUST_SAMPLE_RATE :Boolean = True; // Adjust SFX sample rate
+
   // Not fully implemented yet
   FEAT_CCL_WALKCONNECT    :Boolean = False; // Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   FEAT_DYNAMIC_FOG_OF_WAR :Boolean = False; // Whenever dynamic fog of war is enabled or not
@@ -106,8 +108,6 @@ var
   CHECK_8087CW            :Boolean = False; // Check that 8087CW (FPU flags) are set correctly each frame, in case some lib/API changed them
   FEAT_SCROLL_ACCEL       :Boolean = False; // Acceleration for viewport scrolling
   PATHFINDER_TO_USE       :Byte = 1;       // Use TKMPathfindingAStarNew
-
-  FEAT_SFX_ADJUSTED_SAMPLE_RATE :Boolean = True; // Adjust SFX sample rate
 
   ENABLE_VIDEOS_UNDER_WINE: Boolean = DEBUG_CFG; //Do we enable videos under wine
 

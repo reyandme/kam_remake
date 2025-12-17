@@ -629,7 +629,7 @@ begin
 
     Assert(W.IsLoaded, 'Sounds.dat seems to be short');
 
-    if FEAT_SFX_ADJUSTED_SAMPLE_RATE then
+    if FEAT_SFX_ADJUST_SAMPLE_RATE then
     begin
       case W.Head.BitsPerSample of
         8:  wavFormat := AL_FORMAT_MONO8;
