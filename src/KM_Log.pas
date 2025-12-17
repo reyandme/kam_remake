@@ -85,7 +85,7 @@ type
     procedure AddAssert(const aMessageText: UnicodeString);
     // AddToLog simply adds the text
     procedure AddNoTime(const aText: UnicodeString; aWithPrefix: Boolean = True);
-    procedure DeleteOldLogs;
+    procedure DeleteOldLogs(aDeleteWhenOlderThanDays: Integer);
     property LogPath: UnicodeString read fLogPath; //Used by dedicated server
 //    property OnLogMessage: TUnicodeStringEvent read fOnLogMessage write fOnLogMessage;
     procedure AddOnLogEventSub(const aOnLogMessage: TUnicodeStringEvent);
@@ -112,14 +112,15 @@ type
   TKMOldLogsDeleter = class(TThread)
   private
     fPathToLogs: UnicodeString;
+    fDeleteWhenOlderThanDays: Integer;
   public
-    constructor Create(const aPathToLogs: UnicodeString);
+    constructor Create(const aPathToLogs: UnicodeString; aDeleteWhenOlderThanDays: Integer);
     procedure Execute; override;
   end;
 
 
 { TKMOldLogsDeleter }
-constructor TKMOldLogsDeleter.Create(const aPathToLogs: UnicodeString);
+constructor TKMOldLogsDeleter.Create(const aPathToLogs: UnicodeString; aDeleteWhenOlderThanDays: Integer);
 begin
   //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well
@@ -146,7 +147,7 @@ begin
     repeat
       Assert(FileAge(fPathToLogs + SearchRec.Name, fileDateTime), 'How is that it does not exists any more?');
 
-      if (Abs(Now - fileDateTime) > DEL_LOGS_OLDER_THAN) then
+      if (Abs(Now - fileDateTime) > fDeleteWhenOlderThanDays) then
         KMDeleteFile(fPathToLogs + SearchRec.Name);
     until (FindNext(SearchRec) <> 0);
   finally
@@ -309,14 +310,14 @@ begin
 end;
 
 
-//Run thread to delete old logs.
-procedure TKMLog.DeleteOldLogs;
+// Run thread to delete old logs
+procedure TKMLog.DeleteOldLogs(aDeleteWhenOlderThanDays: Integer);
 begin
   if Self = nil then Exit;
   if not DELETE_OLD_LOGS then Exit;
-  
-  //No need to remember the instance, it's set to FreeOnTerminate
-  TKMOldLogsDeleter.Create(ExtractFilePath(fLogPath));
+
+  // No need to remember the instance, it's set to FreeOnTerminate
+  TKMOldLogsDeleter.Create(ExtractFilePath(fLogPath), aDeleteWhenOlderThanDays);
 end;
 
 

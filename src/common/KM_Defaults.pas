@@ -53,21 +53,23 @@ const
 
   MP_NICKNAME_LENGTH_MAX = 16;
 
-  DEL_LOGS_OLDER_THAN   = 14;           //in days
+  LOGS_DELETE_WHEN_OLDER_THAN = 14; // In days
 
   TEMPLATE_LIBX_FILE_TEXT = 'text.%s.libx';
 
   DEFAULT_WATER_LIGHT_MULTIPLIER = 1.3; // Default multiplier for terrain water light
-const
-  //Max number of ticks, played on 1 game update.
-  //We must limit number of ticks per update to be able to leave update cycle fast (when turn off ultra fast speedup, f.e.)
-  //Also there is a technical limit, of how many ticks we can calculate per update
+
+  // Max number of ticks, played on 1 game update.
+  // We must limit number of ticks per update to be able to leave update cycle fast (when turn off ultra fast speedup, f.e.)
+  // Also there is a technical limit, of how many ticks we can calculate per update
   MAX_TICKS_PER_GAME_UPDATE = 100;
+
 {$IFDEF DEBUG}
   DEBUG_CFG = True; //Debug preset for most usable debug options. ON for Debug build configuration
 {$ELSE}
   DEBUG_CFG = False; //Debug preset for most usable debug options. OFF for Release build configuration
 {$ENDIF}
+
 var
   // These should be True (we can occasionally turn them Off to speed up the debug)
   // We keep them as `var` to keep compiler happy (otherwise it sees a lot of "unused var usage" around)

@@ -292,7 +292,7 @@ begin
                                         {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF});
       end;
     end;
-    gLog.DeleteOldLogs;
+    gLog.DeleteOldLogs(LOGS_DELETE_WHEN_OLDER_THAN);
   end;
 
   gLog.AddTime('Game Load started');
