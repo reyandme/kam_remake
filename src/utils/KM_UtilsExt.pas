@@ -13,14 +13,14 @@ uses
   ;
 
 const
-  DEF_K_LIMIT = 10000;
+  K_THRESHOLD_DEFAULT = 10000;
 
 
   function GetShiftState(aButton: TMouseButton): TShiftState;
   function IsRMBInShiftState(aShift: TShiftState): Boolean;
   function GetMultiplicator(aButton: TMouseButton): Word; overload;
   function GetMultiplicator(aShift: TShiftState; const aMultiplier: Integer = 10): Word; overload;
-  function IntToKStr(const aValue: Integer; aLimit: Integer = DEF_K_LIMIT): String;
+  function IntToKStr(const aValue: Integer; aThreshold: Integer = K_THRESHOLD_DEFAULT): string;
 
 
 implementation
@@ -85,12 +85,12 @@ end;
 
 
 // 10123 -> '10k'
-function IntToKStr(const aValue: Integer; aLimit: Integer = DEF_K_LIMIT): String;
+function IntToKStr(const aValue: Integer; aThreshold: Integer = K_THRESHOLD_DEFAULT): string;
 begin
-  if SHOW_RES_CNT_K_FOR_10000 and (aValue >= aLimit) then
-    Result := IntToStr(aValue div 1000) + 'k'
+  if DBG_SHOW_EXACT_WARE_COUNT or (aValue < aThreshold) then
+    Result := IntToStr(aValue)
   else
-    Result := IntToStr(aValue);
+    Result := IntToStr(aValue div 1000) + 'k';
 end;
 
 
