@@ -423,25 +423,21 @@ const
   MIN_PLAYER_COLOR_DIST = 0.15; // Minimun color distance between players
 
   EXT_SAVE_TXT_DOT = '.txt';
-
   EXT_SAVE_REPLAY = 'rpl';
-  EXT_SAVE_GAME_SAVEPTS = 'spt';
   EXT_SAVE_MAIN = 'sav';
-  EXT_SAVE_MAIN_TXT = EXT_SAVE_MAIN + EXT_SAVE_TXT_DOT;
   EXT_SAVE_BASE = 'bas';
   EXT_SAVE_MP_LOCAL = 'sloc';
-  EXT_SAVE_RNG_LOG = 'rng';
-
   EXT_FILE_SCRIPT = 'script';
 
+  // Well-known extensions
+  // Note that typically extension include a dot, so if would be desireable to operate with only dotted extensions (below) and disuse ones above
   EXT_SAVE_REPLAY_DOT = '.' + EXT_SAVE_REPLAY;
-  EXT_SAVE_GAME_SAVEPTS_DOT = '.' + EXT_SAVE_GAME_SAVEPTS;
+  EXT_SAVE_GAME_SAVEPTS_DOT = '.spt';
   EXT_SAVE_MAIN_DOT = '.' + EXT_SAVE_MAIN;
-  EXT_SAVE_MAIN_TXT_DOT = '.' + EXT_SAVE_MAIN_TXT;
+  EXT_SAVE_MAIN_TXT_DOT = '.' + EXT_SAVE_MAIN + EXT_SAVE_TXT_DOT;
   EXT_SAVE_BASE_DOT = '.' + EXT_SAVE_BASE;
   EXT_SAVE_MP_LOCAL_DOT = '.' + EXT_SAVE_MP_LOCAL;
-  EXT_SAVE_RNG_LOG_DOT = '.' + EXT_SAVE_RNG_LOG;
-
+  EXT_SAVE_RNG_LOG_DOT = '.rng';
   EXT_FILE_SCRIPT_DOT = '.' + EXT_FILE_SCRIPT;
 
 type
