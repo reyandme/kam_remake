@@ -731,7 +731,7 @@ object FormMain: TFormMain
       OnCollapse = cpCollapseChanged
       OnExpand = cpCollapseChanged
       ExplicitTop = 393
-      ExpandedHeight = 210
+      ExpandedHeight = 142
       object gbFindObjByUID: TGroupBox
         Left = 8
         Top = 28
@@ -804,57 +804,13 @@ object FormMain: TFormMain
           OnChange = ControlsUpdate
         end
       end
-      object GroupBox2: TGroupBox
-        Left = 8
-        Top = 122
-        Width = 225
-        Height = 62
-        Caption = 'Debug input'
-        TabOrder = 1
-        object Label10: TLabel
-          Left = 8
-          Top = 16
-          Width = 27
-          Height = 13
-          Caption = 'Value'
-        end
-        object Label11: TLabel
-          Left = 112
-          Top = 16
-          Width = 21
-          Height = 13
-          Caption = 'Text'
-        end
-        object seDebugValue: TSpinEdit
-          Left = 8
-          Top = 32
-          Width = 90
-          Height = 22
-          TabStop = False
-          MaxValue = 2147483647
-          MinValue = -2147483648
-          TabOrder = 0
-          Value = 0
-          OnChange = ControlsUpdate
-        end
-        object edDebugText: TEdit
-          AlignWithMargins = True
-          Left = 112
-          Top = 32
-          Width = 105
-          Height = 21
-          TabStop = False
-          TabOrder = 1
-          OnChange = ControlsUpdate
-        end
-      end
       object chkFindObjByUID: TCheckBox
         Left = 8
         Top = 6
         Width = 145
         Height = 17
         Caption = 'Enable '#39'Find object by UID'#39
-        TabOrder = 2
+        TabOrder = 1
         OnClick = ControlsUpdate
       end
     end

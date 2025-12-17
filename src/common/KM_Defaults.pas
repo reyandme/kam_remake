@@ -276,8 +276,6 @@ var
   SAVE_NO_COMPRESSION     :Boolean = False; // do not use compression for game save body
   SAVE_GAME_AFTER_LOAD    :Boolean = False; // Save game immediately after load, could be useful for debugging
 
-  DEBUG_TEXT              :String = '';    //Debug text
-  DEBUG_VALUE             :Integer = 0;    //Debug value
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS    :Boolean = False; //Unlock more maps for debug
   REDUCE_SHOOTING_RANGE   :Boolean = False; //Reduce shooting range for debug

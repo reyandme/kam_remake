@@ -1636,9 +1636,6 @@ begin
     MAKE_SAVEPT_BEFORE_TICK := seMakeSaveptBeforeTick.Value;
     CUSTOM_SEED_VALUE := seCustomSeed.Value;
 
-    DEBUG_TEXT := edDebugText.Text;
-    DEBUG_VALUE := seDebugValue.Value;
-
     if gGame <> nil then
     begin
       UpdateVisibleLayers(chkShowObjects,       mlObjects);
