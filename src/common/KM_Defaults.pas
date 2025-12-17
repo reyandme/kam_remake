@@ -36,14 +36,15 @@ const
     {$IFDEF WDC64} + ' [x64]' {$ENDIF}
     ;
 
-const
-  GAME_VERSION_CUSTOM_POSTFIX = ''; // Custom postfix for the test builds
-  GAME_VERSION_PREFIX   = ''; //Game version string displayed in menu corner
+  GAME_VERSION_PREFIX   = ''; // Custom prefix for the test builds
+  GAME_VERSION_POSTFIX2 = ''; // Custom postfix for the test builds
+
 var
-  //Game revision is set in initialisation block
-  GAME_REVISION: AnsiString; //Should be updated for every release (each time save format is changed)
-  GAME_VERSION: AnsiString;
-  NET_PROTOCOL_REVISON: AnsiString; //Clients of this version may connect to the dedicated server
+  // Game revision is set in initialisation block
+  GAME_REVISION: AnsiString;        // "r12345"                             Should be updated for every release (each time save format is changed)
+  GAME_VERSION: AnsiString;         // "Prefix r12345 [ Postfix ] Postfix"  Game version string displayed in menu corner
+  NET_PROTOCOL_REVISON: AnsiString; // "r12345"                             Clients of this version may connect to the dedicated server
+
 const
   GAME_TITLE            = 'Knights and Merchants Remake';
   SETTINGS_FILE         = 'KaM Remake Settings.xml';
@@ -1135,7 +1136,7 @@ uses
 initialization
 begin
   GAME_REVISION := AnsiString('r' + IntToStr(GAME_REVISION_NUM));
-  GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX + GAME_VERSION_CUSTOM_POSTFIX;
+  GAME_VERSION := GAME_VERSION_PREFIX + GAME_REVISION + GAME_VERSION_POSTFIX + GAME_VERSION_POSTFIX2;
   //Clients of this net protocol version may connect to the dedicated server
   NET_PROTOCOL_REVISON := AnsiString('r' + IntToStr(NET_PROTOCOL_REVISION_NUM));
 end;
