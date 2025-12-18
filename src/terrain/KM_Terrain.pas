@@ -263,7 +263,7 @@ type
     function UnitsHitTest(X, Y: Integer): Pointer;
     function UnitsHitTestF(const aLoc: TKMPointF): Pointer;
     function UnitsHitTestWithinRad(const aLoc: TKMPoint; aMinRad, aMaxRad: Single; aPlayer: TKMHandID; aAlliance: TKMAllianceType;
-                                   aDir: TKMDirection; const aClosest: Boolean; aTestDiagWalkable: Boolean = True): Pointer;
+                                   aDir: TKMDirection; aClosest: Boolean; aTestDiagWalkable: Boolean = True): Pointer;
 
     function ScriptTrySetTile(X, Y, aType, aRot: Integer): Boolean;
     function ScriptTrySetTileHeight(X, Y, aHeight: Integer): Boolean;
@@ -1910,12 +1910,12 @@ begin
 end;
 
 
-//Function to use with WatchTowers/Archers/Warriors
-{ Should scan withing given radius and return closest unit with given Alliance status
-  Should be optimized versus usual UnitsHitTest
-  Prefer Warriors over Citizens}
+// Function to use with WatchTowers/Archers/Warriors
+// Scan within given radius and return closest unit with given Alliance status
+// Should be optimized versus usual UnitsHitTest
+// Prefer Warriors over Citizens
 function TKMTerrain.UnitsHitTestWithinRad(const aLoc: TKMPoint; aMinRad, aMaxRad: Single; aPlayer: TKMHandID; aAlliance: TKMAllianceType;
-                                          aDir: TKMDirection; const aClosest: Boolean; aTestDiagWalkable: Boolean = True): Pointer;
+                                          aDir: TKMDirection; aClosest: Boolean; aTestDiagWalkable: Boolean = True): Pointer;
 type
   TKMUnitArray = array of TKMUnit;
   procedure Append(var aArray: TKMUnitArray; var aCount: Integer; const aUnit: TKMUnit);
