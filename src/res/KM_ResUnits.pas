@@ -192,7 +192,7 @@ const
   UNIT_OFF_Y = -0.4;
 
   //Offsetting layers of units we control what goes above or below
-  //using smaller values to minimize impact on other objects and keeping withing map bounds
+  //using smaller values to minimize impact on other objects and keeping within map bounds
   FLAG_X_OFFSET = 0.01; //Flag is offset to be rendered above/below the flag carrier
   THOUGHT_X_OFFSET = 0.02; //Thought is offset to be rendered always above the flag
 
