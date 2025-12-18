@@ -77,7 +77,7 @@ begin
   fSocketServer.ComponentOptions := [wsoTcpNoDelay]; //Send packets ASAP (disables Nagle's algorithm)
   fSocketServer.Proto  := 'tcp';
   fSocketServer.Addr   := '0.0.0.0'; //Listen to whole range
-  fSocketServer.Port   := IntToStr(aPort); //DONE: Somewhere along the hierarchy we might want to set aPort to be Word
+  fSocketServer.Port   := IntToStr(aPort);
   fSocketServer.Banner := '';
   fSocketServer.OnClientConnect := ClientConnect;
   fSocketServer.OnClientDisconnect := ClientDisconnect;
