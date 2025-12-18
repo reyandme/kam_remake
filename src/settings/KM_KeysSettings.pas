@@ -80,7 +80,7 @@ begin
 
   // Clear old data before filling in
   {$IFDEF WDC}
-  // Todo: do proper check on FPC
+  //todo -cPractical: do proper check on FPC
   nHotkeys.Clear;
   {$ENDIF}
 
