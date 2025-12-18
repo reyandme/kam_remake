@@ -211,6 +211,7 @@ begin
 
   //Filled list
   FillDefaults;
+  aLoc := TKMPoint.New(3,3);
   ReturnValue := FKMPointList.GetClosest(aLoc, Point);
   Check(ReturnValue);
 end;
