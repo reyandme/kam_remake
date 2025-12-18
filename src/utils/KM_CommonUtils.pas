@@ -710,10 +710,12 @@ begin
   Result := Min(A, Min(B, C));
 end;
 
+
 function Max4(const A,B,C,D: Integer): Integer;
 begin
   Result := Max(Max(A, B), Max(C, D));
 end;
+
 
 function Min4(const A,B,C,D: Integer): Integer;
 begin
@@ -726,14 +728,11 @@ begin
   Result := Math.Max(A, Math.Max(B, C));
 end;
 
+
 function Min3(const A,B,C: Single): Single;
 begin
   Result := Math.Min(A, Math.Min(B, C));
 end;
-
-
-type
-  EStackTraceInfo = class(Exception);
 
 
 function GetStackTrace(aLinesCnt: Integer): UnicodeString;
@@ -763,29 +762,6 @@ begin
     // Noticed a crash on game exit once somewhere here, just ignore the exception in this case
     on E: Exception do ;
   end;
-
-  // todo: delete unused code later
-//  try
-//    raise EStackTraceInfo.Create('');
-//  except
-//    on E: EStackTraceInfo do
-//    begin
-//      try
-//        SList := TStringList.Create;
-//        try
-//          SList.Text := E.StackTrace;
-//
-//          for I := 1 to Min(SList.Count - 1, aLinesCnt) do //Do not print last line (its this method line)
-//            Result := Result + SList[I] + sLineBreak;
-//        finally
-//          SList.Free;
-//        end
-//      except
-//        // Noticed a crash on game exit once somewhere here, just ignore the exception in this case
-//        on E: Exception do ;
-//      end;
-//    end;
-//  end;
   {$ENDIF}
   {$ENDIF}
 end;
