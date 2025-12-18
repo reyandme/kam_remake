@@ -6,7 +6,7 @@ program UnitTests;
 //{$DEFINE DUNIT_TEST} Defined in ProjectOptions
 
 uses
-  FastMM4,
+  //FastMM4,
   Forms,
   TestFramework,
   GUITestRunner,
