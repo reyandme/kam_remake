@@ -199,7 +199,7 @@ var
   HS: TKMHouseSchool;
   serfCount: Integer;
 begin
-  //todo: When training new units make sure we have enough gold left to train
+  //todo -cComplicated: When training new units make sure we have enough gold left to train
   //stonemason-woodcutter-carpenter-2miners-metallurgist. In other words -
   //dont waste gold if it's not producing yet
 
@@ -522,7 +522,7 @@ begin
   if (P.Stats.GetHouseWip(htAny) > GetMaxPlans) then Exit;
 
   //Maybe we get more lucky next tick
-  //todo: That only works if FindPlaceForHouse is quick, right now it takes ~11ms for iron/gold/coal mines (to decide that they can't be placed).
+  //todo -cComplicated: That only works if FindPlaceForHouse is quick, right now it takes ~11ms for iron/gold/coal mines (to decide that they can't be placed).
   //      If there's no place for the house we try again and again and again every update, so it's very inefficient
   //      I think the best solution would be to make FindPlaceForHouse only take a long time if we succeed in finding a place for the house, if we
   //      fail it should be quick. Doing a flood fill with radius=40 should really be avoided anyway, 11ms is a long time for placing 1 house.
@@ -620,7 +620,7 @@ begin
 end;
 
 
-//todo: Check if planned houses are being connected with roads
+//todo -cPractical: Check if planned houses are being connected with roads
 //(worker could die while digging a road piece or elevation changed to impassable)
 procedure TKMayor.CheckHousePlans;
 begin

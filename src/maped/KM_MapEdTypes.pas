@@ -30,8 +30,7 @@ type
     procedure UnpackRotAndCorners(out aRotation: Byte; out aCorners: Byte);
   end;
 
-  //Tile data that we store in undo checkpoints
-  //todo: pack UndoTile (f.e. blendingLvl + IsCustom could be packed into 1 byte etc)
+  // Tile data that we store in undo checkpoints
   TKMUndoTile = packed record
     BaseLayer: TKMTerrainLayerPacked;
     LayersCnt: Byte;

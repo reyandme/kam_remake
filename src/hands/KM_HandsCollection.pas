@@ -1094,7 +1094,7 @@ end;
 
 
 // MapEd procedure to remove any unit under cursor
-//todo: Since it gets a Unit.Position, we should refactor it into "procedure TKMHandsCollection.RemUnit(aUnit: TKMUnit);"
+//todo -cPractical: Since it gets a Unit.Position, we could refactor it into "procedure TKMHandsCollection.RemUnit(aUnit: TKMUnit);"
 function TKMHandsCollection.RemAnyUnit(const Position: TKMPoint): Boolean;
 var
   I: Integer;

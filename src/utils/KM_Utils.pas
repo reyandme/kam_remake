@@ -205,9 +205,9 @@ begin
 
   if aAroundArea and not aIsSquare then
   begin
-    AroundArea := TStringList.Create; //todo: Replace with TKMPointList
+    AroundArea := TStringList.Create; //todo -cPractical: Replace with TKMPointList
     try
-      AroundArea.Sort; //todo: Sorting empty list, why?
+      AroundArea.Sort; //todo -cPractical: Sorting empty list, why? Or do we want added values to be sorted?
       AroundArea.Duplicates := dupIgnore;
 
       for I := 0 to K - 1 do

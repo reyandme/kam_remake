@@ -845,7 +845,7 @@ end;
 
 //Try to detect which kind it is
 
-//Todo: we should probably refactor it to TryDetectMapType, and add checks if Map / Save is valid, f.e.
+//todo -cComplicated: we should probably refactor it to TryDetectMapType, and add checks if Map / Save is valid, f.e.
 // if   ((gNetworking.SelectGameKind = ngkMap) and gNetworking.MapInfo.IsValid)
 //   or ((gNetworking.SelectGameKind = ngkSave) and gNetworking.SaveInfo.IsValid)
 // Its not good to just return 0 (which is Build map),

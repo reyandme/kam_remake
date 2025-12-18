@@ -79,7 +79,7 @@ destructor TConsoleMain.Destroy;
 begin
   FreeAndNil(fMinimap);
   //@Rey: We might need to free what we have created
-  //todo: FreeAndNil(gRes);
+  //todo -cPractical: FreeAndNil(gRes);
 
   inherited;
 end;

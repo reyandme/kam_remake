@@ -406,7 +406,7 @@ begin
                 end;
   end;
 
-  //todo: If there's no ore AI should not keep calling this over and over again
+  //todo -cComplicated: If there's no ore AI should not keep calling this over and over again
   // Maybe AI can cache search results for such non-replenishing resources
 
   aLoc := P;
@@ -436,7 +436,7 @@ begin
   // Pick one random seed loc from given
   seedLoc := SeedLocs[KaMRandom(Length(SeedLocs){$IFDEF RNG_SPY}, 'TKMCityPlanner.NextToTrees'{$ENDIF})];
 
-    //todo: Rework through FindNearest to avoid roundabouts
+  //todo -cComplicated: Rework through FindNearest to avoid roundabouts
   //Fill in MyForest map
   FillChar(MyForest[0,0], SizeOf(MyForest), #0);
   for I := Max(seedLoc.Y - SEARCH_RAD, 1) to Min(seedLoc.Y + SEARCH_RAD, gTerrain.MapY - 1) do

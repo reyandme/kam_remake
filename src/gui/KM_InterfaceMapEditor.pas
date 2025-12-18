@@ -949,7 +949,7 @@ begin
 
   keyPassedToModal := False;
   //Pass Key to Modal pages first
-  //todo: refactoring - remove fGuiAttack.KeyDown and similar methods,
+  //todo -cPractical: refactoring - remove fGuiAttack.KeyDown and similar methods,
   //as KeyDown should be handled in Controls them selves (TKMPopUpWindow, f.e.)
   if (fGuiAttack.Visible and fGuiAttack.KeyDown(Key, Shift))
     or (fGuiFormations.Visible and fGuiFormations.KeyDown(Key, Shift))

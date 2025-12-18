@@ -323,7 +323,7 @@ begin
     gMainSettings.WindowParams.NeedResetToDefaults := True;
 
   // Stop app if we did not ReinitRender properly (didn't pass game folder permissions test)
-  //todo: refactor. Separate folder permissions check and render initialization
+  //todo -cComplicated: refactor. Separate folder permissions check and render initialization
   // Locale and texts could be loaded separetely to show proper translated error message
   if not ReinitRender(False) then
     Exit(False);
@@ -696,11 +696,11 @@ begin
 
   // Check if player has all permissions on game folder. Close the app if not
   // Check is done after gGameApp creating because we want to load texts first to show traslated error message
-  //todo: refactor. Separate folder permissions check and render initialization
+  //todo -cComplicated: refactor. Separate folder permissions check and render initialization
   // Locale and texts could be loaded separetely to show proper translated error message
   try
     if (gLog = nil)
-      or (not aReturnToOptions and not DoHaveGenericPermission) then
+    or (not aReturnToOptions and not DoHaveGenericPermission) then
     begin
       ShowPermissionsError;
       Exit(False); // Stop the app
