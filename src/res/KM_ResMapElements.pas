@@ -90,7 +90,7 @@ const
   CORN_AGE_2 = 2200 div TERRAIN_PACE;   //Number measured from KaM ~195sec
   CORN_AGE_3 = 4400 div TERRAIN_PACE;
   CORN_AGE_FULL = 6400 div TERRAIN_PACE; //Corn ready to be cut
-  CORN_AGE_MAX = 255; //todo: Remove. We set it to this once it's fully grown
+  CORN_AGE_MAX = 255; //todo -cPractical: Probably we can remove this, it's the same as _FULL
 
   //Wine values have been tweaked for balance. In KaM they matched corn.
   WINE_STAGES_COUNT = 4; //0..3

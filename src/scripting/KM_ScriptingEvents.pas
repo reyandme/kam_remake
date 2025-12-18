@@ -298,6 +298,7 @@ var
 begin
   Assert(Trim(aEventHandlerName) <> '', 'Can''t add empty event handler for event type: ' +
          GetEnumName(TypeInfo(TKMScriptEventType), Integer(aEventType)));
+
   for I := Low(fEventHandlers[aEventType]) to High(fEventHandlers[aEventType]) do
     if UpperCase(fEventHandlers[aEventType][I].ProcName) = UpperCase(aEventHandlerName) then
     begin
@@ -308,7 +309,6 @@ begin
     end;
 
   len := Length(fEventHandlers[aEventType]);
-  //todo: rewrite it not to enlarge array by 1 element
   SetLength(fEventHandlers[aEventType], len + 1);
   fEventHandlers[aEventType][len].ProcName := aEventHandlerName;
 end;

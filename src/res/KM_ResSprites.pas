@@ -989,7 +989,7 @@ procedure TKMSpritePack.OverloadGeneratedFromFolder(aAlphaShadows: Boolean; cons
         SoftenShadowsList(idList);
 
       // Determine objects size only for units (used for hitbox)
-      //todo: do we need it for houses too ?
+      //todo -cComplicated: do we need it for houses too ?
       if fRT = rxUnits then
         DetermineImagesObjectSizeList(idList);
     finally
@@ -1056,7 +1056,7 @@ procedure TKMSpritePack.OverloadRXDataFromFolder(const aFolder: string; aOnProgr
         SoftenShadowsList(idList);
 
       // Determine objects size only for units (used for hitbox)
-      //todo: do we need it for houses too ?
+      //todo -cComplicated: do we need it for houses too ?
       if fRT = rxUnits then
         DetermineImagesObjectSizeList(idList);
     finally
@@ -1086,7 +1086,7 @@ procedure TKMSpritePack.OverloadRXDataFromFolder(const aFolder: string; aOnProgr
 
     for filePath in TDirectory.GetFiles(aFolder, IntToStr(Ord(fRT) + 1) + '_*', TSearchOption.soAllDirectories, filterPredicate) do
     begin
-      //todo: Would be much simpler if we had our own folder parser ..
+      //todo -cPractical: Would be much simpler if we had our own folder parser ..
       // so we could do our thing right in the callback, without need to iterate over the temp string array
       s := ExtractFileName(filePath);
       if TryStrToInt(Copy(s, 3, Length(s)-2), id) then

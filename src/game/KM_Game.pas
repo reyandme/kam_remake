@@ -792,7 +792,7 @@ begin
   begin
     fMapEditor.History.Clear;
     fMapEditor.History.MakeCheckpoint(caAll, gResTexts[TX_MAPED_HISTORY_CHPOINT_INITIAL]);
-    fMapEditorInterface.GuiMission.GuiMissionPlayers.UpdatePlayerTypes; {Will update MapEditor PlayerHuman/PLayerAI etc} //todo: refactor
+    fMapEditorInterface.GuiMission.GuiMissionPlayers.UpdatePlayerTypes; {Will update MapEditor PlayerHuman/PLayerAI etc}
     fMapEditor.AfterCreated;
   end;
 

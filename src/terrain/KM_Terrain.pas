@@ -1339,7 +1339,7 @@ function TKMTerrain.TileGoodToPlantTree(X,Y: Word): Boolean;
   end;
 
 begin
-  //todo: Optimize above functions. Recheck UpdatePass and WC if the check Rects can be made smaller
+  //todo -cPractical: Optimize above functions. Recheck UpdatePass and WC if the check Rects can be made smaller
 
   Result := TileIsSoil(X,Y)
     and not IsObjectsNearby //This function checks surrounding tiles
@@ -3174,7 +3174,7 @@ end;
 
 
 // Set Tile Overlay
-//todo: Do not update walkConnect and passability multiple times here
+//todo -cPractical: Do not update walkConnect and passability multiple times here
 procedure TKMTerrain.SetOverlay(const aLoc: TKMPoint; aOverlay: TKMTileOverlay; aOverwrite: Boolean);
 var
   changed: Boolean;
@@ -3350,7 +3350,7 @@ end;
 
 function TKMTerrain.CutCorn(const aLoc: TKMPoint): Boolean;
 begin
-  Result := TileIsCornField(aLoc) and (GetCornStage(aLoc) = 5); //todo: refactor: use enum instead of magic numbers !
+  Result := TileIsCornField(aLoc) and (GetCornStage(aLoc) = 5); //todo -cPractical: Refactor, use enum instead of magic numbers !
   if not Result then Exit; //We have no corn here actually, nothing to cut
   
   Land^[aLoc.Y,aLoc.X].FieldAge := 0;

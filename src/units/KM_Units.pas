@@ -2185,7 +2185,7 @@ begin
       if not gHands.FindPlaceForUnit(fInHouse.Entrance.X, fInHouse.Entrance.Y, Self, newCurrPosition, gTerrain.GetWalkConnectID(fInHouse.Entrance)) then
       begin
         // There is no space for this unit so it must be destroyed
-        //todo: re-route to KillUnit and let it sort out that unit is invisible and cant be placed
+        //todo -cComplicated: re-route to KillUnit and let it sort out that unit is invisible and cant be placed
         fKilledBy := HAND_NONE;
         if (Owner <> HAND_NONE)
         and not IsDeadOrDying
