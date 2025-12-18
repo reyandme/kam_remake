@@ -407,7 +407,7 @@ begin
     fLastTile := aIndex;
   end;
   // Will also set proper scroll position
-  // todo: reduce number of TilesRefresh calls
+  //todo -cPractical: reduce number of TilesRefresh calls
   TilesTableSetTileTexId(aIndex - 1);
   TilesRefresh(nil);
 end;
