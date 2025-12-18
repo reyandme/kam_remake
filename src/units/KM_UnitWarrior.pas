@@ -648,7 +648,7 @@ var
   newEnemy: TKMUnit;
 begin
   // This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  newEnemy := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, gHands[Owner].AI.Setup.AutoAttackRange, Owner, atEnemy, dirNA, not FEAT_ARCHER_RANDOM_TARGETS);
+  newEnemy := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, gHands[Owner].AI.Setup.AutoAttackRange, Owner, atEnemy, dirNA, FEAT_ARCHER_RANDOM_TARGETS);
 
   if newEnemy <> nil then
     TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, False);
@@ -708,7 +708,7 @@ begin
   range := GetFightMaxRange(True);
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  Result := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, range, Owner, atEnemy, testDir, not FEAT_ARCHER_RANDOM_TARGETS);
+  Result := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, range, Owner, atEnemy, testDir, FEAT_ARCHER_RANDOM_TARGETS);
 
   //Only stop attacking a house if it's a warrior
   if (fTask <> nil) and (fTask is TKMTaskAttackHouse) and (Action is TKMUnitActionStay) and not (Result is TKMUnitWarrior) then

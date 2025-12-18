@@ -532,7 +532,7 @@ begin
     for IdxA := CntA - 1 downto 0 do
       if (A[IdxA].Group.GroupType = gtRanged) then
       begin
-        U := gTerrain.UnitsHitTestWithinRad(A[IdxA].Group.Position, 0.5, A[IdxA].Group.GetAliveMember.GetFightMaxRange(True), A[IdxA].Group.Owner, atEnemy, dirNA, True);
+        U := gTerrain.UnitsHitTestWithinRad(A[IdxA].Group.Position, 0.5, A[IdxA].Group.GetAliveMember.GetFightMaxRange(True), A[IdxA].Group.Owner, atEnemy, dirNA, False);
         if (U is TKMUnitWarrior) then
         begin
           A[IdxA].CG.TargetGroup := TKMUnitWarrior(U).Group;
