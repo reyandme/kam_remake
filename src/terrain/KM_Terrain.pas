@@ -263,7 +263,7 @@ type
     function UnitsHitTest(X, Y: Integer): Pointer;
     function UnitsHitTestF(const aLoc: TKMPointF): Pointer;
     function UnitsHitTestWithinRad(const aLoc: TKMPoint; aMinRad, aMaxRad: Single; aPlayer: TKMHandID; aAlliance: TKMAllianceType;
-                                   aDir: TKMDirection; aNotClosest: Boolean; aTestDiagWalkable: Boolean = True): Pointer;
+                                   aDir: TKMDirection; aChooseRandom: Boolean; aTestDiagWalkable: Boolean = True): Pointer;
 
     function ScriptTrySetTile(X, Y, aType, aRot: Integer): Boolean;
     function ScriptTrySetTileHeight(X, Y, aHeight: Integer): Boolean;
@@ -1915,7 +1915,7 @@ end;
 // Should be optimized versus usual UnitsHitTest
 // Prefer Warriors over Citizens
 function TKMTerrain.UnitsHitTestWithinRad(const aLoc: TKMPoint; aMinRad, aMaxRad: Single; aPlayer: TKMHandID; aAlliance: TKMAllianceType;
-                                          aDir: TKMDirection; aNotClosest: Boolean; aTestDiagWalkable: Boolean = True): Pointer;
+                                          aDir: TKMDirection; aChooseRandom: Boolean; aTestDiagWalkable: Boolean = True): Pointer;
 type
   TKMUnitArray = array of TKMUnit;
   procedure Append(var aArray: TKMUnitArray; var aCount: Integer; const aUnit: TKMUnit);
@@ -2001,7 +2001,7 @@ begin
   wCount := 0;
   cCount := 0;
 
-  if aNotClosest then
+  if aChooseRandom then
     initialSize := 32 // Should be enough most times, Append will add more if needed
   else
     initialSize := 1; // We only need to keep 1 result
@@ -2039,7 +2039,7 @@ begin
       Continue;
 
     //Don't check tiles farther than closest Warrior
-    if not aNotClosest and (W[0] <> nil)
+    if not aChooseRandom and (W[0] <> nil)
     and (KMLengthSqr(aLoc, KMPoint(K,I)) >= KMLengthSqr(aLoc, W[0].Position)) then
       Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
 
@@ -2066,7 +2066,7 @@ begin
         or CheckVertex(posRound, posNext))
       and InRange(KMLength(KMPointF(aLoc), U.PositionF), aMinRad, requiredMaxRad) //Unit's exact position must be close enough
     then
-      if aNotClosest then
+      if aChooseRandom then
       begin
         if U is TKMUnitWarrior then
           Append(W, wCount, U)
@@ -2082,7 +2082,7 @@ begin
       end;
   end;
 
-  if aNotClosest then
+  if aChooseRandom then
   begin
     if wCount > 0 then
       Result := W[KaMRandom(wCount{$IFDEF RNG_SPY}, 'TKMTerrain.UnitsHitTestWithinRad'{$ENDIF})]
