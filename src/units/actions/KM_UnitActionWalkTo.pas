@@ -932,7 +932,7 @@ begin
       newNodeList := TKMPointList.Create;
       // Make a new route avoiding tiles with busy units
 
-      // Todo: try to not make completely new route with penalty for a walk offroad (for a delivering serfs f.e.)
+      //todo -cComplicated: try to not make completely new route with penalty for a walk offroad (for a delivering serfs f.e.)
       // In that case we can still get a serf going offroad in some cases when its better for him to make a shortcut
       // Better would be to try to make a new route, which will try to reunite with an old route and then those routes will be merged
       // This way we will get still only-road route except the small route around blocked tile
