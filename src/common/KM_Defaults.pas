@@ -145,6 +145,8 @@ var
   ALLOW_LOAD_UNSUP_VERSION_SAVE:
                            Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
 
+  DBG_LOG_SETTINGS_SAVE_CALLSTACK :Boolean = True; //todo: DEBUG. remove from released version after bugfix
+
   DBG_KILL_GROUP_BUTTON       :Boolean = DEBUG_CFG; // The button to kill group
   DBG_KILL_UNIT_BUTTON        :Boolean = DEBUG_CFG; // Show unit 'Kill' button
 
