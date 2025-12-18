@@ -323,6 +323,7 @@ begin
 end;
 {$ENDIF}
 
+
 procedure TKMSavePointCollection.Save(aSaveStream: TKMemoryStream);
 var
   keyArray : TArray<Cardinal>;
@@ -344,7 +345,7 @@ begin
     SortCustom(keyArray, Low(keyArray), High(keyArray), SizeOf(keyArray[0]), CompareKeys);
     {$ENDIF}
 
-    // todo: potential OutOfMemory error in this cycle
+    //todo -cComplicated: potential OutOfMemory error in this cycle?
     for key in keyArray do
     begin
       aSaveStream.PlaceMarker('SavePoint');

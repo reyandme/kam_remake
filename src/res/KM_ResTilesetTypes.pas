@@ -315,7 +315,7 @@ begin
   if Result = 0 then Exit;
 
   // -1 because of difference in 0-based and 1-based in tiles numbering
-  // todo: refactor it to 0-based
+  //todo -cComplicated: refactor it to 0-based
   Dec(Result);
 end;
 

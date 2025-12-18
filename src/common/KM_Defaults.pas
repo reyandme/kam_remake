@@ -761,7 +761,7 @@ type
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   TKMHouseState = (hstEmpty, hstIdle, hstWork);
   //These are house building states
-  // Todo: add other possible build states like hbsDigged, hbsRoadConnected, hbsBuildStart
+  //todo -cComplicated: Can add other possible build states like hbsDigged, hbsRoadConnected, hbsBuildStart
   TKMHouseBuildState = (hbsNoGlyph, hbsWood, hbsStone, hbsDone);
 
   TKMHouseActionType = (

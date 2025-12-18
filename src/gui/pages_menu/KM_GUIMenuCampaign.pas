@@ -291,7 +291,7 @@ begin
 
   // Stretch image in case its too small for a briefing text
   // Stretched scroll does not look good, but its okay for now (only happens for a custom campaigns)
-  // Todo: cut scroll image into 3 pieces (top / center / bottom) and render as many of central part as needed
+  //todo -cPractical: cut scroll image into 3 pieces (top / center / bottom) and render as many of central part as needed
   if panHeight > IMG_SCROLL_MAX_HEIGHT then
     Image_Scroll.ImageAnchors := Image_Scroll.ImageAnchors + [anBottom]
   else

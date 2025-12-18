@@ -492,8 +492,7 @@ begin
   fBrightness := gGameSettings.GFX.Brightness;
 
   // Minimum brightness for video is 1, otherwise we would see white screen
-  // Todo: Check if render parameters are set correctly,
-  // because we probably help to draw it with our Brightness 1,
+  //todo -cComplicated: Check if render parameters are set correctly, because we probably help to draw it with our Brightness 1,
   // while it should be fine with Brightness 0 regardless
   if fBrightness = 0 then
     gGameSettings.GFX.Brightness := 1;

@@ -52,7 +52,7 @@ type
     MapEdFishCount: Byte;
 
     // MapEd other pages
-    // todo: refactor to use only 1 flag here
+    //todo -cPractical: Can refactor to use only 1 flag here
     MapEdDir: Byte;
     MapEdDirection: TKMDirection; //direction of Units and Defence Pos
 

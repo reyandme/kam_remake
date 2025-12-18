@@ -2616,7 +2616,7 @@ begin
     end;
 
     // Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
-    // todo: Send all message commands through GIP (note: that means there will be a delay when you press delete)
+    //todo -cComplicated: Send all message commands through GIP (note: that means there will be a delay when you press delete)
     if not saveIsMultiplayer then
       fGamePlayInterface.Load(bodyStream);
 

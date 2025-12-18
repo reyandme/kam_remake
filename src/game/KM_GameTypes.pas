@@ -46,7 +46,7 @@ type
 const
   // Location color 'magic value', which means we should not overwrite location color which was set in the map editor
   // Used on game start
-  NO_OVERWRITE_COLOR = $00000000; // todo: refactor, get rid of 'magic color value'
+  NO_OVERWRITE_COLOR = $00000000; //todo -cPractical: refactor, get rid of 'magic color value'
 
   // Value we use to set hand / player without team choosen
   NO_TEAM = 0;
