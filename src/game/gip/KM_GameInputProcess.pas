@@ -1667,17 +1667,10 @@ end;
 
 
 function GetGICCommandTypeMaxLength: Byte;
-var
-  cmd: TKMGameInputCommandType;
-  len: Byte;
 begin
   Result := 0;
-  for cmd := Low(TKMGameInputCommandType) to High(TKMGameInputCommandType) do
-  begin
-    len := Length(GetEnumName(TypeInfo(TKMGameInputCommandType), Integer(cmd)));
-    if len > Result then
-      Result := len;
-  end;
+  for var I := Low(TKMGameInputCommandType) to High(TKMGameInputCommandType) do
+    Result := Max(Result, Length(GetEnumName(TypeInfo(TKMGameInputCommandType), Ord(I))));
 end;
 
 
