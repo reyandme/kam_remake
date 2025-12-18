@@ -358,7 +358,7 @@ var
   I, K: Integer;
 begin
   // Copy land to temp array
-  // todo: optimise copying process
+  //todo -cPractical: optimise copying process
   for I := 1 to gTerrain.MapY do
     for K := 1 to gTerrain.MapX do
     begin

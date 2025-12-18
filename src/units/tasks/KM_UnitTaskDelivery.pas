@@ -499,7 +499,7 @@ begin
           // Worker
           if (fToUnit.UnitType = utBuilder) and (fToUnit.Task <> nil) then
           begin
-            // Todo: Replace phase numbers with enums to avoid hardcoded magic numbers
+            //todo -cPractical: Replace phase numbers with enums to avoid hardcoded magic numbers
             // Check if worker is still digging
             if ((fToUnit.Task is TKMTaskBuildWine) and (fToUnit.Task.Phase < 5))
               or ((fToUnit.Task is TKMTaskBuildRoad) and (fToUnit.Task.Phase < 4)) then

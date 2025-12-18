@@ -601,7 +601,7 @@ begin
   nGameSettings := Root.AddOrFindChild('Game');
   // Clear old data before filling in
   {$IFDEF WDC}
-  // Todo: do proper check on FPC
+  //todo -cPractical: do proper check on FPC
   nGameSettings.Clear;
   {$ENDIF}
 
