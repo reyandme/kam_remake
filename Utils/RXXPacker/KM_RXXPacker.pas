@@ -147,7 +147,7 @@ begin
     end;
 
     // Determine objects size only for units (used for hitbox)
-    //todo: do we need it for houses too ?
+    //todo -cComplicated: do we need it for houses too ?
     if aRT = rxUnits then
     begin
       DoLog('Pre-processing units');

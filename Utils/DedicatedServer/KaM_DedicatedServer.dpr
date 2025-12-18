@@ -201,10 +201,11 @@ begin
 
   while True do
   begin
-    try //Catch and log exceptions
+    // Catch and log exceptions
+    try
       RunTheServer;
     except
-      on E : Exception do //todo: For some reason this doesn't catch exceptions that occur within network events e.g. OnReceive (once server is running errors can really only occur in these events)
+      on E: Exception do //todo -cComplicated: For some reason this doesn't catch exceptions that occur within network events e.g. OnReceive (once server is running errors can really only occur in these events)
       begin
         fEventHandler.ServerStatusMessage('EXCEPTION: ' + E.ClassName + ': ' + E.Message);
         {$IFDEF FPC} fEventHandler.ServerStatusMessage(GetExceptionCallStack()); {$ENDIF}
