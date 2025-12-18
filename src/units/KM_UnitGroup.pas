@@ -2012,7 +2012,7 @@ begin
     agents := TKMPointList.Create;
     tasks := TKMPointList.Create;
 
-    //todo: Process each unit type separately in mixed groups so their order is maintained
+    //todo -cComplicated: Process each unit type separately in mixed groups so their order is maintained
 
     //Skip leader, he can't be reordered because he holds the flag
     //(tossing flag around is quite complicated and looks unnatural in KaM)

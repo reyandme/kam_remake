@@ -728,7 +728,7 @@ begin
   //We could retaliate against his whole group however
   if (aAttacker = nil) or aAttacker.IsDeadOrDying or (aAttacker is TKMUnitRecruit) then Exit;
 
-  //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
+  //todo -cComplicated: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
   //Any defence position that is within their defence radius of this threat will retaliate against it
   for I := 0 to fDefencePositions.Count - 1 do
   begin

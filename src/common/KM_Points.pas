@@ -794,7 +794,7 @@ begin
 end;
 
 
-//todo: This is quite wastefull when in 9 out of 10 cases we just pass integers in [-1..1] range
+//todo -cPractical: This algorithm is quite wastefull when in 9 out of 10 cases we just pass integers in [-1..1] range
 function KMGetDirection(X, Y: Single; aDirNAThreshold: Integer = 0): TKMDirection;
 var
   ang, distSqr: Single;

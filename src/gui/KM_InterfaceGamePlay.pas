@@ -28,7 +28,7 @@ const
 
 type
   //tbNone is the last, since we use Byte(Value) at some places
-  //todo: refactor
+  //todo -cPractical: refactor, so that tbNone is not needed
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu, tbNone);
 
   TKMGamePlayInterface = class(TKMUserInterfaceGame)
@@ -717,12 +717,12 @@ end;
 procedure TKMGamePlayInterface.ExportPages(const aPath: string);
 var
   I, K: Integer;
-  path: String;
+  exportPath: String;
 begin
   inherited;
 
-  path := aPath + 'Gameplay' + PathDelim;
-  ForceDirectories(aPath); //todo: Should be `path`?
+  exportPath := aPath + 'Gameplay' + PathDelim;
+  ForceDirectories(exportPath);
 
   for I := 0 to Panel_Main.ChildCount - 1 do
     if (Panel_Main.Childs[I] is TKMPanel)
@@ -735,7 +735,7 @@ begin
 
       Panel_Main.Childs[I].Show;
 
-      gGameApp.PrintScreen(aPath + 'Panel' + int2fix(I, 3) + '.jpeg');
+      gGameApp.PrintScreen(exportPath + 'Panel' + int2fix(I, 3) + '.jpeg');
     end;
 end;
 

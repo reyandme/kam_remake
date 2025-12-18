@@ -254,7 +254,7 @@ begin
   FillDefaults;
   ReturnValue := FKMPointList.GetBounds(B);
   Check(ReturnValue);
-  //todo: Check(KMSameRect(KMRect(FKMPointList[0],), FKMPointList[0]));
+  //todo -cPractical: Check(KMSameRect(KMRect(FKMPointList[0],), FKMPointList[0]));
 end;
 
 procedure TestTKMPointList.TestSaveToStream;

@@ -4342,7 +4342,7 @@ begin
 end;
 
 
-//todo: Rewrite into controlled recursion to avoid StackOverflows
+//todo -cComplicated: Rewrite into controlled recursion to avoid StackOverflows
 //@Krom: Stackoverflow usually occurs because keeping mountain walkable with stonemining is
 //       sometimes impossible to solve when considering CanElevate (houses near stone).
 //       So changing recursion to iteration would just give us an infinite loop in that case :(

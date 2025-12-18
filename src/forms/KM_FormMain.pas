@@ -1439,7 +1439,7 @@ procedure TFormMain.ControlsRefill;
 begin
   fUpdating := True;
 
-  //todo: Fill in rgDebugFont with font names on init, instead of hardcode
+  //todo -cPractical: Fill in rgDebugFont with font names on init, instead of hardcode
 
   try
     {$IFDEF WDC}

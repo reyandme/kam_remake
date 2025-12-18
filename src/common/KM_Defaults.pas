@@ -453,7 +453,7 @@ const
 
 var
   //Values are empirical
-  //todo: Can move this to AIInfluences as parameter
+  //todo -cPractical: Can move this to AIInfluences as parameter
   OWN_MARGIN   :Byte = 190;
   OWN_THRESHOLD:Byte = 126;
 

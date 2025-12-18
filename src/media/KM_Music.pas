@@ -27,7 +27,7 @@ type
   // We have two kinds of playable music:
   // Track/Song - song we are playing now from the list
   // Other/Briefing - voice file we play for campaign briefing
-  //todo: Would be nice to choose just 2 terms and stick to them
+  //todo -cComplicated: Would be nice to choose just 2 terms and stick to them
   TKMMusicLib = class
   private type
     TKMFadeState = (fsNone, fsFadeOut, fsFadeIn, fsFaded);

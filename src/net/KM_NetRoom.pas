@@ -38,7 +38,7 @@ type
     HasMapOrSave: Boolean;
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
-    LastSentCommandsTick: Integer; {Last tick when this player sent GIP commands to others}  //todo: move it somewhere...?)
+    LastSentCommandsTick: Integer; {Last tick when this player sent GIP commands to others} //todo -cComplicated: move it somewhere...?
     DownloadInProgress: Boolean; //Player is in map/save download progress
     VotedYes: Boolean;
     procedure PerformanceAddFps(aFps: Word);
