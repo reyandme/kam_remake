@@ -1298,7 +1298,7 @@ begin
 
   glBegin(GL_TRIANGLE_FAN);
 
-  //todo: DoHighlight and HighlightColor is not considered here, we use always glColor4f(1, 1, 1, 1);
+  //todo -cComplicated: DoHighlight and HighlightColor is not considered here, we use always glColor4f(1, 1, 1, 1);
   if aBlendingLvl > 0 then
     RenderQuadTextureBlended(texC, pX, pY, aCorners, aBlendingLvl)
   else

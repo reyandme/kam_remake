@@ -1812,8 +1812,7 @@ Names are the same as in new Delphi versions, but with 'Str' prefix
 }
 function StrIndexOf(const aStr, aSubStr: String): Integer;
 begin
-  //todo: refactor:
-  //@Krom: Why not just replace StrIndexOf with Pos everywhere in code?
+  //todo -cPractical: replace StrIndexOf with Pos everywhere in code
   Result := AnsiPos(aSubStr, aStr) - 1;
 end;
 
@@ -1830,24 +1829,21 @@ end;
 
 function StrSubstring(const aStr: String; aFrom: Integer): String;
 begin
-  //todo: refactor:
-  //@Krom: Why not just replace StrSubstring with RightStr everywhere in code?
+  //todo -cPractical: replace StrSubstring with RightStr everywhere in code
   Result := Copy(aStr, aFrom + 1, Length(aStr));
 end;
 
 
 function StrSubstring(const aStr: String; aFrom, aLength: Integer): String;
 begin
-  //todo: refactor:
-  //@Krom: Why not just replace StrSubstring with Copy everywhere in code?
+  //todo -cPractical: replace StrSubstring with Copy everywhere in code
   Result := Copy(aStr, aFrom + 1, aLength);
 end;
 
 
 function StrContains(const aStr, aSubStr: String): Boolean;
 begin
-  //todo: refactor:
-  //@Krom: Why not just replace StrContains with Pos() <> 0 everywhere in code?
+  //todo -cPractical: replace StrContains with Pos() <> 0 everywhere in code
   Result := StrIndexOf(aStr, aSubStr) <> -1;
 end;
 
