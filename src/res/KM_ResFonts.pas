@@ -429,7 +429,7 @@ begin
   aBitmap.Height := fTexSizeY;
 
   {$IFDEF WDC}
-  //todo: Add Lazarus analog
+  //todo -cComplicated: Add Lazarus analog
   TD := fAtlases[aIndex].TexData;
   for I := 0 to fTexSizeY - 1 do
   begin
@@ -854,15 +854,11 @@ end;
 // Return maximum of the width of specified strings when printed on screen with specified font.
 function TKMFontSpec.GetMaxPrintWidthOfStrings(aStrings: array of string): Integer;
 var
-  I, width: Integer;
+  I: Integer;
 begin
   Result := 0;
   for I := Low(aStrings) to High(aStrings) do
-  begin
-    width := GetTextSize(aStrings[I]).X;
-    if (width > Result) then
-      Result := width; //todo: Replace with Result := Max(Result, GetTextSize(aStrings[I]).X);
-  end;
+    Result := Max(Result, GetTextSize(aStrings[I]).X);
 end;
 
 

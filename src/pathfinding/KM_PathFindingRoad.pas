@@ -8,7 +8,7 @@ uses
 
 type
   // Pathfinding that finds a route for a road to be built
-  //todo: Maybe it is worth trying to make Roadfinder a house-aware algo,
+  //todo -cComplicated: Maybe it is worth trying to make Roadfinder a house-aware algo,
   // to prefer connecting to supply/demand houses
   TKMPathFindingRoad = class(TKMPathFindingAStarNew)
   private
