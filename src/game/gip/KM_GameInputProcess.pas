@@ -406,8 +406,8 @@ type
     procedure SaveExtra(SaveStream: TKMemoryStream); virtual;
     procedure LoadExtra(LoadStream: TKMemoryStream); virtual;
 
-    function GetNetPlayerName(aHandIndex: TKMHandID): String; virtual;
-    function GICHeaderToString(aCommandType: TKMGameInputCommandType; aHandIndex: Integer): string;
+    function GetPlayerName(aHandIndex: TKMHandID): string;
+    function GICHeaderToString(aCommandType: TKMGameInputCommandType; aHandIndex: TKMHandID): string;
     function IsPlayerMuted(aHandIndex: Integer): Boolean; virtual;
   public
     constructor Create(aReplayState: TKMGIPReplayState);
@@ -623,16 +623,31 @@ begin
 end;
 
 
-function TKMGameInputProcess.GetNetPlayerName(aHandIndex: TKMHandID): String;
+function TKMGameInputProcess.GetPlayerName(aHandIndex: TKMHandID): string;
 begin
-  Result := '';
+  try
+    if aHandIndex <> -1 then
+      Result := gHands[aHandIndex].OwnerNickname
+    else
+      // Some commands can originate from -1
+      Result := 'unknown';
+  except
+    // This is debug logging, we dont want to crash
+    Result := 'EXCEPTION';
+  end;
 end;
 
 
-function TKMGameInputProcess.GICHeaderToString(aCommandType: TKMGameInputCommandType; aHandIndex: Integer): string;
+function TKMGameInputProcess.GICHeaderToString(aCommandType: TKMGameInputCommandType; aHandIndex: TKMHandID): string;
 begin
-  Result := Format('%-' + IntToStr(GIC_COMMAND_TYPE_MAX_LENGTH) + 's hand: %2d' + GetNetPlayerName(aHandIndex) + ', params: ',
-                  [GetEnumName(TypeInfo(TKMGameInputCommandType), Integer(aCommandType)), aHandIndex]);
+  Result := Format('%-' + IntToStr(GIC_COMMAND_TYPE_MAX_LENGTH) + 's hand: %2d', [GetEnumName(TypeInfo(TKMGameInputCommandType), Ord(aCommandType)), aHandIndex]);
+
+  // Include players name (will be empty in SP)
+  var handName := GetPlayerName(aHandIndex);
+  if handName <> '' then
+    Result := Result + Format(' %-6s', [handName]);
+
+  Result := Result + ', params: ';
 end;
 
 
@@ -660,7 +675,7 @@ begin
 end;
 
 
-{ TGameInputProcess }
+{ TKMGameInputProcess }
 constructor TKMGameInputProcess.Create(aReplayState: TKMGIPReplayState);
 begin
   inherited Create;
