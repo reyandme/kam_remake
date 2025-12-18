@@ -59,6 +59,7 @@ type
     function GetRangeMax: Single;
     function GetProjectileType: TKMProjectileType;
     function GetAimSoundDelay: Byte;
+    procedure CheckForEnemyPassingBy;
   protected
     function GetAllowAllyToSelect: Boolean; override;
     procedure SetAllowAllyToSelect(aAllow: Boolean); override;
@@ -642,6 +643,18 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.CheckForEnemyPassingBy;
+var
+  newEnemy: TKMUnit;
+begin
+  // This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
+  newEnemy := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, gHands[Owner].AI.Setup.AutoAttackRange, Owner, atEnemy, dirNA, not FEAT_ARCHER_RANDOM_TARGETS);
+
+  if newEnemy <> nil then
+    TKMUnitGroup(fGroup).OrderAttackUnit(newEnemy, False);
+end;
+
+
 function TKMUnitWarrior.CheckForEnemy: Boolean;
 var
   newEnemy: TKMUnit;
@@ -693,9 +706,6 @@ begin
     testDir := dirNA;
 
   range := GetFightMaxRange(True);
-  //AI has an "auto attack range" for melee like in TSK/TPR so you can't sneak past them (when idle)
-  if not IsRanged and IsIdle and gHands[Owner].IsComputer then
-    range := Max(range, gHands[Owner].AI.Setup.AutoAttackRange);
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
   Result := gTerrain.UnitsHitTestWithinRad(Position, GetFightMinRange, range, Owner, atEnemy, testDir, not FEAT_ARCHER_RANDOM_TARGETS);
@@ -1091,7 +1101,13 @@ begin
     TakeNextOrder;
 
   if (fTicker mod 6 = 0) and not InFight then
-    CheckForEnemy; //Split into separate procedure so it can be called from other places
+  begin
+    CheckForEnemy;
+
+    // Melee AI units should check if they can attack units that try to sneak past them even if they already chase someone
+    if gHands[Owner].IsComputer and not IsRanged and CanInterruptAction and IsIdle then
+      CheckForEnemyPassingBy;
+  end;
 
   Result := True; //Required for override compatibility
   if inherited UpdateState then Exit;

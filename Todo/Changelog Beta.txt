@@ -32,6 +32,7 @@ Game:
 + Fixed bug when melee continue chasing ranged after they start fighting with another melee unit group
 + Change default ware distribution for coal from 5344 to 3533, for wood from 34 to 25
 + Disable by default setting "Save ware distribution between games" in best interest of players who do not know about this behaviour
++ Fixed bug when AI melee units are chasing enemy unit even if they start fighting
 
 Maps:
 + Added The Fall of House Fennford by Strangelove
