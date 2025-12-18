@@ -35,22 +35,6 @@ begin
   FKMFogOfWar := nil;
 end;
 
-procedure TestTKMFogOfWar.TestRevealCircle;
-var
-  Amount: Word;
-  Radius: Word;
-  Pos: TKMPoint;
-begin
-  // TODO: Setup method call parameters
-  FKMFogOfWar.RevealCircle(Pos, Radius, Amount);
-  // TODO: Validate method results
-end;
-
-procedure TestTKMFogOfWar.TestRevealEverything;
-begin
-  FKMFogOfWar.RevealEverything;
-  // TODO: Validate method results
-end;
 
 procedure TestTKMFogOfWar.TestCheckVerticeRevelation;
 var
@@ -101,39 +85,6 @@ begin
     else
       Check(ReturnValue = 0, IntToStr(I)+IntToStr(K));
   end;
-end;
-
-procedure TestTKMFogOfWar.TestSyncFOW;
-var
-  aFOW: TKMFogOfWar;
-begin
-  // TODO: Setup method call parameters
-  //FKMFogOfWar.SyncFOW(aFOW);
-  // TODO: Validate method results
-end;
-
-procedure TestTKMFogOfWar.TestSave;
-var
-  SaveStream: TKMemoryStream;
-begin
-  // TODO: Setup method call parameters
-  //FKMFogOfWar.Save(SaveStream);
-  // TODO: Validate method results
-end;
-
-procedure TestTKMFogOfWar.TestLoad;
-var
-  LoadStream: TKMemoryStream;
-begin
-  // TODO: Setup method call parameters
-  //FKMFogOfWar.Load(LoadStream);
-  // TODO: Validate method results
-end;
-
-procedure TestTKMFogOfWar.TestUpdateState;
-begin
-  FKMFogOfWar.UpdateState(True);
-  // TODO: Validate method results
 end;
 
 initialization
