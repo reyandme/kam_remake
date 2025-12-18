@@ -205,7 +205,7 @@ type
     procedure MakeSound; virtual; //Swine/stables make extra sounds
     function GetWareDistribution(aID: Byte): Word; virtual; //Will use GetRatio from mission settings to find distribution amount
   public
-    CurrentAction: TKMHouseAction; //Current action, withing HouseTask or idle
+    CurrentAction: TKMHouseAction; //Current action, within HouseTask or idle
     WorkAnimStep: Cardinal; //Used for Work and etc.. which is not in sync with Flags
     WorkAnimStepPrev: Cardinal; //Used for interpolated render, not saved
     DoorwayUse: Byte; //number of units using our door way. Used for sliding.
