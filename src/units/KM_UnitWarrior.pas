@@ -67,7 +67,7 @@ type
     OnWarriorDied: TKMWarriorEvent; //Separate event from OnUnitDied to report to Group
     OnPickedFight: TKMWarrior2Event;
     OnWarriorWalkOut: TKMWarriorEvent;
-    // Todo: do we actually need it? Should not Group.OrderLoc.Dir be used for the same purpose ?
+    //todo -cComplicated: do we actually need it? Should not Group.OrderLoc.Dir be used for the same purpose ?
     FaceDir: TKMDirection; //Direction we should face after walking. Only check for enemies in this direction.
 
     constructor Create(aID: Cardinal; aUnitType: TKMUnitType; const aLoc: TKMPointDir; aOwner: TKMHandID; aInHouse: TKMHouse);
