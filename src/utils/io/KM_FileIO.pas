@@ -529,7 +529,7 @@ begin
   if Result then
     CloseHandle(hnd);
   {$ELSE}
-  Result := True; // todo: add Read/Write permissions on lazarus / fpc
+  Result := True; //todo -cPractical: add Read/Write permissions on lazarus / fpc
   {$ENDIF}
 end;
 
