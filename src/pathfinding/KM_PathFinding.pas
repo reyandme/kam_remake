@@ -265,7 +265,7 @@ function TKMPathFinding.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   //If cell meets Passability then estimate it
   Result := ((fPass * gTerrain.Land^[aY,aX].Passability) <> [])
-            and ((fAvoidLocked <> palAvoidAsUnwalkable) or not gTerrain.TileIsLocked(KMPoint(aX,aY)));
+            and ((fAvoidLocked <> palAvoidAsUnwalkable) or not gTerrain.TileIsLocked(TKMPoint.New(aX,aY)));
 end;
 
 
@@ -300,7 +300,7 @@ begin
     if FEAT_AVOID_UNITS_IN_PATH and (U <> nil) and ((tpWalkRoad in fPass) or U.PathfindingShouldAvoid) then
       Inc(Result, AVOID_UNIT_PENALTY); //Unit = 1.5 extra tiles
 
-    if (fAvoidLocked = palAvoidByMovementCost) and gTerrain.TileIsLocked(KMPoint(aToX,aToY)) then
+    if (fAvoidLocked = palAvoidByMovementCost) and gTerrain.TileIsLocked(TKMPoint.New(aToX,aToY)) then
       Inc(Result, AVOID_LOCKED_PENALTY); //In interaction avoid mode, working unit (or warrior attacking house) = 20 tiles
   end;
 end;
@@ -325,8 +325,8 @@ function TKMPathFinding.DestinationReached(aX, aY: Word): Boolean;
 begin
   case fDestination of
     pdLocation:    Result := KMLengthDiag(aX, aY, fLocB) <= fDistance;
-    pdPassability: Result := gTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
-    pdHouse:       Result := fTargetHouse.InReach(KMPoint(aX, aY), fDistance);
+    pdPassability: Result := gTerrain.GetConnectID(fTargetWalkConnect, TKMPoint.New(aX, aY)) = fTargetNetwork;
+    pdHouse:       Result := fTargetHouse.InReach(TKMPoint.New(aX, aY), fDistance);
     else           Result := True;
   end;
 end;

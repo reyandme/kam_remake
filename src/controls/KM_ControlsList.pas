@@ -901,7 +901,7 @@ function TKMListBox.GetHintTextOffset: TKMPoint;
 begin
   if fMouseOverRow = -1 then Exit(KMPOINT_ZERO);
 
-  Result := KMPoint(TXT_PAD_X, TXT_PAD_Y + GetItemTop(fMouseOverRow) - GetItemTop(TopIndex));
+  Result := TKMPoint.New(TXT_PAD_X, TXT_PAD_Y + GetItemTop(fMouseOverRow) - GetItemTop(TopIndex));
 end;
 
 
@@ -1753,7 +1753,7 @@ begin
       fMouseOverRow := -1;
 
     if (fMouseOverRow <> -1) and (fMouseOverColumn <> -1) then
-      fMouseOverCell := KMPoint(fMouseOverColumn, fMouseOverRow);
+      fMouseOverCell := TKMPoint.New(fMouseOverColumn, fMouseOverRow);
   end;
 end;
 
@@ -1935,7 +1935,7 @@ begin
 
   textSize := gRes.Fonts[fFont].GetTextSize(Rows[fMouseOverCell.Y].Cells[fMouseOverCell.X].Caption);
 
-  Result := KMPoint(COL_PAD_X + fHeader.Columns[fMouseOverCell.X].Offset, //beware we dont consider hidden columns here, since there are none needed atm
+  Result := TKMPoint.New(COL_PAD_X + fHeader.Columns[fMouseOverCell.X].Offset, //beware we dont consider hidden columns here, since there are none needed atm
                     TXT_PAD_Y + fHeader.Height * Byte(fShowHeader)
                               + (fMouseOverCell.Y - TopIndex) * fItemHeight
                               + (fItemHeight - textSize.Y) div 2);

@@ -140,7 +140,7 @@ var
     if aIsBorderCell and (Length(BorderArea) > K) then
     begin
       //Collect BorderArea cells
-      BorderArea[K] := KMPoint(X,Y);
+      BorderArea[K] := TKMPoint.New(X, Y);
       Inc(K);
     end;
   end;

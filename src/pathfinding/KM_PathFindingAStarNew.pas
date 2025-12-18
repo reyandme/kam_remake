@@ -124,7 +124,7 @@ begin
       N := @fOpenRef[Y,X];
       if N.RouteID <> fRouteID then //Cell is new
       begin
-        if CanWalkTo(KMPoint(fMinN.X, fMinN.Y), X, Y) then
+        if CanWalkTo(TKMPoint.New(fMinN.X, fMinN.Y), X, Y) then
         begin
           N.RouteID := fRouteID;
           N.Parent := fMinN;
@@ -143,7 +143,7 @@ begin
       begin
         //Node N is valid. If route through new cell is shorter than previous
         if N.Estim <> C_CLOSED then
-        if CanWalkTo(KMPoint(fMinN.X, fMinN.Y), X, Y) then
+        if CanWalkTo(TKMPoint.New(fMinN.X, fMinN.Y), X, Y) then
         begin
           newCost := MovementCost(fMinN.X, fMinN.Y, X, Y);
           if fMinN.CostTo + newCost < N.CostTo then
@@ -181,7 +181,7 @@ begin
   N := fMinN;
   while N <> nil do
   begin
-    NodeList.Add(KMPoint(N.X, N.Y));
+    NodeList.Add(TKMPoint.New(N.X, N.Y));
     N := N.Parent;
   end;
 

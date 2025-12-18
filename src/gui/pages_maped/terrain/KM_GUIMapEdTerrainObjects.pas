@@ -581,7 +581,7 @@ begin
   //Recalc ColsCount considering possible scroll width
   ColsCnt := EnsureRange((Form_ObjectsPalette.Width - 25*Byte(Scroll_ObjectsPalette.Visible)) div (OBJ_PAL_CELL_W + 1), 1, OBJECTS_PALETTE_MAX_COLS_CNT);
 
-  fObjPaletteTableSize := KMPoint(ColsCnt, RowsCnt);
+  fObjPaletteTableSize := TKMPoint.New(ColsCnt, RowsCnt);
 
   Image_ObjectsPalette.Width := GetObjPaletteTableWidth + 150;
   Image_ObjectsPalette.Height := GetObjPaletteTableHeight + 220;

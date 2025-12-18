@@ -776,7 +776,7 @@ end;
 
 procedure TKMPointList.Add(X, Y: Integer);
 begin
-  Add(KMPoint(X, Y));
+  Add(TKMPoint.New(X, Y));
 end;
 
 

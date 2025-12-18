@@ -652,7 +652,7 @@ begin
   Assert(outlines.Count = 1, 'Houses are expected to have single outline');
 
   for I := 0 to outlines.Shape[0].Count - 1 do
-    aList.Add(KMPoint(outlines.Shape[0].Nodes[I].X, outlines.Shape[0].Nodes[I].Y));
+    aList.Add(outlines.Shape[0].Nodes[I]);
 end;
 
 

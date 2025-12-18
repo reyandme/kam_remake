@@ -93,7 +93,7 @@ type
 
   TKMPointFunction = function(aPoint: TKMPoint): Boolean of object;
 
-  function KMPoint(X,Y: Integer): TKMPoint;
+  function KMPoint(aX,aY: Integer): TKMPoint;
   function KMPointF(X,Y: Single): TKMPointF; overload;
   function KMPointF(const P: TKMPoint):  TKMPointF; overload;
   function KMPointDir(X,Y: Integer; Dir: TKMDirection): TKMPointDir; overload;
@@ -269,7 +269,7 @@ end;
 
 class operator TKMPoint.Add(const A, B: TKMPoint): TKMPoint;
 begin
-  Result := KMPoint(A.X + B.X,A.Y + B.Y);
+  Result := TKMPoint.New(A.X + B.X,A.Y + B.Y);
 end;
 
 
@@ -385,10 +385,10 @@ begin
 end;
 
 
-function KMPoint(X,Y: Integer): TKMPoint;
+function KMPoint(aX,aY: Integer): TKMPoint;
 begin
-  Result.X := X;
-  Result.Y := Y;
+  Result.X := aX;
+  Result.Y := aY;
 end;
 
 

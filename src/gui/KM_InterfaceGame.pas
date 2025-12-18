@@ -259,7 +259,7 @@ end;
 
 function TKMUserInterfaceGame.GetHintPositionBase: TKMPoint;
 begin
-  Result := KMPoint(GetToolbarWidth + 35, Panel_Main.Height);
+  Result := TKMPoint.New(GetToolbarWidth + 35, Panel_Main.Height);
 end;
 
 

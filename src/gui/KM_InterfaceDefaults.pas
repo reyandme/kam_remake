@@ -513,7 +513,7 @@ function TKMUserInterfaceCommon.GetMainPanelSize: TKMPoint;
 begin
   if Self = nil then Exit(KMPOINT_ZERO);
   
-  Result := KMPoint(Panel_Main.Width, Panel_Main.Height);
+  Result := TKMPoint.New(Panel_Main.Width, Panel_Main.Height);
 end;
 
 

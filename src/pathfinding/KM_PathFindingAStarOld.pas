@@ -76,7 +76,7 @@ begin
         if OCount >= Length(OList) then
           SetLength(OList, OCount + 128); //Allocate slightly more space
 
-        OList[OCount].Pos := KMPoint(x,y);
+        OList[OCount].Pos := TKMPoint.New(x,y);
 
         if IsWalkableTile(X, Y) then
         begin

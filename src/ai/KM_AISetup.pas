@@ -77,7 +77,7 @@ begin
   RecruitCount := 5; //This means the number in the barracks, watchtowers are counted separately
   RecruitDelay := 0; //Can train at start
   SerfsPerHouse := 1;
-  StartPosition := KMPoint(1,1);
+  StartPosition := TKMPoint.New(1,1);
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
   AutoAttackRange := 4; //Measured in TPR
 end;
@@ -144,7 +144,7 @@ begin
   AutoDefend := True;
   DefendAllies := True;
   UnlimitedEquip := True;
-  StartPosition := KMPoint(1,1); //So it is overridden by auto attack
+  StartPosition := TKMPoint.New(1,1); //So it is overridden by auto attack
   MaxSoldiers := -1;
   RecruitDelay := 0;
   RecruitCount := 10;

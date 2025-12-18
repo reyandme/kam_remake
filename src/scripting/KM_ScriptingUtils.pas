@@ -643,7 +643,7 @@ end;
 //* Returns point record with specified coordinates
 function TKMScriptUtils.KMPoint(X,Y: Integer): TKMPoint;
 begin
-  Result := KM_Points.KMPoint(X,Y);
+  Result := TKMPoint.New(X,Y);
 end;
 
 

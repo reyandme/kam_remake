@@ -168,7 +168,7 @@ begin
   y := initialY;
   prevDir := drNA;
 
-  aPerimeterVertexes.Add(KMPoint(x, y));
+  aPerimeterVertexes.Add(TKMPoint.New(x, y));
 
   repeat
     case GetSurroundingsValueAndMark(x, y) of
@@ -199,7 +199,7 @@ begin
     x := x + POINT_ADJ[direction].X;
     y := y + POINT_ADJ[direction].Y; // accomodate change of basis
     prevDir := direction;
-    aPerimeterVertexes.Add(KMPoint(x, y))
+    aPerimeterVertexes.Add(TKMPoint.New(x, y))
   until (x = initialX) and (y = initialY);
 
   Result := True;

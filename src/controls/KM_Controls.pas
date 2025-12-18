@@ -733,7 +733,7 @@ begin
     //While outside of ScrollPanel its better to use Abs coordinates
     //since some childs could be outside of its parent borders for some reason
     if fIsHitTestUseDrawRect then
-      Result := KMInRect(KMPoint(X,Y), GetDrawRect)
+      Result := KMInRect(TKMPoint.New(X,Y), GetDrawRect)
     else
       Result := InRange(X, AbsLeft, AbsRight)
             and InRange(Y, AbsTop, AbsBottom);
@@ -958,7 +958,7 @@ end;
 
 function TKMControl.GetCenter: TKMPoint;
 begin
-  Result := KMPoint(GetLeft + (GetWidth div 2), GetTop + (GetHeight div 2));
+  Result := TKMPoint.New(GetLeft + (GetWidth div 2), GetTop + (GetHeight div 2));
 end;
 
 
@@ -1080,7 +1080,7 @@ begin
   //On the ther hand it does no harm to call Click first
   if (Button = mbLeft)
     and Assigned(fOnDoubleClick)
-    and KMSamePoint(fLastClickPos, KMPoint(X,Y))
+    and KMSamePoint(fLastClickPos, TKMPoint.New(X,Y))
     and (TimeSince(fTimeOfLastClick) <= GetDoubleClickTime) then
   begin
     fTimeOfLastClick := 0;
@@ -1091,7 +1091,7 @@ begin
     if (Button = mbLeft) and Assigned(fOnDoubleClick) then
     begin
       fTimeOfLastClick := TimeGet;
-      fLastClickPos := KMPoint(X,Y);
+      fLastClickPos := TKMPoint.New(X,Y);
     end;
 
     if Assigned(fOnClickShift) then
