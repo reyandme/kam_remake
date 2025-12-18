@@ -17,7 +17,7 @@ See also our website: <http://www.kamremake.com/about/>
 
 ## ![](Docs/Readme/Readme/GUI_0322.gif) Downloads
 
-The latest stable version of the game is always available at <https://www.kamremake.com/download/>
+The latest stable version is always available at <https://www.kamremake.com/download/>
 
 ## ![](Docs/Readme/Readme/GUI_0303.gif) Getting started
 
@@ -28,7 +28,7 @@ See [here](Docs/Readme/getting-started_eng.md)
 Join our community at <https://discord.gg/UkkYceR>. We would love your comments, suggestions, compliments, etc.
 If you can offer some help in Delphi coding, menu design, documentation, graphics, sounds, translation or ideas for improvement - please drop us an email or write on Discord. 
 
-# ![](Docs/Readme/Readme/GUI_0304.gif) Technical details and contributing code to Remake
+# ![](Docs/Readme/Readme/GUI_0304.gif) Technical details and contributing code to KaM Remake
 
 See [here](Docs/Readme/technical.md)
 
