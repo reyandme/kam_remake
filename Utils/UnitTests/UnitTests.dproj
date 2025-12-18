@@ -88,16 +88,10 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="TestKM_Campaigns.pas"/>
         <DCCReference Include="TestKM_CommonClasses.pas"/>
         <DCCReference Include="TestKM_CommonUtils.pas"/>
-        <DCCReference Include="TestKM_FogOfWar.pas"/>
         <DCCReference Include="TestKM_Points.pas"/>
         <DCCReference Include="TestKM_Utils.pas"/>
-        <DCCReference Include="TestKM_UnitActionGoInOut.pas">
-            <Form>,
-  TestKM_MessageStack in &apos;TestKM_MessageStack.pas&apos;</Form>
-        </DCCReference>
         <None Include="Profiling\AQtimeModule1.aqt"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
