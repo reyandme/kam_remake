@@ -165,7 +165,7 @@ begin
                           fHandPreview[fLastHand].Color := P[0] or $FF000000;
 
     ctCenterScreen:    if PointInMap(P[0]+1, P[1]+1) then
-                          fHandPreview[fLastHand].StartingLoc := KMPoint(P[0]+1,P[1]+1);
+                          fHandPreview[fLastHand].StartingLoc := TKMPoint.New(P[0]+1,P[1]+1);
 
     ctHumanPlayer:     //Default human player can be human, obviously
                         fHandPreview[P[0]].CanHuman := True;

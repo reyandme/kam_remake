@@ -314,7 +314,7 @@ begin
       Break;
     end;
   end;
-  Result := KMPoint(column, row);
+  Result := TKMPoint.New(column, row);
 end;
 
 
@@ -347,7 +347,7 @@ begin
     row := EnsureRange(row, 0, fItems.Count-1);
     column := gRes.Fonts[fFont].CharsThatFit(GetNoColorMarkupText(fItems[row]), X-AbsLeft-4);
   end;
-  Result := KMPoint(column, row);
+  Result := TKMPoint.New(column, row);
 end;
 
 

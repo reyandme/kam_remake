@@ -443,9 +443,8 @@ begin
   if fInitialRevealAll then
     Exit(True);
 
-
   Result := False;
-  P := KMPoint(X, Y);
+  P := TKMPoint.New(X, Y);
   for I := 0 to fInitialRevealers.Count - 1 do
     Result := Result or (KMDistanceSqr(P, fInitialRevealers[I]) < Sqr(fInitialRevealers.Tag[I]));
 end;

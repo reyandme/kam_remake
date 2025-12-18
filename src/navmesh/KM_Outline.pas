@@ -102,7 +102,7 @@ var
       begin
         if Length(Nodes) <= Count then
           SetLength(Nodes, Count + 32);
-        Nodes[Count] := KMPoint(X, Y);
+        Nodes[Count] := TKMPoint.New(X, Y);
         Inc(Count);
       end;
     until((X = aStartX) and (Y = aStartY));

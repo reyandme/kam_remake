@@ -208,7 +208,7 @@ begin
   AA.RandomGroups := CheckBox_AttackRandomGroups.Checked;
   AA.Target := TKMAIAttackTarget(Radio_AttackTarget.ItemIndex);
   AA.Range := TrackBar_AttackRange.Position;
-  AA.CustomPosition := KMPoint(NumEdit_AttackLocX.Value, NumEdit_AttackLocY.Value);
+  AA.CustomPosition := TKMPoint.New(NumEdit_AttackLocX.Value, NumEdit_AttackLocY.Value);
 
   gHands[fOwner].AI.General.Attacks[fIndex] := AA;
 end;

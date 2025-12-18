@@ -944,7 +944,7 @@ end;
 
 function TKMMapInfo.GetDimentions: TKMPoint;
 begin
-  Result := KMPoint(MapSizeX, MapSizeY);
+  Result := TKMPoint.New(MapSizeX, MapSizeY);
 end;
 
 

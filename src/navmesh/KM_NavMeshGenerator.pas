@@ -316,7 +316,7 @@ var
     v := aInitDir; // Init vector
     // Specify final point (for special case when W[Y,X+2] is walkable tile we have to visit also W[Y+1,X])
     if (W[Y+1,X] = UNVISITED_OBSTACLE) then
-      FinPoint := KMPoint(X,Y+1)
+      FinPoint := TKMPoint.New(X,Y+1)
     else
       FinPoint := aStartPoint;
     FinPointReached := False;
@@ -328,27 +328,27 @@ var
       if (W[ Y-v.X, X+v.Y ] > NODE_IN_WALKABLE_AREA) then // Left
       begin
         InnerTile := True; // This tiles have neighbor tiles unwalkable
-        v := KMPoint(+v.Y,-v.X);
+        v := TKMPoint.New(+v.Y,-v.X);
       end
       else if (W[ Y+v.Y, X+v.X ] > NODE_IN_WALKABLE_AREA) then // Forward
       begin
-        //v := KMPoint(+v.X,+v.Y);
+        //v := TKMPoint.New(+v.X,+v.Y);
       end
       else if (W[ Y+v.X, X-v.Y ] > NODE_IN_WALKABLE_AREA) then // Right
       begin
-        v := KMPoint(-v.Y,+v.X);
+        v := TKMPoint.New(-v.Y,+v.X);
       end
       else if (W[ Y-v.Y, X-v.X ] > NODE_IN_WALKABLE_AREA) then // Backward
       begin
-        v := KMPoint(-v.X,-v.Y);
+        v := TKMPoint.New(-v.X,-v.Y);
       end
       else
         Break;
       // Add corrected point (correction secure that point have unique coords)
       if InnerTile then
-        CorrP := KMPointAdd( KMPoint(X,Y), DirCorrInnerTileArr[v.X+v.Y*2] )
+        CorrP := KMPointAdd(TKMPoint.New(X,Y), DirCorrInnerTileArr[v.X+v.Y*2] )
       else
-        CorrP := KMPointAdd( KMPoint(X,Y), DirCorrArr[v.X+v.Y*2] );
+        CorrP := KMPointAdd(TKMPoint.New(X,Y), DirCorrArr[v.X+v.Y*2] );
       if ((W[CorrP.Y,CorrP.X] <> NODE_IN_WALKABLE_AREA) AND (W[CorrP.Y,CorrP.X] <> NODE_IN_OBSTACLE)) then
       begin
         if (W[CorrP.Y,CorrP.X] = 0) then
@@ -364,8 +364,8 @@ var
         W[Y,X] := VISITED_OBSTACLE;
       X := X + v.X;
       Y := Y + v.Y;
-      FinPointReached := FinPointReached OR KMSamePoint(KMPoint(X,Y),FinPoint);
-    until (FinPointReached AND KMSamePoint(KMPoint(X,Y),aStartPoint)) OR (Overflow > 65536);
+      FinPointReached := FinPointReached OR KMSamePoint(TKMPoint.New(X,Y), FinPoint);
+    until (FinPointReached AND KMSamePoint(TKMPoint.New(X,Y),aStartPoint)) OR (Overflow > 65536);
   end;
 
   procedure AddBorderPoint(aPoint: TKMPoint);
@@ -449,8 +449,8 @@ var
                 //if (NodeMap[Y,X] > 0) then
                 begin
                   // Make sure that the selection does not colide with starting point
-                  if   (not KMSamePoint(BordNodes[ NodeMap[Y,X]+1 ], StrP) AND Intersect(StrP, EndP, KMPoint(X,Y), BordNodes[ NodeMap[Y,X]+1 ]))
-                    OR (not KMSamePoint(BordNodes[ NodeMap[Y,X]-1 ], EndP) AND Intersect(StrP, EndP, KMPoint(X,Y), BordNodes[ NodeMap[Y,X]-1 ])) then
+                  if   (not KMSamePoint(BordNodes[ NodeMap[Y,X]+1 ], StrP) AND Intersect(StrP, EndP, TKMPoint.New(X,Y), BordNodes[ NodeMap[Y,X]+1 ]))
+                    OR (not KMSamePoint(BordNodes[ NodeMap[Y,X]-1 ], EndP) AND Intersect(StrP, EndP, TKMPoint.New(X,Y), BordNodes[ NodeMap[Y,X]-1 ])) then
                   begin
                     ShapeCheck := False;
                     Dec(EndIdx);
@@ -505,7 +505,7 @@ var
       if Walkable AND ((W[Y,X] = UNVISITED_OBSTACLE) OR ((W[Y,X] = NODE_IN_OBSTACLE) AND (W[Y,X-1] = 0))) then
       begin
         Cnt := BordNodeCnt;
-        ScanObstacle(KMPoint(X,Y), KMPoint(X,Y), KMPoint(0,-1));
+        ScanObstacle(TKMPoint.New(X,Y), TKMPoint.New(X,Y), TKMPoint.New(0,-1));
         // Check the number of borders in the new obstacle
         if (BordNodeCnt - Cnt < MIN_BORDERS_IN_NEW_OBSTACLE) then
           BordNodeCnt := Cnt // Remove borders / ignore them
@@ -593,9 +593,9 @@ begin
   for X := 1 to fMapX - 1 do
     if (E[Y,X] = 0) AND (aW[Y,X] < VISITED_OBSTACLE) then
     begin
-      fNodes[fNodeCount] := KMPoint(X,Y);
+      fNodes[fNodeCount] := TKMPoint.New(X,Y);
       Inc(fNodeCount);
-      FillArea( INNER_EDGE_STEP+1, KMPoint(X,Y) );
+      FillArea( INNER_EDGE_STEP+1, TKMPoint.New(X,Y) );
     end;
   fInnerPointEndIdx := fNodeCount-1;
   // Sort inner points according to Y

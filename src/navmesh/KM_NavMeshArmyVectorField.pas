@@ -760,7 +760,7 @@ begin
       CenterPoints[K] := KMPOINT_ZERO;
       if (SoldiersCnt = 0) then
         Continue;
-      CenterPoints[K] := KMPoint(  Round(Pf.X / SoldiersCnt), Round(Pf.Y / SoldiersCnt)  );
+      CenterPoints[K] := TKMPoint.New(Round(Pf.X / SoldiersCnt), Round(Pf.Y / SoldiersCnt));
     end;
 
     // Check 250 areas (in reality only 2 loops should be required)

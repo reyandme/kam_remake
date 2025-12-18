@@ -65,7 +65,7 @@ end;
 function TKMDeposits.TileDepositExists(aMat: TKMRawDeposit; X,Y: Word) : Boolean;
 begin
   if aMat = rdFish then
-    Result := gTerrain.TileIsWater(KMPoint(X,Y))
+    Result := gTerrain.TileIsWater(TKMPoint.New(X,Y))
   else
     Result := TileDeposit(aMat,X,Y) > 0;
 end;
