@@ -1236,7 +1236,7 @@ begin
 
   fTerrainPainter.UpdateState;
 
-  //todo: if mlNavMesh in VisibleLayers then
+  //todo -cComplicated: if mlNavMesh in VisibleLayers then
     //gAIFields.NavMesh.Init;
 end;
 

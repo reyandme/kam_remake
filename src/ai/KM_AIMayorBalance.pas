@@ -13,7 +13,7 @@ type
   // Production is how much of this resource gets made each minute
   //  - we evaluate each links theoretical production of end resource (f.e. 1 Corn = 3/5 Sausages)
   //  - in chain production the speed is limited by slowest link
-  //todo: - resource in reserve adds to each production rate a fraction
+  //todo -cComplicated: - resource in reserve adds to each production rate a fraction
   // Consumption is how much gets consumed
   // Balance = Production - Consumption;
 
