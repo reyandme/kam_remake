@@ -100,17 +100,16 @@ begin
   ForceDirectories(saveFolder);
   path := saveFolder + GetDefaultSettingsName;
   gLog.AddTime('Start saving "%s" to "%s"', [GetSettingsName, path]);
-  {$IFNDEF RELEASE_MAJOR}
-  // Debug output of the current stacktrace.
+
+  // Debug output of the current stacktrace
   // We want to catch odd bug, when 'Start saving server settings' is called twice one after another
   // (without '%s was successfully saved string in the log)
-  //todo: DEBUG. remove from released version after bugfix
-  gLog.AddNoTime(GetStackTrace(20), False);
-  {$ENDIF}
+  if DBG_LOG_SETTINGS_SAVE_CALLSTACK then
+    gLog.AddNoTime(GetStackTrace(20), False);
 
   // Try to save several times, in case file is blocked (by antivirus f.e.)
   if not TryExecuteMethod(SaveToFile, path, 'SaveToFile', errorStr) then
-    raise Exception.Create('Can''t save settings to file ''' + path + ''': ' + errorStr);
+    raise Exception.Create('Can''t save settings to file "' + path + '": ' + errorStr);
 
   gLog.AddTime('"%s" was successfully saved to "%s"', [GetSettingsName, path]);
 end;

@@ -33,7 +33,8 @@ const
   GAME_VERSION_POSTFIX = ''
     {$IFNDEF USESECUREAUTH} + ' [ UNSECURE ]' {$ENDIF}
     {$IFDEF DEBUG} + ' [ DEBUG ]' {$ENDIF}
-    {$IFDEF WDC64} + ' [x64]' {$ENDIF}
+    {$IFDEF WDC64} + ' [ x64 ]' {$ENDIF}
+    {$IFDEF RNG_SPY} + ' [ RNGSSPY ]' {$ENDIF}
     ;
 
   GAME_VERSION_PREFIX   = ''; // Custom prefix for the test builds
@@ -144,6 +145,8 @@ var
   DBG_GAME_SAVE_STRIP_FOR_CRC   :Boolean = False; // Strip unsynced data from Game saves, to compare saves CRC
   ALLOW_LOAD_UNSUP_VERSION_SAVE:
                            Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
+
+  DBG_LOG_SETTINGS_SAVE_CALLSTACK :Boolean = True; //todo: DEBUG. remove from released version after bugfix
 
   DBG_KILL_GROUP_BUTTON       :Boolean = DEBUG_CFG; // The button to kill group
   DBG_KILL_UNIT_BUTTON        :Boolean = DEBUG_CFG; // Show unit 'Kill' button
