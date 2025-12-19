@@ -213,6 +213,12 @@ const
     gicHouseRemoveTrain,
     gicHouseWoodcuttersCutting];
 
+  COMMAND_IS_GAMESTATE_NEUTRAL: set of TKMGameInputCommandType = [
+    gicGameAutoSave,
+    gicGameAutoSaveAfterPT,
+    gicGameLoadSave,
+    gicGameHotkeySet,
+    gicGameMessageLogRead];
 
   COMMAND_PACK_TYPES: array[TKMGameInputCommandType] of TKMGameInputCommandPackType = (
     gicpt_NoParams, // gicNone
@@ -991,127 +997,137 @@ begin
     if gLog.CanLogCommands() and not DoSkipLogCommand(aCommand.CommandType) then
       gLog.LogCommands(Format('Tick: %6d Exec command: %s', [gGameParams.Tick, GIPCommandToString(aCommand)]));
 
-    case CommandType of
-      gicArmyFeed:         srcGroup.OrderFood(True);
-      gicArmySplit:        srcGroup.OrderSplit;
-      gicArmySplitSingle:  srcGroup.OrderSplit(True);
-      gicArmyStorm:        srcGroup.OrderStorm(True);
-      gicArmyLink:         srcGroup.OrderLinkTo(TgtGroup, True);
-      gicArmyAttackUnit:   srcGroup.OrderAttackUnit(tgtUnit, True);
-      gicArmyAttackHouse:  srcGroup.OrderAttackHouse(tgtHouse, True);
-      gicArmyHalt:         srcGroup.OrderHalt(True);
-      gicArmyFormation:    srcGroup.OrderFormation(IntParams[1],IntParams[2], True);
-      gicArmyWalk:         srcGroup.OrderWalk(KMPoint(SmallIntParams[0], SmallIntParams[1]), True, wtokPlayerOrder, TKMDirection(SmallIntParams[2]));
+    try
+      case CommandType of
+        gicArmyFeed:         srcGroup.OrderFood(True);
+        gicArmySplit:        srcGroup.OrderSplit;
+        gicArmySplitSingle:  srcGroup.OrderSplit(True);
+        gicArmyStorm:        srcGroup.OrderStorm(True);
+        gicArmyLink:         srcGroup.OrderLinkTo(TgtGroup, True);
+        gicArmyAttackUnit:   srcGroup.OrderAttackUnit(tgtUnit, True);
+        gicArmyAttackHouse:  srcGroup.OrderAttackHouse(tgtHouse, True);
+        gicArmyHalt:         srcGroup.OrderHalt(True);
+        gicArmyFormation:    srcGroup.OrderFormation(IntParams[1],IntParams[2], True);
+        gicArmyWalk:         srcGroup.OrderWalk(KMPoint(SmallIntParams[0], SmallIntParams[1]), True, wtokPlayerOrder, TKMDirection(SmallIntParams[2]));
 
-      gicUnitDismiss:        srcUnit.Dismiss;
-      gicUnitDismissCancel:  srcUnit.DismissCancel;
+        gicUnitDismiss:        srcUnit.Dismiss;
+        gicUnitDismissCancel:  srcUnit.DismissCancel;
 
-      gicBuildToggleFieldPlan:   P.ToggleFieldPlan(KMPoint(IntParams[0],IntParams[1]), TKMFieldType(IntParams[2]), not gGameParams.IsMultiPlayerOrSpec); //Make sound in singleplayer mode only
-      gicBuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(IntParams[0],IntParams[1]), not gGameParams.IsMultiPlayerOrSpec); //Make sound in singleplayer mode only
-      gicBuildRemoveHouse:       P.RemHouse(KMPoint(IntParams[0],IntParams[1]), isSilent);
-      gicBuildRemoveHousePlan:   P.RemHousePlan(KMPoint(IntParams[0],IntParams[1]));
-      gicBuildHousePlan:         if P.CanAddHousePlan(KMPoint(IntParams[1],IntParams[2]), TKMHouseType(IntParams[0])) then
-                                    P.AddHousePlan(TKMHouseType(IntParams[0]), KMPoint(IntParams[1],IntParams[2]));
+        gicBuildToggleFieldPlan:   P.ToggleFieldPlan(KMPoint(IntParams[0],IntParams[1]), TKMFieldType(IntParams[2]), not gGameParams.IsMultiPlayerOrSpec); //Make sound in singleplayer mode only
+        gicBuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(IntParams[0],IntParams[1]), not gGameParams.IsMultiPlayerOrSpec); //Make sound in singleplayer mode only
+        gicBuildRemoveHouse:       P.RemHouse(KMPoint(IntParams[0],IntParams[1]), isSilent);
+        gicBuildRemoveHousePlan:   P.RemHousePlan(KMPoint(IntParams[0],IntParams[1]));
+        gicBuildHousePlan:         if P.CanAddHousePlan(KMPoint(IntParams[1],IntParams[2]), TKMHouseType(IntParams[0])) then
+                                      P.AddHousePlan(TKMHouseType(IntParams[0]), KMPoint(IntParams[1],IntParams[2]));
 
-      gicHouseRepairToggle:      srcHouse.BuildingRepair := not srcHouse.BuildingRepair;
-      gicHouseDeliveryModeNext:   //Delivery mode has to be delayed, to avoid occasional delivery mode button clicks
-                                  srcHouse.SetNextDeliveryMode;
-      gicHouseDeliveryModePrev:   //Delivery mode has to be delayed, to avoid occasional delivery mode button clicks
-                                  srcHouse.SetPrevDeliveryMode;
-      gicHouseClosedForWorkerTgl: srcHouse.IsClosedForWorker := not srcHouse.IsClosedForWorker;
-      gicHouseOrderProduct:      srcHouse.WareOrder[IntParams[1]] := srcHouse.WareOrder[IntParams[1]] + IntParams[2];
-      gicHouseMarketFrom:        TKMHouseMarket(srcHouse).ResFrom := TKMWareType(IntParams[1]);
-      gicHouseMarketTo:          TKMHouseMarket(srcHouse).ResTo := TKMWareType(IntParams[1]);
-      gicHouseStoreNotAcceptFlag:   TKMHouseStore(srcHouse).ToggleNotAcceptFlag(TKMWareType(IntParams[1]));
-      gicHouseStoreNotAcceptAllFlag:
-                                 TKMHouseStore(srcHouse).ToggleNotAcceptAllFlag(TKMWareType(IntParams[1]));
-      gicHStoreNotAllowTakeOutFlag:
-                                 TKMHouseStore(srcHouse).ToggleNotAcceptTakeOutFlag(TKMWareType(IntParams[1]));
-      gicHStoreNotAllowTakeOutAllFlag:
-                                 TKMHouseStore(srcHouse).ToggleNotAcceptTakeOutAllFlag(TKMWareType(IntParams[1]));
-      gicHouseWoodcutterMode:    TKMHouseWoodcutters(srcHouse).WoodcutterMode := TKMWoodcutterMode(IntParams[1]);
-      gicHouseBarracksAcceptFlag:
-                                  TKMHouseBarracks(srcHouse).ToggleNotAcceptFlag(TKMWareType(IntParams[1]));
-      gicHouseBarracksAcceptAllFlag:
-                                  TKMHouseBarracks(srcHouse).ToggleNotAcceptAllFlag(TKMWareType(IntParams[1]));
-      gicHBarracksNotAllowTakeOutFlag:
-                                  TKMHouseBarracks(srcHouse).ToggleNotAllowTakeOutFlag(TKMWareType(IntParams[1]));
-      gicHBarracksNotAllowTakeOutAllFlag:
-                                  TKMHouseBarracks(srcHouse).ToggleNotAllowTakeOutAllFlag(TKMWareType(IntParams[1]));
-      gicHBarracksAcceptRecruitsTgl:
-                                  TKMHouseBarracks(srcHouse).ToggleAcceptRecruits;
-      gicHouseBarracksEquip:     TKMHouseBarracks(srcHouse).Equip(TKMUnitType(IntParams[1]), IntParams[2]);
-      gicHouseBarracksRally:     TKMHouseBarracks(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
-      gicHouseTownHallEquip:     TKMHouseTownHall(srcHouse).Equip(TKMUnitType(IntParams[1]), IntParams[2]);
-      gicHouseTownHallRally:     TKMHouseTownHall(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
-      gicHouseTownHallMaxGold:   TKMHouseTownHall(srcHouse).GoldMaxCnt := EnsureRange(IntParams[1], 0, High(Word));
-      gicHouseSchoolTrain:       TKMHouseSchool(srcHouse).AddUnitToQueue(TKMUnitType(IntParams[1]), IntParams[2]);
-      gicHouseSchoolTrainChOrder:TKMHouseSchool(srcHouse).ChangeUnitTrainOrder(IntParams[1], IntParams[2]);
-      gicHouseSchoolTrainChLastUOrder: TKMHouseSchool(srcHouse).ChangeUnitTrainOrder(IntParams[1]);
-      gicHouseRemoveTrain:       TKMHouseSchool(srcHouse).RemUnitFromQueue(IntParams[1]);
-      gicHouseWoodcuttersCutting: TKMHouseWoodcutters(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
-      gicHouseArmorWSDeliveryToggle:   TKMHouseArmorWorkshop(srcHouse).ToggleResDelivery(TKMWareType(IntParams[1]));
+        gicHouseRepairToggle:      srcHouse.BuildingRepair := not srcHouse.BuildingRepair;
+        gicHouseDeliveryModeNext:   //Delivery mode has to be delayed, to avoid occasional delivery mode button clicks
+                                    srcHouse.SetNextDeliveryMode;
+        gicHouseDeliveryModePrev:   //Delivery mode has to be delayed, to avoid occasional delivery mode button clicks
+                                    srcHouse.SetPrevDeliveryMode;
+        gicHouseClosedForWorkerTgl: srcHouse.IsClosedForWorker := not srcHouse.IsClosedForWorker;
+        gicHouseOrderProduct:      srcHouse.WareOrder[IntParams[1]] := srcHouse.WareOrder[IntParams[1]] + IntParams[2];
+        gicHouseMarketFrom:        TKMHouseMarket(srcHouse).ResFrom := TKMWareType(IntParams[1]);
+        gicHouseMarketTo:          TKMHouseMarket(srcHouse).ResTo := TKMWareType(IntParams[1]);
+        gicHouseStoreNotAcceptFlag:   TKMHouseStore(srcHouse).ToggleNotAcceptFlag(TKMWareType(IntParams[1]));
+        gicHouseStoreNotAcceptAllFlag:
+                                   TKMHouseStore(srcHouse).ToggleNotAcceptAllFlag(TKMWareType(IntParams[1]));
+        gicHStoreNotAllowTakeOutFlag:
+                                   TKMHouseStore(srcHouse).ToggleNotAcceptTakeOutFlag(TKMWareType(IntParams[1]));
+        gicHStoreNotAllowTakeOutAllFlag:
+                                   TKMHouseStore(srcHouse).ToggleNotAcceptTakeOutAllFlag(TKMWareType(IntParams[1]));
+        gicHouseWoodcutterMode:    TKMHouseWoodcutters(srcHouse).WoodcutterMode := TKMWoodcutterMode(IntParams[1]);
+        gicHouseBarracksAcceptFlag:
+                                    TKMHouseBarracks(srcHouse).ToggleNotAcceptFlag(TKMWareType(IntParams[1]));
+        gicHouseBarracksAcceptAllFlag:
+                                    TKMHouseBarracks(srcHouse).ToggleNotAcceptAllFlag(TKMWareType(IntParams[1]));
+        gicHBarracksNotAllowTakeOutFlag:
+                                    TKMHouseBarracks(srcHouse).ToggleNotAllowTakeOutFlag(TKMWareType(IntParams[1]));
+        gicHBarracksNotAllowTakeOutAllFlag:
+                                    TKMHouseBarracks(srcHouse).ToggleNotAllowTakeOutAllFlag(TKMWareType(IntParams[1]));
+        gicHBarracksAcceptRecruitsTgl:
+                                    TKMHouseBarracks(srcHouse).ToggleAcceptRecruits;
+        gicHouseBarracksEquip:     TKMHouseBarracks(srcHouse).Equip(TKMUnitType(IntParams[1]), IntParams[2]);
+        gicHouseBarracksRally:     TKMHouseBarracks(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
+        gicHouseTownHallEquip:     TKMHouseTownHall(srcHouse).Equip(TKMUnitType(IntParams[1]), IntParams[2]);
+        gicHouseTownHallRally:     TKMHouseTownHall(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
+        gicHouseTownHallMaxGold:   TKMHouseTownHall(srcHouse).GoldMaxCnt := EnsureRange(IntParams[1], 0, High(Word));
+        gicHouseSchoolTrain:       TKMHouseSchool(srcHouse).AddUnitToQueue(TKMUnitType(IntParams[1]), IntParams[2]);
+        gicHouseSchoolTrainChOrder:TKMHouseSchool(srcHouse).ChangeUnitTrainOrder(IntParams[1], IntParams[2]);
+        gicHouseSchoolTrainChLastUOrder: TKMHouseSchool(srcHouse).ChangeUnitTrainOrder(IntParams[1]);
+        gicHouseRemoveTrain:       TKMHouseSchool(srcHouse).RemUnitFromQueue(IntParams[1]);
+        gicHouseWoodcuttersCutting: TKMHouseWoodcutters(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
+        gicHouseArmorWSDeliveryToggle:   TKMHouseArmorWorkshop(srcHouse).ToggleResDelivery(TKMWareType(IntParams[1]));
 
-      gicWareDistributionChange:  begin
-                                    P.Stats.WareDistribution[TKMWareType(IntParams[0]), TKMHouseType(IntParams[1])] := IntParams[2];
-                                    P.Houses.UpdateDemands;
-                                  end;
-      gicWareDistributions:       begin
-                                    P.Stats.WareDistribution.LoadFromStr(UnicodeString(AnsiStrParam));
-                                    P.Houses.UpdateDemands;
-                                  end;
+        gicWareDistributionChange:  begin
+                                      P.Stats.WareDistribution[TKMWareType(IntParams[0]), TKMHouseType(IntParams[1])] := IntParams[2];
+                                      P.Houses.UpdateDemands;
+                                    end;
+        gicWareDistributions:       begin
+                                      P.Stats.WareDistribution.LoadFromStr(UnicodeString(AnsiStrParam));
+                                      P.Houses.UpdateDemands;
+                                    end;
 
-      gicTempAddScout:            if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGameParams.IsMultiPlayerOrSpec) then
-                                    //Place a warrior
-                                    P.AddUnit(utScout, KMPoint(IntParams[0], IntParams[1]), True, 0, True);
-      gicTempRevealMap:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGameParams.IsMultiPlayerOrSpec) then
-                                    P.FogOfWar.RevealEverything;
-      gicTempVictory:             if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGameParams.IsMultiPlayerOrSpec) then
-                                    P.AI.Victory;
-      gicTempDefeat:              if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGameParams.IsMultiPlayerOrSpec) then
-                                    P.AI.Defeat;
-      gicTempDoNothing:           ;
+        gicTempAddScout:            if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGameParams.IsMultiPlayerOrSpec) then
+                                      //Place a warrior
+                                      P.AddUnit(utScout, KMPoint(IntParams[0], IntParams[1]), True, 0, True);
+        gicTempRevealMap:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGameParams.IsMultiPlayerOrSpec) then
+                                      P.FogOfWar.RevealEverything;
+        gicTempVictory:             if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGameParams.IsMultiPlayerOrSpec) then
+                                      P.AI.Victory;
+        gicTempDefeat:              if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not gGameParams.IsMultiPlayerOrSpec) then
+                                      P.AI.Defeat;
+        gicTempDoNothing:           ;
 
-      gicGamePause:               ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[0]));
-      gicGameSpeed:               gGame.SetSpeedGIP(FloatParam, fReplayState = gipRecording);
-      gicGameAutoSave:            if (fReplayState = gipRecording) and gGameSettings.Autosave then
-                                    gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
-      gicGameAutoSaveAfterPT:     if (fReplayState = gipRecording) and gGameSettings.Autosave then
-                                    gGame.AutoSaveAfterPT(DateTimeParam); //Timestamp is synchronised
-      gicGameSaveReturnLobby:     if fReplayState = gipRecording then
-                                  begin
-                                    gGameApp.PrepareReturnToLobby(DateTimeParam); //Timestamp is synchronised
-                                    Exit;
-                                  end;
-      gicGameLoadSave:            ; //Just a marker to know when game was loaded
-      gicGameTeamChange:          begin
-                                    //Currently unused, disabled to prevent potential exploitation
-                                    {fGame.Networking.Room[Params[0]].Team := Params[1];
-                                    fGame.UpdateMultiplayerTeams;
-                                    fPlayers.SyncFogOfWar;
-                                    if fGame.Networking.IsHost then
-                                      fGame.Networking.SendPlayerListAndRefreshPlayersSetup;}
-                                  end;
-      gicGameAlertBeacon:         ExecGameAlertBeaconCmd(aCommand);
-      gicGameHotkeySet:           P.SelectionHotkeys[IntParams[0]] := IntParams[1];
-      gicGameMessageLogRead:      P.MessageLog[IntParams[0]].IsReadGIP := True;
-      gicGameMessageListRead:     P.MessageLog.ReadAtCountGIP := IntParams[0];
-      gicGamePlayerChange:        begin
-                                    Assert(not gGameParams.IsMapEditor);
-                                    gHands[IntParams[0]].OwnerNickname := AnsiStrParam;
-                                    gHands.UpdateHandState(IntParams[0], TKMHandType(IntParams[1]), TKMAIType(IntParams[2]));
-                                    gGame.GamePlayInterface.UpdateUI; //Update players drop list
-                                  end;
-      gicGamePlayerDefeat:        begin
-                                    gHands.UpdateGoalsForHand(IntParams[0], False);
-                                    gHands[IntParams[0]].AI.Defeat(False);
-                                  end;
-      gicGamePlayerAllianceSet:   gHands[IntParams[0]].Alliances[IntParams[1]] := TKMAllianceType(IntParams[2]);
-      gicGamePlayerAddDefGoals:   gHands[IntParams[0]].AI.AddDefaultGoals(IntToBool(IntParams[1]));
-      gicScriptConsoleCommand:    gScriptEvents.CallConsoleCommand(HandIndex, AnsiStrParam, UnicodeStrParams);
-      gicScriptSoundRemoveRq:     gGame.AddScriptSoundRemoveRequest(IntParams[0], HandIndex);
-    else
-      raise Exception.Create('Unexpected gic command');
+        gicGamePause:               ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[0]));
+        gicGameSpeed:               gGame.SetSpeedGIP(FloatParam, fReplayState = gipRecording);
+        gicGameAutoSave:            if (fReplayState = gipRecording) and gGameSettings.Autosave then
+                                      gGame.AutoSave(DateTimeParam); //Timestamp is synchronised
+        gicGameAutoSaveAfterPT:     if (fReplayState = gipRecording) and gGameSettings.Autosave then
+                                      gGame.AutoSaveAfterPT(DateTimeParam); //Timestamp is synchronised
+        gicGameSaveReturnLobby:     if fReplayState = gipRecording then
+                                    begin
+                                      gGameApp.PrepareReturnToLobby(DateTimeParam); //Timestamp is synchronised
+                                      Exit;
+                                    end;
+        gicGameLoadSave:            ; //Just a marker to know when game was loaded
+        gicGameTeamChange:          begin
+                                      //Currently unused, disabled to prevent potential exploitation
+                                      {fGame.Networking.Room[Params[0]].Team := Params[1];
+                                      fGame.UpdateMultiplayerTeams;
+                                      fPlayers.SyncFogOfWar;
+                                      if fGame.Networking.IsHost then
+                                        fGame.Networking.SendPlayerListAndRefreshPlayersSetup;}
+                                    end;
+        gicGameAlertBeacon:         ExecGameAlertBeaconCmd(aCommand);
+        gicGameHotkeySet:           P.SelectionHotkeys[IntParams[0]] := IntParams[1];
+        gicGameMessageLogRead:      P.MessageLog[IntParams[0]].IsReadGIP := True;
+        gicGameMessageListRead:     P.MessageLog.ReadAtCountGIP := IntParams[0];
+        gicGamePlayerChange:        begin
+                                      Assert(not gGameParams.IsMapEditor);
+                                      gHands[IntParams[0]].OwnerNickname := AnsiStrParam;
+                                      gHands.UpdateHandState(IntParams[0], TKMHandType(IntParams[1]), TKMAIType(IntParams[2]));
+                                      gGame.GamePlayInterface.UpdateUI; //Update players drop list
+                                    end;
+        gicGamePlayerDefeat:        begin
+                                      gHands.UpdateGoalsForHand(IntParams[0], False);
+                                      gHands[IntParams[0]].AI.Defeat(False);
+                                    end;
+        gicGamePlayerAllianceSet:   gHands[IntParams[0]].Alliances[IntParams[1]] := TKMAllianceType(IntParams[2]);
+        gicGamePlayerAddDefGoals:   gHands[IntParams[0]].AI.AddDefaultGoals(IntToBool(IntParams[1]));
+        gicScriptConsoleCommand:    gScriptEvents.CallConsoleCommand(HandIndex, AnsiStrParam, UnicodeStrParams);
+        gicScriptSoundRemoveRq:     gGame.AddScriptSoundRemoveRequest(IntParams[0], HandIndex);
+      else
+        raise Exception.Create('Unexpected gic command');
+      end;
+    except
+      begin
+        // for actions which are game-state neutral, in official release builds outside of
+        // beta cycle, we want to ignore exceptions, so we don't desynchronize a MP game
+        if not (CommandType in COMMAND_IS_GAMESTATE_NEUTRAL) then raise
+        else
+          gLog.AddTime('Failed to execute GIP command: ' + GetEnumName(TypeInfo(TKMGameInputCommandType),integer(CommandType)));
+      end;
     end;
   end;
 end;
