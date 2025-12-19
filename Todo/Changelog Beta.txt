@@ -49,9 +49,9 @@ Maps:
 + Added W12 by Thunder
 + Added PlanktonS 8p by Thunder
 + Added Brynhildr's Faith by Thunder
-+ Added Chlyssich in the Wonderland 1x1
-+ Added Chlyssich in the Wonderland 2x2
-+ Added Chlyssich in the Wonderland 4x4
++ Added Chlyssich in the Wonderland 1x1 by Classic and Ritter des Todes
++ Added Chlyssich in the Wonderland 2x2 by Classic and Ritter des Todes
++ Added Chlyssich in the Wonderland 4x4 by Classic and Ritter des Todes
 + Updated Return to Moorbach - patched to 0.9.0
 + Updated AED 9 - fixed compile error bug by dominik1945
 + Updated City of the Scorching Sun - patched to 1.6
