@@ -511,6 +511,8 @@ end;
 procedure TKMLog.LogRandomChecks(const aText: UnicodeString);
 begin
   if Self = nil then Exit;
+  if not CanLogRandomChecks then Exit;
+
   AddLineNoTime(aText, lmtRandomChecks);
 end;
 
