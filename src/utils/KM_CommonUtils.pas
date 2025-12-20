@@ -205,11 +205,11 @@ implementation
 uses
   StrUtils, Types,
   {$IFDEF USE_MAD_EXCEPT} madStackTrace, {$ENDIF}
-  {$IFDEF WDC} {$IFDEF RNG_SPY}KM_RandomChecks, {$ENDIF}{$ENDIF}
+  {$IFDEF RNG_SPY}KM_RandomChecks, {$ENDIF}
   KM_Log;
 
 const
-  //Pretend these are understandable in any language
+  // Pretend these are understandable in any language
   MAP_SIZES: array [TKMMapSize] of String = ('???', 'XS', 'S', 'M', 'L', 'XL', 'XXL');
 
 var
@@ -1391,11 +1391,9 @@ procedure LogKamRandom(aValue: Single; const aCaller: AnsiString; const aKaMRand
 begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
-  {$IFDEF WDC}
   {$IFDEF RNG_SPY}
   if SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
-  {$ENDIF}
   {$ENDIF}
 end;
 
@@ -1404,11 +1402,9 @@ procedure LogKamRandom(aValue: Extended; const aCaller: AnsiString; const aKaMRa
 begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
-  {$IFDEF WDC}
   {$IFDEF RNG_SPY}
   if SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
-  {$ENDIF}
   {$ENDIF}
 end;
 
@@ -1417,11 +1413,9 @@ procedure LogKamRandom(aValue: Integer; const aCaller: AnsiString; const aKaMRan
 begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
-  {$IFDEF WDC}
   {$IFDEF RNG_SPY}
   if SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
-  {$ENDIF}
   {$ENDIF}
 end;
 
