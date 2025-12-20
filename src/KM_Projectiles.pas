@@ -7,8 +7,8 @@ uses
 
 
 type
-  //Projectiles in-game: arrows, bolts, rocks, etc..
-  //Once launched they are on their own
+  // Projectiles in-game: arrows, bolts, rocks, etc..
+  // Once launched they are on their own
   TKMProjectiles = class
   private
     fItems: array of record //1..n
@@ -37,8 +37,8 @@ type
   public
     constructor Create(aOnAddProjectileToRenderPool: TKMRenderPoolAddProjectileEvent);
 
-    function AimTarget(const aStart: TKMPointF; aTarget: TKMUnit; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word; overload;
-    function AimTarget(const aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word; overload;
+    function AimTargetUnit(const aStart: TKMPointF; aTarget: TKMUnit; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange, aMinRange: Single): Word;
+    function AimTargetHouse(const aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange, aMinRange: Single): Word;
 
     procedure UpdateState;
     procedure Paint(aTickLag: Single);
@@ -91,7 +91,7 @@ begin
 end;
 
 
-function TKMProjectiles.AimTarget(const aStart: TKMPointF; aTarget: TKMUnit; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange,aMinRange: Single): Word;
+function TKMProjectiles.AimTargetUnit(const aStart: TKMPointF; aTarget: TKMUnit; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange, aMinRange: Single): Word;
 var
   targetVector, target, targetPosition: TKMPointF;
   A,B,C,D: Single;
@@ -191,7 +191,7 @@ begin
 end;
 
 
-function TKMProjectiles.AimTarget(const aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange, aMinRange: Single): Word;
+function TKMProjectiles.AimTargetHouse(const aStart: TKMPointF; aTarget: TKMHouse; aProjType: TKMProjectileType; aOwner: TKMUnit; aMaxRange, aMinRange: Single): Word;
 var
   speed, arc: Single;
   distanceToHit, distanceInRange: Single;
@@ -207,13 +207,14 @@ begin
   distanceToHit := GetLength(aStart.X - target.X, aStart.Y - target.Y);
   distanceInRange := EnsureRange(distanceToHit, aMinRange, aMaxRange);
 
-  arc := Math.Max((distanceInRange - aMinRange) / (aMaxRange - aMinRange) * PROJECTILE_ARC[aProjType, 1] + KaMRandomS2(PROJECTILE_ARC[aProjType, 2]{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget 8'{$ENDIF}), 0);
+  var arcRandom := KaMRandomS2(PROJECTILE_ARC[aProjType, 2]{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget 8'{$ENDIF});
+  arc := Math.Max((distanceInRange - aMinRange) / (aMaxRange - aMinRange) * PROJECTILE_ARC[aProjType, 1] + arcRandom, 0);
 
   Result := AddItem(aStart, aim, target, speed, arc, aMaxRange, aProjType, aOwner);
 end;
 
 
-{ Return flight time (archers like to know when they hit target before firing again) }
+// Return flight time (archers like to know when they hit target before firing again)
 function TKMProjectiles.AddItem(const aStart, aAim, aEnd: TKMPointF; aSpeed, aArc, aMaxLength: Single; aProjType: TKMProjectileType; aOwner: TKMUnit): Word;
 const
   // TowerRock position is a bit different for reasons said below

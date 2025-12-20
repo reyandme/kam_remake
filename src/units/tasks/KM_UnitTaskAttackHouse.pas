@@ -177,7 +177,7 @@ begin
               //Launch the missile and forget about it
               //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
               //todo -cComplicated: Slingers (rogues) should launch rock part on SLINGSHOT_FIRING_DELAY like they do in ActionFight (animation looks wrong now)
-              gProjectiles.AimTarget(PositionF, fHouse, ProjectileType, fUnit, RangeMax, RangeMin);
+              gProjectiles.AimTargetHouse(PositionF, fHouse, ProjectileType, fUnit, RangeMax, RangeMin);
 
               SetLastShootTime; //Record last time the warrior shot
               AnimLength := gRes.Units[UnitType].UnitAnim[uaWork, Direction].Count;

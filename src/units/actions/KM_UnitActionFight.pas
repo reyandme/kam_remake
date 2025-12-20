@@ -5,18 +5,18 @@ uses
   Classes, KM_CommonClasses, KM_Defaults, KM_CommonUtils, KromUtils, Math, SysUtils, KM_Units, KM_Points;
 
 
-//Fight until we die or the opponent dies
 type
+  // Fight until we die or the opponent dies
   TKMUnitActionFight = class(TKMUnitAction)
   private
     fFightDelay: Integer; //Pause for this many ticks before going onto the next Step
     fOpponent: TKMUnit; //Who we are fighting with
     fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
 
-    //Execute is broken up into multiple methods
-      function ExecuteValidateOpponent(Step: Byte): TKMActionResult;
-      function ExecuteProcessRanged(Step: Byte): Boolean;
-      function ExecuteProcessMelee(Step: Byte): Boolean;
+    // Execute is broken up into multiple methods
+    function ExecuteValidateOpponent(Step: Byte): TKMActionResult;
+    function ExecuteProcessRanged(Step: Byte): Boolean;
+    function ExecuteProcessMelee(Step: Byte): Boolean;
 
     function UpdateVertexUsage(const aFrom, aTo: TKMPoint): Boolean;
     procedure IncVertex(const aFrom, aTo: TKMPoint);
@@ -60,7 +60,7 @@ const
     sfxMelee52, sfxMelee53, sfxMelee54);
 
 
-{ TUnitActionFight }
+{ TKMUnitActionFight }
 constructor TKMUnitActionFight.Create(aUnit: TKMUnit; aActionType: TKMUnitActionType; aOpponent: TKMUnit);
 begin
   inherited Create(aUnit, aActionType, True);
@@ -258,8 +258,8 @@ begin
   begin
     W.SetLastShootTime; //Record last time the warrior shot
 
-    //Fire the arrow
-    gProjectiles.AimTarget(fUnit.PositionF, fOpponent, W.ProjectileType, fUnit, W.RangeMax, W.RangeMin);
+    // Fire the arrow
+    gProjectiles.AimTargetUnit(fUnit.PositionF, fOpponent, W.ProjectileType, fUnit, W.RangeMax, W.RangeMin);
 
     fFightDelay := -1; //Reset
   end;

@@ -6,8 +6,8 @@ uses
   KM_CommonClasses, KM_Defaults, KM_Units;
 
 
-{Throw a rock}
 type
+  // Throw a rock
   TKMTaskThrowRock = class(TKMUnitTask)
   private
     fTarget: TKMUnit;
@@ -30,7 +30,7 @@ uses
   KM_CommonGameTypes, KM_ResTypes;
 
 
-{ TTaskThrowRock }
+{ TKMTaskThrowRock }
 constructor TKMTaskThrowRock.Create(aUnit, aTarget: TKMUnit);
 begin
   inherited Create(aUnit);
@@ -42,8 +42,8 @@ end;
 destructor TKMTaskThrowRock.Destroy;
 begin
   if (fUnit <> nil)
-    and not fUnit.Home.IsDestroyed
-    and (fUnit.Home.GetState = hstWork) then
+  and not fUnit.Home.IsDestroyed
+  and (fUnit.Home.GetState = hstWork) then
     fUnit.Home.SetState(hstIdle); //Make sure we don't abandon and leave our tower with "working" animations
 
   gHands.CleanUpUnitPointer(fTarget);
@@ -88,7 +88,7 @@ begin
     1:  begin
           Home.WareTakeFromIn(wtStone, 1);
           gHands[Owner].Stats.WareConsumed(wtStone);
-          fFlightTime := gProjectiles.AimTarget(PositionF, fTarget, ptTowerRock, fUnit, WATCHTOWER_RANGE_MAX, WATCHTOWER_RANGE_MIN);
+          fFlightTime := gProjectiles.AimTargetUnit(PositionF, fTarget, ptTowerRock, fUnit, WATCHTOWER_RANGE_MAX, WATCHTOWER_RANGE_MIN);
           gHands.CleanUpUnitPointer(fTarget); //We don't need it anymore
           SetActionLockedStay(1, uaWalk);
         end;
