@@ -34,6 +34,9 @@ Game:
 + Disable by default setting "Save ware distribution between games" in best interest of players who do not know about this behaviour
 + Fixed bug when AI melee units are chasing enemy unit even if they start fighting
 
+Campaigns:
++ added "Scout - the Weak Unit" campaign by Classic and vovets1
+
 Maps:
 + Added The Fall of House Fennford by Strangelove
 + Added Torch Bearer by DontTalk
@@ -46,6 +49,7 @@ Maps:
 + Added W12 by Thunder
 + Added PlanktonS 8p by Thunder
 + Added Brynhildr's Faith by Thunder
++ Added Chlyssich in the Wonderland maps by Classic and Ritter des Todes
 + Updated Return to Moorbach - patched to 0.9.0
 + Updated AED 9 - fixed compile error bug by dominik1945
 + Updated City of the Scorching Sun - patched to 1.6
