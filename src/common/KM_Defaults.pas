@@ -148,10 +148,11 @@ var
   ALLOW_LOAD_UNSUP_VERSION_SAVE:
                            Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
 
-  DBG_LOG_SETTINGS_SAVE_CALLSTACK :Boolean = True; //todo: DEBUG. remove from released version after bugfix
+  DBG_LOG_SETTINGS_SAVE_CALLSTACK :Boolean = True; //todo: DEBUG. Remove after bugfix
 
   DBG_KILL_GROUP_BUTTON       :Boolean = DEBUG_CFG; // The button to kill group
   DBG_KILL_UNIT_BUTTON        :Boolean = DEBUG_CFG; // Show unit 'Kill' button
+  DBG_SAVE_GAME_AS_TEXT       :Boolean = True; {Save game serialized} //todo: DEBUG. set to False before releases
 
   SHOW_ENEMIES_STATS      :Boolean = False; //Do we allow to show enemies stats during the game
   SHOW_CONTROLS_OVERLAY   :Boolean = False; //Draw colored overlays ontop of controls! always Off here
@@ -281,7 +282,6 @@ var
   PAUSE_GAME_BEFORE_TICK  :Integer = -1;    //Pause after specified game tick
   MAKE_SAVEPT_BEFORE_TICK :Integer = -1;    //Make savepoint after a certain tick (for both game and replay)
   ALLOW_SAVE_IN_REPLAY    :Boolean = DEBUG_CFG; //Allow to save game from replay, good for debug
-  SAVE_GAME_AS_TEXT       :Boolean = True; {Save game serialized} //todo: DEBUG. set to False before releases
   SAVE_NO_COMPRESSION     :Boolean = False; // do not use compression for game save body
   SAVE_GAME_AFTER_LOAD    :Boolean = False; // Save game immediately after load, could be useful for debugging
 
