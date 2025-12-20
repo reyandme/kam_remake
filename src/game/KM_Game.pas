@@ -135,7 +135,6 @@ type
 
     {$IFDEF RNG_SPY} function DoSaveRandomChecks: Boolean; {$ENDIF}
 
-    function DoSaveGameAsText: Boolean;
     function DoRenderGame: Boolean;
 
     procedure MultiplayerRig(aNewGame: Boolean);
@@ -2296,7 +2295,7 @@ begin
   AsyncSaveStreamsToFileAndFree(mainStream, headerStream, bodyStream, aPathName, SAVE_HEADER_MARKER, SAVE_BODY_MARKER, aSaveWorkerThread);
 
   // Save .sav.txt file
-  if DoSaveGameAsText then
+  if gGameSettings.DebugSaveGameAsText and DBG_SAVE_GAME_AS_TEXT then
   begin
     saveStreamTxt := TKMemoryStreamText.Create;
     SaveGameToStream(aTimestamp, saveStreamTxt);
@@ -3308,12 +3307,6 @@ function TKMGame.DoRenderGame: Boolean;
 begin
   // Do not render game under game stats page
   Result := fParams.IsMapEditor or not fGamePlayInterface.StatsOpened;
-end;
-
-
-function TKMGame.DoSaveGameAsText: Boolean;
-begin
-  Result := gGameSettings.DebugSaveGameAsText and DBG_SAVE_GAME_AS_TEXT;
 end;
 
 
