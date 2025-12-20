@@ -207,7 +207,7 @@ begin
   distanceToHit := GetLength(aStart.X - target.X, aStart.Y - target.Y);
   distanceInRange := EnsureRange(distanceToHit, aMinRange, aMaxRange);
 
-  arc := Math.Max((distanceInRange - aMinRange) / (aMaxRange - aMinRange) * PROJECTILE_ARC[aProjType, 1] + KaMRandomS2(PROJECTILE_ARC[aProjType, 2], 'TKMProjectiles.AimTarget 8'), 0);
+  arc := Math.Max((distanceInRange - aMinRange) / (aMaxRange - aMinRange) * PROJECTILE_ARC[aProjType, 1] + KaMRandomS2(PROJECTILE_ARC[aProjType, 2]{$IFDEF RNG_SPY}, 'TKMProjectiles.AimTarget 8'{$ENDIF}), 0);
 
   Result := AddItem(aStart, aim, target, speed, arc, aMaxRange, aProjType, aOwner);
 end;
