@@ -169,7 +169,7 @@ var
   LOCAL_SERVER_LIST       :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
   SHOW_LOG_IN_CHAT        :Boolean = False; //Show log messages in MP game chat
   LOG_GAME_TICK           :Boolean = False; //Log game tick
-  SAVE_RANDOM_CHECKS      :Boolean = True; //Save random checks data to separate file
+  SAVE_RANDOM_CHECKS      :Boolean = False; //Save random checks data to separate file
   {Gameplay display}
   SHOW_UNITS_IN_HOUSE     :Boolean = False; //Should we hide units when they are in house ?
   IGNORE_MOUSE_SCROLLING  :Boolean = False; //Ignore mouse scrolling
@@ -179,7 +179,7 @@ var
   SKIP_LOADING_CURSOR     :Boolean = False; //Skip loading and setting cursor
   SKIP_SETTINGS_SAVE      :Boolean = False; //Skip save main/game settings into the ini file
 //  SKIP_POINTER_REF_CHECK  :Boolean = False; //Skip Pointer reference check (gGame.AllowGetPointer)
-  AGGRESSIVE_REPLAYS      :Boolean = True; //Write a command gicTempDoNothing every tick in order to find exactly when a replay mismatch occurs
+  AGGRESSIVE_REPLAYS      :Boolean = False; //Write a command gicTempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_GAME_TICK          :Boolean = DEBUG_CFG; //Show game tick next to game time
   SHOW_FPS                :Boolean = False; //Show FPS
   SHOW_TERRAIN_IDS        :Boolean = False; //Show number of every tile terrain on it (also show layers terrain ids)
