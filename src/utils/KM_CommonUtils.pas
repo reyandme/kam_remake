@@ -1383,7 +1383,7 @@ end;
 
 procedure DoLogKamRandom(aValue: Extended; const aCaller: AnsiString; const aKaMRandomFunc: AnsiString); overload;
 begin
-  if ((gLog <> nil) and gLog.CanLogRandomChecks()) then
+  if (gLog <> nil) and gLog.CanLogRandomChecks then
     gLog.LogRandomChecks(Format('Seed: %12d %12s: %30s Caller: %s', [fKamSeed, aKaMRandomFunc, FormatFloat('0.##############################', aValue), aCaller]));
 end;
 
