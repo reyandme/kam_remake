@@ -33,7 +33,9 @@ const
   GAME_VERSION_POSTFIX = ''
     {$IFNDEF USESECUREAUTH} + ' [ UNSECURE ]' {$ENDIF}
     {$IFDEF DEBUG} + ' [ DEBUG ]' {$ENDIF}
-    {$IFDEF WDC64} + ' [x64]' {$ENDIF}
+    {$IFDEF WDC64} + ' [ x64 ]' {$ENDIF}
+    {$IFDEF RNG_SPY} + ' [ RNGSSPY ]' {$ENDIF}
+    {$IFDEF PERFLOG} + ' [ PERFLOG ]' {$ENDIF}
     ;
 
   GAME_VERSION_PREFIX   = ''; // Custom prefix for the test builds
