@@ -30,6 +30,7 @@ const
   {$I KM_NetProtocolRevision.inc};
 
 const
+  // Anything that is a debug mechanism not intended for the Release whould be listed here, so that we know at a glance what kind of build we are having
   GAME_VERSION_POSTFIX = ''
     {$IFNDEF USESECUREAUTH} + ' [ UNSECURE ]' {$ENDIF}
     {$IFDEF DEBUG} + ' [ DEBUG ]' {$ENDIF}
