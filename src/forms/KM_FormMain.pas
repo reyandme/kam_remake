@@ -765,19 +765,13 @@ end;
 
 
 procedure TFormMain.mnExportRngChecksClick(Sender: TObject);
-{$IFDEF RNG_SPY}
-var
-  rngLogger: TKMRandomCheckLogger;
-{$ENDIF}
 begin
   {$IFDEF RNG_SPY}
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'KaM Remake Random checks log (*.rng)|*.rng') then
   begin
-    rngLogger := TKMRandomCheckLogger.Create;
-
+    var rngLogger := TKMRandomCheckLogger.Create;
     rngLogger.LoadFromPathAndParseToDict(OpenDialog1.FileName);
     rngLogger.SaveAsText(OpenDialog1.FileName + '.log');
-
     rngLogger.Free;
   end;
   {$ENDIF}
@@ -785,14 +779,13 @@ end;
 
 
 procedure TFormMain.mnExportRPLClick(Sender: TObject);
-var
-  gip: TKMGameInputProcess;
 begin
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'KaM Remake replay commands (*.rpl)|*.rpl') then
   begin
-    gip := TKMGameInputProcess.Create(gipReplaying);
+    var gip := TKMGameInputProcess.Create(gipReplaying);
     gip.LoadFromFile(OpenDialog1.FileName);
     gip.SaveToFileAsText(OpenDialog1.FileName + '.log');
+    gip.Free;
   end;
 end;
 
@@ -1929,12 +1922,10 @@ function TFormMain.GetWindowParams: TKMWindowParamsRecord;
   // FindTaskBar returns the Task Bar's position, and fills in
   // ARect with the current bounding rectangle.
   function FindTaskBar(var aRect: TRect): Integer;
-  {$IFDEF MSWINDOWS}
-  var	AppData: TAppBarData;
-  {$ENDIF}
   begin
     Result := -1;
     {$IFDEF MSWINDOWS}
+    var AppData: TAppBarData;
     // 'Shell_TrayWnd' is the name of the task bar's window
     AppData.Hwnd := FindWindow('Shell_TrayWnd', nil);
     if AppData.Hwnd <> 0 then
@@ -2158,15 +2149,11 @@ end;
 
 
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-{$IFNDEF MSWINDOWS}
-var
-  handled: Boolean;
-{$ENDIF}
 begin
   // We use WM_MOUSEWHEEL message handler on Windows, since it prevents some bugs from happaning
   // F.e. on Win10 it was reported, that we got event 3 times on single turn of mouse wheel, if use default form event handler
 {$IFNDEF MSWINDOWS}
-  handled := False;
+  var handled := False;
   gGameApp.MouseWheel(Shift, GetMouseWheelStepsCnt(WheelDelta), RenderArea.ScreenToClient(MousePos).X, RenderArea.ScreenToClient(MousePos).Y, handled);
 {$ENDIF}
 end;
