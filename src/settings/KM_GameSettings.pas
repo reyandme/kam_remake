@@ -555,7 +555,7 @@ begin
   if SAVE_RANDOM_CHECKS then
     fDebug_SaveRandomChecks := nDebug.Attributes['SaveRandomChecks'].AsBoolean(True);
 
-  if SAVE_GAME_AS_TEXT then
+  if DBG_SAVE_GAME_AS_TEXT then
     fDebug_SaveGameAsText := nDebug.Attributes['SaveGameAsText'].AsBoolean(False);
 
   if INI_HITPOINT_RESTORE then
@@ -745,7 +745,7 @@ begin
   if SAVE_RANDOM_CHECKS then
     nDebug.Attributes['SaveRandomChecks'] := fDebug_SaveRandomChecks;
 
-  if SAVE_GAME_AS_TEXT then
+  if DBG_SAVE_GAME_AS_TEXT then
     nDebug.Attributes['SaveGameAsText'] := fDebug_SaveGameAsText;
 
   if INI_HITPOINT_RESTORE then

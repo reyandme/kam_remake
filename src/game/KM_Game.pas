@@ -3313,8 +3313,7 @@ end;
 
 function TKMGame.DoSaveGameAsText: Boolean;
 begin
-  Result := gGameSettings.DebugSaveGameAsText
-            and SAVE_GAME_AS_TEXT;
+  Result := gGameSettings.DebugSaveGameAsText and DBG_SAVE_GAME_AS_TEXT;
 end;
 
 
