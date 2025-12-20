@@ -148,7 +148,8 @@ var
   ALLOW_LOAD_UNSUP_VERSION_SAVE:
                            Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
 
-  DBG_LOG_SETTINGS_SAVE_CALLSTACK :Boolean = True; //todo: DEBUG. Remove after bugfix
+  DBG_LOG_SETTINGS_SAVE_CALLSTACK     :Boolean = True; //todo: DEBUG. Remove after bugfix
+  DBG_DISALLOW_TO_SAVE_RANDOM_CHECKS  :Boolean = False; // Forbid saving of random checks data in to separate file (used by Runner)
 
   DBG_KILL_GROUP_BUTTON       :Boolean = DEBUG_CFG; // The button to kill group
   DBG_KILL_UNIT_BUTTON        :Boolean = DEBUG_CFG; // Show unit 'Kill' button
@@ -169,7 +170,6 @@ var
   LOCAL_SERVER_LIST       :Boolean = False; //Instead of loading server list from master server, add localhost:56789 (good for testing)
   SHOW_LOG_IN_CHAT        :Boolean = False; //Show log messages in MP game chat
   LOG_GAME_TICK           :Boolean = False; //Log game tick
-  SAVE_RANDOM_CHECKS      :Boolean = True; //Save random checks data to separate file
   {Gameplay display}
   SHOW_UNITS_IN_HOUSE     :Boolean = False; //Should we hide units when they are in house ?
   IGNORE_MOUSE_SCROLLING  :Boolean = False; //Ignore mouse scrolling

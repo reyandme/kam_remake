@@ -204,7 +204,7 @@ begin
   gCursor := TKMCursor.Create;
 
   {$IFDEF RNG_SPY}
-  if gGameSettings.DebugSaveRandomChecks and SAVE_RANDOM_CHECKS then
+  if gGameSettings.DebugSaveRandomChecks and not DBG_DISALLOW_TO_SAVE_RANDOM_CHECKS then
     gRandomCheckLogger := TKMRandomCheckLogger.Create;
   {$ENDIF}
 

@@ -3297,7 +3297,7 @@ end;
 function TKMGame.DoSaveRandomChecks: Boolean;
 begin
   Result := gGameSettings.DebugSaveRandomChecks
-            and SAVE_RANDOM_CHECKS
+            and not DBG_DISALLOW_TO_SAVE_RANDOM_CHECKS
             and (gRandomCheckLogger <> nil);
 end;
 {$ENDIF}
