@@ -5,12 +5,12 @@ uses
   Classes
   {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}, KM_CommonClasses, KM_WorkerThread {$ENDIF};
 
-  {$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
-  procedure AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
-  procedure AsyncSaveToFileCompressedAndFree(var aStream: TKMemoryStream; const aFileName: string; const aMarker: string; aWorkerThread: TKMWorkerThread);
-  procedure AsyncSaveStreamsToFileAndFree(var aMainStream, aSubStream1, aSubStream2: TKMemoryStream; const aFileName: string;
-                                                const aMarker1, aMarker2: string; aWorkerThread: TKMWorkerThread);
-  {$ENDIF}
+{$IF DEFINED(WDC) OR (FPC_FULLVERSION >= 30200)}
+procedure AsyncSaveToFileAndFree(var aStream: TKMemoryStream; const aFileName: string; aWorkerThread: TKMWorkerThread);
+procedure AsyncSaveToFileCompressedAndFree(var aStream: TKMemoryStream; const aFileName: string; const aMarker: string; aWorkerThread: TKMWorkerThread);
+procedure AsyncSaveStreamsToFileAndFree(var aMainStream, aSubStream1, aSubStream2: TKMemoryStream; const aFileName: string;
+  const aMarker1, aMarker2: string; aWorkerThread: TKMWorkerThread);
+{$ENDIF}
 
 implementation
 
@@ -24,19 +24,20 @@ begin
   aStream := nil; //So caller doesn't use it by mistake
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
-    begin
-      try
-        localStream.SaveToFile(aFileName);
-      finally
-        localStream.Free;
-      end;
-    end, 'SaveToFile');
+    aWorkerThread.QueueWork(
+      procedure
+      begin
+        try
+          localStream.SaveToFile(aFileName);
+        finally
+          localStream.Free;
+        end;
+      end, 'SaveToFile');
   {$ELSE}
     try
-      LocalStream.SaveToFile(aFileName);
+      localStream.SaveToFile(aFileName);
     finally
-      LocalStream.Free;
+      localStream.Free;
     end;
   {$ENDIF}
 end;
@@ -51,26 +52,27 @@ begin
   aStream := nil; //So caller doesn't use it by mistake
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
-    begin
-      try
-        localStream.SaveToFileCompressed(aFileName, aMarker);
-      finally
-        localStream.Free;
-      end;
-    end, 'SaveToFileCompressed ' + aMarker);
+    aWorkerThread.QueueWork(
+      procedure
+      begin
+        try
+          localStream.SaveToFileCompressed(aFileName, aMarker);
+        finally
+          localStream.Free;
+        end;
+      end, 'SaveToFileCompressed ' + aMarker);
   {$ELSE}
     try
-      LocalStream.SaveToFileCompressed(aFileName, aMarker);
+      localStream.SaveToFileCompressed(aFileName, aMarker);
     finally
-      LocalStream.Free;
+      localStream.Free;
     end;
   {$ENDIF}
 end;
 
 
 procedure AsyncSaveStreamsToFileAndFree(var aMainStream, aSubStream1, aSubStream2: TKMemoryStream; const aFileName: string;
-                                                             const aMarker1, aMarker2: string; aWorkerThread: TKMWorkerThread);
+  const aMarker1, aMarker2: string; aWorkerThread: TKMWorkerThread);
 var
   localSubStream1, localSubStream2, localMainStream: TKMemoryStream;
 begin
@@ -82,31 +84,33 @@ begin
   aSubStream2 := nil; //So caller doesn't use it by mistake
 
   {$IFDEF WDC}
-    aWorkerThread.QueueWork(procedure
-    begin
-      try
-        localMainStream.AppendStream(localSubStream1, aMarker1);
-        localMainStream.AppendStream(localSubStream2, aMarker2);
-        localMainStream.SaveToFile(aFileName);
-      finally
-        localSubStream1.Free;
-        localSubStream2.Free;
-        localMainStream.Free;
-      end;
-    end, 'SaveStreamsToFile ' + aMarker1 + ' ' + aMarker2);
+    aWorkerThread.QueueWork(
+      procedure
+      begin
+        try
+          localMainStream.AppendStream(localSubStream1, aMarker1);
+          localMainStream.AppendStream(localSubStream2, aMarker2);
+          localMainStream.SaveToFile(aFileName);
+        finally
+          localSubStream1.Free;
+          localSubStream2.Free;
+          localMainStream.Free;
+        end;
+      end, 'SaveStreamsToFile ' + aMarker1 + ' ' + aMarker2);
   {$ELSE}
     try
-      mainStream.AppendStream(localStream1, aMarker1);
-      mainStream.AppendStream(localStream2, aMarker2);
-      mainStream.SaveToFile(aFileName);
+      localMainStream.AppendStream(localSubStream1, aMarker1);
+      localMainStream.AppendStream(localSubStream2, aMarker2);
+      localMainStream.SaveToFile(aFileName);
     finally
-      localStream1.Free;
-      localStream2.Free;
-      mainStream.Free;
+      localSubStream1.Free;
+      localSubStream2.Free;
+      localMainStream.Free;
     end;
   {$ENDIF}
 end;
 {$ENDIF}
+
 
 end.
 
