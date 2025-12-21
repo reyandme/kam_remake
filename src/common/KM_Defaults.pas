@@ -32,11 +32,11 @@ const
 const
   // Anything that is a debug mechanism not intended for the Release whould be listed here, so that we know at a glance what kind of build we are having
   GAME_VERSION_POSTFIX = ''
-    {$IFNDEF USESECUREAUTH} + ' [ UNSECURE ]' {$ENDIF}
-    {$IFDEF DEBUG} + ' [ DEBUG ]' {$ENDIF}
-    {$IFDEF WDC64} + ' [ x64 ]' {$ENDIF}
-    {$IFDEF DBG_RNG_SPY} + ' [ RNGSSPY ]' {$ENDIF}
-    {$IFDEF DBG_PERFLOG} + ' [ DBG_PERFLOG ]' {$ENDIF}
+    {$IFNDEF USESECUREAUTH} + ' [UNSECURE]' {$ENDIF}
+    {$IFDEF DEBUG} + ' [DEBUG]' {$ENDIF}
+    {$IFDEF WDC64} + ' [x64]' {$ENDIF}
+    {$IFDEF DBG_RNG_SPY} + ' [RNGSPY]' {$ENDIF}
+    {$IFDEF DBG_PERFLOG} + ' [PERFLOG]' {$ENDIF}
     ;
 
   GAME_VERSION_PREFIX   = ''; // Custom prefix for the test builds
