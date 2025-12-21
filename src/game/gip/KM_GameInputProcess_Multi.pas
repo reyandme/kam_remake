@@ -470,8 +470,9 @@ begin
 
   // If we miss a few random checks during reconnections no one cares, inconsistencies will be detected as soon as it is over
   // To reduce network load, send random checks once every 10 ticks
-  if gNetworking.Connected {and (aTick mod 10 = 1)} then //todo: DEBUG. remove debug brackets: {} no need to check on every tick in release version
-    SendRandomCheck(aTick);
+  if gNetworking.Connected then
+    if DBG_NET_RANDOM_CHECK_EVERY_TICK or (aTick mod 10 = 1) then
+      SendRandomCheck(aTick);
 
   // It is possible that we have already recieved other player's random checks, if so check them now
   for I := 1 to gNetworking.Room.Count do
