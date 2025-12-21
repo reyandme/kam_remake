@@ -8,7 +8,7 @@ type
   TKMWorkerThreadTask = class
     WorkName: string;
     Proc: TProc;
-    Callback: TProc<String>;
+    OnDone: TProc<String>;
   end;
 
   TKMWorkerThread = class(TThread)
@@ -30,7 +30,8 @@ type
 
     procedure QueueWorkAndLog(aProc: TProc; aWorkName: string = '');
     procedure QueueWork(aProc: TProc; aWorkName: string = ''); overload;
-    procedure QueueWork(aProc: TProc; aCallback: TProc<String> = nil; aWorkName: string = ''); overload;
+    // It is a bit odd that we want the callback to return the aWorkName
+    procedure QueueWork(aProc: TProc; aOnDone: TProc<String> = nil; aWorkName: string = ''); overload;
     procedure WaitForAllWorkToComplete;
   end;
 
@@ -164,8 +165,8 @@ begin
       NameThread(threadName);
       job.Proc();
 
-      if Assigned(job.Callback) then
-        job.Callback(job.WorkName);
+      if Assigned(job.OnDone) then
+        job.OnDone(job.WorkName);
 
       FreeAndNil(job);
     end;
@@ -177,10 +178,14 @@ end;
 
 procedure TKMWorkerThread.QueueWorkAndLog(aProc: TProc; aWorkName: string = '');
 begin
-  QueueWork(aProc, procedure(aJobName: String)
+  QueueWork(
+    aProc,
+    // aOnDone
+    procedure(aJobName: String)
     begin
       gLog.AddTime('Job "%s" is completed', [aJobName]);
-    end, aWorkName);
+    end,
+    aWorkName);
 end;
 
 
@@ -190,7 +195,7 @@ begin
 end;
 
 
-procedure TKMWorkerThread.QueueWork(aProc: TProc; aCallback: TProc<String> = nil; aWorkName: string = '');
+procedure TKMWorkerThread.QueueWork(aProc: TProc; aOnDone: TProc<String> = nil; aWorkName: string = '');
 var
   job: TKMWorkerThreadTask;
 begin
@@ -205,7 +210,7 @@ begin
 
     job := TKMWorkerThreadTask.Create;
     job.Proc := aProc;
-    job.Callback := aCallback;
+    job.OnDone := aOnDone;
     job.WorkName := aWorkName;
 
     TMonitor.Enter(fTaskQueue);
