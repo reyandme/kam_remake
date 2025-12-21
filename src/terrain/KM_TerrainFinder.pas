@@ -271,7 +271,7 @@ const
 var
   I, K: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psTerrainFinder);
   {$ENDIF}
   if FEAT_USE_WALKING_DISTANCE then
@@ -293,7 +293,7 @@ begin
         if (aPass in gTerrain.Land^[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
           aList.Add(KMPoint(K,I));
   end;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psTerrainFinder);
   {$ENDIF}
 end;

@@ -36,7 +36,7 @@ const
     {$IFDEF DEBUG} + ' [ DEBUG ]' {$ENDIF}
     {$IFDEF WDC64} + ' [ x64 ]' {$ENDIF}
     {$IFDEF DBG_RNG_SPY} + ' [ RNGSSPY ]' {$ENDIF}
-    {$IFDEF PERFLOG} + ' [ PERFLOG ]' {$ENDIF}
+    {$IFDEF DBG_PERFLOG} + ' [ DBG_PERFLOG ]' {$ENDIF}
     ;
 
   GAME_VERSION_PREFIX   = ''; // Custom prefix for the test builds

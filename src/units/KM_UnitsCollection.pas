@@ -353,7 +353,7 @@ procedure TKMUnitsCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psUnits);
   {$ENDIF}
   try
@@ -367,7 +367,7 @@ begin
         if FREE_POINTERS and (Units[I].PointerCount = 0) then
           fUnits.Delete(I);
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psUnits);
     {$ENDIF}
   end;

@@ -46,7 +46,7 @@ var
   Pass: TKMTerrainPassability;
   AllowDiag: Boolean;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psWalkConnect);
   {$ENDIF}
   try
@@ -116,7 +116,7 @@ begin
     else
       GlobalUpdate(aWC, Pass, AllowDiag);
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psWalkConnect);
     {$ENDIF}
   end;

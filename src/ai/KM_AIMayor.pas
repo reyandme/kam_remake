@@ -983,7 +983,7 @@ end;
 
 procedure TKMayor.UpdateState(aTick: Cardinal);
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psAICityCls);
   {$ENDIF}
   try
@@ -1009,7 +1009,7 @@ begin
       CheckRoadsCount;
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psAICityCls);
     {$ENDIF}
   end;

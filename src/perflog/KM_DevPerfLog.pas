@@ -59,7 +59,7 @@ type
   end;
 
 
-{$IFDEF PERFLOG}
+{$IFDEF DBG_PERFLOG}
 var
   gPerfLogs: TKMPerfLogs;
 {$ENDIF}
@@ -73,7 +73,7 @@ uses
 
 { TKMPerfLogs }
 constructor TKMPerfLogs.Create(aSections: TPerfSectionSet; aHighPrecision: Boolean);
-{$IFDEF PERFLOG}
+{$IFDEF DBG_PERFLOG}
 const
   DEFAULT_PF_SCALE = 30;
 var
@@ -81,7 +81,7 @@ var
 {$ENDIF}
 begin
   inherited Create;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   Scale := DEFAULT_PF_SCALE;
 
   for I := LOW_PERF_SECTION to High(TPerfSectionDev) do
@@ -105,13 +105,13 @@ end;
 
 
 destructor TKMPerfLogs.Destroy;
-{$IFDEF PERFLOG}
+{$IFDEF DBG_PERFLOG}
 var
   I: TPerfSectionDev;
   s: string;
 {$ENDIF}
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   if SaveOnExit then
   begin
     DateTimeToString(s, 'yyyy-mm-dd_hh-nn-ss', Now); //2007-12-23 15-24-33

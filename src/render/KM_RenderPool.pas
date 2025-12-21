@@ -316,7 +316,7 @@ begin
     glEnable(GL_DEPTH_TEST);
 
     // Everything flat of terrain
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionEnter(psFrameTerrain);
     {$ENDIF}
     fRenderTerrain.ClipRect := clipRect;
@@ -335,7 +335,7 @@ begin
     if mlMiningRadius in gGameParams.VisibleLayers then
       fRenderDebug.PaintMiningRadius;
 
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psFrameTerrain);
     {$ENDIF}
 
@@ -2229,7 +2229,7 @@ procedure TKMRenderList.Render;
 var
   I, K, objectsCount: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameRenderList);
   {$ENDIF}
 
@@ -2259,7 +2259,7 @@ begin
       until ((K = fCount) or fRenderList[K].NewInst);
     glPopMatrix;
   end;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameRenderList);
   {$ENDIF}
 end;

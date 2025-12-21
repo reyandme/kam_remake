@@ -87,7 +87,7 @@ procedure TKMRenderDebug.RenderTiledArea(const aLoc: TKMPoint; aMinRadius, aMaxR
 var
   I, K: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psRenderDebug);
   {$ENDIF}
   try
@@ -110,7 +110,7 @@ begin
     for K := 0 to fBorderPoints.Count - 1 do
       gRenderAux.LineOnTerrain(fBorderPoints[K], aLineColor);
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psRenderDebug);
     {$ENDIF}
   end;
@@ -163,7 +163,7 @@ begin
 
   Assert(Length(fAreaTilesLand) > 0, 'TKMRenderDebug was not initialized');
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psRenderDebug);
   {$ENDIF}
 
@@ -207,7 +207,7 @@ begin
       gRenderAux.LineOnTerrain(fBorderPoints[K], lineColor);
   end;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psRenderDebug);
   {$ENDIF}
 end;
@@ -349,7 +349,7 @@ var
 begin
   if gGame = nil then Exit;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psRenderDebug);
   {$ENDIF}
 
@@ -485,7 +485,7 @@ begin
   PaintMiningPoints(selectedPts, 0, True, False, (gMySpectator.Selected is TKMHouse) and (TKMHouse(gMySpectator.Selected).HouseType = htWoodcutters));
 
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psRenderDebug);
   {$ENDIF}
 

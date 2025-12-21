@@ -517,7 +517,7 @@ var
   bestImportance: TKMDemandImportance;
   availableDeliveries, availableSerfs: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
   {$ENDIF}
   try
@@ -601,7 +601,7 @@ begin
       end;
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
     {$ENDIF}
   end;
@@ -1339,7 +1339,7 @@ var
   demandTaken: array[WARE_MIN..WARE_MAX_ALL] of array of Boolean; //Each demand can only be taken once in our measurements
   dWT, oWT: TKMWareType;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
   {$ENDIF}
   try
@@ -1381,7 +1381,7 @@ begin
                 end;
             end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
     {$ENDIF}
   end;
@@ -1591,7 +1591,7 @@ var
   iO, iD: Integer;
   oWT, dWT: TKMWareType;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
   {$ENDIF}
   try
@@ -1641,7 +1641,7 @@ begin
         aBidCost.IncAddition(KaMRandom(5 + (100 div fOffer[oWT,iO].Count){$IFDEF DBG_RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 5'{$ENDIF}));
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
     {$ENDIF}
   end;
@@ -1655,7 +1655,7 @@ var
   bestImportance: TKMDemandImportance;
   bid: TKMDeliveryBid;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
   {$ENDIF}
   try
@@ -1759,7 +1759,7 @@ begin
     aToHouse := fDemand[bestDWT, bestD].Loc_House;
     aToUnit := fDemand[bestDWT, bestD].Loc_Unit;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
     {$ENDIF}
   end;
@@ -1910,7 +1910,7 @@ var
   bestDemandId, oldDemandId: Integer; // Keep Int to assign to Delivery down below
   bestDWT, oldDWT: TKMWareType;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
   {$ENDIF}
   try
@@ -1960,7 +1960,7 @@ begin
       aToUnit := fDemand[bestDWT,bestDemandId].Loc_Unit;
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
     {$ENDIF}
   end;
@@ -2039,7 +2039,7 @@ var
   bid: TKMDeliveryBid;
   bestImportance: TKMDemandImportance;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
   {$ENDIF}
   try
@@ -2119,7 +2119,7 @@ begin
         end;
       end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
     {$ENDIF}
   end;
@@ -2256,7 +2256,7 @@ begin
   if gLog.CanLogDelivery then
     gLog.LogDelivery('Abandoned delivery ID ' + IntToStr(iQ));
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psDelivery);
   {$ENDIF}
   try
@@ -2288,7 +2288,7 @@ begin
 
     CloseDelivery(iQ);
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psDelivery);
     {$ENDIF}
   end;

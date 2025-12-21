@@ -5426,7 +5426,7 @@ var
   T: Integer;
 begin
   if not DYNAMIC_TERRAIN then Exit;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psTerrain);
   {$ENDIF}
   try
@@ -5493,7 +5493,7 @@ begin
       Inc(A, TERRAIN_PACE);
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psTerrain);
     {$ENDIF}
   end;

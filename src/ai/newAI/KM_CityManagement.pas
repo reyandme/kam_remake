@@ -152,7 +152,7 @@ procedure TKMCityManagement.UpdateState(aTick: Cardinal);
 const
   LONG_UPDATE = MAX_HANDS * 2;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psAICityAdv);
   {$ENDIF}
   try
@@ -187,7 +187,7 @@ begin
       CheckExhaustedHouses();
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psAICityAdv);
     {$ENDIF}
   end;

@@ -437,7 +437,7 @@ begin
   gHands := TKMHandsCollection.Create;
   gAIFields := TKMAIFields.Create;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.GameCreated;
   {$ENDIF}
   gLog.AddTime('<== Game creation is done ==>');
@@ -1532,7 +1532,7 @@ procedure TKMGame.Render(aRender: TKMRender);
 var
   tickLag: Single;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameFullC);
   {$ENDIF}
   try
@@ -1560,7 +1560,7 @@ begin
     fGameInputProcess.Paint;
 
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psFrameFullC);
     {$ENDIF}
   end;
@@ -2349,7 +2349,7 @@ var
   {$IFDEF DBG_RNG_SPY} rngPath: UnicodeString; {$ENDIF}
   saveByPlayer: Boolean;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameSaveWait);
   {$ENDIF}
   try
@@ -2360,12 +2360,12 @@ begin
     // which is better than waiting a lot of time at the 'final save'
     aSaveWorkerThread.WaitForAllWorkToComplete;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameSaveWait);
     {$ENDIF}
   end;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameSave);
   {$ENDIF}
   try
@@ -2465,7 +2465,7 @@ begin
       fLastSaves.Add(aSaveName);
 
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameSave);
     {$ENDIF}
   end;
@@ -2754,7 +2754,7 @@ procedure TKMGame.MakeSavePoint;
 var
   saveStream: TKMemoryStream;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameSavePoint);
   {$ENDIF}
   try
@@ -2768,7 +2768,7 @@ begin
 
     fSavePoints.NewSavePointAsyncAndFree(saveStream, fParams.Tick, fSavePointWorkerThreadHolder.Worker);
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameSavePoint);
     {$ENDIF}
   end;
@@ -3057,7 +3057,7 @@ function TKMGame.PlayGameTick: Boolean;
 begin
   Result := False;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.TickBegin(fParams.Tick + 1);
   {$ENDIF}
   try
@@ -3132,7 +3132,7 @@ begin
       {$ENDIF}
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.TickEnd;
     {$ENDIF}
   end;
@@ -3167,7 +3167,7 @@ begin
   Result := False;
 
   fLastUpdateState := TimeGet;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.TickBegin(fParams.Tick + 1);
   {$ENDIF}
 
@@ -3210,7 +3210,7 @@ begin
       fGamePlayInterface.ShowDebugInfo;
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.TickEnd;
     {$ENDIF}
   end;
@@ -3267,14 +3267,14 @@ begin
         gmReplayMulti:    Result := PlayReplayTick;
         gmMapEd:          begin
                             fLastUpdateState := TimeGet;
-                            {$IFDEF PERFLOG}
+                            {$IFDEF DBG_PERFLOG}
                             gPerfLogs.TickBegin(gGameApp.GlobalTickCount);
                             {$ENDIF}
                             gTerrain.IncAnimStep;
                             gHands.IncAnimStep;
                             gHands.PlayerAnimals.UpdateVisualState;
                             gHands.UpdateVisualState;
-                            {$IFDEF PERFLOG}
+                            {$IFDEF DBG_PERFLOG}
                             gPerfLogs.TickEnd;
                             {$ENDIF}
                           end;

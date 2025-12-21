@@ -1242,7 +1242,7 @@ procedure TKMHandsCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psHands);
   {$ENDIF}
   try
@@ -1255,7 +1255,7 @@ begin
 
     PlayerAnimals.UpdateState(aTick); //Animals don't have any AI yet
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psHands);
     {$ENDIF}
   end;

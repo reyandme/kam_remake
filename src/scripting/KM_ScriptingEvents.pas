@@ -391,14 +391,14 @@ procedure TKMScriptEvents.CallEventHandlers(aEventType: TKMScriptEventType; cons
 var
   I: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psScripting);
   {$ENDIF}
   try
     for I := Low(fEventHandlers[aEventType]) to High(fEventHandlers[aEventType]) do
       CallEventProc(fEventHandlers[aEventType][I], aParams, aFloatParam)
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psScripting);
     {$ENDIF}
   end;
@@ -932,7 +932,7 @@ var
   I: Integer;
   handler: TMethod;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psScripting);
   {$ENDIF}
   try
@@ -951,7 +951,7 @@ begin
       end;
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psScripting);
     {$ENDIF}
   end;

@@ -74,7 +74,7 @@
 {$DEFINE USESECUREAUTH}
 
 // Enable perflog (should be disabled for release / release candidate versions)
-{$DEFINE PERFLOG}
+{$DEFINE DBG_PERFLOG}
 
 // Enable asynchronous game resource loading
 {$IFNDEF NO_ASYNC_LOAD}

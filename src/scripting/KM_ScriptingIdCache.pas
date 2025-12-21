@@ -215,7 +215,7 @@ procedure TKMScriptingIdCache.UpdateState;
 var
   I: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psScripting);
   {$ENDIF}
   try
@@ -236,7 +236,7 @@ begin
           gHands.CleanUpGroupPointer(fGroupCache[I].G);
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psScripting);
     {$ENDIF}
   end;

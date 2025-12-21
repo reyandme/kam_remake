@@ -155,7 +155,7 @@ begin
   Application.CreateForm(TFormMain, fFormMain);
   Application.CreateForm(TFormLoading, fFormLoading);
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs := TKMPerfLogs.Create([], True);
   gPerfLogs.ShowForm(fFormMain.cpPerfLogs);
   gPerfLogs.OnFormChanged := fFormMain.OtherFormChanged;
@@ -179,7 +179,7 @@ begin
   // so that madExcept dialogs (main and its child SendBugReport) are not overlapped by it
   fFormLoading.FormStyle := fsNormal;
 
-  {$IFDEF PERFLOG}gPerfLogs.Free;{$ENDIF}
+  {$IFDEF DBG_PERFLOG}gPerfLogs.Free;{$ENDIF}
 
   {$IFDEF USE_MAD_EXCEPT}FreeAndNil(gExceptions);{$ENDIF}
 

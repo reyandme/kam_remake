@@ -64,7 +64,7 @@ var
   col: TKMColor3b;
   gameFlagColors: array[0..MAX_HANDS-1] of Cardinal;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psMinimap);
   {$ENDIF}
   //if OVERLAY_OWNERSHIP then
@@ -168,7 +168,7 @@ begin
           fBase[I*fMapX + K] := ApplyColorCoef(fBase[I*fMapX + K], 1, 2, 1, 1); // make red margins where current map is cut
       end;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psMinimap);
   {$ENDIF}
 end;

@@ -127,7 +127,7 @@ end;
 function TKMPathFinding.Route_Make(const aLocA, aLocB: TKMPoint; aPass: TKMTerrainPassabilitySet; aDistance: Single;
                                  aTargetHouse: TKMHouse; NodeList: TKMPointList; aAvoidLocked: TKMPathAvoidLocked = palNoAvoid): Boolean;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psPathfinding);
   {$ENDIF}
   try
@@ -174,7 +174,7 @@ begin
         AddNoRouteAvoidLockedToCache;
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psPathfinding);
     {$ENDIF}
   end;
@@ -184,7 +184,7 @@ end;
 //We are using Interaction Avoid mode (go around busy units)
 function TKMPathFinding.Route_MakeAvoid(const aLocA, aLocB: TKMPoint; aPassBest, aPassAlt: TKMTerrainPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psPathfinding);
   {$ENDIF}
   try
@@ -212,7 +212,7 @@ begin
       Result := True;
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psPathfinding);
     {$ENDIF}
   end;
@@ -223,7 +223,7 @@ end;
 function TKMPathFinding.Route_ReturnToWalkable(const aLocA, aLocB: TKMPoint; aTargetWalkConnect: TKMWalkConnect;
                                              aTargetNetwork: Byte; aPass: TKMTerrainPassabilitySet; NodeList: TKMPointList): Boolean;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psPathfinding);
   {$ENDIF}
   try
@@ -248,7 +248,7 @@ begin
     end else
       NodeList.Clear;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psPathfinding);
     {$ENDIF}
   end;
@@ -543,7 +543,7 @@ procedure TKMPathFinding.UpdateState;
 var
   I: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psPathfinding);
   {$ENDIF}
   try
@@ -555,7 +555,7 @@ begin
       for I := 0 to PATH_CACHE_NO_ROUTES_AVOID_LOCKED_MAX - 1 do
         fCacheAvoidLocked[I].TimeToLive := Max(fCacheAvoidLocked[I].TimeToLive - 1, 0);
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psPathfinding);
     {$ENDIF}
   end;

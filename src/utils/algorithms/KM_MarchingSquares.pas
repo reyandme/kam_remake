@@ -98,7 +98,7 @@ var
 begin
   Assert(fWidth*fHeight > 0, 'TKMMarchingSquares was not initialized');
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psMarchingSquares);
   {$ENDIF}
 
@@ -121,7 +121,7 @@ begin
         end;
     Result := (countoursCnt > 0);
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psMarchingSquares);
     {$ENDIF}
   end;

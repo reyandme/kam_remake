@@ -1969,7 +1969,7 @@ var
   newOrder: TKMCardinalArray;
   newMembers: TList<TKMUnitWarrior>;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psHungarian);
   {$ENDIF}
   try
@@ -2002,7 +2002,7 @@ begin
     agents.Free;
     tasks.Free;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psHungarian);
     {$ENDIF}
   end;

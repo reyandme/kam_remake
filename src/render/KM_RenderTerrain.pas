@@ -388,7 +388,7 @@ begin
     and (fVBOLastFOW = aFOW)
     and (gGameParams.Tick = fVBOLastGameTick) then
     Exit;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameUpdateVBO);
   {$ENDIF}
 
@@ -513,7 +513,7 @@ begin
   for V := Low(TKMVBOArrayType) to High(TKMVBOArrayType) do
     fVBONeedsFlush[V] := True;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameUpdateVBO);
   {$ENDIF}
 end;
@@ -587,7 +587,7 @@ var
   sizeX, sizeY: Word;
   tX, tY: Word;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameTiles);
   {$ENDIF}
   //First we render base layer, then we do animated layers for Water/Swamps/Waterfalls
@@ -641,7 +641,7 @@ begin
           end;
         end;
   end;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameTiles);
   {$ENDIF}
 end;
@@ -655,7 +655,7 @@ var
   tX, tY: Word;
   terInfo: TKMGenTerrainInfo;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameTilesLayers);
   {$ENDIF}
   //First we render base layer, then we do animated layers for Water/Swamps/Waterfalls
@@ -723,7 +723,7 @@ begin
         end;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Just in case...
   end;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameTilesLayers);
   {$ENDIF}
 end;
@@ -738,7 +738,7 @@ var
 begin
   if SKIP_TER_RENDER_ANIMS then Exit;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameWater);
   {$ENDIF}
 
@@ -793,7 +793,7 @@ begin
           end;
         end;
   end;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameWater);
   {$ENDIF}
 end;
@@ -844,7 +844,7 @@ procedure TKMRenderTerrain.DoOverlays(aFOW: TKMFogOfWarCommon);
 var
   I, K: Integer;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameOverlays);
   {$ENDIF}
   if not (mlOverlays in gGameParams.VisibleLayers) then
@@ -855,7 +855,7 @@ begin
       if TileHasToBeRendered(False,K,I,aFow) then
         RenderTileOverlay(K, I);
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameOverlays);
   {$ENDIF}
 end;
@@ -910,7 +910,7 @@ var
 begin
   if SKIP_TER_RENDER_LIGHT then Exit;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameLighting);
   {$ENDIF}
 
@@ -967,7 +967,7 @@ begin
           end;
         end;
   end;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameLighting);
   {$ENDIF}
 end;
@@ -982,7 +982,7 @@ var
 begin
   if SKIP_TER_RENDER_SHADOW then Exit;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameShadows);
   {$ENDIF}
 
@@ -1042,7 +1042,7 @@ begin
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   TKMRender.BindTexture(0);
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameShadows);
   {$ENDIF}
 end;
@@ -1055,7 +1055,7 @@ var
   fog: PKMByte2Array;
 begin
   if aFOW is TKMFogOfWarOpen then Exit;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameFOW);
   {$ENDIF}
 
@@ -1171,7 +1171,7 @@ begin
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   TKMRender.BindTexture(0);
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameFOW);
   {$ENDIF}
 end;
@@ -1244,7 +1244,7 @@ begin
 
   UpdateVBO(aAnimStep, aFOW);
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameTerrainBase);
   {$ENDIF}
 
@@ -1260,7 +1260,7 @@ begin
 //  DoAnimations(aAnimStep, aFOW);
   DoShadows(aFOW);
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameTerrainBase);
   {$ENDIF}
 end;

@@ -776,7 +776,7 @@ end;
 
 procedure TKMGeneral.UpdateState(aTick: Cardinal);
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psAIArmyCls);
   {$ENDIF}
   try
@@ -803,7 +803,7 @@ begin
       //Anything Else?
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psAIArmyCls);
     {$ENDIF}
   end;

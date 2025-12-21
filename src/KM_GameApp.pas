@@ -1243,7 +1243,7 @@ begin
 
   gRender.BeginFrame;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.StackGFX.FrameBegin;
   gPerfLogs.SectionEnter(psFrameFullG);
 
@@ -1258,7 +1258,7 @@ begin
       fMainMenuInterface.Paint;
 
     gRender.RenderBrightness(gGameSettings.GFX.Brightness);
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   finally
     gPerfLogs.SectionLeave(psFrameFullG);
     gPerfLogs.StackGFX.FrameEnd;
@@ -1383,14 +1383,14 @@ end;
 
 procedure TKMGameApp.UpdatePerflog;
 {$IFNDEF Unix}
-{$IFDEF PERFLOG}
+{$IFDEF DBG_PERFLOG}
 var
   memUsed, stackUsed: NativeUInt;
 {$ENDIF}
 {$ENDIF}
 begin
   {$IFNDEF Unix}
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   memUsed := GetMemUsed;
   stackUsed := GetCommittedStackSize;
 

@@ -220,7 +220,7 @@ end;
 
 procedure TFormPerfLogs.DoExport(Sender: TObject);
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerflogs.SaveToFile(ExeDir + PathDelim + 'Export' + PathDelim + 'Perflog.txt',
                        1000*sePerfLogSaveThreshold.Value); //threshold in ms
   {$ENDIF}

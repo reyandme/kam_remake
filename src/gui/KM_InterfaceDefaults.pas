@@ -657,14 +657,14 @@ end;
 
 procedure TKMUserInterfaceCommon.Paint;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psFrameGui);
   {$ENDIF}
   fMyControls.Paint;
 
   // Hint should be painted above everything
   PaintHint;
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionLeave(psFrameGui);
   {$ENDIF}
 end;

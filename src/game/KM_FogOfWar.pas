@@ -200,7 +200,7 @@ procedure TKMFogOfWar.RevealCircle(const aPos: TKMPoint; Radius, Amount: Word);
 var
   aroundRadius: Word;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
   {$ENDIF}
   try
@@ -222,7 +222,7 @@ begin
       RevealFor(False, aroundRadius, FOG_OF_WAR_MAX);
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameFOW);
     {$ENDIF}
   end;
@@ -258,7 +258,7 @@ procedure TKMFogOfWar.CoverCircle(const aPos: TKMPoint; Radius: Word);
   end;
 
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
   {$ENDIF}
   try
@@ -267,7 +267,7 @@ begin
 
     fCoverHasBeenCalled := True;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameFOW);
     {$ENDIF}
   end;
@@ -278,7 +278,7 @@ procedure TKMFogOfWar.RevealRect(const TL, BR: TKMPoint; Amount: Word);
 var
   I, K: Word;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
   {$ENDIF}
   try
@@ -295,7 +295,7 @@ begin
       for K := Max(0, TL.X - RENDER_RADIUS_ADD) to Min(fMapX - 1, BR.X + RENDER_RADIUS_ADD) do
         RenderRevelation[I,K] := FOG_OF_WAR_MAX;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameFOW);
     {$ENDIF}
   end;
@@ -306,7 +306,7 @@ procedure TKMFogOfWar.CoverRect(const TL, BR: TKMPoint);
 var
   I, K: Word;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
   {$ENDIF}
   try
@@ -321,7 +321,7 @@ begin
 
     fCoverHasBeenCalled := True;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameFOW);
     {$ENDIF}
   end;
@@ -333,7 +333,7 @@ procedure TKMFogOfWar.RevealEverything;
 var
   I, K: Word;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
   {$ENDIF}
   try
@@ -344,7 +344,7 @@ begin
         RenderRevelation[I, K] := FOG_OF_WAR_MAX;
       end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameFOW);
     {$ENDIF}
   end;
@@ -355,7 +355,7 @@ procedure TKMFogOfWar.CoverEverything;
 var
   I, K: Word;
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
   {$ENDIF}
   try
@@ -368,7 +368,7 @@ begin
 
     fCoverHasBeenCalled := True;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameFOW);
     {$ENDIF}
   end;
@@ -558,7 +558,7 @@ begin
   fDynamicFOW := aDynamicFOW;
   if not fDynamicFOW then Exit;
 
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psGameFOW);
   {$ENDIF}
   try
@@ -587,7 +587,7 @@ begin
           end;}
         end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psGameFOW);
     {$ENDIF}
   end;

@@ -122,7 +122,7 @@ end;
 
 procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psAIFields);
   {$ENDIF}
   try
@@ -135,7 +135,7 @@ begin
       fSupervisor.UpdateState(aTick);
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psAIFields);
     {$ENDIF}
   end;

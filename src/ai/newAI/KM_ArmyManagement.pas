@@ -545,7 +545,7 @@ end;
 
 procedure TKMArmyManagement.UpdateState(aTick: Cardinal);
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psAIArmyAdv);
   {$ENDIF}
   try
@@ -561,7 +561,7 @@ begin
       fDefence.UpdateState(aTick);
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psAIArmyAdv);
     {$ENDIF}
   end;

@@ -547,7 +547,7 @@ end;
 
 procedure TKMHandAI.UpdateState(aTick: Cardinal; aCheckGoals: Boolean);
 begin
-  {$IFDEF PERFLOG}
+  {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psAI);
   {$ENDIF}
   try
@@ -578,7 +578,7 @@ begin
                     end;
     end;
   finally
-    {$IFDEF PERFLOG}
+    {$IFDEF DBG_PERFLOG}
     gPerfLogs.SectionLeave(psAI);
     {$ENDIF}
   end;
