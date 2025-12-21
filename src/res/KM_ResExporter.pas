@@ -117,7 +117,8 @@ begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  GetOrCreateExportWorker.QueueWork(procedure
+  GetOrCreateExportWorker.QueueWorkAndCallback(
+    procedure
     var
       sprites: TKMResSprites;
     begin
@@ -128,7 +129,9 @@ begin
       finally
         sprites.Free;
       end;
-    end, aOnDone, 'Export from ' + RX_INFO[aRT].FileName + '.rxx');
+    end,
+    aOnDone,
+    'Export from ' + RX_INFO[aRT].FileName + '.rxx');
 end;
 
 
@@ -137,7 +140,8 @@ begin
   // Make sure we loaded all of the resources (to avoid collisions with async res loader
   gRes.LoadGameResources(True);
 
-  GetOrCreateExportWorker.QueueWork(procedure
+  GetOrCreateExportWorker.QueueWorkAndCallback(
+    procedure
     var
       I: Integer;
       folderPath: string;
@@ -165,7 +169,9 @@ begin
       finally
         sprites.Free;
       end;
-    end, aOnDone, 'Export from ' + RX_INFO[aRT].FileName + '.rxa');
+    end,
+    aOnDone,
+    'Export from ' + RX_INFO[aRT].FileName + '.rxa');
 end;
 
 
@@ -175,7 +181,8 @@ begin
   gRes.LoadGameResources(True);
 
   // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  GetOrCreateExportWorker.QueueWorkAndCallback(
+    procedure
     var
       fullFolderPath, folderPath: string;
       UT: TKMUnitType;
@@ -326,7 +333,9 @@ begin
         units.Free;
         resTexts.Free;
       end;
-    end, aOnDone, 'Export HD units anim');
+    end,
+    aOnDone,
+    'Export HD units anim');
 end;
 
 
@@ -337,7 +346,8 @@ begin
   gRes.LoadGameResources(True);
 
   // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  GetOrCreateExportWorker.QueueWorkAndCallback(
+    procedure
     var
       fullFolderPath, folderPath: string;
       UT: TKMUnitType;
@@ -467,7 +477,9 @@ begin
         units.Free;
         resTexts.Free;
       end;
-    end, aOnDone, 'Export units anim');
+    end,
+    aOnDone,
+    'Export units anim');
 end;
 
 
@@ -477,7 +489,8 @@ begin
   gRes.LoadGameResources(True);
 
   // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  GetOrCreateExportWorker.QueueWorkAndCallback(
+    procedure
     var
       fullFolderPath, folderPath: string;
       I, LVL, STEP, Q, spriteID: Integer;
@@ -567,7 +580,9 @@ begin
         houses.Free;
         sprites.Free;
       end;
-    end, aOnDone, 'Export HD House animation');
+    end,
+    aOnDone,
+    'Export HD House animation');
 end;
 
 
@@ -578,80 +593,83 @@ begin
   gRes.LoadGameResources(True);
 
   // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
-  var
-    fullFolderPath, folderPath: string;
-    houses: TKMResHouses;
-    HT: TKMHouseType;
-    ACT: TKMHouseActionType;
-    Q, beast, I, K, origSpriteID: Integer;
-    spritePack: TKMSpritePack;
-    sprites: TKMResSprites;
-    resTexts: TKMTextLibraryMulti;
-  begin
-    sprites := TKMResSprites.Create(nil, nil, True);
-    sprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows anyways
-    spritePack := sprites[rxHouses];
+  GetOrCreateExportWorker.QueueWorkAndCallback(
+    procedure
+    var
+      fullFolderPath, folderPath: string;
+      houses: TKMResHouses;
+      HT: TKMHouseType;
+      ACT: TKMHouseActionType;
+      Q, beast, I, K, origSpriteID: Integer;
+      spritePack: TKMSpritePack;
+      sprites: TKMResSprites;
+      resTexts: TKMTextLibraryMulti;
+    begin
+      sprites := TKMResSprites.Create(nil, nil, True);
+      sprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows anyways
+      spritePack := sprites[rxHouses];
 
-    if TThread.CheckTerminated then Exit;
+      if TThread.CheckTerminated then Exit;
 
-    folderPath := ExeDir + 'Export' + PathDelim + 'HouseAnim' + PathDelim;
-    ForceDirectories(folderPath);
+      folderPath := ExeDir + 'Export' + PathDelim + 'HouseAnim' + PathDelim;
+      ForceDirectories(folderPath);
 
-    houses := TKMResHouses.Create;
+      houses := TKMResHouses.Create;
 
-    resTexts := TKMTextLibraryMulti.Create;
-    resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
-    resTexts.ForceDefaultLocale := True;
-    try
-      for HT := HOUSE_MIN to HOUSE_MAX do
-        for ACT := haWork1 to haFlag3 do
-        begin
-          if houses[HT].Anim[ACT].Count = 0 then Continue;
-
-          fullFolderPath := folderPath + resTexts.DefaultTexts[houses[HT].HouseNameTextID] + PathDelim + HOUSE_ACTION_STR[ACT] + PathDelim;
-          ForceDirectories(fullFolderPath);
-          for K := 1 to houses[HT].Anim[ACT].Count do
+      resTexts := TKMTextLibraryMulti.Create;
+      resTexts.LoadLocale(ExeDir + 'data' + PathDelim + 'text' + PathDelim + 'text.%s.libx', True);
+      resTexts.ForceDefaultLocale := True;
+      try
+        for HT := HOUSE_MIN to HOUSE_MAX do
+          for ACT := haWork1 to haFlag3 do
           begin
-            origSpriteID := houses[HT].Anim[ACT].Step[K] + 1;
-            if origSpriteID <> 0 then
-              spritePack.ExportFullImageData(fullFolderPath, origSpriteID);
-            // Stop export if async thread is terminated by application
-            if TThread.CheckTerminated then Exit;
-          end;
-        end;
+            if houses[HT].Anim[ACT].Count = 0 then Continue;
 
-      for Q := 1 to 2 do
-      begin
-        if Q = 1 then
-          HT := htSwine
-        else
-          HT := htStables;
-
-        for beast := 1 to 5 do
-          for I := 1 to 3 do
-          begin
-            if houses.BeastAnim[HT,beast,I].Count = 0 then Continue;
-
-            fullFolderPath := folderPath + resTexts.DefaultTexts[houses[HT].HouseNameTextID] + PathDelim + 'Beast' + PathDelim + int2fix(beast,2) + PathDelim;
+            fullFolderPath := folderPath + resTexts.DefaultTexts[houses[HT].HouseNameTextID] + PathDelim + HOUSE_ACTION_STR[ACT] + PathDelim;
             ForceDirectories(fullFolderPath);
-
-            for K := 1 to houses.BeastAnim[HT,beast,I].Count do
+            for K := 1 to houses[HT].Anim[ACT].Count do
             begin
-              origSpriteID := houses.BeastAnim[HT,beast,I].Step[K]+1;
+              origSpriteID := houses[HT].Anim[ACT].Step[K] + 1;
               if origSpriteID <> 0 then
                 spritePack.ExportFullImageData(fullFolderPath, origSpriteID);
               // Stop export if async thread is terminated by application
               if TThread.CheckTerminated then Exit;
             end;
           end;
+
+        for Q := 1 to 2 do
+        begin
+          if Q = 1 then
+            HT := htSwine
+          else
+            HT := htStables;
+
+          for beast := 1 to 5 do
+            for I := 1 to 3 do
+            begin
+              if houses.BeastAnim[HT,beast,I].Count = 0 then Continue;
+
+              fullFolderPath := folderPath + resTexts.DefaultTexts[houses[HT].HouseNameTextID] + PathDelim + 'Beast' + PathDelim + int2fix(beast,2) + PathDelim;
+              ForceDirectories(fullFolderPath);
+
+              for K := 1 to houses.BeastAnim[HT,beast,I].Count do
+              begin
+                origSpriteID := houses.BeastAnim[HT,beast,I].Step[K]+1;
+                if origSpriteID <> 0 then
+                  spritePack.ExportFullImageData(fullFolderPath, origSpriteID);
+                // Stop export if async thread is terminated by application
+                if TThread.CheckTerminated then Exit;
+              end;
+            end;
+        end;
+      finally
+        resTexts.Free;
+        houses.Free;
+        sprites.Free;
       end;
-    finally
-      resTexts.Free;
-      houses.Free;
-      sprites.Free;
-    end;
-  end, aOnDone, 'Export house anim');
+    end,
+    aOnDone,
+    'Export house anim');
 end;
 
 
@@ -737,7 +755,8 @@ begin
   gRes.LoadGameResources(True);
 
   // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  GetOrCreateExportWorker.QueueWorkAndCallback(
+    procedure
     var
       fullFolderPath, folderPath: string;
       I, J, K, spriteID: Integer;
@@ -785,7 +804,9 @@ begin
       finally
         sprites.Free;
       end;
-    end, aOnDone, 'Export HD Tree animation');
+    end,
+    aOnDone,
+    'Export HD Tree animation');
 end;
 
 
@@ -796,7 +817,8 @@ begin
   gRes.LoadGameResources(True);
 
   // Asynchroniously export data
-  GetOrCreateExportWorker.QueueWork(procedure
+  GetOrCreateExportWorker.QueueWorkAndCallback(
+    procedure
     var
       fullFolderPath, folderPath: string;
       I, K, spriteID: Integer;
@@ -840,7 +862,9 @@ begin
       finally
         sprites.Free;
       end;
-    end, aOnDone, 'Export tree anim');
+    end,
+    aOnDone,
+    'Export tree anim');
 end;
 
 

@@ -29,10 +29,11 @@ type
     destructor Destroy; override;
     procedure Execute; override;
 
-    procedure QueueWorkAndLog(aProc: TProc; aTaskName: string = '');
-    procedure QueueWork(aProc: TProc; aTaskName: string = ''); overload;
+    procedure QueueWork(aProc: TProc; aTaskName: string = '');
     // It is a bit odd that we want the callback to return the aTaskName
-    procedure QueueWork(aProc: TProc; aOnDone: TProc<String> = nil; aTaskName: string = ''); overload;
+    procedure QueueWorkAndCallback(aProc: TProc; aOnDone: TProc<String> = nil; aTaskName: string = '');
+    procedure QueueWorkAndLog(aProc: TProc; aTaskName: string = '');
+
     procedure WaitForAllWorkToComplete;
   end;
 
@@ -179,7 +180,7 @@ end;
 
 procedure TKMWorkerThread.QueueWorkAndLog(aProc: TProc; aTaskName: string = '');
 begin
-  QueueWork(
+  QueueWorkAndCallback(
     aProc,
     // aOnDone (aTaskNameInt = aTaskName, we just use a different name to avoid sideeffects)
     procedure(aTaskNameInt: String)
@@ -192,11 +193,11 @@ end;
 
 procedure TKMWorkerThread.QueueWork(aProc: TProc; aTaskName: string = '');
 begin
-  QueueWork(aProc, nil, aTaskName);
+  QueueWorkAndCallback(aProc, nil, aTaskName);
 end;
 
 
-procedure TKMWorkerThread.QueueWork(aProc: TProc; aOnDone: TProc<String> = nil; aTaskName: string = '');
+procedure TKMWorkerThread.QueueWorkAndCallback(aProc: TProc; aOnDone: TProc<String> = nil; aTaskName: string = '');
 var
   task: TKMWorkerThreadTask;
 begin
