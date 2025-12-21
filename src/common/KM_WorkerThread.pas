@@ -6,7 +6,8 @@ uses
 
 type
   TKMWorkerThreadTask = class
-    WorkName: string;
+  public
+    TaskName: string;
     Proc: TProc;
     OnDone: TProc<String>;
   end;
@@ -28,10 +29,10 @@ type
     destructor Destroy; override;
     procedure Execute; override;
 
-    procedure QueueWorkAndLog(aProc: TProc; aWorkName: string = '');
-    procedure QueueWork(aProc: TProc; aWorkName: string = ''); overload;
-    // It is a bit odd that we want the callback to return the aWorkName
-    procedure QueueWork(aProc: TProc; aOnDone: TProc<String> = nil; aWorkName: string = ''); overload;
+    procedure QueueWorkAndLog(aProc: TProc; aTaskName: string = '');
+    procedure QueueWork(aProc: TProc; aTaskName: string = ''); overload;
+    // It is a bit odd that we want the callback to return the aTaskName
+    procedure QueueWork(aProc: TProc; aOnDone: TProc<String> = nil; aTaskName: string = ''); overload;
     procedure WaitForAllWorkToComplete;
   end;
 
@@ -121,11 +122,11 @@ end;
 
 procedure TKMWorkerThread.Execute;
 var
-  job: TKMWorkerThreadTask;
+  task: TKMWorkerThreadTask;
   loopRunning: Boolean;
   threadName: string;
 begin
-  job := nil;
+  task := nil;
   loopRunning := True;
   threadName := '';
 
@@ -136,7 +137,7 @@ begin
       threadName := GetBaseThreadName; // get name under TMonitor, cause we access fTaskQueue
       if fTaskQueue.Count > 0 then
       begin
-        job := fTaskQueue.Dequeue;
+        task := fTaskQueue.Dequeue;
       end
       else
       begin
@@ -153,22 +154,22 @@ begin
 
           TMonitor.Wait(fTaskQueue, 10000);
           if fTaskQueue.Count > 0 then
-            job := fTaskQueue.Dequeue;
+            task := fTaskQueue.Dequeue;
         end;
       end;
     finally
       TMonitor.Exit(fTaskQueue);
     end;
 
-    if job <> nil then
+    if task <> nil then
     begin
       NameThread(threadName);
-      job.Proc();
+      task.Proc();
 
-      if Assigned(job.OnDone) then
-        job.OnDone(job.WorkName);
+      if Assigned(task.OnDone) then
+        task.OnDone(task.TaskName);
 
-      FreeAndNil(job);
+      FreeAndNil(task);
     end;
 
     NameThread;
@@ -176,28 +177,28 @@ begin
 end;
 
 
-procedure TKMWorkerThread.QueueWorkAndLog(aProc: TProc; aWorkName: string = '');
+procedure TKMWorkerThread.QueueWorkAndLog(aProc: TProc; aTaskName: string = '');
 begin
   QueueWork(
     aProc,
-    // aOnDone
-    procedure(aJobName: String)
+    // aOnDone (aTaskNameInt = aTaskName, we just use a different name to avoid sideeffects)
+    procedure(aTaskNameInt: String)
     begin
-      gLog.AddTime('Job "%s" is completed', [aJobName]);
+      gLog.AddTime('Job "%s" is completed', [aTaskNameInt]);
     end,
-    aWorkName);
+    aTaskName);
 end;
 
 
-procedure TKMWorkerThread.QueueWork(aProc: TProc; aWorkName: string = '');
+procedure TKMWorkerThread.QueueWork(aProc: TProc; aTaskName: string = '');
 begin
-  QueueWork(aProc, nil, aWorkName);
+  QueueWork(aProc, nil, aTaskName);
 end;
 
 
-procedure TKMWorkerThread.QueueWork(aProc: TProc; aOnDone: TProc<String> = nil; aWorkName: string = '');
+procedure TKMWorkerThread.QueueWork(aProc: TProc; aOnDone: TProc<String> = nil; aTaskName: string = '');
 var
-  job: TKMWorkerThreadTask;
+  task: TKMWorkerThreadTask;
 begin
   if fSynchronousExceptionMode then
   begin
@@ -208,15 +209,15 @@ begin
     if Finished then
       raise Exception.Create('Worker thread not running in TKMWorkerThread.QueueWork');
 
-    job := TKMWorkerThreadTask.Create;
-    job.Proc := aProc;
-    job.OnDone := aOnDone;
-    job.WorkName := aWorkName;
+    task := TKMWorkerThreadTask.Create;
+    task.Proc := aProc;
+    task.OnDone := aOnDone;
+    task.TaskName := aTaskName;
 
     TMonitor.Enter(fTaskQueue);
     try
       fWorkCompleted := False;
-      fTaskQueue.Enqueue(job);
+      fTaskQueue.Enqueue(task);
 
       TMonitor.Pulse(fTaskQueue);
     finally
@@ -235,7 +236,7 @@ begin
   try
     if not fWorkCompleted and not Finished then
     begin
-      //Wait infinite until worker thread finish his job
+      //Wait infinite until worker thread finish his task
       while not TMonitor.Wait(fTaskQueue, 1000) do ;
     end;
   finally
