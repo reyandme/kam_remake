@@ -194,7 +194,8 @@ begin
     1:  Result := ToBoolean(Corners and $2); // and 0010
     2:  Result := ToBoolean(Corners and $4); // and 0100
     3:  Result := ToBoolean(Corners and $8); // and 1000
-    else raise Exception.Create('Wrong corner id');
+  else
+    raise Exception.Create('Wrong corner id');
   end;
 end;
 
@@ -229,7 +230,8 @@ begin
     1:  Corners := (Corners and $D) or (Byte(aValue) shl 1);  // 1101 or aValue
     2:  Corners := (Corners and $B) or (Byte(aValue) shl 2);  // 1011 or aValue
     3:  Corners := (Corners and $7) or (Byte(aValue) shl 3);  // 0111 or aValue
-    else raise Exception.Create('Wrong conner id');
+  else
+    raise Exception.Create('Wrong conner id');
   end;
 end;
 
