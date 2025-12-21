@@ -37,7 +37,7 @@ var
   gicCommand: TKMGameInputCommand;
 begin
   //This is to match up with multiplayer random check generation, so multiplayer replays can be replayed in singleplayer mode
-  KaMRandom(MaxInt{$IFDEF RNG_SPY}, 'TKMGameInputProcess_Single.ReplayTimer'{$ENDIF});
+  KaMRandom(MaxInt{$IFDEF DBG_RNG_SPY}, 'TKMGameInputProcess_Single.ReplayTimer'{$ENDIF});
 
   //There are still more commands left
   if fCursor <= Count then
@@ -52,7 +52,7 @@ begin
       if SKIP_RNG_CHECKS_FOR_SOME_GIC and (fQueue[fCursor].Command.CmdType in SKIP_RANDOM_CHECKS_FOR) then
         myRand := 0
       else
-        myRand := Cardinal(KaMRandom(MaxInt{$IFDEF RNG_SPY}, 'TKMGameInputProcess_Single.ReplayTimer 2'{$ENDIF}));
+        myRand := Cardinal(KaMRandom(MaxInt{$IFDEF DBG_RNG_SPY}, 'TKMGameInputProcess_Single.ReplayTimer 2'{$ENDIF}));
 
       while not fGic2StoredConverter.ParseNextStoredPackedCommand(fQueue[fCursor].Command, gicCommand) do
         Inc(fCursor);
@@ -85,7 +85,7 @@ begin
   inherited;
 
   // This is to match up with multiplayer CRC generation, so multiplayer replays can be replayed in singleplayer mode
-  KaMRandom(MaxInt{$IFDEF RNG_SPY}, 'TKMGameInputProcess_Single.RunningTimer'{$ENDIF});
+  KaMRandom(MaxInt{$IFDEF DBG_RNG_SPY}, 'TKMGameInputProcess_Single.RunningTimer'{$ENDIF});
 end;
 
 

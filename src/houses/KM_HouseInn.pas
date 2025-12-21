@@ -75,7 +75,7 @@ begin
     if fEater[I].UnitType <> utNone then
       slotEmpty[I] := False;
 
-  offset := KaMRandom(INN_MAX_EATERS{$IFDEF RNG_SPY}, 'TKMHouseInn.EaterGetsInside'{$ENDIF});
+  offset := KaMRandom(INN_MAX_EATERS{$IFDEF DBG_RNG_SPY}, 'TKMHouseInn.EaterGetsInside'{$ENDIF});
 
   for I := 0 to INN_MAX_EATERS - 1 do
   begin

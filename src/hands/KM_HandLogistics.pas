@@ -1520,7 +1520,7 @@ begin
       aBidBasicCost.OfferToDemand.Pass := tpWalkRoad;
 
       //Resource ratios are also considered
-      aBidBasicCost.OfferToDemand.Value := 5 + (5 - distr)*4 + KaMRandom(16 - 3*distr{$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic'{$ENDIF});
+      aBidBasicCost.OfferToDemand.Value := 5 + (5 - distr)*4 + KaMRandom(16 - 3*distr{$IFDEF DBG_RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic'{$ENDIF});
     end
     else
     begin
@@ -1546,7 +1546,7 @@ begin
         Exit;
 
       //Resource ratios are also considered
-      aBidBasicCost.IncAddition(KaMRandom(16 - 3*distr{$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 2'{$ENDIF}));
+      aBidBasicCost.IncAddition(KaMRandom(16 - 3*distr{$IFDEF DBG_RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 2'{$ENDIF}));
     end;
   end
   else
@@ -1577,7 +1577,7 @@ begin
     //For all other deliveries, add some random element so in the case of identical
     //bids the same resource will not always be chosen (e.g. weapons storehouse->barracks
     //should take random weapon types not sequentially)
-    aBidBasicCost.IncAddition(KaMRandom(10{$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 3'{$ENDIF}));
+    aBidBasicCost.IncAddition(KaMRandom(10{$IFDEF DBG_RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 3'{$ENDIF}));
 
   if (dWT = wtAll)        // Always prefer deliveries House>House instead of House>Store
     or ((aOfferHouseType = htStore)    // Prefer taking wares from House rather than Store...
@@ -1636,9 +1636,9 @@ begin
     begin
       //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
       if fOffer[oWT,iO].Count = 0 then
-        aBidCost.IncAddition(KaMRandom(5 + 150{$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 4'{$ENDIF}))
+        aBidCost.IncAddition(KaMRandom(5 + 150{$IFDEF DBG_RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 4'{$ENDIF}))
       else
-        aBidCost.IncAddition(KaMRandom(5 + (100 div fOffer[oWT,iO].Count){$IFDEF RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 5'{$ENDIF}));
+        aBidCost.IncAddition(KaMRandom(5 + (100 div fOffer[oWT,iO].Count){$IFDEF DBG_RNG_SPY}, 'TKMDeliveries.TryCalculateBidBasic 5'{$ENDIF}));
     end;
   finally
     {$IFDEF PERFLOG}

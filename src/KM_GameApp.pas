@@ -174,7 +174,7 @@ uses
   KM_Cursor, KM_ResTexts, KM_ResKeys, KM_ResTypes,
   KM_IoGraphicUtils, KM_Settings,
   KM_Saves, KM_CommonUtils, KM_CommonShellUtils,
-  {$IFDEF RNG_SPY}KM_RandomChecks,{$ENDIF}
+  {$IFDEF DBG_RNG_SPY}KM_RandomChecks,{$ENDIF}
   KM_DevPerfLog, KM_DevPerfLogTypes;
 
 
@@ -203,7 +203,7 @@ begin
 
   gCursor := TKMCursor.Create;
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if gGameSettings.DebugSaveRandomChecks and not DBG_DISALLOW_TO_SAVE_RANDOM_CHECKS then
     gRandomCheckLogger := TKMRandomCheckLogger.Create;
   {$ENDIF}
@@ -281,7 +281,7 @@ begin
   FreeThenNil(gSoundPlayer);
   FreeThenNil(gMusic);
   FreeAndNil(fNetworking);
-  {$IFDEF RNG_SPY} FreeAndNil(gRandomCheckLogger); {$ENDIF}
+  {$IFDEF DBG_RNG_SPY} FreeAndNil(gRandomCheckLogger); {$ENDIF}
   FreeAndNil(gCursor);
 
   FreeThenNil(gRender);

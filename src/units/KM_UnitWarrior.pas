@@ -794,9 +794,9 @@ begin
   Result := 0;
   if IsRanged then
     case UnitType of
-      utBowman:       Result := BOWMEN_AIMING_DELAY_MIN + KaMRandom(BOWMEN_AIMING_DELAY_ADD{$IFDEF RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay'{$ENDIF});
-      utCrossbowman:  Result := CROSSBOWMEN_AIMING_DELAY_MIN + KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD{$IFDEF RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 2'{$ENDIF});
-      utRogue:        Result := SLINGSHOT_AIMING_DELAY_MIN + KaMRandom(SLINGSHOT_AIMING_DELAY_ADD{$IFDEF RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 3'{$ENDIF});
+      utBowman:       Result := BOWMEN_AIMING_DELAY_MIN + KaMRandom(BOWMEN_AIMING_DELAY_ADD{$IFDEF DBG_RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay'{$ENDIF});
+      utCrossbowman:  Result := CROSSBOWMEN_AIMING_DELAY_MIN + KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD{$IFDEF DBG_RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 2'{$ENDIF});
+      utRogue:        Result := SLINGSHOT_AIMING_DELAY_MIN + KaMRandom(SLINGSHOT_AIMING_DELAY_ADD{$IFDEF DBG_RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 3'{$ENDIF});
       else raise Exception.Create('Unknown shooter');
     end;
 end;

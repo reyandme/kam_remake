@@ -225,7 +225,7 @@ begin
   for I := 0 to Count - 1 do
     WeightsSum := WeightsSum + fWeight[I];
 
-  Rnd := KaMRandomS1(WeightsSum{$IFDEF RNG_SPY}, 'TKMWeightedList.GetWeightedRandom'{$ENDIF});
+  Rnd := KaMRandomS1(WeightsSum{$IFDEF DBG_RNG_SPY}, 'TKMWeightedList.GetWeightedRandom'{$ENDIF});
 
   for I := 0 to Count - 1 do
   begin

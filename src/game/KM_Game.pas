@@ -133,7 +133,7 @@ type
     function CheckPauseGameAtTick: Boolean;
     function IsReplayEnded: Boolean;
 
-    {$IFDEF RNG_SPY} function DoSaveRandomChecks: Boolean; {$ENDIF}
+    {$IFDEF DBG_RNG_SPY} function DoSaveRandomChecks: Boolean; {$ENDIF}
 
     function DoRenderGame: Boolean;
 
@@ -338,7 +338,7 @@ uses
   KM_Resource, KM_ResSound,
   KM_InterfaceDefaults, KM_InterfaceTypes, KM_GameSettings, KM_GameAppSettings,
   KM_Log, KM_ScriptingEvents, KM_Saves, KM_FileIO, KM_CommonUtils,
-  {$IFDEF RNG_SPY} KM_RandomChecks, {$ENDIF}
+  {$IFDEF DBG_RNG_SPY} KM_RandomChecks, {$ENDIF}
   KM_DevPerfLog, KM_DevPerfLogTypes,
   KM_NetRoom,
   KM_HandTypes, KM_ResLocales,
@@ -456,7 +456,7 @@ begin
   end;
   gProjectiles := TKMProjectiles.Create(gRenderPool.AddProjectile);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if gRandomCheckLogger <> nil then
   begin
     gRandomCheckLogger.Clear;
@@ -512,7 +512,7 @@ begin
 
   FreeAndNil(gMySpectator);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if gRandomCheckLogger <> nil then
     gRandomCheckLogger.Clear;
   {$ENDIF}
@@ -1116,7 +1116,7 @@ end;
 procedure TKMGame.ReplayInconsistency(aCommand: TKMStoredGIPCommand; aMyRand: Cardinal);
 const
   TRY_KAM_RANDOM_CNT = 10;
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
 var
   I: Integer;
   tempSeedI, tempSeedF: Integer;
@@ -1127,7 +1127,7 @@ begin
   gLog.AddTime('Replay failed a consistency check at tick ' + IntToStr(fParams.Tick));
   gLog.AddTime('MyRand = %d, seed: %d; but command: %s', [aMyRand, GetKaMSeed, fGameInputProcess.StoredGIPCommandToString(aCommand)]);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if gLog.CanLogRandomChecks() then
   begin
     gLog.LogRandomChecks('Next KaMRandom seed values are: ');
@@ -2346,7 +2346,7 @@ procedure TKMGame.Save(const aSaveName: UnicodeString; aTimestamp: TDateTime; aS
 var
   I, index: Integer;
   fullPath, mpLocalDataPath, newSaveName, loadFrom: UnicodeString;
-  {$IFDEF RNG_SPY} rngPath: UnicodeString; {$ENDIF}
+  {$IFDEF DBG_RNG_SPY} rngPath: UnicodeString; {$ENDIF}
   saveByPlayer: Boolean;
 begin
   {$IFDEF PERFLOG}
@@ -2434,7 +2434,7 @@ begin
       fSavePoints.SaveToFileAsync(ChangeFileExt(fullPath, EXT_SAVE_GAME_SAVEPTS_DOT), aSaveWorkerThread);
     end;
 
-    {$IFDEF RNG_SPY}
+    {$IFDEF DBG_RNG_SPY}
     if DoSaveRandomChecks then
       try
         rngPath := ChangeFileExt(fullPath, EXT_SAVE_RNG_LOG_DOT);
@@ -2655,7 +2655,7 @@ procedure TKMGame.LoadFromFile(const aPathName: UnicodeString; const aCustomRepl
 var
   loadStream: TKMemoryStream;
   gameMPLocalData: TKMGameMPLocalData;
-  {$IFDEF RNG_SPY} rngPath: UnicodeString; {$ENDIF}
+  {$IFDEF DBG_RNG_SPY} rngPath: UnicodeString; {$ENDIF}
 begin
   fLoadFromFileRel := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), EXT_SAVE_MAIN_DOT);
   fLastSaveFileRel := fLoadFromFileRel; // We set last save to the loaded file, so we will be able to restart from this point
@@ -2697,7 +2697,7 @@ begin
 
     // SetSeed was there, I dont know the dependencies so please check if it is ok to include it in LoadGameStream
 
-    {$IFDEF RNG_SPY}
+    {$IFDEF DBG_RNG_SPY}
     if DoSaveRandomChecks then
       try
         rngPath := ChangeFileExt(aPathName, EXT_SAVE_RNG_LOG_DOT);
@@ -3125,7 +3125,7 @@ begin
 
       CheckPauseGameAtTick;
     finally
-      {$IFDEF RNG_SPY}
+      {$IFDEF DBG_RNG_SPY}
       // Save rng logger even if game crashed during tick execution, f.e. because of desync
       if DoSaveRandomChecks then
         gRandomCheckLogger.UpdateState(fParams.Tick);
@@ -3293,7 +3293,7 @@ begin
 end;
 
 
-{$IFDEF RNG_SPY}
+{$IFDEF DBG_RNG_SPY}
 function TKMGame.DoSaveRandomChecks: Boolean;
 begin
   Result := gGameSettings.DebugSaveRandomChecks

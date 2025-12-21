@@ -263,7 +263,7 @@ begin
     //Chose a random group type that we are going to attempt to train (so we don't always train certain group types first)
     K := 0;
     repeat
-      GT := TKMGroupType(GROUP_TYPE_MIN_OFF + KaMRandom(4{$IFDEF RNG_SPY}, 'TKMGeneral.CheckArmyCount'{$ENDIF})); //Pick random from overall count
+      GT := TKMGroupType(GROUP_TYPE_MIN_OFF + KaMRandom(4{$IFDEF DBG_RNG_SPY}, 'TKMGeneral.CheckArmyCount'{$ENDIF})); //Pick random from overall count
       Inc(K);
     until (GroupReq[GT] > 0) or (K > 9); //Limit number of attempts to guarantee it doesn't loop forever
 

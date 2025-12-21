@@ -2617,7 +2617,7 @@ begin
     R := gTerrain.CheckPassability(KMPointRight(P), tpWalk);
     //Choose random between Left and Right
     if L and R then
-      P := KMPoint(P.X + 2*KaMRandom(2{$IFDEF RNG_SPY}, 'TKMHouseWFlagPoint.GetValidPoint'{$ENDIF}) - 1, P.Y) // Offset = +1 or -1
+      P := KMPoint(P.X + 2*KaMRandom(2{$IFDEF DBG_RNG_SPY}, 'TKMHouseWFlagPoint.GetValidPoint'{$ENDIF}) - 1, P.Y) // Offset = +1 or -1
     else
     if L then
       P := KMPointLeft(P)

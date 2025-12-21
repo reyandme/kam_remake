@@ -78,13 +78,13 @@ uses
   function KaMRandomWSeed(var aSeed: Integer; aMax: Integer): Integer; overload;
   function KaMRandomWSeedS1(var aSeed: Integer; aMax: Integer): Single;
   function KaMRandomWSeedI2(var aSeed: Integer; Range_Both_Directions: Integer): Integer;
-  function KaMRandom({$IFDEF RNG_SPY}const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Extended; overload;
-  function KaMRandom(aMax: Integer{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Integer; overload;
-  function KaMRandom(aMax: Cardinal{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Cardinal; overload;
-  function KaMRandom(aMax: Int64{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Int64; overload;
-  function KaMRandomS1(aMax: Single{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single;
-  function KaMRandomI2(Range_Both_Directions: Integer{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Integer; overload;
-  function KaMRandomS2(Range_Both_Directions: Single{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single; overload;
+  function KaMRandom({$IFDEF DBG_RNG_SPY}const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Extended; overload;
+  function KaMRandom(aMax: Integer{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Integer; overload;
+  function KaMRandom(aMax: Cardinal{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Cardinal; overload;
+  function KaMRandom(aMax: Int64{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Int64; overload;
+  function KaMRandomS1(aMax: Single{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single;
+  function KaMRandomI2(Range_Both_Directions: Integer{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Integer; overload;
+  function KaMRandomS2(Range_Both_Directions: Single{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single; overload;
 
   function IsGameStartAllowed(aGameStartMode: TKMGameStartMode): Boolean;
   function GetGameVersionNum(const aGameVersionStr: AnsiString): Integer; overload;
@@ -205,7 +205,7 @@ implementation
 uses
   StrUtils, Types,
   {$IFDEF USE_MAD_EXCEPT} madStackTrace, {$ENDIF}
-  {$IFDEF RNG_SPY}KM_RandomChecks, {$ENDIF}
+  {$IFDEF DBG_RNG_SPY}KM_RandomChecks, {$ENDIF}
   KM_Log;
 
 const
@@ -1391,7 +1391,7 @@ procedure LogKamRandom(aValue: Single; const aCaller: AnsiString; const aKaMRand
 begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if not DBG_DISALLOW_TO_SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
   {$ENDIF}
@@ -1402,7 +1402,7 @@ procedure LogKamRandom(aValue: Extended; const aCaller: AnsiString; const aKaMRa
 begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if not DBG_DISALLOW_TO_SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
   {$ENDIF}
@@ -1413,7 +1413,7 @@ procedure LogKamRandom(aValue: Integer; const aCaller: AnsiString; const aKaMRan
 begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if not DBG_DISALLOW_TO_SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
   {$ENDIF}
@@ -1472,53 +1472,53 @@ begin
 end;
 
 
-function KaMRandom({$IFDEF RNG_SPY}const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Extended;
+function KaMRandom({$IFDEF DBG_RNG_SPY}const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Extended;
 begin
   Result := KaMRandomWSeed(fKamSeed);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if aLogRng then
     LogKamRandom(Result, aCaller, 'KMRand');
   {$ENDIF}
 end;
 
 
-function KaMRandom(aMax: Integer{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Integer;
+function KaMRandom(aMax: Integer{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Integer;
 begin
   if FEAT_CUSTOM_RANDOM then
-    Result := Trunc(KaMRandom({$IFDEF RNG_SPY}aCaller, False{$ENDIF})*aMax)
+    Result := Trunc(KaMRandom({$IFDEF DBG_RNG_SPY}aCaller, False{$ENDIF})*aMax)
   else
     Result := Random(aMax);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if aLogRng then
     LogKamRandom(Result, aCaller, 'I*');
   {$ENDIF}
 end;
 
 
-function KaMRandom(aMax: Cardinal{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Cardinal;
+function KaMRandom(aMax: Cardinal{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Cardinal;
 begin
   if FEAT_CUSTOM_RANDOM then
-    Result := Trunc(KaMRandom({$IFDEF RNG_SPY}aCaller, False{$ENDIF})*aMax)
+    Result := Trunc(KaMRandom({$IFDEF DBG_RNG_SPY}aCaller, False{$ENDIF})*aMax)
   else
     Result := Random(aMax);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if aLogRng then
     LogKamRandom(Integer(Result), aCaller, 'C*');
   {$ENDIF}
 end;
 
 
-function KaMRandom(aMax: Int64{$IFDEF RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Int64;
+function KaMRandom(aMax: Int64{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString; aLogRng: Boolean = True{$ENDIF}): Int64;
 begin
   if FEAT_CUSTOM_RANDOM then
-    Result := Trunc(KaMRandom({$IFDEF RNG_SPY}aCaller, False{$ENDIF})*aMax)
+    Result := Trunc(KaMRandom({$IFDEF DBG_RNG_SPY}aCaller, False{$ENDIF})*aMax)
   else
     Result := Random(aMax);
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   if aLogRng then
     LogKamRandom(Integer(Result), aCaller, 'I64*');
   {$ENDIF}
@@ -1526,33 +1526,33 @@ end;
 
 
 //Returns random number from -Range_Both_Directions to +Range_Both_Directions
-function KaMRandomI2(Range_Both_Directions: Integer{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Integer;
+function KaMRandomI2(Range_Both_Directions: Integer{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Integer;
 begin
-  Result := KaMRandom(Range_Both_Directions*2 + 1{$IFDEF RNG_SPY}, aCaller, False{$ENDIF}) - Range_Both_Directions;
+  Result := KaMRandom(Range_Both_Directions*2 + 1{$IFDEF DBG_RNG_SPY}, aCaller, False{$ENDIF}) - Range_Both_Directions;
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   LogKamRandom(Result, aCaller, 'S2I*');
   {$ENDIF}
 end;
 
 
 //Returns random number from -Range_Both_Directions to +Range_Both_Directions
-function KaMRandomS2(Range_Both_Directions: Single{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single;
+function KaMRandomS2(Range_Both_Directions: Single{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single;
 begin
-  Result := KaMRandom(Round(Range_Both_Directions*20000) + 1{$IFDEF RNG_SPY}, aCaller, False{$ENDIF})/10000-Range_Both_Directions;
+  Result := KaMRandom(Round(Range_Both_Directions*20000) + 1{$IFDEF DBG_RNG_SPY}, aCaller, False{$ENDIF})/10000-Range_Both_Directions;
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   LogKamRandom(Result, aCaller, 'S2S*');
   {$ENDIF}
 end;
 
 
 //Returns random number from 0 to +aMax
-function KaMRandomS1(aMax: Single{$IFDEF RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single;
+function KaMRandomS1(aMax: Single{$IFDEF DBG_RNG_SPY}; const aCaller: AnsiString{$ENDIF}): Single;
 begin
-  Result := KaMRandom(Round(aMax*10000){$IFDEF RNG_SPY}, aCaller, False{$ENDIF})/10000;
+  Result := KaMRandom(Round(aMax*10000){$IFDEF DBG_RNG_SPY}, aCaller, False{$ENDIF})/10000;
 
-  {$IFDEF RNG_SPY}
+  {$IFDEF DBG_RNG_SPY}
   LogKamRandom(Result, aCaller, 'S1S*');
   {$ENDIF}
 end;

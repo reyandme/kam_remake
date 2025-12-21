@@ -81,7 +81,7 @@
   {$DEFINE LOAD_GAME_RES_ASYNC}
 {$ENDIF}
 
-{$DEFINE RNG_SPY}
+{$DEFINE DBG_RNG_SPY}
 
 // Enable some debug features
 {.$DEFINE DEBUG}

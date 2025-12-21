@@ -117,9 +117,7 @@ uses
   KM_GameInputProcess_Single in 'src\game\gip\KM_GameInputProcess_Single.pas',
   
   KM_GameUIDTracker in 'src\game\misc\KM_GameUIDTracker.pas',
-  {$IFDEF RNG_SPY}
-  KM_RandomChecks in 'src\game\misc\KM_RandomChecks.pas',
-  {$ENDIF}
+  {$IFDEF DBG_RNG_SPY} KM_RandomChecks in 'src\game\misc\KM_RandomChecks.pas', {$ENDIF}
   
   KM_Alerts in 'src\game\notifications\KM_Alerts.pas',
   KM_MessageLog in 'src\game\notifications\KM_MessageLog.pas',

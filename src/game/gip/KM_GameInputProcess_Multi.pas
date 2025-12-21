@@ -439,7 +439,7 @@ begin
 
   fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
-  fRandomCheck[tick].OurCheck := Cardinal(KaMRandom(MaxInt{$IFDEF RNG_SPY}, 'TKMGameInputProcess_Multi.RunningTimer'{$ENDIF})); //thats our CRC (must go before commands for replay compatibility)
+  fRandomCheck[tick].OurCheck := Cardinal(KaMRandom(MaxInt{$IFDEF DBG_RNG_SPY}, 'TKMGameInputProcess_Multi.RunningTimer'{$ENDIF})); //thats our CRC (must go before commands for replay compatibility)
 
   // Execute commands
   for I := 1 to gNetworking.Room.Count do

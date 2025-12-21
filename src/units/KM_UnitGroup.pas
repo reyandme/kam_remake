@@ -287,7 +287,7 @@ begin
   fOrderLoc := KMPointDir(PosX, PosY, aDir);
 
   //Whole group should have the same condition
-  newCondition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS2(UNIT_CONDITION_RANDOM{$IFDEF RNG_SPY}, 'TKMUnitGroup.Create'{$ENDIF})));
+  newCondition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS2(UNIT_CONDITION_RANDOM{$IFDEF DBG_RNG_SPY}, 'TKMUnitGroup.Create'{$ENDIF})));
 
   if gGameParams.IsMapEditor then
   begin
@@ -879,7 +879,7 @@ begin
           end;
 
         if offender = nil then
-          offender := fOffenders[KaMRandom(fOffenders.Count{$IFDEF RNG_SPY}, 'TKMUnitGroup.CheckForFight'{$ENDIF})];
+          offender := fOffenders[KaMRandom(fOffenders.Count{$IFDEF DBG_RNG_SPY}, 'TKMUnitGroup.CheckForFight'{$ENDIF})];
 
         fMembers[I].OrderWalk(offender.PositionNext, False);
         // Set warrior attacking some offender, to avoid switching to another offender

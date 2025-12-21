@@ -798,7 +798,7 @@ begin
     for I := 0 to gHands[fOwner].Units.Count - 1 do
     begin
       //Checking for shortcuts is slow, so skip some units randomly each update
-      if KaMRandom(gHands[fOwner].Stats.GetUnitQty(utSerf){$IFDEF RNG_SPY}, 'TKMayor.CheckRoadsCount'{$ENDIF}) >= SHORTCUT_CHECKS_PER_UPDATE then
+      if KaMRandom(gHands[fOwner].Stats.GetUnitQty(utSerf){$IFDEF DBG_RNG_SPY}, 'TKMayor.CheckRoadsCount'{$ENDIF}) >= SHORTCUT_CHECKS_PER_UPDATE then
         Continue;
       if not gHands[fOwner].Units[I].IsDeadOrDying
       and (gHands[fOwner].Units[I].Action is TKMUnitActionWalkTo) then

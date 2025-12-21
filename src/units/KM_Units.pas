@@ -918,7 +918,7 @@ begin
   //and not thinking anything else (e.g. death)
   if fTask = nil then
   begin
-    if wasIdle and not IsHungry{(oldThought = thNone)} and (KaMRandom(2{$IFDEF RNG_SPY}, 'TKMUnitSerf.UpdateState'{$ENDIF}) = 0) then
+    if wasIdle and not IsHungry{(oldThought = thNone)} and (KaMRandom(2{$IFDEF DBG_RNG_SPY}, 'TKMUnitSerf.UpdateState'{$ENDIF}) = 0) then
       fThought := thQuest
     else
     if oldThought <> thQuest then
@@ -999,7 +999,7 @@ begin
 
   Result := (myCount > 0);
   if Result then
-    Loc := aList[spots[KaMRandom(myCount{$IFDEF RNG_SPY}, 'TKMUnitWorker.PickRandomSpot'{$ENDIF})]];
+    Loc := aList[spots[KaMRandom(myCount{$IFDEF DBG_RNG_SPY}, 'TKMUnitWorker.PickRandomSpot'{$ENDIF})]];
 end;
 
 
@@ -1246,7 +1246,7 @@ begin
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   if (gGameParams <> nil) and not gGameParams.IsMapEditor then
-    fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS2(UNIT_CONDITION_RANDOM{$IFDEF RNG_SPY}, 'TKMUnit.Create'{$ENDIF})))
+    fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS2(UNIT_CONDITION_RANDOM{$IFDEF DBG_RNG_SPY}, 'TKMUnit.Create'{$ENDIF})))
   else begin
     fCondition    := GetDefaultCondition;
     fStartWDefaultCondition := True;
@@ -1829,7 +1829,7 @@ end;
 
 procedure TKMUnit.UpdateLastTimeTrySetActionWalk;
 begin
-  fLastTimeTrySetActionWalk := fTicker + KaMRandom(10{$IFDEF RNG_SPY}, 'TKMUnit.TrySetActionWalk'{$ENDIF}); //Add random component to try set acion for group with a small delay
+  fLastTimeTrySetActionWalk := fTicker + KaMRandom(10{$IFDEF DBG_RNG_SPY}, 'TKMUnit.TrySetActionWalk'{$ENDIF}); //Add random component to try set acion for group with a small delay
 end;
 
 

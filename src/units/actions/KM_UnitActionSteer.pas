@@ -105,7 +105,7 @@ begin
   //Default is the next tile in the direction we're going
   loc := KMGetPointInDir(fUnit.Position, fUnit.Direction);
   //Decide whether we should change direction or not
-  if (KaMRandom(10{$IFDEF RNG_SPY}, 'TKMUnitActionSteer.ChooseNextStep'{$ENDIF}) < fDesireToSteer)
+  if (KaMRandom(10{$IFDEF DBG_RNG_SPY}, 'TKMUnitActionSteer.ChooseNextStep'{$ENDIF}) < fDesireToSteer)
   or not fUnit.CanStepTo(loc.X, loc.Y, fUnit.DesiredPassability) then
   begin
     fDesireToSteer := 0; //Reset it

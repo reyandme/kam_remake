@@ -898,7 +898,7 @@ begin
             or (gTerrain.Land^[Y, X].BaseLayer.Terrain = 263) then
           begin
             gTerrain.Land^[Y, X].BaseLayer.Terrain := tileTypeTo;
-            gTerrain.Land^[Y, X].BaseLayer.Rotation := KamRandom(4{$IFDEF RNG_SPY}, 'TKMSelection.SetNiceCoal'{$ENDIF});
+            gTerrain.Land^[Y, X].BaseLayer.Rotation := KamRandom(4{$IFDEF DBG_RNG_SPY}, 'TKMSelection.SetNiceCoal'{$ENDIF});
           end;
         end
         else

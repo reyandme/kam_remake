@@ -35,7 +35,7 @@ const
     {$IFNDEF USESECUREAUTH} + ' [ UNSECURE ]' {$ENDIF}
     {$IFDEF DEBUG} + ' [ DEBUG ]' {$ENDIF}
     {$IFDEF WDC64} + ' [ x64 ]' {$ENDIF}
-    {$IFDEF RNG_SPY} + ' [ RNGSSPY ]' {$ENDIF}
+    {$IFDEF DBG_RNG_SPY} + ' [ RNGSSPY ]' {$ENDIF}
     {$IFDEF PERFLOG} + ' [ PERFLOG ]' {$ENDIF}
     ;
 
