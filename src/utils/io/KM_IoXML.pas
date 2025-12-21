@@ -107,13 +107,12 @@ uses
   Variants, DateUtils, StrUtils;
 
 
-
-
 { TKMXMLDocument }
 class constructor TKMXmlDocument.Create();
 begin
   inherited;
 
+  //todo -cPractical: This code works not as expected. Review and fix
   FDateFormat := TFormatSettings.Create('dd/mm/yyyy');
 end;
 
@@ -323,25 +322,30 @@ begin
 end;
 {$ENDIF}
 
+
 function TKMSimpleVariant.AsBoolean: Boolean;
 begin
   Result := StrToBool(fValue);
 end;
+
 
 function TKMSimpleVariant.AsBoolean(aDefault: Boolean): Boolean;
 begin
   Result := StrToBoolDef(fValue, aDefault);
 end;
 
+
 function TKMSimpleVariant.AsCardinal: Cardinal;
 begin
   Result := StrToInt64(fValue);
 end;
 
+
 function TKMSimpleVariant.AsCardinal(aDefault: Cardinal): Cardinal;
 begin
   Result := StrToInt64Def(fValue, aDefault);
 end;
+
 
 function TKMSimpleVariant.AsDateTime: TDateTime;
 begin
@@ -350,6 +354,7 @@ begin
   // But we want to use our custom DateFormat and thus we will use StrToDateTime
   Result := StrToDateTimeDef(fValue, 0, TKMXmlDocument.FDateFormat);
 end;
+
 
 function TKMSimpleVariant.AsFloat: Single;
 var
@@ -360,6 +365,7 @@ begin
   Result := StrToFloat(str);
 end;
 
+
 function TKMSimpleVariant.AsFloat(aDefault: Single): Single;
 var
   str: string;
@@ -369,20 +375,24 @@ begin
   Result := StrToFloatDef(str, aDefault);
 end;
 
+
 function TKMSimpleVariant.AsInteger: Integer;
 begin
   Result := StrToInt(fValue);
 end;
+
 
 function TKMSimpleVariant.AsInteger(aDefault: Integer): Integer;
 begin
   Result := StrToIntDef(fValue, aDefault);
 end;
 
+
 function TKMSimpleVariant.AsString: string;
 begin
   Result := fValue;
 end;
+
 
 function TKMSimpleVariant.AsString(aDefault: string): string;
 begin
@@ -392,6 +402,7 @@ begin
     Result := aDefault;
 end;
 
+
 class operator TKMSimpleVariant.Implicit(const A: Boolean): TKMSimpleVariant;
 const
   BOOL_STR: array [Boolean] of string = ('False', 'True');
@@ -399,15 +410,18 @@ begin
   Result.fValue := BOOL_STR[A];
 end;
 
+
 class operator TKMSimpleVariant.Implicit(const A: Cardinal): TKMSimpleVariant;
 begin
   Result.fValue := '$' + IntToHex(A, 8);
 end;
 
+
 class operator TKMSimpleVariant.Implicit(const A: Integer): TKMSimpleVariant;
 begin
   Result.fValue := IntToStr(A);
 end;
+
 
 class operator TKMSimpleVariant.Implicit(const A: Single): TKMSimpleVariant;
 var
@@ -423,6 +437,7 @@ begin
 
   Result.fValue := str;
 end;
+
 
 class operator TKMSimpleVariant.Implicit(const A: string): TKMSimpleVariant;
 begin
