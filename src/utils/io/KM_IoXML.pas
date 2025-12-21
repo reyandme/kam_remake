@@ -113,7 +113,8 @@ begin
   inherited;
 
   //todo -cPractical: This code works not as expected. Review and fix
-  FDateFormat := TFormatSettings.Create('dd/mm/yyyy');
+  FDateFormat := TFormatSettings.Create();
+  FDateFormat.ShortDateFormat := 'dd/mm/yyyy';
 end;
 
 constructor TKMXmlDocument.Create(const aRoot: string = 'Root');
