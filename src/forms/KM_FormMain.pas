@@ -8,7 +8,7 @@ uses
   KM_WindowParams, KM_SettingsDev, KM_GameTypes,
   KM_Defaults, KM_ResExporter,
   {$IFDEF FPC} LResources, Spin, {$ENDIF}
-  {$IFNDEF FPC} Vcl.Samples.Spin, {$ENDIF}  // For some unnown reason Delphi auto add Vcl.Samples.Spin when use {$IFDEF WDC}
+  {$IFNDEF FPC} Vcl.Samples.Spin, {$ENDIF}  // For some unknown reason Delphi auto add Vcl.Samples.Spin when use {$IFDEF WDC}
   {$IFDEF MSWindows} KM_VclMenuHint, ShellAPI, Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
 
