@@ -108,12 +108,15 @@ uses
 
 
 { TKMXMLDocument }
-class constructor TKMXmlDocument.Create();
+class constructor TKMXmlDocument.Create;
 begin
   inherited;
 
+  {$IFDEF WDC}
   //todo -cPractical: This code works not as expected. Review and fix
+  // On FPC this does not compile at all, since there's no TFormatSettings.Create(string) at all
   FDateFormat := TFormatSettings.Create('dd/mm/yyyy');
+  {$ENDIF}
 end;
 
 constructor TKMXmlDocument.Create(const aRoot: string = 'Root');
