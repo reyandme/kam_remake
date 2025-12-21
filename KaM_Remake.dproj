@@ -454,8 +454,8 @@
         <DCCReference Include="src\navmesh\KM_NavMeshInfluences.pas"/>
         <DCCReference Include="src\navmesh\KM_NavMeshDefences.pas"/>
         <DCCReference Include="src\navmesh\KM_NavMeshArmyVectorField.pas"/>
-        <DCCReference Include="src\net\KM_NetAuthSecure.pas"/>
         <DCCReference Include="src\net\KM_NetAuthUnsecure.pas"/>
+        <DCCReference Include="src\net\KM_NetAuthSecure.pas"/>
         <DCCReference Include="src\net\KM_NetClient.pas"/>
         <DCCReference Include="src\net\KM_NetClientOverbyte.pas"/>
         <DCCReference Include="src\net\KM_NetClientLNet.pas"/>

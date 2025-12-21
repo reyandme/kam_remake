@@ -70,8 +70,8 @@
   {$WARN DUPLICATES_IGNORED ERROR}    // W1051 Duplicate symbol names in namespace. Using '%s.%s' found in %s. Ignoring duplicate in %s
 {$ENDIF}
 
-// Use secure authentication unit (KM_NetAuthSecure)
-{$DEFINE USESECUREAUTH}
+// Allows to skip secure authentication unit (KM_NetAuthSecure) if you dont have it
+{.$DEFINE DBG_SKIP_SECURE_AUTH}
 
 // Enable perflog (should be disabled for release / release candidate versions)
 {$DEFINE DBG_PERFLOG}

@@ -280,10 +280,10 @@ uses
   //KM_NavMeshArmyPositioning in 'src\navmesh\KM_NavMeshArmyPositioning.pas',
   KM_NavMeshArmyVectorField in 'src\navmesh\KM_NavMeshArmyVectorField.pas',
 
-  {$IFDEF USESECUREAUTH}
-    KM_NetAuthSecure in 'src\net\KM_NetAuthSecure.pas',
-  {$ELSE}
+  {$IFDEF DBG_SKIP_SECURE_AUTH}
     KM_NetAuthUnsecure in 'src\net\KM_NetAuthUnsecure.pas',
+  {$ELSE}
+    KM_NetAuthSecure in 'src\net\KM_NetAuthSecure.pas',
   {$ENDIF}
   KM_NetClient in 'src\net\KM_NetClient.pas',
   {$IFDEF WDC} KM_NetClientOverbyte in 'src\net\KM_NetClientOverbyte.pas', {$ENDIF}

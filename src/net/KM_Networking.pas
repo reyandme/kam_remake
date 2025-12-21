@@ -9,11 +9,11 @@ uses
   KM_CommonClasses, KM_CommonTypes, KM_NetGameInfo, KM_NetTypes, KM_Defaults, KM_Points,
   KM_Saves, KM_GameOptions, KM_ResLocales, KM_NetFileTransfer, KM_Maps, KM_MapTypes, KM_NetRoom,
   KM_NetDedicatedServer, KM_NetClient, KM_NetServerPoller,
-  {$IFDEF USESECUREAUTH}
-    // If you don't have this file - disable USESECUREAUTH in KaM_Remake.inc
-    KM_NetAuthSecure
-  {$ELSE}
+  {$IFDEF DBG_SKIP_SECURE_AUTH}
     KM_NetAuthUnsecure
+  {$ELSE}
+    // If you don't have this file - enable DBG_SKIP_SECURE_AUTH in KaM_Remake.inc
+    KM_NetAuthSecure
   {$ENDIF}
   ;
 
