@@ -834,6 +834,7 @@ begin
   // Grow rect by 1, cause of possible Tree's on the edges, which could affect passability
   gTerrain.UpdatePassability(KMRectGrow(fSelectionRect, 1));
   gTerrain.UpdateFences(fSelectionRect);
+  gTerrain.UpdateWalkConnect([wcWalk, wcFish, wcWork], fSelectionRect, True);
 end;
 
 
