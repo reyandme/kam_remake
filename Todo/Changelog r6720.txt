@@ -135,7 +135,7 @@ Improvements:
 + Wares need to be taken out of the barracks for trading at the market
 + Terrain painting brushes in MapEd
 + Disabling Market buttons will let player know that he can't select new trade without canceling current one
-+ Improved stats panel, when possible items are placed one per row 
++ Improved stats panel, when possible items are placed one per row
 + Host can set password for lobby
 + Sliders in lobby for selecting speed during peacetime and after peacetime
 + Army graph starts 5% before the first variation (to skip peacetime)
@@ -201,7 +201,7 @@ Fixes:
 + The game should display time played without clipping it to 24hours
 + Woodcutter should take his axe with him from home when he is going out to chop trees
 + "Under attack" messages should play when the loc is not visible on your screen, rather than using arbitrary >=30 rule
-+ Farmer should not sow corn on tiles left after demolished houses that were built ontop of roads built ontop of fields 
++ Farmer should not sow corn on tiles left after demolished houses that were built ontop of roads built ontop of fields
 + Placing a house above other players units in MapEd is now handled on mission load (it caused a crash before)
 + Pressing the "Restart" button during a replay would sometimes cause a crash
 + Resource harvesting now checks walking length rather than direct distance to stop e.g. woodcutters walking all the way around a mountain/river
@@ -676,7 +676,7 @@ Major features:
 + Briefings: on fullscreen (1366*768) the message jumps over the right edge of the screen
 + "Unit walk not fRouteBuilt" error. (Issue 28)
 + Clicking on anything during gameplay will shift viewport a little
-+ StoneMines mission in r977 crashes on 39min for some delivery being performed twice 
++ StoneMines mission in r977 crashes on 39min for some delivery being performed twice
 + Multiple units added by ct_SetUnitByStock will stack on one tile after autoplacement fails (~80+ units)
 + Occupied tile has no unit on it (Issue 27) (same as above)
 + Finished delivery will abandon twice and crash if unit dies while waiting to exit from destination house
