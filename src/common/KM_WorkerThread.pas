@@ -5,14 +5,21 @@ uses
   Classes, SysUtils, Generics.Collections;
 
 type
+  // FPC 3.2.2 still has problems with TProc and TProc<>
+  // Hence the simplest solution is to excelude this utility unit from DedicatedServer projects
+  {$IFDEF WDC}
   TKMWorkerThreadTask = class
   public
     TaskName: string;
     Proc: TProc;
     OnDone: TProc<String>;
   end;
+  {$ENDIF}
 
   TKMWorkerThread = class(TThread)
+  // FPC 3.2.2 still has problems with TProc and TProc<>
+  // Hence the simplest solution is to excelude this utility unit from DedicatedServer projects
+  {$IFDEF WDC}
   private
     fWorkerThreadName: string;
     fWorkCompleted: Boolean;
@@ -35,12 +42,14 @@ type
     procedure QueueWorkAndLog(aProc: TProc; aTaskName: string = '');
 
     procedure WaitForAllWorkToComplete;
+  {$ENDIF}
   end;
 
 
   // Holder of WorkerThread
   // It should manage its state and recreate an instance if needed
   TKMWorkerThreadHolder = class
+  {$IFDEF WDC}
   private
     fWorkerThreadName: string;
     fWorkerThread: TKMWorkerThread;
@@ -50,6 +59,7 @@ type
     destructor Destroy; override;
 
     property Worker: TKMWorkerThread read GetWorkerThread write fWorkerThread;
+  {$ENDIF}
   end;
 
 
@@ -58,6 +68,7 @@ uses
   KM_Log;
 
 
+{$IFDEF WDC}
 { TKMWorkerThread }
 constructor TKMWorkerThread.Create(const aThreadName: string = '');
 begin
@@ -283,6 +294,7 @@ begin
 
   Result := fWorkerThread;
 end;
+{$ENDIF}
 
 
 end.

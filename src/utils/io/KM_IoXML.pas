@@ -108,12 +108,14 @@ uses
 
 
 { TKMXMLDocument }
-class constructor TKMXmlDocument.Create();
+class constructor TKMXmlDocument.Create;
 begin
   inherited;
 
+  {$IFDEF WDC}
   FDateFormat := TFormatSettings.Create();
   FDateFormat.ShortDateFormat := 'ddmmyyyy';
+  {$ENDIF}
 end;
 
 constructor TKMXmlDocument.Create(const aRoot: string = 'Root');
