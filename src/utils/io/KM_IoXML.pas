@@ -113,9 +113,8 @@ begin
   inherited;
 
   {$IFDEF WDC}
-  //todo -cPractical: This code works not as expected. Review and fix
-  // On FPC this does not compile at all, since there's no TFormatSettings.Create(string) at all
-  FDateFormat := TFormatSettings.Create('dd/mm/yyyy');
+  FDateFormat := TFormatSettings.Create();
+  FDateFormat.ShortDateFormat := 'ddmmyyyy';
   {$ENDIF}
 end;
 
