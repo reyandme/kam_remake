@@ -624,97 +624,12 @@ Scripts:
 + remove States.CampaignUnlockedMissionID since it could lead to replay desync
 + AI AutoRepair replaced with enum type of TKMRepairMode, so mapmakers could manage houses repair via Actions.HouseRepairEnable manually from script
 + add scripting actions to set/unset scripting overlay word wrap and font
-+ added Actions
-	AIDefencePositionRemoveByUID
-	GiveHouseSiteEx
-	HouseAddBuildingMaterialsEx
-	HouseAddBuildingProgressEx
-  HouseBarracksGiveRecruits
++ added Actions AIDefencePositionRemoveByUID, GiveHouseSiteEx, HouseAddBuildingMaterialsEx, HouseAddBuildingProgressEx, HouseBarracksGiveRecruits
 + add scripting states and actions duplicates to be used with named Enums and Records instead of Integer values.
   Check wiki for detailed information
   https://github.com/reyandme/kam_remake/wiki/Actions-(Mission-Script-Dynamic)
   https://github.com/reyandme/kam_remake/wiki/States-(Mission-Script-Dynamic)
   New script types could be found at https://github.com/reyandme/kam_remake/wiki/Types-(Mission-Script-Dynamic)
-
-Full list of additions / changes for those duplicate functions:
-Added:
-
-States:
-AIDefencePositionGetEx
-AIGroupsFormationGetEx
-ClosestGroupEx
-ClosestGroupMultipleTypesEx
-ClosestHouseEx
-ClosestHouseMultipleTypesEx
-ClosestUnitEx
-ClosestUnitMultipleTypesEx
-GroupTypeEx
-HandHouseCanBuild
-HandUnitCanTrain
-HandHouseLock
-HandWareDistribution
-HouseBarracksRecruitBlock
-HouseTypeEx
-HouseTypeMaxHealthEx
-HouseTypeNameEx
-HouseWareBlockedEx
-MapTilePassabilityEx
-MarketFromWareEx
-MarketToWareEx
-MarketValueEx
-StatHouseMultipleTypesCountEx
-StatHouseTypeCountEx
-StatHouseTypePlansCountEx
-StatResourceProducedCountEx
-StatResourceProducedMultipleTypesCountEx
-StatUnitKilledCountEx
-StatUnitKilledMultipleTypesCountEx
-StatUnitLostCountEx
-StatUnitLostMultipleTypesCountEx
-StatUnitMultipleTypesCountEx
-StatUnitTypeCountEx
-UnitCarryingEx
-UnitDirectionEx
-UnitTypeEx
-UnitTypeNameEx
-WareTypeNameEx
-
-Events:
-OnHouseAfterDestroyedEx
-OnHousePlanPlacedEx
-OnHousePlanRemovedEx
-OnMarketTradeEx
-OnUnitAfterDiedEx
-
-Actions:
-AIAttackAddEx
-AIDefencePositionAddEx
-AIGroupsFormationSetEx
-HandTradeAllowed
-HandUnitCanTrain
-HandWareDistribution
-GiveAnimalEx
-GiveGroupEx
-GiveUnitEx
-GiveHouseEx
-GiveHouseSiteEx
-GiveWaresEx
-GiveWeaponsEx
-GroupOrderWalkEx
-HouseAddBuildingMaterialsEx
-HouseAddBuildingProgressEx
-HouseAddWaresToEx
-HouseBarracksGiveRecruits
-HouseBarracksEquipEx
-HouseBarracksRecruitBlock
-HouseSchoolQueueAddEx
-HouseTakeWaresFromEx
-HouseTownHallEquipEx
-HouseWareBlockEx
-HouseWeaponsOrderSetEx
-MarketSetTradeEx
-PlanAddHouseEx
-UnitDirectionSetEx
 
 Changes:
 States.HouseDeliveryMode to use TKMDeliveryMode instead of Integer
@@ -934,30 +849,16 @@ MapEd with new tools by @King Dyron
 + fix horisontal flip for the tiles with ID > 256
 
 Scripting:
-+ added script functions
-Actions
-HouseWareBlockTakeOut
-HouseAllowAllyToSelect
-HouseAllowAllyToSelectAll
-UnitAllowAllyToSelect
-GroupAllowAllyToSelect
++ added script Actions: HouseWareBlockTakeOut, HouseAllowAllyToSelect, HouseAllowAllyToSelectAll, UnitAllowAllyToSelect, GroupAllowAllyToSelect
 
-States
-HouseBarracksRecruitsCount
-HouseWareBlockedTakeOut
-HouseAllowAllyToSelect
-UnitAllowAllyToSelect
-GroupAllowAllyToSelect
-CampaignMissionID
-CampaignMissionsCount
-CampaignUnlockedMissionID
+States: HouseBarracksRecruitsCount, HouseWareBlockedTakeOut, HouseAllowAllyToSelect, UnitAllowAllyToSelect, GroupAllowAllyToSelect, CampaignMissionID, CampaignMissionsCount, CampaignUnlockedMissionID
 
-+ allow to set tiles with IDs 108, 109, 110, and with ID > 255
++ Allowed to set tiles with IDs 108, 109, 110, and with ID > 255
 
 Misc
-+ disable ability to view allied houses in SP
-+ disable videos when run under wine
-+ added view readme (pdf) button for single map menu
++ Disable ability to view allied houses in SP
++ Disable videos when run under wine
++ Added view readme (pdf) button for single map menu
 + use 'Modding graphics' folder, as a default folder to swap game png's with a custom one ('Sprites' folder is still supported)
 + increased max stone / gold / iron values on RMG settings
 + added 1st custom animated cursor (spinning wheel made of army direction selector)
