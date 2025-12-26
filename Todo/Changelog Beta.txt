@@ -16,6 +16,11 @@
 
 KaM Remake Beta r_____ []
 ------------------------------
++ Excluded OpenAL32.dll from the installation (as it doesn't work for some PCs)
+
+
+KaM Remake Beta r16020 [2025.12.26]
+------------------------------
 Game:
 + Fixed HD animations flickering
 + Fixed Scout sight range to be 13
