@@ -2,7 +2,7 @@
 
 ---
 
-[Systemanforderungen](#systemanforderungen) · [Installation](#installation) · [Gameplay](#gameplay) · [Häufig gestellte Fragen](#häufig-gestellte-fragen) · [Community und feedback](#community-und-feedback) · [Bekannte Fehler](#bekannte-fehler-und-einschränkungen) · [Quelltext](#quelltext) · [Credits](#credits) · [Impressum](#impressum)
+[Systemanforderungen](#-systemanforderungen) · [Installation](#-installation) · [Gameplay](#-gameplay) · [Häufig gestellte Fragen](#-häufig-gestellte-fragen) · [Community und feedback](#-community-und-feedback) · [Bekannte Fehler](#-bekannte-fehler-und-einschränkungen) · [Quelltext](#-quelltext) · [Credits](#-credits) · [Impressum](#-impressum)
 
 ---
 
@@ -76,7 +76,7 @@ Siehe diesen Link: <https://www.kamremake.com/faq/>
 ## ![](Readme/GUI_0323.gif) Community und Feedback
 
 Trete unserer Community bei <https://discord.gg/UkkYceR>. Wir freuen uns über Kommentare, Anregungen, Danksagungen, etc.
-Wenn ihr etwas Hilfe in Sachen Delphi, Dokumentation, Spielgrafik, Geräusche, Übersetzung oder Ideen für Verbesserungen habt - sende uns bitte eine E-Mail oder schreibe im Discord. 
+Wenn ihr etwas Hilfe in Sachen Delphi, Dokumentation, Spielgrafik, Geräusche, Übersetzung oder Ideen für Verbesserungen habt - sende uns bitte eine E-Mail oder schreibe im Discord. Lesen Sie auch <https://github.com/reyandme/kam_remake/wiki/Contributions>.
 
 # ![](Readme/GUI_0304.gif) Bekannte Fehler und Einschränkungen
 
