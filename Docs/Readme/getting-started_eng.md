@@ -1,10 +1,13 @@
+[🇵🇱 Polski](https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_pol.md) | [🇩🇪 Deutsch](https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_ger.md) | [🇷🇺 Русский](https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_rus.md)
+
 **Brought to you by Krom, Lewin and Rey**
 
 ---
 
-[System requirements](#system-requirements) · [Installation](#installation) · [Gameplay](#gameplay) · [F.A.Q.](#frequently-asked-questions) · [Community and feedback](#community-and-feedback) · [Known bugs](#known-bugs-and-limitations) · [Source Code](#source-code) · [Credits](#credits) · [Legal notice](#legal-notice)
+[System requirements](#-system-requirements) · [Installation](#-installation) · [Gameplay](#-gameplay) · [F.A.Q.](#-frequently-asked-questions) · [Community and feedback](#-community-and-feedback) · [Known bugs](#-known-bugs-and-limitations) · [Source Code](#-source-code) · [Credits](#-credits) · [Legal notice](#-legal-notice)
 
 ---
+
 
 ### ![](Readme/GUI_0310.gif) System requirements
 
@@ -76,7 +79,7 @@ See <https://www.kamremake.com/faq/>
 ## ![](Readme/GUI_0323.gif) Community and Feedback
 
 Join our community at <https://discord.gg/UkkYceR>. We would love your comments, suggestions, thanks, etc.  
-If you can offer some help in Delphi coding, documentation, game artwork, sounds, translation or ideas for improvement - please drop us an email or write on Discord. 
+If you can offer some help in Delphi coding, documentation, game artwork, sounds, translation or ideas for improvement - please drop us an email or write on Discord. Also, check <https://github.com/reyandme/kam_remake/wiki/Contributions>.
 
 # ![](Readme/GUI_0304.gif) Known bugs and limitations
 

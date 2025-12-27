@@ -2,7 +2,7 @@
 
 ---
 
-[Wymagania sprzętowe](#wymagania-sprzętowe) · [Instalacja](#instalacja) · [Rozgrywka](#rozgrywka) · [F.A.Q.](#najczęściej-zadawane-pytania) · [Community and feedback](#społeczność-i-twoja-opinia) · [Known bugs](#znane-problemy) · [Kod źródłowy](#kod-źródłowy) · [Twórcy](#twórcy) · [Nota prawna](#nota-prawna)
+[Wymagania sprzętowe](#-wymagania-sprzętowe) · [Instalacja](#-instalacja) · [Rozgrywka](#-rozgrywka) · [F.A.Q.](#-najczęściej-zadawane-pytania) · [Społeczność i twoja opinia](#-społeczność-i-twoja-opinia) · [Znane problemy](#-znane-problemy) · [Kod źródłowy](#-kod-źródłowy) · [Twórcy](#-twórcy) · [Nota prawna](#-nota-prawna)
 
 ---
 
@@ -76,7 +76,7 @@ Zobacz <https://www.kamremake.com/faq/>
 ## ![](Readme/GUI_0323.gif) Społeczność i twoja opinia
 
 Dołącz do naszej społeczności na <https://discord.gg/UkkYceR>. Chcemy usłyszeć twoje komentarze, sugestie, podziękowania, itd.  
-Zawsze szukamy osób chętnych pomóc nam z programowaniem (Delphi), dokumentacją, grafikami gry, dźwiękami, tłumaczeniem lub pomysłami na ulepszenia - wyślij nam maila lub napisz na Discordzie.
+Zawsze szukamy osób chętnych pomóc nam z programowaniem (Delphi), dokumentacją, grafikami gry, dźwiękami, tłumaczeniem lub pomysłami na ulepszenia - wyślij nam maila lub napisz na Discordzie. Sprawdź również <https://github.com/reyandme/kam_remake/wiki/Contributions>. 
 
 # ![](Readme/GUI_0304.gif) Znane problemy
 
