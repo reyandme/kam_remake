@@ -2187,6 +2187,9 @@ begin
               // We were asked to send crashreport. Raise new Exception then
               aStream.ReadW(tmpStringW);
               gLog.AddTime('Received mkAskToSendCrashreport with player error msg: ' + tmpStringW);
+
+              //todo -cPractical: We need to Disconnect here, so that we dont handle any more messages from the Networking (otherwise we get several exceptions in a row)
+
               raise Exception.Create(Format(gResTexts[TX_ERROR_ASK_TO_SEND_RNGCHECK_REPORT], [#13#10#13#10, tmpStringW]));
             end;
 
