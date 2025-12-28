@@ -78,7 +78,7 @@ type
     function GetWaitingPlayers(aTick: Cardinal): TKMByteArray;
     procedure RecieveCommands(aStream: TKMemoryStream; aSenderIndex: ShortInt); //Called by TKMNetwork when it has data for us
     procedure ResyncFromTick(aSender: ShortInt; aTick: Cardinal);
-    function CommandsConfirmed(aTick: Cardinal): Boolean;
+    function CommandsReceived(aTick: Cardinal): Boolean;
     procedure RunningTimer(aTick: Cardinal); override;
     procedure UpdateState(aTick: Cardinal); override;
   end;
@@ -401,15 +401,14 @@ begin
 end;
 
 
-//Are all the commands are confirmed?
-function TKMGameInputProcess_Multi.CommandsConfirmed(aTick: Cardinal): Boolean;
+// Are all the commands for the tick received? (Note that Random check is a separate process)
+function TKMGameInputProcess_Multi.CommandsReceived(aTick: Cardinal): Boolean;
 var
   I: Integer;
 begin
   Result := True;
   for I := 1 to gNetworking.Room.Count do
-    Result := Result and
-                (fRecievedData[aTick mod MAX_SCHEDULE, I] or gNetworking.Room[I].NoNeedToWait(aTick));
+    Result := Result and (fRecievedData[aTick mod MAX_SCHEDULE, I] or gNetworking.Room[I].NoNeedToWait(aTick));
 end;
 
 

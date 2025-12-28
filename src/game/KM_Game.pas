@@ -3252,7 +3252,7 @@ begin
                             // Other NetGameState's states could also have potential problems
                             if gNetworking.NetGameState = lgsGame then // MP game in Game state
                             begin
-                              if gipMP.CommandsConfirmed(fParams.Tick + 1) then
+                              if gipMP.CommandsReceived(fParams.Tick + 1) then
                                 Result := PlayGameTick
                               else
                               begin
