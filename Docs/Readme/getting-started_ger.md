@@ -62,7 +62,7 @@ Man kann weitere von der Community erstellen Karten unter <https://knights-taver
 #### Hinzufügen benutzerdefinierter Musik:
 Du kannst deine MP3/OGG-Dateien in den Musikordner des des KaM Remake-Verzeichnisses legen und sie werden automatisch in die Wiedergabe aufgenommen.
 
-# 🛡️ Häufig gestellte Fragen
+# 📜 Häufig gestellte Fragen
 **Abstürze ohne Benachrichtigung:**  
 Wenn das KaM Remake ohne Meldung während des Startens abstürzt, sendet uns bitte die Log-Datei auf unserem Discord-Kanal, sowie alle anderen Informationen, die ihr finden könnt und uns nützlich sein könnten.
 

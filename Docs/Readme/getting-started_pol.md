@@ -62,7 +62,7 @@ Dodatkowe mapy możesz znaleźć na stronie <https://knights-tavern.com>.
 #### Dodawanie własnej muzyki:
 Możesz wrzucić własne pliki MP3/OGG do folderu Music w katalogu z KaM Remake, i zostaną one automatycznie dodane do listy piosenek.
 
-# 🛡️ Najczęściej zadawane pytania
+# 📜 Najczęściej zadawane pytania
 **Ciche awarie:**  
 Jeśli KaM Remake doznał awarii i sie wyłączył, wyślij plik z logami na nasz kanał Discord, razem ze wszystkimi informacjami, które moga pomóc w zrozumieniu problemu.
 

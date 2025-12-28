@@ -14,7 +14,7 @@ See also our website: <http://www.kamremake.com/about/>
 [🇩🇪 Deutsch](Docs/Readme/getting-started_ger.md)
 [🇷🇺 Русский](Docs/Readme/getting-started_rus.md)
 
-## 🛡️ Key features
+## 📜 Key features
 
 - multiplayer with support for up to 12 players, spectators, map/save transfers in lobby, randomly generated maps - and much more...
 - modern screen resolution and zoom in/out

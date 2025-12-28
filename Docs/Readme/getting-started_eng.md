@@ -64,7 +64,7 @@ You can find additional community-made maps at <https://knights-tavern.com>.
 #### Adding custom music:
 You can put your MP3/OGG files into the Music folder of the KaM Remake, and they will be included into the playlist automatically.
 
-# 🛡️ Frequently Asked Questions
+# 📜 Frequently Asked Questions
 **Silent crashes:**  
 If the KaM Remake crashes silently during startup, please send the log file to our Discord channel, along with any other information that might be of use.
 
