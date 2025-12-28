@@ -35,6 +35,7 @@ type
     PlayerCheck: array [1..MAX_LOBBY_SLOTS] of Cardinal;
     PlayerCheckPending: array [1..MAX_LOBBY_SLOTS] of Boolean;
   end;
+  PKMRandomCheck = ^TKMRandomCheck;
 
   TKMGameInputProcess_Multi = class(TKMGameInputProcess)
   private
@@ -321,32 +322,34 @@ end;
 
 procedure TKMGameInputProcess_Multi.DoRandomCheck(aTick: Cardinal; aPlayerIndex: ShortInt);
 var
+  psc: PKMRandomCheck;
   myData, otherData: TKMRngCheckPlayerData;
   errorStr: string;
 begin
-  with fRandomCheck[aTick mod MAX_SCHEDULE] do
+  psc := @fRandomCheck[aTick mod MAX_SCHEDULE];
+
+  if psc.OurCheck <> psc.PlayerCheck[aPlayerIndex] then
   begin
-    if OurCheck <> PlayerCheck[aPlayerIndex] then
-    begin
-      myData.PlayerIndex := gNetworking.MySlotIndex;
-      myData.HandID      := gNetworking.MyRoomSlot.HandIndex;
-      myData.Nickname    := gNetworking.MyRoomSlot.Nickname;
-      myData.Check       := OurCheck;
+    myData.PlayerIndex := gNetworking.MySlotIndex;
+    myData.HandID      := gNetworking.MyRoomSlot.HandIndex;
+    myData.Nickname    := gNetworking.MyRoomSlot.Nickname;
+    myData.Check       := psc.OurCheck;
 
-      otherData.PlayerIndex := aPlayerIndex;
-      otherData.HandID      := gNetworking.Room[aPlayerIndex].HandIndex;
-      otherData.Nickname    := gNetworking.Room[aPlayerIndex].Nickname;
-      otherData.Check       := PlayerCheck[aPlayerIndex];
+    otherData.PlayerIndex := aPlayerIndex;
+    otherData.HandID      := gNetworking.Room[aPlayerIndex].HandIndex;
+    otherData.Nickname    := gNetworking.Room[aPlayerIndex].Nickname;
+    otherData.Check       := psc.PlayerCheck[aPlayerIndex];
 
-      errorStr := Format(#13#10 + 'Random check mismatch for tick %d processed at tick %d:' + #13#10 +
-                         'MyPlayer: [%s],' + #13#10 +
-                         'OtherPlayer: [%s]',
-                         [aTick, gGameParams.Tick, myData.ToStr, otherData.ToStr]);
-      gNetworking.AskToSendCrashreport(aPlayerIndex, errorStr);
-      raise Exception.Create(errorStr);
-    end;
-    PlayerCheckPending[aPlayerIndex] := False;
+    errorStr := Format(#13#10 + 'Random check mismatch for tick %d processed at tick %d:' + #13#10 +
+                       'MyPlayer: [%s],' + #13#10 +
+                       'OtherPlayer: [%s]',
+                       [aTick, gGameParams.Tick, myData.ToStr, otherData.ToStr]);
+    gNetworking.AskToSendCrashreport(aPlayerIndex, errorStr);
+    raise Exception.Create(errorStr);
   end;
+
+  // Whatever the result, the check is no longer pending
+  psc.PlayerCheckPending[aPlayerIndex] := False;
 end;
 
 
