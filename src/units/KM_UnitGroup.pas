@@ -26,6 +26,7 @@ type
     fDisableHungerMessage: Boolean;
     fBlockPlayerOrders: Boolean; // Block orders from the script
     fManualFormation: Boolean;
+    fMembersPushbackCommandsCnt: Word;
 
     fOrder: TKMGroupOrder; //Remember last order incase we need to repeat it (e.g. to joined members)
     fOrderLoc: TKMPointDir; //Dir is the direction to face after order
@@ -61,6 +62,9 @@ type
     procedure HungarianReorderMembers;
 
     function GetFlagColor: Cardinal;
+
+    procedure SetGroupOrder(aOrder: TKMGroupOrder);
+    function GetPushbackLimit: Word; inline;
 
     function GetOrderTargetUnit: TKMUnit;
     function GetOrderTargetGroup: TKMUnitGroup;
@@ -262,6 +266,7 @@ begin
 
   AddMember(aCreator);
   UnitsPerRow := 1;
+  fMembersPushbackCommandsCnt := 0;
 end;
 
 
@@ -321,6 +326,7 @@ begin
 
   //We could not set it earlier cos it's limited by Count
   UnitsPerRow := aUnitPerRow;
+  fMembersPushbackCommandsCnt := 0;
 end;
 
 
@@ -364,6 +370,7 @@ begin
   LoadStream.Read(fDisableHungerMessage);
   LoadStream.Read(fBlockPlayerOrders);
   LoadStream.Read(fManualFormation);
+  LoadStream.Read(fMembersPushbackCommandsCnt);
 end;
 
 
@@ -444,6 +451,7 @@ begin
   SaveStream.Write(fDisableHungerMessage);
   SaveStream.Write(fBlockPlayerOrders);
   SaveStream.Write(fManualFormation);
+  SaveStream.Write(fMembersPushbackCommandsCnt);
 end;
 
 
@@ -605,6 +613,13 @@ begin
 end;
 
 
+procedure TKMUnitGroup.SetGroupOrder(aOrder: TKMGroupOrder);
+begin
+  fOrder := aOrder;
+  fMembersPushbackCommandsCnt := 0;
+end;
+
+
 procedure TKMUnitGroup.SetCondition(aValue: Integer);
 var
   I: Integer;
@@ -637,6 +652,19 @@ begin
     fUnitsPerRow := EnsureRange(aCount, 1, fMapEdCount)
   else
     fUnitsPerRow := EnsureRange(aCount, 1, Count);
+end;
+
+
+//Locally stored limit, save it just to avoid its calculation every time
+function TKMUnitGroup.GetPushbackLimit: Word;
+const
+  //Const values were received from tests
+  ORDERWALK_PUSHBACK_PER_MEMBER_MAX_CNT = 2.5;
+  COUNT_POWER_COEF = 1.07;
+begin
+  //Progressive formula, since for very large groups (>100 members) we neen to allow more pushbacks,
+  //otherwise it will be hard to group to get to its position on a crowed areas
+  Result := Round(Math.Power(Count, COUNT_POWER_COEF) * ORDERWALK_PUSHBACK_PER_MEMBER_MAX_CNT);
 end;
 
 
@@ -896,6 +924,8 @@ var
   orderExecuted: Boolean;
   P: TKMPointExact;
   U: TKMUnitWarrior;
+  pushbackLimit: Word;
+  pushbackLimitReached: Boolean;
 begin
   orderExecuted := False;
 
@@ -905,9 +935,11 @@ begin
     goNone:         orderExecuted := False;
     goWalkTo:       begin
                       orderExecuted := True;
+                      pushbackLimit := GetPushbackLimit; //Save it to avoid recalc for every unit
                       for I := 0 to Count - 1 do
                       begin
-                        orderExecuted := orderExecuted and fMembers[I].IsIdle and fMembers[I].OrderDone;
+                        pushbackLimitReached := fMembersPushbackCommandsCnt > pushbackLimit;
+                        orderExecuted := orderExecuted and fMembers[I].IsIdle and (fMembers[I].OrderDone or pushbackLimitReached);
 
                         if fMembers[I].OrderDone then
                         begin
@@ -921,11 +953,13 @@ begin
                         end
                         else
                           //Guide Idle and pushed units back to their places
-                          if (fMembers[I].IsIdle
+                          if not pushbackLimitReached
+                            and (fMembers[I].IsIdle
                                  or ((fMembers[I].Action is TKMUnitActionWalkTo) and TKMUnitActionWalkTo(fMembers[I].Action).WasPushed)) then
                           begin
                             P := GetMemberLocExact(I);
                             fMembers[I].OrderWalk(P.Loc, P.Exact);
+                            fMembersPushbackCommandsCnt := Min(fMembersPushbackCommandsCnt + 1, High(Word));
                           end;
                       end;
                     end;
@@ -1226,7 +1260,7 @@ begin
   if aClearOffenders and CanTakePlayerOrders then
     ClearOffenders;
 
-  fOrder := goAttackHouse;
+  SetGroupOrder(goAttackHouse);
   fOrderLoc := KMPointDir(0, 0, dirNA);
   OrderTargetHouse := aHouse;
 
@@ -1258,7 +1292,7 @@ begin
   if IsRanged then
   begin
     //Ranged units should walk in formation to within range of the enemy
-    fOrder := goAttackUnit;
+    SetGroupOrder(goAttackUnit);
     OrderTargetUnit := aUnit;
 
     //First choose fOrderLoc, which is where the leader will stand to shoot
@@ -1275,7 +1309,7 @@ begin
         else
         begin
           OrderTargetUnit := nil; //Target cannot be reached, so abort completely
-          fOrder := goNone;
+          SetGroupOrder(goNone);
           FreeAndNil(nodeList);
           Exit;
         end;
@@ -1339,7 +1373,7 @@ begin
       Members[I].SetAttackingUnit(aUnit);
 
     //Revert Order to proper one (we disguise Walk)
-    fOrder := goAttackUnit;
+    SetGroupOrder(goAttackUnit);
     fOrderLoc := KMPointDir(aUnit.PositionNext, dirNA); //Remember where unit stand
     OrderTargetUnit := aUnit;
   end;
@@ -1457,7 +1491,7 @@ procedure TKMUnitGroup.OrderNone;
 var
   I: Integer;
 begin
-  fOrder := goNone;
+  SetGroupOrder(goNone);
   //fOrderLoc remains old
   ClearOrderTarget;
 
@@ -1469,7 +1503,7 @@ end;
 //Copy order from specified aGroup
 procedure TKMUnitGroup.CopyOrderFrom(aGroup: TKMUnitGroup; aUpdateOrderLoc: Boolean; aForced: Boolean = True);
 begin
-  fOrder := aGroup.fOrder;
+  SetGroupOrder(aGroup.fOrder);
 
   if aUpdateOrderLoc then
   begin
@@ -1780,7 +1814,7 @@ begin
   if aClearOffenders and CanTakePlayerOrders then
     ClearOffenders;
 
-  fOrder := goStorm;
+  SetGroupOrder(goStorm);
   fOrderLoc := KMPointDir(0, 0, dirNA);
   ClearOrderTarget;
 
@@ -1818,7 +1852,7 @@ begin
   if IsPositioned(aLoc, newDir) then
     Exit; //No need to actually walk, all members are at the correct location and direction
 
-  fOrder := goWalkTo;
+  SetGroupOrder(goWalkTo);
   HungarianReorderMembers;
 
   for I := 0 to Count - 1 do
@@ -2133,7 +2167,7 @@ begin
 
   Result := inherited ObjToString(aSeparator) +
             Format('%sUnitsPerRow = %d%sCanTakeOrders = %s%sInFight = %s%sGOrder = %s%sOrderLoc = %s%s' +
-                   'OTargetU = [%s]%sOTargetG = [%s]%sOTargetH = [%s]%s' +
+                   'OTargetU = [%s]%sOTargetG = [%s]%sOTargetH = [%s]%sPushbackCmdCnt = %d%s' +
                    'Offenders = [%s]',
                    [aSeparator,
                     fUnitsPerRow, aSeparator,
@@ -2144,6 +2178,7 @@ begin
                     targetUnitStr, aSeparator,
                     targetGroupStr, aSeparator,
                     targetHouseStr, aSeparator,
+                    fMembersPushbackCommandsCnt, aSeparator,
                     offendersStr]);
 end;
 
