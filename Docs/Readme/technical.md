@@ -1,18 +1,18 @@
-# ![](Readme/GUI_0304.gif) Technical details
+# ⛏️ Technical details
 
 The game uses a custom, open source engine, written from scratch - but still relies on the original resource files. We assume that you own the original KaM game (the installer checks for it), otherwise you should buy it – it's available in a number of online gaming stores.
 
 The KaM Remake executable is freeware and is built by enthusiasts. Applications used: Delphi XE2 - Delphi Yukon 12, FastMM4, Lazarus, OpenGL, OpenAL, Overbyte ICS, zLib, Ogg Vorbis, PNGImage, MadExcept, libZPlay.
 
-### ![](Readme/GUI_0310.gif) Contributing
+### 🌳 Contributing
 
 Get started at <https://trello.com/c/anU9APld/1265-faq-for-new-developers-testers> or <https://github.com/reyandme/kam_remake/wiki/ProjectCompilation>.  
 Our Discord is a good place to seek for help in development.
 
-### ![](Readme/GUI_0312.gif) KaM Remake Maps and Campaigns repository
+### 🌾 KaM Remake Maps and Campaigns repository
 All Maps and Campaigns are in the [kam_remake_maps repo](https://github.com/reyandme/kam_remake_maps "KaM Remake Maps and Campaigns repository") maps and campaigns
 
-# ![](Readme/GUI_0324.gif) Dedicated Server
+# 🪓 Dedicated Server
 
 Executables for the multiplayer dedicated server are included with the game (and also available at <https://www.kamremake.com/download/>), for Windows/Linux x86 and x86_64. The server listens for connections on a TCP port (56789 by default). It can be configured in **KaM_Remake_Settings.ini** (created at start) in the [Server] section. Any queries or comments regarding the Linux builds are welcome on our Discord channel.
 

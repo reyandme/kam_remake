@@ -1,6 +1,4 @@
 # .md and .html files
-For section icons to work, Markdown (.md) and HTML files need to be in the same directory as Readme/GUI_*.gif files.
-
 Please translate .md files (not HTML), it's convenient for everyone including yourself.
 
 # instructions
