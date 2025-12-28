@@ -344,7 +344,12 @@ begin
                        'MyPlayer: [%s],' + #13#10 +
                        'OtherPlayer: [%s]',
                        [aTick, gGameParams.Tick, myData.ToStr, otherData.ToStr]);
+
+    // Tell other player to crash and send crashreport too, so we could inspect both ends of the bug
     gNetworking.AskToSendCrashreport(aPlayerIndex, errorStr);
+
+    //todo -cPractical: We need to Disconnect here, so that we dont handle any more messages from the Networking (otherwise we get several exceptions in a row)
+
     raise Exception.Create(errorStr);
   end;
 
