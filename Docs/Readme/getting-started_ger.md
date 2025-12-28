@@ -6,24 +6,26 @@
 
 ---
 
-### ![](Readme/GUI_0310.gif) Systemanforderungen
+### 🌳 Systemanforderungen
 
 - Microsoft Windows oder Linux mit Wine;
 - jeder Dual-Core-Prozessor;
-- 256MB oder mehr RAM;
+- 512MB oder mehr RAM;
 - 3D Grafikkarte OpenGL 1.5 fähig
 
-### ![](Readme/GUI_0303.gif) Installation
+### 🗡️ Installation
 
 1. Besitze das originale Spiel (Knights and Merchants: The Peasants Rebellion):
 	- Installer von der originalen CD und GOG.com sollten einfach funktionieren.
 	- Falls du TPR von Steam erworben hast, musst du TPR mindestens ein mal ausgeführt haben, ansonsten kann es der Installer des Remakes nicht finden.
 	- Falls du Linux verwendest, siehe <https://github.com/reyandme/kam_remake/wiki/Game-installation-on-Linux>
 1. Führe den Remake Installer aus und folge den Anweisungen.
+    - In case it shows error "Setup hat ermittelt, dass Knights and Merchants: The Peasants Rebellion nicht installiert ist.", but you already installed TPR long time ago, try installing TPR again, as it is possible it got corrupted over time.
+    - In case the installer window is not shown at all: right click "KaM Remake installer.exe" -> tab General -> Security: set [v] Unblock
 1. Das KaM Remake verwendet OpenGL für die Grafiken. Falls es visuelle Probleme gibt oder das Spiel nicht gestartet werden kann, besuche die Webseite deiner Grafikkarte und hole dir den aktuellsten Treiber.
 1. Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if you chose to create shortcuts.
 
-### ![](Readme/GUI_0312.gif) Gameplay
+### 🪓 Gameplay
 
 #### Mehrspieler
 Um ein Spiel zu starten, klicke auf Multiplayerspielt. Dort kannst du einen beliebigen unbenutzten Server auswählen, falls du eine neue Lobby erstellen willst, oder du kannst einer bestehenden Lobby beitreten.
@@ -60,7 +62,7 @@ Man kann weitere von der Community erstellen Karten unter <https://knights-taver
 #### Hinzufügen benutzerdefinierter Musik:
 Du kannst deine MP3/OGG-Dateien in den Musikordner des des KaM Remake-Verzeichnisses legen und sie werden automatisch in die Wiedergabe aufgenommen.
 
-# ![](Readme/GUI_0311.gif) Häufig gestellte Fragen
+# 📜 Häufig gestellte Fragen
 **Abstürze ohne Benachrichtigung:**  
 Wenn das KaM Remake ohne Meldung während des Startens abstürzt, sendet uns bitte die Log-Datei auf unserem Discord-Kanal, sowie alle anderen Informationen, die ihr finden könnt und uns nützlich sein könnten.
 
@@ -73,16 +75,16 @@ Manchmal, wenn etwas unerwartetes passiert, bekommt man eine "Ein Fehler ist in 
 **Irgendetwas anderes:**  
 Siehe diesen Link: <https://www.kamremake.com/faq/>
 
-## ![](Readme/GUI_0323.gif) Community und Feedback
+## 🏰 Community und Feedback
 
 Trete unserer Community bei <https://discord.gg/UkkYceR>. Wir freuen uns über Kommentare, Anregungen, Danksagungen, etc.
 Wenn ihr etwas Hilfe in Sachen Delphi, Dokumentation, Spielgrafik, Geräusche, Übersetzung oder Ideen für Verbesserungen habt - sende uns bitte eine E-Mail oder schreibe im Discord. Lesen Sie auch <https://github.com/reyandme/kam_remake/wiki/Contributions>.
 
-# ![](Readme/GUI_0304.gif) Bekannte Fehler und Einschränkungen
+# ⛏️ Bekannte Fehler und Einschränkungen
 
 Kriegswerkstatt ist nicht funktionsfähig.  
 
-# ![](Readme/GUI_0308.gif) Quelltext
+# 🏹 Quelltext
 
 Der KaM Remake-Quelltext ist auf unserer Projektseite verfügbar:  
 <https://github.com/reyandme/kam_remake>  
@@ -92,7 +94,7 @@ Hier könnt ihr uns Fehler berichten:
 <https://github.com/reyandme/kam_remake/issues>  
 oder auf unserem Discord-Kanal.
 
-# ![](Readme/GUI_0314.gif) Credits
+# 📖 Credits
 
 Leitender Programmierer  - Krom (<mailto:kromster80@gmail.com>)  
 Programmierer - Rey (<mailto:kamremake.rey@gmail.com>)  
@@ -105,7 +107,7 @@ Danke an StarGazer, der neue Grafiken erstellt hat, auch an Malin welcher Marktp
 Großen Dank an die KaM Community und an ihre aktiven Mitglieder (Free_sms_kam, Harold, Humbelum, JBSnorro, The Knight, Litude (Real Hotdog), Merchator, Nick, Thunderwolf, Vas, andreus, ZblCoder und viele mehr) dafür dass sie uns beim Decodieren halfen, uns Ratschläge gaben und für ihr Engagement.  
 Icons von famfamfam und FatCow wurden im KaM Remake benutzt.
 
-# ![](Readme/GUI_0322.gif) Impressum
+# ⚔️ Impressum
 
 Kommerzieller Gebrauch ist verboten.  
 Alle benutzten Namen, Symbole oder andere, mit einem Copyright versehene, Materialien sind Eigentum des jeweiligen Besitzers.  
