@@ -8,25 +8,26 @@
 
 ---
 
-
-### ![](Readme/GUI_0310.gif) System requirements
+### 🌳 System requirements
 
 - Microsoft Windows or Linux with Wine;
 - any dual-core processor;
-- 256MB or more of RAM;
+- 512MB or more of RAM;
 - 3D graphics accelerator OpenGL 1.5 compliant
 
-### ![](Readme/GUI_0303.gif) Installation
+### 🗡️ Installation
 
-1. Obtain the original game (Knights and Merchants: The Peasants Rebellion):
+1. Install the original game (Knights and Merchants: The Peasants Rebellion):
 	- Installers from original CD and GOG.com should just work.
 	- If you bought TPR from Steam, you need to run TPR at least once, otherwise Remake's installer will be unable to detect it.
 	- If you use Linux, see <https://github.com/reyandme/kam_remake/wiki/Game-installation-on-Linux>
 1. Run the Remake installer and follow the installation instructions.
+    - In case it shows error "The installation wizard detected that you do not have Knights and Merchants: The Peasants Rebellion installed.", but you already installed TPR long time ago, try installing TPR again, as it is possible it got corrupted over time.
+    - In case the installer window is not shown at all: right click "KaM Remake installer.exe" -> tab General -> Security: set [v] Unblock
 1. The KaM Remake uses OpenGL for graphics. In case of visual issues or inability to launch the game, visit your graphics card manufacturer site to get the latest drivers available.
 1. Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if you chose to create shortcuts.
 
-### ![](Readme/GUI_0312.gif) Gameplay
+### 🪓 Gameplay
 
 #### Multiplayer
 To start a game, go to Multiplayer. You can pick any unused server, if you want to start a new lobby, or you can join an existing lobby.
@@ -63,7 +64,7 @@ You can find additional community-made maps at <https://knights-tavern.com>.
 #### Adding custom music:
 You can put your MP3/OGG files into the Music folder of the KaM Remake, and they will be included into the playlist automatically.
 
-# ![](Readme/GUI_0311.gif) Frequently Asked Questions
+# 📜 Frequently Asked Questions
 **Silent crashes:**  
 If the KaM Remake crashes silently during startup, please send the log file to our Discord channel, along with any other information that might be of use.
 
@@ -76,16 +77,16 @@ Sometimes when something unexpected happens, you will get an "An error has occur
 **Anything else:**  
 See <https://www.kamremake.com/faq/>
 
-## ![](Readme/GUI_0323.gif) Community and Feedback
+## 🏰 Community and Feedback
 
 Join our community at <https://discord.gg/UkkYceR>. We would love your comments, suggestions, thanks, etc.  
 If you can offer some help in Delphi coding, documentation, game artwork, sounds, translation or ideas for improvement - please drop us an email or write on Discord. Also, check <https://github.com/reyandme/kam_remake/wiki/Contributions>.
 
-# ![](Readme/GUI_0304.gif) Known bugs and limitations
+# ⛏️ Known bugs and limitations
 
 Siege Workshop is not functional.
 
-# ![](Readme/GUI_0308.gif) Source Code
+# 🏹 Source Code
 
 The KaM Remake source code is available at our project page:  
 <https://github.com/reyandme/kam_remake>  
@@ -95,7 +96,7 @@ We encourage you to submit bugs using built-in interface:
 <https://github.com/reyandme/kam_remake/issues>  
 or on our Discord channel.
 
-# ![](Readme/GUI_0314.gif) Credits
+# 📖 Credits
 
 Lead programmer - Krom (<mailto:kromster80@gmail.com>)  
 Programmer - Rey (<mailto:kamremake.rey@gmail.com>) 
@@ -108,7 +109,7 @@ Thanks to StarGazer, who drew Marketplace, new cursors and icons for user interf
 Huge thanks to the KaM community and its active members (Free_sms_kam, Harold, Humbelum, JBSnorro, The Knight, Litude (Real Hotdog), Merchator, Nick, Thunderwolf, Vas, andreus, ZblCoder and many others) who helped us with decoding, advice, ideas and encouragement.  
 Icons from famfamfam and FatCow are used in the KaM Remake.  
 
-# ![](Readme/GUI_0322.gif) Legal notice
+# ⚔️ Legal notice
 
 Commercial use is prohibited.  
 Any used names, symbols or other copyrighted material is the property of the respective owners.  
