@@ -9,7 +9,7 @@ The KaM Remake executable is freeware and is built by enthusiasts. Applications 
 Get started at <https://trello.com/c/anU9APld/1265-faq-for-new-developers-testers> or <https://github.com/reyandme/kam_remake/wiki/ProjectCompilation>.  
 Our Discord is a good place to seek for help in development.
 
-### 🌾 KaM Remake Maps and Campaigns repository
+### 🏹 KaM Remake Maps and Campaigns repository
 All Maps and Campaigns are in the [kam_remake_maps repo](https://github.com/reyandme/kam_remake_maps "KaM Remake Maps and Campaigns repository") maps and campaigns
 
 # 🪓 Dedicated Server

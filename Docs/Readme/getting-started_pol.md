@@ -25,7 +25,7 @@
 1. KaM Remake używa OpenGL do renderowania grafiki. Jeśli masz problemy wizualne lub gra się nie włącza, odwiedź stronę internetową dostawcy twojej karty graficznej i zainstaluj do niej najnowsze sterowniki.
 1. Uruchom moda - KaM_Remake.exe lub klikając na skrót na Pulpicie lub w Menu Start (jeśli zaznaczyłeś opcję tworzenia skrótów).
 
-### 🌾 Rozgrywka
+### 🪓 Rozgrywka
 
 #### Gra wieloosobowa
 Aby rozpocząć rozgrywkę, kliknij na "Gra w sieci". Możesz wybrac dowolny nieużywany serwer, jeśli chcesz założyć nową poczekalnię ("lobby"), lub możesz dołączyć do już istniejącej.

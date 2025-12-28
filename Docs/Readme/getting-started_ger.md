@@ -25,7 +25,7 @@
 1. Das KaM Remake verwendet OpenGL für die Grafiken. Falls es visuelle Probleme gibt oder das Spiel nicht gestartet werden kann, besuche die Webseite deiner Grafikkarte und hole dir den aktuellsten Treiber.
 1. Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if you chose to create shortcuts.
 
-### 🌾 Gameplay
+### 🪓 Gameplay
 
 #### Mehrspieler
 Um ein Spiel zu starten, klicke auf Multiplayerspielt. Dort kannst du einen beliebigen unbenutzten Server auswählen, falls du eine neue Lobby erstellen willst, oder du kannst einer bestehenden Lobby beitreten.
