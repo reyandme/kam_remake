@@ -54,11 +54,11 @@ type
   TUnicodeStringObjEventProc = procedure (Sender: TObject; const aData: UnicodeString);
   TUnicodeStringBoolEvent = procedure (const aData: UnicodeString; aBool: Boolean) of object;
   TGameStartEvent = procedure (const aData: UnicodeString; Spectating: Boolean) of object;
-  TResyncEvent = procedure (aSender: ShortInt; aTick: cardinal) of object;
+  TResyncEvent = procedure (aSender: ShortInt; aTick: Cardinal) of object;
   TIntegerStringEvent = procedure (aValue: Integer; const aText: UnicodeString) of object;
   TBooleanFunc = function(Obj: TObject): Boolean of object;
   TBooleanWordFunc = function (aValue: Word): Boolean of object;
-  TBooleanStringFunc = function (const aValue: String): Boolean of object;
+  TBooleanStringFunc = function (const aValue: string): Boolean of object;
   TBooleanFuncSimple = function: Boolean of object;
   TBoolIntFuncSimple = function (aValue: Integer): Boolean of object;
   TBoolCardFuncSimple = function (aValue: Cardinal): Boolean of object;
@@ -229,7 +229,7 @@ end;
 
 function TKMColor3b.ToCardinal: Cardinal;
 begin
-  Result := (R + (G shl 8) + (B shl 16)); {or $FF000000};
+  Result := (R + (G shl 8) + (B shl 16)); {or $FF000000}
 end;
 
 
