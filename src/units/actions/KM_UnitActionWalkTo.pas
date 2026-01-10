@@ -1067,14 +1067,14 @@ begin
   //INTERACTION SOLUTIONS: Split into different sections or "solutions". If True returned it means exit.
 
   //If we are asking someone to move away then just wait until they are gone
-  if IntCheckIfPushing(opponent) then exit;
-  if IntSolutionPush(opponent,highestInteractionCount) then exit;
-  if IntSolutionExchange(opponent,highestInteractionCount) then exit;
-  if IntCheckIfPushed(fInteractionCount) then exit;
+  if IntCheckIfPushing(opponent) then Exit;
+  if IntSolutionPush(opponent,highestInteractionCount) then Exit;
+  if IntSolutionExchange(opponent,highestInteractionCount) then Exit;
+  if IntCheckIfPushed(fInteractionCount) then Exit;
   if not fDestBlocked then fInteractionStatus := kisTrying; //If we reach this point then we don't have a solution...
-  if IntSolutionDodge(opponent,highestInteractionCount) then exit;
+  if IntSolutionDodge(opponent,highestInteractionCount) then Exit;
   if IntSolutionAvoid(opponent) then Exit;
-  if IntSolutionSideStep(opponent.Position,fInteractionCount) then exit;
+  if IntSolutionSideStep(opponent.Position,fInteractionCount) then Exit;
 
   //We will allow other units to force an exchange with us as we haven't found a solution or our destination is blocked
   if (fInteractionCount >= WAITING_TIMEOUT) or fDestBlocked then fInteractionStatus := kisWaiting;
@@ -1150,7 +1150,7 @@ end;
 
 function TKMUnitActionWalkTo.Execute: TKMActionResult;
 var
-  dx, dy: Shortint;
+  dx, dy: ShortInt;
   walkX, walkY, distance: Single;
   oldDir: TKMDirection;
 begin
@@ -1272,7 +1272,7 @@ begin
     begin
        //If this is a diagonal exchange we must make sure someone (other than the other unit) is not crossing our path
       if KMStepIsDiag(fUnit.Position,fNodeList[fNodePos+1])
-        and (not gTerrain.VertexUsageCompatible(fUnit.Position,fNodeList[fNodePos+1])) then
+      and (not gTerrain.VertexUsageCompatible(fUnit.Position,fNodeList[fNodePos+1])) then
         Exit; //Someone is crossing the path of our exchange, so we will wait until they are out of the way (this check guarantees both units in the exchange will wait)
 
       Inc(fNodePos);

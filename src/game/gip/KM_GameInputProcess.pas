@@ -1811,26 +1811,22 @@ function TKMGic2StoredConverter.ParseNextStoredPackedCommand(const aStoredCmd: T
   var
     I: Integer;
   begin
-    with aGicCommand do
-      with aStoredCmd do
-      begin
-        if fWaitForNextCommand then
-        begin
-          fAnsiStrBuf := fAnsiStrBuf + Data.AsAnsiString(0);
+    if fWaitForNextCommand then
+    begin
+      fAnsiStrBuf := fAnsiStrBuf + aStoredCmd.Data.AsAnsiString(0);
 
-          fWaitForNextCommand := TryFindAnsiBufEnd(aAnsiString);
-        end
-        else
-        begin
-          fAnsiStrBuf := '';
-          for I := 0 to aParamsCnt - 1 do
-            IntParams[I] := Data.Integers[I];
+      fWaitForNextCommand := TryFindAnsiBufEnd(aAnsiString);
+    end
+    else
+    begin
+      fAnsiStrBuf := '';
+      for I := 0 to aParamsCnt - 1 do
+        aGicCommand.IntParams[I] := aStoredCmd.Data.Integers[I];
 
-          fAnsiStrBuf := Data.AsAnsiString(aParamsCnt*SizeOf(IntParams[0]));
+      fAnsiStrBuf := aStoredCmd.Data.AsAnsiString(aParamsCnt*SizeOf(aGicCommand.IntParams[0]));
 
-          fWaitForNextCommand := TryFindAnsiBufEnd(aAnsiString);
-        end;
-      end;
+      fWaitForNextCommand := TryFindAnsiBufEnd(aAnsiString);
+    end;
 
     Result := not fWaitForNextCommand;
     if Result then
@@ -1841,26 +1837,25 @@ function TKMGic2StoredConverter.ParseNextStoredPackedCommand(const aStoredCmd: T
   var
     I: Integer;
   begin
-    with aGicCommand do
-      with aStoredCmd do
+    with aStoredCmd do
+    begin
+      if fWaitForNextCommand then
       begin
-        if fWaitForNextCommand then
-        begin
-          fUnicodeStrBuf := fUnicodeStrBuf + Data.AsUnicodeString(0);
+        fUnicodeStrBuf := fUnicodeStrBuf + Data.AsUnicodeString(0);
 
-          fWaitForNextCommand := TryFindUnicodeBufEnd(aUnicodeStr);
-        end
-        else
-        begin
-          fUnicodeStrBuf := '';
-          for I := 0 to aParamsCnt - 1 do
-            IntParams[I] := Data.Integers[I];
+        fWaitForNextCommand := TryFindUnicodeBufEnd(aUnicodeStr);
+      end
+      else
+      begin
+        fUnicodeStrBuf := '';
+        for I := 0 to aParamsCnt - 1 do
+          aGicCommand.IntParams[I] := Data.Integers[I];
 
-          fUnicodeStrBuf := Data.AsUnicodeString(aParamsCnt*SizeOf(IntParams[0]));
+        fUnicodeStrBuf := Data.AsUnicodeString(aParamsCnt*SizeOf(aGicCommand.IntParams[0]));
 
-          fWaitForNextCommand := TryFindUnicodeBufEnd(aUnicodeStr);
-        end;
+        fWaitForNextCommand := TryFindUnicodeBufEnd(aUnicodeStr);
       end;
+    end;
 
     Result := not fWaitForNextCommand;
     if Result then
@@ -1879,47 +1874,46 @@ begin
     fReadyToParseNewCommand := False;
   end;
 
-  with aGicCommand do
-    with aStoredCmd do
-    begin
-      CommandType := CmdType;
-      HandIndex := HandID;
+  with aStoredCmd do
+  begin
+    aGicCommand.CommandType := CmdType;
+    aGicCommand.HandIndex := HandID;
 
-      case COMMAND_PACK_TYPES[CmdType] of
-        gicpt_NoParams:   ;
-        gicpt_Int1:       IntParams[0] := Data.Integers[0];
-        gicpt_Int2:       for I := 0 to 1 do
-                            IntParams[I] := Data.Integers[I];
-        gicpt_Int3:       for I := 0 to 2 do
-                            IntParams[I] := Data.Integers[I];
-        gicpt_Int1Word3:  begin
-                            IntParams[0] := Data.Integers[0];
-                            for I := 0 to 2 do
-                              WordParams[I] := Data.Words[I+2];
+    case COMMAND_PACK_TYPES[CmdType] of
+      gicpt_NoParams:   ;
+      gicpt_Int1:       aGicCommand.IntParams[0] := Data.Integers[0];
+      gicpt_Int2:       for I := 0 to 1 do
+                          aGicCommand.IntParams[I] := Data.Integers[I];
+      gicpt_Int3:       for I := 0 to 2 do
+                          aGicCommand.IntParams[I] := Data.Integers[I];
+      gicpt_Int1Word3:  begin
+                          aGicCommand.IntParams[0] := Data.Integers[0];
+                          for I := 0 to 2 do
+                            aGicCommand.WordParams[I] := Data.Words[I+2];
+                        end;
+      gicpt_Int1SmInt3: begin
+                          aGicCommand.IntParams[0] := Data.Integers[0];
+                          for I := 0 to 2 do
+                            aGicCommand.SmallIntParams[I] := Data.SmallInts[I+2];
+                        end;
+      gicpt_AnsiStr1:   Result := ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 0);
+      gicpt_Ansi1Int2:  Result := ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 2);
+      gicpt_Ansi1Int3:  Result := ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 3);
+      gicpt_Float:      aGicCommand.FloatParam := Data.Singles[0];
+      gicpt_UniStr1:    Result := ReadParamsAndUnicodeStr(aGicCommand.UnicodeStrParams[0], 0);
+      gicpt_Ansi1Uni4:  begin
+                          // Check how many params we parsed and what is the enxt param to parse
+                          case fStrParamsParsed of
+                            0:    ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 0);
+                            1..4: ReadParamsAndUnicodeStr(aGicCommand.UnicodeStrParams[fStrParamsParsed - 1], 0);
                           end;
-        gicpt_Int1SmInt3: begin
-                            IntParams[0] := Data.Integers[0];
-                            for I := 0 to 2 do
-                              SmallIntParams[I] := Data.SmallInts[I+2];
-                          end;
-        gicpt_AnsiStr1:   Result := ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 0);
-        gicpt_Ansi1Int2:  Result := ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 2);
-        gicpt_Ansi1Int3:  Result := ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 3);
-        gicpt_Float:      FloatParam := Data.Singles[0];
-        gicpt_UniStr1:    Result := ReadParamsAndUnicodeStr(aGicCommand.UnicodeStrParams[0], 0);
-        gicpt_Ansi1Uni4:  begin
-                            // Check how many params we parsed and what is the enxt param to parse
-                            case fStrParamsParsed of
-                              0:    ReadParamsAndAnsiStr(aGicCommand.AnsiStrParam, 0);
-                              1..4: ReadParamsAndUnicodeStr(aGicCommand.UnicodeStrParams[fStrParamsParsed - 1], 0);
-                            end;
-                            Result := ( fStrParamsParsed = 5 ); // We parsed all 5 parameters
-                          end;
-        gicpt_Date:       DateTimeParam := Data.DateT;
-      else
-        raise Exception.Create('Unknown gic command type');
-      end;
+                          Result := ( fStrParamsParsed = 5 ); // We parsed all 5 parameters
+                        end;
+      gicpt_Date:       aGicCommand.DateTimeParam := Data.DateT;
+    else
+      raise Exception.Create('Unknown gic command type');
     end;
+  end;
 
   if Result then
     CommandParseCompleted;
