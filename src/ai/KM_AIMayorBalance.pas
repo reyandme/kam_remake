@@ -635,7 +635,7 @@ begin
 
     //How much gold in theory we could get
     //CoalTheory - coal calculated separately
-    GoldOreTheory := HouseCount(htGoldMine) * PRODUCTION_RATE[wtGoldOre] * 2; //*2 since every Ore becomes 2 Gold
+    GoldOreTheory := HouseCount(htGoldMine) * PRODUCTION_RATE[wtGoldOre] * 2; // * 2 since every Ore becomes 2 Gold
     GoldOreTheory := GoldOreTheory + Max(0, GoldOreReserve - 30);
     GoldTheory := HouseCount(htMetallurgists) * PRODUCTION_RATE[wtGold];
 
