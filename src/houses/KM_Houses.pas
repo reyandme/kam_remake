@@ -68,7 +68,7 @@ type
     property Entrance: TKMPoint read fEntrance;
     property PointBelowEntrance: TKMPoint read fPointBelowEntrance;
 
-    function ObjToStringShort(const aSeparator: String = '|'): String; override;
+    function ObjToStringShort(const aSeparator: string = '|'): string; override;
 
     function IsEmpty: Boolean;
   end;
@@ -320,7 +320,7 @@ type
     procedure UpdateDemands; virtual;
     procedure PostLoadMission; virtual;
 
-    function ObjToString(const aSeparator: String = '|'): String; override;
+    function ObjToString(const aSeparator: string = '|'): string; override;
 
     procedure IncAnimStep;
     procedure UpdateState(aTick: Cardinal);
@@ -345,7 +345,7 @@ type
     procedure ValidateFlagPoint;
     function GetValidPoint(aPoint: TKMPoint): TKMPoint;
 
-    function ObjToString(const aSeparator: String = '|'): String; override;
+    function ObjToString(const aSeparator: string = '|'): string; override;
   end;
 
 
@@ -428,7 +428,7 @@ begin
 end;
 
 
-function TKMHouseSketch.ObjToStringShort(const aSeparator: String = '|'): String;
+function TKMHouseSketch.ObjToStringShort(const aSeparator: string = '|'): string;
 begin
   if Self = nil then Exit('nil');
 
@@ -978,7 +978,6 @@ end;
 
 function TKMHouse.GetResourceDepletedMessageId: Word;
 begin
-  Result := 0;
   case HouseType of
     htQuarry:       Result := TX_MSG_STONE_DEPLETED;
     htCoalMine:     Result := TX_MSG_COAL_DEPLETED;
@@ -992,6 +991,8 @@ begin
                       Result := TX_MSG_FISHERMAN_TOO_FAR
                     else
                       Result := TX_MSG_FISHERMAN_CANNOT_CATCH;
+  else
+    Result := 0;
   end;
 end;
 
@@ -1052,8 +1053,8 @@ begin
   loc := fPosition;
   HA := gRes.Houses[fType].BuildArea;
 
-  for I := max(loc.Y - 3, 1) to loc.Y do
-  for K := max(loc.X - 2, 1) to min(loc.X + 1, gTerrain.MapX) do
+  for I := Max(loc.Y - 3, 1) to loc.Y do
+  for K := Max(loc.X - 2, 1) to Min(loc.X + 1, gTerrain.MapX) do
   if HA[I - loc.Y + 4, K - loc.X + 3] <> 0 then
     Result := Min(Result, KMLength(aPos, KMPoint(K, I)));
 end;
@@ -1169,9 +1170,9 @@ begin
 end;
 
 
-function TKMHouse.GetHealth:word;
+function TKMHouse.GetHealth: Word;
 begin
-  Result := max(fBuildingProgress - fDamage, 0);
+  Result := Max(fBuildingProgress - fDamage, 0);
 end;
 
 
@@ -1300,7 +1301,7 @@ begin
     Exit;
 
   //(NoGlyph houses MaxHealth = 0, they get destroyed instantly)
-  fDamage := Math.min(fDamage + aAmount, MaxHealth);
+  fDamage := Min(fDamage + aAmount, MaxHealth);
   if IsComplete then
   begin
     if BuildingRepair then
@@ -1665,7 +1666,7 @@ end;
 function TKMHouse.GetMaxInWare: Word;
 begin
   //todo -cPractical: This belongs to gRes.Houses[]
-  if fType in [htStore, htBarracks, htMarket, htTownhall] then
+  if fType in [htStore, htBarracks, htMarket, htTownHall] then
     Result := High(Word)
   else
     Result := MAX_WARES_IN_HOUSE; //All other houses can only stock 5 for now
@@ -1738,15 +1739,15 @@ begin
 end;
 
 
-procedure TKMHouse.WareAddToOut(aWare: TKMWareType; const aCount:integer=1);
+procedure TKMHouse.WareAddToOut(aWare: TKMWareType; const aCount: Integer = 1);
 var
   I, p, count: Integer;
   doUpdate : Boolean;
 begin
   if aWare = wtNone then
-    exit;
+    Exit;
 
-  doUpdate := false;
+  doUpdate := False;
   for I := 1 to 4 do
     if aWare = gRes.Houses[fType].WareOutput[I] then
     begin
@@ -1766,7 +1767,7 @@ begin
       end;
 
       gHands[Owner].Deliveries.Queue.AddOffer(Self, aWare, aCount);
-      doUpdate := true;
+      doUpdate := True;
     end;
   if doUpdate then
     UpdateDemands;
@@ -1971,7 +1972,7 @@ end;
 
 procedure TKMHouse.WareTakeFromOut(aWare: TKMWareType; aCount: Word = 1; aFromScript: Boolean = False);
 var
-  I, K, p, count: integer;
+  I, K, p, count: Integer;
 begin
   Assert(aWare <> wtNone);
   Assert(not(fType in [htStore,htBarracks]));
@@ -2054,7 +2055,7 @@ var
 begin
   if SKIP_SOUND then Exit;
 
-  if CurrentAction = nil then exit; //no action means no sound ;)
+  if CurrentAction = nil then Exit; //no action means no sound ;)
 
   if haWork1 in CurrentAction.SubAction then work := haWork1 else
   if haWork2 in CurrentAction.SubAction then work := haWork2 else
@@ -2070,17 +2071,17 @@ begin
 
   //Do not play sounds if house is invisible to gMySpectator
   //This check is slower so we do it after other Exit checks
-  if gMySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
+  if gMySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then Exit;
 
   case fType of //Various buildings and HouseActions producing sounds
     htSchool:        if (work = haWork5)and(step = 28) then gSoundPlayer.Play(sfxSchoolDing, fPosition); //Ding as the clock strikes 12
     htMill:          if (work = haWork2)and(step = 0) then gSoundPlayer.Play(sfxMill, fPosition);
     htCoalMine:      if (work = haWork1)and(step = 5) then gSoundPlayer.Play(sfxCoalDown, fPosition)
                       else if (work = haWork1)and(step = 24) then gSoundPlayer.Play(sfxCoalMineThud, fPosition,True,0.8)
-                      else if (work = haWork2)and(step = 7) then gSoundPlayer.Play(sfxmine, fPosition)
+                      else if (work = haWork2)and(step = 7) then gSoundPlayer.Play(sfxMine, fPosition)
                       else if (work = haWork5)and(step = 1) then gSoundPlayer.Play(sfxCoalDown, fPosition);
-    htIronMine:      if (work = haWork2)and(step = 7) then gSoundPlayer.Play(sfxmine, fPosition);
-    htGoldMine:      if (work = haWork2)and(step = 5) then gSoundPlayer.Play(sfxmine, fPosition);
+    htIronMine:      if (work = haWork2)and(step = 7) then gSoundPlayer.Play(sfxMine, fPosition);
+    htGoldMine:      if (work = haWork2)and(step = 5) then gSoundPlayer.Play(sfxMine, fPosition);
     htSawmill:       if (work = haWork2)and(step = 1) then gSoundPlayer.Play(sfxSaw, fPosition);
     htVineyard:      if (work = haWork2)and(step in [1,7,13,19]) then gSoundPlayer.Play(sfxWineStep, fPosition)
                       else if (work = haWork5)and(step = 14) then gSoundPlayer.Play(sfxWineDrain, fPosition,True,1.5)
@@ -2224,7 +2225,7 @@ const
 
   function WaresMaxDemands: Byte;
   begin
-    if fType = htTownhall then
+    if fType = htTownHall then
       Result := MAX_TH_GOLD_DEMANDS_CNT
     else
       Result := MAX_DEMANDS_CNT;
@@ -2276,10 +2277,10 @@ begin
 end;
 
 
-function TKMHouse.ObjToString(const aSeparator: String = '|'): String;
+function TKMHouse.ObjToString(const aSeparator: string = '|'): string;
 var
   I: Integer;
-  actStr, resOutPoolStr, workerStr: String;
+  actStr, resOutPoolStr, workerStr: string;
 begin
   if Self = nil then Exit('nil');
 
@@ -2502,7 +2503,7 @@ begin
 end;
 
 
-function TKMHouseAction.ObjToString(const aSeparator: String = ' '): String;
+function TKMHouseAction.ObjToString(const aSeparator: string = ' '): string;
 var
   AT: TKMHouseActionType;
   subActStr: string;
@@ -2635,7 +2636,7 @@ begin
 end;
 
 
-function TKMHouseWFlagPoint.ObjToString(const aSeparator: String = '|'): String;
+function TKMHouseWFlagPoint.ObjToString(const aSeparator: string = '|'): string;
 begin
   Result := inherited ObjToString(aSeparator) +
             Format('%sFlagPoint = %s', [aSeparator, fFlagPoint.ToString]);
