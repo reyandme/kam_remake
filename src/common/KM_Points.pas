@@ -79,7 +79,9 @@ type
     class operator NotEqual(const A, B: TKMRect): Boolean;
   end;
 
-  TKMRectF = packed record Left, Top, Right, Bottom: Single end;
+  TKMRectF = packed record
+    Left, Top, Right, Bottom: Single;
+  end;
 
   TKMRangeInt = record
     Min, Max: Integer;
@@ -93,135 +95,135 @@ type
 
   TKMPointFunction = function(aPoint: TKMPoint): Boolean of object;
 
-  function KMPoint(aX,aY: Integer): TKMPoint;
-  function KMPointF(X,Y: Single): TKMPointF; overload;
-  function KMPointF(const P: TKMPoint):  TKMPointF; overload;
-  function KMPointDir(X,Y: Integer; Dir: TKMDirection): TKMPointDir; overload;
-  function KMPointDir(const P: TKMPoint; Dir: TKMDirection): TKMPointDir; overload;
-  function KMPointX1Y1(const P:TKMPoint): TKMPoint;
-  function KMPointBelow(const P: TKMPoint): TKMPoint;
-  function KMPointAbove(const P: TKMPoint): TKMPoint;
-  function KMPointLeft(const P: TKMPoint): TKMPoint;
-  function KMPointRight(const P: TKMPoint): TKMPoint;
-  function KMNormVector(const P: TKMPoint; R: Integer): TKMPoint;
+function KMPoint(aX,aY: Integer): TKMPoint;
+function KMPointF(X,Y: Single): TKMPointF; overload;
+function KMPointF(const P: TKMPoint):  TKMPointF; overload;
+function KMPointDir(X,Y: Integer; Dir: TKMDirection): TKMPointDir; overload;
+function KMPointDir(const P: TKMPoint; Dir: TKMDirection): TKMPointDir; overload;
+function KMPointX1Y1(const P:TKMPoint): TKMPoint;
+function KMPointBelow(const P: TKMPoint): TKMPoint;
+function KMPointAbove(const P: TKMPoint): TKMPoint;
+function KMPointLeft(const P: TKMPoint): TKMPoint;
+function KMPointRight(const P: TKMPoint): TKMPoint;
+function KMNormVector(const P: TKMPoint; R: Integer): TKMPoint;
 
-  function KMPointRound(const P: TKMPointF): TKMPoint;
-  function KMPointFRoundTo(const P: TKMPointF; aBase: Single): TKMPointF;
-  function KMSamePoint(const P1,P2: TKMPoint): Boolean; overload;
-  function KMSamePointF(const P1,P2: TKMPointF): Boolean; overload;
-  function KMSamePointF(const P1,P2: TKMPointF; Epsilon: Single): Boolean; overload;
-  function KMSamePointDir(const P1,P2: TKMPointDir): Boolean;
+function KMPointRound(const P: TKMPointF): TKMPoint;
+function KMPointFRoundTo(const P: TKMPointF; aBase: Single): TKMPointF;
+function KMSamePoint(const P1,P2: TKMPoint): Boolean; overload;
+function KMSamePointF(const P1,P2: TKMPointF): Boolean; overload;
+function KMSamePointF(const P1,P2: TKMPointF; Epsilon: Single): Boolean; overload;
+function KMSamePointDir(const P1,P2: TKMPointDir): Boolean;
 
-  function KMRect(aLeft, aTop, aRight, aBottom: SmallInt): TKMRect; overload;
-  function KMRect(const aPoint: TKMPoint): TKMRect; overload;
-  function KMRect(const aPoint: TKMPointF): TKMRect; overload;
-  function KMRectF(const aRect: TKMRect): TKMRectF; overload;
-  function KMRectF(const aPoint: TKMPointF): TKMRectF; overload;
-  function KMRectF(aLeft, aTop, aRight, aBottom: SmallInt): TKMRectF; overload;
-  function KMRectF(aLeft, aTop, aRight, aBottom: Single): TKMRectF; overload;
-  function KMRectRound(const aRect: TKMRectF): TKMRect;
-  function KMSameRect(const aRect1, aRect2: TKMRect): Boolean;
-  function KMRectWidth(const aRect: TKMRect): Integer;
-  function KMRectHeight(const aRect: TKMRect): Integer;
-  function KMRectGrow(const aRect: TKMRect; aInset: Integer): TKMRect; overload;
-  function KMRectGrowNoLimits(const aRect: TKMRect; aInset: Integer): TKMRect;
-  function KMRectGrow(const aRect, aInsetRect: TKMRect): TKMRect; overload;
-  function KMRectGrow(const aRect: TKMRect; const aDir: TKMDirection; aInset: Integer = 1): TKMRect; overload;
-  function KMRectGrowTopLeft(const aRect: TKMRect; aInset: Integer = 1): TKMRect;
-  function KMRectGrowTopRight(const aRect: TKMRect; aInset: Integer = 1): TKMRect;
-  function KMRectGrowBottomLeft(const aRect: TKMRect; aInset: Integer = 1): TKMRect;
-  function KMRectShinkTopLeft(const aRect: TKMRect): TKMRect;
-  function KMRectGrowBottomRight(const aRect: TKMRect; aInset: Integer = 1): TKMRect;
-  function KMClipRect(const aRect: TKMRect; X1,Y1,X2,Y2: Integer): TKMRect; overload;
-  function KMClipRect(const aRect1, aRect2: TKMRect): TKMRect; overload;
-  function KMRectIntersect(const aRect1: TKMRect; X1,Y1,X2,Y2: Integer): TKMRect; overload;
-  function KMRectIntersect(const aRect1, aRect2: TKMRect): TKMRect; overload;
-  function KMRectCorners(const aRect: TKMRect): TKMPointArray;
-  function KMInRect(const aPoint: TKMPoint; const aRect: TKMRect): Boolean; overload;
-  function KMInRect(const aPoint: TKMPointF; const aRect: TKMRect): Boolean; overload;
-  function KMInRect(const aPoint: TKMPointF; const aRect: TKMRectF): Boolean; overload;
-  function KMRectFitInRect(const aInnerRect, aOuterRect: TKMRect): Boolean;
-  function KMRectArea(const aRect: TKMRect): Integer;
-  function KMRectMove(const aRect: TKMRect; X,Y: Integer): TKMRect;
-  procedure KMRectIncludePoint(var aRect: TKMRect; X,Y: Integer); overload;
-  procedure KMRectIncludePoint(var aRect: TKMRect; const aPoint: TKMPoint); overload;
-  procedure KMRectIncludeRect(var aRect: TKMRect; aRect2: TKMRect);
+function KMRect(aLeft, aTop, aRight, aBottom: SmallInt): TKMRect; overload;
+function KMRect(const aPoint: TKMPoint): TKMRect; overload;
+function KMRect(const aPoint: TKMPointF): TKMRect; overload;
+function KMRectF(const aRect: TKMRect): TKMRectF; overload;
+function KMRectF(const aPoint: TKMPointF): TKMRectF; overload;
+function KMRectF(aLeft, aTop, aRight, aBottom: SmallInt): TKMRectF; overload;
+function KMRectF(aLeft, aTop, aRight, aBottom: Single): TKMRectF; overload;
+function KMRectRound(const aRect: TKMRectF): TKMRect;
+function KMSameRect(const aRect1, aRect2: TKMRect): Boolean;
+function KMRectWidth(const aRect: TKMRect): Integer;
+function KMRectHeight(const aRect: TKMRect): Integer;
+function KMRectGrow(const aRect: TKMRect; aInset: Integer): TKMRect; overload;
+function KMRectGrowNoLimits(const aRect: TKMRect; aInset: Integer): TKMRect;
+function KMRectGrow(const aRect, aInsetRect: TKMRect): TKMRect; overload;
+function KMRectGrow(const aRect: TKMRect; const aDir: TKMDirection; aInset: Integer = 1): TKMRect; overload;
+function KMRectGrowTopLeft(const aRect: TKMRect; aInset: Integer = 1): TKMRect;
+function KMRectGrowTopRight(const aRect: TKMRect; aInset: Integer = 1): TKMRect;
+function KMRectGrowBottomLeft(const aRect: TKMRect; aInset: Integer = 1): TKMRect;
+function KMRectShinkTopLeft(const aRect: TKMRect): TKMRect;
+function KMRectGrowBottomRight(const aRect: TKMRect; aInset: Integer = 1): TKMRect;
+function KMClipRect(const aRect: TKMRect; X1,Y1,X2,Y2: Integer): TKMRect; overload;
+function KMClipRect(const aRect1, aRect2: TKMRect): TKMRect; overload;
+function KMRectIntersect(const aRect1: TKMRect; X1,Y1,X2,Y2: Integer): TKMRect; overload;
+function KMRectIntersect(const aRect1, aRect2: TKMRect): TKMRect; overload;
+function KMRectCorners(const aRect: TKMRect): TKMPointArray;
+function KMInRect(const aPoint: TKMPoint; const aRect: TKMRect): Boolean; overload;
+function KMInRect(const aPoint: TKMPointF; const aRect: TKMRect): Boolean; overload;
+function KMInRect(const aPoint: TKMPointF; const aRect: TKMRectF): Boolean; overload;
+function KMRectFitInRect(const aInnerRect, aOuterRect: TKMRect): Boolean;
+function KMRectArea(const aRect: TKMRect): Integer;
+function KMRectMove(const aRect: TKMRect; X,Y: Integer): TKMRect;
+procedure KMRectIncludePoint(var aRect: TKMRect; X,Y: Integer); overload;
+procedure KMRectIncludePoint(var aRect: TKMRect; const aPoint: TKMPoint); overload;
+procedure KMRectIncludeRect(var aRect: TKMRect; aRect2: TKMRect);
 
-  function KMGetDirection(aDirF: Single): TKMDirection; overload; inline;
-  function KMGetDirection(X,Y: Single; aDirNAThreshold: Integer = 0): TKMDirection; overload;
-  function KMGetDirection(const P: TKMPointF): TKMDirection; overload;
-  function KMGetDirection(const FromPos, ToPos: TKMPoint): TKMDirection; overload;
-  function KMGetDirection(const FromPos, ToPos: TKMPointF): TKMDirection; overload;
-  function GetDirModifier(const aDir1, aDir2: TKMDirection): Byte;
-  function KMGetVertexDir(X,Y: Integer): TKMDirection;
-  function KMGetVertexTile(const P: TKMPoint; const Dir: TKMDirection): TKMPoint;
-  function KMGetVertex(const aDir: TKMDirection): TKMPointF;
-  function KMGetPointInDir(const aPoint: TKMPoint; const aDir: TKMDirection; aDist: Byte = 1): TKMPoint;
+function KMGetDirection(aDirF: Single): TKMDirection; overload; inline;
+function KMGetDirection(X,Y: Single; aDirNAThreshold: Integer = 0): TKMDirection; overload;
+function KMGetDirection(const P: TKMPointF): TKMDirection; overload;
+function KMGetDirection(const FromPos, ToPos: TKMPoint): TKMDirection; overload;
+function KMGetDirection(const FromPos, ToPos: TKMPointF): TKMDirection; overload;
+function GetDirModifier(const aDir1, aDir2: TKMDirection): Byte;
+function KMGetVertexDir(X,Y: Integer): TKMDirection;
+function KMGetVertexTile(const P: TKMPoint; const Dir: TKMDirection): TKMPoint;
+function KMGetVertex(const aDir: TKMDirection): TKMPointF;
+function KMGetPointInDir(const aPoint: TKMPoint; const aDir: TKMDirection; aDist: Byte = 1): TKMPoint;
 
-  function KMAddDirection(const aDir: TKMDirection; aAdd: Integer): TKMDirection;
-  function KMNextDirection(const aDir: TKMDirection): TKMDirection;
-  function KMPrevDirection(const aDir: TKMDirection): TKMDirection;
+function KMAddDirection(const aDir: TKMDirection; aAdd: Integer): TKMDirection;
+function KMNextDirection(const aDir: TKMDirection): TKMDirection;
+function KMPrevDirection(const aDir: TKMDirection): TKMDirection;
 
-  function KMPointsAround(const P: TKMPoint; aIncludeSelf: Boolean = False): TKMPointArray;
+function KMPointsAround(const P: TKMPoint; aIncludeSelf: Boolean = False): TKMPointArray;
 
-  function KMGetDiagVertex(const P1,P2:TKMPoint): TKMPoint;
-  function KMStepIsDiag(const P1,P2:TKMPoint): Boolean;
-  function KMStepIsDiagAdjust(const P1,P2: TKMPoint): Boolean;
-  function KMStepIsBeside(const P1,P2: TKMPoint): Boolean;
+function KMGetDiagVertex(const P1,P2:TKMPoint): TKMPoint;
+function KMStepIsDiag(const P1,P2:TKMPoint): Boolean;
+function KMStepIsDiagAdjust(const P1,P2: TKMPoint): Boolean;
+function KMStepIsBeside(const P1,P2: TKMPoint): Boolean;
 
-  function KMPointAverage(const A, B: TKMPoint): TKMPoint;
-  function KMPointSubtract(const A, B: TKMPoint): TKMPoint;
-  function KMPointAdd(const A, B: TKMPoint): TKMPoint; overload;
-  function KMPointAdd(const A, B, C: TKMPoint): TKMPoint; overload;
-  function KMDotProduct(const A, B: TKMPoint): Single;
-  function KMDistanceAbs(const A, B: TKMPoint): Integer;
-  function KMDistanceWalk(const A, B: TKMPoint): Integer;
-  function KMDistanceSqr(const A, B: TKMPoint): Single; overload;
-  function KMDistanceSqr(const A, B: TKMPointF): Single; overload;
+function KMPointAverage(const A, B: TKMPoint): TKMPoint;
+function KMPointSubtract(const A, B: TKMPoint): TKMPoint;
+function KMPointAdd(const A, B: TKMPoint): TKMPoint; overload;
+function KMPointAdd(const A, B, C: TKMPoint): TKMPoint; overload;
+function KMDotProduct(const A, B: TKMPoint): Single;
+function KMDistanceAbs(const A, B: TKMPoint): Integer;
+function KMDistanceWalk(const A, B: TKMPoint): Integer;
+function KMDistanceSqr(const A, B: TKMPoint): Single; overload;
+function KMDistanceSqr(const A, B: TKMPointF): Single; overload;
 
-  function KMPerpendecular(const A,B: TKMPoint): TKMPointF;
-  //Cross product of 2D vectors, pointed either Up or Down
-  function KMNormal2Poly(const v1,v2,v3: TKMPoint): Single; overload;
-  function KMPointInTriangle(const P, A, B, C: TKMPoint): Boolean;
-  function KMSegmentsIntersect(const A, B, C, D: TKMPoint): Boolean;
-  function KMSegmentsIntersectOrTouch(const A, B, C, D: TKMPoint): Boolean;
+function KMPerpendecular(const A,B: TKMPoint): TKMPointF;
+//Cross product of 2D vectors, pointed either Up or Down
+function KMNormal2Poly(const v1,v2,v3: TKMPoint): Single; overload;
+function KMPointInTriangle(const P, A, B, C: TKMPoint): Boolean;
+function KMSegmentsIntersect(const A, B, C, D: TKMPoint): Boolean;
+function KMSegmentsIntersectOrTouch(const A, B, C, D: TKMPoint): Boolean;
 
-  function KMLength(A,B: Single): Single; overload;
-  function KMLength(const A, B: TKMPoint): Single; overload;
-  function KMLength(const A, B: TKMPointF): Single; overload;
-  function KMLengthDiag(X, Y: Integer): Single; overload;
-  function KMLengthDiag(const A, B: TKMPoint): Single; overload;
-  function KMLengthDiag(X,Y: Integer; const B: TKMPoint): Single; overload;
-  function KMLengthSqr(const A, B: TKMPoint): Integer; overload;
-  function KMLengthSqr(const X1, Y1, X2, Y2: Integer): Integer; overload;
-  function KMLengthSqr(const A, B: TKMPointF): Single; overload;
-  function KMLengthSqr(const A: TKMPoint; const B: TKMPointF): Single; overload;
+function KMLength(A,B: Single): Single; overload;
+function KMLength(const A, B: TKMPoint): Single; overload;
+function KMLength(const A, B: TKMPointF): Single; overload;
+function KMLengthDiag(X, Y: Integer): Single; overload;
+function KMLengthDiag(const A, B: TKMPoint): Single; overload;
+function KMLengthDiag(X,Y: Integer; const B: TKMPoint): Single; overload;
+function KMLengthSqr(const A, B: TKMPoint): Integer; overload;
+function KMLengthSqr(const X1, Y1, X2, Y2: Integer): Integer; overload;
+function KMLengthSqr(const A, B: TKMPointF): Single; overload;
+function KMLengthSqr(const A: TKMPoint; const B: TKMPointF): Single; overload;
 
-  function KMLerp(const A,B: TKMPoint; MixValue: Single): TKMPointF; overload;
-  function KMLerp(const A,B: TKMPointF; MixValue: Single): TKMPointF; overload;
+function KMLerp(const A,B: TKMPoint; MixValue: Single): TKMPointF; overload;
+function KMLerp(const A,B: TKMPointF; MixValue: Single): TKMPointF; overload;
 
-  procedure KMSwapPoints(var A,B: TKMPoint);
-  procedure KMSwapPointDir(var A,B: TKMPointDir);
+procedure KMSwapPoints(var A,B: TKMPoint);
+procedure KMSwapPointDir(var A,B: TKMPointDir);
 
-  function TypeToString(const P: TKMPoint): string; overload;
-  function TypeToString(const P: TKMPointW): string; overload;
-  function TypeToString(const P: TKMPointDir): string; overload;
-  function TypeToString(const P: TKMPointF): string; overload;
-  function TypeToString(const T: TKMDirection): string; overload;
+function TypeToString(const P: TKMPoint): string; overload;
+function TypeToString(const P: TKMPointW): string; overload;
+function TypeToString(const P: TKMPointDir): string; overload;
+function TypeToString(const P: TKMPointF): string; overload;
+function TypeToString(const T: TKMDirection): string; overload;
 
-  function StringToType(const Str: string): TKMPoint; overload;
+function StringToType(const Str: string): TKMPoint; overload;
 
-  function KMRange(aMin, aMax: Integer): TKMRangeInt; overload;
-  function KMRange(aMin, aMax: Single): TKMRangeSingle; overload;
+function KMRange(aMin, aMax: Integer): TKMRangeInt; overload;
+function KMRange(aMin, aMax: Single): TKMRangeSingle; overload;
 
-  function KMInRange(aValue: Integer; const aRangeInt: TKMRangeInt): Boolean; overload;
-  function KMInRange(aValue: Single; const aRangeSingle: TKMRangeSingle): Boolean; overload;
+function KMInRange(aValue: Integer; const aRangeInt: TKMRangeInt): Boolean; overload;
+function KMInRange(aValue: Single; const aRangeSingle: TKMRangeSingle): Boolean; overload;
 
-  function KMEnsureRange(aValue: Integer; const aRange: TKMRangeInt): Integer; overload;
-  function KMEnsureRange(aValue: Single; const aRange: TKMRangeSingle): Single; overload;
+function KMEnsureRange(aValue: Integer; const aRange: TKMRangeInt): Integer; overload;
+function KMEnsureRange(aValue: Single; const aRange: TKMRangeSingle): Single; overload;
 
-  function KMEnlargeRange(const aRange: TKMRangeInt; aValue: Integer): TKMRangeInt; overload;
-  function KMEnlargeRange(const aRange: TKMRangeSingle; aValue: Single): TKMRangeSingle; overload;
+function KMEnlargeRange(const aRange: TKMRangeInt; aValue: Integer): TKMRangeInt; overload;
+function KMEnlargeRange(const aRange: TKMRangeSingle; aValue: Single): TKMRangeSingle; overload;
 
 
 const
@@ -330,7 +332,7 @@ end;
 
 function TKMRect.ToString: string;
 begin
-  Result := Format('(%d, %d, %d, %d)', [Left, Top, Right, Bottom]);;
+  Result := Format('(%d, %d, %d, %d)', [Left, Top, Right, Bottom]);
 end;
 
 
@@ -742,7 +744,7 @@ end;
 function KMRectFitInRect(const aInnerRect, aOuterRect: TKMRect): Boolean;
 begin
   Result := (KMRectHeight(aInnerRect) <= KMRectHeight(aOuterRect))
-        and (KMRectWidth(aInnerRect) <= KMRectWidth(aOuterRect))
+        and (KMRectWidth(aInnerRect) <= KMRectWidth(aOuterRect));
 end;
 
 
@@ -862,8 +864,8 @@ end;
 
 function KMGetVertex(const aDir: TKMDirection): TKMPointF;
 const
-  XBitField: array [TKMDirection] of single = (0, 0, 0.7,1,0.7,0,-0.7,-1,-0.7);
-  YBitField: array [TKMDirection] of single = (0,-1,-0.7,0,0.7,1, 0.7, 0,-0.7);
+  XBitField: array [TKMDirection] of Single = (0, 0, 0.7,1,0.7,0,-0.7,-1,-0.7);
+  YBitField: array [TKMDirection] of Single = (0,-1,-0.7,0,0.7,1, 0.7, 0,-0.7);
 begin
   Result := KMPointF(XBitField[aDir], YBitField[aDir]);
 end;
@@ -1043,16 +1045,16 @@ var
   ABx, ABy, CDx, CDy: Single;
   D2, S, T: Single;
 begin
-  ABx := B.x - A.x;     ABy := B.y - A.y;
-  CDx := D.x - C.x;     CDy := D.y - C.y;
+  ABx := B.X - A.X;     ABy := B.Y - A.Y;
+  CDx := D.X - C.X;     CDy := D.Y - C.Y;
 
   D2 := -CDx * ABy + ABx * CDy;
 
-  S := (-ABy * (A.x - C.x) + ABx * (A.y - C.y)) / D2;
-  T := ( CDx * (A.y - C.y) - CDy * (A.x - C.x)) / D2;
+  S := (-ABy * (A.X - C.X) + ABx * (A.Y - C.Y)) / D2;
+  T := ( CDx * (A.Y - C.Y) - CDy * (A.X - C.X)) / D2;
 
   Result := (S > 0) and (S < 1) and (T > 0) and (T < 1)
-            and not IsNaN(S) and not IsNaN(T)
+            and not IsNan(S) and not IsNan(T)
             and not IsInfinite(S) and not IsInfinite(T);
 end;
 
@@ -1062,8 +1064,8 @@ var
   ABx, ABy, CDx, CDy: Single;
   D2, S, T: Single;
 begin
-  ABx := B.x - A.x;     ABy := B.y - A.y;
-  CDx := D.x - C.x;     CDy := D.y - C.y;
+  ABx := B.X - A.X;     ABy := B.Y - A.Y;
+  CDx := D.X - C.X;     CDy := D.Y - C.Y;
 
   //todo -cPractical: Cover with tests and rewrite to avoid / 0. In Delphi Rio behaviour will change
   // As said by Rey:
@@ -1073,11 +1075,11 @@ begin
   // Delphi Rio - True
   D2 := -CDx * ABy + ABx * CDy;
 
-  S := (-ABy * (A.x - C.x) + ABx * (A.y - C.y)) / D2;
-  T := ( CDx * (A.y - C.y) - CDy * (A.x - C.x)) / D2;
+  S := (-ABy * (A.X - C.X) + ABx * (A.Y - C.Y)) / D2;
+  T := ( CDx * (A.Y - C.Y) - CDy * (A.X - C.X)) / D2;
 
   Result := (S >= 0) and (S <= 1) and (T >= 0) and (T <= 1)
-            and not IsNaN(S) and not IsNaN(T)
+            and not IsNan(S) and not IsNan(T)
             and not IsInfinite(S) and not IsInfinite(T);
 end;
 
