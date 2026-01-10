@@ -152,21 +152,6 @@ type
   end;
 
 
-const
-  PLACEHOLDER_CHAR = 0; // Box, used for characters missing from font
-
-  FONT_INFO: array [TKMFont] of TKMFontInfo = (
-    (Pal: pal0;  TexMode: tfRGB5A1),
-    (Pal: palbw; TexMode: tfAlpha8),
-    (Pal: pal0;  TexMode: tfRGB5A1),
-    (Pal: pal0;  TexMode: tfRGB5A1),
-    (Pal: palbw; TexMode: tfAlpha8),
-    (Pal: pal0;  TexMode: tfRGB5A1),
-    (Pal: pal0;  TexMode: tfRGBA8 ),
-    (Pal: pal0;  TexMode: tfRGBA8 )
-  );
-
-
 function NameToFont(const aName: string): TKMFont;
 
 
@@ -181,6 +166,17 @@ uses
   {$ENDIF}
   KM_CommonUtils, KM_Log;
 
+const
+  FONT_INFO: array [TKMFont] of TKMFontInfo = (
+    (Pal: pal0;  TexMode: tfRGB5A1),
+    (Pal: palbw; TexMode: tfAlpha8),
+    (Pal: pal0;  TexMode: tfRGB5A1),
+    (Pal: pal0;  TexMode: tfRGB5A1),
+    (Pal: palbw; TexMode: tfAlpha8),
+    (Pal: pal0;  TexMode: tfRGB5A1),
+    (Pal: pal0;  TexMode: tfRGBA8 ),
+    (Pal: pal0;  TexMode: tfRGBA8 )
+  );
 
 function NameToFont(const aName: string): TKMFont;
 var
@@ -395,6 +391,8 @@ end;
 
 
 function TKMFontSpec.GetLetter(aChar: WideChar): TKMLetter;
+const
+  PLACEHOLDER_CHAR = 0; // Box, used for characters missing from font
 begin
   if Used[Ord(aChar)] <> 0 then
     Result := Letters[Ord(aChar)]
