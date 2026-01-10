@@ -22,14 +22,14 @@ type
     class operator NotEqual(const A, B: TKMPointF): Boolean;
     class operator Add(const A, B: TKMPointF): TKMPointF;
     class function New(aX, aY: Single): TKMPointF; static;
-    function ToString: String;
+    function ToString: string;
   end;
 
   //* Point with integer coordinates X and Y
   TKMPoint = record
     X,Y: Integer;
 
-    function ToString: String;
+    function ToString: string;
 
     class operator Equal(const A, B: TKMPoint): Boolean;
     class operator NotEqual(const A, B: TKMPoint): Boolean;
@@ -42,14 +42,14 @@ type
   TKMPointDir = packed record
     Loc: TKMPoint;
     Dir: TKMDirection;
-    function ToString: String;
+    function ToString: string;
   end;
 
   TKMPointExact = packed record Loc: TKMPoint; Exact: Boolean; end;
 
   TKMPointW = record
     X,Y: Word;
-    function ToString: String;
+    function ToString: string;
   end; // For backwards compatibility with cmp files
 
   TKMPointArray = array of TKMPoint;
@@ -68,7 +68,7 @@ type
   //Rects are often used without range checking and include negative off-map coords
   TKMRect = packed record
     Left, Top, Right, Bottom: Integer;
-    function ToString: String;
+    function ToString: string;
     function Width: Integer;
     function Height: Integer;
     procedure SetLeft(aLeft: Integer);
@@ -83,12 +83,12 @@ type
 
   TKMRangeInt = record
     Min, Max: Integer;
-    function ToString: String;
+    function ToString: string;
   end;
 
   TKMRangeSingle = record
     Min, Max: Single;
-    function ToString: String;
+    function ToString: string;
   end;
 
   TKMPointFunction = function(aPoint: TKMPoint): Boolean of object;
@@ -209,7 +209,7 @@ type
   function TypeToString(const P: TKMPointF): string; overload;
   function TypeToString(const T: TKMDirection): string; overload;
 
-  function StringToType(const Str: String): TKMPoint; overload;
+  function StringToType(const Str: string): TKMPoint; overload;
 
   function KMRange(aMin, aMax: Integer): TKMRangeInt; overload;
   function KMRange(aMin, aMax: Single): TKMRangeSingle; overload;
@@ -279,7 +279,7 @@ begin
 end;
 
 
-function TKMPoint.ToString: String;
+function TKMPoint.ToString: string;
 begin
   Result := TypeToString(Self);
 end;
@@ -310,25 +310,25 @@ begin
 end;
 
 
-function TKMPointF.ToString: String;
+function TKMPointF.ToString: string;
 begin
   Result := TypeToString(Self);
 end;
 
 
-function TKMPointW.ToString: String;
+function TKMPointW.ToString: string;
 begin
   Result := TypeToString(Self);
 end;
 
 
-function TKMPointDir.ToString: String;
+function TKMPointDir.ToString: string;
 begin
   Result := TypeToString(Self);
 end;
 
 
-function TKMRect.ToString: String;
+function TKMRect.ToString: string;
 begin
   Result := Format('(%d, %d, %d, %d)', [Left, Top, Right, Bottom]);;
 end;
@@ -374,12 +374,12 @@ begin
   Result := not KMSameRect(A,B);
 end;
 
-function TKMRangeInt.ToString: String;
+function TKMRangeInt.ToString: string;
 begin
   Result := Format('%d - %d', [Min, Max]);
 end;
 
-function TKMRangeSingle.ToString: String;
+function TKMRangeSingle.ToString: string;
 begin
   Result := Format('%.5f - %.5f', [Min, Max]);
 end;
@@ -455,8 +455,8 @@ end;
 
 function KMNormVector(const P: TKMPoint; R: Integer): TKMPoint;
 begin
-  Result.X := Round(R*P.X / sqrt(sqr(P.X) + sqr(P.Y)));
-  Result.Y := Round(R*P.Y / sqrt(sqr(P.X) + sqr(P.Y)));
+  Result.X := Round(R*P.X / Sqrt(Sqr(P.X) + Sqr(P.Y)));
+  Result.Y := Round(R*P.Y / Sqrt(Sqr(P.X) + Sqr(P.Y)));
 end;
 
 function KMPointRound(const P: TKMPointF): TKMPoint;
@@ -487,11 +487,11 @@ end;
 
 function KMSamePointF(const P1,P2: TKMPointF; Epsilon: Single): Boolean;
 begin
-  Result := (abs(P1.X - P2.X) < Epsilon) and (abs(P1.Y - P2.Y) < Epsilon);
+  Result := (Abs(P1.X - P2.X) < Epsilon) and (Abs(P1.Y - P2.Y) < Epsilon);
 end;
 
 
-function KMSamePointDir(const P1,P2: TKMPointDir): boolean;
+function KMSamePointDir(const P1,P2: TKMPointDir): Boolean;
 begin
   Result := ( P1.Loc.X = P2.Loc.X ) and ( P1.Loc.Y = P2.Loc.Y ) and ( P1.Dir = P2.Dir );
 end;
@@ -1133,7 +1133,7 @@ end;
 
 //Squared length for cases where we need to compare two lengths
 //or pick the best one and actual value is not that important
-//we can save some cycles on ommitting SQRT
+//we can save some cycles on ommitting Sqrt
 function KMLengthSqr(const A, B: TKMPoint): Integer;
 begin
   Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
@@ -1213,7 +1213,7 @@ begin
 end;
 
 
-function StringToType(const Str: String): TKMPoint;
+function StringToType(const Str: string): TKMPoint;
 var
   DelimPos, X, Y: Integer;
 begin
