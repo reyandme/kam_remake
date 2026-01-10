@@ -78,7 +78,7 @@ type
 
     function GetPointer: TKMUnitWarrior; reintroduce;
 
-    property Group: pointer read fGroup; // Property for GetGroupByMember function
+    property Group: Pointer read fGroup; // Property for GetGroupByMember function
     // This procedure should not be called by anyone except UnitGroups class(it is out of property)
     procedure SetGroup(aGroup: Pointer); //Explicitly use SetWorker, to make it clear its not only pointer assignment
 
@@ -683,7 +683,7 @@ var
   range: Single;
 begin
   Result := nil; //No one to fight
-  if not CanInterruptAction then exit;
+  if not CanInterruptAction then Exit;
 
   if IsRanged then
   begin
@@ -1144,7 +1144,7 @@ begin
     if IsRanged then
     begin
       fillColor := $40FFFFFF;
-      lineCOlor := icWhite;
+      lineColor := icWhite;
       if (gMySpectator.Selected = Self)
         or ((gMySpectator.Selected is TKMUnitGroup)
           and (TKMUnitGroup(gMySpectator.Selected).FlagBearer = Self)) then

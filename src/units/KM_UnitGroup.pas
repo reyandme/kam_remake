@@ -2301,7 +2301,7 @@ begin
   // We need to render Flag after MapEd virtual members
   flagPos := GetFlagPositionF(V);
   gRenderPool.AddUnitFlag(FlagBearer.UnitType, V.Action,
-    V.Dir, FlagStep, flagPos.X, flagPos.Y, aFlagColor, aDoImmediateRender);
+    V.Dir, flagStep, flagPos.X, flagPos.Y, aFlagColor, aDoImmediateRender);
 
   if SHOW_GROUP_MEMBERS_POS and not gGameParams.IsMapEditor then
     for I := 0 to Count - 1 do
@@ -2326,7 +2326,7 @@ end;
 
 destructor TKMUnitGroups.Destroy;
 begin
-  fGroups.Free;
+  FreeAndNil(fGroups);
 
   inherited;
 end;
@@ -2488,7 +2488,7 @@ begin
   Result := nil;
   bestDist := MaxSingle; //Any distance will be closer than that
   for I := 0 to Count - 1 do
-    if not Groups[I].IsDead AND (Groups[I].GroupType in aTypes) then
+    if not Groups[I].IsDead and (Groups[I].GroupType in aTypes) then
     begin
       dist := KMLengthSqr(Groups[I].GetPosition, aPoint);
       if dist < bestDist then
@@ -2507,7 +2507,7 @@ var
 begin
   Idx := 0;
   for I := 0 to Count - 1 do
-    if not Groups[I].IsDead AND (Groups[I].GroupType in aTypes) then
+    if not Groups[I].IsDead and (Groups[I].GroupType in aTypes) then
     begin
       K := 0;
       while (K < Groups[I].Count) do // Large groups may be in radius too so check every fifth member
@@ -2540,7 +2540,7 @@ begin
   Idx := 0;
   bestU := nil;
   for I := 0 to Count - 1 do
-    if not Groups[I].IsDead AND (Groups[I].GroupType in aTypes) then
+    if not Groups[I].IsDead and (Groups[I].GroupType in aTypes) then
     begin
       K := 0;
       minDist := MaxSingle; //Any distance will be closer than that

@@ -306,8 +306,8 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
-    procedure Deliver(aFrom: TKMHouse; toHouse: TKMHouse; aWare: TKMWareType; aID: integer); overload;
-    procedure Deliver(aFrom: TKMHouse; toUnit: TKMUnit; aWare: TKMWareType; aID: integer); overload;
+    procedure Deliver(aFrom: TKMHouse; toHouse: TKMHouse; aWare: TKMWareType; aID: Integer); overload;
+    procedure Deliver(aFrom: TKMHouse; toUnit: TKMUnit; aWare: TKMWareType; aID: Integer); overload;
     function TryDeliverFrom(aFrom: TKMHouse): Boolean;
     procedure DelegateDelivery(aToSerf: TKMUnitSerf);
 
@@ -315,7 +315,7 @@ type
     procedure CarryGive(aWare: TKMWareType);
     procedure CarryTake;
 
-    function ObjToString(const aSeparator: String = '|'): String; override;
+    function ObjToString(const aSeparator: string = '|'): string; override;
 
     function UpdateState: Boolean; override;
     procedure Paint(aTickLag: Single); override;
@@ -494,8 +494,8 @@ var
   xPaintPos, yPaintPos: Single;
 begin
   inherited;
-  if not fVisible then exit;
-  if fAction = nil then exit;
+  if not fVisible then Exit;
+  if fAction = nil then Exit;
 
   V := fVisual.GetLerp(aTickLag);
   act := V.Action;
@@ -783,14 +783,14 @@ begin
 end;
 
 
-procedure TKMUnitSerf.Deliver(aFrom, toHouse: TKMHouse; aWare: TKMWareType; aID: integer);
+procedure TKMUnitSerf.Deliver(aFrom, toHouse: TKMHouse; aWare: TKMWareType; aID: Integer);
 begin
   fThought := thNone; //Clear ? thought
   fTask := TKMTaskDeliver.Create(Self, aFrom, toHouse, aWare, aID);
 end;
 
 
-procedure TKMUnitSerf.Deliver(aFrom: TKMHouse; toUnit: TKMUnit; aWare: TKMWareType; aID: integer);
+procedure TKMUnitSerf.Deliver(aFrom: TKMHouse; toUnit: TKMUnit; aWare: TKMWareType; aID: Integer);
 begin
   fThought := thNone; //Clear ? thought
   fTask := TKMTaskDeliver.Create(Self, aFrom, toUnit, aWare, aID);
@@ -856,8 +856,8 @@ var
   xPaintPos, yPaintPos: Single;
 begin
   inherited;
-  if not fVisible and not SHOW_UNITS_IN_HOUSE then exit;
-  if fAction = nil then exit;
+  if not fVisible and not SHOW_UNITS_IN_HOUSE then Exit;
+  if fAction = nil then Exit;
 
   V := fVisual.GetLerp(aTickLag);
   act := V.Action;
@@ -889,7 +889,7 @@ begin
 end;
 
 
-function TKMUnitSerf.ObjToString(const aSeparator: String = '|'): String;
+function TKMUnitSerf.ObjToString(const aSeparator: string = '|'): string;
 begin
   if Self = nil then Exit('nil');
 
@@ -1126,7 +1126,7 @@ var
 begin
   inherited;
 
-  if fAction = nil then exit;
+  if fAction = nil then Exit;
   V := fVisual.GetLerp(aTickLag);
 
   act := GetPaintActionType(V.Action);
@@ -2036,7 +2036,7 @@ end;
 
 procedure TKMUnit.Feed(Amount: Single);
 begin
-  fCondition := Math.min(fCondition + Round(Amount), UNIT_MAX_CONDITION);
+  fCondition := Min(fCondition + Round(Amount), UNIT_MAX_CONDITION);
 end;
 
 
@@ -2430,9 +2430,9 @@ begin
 end;
 
 
-function TKMUnit.ObjToStringShort(const aSeparator: String = '|'): String;
+function TKMUnit.ObjToStringShort(const aSeparator: string = '|'): string;
 var
-  actStr, taskStr: String;
+  actStr, taskStr: string;
 begin
   if Self = nil then Exit('nil');
 
@@ -2453,9 +2453,9 @@ begin
 end;
 
 
-function TKMUnit.ObjToString(const aSeparator: String = '|'): String;
+function TKMUnit.ObjToString(const aSeparator: string = '|'): string;
 var
-  homeStr, inHouseStr, actStr: String;
+  homeStr, inHouseStr, actStr: string;
 begin
   if Self = nil then Exit('nil');
 
@@ -2779,7 +2779,7 @@ begin
 end;
 
 
-function TKMUnitTask.ObjToString(const aSeparator: String = ', '): String;
+function TKMUnitTask.ObjToString(const aSeparator: string = ', '): string;
 begin
   if Self = nil then Exit('nil');
 
@@ -2807,7 +2807,7 @@ begin
 end;
 
 
-{ TUnitAction }
+{ TKMUnitAction }
 constructor TKMUnitAction.Create(aUnit: TKMUnit; aActionType: TKMUnitActionType; aLocked: Boolean);
 begin
   inherited Create;
@@ -2861,13 +2861,13 @@ begin
 end;
 
 
-function TKMUnitAction.ObjToStringShort(const aSeparator: String = ' '): String;
+function TKMUnitAction.ObjToStringShort(const aSeparator: string = ' '): string;
 begin
   Result := ClassName;
 end;
 
 
-function TKMUnitAction.ObjToString(const aSeparator: String = ' '): String;
+function TKMUnitAction.ObjToString(const aSeparator: string = ' '): string;
 begin
   Result := ObjToStringShort(aSeparator);
 end;
