@@ -41,8 +41,8 @@ type
     procedure Save(SaveStream: TKMemoryStream); virtual;
     procedure Paint; virtual;
 
-    function ObjToStringShort(const aSeparator: String = ' '): String; virtual;
-    function ObjToString(const aSeparator: String = ' '): String; virtual;
+    function ObjToStringShort(const aSeparator: string = ' '): string; virtual;
+    function ObjToString(const aSeparator: string = ' '): string; virtual;
   end;
 
   TKMTaskResult = (trTaskContinues, trTaskDone); //There's no difference between Done and Aborted
@@ -70,7 +70,7 @@ type
     function CouldBeCancelled: Boolean; virtual;
     function CanRestartAction(aLastActionResult: TKMActionResult): Boolean; virtual;
 
-    function ObjToString(const aSeparator: String = ', '): String; virtual;
+    function ObjToString(const aSeparator: string = ', '): string; virtual;
 
     function Execute: TKMTaskResult; virtual; abstract;
     procedure Save(SaveStream: TKMemoryStream); virtual;
@@ -250,8 +250,8 @@ type
     function GetSlides: TKMPointF;
     function PathfindingShouldAvoid: Boolean; virtual;
 
-    function ObjToString(const aSeparator: String = '|'): String; override;
-    function ObjToStringShort(const aSeparator: String = '|'): String; override;
+    function ObjToString(const aSeparator: string = '|'): string; override;
+    function ObjToStringShort(const aSeparator: string = '|'): string; override;
 
     function UpdateState: Boolean; virtual;
     procedure UpdateVisualState;
@@ -775,7 +775,7 @@ begin
 end;
 
 
-{ TKMSerf }
+{ TKMUnitSerf }
 constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TKMUnitType; const aLoc: TKMPointDir; aOwner: TKMHandID; aInHouse: TKMHouse);
 begin
   inherited;
@@ -946,7 +946,7 @@ begin
 end;
 
 
-{ TKMWorker }
+{ TKMUnitWorker }
 procedure TKMUnitWorker.BuildHouse(aHouse: TKMHouse; aIndex: Integer);
 begin
   fTask := TKMTaskBuildHouse.Create(Self, aHouse, aIndex);
