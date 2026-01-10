@@ -420,7 +420,7 @@ begin
       else if gTerrain.TileHasStone(X,Y) then
       begin
         Soil[Y,X] := 1; // Stone tile can be mined and used for farms
-        if (Y < fMapY - 1) AND (tpWalk in gTerrain.Land^[Y+1,X].Passability) AND  StoneCheck.CheckCount(X,Y) then
+        if (Y < fMapY - 1) and (tpWalk in gTerrain.Land^[Y+1,X].Passability) and  StoneCheck.CheckCount(X,Y) then
           fStoneMiningTiles.Add(Loc);
       end
       else if CanAddHousePlan(Loc, htGoldMine, True, False) then
@@ -450,8 +450,8 @@ begin
   Result := True;
   for X := Max(aLoc.X-4, 1) to Min(aLoc.X+3+Byte(aHT = htGoldMine), fMapX-1) do
     for Y := Max(aLoc.Y-8, 1) to aLoc.Y do
-      if   (aHT = htGoldMine) AND gTerrain.TileHasGold(X, Y)
-        OR (aHT = htIronMine) AND gTerrain.TileHasIron(X, Y) then
+      if   (aHT = htGoldMine) and gTerrain.TileHasGold(X, Y)
+        OR (aHT = htIronMine) and gTerrain.TileHasIron(X, Y) then
         Exit;
   Result := False; //Didn't find any ore
 end;
@@ -616,7 +616,7 @@ begin
   BuildCnt := 0;
   for Y := 1 to fMapY - 1 do
   for X := 1 to fMapX - 1 do
-    if (gAIFields.Influences.GetBestOwner(X,Y) = fOwner) AND gTerrain.TileIsRoadable( KMPoint(X,Y) ) then
+    if (gAIFields.Influences.GetBestOwner(X,Y) = fOwner) and gTerrain.TileIsRoadable( KMPoint(X,Y) ) then
     begin
       Inc(FieldCnt, Byte(Soil[Y,X] > 0));
       Inc(BuildCnt, 1);
@@ -780,15 +780,15 @@ begin
     X := aLoc.X + fHousesMapping[aHT].Tiles[I].X;
     Y := aLoc.Y + fHousesMapping[aHT].Tiles[I].Y;
     // Inset one tile from map edges
-    Output := Output AND gTerrain.TileInMapCoords(X, Y, 1);
+    Output := Output and gTerrain.TileInMapCoords(X, Y, 1);
     // Mines have specific requirements
     case aHT of
-      htIronMine: Output := Output AND gTerrain.CanPlaceIronMine(X, Y);
-      htGoldMine: Output := Output AND gTerrain.CanPlaceGoldMine(X, Y);
-      else         Output := Output AND ( (tpBuild in gTerrain.Land^[Y,X].Passability)
+      htIronMine: Output := Output and gTerrain.CanPlaceIronMine(X, Y);
+      htGoldMine: Output := Output and gTerrain.CanPlaceGoldMine(X, Y);
+      else         Output := Output and ( (tpBuild in gTerrain.Land^[Y,X].Passability)
                                           OR (aIgnoreTrees
-                                              AND gTerrain.ObjectIsChopableTree(KMPoint(X,Y), [caAge1,caAge2,caAge3,caAgeFull])
-                                              AND gHands[fOwner].CanAddFieldPlan(KMPoint(X,Y), ftWine))
+                                              and gTerrain.ObjectIsChopableTree(KMPoint(X,Y), [caAge1,caAge2,caAge3,caAgeFull])
+                                              and gHands[fOwner].CanAddFieldPlan(KMPoint(X,Y), ftWine))
                                         );
     end;
     if not Output then
@@ -853,7 +853,7 @@ begin
 
     //This tile must not contain fields/houseplans of allied players
     for PL := 0 to gHands.Count - 1 do
-      if (gHands[fOwner].Alliances[PL] = atAlly) then// AND (PL <> fOwner) then
+      if (gHands[fOwner].Alliances[PL] = atAlly) then// and (PL <> fOwner) then
         if (gHands[PL].Constructions.FieldworksList.HasField(Point) <> ftNone) then
           Exit;
   end;
@@ -882,16 +882,16 @@ begin
         Exit;
       if (aHT = htWatchTower) then
       begin
-        RightSideFree := RightSideFree AND ((Dir <> dirE) OR CanBeRoad(X,Y));
-        LeftSideFree := LeftSideFree AND ((Dir <> dirW) OR CanBeRoad(X,Y));
+        RightSideFree := RightSideFree and ((Dir <> dirE) OR CanBeRoad(X,Y));
+        LeftSideFree := LeftSideFree and ((Dir <> dirW) OR CanBeRoad(X,Y));
       end;
     end
     // For "normal" houses there must be at least 1 side also free (on the left or right from house plan)
     else if (Dir = dirE) then // Direction east
-      RightSideFree := RightSideFree AND CanBeRoad(X,Y)
+      RightSideFree := RightSideFree and CanBeRoad(X,Y)
     else if (Dir = dirW) then // Direction west
-      LeftSideFree := LeftSideFree AND CanBeRoad(X,Y);
-    if not (LeftSideFree AND RightSideFree) then
+      LeftSideFree := LeftSideFree and CanBeRoad(X,Y);
+    if not (LeftSideFree and RightSideFree) then
       Exit;
   end;
 
@@ -920,8 +920,8 @@ begin
       Y := Mines.Items[I].Y;
       Ownership := gAIFields.Influences.Ownership[fOwner, Y, X];
       if ([tpMakeRoads, tpWalkRoad] * gTerrain.Land^[Y+1,X].Passability <> [])
-        AND (Ownership > 0) AND gAIFields.Influences.CanPlaceHouseByInfluence(fOwner, X,Y) then
-        if CanAddHousePlan(Mines.Items[I], aHT, True, False) AND CheckResourcesNearMine(Mines.Items[I], aHT) then
+        and (Ownership > 0) and gAIFields.Influences.CanPlaceHouseByInfluence(fOwner, X,Y) then
+        if CanAddHousePlan(Mines.Items[I], aHT, True, False) and CheckResourcesNearMine(Mines.Items[I], aHT) then
           Output.Add(Mines.Items[I], Ownership)
         else
           Mines.Delete(I);
@@ -949,17 +949,17 @@ begin
     Y := fStoneMiningTiles.Items[K].Y;
     MaxDist := Max(1, Y-SCAN_LIMIT);
     // Find actual stone tile (if exist)
-    while not gTerrain.TileHasStone(X, Y) AND (Y > MaxDist) do
+    while not gTerrain.TileHasStone(X, Y) and (Y > MaxDist) do
       Y := Y - 1;
     // Check if is possible to mine it
-    if gTerrain.TileHasStone(X, Y) AND (tpWalk in gTerrain.Land^[Y+1,X].Passability) then
+    if gTerrain.TileHasStone(X, Y) and (tpWalk in gTerrain.Land^[Y+1,X].Passability) then
     begin
       fStoneMiningTiles.Items[K] := KMPoint(X,Y);
       // Save tile as a potential point for quarry
       if gAIFields.Influences.CanPlaceHouseByInfluence(fOwner, X,Y+1) then
       begin
         Sum := 0;
-        while (Y > 1) AND (AddStoneCount(X,Y,Sum) > 0) do
+        while (Y > 1) and (AddStoneCount(X,Y,Sum) > 0) do
           Y := Y - 1;
         Output.Add(fStoneMiningTiles.Items[K], Sum);
       end;
@@ -1000,7 +1000,7 @@ begin
     begin
       VisitArr[Y,X] := VISITED_TILE;
       if (BuildFF.VisitIdx = BuildFF.Visited[Y,X])
-         AND (BuildFF.State[Y,X] = bsTree) then
+         and (BuildFF.State[Y,X] = bsTree) then
       begin
         AvoidBulding := gAIFields.Influences.AvoidBuilding[Y,X];
         // Tree is not part of existing forest
@@ -1028,7 +1028,7 @@ begin
       for Y2 := Max(1, Y-RADIUS) to Min(Y+RADIUS, fMapY-1) do
       for X2 := Max(1, X-RADIUS) to Min(X+RADIUS, fMapX-1) do
         if (VisitArr[Y2,X2] >= UNVISITED_TREE) // Detect tree and check maximal distance
-          AND (KMDistanceAbs(Point, KMPoint(X2,Y2)) <= MAX_DIST) then
+          and (KMDistanceAbs(Point, KMPoint(X2,Y2)) <= MAX_DIST) then
         begin
           Cnt := Cnt + 1;
           sumPoint := KMPointAdd(sumPoint, KMPoint(X2,Y2));
@@ -1115,7 +1115,7 @@ end;
 
 function TKMEye.GetCityCenterPoints(aMultiplePoints: Boolean = False): TKMPointArray;
 const
-  SCANNED_HOUSES = [htStore, htSchool, htBarracks, htTownhall];
+  SCANNED_HOUSES = [htStore, htSchool, htBarracks, htTownHall];
 var
   K, Cnt: Integer;
   HT: TKMHouseType;
@@ -1167,10 +1167,10 @@ begin
       X := aLoc.X + fHousesMapping[aHT].Surroundings[Dist,Dir,I].X;
       U := gTerrain.UnitsHitTest(X,Y);
       if (U <> nil)
-       AND not U.IsDeadOrDying
-       AND (U.Owner >= 0) // Dont select animals!
-       AND (U.Owner <> fOwner)
-       AND (gHands[fOwner].Alliances[U.Owner] <> atAlly) then
+       and not U.IsDeadOrDying
+       and (U.Owner >= 0) // Dont select animals!
+       and (U.Owner <> fOwner)
+       and (gHands[fOwner].Alliances[U.Owner] <> atAlly) then
       begin
         Distance := KMDistanceAbs(KMPoint(X,Y), aInitPoint);
         if (Closest > Distance) then
@@ -1505,10 +1505,10 @@ function TKMBuildFF.CanBeVisited(const aX,aY: Word; const aIdx: Integer; const a
 begin
   // tpOwn - walkable tile + height evaluation
   if aHouseQueue then
-    Result := (fInfoArr[aIdx].Visited = fVisitIdx) AND (fInfoArr[aIdx].VisitedHouse < fVisitIdxHouse) AND (tpOwn in gTerrain.Land^[aY,aX].Passability)
-    //Result := (fInfoArr[aIdx].Visited = fVisitIdx) AND (fInfoArr[aIdx].VisitedHouse < fVisitIdxHouse) AND gTerrain.TileIsRoadable( KMPoint(aX,aY) ) AND (tpOwn in gTerrain.Land^[aY,aX].Passability)
+    Result := (fInfoArr[aIdx].Visited = fVisitIdx) and (fInfoArr[aIdx].VisitedHouse < fVisitIdxHouse) and (tpOwn in gTerrain.Land^[aY,aX].Passability)
+    //Result := (fInfoArr[aIdx].Visited = fVisitIdx) and (fInfoArr[aIdx].VisitedHouse < fVisitIdxHouse) and gTerrain.TileIsRoadable( KMPoint(aX,aY) ) and (tpOwn in gTerrain.Land^[aY,aX].Passability)
   else
-    Result := (fInfoArr[aIdx].Visited < fVisitIdx) AND gTerrain.TileIsRoadable( KMPoint(aX,aY) );//(tpOwn in gTerrain.Land^[aY,aX].Passability);
+    Result := (fInfoArr[aIdx].Visited < fVisitIdx) and gTerrain.TileIsRoadable( KMPoint(aX,aY) );//(tpOwn in gTerrain.Land^[aY,aX].Passability);
 end;
 
 
@@ -1581,7 +1581,7 @@ begin
           Exit;
       end;
     end;
-    if (fHouseReq.HouseType = htCoalMine) AND not CoalUnderPlan then
+    if (fHouseReq.HouseType = htCoalMine) and not CoalUnderPlan then
       Exit;
     // Scan tiles in distance 1 from house plan
     LeftSideFree := True;
@@ -1591,14 +1591,14 @@ begin
       for K := Low(Surroundings[DIST,Dir]) + Byte(Dir = dirS) to High(Surroundings[DIST,Dir]) - Byte(Dir = dirS) do
       begin
         Point := KMPointAdd(aLoc, Surroundings[DIST,Dir,K]);
-        if fHouseReq.IgnoreAvoidBuilding AND (State[Point.Y, Point.X] in [bsReserved, bsHousePlan]) then
+        if fHouseReq.IgnoreAvoidBuilding and (State[Point.Y, Point.X] in [bsReserved, bsHousePlan]) then
           Exit;
-        if (Dir = dirS) AND (State[Point.Y, Point.X] in [bsNoBuild, bsHousePlan]) AND ((K < 2) OR (K > 3) OR (State[Point.Y, Point.X] <> bsFieldPlan)) then
+        if (Dir = dirS) and (State[Point.Y, Point.X] in [bsNoBuild, bsHousePlan]) and ((K < 2) OR (K > 3) OR (State[Point.Y, Point.X] <> bsFieldPlan)) then
           Exit;
         if (Dir = dirE) then
-          RightSideFree := RightSideFree AND not (State[Point.Y, Point.X] in [bsNoBuild, bsHousePlan]);
+          RightSideFree := RightSideFree and not (State[Point.Y, Point.X] in [bsNoBuild, bsHousePlan]);
         if (Dir = dirW) then
-          LeftSideFree := LeftSideFree AND not (State[Point.Y, Point.X] in [bsNoBuild, bsHousePlan]);
+          LeftSideFree := LeftSideFree and not (State[Point.Y, Point.X] in [bsNoBuild, bsHousePlan]);
         if not (LeftSideFree OR RightSideFree) then
           Exit;
       end;
@@ -1618,7 +1618,7 @@ begin
   if (tpBuild in gTerrain.Land^[aY,aX].Passability) then
     Output := bsBuild
   else if (gTerrain.ObjectIsChopableTree(KMPoint(aX,aY), [caAge1,caAge2,caAge3,caAgeFull])
-        AND gHands[fOwner].CanAddFieldPlan(KMPoint(aX,aY), ftWine)) then
+        and gHands[fOwner].CanAddFieldPlan(KMPoint(aX,aY), ftWine)) then
     Output := bsTree
   else if (gTerrain.Land^[aY,aX].Passability * [tpMakeRoads, tpWalkRoad] <> []) then
     Output := bsRoad
@@ -1651,7 +1651,7 @@ begin
       end;
     else
     begin
-      if (AB > AVOID_BUILDING_FOREST_MINIMUM) AND (Output <> bsTree) then
+      if (AB > AVOID_BUILDING_FOREST_MINIMUM) and (Output <> bsTree) then
         Output := bsForest;
     end;
   end;
@@ -1720,10 +1720,10 @@ begin
     Distance := fInfoArr[Idx].Distance + 1;
     if (Distance > aMaxDistance) then
       Break;
-    if (Y-1 >= 1      ) AND CanBeVisited(X,Y-1,Idx-fMapX) then MarkAsVisited(Y-1, InsertInQueue(Idx-fMapX), Distance, GetTerrainState(X,Y-1));
-    if (X-1 >= 1      ) AND CanBeVisited(X-1,Y,Idx-1    ) then MarkAsVisited(Y,   InsertInQueue(Idx-1)    , Distance, GetTerrainState(X-1,Y));
-    if (X+1 <= fMapX-1) AND CanBeVisited(X+1,Y,Idx+1    ) then MarkAsVisited(Y,   InsertInQueue(Idx+1)    , Distance, GetTerrainState(X+1,Y));
-    if (Y+1 <= fMapY-1) AND CanBeVisited(X,Y+1,Idx+fMapX) then MarkAsVisited(Y+1, InsertInQueue(Idx+fMapX), Distance, GetTerrainState(X,Y+1));
+    if (Y-1 >= 1      ) and CanBeVisited(X,Y-1,Idx-fMapX) then MarkAsVisited(Y-1, InsertInQueue(Idx-fMapX), Distance, GetTerrainState(X,Y-1));
+    if (X-1 >= 1      ) and CanBeVisited(X-1,Y,Idx-1    ) then MarkAsVisited(Y,   InsertInQueue(Idx-1)    , Distance, GetTerrainState(X-1,Y));
+    if (X+1 <= fMapX-1) and CanBeVisited(X+1,Y,Idx+1    ) then MarkAsVisited(Y,   InsertInQueue(Idx+1)    , Distance, GetTerrainState(X+1,Y));
+    if (Y+1 <= fMapY-1) and CanBeVisited(X,Y+1,Idx+fMapX) then MarkAsVisited(Y+1, InsertInQueue(Idx+fMapX), Distance, GetTerrainState(X,Y+1));
   end;
 end;
 
@@ -1742,10 +1742,10 @@ begin
       OR (fHouseReq.MaxCnt <= fLocs.Count)
       OR (Distance > fHouseReq.MaxDist) then
       break;
-    if (Y-1 >= 1      ) AND CanBeVisited(X,Y-1,Idx-fMapX,True) then MarkAsVisited(X,Y-1, InsertInQueue(Idx-fMapX), Distance);
-    if (X-1 >= 1      ) AND CanBeVisited(X-1,Y,Idx-1    ,True) then MarkAsVisited(X-1,Y, InsertInQueue(Idx-1)    , Distance);
-    if (X+1 <= fMapX-1) AND CanBeVisited(X+1,Y,Idx+1    ,True) then MarkAsVisited(X+1,Y, InsertInQueue(Idx+1)    , Distance);
-    if (Y+1 <= fMapY-1) AND CanBeVisited(X,Y+1,Idx+fMapX,True) then MarkAsVisited(X,Y+1, InsertInQueue(Idx+fMapX), Distance);
+    if (Y-1 >= 1      ) and CanBeVisited(X,Y-1,Idx-fMapX,True) then MarkAsVisited(X,Y-1, InsertInQueue(Idx-fMapX), Distance);
+    if (X-1 >= 1      ) and CanBeVisited(X-1,Y,Idx-1    ,True) then MarkAsVisited(X-1,Y, InsertInQueue(Idx-1)    , Distance);
+    if (X+1 <= fMapX-1) and CanBeVisited(X+1,Y,Idx+1    ,True) then MarkAsVisited(X+1,Y, InsertInQueue(Idx+1)    , Distance);
+    if (Y+1 <= fMapY-1) and CanBeVisited(X,Y+1,Idx+fMapX,True) then MarkAsVisited(X,Y+1, InsertInQueue(Idx+fMapX), Distance);
   end;
 end;
 
@@ -1783,7 +1783,7 @@ begin
       for K := 0 to gHands[fOwner].Houses.Count - 1 do
       begin
         H := gHands[fOwner].Houses[K];
-        if (H <> nil) AND not H.IsDestroyed AND not (H.HouseType in [htWatchTower, htWoodcutters]) then
+        if (H <> nil) and not H.IsDestroyed and not (H.HouseType in [htWatchTower, htWoodcutters]) then
           MarkHouse(H.Entrance);
       end;
     end
@@ -1862,7 +1862,7 @@ var
   Idx: Integer;
 begin
   Idx := aY*fMapX + aX;
-  Result := not fVisitArr[Idx] AND (fArea[Idx] < aDistance);
+  Result := not fVisitArr[Idx] and (fArea[Idx] < aDistance);
 end;
 
 
@@ -1918,10 +1918,10 @@ begin
     if (Distance > DEC_COEF) then
     begin
       Distance := Distance - DEC_COEF;
-      if (X > 0)       AND CanBeVisited(X-1,Y,Distance) then InsertInQueue(X-1,Y,Distance);
-      if (X < fMapX-1) AND CanBeVisited(X+1,Y,Distance) then InsertInQueue(X+1,Y,Distance);
-      if (Y > 0)       AND CanBeVisited(X,Y-1,Distance) then InsertInQueue(X,Y-1,Distance);
-      if (Y < fMapY-1) AND CanBeVisited(X,Y+1,Distance) then InsertInQueue(X,Y+1,Distance);
+      if (X > 0)       and CanBeVisited(X-1,Y,Distance) then InsertInQueue(X-1,Y,Distance);
+      if (X < fMapX-1) and CanBeVisited(X+1,Y,Distance) then InsertInQueue(X+1,Y,Distance);
+      if (Y > 0)       and CanBeVisited(X,Y-1,Distance) then InsertInQueue(X,Y-1,Distance);
+      if (Y < fMapY-1) and CanBeVisited(X,Y+1,Distance) then InsertInQueue(X,Y+1,Distance);
     end;
 end;
 
@@ -1942,7 +1942,7 @@ end;
 
 function TKMFFCheckStoneTiles.CanBeVisited(const aX,aY: SmallInt): Boolean;
 begin
-  Result := gTerrain.TileHasStone(aX,aY) AND (fStoneLimit > fStoneCnt);
+  Result := gTerrain.TileHasStone(aX,aY) and (fStoneLimit > fStoneCnt);
 end;
 
 
@@ -1961,7 +1961,7 @@ end;
 
 function TKMFFCheckStoneTiles.CheckCount(aX,aY: SmallInt): Boolean;
 begin
-  if (fVisitIdx > 254) then
+  if fVisitIdx > 254 then
   begin
     fVisitIdx := 0;
     FillChar(fVisitArr[0], SizeOf(fVisitArr[0]) * Length(fVisitArr), #0);

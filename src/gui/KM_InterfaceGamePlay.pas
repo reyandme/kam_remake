@@ -717,7 +717,7 @@ end;
 procedure TKMGamePlayInterface.ExportPages(const aPath: string);
 var
   I, K: Integer;
-  exportPath: String;
+  exportPath: string;
 begin
   inherited;
 
@@ -1391,7 +1391,7 @@ begin
   Panel_Allies.Anchors := [anLeft, anBottom];
   Panel_Allies.Hide;
 
-    with TKMImage.Create(Panel_Allies,0,0,PANEL_ALLIES_WIDTH,190,409) do ImageAnchors := [anLeft, anRight, anTop];
+    TKMImage.Create(Panel_Allies,0,0,PANEL_ALLIES_WIDTH,190,409).ImageAnchors := [anLeft, anRight, anTop];
 
     Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,15,'',fntOutline,taCenter);
     Image_AlliesHostStar := TKMImage.Create(Panel_Allies, 50, 82, 20, 20, 77, rxGuiMain);
@@ -1896,10 +1896,11 @@ begin
   if gNetworking.IsMuted(fLineIdToNetPlayerId[aImage.Tag]) then
   begin
     aImage.Hint := gResTexts[TX_UNMUTE_PLAYER];
-    aImage.TexId := 84;
-  end else begin
+    aImage.TexID := 84;
+  end else
+  begin
     aImage.Hint := gResTexts[TX_MUTE_PLAYER];
-    aImage.TexId := 83;
+    aImage.TexID := 83;
   end;
 end;
 
@@ -3283,12 +3284,12 @@ begin
       case gHands[gNetworking.Room[netI].HandIndex].AI.WonOrLost of
         wolNone: Image_AlliesWinLoss[I].Hide;
         wolWon:  begin
-                    Image_AlliesWinLoss[I].TexId := 8;
+                    Image_AlliesWinLoss[I].TexID := 8;
                     Image_AlliesWinLoss[I].Hint := gResTexts[TX_PLAYER_WON];
                     Image_AlliesWinLoss[I].DoSetVisible;
                   end;
         wolLost: begin
-                    Image_AlliesWinLoss[I].TexId := 87;
+                    Image_AlliesWinLoss[I].TexID := 87;
                     Image_AlliesWinLoss[I].Hint := gResTexts[TX_PLAYER_LOST];
                     Image_AlliesWinLoss[I].DoSetVisible;
                   end;
@@ -4668,7 +4669,7 @@ function TKMGamePlayInterface.GetDebugInfo: string;
 var
   mKind: TKMNetMessageKind;
   received, sent, receivedTotal, sentTotal, period: Cardinal;
-  sPackets, S2: String;
+  sPackets, S2: string;
   objToShowInfo: TObject;
 begin
   Result := inherited;

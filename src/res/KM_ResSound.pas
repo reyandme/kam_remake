@@ -18,7 +18,7 @@ type
     sfxCornSow,
     sfxChopTree,
     sfxHouseBuild,
-    sfxplacemarker,
+    sfxPlaceMarker,
     sfxClick,
     sfxMill,
     sfxSaw,
@@ -28,7 +28,7 @@ type
     sfxCoalDown,
     sfxPig1,sfxPig2,sfxPig3,sfxPig4,
     sfxMine,
-    sfxunknown21, //Pig?
+    sfxUnknown21, //Pig?
     sfxLeather,
     sfxBakerSlap,
     sfxCoalMineThud,
@@ -63,7 +63,7 @@ type
     sfxSlingerShoot,
     sfxBalistaShoot,
     sfxCatapultShoot,
-    sfxunknown76,
+    sfxUnknown76,
     sfxCatapultReload,
     sfxSiegeBuildingSmash);
 

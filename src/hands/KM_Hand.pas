@@ -20,7 +20,7 @@ type
     Units: array[CITIZEN_MIN..CITIZEN_MAX] of Byte;
   end;
 
-  //Player manages its assets
+  // Hand manages its assets
   TKMHandCommon = class abstract
   private
     fID: TKMHandID; //Index of this hand in gHands
@@ -256,7 +256,7 @@ type
     procedure IncAnimStep;
     procedure UpdateState(aTick: Cardinal); override;
     procedure Paint(const aRect: TKMRect; aTickLag: Single); override;
-    function ObjToString(aSeparator: String = ' '): String;
+    function ObjToString(aSeparator: string = ' '): string;
   end;
 
 
@@ -265,7 +265,7 @@ type
     function GetFishInWaterBody(aWaterID: Byte; FindHighestCount: Boolean = True): TKMUnitFish;
   end;
 
-  function GetStatsUpdatePeriod: Integer;
+function GetStatsUpdatePeriod: Integer;
 
 
 implementation
@@ -1012,8 +1012,8 @@ begin
   //Don't allow placing on allies plans either
   for I := 0 to gHands.Count - 1 do
     if (I <> fID) and (fAlliances[I] = atAlly) then
-      Result := Result and (gHands[i].fConstructions.FieldworksList.HasField(aLoc) = ftNone)
-                       and not gHands[i].fConstructions.HousePlanList.HasPlan(aLoc);
+      Result := Result and (gHands[I].fConstructions.FieldworksList.HasField(aLoc) = ftNone)
+                       and not gHands[I].fConstructions.HousePlanList.HasPlan(aLoc);
 end;
 
 
@@ -1099,7 +1099,7 @@ begin
                       or (NeedToChooseFirstStorehouseInGame and fFogOfWar.CheckTileInitialRevelation(Tx, Ty)) //Use initial revelation for first storehouse
                       or (not NeedToChooseFirstStorehouseInGame and (fFogOfWar.CheckTileRevelation(Tx, Ty) > 0)));
     //This checks below require Tx;Ty to be within the map so exit immediately if they are not
-    if not Result then exit;
+    if not Result then Exit;
 
     //This tile must not contain fields/houses of allied players or self
     for J := 0 to gHands.Count - 1 do
@@ -1211,7 +1211,7 @@ begin
     begin
       if aMakeSound and not gGameParams.IsReplayOrSpectate
         and (ID = gMySpectator.HandID) then
-        gSoundPlayer.Play(sfxPlacemarker);
+        gSoundPlayer.Play(sfxPlaceMarker);
       fConstructions.FieldworksList.AddField(aLoc, aFieldType);
       case aFieldType of
          ftRoad: gScriptEvents.ProcPlanRoadPlaced(fID, aLoc.X, aLoc.Y);
@@ -1256,7 +1256,7 @@ begin
     begin
       fConstructions.FieldworksList.AddFakeField(aLoc, aFieldType);
       if ID = gMySpectator.HandID then
-        gSoundPlayer.Play(sfxPlacemarker);
+        gSoundPlayer.Play(sfxPlaceMarker);
     end
     else
       if ID = gMySpectator.HandID then
@@ -1303,7 +1303,7 @@ begin
   gScriptEvents.EventHousePlanPlaced(fID, loc.X, loc.Y, aHouseType);
 
   if (ID = gMySpectator.HandID) and not gGameParams.IsReplayOrSpectate then
-    gSoundPlayer.Play(sfxPlacemarker);
+    gSoundPlayer.Play(sfxPlaceMarker);
 end;
 
 
@@ -1407,7 +1407,7 @@ end;
 // Very rough but fast way to find approximate city center
 function TKMHand.FindCityCenter: TKMPoint;
 const
-  IMPORTANT_HOUSES: array[0..4] of TKMHouseType = (htStore, htInn, htSchool, htBarracks, htTownhall);
+  IMPORTANT_HOUSES: array[0..4] of TKMHouseType = (htStore, htInn, htSchool, htBarracks, htTownHall);
 var
   I: Integer;
   H: TKMHouse;
@@ -1470,7 +1470,7 @@ begin
       end;
     end;
 
-    inc(I);
+    Inc(I);
     H := TKMHouseInn(FindHouse(htInn, I));
   until(H = nil);
 end;
@@ -2265,7 +2265,7 @@ begin
 end;
 
 
-function TKMHand.ObjToString(aSeparator: String = ' '): String;
+function TKMHand.ObjToString(aSeparator: string = ' '): string;
 begin
   Result := Format('Enabled = %5s%sID = %d%sAI: [%s]%sOwner = %s%sHandType = %s',
                    [BoolToStr(Enabled, True), aSeparator,

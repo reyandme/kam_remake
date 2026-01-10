@@ -94,7 +94,7 @@ type
     property Count: Integer read GetCount;
     property CombatGroup[aGroup: TKMUnitGroup]: TKMCombatGroup read GetCombatGroup;
 
-    procedure AfterMissionInit();
+    procedure AfterMissionInit;
     procedure UpdateState(aTick: Cardinal);
     procedure OwnerUpdate(aPlayer: TKMHandID);
 
@@ -112,9 +112,9 @@ type
 
 const
   // Houses in TARGET_HOUSES will be selected as a primary target (so the company will come to this point but it will not attack it because of this list)
-  TARGET_HOUSES: TKMHouseTypeSet = [htBarracks, htStore, htSchool, htTownhall];
+  TARGET_HOUSES: TKMHouseTypeSet = [htBarracks, htStore, htSchool, htTownHall];
   // Houses in SCAN_HOUSES will be destroyed when they are in radius (it should also contain TARGET_HOUSES)
-  SCAN_HOUSES: TKMHouseTypeSet = [htWatchTower, htBarracks, htStore, htSchool, htTownhall];
+  SCAN_HOUSES: TKMHouseTypeSet = [htWatchTower, htBarracks, htStore, htSchool, htTownHall];
   // All houses for final stage of attack algorithm
   ALL_HOUSES: TKMHouseTypeSet = HOUSES_VALID;
 
@@ -245,7 +245,7 @@ begin
   // Remove group pointer
   gHands.CleanUpGroupPointer(fTargetGroup);
   // Archers will reaim (+ reset animation) only in case that new target is in specific distance from existing target
-  if (aUnit <> nil) AND not aUnit.IsDeadOrDying then
+  if (aUnit <> nil) and not aUnit.IsDeadOrDying then
     ChangeTargetUnit(aUnit)
   else
     gHands.CleanUpUnitPointer(fTargetUnit);
@@ -255,7 +255,7 @@ end;
 procedure TKMCombatGroup.ChangeTargetUnit(aUnit: TKMUnit);
 begin
   fTargetChanged := (fTargetUnit = nil) OR not fTargetUnit.IsDeadOrDying
-    OR ((aUnit is TKMUnitWarrior) AND (fTargetUnit is TKMUnitWarrior) AND (TKMUnitWarrior(fTargetUnit).Group <> TKMUnitWarrior(aUnit).Group));
+    OR ((aUnit is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) and (TKMUnitWarrior(fTargetUnit).Group <> TKMUnitWarrior(aUnit).Group));
   gHands.CleanUpUnitPointer(fTargetUnit);
   fTargetUnit := aUnit.GetPointer;
 end;
@@ -264,7 +264,7 @@ end;
 procedure TKMCombatGroup.SetTargetHouse(aHouse: TKMHouse);
 begin
   // House have lower priority so if there is request for attacking house, then target group and unit must be nil
-  if (aHouse <> nil) AND not aHouse.IsDestroyed then
+  if (aHouse <> nil) and not aHouse.IsDestroyed then
     SetTargetGroup(nil); // Includes also nil of target unit
   // Check old target
   if (fTargetHouse = aHouse) then
@@ -311,7 +311,7 @@ procedure TKMCombatGroup.UpdateState(aTick: Cardinal);
   begin
     Result := fTargetUnit.Position;
     // Get closest warrior in enemy group if the squad is ranged
-    if (fGroup.GroupType = gtRanged) AND (fTargetUnit is TKMUnitWarrior) then
+    if (fGroup.GroupType = gtRanged) and (fTargetUnit is TKMUnitWarrior) then
     begin
       BestTgt := nil;
       G := TKMUnitWarrior(fTargetUnit).Group;
@@ -351,7 +351,7 @@ procedure TKMCombatGroup.UpdateState(aTick: Cardinal);
     {$ENDIF}
     // Target comes from behind
     K := Abs(Byte(KMGetDirection(Position,TargetAim)) - Byte(Group.OrderLoc.Dir));
-    if (K > 1) AND (K < 7) then
+    if (K > 1) and (K < 7) then
     begin
       Group.OrderAttackUnit(fTargetUnit, True);
       Exit;
@@ -367,7 +367,7 @@ procedure TKMCombatGroup.UpdateState(aTick: Cardinal);
       CntWalking := CntWalking + Byte(Group.Members[K].Action is TKMUnitActionWalkTo);
       CntCanFight := CntCanFight + Byte(Group.Members[K].WithinFightRange(fTargetAim));
     end;
-    if (CntFighting = 0) AND (CntCanFight > 0) then
+    if (CntFighting = 0) and (CntCanFight > 0) then
     begin
       Group.OrderAttackUnit(fTargetUnit, True);
       Exit;
@@ -403,9 +403,9 @@ begin
     Exit;
 
   // Check targets
-  if (fTargetGroup <> nil) AND fTargetGroup.IsDead then
+  if (fTargetGroup <> nil) and fTargetGroup.IsDead then
     SetTargetGroup(nil);
-  if (fTargetUnit <> nil) AND fTargetUnit.IsDeadOrDying then
+  if (fTargetUnit <> nil) and fTargetUnit.IsDeadOrDying then
   begin
     if (fTargetGroup <> nil) then
     begin
@@ -422,7 +422,7 @@ begin
     else
       SetTargetUnit(nil);
   end;
-  if (fTargetHouse <> nil) AND (fTargetHouse.IsDestroyed) then
+  if (fTargetHouse <> nil) and (fTargetHouse.IsDestroyed) then
     SetTargetHouse(nil);
 
   // Orders
@@ -510,15 +510,15 @@ begin
   fOnPlace := False;
   SQRDist := KMDistanceSqr(aActualPosition, aTargetPosition);
   // Time limit
-  if (not (aOrderAttack OR aOrderDestroy) AND (fWalkTimeLimit < aTick)) // Time limit is set to 0 in case that unit attack something
+  if (not (aOrderAttack OR aOrderDestroy) and (fWalkTimeLimit < aTick)) // Time limit is set to 0 in case that unit attack something
     // Target position is reached
     OR (SQRDist < sqr(AI_Par[ATTACK_SQUAD_TargetReached_Position]))
     // Target unit is close
-    OR (aOrderAttack AND (SQRDist < sqr(AI_Par[ATTACK_SQUAD_TargetReached_Unit])))
+    OR (aOrderAttack and (SQRDist < sqr(AI_Par[ATTACK_SQUAD_TargetReached_Unit])))
     // Target house is close
-    OR (aOrderDestroy AND (SQRDist < sqr(AI_Par[ATTACK_SQUAD_TargetReached_House])))
+    OR (aOrderDestroy and (SQRDist < sqr(AI_Par[ATTACK_SQUAD_TargetReached_House])))
     // Archers should start fire as soon as possible
-    OR ((aOrderAttack OR aOrderDestroy) AND (fGroup.GroupType = gtRanged) AND (SQRDist < sqr(AI_Par[ATTACK_SQUAD_TargetReached_RangedSquad]))) then
+    OR ((aOrderAttack OR aOrderDestroy) and (fGroup.GroupType = gtRanged) and (SQRDist < sqr(AI_Par[ATTACK_SQUAD_TargetReached_RangedSquad]))) then
   begin
     fOnPlace := True;
     Exit;
@@ -706,7 +706,7 @@ var
   Idx: Integer;
 begin
   Result := nil;
-  if (aGroup <> nil) AND not aGroup.IsDead then
+  if (aGroup <> nil) and not aGroup.IsDead then
   begin
     Result := GetCombatGroup(aGroup);
     if (Result = nil) then
@@ -748,7 +748,7 @@ var
   K: Integer;
 begin
   for K := 0 to Count - 1 do
-    if (aGroup.GroupType = fCombatGroups[K].Group.GroupType) AND (fCombatGroups[K].Group.Count < 9) then
+    if (aGroup.GroupType = fCombatGroups[K].Group.GroupType) and (fCombatGroups[K].Group.Count < 9) then
     begin
       if (fCombatGroups[K].Group.Count - 9 <= aGroup.Count) then
         aGroup.OrderLinkTo(fCombatGroups[K].Group, True)
@@ -775,19 +775,19 @@ begin
         CG := fCombatGroups[K];
 
         Order := 'CGTargets:|';
-        if (CG.TargetGroup <> nil) AND not CG.TargetGroup.IsDead then
+        if (CG.TargetGroup <> nil) and not CG.TargetGroup.IsDead then
           Order := Format('%s   Group [%d;%d] %s|',[Order, CG.TargetGroup.Position.X,CG.TargetGroup.Position.Y, GetEnumName(TypeInfo(TKMGroupType), Integer(CG.TargetGroup.GroupType))]);
-        if (CG.TargetUnit <> nil) AND not CG.TargetUnit.IsDeadOrDying then
+        if (CG.TargetUnit <> nil) and not CG.TargetUnit.IsDeadOrDying then
           Order := Format('%s   Unit [%d;%d] %s|',[Order, CG.TargetUnit.Position.X,CG.TargetUnit.Position.Y, GetEnumName(TypeInfo(TKMUnitType), Integer(CG.TargetUnit.UnitType))]);
-        if (CG.TargetHouse <> nil) AND not CG.TargetHouse.IsDestroyed then
+        if (CG.TargetHouse <> nil) and not CG.TargetHouse.IsDestroyed then
           Order := Format('%s   House [%d;%d] %s|',[Order, CG.TargetHouse.Entrance.X, CG.TargetHouse.Entrance.Y, GetEnumName(TypeInfo(TKMHouseType), Integer(CG.TargetHouse.HouseType))]);
 
         GroupOrder := Format('GroupOrder: %s',[GetEnumName(TypeInfo(TKMGroupOrder), Integer(CG.Group.Order))]);
         if (CG.Group.Order = goWalkTo) then
           GroupOrder := Format('%s [%d;%d]|', [GroupOrder, CG.Group.OrderLoc.Loc.X, CG.Group.OrderLoc.Loc.Y])
-        else if (CG.Group.Order in [goAttackHouse,goNone]) AND (CG.Group.OrderTargetHouse <> nil) then
+        else if (CG.Group.Order in [goAttackHouse,goNone]) and (CG.Group.OrderTargetHouse <> nil) then
           GroupOrder := Format('%s %d [%d;%d]|', [GroupOrder, Integer(CG.Group.OrderTargetHouse), CG.Group.OrderTargetHouse.Position.X, CG.Group.OrderTargetHouse.Position.Y])
-        else if (CG.Group.Order in [goAttackUnit,goNone]) AND (CG.Group.OrderTargetUnit <> nil) then
+        else if (CG.Group.Order in [goAttackUnit,goNone]) and (CG.Group.OrderTargetUnit <> nil) then
           GroupOrder := Format('%s %d [%d;%d]|', [GroupOrder, Integer(CG.Group.OrderTargetUnit), CG.Group.OrderTargetUnit.Position.X, CG.Group.OrderTargetUnit.Position.Y])
         else if (CG.Group.Order = goNone) then
           GroupOrder := Format('%s [%d;%d]|', [GroupOrder, CG.Group.OrderLoc.Loc.X, CG.Group.OrderLoc.Loc.Y]);
@@ -827,7 +827,7 @@ begin
   begin
     CG := fCombatGroups[K];
     if CG.fTrafficDetection.StuckInTraffic then
-      gRenderAux.Quad(CG.Position.X, CG.Position.Y, $FF000000 OR tcRed);
+      gRenderAux.Quad(CG.Position.X, CG.Position.Y, $FF000000 or tcRed);
   end;
 
 
@@ -845,7 +845,7 @@ begin
     // Opacity
     Op1 := $20;
     Op2 := $30;
-    if (gMySpectator.Selected is TKMUnitGroup) AND (gMySpectator.Selected = CG.Group) then
+    if (gMySpectator.Selected is TKMUnitGroup) and (gMySpectator.Selected = CG.Group) then
     begin
       //Col1 := gMySpectator.Hand.FlagColor;
       Op1 := $AA;
@@ -875,9 +875,9 @@ begin
       end;
       if not KMSamePoint(Position,KMPOINT_ZERO) then
         gRenderAux.CircleOnTerrain(Position.X, Position.Y, 1.5, (Op1 shl 24) OR tcBlue, (Op2 shl 24) OR tcBlue);
-      gRenderAux.Quad(CG.TargetAim.X, CG.TargetAim.Y, $FF000000 OR tcWhite);
+      gRenderAux.Quad(CG.TargetAim.X, CG.TargetAim.Y, $FF000000 or tcWhite);
       {$IFDEF DEBUG_NewAI}
-      if not KMSamePoint(CG.TargetAim, KMPOINT_ZERO) AND (Length(CG.DEBUGPointPath) > 0) then
+      if not KMSamePoint(CG.TargetAim, KMPOINT_ZERO) and (Length(CG.DEBUGPointPath) > 0) then
         with CG.DEBUGPointPath[Low(CG.DEBUGPointPath)] do
           gRenderAux.Quad(X, Y, $FF000000 OR tcCyan);
       {$ENDIF}

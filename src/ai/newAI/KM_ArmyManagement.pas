@@ -14,7 +14,7 @@ uses
   KM_HandStats, KM_ArmyDefence, KM_AIAttacks, KM_ArmyAttackNew;
 
 const
-  ARMY_VECTOR_SCAN_HOUSES_DEF: TKMHouseTypeSet = [htBarracks, htStore, htSchool, htTownhall]; // htWatchTower
+  ARMY_VECTOR_SCAN_HOUSES_DEF: TKMHouseTypeSet = [htBarracks, htStore, htSchool, htTownHall]; // htWatchTower
 
 type
   // Agent interface (for Supervisor)
@@ -188,8 +188,8 @@ end;
 
 procedure TKMArmyManagement.WarriorEquipped(aGroup: TKMUnitGroup);
 begin
-  //if (gAIFields.Supervisor.CombatStatus[fOwner,fOwner] = csDefending) AND (fDefence.GroupsCount = 0) AND (fAttackNew.Count > 0) then
-  if (fDefence.GroupsCount = 0) AND (fAttackNew.Count > 0) AND not fFoodProblems then
+  //if (gAIFields.Supervisor.CombatStatus[fOwner,fOwner] = csDefending) and (fDefence.GroupsCount = 0) and (fAttackNew.Count > 0) then
+  if (fDefence.GroupsCount = 0) and (fAttackNew.Count > 0) and not fFoodProblems then
     fAttackNew.LinkGroup(aGroup);
   if (aGroup.Count > 0) then
     fDefence.FindPlaceForGroup(aGroup);
@@ -199,12 +199,12 @@ end;
 procedure TKMArmyManagement.RecruitSoldiers;
   function CanEquipIron: Boolean;
   begin
-    Result := not (fSetup.ArmyType = atLeather)
+    Result := (fSetup.ArmyType <> atLeather)
               and (fSetup.UnlimitedEquip or gGame.CheckTime(fLastEquippedTimeIron + fSetup.EquipRateIron));
   end;
   function CanEquipLeather: Boolean;
   begin
-    Result := not (fSetup.ArmyType = atIron)
+    Result := (fSetup.ArmyType <> atIron)
               and (fSetup.UnlimitedEquip or gGame.CheckTime(fLastEquippedTimeLeather + fSetup.EquipRateLeather));
   end;
 var
@@ -239,7 +239,7 @@ begin
   for K := 0 to gHands[fOwner].Houses.Count - 1 do
   begin
     H := gHands[fOwner].Houses[K];
-    if (H <> nil) AND not H.IsDestroyed AND (H.HouseType = htBarracks) AND H.IsComplete then
+    if (H <> nil) and not H.IsDestroyed and (H.HouseType = htBarracks) and H.IsComplete then
     begin
       Barracks[L] := TKMHouseBarracks(H);
       Inc(L);
@@ -301,10 +301,10 @@ begin
   begin
     Group := gHands[fOwner].UnitGroups[K];
 
-    if (Group <> nil) AND not Group.IsDead AND not Group.InFight then
+    if (Group <> nil) and not Group.IsDead and not Group.InFight then
     begin
       // Check hunger and order food
-      if (Group.Condition < UNIT_MIN_CONDITION) AND not fFoodProblems then
+      if (Group.Condition < UNIT_MIN_CONDITION) and not fFoodProblems then
         // Cheat for autobuild AI: Only feed hungry group members (food consumption lower and more predictable)
         Group.OrderFood(True, fSetup.AutoBuild);
 
@@ -320,7 +320,7 @@ begin
       if (fDefence.FindPositionOf(Group) <> nil) then
         Continue;
 
-    if (fDefence.GroupsCount = 0) AND (fAttackNew.Count > 0) then
+    if (fDefence.GroupsCount = 0) and (fAttackNew.Count > 0) then
       fAttackNew.LinkGroup(Group);
 
       if (Group.Count > 0) then
@@ -356,7 +356,7 @@ type
       if (Group = nil)
         OR Group.IsDead
         //OR not Group.IsIdleToAI([wtokFlagPoint, wtokHaltOrder])
-        OR ((aMobilizationCoef < 1) AND (Group.Count < MIN_TROOPS_IN_GROUP)) then
+        OR ((aMobilizationCoef < 1) and (Group.Count < MIN_TROOPS_IN_GROUP)) then
         Continue;
       // Add grop pointer to array (but dont increase count now so it will be ignored)
       AG.GroupArr[AG.Count] := Group;
@@ -401,7 +401,7 @@ type
     begin
       GCnt := aGroupAmounts[GT];
       ActIdx := StartIdx;
-      while (GCnt > 0) AND (ActIdx < aAG.Count) do
+      while (GCnt > 0) and (ActIdx < aAG.Count) do
       begin
         if (aAG.GroupArr[ActIdx].GroupType = GT) then
         begin
@@ -416,7 +416,7 @@ type
       end;
     end;
     // Add another groups if we dont have enough men
-    while (MenCnt < aTotalMen) AND (ActIdx < aAG.Count) do
+    while (MenCnt < aTotalMen) and (ActIdx < aAG.Count) do
     begin
       Inc(MenCnt, aAG.GroupArr[ActIdx].Count);
       Inc(ActIdx);
@@ -441,10 +441,10 @@ type
       attCustomPosition:
       begin
         TargetHouse := gHands.HousesHitTest(aCustomPos.X, aCustomPos.Y);
-        if (TargetHouse <> nil) AND (gHands.CheckAlliance(fOwner, TargetHouse.Owner) = atAlly) then
+        if (TargetHouse <> nil) and (gHands.CheckAlliance(fOwner, TargetHouse.Owner) = atAlly) then
           TargetHouse := nil;
         TargetUnit := gTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
-        if (TargetUnit <> nil) AND ((gHands.CheckAlliance(fOwner, TargetUnit.Owner) = atAlly) OR TargetUnit.IsDeadOrDying) then
+        if (TargetUnit <> nil) and ((gHands.CheckAlliance(fOwner, TargetUnit.Owner) = atAlly) OR TargetUnit.IsDeadOrDying) then
           TargetUnit := nil;
       end;
     end;
@@ -489,7 +489,7 @@ begin
     with fAttackRequest do
     begin
       // Exit if AI has NOT enough soldiers for defences in the FFA mode
-      if FFA AND not FoodShortage AND (DefRatio < MIN_DEF_RATIO) AND (gGameParams.MissionMode <> mmFighting) then
+      if FFA and not FoodShortage and (DefRatio < MIN_DEF_RATIO) and (gGameParams.MissionMode <> mmFighting) then
         Exit;
       // 1v1 or special game mode
       if not FFA OR gGameParams.IsTactic then
@@ -506,7 +506,7 @@ begin
     // Get array of pointers to available groups
     AG := GetGroups(MobilizationCoef);
     // If we dont have enough groups then exit (if we should take all check if there are already some combat groups)
-    if (MobilizationCoef < 1) AND (AG.Count < MIN_GROUPS_IN_ATTACK) then
+    if (MobilizationCoef < 1) and (AG.Count < MIN_GROUPS_IN_ATTACK) then
       Exit;
     // Order attack
     OrderAttack(TargetPoint, AG);
