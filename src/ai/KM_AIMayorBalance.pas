@@ -21,6 +21,7 @@ type
     StoreBalance, SchoolBalance, InnBalance, BarracksBalance, TowerBalance: Single;
     Balance: Single; //Resulting balance
   end;
+
   TKMMaterialsBalance = record
     WoodcutTheory, SawmillTheory: Single;
     WoodcutReserve, SawmillReserve: Single;
@@ -29,6 +30,7 @@ type
     StoneBalance, WoodBalance: Single;
     Balance: Single; //Resulting balance
   end;
+
   TKMWareBalanceGold = record
     CoalTheory, GoldOreTheory, GoldTheory: Single;
     Production: Single; //How much do we produce
@@ -36,6 +38,7 @@ type
     Reserve: Single; //
     Balance: Single; //Resulting balance
   end;
+
   TKMWareBalanceFood = record
     Bread: record
       FarmTheory, MillTheory, BakeryTheory: Single;
@@ -49,6 +52,7 @@ type
     Reserve: Single;
     Balance: Single; //Resulting balance
   end;
+
   TKMWareBalanceWarfare = record
     SteelWeapon: record
       CoalTheory, IronTheory, SteelTheory, SmithyTheory: Single;
@@ -80,7 +84,6 @@ type
 
   TWarfareDemands = array[WARFARE_MIN..WARFARE_MAX] of Single;
 
-type
   TKMayorBalance = class
   private
     fOwner: TKMHandID;
@@ -656,30 +659,24 @@ procedure TKMayorBalance.UpdateBalanceLeather;
 begin
   with fWarfare do
   begin
-    with WoodWeapon do
-    begin
-      //Trunk
-      //Wood
-      //All 3 produced at the same speed
-      WorkshopTheory := HouseCount(htWeaponWorkshop) * PRODUCTION_RATE[wtLance];
+    //Trunk
+    //Wood
+    //All 3 produced at the same speed
+    WoodWeapon.WorkshopTheory := HouseCount(htWeaponWorkshop) * PRODUCTION_RATE[wtLance];
 
-      Warfare[wtAxe].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) * OrderRatio[wtAxe];
-      Warfare[wtLance].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) * OrderRatio[wtLance];
-      Warfare[wtBow].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory) * OrderRatio[wtBow];
-    end;
+    Warfare[wtAxe].Production := Min(WoodWeapon.TrunkTheory, WoodWeapon.WoodTheory, WoodWeapon.WorkshopTheory) * OrderRatio[wtAxe];
+    Warfare[wtLance].Production := Min(WoodWeapon.TrunkTheory, WoodWeapon.WoodTheory, WoodWeapon.WorkshopTheory) * OrderRatio[wtLance];
+    Warfare[wtBow].Production := Min(WoodWeapon.TrunkTheory, WoodWeapon.WoodTheory, WoodWeapon.WorkshopTheory) * OrderRatio[wtBow];
 
-    with LeatherArmor do
-    begin
-      //Trunk
-      //Wood
-      //FarmTheory calculated above
-      SwineTheory := HouseCount(htSwine) * PRODUCTION_RATE[wtSkin] * 2;
-      TanneryTheory := HouseCount(htTannery) * PRODUCTION_RATE[wtLeather];
-      WorkshopTheory := HouseCount(htArmorWorkshop) * PRODUCTION_RATE[wtLeatherArmor];
+    //Trunk
+    //Wood
+    //FarmTheory calculated above
+    LeatherArmor.SwineTheory := HouseCount(htSwine) * PRODUCTION_RATE[wtSkin] * 2;
+    LeatherArmor.TanneryTheory := HouseCount(htTannery) * PRODUCTION_RATE[wtLeather];
+    LeatherArmor.WorkshopTheory := HouseCount(htArmorWorkshop) * PRODUCTION_RATE[wtLeatherArmor];
 
-      Warfare[wtWoodenShield].Production := Min(TrunkTheory, WoodTheory, WorkshopTheory * OrderRatio[wtWoodenShield]);
-      Warfare[wtLeatherArmor].Production := Min(Min(FarmTheory, SwineTheory), Min(TanneryTheory, WorkshopTheory * OrderRatio[wtLeatherArmor]));
-    end;
+    Warfare[wtWoodenShield].Production := Min(LeatherArmor.TrunkTheory, LeatherArmor.WoodTheory, LeatherArmor.WorkshopTheory * OrderRatio[wtWoodenShield]);
+    Warfare[wtLeatherArmor].Production := Min(Min(LeatherArmor.FarmTheory, LeatherArmor.SwineTheory), Min(LeatherArmor.TanneryTheory, LeatherArmor.WorkshopTheory * OrderRatio[wtLeatherArmor]));
   end;
 end;
 
