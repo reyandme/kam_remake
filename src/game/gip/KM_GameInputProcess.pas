@@ -991,7 +991,7 @@ begin
       Exit;
 
     //Most commands blocked during cinematic (this is a fall back in case players try to cheat)
-    if not (aCommand.CommandType in ALLOWED_IN_CINEMATIC) and (P.InCinematic) then
+    if not (aCommand.CommandType in ALLOWED_IN_CINEMATIC) and P.InCinematic then
       Exit;
 
     if gLog.CanLogCommands() and not DoSkipLogCommand(aCommand.CommandType) then
@@ -1146,7 +1146,7 @@ var
   function DoAddPlayerBeacon: Boolean;
   begin
     Result := (gHands.CheckAlliance(handId, gMySpectator.HandID) = atAlly)
-      and (gHands[handId].ShareBeacons[gMySpectator.HandID])
+      and gHands[handId].ShareBeacons[gMySpectator.HandID]
       and not IsPlayerMuted(handId); // Do not show beacons sent by muted players
   end;
 
