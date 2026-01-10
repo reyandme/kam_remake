@@ -91,7 +91,7 @@ type
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const aText: string);
-    function GetNetAddressPrintDescr(aNetworkAddress: Integer): String;
+    function GetNetAddressPrintDescr(aNetworkAddress: Integer): string;
     procedure LogPacket(aIsSending: Boolean; aKind: TKMNetMessageKind; aNetworkAddress: TKMNetHandleIndex);
     procedure PostLogMessageToChat(const aLogMessage: UnicodeString);
     procedure PacketRecieve(aNetClient: TKMNetClient; aSenderIndex: TKMNetHandleIndex; aData: Pointer; aLength: Cardinal); //Process all commands
@@ -229,7 +229,7 @@ type
     property PacketsStatsStartTime: Cardinal read fPacketsStatsStartTime;
     procedure ResetPacketsStats;
 
-    procedure UpdateState(aGlobalTickCount: cardinal);
+    procedure UpdateState(aGlobalTickCount: Cardinal);
     procedure UpdateStateIdle;
     procedure SendFPSMeasurement(aFPS: Integer);
   end;
@@ -927,13 +927,13 @@ begin
     ngkSave:  begin
                 startAllowed := fNetRoom.AllReady and fSaveInfo.IsValid;
                 for I := 1 to fNetRoom.Count do //In saves everyone must chose a location
-                  startAllowed := startAllowed and ((fNetRoom[i].StartLocation <> LOC_RANDOM) or fNetRoom[i].IsClosed);
+                  startAllowed := startAllowed and ((fNetRoom[I].StartLocation <> LOC_RANDOM) or fNetRoom[I].IsClosed);
               end;
     else      startAllowed := False;
   end;
   //At least one player must NOT be a spectator or closed
   for I := 1 to fNetRoom.Count do
-    if not fNetRoom[i].IsSpectator and not fNetRoom[i].IsClosed then
+    if not fNetRoom[I].IsSpectator and not fNetRoom[I].IsClosed then
       Exit(BoolToGameStartMode(startAllowed)); //Exit with result from above
 
   //If we reached here then all players are spectators so only saves can be started,
@@ -1290,8 +1290,8 @@ end;
 function TKMNetworking.IsPlayerHandStillInGame(aSlotIndex: Integer): Boolean;
 begin
   Result := (fNetGameState = lgsGame) and (fNetRoom[aSlotIndex].HandIndex <> -1)
-            and (gHands[fNetRoom[aSlotIndex].HandIndex].AI.IsNotWinnerNotLoser) // This means player is not defeated and not win
-            and not fNetRoom[aSlotIndex].IsSpectator
+            and gHands[fNetRoom[aSlotIndex].HandIndex].AI.IsNotWinnerNotLoser // This means player is not defeated and not win
+            and not fNetRoom[aSlotIndex].IsSpectator;
 end;
 
 
@@ -1450,7 +1450,7 @@ begin
                     ReturnToLobbyVoteSucceeded;
                 end;
     lpkJoiner: begin
-                  if slotIndex = -1 then exit; //Has already disconnected
+                  if slotIndex = -1 then Exit; //Has already disconnected
 
                   PostPlayerDisconnectedMsg(slotIndex);
 
@@ -1527,9 +1527,9 @@ end;
 
 
 //Get printable name of network address
-function TKMNetworking.GetNetAddressPrintDescr(aNetworkAddress: Integer): String;
+function TKMNetworking.GetNetAddressPrintDescr(aNetworkAddress: Integer): string;
 
-  function GetNetPlayerDescr: String;
+  function GetNetPlayerDescr: string;
   var
     slotIndex: Integer;
   begin
@@ -1547,7 +1547,8 @@ begin
     NET_ADDRESS_ALL     : Result := 'ALL';
     NET_ADDRESS_HOST    : Result := 'HOST';
     NET_ADDRESS_SERVER  : Result := 'SERVER';
-    else                  Result := Format('Client %d [NetPlayer %s]', [aNetworkAddress, GetNetPlayerDescr]);
+  else
+    Result := Format('Client %d [NetPlayer %s]', [aNetworkAddress, GetNetPlayerDescr]);
   end;
 end;
 
@@ -1569,7 +1570,7 @@ const
                                                mkVote,
                                                mkReadyToReturnToLobby];
 var
-  logMessage: String;
+  logMessage: string;
 begin
   if aIsSending then
     Inc(fPacketsSent[aKind])
@@ -1922,7 +1923,7 @@ begin
               begin
                 fFileSenderManager.ClientDisconnected(tmpHandleIndex);
                 slotIndex := fNetRoom.ServerToLocal(tmpHandleIndex);
-                if slotIndex = -1 then exit; //Has already disconnected or not from our room
+                if slotIndex = -1 then Exit; //Has already disconnected or not from our room
                 if not fNetRoom[slotIndex].Dropped then
                 begin
                   PostMessage(TX_NET_LOST_CONNECTION, csLeave, fNetRoom[slotIndex].NicknameColoredU);
@@ -2219,7 +2220,7 @@ begin
             begin
               aStream.Read(tmpHandleIndex);
               //The host has accepted a disconnected client back into the game. Request this client to resync us
-              if tmpHandleIndex = fMyIndexOnServer then exit;
+              if tmpHandleIndex = fMyIndexOnServer then Exit;
               gLog.LogNetConnection('Requesting resync for reconnected client');
               PacketSendI(tmpHandleIndex, mkResyncFromTick, Integer(fLastProcessedTick));
             end;
@@ -2259,7 +2260,7 @@ begin
               if tmpInteger2 = -1 then
                 PostLocalMessage(Format(gResTexts[tmpInteger], [tmpStringW, replyStringW]), chatSound)
               else
-                PostLocalMessage(Format(gResTexts[tmpInteger], [gResTexts[tmpInteger2]]), chatSound)
+                PostLocalMessage(Format(gResTexts[tmpInteger], [gResTexts[tmpInteger2]]), chatSound);
             end;
 
     mkTextChat:
@@ -2637,7 +2638,7 @@ begin
 end;
 
 
-procedure TKMNetworking.UpdateState(aGlobalTickCount: cardinal);
+procedure TKMNetworking.UpdateState(aGlobalTickCount: Cardinal);
 begin
   // Reconnection delay
   if (fReconnectRequested <> 0) and (TimeSince(fReconnectRequested) > RECONNECT_PAUSE) then DoReconnection;

@@ -260,8 +260,8 @@ const
   NetPlayerTypeName: array [TKMNetPlayerType] of UnicodeString = ('Human', 'Closed', 'Classic AI Player', 'Advanced AI Player');
   ServerTypePic: array [TKMServerType] of Word = (74, 75, 79);
 
-  function GetNetAddressStr(aNetworkAddress: Integer): String;
-  function GetAIPlayerIcon(aNetPlayerType: TKMNetPlayerType): Word;
+function GetNetAddressStr(aNetworkAddress: Integer): String;
+function GetAIPlayerIcon(aNetPlayerType: TKMNetPlayerType): Word;
 
 implementation
 uses
@@ -348,7 +348,7 @@ begin
 end;
 
 
-function GetNetAddressStr(aNetworkAddress: Integer): String;
+function GetNetAddressStr(aNetworkAddress: Integer): string;
 begin
   case aNetworkAddress of
     NET_ADDRESS_EMPTY   : Result := 'EMPTY';
@@ -356,7 +356,8 @@ begin
     NET_ADDRESS_ALL     : Result := 'ALL';
     NET_ADDRESS_HOST    : Result := 'HOST';
     NET_ADDRESS_SERVER  : Result := 'SERVER';
-    else                  Result := IntToStr(aNetworkAddress);
+  else
+    Result := IntToStr(aNetworkAddress);
   end;
 end;
 
@@ -366,7 +367,8 @@ begin
   case aNetPlayerType of
     nptComputerClassic:   Result := 62; //PC Icon
     nptComputerAdvanced:  Result := 74; //Large PC Icon
-    else                  Result := 0;  //None
+  else
+    Result := 0;  //None
   end;
 end;
 
