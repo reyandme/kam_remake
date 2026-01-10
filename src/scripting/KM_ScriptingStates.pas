@@ -3,9 +3,9 @@ unit KM_ScriptingStates;
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
-  KM_CommonTypes, KM_Defaults, KM_Points, KM_HandsCollection, KM_Houses, KM_ScriptingIdCache, KM_Units, KM_MapTypes,
-  KM_UnitGroup, KM_ResHouses, KM_HouseCollection, KM_HouseWoodcutters,
-  KM_ResWares, KM_ScriptingEvents, KM_TerrainTypes, KM_ResTilesetTypes,
+  KM_CommonTypes, KM_Defaults, KM_Points, KM_Houses, KM_ScriptingIdCache, KM_MapTypes,
+  KM_HouseWoodcutters,
+  KM_ScriptingEvents, KM_TerrainTypes, KM_ResTilesetTypes,
   KM_UnitGroupTypes, KM_ScriptingTypes,
   KM_ResTypes, KM_HandTypes, KM_AITypes;
 
@@ -286,8 +286,8 @@ uses
   KM_Game, KM_GameApp, KM_GameParams,
   KM_UnitsCollection, KM_UnitWarrior, KM_UnitTaskSelfTrain,
   KM_HouseBarracks, KM_HouseSchool, KM_HouseMarket, KM_HouseStore, KM_HouseTownHall,
-  KM_Resource, KM_ResUnits,
-  KM_Hand, KM_HandEntity,
+  KM_Resource, KM_ResUnits, KM_UnitGroup, KM_ResHouses, KM_HouseCollection,
+  KM_Hand, KM_HandEntity, KM_HandsCollection, KM_Units, KM_ResWares,
   KM_Terrain,
   KM_CommonUtils;
 
@@ -2572,7 +2572,7 @@ begin
     if aHouseID > 0 then
     begin
       H := fIDCache.GetHouse(aHouseID);
-      if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+      if (H <> nil) and not H.IsDestroyed and H.IsComplete then
         Result := H.AllowAllyToSelect;
     end
     else
@@ -2623,7 +2623,7 @@ begin
     if aBarracks > 0 then
     begin
       H := fIDCache.GetHouse(aBarracks);
-      if (H <> nil) and not H.IsDestroyed  and (H.IsComplete) then
+      if (H <> nil) and not H.IsDestroyed  and H.IsComplete then
       begin
         if (H is TKMHouseBarracks) then
           Result := TKMHouseBarracks(H).FlagPoint.X
@@ -2652,7 +2652,7 @@ begin
     if aBarracks > 0 then
     begin
       H := fIDCache.GetHouse(aBarracks);
-      if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+      if (H <> nil) and not H.IsDestroyed and H.IsComplete then
       begin
         if (H is TKMHouseBarracks) then
           Result := TKMHouseBarracks(H).FlagPoint.Y
@@ -2680,7 +2680,7 @@ begin
     if aBarracks > 0 then
     begin
       H := fIDCache.GetHouse(aBarracks);
-      if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+      if (H <> nil) and not H.IsDestroyed and H.IsComplete then
       begin
         if (H is TKMHouseBarracks) then
           Result := TKMHouseBarracks(H).RecruitsCount
@@ -2735,7 +2735,7 @@ begin
     if aHouseId > 0 then
     begin
       H := fIDCache.GetHouse(aHouseId);
-      if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+      if (H <> nil) and not H.IsDestroyed and H.IsComplete then
       begin
         if (H is TKMHouseWFlagPoint) then
           Result := TKMHouseWFlagPoint(H).FlagPoint
@@ -2769,7 +2769,7 @@ begin
       unitCount := 0;
 
       H := fIDCache.GetHouse(aHouseId);
-      if (H <> nil) and not H.IsDestroyed and (H.IsComplete) then
+      if (H <> nil) and not H.IsDestroyed and H.IsComplete then
       begin
         //Allocate max required space
         SetLength(Result, gHands[H.Owner].Units.Count);
@@ -3809,7 +3809,7 @@ begin
               Exit;
             end;
           end;
-      end
+      end;
     end
     else
       LogParamWarn('States.IsPlanAt', [aHand, GetEnumName(TypeInfo(TKMFieldType), Integer(aFieldType)), X, Y]);
@@ -4390,7 +4390,7 @@ end;
 function TKMScriptStates.MapTilePassability(X, Y: Integer; aPassability: Byte): Boolean;
 begin
   try
-    if (gTerrain.TileInMapCoords(X, Y))
+    if gTerrain.TileInMapCoords(X, Y)
     and (TKMTerrainPassability(aPassability) in [Low(TKMTerrainPassability)..High(TKMTerrainPassability)]) then
       Result := TKMTerrainPassability(aPassability) in gTerrain.Land^[Y, X].Passability
     else
@@ -4412,7 +4412,7 @@ end;
 function TKMScriptStates.MapTilePassabilityEx(X, Y: Integer; aPassability: TKMTerrainPassability): Boolean;
 begin
   try
-    if (gTerrain.TileInMapCoords(X, Y)) then
+    if gTerrain.TileInMapCoords(X, Y) then
       Result := aPassability in gTerrain.Land^[Y, X].Passability
     else
     begin
