@@ -57,7 +57,7 @@ type
     function Run(aCount: Integer): TKMRunResults;
   end;
 
-  procedure RegisterRunner(aRunner: TKMRunnerClass);
+procedure RegisterRunner(aRunner: TKMRunnerClass);
 
 var
   RunnerList: array of TKMRunnerClass;
@@ -132,6 +132,7 @@ begin
       ValueMax := Max(ValueMax, Value[I,K]);
     end;
   end;
+
   //Get min max
   with fResults do
   if TimesCount > 0 then
@@ -226,7 +227,7 @@ begin
   if (aEndTick = -1) then
     aEndTick := fResults.TimesCount - 1
   else
-    aEndTick := min(aEndTick,fResults.TimesCount - 1);
+    aEndTick := Min(aEndTick,fResults.TimesCount - 1);
 
   for I := aStartTick to aEndTick do
   begin

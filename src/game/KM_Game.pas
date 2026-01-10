@@ -139,10 +139,10 @@ type
 
     procedure MultiplayerRig(aNewGame: Boolean);
 
-    procedure PrepareSaveFolder(const aPathName: String; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread);
+    procedure PrepareSaveFolder(const aPathName: string; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread);
     procedure SaveGameToStream(aTimestamp: TDateTime; aSaveStream: TKMemoryStream); overload;
     procedure SaveGameToStream(aTimestamp: TDateTime; aHeaderStream, aBodyStream: TKMemoryStream); overload;
-    procedure SaveGameToFile(const aPathName: String; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread; aTimestamp: TDateTime; const aMPLocalDataPathName: String = '');
+    procedure SaveGameToFile(const aPathName: string; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread; aTimestamp: TDateTime; const aMPLocalDataPathName: string = '');
 
     function PlayGameTick: Boolean;
     function PlayReplayTick: Boolean;
@@ -2213,7 +2213,7 @@ begin
 end;
 
 
-procedure TKMGame.PrepareSaveFolder(const aPathName: String; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread);
+procedure TKMGame.PrepareSaveFolder(const aPathName: string; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread);
 var
   path: string;
 begin
@@ -2248,8 +2248,8 @@ end;
 
 
 // Saves the game in all its glory
-procedure TKMGame.SaveGameToFile(const aPathName: String; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread;
-                                 aTimestamp: TDateTime; const aMPLocalDataPathName: String = '');
+procedure TKMGame.SaveGameToFile(const aPathName: string; aSaveByPlayer: Boolean; aSaveWorkerThread: TKMWorkerThread;
+                                 aTimestamp: TDateTime; const aMPLocalDataPathName: string = '');
 var
   mainStream, headerStream, bodyStream, saveStreamTxt: TKMemoryStream;
   gameMPLocalData: TKMGameMPLocalData;
