@@ -180,8 +180,8 @@ type
     procedure CloseGroup;
     procedure KillGroup;
 
-    function ObjToStringShort(const aSeparator: String = '|'): String; override;
-    function ObjToString(const aSeparator: String = '|'): String; override;
+    function ObjToStringShort(const aSeparator: string = '|'): string; override;
+    function ObjToString(const aSeparator: string = '|'): string; override;
 
     procedure UpdateState;
     procedure PaintHighlighted(aTickLag: Single; aHandColor, aFlagColor: Cardinal; aDoImmediateRender: Boolean = False; aDoHighlight: Boolean = False; aHighlightColor: Cardinal = 0);
@@ -1029,7 +1029,6 @@ begin
                               fMembers[I].OrderWalk(P.Loc, P.Exact);
                             end;
                         end;
-
 
                         //If Enemy was killed, but target Group still exists
                         //Group could become an ally from script
@@ -2127,7 +2126,7 @@ begin
 end;
 
 
-function TKMUnitGroup.ObjToStringShort(const aSeparator: String = '|'): String;
+function TKMUnitGroup.ObjToStringShort(const aSeparator: string = '|'): string;
 begin
   if Self = nil then Exit('nil');
 
@@ -2140,10 +2139,10 @@ begin
 end;
 
 
-function TKMUnitGroup.ObjToString(const aSeparator: String = '|'): String;
+function TKMUnitGroup.ObjToString(const aSeparator: string = '|'): string;
 var
   I: Integer;
-  targetUnitStr, targetHouseStr, targetGroupStr, offendersStr: String;
+  targetUnitStr, targetHouseStr, targetGroupStr, offendersStr: string;
 begin
   if Self = nil then Exit('nil');
 

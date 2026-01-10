@@ -2,8 +2,8 @@ unit KM_HouseWoodcutters;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_Houses,
   KM_CommonClasses, KM_Points, KM_Defaults,
+  KM_Houses,
   KM_ResTypes;
   
 type
@@ -23,7 +23,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure Save(SaveStream: TKMemoryStream); override;
 
-    function ObjToString(const aSeparator: String = '|'): String; override;
+    function ObjToString(const aSeparator: string = '|'): string; override;
 
     property WoodcutterMode: TKMWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
   end;
@@ -31,7 +31,8 @@ type
 
 implementation
 uses
-  SysUtils, TypInfo, KM_ScriptingEvents;
+  SysUtils, TypInfo,
+  KM_ScriptingEvents;
 
 
 { TKMHouseWoodcutters }
@@ -96,10 +97,10 @@ begin
 end;
 
 
-function TKMHouseWoodcutters.ObjToString(const aSeparator: String = '|'): String;
+function TKMHouseWoodcutters.ObjToString(const aSeparator: string = '|'): string;
 begin
   Result := inherited ObjToString(aSeparator) +
-            Format('%sWoodcutterMode = %s', [aSeparator, GetEnumName(TypeInfo(TKMWoodcutterMode), Integer(fWoodcutterMode))]);
+            Format('%sWoodcutterMode = %s', [aSeparator, GetEnumName(TypeInfo(TKMWoodcutterMode), Ord(fWoodcutterMode))]);
 end;
 
 

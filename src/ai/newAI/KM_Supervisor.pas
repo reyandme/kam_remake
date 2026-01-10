@@ -222,12 +222,12 @@ var
 begin
   // Attack / defence can be updated slower
   Modulo := aTick mod DEF_OR_ATT_DIVISION;
-  if (Modulo >= DEFENCES) AND (Modulo - DEFENCES < Length(fAlli2PL)) then
+  if (Modulo >= DEFENCES) and (Modulo - DEFENCES < Length(fAlli2PL)) then
     UpdateDefPos(Modulo - DEFENCES);
   if not gGame.IsPeaceTime then
   begin
-    if (Modulo >= ATTACKS) AND (Modulo - ATTACKS < Length(fAlli2PL))
-    AND (  gGameParams.IsTactic OR (aTick > (gGame.Options.Peacetime+3) * 10 * 60)  ) then // In normal mode wait 3 minutes after peace
+    if (Modulo >= ATTACKS) and (Modulo - ATTACKS < Length(fAlli2PL))
+    and (  gGameParams.IsTactic OR (aTick > (gGame.Options.Peacetime+3) * 10 * 60)  ) then // In normal mode wait 3 minutes after peace
     begin
       UpdateFFA();
       AttackDecision(Modulo - ATTACKS);
@@ -252,17 +252,17 @@ begin
   SetLength(fAlli2PL, gHands.Count, gHands.Count);
   AlliCnt := 0;
   for PL1 := 0 to gHands.Count - 1 do
-    if gHands[PL1].Enabled AND (fPL2Alli[PL1] = 255) then
+    if gHands[PL1].Enabled and (fPL2Alli[PL1] = 255) then
     begin
       PLCnt := 0;
       for PL2 := 0 to gHands.Count - 1 do
-        if gHands[PL2].Enabled AND (fPL2Alli[PL2] = 255) AND ((PL1 = PL2) OR (gHands[PL1].Alliances[PL2] = atAlly)) then
+        if gHands[PL2].Enabled and (fPL2Alli[PL2] = 255) and ((PL1 = PL2) OR (gHands[PL1].Alliances[PL2] = atAlly)) then
         begin
           Check := True;
           for Idx := 0 to PLCnt - 1 do
           begin
             PL3 := fAlli2PL[AlliCnt,Idx];
-            Check := Check AND ((gHands[PL3].Alliances[PL2] = atAlly) AND (gHands[PL2].Alliances[PL3] = atAlly));
+            Check := Check and ((gHands[PL3].Alliances[PL2] = atAlly) and (gHands[PL2].Alliances[PL3] = atAlly));
           end;
           if not Check then
             Continue;
@@ -309,9 +309,9 @@ begin
   for IdxPL := 0 to Length( fAlli2PL[aTeam] ) - 1 do
     with gHands[ fAlli2PL[aTeam, IdxPL] ] do
       if IsComputer
-        AND AI.Setup.NewAI
-        AND (not aAttack OR AI.Setup.AutoAttack)
-        AND (not aDefence OR AI.Setup.AutoDefend) then
+        and AI.Setup.NewAI
+        and (not aAttack OR AI.Setup.AutoAttack)
+        and (not aDefence OR AI.Setup.AutoDefend) then
         Exit(True);
 end;
 
@@ -329,10 +329,10 @@ end;
 
 function TKMSupervisor.HasAssets(aPL: TKMHandID; aIncludeArmy: Boolean = True): Boolean;
 const
-  HOUSE_TYPES: array of TKMHouseType = [htBarracks, htStore, htSchool, htTownhall];
+  HOUSE_TYPES: array of TKMHouseType = [htBarracks, htStore, htSchool, htTownHall];
 begin
   with gHands[aPL] do
-    Result := Enabled AND ((Stats.GetHouseQty(HOUSE_TYPES) > 0) OR (aIncludeArmy AND (Stats.GetArmyCount() > 0)));
+    Result := Enabled and ((Stats.GetHouseQty(HOUSE_TYPES) > 0) OR (aIncludeArmy and (Stats.GetArmyCount() > 0)));
 end;
 
 
@@ -369,7 +369,7 @@ begin
         if (gHands[Owner].Alliances[PL] <> atEnemy)
           OR (fCombatStatus[Owner,PL] in [csDefending, csCounterattack])
           OR (not HasAssets(PL))
-          OR ((gHands[Owner].AI.ArmyManagement.AttackNew.Count = 0) AND not gHands[Owner].AI.ArmyManagement.AttackRequest.Active) then
+          OR ((gHands[Owner].AI.ArmyManagement.AttackNew.Count = 0) and not gHands[Owner].AI.ArmyManagement.AttackRequest.Active) then
           fCombatStatus[Owner,PL] := csNeutral;
 
   // Scan distances in the NavMesh
@@ -425,7 +425,7 @@ begin
     begin
       Threat := (CounterWeight.WeightedCount[gtMelee] + CounterWeight.WeightedCount[gtMounted] + CounterWeight.WeightedCount[gtRanged] + CounterWeight.WeightedCount[gtAntiHorse]);
       ThreatNearby := Byte((BestDist < 1E4) OR AttackingCity) * Threat
-                + Byte( (CSNum >= Byte(csAttackingCity)) AND (pCluster.HousesCount > 0) );
+                + Byte( (CSNum >= Byte(csAttackingCity)) and (pCluster.HousesCount > 0) );
     end;
   end;
 
@@ -438,11 +438,11 @@ begin
       if (gHands[Owner].Alliances[PL] = atEnemy) then
       begin
         // Check if units are closer to enemy city and if so, then change status to counterattack
-        if (fCombatStatus[Owner,PL] in [csNeutral, csDefending]) AND HasAssets(PL,False) then
+        if (fCombatStatus[Owner,PL] in [csNeutral, csDefending]) and HasAssets(PL,False) then
           for K := 0 to gHands[Owner].UnitGroups.Count - 1 do
           begin
             G := gHands[Owner].UnitGroups.Groups[K];
-            if (G <> nil) AND not G.IsDead AND (gAIFields.Influences.OwnPoint[ PL, G.Position ] > ARMY_IN_HOSTILE_CITY) then
+            if (G <> nil) and not G.IsDead and (gAIFields.Influences.OwnPoint[ PL, G.Position ] > ARMY_IN_HOSTILE_CITY) then
             begin
               fCombatStatus[Owner,PL] := csCounterattack;
               break;
@@ -507,7 +507,7 @@ begin
     for IdxA := CntA - 1 downto 0 do
     begin
       TargetH := A[IdxA].Group.OrderTargetHouse;
-      if (TargetH <> nil) AND (A[IdxA].Group.GroupType <> gtRanged) AND (KMDistanceSqr(A[IdxA].Group.Position,TargetH.Entrance) < sqr_MAX_DISTANCE_FROM_HOUSE) then
+      if (TargetH <> nil) and (A[IdxA].Group.GroupType <> gtRanged) and (KMDistanceSqr(A[IdxA].Group.Position,TargetH.Entrance) < sqr_MAX_DISTANCE_FROM_HOUSE) then
       begin
         // Consider units if house is in the combat line
         for IdxE := 0 to Length(H) - 1 do
@@ -525,7 +525,7 @@ begin
     end;
   end;
 
-  if aAttack AND (Length(E) > 0) then
+  if aAttack and (Length(E) > 0) then
   begin
 
     // Set orders for ranged groups in range (the closest enemy, top prio)
@@ -558,7 +558,7 @@ begin
       Threat[IdxE].Distance := 1E6;
       Threat[IdxE].DistRanged := 1E6;
       for IdxA := 0 to Length(A) - 1 do // Over all groups
-        if (A[IdxA].Group.GroupType = gtRanged) AND (Dist[ GetIdx(CntE,IdxA,IdxE) ] < Threat[IdxE].DistRanged) then
+        if (A[IdxA].Group.GroupType = gtRanged) and (Dist[ GetIdx(CntE,IdxA,IdxE) ] < Threat[IdxE].DistRanged) then
           Threat[IdxE].DistRanged := Dist[ GetIdx(CntE,IdxA,IdxE) ]
         else if (Dist[ GetIdx(CntE,IdxA,IdxE) ] < Threat[IdxE].Distance) then
           Threat[IdxE].Distance := Dist[ GetIdx(CntE,IdxA,IdxE) ];
@@ -630,7 +630,7 @@ begin
       with Threat[BestIdxE] do
       begin
         Overflow2 := 0;
-        while (WeightedCount > 0) AND (Min(DistRanged, Distance) < sqr(AI_Par[ATTACK_SUPERVISOR_EvalTarget_DistanceGroup])) AND (Overflow2 < 100) do
+        while (WeightedCount > 0) and (Min(DistRanged, Distance) < sqr(AI_Par[ATTACK_SUPERVISOR_EvalTarget_DistanceGroup])) and (Overflow2 < 100) do
         begin
           Inc(Overflow2);
           BestOpportunity := NO_THREAT;
@@ -668,15 +668,15 @@ begin
   for IdxE := 0 to Length(H) - 1 do
   begin
     Overflow := 0;
-    while (AttackingHouseCnt[IdxE] < MAX_ATTACKERS_PER_HOUSE) AND (Overflow < 5) do
+    while (AttackingHouseCnt[IdxE] < MAX_ATTACKERS_PER_HOUSE) and (Overflow < 5) do
     begin
       Inc(Overflow);
       BestOpportunity := abs(NO_THREAT);
       for IdxA := 0 to CntA - 1 do
-        if (A[IdxA] <> nil) AND (A[IdxA].Group.GroupType <> gtRanged) then
+        if (A[IdxA] <> nil) and (A[IdxA].Group.GroupType <> gtRanged) then
         begin
           Opportunity := KMDistanceSqr(H[IdxE].Entrance, A[IdxA].Group.Position);
-          if (BestOpportunity > Opportunity) AND (Opportunity < sqr_INTEREST_DISTANCE_House) then
+          if (BestOpportunity > Opportunity) and (Opportunity < sqr_INTEREST_DISTANCE_House) then
           begin
             BestIdxA := IdxA;
             BestOpportunity := Opportunity;
@@ -741,7 +741,7 @@ procedure TKMSupervisor.UpdateAttacks(aTeam: Byte; aTick: Cardinal);
     end;
     // Set orders to move
     for K := Low(pGCWA) to High(pGCWA) do
-      if (pGCWA[K] <> nil) AND (pGCWA[K].CG <> nil) then
+      if (pGCWA[K] <> nil) and (pGCWA[K].CG <> nil) then
         pGCWA[K].CG.TargetPosition := pGCWA[K].TargetPosition
   end;
 
@@ -820,7 +820,7 @@ begin
       if (gHands[Player].UnitGroups.Count = 0) then
         Continue;
       Group := gHands[Player].UnitGroups.Groups[ KaMRandom(gHands[Player].UnitGroups.Count{$IFDEF DBG_RNG_SPY}, 'TKMSupervisor.GetInitPoints'{$ENDIF}) ];
-      if (Group <> nil) AND not Group.IsDead AND not KMSamePoint(KMPOINT_ZERO,Group.Position) then
+      if (Group <> nil) and not Group.IsDead and not KMSamePoint(KMPOINT_ZERO,Group.Position) then
       begin
         SetLength(CenterPoints, 1);
         CenterPoints[0] := Group.Position;
@@ -842,7 +842,7 @@ begin
   InitPoints := GetInitPoints(aPlayers);
   // Try find enemies by influence area
   Result := (Length(InitPoints) <> 0)
-            AND (
+            and (
               gAIFields.Influences.InfluenceSearch.FindClosestEnemies(aPlayers[0], InitPoints, aEnemyStats, True)
               //OR gAIFields.Influences.InfluenceSearch.FindClosestEnemies(aPlayers[0], InitPoints, aEnemyStats, False)
             );
@@ -854,7 +854,7 @@ procedure TKMSupervisor.AttackDecision(aTeam: Byte);
 
   function FindTargetAssets(aTeamIdx: Byte; var aTargetSoldiers: Boolean; var aPolygons: TKMWordArray): Integer;
   const
-    SCANNED_HOUSES = [htStore, htSchool, htBarracks, htTownhall];
+    SCANNED_HOUSES = [htStore, htSchool, htBarracks, htTownHall];
   var
     K: Integer;
     PL: TKMHandID;
@@ -869,7 +869,7 @@ procedure TKMSupervisor.AttackDecision(aTeam: Byte);
       for K := 0 to gHands[PL].Houses.Count - 1 do
       begin
         H := gHands[PL].Houses[K];
-        if (H <> nil) AND not H.IsDestroyed AND H.IsComplete AND (H.HouseType in SCANNED_HOUSES) then
+        if (H <> nil) and not H.IsDestroyed and H.IsComplete and (H.HouseType in SCANNED_HOUSES) then
         begin
           aPolygons[PL] := gAIFields.NavMesh.KMPoint2Polygon[ H.PointBelowEntrance ];
           Inc(Result);
@@ -884,7 +884,7 @@ procedure TKMSupervisor.AttackDecision(aTeam: Byte);
         for K := 0 to gHands[PL].UnitGroups.Count - 1 do
         begin
           G := gHands[PL].UnitGroups.Groups[K];
-          if (G <> nil) AND not G.IsDead AND not KMSamePoint(KMPOINT_ZERO,G.Position) then
+          if (G <> nil) and not G.IsDead and not KMSamePoint(KMPOINT_ZERO,G.Position) then
           begin
             aPolygons[PL] := gAIFields.NavMesh.KMPoint2Polygon[ G.Position ];
             Inc(Result);
@@ -928,7 +928,7 @@ procedure TKMSupervisor.AttackDecision(aTeam: Byte);
     for TeamIdx := Low(fAlli2PL) to High(fAlli2PL) do
     begin
       DistArr[TeamIdx] := High(Word);
-      if (TeamIdx <> aTeam) AND IsTeamAlive(TeamIdx) then
+      if (TeamIdx <> aTeam) and IsTeamAlive(TeamIdx) then
       begin
         ECnt := FindTargetAssets(TeamIdx, ATargetSoldiers, EnemyPoly);
         if (ECnt <= 0) then
@@ -936,7 +936,7 @@ procedure TKMSupervisor.AttackDecision(aTeam: Byte);
         for K := Low(AllyPoly) to High(AllyPoly) do
           if (AllyPoly[K] > 0) then
             for L := Low(EnemyPoly) to High(EnemyPoly) do
-              if (EnemyPoly[L] > 0) AND gAIFields.NavMesh.Pathfinding.ShortestPolygonRoute(AllyPoly[K], EnemyPoly[L], Distance, RoutePoly) then
+              if (EnemyPoly[L] > 0) and gAIFields.NavMesh.Pathfinding.ShortestPolygonRoute(AllyPoly[K], EnemyPoly[L], Distance, RoutePoly) then
               begin
                 if (DistArr[TeamIdx] > Distance) then
                 begin
@@ -989,12 +989,12 @@ begin
   if not NewAIInTeam(aTeam, True, False) OR not IsTeamAlive(aTeam) OR (Length(fAlli2PL) < 2) then // I sometimes use my loc as a spectator (alliance with everyone) so make sure that search for enemy will use AI loc
     Exit;
   // Check if alliance can attack (have available soldiers) in the FFA mode (if there are just 2 teams attack if we have advantage)
-  if FFA AND not gGameParams.IsTactic then
+  if FFA and not gGameParams.IsTactic then
   begin
     DefRatio := 0;
     for IdxPL := 0 to Length( fAlli2PL[aTeam] ) - 1 do
       with gHands[ fAlli2PL[aTeam, IdxPL] ] do
-        if IsComputer AND AI.Setup.NewAI AND AI.Setup.AutoAttack then
+        if IsComputer and AI.Setup.NewAI and AI.Setup.AutoAttack then
         begin
           DefRatio := Max(DefRatio, AI.ArmyManagement.Defence.DefenceStatus);
           KMSwapInt(fAlli2PL[aTeam, 0], fAlli2PL[aTeam, IdxPL]); // Make sure that player in first index is new AI
@@ -1009,7 +1009,7 @@ begin
     // Consider food
     FoodProblems := gAIFields.Eye.ArmyEvaluation.CheckFoodProblems(fAlli2PL[aTeam]);
     // Make decision
-    if (BestCmp > MIN_ADVANTAGE) OR (FoodProblems AND (fCombatStatus[fAlli2PL[aTeam,0],fAlli2PL[aTeam,0]] = csNeutral)) OR gGameParams.IsTactic then
+    if (BestCmp > MIN_ADVANTAGE) OR (FoodProblems and (fCombatStatus[fAlli2PL[aTeam,0],fAlli2PL[aTeam,0]] = csNeutral)) OR gGameParams.IsTactic then
     begin
       with AR do
       begin
@@ -1033,7 +1033,7 @@ begin
         end;
     end;
     // Stop attack if food problem was solved
-    if (BestCmp < MIN_ADVANTAGE) AND not FoodProblems AND not gGameParams.IsTactic then
+    if (BestCmp < MIN_ADVANTAGE) and not FoodProblems and not gGameParams.IsTactic then
     begin
       for PL in fAlli2PL[aTeam] do
         if gHands[PL].AI.Setup.AutoAttack then
@@ -1122,7 +1122,7 @@ type
       // Send defences to owner
       for I := 0 to Length(aOwners) - 1 do
         with gHands[ aOwners[I] ] do
-          if IsComputer AND AI.Setup.NewAI AND AI.Setup.AutoDefend then
+          if IsComputer and AI.Setup.NewAI and AI.Setup.AutoDefend then
             AI.ArmyManagement.Defence.UpdateDefences(DistributedPos[ aOwners[I] ].Count, DistributedPos[ aOwners[I] ].DefPos);
     end;
   end;
@@ -1134,7 +1134,7 @@ var
   DefPosReq: TKMWordArray;
   TeamDefPos: TKMTeamDefPos;
 begin
-  if NewAIInTeam(aTeam, False, True) AND (Length(fAlli2PL) > 1) then
+  if NewAIInTeam(aTeam, False, True) and (Length(fAlli2PL) > 1) then
   begin
     SetLength(DefPosReq, Length( fAlli2PL[aTeam] ) );
     for IdxPL := 0 to Length(DefPosReq) - 1 do
@@ -1199,7 +1199,7 @@ procedure TKMSupervisor.DivideResources();
         BestPrice := High(Word);
         for IdxPL := 0 to High(aPlayers) do
           if (gAIFields.Influences.OwnPoint[aPlayers[IdxPL], Mines[K].pPoint^] > 0)
-            AND (PLPossibleMines[IdxPL] + PLMines[IdxPL] < BestPrice) then
+            and (PLPossibleMines[IdxPL] + PLMines[IdxPL] < BestPrice) then
           begin
             BestPrice := PLPossibleMines[IdxPL] + PLMines[IdxPL];
             IdxPL2 := IdxPL;
@@ -1268,7 +1268,7 @@ begin
     begin
       PL := Alli2PL[Team,K];
       if not gHands[ Alli2PL[Team,K] ].AI.Setup.NewAI then
-        Result := Format('%s[$%s] PL %s %d (%d;%d), ',[Result,IntToHex(gHands[PL].FlagColor AND $FFFFFF,6),STR_COLOR_WHITE,PL,Byte(gHands[PL].Enabled),Byte(not HasAssets(PL))]);
+        Result := Format('%s[$%s] PL %s %d (%d;%d), ',[Result,IntToHex(gHands[PL].FlagColor and $FFFFFF,6),STR_COLOR_WHITE,PL,Byte(gHands[PL].Enabled),Byte(not HasAssets(PL))]);
     end;
     if (SelectedTeam = Team) then
     begin
@@ -1290,7 +1290,7 @@ begin
       if gHands[ Alli2PL[Team,K] ].AI.Setup.NewAI then
       begin
         PL := Alli2PL[Team,K];
-        Result := Format('%s|    [$%s] NewAI %s %d (E %d; D: %d)',[Result,IntToHex(gHands[PL].FlagColor AND $FFFFFF,6),STR_COLOR_WHITE,PL,Byte(gHands[PL].Enabled),Byte(not HasAssets(PL))]);
+        Result := Format('%s|    [$%s] NewAI %s %d (E %d; D: %d)',[Result,IntToHex(gHands[PL].FlagColor and $FFFFFF,6),STR_COLOR_WHITE,PL,Byte(gHands[PL].Enabled),Byte(not HasAssets(PL))]);
         for PL2 := Low(fCombatStatus[PL]) to High(fCombatStatus[PL]) do
           if (PL <> PL2) then
           begin
@@ -1301,7 +1301,7 @@ begin
               csAttackingCity:        CombatStatusText := 'att city';
               csAttackingEverything:  CombatStatusText := 'att all';
             end;
-            Result := Format('%s [$%s] %s %s %d,',[Result,IntToHex(gHands[PL2].FlagColor AND $FFFFFF,6),CombatStatusText,STR_COLOR_WHITE,PL2]);
+            Result := Format('%s [$%s] %s %s %d,',[Result,IntToHex(gHands[PL2].FlagColor and $FFFFFF,6),CombatStatusText,STR_COLOR_WHITE,PL2]);
           end;
       end;
   end;
@@ -1377,7 +1377,7 @@ begin
     begin
       G := TKMUnitGroup(gMySpectator.Selected);
       for PL := 0 to gHands.Count - 1 do
-        if (gHands[G.Owner].Alliances[PL] = atEnemy) AND gHands[PL].AI.Setup.NewAI then
+        if (gHands[G.Owner].Alliances[PL] = atEnemy) and gHands[PL].AI.Setup.NewAI then
           for K := 0 to gHands[PL].AI.ArmyManagement.AttackNew.Count - 1 do
           begin
             CG := gHands[PL].AI.ArmyManagement.AttackNew.CG[K];

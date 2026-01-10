@@ -111,11 +111,11 @@ function TNavMeshInfluenceSearch.FindClosestEnemies(const aOwner: TKMHandID; var
   // Check if player is active in the meaning of threat for new AI
   function PlayerActive(aPL: TKMHandID): Boolean;
   const
-    TARGET_HOUSES: TKMHouseTypeSet = [htBarracks, htStore, htSchool, htTownhall];
+    TARGET_HOUSES: TKMHouseTypeSet = [htBarracks, htStore, htSchool, htTownHall];
   var
     HT: TKMHouseType;
   begin
-    if not gHands[aPL].Enabled OR gHands[aPL].AI.HasLost then
+    if not gHands[aPL].Enabled or gHands[aPL].AI.HasLost then
       Exit(False);
     for HT in TARGET_HOUSES do
       if (gHands[aPL].Stats.GetHouseQty(HT) > 0) then

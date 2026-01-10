@@ -104,8 +104,8 @@ type
     procedure Paint; override; //Used only for debug so far
     function NeedToPaint(const aRect: TKMRect): Boolean; //Used only for debug so far
 
-    function ObjToStringShort(const aSeparator: String = ' '): String; override;
-    function ObjToString(const aSeparator: String = ' '): String; override;
+    function ObjToStringShort(const aSeparator: string = ' '): string; override;
+    function ObjToString(const aSeparator: string = ' '): string; override;
   end;
 
 
@@ -152,7 +152,7 @@ constructor TKMUnitActionWalkTo.Create( aUnit: TKMUnit;
                                         aAvoidLockedByMovementCost: Boolean = True;
                                         aSilent: Boolean = False);
 var
-  errorStr: String;
+  errorStr: string;
   routeWasBuilt: Boolean; //Check if route was built, otherwise return nil
 begin
   inherited Create(aUnit, aActionType, False);
@@ -240,8 +240,8 @@ begin
   if not WRITE_WALKTO_LOG then Exit;
 
   fExplanationLog := TStringList.Create;
-  if FileExists(ExeDir+'ExpLog'+inttostr(fUnit.UID)+'.txt') then
-    fExplanationLog.LoadFromFile(ExeDir+'ExpLog'+inttostr(fUnit.UID)+'.txt');
+  if FileExists(ExeDir+'ExpLog'+IntToStr(fUnit.UID)+'.txt') then
+    fExplanationLog.LoadFromFile(ExeDir+'ExpLog'+IntToStr(fUnit.UID)+'.txt');
 end;
 
 
@@ -320,7 +320,7 @@ begin
   begin
     fExplanation := 'WalkTo destroyed at'+floattostr(fUnit.PositionF.X)+':'+floattostr(fUnit.PositionF.Y);
     ExplanationLogAdd;
-    fExplanationLog.SaveToFile(ExeDir+'ExpLog'+inttostr(fUnit.UID)+'.txt');
+    fExplanationLog.SaveToFile(ExeDir+'ExpLog'+IntToStr(fUnit.UID)+'.txt');
   end;
 
   FreeAndNil(fExplanationLog);
@@ -463,7 +463,7 @@ var
 begin
   //Build a piece of route to return to nearest road piece connected to destination road network
   if (fPass = tpWalkRoad)
-    and ((fDistance = 0) or (gRes.Units[fUnit.UnitType].IsCitizen)) //That is Citizens walking to spot
+    and ((fDistance = 0) or gRes.Units[fUnit.UnitType].IsCitizen) //That is Citizens walking to spot
     and (gTerrain.GetRoadConnectID(fWalkFrom) <> gTerrain.GetRoadConnectID(fWalkTo)) //NoRoad returns 0
     and (gTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
     if CanWalkToTarget(fWalkFrom, tpWalk) then
@@ -484,7 +484,7 @@ begin
   if fNodeList.Count = 0 then //Build a route from scratch
   begin
     if CanWalkToTarget(fWalkFrom, fPass) then
-      gGame.Pathfinding.Route_Make(fWalkFrom, fWalkTo, [fPass], fDistance, fTargetHouse, fNodeList, avoidLocked) //Try to make the route with fPass
+      gGame.Pathfinding.Route_Make(fWalkFrom, fWalkTo, [fPass], fDistance, fTargetHouse, fNodeList, avoidLocked); //Try to make the route with fPass
   end
   else //Append route to existing part
   begin
@@ -658,7 +658,7 @@ end;
 function TKMUnitActionWalkTo.CheckWalkComplete: Boolean;
 begin
   Result := (fNodePos >= fNodeList.Count - 1)
-            or ((fTargetHouse = nil) and (round(KMLengthDiag(fUnit.Position,fWalkTo)) <= fDistance))
+            or ((fTargetHouse = nil) and (Round(KMLengthDiag(fUnit.Position,fWalkTo)) <= fDistance))
             or ((fTargetHouse <> nil) and (fTargetHouse.GetDistance(fUnit.Position) <= fDistance))
             or ((fTargetUnit <> nil) and (KMLengthDiag(fUnit.Position,fTargetUnit.Position) <= fDistance))
             or ((fUnit.Task <> nil) and fUnit.Task.WalkShouldAbandon);
@@ -863,8 +863,8 @@ begin
     //Tiles to the left (-1) and right (+1) (relative to unit) of the one we are walking to
     for I := 0 to 1 do
     begin
-      if I = 0 then tempPos := KMGetPointInDir(fUnit.Position, KMPrevDirection((KMGetDirection(fUnit.PositionNext,fNodeList[fNodePos+1]))));
-      if I = 1 then tempPos := KMGetPointInDir(fUnit.Position, KMNextDirection((KMGetDirection(fUnit.PositionNext,fNodeList[fNodePos+1]))));
+      if I = 0 then tempPos := KMGetPointInDir(fUnit.Position, KMPrevDirection(KMGetDirection(fUnit.PositionNext,fNodeList[fNodePos+1])));
+      if I = 1 then tempPos := KMGetPointInDir(fUnit.Position, KMNextDirection(KMGetDirection(fUnit.PositionNext,fNodeList[fNodePos+1])));
 
       //First make sure tile is on map and walkable!
       if gTerrain.TileInMapCoords(tempPos.X, tempPos.Y)
@@ -881,8 +881,8 @@ begin
             (not TKMUnitActionWalkTo(altOpponent.Action).fDoExchange)
             and (not TKMUnitActionWalkTo(altOpponent.Action).fDoesWalking)
             and ((not KMStepIsDiag(fUnit.PositionNext,fNodeList[fNodePos+1])) //Isn't diagonal
-            or ((KMStepIsDiag(fUnit.PositionNext,fNodeList[fNodePos+1])       //...or is diagonal and...
-            and not gTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.Position, tempPos))))) then //...vertex is free
+            or (KMStepIsDiag(fUnit.PositionNext,fNodeList[fNodePos+1])       //...or is diagonal and...
+            and not gTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.Position, tempPos)))) then //...vertex is free
             if TKMUnitActionWalkTo(altOpponent.Action).GetNextNextPosition(opponentNextNextPos) then
               if KMSamePoint(opponentNextNextPos, fUnit.Position) //Now see if they want to exchange with us
               //Check that our tile is walkable for the opponent! (we could be a worker on a building site)
@@ -1016,7 +1016,7 @@ end;
 function TKMUnitActionWalkTo.DoUnitInteraction: Boolean;
 var
   opponent: TKMUnit;
-  highestInteractionCount: integer;
+  highestInteractionCount: Integer;
 begin
   Result := True; //False = interaction yet unsolved, stay and wait.
   if not FEAT_UNIT_INTERACTION then Exit;
@@ -1031,7 +1031,7 @@ begin
   end;
 
   //If there's no unit we can keep on walking, interaction does not need to be solved
-  if not gTerrain.HasUnit(fNodeList[fNodePos+1]) then exit;
+  if not gTerrain.HasUnit(fNodeList[fNodePos+1]) then Exit;
   //From now on there is a blockage, so don't allow to walk unless the problem is resolved
   Result := False;
 
@@ -1052,7 +1052,7 @@ begin
 
   //If we are in DestBlocked mode then only use our counter so we are always zero priority until our path clears
   if ((opponent.Action is TKMUnitActionWalkTo) and not fDestBlocked) then
-    highestInteractionCount := max(fInteractionCount,TKMUnitActionWalkTo(opponent.Action).fInteractionCount)
+    highestInteractionCount := Max(fInteractionCount,TKMUnitActionWalkTo(opponent.Action).fInteractionCount)
   else highestInteractionCount := fInteractionCount;
 
   if (opponent.Action is TKMUnitActionGoInOut) then
@@ -1396,7 +1396,7 @@ begin
 end;
 
 
-function TKMUnitActionWalkTo.ObjToStringShort(const aSeparator: String = ' '): String;
+function TKMUnitActionWalkTo.ObjToStringShort(const aSeparator: string = ' '): string;
 begin
   Result := inherited + Format('%sFrom = %s%sTo = %s', [
                                 aSeparator,
@@ -1405,7 +1405,7 @@ begin
 end;
 
 
-function TKMUnitActionWalkTo.ObjToString(const aSeparator: String = ' '): String;
+function TKMUnitActionWalkTo.ObjToString(const aSeparator: string = ' '): string;
 begin
   Result := inherited + Format('%sNewWalkTo = %s%sDist = %s%sTargetUnit = %d%sTargetHouse = %d%sPass = %s%sDoesWalk = %s%s' +
                                'WaitOnStep = %s%sDestBlocked = %s%sDoExchange = %s%sInterCnt = %d%sLastSideStepNode = %d%sInterStatus = %s',
