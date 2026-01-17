@@ -29,16 +29,18 @@ type
   TKMRenderUI = class
   private
     {$IFDEF WDC}
-    class var ClipXStack: TStack<TKMRangeInt>;
-    class var ClipYStack: TStack<TKMRangeInt>;
+    class var
+      fClipXStack: TStack<TKMRangeInt>;
+      fClipYStack: TStack<TKMRangeInt>;
     {$ENDIF}
-    class procedure ApplyClipX        (X1,X2: SmallInt);
-    class procedure ApplyClipY        (Y1,Y2: SmallInt);
+    class procedure ApplyClipX (X1,X2: SmallInt);
+    class procedure ApplyClipY (Y1,Y2: SmallInt);
   public
-    class procedure SetupClipX        (X1,X2: SmallInt);
-    class procedure SetupClipY        (Y1,Y2: SmallInt);
+    class procedure SetupClipX (X1,X2: SmallInt);
+    class procedure SetupClipY (Y1,Y2: SmallInt);
     class procedure ReleaseClipX;
     class procedure ReleaseClipY;
+
     class procedure Write3DButton  (aLeft, aTop, aWidth, aHeight: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4;
       aState: TKMButtonStateSet; aStyle: TKMButtonStyle; aImageEnabled: Boolean = True);
 
@@ -77,6 +79,7 @@ uses
   KM_Render, KM_Resource, KM_ResSprites;
 
 
+{ TKMRenderUI }
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
 //clipped from both sides
 class procedure TKMRenderUI.ApplyClipX(X1,X2: SmallInt);
@@ -112,13 +115,13 @@ var
   P: TKMRangeInt;
 begin
   {$IFDEF WDC}
-  if ClipXStack.Count > 0 then
+  if fClipXStack.Count > 0 then
   begin
-    P := ClipXStack.Peek;
+    P := fClipXStack.Peek;
     ApplyClipX(Max(P.Min, X1), Min(P.Max, X2)); //Make clip areas intersection
   end else
     ApplyClipX(X1,X2);
-  ClipXStack.Push(KMRange(X1, X2));
+  fClipXStack.Push(KMRange(X1, X2));
   {$ELSE}
   ApplyClipX(X1,X2);
   {$ENDIF}
@@ -130,13 +133,13 @@ var
   P: TKMRangeInt;
 begin
   {$IFDEF WDC}
-  if ClipYStack.Count > 0 then
+  if fClipYStack.Count > 0 then
   begin
-    P := ClipYStack.Peek;
+    P := fClipYStack.Peek;
     ApplyClipY(Max(P.Min, Y1), Min(P.Max, Y2)); //Make clip areas intersection
   end else
     ApplyClipY(Y1,Y2);
-  ClipYStack.Push(KMRange(Y1, Y2));
+  fClipYStack.Push(KMRange(Y1, Y2));
   {$ELSE}
   ApplyClipY(Y1,Y2);
   {$ENDIF}
@@ -156,13 +159,13 @@ var
   P: TKMRangeInt;
 begin
   {$IFDEF WDC}
-  if ClipXStack.Count <> 0 then
+  if fClipXStack.Count <> 0 then
   begin
     ReleaseX;
-    ClipXStack.Pop;
-    if ClipXStack.Count <> 0 then
+    fClipXStack.Pop;
+    if fClipXStack.Count <> 0 then
     begin
-      P := ClipXStack.Peek;
+      P := fClipXStack.Peek;
       ApplyClipX(P.Min, P.Max);
     end;
   end else
@@ -184,13 +187,13 @@ var
   P: TKMRangeInt;
 begin
   {$IFDEF WDC}
-  if ClipYStack.Count <> 0 then
+  if fClipYStack.Count <> 0 then
   begin
     ReleaseY;
-    ClipYStack.Pop;
-    if ClipYStack.Count <> 0 then
+    fClipYStack.Pop;
+    if fClipYStack.Count <> 0 then
     begin
-      P := ClipYStack.Peek;
+      P := fClipYStack.Peek;
       ApplyClipY(P.Min, P.Max);
     end;
   end else
@@ -425,7 +428,7 @@ const
   procedure WriteWideLine(aX: Word; aColor: Cardinal; aPattern: Word = $FFFF);
   begin
     if InRange(aX, 0, aWidth) then  //Dont allow to render outside of control
-      WriteLine(aX,     1, aX    , aHeight - 1, aColor, aPattern, 2);
+      WriteLine(aX, 1, aX , aHeight - 1, aColor, aPattern, 2);
   end;
 
 var
@@ -564,7 +567,8 @@ begin
         TKMRender.BindTexture(Tex.TexID); //Replace AltID if it was used
         if aLightness > 0 then
           glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-        else begin
+        else
+        begin
           glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
           aLightness := 1-Abs(aLightness);
         end;
@@ -866,7 +870,8 @@ begin
       #32:  Inc(dx, fontSpec.WordSpacing);
       #124: if aShowEolSymbol then
               DrawLetter
-            else begin
+            else
+            begin
               //KaM uses #124 or vertical bar (|) for new lines in the LIB files,
               //so lets do the same here. Saves complex conversions...
               Inc(dy, lineHeight);
@@ -1053,8 +1058,9 @@ end;
 initialization
 begin
   {$IFDEF WDC}
-  TKMRenderUI.ClipXStack := TStack<TKMRangeInt>.Create;
-  TKMRenderUI.ClipYStack := TStack<TKMRangeInt>.Create;
+  //todo -cPractical: Move into class constructor
+  TKMRenderUI.fClipXStack := TStack<TKMRangeInt>.Create;
+  TKMRenderUI.fClipYStack := TStack<TKMRangeInt>.Create;
   {$ENDIF}
 end;
 
@@ -1062,8 +1068,8 @@ end;
 finalization
 begin
   {$IFDEF WDC}
-  TKMRenderUI.ClipXStack.Free;
-  TKMRenderUI.ClipYStack.Free;
+  TKMRenderUI.fClipXStack.Free;
+  TKMRenderUI.fClipYStack.Free;
   {$ENDIF}
 end;
 
