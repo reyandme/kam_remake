@@ -302,7 +302,7 @@ begin
 end;
 
 
-{ TTaskBuildWine }
+{ TKMTaskBuildWine }
 constructor TKMTaskBuildWine.Create(aWorker: TKMUnitWorker; const aLoc: TKMPoint; aID: Integer);
 begin
   inherited Create(aWorker);
@@ -425,9 +425,13 @@ begin
         gTerrain.UnlockTile(fLoc);
         fTileLockSet := False;
       end;
-   else Result := trTaskDone;
+  else
+    Result := trTaskDone;
   end;
-  if fPhase<>5 then inc(fPhase); //Phase=5 is when worker waits for rtWood
+
+  // fPhase = 5 is when worker waits for wtTimber
+  if fPhase <> 5 then
+    Inc(fPhase);
 end;
 
 
@@ -442,7 +446,7 @@ begin
 end;
 
 
-{ TTaskBuildField }
+{ TKMTaskBuildField }
 constructor TKMTaskBuildField.Create(aWorker: TKMUnitWorker; const aLoc: TKMPoint; aID: Integer);
 begin
   inherited Create(aWorker);
@@ -549,7 +553,7 @@ begin
 end;
 
 
-{ TTaskBuildHouseArea }
+{ TKMTaskBuildHouseArea }
 constructor TKMTaskBuildHouseArea.Create(aWorker: TKMUnitWorker; aHouseType: TKMHouseType; const aLoc: TKMPoint; aID: Integer);
 var
   I,K: Integer;
@@ -776,7 +780,7 @@ begin
 end;
 
 
-{ TTaskBuildHouse }
+{ TKMTaskBuildHouse }
 constructor TKMTaskBuildHouse.Create(aWorker: TKMUnitWorker; aHouse: TKMHouse; aID: Integer);
 begin
   inherited Create(aWorker);
@@ -908,7 +912,7 @@ begin
 end;
 
 
-{ TTaskBuildHouseRepair }
+{ TKMTaskBuildHouseRepair }
 constructor TKMTaskBuildHouseRepair.Create(aWorker: TKMUnitWorker; aHouse: TKMHouse; aRepairID: Integer);
 begin
   inherited Create(aWorker);
@@ -965,7 +969,6 @@ begin
 end;
 
 
-{Repair the house}
 function TKMTaskBuildHouseRepair.Execute: TKMTaskResult;
 begin
   Result := trTaskContinues;

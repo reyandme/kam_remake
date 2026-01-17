@@ -121,24 +121,24 @@ const
     [uaWalk, uaWork, uaDie, uaWork1, uaEat..uaWalkTool], //Stonecutter
     [uaWalk, uaDie, uaEat],
     [uaWalk, uaDie, uaEat],
-    [uaWalk, uaSpec, uaDie, uaEat], //Recruit
-    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], //Militia
-    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], //Axeman
-    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], //Swordsman
-    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], //Bowman
-    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], //Crossbowman
-    [uaWalk, uaWork, uaDie, uaWalkArm],
-    [uaWalk, uaWork, uaDie, uaWalkArm],
-    [uaWalk, uaWork, uaDie, uaWalkArm],
-    [uaWalk, uaWork, uaDie, uaWalkArm], //Cavalry
-    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], //Barbarian
-    [uaWalk, uaWork, uaDie, uaWalkArm], //Rebel
-    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], //Slingshot
-    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], //Warrior
-    [uaWalk, uaWork, uaDie, uaWalkArm], //Horseman
-    [uaWalk], //Wolf
-    [uaWalk..uaWork1], //Fish (1..5 fish per unit)
-    [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk] //Animals
+    [uaWalk, uaSpec, uaDie, uaEat],             // utRecruit
+    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], // utMilitia
+    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], // utAxeFighter
+    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], // utSwordFighter
+    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], // utBowman
+    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], // utCrossbowman
+    [uaWalk, uaWork, uaDie, uaWalkArm],         // utLanceCarrier
+    [uaWalk, uaWork, uaDie, uaWalkArm],         // utPikeman
+    [uaWalk, uaWork, uaDie, uaWalkArm],         // utScout
+    [uaWalk, uaWork, uaDie, uaWalkArm],         // utKnight
+    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], // utBarbarian
+    [uaWalk, uaWork, uaDie, uaWalkArm],         // utRebel
+    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], // utRogue
+    [uaWalk, uaWork, uaSpec, uaDie, uaWalkArm], // utWarrior
+    [uaWalk, uaWork, uaDie, uaWalkArm],         // utVagabond
+    [uaWalk],                                   // utWolf
+    [uaWalk..uaWork1],                          // utFish (1..5 fish per unit)
+    [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk] // Animals
   );
 
   function GetAnimPace(aAnimLoop: TKMAnimLoop): Integer;

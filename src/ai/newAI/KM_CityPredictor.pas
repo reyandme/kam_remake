@@ -90,13 +90,13 @@ const
   {
   TKMWareType:
   wtNone,
-  wtTrunk,   wtStone,   wtWood,        wtIronOre,   wtGoldOre,
-  wtCoal,    wtSteel,   wtGold,        wtWine,      wtCorn,
-  wtBread,   wtFlour,   wtLeather,     wtSausages,  wtPig,
-  wtSkin,    wtShield,  wtMetalShield, wtArmor,     wtMetalArmor,
-  wtAxe,     wtSword,   wtPike,        wtHallebard, wtBow,
-  wtArbalet, wtHorse,   wtFish,
-  wtAll,     wtWarfare, wtFood
+  wtTrunk,    wtStone,        wtTimber,     wtIronOre,      wtGoldOre,
+  wtCoal,     wtIron,         wtGold,       wtWine,         wtCorn,
+  wtBread,    wtFlour,        wtLeather,    wtSausages,     wtPig,
+  wtSkin,     wtWoodenShield, wtIronShield, wtLeatherArmor, wtIronArmor,
+  wtAxe,      wtSword,        wtLance,      wtPike,         wtBow,
+  wtCrossbow, wtHorse,        wtFish,
+  wtAll,      wtWarfare,      wtFood
   }
   // Array of wares which are produced by specific houses
   PRODUCTION_WARE2HOUSE: array[WARE_MIN..WARE_MAX] of TKMHouseType = (
@@ -108,7 +108,7 @@ const
     htWeaponSmithy,   htStables,       htFishermans
   );
   // Possible transformation of wares: resource -> product
-  CONSUMPTION_WARE: array[WARE_MIN..WARE_MAX] of array[0..3] of TKMWareType = (         // wtShield are ignored
+  CONSUMPTION_WARE: array[WARE_MIN..WARE_MAX] of array[0..3] of TKMWareType = (         // wtWoodenShield are ignored
     (wtTimber, wtNone, wtNone, wtNone), (wtNone, wtNone, wtNone, wtNone), (wtAxe, wtNone, wtNone, wtNone), (wtIron, wtNone, wtNone, wtNone), (wtGold, wtNone, wtNone, wtNone),
     (wtIron, wtGold, wtIronArmor, wtSword), (wtIronArmor, wtSword, wtNone, wtNone), (wtNone, wtNone, wtNone, wtNone), (wtNone, wtNone, wtNone, wtNone), (wtFlour, wtPig, wtHorse, wtNone),
     (wtNone, wtNone, wtNone, wtNone), (wtBread, wtNone, wtNone, wtNone), (wtLeatherArmor, wtNone, wtNone, wtNone), (wtNone, wtNone, wtNone, wtNone), (wtSausage, wtNone, wtNone, wtNone),
@@ -807,8 +807,8 @@ begin
   // Iron production (it will give time to build more mines)
   {
   RequiredHouses[htIronSmithy] := RequiredHouses[htIronSmithy] * Byte(Stats.GetWareBalance(wtIronOre) > 0);
-  RequiredHouses[htWeaponSmithy] := RequiredHouses[htWeaponSmithy] * Byte(Stats.GetWareBalance(wtSteel) > 0);
-  RequiredHouses[htArmorSmithy] := RequiredHouses[htArmorSmithy] * Byte(Stats.GetWareBalance(wtSteel) > 0);
+  RequiredHouses[htWeaponSmithy] := RequiredHouses[htWeaponSmithy] * Byte(Stats.GetWareBalance(wtIron) > 0);
+  RequiredHouses[htArmorSmithy] := RequiredHouses[htArmorSmithy] * Byte(Stats.GetWareBalance(wtIron) > 0);
   //}
 end;
 
@@ -841,12 +841,12 @@ const
   COLOR_YELLOW = '[$00FFFF]';
   COLOR_GREEN = '[$00FF00]';
   WARE_TO_STRING: array[WARE_MIN..WARE_MAX] of UnicodeString = (
-    'Trunk'#9#9,   'Stone'#9#9,   'Wood'#9#9,        'Iron ore'#9,    'Gold ore'#9,
-    'Coal'#9#9,    'Steel'#9#9,   'Gold'#9#9,        'Wine'#9#9,      'Corn'#9#9,
-    'Bread'#9#9,   'Flour'#9#9,   'Leather'#9,       'Sausages'#9,    'Pig'#9#9,
-    'Skin'#9#9,    'Shield'#9#9,  'MetalShield'#9#9, 'Armor'#9#9,     'MetalArmor'#9#9,
-    'Axe'#9#9,     'Sword'#9#9,   'Pike'#9#9,        'Hallebard'#9#9, 'Bow'#9#9,
-    'Arbalet'#9#9, 'Horse'#9#9,   'Fish'#9#9
+    'Trunk'#9#9,    'Stone'#9#9,   'Wood'#9#9,        'Iron ore'#9,       'Gold ore'#9,
+    'Coal'#9#9,     'Steel'#9#9,   'Gold'#9#9,        'Wine'#9#9,         'Corn'#9#9,
+    'Bread'#9#9,    'Flour'#9#9,   'Leather'#9,       'Sausages'#9,       'Pig'#9#9,
+    'Skin'#9#9,     'Shield'#9#9,  'IronShield'#9#9,  'LeatherArmor'#9#9, 'IronArmor'#9#9,
+    'Axe'#9#9,      'Sword'#9#9,   'Lance'#9#9,       'Pike'#9#9,         'Bow'#9#9,
+    'Crossbow'#9#9, 'Horse'#9#9,   'Fish'#9#9
   );
 
   procedure AddWare(aWT: TKMWareType; const aSpecificText: String);

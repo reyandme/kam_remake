@@ -1085,19 +1085,17 @@ type
   TSetOfWare = set of TKMWareType;
   TSetOfHouseType = set of TKMHouseType;
 const
-
-  //htWoodcutters,    htQuary,         htSawmill,        htIronMine,      htGoldMine,
-  //htCoalMine,       htIronSmithy,    htMetallurgists,  htVineyard,      htFarm,
-  //htBakery,         htMill,          htTannery,        htButchers,      htSwine,
-  //htSwine,          htArmorWorkshop, htArmorSmithy,    htArmorWorkshop, htArmorSmithy,
-  //htWeaponWorkshop, htWeaponSmithy,  htWeaponWorkshop, htWeaponSmithy,  htWeaponWorkshop,
-  //htWeaponSmithy,   htStables,       htFisherHut
-
+  // htWoodcutters,    htQuary,         htSawmill,        htIronMine,      htGoldMine,
+  // htCoalMine,       htIronSmithy,    htMetallurgists,  htVineyard,      htFarm,
+  // htBakery,         htMill,          htTannery,        htButchers,      htSwine,
+  // htSwine,          htArmorWorkshop, htArmorSmithy,    htArmorWorkshop, htArmorSmithy,
+  // htWeaponWorkshop, htWeaponSmithy,  htWeaponWorkshop, htWeaponSmithy,  htWeaponWorkshop,
+  // htWeaponSmithy,   htStables,       htFisherHut
 
   BASIC_HOUSES: TSetOfHouseType = [htSchool, htBarracks, htInn, htMarket, htStore];
   //BUILD_WARE: TSetOfWare = [wtGoldOre, wtCoal, wtGold, wtStone, wtTrunk, wtWood];
   //FOOD_WARE: TSetOfWare = [wtCorn, wtFlour, wtBread, wtPig, wtSausages, wtWine, wtFish, wtWood];
-  //WEAPON_WARE: TSetOfWare = [wtSkin, wtLeather, wtHorse, wtIronOre, wtCoal, wtSteel, wtAxe, wtBow, wtPike, wtArmor, wtShield, wtSword, wtArbalet, wtHallebard, wtMetalShield, wtMetalArmor];
+  //WEAPON_WARE: TSetOfWare = [wtSkin, wtLeather, wtHorse, wtIronOre, wtCoal, wtIron, wtAxe, wtBow, wtLance, wtLeatherArmor, wtWoodenShield, wtSword, wtCrossbow, wtPike, wtIronShield, wtIronArmor];
   // All considerable ware (from weapons / armors just 1 piece of ware type because it is produced in same house)
   ALL_WARE: TSetOfWare = [wtCorn, wtPig, wtSausage, wtWine, wtFish, wtStone, wtTrunk, wtTimber, wtSkin, wtLeather, wtHorse, wtIronOre, wtCoal, wtIron, wtAxe, wtLeatherArmor, wtSword, wtIronArmor, wtFlour, wtBread];
   //BUILD_ORDER_WARE: array[0..8] of TKMWareType = (wtStone, wtGold, wtGoldOre, wtCoal, wtTrunk, wtWood, wtCorn, wtPig, wtSausages);
@@ -1999,7 +1997,7 @@ const
   BASIC_HOUSES: set of TKMHouseType = [htSchool, htBarracks, htInn, htMarketPlace, htStore];
   BUILD_WARE: TSetOfWare = [wtGoldOre, wtCoal, wtGold, wtStone, wtTrunk, wtWood];
   FOOD_WARE: TSetOfWare = [wtCorn, wtFlour, wtBread, wtPig, wtSausages, wtWine, wtFish];
-  WEAPON_WARE: TSetOfWare = [wtSkin, wtLeather, wtHorse, wtIronOre, wtCoal, wtSteel, wtAxe, wtBow, wtPike, wtArmor, wtShield, wtSword, wtArbalet, wtHallebard, wtMetalShield, wtMetalArmor];
+  WEAPON_WARE: TSetOfWare = [wtSkin, wtLeather, wtHorse, wtIronOre, wtCoal, wtIron, wtAxe, wtBow, wtLance, wtLeatherArmor, wtWoodenShield, wtSword, wtCrossbow, wtPike, wtIronShield, wtIronArmor];
 var
   RequiredHouses: TRequiredHousesArray;
   WareBalance: TWareBalanceArray;

@@ -155,12 +155,12 @@ begin
             end;
           end;
       2:  begin
-            //Special case - slingshot, he has AimSoundDelay
+            // Special case - Rogue, he has AimSoundDelay
             if UnitType = utRogue then
               SetActionLockedStay(AimSoundDelay, uaWork, False) //Start shooting before sound
             else
             begin
-              Inc(fPhase); //Skip slingshot special phase
+              Inc(fPhase); // Skip Rogue special phase
               if IsRanged then
                 SetActionLockedStay(FiringDelay, uaWork, False) //Start shooting
               else
@@ -174,9 +174,9 @@ begin
       4:  begin
             if IsRanged then
             begin
-              //Launch the missile and forget about it
-              //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
-              //todo -cComplicated: Slingers (rogues) should launch rock part on SLINGSHOT_FIRING_DELAY like they do in ActionFight (animation looks wrong now)
+              // Launch the missile and forget about it
+              // Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
+              //todo -cComplicated: Rogue should launch rock part on ROGUE_FIRING_DELAY like they do in ActionFight (animation looks wrong now)
               gProjectiles.AimTargetHouse(PositionF, fHouse, ProjectileType, fUnit, RangeMax, RangeMin);
 
               SetLastShootTime; //Record last time the warrior shot

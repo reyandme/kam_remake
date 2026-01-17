@@ -19,10 +19,10 @@ type
 
   // Army chart types (enum)
   TKMChartWarriorType = (cwtArmyPower, cwtAll,
-    cwtMilitia,      cwtAxeFighter,   cwtSwordsman,     cwtBowman,
-    cwtArbaletman,   cwtPikeman,      cwtHallebardman,  cwtHorseScout,
-    cwtCavalry,      cwtBarbarian,
-    cwtPeasant,      cwtSlingshot,    cwtMetalBarbarian, cwtHorseman);
+    cwtMilitia,     cwtAxeFighter,   cwtSwordFighter, cwtBowman,
+    cwtCrossbowman, cwtLanceCarrier, cwtPikeman,      cwtScout,
+    cwtKnight,      cwtBarbarian,
+    cwtRebel,       cwtRogue,        cwtWarrior,      cwtVagabond);
 
   // Chart army type class
   TKMChartWarrior = class
@@ -223,13 +223,15 @@ begin
 end;
 
 
-{TKMChartArmyType}
+{ TKMChartWarrior }
 constructor TKMChartWarrior.Create(aType: TKMChartWarriorType);
 begin
+  //todo: Missing inherited
+
   fType := aType;
   case aType of
     cwtAll:                   fUnitType := utAny;
-    cwtMilitia..cwtHorseman:  fUnitType := TKMUnitType(Ord(utMilitia) + Ord(aType) - Ord(cwtMilitia));
+    cwtMilitia..cwtVagabond:  fUnitType := TKMUnitType(Ord(utMilitia) + Ord(aType) - Ord(cwtMilitia));
   end;
 end;
 
@@ -252,7 +254,8 @@ begin
   case fType of
     cwtArmyPower: Result := gResTexts[TX_RESULTS_ARMY_POWER];
     cwtAll:       Result := gResTexts[TX_RESULTS_ALL_SOLDIERS];
-    else           Result := gRes.Units[UnitType].GUIName;
+  else
+    Result := gRes.Units[UnitType].GUIName;
   end;
 end;
 
@@ -262,12 +265,13 @@ begin
   case fType of
     cwtArmyPower: Result := 53;
     cwtAll:       Result := 665;
-    else           Result := gRes.Units[UnitType].GUIIcon;
+  else
+    Result := gRes.Units[UnitType].GUIIcon;
   end;
 end;
 
 
-{TKMChartArmy}
+{ TKMChartArmyMP }
 constructor TKMChartArmyMP.Create(aType: TKMChartWarriorType; aKind: TKMChartArmyKind; aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited Create;
@@ -326,7 +330,7 @@ begin
 end;
 
 
-{ TKMGUIMenuResultsMP }
+{ TKMGameResultsMP }
 constructor TKMGameResultsMP.Create(aParent: TKMPanel; aOnStopGame: TUnicodeStringWDefEvent; aOnShowSPStats: TKMEvent);
 var
   ST: TKMStatType;
@@ -1454,7 +1458,8 @@ procedure TKMGameResultsMP.ReinitBars;
         8: Result := GetHousesDestroyed;
         9: Result := GetCivilProduced;
         10: Result := GetWarfareProduced;
-        else raise Exception.Create('Unknown stat id = ' + IntToStr(aStatId));
+      else
+        raise Exception.Create('Unknown stat id = ' + IntToStr(aStatId));
       end;
   end;
 

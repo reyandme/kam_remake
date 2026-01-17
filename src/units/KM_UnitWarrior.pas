@@ -768,47 +768,49 @@ end;
 
 function TKMUnitWarrior.GetFiringDelay: Byte;
 const
-  SLINGSHOT_FIRING_DELAY = 15; //on which frame slinger fires his rock
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
+  ROGUE_FIRING_DELAY = 15; //on which frame rogue throws his rock
 begin
   Result := 0;
   if IsRanged then
     case UnitType of
       utBowman,
-      utCrossbowman: Result := FIRING_DELAY;
-      utRogue:  Result := SLINGSHOT_FIRING_DELAY;
-      else raise Exception.Create('Unknown shooter');
+      utCrossbowman:  Result := FIRING_DELAY;
+      utRogue:        Result := ROGUE_FIRING_DELAY;
+    else
+      raise Exception.Create('Unknown shooter');
     end;
 end;
 
 
 function TKMUnitWarrior.GetAimingDelay: Byte;
 const
-  BOWMEN_AIMING_DELAY_MIN      = 6; //minimum time for bowmen to aim
-  BOWMEN_AIMING_DELAY_ADD      = 6; //random component
-  SLINGSHOT_AIMING_DELAY_MIN   = 0; //minimum time for slingshot to aim
-  SLINGSHOT_AIMING_DELAY_ADD   = 4; //random component
-  CROSSBOWMEN_AIMING_DELAY_MIN = 8; //minimum time for crossbowmen to aim
-  CROSSBOWMEN_AIMING_DELAY_ADD = 8; //random component
+  BOWMAN_AIMING_DELAY_MIN      = 6; //minimum time for bowman to aim
+  BOWMAN_AIMING_DELAY_ADD      = 6; //random component
+  ROGUE_AIMING_DELAY_MIN       = 0; //minimum time for rogue to aim
+  ROGUE_AIMING_DELAY_ADD       = 4; //random component
+  CROSSBOWMAN_AIMING_DELAY_MIN = 8; //minimum time for crossbowman to aim
+  CROSSBOWMAN_AIMING_DELAY_ADD = 8; //random component
 begin
   Result := 0;
   if IsRanged then
     case UnitType of
-      utBowman:       Result := BOWMEN_AIMING_DELAY_MIN + KaMRandom(BOWMEN_AIMING_DELAY_ADD{$IFDEF DBG_RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay'{$ENDIF});
-      utCrossbowman:  Result := CROSSBOWMEN_AIMING_DELAY_MIN + KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD{$IFDEF DBG_RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 2'{$ENDIF});
-      utRogue:        Result := SLINGSHOT_AIMING_DELAY_MIN + KaMRandom(SLINGSHOT_AIMING_DELAY_ADD{$IFDEF DBG_RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 3'{$ENDIF});
-      else raise Exception.Create('Unknown shooter');
+      utBowman:       Result := BOWMAN_AIMING_DELAY_MIN + KaMRandom(BOWMAN_AIMING_DELAY_ADD{$IFDEF DBG_RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay'{$ENDIF});
+      utCrossbowman:  Result := CROSSBOWMAN_AIMING_DELAY_MIN + KaMRandom(CROSSBOWMAN_AIMING_DELAY_ADD{$IFDEF DBG_RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 2'{$ENDIF});
+      utRogue:        Result := ROGUE_AIMING_DELAY_MIN + KaMRandom(ROGUE_AIMING_DELAY_ADD{$IFDEF DBG_RNG_SPY}, 'TKMUnitWarrior.GetAimingDelay 3'{$ENDIF});
+    else
+      raise Exception.Create('Unknown shooter');
     end;
 end;
 
 
 function TKMUnitWarrior.GetAimSoundDelay: Byte;
 const
-  SLINGSHOT_AIMING_SOUND_DELAY = 2;
+  ROGUE_AIMING_SOUND_DELAY = 2;
 begin
   Result := 0;
   if UnitType = utRogue then
-    Result := SLINGSHOT_AIMING_SOUND_DELAY;
+    Result := ROGUE_AIMING_SOUND_DELAY;
 end;
 
 
@@ -830,34 +832,36 @@ end;
 
 function TKMUnitWarrior.GetRangeMin: Single;
 const
-  RANGE_ARBALETMAN_MIN  = 4; //KaM: We will shoot a unit standing 4 tiles away, but not one standing 3 tiles away
-  RANGE_BOWMAN_MIN      = 4;
-  RANGE_SLINGSHOT_MIN   = 4;
+  RANGE_BOWMAN_MIN      = 4; // KaM: Archer will shoot a unit standing 4 tiles away, but not one standing 3 tiles away
+  RANGE_CROSSBOWMAN_MIN = 4;
+  RANGE_ROGUE_MIN       = 4;
 begin
   Result := 0;
   if IsRanged then
     case UnitType of
-      utBowman:     Result := RANGE_BOWMAN_MIN;
-      utCrossbowman: Result := RANGE_ARBALETMAN_MIN;
-      utRogue:  Result := RANGE_SLINGSHOT_MIN;
-      else raise Exception.Create('Unknown shooter');
+      utBowman:       Result := RANGE_BOWMAN_MIN;
+      utCrossbowman:  Result := RANGE_CROSSBOWMAN_MIN;
+      utRogue:        Result := RANGE_ROGUE_MIN;
+    else
+      raise Exception.Create('Unknown shooter');
     end;
 end;
 
 
 function TKMUnitWarrior.GetRangeMax: Single;
 const
-  RANGE_ARBALETMAN_MAX  = 10.99; //KaM: Unit standing 10 tiles from us will be shot, 11 tiles not
+  RANGE_CROSSBOWMAN_MAX = 10.99; // KaM: Unit standing 10 tiles from us will be shot, 11 tiles not
   RANGE_BOWMAN_MAX      = 10.99;
-  RANGE_SLINGSHOT_MAX   = 10.99;
+  RANGE_ROGUE_MAX       = 10.99;
 begin
   Result := 0;
   if IsRanged then
     case UnitType of
-      utBowman:     Result := RANGE_BOWMAN_MAX;
-      utCrossbowman: Result := RANGE_ARBALETMAN_MAX;
-      utRogue:  Result := RANGE_SLINGSHOT_MAX;
-      else raise Exception.Create('Unknown shooter');
+      utBowman:       Result := RANGE_BOWMAN_MAX;
+      utCrossbowman:  Result := RANGE_CROSSBOWMAN_MAX;
+      utRogue:        Result := RANGE_ROGUE_MAX;
+    else
+      raise Exception.Create('Unknown shooter');
     end;
 end;
 
@@ -866,10 +870,11 @@ function TKMUnitWarrior.GetProjectileType: TKMProjectileType;
 begin
   Assert(IsRanged, 'Can''t get projectile type for not ranged warriors');
   case UnitType of
-    utBowman:     Result := ptArrow;
-    utCrossbowman: Result := ptBolt;
-    utRogue:  Result := ptSlingRock;
-    else raise Exception.Create('Unknown shooter');
+    utBowman:       Result := ptArrow;
+    utCrossbowman:  Result := ptBolt;
+    utRogue:        Result := ptSlingRock;
+  else
+    raise Exception.Create('Unknown shooter');
   end;
 end;
 
