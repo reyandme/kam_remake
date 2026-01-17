@@ -57,7 +57,7 @@ type
 
 implementation
 uses
-  Math, Types,
+  Math, Types, SysUtils,
   KM_Entity,
   KM_Hand,
   KM_HandsCollection,
@@ -113,7 +113,7 @@ end;
 
 destructor TKMHouseBarracks.Destroy;
 begin
-  fRecruitsList.Free;
+  FreeAndNil(fRecruitsList);
 
   inherited;
 end;

@@ -172,8 +172,8 @@ end;
 
 destructor TKMPerfLogStack.Destroy;
 begin
-  fSectionNames.Free;
-  fPrevSection.Free;
+  FreeAndNil(fSectionNames);
+  FreeAndNil(fPrevSection);
 
   inherited;
 end;

@@ -39,7 +39,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure IncAnimStep;
-    procedure UpdateDemands; //Change resource requested counts for all houses
+    procedure UpdateDemands; //Change wares requested counts for all houses
     procedure DeleteHouseFromList(aHouse: TKMHouse);
     procedure RemoveAllHouses;
     procedure RemoveHousesOutOfBounds(const aInsetRect: TKMRect);
@@ -110,7 +110,8 @@ begin
     htWatchTower:    Result := TKMHouseTower.Create(uid, aHouseType,aPosX,aPosY, aOwner, aHBS);
     htWoodcutters:   Result := TKMHouseWoodcutters.Create(uid, aHouseType,aPosX,aPosY, aOwner, aHBS);
     htArmorWorkshop: Result := TKMHouseArmorWorkshop.Create(uid, aHouseType,aPosX,aPosY, aOwner, aHBS);
-    else             Result := TKMHouse.Create(uid, aHouseType,aPosX,aPosY, aOwner, aHBS);
+  else
+    Result := TKMHouse.Create(uid, aHouseType,aPosX,aPosY, aOwner, aHBS);
   end;
 
   if Result <> nil then
@@ -210,10 +211,7 @@ begin
   Result:= nil;
   for I := 0 to Count - 1 do
     if Houses[I].HitTest(X, Y) and (not Houses[I].IsDestroyed) then
-    begin
-      Result := Houses[I];
-      Break;
-    end;
+      Exit(Houses[I]);
 end;
 
 
@@ -224,10 +222,7 @@ begin
   Result := nil;
   for I := 0 to Count - 1 do
     if aUID = Houses[I].UID then
-    begin
-      Result := Houses[I];
-      Exit;
-    end;
+      Exit(Houses[I]);
 end;
 
 
@@ -398,7 +393,8 @@ begin
       htWoodcutters:   H := TKMHouseWoodcutters.Load(LoadStream);
       htArmorWorkshop: H := TKMHouseArmorWorkshop.Load(LoadStream);
       htTownHall:      H := TKMHouseTownHall.Load(LoadStream);
-      else             H := TKMHouse.Load(LoadStream);
+    else
+      H := TKMHouse.Load(LoadStream);
     end;
 
     if H <> nil then
@@ -461,13 +457,13 @@ end;
 
 procedure TKMHousesCollection.Paint(const aRect: TKMRect);
 const
-  Margin = 3;
+  BIG_HOUSE_MARGIN = 3;
 var
   I: Integer;
   growRect: TKMRect;
 begin
-  //Compensate for big houses near borders or standing on hills
-  growRect := KMRectGrow(aRect, Margin);
+  // Compensate for big houses near borders or standing on hills
+  growRect := KMRectGrow(aRect, BIG_HOUSE_MARGIN);
 
   for I := 0 to Count - 1 do
   if not Houses[I].IsDestroyed and KMInRect(Houses[I].Position, growRect) then

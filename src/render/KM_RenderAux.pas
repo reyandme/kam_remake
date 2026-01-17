@@ -336,7 +336,8 @@ begin
   case aLineMode of
     lmStrip:  glBegin(GL_LINE_STRIP);
     lmPairs:  glBegin(GL_LINES);
-    else      raise Exception.Create('Wrong LineMode');
+  else
+    raise Exception.Create('Wrong LineMode');
   end;
 
   for I := 0 to High(aPoints) do
@@ -568,7 +569,8 @@ begin
     1:  Text(pX + 0.3, pY - 0.3, aText, aCol, KMPOINTF(0.02, 0.02));
     2:  Text(pX + 0.3, pY + 0.3, aText, aCol, KMPOINTF(0.02, 0.02));
     3:  Text(pX - 0.3, pY + 0.3, aText, aCol, KMPOINTF(0.02, 0.02));
-    else raise Exception.Create('Wrong corner: ' + IntToStr(aCorner));
+  else
+    raise Exception.Create('Wrong corner: ' + IntToStr(aCorner));
   end;
 end;
 
