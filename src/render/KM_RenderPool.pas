@@ -542,10 +542,10 @@ begin
       RenderLineToPoint(P);
     end
     else
-    if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
-      RenderSpriteOnTerrain(P, aTexId, aColor, True); //Force to paint, even under FOW
-  end
-  else begin
+      if gMySpectator.FogOfWar.CheckRevelation(P) < FOG_OF_WAR_MAX then
+        RenderSpriteOnTerrain(P, aTexId, aColor, True); //Force to paint, even under FOW
+  end else
+  begin
     RenderSpriteOnTile(aFlagPoint, aTexId, aColor);
     RenderLineToPoint(P);
   end;
@@ -801,8 +801,8 @@ begin
   begin
     // Snow only happens on fully built houses
     if gGameSettings.GFX.AllowSnowHouses
-      and (aSnowStep > 0)
-      and (picSnow <> 0) then
+    and (aSnowStep > 0)
+    and (picSnow <> 0) then
     begin
       // If snow is 100% we only need to render snow sprite
       if aSnowStep = 1 then
@@ -895,10 +895,10 @@ var
     CornerX := aLoc.X + rxData.Pivot[aId].X / CELL_SIZE_PX - 1;
     CornerY := aLoc.Y + (rxData.Pivot[aId].Y + rxData.Size[aId].Y) / CELL_SIZE_PX - 1
                      - gTerrain.LandExt^[aLoc.Y + 1, aLoc.X].RenderHeight / CELL_HEIGHT_DIV;
+
     if aDoImmediateRender then
-    begin
-      RenderSprite(rxHouses, aId, CornerX, CornerY, $0, aDoHighlight, aHighlightColor);
-    end else
+      RenderSprite(rxHouses, aId, CornerX, CornerY, $0, aDoHighlight, aHighlightColor)
+    else
       fRenderList.AddSprite(rxHouses, aId, CornerX, CornerY);
   end;
 
@@ -1021,7 +1021,8 @@ begin
     ptBolt:      id := gRes.Interpolation.UnitActionByPercent(utCrossbowman, uaSpec, aDir, aFlight);
     ptSlingRock: id := gRes.Interpolation.UnitActionByPercent(utRogue, uaSpec, aDir, aFlight);
     ptTowerRock: id := gRes.Interpolation.UnitActionByPercent(utRecruit, uaSpec, aDir, aFlight);
-    else          id := 1; // Nothing?
+  else
+    id := 1; // Nothing?
   end;
 
   rxData := fRXData[rxUnits];
@@ -1031,8 +1032,9 @@ begin
 
   case aProj of
     ptArrow, ptBolt, ptSlingRock:  ground := aTilePos.Y + (0.5 - Abs(Min(aFlight, 1) - 0.5)) - 0.5;
-    ptTowerRock:                     ground := aTilePos.Y + Min(aFlight, 1)/5 - 0.4;
-    else                              ground := aTilePos.Y - 1; // Nothing?
+    ptTowerRock:                   ground := aTilePos.Y + Min(aFlight, 1)/5 - 0.4;
+  else
+    ground := aTilePos.Y - 1; // Nothing?
   end;
 
   fRenderList.AddSpriteG(rxUnits, id, 0, aRenderPos.X + cornerX, aRenderPos.Y + cornerY, aTilePos.X - 1, ground);
@@ -1049,7 +1051,7 @@ var
 begin
   id := gRes.Interpolation.UnitAction(aUnit, aAct, aDir, StepId, StepFrac);
   id0 := gRes.Interpolation.UnitAction(aUnit, aAct, aDir, UNIT_STILL_FRAMES[aDir], 0.0);
-  if id <= 0 then exit;
+  if id <= 0 then Exit;
   R := fRXData[rxUnits];
 
   cornerX := pX + R.Pivot[id].X / CELL_SIZE_PX;
@@ -1413,8 +1415,7 @@ var
   loc: TKMPoint;
   X, Y: Word;
 begin
-  if (aHouseSketch = nil) or aHouseSketch.IsEmpty then
-    Exit;
+  if (aHouseSketch = nil) or aHouseSketch.IsEmpty then Exit;
 
   // Get an outline of build area
   fHouseOutline.Clear;
@@ -1441,7 +1442,7 @@ var
   pX, pY: Single;
 begin
   if not gTerrain.TileInMapCoords(aLoc.X, aLoc.Y)
-    or (gMySpectator.FogOfWar.CheckVerticeRenderRev(aLoc.X,aLoc.Y) <= FOG_OF_WAR_MIN) then Exit;
+  or (gMySpectator.FogOfWar.CheckVerticeRenderRev(aLoc.X,aLoc.Y) <= FOG_OF_WAR_MIN) then Exit;
 
   pX := aLoc.X - 0.5 + fRXData[rxGui].Pivot[aId].X / CELL_SIZE_PX;
   pY := gTerrain.RenderFlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) -
@@ -1772,7 +1773,8 @@ begin
   begin
     PaintGroup;
     RenderUnit(aUnitType, aLoc, UNIT_STILL_FRAMES[aLoc.Dir], aHandColor);
-  end else begin
+  end else
+  begin
     RenderUnit(aUnitType, aLoc, UNIT_STILL_FRAMES[aLoc.Dir], aHandColor);
     PaintGroup;
   end;
@@ -1813,7 +1815,8 @@ begin
       begin
         G.PaintHighlighted(0.0, aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
         RenderUnit(U, U.Position, aHandColor, aDoHighlight, aHighlightColor);
-      end else begin
+      end else
+      begin
         RenderUnit(U, U.Position, aHandColor, aDoHighlight, aHighlightColor);
         G.PaintHighlighted(0.0, aHandColor, groupFlagColor, True, aDoHighlight, aHighlightColor);
       end;
@@ -2034,7 +2037,8 @@ var
       begin
         fRenderOrder[I] := renderOrderAux[A];
         Inc(A);
-      end else begin
+      end else
+      begin
         fRenderOrder[I] := renderOrderAux[B];
         Inc(B);
       end;
