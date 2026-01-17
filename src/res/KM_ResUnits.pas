@@ -59,6 +59,7 @@ type
     function GetUnitAnim(aAction: TKMUnitActionType; aDir: TKMDirection): TKMAnimLoop;
     function GetUnitTextID: Integer;
     function GetUnitName: UnicodeString;
+    function GetArmyPower: Single;
   public
     constructor Create(aType: TKMUnitType);
     function IsValid: Boolean;
@@ -77,6 +78,7 @@ type
     property Description: UnicodeString read GetDescription;
     property Sight: SmallInt read fUnitDat.Sight;
     //Additional properties added by Remake
+    property ArmyPower: Single read GetArmyPower;
     property AllowedPassability: TKMTerrainPassability read GetAllowedPassability;
     property DesiredPassability: TKMTerrainPassability read GetDesiredPassability;
     property FightType: TKMFightType read GetFightType;
@@ -336,6 +338,22 @@ begin
 end;
 
 
+function TKMUnitSpec.GetArmyPower: Single;
+const
+  WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Single = (
+    1, 2.4, 5.2,    // utMilitia, utAxeFighter, utSwordFighter
+    2.4, 4,         // utBowman, utCrossbowman
+    2, 4,           // utLanceCarrier, utPikeman
+    3.3, 6.3,       // utScout, utKnight
+    5.3, 0.8, 1.2,  // utBarbarian, utRebel, utRogue
+    5.3, 1.9        // utWarrior, utVagabond
+  );
+begin
+  Assert(fUnitType in [Low(WARRIORS_POWER_RATES)..High(WARRIORS_POWER_RATES)]);
+  Result := WARRIORS_POWER_RATES[fUnitType];
+end;
+
+
 // Where unit would like to be
 function TKMUnitSpec.GetDesiredPassability: TKMTerrainPassability;
 begin
@@ -349,16 +367,15 @@ end;
 function TKMUnitSpec.GetFightType: TKMFightType;
 const
   WARRIOR_FIGHT_TYPE: array[WARRIOR_MIN..WARRIOR_MAX] of TKMFightType = (
-    ftMelee,ftMelee,ftMelee, //Militia, AxeFighter, Swordsman
-    ftRanged,ftRanged,        //Bowman, Arbaletman
-    ftMelee,ftMelee,          //Pikeman, Hallebardman,
-    ftMelee,ftMelee,          //HorseScout, Cavalry,
-    ftMelee,                   //Barbarian
-    ftMelee,                   //Peasant
-    ftRanged,                  //utSlingshot
-    ftMelee,                   //utMetalBarbarian
-    ftMelee                    //utHorseman
-    {ftRanged,ftRanged,       //utCatapult, utBallista,}
+    ftMelee, ftMelee, ftMelee, // Militia, AxeFighter, Swordsman
+    ftRanged, ftRanged,        // Bowman, Arbaletman
+    ftMelee, ftMelee,          // Pikeman, Hallebardman,
+    ftMelee, ftMelee,          // HorseScout, Cavalry,
+    ftMelee,                   // Barbarian
+    ftMelee,                   // Peasant
+    ftRanged,                  // utSlingshot
+    ftMelee,                   // utMetalBarbarian
+    ftMelee                    // utHorseman
   );
 begin
   Assert(fUnitType in [Low(WARRIOR_FIGHT_TYPE)..High(WARRIOR_FIGHT_TYPE)]);
