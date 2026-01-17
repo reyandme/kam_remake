@@ -56,7 +56,6 @@ type
   // Collect everything that need to be rendered and put it in a list
   TKMRenderPool = class
   private
-    fCounter: Cardinal;
     fRXData: array [TRXType] of TRXData; // Shortcuts
     fViewport: TKMViewport;
     fRender: TKMRender;
@@ -182,8 +181,6 @@ var
 begin
   inherited Create;
 
-  fCounter := 0;
-
   for RT := Low(TRXType) to High(TRXType) do
     fRXData[RT] := gRes.Sprites[RT].RXData;
 
@@ -290,8 +287,6 @@ var
   clipRect: TKMRect;
 begin
   if fRender.Blind then Exit;
-
-  Inc(fCounter);
 
   ApplyTransform;
 
