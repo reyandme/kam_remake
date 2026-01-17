@@ -60,7 +60,6 @@ type
     fRXData: array [TRXType] of TRXData; // Shortcuts
     fViewport: TKMViewport;
     fRender: TKMRender;
-    // fSampleHouse: TOBJModel;
     rPitch,rHeading,rBank: Integer;
     fRenderList: TKMRenderList;
     fRenderTerrain: TKMRenderTerrain;
@@ -202,24 +201,21 @@ begin
   fTabletsList    := TKMPointTagList.Create;
   fMarksList      := TKMPointTagList.Create;
   fHouseOutline   := TKMPointList.Create;
-  // fSampleHouse := TOBJModel.Create;
-  // fSampleHouse.LoadFromFile(ExeDir + 'Store.obj');
 end;
 
 
 destructor TKMRenderPool.Destroy;
 begin
-  fFieldsList.Free;
-  fHousePlansList.Free;
-  fTabletsList.Free;
-  fMarksList.Free;
-  fHouseOutline.Free;
-  // fSampleHouse.Free;
-  fRenderList.Free;
-  fRenderDebug.Free;
-  fRenderTerrain.Free;
-  gRenderGameAux.Free;
-  gRenderAux.Free;
+  FreeAndNil(fFieldsList);
+  FreeAndNil(fHousePlansList);
+  FreeAndNil(fTabletsList);
+  FreeAndNil(fMarksList);
+  FreeAndNil(fHouseOutline);
+  FreeAndNil(fRenderList);
+  FreeAndNil(fRenderDebug);
+  FreeAndNil(fRenderTerrain);
+  FreeAndNil(gRenderGameAux);
+  FreeAndNil(gRenderAux);
 
   inherited;
 end;
@@ -1197,40 +1193,6 @@ begin
   if gRes.Units[aUnit].SupportsAction(uaWalkArm) then
     AddUnit(aUnit, aUID, uaWalkArm, aDir, StepId, 0.0, pX, pY, FlagColor, True, DoImmediateRender, DoHignlight, HighlightColor);
 end;
-
-
-{procedure TRenderPool.RenderObject(aRX: TRXType; aId: Word; pX,pY: Single);
-type
-    TVector4f = record X,Y,Z,W: Single; end;
-    TColor4f = record R,G,B,A: Single; end;
-const
-    LightPos: TVector4f = (X:-1; Y:0; Z:-2; W:0);
-    LightAmb: TColor4f = (R:0.1; G:0.1; B:0.1; A:0);
-    LightDiff: TColor4f = (R:0.9; G:0.9; B:0.9; A:0);
-    LightSpec: TColor4f = (R:1.0; G:1.0; B:1.0; A:0);
-begin
-  glPushMatrix;
-  glPushAttrib(GL_LIGHTING_BIT or GL_DEPTH_BUFFER_BIT);
-    glScalef(1, 1, CELL_SIZE_PX);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, @LightAmb);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, @LightDiff);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, @LightSpec);
-    glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
-
-    glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 0.0); //Directional lighting
-    glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR); //Specular does not depend on material color
-
-    glTranslatef(pX, pY, -1);
-    glRotatef(32.5, 1, 0, 0);
-    glColor4f(0.8, 0.8, 0.8, 1);
-
-    fSampleHouse.DrawModel;
-  glPopAttrib;
-  glPopMatrix;
-end;}
 
 
 procedure TKMRenderPool.RenderSprite(aRX: TRXType; aId: Integer; aX, aY: Single; aColor: TColor4; aDoHighlight: Boolean = False;
