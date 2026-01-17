@@ -1426,12 +1426,11 @@ begin
 //  glColor3f(0, 1, 1);
   glColor4ubv(@aCol);
   glBegin(GL_LINE_LOOP);
-    with gTerrain do
     for I := 0 to fHouseOutline.Count - 1 do
     begin
       X := loc.X + fHouseOutline[I].X - 3;
       Y := loc.Y + fHouseOutline[I].Y - 4;
-      glVertex2f(X, Y - LandExt^[Y+1, X+1].RenderHeight / CELL_HEIGHT_DIV);
+      glVertex2f(X, Y - gTerrain.LandExt^[Y+1, X+1].RenderHeight / CELL_HEIGHT_DIV);
     end;
   glEnd;
 end;
@@ -1533,16 +1532,18 @@ begin
       case gCursor.MapEdShape of
         hsCircle: tmp := 1 - GetLengthI(I - Round(F.Y), K - Round(F.X)) / rad;
         hsSquare: tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / rad;
-        else                 tmp := 0;
+      else
+        tmp := 0;
       end;
       tmp := Power(Abs(tmp), (slope + 1) / 6) * Sign(tmp); // Modify slopes curve
       tmp := EnsureRange(tmp * 2.5, 0, 1); // *2.5 makes dots more visible
       gRenderAux.DotOnTerrain(K, I, $FF or (Round(tmp*255) shl 24));
     end;
-    case gCursor.MapEdShape of
-      hsCircle: gRenderAux.CircleOnTerrain(round(F.X), round(F.Y), rad, $00000000,  $FFFFFFFF);
-      hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - rad, round(F.Y) - rad, round(F.X + rad), round(F.Y) + rad, $FFFFFFFF);
-    end;
+
+  case gCursor.MapEdShape of
+    hsCircle: gRenderAux.CircleOnTerrain(round(F.X), round(F.Y), rad, $00000000,  $FFFFFFFF);
+    hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - rad, round(F.Y) - rad, round(F.X + rad), round(F.Y) + rad, $FFFFFFFF);
+  end;
 end;
 
 
@@ -1562,16 +1563,18 @@ begin
       case gCursor.MapEdShape of
         hsCircle: tmp := 1 - GetLengthI(I - Round(F.Y), K - Round(F.X)) / rad;
         hsSquare: tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / rad;
-        else                 tmp := 0;
+      else
+        tmp := 0;
       end;
       tmp := Power(Abs(tmp), (slope + 1) / 6) * Sign(tmp); // Modify slopes curve
       tmp := EnsureRange(tmp * 2.5, 0, 1); // *2.5 makes dots more visible
       gRenderAux.DotOnTerrain(K, I, $FF or (Round(tmp*255) shl 24));
     end;
-    case gCursor.MapEdShape of
-      hsCircle: gRenderAux.CircleOnTerrain(round(F.X), round(F.Y), rad, $00000000,  $FFFFFFFF);
-      hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - rad, round(F.Y) - rad, round(F.X + rad), round(F.Y) + rad, $FFFFFFFF);
-    end;
+
+  case gCursor.MapEdShape of
+    hsCircle: gRenderAux.CircleOnTerrain(round(F.X), round(F.Y), rad, $00000000,  $FFFFFFFF);
+    hsSquare: gRenderAux.SquareOnTerrain(round(F.X) - rad, round(F.Y) - rad, round(F.X + rad), round(F.Y) + rad, $FFFFFFFF);
+  end;
 end;
 
 
@@ -1965,10 +1968,7 @@ begin
     K := fRenderOrder[I];
     // Don't check child sprites, we don't want to select serfs by the long pike they are carrying
     if (fRenderList[K].UID > 0) and KMInRect(aCurPos, fRenderList[K].SelectionRect) then
-    begin
-      Result := fRenderList[K].UID;
-      Exit;
-    end;
+      Exit(fRenderList[K].UID);
   end;
 end;
 
