@@ -44,6 +44,7 @@ const
     (icWhite, icLightCyan, icCyan, icDarkCyan);
 
 
+{ TKMRenderGameAux }
 procedure TKMRenderGameAux.TileTerrainIDs(const aRect: TKMRect);
 var
   I, J, K, cnt: Integer;
@@ -86,7 +87,8 @@ procedure TKMRenderGameAux.TileTerrainKinds(const aRect: TKMRect);
       terKind := gGame.TerrainPainter.LandTerKind[Y,X].TerKind;
       case terKind of
         tkCustom: terKindStr := 'C';
-        else      terKindStr := IntToStr(BASE_TERRAIN[terKind]);
+      else
+        terKindStr := IntToStr(BASE_TERRAIN[terKind]);
       end;
       gRenderAux.Text(X - 0.47, Y - 0.47, terKindStr, icRed);
     end;
@@ -215,8 +217,8 @@ var
 begin
   for I := aRect.Top to aRect.Bottom do
     for J := aRect.Left to aRect.Right do
+    if gTerrain.Land^[I,J].JamMeter > 0 then
     begin
-      if gTerrain.Land^[I,J].JamMeter = 0 then Continue;
 
       limit := (gTerrain.Land^[I,J].JamMeter + JAM_DRAW_STEP - 1) div JAM_DRAW_STEP;
       for K := 0 to limit - 1 do

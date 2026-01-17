@@ -33,15 +33,6 @@ type
   end;
 
 
-  TKMAreaData = class(TInterfacedObject, IKMData2D<Boolean>)
-  private
-    fAreaPoints: TBoolean2Array;
-    function GetData(X, Y: Integer): Boolean;
-  public
-    procedure SetDataArray(var aAreaPoints: TBoolean2Array);
-  end;
-
-
 implementation
 uses
   Math, SysUtils,
@@ -49,6 +40,17 @@ uses
   KM_Resource, KM_Terrain, KM_Houses, KM_HouseWoodcutters, KM_ResUnits,
   KM_HandsCollection, KM_Hand, KM_CommonUtils,
   KM_ResTypes, KM_DevPerfLog, KM_DevPerfLogTypes;
+
+
+type
+  //todo -cThink: Replace with something simpler
+  TKMAreaData = class(TInterfacedObject, IKMData2D<Boolean>)
+  private
+    fAreaPoints: TBoolean2Array;
+    function GetData(X, Y: Integer): Boolean;
+  public
+    procedure SetDataArray(var aAreaPoints: TBoolean2Array);
+  end;
 
 
 { TKMRenderDebug }
@@ -65,7 +67,7 @@ end;
 destructor TKMRenderDebug.Destroy;
 begin
   fMarchingSquares.Free;
-  fBorderPoints.Clear;
+  fBorderPoints.Clear; //todo -cPractical: It's not necessary to Clear before Free
   fBorderPoints.Free;
   fAreaData := nil; //Interfaced object will be freed automatically
 

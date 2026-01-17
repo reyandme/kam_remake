@@ -144,11 +144,12 @@ procedure TKMHouseInn.Paint;
   function AnimDir(aIndex: Integer): TKMDirection;
   begin
     case fEater[aIndex].FoodKind of
-      wtWine:      Result  := TKMDirection(1 * 2 - 1 + (aIndex div 3));
-      wtBread:     Result  := TKMDirection(2 * 2 - 1 + (aIndex div 3));
-      wtSausage:  Result  := TKMDirection(3 * 2 - 1 + (aIndex div 3));
-      wtFish:      Result  := TKMDirection(4 * 2 - 1 + (aIndex div 3));
-      else          Result  := dirNA;
+      wtWine:    Result  := TKMDirection(1 * 2 - 1 + (aIndex div 3));
+      wtBread:   Result  := TKMDirection(2 * 2 - 1 + (aIndex div 3));
+      wtSausage: Result  := TKMDirection(3 * 2 - 1 + (aIndex div 3));
+      wtFish:    Result  := TKMDirection(4 * 2 - 1 + (aIndex div 3));
+    else
+      Result  := dirNA;
     end;
   end;
 const
