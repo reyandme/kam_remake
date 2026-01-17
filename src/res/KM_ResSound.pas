@@ -174,11 +174,12 @@ uses
 
 const
   WARRIOR_SFX_FOLDER: array[WARRIOR_MIN..WARRIOR_MAX] of string = (
+    // Folder names are loosely based on unit names
     'militia', 'axeman', 'swordman', 'bowman', 'crossbowman',
     'lanceman', 'pikeman', 'cavalry', 'knights', 'barbarian',
     'rebel', 'rogue', 'warrior', 'vagabond');
 
-  //TPR warriors reuse TSK voices in some languages, so if the specific ones don't exist use these
+  // TPR warriors reuse TSK voices in some languages, so if the specific ones don't exist use these
   WARRIOR_SFX_FOLDER_BACKUP: array[WARRIOR_MIN..WARRIOR_MAX] of string = (
     '', '', '', '', '',
     '', '', '', '', '',
@@ -195,20 +196,20 @@ const
     WarriorVoice: TKMUnitType;
     SelectID, DeathID: byte;
   end = (
-    (WarriorVoice: utMilitia;       SelectID:3; DeathID:1), //utSerf
-    (WarriorVoice: utAxeFighter;    SelectID:0; DeathID:0), //utWoodcutter
-    (WarriorVoice: utBowman;        SelectID:2; DeathID:1), //utMiner
-    (WarriorVoice: utSwordFighter;  SelectID:0; DeathID:2), //utAnimalBreeder
-    (WarriorVoice: utMilitia;       SelectID:1; DeathID:2), //utFarmer
-    (WarriorVoice: utCrossbowman;   SelectID:1; DeathID:0), //utLamberjack
-    (WarriorVoice: utLanceCarrier;  SelectID:1; DeathID:0), //utBaker
-    (WarriorVoice: utScout;         SelectID:0; DeathID:2), //utButcher
-    (WarriorVoice: utVagabond;      SelectID:2; DeathID:0), //utFisher
-    (WarriorVoice: utKnight;        SelectID:1; DeathID:1), //utWorker
-    (WarriorVoice: utPikeman;       SelectID:1; DeathID:1), //utStoneCutter
-    (WarriorVoice: utKnight;        SelectID:3; DeathID:4), //utSmith
-    (WarriorVoice: utPikeman;       SelectID:3; DeathID:2), //utMetallurgist
-    (WarriorVoice: utBowman;        SelectID:3; DeathID:0)  //utRecruit
+    (WarriorVoice: utMilitia;       SelectID: 3; DeathID: 1), // utSerf
+    (WarriorVoice: utAxeFighter;    SelectID: 0; DeathID: 0), // utWoodcutter
+    (WarriorVoice: utBowman;        SelectID: 2; DeathID: 1), // utMiner
+    (WarriorVoice: utSwordFighter;  SelectID: 0; DeathID: 2), // utAnimalBreeder
+    (WarriorVoice: utMilitia;       SelectID: 1; DeathID: 2), // utFarmer
+    (WarriorVoice: utCrossbowman;   SelectID: 1; DeathID: 0), // utLamberjack
+    (WarriorVoice: utLanceCarrier;  SelectID: 1; DeathID: 0), // utBaker
+    (WarriorVoice: utScout;         SelectID: 0; DeathID: 2), // utButcher
+    (WarriorVoice: utVagabond;      SelectID: 2; DeathID: 0), // utFisher
+    (WarriorVoice: utKnight;        SelectID: 1; DeathID: 1), // utWorker
+    (WarriorVoice: utPikeman;       SelectID: 1; DeathID: 1), // utStoneCutter
+    (WarriorVoice: utKnight;        SelectID: 3; DeathID: 4), // utSmith
+    (WarriorVoice: utPikeman;       SelectID: 3; DeathID: 2), // utMetallurgist
+    (WarriorVoice: utBowman;        SelectID: 3; DeathID: 0)  // utRecruit
   );
 
   NEW_SFX_FOLDER = 'Sounds' + PathDelim;
