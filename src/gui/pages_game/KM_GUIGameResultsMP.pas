@@ -311,7 +311,7 @@ begin
   begin
     value := 0;
     for WT := WARRIOR_MIN to WARRIOR_MAX do
-      value := value + gHands[aPlayer].Stats.ChartArmy[fKind,WT][I]*WARRIORS_POWER_RATES[WT];
+      value := value + gHands[aPlayer].Stats.ChartArmy[fKind,WT][I] * gRes.Units[WT].ArmyPower;
     Result[I] := Result[I] + Round(value);
   end;
 end;

@@ -1105,16 +1105,6 @@ const
 var
   ExeDir: UnicodeString;
 
-const
-  WARRIORS_POWER_RATES: array [WARRIOR_MIN..WARRIOR_MAX] of Single = (
-    1, 2.4, 5.2,    // utMilitia, utAxeFighter, utSwordFighter
-    2.4, 4,         // utBowman, utCrossbowman
-    2, 4,           // utLanceCarrier, utPikeman
-    3.3, 6.3,       // utScout, utKnight
-    5.3, 0.8, 1.2,  // utBarbarian, utRebel, utRogue
-    5.3, 1.9        // utWarrior, utVagabond
-  );
-
 implementation
 uses
   SysUtils;

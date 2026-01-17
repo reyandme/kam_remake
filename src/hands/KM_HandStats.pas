@@ -585,7 +585,7 @@ var
 begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
-    Result := Result + GetUnitQty(UT) * WARRIORS_POWER_RATES[UT];
+    Result := Result + GetUnitQty(UT) * gRes.Units[UT].ArmyPower;
 end;
 
 
