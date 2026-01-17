@@ -8,7 +8,6 @@ uses
 //  {$IFDEF DESKTOP}
     dglOpenGL;//,
 //  {$ENDIF}
-  //KM_RenderTypes;
 
 
 type
