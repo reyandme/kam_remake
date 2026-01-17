@@ -623,6 +623,7 @@ const
 {Units}
 type
   //* Unit type
+  //* Type names are chosen to match original English localisation
   TKMUnitType = (utNone, utAny,
     utSerf,         utWoodcutter,   utMiner,         utAnimalBreeder,
     utFarmer,       utCarpenter,    utBaker,         utButcher,
@@ -693,16 +694,17 @@ type
 
 const
   UNIT_TO_GROUP_TYPE: array [WARRIOR_MIN..WARRIOR_MAX] of TKMGroupType = (
-    gtMelee,gtMelee,gtMelee, //utMilitia, utAxeFighter, utSwordsman
-    gtRanged,gtRanged,        //utBowman, utArbaletman
-    gtAntiHorse,gtAntiHorse,  //utPikeman, utHallebardman,
-    gtMounted,gtMounted,      //utHorseScout, utCavalry,
-    gtMelee,                   //utBarbarian
-    //TPR Army
-    gtAntiHorse,        //utPeasant
-    gtRanged,           //utSlingshot
-    gtMelee,            //utMetalBarbarian
-    gtMounted           //utHorseman
+    // TSK army
+    gtMelee, gtMelee, gtMelee,  // utMilitia, utAxeFighter, utSwordFighter
+    gtRanged, gtRanged,         // utBowman, utCrossbowman
+    gtAntiHorse, gtAntiHorse,   // utLanceCarrier, utPikeman,
+    gtMounted, gtMounted,       // utScout, utKnight,
+    gtMelee,                    // utBarbarian
+    // TPR Army
+    gtAntiHorse,        // utRebel
+    gtRanged,           // utRogue
+    gtMelee,            // utWarrior
+    gtMounted           // utVagabond
     {gtRanged,gtRanged, //utCatapult, utBallista,}
     );
 

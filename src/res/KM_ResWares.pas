@@ -70,20 +70,20 @@ const
 
   //Aligned to right to use them in GUI costs display as well
   WARFARE_COSTS: array [WEAPON_MIN..WEAPON_MAX, 1..2] of TKMWareType = (
-    (wtNone,   wtTimber), //rtShield
-    (wtCoal,  wtIron), //rtMetalShield
-    (wtNone,wtLeather), //rtArmor
-    (wtCoal,  wtIron), //rtMetalArmor
-    (wtTimber,   wtTimber), //rtAxe
-    (wtCoal,  wtIron), //rtSword
-    (wtTimber,   wtTimber), //rtPike
-    (wtCoal,  wtIron), //rtHallebard
-    (wtTimber,   wtTimber), //rtBow
-    (wtCoal,  wtIron)  //rtArbalet
+    (wtNone,   wtTimber), // wtWoodenShield
+    (wtCoal,   wtIron),   // wtIronShield
+    (wtNone,   wtLeather),// wtLeatherArmor
+    (wtCoal,   wtIron),   // wtIronArmor
+    (wtTimber, wtTimber), // wtAxe
+    (wtCoal,   wtIron),   // wtSword
+    (wtTimber, wtTimber), // wtLance
+    (wtCoal,   wtIron),   // wtPike
+    (wtTimber, wtTimber), // wtBow
+    (wtCoal,   wtIron)    // wtCrossbow
   );
 
-  //How many of resource gets produced per minute on AVERAGE
-  //Measured on a test map RES_COUNT / TIME in minutes
+  // How many of ware gets produced per minute on AVERAGE
+  // Measured on a test map WARE_COUNT / TIME in minutes
   PRODUCTION_RATE: array [WARE_MIN..WARE_MAX] of Single = (
      88/120, 414/120, 390/120, 160/120, 160/120,
     155/120, 218/120, 330/120, 120/120, 138/120,

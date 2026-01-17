@@ -480,17 +480,11 @@ const
   WOOD_SOLDIER = 10;
   MILITIA_SOLDIER = 3;
   COMPLETE_HOUSE = 5;
-  {
-    utMilitia,      utAxeFighter,   utSwordFighter,  utBowman,
-    utArbaletman,   utPikeman,      utHallebardman,  utHorseScout,
-    utCavalry,      utBarbarian,
-    utPeasant,      utSlingshot,    utMetalBarbarian,utHorseman,
-  }
   WARRIOR_PRICE: array[WARRIOR_MIN..WARRIOR_MAX] of Integer = (
-    1, 3, 6, 3+4, // Militia     AxeFighter  utSwordFighter  utBowman
-    5+4, 3, 5, 4, // Arbaletman  Pikeman     Hallebardman    utHorseScout
-    7, 6,       // Cavalry     Barbarian
-    2, 2+4, 6, 3  // Peasant     Slingshot   MetalBarbarian  utHorseman
+    1, 3, 6, 3+4, // utMilitia     utAxeFighter   utSwordFighter utBowman
+    5+4, 3, 5, 4, // utCrossbowman utLanceCarrier utPikeman      utScout
+    7, 6,         // utKnight      utBarbarian
+    2, 2+4, 6, 3  // utRebel       utRogue        utWarrior      utVagabond
     );
 var
   K, UnitKilledCnt, UnitSurvivedCnt, UnitSurvivedEnemyCnt: Integer;
@@ -760,10 +754,10 @@ const
   SURVIVE_GAIN = 1;
   SURVIVE_ENEMY_GAIN = 3;
   WARRIOR_PRICE: array[WARRIOR_MIN..WARRIOR_MAX] of Single = (
-    1, 2, 3, 2+2,   // Militia     AxeFighter  Swordsman       utBowman
-    3+2, 2, 3, 2+1, // Arbaletman  Pikeman     Hallebardman    utHorseScout
-    3+1, 3,         // Cavalry     Barbarian
-    1, 1+2, 3, 1+1  // Peasant     Slingshot   MetalBarbarian  utHorseman
+      1,   2, 3, 2+2, // utMilitia      utAxeFighter    utSwordFighter  utBowman
+    3+2,   2, 3, 2+1, // utCrossbowman  utLanceCarrier, utPikeman       utScout
+    3+1,   3,         // utKnight       utBarbarian
+      1, 1+2, 3, 1+1  // utRebel        utRogue         utWarrior       utVagabond
     );
 var
   PL, K, survivedAlly, survivedEnemy: Integer;
@@ -2061,14 +2055,14 @@ begin
   gGameApp.NewEmptyMap(128, 128);
   SetKaMSeed(aRun + 1);
 
-  //fPlayers[0].AddUnitGroup(ut_Cavalry, KMPoint(63, 64), dir_E, 8, 24);
-  //fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
+  //fPlayers[0].AddUnitGroup(utKnight, KMPoint(63, 64), dir_E, 8, 24);
+  //fPlayers[1].AddUnitGroup(utSwordFighter, KMPoint(65, 64), dir_W, 8, 24);
 
-  //fPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
-  //fPlayers[1].AddUnitGroup(ut_Hallebardman, KMPoint(65, 64), dir_W, 8, 24);
+  //fPlayers[0].AddUnitGroup(utSwordFighter, KMPoint(63, 64), dir_E, 8, 24);
+  //fPlayers[1].AddUnitGroup(utPikeman, KMPoint(65, 64), dir_W, 8, 24);
 
-  //fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(63, 64), dir_E, 8, 24);
-  //fPlayers[1].AddUnitGroup(ut_Cavalry, KMPoint(65, 64), dir_W, 8, 24);
+  //fPlayers[0].AddUnitGroup(utPikeman, KMPoint(63, 64), dir_E, 8, 24);
+  //fPlayers[1].AddUnitGroup(utKnight, KMPoint(65, 64), dir_W, 8, 24);
 
   gHands[0].AddUnitGroup(utSwordFighter, KMPoint(63, 64), TKMDirection(dirE), 8, 24);
   gHands[1].AddUnitGroup(utSwordFighter, KMPoint(65, 64), TKMDirection(dirW), 8, 24);
@@ -2082,8 +2076,6 @@ begin
 
   gGameApp.StopGame(grSilent);
 end;
-
-
 
 
 { TKMRunnerAIBuild }

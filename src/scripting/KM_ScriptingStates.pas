@@ -2158,7 +2158,7 @@ end;
 
 //* Version: 13900
 //* Returns the number of the specified unit types killed by the specified player.
-//* Result: Set of unit types eg. [utMilitia, utAxeFighter, utSwordsman]
+//* Result: Set of unit types eg. [utMilitia, utAxeFighter, utSwordFighter]
 function TKMScriptStates.StatUnitKilledMultipleTypesCountEx(aHand: Integer; aTypes: TKMUnitTypeSet): Integer;
 var
   UT: TKMUnitType;
@@ -2263,7 +2263,7 @@ end;
 
 //* Version: 13900
 //* Returns the number of the specified unit types lost by the specified player.
-//* aTypes: Set of unit types eg. [utMilitia, utAxeFighter, utSwordsman]
+//* aTypes: Set of unit types eg. [utMilitia, utAxeFighter, utSwordFighter]
 //* Result: Number of lost units
 function TKMScriptStates.StatUnitLostMultipleTypesCountEx(aHand: Byte; aTypes: TKMUnitTypeSet): Integer;
 var
@@ -2382,7 +2382,7 @@ end;
 
 //* Version: 13900
 //* Returns the number of the specified resource types produced by the specified player.
-//* aTypes: Set of ware types eg. [wtCoal, wtSteel, wtGold]
+//* aTypes: Set of ware types eg. [wtCoal, wtIron, wtGold]
 //* Result: Number of produced resources
 function TKMScriptStates.StatResourceProducedMultipleTypesCountEx(aHand: Integer; aTypes: TKMWareTypeSet): Integer;
 var

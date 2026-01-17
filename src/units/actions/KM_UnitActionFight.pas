@@ -250,7 +250,7 @@ begin
     end;
   end;
 
-  //Slingshot sound should happen a bit later
+  // Rogue sound should happen a bit later
   if Step = W.AimSoundDelay then
     MakeSound(False);
   

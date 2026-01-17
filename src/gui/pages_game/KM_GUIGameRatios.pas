@@ -7,7 +7,7 @@ uses
 
 
 type
-  TKMRatioTab = (rtSteel, rtCoal, rtWood, rtCorn);
+  TKMRatioTab = (rtIron, rtCoal, rtTimber, rtCorn);
 
   TKMGUIGameRatios = class
   private
@@ -64,7 +64,7 @@ var
 begin
   inherited Create;
 
-  fActiveTab := rtSteel;
+  fActiveTab := rtIron;
   fAllowEditing := aAllowEditing;
   Panel_Ratios:=TKMPanel.Create(aParent, TB_PAD, 44, TB_WIDTH, 332);
 

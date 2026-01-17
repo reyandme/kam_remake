@@ -147,50 +147,49 @@ const
   MARKET_WARES_OFF_Y = -88;
   MARKET_WARES_TEX_CNT = 323;
   MARKET_WARES_TEX_START = 1724; //ID of where market ware sprites start. Allows us to relocate them easily.
-  MARKET_WARES: array[TKMWareType] of record
-                                         TexStart: Integer; //Tex ID for first sprite
-                                         Count: Integer; //Total sprites for this resource
-                                       end
-  = (
-      (TexStart: 0; Count: 0;), //rtNone
+  MARKET_WARES: array [TKMWareType] of record
+    TexStart: Integer; //Tex ID for first sprite
+    Count: Integer; //Total sprites for this resource
+  end = (
+    (TexStart: 0; Count: 0;), //rtNone
 
-      (TexStart: MARKET_WARES_TEX_START+237; Count: 20;), //rtTrunk
-      (TexStart: MARKET_WARES_TEX_START+47;  Count: 36;), //rtStone
-      (TexStart: MARKET_WARES_TEX_START+94;  Count: 19;), //rtWood
-      (TexStart: MARKET_WARES_TEX_START+113; Count: 11;), //rtIronOre
-      (TexStart: MARKET_WARES_TEX_START+135; Count: 12;), //rtGoldOre
-      (TexStart: MARKET_WARES_TEX_START+207; Count: 11;), //rtCoal
-      (TexStart: MARKET_WARES_TEX_START+130; Count: 5;),  //rtSteel
-      (TexStart: MARKET_WARES_TEX_START+147; Count: 9;),  //rtGold
-      (TexStart: MARKET_WARES_TEX_START+1;   Count: 23;), //rtWine
-      (TexStart: MARKET_WARES_TEX_START+24;  Count: 23;), //rtCorn
-      (TexStart: MARKET_WARES_TEX_START+218; Count: 12;), //rtBread
-      (TexStart: MARKET_WARES_TEX_START+186; Count: 12;), //rtFlour
-      (TexStart: MARKET_WARES_TEX_START+156; Count: 9;),  //rtLeather
-      (TexStart: MARKET_WARES_TEX_START+283; Count: 16;), //rtSausages
-      (TexStart: MARKET_WARES_TEX_START+299; Count: 6;),  //rtPig
-      (TexStart: MARKET_WARES_TEX_START+230; Count: 7;),  //rtSkin
-      (TexStart: MARKET_WARES_TEX_START+85;  Count: 9;),  //rtShield
-      (TexStart: MARKET_WARES_TEX_START+127; Count: 3;),  //rtMetalShield
-      (TexStart: MARKET_WARES_TEX_START+165; Count: 6;),  //rtArmor
-      (TexStart: MARKET_WARES_TEX_START+124; Count: 3;),  //rtMetalArmor
-      (TexStart: MARKET_WARES_TEX_START+201; Count: 6;),  //rtAxe
-      (TexStart: MARKET_WARES_TEX_START+183; Count: 3;),  //rtSword
-      (TexStart: MARKET_WARES_TEX_START+171; Count: 6;),  //rtPike
-      (TexStart: MARKET_WARES_TEX_START+198; Count: 3;),  //rtHallebard
-      (TexStart: MARKET_WARES_TEX_START+177; Count: 6;),  //rtBow
-      (TexStart: MARKET_WARES_TEX_START+83;  Count: 2;),  //rtArbalet
-      (TexStart: 0;                      Count: 2;),  //rtHorse (defined in fMarketBeastAnim)
-      (TexStart: MARKET_WARES_TEX_START+305; Count: 19;), //rtFish
+    (TexStart: MARKET_WARES_TEX_START+237; Count: 20;), // wtTrunk
+    (TexStart: MARKET_WARES_TEX_START+47;  Count: 36;), // wtStone
+    (TexStart: MARKET_WARES_TEX_START+94;  Count: 19;), // wtTimber
+    (TexStart: MARKET_WARES_TEX_START+113; Count: 11;), // wtIronOre
+    (TexStart: MARKET_WARES_TEX_START+135; Count: 12;), // wtGoldOre
+    (TexStart: MARKET_WARES_TEX_START+207; Count: 11;), // wtCoal
+    (TexStart: MARKET_WARES_TEX_START+130; Count: 5;),  // wtIron
+    (TexStart: MARKET_WARES_TEX_START+147; Count: 9;),  // wtGold
+    (TexStart: MARKET_WARES_TEX_START+1;   Count: 23;), // wtWine
+    (TexStart: MARKET_WARES_TEX_START+24;  Count: 23;), // wtCorn
+    (TexStart: MARKET_WARES_TEX_START+218; Count: 12;), // wtBread
+    (TexStart: MARKET_WARES_TEX_START+186; Count: 12;), // wtFlour
+    (TexStart: MARKET_WARES_TEX_START+156; Count: 9;),  // wtLeather
+    (TexStart: MARKET_WARES_TEX_START+283; Count: 16;), // wtSausages
+    (TexStart: MARKET_WARES_TEX_START+299; Count: 6;),  // wtPig
+    (TexStart: MARKET_WARES_TEX_START+230; Count: 7;),  // wtSkin
+    (TexStart: MARKET_WARES_TEX_START+85;  Count: 9;),  // wtWoodenShield
+    (TexStart: MARKET_WARES_TEX_START+127; Count: 3;),  // wtIronShield
+    (TexStart: MARKET_WARES_TEX_START+165; Count: 6;),  // wtLeatherArmor
+    (TexStart: MARKET_WARES_TEX_START+124; Count: 3;),  // wtIronArmor
+    (TexStart: MARKET_WARES_TEX_START+201; Count: 6;),  // wtAxe
+    (TexStart: MARKET_WARES_TEX_START+183; Count: 3;),  // wtSword
+    (TexStart: MARKET_WARES_TEX_START+171; Count: 6;),  // wtLance
+    (TexStart: MARKET_WARES_TEX_START+198; Count: 3;),  // wtPike
+    (TexStart: MARKET_WARES_TEX_START+177; Count: 6;),  // wtBow
+    (TexStart: MARKET_WARES_TEX_START+83;  Count: 2;),  // wtCrossbow
+    (TexStart: 0;                          Count: 2;),  // wtHorse (defined in fMarketBeastAnim)
+    (TexStart: MARKET_WARES_TEX_START+305; Count: 19;), // wtFish
 
-      (TexStart: 0; Count: 0;), //rtAll
-      (TexStart: 0; Count: 0;), //rtWarfare
-      (TexStart: 0; Count: 0;)  //rtFood
-    );
+    (TexStart: 0; Count: 0;), // wtAll
+    (TexStart: 0; Count: 0;), // wtWarfare
+    (TexStart: 0; Count: 0;)  // wtFood
+  );
 
-  //These tables are used to convert between KaM script IDs and Remake enums
+  // These tables are used to convert between KaM script IDs and Remake enums
   HOUSE_DAT_COUNT = 30;
-  //KaM scripts and HouseDat address houses in this order
+  // KaM scripts and HouseDat address houses in this order
   HOUSE_ID_TO_TYPE: array [0 .. HOUSE_DAT_COUNT - 1] of TKMHouseType = (
     htSawmill, htIronSmithy, htWeaponSmithy, htCoalMine, htIronMine,
     htGoldMine, htFishermans, htBakery, htFarm, htWoodcutters,

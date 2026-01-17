@@ -302,22 +302,22 @@ const
     [uaWalk, uaWork, uaDie, uaWork1, uaEat..uaWalkBooty],
     [uaWalk, uaDie, uaEat],
     [uaWalk, uaDie, uaEat],
-    [uaWalk, uaSpec, uaDie, uaEat], //Recruit
-    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Militia
-    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Axeman
-    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Swordsman
-    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Bowman
-    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Crossbowman
-    [uaWalk, uaWork, uaDie, uaEat],
-    [uaWalk, uaWork, uaDie, uaEat],
-    [uaWalk, uaWork, uaDie, uaEat],
-    [uaWalk, uaWork, uaDie, uaEat], //Cavalry
-    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Barbarian
-    [uaWalk, uaWork, uaDie, uaEat], //Rebel
-    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Slingshot
-    [uaWalk, uaWork, uaSpec, uaDie, uaEat], //Warrior
-    [uaWalk, uaWork, uaDie, uaEat],
-    [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk] //Animals
+    [uaWalk, uaSpec, uaDie, uaEat],         // utRecruit
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], // utMilitia
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], // utAxeFighter
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], // utSwordFighter
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], // utBowman
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], // utCrossbowman
+    [uaWalk, uaWork, uaDie, uaEat],         // utLanceCarrier
+    [uaWalk, uaWork, uaDie, uaEat],         // utPikeman
+    [uaWalk, uaWork, uaDie, uaEat],         // utScout
+    [uaWalk, uaWork, uaDie, uaEat],         // utKnight
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], // utBarbarian
+    [uaWalk, uaWork, uaDie, uaEat],         // utRebel
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], // utRogue
+    [uaWalk, uaWork, uaSpec, uaDie, uaEat], // utWarrior
+    [uaWalk, uaWork, uaDie, uaEat],         // utVagabond
+    [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk], [uaWalk] // Animals
   );
 begin
   Result := aAct in UNIT_SUPPOSTED_ACTIONS[fUnitType];
@@ -367,15 +367,15 @@ end;
 function TKMUnitSpec.GetFightType: TKMFightType;
 const
   WARRIOR_FIGHT_TYPE: array[WARRIOR_MIN..WARRIOR_MAX] of TKMFightType = (
-    ftMelee, ftMelee, ftMelee, // Militia, AxeFighter, Swordsman
-    ftRanged, ftRanged,        // Bowman, Arbaletman
-    ftMelee, ftMelee,          // Pikeman, Hallebardman,
-    ftMelee, ftMelee,          // HorseScout, Cavalry,
-    ftMelee,                   // Barbarian
-    ftMelee,                   // Peasant
-    ftRanged,                  // utSlingshot
-    ftMelee,                   // utMetalBarbarian
-    ftMelee                    // utHorseman
+    ftMelee, ftMelee, ftMelee, // utMilitia, utAxeFighter, utSwordFighter
+    ftRanged, ftRanged,        // utBowman, utCrossbowman
+    ftMelee, ftMelee,          // utLanceCarrier, utPikeman,
+    ftMelee, ftMelee,          // utScout, utKnight,
+    ftMelee,                   // utBarbarian
+    ftMelee,                   // utRebel
+    ftRanged,                  // utRogue
+    ftMelee,                   // utWarrior
+    ftMelee                    // utVagabond
   );
 begin
   Assert(fUnitType in [Low(WARRIOR_FIGHT_TYPE)..High(WARRIOR_FIGHT_TYPE)]);
@@ -595,9 +595,9 @@ end;
 procedure TKMResUnits.PatchUnitSpec;
 const
   DEF_SCOUT_SIGHT = 9;
-  DEF_HORSEMAN_ATTACK = 40;
-  DEF_PEASANT_ATTACK_HORSE = 60;
-  DEF_PIKEMAN_ATTACK_HORSE = 55;
+  DEF_VAGABOND_ATTACK = 40;
+  DEF_REBEL_ATTACK_HORSE = 60;
+  DEF_LANCE_CARRIER_ATTACK_HORSE = 55;
   DEF_MOUNTED_SPEED = 39;
 var
   UT: TKMUnitType;
@@ -607,13 +607,13 @@ begin
   if fItems[utScout].fUnitDat.Sight = DEF_SCOUT_SIGHT then
     fItems[utScout].fUnitDat.Sight := 13;
 
-  if fItems[utVagabond].fUnitDat.Attack = DEF_HORSEMAN_ATTACK then
+  if fItems[utVagabond].fUnitDat.Attack = DEF_VAGABOND_ATTACK then
     fItems[utVagabond].fUnitDat.Attack := 35;
 
-  if fItems[utRebel].fUnitDat.AttackHorse = DEF_PEASANT_ATTACK_HORSE then
+  if fItems[utRebel].fUnitDat.AttackHorse = DEF_REBEL_ATTACK_HORSE then
     fItems[utRebel].fUnitDat.AttackHorse := 50;
 
-  if fItems[utLanceCarrier].fUnitDat.AttackHorse = DEF_PIKEMAN_ATTACK_HORSE then
+  if fItems[utLanceCarrier].fUnitDat.AttackHorse = DEF_LANCE_CARRIER_ATTACK_HORSE then
     fItems[utLanceCarrier].fUnitDat.AttackHorse := 60;
 
   // .Dat mounted speed is 39, but it makes 9 steps per diagonal tile after rounding, while we used to 8 steps

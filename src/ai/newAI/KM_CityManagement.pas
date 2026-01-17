@@ -521,7 +521,7 @@ const
     wtHorse,        wtFlour,
     wtSkin,         wtLeather,  wtPig,
     wtTrunk        //wtTimber,  wtCorn,
-    //wtSteel,        wtGold,     wtIronOre,    wtCoal,     wtGoldOre,
+    //wtIron,        wtGold,     wtIronOre,    wtCoal,     wtGoldOre,
     //wtStone
   );
   LACK_OF_STONE = 50;
@@ -763,8 +763,8 @@ begin
       gHands[fOwner].Stats.WareDistribution[wtCorn, htStables] := 3;
     end;
     // Steel is updated in WeaponsBalance
-    //gHands[fOwner].Stats.WareDistribution[wtSteel, htWeaponSmithy] := 5;
-    //gHands[fOwner].Stats.WareDistribution[wtSteel, htArmorSmithy] := 5;
+    //gHands[fOwner].Stats.WareDistribution[wtIron, htWeaponSmithy] := 5;
+    //gHands[fOwner].Stats.WareDistribution[wtIron, htArmorSmithy] := 5;
 
     gHands[fOwner].Houses.UpdateDemands;
   end;
@@ -863,12 +863,12 @@ var
   const
     DEFAULT_COEFICIENT = 15;
     DEFAULT_ARMY_REQUIREMENTS: array[WARRIOR_EQUIPABLE_BARRACKS_MIN..WARRIOR_EQUIPABLE_BARRACKS_MAX] of Single = (
-      1, 1, 1, 3,//utMilitia,      utAxeFighter,   utSwordsman,     utBowman,
-      2, 1, 1, 0.5,//utArbaletman,   utPikeman,      utHallebardman,  utHorseScout,
-      0.5//utCavalry
+      1, 1, 1, 3,   // utMilitia,      utAxeFighter,   utSwordFighter,  utBowman,
+      2, 1, 1, 0.5, // utCrossbowman,  utLanceCarrier, utPikeman,       utScout,
+      0.5           // utKnight
     );
-    WOOD_ARMY: set of TKMUnitType = [utAxeFighter, utBowman, utLanceCarrier]; //utHorseScout,
-    IRON_ARMY: set of TKMUnitType = [utSwordFighter, utCrossbowman, utPikeman]; //utCavalry
+    WOOD_ARMY: set of TKMUnitType = [utAxeFighter, utBowman, utLanceCarrier];   // utScout,
+    IRON_ARMY: set of TKMUnitType = [utSwordFighter, utCrossbowman, utPikeman]; // utKnight
   var
     I, WoodReq, IronReq: Integer;
     RatioSum: Single;
@@ -919,39 +919,39 @@ var
     end;
   end;
 //AITroopTrainOrder: array [GROUP_TYPE_MIN..GROUP_TYPE_MAX, 1..3] of TKMUnitType = (
-//  (utSwordsman,    utAxeFighter, utMilitia),
-//  (utHallebardman, utPikeman,    utNone),
-//  (utArbaletman,   utBowman,     utNone),
-//  (utCavalry,      utHorseScout, utNone)
+//  (utSwordFighter, utAxeFighter,   utMilitia),
+//  (utPikeman,      utLanceCarrier, utNone),
+//  (utCrossbowman,  utBowman,       utNone),
+//  (utKnight,       utScout,        utNone)
 //);
 //UnitGroups: array [WARRIOR_MIN..WARRIOR_MAX] of TKMGroupType = (
-//  gtMelee,gtMelee,gtMelee, //utMilitia, utAxeFighter, utSwordsman
-//  gtRanged,gtRanged,        //utBowman, utArbaletman
-//  gtAntiHorse,gtAntiHorse,  //utPikeman, utHallebardman,
-//  gtMounted,gtMounted,      //utHorseScout, utCavalry,
-//  gtMelee,                   //utBarbarian
+//  gtMelee,gtMelee,gtMelee,  // utMilitia, utAxeFighter, utSwordFighter
+//  gtRanged,gtRanged,        // utBowman, utCrossbowman
+//  gtAntiHorse,gtAntiHorse,  // utLanceCarrier, utPikeman,
+//  gtMounted,gtMounted,      // utScout, utKnight,
+//  gtMelee,                  // utBarbarian
 //  //TPR Army
-//  gtAntiHorse,        //utPeasant
-//  gtRanged,           //utSlingshot
-//  gtMelee,            //utMetalBarbarian
-//  gtMounted           //utHorseman
+//  gtAntiHorse,        // utRebel
+//  gtRanged,           // utRogue
+//  gtMelee,            // utWarrior
+//  gtMounted           // utVagabond
 //);
-//TroopCost: array [utMilitia..utCavalry, 1..4] of TKMWareType = (
-//  (wtAxe,          wtNone,        wtNone,  wtNone ), //Militia
-//  (wtShield,       wtArmor,       wtAxe,   wtNone ), //Axefighter
-//  (wtMetalShield,  wtMetalArmor,  wtSword, wtNone ), //Swordfighter
-//  (wtArmor,        wtBow,         wtNone,  wtNone ), //Bowman
-//  (wtMetalArmor,   wtArbalet,     wtNone,  wtNone ), //Crossbowman
-//  (wtArmor,        wtPike,        wtNone,  wtNone ), //Lance Carrier
-//  (wtMetalArmor,   wtHallebard,   wtNone,  wtNone ), //Pikeman
-//  (wtShield,       wtArmor,       wtAxe,   wtHorse), //Scout
-//  (wtMetalShield,  wtMetalArmor,  wtSword, wtHorse)  //Knight
+//TroopCost: array [utMilitia..utKnight, 1..4] of TKMWareType = (
+//  (wtAxe,          wtNone,        wtNone,  wtNone ), // utMilitia
+//  (wtWoodenShield, wtLeatherArmor,wtAxe,   wtNone ), // utAxeFighter
+//  (wtIronShield,   wtIronArmor,   wtSword, wtNone ), // utSwordFighter
+//  (wtLeatherArmor, wtBow,         wtNone,  wtNone ), // utBowman
+//  (wtIronArmor,    wtCrossbow,    wtNone,  wtNone ), // utCrossbowman
+//  (wtLeatherArmor, wtLance,       wtNone,  wtNone ), // utLanceCarrier
+//  (wtIronArmor,    wtPike,        wtNone,  wtNone ), // utPikeman
+//  (wtWoodenShield, wtLeatherArmor,wtAxe,   wtHorse), // utScout
+//  (wtIronShield,   wtIronArmor,   wtSword, wtHorse)  // utKnight
 //);
 //WARRIOR_EQUIPABLE_MIN = utMilitia;
-//WARRIOR_EQUIPABLE_MAX = utCavalry;
-//  utMilitia,      utAxeFighter,   utSwordsman,     utBowman,
-//  utArbaletman,   utPikeman,      utHallebardman,  utHorseScout,
-//  utCavalry,      utBarbarian,
+//WARRIOR_EQUIPABLE_MAX = utKnight;
+//  utMilitia,     utAxeFighter,   utSwordFighter, utBowman,
+//  utCrossbowman, utLanceCarrier, utPikeman,      utScout,
+//  utKnight,      utBarbarian,
 
 const
   IRON_WEAPONS: set of TKMWareType = [wtSword, wtPike, wtCrossbow];
@@ -1110,8 +1110,8 @@ const
   COLOR_YELLOW = '[$00FFFF]';
   COLOR_GREEN = '[$00FF00]';
   WARFARE: array[WARFARE_MIN..WARFARE_MAX] of UnicodeString =
-    ('Shield     ', 'MetalShield', 'Armor      ', 'MetalArmor', 'Axe         ', 'Sword      ',
-     'Pike       ', 'Hallebard  ', 'Bow        ', 'Arbalet   ', 'Horse      ');
+    ('Shield     ', 'IronShield',  'LeatherArmor','IronArmor',  'Axe         ', 'Sword      ',
+     'Lance      ', 'Pike       ', 'Bow        ', 'Crossbow  ', 'Horse      ');
 var
   WT: TKMWareType;
 begin
