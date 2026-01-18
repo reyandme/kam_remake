@@ -2,11 +2,10 @@ unit KM_UnitActionAbandonWalk;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math,
   KM_CommonClasses, KM_Defaults, KM_Units, KM_Points;
 
 
-{Abandon the current walk, move onto next tile}
+// Abandon the current walk, move onto next tile
 type
   TKMUnitActionAbandonWalk = class(TKMUnitAction)
   private
@@ -26,10 +25,11 @@ type
 
 implementation
 uses
+  Math,
   KM_Resource, KM_ResUnits;
 
 
-{ TUnitActionAbandonWalk }
+{ TKMUnitActionAbandonWalk }
 constructor TKMUnitActionAbandonWalk.Create(aUnit: TKMUnit; const LocB, aVertexOccupied: TKMPoint; aActionType: TKMUnitActionType);
 begin
   Assert(LocB.X*LocB.Y <> 0, 'Illegal WalkTo 0:0');
@@ -47,6 +47,7 @@ begin
     fUnit.VertexRem(fVertexOccupied); //Unoccupy vertex
     fVertexOccupied := KMPOINT_ZERO;
   end;
+
   inherited;
 end;
 
