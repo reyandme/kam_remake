@@ -6,17 +6,17 @@ uses
 
 
 type
-  // Fight until we die or the opponent dies
+  // Fight until we die or the opponent dies (or goes away)
   TKMUnitActionFight = class(TKMUnitAction)
   private
-    fFightDelay: Integer; //Pause for this many ticks before going onto the next Step
-    fOpponent: TKMUnit; //Who we are fighting with
-    fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
+    fFightDelay: Integer; // Pause for this many ticks before going onto the next step
+    fOpponent: TKMUnit; // Who we are fighting with
+    fVertexOccupied: TKMPoint; // The diagonal vertex we are currently occupying
 
     // Execute is broken up into multiple methods
-    function ExecuteValidateOpponent(Step: Byte): TKMActionResult;
-    function ExecuteProcessRanged(Step: Byte): Boolean;
-    function ExecuteProcessMelee(Step: Byte): Boolean;
+    function ExecuteValidateOpponent(aStep: Byte): TKMActionResult;
+    function ExecuteProcessRanged(aStep: Byte): Boolean;
+    function ExecuteProcessMelee(aStep: Byte): Boolean;
 
     function UpdateVertexUsage(const aFrom, aTo: TKMPoint): Boolean;
     procedure IncVertex(const aFrom, aTo: TKMPoint);
@@ -33,8 +33,8 @@ type
     property GetOpponent: TKMUnit read fOpponent;
     function Execute: TKMActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
-    function ObjToStringShort(const aSeparator: String = '|'): String; override;
-    function ObjToString(const aSeparator: String = ' '): String; override;
+    function ObjToStringShort(const aSeparator: string = '|'): string; override;
+    function ObjToString(const aSeparator: string = ' '): string; override;
   end;
 
 
@@ -47,14 +47,14 @@ uses
 
 
 const
-  STRIKE_STEP = 5; //Melee units place hit on step 5
+  MELEE_STRIKE_STEP = 5; //Melee units place hit on step 5
 
-  MeleeSoundsHit: array [0..14] of TKMSoundEffectOriginal = (
+  MELEE_SOUND_HIT: array [0..14] of TKMSoundEffectOriginal = (
     sfxMelee34, sfxMelee35, sfxMelee36, sfxMelee41, sfxMelee42,
     sfxMelee44, sfxMelee45, sfxMelee46, sfxMelee47, sfxMelee48,
     sfxMelee49, sfxMelee50, sfxMelee55, sfxMelee56, sfxMelee57);
 
-  MeleeSoundsMiss: array [0..8] of TKMSoundEffectOriginal = (
+  MELEE_SOUND_MISS: array [0..8] of TKMSoundEffectOriginal = (
     sfxMelee37, sfxMelee38, sfxMelee39,
     sfxMelee40, sfxMelee43, sfxMelee51,
     sfxMelee52, sfxMelee53, sfxMelee54);
@@ -79,6 +79,7 @@ end;
 destructor TKMUnitActionFight.Destroy;
 begin
   gHands.CleanUpUnitPointer(fOpponent);
+
   if not KMSamePoint(fVertexOccupied, KMPOINT_ZERO) then
     DecVertex;
 
@@ -122,9 +123,10 @@ begin
   Result := True;
   if KMStepIsDiag(aFrom, aTo) then
   begin
-    //If the new target has the same vertex as the old one, no change is needed
+    // If the new target has the same vertex as the old one, no change is needed
     if KMSamePoint(KMGetDiagVertex(aFrom, aTo), fVertexOccupied) then Exit;
-    //Otherwise the new target's vertex is different to the old one, so remove old vertex usage and add new
+
+    // Otherwise the new target's vertex is different to the old one, so remove old vertex usage and add new
     DecVertex;
     if fUnit.VertexUsageCompatible(aFrom, aTo) then
       IncVertex(aFrom, aTo)
@@ -174,22 +176,22 @@ begin
 
   case fUnit.UnitType of
     utCrossbowman: gSoundPlayer.Play(sfxCrossbowDraw, fUnit.PositionF); // Aiming
-    utBowman:     gSoundPlayer.Play(sfxBowDraw,      fUnit.PositionF); // Aiming
-    utRogue:  gSoundPlayer.Play(sfxSlingerShoot, fUnit.PositionF);
-    else           begin
-                     if IsHit then
-                       gSoundPlayer.Play(MeleeSoundsHit[Random(Length(MeleeSoundsHit))], fUnit.PositionF)
-                     else
-                       gSoundPlayer.Play(MeleeSoundsMiss[Random(Length(MeleeSoundsMiss))], fUnit.PositionF);
-                   end;
+    utBowman:      gSoundPlayer.Play(sfxBowDraw,      fUnit.PositionF); // Aiming
+    utRogue:       gSoundPlayer.Play(sfxSlingerShoot, fUnit.PositionF);
+  else
+    if IsHit then
+      gSoundPlayer.Play(MELEE_SOUND_HIT[Random(Length(MELEE_SOUND_HIT))], fUnit.PositionF)
+    else
+      gSoundPlayer.Play(MELEE_SOUND_MISS[Random(Length(MELEE_SOUND_MISS))], fUnit.PositionF);
   end;
 end;
 
 
-function TKMUnitActionFight.ExecuteValidateOpponent(Step: Byte): TKMActionResult;
+function TKMUnitActionFight.ExecuteValidateOpponent(aStep: Byte): TKMActionResult;
 begin
   Result := arActContinues;
-  //See if Opponent has walked away (i.e. Serf) or died
+
+  // See if Opponent has walked away (i.e. Serf) or died
   if fOpponent.IsDeadOrDying //Don't continue to fight dead units
   or not fOpponent.Visible //Don't continue to fight units that have went into a house
   or (gHands[fUnit.Owner].Alliances[fOpponent.Owner] = atAlly) //Unit could become ally from script
@@ -216,7 +218,7 @@ begin
       else
         //Melee: If we haven't yet placed our strike, reset the animation step
         //Otherwise finish this strike then we can face the new opponent automatically
-        if Step <= STRIKE_STEP then
+        if aStep <= MELEE_STRIKE_STEP then
           fUnit.AnimStep := 0; //Rest fight animation/sequence
     end
     else
@@ -229,7 +231,7 @@ end;
 
 
 //A result of True means exit from Execute
-function TKMUnitActionFight.ExecuteProcessRanged(Step: Byte): Boolean;
+function TKMUnitActionFight.ExecuteProcessRanged(aStep: Byte): Boolean;
 var
   W: TKMUnitWarrior;
 begin
@@ -237,24 +239,23 @@ begin
 
   W := TKMUnitWarrior(fUnit);
 
-  if Step = 0 then
+  if aStep = 0 then
   begin
     if fFightDelay = -1 then //Initialize
       fFightDelay := W.AimingDelay;
-    
+
     if fFightDelay > 0 then
     begin
       Dec(fFightDelay);
-      Result := True; //do not increment AnimStep, just exit;
-      Exit;
+      Exit(True); //do not increment AnimStep, just exit
     end;
   end;
 
   // Rogue sound should happen a bit later
-  if Step = W.AimSoundDelay then
+  if aStep = W.AimSoundDelay then
     MakeSound(False);
-  
-  if Step = W.FiringDelay then
+
+  if aStep = W.FiringDelay then
   begin
     W.SetLastShootTime; //Record last time the warrior shot
 
@@ -267,14 +268,14 @@ end;
 
 
 //A result of True means exit from Execute
-function TKMUnitActionFight.ExecuteProcessMelee(Step: Byte): Boolean;
+function TKMUnitActionFight.ExecuteProcessMelee(aStep: Byte): Boolean;
 var
   isHit: Boolean;
   damage: Word;
 begin
   Result := False;
 
-  if Step = 1 then
+  if aStep = 1 then
   begin
     //Tell the Opponent we are attacking him
     gHands[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
@@ -285,7 +286,7 @@ begin
   end;
 
   //Melee units place hit on this step
-  if Step = STRIKE_STEP then
+  if aStep = MELEE_STRIKE_STEP then
   begin
     //Base damage is the unit attack strength + AttackHorse if the enemy is mounted
     damage := gRes.Units[fUnit.UnitType].Attack;
@@ -305,16 +306,15 @@ begin
 
   //In KaM melee units pause for 1 tick on Steps [0,3,6]. Made it random so troops are not striking in sync,
   //plus it adds randomness to battles
-  if Step in [0,3,6] then
+  if aStep in [0,3,6] then
   begin
     if fFightDelay = -1 then //Initialize
       fFightDelay := KaMRandom(2{$IFDEF DBG_RNG_SPY}, 'TKMUnitActionFight.ExecuteProcessMelee 2'{$ENDIF});
 
     if fFightDelay > 0 then
     begin
-      dec(fFightDelay);
-      Result := True; //Means exit from Execute
-      Exit;
+      Dec(fFightDelay);
+      Exit(True); //Means exit from Execute
     end;
 
     fFightDelay := -1; //Reset
@@ -391,7 +391,7 @@ begin
 end;
 
 
-function TKMUnitActionFight.ObjToStringShort(const aSeparator: String = '|'): String;
+function TKMUnitActionFight.ObjToStringShort(const aSeparator: string = '|'): string;
 begin
   Result := inherited ObjToStringShort(aSeparator) +
             Format('%sopponent = [%s]%svertexOccupied = %s',
@@ -401,7 +401,7 @@ begin
 end;
 
 
-function TKMUnitActionFight.ObjToString(const aSeparator: String = ' '): String;
+function TKMUnitActionFight.ObjToString(const aSeparator: string = ' '): string;
 begin
   Result := inherited ObjToString(aSeparator) +
             Format('%sopponent = [%s]%svertexOccupied = %s',
