@@ -16,12 +16,11 @@ type
   private
     fHome: TKMHouseType;
     fIssued: Boolean;
-    function ChooseTree(const aLoc, aAvoid: TKMPoint; aRadius: Integer; aPlantAct: TKMPlantAct; aUnit: TKMUnit;
-                        out Tree: TKMPointDir; out PlantAct: TKMPlantAct): Boolean;
+    function ChooseTree(const aLoc, aAvoid: TKMPoint; aRadius: Integer; aPlantAct: TKMPlantAct; aUnit: TKMUnit; out aFoundTree: TKMPointDir; out aFoundPlantAct: TKMPlantAct): Boolean;
     procedure Clear;
     procedure WalkStyle(const aLoc2: TKMPointDir; aTo, aWork: TKMUnitActionType; aCycles, aDelay: Byte; aFrom: TKMUnitActionType; aScript: TKMGatheringScript);
     procedure SubActAdd(aAct: TKMHouseActionType; aCycles: Single);
-    procedure ResourcePlan(Res1: TKMWareType; Qty1: Byte; Res2: TKMWareType; Qty2: Byte; Prod1: TKMWareType; Prod2: TKMWareType = wtNone);
+    procedure ResourcePlan(aWare1: TKMWareType; aCount1: Byte; aWare2: TKMWareType; aCount2: Byte; aResultWare1: TKMWareType; aResultWare2: TKMWareType = wtNone);
   public
     HasToWalk: Boolean;
     Loc: TKMPoint;
@@ -122,13 +121,13 @@ begin
 end;
 
 
-procedure TKMUnitWorkPlan.ResourcePlan(Res1: TKMWareType; Qty1: Byte; Res2: TKMWareType; Qty2: Byte; Prod1: TKMWareType; Prod2: TKMWareType = wtNone);
+procedure TKMUnitWorkPlan.ResourcePlan(aWare1: TKMWareType; aCount1: Byte; aWare2: TKMWareType; aCount2: Byte; aResultWare1: TKMWareType; aResultWare2: TKMWareType = wtNone);
 begin
-  Resource1 := Res1; Count1 := Qty1;
-  Resource2 := Res2; Count2 := Qty2;
-  Product1 := Prod1; ProdCount1 := gRes.Houses[fHome].ResProductionX;
-  if Prod2=wtNone then exit;
-  Product2 := Prod2; ProdCount2 := gRes.Houses[fHome].ResProductionX;
+  Resource1 := aWare1; Count1 := aCount1;
+  Resource2 := aWare2; Count2 := aCount2;
+  Product1 := aResultWare1; ProdCount1 := gRes.Houses[fHome].ResProductionX;
+  if aResultWare2=wtNone then exit;
+  Product2 := aResultWare2; ProdCount2 := gRes.Houses[fHome].ResProductionX;
 end;
 
 
@@ -136,7 +135,7 @@ function TKMUnitWorkPlan.FindDifferentResource(aUnit: TKMUnit; aLoc: TKMPoint; c
 var
   NewLoc: TKMPointDir;
   PlantAct: TKMPlantAct;
-  Found: boolean;
+  planFound: boolean;
   HW: TKMHouseWoodcutters;
 begin
   if (GatheringScript = gsWoodCutterCut) or (GatheringScript = gsWoodCutterPlant) then
@@ -148,12 +147,11 @@ begin
       aLoc := HW.FlagPoint;
   end;
 
-  with gTerrain do
   case GatheringScript of
-    gsStoneCutter:     Found := FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
-    gsFarmerSow:       Found := FindCornField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, taPlant, PlantAct, NewLoc);
+    gsStoneCutter:     planFound := gTerrain.FindStone(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
+    gsFarmerSow:       planFound := gTerrain.FindCornField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, taPlant, PlantAct, NewLoc);
     gsFarmerCorn:      begin
-                          Found := FindCornField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, taAny, PlantAct, NewLoc);
+                          planFound := gTerrain.FindCornField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, taAny, PlantAct, NewLoc);
                           if PlantAct = taPlant then
                           begin
                             GatheringScript := gsFarmerSow; //Switch to sowing corn rather than cutting
@@ -165,17 +163,17 @@ begin
                           end;
                         end;
     gsFarmerWine:      begin
-                          Found := FindWineField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, NewLoc);
+                          planFound := gTerrain.FindWineField(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, NewLoc);
                           NewLoc.Dir := dirN; //The animation for picking grapes is only defined for facing north
                         end;
-    gsFisherCatch:     Found := FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
-    gsWoodCutterCut:   Found := ChooseTree(aLoc, KMGetVertexTile(aAvoidLoc, WorkDir), gRes.Units[aUnit.UnitType].MiningRange, taCut, aUnit, NewLoc, PlantAct);
-    gsWoodCutterPlant: Found := ChooseTree(aLoc, aAvoidLoc, gRes.Units[aUnit.UnitType].MiningRange, taPlant, aUnit, NewLoc, PlantAct);
+    gsFisherCatch:     planFound := gTerrain.FindFishWater(aLoc, gRes.Units[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
+    gsWoodCutterCut:   planFound := ChooseTree(aLoc, KMGetVertexTile(aAvoidLoc, WorkDir), gRes.Units[aUnit.UnitType].MiningRange, taCut, aUnit, NewLoc, PlantAct);
+    gsWoodCutterPlant: planFound := ChooseTree(aLoc, aAvoidLoc, gRes.Units[aUnit.UnitType].MiningRange, taPlant, aUnit, NewLoc, PlantAct);
   else
-    Found := False; //Can find a new resource for an unknown gathering script, so return with False
+    planFound := False; //Can find a new resource for an unknown gathering script, so return with False
   end;
 
-  if Found then
+  if planFound then
   begin
     Loc := NewLoc.Loc;
     WorkDir := NewLoc.Dir;
@@ -186,7 +184,7 @@ begin
 end;
 
 
-function TKMUnitWorkPlan.ChooseTree(const aLoc, aAvoid: TKMPoint; aRadius: Integer; aPlantAct: TKMPlantAct; aUnit: TKMUnit; out Tree: TKMPointDir; out PlantAct: TKMPlantAct): Boolean;
+function TKMUnitWorkPlan.ChooseTree(const aLoc, aAvoid: TKMPoint; aRadius: Integer; aPlantAct: TKMPlantAct; aUnit: TKMUnit; out aFoundTree: TKMPointDir; out aFoundPlantAct: TKMPlantAct): Boolean;
 var
   I: Integer;
   T: TKMPoint;
@@ -199,19 +197,19 @@ begin
 
   gTerrain.FindTree(aLoc, aRadius, aAvoid, aPlantAct, treeList, bestToPlant, secondBestToPlant);
 
-  //Convert taAny to either a Tree or a Spot
+  // Convert taAny to either a taCut or a taPlant
   if (aPlantAct in [taCut, taAny])
-  and ((treeList.Count > 8) //Always chop the tree if there are many
+  and ((treeList.Count > 8) //Always chop the aFoundTree if there are many
        or (bestToPlant.Count + secondBestToPlant.Count = 0)
        or ((treeList.Count > 0) and (KaMRandom({$IFDEF DBG_RNG_SPY}'TKMUnitWorkPlan.ChooseTree'{$ENDIF}) < treeList.Count / (treeList.Count + (bestToPlant.Count + secondBestToPlant.Count)/15)))
       ) then
   begin
-    PlantAct := taCut;
-    Result := treeList.GetWeightedRandom(Tree);
+    aFoundPlantAct := taCut;
+    Result := treeList.GetWeightedRandom(aFoundTree);
   end
   else
   begin
-    PlantAct := taPlant;
+    aFoundPlantAct := taPlant;
     //First try stumps list
     for I := bestToPlant.Count - 1 downto 0 do
       if not TKMUnitCitizen(aUnit).CanWorkAt(bestToPlant[I], gsWoodCutterPlant) then
@@ -219,7 +217,7 @@ begin
     Result := bestToPlant.GetWeightedRandom(T);
     //Trees must always be planted facing north as that is the direction the animation uses
     if Result then
-      Tree := KMPointDir(T, dirN)
+      aFoundTree := KMPointDir(T, dirN)
     else
     begin
       //Try empty places list
@@ -229,7 +227,7 @@ begin
       Result := secondBestToPlant.GetWeightedRandom(T);
       //Trees must always be planted facing north as that is the direction the animation uses
       if Result then
-        Tree := KMPointDir(T, dirN);
+        aFoundTree := KMPointDir(T, dirN);
     end;
   end;
 
