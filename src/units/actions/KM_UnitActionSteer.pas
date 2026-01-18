@@ -2,9 +2,10 @@ unit KM_UnitActionSteer;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, KM_Defaults, KM_CommonClasses, KM_Units, KM_Points;
+ SysUtils,
+ KM_Defaults, KM_CommonClasses, KM_Units, KM_Points;
 
-{Steer in place for set time}
+// Steer around for set time
 type
   TKMUnitActionSteer = class(TKMUnitAction)
   private
@@ -13,7 +14,7 @@ type
     fNextPos: TKMPoint; //The tile we are currently walking to
     procedure IncVertex(const aFrom, aTo: TKMPoint);
     procedure DecVertex;
-    function ChooseNextStep(out Point: TKMPoint): Boolean;
+    function ChooseNextStep(out aPoint: TKMPoint): Boolean;
   public
     constructor Create(aUnit: TKMUnit; aActionType: TKMUnitActionType; aLocked: Boolean);
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -27,10 +28,11 @@ type
 
 implementation
 uses
+  Math,
   KM_CommonUtils, KM_Resource, KM_ResUnits;
 
 
-{ TUnitActionSteer }
+{ TKMUnitActionSteer }
 constructor TKMUnitActionSteer.Create(aUnit: TKMUnit; aActionType: TKMUnitActionType; aLocked: Boolean);
 begin
   inherited Create(aUnit, aActionType, aLocked);
@@ -94,7 +96,7 @@ begin
 end;
 
 
-function TKMUnitActionSteer.ChooseNextStep(out Point: TKMPoint): Boolean;
+function TKMUnitActionSteer.ChooseNextStep(out aPoint: TKMPoint): Boolean;
 var
   I,K,J: Integer;
   loc: TKMPoint;
@@ -120,12 +122,12 @@ begin
           for J:=0 to 5*Byte(goodSpot) do
             list.Add(KMPoint(loc.X+I, loc.Y+K));
         end;
-    Result := list.GetRandom(Point);
+    Result := list.GetRandom(aPoint);
     list.Free;
   end
   else
   begin
-    Point := loc;
+    aPoint := loc;
     Result := True;
   end;
 end;
@@ -181,8 +183,8 @@ begin
 
   walkX := fNextPos.X - fUnit.PositionF.X;
   walkY := fNextPos.Y - fUnit.PositionF.Y;
-  dx := sign(walkX); //-1,0,1
-  dy := sign(walkY); //-1,0,1
+  dx := Sign(walkX); //-1,0,1
+  dy := Sign(walkY); //-1,0,1
 
   distance := gRes.Units[fUnit.UnitType].GetEffectiveWalkSpeed((dx <> 0) and (dy <> 0));
 
