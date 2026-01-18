@@ -2,12 +2,10 @@ unit KM_UnitActionStormAttack;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_Units;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Units;
 
 
-{Charge forwards until we are tired or hit an obstacle}
+// Charge forwards until we are tired or hit an obstacle
 type
   TKMUnitActionStormAttack = class(TKMUnitAction)
   private
@@ -30,12 +28,14 @@ type
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
+
 implementation
 uses
-  KM_Resource, KM_ResUnits, KM_UnitWarrior;
+  Classes, Math,
+  KM_CommonUtils, KM_Resource, KM_ResUnits, KM_UnitWarrior;
 
 
-{ TUnitActionStormAttack }
+{ TKMUnitActionStormAttack }
 constructor TKMUnitActionStormAttack.Create(aUnit: TKMUnit; aActionType: TKMUnitActionType; aRow: Integer);
 const
   //Tiles traveled measured in KaM TPR: Min 8, maximum 13
@@ -140,7 +140,8 @@ begin
     // Use umtWalk move type here, since we just want to evaluate if we are close enough
     distance := gRes.Units[fUnit.UnitType].GetEffectiveWalkSpeed(False);
     fType := uaWalk;
-  end else begin
+  end else
+  begin
     distance := gRes.Units[fUnit.UnitType].GetEffectiveStormSpeed(False);
     fType := uaSpec;
   end;

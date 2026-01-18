@@ -2,7 +2,7 @@ unit KM_UnitActionWalkTo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
+  Classes,
   KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points,
   KM_Houses, KM_Units;
 
@@ -15,13 +15,6 @@ type
     kisWaiting     //We have been stuck for a while so allow other units to swap with us
   );
 
-const
-  InteractionStatusName: array [TKMInteractionStatus] of string = (
-    'None', 'Pushing', 'Pushed', 'Trying', 'Waiting'
-  );
-
-
-type
   TKMDestinationCheck = (dcNoChanges, dcRouteChanged, dcNoRoute);
   TKMObstacleCheck = (ocNoObstacle, ocReRouteMade, ocNoRoute);
 
@@ -111,7 +104,7 @@ type
 
 implementation
 uses
-  TypInfo,
+  Math, TypInfo, SysUtils,
   KM_Entity,
   KM_RenderAux, KM_Game, KM_GameParams,
   KM_HandsCollection, KM_HandTypes, KM_HandEntity,
@@ -138,7 +131,7 @@ const
   WAITING_TIMEOUT  = 40;                     //After this time we can be forced to exchange
 
 
-{ TUnitActionWalkTo }
+{ TKMUnitActionWalkTo }
 constructor TKMUnitActionWalkTo.Create( aUnit: TKMUnit;
                                         const aLocB: TKMPoint;
                                         aActionType: TKMUnitActionType;
@@ -360,6 +353,9 @@ end;
 
 
 function TKMUnitActionWalkTo.GetExplanation: UnicodeString;
+const
+  InteractionStatusName: array [TKMInteractionStatus] of string = (
+    'None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
 begin
   Result := InteractionStatusName[fInteractionStatus] + ': ' + fExplanation;
 end;
