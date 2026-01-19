@@ -835,7 +835,7 @@ end;
 
 
 procedure TKMUnitGroup.OffendersPrune;
-  function ForgetOffender(aOffender: TKMUnit; aForgetRangedOffenders: Boolean): Boolean;
+  function ForgetOffender(aOffender: TKMUnitWarrior; aForgetRangedOffenders: Boolean): Boolean;
   begin
     Result := False;
 
@@ -846,7 +846,7 @@ procedure TKMUnitGroup.OffendersPrune;
     if IsAllyTo(aOffender) then Exit(True);
 
     // Remove ranged offenders if we are in fight with melee units for melee units groups
-    if aForgetRangedOffenders and TKMUnitSpec.IsRanged(aOffender.UnitType) then Exit(True);
+    if aForgetRangedOffenders and aOffender.IsRanged then Exit(True);
   end;
 var
   I: Integer;
@@ -857,7 +857,7 @@ begin
   forgetRangedOffenders := False;
   if not IsRanged then
     for I := 0 to fOffenders.Count - 1 do
-      if not TKMUnitSpec.IsRanged(fOffenders[I].UnitType) then
+      if not fOffenders[I].IsRanged then
       begin
         forgetRangedOffenders := True;
         Break;
