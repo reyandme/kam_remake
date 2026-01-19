@@ -835,33 +835,44 @@ end;
 
 
 procedure TKMUnitGroup.OffendersPrune;
+  function ForgetOffender(aOffender: TKMUnit; aForgetRangedOffenders: Boolean): Boolean;
+  begin
+    Result := False;
+
+    // Already dying
+    if aOffender.IsDeadOrDying then Exit(True);
+
+    // Offender could become an ally from script
+    if IsAllyTo(aOffender) then Exit(True);
+
+    // Remove ranged offenders if we are in fight with melee units for melee units groups
+    if aForgetRangedOffenders and TKMUnitSpec.IsRanged(aOffender.UnitType) then Exit(True);
+  end;
 var
   I: Integer;
   U: TKMUnit;
-  skipRangedOffenders: Boolean;
+  forgetRangedOffenders: Boolean;
 begin
   // If we are Melee and we are fighting with Melee we should forget about the Ranged offenders we have
-  skipRangedOffenders := False;
+  forgetRangedOffenders := False;
   if not IsRanged then
     for I := 0 to fOffenders.Count - 1 do
       if not TKMUnitSpec.IsRanged(fOffenders[I].UnitType) then
       begin
-        skipRangedOffenders := True;
+        forgetRangedOffenders := True;
         Break;
       end;
 
   for I := fOffenders.Count - 1 downto 0 do
-    if fOffenders[I].IsDeadOrDying
-    or IsAllyTo(fOffenders[I]) // Offender could become an ally from script
-    or (skipRangedOffenders and TKMUnitSpec.IsRanged(fOffenders[I].UnitType)) then // Remove ranged offenders if we are in fight with melee units for melee units groups
-    begin
-      U := fOffenders[I]; // Need to pass var
-      gHands.CleanUpUnitPointer(U);
-      fOffenders.Delete(I);
+  if ForgetOffender(fOffenders[I], forgetRangedOffenders) then
+  begin
+    U := fOffenders[I]; // Need to pass var
+    gHands.CleanUpUnitPointer(U);
+    fOffenders.Delete(I);
 
-      if fOffenders.Count = 0 then
-        OrderRepeat;
-    end;
+    if fOffenders.Count = 0 then
+      OrderRepeat;
+  end;
 end;
 
 
