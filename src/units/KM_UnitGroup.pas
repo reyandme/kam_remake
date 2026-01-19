@@ -861,8 +861,6 @@ begin
 
   X := aUnit.Position.X;
   Y := aUnit.Position.Y;
-  result := false;
-  exit;
   result :=    (GetGroupNumber(X-1, Y-1) = UID)
             or (GetGroupNumber(X  , Y-1) = UID)
             or (GetGroupNumber(X+1, Y-1) = UID)
