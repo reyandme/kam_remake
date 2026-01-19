@@ -94,11 +94,6 @@ type
     property UnitAnim[aAction: TKMUnitActionType; aDir: TKMDirection]: TKMAnimLoop read GetUnitAnim;
     property GUIName: UnicodeString read GetUnitName;
     property GUITextID: Integer read GetUnitTextID;
-
-    class function IsMelee(aUnitType: TKMUnitType): Boolean;
-    class function IsMounted(aUnitType: TKMUnitType): Boolean;
-    class function IsAntihorse(aUnitType: TKMUnitType): Boolean;
-    class function IsRanged(aUnitType: TKMUnitType): Boolean;
   end;
 
 
@@ -520,30 +515,6 @@ begin
     Result := gResTexts[TX_UNITS_DESCRIPTIONS__13 + UNIT_TYPE_TO_ID[fUnitType]]
   else
     Result := 'N/A';
-end;
-
-
-class function TKMUnitSpec.IsMelee(aUnitType: TKMUnitType): Boolean;
-begin
-  Result := aUnitType in [utMilitia, utAxeFighter, utSwordFighter, utBarbarian, utWarrior];
-end;
-
-
-class function TKMUnitSpec.IsMounted(aUnitType: TKMUnitType): Boolean;
-begin
-  Result := aUnitType in [utScout, utKnight, utVagabond];
-end;
-
-
-class function TKMUnitSpec.IsAntihorse(aUnitType: TKMUnitType): Boolean;
-begin
-  Result := aUnitType in [utLanceCarrier, utPikeman, utRebel];
-end;
-
-
-class function TKMUnitSpec.IsRanged(aUnitType: TKMUnitType): Boolean;
-begin
-  Result := aUnitType in [utBowman, utCrossbowman, utRogue];
 end;
 
 
