@@ -85,6 +85,7 @@ type
     function GetDirection: TKMDirection;
     procedure SetSelectedInUI(aUnit: TKMUnitWarrior);
     function GetSelectedInUI: TKMUnitWarrior;
+    procedure OffendersPrune;
   protected
     function GetPosition: TKMPoint; inline;
     function GetInstance: TKMUnitGroup; override;
@@ -833,73 +834,57 @@ begin
 end;
 
 
-//If we picked up a fight, while doing any other order - manage it here
-procedure TKMUnitGroup.CheckForFight;
-
-function GetGroupNumber(aX, aY: integer): integer;
-var
-  G: TKMUnitGroup;
-begin
-
-  result := -1;
-  if gTerrain.TileInMapCoords(aX, aY) then
+procedure TKMUnitGroup.OffendersPrune;
+  function ForgetOffender(aOffender: TKMUnit; aForgetRangedOffenders: Boolean): Boolean;
   begin
-    G := gHands.GroupsHitTest(aX, aY);
-    if (G <> nil) and not G.IsDead then
-    begin
-      Result := G.UID;
-    end
+    Result := False;
+
+    // Already dying
+    if aOffender.IsDeadOrDying then Exit(True);
+
+    // Offender could become an ally from script
+    if IsAllyTo(aOffender) then Exit(True);
+
+    // Remove ranged offenders if we are in fight with melee units for melee units groups
+    if aForgetRangedOffenders and TKMUnitSpec.IsRanged(aOffender.UnitType) then Exit(True);
   end;
-end;
-
-function CanBeAttackedByGroup(aUnit: TKMUnitWarrior): boolean;
 var
-  X: integer;
-  Y: integer;
-  G: TKMUnitGroup;
-begin
-
-  X := aUnit.Position.X;
-  Y := aUnit.Position.Y;
-  result :=    (GetGroupNumber(X-1, Y-1) = UID)
-            or (GetGroupNumber(X  , Y-1) = UID)
-            or (GetGroupNumber(X+1, Y-1) = UID)
-            or (GetGroupNumber(X-1, Y  ) = UID)
-            or (GetGroupNumber(X+1, Y  ) = UID)
-            or (GetGroupNumber(X-1, Y+1) = UID)
-            or (GetGroupNumber(X  , Y+1) = UID)
-            or (GetGroupNumber(X+1, Y+1) = UID);
-end;
-
-var
-  I, K: Integer;
+  I: Integer;
   U: TKMUnit;
-  fightWasOrdered: Boolean;
-  offender: TKMUnitWarrior;
-  skipRangedOffenders: Boolean;
+  forgetRangedOffenders: Boolean;
 begin
-  skipRangedOffenders := False;
+  // If we are Melee and we are fighting with Melee we should forget about the Ranged offenders we have
+  forgetRangedOffenders := False;
   if not IsRanged then
     for I := 0 to fOffenders.Count - 1 do
       if not TKMUnitSpec.IsRanged(fOffenders[I].UnitType) then
       begin
-        skipRangedOffenders := True;
+        forgetRangedOffenders := True;
         Break;
       end;
 
-  // Verify we still have foes
   for I := fOffenders.Count - 1 downto 0 do
-    if fOffenders[I].IsDeadOrDying
-      or IsAllyTo(fOffenders[I]) // Offender could become an ally from script
-      or (skipRangedOffenders  and TKMUnitSpec.IsRanged(fOffenders[I].UnitType) // Remove ranged offenders if we are in fight with melee units for melee units groups.
-      and not CanBeAttackedByGroup(fOffenders[I])) then //Remove only thouse who are close to out group, so after melee units in fight dies other group members know who to attack.
-    begin
-      U := fOffenders[I]; // Need to pass var
-      gHands.CleanUpUnitPointer(U);
-      fOffenders.Delete(I);
-      if fOffenders.Count = 0 then
-        OrderRepeat;
-    end;
+  if ForgetOffender(fOffenders[I], forgetRangedOffenders) then
+  begin
+    U := fOffenders[I]; // Need to pass var
+    gHands.CleanUpUnitPointer(U);
+    fOffenders.Delete(I);
+
+    if fOffenders.Count = 0 then
+      OrderRepeat;
+  end;
+end;
+
+
+// If we picked up a fight, while doing any other order - manage it here
+procedure TKMUnitGroup.CheckForFight;
+var
+  I, K: Integer;
+  fightWasOrdered: Boolean;
+  offender: TKMUnitWarrior;
+begin
+  // Check on our offenders and remove ones we dont care about anymore
+  OffendersPrune;
 
   //Fight is over
   if fOffenders.Count = 0 then Exit;
