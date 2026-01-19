@@ -85,6 +85,7 @@ type
     function GetDirection: TKMDirection;
     procedure SetSelectedInUI(aUnit: TKMUnitWarrior);
     function GetSelectedInUI: TKMUnitWarrior;
+    procedure OffendersPrune;
   protected
     function GetPosition: TKMPoint; inline;
     function GetInstance: TKMUnitGroup; override;
@@ -833,15 +834,13 @@ begin
 end;
 
 
-//If we picked up a fight, while doing any other order - manage it here
-procedure TKMUnitGroup.CheckForFight;
+procedure TKMUnitGroup.OffendersPrune;
 var
-  I, K: Integer;
+  I: Integer;
   U: TKMUnit;
-  fightWasOrdered: Boolean;
-  offender: TKMUnitWarrior;
   skipRangedOffenders: Boolean;
 begin
+  // If we are Melee and we are fighting with Melee we should forget about the Ranged offenders we have
   skipRangedOffenders := False;
   if not IsRanged then
     for I := 0 to fOffenders.Count - 1 do
@@ -851,18 +850,30 @@ begin
         Break;
       end;
 
-  // Verify we still have foes
   for I := fOffenders.Count - 1 downto 0 do
     if fOffenders[I].IsDeadOrDying
-      or IsAllyTo(fOffenders[I]) // Offender could become an ally from script
-      or (skipRangedOffenders  and TKMUnitSpec.IsRanged(fOffenders[I].UnitType)) then // Remove ranged offenders if we are in fight with melee units for melee units groups
+    or IsAllyTo(fOffenders[I]) // Offender could become an ally from script
+    or (skipRangedOffenders and TKMUnitSpec.IsRanged(fOffenders[I].UnitType)) then // Remove ranged offenders if we are in fight with melee units for melee units groups
     begin
       U := fOffenders[I]; // Need to pass var
       gHands.CleanUpUnitPointer(U);
       fOffenders.Delete(I);
+
       if fOffenders.Count = 0 then
         OrderRepeat;
     end;
+end;
+
+
+// If we picked up a fight, while doing any other order - manage it here
+procedure TKMUnitGroup.CheckForFight;
+var
+  I, K: Integer;
+  fightWasOrdered: Boolean;
+  offender: TKMUnitWarrior;
+begin
+  // Check on our offenders and remove ones we dont care about anymore
+  OffendersPrune;
 
   //Fight is over
   if fOffenders.Count = 0 then Exit;
