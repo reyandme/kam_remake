@@ -1511,6 +1511,7 @@ begin
   rect := KMRectGrow(KMRect(KMPoint(fMapXc, fMapYc)), (fSize div 2) + 1);
   gTerrain.UpdatePassability(rect);
   gTerrain.UpdateLighting(rect); //Also update lighting because of water
+  UpdateWalkConnect([wcWalk, wcFish, wcWork], rect, True);
 end;
 
 
@@ -1699,6 +1700,7 @@ begin
   R := KMRectGrow(KMRect(KMPointF(fMapXn, fMapYn)), fSize);
   gTerrain.UpdateLighting(R);
   gTerrain.UpdatePassability(R);
+  UpdateWalkConnect([wcWalk, wcFish, wcWork], R, True);
 end;
 
 
