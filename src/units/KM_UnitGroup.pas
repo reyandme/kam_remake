@@ -365,13 +365,6 @@ begin
     fOffenders.Add(W);
   end;
 
-  LoadStream.Read(newCount);
-  for I := 0 to newCount - 1 do
-  begin
-    LoadStream.Read(id, 4);
-    fProtectedRanged.Add(id);
-  end;
-
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fOrderLoc);
   LoadStream.Read(fOrderWalkKind, SizeOf(fOrderWalkKind));
@@ -455,9 +448,6 @@ begin
   SaveStream.Write(fOffenders.Count);
   for I := 0 to fOffenders.Count - 1 do
     SaveStream.Write(fOffenders[I].UID);
-  SaveStream.Write(fProtectedRanged.Count);
-  for I := 0 to fProtectedRanged.Count - 1 do
-    SaveStream.Write(fProtectedRanged[I]);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc);
   SaveStream.Write(fOrderWalkKind, SizeOf(fOrderWalkKind));
@@ -858,7 +848,6 @@ var
   I: Integer;
   U: TKMUnit;
 begin
-  fProtectedRanged.Clear();
   for I := 0 to Count - 1 do
     if fMembers[I].InFight then
     begin
@@ -909,6 +898,8 @@ begin
     if fOffenders.Count = 0 then
       OrderRepeat;
   end;
+
+  fProtectedRanged.Clear();
 end;
 
 
