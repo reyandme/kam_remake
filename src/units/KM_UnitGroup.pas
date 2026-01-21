@@ -20,6 +20,7 @@ type
     fTargetFollowTicker: Cardinal;
     fMembers: TList<TKMUnitWarrior>;
     fOffenders: TList<TKMUnitWarrior>; // enemy troops, which melee units are going to help with and which will be attacked first by ranged units
+    fProtectedRanged: TList<Integer>; // enemy ranged unit ids, that should not be forgotten and removed from fOffenders .
     fUnitsPerRow: Word;
     fTimeSinceHungryReminder: Integer;
     fGroupType: TKMGroupType;
@@ -85,7 +86,9 @@ type
     function GetDirection: TKMDirection;
     procedure SetSelectedInUI(aUnit: TKMUnitWarrior);
     function GetSelectedInUI: TKMUnitWarrior;
+    procedure UpdateProtectedRanged;
     procedure OffendersPrune;
+
   protected
     function GetPosition: TKMPoint; inline;
     function GetInstance: TKMUnitGroup; override;
@@ -261,6 +264,7 @@ begin
   Assert(fGroupType in GROUP_TYPES_VALID, 'Can''t assign group type ' + GetEnumName(TypeInfo(TKMGroupType), Integer(fGroupType)));
   fMembers := TList<TKMUnitWarrior>.Create;
   fOffenders := TList<TKMUnitWarrior>.Create;
+  fProtectedRanged := TList<Integer>.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(aCreator.Position.X, aCreator.Position.Y, aCreator.Direction);
@@ -288,6 +292,7 @@ begin
   Assert(fGroupType in GROUP_TYPES_VALID, 'Can''t assign group type ' + GetEnumName(TypeInfo(TKMGroupType), Integer(fGroupType)));
   fMembers := TList<TKMUnitWarrior>.Create;
   fOffenders := TList<TKMUnitWarrior>.Create;
+  fProtectedRanged := TList<Integer>.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(PosX, PosY, aDir);
@@ -336,12 +341,14 @@ constructor TKMUnitGroup.Load(LoadStream: TKMemoryStream);
 var
   I, newCount: Integer;
   W: TKMUnitWarrior;
+  id: Integer;
 begin
   inherited;
 
   LoadStream.CheckMarker('UnitGroup');
   fMembers := TList<TKMUnitWarrior>.Create;
   fOffenders := TList<TKMUnitWarrior>.Create;
+  fProtectedRanged := TList<Integer>.Create;
 
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(newCount);
@@ -356,6 +363,13 @@ begin
   begin
     LoadStream.Read(W, 4); //subst on syncload
     fOffenders.Add(W);
+  end;
+
+  LoadStream.Read(newCount);
+  for I := 0 to newCount - 1 do
+  begin
+    LoadStream.Read(id, 4);
+    fProtectedRanged.Add(id);
   end;
 
   LoadStream.Read(fOrder, SizeOf(fOrder));
@@ -408,6 +422,8 @@ begin
   ClearOffenders;
   fOffenders.Free;
 
+  fProtectedRanged.Free;
+
   ClearOrderTarget; //Free pointers
 
   inherited;
@@ -439,6 +455,9 @@ begin
   SaveStream.Write(fOffenders.Count);
   for I := 0 to fOffenders.Count - 1 do
     SaveStream.Write(fOffenders[I].UID);
+  SaveStream.Write(fProtectedRanged.Count);
+  for I := 0 to fProtectedRanged.Count - 1 do
+    SaveStream.Write(fProtectedRanged[I]);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc);
   SaveStream.Write(fOrderWalkKind, SizeOf(fOrderWalkKind));
@@ -834,7 +853,23 @@ begin
 end;
 
 
+procedure TKMUnitGroup.UpdateProtectedRanged;
+var
+  I: Integer;
+  U: TKMUnit;
+begin
+  fProtectedRanged.Clear();
+  for I := 0 to Count - 1 do
+    if fMembers[I].InFight then
+    begin
+      U := fMembers[i].GetAttackingUnit();
+      if TKMUnitWarrior(U).IsRanged then
+        fProtectedRanged.Add(U.UID);
+    end;
+end;
+
 procedure TKMUnitGroup.OffendersPrune;
+
   function ForgetOffender(aOffender: TKMUnitWarrior; aForgetRangedOffenders: Boolean): Boolean;
   begin
     Result := False;
@@ -846,7 +881,7 @@ procedure TKMUnitGroup.OffendersPrune;
     if IsAllyTo(aOffender) then Exit(True);
 
     // Remove ranged offenders if we are in fight with melee units for melee units groups
-    if aForgetRangedOffenders and aOffender.IsRanged then Exit(True);
+    if aForgetRangedOffenders and aOffender.IsRanged and not fProtectedRanged.Contains(aOffender.UID) then Exit(True);
   end;
 var
   I: Integer;
@@ -860,6 +895,7 @@ begin
       if not fOffenders[I].IsRanged then
       begin
         forgetRangedOffenders := True;
+        UpdateProtectedRanged();
         Break;
       end;
 
