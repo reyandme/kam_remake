@@ -44,7 +44,6 @@ type
     procedure ClearAttackingUnit;
     procedure SetOrderTarget(aUnit: TKMUnit);
     procedure DoSetAttackingUnit(aUnit: TKMUnit);
-    function GetAttackingUnit: TKMUnit;
     function GetOrderTargetUnit: TKMUnit;
     function GetOrderHouseTarget: TKMHouse;
     procedure SetOrderHouseTarget(aHouse: TKMHouse);
@@ -107,6 +106,7 @@ type
 
     function GetFightMinRange: Single;
     function GetFightMaxRange(aTileBased: Boolean = False): Single;
+    function GetAttackingUnit: TKMUnit;
     function WithinFightRange(const aValue: TKMPoint): Boolean;
     function OrderDone: Boolean;
     property RequestedFood: Boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food

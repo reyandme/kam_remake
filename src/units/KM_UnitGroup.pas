@@ -40,6 +40,7 @@ type
     //don't saved:
     fMapEdCount: Word;
     fSelectedInUI: TKMUnitWarrior; // Unit selected by the player in GUI. Should not be saved or affect game logic for MP consistency.
+    fTempProtectedRanged: TList<TKMUnitWarrior>; // Ranged enemy units, that should not be pruned from fOffenders.
 
     function GetCount: Integer;
     function GetMember(aIndex: Integer): TKMUnitWarrior;
@@ -85,6 +86,7 @@ type
     function GetDirection: TKMDirection;
     procedure SetSelectedInUI(aUnit: TKMUnitWarrior);
     function GetSelectedInUI: TKMUnitWarrior;
+    procedure UpdateProtectedRanged;
     procedure OffendersPrune;
   protected
     function GetPosition: TKMPoint; inline;
@@ -261,6 +263,7 @@ begin
   Assert(fGroupType in GROUP_TYPES_VALID, 'Can''t assign group type ' + GetEnumName(TypeInfo(TKMGroupType), Integer(fGroupType)));
   fMembers := TList<TKMUnitWarrior>.Create;
   fOffenders := TList<TKMUnitWarrior>.Create;
+  fTempProtectedRanged := TList<TKMUnitWarrior>.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(aCreator.Position.X, aCreator.Position.Y, aCreator.Direction);
@@ -288,6 +291,7 @@ begin
   Assert(fGroupType in GROUP_TYPES_VALID, 'Can''t assign group type ' + GetEnumName(TypeInfo(TKMGroupType), Integer(fGroupType)));
   fMembers := TList<TKMUnitWarrior>.Create;
   fOffenders := TList<TKMUnitWarrior>.Create;
+  fTempProtectedRanged := TList<TKMUnitWarrior>.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(PosX, PosY, aDir);
@@ -342,6 +346,7 @@ begin
   LoadStream.CheckMarker('UnitGroup');
   fMembers := TList<TKMUnitWarrior>.Create;
   fOffenders := TList<TKMUnitWarrior>.Create;
+  fTempProtectedRanged := TList<TKMUnitWarrior>.Create;
 
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(newCount);
@@ -407,6 +412,8 @@ begin
   //We need to release offenders pointers
   ClearOffenders;
   fOffenders.Free;
+
+  FreeAndNil(fTempProtectedRanged);
 
   ClearOrderTarget; //Free pointers
 
@@ -834,6 +841,21 @@ begin
 end;
 
 
+procedure TKMUnitGroup.UpdateProtectedRanged;
+var
+  I: Integer;
+  U: TKMUnit;
+begin
+  fTempProtectedRanged.Clear;
+  for I := 0 to Count - 1 do
+  begin
+    U := fMembers[i].GetAttackingUnit;
+
+    if (U <> nil) and (U is TKMUnitWarrior) and TKMUnitWarrior(U).IsRanged then
+      fTempProtectedRanged.Add(TKMUnitWarrior(U));
+  end;
+end;
+
 procedure TKMUnitGroup.OffendersPrune;
   function ForgetOffender(aOffender: TKMUnitWarrior; aForgetRangedOffenders: Boolean): Boolean;
   begin
@@ -846,7 +868,7 @@ procedure TKMUnitGroup.OffendersPrune;
     if IsAllyTo(aOffender) then Exit(True);
 
     // Remove ranged offenders if we are in fight with melee units for melee units groups
-    if aForgetRangedOffenders and aOffender.IsRanged then Exit(True);
+    if aForgetRangedOffenders and aOffender.IsRanged and not fTempProtectedRanged.Contains(aOffender) then Exit(True);
   end;
 var
   I: Integer;
@@ -863,6 +885,9 @@ begin
         Break;
       end;
 
+  if forgetRangedOffenders then
+    UpdateProtectedRanged;
+
   for I := fOffenders.Count - 1 downto 0 do
   if ForgetOffender(fOffenders[I], forgetRangedOffenders) then
   begin
@@ -873,6 +898,9 @@ begin
     if fOffenders.Count = 0 then
       OrderRepeat;
   end;
+
+  // Clear for neats
+  fTempProtectedRanged.Clear;
 end;
 
 
