@@ -88,7 +88,6 @@ type
     function GetSelectedInUI: TKMUnitWarrior;
     procedure UpdateProtectedRanged;
     procedure OffendersPrune;
-
   protected
     function GetPosition: TKMPoint; inline;
     function GetInstance: TKMUnitGroup; override;
@@ -341,7 +340,6 @@ constructor TKMUnitGroup.Load(LoadStream: TKMemoryStream);
 var
   I, newCount: Integer;
   W: TKMUnitWarrior;
-  id: Integer;
 begin
   inherited;
 
