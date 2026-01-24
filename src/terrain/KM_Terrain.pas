@@ -4704,6 +4704,7 @@ end;
 procedure TKMTerrain.CopyRect(aFromTileX, aFromTileY, aWidth, aHeight, aToTileX, aToTileY: Integer);
 var
   I, K: Integer;
+  rect: TKMRect;
 begin
   Assert(gGameParams.Tick = 0, 'We cut a lot of corners with such copy, hence only allowed on tick 0');
 
@@ -4719,7 +4720,10 @@ begin
       Land[aToTileY + I, aToTileX + K].BlendingLvl := Land[aFromTileY + I, aFromTileX + K].BlendingLvl;
     end;
 
-  UpdateAll(KMRect(aToTileX, aToTileY, aToTileX + aWidth, aToTileY + aHeight));
+  rect := KMRect(aToTileX, aToTileY, aToTileX + aWidth, aToTileY + aHeight);
+
+  UpdateAll(rect);
+  UpdateWalkConnect([wcWalk, wcFish, wcWork], rect, True);
 end;
 
 
