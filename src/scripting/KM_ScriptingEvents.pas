@@ -63,8 +63,8 @@ type
     procedure ProcHousePlanRemoved(aPlayer: TKMHandID; aX, aY, aHouseType: Integer);
     procedure ProcHousePlanRemovedEx(aPlayer: TKMHandID; aX, aY: Integer; aHouseType: TKMHouseType);
 
-    procedure ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: Integer);
-    procedure ProcMarketTradeEx(aMarket: TKMHouse; aFrom, aTo: TKMWareType);
+    procedure ProcMarketTrade(aMarket: TKMHouse; aWareFrom, aWareTo: Integer);
+    procedure ProcMarketTradeEx(aMarket: TKMHouse; aWareFrom, aWareTo: TKMWareType);
 
     procedure ProcUnitAfterDied(aUnitType: Integer; aOwner: TKMHandID; aX, aY: Integer);
     procedure ProcUnitAfterDiedEx(aUnitType: TKMUnitType; aOwner: TKMHandID; aX, aY: Integer);
@@ -81,7 +81,7 @@ type
     procedure LinkEventsAndCommands;
 
     function ParseConsoleCommandsProcedures(const aScriptCode: AnsiString): Boolean;
-    function HasConsoleCommand(const aCmdName: AnsiString) : Boolean;
+    function HasConsoleCommand(const aCmdName: AnsiString): Boolean;
     function HasConsoleCommands: Boolean;
     function CallConsoleCommand(aHandID: TKMHandID; const aCmdName: AnsiString; const aParams: TKMScriptCommandParamsArray): Boolean;
 
@@ -111,7 +111,7 @@ type
     procedure ProcGroupOrderMove(aGroup: TKMUnitGroup; aX, aY: Integer; aDir: TKMDirection);
     procedure ProcGroupOrderLink(aGroup1, aGroup2: TKMUnitGroup);
     procedure ProcGroupOrderSplit(aGroup, aNewGroup: TKMUnitGroup);
-    procedure EventMarketTrade(aMarket: TKMHouse; aFrom, aTo: TKMWareType);
+    procedure EventMarketTrade(aMarket: TKMHouse; aWareFrom, aWareTo: TKMWareType);
     procedure ProcMissionStart;
     procedure ProcPeacetimeEnd;
     procedure ProcPlanRoadDigged(aPlayer: TKMHandID; aX, aY: Integer);
@@ -183,6 +183,7 @@ type
   // - report to player
 
 
+//todo -cPractical: Move to gRes.Houses
 function HouseTypeValid(aHouseType: Integer): Boolean; inline;
 begin
   Result := (aHouseType in [Low(HOUSE_ID_TO_TYPE)..High(HOUSE_ID_TO_TYPE)])
@@ -477,7 +478,7 @@ begin
 end;
 
 
-function TKMScriptEvents.HasConsoleCommand(const aCmdName: AnsiString) : Boolean;
+function TKMScriptEvents.HasConsoleCommand(const aCmdName: AnsiString): Boolean;
 begin
   Result := MethodAssigned(aCmdName);
 end;
@@ -607,36 +608,36 @@ end;
 
 //* Version: 6216
 //* Occurs when a trade happens in a market (at the moment when resources are exchanged by serfs).
-//* aFrom: as Integer from Lookup table
-//* aTo: as Integer from Lookup table
-procedure TKMScriptEvents.ProcMarketTrade(aMarket: TKMHouse; aFrom, aTo: Integer);
+//* aWareFrom: as Integer from Lookup table
+//* aWareTo: as Integer from Lookup table
+procedure TKMScriptEvents.ProcMarketTrade(aMarket: TKMHouse; aWareFrom, aWareTo: Integer);
 begin
   if MethodAssigned(evtMarketTrade) then
   begin
     fIDCache.CacheHouse(aMarket, aMarket.UID); //Improves cache efficiency since aMarket will probably be accessed soon
-    CallEventHandlers(evtMarketTrade, [aMarket.UID, aFrom, aTo]);
+    CallEventHandlers(evtMarketTrade, [aMarket.UID, aWareFrom, aWareTo]);
   end;
 end;
 
 
 //* Version: 14000
 //* Occurs when a trade happens in a market (at the moment when resources are exchanged by serfs).
-//* aFrom: as TKMWareType
-//* aTo: as TKMWareType
-procedure TKMScriptEvents.ProcMarketTradeEx(aMarket: TKMHouse; aFrom, aTo: TKMWareType);
+//* aWareFrom: as TKMWareType
+//* aWareTo: as TKMWareType
+procedure TKMScriptEvents.ProcMarketTradeEx(aMarket: TKMHouse; aWareFrom, aWareTo: TKMWareType);
 begin
   if MethodAssigned(evtMarketTradeEx) then
   begin
     fIDCache.CacheHouse(aMarket, aMarket.UID); //Improves cache efficiency since aMarket will probably be accessed soon
-    CallEventHandlers(evtMarketTradeEx, [aMarket.UID, Ord(aFrom), Ord(aTo)]);
+    CallEventHandlers(evtMarketTradeEx, [aMarket.UID, Ord(aWareFrom), Ord(aWareTo)]);
   end;
 end;
 
 
-procedure TKMScriptEvents.EventMarketTrade(aMarket: TKMHouse; aFrom, aTo: TKMWareType);
+procedure TKMScriptEvents.EventMarketTrade(aMarket: TKMHouse; aWareFrom, aWareTo: TKMWareType);
 begin
-  ProcMarketTrade(aMarket, WARE_TY_TO_ID[aFrom], WARE_TY_TO_ID[aTo]);
-  ProcMarketTradeEx(aMarket, aFrom, aTo);
+  ProcMarketTrade(aMarket, WARE_TY_TO_ID[aWareFrom], WARE_TY_TO_ID[aWareTo]);
+  ProcMarketTradeEx(aMarket, aWareFrom, aWareTo);
 end;
 
 
@@ -698,6 +699,7 @@ begin
   end;
 end;
 
+
 //* Version: 15250
 //* Occurs when a house delivery mode changed.
 procedure TKMScriptEvents.ProcHouseDeliveryModeChanged(aHouse: TKMHouse; aOldMode: TKMDeliveryMode; aNewMode: TKMDeliveryMode);
@@ -708,6 +710,7 @@ begin
     CallEventHandlers(evtHouseDeliveryModeChanged, [aHouse.UID, ord(aOldMode), ord(aNewMode)]);
   end;
 end;
+
 
 //* Version: 5407
 //* Occurs when a house is destroyed.
@@ -1260,6 +1263,7 @@ begin
   end;
 end;
 
+
 //* Version: 15250
 //* Occurs when woodcutters mode changed.
 procedure TKMScriptEvents.ProcWoodcuttersModeChanged(aHouse: TKMHouse; aOldMode: TKMWoodcutterMode; aNewMode: TKMWoodcutterMode);
@@ -1270,6 +1274,7 @@ begin
     CallEventHandlers(evtWoodcuttersModeChanged, [aHouse.UID, ord(aOldMode), ord(aNewMode)]);
   end;
 end;
+
 
 { TKMScriptEntity }
 constructor TKMScriptEntity.Create(aIDCache: TKMScriptingIdCache);
