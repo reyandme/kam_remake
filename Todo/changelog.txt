@@ -1,5 +1,57 @@
-﻿KaM Remake r6720
-========================================
+﻿KaM Remake rXXXXX [20??.??.??]
+----------------------------------------
+Most important changes:
++ added Townhall with balanced prices of units
++ completely new Advanced AI (made by Toxic), able to make ~40-50 troops in 60 minutes peacetime
++ important game performance improvements (terrain rendering, network code, and anti-lag fixes)
++ 12 players (plus 2 spectators) and new 12 player maps
++ Random Map Generator and new Random Map gamemode (made by Toxic)
++ spectator/replay improvements: access to statistics during the game, statistics HUD, replay checkpoints
++ Interpolation - smoother in-game animations
+Gameplay - new features:
++ take out resources from a building (click on door icon until you see the red arrow, to take them out; to block a resource from being taken, right click on it, a red triangle will appear)
++ Order house owner citizen to walk out, unless he’s hungry - then the button will be greyed out, with Inn icon instead of the owner icon
++ dismiss a citizen (send him to retirement) if you have too many of them - except for hungry citizens
++ Unit thinks about food now, also when there is no Inn with food
++ improved statistics, including Army Power graph - it shows real value of armies (instead of best army numbers)
++ new options for woodcutters: plant only, right click to choose center for working range
++ mark map as favourite
++ server-side new options: limit map roster, peacetime and speed
++ loads of new/updated scripting commands
++ view and set hotkeys in Options
+Map editor changes:
++ Allow terrain height up to 150
++ allow 27 players in the MapEd
++ A lot of new tools
++ new terrain types
++ terrain masks (universal transition between any terrain types)
+Gameplay - improvements:
++ select/copy/paste text in chat
++ you can now look inside buildings of your allies
++ Reduce wait to kick time in multiplayer from 30s to 15s
++ added 4 new colors for the MP
++ Change of fisher work plan: go fishing more frequent but get only 1 bucket of fish and avoid long 59s wait after that. Production rate stays approximately the same (+/-5%)
++ serf delivery improvement - now, when a serf brings a resource into a building, and there will be something inside that waits to be taken out, he will take over that task
+Unit balance changes:
++ Scout vision increased from 9 to 13
++ Rebel attack horse bonus reduced to 50
++ Lancer (pikeman)  attack horse bonus increased to 60
++ Bonus for shielded units against crossbowmen raised from 0.25 to 0.5
++ Rogues aiming core delay reduced from 4 to 0, firing delay increased from 12 to 15
++ Bowmen aiming delay reduced from 4-8 to 6-12 (random)
+(plus, introduction of the TownHall is important to unit balance)
+Marketplace changes
++ Due to introduction of Town hall, trading for gold/gold ore was nerfed:
++ 3 wooden trunks/planks to 1 gold/gold ore (previously 2 -> 1)
++ 8 stone to 1 gold ore (previously 7 -> 1)
++ 1 skin/pig to 1 gold ore (previously 1 -> 2)
++ 2 wooden shields to 1 gold ore (previously 1 -> 1)
+Technical and other changes:
++ new Finnish translation
++ delivery system and other optimisations gave 15-20% better game performance
++ reduced RAM usage through compression - lower chance of Remake running out of memory in extremely long games
++ game is saved in async thread
++ plus many, many more small improvements and bugfixes over the years.
 
 
 KaM Remake r6720 [2013.06.23]
