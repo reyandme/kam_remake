@@ -16,6 +16,10 @@
 
 KaM Remake Beta r_____ []
 ------------------------------
+
+
+KaM Remake Beta r16087 [2026.03.23]
+------------------------------
 + Excluded OpenAL32.dll from the installation (as it doesn't work for some PCs)
 + Minor corrections to the French translation
 + Fixed a bug where melee units fighting ranged and melee enemies would not assist each other against nearby ranged units

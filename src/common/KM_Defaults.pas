@@ -149,7 +149,7 @@ var
                            Boolean = DEBUG_CFG; //Allow to try load saves / replay with unsupported version
 
   DBG_LOG_SETTINGS_SAVE_CALLSTACK     :Boolean = True; //todo: DEBUG. Remove after bugfix
-  DBG_DISALLOW_TO_SAVE_RANDOM_CHECKS  :Boolean = False; // Forbid saving of random checks data in to separate file (used by Runner)
+  DBG_SKIP_SAVING_RANDOM_CHECKS  :Boolean = False; // Skip saving of random checks data in to separate file (used by Runner)
   DBG_NET_RANDOM_CHECK_EVERY_TICK     :Boolean = True; //todo: DEBUG. Remove in release, no need to check on every tick in release version
 
   DBG_KILL_GROUP_BUTTON       :Boolean = DEBUG_CFG; // The button to kill group
