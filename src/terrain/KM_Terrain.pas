@@ -318,6 +318,8 @@ type
     procedure UpdateAll; overload;
     procedure UpdateAll(const aRect: TKMRect); overload;
 
+    procedure UpdateWalkConnect(const aSet: TKMWalkConnectSet; aRect: TKMRect; aDiagObjectsEffected: Boolean);
+
     procedure CallOnMainLand(aProc: TKMEvent);
 
     procedure IncAnimStep; //Lite-weight UpdateState for MapEd
