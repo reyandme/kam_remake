@@ -2,7 +2,7 @@ unit KM_HandLogistics;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IF Defined(FPC) or Defined(VER230)}
+  {$IF (Defined(FPC) and not Defined(Unix)) or Defined(VER230)}
   {$ELSE}
     {$DEFINE USE_HASH}
   {$IFEND}
@@ -10,7 +10,12 @@ uses
   {$IFDEF USE_VIRTUAL_TREEVIEW}VirtualTrees, {$ENDIF}
 
   {$IFDEF USE_HASH}
-  Generics.Collections, Generics.Defaults, System.Hash,
+  Generics.Collections, Generics.Defaults,
+  {$IFNDEF Unix}
+  System.Hash,
+  {$ELSE}
+  KM_Sort,
+  {$ENDIF}
   {$ENDIF}
   Math,
   KM_Units, KM_Houses, KM_ResHouses,
@@ -115,16 +120,20 @@ type
     function GetHashCode: Integer;
   end;
 
+  {$IFDEF WDC}
   //Custom key comparator. Probably TDictionary can handle it himself, but lets try our custom comparator
   TKMDeliveryRouteBidKeyEqualityComparer = class(TEqualityComparer<TKMDeliveryRouteBidKey>)
     function Equals(const Left, Right: TKMDeliveryRouteBidKey): Boolean; override;
     function GetHashCode(const Value: TKMDeliveryRouteBidKey): Integer; override;
   end;
+  {$ENDIF}
 
+  {$IFNDEF Unix}
   //Comparer just to make some order by keys
   TKMDeliveryRouteBidKeyComparer = class(TComparer<TKMDeliveryRouteBidKey>)
     function Compare(const Left, Right: TKMDeliveryRouteBidKey): Integer; override;
   end;
+  {$ENDIF}
 
   TKMDeliveryRouteBid = record
     Value: Single;
@@ -2597,12 +2606,14 @@ end;
 {$IFDEF USE_HASH}
 { TKMDeliveryBidKeyComparer }
 
+{$IFDEF WDC}
 function TKMDeliveryRouteBidKeyEqualityComparer.Equals(const Left, Right: TKMDeliveryRouteBidKey): Boolean;
 begin
   // path keys are equal if they have same ends
   Result := ((Left.FromP = Right.FromP) and (Left.ToP = Right.ToP))
          or ((Left.FromP = Right.ToP)   and (Left.ToP = Right.FromP));
 end;
+{$ENDIF}
 
 
 //example taken from https://stackoverflow.com/questions/18068977/use-objects-as-keys-in-tobjectdictionary
@@ -2624,6 +2635,7 @@ end;
 {$ENDIF}
 
 
+{$IFDEF WDC}
 // Hash function should be match to equals function, so
 // if A equals B, then Hash(A) = Hash(B)
 // For our task we need that From / To end could be swapped, since we don't care where is the starting point of the path
@@ -2631,10 +2643,10 @@ function TKMDeliveryRouteBidKeyEqualityComparer.GetHashCode(const Value: TKMDeli
 begin
   Result := Value.GetHashCode;
 end;
+{$ENDIF}
 
 
-//Compare keys to make some order to make save consistent. We don't care about the order, it just should be consistent
-function TKMDeliveryRouteBidKeyComparer.Compare(const Left, Right: TKMDeliveryRouteBidKey): Integer;
+function TKMDeliveryRouteBidKeyComparator(constref Left, Right: TKMDeliveryRouteBidKey): Integer;
 begin
   if Left.Pass = Right.Pass then
   begin
@@ -2646,6 +2658,15 @@ begin
   else
     Result := Byte(Left.Pass) - Byte(Right.Pass);
 end;
+
+
+{$IFNDEF Unix}
+//Compare keys to make some order to make save consistent. We don't care about the order, it just should be consistent
+function TKMDeliveryRouteBidKeyComparer.Compare(const Left, Right: TKMDeliveryRouteBidKey): Integer;
+begin
+  Result := TKMDeliveryRouteBidKeyComparator(Left, Right);
+end;
+{$ENDIF}
 
 
 { TKMDeliveryCache }
@@ -2715,12 +2736,16 @@ begin
   Int64Rec(total).Words[2] := FromP.Y + ToP.Y;      // (0..512)
   Int64Rec(total).Words[3] := (Byte(Pass) shl 8)          // (0..13 actually)
                               or Abs(FromP.Y - ToP.Y); // (0..256)
+  {$IFNDEF Unix}
   //GetHashValue(Integer/Cardinal) is even faster, but we can't fit our 34 bits there
   Result := THashBobJenkins.GetHashValue(total, SizeOf(Int64), 0);
+  {$ELSE}
+  Result := BobJenkinsHash(total, SizeOf(Int64), 0);
+  {$ENDIF}
 end;
 
 
-{ TKMDeliveryBid }
+{ TKMDeliveryRouteBid }
 function TKMDeliveryRouteBid.GetTTL: Integer;
 begin
   Result := 0;
@@ -2742,14 +2767,17 @@ constructor TKMDeliveryRouteEvaluator.Create;
 begin
   inherited;
 
+  {$IFDEF USE_HASH}
+
   fUpdatesCnt := 0;
 
-  {$IFDEF USE_HASH}
+  {$IFDEF WDC}
   if CACHE_DELIVERY_BIDS then
   begin
     fBidsRoutesCache := TKMDeliveryRouteCache.Create(TKMDeliveryRouteBidKeyEqualityComparer.Create);
     fRemoveKeysList := TList<TKMDeliveryRouteBidKey>.Create;
   end;
+  {$ENDIF}
 
   if DELIVERY_BID_CALC_USE_PATHFINDING then
     fNodeList := TKMPointList.Create;
@@ -2760,14 +2788,18 @@ end;
 destructor TKMDeliveryRouteEvaluator.Destroy;
 begin
   {$IFDEF USE_HASH}
+
+  {$IFDEF WDC}
   if CACHE_DELIVERY_BIDS then
   begin
     fBidsRoutesCache.Free;
     fRemoveKeysList.Free;
   end;
+  {$ENDIF}
 
   if DELIVERY_BID_CALC_USE_PATHFINDING then
     fNodeList.Free;
+
   {$ENDIF}
 
   inherited;
@@ -2814,6 +2846,8 @@ var
   bid: TKMDeliveryRouteBid;
 begin
   {$IFDEF USE_HASH}
+
+  {$IFDEF WDC}
   if CACHE_DELIVERY_BIDS then
   begin
     bidKey.FromP := aFromPos;
@@ -2829,13 +2863,19 @@ begin
   end;
   {$ENDIF}
 
+  {$ENDIF}
+
   // Calc value if it was not found in the cache
   Result := DoTryEvaluate(aFromPos, aToPos, aPass, aRouteCost);
 
   {$IFDEF USE_HASH}
+
+  {$IFDEF WDC}
   if CACHE_DELIVERY_BIDS then
     //Add calculated cost to the cache, even if there was no route. TTL for cache records is quite low, couple seconds
     fBidsRoutesCache.Add(bidKey, aRouteCost, aRouteStep);
+  {$ENDIF}
+
   {$ENDIF}
 end;
 
@@ -2871,8 +2911,12 @@ procedure TKMDeliveryRouteEvaluator.UpdateState;
 begin
   {$IFDEF USE_HASH}
   Inc(fUpdatesCnt);
+
+  {$IFDEF WDC}
   if CACHE_DELIVERY_BIDS and ((fUpdatesCnt mod CACHE_CLEAN_FREQ) = 0) then
     CleanCache;
+  {$ENDIF}
+
   {$ENDIF}
 end;
 
@@ -2882,7 +2926,9 @@ procedure TKMDeliveryRouteEvaluator.Save(SaveStream: TKMemoryStream);
 var
   cacheKeyArray : TArray<TKMDeliveryRouteBidKey>;
   key: TKMDeliveryRouteBidKey;
+  {$IFNDEF Unix}
   comparer: TKMDeliveryRouteBidKeyComparer;
+  {$ENDIF}
   bid: TKMDeliveryRouteBid;
 {$ENDIF}
 begin
@@ -2899,10 +2945,16 @@ begin
 
   if fBidsRoutesCache.Count > 0 then
   begin
+    {$IFNDEF Unix}
     comparer := TKMDeliveryRouteBidKeyComparer.Create;
+    {$ENDIF}
     try
       cacheKeyArray := fBidsRoutesCache.Keys.ToArray;
+      {$IFNDEF Unix}
       TArray.Sort<TKMDeliveryRouteBidKey>(cacheKeyArray, comparer);
+      {$ELSE}
+      SortCustom(cacheKeyArray, Low(cacheKeyArray), High(cacheKeyArray), SizeOf(cacheKeyArray[0]), @TKMDeliveryRouteBidKeyComparator);
+      {$ENDIF}
 
       for key in cacheKeyArray do
       begin
@@ -2917,7 +2969,9 @@ begin
         SaveStream.Write(bid.CreatedAt);
       end;
     finally
+      {$IFNDEF Unix}
       comparer.Free;
+      {$ENDIF}
     end;
   end;
   {$ENDIF}
