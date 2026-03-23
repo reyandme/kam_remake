@@ -1392,7 +1392,7 @@ begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
   {$IFDEF DBG_RNG_SPY}
-  if not DBG_SKIP_SAVING_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
+  if DBG_SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
   {$ENDIF}
 end;
@@ -1403,7 +1403,7 @@ begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
   {$IFDEF DBG_RNG_SPY}
-  if not DBG_SKIP_SAVING_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
+  if DBG_SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
   {$ENDIF}
 end;
@@ -1414,7 +1414,7 @@ begin
   DoLogKamRandom(aValue, aCaller, aKaMRandomFunc);
 
   {$IFDEF DBG_RNG_SPY}
-  if not DBG_SKIP_SAVING_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
+  if DBG_SAVE_RANDOM_CHECKS and (gRandomCheckLogger <> nil) then
     gRandomCheckLogger.AddToLog(aCaller, aValue, fKaMSeed);
   {$ENDIF}
 end;

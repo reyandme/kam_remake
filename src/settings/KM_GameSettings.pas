@@ -552,7 +552,7 @@ begin
 
   // Debug
   nDebug := nGameSettings.AddOrFindChild('Debug');
-  if not DBG_SKIP_SAVING_RANDOM_CHECKS then
+  if DBG_SAVE_RANDOM_CHECKS then
     fDebug_SaveRandomChecks := nDebug.Attributes['SaveRandomChecks'].AsBoolean(True);
 
   if DBG_SAVE_GAME_AS_TEXT then
@@ -742,7 +742,7 @@ begin
 
   // Debug
   nDebug := nGameSettings.AddOrFindChild('Debug');
-  if not DBG_SKIP_SAVING_RANDOM_CHECKS then
+  if DBG_SAVE_RANDOM_CHECKS then
     nDebug.Attributes['SaveRandomChecks'] := fDebug_SaveRandomChecks;
 
   if DBG_SAVE_GAME_AS_TEXT then
