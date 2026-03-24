@@ -67,7 +67,7 @@ type
     destructor Destroy; override;
 
     property MenuPage: TKMMenuPageCommon read fMenuPage;
-    procedure PageChange(Dest: TKMMenuPageType; const aText: UnicodeString = '');
+    procedure PageChange(aDest: TKMMenuPageType; const aArgument: string = '');
     procedure AppendLoadingText(const aText: string);
 
     procedure ExportPages(const aPath: string); override;
@@ -256,7 +256,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.PageChange(Dest: TKMMenuPageType; const aText: UnicodeString = '');
+procedure TKMMainMenuInterface.PageChange(aDest: TKMMenuPageType; const aArgument: string = '');
 var
   I: Integer;
   version: UnicodeString;
@@ -273,7 +273,7 @@ begin
 
   Label_Version.Caption := '';
 
-  case Dest of
+  case aDest of
     gpMainMenu:     begin
                       Label_Version.Caption := 'KaM Remake - ' + version;
                       fMenuMain.Show;
@@ -292,21 +292,21 @@ begin
                       fMenuPage := fMenuSingleMap;
                     end;
     gpMultiplayer:  begin
-                      fMenuMultiplayer.Show(aText);
+                      fMenuMultiplayer.Show(aArgument);
                       fMenuPage := fMenuMultiplayer;
                     end;
     gpLobby:        begin
-                      if aText = 'HOST' then
+                      if aArgument = 'HOST' then
                         fMenuLobby.Show(lpkHost, Panel_Menu.Height)
                       else
-                      if aText = 'JOIN' then
+                      if aArgument = 'JOIN' then
                         fMenuLobby.Show(lpkJoiner, Panel_Menu.Height)
                       else
                         raise Exception.Create('');
                       fMenuPage := fMenuLobby;
                     end;
     gpCampaign:     begin
-                      fMenuCampaign.Show(aText);
+                      fMenuCampaign.Show(aArgument);
                       fMenuPage := fMenuCampaign;
                     end;
     gpCampSelect:   begin
@@ -330,11 +330,11 @@ begin
                       fMenuPage := fMenuReplays;
                     end;
     gpError:        begin
-                      fMenuError.Show(aText);
+                      fMenuError.Show(aArgument);
                       fMenuPage := fMenuError;
                     end;
     gpLoading:      begin
-                      fMenuLoading.Show(aText);
+                      fMenuLoading.Show(aArgument);
                       fMenuPage := fMenuLoading;
                     end;
   end;
@@ -452,7 +452,6 @@ begin
   fMyControls.MouseUp(X, Y, Shift, Button);
   Exit; // We could have caused gGameApp reinit (i.e. resolution change), so exit at once
 end;
-
 
 
 procedure TKMMainMenuInterface.UpdateHotkeys;
