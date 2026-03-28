@@ -77,7 +77,7 @@
 76:Arbalétrier
 77:Lancier
 78:Hallebardier
-79:Cavalier
+79:Cav. Léger
 80:Chevalier
 81:Barbare
 82:Rebelle
@@ -360,7 +360,7 @@
 361:Quitter la rediff.
 362:Basculer vers la perspective du joueur
 364:Sélectionnez une marchandise à échanger à l'aide du clic gauche de la souris
-365:Sélectionnez une marchandise à échanger à l'aide du Clic droit de la souris
+365:Sélectionnez une marchandise à échanger à l'aide du clic droit de la souris
 366:De x%d
 367:à x%d
 368:Édition du terrain
@@ -1546,5 +1546,6 @@
 1599:Le fichier de sauvegarde n'existe pas
 1600:Répar. matières premières| conservée
 1601:Campagnes en chargement...
+1602:%s|Clic gauche de la souris pour bloquer la livraison ou clic droit pour bloquer le retrait en mode "Uniquement sortant", MAJ pour appliquer à toutes les marchandises
 1603:Citoyens|renvoyés
 1604:Citoyens renvoyés :
