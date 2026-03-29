@@ -14,6 +14,10 @@ pandoc.exe -c readme.css -s -f gfm getting-started_rus.md -o Readme_rus.html --m
 ```
 
 # how to fix broken links in top bar
-Link must be lowercase and with spaces replaced with hyphens (-)
-Emoji must be replaced with their names
-Example: if your section is called "🌳 System requirements", then the internal link will be `#deciduous_tree-system-requirements`
+- links must be lowercase and with spaces replaced with hyphens (-)
+- emojis must be replaced with their names in section name (for HTML compatibility) and in the link itself
+
+Example: if your section is called "🌳 System requirements", then
+- the internal link will be `[System requirements](#deciduous_tree-system-requirements)`
+- the section name will look like `## :deciduous_tree: System requirements`
+You can check emoji names ie. here: https://www.w3schools.com/charsets/ref_emoji_intro.asp
