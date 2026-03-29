@@ -17,12 +17,18 @@
 KaM Remake Beta r_____ []
 ------------------------------
 + Excluded OpenAL32.dll from the installation (as it doesn't work for some PCs)
-+ Minor corrections to the French translation
++ French translations update - 8 campaigns and other minor corrections
 + Fixed a bug where melee units fighting ranged and melee enemies would not assist each other against nearby ranged units
 + Included Changelog.txt into the build
 + Fixed fences not disappearing when building progress is added by a script (#258)
 + Fixed crash on trying to set Actions.AIEquipRate rate to a value higher than 65535 through dynamic script
++ Readme style improvements and fixes
++ Preparations to disable debugging features that impact game's performance, for future RC/final release
 
+Maps:
++ The Skull Collector
++ updates to Wild Grasslands, Vörös Arany
++ minor fix to Rich Land's description
 
 KaM Remake Beta r16020 [2025.12.26]
 ------------------------------
