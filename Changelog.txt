@@ -25,9 +25,13 @@ KaM Remake Beta r_____ []
 + Readme style improvements and fixes
 + Preparations to disable debugging features that impact game's performance, for future RC/final release
 
+Campaigns:
++ Revert recent comprehensive changes to TPR, due to TPR3 and potentially other maps being broken
++ On Foreign Lands mission 7 bugfix by DontTalk
+
 Maps:
-+ The Skull Collector
-+ updates to Wild Grasslands, Vörös Arany
++ added The Skull Collector
++ updates to Wild Grasslands (1.12), Vörös Arany (f2603), Temple of Koczis (0.36)
 + minor fix to Rich Land's description
 
 KaM Remake Beta r16020 [2025.12.26]
