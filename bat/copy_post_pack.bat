@@ -25,6 +25,7 @@ xcopy "..\Docs\Readme\Readme_eng.html" "%kam_folder%"\Readme_eng.html* /y /r /i
 xcopy "..\Docs\Readme\Readme_ger.html" "%kam_folder%"\Readme_ger.html* /y /r /i
 xcopy "..\Docs\Readme\Readme_pol.html" "%kam_folder%"\Readme_pol.html* /y /r /i
 xcopy "..\Docs\Readme\Readme_rus.html" "%kam_folder%"\Readme_rus.html* /y /r /i
+xcopy "..\Docs\Readme\readme.css" "%kam_folder%"\readme.css* /y /r /i
 xcopy ..\Sounds "%kam_folder%"\Sounds\ /y /r /s
 xcopy ..\Music "%kam_folder%"\Music\ /y /r /s
 xcopy ..\lib "%kam_folder%"\lib\ /y /r /s

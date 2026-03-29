@@ -2,18 +2,18 @@
 
 ---
 
-[Wymagania sprzętowe](#-wymagania-sprzętowe) · [Instalacja](#-instalacja) · [Rozgrywka](#-rozgrywka) · [F.A.Q.](#-najczęściej-zadawane-pytania) · [Społeczność i twoja opinia](#-społeczność-i-twoja-opinia) · [Znane problemy](#-znane-problemy) · [Kod źródłowy](#-kod-źródłowy) · [Twórcy](#-twórcy) · [Nota prawna](#-nota-prawna)
+[Wymagania sprzętowe](#deciduous_tree-wymagania-sprzętowe) · [Instalacja](#dagger-instalacja) · [Rozgrywka](#axe-rozgrywka) · [F.A.Q.](#scroll-najczęściej-zadawane-pytania) · [Społeczność i twoja opinia](#european_castle-społeczność-i-twoja-opinia) · [Znane problemy](#pick-znane-problemy) · [Kod źródłowy](#bow_and_arrow-kod-źródłowy) · [Twórcy](#open_book-twórcy) · [Nota prawna](#crossed_swords-nota-prawna)
 
 ---
 
-### 🌳 Wymagania sprzętowe
+## :deciduous_tree: Wymagania sprzętowe
 
 - Microsoft Windows lub Linux z Wine;
 - dowolny procesor dwurdzeniowy;
 - 512MB lub więcej pamięci RAM;
 - karta graficzna zgodna z OpenGL 1.5
 
-### 🗡️ Instalacja
+## :dagger: Instalacja
 
 1. Zdobądź oryginalną grę (Knights and Merchants: The Peasants Rebellion):
 	- Instalatory z oryginalnych płyt CD oraz GOG.com działają bez dodatkowych kroków.
@@ -25,16 +25,16 @@
 1. KaM Remake używa OpenGL do renderowania grafiki. Jeśli masz problemy wizualne lub gra się nie włącza, odwiedź stronę internetową dostawcy twojej karty graficznej i zainstaluj do niej najnowsze sterowniki.
 1. Uruchom moda - KaM_Remake.exe lub klikając na skrót na Pulpicie lub w Menu Start (jeśli zaznaczyłeś opcję tworzenia skrótów).
 
-### 🪓 Rozgrywka
+## :axe: Rozgrywka
 
-#### Gra wieloosobowa
+### Gra wieloosobowa
 Aby rozpocząć rozgrywkę, kliknij na "Gra w sieci". Możesz wybrac dowolny nieużywany serwer, jeśli chcesz założyć nową poczekalnię ("lobby"), lub możesz dołączyć do już istniejącej.
 
 Możesz również utworzyć własny serwer lokalny (LAN), używając przycisku "Utwórz serwer".
 
 Jeśli chcesz utworzyć nowy serwer dedykowany dla naszej społeczności, szczegóły tutaj: <https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md>
 
-#### Skróty klawiaturowe
+### Skróty klawiaturowe
 **Możesz uzywać następujących skrótów klawiszowych w grze:**
 
 - **Esc** zamyka otwartą wiadomość, lub kartę w menu gry
@@ -54,15 +54,15 @@ Jeśli chcesz utworzyć nowy serwer dedykowany dla naszej społeczności, szczeg
 Więcej szczegółów o skrótach klawiszowych znajdziesz na naszej stronie Wiki:  
 <https://github.com/reyandme/kam_remake/wiki/Controls>
 
-#### Instalacja dodatkowych map:
+### Instalacja dodatkowych map:
 Mapy powinny być dodawane (w folderze z Remake) do katalogu Maps (dla gry jednoosobowej), MapsMP (dla gry wieloosobowej); jest również katalog dla kampanii - Campaigns.
 
 Dodatkowe mapy możesz znaleźć na stronie <https://knights-tavern.com>.
 
-#### Dodawanie własnej muzyki:
+### Dodawanie własnej muzyki:
 Możesz wrzucić własne pliki MP3/OGG do folderu Music w katalogu z KaM Remake, i zostaną one automatycznie dodane do listy piosenek.
 
-# 📜 Najczęściej zadawane pytania
+## :scroll: Najczęściej zadawane pytania
 **Ciche awarie:**  
 Jeśli KaM Remake doznał awarii i sie wyłączył, wyślij plik z logami na nasz kanał Discord, razem ze wszystkimi informacjami, które moga pomóc w zrozumieniu problemu.
 
@@ -75,16 +75,16 @@ Czasami, gdy coś nieprzewidzianego się wydarzy, zobaczysz błąd "An error has
 **Wszystko inne:**  
 Zobacz <https://www.kamremake.com/faq/>
 
-## 🏰 Społeczność i twoja opinia
+## :european_castle: Społeczność i twoja opinia
 
 Dołącz do naszej społeczności na <https://discord.gg/UkkYceR>. Chcemy usłyszeć twoje komentarze, sugestie, podziękowania, itd.  
 Zawsze szukamy osób chętnych pomóc nam z programowaniem (Delphi), dokumentacją, grafikami gry, dźwiękami, tłumaczeniem lub pomysłami na ulepszenia - wyślij nam maila lub napisz na Discordzie. Sprawdź również <https://github.com/reyandme/kam_remake/wiki/Contributions>. 
 
-# ⛏️ Znane problemy
+## :pick: Znane problemy
 
 Warsztat wojenny nie działa.
 
-# 🏹 Kod źródłowy
+## :bow_and_arrow: Kod źródłowy
 
 Kod źródłowy KaM Remake jest dostępny na stronie naszego projektu:  
 <https://github.com/reyandme/kam_remake>  
@@ -94,7 +94,7 @@ Możesz informowac nas o problemach tutaj:
 <https://github.com/reyandme/kam_remake/issues>  
 lub na kanale Discord.
 
-# 📖 Twórcy
+## :open_book: Twórcy
 
 Główny programista - Krom (<mailto:kromster80@gmail.com>)  
 Programista - Rey (<mailto:kamremake.rey@gmail.com>)  
@@ -107,7 +107,7 @@ Podziękowania dla StarGazer, który sporządził nowe kursory i ikony dla inter
 Ogromne podziękowanie dla społeczności KaM i jej aktywnych członków (Free_sms_kam, Harold, JBSnorro, The Knight, Litude (Real Hotdog), Merchator, Nick, Thunderwolf, Humbelum, Vas, andreus, ZblCoder and many others) którzy pomagali nam w dekodowaniu, dawali porady, pomysły i zachęcali nas do działania.  
 Ikony z famfamfam oraz FatCow są używane w KaM Remake.  
 
-# ⚔️ Nota prawna
+## :crossed_swords: Nota prawna
 
 Komercyjne użycie jest surowo zabronione.  
 Wszelkie użyte nazwy, symbole i inne materiały chronione prawem autorskim są własnością poszczególnych właścicieli.  

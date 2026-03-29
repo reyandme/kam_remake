@@ -1,0 +1,28 @@
+body {
+  font-family: Segoe UI, serif;
+  font-size: 16px;
+  margin: auto;
+  max-width: 45em;
+  background: #fdfbf5;
+}
+
+a {
+  color: #4b4b4b;
+}
+
+a:hover {
+  color: #818181;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 150%;
+  font-weight: normal;
+}
+
+h4, h5, h6 {
+  font-weight: bold;
+}
+
+h1 {
+  text-align: center;
+}

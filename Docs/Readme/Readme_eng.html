@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
@@ -9,151 +9,6 @@
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
     */
-    html {
-      color: #1a1a1a;
-      background-color: #fdfdfd;
-    }
-    body {
-      margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
-      overflow-wrap: break-word;
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-    @media (max-width: 600px) {
-      body {
-        font-size: 0.9em;
-        padding: 12px;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-    @media print {
-      html {
-        background-color: white;
-      }
-      body {
-        background-color: transparent;
-        color: black;
-        font-size: 12pt;
-      }
-      p, h2, h3 {
-        orphans: 3;
-        widows: 3;
-      }
-      h2, h3, h4 {
-        page-break-after: avoid;
-      }
-    }
-    p {
-      margin: 1em 0;
-    }
-    a {
-      color: #1a1a1a;
-    }
-    a:visited {
-      color: #1a1a1a;
-    }
-    img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.4em;
-    }
-    h5, h6 {
-      font-size: 1em;
-      font-style: italic;
-    }
-    h6 {
-      font-weight: normal;
-    }
-    ol, ul {
-      padding-left: 1.7em;
-      margin-top: 1em;
-    }
-    li > ol, li > ul {
-      margin-top: 0;
-    }
-    blockquote {
-      margin: 1em 0 1em 1.7em;
-      padding-left: 1em;
-      border-left: 2px solid #e6e6e6;
-      color: #606060;
-    }
-    code {
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-      font-size: 85%;
-      margin: 0;
-      hyphens: manual;
-    }
-    pre {
-      margin: 1em 0;
-      overflow: auto;
-    }
-    pre code {
-      padding: 0;
-      overflow: visible;
-      overflow-wrap: normal;
-    }
-    .sourceCode {
-     background-color: transparent;
-     overflow: visible;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #1a1a1a;
-      height: 1px;
-      margin: 1em 0;
-    }
-    table {
-      margin: 1em 0;
-      border-collapse: collapse;
-      width: 100%;
-      overflow-x: auto;
-      display: block;
-      font-variant-numeric: lining-nums tabular-nums;
-    }
-    table caption {
-      margin-bottom: 0.75em;
-    }
-    tbody {
-      margin-top: 0.5em;
-      border-top: 1px solid #1a1a1a;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    th {
-      border-top: 1px solid #1a1a1a;
-      padding: 0.25em 0.5em 0.25em 0.5em;
-    }
-    td {
-      padding: 0.125em 0.5em 0.25em 0.5em;
-    }
-    header {
-      margin-bottom: 4em;
-      text-align: center;
-    }
-    #TOC li {
-      list-style: none;
-    }
-    #TOC ul {
-      padding-left: 1.3em;
-    }
-    #TOC > ul {
-      padding-left: 0;
-    }
-    #TOC a:not(:hover) {
-      text-decoration: none;
-    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -170,38 +25,41 @@
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+  <link rel="stylesheet" href="readme.css" />
 </head>
 <body>
 <header id="title-block-header">
 <h1 class="title">Getting started with Knights and Merchants:
 Remake</h1>
 </header>
-<p><a
-href="https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_pol.md">🇵🇱
-Polski</a> | <a
-href="https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_ger.md">🇩🇪
-Deutsch</a> | <a
-href="https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_rus.md">🇷🇺
-Русский</a></p>
+<p>Online documentation: <a
+href="https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_pol.md">Polski</a>
+| <a
+href="https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_ger.md">Deutsch</a>
+| <a
+href="https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_rus.md">Русский</a></p>
 <p><strong>Brought to you by Krom, Lewin and Rey</strong></p>
 <hr />
-<p><a href="#-system-requirements">System requirements</a> · <a
-href="#-installation">Installation</a> · <a
-href="#-gameplay">Gameplay</a> · <a
-href="#-frequently-asked-questions">F.A.Q.</a> · <a
-href="#-community-and-feedback">Community and feedback</a> · <a
-href="#-known-bugs-and-limitations">Known bugs</a> · <a
-href="#-source-code">Source Code</a> · <a href="#-credits">Credits</a> ·
-<a href="#-legal-notice">Legal notice</a></p>
+<p><a href="#deciduous_tree-system-requirements">System requirements</a>
+· <a href="#dagger-installation">Installation</a> · <a
+href="#axe-gameplay">Gameplay</a> · <a
+href="#scroll-frequently-asked-questions">F.A.Q.</a> · <a
+href="#european_castle-community-and-feedback">Community and
+feedback</a> · <a href="#pick-known-bugs-and-limitations">Known bugs</a>
+· <a href="#bow_and_arrow-source-code">Source Code</a> · <a
+href="#open_book-credits">Credits</a> · <a
+href="#crossed_swords-legal-notice">Legal notice</a></p>
 <hr />
-<h3 id="deciduous_tree-system-requirements">🌳 System requirements</h3>
+<h2 id="deciduous_tree-system-requirements"><span class="emoji"
+data-emoji="deciduous_tree">🌳</span> System requirements</h2>
 <ul>
 <li>Microsoft Windows or Linux with Wine;</li>
 <li>any dual-core processor;</li>
 <li>512MB or more of RAM;</li>
 <li>3D graphics accelerator OpenGL 1.5 compliant</li>
 </ul>
-<h3 id="dagger-installation">🗡️ Installation</h3>
+<h2 id="dagger-installation"><span class="emoji"
+data-emoji="dagger">🗡️</span> Installation</h2>
 <ol type="1">
 <li>Install the original game (Knights and Merchants: The Peasants
 Rebellion):
@@ -228,8 +86,9 @@ to get the latest drivers available.</li>
 <li>Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if
 you chose to create shortcuts.</li>
 </ol>
-<h3 id="axe-gameplay">🪓 Gameplay</h3>
-<h4 id="multiplayer">Multiplayer</h4>
+<h2 id="axe-gameplay"><span class="emoji" data-emoji="axe">🪓</span>
+Gameplay</h2>
+<h3 id="multiplayer">Multiplayer</h3>
 <p>To start a game, go to Multiplayer. You can pick any unused server,
 if you want to start a new lobby, or you can join an existing lobby.</p>
 <p>You can also create a local (LAN) server, using "Create server"
@@ -237,7 +96,7 @@ button.</p>
 <p>If you want to create a new dedicated server for our community, see
 details here: <a
 href="https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md">https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md</a></p>
-<h4 id="keyboard-shortcuts">Keyboard shortcuts</h4>
+<h3 id="keyboard-shortcuts">Keyboard shortcuts</h3>
 <p><strong>The following shortcuts are available in the
 game:</strong></p>
 <ul>
@@ -266,17 +125,17 @@ player nicknames over their units</li>
 Wiki page:<br />
 <a
 href="https://github.com/reyandme/kam_remake/wiki/Controls">https://github.com/reyandme/kam_remake/wiki/Controls</a></p>
-<h4 id="installing-add-on-maps">Installing add-on maps:</h4>
+<h3 id="installing-add-on-maps">Installing add-on maps:</h3>
 <p>Maps should be added (in Remake's directory) to Maps (for
 singleplayer), MapsMP (for multiplayer); there is also a directory for
 Campaigns.</p>
 <p>You can find additional community-made maps at <a
 href="https://knights-tavern.com">https://knights-tavern.com</a>.</p>
-<h4 id="adding-custom-music">Adding custom music:</h4>
+<h3 id="adding-custom-music">Adding custom music:</h3>
 <p>You can put your MP3/OGG files into the Music folder of the KaM
 Remake, and they will be included into the playlist automatically.</p>
-<h1 id="scroll-frequently-asked-questions">📜 Frequently Asked
-Questions</h1>
+<h2 id="scroll-frequently-asked-questions"><span class="emoji"
+data-emoji="scroll">📜</span> Frequently Asked Questions</h2>
 <p><strong>Silent crashes:</strong><br />
 If the KaM Remake crashes silently during startup, please send the log
 file to our Discord channel, along with any other information that might
@@ -297,8 +156,8 @@ crash.</p>
 <p><strong>Anything else:</strong><br />
 See <a
 href="https://www.kamremake.com/faq/">https://www.kamremake.com/faq/</a></p>
-<h2 id="european_castle-community-and-feedback">🏰 Community and
-Feedback</h2>
+<h2 id="european_castle-community-and-feedback"><span class="emoji"
+data-emoji="european_castle">🏰</span> Community and Feedback</h2>
 <p>Join our community at <a
 href="https://discord.gg/UkkYceR">https://discord.gg/UkkYceR</a>. We
 would love your comments, suggestions, thanks, etc.<br />
@@ -306,10 +165,11 @@ If you can offer some help in Delphi coding, documentation, game
 artwork, sounds, translation or ideas for improvement - please drop us
 an email or write on Discord. Also, check <a
 href="https://github.com/reyandme/kam_remake/wiki/Contributions">https://github.com/reyandme/kam_remake/wiki/Contributions</a>.</p>
-<h1 id="pick-known-bugs-and-limitations">⛏️ Known bugs and
-limitations</h1>
+<h2 id="pick-known-bugs-and-limitations"><span class="emoji"
+data-emoji="pick">⛏️</span> Known bugs and limitations</h2>
 <p>Siege Workshop is not functional.</p>
-<h1 id="bow_and_arrow-source-code">🏹 Source Code</h1>
+<h2 id="bow_and_arrow-source-code"><span class="emoji"
+data-emoji="bow_and_arrow">🏹</span> Source Code</h2>
 <p>The KaM Remake source code is available at our project page:<br />
 <a
 href="https://github.com/reyandme/kam_remake">https://github.com/reyandme/kam_remake</a><br />
@@ -320,7 +180,8 @@ We encourage you to submit bugs using built-in interface:<br />
 <a
 href="https://github.com/reyandme/kam_remake/issues">https://github.com/reyandme/kam_remake/issues</a><br />
 or on our Discord channel.</p>
-<h1 id="open_book-credits">📖 Credits</h1>
+<h2 id="open_book-credits"><span class="emoji"
+data-emoji="open_book">📖</span> Credits</h2>
 <p>Lead programmer - Krom (<a
 href="mailto:kromster80@gmail.com">mailto:kromster80@gmail.com</a>)<br />
 Programmer - Rey (<a
@@ -337,7 +198,8 @@ Harold, Humbelum, JBSnorro, The Knight, Litude (Real Hotdog), Merchator,
 Nick, Thunderwolf, Vas, andreus, ZblCoder and many others) who helped us
 with decoding, advice, ideas and encouragement.<br />
 Icons from famfamfam and FatCow are used in the KaM Remake.</p>
-<h1 id="crossed_swords-legal-notice">⚔️ Legal notice</h1>
+<h2 id="crossed_swords-legal-notice"><span class="emoji"
+data-emoji="crossed_swords">⚔️</span> Legal notice</h2>
 <p>Commercial use is prohibited.<br />
 Any used names, symbols or other copyrighted material is the property of
 the respective owners.<br />

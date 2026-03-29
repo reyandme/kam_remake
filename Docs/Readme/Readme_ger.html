@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
@@ -9,151 +9,6 @@
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
     */
-    html {
-      color: #1a1a1a;
-      background-color: #fdfdfd;
-    }
-    body {
-      margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
-      overflow-wrap: break-word;
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-    @media (max-width: 600px) {
-      body {
-        font-size: 0.9em;
-        padding: 12px;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-    }
-    @media print {
-      html {
-        background-color: white;
-      }
-      body {
-        background-color: transparent;
-        color: black;
-        font-size: 12pt;
-      }
-      p, h2, h3 {
-        orphans: 3;
-        widows: 3;
-      }
-      h2, h3, h4 {
-        page-break-after: avoid;
-      }
-    }
-    p {
-      margin: 1em 0;
-    }
-    a {
-      color: #1a1a1a;
-    }
-    a:visited {
-      color: #1a1a1a;
-    }
-    img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.4em;
-    }
-    h5, h6 {
-      font-size: 1em;
-      font-style: italic;
-    }
-    h6 {
-      font-weight: normal;
-    }
-    ol, ul {
-      padding-left: 1.7em;
-      margin-top: 1em;
-    }
-    li > ol, li > ul {
-      margin-top: 0;
-    }
-    blockquote {
-      margin: 1em 0 1em 1.7em;
-      padding-left: 1em;
-      border-left: 2px solid #e6e6e6;
-      color: #606060;
-    }
-    code {
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-      font-size: 85%;
-      margin: 0;
-      hyphens: manual;
-    }
-    pre {
-      margin: 1em 0;
-      overflow: auto;
-    }
-    pre code {
-      padding: 0;
-      overflow: visible;
-      overflow-wrap: normal;
-    }
-    .sourceCode {
-     background-color: transparent;
-     overflow: visible;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #1a1a1a;
-      height: 1px;
-      margin: 1em 0;
-    }
-    table {
-      margin: 1em 0;
-      border-collapse: collapse;
-      width: 100%;
-      overflow-x: auto;
-      display: block;
-      font-variant-numeric: lining-nums tabular-nums;
-    }
-    table caption {
-      margin-bottom: 0.75em;
-    }
-    tbody {
-      margin-top: 0.5em;
-      border-top: 1px solid #1a1a1a;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    th {
-      border-top: 1px solid #1a1a1a;
-      padding: 0.25em 0.5em 0.25em 0.5em;
-    }
-    td {
-      padding: 0.125em 0.5em 0.25em 0.5em;
-    }
-    header {
-      margin-bottom: 4em;
-      text-align: center;
-    }
-    #TOC li {
-      list-style: none;
-    }
-    #TOC ul {
-      padding-left: 1.3em;
-    }
-    #TOC > ul {
-      padding-left: 0;
-    }
-    #TOC a:not(:hover) {
-      text-decoration: none;
-    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -170,6 +25,7 @@
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
+  <link rel="stylesheet" href="readme.css" />
 </head>
 <body>
 <header id="title-block-header">
@@ -177,23 +33,27 @@
 </header>
 <p><strong>Präsentiert von Krom, Lewin and Rey</strong></p>
 <hr />
-<p><a href="#-systemanforderungen">Systemanforderungen</a> · <a
-href="#-installation">Installation</a> · <a
-href="#-gameplay">Gameplay</a> · <a
-href="#-häufig-gestellte-fragen">Häufig gestellte Fragen</a> · <a
-href="#-community-und-feedback">Community und feedback</a> · <a
-href="#-bekannte-fehler-und-einschränkungen">Bekannte Fehler</a> · <a
-href="#-quelltext">Quelltext</a> · <a href="#-credits">Credits</a> · <a
-href="#-impressum">Impressum</a></p>
+<p><a href="#deciduous_tree-systemanforderungen">Systemanforderungen</a>
+· <a href="#dagger-installation">Installation</a> · <a
+href="#axe-gameplay">Gameplay</a> · <a
+href="#scroll-häufig-gestellte-fragen">Häufig gestellte Fragen</a> · <a
+href="#european_castle-community-und-feedback">Community und
+feedback</a> · <a
+href="#pick-bekannte-fehler-und-einschränkungen">Bekannte Fehler</a> ·
+<a href="#bow_and_arrow-quelltext">Quelltext</a> · <a
+href="#open_book-credits">Credits</a> · <a
+href="#crossed_swords-impressum">Impressum</a></p>
 <hr />
-<h3 id="deciduous_tree-systemanforderungen">🌳 Systemanforderungen</h3>
+<h2 id="deciduous_tree-systemanforderungen"><span class="emoji"
+data-emoji="deciduous_tree">🌳</span> Systemanforderungen</h2>
 <ul>
 <li>Microsoft Windows oder Linux mit Wine;</li>
 <li>jeder Dual-Core-Prozessor;</li>
 <li>512MB oder mehr RAM;</li>
 <li>3D Grafikkarte OpenGL 1.5 fähig</li>
 </ul>
-<h3 id="dagger-installation">🗡️ Installation</h3>
+<h2 id="dagger-installation"><span class="emoji"
+data-emoji="dagger">🗡️</span> Installation</h2>
 <ol type="1">
 <li>Besitze das originale Spiel (Knights and Merchants: The Peasants
 Rebellion):
@@ -222,8 +82,9 @@ Webseite deiner Grafikkarte und hole dir den aktuellsten Treiber.</li>
 <li>Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if
 you chose to create shortcuts.</li>
 </ol>
-<h3 id="axe-gameplay">🪓 Gameplay</h3>
-<h4 id="mehrspieler">Mehrspieler</h4>
+<h2 id="axe-gameplay"><span class="emoji" data-emoji="axe">🪓</span>
+Gameplay</h2>
+<h3 id="mehrspieler">Mehrspieler</h3>
 <p>Um ein Spiel zu starten, klicke auf Multiplayerspielt. Dort kannst du
 einen beliebigen unbenutzten Server auswählen, falls du eine neue Lobby
 erstellen willst, oder du kannst einer bestehenden Lobby beitreten.</p>
@@ -232,7 +93,7 @@ erstellen willst, oder du kannst einer bestehenden Lobby beitreten.</p>
 <p>Falls du einen dedizierten Server für die Community erstellen
 möchtest, siehe hier für Details: <a
 href="https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md">https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md</a></p>
-<h4 id="tastenkürzel">Tastenkürzel</h4>
+<h3 id="tastenkürzel">Tastenkürzel</h3>
 <p><strong>Folgende Tastenkürzel sind verfügbar:</strong></p>
 <ul>
 <li><strong>Esc</strong> schließt eine offene Nachricht oder
@@ -260,20 +121,21 @@ player nicknames over their units</li>
 <p>Für mehr detailiertere Informationen über Tastenkürzel, bitte besuche
 unsere Wiki-Seite: <a
 href="https://github.com/reyandme/kam_remake/wiki/Controls">https://github.com/reyandme/kam_remake/wiki/Controls</a></p>
-<h4 id="installieren-von-zusatzkarten">Installieren von
-Zusatzkarten:</h4>
+<h3 id="installieren-von-zusatzkarten">Installieren von
+Zusatzkarten:</h3>
 <p>Karten sollten (im Remake-Verzeichnis) zu Maps/ (für Einzelspieler),
 MapsMP/ (für Mehrspieler); ebenso gibt es einen Ordner für
 Kampagnen.</p>
 <p>Man kann weitere von der Community erstellen Karten unter <a
 href="https://knights-tavern.com">https://knights-tavern.com</a>
 finden.</p>
-<h4 id="hinzufügen-benutzerdefinierter-musik">Hinzufügen
-benutzerdefinierter Musik:</h4>
+<h3 id="hinzufügen-benutzerdefinierter-musik">Hinzufügen
+benutzerdefinierter Musik:</h3>
 <p>Du kannst deine MP3/OGG-Dateien in den Musikordner des des KaM
 Remake-Verzeichnisses legen und sie werden automatisch in die Wiedergabe
 aufgenommen.</p>
-<h1 id="scroll-häufig-gestellte-fragen">📜 Häufig gestellte Fragen</h1>
+<h2 id="scroll-häufig-gestellte-fragen"><span class="emoji"
+data-emoji="scroll">📜</span> Häufig gestellte Fragen</h2>
 <p><strong>Abstürze ohne Benachrichtigung:</strong><br />
 Wenn das KaM Remake ohne Meldung während des Startens abstürzt, sendet
 uns bitte die Log-Datei auf unserem Discord-Kanal, sowie alle anderen
@@ -294,8 +156,8 @@ Absturzes.</p>
 <p><strong>Irgendetwas anderes:</strong><br />
 Siehe diesen Link: <a
 href="https://www.kamremake.com/faq/">https://www.kamremake.com/faq/</a></p>
-<h2 id="european_castle-community-und-feedback">🏰 Community und
-Feedback</h2>
+<h2 id="european_castle-community-und-feedback"><span class="emoji"
+data-emoji="european_castle">🏰</span> Community und Feedback</h2>
 <p>Trete unserer Community bei <a
 href="https://discord.gg/UkkYceR">https://discord.gg/UkkYceR</a>. Wir
 freuen uns über Kommentare, Anregungen, Danksagungen, etc. Wenn ihr
@@ -303,10 +165,11 @@ etwas Hilfe in Sachen Delphi, Dokumentation, Spielgrafik, Geräusche,
 Übersetzung oder Ideen für Verbesserungen habt - sende uns bitte eine
 E-Mail oder schreibe im Discord. Lesen Sie auch <a
 href="https://github.com/reyandme/kam_remake/wiki/Contributions">https://github.com/reyandme/kam_remake/wiki/Contributions</a>.</p>
-<h1 id="pick-bekannte-fehler-und-einschränkungen">⛏️ Bekannte Fehler und
-Einschränkungen</h1>
+<h2 id="pick-bekannte-fehler-und-einschränkungen"><span class="emoji"
+data-emoji="pick">⛏️</span> Bekannte Fehler und Einschränkungen</h2>
 <p>Kriegswerkstatt ist nicht funktionsfähig.</p>
-<h1 id="bow_and_arrow-quelltext">🏹 Quelltext</h1>
+<h2 id="bow_and_arrow-quelltext"><span class="emoji"
+data-emoji="bow_and_arrow">🏹</span> Quelltext</h2>
 <p>Der KaM Remake-Quelltext ist auf unserer Projektseite
 verfügbar:<br />
 <a
@@ -317,7 +180,8 @@ Hier könnt ihr uns Fehler berichten:<br />
 <a
 href="https://github.com/reyandme/kam_remake/issues">https://github.com/reyandme/kam_remake/issues</a><br />
 oder auf unserem Discord-Kanal.</p>
-<h1 id="open_book-credits">📖 Credits</h1>
+<h2 id="open_book-credits"><span class="emoji"
+data-emoji="open_book">📖</span> Credits</h2>
 <p>Leitender Programmierer - Krom (<a
 href="mailto:kromster80@gmail.com">mailto:kromster80@gmail.com</a>)<br />
 Programmierer - Rey (<a
@@ -334,7 +198,8 @@ Knight, Litude (Real Hotdog), Merchator, Nick, Thunderwolf, Vas,
 andreus, ZblCoder und viele mehr) dafür dass sie uns beim Decodieren
 halfen, uns Ratschläge gaben und für ihr Engagement.<br />
 Icons von famfamfam und FatCow wurden im KaM Remake benutzt.</p>
-<h1 id="crossed_swords-impressum">⚔️ Impressum</h1>
+<h2 id="crossed_swords-impressum"><span class="emoji"
+data-emoji="crossed_swords">⚔️</span> Impressum</h2>
 <p>Kommerzieller Gebrauch ist verboten.<br />
 Alle benutzten Namen, Symbole oder andere, mit einem Copyright
 versehene, Materialien sind Eigentum des jeweiligen Besitzers.<br />

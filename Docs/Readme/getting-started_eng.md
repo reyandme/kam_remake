@@ -1,21 +1,21 @@
-[🇵🇱 Polski](https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_pol.md) | [🇩🇪 Deutsch](https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_ger.md) | [🇷🇺 Русский](https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_rus.md)
+Online documentation: [Polski](https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_pol.md) | [Deutsch](https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_ger.md) | [Русский](https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/getting-started_rus.md)
 
 **Brought to you by Krom, Lewin and Rey**
 
 ---
 
-[System requirements](#-system-requirements) · [Installation](#-installation) · [Gameplay](#-gameplay) · [F.A.Q.](#-frequently-asked-questions) · [Community and feedback](#-community-and-feedback) · [Known bugs](#-known-bugs-and-limitations) · [Source Code](#-source-code) · [Credits](#-credits) · [Legal notice](#-legal-notice)
+[System requirements](#deciduous_tree-system-requirements) · [Installation](#dagger-installation) · [Gameplay](#axe-gameplay) · [F.A.Q.](#scroll-frequently-asked-questions) · [Community and feedback](#european_castle-community-and-feedback) · [Known bugs](#pick-known-bugs-and-limitations) · [Source Code](#bow_and_arrow-source-code) · [Credits](#open_book-credits) · [Legal notice](#crossed_swords-legal-notice)
 
 ---
 
-### 🌳 System requirements
+## :deciduous_tree: System requirements
 
 - Microsoft Windows or Linux with Wine;
 - any dual-core processor;
 - 512MB or more of RAM;
 - 3D graphics accelerator OpenGL 1.5 compliant
 
-### 🗡️ Installation
+## :dagger: Installation
 
 1. Install the original game (Knights and Merchants: The Peasants Rebellion):
 	- Installers from original CD and GOG.com should just work.
@@ -27,16 +27,16 @@
 1. The KaM Remake uses OpenGL for graphics. In case of visual issues or inability to launch the game, visit your graphics card manufacturer site to get the latest drivers available.
 1. Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if you chose to create shortcuts.
 
-### 🪓 Gameplay
+## :axe: Gameplay
 
-#### Multiplayer
+### Multiplayer
 To start a game, go to Multiplayer. You can pick any unused server, if you want to start a new lobby, or you can join an existing lobby.
 
 You can also create a local (LAN) server, using "Create server" button.
 
 If you want to create a new dedicated server for our community, see details here: <https://github.com/reyandme/kam_remake/blob/master/Docs/Readme/technical.md>
 
-#### Keyboard shortcuts
+### Keyboard shortcuts
 **The following shortcuts are available in the game:**
 
 - **Esc** closes the open message or active tab in the game menu
@@ -56,15 +56,15 @@ If you want to create a new dedicated server for our community, see details here
 For more detailed information about game shortcuts please visit our Wiki page:  
 <https://github.com/reyandme/kam_remake/wiki/Controls>
 
-#### Installing add-on maps:
+### Installing add-on maps:
 Maps should be added (in Remake's directory) to Maps (for singleplayer), MapsMP (for multiplayer); there is also a directory for Campaigns.
 
 You can find additional community-made maps at <https://knights-tavern.com>.
 
-#### Adding custom music:
+### Adding custom music:
 You can put your MP3/OGG files into the Music folder of the KaM Remake, and they will be included into the playlist automatically.
 
-# 📜 Frequently Asked Questions
+## :scroll: Frequently Asked Questions
 **Silent crashes:**  
 If the KaM Remake crashes silently during startup, please send the log file to our Discord channel, along with any other information that might be of use.
 
@@ -77,16 +77,16 @@ Sometimes when something unexpected happens, you will get an "An error has occur
 **Anything else:**  
 See <https://www.kamremake.com/faq/>
 
-## 🏰 Community and Feedback
+## :european_castle: Community and Feedback
 
 Join our community at <https://discord.gg/UkkYceR>. We would love your comments, suggestions, thanks, etc.  
 If you can offer some help in Delphi coding, documentation, game artwork, sounds, translation or ideas for improvement - please drop us an email or write on Discord. Also, check <https://github.com/reyandme/kam_remake/wiki/Contributions>.
 
-# ⛏️ Known bugs and limitations
+## :pick: Known bugs and limitations
 
 Siege Workshop is not functional.
 
-# 🏹 Source Code
+## :bow_and_arrow: Source Code
 
 The KaM Remake source code is available at our project page:  
 <https://github.com/reyandme/kam_remake>  
@@ -96,7 +96,7 @@ We encourage you to submit bugs using built-in interface:
 <https://github.com/reyandme/kam_remake/issues>  
 or on our Discord channel.
 
-# 📖 Credits
+## :open_book: Credits
 
 Lead programmer - Krom (<mailto:kromster80@gmail.com>)  
 Programmer - Rey (<mailto:kamremake.rey@gmail.com>) 
@@ -109,7 +109,7 @@ Thanks to StarGazer, who drew Marketplace, new cursors and icons for user interf
 Huge thanks to the KaM community and its active members (Free_sms_kam, Harold, Humbelum, JBSnorro, The Knight, Litude (Real Hotdog), Merchator, Nick, Thunderwolf, Vas, andreus, ZblCoder and many others) who helped us with decoding, advice, ideas and encouragement.  
 Icons from famfamfam and FatCow are used in the KaM Remake.  
 
-# ⚔️ Legal notice
+## :crossed_swords: Legal notice
 
 Commercial use is prohibited.  
 Any used names, symbols or other copyrighted material is the property of the respective owners.  
