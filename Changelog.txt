@@ -17,7 +17,7 @@
 KaM Remake Beta r_____ []
 ------------------------------
 + Excluded OpenAL32.dll from the installation (as it doesn't work for some PCs)
-+ French translations update - 8 campaigns and other minor corrections
++ Added French translations for 8 campaigns (and other minor corrections)
 + Fixed a bug where melee units fighting ranged and melee enemies would not assist each other against nearby ranged units
 + Included Changelog.txt into the build
 + Fixed fences not disappearing when building progress is added by a script (#258)
