@@ -20,4 +20,5 @@ pandoc.exe -c readme.css -s -f gfm getting-started_rus.md -o Readme_rus.html --m
 Example: if your section is called "🌳 System requirements", then
 - the internal link will be `[System requirements](#deciduous_tree-system-requirements)`
 - the section name will look like `## :deciduous_tree: System requirements`
+
 You can check emoji names ie. here: https://www.w3schools.com/charsets/ref_emoji_intro.asp
