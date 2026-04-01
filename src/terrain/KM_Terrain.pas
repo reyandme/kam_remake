@@ -4175,18 +4175,12 @@ var
   I, walkConnectID: Integer;
   P: TKMPoint;
   T: TKMPoint;
-  wcType: TKMWalkConnect;
 begin
-  case aPass of
-    tpWalkRoad: wcType := wcRoad;
-    tpFish:     wcType := wcFish;
-    else         wcType := wcWalk; //CanWalk is default
-  end;
 
-  walkConnectID := Land^[aOriginLoc.Y,aOriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
+  walkConnectID := Land^[aOriginLoc.Y,aOriginLoc.X].WalkConnect[wcWalk]; //Store WalkConnect ID of origin
 
   //If target is accessable then use it
-  if aAcceptTargetLoc and CheckPassability(aTargetLoc, aPass) and (walkConnectID = Land^[aTargetLoc.Y,aTargetLoc.X].WalkConnect[wcType]) then
+  if aAcceptTargetLoc and CheckPassability(aTargetLoc, aPass) and (walkConnectID = Land^[aTargetLoc.Y,aTargetLoc.X].WalkConnect[wcWalk]) then
   begin
     Result := aTargetLoc;
     exit;
@@ -4194,15 +4188,18 @@ begin
 
   //If target is not accessable then choose a tile near to the target that is accessable
   //As we Cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
-  for I := 0 to TEST_DEPTH do begin
+  for I := 0 to TEST_DEPTH do
+  begin
     P := GetPositionFromIndex(aTargetLoc, I);
-    if not TileInMapCoords(P.X,P.Y) then Continue;
     T := KMPoint(P.X,P.Y);
-    if CheckPassability(T, aPass)
-      and (walkConnectID = Land^[T.Y,T.X].WalkConnect[wcType])
-      and (not HasUnit(T) or KMSamePoint(T,aOriginLoc)) //Allow position we are currently on, but not ones with other units
-    then
-      Exit(T); //Assign if all test are passed
+
+    if not TileInMapCoords(P.X, P.Y) then Continue;
+    if not CheckPassability(T, aPass) then Continue;
+    if walkConnectID <> Land^[T.Y,T.X].WalkConnect[wcWalk] then Continue;
+
+    // Allow position we are currently on, but not ones with other units
+    if not HasUnit(T) or KMSamePoint(T, aOriginLoc) then
+      Exit(T);
   end;
 
   Result := aOriginLoc; //If we don't find one, return existing Loc
