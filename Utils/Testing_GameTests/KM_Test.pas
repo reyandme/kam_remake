@@ -63,11 +63,8 @@ type
     fRenderTarget: TKMRenderControl;
     fRun: Integer;
     fResults: TKMRunResults;
-    fIntParam: Integer;
-    fIntParam2: Integer;
     fOnPause: TBooleanFuncSimple;
     fOnStop: TBooleanFuncSimple;
-    fOnBeforeTick: TBoolCardFuncSimple;
     procedure EnsureResourcesLoaded;
     function DoTick(aTick: Cardinal): Boolean; virtual;
     procedure SetUp; virtual;
@@ -133,7 +130,6 @@ begin
 //  fOnPause := aOnPause;
   fOnStop := aOnStop;
 
-  fIntParam := 0;
   ThrottleRender := True;
 end;
 
@@ -295,10 +291,6 @@ begin
   for I := aStartTick to aEndTick do
   begin
     fResults.Times[fRun, I] := TimeGet;
-
-    if Assigned(fOnBeforeTick)
-      and not fOnBeforeTick(I+1) then
-      Exit;
 
     gGameApp.Game.UpdateGame;
     
