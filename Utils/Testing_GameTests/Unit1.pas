@@ -48,6 +48,8 @@ type
     procedure HandleProgress(const aValue: string);
     procedure EnsureResourcesLoaded;
     procedure RefreshTagList;
+    procedure RunOne(aClass: TKMTestClass; aCount: Integer);
+    procedure RunAll(aCount: Integer);
   end;
 
 
@@ -185,39 +187,41 @@ begin
 end;
 
 
+procedure TForm2.RunOne(aClass: TKMTestClass; aCount: Integer);
+begin
+  EnsureResourcesLoaded;
+
+  fStopped := False;
+
+  var thisTest := aClass.Create(IsStopped, HandleProgress);
+  try
+    thisTest.Seed := seSeed.Value;
+    thisTest.ThrottleRender := chkThrottleRender.Checked;
+    thisTest.DelayValue := seDelay.Value;
+
+    fResults := thisTest.Run(aCount);
+  finally
+    thisTest.Free;
+  end;
+end;
+
+
 procedure TForm2.btnRunClick(Sender: TObject);
 var
-  T: Cardinal;
   Count: Integer;
   thisTestClass: TKMTestClass;
-  thisTest: TKMTest;
 begin
   if lbTests.ItemIndex = -1 then Exit;
   var testIndex := Integer(lbTests.Items.Objects[lbTests.ItemIndex]);
   Count := seCycles.Value;
   if Count <= 0 then Exit;
-
-  EnsureResourcesLoaded;
-
-  fStopped := False;
+  thisTestClass := gTestList[testIndex];
 
   btnRun.Enabled := False;
   btnRunAll.Enabled := False;
   btnStop.Enabled := True;
   try
-    thisTestClass := gTestList[testIndex];
-
-    thisTest := thisTestClass.Create(IsStopped, HandleProgress);
-    try
-      T := GetTickCount;
-      thisTest.Seed := seSeed.Value;
-      thisTest.ThrottleRender := chkThrottleRender.Checked;
-      thisTest.DelayValue := seDelay.Value;
-
-      fResults := thisTest.Run(Count);
-    finally
-      thisTest.Free;
-    end;
+    RunOne(thisTestClass, Count);
   finally
     btnRun.Enabled := True;
     btnRunAll.Enabled := True;
@@ -226,50 +230,34 @@ begin
 end;
 
 
-procedure TForm2.btnRunAllClick(Sender: TObject);
+procedure TForm2.RunAll(aCount: Integer);
 var
-  T, TotalT: Cardinal;
-  TotalTestsRun: Integer;
-  Count: Integer;
-  thisTestClass: TKMTestClass;
-  thisTest: TKMTest;
-  I, K: Integer;
   resStr: string;
 begin
-  Count := seCycles.Value;
-  if Count <= 0 then Exit;
-
   EnsureResourcesLoaded;
 
   fStopped := False;
 
-  meLog.Clear;
-  pcMain.ActivePage := tsLog;
+  var TotalT := GetTickCount;
+  var TotalTestsRun := 0;
 
-  btnRun.Enabled := False;
-  btnRunAll.Enabled := False;
-  btnStop.Enabled := True;
-
-  TotalT := GetTickCount;
-  TotalTestsRun := 0;
-
-  for K := 0 to lbTests.Items.Count - 1 do
+  for var K := 0 to lbTests.Items.Count - 1 do
   begin
     if fStopped then Break;
 
     var testIndex := Integer(lbTests.Items.Objects[K]);
-    thisTestClass := gTestList[testIndex];
+    var thisTestClass := gTestList[testIndex];
 
-    thisTest := thisTestClass.Create(IsStopped, HandleProgress);
+    var thisTest := thisTestClass.Create(IsStopped, HandleProgress);
     try
-      T := GetTickCount;
+      var T := GetTickCount;
       thisTest.Seed := seSeed.Value;
       thisTest.ThrottleRender := chkThrottleRender.Checked;
       thisTest.DelayValue := seDelay.Value;
 
-      fResults := thisTest.Run(Count);
-      
-      for I := 0 to Count - 1 do
+      fResults := thisTest.Run(aCount);
+
+      for var I := 0 to aCount - 1 do
       begin
         case fResults.TestResults[I] of
           trSuccess:    resStr := 'SUCCESS';
@@ -277,27 +265,47 @@ begin
           trException:  resStr := 'EXCEPTION: ' + fResults.TestMessages[I];
         end;
 
-        if Count > 1 then
+        if aCount > 1 then
           meLog.Lines.Append(Format('%-32s (Run %d): %s (%d ms)', [thisTestClass.ClassName, I+1, resStr, GetTickCount - T]))
         else
           meLog.Lines.Append(Format('%-32s: %s (%d ms)', [thisTestClass.ClassName, resStr, GetTickCount - T]));
       end;
-      
-      Inc(TotalTestsRun, Count);
+
+      Inc(TotalTestsRun, aCount);
     finally
       thisTest.Free;
     end;
-    
+
     Application.ProcessMessages;
   end;
 
   meLog.Lines.Append('=============================');
   meLog.Lines.Append(Format('Total Tests Run: %d', [TotalTestsRun]));
   meLog.Lines.Append(Format('Total Time Spent: %d ms', [GetTickCount - TotalT]));
+end;
 
-  btnRun.Enabled := True;
-  btnRunAll.Enabled := True;
-  btnStop.Enabled := False;
+
+procedure TForm2.btnRunAllClick(Sender: TObject);
+var
+  Count: Integer;
+begin
+  Count := seCycles.Value;
+  if Count <= 0 then Exit;
+
+  meLog.Clear;
+  pcMain.ActivePage := tsLog;
+
+  btnRun.Enabled := False;
+  btnRunAll.Enabled := False;
+  btnStop.Enabled := True;
+  try
+    RunAll(Count);
+  finally
+    btnRun.Enabled := True;
+    btnRunAll.Enabled := True;
+    btnStop.Enabled := False;
+  end;
+
 end;
 
 
