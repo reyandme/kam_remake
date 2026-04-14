@@ -44,7 +44,7 @@ type
   private
     fResults: TKMRunResults;
     fStopped: Boolean;
-    RenderArea: TKMRenderControl;
+    fRenderArea: TKMRenderControl;
     procedure RefreshTestList;
     function IsStopped: Boolean;
     procedure HandleProgress(const aValue: string);
@@ -116,13 +116,12 @@ var
   I: Integer;
   S: string;
 begin
-  if gLog = nil then
-    gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Testing_GameTests.log');
+  gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Testing_GameTests.log');
 
-  RenderArea := TKMRenderControl.Create(Panel1);
-  RenderArea.Parent := Panel1;
-  RenderArea.Align := alClient;
-  RenderArea.Color := clMaroon;
+  fRenderArea := TKMRenderControl.Create(Panel1);
+  fRenderArea.Parent := Panel1;
+  fRenderArea.Align := alClient;
+  fRenderArea.Color := clMaroon;
 
   var tagSet: TKMTestTagSet := [];
   for I := 0 to High(gTestList) do
@@ -209,7 +208,7 @@ begin
     thisTestClass := gTestList[ID];
 
     if chkRender.Checked then
-      thisTest := thisTestClass.Create(RenderArea, IsStopped, HandleProgress)
+      thisTest := thisTestClass.Create(fRenderArea, IsStopped, HandleProgress)
     else
       thisTest := thisTestClass.Create(nil, IsStopped, HandleProgress);
 
@@ -267,7 +266,7 @@ begin
     thisTestClass := gTestList[ID];
 
     if chkRender.Checked then
-      thisTest := thisTestClass.Create(RenderArea, IsStopped, HandleProgress)
+      thisTest := thisTestClass.Create(fRenderArea, IsStopped, HandleProgress)
     else
       thisTest := thisTestClass.Create(nil, IsStopped, HandleProgress);
 
@@ -339,7 +338,7 @@ begin
   while not fStopped do
   begin
     if chkRender.Checked then
-      thisTest := thisTestClass.Create(RenderArea, IsStopped, HandleProgress)
+      thisTest := thisTestClass.Create(fRenderArea, IsStopped, HandleProgress)
     else
       thisTest := thisTestClass.Create(nil, IsStopped, HandleProgress);
 

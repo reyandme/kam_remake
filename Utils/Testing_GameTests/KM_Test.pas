@@ -179,17 +179,20 @@ begin
   Result := fResults;
 end;
 
+
 procedure TKMTest.AssertTrue(aCondition: Boolean; const aMessage: string);
 begin
   if not aCondition then
     raise ETestFailed.Create(aMessage);
 end;
 
+
 procedure TKMTest.AssertEquals(aExpected, aActual: Integer; const aMessage: string);
 begin
   if aExpected <> aActual then
     raise ETestFailed.Create(Format('%s (Expected: %d, Actual: %d)', [aMessage, aExpected, aActual]));
 end;
+
 
 procedure TKMTest.Fail(const aMessage: string);
 begin
@@ -260,6 +263,7 @@ begin
   gGameSettings.SaveCheckpoints := False;
   gGameApp.PreloadGameResources;
 end;
+
 
 procedure TKMTest.SetUp;
 begin
