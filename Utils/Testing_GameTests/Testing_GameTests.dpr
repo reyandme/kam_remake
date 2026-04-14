@@ -42,6 +42,9 @@ uses
   {$SetPEFlags IMAGE_FILE_LARGE_ADDRESS_AWARE}
 {$ENDIF}
 
+var
+  Form2: TForm2;
+
 begin
   Application.Initialize;
   Application.CreateForm(TForm2, Form2);

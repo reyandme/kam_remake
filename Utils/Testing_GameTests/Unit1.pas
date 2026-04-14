@@ -53,10 +53,6 @@ type
   end;
 
 
-var
-  Form2: TForm2;
-
-
 implementation
 uses
   KM_GameTypes, KM_Defaults;
