@@ -1,6 +1,6 @@
 object Form2: TForm2
   Left = 244
-  Top = 169
+  Top = 289
   Caption = 'Testing_GameTests'
   ClientHeight = 641
   ClientWidth = 1097
@@ -19,14 +19,14 @@ object Form2: TForm2
   TextHeight = 13
   object Label1: TLabel
     Left = 8
-    Top = 127
+    Top = 247
     Width = 35
     Height = 13
     Caption = 'Cycles:'
   end
   object Label2: TLabel
     Left = 187
-    Top = 256
+    Top = 376
     Width = 15
     Height = 13
     Alignment = taRightJustify
@@ -34,14 +34,14 @@ object Form2: TForm2
   end
   object Label4: TLabel
     Left = 103
-    Top = 127
+    Top = 247
     Width = 72
     Height = 13
     Caption = 'Duration (min):'
   end
   object Label5: TLabel
     Left = 187
-    Top = 236
+    Top = 356
     Width = 15
     Height = 13
     Alignment = taRightJustify
@@ -49,7 +49,7 @@ object Form2: TForm2
   end
   object Label6: TLabel
     Left = 184
-    Top = 276
+    Top = 396
     Width = 18
     Height = 13
     Alignment = taRightJustify
@@ -57,14 +57,14 @@ object Form2: TForm2
   end
   object Label7: TLabel
     Left = 8
-    Top = 168
+    Top = 288
     Width = 28
     Height = 13
     Caption = 'Seed:'
   end
   object Label8: TLabel
     Left = 184
-    Top = 296
+    Top = 416
     Width = 18
     Height = 13
     Alignment = taRightJustify
@@ -72,36 +72,46 @@ object Form2: TForm2
   end
   object Label9: TLabel
     Left = 8
-    Top = 215
+    Top = 335
     Width = 18
     Height = 13
     Caption = '      '
   end
   object Label10: TLabel
     Left = 8
-    Top = 256
+    Top = 376
     Width = 18
     Height = 13
     Caption = '      '
   end
   object Label11: TLabel
     Left = 8
-    Top = 276
+    Top = 396
     Width = 18
     Height = 13
     Caption = '      '
   end
   object Label12: TLabel
     Left = 184
-    Top = 316
+    Top = 436
     Width = 18
     Height = 13
     Alignment = taRightJustify
     Caption = '      '
   end
+  object btnTryFoundSeed: TButton
+    Left = 8
+    Top = 488
+    Width = 184
+    Height = 38
+    Caption = 'Try Found Seed'
+    Enabled = False
+    TabOrder = 13
+    OnClick = btnTryFoundSeedClick
+  end
   object btnRun: TButton
     Left = 8
-    Top = 412
+    Top = 532
     Width = 89
     Height = 38
     Caption = 'Run'
@@ -109,15 +119,42 @@ object Form2: TForm2
     TabOrder = 0
     OnClick = btnRunClick
   end
+  object btnRunAll: TButton
+    Left = 103
+    Top = 576
+    Width = 89
+    Height = 38
+    Caption = 'Run All'
+    Enabled = False
+    TabOrder = 10
+    OnClick = btnRunAllClick
+  end
   object seCycles: TSpinEdit
     Left = 8
-    Top = 144
+    Top = 264
     Width = 89
     Height = 22
     MaxValue = 1000000
     MinValue = 1
     TabOrder = 1
     Value = 1
+  end
+  object lblDelay: TLabel
+    Left = 106
+    Top = 360
+    Width = 31
+    Height = 13
+    Caption = 'Delay:'
+  end
+  object seDelay: TSpinEdit
+    Left = 106
+    Top = 376
+    Width = 72
+    Height = 22
+    MaxValue = 10000
+    MinValue = 0
+    TabOrder = 14
+    Value = 0
   end
   object ListBox1: TListBox
     Left = 8
@@ -128,87 +165,34 @@ object Form2: TForm2
     TabOrder = 2
     OnClick = ListBox1Click
   end
+  object clbCategories: TCheckListBox
+    Left = 8
+    Top = 127
+    Width = 185
+    Height = 113
+    ItemHeight = 13
+    TabOrder = 11
+    OnClick = clbCategoriesClick
+  end
   object PageControl1: TPageControl
     Left = 208
     Top = 8
     Width = 881
     Height = 625
-    ActivePage = TabSheet3
+    ActivePage = TabSheet5
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 3
-    OnChange = PageControl1Change
-    object TabSheet1: TTabSheet
-      Caption = 'Results'
-      OnResize = TabSheetResize
-      DesignSize = (
-        873
-        597)
-      object Image1: TImage
-        Left = 40
-        Top = 8
-        Width = 825
-        Height = 569
-        Anchors = [akLeft, akTop, akRight, akBottom]
-      end
-    end
-    object TabSheet2: TTabSheet
-      Caption = 'Distribution'
-      ImageIndex = 1
-      OnResize = TabSheetResize
-      DesignSize = (
-        873
-        597)
-      object Image2: TImage
-        Left = 40
-        Top = 8
-        Width = 825
-        Height = 569
-        Anchors = [akLeft, akTop, akRight, akBottom]
-      end
-    end
-    object TabSheet3: TTabSheet
-      Caption = 'Times'
-      ImageIndex = 2
-      OnResize = TabSheetResize
-      DesignSize = (
-        873
-        597)
-      object Image3: TImage
-        Left = 40
-        Top = 8
-        Width = 825
-        Height = 569
-        Anchors = [akLeft, akTop, akRight, akBottom]
-      end
-      object Label3: TLabel
-        Left = 720
-        Top = 8
-        Width = 47
-        Height = 13
-        Anchors = [akTop, akRight]
-        Caption = 'Threshold'
-      end
-      object TrackBar1: TTrackBar
-        Left = 712
-        Top = 24
-        Width = 150
-        Height = 33
-        Anchors = [akTop, akRight]
-        Max = 25
-        Position = 10
-        TabOrder = 0
-        OnChange = TrackBar1Change
-      end
-    end
-    object TabSheet4: TTabSheet
-      Caption = 'Log'
-      ImageIndex = 3
-      object Memo1: TMemo
+    object TabSheet5: TTabSheet
+      Caption = 'Test Summary'
+      ImageIndex = 5
+      object moResults: TMemo
         Left = 0
         Top = 0
         Width = 873
         Height = 597
         Align = alClient
+        Font.Name = 'Courier New'
+        ScrollBars = ssBoth
         TabOrder = 0
       end
     end
@@ -228,35 +212,45 @@ object Form2: TForm2
   end
   object chkRender: TCheckBox
     Left = 8
-    Top = 456
+    Top = 576
     Width = 57
     Height = 17
     Caption = 'Render'
     TabOrder = 4
   end
+  object chkThrottleRender: TCheckBox
+    Left = 8
+    Top = 596
+    Width = 89
+    Height = 17
+    Caption = 'Throttle FPS'
+    Checked = True
+    State = cbChecked
+    TabOrder = 12
+  end
   object seDuration: TSpinEdit
     Left = 103
-    Top = 144
+    Top = 264
     Width = 89
     Height = 22
     MaxValue = 1000000
     MinValue = 0
     TabOrder = 5
-    Value = 100
+    Value = 10
   end
   object seSeed: TSpinEdit
     Left = 8
-    Top = 187
+    Top = 307
     Width = 89
     Height = 22
     MaxValue = 2000000000
     MinValue = 0
     TabOrder = 6
-    Value = 0
+    Value = 4
   end
   object rgAIType: TRadioGroup
     Left = 106
-    Top = 172
+    Top = 292
     Width = 96
     Height = 53
     Caption = 'AI type'
@@ -268,7 +262,7 @@ object Form2: TForm2
   end
   object btnStop: TButton
     Left = 103
-    Top = 412
+    Top = 532
     Width = 89
     Height = 38
     Caption = 'Stop'
@@ -278,7 +272,7 @@ object Form2: TForm2
   end
   object btnPause: TButton
     Left = 104
-    Top = 456
+    Top = 576
     Width = 89
     Height = 21
     Caption = 'Pause'
