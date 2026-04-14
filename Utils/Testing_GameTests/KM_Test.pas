@@ -48,8 +48,6 @@ type
     ChartsCount: Integer; //How many charts return
     ValueCount: Integer; //How many values
     Value: array {Run} of array {Value} of Integer;
-    TimesCount: Integer;
-    Times: array {Run} of array {Tick} of Cardinal;
     TestResults: array {Run} of TKMTestResult;
     TestMessages: array {Run} of string;
   end;
@@ -61,7 +59,7 @@ type
     fOnProgress: TUnicodeStringEvent;
     fOnStop: TBooleanFuncSimple;
     function DoTick(aTick: Cardinal): Boolean; virtual;
-    procedure SetUp; virtual;
+    procedure SetUp; virtual; abstract;
     procedure TearDown; virtual;
     procedure Execute(aRun: Integer); virtual; abstract;
     procedure SimulateGame;
@@ -134,7 +132,6 @@ begin
 
   fResults.ChartsCount := aCount;
   SetLength(fResults.Value, fResults.ChartsCount, fResults.ValueCount);
-  SetLength(fResults.Times, fResults.ChartsCount, fResults.TimesCount);
   SetLength(fResults.TestResults, fResults.ChartsCount);
   SetLength(fResults.TestMessages, fResults.ChartsCount);
 
@@ -189,12 +186,6 @@ begin
 end;
 
 
-procedure TKMTest.SetUp;
-begin
-  fResults.TimesCount := Duration*60*10;
-end;
-
-
 procedure TKMTest.TearDown;
 begin
   if gGameApp.Game <> nil then
@@ -212,10 +203,8 @@ var
 begin
   VLastRenderTime := TimeGet;
 
-  for I := 0 to fResults.TimesCount - 1 do
+  for I := 0 to Duration*60*10 - 1 do
   begin
-    fResults.Times[fRun, I] := TimeGet;
-
     gGameApp.Game.UpdateGame;
     
     if ThrottleRender then
@@ -238,8 +227,6 @@ begin
     if Assigned(fOnStop)
       and fOnStop then
       Exit;
-
-    fResults.Times[fRun, I] := TimeGet - fResults.Times[fRun, I];
 
     if gGameApp.Game.IsPaused then
       gGameApp.Game.Hold(False, grWin);
