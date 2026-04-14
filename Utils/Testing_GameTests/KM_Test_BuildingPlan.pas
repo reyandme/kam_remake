@@ -12,7 +12,7 @@ type
     procedure Execute(aRun: Integer); override;
   public
     class function TestCategories: TKMTestCategorySet; override;
-    class function TestDescription: UnicodeString; override;
+    class function TestDescription: string; override;
   end;
 
 implementation
@@ -92,7 +92,7 @@ begin
   Result := [tcBuilder, tcSchool];
 end;
 
-class function TKMRunnerBuilding_Plan.TestDescription: UnicodeString;
+class function TKMRunnerBuilding_Plan.TestDescription: string;
 begin
   Result := 'Tests a builder''s ability to dig out a house plan.';
 end;

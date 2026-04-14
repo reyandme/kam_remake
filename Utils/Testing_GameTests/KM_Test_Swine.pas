@@ -12,7 +12,7 @@ type
     procedure Execute(aRun: Integer); override;
   public
     class function TestCategories: TKMTestCategorySet; override;
-    class function TestDescription: UnicodeString; override;
+    class function TestDescription: string; override;
   end;
 
 implementation
@@ -74,7 +74,7 @@ begin
   Result := [tcSwine, tcAnimalBreeder, tcEconomy];
 end;
 
-class function TKMRunnerSwine_Process.TestDescription: UnicodeString;
+class function TKMRunnerSwine_Process.TestDescription: string;
 begin
   Result := 'Tests the swine farm''s ability to feed pigs multiple times using corn until a pig is produced.';
 end;

@@ -12,7 +12,7 @@ type
     procedure Execute(aRun: Integer); override;
   public
     class function TestCategories: TKMTestCategorySet; override;
-    class function TestDescription: UnicodeString; override;
+    class function TestDescription: string; override;
   end;
 
 implementation
@@ -73,7 +73,7 @@ begin
   Result := [tcBakery, tcBaker, tcEconomy];
 end;
 
-class function TKMRunnerBakery_Process.TestDescription: UnicodeString;
+class function TKMRunnerBakery_Process.TestDescription: string;
 begin
   Result := 'Tests the bakery''s ability to process flour and water from the internal stock into bread.';
 end;

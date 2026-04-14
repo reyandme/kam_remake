@@ -12,7 +12,7 @@ type
     procedure Execute(aRun: Integer); override;
   public
     class function TestCategories: TKMTestCategorySet; override;
-    class function TestDescription: UnicodeString; override;
+    class function TestDescription: string; override;
   end;
 
 implementation
@@ -85,7 +85,7 @@ begin
   Result := [tcVineyard, tcEconomy];
 end;
 
-class function TKMRunnerVineyard_Harvest.TestDescription: UnicodeString;
+class function TKMRunnerVineyard_Harvest.TestDescription: string;
 begin
   Result := 'Tests a farmer''s ability to collect ripe grapes and carry them back to the vineyard.';
 end;

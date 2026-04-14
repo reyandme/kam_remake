@@ -96,7 +96,7 @@ type
     procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
     procedure Fail(const aMessage: string);
     class function TestCategories: TKMTestCategorySet; virtual;
-    class function TestDescription: UnicodeString; virtual;
+    class function TestDescription: string; virtual;
   end;
 
 procedure RegisterRunner(aRunner: TKMRunnerClass);
@@ -122,7 +122,7 @@ begin
   Result := [tcNone];
 end;
 
-class function TKMRunnerCommon.TestDescription: UnicodeString;
+class function TKMRunnerCommon.TestDescription: string;
 begin
   Result := 'No description provided.';
 end;

@@ -12,7 +12,7 @@ type
     procedure Execute(aRun: Integer); override;
   public
     class function TestCategories: TKMTestCategorySet; override;
-    class function TestDescription: UnicodeString; override;
+    class function TestDescription: string; override;
   end;
 
 implementation
@@ -73,7 +73,7 @@ begin
   Result := [tcSawmill, tcEconomy];
 end;
 
-class function TKMRunnerSawmill_Process.TestDescription: UnicodeString;
+class function TKMRunnerSawmill_Process.TestDescription: string;
 begin
   Result := 'Tests the sawmill (carpenter''s) ability to process one trunk from the internal stock into two boards.';
 end;

@@ -13,7 +13,7 @@ type
     procedure TearDown; override;
   public
     class function TestCategories: TKMTestCategorySet; override;
-    class function TestDescription: UnicodeString; override;
+    class function TestDescription: string; override;
   end;
 
 implementation
@@ -86,7 +86,7 @@ begin
   Result := [tcQuarry, tcStonemason];
 end;
 
-class function TKMRunnerStone.TestDescription: UnicodeString;
+class function TKMRunnerStone.TestDescription: string;
 begin
   Result := 'Tests a stonemason''s ability to find stone, mine it, and deliver it to the quarry.';
 end;
