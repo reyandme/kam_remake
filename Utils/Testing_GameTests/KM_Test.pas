@@ -12,8 +12,6 @@ type
   TKMTestClass = class of TKMTest;
 
   TKMTestTag = (
-    tcNone,
-    
     // Buildings
     tcArmorSmithy, tcArmorWorkshop, tcBakery, tcBarracks, tcButchers,
     tcCoalMine, tcFarm, tcFishermans, tcGoldMine, tcInn,
@@ -107,7 +105,7 @@ end;
 { TKMTest }
 class function TKMTest.TestTags: TKMTestTagSet;
 begin
-  Result := [tcNone];
+  Result := [];
 end;
 
 
