@@ -82,13 +82,6 @@ type
     Seed: Integer;
     AIType: TKMAIType;
     OnProgress: TUnicodeStringEvent;
-    OnProgress_Left: TUnicodeStringEvent;
-    OnProgress_Left2: TUnicodeStringEvent;
-    OnProgress_Left3: TUnicodeStringEvent;
-    OnProgress2: TUnicodeStringEvent;
-    OnProgress3: TUnicodeStringEvent;
-    OnProgress4: TUnicodeStringEvent;
-    OnProgress5: TUnicodeStringEvent;
     DelayValue: Integer;
     constructor Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple); reintroduce;
     function Run(aCount: Integer): TKMRunResults;

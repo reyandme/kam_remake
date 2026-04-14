@@ -62,13 +62,6 @@ type
     function IsStopped: Boolean;
     function IsPaused: Boolean;
     procedure Testing_GameTestsProgress(const aValue: UnicodeString);
-    procedure Testing_GameTestsProgress2(const aValue: UnicodeString);
-    procedure Testing_GameTestsProgress3(const aValue: UnicodeString);
-    procedure Testing_GameTestsProgress4(const aValue: UnicodeString);
-    procedure Testing_GameTestsProgress5(const aValue: UnicodeString);
-    procedure Testing_GameTestsProgress_Left(const aValue: UnicodeString);
-    procedure Testing_GameTestsProgress_Left2(const aValue: UnicodeString);
-    procedure Testing_GameTestsProgress_Left3(const aValue: UnicodeString);
   end;
 
 
@@ -298,13 +291,6 @@ begin
       Testing_GameTests := Testing_GameTestsClass.Create(nil, {IsPaused, }IsStopped);
 
     Testing_GameTests.OnProgress := Testing_GameTestsProgress;
-    Testing_GameTests.OnProgress_Left := Testing_GameTestsProgress_Left;
-    Testing_GameTests.OnProgress_Left2 := Testing_GameTestsProgress_Left2;
-    Testing_GameTests.OnProgress_Left3 := Testing_GameTestsProgress_Left3;
-    Testing_GameTests.OnProgress2 := Testing_GameTestsProgress2;
-    Testing_GameTests.OnProgress3 := Testing_GameTestsProgress3;
-    Testing_GameTests.OnProgress4 := Testing_GameTestsProgress4;
-    Testing_GameTests.OnProgress5 := Testing_GameTestsProgress5;
     try
       T := GetTickCount;
       Testing_GameTests.Duration := seDuration.Value;
@@ -371,13 +357,6 @@ begin
       Testing_GameTests := Testing_GameTestsClass.Create(nil, {IsPaused, }IsStopped);
 
     Testing_GameTests.OnProgress := Testing_GameTestsProgress;
-    Testing_GameTests.OnProgress_Left := Testing_GameTestsProgress_Left;
-    Testing_GameTests.OnProgress_Left2 := Testing_GameTestsProgress_Left2;
-    Testing_GameTests.OnProgress_Left3 := Testing_GameTestsProgress_Left3;
-    Testing_GameTests.OnProgress2 := Testing_GameTestsProgress2;
-    Testing_GameTests.OnProgress3 := Testing_GameTestsProgress3;
-    Testing_GameTests.OnProgress4 := Testing_GameTestsProgress4;
-    Testing_GameTests.OnProgress5 := Testing_GameTestsProgress5;
     try
       T := GetTickCount;
       Testing_GameTests.Duration := seDuration.Value;
@@ -456,13 +435,6 @@ begin
       Testing_GameTests := Testing_GameTestsClass.Create(nil, IsStopped);
 
     Testing_GameTests.OnProgress := Testing_GameTestsProgress;
-    Testing_GameTests.OnProgress_Left := Testing_GameTestsProgress_Left;
-    Testing_GameTests.OnProgress_Left2 := Testing_GameTestsProgress_Left2;
-    Testing_GameTests.OnProgress_Left3 := Testing_GameTestsProgress_Left3;
-    Testing_GameTests.OnProgress2 := Testing_GameTestsProgress2;
-    Testing_GameTests.OnProgress3 := Testing_GameTestsProgress3;
-    Testing_GameTests.OnProgress4 := Testing_GameTestsProgress4;
-    Testing_GameTests.OnProgress5 := Testing_GameTestsProgress5;
 
     try
       T := GetTickCount;
@@ -514,60 +486,5 @@ begin
   Application.ProcessMessages;
 end;
 
-
-procedure TForm2.Testing_GameTestsProgress2(const aValue: UnicodeString);
-begin
-  Label5.Caption := aValue;
-  Label5.Refresh;
-  Application.ProcessMessages;
-end;
-
-
-procedure TForm2.Testing_GameTestsProgress3(const aValue: UnicodeString);
-begin
-  Label6.Caption := aValue;
-  Label6.Refresh;
-  Application.ProcessMessages;
-end;
-
-
-procedure TForm2.Testing_GameTestsProgress4(const aValue: UnicodeString);
-begin
-  Label8.Caption := aValue;
-  Label8.Refresh;
-  Application.ProcessMessages;
-end;
-
-
-procedure TForm2.Testing_GameTestsProgress5(const aValue: UnicodeString);
-begin
-  Label12.Caption := aValue;
-  Label12.Refresh;
-  Application.ProcessMessages;
-end;
-
-
-procedure TForm2.Testing_GameTestsProgress_Left(const aValue: UnicodeString);
-begin
-  Label9.Caption := aValue;
-  Label9.Refresh;
-  Application.ProcessMessages;
-end;
-
-
-procedure TForm2.Testing_GameTestsProgress_Left2(const aValue: UnicodeString);
-begin
-  Label10.Caption := aValue;
-  Label10.Refresh;
-  Application.ProcessMessages;
-end;
-
-
-procedure TForm2.Testing_GameTestsProgress_Left3(const aValue: UnicodeString);
-begin
-  Label11.Caption := aValue;
-  Label11.Refresh;
-  Application.ProcessMessages;
-end;
 
 end.
