@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerFarm_Plant = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   public
@@ -45,7 +45,7 @@ begin
   gHands[0].AddUnit(utFarmer, KMPoint(16, 21));
 end;
 
-function TKMRunnerFarm_Plant.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerFarm_Plant.DoTick(aTick: Cardinal): Boolean;
 begin
   Result := not ObjectIsCorn(gTerrain.Land[22, 16].Obj); // ObjectIsCorn expects ID
 end;

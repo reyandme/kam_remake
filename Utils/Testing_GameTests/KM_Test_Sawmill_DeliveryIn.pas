@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerSawmill_DeliveryIn = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   public
@@ -49,12 +49,12 @@ begin
   Store.WareAddToIn(wtTrunk, 1, True); // FromScript = True
 
   gHands[0].AddHouse(htSawmill, 20, 16, False);
-  
+
   // Serf to deliver the trunk
   gHands[0].AddUnit(utSerf, KMPoint(10, 17));
 end;
 
-function TKMRunnerSawmill_DeliveryIn.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerSawmill_DeliveryIn.DoTick(aTick: Cardinal): Boolean;
 var
   H: TKMHouse;
 begin

@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerSwine_Process = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   public
@@ -50,7 +50,7 @@ begin
   gHands[0].AddUnit(utAnimalBreeder, KMPoint(16, 17));
 end;
 
-function TKMRunnerSwine_Process.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerSwine_Process.DoTick(aTick: Cardinal): Boolean;
 begin
   // Keep running until at least 1 pig is produced
   Result := gHands[0].Stats.GetWaresProduced(wtPig) = 0;

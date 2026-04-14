@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerWoodcutter_Plant = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
@@ -54,7 +54,7 @@ begin
   inherited;
 end;
 
-function TKMRunnerWoodcutter_Plant.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerWoodcutter_Plant.DoTick(aTick: Cardinal): Boolean;
 var
   X, Y: Integer;
 begin
@@ -73,7 +73,7 @@ var
   PlantedTreeCount: Integer;
 begin
   SetKaMSeed(aRun+1);
-  
+
   SimulateGame;
 
   PlantedTreeCount := 0;

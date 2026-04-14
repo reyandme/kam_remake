@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerFight95 = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
@@ -51,7 +51,7 @@ begin
   DYNAMIC_TERRAIN := True;
 end;
 
-function TKMRunnerFight95.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerFight95.DoTick(aTick: Cardinal): Boolean;
 begin
   // Continue simulation (True) until one of armies are destroyed
   Result := (gHands[0].Stats.GetUnitQty(utAny) > 0) 

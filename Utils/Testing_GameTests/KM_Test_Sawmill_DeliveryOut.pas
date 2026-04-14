@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerSawmill_DeliveryOut = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   public
@@ -54,7 +54,7 @@ begin
   gHands[0].AddUnit(utCarpenter, KMPoint(19, 17));
 end;
 
-function TKMRunnerSawmill_DeliveryOut.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerSawmill_DeliveryOut.DoTick(aTick: Cardinal): Boolean;
 var
   Store: TKMHouseStore;
 begin

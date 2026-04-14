@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerWoodcutter_Chop = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
@@ -66,7 +66,7 @@ begin
   inherited;
 end;
 
-function TKMRunnerWoodcutter_Chop.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerWoodcutter_Chop.DoTick(aTick: Cardinal): Boolean;
 begin
   // Continue simulation (True) until a trunk is produced
   Result := gHands[0].Stats.GetWaresProduced(wtTrunk) = 0;

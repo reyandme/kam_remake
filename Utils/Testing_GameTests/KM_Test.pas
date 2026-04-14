@@ -68,9 +68,8 @@ type
     fOnPause: TBooleanFuncSimple;
     fOnStop: TBooleanFuncSimple;
     fOnBeforeTick: TBoolCardFuncSimple;
-    fOnTick: TBoolCardFuncSimple;
     procedure EnsureResourcesLoaded;
-    function OnTickCondition(aTick: Cardinal): Boolean; virtual;
+    function DoTick(aTick: Cardinal): Boolean; virtual;
     procedure SetUp; virtual;
     procedure TearDown; virtual;
     procedure Execute(aRun: Integer); virtual; abstract;
@@ -120,7 +119,7 @@ begin
   Result := 'No description provided.';
 end;
 
-function TKMTest.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMTest.DoTick(aTick: Cardinal): Boolean;
 begin
   Result := True; // Продолжаем симуляцию по умолчанию
 end;
@@ -133,7 +132,6 @@ begin
 
 //  fOnPause := aOnPause;
   fOnStop := aOnStop;
-  fOnTick := OnTickCondition;
 
   fIntParam := 0;
   ThrottleRender := True;
@@ -318,8 +316,7 @@ begin
     if SKIP_RENDER and (DelayValue > 0) then
       Sleep(DelayValue);
 
-    if Assigned(fOnTick)
-      and not fOnTick(I+1) then
+    if not DoTick(I+1) then
       Exit;
 
     if Assigned(fOnStop)

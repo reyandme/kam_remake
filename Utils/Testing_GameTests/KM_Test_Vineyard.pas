@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerVineyard_Harvest = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   public
@@ -48,7 +48,7 @@ begin
   gHands[0].AddUnit(utFarmer, KMPoint(16, 21));
 end;
 
-function TKMRunnerVineyard_Harvest.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerVineyard_Harvest.DoTick(aTick: Cardinal): Boolean;
 var
   H: TKMHouse;
 begin

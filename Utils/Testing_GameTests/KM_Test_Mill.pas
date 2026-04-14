@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerMill_Process = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   public
@@ -49,7 +49,7 @@ begin
   gHands[0].AddUnit(utBaker, KMPoint(16, 17));
 end;
 
-function TKMRunnerMill_Process.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerMill_Process.DoTick(aTick: Cardinal): Boolean;
 begin
   // Keep running until flour is produced
   Result := gHands[0].Stats.GetWaresProduced(wtFlour) = 0;

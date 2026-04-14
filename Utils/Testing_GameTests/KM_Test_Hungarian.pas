@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerTestHungarian = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   end;
@@ -60,7 +60,7 @@ begin
   gHands[1].AddUnitGroup(utBowman, KMPoint(32, 20), TKMDirection(dirS), 30, 210);
 end;
 
-function TKMRunnerTestHungarian.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerTestHungarian.DoTick(aTick: Cardinal): Boolean;
 var
   iH: Integer;
   iG: Integer;

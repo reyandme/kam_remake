@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerBuilding_Plan = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   public
@@ -49,7 +49,7 @@ begin
   gTerrain.UpdatePassability;
 end;
 
-function TKMRunnerBuilding_Plan.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerBuilding_Plan.DoTick(aTick: Cardinal): Boolean;
 var
   I: Integer;
   H: TKMHouse;

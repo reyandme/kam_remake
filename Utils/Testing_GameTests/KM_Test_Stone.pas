@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerStone = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
@@ -60,7 +60,7 @@ begin
   DYNAMIC_TERRAIN := True;
 end;
 
-function TKMRunnerStone.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerStone.DoTick(aTick: Cardinal): Boolean;
 begin
   // Continue simulation (True) until stone is produced
   Result := gHands[0].Stats.GetWaresProduced(wtStone) = 0;

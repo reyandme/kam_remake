@@ -7,7 +7,7 @@ uses
 type
   TKMRunnerSawmill_Process = class(TKMTest)
   protected
-    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   public
@@ -49,7 +49,7 @@ begin
   gHands[0].AddUnit(utCarpenter, KMPoint(16, 17));
 end;
 
-function TKMRunnerSawmill_Process.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerSawmill_Process.DoTick(aTick: Cardinal): Boolean;
 begin
   // Keep running until wood is produced
   Result := gHands[0].Stats.GetWaresProduced(wtTimber) = 0;
