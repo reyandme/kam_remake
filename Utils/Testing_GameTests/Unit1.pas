@@ -26,8 +26,6 @@ type
     pnlRender: TPanel;
     chkRender: TCheckBox;
     chkThrottleRender: TCheckBox;
-    seDuration: TSpinEdit;
-    Label4: TLabel;
     seSeed: TSpinEdit;
     Label7: TLabel;
     btnRunAll: TButton;
@@ -221,7 +219,6 @@ begin
 
     try
       T := GetTickCount;
-      thisTest.Duration := seDuration.Value;
       thisTest.Seed := seSeed.Value;
       thisTest.ThrottleRender := chkThrottleRender.Checked;
       thisTest.DelayValue := seDelay.Value;
@@ -281,7 +278,6 @@ begin
 
     try
       T := GetTickCount;
-      thisTest.Duration := seDuration.Value;
       thisTest.Seed := seSeed.Value;
       thisTest.ThrottleRender := chkThrottleRender.Checked;
       thisTest.DelayValue := seDelay.Value;
@@ -355,7 +351,6 @@ begin
 
     try
       T := GetTickCount;
-      thisTest.Duration := seDuration.Value;
       thisTest.Seed := seSeed.Value;
       thisTest.ThrottleRender := chkThrottleRender.Checked;
       thisTest.DelayValue := seDelay.Value;
@@ -375,7 +370,6 @@ begin
         meLog.Lines.Append('Found ETestFailed at seed ' + IntToStr(seSeed.Value));
         Break;
       end;
-
     finally
       thisTest.Free;
     end;

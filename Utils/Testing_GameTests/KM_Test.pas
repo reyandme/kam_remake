@@ -52,6 +52,7 @@ type
 
   TKMTest = class
   protected
+    fDuration: Integer;
     fResults: TKMRunResults;
     fOnProgress: TUnicodeStringEvent;
     fOnStop: TBooleanFuncSimple;
@@ -62,7 +63,6 @@ type
     procedure Execute(aRun: Integer); virtual;
   public
     ThrottleRender: Boolean;
-    Duration: Integer;
     Seed: Integer;
     DelayValue: Integer;
     constructor Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
@@ -109,6 +109,8 @@ begin
   fOnProgress := aOnProgress;
   fOnStop := aOnStop;
 
+  fDuration := 10 * 60 * 10;
+
   ThrottleRender := True;
 end;
 
@@ -126,7 +128,7 @@ begin
   try
     var lastRenderTime := TimeGet;
 
-    for var I := 0 to Duration*60*10 - 1 do
+    for var I := 0 to fDuration - 1 do
     begin
       gGameApp.Game.UpdateGame;
 
