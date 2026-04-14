@@ -3,31 +3,29 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner, KM_RenderControl,
-  {$IFDEF WDC} Vcl.ComCtrls {$ELSE} ComCtrls {$ENDIF};
+  Unit_Runner, KM_Log, KM_RenderControl, KM_GameApp,
+  TypInfo,
+  {$IFDEF WDC} Vcl.ComCtrls, Vcl.CheckLst {$ELSE} ComCtrls, CheckLst {$ENDIF};
 
 
 type
   TForm2 = class(TForm)
     btnRun: TButton;
+    btnTryFoundSeed: TButton;
     seCycles: TSpinEdit;
+    lblDelay: TLabel;
+    seDelay: TSpinEdit;
     Label1: TLabel;
     ListBox1: TListBox;
+    clbCategories: TCheckListBox;
     Label2: TLabel;
     PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    TabSheet3: TTabSheet;
-    TrackBar1: TTrackBar;
-    Image1: TImage;
-    Image2: TImage;
-    Image3: TImage;
-    Label3: TLabel;
-    TabSheet4: TTabSheet;
-    Memo1: TMemo;
+    TabSheet5: TTabSheet;
+    moResults: TMemo;
     Render: TTabSheet;
     Panel1: TPanel;
     chkRender: TCheckBox;
+    chkThrottleRender: TCheckBox;
     seDuration: TSpinEdit;
     Label4: TLabel;
     Label5: TLabel;
@@ -40,25 +38,27 @@ type
     Label11: TLabel;
     Label12: TLabel;
     rgAIType: TRadioGroup;
+    btnRunAll: TButton;
     btnStop: TButton;
     btnPause: TButton;
+    procedure clbCategoriesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure chkRenderClick(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
-    procedure PageControl1Change(Sender: TObject);
-    procedure TabSheetResize(Sender: TObject);
-    procedure TrackBar1Change(Sender: TObject);
+    procedure btnTryFoundSeedClick(Sender: TObject);
+    procedure btnRunAllClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
     procedure btnPauseClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    fY: array of TLabel;
-    fX: array of TLabel;
     fResults: TKMRunResults;
     fRunTime: string;
     fStopped: Boolean;
     fPaused: Boolean;
     RenderArea: TKMRenderControl;
+    procedure RefreshTestList;
     function IsStopped: Boolean;
     function IsPaused: Boolean;
     procedure Testing_GameTestsProgress(const aValue: UnicodeString);
@@ -69,10 +69,6 @@ type
     procedure Testing_GameTestsProgress_Left(const aValue: UnicodeString);
     procedure Testing_GameTestsProgress_Left2(const aValue: UnicodeString);
     procedure Testing_GameTestsProgress_Left3(const aValue: UnicodeString);
-    procedure RefreshResults(aImg: TImage);
-    procedure RefreshDistribution(aImg: TImage);
-    procedure RefreshTimes(aImg: TImage);
-    procedure RefreshAxisLabels(aImg: TImage; aTopX, aTopY: Integer);
   end;
 
 
@@ -83,7 +79,7 @@ var
 implementation
 {$R *.dfm}
 uses
-  KM_GameTypes;
+  KM_GameTypes, KM_Defaults;
 
 
 const
@@ -101,6 +97,47 @@ end;
 {$ENDIF}
 
 
+procedure TForm2.clbCategoriesClick(Sender: TObject);
+begin
+  RefreshTestList;
+end;
+
+procedure TForm2.RefreshTestList;
+var
+  I: Integer;
+  Cat: TKMTestCategory;
+  FilterSet: TKMTestCategorySet;
+  Match: Boolean;
+  S: string;
+begin
+  FilterSet := [];
+  for I := 0 to clbCategories.Items.Count - 1 do
+    if clbCategories.Checked[I] then
+      FilterSet := FilterSet + [TKMTestCategory(Integer(clbCategories.Items.Objects[I]))];
+
+  ListBox1.Items.Clear;
+  for I := 0 to High(RunnerList) do
+  begin
+    Match := False;
+    for Cat in RunnerList[I].TestCategories do
+      if Cat in FilterSet then Match := True;
+
+    if Match then
+    begin
+      S := RunnerList[I].ClassName;
+      S := StringReplace(S, 'TKMRunner', '', [rfIgnoreCase]);
+      ListBox1.Items.AddObject(S, TObject(I));
+    end;
+  end;
+
+  if ListBox1.Items.Count > 0 then
+    ListBox1.ItemIndex := 0
+  else
+    btnRun.Enabled := False;
+    
+  ListBox1Click(nil);
+end;
+
 procedure TForm2.btnStopClick(Sender: TObject);
 begin
   fStopped := True;
@@ -112,26 +149,60 @@ end;
 procedure TForm2.FormCreate(Sender: TObject);
 var
   I: Integer;
+  CatSet: TKMTestCategorySet;
+  Cat: TKMTestCategory;
+  S: string;
 begin
+  if gLog = nil then
+    gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Testing_GameTests.log');
+
   RenderArea := TKMRenderControl.Create(Panel1);
   RenderArea.Parent := Panel1;
   RenderArea.Align := alClient;
   RenderArea.Color := clMaroon;
 
+  CatSet := [];
   for I := 0 to High(RunnerList) do
-    ListBox1.Items.Append(RunnerList[I].ClassName);
+    CatSet := CatSet + RunnerList[I].TestCategories;
+
+  for Cat := Low(TKMTestCategory) to High(TKMTestCategory) do
+  begin
+    if Cat in CatSet then
+    begin
+      S := GetEnumName(TypeInfo(TKMTestCategory), Integer(Cat));
+      if Copy(S, 1, 2) = 'tc' then
+        Delete(S, 1, 2);
+      clbCategories.Items.AddObject(S, TObject(Cat));
+      clbCategories.Checked[clbCategories.Items.Count - 1] := True;
+    end;
+  end;
+
+  RefreshTestList;
 
   if Length(RunnerList) > 0 then
   begin
     ListBox1.ItemIndex := 0;
     btnRun.Enabled := True;
+    btnRunAll.Enabled := True;
+    btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
     btnPause.Enabled := False;
   end;
 
+  SKIP_RENDER := not chkRender.Checked;
   Caption := ExtractFileName(Application.ExeName);
 end;
 
+procedure TForm2.chkRenderClick(Sender: TObject);
+begin
+  SKIP_RENDER := not chkRender.Checked;
+end;
+
+
+procedure TForm2.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(gLog);
+end;
 
 procedure TForm2.FormShow(Sender: TObject);
 const
@@ -170,34 +241,14 @@ begin
   ID := ListBox1.ItemIndex;
   if ID = -1 then Exit;
   btnRun.Enabled := True;
+  btnRunAll.Enabled := True;
+  btnTryFoundSeed.Enabled := True;
   btnStop.Enabled := False;
   btnPause.Enabled := False;
 end;
 
 
-procedure TForm2.PageControl1Change(Sender: TObject);
-var
-  I,J: Integer;
-  S: string;
-begin
-  case PageControl1.ActivePageIndex of
-    0: RefreshResults(Image1);
-    1: RefreshDistribution(Image2);
-    2: RefreshTimes(Image3);
-  end;
 
-  Memo1.Clear;
-  Memo1.Lines.BeginUpdate;
-  for I := 0 to fResults.ChartsCount - 1 do
-  begin
-    S := IntToStr(I) + '. ';
-    for J := 0 to fResults.ValueCount - 1 do
-      S := S + Format('%d-%d ', [J, fResults.Value[I,J]]);
-    Memo1.Lines.Append(S);
-  end;
-  Memo1.Lines.EndUpdate;
-  Memo1.Lines.Append(fRunTime);
-end;
 
 
 function TForm2.IsStopped: Boolean;
@@ -226,15 +277,16 @@ var
   Testing_GameTestsClass: TKMRunnerClass;
   Testing_GameTests: TKMRunnerCommon;
 begin
-  ID := ListBox1.ItemIndex;
-  if ID = -1 then Exit;
+  if ListBox1.ItemIndex = -1 then Exit;
+  ID := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
   Count := seCycles.Value;
   if Count <= 0 then Exit;
 
   fStopped := False;
 
-  Memo1.Clear;
   btnRun.Enabled := False;
+  btnRunAll.Enabled := False;
+  btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
   btnPause.Enabled := False; //Always disabled for now
   try
@@ -257,6 +309,8 @@ begin
       T := GetTickCount;
       Testing_GameTests.Duration := seDuration.Value;
       Testing_GameTests.Seed := seSeed.Value;
+      Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
+      Testing_GameTests.DelayValue := seDelay.Value;
       if rgAIType.ItemIndex = 0 then
         Testing_GameTests.AIType := aitClassic
       else
@@ -267,185 +321,189 @@ begin
     finally
       Testing_GameTests.Free;
     end;
-
-    PageControl1Change(nil);
   finally
     btnRun.Enabled := True;
+    btnRunAll.Enabled := True;
+    btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
     btnPause.Enabled := False;
   end;
 end;
 
 
-procedure TForm2.RefreshAxisLabels(aImg: TImage; aTopX, aTopY: Integer);
+procedure TForm2.btnRunAllClick(Sender: TObject);
 var
-  I: Integer;
-  Steps: Integer;
-  Step: Word;
+  T, TotalT: Cardinal;
+  TotalTestsRun: Integer;
+  ID, Count: Integer;
+  Testing_GameTestsClass: TKMRunnerClass;
+  Testing_GameTests: TKMRunnerCommon;
+  I, K: Integer;
+  resStr: string;
 begin
-  for I := 0 to High(fX) do
-    FreeAndNil(fX[I]);
+  Count := seCycles.Value;
+  if Count <= 0 then Exit;
 
-  for I := 0 to High(fY) do
-    FreeAndNil(fY[I]);
+  fStopped := False;
 
-  Step := Max(Round(aTopY / aImg.Height / 20), 1);
+  moResults.Clear;
+  PageControl1.ActivePage := TabSheet5;
 
-  Steps := Min(aTopY, aImg.Height div 20 div Step);
-  SetLength(fY, Steps+1);
-  if Steps > 0 then
-  for I := 0 to Steps do
+  btnRun.Enabled := False;
+  btnRunAll.Enabled := False;
+  btnTryFoundSeed.Enabled := False;
+  btnStop.Enabled := True;
+  btnPause.Enabled := False; //Always disabled for now
+
+  TotalT := GetTickCount;
+  TotalTestsRun := 0;
+
+  for K := 0 to ListBox1.Items.Count - 1 do
   begin
-    fY[I] := TLabel.Create(aImg.Parent);
-    fY[I].Parent := aImg.Parent;
-    fY[I].Alignment := taRightJustify;
-    fY[I].Transparent := True;
-    fY[I].Left := aImg.Left - 1;
-    fY[I].Top := aImg.Top + aImg.Height - Round(aImg.Height / Steps * I) - fY[I].Height + 6;
-    fY[I].Caption := IntToStr(Round(aTopY * I / Steps))+'-';
+    if fStopped then Break;
+
+    ID := Integer(ListBox1.Items.Objects[K]);
+    Testing_GameTestsClass := RunnerList[ID];
+
+    if chkRender.Checked then
+      Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, {IsPaused, }IsStopped)
+    else
+      Testing_GameTests := Testing_GameTestsClass.Create(nil, {IsPaused, }IsStopped);
+
+    Testing_GameTests.OnProgress := Testing_GameTestsProgress;
+    Testing_GameTests.OnProgress_Left := Testing_GameTestsProgress_Left;
+    Testing_GameTests.OnProgress_Left2 := Testing_GameTestsProgress_Left2;
+    Testing_GameTests.OnProgress_Left3 := Testing_GameTestsProgress_Left3;
+    Testing_GameTests.OnProgress2 := Testing_GameTestsProgress2;
+    Testing_GameTests.OnProgress3 := Testing_GameTestsProgress3;
+    Testing_GameTests.OnProgress4 := Testing_GameTestsProgress4;
+    Testing_GameTests.OnProgress5 := Testing_GameTestsProgress5;
+    try
+      T := GetTickCount;
+      Testing_GameTests.Duration := seDuration.Value;
+      Testing_GameTests.Seed := seSeed.Value;
+      Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
+      Testing_GameTests.DelayValue := seDelay.Value;
+      if rgAIType.ItemIndex = 0 then
+        Testing_GameTests.AIType := aitClassic
+      else
+        Testing_GameTests.AIType := aitAdvanced;
+
+      fResults := Testing_GameTests.Run(Count);
+      
+      for I := 0 to Count - 1 do
+      begin
+        case fResults.TestResults[I] of
+          trSuccess: resStr := 'SUCCESS';
+          trFailed: resStr := 'FAILED: ' + fResults.TestMessages[I];
+          trException: resStr := 'EXCEPTION: ' + fResults.TestMessages[I];
+        end;
+
+        if Count > 1 then
+          moResults.Lines.Append(Format('%s (Run %d): %s (%d ms)', [Testing_GameTestsClass.ClassName, I+1, resStr, GetTickCount - T]))
+        else
+          moResults.Lines.Append(Format('%s: %s (%d ms)', [Testing_GameTestsClass.ClassName, resStr, GetTickCount - T]));
+      end;
+      
+      Inc(TotalTestsRun, Count);
+    finally
+      Testing_GameTests.Free;
+    end;
+    
+    Application.ProcessMessages;
   end;
 
-  Steps := Min(aTopX, aImg.Width div 40);
-  SetLength(fX, Steps);
-  if Steps > 1 then
-  for I := 0 to High(fX) do
-  begin
-    fX[I] := TLabel.Create(aImg.Parent);
-    fX[I].Parent := aImg.Parent;
-    fX[I].Alignment := taRightJustify;
-    fX[I].Left := aImg.Left + Round(aImg.Width / High(fX) * I);
-    fX[I].Top := aImg.Top + aImg.Height + 4;
-    fX[I].Caption := FloatToStr(Round(aTopX * I * 10 / High(fX)) / 10);
-  end;
+  moResults.Lines.Append('=============================');
+  moResults.Lines.Append(Format('Total Tests Run: %d', [TotalTestsRun]));
+  moResults.Lines.Append(Format('Total Time Spent: %d ms', [GetTickCount - TotalT]));
+
+  btnRun.Enabled := True;
+  btnRunAll.Enabled := True;
+  btnTryFoundSeed.Enabled := True;
+  btnStop.Enabled := False;
+  btnPause.Enabled := False;
 end;
 
-
-procedure TForm2.RefreshDistribution(aImg: TImage);
+procedure TForm2.btnTryFoundSeedClick(Sender: TObject);
 var
-  I,J: Integer;
-  DotX, DotY: Word;
-  TopX, TopY: Integer;
-  StatMax: Integer;
-  Stats: array of Integer;
+  T: Cardinal;
+  ID: Integer;
+  Testing_GameTestsClass: TKMRunnerClass;
+  Testing_GameTests: TKMRunnerCommon;
+  resStr: string;
 begin
-  if aImg.Picture.Bitmap <> nil then
-    aImg.Picture.Bitmap.SetSize(aImg.Width, aImg.Height);
-  aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
+  if ListBox1.ItemIndex = -1 then Exit;
+  ID := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
 
-  StatMax := 0;
-  for I := 0 to fResults.ValueCount - 1 do
+  fStopped := False;
+
+  btnRun.Enabled := False;
+  btnRunAll.Enabled := False;
+  btnTryFoundSeed.Enabled := False;
+  btnStop.Enabled := True;
+  btnPause.Enabled := False;
+
+  moResults.Clear;
+  PageControl1.ActivePage := TabSheet5;
+
+  Testing_GameTestsClass := RunnerList[ID];
+
+  while not fStopped do
   begin
-    SetLength(Stats, 0); //Erase
-    SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
-    for J := 0 to fResults.ChartsCount - 1 do
-      Inc(Stats[Round(fResults.Value[J,I]) - Round(fResults.ValueMin)]);
+    if chkRender.Checked then
+      Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, IsStopped)
+    else
+      Testing_GameTests := Testing_GameTestsClass.Create(nil, IsStopped);
 
-    for J := 0 to High(Stats) do
-      StatMax := Max(StatMax, Stats[J]);
-  end;
+    Testing_GameTests.OnProgress := Testing_GameTestsProgress;
+    Testing_GameTests.OnProgress_Left := Testing_GameTestsProgress_Left;
+    Testing_GameTests.OnProgress_Left2 := Testing_GameTestsProgress_Left2;
+    Testing_GameTests.OnProgress_Left3 := Testing_GameTestsProgress_Left3;
+    Testing_GameTests.OnProgress2 := Testing_GameTestsProgress2;
+    Testing_GameTests.OnProgress3 := Testing_GameTestsProgress3;
+    Testing_GameTests.OnProgress4 := Testing_GameTestsProgress4;
+    Testing_GameTests.OnProgress5 := Testing_GameTestsProgress5;
 
-  for I := 0 to fResults.ValueCount - 1 do
-  begin
-    aImg.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
-
-    SetLength(Stats, 0); //Erase
-    SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
-    for J := 0 to fResults.ChartsCount - 1 do
-      Inc(Stats[Round(fResults.Value[J,I]) - Round(fResults.ValueMin)]);
-
-    for J := Low(Stats) to High(Stats) do
-    begin
-      if Length(Stats) > 1 then
-        DotX := Round((J - Low(Stats)) * aImg.Width / (Length(Stats) - 1))
+    try
+      T := GetTickCount;
+      Testing_GameTests.Duration := seDuration.Value;
+      Testing_GameTests.Seed := seSeed.Value;
+      Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
+      Testing_GameTests.DelayValue := seDelay.Value;
+      if rgAIType.ItemIndex = 0 then
+        Testing_GameTests.AIType := aitClassic
       else
-        DotX := aImg.Width div 2;
+        Testing_GameTests.AIType := aitAdvanced;
 
-      DotY := aImg.Height - Round(aImg.Height * Stats[J] / StatMax);
+      fResults := Testing_GameTests.Run(1);
 
-      if DotY <> aImg.Height then
-        aImg.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
+      case fResults.TestResults[0] of
+        trSuccess: resStr := 'SUCCESS';
+        trFailed: resStr := 'FAILED: ' + fResults.TestMessages[0];
+        trException: resStr := 'EXCEPTION: ' + fResults.TestMessages[0];
+      end;
 
-      if J = 0 then
-        aImg.Canvas.PenPos := Point(DotX, DotY)
-      else
-        aImg.Canvas.LineTo(DotX, DotY);
+      moResults.Lines.Append(Format('%s (Seed %d): %s (%d ms)', [Testing_GameTestsClass.ClassName, seSeed.Value, resStr, GetTickCount - T]));
+
+      if fResults.TestResults[0] = trFailed then
+      begin
+        moResults.Lines.Append('Found ETestFailed at seed ' + IntToStr(seSeed.Value));
+        Break;
+      end;
+
+    finally
+      Testing_GameTests.Free;
     end;
+
+    seSeed.Value := seSeed.Value + 1;
+    Application.ProcessMessages;
   end;
-  TopX := Length(Stats);
-  TopY := StatMax;
 
-  RefreshAxisLabels(aImg, TopX, TopY);
-end;
-
-
-procedure TForm2.RefreshResults(aImg: TImage);
-var
-  I,J: Integer;
-  DotX, DotY: Word;
-  TopX, TopY: Integer;
-begin
-  if aImg.Picture.Bitmap <> nil then
-    aImg.Picture.Bitmap.SetSize(aImg.Width, aImg.Height);
-  aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
-
-  for I := 0 to fResults.ValueCount - 1 do
-  begin
-    aImg.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
-    for J := 0 to fResults.ChartsCount - 1 do
-    begin
-      if fResults.ChartsCount > 1 then
-        DotX := Round(J / (fResults.ChartsCount - 1) * aImg.Width)
-      else
-        DotX := aImg.Width div 2;
-      if fResults.ValueMax <> 0 then
-        DotY := aImg.Height - Round(fResults.Value[J,I] / fResults.ValueMax * aImg.Height)
-      else
-        DotY := aImg.Height;
-      aImg.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
-      if J = 0 then
-        aImg.Canvas.PenPos := Point(DotX, DotY)
-      else
-        aImg.Canvas.LineTo(DotX, DotY);
-    end;
-  end;
-  TopX := fResults.ChartsCount;
-  TopY := fResults.ValueMax;
-
-  RefreshAxisLabels(aImg, TopX, TopY);
-end;
-
-
-procedure TForm2.RefreshTimes(aImg: TImage);
-var
-  I,J: Integer;
-  CutOff: Byte;
-  DotX, DotY: Word;
-  TopX, TopY: Integer;
-begin
-  if aImg.Picture.Bitmap <> nil then
-    aImg.Picture.Bitmap.SetSize(aImg.Width, aImg.Height);
-  aImg.Canvas.FillRect(aImg.Canvas.ClipRect);
-
-  CutOff := TrackBar1.Position;
-
-  for I := 0 to fResults.ChartsCount - 1 do
-  begin
-    aImg.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
-
-    for J := 0 to fResults.TimesCount - 1 do
-    if fResults.Times[I,J] >= CutOff then
-    begin
-      DotX := Round(J / (fResults.TimesCount - 1) * aImg.Width);
-      DotY := aImg.Height - Round(fResults.Times[I,J] / fResults.TimeMax * aImg.Height);
-
-      aImg.Canvas.PenPos := Point(DotX, aImg.Height);
-      aImg.Canvas.LineTo(DotX, DotY);
-    end;
-  end;
-  TopX := fResults.TimesCount;
-  TopY := fResults.TimeMax;
-
-  RefreshAxisLabels(aImg, TopX, TopY);
+  btnRun.Enabled := True;
+  btnRunAll.Enabled := True;
+  btnTryFoundSeed.Enabled := True;
+  btnStop.Enabled := False;
+  btnPause.Enabled := False;
 end;
 
 
@@ -510,18 +568,6 @@ begin
   Label11.Caption := aValue;
   Label11.Refresh;
   Application.ProcessMessages;
-end;
-
-
-procedure TForm2.TabSheetResize(Sender: TObject);
-begin
-  PageControl1Change(nil);
-end;
-
-
-procedure TForm2.TrackBar1Change(Sender: TObject);
-begin
-  PageControl1Change(nil);
 end;
 
 end.

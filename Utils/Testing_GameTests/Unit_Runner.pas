@@ -1,4 +1,4 @@
-unit Unit_Runner;
+﻿unit Unit_Runner;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -11,6 +11,41 @@ type
   TKMRunnerCommon = class;
   TKMRunnerClass = class of TKMRunnerCommon;
 
+  TKMTestCategory = (
+    tcNone,
+    
+    // Buildings
+    tcArmorSmithy, tcArmorWorkshop, tcBakery, tcBarracks, tcButchers,
+    tcCoalMine, tcFarm, tcFishermans, tcGoldMine, tcInn,
+    tcIronMine, tcIronSmithy, tcMarket, tcMetallurgists, tcMill,
+    tcQuarry, tcSawmill, tcSchool, tcSiegeWorkshop, tcStables,
+    tcStore, tcSwine, tcTannery, tcTownHall, tcWatchTower,
+    tcWeaponSmithy, tcWeaponWorkshop, tcVineyard, tcWoodcutters,
+
+    // Units
+    tcSerf, tcWoodcutter, tcMiner, tcAnimalBreeder, tcFarmer,
+    tcCarpenter, tcBaker, tcButcher, tcFisher, tcBuilder,
+    tcStonemason, tcSmith, tcMetallurgist, tcRecruit,
+
+    tcMilitia, tcAxeFighter, tcSwordFighter, tcBowman, tcCrossbowman,
+    tcLanceCarrier, tcPikeman, tcScout, tcKnight, tcBarbarian,
+
+    tcRebel, tcRogue, tcWarrior, tcVagabond,
+
+    tcWolf, tcFish, tcWatersnake, tcSeastar, tcCrab,
+    tcWaterflower, tcWaterleaf, tcDuck,
+
+    // General mechanics and logic
+    tcProjectiles, tcPathfinding, tcPascalScript, tcHunger,
+    tcEconomy, tcCombat, tcAI, tcNetworking, tcMultiplayer,
+    tcChopTree, tcPlantTree, tcDeliveryIn, tcDeliveryOut
+  );
+
+  TKMTestCategorySet = set of TKMTestCategory;
+
+  TKMTestResult = (trSuccess, trFailed, trException);
+  ETestFailed = class(Exception);
+
   TKMRunResults = record
     ChartsCount: Integer; //How many charts return
     ValueCount: Integer; //How many values
@@ -19,6 +54,8 @@ type
     TimesCount: Integer;
     TimeMin, TimeMax: Integer;
     Times: array {Run} of array {Tick} of Cardinal;
+    TestResults: array {Run} of TKMTestResult;
+    TestMessages: array {Run} of string;
   end;
 
   TKMRunnerCommon = class
@@ -32,12 +69,15 @@ type
     fOnStop: TBooleanFuncSimple;
     fOnBeforeTick: TBoolCardFuncSimple;
     fOnTick: TBoolCardFuncSimple;
+    procedure EnsureResourcesLoaded;
+    function OnTickCondition(aTick: Cardinal): Boolean; virtual;
     procedure SetUp; virtual;
     procedure TearDown; virtual;
     procedure Execute(aRun: Integer); virtual; abstract;
     procedure SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
     procedure ProcessRunResults;
   public
+    ThrottleRender: Boolean;
     Duration: Integer;
     Seed: Integer;
     AIType: TKMAIType;
@@ -49,8 +89,14 @@ type
     OnProgress3: TUnicodeStringEvent;
     OnProgress4: TUnicodeStringEvent;
     OnProgress5: TUnicodeStringEvent;
+    DelayValue: Integer;
     constructor Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple); reintroduce;
     function Run(aCount: Integer): TKMRunResults;
+    procedure AssertTrue(aCondition: Boolean; const aMessage: string);
+    procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
+    procedure Fail(const aMessage: string);
+    class function TestCategories: TKMTestCategorySet; virtual;
+    class function TestDescription: UnicodeString; virtual;
   end;
 
 procedure RegisterRunner(aRunner: TKMRunnerClass);
@@ -71,6 +117,21 @@ end;
 
 
 { TKMRunnerCommon }
+class function TKMRunnerCommon.TestCategories: TKMTestCategorySet;
+begin
+  Result := [tcNone];
+end;
+
+class function TKMRunnerCommon.TestDescription: UnicodeString;
+begin
+  Result := 'No description provided.';
+end;
+
+function TKMRunnerCommon.OnTickCondition(aTick: Cardinal): Boolean;
+begin
+  Result := True; // Продолжаем симуляцию по умолчанию
+end;
+
 constructor TKMRunnerCommon.Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple);
 begin
   inherited Create;
@@ -79,9 +140,11 @@ begin
 
 //  fOnPause := aOnPause;
   fOnStop := aOnStop;
+  fOnTick := OnTickCondition;
 
   fIntParam := 0;
   AIType := aitNone;
+  ThrottleRender := True;
 end;
 
 
@@ -94,6 +157,8 @@ begin
   fResults.ChartsCount := aCount;
   SetLength(fResults.Value, fResults.ChartsCount, fResults.ValueCount);
   SetLength(fResults.Times, fResults.ChartsCount, fResults.TimesCount);
+  SetLength(fResults.TestResults, fResults.ChartsCount);
+  SetLength(fResults.TestMessages, fResults.ChartsCount);
 
   for I := 0 to aCount - 1 do
   begin
@@ -101,13 +166,46 @@ begin
       OnProgress(Format('%d', [I]));
 
     fRun := I;
-    Execute(I);
+    fResults.TestResults[I] := trSuccess;
+    fResults.TestMessages[I] := '';
+
+    try
+      Execute(I);
+    except
+      on E: ETestFailed do
+      begin
+        fResults.TestResults[I] := trFailed;
+        fResults.TestMessages[I] := E.Message;
+      end;
+      on E: Exception do
+      begin
+        fResults.TestResults[I] := trException;
+        fResults.TestMessages[I] := E.Message;
+      end;
+    end;
   end;
 
   TearDown;
 
   ProcessRunResults;
   Result := fResults;
+end;
+
+procedure TKMRunnerCommon.AssertTrue(aCondition: Boolean; const aMessage: string);
+begin
+  if not aCondition then
+    raise ETestFailed.Create(aMessage);
+end;
+
+procedure TKMRunnerCommon.AssertEquals(aExpected, aActual: Integer; const aMessage: string);
+begin
+  if aExpected <> aActual then
+    raise ETestFailed.Create(Format('%s (Expected: %d, Actual: %d)', [aMessage, aExpected, aActual]));
+end;
+
+procedure TKMRunnerCommon.Fail(const aMessage: string);
+begin
+  raise ETestFailed.Create(aMessage);
 end;
 
 
@@ -145,19 +243,16 @@ begin
 end;
 
 
-procedure TKMRunnerCommon.SetUp;
+procedure TKMRunnerCommon.EnsureResourcesLoaded;
 var
   tgtWidth, tgtHeight: Word;
 begin
-  SKIP_RENDER := (fRenderTarget = nil);
+  if gGameApp <> nil then Exit;
+
   SKIP_SOUND := True;
   SKIP_LOADING_CURSOR := True;
   SKIP_SETTINGS_SAVE := True;
-  //ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
   ExeDir := ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))))));
-  //gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
-
-  fResults.TimesCount := Duration*60*10;
 
   if fRenderTarget = nil then
   begin
@@ -178,46 +273,34 @@ begin
   gGameApp.PreloadGameResources;
 end;
 
+procedure TKMRunnerCommon.SetUp;
+begin
+  fResults.TimesCount := Duration*60*10;
+  EnsureResourcesLoaded;
+end;
+
 
 procedure TKMRunnerCommon.TearDown;
 begin
-  gGameApp.StopGame(grSilent);
-  FreeAndNil(gGameApp);
-  FreeAndNil(gLog);
+  if gGameApp.Game <> nil then
+    gGameApp.StopGame(grSilent);
+
   if Assigned(OnProgress) then
     OnProgress('Done');
 end;
 
 
-//procedure TKMRunnerCommon.FlashingStart;
-//{$IFNDEF FPC}
-//var
-//  flashInfo: TFlashWInfo;
-//{$ENDIF}
-//begin
-//  {$IFNDEF FPC}
-//  if (GetForeGroundWindow <> gMain.FormMain.Handle) then
-//  begin
-//    flashInfo.cbSize := 20;
-//    flashInfo.hwnd := Application.Handle;
-//    flashInfo.dwflags := FLASHW_ALL;
-//    flashInfo.ucount := 5;
-//    flashInfo.dwtimeout := 0;
-//    fFlashing := True;
-//    FlashWindowEx(flashInfo);
-//  end
-//  {$ENDIF}
-//end;
-
-
 procedure TKMRunnerCommon.SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
 var
   I: Integer;
+  VLastRenderTime: Cardinal;
 begin
   if (aEndTick = -1) then
     aEndTick := fResults.TimesCount - 1
   else
     aEndTick := Min(aEndTick,fResults.TimesCount - 1);
+
+  VLastRenderTime := TimeGet;
 
   for I := aStartTick to aEndTick do
   begin
@@ -228,7 +311,20 @@ begin
       Exit;
 
     gGameApp.Game.UpdateGame;
-    gGameApp.Render(False);
+    
+    if ThrottleRender then
+    begin
+      if (TimeGet - VLastRenderTime) > 100 then
+      begin
+        gGameApp.Render(False);
+        VLastRenderTime := TimeGet;
+      end;
+    end
+    else
+      gGameApp.Render(False);
+
+    if SKIP_RENDER and (DelayValue > 0) then
+      Sleep(DelayValue);
 
     if Assigned(fOnTick)
       and not fOnTick(I+1) then

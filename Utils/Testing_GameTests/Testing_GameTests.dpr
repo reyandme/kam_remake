@@ -17,7 +17,21 @@ uses
   {$ENDIF}
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',
-  Runner_Game in 'Runner_Game.pas';
+  Runner_TestStone in 'Runner_TestStone.pas',
+  Runner_TestSawmill_Process in 'Runner_TestSawmill_Process.pas',
+  Runner_TestSawmill_DeliveryIn in 'Runner_TestSawmill_DeliveryIn.pas',
+  Runner_TestSawmill_DeliveryOut in 'Runner_TestSawmill_DeliveryOut.pas',
+  Runner_TestWoodcutter_Chop in 'Runner_TestWoodcutter_Chop.pas',
+  Runner_TestWoodcutter_Plant in 'Runner_TestWoodcutter_Plant.pas',
+  Runner_TestFarm_Plant in 'Runner_TestFarm_Plant.pas',
+  Runner_TestFarm_Harvest in 'Runner_TestFarm_Harvest.pas',
+  Runner_TestVineyard_Harvest in 'Runner_TestVineyard_Harvest.pas',
+  Runner_TestBuilding_Plan in 'Runner_TestBuilding_Plan.pas',
+  Runner_TestMill_Process in 'Runner_TestMill_Process.pas',
+  Runner_TestBakery_Process in 'Runner_TestBakery_Process.pas',
+  Runner_TestSwine_Process in 'Runner_TestSwine_Process.pas',
+  Runner_TestHungarian in 'Runner_TestHungarian.pas',
+  Runner_TestFight95 in 'Runner_TestFight95.pas';
 
 {$R *.res}
 
