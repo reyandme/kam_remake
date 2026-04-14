@@ -49,7 +49,7 @@ type
     RenderArea: TKMRenderControl;
     procedure RefreshTestList;
     function IsStopped: Boolean;
-    procedure Testing_GameTestsProgress(const aValue: UnicodeString);
+    procedure HandleProgress(const aValue: string);
   end;
 
 
@@ -245,7 +245,7 @@ begin
     else
       Testing_GameTests := Testing_GameTestsClass.Create(nil, {IsPaused, }IsStopped);
 
-    Testing_GameTests.OnProgress := Testing_GameTestsProgress;
+    Testing_GameTests.OnProgress := HandleProgress;
     try
       T := GetTickCount;
       Testing_GameTests.Duration := seDuration.Value;
@@ -305,7 +305,7 @@ begin
     else
       Testing_GameTests := Testing_GameTestsClass.Create(nil, IsStopped);
 
-    Testing_GameTests.OnProgress := Testing_GameTestsProgress;
+    Testing_GameTests.OnProgress := HandleProgress;
     try
       T := GetTickCount;
       Testing_GameTests.Duration := seDuration.Value;
@@ -378,7 +378,7 @@ begin
     else
       Testing_GameTests := Testing_GameTestsClass.Create(nil, IsStopped);
 
-    Testing_GameTests.OnProgress := Testing_GameTestsProgress;
+    Testing_GameTests.OnProgress := HandleProgress;
 
     try
       T := GetTickCount;
@@ -418,7 +418,7 @@ begin
 end;
 
 
-procedure TForm2.Testing_GameTestsProgress(const aValue: UnicodeString);
+procedure TForm2.HandleProgress(const aValue: string);
 begin
   Label2.Caption := aValue;
   Label2.Refresh;
