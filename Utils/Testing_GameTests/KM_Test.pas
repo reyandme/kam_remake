@@ -63,7 +63,6 @@ type
     procedure Execute(aRun: Integer); virtual;
   public
     ThrottleRender: Boolean;
-    Seed: Integer;
     DelayValue: Integer;
     constructor Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
     function Run(aCount: Integer): TKMRunResults;

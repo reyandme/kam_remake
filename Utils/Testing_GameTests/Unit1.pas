@@ -195,7 +195,6 @@ begin
 
   var thisTest := aClass.Create(IsStopped, HandleProgress);
   try
-    thisTest.Seed := seSeed.Value;
     thisTest.ThrottleRender := chkThrottleRender.Checked;
     thisTest.DelayValue := seDelay.Value;
 
@@ -251,7 +250,6 @@ begin
     var thisTest := thisTestClass.Create(IsStopped, HandleProgress);
     try
       var T := GetTickCount;
-      thisTest.Seed := seSeed.Value;
       thisTest.ThrottleRender := chkThrottleRender.Checked;
       thisTest.DelayValue := seDelay.Value;
 
