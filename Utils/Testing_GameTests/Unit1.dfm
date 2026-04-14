@@ -56,21 +56,21 @@ object Form2: TForm2
     Height = 13
     Caption = 'Tests:'
   end
-  object btnRun: TButton
+  object btnRunOne: TButton
     Left = 8
-    Top = 536
+    Top = 496
     Width = 89
-    Height = 33
-    Caption = 'Run'
+    Height = 25
+    Caption = 'Run One'
     Enabled = False
     TabOrder = 0
-    OnClick = btnRunClick
+    OnClick = btnRunOneClick
   end
   object btnRunAll: TButton
-    Left = 104
-    Top = 576
+    Left = 8
+    Top = 528
     Width = 89
-    Height = 33
+    Height = 25
     Caption = 'Run All'
     Enabled = False
     TabOrder = 7
@@ -155,16 +155,16 @@ object Form2: TForm2
     end
   end
   object chkRender: TCheckBox
-    Left = 8
-    Top = 576
+    Left = 104
+    Top = 480
     Width = 57
     Height = 17
     Caption = 'Render'
     TabOrder = 4
   end
   object chkThrottleRender: TCheckBox
-    Left = 8
-    Top = 600
+    Left = 104
+    Top = 504
     Width = 89
     Height = 17
     Caption = 'Throttle FPS'
@@ -183,10 +183,10 @@ object Form2: TForm2
     Value = 4
   end
   object btnStop: TButton
-    Left = 104
-    Top = 536
+    Left = 8
+    Top = 592
     Width = 89
-    Height = 33
+    Height = 25
     Caption = 'Stop'
     Enabled = False
     TabOrder = 6

@@ -45,9 +45,8 @@ type
   ETestFailed = class(Exception);
 
   TKMRunResults = record
-    RunCount: Integer;
-    TestResults: array {Run} of TKMTestResult;
-    TestMessages: array {Run} of string;
+    TestResult: TKMTestResult;
+    TestMessage: string;
   end;
 
   TKMTest = class
@@ -60,12 +59,12 @@ type
     procedure SetUp; virtual; abstract;
     procedure TearDown; virtual;
     procedure CheckResult; virtual; abstract;
-    procedure Execute(aRun: Integer); virtual;
+    procedure Execute(aSeed: Integer); virtual;
   public
     ThrottleRender: Boolean;
     DelayValue: Integer;
     constructor Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
-    function Run(aCount: Integer): TKMRunResults;
+    function Run(aSeed: Integer): TKMRunResults;
     class function TestTags: TKMTestTagSet; virtual;
     class function TestDescription: string; virtual;
   end;
@@ -135,9 +134,9 @@ begin
 end;
 
 
-procedure TKMTest.Execute(aRun: Integer);
+procedure TKMTest.Execute(aSeed: Integer);
 begin
-  SetKaMSeed(aRun+1);
+  SetKaMSeed(aSeed);
   try
     var lastRenderTime := TimeGet;
 
@@ -169,7 +168,7 @@ begin
         gGameApp.Game.Hold(False, grWin);
 
       if (I mod 60*10 = 0) and Assigned(fOnProgress) then
-        fOnProgress(Format('%d (%d min)', [aRun + 1, I div 600]));
+        fOnProgress(Format('%d min', [I div 600]));
     end;
   finally
     CheckResult;
@@ -178,35 +177,25 @@ begin
 end;
 
 
-function TKMTest.Run(aCount: Integer): TKMRunResults;
+function TKMTest.Run(aSeed: Integer): TKMRunResults;
 begin
   SetUp;
 
-  fResults.RunCount := aCount;
-  SetLength(fResults.TestResults, fResults.RunCount);
-  SetLength(fResults.TestMessages, fResults.RunCount);
+  fResults.TestResult := trSuccess;
+  fResults.TestMessage := '';
 
-  for var I := 0 to aCount - 1 do
-  begin
-    if Assigned(fOnProgress) then
-      fOnProgress(Format('%d', [I]));
-
-    fResults.TestResults[I] := trSuccess;
-    fResults.TestMessages[I] := '';
-
-    try
-      Execute(I);
-    except
-      on E: ETestFailed do
-      begin
-        fResults.TestResults[I] := trFailed;
-        fResults.TestMessages[I] := E.Message;
-      end;
-      on E: Exception do
-      begin
-        fResults.TestResults[I] := trException;
-        fResults.TestMessages[I] := E.Message;
-      end;
+  try
+    Execute(aSeed);
+  except
+    on E: ETestFailed do
+    begin
+      fResults.TestResult := trFailed;
+      fResults.TestMessage := E.Message;
+    end;
+    on E: Exception do
+    begin
+      fResults.TestResult := trException;
+      fResults.TestMessage := E.Message;
     end;
   end;
 
