@@ -12,7 +12,7 @@ type
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
   public
-    class function TestCategories: TKMTestCategorySet; override;
+    class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
   end;
 
@@ -81,7 +81,7 @@ begin
   gGameApp.StopGame(grSilent);
 end;
 
-class function TKMRunnerStone.TestCategories: TKMTestCategorySet;
+class function TKMRunnerStone.TestTags: TKMTestTagSet;
 begin
   Result := [tcQuarry, tcStonemason];
 end;

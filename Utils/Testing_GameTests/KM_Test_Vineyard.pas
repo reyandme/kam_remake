@@ -11,7 +11,7 @@ type
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   public
-    class function TestCategories: TKMTestCategorySet; override;
+    class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
   end;
 
@@ -80,7 +80,7 @@ begin
   gGameApp.StopGame(grSilent);
 end;
 
-class function TKMRunnerVineyard_Harvest.TestCategories: TKMTestCategorySet;
+class function TKMRunnerVineyard_Harvest.TestTags: TKMTestTagSet;
 begin
   Result := [tcVineyard, tcEconomy];
 end;

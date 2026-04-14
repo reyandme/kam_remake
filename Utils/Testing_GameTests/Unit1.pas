@@ -66,20 +66,6 @@ uses
 
 {$R *.dfm}
 
-const
-  COLORS_COUNT = 8;
-  LineCol: array [0..COLORS_COUNT - 1] of TColor =
-    (clRed, clBlue, clGreen, clPurple, clMaroon, clGray, clBlack, clOlive);
-
-
-{$IFDEF FPC}
-function Point(X,Y: Integer): TPoint;
-begin
-  Result.X := X;
-  Result.Y := Y;
-end;
-{$ENDIF}
-
 
 procedure TForm2.clbCategoriesClick(Sender: TObject);
 begin
@@ -90,22 +76,21 @@ end;
 procedure TForm2.RefreshTestList;
 var
   I: Integer;
-  Cat: TKMTestCategory;
-  FilterSet: TKMTestCategorySet;
   Match: Boolean;
   S: string;
 begin
-  FilterSet := [];
+  var allowedTags: TKMTestTagSet := [];
   for I := 0 to clbCategories.Items.Count - 1 do
     if clbCategories.Checked[I] then
-      FilterSet := FilterSet + [TKMTestCategory(Integer(clbCategories.Items.Objects[I]))];
+      allowedTags := allowedTags + [TKMTestTag(Integer(clbCategories.Items.Objects[I]))];
 
   ListBox1.Items.Clear;
   for I := 0 to High(gTestList) do
   begin
     Match := False;
-    for Cat in gTestList[I].TestCategories do
-      if Cat in FilterSet then Match := True;
+    for var tag in gTestList[I].TestTags do
+      if tag in allowedTags then
+        Match := True;
 
     if Match then
     begin
@@ -134,8 +119,6 @@ end;
 procedure TForm2.FormCreate(Sender: TObject);
 var
   I: Integer;
-  CatSet: TKMTestCategorySet;
-  Cat: TKMTestCategory;
   S: string;
 begin
   if gLog = nil then
@@ -146,18 +129,18 @@ begin
   RenderArea.Align := alClient;
   RenderArea.Color := clMaroon;
 
-  CatSet := [];
+  var tagSet: TKMTestTagSet := [];
   for I := 0 to High(gTestList) do
-    CatSet := CatSet + gTestList[I].TestCategories;
+    tagSet := tagSet + gTestList[I].TestTags;
 
-  for Cat := Low(TKMTestCategory) to High(TKMTestCategory) do
+  for var tag := Low(TKMTestTag) to High(TKMTestTag) do
   begin
-    if Cat in CatSet then
+    if tag in tagSet then
     begin
-      S := GetEnumName(TypeInfo(TKMTestCategory), Integer(Cat));
+      S := GetEnumName(TypeInfo(TKMTestTag), Integer(tag));
       if Copy(S, 1, 2) = 'tc' then
         Delete(S, 1, 2);
-      clbCategories.Items.AddObject(S, TObject(Cat));
+      clbCategories.Items.AddObject(S, TObject(tag));
       clbCategories.Checked[clbCategories.Items.Count - 1] := True;
     end;
   end;

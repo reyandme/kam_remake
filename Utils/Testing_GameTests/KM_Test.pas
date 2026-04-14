@@ -11,7 +11,7 @@ type
   TKMTest = class;
   TKMTestClass = class of TKMTest;
 
-  TKMTestCategory = (
+  TKMTestTag = (
     tcNone,
     
     // Buildings
@@ -41,7 +41,7 @@ type
     tcChopTree, tcPlantTree, tcDeliveryIn, tcDeliveryOut
   );
 
-  TKMTestCategorySet = set of TKMTestCategory;
+  TKMTestTagSet = set of TKMTestTag;
 
   TKMTestResult = (trSuccess, trFailed, trException);
   ETestFailed = class(Exception);
@@ -82,7 +82,7 @@ type
     procedure AssertTrue(aCondition: Boolean; const aMessage: string);
     procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
     procedure Fail(const aMessage: string);
-    class function TestCategories: TKMTestCategorySet; virtual;
+    class function TestTags: TKMTestTagSet; virtual;
     class function TestDescription: string; virtual;
   end;
 
@@ -105,7 +105,7 @@ end;
 
 
 { TKMTest }
-class function TKMTest.TestCategories: TKMTestCategorySet;
+class function TKMTest.TestTags: TKMTestTagSet;
 begin
   Result := [tcNone];
 end;
@@ -119,6 +119,7 @@ function TKMTest.DoTick(aTick: Cardinal): Boolean;
 begin
   Result := True; // Продолжаем симуляцию по умолчанию
 end;
+
 
 constructor TKMTest.Create(aRenderTarget: TKMRenderControl; aOnStop: TBooleanFuncSimple);
 begin
