@@ -43,7 +43,6 @@ type
     procedure btnStopClick(Sender: TObject);
   private
     fResults: TKMRunResults;
-    fRunTime: string;
     fStopped: Boolean;
     RenderArea: TKMRenderControl;
     procedure RefreshTestList;
@@ -222,7 +221,6 @@ begin
       thisTest.DelayValue := seDelay.Value;
 
       fResults := thisTest.Run(Count);
-      fRunTime := 'Done in ' + IntToStr(GetTickCount - T) + ' ms';
     finally
       thisTest.Free;
     end;
