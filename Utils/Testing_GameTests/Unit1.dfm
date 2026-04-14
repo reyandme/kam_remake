@@ -2,8 +2,8 @@ object Form2: TForm2
   Left = 244
   Top = 289
   Caption = 'Testing_GameTests'
-  ClientHeight = 641
-  ClientWidth = 1097
+  ClientHeight = 633
+  ClientWidth = 1065
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -12,19 +12,16 @@ object Form2: TForm2
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  DesignSize = (
-    1097
-    641)
   TextHeight = 13
   object Label1: TLabel
     Left = 8
-    Top = 247
+    Top = 392
     Width = 35
     Height = 13
     Caption = 'Cycles:'
   end
   object Label2: TLabel
-    Left = 187
+    Left = 184
     Top = 376
     Width = 15
     Height = 13
@@ -32,31 +29,45 @@ object Form2: TForm2
     Caption = '     '
   end
   object Label4: TLabel
-    Left = 103
-    Top = 247
+    Left = 104
+    Top = 392
     Width = 72
     Height = 13
     Caption = 'Duration (min):'
   end
   object Label7: TLabel
     Left = 8
-    Top = 288
+    Top = 432
     Width = 28
     Height = 13
     Caption = 'Seed:'
   end
   object lblDelay: TLabel
-    Left = 106
-    Top = 360
+    Left = 104
+    Top = 432
     Width = 31
     Height = 13
     Caption = 'Delay:'
   end
+  object Label3: TLabel
+    Left = 8
+    Top = 256
+    Width = 27
+    Height = 13
+    Caption = 'Tags:'
+  end
+  object Label5: TLabel
+    Left = 8
+    Top = 8
+    Width = 30
+    Height = 13
+    Caption = 'Tests:'
+  end
   object btnTryFoundSeed: TButton
     Left = 8
-    Top = 488
+    Top = 496
     Width = 184
-    Height = 38
+    Height = 33
     Caption = 'Try Found Seed'
     Enabled = False
     TabOrder = 11
@@ -64,19 +75,19 @@ object Form2: TForm2
   end
   object btnRun: TButton
     Left = 8
-    Top = 532
+    Top = 536
     Width = 89
-    Height = 38
+    Height = 33
     Caption = 'Run'
     Enabled = False
     TabOrder = 0
     OnClick = btnRunClick
   end
   object btnRunAll: TButton
-    Left = 103
+    Left = 104
     Top = 576
     Width = 89
-    Height = 38
+    Height = 33
     Caption = 'Run All'
     Enabled = False
     TabOrder = 8
@@ -84,8 +95,8 @@ object Form2: TForm2
   end
   object seCycles: TSpinEdit
     Left = 8
-    Top = 264
-    Width = 89
+    Top = 408
+    Width = 81
     Height = 22
     MaxValue = 1000000
     MinValue = 1
@@ -93,9 +104,9 @@ object Form2: TForm2
     Value = 1
   end
   object seDelay: TSpinEdit
-    Left = 106
-    Top = 376
-    Width = 72
+    Left = 104
+    Top = 448
+    Width = 81
     Height = 22
     MaxValue = 10000
     MinValue = 0
@@ -104,38 +115,37 @@ object Form2: TForm2
   end
   object ListBox1: TListBox
     Left = 8
-    Top = 8
+    Top = 24
     Width = 185
-    Height = 113
+    Height = 225
     ItemHeight = 13
     TabOrder = 2
     OnClick = ListBox1Click
   end
   object clbCategories: TCheckListBox
     Left = 8
-    Top = 127
+    Top = 272
     Width = 185
     Height = 113
-    ItemHeight = 17
+    ItemHeight = 13
     TabOrder = 9
     OnClick = clbCategoriesClick
   end
-  object PageControl1: TPageControl
-    Left = 208
+  object pcMain: TPageControl
+    Left = 200
     Top = 8
-    Width = 877
-    Height = 625
-    ActivePage = TabSheet5
-    Anchors = [akLeft, akRight, akBottom]
+    Width = 857
+    Height = 617
+    ActivePage = tsLog
     TabOrder = 3
-    object TabSheet5: TTabSheet
-      Caption = 'Test Summary'
+    object tsLog: TTabSheet
+      Caption = 'Log'
       ImageIndex = 5
-      object moResults: TMemo
+      object meLog: TMemo
         Left = 0
         Top = 0
-        Width = 869
-        Height = 597
+        Width = 849
+        Height = 589
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -147,16 +157,16 @@ object Form2: TForm2
         TabOrder = 0
       end
     end
-    object Render: TTabSheet
+    object tsRender: TTabSheet
       Caption = 'Render'
       ImageIndex = 4
-      object Panel1: TPanel
+      object pnlRender: TPanel
         Left = 0
         Top = 0
-        Width = 873
-        Height = 597
+        Width = 849
+        Height = 589
         Align = alClient
-        Caption = 'Panel1'
+        Caption = 'pnlRender'
         TabOrder = 0
       end
     end
@@ -171,7 +181,7 @@ object Form2: TForm2
   end
   object chkThrottleRender: TCheckBox
     Left = 8
-    Top = 596
+    Top = 600
     Width = 89
     Height = 17
     Caption = 'Throttle FPS'
@@ -180,9 +190,9 @@ object Form2: TForm2
     TabOrder = 10
   end
   object seDuration: TSpinEdit
-    Left = 103
-    Top = 264
-    Width = 89
+    Left = 104
+    Top = 408
+    Width = 81
     Height = 22
     MaxValue = 1000000
     MinValue = 0
@@ -191,8 +201,8 @@ object Form2: TForm2
   end
   object seSeed: TSpinEdit
     Left = 8
-    Top = 307
-    Width = 89
+    Top = 448
+    Width = 81
     Height = 22
     MaxValue = 2000000000
     MinValue = 0
@@ -200,10 +210,10 @@ object Form2: TForm2
     Value = 4
   end
   object btnStop: TButton
-    Left = 103
-    Top = 532
+    Left = 104
+    Top = 536
     Width = 89
-    Height = 38
+    Height = 33
     Caption = 'Stop'
     Enabled = False
     TabOrder = 7

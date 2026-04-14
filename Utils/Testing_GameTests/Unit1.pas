@@ -19,11 +19,11 @@ type
     ListBox1: TListBox;
     clbCategories: TCheckListBox;
     Label2: TLabel;
-    PageControl1: TPageControl;
-    TabSheet5: TTabSheet;
-    moResults: TMemo;
-    Render: TTabSheet;
-    Panel1: TPanel;
+    pcMain: TPageControl;
+    tsLog: TTabSheet;
+    meLog: TMemo;
+    tsRender: TTabSheet;
+    pnlRender: TPanel;
     chkRender: TCheckBox;
     chkThrottleRender: TCheckBox;
     seDuration: TSpinEdit;
@@ -32,6 +32,8 @@ type
     Label7: TLabel;
     btnRunAll: TButton;
     btnStop: TButton;
+    Label3: TLabel;
+    Label5: TLabel;
     procedure clbCategoriesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -118,8 +120,8 @@ var
 begin
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Testing_GameTests.log');
 
-  fRenderArea := TKMRenderControl.Create(Panel1);
-  fRenderArea.Parent := Panel1;
+  fRenderArea := TKMRenderControl.Create(pnlRender);
+  fRenderArea.Parent := pnlRender;
   fRenderArea.Align := alClient;
   fRenderArea.Color := clMaroon;
 
@@ -247,8 +249,8 @@ begin
 
   fStopped := False;
 
-  moResults.Clear;
-  PageControl1.ActivePage := TabSheet5;
+  meLog.Clear;
+  pcMain.ActivePage := tsLog;
 
   btnRun.Enabled := False;
   btnRunAll.Enabled := False;
@@ -288,9 +290,9 @@ begin
         end;
 
         if Count > 1 then
-          moResults.Lines.Append(Format('%s (Run %d): %s (%d ms)', [thisTestClass.ClassName, I+1, resStr, GetTickCount - T]))
+          meLog.Lines.Append(Format('%s (Run %d): %s (%d ms)', [thisTestClass.ClassName, I+1, resStr, GetTickCount - T]))
         else
-          moResults.Lines.Append(Format('%s: %s (%d ms)', [thisTestClass.ClassName, resStr, GetTickCount - T]));
+          meLog.Lines.Append(Format('%s: %s (%d ms)', [thisTestClass.ClassName, resStr, GetTickCount - T]));
       end;
       
       Inc(TotalTestsRun, Count);
@@ -301,9 +303,9 @@ begin
     Application.ProcessMessages;
   end;
 
-  moResults.Lines.Append('=============================');
-  moResults.Lines.Append(Format('Total Tests Run: %d', [TotalTestsRun]));
-  moResults.Lines.Append(Format('Total Time Spent: %d ms', [GetTickCount - TotalT]));
+  meLog.Lines.Append('=============================');
+  meLog.Lines.Append(Format('Total Tests Run: %d', [TotalTestsRun]));
+  meLog.Lines.Append(Format('Total Time Spent: %d ms', [GetTickCount - TotalT]));
 
   btnRun.Enabled := True;
   btnRunAll.Enabled := True;
@@ -330,8 +332,8 @@ begin
   btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
 
-  moResults.Clear;
-  PageControl1.ActivePage := TabSheet5;
+  meLog.Clear;
+  pcMain.ActivePage := tsLog;
 
   thisTestClass := gTestList[ID];
 
@@ -357,11 +359,11 @@ begin
         trException: resStr := 'EXCEPTION: ' + fResults.TestMessages[0];
       end;
 
-      moResults.Lines.Append(Format('%s (Seed %d): %s (%d ms)', [thisTestClass.ClassName, seSeed.Value, resStr, GetTickCount - T]));
+      meLog.Lines.Append(Format('%s (Seed %d): %s (%d ms)', [thisTestClass.ClassName, seSeed.Value, resStr, GetTickCount - T]));
 
       if fResults.TestResults[0] = trFailed then
       begin
-        moResults.Lines.Append('Found ETestFailed at seed ' + IntToStr(seSeed.Value));
+        meLog.Lines.Append('Found ETestFailed at seed ' + IntToStr(seSeed.Value));
         Break;
       end;
 
