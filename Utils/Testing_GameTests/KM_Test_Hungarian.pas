@@ -2,10 +2,10 @@ unit KM_Test_Hungarian;
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerTestHungarian = class(TKMRunnerCommon)
+  TKMRunnerTestHungarian = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;

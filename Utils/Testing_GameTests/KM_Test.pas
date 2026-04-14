@@ -1,4 +1,4 @@
-﻿unit Unit_Runner;
+﻿unit KM_Test;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -8,8 +8,8 @@ uses
 
 
 type
-  TKMRunnerCommon = class;
-  TKMRunnerClass = class of TKMRunnerCommon;
+  TKMTest = class;
+  TKMTestClass = class of TKMTest;
 
   TKMTestCategory = (
     tcNone,
@@ -58,7 +58,7 @@ type
     TestMessages: array {Run} of string;
   end;
 
-  TKMRunnerCommon = class
+  TKMTest = class
   protected
     fRenderTarget: TKMRenderControl;
     fRun: Integer;
@@ -99,40 +99,40 @@ type
     class function TestDescription: string; virtual;
   end;
 
-procedure RegisterRunner(aRunner: TKMRunnerClass);
+procedure RegisterRunner(aRunner: TKMTestClass);
 
 var
-  RunnerList: array of TKMRunnerClass;
+  RunnerList: array of TKMTestClass;
 
 implementation
 uses
   KM_MainSettings, KM_GameSettings, KM_GameAppSettings;
 
 
-procedure RegisterRunner(aRunner: TKMRunnerClass);
+procedure RegisterRunner(aRunner: TKMTestClass);
 begin
   SetLength(RunnerList, Length(RunnerList) + 1);
   RunnerList[High(RunnerList)] := aRunner;
 end;
 
 
-{ TKMRunnerCommon }
-class function TKMRunnerCommon.TestCategories: TKMTestCategorySet;
+{ TKMTest }
+class function TKMTest.TestCategories: TKMTestCategorySet;
 begin
   Result := [tcNone];
 end;
 
-class function TKMRunnerCommon.TestDescription: string;
+class function TKMTest.TestDescription: string;
 begin
   Result := 'No description provided.';
 end;
 
-function TKMRunnerCommon.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMTest.OnTickCondition(aTick: Cardinal): Boolean;
 begin
   Result := True; // Продолжаем симуляцию по умолчанию
 end;
 
-constructor TKMRunnerCommon.Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple);
+constructor TKMTest.Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple);
 begin
   inherited Create;
 
@@ -148,7 +148,7 @@ begin
 end;
 
 
-function TKMRunnerCommon.Run(aCount: Integer): TKMRunResults;
+function TKMTest.Run(aCount: Integer): TKMRunResults;
 var
   I: Integer;
 begin
@@ -191,25 +191,25 @@ begin
   Result := fResults;
 end;
 
-procedure TKMRunnerCommon.AssertTrue(aCondition: Boolean; const aMessage: string);
+procedure TKMTest.AssertTrue(aCondition: Boolean; const aMessage: string);
 begin
   if not aCondition then
     raise ETestFailed.Create(aMessage);
 end;
 
-procedure TKMRunnerCommon.AssertEquals(aExpected, aActual: Integer; const aMessage: string);
+procedure TKMTest.AssertEquals(aExpected, aActual: Integer; const aMessage: string);
 begin
   if aExpected <> aActual then
     raise ETestFailed.Create(Format('%s (Expected: %d, Actual: %d)', [aMessage, aExpected, aActual]));
 end;
 
-procedure TKMRunnerCommon.Fail(const aMessage: string);
+procedure TKMTest.Fail(const aMessage: string);
 begin
   raise ETestFailed.Create(aMessage);
 end;
 
 
-procedure TKMRunnerCommon.ProcessRunResults;
+procedure TKMTest.ProcessRunResults;
 var
   I, K: Integer;
 begin
@@ -243,7 +243,7 @@ begin
 end;
 
 
-procedure TKMRunnerCommon.EnsureResourcesLoaded;
+procedure TKMTest.EnsureResourcesLoaded;
 var
   tgtWidth, tgtHeight: Word;
 begin
@@ -273,14 +273,14 @@ begin
   gGameApp.PreloadGameResources;
 end;
 
-procedure TKMRunnerCommon.SetUp;
+procedure TKMTest.SetUp;
 begin
   fResults.TimesCount := Duration*60*10;
   EnsureResourcesLoaded;
 end;
 
 
-procedure TKMRunnerCommon.TearDown;
+procedure TKMTest.TearDown;
 begin
   if gGameApp.Game <> nil then
     gGameApp.StopGame(grSilent);
@@ -290,7 +290,7 @@ begin
 end;
 
 
-procedure TKMRunnerCommon.SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
+procedure TKMTest.SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
 var
   I: Integer;
   VLastRenderTime: Cardinal;

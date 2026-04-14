@@ -2,10 +2,10 @@
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerSawmill_Process = class(TKMRunnerCommon)
+  TKMRunnerSawmill_Process = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;

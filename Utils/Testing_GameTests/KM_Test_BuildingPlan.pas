@@ -2,10 +2,10 @@ unit KM_Test_BuildingPlan;
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerBuilding_Plan = class(TKMRunnerCommon)
+  TKMRunnerBuilding_Plan = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;

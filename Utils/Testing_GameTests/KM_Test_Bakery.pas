@@ -2,10 +2,10 @@ unit KM_Test_Bakery;
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerBakery_Process = class(TKMRunnerCommon)
+  TKMRunnerBakery_Process = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;

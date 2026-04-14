@@ -2,10 +2,10 @@ unit KM_Test_FarmHarvest;
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerFarm_Harvest = class(TKMRunnerCommon)
+  TKMRunnerFarm_Harvest = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;

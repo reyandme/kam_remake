@@ -3,7 +3,7 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner, KM_Log, KM_RenderControl, KM_GameApp,
+  KM_Test, KM_Log, KM_RenderControl, KM_GameApp,
   TypInfo,
   {$IFDEF WDC} Vcl.ComCtrls, Vcl.CheckLst {$ELSE} ComCtrls, CheckLst {$ENDIF};
 
@@ -274,8 +274,8 @@ procedure TForm2.btnRunClick(Sender: TObject);
 var
   T: Cardinal;
   ID, Count: Integer;
-  Testing_GameTestsClass: TKMRunnerClass;
-  Testing_GameTests: TKMRunnerCommon;
+  Testing_GameTestsClass: TKMTestClass;
+  Testing_GameTests: TKMTest;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
   ID := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
@@ -336,8 +336,8 @@ var
   T, TotalT: Cardinal;
   TotalTestsRun: Integer;
   ID, Count: Integer;
-  Testing_GameTestsClass: TKMRunnerClass;
-  Testing_GameTests: TKMRunnerCommon;
+  Testing_GameTestsClass: TKMTestClass;
+  Testing_GameTests: TKMTest;
   I, K: Integer;
   resStr: string;
 begin
@@ -428,8 +428,8 @@ procedure TForm2.btnTryFoundSeedClick(Sender: TObject);
 var
   T: Cardinal;
   ID: Integer;
-  Testing_GameTestsClass: TKMRunnerClass;
-  Testing_GameTests: TKMRunnerCommon;
+  Testing_GameTestsClass: TKMTestClass;
+  Testing_GameTests: TKMTest;
   resStr: string;
 begin
   if ListBox1.ItemIndex = -1 then Exit;

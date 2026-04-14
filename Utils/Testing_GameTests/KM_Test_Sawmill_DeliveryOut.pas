@@ -2,10 +2,10 @@ unit KM_Test_Sawmill_DeliveryOut;
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerSawmill_DeliveryOut = class(TKMRunnerCommon)
+  TKMRunnerSawmill_DeliveryOut = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;

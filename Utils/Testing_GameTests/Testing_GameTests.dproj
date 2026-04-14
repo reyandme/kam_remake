@@ -139,7 +139,7 @@
         <DCCReference Include="Unit1.pas">
             <Form>Form2</Form>
         </DCCReference>
-        <DCCReference Include="Unit_Runner.pas"/>
+        <DCCReference Include="KM_Test.pas"/>
         <DCCReference Include="KM_Test_Bakery.pas"/>
         <DCCReference Include="KM_Test_BuildingPlan.pas"/>
         <DCCReference Include="KM_Test_FarmHarvest.pas"/>

@@ -2,10 +2,10 @@ unit KM_Test_Woodcutter_Plant;
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerWoodcutter_Plant = class(TKMRunnerCommon)
+  TKMRunnerWoodcutter_Plant = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;

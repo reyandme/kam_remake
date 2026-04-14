@@ -2,10 +2,10 @@ unit KM_Test_Vineyard;
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerVineyard_Harvest = class(TKMRunnerCommon)
+  TKMRunnerVineyard_Harvest = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;

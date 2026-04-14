@@ -2,10 +2,10 @@ unit KM_Test_FarmPlant;
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerFarm_Plant = class(TKMRunnerCommon)
+  TKMRunnerFarm_Plant = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;

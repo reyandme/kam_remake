@@ -16,8 +16,8 @@ uses
     WinApi.Windows, // To allow to set {$SetPEFlags IMAGE_FILE_LARGE_ADDRESS_AWARE} for 3Gb or 4Gb RAM usage for Win32 Delphi app
   {$ENDIF}
   Unit1 in 'Unit1.pas' {Form2},
-  Unit_Runner in 'Unit_Runner.pas',
 
+  KM_Test in 'KM_Test.pas',
   KM_Test_Bakery in 'KM_Test_Bakery.pas',
   KM_Test_BuildingPlan in 'KM_Test_BuildingPlan.pas',
   KM_Test_FarmHarvest in 'KM_Test_FarmHarvest.pas',
@@ -28,7 +28,6 @@ uses
   KM_Test_Sawmill in 'KM_Test_Sawmill.pas',
   KM_Test_Sawmill_DeliveryIn in 'KM_Test_Sawmill_DeliveryIn.pas',
   KM_Test_Sawmill_DeliveryOut in 'KM_Test_Sawmill_DeliveryOut.pas',
-
   KM_Test_Stone in 'KM_Test_Stone.pas',
   KM_Test_Woodcutter_Chop in 'KM_Test_Woodcutter_Chop.pas',
   KM_Test_Woodcutter_Plant in 'KM_Test_Woodcutter_Plant.pas',

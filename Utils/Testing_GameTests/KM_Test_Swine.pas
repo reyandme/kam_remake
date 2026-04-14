@@ -2,10 +2,10 @@ unit KM_Test_Swine;
 {$I KaM_Remake.inc}
 interface
 uses
-  Unit_Runner;
+  KM_Test;
 
 type
-  TKMRunnerSwine_Process = class(TKMRunnerCommon)
+  TKMRunnerSwine_Process = class(TKMTest)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
