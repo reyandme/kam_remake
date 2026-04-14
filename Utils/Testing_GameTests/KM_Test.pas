@@ -47,10 +47,8 @@ type
   TKMRunResults = record
     ChartsCount: Integer; //How many charts return
     ValueCount: Integer; //How many values
-    ValueMin, ValueMax: Integer;
     Value: array {Run} of array {Value} of Integer;
     TimesCount: Integer;
-    TimeMin, TimeMax: Integer;
     Times: array {Run} of array {Tick} of Cardinal;
     TestResults: array {Run} of TKMTestResult;
     TestMessages: array {Run} of string;
@@ -67,7 +65,6 @@ type
     procedure TearDown; virtual;
     procedure Execute(aRun: Integer); virtual; abstract;
     procedure SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
-    procedure ProcessRunResults;
   public
     ThrottleRender: Boolean;
     Duration: Integer;
@@ -168,7 +165,6 @@ begin
 
   TearDown;
 
-  ProcessRunResults;
   Result := fResults;
 end;
 
@@ -190,40 +186,6 @@ end;
 procedure TKMTest.Fail(const aMessage: string);
 begin
   raise ETestFailed.Create(aMessage);
-end;
-
-
-procedure TKMTest.ProcessRunResults;
-var
-  I, K: Integer;
-begin
-  //Get min max
-  with fResults do
-  if ValueCount > 0 then
-  begin
-    ValueMin := Value[0,0];
-    ValueMax := Value[0,0];
-    for I := 0 to ChartsCount - 1 do
-    for K := 0 to ValueCount - 1 do
-    begin
-      ValueMin := Min(ValueMin, Value[I,K]);
-      ValueMax := Max(ValueMax, Value[I,K]);
-    end;
-  end;
-
-  //Get min max
-  with fResults do
-  if TimesCount > 0 then
-  begin
-    TimeMin := Times[0,0];
-    TimeMax := Times[0,0];
-    for I := 0 to ChartsCount - 1 do
-    for K := 0 to TimesCount - 1 do
-    begin
-      TimeMin := Min(TimeMin, Times[I,K]);
-      TimeMax := Max(TimeMax, Times[I,K]);
-    end;
-  end;
 end;
 
 
