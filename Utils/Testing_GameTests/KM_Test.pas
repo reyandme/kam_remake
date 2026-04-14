@@ -66,12 +66,12 @@ type
     DelayValue: Integer;
     constructor Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
     function Run(aCount: Integer): TKMRunResults;
-    procedure AssertTrue(aCondition: Boolean; const aMessage: string);
-    procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
     class function TestTags: TKMTestTagSet; virtual;
     class function TestDescription: string; virtual;
   end;
 
+procedure AssertTrue(aCondition: Boolean; const aMessage: string);
+procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
 procedure RegisterTest(aTest: TKMTestClass);
 
 var
@@ -79,6 +79,20 @@ var
 
 
 implementation
+
+
+procedure AssertTrue(aCondition: Boolean; const aMessage: string);
+begin
+  if not aCondition then
+    raise ETestFailed.Create(aMessage);
+end;
+
+
+procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
+begin
+  if aExpected <> aActual then
+    raise ETestFailed.Create(Format('%s (Expected: %d, Actual: %d)', [aMessage, aExpected, aActual]));
+end;
 
 
 procedure RegisterTest(aTest: TKMTestClass);
@@ -199,20 +213,6 @@ begin
   TearDown;
 
   Result := fResults;
-end;
-
-
-procedure TKMTest.AssertTrue(aCondition: Boolean; const aMessage: string);
-begin
-  if not aCondition then
-    raise ETestFailed.Create(aMessage);
-end;
-
-
-procedure TKMTest.AssertEquals(aExpected, aActual: Integer; const aMessage: string);
-begin
-  if aExpected <> aActual then
-    raise ETestFailed.Create(Format('%s (Expected: %d, Actual: %d)', [aMessage, aExpected, aActual]));
 end;
 
 
