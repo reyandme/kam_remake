@@ -5,7 +5,7 @@ uses
   KM_Test;
 
 type
-  TKMTest_Farm_Plant = class(TKMTest)
+  TKMTest_FarmPlant = class(TKMTest)
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
@@ -22,8 +22,8 @@ uses
   KM_ResMapElements, KM_ResTypes;
 
 
-{ TKMTest_Farm_Plant }
-procedure TKMTest_Farm_Plant.SetUp;
+{ TKMTest_FarmPlant }
+procedure TKMTest_FarmPlant.SetUp;
 begin
   inherited;
 
@@ -38,13 +38,13 @@ begin
 end;
 
 
-function TKMTest_Farm_Plant.DoTick(aTick: Cardinal): Boolean;
+function TKMTest_FarmPlant.DoTick(aTick: Cardinal): Boolean;
 begin
   Result := not ObjectIsCorn(gTerrain.Land[22, 16].Obj); // ObjectIsCorn expects ID
 end;
 
 
-procedure TKMTest_Farm_Plant.Execute(aRun: Integer);
+procedure TKMTest_FarmPlant.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun+1);
   SimulateGame;
@@ -59,18 +59,18 @@ begin
 end;
 
 
-class function TKMTest_Farm_Plant.TestTags: TKMTestTagSet;
+class function TKMTest_FarmPlant.TestTags: TKMTestTagSet;
 begin
   Result := [tcFarm, tcPlantTree];
 end;
 
 
-class function TKMTest_Farm_Plant.TestDescription: string;
+class function TKMTest_FarmPlant.TestDescription: string;
 begin
   Result := 'Tests a farmer''s ability to sow a clean field with wheat.';
 end;
 
 
 initialization
-  RegisterTest(TKMTest_Farm_Plant);
+  RegisterTest(TKMTest_FarmPlant);
 end.
