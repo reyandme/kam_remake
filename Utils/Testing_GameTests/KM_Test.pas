@@ -243,7 +243,7 @@ begin
   SKIP_SOUND := True;
   SKIP_LOADING_CURSOR := True;
   SKIP_SETTINGS_SAVE := True;
-  ExeDir := ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))))));
+  ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
 
   if fRenderTarget = nil then
   begin
