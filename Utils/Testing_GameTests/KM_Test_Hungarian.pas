@@ -5,32 +5,23 @@ uses
   KM_Test;
 
 type
-  TKMRunnerTestHungarian = class(TKMTest)
+  TKMTest_Hungarian = class(TKMTest)
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
   end;
 
+
 implementation
 uses
-  Windows, SysUtils, Classes, Math,
-  Generics.Collections, Generics.Defaults,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_GameApp, KM_Log, KM_HandsCollection, KM_HouseCollection, KM_Resource,
-  KM_Terrain, KM_Units, KM_Campaigns, KM_Houses,
-  KM_GameParams,
-  KM_Exceptions,
-  KM_UnitActionWalkTo, KM_UnitWarrior,
-  KM_CampaignTypes,
-  KM_HandSpectator, KM_ResHouses, KM_Hand, KM_HandTypes, KM_UnitsCollection, KM_UnitGroup,
-  KM_GameSettings,
-  KM_CommonTypes, KM_MapTypes, KM_FileIO, KM_Game, KM_GameInputProcess, KM_GameTypes, KM_InterfaceGame,
-  KM_UnitGroupTypes,
-  KM_ResTypes, KM_CampaignClasses, KM_Hungarian;
+  KM_Defaults, KM_Points, KM_CommonClasses, KM_CommonUtils, KM_CommonTypes,
+  KM_Game, KM_GameApp, KM_HandsCollection, KM_Terrain, KM_UnitWarrior, KM_UnitActionWalkTo, KM_UnitGroup,
+  KM_ResMapElements, KM_ResTypes;
 
-{ TKMRunnerTestHungarian }
-procedure TKMRunnerTestHungarian.SetUp;
+
+{ TKMTest_Hungarian }
+procedure TKMTest_Hungarian.SetUp;
 begin
   inherited;
   fResults.ValueCount := 0;
@@ -60,7 +51,8 @@ begin
   gHands[1].AddUnitGroup(utBowman, KMPoint(32, 20), TKMDirection(dirS), 30, 210);
 end;
 
-function TKMRunnerTestHungarian.DoTick(aTick: Cardinal): Boolean;
+
+function TKMTest_Hungarian.DoTick(aTick: Cardinal): Boolean;
 var
   iH: Integer;
   iG: Integer;
@@ -91,10 +83,10 @@ begin
               //raise ETestFailed.Create('bug found');
           end;
         end;
-
 end;
 
-procedure TKMRunnerTestHungarian.Execute(aRun: Integer);
+
+procedure TKMTest_Hungarian.Execute(aRun: Integer);
 var
   Group1, Group2: TKMUnitGroup;
   I: Integer;
@@ -151,6 +143,7 @@ begin
   gGameApp.StopGame(grSilent);
 end;
 
+
 initialization
-  RegisterTest(TKMRunnerTestHungarian);
+  RegisterTest(TKMTest_Hungarian);
 end.

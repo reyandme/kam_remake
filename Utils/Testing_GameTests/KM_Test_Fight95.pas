@@ -5,7 +5,7 @@ uses
   KM_Test;
 
 type
-  TKMRunnerFight95 = class(TKMTest)
+  TKMTest_Fight95 = class(TKMTest)
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
@@ -13,24 +13,16 @@ type
     procedure TearDown; override;
   end;
 
+
 implementation
 uses
-  Windows, SysUtils, Classes, Math,
-  Generics.Collections, Generics.Defaults,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_GameApp, KM_Log, KM_HandsCollection, KM_HouseCollection, KM_Resource,
-  KM_Terrain, KM_Units, KM_Campaigns, KM_Houses,
-  KM_GameParams,
-  KM_Exceptions,
-  KM_CampaignTypes,
-  KM_HandSpectator, KM_ResHouses, KM_Hand, KM_HandTypes, KM_UnitsCollection, KM_UnitGroup,
-  KM_GameSettings,
-  KM_CommonTypes, KM_MapTypes, KM_FileIO, KM_Game, KM_GameInputProcess, KM_GameTypes, KM_InterfaceGame,
-  KM_UnitGroupTypes,
-  KM_ResTypes, KM_CampaignClasses;
+  KM_Defaults, KM_Points, KM_CommonUtils,
+  KM_GameApp, KM_HandsCollection, KM_Terrain,
+  KM_ResMapElements, KM_ResTypes;
 
-{ TKMRunnerFight95 }
-procedure TKMRunnerFight95.SetUp;
+
+{ TKMTest_Fight95 }
+procedure TKMTest_Fight95.SetUp;
 begin
   inherited;
   fResults.ValueCount := 2;
@@ -45,20 +37,22 @@ begin
 end;
 
 
-procedure TKMRunnerFight95.TearDown;
+procedure TKMTest_Fight95.TearDown;
 begin
   inherited;
   DYNAMIC_TERRAIN := True;
 end;
 
-function TKMRunnerFight95.DoTick(aTick: Cardinal): Boolean;
+
+function TKMTest_Fight95.DoTick(aTick: Cardinal): Boolean;
 begin
   // Continue simulation (True) until one of armies are destroyed
   Result := (gHands[0].Stats.GetUnitQty(utAny) > 0) 
   and (gHands[1].Stats.GetUnitQty(utAny) > 0);
 end;
 
-procedure TKMRunnerFight95.Execute(aRun: Integer);
+
+procedure TKMTest_Fight95.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun + 1);
   SimulateGame;
@@ -71,6 +65,7 @@ begin
   gGameApp.StopGame(grSilent);
 end;
 
+
 initialization
-  RegisterTest(TKMRunnerFight95);
+  RegisterTest(TKMTest_Fight95);
 end.

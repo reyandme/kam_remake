@@ -5,7 +5,7 @@ uses
   KM_Test;
 
 type
-  TKMRunnerSawmill_DeliveryOut = class(TKMTest)
+  TKMTest_SawmillDeliveryOut = class(TKMTest)
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
@@ -17,23 +17,13 @@ type
 
 implementation
 uses
-  Windows, SysUtils, Classes, Math,
-  Generics.Collections, Generics.Defaults,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_GameApp, KM_Log, KM_HandsCollection, KM_HouseCollection, KM_Resource,
-  KM_Terrain, KM_Units, KM_Campaigns, KM_Houses, KM_HouseStore,
-  KM_GameParams,
-  KM_Exceptions,
-  KM_CampaignTypes,
-  KM_HandSpectator, KM_ResHouses, KM_Hand, KM_HandTypes, KM_UnitsCollection, KM_UnitGroup,
-  KM_GameSettings,
-  KM_CommonTypes, KM_MapTypes, KM_FileIO, KM_Game, KM_GameInputProcess, KM_GameTypes, KM_InterfaceGame,
-  KM_UnitGroupTypes,
-  KM_ResTypes, KM_CampaignClasses;
+  KM_Defaults, KM_Points, KM_CommonUtils,
+  KM_GameApp, KM_HandsCollection, KM_Terrain,
+  KM_ResMapElements, KM_ResTypes;
 
-procedure TKMRunnerSawmill_DeliveryOut.SetUp;
+
+procedure TKMTest_SawmillDeliveryOut.SetUp;
 var
-  H: TKMHouse;
   I, J: Integer;
 begin
   inherited;
@@ -41,25 +31,22 @@ begin
   gGameApp.NewEmptyMap(32, 32);
 
   for I := 9 to 21 do
-      gHands[0].AddRoadToList(KMPoint(I, 17));
-  gHands[0].AfterMissionInit(False);
+    gHands[0].AddRoad(KMPoint(I, 17));
 
   gHands[0].AddHouse(htStore, 10, 16, False);
 
-  H := gHands[0].AddHouse(htSawmill, 20, 16, False);
-  // Give sawmill completed product (wtWood is index 1 for outputs of Sawmill)
-  H.ResIn[1] := 2;
+  var H := gHands[0].AddHouse(htSawmill, 20, 16, False);
+  H.WareAddToOut(wtTimber, 2);
 
   gHands[0].AddUnit(utSerf, KMPoint(20, 17));
   gHands[0].AddUnit(utCarpenter, KMPoint(19, 17));
 end;
 
-function TKMRunnerSawmill_DeliveryOut.DoTick(aTick: Cardinal): Boolean;
-var
-  Store: TKMHouseStore;
+
+function TKMTest_SawmillDeliveryOut.DoTick(aTick: Cardinal): Boolean;
 begin
   Result := True;
-  Store := TKMHouseStore(gHands[0].FindHouse(htStore));
+  var Store := gHands[0].FindHouse(htStore);
   if Store <> nil then
   begin
     if Store.CheckWareIn(wtTimber) = 2 then
@@ -67,15 +54,14 @@ begin
   end;
 end;
 
-procedure TKMRunnerSawmill_DeliveryOut.Execute(aRun: Integer);
-var
-  Store: TKMHouseStore;
+
+procedure TKMTest_SawmillDeliveryOut.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
   fResults.Value[aRun, 0] := 0;
-  Store := TKMHouseStore(gHands[0].FindHouse(htStore));
+  var Store := gHands[0].FindHouse(htStore);
   if Store <> nil then
   begin
     fResults.Value[aRun, 0] := Store.CheckWareIn(wtTimber);
@@ -86,16 +72,19 @@ begin
   gGameApp.StopGame(grSilent);
 end;
 
-class function TKMRunnerSawmill_DeliveryOut.TestTags: TKMTestTagSet;
+
+class function TKMTest_SawmillDeliveryOut.TestTags: TKMTestTagSet;
 begin
   Result := [tcSawmill, tcEconomy, tcDeliveryOut];
 end;
 
-class function TKMRunnerSawmill_DeliveryOut.TestDescription: string;
+
+class function TKMTest_SawmillDeliveryOut.TestDescription: string;
 begin
   Result := 'Tests the servant''s ability to carry finished boards from the sawmill warehouse to the main storage area.';
 end;
 
+
 initialization
-  RegisterTest(TKMRunnerSawmill_DeliveryOut);
+  RegisterTest(TKMTest_SawmillDeliveryOut);
 end.

@@ -5,12 +5,11 @@ uses
   KM_Test;
 
 type
-  TKMRunnerWoodcutter_Plant = class(TKMTest)
+  TKMTest_WoodcutterPlant = class(TKMTest)
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
-    procedure TearDown; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -18,43 +17,26 @@ type
 
 implementation
 uses
-  Windows, SysUtils, Classes, Math,
-  Generics.Collections, Generics.Defaults,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_GameApp, KM_Log, KM_HandsCollection, KM_HouseCollection, KM_Resource,
-  KM_Terrain, KM_Units, KM_Campaigns, KM_Houses,
-  KM_HouseWoodcutters,
-  KM_GameParams,
-  KM_Exceptions,
-  KM_CampaignTypes,
-  KM_HandSpectator, KM_ResHouses, KM_Hand, KM_HandTypes, KM_UnitsCollection, KM_UnitGroup,
-  KM_GameSettings,
-  KM_CommonTypes, KM_MapTypes, KM_FileIO, KM_Game, KM_GameInputProcess, KM_GameTypes, KM_InterfaceGame,
-  KM_UnitGroupTypes,
-  KM_ResTypes, KM_CampaignClasses;
+  KM_Defaults, KM_Points, KM_CommonUtils,
+  KM_GameApp, KM_HandsCollection, KM_Terrain, KM_HouseWoodcutters,
+  KM_ResMapElements, KM_ResTypes;
 
-{ TKMRunnerWoodcutter_Plant }
-procedure TKMRunnerWoodcutter_Plant.SetUp;
+
+{ TKMTest_WoodcutterPlant }
+procedure TKMTest_WoodcutterPlant.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
 
   gGameApp.NewEmptyMap(32, 32);
 
-  // Set the woodcutter's house and force plant mode
   TKMHouseWoodcutters(gHands[0].AddHouse(htWoodcutters, 16, 20, False)).WoodcutterMode := wmPlant;
-  
-  // Add the woodcutter unit just outside the house
+
   gHands[0].AddUnit(utWoodcutter, KMPoint(16, 17));
 end;
 
 
-procedure TKMRunnerWoodcutter_Plant.TearDown;
-begin
-  inherited;
-end;
-
-function TKMRunnerWoodcutter_Plant.DoTick(aTick: Cardinal): Boolean;
+function TKMTest_WoodcutterPlant.DoTick(aTick: Cardinal): Boolean;
 var
   X, Y: Integer;
 begin
@@ -67,7 +49,8 @@ begin
         Exit(False);
 end;
 
-procedure TKMRunnerWoodcutter_Plant.Execute(aRun: Integer);
+
+procedure TKMTest_WoodcutterPlant.Execute(aRun: Integer);
 var
   X, Y: Integer;
   PlantedTreeCount: Integer;
@@ -89,16 +72,19 @@ begin
   gGameApp.StopGame(grSilent);
 end;
 
-class function TKMRunnerWoodcutter_Plant.TestTags: TKMTestTagSet;
+
+class function TKMTest_WoodcutterPlant.TestTags: TKMTestTagSet;
 begin
   Result := [tcWoodcutters, tcWoodcutter, tcPlantTree];
 end;
 
-class function TKMRunnerWoodcutter_Plant.TestDescription: string;
+
+class function TKMTest_WoodcutterPlant.TestDescription: string;
 begin
   Result := 'Tests a woodcutter''s ability to plant a sapling.';
 end;
 
+
 initialization
-  RegisterTest(TKMRunnerWoodcutter_Plant);
+  RegisterTest(TKMTest_WoodcutterPlant);
 end.

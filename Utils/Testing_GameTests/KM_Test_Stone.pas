@@ -5,7 +5,7 @@ uses
   KM_Test;
 
 type
-  TKMRunnerStone = class(TKMTest)
+  TKMTest_Stone = class(TKMTest)
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
@@ -18,22 +18,13 @@ type
 
 implementation
 uses
-  Windows, SysUtils, Classes, Math,
-  Generics.Collections, Generics.Defaults,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_GameApp, KM_Log, KM_HandsCollection, KM_HouseCollection, KM_Resource,
-  KM_Terrain, KM_Units, KM_Campaigns, KM_Houses,
-  KM_GameParams,
-  KM_Exceptions,
-  KM_CampaignTypes,
-  KM_HandSpectator, KM_ResHouses, KM_Hand, KM_HandTypes, KM_UnitsCollection, KM_UnitGroup,
-  KM_GameSettings,
-  KM_CommonTypes, KM_MapTypes, KM_FileIO, KM_Game, KM_GameInputProcess, KM_GameTypes, KM_InterfaceGame,
-  KM_UnitGroupTypes,
-  KM_ResTypes, KM_CampaignClasses;
+  KM_Defaults, KM_Points, KM_CommonUtils,
+  KM_GameApp, KM_HandsCollection, KM_Terrain,
+  KM_ResMapElements, KM_ResTypes;
 
-{ TKMRunnerStone }
-procedure TKMRunnerStone.SetUp;
+
+{ TKMTest_Stone }
+procedure TKMTest_Stone.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
@@ -54,19 +45,21 @@ begin
 end;
 
 
-procedure TKMRunnerStone.TearDown;
+procedure TKMTest_Stone.TearDown;
 begin
   inherited;
   DYNAMIC_TERRAIN := True;
 end;
 
-function TKMRunnerStone.DoTick(aTick: Cardinal): Boolean;
+
+function TKMTest_Stone.DoTick(aTick: Cardinal): Boolean;
 begin
   // Continue simulation (True) until stone is produced
   Result := gHands[0].Stats.GetWaresProduced(wtStone) = 0;
 end;
 
-procedure TKMRunnerStone.Execute(aRun: Integer);
+
+procedure TKMTest_Stone.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun+1);
   
@@ -81,16 +74,19 @@ begin
   gGameApp.StopGame(grSilent);
 end;
 
-class function TKMRunnerStone.TestTags: TKMTestTagSet;
+
+class function TKMTest_Stone.TestTags: TKMTestTagSet;
 begin
   Result := [tcQuarry, tcStonemason];
 end;
 
-class function TKMRunnerStone.TestDescription: string;
+
+class function TKMTest_Stone.TestDescription: string;
 begin
   Result := 'Tests a stonemason''s ability to find stone, mine it, and deliver it to the quarry.';
 end;
 
+
 initialization
-  RegisterTest(TKMRunnerStone);
+  RegisterTest(TKMTest_Stone);
 end.

@@ -5,7 +5,7 @@ uses
   KM_Test;
 
 type
-  TKMRunnerBakery_Process = class(TKMTest)
+  TKMTest_Bakery = class(TKMTest)
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
@@ -15,47 +15,35 @@ type
     class function TestDescription: string; override;
   end;
 
+
 implementation
 uses
-  Windows, SysUtils, Classes, Math,
-  Generics.Collections, Generics.Defaults,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_GameApp, KM_Log, KM_HandsCollection, KM_HouseCollection, KM_Resource,
-  KM_Terrain, KM_Units, KM_Campaigns, KM_Houses,
-  KM_GameParams,
-  KM_Exceptions,
-  KM_CampaignTypes,
-  KM_HandSpectator, KM_ResHouses, KM_Hand, KM_HandTypes, KM_UnitsCollection, KM_UnitGroup,
-  KM_GameSettings,
-  KM_CommonTypes, KM_MapTypes, KM_FileIO, KM_Game, KM_GameInputProcess, KM_GameTypes, KM_InterfaceGame,
-  KM_UnitGroupTypes,
-  KM_ResTypes, KM_CampaignClasses;
+  KM_Defaults, KM_Points, KM_CommonUtils,
+  KM_GameApp, KM_HandsCollection, KM_Terrain,
+  KM_ResMapElements, KM_ResTypes;
 
-procedure TKMRunnerBakery_Process.SetUp;
-var
-  H: TKMHouse;
-  I: Integer;
+
+procedure TKMTest_Bakery.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
   gGameApp.NewEmptyMap(32, 32);
 
-  // Add the bakery
-  H := gHands[0].AddHouse(htBakery, 16, 16, False);
+  var bakery := gHands[0].AddHouse(htBakery, 16, 16, False);
+  bakery.WareAddToIn(wtFlour);
 
-  H.ResIn[1] := 1;
-
-  // Add the baker unit
   gHands[0].AddUnit(utBaker, KMPoint(16, 17));
 end;
 
-function TKMRunnerBakery_Process.DoTick(aTick: Cardinal): Boolean;
+
+function TKMTest_Bakery.DoTick(aTick: Cardinal): Boolean;
 begin
   // Keep running until bread is produced
   Result := gHands[0].Stats.GetWaresProduced(wtBread) = 0;
 end;
 
-procedure TKMRunnerBakery_Process.Execute(aRun: Integer);
+
+procedure TKMTest_Bakery.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun+1);
   SimulateGame;
@@ -68,16 +56,19 @@ begin
   gGameApp.StopGame(grSilent);
 end;
 
-class function TKMRunnerBakery_Process.TestTags: TKMTestTagSet;
+
+class function TKMTest_Bakery.TestTags: TKMTestTagSet;
 begin
   Result := [tcBakery, tcBaker, tcEconomy];
 end;
 
-class function TKMRunnerBakery_Process.TestDescription: string;
+
+class function TKMTest_Bakery.TestDescription: string;
 begin
   Result := 'Tests the bakery''s ability to process flour and water from the internal stock into bread.';
 end;
 
+
 initialization
-  RegisterTest(TKMRunnerBakery_Process);
+  RegisterTest(TKMTest_Bakery);
 end.

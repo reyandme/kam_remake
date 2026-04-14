@@ -5,7 +5,7 @@ uses
   KM_Test;
 
 type
-  TKMRunnerSwine_Process = class(TKMTest)
+  TKMTest_Swine = class(TKMTest)
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
@@ -17,46 +17,34 @@ type
 
 implementation
 uses
-  Windows, SysUtils, Classes, Math,
-  Generics.Collections, Generics.Defaults,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
-  KM_GameApp, KM_Log, KM_HandsCollection, KM_HouseCollection, KM_Resource,
-  KM_Terrain, KM_Units, KM_Campaigns, KM_Houses,
-  KM_GameParams,
-  KM_Exceptions,
-  KM_CampaignTypes,
-  KM_HandSpectator, KM_ResHouses, KM_Hand, KM_HandTypes, KM_UnitsCollection, KM_UnitGroup,
-  KM_GameSettings,
-  KM_CommonTypes, KM_MapTypes, KM_FileIO, KM_Game, KM_GameInputProcess, KM_GameTypes, KM_InterfaceGame,
-  KM_UnitGroupTypes,
-  KM_ResTypes, KM_CampaignClasses;
+  KM_Defaults, KM_Points, KM_CommonUtils,
+  KM_GameApp, KM_HandsCollection, KM_Terrain,
+  KM_ResMapElements, KM_ResTypes;
 
-procedure TKMRunnerSwine_Process.SetUp;
-var
-  H: TKMHouse;
+
+procedure TKMTest_Swine.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
   gGameApp.NewEmptyMap(32, 32);
 
-  // Add the Swine Farm
-  H := gHands[0].AddHouse(htSwine, 16, 16, False);
+  var H := gHands[0].AddHouse(htSwine, 16, 16, False);
 
-  // A swine farm requires multiple corn deliveries to grow a pig (random beast array needs 4 feeds)
   // We supply 20 corn so it's guaranteed to feed the beasts enough times to produce at least 1 pig
-  H.ResIn[1] := 20;
+  H.WareAddToIn(wtCorn, 20);
 
-  // Add the animal breeder
   gHands[0].AddUnit(utAnimalBreeder, KMPoint(16, 17));
 end;
 
-function TKMRunnerSwine_Process.DoTick(aTick: Cardinal): Boolean;
+
+function TKMTest_Swine.DoTick(aTick: Cardinal): Boolean;
 begin
   // Keep running until at least 1 pig is produced
   Result := gHands[0].Stats.GetWaresProduced(wtPig) = 0;
 end;
 
-procedure TKMRunnerSwine_Process.Execute(aRun: Integer);
+
+procedure TKMTest_Swine.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun+1);
   SimulateGame;
@@ -69,16 +57,19 @@ begin
   gGameApp.StopGame(grSilent);
 end;
 
-class function TKMRunnerSwine_Process.TestTags: TKMTestTagSet;
+
+class function TKMTest_Swine.TestTags: TKMTestTagSet;
 begin
   Result := [tcSwine, tcAnimalBreeder, tcEconomy];
 end;
 
-class function TKMRunnerSwine_Process.TestDescription: string;
+
+class function TKMTest_Swine.TestDescription: string;
 begin
   Result := 'Tests the swine farm''s ability to feed pigs multiple times using corn until a pig is produced.';
 end;
 
+
 initialization
-  RegisterTest(TKMRunnerSwine_Process);
+  RegisterTest(TKMTest_Swine);
 end.
