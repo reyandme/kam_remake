@@ -42,47 +42,8 @@ uses
   {$SetPEFlags IMAGE_FILE_LARGE_ADDRESS_AWARE}
 {$ENDIF}
 
-procedure DebugLogString();
-var
-  K: Integer;
-  Params: String;
-  debugFile: TextFile;
-begin
-  Params := '';
-  AssignFile(debugFile, 'DEBUG_inputParameters.txt');
-  try
-    rewrite(debugFile);
-    for K := 0 to ParamCount do
-      writeln(debugFile, ParamStr(K));
-    CloseFile(debugFile);
-  except
-    //on E: EInOutError do
-    //  writeln('File handling error occurred. Details: ', E.ClassName, '/', E.Message);
-  end;
-end;
-
-{$IFDEF PARALLEL_Testing_GameTests}
-var
-  ParRun: TKMParallelRun;
-{$ENDIF}
 begin
   Application.Initialize;
   Application.CreateForm(TForm2, Form2);
-  {$IFDEF PARALLEL_Testing_GameTests}
-  if (ParamCount > 0) then
-  begin
-    //DebugLogString();
-    ParRun := TKMParallelRun.Create(Form2);
-    try
-      PARALLEL_RUN := True;
-      ParRun.InitSimulation();
-      ParRun.RunSimulation();
-      ParRun.LogResults();
-    finally
-      ParRun.Free();
-    end;
-    Application.Terminate;
-  end;
-  {$ENDIF}
   Application.Run;
 end.
