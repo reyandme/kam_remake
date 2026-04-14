@@ -53,14 +53,12 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun] := 0;
+  var gotGrapes := 0;
   var H := gHands[0].FindHouse(htVineyard);
   if H <> nil then
-  begin
-    fResults.Value[aRun] := H.ResOut[1];
-  end;
+    gotGrapes := H.ResOut[1];
 
-  AssertTrue(fResults.Value[aRun] > 0, 'Farmer should have harvested grapes and delivered them to the vineyard');
+  AssertTrue(gotGrapes > 0, 'Farmer should have harvested grapes and delivered them to the vineyard');
 
   gGameApp.StopGame(grSilent);
 end;

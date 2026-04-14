@@ -48,11 +48,9 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun] := 0;
-  if ObjectIsCorn(gTerrain.Land[22, 16].Obj) then
-    fResults.Value[aRun] := 1;
+  var cornFound := ObjectIsCorn(gTerrain.Land[22, 16].Obj);
 
-  AssertTrue(fResults.Value[aRun] = 1, 'Farmer should have planted corn');
+  AssertTrue(cornFound, 'Farmer should have planted corn');
 
   gGameApp.StopGame(grSilent);
 end;

@@ -60,12 +60,12 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun] := 0;
+  var timberInStore := 0;
   var Store := gHands[0].FindHouse(htStore);
   if Store <> nil then
-    fResults.Value[aRun] := Store.CheckWareIn(wtTimber);
+    timberInStore := Store.CheckWareIn(wtTimber);
 
-  AssertTrue(fResults.Value[aRun] = 2, 'Serf should have delivered 2 timbers to storehouse');
+  AssertTrue(timberInStore = 2, 'Serf should have delivered 2 timbers to storehouse');
 
   gGameApp.StopGame(grSilent);
 end;

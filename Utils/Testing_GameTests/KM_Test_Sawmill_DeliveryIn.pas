@@ -60,12 +60,12 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun] := 0;
+  var trunkInSawmill := 0;
   var H := gHands[0].FindHouse(htSawmill);
   if H <> nil then
-    fResults.Value[aRun] := H.ResIn[1];
+    trunkInSawmill := H.ResIn[1];
 
-  AssertTrue(fResults.Value[aRun] > 0, 'Serf should have delivered trunk to sawmill');
+  AssertTrue(trunkInSawmill > 0, 'Serf should have delivered trunk to sawmill');
 
   gGameApp.StopGame(grSilent);
 end;
