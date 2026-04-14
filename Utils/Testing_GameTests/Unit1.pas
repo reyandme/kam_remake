@@ -212,11 +212,7 @@ begin
   try
     thisTestClass := gTestList[testIndex];
 
-    if chkRender.Checked then
-      thisTest := thisTestClass.Create(IsStopped, HandleProgress)
-    else
-      thisTest := thisTestClass.Create(IsStopped, HandleProgress);
-
+    thisTest := thisTestClass.Create(IsStopped, HandleProgress);
     try
       T := GetTickCount;
       thisTest.Seed := seSeed.Value;
@@ -271,11 +267,7 @@ begin
     var testIndex := Integer(ListBox1.Items.Objects[K]);
     thisTestClass := gTestList[testIndex];
 
-    if chkRender.Checked then
-      thisTest := thisTestClass.Create(IsStopped, HandleProgress)
-    else
-      thisTest := thisTestClass.Create(IsStopped, HandleProgress);
-
+    thisTest := thisTestClass.Create(IsStopped, HandleProgress);
     try
       T := GetTickCount;
       thisTest.Seed := seSeed.Value;
@@ -343,11 +335,7 @@ begin
 
   while not fStopped do
   begin
-    if chkRender.Checked then
-      thisTest := thisTestClass.Create(IsStopped, HandleProgress)
-    else
-      thisTest := thisTestClass.Create(IsStopped, HandleProgress);
-
+    thisTest := thisTestClass.Create(IsStopped, HandleProgress);
     try
       T := GetTickCount;
       thisTest.Seed := seSeed.Value;
