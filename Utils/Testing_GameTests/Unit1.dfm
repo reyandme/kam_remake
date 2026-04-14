@@ -56,16 +56,6 @@ object Form2: TForm2
     Height = 13
     Caption = 'Tests:'
   end
-  object btnTryFoundSeed: TButton
-    Left = 8
-    Top = 496
-    Width = 184
-    Height = 33
-    Caption = 'Try Found Seed'
-    Enabled = False
-    TabOrder = 10
-    OnClick = btnTryFoundSeedClick
-  end
   object btnRun: TButton
     Left = 8
     Top = 536
@@ -103,7 +93,7 @@ object Form2: TForm2
     Height = 22
     MaxValue = 10000
     MinValue = 0
-    TabOrder = 11
+    TabOrder = 10
     Value = 0
   end
   object lbTests: TListBox

@@ -11,7 +11,6 @@ uses
 type
   TForm2 = class(TForm)
     btnRun: TButton;
-    btnTryFoundSeed: TButton;
     seCycles: TSpinEdit;
     lblDelay: TLabel;
     seDelay: TSpinEdit;
@@ -37,7 +36,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure chkRenderClick(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
-    procedure btnTryFoundSeedClick(Sender: TObject);
     procedure btnRunAllClick(Sender: TObject);
     procedure lbTestsClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
@@ -100,7 +98,6 @@ begin
     lbTests.ItemIndex := 0;
     btnRun.Enabled := True;
     btnRunAll.Enabled := True;
-    btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
   end;
 end;
@@ -178,7 +175,6 @@ begin
   if ID = -1 then Exit;
   btnRun.Enabled := True;
   btnRunAll.Enabled := True;
-  btnTryFoundSeed.Enabled := True;
   btnStop.Enabled := False;
 end;
 
@@ -207,7 +203,6 @@ begin
 
   btnRun.Enabled := False;
   btnRunAll.Enabled := False;
-  btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
   try
     thisTestClass := gTestList[testIndex];
@@ -226,7 +221,6 @@ begin
   finally
     btnRun.Enabled := True;
     btnRunAll.Enabled := True;
-    btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
   end;
 end;
@@ -254,7 +248,6 @@ begin
 
   btnRun.Enabled := False;
   btnRunAll.Enabled := False;
-  btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
 
   TotalT := GetTickCount;
@@ -304,70 +297,6 @@ begin
 
   btnRun.Enabled := True;
   btnRunAll.Enabled := True;
-  btnTryFoundSeed.Enabled := True;
-  btnStop.Enabled := False;
-end;
-
-
-procedure TForm2.btnTryFoundSeedClick(Sender: TObject);
-var
-  T: Cardinal;
-  thisTestClass: TKMTestClass;
-  thisTest: TKMTest;
-  resStr: string;
-begin
-  if lbTests.ItemIndex = -1 then Exit;
-  var testIndex := Integer(lbTests.Items.Objects[lbTests.ItemIndex]);
-
-  EnsureResourcesLoaded;
-
-  fStopped := False;
-
-  btnRun.Enabled := False;
-  btnRunAll.Enabled := False;
-  btnTryFoundSeed.Enabled := False;
-  btnStop.Enabled := True;
-
-  meLog.Clear;
-  pcMain.ActivePage := tsLog;
-
-  thisTestClass := gTestList[testIndex];
-
-  while not fStopped do
-  begin
-    thisTest := thisTestClass.Create(IsStopped, HandleProgress);
-    try
-      T := GetTickCount;
-      thisTest.Seed := seSeed.Value;
-      thisTest.ThrottleRender := chkThrottleRender.Checked;
-      thisTest.DelayValue := seDelay.Value;
-
-      fResults := thisTest.Run(1);
-
-      case fResults.TestResults[0] of
-        trSuccess:    resStr := 'SUCCESS';
-        trFailed:     resStr := 'FAILED: ' + fResults.TestMessages[0];
-        trException:  resStr := 'EXCEPTION: ' + fResults.TestMessages[0];
-      end;
-
-      meLog.Lines.Append(Format('%-32s (Seed %d): %s (%d ms)', [thisTestClass.ClassName, seSeed.Value, resStr, GetTickCount - T]));
-
-      if fResults.TestResults[0] = trFailed then
-      begin
-        meLog.Lines.Append('Found ETestFailed at seed ' + IntToStr(seSeed.Value));
-        Break;
-      end;
-    finally
-      thisTest.Free;
-    end;
-
-    seSeed.Value := seSeed.Value + 1;
-    Application.ProcessMessages;
-  end;
-
-  btnRun.Enabled := True;
-  btnRunAll.Enabled := True;
-  btnTryFoundSeed.Enabled := True;
   btnStop.Enabled := False;
 end;
 
