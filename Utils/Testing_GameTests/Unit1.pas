@@ -293,9 +293,9 @@ begin
         end;
 
         if Count > 1 then
-          meLog.Lines.Append(Format('%s (Run %d): %s (%d ms)', [thisTestClass.ClassName, I+1, resStr, GetTickCount - T]))
+          meLog.Lines.Append(Format('%-32s (Run %d): %s (%d ms)', [thisTestClass.ClassName, I+1, resStr, GetTickCount - T]))
         else
-          meLog.Lines.Append(Format('%s: %s (%d ms)', [thisTestClass.ClassName, resStr, GetTickCount - T]));
+          meLog.Lines.Append(Format('%-32s: %s (%d ms)', [thisTestClass.ClassName, resStr, GetTickCount - T]));
       end;
       
       Inc(TotalTestsRun, Count);
@@ -358,12 +358,12 @@ begin
       fResults := thisTest.Run(1);
 
       case fResults.TestResults[0] of
-        trSuccess: resStr := 'SUCCESS';
-        trFailed: resStr := 'FAILED: ' + fResults.TestMessages[0];
-        trException: resStr := 'EXCEPTION: ' + fResults.TestMessages[0];
+        trSuccess:    resStr := 'SUCCESS';
+        trFailed:     resStr := 'FAILED: ' + fResults.TestMessages[0];
+        trException:  resStr := 'EXCEPTION: ' + fResults.TestMessages[0];
       end;
 
-      meLog.Lines.Append(Format('%s (Seed %d): %s (%d ms)', [thisTestClass.ClassName, seSeed.Value, resStr, GetTickCount - T]));
+      meLog.Lines.Append(Format('%-32s (Seed %d): %s (%d ms)', [thisTestClass.ClassName, seSeed.Value, resStr, GetTickCount - T]));
 
       if fResults.TestResults[0] = trFailed then
       begin
