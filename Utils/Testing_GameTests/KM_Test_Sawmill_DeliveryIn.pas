@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -55,19 +55,14 @@ begin
 end;
 
 
-procedure TKMTest_SawmillDeliveryIn.Execute(aRun: Integer);
+procedure TKMTest_SawmillDeliveryIn.CheckResult;
 begin
-  SetKaMSeed(aRun+1);
-  SimulateGame;
-
   var trunkInSawmill := 0;
   var H := gHands[0].FindHouse(htSawmill);
   if H <> nil then
     trunkInSawmill := H.ResIn[1];
 
   AssertTrue(trunkInSawmill > 0, 'Serf should have delivered trunk to sawmill');
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

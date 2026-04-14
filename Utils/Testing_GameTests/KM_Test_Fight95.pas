@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
     procedure TearDown; override;
   end;
 
@@ -52,16 +52,10 @@ begin
 end;
 
 
-procedure TKMTest_Fight95.Execute(aRun: Integer);
+procedure TKMTest_Fight95.CheckResult;
 begin
-  SetKaMSeed(aRun + 1);
-  SimulateGame;
-
   var minSurvived := Min(gHands[0].Stats.GetUnitQty(utAny), gHands[1].Stats.GetUnitQty(utAny));
-
   AssertTrue(minSurvived < 8, 'Units should have fought and died');
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

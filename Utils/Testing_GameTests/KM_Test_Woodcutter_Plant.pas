@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -36,37 +36,26 @@ end;
 
 
 function TKMTest_WoodcutterPlant.DoTick(aTick: Cardinal): Boolean;
-var
-  X, Y: Integer;
 begin
   // Continue simulation (True) until at least one tree (caAge1) is planted near the house
   Result := True;
   
-  for Y := 10 to 25 do
-    for X := 10 to 25 do
+  for var Y := 10 to 25 do
+    for var X := 10 to 25 do
       if gTerrain.ObjectIsChopableTree(KMPoint(X, Y), [caAge1]) then
         Exit(False);
 end;
 
 
-procedure TKMTest_WoodcutterPlant.Execute(aRun: Integer);
-var
-  X, Y: Integer;
-  PlantedTreeCount: Integer;
+procedure TKMTest_WoodcutterPlant.CheckResult;
 begin
-  SetKaMSeed(aRun+1);
-
-  SimulateGame;
-
-  PlantedTreeCount := 0;
-  for Y := 10 to 25 do
-    for X := 10 to 25 do
+  var plantedTreeCount := 0;
+  for var Y := 10 to 25 do
+    for var X := 10 to 25 do
       if gTerrain.ObjectIsChopableTree(KMPoint(X, Y), [caAge1]) then
-        Inc(PlantedTreeCount);
+        Inc(plantedTreeCount);
 
-  AssertTrue(PlantedTreeCount > 0, 'Woodcutter should have planted at least one tree');
-
-  gGameApp.StopGame(grSilent);
+  AssertTrue(plantedTreeCount > 0, 'Woodcutter should have planted at least one tree');
 end;
 
 

@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
     procedure TearDown; override;
   public
     class function TestTags: TKMTestTagSet; override;
@@ -58,17 +58,9 @@ begin
 end;
 
 
-procedure TKMTest_Stone.Execute(aRun: Integer);
+procedure TKMTest_Stone.CheckResult;
 begin
-  SetKaMSeed(aRun+1);
-  
-  // Run the simulation loop
-  SimulateGame;
-
-  // The stonemason should have found the stone, mined it, and delivered it.
   AssertTrue(gHands[0].Stats.GetWaresProduced(wtStone) > 0, 'Stonemason should have mined some stone');
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

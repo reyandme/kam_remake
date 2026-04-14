@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   end;
 
 
@@ -86,7 +86,7 @@ begin
 end;
 
 
-procedure TKMTest_Hungarian.Execute(aRun: Integer);
+procedure TKMTest_Hungarian.CheckResult;
 var
   Group1, Group2: TKMUnitGroup;
   I: Integer;
@@ -94,10 +94,6 @@ var
   NewOrder: TKMCardinalArray;
   MaxDist, Dist: Single;
 begin
-  SetKaMSeed(aRun + 1);
-
-  SimulateGame;
-
 //  // We want to test that if we merge them, the new tasks (formations)
 //  // will force some unit to walk more than 5 cells distance.
 //  Agents := TKMPointList.Create;
@@ -139,8 +135,6 @@ begin
 //    Agents.Free;
 //    Tasks.Free;
 //  end;
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

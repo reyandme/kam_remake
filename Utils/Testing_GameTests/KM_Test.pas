@@ -59,7 +59,8 @@ type
     function DoTick(aTick: Cardinal): Boolean; virtual;
     procedure SetUp; virtual; abstract;
     procedure TearDown; virtual;
-    procedure Execute(aRun: Integer); virtual; abstract;
+    procedure CheckResult; virtual; abstract;
+    procedure Execute(aRun: Integer); virtual;
     procedure SimulateGame;
   public
     ThrottleRender: Boolean;
@@ -119,6 +120,17 @@ function TKMTest.DoTick(aTick: Cardinal): Boolean;
 begin
   // Continue game by default
   Result := True;
+end;
+
+
+procedure TKMTest.Execute(aRun: Integer);
+begin
+  SetKaMSeed(aRun+1);
+  SimulateGame;
+
+  CheckResult;
+
+  gGameApp.StopGame(grSilent);
 end;
 
 

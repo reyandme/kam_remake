@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -43,15 +43,9 @@ begin
 end;
 
 
-procedure TKMTest_Sawmill.Execute(aRun: Integer);
+procedure TKMTest_Sawmill.CheckResult;
 begin
-  SetKaMSeed(aRun+1);
-  SimulateGame;
-
-  // Check if it produced something
   AssertTrue(gHands[0].Stats.GetWaresProduced(wtTimber) >= 2, 'Sawmill should have processed trunk into 2 timber');
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

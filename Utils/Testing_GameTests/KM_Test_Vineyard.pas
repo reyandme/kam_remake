@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -42,25 +42,18 @@ begin
   Result := True;
   var H := gHands[0].FindHouse(htVineyard);
   if H <> nil then
-  begin
     if H.ResOut[1] > 0 then
       Result := False;
-  end;
 end;
 
-procedure TKMTest_Vineyard.Execute(aRun: Integer);
+procedure TKMTest_Vineyard.CheckResult;
 begin
-  SetKaMSeed(aRun+1);
-  SimulateGame;
-
   var gotGrapes := 0;
   var H := gHands[0].FindHouse(htVineyard);
   if H <> nil then
     gotGrapes := H.ResOut[1];
 
   AssertTrue(gotGrapes > 0, 'Farmer should have harvested grapes and delivered them to the vineyard');
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

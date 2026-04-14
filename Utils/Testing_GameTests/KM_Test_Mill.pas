@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -42,15 +42,9 @@ begin
 end;
 
 
-procedure TKMTest_Mill.Execute(aRun: Integer);
+procedure TKMTest_Mill.CheckResult;
 begin
-  SetKaMSeed(aRun+1);
-  SimulateGame;
-
-  // Check if it produced something
   AssertTrue(gHands[0].Stats.GetWaresProduced(wtFlour) >= 1, 'Mill should have processed corn into flour');
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

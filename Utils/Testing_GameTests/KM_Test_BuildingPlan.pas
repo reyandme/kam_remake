@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -54,13 +54,10 @@ begin
 end;
 
 
-procedure TKMTest_BuildingPlan.Execute(aRun: Integer);
+procedure TKMTest_BuildingPlan.CheckResult;
 var
   I: Integer;
 begin
-  SetKaMSeed(aRun+1);
-  SimulateGame;
-
   // If the house reached hbsWood state, the builder has finished clearing the site
   var woodHouses := 0;
   for I := 0 to gHands[0].Houses.Count - 1 do
@@ -71,8 +68,6 @@ begin
   end;
 
   AssertTrue(woodHouses = 1, 'Builder should have dug out the house plan');
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

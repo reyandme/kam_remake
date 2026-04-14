@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -43,16 +43,10 @@ begin
 end;
 
 
-procedure TKMTest_FarmPlant.Execute(aRun: Integer);
+procedure TKMTest_FarmPlant.CheckResult;
 begin
-  SetKaMSeed(aRun+1);
-  SimulateGame;
-
   var cornFound := ObjectIsCorn(gTerrain.Land[22, 16].Obj);
-
   AssertTrue(cornFound, 'Farmer should have planted corn');
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

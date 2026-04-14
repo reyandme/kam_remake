@@ -9,7 +9,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -44,15 +44,9 @@ begin
 end;
 
 
-procedure TKMTest_Swine.Execute(aRun: Integer);
+procedure TKMTest_Swine.CheckResult;
 begin
-  SetKaMSeed(aRun+1);
-  SimulateGame;
-
-  // Check if it produced a pig
   AssertTrue(gHands[0].Stats.GetWaresProduced(wtPig) >= 1, 'Swine farm should have processed enough corn to grow and produce a pig');
-
-  gGameApp.StopGame(grSilent);
 end;
 
 

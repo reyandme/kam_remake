@@ -11,7 +11,7 @@ type
   protected
     function DoTick(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
-    procedure Execute(aRun: Integer); override;
+    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -47,25 +47,24 @@ begin
     Result := False;
 end;
 
-procedure TKMTest_FarmHarvest.Execute(aRun: Integer);
+
+procedure TKMTest_FarmHarvest.CheckResult;
 begin
-  SetKaMSeed(aRun+1);
-  SimulateGame;
-
   AssertTrue(fFarm.ResOut[1] > 0, 'Farmer should have harvested corn and delivered it to farm');
-
-  gGameApp.StopGame(grSilent);
 end;
+
 
 class function TKMTest_FarmHarvest.TestTags: TKMTestTagSet;
 begin
   Result := [tcFarm, tcChopTree];
 end;
 
+
 class function TKMTest_FarmHarvest.TestDescription: string;
 begin
   Result := 'Tests a farmer''s ability to collect ripe wheat and carry it back to the farm.';
 end;
+
 
 initialization
   RegisterTest(TKMTest_FarmHarvest);
