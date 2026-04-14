@@ -32,7 +32,6 @@ type
     Label7: TLabel;
     btnRunAll: TButton;
     btnStop: TButton;
-    btnPause: TButton;
     procedure clbCategoriesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -42,13 +41,11 @@ type
     procedure btnRunAllClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
-    procedure btnPauseClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
     fResults: TKMRunResults;
     fRunTime: string;
     fStopped: Boolean;
-    fPaused: Boolean;
     RenderArea: TKMRenderControl;
     procedure RefreshTestList;
     function IsStopped: Boolean;
@@ -154,7 +151,6 @@ begin
     btnRunAll.Enabled := True;
     btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
-    btnPause.Enabled := False;
   end;
 
   SKIP_RENDER := not chkRender.Checked;
@@ -214,20 +210,12 @@ begin
   btnRunAll.Enabled := True;
   btnTryFoundSeed.Enabled := True;
   btnStop.Enabled := False;
-  btnPause.Enabled := False;
 end;
 
 
 function TForm2.IsStopped: Boolean;
 begin
   Result := fStopped;
-end;
-
-
-procedure TForm2.btnPauseClick(Sender: TObject);
-begin
-  fPaused := True;
-  btnPause.Enabled := False;
 end;
 
 
@@ -249,7 +237,6 @@ begin
   btnRunAll.Enabled := False;
   btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
-  btnPause.Enabled := False; //Always disabled for now
   try
     Testing_GameTestsClass := gTestList[ID];
 
@@ -276,7 +263,6 @@ begin
     btnRunAll.Enabled := True;
     btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
-    btnPause.Enabled := False;
   end;
 end;
 
@@ -303,7 +289,6 @@ begin
   btnRunAll.Enabled := False;
   btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
-  btnPause.Enabled := False; //Always disabled for now
 
   TotalT := GetTickCount;
   TotalTestsRun := 0;
@@ -360,7 +345,6 @@ begin
   btnRunAll.Enabled := True;
   btnTryFoundSeed.Enabled := True;
   btnStop.Enabled := False;
-  btnPause.Enabled := False;
 end;
 
 
@@ -381,7 +365,6 @@ begin
   btnRunAll.Enabled := False;
   btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
-  btnPause.Enabled := False;
 
   moResults.Clear;
   PageControl1.ActivePage := TabSheet5;
@@ -432,7 +415,6 @@ begin
   btnRunAll.Enabled := True;
   btnTryFoundSeed.Enabled := True;
   btnStop.Enabled := False;
-  btnPause.Enabled := False;
 end;
 
 

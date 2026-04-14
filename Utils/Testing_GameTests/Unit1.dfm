@@ -60,7 +60,7 @@ object Form2: TForm2
     Height = 38
     Caption = 'Try Found Seed'
     Enabled = False
-    TabOrder = 12
+    TabOrder = 11
     OnClick = btnTryFoundSeedClick
   end
   object btnRun: TButton
@@ -80,7 +80,7 @@ object Form2: TForm2
     Height = 38
     Caption = 'Run All'
     Enabled = False
-    TabOrder = 9
+    TabOrder = 8
     OnClick = btnRunAllClick
   end
   object seCycles: TSpinEdit
@@ -100,7 +100,7 @@ object Form2: TForm2
     Height = 22
     MaxValue = 10000
     MinValue = 0
-    TabOrder = 13
+    TabOrder = 12
     Value = 0
   end
   object ListBox1: TListBox
@@ -117,14 +117,14 @@ object Form2: TForm2
     Top = 127
     Width = 185
     Height = 113
-    ItemHeight = 13
-    TabOrder = 10
+    ItemHeight = 17
+    TabOrder = 9
     OnClick = clbCategoriesClick
   end
   object PageControl1: TPageControl
     Left = 208
     Top = 8
-    Width = 881
+    Width = 877
     Height = 625
     ActivePage = TabSheet5
     Anchors = [akLeft, akRight, akBottom]
@@ -135,7 +135,7 @@ object Form2: TForm2
       object moResults: TMemo
         Left = 0
         Top = 0
-        Width = 873
+        Width = 869
         Height = 597
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -178,7 +178,7 @@ object Form2: TForm2
     Caption = 'Throttle FPS'
     Checked = True
     State = cbChecked
-    TabOrder = 11
+    TabOrder = 10
   end
   object seDuration: TSpinEdit
     Left = 103
@@ -209,16 +209,5 @@ object Form2: TForm2
     Enabled = False
     TabOrder = 7
     OnClick = btnStopClick
-  end
-  object btnPause: TButton
-    Left = 104
-    Top = 576
-    Width = 89
-    Height = 21
-    Caption = 'Pause'
-    Enabled = False
-    TabOrder = 8
-    Visible = False
-    OnClick = btnPauseClick
   end
 end
