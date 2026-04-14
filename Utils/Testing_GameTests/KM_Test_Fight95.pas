@@ -1,4 +1,4 @@
-unit Runner_TestFight95;
+unit KM_Test_Fight95;
 {$I KaM_Remake.inc}
 interface
 uses

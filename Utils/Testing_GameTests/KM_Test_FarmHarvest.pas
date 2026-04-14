@@ -1,4 +1,4 @@
-unit Runner_TestFarm_Harvest;
+unit KM_Test_FarmHarvest;
 {$I KaM_Remake.inc}
 interface
 uses

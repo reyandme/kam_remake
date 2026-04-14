@@ -1,4 +1,4 @@
-unit Runner_TestMill_Process;
+unit KM_Test_Mill;
 {$I KaM_Remake.inc}
 interface
 uses

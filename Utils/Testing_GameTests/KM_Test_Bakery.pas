@@ -1,4 +1,4 @@
-unit Runner_TestBakery_Process;
+unit KM_Test_Bakery;
 {$I KaM_Remake.inc}
 interface
 uses

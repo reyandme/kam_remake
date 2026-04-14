@@ -1,4 +1,4 @@
-unit Runner_TestWoodcutter_Chop;
+unit KM_Test_Woodcutter_Chop;
 {$I KaM_Remake.inc}
 interface
 uses

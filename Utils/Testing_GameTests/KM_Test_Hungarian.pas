@@ -1,4 +1,4 @@
-unit Runner_TestHungarian;
+unit KM_Test_Hungarian;
 {$I KaM_Remake.inc}
 interface
 uses

@@ -1,4 +1,4 @@
-unit Runner_TestStone;
+unit KM_Test_Stone;
 {$I KaM_Remake.inc}
 interface
 uses

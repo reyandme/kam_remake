@@ -1,4 +1,4 @@
-unit Runner_TestBuilding_Plan;
+unit KM_Test_BuildingPlan;
 {$I KaM_Remake.inc}
 interface
 uses

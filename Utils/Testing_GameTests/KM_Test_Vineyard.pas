@@ -1,4 +1,4 @@
-unit Runner_TestVineyard_Harvest;
+unit KM_Test_Vineyard;
 {$I KaM_Remake.inc}
 interface
 uses

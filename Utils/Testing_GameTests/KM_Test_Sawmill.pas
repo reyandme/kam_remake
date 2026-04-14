@@ -1,11 +1,11 @@
-unit Runner_TestFarm_Plant;
+﻿unit KM_Test_Sawmill;
 {$I KaM_Remake.inc}
 interface
 uses
   Unit_Runner;
 
 type
-  TKMRunnerFarm_Plant = class(TKMRunnerCommon)
+  TKMRunnerSawmill_Process = class(TKMRunnerCommon)
   protected
     function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
@@ -22,7 +22,6 @@ uses
   KM_CommonClasses, KM_Defaults, KM_Points, KM_CommonUtils,
   KM_GameApp, KM_Log, KM_HandsCollection, KM_HouseCollection, KM_Resource,
   KM_Terrain, KM_Units, KM_Campaigns, KM_Houses,
-  KM_ResMapElements,
   KM_GameParams,
   KM_Exceptions,
   KM_CampaignTypes,
@@ -32,48 +31,53 @@ uses
   KM_UnitGroupTypes,
   KM_ResTypes, KM_CampaignClasses;
 
-procedure TKMRunnerFarm_Plant.SetUp;
+procedure TKMRunnerSawmill_Process.SetUp;
+var
+  H: TKMHouse;
 begin
   inherited;
   fResults.ValueCount := 1;
   gGameApp.NewEmptyMap(32, 32);
 
-  gHands[0].AddHouse(htFarm, 16, 20, False);
+  // Add the sawmill
+  H := gHands[0].AddHouse(htSawmill, 16, 16, False);
 
-  gHands[0].AddField(KMPoint(16, 22), ftCorn, 0, False, True);
-  
-  gHands[0].AddUnit(utFarmer, KMPoint(16, 21));
+  // Input 1 for Sawmill is wtTrunk
+  H.ResIn[1] := 1;
+
+  // Add the carpenter unit
+  gHands[0].AddUnit(utCarpenter, KMPoint(16, 17));
 end;
 
-function TKMRunnerFarm_Plant.OnTickCondition(aTick: Cardinal): Boolean;
+function TKMRunnerSawmill_Process.OnTickCondition(aTick: Cardinal): Boolean;
 begin
-  Result := not ObjectIsCorn(gTerrain.Land[22, 16].Obj); // ObjectIsCorn expects ID
+  // Keep running until wood is produced
+  Result := gHands[0].Stats.GetWaresProduced(wtTimber) = 0;
 end;
 
-procedure TKMRunnerFarm_Plant.Execute(aRun: Integer);
+procedure TKMRunnerSawmill_Process.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun, 0] := 0;
-  if ObjectIsCorn(gTerrain.Land[22, 16].Obj) then
-    fResults.Value[aRun, 0] := 1;
+  // Check if it produced something
+  fResults.Value[aRun, 0] := gHands[0].Stats.GetWaresProduced(wtTimber);
 
-  AssertTrue(fResults.Value[aRun, 0] = 1, 'Farmer should have planted corn');
+  AssertTrue(fResults.Value[aRun, 0] >= 2, 'Sawmill should have processed trunk into 2 timber');
 
   gGameApp.StopGame(grSilent);
 end;
 
-class function TKMRunnerFarm_Plant.TestCategories: TKMTestCategorySet;
+class function TKMRunnerSawmill_Process.TestCategories: TKMTestCategorySet;
 begin
-  Result := [tcFarm, tcPlantTree];
+  Result := [tcSawmill, tcEconomy];
 end;
 
-class function TKMRunnerFarm_Plant.TestDescription: UnicodeString;
+class function TKMRunnerSawmill_Process.TestDescription: UnicodeString;
 begin
-  Result := 'Tests a farmer''s ability to sow a clean field with wheat.';
+  Result := 'Tests the sawmill (carpenter''s) ability to process one trunk from the internal stock into two boards.';
 end;
 
 initialization
-  RegisterRunner(TKMRunnerFarm_Plant);
+  RegisterRunner(TKMRunnerSawmill_Process);
 end.

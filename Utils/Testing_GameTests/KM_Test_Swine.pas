@@ -1,4 +1,4 @@
-unit Runner_TestSwine_Process;
+unit KM_Test_Swine;
 {$I KaM_Remake.inc}
 interface
 uses

@@ -17,21 +17,23 @@ uses
   {$ENDIF}
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',
-  Runner_TestStone in 'Runner_TestStone.pas',
-  Runner_TestSawmill_Process in 'Runner_TestSawmill_Process.pas',
-  Runner_TestSawmill_DeliveryIn in 'Runner_TestSawmill_DeliveryIn.pas',
-  Runner_TestSawmill_DeliveryOut in 'Runner_TestSawmill_DeliveryOut.pas',
-  Runner_TestWoodcutter_Chop in 'Runner_TestWoodcutter_Chop.pas',
-  Runner_TestWoodcutter_Plant in 'Runner_TestWoodcutter_Plant.pas',
-  Runner_TestFarm_Plant in 'Runner_TestFarm_Plant.pas',
-  Runner_TestFarm_Harvest in 'Runner_TestFarm_Harvest.pas',
-  Runner_TestVineyard_Harvest in 'Runner_TestVineyard_Harvest.pas',
-  Runner_TestBuilding_Plan in 'Runner_TestBuilding_Plan.pas',
-  Runner_TestMill_Process in 'Runner_TestMill_Process.pas',
-  Runner_TestBakery_Process in 'Runner_TestBakery_Process.pas',
-  Runner_TestSwine_Process in 'Runner_TestSwine_Process.pas',
-  Runner_TestHungarian in 'Runner_TestHungarian.pas',
-  Runner_TestFight95 in 'Runner_TestFight95.pas';
+
+  KM_Test_Bakery in 'KM_Test_Bakery.pas',
+  KM_Test_BuildingPlan in 'KM_Test_BuildingPlan.pas',
+  KM_Test_FarmHarvest in 'KM_Test_FarmHarvest.pas',
+  KM_Test_FarmPlant in 'KM_Test_FarmPlant.pas',
+  KM_Test_Fight95 in 'KM_Test_Fight95.pas',
+  KM_Test_Hungarian in 'KM_Test_Hungarian.pas',
+  KM_Test_Mill in 'KM_Test_Mill.pas',
+  KM_Test_Sawmill in 'KM_Test_Sawmill.pas',
+  KM_Test_Sawmill_DeliveryIn in 'KM_Test_Sawmill_DeliveryIn.pas',
+  KM_Test_Sawmill_DeliveryOut in 'KM_Test_Sawmill_DeliveryOut.pas',
+
+  KM_Test_Stone in 'KM_Test_Stone.pas',
+  KM_Test_Woodcutter_Chop in 'KM_Test_Woodcutter_Chop.pas',
+  KM_Test_Woodcutter_Plant in 'KM_Test_Woodcutter_Plant.pas',
+  KM_Test_Vineyard in 'KM_Test_Vineyard.pas',
+  KM_Test_Swine in 'KM_Test_Swine.pas';
 
 {$R *.res}
 
