@@ -98,5 +98,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerWoodcutter_Chop);
+  RegisterTest(TKMRunnerWoodcutter_Chop);
 end.

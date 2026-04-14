@@ -72,5 +72,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerFight95);
+  RegisterTest(TKMRunnerFight95);
 end.

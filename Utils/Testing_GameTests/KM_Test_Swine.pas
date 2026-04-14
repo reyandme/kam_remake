@@ -80,5 +80,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerSwine_Process);
+  RegisterTest(TKMRunnerSwine_Process);
 end.

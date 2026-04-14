@@ -91,5 +91,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerVineyard_Harvest);
+  RegisterTest(TKMRunnerVineyard_Harvest);
 end.

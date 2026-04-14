@@ -79,5 +79,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerMill_Process);
+  RegisterTest(TKMRunnerMill_Process);
 end.

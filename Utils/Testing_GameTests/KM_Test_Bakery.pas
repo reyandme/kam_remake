@@ -79,5 +79,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerBakery_Process);
+  RegisterTest(TKMRunnerBakery_Process);
 end.

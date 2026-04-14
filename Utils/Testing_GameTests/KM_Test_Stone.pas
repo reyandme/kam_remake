@@ -92,5 +92,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerStone);
+  RegisterTest(TKMRunnerStone);
 end.

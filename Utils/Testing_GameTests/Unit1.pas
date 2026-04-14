@@ -102,15 +102,15 @@ begin
       FilterSet := FilterSet + [TKMTestCategory(Integer(clbCategories.Items.Objects[I]))];
 
   ListBox1.Items.Clear;
-  for I := 0 to High(RunnerList) do
+  for I := 0 to High(gTestList) do
   begin
     Match := False;
-    for Cat in RunnerList[I].TestCategories do
+    for Cat in gTestList[I].TestCategories do
       if Cat in FilterSet then Match := True;
 
     if Match then
     begin
-      S := RunnerList[I].ClassName;
+      S := gTestList[I].ClassName;
       S := StringReplace(S, 'TKMRunner', '', [rfIgnoreCase]);
       ListBox1.Items.AddObject(S, TObject(I));
     end;
@@ -148,8 +148,8 @@ begin
   RenderArea.Color := clMaroon;
 
   CatSet := [];
-  for I := 0 to High(RunnerList) do
-    CatSet := CatSet + RunnerList[I].TestCategories;
+  for I := 0 to High(gTestList) do
+    CatSet := CatSet + gTestList[I].TestCategories;
 
   for Cat := Low(TKMTestCategory) to High(TKMTestCategory) do
   begin
@@ -165,7 +165,7 @@ begin
 
   RefreshTestList;
 
-  if Length(RunnerList) > 0 then
+  if Length(gTestList) > 0 then
   begin
     ListBox1.ItemIndex := 0;
     btnRun.Enabled := True;
@@ -275,7 +275,7 @@ begin
   btnStop.Enabled := True;
   btnPause.Enabled := False; //Always disabled for now
   try
-    Testing_GameTestsClass := RunnerList[ID];
+    Testing_GameTestsClass := gTestList[ID];
 
     if chkRender.Checked then
       Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, {IsPaused, }IsStopped)
@@ -337,7 +337,7 @@ begin
     if fStopped then Break;
 
     ID := Integer(ListBox1.Items.Objects[K]);
-    Testing_GameTestsClass := RunnerList[ID];
+    Testing_GameTestsClass := gTestList[ID];
 
     if chkRender.Checked then
       Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, {IsPaused, }IsStopped)
@@ -410,7 +410,7 @@ begin
   moResults.Clear;
   PageControl1.ActivePage := TabSheet5;
 
-  Testing_GameTestsClass := RunnerList[ID];
+  Testing_GameTestsClass := gTestList[ID];
 
   while not fStopped do
   begin

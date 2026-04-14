@@ -98,5 +98,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerBuilding_Plan);
+  RegisterTest(TKMRunnerBuilding_Plan);
 end.

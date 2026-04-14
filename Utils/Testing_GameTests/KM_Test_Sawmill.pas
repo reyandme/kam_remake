@@ -79,5 +79,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerSawmill_Process);
+  RegisterTest(TKMRunnerSawmill_Process);
 end.

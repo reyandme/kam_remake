@@ -97,5 +97,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerSawmill_DeliveryIn);
+  RegisterTest(TKMRunnerSawmill_DeliveryIn);
 end.

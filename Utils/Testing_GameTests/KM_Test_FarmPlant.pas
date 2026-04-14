@@ -75,5 +75,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerFarm_Plant);
+  RegisterTest(TKMRunnerFarm_Plant);
 end.

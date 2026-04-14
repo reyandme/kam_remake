@@ -91,10 +91,10 @@ type
     class function TestDescription: string; virtual;
   end;
 
-procedure RegisterRunner(aRunner: TKMTestClass);
+procedure RegisterTest(aTest: TKMTestClass);
 
 var
-  RunnerList: array of TKMTestClass;
+  gTestList: array of TKMTestClass;
 
 
 implementation
@@ -102,10 +102,10 @@ uses
   KM_MainSettings, KM_GameSettings, KM_GameAppSettings;
 
 
-procedure RegisterRunner(aRunner: TKMTestClass);
+procedure RegisterTest(aTest: TKMTestClass);
 begin
-  SetLength(RunnerList, Length(RunnerList) + 1);
-  RunnerList[High(RunnerList)] := aRunner;
+  SetLength(gTestList, Length(gTestList) + 1);
+  gTestList[High(gTestList)] := aTest;
 end;
 
 

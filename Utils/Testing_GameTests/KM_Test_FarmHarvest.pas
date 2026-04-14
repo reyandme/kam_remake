@@ -90,5 +90,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerFarm_Harvest);
+  RegisterTest(TKMRunnerFarm_Harvest);
 end.

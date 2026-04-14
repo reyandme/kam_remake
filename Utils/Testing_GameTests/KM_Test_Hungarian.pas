@@ -152,5 +152,5 @@ begin
 end;
 
 initialization
-  RegisterRunner(TKMRunnerTestHungarian);
+  RegisterTest(TKMRunnerTestHungarian);
 end.
