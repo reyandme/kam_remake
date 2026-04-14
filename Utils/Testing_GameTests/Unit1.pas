@@ -192,12 +192,12 @@ end;
 procedure TForm2.btnRunClick(Sender: TObject);
 var
   T: Cardinal;
-  ID, Count: Integer;
+  Count: Integer;
   thisTestClass: TKMTestClass;
   thisTest: TKMTest;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
-  ID := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
+  var testIndex := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
   Count := seCycles.Value;
   if Count <= 0 then Exit;
 
@@ -210,7 +210,7 @@ begin
   btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
   try
-    thisTestClass := gTestList[ID];
+    thisTestClass := gTestList[testIndex];
 
     if chkRender.Checked then
       thisTest := thisTestClass.Create(IsStopped, HandleProgress)
@@ -240,7 +240,7 @@ procedure TForm2.btnRunAllClick(Sender: TObject);
 var
   T, TotalT: Cardinal;
   TotalTestsRun: Integer;
-  ID, Count: Integer;
+  Count: Integer;
   thisTestClass: TKMTestClass;
   thisTest: TKMTest;
   I, K: Integer;
@@ -268,8 +268,8 @@ begin
   begin
     if fStopped then Break;
 
-    ID := Integer(ListBox1.Items.Objects[K]);
-    thisTestClass := gTestList[ID];
+    var testIndex := Integer(ListBox1.Items.Objects[K]);
+    thisTestClass := gTestList[testIndex];
 
     if chkRender.Checked then
       thisTest := thisTestClass.Create(IsStopped, HandleProgress)
@@ -287,9 +287,9 @@ begin
       for I := 0 to Count - 1 do
       begin
         case fResults.TestResults[I] of
-          trSuccess: resStr := 'SUCCESS';
-          trFailed: resStr := 'FAILED: ' + fResults.TestMessages[I];
-          trException: resStr := 'EXCEPTION: ' + fResults.TestMessages[I];
+          trSuccess:    resStr := 'SUCCESS';
+          trFailed:     resStr := 'FAILED: ' + fResults.TestMessages[I];
+          trException:  resStr := 'EXCEPTION: ' + fResults.TestMessages[I];
         end;
 
         if Count > 1 then
@@ -320,13 +320,12 @@ end;
 procedure TForm2.btnTryFoundSeedClick(Sender: TObject);
 var
   T: Cardinal;
-  ID: Integer;
   thisTestClass: TKMTestClass;
   thisTest: TKMTest;
   resStr: string;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
-  ID := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
+  var testIndex := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
 
   EnsureResourcesLoaded;
 
@@ -340,7 +339,7 @@ begin
   meLog.Clear;
   pcMain.ActivePage := tsLog;
 
-  thisTestClass := gTestList[ID];
+  thisTestClass := gTestList[testIndex];
 
   while not fStopped do
   begin
