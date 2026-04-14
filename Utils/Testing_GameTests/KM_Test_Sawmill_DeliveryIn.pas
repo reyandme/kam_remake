@@ -28,7 +28,7 @@ var
   I, J: Integer;
 begin
   inherited;
-  fResults.ValueCount := 1;
+
   gGameApp.NewEmptyMap(32, 32);
 
   for I := 9 to 21 do
@@ -60,14 +60,12 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun, 0] := 0;
+  fResults.Value[aRun] := 0;
   var H := gHands[0].FindHouse(htSawmill);
   if H <> nil then
-  begin
-    fResults.Value[aRun, 0] := H.ResIn[1];
-  end;
+    fResults.Value[aRun] := H.ResIn[1];
 
-  AssertTrue(fResults.Value[aRun, 0] > 0, 'Serf should have delivered trunk to sawmill');
+  AssertTrue(fResults.Value[aRun] > 0, 'Serf should have delivered trunk to sawmill');
 
   gGameApp.StopGame(grSilent);
 end;

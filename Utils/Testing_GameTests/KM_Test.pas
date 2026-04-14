@@ -46,8 +46,7 @@ type
 
   TKMRunResults = record
     ChartsCount: Integer; //How many charts return
-    ValueCount: Integer; //How many values
-    Value: array {Run} of array {Value} of Integer;
+    Value: array {Run} of Integer;
     TestResults: array {Run} of TKMTestResult;
     TestMessages: array {Run} of string;
   end;
@@ -131,7 +130,7 @@ begin
   SetUp;
 
   fResults.ChartsCount := aCount;
-  SetLength(fResults.Value, fResults.ChartsCount, fResults.ValueCount);
+  SetLength(fResults.Value, fResults.ChartsCount);
   SetLength(fResults.TestResults, fResults.ChartsCount);
   SetLength(fResults.TestMessages, fResults.ChartsCount);
 

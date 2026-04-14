@@ -27,7 +27,7 @@ uses
 procedure TKMTest_FarmHarvest.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 1;
+
   gGameApp.NewEmptyMap(32, 32);
 
   fFarm := gHands[0].AddHouse(htFarm, 16, 20, False);
@@ -52,9 +52,7 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun, 0] := fFarm.ResOut[1];
-
-  AssertTrue(fResults.Value[aRun, 0] > 0, 'Farmer should have harvested corn and delivered it to farm');
+  AssertTrue(fFarm.ResOut[1] > 0, 'Farmer should have harvested corn and delivered it to farm');
 
   gGameApp.StopGame(grSilent);
 end;

@@ -27,7 +27,6 @@ uses
 procedure TKMTest_Stone.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 1;
 
   DYNAMIC_TERRAIN := False;
 
@@ -67,9 +66,7 @@ begin
   SimulateGame;
 
   // The stonemason should have found the stone, mined it, and delivered it.
-  fResults.Value[aRun, 0] := gHands[0].Stats.GetWaresProduced(wtStone);
-
-  AssertTrue(fResults.Value[aRun, 0] > 0, 'Stonemason should have mined some stone');
+  AssertTrue(gHands[0].Stats.GetWaresProduced(wtStone) > 0, 'Stonemason should have mined some stone');
 
   gGameApp.StopGame(grSilent);
 end;

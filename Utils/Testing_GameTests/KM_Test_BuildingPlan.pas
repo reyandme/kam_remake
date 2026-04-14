@@ -26,7 +26,7 @@ uses
 procedure TKMTest_BuildingPlan.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 1;
+
   gGameApp.NewEmptyMap(32, 32);
 
   gHands[0].AddHousePlan(htSchool, KMPoint(16, 20));
@@ -61,17 +61,17 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun, 0] := 0;
+  fResults.Value[aRun] := 0;
 
   // If the house reached hbsWood state, the builder has finished clearing the site
   for I := 0 to gHands[0].Houses.Count - 1 do
   begin
     var H := gHands[0].Houses[I];
     if (H.HouseType = htSchool) and (H.BuildingState >= hbsWood) then
-      fResults.Value[aRun, 0] := 1;
+      fResults.Value[aRun] := 1;
   end;
 
-  AssertTrue(fResults.Value[aRun, 0] = 1, 'Builder should have dug out the house plan');
+  AssertTrue(fResults.Value[aRun] = 1, 'Builder should have dug out the house plan');
 
   gGameApp.StopGame(grSilent);
 end;

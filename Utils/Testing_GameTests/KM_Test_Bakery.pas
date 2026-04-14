@@ -26,7 +26,7 @@ uses
 procedure TKMTest_Bakery.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 1;
+
   gGameApp.NewEmptyMap(32, 32);
 
   var bakery := gHands[0].AddHouse(htBakery, 16, 16, False);
@@ -49,9 +49,7 @@ begin
   SimulateGame;
 
   // Check if it produced something
-  fResults.Value[aRun, 0] := gHands[0].Stats.GetWaresProduced(wtBread);
-
-  AssertTrue(fResults.Value[aRun, 0] >= 1, 'Bakery should have processed flour and water into bread');
+  AssertTrue(gHands[0].Stats.GetWaresProduced(wtBread) >= 1, 'Bakery should have processed flour and water into bread');
 
   gGameApp.StopGame(grSilent);
 end;

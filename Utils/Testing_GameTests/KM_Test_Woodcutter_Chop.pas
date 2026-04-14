@@ -29,7 +29,6 @@ var
   TargetLoc: TKMPoint;
 begin
   inherited;
-  fResults.ValueCount := 1;
 
   gGameApp.NewEmptyMap(32, 32);
 
@@ -63,9 +62,7 @@ begin
   SimulateGame;
 
   // The woodcutter should have found the tree, chopped it, and delivered the trunk.
-  fResults.Value[aRun, 0] := gHands[0].Stats.GetWaresProduced(wtTrunk);
-
-  AssertTrue(fResults.Value[aRun, 0] > 0, 'Woodcutter should have chopped and delivered a trunk');
+  AssertTrue(gHands[0].Stats.GetWaresProduced(wtTrunk) > 0, 'Woodcutter should have chopped and delivered a trunk');
 
   gGameApp.StopGame(grSilent);
 end;

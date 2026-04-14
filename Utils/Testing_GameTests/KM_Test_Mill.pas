@@ -26,7 +26,6 @@ uses
 procedure TKMTest_Mill.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 1;
   gGameApp.NewEmptyMap(32, 32);
 
   var H := gHands[0].AddHouse(htMill, 16, 16, False);
@@ -49,9 +48,7 @@ begin
   SimulateGame;
 
   // Check if it produced something
-  fResults.Value[aRun, 0] := gHands[0].Stats.GetWaresProduced(wtFlour);
-
-  AssertTrue(fResults.Value[aRun, 0] >= 1, 'Mill should have processed corn into flour');
+  AssertTrue(gHands[0].Stats.GetWaresProduced(wtFlour) >= 1, 'Mill should have processed corn into flour');
 
   gGameApp.StopGame(grSilent);
 end;

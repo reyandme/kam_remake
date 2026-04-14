@@ -26,7 +26,6 @@ uses
 procedure TKMTest_WoodcutterPlant.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 1;
 
   gGameApp.NewEmptyMap(32, 32);
 
@@ -65,9 +64,7 @@ begin
       if gTerrain.ObjectIsChopableTree(KMPoint(X, Y), [caAge1]) then
         Inc(PlantedTreeCount);
 
-  fResults.Value[aRun, 0] := PlantedTreeCount;
-
-  AssertTrue(fResults.Value[aRun, 0] > 0, 'Woodcutter should have planted at least one tree');
+  AssertTrue(PlantedTreeCount > 0, 'Woodcutter should have planted at least one tree');
 
   gGameApp.StopGame(grSilent);
 end;

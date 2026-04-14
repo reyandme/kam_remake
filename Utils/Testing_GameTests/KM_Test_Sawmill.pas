@@ -26,7 +26,7 @@ uses
 procedure TKMTest_Sawmill.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 1;
+
   gGameApp.NewEmptyMap(32, 32);
 
   var H := gHands[0].AddHouse(htSawmill, 16, 16, False);
@@ -49,9 +49,7 @@ begin
   SimulateGame;
 
   // Check if it produced something
-  fResults.Value[aRun, 0] := gHands[0].Stats.GetWaresProduced(wtTimber);
-
-  AssertTrue(fResults.Value[aRun, 0] >= 2, 'Sawmill should have processed trunk into 2 timber');
+  AssertTrue(gHands[0].Stats.GetWaresProduced(wtTimber) >= 2, 'Sawmill should have processed trunk into 2 timber');
 
   gGameApp.StopGame(grSilent);
 end;

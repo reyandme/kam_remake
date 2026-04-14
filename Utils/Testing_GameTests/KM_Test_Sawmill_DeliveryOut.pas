@@ -27,7 +27,7 @@ var
   I, J: Integer;
 begin
   inherited;
-  fResults.ValueCount := 1;
+
   gGameApp.NewEmptyMap(32, 32);
 
   for I := 9 to 21 do
@@ -60,14 +60,12 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun, 0] := 0;
+  fResults.Value[aRun] := 0;
   var Store := gHands[0].FindHouse(htStore);
   if Store <> nil then
-  begin
-    fResults.Value[aRun, 0] := Store.CheckWareIn(wtTimber);
-  end;
+    fResults.Value[aRun] := Store.CheckWareIn(wtTimber);
 
-  AssertTrue(fResults.Value[aRun, 0] = 2, 'Serf should have delivered 2 timbers to storehouse');
+  AssertTrue(fResults.Value[aRun] = 2, 'Serf should have delivered 2 timbers to storehouse');
 
   gGameApp.StopGame(grSilent);
 end;

@@ -25,7 +25,7 @@ uses
 procedure TKMTest_Swine.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 1;
+
   gGameApp.NewEmptyMap(32, 32);
 
   var H := gHands[0].AddHouse(htSwine, 16, 16, False);
@@ -50,9 +50,7 @@ begin
   SimulateGame;
 
   // Check if it produced a pig
-  fResults.Value[aRun, 0] := gHands[0].Stats.GetWaresProduced(wtPig);
-
-  AssertTrue(fResults.Value[aRun, 0] >= 1, 'Swine farm should have processed enough corn to grow and produce a pig');
+  AssertTrue(gHands[0].Stats.GetWaresProduced(wtPig) >= 1, 'Swine farm should have processed enough corn to grow and produce a pig');
 
   gGameApp.StopGame(grSilent);
 end;

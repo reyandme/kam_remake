@@ -16,6 +16,7 @@ type
 
 implementation
 uses
+  System.Math,
   KM_Defaults, KM_Points, KM_CommonUtils,
   KM_GameApp, KM_HandsCollection, KM_Terrain,
   KM_ResMapElements, KM_ResTypes;
@@ -25,7 +26,7 @@ uses
 procedure TKMTest_Fight95.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 2;
+
   DYNAMIC_TERRAIN := False;
 
   gGameApp.NewEmptyMap(128, 128);
@@ -47,8 +48,7 @@ end;
 function TKMTest_Fight95.DoTick(aTick: Cardinal): Boolean;
 begin
   // Continue simulation (True) until one of armies are destroyed
-  Result := (gHands[0].Stats.GetUnitQty(utAny) > 0) 
-  and (gHands[1].Stats.GetUnitQty(utAny) > 0);
+  Result := (gHands[0].Stats.GetUnitQty(utAny) > 0) and (gHands[1].Stats.GetUnitQty(utAny) > 0);
 end;
 
 
@@ -57,10 +57,9 @@ begin
   SetKaMSeed(aRun + 1);
   SimulateGame;
 
-  fResults.Value[aRun, 0] := gHands[0].Stats.GetUnitQty(utAny);
-  fResults.Value[aRun, 1] := gHands[1].Stats.GetUnitQty(utAny);
+  var minSurvived := Min(gHands[0].Stats.GetUnitQty(utAny), gHands[1].Stats.GetUnitQty(utAny));
 
-  AssertTrue((fResults.Value[aRun, 0] < 8) or (fResults.Value[aRun, 1] < 8), 'Units should have fought and died');
+  AssertTrue(minSurvived < 8, 'Units should have fought and died');
 
   gGameApp.StopGame(grSilent);
 end;

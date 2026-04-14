@@ -25,7 +25,6 @@ uses
 procedure TKMTest_Vineyard.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 1;
   gGameApp.NewEmptyMap(32, 32);
 
   gHands[0].AddHouse(htVineyard, 16, 20, False);
@@ -54,14 +53,14 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun, 0] := 0;
+  fResults.Value[aRun] := 0;
   var H := gHands[0].FindHouse(htVineyard);
   if H <> nil then
   begin
-    fResults.Value[aRun, 0] := H.ResOut[1];
+    fResults.Value[aRun] := H.ResOut[1];
   end;
 
-  AssertTrue(fResults.Value[aRun, 0] > 0, 'Farmer should have harvested grapes and delivered them to the vineyard');
+  AssertTrue(fResults.Value[aRun] > 0, 'Farmer should have harvested grapes and delivered them to the vineyard');
 
   gGameApp.StopGame(grSilent);
 end;

@@ -27,7 +27,6 @@ procedure TKMTest_FarmPlant.SetUp;
 begin
   inherited;
 
-  fResults.ValueCount := 1;
   gGameApp.NewEmptyMap(32, 32);
 
   gHands[0].AddHouse(htFarm, 16, 20, False);
@@ -49,11 +48,11 @@ begin
   SetKaMSeed(aRun+1);
   SimulateGame;
 
-  fResults.Value[aRun, 0] := 0;
+  fResults.Value[aRun] := 0;
   if ObjectIsCorn(gTerrain.Land[22, 16].Obj) then
-    fResults.Value[aRun, 0] := 1;
+    fResults.Value[aRun] := 1;
 
-  AssertTrue(fResults.Value[aRun, 0] = 1, 'Farmer should have planted corn');
+  AssertTrue(fResults.Value[aRun] = 1, 'Farmer should have planted corn');
 
   gGameApp.StopGame(grSilent);
 end;

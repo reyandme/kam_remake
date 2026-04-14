@@ -24,7 +24,7 @@ uses
 procedure TKMTest_Hungarian.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 0;
+
   DYNAMIC_TERRAIN := False;
   SHOW_UNIT_ROUTES := True;
   //SHOW_UNIT_ROUTES_STEPS := True;
