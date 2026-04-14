@@ -28,16 +28,8 @@ type
     chkThrottleRender: TCheckBox;
     seDuration: TSpinEdit;
     Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
     seSeed: TSpinEdit;
     Label7: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
-    Label10: TLabel;
-    Label11: TLabel;
-    Label12: TLabel;
-    rgAIType: TRadioGroup;
     btnRunAll: TButton;
     btnStop: TButton;
     btnPause: TButton;
@@ -70,10 +62,10 @@ var
 
 
 implementation
-{$R *.dfm}
 uses
   KM_GameTypes, KM_Defaults;
 
+{$R *.dfm}
 
 const
   COLORS_COUNT = 8;
@@ -94,6 +86,7 @@ procedure TForm2.clbCategoriesClick(Sender: TObject);
 begin
   RefreshTestList;
 end;
+
 
 procedure TForm2.RefreshTestList;
 var
@@ -131,12 +124,12 @@ begin
   ListBox1Click(nil);
 end;
 
+
 procedure TForm2.btnStopClick(Sender: TObject);
 begin
   fStopped := True;
   btnStop.Enabled := False;
 end;
-
 
 
 procedure TForm2.FormCreate(Sender: TObject);
@@ -186,6 +179,7 @@ begin
   Caption := ExtractFileName(Application.ExeName);
 end;
 
+
 procedure TForm2.chkRenderClick(Sender: TObject);
 begin
   SKIP_RENDER := not chkRender.Checked;
@@ -196,6 +190,7 @@ procedure TForm2.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(gLog);
 end;
+
 
 procedure TForm2.FormShow(Sender: TObject);
 const
@@ -239,9 +234,6 @@ begin
   btnStop.Enabled := False;
   btnPause.Enabled := False;
 end;
-
-
-
 
 
 function TForm2.IsStopped: Boolean;
@@ -297,10 +289,6 @@ begin
       Testing_GameTests.Seed := seSeed.Value;
       Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
       Testing_GameTests.DelayValue := seDelay.Value;
-      if rgAIType.ItemIndex = 0 then
-        Testing_GameTests.AIType := aitClassic
-      else
-        Testing_GameTests.AIType := aitAdvanced;
 
       fResults := Testing_GameTests.Run(Count);
       fRunTime := 'Done in ' + IntToStr(GetTickCount - T) + ' ms';
@@ -363,10 +351,6 @@ begin
       Testing_GameTests.Seed := seSeed.Value;
       Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
       Testing_GameTests.DelayValue := seDelay.Value;
-      if rgAIType.ItemIndex = 0 then
-        Testing_GameTests.AIType := aitClassic
-      else
-        Testing_GameTests.AIType := aitAdvanced;
 
       fResults := Testing_GameTests.Run(Count);
       
@@ -402,6 +386,7 @@ begin
   btnStop.Enabled := False;
   btnPause.Enabled := False;
 end;
+
 
 procedure TForm2.btnTryFoundSeedClick(Sender: TObject);
 var
@@ -442,10 +427,6 @@ begin
       Testing_GameTests.Seed := seSeed.Value;
       Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
       Testing_GameTests.DelayValue := seDelay.Value;
-      if rgAIType.ItemIndex = 0 then
-        Testing_GameTests.AIType := aitClassic
-      else
-        Testing_GameTests.AIType := aitAdvanced;
 
       fResults := Testing_GameTests.Run(1);
 

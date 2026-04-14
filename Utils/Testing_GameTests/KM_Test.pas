@@ -80,7 +80,6 @@ type
     ThrottleRender: Boolean;
     Duration: Integer;
     Seed: Integer;
-    AIType: TKMAIType;
     OnProgress: TUnicodeStringEvent;
     DelayValue: Integer;
     constructor Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple); reintroduce;
@@ -96,6 +95,7 @@ procedure RegisterRunner(aRunner: TKMTestClass);
 
 var
   RunnerList: array of TKMTestClass;
+
 
 implementation
 uses
@@ -136,7 +136,6 @@ begin
   fOnTick := OnTickCondition;
 
   fIntParam := 0;
-  AIType := aitNone;
   ThrottleRender := True;
 end;
 

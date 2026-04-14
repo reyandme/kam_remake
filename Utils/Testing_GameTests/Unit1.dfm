@@ -39,22 +39,6 @@ object Form2: TForm2
     Height = 13
     Caption = 'Duration (min):'
   end
-  object Label5: TLabel
-    Left = 187
-    Top = 356
-    Width = 15
-    Height = 13
-    Alignment = taRightJustify
-    Caption = '     '
-  end
-  object Label6: TLabel
-    Left = 184
-    Top = 396
-    Width = 18
-    Height = 13
-    Alignment = taRightJustify
-    Caption = '      '
-  end
   object Label7: TLabel
     Left = 8
     Top = 288
@@ -62,42 +46,12 @@ object Form2: TForm2
     Height = 13
     Caption = 'Seed:'
   end
-  object Label8: TLabel
-    Left = 184
-    Top = 416
-    Width = 18
+  object lblDelay: TLabel
+    Left = 106
+    Top = 360
+    Width = 31
     Height = 13
-    Alignment = taRightJustify
-    Caption = '      '
-  end
-  object Label9: TLabel
-    Left = 8
-    Top = 335
-    Width = 18
-    Height = 13
-    Caption = '      '
-  end
-  object Label10: TLabel
-    Left = 8
-    Top = 376
-    Width = 18
-    Height = 13
-    Caption = '      '
-  end
-  object Label11: TLabel
-    Left = 8
-    Top = 396
-    Width = 18
-    Height = 13
-    Caption = '      '
-  end
-  object Label12: TLabel
-    Left = 184
-    Top = 436
-    Width = 18
-    Height = 13
-    Alignment = taRightJustify
-    Caption = '      '
+    Caption = 'Delay:'
   end
   object btnTryFoundSeed: TButton
     Left = 8
@@ -106,7 +60,7 @@ object Form2: TForm2
     Height = 38
     Caption = 'Try Found Seed'
     Enabled = False
-    TabOrder = 13
+    TabOrder = 12
     OnClick = btnTryFoundSeedClick
   end
   object btnRun: TButton
@@ -126,7 +80,7 @@ object Form2: TForm2
     Height = 38
     Caption = 'Run All'
     Enabled = False
-    TabOrder = 10
+    TabOrder = 9
     OnClick = btnRunAllClick
   end
   object seCycles: TSpinEdit
@@ -139,13 +93,6 @@ object Form2: TForm2
     TabOrder = 1
     Value = 1
   end
-  object lblDelay: TLabel
-    Left = 106
-    Top = 360
-    Width = 31
-    Height = 13
-    Caption = 'Delay:'
-  end
   object seDelay: TSpinEdit
     Left = 106
     Top = 376
@@ -153,7 +100,7 @@ object Form2: TForm2
     Height = 22
     MaxValue = 10000
     MinValue = 0
-    TabOrder = 14
+    TabOrder = 13
     Value = 0
   end
   object ListBox1: TListBox
@@ -171,7 +118,7 @@ object Form2: TForm2
     Width = 185
     Height = 113
     ItemHeight = 13
-    TabOrder = 11
+    TabOrder = 10
     OnClick = clbCategoriesClick
   end
   object PageControl1: TPageControl
@@ -191,7 +138,12 @@ object Form2: TForm2
         Width = 873
         Height = 597
         Align = alClient
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
         Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
       end
@@ -226,7 +178,7 @@ object Form2: TForm2
     Caption = 'Throttle FPS'
     Checked = True
     State = cbChecked
-    TabOrder = 12
+    TabOrder = 11
   end
   object seDuration: TSpinEdit
     Left = 103
@@ -248,18 +200,6 @@ object Form2: TForm2
     TabOrder = 6
     Value = 4
   end
-  object rgAIType: TRadioGroup
-    Left = 106
-    Top = 292
-    Width = 96
-    Height = 53
-    Caption = 'AI type'
-    ItemIndex = 1
-    Items.Strings = (
-      'Classic'
-      'Advanced')
-    TabOrder = 7
-  end
   object btnStop: TButton
     Left = 103
     Top = 532
@@ -267,7 +207,7 @@ object Form2: TForm2
     Height = 38
     Caption = 'Stop'
     Enabled = False
-    TabOrder = 8
+    TabOrder = 7
     OnClick = btnStopClick
   end
   object btnPause: TButton
@@ -277,7 +217,7 @@ object Form2: TForm2
     Height = 21
     Caption = 'Pause'
     Enabled = False
-    TabOrder = 9
+    TabOrder = 8
     Visible = False
     OnClick = btnPauseClick
   end
