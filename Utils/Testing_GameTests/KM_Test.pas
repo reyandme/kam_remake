@@ -75,7 +75,7 @@ type
     Duration: Integer;
     Seed: Integer;
     DelayValue: Integer;
-    constructor Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
+    constructor Create(aRenderTarget: TKMRenderControl; aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
     function Run(aCount: Integer): TKMRunResults;
     procedure AssertTrue(aCondition: Boolean; const aMessage: string);
     procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
@@ -130,7 +130,8 @@ end;
 
 function TKMTest.DoTick(aTick: Cardinal): Boolean;
 begin
-  Result := True; // Продолжаем симуляцию по умолчанию
+  // Continue game by default
+  Result := True;
 end;
 
 
