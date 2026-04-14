@@ -51,6 +51,7 @@ type
     function IsStopped: Boolean;
     procedure HandleProgress(const aValue: string);
     procedure EnsureResourcesLoaded;
+    procedure RefreshTagList;
   end;
 
 
@@ -65,38 +66,6 @@ uses
 procedure TForm2.clbCategoriesClick(Sender: TObject);
 begin
   RefreshTestList;
-end;
-
-
-procedure TForm2.RefreshTestList;
-begin
-  var allowedTags: TKMTestTagSet := [];
-  for var I := 0 to clbCategories.Items.Count - 1 do
-    if clbCategories.Checked[I] then
-      allowedTags := allowedTags + [TKMTestTag(Integer(clbCategories.Items.Objects[I]))];
-
-  ListBox1.Items.Clear;
-  for var I := 0 to High(gTestList) do
-  begin
-    var allowedByTags := False;
-    for var tag in gTestList[I].TestTags do
-      if tag in allowedTags then
-        allowedByTags := True;
-
-    if allowedByTags then
-    begin
-      var testName := gTestList[I].ClassName;
-      testName := StringReplace(testName, 'TKMTest', '', [rfIgnoreCase]);
-      ListBox1.Items.AddObject(testName, TObject(I));
-    end;
-  end;
-
-  if ListBox1.Items.Count > 0 then
-    ListBox1.ItemIndex := 0
-  else
-    btnRun.Enabled := False;
-    
-  ListBox1Click(nil);
 end;
 
 
@@ -125,25 +94,7 @@ begin
   fRenderArea.Align := alClient;
   fRenderArea.Color := clMaroon;
 
-  // Refresh tag list
-  begin
-    var tagSet: TKMTestTagSet := [];
-    for var I := 0 to High(gTestList) do
-      tagSet := tagSet + gTestList[I].TestTags;
-
-    for var tag := Low(TKMTestTag) to High(TKMTestTag) do
-    begin
-      if tag in tagSet then
-      begin
-        var tagName := GetEnumName(TypeInfo(TKMTestTag), Integer(tag));
-        if Copy(tagName, 1, 2) = 'tc' then
-          Delete(tagName, 1, 2);
-        clbCategories.Items.AddObject(tagName, TObject(tag));
-        clbCategories.Checked[clbCategories.Items.Count - 1] := True;
-      end;
-    end;
-  end;
-
+  RefreshTagList;
   RefreshTestList;
 
   if Length(gTestList) > 0 then
@@ -154,6 +105,58 @@ begin
     btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
   end;
+end;
+
+
+procedure TForm2.RefreshTagList;
+begin
+  var tagSet: TKMTestTagSet := [];
+  for var I := 0 to High(gTestList) do
+    tagSet := tagSet + gTestList[I].TestTags;
+
+  for var tag := Low(TKMTestTag) to High(TKMTestTag) do
+  begin
+    if tag in tagSet then
+    begin
+      var tagName := GetEnumName(TypeInfo(TKMTestTag), Integer(tag));
+      if Copy(tagName, 1, 2) = 'tc' then
+        Delete(tagName, 1, 2);
+      clbCategories.Items.AddObject(tagName, TObject(tag));
+      clbCategories.Checked[clbCategories.Items.Count - 1] := True;
+    end;
+  end;
+end;
+
+
+procedure TForm2.RefreshTestList;
+begin
+  var allowedTags: TKMTestTagSet := [];
+  for var I := 0 to clbCategories.Items.Count - 1 do
+    if clbCategories.Checked[I] then
+      allowedTags := allowedTags + [TKMTestTag(Integer(clbCategories.Items.Objects[I]))];
+
+  ListBox1.Items.Clear;
+  for var I := 0 to High(gTestList) do
+  begin
+    var allowedByTags := False;
+    for var tag in gTestList[I].TestTags do
+      if tag in allowedTags then
+        allowedByTags := True;
+
+    if allowedByTags then
+    begin
+      var testName := gTestList[I].ClassName;
+      testName := StringReplace(testName, 'TKMTest_', '', [rfIgnoreCase]);
+      ListBox1.Items.AddObject(testName, TObject(I));
+    end;
+  end;
+
+  if ListBox1.Items.Count > 0 then
+    ListBox1.ItemIndex := 0
+  else
+    btnRun.Enabled := False;
+
+  ListBox1Click(nil);
 end;
 
 
