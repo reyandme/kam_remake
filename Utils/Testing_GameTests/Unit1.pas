@@ -44,18 +44,20 @@ type
     procedure ListBox1Click(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
   private
+    fRenderArea: TKMRenderControl;
     fResults: TKMRunResults;
     fStopped: Boolean;
-    fRenderArea: TKMRenderControl;
     procedure RefreshTestList;
     function IsStopped: Boolean;
     procedure HandleProgress(const aValue: string);
+    procedure EnsureResourcesLoaded;
   end;
 
 
 implementation
 uses
-  KM_GameTypes, KM_Defaults;
+  KM_GameTypes, KM_Defaults,
+  KM_MainSettings, KM_GameSettings, KM_GameAppSettings;
 
 {$R *.dfm}
 
@@ -67,29 +69,25 @@ end;
 
 
 procedure TForm2.RefreshTestList;
-var
-  I: Integer;
-  Match: Boolean;
-  S: string;
 begin
   var allowedTags: TKMTestTagSet := [];
-  for I := 0 to clbCategories.Items.Count - 1 do
+  for var I := 0 to clbCategories.Items.Count - 1 do
     if clbCategories.Checked[I] then
       allowedTags := allowedTags + [TKMTestTag(Integer(clbCategories.Items.Objects[I]))];
 
   ListBox1.Items.Clear;
-  for I := 0 to High(gTestList) do
+  for var I := 0 to High(gTestList) do
   begin
-    Match := False;
+    var allowedByTags := False;
     for var tag in gTestList[I].TestTags do
       if tag in allowedTags then
-        Match := True;
+        allowedByTags := True;
 
-    if Match then
+    if allowedByTags then
     begin
-      S := gTestList[I].ClassName;
-      S := StringReplace(S, 'TKMRunner', '', [rfIgnoreCase]);
-      ListBox1.Items.AddObject(S, TObject(I));
+      var testName := gTestList[I].ClassName;
+      testName := StringReplace(testName, 'TKMTest', '', [rfIgnoreCase]);
+      ListBox1.Items.AddObject(testName, TObject(I));
     end;
   end;
 
@@ -110,30 +108,39 @@ end;
 
 
 procedure TForm2.FormCreate(Sender: TObject);
-var
-  I: Integer;
-  S: string;
 begin
+  Caption := ExtractFileName(Application.ExeName);
+  SKIP_SOUND := True;
+  SKIP_LOADING_CURSOR := True;
+  SKIP_SETTINGS_SAVE := True;
+  ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
+
   gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Testing_GameTests.log');
+
+  // Init settings global variables
+  gGameAppSettings := TKMGameAppSettings.Create(1024, 768);
 
   fRenderArea := TKMRenderControl.Create(pnlRender);
   fRenderArea.Parent := pnlRender;
   fRenderArea.Align := alClient;
   fRenderArea.Color := clMaroon;
 
-  var tagSet: TKMTestTagSet := [];
-  for I := 0 to High(gTestList) do
-    tagSet := tagSet + gTestList[I].TestTags;
-
-  for var tag := Low(TKMTestTag) to High(TKMTestTag) do
+  // Refresh tag list
   begin
-    if tag in tagSet then
+    var tagSet: TKMTestTagSet := [];
+    for var I := 0 to High(gTestList) do
+      tagSet := tagSet + gTestList[I].TestTags;
+
+    for var tag := Low(TKMTestTag) to High(TKMTestTag) do
     begin
-      S := GetEnumName(TypeInfo(TKMTestTag), Integer(tag));
-      if Copy(S, 1, 2) = 'tc' then
-        Delete(S, 1, 2);
-      clbCategories.Items.AddObject(S, TObject(tag));
-      clbCategories.Checked[clbCategories.Items.Count - 1] := True;
+      if tag in tagSet then
+      begin
+        var tagName := GetEnumName(TypeInfo(TKMTestTag), Integer(tag));
+        if Copy(tagName, 1, 2) = 'tc' then
+          Delete(tagName, 1, 2);
+        clbCategories.Items.AddObject(tagName, TObject(tag));
+        clbCategories.Checked[clbCategories.Items.Count - 1] := True;
+      end;
     end;
   end;
 
@@ -147,9 +154,6 @@ begin
     btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
   end;
-
-  SKIP_RENDER := not chkRender.Checked;
-  Caption := ExtractFileName(Application.ExeName);
 end;
 
 
@@ -196,6 +200,8 @@ begin
   Count := seCycles.Value;
   if Count <= 0 then Exit;
 
+  EnsureResourcesLoaded;
+
   fStopped := False;
 
   btnRun.Enabled := False;
@@ -206,9 +212,9 @@ begin
     thisTestClass := gTestList[ID];
 
     if chkRender.Checked then
-      thisTest := thisTestClass.Create(fRenderArea, IsStopped, HandleProgress)
+      thisTest := thisTestClass.Create(IsStopped, HandleProgress)
     else
-      thisTest := thisTestClass.Create(nil, IsStopped, HandleProgress);
+      thisTest := thisTestClass.Create(IsStopped, HandleProgress);
 
     try
       T := GetTickCount;
@@ -243,6 +249,8 @@ begin
   Count := seCycles.Value;
   if Count <= 0 then Exit;
 
+  EnsureResourcesLoaded;
+
   fStopped := False;
 
   meLog.Clear;
@@ -264,9 +272,9 @@ begin
     thisTestClass := gTestList[ID];
 
     if chkRender.Checked then
-      thisTest := thisTestClass.Create(fRenderArea, IsStopped, HandleProgress)
+      thisTest := thisTestClass.Create(IsStopped, HandleProgress)
     else
-      thisTest := thisTestClass.Create(nil, IsStopped, HandleProgress);
+      thisTest := thisTestClass.Create(IsStopped, HandleProgress);
 
     try
       T := GetTickCount;
@@ -321,6 +329,8 @@ begin
   if ListBox1.ItemIndex = -1 then Exit;
   ID := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
 
+  EnsureResourcesLoaded;
+
   fStopped := False;
 
   btnRun.Enabled := False;
@@ -336,9 +346,9 @@ begin
   while not fStopped do
   begin
     if chkRender.Checked then
-      thisTest := thisTestClass.Create(fRenderArea, IsStopped, HandleProgress)
+      thisTest := thisTestClass.Create(IsStopped, HandleProgress)
     else
-      thisTest := thisTestClass.Create(nil, IsStopped, HandleProgress);
+      thisTest := thisTestClass.Create(IsStopped, HandleProgress);
 
     try
       T := GetTickCount;
@@ -383,6 +393,29 @@ begin
   Label2.Caption := aValue;
   Label2.Refresh;
   Application.ProcessMessages;
+end;
+
+
+procedure TForm2.EnsureResourcesLoaded;
+var
+  tgtWidth, tgtHeight: Word;
+begin
+  if gGameApp <> nil then Exit;
+
+  if fRenderArea = nil then
+  begin
+    tgtWidth := 1024;
+    tgtHeight := 768;
+  end else
+  begin
+    tgtWidth := fRenderArea.Width;
+    tgtHeight := fRenderArea.Height;
+  end;
+
+  gGameApp := TKMGameApp.Create(fRenderArea, tgtWidth, tgtHeight, False, nil, nil, nil, True);
+  gGameSettings.Autosave := False;
+  gGameSettings.SaveCheckpoints := False;
+  gGameApp.PreloadGameResources;
 end;
 
 

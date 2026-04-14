@@ -58,12 +58,10 @@ type
 
   TKMTest = class
   protected
-    fRenderTarget: TKMRenderControl;
     fRun: Integer;
     fResults: TKMRunResults;
     fOnProgress: TUnicodeStringEvent;
     fOnStop: TBooleanFuncSimple;
-    procedure EnsureResourcesLoaded;
     function DoTick(aTick: Cardinal): Boolean; virtual;
     procedure SetUp; virtual;
     procedure TearDown; virtual;
@@ -75,7 +73,7 @@ type
     Duration: Integer;
     Seed: Integer;
     DelayValue: Integer;
-    constructor Create(aRenderTarget: TKMRenderControl; aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
+    constructor Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
     function Run(aCount: Integer): TKMRunResults;
     procedure AssertTrue(aCondition: Boolean; const aMessage: string);
     procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
@@ -91,8 +89,6 @@ var
 
 
 implementation
-uses
-  KM_MainSettings, KM_GameSettings, KM_GameAppSettings;
 
 
 procedure RegisterTest(aTest: TKMTestClass);
@@ -115,11 +111,9 @@ begin
 end;
 
 
-constructor TKMTest.Create(aRenderTarget: TKMRenderControl; aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent);
+constructor TKMTest.Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent);
 begin
   inherited Create;
-
-  fRenderTarget := aRenderTarget;
 
   fOnProgress := aOnProgress;
   fOnStop := aOnStop;
@@ -233,41 +227,9 @@ begin
 end;
 
 
-procedure TKMTest.EnsureResourcesLoaded;
-var
-  tgtWidth, tgtHeight: Word;
-begin
-  if gGameApp <> nil then Exit;
-
-  SKIP_SOUND := True;
-  SKIP_LOADING_CURSOR := True;
-  SKIP_SETTINGS_SAVE := True;
-  ExeDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\');
-
-  if fRenderTarget = nil then
-  begin
-    tgtWidth := 1024;
-    tgtHeight := 768;
-  end else
-  begin
-    tgtWidth := fRenderTarget.Width;
-    tgtHeight := fRenderTarget.Height;
-  end;
-
-  // Init settings global variables
-  gGameAppSettings := TKMGameAppSettings.Create(tgtWidth, tgtHeight);
-
-  gGameApp := TKMGameApp.Create(fRenderTarget, tgtWidth, tgtHeight, False, nil, nil, nil, True);
-  gGameSettings.Autosave := False;
-  gGameSettings.SaveCheckpoints := False;
-  gGameApp.PreloadGameResources;
-end;
-
-
 procedure TKMTest.SetUp;
 begin
   fResults.TimesCount := Duration*60*10;
-  EnsureResourcesLoaded;
 end;
 
 
