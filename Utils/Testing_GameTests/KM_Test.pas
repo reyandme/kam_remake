@@ -63,7 +63,6 @@ type
     fRenderTarget: TKMRenderControl;
     fRun: Integer;
     fResults: TKMRunResults;
-    fOnPause: TBooleanFuncSimple;
     fOnStop: TBooleanFuncSimple;
     procedure EnsureResourcesLoaded;
     function DoTick(aTick: Cardinal): Boolean; virtual;
@@ -121,13 +120,12 @@ begin
   Result := True; // Продолжаем симуляцию по умолчанию
 end;
 
-constructor TKMTest.Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple);
+constructor TKMTest.Create(aRenderTarget: TKMRenderControl; aOnStop: TBooleanFuncSimple);
 begin
   inherited Create;
 
   fRenderTarget := aRenderTarget;
 
-//  fOnPause := aOnPause;
   fOnStop := aOnStop;
 
   ThrottleRender := True;

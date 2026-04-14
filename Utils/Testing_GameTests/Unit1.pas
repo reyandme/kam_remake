@@ -52,7 +52,6 @@ type
     RenderArea: TKMRenderControl;
     procedure RefreshTestList;
     function IsStopped: Boolean;
-    function IsPaused: Boolean;
     procedure Testing_GameTestsProgress(const aValue: UnicodeString);
   end;
 
@@ -242,12 +241,6 @@ begin
 end;
 
 
-function TForm2.IsPaused: Boolean;
-begin
-  Result := fPaused;
-end;
-
-
 procedure TForm2.btnPauseClick(Sender: TObject);
 begin
   fPaused := True;
@@ -340,9 +333,9 @@ begin
     Testing_GameTestsClass := gTestList[ID];
 
     if chkRender.Checked then
-      Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, {IsPaused, }IsStopped)
+      Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, IsStopped)
     else
-      Testing_GameTests := Testing_GameTestsClass.Create(nil, {IsPaused, }IsStopped);
+      Testing_GameTests := Testing_GameTestsClass.Create(nil, IsStopped);
 
     Testing_GameTests.OnProgress := Testing_GameTestsProgress;
     try
