@@ -45,7 +45,7 @@ type
   ETestFailed = class(Exception);
 
   TKMRunResults = record
-    ChartsCount: Integer; //How many charts return
+    RunCount: Integer;
     TestResults: array {Run} of TKMTestResult;
     TestMessages: array {Run} of string;
   end;
@@ -123,16 +123,14 @@ end;
 
 
 function TKMTest.Run(aCount: Integer): TKMRunResults;
-var
-  I: Integer;
 begin
   SetUp;
 
-  fResults.ChartsCount := aCount;
-  SetLength(fResults.TestResults, fResults.ChartsCount);
-  SetLength(fResults.TestMessages, fResults.ChartsCount);
+  fResults.RunCount := aCount;
+  SetLength(fResults.TestResults, fResults.RunCount);
+  SetLength(fResults.TestMessages, fResults.RunCount);
 
-  for I := 0 to aCount - 1 do
+  for var I := 0 to aCount - 1 do
   begin
     if Assigned(fOnProgress) then
       fOnProgress(Format('%d', [I]));
@@ -194,22 +192,19 @@ end;
 
 
 procedure TKMTest.SimulateGame;
-var
-  I: Integer;
-  VLastRenderTime: Cardinal;
 begin
-  VLastRenderTime := TimeGet;
+  var lastRenderTime := TimeGet;
 
-  for I := 0 to Duration*60*10 - 1 do
+  for var I := 0 to Duration*60*10 - 1 do
   begin
     gGameApp.Game.UpdateGame;
-    
+
     if ThrottleRender then
     begin
-      if (TimeGet - VLastRenderTime) > 100 then
+      if (TimeGet - lastRenderTime) > 100 then
       begin
         gGameApp.Render(False);
-        VLastRenderTime := TimeGet;
+        lastRenderTime := TimeGet;
       end;
     end
     else
@@ -221,8 +216,7 @@ begin
     if not DoTick(I+1) then
       Exit;
 
-    if Assigned(fOnStop)
-      and fOnStop then
+    if Assigned(fOnStop) and fOnStop then
       Exit;
 
     if gGameApp.Game.IsPaused then
