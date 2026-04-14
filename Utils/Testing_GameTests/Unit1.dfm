@@ -106,23 +106,23 @@ object Form2: TForm2
     TabOrder = 11
     Value = 0
   end
-  object ListBox1: TListBox
+  object lbTests: TListBox
     Left = 8
     Top = 24
     Width = 185
     Height = 225
     ItemHeight = 13
     TabOrder = 2
-    OnClick = ListBox1Click
+    OnClick = lbTestsClick
   end
-  object clbCategories: TCheckListBox
+  object clbTags: TCheckListBox
     Left = 8
     Top = 272
     Width = 185
     Height = 113
     ItemHeight = 17
     TabOrder = 8
-    OnClick = clbCategoriesClick
+    OnClick = clbTagsClick
   end
   object pcMain: TPageControl
     Left = 200

@@ -16,8 +16,8 @@ type
     lblDelay: TLabel;
     seDelay: TSpinEdit;
     Label1: TLabel;
-    ListBox1: TListBox;
-    clbCategories: TCheckListBox;
+    lbTests: TListBox;
+    clbTags: TCheckListBox;
     Label2: TLabel;
     pcMain: TPageControl;
     tsLog: TTabSheet;
@@ -32,14 +32,14 @@ type
     btnStop: TButton;
     Label3: TLabel;
     Label5: TLabel;
-    procedure clbCategoriesClick(Sender: TObject);
+    procedure clbTagsClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure chkRenderClick(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
     procedure btnTryFoundSeedClick(Sender: TObject);
     procedure btnRunAllClick(Sender: TObject);
-    procedure ListBox1Click(Sender: TObject);
+    procedure lbTestsClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
   private
     fRenderArea: TKMRenderControl;
@@ -61,7 +61,7 @@ uses
 {$R *.dfm}
 
 
-procedure TForm2.clbCategoriesClick(Sender: TObject);
+procedure TForm2.clbTagsClick(Sender: TObject);
 begin
   RefreshTestList;
 end;
@@ -97,7 +97,7 @@ begin
 
   if Length(gTestList) > 0 then
   begin
-    ListBox1.ItemIndex := 0;
+    lbTests.ItemIndex := 0;
     btnRun.Enabled := True;
     btnRunAll.Enabled := True;
     btnTryFoundSeed.Enabled := True;
@@ -119,8 +119,8 @@ begin
       var tagName := GetEnumName(TypeInfo(TKMTestTag), Integer(tag));
       if Copy(tagName, 1, 2) = 'tc' then
         Delete(tagName, 1, 2);
-      clbCategories.Items.AddObject(tagName, TObject(tag));
-      clbCategories.Checked[clbCategories.Items.Count - 1] := True;
+      clbTags.Items.AddObject(tagName, TObject(tag));
+      clbTags.Checked[clbTags.Items.Count - 1] := True;
     end;
   end;
 end;
@@ -129,11 +129,11 @@ end;
 procedure TForm2.RefreshTestList;
 begin
   var allowedTags: TKMTestTagSet := [];
-  for var I := 0 to clbCategories.Items.Count - 1 do
-    if clbCategories.Checked[I] then
-      allowedTags := allowedTags + [TKMTestTag(Integer(clbCategories.Items.Objects[I]))];
+  for var I := 0 to clbTags.Items.Count - 1 do
+    if clbTags.Checked[I] then
+      allowedTags := allowedTags + [TKMTestTag(Integer(clbTags.Items.Objects[I]))];
 
-  ListBox1.Items.Clear;
+  lbTests.Items.Clear;
   for var I := 0 to High(gTestList) do
   begin
     var allowedByTags := False;
@@ -145,16 +145,16 @@ begin
     begin
       var testName := gTestList[I].ClassName;
       testName := StringReplace(testName, 'TKMTest_', '', [rfIgnoreCase]);
-      ListBox1.Items.AddObject(testName, TObject(I));
+      lbTests.Items.AddObject(testName, TObject(I));
     end;
   end;
 
-  if ListBox1.Items.Count > 0 then
-    ListBox1.ItemIndex := 0
+  if lbTests.Items.Count > 0 then
+    lbTests.ItemIndex := 0
   else
     btnRun.Enabled := False;
 
-  ListBox1Click(nil);
+  lbTestsClick(nil);
 end;
 
 
@@ -170,11 +170,11 @@ begin
 end;
 
 
-procedure TForm2.ListBox1Click(Sender: TObject);
+procedure TForm2.lbTestsClick(Sender: TObject);
 var
   ID: Integer;
 begin
-  ID := ListBox1.ItemIndex;
+  ID := lbTests.ItemIndex;
   if ID = -1 then Exit;
   btnRun.Enabled := True;
   btnRunAll.Enabled := True;
@@ -196,8 +196,8 @@ var
   thisTestClass: TKMTestClass;
   thisTest: TKMTest;
 begin
-  if ListBox1.ItemIndex = -1 then Exit;
-  var testIndex := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
+  if lbTests.ItemIndex = -1 then Exit;
+  var testIndex := Integer(lbTests.Items.Objects[lbTests.ItemIndex]);
   Count := seCycles.Value;
   if Count <= 0 then Exit;
 
@@ -260,11 +260,11 @@ begin
   TotalT := GetTickCount;
   TotalTestsRun := 0;
 
-  for K := 0 to ListBox1.Items.Count - 1 do
+  for K := 0 to lbTests.Items.Count - 1 do
   begin
     if fStopped then Break;
 
-    var testIndex := Integer(ListBox1.Items.Objects[K]);
+    var testIndex := Integer(lbTests.Items.Objects[K]);
     thisTestClass := gTestList[testIndex];
 
     thisTest := thisTestClass.Create(IsStopped, HandleProgress);
@@ -316,8 +316,8 @@ var
   thisTest: TKMTest;
   resStr: string;
 begin
-  if ListBox1.ItemIndex = -1 then Exit;
-  var testIndex := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
+  if lbTests.ItemIndex = -1 then Exit;
+  var testIndex := Integer(lbTests.Items.Objects[lbTests.ItemIndex]);
 
   EnsureResourcesLoaded;
 
