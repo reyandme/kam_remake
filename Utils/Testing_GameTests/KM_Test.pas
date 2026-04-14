@@ -63,6 +63,7 @@ type
     fRenderTarget: TKMRenderControl;
     fRun: Integer;
     fResults: TKMRunResults;
+    fOnProgress: TUnicodeStringEvent;
     fOnStop: TBooleanFuncSimple;
     procedure EnsureResourcesLoaded;
     function DoTick(aTick: Cardinal): Boolean; virtual;
@@ -75,9 +76,8 @@ type
     ThrottleRender: Boolean;
     Duration: Integer;
     Seed: Integer;
-    OnProgress: TUnicodeStringEvent;
     DelayValue: Integer;
-    constructor Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple); reintroduce;
+    constructor Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
     function Run(aCount: Integer): TKMRunResults;
     procedure AssertTrue(aCondition: Boolean; const aMessage: string);
     procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
@@ -110,26 +110,29 @@ begin
   Result := [tcNone];
 end;
 
+
 class function TKMTest.TestDescription: string;
 begin
   Result := 'No description provided.';
 end;
 
-function TKMTest.DoTick(aTick: Cardinal): Boolean;
-begin
-  Result := True; // Продолжаем симуляцию по умолчанию
-end;
 
-
-constructor TKMTest.Create(aRenderTarget: TKMRenderControl; aOnStop: TBooleanFuncSimple);
+constructor TKMTest.Create(aRenderTarget: TKMRenderControl; aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent);
 begin
   inherited Create;
 
   fRenderTarget := aRenderTarget;
 
+  fOnProgress := aOnProgress;
   fOnStop := aOnStop;
 
   ThrottleRender := True;
+end;
+
+
+function TKMTest.DoTick(aTick: Cardinal): Boolean;
+begin
+  Result := True; // Продолжаем симуляцию по умолчанию
 end;
 
 
@@ -147,8 +150,8 @@ begin
 
   for I := 0 to aCount - 1 do
   begin
-    if Assigned(OnProgress) then
-      OnProgress(Format('%d', [I]));
+    if Assigned(fOnProgress) then
+      fOnProgress(Format('%d', [I]));
 
     fRun := I;
     fResults.TestResults[I] := trSuccess;
@@ -270,8 +273,8 @@ begin
   if gGameApp.Game <> nil then
     gGameApp.StopGame(grSilent);
 
-  if Assigned(OnProgress) then
-    OnProgress('Done');
+  if Assigned(fOnProgress) then
+    fOnProgress('Done');
 end;
 
 
@@ -319,8 +322,8 @@ begin
     if gGameApp.Game.IsPaused then
       gGameApp.Game.Hold(False, grWin);
 
-    if (I mod 60*10 = 0) and Assigned(OnProgress) then
-      OnProgress(Format('%d (%d min)', [fRun + 1, I div 600]));
+    if (I mod 60*10 = 0) and Assigned(fOnProgress) then
+      fOnProgress(Format('%d (%d min)', [fRun + 1, I div 600]));
   end;
 end;
 

@@ -223,8 +223,8 @@ procedure TForm2.btnRunClick(Sender: TObject);
 var
   T: Cardinal;
   ID, Count: Integer;
-  Testing_GameTestsClass: TKMTestClass;
-  Testing_GameTests: TKMTest;
+  thisTestClass: TKMTestClass;
+  thisTest: TKMTest;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
   ID := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
@@ -238,25 +238,24 @@ begin
   btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
   try
-    Testing_GameTestsClass := gTestList[ID];
+    thisTestClass := gTestList[ID];
 
     if chkRender.Checked then
-      Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, {IsPaused, }IsStopped)
+      thisTest := thisTestClass.Create(RenderArea, IsStopped, HandleProgress)
     else
-      Testing_GameTests := Testing_GameTestsClass.Create(nil, {IsPaused, }IsStopped);
+      thisTest := thisTestClass.Create(nil, IsStopped, HandleProgress);
 
-    Testing_GameTests.OnProgress := HandleProgress;
     try
       T := GetTickCount;
-      Testing_GameTests.Duration := seDuration.Value;
-      Testing_GameTests.Seed := seSeed.Value;
-      Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
-      Testing_GameTests.DelayValue := seDelay.Value;
+      thisTest.Duration := seDuration.Value;
+      thisTest.Seed := seSeed.Value;
+      thisTest.ThrottleRender := chkThrottleRender.Checked;
+      thisTest.DelayValue := seDelay.Value;
 
-      fResults := Testing_GameTests.Run(Count);
+      fResults := thisTest.Run(Count);
       fRunTime := 'Done in ' + IntToStr(GetTickCount - T) + ' ms';
     finally
-      Testing_GameTests.Free;
+      thisTest.Free;
     end;
   finally
     btnRun.Enabled := True;
@@ -272,8 +271,8 @@ var
   T, TotalT: Cardinal;
   TotalTestsRun: Integer;
   ID, Count: Integer;
-  Testing_GameTestsClass: TKMTestClass;
-  Testing_GameTests: TKMTest;
+  thisTestClass: TKMTestClass;
+  thisTest: TKMTest;
   I, K: Integer;
   resStr: string;
 begin
@@ -298,22 +297,21 @@ begin
     if fStopped then Break;
 
     ID := Integer(ListBox1.Items.Objects[K]);
-    Testing_GameTestsClass := gTestList[ID];
+    thisTestClass := gTestList[ID];
 
     if chkRender.Checked then
-      Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, IsStopped)
+      thisTest := thisTestClass.Create(RenderArea, IsStopped, HandleProgress)
     else
-      Testing_GameTests := Testing_GameTestsClass.Create(nil, IsStopped);
+      thisTest := thisTestClass.Create(nil, IsStopped, HandleProgress);
 
-    Testing_GameTests.OnProgress := HandleProgress;
     try
       T := GetTickCount;
-      Testing_GameTests.Duration := seDuration.Value;
-      Testing_GameTests.Seed := seSeed.Value;
-      Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
-      Testing_GameTests.DelayValue := seDelay.Value;
+      thisTest.Duration := seDuration.Value;
+      thisTest.Seed := seSeed.Value;
+      thisTest.ThrottleRender := chkThrottleRender.Checked;
+      thisTest.DelayValue := seDelay.Value;
 
-      fResults := Testing_GameTests.Run(Count);
+      fResults := thisTest.Run(Count);
       
       for I := 0 to Count - 1 do
       begin
@@ -324,14 +322,14 @@ begin
         end;
 
         if Count > 1 then
-          moResults.Lines.Append(Format('%s (Run %d): %s (%d ms)', [Testing_GameTestsClass.ClassName, I+1, resStr, GetTickCount - T]))
+          moResults.Lines.Append(Format('%s (Run %d): %s (%d ms)', [thisTestClass.ClassName, I+1, resStr, GetTickCount - T]))
         else
-          moResults.Lines.Append(Format('%s: %s (%d ms)', [Testing_GameTestsClass.ClassName, resStr, GetTickCount - T]));
+          moResults.Lines.Append(Format('%s: %s (%d ms)', [thisTestClass.ClassName, resStr, GetTickCount - T]));
       end;
       
       Inc(TotalTestsRun, Count);
     finally
-      Testing_GameTests.Free;
+      thisTest.Free;
     end;
     
     Application.ProcessMessages;
@@ -352,8 +350,8 @@ procedure TForm2.btnTryFoundSeedClick(Sender: TObject);
 var
   T: Cardinal;
   ID: Integer;
-  Testing_GameTestsClass: TKMTestClass;
-  Testing_GameTests: TKMTest;
+  thisTestClass: TKMTestClass;
+  thisTest: TKMTest;
   resStr: string;
 begin
   if ListBox1.ItemIndex = -1 then Exit;
@@ -369,25 +367,23 @@ begin
   moResults.Clear;
   PageControl1.ActivePage := TabSheet5;
 
-  Testing_GameTestsClass := gTestList[ID];
+  thisTestClass := gTestList[ID];
 
   while not fStopped do
   begin
     if chkRender.Checked then
-      Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, IsStopped)
+      thisTest := thisTestClass.Create(RenderArea, IsStopped, HandleProgress)
     else
-      Testing_GameTests := Testing_GameTestsClass.Create(nil, IsStopped);
-
-    Testing_GameTests.OnProgress := HandleProgress;
+      thisTest := thisTestClass.Create(nil, IsStopped, HandleProgress);
 
     try
       T := GetTickCount;
-      Testing_GameTests.Duration := seDuration.Value;
-      Testing_GameTests.Seed := seSeed.Value;
-      Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
-      Testing_GameTests.DelayValue := seDelay.Value;
+      thisTest.Duration := seDuration.Value;
+      thisTest.Seed := seSeed.Value;
+      thisTest.ThrottleRender := chkThrottleRender.Checked;
+      thisTest.DelayValue := seDelay.Value;
 
-      fResults := Testing_GameTests.Run(1);
+      fResults := thisTest.Run(1);
 
       case fResults.TestResults[0] of
         trSuccess: resStr := 'SUCCESS';
@@ -395,7 +391,7 @@ begin
         trException: resStr := 'EXCEPTION: ' + fResults.TestMessages[0];
       end;
 
-      moResults.Lines.Append(Format('%s (Seed %d): %s (%d ms)', [Testing_GameTestsClass.ClassName, seSeed.Value, resStr, GetTickCount - T]));
+      moResults.Lines.Append(Format('%s (Seed %d): %s (%d ms)', [thisTestClass.ClassName, seSeed.Value, resStr, GetTickCount - T]));
 
       if fResults.TestResults[0] = trFailed then
       begin
@@ -404,7 +400,7 @@ begin
       end;
 
     finally
-      Testing_GameTests.Free;
+      thisTest.Free;
     end;
 
     seSeed.Value := seSeed.Value + 1;
