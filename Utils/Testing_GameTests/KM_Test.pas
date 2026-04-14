@@ -61,7 +61,6 @@ type
     procedure TearDown; virtual;
     procedure CheckResult; virtual; abstract;
     procedure Execute(aRun: Integer); virtual;
-    procedure SimulateGame;
   public
     ThrottleRender: Boolean;
     Duration: Integer;
@@ -125,11 +124,43 @@ end;
 procedure TKMTest.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun+1);
-  SimulateGame;
+  try
+    var lastRenderTime := TimeGet;
 
-  CheckResult;
+    for var I := 0 to Duration*60*10 - 1 do
+    begin
+      gGameApp.Game.UpdateGame;
 
-  gGameApp.StopGame(grSilent);
+      if ThrottleRender then
+      begin
+        if (TimeGet - lastRenderTime) > 100 then
+        begin
+          gGameApp.Render(False);
+          lastRenderTime := TimeGet;
+        end;
+      end
+      else
+        gGameApp.Render(False);
+
+      if SKIP_RENDER and (DelayValue > 0) then
+        Sleep(DelayValue);
+
+      if not DoTick(I+1) then
+        Exit;
+
+      if Assigned(fOnStop) and fOnStop then
+        Exit;
+
+      if gGameApp.Game.IsPaused then
+        gGameApp.Game.Hold(False, grWin);
+
+      if (I mod 60*10 = 0) and Assigned(fOnProgress) then
+        fOnProgress(Format('%d (%d min)', [fRun + 1, I div 600]));
+    end;
+  finally
+    CheckResult;
+    gGameApp.StopGame(grSilent);
+  end;
 end;
 
 
@@ -193,43 +224,6 @@ begin
 
   if Assigned(fOnProgress) then
     fOnProgress('Done');
-end;
-
-
-procedure TKMTest.SimulateGame;
-begin
-  var lastRenderTime := TimeGet;
-
-  for var I := 0 to Duration*60*10 - 1 do
-  begin
-    gGameApp.Game.UpdateGame;
-
-    if ThrottleRender then
-    begin
-      if (TimeGet - lastRenderTime) > 100 then
-      begin
-        gGameApp.Render(False);
-        lastRenderTime := TimeGet;
-      end;
-    end
-    else
-      gGameApp.Render(False);
-
-    if SKIP_RENDER and (DelayValue > 0) then
-      Sleep(DelayValue);
-
-    if not DoTick(I+1) then
-      Exit;
-
-    if Assigned(fOnStop) and fOnStop then
-      Exit;
-
-    if gGameApp.Game.IsPaused then
-      gGameApp.Game.Hold(False, grWin);
-
-    if (I mod 60*10 = 0) and Assigned(fOnProgress) then
-      fOnProgress(Format('%d (%d min)', [fRun + 1, I div 600]));
-  end;
 end;
 
 
