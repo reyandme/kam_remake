@@ -71,7 +71,6 @@ type
     function Run(aCount: Integer): TKMRunResults;
     procedure AssertTrue(aCondition: Boolean; const aMessage: string);
     procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
-    procedure Fail(const aMessage: string);
     class function TestTags: TKMTestTagSet; virtual;
     class function TestDescription: string; virtual;
   end;
@@ -184,12 +183,6 @@ procedure TKMTest.AssertEquals(aExpected, aActual: Integer; const aMessage: stri
 begin
   if aExpected <> aActual then
     raise ETestFailed.Create(Format('%s (Expected: %d, Actual: %d)', [aMessage, aExpected, aActual]));
-end;
-
-
-procedure TKMTest.Fail(const aMessage: string);
-begin
-  raise ETestFailed.Create(aMessage);
 end;
 
 
