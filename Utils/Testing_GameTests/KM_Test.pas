@@ -52,7 +52,6 @@ type
 
   TKMTest = class
   protected
-    fRun: Integer;
     fResults: TKMRunResults;
     fOnProgress: TUnicodeStringEvent;
     fOnStop: TBooleanFuncSimple;
@@ -155,7 +154,7 @@ begin
         gGameApp.Game.Hold(False, grWin);
 
       if (I mod 60*10 = 0) and Assigned(fOnProgress) then
-        fOnProgress(Format('%d (%d min)', [fRun + 1, I div 600]));
+        fOnProgress(Format('%d (%d min)', [aRun + 1, I div 600]));
     end;
   finally
     CheckResult;
@@ -177,7 +176,6 @@ begin
     if Assigned(fOnProgress) then
       fOnProgress(Format('%d', [I]));
 
-    fRun := I;
     fResults.TestResults[I] := trSuccess;
     fResults.TestMessages[I] := '';
 
