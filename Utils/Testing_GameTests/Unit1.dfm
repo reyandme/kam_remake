@@ -12,7 +12,6 @@ object Form2: TForm2
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
   DesignSize = (
     1097
     641)

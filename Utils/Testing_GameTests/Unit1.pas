@@ -41,7 +41,6 @@ type
     procedure btnRunAllClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
   private
     fResults: TKMRunResults;
     fRunTime: string;
@@ -167,36 +166,6 @@ end;
 procedure TForm2.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(gLog);
-end;
-
-
-procedure TForm2.FormShow(Sender: TObject);
-const
-  LEFT_PARAM = '-left';
-  TOP_PARAM = '-top';
-var
-  I: Integer;
-  val: Integer;
-begin
-  I := 1;
-  while I <= ParamCount do
-  begin
-    if (paramstr(I) = LEFT_PARAM) then
-    begin
-      Inc(I);
-      if TryStrToInt(paramstr(I), val) then
-        Left := val;
-    end;
-
-    if (paramstr(I) = TOP_PARAM) then
-    begin
-      Inc(I);
-      if TryStrToInt(paramstr(I), val) then
-        Top := val;
-    end;
-
-    Inc(I);
-  end;
 end;
 
 
