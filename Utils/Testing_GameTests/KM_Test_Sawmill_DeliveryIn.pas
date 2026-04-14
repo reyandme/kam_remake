@@ -43,15 +43,15 @@ begin
   gHands[0].AddUnit(utSerf, KMPoint(10, 17));
 end;
 
+
 function TKMTest_SawmillDeliveryIn.DoTick(aTick: Cardinal): Boolean;
 begin
+  //todo: @LIFEFreedom at the moment, the code between DoTick and CheckResult is identical. Maybe this can be deduplicated?
   Result := True;
   var H := gHands[0].FindHouse(htSawmill);
   if H <> nil then
-  begin
     if H.ResIn[1] > 0 then
       Result := False;
-  end;
 end;
 
 
