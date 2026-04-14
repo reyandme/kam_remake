@@ -64,7 +64,7 @@ type
     procedure SetUp; virtual;
     procedure TearDown; virtual;
     procedure Execute(aRun: Integer); virtual; abstract;
-    procedure SimulateGame(aEndTick: Integer = -1);
+    procedure SimulateGame;
   public
     ThrottleRender: Boolean;
     Duration: Integer;
@@ -205,19 +205,14 @@ begin
 end;
 
 
-procedure TKMTest.SimulateGame(aEndTick: Integer = -1);
+procedure TKMTest.SimulateGame;
 var
   I: Integer;
   VLastRenderTime: Cardinal;
 begin
-  if (aEndTick = -1) then
-    aEndTick := fResults.TimesCount - 1
-  else
-    aEndTick := Min(aEndTick,fResults.TimesCount - 1);
-
   VLastRenderTime := TimeGet;
 
-  for I := 0 to aEndTick do
+  for I := 0 to fResults.TimesCount - 1 do
   begin
     fResults.Times[fRun, I] := TimeGet;
 
