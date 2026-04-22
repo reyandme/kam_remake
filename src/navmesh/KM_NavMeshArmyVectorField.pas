@@ -896,6 +896,9 @@ procedure TKMArmyVectorField.InitQueue(const aGroupsPoly: TKMWordArray; aCnt: Wo
 var
   K: Integer;
 begin
+  if aCnt = 0 then
+    Exit;
+
   Inc(fVisitedIdx);
   for K := 0 to aCnt - 1 do
     AddPolyToQueue(ffRally, aGroupsPoly[K]);
