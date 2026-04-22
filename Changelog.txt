@@ -23,6 +23,7 @@ KaM Remake Beta r_____ []
 + Fixed crash on trying to set Actions.AIEquipRate rate to a value higher than 65535 through dynamic script
 + Fixed and improved Readme style
 + Disabled some of the debugging features that impact game's performance, for future RC/final release
++ Fixed crash in AdvancedAI on trying to estimate a combat line when there are no groups close to it
 
 Campaigns:
 + Added French translations for 8 campaigns (and other minor corrections)
