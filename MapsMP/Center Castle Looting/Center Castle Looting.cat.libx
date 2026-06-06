@@ -1,0 +1,12 @@
+
+MaxID:9
+
+1:Al castell no hi ha ningú
+2:[$%s]%s[] ha estat buscant al castell %.2d:%.2d
+3:[$%s]%s[] va trobar %d %s a les ruïnes del castell!
+4:or
+5:escuts
+6:armadura de ferro
+7:espases
+8:piques
+9:ballestes

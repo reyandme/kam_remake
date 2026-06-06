@@ -1,0 +1,784 @@
+﻿0:Serradora
+1:Ferreria de ferro
+2:Ferreria d'armes
+3:Mina de carbó
+4:Mina de ferro
+5:Mina d'or
+6:El pescador
+7:Fleca
+8:Granja
+9:Llenyataire
+10:Ferreria d'armadures
+11:Magatzem
+12:Estables
+13:Escola
+14:Pedrera
+15:La metal·lúrgia
+16:Granja porcina
+17:Torre de vigilància
+18:Ajuntament
+19:Taller d'armes
+20:Taller d'armeria
+21:Barraques
+22:Molí
+23:Taller de setge
+24:Carnisser
+25:adoberia
+26:Sala d'entrenament
+27:Hostal
+28:Vinya
+29:Mercat
+30:Troncs d'arbres
+31:Pedres
+32:Fusta
+33:Mineral de ferro
+34:Mineral d'or
+35:Carbó
+36:Ferro
+37:Or
+38:Barrils de vi
+39:Blat de moro
+40:Pans
+41:Farina
+42:Cuir
+43:Salsitxes
+44:Porcs
+45:Pells
+46:Escuts de fusta
+47:Escuts de ferro
+48:Armadura de cuir
+49:Armadura de ferro
+50:Destrals de mà
+51:Espases
+52:Llances
+53:Piques
+54:Arcs llargs
+55:Ballestes
+56:Cavalls
+57:Peix
+58:Serf
+59:Llenyataire
+60:Miner
+61:Criador d'animals
+62:Pagès
+63:Fuster
+64:Forner
+65:Carnisser
+66:Pescador
+67:Obrer
+68:Pedrer
+69:Ferrer
+70:Metal·lúrgic
+71:Reclutar
+72:Milícia
+73:Lluitador de destral
+74:Lluitador d'espases
+75:Bowman
+76:Ballesta
+77:Portallances
+78:Pikeman
+79:Escolta
+80:Cavaller
+81:Bàrbar
+82:Rebel
+83:canalla
+84:Guerrer
+85:Vagabund
+86:Catapulta
+87:Ballista
+88:El serf subministra als vostres edificis les matèries primeres necessàries.||Tingueu en compte que ha d'existir una carretera de connexió entre els edificis.
+89:Per produir troncs d'arbre per a la serradora, necessiteu el llenyataire.||El llenyataire realitza la reforestació de manera independent.
+90:El miner extreu mineral de les mines de carbó, ferro i or.
+91:El criador d'animals utilitza blat de moro per criar porcs a la granja porcina i cavalls a les estables.
+92:El pagès planta i cull blat de moro a la granja.||També produeix vi a la vinya.
+93:El fuster treballa a la serradora, al taller d'armes i al taller d'armeria.||També construeix catapultes i balistes al taller del setge.
+94:El forner tritura el blat de moro en farina al molí.||També fa pa a la fleca.
+95:El carnisser fa embotits a la carnisseria i cuir a l'adoberia.
+96:El pescador captura peixos en masses d'aigua properes.
+97:L'obrer construeix edificis i carreteres. Simplement ressalteu la vostra ubicació preferida i executarà les vostres ordres automàticament.||També repara edificis danyats.
+98:Per subministrar als vostres treballadors el material suficient per construir carreteres i edificis, el picapedrer tallarà i tallarà pedres.
+99:El ferrer forja armes i armadures de ferro a les ferreries d'armes i armadures.
+100:El metal·lúrgic utilitza el carbó per refinar l'or i el mineral de ferro.
+101:El recluta es pot equipar com a soldat a la caserna.||També ocupa la torre de guaita.
+102:A la selecció d'edificis
+103:A la distribució de mercaderies
+104:A les estadístiques
+105:A opcions
+106:Torna enrere
+107:Edifici|Selecció
+108:Distribució|de mercaderies
+109:Estadístiques
+110:Opcions
+111:Carrega el joc
+112:Guarda el joc
+113:Segur que tu|vol renunciar|aquesta missió?
+114:Surt de la missió
+115:Torna enrere
+116:Configuració
+117:Surt de l'editor
+118:SFX
+119:Canvia el volum
+120:Canvia el volum
+121:Música
+122:Música activada/desactivada
+123:Desat automàticament
+124:Reproductor de música
+125:Pista anterior
+126:Pista següent
+127:Enderrocar
+128:Eliminar edificis/destacats
+129:Construeix una carretera
+130:Construir carreteres
+131:Camp d'arada
+132:Camps d'arada
+133:Distribuïu el camp de vi
+134:Distribuïu camps de vi
+135:Cancel·la
+136:Cancel·la l'entrenament actual
+137:Necessitats:
+140:Entrega
+141:Casa sota|construcció
+142:Destrueix
+143:De veritat ho vols|enderrocar aquest edifici?
+144:Destrueix l'edifici seleccionat
+145:Disminueix l'import de la comanda
+146:Augmentar l'import de la comanda
+147:Tipus de soldat anterior
+148:Següent tipus de soldat
+149:Equipa el tipus de soldat actual
+150:Propera professió
+151:Professió anterior
+152:Afegeix a la cua
+153:Activar/desactivar el lliurament de mercaderies
+154:Cost:
+155:Encendre/apagar la reparació de la casa
+156:Edifici no disponible en aquest moment
+157:Condició
+158:Gireu la tropa a l'esquerra
+159:Gireu la tropa a la dreta
+160:Atac ('a')
+161:Despatx tropa ('d')
+162:Subministrament de menjar a la tropa
+163:Comença un atac de tempesta
+164:Afegeix una línia
+165:Retira la línia
+166:Seleccioneu|grup
+167:Cancel·la
+168:Suprimeix
+169:Esborra el missatge actual
+170:Vés a
+171:Salta a la posició actual del missatge
+172:Tancar
+173:Tanca la finestra
+174:El vostre picapedrer no pot arribar a més dipòsits de pedra.
+175:Les vostres vetes de la mina de carbó estan esgotades.
+176:Les teves venes de mines de ferro estan esgotades.
+177:Les teves venes de mines d'or estan esgotades.
+178:El vostre llenyataire no troba més arbre per talar
+179:Aquesta casa no està ocupada.
+180:Aquesta tropa té molta gana, millor que es facin alguna cosa per menjar aviat!
+181:PAUSA
+182:Lliurament
+183:Construint carretera
+184:Camp d'excavació
+185:Construcció de camp de vi
+186:Aplanament del lloc de la casa
+187:Construint casa
+188:Reparació de casa
+189:Anant a casa
+190:Anant a la fonda
+191:Atacant casa
+192:Acomiadament
+193:Lluitant
+194:Atac de tempesta
+195:Atacant
+196:En moviment
+197:Inactiu
+198:Pedra minera
+199:Sembrar blat de moro
+200:Collir blat de moro
+201:Verema del raïm
+202:Pesca
+203:Tallar arbre
+204:Plantar arbre
+205:Esperit
+206:Ocupat
+207:Banya de l'Edat Mitjana
+208:Primavera
+209:llaüt
+210:Mercenari
+211:La princesa
+212:La reina
+213:Al Mercat
+214:Al camp de batalla
+215:Dansa de cort
+216:L'Exèrcit
+217:Al Castell
+218:Fanfares
+219:A la Cort
+220:Entrada
+221:Blau profund
+222:Lluitar
+223:Barris Reials
+224:Aristocràcia
+225:Al Port
+226:Viatge
+227:Campanyes
+228:Campanyes
+229:Comença la campanya!
+230:Juga a un mapa únic
+231:Mapa d'inici
+232:Tornar al menú
+233:Carrega la partida desada
+234:Multijugador
+235:Opcions
+236:Crèdits
+237:Sortir del joc
+238:Continua
+239:Reinicia la missió
+240:Resolució:
+241:No s'admet
+242:No s'admet
+243:VICTORIA!
+244:DERROTA!
+245:Unitats perdudes:
+246:Unitats derrotades:
+247:Edificis perduts:
+248:Edificis destruïts:
+249:Edificis construïts:
+250:Unitats formades:
+251:Armes produïdes:
+252:Soldats equipats:
+253:Missió completada a:
+254:Estadístiques
+255:Economia
+256:Ciutadans|entrenat
+257:Ciutadans|perdut
+258:Soldats|equipat
+259:Soldats|perdut
+260:Soldats|vençut
+261:Edificis|construït
+262:Edificis|perdut
+263:Edificis|destruït
+264:Mercaderies|produït
+265:Armes|produït
+266:Exèrcit
+267:Ciutadans
+268:Cases
+269:Recursos
+270:Recursos produïts
+271:Sense dades
+272:tu
+273:Jugador %d
+274:Torna a Multijugador
+275:Torna a les repeticions
+276:Tots
+277:La guerra
+278:Menjar
+279:ENTRETENIMENT JOYMANIA||PROGRAMACIÓ:|Peter Ohlmann||GRÀFICS DEL JOC:|Adam Sprys||DISSENY DE NIVELLS:|Adam Sprys|André Quaß||EDICIÓ DE SO I MIXTURA:|Tonstudio Mannheim||MÚSICA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||IL·LUSTRACIONS:|Boleslaw Kasza|Christoph Werner||TRADUCCIÓ:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCTOR:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||PROVA BETA:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRECTORA DE JOCS:|Achim Heidelauf||PUBLICAT PER:|TopWare Interactive||ESCENES DE CORTE:||DIRECCIÓ:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VEUS:|Claus Boyen (contacontes)||Tim Timmermann|Pere Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||OBRA D'ART:|Boleslaw Kasza|Adam Sprys||ANIMACIÓ D'OBERTURA:|Uwe Schäfer|Christian Bigalk|Modelatge 3D addicional:|Niels Horstmann||GRÀCIES ESPECIALS A:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+280:Missió cancel·lada
+281:La reproducció ha acabat
+282:Tutorial Ciutat
+283:Tutorial de batalla
+284:Un jugador
+285:Editor de mapes
+286:Comença la missió
+287:Títol
+288:Mida
+289:Condició de guany:
+290:Estat de derrota:
+291:Aliats:
+292:Enemics:
+293:Temps
+294:Nova mida del mapa
+295:Amplada
+296:Alçada
+297:Crea un mapa nou
+298:Mapes disponibles
+299:Carrega el mapa existent
+300:Ubicació
+301:Controls:
+302:Joc:
+303:So:
+304:Desactiva la música
+305:Gràfics:
+306:Brillantor
+307:Sincronització vertical
+308:Pantalla completa
+309:Aplicar
+310:Idioma:
+311:Qualitat de l'ombra:
+312:Baixa
+313:Alt
+314:Carregant... Espereu
+315:S'ha produït un error!
+316:S'està carregant la configuració regional nova
+317:Llista de partides guardades
+318:Nom del fitxer
+319:Descripció
+320:Carrega
+321:Suprimeix
+322:Esteu segur que voleu suprimir aquest desat?
+323:Suprimeix
+324:Cancel·la
+325:Títol
+326:Mapes
+327:Desbloquejat
+328:Has guanyat!
+329:Continua jugant
+330:Victòria!
+331:Has perdut!
+332:Continua mirant
+333:Derrota
+334:La repetició ha acabat
+335:Continuar mirant
+336:Surt al menú
+337:No disponible
+338:Premeu %s per reprendre el joc
+339:Informació dels jugadors
+340:Xatejar
+341:Desar ja existeix
+342:Sobreescriure
+343:Desa
+344:Carrega
+345:S'ha detectat una versió antiga d'OpenGL, el joc pot funcionar lentament i/o amb defectes gràfics
+346:Actualitzeu els controladors gràfics per obtenir un millor rendiment
+347:Error de xarxa:
+348:Error: el nom del jugador no ha d'estar en blanc
+349:Error: el nom del jugador no ha de tenir més de %d caràcters
+350:Error: el nom del jugador conté caràcters il·legals
+351:La connexió ha fallat: %s
+352:T'has desconnectat
+353:Missió %d
+354:Registre de missatges
+355:La vostra cabana de pescador està massa lluny de l'aigua.
+356:El vostre pescador no pot pescar cap més peix a l'aigua propera.
+357:Reinicia la reproducció
+358:Posa en pausa la reproducció
+359:Pas 1 marca endavant
+360:Reprèn la reproducció en pausa
+361:Surt de la reproducció
+362:Canvia la perspectiva del jugador individual
+364:Utilitzeu el botó esquerre del ratolí per seleccionar la mercaderia per negociar
+365:Utilitzeu el botó dret del ratolí per seleccionar la mercaderia per negociar
+366:De x%d
+367:A x%d
+368:Edició del terreny
+369:Pinzells
+370:Altures
+371:Rajoles
+372:Objectes
+373:Altures
+374:Forma de pinzell
+375:Mida
+376:Feu lliscar per canviar la mida del pinzell
+377:Pendent
+378:Llisca per canviar de pendent: 1 = altiplà ... 15 = cim
+379:Velocitat
+380:Llisca per canviar la velocitat d'elevació: 1 = lent ... 15 = molt ràpid
+381:Raspall en forma de cercle
+382:Raspall de forma quadrada
+383:Elevar / Baixar
+384:Desigualitzar / Aplanar
+385:Elevar (clic esquerre) / Baixar (clic dret)
+386:Desigualitzar (clic esquerre) / Aplanar (clic dret)
+387:Raspall
+388:Elements aleatoris
+389:Direcció aleatòria
+390:Marqueu la direcció de la fitxa aleatòria o feu clic amb el botó dret per girar la fitxa seleccionada
+392:Caminar al bloc
+393:Eliminar un objecte
+394:Planificació del poble
+395:Guions visuals
+396:Escriptura global
+397:Menú
+398:Objectes
+399:Mostra els dipòsits
+400:Mostra unitats
+401:Mostra cases
+402:Mostra objectes
+403:Veure la transitabilitat
+404:Qualsevol no desat|els canvis es perdran
+405:Cancel·la
+406:Carrega
+407:Carrega el mapa
+408:Cancel·la
+409:Desa
+410:Sobreescriure
+411:El mapa ja existeix
+412:Jugadors:
+413:Per defecte
+414:Tipus de jugadors
+415:Simètric
+416:Aliances
+417:Tàctica
+418:Normal
+419:Mode missió
+420:Salta a la ubicació
+421:Pantalla central a l'inici de la missió
+422:Pantalla central
+423:Revelar-ho tot
+424:Mostra una part del mapa
+425:Revela la boira
+426:Bloc de comerç
+427:Bloquejar/alliberar cases
+428:Colors
+429:Gol
+432:Jugador
+433:Edificis d'economia
+434:Serfs i escoles
+435:Actius militars
+436:Desconegut
+437:Tropes
+438:Edificis
+439:Temps
+440:Tutorial de construcció
+441:Cap
+442:Condició
+443:Sobreviure
+444:Victòria
+445:Cap
+446:Tipus
+447:Gols
+448:D'acord
+449:Cancel·la
+450:Columnes
+451:Compte
+452:Formacions de tropes
+453:Edita formacions
+454:Estableix un límit a quants soldats pot tenir la IA
+455:Quants soldats pot tenir la IA alhora
+456:Estableix màx. soldats
+457:Quants reclutes hauria de tenir l'IA a les casernes
+458:Recruits per Barracks
+460:Posició personalitzada
+463:Unitat més propera
+465:Recompte de grups
+466:Informació d'atac
+468:Repetint
+469:Una vegada
+470:Muntat
+471:A distància
+472:Anticavall
+473:cos a cos
+474:Loc.
+475:Objectiu
+476:Homes
+477:Retard
+478:Tipus
+479:Autoatac
+480:Atacs d'IA
+481:Equip de pell
+482:Equip de planxa
+483:Autodefensa
+484:La IA crea i gestiona les posicions de defensa automàticament
+485:Col·loca la posició de defensa per a la IA
+486:Posicions de defensa de l'IA
+487:Obrers
+488:Serfs per 10 cases
+489:Reparació automàtica
+490:Construcció automàtica
+491:Configuració de l'IA
+492:Cases
+493:Obres vials
+494:Selecció de volta vertical
+495:Gira la selecció horitzontalment
+496:Terreny enganxat
+497:Copia el terreny
+498:Copiar/enganxar
+499:Nova Missió
+500:Nom del jugador
+501:Estat:
+502:Crea servidor
+503:CREAR SERVIDOR
+504:Nom
+505:Port
+506:Crea un servidor local
+507:Crea un servidor d'Internet
+508:Cancel·la
+509:Cerca el servidor per IP
+510:TROBAR EL SERVIDOR
+511:Adreça
+512:Port
+513:Habitació
+514:Connecta't
+515:Cancel·la
+516:Sala protegida amb contrasenya
+517:Contrasenya
+518:Nom del servidor
+519:Estat
+520:Jugadors
+521:Ping
+522:Actualitza la llista de servidors
+523:DETALLS DEL SERVIDOR
+524:Llista de jugadors:
+525:Uneix-te
+526:S'està connectant, espereu...
+527:S'estan carregant anuncis...
+528:Refrescant...
+529:Llista de jugadors
+530:Ubicació inicial
+531:Equip
+532:Color
+533:A punt
+534:Ping
+535:Ping / FPS
+536:Obert
+537:Jugador AI
+538:Selecciona...
+539:Aleatori
+540:Cap
+541:Joc desat
+542:Seleccioneu un mapa...
+543:Seleccioneu un desat...
+544:Surt del vestíbul
+545:A punt
+546:No llest
+547:Comença!
+548:Velocitat del joc (temps de pau)
+549:Velocitat del joc
+550:D'acord
+551:Cancel·la
+552:Descripció
+553:Contrasenya
+554:Configuració de l'habitació
+556:Prohibició d'aquest vestíbul
+557:Patada
+558:Aleatoritzar ubicacions dins dels equips
+559:Descripció
+560:Opcions
+561:Ubicació %d
+562:Error: si us plau, seleccioneu un jugador del desat per controlar
+563:Error: no s'ha pogut carregar el mapa o no s'ha seleccionat cap mapa
+564:No es pot iniciar: %s
+565:No tothom està preparat per començar
+566:No es poden assignar ubicacions aleatòries
+567:El servidor t'ha assignat drets d'allotjament
+568:El joc va començar
+569:Mapa de l'edifici
+570:Mapa de lluita
+571:Mapa cooperatiu
+572:Mapa especial
+573:Opcions de joc:
+574:Temps de pau (minuts)
+575:Tancat
+576:L'amfitrió fa la configuració del reproductor
+577:Esperant jugadors:
+578:Tots
+579:Equip
+580:KaM Remake Crèdits
+581:Crèdits originals de Knights & Merchants
+582:PROGRAMACIÓ:
+583:ADDITIONAL PROGRAMMING:
+584:GRÀFICS ADDICIONALS:
+585:SONS ADDICIONALS:
+586:MÚSICA ADICIONAL:
+587:TRADUCCIONS ADDICIONALS:
+588:GRÀCIES ESPECIALS A:
+589:Mapes multijugador
+590:Mapes per a un jugador
+591:Velocitat de desplaçament
+592:No s'han trobat servidors
+593:Barreja les pistes
+594:Informació del joc:
+595:-
+596:Vestíbul
+597:Carregant
+598:Joc
+599:Construir i lluitar
+600:Lluitant
+601:A punt
+602:Versió del protocol incorrecta: %s. Usos del servidor: %s
+603:Augmentar la quantitat comercial
+604:Disminuir la quantitat comercial
+605:S'està desant la partida...
+606:%s va ser derrotat!
+607:Deixa anar jugadors
+608:L'amfitrió podrà deixar aquests jugadors després de %d segons
+609:Ara l'amfitrió pot deixar caure aquests jugadors
+610:L'amfitrió (%s) ha sortit
+611:S'ha perdut la connexió amb el servidor. S'està intentant tornar a connectar...
+612:Estàs segur que vols deixar-ho?
+613:Confirmes que vols eliminar aquests jugadors permanentment?
+614:Cancel·la
+615:El comerç d'aquest recurs no està disponible en aquesta missió
+616:Plantar i caure
+617:Només va caure
+618:No pots fer-ho en temps de pau
+619:Temps de pau restant: %s
+620:S'ha acabat el temps de pau. A les teves armes!
+621:Temps de joc:|%s
+622:Atura la tropa ("%s")
+623:Enllaça la tropa ("%s")
+624:Tropa separada ("%s")
+625:Visor de reproducció
+626:Visualitza la reproducció
+627:Format no compatible %s
+628:Versió no compatible %s
+629:Modificacions no admeses
+630:S'ha produït un error en analitzar el fitxer %s
+631:inicialitzant
+632:guió
+633:unitats
+634:cases
+635:arbres
+636:definicions
+637:conjunt de rajoles
+638:No s'ha trobat el mapa: %s
+639:No s'ha trobat desar: %s
+640:Els fitxers de mapa no coincideixen amb l'amfitrió del mapa: %s
+641:Desar el fitxer no coincideix amb l'amfitrió per al desar: %s
+642:La repetició ha fallat una comprovació de coherència. Aquest és un error conegut que afecta la reproducció d'algunes repeticions. Vols continuar mirant?
+643:Només pots tenir una instància del joc en mode multijugador alhora
+644:No es permeten modificacions al joc en multijugador.|Torneu a instal·lar-lo per restaurar els fitxers originals.
+645:S'ha produït un error a l'aplicació. Feu clic a Envia un informe d'error perquè puguem investigar aquest problema. Gràcies per la teva ajuda!
+646:Envia un informe d'error
+647:Mostra les dades en brut
+648:Currículum de sol·licitud
+649:Finalitzar l'aplicació
+650:A continuació
+651:Dades de contacte
+652:El teu nom: (opcional)
+653:El teu correu electrònic: (opcional)
+654:Recorda'm
+655:Detalls de l'error
+656:En quina situació es va produir l'error? Pots aportar alguna informació addicional? (preferiblement anglès)
+657:Captura de pantalla
+658:Adjunteu una captura de pantalla a l'informe d'error
+659:(clica per editar la imatge)
+660:Enviar informe
+661:Cancel·la
+662:S'està enviant un informe d'error...
+663:S'està connectant al servidor...
+664:S'estan enviant dades...
+665:No s'ha pogut enviar l'informe d'error! És possible que el nostre servidor estigui ocupat, si us plau, proveu d'enviar-lo de nou.
+666:Informació
+667:Si us plau, espereu un moment...
+668:Desa el mapa
+669:Retard en minuts abans que l'IA comenci a entrenar els reclutes
+670:Recruit delay (mins)
+671:Estableix la direcció de totes les fitxes d'una massa d'aigua
+672:Aigua màgica
+673:Còpia
+674:Enganxa
+675:Enganxa aplicar
+676:Enganxa cancel·la
+677:Gira verticalment
+678:Gira horitzontalment
+679:Arrossegueu per seleccionar una àrea del mapa
+680:Opcions de defensa de la IA
+681:Apagat
+682:Radi
+683:Suprimeix el revelador actual
+684:Torna a la pàgina de boira de revelació
+685:Tancar
+686:Ordre grupal
+687:Cap
+688:Posició d'atac
+689:Caminar cap a
+690:Direcció
+693:Radi de defensa
+694:Suprimeix la posició de defensa actual
+695:Torna a la pàgina de defensa
+696:Posició de defensa
+697:Unitats
+698:Llop
+699:Peix
+700:Serp d'aigua
+701:Estrella de mar
+702:Cranc
+703:Flor d'aigua
+704:Fulla d'aigua
+705:Ànec
+706:Aquest tipus de soldat no està disponible
+707:Aquest tipus d'unitat no està disponible
+708:Unitats de bloc
+736:Descarregar
+737:baixant...
+738:Sobreescriu els fitxers existents
+739:%s s'ha perdut la connexió
+740:%s ha sortit
+741:%s s'ha tornat a connectar
+742:No es pot unir mentre el joc està en curs
+743:L'habitació està plena. No es poden unir més jugadors al joc
+744:El jugador amb el mateix nom ja s'ha incorporat a la sala
+746:Error: %s té fitxers de dades diferents a l'amfitrió i, per tant, no pot unir-se a aquest joc
+747:Els vostres fitxers de dades no coincideixen amb l'amfitrió
+748:Drets d'allotjament reassignats a %s
+749:%s té una versió diferent de %s
+750:%s no té %s
+751:La consulta s'ha esgotat
+752:L'amfitrió ha eliminat %s del joc
+753:%s va ser expulsat per l'amfitrió
+754:S'està intentant tornar a connectar-se al joc...
+755:%s s'ha unit
+756:No s'ha pogut tornar a connectar: ​​%s
+757:L'amfitrió va decidir continuar jugant sense tu :(
+758:Desconnectat pel servidor: s'ha detectat el temps d'espera
+759:L'amfitrió et va donar una puntada de peu
+760:El servidor ha deixat de respondre
+761:Número d'habitació no vàlid
+765:Xiuxiueja a %s
+766:%s va ser prohibit d'aquest vestíbul per l'amfitrió
+767:L'amfitrió et va prohibir
+768:Restableix totes les prohibicions
+769:L'amfitrió restableix totes les prohibicions d'aquest vestíbul
+770:Data
+771:Mostra la boira
+772:Espectacular
+773:Espectador
+774:Interval d'atac automàtic
+775:Els grups d'IA atacaran automàticament si esteu més a prop que tantes fitxes
+776:Defensa els aliats
+777:Si està activat, la IA defensarà les unitats i cases dels aliats com si fossin pròpies
+778:Permetre als espectadors
+779:Promocionar a amfitrió
+780:Espectadors
+781:No es poden desactivar els espectadors: la llista d'espectadors ha d'estar buida
+782:Refer
+783:Desfer
+784:Estableix la posició inicial de l'IA que s'utilitza per orientar atacs d'IA
+785:Posició inicial de l'IA
+786:Ordre
+788:Retard inicial (segons)
+790:La casa més propera de l'exèrcit
+791:La casa més propera des de la posició inicial
+792:Atacants
+793:Defensors
+794:Espectadors
+795:Per jugar a una missió de campanya desbloquejada prèviament, seleccioneu la bandera de la missió al mapa informatiu de la campanya
+796:%s va votar per tornar al vestíbul (cal %s més vots)
+797:Vota per tornar aquesta sala al vestíbul. Aleshores, el joc es pot reprendre o canviar
+798:Vota Anar al vestíbul
+799:%s ha votat per tornar al vestíbul (votació aprovada)
+800:La votació per tornar al lobby va fracassar
+801:Si suprimeixes una reproducció, també s'elimina el desat associat. Esteu segur que voleu suprimir aquest desat?
+802:Prendre a l'atzar
+803:Nombre de soldats a atacar
+804:Suprimeix la reproducció
+805:Suprimeix el mapa
+806:Esteu segur que voleu suprimir aquest mapa?
+807:Amaga la superposició amb guió
+808:Mostra la superposició amb guió
+809:No podeu canviar d'amfitrió quan el servidor s'està executant al vostre client
+810:La IA crea i gestiona atacs automàticament
+811:Equipament ràpid
+812:Els soldats estan equipats tan ràpid com sigui possible. Les tarifes d'equipament encara afecten la planificació del poble
+813:Aplica els valors predeterminats d'IA
+814:Constructor multijugador
+815:Aplica una configuració agressiva del creador d'IA a tots els jugadors (per a mapes de construcció multijugador)
+816:Avís: això anul·larà tota la configuració de l'IA existent per a tots els jugadors. Continuar?
+817:Tipus d'exèrcit
+818:Ferro després cuir
+819:Ferro
+820:Cuir
+821:Mixt
+822:Mapes descarregats
+824:Mou-te
+825:Veure PDF Readme
+826:No s'ha pogut iniciar el visualitzador de PDF
+827:Estableix el recompte de serfs per cada 10 cases per a un jugador d'IA especificat. L'IA seleccionada té cases %d
+828:Error: el fitxer en pausa de l'amfitrió no coincideix amb el fitxer en pausa local. S'ha produït un error o és possible que l'amfitrió estigui intentant fer trampes.
+829:La comanda s'ha completat
+830:Carregueu tipus de lletra asiàtiques
+831:Sortiu de les descàrregues

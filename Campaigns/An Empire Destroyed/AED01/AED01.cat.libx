@@ -1,0 +1,15 @@
+
+MaxID:11
+
+0:Senyor, les forces enemigues estan començant el seu setge a la capital. Hem de preparar les defenses.
+1:Senyor, s'han detectat enemics al nord-est!
+2:Senyor, s'han detectat enemics al nord-oest!
+3:Senyor, s'han detectat enemics al sud-est!
+4:Senyor, s'han detectat enemics al sud-oest!
+5:Senyor, els enemics ataquen des de totes direccions alhora!
+6:Senyor, els traïdors s'han infiltrat al castell! Els hem de repel·lir a tota costa!
+7:Senyor, l'enemic ens aclapara, no podem salvar la capital. Hem d'escapar.
+8:Senyor, ens hem de retirar al nostre castell, aquesta és la nostra última línia de defensa. No hi haurà caiguda enrere. 
+9:[$%s]Objectiu :[] Defensar els magatzems
+10:[$%s]Objectiu:[] Retirar-se al castell i defensar les muralles del castell
+11:[$%s]Objectiu :[] S'ha perdut el capital, no hi ha res que puguis fer

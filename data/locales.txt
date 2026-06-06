@@ -3,6 +3,7 @@
 bel,    Belarusian,           1251,     0,         71,           ,                Mik0
 ptb,    Brazilian Portuguese, 1252,     0,         48,           ,                |Vinycius Maia & Edson Hoffmann Junior
 bul,    Bulgarian,            1251,     0,         58,           ,                Christian & Boyan
+cat,    Catalan,              1252,     0,         0,           eng,		  Júlia Rosell Saldaña
 chn,    Chinese,              1252,     1,         69,           ,                [CN] Team 团队
 cze,    Czech,                1250,     0,         49,           svk,             Jolinar_CZ, Milan Molnar,|Jan Minarik & Vatrix
 dut,    Dutch,                1252,     0,         55,           ,                xzaz & Tom
@@ -10,7 +11,7 @@ eng,    English,              1252,     0,         45,           ,
 est,    Estonian,             1252,     0,         59,           ,                Ingvar & Eva
 fre,    French,               1252,     0,         51,           ,                Sylvain Domange & Shadaoe
 ger,    German,               1252,     0,         46,           ,                The Knight
-hun,    Hungarian,            1250,     0,         57,           ,                Osi Attila (Jecy), Máté
+hun,    Hungarian,            1250,     0,         57,           ,                Osi Attila (Jecy)
 ita,    Italian,              1252,     0,         50,           ,                Esthlos
 jpn,    Japanese,             1252,     1,         72,           ,                Guilherme Antunes da Silva
 kor,    Korean,               1252,     1,         78,           ,                Petrus K.
