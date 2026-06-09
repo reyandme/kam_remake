@@ -1,0 +1,133 @@
+﻿0:PARTES: Ipse Clodoveus rex te vocat, Lotharium, militem novum, qui modo primam tuam legationem exercuit. Discrimen continentis cotidie peius est ac regnum te indiget! Litterae sigillum regium hodie mane redditum est tibi.
+1:AREA: Locus es praesens in arce regia interiorem repraesentat. Incipis nullo exercitu, sed eques, quem reges, omnes copias tuas ac mores tuos, Lothar.
+2:TUTORIAL: Cum datoribus quaerentibus loqui, tibi proximus esse debes et historia proficiet. Mandata pro singulis missionibus sequere. Nunc enim te rex exspectat, ille a duobus pilis munitus est in parte sinistra cubiculi inferioris, ad latus eius eundum. Serva saepe nec epistulas delere.
+3:Loquere debes cum rege Clodoveo.
+4:Rex Clodoveus: Salve Lotharius, novus miles noster! Tempora obscura et gravia erunt tibi, tu adhuc novitus es, sed multi ex nostris militibus periti in proelio ceciderunt. Hoc tempore do tibi potestatem parvam exercitum imperandi.
+5:Rei Clovis: Ara pots entrar a la zona de reclutament del castell, situada a l'última sala del passadís, allà podràs aconseguir un exèrcit decent, però amb un cost. També et dono 1000 monedes d'or i si ets bé el nostre regne, guanyaràs més.
+6:Rex Clodoveus: Venite ad me, redactis quibusdam copiis, plusquam XV viri officium facere debent, et primam missionem tibi dabo!
+7:Clodoveus rex cooptationem tibi aperuit aream;|sita in cella castri, veni et vide |eum iterum, cum conscripseris saltem XV viros.
+8:Rex Clodoveus: Magna, video te armatam convenisse! Querelam accepimus de villa piscatoria, rogant nos ut aliquem mittamus, et erit vestra prima missio.
+9:Rex Clodoveus: Vicani cum aliis oppidis si nemo venerit defectionem minantur, ergo haec est magni momenti missio, quam si efficias multo difficilius erit.
+10:Rex Clodoveus: Ite ad vicum, qui est inter septentriones urbis et iuxta oram maritimam sita, et videte quid inter vicani odii causa sit!
+11:Rex Clodoveus te misit ut scias quid sit|fieri in villa piscationis ad septentriones|ex urbe, ite huc quantum|fieri!
+12:Homo in castris sylvis: Salve vir, in nostra es terra, sed quia legis legatus hic toleratus es, etsi non expectas nos tibi quidquam facere, quod hic agitur, nihil negotii est.
+13:Iratus Piscator: Tu mitto tibi caput? Denique!! Tempora dura sunt rusticis et multi de defectione loquuntur! Mutare debes condicionem quam primum potes aut regnum franget!
+14:Iratus Piscator: Nos unam summam sollicitudinem habemus in momento. quidam patores castra in silva prope urbem posuerunt. Cum caput nostrum numquam adiuverit, se tutum putant, ideo non longe ab arce castra fecerunt!
+15:Piscator iratus: adiuva nos et fures necate! Si feceris, redimus ad laborem, sed plus auxilio indigebimus a rege, et nuntium mittes ei a nobis si acceperis. Ire hos malos guys interficere!
+16:Vicani te misi ad latrones interficere|sita in silva castra septentrionem versus|capitis eliminare et castra|humi!
+17:Latronis: Vis nos oppugnare? Canis regis morieris.
+18:Latronis: Non tu primus es qui agricolas defendere volet, veni, et alios adiunge!
+19:Piscatori iterum convenias et dic ei te accepisse, ad vicum quam celerrime i!
+20:Vade ad villam et loquere|piscatorem
+21:Piscator: Sic obtinuit eam? Tandem cum his latrociniis aggressus sumus! Omnes nostri tibi, domine, sempiterne sunt gratissimi, et de rebus maximis disserere velim.
+22:Piscator: Potesne nobis litteras mittere ad Clodoveum regem? Petitio est a multis oppidis in oriente, plures stationes petens et multum attentius nobis!
+23:Piscator: Nihil amplius tibi offerre possumus quam pignus a nobis semper bene acceptum esse!
+24:Redi in arcem, tolle agricolam|rogant Clodoveum regem, et exspectant|adiectis mandatis.
+25:Rex Clodoveus: Nonne ad villam pergis? Latrones ais... bene expediam. Mensis fuit ex quo latrones alterius continentis ad regnum nostrum depraedandum venerunt.
+26:Rex Clodoveus: Omnia Occidentalia oppida latrociniis emissa, exercitum ubique misimus, et multos milites in proeliis expertos amisit. Latronis vis a te interfecta esse necesse est.
+27:Rei Clovis: És cert que durant aquest període no vam enviar tropes per protegir els pobles occidentals, però també vam haver de protegir la capital d'algunes incursions, si la capital era destruïda, el nostre regne debilitat cauria en el caos!
+28:Rex Clodoveus: Ut scis ab anno superiore, vasallus Orientalis noster maximus vasallus, a regno nostro secedere conatur! Vereor ne, si vere bellum indicet, hic erit finis pacis, quam habuimus per decades in continenti nostro et quod quisque suum regnum cupiet.
+29:Rex Clodoveus: Magnum opus habebis antequam vasallum curaveris, ex australi eremo auri fodinas quotidianas non accepimus, quid factum sit probamus! Sita est in continenti inter meridiem et occidentem.
+30:Rex Clodoveus: Ad petitionem rusticorum consentio et custodias ad omnes villas mittam et vectigalia in annum proximum redigo. Faciam ut sciam te rogatum agricolae attulisse.
+31:PARTES: Regnum habet auctoritatem centralem in persona Clodovei regis ac etiam per caput repraesentatum. Sunt autem vasalli, qui habent partes regnorum, repraesentantes antiquas tribus continentium cum non fuerit unita.
+32:PARTES: Vasallus orientalis maximus est in regno, est res praepotens, quae multa arma toti regno praebet. Nuper ad eorum apicem contentiones, nec amplius pacisci, regem minitantes.
+33:PARTES: Desertum meridionale notum est aurifodinis suis, a reliquo regno remotum est sed pars magna oeconomiae est. Praefectus eremi fodinarum famam quotidie ad urbem mittit.
+34:Vade in solitudinem et quaere famam|auri metalla non penetravit|in castro Sita est ad meridiem|continens
+35:TUTORIAL: Per lluitar amb una tropa cal apropar-se al personatge que representa aquesta tropa. Actualment, aneu al campament forestal i apropeu-vos a cada bandoler per lluitar, les vostres tropes i les seves tropes es col·locaran en un camp de batalla. Si perds la batalla, perds el joc.
+36:TUTORIAL: Nunc arcem relinquere potes. Exire, accede prope portam castri in summo lobby (area nigra). Cum exeatis, etiam accessus castri introitum redire potes.
+37:ERECTUS: Cum per portam castelli intraveris, in tabula globali es. Haec tabula totius mundi casus significat! Finge singulas domos esse sarcinas domorum, unumquemque servum esse commeatum vel coetus hominum gerentium bona.
+38:SCOPA: Videbis in urbe principe, ubi castrum situm est, hoc non multum simile in tabula globali, sed ut urbem magnam finge, imaginatio tua est amicus optimus navigare et te in hoc mundo immergere. Eques tuus mores, Lotharius, tuos.
+39:ROL: Duo sunt in mundo continentes, unum cubile latronis, quo nemo per generationes praeter malas latinas abiit. Altera continens prosperum est ex multis hostium gentibus conflatum, sed pax cum autoritate centrali abhinc decenniis emersit.
+40:ROL: Est autem rex continentis et non est conflictus internus. Tempora laeta fuerunt, donec anno praeterito cessavit vassallus orientis tractatui cum aliis entibus regni et latrociniis ab alio continente ab ultimo mense advenientibus. Duo continentes cuniculo summersus conexi sunt.
+41:PARTES: In proelio et super iacentibus cadaveribus, vidistis viros qui adorti sunt metalla auri, scutum orientis gerentes! Debes regem statim certiorem facere!
+42:Aggressus es cuneis|orientale vassallus, te certiorem facias|Rex quam celerrime!
+43:Rex Clodoveus: Orientale vassallum turmam dicis? Nonne auri metalla aggredi audent? expertam turmam ad tuendam illam mittam! Nunc mihi multo maius aliquid faciendum.
+44:Novitas
+45:Patrolman
+46:Rex Clodoveus: Pro altera missione plures copias et meliores copias habebis. Hoc tempore tibi Ordinem Equitis Patrols do, ut Regno nostro servias, sicut iam fecisti! Vade ad aream reficiendam, his copiis indigebis.
+47:Rex Clodoveus: Nunc de ipsa legatione. Te peto ut castrum obsideas et me maledictum hunc Dominum Childebertum vivum afferas ut unitatem restituam! Bellum publice declaratur et certe in arce sua terrebitur.
+48:Rex Clodoveus: Haec difficilis missio est et putes me mitto te ad mortem tuam. Prope certum est, non possum aliquem ex quinque peritis equitibus et consiliariis amittere, qui necessarii erunt ad pacem restituendam.
+49:Rex Clodoveus: Quam ob rem tibi misi, tu es promissis nostris novis militibus, et probasti quod scias imperare vim, et ideo non sum sollicitus de te, hunc proditorem ad me adduc, et magnam dignitatem habebis. 580. Do tibi aurum ut te adiuvet.
+50:Ad orientem est finis castri|domini Childeberti proditoris ! Impetum in|castrum et cape illud capital!
+51:Rex Clodoveus: Arx ad extremum continentis Orientem sita, non potes carere. Noli oblivisci plenam agmen, fortuna!
+52:TUTORIAL: Oportet omnes milites in socors vendere antequam genus militis mutetur, etiam si vis militis genus upgrade postquam Rex magis promptus est! Exempli gratia: militias emisti, nunc praesto non sunt, eas vendere debes antequam secures emat.
+53:PARTES GAME: Obsidione vicit et arcem diripuit, sed Dominum Childebertum invenire non potuisti. Ignavum esse oportet antequam venisti! Hoc malum nuntium regi debes accipere.
+54:Vicisti obsidionem sed non invenisti|Domine Childeberte, dic regi.
+55:Rex Clodoveus: Hic Dominus Childebertus... ubicunque se occultaverit, pro suis sceleribus poenas dabit. Me proditorem non attulisti, sed culpa tua non fuit, obsidere arcem feliciter, quod magnum est bellum feliciter evenisse.
+56:Rex Clodoveus: titulum novum tibi dabo, nunc Explorer eris! Novas copias conscribere potes. Sed mihi nuntium pessimum, latrones in cuniculo inter duas continentes visi sunt, debes custodiam in cuniculi ostio firmare!
+57:Rei Clovis: Bona sort, Lothar. El túnel es troba prop d'un poble que va ser cremat durant els atacs del mes passat, al sud-est de la capital. Et dono 1600 d'or per ajudar-te a aconseguir un exèrcit. No entris al túnel encara, només ajuda els guàrdies!
+58:Vade ad meridiem capitis et invenies|cuniculi introitus, custodibus auxilium|lineam tene!
+59:Custodi: Miser miles, rogo te ne hanc speluncam ingrediaris, iussu Regis signatus est.
+60:Rimor
+61:PARTES: Cum ad cuniculum accedis, animadvertis custodes esse mortuos, rus tacet, et tria castra latronum iuxta cuniculi ostium sedent! Necessitatem sentis opprimendi causa regni!
+62:Custodes occisi sunt, illos vindicate!|Omnes tres latronis exercitus perdere.
+63:Clodoveus rex: Iterum gratias ago Lothario quod regnum defendas, hoc furor nunquam finiet... Defensarum rerum curabo, neve latrones a cuniculo rursus redire possint. Tutela ero in ordinanda defensione, me consiliario meo militare debes, Domine Chilperic.
+64:Rei Clovis: Segons els nostres patrullers, queden tropes de bandits al costat occidental del continent, probablement van formar part de l'últim atac del túnel de bandits. Et dono 1100 d'or per ajudar-te en les teves tasques.
+65:MAGNUS: Dominus Chilperic hoc nuntium tibi mittit.
+66:Invenias Dominum Chilperic|castrum, et loquere ei. ipse est|prope cella castri.
+67:JEU DE OFFICIO: Praedones repellere potuistis, princeps vester de hoc impetu scire debet. Festina ad arcem.
+68:Vade ad castrum et loquere ei|Rex
+69:Dominus Chilpericus: Audivi a te Lothario, elementum pollicens esse videris; Id quod necesse est ut hunc latronem spumae interficerent! Nonnulli latronum sarcinae adhuc in regno nostro sunt, hoc impunitum esse non potest. Audita habemus, et scimus ubi sint.
+70:Dominus Chilperic: Iam milites misimus ut aliquos ex eis eliminarent, sed tres latrones copiae in occidentali parte continentis relictae sunt, unus in deserto et duo in aquilone, omnes occide!
+71:Tres latrones latrones occidere debes, unum|in eremo, illi in|Chorum continentis.
+72:Latronis: Parva miles moritur!
+73:PARTES: Exercitus quos pugnavistis commissos latronum et militum ex exercitu Domini Childeberti! Dic Domine Chilperic iurgia tua.
+74:Dominus Chilpericus eget fama|tua bella
+75:Defensor regni
+76:Dominus Chilperic: Dominus Childebert videtur in secunda continente cepisse principatum et copias latrociniis imperare! Hanc damnare stulte ante sera debemus prohibere. Vade ad secundum continentem per cuniculum.
+77:Domine Chilperic: Tibi do titulum et numisma Defensoris regni, honor es exercitus nostri. Suspicamur Dominum Childebertum in castro suo lateturum et inordinatos milites fore.
+78:Lord Chilpéric: Et necessitem a la batalla final, colpejarem el castell tots junts! Si necessiteu més exèrcit, podeu reunir recursos atacant els campaments de bandits a la carretera que s'informa que protegeixen l'or.
+79:Dominus Chilpericus: Cum paratus fueris, oppugnate castrum et auxilia a rege nostro ducta, et ego ad te proditorem occidam! Noli oblivisci uti optimis copiis quas tibi paravimus.
+80:Cum parati estis castrum oppugnare.|Si auro opus est, praedator castrorum|sita in cuniculo et alter|continens
+81:EX PUGNA:||Aurea meruisti %d in hac pugna.|Interfecisti hostium summam %d.|Summa militum %d amisisti.
+82:[$%s]Battle Stats: Your Troops[]|
+83:Spatium 1: %d deest %s ab %d|
+84:Locus I: nullus exercitus|
+85:Spatium 2: %d deest %s ab %d|
+86:Spatium II: nullus exercitus|
+87:Spatium 3: %d amissum %s ab %d|
+88:Space 3: no army|
+89:Spatium 4: %d amissum %s ab %d|
+90:Spatium 4: nullus exercitus|
+91:[$%s]Battle Stats: Hostes Troops[]|
+92:Spatium 1: %d occisus %s ab %d|
+93:Locus I: nullus exercitus|
+94:Spatium 2: %d occisus %s ab %d|
+95:Spatium II: nullus exercitus|
+96:Spatium 3: %d occisus %s ab %d|
+97:Space 3: no army|
+98:Spatium 4: %d occisus %s ab %d|
+99:Spatium 4: nullus exercitus|
+110:[$%s]Main Mission[]|%s||
+111:Secundae inquisitionis:|%s||
+112:Secundae inquisitionis:|%s||
+113:Non est exercitus adhuc
+114:Militias
+115:Sagittarii
+116:Hasta possessor
+117:Speculatores
+118:Milites
+119:Securis pugnatores
+120:Gladius pugnatores
+121:Sagittarii
+122:Pickers
+123:Barbarorum
+124:Rebelles
+125:Rogues
+126:Milites
+127:Vagos
+128:TUTORIAL: Ad emendum militem, sub quaque specie turmae in via consiste. uterque acies diversos exercitus socors repraesentat (1 ad 4 a summo ad imum). Quisque faber ferrarius socors est venditor. Omnes unitates in socors vendere debes antequam genus unitatis mutatur.
+129:Omnis secunda in via unitatem emit vel vendit. Unitates eodem pretio vendis quo emeris. Hotkeys f5 f6 f7 f8 uti potes ut citius conscribas/venderes.
+130:Militia Pretium: 20|Sagittarii Pretium: 35|Lancea Portitorem Pretium: XXX "|Sumptus deducti: 80|Axefighter Pretium: 55
+131:Swordfighter Pretium: CX|Pikeman Pretium: 100|Scorpionis pretium: 80|Sumptus equestris: 160
+132:TUTORIAL: Ut epistulae istae iterum apparent, in viis consiste in vestibulo supplementi area brevi tempore.
+150:Spatium 5: %d occisus %s ab %d|
+151:Spatium V: nullus exercitus|
+152:[$%s]Your Stats[]|
+153:Aurum: %d|
+154:Classification: %s||
+155:[$%s]Your Army[]|
+156:Spatium 1: %s %d/%d|
+157:Spatium 2: %s %d/%d|
+158:Spatium 3: %s %d/%d|
+159:Spatium 4: %s %d/%d||

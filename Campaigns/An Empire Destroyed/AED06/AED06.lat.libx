@@ -1,0 +1,19 @@
+﻿
+MaxID:15
+
+0:Viri, officium nostrum est quoquo modo hanc urbem capere, eam sine pugna non dabunt, sed victores erimus!
+1:
+2:Non possum credere, nos exspectabant!  Cape reliqua ferrum, et munimenta para! Operarii nostri in moventur.
+3:Generaliter exploratores nostros prope castra convenerunt qui auxilia mitterent hostes. Eos nos sumamus ut ad securum Maul!
+4:[$0000FC]Objective[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Capture Maul[]
+7:Barbari prodierunt: [$00FF7F]%d[]
+8:[$00FF7F] Maul Defense[]
+9: Undo ad [$00FF7F]%d[] ad [$00FF7F]%d[]
+10:[$00FF7F]Prepare defendere Maul[]
+11:Tempus reliquum: [$00FF7F]%s[]
+12:[$00FF7F]Wave:[] %d/%d
+13: a [$00FF7F]%s[]
+14: - [$00FF7F]%d[]
+15:[$00FF7F]Destroy enemy encampments[]

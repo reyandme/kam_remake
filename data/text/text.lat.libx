@@ -1,0 +1,784 @@
+﻿0:Serraria
+1:Ferri officina
+2:Telum officina
+3:Calculus meus
+4:Ferrum meum
+5:Aurum meum
+6:Piscatorem
+7:Pistrinum
+8:Villam
+9:Lignator
+10:Armorum officina
+11:CELLA
+12:Stabulum
+13:Schola
+14:Lapicidina
+15:Metallurgia
+16:Porcus villam
+17:Specula
+18:Curia Municipalis
+19:Arma officinam
+20:Armarium officina
+21:Castra
+22:Molendinum
+23:Obsidio Officina
+24:Carnifex
+25:Coriaria
+26:Lorem locus
+27:Deversorium
+28:Vinum
+29:Nundinae
+30:Truncos
+31:Lapides
+32:Lignum
+33:Ferrum
+34:Chalcitis
+35:Calculus
+36:Ferrum
+37:Aurum
+38:Dolia vini
+39:Frumentum
+40:Panes
+41:Conspersa
+42:Corium
+43:Tomacula
+44:Porcos
+45:Pellibus
+46:Scuta lignea
+47:Scuta ferrea
+48:Corium armis
+49:Armatura ferrea
+50:Secures manus
+51:Gladii
+52:Hastis
+53:Ligones
+54:Dum arcubus
+55:Balistis
+56:Equos
+57:Piscis
+58:Servus
+59:Lignator
+60:Fossores
+61:Animal gregis
+62:Agricola
+63:Carpentarius
+64:Pistor
+65:Carnifex
+66:Piscator
+67:Operarius
+68:Lapidatio
+69:Ferrer
+70:Metallicus
+71:Conscribere
+72:Militia
+73:Securis Pugnator
+74:Gladius
+75:Sagittarius
+76:Balista
+77:Hasta possessor
+78:Pilarius
+79:Audite
+80:Eques
+81:Barbarus
+82:Rebellis
+83:nequam
+84:Bellator
+85:Vagabundus
+86:Catapulta
+87:Ballista
+88:Servus praebet aedificia tua rudibus materiis.||Nota quod inter aedificia connexio debet esse via.
+89:Ad ligna ad serrandum lignum producendum, lumberjack debes.||Logger reforestationem independenter peragit.
+90:Fossores extrahit chalcitis e carbone, ferro et auri metallis.
+91:Animal foetor utitur frumento ad porcos in fundi porco, et equos in stabulis.
+92:Agricola serit et metit frumentum in villa.||Prodest et vinum in vinea.
+93:Faber in sawmill, armamentarium et armamentarium operatur.||Idem catapultas et ballistas in officina obsidionis aedificat.
+94:Pistor frumentum in mola in farinam molit.||Etiam panem in pistrino facit.
+95:Carnifex facit tomacula in macello et corium in coriario.
+96:Piscator pisces in vicinis aquis capit.
+97:Operarius aedificia et vias aedificat. Simpliciter exaggerandam praelatum locum tuum et mandata tua sponte exequetur.||Laesa etiam aedificia reparat.
+98:Ad operas tuas sufficiens materia ad aedificandas vias et aedificia, lapides secabit et secabit.
+99:Faber ferrarius arma et arma ad arma et ferramenta ferraria fabricat.
+100:Calculus metallicus utitur ad conflandum aurum et ferrum.
+101:Tiro miles in castra instructus esse potest.||Etiam speculam occupat.
+102:In eligendis aedificiis
+103:Distributio bonorum
+104:In mutant
+105:Ad optiones
+106:Revertere
+107:Aedificium|Electio
+108:Distributio|de bonis
+109:Statistics
+110:Optiones
+111:Ludum load
+112:Salvum ludum
+113:Tu certe|vult relicto|hanc legationem?
+114:Exitus missio
+115:Revertere
+116:Configurationis
+117:Exire editore
+118:SFX
+119:Mutare volumen
+120:Mutare volumen
+121:Musica
+122:Musica in/off
+123:Automatice salvus erit
+124:Musica ludio
+125:Prior clue
+126:Next clue
+127:Destruam
+128:Remove aedificia / volutpat
+129:Aedificare viam
+130:Viae aedificate
+131:Arare agrum
+132:Arare agros
+133:Agrum vini divide
+134:Vinum divide agros
+135:Abrogare
+136:Abrigavi hodiernam workout
+137:Necessitatibus:
+140:Traditio
+141:Domum infra|constructione
+142:Perdere
+143:Vos vere volo|hoc aedificium destrue?
+144:Perdere lectus aedificium
+145:Ordo tantum minui
+146:Auget ordinem moles
+147:Prior miles genus
+148:Proxima species militis
+149:Genus instruere current miles
+150:Professio proxima
+151:Professio prior
+152:Adde ad ordinem
+153:Activare / deactivare bona traditio
+154:Pretium:
+155:Turn domus reparatione in / off
+156:Aedificium non praesto hoc tempore
+157:Conditio
+158:Turn turmam ad sinistram
+159:Convertere agmen ad dextram
+160:Impetum ('a')
+161:Munus turmae ('d')
+162:Copia cibi militibus
+163:Tempestas impetus incipit
+164:Adde lineam
+165:Aufer lineam
+166:Lego|grex
+167:Abrogare
+168:Delere
+169:Delere hodiernam nuntium
+170:Vide a
+171:Salire ad hodiernam statum nuntium
+172:Claudere
+173:Claudere fenestram
+174:Lapidarius tuus ultra deposita saxea attingere non potest.
+175:Tuus calculus meus commissuras defatigatus est.
+176:Ferrum chalcitis venae extenuantur.
+177:Auri venae venae tuae exhauriuntur.
+178:LIGNATOR tuum non invenio plus ligna caedere
+179:Haec domus non occupatur.
+180:Ista turma valde esurit, melius aliquid adepturus mox edendum!
+181:SEDIS
+182:Traditio
+183:Aedificationem viam
+184:FOSSIO agri
+185:Constructio campi vini
+186:Adulatione domus situs
+187:Aedificationem domus
+188:Domus reparatione
+189:Nunc domum
+190:Ad stabulum
+191:Impetum in domum suam
+192:Dimissio
+193:Pugnatum
+194:Impetus tempestatis
+195:Oppugnare
+196:In motu
+197:Iners
+198:Fodienda lapis
+199:Seminare frumentum
+200:Frumentum
+201:Uva messis
+202:Piscatio
+203:Lignum Conscidisti
+204:Herba
+205:Spiritus
+206:Occupatus
+207:Cornu medii aevi
+208:Fons
+209:Psalterium
+210:Mercenarius
+211:Princeps
+212:Regina
+213:Apud forum
+214:In acie
+215:Atrium chorus
+216:Exercitus
+217:In castro
+218:Turmae
+219:In aula
+220:Introitus
+221:Caerula
+222:Pugnare
+223:Regiones regiae
+224:Aristocratia
+225:In Portu
+226:Iter
+227:Stipendiis
+228:Stipendiis
+229:Prouincia incipit!
+230:Ludere a unique map
+231:Tabula domestica
+232:Ad menu
+233:Onerantes salvum ludum
+234:Multilusorius
+235:Optiones
+236:Creditum
+237:Exitusus ludum
+238:Perge
+239:Missio sileo
+240:Consilium:
+241:Non praebetur
+242:Non praebetur
+243:VICTORIAM!
+244:CLAMMA!
+245:Unitates perditae:
+246:Unitates Victus:
+247:Amissa aedificia:
+248:Aedificia diruta;
+249:Aedes aedificatae;
+250:Unitates formatae:
+251:Tela producuntur;
+252:Milites instructi sunt;
+253:Missio peracta est:
+254:Statisticae
+255:Oeconomia
+256:Cives|exercitatus
+257:Cives|perditus
+258:Milites|instructus
+259:Milites|perditus
+260:Milites|decuit
+261:Aedificia|aedificavi
+262:Aedificia|perditus
+263:Aedificia|destrui
+264:Mercatura|produci
+265:Arma|produci
+266:Exercitus
+267:Cives
+268:Domuum
+269:Opes
+270:Produci opibus
+271:Nulla notitia
+272:tu
+273:Ludio %d
+274:Ad Multilusorius
+275:Ad reddis
+276:All
+277:Bellum
+278:Cibus
+279:JOYMANIA HOSPITIUM||LIBELLUS:|Petrus Ohlmann||GRAMMATICA VENATIO:|Adam Sprys||LIBRO DESIGN:|Adam Sprys|Andreas Quass||SONUS EDITIO ET MIXTURA:|Tonstudio Mannheim||MUSICA:|Gerd Hofmann|Ioachimus Schäfer|Jürgen Rebhann|Klaus Staendike|Stephanus Schüngel||ILLUSTRATIONS:|Boleslaus Kasza|Christophorus Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andreas Rumpelt|||ZUXXEZ HOSPITIUM AG||PARENS:|Uwe Schäfer||MANUAL:|Petrus Ohlmann|Uwe Schäfer||BETA TEST:|Petrus Ohlmann|Adam Sprys|Alexander Constandache|Theodericus P. Hassinger|Achim Heidelauf|Uwe Schäfer|Irene Schäfer|Theodericus U. Jantz|Ion Constandache|Yaman Egeli|Romanus Eich|Iris Mocsnek|Anke Jantz|Paulus Hassinger|Liza Hassinger||LUDUM RECTOR:|Achim Heidelauf||EDITUM EST:|TopWare Interactive||SCENA CUT:||ADLOCUTIO:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Petrus Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOCES:|Claus Boyen (relator)||Tim Timmermann|Petrus Houska|Theodericus Mühlbach|Radulfus Ditze|Gerhardus Piske|Gernot Wassmann||ARTIS OPERA:|Boleslaus Kasza|Adam Sprys||APERTIO ANIMA:|Uwe Schäfer|Christianus Bigalk|Additional 3D modeling:|Niels Horstmann||GRATIAS AGERE:|Tadeusz Zuber|Dieter Ohlmann|Alexander Constandache|Irene Schäfer
+280:Missionis cancellatam
+281:Reproductio est complevit
+282:Urbs doceo
+283:Instructio Proelii
+284:Ludio ludius est
+285:Editor tabularum geographicarum
+286:Missio incipit
+287:Titulus
+288:Magnitudine
+289:Conciliandos Condition:
+290:Clade Status:
+291:Sociis:
+292:Inimici:
+293:Tempus
+294:Nova tabula magnitudine
+295:Latitudo
+296:Altitudo
+297:Novam tabulam
+298:Tabulae geographicae praesto sunt
+299:Onus existentium tabula
+300:Locus
+301:Imperium:
+302:Ludus:
+303:Sonus:
+304:Averte musica
+305:Graphics:
+306:Splendens
+307:Verticalis sync
+308:Plenus screen
+309:Applicare
+310:Lingua:
+311:Vmbra qualitas:
+312:Descendet
+313:Summus
+314:Onusing... Quaeso exspecta.
+315:Error occurrit!
+316:Onusing novum locale
+317:Index salvus ludos
+318:Nomen tabella
+319:Descriptio
+320:Onus
+321:Delere
+322:Certusne es hoc nisi delere vis?
+323:Delere
+324:Abrogare
+325:Titulus
+326:Tabulae geographicae
+327:Reserata
+328:Vicisti!
+329:Custodiant ludens
+330:Victoriam!
+331:Perdidisti!
+332:Vigilantes
+333:Cladem
+334:Remonstratio est supra
+335:Perge vigilantes
+336:Exire in menu
+337:Non praesto
+338:Press %s repetere ludum
+339:Ludio ludius notitia
+340:Ad colloquium
+341:Nisi iam exstat
+342:Rescribere
+343:Salvare
+344:Onus
+345:Vetus versio OpenGL detecta est, ludus tardius currere potest et/vel cum defectibus graphicis
+346:Renova in melius perficientur coegi graphics
+347:Error retis:
+348:Error: Ludio ludius nomen non debet esse blank
+349:Error: Ludio ludius nomen non debet esse longior quam %d characteribus
+350:Error: Ludio ludius nomen habet leges characteres
+351:Nexus defecit: %s
+352:Vos conclusum est
+353:Missio %d
+354:Nuntius log
+355:Camera piscandi nimium procul ab aqua est.
+356:Piscator tuus pisces in proxima aqua plus capere non potest.
+357:Sileo reproductio
+358:Laetabuntur reproductio
+359:Gradus I signum praemisit
+360:Proin constiterunt reproductio
+361:Exitusus reproductio
+362:Prospectum cuiusque ludio ludius mutat
+364:Utere sinistra murem puga commoditatem ad mercaturam eligere
+365:Utere iure muris puga commoditatem ad mercaturam eligere
+366:Ex x%d
+367:A x%d
+368:Editio locorum
+369:Perterget
+370:Iuga
+371:Tegulas
+372:Obiecti
+373:Iuga
+374:Decutiat figura
+375:Magnitudine
+376:Tollenone mutandi penicillo magnitudine
+377:Pendente
+378:Labi ad mutationem clivi: 1 = campestria ... 15 = summit
+379:Celeritas
+380:Slide mutandi celeritatem levare: 1 = tardum ... 15 = velocissimum
+381:Decutiat in modum circuli
+382:Quadratus informibus penicillo
+383:Leva / inferiora
+384:Inaequare / Flatten
+385:Leva (reliquit click) / inferioris (ius click)
+386:Inaequare (reliquit click) / Platten (right click)
+387:Penicillo
+388:Fortuitus items
+389:Fortuitus directionem
+390:Nota directionem temere tegulae vel dextrae-click ut volvatur tegula electa
+392:Ambulare obstructionum
+393:Delere objectum
+394:Villa consilio
+395:Visual scriptor
+396:Global scripturae
+397:Menu
+398:Obiecti
+399:Ostende deposita
+400:Unitates monstrare
+401:Ostende domibus
+402:Ostende objecta
+403:Vide transitability
+404:Quis unsaved|mutationes et peribit
+405:Abrogare
+406:Onus
+407:Onus the map
+408:Abrogare
+409:Salvare
+410:Rescribere
+411:Iam in tabula
+412:Histriones:
+413:Per praedefinitum
+414:Genera histriones
+415:Commensus
+416:Amicitia
+417:Artis
+418:Normalis "
+419:Missio modus
+420:Salire ad locum
+421:Velum centrale ad initium missionis
+422:Velum centrale
+423:Revelare omnia
+424:Monstrare partem tabulae
+425:Revelata nebula
+426:Trade obstructionum
+427:Cincinno / release domuum
+428:Colorum
+429:Metam
+432:Ludio ludius
+433:Oeconomia aedificia
+434:Servi et scholarum
+435:Res militaris
+436:Ignotus
+437:Milites
+438:Aedificia
+439:Tempus
+440:Construction tutorial
+441:Nullus
+442:Conditio
+443:Superesse
+444:Victoriae
+445:Nullus
+446:Type
+447:Proposita
+448:Bene
+449:Abrogare
+450:Columnae
+451:Propter
+452:Agmen formationes
+453:Emendo formationes
+454:Quanti milites AI habere possunt?
+455:Quot milites simul habent AI?
+456:Max posuit. milites
+457:Quot tirones AI in munitionibus habeant?
+458:Tirones pro Barracks
+460:Consuetudo positionis
+463:Proxima unitas
+465:Group comitem
+466:Impetum notitia
+468:Repetendi
+469:Semel
+470:Convenerunt
+471:Procul
+472:Anti-equi
+473:corpus ad corpus
+474:Locus
+475:Objectum
+476:Homines
+477:Mora
+478:Type
+479:Auto impetum
+480:AI impetus
+481:Armorum zonam
+482:Armorum ferrum
+483:Sui defensionem
+484:AI creat et administrat positiones defensionis automatice
+485:Locus defensionis AI
+486:AI Defensionis Positionum
+487:Operarios "
+488:Servi pro X domibus
+489:Lorem interdum
+490:Lorem constructione
+491:AI occasus
+492:Domuum
+493:Via opera
+494:Verticalis firmamentum lectio
+495:Circumagatur lectio horizontaliter
+496:Pellentesque terram
+497:Effingo locorum
+498:Exemplum / crustulum
+499:Nova Missionum
+500:Ludio ludius nomine
+501:Status:
+502:Create server
+503:CREARE SERVO
+504:Nomen
+505:Port
+506:Creare loci server
+507:Create an Internet server
+508:Abrogare
+509:Investigare servo per IP
+510:INVENIRE SERVO
+511:Oratio
+512:Port
+513:Locus
+514:Connect
+515:Abrogare
+516:Tessera tutis locus
+517:Tessera
+518:Servo Nomen
+519:Status
+520:Histriones
+521:Ping
+522:Renovare servo list
+523:SERVER DETAILS
+524:Index lusorum:
+525:Iungere in
+526:Connectens, obsecro, exspecta...
+527:Onusing praeconium...
+528:Refrigerium...
+529:Index lusorum
+530:Coepi locus
+531:Bigas
+532:Color
+533:Paratus
+534:Ping
+535:Ping / FPS
+536:Aperta
+537:Ludio ludius AI
+538:Lego...
+539:Fortuitus
+540:Nullus
+541:Ludum salvus
+542:Lego tabulam geographicam...
+543:Salvus est eligere...
+544:Exitus VESTIBULUM
+545:Paratus
+546:Non est paratus
+547:Incipe!
+548:Ludus celeritas (dimidium temporis)
+549:Ludus celeritas
+550:Bene
+551:Abrogare
+552:Descriptio
+553:Tessera
+554:Locus configuratione
+556:Hoc prohibendo VESTIBULUM
+557:Calcitrare
+558:Fortuitusize locis in teams
+559:Descriptio
+560:Optiones
+561:Locus %d
+562:Error: Quaeso eligere servatum ludio ad imperium
+563:Errore Deficio load tabula vel nulla lectus
+564:Non potuit incipere: %s
+565:Non omnes ad satus
+566:Fortuitus locis assignata non possunt
+567:Servo dedit tibi iura obnoxius
+568:In ludo coepi
+569:Tabula aedificii
+570:Proelium Map
+571:Cooperantem map
+572:Special map
+573:Optiones ludi:
+574:Pax temporis (minuta)
+575:Clausa
+576:Hospes conformat ludio
+577:Exspecto histriones:
+578:All
+579:Bigas
+580:KaM Recipe Credits
+581:Original credit pro militibus & mercatoribus
+582:LIBELLUS:
+583:ADDITICIUS PROGRAMMA PRÆVIUM:
+584:ADDITICIUS GRAPHICS:
+585:ADDITICIUS SONOS:
+586:ADDITAMENTA MUSICA :
+587:ADDITAMENTA
+588:GRATIAS AGERE:
+589:Multiplayer maps
+590:Maps pro uno ludio
+591:Celeritas Travel
+592:Non servers invenerunt
+593:Vestigia versas
+594:Ludus Information:
+595:-
+596:Vestibulum
+597:Onusing
+598:Ludus
+599:Ædificate et pugnate
+600:Pugnatum
+601:Paratus
+602:Recta protocollo versio: %s. Servo utitur: %s
+603:Tantum commercia auget
+604:Commercial moles diminui
+605:Ludus salutaris...
+606:%s victus est!
+607:Dimitte histriones
+608:Hospes potest stillare histriones post %d seconds
+609:Hospes nunc histriones stillabunt
+610:Exercitus (%s) exierit
+611:Connexio servo amissa est. Reconnect conatur...
+612:Visne vero decedere?
+613:Visne vero has scaenicos perpetuo tollere?
+614:Abrogare
+615:Negotio huius subsidii in hac missione praesto non est
+616:Plant et cadunt
+617:Hoc modo decidit
+618:Non potes facere ut in pace
+619:Tempus Pacis Reliquis: %s
+620:Tempus pacis est. Ad tormenta tua!
+621:Ludus tempus:|%s
+622:Desine Troop ("%s")
+623:Link Troop ("%s")
+624:Separate Troop ("%s")
+625:Reproductio Visum
+626:View reproductio
+627:Forma non valet %s
+628:Vacua versio %s
+629:Modificationes non licet
+630:Error occurrit parsing tabella %s
+631:initializing "
+632:scriptum
+633:unitates
+634:domuum
+635:arbores
+636:definitiones
+637:set tegularum
+638:Tabula non inventa: %s
+639:Servo non inveni: %s
+640:Tabula geographica files hospes map non congruit: %s
+641:Servare fasciculum non congruit hospitii nisi: %s
+642:Remonstratio incassum constantiae reprehendo. Hoc est notum cimex quod afficit reproductio of some plays. Visne vigilantes permanere?
+643:Unum tantum exemplum habere potes in lusoribus in ludo
+644:Ludus modi non licet in lusoribus.|Restituere ad files original restituere.
+645:Error in applicatione occurrit. Click Submit a bug report so we can investigate this issue. Gratias pro auxilio tuo!
+646:Submit fama ugbay
+647:Rudis notitia monstrare
+648:Applicationem aliquam
+649:Ad finem application
+650:Proximum
+651:Contactus details
+652:Nomen tuum: (optional) back
+653:Your email: (libitum)
+654:Memini me
+655:Error details
+656:In quo situ errorem fieri? Potesne aliqua informationis praebere? (Potius Latina)
+657:Screenshot
+658:Quaeso attach tortor ut cimex fama
+659:(click to edit image)
+660:Mitte fama
+661:Abrogare
+662:Subiecti errorem fama ...
+663:Connectens ut servo...
+664:Data mittens...
+665:Fallit referre errorem! Servus noster occupatus sit, iterum conare mitte.
+666:Notitia
+667:Quaeso expecta momentum...
+668:Servo in tabula
+669:Mora in minutis ante AI tironibus incipit disciplina
+670:Mora conscribere (min)
+671:Ponit omnes tegulas in aqua
+672:Magicae aquae
+673:Effingo
+674:Crustulum
+675:Crustulum adhibere
+676:Crustulum irritum
+677:Rotate verticaliter
+678:Gyrari horizontaliter
+679:Trahunt eligere an area in tabula
+680:AI optiones defensionis
+681:Avertit se
+682:Radio
+683:Delere current elit
+684:Redi ad paginam nebulae revelare
+685:Claudere
+686:Coetus ordo
+687:Nullus
+688:Impetum loco
+689:Ambulare to
+690:Directio
+693:Defensio Radii
+694:Delere current situ defensionis
+695:Redi ad paginam defensionis
+696:Defensio positionis
+697:Unitates
+698:Wolf
+699:Piscis
+700:Aqua anguis
+701:Starfish
+702:Cancrorum
+703:Aqua flos
+704:Folium aquae
+705:Anatis
+706:Hoc genus miles praesto est
+707:Hoc unitatis genus est non available
+708:Unitates obstructionum
+736:Download
+737:occumbere...
+738:Rescribere existentium files
+739:%s nexum amissam
+740:%s exierit
+741:%s reconnected
+742:Non potest iungere dum ludum in profectum
+743:Cubiculum plenum est. Nemo plus histriones ludum iungere possunt
+744:Ludio cum eodem nomine iam cubiculum iunctis
+746:Error: %s varias notitias lima in hospitio habet ideoque huic ludo coniungi non potest
+747:Tua notitia files non aequare exercitum
+748:Repositi sunt iura obnoxia ad %s
+749:%s alia litera habet quam %s
+750:%s non habet %s
+751:Quaestio est opportuno
+752:%S a ludo hospes removit
+753:%s calce ab exercitu
+754:Reconnect conatur ad ludum...
+755:%s coniunxit
+756:Defecit reconnect: %s
+757:Hospes sine te voluit permanere ludens :(
+758:Disiungitur a servo: Vicis deprehensus est
+759:Calce exercitum te
+760:In server constiterit respondere
+761:Locus numerus invalida
+765:Susurro ad %s
+766:%s interdictum est ab hoc VESTIBULUM ab exercitu
+767:Ab exercitu interdictum es
+768:Reset omnia bans
+769:Hospes resets omnia bans in hoc VESTIBULUM
+770:Date
+771:Ostende nebula
+772:Spectacular
+773:Spectator
+774:Auto impetum range
+775:AI circulos automatice oppugnabunt si propius quam plures tegulas erunt
+776:Socios defende
+777:Si valebat, AI foederatas unitates et domos defendet quasi suas
+778:Patitur viewers
+779:Promovere ad exercitum
+780:Spectatores
+781:Viewers non potest erret: necesse est album videntium inanis esse
+782:Ref
+783:Undo
+784:Ponit initium positionis AI, ad AI oppugnandum
+785:Incipiens positio AI
+786:Order
+788:Coepi mora (seconds)
+790:Proximus domus exercitus
+791:Proxima domus ab initio positio
+792:Oppugnatores
+793:Defensores
+794:Spectatores
+795:Ludere expeditionem antea reseratam missionem, vexillum missio in expeditione missio info map
+796:%s redire ad VESTIBULUM decrevit (%s pluribus suffragiis opus)
+797:Suffragium hoc camera ad VESTIBULUM redire. Ludus potest deinde resumi vel mutari
+798:Vote Ite ad lobby
+799:%s redire ad VESTIBULUM decrevit (lata suffragia)
+800:Suffragium redire ad VESTIBULUM defecit
+801:Fabula delendo etiam delet sociis nisi. Certusne es hoc nisi delere vis?
+802:Ut temere
+803:Numerum militum oppugnare
+804:Delere reproductio
+805:Delere map
+806:Visne vero hanc tabulam delere?
+807:Celare hyphenated deaurabis
+808:Ostende allisa operies
+809:Hostes flectendum non potes cum minister in cliente tuo currit
+810:AI gignit et impetus automatice manages
+811:Fast apparatu
+812:Milites quam celerrime parati sunt. Facility fees adhuc castellum consilio afficiunt
+813:Habet AI defaltis
+814:Multiplayer aedificator
+815:Applicare pugnax AI structor occasus omnibus histriones (nam pluribus constructum maps)
+816:Monitum: Haec omnia exsistentia AI uncinis pro omnibus lusoribus vincet. pergis?
+817:Genus exercitus
+818:Ferrum ergo corium
+819:Ferrum
+820:Corium
+821:Mixtum
+822:Maps downloaded
+824:Move
+825:Videre PDF Readme
+826:Deficio incipere videntium PDF
+827:Pone servum comitem per 10 domos ad certum AI ludio ludius. Electus AI %d casus habet
+828:Error: Hostia file constiterunt non congruit loci constiterunt lima. Error occurrit vel hospes fallere conatur.
+829:Ordo peracta
+830:Onus Asian fonts
+831:Exitusus downloads

@@ -1,0 +1,11 @@
+﻿
+MaxID:9
+
+0:Si el rei les seves prediccions són correctes, la caravana ha de passar per aquí. Trobem una bona posició d'emboscada.
+1:Bene, bona cepimus, sed etiam vigiliae admonemur! Summa vi mox perveniet. Effugere in glaciem et frange, ut impossibile sit eos nos sequi!
+2:Principalis exercitus venit, viri festinandum est!
+3:Obstaverunt! Frange homines!
+4:[$0000FC]Objective[]: 
+5:[$8CE6F0] - []
+6:[$00FF7F]Ambush carvan[]
+8:[$00FF7F]Escape ad glaciem! []
