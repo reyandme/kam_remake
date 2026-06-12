@@ -1,4 +1,0 @@
-SetCoop
-
-BigDesc
-Mission 13 from The Peasants Rebellion campaign converted for co-operative by sergjiei.

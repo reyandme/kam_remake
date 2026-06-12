@@ -1,5 +1,0 @@
-SetSpecial
-BlockPeacetime
-BlockTeamSelection
-BigDesc
-Become the richest merchant in the town! Earn 30 000 coins first by trading wares.||Check the Readme PDF before playing.||Map by Random Lyrics / Randziu ; Sado

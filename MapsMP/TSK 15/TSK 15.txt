@@ -1,4 +1,0 @@
-SetCoop
-
-BigDesc
-Mission 15 from The Shattered Kingdom campaign converted for co-operative by andreus.||Mission is more difficult than the original. Prepare for an immediate AI attack!

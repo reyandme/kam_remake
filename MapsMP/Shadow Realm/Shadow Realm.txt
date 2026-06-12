@@ -1,2 +1,0 @@
-BigDesc
-Uses traditional slow building unlock order.||Made by koczis12

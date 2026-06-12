@@ -1,8 +1,0 @@
-Title
-Vortamic
-
-SmallDesc
-A mission by Ben
-
-BigDesc
-Winner of the Christmas mission competition 2009

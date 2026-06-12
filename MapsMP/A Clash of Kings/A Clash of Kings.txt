@@ -1,3 +1,0 @@
-SetCoop
-BigDesc
-First you must defeat the computer opponent and later the human players! To reach the opposing human team you must fight through a strong fortress. This map is difficult!||Teams are 3+4 vs 5+6||Made by PAKER TEAM:|(Woloszek, Luki, PAKER)

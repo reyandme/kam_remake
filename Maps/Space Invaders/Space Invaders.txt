@@ -1,8 +1,0 @@
-Title
-Space Invaders
-
-SmallDesc
-A minigame by sado
-
-BigDescLIBX
-0

@@ -1,4 +1,0 @@
-SetCoop
-
-BigDesc
-Mission 7 from The Shattered Kingdom campaign converted for co-operative by Lewin.

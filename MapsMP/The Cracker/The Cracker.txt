@@ -1,5 +1,0 @@
-SetCoop
-
-
-BigDesc
-You must protect the last island which you have in your kingdom.||Made by Paulpolska

@@ -1,8 +1,0 @@
-Title
-A Farmer's Wish
-
-SmallDesc
-A mission by Hellracer
-
-BigDescLIBX
-1

@@ -1,4 +1,0 @@
-SetCoop
-
-BigDesc
-Made by Creations.
