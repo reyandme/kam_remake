@@ -1,1 +1,0 @@
-This site hosts the KaM Remake master server. Visit <a href="http://www.kamremake.com">www.kamremake.com</a> for more information.
