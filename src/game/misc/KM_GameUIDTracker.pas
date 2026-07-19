@@ -1,4 +1,5 @@
 unit KM_GameUIDTracker;
+{$I KaM_Remake.inc}
 interface
 uses
   KM_CommonClasses;

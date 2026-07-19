@@ -1,4 +1,5 @@
 unit KM_UnitGroupTypes;
+{$I KaM_Remake.inc}
 interface
 uses
   KM_Points;
@@ -34,4 +35,3 @@ type
 implementation
 
 end.
-

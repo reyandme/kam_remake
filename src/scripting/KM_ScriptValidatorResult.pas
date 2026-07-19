@@ -1,4 +1,5 @@
 unit KM_ScriptValidatorResult;
+{$I KaM_Remake.inc}
 interface
 uses
   SysUtils,
@@ -155,5 +156,6 @@ begin
     xmlDoc.Free;
   end;
 end;
+
 
 end.

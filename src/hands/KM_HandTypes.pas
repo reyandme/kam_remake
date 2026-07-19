@@ -1,4 +1,5 @@
 unit KM_HandTypes;
+{$I KaM_Remake.inc}
 interface
 uses
   KM_ResFonts;
