@@ -1,4 +1,5 @@
 ﻿unit KM_VclMenuHint;
+{$I KaM_Remake.inc}
 interface
 uses
   Classes,
@@ -20,6 +21,7 @@ type
     procedure DoActivateHint(menuItem: TMenuItem);
     destructor Destroy; override;
   end;
+
 
 implementation
 

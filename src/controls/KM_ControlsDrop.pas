@@ -1,4 +1,5 @@
 unit KM_ControlsDrop;
+{$I KaM_Remake.inc}
 interface
 uses
   Classes,
@@ -149,7 +150,6 @@ type
 
     procedure Paint; override;
   end;
-
 
 
 implementation
@@ -566,6 +566,7 @@ function TKMDropList.GetSelectedTag: Integer;
 begin
   Result := GetTag(fList.ItemIndex);
 end;
+
 
 function TKMDropList.GetItem(aIndex: Integer): UnicodeString;
 begin
