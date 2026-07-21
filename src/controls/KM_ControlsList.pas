@@ -1972,7 +1972,8 @@ var
 begin
   Assert(Length(fColumns) = Length(aColumnsToShow));
 
-  if (aIndex < 0) or (aIndex > High(Rows)) then
+  // Sometimes this will happen, not sure exactly how, but quickfix seems okay
+  if not InRange(aIndex, 0, High(Rows)) then
     Exit;
 
   hiddenColumnsTotalWidth := 0;
