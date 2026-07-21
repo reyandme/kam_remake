@@ -194,8 +194,8 @@ const
   THOUGHT_X_OFFSET = 0.02; //Thought is offset to be rendered always above the flag
 
   // Fish counts
-  UNIT_FISH_CONUT_DEFAULT = 10;
-  UNIT_FISH_CONUT_MAX = 255;
+  UNIT_FISH_COUNT_DEFAULT = 10;
+  UNIT_FISH_COUNT_MAX = 255;
 
 var
   // TownHall default units troops cost (number of gold chests needed)
