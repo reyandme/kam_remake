@@ -45,7 +45,7 @@ uses
 { TKMMapEdTownUnits }
 constructor TKMMapEdTownUnits.Create(aParent: TKMPanel);
 const
-  MAPED_FISH_CONUT_DEFAULT = 50;
+  MAPED_FISH_CONUT_DEFAULT = 10;
 var
   I: Integer;
   lineY: Word;
