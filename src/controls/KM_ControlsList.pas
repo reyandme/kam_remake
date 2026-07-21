@@ -1971,6 +1971,11 @@ var
   color: Cardinal;
 begin
   Assert(Length(fColumns) = Length(aColumnsToShow));
+
+  // Sometimes this will happen, not sure exactly how, but quickfix seems okay
+  if not InRange(aIndex, 0, High(Rows)) then
+    Exit;
+
   hiddenColumnsTotalWidth := 0;
   for I := 0 to fHeader.ColumnCount - 1 do
   begin
