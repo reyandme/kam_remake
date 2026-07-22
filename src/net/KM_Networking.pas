@@ -1394,6 +1394,9 @@ begin
     // Our index could have changed on players add/removal
     fMySlotIndex := fNetRoom.NicknameToLocal(fMyNickname);
 
+    if fMySlotIndex = -1 then
+      Exit; // We are no longer in the room, wait for disconnect
+
     if Assigned(OnPlayersSetup) then OnPlayersSetup;
 
     if Assigned(OnUpdateMinimap)
