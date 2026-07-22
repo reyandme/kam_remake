@@ -25,6 +25,7 @@ KaM Remake Beta r_____ []
 + Disabled some of the debugging features that impact game's performance, for future RC/final release
 + Fixed crash in AdvancedAI on trying to estimate a combat line when there are no groups close to it
 + Fixed rare crash when game tried to render non-existent list row
++ Changed fish count placed in the Map Editor to 10 by default
 
 Campaigns:
 + Added French translations for 8 campaigns (and other minor corrections)
