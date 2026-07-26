@@ -15,6 +15,8 @@ type
     fRecruitsList: TList;
     fResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
     procedure SetWareCnt(aWareType: TKMWareType; aValue: Word);
+    procedure RecruitsClear;
+    function TakeFirstRecruit: Pointer;
   public
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
@@ -59,6 +61,7 @@ implementation
 uses
   Math, Types, SysUtils,
   KM_Entity,
+  KM_Log,
   KM_Hand,
   KM_HandsCollection,
   KM_HandTypes,
@@ -103,11 +106,20 @@ end;
 procedure TKMHouseBarracks.SyncLoad;
 var
   I: Integer;
+  U: TKMUnit;
 begin
   inherited;
 
-  for I := 0 to RecruitsCount - 1 do
-    fRecruitsList.Items[I] := gHands.GetUnitByUID(Integer(fRecruitsList.Items[I]));
+  //Pointer counters are saved along with the units, hence no GetPointer here
+  for I := RecruitsCount - 1 downto 0 do
+  begin
+    U := gHands.GetUnitByUID(Integer(fRecruitsList.Items[I]));
+    if U = nil then
+      //Should never happen, but a nil in the list means a crash in EquipWarrior later on
+      fRecruitsList.Delete(I)
+    else
+      fRecruitsList.Items[I] := U;
+  end;
 end;
 
 
@@ -146,7 +158,7 @@ var
 begin
   //Recruits are no longer under our control so we forget about them (UpdateVisibility will sort it out)
   //Otherwise it can cause crashes while saving under the right conditions when a recruit is then killed.
-  fRecruitsList.Clear;
+  RecruitsClear;
 
   for W := WARFARE_MIN to WARFARE_MAX do
     gHands[Owner].Stats.WareConsumed(W, fResourceCount[W]);
@@ -157,7 +169,9 @@ end;
 
 procedure TKMHouseBarracks.RecruitsAdd(aUnit: Pointer);
 begin
-  fRecruitsList.Add(aUnit);
+  // Take a counted reference, otherwise the recruit could be freed while he is still in our list
+  // (units are freed as soon as their PointerCount is 0) and we would keep a dangling pointer
+  fRecruitsList.Add(TKMUnit(aUnit).GetPointer);
 end;
 
 
@@ -168,8 +182,55 @@ end;
 
 
 procedure TKMHouseBarracks.RecruitsRemove(aUnit: Pointer);
+var
+  U: TKMUnit;
+  I: Integer;
 begin
-  fRecruitsList.Remove(aUnit);
+  I := fRecruitsList.IndexOf(aUnit);
+  if I = -1 then Exit; // Not ours, or he was unregistered already
+
+  U := TKMUnit(fRecruitsList[I]);
+  fRecruitsList.Delete(I);
+  gHands.CleanUpUnitPointer(U);
+end;
+
+
+// Forget all the recruits, releasing the references we were holding
+procedure TKMHouseBarracks.RecruitsClear;
+var
+  U: TKMUnit;
+begin
+  for var I := fRecruitsList.Count - 1 downto 0 do
+  begin
+    U := TKMUnit(fRecruitsList[I]);
+    gHands.CleanUpUnitPointer(U);
+  end;
+
+  fRecruitsList.Clear;
+end;
+
+
+// Unregister the first recruit who is actually sitting inside this very house and return him.
+// The list should never contain anything else, but a stale entry means a crash in KillInHouse,
+// hence such entries are dropped here rather than handed out
+function TKMHouseBarracks.TakeFirstRecruit: Pointer;
+var
+  U: TKMUnit;
+begin
+  Result := nil;
+
+  while (Result = nil) and (fRecruitsList.Count > 0) do
+  begin
+    U := TKMUnit(fRecruitsList[0]);
+    fRecruitsList.Delete(0);
+
+    if (U <> nil) and not U.IsDead and (U is TKMUnitRecruit) and (U.InHouse = Self) then
+      Result := U
+    else
+      gLog.AddTime(Format('TKMHouseBarracks UID %d: dropped an invalid recruit entry', [UID]));
+
+    gHands.CleanUpUnitPointer(U); // Release the reference our list was holding
+  end;
 end;
 
 
@@ -346,11 +407,17 @@ var
   I: Integer;
   troopWareType: TKMWareType;
   soldier: TKMUnitWarrior;
+  recruit: TKMUnitRecruit;
 begin
   Result := nil;
 
   //Make sure we have enough resources to equip a unit
   if not CanEquip(aUnitType) then Exit;
+
+  //Take the recruit before anything else: if the list turns out to have no valid recruit
+  //(should never happen) we must not consume the wares
+  recruit := TKMUnitRecruit(TakeFirstRecruit);
+  if recruit = nil then Exit;
 
   //Take resources
   for I := 1 to 4 do
@@ -364,8 +431,7 @@ begin
   end;
 
   //Special way to kill the Recruit because it is in a house
-  TKMUnitRecruit(fRecruitsList.Items[0]).KillInHouse;
-  fRecruitsList.Delete(0); //Delete first recruit in the list
+  recruit.KillInHouse;
 
   //Make new unit
   soldier := TKMUnitWarrior(gHands[Owner].TrainUnit(aUnitType, Self));
