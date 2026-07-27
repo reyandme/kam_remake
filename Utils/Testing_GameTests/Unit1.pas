@@ -337,9 +337,8 @@ const
   PRM_WINDOWED  = '--windowed';
 var
   filter, outFile: string;
-  seed, cycles, ranCnt, failedCnt: Integer;
+  seed, cycles: Integer;
   blind: Boolean;
-  results: TStringList;
 
   function ValueOf(const aPrefix, aParameter: string): string;
   begin
@@ -393,9 +392,9 @@ begin
   try
     EnsureResourcesLoaded(blind);
 
-    ranCnt := 0;
-    failedCnt := 0;
-    results := TStringList.Create;
+    var ranCnt := 0;
+    var failedCnt := 0;
+    var results := TStringList.Create;
     try
       for var C := 0 to cycles - 1 do
         for var I := 0 to High(gTestList) do
