@@ -324,8 +324,11 @@ end;
 //   Testing_GameTests.exe --run-all [--seed=N] [--cycles=N] [--windowed] [--out=<file>]
 //   Testing_GameTests.exe --run=Recruit
 // --run filter is a case insensitive substring of the test class name.
-// Results are written into the --out file, ExitCode is 0 when everything passed, 1 on any failure
-// and 2 when no test matched the filter.
+// Results are written into the --out file,
+// ExitCode:
+//   0 - everything passed
+//   1 - some tests failed
+//   2 - no test matched the filter
 // Returns False when there were no known switches, then the app should just show its window as usual
 function TForm2.RunFromCmdLine: Boolean;
 
