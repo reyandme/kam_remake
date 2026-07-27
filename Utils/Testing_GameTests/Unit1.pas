@@ -338,12 +338,12 @@ function TForm2.RunFromCmdLine: Boolean;
   end;
 
 const
-  PARAM_RUN_ALL   = '--run-all';
-  PARAM_RUN       = '--run=';
-  PARAM_SEED      = '--seed=';
-  PARAM_CYCLES    = '--cycles=';
-  PARAM_OUT       = '--out=';
-  PARAM_WINDOWED  = '--windowed';
+  PARAM_RUN_ALL     = '--run-all';
+  PARAM_RUN         = '--run=';
+  PARAM_SEED        = '--seed=';
+  PARAM_CYCLES      = '--cycles=';
+  PARAM_OUT         = '--out=';
+  PARAM_SHOW_WINDOW = '--show-window';
 begin
   Result := False;
 
@@ -376,7 +376,7 @@ begin
     if StartsText(PARAM_OUT, param) then
       paramOutFile := ValueOf(PARAM_OUT, param)
     else
-    if SameText(param, PARAM_WINDOWED) then
+    if SameText(param, PARAM_SHOW_WINDOW) then
       paramHeadless := False;
   end;
 
