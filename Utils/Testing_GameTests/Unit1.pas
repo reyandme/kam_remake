@@ -368,7 +368,7 @@ begin
       paramSeed := StrToIntDef(ValueOf(PARAM_SEED, param), paramSeed)
     else
     if StartsText(PARAM_CYCLES, param) then
-      paramCycles := StrToIntDef(ValueOf(PARAM_CYCLES, param), paramCycles)
+      paramCycles := Max(1, StrToIntDef(ValueOf(PARAM_CYCLES, param), paramCycles))
     else
     if StartsText(PARAM_OUT, param) then
       paramOutFile := ValueOf(PARAM_OUT, param)
@@ -378,9 +378,6 @@ begin
   end;
 
   if not Result then Exit;
-
-  // A non-positive value would run nothing and then get misreported as "no tests matched the filter"
-  paramCycles := Max(1, paramCycles);
 
   if not paramHeadless then
     Show; // Render control needs a window to create its OpenGL context
