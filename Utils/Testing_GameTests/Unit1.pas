@@ -56,6 +56,7 @@ type
 
 implementation
 uses
+  StrUtils,
   KM_GameTypes, KM_Defaults,
   KM_MainSettings, KM_GameSettings, KM_GameAppSettings;
 
@@ -335,19 +336,14 @@ const
   PRM_OUT       = '--out=';
   PRM_WINDOWED  = '--windowed';
 var
-  filter, outFile, param: string;
+  filter, outFile: string;
   seed, cycles, ranCnt, failedCnt: Integer;
   blind: Boolean;
   results: TStringList;
 
-  function HasPrefix(const aPrefix: string): Boolean;
+  function ValueOf(const aPrefix, aParameter: string): string;
   begin
-    Result := SameText(Copy(param, 1, Length(aPrefix)), aPrefix);
-  end;
-
-  function ValueOf(const aPrefix: string): string;
-  begin
-    Result := Copy(param, Length(aPrefix) + 1, MaxInt);
+    Result := Copy(aParameter, Length(aPrefix) + 1, MaxInt);
   end;
 
 begin
@@ -361,26 +357,26 @@ begin
 
   for var I := 1 to ParamCount do
   begin
-    param := ParamStr(I);
+    var param := ParamStr(I);
 
     if SameText(param, PRM_RUN_ALL) then
       Result := True
     else
-    if HasPrefix(PRM_RUN) then
+    if StartsText(PRM_RUN, param) then
     begin
-      filter := ValueOf(PRM_RUN);
+      filter := ValueOf(PRM_RUN, param);
       if filter <> '' then // An empty value is most likely a missing argument, not "run everything"
         Result := True;
     end
     else
-    if HasPrefix(PRM_SEED) then
-      seed := StrToIntDef(ValueOf(PRM_SEED), seed)
+    if StartsText(PRM_SEED, param) then
+      seed := StrToIntDef(ValueOf(PRM_SEED, param), seed)
     else
-    if HasPrefix(PRM_CYCLES) then
-      cycles := StrToIntDef(ValueOf(PRM_CYCLES), cycles)
+    if StartsText(PRM_CYCLES, param) then
+      cycles := StrToIntDef(ValueOf(PRM_CYCLES, param), cycles)
     else
-    if HasPrefix(PRM_OUT) then
-      outFile := ValueOf(PRM_OUT)
+    if StartsText(PRM_OUT, param) then
+      outFile := ValueOf(PRM_OUT, param)
     else
     if SameText(param, PRM_WINDOWED) then
       blind := False;
