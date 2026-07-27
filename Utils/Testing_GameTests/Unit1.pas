@@ -385,13 +385,13 @@ begin
   if not paramHeadless then
     Show; // Render control needs a window to create its OpenGL context
 
+  var sw := TStreamWriter.Create(paramOutFile);
   try
-    EnsureResourcesLoaded(paramHeadless);
-
-    var ranCnt := 0;
-    var failedCnt := 0;
-    var results := TStringList.Create;
     try
+      EnsureResourcesLoaded(paramHeadless);
+
+      var ranCnt := 0;
+      var failedCnt := 0;
       for var C := 0 to paramCycles - 1 do
         for var I := 0 to High(gTestList) do
         begin
@@ -416,48 +416,34 @@ begin
           Inc(ranCnt);
 
           case fResults.TestResult of
-            trSuccess:    results.Add(Format('%-40s SUCCESS      seed %d', [gTestList[I].ClassName, paramSeed + C]));
-            trFailed:     results.Add(Format('%-40s FAILED       seed %d: %s', [gTestList[I].ClassName, paramSeed + C, fResults.TestMessage]));
-            trException:  results.Add(Format('%-40s EXCEPTION    seed %d: %s', [gTestList[I].ClassName, paramSeed + C, fResults.TestMessage]));
+            trSuccess:    sw.WriteLine(Format('%-40s SUCCESS      seed %d', [gTestList[I].ClassName, paramSeed + C]));
+            trFailed:     sw.WriteLine(Format('%-40s FAILED       seed %d: %s', [gTestList[I].ClassName, paramSeed + C, fResults.TestMessage]));
+            trException:  sw.WriteLine(Format('%-40s EXCEPTION    seed %d: %s', [gTestList[I].ClassName, paramSeed + C, fResults.TestMessage]));
           end;
 
           if fResults.TestResult <> trSuccess then
             Inc(failedCnt);
         end;
 
-      if ranCnt = 0 then
-      begin
-        results.Add(Format('No tests matched filter "%s"', [paramFilter]));
-        ExitCode := 2;
-      end
-      else
-      begin
-        results.Add(Format('Tests run: %d, failed: %d', [ranCnt, failedCnt]));
-        ExitCode := Ord(failedCnt > 0);
-      end;
-
-      results.SaveToFile(paramOutFile);
-    finally
-      results.Free;
-    end;
-  except
-    on E: Exception do
-    begin
-      // Nothing above is guarded once we get here (Application.Run is skipped in batch mode), so
-      // without this an exception would escape into a modal error dialog and hang an unattended run
-      ExitCode := 3;
-      try
-        var errList := TStringList.Create;
-        try
-          errList.Add(Format('EXCEPTION before tests could complete: %s: %s', [E.ClassName, E.Message]));
-          errList.SaveToFile(paramOutFile);
-        finally
-          errList.Free;
+        if ranCnt = 0 then
+        begin
+          sw.WriteLine(Format('No tests matched filter "%s"', [paramFilter]));
+          ExitCode := 2;
+        end
+        else
+        begin
+          sw.WriteLine(Format('Tests run: %d, failed: %d', [ranCnt, failedCnt]));
+          ExitCode := Ord(failedCnt > 0);
         end;
-      except
-        //Best effort only, do not let a broken --out path mask the real exception above
+    except
+      on E: Exception do
+      begin
+        sw.WriteLine('EXCEPTION before tests could complete: %s: %s', [E.ClassName, E.Message]);
+        ExitCode := 3;
       end;
     end;
+  finally
+    sw.Free;
   end;
 end;
 
