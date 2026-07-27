@@ -451,11 +451,6 @@ begin
     if fDirection = gdGoInside then
     begin
       fUnit.PositionF := KMPointF(fDoor);
-      if (fUnit.Home <> nil)
-      and (fUnit.Home = fHouse)
-      and (fUnit.Home.HouseType = htBarracks) //Unit home is barracks
-      and not fUnit.Home.IsDestroyed then //And is the house we are walking into and it's not destroyed
-        TKMHouseBarracks(fUnit.Home).RecruitsAdd(fUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       //Set us as inside even if the house is destroyed. In that case UpdateVisibility will sort things out.
 
       //When any woodcutter returns home - add an Axe
@@ -471,6 +466,14 @@ begin
 
       if fHouse <> nil then
         fUnit.InHouse := fHouse;
+
+      //Add the recruit to the barracks list once InHouse is set, otherwise it can be equipped
+      //while still walking in, or handed out by TakeFirstRecruit with InHouse not yet matching
+      if (fUnit.Home <> nil)
+      and (fUnit.Home = fHouse)
+      and (fUnit.Home.HouseType = htBarracks) //Unit home is barracks
+      and not fUnit.Home.IsDestroyed then //And is the house we are walking into and it's not destroyed
+        TKMHouseBarracks(fUnit.Home).RecruitsAdd(fUnit);
 
       // Release tile, occupied under the house entrance
       // Unit occupied tile, when he was walking inside house, because he could interact with terrain

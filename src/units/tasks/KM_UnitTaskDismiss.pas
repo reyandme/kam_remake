@@ -10,6 +10,7 @@ type
   TKMTaskDismiss = class(TKMUnitTask)
   private
     fSchool: TKMHouse;
+    procedure WalkToSchool;
   protected
     procedure InitDefaultAction; override;
   public
@@ -30,7 +31,7 @@ type
 
 implementation
 uses
-  KM_Entity,
+  KM_Entity, KM_Points,
   KM_HandsCollection, KM_Hand, KM_HandTypes, KM_HandEntity,
   KM_ResTypes, KM_ScriptingEvents;
 
@@ -74,7 +75,10 @@ end;
 
 function TKMTaskDismiss.CouldBeCancelled: Boolean;
 begin
-  Result := fPhase <= 1; //Allow cancel dismiss only while walking to the school point below entrance
+  //Phases 1 (walking out of the house) and 3 (walking into the school) use a locked GoInOut
+  //action that can not be interrupted - DismissCancel would just ignore the request then.
+  //Only phase 0 (not started yet) and phase 2 (walking to the school point) can actually be cancelled
+  Result := (fPhase = 0) or (fPhase = 2);
 end;
 
 
@@ -99,12 +103,21 @@ end;
 function TKMTaskDismiss.FindNewSchool: TKMHouse;
 var
   S: TKMHouse;
+  loc: TKMPoint;
 begin
   fSchool := nil;
 
-  S := gHands[fUnit.Owner].FindHouse(htSchool, fUnit.Position);
+  loc := fUnit.Position;
+  //Unit inside a house stands on its entrance tile, which is not walkable, hence no route could
+  //ever be made from there. Position stays on that tile for the whole walk out of the house (only
+  //Visible flips early, mid-walk), so key this on InHouse alone, same as TKMHand.FindInn does.
+  //Search from the tile below the door then
+  if fUnit.InHouse <> nil then
+    Inc(loc.Y); //From outside the door of the house
 
-  if (S <> nil) and fUnit.CanWalkTo(fUnit.Position, S.PointBelowEntrance, tpWalk, 0) then
+  S := gHands[fUnit.Owner].FindHouse(htSchool, loc);
+
+  if (S <> nil) and fUnit.CanWalkTo(loc, S.PointBelowEntrance, tpWalk, 0) then
     fSchool := S.GetPointer;
 
   Result := fSchool;
@@ -114,6 +127,12 @@ end;
 procedure TKMTaskDismiss.InitDefaultAction;
 begin
   //Do nothing here, as we have to continue old action, until it could be interrupted
+end;
+
+
+procedure TKMTaskDismiss.WalkToSchool;
+begin
+  fUnit.SetActionWalkToSpot(fSchool.PointBelowEntrance, uaWalk, 0, fUnit.AnimStep); // Preserv current AnimStep
 end;
 
 
@@ -129,9 +148,26 @@ begin
 
   with fUnit do
     case fPhase of
-      0:  SetActionWalkToSpot(fSchool.PointBelowEntrance, uaWalk, 0, fUnit.AnimStep); // Preserv current AnimStep
-      1:  SetActionGoIn(uaWalk, gdGoInside, fSchool);
-      2:  begin
+      0:  if not Visible and (InHouse <> nil) and not InHouse.IsDestroyed then
+          begin
+            //Unit could be dismissed while he is inside a house (f.e. a recruit sitting in the barracks,
+            //or a citizen resting at his workplace) - he has to step outside first,
+            //otherwise he would walk to the school while occupying no terrain tile at all
+            if InHouse = Home then
+              Home.SetState(hstEmpty); //He is not coming back, do not leave the house with the idle animation on
+            SetActionGoIn(uaWalk, gdGoOutside, InHouse); //Walk outside the house
+          end
+          else
+          begin
+            //Unit is outside already, so skip the walking out phase right away.
+            //Skipping it with a SetActionLockedStay would reset AnimStep and make the unit
+            //stand still for a tick, while he could be walking already
+            Inc(fPhase);
+            WalkToSchool;
+          end;
+      1:  WalkToSchool;
+      2:  SetActionGoIn(uaWalk, gdGoInside, fSchool);
+      3:  begin
             //Note: we do not set trTaskDone here, as we are going to destroy this task and Close (delete) unit
             //Setting to trTaskDone will force Unit.UpadateState to find new task/action for this unit
             if gMySpectator.Selected = fUnit then
