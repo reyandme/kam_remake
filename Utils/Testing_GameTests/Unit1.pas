@@ -46,7 +46,7 @@ type
     procedure RefreshTestList;
     function IsStopped: Boolean;
     procedure HandleProgress(const aValue: string);
-    procedure EnsureResourcesLoaded(aBlind: Boolean = False);
+    procedure EnsureResourcesLoaded(aHeadless: Boolean);
     procedure RefreshTagList;
     procedure RunTest(aClass: TKMTestClass; aSeed: Integer);
   public
@@ -191,7 +191,7 @@ end;
 
 procedure TForm2.RunTest(aClass: TKMTestClass; aSeed: Integer);
 begin
-  EnsureResourcesLoaded;
+  EnsureResourcesLoaded(False);
 
   fStopped := False;
 
@@ -286,16 +286,16 @@ begin
 end;
 
 
-procedure TForm2.EnsureResourcesLoaded(aBlind: Boolean = False);
+procedure TForm2.EnsureResourcesLoaded(aHeadless: Boolean);
 var
   tgtWidth, tgtHeight: Word;
   renderArea: TKMRenderControl;
 begin
   if gGameApp <> nil then Exit;
 
-  // Blind mode needs no OpenGL context and no window, hence the app could be run from the command line.
+  // Headless mode needs no OpenGL context and no window, hence the app could be run from the command line.
   // SKIP_RENDER must be set before the resources are loaded, it also skips loading of the sprites
-  if aBlind then
+  if aHeadless then
   begin
     SKIP_RENDER := True;
     renderArea := nil;
