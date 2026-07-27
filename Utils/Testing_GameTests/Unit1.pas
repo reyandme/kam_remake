@@ -46,9 +46,11 @@ type
     procedure RefreshTestList;
     function IsStopped: Boolean;
     procedure HandleProgress(const aValue: string);
-    procedure EnsureResourcesLoaded;
+    procedure EnsureResourcesLoaded(aBlind: Boolean = False);
     procedure RefreshTagList;
     procedure RunTest(aClass: TKMTestClass; aSeed: Integer);
+  public
+    function RunFromCmdLine: Boolean;
   end;
 
 
@@ -283,26 +285,190 @@ begin
 end;
 
 
-procedure TForm2.EnsureResourcesLoaded;
+procedure TForm2.EnsureResourcesLoaded(aBlind: Boolean = False);
 var
   tgtWidth, tgtHeight: Word;
+  renderArea: TKMRenderControl;
 begin
   if gGameApp <> nil then Exit;
 
-  if fRenderArea = nil then
+  // Blind mode needs no OpenGL context and no window, hence the app could be run from the command line.
+  // SKIP_RENDER must be set before the resources are loaded, it also skips loading of the sprites
+  if aBlind then
+  begin
+    SKIP_RENDER := True;
+    renderArea := nil;
+  end
+  else
+    renderArea := fRenderArea;
+
+  if renderArea = nil then
   begin
     tgtWidth := 1024;
     tgtHeight := 768;
   end else
   begin
-    tgtWidth := fRenderArea.Width;
-    tgtHeight := fRenderArea.Height;
+    tgtWidth := renderArea.Width;
+    tgtHeight := renderArea.Height;
   end;
 
-  gGameApp := TKMGameApp.Create(fRenderArea, tgtWidth, tgtHeight, False, nil, nil, nil, True);
+  gGameApp := TKMGameApp.Create(renderArea, tgtWidth, tgtHeight, False, nil, nil, nil, True);
   gGameSettings.Autosave := False;
   gGameSettings.SaveCheckpoints := False;
   gGameApp.PreloadGameResources;
+end;
+
+
+// Batch mode, allows to run tests without any user interaction:
+//   Testing_GameTests.exe --run-all [--seed=N] [--cycles=N] [--windowed] [--out=<file>]
+//   Testing_GameTests.exe --run=Recruit
+// --run filter is a case insensitive substring of the test class name.
+// Results are written into the --out file, ExitCode is 0 when everything passed, 1 on any failure
+// and 2 when no test matched the filter.
+// Returns False when there were no known switches, then the app should just show its window as usual
+function TForm2.RunFromCmdLine: Boolean;
+const
+  PRM_RUN_ALL   = '--run-all';
+  PRM_RUN       = '--run=';
+  PRM_SEED      = '--seed=';
+  PRM_CYCLES    = '--cycles=';
+  PRM_OUT       = '--out=';
+  PRM_WINDOWED  = '--windowed';
+var
+  filter, outFile, param: string;
+  seed, cycles, ranCnt, failedCnt: Integer;
+  blind: Boolean;
+  results: TStringList;
+
+  function HasPrefix(const aPrefix: string): Boolean;
+  begin
+    Result := SameText(Copy(param, 1, Length(aPrefix)), aPrefix);
+  end;
+
+  function ValueOf(const aPrefix: string): string;
+  begin
+    Result := Copy(param, Length(aPrefix) + 1, MaxInt);
+  end;
+
+begin
+  Result := False;
+
+  filter := '';
+  seed := seSeed.Value;
+  cycles := 1;
+  blind := True;
+  // .log extension, so that the results are covered by .gitignore
+  outFile := ExtractFilePath(ParamStr(0)) + 'Testing_GameTests_results.log';
+
+  for var I := 1 to ParamCount do
+  begin
+    param := ParamStr(I);
+
+    if SameText(param, PRM_RUN_ALL) then
+      Result := True
+    else
+    if HasPrefix(PRM_RUN) then
+    begin
+      filter := ValueOf(PRM_RUN);
+      if filter <> '' then // An empty value is most likely a missing argument, not "run everything"
+        Result := True;
+    end
+    else
+    if HasPrefix(PRM_SEED) then
+      seed := StrToIntDef(ValueOf(PRM_SEED), seed)
+    else
+    if HasPrefix(PRM_CYCLES) then
+      cycles := StrToIntDef(ValueOf(PRM_CYCLES), cycles)
+    else
+    if HasPrefix(PRM_OUT) then
+      outFile := ValueOf(PRM_OUT)
+    else
+    if SameText(param, PRM_WINDOWED) then
+      blind := False;
+  end;
+
+  if not Result then Exit;
+
+  // A non-positive value would run nothing and then get misreported as "no tests matched the filter"
+  cycles := Max(1, cycles);
+
+  if not blind then
+    Show; // Render control needs a window to create its OpenGL context
+
+  try
+    EnsureResourcesLoaded(blind);
+
+    ranCnt := 0;
+    failedCnt := 0;
+    results := TStringList.Create;
+    try
+      for var C := 0 to cycles - 1 do
+        for var I := 0 to High(gTestList) do
+        begin
+          if (filter <> '') and (Pos(LowerCase(filter), LowerCase(gTestList[I].ClassName)) = 0) then Continue;
+
+          // TKMTest.Run does not guard its SetUp, hence one broken test should not kill the whole batch
+          try
+            RunTest(gTestList[I], seed + C);
+          except
+            on E: Exception do
+            begin
+              fResults.TestResult := trException;
+              fResults.TestMessage := E.ClassName + ': ' + E.Message;
+
+              // SetUp may have raised before TKMTest.Run reached its own try/finally (Run does not
+              // guard SetUp), so TearDown never ran - the game could still be half-started, which
+              // would poison every remaining test's SetUp. Clean it up here as a last resort
+              if (gGameApp <> nil) and (gGameApp.Game <> nil) then
+                gGameApp.StopGame(grSilent);
+            end;
+          end;
+          Inc(ranCnt);
+
+          case fResults.TestResult of
+            trSuccess:    results.Add(Format('%-40s SUCCESS      seed %d', [gTestList[I].ClassName, seed + C]));
+            trFailed:     results.Add(Format('%-40s FAILED       seed %d: %s', [gTestList[I].ClassName, seed + C, fResults.TestMessage]));
+            trException:  results.Add(Format('%-40s EXCEPTION    seed %d: %s', [gTestList[I].ClassName, seed + C, fResults.TestMessage]));
+          end;
+
+          if fResults.TestResult <> trSuccess then
+            Inc(failedCnt);
+        end;
+
+      if ranCnt = 0 then
+      begin
+        results.Add(Format('No tests matched filter "%s"', [filter]));
+        ExitCode := 2;
+      end
+      else
+      begin
+        results.Add(Format('Tests run: %d, failed: %d', [ranCnt, failedCnt]));
+        ExitCode := Ord(failedCnt > 0);
+      end;
+
+      results.SaveToFile(outFile);
+    finally
+      results.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      // Nothing above is guarded once we get here (Application.Run is skipped in batch mode), so
+      // without this an exception would escape into a modal error dialog and hang an unattended run
+      ExitCode := 3;
+      try
+        var errList := TStringList.Create;
+        try
+          errList.Add(Format('EXCEPTION before tests could complete: %s: %s', [E.ClassName, E.Message]));
+          errList.SaveToFile(outFile);
+        finally
+          errList.Free;
+        end;
+      except
+        //Best effort only, do not let a broken --out path mask the real exception above
+      end;
+    end;
+  end;
 end;
 
 

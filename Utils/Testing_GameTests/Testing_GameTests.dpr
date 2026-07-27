@@ -47,6 +47,13 @@ var
 
 begin
   Application.Initialize;
+  Application.ShowMainForm := False; // Form is shown by RunFromCmdLine / Application.Run itself
   Application.CreateForm(TForm2, Form2);
-  Application.Run;
+
+  // Batch mode for the command line, see TForm2.RunFromCmdLine
+  if not Form2.RunFromCmdLine then
+  begin
+    Application.ShowMainForm := True;
+    Application.Run;
+  end;
 end.
