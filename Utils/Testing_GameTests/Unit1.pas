@@ -328,82 +328,78 @@ end;
 // and 2 when no test matched the filter.
 // Returns False when there were no known switches, then the app should just show its window as usual
 function TForm2.RunFromCmdLine: Boolean;
-const
-  PRM_RUN_ALL   = '--run-all';
-  PRM_RUN       = '--run=';
-  PRM_SEED      = '--seed=';
-  PRM_CYCLES    = '--cycles=';
-  PRM_OUT       = '--out=';
-  PRM_WINDOWED  = '--windowed';
-var
-  filter, outFile: string;
-  seed, cycles: Integer;
-  blind: Boolean;
 
   function ValueOf(const aPrefix, aParameter: string): string;
   begin
     Result := Copy(aParameter, Length(aPrefix) + 1, MaxInt);
   end;
 
+const
+  PARAM_RUN_ALL   = '--run-all';
+  PARAM_RUN       = '--run=';
+  PARAM_SEED      = '--seed=';
+  PARAM_CYCLES    = '--cycles=';
+  PARAM_OUT       = '--out=';
+  PARAM_WINDOWED  = '--windowed';
 begin
   Result := False;
 
-  filter := '';
-  seed := seSeed.Value;
-  cycles := 1;
-  blind := True;
-  outFile := ChangeFileExt(ParamStr(0), '_results.log');
+  var paramFilter := '';
+  var paramSeed := seSeed.Value;
+  var paramCycles := 1;
+  var paramHeadless := True;
+  var paramOutFile := ChangeFileExt(ParamStr(0), '_results.log');
 
   for var I := 1 to ParamCount do
   begin
     var param := ParamStr(I);
 
-    if SameText(param, PRM_RUN_ALL) then
+    if SameText(param, PARAM_RUN_ALL) then
       Result := True
     else
-    if StartsText(PRM_RUN, param) then
+    if StartsText(PARAM_RUN, param) then
     begin
-      filter := ValueOf(PRM_RUN, param);
-      if filter <> '' then // An empty value is most likely a missing argument, not "run everything"
+      paramFilter := ValueOf(PARAM_RUN, param);
+      if paramFilter <> '' then // An empty value is most likely a missing argument, not "run everything"
         Result := True;
     end
     else
-    if StartsText(PRM_SEED, param) then
-      seed := StrToIntDef(ValueOf(PRM_SEED, param), seed)
+    if StartsText(PARAM_SEED, param) then
+      paramSeed := StrToIntDef(ValueOf(PARAM_SEED, param), paramSeed)
     else
-    if StartsText(PRM_CYCLES, param) then
-      cycles := StrToIntDef(ValueOf(PRM_CYCLES, param), cycles)
+    if StartsText(PARAM_CYCLES, param) then
+      paramCycles := StrToIntDef(ValueOf(PARAM_CYCLES, param), paramCycles)
     else
-    if StartsText(PRM_OUT, param) then
-      outFile := ValueOf(PRM_OUT, param)
+    if StartsText(PARAM_OUT, param) then
+      paramOutFile := ValueOf(PARAM_OUT, param)
     else
-    if SameText(param, PRM_WINDOWED) then
-      blind := False;
+    if SameText(param, PARAM_WINDOWED) then
+      paramHeadless := False;
   end;
 
   if not Result then Exit;
 
   // A non-positive value would run nothing and then get misreported as "no tests matched the filter"
-  cycles := Max(1, cycles);
+  paramCycles := Max(1, paramCycles);
 
-  if not blind then
+  if not paramHeadless then
     Show; // Render control needs a window to create its OpenGL context
 
   try
-    EnsureResourcesLoaded(blind);
+    EnsureResourcesLoaded(paramHeadless);
 
     var ranCnt := 0;
     var failedCnt := 0;
     var results := TStringList.Create;
     try
-      for var C := 0 to cycles - 1 do
+      for var C := 0 to paramCycles - 1 do
         for var I := 0 to High(gTestList) do
         begin
-          if (filter <> '') and (Pos(LowerCase(filter), LowerCase(gTestList[I].ClassName)) = 0) then Continue;
+          if (paramFilter <> '') and (Pos(LowerCase(paramFilter), LowerCase(gTestList[I].ClassName)) = 0) then Continue;
 
           // TKMTest.Run does not guard its SetUp, hence one broken test should not kill the whole batch
           try
-            RunTest(gTestList[I], seed + C);
+            RunTest(gTestList[I], paramSeed + C);
           except
             on E: Exception do
             begin
@@ -420,9 +416,9 @@ begin
           Inc(ranCnt);
 
           case fResults.TestResult of
-            trSuccess:    results.Add(Format('%-40s SUCCESS      seed %d', [gTestList[I].ClassName, seed + C]));
-            trFailed:     results.Add(Format('%-40s FAILED       seed %d: %s', [gTestList[I].ClassName, seed + C, fResults.TestMessage]));
-            trException:  results.Add(Format('%-40s EXCEPTION    seed %d: %s', [gTestList[I].ClassName, seed + C, fResults.TestMessage]));
+            trSuccess:    results.Add(Format('%-40s SUCCESS      seed %d', [gTestList[I].ClassName, paramSeed + C]));
+            trFailed:     results.Add(Format('%-40s FAILED       seed %d: %s', [gTestList[I].ClassName, paramSeed + C, fResults.TestMessage]));
+            trException:  results.Add(Format('%-40s EXCEPTION    seed %d: %s', [gTestList[I].ClassName, paramSeed + C, fResults.TestMessage]));
           end;
 
           if fResults.TestResult <> trSuccess then
@@ -431,7 +427,7 @@ begin
 
       if ranCnt = 0 then
       begin
-        results.Add(Format('No tests matched filter "%s"', [filter]));
+        results.Add(Format('No tests matched filter "%s"', [paramFilter]));
         ExitCode := 2;
       end
       else
@@ -440,7 +436,7 @@ begin
         ExitCode := Ord(failedCnt > 0);
       end;
 
-      results.SaveToFile(outFile);
+      results.SaveToFile(paramOutFile);
     finally
       results.Free;
     end;
@@ -454,7 +450,7 @@ begin
         var errList := TStringList.Create;
         try
           errList.Add(Format('EXCEPTION before tests could complete: %s: %s', [E.ClassName, E.Message]));
-          errList.SaveToFile(outFile);
+          errList.SaveToFile(paramOutFile);
         finally
           errList.Free;
         end;
