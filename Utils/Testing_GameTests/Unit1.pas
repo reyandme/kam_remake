@@ -357,8 +357,7 @@ begin
   seed := seSeed.Value;
   cycles := 1;
   blind := True;
-  // .log extension, so that the results are covered by .gitignore
-  outFile := ExtractFilePath(ParamStr(0)) + 'Testing_GameTests_results.log';
+  outFile := ChangeFileExt(ParamStr(0), '_results.log');
 
   for var I := 1 to ParamCount do
   begin
