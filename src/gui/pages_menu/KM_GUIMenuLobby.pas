@@ -1793,7 +1793,7 @@ begin
 
                     for K := 0 to gNetworking.SaveInfo.GameInfo.PlayerCount - 1 do
                       if gNetworking.SaveInfo.GameInfo.Enabled[K]
-                      and (gNetworking.SaveInfo.GameInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS) then
+                      and (gNetworking.SaveInfo.GameInfo.CanBeHuman[K] or DBG_ALLOW_TAKE_AI_PLAYERS) then
                         AddLocation(UnicodeString(gNetworking.SaveInfo.GameInfo.OwnerNickname[K]), I, K+1);
                   end;
         ngkMap:  begin
@@ -1803,7 +1803,7 @@ begin
                     for K := 0 to gNetworking.MapInfo.LocCount - 1 do
                       //AI-only locations should not be listed for AIs in lobby, since those ones are
                       //automatically added when the game starts (so AI checks CanBeHuman too)
-                      if (curSlot.IsHuman and (gNetworking.MapInfo.CanBeHuman[K] or ALLOW_TAKE_AI_PLAYERS))
+                      if (curSlot.IsHuman and (gNetworking.MapInfo.CanBeHuman[K] or DBG_ALLOW_TAKE_AI_PLAYERS))
                         or (curSlot.IsClassicComputer
                           and gNetworking.MapInfo.CanBeHuman[K]
                           and gNetworking.MapInfo.CanBeClassicAI[K])
