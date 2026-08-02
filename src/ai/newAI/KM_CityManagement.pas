@@ -295,7 +295,7 @@ var
     end;
   end;
 
-  procedure Dismiss(var aUnitReq: TKMUnitReqArr);
+  procedure DismissUnusedUnits(var aUnitReq: TKMUnitReqArr);
   var
     K: Integer;
     UT: TKMUnitType;
@@ -303,10 +303,12 @@ var
   begin
     // Adjust worker count
     aUnitReq[utBuilder] := aUnitReq[utBuilder] * Byte(fPredictor.CityCompleted);
+
     // Convert planned houses to units
     for HT := HOUSE_MIN to HOUSE_MAX do
       if gRes.Houses[HT].CanHasWorker AND (HT <> htBarracks) then
         Inc(aUnitReq[gRes.Houses[HT].WorkerType], fBuilder.Planner.PlannedHouses[HT].Count);
+
     // Dismiss units
     for UT in DISMISS_UNITS do
     begin
@@ -314,8 +316,8 @@ var
       while (aUnitReq[UT] < -1) AND (K < gHands[fOwner].Units.Count) do // -1 for reserve
       begin
         if (gHands[fOwner].Units[K].UnitType = UT)
-            AND (gHands[fOwner].Units[K].Home = nil)
-            AND gHands[fOwner].Units[K].Dismissable then
+        and (gHands[fOwner].Units[K].Home = nil)
+        and gHands[fOwner].Units[K].Dismissable then
         begin
           Inc(aUnitReq[UT]);
           gHands[fOwner].Units[K].Dismiss;
@@ -432,8 +434,7 @@ begin
       TrainByPriority(TRAINING_PRIORITY, UnitTrain, Schools, cnt);
   end;
 
-  // Dismiss unused units
-  Dismiss(UnitReq);
+  DismissUnusedUnits(UnitReq);
 end;
 
 
