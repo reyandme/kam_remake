@@ -752,7 +752,7 @@ begin
 
     Lock;
     try
-      if SLOW_CAMP_PROGRESS_SAVE_LOAD then
+      if DBG_SLOW_CAMP_PROGRESS_SAVE_LOAD then
         Sleep(2000);
 
       newXML.SaveToFile(filePath);
@@ -799,7 +799,7 @@ begin
 
     nCamp := newXML.Root.AddOrFindChild('campaign');
 
-    if SLOW_CAMP_PROGRESS_SAVE_LOAD then
+    if DBG_SLOW_CAMP_PROGRESS_SAVE_LOAD then
       Sleep(2000);
 
     campId := AnsiString(nCamp.Attributes['id'].AsString(''));
@@ -1106,7 +1106,7 @@ begin
           and (searchRec.Attr and faDirectory = faDirectory)
           and FileExists(aPath + searchRec.Name + PathDelim + 'info.cmp') then
         begin
-          if SLOW_CAMPAIGN_SCAN then
+          if DBG_SLOW_CAMPAIGN_SCAN then
             Sleep(2000);
 
           camp := TKMCampaign.Create;

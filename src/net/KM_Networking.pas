@@ -1801,7 +1801,7 @@ begin
     mkFileChunk:
             if not IsHost and (fFileReceiver <> nil) then
             begin
-              if SLOW_MAP_SAVE_LOAD then
+              if DBG_SLOW_MAP_SAVE_LOAD then
                 Sleep(50);
                   
               fFileReceiver.DataReceived(aStream);

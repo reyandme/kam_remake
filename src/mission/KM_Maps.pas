@@ -1979,7 +1979,7 @@ var
 begin
   map := TKMMapInfo.Create(aPath, False, aKind);
 
-  if SLOW_MAP_SCAN then
+  if DBG_SLOW_MAP_SCAN then
     Sleep(50);
 
   fOnMapAdd(map);

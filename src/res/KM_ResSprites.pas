@@ -2214,7 +2214,7 @@ begin
   begin
     if not LoadStepDone then
     begin
-      if SLOW_ASYNC_RES_LOADER then
+      if DBG_SLOW_ASYNC_RES_LOADER then
         Sleep(5000);
 
       Log(Format('RT = %s Stage = %s', [GetEnumName(TypeInfo(TRXType), Integer(RXType)),
