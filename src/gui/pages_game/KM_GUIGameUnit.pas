@@ -190,7 +190,8 @@ begin
     ConditionBar_Unit.Left   := 65 + DISMISS_PADDING;
     Label_UnitCondition.Width := 116 - DISMISS_PADDING;
     ConditionBar_Unit.Width   := 116 - DISMISS_PADDING;
-  end else begin
+  end else
+  begin
     Label_UnitCondition.Left := 65;
     ConditionBar_Unit.Left   := 65;
     Label_UnitCondition.Width := 116;
@@ -246,13 +247,14 @@ begin
                                  and gMySpectator.IsSelectedMyObj; // Allow to dismiss only our units
 
   if aUnit.IsDismissing
-    or aUnit.DismissInProgress then //Check if we started dismiss process
+  or aUnit.DismissInProgress then //Check if we started dismiss process
   begin
     Button_Unit_Dismiss.TexID := 668;
     Button_Unit_Dismiss.Hint := gResTexts[TX_UNIT_TASK_DISMISS_CANCEL_HINT];
     Button_Unit_Dismiss.Enabled := aUnit.IsDismissCancelAvailable;
     Panel_Unit_Dismiss.Visible := False;
-  end else begin
+  end else
+  begin
     hasSchools := gMySpectator.Hand.Stats.GetHouseQty(htSchool) > 0;
 
     if fAskDismiss and not aUnit.IsDismissAvailable then
@@ -336,7 +338,7 @@ var
   isGroup: Boolean;
 begin
   if (gMySpectator.Selected = nil)
-    or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
+  or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
     Exit;
 
   isGroup := gMySpectator.Selected is TKMUnitGroup;
@@ -367,7 +369,7 @@ var
   G: TKMUnitGroup;
 begin
   if (gMySpectator.Selected = nil)
-    or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
+  or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
     Exit;
 
   U := nil;
@@ -404,12 +406,12 @@ begin
 
   //Check if we have new hint with separate 1 unit action hint (Ctrl + S)
   if CountOccurrences('%s', gResTexts[TX_TROOP_SPLIT_HINT]) = 2 then
-    Button_Army_Split.Hint    := Format(gResTexts[TX_TROOP_SPLIT_HINT], [splitKeyStr, splitKeyStr])
+    Button_Army_Split.Hint := Format(gResTexts[TX_TROOP_SPLIT_HINT], [splitKeyStr, splitKeyStr])
   else
-    Button_Army_Split.Hint     := GetHintWHotkey(TX_TROOP_SPLIT_HINT, splitKeyStr); //Old hint
+    Button_Army_Split.Hint := GetHintWHotkey(TX_TROOP_SPLIT_HINT, splitKeyStr); //Old hint
 
-  Button_Army_Join.Hint     := GetHintWHotkey(TX_TROOP_LINK_HINT, kfArmyLink);
-  Button_Army_Feed.Hint     := GetHintWHotkey(TX_ARMY_FEED_HINT, kfArmyFood);
+  Button_Army_Join.Hint := GetHintWHotkey(TX_TROOP_LINK_HINT, kfArmyLink);
+  Button_Army_Feed.Hint := GetHintWHotkey(TX_ARMY_FEED_HINT, kfArmyFood);
 end;
 
 
@@ -423,7 +425,7 @@ begin
     if TKMUnit(gMySpectator.Selected).IsDismissCancelAvailable then
       gGame.GameInputProcess.CmdUnit(gicUnitDismissCancel, TKMUnit(gMySpectator.Selected))
     else
-      UnitDismissClick( Button_Unit_DismissYes ); // Call for Dismiss task immediately
+      UnitDismissClick(Button_Unit_DismissYes); // Call for Dismiss task immediately
   end;
 end;
 
@@ -434,13 +436,14 @@ var
   rotCnt: ShortInt;
 begin
   if (gMySpectator.Selected = nil)
-    or not (gMySpectator.Selected is TKMUnitGroup) then Exit;
+  or not (gMySpectator.Selected is TKMUnitGroup) then
+    Exit;
 
   group := TKMUnitGroup(gMySpectator.Selected);
 
   // if Sender = Button_Army_GoTo    then ; // This command makes no sense unless player has no right-mouse-button
 
-  if Sender = Button_Army_Stop    then
+  if Sender = Button_Army_Stop then
   begin
     gGame.GameInputProcess.CmdArmy(gicArmyHalt, group);
     gSoundPlayer.PlayWarrior(group.UnitType, spHalt);
@@ -470,7 +473,7 @@ begin
       gSoundPlayer.PlayWarrior(group.UnitType, spRotLeft);
   end;
 
-  if Sender = Button_Army_Storm   then
+  if Sender = Button_Army_Storm then
   begin
     gGame.GameInputProcess.CmdArmy(gicArmyStorm, group);
     gSoundPlayer.PlayWarrior(group.UnitType, spStormAttack);
@@ -482,13 +485,13 @@ begin
     gSoundPlayer.PlayWarrior(group.UnitType, spFormation);
   end;
 
-  if Sender = Button_Army_ForUp   then
+  if Sender = Button_Army_ForUp then
   begin
     gGame.GameInputProcess.CmdArmy(gicArmyFormation, group, 0, -GetMultiplicator(Shift, RMB_ADD_ROWS_CNT));
     gSoundPlayer.PlayWarrior(group.UnitType, spFormation);
   end;
 
-  if Sender = Button_Army_Split   then
+  if Sender = Button_Army_Split then
   begin
     if ssCtrl in Shift then
       gGame.GameInputProcess.CmdArmy(gicArmySplitSingle, group)
@@ -505,7 +508,7 @@ begin
     fJoiningGroups := True;
   end;
 
-  if Sender = Button_Army_Feed    then
+  if Sender = Button_Army_Feed then
   begin
     gGame.GameInputProcess.CmdArmy(gicArmyFeed, group);
     gSoundPlayer.PlayWarrior(group.UnitType, spEat);
@@ -625,7 +628,7 @@ end;
 procedure TKMGUIGameUnit.UnitKillClick(Sender: TObject);
 begin
   if (gMySpectator.Selected = nil)
-    or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
+  or not ((gMySpectator.Selected is TKMUnit) or (gMySpectator.Selected is TKMUnitGroup)) then
     Exit;
 
   if (gMySpectator.Selected is TKMUnitGroup) then
