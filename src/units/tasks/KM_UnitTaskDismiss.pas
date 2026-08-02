@@ -10,6 +10,8 @@ type
   TKMTaskDismiss = class(TKMUnitTask)
   private
     fSchool: TKMHouse;
+
+    function FindSchool: TKMHouse;
   protected
     procedure InitDefaultAction; override;
   public
@@ -22,7 +24,6 @@ type
     function CouldBeCancelled: Boolean; override;
 
     property School: TKMHouse read fSchool;
-    function FindNewSchool: TKMHouse;
 
     function Execute: TKMTaskResult; override;
   end;
@@ -44,7 +45,7 @@ begin
   gHands[fUnit.Owner].Stats.UnitDismissed(fUnit.UnitType);
 
   fType := uttDismiss;
-  FindNewSchool;
+  FindSchool;
 end;
 
 
@@ -96,16 +97,14 @@ begin
 end;
 
 
-function TKMTaskDismiss.FindNewSchool: TKMHouse;
-var
-  S: TKMHouse;
+function TKMTaskDismiss.FindSchool: TKMHouse;
 begin
   fSchool := nil;
 
-  S := gHands[fUnit.Owner].FindHouse(htSchool, fUnit.Position);
+  var newSchool := gHands[fUnit.Owner].FindHouse(htSchool, fUnit.Position);
 
-  if (S <> nil) and fUnit.CanWalkTo(fUnit.Position, S.PointBelowEntrance, tpWalk, 0) then
-    fSchool := S.GetPointer;
+  if (newSchool <> nil) and fUnit.CanWalkTo(fUnit.Position, newSchool.PointBelowEntrance, tpWalk, 0) then
+    fSchool := newSchool.GetPointer;
 
   Result := fSchool;
 end;
