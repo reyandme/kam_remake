@@ -384,7 +384,7 @@ begin
       else
         fAtlases[I].TexID := 0;
 
-  if LOG_FONTS_RAM_USAGE then
+  if DBG_LOG_FONTS_RAM_USAGE then
     gLog.AddNoTime('Font RAM usage: ' + IntToStr(textureRAM));
   {$ENDIF}
 end;
