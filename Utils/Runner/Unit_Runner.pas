@@ -155,7 +155,7 @@ var
 begin
   if PARALLEL_RUN then
   begin
-    BLOCK_FILE_WRITE := True;
+    DBG_SKIP_WRITING_TO_DISK := True;
     BLOCK_SAVE := False; // Runner now supports parallel saves
   end;
 

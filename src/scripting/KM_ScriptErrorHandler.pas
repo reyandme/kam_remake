@@ -229,7 +229,7 @@ procedure TKMScriptErrorHandler.HandleScriptErrorString(aType: TKMScriptErrorTyp
 var
   logErrorMsg, errorStrToDisplay: UnicodeString;
 begin
-  if BLOCK_FILE_WRITE then Exit;
+  if DBG_SKIP_WRITING_TO_DISK then Exit;
 
   if aDetailedErrorString <> '' then
     logErrorMsg := aDetailedErrorString
