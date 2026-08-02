@@ -332,7 +332,7 @@ end;
 //  CloseFile(f);
 //  fCRC := Adler32CRC(FileName);
 //
-//  if WriteResourceInfoToTXT then
+//  if DBG_EXPORT_PATTERN_CSV then
 //    ExportPatternDat(ExeDir + 'Export'+PathDelim+'Pattern.csv');
 //
 //  Result := True;
