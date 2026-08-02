@@ -2370,7 +2370,7 @@ begin
   {$ENDIF}
   try
     // Emulate slow save in the async save thread
-    if SLOW_GAME_SAVE_ASYNC then
+    if DBG_SLOW_GAME_SAVE_ASYNC then
       aSaveWorkerThread.QueueWork(procedure
         begin
           Sleep(10000);

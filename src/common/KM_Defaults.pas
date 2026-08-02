@@ -262,13 +262,13 @@ var
   INI_HITPOINT_RESTORE    :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   ALLOW_CAMP_SCRIPT_DATA_UNCOMPRESSED
                           :Boolean = False; //Allow to save script data uncompressed
-  SLOW_MAP_SCAN           :Boolean = False; //Scan maps with a pause to emulate uncached file access
-  SLOW_CAMPAIGN_SCAN      :Boolean = False; //Scan campaigns with a pause to emulate uncached file access
-  SLOW_CAMP_PROGRESS_SAVE_LOAD:Boolean = False; //Scan campaigns with a pause to emulate uncached file access
-  SLOW_SAVE_SCAN          :Boolean = False; //Scan saves with a pause to emulate uncached file access
-  SLOW_GAME_SAVE_ASYNC    :Boolean = False; //Emulate slow game save (in the async save thread)
-  SLOW_MAP_SAVE_LOAD      :Boolean = False; //Load map or save to emulate slow network
-  SLOW_ASYNC_RES_LOADER   :Boolean = False; //Emulate slow async resource loader (slow res load in async thread)
+  DBG_SLOW_MAP_SCAN           :Boolean = False; //Scan maps with a pause to emulate uncached file access
+  DBG_SLOW_CAMPAIGN_SCAN      :Boolean = False; //Scan campaigns with a pause to emulate uncached file access
+  DBG_SLOW_CAMP_PROGRESS_SAVE_LOAD:Boolean = False; //Scan campaigns with a pause to emulate uncached file access
+  DBG_SLOW_SAVE_SCAN          :Boolean = False; //Scan saves with a pause to emulate uncached file access
+  DBG_SLOW_GAME_SAVE_ASYNC    :Boolean = False; //Emulate slow game save (in the async save thread)
+  DBG_SLOW_MAP_SAVE_LOAD      :Boolean = False; //Load map or save to emulate slow network
+  DBG_SLOW_ASYNC_RES_LOADER   :Boolean = False; //Emulate slow async resource loader (slow res load in async thread)
   DO_PERF_LOGGING         :Boolean = False; //Write each ticks time to log (DEPRECATED PERF_LOGGER)
   MP_RESULTS_IN_SP        :Boolean = False; //Display each players stats in SP
   SHOW_DEBUG_OVERLAY_BEVEL:Boolean = True;  //Show debug text overlay Bevel (for better text readability)

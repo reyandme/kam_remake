@@ -765,7 +765,7 @@ begin
         begin
           try
             save := TKMSaveInfo.Create(searchRec.Name, fMultiplayerPath);
-            if SLOW_SAVE_SCAN then
+            if DBG_SLOW_SAVE_SCAN then
               Sleep(50);
             fOnSaveAdd(save);
             fOnSaveAddDone(Self);
