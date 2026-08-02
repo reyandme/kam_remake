@@ -36,7 +36,7 @@ uses
   KM_ResTypes, KM_ScriptingEvents;
 
 
-{ TTaskDismiss }
+{ TKMTaskDismiss }
 constructor TKMTaskDismiss.Create(aUnit: TKMUnit);
 begin
   Assert(aUnit is TKMCivilUnit, 'Only civil units are allowed to be dismissed');
@@ -126,27 +126,29 @@ begin
     Exit;
   end;
 
-  with fUnit do
-    case fPhase of
-      0:  SetActionWalkToSpot(fSchool.PointBelowEntrance, uaWalk, 0, fUnit.AnimStep); // Preserv current AnimStep
-      1:  SetActionGoIn(uaWalk, gdGoInside, fSchool);
-      2:  begin
-            //Note: we do not set trTaskDone here, as we are going to destroy this task and Close (delete) unit
-            //Setting to trTaskDone will force Unit.UpadateState to find new task/action for this unit
-            if gMySpectator.Selected = fUnit then
-              gMySpectator.Selected := nil; //Reset view, in case we were watching dismissed unit
+  case fPhase of
+    0:  fUnit.SetActionWalkToSpot(fSchool.PointBelowEntrance, uaWalk, 0, fUnit.AnimStep); // Preserv current AnimStep
+    1:  fUnit.SetActionGoIn(uaWalk, gdGoInside, fSchool);
+    2:  begin
+          //Note: we do not set trTaskDone here, as we are going to destroy this task and Close (delete) unit
+          //Setting to trTaskDone will force Unit.UpadateState to find new task/action for this unit
+          if gMySpectator.Selected = fUnit then
+            gMySpectator.Selected := nil; //Reset view, in case we were watching dismissed unit
 
-            gHands[fUnit.Owner].Stats.UnitLost(fUnit.UnitType);
-            gHands[fUnit.Owner].Stats.CitizenRetired(fUnit.UnitType);
+          gHands[fUnit.Owner].Stats.UnitLost(fUnit.UnitType);
+          gHands[fUnit.Owner].Stats.CitizenRetired(fUnit.UnitType);
 
-            gScriptEvents.ProcUnitDismissed(fUnit);
+          gScriptEvents.ProcUnitDismissed(fUnit);
 
-            TKMCivilUnit(fUnit).KillInHouse; //Kill unit silently inside house
-            Exit; //Exit immediately, since we destroyed current task!
-                  //Changing any task fields here (f.e. Phase) will try to change freed memory!
-          end;
-      else Result := trTaskDone;
-    end;
+          TKMCivilUnit(fUnit).KillInHouse; //Kill unit silently inside house
+
+          // Exit immediately, since we destroyed current task!
+          // Changing any task fields here (f.e. Phase) will try to change freed memory!
+          Exit;
+        end;
+  else
+    Result := trTaskDone;
+  end;
 
   Inc(fPhase);
 end;
