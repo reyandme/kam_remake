@@ -296,7 +296,7 @@ var
   ALLOW_MP_MODS           :Boolean = DEBUG_CFG; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
   ALLOW_TAKE_AI_PLAYERS   :Boolean = False; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
-  BLOCK_SAVE              :Boolean = False; //Block saving game (used in parallel Runner)
+  DBG_SKIP_WRITING_SAVEGAME:Boolean = False; // Skip saving game (used in parallel Runner)
   DBG_SKIP_WRITING_TO_DISK:Boolean = False; // Skip writing of log/settings files (used in parallel Runner)
   WRITE_DECODED_MISSION   :Boolean = False; //Save decoded mission as txt file
   WRITE_WALKTO_LOG        :Boolean = False; //Write even more output into log + slows down game noticably

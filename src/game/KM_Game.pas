@@ -2254,7 +2254,7 @@ var
   mainStream, headerStream, bodyStream, saveStreamTxt: TKMemoryStream;
   gameMPLocalData: TKMGameMPLocalData;
 begin
-  if BLOCK_SAVE then Exit; // This must be here because of paraller Runner
+  if DBG_SKIP_WRITING_SAVEGAME then Exit; // This must be here because of paraller Runner
 
   // We have to wait until basesave is made before first game save
   fBaseSaveWorkerThreadHolder.Worker.WaitForAllWorkToComplete;

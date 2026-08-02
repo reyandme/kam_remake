@@ -156,7 +156,7 @@ begin
   if PARALLEL_RUN then
   begin
     DBG_SKIP_WRITING_TO_DISK := True;
-    BLOCK_SAVE := False; // Runner now supports parallel saves
+    DBG_SKIP_WRITING_SAVEGAME := False; // Runner now supports parallel saves
   end;
 
   SKIP_RENDER := (fRenderTarget = nil);
