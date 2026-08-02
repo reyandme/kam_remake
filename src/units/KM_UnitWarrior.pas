@@ -415,12 +415,13 @@ begin
   case fType of
     utBowman,
     utCrossbowman,
-    utRogue:   Result := RangeMax / (Byte(REDUCE_SHOOTING_RANGE) + 1);
+    utRogue:   Result := RangeMax / (Ord(DBG_REDUCE_SHOOTING_RANGE) + 1);
     //During storm attack we look for enemies 1.42 tiles away so we engage enemies easier and don't accidentially walk past them diagonally
-    else            if aTileBased and not (Action is TKMUnitActionStormAttack) then
-                      Result := 1 //Enemy must maximum be 1 tile away
-                    else
-                      Result := 1.42; //slightly bigger than sqrt(2) for diagonal fights
+  else
+    if aTileBased and not (Action is TKMUnitActionStormAttack) then
+      Result := 1 //Enemy must maximum be 1 tile away
+    else
+      Result := 1.42; //slightly bigger than sqrt(2) for diagonal fights
   end;
 end;
 
@@ -432,7 +433,8 @@ begin
     utBowman,
     utCrossbowman,
     utRogue:   Result := RangeMin;
-    else            Result := 0.5;
+  else
+    Result := 0.5;
   end;
 end;
 

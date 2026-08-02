@@ -288,7 +288,7 @@ var
 
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS    :Boolean = False; //Unlock more maps for debug
-  REDUCE_SHOOTING_RANGE   :Boolean = False; //Reduce shooting range for debug
+  DBG_REDUCE_SHOOTING_RANGE   :Boolean = False; //Reduce shooting range for debug
   MULTIPLAYER_CHEATS      :Boolean = DEBUG_CFG; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
   DEBUG_CHEATS            :Boolean = DEBUG_CFG; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   MULTIPLAYER_SPEEDUP     :Boolean = DEBUG_CFG; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
