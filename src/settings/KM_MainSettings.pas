@@ -136,7 +136,7 @@ var
   nMainSettings, nGFX, nWindow, nMisc: TKMXmlNode;
 begin
   if Self = nil then Exit;
-  if BLOCK_FILE_WRITE or SKIP_SETTINGS_SAVE then Exit;
+  if DBG_SKIP_WRITING_TO_DISK or SKIP_SETTINGS_SAVE then Exit;
 
   inherited;
 

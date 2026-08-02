@@ -195,7 +195,7 @@ procedure TKMServerSettings.SaveToFile(const aFilename: UnicodeString);
 var
   ini: TMemIniFile;
 begin
-  if BLOCK_FILE_WRITE then
+  if DBG_SKIP_WRITING_TO_DISK then
     Exit;
 
   ForceDirectories(ExtractFilePath(ExpandFileName(aFilename))); // Create folder, if it does not exist

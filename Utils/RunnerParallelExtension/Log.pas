@@ -17,8 +17,8 @@ type
     procedure Log(const aText: string; aArgs: array of const); overload;
   end;
 
- var
-   gLog: TLog;
+var
+  gLog: TLog;
 
 implementation
 

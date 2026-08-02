@@ -267,7 +267,7 @@ procedure TKMLog.InitLog;
 const
   INIT_STR = '   Timestamp    Elapsed     Delta  Thread    Description';
 begin
-  if BLOCK_FILE_WRITE then Exit;
+  if DBG_SKIP_WRITING_TO_DISK then Exit;
 
   try
     ForceDirectories(ExtractFilePath(fLogPath));
@@ -359,7 +359,7 @@ var
 begin
   if Self = nil then Exit;
 
-  if BLOCK_FILE_WRITE then Exit;
+  if DBG_SKIP_WRITING_TO_DISK then Exit;
   
   if not (aLogType in MessageTypes) then // write into log only for allowed types
     Exit;
@@ -425,7 +425,7 @@ procedure TKMLog.AddLineNoTime(const aText: UnicodeString; aLogType: TKMLogMessa
 begin
   if Self = nil then Exit;
 
-  if BLOCK_FILE_WRITE then Exit;
+  if DBG_SKIP_WRITING_TO_DISK then Exit;
 
   if not (aLogType in MessageTypes) then // write into log only for allowed types
     Exit;

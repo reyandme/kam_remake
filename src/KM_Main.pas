@@ -272,7 +272,7 @@ begin
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
 
-  if not BLOCK_FILE_WRITE then
+  if not DBG_SKIP_WRITING_TO_DISK then
   begin
     tryInd := 0;
     logsPath := ExeDir + 'Logs' + PathDelim + 'KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log';

@@ -358,7 +358,7 @@ var
   nGameSettings, nMenu: TKMXmlNode;
 begin
   if Self = nil then Exit;
-  if BLOCK_FILE_WRITE then Exit;
+  if DBG_SKIP_WRITING_TO_DISK then Exit;
 
   nGameSettings := Root.AddOrFindChild('Game');
 
@@ -594,7 +594,7 @@ var
   nDebug: TKMXmlNode;
 begin
   if Self = nil then Exit;
-  if BLOCK_FILE_WRITE then Exit;
+  if DBG_SKIP_WRITING_TO_DISK then Exit;
 
   inherited;
 
