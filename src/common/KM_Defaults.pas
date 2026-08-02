@@ -300,7 +300,7 @@ var
   DBG_SKIP_WRITING_TO_DISK:Boolean = False; // Skip writing of log/settings files (used in parallel Runner)
   WRITE_DECODED_MISSION   :Boolean = False; //Save decoded mission as txt file
   WRITE_WALKTO_LOG        :Boolean = False; //Write even more output into log + slows down game noticably
-  WriteResourceInfoToTXT  :Boolean = False; //Whenever to write txt files with defines data properties on loading
+  DBG_EXPORT_PATTERN_CSV  :Boolean = False; //Whenever to write txt files with defines data properties on loading
   EXPORT_SPRITE_ATLASES   :Boolean = False; //Whenever to write all generated textures to PNG on loading (extremely time consuming)
   EXPORT_SPRITE_ATLASES_RXA:Boolean = False; //Whenever to write all loaded from .RXA files textures to PNG on loading (super extremely time consuming)
   LOG_FONTS_RAM_USAGE     :Boolean = False;
