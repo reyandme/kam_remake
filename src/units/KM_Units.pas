@@ -2702,7 +2702,7 @@ begin
 end;
 
 
-{ TUnitTask }
+{ TKMUnitTask }
 constructor TKMUnitTask.Create(aUnit: TKMUnit);
 begin
   inherited Create;
