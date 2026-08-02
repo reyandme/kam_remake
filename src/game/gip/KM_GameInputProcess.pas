@@ -1013,51 +1013,43 @@ begin
         gicUnitDismiss:        srcUnit.Dismiss;
         gicUnitDismissCancel:  srcUnit.DismissCancel;
 
-        gicBuildToggleFieldPlan:   P.ToggleFieldPlan(KMPoint(IntParams[0],IntParams[1]), TKMFieldType(IntParams[2]), not gGameParams.IsMultiPlayerOrSpec); //Make sound in singleplayer mode only
-        gicBuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(IntParams[0],IntParams[1]), not gGameParams.IsMultiPlayerOrSpec); //Make sound in singleplayer mode only
-        gicBuildRemoveHouse:       P.RemHouse(KMPoint(IntParams[0],IntParams[1]), isSilent);
-        gicBuildRemoveHousePlan:   P.RemHousePlan(KMPoint(IntParams[0],IntParams[1]));
-        gicBuildHousePlan:         if P.CanAddHousePlan(KMPoint(IntParams[1],IntParams[2]), TKMHouseType(IntParams[0])) then
+        gicBuildToggleFieldPlan:    P.ToggleFieldPlan(KMPoint(IntParams[0],IntParams[1]), TKMFieldType(IntParams[2]), not gGameParams.IsMultiPlayerOrSpec); //Make sound in singleplayer mode only
+        gicBuildRemoveFieldPlan:    P.RemFieldPlan(KMPoint(IntParams[0],IntParams[1]), not gGameParams.IsMultiPlayerOrSpec); //Make sound in singleplayer mode only
+        gicBuildRemoveHouse:        P.RemHouse(KMPoint(IntParams[0],IntParams[1]), isSilent);
+        gicBuildRemoveHousePlan:    P.RemHousePlan(KMPoint(IntParams[0],IntParams[1]));
+        gicBuildHousePlan:          if P.CanAddHousePlan(KMPoint(IntParams[1],IntParams[2]), TKMHouseType(IntParams[0])) then
                                       P.AddHousePlan(TKMHouseType(IntParams[0]), KMPoint(IntParams[1],IntParams[2]));
 
-        gicHouseRepairToggle:      srcHouse.BuildingRepair := not srcHouse.BuildingRepair;
+        gicHouseRepairToggle:       srcHouse.BuildingRepair := not srcHouse.BuildingRepair;
         gicHouseDeliveryModeNext:   //Delivery mode has to be delayed, to avoid occasional delivery mode button clicks
                                     srcHouse.SetNextDeliveryMode;
         gicHouseDeliveryModePrev:   //Delivery mode has to be delayed, to avoid occasional delivery mode button clicks
                                     srcHouse.SetPrevDeliveryMode;
         gicHouseClosedForWorkerTgl: srcHouse.IsClosedForWorker := not srcHouse.IsClosedForWorker;
-        gicHouseOrderProduct:      srcHouse.WareOrder[IntParams[1]] := srcHouse.WareOrder[IntParams[1]] + IntParams[2];
-        gicHouseMarketFrom:        TKMHouseMarket(srcHouse).ResFrom := TKMWareType(IntParams[1]);
-        gicHouseMarketTo:          TKMHouseMarket(srcHouse).ResTo := TKMWareType(IntParams[1]);
-        gicHouseStoreNotAcceptFlag:   TKMHouseStore(srcHouse).ToggleNotAcceptFlag(TKMWareType(IntParams[1]));
-        gicHouseStoreNotAcceptAllFlag:
-                                   TKMHouseStore(srcHouse).ToggleNotAcceptAllFlag(TKMWareType(IntParams[1]));
-        gicHStoreNotAllowTakeOutFlag:
-                                   TKMHouseStore(srcHouse).ToggleNotAcceptTakeOutFlag(TKMWareType(IntParams[1]));
-        gicHStoreNotAllowTakeOutAllFlag:
-                                   TKMHouseStore(srcHouse).ToggleNotAcceptTakeOutAllFlag(TKMWareType(IntParams[1]));
-        gicHouseWoodcutterMode:    TKMHouseWoodcutters(srcHouse).WoodcutterMode := TKMWoodcutterMode(IntParams[1]);
-        gicHouseBarracksAcceptFlag:
-                                    TKMHouseBarracks(srcHouse).ToggleNotAcceptFlag(TKMWareType(IntParams[1]));
-        gicHouseBarracksAcceptAllFlag:
-                                    TKMHouseBarracks(srcHouse).ToggleNotAcceptAllFlag(TKMWareType(IntParams[1]));
-        gicHBarracksNotAllowTakeOutFlag:
-                                    TKMHouseBarracks(srcHouse).ToggleNotAllowTakeOutFlag(TKMWareType(IntParams[1]));
-        gicHBarracksNotAllowTakeOutAllFlag:
-                                    TKMHouseBarracks(srcHouse).ToggleNotAllowTakeOutAllFlag(TKMWareType(IntParams[1]));
-        gicHBarracksAcceptRecruitsTgl:
-                                    TKMHouseBarracks(srcHouse).ToggleAcceptRecruits;
-        gicHouseBarracksEquip:     TKMHouseBarracks(srcHouse).Equip(TKMUnitType(IntParams[1]), IntParams[2]);
-        gicHouseBarracksRally:     TKMHouseBarracks(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
-        gicHouseTownHallEquip:     TKMHouseTownHall(srcHouse).Equip(TKMUnitType(IntParams[1]), IntParams[2]);
-        gicHouseTownHallRally:     TKMHouseTownHall(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
-        gicHouseTownHallMaxGold:   TKMHouseTownHall(srcHouse).GoldMaxCnt := EnsureRange(IntParams[1], 0, High(Word));
-        gicHouseSchoolTrain:       TKMHouseSchool(srcHouse).AddUnitToQueue(TKMUnitType(IntParams[1]), IntParams[2]);
-        gicHouseSchoolTrainChOrder:TKMHouseSchool(srcHouse).ChangeUnitTrainOrder(IntParams[1], IntParams[2]);
-        gicHouseSchoolTrainChLastUOrder: TKMHouseSchool(srcHouse).ChangeUnitTrainOrder(IntParams[1]);
-        gicHouseRemoveTrain:       TKMHouseSchool(srcHouse).RemUnitFromQueue(IntParams[1]);
-        gicHouseWoodcuttersCutting: TKMHouseWoodcutters(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
-        gicHouseArmorWSDeliveryToggle:   TKMHouseArmorWorkshop(srcHouse).ToggleResDelivery(TKMWareType(IntParams[1]));
+        gicHouseOrderProduct:       srcHouse.WareOrder[IntParams[1]] := srcHouse.WareOrder[IntParams[1]] + IntParams[2];
+        gicHouseMarketFrom:                 TKMHouseMarket(srcHouse).ResFrom := TKMWareType(IntParams[1]);
+        gicHouseMarketTo:                   TKMHouseMarket(srcHouse).ResTo := TKMWareType(IntParams[1]);
+        gicHouseStoreNotAcceptFlag:         TKMHouseStore(srcHouse).ToggleNotAcceptFlag(TKMWareType(IntParams[1]));
+        gicHouseStoreNotAcceptAllFlag:      TKMHouseStore(srcHouse).ToggleNotAcceptAllFlag(TKMWareType(IntParams[1]));
+        gicHStoreNotAllowTakeOutFlag:       TKMHouseStore(srcHouse).ToggleNotAcceptTakeOutFlag(TKMWareType(IntParams[1]));
+        gicHStoreNotAllowTakeOutAllFlag:    TKMHouseStore(srcHouse).ToggleNotAcceptTakeOutAllFlag(TKMWareType(IntParams[1]));
+        gicHouseWoodcutterMode:             TKMHouseWoodcutters(srcHouse).WoodcutterMode := TKMWoodcutterMode(IntParams[1]);
+        gicHouseBarracksAcceptFlag:         TKMHouseBarracks(srcHouse).ToggleNotAcceptFlag(TKMWareType(IntParams[1]));
+        gicHouseBarracksAcceptAllFlag:      TKMHouseBarracks(srcHouse).ToggleNotAcceptAllFlag(TKMWareType(IntParams[1]));
+        gicHBarracksNotAllowTakeOutFlag:    TKMHouseBarracks(srcHouse).ToggleNotAllowTakeOutFlag(TKMWareType(IntParams[1]));
+        gicHBarracksNotAllowTakeOutAllFlag: TKMHouseBarracks(srcHouse).ToggleNotAllowTakeOutAllFlag(TKMWareType(IntParams[1]));
+        gicHBarracksAcceptRecruitsTgl:      TKMHouseBarracks(srcHouse).ToggleAcceptRecruits;
+        gicHouseBarracksEquip:              TKMHouseBarracks(srcHouse).Equip(TKMUnitType(IntParams[1]), IntParams[2]);
+        gicHouseBarracksRally:              TKMHouseBarracks(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
+        gicHouseTownHallEquip:              TKMHouseTownHall(srcHouse).Equip(TKMUnitType(IntParams[1]), IntParams[2]);
+        gicHouseTownHallRally:              TKMHouseTownHall(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
+        gicHouseTownHallMaxGold:            TKMHouseTownHall(srcHouse).GoldMaxCnt := EnsureRange(IntParams[1], 0, High(Word));
+        gicHouseSchoolTrain:                TKMHouseSchool(srcHouse).AddUnitToQueue(TKMUnitType(IntParams[1]), IntParams[2]);
+        gicHouseSchoolTrainChOrder:         TKMHouseSchool(srcHouse).ChangeUnitTrainOrder(IntParams[1], IntParams[2]);
+        gicHouseSchoolTrainChLastUOrder:    TKMHouseSchool(srcHouse).ChangeUnitTrainOrder(IntParams[1]);
+        gicHouseRemoveTrain:                TKMHouseSchool(srcHouse).RemUnitFromQueue(IntParams[1]);
+        gicHouseWoodcuttersCutting:         TKMHouseWoodcutters(srcHouse).FlagPoint := KMPoint(IntParams[1], IntParams[2]);
+        gicHouseArmorWSDeliveryToggle:      TKMHouseArmorWorkshop(srcHouse).ToggleResDelivery(TKMWareType(IntParams[1]));
 
         gicWareDistributionChange:  begin
                                       P.Stats.WareDistribution[TKMWareType(IntParams[0]), TKMHouseType(IntParams[1])] := IntParams[2];
