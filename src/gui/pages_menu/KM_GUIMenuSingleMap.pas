@@ -458,7 +458,7 @@ begin
       //Location
       DropBox_Loc.Clear;
       for I := 0 to map.LocCount - 1 do
-        if map.CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
+        if map.CanBeHuman[I] or DBG_ALLOW_TAKE_AI_PLAYERS then
           DropBox_Loc.Add(map.LocationName(I), I);
 
       //Difficulty levels
