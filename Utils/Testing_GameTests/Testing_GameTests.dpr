@@ -28,6 +28,7 @@ uses
   KM_Test_Sawmill in 'KM_Test_Sawmill.pas',
   KM_Test_Sawmill_DeliveryIn in 'KM_Test_Sawmill_DeliveryIn.pas',
   KM_Test_Sawmill_DeliveryOut in 'KM_Test_Sawmill_DeliveryOut.pas',
+  KM_Test_Recruits in 'KM_Test_Recruits.pas',
   KM_Test_Stone in 'KM_Test_Stone.pas',
   KM_Test_Woodcutter_Chop in 'KM_Test_Woodcutter_Chop.pas',
   KM_Test_Woodcutter_Plant in 'KM_Test_Woodcutter_Plant.pas',
