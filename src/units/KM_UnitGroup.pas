@@ -976,8 +976,10 @@ var
   U: TKMUnitWarrior;
   pushbackLimit: Word;
   pushbackLimitReached: Boolean;
+  reordered: Boolean;
 begin
   orderExecuted := False;
+  reordered := False;
 
   //1. Check the Order
   //2. Attempt to finish the order
@@ -1007,6 +1009,12 @@ begin
                             and (fMembers[I].IsIdle
                                  or ((fMembers[I].Action is TKMUnitActionWalkTo) and TKMUnitActionWalkTo(fMembers[I].Action).WasPushed)) then
                           begin
+                            if not reordered then
+                            begin
+                               HungarianReorderMembers;
+                               reordered := true;
+                            end;
+
                             P := GetMemberLocExact(I);
                             fMembers[I].OrderWalk(P.Loc, P.Exact);
                             fMembersPushbackCommandsCnt := Min(fMembersPushbackCommandsCnt + 1, High(Word));
