@@ -15,6 +15,8 @@ type
     fRecruitsList: TList;
     fResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
     procedure SetWareCnt(aWareType: TKMWareType; aValue: Word);
+    procedure RecruitsClear;
+    function TakeFirstRecruit: Pointer;
   public
     MapEdRecruitCount: Word; //Only used by MapEd
     NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
@@ -59,6 +61,7 @@ implementation
 uses
   Math, Types, SysUtils,
   KM_Entity,
+  KM_Log,
   KM_Hand,
   KM_HandsCollection,
   KM_HandTypes,
@@ -103,16 +106,26 @@ end;
 procedure TKMHouseBarracks.SyncLoad;
 var
   I: Integer;
+  U: TKMUnit;
 begin
   inherited;
 
-  for I := 0 to RecruitsCount - 1 do
-    fRecruitsList.Items[I] := gHands.GetUnitByUID(Integer(fRecruitsList.Items[I]));
+  //Pointer counters are saved along with the units, hence no GetPointer here
+  for I := RecruitsCount - 1 downto 0 do
+  begin
+    U := gHands.GetUnitByUID(Integer(fRecruitsList.Items[I]));
+    if U = nil then
+      //Should never happen, but a nil in the list means a crash in EquipWarrior later on
+      fRecruitsList.Delete(I)
+    else
+      fRecruitsList.Items[I] := U;
+  end;
 end;
 
 
 destructor TKMHouseBarracks.Destroy;
 begin
+  RecruitsClear; //Release the counted references before dropping the list itself
   FreeAndNil(fRecruitsList);
 
   inherited;
@@ -146,7 +159,7 @@ var
 begin
   //Recruits are no longer under our control so we forget about them (UpdateVisibility will sort it out)
   //Otherwise it can cause crashes while saving under the right conditions when a recruit is then killed.
-  fRecruitsList.Clear;
+  RecruitsClear;
 
   for W := WARFARE_MIN to WARFARE_MAX do
     gHands[Owner].Stats.WareConsumed(W, fResourceCount[W]);
@@ -157,7 +170,9 @@ end;
 
 procedure TKMHouseBarracks.RecruitsAdd(aUnit: Pointer);
 begin
-  fRecruitsList.Add(aUnit);
+  // Take a counted reference, otherwise the recruit could be freed while he is still in our list
+  // (units are freed as soon as their PointerCount is 0) and we would keep a dangling pointer
+  fRecruitsList.Add(TKMUnit(aUnit).GetPointer);
 end;
 
 
@@ -168,8 +183,59 @@ end;
 
 
 procedure TKMHouseBarracks.RecruitsRemove(aUnit: Pointer);
+var
+  U: TKMUnit;
+  I: Integer;
 begin
-  fRecruitsList.Remove(aUnit);
+  I := fRecruitsList.IndexOf(aUnit);
+  if I = -1 then Exit; // Not ours, or he was unregistered already
+
+  U := TKMUnit(fRecruitsList[I]);
+  fRecruitsList.Delete(I);
+  gHands.CleanUpUnitPointer(U);
+end;
+
+
+// Forget all the recruits, releasing the references we were holding
+procedure TKMHouseBarracks.RecruitsClear;
+var
+  U: TKMUnit;
+begin
+  //Delete each entry before releasing its reference, so that if ReleasePointer ever raises
+  //(f.e. a stale save) the entries already processed can not be released a second time
+  for var I := fRecruitsList.Count - 1 downto 0 do
+  begin
+    U := TKMUnit(fRecruitsList[I]);
+    fRecruitsList.Delete(I);
+    gHands.CleanUpUnitPointer(U);
+  end;
+end;
+
+
+// Unregister the first recruit who is actually sitting inside this very house and return him,
+// still holding the counted reference the list was holding - the caller becomes responsible for
+// releasing it (f.e. via gHands.CleanUpUnitPointer) once it is done with the recruit.
+// The list should never contain anything else, but a stale entry means a crash in KillInHouse,
+// hence such entries are dropped (and their reference released right here) rather than handed out
+function TKMHouseBarracks.TakeFirstRecruit: Pointer;
+var
+  U: TKMUnit;
+begin
+  Result := nil;
+
+  while (Result = nil) and (fRecruitsList.Count > 0) do
+  begin
+    U := TKMUnit(fRecruitsList[0]);
+    fRecruitsList.Delete(0);
+
+    if (U <> nil) and not U.IsDeadOrDying and (U is TKMUnitRecruit) and (U.InHouse = Self) then
+      Result := U //Hand out the reference we were holding, the caller is now responsible for it
+    else
+    begin
+      gLog.AddTime(Format('TKMHouseBarracks UID %d: dropped an invalid recruit entry', [UID]));
+      gHands.CleanUpUnitPointer(U); // Not handed out, release the reference our list was holding
+    end;
+  end;
 end;
 
 
@@ -346,11 +412,18 @@ var
   I: Integer;
   costWareType: TKMWareType;
   newWarrior: TKMUnitWarrior;
+  recruit: TKMUnit;
 begin
   Result := nil;
 
   // Make sure we have enough wares to equip a warrior
   if not CanEquip(aUnitType) then Exit;
+
+  // Take the recruit before anything else: if the list turns out to have no valid recruit
+  // (should never happen) we must not consume the wares. TakeFirstRecruit hands us its counted
+  // reference, we release it below once we are done with the recruit
+  recruit := TKMUnit(TakeFirstRecruit);
+  if recruit = nil then Exit;
 
   // Take wares
   for I := 1 to 4 do
@@ -364,8 +437,8 @@ begin
   end;
 
   // Special way to kill the Recruit because it is in a house
-  TKMUnitRecruit(fRecruitsList.Items[0]).KillInHouse;
-  fRecruitsList.Delete(0); // Delete first recruit in the list
+  TKMUnitRecruit(recruit).KillInHouse;
+  gHands.CleanUpUnitPointer(recruit); // Release the reference TakeFirstRecruit handed us
 
   // Make new warrior
   newWarrior := TKMUnitWarrior(gHands[Owner].TrainUnit(aUnitType, Self));

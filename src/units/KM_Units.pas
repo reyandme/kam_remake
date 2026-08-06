@@ -433,7 +433,8 @@ end;
 
 procedure TKMCivilUnit.KillInHouse;
 begin
-  Assert(fInHouse <> nil, 'Unit could be silently killed only inside some House');
+  Assert(fInHouse <> nil, Format('Unit %s UID %d could be silently killed only inside some House',
+                                 [gRes.Units[fType].GUIName, UID]));
   //Dispose of current action/task BEFORE we close the unit (action might need to check fPosition if recruit was about to walk out to eat)
   //Normally this isn't required because TTaskDie takes care of it all, but recruits in barracks don't use TaskDie.
   SetAction(nil);
@@ -1401,6 +1402,12 @@ end;
 // Erase everything related to unit status to exclude it from being accessed by anything but the old pointers
 procedure TKMUnit.CloseUnit(aRemoveTileUsage: Boolean = True);
 begin
+  //Barracks keep their own list of the recruits sitting inside, it must not keep a pointer to the
+  //closed unit (f.e. recruit could be killed while he is still inside the barracks).
+  //Normally he is unregistered as soon as he steps out of the doorway, this is the last resort
+  if (fType = utRecruit) and (fInHouse is TKMHouseBarracks) then
+    TKMHouseBarracks(fInHouse).RecruitsRemove(Self);
+
   fHome.SetWorker(nil);
   gHands.CleanUpHousePointer(fHome);
 
