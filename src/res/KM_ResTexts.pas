@@ -221,6 +221,8 @@ constructor TKMTextLibraryMulti.Create;
 begin
   inherited Create;
 
+  SetLength(fTexts, gResLocales.Count);
+
   InitLocaleIds;
   fForceDefaultLocale := False;
 end;

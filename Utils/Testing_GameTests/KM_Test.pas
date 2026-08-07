@@ -36,7 +36,8 @@ type
     // General mechanics and logic
     tcProjectiles, tcPathfinding, tcPascalScript, tcHunger,
     tcEconomy, tcCombat, tcAI, tcNetworking, tcMultiplayer,
-    tcChopTree, tcPlantTree, tcDeliveryIn, tcDeliveryOut
+    tcChopTree, tcPlantTree, tcDeliveryIn, tcDeliveryOut,
+    tcSaveLoad
   );
 
   TKMTestTagSet = set of TKMTestTag;
