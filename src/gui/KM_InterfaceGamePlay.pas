@@ -370,6 +370,15 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure LoadMinimap(LoadStream: TKMemoryStream);
 
+    // A game can run without any UI at all (gRender = nil, f.e. the game tests runner), and then
+    // there is no interface to save from or load into. It still has to write and read the very same
+    // blocks though, so that savegames stay interchangeable between a normal game and a headless one.
+    // Keep these in sync with Save / Load / SaveMinimap / LoadMinimap right above
+    class procedure SaveStub(SaveStream: TKMemoryStream; aMapX, aMapY: Word);
+    class procedure LoadStub(LoadStream: TKMemoryStream);
+    class procedure SaveMinimapStub(SaveStream: TKMemoryStream);
+    class procedure LoadMinimapStub(LoadStream: TKMemoryStream);
+
     procedure KeyDown(Key: Word; Shift: TShiftState; aIsFirst: Boolean; var aHandled: Boolean); override;
     procedure KeyUp(Key: Word; Shift: TShiftState; var aHandled: Boolean); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
@@ -387,7 +396,7 @@ type
 implementation
 uses
   KromUtils,
-  KM_Pics, KM_Terrain, KM_UnitWarrior, KM_ResFonts,
+  KM_Pics, KM_Terrain, KM_UnitWarrior, KM_ResFonts, KM_MinimapGame,
   KM_Main, KM_System,
   KM_Entity,
   KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI, KM_RenderUI, KM_Cursor, KM_Maps,
@@ -4448,6 +4457,92 @@ end;
 procedure TKMGamePlayInterface.LoadMinimap(LoadStream: TKMemoryStream);
 begin
   fMinimap.LoadFromStream(LoadStream);
+end;
+
+
+// Write the same block Save does, with the defaults a fresh interface would have.
+// Map size is passed in, so that a normal game loading this save can still fit the viewport
+class procedure TKMGamePlayInterface.SaveStub(SaveStream: TKMemoryStream; aMapX, aMapY: Word);
+var
+  selection: array [0..DYNAMIC_HOTKEYS_NUM - 1] of Integer;
+begin
+  // TKMViewport.Save
+  SaveStream.PlaceMarker('Viewport');
+  SaveStream.Write(aMapX);
+  SaveStream.Write(aMapY);
+  SaveStream.Write(KMPointF(aMapX / 2, aMapY / 2)); // Look at the middle of the map
+
+  // TKMGUIGameHouse.Save - last unit picked in the School / Barracks / Townhall
+  SaveStream.Write(Byte(0));
+  SaveStream.Write(Byte(0));
+  SaveStream.Write(Byte(0));
+
+  SaveStream.WriteW(''); // fLastSaveName
+
+  for var I := Low(selection) to High(selection) do
+    selection[I] := -1; // Not set
+  SaveStream.Write(selection, SizeOf(selection));
+
+  var messages := TKMMessageStack.Create;
+  try
+    messages.Save(SaveStream);
+  finally
+    messages.Free;
+  end;
+end;
+
+
+// Read past the same block Load reads, discarding it - a headless game has nowhere to show it
+class procedure TKMGamePlayInterface.LoadStub(LoadStream: TKMemoryStream);
+var
+  mapX, mapY: Word;
+  position: TKMPointF;
+  lastUnit: Byte;
+  lastSaveName: UnicodeString;
+  selection: array [0..DYNAMIC_HOTKEYS_NUM - 1] of Integer;
+begin
+  // TKMViewport.Load
+  LoadStream.CheckMarker('Viewport');
+  LoadStream.Read(mapX);
+  LoadStream.Read(mapY);
+  LoadStream.Read(position);
+
+  // TKMGUIGameHouse.Load
+  LoadStream.Read(lastUnit);
+  LoadStream.Read(lastUnit);
+  LoadStream.Read(lastUnit);
+
+  LoadStream.ReadW(lastSaveName);
+  LoadStream.Read(selection, SizeOf(selection));
+
+  var messages := TKMMessageStack.Create;
+  try
+    messages.Load(LoadStream); // Real messages could be in there, if the save came from a normal game
+  finally
+    messages.Free;
+  end;
+end;
+
+
+class procedure TKMGamePlayInterface.SaveMinimapStub(SaveStream: TKMemoryStream);
+begin
+  var minimap := TKMMinimapGame.Create(False);
+  try
+    minimap.SaveToStream(SaveStream); // Empty, there is nothing to preview
+  finally
+    minimap.Free;
+  end;
+end;
+
+
+class procedure TKMGamePlayInterface.LoadMinimapStub(LoadStream: TKMemoryStream);
+begin
+  var minimap := TKMMinimapGame.Create(False);
+  try
+    minimap.LoadFromStream(LoadStream);
+  finally
+    minimap.Free;
+  end;
 end;
 
 

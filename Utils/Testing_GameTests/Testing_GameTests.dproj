@@ -147,6 +147,7 @@
         <DCCReference Include="KM_Test_Fight95.pas"/>
         <DCCReference Include="KM_Test_Hungarian.pas"/>
         <DCCReference Include="KM_Test_Mill.pas"/>
+        <DCCReference Include="KM_Test_SaveLoad.pas"/>
         <DCCReference Include="KM_Test_Sawmill.pas"/>
         <DCCReference Include="KM_Test_Sawmill_DeliveryIn.pas"/>
         <DCCReference Include="KM_Test_Sawmill_DeliveryOut.pas"/>
