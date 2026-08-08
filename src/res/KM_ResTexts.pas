@@ -372,12 +372,19 @@ end;
 
 procedure TKMTextLibraryMulti.Save(aStream: TKMemoryStream);
 
+  // fTexts is only sized by LoadLocale, so a library that never loaded one (f.e. the mission text
+  // library of a game started from scratch, with no mission file) has none at all
+  function LocalesCount: Integer;
+  begin
+    Result := Min(gResLocales.Count, Length(fTexts));
+  end;
+
   function LocalesWithText: Integer;
   var
     I: Integer;
   begin
     Result := 0;
-    for I := 0 to gResLocales.Count - 1 do
+    for I := 0 to LocalesCount - 1 do
       if Length(fTexts[I]) > 0 then
         Inc(Result);
   end;
@@ -389,7 +396,7 @@ begin
   aStream.PlaceMarker('TextLibraryMulti');
   // Only save locales containing text (otherwise locale list must be synced in MP)
   aStream.Write(LocalesWithText);
-  for I := 0 to gResLocales.Count - 1 do
+  for I := 0 to LocalesCount - 1 do
     if Length(fTexts[I]) > 0 then
     begin
       aStream.WriteA(gResLocales[I].Code);

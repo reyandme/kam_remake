@@ -331,7 +331,7 @@ uses
   KM_Sound, KM_ScriptSound,
   KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
   KM_Projectiles, KM_AIFields, KM_NetTypes,
-  KM_Main, KM_System, KM_GameApp, KM_RenderPool, KM_GameInfo, KM_GameClasses,
+  KM_Main, KM_System, KM_GameApp, KM_RenderPool, KM_GameInfo, KM_GameClasses, KM_MinimapGame,
   KM_Terrain, KM_TerrainTypes, KM_HandsCollection, KM_HandSpectator, KM_MapEdTypes,
   KM_MissionScript, KM_MissionScript_Info, KM_MissionScript_Standard,
   KM_GameInputProcess_Multi, KM_GameInputProcess_Single,
@@ -1327,11 +1327,18 @@ begin
   fLoadFromFileRel := '';
   fLastSaveFileRel := '';
 
+  // There is no mission file to take texts from, but the game still has to have a text library -
+  // an empty map can be started as a normal game (game tests) and then saved
+  if fTextMission = nil then
+    fTextMission := TKMTextLibraryMulti.Create;
+
   fMapEditor := TKMMapEditor.Create(True, fTerrainPainter, fMapEditorInterface.HistoryUndoRedo, fMapEditorInterface.HistoryAddCheckpoint);
 
   fMapEditor.OnEyedropper := fMapEditorInterface.GuiTerrain.GuiTiles.TilesTableSetTileTexId;
   fMapEditor.MissionDefSavePath := fParams.Name + '.dat';
-  gTerrain.MakeNewMap(aSizeX, aSizeY, True);
+  // Terrain behaves differently in MapEd (and can not be saved into a savegame at all), so follow
+  // the actual game mode - this is also used to start an empty map for a normal game (game tests)
+  gTerrain.MakeNewMap(aSizeX, aSizeY, fParams.IsMapEditor);
   fTerrainPainter.InitEmpty;
   fMapEditor.History.MakeCheckpoint(caAll, gResTexts[TX_MAPED_HISTORY_CHPOINT_INITIAL]);
 
@@ -2134,7 +2141,10 @@ begin
   // In SinglePlayer we want to show player a preview of what the game looked like when he saved
   // Save Minimap is near the start so it can be accessed quickly
   if not isMulti then
-    fGamePlayInterface.SaveMinimap(aHeaderStream);
+    if fGamePlayInterface <> nil then
+      fGamePlayInterface.SaveMinimap(aHeaderStream)
+    else
+      TKMGamePlayInterface.SaveMinimapStub(aHeaderStream);
 
   // ----------------------------------------------------------------
   // Save to BodyStream from that point
@@ -2195,7 +2205,10 @@ begin
 
   // For multiplayer consistency we compare all saves CRCs, they should be created identical on all player's computers.
   if not isMulti then
-    fGamePlayInterface.Save(aBodyStream); //Saves message queue and school/barracks selected units
+    if fGamePlayInterface <> nil then
+      fGamePlayInterface.Save(aBodyStream) //Saves message queue and school/barracks selected units
+    else
+      TKMGamePlayInterface.SaveStub(aBodyStream, gTerrain.MapX, gTerrain.MapY);
 
   {$IFDEF PARALLEL_RUNNER}
     SaveGAParameters(aBodyStream);
@@ -2540,7 +2553,10 @@ begin
 
     // Not used, (only stored for SP preview) but it's easiest way to skip past it
     if not saveIsMultiplayer then
-      fGamePlayInterface.LoadMinimap(headerStream);
+      if fGamePlayInterface <> nil then
+        fGamePlayInterface.LoadMinimap(headerStream)
+      else
+        TKMGamePlayInterface.LoadMinimapStub(headerStream);
 
     // ----------------------------------------------------------------
     // Load from BodyStream from that point
@@ -2617,7 +2633,10 @@ begin
     // Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
     //todo -cComplicated: Send all message commands through GIP (note: that means there will be a delay when you press delete)
     if not saveIsMultiplayer then
-      fGamePlayInterface.Load(bodyStream);
+      if fGamePlayInterface <> nil then
+        fGamePlayInterface.Load(bodyStream)
+      else
+        TKMGamePlayInterface.LoadStub(bodyStream);
 
     {$IFDEF PARALLEL_RUNNER}
       LoadGAParameters(bodyStream);
@@ -2813,32 +2832,37 @@ begin
   if fParams.Tick = 0 then
     gScriptEvents.ProcMissionStart;
 
-  // When everything is ready we can update UI
-  fActiveInterface.SyncUI;
-
-  if fParams.IsMultiPlayerOrSpec then
+  // When everything is ready we can update UI. A headless game has none to update
+  if fActiveInterface <> nil then
   begin
-    // MP does not saves view position cos of save identity for all players
-    fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
-    // In MP saves hotkeys can't be saved by UI, they must be network synced
-    if fParams.IsNormalGame then
-      fGamePlayInterface.LoadHotkeysFromHand;
+    fActiveInterface.SyncUI;
+
+    if fParams.IsMultiPlayerOrSpec then
+    begin
+      // MP does not saves view position cos of save identity for all players
+      fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
+      // In MP saves hotkeys can't be saved by UI, they must be network synced
+      if fParams.IsNormalGame then
+        fGamePlayInterface.LoadHotkeysFromHand;
+    end;
+
+    if fParams.IsReplay then
+    begin
+      // SP Replay need to set screen position
+      fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
+
+      fGamePlayInterface.UpdateReplayMarks;
+    end;
   end;
 
-  if fParams.IsReplay then
-  begin
-    // SP Replay need to set screen position
-    fActiveInterface.SyncUIView(KMPointF(gMySpectator.Hand.CenterScreen));
+  if not fParams.IsReplay then
+    // Save dummy GIP to know when game was loaded. Good for debug
+    // Only by host in MP game
+    if not fParams.IsMultiPlayerOrSpec or gNetworking.IsHost then
+      fGameInputProcess.CmdGame(gicGameLoadSave, Integer(fParams.Tick));
 
-    fGamePlayInterface.UpdateReplayMarks;
-  end
-  else
-  // Save dummy GIP to know when game was loaded. Good for debug
-  // Only by host in MP game
-  if not fParams.IsMultiPlayerOrSpec or gNetworking.IsHost then
-    fGameInputProcess.CmdGame(gicGameLoadSave, Integer(fParams.Tick));
-
-  gRenderPool.ReInit;
+  if gRenderPool <> nil then // Created together with the UI, so a headless game has none
+    gRenderPool.ReInit;
 
   fIsStarted := True;
 
