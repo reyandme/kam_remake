@@ -732,7 +732,7 @@ begin
           4: begin mapX := 256; mapY := 256; end;
         end;
       // Create empty map in background
-      gGame.MapEdStartEmptyMap(mapX, mapY);
+      gGame.CreateFromScratch(mapX, mapY);
       // Get RMG config
       GetSettingsFromGUI();
       // Call RMG
@@ -752,6 +752,7 @@ begin
   end;
   if Assigned(fOnNewMap) then
     fOnNewMap();
+
   RefreshMinimap();
 end;
 

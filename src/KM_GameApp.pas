@@ -737,7 +737,7 @@ begin
   InstantiateGame(aGameMode);
 
   try
-    gGame.LoadFromFile(savegamePath, replayPath);
+    gGame.CreateFromSavegame(savegamePath, replayPath);
   except
     on E: Exception do
     begin
@@ -780,7 +780,7 @@ begin
   InstantiateGame(aGameMode);
 
   try
-    gGame.Start(missionFullFilePath, gameName, aFullCRC, aSimpleCRC, aCampaign, aMap, aDesiredLoc, aDesiredColor, aDifficulty, aAIType);
+    gGame.CreateFromScript(missionFullFilePath, gameName, aFullCRC, aSimpleCRC, aCampaign, aMap, aDesiredLoc, aDesiredColor, aDifficulty, aAIType);
   except
     on E : Exception do
     begin
@@ -874,9 +874,9 @@ begin
 
   gGame.SetSeed(4); //Every time the game will be the same as previous. Good for debug.
   try
-    gGame.MapEdStartEmptyMap(aSizeX, aSizeY);
+    gGame.CreateFromScratch(aSizeX, aSizeY);
   except
-    on E : Exception do
+    on E: Exception do
     begin
       //Trap the exception and show it to the user in nicer form.
       //Note: While debugging, Delphi will still stop execution for the exception,

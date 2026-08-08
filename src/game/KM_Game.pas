@@ -163,14 +163,13 @@ type
                        aSavePointWorkerThreadHolder: TKMWorkerThreadHolder);
     destructor Destroy; override;
 
-    procedure Start(const aMissionFullFilePath, aName: UnicodeString; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
-                    aCampMission: Byte; aLocation: ShortInt; aColor: Cardinal; aMapDifficulty: TKMMissionDifficulty = mdNone;
-                    aAIType: TKMAIType = aitNone);
+    procedure CreateFromScript(const aMissionFullFilePath, aName: UnicodeString; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
+                    aCampMission: Byte; aLocation: ShortInt; aColor: Cardinal; aMapDifficulty: TKMMissionDifficulty; aAIType: TKMAIType);
 
     procedure AfterStart;
-    procedure MapEdStartEmptyMap(aSizeX, aSizeY: Integer);
+    procedure CreateFromScratch(aSizeX, aSizeY: Integer);
     procedure LoadFromStream(var LoadStream: TKMemoryStream);
-    procedure LoadFromFile(const aPathName: UnicodeString; const aCustomReplayFile: UnicodeString = '');
+    procedure CreateFromSavegame(const aPathName: UnicodeString; const aCustomReplayFile: UnicodeString = '');
     procedure LoadSavePoint(aTick: Cardinal; const aSaveFile: UnicodeString);
     procedure AfterLoad;
 
@@ -538,10 +537,9 @@ begin
 end;
 
 
-// New mission
-procedure TKMGame.Start(const aMissionFullFilePath, aName: UnicodeString; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
+procedure TKMGame.CreateFromScript(const aMissionFullFilePath, aName: UnicodeString; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
                             aCampMission: Byte; aLocation: ShortInt; aColor: Cardinal;
-                            aMapDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
+                            aMapDifficulty: TKMMissionDifficulty; aAIType: TKMAIType);
 const
   GAME_PARSE: array [TKMGameMode] of TKMMissionParsingMode = (
     mpmSingle, mpmSingle, mpmMulti, mpmMulti, mpmEditor, mpmSingle, mpmSingle);
@@ -1317,7 +1315,7 @@ end;
 
 
 // Start MapEditor (empty map)
-procedure TKMGame.MapEdStartEmptyMap(aSizeX, aSizeY: Integer);
+procedure TKMGame.CreateFromScratch(aSizeX, aSizeY: Integer);
 var
   I: Integer;
 begin
@@ -2644,7 +2642,7 @@ begin
 end;
 
 
-procedure TKMGame.LoadFromFile(const aPathName: UnicodeString; const aCustomReplayFile: UnicodeString = '');
+procedure TKMGame.CreateFromSavegame(const aPathName: UnicodeString; const aCustomReplayFile: UnicodeString = '');
 
   procedure LoadReplayDataFromFile(const aFileName: string);
   begin
