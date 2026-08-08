@@ -99,7 +99,7 @@ begin
   VSync              := nGFX.Attributes['VSync'].AsBoolean(True);
   Resolution.Width   := nGFX.Attributes['ResolutionWidth'].AsInteger(Max(MENU_DESIGN_X, fScreenWidth));
   Resolution.Height  := nGFX.Attributes['ResolutionHeight'].AsInteger(Max(MENU_DESIGN_Y, fScreenHeight));
-  Resolution.RefRate := nGFX.Attributes['RefreshRate'].AsInteger(60);
+  Resolution.RefreshRate := nGFX.Attributes['RefreshRate'].AsInteger(60);
   fFPSCap := EnsureRange(nGFX.Attributes['FPSCap'].AsInteger(DEF_FPS_CAP), MIN_FPS_CAP, MAX_FPS_CAP);
 
   // Window
@@ -150,7 +150,7 @@ begin
     nGFX.Attributes['VSync']            := VSync;
     nGFX.Attributes['ResolutionWidth']  := Resolution.Width;
     nGFX.Attributes['ResolutionHeight'] := Resolution.Height;
-    nGFX.Attributes['RefreshRate']      := Resolution.RefRate;
+    nGFX.Attributes['RefreshRate']      := Resolution.RefreshRate;
     nGFX.Attributes['FPSCap']           := fFPSCap;
 
   // Window

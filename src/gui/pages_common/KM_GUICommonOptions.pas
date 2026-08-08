@@ -780,11 +780,11 @@ begin
 
     // Reset refresh rates, because they are different for each resolution
     DropBox_RefreshRate.Clear;
-    for I := 0 to fResolutions.Items[resID].RefRateCount - 1 do
+    for I := 0 to fResolutions.Items[resID].RefreshRateCount - 1 do
     begin
-      DropBox_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[resID].RefRate[I]]));
+      DropBox_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[resID].RefreshRate[I]]));
       // Make sure to select something. SelectedRefRate is prefered, otherwise select first
-      if (I = 0) or (fResolutions.Items[resID].RefRate[I] = fDesiredRefRate) then
+      if (I = 0) or (fResolutions.Items[resID].RefreshRate[I] = fDesiredRefRate) then
         DropBox_RefreshRate.ItemIndex := I;
     end;
   end;
@@ -794,10 +794,10 @@ begin
   refID := DropBox_RefreshRate.ItemIndex;
   Button_ResApply.Enabled :=
       (gMainSettings.FullScreen <> CheckBox_FullScreen.Checked) or
-      (CheckBox_FullScreen.Checked and ((fPrevResolutionId.ResID <> resID) or
-                                                (fPrevResolutionId.RefID <> refID)));
+      (CheckBox_FullScreen.Checked and ((fPrevResolutionId.ResolutionId <> resID) or
+                                        (fPrevResolutionId.RefreshRateId <> refID)));
   // Remember which one we have selected so we can reselect it if the user changes resolution
-  fDesiredRefRate := fResolutions.Items[resID].RefRate[refID];
+  fDesiredRefRate := fResolutions.Items[resID].RefreshRate[refID];
 end;
 
 
@@ -814,7 +814,7 @@ begin
   RefID := DropBox_RefreshRate.ItemIndex;
   NewResolution.Width := fResolutions.Items[ResID].Width;
   NewResolution.Height := fResolutions.Items[ResID].Height;
-  NewResolution.RefRate := fResolutions.Items[ResID].RefRate[RefID];
+  NewResolution.RefreshRate := fResolutions.Items[ResID].RefreshRate[RefID];
 
   gMainSettings.Resolution := NewResolution;
   gMain.ReinitRender(True);
@@ -849,29 +849,29 @@ end;
 procedure TKMGUICommonOptions.RefreshResolutions;
 var
   I: Integer;
-  R: TKMScreenResIndex;
+  resIndex: TKMScreenResIndex;
 begin
   DropBox_Resolution.Clear;
   DropBox_RefreshRate.Clear;
 
-  R := fResolutions.GetResolutionIDs(gMainSettings.Resolution);
+  resIndex := fResolutions.GetResolutionIDs(gMainSettings.Resolution);
 
   if fResolutions.Count > 0 then
   begin
     for I := 0 to fResolutions.Count - 1 do
     begin
       DropBox_Resolution.Add(Format('%dx%d', [fResolutions.Items[I].Width, fResolutions.Items[I].Height]));
-      if (I = 0) or (I = R.ResID) then
+      if (I = 0) or (I = resIndex.ResolutionId) then
         DropBox_Resolution.ItemIndex := I;
     end;
 
-    for I := 0 to fResolutions.Items[R.ResID].RefRateCount - 1 do
+    for I := 0 to fResolutions.Items[resIndex.ResolutionId].RefreshRateCount - 1 do
     begin
-      DropBox_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[R.ResID].RefRate[I]]));
-      if (I = 0) or (I = R.RefID) then
+      DropBox_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[resIndex.ResolutionId].RefreshRate[I]]));
+      if (I = 0) or (I = resIndex.RefreshRateId) then
       begin
         DropBox_RefreshRate.ItemIndex := I;
-        fDesiredRefRate := fResolutions.Items[R.ResID].RefRate[I];
+        fDesiredRefRate := fResolutions.Items[resIndex.ResolutionId].RefreshRate[I];
       end;
     end;
   end
@@ -890,7 +890,7 @@ begin
   DropBox_Resolution.Enabled  := gMainSettings.FullScreen and (fResolutions.Count > 0);
   DropBox_RefreshRate.Enabled := gMainSettings.FullScreen and (fResolutions.Count > 0);
 
-  fPrevResolutionId := R;
+  fPrevResolutionId := resIndex;
   Button_ResApply.Disable;
 end;
 

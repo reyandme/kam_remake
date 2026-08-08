@@ -5,18 +5,18 @@ interface
 
 type
   TKMScreenRes = record
-    Width, Height, RefRate: SmallInt;
+    Width, Height, RefreshRate: SmallInt;
   end;
 
   TKMScreenResIndex = record
-    ResId, RefId: Integer; // Allow for -1, when index not found
+    ResolutionId, RefreshRateId: Integer; // Allow for -1, when index not found
   end;
 
   // Store resolution and list of its allowed refresh rates
   TKMScreenResData = record
     Width, Height: Word;
-    RefRateCount: Integer;
-    RefRate: array of Word;
+    RefreshRateCount: Integer;
+    RefreshRate: array of Word;
   end;
 
   TKMResolutions = class
@@ -28,7 +28,7 @@ type
     function GetItem(aIndex: Integer): TKMScreenResData;
     procedure ReadAvailable;
     procedure Sort;
-    function SupportedRes(aWidth, aHeight, aRate, aBPP: Word): Boolean;
+    function SupportedRes(aWidth, aHeight, aRefreshRate, aBPP: Word): Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -69,12 +69,12 @@ begin
 end;
 
 
-function TKMResolutions.SupportedRes(aWidth, aHeight, aRate, aBPP: Word): Boolean;
+function TKMResolutions.SupportedRes(aWidth, aHeight, aRefreshRate, aBPP: Word): Boolean;
 begin
   Result := (aBPP = 32) and (aWidth > aHeight)
     and (aWidth >= RESOLUTION_WIDTH_MIN)
     and (aHeight >= RESOLUTION_HEIGHT_MIN)
-    and (aRate > 0);
+    and (aRefreshRate > 0);
 end;
 
 
@@ -117,20 +117,20 @@ begin
 
       //Find next empty place and avoid duplicating
       M := 0;
-      while (N < fCount) and (M < fItems[N].RefRateCount)
-            and (fItems[N].RefRate[M] <> 0)
-            and (fItems[N].RefRate[M] <> dmDisplayFrequency) do
+      while (N < fCount) and (M < fItems[N].RefreshRateCount)
+            and (fItems[N].RefreshRate[M] <> 0)
+            and (fItems[N].RefreshRate[M] <> dmDisplayFrequency) do
         Inc(M);
 
-      if M+1 > fItems[N].RefRateCount then
+      if M+1 > fItems[N].RefreshRateCount then
       begin
-        SetLength(fItems[N].RefRate, M+1);
-        FillChar(fItems[N].RefRate[M], SizeOf(Word), #0);
-        Inc(fItems[N].RefRateCount);
+        SetLength(fItems[N].RefreshRate, M+1);
+        FillChar(fItems[N].RefreshRate[M], SizeOf(Word), #0);
+        Inc(fItems[N].RefreshRateCount);
       end;
 
-      if (M < fItems[N].RefRateCount) and (N < fCount) and (fItems[N].RefRate[M] = 0) then
-        fItems[N].RefRate[M] := dmDisplayFrequency;
+      if (M < fItems[N].RefreshRateCount) and (N < fCount) and (fItems[N].RefreshRate[M] = 0) then
+        fItems[N].RefreshRate[M] := dmDisplayFrequency;
     end;
   end;
   {$ENDIF}
@@ -145,18 +145,18 @@ var
 begin
   for I := 0 to fCount - 1 do
   begin
-    for J := 0 to fItems[I].RefRateCount - 1 do
+    for J := 0 to fItems[I].RefreshRateCount - 1 do
     begin
       //firstly, refresh rates for each resolution are being sorted
       K:=J;  //iterator will be modified, but we don't want to lose it
-      while ((K>0) and (fItems[I].RefRate[K] < fItems[I].RefRate[K-1]) and
+      while ((K>0) and (fItems[I].RefreshRate[K] < fItems[I].RefreshRate[K-1]) and
            //excluding zero values from sorting, so they are kept at the end of array
-             (fItems[I].RefRate[K] > 0)) do
+             (fItems[I].RefreshRate[K] > 0)) do
       begin
         //Exchange places
-        tempRefRate := fItems[I].RefRate[K];
-        fItems[I].RefRate[K] := fItems[I].RefRate[K-1];
-        fItems[I].RefRate[K-1] := tempRefRate;
+        tempRefRate := fItems[I].RefreshRate[K];
+        fItems[I].RefreshRate[K] := fItems[I].RefreshRate[K-1];
+        fItems[I].RefreshRate[K-1] := tempRefRate;
         dec(K);
       end;
     end;
@@ -199,7 +199,7 @@ end;
 
 function TKMResolutions.IsValid(const aResolution: TKMScreenRes): Boolean;
 begin
-  Result := GetResolutionIDs(aResolution).RefID <> -1;
+  Result := GetResolutionIDs(aResolution).RefreshRateId <> -1;
 end;
 
 
@@ -220,7 +220,7 @@ begin
     dmPelsWidth := aResolution.Width;
     dmPelsHeight := aResolution.Height;
     dmBitsPerPel := 32;
-    dmDisplayFrequency := aResolution.RefRate;
+    dmDisplayFrequency := aResolution.RefreshRate;
     dmFields := DM_DISPLAYFREQUENCY or DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT;
   end;
 
@@ -244,7 +244,7 @@ begin
   begin
     Result.Width := dmPelsWidth;
     Result.Height := dmPelsHeight;
-    Result.RefRate := dmDisplayFrequency;
+    Result.RefreshRate := dmDisplayFrequency;
     Exit;
   end;
   {$ENDIF}
@@ -254,14 +254,14 @@ begin
   begin
     Result.Width := fItems[0].Width;
     Result.Height := fItems[0].Height;
-    Result.RefRate := fItems[0].RefRate[0];
+    Result.RefreshRate := fItems[0].RefreshRate[0];
   end
   else
   //3. Fallback to windowed mode
   begin
     Result.Width := -1;
     Result.Height := -1;
-    Result.RefRate := -1;
+    Result.RefreshRate := -1;
   end;
 end;
 
@@ -272,17 +272,17 @@ function TKMResolutions.GetResolutionIDs(const aResolution: TKMScreenRes): TKMSc
 var
   I, J: Integer;
 begin
-  Result.ResID := -1;
-  Result.RefID := -1;
+  Result.ResolutionId := -1;
+  Result.RefreshRateId := -1;
 
   for I := 0 to fCount - 1 do
     if (fItems[I].Width = aResolution.Width)
     and (fItems[I].Height = aResolution.Height) then
-      for J := 0 to fItems[I].RefRateCount - 1 do
-        if fItems[I].RefRate[J] = aResolution.RefRate then
+      for J := 0 to fItems[I].RefreshRateCount - 1 do
+        if fItems[I].RefreshRate[J] = aResolution.RefreshRate then
         begin
-          Result.ResID := I;
-          Result.RefID := J;
+          Result.ResolutionId := I;
+          Result.RefreshRateId := J;
           Exit;
         end;
 end;
