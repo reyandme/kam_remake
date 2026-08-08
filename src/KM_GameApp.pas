@@ -828,7 +828,6 @@ begin
   gameInputProcess := gGame.GameInputProcess;
   gGame.GameInputProcess := nil;
 
-
   InstantiateGame(gameMode);
 
   try
