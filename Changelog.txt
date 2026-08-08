@@ -26,6 +26,7 @@ KaM Remake Beta r_____ []
 + Fixed crash in AdvancedAI on trying to estimate a combat line when there are no groups close to it
 + Fixed rare crash when game tried to render non-existent list row
 + Changed fish count placed in the Map Editor to 10 by default
++ Fixed rare error on entering game Options. Caused by the games attempt to select an odd resolution
 
 Campaigns:
 + Added French translations for 8 campaigns (and other minor corrections)

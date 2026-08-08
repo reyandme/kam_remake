@@ -858,20 +858,26 @@ begin
 
   if fResolutions.Count > 0 then
   begin
+    // Rarely, but resIndex.ResolutionId could be -1
+    var selectedResolutionIndex: Integer := 0;
+
     for I := 0 to fResolutions.Count - 1 do
     begin
       DropBox_Resolution.Add(Format('%dx%d', [fResolutions.Items[I].Width, fResolutions.Items[I].Height]));
       if (I = 0) or (I = resIndex.ResolutionId) then
+      begin
         DropBox_Resolution.ItemIndex := I;
+        selectedResolutionIndex := I;
+      end;
     end;
 
-    for I := 0 to fResolutions.Items[resIndex.ResolutionId].RefreshRateCount - 1 do
+    for I := 0 to fResolutions.Items[selectedResolutionIndex].RefreshRateCount - 1 do
     begin
-      DropBox_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[resIndex.ResolutionId].RefreshRate[I]]));
+      DropBox_RefreshRate.Add(Format('%d Hz', [fResolutions.Items[selectedResolutionIndex].RefreshRate[I]]));
       if (I = 0) or (I = resIndex.RefreshRateId) then
       begin
         DropBox_RefreshRate.ItemIndex := I;
-        fDesiredRefRate := fResolutions.Items[resIndex.ResolutionId].RefreshRate[I];
+        fDesiredRefRate := fResolutions.Items[selectedResolutionIndex].RefreshRate[I];
       end;
     end;
   end
