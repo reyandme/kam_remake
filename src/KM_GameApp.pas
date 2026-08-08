@@ -557,6 +557,11 @@ end;
 
 procedure TKMGameApp.InstantiateGame(aGameMode: TKMGameMode);
 begin
+  // Stop everything silently
+  StopGame(grSilent);
+
+  LoadGameAssets;
+
   //Reset controls if MainForm exists (KMR could be run without main form)
   if gMain <> nil then
     gMain.FormMain.ControlsReset;
@@ -727,12 +732,9 @@ begin
   //Save const aFilePath locally, since it could be destroyed as some Game Object instance in StopGame
   //!!!!! DO NOT USE aMissionFile or aGameName further in this method
   filePath := aFilePath;
-  //----------------------------------------------------------------------
-  StopGame(grSilent); //Stop everything silently
-
-  LoadGameAssets;
 
   InstantiateGame(aGameMode);
+
   try
     gGame.LoadFromFile(filePath, aGIPPath);
   except
@@ -773,12 +775,9 @@ begin
   //!!!!! DO NOT USE aMissionFile or aGameName further in this method
   missionFullFilePath := aMissionFullFilePath;
   gameName := aGameName;
-  //!!!!! ------------------------------------------------------------
-  StopGame(grSilent); //Stop everything silently
-
-  LoadGameAssets;
 
   InstantiateGame(aGameMode);
+
   try
     gGame.Start(missionFullFilePath, gameName, aFullCRC, aSimpleCRC, aCampaign, aMap, aDesiredLoc, aDesiredColor, aDifficulty, aAIType);
   except
@@ -828,11 +827,9 @@ begin
   gameInputProcess := gGame.GameInputProcess;
   gGame.GameInputProcess := nil;
 
-  StopGame(grSilent); //Stop everything silently
-
-  LoadGameAssets;
 
   InstantiateGame(gameMode);
+
   try
     // SavedReplays have been just created, and we will reassign them in the next line.
     // Then Free the newly created save replays object first
@@ -873,11 +870,8 @@ procedure TKMGameApp.InstantiateGameFromScratch(aSizeX, aSizeY: Integer; aGameMo
 var
   loadError: string;
 begin
-  StopGame(grSilent); //Stop everything silently
-
-  LoadGameAssets;
-
   InstantiateGame(aGameMode);
+
   gGame.SetSeed(4); //Every time the game will be the same as previous. Good for debug.
   try
     gGame.MapEdStartEmptyMap(aSizeX, aSizeY);
