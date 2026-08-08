@@ -45,16 +45,18 @@ type
     fAutoSaveWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for autosaves only
     fSavePointWorkerThreadHolder: TKMWorkerThreadHolder; // Worker thread for savepoints only
 
-    procedure CreateGame(aGameMode: TKMGameMode);
 
     procedure GameLoadingStep(const aText: UnicodeString);
     procedure LoadGameAssets;
-    procedure LoadGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; const aGIPPath: String = '');
-    procedure LoadGameFromScript(const aMissionFullFilePath, aGameName: String; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
+
+    procedure InstantiateGame(aGameMode: TKMGameMode);
+    procedure InstantiateGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; const aGIPPath: String = '');
+    procedure InstantiateGameFromScript(const aMissionFullFilePath, aGameName: String; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
                                  aMap: Byte; aGameMode: TKMGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal;
                                  aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
-    procedure LoadGameSavePoint(aTick: Cardinal);
-    procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TKMGameMode);
+    procedure InstantiateGameSavePoint(aTick: Cardinal);
+    procedure InstantiateGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TKMGameMode);
+
     function SaveName(const aName, aExt: UnicodeString; aIsMultiplayer: Boolean): UnicodeString;
 
     procedure GameStarted(aGameMode: TKMGameMode);
@@ -553,7 +555,7 @@ begin
 end;
 
 
-procedure TKMGameApp.CreateGame(aGameMode: TKMGameMode);
+procedure TKMGameApp.InstantiateGame(aGameMode: TKMGameMode);
 begin
   //Reset controls if MainForm exists (KMR could be run without main form)
   if gMain <> nil then
@@ -716,7 +718,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; const aGIPPath: String = '');
+procedure TKMGameApp.InstantiateGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; const aGIPPath: String = '');
 const
   SAVE_SUFFIX_DEBUG = '_dbg';
 var
@@ -727,9 +729,10 @@ begin
   filePath := aFilePath;
   //----------------------------------------------------------------------
   StopGame(grSilent); //Stop everything silently
+
   LoadGameAssets;
 
-  CreateGame(aGameMode);
+  InstantiateGame(aGameMode);
   try
     gGame.LoadFromFile(filePath, aGIPPath);
   except
@@ -760,7 +763,7 @@ end;
 
 
 //Do not use _const_ aMissionFile, aGameName: UnicodeString, as for some unknown reason sometimes aGameName is not accessed after StopGame(grSilent) (pointing to a wrong value)
-procedure TKMGameApp.LoadGameFromScript(const aMissionFullFilePath, aGameName: String; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
+procedure TKMGameApp.InstantiateGameFromScript(const aMissionFullFilePath, aGameName: String; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
                                         aMap: Byte; aGameMode: TKMGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal;
                                         aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
 var
@@ -772,9 +775,10 @@ begin
   gameName := aGameName;
   //!!!!! ------------------------------------------------------------
   StopGame(grSilent); //Stop everything silently
+
   LoadGameAssets;
 
-  CreateGame(aGameMode);
+  InstantiateGame(aGameMode);
   try
     gGame.Start(missionFullFilePath, gameName, aFullCRC, aSimpleCRC, aCampaign, aMap, aDesiredLoc, aDesiredColor, aDifficulty, aAIType);
   except
@@ -804,7 +808,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameSavePoint(aTick: Cardinal);
+procedure TKMGameApp.InstantiateGameSavePoint(aTick: Cardinal);
 var
   loadError: string;
   savedReplays: TKMSavePointCollection;
@@ -825,9 +829,10 @@ begin
   gGame.GameInputProcess := nil;
 
   StopGame(grSilent); //Stop everything silently
+
   LoadGameAssets;
 
-  CreateGame(gameMode);
+  InstantiateGame(gameMode);
   try
     // SavedReplays have been just created, and we will reassign them in the next line.
     // Then Free the newly created save replays object first
@@ -864,14 +869,15 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TKMGameMode);
+procedure TKMGameApp.InstantiateGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TKMGameMode);
 var
   loadError: string;
 begin
   StopGame(grSilent); //Stop everything silently
+
   LoadGameAssets;
 
-  CreateGame(aGameMode);
+  InstantiateGame(aGameMode);
   gGame.SetSeed(4); //Every time the game will be the same as previous. Good for debug.
   try
     gGame.MapEdStartEmptyMap(aSizeX, aSizeY);
@@ -901,7 +907,7 @@ var
   camp: TKMCampaign;
 begin
   camp := fCampaigns.CampaignByIdU(aCampaignIdStr);
-  LoadGameFromScript(camp.GetMissionFile(aMap), camp.GetMissionTitle(aMap), 0, 0, camp, aMap, gmCampaign, -1, NO_OVERWRITE_COLOR, aDifficulty);
+  InstantiateGameFromScript(camp.GetMissionFile(aMap), camp.GetMissionTitle(aMap), 0, 0, camp, aMap, gmCampaign, -1, NO_OVERWRITE_COLOR, aDifficulty);
 
   fCampaigns.SetActive(camp);
 
@@ -914,7 +920,7 @@ procedure TKMGameApp.NewGameSingleMap(const aMissionFullPath, aGameName: Unicode
                                   aDesiredColor: Cardinal = NO_OVERWRITE_COLOR; aDifficulty: TKMMissionDifficulty = mdNone;
                                   aAIType: TKMAIType = aitNone);
 begin
-  LoadGameFromScript(aMissionFullPath, aGameName, 0, 0, nil, 0, gmSingle, aDesiredLoc, aDesiredColor, aDifficulty, aAIType);
+  InstantiateGameFromScript(aMissionFullPath, aGameName, 0, 0, nil, 0, gmSingle, aDesiredLoc, aDesiredColor, aDifficulty, aAIType);
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
@@ -924,7 +930,7 @@ end;
 procedure TKMGameApp.NewGameSingleSave(const aSaveName: UnicodeString);
 begin
   //Convert SaveName to local FilePath
-  LoadGameFromSave(SaveName(aSaveName, EXT_SAVE_MAIN, False), gmSingle);
+  InstantiateGameFromSave(SaveName(aSaveName, EXT_SAVE_MAIN, False), gmSingle);
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
@@ -941,7 +947,7 @@ begin
   else
     gameMode := gmMulti;
 
-  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', aMapKind, aCRC), aFileName,
+  InstantiateGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', aMapKind, aCRC), aFileName,
                      aCRC, 0, nil, 0, gameMode, 0, NO_OVERWRITE_COLOR, aDifficulty);
 
   //Starting the game might have failed (e.g. fatal script error)
@@ -965,7 +971,7 @@ begin
     gameMode := gmMulti;
   //Convert SaveName to local FilePath
   //aFileName is the same for all players, but Path to it is different
-  LoadGameFromSave(SaveName(aSaveName, EXT_SAVE_MAIN, True), gameMode);
+  InstantiateGameFromSave(SaveName(aSaveName, EXT_SAVE_MAIN, True), gameMode);
 
   //Copy the chat and typed lobby message to the in-game chat
   gGame.GamePlayInterface.GameStarted;
@@ -1016,10 +1022,10 @@ procedure TKMGameApp.NewGameRestartLast(const aGameName, aMissionFileRel, aSave:
                                     aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
 begin
   if FileExists(ExeDir + aMissionFileRel) then
-    LoadGameFromScript(ExeDir + aMissionFileRel, aGameName, 0, 0, fCampaigns.CampaignById(aCampName), aCampMap, aGameMode, aLocation, aColor, aDifficulty, aAIType)
+    InstantiateGameFromScript(ExeDir + aMissionFileRel, aGameName, 0, 0, fCampaigns.CampaignById(aCampName), aCampMap, aGameMode, aLocation, aColor, aDifficulty, aAIType)
   else
   if FileExists(ChangeFileExt(ExeDir + aSave, EXT_SAVE_BASE_DOT)) then
-    LoadGameFromSave(ChangeFileExt(ExeDir + aSave, EXT_SAVE_BASE_DOT), aGameMode)
+    InstantiateGameFromSave(ChangeFileExt(ExeDir + aSave, EXT_SAVE_BASE_DOT), aGameMode)
   else
     fMainMenuInterface.PageChange(gpError, 'Can not repeat last mission');
 
@@ -1032,7 +1038,7 @@ end;
 //Used by Runner util
 procedure TKMGameApp.NewGameEmptyMap(aSizeX, aSizeY: Integer);
 begin
-  LoadGameFromScratch(aSizeX, aSizeY, gmSingle);
+  InstantiateGameFromScratch(aSizeX, aSizeY, gmSingle);
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
@@ -1049,12 +1055,12 @@ procedure TKMGameApp.NewGameMapEditor(const aFullFilePath: UnicodeString; aSizeX
                                   aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0; aMultiplayerLoadMode: Boolean = False);
 begin
   if aFullFilePath <> '' then
-    LoadGameFromScript(aFullFilePath, TruncateExt(ExtractFileName(aFullFilePath)), aMapFullCRC, aMapSimpleCRC, nil, 0, gmMapEd, 0, NO_OVERWRITE_COLOR)
+    InstantiateGameFromScript(aFullFilePath, TruncateExt(ExtractFileName(aFullFilePath)), aMapFullCRC, aMapSimpleCRC, nil, 0, gmMapEd, 0, NO_OVERWRITE_COLOR)
   else
   begin
     aSizeX := EnsureRange(aSizeX, MIN_MAP_SIZE, MAX_MAP_SIZE);
     aSizeY := EnsureRange(aSizeY, MIN_MAP_SIZE, MAX_MAP_SIZE);
-    LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
+    InstantiateGameFromScratch(aSizeX, aSizeY, gmMapEd);
   end;
 
   // gGame could be nil if we failed to load map
@@ -1077,7 +1083,7 @@ end;
 procedure TKMGameApp.NewGameReplay(const aFilePath: UnicodeString);
 begin
   Assert(ExtractFileExt(aFilePath) = EXT_SAVE_BASE_DOT);
-  LoadGameFromSave(aFilePath, gmReplaySingle); //Will be changed to gmReplayMulti depending on save contents
+  InstantiateGameFromSave(aFilePath, gmReplaySingle); //Will be changed to gmReplayMulti depending on save contents
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
@@ -1086,7 +1092,7 @@ end;
 
 procedure TKMGameApp.NewGameSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
 begin
-  LoadGameFromSave(aSavPath, gmReplaySingle, aRplPath); //Will be changed to gmReplayMulti depending on save contents
+  InstantiateGameFromSave(aSavPath, gmReplaySingle, aRplPath); //Will be changed to gmReplayMulti depending on save contents
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
@@ -1110,7 +1116,7 @@ begin
   
   if not gGame.SavePoints.Contains(aTick) then Exit;
 
-  LoadGameSavePoint(aTick);
+  InstantiateGameSavePoint(aTick);
   Result := True;
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
