@@ -233,7 +233,7 @@ end;
 function TKMResolutions.FindCorrect(const aResolution: TKMScreenRes): TKMScreenRes;
 {$IFDEF MSWindows}
 var
-  devMode: TDevMode;
+  devMode: TDeviceMode;
 {$ENDIF}
 begin
   //1. Try to reuse current resolution
