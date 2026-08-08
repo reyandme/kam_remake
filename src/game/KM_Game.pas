@@ -101,7 +101,7 @@ type
     fMapEdMapSaveEnded: TKMEvent;
 
     procedure IssueAutosaveCommand(aAfterPT: Boolean);
-    function CheckIfPieceTimeJustEnded: Boolean;
+    function CheckIfPeacetimeJustEnded: Boolean;
     function GetWaitingPlayersList: TKMByteArray;
     function GetControlledHandIndex: TKMHandID;
     procedure UserAction(aActionType: TKMUserActionType);
@@ -1793,7 +1793,7 @@ begin
 end;
 
 
-function TKMGame.CheckIfPieceTimeJustEnded: Boolean;
+function TKMGame.CheckIfPeacetimeJustEnded: Boolean;
 begin
   if (Self = nil) or (fOptions = nil) then Exit(False);
 
@@ -3042,7 +3042,7 @@ function TKMGame.PlayGameTick: Boolean;
       MakeSavePoint;
 
     // Avoid 2 autosaves made at the same tick (at PT end and normal autosave)
-    if CheckIfPieceTimeJustEnded then // Send warning messages about peacetime if required
+    if CheckIfPeacetimeJustEnded then // Send warning messages about peacetime if required
     begin
       // gicGameSpeed will do speed change in the replay
       TrySetSpeed(fOptions.SpeedAfterPT, False);
@@ -3196,7 +3196,7 @@ begin
 //    if DBG_AGGRESSIVE_REPLAYS and (fParams.Tick > 1) then
 //      KaMRandom(MaxInt, 'TKMGameInputProcess.StoreCommand');
 
-    CheckIfPieceTimeJustEnded; // Send warning messages about peacetime if required (peacetime sound should still be played in replays)
+    CheckIfPeacetimeJustEnded; // Send warning messages about peacetime if required (peacetime sound should still be played in replays)
 
     if gGame = nil then Exit; // Quit if the game was stopped by a replay mismatch
 
