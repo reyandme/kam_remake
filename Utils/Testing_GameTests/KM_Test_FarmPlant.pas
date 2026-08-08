@@ -27,7 +27,7 @@ procedure TKMTest_FarmPlant.SetUp;
 begin
   inherited;
 
-  gGameApp.NewEmptyMap(32, 32);
+  gGameApp.NewGameEmptyMap(32, 32);
 
   gHands[0].AddHouse(htFarm, 16, 20, False);
 

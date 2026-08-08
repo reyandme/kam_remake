@@ -30,7 +30,7 @@ var
 begin
   inherited;
 
-  gGameApp.NewEmptyMap(32, 32);
+  gGameApp.NewGameEmptyMap(32, 32);
 
   TargetLoc := KMPoint(16, 23);
 

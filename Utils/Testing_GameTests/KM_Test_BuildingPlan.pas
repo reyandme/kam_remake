@@ -27,7 +27,7 @@ procedure TKMTest_BuildingPlan.SetUp;
 begin
   inherited;
 
-  gGameApp.NewEmptyMap(32, 32);
+  gGameApp.NewGameEmptyMap(32, 32);
 
   gHands[0].AddHousePlan(htSchool, KMPoint(16, 20));
 

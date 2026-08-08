@@ -27,7 +27,7 @@ procedure TKMTest_Bakery.SetUp;
 begin
   inherited;
 
-  gGameApp.NewEmptyMap(32, 32);
+  gGameApp.NewGameEmptyMap(32, 32);
 
   var bakery := gHands[0].AddHouse(htBakery, 16, 16, False);
   bakery.WareAddToIn(wtFlour);

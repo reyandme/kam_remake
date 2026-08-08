@@ -535,7 +535,7 @@ begin
   if not InRange(ListBox_Load.ItemIndex, 0, fSaves.Count - 1) then Exit;
 
   fSaves.TerminateScan; // Stop scan as it is no longer needed
-  gGameApp.NewSingleSave(fSaves[ListBox_Load.ItemIndex].FileName);
+  gGameApp.NewGameSingleSave(fSaves[ListBox_Load.ItemIndex].FileName);
 end;
 
 
@@ -1853,7 +1853,7 @@ begin
   missionFullPath := gGameParams.MissionFullFilePath;
   FreeThenNil(gGame);
   // current TKMGamePlayInterface object is destroyed, use only local variables here
-  gGameApp.NewMapEditor(missionFullPath, 0, 0, mapFullCRC, mapSimpleCRC, isMultiplayer);
+  gGameApp.NewGameMapEditor(missionFullPath, 0, 0, mapFullCRC, mapSimpleCRC, isMultiplayer);
 end;
 
 

@@ -21,6 +21,7 @@ uses
   KM_Maps, KM_GameSettings;
 
 
+{ TestKMMissionScript }
 procedure TestKMMissionScript.SetUp;
 begin
   SKIP_RENDER := True;
@@ -53,10 +54,10 @@ begin
     for I := 0 to PathToMaps.Count - 1 do
     begin
       try
-        //Load all maps in SP mode (even MP maps) since we don't have NetPlayers etc. rigged
-        gGameApp.NewSingleMap(PathToMaps[I], '');
+        // Load all maps in SP mode (even MP maps) since we don't have NetPlayers etc. rigged
+        gGameApp.NewGameSingleMap(PathToMaps[I], '');
 
-        //Warnings and Errors are written into the Log
+        // Warnings and Errors are written into the Log
       except
         //Report and swallow asserts
         on E: EAssertionFailed do

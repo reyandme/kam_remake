@@ -1570,7 +1570,7 @@ end;
 // Used to restart game / replay while debugging
 procedure TKMGame.RestartReplay;
 begin
-  gGameApp.NewReplay(ChangeFileExt(ExeDir + fLastSaveFileRel, EXT_SAVE_BASE_DOT));
+  gGameApp.NewGameReplay(ChangeFileExt(ExeDir + fLastSaveFileRel, EXT_SAVE_BASE_DOT));
 end;
 
 

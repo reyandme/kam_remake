@@ -740,7 +740,7 @@ procedure TFormMain.Open_MissionMenuClick(Sender: TObject);
 begin
   if RunOpenDialog(OpenDialog1, '', fMissionDefOpenPath, 'Knights & Merchants Mission (*.dat)|*.dat') then
   begin
-    gGameApp.NewSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
+    gGameApp.NewGameSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
     fMissionDefOpenPath := ExtractFileDir(OpenDialog1.FileName);
   end;
 end;
@@ -750,7 +750,7 @@ procedure TFormMain.MenuItem1Click(Sender: TObject);
 begin
   if RunOpenDialog(OpenDialog1, '', fMissionDefOpenPath, 'Knights & Merchants Mission (*.dat)|*.dat') then
   begin
-    gGameApp.NewMapEditor(OpenDialog1.FileName);
+    gGameApp.NewGameMapEditor(OpenDialog1.FileName);
     fMissionDefOpenPath := ExtractFileDir(OpenDialog1.FileName);
   end;
 end;
@@ -1014,7 +1014,7 @@ begin
     begin
       rplPath := OpenDialog1.FileName;
 
-      gGameApp.NewSaveAndReplay(savPath, rplPath);
+      gGameApp.NewGameSaveAndReplay(savPath, rplPath);
     end;
   end;
 end;
@@ -1131,7 +1131,7 @@ end;
 
 procedure TFormMain.btnGameRestartClick(Sender: TObject);
 begin
-  gGameApp.NewRestartLastSPGame;
+  gGameApp.NewGameRestartLastSPGame;
 end;
 
 

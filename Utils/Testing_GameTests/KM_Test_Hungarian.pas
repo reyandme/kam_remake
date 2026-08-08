@@ -29,7 +29,7 @@ begin
   SHOW_UNIT_ROUTES := True;
   //SHOW_UNIT_ROUTES_STEPS := True;
 
-  gGameApp.NewEmptyMap(64, 64);
+  gGameApp.NewGameEmptyMap(64, 64);
 
   if gGame.ActiveInterface <> nil then
   begin

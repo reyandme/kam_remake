@@ -27,7 +27,7 @@ procedure TKMTest_Sawmill.SetUp;
 begin
   inherited;
 
-  gGameApp.NewEmptyMap(32, 32);
+  gGameApp.NewGameEmptyMap(32, 32);
 
   var H := gHands[0].AddHouse(htSawmill, 16, 16, False);
   H.WareAddToIn(wtTrunk);
