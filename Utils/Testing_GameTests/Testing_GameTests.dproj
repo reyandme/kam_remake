@@ -150,6 +150,7 @@
         <DCCReference Include="KM_Test_Sawmill.pas"/>
         <DCCReference Include="KM_Test_Sawmill_DeliveryIn.pas"/>
         <DCCReference Include="KM_Test_Sawmill_DeliveryOut.pas"/>
+        <DCCReference Include="KM_Test_Recruits.pas"/>
         <DCCReference Include="KM_Test_Stone.pas"/>
         <DCCReference Include="KM_Test_Woodcutter_Chop.pas"/>
         <DCCReference Include="KM_Test_Woodcutter_Plant.pas"/>
