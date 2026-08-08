@@ -26,7 +26,8 @@ uses
 procedure TKMTest_Mill.SetUp;
 begin
   inherited;
-  gGameApp.NewEmptyMap(32, 32);
+
+  gGameApp.NewGameEmptyMap(32, 32);
 
   var H := gHands[0].AddHouse(htMill, 16, 16, False);
   H.WareAddToIn(wtCorn);

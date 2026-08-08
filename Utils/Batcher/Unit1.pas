@@ -804,7 +804,7 @@ begin
     for I := 0 to PathToMaps.Count - 1 do
     begin
       gLog.AddTime('Resave map: ' + PathToMaps[I]);
-      gGameApp.NewMapEditor(PathToMaps[I]);
+      gGameApp.NewGameMapEditor(PathToMaps[I]);
       gLog.AddTime('Opened map: ' + PathToMaps[I]);
       gGameApp.SaveMapEditor(PathToMaps[I]);
       gLog.AddTime('Saved map: ' + PathToMaps[I]);

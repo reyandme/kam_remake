@@ -541,7 +541,7 @@ end;
 procedure TKMGameResultsSP.RepeatClick(Sender: TObject);
 begin
   // Means replay last map
-  gGameApp.NewRestartLast(fRepeatGameName, fRepeatMissionFileRel, fRepeatSave, fGameMode, fRepeatCampName, fRepeatCampMap,
+  gGameApp.NewGameRestartLast(fRepeatGameName, fRepeatMissionFileRel, fRepeatSave, fGameMode, fRepeatCampName, fRepeatCampMap,
                           fRepeatLocation, fRepeatColor, fRepeatDifficulty, fRepeatAIType);
 end;
 

@@ -190,7 +190,7 @@ begin
   gGame.SaveMapEditor(saveNameFullPath, KMRect(NumEdit_Resize_Left.Value,  NumEdit_Resize_Top.Value,
                                        NumEdit_Resize_Right.Value, NumEdit_Resize_Bottom.Value));
   FreeThenNil(gGame);
-  gGameApp.NewMapEditor(saveNameFullPath, isMultiplayer);
+  gGameApp.NewGameMapEditor(saveNameFullPath, isMultiplayer);
 
   // Collect generated map areas
   rRect[dLeft]   := KMRect(1, top + 1, left, gTerrain.MapY - bot);

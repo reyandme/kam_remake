@@ -447,7 +447,7 @@ var
 begin
   DEFAULT_PEACE_TIME := f_SIM_PeaceTime;
   pathToSave := ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))))));
-  gGameApp.NewSingleMap(Format('%sMaps\%s\%s.dat',[pathToSave,aSinglePLMapName,aSinglePLMapName]), 'GA');
+  gGameApp.NewGameSingleMap(Format('%sMaps\%s\%s.dat',[pathToSave, aSinglePLMapName, aSinglePLMapName]), 'GA');
   //gGameApp.Game.GameOptions.Peacetime := f_SIM_PeaceTime;
 
   //gMySpectator.Hand.FogOfWar.RevealEverything;
@@ -871,7 +871,7 @@ begin
     for L := 1 to cnt_MAP_SIMULATIONS do
     begin
       OnProgress2(MapName + ' Run ' + IntToStr(L));
-      gGameApp.NewSingleMap(Format('%s..\..\Maps\%s\%s.dat',[ExtractFilePath(ParamStr(0)),MapName,MapName]), MapName);
+      gGameApp.NewGameSingleMap(Format('%s..\..\Maps\%s\%s.dat', [ExtractFilePath(ParamStr(0)), MapName, MapName]), MapName);
 
       SetKaMSeed(L + 1000);
 
@@ -957,7 +957,7 @@ begin
     for L := 1 to cnt_MAP_SIMULATIONS do
     begin
       OnProgress2(MapName + ' Run ' + IntToStr(L));
-      gGameApp.NewSingleMap(Format('%s..\..\Maps\%s\%s.dat',[ExtractFilePath(ParamStr(0)),MapName,MapName]), MapName);
+      gGameApp.NewGameSingleMap(Format('%s..\..\Maps\%s\%s.dat', [ExtractFilePath(ParamStr(0)), MapName, MapName]), MapName);
 
       //SetKaMSeed(L + 1000);
 
@@ -1033,7 +1033,7 @@ begin
       fIntParam2 := MAPS_V[K];
     for L := 1 to cnt_MAP_SIMULATIONS do
     begin
-      gGameApp.NewSingleMap(Format('%s..\..\Maps\%s\%s.dat',[ExtractFilePath(ParamStr(0)),MapName,MapName]), MapName);
+      gGameApp.NewGameSingleMap(Format('%s..\..\Maps\%s\%s.dat',[ExtractFilePath(ParamStr(0)),MapName,MapName]), MapName);
 
       SetKaMSeed(Max(1,L));
 
@@ -1415,7 +1415,7 @@ var
     fRunSeed := L;
 
     mapFullName := Format('%sMapsMP\%s\%s.dat',[ExeDir,fMap,fMap]);
-    gGameApp.NewSingleMap(mapFullName, fMap, DEF_PLAYER_HAND, 0, mdNone, AIType);
+    gGameApp.NewGameSingleMap(mapFullName, fMap, DEF_PLAYER_HAND, 0, mdNone, AIType);
     gGame.Params.GetGameModeSetEvent(fGameModeSetEvent);
   end;
 
@@ -1876,7 +1876,7 @@ const
     mapFullName: string;
   begin
     mapFullName := Format('%sMapsMP\%s\%s.dat',[ExeDir,fMap,fMap]);
-    gGameApp.NewSingleMap(mapFullName, fMap, -1, 0, mdNone, AIType);
+    gGameApp.NewGameSingleMap(mapFullName, fMap, -1, 0, mdNone, AIType);
   end;
 
 
@@ -2052,7 +2052,7 @@ end;
 
 procedure TKMRunnerFight95.Execute(aRun: Integer);
 begin
-  gGameApp.NewEmptyMap(128, 128);
+  gGameApp.NewGameEmptyMap(128, 128);
   SetKaMSeed(aRun + 1);
 
   //fPlayers[0].AddUnitGroup(utKnight, KMPoint(63, 64), dir_E, 8, 24);
@@ -2123,8 +2123,8 @@ var Str: String;
     HRun, HRunT, WRun, WRunT, WFRun, WFRunT, GRun, GRunT: Cardinal;
     StartT: Cardinal;
 begin
-  //gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\MapsMP\Cursed Ravine\Cursed Ravine.dat', 'Cursed Ravine');
-  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\GA_'+IntToStr(aRun+1)+'\GA_'+IntToStr(aRun+1)+'.dat', 'GA');
+  //gGameApp.NewGameSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\MapsMP\Cursed Ravine\Cursed Ravine.dat', 'Cursed Ravine');
+  gGameApp.NewGameSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\GA_'+IntToStr(aRun+1)+'\GA_'+IntToStr(aRun+1)+'.dat', 'GA');
   Inc(Runs);
   gMySpectator.Hand.FogOfWar.RevealEverything;
   gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(136, 25), 0);
@@ -2213,7 +2213,7 @@ begin
 //  PathFinderToUse := (aRun mod 4) div 2; //01230123 > 00110011
 //  CACHE_PATHFINDING := Boolean(aRun mod 2);  //0101
 
-  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Vortamic\Vortamic.dat', 'Across the Desert');
+  gGameApp.NewGameSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Vortamic\Vortamic.dat', 'Across the Desert');
 
   SetKaMSeed(aRun div 4 + 1); //11112222
 
@@ -2245,7 +2245,7 @@ var
 begin
   inherited;
 
-  gGameApp.NewReplay(ExtractFilePath(ParamStr(0)) + '\runner_replay.bas');
+  gGameApp.NewGameReplay(ExtractFilePath(ParamStr(0)) + '\runner_replay.bas');
 
   //Don't set random seed or the replay won't work
 
@@ -2278,7 +2278,7 @@ var
 begin
   inherited;
 
-  gGameApp.NewCampaignMap('VAS', 1);
+  gGameApp.NewGameCampaignMap('VAS', 1);
 
   gMySpectator.FOWIndex := -1;
   gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(162, 26), 0);
@@ -2325,7 +2325,7 @@ begin
   Inc(fRuns);
   for aIdx := 0 to MAPS_COUNT - 1 do
   begin
-	  gGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\MapsMP\Cursed Ravine\Cursed Ravine.dat', 'GA');
+	  gGameApp.NewGameSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\MapsMP\Cursed Ravine\Cursed Ravine.dat', 'GA');
 	  // Set Runner interface (only in case that you want to watch game in real time)
 	  //gMySpectator.Hand.FogOfWar.RevealEverything;
 	  //gGameApp.Game.GamePlayInterface.Viewport.PanTo(KMPointF(0, 60), 0);

@@ -93,27 +93,27 @@ type
     procedure PreloadGameResources;
 
     //These are all different game kinds we can start
-    procedure NewCampaignMap(aCampaignIdStr: UnicodeString; aMap: Word; aDifficulty: TKMMissionDifficulty = mdNone);
-    procedure NewSingleMap(const aMissionFullPath, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
+    procedure NewGameCampaignMap(aCampaignIdStr: UnicodeString; aMap: Word; aDifficulty: TKMMissionDifficulty = mdNone);
+    procedure NewGameSingleMap(const aMissionFullPath, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
                            aDesiredColor: Cardinal = NO_OVERWRITE_COLOR; aDifficulty: TKMMissionDifficulty = mdNone;
                            aAIType: TKMAIType = aitNone);
-    procedure NewSingleSave(const aSaveName: UnicodeString);
-    procedure NewMultiplayerMap(const aFileName: UnicodeString; aMapKind: TKMMapKind; aCRC: Cardinal; aSpectating: Boolean;
+    procedure NewGameSingleSave(const aSaveName: UnicodeString);
+    procedure NewGameMultiplayerMap(const aFileName: UnicodeString; aMapKind: TKMMapKind; aCRC: Cardinal; aSpectating: Boolean;
                                 aDifficulty: TKMMissionDifficulty);
-    procedure NewMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
+    procedure NewGameMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
 
-    procedure NewRestartLastSPGame;
-    procedure NewRestartLast(const aGameName, aMissionFileRel, aSave: UnicodeString; aGameMode: TKMGameMode; aCampName: TKMCampaignId;
+    procedure NewGameRestartLastSPGame;
+    procedure NewGameRestartLast(const aGameName, aMissionFileRel, aSave: UnicodeString; aGameMode: TKMGameMode; aCampName: TKMCampaignId;
                              aCampMap: Byte; aLocation: Byte; aColor: Cardinal; aDifficulty: TKMMissionDifficulty = mdNone;
                              aAIType: TKMAIType = aitNone);
 
-    procedure NewEmptyMap(aSizeX, aSizeY: Integer);
-    procedure NewMapEditor(const aFullFilePath: UnicodeString; aMultiplayerLoadMode: Boolean); overload;
-    procedure NewMapEditor(const aFullFilePath: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
+    procedure NewGameEmptyMap(aSizeX, aSizeY: Integer);
+    procedure NewGameMapEditor(const aFullFilePath: UnicodeString; aMultiplayerLoadMode: Boolean); overload;
+    procedure NewGameMapEditor(const aFullFilePath: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
                            aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0; aMultiplayerLoadMode: Boolean = False); overload;
 
-    procedure NewReplay(const aFilePath: UnicodeString);
-    procedure NewSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
+    procedure NewGameReplay(const aFilePath: UnicodeString);
+    procedure NewGameSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
 
     function TryLoadSavePoint(aTick: Integer): Boolean;
     procedure LoadPrevSavePoint;
@@ -295,7 +295,7 @@ end;
 procedure TKMGameApp.InitMainMenu(aScreenX, aScreenY: Word);
 begin
   fMainMenuInterface := TKMMainMenuInterface.Create(aScreenX, aScreenY, fCampaigns,
-                                                    NewSingleMap, NewCampaignMap, NewMapEditor, NewReplay, NewSingleSave,
+                                                    NewGameSingleMap, NewGameCampaignMap, NewGameMapEditor, NewGameReplay, NewGameSingleSave,
                                                     ToggleLocale, PreloadGameResources, NetworkInit);
 end;
 
@@ -896,7 +896,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewCampaignMap(aCampaignIdStr: UnicodeString; aMap: Word; aDifficulty: TKMMissionDifficulty = mdNone);
+procedure TKMGameApp.NewGameCampaignMap(aCampaignIdStr: UnicodeString; aMap: Word; aDifficulty: TKMMissionDifficulty = mdNone);
 var
   camp: TKMCampaign;
 begin
@@ -910,7 +910,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewSingleMap(const aMissionFullPath, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
+procedure TKMGameApp.NewGameSingleMap(const aMissionFullPath, aGameName: UnicodeString; aDesiredLoc: ShortInt = -1;
                                   aDesiredColor: Cardinal = NO_OVERWRITE_COLOR; aDifficulty: TKMMissionDifficulty = mdNone;
                                   aAIType: TKMAIType = aitNone);
 begin
@@ -921,7 +921,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewSingleSave(const aSaveName: UnicodeString);
+procedure TKMGameApp.NewGameSingleSave(const aSaveName: UnicodeString);
 begin
   //Convert SaveName to local FilePath
   LoadGameFromSave(SaveName(aSaveName, EXT_SAVE_MAIN, False), gmSingle);
@@ -931,7 +931,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMultiplayerMap(const aFileName: UnicodeString; aMapKind: TKMMapKind; aCRC: Cardinal; aSpectating: Boolean;
+procedure TKMGameApp.NewGameMultiplayerMap(const aFileName: UnicodeString; aMapKind: TKMMapKind; aCRC: Cardinal; aSpectating: Boolean;
                                        aDifficulty: TKMMissionDifficulty);
 var
   gameMode: TKMGameMode;
@@ -955,7 +955,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
+procedure TKMGameApp.NewGameMultiplayerSave(const aSaveName: UnicodeString; Spectating: Boolean);
 var
   gameMode: TKMGameMode;
 begin
@@ -975,7 +975,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewRestartLastSPGame;
+procedure TKMGameApp.NewGameRestartLastSPGame;
 var
   gameMode: TKMGameMode;
   repeatGameName: UnicodeString;
@@ -1006,12 +1006,12 @@ begin
 
   StopGame(grSilent);
 
-  gGameApp.NewRestartLast(repeatGameName, repeatMissionFileRel, repeatSave, gameMode, repeatCampName, repeatCampMap,
+  gGameApp.NewGameRestartLast(repeatGameName, repeatMissionFileRel, repeatSave, gameMode, repeatCampName, repeatCampMap,
                           repeatLocation, repeatColor, repeatDifficulty, repeatAIType);
 end;
 
 
-procedure TKMGameApp.NewRestartLast(const aGameName, aMissionFileRel, aSave: UnicodeString; aGameMode: TKMGameMode;
+procedure TKMGameApp.NewGameRestartLast(const aGameName, aMissionFileRel, aSave: UnicodeString; aGameMode: TKMGameMode;
                                     aCampName: TKMCampaignId; aCampMap: Byte; aLocation: Byte; aColor: Cardinal;
                                     aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
 begin
@@ -1030,7 +1030,7 @@ end;
 
 
 //Used by Runner util
-procedure TKMGameApp.NewEmptyMap(aSizeX, aSizeY: Integer);
+procedure TKMGameApp.NewGameEmptyMap(aSizeX, aSizeY: Integer);
 begin
   LoadGameFromScratch(aSizeX, aSizeY, gmSingle);
 
@@ -1039,13 +1039,13 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMapEditor(const aFullFilePath: UnicodeString; aMultiplayerLoadMode: Boolean);
+procedure TKMGameApp.NewGameMapEditor(const aFullFilePath: UnicodeString; aMultiplayerLoadMode: Boolean);
 begin
-  NewMapEditor(aFullFilePath, 0, 0, 0, 0, aMultiplayerLoadMode);
+  NewGameMapEditor(aFullFilePath, 0, 0, 0, 0, aMultiplayerLoadMode);
 end;
 
 
-procedure TKMGameApp.NewMapEditor(const aFullFilePath: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
+procedure TKMGameApp.NewGameMapEditor(const aFullFilePath: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
                                   aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0; aMultiplayerLoadMode: Boolean = False);
 begin
   if aFullFilePath <> '' then
@@ -1074,7 +1074,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewReplay(const aFilePath: UnicodeString);
+procedure TKMGameApp.NewGameReplay(const aFilePath: UnicodeString);
 begin
   Assert(ExtractFileExt(aFilePath) = EXT_SAVE_BASE_DOT);
   LoadGameFromSave(aFilePath, gmReplaySingle); //Will be changed to gmReplayMulti depending on save contents
@@ -1084,7 +1084,7 @@ begin
 end;
 
 
-procedure TKMGameApp.NewSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
+procedure TKMGameApp.NewGameSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
 begin
   LoadGameFromSave(aSavPath, gmReplaySingle, aRplPath); //Will be changed to gmReplayMulti depending on save contents
 
@@ -1207,8 +1207,8 @@ begin
 
   // Set event handlers anyway. Those could be reset by someone
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
-  fNetworking.OnStartMap := NewMultiplayerMap;
-  fNetworking.OnStartSave := NewMultiplayerSave;
+  fNetworking.OnStartMap := NewGameMultiplayerMap;
+  fNetworking.OnStartSave := NewGameMultiplayerSave;
   fNetworking.OnAnnounceReturnToLobby := AnnounceReturnToLobby;
   fNetworking.OnDoReturnToLobby := StopGameReturnToLobby;
 end;

@@ -28,7 +28,7 @@ procedure TKMTest_FarmHarvest.SetUp;
 begin
   inherited;
 
-  gGameApp.NewEmptyMap(32, 32);
+  gGameApp.NewGameEmptyMap(32, 32);
 
   fFarm := gHands[0].AddHouse(htFarm, 16, 20, False);
 

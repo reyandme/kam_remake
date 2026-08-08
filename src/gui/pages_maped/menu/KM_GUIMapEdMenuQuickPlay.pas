@@ -186,7 +186,7 @@ begin
     aiType := TKMAIType(Radio_AIOpponents.ItemIndex + 1);
 
   FreeThenNil(gGame);
-  gGameApp.NewSingleMap(ExeDir + missionFileRel, gameName, handID, color, difficulty, aiType);
+  gGameApp.NewGameSingleMap(ExeDir + missionFileRel, gameName, handID, color, difficulty, aiType);
   gGame.StartedFromMapEditor := True;
   gGame.StartedFromMapEdAsMPMap := isMultiplayer;
   TKMGamePlayInterface(gGame.ActiveInterface).UpdateUI;

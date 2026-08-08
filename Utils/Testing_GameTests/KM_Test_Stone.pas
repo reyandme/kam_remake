@@ -30,7 +30,7 @@ begin
 
   DYNAMIC_TERRAIN := False;
 
-  gGameApp.NewEmptyMap(32, 32);
+  gGameApp.NewGameEmptyMap(32, 32);
 
   // Set a stone deposit for mining
   // 132 is a base tile ID for Stone (tkStone)

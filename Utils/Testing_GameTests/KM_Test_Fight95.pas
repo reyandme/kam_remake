@@ -29,7 +29,7 @@ begin
 
   DYNAMIC_TERRAIN := False;
 
-  gGameApp.NewEmptyMap(128, 128);
+  gGameApp.NewGameEmptyMap(128, 128);
 
   gHands[0].AddUnitGroup(utSwordFighter, KMPoint(63, 64), TKMDirection(dirE), 8, 24);
   gHands[1].AddUnitGroup(utSwordFighter, KMPoint(65, 64), TKMDirection(dirW), 8, 24);

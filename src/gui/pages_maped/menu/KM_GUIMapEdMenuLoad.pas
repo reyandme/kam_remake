@@ -104,7 +104,7 @@ begin
 
     mapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
     isMulti := Radio_Load_MapType.ItemIndex <> 0;
-    gGameApp.NewMapEditor(TKMapsCollection.FullPath(mapName, '.dat', TKMMapKind(Radio_Load_MapType.ItemIndex + 1)), isMulti);
+    gGameApp.NewGameMapEditor(TKMapsCollection.FullPath(mapName, '.dat', TKMMapKind(Radio_Load_MapType.ItemIndex + 1)), isMulti);
   end
   else
   if Sender = Button_LoadCancel then

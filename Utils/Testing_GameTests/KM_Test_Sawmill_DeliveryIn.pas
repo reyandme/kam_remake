@@ -29,7 +29,7 @@ var
 begin
   inherited;
 
-  gGameApp.NewEmptyMap(32, 32);
+  gGameApp.NewGameEmptyMap(32, 32);
 
   for I := 9 to 21 do
     gHands[0].AddRoad(KMPoint(I, 17));
