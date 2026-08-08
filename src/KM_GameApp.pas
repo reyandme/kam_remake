@@ -50,7 +50,7 @@ type
     procedure LoadGameAssets;
 
     procedure InstantiateGame(aGameMode: TKMGameMode);
-    procedure InstantiateGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; const aGIPPath: String = '');
+    procedure InstantiateGameFromSave(const aSavegamePath: String; aGameMode: TKMGameMode; const aReplayPath: String = '');
     procedure InstantiateGameFromScript(const aMissionFullFilePath, aGameName: String; aFullCRC, aSimpleCRC: Cardinal; aCampaign: TKMCampaign;
                                  aMap: Byte; aGameMode: TKMGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal;
                                  aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
@@ -114,7 +114,7 @@ type
     procedure NewGameMapEditor(const aFullFilePath: UnicodeString; aSizeX: Integer = 0; aSizeY: Integer = 0;
                            aMapFullCRC: Cardinal = 0; aMapSimpleCRC: Cardinal = 0; aMultiplayerLoadMode: Boolean = False); overload;
 
-    procedure NewGameReplay(const aFilePath: UnicodeString);
+    procedure NewGameReplay(const aSavegamePath: UnicodeString);
     procedure NewGameSaveAndReplay(const aSavPath, aRplPath: UnicodeString);
 
     function TryLoadSavePoint(aTick: Integer): Boolean;
@@ -723,20 +723,21 @@ begin
 end;
 
 
-procedure TKMGameApp.InstantiateGameFromSave(const aFilePath: String; aGameMode: TKMGameMode; const aGIPPath: String = '');
+procedure TKMGameApp.InstantiateGameFromSave(const aSavegamePath: String; aGameMode: TKMGameMode; const aReplayPath: String = '');
 const
   SAVE_SUFFIX_DEBUG = '_dbg';
 var
-  loadError, filePath: String;
+  loadError: String;
 begin
-  //Save const aFilePath locally, since it could be destroyed as some Game Object instance in StopGame
-  //!!!!! DO NOT USE aMissionFile or aGameName further in this method
-  filePath := aFilePath;
+  // Note that when strings (i.e. aSavegamePath, aReplayPath) come from the game they are passed by a reference,
+  // hence when the game is destroyed the strings are killed too. Hence we MUST! make a local copy.
+  var savegamePath := aSavegamePath;
+  var replayPath := aReplayPath;
 
   InstantiateGame(aGameMode);
 
   try
-    gGame.LoadFromFile(filePath, aGIPPath);
+    gGame.LoadFromFile(savegamePath, replayPath);
   except
     on E: Exception do
     begin
@@ -744,7 +745,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      loadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [filePath]) + '||' + E.ClassName + ': ' + E.Message;
+      loadError := Format(gResTexts[TX_MENU_PARSE_ERROR], [savegamePath]) + '||' + E.ClassName + ': ' + E.Message;
       // Log the error first, because we can crash while stopping the game
       gLog.AddTime('Game creation Exception: ' + loadError
         {$IFDEF WDC} + sLineBreak + E.StackTrace {$ENDIF}
@@ -769,12 +770,12 @@ procedure TKMGameApp.InstantiateGameFromScript(const aMissionFullFilePath, aGame
                                         aMap: Byte; aGameMode: TKMGameMode; aDesiredLoc: ShortInt; aDesiredColor: Cardinal;
                                         aDifficulty: TKMMissionDifficulty = mdNone; aAIType: TKMAIType = aitNone);
 var
-  loadError, missionFullFilePath, gameName: String;
+  loadError: String;
 begin
-  //Save const parameters locally, since it could be destroyed as some Game Object instance in StopGame
-  //!!!!! DO NOT USE aMissionFile or aGameName further in this method
-  missionFullFilePath := aMissionFullFilePath;
-  gameName := aGameName;
+  // Note that when strings (i.e. aMissionFullFilePath, aGameName) come from the game they are passed by a reference,
+  // hence when the game is destroyed the strings are killed too. Hence we MUST! make a local copy.
+  var missionFullFilePath := aMissionFullFilePath;
+  var gameName := aGameName;
 
   InstantiateGame(aGameMode);
 
@@ -1074,10 +1075,10 @@ begin
 end;
 
 
-procedure TKMGameApp.NewGameReplay(const aFilePath: UnicodeString);
+procedure TKMGameApp.NewGameReplay(const aSavegamePath: UnicodeString);
 begin
-  Assert(ExtractFileExt(aFilePath) = EXT_SAVE_BASE_DOT);
-  InstantiateGameFromSave(aFilePath, gmReplaySingle); //Will be changed to gmReplayMulti depending on save contents
+  Assert(ExtractFileExt(aSavegamePath) = EXT_SAVE_BASE_DOT);
+  InstantiateGameFromSave(aSavegamePath, gmReplaySingle); //Will be changed to gmReplayMulti depending on save contents
 
   if Assigned(fOnGameStart) and (gGame <> nil) then
     fOnGameStart(gGame.Params.Mode);
