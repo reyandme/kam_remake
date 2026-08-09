@@ -1103,8 +1103,8 @@ begin
     try
       repeat
         if (searchRec.Name <> '.') and (searchRec.Name <> '..')
-          and (searchRec.Attr and faDirectory = faDirectory)
-          and FileExists(aPath + searchRec.Name + PathDelim + 'info.cmp') then
+        and (searchRec.Attr and faDirectory = faDirectory)
+        and FileExists(aPath + searchRec.Name + PathDelim + 'info.cmp') then
         begin
           if DBG_SLOW_CAMPAIGN_SCAN then
             Sleep(2000);
@@ -1112,12 +1112,10 @@ begin
           camp := TKMCampaign.Create;
           camp.LoadFromPath(aPath + searchRec.Name + PathDelim);
           fOnAdd(camp);
-          // @Rey: This can be greatly improved:
-          //     campaign scan needs to be much-MUCH faster. There's no real need to load all the campaign data (including sprites and etc) on scan.
-          //     What is needed for the main menu is just the localized name and optionally missions counts. Everything else (that takes literal seconds on first
-          //     scan) needs to be loaded async by demand. This will cut the scan time by x50 or more, from several seconds down to 100ms
-          // @Krom
-          // Sprites are loaded after campaign spec is loaded. It seems good enough for now
+
+          //todo -cPractical: Campaigns scan is very slow on first run - literaly 10-15 seconds for 9 stock campaigns (on SSD drive).
+          // There's no real need to load all the campaign data (including sprites and etc) on scan. Just the localized name and optionally mission count.
+          // Everything else (that takes literal seconds on first scan) should be loaded async by demand.
           camp.SavedData.LoadProgress;
           fOnAddDone(Self);
 
@@ -1132,7 +1130,6 @@ begin
     // Load sprites afterwards, to make load faster
     for var I := 0 to campaigns.Count - 1 do
       campaigns[I].LoadSprites;
-
   finally
     campaigns.Free;
     if not Terminated and Assigned(fOnComplete) then
