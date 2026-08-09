@@ -383,19 +383,20 @@ procedure TKMNavMesh.TieUpTilesWithPolygons();
       ToIdx := fPolygons[aIdx].Nearby[K];
       for L := 0 to 2 do
       for M := 0 to 2 do
-        if (fPolygons[aIdx].Indices[L] = fPolygons[ToIdx].Indices[M]) then
+        if fPolygons[aIdx].Indices[L] = fPolygons[ToIdx].Indices[M] then
         begin
-          Indices[ Byte(SecondPoint) ] := fPolygons[aIdx].Indices[L];
+          Indices[Ord(SecondPoint)] := fPolygons[aIdx].Indices[L];
           SecondPoint := True;
           Break;
         end;
+
       if SecondPoint then
       begin
-        P := KMPointAverage(fNodes[ Indices[0] ], fNodes[ Indices[1] ]);
-        fPolygons[aIdx].NearbyPoints[K] := KMPoint(  Min( fMapX-1, Max(1,P.X) ), Min( fMapY-1, Max(1,P.Y) )  );
+        P := KMPointAverage(fNodes[Indices[0]], fNodes[Indices[1]]);
+        fPolygons[aIdx].NearbyPoints[K] := KMPoint(Min(fMapX - 1, Max(1, P.X)), Min(fMapY - 1, Max(1, P.Y)));
 
-        if (fInnerNodesStartIdx >= Indices[0]) AND (fInnerNodesStartIdx > Indices[1]) then
-          fPolygons[aIdx].NearbyLineLength[K] := Min(MAX_LINE_LENGTH,  Max( abs(fNodes[ Indices[0] ].X - fNodes[ Indices[1] ].X), abs(fNodes[ Indices[0] ].Y - fNodes[ Indices[1] ].Y) )  )
+        if (fInnerNodesStartIdx >= Indices[0]) and (fInnerNodesStartIdx > Indices[1]) then
+          fPolygons[aIdx].NearbyLineLength[K] := Min(MAX_LINE_LENGTH,  Max(Abs(fNodes[Indices[0]].X - fNodes[Indices[1]].X), Abs(fNodes[Indices[0]].Y - fNodes[Indices[1]].Y)))
         else
           fPolygons[aIdx].NearbyLineLength[K] := MAX_LINE_LENGTH;
       end
@@ -418,6 +419,7 @@ var
 begin
   SetLength(fPoint2PolygonArr, (fMapY+1) * (fMapX+1));
   FillChar(fPoint2PolygonArr[0], SizeOf(fPoint2PolygonArr[0]) * Length(fPoint2PolygonArr), #0); // 0 Is unused polygon
+
   for K := 1 to fPolyCount - 1 do
   begin
     // Fill fPoint2PolygonArr
