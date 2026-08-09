@@ -1111,13 +1111,15 @@ begin
 
           camp := TKMCampaign.Create;
           camp.LoadFromPath(aPath + searchRec.Name + PathDelim);
-          fOnAdd(camp);
+
+          TThread.Synchronize(nil, procedure begin fOnAdd(camp); end);
 
           //todo -cPractical: Campaigns scan is very slow on first run - literaly 10-15 seconds for 9 stock campaigns (on SSD drive).
           // There's no real need to load all the campaign data (including sprites and etc) on scan. Just the localized name and optionally mission count.
           // Everything else (that takes literal seconds on first scan) should be loaded async by demand.
           camp.SavedData.LoadProgress;
-          fOnAddDone(Self);
+
+          TThread.Synchronize(nil, procedure begin fOnAddDone(Self); end);
 
           // Add campaign to the list to load sprites afterwards
           campaigns.Add(camp);
@@ -1133,7 +1135,7 @@ begin
   finally
     campaigns.Free;
     if not Terminated and Assigned(fOnComplete) then
-      fOnComplete(Self);
+      TThread.Synchronize(nil, procedure begin fOnComplete(Self); end);
   end;
 
   gLog.AddTime('[Campaigns scanner] Campaigns were loaded in: ' + IntToStr(TimeSince(t1)) + 'ms');
