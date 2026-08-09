@@ -116,24 +116,24 @@ begin
   // Try to add main script file and all other scripts, because they could be included
   if FileExists(ExeDir + ChangeFileExt(missionFile, '.script')) then
   begin
-    FindFirst(path + '*.script', faAnyFile - faDirectory, searchRec);
+    if FindFirst(path + '*.script', faAnyFile - faDirectory, searchRec) = 0 then
     try
       repeat
         if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
           AttachFile(path + searchRec.Name);
-      until (FindNext(searchRec) <> 0);
+      until FindNext(searchRec) <> 0;
     finally
       FindClose(searchRec);
     end;
   end;
 
   // Try to add libx files
-  FindFirst(path + '*.libx', faAnyFile - faDirectory, searchRec);
+  if FindFirst(path + '*.libx', faAnyFile - faDirectory, searchRec) = 0 then
   try
     repeat
       if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
         AttachFile(path + searchRec.Name);
-    until (FindNext(searchRec) <> 0);
+    until FindNext(searchRec) <> 0;
   finally
     FindClose(searchRec);
   end;
@@ -161,7 +161,7 @@ begin
     for index in indexesSet do
     begin
       if index >= gGame.LastSaves.Count then Break;
-      
+
       AttachSaveFiles(gGame.SaveName(gGame.LastSaves[index], EXT_SAVE_MAIN, gGame.Params.IsMultiPlayerOrSpec));
     end;
 

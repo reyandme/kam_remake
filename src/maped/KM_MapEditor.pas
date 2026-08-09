@@ -229,7 +229,8 @@ begin
   SetLength(fAttachedFiles, 8);
   MissionDefSavePath := aMissionFile;
   missionName := ChangeFileExt(ExtractFileName(aMissionFile), '');
-  FindFirst(ChangeFileExt(aMissionFile, '.*'), faAnyFile - faDirectory, searchRec);
+
+  if FindFirst(ChangeFileExt(aMissionFile, '.*'), faAnyFile - faDirectory, searchRec) = 0 then
   try
     repeat
       if (searchRec.Name <> '') and (searchRec.Name <> '.') and (searchRec.Name <> '..') then
@@ -237,8 +238,8 @@ begin
         //Can't use ExtractFileExt because we want .eng.libx not .libx
         recExt := RightStr(searchRec.Name, Length(searchRec.Name) - Length(missionName));
         if (LowerCase(recExt) = '.map')
-          or (LowerCase(recExt) = '.dat')
-          or (LowerCase(recExt) = '.mi' ) then
+        or (LowerCase(recExt) = '.dat')
+        or (LowerCase(recExt) = '.mi' ) then
           Continue;
 
         if LowerCase(recExt) = EXT_FILE_SCRIPT_DOT then
@@ -246,7 +247,7 @@ begin
 
         AddAttachment(attachCnt, ExtractFilePath(aMissionFile) + searchRec.Name);
       end;
-    until (FindNext(searchRec) <> 0);
+    until FindNext(searchRec) <> 0;
   finally
     FindClose(searchRec);
   end;
@@ -255,13 +256,13 @@ begin
   if hasScript then
   begin
     missionScriptFileName := missionName + EXT_FILE_SCRIPT_DOT;
-    FindFirst(ExtractFilePath(aMissionFile) + '*' + EXT_FILE_SCRIPT_DOT, faAnyFile - faDirectory, searchRec);
+    if FindFirst(ExtractFilePath(aMissionFile) + '*' + EXT_FILE_SCRIPT_DOT, faAnyFile - faDirectory, searchRec) = 0 then
     try
       repeat
         if (searchRec.Name <> '.') and (searchRec.Name <> '..')
-          and (searchRec.Name <> missionScriptFileName) then
+        and (searchRec.Name <> missionScriptFileName) then
           AddAttachment(attachCnt, ExtractFilePath(aMissionFile) + searchRec.Name);
-      until (FindNext(searchRec) <> 0);
+      until FindNext(searchRec) <> 0;
     finally
       FindClose(searchRec);
     end;

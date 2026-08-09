@@ -299,7 +299,7 @@ begin
 
   SetLength(fTracks, 255);
 
-  FindFirst(aPath + '*.*', faAnyFile - faDirectory, searchRec);
+  if FindFirst(aPath + '*.*', faAnyFile - faDirectory, searchRec) = 0 then
   try
     repeat
       if (GetFileExt(searchRec.Name) = 'MP3') //Allow all formats supported by both libraries
@@ -329,7 +329,7 @@ begin
         Inc(MIDICount);
         MIDITracks[MIDICount] := Path + SearchRec.Name;
       end;}
-    until (FindNext(searchRec) <> 0);
+    until FindNext(searchRec) <> 0;
   finally
     FindClose(searchRec);
   end;

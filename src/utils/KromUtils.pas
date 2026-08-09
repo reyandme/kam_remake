@@ -211,11 +211,11 @@ function GetFileSize(const FileName: string): LongInt;
 var
   searchRec: TSearchRec;
 begin
+  Result := -1;
+
+  if FindFirst(ExpandFileName(FileName), faAnyFile, searchRec) = 0 then
   try
-    if FindFirst(ExpandFileName(FileName), faAnyFile, searchRec) = 0 then
-      Result := searchRec.Size
-    else
-      Result := -1;
+    Result := searchRec.Size;
   finally
     SysUtils.FindClose(searchRec);
   end;

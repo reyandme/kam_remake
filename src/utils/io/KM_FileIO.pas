@@ -394,19 +394,19 @@ var
   filesToRename: TStringList;
 begin
   if (Trim(aFromName) = '')
-    or (Trim(aToName) = '')
-    or (aFromName = aToName) then
+  or (Trim(aToName) = '')
+  or (aFromName = aToName) then
     Exit;
 
   filesToRename := TStringList.Create;
   try
     //Find all files to rename in path
     //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
-    FindFirst(aPathToFolder + aFromName + '*', faAnyFile - faDirectory, searchRec);
+    if FindFirst(aPathToFolder + aFromName + '*', faAnyFile - faDirectory, searchRec) = 0 then
     try
       repeat
         if (searchRec.Name <> '.') and (searchRec.Name <> '..')
-          and (Length(searchRec.Name) > Length(aFromName)) then
+        and (Length(searchRec.Name) > Length(aFromName)) then
           filesToRename.Add(searchRec.Name);
       until (FindNext(searchRec) <> 0);
     finally
@@ -416,9 +416,9 @@ begin
     // Move all previously found files
     for I := 0 to filesToRename.Count - 1 do
     begin
-       RenamedFile := aPathToFolder + aToName + RightStr(filesToRename[I], Length(filesToRename[I]) - Length(aFromName));
-       if not FileExists(RenamedFile) and (aPathToFolder + filesToRename[I] <> RenamedFile) then
-         KMRenamePath(aPathToFolder + filesToRename[I], RenamedFile);
+      RenamedFile := aPathToFolder + aToName + RightStr(filesToRename[I], Length(filesToRename[I]) - Length(aFromName));
+      if not FileExists(RenamedFile) and (aPathToFolder + filesToRename[I] <> RenamedFile) then
+        KMRenamePath(aPathToFolder + filesToRename[I], RenamedFile);
     end;
   finally
     filesToRename.Free;
@@ -434,9 +434,10 @@ var
 begin
   Result := False;
   if (Trim(aSourceFolder) = '')
-    or (Trim(aDestFolder) = '')
-    or (aSourceFolder = aDestFolder)
-    or not DirectoryExists(aSourceFolder) then Exit;
+  or (Trim(aDestFolder) = '')
+  or (aSourceFolder = aDestFolder)
+  or not DirectoryExists(aSourceFolder) then
+    Exit;
 
   KMDeleteFolder(aDestFolder, False);
 

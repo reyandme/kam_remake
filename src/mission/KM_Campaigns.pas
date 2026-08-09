@@ -1099,7 +1099,7 @@ begin
   // Set OwnObjects to False, since we don't want to Free Campaign objects on the list destruction
   campaigns := TObjectList<TKMCampaign>.Create(False);
   try
-    FindFirst(campaignPath + '*', faDirectory, searchRec);
+    if FindFirst(campaignPath + '*', faDirectory, searchRec) = 0 then
     try
       repeat
         if (searchRec.Name <> '.') and (searchRec.Name <> '..')

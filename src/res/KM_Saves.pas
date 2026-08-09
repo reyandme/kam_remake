@@ -755,7 +755,7 @@ begin
 
     if not DirectoryExists(pathToSaves) then Exit;
 
-    FindFirst(pathToSaves + '*', faDirectory, searchRec);
+    if FindFirst(pathToSaves + '*', faDirectory, searchRec) = 0 then
     try
       repeat
         if (searchRec.Name <> '.') and (searchRec.Name <> '..')

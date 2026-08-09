@@ -30,8 +30,8 @@ type
     procedure btnBrowsePathClick(Sender: TObject);
   private
     fScripting: TKMScripting;
-    fIsValidatePath : TKMFileOrFolder;
-    fListFileInFolder : TStringList;
+    fIsValidatePath: TKMFileOrFolder;
+    fListFileInFolder: TStringList;
 
     procedure ValidateFileList; overload;
     procedure ValidateDir(aDir: String; aClear: Boolean = True); overload;
@@ -53,18 +53,21 @@ uses
 { TForm1 }
 procedure TForm1.FindFiles(aPath: String; out aList: TStringList);
 var
-  SearchRec: TSearchRec;
+  searchRec: TSearchRec;
 begin
-  FindFirst(aPath + PathDelim + '*', faAnyFile, SearchRec);
-  repeat
-    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-      if (SearchRec.Attr and faDirectory = faDirectory) then
-        FindFiles(aPath + PathDelim + SearchRec.Name, aList)
-      else
-        if SameText(ExtractFileExt(SearchRec.Name), '.' + EXT_FILE_SCRIPT) then
-          aList.Add(aPath + PathDelim + SearchRec.Name);
-  until (FindNext(SearchRec) <> 0);
-  FindClose(SearchRec);
+  if FindFirst(aPath + PathDelim + '*', faAnyFile, searchRec) = 0 then
+  try
+    repeat
+      if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+        if (searchRec.Attr and faDirectory = faDirectory) then
+          FindFiles(aPath + PathDelim + searchRec.Name, aList)
+        else
+          if SameText(ExtractFileExt(searchRec.Name), '.' + EXT_FILE_SCRIPT) then
+            aList.Add(aPath + PathDelim + searchRec.Name);
+    until FindNext(searchRec) <> 0;
+  finally
+    FindClose(searchRec);
+  end;
 end;
 
 

@@ -247,22 +247,25 @@ end;
 //Rename marketplace sprites from rxRemake scheme to rxHouses library
 procedure TForm1.Button1Click(Sender: TObject);
 var
-  SearchRec: TSearchRec;
+  searchRec: TSearchRec;
   NewName: string;
   B: Boolean;
 begin
-  FindFirst('..\..\SpriteResource\9\9*.png', faAnyFile, SearchRec);
-  repeat
-    NewName := SearchRec.Name;
-    NewName := StringReplace(NewName, '9_00', '2_17', [rfReplaceAll, rfIgnoreCase]);
-    NewName := StringReplace(NewName, '9_01', '2_18', [rfReplaceAll, rfIgnoreCase]);
-    NewName := StringReplace(NewName, '9_02', '2_19', [rfReplaceAll, rfIgnoreCase]);
-    NewName := StringReplace(NewName, '9_03', '2_20', [rfReplaceAll, rfIgnoreCase]);
-    B := RenameFile(ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + SearchRec.Name,
-                    ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + NewName);
-    Assert(B);
-  until (FindNext(SearchRec) <> 0);
-  FindClose(SearchRec);
+  if FindFirst('..\..\SpriteResource\9\9*.png', faAnyFile, searchRec) = 0 then
+  try
+    repeat
+      NewName := searchRec.Name;
+      NewName := StringReplace(NewName, '9_00', '2_17', [rfReplaceAll, rfIgnoreCase]);
+      NewName := StringReplace(NewName, '9_01', '2_18', [rfReplaceAll, rfIgnoreCase]);
+      NewName := StringReplace(NewName, '9_02', '2_19', [rfReplaceAll, rfIgnoreCase]);
+      NewName := StringReplace(NewName, '9_03', '2_20', [rfReplaceAll, rfIgnoreCase]);
+      B := RenameFile(ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + searchRec.Name,
+                      ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + NewName);
+      Assert(B);
+    until FindNext(SearchRec) <> 0;
+  finally
+    FindClose(searchRec);
+  end;
 end;
 
 

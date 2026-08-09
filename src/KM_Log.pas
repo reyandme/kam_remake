@@ -143,9 +143,7 @@ var
 begin
   if not DirectoryExists(fPathToLogs) then Exit;
 
-  if FindFirst(fPathToLogs + 'KaM*.log', faAnyFile - faDirectory, searchRec) <> 0 then
-    Exit;
-
+  if FindFirst(fPathToLogs + 'KaM*.log', faAnyFile - faDirectory, searchRec) = 0 then
   try
     repeat
       // If FileAge returns False, the file disappeared or couldn't be inspected. No big deal, just move on, this happens sometimes
@@ -154,7 +152,6 @@ begin
           KMDeleteFile(fPathToLogs + searchRec.Name);
     until FindNext(searchRec) <> 0;
   finally
-    // Make sure we close it
     FindClose(searchRec);
   end;
 end;

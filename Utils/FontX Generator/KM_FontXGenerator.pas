@@ -49,34 +49,43 @@ class function TKMFontXGenerator.CollectChars(aExeDir: string; aProgress: TUnico
       slFolders.Add(aPath + 'Tutorials' + PathDelim);
 
       // Append all campaigns
-      FindFirst(aPath + 'Campaigns' + PathDelim + '*', faDirectory, searchRec);
-      repeat
-        if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
-          slFolders.Add(aPath + 'Campaigns' + PathDelim + searchRec.Name + PathDelim);
-      until (FindNext(searchRec) <> 0);
-      FindClose(searchRec);
+      if FindFirst(aPath + 'Campaigns' + PathDelim + '*', faDirectory, searchRec) = 0 then
+      try
+        repeat
+          if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+            slFolders.Add(aPath + 'Campaigns' + PathDelim + searchRec.Name + PathDelim);
+        until FindNext(searchRec) <> 0;
+      finally
+        FindClose(searchRec);
+      end;
 
       // Append all campaigns/tutorials missions (1-level deep is enough)
       for I := slFolders.Count - 1 downto 0 do
       if DirectoryExists(slFolders[I]) then
       begin
-        FindFirst(slFolders[I] + '*', faDirectory, searchRec);
-        repeat
-          if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
-            slFolders.Add(slFolders[I] + searchRec.Name + PathDelim);
-        until (FindNext(searchRec) <> 0);
-        FindClose(searchRec);
+        if FindFirst(slFolders[I] + '*', faDirectory, searchRec) = 0 then
+        try
+          repeat
+            if (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+              slFolders.Add(slFolders[I] + searchRec.Name + PathDelim);
+          until FindNext(searchRec) <> 0;
+        finally
+          FindClose(searchRec);
+        end;
       end;
 
       // Collect all libx files
       for I := 0 to slFolders.Count - 1 do
       if DirectoryExists(slFolders[I]) then
       begin
-        FindFirst(slFolders[I] + '*.libx', faAnyFile - faDirectory, searchRec);
-        repeat
-          aList.Add(slFolders[I] + searchRec.Name);
-        until (FindNext(searchRec) <> 0);
-        FindClose(searchRec);
+        if FindFirst(slFolders[I] + '*.libx', faAnyFile - faDirectory, searchRec) = 0 then
+        try
+          repeat
+            aList.Add(slFolders[I] + searchRec.Name);
+          until FindNext(searchRec) <> 0;
+        finally
+          FindClose(searchRec);
+        end;
       end;
     finally
       slFolders.Free;

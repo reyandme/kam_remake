@@ -26,7 +26,8 @@ type
 
 
 implementation
-uses KM_ResLocales, KM_ResFonts;
+uses
+  KM_ResLocales, KM_ResFonts;
 
 
 { TKMFontCollator }
@@ -89,21 +90,24 @@ end;
 
 function TKMFontCollator.FontCodepages(aIndex: Integer): string;
 var
-  SearchRec: TSearchRec;
+  searchRec: TSearchRec;
 begin
   Result := '';
 
-  FindFirst(fFontDir + fFonts[aIndex] + '*.fnt?', faAnyFile - faDirectory, SearchRec);
-  repeat
-    Result := Result + SearchRec.Name + #13#10;
-  until (FindNext(SearchRec) <> 0);
-  FindClose(SearchRec);
+  if FindFirst(fFontDir + fFonts[aIndex] + '*.fnt?', faAnyFile - faDirectory, searchRec) = 0 then
+  try
+    repeat
+      Result := Result + searchRec.Name + sLineBreak;
+    until FindNext(searchRec) <> 0;
+  finally
+    FindClose(searchRec);
+  end;
 end;
 
 
 procedure TKMFontCollator.ListFonts(const aPath: string);
 var
-  SearchRec: TSearchRec;
+  searchRec: TSearchRec;
   I: Integer;
   fntName: string;
 begin
@@ -113,19 +117,21 @@ begin
   if not DirectoryExists(aPath) then Exit;
 
   fFontDir := aPath;
-  FindFirst(fFontDir + '*.fnt?', faAnyFile - faDirectory, SearchRec);
-  repeat
-    I := Pos('.', SearchRec.Name);
+  if FindFirst(fFontDir + '*.fnt?', faAnyFile - faDirectory, searchRec) = 0 then
+  try
+    repeat
+      I := Pos('.', searchRec.Name);
 
-    if I = 0 then Continue;
+      if I = 0 then Continue;
 
-    fntName := Copy(SearchRec.Name, 1, I-1);
+      fntName := Copy(searchRec.Name, 1, I-1);
 
-    if fFonts.IndexOf(fntName) = -1 then
-      fFonts.Append(fntName);
-  until (FindNext(SearchRec) <> 0);
-
-  FindClose(SearchRec);
+      if fFonts.IndexOf(fntName) = -1 then
+        fFonts.Append(fntName);
+    until FindNext(searchRec) <> 0;
+  finally
+    FindClose(searchRec);
+  end;
 end;
 
 

@@ -1620,18 +1620,18 @@ procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; const aExt: Str
 var
   searchRec: TSearchRec;
 begin
+  if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, searchRec) = 0 then
   try
-    if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, searchRec) = 0 then
-      repeat
-        if (searchRec.Attr and faDirectory) = 0 then
-        begin
-          if AnsiEndsStr(aExt, searchRec.Name) then
-            aSL.Add(IncludeTrailingPathDelimiter(aDir) + searchRec.Name);
-        end
-        else
-        if aIncludeSubdirs and (searchRec.Name <> '.') and (searchRec.Name <> '..') then
-          GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + searchRec.Name, aSL, aExt, aIncludeSubdirs);  // recursive call!
-      until FindNext(searchRec) <> 0;
+    repeat
+      if (searchRec.Attr and faDirectory) = 0 then
+      begin
+        if AnsiEndsStr(aExt, searchRec.Name) then
+          aSL.Add(IncludeTrailingPathDelimiter(aDir) + searchRec.Name);
+      end
+      else
+      if aIncludeSubdirs and (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+        GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + searchRec.Name, aSL, aExt, aIncludeSubdirs);  // recursive call!
+    until FindNext(searchRec) <> 0;
   finally
     SysUtils.FindClose(searchRec);
   end;
@@ -1642,18 +1642,18 @@ procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; aValidateFn: TB
 var
   searchRec: TSearchRec;
 begin
+  if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, searchRec) = 0 then
   try
-    if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, searchRec) = 0 then
-      repeat
-        if (searchRec.Attr and faDirectory) = 0 then
-        begin
-          if not Assigned(aValidateFn) or aValidateFn(searchRec.Name) then
-            aSL.Add(IncludeTrailingPathDelimiter(aDir) + searchRec.Name);
-        end
-        else
-        if aIncludeSubdirs and (searchRec.Name <> '.') and (searchRec.Name <> '..') then
-          GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + searchRec.Name, aSL, aValidateFn, aIncludeSubdirs);  // recursive call!
-      until FindNext(searchRec) <> 0;
+    repeat
+      if (searchRec.Attr and faDirectory) = 0 then
+      begin
+        if not Assigned(aValidateFn) or aValidateFn(searchRec.Name) then
+          aSL.Add(IncludeTrailingPathDelimiter(aDir) + searchRec.Name);
+      end
+      else
+      if aIncludeSubdirs and (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+        GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + searchRec.Name, aSL, aValidateFn, aIncludeSubdirs);  // recursive call!
+    until FindNext(searchRec) <> 0;
   finally
     SysUtils.FindClose(searchRec);
   end;

@@ -663,10 +663,8 @@ begin
     fileName := ExtractFileName(aPathRelative);
     for I := 0 to localePostfixes.Count - 1 do
     begin
+      if FindFirst(path + '*', faAnyFile, searchRec) = 0 then
       try
-        if FindFirst(path + '*', faAnyFile, searchRec) <> 0 then
-          Continue;
-
         repeat
           if (searchRec.Name = '.') or (searchRec.Name = '..') then
             Continue;

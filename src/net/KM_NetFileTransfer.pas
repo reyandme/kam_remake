@@ -162,27 +162,26 @@ begin
                 for I := Low(fileName) to High(VALID_MAP_EXTENSIONS_POSTFIX) do
                 begin
                   fileName := GetFullSourceFileName(aType, aBundleName, aMapKind, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
-                  try
-                    if FindFirst(fileName, faAnyFile, searchRec) = 0 then
-                    begin
-                      repeat
-                        if (searchRec.Attr and faDirectory = 0) then
-                        begin
-                          // Find everything except map name and extension
-                          // Cut ext with dot
-                          postfix := ChangeFileExt(searchRec.Name, '');
-                          // Find 'MapName.'
-                          if Pos(aBundleName + '.', postfix) = 1 then
-                            // Copy '.snd_name.eng'
-                            postfix := Copy(postfix, Length(aBundleName) + 1, Length(postfix))
-                          else
-                            // No postfix was found
-                            postfix := '';
 
-                          AddFileToStream(ExtractFilePath(fileName) + searchRec.Name, postfix, VALID_MAP_EXTENSIONS_POSTFIX[I]);
-                        end;
-                      until FindNext(searchRec) <> 0;
-                    end;
+                  if FindFirst(fileName, faAnyFile, searchRec) = 0 then
+                  try
+                    repeat
+                      if (searchRec.Attr and faDirectory = 0) then
+                      begin
+                        // Find everything except map name and extension
+                        // Cut ext with dot
+                        postfix := ChangeFileExt(searchRec.Name, '');
+                        // Find 'MapName.'
+                        if Pos(aBundleName + '.', postfix) = 1 then
+                          // Copy '.snd_name.eng'
+                          postfix := Copy(postfix, Length(aBundleName) + 1, Length(postfix))
+                        else
+                          // No postfix was found
+                          postfix := '';
+
+                        AddFileToStream(ExtractFilePath(fileName) + searchRec.Name, postfix, VALID_MAP_EXTENSIONS_POSTFIX[I]);
+                      end;
+                    until FindNext(searchRec) <> 0;
                   finally
                     FindClose(searchRec);
                   end;
@@ -308,15 +307,13 @@ begin
                 if not DirectoryExists(fileName) then
                   CreateDir(fileName)
                 else
+                  //If any files already exist in the folder, delete them
+                  if FindFirst(fileName + PathDelim + fBundleName + '*.*', faAnyFile, searchRec) = 0 then
                   try
-                    //If any files already exist in the folder, delete them
-                    if FindFirst(fileName + PathDelim + fBundleName + '*.*', faAnyFile, searchRec) = 0 then
-                    begin
-                      repeat
-                        if (searchRec.Attr and faDirectory = 0) then
-                          KMDeleteFile(fileName + PathDelim + searchRec.Name);
-                      until FindNext(searchRec) <> 0;
-                    end;
+                    repeat
+                      if (searchRec.Attr and faDirectory = 0) then
+                        KMDeleteFile(fileName + PathDelim + searchRec.Name);
+                    until FindNext(searchRec) <> 0;
                   finally
                     FindClose(searchRec);
                   end;
