@@ -122,8 +122,8 @@ type
 { TKMOldLogsDeleter }
 constructor TKMOldLogsDeleter.Create(const aPathToLogs: UnicodeString; aDeleteWhenOlderThanDays: Integer);
 begin
-  //Thread isn't started until all constructors have run to completion
-  //so Create(False) may be put in front as well
+  // Thread isn't started until all constructors have run to completion
+  // so Create(False) may be put in front as well
   inherited Create(False);
 
   {$IFDEF DEBUG}
@@ -356,6 +356,7 @@ end;
 // meaning that no lines will be lost if Remake crashes
 procedure TKMLog.AddLineTime(const aText: UnicodeString; aLogType: TKMLogMessageType);
 var
+  dtNow: TDateTime;
   txtNewDay, txtMessage: String;
 begin
   if Self = nil then Exit;
@@ -368,11 +369,13 @@ begin
   // Do not allow multiple threads write into the same file
   Lock;
   try
+    dtNow := Now;
+
     // Include a line when the day changed since last time
     // (useful for dedicated server logs that could be over months)
-    if Abs(Trunc(fPreviousDate) - Trunc(Now)) >= 1 then
+    if Abs(Trunc(fPreviousDate) - Trunc(dtNow)) >= 1 then
       txtNewDay := '========================' + sLineBreak +
-                   '    Date: ' + FormatDateTime('yyyy/mm/dd', Now) + sLineBreak +
+                   '    Date: ' + FormatDateTime('yyyy/mm/dd', dtNow) + sLineBreak +
                    '========================' + sLineBreak
     else
       txtNewDay := '';
@@ -380,7 +383,7 @@ begin
     //                      12|        10|        9|      7|
     //            hh:nn:ss.zzz 12345.678s 1234567ms   12345   text-text-text
     txtMessage := Format('%12s %9.3fs %7dms  %6d   %s', [
-                    FormatDateTime('hh:nn:ss.zzz', Now),
+                    FormatDateTime('hh:nn:ss.zzz', dtNow),
                     TimeSince(fFirstTick) / 1000,
                     TimeSince(fPreviousTick),
                     TThread.CurrentThread.ThreadID,
@@ -399,7 +402,7 @@ begin
     {$ENDIF}
 
     fPreviousTick := TimeGet;
-    fPreviousDate := Now;
+    fPreviousDate := dtNow;
   finally
     UnLock;
   end;
