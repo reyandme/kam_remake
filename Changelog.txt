@@ -29,6 +29,7 @@ KaM Remake Beta r_____ []
 + Fixed rare error on entering game Options. Caused by the games attempt to select an odd resolution
 + Fixed error on entering campaigns menu while campaigns were still being scanned
 + Fixed file access error on old logs cleanup
++ Fixed file access error on startup when game tried to write to log
 
 Campaigns:
 + Added French translations for 8 campaigns (and other minor corrections)

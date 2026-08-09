@@ -132,7 +132,9 @@ begin
 
   //Must set these values BEFORE starting the thread
   FreeOnTerminate := True; //object can be automatically removed after its termination
+
   fPathToLogs := aPathToLogs;
+  fDeleteWhenOlderThanDays := aDeleteWhenOlderThanDays;
 end;
 
 
