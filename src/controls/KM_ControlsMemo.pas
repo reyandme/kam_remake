@@ -729,9 +729,11 @@ begin
 
   for var I := 0 to Min(fItems.Count, GetVisibleRows) - 1 do
   begin
-    var rowText := GetNoColorMarkupText(fItems[TopIndex + I]);
+    var rowText := fItems[TopIndex + I];
+
+    var rowTextPlain := GetNoColorMarkupText(rowText);
     var rowStartPos := PointToLinearPos(0, TopIndex + I);
-    var rowEndPos := rowStartPos + Length(rowText);
+    var rowEndPos := rowStartPos + Length(rowTextPlain);
 
     if HasSelection then
     begin
@@ -743,8 +745,8 @@ begin
 
       if selStartPosInRow <> selEndPosInRow then
       begin
-        var beforeSelectionText := Copy(rowText, 1, selStartPosInRow);
-        var selectionText := Copy(rowText, selStartPosInRow + 1, selEndPosInRow - selStartPosInRow);
+        var beforeSelectionText := Copy(rowTextPlain, 1, selStartPosInRow);
+        var selectionText := Copy(rowTextPlain, selStartPosInRow + 1, selEndPosInRow - selStartPosInRow);
 
         var beforeSelectionW := gRes.Fonts[fFont].GetTextSize(beforeSelectionText).X;
         var selectionW := gRes.Fonts[fFont].GetTextSize(selectionText).X;
@@ -766,12 +768,12 @@ begin
     and ((TimeGet div 500) mod 2 = 0)
     and InRange(CursorPos, rowStartPos, rowEndPos) then
     begin
-      var offX := AbsLeft + 2 + gRes.Fonts[fFont].GetTextSize(Copy(rowText, 1, CursorPos - rowStartPos)).X;
+      var offX := AbsLeft + 2 + gRes.Fonts[fFont].GetTextSize(Copy(rowTextPlain, 1, CursorPos - rowStartPos)).X;
       var offY := AbsTop + 2 + I * fItemHeight;
       TKMRenderUI.WriteShape(offX, offY, 3, fItemHeight - 4, $FFFFFFFF, $FF000000);
     end;
 
-    TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + I * fItemHeight + 3, Width - 8, fItems.Strings[TopIndex + I] , fFont, taLeft);
+    TKMRenderUI.WriteText(AbsLeft + 4, AbsTop + I * fItemHeight + 3, Width - 8, fItems[TopIndex + I], fFont, taLeft);
   end;
 end;
 
