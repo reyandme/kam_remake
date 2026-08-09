@@ -108,7 +108,7 @@ constructor TKMFileSender.Create(aType: TKMTransferType; const aBundleName: Unic
                                  aReceiverIndex: TKMNetHandleIndex);
 var
   I, J: Integer;
-  F: TSearchRec;
+  searchRec: TSearchRec;
   fileName, postfix: UnicodeString;
   sourceStream: TKMemoryStream;
   compressionStream: TCompressionStream;
@@ -163,14 +163,14 @@ begin
                 begin
                   fileName := GetFullSourceFileName(aType, aBundleName, aMapKind, '.*', VALID_MAP_EXTENSIONS_POSTFIX[I]);
                   try
-                    if FindFirst(fileName, faAnyFile, F) = 0 then
+                    if FindFirst(fileName, faAnyFile, searchRec) = 0 then
                     begin
                       repeat
-                        if (F.Attr and faDirectory = 0) then
+                        if (searchRec.Attr and faDirectory = 0) then
                         begin
                           // Find everything except map name and extension
                           // Cut ext with dot
-                          postfix := ChangeFileExt(F.Name, '');
+                          postfix := ChangeFileExt(searchRec.Name, '');
                           // Find 'MapName.'
                           if Pos(aBundleName + '.', postfix) = 1 then
                             // Copy '.snd_name.eng'
@@ -179,12 +179,12 @@ begin
                             // No postfix was found
                             postfix := '';
 
-                          AddFileToStream(ExtractFilePath(fileName) + F.Name, postfix, VALID_MAP_EXTENSIONS_POSTFIX[I]);
+                          AddFileToStream(ExtractFilePath(fileName) + searchRec.Name, postfix, VALID_MAP_EXTENSIONS_POSTFIX[I]);
                         end;
-                      until FindNext(F) <> 0;
+                      until FindNext(searchRec) <> 0;
                     end;
                   finally
-                    FindClose(F);
+                    FindClose(searchRec);
                   end;
                 end;
               end;

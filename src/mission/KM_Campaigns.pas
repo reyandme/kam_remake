@@ -1086,31 +1086,31 @@ end;
 
 procedure TKMCampaignsScanner.Execute;
 var
-  aPath: string;
+  campaignPath: string;
   camp: TKMCampaign;
   searchRec: TSearchRec;
   campaigns: TObjectList<TKMCampaign>;
 begin
-  aPath := ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim;
+  campaignPath := ExeDir + CAMPAIGNS_FOLDER_NAME + PathDelim;
 
-  if not DirectoryExists(aPath) then Exit;
+  if not DirectoryExists(campaignPath) then Exit;
 
   var t1 := TimeGet;
   // Set OwnObjects to False, since we don't want to Free Campaign objects on the list destruction
   campaigns := TObjectList<TKMCampaign>.Create(False);
   try
-    FindFirst(aPath + '*', faDirectory, searchRec);
+    FindFirst(campaignPath + '*', faDirectory, searchRec);
     try
       repeat
         if (searchRec.Name <> '.') and (searchRec.Name <> '..')
         and (searchRec.Attr and faDirectory = faDirectory)
-        and FileExists(aPath + searchRec.Name + PathDelim + 'info.cmp') then
+        and FileExists(campaignPath + searchRec.Name + PathDelim + 'info.cmp') then
         begin
           if DBG_SLOW_CAMPAIGN_SCAN then
             Sleep(2000);
 
           camp := TKMCampaign.Create;
-          camp.LoadFromPath(aPath + searchRec.Name + PathDelim);
+          camp.LoadFromPath(campaignPath + searchRec.Name + PathDelim);
 
           TThread.Synchronize(nil, procedure begin fOnAdd(camp); end);
 

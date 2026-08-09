@@ -390,38 +390,38 @@ procedure KMRenameFilesInFolder(const aPathToFolder, aFromName, aToName: Unicode
 var
   I: Integer;
   RenamedFile: UnicodeString;
-  SearchRec: TSearchRec;
-  FilesToRename: TStringList;
+  searchRec: TSearchRec;
+  filesToRename: TStringList;
 begin
   if (Trim(aFromName) = '')
     or (Trim(aToName) = '')
     or (aFromName = aToName) then
     Exit;
 
-  FilesToRename := TStringList.Create;
+  filesToRename := TStringList.Create;
   try
     //Find all files to rename in path
     //Need to find them first, rename later, because we can possibly find files, that were already renamed, in case NewName = OldName + Smth
-    FindFirst(aPathToFolder + aFromName + '*', faAnyFile - faDirectory, SearchRec);
+    FindFirst(aPathToFolder + aFromName + '*', faAnyFile - faDirectory, searchRec);
     try
       repeat
-        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-          and (Length(SearchRec.Name) > Length(aFromName)) then
-          FilesToRename.Add(SearchRec.Name);
-      until (FindNext(SearchRec) <> 0);
+        if (searchRec.Name <> '.') and (searchRec.Name <> '..')
+          and (Length(searchRec.Name) > Length(aFromName)) then
+          filesToRename.Add(searchRec.Name);
+      until (FindNext(searchRec) <> 0);
     finally
-      FindClose(SearchRec);
+      FindClose(searchRec);
     end;
 
-    //Move all previously finded files
-    for I := 0 to FilesToRename.Count - 1 do
+    // Move all previously found files
+    for I := 0 to filesToRename.Count - 1 do
     begin
-       RenamedFile := aPathToFolder + aToName + RightStr(FilesToRename[I], Length(FilesToRename[I]) - Length(aFromName));
-       if not FileExists(RenamedFile) and (aPathToFolder + FilesToRename[I] <> RenamedFile) then
-         KMRenamePath(aPathToFolder + FilesToRename[I], RenamedFile);
+       RenamedFile := aPathToFolder + aToName + RightStr(filesToRename[I], Length(filesToRename[I]) - Length(aFromName));
+       if not FileExists(RenamedFile) and (aPathToFolder + filesToRename[I] <> RenamedFile) then
+         KMRenamePath(aPathToFolder + filesToRename[I], RenamedFile);
     end;
   finally
-    FilesToRename.Free;
+    filesToRename.Free;
   end;
 end;
 

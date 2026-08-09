@@ -209,21 +209,23 @@ end;
 
 function GetFileSize(const FileName: string): LongInt;
 var
-  SearchRec: TSearchRec;
+  searchRec: TSearchRec;
 begin
   try
-    if FindFirst(ExpandFileName(FileName), faAnyFile, SearchRec) = 0 then
-      Result := SearchRec.Size
+    if FindFirst(ExpandFileName(FileName), faAnyFile, searchRec) = 0 then
+      Result := searchRec.Size
     else
       Result := -1;
   finally
-    SysUtils.FindClose(SearchRec);
+    SysUtils.FindClose(searchRec);
   end;
 end;
 
 
 function CheckSameContents(const A, B: string): Boolean;
-var S1, S2: TMemoryStream; I: Cardinal;
+var
+  S1, S2: TMemoryStream;
+  I: Cardinal;
 begin
   Result := FileExists(A) and FileExists(B);
 

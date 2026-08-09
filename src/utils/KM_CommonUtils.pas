@@ -1581,7 +1581,8 @@ end;
 
 // Returnes text ignoring color markup [$FFFFFF][]
 function GetNoColorMarkupText(const aText: UnicodeString): UnicodeString;
-var I, TmpColor: Integer;
+var
+  I, TmpColor: Integer;
 begin
   Result := '';
 
@@ -1617,44 +1618,44 @@ end;
 
 procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; const aExt: String; aIncludeSubdirs: Boolean = True);
 var
-  SR: TSearchRec;
+  searchRec: TSearchRec;
 begin
   try
-    if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, SR) = 0 then
+    if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, searchRec) = 0 then
       repeat
-        if (SR.Attr and faDirectory) = 0 then
+        if (searchRec.Attr and faDirectory) = 0 then
         begin
-          if AnsiEndsStr(aExt, SR.Name) then
-            aSL.Add(IncludeTrailingPathDelimiter(aDir) + SR.Name);
+          if AnsiEndsStr(aExt, searchRec.Name) then
+            aSL.Add(IncludeTrailingPathDelimiter(aDir) + searchRec.Name);
         end
         else
-        if aIncludeSubdirs and (SR.Name <> '.') and (SR.Name <> '..') then
-          GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + SR.Name, aSL, aExt, aIncludeSubdirs);  // recursive call!
-      until FindNext(Sr) <> 0;
+        if aIncludeSubdirs and (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+          GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + searchRec.Name, aSL, aExt, aIncludeSubdirs);  // recursive call!
+      until FindNext(searchRec) <> 0;
   finally
-    SysUtils.FindClose(SR);
+    SysUtils.FindClose(searchRec);
   end;
 end;
 
 
 procedure GetAllPathsInDir(const aDir: String; aSL: TStringList; aValidateFn: TBooleanStringFunc; aIncludeSubdirs: Boolean = True);
 var
-  SR: TSearchRec;
+  searchRec: TSearchRec;
 begin
   try
-    if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, SR) = 0 then
+    if FindFirst(IncludeTrailingPathDelimiter(aDir) + '*', faAnyFile or faDirectory, searchRec) = 0 then
       repeat
-        if (SR.Attr and faDirectory) = 0 then
+        if (searchRec.Attr and faDirectory) = 0 then
         begin
-          if not Assigned(aValidateFn) or aValidateFn(SR.Name) then
-            aSL.Add(IncludeTrailingPathDelimiter(aDir) + SR.Name);
+          if not Assigned(aValidateFn) or aValidateFn(searchRec.Name) then
+            aSL.Add(IncludeTrailingPathDelimiter(aDir) + searchRec.Name);
         end
         else
-        if aIncludeSubdirs and (SR.Name <> '.') and (SR.Name <> '..') then
-          GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + SR.Name, aSL, aValidateFn, aIncludeSubdirs);  // recursive call!
-      until FindNext(Sr) <> 0;
+        if aIncludeSubdirs and (searchRec.Name <> '.') and (searchRec.Name <> '..') then
+          GetAllPathsInDir(IncludeTrailingPathDelimiter(aDir) + searchRec.Name, aSL, aValidateFn, aIncludeSubdirs);  // recursive call!
+      until FindNext(searchRec) <> 0;
   finally
-    SysUtils.FindClose(SR);
+    SysUtils.FindClose(searchRec);
   end;
 end;
 
