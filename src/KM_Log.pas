@@ -225,7 +225,7 @@ procedure TKMLog.AppendText(aTxt: String);
 const
   MAX_LOG_ERROR_CNT = 5;
 
-  procedure doAppend(aE: Exception = nil);
+  procedure Append_Classic(const aTextToWrite: string);
   begin
     if not IsFileAssignedAndAppend then
     begin
@@ -233,19 +233,9 @@ const
       Append(fLogFile);
     end;
 
-    // Only show few log errors, don't overspam it
-    if fWriteErrCnt <= MAX_LOG_ERROR_CNT then
-    begin
-      if aE <> nil then
-        WriteLn(fLogFile, 'Error appending to the log file using TFile.AppendAllText: ' + aE.Message);
-    end
-    else
-      Inc(fWriteErrCnt);
-
-    WriteLn(fLogFile, aTxt);
+    WriteLn(fLogFile, aTextToWrite);
     CloseFile(fLogFile);
   end;
-
 
 begin
   {$IFDEF WDC}
@@ -255,10 +245,18 @@ begin
     if fWriteErrCnt < MAX_LOG_ERROR_CNT then
       TFile.AppendAllText(fLogPath, aTxt + sLineBreak, TEncoding.UTF8)
     else
-      doAppend();
+      Append_Classic(aTxt);
   except
     on E: Exception do
-      doAppend(E);
+    begin
+      Inc(fWriteErrCnt);
+
+      // Only show few log errors, don't overspam it
+      if fWriteErrCnt <= MAX_LOG_ERROR_CNT then
+        Append_Classic('Error appending to the log file using TFile.AppendAllText: ' + E.Message);
+
+      Append_Classic(aTxt);
+    end;
   end;
   {$ENDIF}
 end;
