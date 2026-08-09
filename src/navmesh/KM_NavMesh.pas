@@ -473,15 +473,17 @@ end;
 //Render debug symbols
 procedure TKMNavMesh.DrawPolygon(const aIdx: Integer; const aOpacity: Byte; aFillColor: Cardinal; const aTextOffset: Single = 0; const aText: String = '');
 var
-  P0,P1,P2: TKMPoint;
+  p0, p1, p2: TKMPoint;
 begin
-  if (aOpacity = 0) OR (aIdx >= PolygonsCnt) then
+  if (aOpacity = 0) or (aIdx >= PolygonsCnt) then
     Exit;
-  P0 := Nodes[ Polygons[aIdx].Indices[0] ];
-  P1 := Nodes[ Polygons[aIdx].Indices[1] ];
-  P2 := Nodes[ Polygons[aIdx].Indices[2] ];
-  gRenderAux.TriangleOnTerrain(P0.X,P0.Y, P1.X,P1.Y, P2.X,P2.Y, aFillColor OR (aOpacity shl 24));
-  if (Length(aText) > 0) then
+
+  p0 := Nodes[Polygons[aIdx].Indices[0]];
+  p1 := Nodes[Polygons[aIdx].Indices[1]];
+  p2 := Nodes[Polygons[aIdx].Indices[2]];
+  gRenderAux.TriangleOnTerrain(p0.X, p0.Y, p1.X, p1.Y, p2.X, p2.Y, aFillColor or (aOpacity shl 24));
+
+  if Length(aText) > 0 then
     gRenderAux.Text(Polygons[aIdx].CenterPoint.X, Polygons[aIdx].CenterPoint.Y + aTextOffset, aText, $FFFFFFFF);
 end;
 
