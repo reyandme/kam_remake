@@ -266,17 +266,18 @@ end;
 
 procedure TKMLog.InitLog;
 const
-  INIT_STR = '   Timestamp    Elapsed     Delta  Thread    Description';
+  //                      12|        10|        9|      7|
+  HEADER_STR = '   Timestamp|   Elapsed|    Delta| Thread|  Message';
+  //            hh:nn:ss.zzz 12345.678s 1234567ms   12345   text-text-text
 begin
   if DBG_SKIP_WRITING_TO_DISK then Exit;
 
   try
     ForceDirectories(ExtractFilePath(fLogPath));
 
-    //           hh:nn:ss.zzz 12345.678s 1234567ms     text-text-text
     {$IFDEF WDC}
     try
-      TFile.WriteAllText(fLogPath, INIT_STR + sLineBreak, TEncoding.UTF8);
+      TFile.WriteAllText(fLogPath, HEADER_STR + sLineBreak, TEncoding.UTF8);
     except
       on E: Exception do
       begin
@@ -286,7 +287,7 @@ begin
           AssignFile(fLogFile, fLogPath);
           Rewrite(fLogFile);
         end;
-        WriteLn(fLogFile, INIT_STR);
+        WriteLn(fLogFile, HEADER_STR);
         WriteLn(fLogFile, 'Error creating file using TFile.WriteAllText: ' + E.Message);
         CloseFile(fLogFile);
       end;
@@ -296,8 +297,7 @@ begin
     {$IFDEF FPC}
     AssignFile(fLogFile, fLogPath);
     Rewrite(fLogFile);
-    //           hh:nn:ss.zzz 12345.678s 1234567ms     text-text-text
-    WriteLn(fLogFile, '   Timestamp    Elapsed     Delta  Thread    Description');
+    WriteLn(fLogFile, HEADER_STR);
     CloseFile(fLogFile);
     {$ENDIF}
   except
@@ -361,7 +361,7 @@ begin
   if Self = nil then Exit;
 
   if DBG_SKIP_WRITING_TO_DISK then Exit;
-  
+
   if not (aLogType in MessageTypes) then // write into log only for allowed types
     Exit;
 
@@ -390,7 +390,9 @@ begin
       {$ENDIF}
     end;
 
-    txt2 := Format('%12s %9.3fs %7dms %6d    %s', [
+    //                      12|        10|        9|      7|
+    //            hh:nn:ss.zzz 12345.678s 1234567ms   12345   text-text-text
+    txt2 := Format('%12s %9.3fs %7dms  %6d   %s', [
                     FormatDateTime('hh:nn:ss.zzz', Now),
                     TimeSince(fFirstTick) / 1000,
                     TimeSince(fPreviousTick),
