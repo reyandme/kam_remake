@@ -28,6 +28,7 @@ KaM Remake Beta r_____ []
 + Changed fish count placed in the Map Editor to 10 by default
 + Fixed rare error on entering game Options. Caused by the games attempt to select an odd resolution
 + Fixed error on entering campaigns menu while campaigns were still being scanned
++ Fixed file access error on old logs cleanup
 
 Campaigns:
 + Added French translations for 8 campaigns (and other minor corrections)

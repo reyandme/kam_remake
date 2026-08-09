@@ -142,15 +142,19 @@ var
   fileDateTime: TDateTime;
 begin
   if not DirectoryExists(fPathToLogs) then Exit;
-  try
-    if FindFirst(fPathToLogs + 'KaM*.log', faAnyFile - faDirectory, searchRec) = 0 then
-    repeat
-      Assert(FileAge(fPathToLogs + searchRec.Name, fileDateTime), 'How is that it does not exists any more?');
 
-      if (Abs(Now - fileDateTime) > fDeleteWhenOlderThanDays) then
-        KMDeleteFile(fPathToLogs + searchRec.Name);
-    until (FindNext(searchRec) <> 0);
+  if FindFirst(fPathToLogs + 'KaM*.log', faAnyFile - faDirectory, searchRec) <> 0 then
+    Exit;
+
+  try
+    repeat
+      // If FileAge returns False, the file disappeared or couldn't be inspected. No big deal, just move on, this happens sometimes
+      if FileAge(fPathToLogs + searchRec.Name, fileDateTime) then
+        if Abs(Now - fileDateTime) > fDeleteWhenOlderThanDays then
+          KMDeleteFile(fPathToLogs + searchRec.Name);
+    until FindNext(searchRec) <> 0;
   finally
+    // Make sure we close it
     FindClose(searchRec);
   end;
 end;
