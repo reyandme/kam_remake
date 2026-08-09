@@ -354,7 +354,7 @@ end;
 // meaning that no lines will be lost if Remake crashes
 procedure TKMLog.AddLineTime(const aText: UnicodeString; aLogType: TKMLogMessageType);
 var
-  txt, txt2: String;
+  txtNewDay, txtMessage: String;
 begin
   if Self = nil then Exit;
 
@@ -366,41 +366,33 @@ begin
   // Do not allow multiple threads write into the same file
   Lock;
   try
-    if not FileExists(fLogPath) then
-      InitLog;  // Recreate log file, if it was deleted
-
-    txt := '';
-
-    {$IFDEF FPC} Append(fLogFile); {$ENDIF}
-
-    //Write a line when the day changed since last time (useful for dedicated server logs that could be over months)
+    // Include a line when the day changed since last time
+    // (useful for dedicated server logs that could be over months)
     if Abs(Trunc(fPreviousDate) - Trunc(Now)) >= 1 then
-    begin
-      {$IFDEF WDC}
-      txt := txt + '========================' + sLineBreak
-                 + '    Date: ' + FormatDateTime('yyyy/mm/dd', Now) + sLineBreak
-                 + '========================' + sLineBreak;
-      {$ENDIF}
-      {$IFDEF FPC}
-      WriteLn(fLogFile, '========================');
-      WriteLn(fLogFile, '    Date: ' + FormatDateTime('yyyy/mm/dd', Now));
-      WriteLn(fLogFile, '========================');
-      {$ENDIF}
-    end;
+      txtNewDay := '========================' + sLineBreak +
+                   '    Date: ' + FormatDateTime('yyyy/mm/dd', Now) + sLineBreak +
+                   '========================' + sLineBreak
+    else
+      txtNewDay := '';
 
     //                      12|        10|        9|      7|
     //            hh:nn:ss.zzz 12345.678s 1234567ms   12345   text-text-text
-    txt2 := Format('%12s %9.3fs %7dms  %6d   %s', [
+    txtMessage := Format('%12s %9.3fs %7dms  %6d   %s', [
                     FormatDateTime('hh:nn:ss.zzz', Now),
                     TimeSince(fFirstTick) / 1000,
                     TimeSince(fPreviousTick),
                     TThread.CurrentThread.ThreadID,
                     aText]);
+
+    if not FileExists(fLogPath) then
+      InitLog;  // Recreate log file, if it was deleted
+
     {$IFDEF WDC}
-    AppendText(txt + txt2);
+    AppendText(txtNewDay + txtMessage);
     {$ENDIF}
     {$IFDEF FPC}
-    WriteLn(fLogFile, txt2);
+    Append(fLogFile);
+    WriteLn(fLogFile, txtNewDay + txtMessage);
     CloseFile(fLogFile);
     {$ENDIF}
 
