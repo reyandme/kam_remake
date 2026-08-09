@@ -19,7 +19,6 @@ const
   MAX_NODES = MAX_MAP_SIZE*MAX_MAP_SIZE div 6;
   MAX_POLYGONS = MAX_MAP_SIZE*MAX_MAP_SIZE div 6;
 
-
 type
   TKMNavMeshByteArray = array[-1..MAX_MAP_SIZE + 1,-1..MAX_MAP_SIZE + 1] of Byte;
 
@@ -42,14 +41,14 @@ type
   {$ENDIF}
 
   TPolygon = record
-      CenterPoint: TKMPoint;
-      NearbyCount: Byte; //could be 0 .. 3
-      Poly2PointStart, Poly2PointCnt: Word; // Indexes of fPolygon2PointArr (points which are part of this polygon)
-      Indices: array [0..2] of Word; //Neighbour nodes
-      Nearby: array [0..2] of Word; //Neighbour polygons
-      NearbyLineLength: array [0..2] of Byte; //Neighbour polygons
-      NearbyPoints: array [0..2] of TKMPoint; // Center points
-    end;
+    CenterPoint: TKMPoint;
+    NearbyCount: Byte; //could be 0 .. 3
+    Poly2PointStart, Poly2PointCnt: Word; // Indexes of fPolygon2PointArr (points which are part of this polygon)
+    Indices: array [0..2] of Word; //Neighbour nodes
+    Nearby: array [0..2] of Word; //Neighbour polygons
+    NearbyLineLength: array [0..2] of Byte; //Neighbour polygons
+    NearbyPoints: array [0..2] of TKMPoint; // Center points
+  end;
   TPolygonArray = array of TPolygon;
 
   // NavMeshGenerator create Navigation mesh
@@ -94,8 +93,6 @@ type
     property InnerPointStartIdx: Word read fInnerPointStartIdx;
     property InnerPointEndIdx: Word read fInnerPointEndIdx;
 
-    constructor Create();
-    destructor Destroy(); override;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
@@ -126,35 +123,6 @@ const
 
 
 { TKMNavMeshGenerator }
-constructor TKMNavMeshGenerator.Create();
-begin
-  fInnerPointStartIdx   := 0;
-  fInnerPointEndIdx     := 0;
-  fNodeCount            := 0;
-  fPolyCount            := 0;
-  {$IFDEF DEBUG_NavMesh}
-    fBorderNodeCount    := 0;
-    fTimeAvrgExtrNodes  := 0;
-    fTimeAvrgAddInNodes := 0;
-    fTimeAvrgPolyTrian  := 0;
-    fTimeAvrgPrettyPoly := 0;
-    fTimeAvrgSum        := 0;
-    fTimePeakExtrNodes  := 0;
-    fTimePeakAddInNodes := 0;
-    fTimePeakPolyTrian  := 0;
-    fTimePeakPrettyPoly := 0;
-    fTimePeakSum        := 0;
-  {$ENDIF}
-  inherited Create;
-end;
-
-
-destructor TKMNavMeshGenerator.Destroy();
-begin
-  inherited;
-end;
-
-
 procedure TKMNavMeshGenerator.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.PlaceMarker('KMNavMeshGenerator');
