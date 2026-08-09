@@ -178,10 +178,10 @@ type
 
     function GetCampaign(aIndex: Integer): TKMCampaign;
 
-    procedure CampaignAdd(aCampaign: TKMCampaign);
-    procedure CampaignAddDone(Sender: TObject);
-    procedure ScanTerminate(Sender: TObject);
-    procedure ScanComplete(Sender: TObject);
+    procedure HandleCampaignAdd(aCampaign: TKMCampaign);
+    procedure HandleCampaignAddDone(Sender: TObject);
+    procedure HandleScanTerminate(Sender: TObject);
+    procedure HandleScanComplete(Sender: TObject);
 
     procedure Clear;
   public
@@ -333,7 +333,7 @@ begin
 end;
 
 
-procedure TKMCampaignsCollection.CampaignAdd(aCampaign: TKMCampaign);
+procedure TKMCampaignsCollection.HandleCampaignAdd(aCampaign: TKMCampaign);
 begin
   Lock;
   try
@@ -364,7 +364,7 @@ begin
 end;
 
 
-procedure TKMCampaignsCollection.CampaignAddDone(Sender: TObject);
+procedure TKMCampaignsCollection.HandleCampaignAddDone(Sender: TObject);
 begin
   Lock;
   try
@@ -377,7 +377,7 @@ end;
 
 //Scan was terminated
 //No need to resort since that was done in last MapAdd event
-procedure TKMCampaignsCollection.ScanTerminate(Sender: TObject);
+procedure TKMCampaignsCollection.HandleScanTerminate(Sender: TObject);
 begin
   Lock;
   try
@@ -392,7 +392,7 @@ end;
 
 //All maps have been scanned
 //No need to resort since that was done in last MapAdd event
-procedure TKMCampaignsCollection.ScanComplete(Sender: TObject);
+procedure TKMCampaignsCollection.HandleScanComplete(Sender: TObject);
 begin
   Lock;
   try
@@ -447,7 +447,7 @@ begin
 
   // Scanner will launch upon create automatically
   fScanning := True;
-  fScanner := TKMCampaignsScanner.Create(CampaignAdd, CampaignAddDone, ScanTerminate, ScanComplete);
+  fScanner := TKMCampaignsScanner.Create(HandleCampaignAdd, HandleCampaignAddDone, HandleScanTerminate, HandleScanComplete);
 end;
 
 
