@@ -513,7 +513,6 @@ procedure TKMNavMesh.Paint(const aRect: TKMRect);
 
 var
   K, L: Integer;
-  //Color: Cardinal;
   p1,p2: TKMPoint;
 begin
   //{ DEFENCE SYSTEM
