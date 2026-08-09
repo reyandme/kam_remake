@@ -32,7 +32,7 @@ type
     {$ENDIF}
 
     //Building the navmesh from terrain
-    procedure GenerateNavMesh(aStep: Integer);
+    procedure GenerateNavMesh;
     procedure FindClosestPolygon();
     procedure TieUpTilesWithPolygons();
     procedure TieUpPolygonsWithTiles();
@@ -192,18 +192,18 @@ procedure TKMNavMesh.AfterMissionInit();
 begin
   fMapX := gTerrain.MapX;
   fMapY := gTerrain.MapY;
-  GenerateNavMesh(-1);
+  GenerateNavMesh;
 end;
 
 
 procedure TKMNavMesh.UpdateState(aTick: Cardinal);
 begin
-  if (aTick mod (MAX_HANDS*330) = 15) then // The normal game has 12 players so ticks with 13-18 should be cheaper for performance
-    GenerateNavMesh(-1);
+  if aTick mod (MAX_HANDS * 330) = 15 then // The normal game has 12 players so ticks with 13-18 should be cheaper for performance
+    GenerateNavMesh;
 end;
 
 
-procedure TKMNavMesh.GenerateNavMesh(aStep: Integer);
+procedure TKMNavMesh.GenerateNavMesh;
   {$IFDEF DEBUG_NavMesh}
   var
     tStart,tStop,tSum: Int64;
@@ -222,13 +222,11 @@ begin
     tStart := TimeGetUsec();
   {$ENDIF}
 
-  //if (aStep = 0) OR (aStep = -1) then
   fNavMeshGenerator.GenerateNewNavMesh();
   {$IFDEF DEBUG_NavMesh}
     UpdateTimer(fTimeAvrgGenerator, fTimePeakGenerator);
   {$ENDIF}
 
-  //if (aStep = 1) OR (aStep = -1) then
   fNodeCount := fNavMeshGenerator.NodeCount;
   fPolyCount := fNavMeshGenerator.PolygonCount;
   fInnerNodesStartIdx := fNavMeshGenerator.InnerPointStartIdx;
@@ -238,20 +236,19 @@ begin
     UpdateTimer(fTimeAvrgCopyNavMesh, fTimePeakCopyNavMesh);
   {$ENDIF}
 
-  //Mapp all map tiles to its polygons and vice versa
-  //if (aStep = 2) OR (aStep = -1) then
+  //Map all map tiles to its polygons and vice versa
   TieUpTilesWithPolygons();
   {$IFDEF DEBUG_NavMesh}
     UpdateTimer(fTimeAvrgTieUpTwP, fTimePeakTieUpTwP);
   {$ENDIF}
-  //if (aStep = 3) OR (aStep = -1) then
+
   TieUpPolygonsWithTiles();
   {$IFDEF DEBUG_NavMesh}
     UpdateTimer(fTimeAvrgTieUpPwT, fTimePeakTieUpPwT);
     fTimePeakSum := Max(fTimePeakSum, tSum);
     fTimeAvrgSum := Round((fTimeAvrgSum * 5 + tSum)/6);
   {$ENDIF}
-  //if (aStep = 4) OR (aStep = -1) then
+
   gAIFields.Influences.InitInfluences();
 end;
 
