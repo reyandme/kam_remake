@@ -527,7 +527,7 @@ type
     grWin,           // Player has won the game
     grDefeat,        // Player was defeated
     grCancel,        // Game was cancelled (unfinished)
-    grError,         // Some known error occured
+    grError,         // Some known error occurred
     grDisconnect,    // Disconnected from multiplayer game
     grSilent,        // Used when loading savegame from running game (show no screens)
     grReplayEnd,     // Replay was cancelled - return to menu without screens

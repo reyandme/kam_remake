@@ -424,7 +424,7 @@ begin
   end;
 
   //IsExchanging can be updated while we have completed less than 20% of the move. If it is changed after that
-  //the unit makes a noticable "jump". This needs to be updated after starting because we don't know about an
+  //the unit makes a noticeable "jump". This needs to be updated after starting because we don't know about an
   //exchanging unit until they have also started walking (otherwise only 1 of the units will have IsExchanging = True)
   if (
       ((fDirection = gdGoOutside) and (fStep < 0.2)) or

@@ -326,7 +326,7 @@ end;
 
 
 // Dynamic Scripts should not have access to the actual strings (script variables should be identical for all MP players)
-// Take the string and replace every occurence of <$tag> with corresponding text from LibX
+// Take the string and replace every occurrence of <$tag> with corresponding text from LibX
 // - aTagSym says which tags should be replaced ($ for missions, % for game texts)
 function TKMTextLibraryMulti.DoParseTextMarkup(const aText: UnicodeString; aTagSym: Char): UnicodeString;
 var

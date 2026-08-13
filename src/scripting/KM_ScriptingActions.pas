@@ -1462,7 +1462,7 @@ end;
 
 //* Version: 7000+
 //* Remove AI attack by attack UID
-//* Result: True, if attack was succesfully removed, False, if attack was not found
+//* Result: True, if attack was successfully removed, False, if attack was not found
 function TKMScriptActions.AIAttackRemove(aHand, aAIAttackUID: Integer): Boolean;
 begin
   Result := False;

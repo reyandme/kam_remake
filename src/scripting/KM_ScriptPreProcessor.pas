@@ -187,7 +187,7 @@ begin
   try
     fPSPreProcessor.PreProcess(fPSPreProcessor.MainFileName, aScriptCode);
     AfterPreProcess;
-    Result := True; // If PreProcess has been done succesfully
+    Result := True; // If PreProcess has been done successfully
   except
     on E: Exception do
     begin

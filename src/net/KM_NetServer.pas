@@ -826,7 +826,7 @@ begin
     dataStream.Position := 0;
     dataStream.Read(messageKind, SizeOf(messageKind));
 
-    //Sometimes client disconnects then we recieve a late packet (e.g. mkPong), in which case ignore it
+    //Sometimes client disconnects then we receive a late packet (e.g. mkPong), in which case ignore it
     if fClientList.GetByHandle(aSenderHandle) = nil then
     begin
       Status('Warning: Received data from an unassigned client');

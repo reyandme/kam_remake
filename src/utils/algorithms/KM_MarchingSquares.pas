@@ -196,7 +196,7 @@ begin
     end;
 
     x := x + POINT_ADJ[direction].X;
-    y := y + POINT_ADJ[direction].Y; // accomodate change of basis
+    y := y + POINT_ADJ[direction].Y; // accommodate change of basis
     prevDir := direction;
     aPerimeterVertexes.Add(TKMPoint.New(x, y))
   until (x = initialX) and (y = initialY);

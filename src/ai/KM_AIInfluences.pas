@@ -10,7 +10,7 @@ uses
 
 
 const
-  // Avoid bulding values of specific actions (tile lock by specific action)
+  // Avoid building values of specific actions (tile lock by specific action)
   AVOID_BUILDING_UNLOCK = 0;
   AVOID_BUILDING_HOUSE_OUTSIDE_LOCK = 10;
   AVOID_BUILDING_HOUSE_INSIDE_LOCK = 15;

@@ -11,7 +11,7 @@ type
     fWarningsString: TKMScriptErrorMessage;
     fHintsString: TKMScriptErrorMessage;
 
-    fRuntimeErrorOccured: Boolean; // Has runtime error occurred? (only display first error)
+    fRuntimeErrorOccurred: Boolean; // Has runtime error occurred? (only display first error)
     fScriptLogFile: UnicodeString;
     fOnScriptError: TUnicodeStringEvent;
 
@@ -143,7 +143,7 @@ end;
 
 procedure TKMScriptErrorHandler.Clear;
 begin
-  fRuntimeErrorOccured := False;
+  fRuntimeErrorOccurred := False;
   fErrorString.GameMessage := '';
   fErrorString.LogMessage := '';
   fWarningsString.GameMessage := '';
@@ -255,10 +255,10 @@ begin
   if aType = seException then
   begin
     // Only show the first message in-game to avoid spamming the player
-    if not fRuntimeErrorOccured and Assigned(fOnScriptError) then
-      fOnScriptError('Error(s) have occured in the mission script. ' +
+    if not fRuntimeErrorOccurred and Assigned(fOnScriptError) then
+      fOnScriptError('Error(s) have occurred in the mission script. ' +
                      'Please check the log file for further details. First error:|' + errorStrToDisplay);
-    fRuntimeErrorOccured := True;
+    fRuntimeErrorOccurred := True;
   end;
 end;
 

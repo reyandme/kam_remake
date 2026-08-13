@@ -161,7 +161,7 @@ end;
 
 procedure TKMUnitActionFight.MakeSound(IsHit: Boolean);
 var
-  //Battlecry is the most noticable random sound, we would like to repeat it exactly the same in each replay (?)
+  //Battlecry is the most noticeable random sound, we would like to repeat it exactly the same in each replay (?)
   makeBattleCry: Boolean;
 begin
   //Randomly make a battle cry. KaMRandom must always happen regardless of tile revelation

@@ -568,7 +568,7 @@ end;
 
 function TKMEdit.HitTest(X, Y: Integer; aIncludeDisabled: Boolean = False; aIncludeNotHitable: Boolean = False): Boolean;
 begin
-  //When control is read-only we don't want to recieve Focus event
+  //When control is read-only we don't want to receive Focus event
   Result := inherited HitTest(X,Y) and not ReadOnly;
 end;
 

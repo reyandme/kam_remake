@@ -628,21 +628,21 @@ end;
 
 procedure TFormMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-//  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
+//  Assert(KeyPreview, 'MainForm should receive all keys to pass them to fGame');
 //  FormKeyDownProc(Key, Shift, True);
 end;
 
 
 procedure TFormMain.FormKeyPress(Sender: TObject; var Key: Char);
 begin
-  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
+  Assert(KeyPreview, 'MainForm should receive all keys to pass them to fGame');
   if gGameApp <> nil then gGameApp.KeyPress(Key);
 end;
 
 
 procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
+  Assert(KeyPreview, 'MainForm should receive all keys to pass them to fGame');
 
   FormKeyUpProc(Key, Shift);
 end;

@@ -17,7 +17,7 @@ uses
     - signal if we were forcefully disconnected by server
 
     - send binary data to other server clients
-    - recieve binary data from other server clients
+    - receive binary data from other server clients
 
     - optionaly report non-important status messages }
 
@@ -225,7 +225,7 @@ begin
   SetLength(fBuffer, fBufferSize + aLength);
   Move(aData^, fBuffer[fBufferSize], aLength);
   fBufferSize := fBufferSize + aLength;
-  //gLog.AddTime('############### recieve data: Length = ' + IntToStr(aLength) + ' fBufferSize = ' + IntTOStr(fBufferSize));
+  //gLog.AddTime('############### receive data: Length = ' + IntToStr(aLength) + ' fBufferSize = ' + IntTOStr(fBufferSize));
 
   //HeaderSize := 2*SizeOf(TKMNetHandleIndex) +
 

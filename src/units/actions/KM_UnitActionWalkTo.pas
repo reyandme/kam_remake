@@ -22,7 +22,7 @@ type
   private
     fWalkFrom: TKMPoint; //Walking from this spot, used only in Create
     fWalkTo: TKMPoint; //Where are we going to
-    fNewWalkTo: TKMPoint; //If we recieve a new TargetLoc it will be stored here
+    fNewWalkTo: TKMPoint; //If we receive a new TargetLoc it will be stored here
     fDistance: Single; //How close we need to get to our target
     fTargetUnit: TKMUnit; //Folow this unit
     fTargetHouse: TKMHouse; //Go to this House

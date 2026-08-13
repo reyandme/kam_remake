@@ -544,7 +544,7 @@ begin
     Exit;
   end;
   
-  //I tried to use this when the bug occured but it didn't always work because AI places multiple house/field plans at once (if P.CanAddFieldPlan(KMPointBelow(Loc), ftRoad) then)
+  //I tried to use this when the bug occurred but it didn't always work because AI places multiple house/field plans at once (if P.CanAddFieldPlan(KMPointBelow(Loc), ftRoad) then)
   //Fixes Classical AI bug related to houses never being finished/connected to road network
    P.Constructions.FieldworksList.RemFieldPlan(KMPointBelow(Loc)); //Make sure our entrance to the house has no plan (vine/corn) in front of it
    P.Constructions.FieldworksList.AddField(KMPointBelow(Loc), ftRoad); //Place a road below house entrance to make sure it is connected to our city!

@@ -134,7 +134,7 @@ end;
 { TKMAIAttackInfo }
 function TKMAIAttackInfo.ToStr: string;
 begin
-  Result := Format('[%d: Type=%s Occured=%s, Delay=%d, TotalMen=%d, GroupsCount: %d, %d, %d, %d, RandomGroups=%s, Target=%s, Pos=%s]',
+  Result := Format('[%d: Type=%s Occurred=%s, Delay=%d, TotalMen=%d, GroupsCount: %d, %d, %d, %d, RandomGroups=%s, Target=%s, Pos=%s]',
                    [UID,
                     GetEnumName(TypeInfo(TKMAIAttackType), Integer(AttackType)),
                     BoolToStr(HasOccured), Delay, TotalMen,

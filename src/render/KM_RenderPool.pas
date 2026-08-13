@@ -1238,7 +1238,7 @@ begin
 end;
 
 
-// Param - defines at which level alpha-test will be set (acts like a threshhold)
+// Param - defines at which level alpha-test will be set (acts like a threshold)
 // Then we render alpha-tested Mask to stencil buffer. Only those pixels that are
 // white there will have sprite rendered
 // If there are two masks then we need to render sprite only there

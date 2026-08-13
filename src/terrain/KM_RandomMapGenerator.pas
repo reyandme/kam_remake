@@ -80,7 +80,7 @@ type
     procedure NoGoZones(var Locs: TKMPointArray; var TilesPartsArr: TTileParts);
   // Rules for extraction shapes from linear interpolation
     procedure Rules(const aTopLim,aTopLim2,aDownLim,aDownLim2: Integer; var aArr: TInteger2Array);
-  // Procedures wich make composition of biomes
+  // Procedures which make composition of biomes
     procedure CreateResources(var aLocs: TKMPointArray; var A: TKMByte2Array);
     procedure CreateObstacles(var aLocs: TKMPointArray; var A: TKMByte2Array; var aVoronoi,aCountArr: TInteger2Array; var aPointsArr: TKMPoint2Array);
     procedure CreateBiomes(var A: TKMByte2Array);
