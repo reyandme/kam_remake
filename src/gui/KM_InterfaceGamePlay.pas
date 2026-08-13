@@ -2246,6 +2246,11 @@ var
   G: TKMUnitGroup;
   loc: TKMPoint;
 begin
+  // aMessageId could come from a different Hand (e.g. if player changed hand via F11 panel)
+  // Since we dont update the whole UI on hand change, just skip this erroneous message id
+  if not InRange(aMessageId, 0, gMySpectator.Hand.MessageLog.CountLog - 1) then
+    Exit;
+
   msg := gMySpectator.Hand.MessageLog[aMessageId];
   msg.IsReadLocal := True;
   gGame.GameInputProcess.CmdGame(gicGameMessageLogRead, aMessageId);

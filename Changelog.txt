@@ -30,6 +30,7 @@ KaM Remake Beta r_____ []
 + Fixed error on entering campaigns menu while campaigns were still being scanned
 + Fixed file access error on old logs cleanup
 + Fixed file access error on startup when game tried to write to log
++ Fixed occasional an error caused by clicking a message in the message log after changing active hand
 
 Campaigns:
 + Added French translations for 8 campaigns (and other minor corrections)
