@@ -3323,8 +3323,6 @@ end;
 procedure TKMGamePlayInterface.AlliesOnPingInfo;
 var
   I, K, slotIndex: Integer;
-  ping: Word;
-  fps: Cardinal;
 begin
   UpdateRoomMapping;
 
@@ -3337,8 +3335,8 @@ begin
 
     if (I < gNetworking.Room.Count) and gNetworking.Room[slotIndex].IsHuman then
     begin
-      ping := gNetworking.Room[slotIndex].GetInstantPing;
-      fps := gNetworking.Room[slotIndex].FPS;
+      var ping := gNetworking.Room[slotIndex].GetInstantPing;
+      var fps := gNetworking.Room[slotIndex].FPS;
       Label_AlliesPing[I].Caption := WrapColor(IntToStr(ping), GetPingColor(ping));
       Label_AlliesPingFpsSlash[I].Caption := '/';
       Label_AlliesFPS[I].Caption := WrapColor(IntToStr(fps), GetFPSColor(fps));
