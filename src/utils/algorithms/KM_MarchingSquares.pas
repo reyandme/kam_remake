@@ -213,7 +213,7 @@ end;
 
 function TKMMarchingSquares.GetSurroundingsValueAndMark(X, Y: Integer; aMark: Boolean = True): Integer;
 var
-  index: Integer;
+  idx: Integer;
 begin
   Result := 0;
   if fData.GetData(X - 1, Y - 1) then
@@ -221,9 +221,9 @@ begin
     Result := Result or 1;
     if aMark then
     begin
-      index := GetPlainIndex(X - 1, Y - 1);
-      if not fCountouredData.ContainsKey(index) then
-        fCountouredData.Add(index, True);
+      idx := GetPlainIndex(X - 1, Y - 1);
+      if not fCountouredData.ContainsKey(idx) then
+        fCountouredData.Add(idx, True);
     end;
   end;
 
@@ -232,9 +232,9 @@ begin
     Result := Result or 2;
     if aMark then
     begin
-      index := GetPlainIndex(X, Y - 1);
-      if not fCountouredData.ContainsKey(index) then
-        fCountouredData.Add(index, True);
+      idx := GetPlainIndex(X, Y - 1);
+      if not fCountouredData.ContainsKey(idx) then
+        fCountouredData.Add(idx, True);
     end;
   end;
 
@@ -243,9 +243,9 @@ begin
     Result := Result or 4;
     if aMark then
     begin
-      index := GetPlainIndex(X - 1, Y);
-      if not fCountouredData.ContainsKey(index) then
-        fCountouredData.Add(index, True);
+      idx := GetPlainIndex(X - 1, Y);
+      if not fCountouredData.ContainsKey(idx) then
+        fCountouredData.Add(idx, True);
     end;
   end;
 
@@ -254,9 +254,9 @@ begin
     Result := Result or 8;
     if aMark then
     begin
-      index := GetPlainIndex(X, Y);
-      if not fCountouredData.ContainsKey(index) then
-        fCountouredData.Add(index, True);
+      idx := GetPlainIndex(X, Y);
+      if not fCountouredData.ContainsKey(idx) then
+        fCountouredData.Add(idx, True);
     end;
   end;
 end;
