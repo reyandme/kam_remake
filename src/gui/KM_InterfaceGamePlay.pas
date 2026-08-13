@@ -1922,7 +1922,7 @@ begin
 
   for I := 1 to gNetworking.Room.Count do
     if not gNetworking.Room[I].IsSpectator then
-      handIdToRoomId[gNetworking.Room[I].HandIndex] := I;
+        handIdToRoomId[gNetworking.Room[I].HandIndex] := I;
 
   teams := gHands.Teams;
 
@@ -3305,7 +3305,7 @@ begin
       Image_AlliesMute[I].Hint := '';
     Image_AlliesFlag[I].Enabled := not gNetworking.Room[netI].Dropped;
     Label_AlliesPlayer[I].Strikethrough := gNetworking.Room[netI].Dropped;
-    // Do not strike throught '-' symbol, when player has no team
+    // Do not strike through '-' symbol, when player has no team
     Label_AlliesTeam[I].Strikethrough := gNetworking.Room[netI].Dropped
                                          and (gNetworking.Room[netI].Team <> 0);
     Label_AlliesPing[I].Strikethrough := gNetworking.Room[netI].Dropped;

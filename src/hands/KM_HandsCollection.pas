@@ -910,7 +910,7 @@ begin
     if (allies[I] = [I])          //hand has no allies, so we can ignore it
       or (I in handsChecked) then //hand was checked in other iteration before, ignore it
       Continue;
-    //Loop throught hand allies and check if all of them has same ally group
+    //Loop through hand allies and check if all of them has same ally group
     for J in allies[I] do
     begin
       if I = J then

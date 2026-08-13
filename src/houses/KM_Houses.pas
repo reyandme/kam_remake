@@ -372,7 +372,7 @@ uses
 
 const
   // Delay, in ticks, from user click on DeliveryMode btn, to tick, when mode will be really set.
-  // Made to prevent serf's taking/losing deliveries only because player clicks throught modes.
+  // Made to prevent serf's taking/losing deliveries only because player clicks through modes.
   // No hurry, let's wait a bit for player to be sure, what mode he needs
   UPDATE_DELIVERY_MODE_DELAY = 10;
   NO_UPDATE_DELIVERY_MODE_TICK = 0;
