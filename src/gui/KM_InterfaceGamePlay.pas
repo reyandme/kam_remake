@@ -2306,7 +2306,6 @@ end;
 procedure TKMGamePlayInterface.MessageLog_Update(aFullRefresh: Boolean);
 var
   I, K: Integer;
-  R: TKMListRow;
 begin
   // Exit if synced already
   if not aFullRefresh and not gMySpectator.Hand.MessageLog.HasNewMessages then Exit;
@@ -2322,38 +2321,38 @@ begin
   K := 0;
   for I := Max(gMySpectator.Hand.MessageLog.CountLog - MAX_LOG_MSGS, 0) to gMySpectator.Hand.MessageLog.CountLog - 1 do
   begin
-    R := MakeListRow(['', gMySpectator.Hand.MessageLog[I].Text], I);
+    var newRow := MakeListRow(['', gMySpectator.Hand.MessageLog[I].Text], I);
 
     if gMySpectator.Hand.MessageLog[I].Kind = mkGroup then
     begin
-      R.Cells[0].Pic := MakePic(rxGui, 588);
+      newRow.Cells[0].Pic := MakePic(rxGui, 588);
       if gMySpectator.Hand.MessageLog[I].IsRead then
       begin
-        R.Cells[1].Color := clMessageUnitRead;
-        R.Cells[1].HighlightColor := clMessageUnitReadHL;
+        newRow.Cells[1].Color := clMessageUnitRead;
+        newRow.Cells[1].HighlightColor := clMessageUnitReadHL;
       end
       else
       begin
-        R.Cells[1].Color := clMessageUnitUnread;
-        R.Cells[1].HighlightColor := clMessageUnitUnreadHL;
+        newRow.Cells[1].Color := clMessageUnitUnread;
+        newRow.Cells[1].HighlightColor := clMessageUnitUnreadHL;
       end;
     end
     else
     begin
-      R.Cells[0].Pic := MakePic(rxGui, 587);
+      newRow.Cells[0].Pic := MakePic(rxGui, 587);
       if gMySpectator.Hand.MessageLog[I].IsRead then
       begin
-        R.Cells[1].Color := $FFA0A0A0;
-        R.Cells[1].HighlightColor := icGray;
+        newRow.Cells[1].Color := $FFA0A0A0;
+        newRow.Cells[1].HighlightColor := icGray;
       end
       else
       begin
-        R.Cells[1].Color := $FFFFFFFF;
-        R.Cells[1].HighlightColor := $FFC7C7C7;
+        newRow.Cells[1].Color := $FFFFFFFF;
+        newRow.Cells[1].HighlightColor := $FFC7C7C7;
       end;
     end;
 
-    ColumnBox_MessageLog.Rows[K] := R;
+    ColumnBox_MessageLog.Rows[K] := newRow;
     Inc(K);
   end;
 
