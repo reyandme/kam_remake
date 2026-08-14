@@ -9,7 +9,7 @@ type
   // SwineStable has unique property - it needs to accumulate some resource before production begins, also special animation
   TKMHouseSwineStable = class(TKMHouse)
   private
-    BeastAge: array[1..5]of Byte; // Each beasts "age". Once Best reaches age 3+1 it's ready
+    fBeastAge: array[1..5] of Byte; // Each beasts "age". Once Best reaches age 3+1 it's ready
   protected
     procedure MakeSound; override;
   public
@@ -38,7 +38,7 @@ begin
   inherited;
 
   LoadStream.CheckMarker('HouseSwineStable');
-  LoadStream.Read(BeastAge, SizeOf(BeastAge));
+  LoadStream.Read(fBeastAge, SizeOf(fBeastAge));
 end;
 
 
@@ -48,17 +48,17 @@ var
   I: Integer;
 begin
   Result := 0;
-  Inc(BeastAge[KaMRandom(5{$IFDEF DBG_RNG_SPY}, 'TKMHouseSwineStable.FeedBeasts'{$ENDIF}) + 1]); //Let's hope it never overflows MAX
-  for I := 1 to Length(BeastAge) do
-    if BeastAge[I] > 3 then
+  Inc(fBeastAge[KaMRandom(5{$IFDEF DBG_RNG_SPY}, 'TKMHouseSwineStable.FeedBeasts'{$ENDIF}) + 1]); //Let's hope it never overflows MAX
+  for I := 1 to Length(fBeastAge) do
+    if fBeastAge[I] > 3 then
       Result := I;
 end;
 
 
 procedure TKMHouseSwineStable.TakeBeast(aID: Byte);
 begin
-  if (aID<>0) and (BeastAge[aID]>3) then
-    BeastAge[aID] := 0;
+  if (aID<>0) and (fBeastAge[aID]>3) then
+    fBeastAge[aID] := 0;
 end;
 
 
@@ -72,7 +72,7 @@ begin
   if gMySpectator.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then Exit;
 
   for I := 0 to 4 do
-  if BeastAge[I+1] > 0 then
+  if fBeastAge[I+1] > 0 then
   if (FlagAnimStep + 20*I) mod 100 = 0 then
   begin
     if HouseType = htStables then
@@ -88,7 +88,7 @@ begin
   inherited;
 
   SaveStream.PlaceMarker('HouseSwineStable');
-  SaveStream.Write(BeastAge, SizeOf(BeastAge));
+  SaveStream.Write(fBeastAge, SizeOf(fBeastAge));
 end;
 
 
@@ -102,8 +102,8 @@ begin
   //Swinefarm looks okay, but Stables are totaly wrong - flames are right on horses backs!
   if fBuildState = hbsDone then
     for I := 1 to 5 do
-      if BeastAge[I] > 0 then
-        gRenderPool.AddHouseStableBeasts(HouseType, fPosition, I, Min(BeastAge[I],3), FlagAnimStep);
+      if fBeastAge[I] > 0 then
+        gRenderPool.AddHouseStableBeasts(HouseType, fPosition, I, Min(fBeastAge[I],3), FlagAnimStep);
 
   //But Animal Breeders should be on top of beasts
   if CurrentAction <> nil then
