@@ -1626,7 +1626,7 @@ begin
     end;
 
     gLog.AddTime('Randomizing locs...');
-    if gLog.IsDegubLogEnabled then
+    if gLog.IsDebugLogEnabled then
       gLog.LogDebug(locFiller.FillerToString);
 
     //Randomize all available lists (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)
@@ -1641,7 +1641,7 @@ begin
     for I := 0 to High(locFiller.Players) do
       fSlots[locFiller.Players[I].ID].StartLocation := locFiller.Players[I].LocID;
 
-    if gLog.IsDegubLogEnabled then
+    if gLog.IsDebugLogEnabled then
       gLog.LogDebug('Randomized locs: ' + locFiller.FillerToString);
   finally
     locFiller.Free;

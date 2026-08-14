@@ -1893,12 +1893,10 @@ end;
 
 
 procedure TKMGamePlayInterface.Allies_Mute(Sender: TObject);
-var
-  img: TKMImage;
 begin
-  img := TKMImage(Sender);
+  var img := TKMImage(Sender);
 
-  if gLog.IsDegubLogEnabled then
+  if gLog.IsDebugLogEnabled then
     gLog.LogDebug(Format('TKMGamePlayInterface.Allies_mute: Image.tag = %d NetPlayerIndex = %d',
                          [img.Tag, fAllies_LineIdToNetPlayerId[img.Tag]]));
 

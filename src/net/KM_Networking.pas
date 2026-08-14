@@ -2534,9 +2534,10 @@ procedure TKMNetworking.ToggleMuted(aSlotIndex: Integer);
 var
   listIndex: Integer;
 begin
-  if gLog.IsDegubLogEnabled then
+  if gLog.IsDebugLogEnabled then
     gLog.LogDebug(Format('TKMNetworking.ToggleMuted: IndexOnServer for NetPlayer %d [%s] = %d',
                          [aSlotIndex, fNetRoom[aSlotIndex].Nickname, fNetRoom[aSlotIndex].IndexOnServer]));
+
   listIndex := fMutedPlayersList.IndexOf(fNetRoom[aSlotIndex].IndexOnServer);
   if listIndex <> -1 then
     fMutedPlayersList.Delete(listIndex)

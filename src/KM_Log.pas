@@ -62,7 +62,7 @@ type
     // AppendLog adds the line to Log along with time passed since previous line added
     procedure AddTime(const aText: UnicodeString); overload;
     procedure AddTime(const aText: UnicodeString; aArgs: array of const); overload;
-    function IsDegubLogEnabled: Boolean;
+    function IsDebugLogEnabled: Boolean;
     procedure LogDebug(const aText: UnicodeString);
     procedure LogDelivery(const aText: UnicodeString);
     procedure LogCommands(const aText: UnicodeString);
@@ -479,7 +479,7 @@ begin
 end;
 
 
-function TKMLog.IsDegubLogEnabled: Boolean;
+function TKMLog.IsDebugLogEnabled: Boolean;
 begin
   Result := lmtDebug in MessageTypes;
 end;
