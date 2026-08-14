@@ -358,7 +358,7 @@ constructor TKMGame.Create(aGameMode: TKMGameMode; aRender: TKMRender; aOnDestro
                            aAutoSaveWorkerThreadHolder,
                            aSavePointWorkerThreadHolder: TKMWorkerThreadHolder);
 const
-  UI_MODE: array [TKMGameMode] of TUIMode = (umSP, umSP, umMP, umSpectate, umSP, umReplay, umReplay);
+  UI_MODE: array [TKMGameMode] of TKMUIMode = (umSP, umSP, umMP, umSpectate, umSP, umReplay, umReplay);
 begin
   inherited Create;
 

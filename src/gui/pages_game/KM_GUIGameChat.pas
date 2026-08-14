@@ -15,7 +15,7 @@ uses
 type
   TKMGUIGameChat = class
   private
-    fUIMode: TUIMode;
+    fUIMode: TKMUIMode;
     fOnChatMessage: TUnicodeStringEvent;
     procedure Chat_Close(Sender: TObject);
     function DoPost: Boolean;
@@ -46,7 +46,7 @@ type
       Image_ChatClose: TKMImage;
       Menu_Chat: TKMPopUpMenu;
   public
-    constructor Create(aParent: TKMPanel; aUIMode: TUIMode; aOnChatMessage: TUnicodeStringEvent);
+    constructor Create(aParent: TKMPanel; aUIMode: TKMUIMode; aOnChatMessage: TUnicodeStringEvent);
 
     property PanelChatRect: TKMRect read GetPanelChatRect;
 
@@ -67,7 +67,7 @@ uses
 
 
 { TKMGUIGameChat }
-constructor TKMGUIGameChat.Create(aParent: TKMPanel; aUIMode: TUIMode; aOnChatMessage: TUnicodeStringEvent);
+constructor TKMGUIGameChat.Create(aParent: TKMPanel; aUIMode: TKMUIMode; aOnChatMessage: TUnicodeStringEvent);
 begin
   inherited Create;
 

@@ -35,7 +35,7 @@ type
   private
     fAlerts: TKMAlerts;
 
-    fUIMode: TUIMode;
+    fUIMode: TKMUIMode;
     fSave_Selected: Integer; // Save selected from list (needed because of scanning)
 
     fGuiGameBuild: TKMGUIGameBuild;
@@ -338,7 +338,7 @@ type
       function ZoomChangeBlocked: Boolean; override;
       procedure OptionsChanged; override;
   public
-    constructor Create(aRender: TKMRender; aUIMode: TUIMode); reintroduce;
+    constructor Create(aRender: TKMRender; aUIMode: TKMUIMode); reintroduce;
     destructor Destroy; override;
 
     procedure MessageIssue(aKind: TKMMessageKind; const aText: UnicodeString); overload;
@@ -364,7 +364,7 @@ type
     procedure AddReplayMark(aTick: Cardinal);
     procedure UpdateReplayMarks;
 
-    property UIMode: TUIMode read fUIMode;
+    property UIMode: TKMUIMode read fUIMode;
 
     procedure SetPause(aValue: Boolean);
     procedure GameStarted;
@@ -835,7 +835,7 @@ begin
 end;
 
 
-constructor TKMGamePlayInterface.Create(aRender: TKMRender; aUIMode: TUIMode);
+constructor TKMGamePlayInterface.Create(aRender: TKMRender; aUIMode: TKMUIMode);
 const
   COLOR_B_SIZE = 20;
 var

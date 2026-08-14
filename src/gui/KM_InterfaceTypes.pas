@@ -5,8 +5,8 @@ uses
   Classes;
 
 type
-  TUIMode = (umSP, umMP, umReplay, umSpectate);
-  TUIModeSet = set of TUIMode;
+  TKMUIMode = (umSP, umMP, umReplay, umSpectate);
+  TKMUIModeSet = set of TKMUIMode;
 
   TKMMenuPageType =  (
     gpMainMenu,
