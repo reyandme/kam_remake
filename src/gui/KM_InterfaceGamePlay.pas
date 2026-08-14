@@ -198,17 +198,20 @@ type
     Sidebar_Bottom: array of TKMImage;
     MinimapView: TKMMinimapView;
 
-    Image_Chat, Image_MPAllies: TKMImage; // Multiplayer buttons
+    Image_Chat: TKMImage;
+    Image_MPAllies: TKMImage; // Multiplayer buttons
     Image_MessageLog: TKMImage;
     Label_ChatUnread: TKMLabel;
     Image_Message: array[0..MAX_VISIBLE_MSGS] of TKMImage; // Queue of messages covers 32*48=1536px height
     Image_Clock: TKMImage; // Clock displayed when game speed is increased
     Label_Time: TKMLabel;
-    Label_ClockSpeedActual, Label_ClockSpeedRecorded: TKMLabel;
+    Label_ClockSpeedActual: TKMLabel;
+    Label_ClockSpeedRecorded: TKMLabel;
 
     Label_ScriptedOverlay: TKMLabel; // Label that can be set from script
     Button_ScriptedOverlay: TKMButton;
-    Label_OverlayShow, Label_OverlayHide: TKMLabel;
+    Label_OverlayShow: TKMLabel;
+    Label_OverlayHide: TKMLabel;
 
     Label_MenuTitle: TKMLabel; // Displays the title of the current menu to the right of return
     Image_DirectionCursor: TKMImage;
@@ -274,29 +277,41 @@ type
       Panel_PlayMoreMsg: TKMPanel;
         Image_PlayMore: TKMImage;
         Label_PlayMore: TKMLabel;
-        Button_PlayMore,Button_PlayMore_ReturnToMapEd,Button_PlayQuit: TKMButton;
+        Button_PlayMore: TKMButton;
+        Button_PlayMore_ReturnToMapEd: TKMButton;
+        Button_PlayQuit: TKMButton;
     Panel_MPPlayMore: TKMPanel;
       Bevel_MPPlayMore: TKMBevel;
       Image_MPPlayMore: TKMImage;
       Label_MPPlayMore: TKMLabel;
-      Button_MPPlayMore,Button_MPPlayQuit: TKMButton;
+      Button_MPPlayMore: TKMButton;
+      Button_MPPlayQuit: TKMButton;
     Panel_NetWait: TKMPanel;
       Bevel_NetWait: TKMBevel;
       Panel_NetWaitMsg: TKMPanel;
         Image_NetWait: TKMImage;
-        Label_NetWait,Label_NetDropPlayersDelay: TKMLabel;
+        Label_NetWait: TKMLabel;
+        Label_NetDropPlayersDelay: TKMLabel;
         Panel_NetWaitButtons: TKMPanel;
-          Button_NetQuit,Button_NetDropPlayers: TKMButton;
+          Button_NetQuit: TKMButton;
+          Button_NetDropPlayers: TKMButton;
         Panel_NetWaitConfirm: TKMPanel;
           Label_NetWaitConfirm: TKMLabel;
-          Button_NetConfirmYes,Button_NetConfirmNo: TKMButton;
+          Button_NetConfirmYes: TKMButton;
+          Button_NetConfirmNo: TKMButton;
     Panel_Menu: TKMPanel;
-      Button_Menu_Save, Button_Menu_Load, Button_Menu_ReturnLobby, Button_Menu_Settings, Button_Menu_Quit,
+      Button_Menu_Save: TKMButton;
+      Button_Menu_Load: TKMButton;
+      Button_Menu_ReturnLobby: TKMButton;
+      Button_Menu_Settings: TKMButton;
+      Button_Menu_Quit: TKMButton;
       Button_ShowStats: TKMButton;
-      Label_GameTime, Label_MapName: TKMLabel;
+      Label_GameTime: TKMLabel;
+      Label_MapName: TKMLabel;
       Panel_Track: TKMPanel;
         Label_Menu_Track: TKMLabel;
-        Button_Menu_TrackUp, Button_Menu_TrackDown: TKMButton;
+        Button_Menu_TrackUp: TKMButton;
+        Button_Menu_TrackDown: TKMButton;
 
       Panel_Save: TKMPanel;
         ListBox_Save: TKMListBox;
@@ -312,7 +327,8 @@ type
 
       Panel_Quit: TKMPanel;
         Label_QuitQuestion: TKMLabel;
-        Button_Quit_Yes, Button_Quit_No: TKMButton;
+        Button_Quit_Yes: TKMButton;
+        Button_Quit_No: TKMButton;
         Button_ReturnToMapEd: TKMButton;
 
       function IsDragScrollingAllowed: Boolean; override;
