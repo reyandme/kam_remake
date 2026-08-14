@@ -25,7 +25,6 @@ type
     gpError
   );
 
-  TGUIEvent = procedure (Sender: TObject; Dest: TKMMenuPageType) of object;
   TKMMenuChangeEventText = procedure (Dest: TKMMenuPageType; const aText: UnicodeString = '') of object;
   TKMToggleLocaleEvent = procedure (const aLocale: AnsiString; aBackToMenuPage: TKMMenuPageType) of object;
 
