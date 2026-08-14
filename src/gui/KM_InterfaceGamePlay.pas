@@ -67,8 +67,8 @@ type
     fHousesTeamNames: TList<TKMHouse>;
     fLastKbdSelectionTime: Cardinal; //Last we select object from keyboard
 
-    fLineIdToNetPlayerId: array [0..MAX_LOBBY_SLOTS - 1] of Integer;
-    fPlayerLinesCnt: Integer;
+    fAllies_LineIdToNetPlayerId: array [0..MAX_LOBBY_SLOTS - 1] of Integer;
+    fAllies_LineCount: Integer;
 
     // Saved (in singleplayer only)
     fLastSaveName: UnicodeString; // The file name we last used to save this file (used as default in Save menu)
@@ -1884,16 +1884,16 @@ begin
 
   if gLog.IsDegubLogEnabled then
     gLog.LogDebug(Format('TKMGamePlayInterface.Allies_mute: Image.tag = %d NetPlayerIndex = %d',
-                         [img.Tag, fLineIdToNetPlayerId[img.Tag]]));
+                         [img.Tag, fAllies_LineIdToNetPlayerId[img.Tag]]));
 
-  gNetworking.ToggleMuted(fLineIdToNetPlayerId[img.Tag]);
+  gNetworking.ToggleMuted(fAllies_LineIdToNetPlayerId[img.Tag]);
   Update_Image_AlliesMute(img);
 end;
 
 
 procedure TKMGamePlayInterface.Update_Image_AlliesMute(aImage: TKMImage);
 begin
-  if gNetworking.IsMuted(fLineIdToNetPlayerId[aImage.Tag]) then
+  if gNetworking.IsMuted(fAllies_LineIdToNetPlayerId[aImage.Tag]) then
   begin
     aImage.Hint := gResTexts[TX_UNMUTE_PLAYER];
     aImage.TexID := 84;
@@ -1912,10 +1912,10 @@ var
   handIdToRoomId: array [0..MAX_HANDS - 1] of Integer;
 begin
   // First empty everything
-  fPlayerLinesCnt := 0;
+  fAllies_LineCount := 0;
 
   for I := 0 to MAX_LOBBY_SLOTS - 1 do
-    fLineIdToNetPlayerId[I] := -1;
+    fAllies_LineIdToNetPlayerId[I] := -1;
 
   for I := 0 to MAX_HANDS - 1 do
     handIdToRoomId[I] := -1;
@@ -1931,7 +1931,7 @@ begin
     for I in teams[J] do
       if handIdToRoomId[I] <> -1 then //handIdToRoomId could -1, if we play in the save, where 1 player left
       begin
-        fLineIdToNetPlayerId[K] := handIdToRoomId[I];
+        fAllies_LineIdToNetPlayerId[K] := handIdToRoomId[I];
         Inc(K);
       end;
 
@@ -1939,11 +1939,11 @@ begin
   for I := 1 to gNetworking.Room.Count do
     if gNetworking.Room[I].IsSpectator then
     begin
-      fLineIdToNetPlayerId[K] := I;
+      fAllies_LineIdToNetPlayerId[K] := I;
       Inc(K);
     end;
 
-  fPlayerLinesCnt := K;
+  fAllies_LineCount := K;
 end;
 
 
@@ -3226,7 +3226,7 @@ begin
   UpdateRoomMapping;
 
   //Hide extra player lines
-  for I := fPlayerLinesCnt to MAX_LOBBY_SLOTS - 1 do
+  for I := fAllies_LineCount to MAX_LOBBY_SLOTS - 1 do
   begin
     Label_AlliesPlayer[I].Hide;
     DropBox_AlliesTeam[I].Hide;
@@ -3234,9 +3234,9 @@ begin
   end;
 
   I := 0;
-  for K := 0 to fPlayerLinesCnt - 1 do
+  for K := 0 to fAllies_LineCount - 1 do
   begin
-    netI := fLineIdToNetPlayerId[K];
+    netI := fAllies_LineIdToNetPlayerId[K];
 
     if netI = -1 then Continue; //In case we have AI players at hand, without NetI
 
@@ -3327,9 +3327,9 @@ begin
   UpdateRoomMapping;
 
   I := 0;
-  for K := 0 to fPlayerLinesCnt - 1 do
+  for K := 0 to fAllies_LineCount - 1 do
   begin
-    slotIndex := fLineIdToNetPlayerId[K];
+    slotIndex := fAllies_LineIdToNetPlayerId[K];
 
     if slotIndex = -1 then Continue; //In case we have AI players at hand, without slotIndex
 
@@ -3340,7 +3340,8 @@ begin
       Label_AlliesPing[I].Caption := WrapColor(IntToStr(ping), GetPingColor(ping));
       Label_AlliesPingFpsSlash[I].Caption := '/';
       Label_AlliesFPS[I].Caption := WrapColor(IntToStr(fps), GetFPSColor(fps));
-    end else begin
+    end else
+    begin
       Label_AlliesPing[I].Caption := '';
       Label_AlliesPingFpsSlash[I].Caption := '';
       Label_AlliesFPS[I].Caption := '';
