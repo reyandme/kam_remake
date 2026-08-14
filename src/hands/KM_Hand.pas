@@ -122,7 +122,7 @@ type
     InCinematic: Boolean;
 
     //Used for syncing hotkeys in multiplayer saves only. UI keeps local value to avoid GIP delays
-    SelectionHotkeys: array[0..DYNAMIC_HOTKEYS_NUM-1] of Integer;
+    SelectionHotkeys: array[0..SELECTION_HOTKEY_COUNT-1] of Integer;
 
     constructor Create(aHandIndex: TKMHandID; aOnAllianceChange: TKMEvent);
     destructor Destroy; override;

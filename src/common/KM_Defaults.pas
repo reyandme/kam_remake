@@ -363,7 +363,7 @@ const
 
   BEACON_COOLDOWN         = 400;  //Minimum time in milliseconds between beacons
 
-  DYNAMIC_HOTKEYS_NUM  = 20; // Number of dynamic hotkeys
+  SELECTION_HOTKEY_COUNT = 20; // Number of selection hotkey slots
 
   GLOBAL_TICK_UPDATE_FREQ = 100; // In ms.
 

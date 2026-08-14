@@ -73,7 +73,7 @@ type
     // Saved (in singleplayer only)
     fLastSaveName: UnicodeString; // The file name we last used to save this file (used as default in Save menu)
     fMessageStack: TKMMessageStack;
-    fSelection: array [0..DYNAMIC_HOTKEYS_NUM - 1] of Integer;
+    fSelection: array [0..SELECTION_HOTKEY_COUNT - 1] of Integer;
 
     procedure Create_Controls;
     procedure Create_Replay;
