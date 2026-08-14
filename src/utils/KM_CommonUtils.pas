@@ -182,19 +182,19 @@ uses
   {$ENDIF}
 
 const
-  DEFAULT_ATTEMPS_CNT_TO_TRY = 3;
+  DEFAULT_ATTEMPTS_CNT_TO_TRY = 3;
 
   function TryExecuteMethod(aMethod: TUnicodeStringEvent; const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
-                            aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
+                            aAttemps: Byte = DEFAULT_ATTEMPTS_CNT_TO_TRY): Boolean; overload;
 
   function TryExecuteMethod(aMethod: TUnicodeStringObjEvent; aObjParam: TObject; const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
-                            aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
+                            aAttemps: Byte = DEFAULT_ATTEMPTS_CNT_TO_TRY): Boolean; overload;
 
   function TryExecuteMethodProc(aMethodProc: TUnicodeStringEventProc; const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
-                                aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
+                                aAttemps: Byte = DEFAULT_ATTEMPTS_CNT_TO_TRY): Boolean; overload;
 
   function TryExecuteMethodProc(aMethodProc: TUnicode2StringEventProc; const aStrParam1, aStrParam2, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
-                                aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean; overload;
+                                aAttemps: Byte = DEFAULT_ATTEMPTS_CNT_TO_TRY): Boolean; overload;
 
 
 var
@@ -1065,7 +1065,7 @@ begin
     Gt := Gt * (Bri * 2);
     Bt := Bt * (Bri * 2);
   end;
-  //if Bri = 127 then color remains the same
+  //if Bri = 0.5 then color remains the same
 
   R := Round(Rt * 255);
   G := Round(Gt * 255);
@@ -1960,7 +1960,7 @@ end;
 
 
 function TryExecuteMethod(aMethod: TUnicodeStringEvent; const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
-                          aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
+                          aAttemps: Byte = DEFAULT_ATTEMPTS_CNT_TO_TRY): Boolean;
 var
   I: Integer;
 begin
@@ -1983,7 +1983,7 @@ end;
 
 
 function TryExecuteMethod(aMethod: TUnicodeStringObjEvent; aObjParam: TObject; const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
-                          aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
+                          aAttemps: Byte = DEFAULT_ATTEMPTS_CNT_TO_TRY): Boolean;
 var
   I: Integer;
 begin
@@ -2006,7 +2006,7 @@ end;
 
 
 function TryExecuteMethodProc(aMethodProc: TUnicodeStringEventProc; const aStrParam, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
-                              aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
+                              aAttemps: Byte = DEFAULT_ATTEMPTS_CNT_TO_TRY): Boolean;
 var
   I: Integer;
 begin
@@ -2029,7 +2029,7 @@ end;
 
 
 function TryExecuteMethodProc(aMethodProc: TUnicode2StringEventProc; const aStrParam1, aStrParam2, aMethodName: UnicodeString; var aErrorStr: UnicodeString;
-                              aAttemps: Byte = DEFAULT_ATTEMPS_CNT_TO_TRY): Boolean;
+                              aAttemps: Byte = DEFAULT_ATTEMPTS_CNT_TO_TRY): Boolean;
 var
   I: Integer;
 begin
