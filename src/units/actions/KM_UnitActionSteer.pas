@@ -9,7 +9,7 @@ uses
 type
   TKMUnitActionSteer = class(TKMUnitAction)
   private
-    fDesireToSteer, fStuckFor: Byte; //Likelihood of changing direction
+    fDesireToSteer, fStuckFor, fWaitTicks: Byte; //Likelihood of changing direction
     fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
     fNextPos: TKMPoint; //The tile we are currently walking to
     procedure IncVertex(const aFrom, aTo: TKMPoint);
@@ -40,6 +40,7 @@ begin
   Assert(aUnit is TKMUnitAnimal); //Only animals do steering
   fVertexOccupied := KMPOINT_ZERO;
   fNextPos        := KMPOINT_ZERO;
+  fWaitTicks      := 0;
 end;
 
 
@@ -59,6 +60,7 @@ begin
   LoadStream.CheckMarker('UnitActionSteer');
   LoadStream.Read(fDesireToSteer);
   LoadStream.Read(fStuckFor);
+  LoadStream.Read(fWaitTicks);
   LoadStream.Read(fVertexOccupied);
   LoadStream.Read(fNextPos);
 end;
@@ -141,6 +143,16 @@ var
   walkX, walkY, distance: Single;
   firstStep: Boolean;
 begin
+  if fWaitTicks > 0 then
+  begin
+    Dec(fWaitTicks);
+    if fWaitTicks > 0 then
+    begin
+      Result := arActContinues;
+      Exit;
+    end;
+  end;
+
   if KMSamePoint(fNextPos, KMPOINT_ZERO) then
   begin
     fNextPos := fUnit.Position; //Set fNextPos to current pos so it initializes on the first run
@@ -171,14 +183,43 @@ begin
       Exit;
     end;
     fStuckFor := 0;
+
+    // If the animal is making a U-turn (stepping back to where it just came from),
+    // add a short delay. This breaks the infinite loop where an animal rapidly 
+    // walks between two tiles and perpetually locks the vertex from citizens.
+    if KMSamePoint(fNextPos, fUnit.PositionPrev) and not firstStep then
+      fWaitTicks := 5 + KaMRandom(30{$IFDEF DBG_RNG_SPY}, 'TKMUnitActionSteer.Execute'{$ENDIF}); // Wait 5-34 ticks before resuming
     
     //Do some house keeping because we have now stepped on a new tile
     fUnit.PositionNext := fNextPos;
     fUnit.Walk(fUnit.PositionPrev, fUnit.PositionNext); //Pre-occupy next tile
-    if KMStepIsDiag(fUnit.PositionPrev,fUnit.PositionNext) then
-      IncVertex(fUnit.PositionPrev,fUnit.PositionNext);
     //Update unit direction so we are facing the way we are going
     fUnit.Direction := KMGetDirection(fUnit.PositionPrev, fUnit.PositionNext);
+
+    if fWaitTicks > 0 then
+    begin
+      Result := arActContinues;
+      Exit;
+    end;
+  end;
+
+  if KMSamePoint(fVertexOccupied, KMPOINT_ZERO) and 
+     KMStepIsDiag(fUnit.PositionPrev, fUnit.PositionNext) then
+  begin
+    if fUnit.VertexUsageCompatible(fUnit.PositionPrev, fUnit.PositionNext) then
+    begin
+      IncVertex(fUnit.PositionPrev, fUnit.PositionNext);
+      fStuckFor := 0;
+    end
+    else
+    begin
+      Inc(fStuckFor);
+      if fStuckFor > STUCK_MAX_TIME then
+        Result := arActAborted
+      else
+        Result := arActContinues;
+      Exit;
+    end;
   end;
 
   walkX := fNextPos.X - fUnit.PositionF.X;
@@ -203,6 +244,7 @@ begin
   SaveStream.PlaceMarker('UnitActionSteer');
   SaveStream.Write(fDesireToSteer);
   SaveStream.Write(fStuckFor);
+  SaveStream.Write(fWaitTicks);
   SaveStream.Write(fVertexOccupied);
   SaveStream.Write(fNextPos);
 end;
