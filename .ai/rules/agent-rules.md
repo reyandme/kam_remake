@@ -19,6 +19,9 @@ These rules define how AI coding agents should behave when working on this proje
 3. **Implement:** Make precise, targeted changes following project conventions.
 4. **Verify:** Ensure the code compiles mentally (check types, method signatures, etc.).
 
+This is the per-task loop. The process around it - issues, branch naming, when tests come before
+the fix, and the check to run before opening a pull request - is in `workflow.md`.
+
 ## When Adding New Features
 
 - Consider savegame serialization immediately when adding new gameplay fields.
