@@ -11,6 +11,7 @@ Comments should not repeat what the code says. If a method is named `GetNewUID`,
 - **Transparent:** It is okay to express a design trade-off or a "thinking-out-loud" moment (e.g., using a question mark to highlight a potential edge case).
 - **Trade-off Transparent:** When a decision is made for a specific reason (e.g., convenience or legacy support), acknowledge the trade-off or the "cost" of that decision (e.g., "Note that generally Strings are faster than AnsiStrings").
 - **Empirical:** When possible, back up performance-related decisions with data (e.g., "NoCompression - 11ms, Fast - 66ms").
+- Use American English for comments.
 
 ## What to Comment
 
@@ -52,8 +53,9 @@ When explaining a set of rules or properties, use a bulleted list format:
 Follow the established project todo format:
 `//todo -category: Description`
 - Example: `//todo -cComplicated: Resolve TDictionary items order consistency.`
+- The word `todo` in the todo comment should be lowercase (e.g. `//todo: Something to change`). Todo may optionally include the category (e.g. `//todo -cPractical: Convert this array into a TList<>`).
 
-Common categories:
+#### Common todo categories:
 - `-cComplicated`: Complex refactoring or architectural issues requiring careful thought.
 - `-cPractical`: Practical improvements, code cleanup, straightforward optimizations.
 - `-cThink`: Ideas worth considering but not yet decided upon.

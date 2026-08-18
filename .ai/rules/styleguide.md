@@ -56,12 +56,3 @@
 
 - Do not use numeric literals directly in logic without a named constant.
 - Exceptions: `0`, `1`, `-1`, and common HTTP codes (200, 404, 500).
-
-## Comments & Language
-
-- Use American English for naming and comments.
-- The word `todo` in the todo comment should be lowercase (e.g. `//todo: Something to change`). Todo may optionally include the category (e.g. `//todo -cPractical: Convert this array into a TList<>`).
-- Common TODO categories used in the project:
-  - `-cComplicated`: Complex refactoring or design issues.
-  - `-cPractical`: Practical improvements, code cleanup, optimization opportunities.
-  - `-cThink`: Ideas worth considering but not yet decided.
