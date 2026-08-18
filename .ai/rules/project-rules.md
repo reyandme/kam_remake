@@ -48,7 +48,7 @@ When unsure, treat code as gameplay simulation code.
 - Primary Type: All gameplay simulation calculations must use integers (e.g. `Byte`, `ShortInt`, `Word`, `Integer`, etc.) or 32-bit floats (only `Single` is allowed). Do not use `Double`, `Real` or `Extended` to prevent precision mismatches. Do not use `Currency` either.
 - Consistency: Since the project relies on floating-point determinism on Windows, it is critical that the same sequence of operations is performed on all clients. Avoid logic that might lead to different calculation paths for the same result, as this can cause divergent float values.
 - Comparison: Equality checks (`=`, `<>`) are permitted for `Single` values when they result from identical calculation paths. Do not use `Epsilon` unless it is actually needed.
-- Rounding: Standard Delphi `Round`, `Trunc` are used for converting values to integers. `Ceil` is also available.
+- Rounding: Standard Delphi `Round`, `Trunc` and `Ceil` are used for converting values to integers.
 - Library Usage: Use `KM_Math` or `KM_CommonUtils` for common math and utility operations.
 
 ### Threading and Execution Model
