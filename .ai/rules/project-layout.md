@@ -28,3 +28,23 @@
 - `KM_Game` (`src/game/KM_Game.pas`) is the central game session manager class `TKMGame`.
 - `KM_GameApp` (`src/KM_GameApp.pas`) is the high-level application controller `TKMGameApp`.
 - `KM_Main` (`src/KM_Main.pas`) provides the main loop and window management via `TKMMain`.
+
+## Global instances
+
+Game engine relies on several globally accessed instances:
+
+| Name | What it is |
+|---|---|
+| `gGameApp` | Application controller, owns the game and the main menu |
+| `gGame` | Current game session |
+| `gHands` | Owner of all hands, and through them all units, houses and groups |
+| `gTerrain` | The tile grid and a lot of things associated with terrian |
+| `gRes` | Game assets (resources) and specs - units, houses, wares, sprites, fonts, cursors, etc. |
+| `gResTexts` | Provider of localized game texts |
+| `gMySpectator` | Currently selected hand and entity |
+| `gLog` | Global logger |
+| `gRender`, `gRenderPool` | Rendering |
+| `gScriptEvents` | Dispatches events to mission scripts |
+
+`gMySpectator`, `gRender`, `gRenderPool`, `gSoundPlayer` and the settings globals are on the
+presentation side of the determinism boundary described in `project-rules.md`.
