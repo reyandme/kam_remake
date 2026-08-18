@@ -23,9 +23,9 @@ When unsure, treat code as gameplay simulation code.
 
 - Gameplay simulation logic must remain deterministic.
 - Do not change savegame/replay/network determinism without explicit approval.
-- The game must use its own deterministic RNG, accessible via `gRandom`, for all gameplay simulation logic.
+- The game must use its own deterministic RNG, accessible via the game engine RNG (KaMRandom family), for all gameplay simulation logic.
 - System random is only allowed for non-gameplay things.
-- Gameplay `gRandom` should not be used for non-gameplay things.
+- Gameplay RNG (KaMRandom family) should not be used for non-gameplay things.
 - Gameplay should behave exactly the same regardless of GFX and SFX settings (even in headless mode or without a soundcard detected).
 - Gameplay simulation must not rely on unordered or unspecified execution order. All ordering that can affect gameplay must be explicit and deterministic.
 - Gameplay simulation must not depend on memory addresses, pointer values, object allocation order, hash randomization, container bucket order, or unstable sorting.
@@ -38,7 +38,7 @@ When unsure, treat code as gameplay simulation code.
 
 - Players input during gameplay should go through GameInputProcess, so that it can be recorded for the Replays and relayed to other players in Multiplayer.
 - `GameInputProcess` should be the single entry point for all gameplay input.
-- AI planning and action selection are gameplay simulation logic, so they must be deterministic, use `gRandom` only, serialize all relevant state.
+- AI planning and action selection are gameplay simulation logic, so they must be deterministic, use the game engine RNG (KaMRandom family) only, serialize all relevant state.
 - It is not needed to route AI player-equivalent commands through `GameInputProcess`, since AI behavior is expected to be fully deterministic.
 - Map Editor is often allowed to edit gameplay elements state directly, for simplicity. It is important to guard those places from being used in Gameplay by accident.
 - Debug, logging, metrics, assertions, or diagnostics must not mutate gameplay state.
@@ -84,8 +84,8 @@ When unsure, treat code as gameplay simulation code.
   - *Rule:* Maintain strict command sequencing and implement robust catch-up/resync logic for disconnected players.
 
 ### Randomness & Hidden Dependencies
-- **Silent RNG consumption:** Skipping `gRandom` calls (e.g., when sound is off) desynchronizes the RNG sequence for subsequent gameplay events.
-  - *Rule:* Always consume `gRandom` in the exact same order, regardless of GFX/SFX settings or visual/audio output.
+- **Silent RNG consumption:** Skipping the game engine RNG (KaMRandom family) calls (e.g., when sound is off) desynchronizes the RNG sequence for subsequent gameplay events.
+  - *Rule:* Always consume the game engine RNG (KaMRandom family) in the exact same order, regardless of GFX/SFX settings or visual/audio output.
 - **Camera & presentation bleed:** Relying on camera position, frame time, or render state to trigger simulation updates (e.g., fog-of-war chunk loading) causes machine-dependent behavior.
   - *Rule:* Decouple simulation triggers from presentation state. Use fixed tick-based or event-driven updates independent of the viewport.
 
