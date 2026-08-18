@@ -16,6 +16,7 @@ Read `.ai/rules/agent-rules.md` first, then whichever of the others the task tou
 | File | Read it when you need |
 |---|---|
 | [.ai/rules/agent-rules.md](.ai/rules/agent-rules.md) | How to behave: understand before acting, workflow, adding features, refactoring, communication |
+| [.ai/rules/workflow.md](.ai/rules/workflow.md) | Getting a change merged: issues, branch naming, tests-before-fix for bugs, the pre-PR re-check |
 | [.ai/rules/project.md](.ai/rules/project.md) | What KaM Remake is: concept, features, technology, architecture, terminology, build system |
 | [.ai/rules/project-layout.md](.ai/rules/project-layout.md) | Where code lives: repository layout, file and unit organization, project registration, global singletons |
 | [.ai/rules/project-rules.md](.ai/rules/project-rules.md) | Engine rules: world representation, the determinism boundary, savegame serialization, entity pointers, headless mode |
@@ -24,6 +25,13 @@ Read `.ai/rules/agent-rules.md` first, then whichever of the others the task tou
 | [.ai/rules/comments.md](.ai/rules/comments.md) | Writing comments: philosophy, tone, what to comment, structural rules |
 | [.ai/rules/testing.md](.ai/rules/testing.md) | Tests: the two test projects, how to write and run each of them |
 | [.ai/rules/tools-and-utils.md](.ai/rules/tools-and-utils.md) | Anything under `Utils/`: what each tool is for, status matrix, maintenance |
+
+## Work is tracked on GitHub
+
+Every change starts from an issue, branches as `feature/<issue>-short-title` or
+`bugfix/<issue>-short-title`, and for a bug the reproducing test lands in its own pull request
+before the fix. Before opening any pull request, check the work against the issue and the rules
+again, and keep checking until the pass comes back clean. See `.ai/rules/workflow.md`.
 
 ## When invoked
 
