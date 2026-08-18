@@ -28,9 +28,9 @@ Read `.ai/rules/agent-rules.md` first, then whichever of the others the task tou
 
 ## Work is tracked on GitHub
 
-Every change starts from an issue, branches as `feature/<issue>-short-title` or
+Every change to the game starts from an issue and branches as `feature/<issue>-short-title` or
 `bugfix/<issue>-short-title`, and for a bug the reproducing test lands in its own pull request
-before the fix. Before opening any pull request, check the work against the issue and the rules
+before the fix. Documentation, rules and tooling go on a `docs/` branch and need neither. Before opening any pull request, check the work against the issue and the rules
 again, and keep checking until the pass comes back clean. See `.ai/rules/workflow.md`.
 
 ## When invoked

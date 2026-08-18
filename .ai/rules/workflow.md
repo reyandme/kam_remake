@@ -3,7 +3,7 @@
 How a change gets from an idea to a merged pull request. This is about process; what the code
 itself has to look like is in the other rule files.
 
-## Every change starts from a GitHub issue
+## Every change to the game starts from a GitHub issue
 
 The issue is what the branch is named after and what the pull request closes, and it is where the
 problem is described so that the pull request can stay about the solution. If there is no issue
@@ -14,6 +14,7 @@ for the task yet, open one before starting.
 ```
 feature/<issue>-short-title
 bugfix/<issue>-short-title
+docs/short-title
 ```
 
 The issue number comes first, then a short lowercase kebab-case title - enough to recognise the
@@ -22,7 +23,19 @@ branch in a list, not a summary of the change. As used in the repository:
 ```
 feature/2226-animals-can-block-units
 bugfix/300-barracks-recruits-list
+docs/ai-agent-rules
 ```
+
+`docs/` covers documentation, the agent rules themselves, and build, CI and tooling
+configuration. It is the one prefix that does not need an issue, since there is often nothing to
+describe beyond the change itself - use `docs/<issue>-short-title` when an issue does exist. It is
+also the one prefix that is not split into a test pull request and a fix pull request, because
+there is no behaviour to reproduce.
+
+That exemption is exactly as narrow as it sounds: a change that touches `src/` is a feature or a
+bug fix, whatever else it also does. Infrastructure work on the engine - a new harness capability,
+something made testable - carries an issue and follows the rules for its kind. `docs/` is not a
+way around writing the test first.
 
 ## Bugs: the test comes first, in its own pull request
 
