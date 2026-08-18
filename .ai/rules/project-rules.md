@@ -69,6 +69,26 @@ When unsure, treat code as gameplay simulation code.
 - Do not add non-serialized gameplay-affecting defaults during load unless they are deterministically derived from serialized data.
 - Any newly added gameplay field must be considered for savegame serialization, replay determinism, and multiplayer determinism at the time it is added.
 
+### How serialization is written
+
+Every class that needs to be serialized implements the same three methods:
+
+- `Save(SaveStream)` writes the state into the provided stream. References to other entities are replaced with their UIDs.
+- `Load(LoadStream)` reads the state back in exactly the same order. References to other entities are read as raw UIDs into the pointer fields at this point - they are not valid objects yet.
+- `SyncLoad` performed after everything is loaded by the game. Now those raw UIDs get converted into real references, using locators in gHands (`gHands.GetUnitByUID` / `gHands.GetHouseByUID` / `gHands.GetGroupByUID`).
+
+`Save` and `Load` are self-checking, they write and read markers (`SaveStream.PlaceMarker('Name')` / `LoadStream.CheckMarker('Name')`). We place a marker at the start of every `Save`, so that a mismatch between Save and Load is reported where it happened rather than as garbage data much later.
+
+## Entity pointers and lifetime
+
+Units, houses and groups use custom reference counting - so that an entity is not freed while some other object still points at it.
+
+- `GetPointer` returns the entity and increments its counter; `ReleasePointer` decrements it.
+- `TKMUnitsCollection` / `TKMHousesCollection` free an entity only once it is both killed or destroyed **and** its `PointerCount` reaches zero. Until then the object stays available
+  with `IsDestroyed` / `IsDead` set, so callers must check those flags rather than assume that a non-nil reference means a live entity.
+- Release through `gHands.CleanUpUnitPointer` / `CleanUpHousePointer` / `CleanUpGroupPointer`, which releases and nils the field in one step.
+- A field that stores an entity for longer than the current call, must hold a counted reference. A local variable used within one method does not.
+  
 ## Common Sources of Hard-to-Track Bugs & Mitigations
 
 ### Serialization & State Management
