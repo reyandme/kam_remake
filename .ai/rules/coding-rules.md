@@ -20,6 +20,7 @@
 - Avoid using class helpers and record helpers, they reduce clarity of the code.
 - Using pointers and pointer math is okay in some performance-critical places.
 - Do not use `with` - it hides which scope a name comes from.
+- Use American English for naming and comments.
 
 ## Delphi language rules (what Delphi language allows for)
 
@@ -31,16 +32,9 @@
 
 ## Compiler Directives
 
-- Every project unit must include compiler directives on line 2:
-  - `{$I KaM_Remake.inc}` — for units in the `src/` root.
+- Every project unit must include common compiler directives on line 2:
+  - `{$I KaM_Remake.inc}` � for units in the `src/` root.
   - or relative path equivalent (e.g. `{$I ../KaM_Remake.inc}`) for units in subdirectories.
-- Common compiler defines (defined in `KaM_Remake.inc`):
-  - `WDC` — Windows Delphi Compiler.
-  - `FPC` — Free Pascal Compiler (Lazarus).
-  - `MSWindows` / `Unix` — Platform-specific.
-  - `USE_MAD_EXCEPT` — madExcept crash reporting enabled.
-  - `DBG_PERFLOG` — Performance logging enabled.
-  - `DBG_RNG_SPY` — RNG validation checks enabled.
 
 ## Error handling
 
