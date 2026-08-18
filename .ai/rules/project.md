@@ -41,7 +41,7 @@
 - Multiplayer works by exchanging player input (commands) via server with each other. Then players perform game simulation. With identical input and full determinism it is guaranteed that the gameplay is identical.
 - AI has two systems: legacy AI (`src/ai/`) and newAI (`src/ai/newAI/`). NewAI loosely follows GOAP (Goal-Oriented Action Planning).
 - Missions use PascalScript for dynamic scripting.
-- Execution Model: Single-threaded main loop. Input → Simulation Tick → Rendering. Worker threads used for savegame I/O, asset loading, and other background tasks.
+- Execution Model: Single-threaded main loop. Input -> Simulation Tick -> Rendering. Worker threads used for savegame I/O, asset loading, and other background tasks.
 - Rendering: Custom engine using OpenGL.
 
 ## Terminology
@@ -54,19 +54,6 @@
 - "Command" is a deterministic input action sent by a player or AI to modify the game state.
 - "GIP" stands for GameInputProcess, the single entry point for gameplay input.
 - "GIC" stands for Game Input Command.
-
-## Compiler & Build System
-
-- Primary compiler: Delphi 10 through Delphi 13 (Win32). Also supports Lazarus/FPC.
-- Compiler defines are managed in `KaM_Remake.inc`:
-  - `WDC` — Windows Delphi Compiler.
-  - `FPC` — Free Pascal Compiler (Lazarus).
-  - `USE_MAD_EXCEPT` — Enable madExcept crash reporting.
-  - `DBG_PERFLOG` — Enable performance logging.
-  - `DBG_RNG_SPY` — Enable RNG validation checks.
-  - `KMR_GAME` — Game-specific features (not needed for server/tools).
-  - `LOAD_GAME_RES_ASYNC` — Asynchronous game resource loading.
-- Warnings promoted to errors in `KaM_Remake.inc` for safety.
 
 ## References
 
