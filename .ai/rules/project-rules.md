@@ -23,9 +23,13 @@ When unsure, treat code as gameplay simulation code.
 
 - Gameplay simulation logic must remain deterministic.
 - Do not change savegame/replay/network determinism without explicit approval.
-- The game must use its own deterministic RNG, accessible via the game engine RNG (KaMRandom family), for all gameplay simulation logic.
+- The game must use its own deterministic RNG for all gameplay simulation logic. It lives in `KM_CommonUtils` as `KaMRandom` and its variants (`KaMRandomI2`, `KaMRandomS1`, `KaMRandomS2`, ...), seeded by `SetKaMSeed`. There is no `gRandom` global.
+- Every gameplay RNG call passes the calling method as a label under the RNG spy define, so that a desync can be traced back to the exact call site. Keep this up in new code:
+  ```pascal
+  SetActionStay(20 + KaMRandom(10{$IFDEF DBG_RNG_SPY}, 'TKMTaskGoOutShowHungry.Execute'{$ENDIF}), uaWalk);
+  ```
 - System random is only allowed for non-gameplay things.
-- Gameplay RNG (KaMRandom family) should not be used for non-gameplay things.
+- The gameplay RNG should not be used for non-gameplay things.
 - Gameplay should behave exactly the same regardless of GFX and SFX settings (even in headless mode or without a soundcard detected).
 - Gameplay simulation must not rely on unordered or unspecified execution order. All ordering that can affect gameplay must be explicit and deterministic.
 - Gameplay simulation must not depend on memory addresses, pointer values, object allocation order, hash randomization, container bucket order, or unstable sorting.
@@ -38,7 +42,7 @@ When unsure, treat code as gameplay simulation code.
 
 - Players input during gameplay should go through GameInputProcess, so that it can be recorded for the Replays and relayed to other players in Multiplayer.
 - `GameInputProcess` should be the single entry point for all gameplay input.
-- AI planning and action selection are gameplay simulation logic, so they must be deterministic, use the game engine RNG (KaMRandom family) only, serialize all relevant state.
+- AI planning and action selection are gameplay simulation logic, so they must be deterministic, use the gameplay RNG only, serialize all relevant state.
 - It is not needed to route AI player-equivalent commands through `GameInputProcess`, since AI behavior is expected to be fully deterministic.
 - Map Editor is often allowed to edit gameplay elements state directly, for simplicity. It is important to guard those places from being used in Gameplay by accident.
 - Debug, logging, metrics, assertions, or diagnostics must not mutate gameplay state.
@@ -71,24 +75,33 @@ When unsure, treat code as gameplay simulation code.
 
 ### How serialization is written
 
-Every class that needs to be serialized implements the same three methods:
+Every serializable class implements the same three steps, and they must stay symmetrical:
 
-- `Save(SaveStream)` writes the state into the provided stream. References to other entities are replaced with their UIDs.
-- `Load(LoadStream)` reads the state back in exactly the same order. References to other entities are read as raw UIDs into the pointer fields at this point - they are not valid objects yet.
-- `SyncLoad` performed after everything is loaded by the game. Now those raw UIDs get converted into real references, using locators in gHands (`gHands.GetUnitByUID` / `gHands.GetHouseByUID` / `gHands.GetGroupByUID`).
+- `Save(SaveStream)` writes the state.
+- `Load(LoadStream)` reads it back in exactly the same order. References to other entities are
+  read as raw UIDs into the pointer fields at this point - they are not valid objects yet.
+- `SyncLoad` converts those UIDs back into real references, once every entity exists:
+  `gHands.GetUnitByUID` / `gHands.GetHouseByUID` / `gHands.GetGroupByUID`.
 
-`Save` and `Load` are self-checking, they write and read markers (`SaveStream.PlaceMarker('Name')` / `LoadStream.CheckMarker('Name')`). We place a marker at the start of every `Save`, so that a mismatch between Save and Load is reported where it happened rather than as garbage data much later.
+Streams are self-checking: `SaveStream.PlaceMarker('Name')` writes a marker that
+`LoadStream.CheckMarker('Name')` verifies on load. Place one at the start of every block, so a
+mismatch is reported where it happened rather than as garbage data much later.
 
 ## Entity pointers and lifetime
 
-Units, houses and groups use custom reference counting - so that an entity is not freed while some other object still points at it.
+Units, houses and groups are reference counted, but not by the compiler - the counting is
+explicit and exists so that an entity is not freed while some other object still points at it.
 
 - `GetPointer` returns the entity and increments its counter; `ReleasePointer` decrements it.
-- `TKMUnitsCollection` / `TKMHousesCollection` free an entity only once it is both killed or destroyed **and** its `PointerCount` reaches zero. Until then the object stays available
-  with `IsDestroyed` / `IsDead` set, so callers must check those flags rather than assume that a non-nil reference means a live entity.
-- Release through `gHands.CleanUpUnitPointer` / `CleanUpHousePointer` / `CleanUpGroupPointer`, which releases and nils the field in one step.
-- A field that stores an entity for longer than the current call, must hold a counted reference. A local variable used within one method does not.
-  
+- `TKMUnitsCollection` / `TKMHousesCollection` free an entity only once it is both dead or
+  destroyed **and** its `PointerCount` has dropped to zero. Until then the object stays alive
+  with `IsDestroyed` / `IsDead` set, so callers must check those flags rather than assume that
+  a non-nil reference means a live entity.
+- Release through `gHands.CleanUpUnitPointer` / `CleanUpHousePointer` / `CleanUpGroupPointer`,
+  which release and nil the field in one step.
+- A field that stores an entity for longer than the current call must hold a counted reference.
+  A local variable used within one method does not.
+
 ## Common Sources of Hard-to-Track Bugs & Mitigations
 
 ### Serialization & State Management
@@ -104,8 +117,8 @@ Units, houses and groups use custom reference counting - so that an entity is no
   - *Rule:* Maintain strict command sequencing and implement robust catch-up/resync logic for disconnected players.
 
 ### Randomness & Hidden Dependencies
-- **Silent RNG consumption:** Skipping the game engine RNG (KaMRandom family) calls (e.g., when sound is off) desynchronizes the RNG sequence for subsequent gameplay events.
-  - *Rule:* Always consume the game engine RNG (KaMRandom family) in the exact same order, regardless of GFX/SFX settings or visual/audio output.
+- **Silent RNG consumption:** Skipping gameplay RNG calls (e.g., when sound is off) desynchronizes the RNG sequence for subsequent gameplay events.
+  - *Rule:* Always consume the gameplay RNG in the exact same order, regardless of GFX/SFX settings or visual/audio output.
 - **Camera & presentation bleed:** Relying on camera position, frame time, or render state to trigger simulation updates (e.g., fog-of-war chunk loading) causes machine-dependent behavior.
   - *Rule:* Decouple simulation triggers from presentation state. Use fixed tick-based or event-driven updates independent of the viewport.
 
