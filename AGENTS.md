@@ -17,6 +17,7 @@ Read `.ai/rules/agent-rules.md` first, then whichever of the others the task tou
 |---|---|
 | [.ai/rules/agent-rules.md](.ai/rules/agent-rules.md) | How to behave: understand before acting, workflow, adding features, refactoring, communication |
 | [.ai/rules/workflow.md](.ai/rules/workflow.md) | Getting a change merged: issues, branch naming, tests-before-fix for bugs, the pre-PR re-check |
+| [.ai/rules/pull-request.md](.ai/rules/pull-request.md) | Writing the pull request body: linking the issue, review intent, what was verified and what was not |
 | [.ai/rules/project.md](.ai/rules/project.md) | What KaM Remake is: concept, features, technology, architecture, terminology, build system |
 | [.ai/rules/project-layout.md](.ai/rules/project-layout.md) | Where code lives: repository layout, file and unit organization, project registration, global singletons |
 | [.ai/rules/project-rules.md](.ai/rules/project-rules.md) | Engine rules: world representation, the determinism boundary, savegame serialization, entity pointers, headless mode |
