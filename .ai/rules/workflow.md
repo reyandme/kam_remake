@@ -75,9 +75,13 @@ Not a glance over the diff - a fresh pass with the issue open next to it:
 **If anything is off, fix it and run the pass again from the top.** The check is repeated until it
 comes back clean, not performed once and filed away.
 
+What the pull request body itself has to contain - and why `Related to` is the default rather than
+`Closes` - is in `pull-request.md`. The outcome of this check is part of it: the scope bullets and
+the verification section are where it gets written down.
+
 ## Review
 
 Answer review comments where they were made, and say what changed rather than only that you
 agree. When a comment leads to a different change than the one suggested, or when something else
 gets changed along the way, say that in the pull request too - a reviewer should never have to
-discover an unexplained rename in a force-push.
+discover an unexplained rename in a force-push. See `pull-request.md`.
