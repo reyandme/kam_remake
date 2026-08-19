@@ -9,7 +9,6 @@
 - Private class fields must use prefix `f`.
 - Global variables must use prefix `g`.
 - All non-library enum type, class and record names must have prefix `TKM`.
-- File names of project units must have `KM_` prefix.
 - Constants must be UPPER_CASE (e.g. `MAX_HANDS`, `PI`).
 - Do not use abbreviations unless universally understood (`id`, `url`, `html` allowed).
 - Enum values use PascalCase with 2-letter prefix:

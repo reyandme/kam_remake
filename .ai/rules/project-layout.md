@@ -15,9 +15,6 @@
   - `KM_Log.pas` - `TKMLog`
   - `KM_AINavMesh.pas` - `TKMAINavMesh`
 - All project unit files must use `KM_` prefix (except for third-party).
-- Every unit (except third-party) must include compiler directives on line 2:
-  - `{$I KaM_Remake.inc}`.
-  - or relative path equivalent (e.g. `{$I ../KaM_Remake.inc}`).
 - Ignore files in the `__history` folders, they are backups saved by Delphi IDE and are not representative of project history.
 
 ## Specific units
