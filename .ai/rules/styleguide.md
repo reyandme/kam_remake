@@ -55,3 +55,7 @@
 
 - Do not use numeric literals directly in logic without a named constant.
 - Exceptions: `0`, `1`, `-1`, and common HTTP codes (200, 404, 500).
+
+## Language
+
+- Use American English for naming and comments.

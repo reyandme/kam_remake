@@ -20,7 +20,6 @@
 - Avoid using class helpers and record helpers, they reduce clarity of the code.
 - Using pointers and pointer math is okay in some performance-critical places.
 - Do not use `with` - it hides which scope a name comes from.
-- Use American English for naming and comments.
 
 ## Delphi language rules (what Delphi language allows for)
 

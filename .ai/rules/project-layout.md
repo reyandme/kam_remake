@@ -15,7 +15,8 @@
   - `KM_Log.pas` - `TKMLog`
   - `KM_AINavMesh.pas` - `TKMAINavMesh`
 - All project unit files must use `KM_` prefix (except for third-party).
-- Ignore files in the `__history` folders, they are backups saved by Delphi IDE and are not representative of project history.
+- Ignore any files in `__history` and `__recovery` subfolders, they are backups saved by Delphi IDE and are not representative of project history.
+- Ignore `.bak` files everywhere, they are backups saved by WinMerge and are irrelevant to anything.
 
 ## Specific units
 
