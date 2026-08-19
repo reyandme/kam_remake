@@ -19,7 +19,7 @@ Read `.ai/rules/agent-rules.md` first, then whichever of the others the task tou
 | [.ai/rules/workflow.md](.ai/rules/workflow.md) | Getting a change merged: issues, branch naming, tests-before-fix for bugs, the pre-PR re-check |
 | [.ai/rules/pull-request.md](.ai/rules/pull-request.md) | Writing the pull request body: linking the issue, review intent, what was verified and what was not |
 | [.ai/rules/project.md](.ai/rules/project.md) | What KaM Remake is: concept, features, technology, architecture, terminology, build system |
-| [.ai/rules/project-layout.md](.ai/rules/project-layout.md) | Where code lives: repository layout, file and unit organization, project registration, global singletons |
+| [.ai/rules/project-layout.md](.ai/rules/project-layout.md) | Where code lives: repository layout, file and unit organization, project registration, global instances |
 | [.ai/rules/project-rules.md](.ai/rules/project-rules.md) | Engine rules: world representation, the determinism boundary, savegame serialization, entity pointers, headless mode |
 | [.ai/rules/coding-rules.md](.ai/rules/coding-rules.md) | Writing code: general rules, Delphi language rules, compiler directives, error handling, uses clause ordering |
 | [.ai/rules/styleguide.md](.ai/rules/styleguide.md) | Naming and formatting: prefixes, casing, layout, no magic numbers |
@@ -44,16 +44,17 @@ again, and keep checking until the pass comes back clean. See `.ai/rules/workflo
 
 ## Determinism comes first
 
-The gameplay simulation must produce identical results on every machine, because Multiplayer,
-Replays and Savegames all depend on it. This is the one thing that is easy to break by accident
-and expensive to debug afterwards, so it outranks readability, performance and convenience.
+The gameplay simulation must produce identical results on every machine, because Multiplayer and
+Replays both depend on it. This is the one thing that is easy to break by accident and expensive
+to debug afterwards, so it outranks readability, performance and convenience.
 
 `.ai/rules/project-rules.md` defines exactly where the boundary runs and what is forbidden on
 the simulation side. The short version:
 
 - Use the project RNG (`KaMRandom` and friends), never `Random`, and keep the call order stable.
-- Do not read real time, frame time, render state, UI state, camera position or pointer values.
-- Do not rely on container iteration order.
+- Do not read real time, frame time, render state, UI state, or camera position from simulation code.
+- Do not let gameplay logic depend on memory addresses, pointer values, or allocation order.
+- Do not rely on iteration order of unordered containers (`TDictionary`); use `TList<>` or another ordered structure when sequence matters.
 - Any new gameplay field must be considered for savegame serialization at the moment it is added.
 
 ## A new unit is not part of the project until it is registered
