@@ -21,13 +21,17 @@
 - Using pointers and pointer math is okay in some performance-critical places.
 - Do not use `with` - it hides which scope a name comes from.
 
-## Delphi language rules (what Delphi language allows for)
+## Delphi language features (what Delphi language allows for)
 
 - Delphi is case-insensitive to variable names and type names.
 - Unlike many languages, Delphi uses inverse order of RGBA components when they are written as hex. (e.g. `$80FF0000` is a half-transparent Blue, `$00FFFF` is a Yellow).
 - Division in Delphi is always performed in floating point and result is promoted to floating point. (e.g. `5 / 2` automatically produces `2.5`).
 - Instance methods work fine on `nil` as long as they don't dereference `Self`. `if Self = nil then Exit;` is a perfectly fine guard to prevent entering into nil instances.
-- IMPORTANT! Accessing an array of arrays DOES NOT require separate brackets `[][]`. A comma-separated list `[,]` is a valid syntax.
+- Accessing an array of arrays DOES NOT require separate brackets `[][]`. A comma-separated list `[,]` is a valid syntax.
+
+## Delphi project rules
+
+- New units must be registered in the project file (`.dpr`, the `uses ... in 'path'` list) to be included in the build.
 
 ## Compiler Directives
 
