@@ -292,7 +292,7 @@ uses
   KM_CommonUtils;
 
 
-  //We need to check all input parameters as could be wildly off range due to
+  //We need to check all input parameters as they could be wildly out of range due to
   //mistakes in scripts. In that case we have two options:
   // - skip silently and log
   // - report to player
@@ -4427,7 +4427,7 @@ end;
 
 
 //* Version: 11000
-//* Check if tile at XY coordinates has only requested terrain kind. F.e. water, but no transition with shallow or stone.
+//* Check if tile at XY coordinates has only requested terrain kind. For example water, but no transition with shallow or stone.
 //* Result: Tile has only requested terrain kind
 function TKMScriptStates.MapTileHasOnlyTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean;
 begin
@@ -4447,7 +4447,7 @@ end;
 
 
 //* Version: 11000
-//* Check if tile at XY coordinates has only requested terrain kinds. F.e. water and stone, but no dirt
+//* Check if tile at XY coordinates has only requested terrain kinds. For example water and stone, but no dirt
 //* Result: Tile has only requested terrain kinds
 function TKMScriptStates.MapTileHasOnlyTerrainKinds(X, Y: Integer; TerKinds: array of TKMTerrainKind): Boolean;
 begin
@@ -4467,7 +4467,7 @@ end;
 
 
 //* Version: 11000
-//* Check if tile at XY coordinates has a part of requested terrain kind. F.e. water tile has corner transition with dirt
+//* Check if tile at XY coordinates has a part of requested terrain kind. For example water tile has corner transition with dirt
 //* Result: Tile has requested terrain kind part
 function TKMScriptStates.MapTileHasTerrainKind(X, Y: Integer; TerKind: TKMTerrainKind): Boolean;
 begin
@@ -4549,7 +4549,7 @@ end;
 
 //* Version: 11750
 //* Check if tile at the specified XY coordinates is within map borders (map has specified XY coordinates).
-//* F.e. coordinates (150, 200) are invalid for 128x128 map and not within map borders
+//* For example coordinates (150, 200) are invalid for 128x128 map and not within map borders
 //* Result: tile is in map coordinates
 function TKMScriptStates.MapTileIsInMapCoords(X, Y: Integer): Boolean;
 begin

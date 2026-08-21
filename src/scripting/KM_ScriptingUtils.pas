@@ -889,7 +889,7 @@ end;
 
 //* Version: 7000+
 //* Exponentation, base 'Base' raised to power 'Exp'.
-//* F.e. Power(3, 2) = 3^2 = 9
+//* For example Power(3, 2) = 3^2 = 9
 //* Returns base "Base" raised to power "Exp"
 function TKMScriptUtils.Power(aBase, aExp: Extended): Extended;
 begin
@@ -957,7 +957,7 @@ end;
 
 //* Version: 7000+
 //* Rounds specified single number aValue to nearest multiple of specified base aBase. Rounding up.
-//* F.e. CeilTo(11.7, 5) = 15 while CeilTo(-11.7, 5) = -10
+//* For example CeilTo(11.7, 5) = 15 while CeilTo(-11.7, 5) = -10
 function TKMScriptUtils.CeilTo(aValue: Single; aBase: Integer): Integer;
 begin
   try
@@ -971,7 +971,7 @@ end;
 
 //* Version: 7000+
 //* Rounds specified single number aValue to nearest multiple of specified base aBase. Rounding down.
-//* F.e. FloorTo(11.7, 5) = 10 while FloorTo(-11.7, 5) = -15
+//* For example FloorTo(11.7, 5) = 10 while FloorTo(-11.7, 5) = -15
 function TKMScriptUtils.FloorTo(aValue: Single; aBase: Integer): Integer;
 begin
   try
@@ -986,7 +986,7 @@ end;
 //* Version: 12400+
 //* Rounds specified single number aValue to nearest multiple of specified base aBase. Rounding to the nearest integer.
 //* If the number is exactly midway between two integers, then it rounds towards the even one (multiplied on aBase).
-//* F.e. RoundTo(11.7, 5) = 10 while RoundTo(-11.7, 5) = -10
+//* For example RoundTo(11.7, 5) = 10 while RoundTo(-11.7, 5) = -10
 //* RoundTo(12.5, 5) = 10 while RoundTo(17.5, 5) = 20
 function TKMScriptUtils.RoundTo(aValue: Single; aBase: Integer): Integer;
 begin
@@ -1001,7 +1001,7 @@ end;
 
 //* Version: 12400+
 //* Rounds specified single number aValue to nearest multiple of specified base aBase. Rounding to zero.
-//* F.e. TruncTo(11.7, 5) = 10 while TruncTo(-11.7, 5) = -10
+//* For example TruncTo(11.7, 5) = 10 while TruncTo(-11.7, 5) = -10
 function TKMScriptUtils.TruncTo(aValue: Single; aBase: Integer): Integer;
 begin
   try

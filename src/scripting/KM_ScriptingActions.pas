@@ -265,7 +265,7 @@ uses
 const
   MIN_SOUND_AT_LOC_RADIUS = 28;
 
-  //We need to check all input parameters as could be wildly off range due to
+  //We need to check all input parameters as they could be wildly out of range due to
   //mistakes in scripts. In that case we have two options:
   // - skip silently and log
   // - report to player
@@ -2079,7 +2079,7 @@ end;
 
 //* Version: 15000
 //* Adds fish to a specified position with aCount fish available to catch
-//* aCount should be in range of 1 to 255
+//* aCount should be in the range 1 to 255
 //* Returns the unit ID or -1 if the fish was not able to be added
 function TKMScriptActions.GiveFish(X, Y, aCount : Integer): Integer;
 var
@@ -3103,7 +3103,7 @@ end;
 
 
 //* Version: 7000+
-//* Set TownHall Max Gold parameter (how many gold could be delivered in it)
+//* Set TownHall Max Gold parameter (how much gold could be delivered to it)
 procedure TKMScriptActions.HouseTownHallMaxGold(aHouseID: Integer; aMaxGold: Integer);
 var
   H: TKMHouse;
@@ -3644,7 +3644,7 @@ end;
 
 
 //* Version: 14000
-//* Adds aCount recruits inside the specified barracks
+//* Adds aCount recruits to the specified barracks
 procedure TKMScriptActions.HouseBarracksGiveRecruits(aHouseID, aCount: Integer);
 var
   I: Integer;
@@ -3734,8 +3734,8 @@ end;
 
 //* Version: 11000
 //* Apply brush from MapEd to the map
-//* X: X coodinate
-//* Y: Y coodinate
+//* X: X coordinate
+//* Y: Y coordinate
 //* aSquare: is brush square or circle
 //* aSize: brush size
 //* aTerKind: terrain kind
@@ -3763,8 +3763,8 @@ end;
 
 //* Version: 11000
 //* Apply Elevation change brush from MapEd to the map
-//* X: X coodinate
-//* Y: Y coodinate
+//* X: X coordinate
+//* Y: Y coordinate
 //* aSquare: is brush square or circle
 //* aRaise: raise elevation or lower it
 //* aSize: brush size
@@ -3791,8 +3791,8 @@ end;
 
 //* Version: 11000
 //* Apply Equalize brush from MapEd to the map
-//* X: X coodinate
-//* Y: Y coodinate
+//* X: X coordinate
+//* Y: Y coordinate
 //* aSquare: is brush square or circle
 //* aSize: brush size
 //* aSlope: elevation slope
@@ -3818,8 +3818,8 @@ end;
 
 //* Version: 11000
 //* Apply Flatten brush from MapEd to the map
-//* X: X coodinate
-//* Y: Y coodinate
+//* X: X coordinate
+//* Y: Y coordinate
 //* aSquare: is brush square or circle
 //* aSize: brush size
 //* aSlope: elevation slope
@@ -3845,8 +3845,8 @@ end;
 
 //* Version: 11000
 //* Apply magic water brush from MapEd to the map
-//* X: X coodinate
-//* Y: Y coodinate
+//* X: X coordinate
+//* Y: Y coordinate
 procedure TKMScriptActions.MapBrushMagicWater(X, Y: Integer);
 begin
   try
@@ -3867,8 +3867,8 @@ end;
 
 //* Version: 11000
 //* Apply brush with mask specified from MapEd to the map
-//* X: X coodinate
-//* Y: Y coodinate
+//* X: X coordinate
+//* Y: Y coordinate
 //* aSquare: is brush square or circle
 //* aSize: brush size
 //* aTerKind: terrain kind
@@ -3902,7 +3902,7 @@ end;
 //* Sets the tile type and rotation at the specified XY coordinates.
 //* Tile IDs can be seen by hovering over the tiles on the terrain tiles tab in the map editor.
 //* Returns True if the change succeeded or False if it failed.
-//* The change will fail if it would cause a unit to become stuck or a house/field to be damaged
+//* The change will fail if it would cause a unit to get stuck or a house/field to be damaged
 //* aType: Tile type (0..255)
 //* aRotation: Tile rotation (0..3)
 function TKMScriptActions.MapTileSet(X, Y, aType, aRotation: Integer): Boolean;
@@ -3967,20 +3967,20 @@ end;
 //*   X, Y: Word;     // Tile map coordinates
 //*   Terrain: Word;  // Terrain tile type (0..596)
 //*   Rotation: Byte; // Tile rotation (0..3)
-//*   Height: Byte;   // Heigth (0..150)
+//*   Height: Byte;   // Height (0..150)
 //*   Obj: Word;      // Object (0..255)
 //*   UpdateTerrain, UpdateRotation, UpdateHeight, UpdateObject: Boolean; // What part of tile should be updated?
 //* end;
 //* </pre>
-//* UpdateXXX fields determines what should be changed on tile
-//* F.e. if we want to change terrain type and height, then UpdateTerrain and UpdateHeight should be set to True
+//* UpdateXXX fields determine what should be changed on tile
+//* For example if we want to change terrain type and height, then UpdateTerrain and UpdateHeight should be set to True
 //* Note: aTiles elements should start from 0, as for dynamic array. So f.e. to change map tile 1,1 we should set aTiles[0][0].
 //* Note: Errors are shown as map tiles (f.e. for error while applying aTiles[0][0] tile there will be a message with for map tile 1,1)
 //*
 //* aTiles: Check detailed info on this type in description
-//* aRevertOnFail: do we need to revert all changes on any error while applying changes. If True, then no changes will be applied on error. If False - we will continue apply changes where possible
-//* aShowDetailedErrors: show detailed errors after. Can slow down the execution, because of logging. If aRevertOnFail is set to True, then only first error will be shown
-//* Result: True, if there was no errors on any tile. False if there was at least 1 error.
+//* aRevertOnFail: do we need to revert all changes if any error occurs while applying changes. If True, then no changes will be applied on error. If False - we will continue applying changes where possible
+//* aShowDetailedErrors: show detailed errors after. Can slow down the execution, because of logging. If aRevertOnFail is set to True, then only the first error will be shown
+//* Result: True, if there were no errors on any tile. False if there was at least 1 error.
 function TKMScriptActions.MapTilesArraySet(aTiles: array of TKMTerrainTileBrief; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
 begin
   try
@@ -4005,8 +4005,8 @@ end;
 //* Skipping rotation for tile [7,2]: 7,2,20,-1,87,12
 //* Skipping obj for tile [7,2]: 7,2,20,2,87,-1
 //* Skipping height for tile [7,2]: 7,2,20,2,-1,5 etc.
-//* xOffset - offset that would be added to tiles X coordinates.
-//* yOffset - offset that would be added to tiles Y coordinates.
+//* xOffset - offset that would be added to the tiles' X coordinates.
+//* yOffset - offset that would be added to the tiles' Y coordinates.
 function TKMScriptActions.MapTilesArraySetF(aFileName: string; aOffsetX, aOffsetY: Integer; aRevertOnFail, aShowDetailedErrors: Boolean): Boolean;
 var
   filePath: string;
@@ -4076,7 +4076,7 @@ begin
       Result := False;
     end;
 
-    // If X or Y are invalid - we can not proceed with terrain changes
+    // If X or Y are invalid - we cannot proceed with terrain changes
     if not Result then
       Continue;
 
@@ -4142,7 +4142,7 @@ end;
 
 //* Version: 7000+
 //* Sets array of tiles info, like MapTilesArraySet, but parameters are
-//* passed as an TAnsiStringArray instead of array of TKMTerrainTileBrief.
+//* passed as a TAnsiStringArray instead of array of TKMTerrainTileBrief.
 //* This function is useful if you need to create dynamic map from scratch.
 //* Array must contain strings in following format: 'X,Y,Terrain,Rotation,Height,Obj'
 //* f.e. '1,1,20,2,87,12'
@@ -4175,12 +4175,12 @@ end;
 //* Version: 6587
 //* Sets the height of the terrain at the top left corner (vertex) of the tile at the specified XY coordinates.
 //* Returns True if the change succeeded or False if it failed.
-//* The change will fail if it would cause a unit to become stuck or a house to be damaged
+//* The change will fail if it would cause a unit to get stuck or a house to be damaged
 //* Height: Height (0..100)
 function TKMScriptActions.MapTileHeightSet(X, Y, Height: Integer): Boolean;
 begin
   try
-    //Height is vertex based not tile based
+    //Height is vertex-based, not tile-based
     if gTerrain.VerticeInMapCoords(X, Y) and InRange(Height, 0, HEIGHT_MAX) then
       Result := gTerrain.ScriptTrySetTileHeight(X, Y, Height)
     else
@@ -4200,12 +4200,12 @@ end;
 //* Object IDs can be seen in the map editor on the objects tab.
 //* Object 61 is "block walking". To set no object, use object type 255.
 //* Returns True if the change succeeded or False if it failed.
-//* The change will fail if it would cause a unit to become stuck or a house/field to be damaged
+//* The change will fail if it would cause a unit to get stuck or a house/field to be damaged
 //* Obj: Object type (0..255)
 function TKMScriptActions.MapTileObjectSet(X, Y, Obj: Integer): Boolean;
 begin
   try
-    //Objects are vertex based not tile based
+    //Objects are vertex-based, not tile-based
     if gTerrain.VerticeInMapCoords(X, Y) and InRange(Obj, 0, OBJECTS_CNT) then
       Result := gTerrain.ScriptTrySetTileObject(X, Y, Obj)
     else
@@ -4755,7 +4755,7 @@ end;
 
 
 //* Version: 7000+
-//* Makes the unit invulnerable. Such unit can not be killed or die from hunger.
+//* Makes the unit invulnerable. Such unit cannot be killed or die from hunger.
 procedure TKMScriptActions.UnitHPSetInvulnerable(aUnitID: Integer; aInvulnerable: Boolean);
 var
   U: TKMUnit;
@@ -4925,8 +4925,8 @@ end;
 
 
 //* Version: 15000
-//* Set fish count to be available to catch for a fish unit of specified aUnitID
-//* aCount should be in range of 0 to 255. If aCount set to 0 fish unit will be instantly killed
+//* Sets the number of fish available to catch for the fish unit with the specified aUnitID
+//* aCount should be in range of 0 to 255. If aCount is set to 0, the fish unit will be instantly killed
 procedure TKMScriptActions.UnitFishCountSet(aUnitID, aCount: Integer);
 var
   U: TKMUnit;
@@ -4965,7 +4965,7 @@ begin
       U := fIDCache.GetUnit(aUnitID);
       if U = nil then Exit; //Unit could have long died, or never existed
 
-      //Animals cant be ordered to walk, they use Steering instead
+      //Animals can't be ordered to walk, they use Steering instead
       if (U.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) then
         LogIntParamWarn('Actions.UnitOrderWalk is not supported for animals', [aUnitID, X, Y])
       else
@@ -5067,7 +5067,7 @@ begin
 end;
 
 //* Version: 6277
-//* Disables (Disable = True) or enables (Disable = False) control over specifed warriors group
+//* Disables (Disable = True) or enables (Disable = False) control over specified warriors group
 procedure TKMScriptActions.GroupBlockOrders(aGroupID: Integer; aBlock: Boolean);
 var
   G: TKMUnitGroup;
@@ -5202,7 +5202,7 @@ begin
       G := fIDCache.GetGroup(aGroupID);
       U := fIDCache.GetUnit(aUnitID);
 
-      //Player can not attack animals
+      //Player cannot attack animals
       if (G <> nil) and (U <> nil) and (U.Owner <> HAND_ANIMAL) and G.CanTakeOrdersByScript then
         G.OrderAttackUnit(U, True);
     end
@@ -5284,7 +5284,7 @@ end;
 
 //* Version: 5057
 //* Order the specified group to split in half.
-//* Return the newly create group ID or -1 if splitting failed (e.g. only 1 member)
+//* Return the newly created group ID or -1 if splitting failed (e.g. only 1 member)
 function TKMScriptActions.GroupOrderSplit(aGroupID: Integer): Integer;
 var
   G, G2: TKMUnitGroup;
@@ -5312,7 +5312,7 @@ end;
 
 //* Version: 6338
 //* Splits specified unit from the group.
-//* Returns the newly create group ID or -1 if splitting failed (e.g. only 1 member)
+//* Returns the newly created group ID or -1 if splitting failed (e.g. only 1 member)
 function TKMScriptActions.GroupOrderSplitUnit(aGroupID, aUnitID: Integer): Integer;
 var
   G, G2: TKMUnitGroup;
