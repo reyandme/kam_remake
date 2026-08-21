@@ -148,8 +148,9 @@
         <DCCReference Include="KM_Test_Hungarian.pas"/>
         <DCCReference Include="KM_Test_Mill.pas"/>
         <DCCReference Include="KM_Test_Recruit_EatsAndReturns.pas"/>
-        <DCCReference Include="KM_Test_Recruit_EquipNotInside.pas"/>
         <DCCReference Include="KM_Test_Recruit_EquipWhileEating.pas"/>
+        <DCCReference Include="KM_Test_Recruit_KilledInside.pas"/>
+        <DCCReference Include="KM_Test_Recruit_StarvedInside.pas"/>
         <DCCReference Include="KM_Test_SaveLoad_RoundTrip.pas"/>
         <DCCReference Include="KM_Test_Sawmill.pas"/>
         <DCCReference Include="KM_Test_Sawmill_DeliveryIn.pas"/>
