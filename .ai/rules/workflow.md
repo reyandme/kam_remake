@@ -66,8 +66,8 @@ Not a glance over the diff - a fresh pass with the issue open next to it:
   either belongs in its own issue or comes out.
 - Does it follow the rules in `.ai/rules/`? The ones most often missed: naming and formatting
   (`styleguide.md`), the determinism boundary (`project-rules.md`), serialization of new gameplay
-  fields (`project-rules.md`), new units registered in both the `.dpr` and the `.dproj`
-  (`project-layout.md`), and comments that say why rather than what (`comments.md`).
+  fields (`project-rules.md`), new units registered in the `.dpr` (`coding-rules.md`), and
+  comments that say why rather than what (`comments.md`).
 - Was it built and were the tests run? Report what actually ran and what it said. Never describe
   code as compiling or tests as passing without a real build and a real run - see the build note
   in `project.md`.
