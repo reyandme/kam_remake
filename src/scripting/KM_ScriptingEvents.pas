@@ -177,7 +177,7 @@ type
 
   TKMScriptBeforeOrderSplitEvent = procedure (aIndex: Integer; var aParam1: TKMUnitType; var aParam2: Integer; var aParam3: Boolean) of object;
 
-  //We need to check all input parameters as could be wildly off range due to
+  //We need to check all input parameters as they could be wildly out of range due to
   //mistakes in scripts. In that case we have two options:
   // - skip silently and log
   // - report to player
