@@ -25,6 +25,7 @@ uses
   KM_Test_Fight95 in 'KM_Test_Fight95.pas',
   KM_Test_Hungarian in 'KM_Test_Hungarian.pas',
   KM_Test_Mill in 'KM_Test_Mill.pas',
+  KM_Test_SaveLoad_RoundTrip in 'KM_Test_SaveLoad_RoundTrip.pas',
   KM_Test_Sawmill in 'KM_Test_Sawmill.pas',
   KM_Test_Sawmill_DeliveryIn in 'KM_Test_Sawmill_DeliveryIn.pas',
   KM_Test_Sawmill_DeliveryOut in 'KM_Test_Sawmill_DeliveryOut.pas',

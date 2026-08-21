@@ -1325,11 +1325,13 @@ begin
   fLoadFromFileRel := '';
   fLastSaveFileRel := '';
 
+  fTextMission := TKMTextLibraryMulti.Create;
+
   fMapEditor := TKMMapEditor.Create(True, fTerrainPainter, fMapEditorInterface.HistoryUndoRedo, fMapEditorInterface.HistoryAddCheckpoint);
 
   fMapEditor.OnEyedropper := fMapEditorInterface.GuiTerrain.GuiTiles.TilesTableSetTileTexId;
   fMapEditor.MissionDefSavePath := fParams.Name + '.dat';
-  gTerrain.MakeNewMap(aSizeX, aSizeY, True);
+  gTerrain.MakeNewMap(aSizeX, aSizeY, fParams.IsMapEditor);
   fTerrainPainter.InitEmpty;
   fMapEditor.History.MakeCheckpoint(caAll, gResTexts[TX_MAPED_HISTORY_CHPOINT_INITIAL]);
 
