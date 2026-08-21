@@ -8,8 +8,9 @@ carrying business logic. Treat advice aimed at enterprise Delphi projects with s
 
 ## The rules live in `.ai/rules/`
 
-That directory is the source of truth. This file is the entry point and a summary of the things
-that are easiest to get wrong; it deliberately does not repeat the rules.
+That directory is the source of truth, and this file does not restate it. What follows is an
+index of the rule files, plus a few points that carry more weight than the rest - not a shorter
+version of the rules, and not the subset that matters. Read the rule files themselves.
 
 Read `.ai/rules/agent-rules.md` first, then whichever of the others the task touches:
 
@@ -18,10 +19,10 @@ Read `.ai/rules/agent-rules.md` first, then whichever of the others the task tou
 | [.ai/rules/agent-rules.md](.ai/rules/agent-rules.md) | How to behave: understand before acting, workflow, adding features, refactoring, communication |
 | [.ai/rules/workflow.md](.ai/rules/workflow.md) | Getting a change merged: issues, branch naming, tests-before-fix for bugs, the pre-PR re-check |
 | [.ai/rules/pull-request.md](.ai/rules/pull-request.md) | Writing the pull request body: linking the issue, review intent, what was verified and what was not |
-| [.ai/rules/project.md](.ai/rules/project.md) | What KaM Remake is: concept, features, technology, architecture, terminology, build system |
-| [.ai/rules/project-layout.md](.ai/rules/project-layout.md) | Where code lives: repository layout, file and unit organization, project registration, global instances |
-| [.ai/rules/project-rules.md](.ai/rules/project-rules.md) | Engine rules: world representation, the determinism boundary, savegame serialization, entity pointers, headless mode |
-| [.ai/rules/coding-rules.md](.ai/rules/coding-rules.md) | Writing code: general rules, Delphi language rules, compiler directives, error handling, uses clause ordering |
+| [.ai/rules/project.md](.ai/rules/project.md) | What KaM Remake is: concept, features, technology, architecture, terminology |
+| [.ai/rules/project-layout.md](.ai/rules/project-layout.md) | Where code lives: repository layout, file and unit organization, global instances |
+| [.ai/rules/project-rules.md](.ai/rules/project-rules.md) | Engine rules: world representation, the determinism boundary, savegame serialization, entity pointers |
+| [.ai/rules/coding-rules.md](.ai/rules/coding-rules.md) | Writing code: general rules, Delphi language features, registering a new unit, error handling, uses clause ordering |
 | [.ai/rules/styleguide.md](.ai/rules/styleguide.md) | Naming and formatting: prefixes, casing, layout, no magic numbers |
 | [.ai/rules/comments.md](.ai/rules/comments.md) | Writing comments: philosophy, tone, what to comment, structural rules |
 | [.ai/rules/testing.md](.ai/rules/testing.md) | Tests: the two test projects, how to write and run each of them |
@@ -29,10 +30,8 @@ Read `.ai/rules/agent-rules.md` first, then whichever of the others the task tou
 
 ## Work is tracked on GitHub
 
-Every change to the game starts from an issue and branches as `feature/<issue>-short-title` or
-`bugfix/<issue>-short-title`, and for a bug the reproducing test lands in its own pull request
-before the fix. Documentation, rules and tooling go on a `docs/` branch and need neither. Before opening any pull request, check the work against the issue and the rules
-again, and keep checking until the pass comes back clean. See `.ai/rules/workflow.md`.
+Branch naming, when a bug's test comes before its fix, and the check to run before opening a
+pull request are all in `.ai/rules/workflow.md`. Read it before starting, not before pushing.
 
 ## When invoked
 
@@ -56,12 +55,6 @@ the simulation side. The short version:
 - Do not let gameplay logic depend on memory addresses, pointer values, or allocation order.
 - Do not rely on iteration order of unordered containers (`TDictionary`); use `TList<>` or another ordered structure when sequence matters.
 - Any new gameplay field must be considered for savegame serialization at the moment it is added.
-
-## A new unit is not part of the project until it is registered
-
-Adding a unit to some other unit's `uses` clause is **not** enough - it must appear in the
-project file, or the IDE and the build will not see it. Every project here has both a `.dpr` and
-a `.dproj`, and both need the entry. See `.ai/rules/project-layout.md`.
 
 ## The build may not be available to you
 

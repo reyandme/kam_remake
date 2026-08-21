@@ -70,8 +70,8 @@ KM_Test_Sawmill_DeliveryIn.pas  ->  TKMTest_SawmillDeliveryIn
 KM_Test_Bakery.pas              ->  TKMTest_Bakery
 ```
 
-New test units must be registered in both `Testing_GameTests.dpr` and `Testing_GameTests.dproj`,
-keeping the existing alphabetical order - see `project-layout.md`.
+New test units must be registered in `Testing_GameTests.dpr`, keeping the existing alphabetical
+order - see `coding-rules.md`.
 
 ### Running them
 
