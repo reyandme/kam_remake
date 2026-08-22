@@ -273,7 +273,7 @@ uses
   Classes, SysUtils, KromUtils, Math, TypInfo,
   KM_Entity,
   KM_Cursor, KM_Game, KM_GameParams, KM_Terrain,
-  KM_HandsCollection, KM_Sound, KM_AIFields, KM_MapEdTypes,
+  KM_HandsCollection, KM_HouseBarracks, KM_Sound, KM_AIFields, KM_MapEdTypes,
   KM_Resource, KM_ResSound, KM_ResTexts, KM_ResMapElements, KM_ScriptingEvents, KM_ResUnits,
   KM_CommonUtils, KM_GameSettings,
   KM_UnitGroupTypes,
@@ -2076,6 +2076,11 @@ begin
   Stats.UnitLost(aUnit.UnitType);
   if aUnit.KilledBy <> HAND_NONE then
     gHands[aUnit.KilledBy].Stats.UnitKilled(aUnit.UnitType);
+
+  //A recruit is taken off the barracks list when he walks out, so one who dies inside would stay
+  //on it and EquipWarrior would later try to equip the dead
+  if (aUnit.UnitType = utRecruit) and (aUnit.InHouse is TKMHouseBarracks) then
+    TKMHouseBarracks(aUnit.InHouse).RecruitsRemove(aUnit);
 
   //Demands: food for soldiers / stone or wood for workers
   Deliveries.Queue.RemDemand(aUnit);
