@@ -816,6 +816,13 @@ begin
 
   SetUnitsPerRow(fUnitsPerRow);
 
+  //A member's index in fMembers is what maps him onto his slot in the formation, and deleting one
+  //shifts everybody behind him - the man who was first in his rank inherits the last slot of the
+  //rank in front. Re-match the survivors to the slots now, while everyone is still standing where
+  //he was, so each of them takes the nearest spot instead of marching across the whole formation
+  if not IsDead then
+    HungarianReorderMembers;
+
   //If Group has died report to owner
   if IsDead and Assigned(OnGroupDied) then
     OnGroupDied(Self);
@@ -1370,6 +1377,7 @@ begin
     begin
       fOrderLoc.Loc := fMembers[0].Position; //Leader is already within range
       fOrderLoc.Dir := KMGetDirection(fMembers[0].Position, OrderTargetUnit.PositionNext);
+      HungarianReorderMembers; //We are about to send them to their slots around fOrderLoc
     end;
 
     //Next assign positions for each member (including leader)
