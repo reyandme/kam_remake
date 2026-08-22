@@ -59,21 +59,21 @@ function TKMTest_RecruitStarvedInside.DoTick(aTick: Cardinal): Boolean;
 begin
   Result := True;
 
-  var barracks := TKMHouseBarracks(gHands[0].FindHouse(htBarracks));
+  var barracks := TKMHouseBarracks(gHands[0].Houses[0]);
 
-  var inside := 0;
+  var unitsInside := 0;
   for var I := 0 to gHands[0].Units.Count - 1 do
     if (gHands[0].Units[I].UnitType = utRecruit)
     and not gHands[0].Units[I].IsDeadOrDying
     and (gHands[0].Units[I].InHouse = barracks) then
-      Inc(inside);
+      Inc(unitsInside);
 
   if gHands[0].Stats.GetUnitQty(utRecruit) < 4 then
     fHasDied := True;
 
-  AssertTrue(barracks.RecruitsCount <= inside,
+  AssertTrue(barracks.RecruitsCount <= unitsInside,
              Format('The barracks lists %d recruits but only %d are alive inside it, at tick %d',
-                    [barracks.RecruitsCount, inside, aTick]));
+                    [barracks.RecruitsCount, unitsInside, aTick]));
 end;
 
 

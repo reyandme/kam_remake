@@ -28,14 +28,13 @@ uses
   KM_GameApp, KM_HandsCollection, KM_HouseBarracks, KM_HouseInn,
   KM_ResTypes;
 
-const
-  BREAD_COUNT = 5; // More than he can eat in one visit, so hunger is never the reason he stays out
-
 
 { TKMTest_RecruitEatsAndReturns }
 procedure TKMTest_RecruitEatsAndReturns.SetUp;
 begin
   inherited;
+
+  fDuration := 20 * 60;
 
   gGameApp.NewGameEmptyMap(32, 32);
 
@@ -43,7 +42,7 @@ begin
   barracks.CreateRecruitInside(False);
   barracks.WareAddToIn(wtAxe, 1); // All a militia costs
 
-  TKMHouseInn(gHands[0].AddHouse(htInn, 10, 16, False)).WareAddToIn(wtBread, BREAD_COUNT);
+  TKMHouseInn(gHands[0].AddHouse(htInn, 10, 16, False)).WareAddToIn(wtBread, 5);
 
   // The recruit is the only unit around. Starve him, so that he goes looking for the Inn
   gHands[0].Units[0].Condition := UNIT_MIN_CONDITION - 1;
@@ -54,15 +53,12 @@ function TKMTest_RecruitEatsAndReturns.DoTick(aTick: Cardinal): Boolean;
 begin
   Result := True;
 
-  var barracks := TKMHouseBarracks(gHands[0].FindHouse(htBarracks));
+  var barracks := TKMHouseBarracks(gHands[0].Houses[0]);
 
-  if not fHasLeftForInn then
-  begin
-    fHasLeftForInn := barracks.RecruitsCount = 0;
-    Exit;
-  end;
+  // While he is away the barracks lists nobody
+  fHasLeftForInn := fHasLeftForInn or (barracks.RecruitsCount = 0);
 
-  if barracks.RecruitsCount = 1 then // He is home again
+  if fHasLeftForInn and (barracks.RecruitsCount = 1) then // He is home again
   begin
     AssertEquals(1, barracks.Equip(utMilitia, 1), 'A recruit back from the Inn should still be equippable');
     Result := False;

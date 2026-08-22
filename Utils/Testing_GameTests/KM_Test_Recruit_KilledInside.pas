@@ -19,8 +19,6 @@ type
   // saving under the right conditions when a recruit is then killed". Demolishing is not the only
   // way for a listed recruit to die.
   TKMTest_RecruitKilledInside = class(TKMTest)
-  private
-    fHasKilled: Boolean;
   protected
     procedure SetUp; override;
     function DoTick(aTick: Cardinal): Boolean; override;
@@ -37,6 +35,9 @@ uses
   KM_Defaults,
   KM_GameApp, KM_HandsCollection, KM_HandTypes, KM_HouseBarracks,
   KM_ResTypes;
+
+const
+  KILL_TICK = 10; // Late enough for the recruit to have settled inside
 
 
 { TKMTest_RecruitKilledInside }
@@ -59,33 +60,30 @@ begin
   Result := True;
 
   // Kill him where he stands, the way a mission script would
-  if aTick = 10 then
+  if aTick = KILL_TICK then
+    gHands[0].Units[0].Kill(HAND_NONE, False, False)
+  else
+  if aTick > KILL_TICK then
   begin
-    gHands[0].Units[0].Kill(HAND_NONE, False, False);
-    fHasKilled := True;
-    Exit;
+    var barracks := TKMHouseBarracks(gHands[0].Houses[0]);
+
+    var unitsInside := 0;
+    for var I := 0 to gHands[0].Units.Count - 1 do
+      if (gHands[0].Units[I].UnitType = utRecruit)
+      and not gHands[0].Units[I].IsDeadOrDying
+      and (gHands[0].Units[I].InHouse = barracks) then
+        Inc(unitsInside);
+
+    AssertTrue(barracks.RecruitsCount <= unitsInside,
+               Format('The barracks lists %d recruits but only %d are alive inside it, at tick %d',
+                      [barracks.RecruitsCount, unitsInside, aTick]));
   end;
-
-  if not fHasKilled then Exit;
-
-  var barracks := TKMHouseBarracks(gHands[0].FindHouse(htBarracks));
-
-  var inside := 0;
-  for var I := 0 to gHands[0].Units.Count - 1 do
-    if (gHands[0].Units[I].UnitType = utRecruit)
-    and not gHands[0].Units[I].IsDeadOrDying
-    and (gHands[0].Units[I].InHouse = barracks) then
-      Inc(inside);
-
-  AssertTrue(barracks.RecruitsCount <= inside,
-             Format('The barracks lists %d recruits but only %d are alive inside it, at tick %d',
-                    [barracks.RecruitsCount, inside, aTick]));
 end;
 
 
 procedure TKMTest_RecruitKilledInside.CheckResult;
 begin
-  AssertTrue(fHasKilled, 'The recruit was expected to be killed inside the barracks');
+  AssertEquals(0, gHands[0].Stats.GetUnitQty(utRecruit), 'The recruit was expected to be dead by now');
 end;
 
 

@@ -27,14 +27,13 @@ uses
   KM_GameApp, KM_HandsCollection, KM_HouseBarracks, KM_HouseInn,
   KM_ResTypes;
 
-const
-  BREAD_COUNT = 5;
-
 
 { TKMTest_RecruitEquipWhileEating }
 procedure TKMTest_RecruitEquipWhileEating.SetUp;
 begin
   inherited;
+
+  fDuration := 20 * 60;
 
   gGameApp.NewGameEmptyMap(32, 32);
 
@@ -42,7 +41,7 @@ begin
   barracks.CreateRecruitInside(False);
   barracks.WareAddToIn(wtAxe, 1); // All a militia costs, so wares are never what stops the equip
 
-  TKMHouseInn(gHands[0].AddHouse(htInn, 10, 16, False)).WareAddToIn(wtBread, BREAD_COUNT);
+  TKMHouseInn(gHands[0].AddHouse(htInn, 10, 16, False)).WareAddToIn(wtBread, 5);
 
   // The recruit is the only unit around. Starve him, so that he goes looking for the Inn
   gHands[0].Units[0].Condition := UNIT_MIN_CONDITION - 1;
@@ -56,7 +55,7 @@ begin
   // A unit inside a house is not visible, so being visible means he is through the doorway
   if not gHands[0].Units[0].Visible then Exit;
 
-  var barracks := TKMHouseBarracks(gHands[0].FindHouse(htBarracks));
+  var barracks := TKMHouseBarracks(gHands[0].Houses[0]);
   AssertEquals(0, barracks.Equip(utMilitia, 1), 'A recruit who is out of the barracks can not be equipped');
 
   fHasTriedToEquip := True;
