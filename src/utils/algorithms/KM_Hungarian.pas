@@ -27,7 +27,7 @@ type
   TSimpleSolver = class(TAssignmentSolver)
   private
     TaskClaimedBy: array of Integer;
-    procedure DoSwaps;
+    function DoSwaps: Boolean;
   public
     procedure Solve; override; //Do calculation once Costs has been set up
   end;
@@ -67,6 +67,7 @@ type
 implementation
 const
   HUNGARIAN_MAX = 25; //Maximum number of agents hungarian can handle without causing performance issues
+  MAX_SWAP_PASSES = 16; //Backstop for TSimpleSolver, it settles in about a dozen passes for 120 agents
 
 
 { TSimpleSolver }
@@ -74,7 +75,8 @@ const
 procedure TSimpleSolver.Solve;
 var
   I, J: Integer;
-  Distance, Best, CostCurrent, CostSwap: Integer;
+  Distance, Best, CostCurrent, CostSwap, Passes: Integer;
+  Swapped: Boolean;
 begin
   fHeight := Length(Costs);
   fWidth := Length(Costs[0]);
@@ -102,9 +104,17 @@ begin
     TaskClaimedBy[Solution[I]] := I; //Task is claimed, don't let another agent take it
   end;
 
-  //STEP 2: Swap tasks between agents when it's more efficient to do so
-  DoSwaps;
-  DoSwaps; //The more times we run it, the better the result. Twice gives good results without costing too much performance
+  //STEP 2: Swap tasks between agents while that keeps making the assignment better.
+  //STEP 1 hands out tasks in reverse order, so the agents it serves last (the first tasks) end up
+  //with whatever nobody else wanted. Two passes used to be the limit here, and they were not enough
+  //to undo that for large groups - in a 50 man formation it left a man walking across the whole
+  //line while his neighbour stood next to the free spot. Every swap strictly lowers the total cost,
+  //so this converges on its own, in about a dozen passes; the cap is only a backstop
+  Passes := 0;
+  repeat
+    Swapped := DoSwaps;
+    Inc(Passes);
+  until not Swapped or (Passes >= MAX_SWAP_PASSES);
 
   //Now see if we found a better solution than a basic 1 to 1 assignment between tasks and agents
   CostCurrent := 0;
@@ -123,9 +133,12 @@ end;
 
 
 //Swap tasks between agents when it is more efficient to do so
-procedure TSimpleSolver.DoSwaps;
+//Returns True if anything was swapped, so the caller can keep going until the assignment settles
+function TSimpleSolver.DoSwaps: Boolean;
 var I, J, TaskToSwap, Best, CostCurrent, CostSwap: Integer;
 begin
+  Result := False;
+
   for I := fHeight - 1 downto 0 do
   begin
     Best := MaxInt;
@@ -152,6 +165,7 @@ begin
       TaskClaimedBy[Solution[I]] := TaskClaimedBy[TaskToSwap]; //They now own our task
       Solution[I] := TaskToSwap; //We get their task
       TaskClaimedBy[TaskToSwap] := I; //We now own their task
+      Result := True;
     end;
   end;
 end;
