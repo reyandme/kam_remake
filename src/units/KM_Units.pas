@@ -294,6 +294,8 @@ type
   TKMUnitRecruit = class(TKMSettledUnit)
   protected
     procedure TaskGetWork; override;
+  public
+    procedure Kill(aFrom: TKMHandID; aShowAnimation, aForceDelay: Boolean); override;
   end;
 
   //Serf - transports all wares between houses
@@ -772,6 +774,20 @@ begin
 
   if enemy <> nil then
     fTask := TKMTaskThrowRock.Create(Self, enemy);
+end;
+
+
+procedure TKMUnitRecruit.Kill(aFrom: TKMHandID; aShowAnimation, aForceDelay: Boolean);
+var
+  alreadyDeadOrDying: Boolean;
+begin
+  alreadyDeadOrDying := IsDeadOrDying; //Inherited will kill the unit
+  inherited;
+
+  //Report to the Barracks that we have died. It only takes a recruit off its list when he walks
+  //out of the door, so one who dies inside would stay on it and get equipped as a warrior later
+  if not alreadyDeadOrDying and (fInHouse is TKMHouseBarracks) then
+    TKMHouseBarracks(fInHouse).RecruitsRemove(Self);
 end;
 
 

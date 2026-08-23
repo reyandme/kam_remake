@@ -32,6 +32,7 @@ KaM Remake Beta r_____ []
 + Fixed file access error on startup when game tried to write to log
 + Fixed occasional an error caused by clicking a message in the message log after changing active hand
 + Fixed archers taking long detours in front of their group
++ Fixed crash on equipping a warrior after a recruit died inside the Barracks (#300)
 
 Campaigns:
 + Added French translations for 8 campaigns (and other minor corrections)
