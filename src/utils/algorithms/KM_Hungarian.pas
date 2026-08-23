@@ -125,10 +125,10 @@ begin
   //total cost, hence a pass that swapped nothing means the assignment has settled and the ones
   //after it would be wasted - that is what DoSwaps reports back
   SwapCountActual := 0;
-  Swapped := True;
-  while Swapped and (SwapCountActual < SwapCountAllowed) do
+  for I := 1 to SwapCountAllowed do
   begin
-    Swapped := DoSwaps;
+    if not DoSwaps then
+      Break;
     Inc(SwapCountActual);
   end;
 
