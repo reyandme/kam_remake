@@ -18,6 +18,7 @@ uses
   Unit1 in 'Unit1.pas' {Form2},
 
   KM_Test in 'KM_Test.pas',
+  KM_Test_Archers_GoFar in 'KM_Test_Archers_GoFar.pas',
   KM_Test_Bakery in 'KM_Test_Bakery.pas',
   KM_Test_BuildingPlan in 'KM_Test_BuildingPlan.pas',
   KM_Test_FarmHarvest in 'KM_Test_FarmHarvest.pas',

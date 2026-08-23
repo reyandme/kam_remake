@@ -140,6 +140,7 @@
             <Form>Form2</Form>
         </DCCReference>
         <DCCReference Include="KM_Test.pas"/>
+        <DCCReference Include="KM_Test_Archers_GoFar.pas"/>
         <DCCReference Include="KM_Test_Bakery.pas"/>
         <DCCReference Include="KM_Test_BuildingPlan.pas"/>
         <DCCReference Include="KM_Test_FarmHarvest.pas"/>
