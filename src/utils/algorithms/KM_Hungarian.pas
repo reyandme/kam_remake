@@ -175,6 +175,7 @@ begin
           Best := CostSwap;
         end;
       end;
+
     if TaskToSwap <> -1 then
     begin
       Solution[TaskClaimedBy[TaskToSwap]] := Solution[I]; //They get our task
