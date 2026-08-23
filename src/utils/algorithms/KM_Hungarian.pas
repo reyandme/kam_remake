@@ -6,14 +6,14 @@ uses
 
 
 const
-  //How many swap passes STEP 2 of TSimpleSolver runs. Two is what the game has always done -
-  //TKMTest_HungarianSwapPerf measures what more of them would buy
-  SWAP_PASSES = 2;
+  // How many swap passes STEP 2 of TSimpleSolver runs
+  SWAP_COUNT_DEFAULT = 2;
 
 type
   THungarianOptimisation = (
-    huOverall, //Minimize total cost (opposite of huIndividual)
-    huIndividual); //20 agents taking 1 cost beats 1 agent taking 10 cost
+    huOverall,    // Minimize total cost (opposite of huIndividual)
+    huIndividual  // 20 agents taking 1 cost beats 1 agent taking 10 cost
+  );
 
   TLocation = record
     Row, Col: SmallInt;
@@ -34,8 +34,8 @@ type
     TaskClaimedBy: array of Integer;
     function DoSwaps: Boolean;
   public
-    MaxSwapPasses: Integer; //Input: how many swap passes to allow, SWAP_PASSES unless told otherwise
-    SwapPasses: Integer;    //Output: how many swap passes were actually run
+    SwapCountAllowed: Integer; // How many swap iterations are allowed, SWAP_COUNT_DEFAULT by default
+    SwapCountActual: Integer;  // How many swap passes were actually run
     constructor Create;
     procedure Solve; override; //Do calculation once Costs has been set up
   end;
@@ -82,7 +82,7 @@ constructor TSimpleSolver.Create;
 begin
   inherited;
 
-  MaxSwapPasses := SWAP_PASSES;
+  SwapCountAllowed := SWAP_COUNT_DEFAULT;
 end;
 
 
@@ -121,15 +121,15 @@ begin
 
   //STEP 2: Swap tasks between agents when it's more efficient to do so.
   //The more times we run it, the better the result. Twice gives good results without costing too
-  //much performance, so that is what MaxSwapPasses defaults to. Every swap strictly lowers the
+  //much performance, so that is what SwapCountAllowed defaults to. Every swap strictly lowers the
   //total cost, hence a pass that swapped nothing means the assignment has settled and the ones
   //after it would be wasted - that is what DoSwaps reports back
-  SwapPasses := 0;
+  SwapCountActual := 0;
   Swapped := True;
-  while Swapped and (SwapPasses < MaxSwapPasses) do
+  while Swapped and (SwapCountActual < SwapCountAllowed) do
   begin
     Swapped := DoSwaps;
-    Inc(SwapPasses);
+    Inc(SwapCountActual);
   end;
 
   //Now see if we found a better solution than a basic 1 to 1 assignment between tasks and agents
