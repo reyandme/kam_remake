@@ -6,8 +6,7 @@ uses
 
 
 type
-  // While the recruit is out of the barracks on his way to the Inn there is nobody inside to turn
-  // into a warrior. The barracks has to say so, rather than reach for the recruit who is away
+  // Check that Militia cant be equipped when a Recruit is out of the Barracks to go to eat
   TKMTest_RecruitEquipWhileEating = class(TKMTest)
   private
     fHasTriedToEquip: Boolean;
@@ -24,7 +23,7 @@ type
 implementation
 uses
   KM_Defaults,
-  KM_GameApp, KM_HandsCollection, KM_HouseBarracks, KM_HouseInn,
+  KM_GameApp, KM_HandsCollection, KM_HouseBarracks,
   KM_ResTypes;
 
 
@@ -33,17 +32,16 @@ procedure TKMTest_RecruitEquipWhileEating.SetUp;
 begin
   inherited;
 
-  fDuration := 20 * 60;
+  fDuration := 2 * 600;
 
   gGameApp.NewGameEmptyMap(32, 32);
 
   var barracks := TKMHouseBarracks(gHands[0].AddHouse(htBarracks, 16, 16, False));
   barracks.CreateRecruitInside(False);
-  barracks.WareAddToIn(wtAxe, 1); // All a militia costs, so wares are never what stops the equip
+  barracks.WareAddToIn(wtAxe, 1);
 
-  TKMHouseInn(gHands[0].AddHouse(htInn, 10, 16, False)).WareAddToIn(wtBread, 5);
+  gHands[0].AddHouse(htInn, 10, 16, False).WareAddToIn(wtBread, 5);
 
-  // The recruit is the only unit around. Starve him, so that he goes looking for the Inn
   gHands[0].Units[0].Condition := UNIT_MIN_CONDITION - 1;
 end;
 
@@ -52,14 +50,16 @@ function TKMTest_RecruitEquipWhileEating.DoTick(aTick: Cardinal): Boolean;
 begin
   Result := True;
 
-  // A unit inside a house is not visible, so being visible means he is through the doorway
-  if not gHands[0].Units[0].Visible then Exit;
+  // Visible means he has came out of the Barracks
+  if gHands[0].Units[0].Visible then
+  begin
+    var barracks := TKMHouseBarracks(gHands[0].Houses[0]);
+    var equipCount := barracks.Equip(utMilitia, 1);
+    AssertEquals(0, equipCount, 'A recruit who is out of the barracks can not be equipped');
 
-  var barracks := TKMHouseBarracks(gHands[0].Houses[0]);
-  AssertEquals(0, barracks.Equip(utMilitia, 1), 'A recruit who is out of the barracks can not be equipped');
-
-  fHasTriedToEquip := True;
-  Result := False;
+    fHasTriedToEquip := True;
+    Result := False;
+  end;
 end;
 
 

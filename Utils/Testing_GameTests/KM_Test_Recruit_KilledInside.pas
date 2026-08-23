@@ -36,9 +36,6 @@ uses
   KM_GameApp, KM_HandsCollection, KM_HandTypes, KM_HouseBarracks,
   KM_ResTypes;
 
-const
-  KILL_TICK = 10; // Late enough for the recruit to have settled inside
-
 
 { TKMTest_RecruitKilledInside }
 procedure TKMTest_RecruitKilledInside.SetUp;
@@ -59,24 +56,22 @@ function TKMTest_RecruitKilledInside.DoTick(aTick: Cardinal): Boolean;
 begin
   Result := True;
 
-  // Kill him where he stands, the way a mission script would
-  if aTick = KILL_TICK then
+  if aTick = 10 then
+    // Kill recruit where he stands, the way a mission script would
     gHands[0].Units[0].Kill(HAND_NONE, False, False)
   else
-  if aTick > KILL_TICK then
+  if aTick > 10 then
   begin
     var barracks := TKMHouseBarracks(gHands[0].Houses[0]);
 
     var unitsInside := 0;
     for var I := 0 to gHands[0].Units.Count - 1 do
-      if (gHands[0].Units[I].UnitType = utRecruit)
-      and not gHands[0].Units[I].IsDeadOrDying
+      if not gHands[0].Units[I].IsDeadOrDying
       and (gHands[0].Units[I].InHouse = barracks) then
         Inc(unitsInside);
 
     AssertTrue(barracks.RecruitsCount <= unitsInside,
-               Format('The barracks lists %d recruits but only %d are alive inside it, at tick %d',
-                      [barracks.RecruitsCount, unitsInside, aTick]));
+      Format('The barracks lists %d recruits but only %d are alive inside it, at tick %d', [barracks.RecruitsCount, unitsInside, aTick]));
   end;
 end;
 

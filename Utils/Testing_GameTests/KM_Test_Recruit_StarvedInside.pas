@@ -63,8 +63,7 @@ begin
 
   var unitsInside := 0;
   for var I := 0 to gHands[0].Units.Count - 1 do
-    if (gHands[0].Units[I].UnitType = utRecruit)
-    and not gHands[0].Units[I].IsDeadOrDying
+    if not gHands[0].Units[I].IsDeadOrDying
     and (gHands[0].Units[I].InHouse = barracks) then
       Inc(unitsInside);
 
@@ -72,8 +71,7 @@ begin
     fHasDied := True;
 
   AssertTrue(barracks.RecruitsCount <= unitsInside,
-             Format('The barracks lists %d recruits but only %d are alive inside it, at tick %d',
-                    [barracks.RecruitsCount, unitsInside, aTick]));
+             Format('The barracks lists %d recruits but only %d are alive inside it, at tick %d', [barracks.RecruitsCount, unitsInside, aTick]));
 end;
 
 
