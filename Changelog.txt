@@ -19,7 +19,7 @@ KaM Remake Beta r_____ []
 + Excluded OpenAL32.dll from the installation (as it doesn't work for some PCs)
 + Fixed a bug where melee units fighting ranged and melee enemies would not assist each other against nearby ranged units
 + Included Changelog.txt into the build
-+ Fixed fences not disappearing when building progress is added by a script (#258)
++ Fixed fences not disappearing when building progress is added by a script
 + Fixed crash on trying to set Actions.AIEquipRate rate to a value higher than 65535 through dynamic script
 + Fixed and improved Readme style
 + Disabled some of the debugging features that impact game's performance, for future RC/final release
@@ -32,8 +32,8 @@ KaM Remake Beta r_____ []
 + Fixed file access error on startup when game tried to write to log
 + Fixed occasional an error caused by clicking a message in the message log after changing active hand
 + Fixed archers taking long detours in front of their group
-+ Fixed crash on equipping a warrior after a recruit died inside the Barracks (#300)
-+ Fixed crash on ordering a large group to walk far across a big map (#301)
++ Fixed crash on equipping a warrior after a recruit died inside the Barracks
++ Fixed crash on ordering a large group to walk far across a big map
 
 Campaigns:
 + Added French translations for 8 campaigns (and other minor corrections)
