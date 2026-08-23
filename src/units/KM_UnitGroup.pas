@@ -816,6 +816,10 @@ begin
 
   SetUnitsPerRow(fUnitsPerRow);
 
+  // Re-match the survivors
+  if not IsDead then
+    HungarianReorderMembers;
+
   //If Group has died report to owner
   if IsDead and Assigned(OnGroupDied) then
     OnGroupDied(Self);
@@ -836,7 +840,7 @@ begin
   // but in some cases it could mean, that this offender will be attacked more frequently
   // because of KaMRandom(Length(fOffenders)) code
   if (aEnemy is TKMUnitWarrior)
-    and not fOffenders.Contains(TKMUnitWarrior(aEnemy)) then
+  and not fOffenders.Contains(TKMUnitWarrior(aEnemy)) then
     fOffenders.Add(TKMUnitWarrior(aEnemy).GetPointer);
 end;
 
@@ -1370,6 +1374,9 @@ begin
     begin
       fOrderLoc.Loc := fMembers[0].Position; //Leader is already within range
       fOrderLoc.Dir := KMGetDirection(fMembers[0].Position, OrderTargetUnit.PositionNext);
+
+      // We are about to send them to their slots around fOrderLoc
+      HungarianReorderMembers;
     end;
 
     //Next assign positions for each member (including leader)
