@@ -25,6 +25,7 @@ uses
   KM_Test_FarmPlant in 'KM_Test_FarmPlant.pas',
   KM_Test_Fight95 in 'KM_Test_Fight95.pas',
   KM_Test_Hungarian in 'KM_Test_Hungarian.pas',
+  KM_Test_Hungarian_LongWalk in 'KM_Test_Hungarian_LongWalk.pas',
   KM_Test_Hungarian_SwapPerf in 'KM_Test_Hungarian_SwapPerf.pas',
   KM_Test_Mill in 'KM_Test_Mill.pas',
   KM_Test_Recruit_EatsAndReturns in 'KM_Test_Recruit_EatsAndReturns.pas',
