@@ -63,7 +63,7 @@ type
     procedure Execute(aSeed: Integer); virtual;
   public
     ThrottleRender: Boolean;
-    DelayValue: Integer;
+    DelayBetweenTicks: Integer;
     constructor Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
     function Run(aSeed: Integer): TKMRunResults;
     class function TestTags: TKMTestTagSet; virtual;
@@ -156,8 +156,8 @@ begin
       else
         gGameApp.Render(False);
 
-      if SKIP_RENDER and (DelayValue > 0) then
-        Sleep(DelayValue);
+      if DelayBetweenTicks > 0 then
+        Sleep(DelayBetweenTicks);
 
       if not DoTick(I+1) then
         Exit;
