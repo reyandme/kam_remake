@@ -2955,7 +2955,7 @@ begin
   Result := False;
   for I := Max(aLoc.Y - aRadius, 1) to Min(aLoc.Y + aRadius, fMapY-1) do
     for K := Max(aLoc.X - aRadius, 1) to Min(aLoc.X + aRadius, fMapX-1) do
-      if (KMLengthDiag(K, I, aLoc) <= aRadius) and TileIsWater(K,I) then
+      if (aLoc.GetLengthDiag(K, I) <= aRadius) and TileIsWater(K,I) then
         Exit(True);
 end;
 
@@ -4064,7 +4064,7 @@ begin
       and (aPass in Land^[aLoc.Y+I, aLoc.X+K].Passability)
       and CanWalkDiagonally(aLoc, aLoc.X+K, aLoc.Y+I) // Check for trees that stop us walking on the diagonals!
       and (Land^[aLoc.Y+I,aLoc.X+K].TileLock in [tlNone, tlFenced])
-      and (KMLengthDiag(aLoc.X+K, aLoc.Y+I, aLoc2) <= 1) // Right next to aLoc2 (not diagonal)
+      and (aLoc2.GetLengthDiag(aLoc.X+K, aLoc.Y+I) <= 1) // Right next to aLoc2 (not diagonal)
       and not HasUnit(KMPoint(aLoc.X+K, aLoc.Y+I)) then // Doesn't have a unit
         listAll.Add(KMPoint(aLoc.X+K, aLoc.Y+I));
 

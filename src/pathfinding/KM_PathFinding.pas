@@ -324,10 +324,11 @@ end;
 function TKMPathFinding.DestinationReached(aX, aY: Word): Boolean;
 begin
   case fDestination of
-    pdLocation:    Result := KMLengthDiag(aX, aY, fLocB) <= fDistance;
+    pdLocation:    Result := fLocB.GetLengthDiag(aX, aY) <= fDistance;
     pdPassability: Result := gTerrain.GetConnectID(fTargetWalkConnect, TKMPoint.New(aX, aY)) = fTargetNetwork;
     pdHouse:       Result := fTargetHouse.InReach(TKMPoint.New(aX, aY), fDistance);
-    else           Result := True;
+  else
+    Result := True;
   end;
 end;
 

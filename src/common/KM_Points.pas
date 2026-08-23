@@ -35,7 +35,8 @@ type
     class operator Add(const A, B: TKMPoint): TKMPoint;
     class function New(aX, aY: Integer): TKMPoint; static;
     function Compare(const aPoint: TKMPoint): Integer;
-    function GetLengthDiag(const aTarget: TKMPoint): Single;
+    function GetLengthDiag(const aTarget: TKMPoint): Single; overload;
+    function GetLengthDiag(const aTargetX, aTargetY: Integer): Single; overload;
     function ToFloat: TKMPointF;
     function ToString: string;
   end;
@@ -268,6 +269,18 @@ function TKMPoint.GetLengthDiag(const aTarget: TKMPoint): Single;
 begin
   var absX := Abs(X - aTarget.X);
   var absY := Abs(Y - aTarget.Y);
+
+  if absX > absY then
+    Result := absX + absY * 0.41
+  else
+    Result := absY + absX * 0.41;
+end;
+
+
+function TKMPoint.GetLengthDiag(const aTargetX, aTargetY: Integer): Single;
+begin
+  var absX := Abs(X - aTargetX);
+  var absY := Abs(Y - aTargetY);
 
   if absX > absY then
     Result := absX + absY * 0.41

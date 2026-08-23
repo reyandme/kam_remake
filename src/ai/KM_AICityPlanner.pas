@@ -311,7 +311,7 @@ begin
         Bid := Locs.Tag[M]
                - gAIFields.Influences.Ownership[fOwner,I,K] / 10
                + KaMRandom({$IFDEF DBG_RNG_SPY}'TKMCityPlanner.NextToStone_2'{$ENDIF}) * 3
-               + KMLengthDiag(K, I, StoneLoc); //Distance to stone is important
+               + StoneLoc.GetLengthDiag(K, I); // Distance to stone is important
         if (Bid < BestBid) then
         begin
           aLoc := KMPoint(K,I);

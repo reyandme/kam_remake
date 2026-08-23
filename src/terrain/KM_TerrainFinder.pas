@@ -290,7 +290,7 @@ begin
   begin
     for I := Max(aStart.Y - aRadius, 1) to Min(aStart.Y + aRadius, fMapY - 1) do
       for K := Max(aStart.X - aRadius, 1) to Min(aStart.X + aRadius, fMapX - 1) do
-        if (aPass in gTerrain.Land^[I,K].Passability) and (KMLengthDiag(K, I, aStart) <= aRadius) then
+        if (aPass in gTerrain.Land^[I,K].Passability) and (aStart.GetLengthDiag(K, I) <= aRadius) then
           aList.Add(KMPoint(K,I));
   end;
   {$IFDEF DBG_PERFLOG}

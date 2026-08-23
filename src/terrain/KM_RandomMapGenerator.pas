@@ -1803,11 +1803,11 @@ begin
     if RMGSettings.Locs.Resource.ConnectLocs then
       ConnectLocs(aLocs);
     for I := Low(aLocs) to High(aLocs) do
-      for Y := Max(  Low(P), aLocs[I].Y - MaxCnt  ) to Min(  High(P), aLocs[I].Y + MaxCnt  ) do
-        for X := Max(  Low(P[Y]), aLocs[I].X - MaxCnt  ) to Min(  High(P[Y]), aLocs[I].X + MaxCnt  ) do
+      for Y := Max(Low(P), aLocs[I].Y - MaxCnt) to Min(High(P), aLocs[I].Y + MaxCnt) do
+        for X := Max(Low(P[Y]), aLocs[I].X - MaxCnt) to Min(High(P[Y]), aLocs[I].X + MaxCnt) do
         begin
-          Probability := Max(0, (KMLengthDiag(X,Y,aLocs[I]) - ProbabilityOffset) * ProbabilityReducer );
-          if (P[Y,X] > Probability) then
+          Probability := Max(0, (aLocs[I].GetLengthDiag(X, Y) - ProbabilityOffset) * ProbabilityReducer );
+          if P[Y,X] > Probability then
             P[Y,X] := Probability;
         end;
     // Set zero probability for shapes which are used by resources and protected radius around them
