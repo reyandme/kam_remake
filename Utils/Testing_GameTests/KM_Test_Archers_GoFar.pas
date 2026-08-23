@@ -33,12 +33,12 @@ uses
   KM_Units, KM_UnitWarrior, KM_UnitGroup, KM_UnitGroupTypes, KM_UnitActionWalkTo;
 
 
-function NearestMember(aHand: Integer; aUnit: TKMUnit; const aLoc: TKMPoint; out aUID: Integer): Single;
+function NearestMember(aUnit: TKMUnit; const aLoc: TKMPoint; out aUID: Integer): Single;
 begin
   Result := MaxSingle;
   aUID := 0;
 
-  var group := gHands[aHand].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
+  var group := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
   for var I := 0 to group.Count - 1 do
   if group.Members[I] <> aUnit then
   begin
@@ -121,7 +121,7 @@ begin
 
       // Only an issue when a member stands at least twice as close to that spot
       var memberUID: Integer;
-      var nearestDist := NearestMember(I, U, walkTo, memberUID);
+      var nearestDist := NearestMember(U, walkTo, memberUID);
       if nearestDist * 2 > ourDist then Continue;
 
       var descText := DescribeFarWalk(aTick, I, U, walkTo, ourDist, nearestDist, memberUID);
