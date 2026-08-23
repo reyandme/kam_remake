@@ -197,8 +197,8 @@ begin
   var t := GetTickCount;
   var thisTest := aClass.Create(IsStopped, HandleProgress);
   try
-    thisTest.ThrottleRender := chkThrottleRender.Checked;
-    thisTest.DelayBetweenTicks := seDelay.Value;
+    thisTest.PaceRender := Ord(chkThrottleRender.Checked) * 100;
+    thisTest.PaceTicks := seDelay.Value;
 
     fResults := thisTest.Run(aSeed);
 

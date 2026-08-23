@@ -62,8 +62,8 @@ type
     procedure CheckResult; virtual; abstract;
     procedure Execute(aSeed: Integer); virtual;
   public
-    ThrottleRender: Boolean;
-    DelayBetweenTicks: Integer;
+    PaceRender: Integer;
+    PaceTicks: Integer;
     constructor Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
     function Run(aSeed: Integer): TKMRunResults;
     class function TestTags: TKMTestTagSet; virtual;
@@ -124,7 +124,7 @@ begin
 
   fDuration := 10 * 60 * 10;
 
-  ThrottleRender := True;
+  PaceRender := 100;
 end;
 
 
@@ -145,19 +145,14 @@ begin
     begin
       gGameApp.Game.UpdateGame;
 
-      if ThrottleRender then
+      if (TimeGet - lastRenderTime) >= PaceRender then
       begin
-        if (TimeGet - lastRenderTime) > 100 then
-        begin
-          gGameApp.Render(False);
-          lastRenderTime := TimeGet;
-        end;
-      end
-      else
         gGameApp.Render(False);
+        lastRenderTime := TimeGet;
+      end;
 
-      if DelayBetweenTicks > 0 then
-        Sleep(DelayBetweenTicks);
+      if PaceTicks > 0 then
+        Sleep(PaceTicks);
 
       if not DoTick(I+1) then
         Exit;
