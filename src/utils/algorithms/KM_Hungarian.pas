@@ -90,8 +90,10 @@ end;
 procedure TSimpleSolver.Solve;
 var
   I, J: Integer;
-  Distance, Best, CostCurrent, CostSwap: Integer;
-  Swapped: Boolean;
+  Distance, Best: Integer;
+  // Sums over the whole group. One squared cost reaches ~13M on a full size map, so a few hundred
+  // men overflow Integer, and with range checks on that is a crash rather than a wrong number
+  CostCurrent, CostSwap: Int64;
 begin
   fHeight := Length(Costs);
   fWidth := Length(Costs[0]);
@@ -150,6 +152,9 @@ end;
 
 //Swap tasks between agents when it is more efficient to do so
 //Returns True if anything was swapped, so the caller can stop once the assignment settles
+//The costs here stay Integer on purpose - each one holds two cost cells at most, and this is the
+//hot loop (O(n^2) per pass), so widening it would cost more than it buys. Solve sums the whole
+//group and does need Int64
 function TSimpleSolver.DoSwaps: Boolean;
 var I, J, TaskToSwap, Best, CostCurrent, CostSwap: Integer;
 begin
