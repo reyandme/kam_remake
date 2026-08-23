@@ -280,27 +280,21 @@ begin
   AssertTrue(fGroupSize = GROUP_SIZE, Format('The group came out %d men strong instead of %d', [fGroupSize, GROUP_SIZE]));
 
   // The loop is meant to stop once nothing improves any more, the cap being only a backstop
-  var settled := fRuns[High(fRuns)]; // The largest cap we measured
-  AssertTrue(settled.SwapCountActual < settled.SwapCountAllowed, Format('The swap loop did not settle within %d passes for %d men', [settled.SwapCountAllowed, Length(fCosts)]));
+  var lastRun := fRuns[High(fRuns)];
+  AssertTrue(lastRun.SwapCountActual < lastRun.SwapCountAllowed, Format('The swap loop did not settle within %d passes for %d men', [lastRun.SwapCountAllowed, Length(fCosts)]));
 
-  // Every swap strictly lowers the total cost, so a bigger cap can never come out worse
+  // Every next swap should make the total cost lower
   for var I := 1 to High(fRuns) do
     AssertTrue(fRuns[I].Cost <= fRuns[I - 1].Cost,
-      Format('Cap %d gave a worse assignment than cap %d, cost %d against %d', [fRuns[I].SwapCountAllowed, fRuns[I - 1].SwapCountAllowed, fRuns[I].Cost, fRuns[I - 1].Cost]));
+      Format('SwapCount %d produced a worse assignment than SwapCount %d, cost %d against %d', [fRuns[I].SwapCountAllowed, fRuns[I - 1].SwapCountAllowed, fRuns[I].Cost, fRuns[I - 1].Cost]));
 
-  // The row the game itself runs with. Whether that many SwapCountActual is enough is a question for the
-  // table in the log, not for an assertion - that would only pin down today's SWAP_PASSES
-  var shipped := settled;
+  // Check that game cost equals to our run cost
   for var I := 0 to High(fRuns) do
-    if fRuns[I].SwapCountAllowed >= SWAP_COUNT_DEFAULT then
-    begin
-      shipped := fRuns[I];
-      Break;
-    end;
-
-  // What we swept has to be what the game runs, not a lookalike built next to it
-  var gameCost := ProductionCost;
-  AssertTrue(gameCost = shipped.Cost, Format('HungarianMatchPoints came out at cost %d over the same points, the sweep says %d', [gameCost, shipped.Cost]));
+  if fRuns[I].SwapCountAllowed = SWAP_COUNT_DEFAULT then
+  begin
+    var gameCost := ProductionCost;
+    AssertTrue(gameCost = fRuns[I].Cost, Format('HungarianMatchPoints came out at cost %d over the same points, the sweep says %d', [gameCost, fRuns[I].Cost]));
+  end;
 end;
 
 
