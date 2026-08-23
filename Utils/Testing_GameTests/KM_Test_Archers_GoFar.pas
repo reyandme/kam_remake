@@ -33,26 +33,28 @@ uses
   KM_Units, KM_UnitWarrior, KM_UnitGroup, KM_UnitGroupTypes, KM_UnitActionWalkTo;
 
 
-function NearestMember(aUnit: TKMUnit; const aLoc: TKMPoint; out aUID: Integer): Single;
+function NearestMember(aUnit: TKMUnit; const aTargetLoc: TKMPoint): TKMUnit;
 begin
-  Result := MaxSingle;
-  aUID := 0;
+  Result := nil;
 
   var group := gHands[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
+
+  var bestDist := MaxSingle;
   for var I := 0 to group.Count - 1 do
   if group.Members[I] <> aUnit then
   begin
-    var newDist := KMLengthDiag(group.Members[I].Position, aLoc);
-    if newDist < Result then
+    var U := group.Members[I];
+    var newDist := KMLengthDiag(U.Position, aTargetLoc);
+    if newDist < bestDist then
     begin
-      Result := newDist;
-      aUID := group.Members[I].UID;
+      bestDist := newDist;
+      Result := U;
     end;
   end;
 end;
 
 
-function DescribeFarWalk(aTick: Cardinal; aHand: Integer; aUnit: TKMUnit; const aWalkTo: TKMPoint; aDist, aNearest: Single; aNearestUID: Integer): string;
+function DescribeFarWalk(aTick: Cardinal; aHand: Integer; aUnit: TKMUnit; const aWalkTo: TKMPoint; aDist: Single; aMember: TKMUnit; aMemberDist: Single): string;
 begin
   Result := Format('Tick %d: archer %d of hand %d standing at %s was ordered to walk to %s, %.1f tiles away',
     [aTick, aUnit.UID, aHand, aUnit.Position.ToString, aWalkTo.ToString, aDist]);
@@ -65,7 +67,7 @@ begin
       idx := I;
 
   Result := Result + Format('. Group %d: he is member %d of %d, %d per row, order %s at %s. Member %d stands only %.1f tiles from that spot',
-    [group.UID, idx, group.Count, group.UnitsPerRow, GetEnumName(TypeInfo(TKMGroupOrder), Integer(group.Order)), group.OrderLoc.ToString, aNearestUID, aNearest]);
+    [group.UID, idx, group.Count, group.UnitsPerRow, GetEnumName(TypeInfo(TKMGroupOrder), Integer(group.Order)), group.OrderLoc.ToString, aMember.UID, aMemberDist]);
 end;
 
 
@@ -120,11 +122,11 @@ begin
       if ourDist <= MAX_WALK_DIST then Continue;
 
       // Only an issue when a member stands at least twice as close to that spot
-      var memberUID: Integer;
-      var nearestDist := NearestMember(U, walkTo, memberUID);
-      if nearestDist * 2 > ourDist then Continue;
+      var member := NearestMember(U, walkTo);
+      var memberDist := KMLengthDiag(member.Position, walkTo);
+      if memberDist * 2 > ourDist then Continue;
 
-      var descText := DescribeFarWalk(aTick, I, U, walkTo, ourDist, nearestDist, memberUID);
+      var descText := DescribeFarWalk(aTick, I, U, walkTo, ourDist, member, memberDist);
       AssertTrue(False, descText);
     end;
 end;
