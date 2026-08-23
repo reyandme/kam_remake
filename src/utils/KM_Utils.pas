@@ -56,7 +56,7 @@ var
 begin
   Result := 0;
   for I := 1 to aNodeList.Count - 1 do
-    Result := Result + KMLengthDiag(aNodeList[I-1], aNodeList[I]);
+    Result := Result + aNodeList[I-1].GetLengthDiag(aNodeList[I]);
 end;
 
 

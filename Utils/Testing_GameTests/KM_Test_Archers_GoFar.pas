@@ -44,7 +44,7 @@ begin
   if group.Members[I] <> aUnit then
   begin
     var U := group.Members[I];
-    var newDist := KMLengthDiag(U.Position, aTargetLoc);
+    var newDist := U.Position.GetLengthDiag(aTargetLoc);
     if newDist < bestDist then
     begin
       bestDist := newDist;
@@ -117,13 +117,13 @@ begin
       if not (U.Action is TKMUnitActionWalkTo) then Continue;
 
       var walkTo := TKMUnitActionWalkTo(U.Action).WalkTo;
-      var ourDist := KMLengthDiag(U.Position, walkTo);
+      var ourDist := U.Position.GetLengthDiag(walkTo);
 
       if ourDist <= MAX_WALK_DIST then Continue;
 
       // Only an issue when a member stands at least twice as close to that spot
       var member := NearestMember(U, walkTo);
-      var memberDist := KMLengthDiag(member.Position, walkTo);
+      var memberDist := member.Position.GetLengthDiag(walkTo);
       if memberDist * 2 > ourDist then Continue;
 
       var descText := DescribeFarWalk(aTick, I, U, walkTo, ourDist, member, memberDist);

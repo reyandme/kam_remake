@@ -1068,7 +1068,7 @@ begin
                             Inc(fTargetFollowTicker);
                             //It's wasteful to run pathfinding to correct route every step of the way, so if the target unit
                             //is within 4 tiles, update every step. Within 8, every 2 steps, 12, every 3 steps, etc.
-                            if fTargetFollowTicker mod Max((Round(KMLengthDiag(GetPosition, OrderTargetUnit.Position)) div 4), 1) = 0 then
+                            if fTargetFollowTicker mod Max((Round(GetPosition.GetLengthDiag(OrderTargetUnit.Position)) div 4), 1) = 0 then
                               OrderAttackUnit(OrderTargetUnit, False);
                           end;
 
@@ -1199,7 +1199,7 @@ function TKMUnitGroup.IsIdleToAI(aOrderWalkKindSet: TKMOrderWalkKindSet = []): B
 begin
   //First check that the previous order has completed
   if fOrder = goWalkTo then
-    Result := (fOrderWalkKind in aOrderWalkKindSet) or (KMLengthDiag(Position, fOrderLoc.Loc) < 2)
+    Result := (fOrderWalkKind in aOrderWalkKindSet) or (Position.GetLengthDiag(fOrderLoc.Loc) < 2)
   else
     Result := (fOrder = goNone);
 

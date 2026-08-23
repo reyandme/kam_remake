@@ -290,7 +290,7 @@ begin
   and aWorker.CanWalkTo(fHouses[i].House.PointBelowEntrance, 0)
   then
   begin
-    newBid := KMLengthDiag(aWorker.Position, fHouses[I].House.Position);
+    newBid := aWorker.Position.GetLengthDiag(fHouses[I].House.Position);
     newBid := newBid + fHouses[I].Assigned * BID_MODIF;
 
     if newBid < bestBid then
@@ -397,7 +397,7 @@ begin
   if (fFields[I].JobStatus = jsOpen)
   and aWorker.CanWalkTo(fFields[I].Loc, 0) then
   begin
-    newBid := KMLengthDiag(aWorker.Position, fFields[I].Loc);
+    newBid := aWorker.Position.GetLengthDiag(fFields[I].Loc);
     if newBid < bestBid then
     begin
       bestBid := newBid;
@@ -717,7 +717,7 @@ begin
     and aWorker.CanWalkTo(fPlans[I].Loc, 0)
     then
     begin
-      newBid := KMLengthDiag(aWorker.Position, fPlans[I].Loc);
+      newBid := aWorker.Position.GetLengthDiag(fPlans[I].Loc);
       if newBid < bestBid then
       begin
         bestBid := newBid;
@@ -764,7 +764,7 @@ begin
   and ((fPlans[I].Loc.X + HD[fPlans[I].HouseType].EntranceOffsetX <> aSkip.X) or (fPlans[I].Loc.Y <> aSkip.Y)) then
   begin
     entrance := KMPoint(fPlans[I].Loc.X + HD[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y + 1);
-    dist := KMLengthDiag(entrance, aLoc);
+    dist := entrance.GetLengthDiag(aLoc);
     if dist < best then
     begin
       best := dist;
@@ -1028,7 +1028,7 @@ begin
   if (fHouses[I].House <> nil)
   and (fHouses[I].Assigned < MAX_WORKERS[fHouses[i].House.HouseType]) then
   begin
-    newBid := KMLengthDiag(aWorker.Position, fHouses[I].House.Position);
+    newBid := aWorker.Position.GetLengthDiag(fHouses[I].House.Position);
     newBid := newBid + fHouses[I].Assigned * BID_MODIF;
 
     if newBid < bestBid then
@@ -1260,7 +1260,7 @@ begin
   for I := 0 to fWorkersCount - 1 do
     if fWorkers[I].Worker.IsIdle and fWorkers[I].Worker.CanWalkTo(aPoint, 0) then
     begin
-      newBid := KMLengthDiag(fWorkers[I].Worker.Position, aPoint);
+      newBid := fWorkers[I].Worker.Position.GetLengthDiag(aPoint);
       if newBid < bestBid then
       begin
         Result := fWorkers[I].Worker;

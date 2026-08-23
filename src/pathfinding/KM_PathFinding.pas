@@ -159,7 +159,7 @@ begin
 
     //Try to find similar route in cache and reuse it
     if CACHE_PATHFINDING
-      and (KMLengthDiag(fLocA, fLocB) - fDistance > PATH_CACHE_MIN_DIST_TO_USE) // Don't use PF_Cache for very close destinations
+      and (fLocA.GetLengthDiag(fLocB) - fDistance > PATH_CACHE_MIN_DIST_TO_USE) // Don't use PF_Cache for very close destinations
       and TryRouteFromCache(NodeList) then
       Result := True
     else
@@ -381,9 +381,9 @@ begin
     and (fCacheAvoidLocked[I].Pass = fPass)
     and (fCacheAvoidLocked[I].LocB = fLocB) then //Destination should be the same in cache and our path
     begin
-      //But starting point in cache could be near our path starting point
+      // But starting point in cache could be near our path starting point
       P := fCacheAvoidLocked[I].LocA;
-      Len := KMLengthDiag(fLocA, P);
+      Len := fLocA.GetLengthDiag(P);
       if (Len <= 1)
       or ((Len < 2) and gTerrain.CanWalkDiagonally(fLocB, P.X, P.Y)) then // Check if we can walk diagonally
         Exit(True);
@@ -419,7 +419,7 @@ begin
         //otherwise some bad-looking behaviour possible
         //F.e. units going in a row could make side step occasionaly,
         //cause 1st one change route
-        if KMLengthDiag(fLocA, fCache[I].Route[K]) = 0 then
+        if fLocA = fCache[I].Route[K] then
         begin
           BestStart := K;
           Break;
@@ -433,7 +433,7 @@ begin
       for K := fCache[I].Route.Count - 1 downto BestStart + 1 do
       begin
         P := fCache[I].Route[K];
-        NewL := KMLengthDiag(fLocB, P);
+        NewL := fLocB.GetLengthDiag(P);
         if (NewL <= 1)
         or ((NewL < 2) and gTerrain.CanWalkDiagonally(fLocB, P.X, P.Y)) then
         begin

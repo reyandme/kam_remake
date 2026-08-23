@@ -196,14 +196,14 @@ begin
   if (CurrentGroup = nil)
   or CurrentGroup.IsDead
   or ((CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]))
-      and (KMLengthDiag(Position.Loc, CurrentGroup.Position) > Radius)) then
+      and (Position.Loc.GetLengthDiag(CurrentGroup.Position) > Radius)) then
     CurrentGroup := nil;
 
   //Tell group to walk to its position
   //It's easier to repeat the order than check that all members are in place
   if (CurrentGroup <> nil)
-    and CurrentGroup.IsIdleToAI([wtokFlagPoint, wtokHaltOrder])
-    and CurrentGroup.CanWalkTo(Position.Loc, 0) then
+  and CurrentGroup.IsIdleToAI([wtokFlagPoint, wtokHaltOrder])
+  and CurrentGroup.CanWalkTo(Position.Loc, 0) then
     CurrentGroup.OrderWalk(Position.Loc, True, wtokAIGotoDefencePos, Position.Dir);
 end;
 

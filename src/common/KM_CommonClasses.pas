@@ -935,7 +935,7 @@ var
 begin
   Result := 0;
   for I := 0 to fCount - 2 do
-    Result := Result + KMLengthDiag(fItems[I], fItems[I + 1]);
+    Result := Result + fItems[I].GetLengthDiag(fItems[I + 1]);
 end;
 
 

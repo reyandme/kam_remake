@@ -382,7 +382,7 @@ begin
     fExplanation := 'We were forced to exchange places';
     ExplanationLogAdd;
     fDoExchange := True;
-    if KMLengthDiag(aForcedExchangePos, fNodeList[fNodePos+1]) >= 1.5 then
+    if aForcedExchangePos.GetLengthDiag(fNodeList[fNodePos+1]) >= 1.5 then
       fNodeList.Insert(fNodePos+1, fUnit.PositionNext); //We must back-track if we cannot continue our route from the new tile
     fNodeList.Insert(fNodePos+1, aForcedExchangePos);
     if KMSamePoint(fUnit.PositionNext, aForcedExchangePos) then
@@ -403,7 +403,7 @@ end;
 //Used for dodging and side stepping
 procedure TKMUnitActionWalkTo.ChangeStepTo(const aPos: TKMPoint);
 begin
-  if (fNodePos+2 <= fNodeList.Count-1) and (KMLengthDiag(aPos, fNodeList[fNodePos+2]) < 1.5) then
+  if (fNodePos+2 <= fNodeList.Count-1) and (aPos.GetLengthDiag(fNodeList[fNodePos+2]) < 1.5) then
     fNodeList[fNodePos+1] := aPos //We can simply replace the entry because it is near the next tile
   else //Otherwise we must insert it
     fNodeList.Insert(fNodePos+1, aPos);
@@ -654,9 +654,9 @@ end;
 function TKMUnitActionWalkTo.CheckWalkComplete: Boolean;
 begin
   Result := (fNodePos >= fNodeList.Count - 1)
-            or ((fTargetHouse = nil) and (Round(KMLengthDiag(fUnit.Position,fWalkTo)) <= fDistance))
+            or ((fTargetHouse = nil) and (Round(fUnit.Position.GetLengthDiag(fWalkTo)) <= fDistance))
             or ((fTargetHouse <> nil) and (fTargetHouse.GetDistance(fUnit.Position) <= fDistance))
-            or ((fTargetUnit <> nil) and (KMLengthDiag(fUnit.Position,fTargetUnit.Position) <= fDistance))
+            or ((fTargetUnit <> nil) and (fUnit.Position.GetLengthDiag(fTargetUnit.Position) <= fDistance))
             or ((fUnit.Task <> nil) and fUnit.Task.WalkShouldAbandon);
 end;
 
@@ -1200,7 +1200,7 @@ begin
       and not KMSamePoint(fTargetUnit.Position, fWalkTo)
       //It's wasteful to run pathfinding to correct route every step of the way, so if the target unit
       //is within 8 tiles, update every step. Within 16, every 2 steps, 24, every 3 steps, etc.
-      and (fNodePos mod Max((Round(KMLengthDiag(fUnit.Position, fTargetUnit.Position)) div 8), 1) = 0) then
+      and (fNodePos mod Max((Round(fUnit.Position.GetLengthDiag(fTargetUnit.Position)) div 8), 1) = 0) then
     begin
       //If target unit has moved then change course and keep following it
       ChangeWalkTo(fTargetUnit, fDistance);

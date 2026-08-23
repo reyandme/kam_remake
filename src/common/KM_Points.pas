@@ -27,16 +27,17 @@ type
 
   //* Point with integer coordinates X and Y
   TKMPoint = record
-    X,Y: Integer;
-
-    function ToString: string;
+  public
+    X, Y: Integer;
 
     class operator Equal(const A, B: TKMPoint): Boolean;
     class operator NotEqual(const A, B: TKMPoint): Boolean;
     class operator Add(const A, B: TKMPoint): TKMPoint;
     class function New(aX, aY: Integer): TKMPoint; static;
     function Compare(const aPoint: TKMPoint): Integer;
+    function GetLengthDiag(const aTarget: TKMPoint): Single;
     function ToFloat: TKMPointF;
+    function ToString: string;
   end;
 
   TKMPointDir = packed record
@@ -192,7 +193,6 @@ function KMLength(A,B: Single): Single; overload;
 function KMLength(const A, B: TKMPoint): Single; overload;
 function KMLength(const A, B: TKMPointF): Single; overload;
 function KMLengthDiag(X, Y: Integer): Single; overload;
-function KMLengthDiag(const A, B: TKMPoint): Single; overload;
 function KMLengthDiag(X,Y: Integer; const B: TKMPoint): Single; overload;
 function KMLengthSqr(const A, B: TKMPoint): Integer; overload;
 function KMLengthSqr(const X1, Y1, X2, Y2: Integer): Integer; overload;
@@ -260,6 +260,19 @@ end;
 class operator TKMPoint.Equal(const A, B: TKMPoint): Boolean;
 begin
   Result := KMSamePoint(A,B);
+end;
+
+
+//Rough and faster Length as combination of straight and diagonal
+function TKMPoint.GetLengthDiag(const aTarget: TKMPoint): Single;
+begin
+  var absX := Abs(X - aTarget.X);
+  var absY := Abs(Y - aTarget.Y);
+
+  if absX > absY then
+    Result := absX + absY * 0.41
+  else
+    Result := absY + absX * 0.41;
 end;
 
 
@@ -1100,20 +1113,6 @@ end;
 function KMLength(const A,B: TKMPointF): Single;
 begin
   Result := Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
-end;
-
-
-//Rough and faster Length as combination of straight and diagonal
-function KMLengthDiag(const A, B: TKMPoint): Single;
-var
-  absX, absY: Integer;
-begin
-  absX := Abs(A.X - B.X);
-  absY := Abs(A.Y - B.Y);
-  if absX > absY then
-    Result := absX + absY * 0.41
-  else
-    Result := absY + absX * 0.41;
 end;
 
 

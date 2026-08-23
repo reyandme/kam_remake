@@ -1065,7 +1065,7 @@ end;
 function TKMHouse.InReach(const aPos: TKMPoint; aDistance: Single): Boolean;
 begin
   //+6 is the worst case with the barracks, distance from fPosition to top left tile of house could be > 5
-  if KMLengthDiag(aPos, fPosition) >= aDistance + 6 then
+  if aPos.GetLengthDiag(fPosition) >= aDistance + 6 then
     Result := False //We are sure they are not close enough to the house
   else
     //We need to perform a precise check

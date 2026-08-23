@@ -2808,7 +2808,7 @@ end;
 
 function TKMDeliveryRouteEvaluator.EvaluateFast(const aFromPos, aToPos: TKMPoint): Single;
 begin
-  Result := KMLengthDiag(aFromPos, aToPos); //Use KMLengthDiag, as it closer to what distance serf will actually cover
+  Result := aFromPos.GetLengthDiag(aToPos); //Use KMLengthDiag, as it closer to what distance serf will actually cover
 end;
 
 

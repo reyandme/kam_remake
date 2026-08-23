@@ -2794,7 +2794,7 @@ begin
      //Store in temp variable for speed
     T := validTiles[I];
 
-    if (KMLengthDiag(aLoc, T) <= aRadius)
+    if (aLoc.GetLengthDiag(T) <= aRadius)
       // Only full age
       and ( (aOnlyAgeFull and ObjectIsChopableTree(T, caAgeFull))
       // Any age tree will do
@@ -2840,7 +2840,7 @@ begin
      //Store in temp variable for speed
     T := validTiles[I];
 
-    if (KMLengthDiag(aLoc, T) <= aRadius)
+    if (aLoc.GetLengthDiag(T) <= aRadius)
       and not KMSamePoint(aAvoidLoc, T) then
     begin
 
@@ -2882,13 +2882,13 @@ begin
     fFinder.GetTilesWithinDistance(aLoc, aRadius, tpWalk, validTiles);
     for I := 0 to validTiles.Count - 1 do
     begin
-       //Store in temp variable for speed
+      //Store in temp variable for speed
       T := validTiles[I];
 
-      if (KMLengthDiag(aLoc, T) <= aRadius)
-        and RouteCanBeMadeToVertex(aLoc, T, tpWalk)
-        and ChooseCuttingDirection(aLoc, T, cuttingPoint)
-        and (FindBestTreeType(T) <> ttNone) then // Check if tile is ok to plant a tree there, according to vertex terrainKind
+      if (aLoc.GetLengthDiag(T) <= aRadius)
+      and RouteCanBeMadeToVertex(aLoc, T, tpWalk)
+      and ChooseCuttingDirection(aLoc, T, cuttingPoint)
+      and (FindBestTreeType(T) <> ttNone) then // Check if tile is ok to plant a tree there, according to vertex terrainKind
         aTiles.Add(T);
     end;
   finally
@@ -2953,10 +2953,9 @@ var
   I, K: Integer;
 begin
   Result := False;
-  for I := max(aLoc.Y - aRadius, 1) to Min(aLoc.Y + aRadius, fMapY-1) do
-    for K := max(aLoc.X - aRadius, 1) to Min(aLoc.X + aRadius, fMapX-1) do
-      if (KMLengthDiag(aLoc, KMPoint(K,I)) <= aRadius)
-        and TileIsWater(K,I) then
+  for I := Max(aLoc.Y - aRadius, 1) to Min(aLoc.Y + aRadius, fMapY-1) do
+    for K := Max(aLoc.X - aRadius, 1) to Min(aLoc.X + aRadius, fMapX-1) do
+      if (KMLengthDiag(K, I, aLoc) <= aRadius) and TileIsWater(K,I) then
         Exit(True);
 end;
 
@@ -4072,7 +4071,7 @@ begin
     // Pick best, if aLoc3 was given
     if not KMSamePoint(aLoc3, KMPOINT_ZERO) then
     for I := 0 to listAll.Count - 1 do
-      if KMLengthDiag(listAll[I], aLoc3) < 1.5 then // Next to aLoc3 (diagonal is ok)
+      if listAll[I].GetLengthDiag(aLoc3) < 1.5 then // Next to aLoc3 (diagonal is ok)
         listBest.Add(listAll[I]);
 
     Result := True;
