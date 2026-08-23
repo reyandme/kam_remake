@@ -5,6 +5,11 @@ uses
   Classes, SysUtils, Math, KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 
+const
+  //How many swap passes STEP 2 of TSimpleSolver runs. Two is what the game has always done -
+  //TKMTest_HungarianSwapPerf measures what more of them would buy
+  SWAP_PASSES = 2;
+
 type
   THungarianOptimisation = (
     huOverall, //Minimize total cost (opposite of huIndividual)
@@ -27,8 +32,11 @@ type
   TSimpleSolver = class(TAssignmentSolver)
   private
     TaskClaimedBy: array of Integer;
-    procedure DoSwaps;
+    function DoSwaps: Boolean;
   public
+    MaxSwapPasses: Integer; //Input: how many swap passes to allow, SWAP_PASSES unless told otherwise
+    SwapPasses: Integer;    //Output: how many swap passes were actually run
+    constructor Create;
     procedure Solve; override; //Do calculation once Costs has been set up
   end;
 
@@ -70,11 +78,20 @@ const
 
 
 { TSimpleSolver }
+constructor TSimpleSolver.Create;
+begin
+  inherited;
+
+  MaxSwapPasses := SWAP_PASSES;
+end;
+
+
 //"Lewin's Algorithm": Faster but less optimal algorithm used for large groups
 procedure TSimpleSolver.Solve;
 var
   I, J: Integer;
   Distance, Best, CostCurrent, CostSwap: Integer;
+  Swapped: Boolean;
 begin
   fHeight := Length(Costs);
   fWidth := Length(Costs[0]);
@@ -102,9 +119,18 @@ begin
     TaskClaimedBy[Solution[I]] := I; //Task is claimed, don't let another agent take it
   end;
 
-  //STEP 2: Swap tasks between agents when it's more efficient to do so
-  DoSwaps;
-  DoSwaps; //The more times we run it, the better the result. Twice gives good results without costing too much performance
+  //STEP 2: Swap tasks between agents when it's more efficient to do so.
+  //The more times we run it, the better the result. Twice gives good results without costing too
+  //much performance, so that is what MaxSwapPasses defaults to. Every swap strictly lowers the
+  //total cost, hence a pass that swapped nothing means the assignment has settled and the ones
+  //after it would be wasted - that is what DoSwaps reports back
+  SwapPasses := 0;
+  Swapped := True;
+  while Swapped and (SwapPasses < MaxSwapPasses) do
+  begin
+    Swapped := DoSwaps;
+    Inc(SwapPasses);
+  end;
 
   //Now see if we found a better solution than a basic 1 to 1 assignment between tasks and agents
   CostCurrent := 0;
@@ -123,9 +149,12 @@ end;
 
 
 //Swap tasks between agents when it is more efficient to do so
-procedure TSimpleSolver.DoSwaps;
+//Returns True if anything was swapped, so the caller can stop once the assignment settles
+function TSimpleSolver.DoSwaps: Boolean;
 var I, J, TaskToSwap, Best, CostCurrent, CostSwap: Integer;
 begin
+  Result := False;
+
   for I := fHeight - 1 downto 0 do
   begin
     Best := MaxInt;
@@ -152,6 +181,7 @@ begin
       TaskClaimedBy[Solution[I]] := TaskClaimedBy[TaskToSwap]; //They now own our task
       Solution[I] := TaskToSwap; //We get their task
       TaskClaimedBy[TaskToSwap] := I; //We now own their task
+      Result := True;
     end;
   end;
 end;
