@@ -17,7 +17,7 @@ type
   protected
     procedure SetUp; override;
     procedure TearDown; override;
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
@@ -132,12 +132,12 @@ begin
 end;
 
 
-function TKMTest_ArchersGoFar.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_ArchersGoFar.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   CheckWalkOrders(aTick);
 
   // Continue simulation (True) until one of the squads is wiped out
-  Result := (gHands[0].Stats.GetUnitQty(utAny) > 0) and (gHands[1].Stats.GetUnitQty(utAny) > 0);
+  aKeepGoing := (gHands[0].Stats.GetUnitQty(utAny) > 0) and (gHands[1].Stats.GetUnitQty(utAny) > 0);
 end;
 
 

@@ -7,7 +7,7 @@ uses
 type
   TKMTest_BuildingPlan = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -39,17 +39,14 @@ begin
 end;
 
 
-function TKMTest_BuildingPlan.DoTick(aTick: Cardinal): Boolean;
-var
-  I: Integer;
+procedure TKMTest_BuildingPlan.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   // Continue simulation (True) until the house plan is fully dug out
-  Result := True;
-  for I := 0 to gHands[0].Houses.Count - 1 do
+  for var I := 0 to gHands[0].Houses.Count - 1 do
   begin
     var H := gHands[0].Houses[I];
     if (H.HouseType = htSchool) and (H.BuildingState >= hbsWood) then
-      Result := False; // Dug out
+      aKeepGoing := False; // Dug out
   end;
 end;
 

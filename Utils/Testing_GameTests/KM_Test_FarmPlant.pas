@@ -7,7 +7,7 @@ uses
 type
   TKMTest_FarmPlant = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -37,9 +37,9 @@ begin
 end;
 
 
-function TKMTest_FarmPlant.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_FarmPlant.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := not ObjectIsCorn(gTerrain.Land[22, 16].Obj); // ObjectIsCorn expects ID
+  aKeepGoing := not ObjectIsCorn(gTerrain.Land[22, 16].Obj); // ObjectIsCorn expects ID
 end;
 
 

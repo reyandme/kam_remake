@@ -7,7 +7,7 @@ uses
 type
   TKMTest_SawmillDeliveryIn = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -44,14 +44,13 @@ begin
 end;
 
 
-function TKMTest_SawmillDeliveryIn.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_SawmillDeliveryIn.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   //todo: @LIFEFreedom at the moment, the code between DoTick and CheckResult is identical. Maybe this can be deduplicated?
-  Result := True;
   var H := gHands[0].FindHouse(htSawmill);
   if H <> nil then
     if H.ResIn[1] > 0 then
-      Result := False;
+      aKeepGoing := False;
 end;
 
 

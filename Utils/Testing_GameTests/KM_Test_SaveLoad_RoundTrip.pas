@@ -12,7 +12,7 @@ type
   TKMTest_SaveLoadRoundTrip = class(TKMTest)
   protected
     procedure SetUp; override;
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
@@ -39,10 +39,8 @@ begin
 end;
 
 
-function TKMTest_SaveLoadRoundTrip.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_SaveLoadRoundTrip.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := True;
-
   if aTick = 30 then
     gGameApp.Game.SaveAndWait(SAVE_NAME);
 

@@ -7,7 +7,7 @@ uses
 type
   TKMTest_Fight95 = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
     procedure TearDown; override;
@@ -45,10 +45,10 @@ begin
 end;
 
 
-function TKMTest_Fight95.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_Fight95.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   // Continue simulation (True) until one of armies are destroyed
-  Result := (gHands[0].Stats.GetUnitQty(utAny) > 0) and (gHands[1].Stats.GetUnitQty(utAny) > 0);
+  aKeepGoing := (gHands[0].Stats.GetUnitQty(utAny) > 0) and (gHands[1].Stats.GetUnitQty(utAny) > 0);
 end;
 
 

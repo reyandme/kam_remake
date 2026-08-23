@@ -13,7 +13,7 @@ type
     fRecruitWentToInn: Boolean;
   protected
     procedure SetUp; override;
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
@@ -47,10 +47,8 @@ begin
 end;
 
 
-function TKMTest_RecruitEatsAndReturns.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_RecruitEatsAndReturns.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := True;
-
   var barracks := TKMHouseBarracks(gHands[0].Houses[0]);
 
   if barracks.RecruitsCount = 0 then
@@ -61,8 +59,7 @@ begin
     var equipCount := barracks.Equip(utMilitia, 1);
     AssertEquals(1, equipCount, 'A recruit back from the Inn should still be equippable');
 
-    // Test can end now
-    Result := False;
+    aKeepGoing := False;
   end;
 end;
 

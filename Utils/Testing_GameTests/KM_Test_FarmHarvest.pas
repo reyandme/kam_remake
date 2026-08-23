@@ -9,7 +9,7 @@ type
   private
     fFarm: TKMHouse;
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -40,11 +40,10 @@ begin
 end;
 
 
-function TKMTest_FarmHarvest.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_FarmHarvest.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := True;
   if fFarm.ResOut[1] > 0 then
-    Result := False;
+    aKeepGoing := False;
 end;
 
 

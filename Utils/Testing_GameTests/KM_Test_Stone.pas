@@ -7,7 +7,7 @@ uses
 type
   TKMTest_Stone = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
     procedure TearDown; override;
@@ -51,10 +51,10 @@ begin
 end;
 
 
-function TKMTest_Stone.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_Stone.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   // Continue simulation (True) until stone is produced
-  Result := gHands[0].Stats.GetWaresProduced(wtStone) = 0;
+  aKeepGoing := gHands[0].Stats.GetWaresProduced(wtStone) = 0;
 end;
 
 

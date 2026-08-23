@@ -7,7 +7,7 @@ uses
 type
   TKMTest_Hungarian = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   end;
@@ -52,7 +52,7 @@ begin
 end;
 
 
-function TKMTest_Hungarian.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_Hungarian.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 var
   iH: Integer;
   iG: Integer;
@@ -62,10 +62,9 @@ var
   action: TKMUnitActionWalkTo;
 begin
   // Continue simulation (True) until one of armies are destroyed
-  Result := (gHands[0].Stats.GetUnitQty(utAny) > 0)
-    and (gHands[1].Stats.GetUnitQty(utAny) > 0);
+  aKeepGoing := (gHands[0].Stats.GetUnitQty(utAny) > 0) and (gHands[1].Stats.GetUnitQty(utAny) > 0);
 
-  if not Result then
+  if not aKeepGoing then
     Exit;
 
   for iH := 0 to 1 do

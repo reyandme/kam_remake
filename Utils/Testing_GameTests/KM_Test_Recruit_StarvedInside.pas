@@ -18,7 +18,7 @@ type
     fHasDied: Boolean;
   protected
     procedure SetUp; override;
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
@@ -55,10 +55,8 @@ begin
 end;
 
 
-function TKMTest_RecruitStarvedInside.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_RecruitStarvedInside.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := True;
-
   var barracks := TKMHouseBarracks(gHands[0].Houses[0]);
 
   var unitsInside := 0;

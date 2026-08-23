@@ -7,7 +7,7 @@ uses
 type
   TKMTest_SawmillDeliveryOut = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -43,14 +43,13 @@ begin
 end;
 
 
-function TKMTest_SawmillDeliveryOut.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_SawmillDeliveryOut.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := True;
   var Store := gHands[0].FindHouse(htStore);
   if Store <> nil then
   begin
     if Store.CheckWareIn(wtTimber) = 2 then
-      Result := False;
+      aKeepGoing := False;
   end;
 end;
 

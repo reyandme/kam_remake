@@ -7,7 +7,7 @@ uses
 type
   TKMTest_Sawmill = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -36,10 +36,10 @@ begin
 end;
 
 
-function TKMTest_Sawmill.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_Sawmill.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   // Keep running until wood is produced
-  Result := gHands[0].Stats.GetWaresProduced(wtTimber) = 0;
+  aKeepGoing := gHands[0].Stats.GetWaresProduced(wtTimber) = 0;
 end;
 
 

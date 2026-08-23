@@ -21,7 +21,7 @@ type
   TKMTest_RecruitKilledInside = class(TKMTest)
   protected
     procedure SetUp; override;
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
@@ -52,10 +52,8 @@ begin
 end;
 
 
-function TKMTest_RecruitKilledInside.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_RecruitKilledInside.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := True;
-
   if aTick = 10 then
     // Kill recruit where he stands, the way a mission script would
     gHands[0].Units[0].Kill(HAND_NONE, False, False)

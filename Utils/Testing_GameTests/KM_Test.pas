@@ -56,7 +56,7 @@ type
     fResults: TKMRunResults;
     fOnProgress: TUnicodeStringEvent;
     fOnStop: TBooleanFuncSimple;
-    function DoTick(aTick: Cardinal): Boolean; virtual;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); virtual;
     procedure SetUp; virtual; abstract;
     procedure TearDown; virtual;
     procedure CheckResult; virtual; abstract;
@@ -128,10 +128,9 @@ begin
 end;
 
 
-function TKMTest.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  // Continue game by default
-  Result := True;
+  //
 end;
 
 
@@ -154,7 +153,9 @@ begin
       if PaceTicks > 0 then
         Sleep(PaceTicks);
 
-      if not DoTick(I+1) then
+      var keepGoing := True;
+      DoTick(I + 1, keepGoing);
+      if not keepGoing then
         Exit;
 
       if Assigned(fOnStop) and fOnStop then

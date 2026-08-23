@@ -12,7 +12,7 @@ type
     fHasTriedToEquip: Boolean;
   protected
     procedure SetUp; override;
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
@@ -46,10 +46,8 @@ begin
 end;
 
 
-function TKMTest_RecruitEquipWhileEating.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_RecruitEquipWhileEating.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := True;
-
   // Visible means he has came out of the Barracks
   if gHands[0].Units[0].Visible then
   begin
@@ -58,7 +56,7 @@ begin
     AssertEquals(0, equipCount, 'A recruit who is out of the barracks can not be equipped');
 
     fHasTriedToEquip := True;
-    Result := False;
+    aKeepGoing := False;
   end;
 end;
 

@@ -7,7 +7,7 @@ uses
 type
   TKMTest_Swine = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -37,10 +37,10 @@ begin
 end;
 
 
-function TKMTest_Swine.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_Swine.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   // Keep running until at least 1 pig is produced
-  Result := gHands[0].Stats.GetWaresProduced(wtPig) = 0;
+  aKeepGoing := gHands[0].Stats.GetWaresProduced(wtPig) = 0;
 end;
 
 

@@ -7,7 +7,7 @@ uses
 type
   TKMTest_Mill = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -36,10 +36,10 @@ begin
 end;
 
 
-function TKMTest_Mill.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_Mill.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   // Keep running until flour is produced
-  Result := gHands[0].Stats.GetWaresProduced(wtFlour) = 0;
+  aKeepGoing := gHands[0].Stats.GetWaresProduced(wtFlour) = 0;
 end;
 
 

@@ -7,7 +7,7 @@ uses
 type
   TKMTest_Vineyard = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -37,21 +37,17 @@ begin
 end;
 
 
-function TKMTest_Vineyard.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_Vineyard.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := True;
-  var H := gHands[0].FindHouse(htVineyard);
-  if H <> nil then
-    if H.ResOut[1] > 0 then
-      Result := False;
+  var H := gHands[0].Houses[0];
+  if H.ResOut[1] > 0 then
+    aKeepGoing := False;
 end;
 
 procedure TKMTest_Vineyard.CheckResult;
 begin
-  var gotGrapes := 0;
-  var H := gHands[0].FindHouse(htVineyard);
-  if H <> nil then
-    gotGrapes := H.ResOut[1];
+  var H := gHands[0].Houses[0];
+  var gotGrapes := H.ResOut[1];
 
   AssertTrue(gotGrapes > 0, 'Farmer should have harvested grapes and delivered them to the vineyard');
 end;

@@ -7,7 +7,7 @@ uses
 type
   TKMTest_WoodcutterPlant = class(TKMTest)
   protected
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
     procedure CheckResult; override;
   public
@@ -35,15 +35,16 @@ begin
 end;
 
 
-function TKMTest_WoodcutterPlant.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_WoodcutterPlant.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   // Continue simulation (True) until at least one tree (caAge1) is planted near the house
-  Result := True;
-  
   for var Y := 10 to 25 do
     for var X := 10 to 25 do
       if gTerrain.ObjectIsChopableTree(KMPoint(X, Y), [caAge1]) then
-        Exit(False);
+      begin
+        aKeepGoing := False;
+        Exit;
+      end;
 end;
 
 

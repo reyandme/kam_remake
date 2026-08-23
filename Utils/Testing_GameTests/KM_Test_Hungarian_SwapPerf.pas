@@ -44,7 +44,7 @@ type
   protected
     procedure SetUp; override;
     procedure TearDown; override;
-    function DoTick(aTick: Cardinal): Boolean; override;
+    procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
@@ -85,10 +85,8 @@ begin
 end;
 
 
-function TKMTest_HungarianSwapPerf.DoTick(aTick: Cardinal): Boolean;
+procedure TKMTest_HungarianSwapPerf.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  Result := True;
-
   if aTick = 10 then
   begin
     // Killing and sampling happen within one tick, so nobody has taken a step in between
@@ -98,7 +96,7 @@ begin
     RunSweep;
     ReportSweep;
 
-    Result := False;
+    aKeepGoing := False;
   end;
 end;
 
