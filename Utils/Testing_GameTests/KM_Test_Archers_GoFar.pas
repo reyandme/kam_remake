@@ -6,11 +6,13 @@ uses
 
 
 type
-  // Two archer squads shoot it out 6 tiles apart, 21 per rank, 6 ranks deep.
-  // A member's index in fMembers is his formation slot, and deaths shift those indexes.
-  // Fails when an archer walks 10+ tiles to a spot a comrade stands twice nearer.
+  // Two big archer groups shoot at each other.
+  // Fail when archers are reordered inefficiently - has to walk 10+ tiles
+  // when there are much closer candidates.
   TKMTest_ArchersGoFar = class(TKMTest)
-  private
+  private const
+    MAX_WALK_DIST = 10;
+
     procedure CheckWalkOrders(aTick: Cardinal);
   protected
     procedure SetUp; override;
@@ -27,60 +29,43 @@ implementation
 uses
   Math, SysUtils, TypInfo,
   KM_Defaults, KM_Points,
-  KM_GameApp, KM_HandsCollection, KM_HandTypes, KM_Viewport,
+  KM_GameApp, KM_HandsCollection, KM_HandTypes,
   KM_Units, KM_UnitWarrior, KM_UnitGroup, KM_UnitGroupTypes, KM_UnitActionWalkTo;
 
 
-const
-  // Gap between the front ranks. Bowman range is 4..10.99, so both can shoot
-  ARMIES_GAP = 6;
-
-  // The longest walk an archer can legitimately be ordered to make in this setup
-  MAX_WALK_DIST = 10;
-
-
-// Distance from aLoc to the nearest other member of aUnit's group, MaxSingle if none
-function NearestComrade(aHand: Integer; aUnit: TKMUnit; const aLoc: TKMPoint; out aUID: Integer): Single;
+function NearestMember(aHand: Integer; aUnit: TKMUnit; const aLoc: TKMPoint; out aUID: Integer): Single;
 begin
   Result := MaxSingle;
   aUID := 0;
 
   var group := gHands[aHand].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
-  if group = nil then Exit;
-
   for var I := 0 to group.Count - 1 do
   if group.Members[I] <> aUnit then
   begin
-    var d := KMLengthDiag(group.Members[I].Position, aLoc);
-    if d < Result then
+    var newDist := KMLengthDiag(group.Members[I].Position, aLoc);
+    if newDist < Result then
     begin
-      Result := d;
+      Result := newDist;
       aUID := group.Members[I].UID;
     end;
   end;
 end;
 
 
-// Group state behind a far walk order, so a red run reads without a debugger
-function DescribeFarWalk(aTick: Cardinal; aHand: Integer; aUnit: TKMUnit; const aWalkTo: TKMPoint;
-                         aDist, aNearest: Single; aNearestUID: Integer): string;
+function DescribeFarWalk(aTick: Cardinal; aHand: Integer; aUnit: TKMUnit; const aWalkTo: TKMPoint; aDist, aNearest: Single; aNearestUID: Integer): string;
 begin
   Result := Format('Tick %d: archer %d of hand %d standing at %s was ordered to walk to %s, %.1f tiles away',
-                   [aTick, aUnit.UID, aHand, TypeToString(aUnit.Position), TypeToString(aWalkTo), aDist]);
+    [aTick, aUnit.UID, aHand, aUnit.Position.ToString, aWalkTo.ToString, aDist]);
 
   var group := gHands[aHand].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
-  if group = nil then Exit;
 
   var idx := -1;
   for var I := 0 to group.Count - 1 do
     if group.Members[I] = aUnit then
       idx := I;
 
-  Result := Result + Format('. Group %d: he is member %d of %d, %d per row, order %s at %s.'
-                          + ' Comrade %d stands only %.1f tiles from that spot',
-                            [group.UID, idx, group.Count, group.UnitsPerRow,
-                             GetEnumName(TypeInfo(TKMGroupOrder), Integer(group.Order)),
-                             TypeToString(group.OrderLoc), aNearestUID, aNearest]);
+  Result := Result + Format('. Group %d: he is member %d of %d, %d per row, order %s at %s. Member %d stands only %.1f tiles from that spot',
+    [group.UID, idx, group.Count, group.UnitsPerRow, GetEnumName(TypeInfo(TKMGroupOrder), Integer(group.Order)), group.OrderLoc.ToString, aNearestUID, aNearest]);
 end;
 
 
@@ -90,32 +75,21 @@ begin
   inherited;
 
   DYNAMIC_TERRAIN := False;
-
-  // Draw walk routes, so far walks can be seen in the test runner
   SHOW_UNIT_ROUTES := True;
 
-  // 3 minutes of game time, arrows start flying within the first few ticks
   fDuration := 3 * 600;
 
   gGameApp.NewGameEmptyMap(64, 64);
 
-  // Pull the camera out to fit both squads and their routes into view
-  if (gGameApp.Game <> nil) and (gGameApp.Game.ActiveInterface <> nil) then
-  begin
-    var viewport := gGameApp.Game.ActiveInterface.Viewport;
-    viewport.Zoom := viewport.Zoom / 2;
-  end;
+  if gGameApp.Game.ActiveInterface <> nil then
+    gGameApp.Game.ActiveInterface.Viewport.Zoom := 0.5;
 
   // Player controlled, so that no AI general orders the squads about
   gHands[0].HandType := hndHuman;
   gHands[1].HandType := hndHuman;
 
-  // An odd rank centres the leader, so both formations line up exactly
-  var leader0 := KMPoint(29, 32);
-  var leader1 := KMPoint(leader0.X + ARMIES_GAP, leader0.Y);
-
-  var group0 := gHands[0].AddUnitGroup(utBowman, leader0, dirE, 21, 21 * 6);
-  var group1 := gHands[1].AddUnitGroup(utBowman, leader1, dirW, 21, 21 * 6);
+  var group0 := gHands[0].AddUnitGroup(utBowman, KMPoint(29, 32), dirE, 21, 21 * 6);
+  var group1 := gHands[1].AddUnitGroup(utBowman, KMPoint(35, 32), dirW, 21, 21 * 6);
 
   group0.OrderAttackUnit(group1.Members[0], True);
   group1.OrderAttackUnit(group0.Members[0], True);
@@ -130,29 +104,28 @@ begin
 end;
 
 
-// Nobody should cross the battlefield while the two squads shoot at each other
 procedure TKMTest_ArchersGoFar.CheckWalkOrders(aTick: Cardinal);
 begin
-  for var H := 0 to gHands.Count - 1 do
-    for var I := 0 to gHands[H].Units.Count - 1 do
+  for var I := 0 to gHands.Count - 1 do
+    for var K := 0 to gHands[I].Units.Count - 1 do
     begin
-      var U := gHands[H].Units[I];
+      var U := gHands[I].Units[K];
 
       if (U = nil) or U.IsDeadOrDying then Continue;
       if not (U.Action is TKMUnitActionWalkTo) then Continue;
 
       var walkTo := TKMUnitActionWalkTo(U.Action).WalkTo;
-      var dist := KMLengthDiag(U.Position, walkTo);
+      var ourDist := KMLengthDiag(U.Position, walkTo);
 
-      if dist <= MAX_WALK_DIST then Continue;
+      if ourDist <= MAX_WALK_DIST then Continue;
 
-      //Only a mistake when a comrade stands at least twice as close to that spot
-      var comradeUID: Integer;
-      var nearest := NearestComrade(H, U, walkTo, comradeUID);
-      if nearest * 2 > dist then Continue;
+      // Only an issue when a member stands at least twice as close to that spot
+      var memberUID: Integer;
+      var nearestDist := NearestMember(I, U, walkTo, memberUID);
+      if nearestDist * 2 > ourDist then Continue;
 
-      var s := DescribeFarWalk(aTick, H, U, walkTo, dist, nearest, comradeUID);
-      AssertTrue(False, s);
+      var descText := DescribeFarWalk(aTick, I, U, walkTo, ourDist, nearestDist, memberUID);
+      AssertTrue(False, descText);
     end;
 end;
 
