@@ -2541,7 +2541,7 @@ begin
       lineColor := icCyan;
     end;
 
-    gRenderPool.RenderDebug.RenderTiledArea(Position, WATCHTOWER_RANGE_MIN, WATCHTOWER_RANGE_MAX, GetLength, fillColor, lineColor);
+    gRenderPool.RenderDebug.RenderTiledArea(Position, WATCHTOWER_RANGE_MIN, WATCHTOWER_RANGE_MAX, lfLength, fillColor, lineColor);
   end;
 end;
 

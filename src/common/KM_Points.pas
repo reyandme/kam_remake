@@ -9,6 +9,11 @@ type
   TKMDirection4 = (drNA, drN, drE, drS, drW);
   TKMDirection4Set = set of TKMDirection4;
 
+  TKMLengthFunction = (
+    lfLength,     // True length
+    lfLengthDiag  // Simplified length composed of straight and diagonal distance
+  );
+
 const
   DIR_MIN = dirN;
   DIR_MAX = dirNW;

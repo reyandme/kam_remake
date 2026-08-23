@@ -1160,7 +1160,7 @@ begin
         lineColor := icCyan;
       end;
 
-      gRenderPool.RenderDebug.RenderTiledArea(Position, GetFightMinRange, GetFightMaxRange, GetLength, fillColor, lineColor);
+      gRenderPool.RenderDebug.RenderTiledArea(Position, GetFightMinRange, GetFightMaxRange, lfLength, fillColor, lineColor);
     end;
 end;
 

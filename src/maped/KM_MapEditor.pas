@@ -1101,7 +1101,9 @@ begin
                   if InRange(ActiveMarker.Index, 0, gHands[ActiveMarker.Owner].AI.General.DefencePositions.Count - 1) then
                   begin
                     DP := gHands[ActiveMarker.Owner].AI.General.DefencePositions[ActiveMarker.Index];
-                    gRenderPool.RenderDebug.RenderTiledArea(DP.Position.Loc, 0, DP.Radius, KMLengthDiag,
+
+                    // DefencePositions use LengthDiag radius of responsibility
+                    gRenderPool.RenderDebug.RenderTiledArea(DP.Position.Loc, 0, DP.Radius, lfLengthDiag,
                                                             gHands[ActiveMarker.Owner].FlagColor AND $60FFFFFF,
                                                             icCyan);
                   end;

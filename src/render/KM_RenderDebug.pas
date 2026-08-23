@@ -16,7 +16,7 @@ type
     procedure ResetAreaData;
     function IsAreaInClip(aLoc: TKMPoint; aRadius: Integer): Boolean;
     procedure CollectAreaTiles(var aPoints: TBoolean2Array; const aLoc: TKMPoint; aMinRadius, aMaxRadius: Single;
-                               aDistanceFunc: TCoordDistanceFn);
+                               aDistanceFunc: TKMLengthFunction);
   public
     constructor Create;
     destructor Destroy; override;
@@ -28,7 +28,7 @@ type
     procedure PaintMiningRadius;
     procedure PaintDefences;
 
-    procedure RenderTiledArea(const aLoc: TKMPoint; aMinRadius, aMaxRadius: Single; aDistanceFunc: TCoordDistanceFn;
+    procedure RenderTiledArea(const aLoc: TKMPoint; aMinRadius, aMaxRadius: Single; aDistanceFunc: TKMLengthFunction;
                                     aFillColor, aLineColor: Cardinal);
   end;
 
@@ -84,10 +84,8 @@ end;
 
 
 // Render quads over tiles
-procedure TKMRenderDebug.RenderTiledArea(const aLoc: TKMPoint; aMinRadius, aMaxRadius: Single; aDistanceFunc: TCoordDistanceFn;
+procedure TKMRenderDebug.RenderTiledArea(const aLoc: TKMPoint; aMinRadius, aMaxRadius: Single; aDistanceFunc: TKMLengthFunction;
                                                aFillColor, aLineColor: Cardinal);
-var
-  I, K: Integer;
 begin
   {$IFDEF DBG_PERFLOG}
   gPerfLogs.SectionEnter(psRenderDebug);
@@ -98,18 +96,26 @@ begin
 
     ResetAreaData;
 
-    for I := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
-      for K := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
-        if InRange(aDistanceFunc(K, I), aMinRadius, aMaxRadius) and gTerrain.TileInMapCoords(aLoc.X+K, aLoc.Y+I) then
-        begin
-          fAreaTilesLand[aLoc.Y+I - 1, aLoc.X+K - 1] := True; // fDefLand is 0-based
-          gRenderAux.QuadI(aLoc.X+K, aLoc.Y+I, aFillColor);
-        end;
+    for var I := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
+    for var K := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
+    begin
+      var dst := MaxSingle;
+      case aDistanceFunc of
+        lfLength:     dst := KMLength(K, I);
+        lfLengthDiag: dst := KMLengthDiag(K, I);
+      end;
+
+      if InRange(dst, aMinRadius, aMaxRadius) and gTerrain.TileInMapCoords(aLoc.X+K, aLoc.Y+I) then
+      begin
+        fAreaTilesLand[aLoc.Y+I - 1, aLoc.X+K - 1] := True; // fDefLand is 0-based
+        gRenderAux.QuadI(aLoc.X+K, aLoc.Y+I, aFillColor);
+      end;
+    end;
 
     if not fMarchingSquares.IdentifyPerimeters(fBorderPoints) then
       Exit;
 
-    for K := 0 to fBorderPoints.Count - 1 do
+    for var K := 0 to fBorderPoints.Count - 1 do
       gRenderAux.LineOnTerrain(fBorderPoints[K], aLineColor);
   finally
     {$IFDEF DBG_PERFLOG}
@@ -120,14 +126,20 @@ end;
 
 
 procedure TKMRenderDebug.CollectAreaTiles(var aPoints: TBoolean2Array; const aLoc: TKMPoint; aMinRadius, aMaxRadius: Single;
-                                          aDistanceFunc: TCoordDistanceFn);
-var
-  I, K: Integer;
+                                          aDistanceFunc: TKMLengthFunction);
 begin
-  for I := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
-    for K := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
-      if InRange(aDistanceFunc(K, I), aMinRadius, aMaxRadius) and gTerrain.TileInMapCoords(aLoc.X+K, aLoc.Y+I) then
-        aPoints[aLoc.Y+I - 1, aLoc.X+K - 1] := True;
+  for var I := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
+  for var K := -Round(aMaxRadius) - 1 to Round(aMaxRadius) do
+  begin
+    var dst := MaxSingle;
+    case aDistanceFunc of
+      lfLength:     dst := KMLength(K, I);
+      lfLengthDiag: dst := KMLengthDiag(K, I);
+    end;
+
+    if InRange(dst, aMinRadius, aMaxRadius) and gTerrain.TileInMapCoords(aLoc.X+K, aLoc.Y+I) then
+      aPoints[aLoc.Y+I - 1, aLoc.X+K - 1] := True;
+  end;
 end;
 
 
@@ -192,7 +204,7 @@ begin
       if not IsAreaInClip(DP.Position.Loc, DP.Radius) then
         Continue;
 
-      CollectAreaTiles(fAreaTilesLand, DP.Position.Loc, 0, DP.Radius, KMLengthDiag);
+      CollectAreaTiles(fAreaTilesLand, DP.Position.Loc, 0, DP.Radius, lfLengthDiag);
     end;
 
     //Draw quads
