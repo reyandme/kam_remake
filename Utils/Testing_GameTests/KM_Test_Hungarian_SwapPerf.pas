@@ -7,28 +7,27 @@ uses
 
 type
   // A 120 man group loses 10% of its men and the survivors get re-matched to their formation slots.
-  // A benchmark rather than a check: sweeps the swap pass cap of TSimpleSolver from 2 to 64 and logs
+  // A benchmark rather than a check: sweeps the swap pass cap of TSimpleSolver from 2 to 24 and logs
   // what each cap costs and what it buys. Fails only when the swap loop itself misbehaves.
   TKMTest_HungarianSwapPerf = class(TKMTest)
   private const
     GROUP_SIZE = 120;     // Men in the group before anybody dies
     GROUP_WIDTH = 20;     // Men per rank, so 120 of them make 6 ranks
     KILLED_PERCENT = 10;
-    SWEEP_FROM = 2;       // Caps to measure - 2, 4, 6 ... 64
-    SWEEP_TO = 64;
-    SWEEP_STEP = 2;
-    SOLVE_REPEATS = 50;   // Solves per cap. We keep the fastest, an average carries other processes in it
+    SWEEP_FROM = 2;
+    SWEEP_TO = 24;
+    SOLVE_REPEATS = 50;   // Solves per cap. We keep the fastest
     SETTLE_TICKS = 10;    // Ticks of ordinary game before the killing starts
   private type
     // One row of the sweep - what the solver did when its swap loop was capped at Cap passes
     TKMSwapRun = record
       Cap: Integer;       // Cap the solver was given, 0 being the greedy first step on its own
       Passes: Integer;    // Passes it actually ran, fewer than Cap means the assignment settled
-      MinUSec: Int64;     // Fastest of SOLVE_REPEATS solves, the least polluted by other processes
+      MinUSec: Int64;     // Fastest of SOLVE_REPEATS solves
       AvgUSec: Int64;
       Cost: Int64;        // Sum of Costs[I, Solution[I]] - the number the solver minimizes
       TotalWalk: Single;  // The same assignment measured in tiles the men would walk
-      MaxWalk: Single;
+      MaxWalk: Single;    // Longest rearrangement walk
     end;
   private
     fSlots: TKMPointArray;              // Formation slots waiting to be filled (the solver's agents)
@@ -68,7 +67,6 @@ begin
 
   DYNAMIC_TERRAIN := False;
 
-  // The game is only here to build a real group, the sweep runs once it has stopped
   fDuration := 60;
 
   gGameApp.NewGameEmptyMap(64, 64);
@@ -90,17 +88,22 @@ end;
 
 function TKMTest_HungarianSwapPerf.DoTick(aTick: Cardinal): Boolean;
 begin
-  // Killing and sampling happen within one tick, so nobody has taken a step in between
-  Result := aTick < SETTLE_TICKS;
-  if Result then Exit;
+  Result := True;
 
-  KillRandomMembers;
-  SampleGroup;
+  if aTick = SETTLE_TICKS then
+  begin
+    // Killing and sampling happen within one tick, so nobody has taken a step in between
+    KillRandomMembers;
+    SampleGroup;
+
+    RunSweep;
+    ReportSweep;
+
+    Result := False;
+  end;
 end;
 
 
-// Kill a tenth of the group at random, never the leader - he carries the flag and
-// HungarianReorderMembers leaves him out of the matching
 procedure TKMTest_HungarianSwapPerf.KillRandomMembers;
 begin
   var group := gHands[0].UnitGroups[0];
@@ -114,7 +117,9 @@ begin
   try
     for var I := 0 to toKill - 1 do
     begin
+      // Kill random member, never the leader - he carries the flag and HungarianReorderMembers leaves him out of the matching
       var idx := 1 + KaMRandom(group.Count - 1{$IFDEF DBG_RNG_SPY}, 'TKMTest_HungarianSwapPerf.KillRandomMembers'{$ENDIF});
+
       // No animation and no delay, so the man leaves fMembers before we pick the next one
       group.Members[idx].Kill(HAND_NONE, False, False);
     end;
@@ -140,17 +145,15 @@ begin
   for var I := 0 to cnt - 1 do
   begin
     // The slot GetMemberLoc would give member I + 1, that one being private to the group
-    fSlots[I] := GetPositionInGroup2(group.OrderLoc.Loc.X, group.OrderLoc.Loc.Y, group.OrderLoc.Dir,
-      I + 1, group.UnitsPerRow, gTerrain.MapX, gTerrain.MapY, canBeReached);
+    fSlots[I] := GetPositionInGroup2(group.OrderLoc.Loc.X, group.OrderLoc.Loc.Y, group.OrderLoc.Dir, I + 1, group.UnitsPerRow, gTerrain.MapX, gTerrain.MapY, canBeReached);
     fMen[I] := group.Members[I + 1].Position;
   end;
 
-  // The matrix HungarianMatchPoints builds for huIndividual - costs are squared, so one man walking
-  // ten tiles weighs far more than ten men taking a step each
+  // The matrix HungarianMatchPoints builds for huIndividual - costs are squared, so one man walking ten tiles weighs far more than ten men taking a step each
   SetLength(fCosts, cnt, cnt);
   for var I := 0 to cnt - 1 do
     for var J := 0 to cnt - 1 do
-      fCosts[I, J] := Round(Sqr(10 * KMLengthDiag(fSlots[I], fMen[J])));
+      fCosts[I, J] := Round(Sqr(10 * fSlots[I].GetLengthDiag(fMen[J])));
 end;
 
 
@@ -220,9 +223,9 @@ begin
     begin
       Result.Cost := Result.Cost + fCosts[I, solver.Solution[I]];
 
-      var walk := KMLengthDiag(fSlots[I], fMen[solver.Solution[I]]);
-      Result.TotalWalk := Result.TotalWalk + walk;
-      Result.MaxWalk := Max(Result.MaxWalk, walk);
+      var walkLength := fSlots[I].GetLengthDiag(fMen[solver.Solution[I]]);
+      Result.TotalWalk := Result.TotalWalk + walkLength;
+      Result.MaxWalk := Max(Result.MaxWalk, walkLength);
     end;
   finally
     solver.Free;
@@ -232,22 +235,20 @@ end;
 
 procedure TKMTest_HungarianSwapPerf.RunSweep;
 begin
-  SetLength(fRuns, (SWEEP_TO - SWEEP_FROM) div SWEEP_STEP + 2);
+  SetLength(fRuns, (SWEEP_TO - SWEEP_FROM) + 2);
 
   // Row 0 is the baseline: the greedy first step and the final comparison, without a single swap
   // pass. What the other rows cost on top of it is the time spent in DoSwaps
   fRuns[0] := MeasureCap(0);
 
   var idx := 0;
-  var cap := SWEEP_FROM;
-  while cap <= SWEEP_TO do
+  for var I := SWEEP_FROM to SWEEP_TO do
   begin
     if Assigned(fOnProgress) then
-      fOnProgress(Format('swap pass cap %d of %d', [cap, SWEEP_TO]));
+      fOnProgress(Format('swap pass cap %d of %d', [I, SWEEP_TO]));
 
     Inc(idx);
-    fRuns[idx] := MeasureCap(cap);
-    Inc(cap, SWEEP_STEP);
+    fRuns[idx] := MeasureCap(I);
   end;
 end;
 
@@ -256,10 +257,8 @@ end;
 procedure TKMTest_HungarianSwapPerf.ReportSweep;
 begin
   gLog.AddNoTime('', False);
-  gLog.AddNoTime(Format('%s: %d men, %d of them killed, %d survivors matched to their slots (leader aside)',
-    [ClassName, fGroupSize, fKilled, Length(fMen)]), False);
-  gLog.AddNoTime(Format('%d solves per cap, the fastest of them reported. The game runs SWAP_PASSES = %d',
-    [SOLVE_REPEATS, SWAP_PASSES]), False);
+  gLog.AddNoTime(Format('%s: %d men, %d of them killed, %d survivors matched to their slots (leader aside)', [ClassName, fGroupSize, fKilled, Length(fMen)]), False);
+  gLog.AddNoTime(Format('%d solves per cap, the fastest of them reported. The game runs SWAP_PASSES = %d', [SOLVE_REPEATS, SWAP_PASSES]), False);
   gLog.AddNoTime('  cap  passes   solve us    avg us   swaps us   us/pass          cost   walk tiles   max walk', False);
 
   for var I := 0 to High(fRuns) do
@@ -271,8 +270,7 @@ begin
       perPass := swapsUSec / fRuns[I].Passes;
 
     gLog.AddNoTime(Format('%5d  %6d   %8d  %8d   %8d  %8.1f  %12d   %10.1f   %8.1f',
-      [fRuns[I].Cap, fRuns[I].Passes, fRuns[I].MinUSec, fRuns[I].AvgUSec, swapsUSec, perPass,
-       fRuns[I].Cost, fRuns[I].TotalWalk, fRuns[I].MaxWalk]), False);
+      [fRuns[I].Cap, fRuns[I].Passes, fRuns[I].MinUSec, fRuns[I].AvgUSec, swapsUSec, perPass, fRuns[I].Cost, fRuns[I].TotalWalk, fRuns[I].MaxWalk]), False);
   end;
 end;
 
@@ -280,25 +278,16 @@ end;
 procedure TKMTest_HungarianSwapPerf.CheckResult;
 begin
   AssertTrue(Length(fCosts) > 0, 'The group was never sampled, the test did not get as far as its first kill');
-
-  // The whole point is a group this size, a short one would benchmark something else
-  AssertTrue(fGroupSize = GROUP_SIZE,
-    Format('The group came out %d men strong instead of %d', [fGroupSize, GROUP_SIZE]));
-
-  RunSweep;
-  ReportSweep;
-
-  var settled := fRuns[High(fRuns)]; // The largest cap we measured
+  AssertTrue(fGroupSize = GROUP_SIZE, Format('The group came out %d men strong instead of %d', [fGroupSize, GROUP_SIZE]));
 
   // The loop is meant to stop once nothing improves any more, the cap being only a backstop
-  AssertTrue(settled.Passes < settled.Cap,
-    Format('The swap loop did not settle within %d passes for %d men', [settled.Cap, Length(fCosts)]));
+  var settled := fRuns[High(fRuns)]; // The largest cap we measured
+  AssertTrue(settled.Passes < settled.Cap, Format('The swap loop did not settle within %d passes for %d men', [settled.Cap, Length(fCosts)]));
 
   // Every swap strictly lowers the total cost, so a bigger cap can never come out worse
   for var I := 1 to High(fRuns) do
     AssertTrue(fRuns[I].Cost <= fRuns[I - 1].Cost,
-      Format('Cap %d gave a worse assignment than cap %d, cost %d against %d',
-             [fRuns[I].Cap, fRuns[I - 1].Cap, fRuns[I].Cost, fRuns[I - 1].Cost]));
+      Format('Cap %d gave a worse assignment than cap %d, cost %d against %d', [fRuns[I].Cap, fRuns[I - 1].Cap, fRuns[I].Cost, fRuns[I - 1].Cost]));
 
   // The row the game itself runs with. Whether that many passes is enough is a question for the
   // table in the log, not for an assertion - that would only pin down today's SWAP_PASSES
@@ -312,9 +301,7 @@ begin
 
   // What we swept has to be what the game runs, not a lookalike built next to it
   var gameCost := ProductionCost;
-  AssertTrue(gameCost = shipped.Cost,
-    Format('HungarianMatchPoints came out at cost %d over the same points, the sweep says %d',
-           [gameCost, shipped.Cost]));
+  AssertTrue(gameCost = shipped.Cost, Format('HungarianMatchPoints came out at cost %d over the same points, the sweep says %d', [gameCost, shipped.Cost]));
 end;
 
 
