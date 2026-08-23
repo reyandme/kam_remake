@@ -7,7 +7,7 @@ uses
 
 const
   // How many swap passes STEP 2 of TSimpleSolver runs
-  SWAP_COUNT_DEFAULT = 2;
+  SWAP_COUNT_DEFAULT = 4;
 
 type
   THungarianOptimisation = (
