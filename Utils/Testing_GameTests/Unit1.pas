@@ -172,11 +172,10 @@ end;
 
 
 procedure TForm2.lbTestsClick(Sender: TObject);
-var
-  ID: Integer;
 begin
-  ID := lbTests.ItemIndex;
-  if ID = -1 then Exit;
+  var idx := lbTests.ItemIndex;
+  if idx = -1 then Exit;
+
   btnRunOne.Enabled := True;
   btnRunAll.Enabled := True;
   btnStop.Enabled := False;
@@ -195,7 +194,7 @@ begin
 
   fStopped := False;
 
-  var T := GetTickCount;
+  var t := GetTickCount;
   var thisTest := aClass.Create(IsStopped, HandleProgress);
   try
     thisTest.ThrottleRender := chkThrottleRender.Checked;
@@ -210,7 +209,7 @@ begin
       trException:  resStr := 'EXCEPTION: ' + fResults.TestMessage;
     end;
 
-    meLog.Lines.Append(Format('%-32s: %s, seed %d, %d ms', [aClass.ClassName, resStr, aSeed, GetTickCount - T]));
+    meLog.Lines.Append(Format('%-32s: %s, seed %d, %d ms', [aClass.ClassName, resStr, aSeed, GetTickCount - t]));
   finally
     thisTest.Free;
   end;
