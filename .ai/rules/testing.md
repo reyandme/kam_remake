@@ -1,77 +1,100 @@
 # Testing
 
-There are two test projects. They are not interchangeable - pick by what the code under test is,
-and follow the conventions already present in that project.
+Two separate test projects, with different purposes and different frameworks. Pick the one that
+fits and follow what the tests already there do.
 
-| Project | Framework | Use it for |
+| Project | Framework | For |
 |---|---|---|
-| `Utils/UnitTests` | DUnit (`TestFramework`) | Pure logic with no game around it: utilities, points, streams, containers |
-| `Utils/Testing_GameTests` | Own harness (`KM_Test.pas`) | Gameplay behaviour, which needs a running game |
-
-Neither project can be built from the command line - see the build note in `project.md`.
+| `Utils/UnitTests` | DUnit | Pure logic with no game around it: utilities, points, streams, containers |
+| `Utils/Testing_GameTests` | Own harness (`TKMTest`) | Gameplay behaviour, by running a real game and ticking it |
 
 ## Unit tests (`Utils/UnitTests`)
 
-DUnit, not DUnitX. Do not introduce DUnitX, `[TestFixture]` attributes or a DUnitX runner here.
-
-- One `TTestCase` descendant per unit under test, file named `TestKM_<Unit>.pas`.
-- Test methods go in the `published` section - that is how DUnit discovers them.
-- `SetUp` / `TearDown` are `override`.
+- Descend from `TTestCase`, put the test methods under `published`.
 - Register in `initialization` with `RegisterTest(TestKMSomething.Suite);`.
 - The runner is `UnitTests.dpr`, GUI by default and console under `CONSOLE_TESTRUNNER`.
 
 ## Game tests (`Utils/Testing_GameTests`)
 
-These run a real game with no user interface at all (see the headless section in
-`project-rules.md`), tick it forward, and check what happened. One class per file.
+These start a game, tick it forward and check what happened. One class per file.
+
+The game runs with a blind render (`TKMRender` with no render control), not with no render at all:
+`gRender` exists, and so does the gameplay interface. Passing `--show-window` gives it a real
+window instead, which is useful when you want to watch a test.
 
 ### Shape of a test
 
-`TKMTest` splits the test along Arrange - Act - Assert, and the split is not optional:
+```pascal
+TKMTest_SomethingHappens = class(TKMTest)
+private const
+  SOME_LIMIT = 10;
+protected
+  procedure SetUp; override;
+  procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
+  procedure CheckResult; override;
+public
+  class function TestTags: TKMTestTagSet; override;
+  class function TestDescription: string; override;
+end;
+```
 
-- `SetUp` - **Arrange.** Start the world (`gGameApp.NewGameEmptyMap`), place houses and units,
-  set `fDuration` (the number of ticks to run).
-- `DoTick(aTick)` - **Act.** Called once per tick. Read it as a human sequence: "at tick 30, save
-  the game", "at tick 10, equip a soldier". Returning `False` ends the run early.
-- `CheckResult` - **Assert.** What must be true when the run is over.
-- `TestTags` and `TestDescription` describe the test for the runner. The description states the
-  expected behaviour, not the mechanics.
+- `SetUp` - build the world: `gGameApp.NewGameEmptyMap`, place houses and units, set `fDuration`
+  (how many ticks to run at most).
+- `DoTick(aTick, aKeepGoing)` - called once per tick. `aKeepGoing` comes in `True`, so only touch
+  it to stop early. Assert here, as soon as the answer is known.
+- `CheckResult` - what must hold once the run is over. May be empty with a comment saying so, if
+  everything was checked as it went.
+- `TearDown` - only if `SetUp` changed a global, to put it back.
 - Register in `initialization` with `RegisterTest(TKMTest_Something);`.
 
-Assertions are `AssertTrue` and `AssertEquals` from `KM_Test`. Assert as soon as the answer is
-known - preferably inside `DoTick` - rather than storing values in fields to compare later.
+Assertions are `AssertTrue` and `AssertEquals` from `KM_Test`.
+
+### Style
+
+Follow `KM_Test_Archers_GoFar.pas`, which is the fullest example in the suite:
+
+- Constants belong in the class as `private const`, not in a unit level `const` block.
+- Helpers that need game types go at unit level in the `implementation` section, above the class
+  methods.
+- Prefer `Continue` guards over one compound condition when walking units or houses.
+- Say what the test builds and when it fails in a comment above the class.
+- The test builds its own map, so `gHands[0].Houses[0]` is enough to reach the house it placed.
+- Write durations as ticks per minute where that reads better: `fDuration := 3 * 600;`.
+- Failure messages should carry the numbers that failed and the tick, so the log is enough to
+  understand what went wrong without a debugger.
 
 ### Rules for writing them
 
-- A test must not know the implementation. Name it after the behaviour, and check the behaviour
-  through the public API. `TKMTest_Recruit_ListOwnsPointer` is a bad name; a test that reads a
-  private counter is a bad test.
-- One behaviour per test. If a test needs two unrelated assertions, it is two tests.
-- No leftovers. Every field, constant and helper in the test has to earn its place - copying the
-  skeleton of another test and leaving its settling delays and lookup helpers in place is worse
-  than writing it from scratch.
-- Do not defer work into fields when a local variable does. If the test built the world itself,
-  the expected values are known by construction and there is nothing to capture beforehand.
+- One behaviour per test.
+- Drive the game, do not reach into internal state to force a situation. A test that assigns a
+  field to set up its scenario is testing the assignment, not the game.
+- Do not tie a test to a tick the game chooses. Anything that follows from walking, eating or
+  pathfinding lands on a different tick for every seed, and the suite is run over several seeds
+  with `--cycles`. Watch for the state instead. Ticks the test itself picks are fine.
+- Keep no more state on the test than the run actually needs. A `Boolean` field that only restates
+  what the current tick or the world already says should not exist.
+- Clean up after a test that changes a global, in `TearDown`.
 
 ### Two traps in the harness
 
-- `SetUp` is called **outside** the `try..except` in `TKMTest.Run`, so a failed assertion there
-  escapes uncaught instead of being reported as a failed test. Keep assertions out of `SetUp`.
-- `CheckResult` is called from a `finally`, so raising in it replaces any exception that `DoTick`
-  was already raising. Do not let a follow-up check hide the original failure.
+- **`SetUp` runs outside the `try` in `Run`.** An exception there escapes as a plain exception, not
+  as a test failure.
+- **`CheckResult` runs from a `finally`.** If it raises while `DoTick` is already raising, its
+  exception replaces the original one and the log shows the wrong cause. Record that a step
+  happened before the step that can fail, not after.
 
-### File and class naming
+### Naming
 
-Follow the suite: `KM_Test_<Area>_<Aspect>.pas` holding `TKMTest_<Area><Aspect>` - the file
-separates the parts with an underscore, the class concatenates them.
+`KM_Test_<Area>_<Aspect>.pas` holding `TKMTest_<Area><Aspect>` - the file separates the parts with
+an underscore, the class runs them together.
 
 ```
 KM_Test_Sawmill_DeliveryIn.pas  ->  TKMTest_SawmillDeliveryIn
 KM_Test_Bakery.pas              ->  TKMTest_Bakery
 ```
 
-New test units must be registered in `Testing_GameTests.dpr`, keeping the existing alphabetical
-order - see `coding-rules.md`.
+New test units go in `Testing_GameTests.dpr`, in the existing alphabetical order - see
+`coding-rules.md`.
 
 ### Running them
 
@@ -80,10 +103,7 @@ Testing_GameTests.exe --run-all [--seed=N] [--cycles=N] [--show-window] [--out=<
 Testing_GameTests.exe --run=Recruit
 ```
 
-`--run` filters on a case insensitive substring of the test class name. Results go to the `--out`
-file, by default `Testing_GameTests_results.log` next to the executable. Exit code is `0` when
-everything passed, `1` when something failed and `2` when the filter matched no test.
-
-Tests must be deterministic: the same seed must always give the same result. `--cycles` reruns
-the set with a different seed each time and is the cheapest way to catch a test that only passes
-by luck.
+`--run` takes a case insensitive substring of the test class name. `--cycles=N` runs the selection
+N times, incrementing the seed each time, which is how a test that only passes on one seed gets
+caught. Results go to `--out`, by default `Testing_GameTests_results.log`. Exit code is 0 when
+everything passed and 1 when something did not.
