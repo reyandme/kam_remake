@@ -271,9 +271,11 @@ end;
 
 //Rough and faster Length as combination of straight and diagonal
 function TKMPoint.GetLengthDiag(const aTarget: TKMPoint): Single;
+var
+  absX, absY: Integer;
 begin
-  var absX := Abs(X - aTarget.X);
-  var absY := Abs(Y - aTarget.Y);
+  absX := Abs(X - aTarget.X);
+  absY := Abs(Y - aTarget.Y);
 
   if absX > absY then
     Result := absX + absY * 0.41
@@ -283,9 +285,11 @@ end;
 
 
 function TKMPoint.GetLengthDiag(const aTargetX, aTargetY: Integer): Single;
+var
+  absX, absY: Integer;
 begin
-  var absX := Abs(X - aTargetX);
-  var absY := Abs(Y - aTargetY);
+  absX := Abs(X - aTargetX);
+  absY := Abs(Y - aTargetY);
 
   if absX > absY then
     Result := absX + absY * 0.41
