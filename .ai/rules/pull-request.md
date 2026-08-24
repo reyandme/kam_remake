@@ -1,101 +1,54 @@
-# Pull Request Description
+# Pull request description
 
-The pull request body is where a reviewer decides whether to trust the change and where to spend
-attention. It should say what to look at, what was already checked and what was not - it should
-not restate the diff, which the reviewer can read.
-
-Write it in English, like the rest of the repository.
-
-## Link the issue without closing it
-
-```
-Related to #<issue>
-```
-
-Use `Closes` or `Fixes` only when merging really should close the issue. A change that removes one
-crash path without finding the cause, or that covers part of a problem, is `Related to` - closing
-the issue in that case buries the part nobody solved.
+Short. The diff says what changed; the description says what a reader cannot get from the diff.
 
 ## Template
 
 ```markdown
+## Title
+
+<!-- TLDR, max 15 words -->
+
+## Description
+
+<!-- One short paragraph: what changed and why. -->
+<!-- TLDR, max 50 words -->
+
+### Critical information that is not in the code
+
+<!-- if needed -->
+<!-- Link to the issue, or describe the situation when there is none. Max 50 words. -->
+
+<!-- Use the non-closing link by default. Use Closes/Fixes only when this pull request closes the issue. -->
 Related to #<issue>
-
-## Summary
-
-One paragraph: what changed and why.
-
-- What the issue asked for:
-- What this delivers:
-- Deliberately left out:
-
-## Review intent
-
-- Look here first:
-- Risky:
-- Mechanical / low risk:
-- Worth challenging:
-
-## Implementation notes
-
-- Decisions and the reasoning behind them:
-- Trade-offs:
-- Follow-up work, with issue links if any were opened:
-
-## Determinism and savegames
-
-- Gameplay simulation touched, and on which side of the boundary:
-- New gameplay fields, and whether they are serialized:
-- Savegame, replay or multiplayer sync affected:
-
-## Verification
-
-- Built:
-- Tests run, and what they reported:
-- Manual check, with the steps taken:
-- Not run or blocked, and why:
-
-## Risks and open questions
-
--
 ```
 
-## What each section is for
+## What each part is for
 
-**Summary.** The three bullets matter more than the paragraph. "What the issue asked for" next to
-"what this delivers" is what lets a reviewer see a mismatch without reading the whole diff, and
-**deliberately left out** is the one a reviewer will otherwise ask about after they have already
-read everything. Say up front that the root cause was not found, that a case is not covered, that
-a fixture is missing.
+**Title** - what was done, not how. It is the line that shows up in the commit list forever.
 
-**Review intent.** Reviewer attention is the scarce resource. Point it at the parts that can be
-wrong, and say plainly which parts are renames, formatting or mechanical follow-through so they
-are not read line by line. "Worth challenging" is not modesty - if a decision could reasonably
-have gone the other way, name it, because that is where a review earns its keep.
+**Description** - one paragraph. If it needs more than that, the change is probably two changes;
+see the split decision in `workflow.md`.
 
-This section is also where anything the issue did not ask for gets declared. A reviewer should
-never discover an unexplained rename, a refactor or a moved file in the diff, least of all in a
-force-push. Declaring it is not optional; if it cannot be justified in a sentence, take it out and
-put it in its own issue.
+**Critical information that is not in the code** - the section that earns its place. A crash log
+from the issue, why the fix is where it is rather than the obvious place, what was tried and did
+not work, which part is a mitigation rather than a cure. Skip it when there is nothing to say.
 
-**Implementation notes.** Why, not what. If an approach was chosen over an obvious alternative,
-the reason belongs here rather than in the reviewer's head.
+**Related to / Closes** - `Related to` by default. `Closes` only when the issue is actually
+finished by this change. A pull request that removes a crash without explaining its cause does not
+close the issue, and saying so is more useful than a green checkmark.
 
-**Determinism and savegames.** These are the two things in this engine that break quietly and
-expensively, so they are stated explicitly every time - see `project-rules.md`. If a row does not
-apply, say why it cannot apply to this diff. A bare `N/A` is not an answer.
+## Two things worth adding when they apply
 
-**Verification.** State what actually ran and what it said. Never write that the build is clean or
-the tests pass without a real build and a real run behind it - and remember there is no
-command-line build on a Community Edition machine, so "built" often means asking someone. Listing
-what was **not** run is as important as listing what was: an unrun check that looks run is worse
-than an admitted gap.
-
-**Risks and open questions.** Cheap to write, and it is where a reviewer can hand back the one
-piece of knowledge the author lacks.
+- **Determinism and savegames.** If the change touches gameplay simulation or anything
+  serialized, say what happens to the savegame format and to replay determinism. These break
+  quietly, and a reviewer cannot see from a diff that you thought about it.
+- **What was verified, and what was not.** Which tests ran and what they reported, over how many
+  seeds. Equally, what you did not run - a multiplayer session, a real savegame from a player.
+  Building here is manual, so "it compiles" is never implied.
 
 ## Keep it in step with the branch
 
-When the branch changes after review has started, say what changed and why in a comment - a
-reviewer who already read the diff has no way to tell a rebase from a rewrite. Answer review
-comments where they were made, and say what changed, not only that you agree.
+If the branch changes shape after review - a rewritten approach, a dropped file, a rebase that
+takes commits with it - update the description too. A description that describes an older version
+of the branch is worse than a short one.

@@ -17,8 +17,8 @@ Read `.ai/rules/agent-rules.md` first, then whichever of the others the task tou
 | File | Read it when you need |
 |---|---|
 | [.ai/rules/agent-rules.md](.ai/rules/agent-rules.md) | How to behave: understand before acting, workflow, adding features, refactoring, communication |
-| [.ai/rules/workflow.md](.ai/rules/workflow.md) | Getting a change merged: issues, branch naming, tests-before-fix for bugs, the pre-PR re-check |
-| [.ai/rules/pull-request.md](.ai/rules/pull-request.md) | Writing the pull request body: linking the issue, review intent, what was verified and what was not |
+| [.ai/rules/workflow.md](.ai/rules/workflow.md) | Working a change through: investigate, implement, review your own result, verify, repeat until clean |
+| [.ai/rules/pull-request.md](.ai/rules/pull-request.md) | Writing the pull request body: the template, and what belongs there that the diff does not say |
 | [.ai/rules/project.md](.ai/rules/project.md) | What KaM Remake is: concept, features, technology, architecture, terminology |
 | [.ai/rules/project-layout.md](.ai/rules/project-layout.md) | Where code lives: repository layout, file and unit organization, global instances |
 | [.ai/rules/project-rules.md](.ai/rules/project-rules.md) | Engine rules: world representation, the determinism boundary, savegame serialization, entity pointers |
@@ -28,10 +28,12 @@ Read `.ai/rules/agent-rules.md` first, then whichever of the others the task tou
 | [.ai/rules/testing.md](.ai/rules/testing.md) | Tests: the two test projects, how to write and run each of them |
 | [.ai/rules/tools-and-utils.md](.ai/rules/tools-and-utils.md) | Anything under `Utils/`: what each tool is for, status matrix, maintenance |
 
-## Work is tracked on GitHub
+## How a change gets worked
 
-Branch naming, when a bug's test comes before its fix, and the check to run before opening a
-pull request are all in `.ai/rules/workflow.md`. Read it before starting, not before pushing.
+A task arrives from an issue or from the chat, gets investigated before it gets written, and then
+gets reviewed by you - against the task, its scope, the rules, and a real build and run - until a
+full pass comes back clean. That loop is `.ai/rules/workflow.md`. Read it before starting, not
+before pushing.
 
 ## When invoked
 
