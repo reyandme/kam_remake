@@ -36,14 +36,16 @@ KaM Remake Beta r_____ []
 + Fixed crash on ordering a large group to walk far across a big map
 
 Campaigns:
++ Added new campaign - "The HeritAge"
 + Added French translations for 8 campaigns (and other minor corrections)
 + Reverted recent comprehensive changes to TPR, due to TPR3 and potentially other maps being broken
-+ Fixed bugs in On Foreign Lands mission 7 (by DontTalk)
++ Fixed bugs in "On Foreign Lands" mission 7 (by DontTalk)
 
 Maps:
-+ Added The Skull Collector
-+ Updates to Wild Grasslands (1.12), Vörös Arany (f2603), Temple of Koczis (0.36)
-+ Minor fix to Rich Land's description
++ Added "The Skull Collector"
++ Added "Trespassers"
++ Updates to "Wild Grasslands" (1.12), "Vörös Arany" (f2603), "Temple of Koczis" (0.36)
++ Minor fix to "Rich Land" description
 
 KaM Remake Beta r16020 [2025.12.26]
 ------------------------------
