@@ -286,8 +286,8 @@ type
     property TopHill: Integer read fTopHill;
     property OnTopHillChanged: TSingleEvent read fOnTopHillChanged write fOnTopHillChanged;
 
-    procedure FlattenTerrain(const Loc: TKMPoint; aUpdateWalkConnects: Boolean = True; aIgnoreCanElevate: Boolean = False); overload;
-    procedure FlattenTerrain(LocList: TKMPointList); overload;
+    procedure FlattenTerrain(const aLoc: TKMPoint; aUpdateWalkConnects: Boolean = True; aIgnoreCanElevate: Boolean = False); overload;
+    procedure FlattenTerrain(aLocList: TKMPointList); overload;
 
     function ConvertCursorToMapCoord(inX, inY:single): Single;
     function FlatToHeight(inX, inY: Single): Single; overload;
@@ -4455,8 +4455,6 @@ begin
     UpdateRenderHeight(aLoc.X + 1, aLoc.Y + 1);
   end;
 
-
-
   //All 9 tiles around and including this one could have become unwalkable and made a unit stuck, so check them all
   for I := Max(aLoc.Y-1, 1) to Min(aLoc.Y+1, fMapY-1) do
     for K := Max(aLoc.X-1, 1) to Min(aLoc.X+1, fMapX-1) do
@@ -4472,28 +4470,26 @@ end;
 
 
 //Flatten terrain loc
-procedure TKMTerrain.FlattenTerrain(const Loc: TKMPoint; aUpdateWalkConnects: Boolean = True; aIgnoreCanElevate: Boolean = False);
+procedure TKMTerrain.FlattenTerrain(const aLoc: TKMPoint; aUpdateWalkConnects: Boolean = True; aIgnoreCanElevate: Boolean = False);
 var
   depth: Byte;
 begin
   depth := 0;
-  DoFlattenTerrain(Loc, depth, aUpdateWalkConnects, aIgnoreCanElevate);
+  DoFlattenTerrain(aLoc, depth, aUpdateWalkConnects, aIgnoreCanElevate);
 end;
 
 
-//Flatten a list of points on mission init
-procedure TKMTerrain.FlattenTerrain(LocList: TKMPointList);
-var
-  I: Integer;
+// Flatten a list of points on mission init
+procedure TKMTerrain.FlattenTerrain(aLocList: TKMPointList);
 begin
-  //Flatten terrain will extend fBoundsWC as necessary, which cannot be predicted due to EnsureWalkable effecting a larger area
-  if not LocList.GetBounds(fBoundsWC) then
+  // Flatten terrain will extend fBoundsWC as necessary, which cannot be predicted due to EnsureWalkable effecting a larger area
+  if not aLocList.GetBounds(fBoundsWC) then
     Exit;
 
-  for I := 0 to LocList.Count - 1 do
-    FlattenTerrain(LocList[I], False); //Rebuild the Walk Connect at the end, rather than every time
+  for var I := 0 to aLocList.Count - 1 do
+    FlattenTerrain(aLocList[I], False); // Rebuild the Walk Connect at the end, rather than every time
 
-  //wcFish not affected by height
+  // wcFish not affected by height
   UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrow(fBoundsWC, 1), False);
 end;
 
