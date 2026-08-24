@@ -143,11 +143,13 @@
         <DCCReference Include="KM_Test_Archers_GoFar.pas"/>
         <DCCReference Include="KM_Test_Bakery.pas"/>
         <DCCReference Include="KM_Test_BuildingPlan.pas"/>
+        <DCCReference Include="KM_Test_ClosestTile_Contract.pas"/>
         <DCCReference Include="KM_Test_FarmHarvest.pas"/>
         <DCCReference Include="KM_Test_FarmPlant.pas"/>
         <DCCReference Include="KM_Test_Fight95.pas"/>
         <DCCReference Include="KM_Test_Hungarian.pas"/>
         <DCCReference Include="KM_Test_Hungarian_SwapPerf.pas"/>
+        <DCCReference Include="KM_Test_Melee_IdleNextToFight.pas"/>
         <DCCReference Include="KM_Test_Mill.pas"/>
         <DCCReference Include="KM_Test_Recruit_EatsAndReturns.pas"/>
         <DCCReference Include="KM_Test_Recruit_EquipWhileEating.pas"/>
@@ -158,6 +160,7 @@
         <DCCReference Include="KM_Test_Sawmill_DeliveryIn.pas"/>
         <DCCReference Include="KM_Test_Sawmill_DeliveryOut.pas"/>
         <DCCReference Include="KM_Test_Stone.pas"/>
+        <DCCReference Include="KM_Test_Walk_UnwalkableTarget.pas"/>
         <DCCReference Include="KM_Test_Woodcutter_Chop.pas"/>
         <DCCReference Include="KM_Test_Woodcutter_Plant.pas"/>
         <DCCReference Include="KM_Test_Vineyard.pas"/>
