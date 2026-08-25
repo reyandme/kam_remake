@@ -9,7 +9,6 @@ type
   protected
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -29,34 +28,24 @@ begin
 
   gGameApp.NewGameEmptyMap(32, 32);
 
-  TKMHouseWoodcutters(gHands[0].AddHouse(htWoodcutters, 16, 20, False)).WoodcutterMode := wmPlant;
-
+  gHands[0].AddHouse(htWoodcutters, 16, 20, False);
   gHands[0].AddUnit(utWoodcutter, KMPoint(16, 17));
 end;
 
 
 procedure TKMTest_WoodcutterPlant.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  // Continue simulation (True) until at least one tree (caAge1) is planted near the house
+  var treePlanted := False;
   for var Y := 10 to 25 do
     for var X := 10 to 25 do
       if gTerrain.ObjectIsChopableTree(KMPoint(X, Y), [caAge1]) then
-      begin
-        aKeepGoing := False;
-        Exit;
-      end;
-end;
+        treePlanted := True;
 
+  if treePlanted then
+    aKeepGoing := False;
 
-procedure TKMTest_WoodcutterPlant.CheckResult;
-begin
-  var plantedTreeCount := 0;
-  for var Y := 10 to 25 do
-    for var X := 10 to 25 do
-      if gTerrain.ObjectIsChopableTree(KMPoint(X, Y), [caAge1]) then
-        Inc(plantedTreeCount);
-
-  AssertTrue(plantedTreeCount > 0, 'Woodcutter should have planted at least one tree');
+  if TimeIsOut then
+    AssertFail('Woodcutter should have planted a tree');
 end;
 
 
