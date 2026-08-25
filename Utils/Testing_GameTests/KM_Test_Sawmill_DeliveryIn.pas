@@ -9,7 +9,6 @@ type
   protected
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -24,18 +23,15 @@ uses
 
 { TKMTest_SawmillDeliveryIn }
 procedure TKMTest_SawmillDeliveryIn.SetUp;
-var
-  I, J: Integer;
 begin
   inherited;
 
   gGameApp.NewGameEmptyMap(32, 32);
 
-  for I := 9 to 21 do
+  for var I := 9 to 21 do
     gHands[0].AddRoad(KMPoint(I, 17));
 
-  var Store := TKMHouseStore(gHands[0].AddHouse(htStore, 10, 16, False));
-  Store.WareAddToIn(wtTrunk, 1, True); // FromScript = True
+  TKMHouseStore(gHands[0].AddHouse(htStore, 10, 16, False)).WareAddToIn(wtTrunk, 1, True);
 
   gHands[0].AddHouse(htSawmill, 20, 16, False);
 
@@ -46,22 +42,12 @@ end;
 
 procedure TKMTest_SawmillDeliveryIn.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  //todo: @LIFEFreedom at the moment, the code between DoTick and CheckResult is identical. Maybe this can be deduplicated?
-  var H := gHands[0].FindHouse(htSawmill);
-  if H <> nil then
-    if H.ResIn[1] > 0 then
-      aKeepGoing := False;
-end;
+  var trunksInSawmill := gHands[0].Houses[1].ResIn[1];
+  if trunksInSawmill > 0 then
+    aKeepGoing := False;
 
-
-procedure TKMTest_SawmillDeliveryIn.CheckResult;
-begin
-  var trunkInSawmill := 0;
-  var H := gHands[0].FindHouse(htSawmill);
-  if H <> nil then
-    trunkInSawmill := H.ResIn[1];
-
-  AssertTrue(trunkInSawmill > 0, 'Serf should have delivered trunk to sawmill');
+  if TimeIsOut then
+    AssertFail('Serf should have delivered trunk to sawmill');
 end;
 
 

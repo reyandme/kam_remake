@@ -9,7 +9,6 @@ type
   protected
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -23,21 +22,16 @@ uses
 
 
 procedure TKMTest_SawmillDeliveryOut.SetUp;
-var
-  I, J: Integer;
 begin
   inherited;
 
   gGameApp.NewGameEmptyMap(32, 32);
 
-  for I := 9 to 21 do
+  for var I := 9 to 21 do
     gHands[0].AddRoad(KMPoint(I, 17));
 
   gHands[0].AddHouse(htStore, 10, 16, False);
-
-  var H := gHands[0].AddHouse(htSawmill, 20, 16, False);
-  H.WareAddToOut(wtTimber, 2);
-
+  gHands[0].AddHouse(htSawmill, 20, 16, False).WareAddToOut(wtTimber, 2);
   gHands[0].AddUnit(utSerf, KMPoint(20, 17));
   gHands[0].AddUnit(utCarpenter, KMPoint(19, 17));
 end;
@@ -45,23 +39,11 @@ end;
 
 procedure TKMTest_SawmillDeliveryOut.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  var Store := gHands[0].FindHouse(htStore);
-  if Store <> nil then
-  begin
-    if Store.CheckWareIn(wtTimber) = 2 then
-      aKeepGoing := False;
-  end;
-end;
+  if gHands[0].Houses[0].CheckWareIn(wtTimber) = 2 then
+    aKeepGoing := False;
 
-
-procedure TKMTest_SawmillDeliveryOut.CheckResult;
-begin
-  var timberInStore := 0;
-  var Store := gHands[0].FindHouse(htStore);
-  if Store <> nil then
-    timberInStore := Store.CheckWareIn(wtTimber);
-
-  AssertTrue(timberInStore = 2, 'Serf should have delivered 2 timbers to storehouse');
+  if TimeIsOut then
+    AssertFail('Serf should have delivered 2 timbers to storehouse');
 end;
 
 
