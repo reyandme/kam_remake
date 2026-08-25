@@ -61,7 +61,7 @@ type
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); virtual;
     procedure SetUp; virtual; abstract;
     procedure TearDown; virtual;
-    procedure CheckResult; virtual;
+    procedure CheckResult; virtual; deprecated; //todo: Phase out, we can check everything in DoTick
     procedure Execute(aSeed: Integer); virtual;
   public
     PaceRender: Integer;

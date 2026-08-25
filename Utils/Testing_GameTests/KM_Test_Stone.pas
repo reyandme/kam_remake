@@ -9,7 +9,6 @@ type
   protected
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
-    procedure CheckResult; override;
     procedure TearDown; override;
   public
     class function TestTags: TKMTestTagSet; override;
@@ -53,14 +52,11 @@ end;
 
 procedure TKMTest_Stone.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  // Continue simulation (True) until stone is produced
-  aKeepGoing := gHands[0].Stats.GetWaresProduced(wtStone) = 0;
-end;
+  if gHands[0].Stats.GetWaresProduced(wtStone) > 0 then
+    aKeepGoing := False;
 
-
-procedure TKMTest_Stone.CheckResult;
-begin
-  AssertTrue(gHands[0].Stats.GetWaresProduced(wtStone) > 0, 'Stonemason should have mined some stone');
+  if TimeIsOut then
+    AssertFail('Stonemason should have mined some stone');
 end;
 
 
