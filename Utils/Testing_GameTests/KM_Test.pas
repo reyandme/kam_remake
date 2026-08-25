@@ -53,13 +53,15 @@ type
   TKMTest = class
   protected
     fDuration: Integer;
+    fTickCountActual: Integer;
     fResults: TKMRunResults;
     fOnProgress: TUnicodeStringEvent;
     fOnShouldStop: TBooleanFuncSimple;
+    function TimeIsOut: Boolean;
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); virtual;
     procedure SetUp; virtual; abstract;
     procedure TearDown; virtual;
-    procedure CheckResult; virtual; abstract;
+    procedure CheckResult; virtual;
     procedure Execute(aSeed: Integer); virtual;
   public
     PaceRender: Integer;
@@ -68,8 +70,10 @@ type
     function Run(aSeed: Integer): TKMRunResults;
     class function TestTags: TKMTestTagSet; virtual;
     class function TestDescription: string; virtual;
+    property TickCountActual: Integer read fTickCountActual;
   end;
 
+procedure AssertFail(const aMessage: string);
 procedure AssertTrue(aCondition: Boolean; const aMessage: string);
 procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
 procedure RegisterTest(aTest: TKMTestClass);
@@ -81,9 +85,17 @@ var
 implementation
 
 
+procedure AssertFail(const aMessage: string);
+begin
+  // Raising exceptions so that we also get a breakpoint in IDE
+  raise ETestFailed.Create(aMessage);
+end;
+
+
 procedure AssertTrue(aCondition: Boolean; const aMessage: string);
 begin
   if not aCondition then
+    // Raising exceptions so that we also get a breakpoint in IDE
     raise ETestFailed.Create(aMessage);
 end;
 
@@ -91,6 +103,7 @@ end;
 procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
 begin
   if aExpected <> aActual then
+    // Raising exceptions so that we also get a breakpoint in IDE
     raise ETestFailed.Create(Format('%s (Expected: %d, Actual: %d)', [aMessage, aExpected, aActual]));
 end;
 
@@ -128,7 +141,19 @@ begin
 end;
 
 
+function TKMTest.TimeIsOut: Boolean;
+begin
+  Result := fTickCountActual = fDuration;
+end;
+
+
 procedure TKMTest.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
+begin
+  //
+end;
+
+
+procedure TKMTest.CheckResult;
 begin
   //
 end;
@@ -153,8 +178,9 @@ begin
       if PaceTicks > 0 then
         Sleep(PaceTicks);
 
+      fTickCountActual := I + 1;
       var keepGoing := True;
-      DoTick(I + 1, keepGoing);
+      DoTick(fTickCountActual, keepGoing);
       if not keepGoing then
         Exit;
 

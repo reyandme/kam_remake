@@ -209,7 +209,7 @@ begin
       trException:  resStr := 'EXCEPTION: ' + fResults.TestMessage;
     end;
 
-    meLog.Lines.Append(Format('%-32s: %s, seed %d, %d ms', [aClass.ClassName, resStr, aSeed, GetTickCount - t]));
+    meLog.Lines.Append(Format('%-32s: %s, seed %d, %d ms, %d ticks', [aClass.ClassName, resStr, aSeed, GetTickCount - t, thisTest.TickCountActual]));
   finally
     thisTest.Free;
   end;

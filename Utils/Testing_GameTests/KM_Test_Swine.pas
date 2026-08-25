@@ -9,7 +9,6 @@ type
   protected
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -39,14 +38,11 @@ end;
 
 procedure TKMTest_Swine.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  // Keep running until at least 1 pig is produced
-  aKeepGoing := gHands[0].Stats.GetWaresProduced(wtPig) = 0;
-end;
+  if gHands[0].Stats.GetWaresProduced(wtPig) >= 1 then
+    aKeepGoing := False;
 
-
-procedure TKMTest_Swine.CheckResult;
-begin
-  AssertTrue(gHands[0].Stats.GetWaresProduced(wtPig) >= 1, 'Swine farm should have processed enough corn to grow and produce a pig');
+  if TimeIsOut then
+    AssertFail('Swine farm should have processed enough corn to grow and produce a pig');
 end;
 
 
