@@ -1,4 +1,4 @@
-unit KM_Test_ClosestTile_Contract;
+unit KM_Test_TerrainGetClosestTile;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -8,7 +8,7 @@ uses
 
 type
   // Check GetClosestTile
-  TKMTest_ClosestTileContract = class(TKMTest)
+  TKMTest_TerrainGetClosestTile = class(TKMTest)
   protected
     fOrigin: TKMPoint;
     fFreeLoc: TKMPoint;
@@ -29,8 +29,8 @@ uses
   KM_GameApp, KM_HandsCollection, KM_HandTypes, KM_Terrain;
 
 
-{ TKMTest_ClosestTileContract }
-procedure TKMTest_ClosestTileContract.SetUp;
+{ TKMTest_TerrainGetClosestTile }
+procedure TKMTest_TerrainGetClosestTile.SetUp;
 begin
   inherited;
 
@@ -45,7 +45,7 @@ begin
 end;
 
 
-procedure TKMTest_ClosestTileContract.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
+procedure TKMTest_TerrainGetClosestTile.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   aKeepGoing := False; // Nothing to simulate
 
@@ -64,24 +64,24 @@ begin
 end;
 
 
-procedure TKMTest_ClosestTileContract.CheckResult;
+procedure TKMTest_TerrainGetClosestTile.CheckResult;
 begin
   // Everything is checked on the first tick
 end;
 
 
-class function TKMTest_ClosestTileContract.TestTags: TKMTestTagSet;
+class function TKMTest_TerrainGetClosestTile.TestTags: TKMTestTagSet;
 begin
   Result := [tcPathfinding];
 end;
 
 
-class function TKMTest_ClosestTileContract.TestDescription: string;
+class function TKMTest_TerrainGetClosestTile.TestDescription: string;
 begin
   Result := 'GetClosestTile should return a free reachable tile, never one taken by another unit.';
 end;
 
 
 initialization
-  RegisterTest(TKMTest_ClosestTileContract);
+  RegisterTest(TKMTest_TerrainGetClosestTile);
 end.
