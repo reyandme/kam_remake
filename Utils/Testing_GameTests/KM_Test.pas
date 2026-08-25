@@ -55,7 +55,7 @@ type
     fDuration: Integer;
     fResults: TKMRunResults;
     fOnProgress: TUnicodeStringEvent;
-    fOnStop: TBooleanFuncSimple;
+    fOnShouldStop: TBooleanFuncSimple;
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); virtual;
     procedure SetUp; virtual; abstract;
     procedure TearDown; virtual;
@@ -64,7 +64,7 @@ type
   public
     PaceRender: Integer;
     PaceTicks: Integer;
-    constructor Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
+    constructor Create(aOnShouldStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent); reintroduce;
     function Run(aSeed: Integer): TKMRunResults;
     class function TestTags: TKMTestTagSet; virtual;
     class function TestDescription: string; virtual;
@@ -115,12 +115,12 @@ begin
 end;
 
 
-constructor TKMTest.Create(aOnStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent);
+constructor TKMTest.Create(aOnShouldStop: TBooleanFuncSimple; aOnProgress: TUnicodeStringEvent);
 begin
   inherited Create;
 
   fOnProgress := aOnProgress;
-  fOnStop := aOnStop;
+  fOnShouldStop := aOnShouldStop;
 
   fDuration := 10 * 60 * 10;
 
@@ -158,7 +158,7 @@ begin
       if not keepGoing then
         Exit;
 
-      if Assigned(fOnStop) and fOnStop then
+      if Assigned(fOnShouldStop) and fOnShouldStop then
         Exit;
 
       if gGameApp.Game.IsPaused then

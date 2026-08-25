@@ -44,7 +44,7 @@ type
     fResults: TKMRunResults;
     fStopped: Boolean;
     procedure RefreshTestList;
-    function IsStopped: Boolean;
+    function HandleShouldStop: Boolean;
     procedure HandleProgress(const aValue: string);
     procedure EnsureResourcesLoaded(aHeadless: Boolean);
     procedure RefreshTagList;
@@ -182,7 +182,7 @@ begin
 end;
 
 
-function TForm2.IsStopped: Boolean;
+function TForm2.HandleShouldStop: Boolean;
 begin
   Result := fStopped;
 end;
@@ -195,7 +195,7 @@ begin
   fStopped := False;
 
   var t := GetTickCount;
-  var thisTest := aClass.Create(IsStopped, HandleProgress);
+  var thisTest := aClass.Create(HandleShouldStop, HandleProgress);
   try
     thisTest.PaceRender := Ord(chkThrottleRender.Checked) * 100;
     thisTest.PaceTicks := seDelay.Value;
