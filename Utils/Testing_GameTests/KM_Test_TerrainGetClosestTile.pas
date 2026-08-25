@@ -15,7 +15,6 @@ type
     fBusyLoc: TKMPoint;
     procedure SetUp; override;
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -34,6 +33,8 @@ procedure TKMTest_TerrainGetClosestTile.SetUp;
 begin
   inherited;
 
+  fDuration := 1;
+
   gGameApp.NewGameEmptyMap(32, 32);
 
   fOrigin := TKMPoint.New(12, 12);
@@ -47,8 +48,6 @@ end;
 
 procedure TKMTest_TerrainGetClosestTile.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  aKeepGoing := False; // Nothing to simulate
-
   AssertTrue(gTerrain.RouteCanBeMade(fOrigin, fFreeLoc, tpWalk), 'Setup: the free target should be reachable');
 
   var closestTile: TKMPoint;
@@ -61,12 +60,6 @@ begin
     Format('GetClosestTile(target %s) returned the very tile another unit stands on', [fBusyLoc.ToString]));
   AssertTrue(closestTile.GetLengthDiag(fBusyLoc) <= 2,
     Format('GetClosestTile(target %s) returned %s, too far away to be the closest free tile', [fBusyLoc.ToString, closestTile.ToString]));
-end;
-
-
-procedure TKMTest_TerrainGetClosestTile.CheckResult;
-begin
-  // Everything is checked on the first tick
 end;
 
 
