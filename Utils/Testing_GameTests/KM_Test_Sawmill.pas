@@ -9,7 +9,6 @@ type
   protected
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -38,14 +37,11 @@ end;
 
 procedure TKMTest_Sawmill.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  // Keep running until wood is produced
-  aKeepGoing := gHands[0].Stats.GetWaresProduced(wtTimber) = 0;
-end;
+  if gHands[0].Stats.GetWaresProduced(wtTimber) >= 2 then
+    aKeepGoing := False;
 
-
-procedure TKMTest_Sawmill.CheckResult;
-begin
-  AssertTrue(gHands[0].Stats.GetWaresProduced(wtTimber) >= 2, 'Sawmill should have processed trunk into 2 timber');
+  if TimeIsOut then
+    AssertFail('Sawmill should have processed trunk into 2 timber');
 end;
 
 

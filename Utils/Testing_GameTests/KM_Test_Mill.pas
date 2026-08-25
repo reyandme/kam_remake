@@ -9,7 +9,6 @@ type
   protected
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -38,14 +37,11 @@ end;
 
 procedure TKMTest_Mill.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  // Keep running until flour is produced
-  aKeepGoing := gHands[0].Stats.GetWaresProduced(wtFlour) = 0;
-end;
+  if gHands[0].Stats.GetWaresProduced(wtFlour) > 0 then
+    aKeepGoing := False;
 
-
-procedure TKMTest_Mill.CheckResult;
-begin
-  AssertTrue(gHands[0].Stats.GetWaresProduced(wtFlour) >= 1, 'Mill should have processed corn into flour');
+  if TimeIsOut then
+    AssertFail('Mill should have processed corn into flour');
 end;
 
 
