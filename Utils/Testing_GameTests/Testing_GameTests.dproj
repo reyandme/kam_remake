@@ -142,7 +142,6 @@
         <DCCReference Include="KM_Test_FarmHarvest.pas"/>
         <DCCReference Include="KM_Test_FarmPlant.pas"/>
         <DCCReference Include="KM_Test_Fight95.pas"/>
-        <DCCReference Include="KM_Test_Hungarian.pas"/>
         <DCCReference Include="KM_Test_Hungarian_LongWalk.pas"/>
         <DCCReference Include="KM_Test_Hungarian_SwapPerf.pas"/>
         <DCCReference Include="KM_Test_Mill.pas"/>
