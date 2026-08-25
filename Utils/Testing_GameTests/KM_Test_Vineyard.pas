@@ -9,7 +9,6 @@ type
   protected
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); override;
     procedure SetUp; override;
-    procedure CheckResult; override;
   public
     class function TestTags: TKMTestTagSet; override;
     class function TestDescription: string; override;
@@ -39,17 +38,11 @@ end;
 
 procedure TKMTest_Vineyard.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
-  var H := gHands[0].Houses[0];
-  if H.ResOut[1] > 0 then
+  if gHands[0].Houses[0].ResOut[1] > 0 then
     aKeepGoing := False;
-end;
 
-procedure TKMTest_Vineyard.CheckResult;
-begin
-  var H := gHands[0].Houses[0];
-  var gotGrapes := H.ResOut[1];
-
-  AssertTrue(gotGrapes > 0, 'Farmer should have harvested grapes and delivered them to the vineyard');
+  if TimeIsOut then
+    AssertFail('Farmer should have harvested grapes and delivered them to the vineyard');
 end;
 
 
