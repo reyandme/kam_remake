@@ -136,6 +136,12 @@
             <Form>Form2</Form>
         </DCCReference>
         <DCCReference Include="KM_Test.pas"/>
+        <DCCReference Include="KM_TestMPParticipant.pas"/>
+        <DCCReference Include="KM_TestMPSession.pas"/>
+        <DCCReference Include="KM_Test_MP.pas"/>
+        <DCCReference Include="KM_Test_MP_SessionSmoke.pas"/>
+        <DCCReference Include="KM_Test_MP_RosterWithoutUs.pas"/>
+        <DCCReference Include="KM_Test_MP_RosterZeroLoc.pas"/>
         <DCCReference Include="KM_Test_Archers_GoFar.pas"/>
         <DCCReference Include="KM_Test_Bakery.pas"/>
         <DCCReference Include="KM_Test_BuildingPlan.pas"/>

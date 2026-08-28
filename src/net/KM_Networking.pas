@@ -1,4 +1,4 @@
-unit KM_Networking;
+﻿unit KM_Networking;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -297,7 +297,11 @@ begin
   FreeAndNil(fNetGameOptions);
   FreeAndNil(fNetGameFilter);
 
-  gNetworking := nil;
+  // Only clear the global if it still points at us. Several TKMNetworking instances can
+  // co-exist (the global is assigned by whichever was constructed last), and freeing any
+  // one of them must not blank the pointer the running game relies on
+  if gNetworking = Self then
+    gNetworking := nil;
 
   inherited;
 end;

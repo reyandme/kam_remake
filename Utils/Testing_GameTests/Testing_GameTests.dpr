@@ -18,6 +18,12 @@ uses
   Unit1 in 'Unit1.pas' {Form2},
 
   KM_Test in 'KM_Test.pas',
+  KM_TestMPParticipant in 'KM_TestMPParticipant.pas',
+  KM_TestMPSession in 'KM_TestMPSession.pas',
+  KM_Test_MP in 'KM_Test_MP.pas',
+  KM_Test_MP_SessionSmoke in 'KM_Test_MP_SessionSmoke.pas',
+  KM_Test_MP_RosterWithoutUs in 'KM_Test_MP_RosterWithoutUs.pas',
+  KM_Test_MP_RosterZeroLoc in 'KM_Test_MP_RosterZeroLoc.pas',
   KM_Test_Archers_GoFar in 'KM_Test_Archers_GoFar.pas',
   KM_Test_Bakery in 'KM_Test_Bakery.pas',
   KM_Test_BuildingPlan in 'KM_Test_BuildingPlan.pas',
