@@ -148,7 +148,7 @@ type
     procedure Allies_Close(Sender: TObject);
     procedure Allies_Mute(Sender: TObject);
     procedure Update_Image_AlliesMute(aImage: TKMImage);
-    procedure UpdateRoomMapping;
+    procedure Allies_UpdateRoomMapping;
     procedure Menu_Update;
     procedure DirectionCursorShow(X,Y: Integer; aDir: TKMDirection);
     procedure DirectionCursorHide;
@@ -1919,7 +1919,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.UpdateRoomMapping;
+procedure TKMGamePlayInterface.Allies_UpdateRoomMapping;
 var
   I, J, K: Integer;
   teams: TKMByteSetArray;
@@ -3237,7 +3237,7 @@ begin
                                      and (gNetworking.Room.HasOnlySpectators
                                           or not gNetworking.MyRoomSlot.IsSpectator);
 
-  UpdateRoomMapping;
+  Allies_UpdateRoomMapping;
 
   //Hide extra player lines
   for I := fAllies_LineCount to MAX_LOBBY_SLOTS - 1 do
@@ -3338,7 +3338,7 @@ procedure TKMGamePlayInterface.AlliesOnPingInfo;
 var
   I, K, slotIndex: Integer;
 begin
-  UpdateRoomMapping;
+  Allies_UpdateRoomMapping;
 
   I := 0;
   for K := 0 to fAllies_LineCount - 1 do
