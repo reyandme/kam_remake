@@ -3231,13 +3231,14 @@ var
 begin
   if not gGameParams.IsMultiPlayerOrSpec then Exit;
 
-  Image_AlliesHostStar.Hide;
   // Can't vote if we already have, and spectators don't get to vote unless there's only spectators left
   Button_Menu_ReturnLobby.Enabled := not gNetworking.MyRoomSlot.VotedYes
                                      and (gNetworking.Room.HasOnlySpectators
                                           or not gNetworking.MyRoomSlot.IsSpectator);
 
   Allies_UpdateRoomMapping;
+
+  Image_AlliesHostStar.Hide;
 
   //Hide extra player lines
   for I := fAllies_LineCount to MAX_LOBBY_SLOTS - 1 do
