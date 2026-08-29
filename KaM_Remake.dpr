@@ -136,6 +136,7 @@ uses
   KM_GUICommonGameOptions in 'src\gui\pages_common\KM_GUICommonGameOptions.pas',
   KM_GUICommonOptions in 'src\gui\pages_common\KM_GUICommonOptions.pas',
   
+  KM_GUIGameAllies in 'src\gui\pages_game\KM_GUIGameAllies.pas',
   KM_GUIGameBuild in 'src\gui\pages_game\KM_GUIGameBuild.pas',
   KM_GUIGameChat in 'src\gui\pages_game\KM_GUIGameChat.pas',
   KM_GUIGameHouse in 'src\gui\pages_game\KM_GUIGameHouse.pas',
