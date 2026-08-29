@@ -145,7 +145,7 @@ end;
 
 procedure TKMGUIGameAllies.Allies_UpdateRoomMapping;
 var
-  I, J, K: Integer;
+  I, J, K, handIndex: Integer;
   teams: TKMByteSetArray;
   handIdToSlotIndex: array [0..MAX_HANDS - 1] of Integer;
 begin
@@ -160,7 +160,15 @@ begin
 
   for I := 1 to gNetworking.Room.Count do
     if not gNetworking.Room[I].IsSpectator then
-      handIdToSlotIndex[gNetworking.Room[I].HandIndex] := I;
+    begin
+      // A slot can be a non spectator and still have no hand: IsSpectator only tests for
+      // LOC_SPECTATE, while ResetLocAndReady puts every other start location back to LOC_RANDOM
+      // whenever the host picks a map or save, and HandIndex is then -1. A start location read off
+      // the wire is not validated either, so guard the upper end as well
+      handIndex := gNetworking.Room[I].HandIndex;
+      if (handIndex >= 0) and (handIndex < MAX_HANDS) then
+        handIdToSlotIndex[handIndex] := I;
+    end;
 
   teams := gHands.Teams;
 
