@@ -78,38 +78,41 @@ begin
 
     for I := 0 to MAX_LOBBY_SLOTS - 1 do
     begin
+      var dx := (I div ALLIES_ROWS) * LINE_W;
+      var dy := (I mod ALLIES_ROWS) * 20;
+
       if (I mod ALLIES_ROWS) = 0 then // Header for each column
       begin
-        TKMLabel.Create(Panel_Allies, 80+(I div ALLIES_ROWS)*LINE_W, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fntOutline, taLeft);
-        TKMLabel.Create(Panel_Allies, 230+(I div ALLIES_ROWS)*LINE_W, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_TEAM], fntOutline, taLeft);
-        TKMLabel.Create(Panel_Allies, 360+(I div ALLIES_ROWS)*LINE_W, 60, gResTexts[TX_LOBBY_HEADER_PINGFPS], fntOutline, taCenter);
+        TKMLabel.Create(Panel_Allies, 80  + dx, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_PLAYERS], fntOutline, taLeft);
+        TKMLabel.Create(Panel_Allies, 230 + dx, 60, 140, 20, gResTexts[TX_LOBBY_HEADER_TEAM], fntOutline, taLeft);
+        TKMLabel.Create(Panel_Allies, 360 + dx, 60, gResTexts[TX_LOBBY_HEADER_PINGFPS], fntOutline, taCenter);
       end;
 
-      Image_AlliesWinLoss[I] := TKMImage.Create(Panel_Allies, 42 +(I div ALLIES_ROWS)*LINE_W, 81+(I mod ALLIES_ROWS)*20, 16, 16, 0, rxGuiMain);
+      Image_AlliesWinLoss[I] := TKMImage.Create(Panel_Allies, 42 + dx, 81 + dy, 16, 16, 0, rxGuiMain);
       Image_AlliesWinLoss[I].Hide;
 
-      Image_AlliesMute[I] := TKMImage.Create(Panel_Allies, 45 + 15 +(I div ALLIES_ROWS)*LINE_W, 82+(I mod ALLIES_ROWS)*20, 11, 11, 0, rxGuiMain);
+      Image_AlliesMute[I] := TKMImage.Create(Panel_Allies, 45 + 15 + dx, 82 + dy, 11, 11, 0, rxGuiMain);
       Image_AlliesMute[I].OnClick := Allies_Mute;
       Image_AlliesMute[I].Tag := I;
       Image_AlliesMute[I].HighlightOnMouseOver := True;
       Image_AlliesMute[I].Hide;
 
-      Image_AlliesFlag[I] := TKMImage.Create(Panel_Allies,     15 + 60+(I div ALLIES_ROWS)*LINE_W, 82+(I mod ALLIES_ROWS)*20, 16,  11,  0, rxGuiMain);
-      Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,   15 + 80+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, 140, 20, '', fntGrey, taLeft);
-      Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,   15 + 230+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, 120, 20, '', fntGrey, taLeft);
-      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies,15 + 230+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, 120, 20, fntGrey, '', bsGame);
+      Image_AlliesFlag[I] := TKMImage.Create(Panel_Allies,     15 + 60 + dx, 82 + dy, 16,  11,  0, rxGuiMain);
+      Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,   15 + 80 + dx, 80 + dy, 140, 20, '', fntGrey, taLeft);
+      Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,   15 + 230 + dx, 80 + dy, 120, 20, '', fntGrey, taLeft);
+      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies,15 + 230 + dx, 80 + dy, 120, 20, fntGrey, '', bsGame);
       DropBox_AlliesTeam[I].Hide; // Use label for demos until we fix exploits
       DropBox_AlliesTeam[I].Add('-');
       for K := 1 to MAX_TEAMS do
         DropBox_AlliesTeam[I].Add(IntToStr(K));
       DropBox_AlliesTeam[I].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[I].DropUp := True; // Doesn't fit if it drops down
-      Label_AlliesPing[I] :=          TKMLabel.Create(Panel_Allies, 15 + 347+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, '', fntGrey, taRight);
-      Label_AlliesPingFpsSlash[I] :=  TKMLabel.Create(Panel_Allies, 15 + 354+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, '', fntGrey, taCenter);
-      Label_AlliesFPS[I] :=           TKMLabel.Create(Panel_Allies, 15 + 361+(I div ALLIES_ROWS)*LINE_W, 80+(I mod ALLIES_ROWS)*20, '', fntGrey, taLeft);
+      Label_AlliesPing[I] :=          TKMLabel.Create(Panel_Allies, 15 + 347 + dx, 80 + dy, '', fntGrey, taRight);
+      Label_AlliesPingFpsSlash[I] :=  TKMLabel.Create(Panel_Allies, 15 + 354 + dx, 80 + dy, '', fntGrey, taCenter);
+      Label_AlliesFPS[I] :=           TKMLabel.Create(Panel_Allies, 15 + 361 + dx, 80 + dy, '', fntGrey, taLeft);
     end;
 
-    Image_AlliesClose:=TKMImage.Create(Panel_Allies,PANEL_ALLIES_WIDTH-98,24,32,32,52,rxGui);
+    Image_AlliesClose := TKMImage.Create(Panel_Allies, PANEL_ALLIES_WIDTH - 98, 24, 32, 32, 52, rxGui);
     Image_AlliesClose.Hint := gResTexts[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := True;
