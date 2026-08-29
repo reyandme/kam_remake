@@ -8,7 +8,7 @@ uses
 type
   TKMGUIGameAllies = class
   private
-    fLineIdToNetPlayerId: array [0..MAX_LOBBY_SLOTS - 1] of Integer;
+    fLineIdToSlotIndex: array [0..MAX_LOBBY_SLOTS - 1] of Integer;
     fLineCount: Integer;
 
     procedure Allies_Mute(Sender: TObject);
@@ -122,17 +122,16 @@ begin
   var img := TKMImage(Sender);
 
   if gLog.IsDebugLogEnabled then
-    gLog.LogDebug(Format('TKMGUIGameAllies.Allies_Mute: Image.tag = %d NetPlayerIndex = %d',
-                         [img.Tag, fLineIdToNetPlayerId[img.Tag]]));
+    gLog.LogDebug(Format('TKMGUIGameAllies.Allies_Mute: Image.Tag = %d SlotIndex = %d', [img.Tag, fLineIdToSlotIndex[img.Tag]]));
 
-  gNetworking.ToggleMuted(fLineIdToNetPlayerId[img.Tag]);
+  gNetworking.ToggleMuted(fLineIdToSlotIndex[img.Tag]);
   Update_Image_AlliesMute(img);
 end;
 
 
 procedure TKMGUIGameAllies.Update_Image_AlliesMute(aImage: TKMImage);
 begin
-  if gNetworking.IsMuted(fLineIdToNetPlayerId[aImage.Tag]) then
+  if gNetworking.IsMuted(fLineIdToSlotIndex[aImage.Tag]) then
   begin
     aImage.Hint := gResTexts[TX_UNMUTE_PLAYER];
     aImage.TexID := 84;
@@ -148,29 +147,29 @@ procedure TKMGUIGameAllies.Allies_UpdateRoomMapping;
 var
   I, J, K: Integer;
   teams: TKMByteSetArray;
-  handIdToRoomId: array [0..MAX_HANDS - 1] of Integer;
+  handIdToSlotIndex: array [0..MAX_HANDS - 1] of Integer;
 begin
   // First empty everything
   fLineCount := 0;
 
   for I := 0 to MAX_LOBBY_SLOTS - 1 do
-    fLineIdToNetPlayerId[I] := -1;
+    fLineIdToSlotIndex[I] := -1;
 
   for I := 0 to MAX_HANDS - 1 do
-    handIdToRoomId[I] := -1;
+    handIdToSlotIndex[I] := -1;
 
   for I := 1 to gNetworking.Room.Count do
     if not gNetworking.Room[I].IsSpectator then
-        handIdToRoomId[gNetworking.Room[I].HandIndex] := I;
+      handIdToSlotIndex[gNetworking.Room[I].HandIndex] := I;
 
   teams := gHands.Teams;
 
   K := 0;
   for J := Low(teams) to High(teams) do
     for I in teams[J] do
-      if handIdToRoomId[I] <> -1 then //handIdToRoomId could -1, if we play in the save, where 1 player left
+      if handIdToSlotIndex[I] <> -1 then //handIdToSlotIndex could -1, if we play in the save, where 1 player left
       begin
-        fLineIdToNetPlayerId[K] := handIdToRoomId[I];
+        fLineIdToSlotIndex[K] := handIdToSlotIndex[I];
         Inc(K);
       end;
 
@@ -178,7 +177,7 @@ begin
   for I := 1 to gNetworking.Room.Count do
     if gNetworking.Room[I].IsSpectator then
     begin
-      fLineIdToNetPlayerId[K] := I;
+      fLineIdToSlotIndex[K] := I;
       Inc(K);
     end;
 
@@ -188,7 +187,7 @@ end;
 
 procedure TKMGUIGameAllies.AlliesOnPlayerSetup;
 var
-  I, K, netI: Integer;
+  I, K: Integer;
   localeID: Integer;
 begin
   Allies_UpdateRoomMapping;
@@ -205,54 +204,54 @@ begin
   I := 0;
   for K := 0 to fLineCount - 1 do
   begin
-    netI := fLineIdToNetPlayerId[K];
+    var slotIndex := fLineIdToSlotIndex[K];
 
-    if netI = -1 then Continue; //In case we have AI players at hand, without NetI
+    if slotIndex = -1 then Continue; //In case we have AI players at hand, without slotIndex
 
     // Show players locale flag
-    if gNetworking.Room[netI].IsComputer then
-      Image_AlliesFlag[I].TexID := GetAIPlayerIcon(gNetworking.Room[netI].PlayerNetType)
+    if gNetworking.Room[slotIndex].IsComputer then
+      Image_AlliesFlag[I].TexID := GetAIPlayerIcon(gNetworking.Room[slotIndex].PlayerNetType)
     else
     begin
-      localeID := gResLocales.IndexByCode(gNetworking.Room[netI].LangCode);
+      localeID := gResLocales.IndexByCode(gNetworking.Room[slotIndex].LangCode);
       if localeID <> -1 then
         Image_AlliesFlag[I].TexID := gResLocales[localeID].FlagSpriteID
       else
         Image_AlliesFlag[I].TexID := 0;
     end;
-    if gNetworking.HostSlotIndex = netI then
+    if gNetworking.HostSlotIndex = slotIndex then
     begin
       Image_AlliesHostStar.Visible := True;
       Image_AlliesHostStar.Left := 190 + (I div ALLIES_ROWS)*380;
       Image_AlliesHostStar.Top := 80 + (I mod ALLIES_ROWS)*20;
     end;
 
-    if gNetworking.Room[netI].IsHuman then
-      Label_AlliesPlayer[I].Caption := gNetworking.Room[netI].NicknameU
+    if gNetworking.Room[slotIndex].IsHuman then
+      Label_AlliesPlayer[I].Caption := gNetworking.Room[slotIndex].NicknameU
     else
-      Label_AlliesPlayer[I].Caption := gHands[gNetworking.Room[netI].HandIndex].OwnerName;
+      Label_AlliesPlayer[I].Caption := gHands[gNetworking.Room[slotIndex].HandIndex].OwnerName;
 
-    if (gNetworking.MySlotIndex <> netI)                // If not my player
-      and gNetworking.Room[netI].IsHuman then // and is not Computer
+    if (gNetworking.MySlotIndex <> slotIndex)    // If not my player
+    and gNetworking.Room[slotIndex].IsHuman then // and is not Computer
     begin
       Update_Image_AlliesMute(Image_AlliesMute[I]);
       Image_AlliesMute[I].DoSetVisible; //Do not use .Show here, because we do not want change Parent.Visible status from here
     end;
 
-    if gNetworking.Room[netI].IsSpectator then
+    if gNetworking.Room[slotIndex].IsSpectator then
     begin
-      Label_AlliesPlayer[I].FontColor := gNetworking.Room[netI].FlagColorDef;
+      Label_AlliesPlayer[I].FontColor := gNetworking.Room[slotIndex].FlagColorDef;
       Label_AlliesTeam[I].Caption := gResTexts[TX_LOBBY_SPECTATOR];
     end
     else
     begin
-      Label_AlliesPlayer[I].FontColor := gHands[gNetworking.Room[netI].HandIndex].FlagColor;
-      if gNetworking.Room[netI].Team = 0 then
+      Label_AlliesPlayer[I].FontColor := gHands[gNetworking.Room[slotIndex].HandIndex].FlagColor;
+      if gNetworking.Room[slotIndex].Team = 0 then
         Label_AlliesTeam[I].Caption := '-'
       else
-        Label_AlliesTeam[I].Caption := IntToStr(gNetworking.Room[netI].Team);
+        Label_AlliesTeam[I].Caption := IntToStr(gNetworking.Room[slotIndex].Team);
 
-      case gHands[gNetworking.Room[netI].HandIndex].AI.WonOrLost of
+      case gHands[gNetworking.Room[slotIndex].HandIndex].AI.WonOrLost of
         wolNone: Image_AlliesWinLoss[I].Hide;
         wolWon:  begin
                     Image_AlliesWinLoss[I].TexID := 8;
@@ -267,16 +266,16 @@ begin
       end;
     end;
     // Strikethrough for disconnected players
-    Image_AlliesMute[I].Enabled := not gNetworking.Room[netI].Dropped;
-    if gNetworking.Room[netI].Dropped then
+    Image_AlliesMute[I].Enabled := not gNetworking.Room[slotIndex].Dropped;
+    if gNetworking.Room[slotIndex].Dropped then
       Image_AlliesMute[I].Hint := '';
-    Image_AlliesFlag[I].Enabled := not gNetworking.Room[netI].Dropped;
-    Label_AlliesPlayer[I].Strikethrough := gNetworking.Room[netI].Dropped;
+    Image_AlliesFlag[I].Enabled := not gNetworking.Room[slotIndex].Dropped;
+    Label_AlliesPlayer[I].Strikethrough := gNetworking.Room[slotIndex].Dropped;
     // Do not strike through '-' symbol, when player has no team
-    Label_AlliesTeam[I].Strikethrough := gNetworking.Room[netI].Dropped
-                                         and (gNetworking.Room[netI].Team <> 0);
-    Label_AlliesPing[I].Strikethrough := gNetworking.Room[netI].Dropped;
-    Label_AlliesFPS[I].Strikethrough := gNetworking.Room[netI].Dropped;
+    Label_AlliesTeam[I].Strikethrough := gNetworking.Room[slotIndex].Dropped
+                                         and (gNetworking.Room[slotIndex].Team <> 0);
+    Label_AlliesPing[I].Strikethrough := gNetworking.Room[slotIndex].Dropped;
+    Label_AlliesFPS[I].Strikethrough := gNetworking.Room[slotIndex].Dropped;
 
     Inc(I);
   end;
@@ -292,7 +291,7 @@ begin
   I := 0;
   for K := 0 to fLineCount - 1 do
   begin
-    slotIndex := fLineIdToNetPlayerId[K];
+    slotIndex := fLineIdToSlotIndex[K];
 
     if slotIndex = -1 then Continue; //In case we have AI players at hand, without slotIndex
 
@@ -336,8 +335,7 @@ procedure TKMGUIGameAllies.UpdateState;
 begin
   // Update peacetime counter
   if gGame.Options.Peacetime <> 0 then
-    Label_PeacetimeRemaining.Caption := Format(gResTexts[TX_MP_PEACETIME_REMAINING],
-                                               [TimeToString(gGame.GetPeacetimeRemaining)])
+    Label_PeacetimeRemaining.Caption := Format(gResTexts[TX_MP_PEACETIME_REMAINING], [TimeToString(gGame.GetPeacetimeRemaining)])
   else
     Label_PeacetimeRemaining.Caption := '';
 end;
