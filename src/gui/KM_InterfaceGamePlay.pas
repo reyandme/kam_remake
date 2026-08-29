@@ -78,7 +78,7 @@ type
     procedure Create_Controls;
     procedure Create_Replay;
     procedure Create_ScriptingOverlay;
-    procedure Create_Allies;
+    procedure Create_Allies(aParent: TKMPanel);
     procedure Create_Message;
     procedure Create_MessageLog;
     procedure Create_Pause;
@@ -904,7 +904,7 @@ begin
   Create_Controls; // Includes all the child pages
 
   Create_NetWait; // Overlay blocking everyhitng but sidestack and messages
-  Create_Allies; // MessagePage sibling
+  Create_Allies(Panel_Main); // MessagePage sibling
 
   // On top of NetWait to allow players to chat while waiting for late opponents
   fGuiGameChat := TKMGUIGameChat.Create(Panel_Main, fUIMode, ChatMessage);
@@ -1396,14 +1396,14 @@ end;
 
 
 { Allies page }
-procedure TKMGamePlayInterface.Create_Allies;
+procedure TKMGamePlayInterface.Create_Allies(aParent: TKMPanel);
 const
   LINE_W = 395;
 var
   I, K: Integer;
 begin
-  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT - 50,
-                                                             PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT + 50);
+  Panel_Allies := TKMPanel.Create(aParent, TOOLBAR_WIDTH, aParent.Height - MESSAGE_AREA_HEIGHT - 50,
+                                                          PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT + 50);
   Panel_Allies.Anchors := [anLeft, anBottom];
   Panel_Allies.Hide;
 
