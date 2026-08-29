@@ -3,7 +3,7 @@ unit KM_GUIGameAllies;
 interface
 uses
   KM_Controls, KM_ControlsBase, KM_ControlsDrop,
-  KM_Defaults, KM_InterfaceGame;
+  KM_Defaults;
 
 type
   TKMGUIGameAllies = class
@@ -54,6 +54,7 @@ uses
 const
   ALLIES_ROWS = 7;
   PANEL_ALLIES_WIDTH = 840;
+  PANEL_ALLIES_HEIGHT = 240;
 
 { TKMGUIGameAllies }
 constructor TKMGUIGameAllies.Create(aParent: TKMPanel);
@@ -64,8 +65,7 @@ var
 begin
   inherited Create;
 
-  Panel_Allies := TKMPanel.Create(aParent, TOOLBAR_WIDTH, aParent.Height - MESSAGE_AREA_HEIGHT - 50,
-                                                          PANEL_ALLIES_WIDTH, MESSAGE_AREA_HEIGHT + 50);
+  Panel_Allies := TKMPanel.Create(aParent, TOOLBAR_WIDTH, aParent.Height - PANEL_ALLIES_HEIGHT, PANEL_ALLIES_WIDTH, PANEL_ALLIES_HEIGHT);
   Panel_Allies.Anchors := [anLeft, anBottom];
   Panel_Allies.Hide;
 
