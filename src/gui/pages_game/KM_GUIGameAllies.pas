@@ -43,7 +43,7 @@ type
 
 implementation
 uses
-  SysUtils,
+  Math, SysUtils,
   KM_CommonTypes, KM_CommonUtils, KM_NetTypes, KM_Utils, KM_Log,
   KM_Game, KM_HandsCollection, KM_GameInputProcess, KM_Networking,
   KM_RenderUI, KM_Sound,
@@ -144,8 +144,10 @@ end;
 
 
 procedure TKMGUIGameAllies.Allies_UpdateRoomMapping;
+const
+  NO_SLOT = -1;
 var
-  I, J, K: Integer;
+  I, J: Integer;
   teams: TKMByteSetArray;
   handIdToSlotIndex: array [0..MAX_HANDS - 1] of Integer;
 begin
@@ -153,35 +155,41 @@ begin
   fLineCount := 0;
 
   for I := 0 to MAX_LOBBY_SLOTS - 1 do
-    fLineIdToSlotIndex[I] := -1;
+    fLineIdToSlotIndex[I] := NO_SLOT;
 
   for I := 0 to MAX_HANDS - 1 do
-    handIdToSlotIndex[I] := -1;
+    handIdToSlotIndex[I] := NO_SLOT;
 
+  // Map hands to slots
   for I := 1 to gNetworking.Room.Count do
-    if not gNetworking.Room[I].IsSpectator then
-      handIdToSlotIndex[gNetworking.Room[I].HandIndex] := I;
+  begin
+    var handIndex := gNetworking.Room[I].HandIndex;
 
+    // handIndex could be invalid:
+    //  - for Spectators,
+    //  - if we play in the save, where 1 player left (?)
+    //  - when the player reconnects while the Host goes in to lobby and selects new map/save (player gets packet with PlayerList without himself)
+    if InRange(handIndex, 0, gHands.Count - 1) then
+      handIdToSlotIndex[handIndex] := I;
+  end;
+
+  // Append players grouped into Teams first
   teams := gHands.Teams;
-
-  K := 0;
   for J := Low(teams) to High(teams) do
     for I in teams[J] do
-      if handIdToSlotIndex[I] <> -1 then //handIdToSlotIndex could -1, if we play in the save, where 1 player left
+      if handIdToSlotIndex[I] <> NO_SLOT then
       begin
-        fLineIdToSlotIndex[K] := handIdToSlotIndex[I];
-        Inc(K);
+        fLineIdToSlotIndex[fLineCount] := handIdToSlotIndex[I];
+        Inc(fLineCount);
       end;
 
-  // Spectators
+  // Append Spectators
   for I := 1 to gNetworking.Room.Count do
     if gNetworking.Room[I].IsSpectator then
     begin
-      fLineIdToSlotIndex[K] := I;
-      Inc(K);
+      fLineIdToSlotIndex[fLineCount] := I;
+      Inc(fLineCount);
     end;
-
-  fLineCount := K;
 end;
 
 
@@ -219,6 +227,7 @@ begin
       else
         Image_AlliesFlag[I].TexID := 0;
     end;
+
     if gNetworking.HostSlotIndex = slotIndex then
     begin
       Image_AlliesHostStar.Visible := True;
@@ -272,8 +281,7 @@ begin
     Image_AlliesFlag[I].Enabled := not gNetworking.Room[slotIndex].Dropped;
     Label_AlliesPlayer[I].Strikethrough := gNetworking.Room[slotIndex].Dropped;
     // Do not strike through '-' symbol, when player has no team
-    Label_AlliesTeam[I].Strikethrough := gNetworking.Room[slotIndex].Dropped
-                                         and (gNetworking.Room[slotIndex].Team <> 0);
+    Label_AlliesTeam[I].Strikethrough := gNetworking.Room[slotIndex].Dropped and (gNetworking.Room[slotIndex].Team <> 0);
     Label_AlliesPing[I].Strikethrough := gNetworking.Room[slotIndex].Dropped;
     Label_AlliesFPS[I].Strikethrough := gNetworking.Room[slotIndex].Dropped;
 

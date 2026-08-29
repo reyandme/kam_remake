@@ -34,6 +34,7 @@ KaM Remake Beta r_____ []
 + Fixed archers taking long detours in front of their group
 + Fixed crash on equipping a warrior after a recruit died inside the Barracks
 + Fixed crash on ordering a large group to walk far across a big map
++ Fixed crash on a player reconnecting to the MP game while the Host already quit to the lobby
 
 Campaigns:
 + Added new campaign - "The HeritAge"
