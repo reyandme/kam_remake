@@ -12,7 +12,6 @@ type
     fLineCount: Integer;
 
     procedure Allies_Mute(Sender: TObject);
-    procedure AlliesTeamChange(Sender: TObject);
     procedure Update_Image_AlliesMute(aImage: TKMImage);
     procedure Allies_UpdateRoomMapping;
   protected
@@ -23,7 +22,6 @@ type
       Image_AlliesWinLoss: array [0..MAX_LOBBY_SLOTS-1] of TKMImage;
       Image_AlliesFlag: array [0..MAX_LOBBY_SLOTS-1] of TKMImage;
       Label_AlliesPlayer: array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
-      DropBox_AlliesTeam: array [0..MAX_LOBBY_SLOTS-1] of TKMDropList;
       Label_AlliesTeam: array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
       Label_AlliesPing: array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
       Label_AlliesPingFpsSlash: array [0..MAX_LOBBY_SLOTS-1] of TKMLabel;
@@ -61,7 +59,7 @@ constructor TKMGUIGameAllies.Create(aParent: TKMPanel);
 const
   LINE_W = 395;
 var
-  I, K: Integer;
+  I: Integer;
 begin
   inherited Create;
 
@@ -100,13 +98,6 @@ begin
       Image_AlliesFlag[I] := TKMImage.Create(Panel_Allies,     15 + 60 + dx, 82 + dy, 16,  11,  0, rxGuiMain);
       Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,   15 + 80 + dx, 80 + dy, 140, 20, '', fntGrey, taLeft);
       Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,   15 + 230 + dx, 80 + dy, 120, 20, '', fntGrey, taLeft);
-      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies,15 + 230 + dx, 80 + dy, 120, 20, fntGrey, '', bsGame);
-      DropBox_AlliesTeam[I].Hide; // Use label for demos until we fix exploits
-      DropBox_AlliesTeam[I].Add('-');
-      for K := 1 to MAX_TEAMS do
-        DropBox_AlliesTeam[I].Add(IntToStr(K));
-      DropBox_AlliesTeam[I].OnChange := AlliesTeamChange;
-      DropBox_AlliesTeam[I].DropUp := True; // Doesn't fit if it drops down
       Label_AlliesPing[I] :=          TKMLabel.Create(Panel_Allies, 15 + 347 + dx, 80 + dy, '', fntGrey, taRight);
       Label_AlliesPingFpsSlash[I] :=  TKMLabel.Create(Panel_Allies, 15 + 354 + dx, 80 + dy, '', fntGrey, taCenter);
       Label_AlliesFPS[I] :=           TKMLabel.Create(Panel_Allies, 15 + 361 + dx, 80 + dy, '', fntGrey, taLeft);
@@ -208,7 +199,6 @@ begin
   for I := fLineCount to MAX_LOBBY_SLOTS - 1 do
   begin
     Label_AlliesPlayer[I].Hide;
-    DropBox_AlliesTeam[I].Hide;
     Label_AlliesTeam[I].Hide;
   end;
 
@@ -252,13 +242,11 @@ begin
     if gNetworking.Room[netI].IsSpectator then
     begin
       Label_AlliesPlayer[I].FontColor := gNetworking.Room[netI].FlagColorDef;
-      DropBox_AlliesTeam[I].ItemIndex := 0;
       Label_AlliesTeam[I].Caption := gResTexts[TX_LOBBY_SPECTATOR];
     end
     else
     begin
       Label_AlliesPlayer[I].FontColor := gHands[gNetworking.Room[netI].HandIndex].FlagColor;
-      DropBox_AlliesTeam[I].ItemIndex := gNetworking.Room[netI].Team;
       if gNetworking.Room[netI].Team = 0 then
         Label_AlliesTeam[I].Caption := '-'
       else
@@ -289,8 +277,6 @@ begin
                                          and (gNetworking.Room[netI].Team <> 0);
     Label_AlliesPing[I].Strikethrough := gNetworking.Room[netI].Dropped;
     Label_AlliesFPS[I].Strikethrough := gNetworking.Room[netI].Dropped;
-    DropBox_AlliesTeam[I].Enabled := (netI = gNetworking.MySlotIndex);
-    DropBox_AlliesTeam[I].Hide; // Use label for demos until we fix exploits
 
     Inc(I);
   end;
@@ -325,16 +311,6 @@ begin
     end;
     Inc(I);
   end;
-end;
-
-
-procedure TKMGUIGameAllies.AlliesTeamChange(Sender: TObject);
-var
-  I: Integer;
-begin
-  for I := 0 to MAX_LOBBY_SLOTS - 1 do
-    if (Sender = DropBox_AlliesTeam[I]) and DropBox_AlliesTeam[I].Enabled then
-      gGame.GameInputProcess.CmdGame(gicGameTeamChange, I+1, DropBox_AlliesTeam[I].ItemIndex);
 end;
 
 
