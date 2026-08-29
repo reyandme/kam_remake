@@ -8,8 +8,8 @@ uses
 type
   TKMGUIGameAllies = class
   private
-    fAllies_LineIdToNetPlayerId: array [0..MAX_LOBBY_SLOTS - 1] of Integer;
-    fAllies_LineCount: Integer;
+    fLineIdToNetPlayerId: array [0..MAX_LOBBY_SLOTS - 1] of Integer;
+    fLineCount: Integer;
 
     procedure Allies_Mute(Sender: TObject);
     procedure AlliesTeamChange(Sender: TObject);
@@ -128,17 +128,17 @@ begin
   var img := TKMImage(Sender);
 
   if gLog.IsDebugLogEnabled then
-    gLog.LogDebug(Format('TKMGamePlayInterface.Allies_mute: Image.tag = %d NetPlayerIndex = %d',
-                         [img.Tag, fAllies_LineIdToNetPlayerId[img.Tag]]));
+    gLog.LogDebug(Format('TKMGUIGameAllies.Allies_Mute: Image.tag = %d NetPlayerIndex = %d',
+                         [img.Tag, fLineIdToNetPlayerId[img.Tag]]));
 
-  gNetworking.ToggleMuted(fAllies_LineIdToNetPlayerId[img.Tag]);
+  gNetworking.ToggleMuted(fLineIdToNetPlayerId[img.Tag]);
   Update_Image_AlliesMute(img);
 end;
 
 
 procedure TKMGUIGameAllies.Update_Image_AlliesMute(aImage: TKMImage);
 begin
-  if gNetworking.IsMuted(fAllies_LineIdToNetPlayerId[aImage.Tag]) then
+  if gNetworking.IsMuted(fLineIdToNetPlayerId[aImage.Tag]) then
   begin
     aImage.Hint := gResTexts[TX_UNMUTE_PLAYER];
     aImage.TexID := 84;
@@ -157,10 +157,10 @@ var
   handIdToRoomId: array [0..MAX_HANDS - 1] of Integer;
 begin
   // First empty everything
-  fAllies_LineCount := 0;
+  fLineCount := 0;
 
   for I := 0 to MAX_LOBBY_SLOTS - 1 do
-    fAllies_LineIdToNetPlayerId[I] := -1;
+    fLineIdToNetPlayerId[I] := -1;
 
   for I := 0 to MAX_HANDS - 1 do
     handIdToRoomId[I] := -1;
@@ -176,7 +176,7 @@ begin
     for I in teams[J] do
       if handIdToRoomId[I] <> -1 then //handIdToRoomId could -1, if we play in the save, where 1 player left
       begin
-        fAllies_LineIdToNetPlayerId[K] := handIdToRoomId[I];
+        fLineIdToNetPlayerId[K] := handIdToRoomId[I];
         Inc(K);
       end;
 
@@ -184,11 +184,11 @@ begin
   for I := 1 to gNetworking.Room.Count do
     if gNetworking.Room[I].IsSpectator then
     begin
-      fAllies_LineIdToNetPlayerId[K] := I;
+      fLineIdToNetPlayerId[K] := I;
       Inc(K);
     end;
 
-  fAllies_LineCount := K;
+  fLineCount := K;
 end;
 
 
@@ -202,7 +202,7 @@ begin
   Image_AlliesHostStar.Hide;
 
   //Hide extra player lines
-  for I := fAllies_LineCount to MAX_LOBBY_SLOTS - 1 do
+  for I := fLineCount to MAX_LOBBY_SLOTS - 1 do
   begin
     Label_AlliesPlayer[I].Hide;
     DropBox_AlliesTeam[I].Hide;
@@ -210,9 +210,9 @@ begin
   end;
 
   I := 0;
-  for K := 0 to fAllies_LineCount - 1 do
+  for K := 0 to fLineCount - 1 do
   begin
-    netI := fAllies_LineIdToNetPlayerId[K];
+    netI := fLineIdToNetPlayerId[K];
 
     if netI = -1 then Continue; //In case we have AI players at hand, without NetI
 
@@ -301,9 +301,9 @@ begin
   Allies_UpdateRoomMapping;
 
   I := 0;
-  for K := 0 to fAllies_LineCount - 1 do
+  for K := 0 to fLineCount - 1 do
   begin
-    slotIndex := fAllies_LineIdToNetPlayerId[K];
+    slotIndex := fLineIdToNetPlayerId[K];
 
     if slotIndex = -1 then Continue; //In case we have AI players at hand, without slotIndex
 
@@ -365,4 +365,3 @@ end;
 
 
 end.
-
