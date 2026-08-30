@@ -97,8 +97,11 @@ begin
   // slip around the west corner into the entrance
   for var dX := -1 to 1 do
     for var dY := -1 to 1 do
-      if (dX <> 0) or (dY <> 1) then
-        gTerrain.ScriptTrySetTile(ENEMY_X + dX, ENEMY_Y + dY, BASE_TERRAIN[tkWater], 0);
+    begin
+      if (dX = 0) and (dY = 0) then Continue; // the enemy's own tile
+      if (dX = 0) and (dY = 1) then Continue; // the entrance, to the south
+      gTerrain.ScriptTrySetTile(ENEMY_X + dX, ENEMY_Y + dY, BASE_TERRAIN[tkWater], 0);
+    end;
   gTerrain.ScriptTrySetTile(ENEMY_X - 1, ENEMY_Y + 2, BASE_TERRAIN[tkWater], 0);
 
   // 8 trees, matching Kromster's screenshot, well clear of the water and the approach
