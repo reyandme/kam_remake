@@ -9,14 +9,23 @@ type
   // The case Krom asked for in PR #290: 8 trees with 2 knights of one hand and 1 knight
   // of another hand around them.
   //
-  // The lone enemy knight sits in a pocket of trees that has a single entrance, so only one
-  // of the two attackers can reach him. The second one has nothing better to do than to wait
-  // next to his fighting comrade, ready to take his place.
+  // Trees turned out not to fit this role: `data/defines/mapelem.dat` gives every chopable
+  // tree, at every growth stage, AllBlocked = False - a unit can walk straight onto a tree's
+  // tile, only diagonal cuts across it are blocked (DiagonalBlocked). GetClosestTile (the
+  // function PR #290 rewrites) never looks at diagonal blocking at all, only CheckPassability,
+  // the WalkConnect group and HasUnit - so no arrangement of trees can wall anything off for it.
+  // The pocket wall here is water instead (as in the already-merged KM_Test_Walk_UnwalkableTarget);
+  // the 8 trees are planted along the approach purely as the scenery Krom's screenshot showed,
+  // and play no part in the mechanism.
   //
-  // Instead he walks around the trees to the opposite side of the pocket and stands there
-  // for the rest of the fight. TKMUnitGroup.CheckForFight keeps handing him
+  // The lone enemy knight sits in a pocket that has a single entrance, so only one of the two
+  // attackers can reach him. The second one has nothing better to do than to wait next to his
+  // fighting comrade, ready to take his place.
+  //
+  // Instead he walks around to the opposite side of the pocket and stands there for the rest
+  // of the fight. TKMUnitGroup.CheckForFight keeps handing him
   // OrderWalk(offender.PositionNext, False), GetClosestTile spirals out from the enemy tile,
-  // every tile around the enemy is either a tree or taken by his comrade, and the first tile
+  // every tile around the enemy is either water or taken by his comrade, and the first tile
   // of the next ring is the one he is standing on himself - which the
   // "not HasUnit(T) or KMSamePoint(T, aOriginLoc)" half of the occupancy check accepts.
   // GetClosestTile returns his own position, TakeNextOrder skips SetActionWalkToSpot,
@@ -36,6 +45,7 @@ type
     // A member who is not fighting himself is expected to wait within this range of the one who is
     HELP_RANGE = 2;
   private
+    fWater: array [0..7] of TKMPoint;
     fTrees: array [0..7] of TKMPoint;
     fAttackers: TKMUnitGroup;
     fDefenders: TKMUnitGroup;
@@ -63,15 +73,16 @@ uses
   SysUtils,
   KM_Defaults, KM_Terrain,
   KM_GameApp, KM_HandsCollection, KM_HandTypes,
-  KM_ResMapElements, KM_ResTypes, KM_UnitWarrior;
+  KM_ResMapElements, KM_ResTilesetTypes, KM_ResTypes, KM_UnitWarrior;
 
 
 { TKMTest_MeleeAfkBehindTrees }
+// Decorative only - see the AllBlocked note on the class comment. Planted well clear of
+// the pocket and its approach so it can never interfere with what the test actually checks
 procedure TKMTest_MeleeAfkBehindTrees.PlantTree(const aLoc: TKMPoint);
 var
   treeObjID: Integer;
 begin
-  // Set a full-grown tree, it blocks both the tile and the diagonals around it
   treeObjID := gTerrain.ChooseTreeToPlace(aLoc, caAgeFull, True);
   gTerrain.SetObject(aLoc, treeObjID);
   gTerrain.Land[aLoc.Y, aLoc.X].TreeAge := TREE_AGE_FULL;
@@ -96,27 +107,43 @@ begin
   gHands[0].HandType := hndHuman;
   gHands[1].HandType := hndHuman;
 
-  // 8 trees around the enemy tile. Every neighbour of it is a tree, except for the
-  // entrance to the south, the last tree just extends the west wall past the entrance
-  fTrees[0] := KMPoint(ENEMY_X - 1, ENEMY_Y - 1);
-  fTrees[1] := KMPoint(ENEMY_X,     ENEMY_Y - 1);
-  fTrees[2] := KMPoint(ENEMY_X + 1, ENEMY_Y - 1);
-  fTrees[3] := KMPoint(ENEMY_X - 1, ENEMY_Y);
-  fTrees[4] := KMPoint(ENEMY_X + 1, ENEMY_Y);
-  fTrees[5] := KMPoint(ENEMY_X - 1, ENEMY_Y + 1);
-  fTrees[6] := KMPoint(ENEMY_X + 1, ENEMY_Y + 1);
-  fTrees[7] := KMPoint(ENEMY_X - 1, ENEMY_Y + 2);
+  // Water walls the enemy tile in. Every neighbour of it is water, except for the entrance
+  // to the south; the last tile extends the west wall past the entrance so a unit can't just
+  // slip around the corner. Water genuinely fails CheckPassability(tpWalk), unlike a tree
+  fWater[0] := KMPoint(ENEMY_X - 1, ENEMY_Y - 1);
+  fWater[1] := KMPoint(ENEMY_X,     ENEMY_Y - 1);
+  fWater[2] := KMPoint(ENEMY_X + 1, ENEMY_Y - 1);
+  fWater[3] := KMPoint(ENEMY_X - 1, ENEMY_Y);
+  fWater[4] := KMPoint(ENEMY_X + 1, ENEMY_Y);
+  fWater[5] := KMPoint(ENEMY_X - 1, ENEMY_Y + 1);
+  fWater[6] := KMPoint(ENEMY_X + 1, ENEMY_Y + 1);
+  fWater[7] := KMPoint(ENEMY_X - 1, ENEMY_Y + 2);
 
-  for var I := Low(fTrees) to High(fTrees) do
+  for var I := Low(fWater) to High(fWater) do
   begin
-    PlantTree(fTrees[I]);
-    AssertTrue(not gTerrain.CheckPassability(fTrees[I], tpWalk),
-      Format('Setup: tree at %s should have blocked the tile', [fTrees[I].ToString]));
+    AssertTrue(gTerrain.ScriptTrySetTile(fWater[I].X, fWater[I].Y, BASE_TERRAIN[tkWater], 0),
+      Format('Setup: could not turn %s into water', [fWater[I].ToString]));
+    AssertTrue(not gTerrain.CheckPassability(fWater[I], tpWalk),
+      Format('Setup: water at %s should have blocked the tile', [fWater[I].ToString]));
   end;
 
   // The single way in and the way up to it have to stay open
   AssertTrue(gTerrain.CheckPassability(KMPoint(ENEMY_X, ENEMY_Y + 1), tpWalk), 'Setup: the pocket entrance should be walkable');
   AssertTrue(gTerrain.CheckPassability(KMPoint(ENEMY_X, ENEMY_Y + 2), tpWalk), 'Setup: the approach to the pocket should be walkable');
+
+  // 8 decorative trees, matching Krom's screenshot, dotted around the approach well clear
+  // of the water and of every tile a unit in this test could stand on
+  fTrees[0] := KMPoint(ENEMY_X - 3, ENEMY_Y - 1);
+  fTrees[1] := KMPoint(ENEMY_X + 3, ENEMY_Y - 1);
+  fTrees[2] := KMPoint(ENEMY_X - 3, ENEMY_Y + 1);
+  fTrees[3] := KMPoint(ENEMY_X + 3, ENEMY_Y + 1);
+  fTrees[4] := KMPoint(ENEMY_X - 3, ENEMY_Y + 3);
+  fTrees[5] := KMPoint(ENEMY_X + 3, ENEMY_Y + 3);
+  fTrees[6] := KMPoint(ENEMY_X - 3, ENEMY_Y + 5);
+  fTrees[7] := KMPoint(ENEMY_X + 3, ENEMY_Y + 5);
+
+  for var I := Low(fTrees) to High(fTrees) do
+    PlantTree(fTrees[I]);
 
   fDefenders := gHands[1].AddUnitGroup(utKnight, KMPoint(ENEMY_X, ENEMY_Y), dirS, 1, 1);
   fAttackers := gHands[0].AddUnitGroup(utKnight, KMPoint(ATTACKERS_X, ATTACKERS_Y), dirN, 2, 2);
@@ -237,7 +264,7 @@ end;
 
 class function TKMTest_MeleeAfkBehindTrees.TestDescription: string;
 begin
-  Result := 'A knight who cannot fit next to the enemy should wait by his fighting comrade, not stand afk behind the trees.';
+  Result := 'A knight who cannot fit next to the enemy should wait by his fighting comrade, not stand afk elsewhere.';
 end;
 
 
