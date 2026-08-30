@@ -226,7 +226,7 @@ end;
 { TKMChartWarrior }
 constructor TKMChartWarrior.Create(aType: TKMChartWarriorType);
 begin
-  //todo: Missing inherited
+  inherited Create;
 
   fType := aType;
   case aType of
