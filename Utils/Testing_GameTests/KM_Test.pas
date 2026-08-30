@@ -58,6 +58,7 @@ type
     fOnProgress: TUnicodeStringEvent;
     fOnShouldStop: TBooleanFuncSimple;
     function TimeIsOut: Boolean;
+    procedure BeforeTick(aTick: Cardinal); virtual;
     procedure DoTick(aTick: Cardinal; var aKeepGoing: Boolean); virtual;
     procedure SetUp; virtual; abstract;
     procedure TearDown; virtual;
@@ -147,6 +148,14 @@ begin
 end;
 
 
+// Runs before the tick is played, where DoTick runs after it. Multiplayer tests pump the network
+// here, so that packets are delivered before the tick that is meant to consume them
+procedure TKMTest.BeforeTick(aTick: Cardinal);
+begin
+  //
+end;
+
+
 procedure TKMTest.DoTick(aTick: Cardinal; var aKeepGoing: Boolean);
 begin
   //
@@ -167,6 +176,8 @@ begin
 
     for var I := 0 to fDuration - 1 do
     begin
+      BeforeTick(I + 1);
+
       gGameApp.Game.UpdateGame;
 
       if (TimeGet - lastRenderTime) >= PaceRender then
@@ -202,12 +213,13 @@ end;
 
 function TKMTest.Run(aSeed: Integer): TKMRunResults;
 begin
-  SetUp;
-
   fResults.TestResult := trSuccess;
   fResults.TestMessage := '';
 
   try
+    // SetUp runs inside the try so that a failure in it still reaches TearDown below. Otherwise a
+    // half built test - a live server and open sockets, say - poisons every later test in the batch
+    SetUp;
     Execute(aSeed);
   except
     on E: ETestFailed do
