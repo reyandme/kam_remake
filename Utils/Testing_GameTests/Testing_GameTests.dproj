@@ -144,6 +144,7 @@
         <DCCReference Include="KM_Test_Fight95.pas"/>
         <DCCReference Include="KM_Test_Hungarian_LongWalk.pas"/>
         <DCCReference Include="KM_Test_Hungarian_SwapPerf.pas"/>
+        <DCCReference Include="KM_Test_Melee_AfkBehindTrees.pas"/>
         <DCCReference Include="KM_Test_Mill.pas"/>
         <DCCReference Include="KM_Test_Recruit_EatsAndReturns.pas"/>
         <DCCReference Include="KM_Test_Recruit_EquipWhileEating.pas"/>
